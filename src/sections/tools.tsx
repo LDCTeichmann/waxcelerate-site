@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Calculator, Link2, Package, PiggyBank, RotateCcw, ExternalLink } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { useLanguage } from '@/hooks/useLanguage';
-import { waxIntervals, compatibilityMatrix, getProductById } from '@/lib/data';
+import { waxIntervals, compatibilityMatrix, getProductById, type Product } from '@/lib/data';
 
 const BLUE = '#5B7AEE';
 
@@ -96,8 +96,12 @@ function RewaxCalculator() {
   const [terrain, setTerrain] = useState<'strasse' | 'gravel' | 'mtb'>('strasse');
   const [kmPerWeek, setKmPerWeek] = useState(100);
 
+  const MAX_REWAX_WEEKS = 26; // ~6 months — wax oxidizes regardless of riding distance
+
   const interval = waxIntervals[weather][terrain];
-  const weeks = Math.max(1, Math.round(interval / kmPerWeek));
+  const rawWeeks = kmPerWeek > 0 ? Math.round(interval / kmPerWeek) : MAX_REWAX_WEEKS;
+  const weeks = Math.min(rawWeeks, MAX_REWAX_WEEKS);
+  const weeksCapped = rawWeeks > MAX_REWAX_WEEKS;
 
   const weatherOpts = [
     { value: 'trocken', label: t.tools.rewax.dry },
@@ -146,6 +150,7 @@ function RewaxCalculator() {
           <p className="text-[13px] text-[#4A4A62] text-center mt-1">km bis zum nächsten Rewaxen</p>
           <p className="text-[12px] text-[#6B7088] text-center mt-0.5">
             ≈ {weeks} {weeks === 1 ? 'Woche' : 'Wochen'} bei {kmPerWeek} km/Wo.
+            {weeksCapped && <span className="text-[#3A3A52]"> (max. — Wachs oxidiert)</span>}
           </p>
         </ResultBox>
       </div>
@@ -153,33 +158,51 @@ function RewaxCalculator() {
   );
 }
 
-// ─── Tool 2: Chain Compatibility Check ───────────────────────────────────────
-function CompatibilityCheck() {
+// ─── Tool 2: Bike Questionnaire ───────────────────────────────────────────────
+function BikeQuestionnaire() {
   const { t, lang } = useLanguage();
-  const [brand, setBrand] = useState<'shimano' | 'sram' | 'campagnolo'>('shimano');
-  const [speed, setSpeed] = useState<'11' | '12'>('11');
+  const [brand, setBrand] = useState<'shimano' | 'sram' | 'campagnolo' | 'unknown'>('shimano');
+  const [speed, setSpeed] = useState<'9-10' | '11' | '12'>('11');
 
-  const compatibleChains = (compatibilityMatrix[brand]?.[speed] || [])
-    .map(id => getProductById(id))
-    .filter(Boolean);
+  const is9or10 = speed === '9-10';
+  const speedKey = speed as '11' | '12';
+
+  let recommendedChains: Product[] = [];
+  if (!is9or10) {
+    if (brand === 'unknown') {
+      const ybnId = speed === '11' ? 'chain-ybn11' : 'chain-ybn12';
+      const ybn = getProductById(ybnId);
+      if (ybn) recommendedChains = [ybn];
+    } else {
+      recommendedChains = (compatibilityMatrix[brand]?.[speedKey] || [])
+        .map(id => getProductById(id))
+        .filter((p): p is Product => Boolean(p));
+    }
+  }
 
   const brandOpts = [
     { value: 'shimano', label: 'Shimano' },
     { value: 'sram', label: 'SRAM' },
     { value: 'campagnolo', label: 'Campagnolo' },
+    { value: 'unknown', label: 'Weiß nicht' },
+  ];
+  const speedOpts = [
+    { value: '9-10', label: '9/10-fach' },
+    { value: '11', label: '11-fach' },
+    { value: '12', label: '12-fach' },
   ];
 
   return (
     <ToolCard>
       <ToolHeader
         icon={<Link2 className="h-4 w-4" style={{ color: '#8AAAFF' }} />}
-        title={t.tools.compatibility.title}
-        subtitle="Sofort die passende gewachste Kette für dein Antriebssystem finden."
+        title="Welche Kette passt zu dir?"
+        subtitle="2 Angaben — sofortige Empfehlung."
       />
       <div className="px-6 flex flex-col flex-1 gap-5 pb-6">
         <div className="space-y-5 flex-1">
           <div>
-            <FieldLabel label={t.tools.compatibility.brand} />
+            <FieldLabel label="Antrieb" />
             <div className="flex flex-wrap gap-2">
               {brandOpts.map(o => (
                 <button key={o.value} onClick={() => setBrand(o.value as any)} className={tog(brand === o.value)}>{o.label}</button>
@@ -187,41 +210,59 @@ function CompatibilityCheck() {
             </div>
           </div>
           <div>
-            <FieldLabel label={t.tools.compatibility.speed} />
+            <FieldLabel label="Gänge" />
             <div className="flex flex-wrap gap-2">
-              {['11', '12'].map(o => (
-                <button key={o} onClick={() => setSpeed(o as any)} className={tog(speed === o)}>{o}-fach</button>
+              {speedOpts.map(o => (
+                <button key={o.value} onClick={() => setSpeed(o.value as any)} className={tog(speed === o.value)}>{o.label}</button>
               ))}
             </div>
           </div>
         </div>
 
-        <div>
-          <p className="text-[10px] text-[#4A4A62] uppercase tracking-[0.12em] mb-3">Passende Ketten</p>
-          <div className="space-y-1.5">
-            {compatibleChains.length === 0 ? (
+        {is9or10 ? (
+          <ResultBox>
+            <p className="text-[10px] text-[#4A4A62] uppercase tracking-[0.1em] mb-2">Empfehlung</p>
+            <p className="text-[12px] text-[#7A7A9A] leading-snug mb-3">
+              Für 9/10-fach bieten wir keine vorgewachsten Ketten an — aber deine bestehende Kette kannst du einfach selbst wachsen.
+            </p>
+            <a href="https://www.ebay.de/itm/395811183957" target="_blank" rel="noopener noreferrer">
+              <div
+                className="rounded-lg border p-3 hover:border-[#5B7AEE]/50 transition-colors"
+                style={{ borderColor: 'rgba(91,122,238,0.3)', background: 'rgba(91,122,238,0.06)' }}
+              >
+                <p className="text-[13px] font-semibold text-[#A8BFFF]">Classic Kettenwachs 300g</p>
+                <p className="text-[11px] mt-0.5" style={{ color: '#5B7AEE' }}>22,95 € · Auf eBay ↗</p>
+              </div>
+            </a>
+          </ResultBox>
+        ) : (
+          <div>
+            <p className="text-[10px] text-[#4A4A62] uppercase tracking-[0.12em] mb-3">Passende Ketten</p>
+            {recommendedChains.length === 0 ? (
               <p className="text-[13px] text-[#3E3E52] text-center py-4">Keine Ketten gefunden</p>
             ) : (
-              compatibleChains.map((chain: any) => (
-                <div
-                  key={chain.id}
-                  className="flex items-center justify-between rounded-lg px-3 py-2.5 border border-[#181826] hover:border-[#252538] transition-colors"
-                  style={{ background: 'rgba(6,6,14,0.7)' }}
-                >
-                  <div>
-                    <p className="text-[13px] text-[#C0C4DC] leading-tight">{lang === 'de' ? chain.title : chain.titleEn}</p>
-                    <p className="text-[12px] font-semibold mt-0.5" style={{ color: '#8AAAFF' }}>{chain.price.toFixed(2)} €</p>
+              <div className="space-y-1.5">
+                {recommendedChains.map((chain) => (
+                  <div
+                    key={chain.id}
+                    className="flex items-center justify-between rounded-lg px-3 py-2.5 border border-[#181826] hover:border-[#252538] transition-colors"
+                    style={{ background: 'rgba(6,6,14,0.7)' }}
+                  >
+                    <div>
+                      <p className="text-[13px] text-[#C0C4DC] leading-tight">{lang === 'de' ? chain.title : chain.titleEn}</p>
+                      <p className="text-[12px] font-semibold mt-0.5" style={{ color: '#8AAAFF' }}>{chain.price.toFixed(2)} €</p>
+                    </div>
+                    <a href={chain.ebayUrl} target="_blank" rel="noopener noreferrer">
+                      <button className="p-1.5 rounded-md border border-[#1E1E2C] text-[#3E3E52] hover:border-[#5B7AEE]/30 hover:text-[#8AAAFF] transition-all">
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </button>
+                    </a>
                   </div>
-                  <a href={chain.ebayUrl} target="_blank" rel="noopener noreferrer">
-                    <button className="p-1.5 rounded-md border border-[#1E1E2C] text-[#3E3E52] hover:border-[#5B7AEE]/30 hover:text-[#8AAAFF] transition-all">
-                      <ExternalLink className="h-3.5 w-3.5" />
-                    </button>
-                  </a>
-                </div>
-              ))
+                ))}
+              </div>
             )}
           </div>
-        </div>
+        )}
       </div>
     </ToolCard>
   );
@@ -234,14 +275,24 @@ function WaxStockCalculator() {
   const [kmPerMonth, setKmPerMonth] = useState(400);
   const [weather, setWeather] = useState<'trocken' | 'gemischt' | 'nass'>('gemischt');
 
-  const intervals = { trocken: 500, gemischt: 350, nass: 200 };
-  const appsPerMonth = kmPerMonth / intervals[weather];
-  const waxPerMonth = Math.round(appsPerMonth * 20 * chainCount);
-  const months300 = Math.max(1, Math.round(300 / Math.max(1, waxPerMonth)));
-  const months500 = Math.max(1, Math.round(500 / Math.max(1, waxPerMonth)));
+  // Use road intervals from waxIntervals (consistent with RewaxCalculator)
+  const roadIntervals = {
+    trocken: waxIntervals.trocken.strasse,
+    gemischt: waxIntervals.gemischt.strasse,
+    nass: waxIntervals.nass.strasse,
+  };
+  const WAX_GRAMS_PER_APP = 15; // net hot-wax consumption per dip (gross drips return to pot)
+  const MAX_MONTHS = 30; // shelf life cap ~2.5 years
+
+  const appsPerMonth = kmPerMonth / roadIntervals[weather];
+  const waxPerMonth = appsPerMonth * WAX_GRAMS_PER_APP * chainCount;
+  const tooLittle = waxPerMonth < 5;
+
+  const months300 = tooLittle ? MAX_MONTHS : Math.min(Math.max(1, Math.round(300 / waxPerMonth)), MAX_MONTHS);
+  const months500 = tooLittle ? MAX_MONTHS : Math.min(Math.max(1, Math.round(500 / waxPerMonth)), MAX_MONTHS);
   const cost300 = (22.95 / months300).toFixed(2);
   const cost500 = (29.95 / months500).toFixed(2);
-  const rec = waxPerMonth > 80 ? '500' : waxPerMonth < 30 ? '300' : parseFloat(cost500) < parseFloat(cost300) ? '500' : 'either';
+  const rec = waxPerMonth > 80 ? '500' : parseFloat(cost500) < parseFloat(cost300) ? '500' : '300';
 
   const weatherOpts = [
     { value: 'trocken', label: t.tools.rewax.dry },
@@ -277,30 +328,46 @@ function WaxStockCalculator() {
         </div>
 
         <ResultBox>
-          <p className="text-[10px] text-[#4A4A62] uppercase tracking-[0.1em] mb-0.5">Verbrauch / Monat</p>
-          <p className="text-[38px] font-bold text-white leading-none tracking-tight">{waxPerMonth} <span className="text-[20px] text-[#6B7088] font-normal">g</span></p>
-          <p className="text-[11px] text-[#4A4A62] mt-1 mb-4">Empfohlene Packung:</p>
-          <div className="grid grid-cols-2 gap-2">
-            {['300', '500'].map(size => {
-              const isRec = rec === size;
-              return (
-                <a key={size} href={size === '300' ? 'https://www.ebay.de/itm/395811183957' : 'https://www.ebay.de/itm/395811184583'} target="_blank" rel="noopener noreferrer">
-                  <div
-                    className="rounded-lg border p-3 text-center transition-all hover:border-[#5B7AEE]/40"
-                    style={{
-                      borderColor: isRec ? 'rgba(91,122,238,0.45)' : '#1E1E2C',
-                      background: isRec ? 'rgba(91,122,238,0.08)' : 'transparent',
-                    }}
-                  >
-                    <p className="text-[12px] font-semibold text-[#C0C4DC]">{size}g — {size === '300' ? '22,95' : '29,95'} €</p>
-                    <p className="text-[10px] text-[#4A4A62] mt-0.5">
-                      {size === '300' ? months300 : months500} Mo. · {size === '300' ? cost300 : cost500} €/Mo.
-                    </p>
-                  </div>
-                </a>
-              );
-            })}
-          </div>
+          {tooLittle ? (
+            <>
+              <p className="text-[10px] text-[#4A4A62] uppercase tracking-[0.1em] mb-2">Empfehlung</p>
+              <p className="text-[13px] text-[#7A7A9A] leading-snug">
+                Dein Verbrauch ist sehr niedrig — der 300g-Block reicht länger als seine Haltbarkeit (~2–3 Jahre). Die 300g genügen vollkommen.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-[10px] text-[#4A4A62] uppercase tracking-[0.1em] mb-0.5">Empfohlene Packung</p>
+              <p className="text-[11px] text-[#4A4A62] mb-4">
+                ~{Math.round(waxPerMonth)}g/Monat · {(appsPerMonth * chainCount).toFixed(1)} Rewax-Sessions/Monat
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                {(['300', '500'] as const).map(size => {
+                  const isRec = rec === size;
+                  const months = size === '300' ? months300 : months500;
+                  const cost = size === '300' ? cost300 : cost500;
+                  const price = size === '300' ? '22,95' : '29,95';
+                  const url = size === '300' ? 'https://www.ebay.de/itm/395811183957' : 'https://www.ebay.de/itm/395811184583';
+                  return (
+                    <a key={size} href={url} target="_blank" rel="noopener noreferrer">
+                      <div
+                        className="rounded-lg border p-3 text-center transition-all hover:border-[#5B7AEE]/40"
+                        style={{
+                          borderColor: isRec ? 'rgba(91,122,238,0.45)' : '#1E1E2C',
+                          background: isRec ? 'rgba(91,122,238,0.08)' : 'transparent',
+                        }}
+                      >
+                        {isRec && <p className="text-[9px] text-[#5B7AEE] uppercase tracking-[0.12em] mb-1">Empfohlen</p>}
+                        <p className="text-[20px] font-bold text-white leading-none">~{months}<span className="text-[12px] font-normal text-[#6B7088] ml-1">Mo.</span></p>
+                        <p className="text-[11px] text-[#C0C4DC] mt-1">{size}g — {price} €</p>
+                        <p className="text-[10px] text-[#4A4A62] mt-0.5">{cost} €/Monat</p>
+                      </div>
+                    </a>
+                  );
+                })}
+              </div>
+            </>
+          )}
         </ResultBox>
       </div>
     </ToolCard>
@@ -347,13 +414,24 @@ function CostSavingsCalculator() {
   const { t } = useLanguage();
   const [kmPerYear, setKmPerYear] = useState(5000);
   const [chainPrice, setChainPrice] = useState(45);
-  const [cassettePrice, setCassettePrice] = useState(80);
 
-  const waxCost = Math.round((kmPerYear / 6000) * chainPrice + (kmPerYear / 15000) * cassettePrice + (kmPerYear / 400) * 5);
-  const oilCost = Math.round((kmPerYear / 2500) * chainPrice + (kmPerYear / 8000) * cassettePrice + 48);
-  const savings = oilCost - waxCost;
-  const maxCost = Math.max(waxCost, oilCost);
-  const waxPct = Math.round((waxCost / maxCost) * 100);
+  const CASSETTE_PRICE = 80;
+  const WAX_APP_COST = 1.5;   // €/app — 15g × €29.95/500g ≈ €0.90 + overhead
+  const REWAX_INTERVAL = 500; // km, consistent with road/dry waxIntervals
+
+  const waxCost = Math.round(
+    (kmPerYear / 6000) * chainPrice +
+    (kmPerYear / 15000) * CASSETTE_PRICE +
+    (kmPerYear / REWAX_INTERVAL) * WAX_APP_COST
+  );
+  const oilCost = Math.round(
+    (kmPerYear / 2500) * chainPrice +
+    (kmPerYear / 8000) * CASSETTE_PRICE +
+    48
+  );
+  const savings = Math.max(0, oilCost - waxCost);
+  // Oil is always the baseline (100%) — wax bar is proportional
+  const waxBarPct = Math.round((waxCost / Math.max(oilCost, 1)) * 100);
 
   return (
     <ToolCard>
@@ -372,21 +450,19 @@ function CostSavingsCalculator() {
             <FieldLabel label={t.tools.savings.chainPrice} value={`${chainPrice} €`} />
             <Slider value={[chainPrice]} onValueChange={v => setChainPrice(v[0])} min={20} max={100} step={5} className="py-1" />
           </div>
-          <div>
-            <FieldLabel label={t.tools.savings.cassettePrice} value={`${cassettePrice} €`} />
-            <Slider value={[cassettePrice]} onValueChange={v => setCassettePrice(v[0])} min={30} max={200} step={10} className="py-1" />
-          </div>
+          <p className="text-[10px] text-[#2E2E42] leading-relaxed -mt-2">
+            Kassette €80 · Wachskette 6.000km · Ölkette 2.500km · Wachsen €1,50/Session
+          </p>
         </div>
 
         <ResultBox>
-          {/* Bar chart comparison */}
           <div className="space-y-3 mb-4">
             <div>
               <div className="flex justify-between items-baseline mb-1.5">
                 <span className="text-[11px] text-[#A8BFFF]">Wachs</span>
                 <span className="text-[13px] font-bold text-white">{waxCost} €</span>
               </div>
-              <AnimatedBar pct={waxPct} color="linear-gradient(90deg, #4A68E8, #7090FF)" delay={0} />
+              <AnimatedBar pct={waxBarPct} color="linear-gradient(90deg, #4A68E8, #7090FF)" delay={0} />
             </div>
             <div>
               <div className="flex justify-between items-baseline mb-1.5">
@@ -408,158 +484,104 @@ function CostSavingsCalculator() {
   );
 }
 
-// ─── Tool 5: Chain Rotation Planner ──────────────────────────────────────────
-const STATE_LABELS = ['Im Einsatz', 'Wartet', 'Im Wachs'];
-const STATE_COLORS = ['#5B7AEE', '#2A2A42', '#1A1A2E'];
-const STATE_TEXT = ['#A8BFFF', '#52526A', '#3A3A52'];
+// ─── Tool 5: Rotation ROI ─────────────────────────────────────────────────────
+function RotationROI() {
+  const [kmPerYear, setKmPerYear] = useState(5000);
+  const [cassettePrice, setCassettePrice] = useState(80);
 
-function CycleDiagram({ chainCount }: { chainCount: number }) {
-  const [active, setActive] = useState(0);
-  useEffect(() => {
-    const timer = setInterval(() => setActive(a => (a + 1) % chainCount), 1800);
-    return () => clearInterval(timer);
-  }, [chainCount]);
+  const CHAIN_LIFE = 6000;
+  const CHAIN_PRICE = 38; // avg pre-waxed chain
+  const WAX_COST_PER_APP = 1.5;
+  const REWAX_KM = 500;
+  const BASE_CASSETTE_KM = 12000; // single waxed chain
+  const CASSETTE_MULT: Record<number, number> = { 1: 1, 2: 1.8, 3: 2.4 };
+  const YEARS = 5;
+  const totalKm = kmPerYear * YEARS;
 
-  const svgW = 220;
-  const svgH = 140;
-  const cx = svgW / 2;
-  const cy = svgH / 2 + 4;
-  const radius = chainCount === 2 ? 56 : chainCount === 3 ? 52 : 48;
-  const nodeR = 26;
+  const calc = (n: number) => {
+    const cassetteKm = BASE_CASSETTE_KM * CASSETTE_MULT[n];
+    const cassetteEveryYears = parseFloat((cassetteKm / kmPerYear).toFixed(1));
+    const cassetteCost = (totalKm / cassetteKm) * cassettePrice;
+    const chainsConsumed = Math.ceil(totalKm / CHAIN_LIFE) + (n - 1);
+    const chainCost = chainsConsumed * CHAIN_PRICE;
+    const waxCost = (totalKm / REWAX_KM) * WAX_COST_PER_APP;
+    const totalCost = Math.round(chainCost + cassetteCost + waxCost);
+    const rewaxEveryWeeks = Math.max(1, Math.round((REWAX_KM * n) / (kmPerYear / 52)));
+    return { cassetteEveryYears, totalCost, rewaxEveryWeeks };
+  };
 
-  const nodes = Array.from({ length: chainCount }, (_, i) => {
-    const angle = (i / chainCount) * 2 * Math.PI - Math.PI / 2;
-    return {
-      x: cx + radius * Math.cos(angle),
-      y: cy + radius * Math.sin(angle),
-      stateIdx: i === 0 ? 0 : i === chainCount - 1 ? 2 : 1,
-      label: `K${i + 1}`,
-    };
-  });
+  const r1 = calc(1), r2 = calc(2), r3 = calc(3);
+  const savings2 = r1.totalCost - r2.totalCost;
 
-  // Build arrows: node[i] → node[(i+1) % n]
-  const arrows = nodes.map((from, i) => {
-    const to = nodes[(i + 1) % chainCount];
-    const dx = to.x - from.x;
-    const dy = to.y - from.y;
-    const dist = Math.sqrt(dx * dx + dy * dy);
-    const ux = dx / dist;
-    const uy = dy / dist;
-    // Start/end offset by nodeR + 2 to clear circle border
-    const x1 = from.x + ux * (nodeR + 3);
-    const y1 = from.y + uy * (nodeR + 3);
-    const x2 = to.x - ux * (nodeR + 7);
-    const y2 = to.y - uy * (nodeR + 7);
-    return { x1, y1, x2, y2 };
-  });
-
-  return (
-    <svg width={svgW} height={svgH} viewBox={`0 0 ${svgW} ${svgH}`} className="mx-auto overflow-visible">
-      <defs>
-        <marker id="arrowhead" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
-          <path d="M0,0 L6,3 L0,6 L1.5,3 Z" fill="rgba(91,122,238,0.35)" />
-        </marker>
-        <marker id="arrowhead-active" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
-          <path d="M0,0 L6,3 L0,6 L1.5,3 Z" fill="#5B7AEE" />
-        </marker>
-      </defs>
-
-      {/* Arrows */}
-      {arrows.map((a, i) => {
-        const isActiveLine = i === active;
-        return (
-          <line
-            key={i}
-            x1={a.x1} y1={a.y1} x2={a.x2} y2={a.y2}
-            stroke={isActiveLine ? '#5B7AEE' : 'rgba(91,122,238,0.25)'}
-            strokeWidth={isActiveLine ? 1.5 : 1}
-            markerEnd={isActiveLine ? 'url(#arrowhead-active)' : 'url(#arrowhead)'}
-            style={{ transition: 'stroke 0.4s ease, stroke-width 0.4s ease' }}
-          />
-        );
-      })}
-
-      {/* Nodes */}
-      {nodes.map((node, i) => {
-        const isActive = i === active;
-        const stateIdx = node.stateIdx;
-        return (
-          <g key={i}>
-            {isActive && (
-              <circle cx={node.x} cy={node.y} r={nodeR + 6} fill="rgba(91,122,238,0.08)" />
-            )}
-            <circle
-              cx={node.x} cy={node.y} r={nodeR}
-              fill={isActive ? 'rgba(91,122,238,0.14)' : 'rgba(14,14,22,0.9)'}
-              stroke={isActive ? '#5B7AEE' : STATE_COLORS[stateIdx]}
-              strokeWidth={isActive ? 1.5 : 1}
-              style={{ transition: 'fill 0.4s ease, stroke 0.4s ease' }}
-            />
-            <text
-              x={node.x} y={node.y - 3}
-              textAnchor="middle" dominantBaseline="middle"
-              fontSize="11" fontWeight="700"
-              fill={isActive ? '#A8BFFF' : STATE_TEXT[stateIdx]}
-              style={{ transition: 'fill 0.4s ease' }}
-            >
-              {node.label}
-            </text>
-            <text
-              x={node.x} y={node.y + 10}
-              textAnchor="middle" dominantBaseline="middle"
-              fontSize="7.5"
-              fill={isActive ? 'rgba(168,191,255,0.7)' : 'rgba(82,82,106,0.6)'}
-              style={{ transition: 'fill 0.4s ease' }}
-            >
-              {STATE_LABELS[stateIdx]}
-            </text>
-          </g>
-        );
-      })}
-    </svg>
-  );
-}
-
-function RotationPlanner() {
-  const { t } = useLanguage();
-  const [chainCount, setChainCount] = useState(3);
-  const [kmPerWeek, setKmPerWeek] = useState(150);
-
-  const weeksPerCycle = Math.max(1, Math.round(400 / kmPerWeek));
+  const cols = [
+    { n: 1, label: '1 Kette', r: r1, rec: false },
+    { n: 2, label: '2 Ketten', r: r2, rec: true },
+    { n: 3, label: '3 Ketten', r: r3, rec: false },
+  ];
 
   return (
     <ToolCard>
       <ToolHeader
         icon={<RotateCcw className="h-4 w-4" style={{ color: '#8AAAFF' }} />}
-        title={t.tools.rotation.title}
-        subtitle="Optimiere dein Kettenrotations-System für maximale Lebensdauer."
+        title="Lohnen sich mehrere Ketten?"
+        subtitle="Kassettenlaufzeit und Rewax-Aufwand im Vergleich."
       />
       <div className="px-6 flex flex-col flex-1 gap-5 pb-6">
         <div className="space-y-5 flex-1">
           <div>
-            <FieldLabel label={t.tools.rotation.chainCount} value={`${chainCount} Ketten`} />
-            <Slider value={[chainCount]} onValueChange={v => setChainCount(v[0])} min={2} max={4} step={1} className="py-1" />
+            <FieldLabel label="km pro Jahr" value={`${kmPerYear} km`} />
+            <Slider value={[kmPerYear]} onValueChange={v => setKmPerYear(v[0])} min={1000} max={10000} step={500} className="py-1" />
           </div>
           <div>
-            <FieldLabel label={t.tools.rotation.kmPerWeek} value={`${kmPerWeek} km`} />
-            <Slider value={[kmPerWeek]} onValueChange={v => setKmPerWeek(v[0])} min={50} max={400} step={10} className="py-1" />
+            <FieldLabel label="Kassettenpreis" value={`${cassettePrice} €`} />
+            <Slider value={[cassettePrice]} onValueChange={v => setCassettePrice(v[0])} min={40} max={200} step={10} className="py-1" />
           </div>
         </div>
 
         <ResultBox>
-          <CycleDiagram chainCount={chainCount} />
-          <div className="border-t border-[#131320] pt-3 mt-2 grid grid-cols-2 gap-3 text-center">
-            <div>
-              <p className="text-[10px] text-[#4A4A62] uppercase tracking-[0.1em] mb-1">Rewax alle</p>
-              <p className="text-[28px] font-bold text-white leading-none">{weeksPerCycle}<span className="text-[14px] font-normal text-[#6B7088] ml-1">Wo.</span></p>
-              <p className="text-[10px] text-[#4A4A62] mt-0.5">ca. 400 km</p>
-            </div>
-            <div>
-              <p className="text-[10px] text-[#4A4A62] uppercase tracking-[0.1em] mb-1">Zeit / Session</p>
-              <p className="text-[28px] font-bold text-white leading-none">~15<span className="text-[14px] font-normal text-[#6B7088] ml-1">Min.</span></p>
-              <p className="text-[10px] text-[#4A4A62] mt-0.5">für alle {chainCount} Ketten</p>
-            </div>
+          <div className="grid grid-cols-3 gap-1.5 mb-3">
+            {cols.map(({ n, label, r, rec }) => (
+              <div
+                key={n}
+                className="rounded-lg border p-2.5 text-center"
+                style={{
+                  borderColor: rec ? 'rgba(91,122,238,0.45)' : '#1A1A2E',
+                  background: rec ? 'rgba(91,122,238,0.08)' : 'rgba(6,6,14,0.6)',
+                }}
+              >
+                {rec && <p className="text-[8px] text-[#5B7AEE] uppercase tracking-[0.12em] mb-1">Empfohlen</p>}
+                <p className="text-[10px] font-semibold text-[#C0C4DC] mb-2">{label}</p>
+                <div className="space-y-2.5">
+                  <div>
+                    <p className="text-[7.5px] text-[#3A3A52] uppercase tracking-[0.1em]">Kassette hält</p>
+                    <p className="text-[16px] font-bold text-white leading-tight">{r.cassetteEveryYears}<span className="text-[10px] font-normal text-[#6B7088] ml-0.5">J.</span></p>
+                  </div>
+                  <div>
+                    <p className="text-[7.5px] text-[#3A3A52] uppercase tracking-[0.1em]">Rewax alle</p>
+                    <p className="text-[16px] font-bold text-white leading-tight">{r.rewaxEveryWeeks}<span className="text-[10px] font-normal text-[#6B7088] ml-0.5">Wo.</span></p>
+                  </div>
+                  <div>
+                    <p className="text-[7.5px] text-[#3A3A52] uppercase tracking-[0.1em]">Kosten {YEARS}J.</p>
+                    <p className="text-[13px] font-bold leading-tight" style={{ color: rec ? '#A8BFFF' : '#6B7088' }}>€{r.totalCost}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
+
+          {savings2 > 0 && (
+            <p className="text-[10px] text-[#3E3E52] text-center mb-3">
+              2 Ketten: Kassette hält {r2.cassetteEveryYears}J. statt {r1.cassetteEveryYears}J. · ~€{savings2} gespart über {YEARS} Jahre
+            </p>
+          )}
+
+          <button
+            onClick={() => document.querySelector('#products')?.scrollIntoView({ behavior: 'smooth' })}
+            className="w-full rounded-lg border border-[#5B7AEE]/25 p-2.5 text-center hover:border-[#5B7AEE]/45 transition-colors"
+            style={{ background: 'rgba(91,122,238,0.05)' }}
+          >
+            <span className="text-[12px] font-medium" style={{ color: '#8AAAFF' }}>2. Kette hinzufügen →</span>
+          </button>
         </ResultBox>
       </div>
     </ToolCard>
@@ -582,10 +604,10 @@ export function Tools() {
 
   const tools = [
     <RewaxCalculator />,
-    <CompatibilityCheck />,
+    <BikeQuestionnaire />,
     <WaxStockCalculator />,
     <CostSavingsCalculator />,
-    <RotationPlanner />,
+    <RotationROI />,
   ];
 
   return (

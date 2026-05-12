@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, Shield, Snowflake, Droplets, Sun } from 'lucide-react';
 import { ComparisonSlider } from '@/components/comparison-slider';
 import { useLanguage } from '@/hooks/useLanguage';
 import gsap from 'gsap';
@@ -9,28 +9,36 @@ gsap.registerPlugin(ScrollTrigger);
 
 const differentiators = [
   {
+    icon: Shield,
     catDe: 'Konsistenz', catEn: 'Consistency',
     titleDe: 'Jeder Block wirkt gleich', titleEn: 'Every block performs identically',
-    descDe: 'Sterischer Stabilisator verhindert MoS₂-Sedimentation in der Schmelze. Kein Additiv-Gradient — erster und letzter Block identisch.',
-    descEn: 'Steric stabilizer prevents MoS₂ sedimentation in the melt. No additive gradient — first and last block identical.',
+    credDe: 'Sterischer Stabilisator · MoS₂-Dispersion', credEn: 'Steric stabilizer · MoS₂ dispersion',
+    descDe: 'Additive sedimentieren nicht in der Schmelze — erster und letzter Block identisch.',
+    descEn: 'Additives don\'t sediment in the melt — first and last block perform identically.',
   },
   {
+    icon: Snowflake,
     catDe: 'Winter', catEn: 'Winter',
     titleDe: 'Schaltet noch bei −8°C', titleEn: 'Shifts cleanly at −8°C',
-    descDe: 'Amorphe Wachskomponente hält die Matrix bei Minusgraden flexibel. Kein Verhärten in den Gelenken, kein Schalten unter Last.',
-    descEn: 'Amorphous wax keeps the matrix flexible below freezing. No hardening in links, no skipping under load.',
+    credDe: 'Amorphe Wachskomponente', credEn: 'Amorphous wax component',
+    descDe: 'Matrix bleibt flexibel bei Frost — kein Verhärten in den Gelenken, kein Schalten unter Last.',
+    descEn: 'Matrix stays flexible at sub-zero — no hardening in the links, no skipping under load.',
   },
   {
+    icon: Droplets,
     catDe: 'Rostschutz', catEn: 'Rust Protection',
     titleDe: 'Weniger Rost nach Regen', titleEn: 'Less rust after rain',
-    descDe: 'Hydrophobe Wachsmatrix lagert weniger Wasser ein — weniger freiliegendes Metall, geringere Rostneigung nach Regenfahrten.',
-    descEn: 'Hydrophobic wax matrix absorbs less water — less exposed metal, reduced rust tendency after rain rides.',
+    credDe: 'Hydrophobe Matrix · PTFE < 1 µm', credEn: 'Hydrophobic matrix · PTFE < 1 µm',
+    descDe: 'Lagert weniger Wasser ein — weniger freiliegendes Metall, geringere Rostneigung nach Regenfahrten.',
+    descEn: 'Absorbs less water — less exposed metal, reduced rust tendency after wet rides.',
   },
   {
+    icon: Sun,
     catDe: 'Sommer', catEn: 'Summer',
     titleDe: 'Bleibt auf der Kette — auch bei 35°C', titleEn: 'Stays on the chain — even at 35°C',
-    descDe: 'Synthetisches Hartwachs hebt den Tropfpunkt auf ~75°C. Kein Wachsverlust, keine Migration auf Schaltwerk oder Umwerfer.',
-    descEn: 'Synthetic hard wax raises the drop point to ~75°C. No wax loss, no migration to derailleur or front mech.',
+    credDe: 'Synthetisches Hartwachs · Tropfpunkt ~75°C', credEn: 'Synthetic hard wax · drop point ~75°C',
+    descDe: 'Kein Wachsverlust im Hochsommer, keine Migration auf Schaltwerk oder Umwerfer.',
+    descEn: 'No wax loss in summer heat, no migration to the derailleur or front mech.',
   },
 ];
 
@@ -47,6 +55,7 @@ export function WhyWax() {
   const frictionRef = useRef<HTMLDivElement>(null);
   const compBarsRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
+  const costBarsRef = useRef<HTMLDivElement>(null);
   const [rider, setRider] = useState<'summer' | 'allseason' | null>(null);
   const de = lang === 'de';
 
@@ -73,6 +82,14 @@ export function WhyWax() {
         gsap.fromTo(bar, { width: '0%' }, {
           width: w, duration: 1.2, ease: 'power3.out',
           scrollTrigger: { trigger: compBarsRef.current, start: 'top 80%' },
+        });
+      });
+
+      costBarsRef.current?.querySelectorAll('.cost-bar').forEach((bar) => {
+        const w = (bar as HTMLElement).dataset.w!;
+        gsap.fromTo(bar, { width: '0%' }, {
+          width: w, duration: 1.1, ease: 'power3.out',
+          scrollTrigger: { trigger: costBarsRef.current, start: 'top 82%' },
         });
       });
 
@@ -154,101 +171,139 @@ export function WhyWax() {
               </p>
             </div>
 
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div className="rounded-xl border border-[#1A1A28] p-6" style={{ background: '#0C0C10' }}>
-                <p className="text-[10px] uppercase tracking-[0.2em] text-[#3A3A52] mb-5">
-                  {de ? 'Mit Kettenöl' : 'With Chain Oil'}
+            <div ref={costBarsRef} className="rounded-xl border border-[#1A1A28] p-6 sm:p-8" style={{ background: '#0C0C10' }}>
+
+              {/* Savings hero */}
+              <div
+                className="rounded-lg border border-[#5B7AEE]/20 p-4 text-center mb-7"
+                style={{ background: 'rgba(91,122,238,0.06)' }}
+              >
+                <p className="text-[10px] text-[#5B7AEE] uppercase tracking-[0.16em] mb-1">
+                  {de ? 'Deine Ersparnis' : 'Your savings'}
                 </p>
-                <div className="flex gap-6 mb-6">
-                  <div>
-                    <p className="text-[32px] font-bold text-[#3A3A52] leading-none">3×</p>
-                    <p className="text-[11px] text-[#2E2E3E] mt-1.5">{de ? 'Ketten' : 'Chains'}</p>
+                <p className="text-[44px] font-bold text-white leading-none tracking-tight">~€70</p>
+                <p className="text-[12px] text-[#4A4A62] mt-1">
+                  {de ? 'auf 12.000 km · aktiver Straßenfahrer' : 'over 12,000 km · active road rider'}
+                </p>
+              </div>
+
+              {/* Bar comparison */}
+              <div className="space-y-4 mb-6">
+                <div>
+                  <div className="flex items-baseline justify-between mb-2">
+                    <span className="text-[13px] font-medium text-[#52526A]">
+                      {de ? 'Mit Kettenöl' : 'With Chain Oil'}
+                    </span>
+                    <span className="text-[20px] font-bold text-[#52526A] tabular-nums">~€151</span>
                   </div>
-                  <div>
-                    <p className="text-[32px] font-bold text-[#3A3A52] leading-none">~1,2</p>
-                    <p className="text-[11px] text-[#2E2E3E] mt-1.5">{de ? 'Fl. Öl' : 'Bot. Oil'}</p>
+                  <div className="h-3 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                    <div
+                      className="cost-bar h-full rounded-full"
+                      data-w="100%"
+                      style={{ width: '0%', background: '#2A2A3A' }}
+                    />
                   </div>
+                  <p className="text-[11px] text-[#2A2A38] mt-1.5">
+                    {de ? '3 Ketten à €46 + Öl (12×) = €13' : '3 chains × €46 + oil (12×) = €13'}
+                  </p>
                 </div>
-                <div className="space-y-2 mb-5">
-                  <div className="flex justify-between">
-                    <span className="text-[13px] text-[#3A3A52]">{de ? '3 Ketten à €45,99' : '3 chains × €45.99'}</span>
-                    <span className="text-[13px] text-[#3A3A52]">€138</span>
+
+                <div>
+                  <div className="flex items-baseline justify-between mb-2">
+                    <span className="text-[13px] font-medium text-white">
+                      {de ? 'Mit Waxcelerate' : 'With Waxcelerate'}
+                    </span>
+                    <span className="text-[20px] font-bold text-white tabular-nums">~€81</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-[13px] text-[#3A3A52]">{de ? 'Öl (~1,2 Fl.)' : 'Oil (~1.2 bot.)'}</span>
-                    <span className="text-[13px] text-[#3A3A52]">€13</span>
+                  <div className="h-3 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                    <div
+                      className="cost-bar h-full rounded-full"
+                      data-w="54%"
+                      style={{ width: '0%', background: 'linear-gradient(90deg, #4A6AEE, #6888FF)' }}
+                    />
                   </div>
-                </div>
-                <div className="border-t border-[#161620] pt-4">
-                  <p className="text-[26px] font-bold text-[#52526A]">~€151</p>
+                  <p className="text-[11px] text-[#4A5080] mt-1.5">
+                    {de ? '1 Kette à €46 + 500g Wachsblock = €35' : '1 chain × €46 + 500g wax block = €35'}
+                  </p>
                 </div>
               </div>
 
-              <div
-                className="rounded-xl border p-6"
-                style={{
-                  background: 'linear-gradient(160deg, #0E0E17 0%, #0A0A10 100%)',
-                  borderColor: 'rgba(91,122,238,0.25)',
-                  boxShadow: '0 0 50px rgba(91,122,238,0.07)',
-                }}
-              >
-                <p className="text-[10px] uppercase tracking-[0.2em] text-[#5B7AEE] mb-5">Mit Waxcelerate</p>
-                <div className="flex gap-6 mb-6">
-                  <div>
-                    <p className="text-[32px] font-bold text-white leading-none">1×</p>
-                    <p className="text-[11px] text-[#6B7088] mt-1.5">{de ? 'Kette' : 'Chain'}</p>
+              {/* Chain count visual */}
+              <div className="grid grid-cols-2 gap-3 pt-5 border-t border-[#131320]">
+                <div className="rounded-lg p-3" style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid #161620' }}>
+                  <p className="text-[10px] uppercase tracking-[0.12em] text-[#3A3A52] mb-2">
+                    {de ? 'Kettenöl' : 'Chain oil'}
+                  </p>
+                  <div className="flex gap-1.5 mb-1.5">
+                    {[0,1,2].map(i => (
+                      <div key={i} className="w-5 h-5 rounded-sm flex-shrink-0" style={{ background: '#252535' }} />
+                    ))}
                   </div>
-                  <div>
-                    <p className="text-[32px] font-bold text-white leading-none">~1,2</p>
-                    <p className="text-[11px] text-[#6B7088] mt-1.5">{de ? 'Blöcke' : 'Blocks'}</p>
-                  </div>
+                  <p className="text-[12px] text-[#3A3A52]">
+                    {de ? '3 Ketten in 12.000 km' : '3 chains in 12,000 km'}
+                  </p>
                 </div>
-                <div className="space-y-2 mb-5">
-                  <div className="flex justify-between">
-                    <span className="text-[13px] text-[#7A7A96]">{de ? '1 Kette à €45,99' : '1 chain × €45.99'}</span>
-                    <span className="text-[13px] text-[#7A7A96]">€46</span>
+                <div className="rounded-lg p-3" style={{ background: 'rgba(91,122,238,0.04)', border: '1px solid rgba(91,122,238,0.12)' }}>
+                  <p className="text-[10px] uppercase tracking-[0.12em] text-[#5B7AEE] mb-2">Waxcelerate</p>
+                  <div className="flex gap-1.5 mb-1.5">
+                    <div className="w-5 h-5 rounded-sm flex-shrink-0" style={{ background: 'linear-gradient(135deg, #4A6AEE, #6888FF)' }} />
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-[13px] text-[#7A7A96]">{de ? 'Wachs (~1,2 Blöcke)' : 'Wax (~1.2 blocks)'}</span>
-                    <span className="text-[13px] text-[#7A7A96]">~€35</span>
-                  </div>
-                </div>
-                <div className="border-t border-[#1A1A2E] pt-4 flex items-center justify-between">
-                  <p className="text-[26px] font-bold text-white">~€81</p>
-                  <span
-                    className="text-[12px] font-semibold px-3 py-1.5 rounded-full"
-                    style={{ background: 'rgba(91,122,238,0.15)', color: '#8AAAFF' }}
-                  >
-                    ≈ €70 {de ? 'gespart' : 'saved'}
-                  </span>
+                  <p className="text-[12px] text-[#7A80A0]">
+                    {de ? '1 Kette in 12.000 km' : '1 chain in 12,000 km'}
+                  </p>
                 </div>
               </div>
             </div>
           </div>
 
           {/* ── Block 2: Differentiator Cards ── */}
-          <div ref={cardsRef} className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-20">
-            {differentiators.map((d, i) => (
-              <div
-                key={i}
-                className="diff-card flex flex-col rounded-xl border border-[#1A1A28] p-5 hover:border-[#2A2A3A] transition-colors"
-                style={{
-                  background: 'linear-gradient(160deg, #0E0E17 0%, #0A0A10 100%)',
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
-                }}
-              >
-                <p className="text-[9px] font-medium uppercase tracking-[0.18em] text-[#5B7AEE] mb-3">
-                  {de ? d.catDe : d.catEn}
-                </p>
-                <p className="text-[17px] font-bold text-white leading-snug mb-3">
-                  {de ? d.titleDe : d.titleEn}
-                </p>
-                <div className="border-t border-[#131320] mb-3" />
-                <p className="text-[13px] text-[#8890A8] leading-relaxed flex-1">
-                  {de ? d.descDe : d.descEn}
-                </p>
-              </div>
-            ))}
+          <div ref={cardsRef} className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-20">
+            {differentiators.map((d, i) => {
+              const Icon = d.icon;
+              return (
+                <div
+                  key={i}
+                  className="diff-card flex flex-col rounded-xl border border-[#1A1A28] p-4 sm:p-5 hover:border-[#252538] transition-all duration-300"
+                  style={{
+                    background: 'linear-gradient(160deg, #0D0D16 0%, #09090F 100%)',
+                    boxShadow: '0 4px 24px rgba(0,0,0,0.5)',
+                  }}
+                >
+                  {/* Icon + category on one row — saves vertical space on mobile */}
+                  <div className="flex items-center gap-2 mb-3">
+                    <div
+                      className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0"
+                      style={{ background: 'rgba(91,122,238,0.1)', boxShadow: '0 0 0 1px rgba(91,122,238,0.15)' }}
+                    >
+                      <Icon className="h-3.5 w-3.5" style={{ color: '#8AAAFF' }} />
+                    </div>
+                    <p className="text-[9px] font-medium uppercase tracking-[0.18em] text-[#5B7AEE]">
+                      {de ? d.catDe : d.catEn}
+                    </p>
+                  </div>
+
+                  {/* Benefit headline */}
+                  <p className="text-[13px] sm:text-[14px] lg:text-[15px] font-bold text-white leading-snug mb-3">
+                    {de ? d.titleDe : d.titleEn}
+                  </p>
+
+                  {/* Technical credential — spec-block treatment */}
+                  <div
+                    className="rounded-md px-2.5 py-1.5 mb-3"
+                    style={{ background: 'rgba(91,122,238,0.05)', border: '1px solid rgba(91,122,238,0.1)' }}
+                  >
+                    <p className="font-mono text-[9px] text-[#5A6A9A] tracking-wide leading-relaxed">
+                      {de ? d.credDe : d.credEn}
+                    </p>
+                  </div>
+
+                  {/* Plain-language consequence */}
+                  <p className="text-[11px] sm:text-[12px] text-[#6B7088] leading-relaxed flex-1">
+                    {de ? d.descDe : d.descEn}
+                  </p>
+                </div>
+              );
+            })}
           </div>
 
           {/* ── Block 3: Classic vs Pro ── */}
