@@ -160,7 +160,7 @@ function RewaxCalculator() {
 
 // ─── Tool 2: Bike Questionnaire ───────────────────────────────────────────────
 function BikeQuestionnaire() {
-  const { t, lang } = useLanguage();
+  const { lang } = useLanguage();
   const [brand, setBrand] = useState<'shimano' | 'sram' | 'campagnolo' | 'unknown'>('shimano');
   const [speed, setSpeed] = useState<'9-10' | '11' | '12'>('11');
 
