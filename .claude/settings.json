@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd '/Users/lucateichmann/Claude Playground/waxcelerate-site' && git diff --quiet && git diff --cached --quiet || (git add -A && git commit -m 'Auto-push: Claude Code session $(date +\"%Y-%m-%d %H:%M\")' && git push && echo '✓ Auto-deployed → waxcelerate-site.vercel.app')"
+          }
+        ]
+      }
+    ]
+  }
+}
