@@ -158,101 +158,159 @@ export function WhyWax() {
           {/* ── Block 1: Cost Savings ── */}
           <div className="mb-20">
             <div className="text-center mb-8">
-              <p className="text-[10px] tracking-[0.18em] uppercase text-[#4A4A62] mb-2">
+              <p className="text-[10px] tracking-[0.18em] uppercase text-[#5B7AEE] mb-2 font-medium">
                 {de ? 'Kostenvergleich · 12.000 km' : 'Cost comparison · 12,000 km'}
               </p>
               <h3 className="font-display text-2xl font-bold text-white">
-                {de ? '~€70 gespart auf 12.000 km' : '~€70 saved over 12,000 km'}
+                {de ? 'Mit Öl bezahlst du die Kette dreimal' : 'With oil, you pay for the chain three times'}
               </h3>
-              <p className="text-[13px] text-[#3A3A52] mt-2">
+              <p className="text-[13px] text-[#6B7088] mt-2">
                 {de
-                  ? 'Basis: CN-M8100 (€45,99) · 1–1,5 Fahrsaisons · aktiver Fahrer'
-                  : 'Basis: CN-M8100 (€45.99) · 1–1.5 seasons · active rider'}
+                  ? 'Basis: Shimano CN-M8100, €45,99 · aktiver Straßenfahrer · 200 km/Woche'
+                  : 'Basis: Shimano CN-M8100, €45.99 · active road rider · 200 km/week'}
               </p>
             </div>
 
-            <div ref={costBarsRef} className="rounded-xl border border-[#1A1A28] p-6 sm:p-8" style={{ background: '#0C0C10' }}>
+            <div ref={costBarsRef} className="rounded-xl border border-[#1E1E2C] overflow-hidden" style={{ background: '#0C0C12' }}>
 
-              {/* Savings hero */}
-              <div
-                className="rounded-lg border border-[#5B7AEE]/20 p-4 text-center mb-7"
-                style={{ background: 'rgba(91,122,238,0.06)' }}
-              >
-                <p className="text-[10px] text-[#5B7AEE] uppercase tracking-[0.16em] mb-1">
-                  {de ? 'Deine Ersparnis' : 'Your savings'}
-                </p>
-                <p className="text-[44px] font-bold text-white leading-none tracking-tight">~€70</p>
-                <p className="text-[12px] text-[#4A4A62] mt-1">
-                  {de ? 'auf 12.000 km · aktiver Straßenfahrer' : 'over 12,000 km · active road rider'}
-                </p>
-              </div>
+              {/* Two-column breakdown */}
+              <div className="grid sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-[#1A1A26]">
 
-              {/* Bar comparison */}
-              <div className="space-y-4 mb-6">
-                <div>
-                  <div className="flex items-baseline justify-between mb-2">
-                    <span className="text-[13px] font-medium text-[#52526A]">
-                      {de ? 'Mit Kettenöl' : 'With Chain Oil'}
-                    </span>
-                    <span className="text-[20px] font-bold text-[#52526A] tabular-nums">~€151</span>
-                  </div>
-                  <div className="h-3 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)' }}>
-                    <div
-                      className="cost-bar h-full rounded-full"
-                      data-w="100%"
-                      style={{ width: '0%', background: '#2A2A3A' }}
-                    />
-                  </div>
-                  <p className="text-[11px] text-[#2A2A38] mt-1.5">
-                    {de ? '3 Ketten à €46 + Öl (12×) = €13' : '3 chains × €46 + oil (12×) = €13'}
+                {/* Oil side */}
+                <div className="p-5 sm:p-6">
+                  <p className="text-[10px] uppercase tracking-[0.18em] text-[#6B7088] font-medium mb-4">
+                    {de ? 'Mit Kettenöl' : 'With chain oil'}
                   </p>
-                </div>
 
-                <div>
-                  <div className="flex items-baseline justify-between mb-2">
-                    <span className="text-[13px] font-medium text-white">
-                      {de ? 'Mit Waxcelerate' : 'With Waxcelerate'}
-                    </span>
-                    <span className="text-[20px] font-bold text-white tabular-nums">~€81</span>
-                  </div>
-                  <div className="h-3 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)' }}>
-                    <div
-                      className="cost-bar h-full rounded-full"
-                      data-w="54%"
-                      style={{ width: '0%', background: 'linear-gradient(90deg, #4A6AEE, #6888FF)' }}
-                    />
-                  </div>
-                  <p className="text-[11px] text-[#4A5080] mt-1.5">
-                    {de ? '1 Kette à €46 + 500g Wachsblock = €35' : '1 chain × €46 + 500g wax block = €35'}
-                  </p>
-                </div>
-              </div>
-
-              {/* Chain count visual */}
-              <div className="grid grid-cols-2 gap-3 pt-5 border-t border-[#131320]">
-                <div className="rounded-lg p-3" style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid #161620' }}>
-                  <p className="text-[10px] uppercase tracking-[0.12em] text-[#3A3A52] mb-2">
-                    {de ? 'Kettenöl' : 'Chain oil'}
-                  </p>
-                  <div className="flex gap-1.5 mb-1.5">
+                  {/* Chain icons */}
+                  <div className="flex gap-2 mb-4">
                     {[0,1,2].map(i => (
-                      <div key={i} className="w-5 h-5 rounded-sm flex-shrink-0" style={{ background: '#252535' }} />
+                      <div key={i} className="flex flex-col items-center gap-1">
+                        <div className="w-8 h-8 rounded flex items-center justify-center" style={{ background: '#1E1E2A', border: '1px solid #2A2A38' }}>
+                          <svg viewBox="0 0 20 20" className="w-4 h-4" fill="none" stroke="#52526A" strokeWidth="1.5">
+                            <rect x="3" y="3" width="14" height="14" rx="2"/>
+                            <circle cx="10" cy="10" r="3"/>
+                          </svg>
+                        </div>
+                        <span className="text-[9px] text-[#4A4A62] tabular-nums">€46</span>
+                      </div>
                     ))}
+                    <div className="flex flex-col items-center gap-1 ml-2">
+                      <div className="w-8 h-8 rounded flex items-center justify-center" style={{ background: '#1A1A24', border: '1px solid #222230' }}>
+                        <svg viewBox="0 0 20 20" className="w-3.5 h-3.5" fill="none" stroke="#3A3A52" strokeWidth="1.5">
+                          <path d="M10 4v12M4 10h12" strokeLinecap="round"/>
+                          <circle cx="10" cy="10" r="7"/>
+                        </svg>
+                      </div>
+                      <span className="text-[9px] text-[#3A3A52] tabular-nums">Öl</span>
+                    </div>
                   </div>
-                  <p className="text-[12px] text-[#3A3A52]">
-                    {de ? '3 Ketten in 12.000 km' : '3 chains in 12,000 km'}
-                  </p>
+
+                  {/* Itemized */}
+                  <div className="space-y-2 mb-5">
+                    <div className="flex justify-between items-center">
+                      <span className="text-[12px] text-[#6B7088]">{de ? '3 Ketten × €46' : '3 chains × €46'}</span>
+                      <span className="text-[13px] font-medium text-[#8896B0] tabular-nums">€138</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-[12px] text-[#6B7088]">{de ? 'Öl (12× Flasche à €1,10)' : 'Oil (12× bottle × €1.10)'}</span>
+                      <span className="text-[13px] font-medium text-[#8896B0] tabular-nums">€13</span>
+                    </div>
+                    <div className="h-px bg-[#1E1E2C] my-1" />
+                    <div className="flex justify-between items-baseline">
+                      <span className="text-[12px] font-medium text-[#9098B0]">{de ? 'Gesamt' : 'Total'}</span>
+                      <span className="text-[22px] font-bold text-[#9098B0] tabular-nums leading-none">~€151</span>
+                    </div>
+                  </div>
+
+                  {/* Bar */}
+                  <div>
+                    <div className="h-2.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                      <div className="cost-bar h-full rounded-full" data-w="100%" style={{ width: '0%', background: '#3A3A50' }} />
+                    </div>
+                    <p className="text-[11px] text-[#4A4A62] mt-1.5">
+                      {de ? 'Kette hält ~3.500–4.000 km mit Öl' : 'Chain lasts ~3,500–4,000 km with oil'}
+                    </p>
+                  </div>
                 </div>
-                <div className="rounded-lg p-3" style={{ background: 'rgba(91,122,238,0.04)', border: '1px solid rgba(91,122,238,0.12)' }}>
-                  <p className="text-[10px] uppercase tracking-[0.12em] text-[#5B7AEE] mb-2">Waxcelerate</p>
-                  <div className="flex gap-1.5 mb-1.5">
-                    <div className="w-5 h-5 rounded-sm flex-shrink-0" style={{ background: 'linear-gradient(135deg, #4A6AEE, #6888FF)' }} />
-                  </div>
-                  <p className="text-[12px] text-[#7A80A0]">
-                    {de ? '1 Kette in 12.000 km' : '1 chain in 12,000 km'}
+
+                {/* Wax side */}
+                <div className="p-5 sm:p-6" style={{ background: 'rgba(74,106,238,0.04)' }}>
+                  <p className="text-[10px] uppercase tracking-[0.18em] text-[#5B7AEE] font-medium mb-4">
+                    Mit Waxcelerate
                   </p>
+
+                  {/* Chain icons */}
+                  <div className="flex gap-2 mb-4">
+                    <div className="flex flex-col items-center gap-1">
+                      <div className="w-8 h-8 rounded flex items-center justify-center" style={{ background: 'rgba(74,106,238,0.15)', border: '1px solid rgba(91,122,238,0.3)' }}>
+                        <svg viewBox="0 0 20 20" className="w-4 h-4" fill="none" stroke="#6888FF" strokeWidth="1.5">
+                          <rect x="3" y="3" width="14" height="14" rx="2"/>
+                          <circle cx="10" cy="10" r="3"/>
+                        </svg>
+                      </div>
+                      <span className="text-[9px] text-[#5B7AEE] tabular-nums">€46</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-1 ml-2">
+                      <div className="w-8 h-8 rounded flex items-center justify-center" style={{ background: 'rgba(74,106,238,0.08)', border: '1px solid rgba(91,122,238,0.15)' }}>
+                        <svg viewBox="0 0 20 20" className="w-3.5 h-3.5" fill="none" stroke="#4A6AEE" strokeWidth="1.5">
+                          <rect x="4" y="6" width="12" height="10" rx="1.5"/>
+                          <path d="M7 6V5a3 3 0 016 0v1" strokeLinecap="round"/>
+                        </svg>
+                      </div>
+                      <span className="text-[9px] text-[#4A5A8A] tabular-nums">{de ? 'Wachs' : 'Wax'}</span>
+                    </div>
+                  </div>
+
+                  {/* Itemized */}
+                  <div className="space-y-2 mb-5">
+                    <div className="flex justify-between items-center">
+                      <span className="text-[12px] text-[#7A88A8]">{de ? '1 Kette × €46' : '1 chain × €46'}</span>
+                      <span className="text-[13px] font-medium text-[#A0AACC] tabular-nums">€46</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-[12px] text-[#7A88A8]">{de ? '500g Wachsblock (~20 Anw.)' : '500g wax block (~20 apps.)'}</span>
+                      <span className="text-[13px] font-medium text-[#A0AACC] tabular-nums">€35</span>
+                    </div>
+                    <div className="h-px bg-[#1E2040] my-1" />
+                    <div className="flex justify-between items-baseline">
+                      <span className="text-[12px] font-medium text-[#A0AACC]">{de ? 'Gesamt' : 'Total'}</span>
+                      <span className="text-[22px] font-bold text-white tabular-nums leading-none">~€81</span>
+                    </div>
+                  </div>
+
+                  {/* Bar */}
+                  <div>
+                    <div className="h-2.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                      <div className="cost-bar h-full rounded-full" data-w="54%" style={{ width: '0%', background: 'linear-gradient(90deg, #4A6AEE, #6888FF)' }} />
+                    </div>
+                    <p className="text-[11px] text-[#4A5A8A] mt-1.5">
+                      {de ? 'Kette hält ~12.000 km mit Wachs' : 'Chain lasts ~12,000 km with wax'}
+                    </p>
+                  </div>
                 </div>
               </div>
+
+              {/* Savings bar — full width at bottom */}
+              <div className="px-5 sm:px-6 py-4 border-t border-[#1A1A26]" style={{ background: 'rgba(74,106,238,0.07)' }}>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div>
+                    <p className="text-[11px] text-[#6B88CC] font-medium uppercase tracking-[0.14em] mb-0.5">
+                      {de ? 'Deine Ersparnis auf 12.000 km' : 'Your savings over 12,000 km'}
+                    </p>
+                    <p className="text-[11px] text-[#4A5A80]">
+                      {de
+                        ? '€151 (Öl) − €81 (Wachs) = €70 · entspricht 46 %'
+                        : '€151 (oil) − €81 (wax) = €70 · equals 46 %'}
+                    </p>
+                  </div>
+                  <div className="flex items-baseline gap-1.5 flex-shrink-0">
+                    <span className="text-[36px] sm:text-[42px] font-bold text-white tabular-nums leading-none">~€70</span>
+                    <span className="text-[14px] font-semibold text-[#5B7AEE]">−46 %</span>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
 
