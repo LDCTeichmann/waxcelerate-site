@@ -1,0 +1,33 @@
+# Waxcelerate — Cursor Rules
+
+Marketing-Website für Waxcelerate (Hot-wax Fahrradketten, eBay-Business von Luca Teichmann).
+Kein Backend. Kein E-Commerce. Leitet zu eBay-Listings weiter.
+Stack: React 19 + TypeScript strict · Vite 7 · Tailwind CSS v3 · React Router v6
+
+Ausführliche Architektur → AGENTS.md
+
+## Absolute Regeln
+
+- Produktdaten NUR in `src/lib/data.ts` — niemals in Komponenten hardcoden
+- Strings NUR in `src/lib/i18n.ts` — kein Deutsch direkt in JSX
+- Hooks NIEMALS in `.map()` aufrufen — Wrapper-Komponente verwenden
+- `e.stopPropagation()` wenn Link in Link verschachtelt
+- `npx tsc --noEmit` muss sauber laufen — TypeScript Fehler nie ignorieren
+
+## Farbpalette (Tailwind inline styles)
+
+Seiten-BG: #090909 | Karten-BG: #191c24→#111318 | Blau: #4A6AEE/#5B7AEE | Text: #8896B0
+
+## Datei-Routing
+
+WaxCard → React Router <Link to={`/produkt/${id}`}>
+ChainCard → <a href={ebayUrl} target="_blank">
+Wachs-Karte innen eBay-CTA → stopPropagation()
+
+## Wenn du Produktbilder änderst
+
+imagePosition in data.ts setzen (CSS object-position), niemals Padding/object-contain verwenden
+
+## Performance-Index Balken (why-wax.tsx Block 4)
+
+Classic=95% Graphit=72% Öl=18% — höher = besser. NICHT zurückändern.
