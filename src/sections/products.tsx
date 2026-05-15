@@ -4,13 +4,35 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { products } from '@/lib/data';
 
+const filterChip = (active: boolean) =>
+  `px-3 py-1.5 rounded-md text-[12px] transition-all border cursor-pointer ${
+    active
+      ? 'border-[#5B7AEE]/40 bg-[#5B7AEE]/10 text-wx-tx1'
+      : 'border-wx-bd text-wx-txf hover:text-wx-tx2'
+  }`;
+
 export function Products() {
   const { t, lang } = useLanguage();
   const [activeTab, setActiveTab] = useState<'wax' | 'chain'>('wax');
+  const [speedFilter, setSpeedFilter] = useState<'all' | '11' | '12'>('all');
+  const [brandFilter, setBrandFilter] = useState<'all' | 'shimano' | 'sram' | 'campagnolo'>('all');
+  const [budgetFilter, setBudgetFilter] = useState<'all' | 'low' | 'mid' | 'high'>('all');
   const de = lang === 'de';
 
   const waxProducts = products.filter(p => p.category === 'wax');
   const chainProducts = products.filter(p => p.category === 'chain');
+
+  const brandMap: Record<string, string> = { shimano: 'Shimano', sram: 'SRAM', campagnolo: 'Campagnolo' };
+  const filteredChains = chainProducts.filter(p => {
+    if (speedFilter !== 'all' && p.chainSpeed !== `${speedFilter}-fach`) return false;
+    if (brandFilter !== 'all' && !p.compatibility?.includes(brandMap[brandFilter])) return false;
+    if (budgetFilter === 'low' && p.price >= 35) return false;
+    if (budgetFilter === 'mid' && (p.price < 35 || p.price > 55)) return false;
+    if (budgetFilter === 'high' && p.price <= 55) return false;
+    return true;
+  });
+
+  const resetFilters = () => { setSpeedFilter('all'); setBrandFilter('all'); setBudgetFilter('all'); };
 
   const formatPrice = (price: number) =>
     new Intl.NumberFormat(de ? 'de-DE' : 'en-US', {
@@ -72,21 +94,80 @@ export function Products() {
           {/* Chain Products */}
           {activeTab === 'chain' && (
             <>
-              <div className="border border-wx-bd rounded-xl px-5 py-3.5 mb-8 bg-wx-sf">
-                <p className="text-wx-txm text-sm">{t.products.preWaxedHint}</p>
+              {/* Filter bar */}
+              <div className="mb-6 rounded-xl border border-wx-bd p-4 space-y-3" style={{ background: 'var(--sf)' }}>
+                <div className="flex items-center gap-3">
+                  <span className="text-[10px] uppercase tracking-[0.14em] text-wx-txf font-medium w-14 flex-shrink-0">
+                    {de ? 'Gänge' : 'Speed'}
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {(['all', '11', '12'] as const).map(v => (
+                      <button key={v} onClick={() => setSpeedFilter(v)} className={filterChip(speedFilter === v)}>
+                        {v === 'all' ? (de ? 'Alle' : 'All') : `${v}-fach`}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-[10px] uppercase tracking-[0.14em] text-wx-txf font-medium w-14 flex-shrink-0">
+                    {de ? 'Marke' : 'Brand'}
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {([
+                      { v: 'all',         label: de ? 'Alle' : 'All' },
+                      { v: 'shimano',     label: 'Shimano'            },
+                      { v: 'sram',        label: 'SRAM'               },
+                      { v: 'campagnolo',  label: 'Campagnolo'         },
+                    ] as { v: 'all' | 'shimano' | 'sram' | 'campagnolo'; label: string }[]).map(({ v, label }) => (
+                      <button key={v} onClick={() => setBrandFilter(v)} className={filterChip(brandFilter === v)}>
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-[10px] uppercase tracking-[0.14em] text-wx-txf font-medium w-14 flex-shrink-0">
+                    Budget
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {([
+                      { v: 'all',  label: de ? 'Alle'    : 'All'       },
+                      { v: 'low',  label: de ? 'bis €35' : 'up to €35' },
+                      { v: 'mid',  label: '€35–€55'                     },
+                      { v: 'high', label: de ? 'über €55': 'over €55'  },
+                    ] as { v: 'all' | 'low' | 'mid' | 'high'; label: string }[]).map(({ v, label }) => (
+                      <button key={v} onClick={() => setBudgetFilter(v)} className={filterChip(budgetFilter === v)}>
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {chainProducts.map((product, i) => (
-                  <ChainCard
-                    key={product.id}
-                    product={product}
-                    de={de}
-                    formatPrice={formatPrice}
-                    buyLabel={t.products.buyOnEbay}
-                    index={i}
-                  />
-                ))}
-              </div>
+
+              {/* Results */}
+              {filteredChains.length === 0 ? (
+                <div className="text-center py-16">
+                  <p className="text-wx-txm text-sm mb-3">
+                    {de ? 'Keine passende Kette gefunden.' : 'No matching chain found.'}
+                  </p>
+                  <button onClick={resetFilters} className="text-[12px] transition-colors" style={{ color: '#5B7AEE' }}>
+                    {de ? 'Filter zurücksetzen' : 'Reset filters'}
+                  </button>
+                </div>
+              ) : (
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredChains.map((product, i) => (
+                    <ChainCard
+                      key={product.id}
+                      product={product}
+                      de={de}
+                      formatPrice={formatPrice}
+                      buyLabel={t.products.buyOnEbay}
+                      index={i}
+                    />
+                  ))}
+                </div>
+              )}
             </>
           )}
         </div>

@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { Calculator, Link2, Package, PiggyBank, RotateCcw, ExternalLink } from 'lucide-react';
+import { Calculator, Package, PiggyBank, RotateCcw } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { useLanguage } from '@/hooks/useLanguage';
-import { waxIntervals, compatibilityMatrix, getProductById, type Product } from '@/lib/data';
+import { waxIntervals } from '@/lib/data';
 
 const BLUE = '#5B7AEE';
 
@@ -157,117 +157,6 @@ function RewaxCalculator() {
             {interval} km · bei {kmPerWeek} km/Wo.
           </p>
         </ResultBox>
-      </div>
-    </ToolCard>
-  );
-}
-
-// ─── Tool 2: Bike Questionnaire ───────────────────────────────────────────────
-function BikeQuestionnaire() {
-  const { lang } = useLanguage();
-  const [brand, setBrand] = useState<'shimano' | 'sram' | 'campagnolo' | 'unknown'>('shimano');
-  const [speed, setSpeed] = useState<'9-10' | '11' | '12'>('11');
-
-  const is9or10 = speed === '9-10';
-  const speedKey = speed as '11' | '12';
-
-  let recommendedChains: Product[] = [];
-  if (!is9or10) {
-    if (brand === 'unknown') {
-      const ybnId = speed === '11' ? 'chain-ybn11' : 'chain-ybn12';
-      const ybn = getProductById(ybnId);
-      if (ybn) recommendedChains = [ybn];
-    } else {
-      recommendedChains = (compatibilityMatrix[brand]?.[speedKey] || [])
-        .map(id => getProductById(id))
-        .filter((p): p is Product => Boolean(p));
-    }
-  }
-
-  const brandOpts = [
-    { value: 'shimano', label: 'Shimano' },
-    { value: 'sram', label: 'SRAM' },
-    { value: 'campagnolo', label: 'Campagnolo' },
-    { value: 'unknown', label: 'Weiß nicht' },
-  ];
-  const speedOpts = [
-    { value: '9-10', label: '9/10-fach' },
-    { value: '11', label: '11-fach' },
-    { value: '12', label: '12-fach' },
-  ];
-
-  return (
-    <ToolCard>
-      <ToolHeader
-        icon={<Link2 className="h-4 w-4" style={{ color: '#8AAAFF' }} />}
-        title="Welche Kette passt zu dir?"
-        subtitle="2 Angaben — sofortige Empfehlung."
-      />
-      <div className="px-6 flex flex-col flex-1 gap-5 pb-6">
-        <div className="space-y-5 flex-1">
-          <div>
-            <FieldLabel label="Antrieb" />
-            <div className="flex flex-wrap gap-2">
-              {brandOpts.map(o => (
-                <button key={o.value} onClick={() => setBrand(o.value as any)} className={tog(brand === o.value)}>{o.label}</button>
-              ))}
-            </div>
-          </div>
-          <div>
-            <FieldLabel label="Gänge" />
-            <div className="flex flex-wrap gap-2">
-              {speedOpts.map(o => (
-                <button key={o.value} onClick={() => setSpeed(o.value as any)} className={tog(speed === o.value)}>{o.label}</button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {is9or10 ? (
-          <ResultBox>
-            <p className="text-[10px] text-wx-txf uppercase tracking-[0.1em] mb-2">Für 9/10-fach</p>
-            <p className="text-[12px] text-wx-txm leading-snug mb-3">
-              Keine vorgewachsten Ketten nötig — wachs einfach deine bestehende Kette selbst.
-            </p>
-            <a
-              href="https://www.ebay.de/itm/395811183957"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block rounded-lg border p-3 hover:border-[#5B7AEE]/50 transition-colors"
-              style={{ borderColor: 'rgba(91,122,238,0.3)', background: 'rgba(91,122,238,0.06)' }}
-            >
-              <p className="text-[13px] font-semibold text-wx-tx1">Classic Kettenwachs 300g</p>
-              <p className="text-[11px] mt-0.5" style={{ color: BLUE }}>22,95 € · Auf eBay ↗</p>
-            </a>
-          </ResultBox>
-        ) : (
-          <div>
-            <p className="text-[10px] text-wx-txf uppercase tracking-[0.12em] mb-3">Passende Ketten</p>
-            {recommendedChains.length === 0 ? (
-              <p className="text-[13px] text-wx-txm text-center py-4">Keine Ketten gefunden</p>
-            ) : (
-              <div className="space-y-1.5">
-                {/* Entire row is the link — large tap target, no nested <a><button> */}
-                {recommendedChains.map((chain) => (
-                  <a
-                    key={chain.id}
-                    href={chain.ebayUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-between rounded-lg px-3 py-2.5 border border-wx-bd hover:border-[#5B7AEE]/40 transition-colors group"
-                    style={{ background: 'var(--sf2)' }}
-                  >
-                    <div>
-                      <p className="text-[13px] text-wx-tx2 leading-tight">{lang === 'de' ? chain.title : chain.titleEn}</p>
-                      <p className="text-[12px] font-semibold mt-0.5" style={{ color: '#8AAAFF' }}>{chain.price.toFixed(2)} €</p>
-                    </div>
-                    <ExternalLink className="h-3.5 w-3.5 text-wx-txf group-hover:text-[#8AAAFF] transition-colors flex-shrink-0" />
-                  </a>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
       </div>
     </ToolCard>
   );
@@ -573,7 +462,7 @@ function RevealSlot({ delay, children }: { delay: number; children: React.ReactN
 }
 
 // ─── Mobile tab labels ────────────────────────────────────────────────────────
-const TAB_LABELS = ['Intervall', 'Kette', 'Vorrat', 'Ersparnis', 'Rotation'];
+const TAB_LABELS = ['Intervall', 'Vorrat', 'Ersparnis', 'Rotation'];
 
 // ─── Main Export ──────────────────────────────────────────────────────────────
 export function Tools() {
@@ -582,7 +471,6 @@ export function Tools() {
 
   const toolComponents = [
     <RewaxCalculator />,
-    <BikeQuestionnaire />,
     <WaxStockCalculator />,
     <CostSavingsCalculator />,
     <RotationROI />,
@@ -626,18 +514,15 @@ export function Tools() {
             {toolComponents[activeTab]}
           </div>
 
-          {/* ── Desktop: 2+3 grid layout ── */}
+          {/* ── Desktop: 2+2 grid layout ── */}
           <div className="hidden md:block space-y-4">
-            {/* Row 1: primary tools — 2 wide columns */}
             <div className="grid md:grid-cols-2 gap-4 items-stretch">
               <RevealSlot delay={0}><RewaxCalculator /></RevealSlot>
-              <RevealSlot delay={90}><BikeQuestionnaire /></RevealSlot>
+              <RevealSlot delay={90}><WaxStockCalculator /></RevealSlot>
             </div>
-            {/* Row 2: secondary tools — 3 columns */}
-            <div className="grid md:grid-cols-3 gap-4 items-stretch">
-              <RevealSlot delay={180}><WaxStockCalculator /></RevealSlot>
-              <RevealSlot delay={270}><CostSavingsCalculator /></RevealSlot>
-              <RevealSlot delay={360}><RotationROI /></RevealSlot>
+            <div className="grid md:grid-cols-2 gap-4 items-stretch">
+              <RevealSlot delay={180}><CostSavingsCalculator /></RevealSlot>
+              <RevealSlot delay={270}><RotationROI /></RevealSlot>
             </div>
           </div>
         </div>
