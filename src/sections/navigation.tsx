@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Menu, X, ExternalLink, Sun, Moon } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
-import { useTheme } from '@/hooks/useTheme';
+import { useTheme, type Theme } from '@/hooks/useTheme';
 
 const navItems = [
   { href: '#home', key: 'start' },
@@ -20,7 +20,13 @@ export function Navigation({ onLogoClick }: NavigationProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { t, lang, toggleLang } = useLanguage();
-  const { theme, toggleTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
+
+  const themes: { value: Theme; label: string; icon: React.ReactNode }[] = [
+    { value: 'light', label: 'Light',  icon: <Sun className="h-3.5 w-3.5" /> },
+    { value: 'dark',  label: 'Dusk',   icon: <Moon className="h-3.5 w-3.5" /> },
+    { value: 'noir',  label: 'Noir',   icon: <span className="h-3.5 w-3.5 flex items-center justify-center"><span className="block w-2.5 h-2.5 rounded-full bg-current" /></span> },
+  ];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -83,14 +89,28 @@ export function Navigation({ onLogoClick }: NavigationProps) {
 
           {/* Actions */}
           <div className="flex items-center gap-3">
-            {/* Theme Toggle */}
-            <button
-              onClick={toggleTheme}
-              className="p-1.5 text-wx-tx2 hover:text-wx-tx1 border border-wx-bd/50 hover:border-[#4A6AEE] rounded transition-colors"
-              aria-label="Toggle theme"
+            {/* 3-way theme toggle */}
+            <div
+              className="flex items-center p-0.5 rounded-lg border border-wx-bd/50 gap-0.5"
+              style={{ background: 'var(--sf2)' }}
             >
-              {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </button>
+              {themes.map(({ value, label, icon }) => (
+                <button
+                  key={value}
+                  onClick={() => setTheme(value)}
+                  aria-label={label}
+                  title={label}
+                  className={`p-1.5 rounded-md transition-all ${
+                    theme === value
+                      ? 'text-wx-tx1 shadow-sm'
+                      : 'text-wx-txf hover:text-wx-tx2'
+                  }`}
+                  style={theme === value ? { background: 'var(--sf)' } : undefined}
+                >
+                  {icon}
+                </button>
+              ))}
+            </div>
 
             {/* Language Toggle */}
             <button

@@ -91,6 +91,51 @@
     --ring: 228 80% 61%;
   }
 
+  /* ── Noir mode — zinc-950 neutral blacks, 2026 dark-first ── */
+  .noir {
+    /* Zinc-tinted neutrals — no blue undertone */
+    --pg:        #09090B;    /* zinc-950 */
+    --sf:        #111113;    /* slightly elevated, neutral */
+    --sf2:       #1C1C1F;    /* card surface, Raycast-inspired */
+    --sf3:       #050507;    /* deeper layer for tool bg */
+    --tx1:       #FAFAFA;    /* off-white — easier on eyes than pure white */
+    --tx2:       #A1A1AA;    /* zinc-400 — 7.2:1 contrast */
+    --txm:       #71717A;    /* zinc-500 — 4.6:1 contrast */
+    --txf:       #52525B;    /* zinc-600 */
+    --txff:      #3F3F46;    /* zinc-700 */
+    --bd:        #27272A;    /* zinc-800 — subtle neutral border */
+    --bd2:       #18181B;    /* zinc-900 — deeper border */
+    --card-from: #17171A;    /* card top — neutral, no blue */
+    --card-to:   #0F0F12;    /* card bottom — pure near-black */
+    --card-to-rgb: 15,15,18;
+    /* Elevated card feel: strong shadow + hairline top highlight */
+    --card-shad: 0 1px 0 rgba(255,255,255,0.06) inset,
+                 0 12px 40px rgba(0,0,0,0.85),
+                 0 0 0 1px rgba(255,255,255,0.04);
+    --nav-bg:    rgba(9,9,11,0.94);
+    --tool-bg:   #050507;
+
+    --background: 240 10% 4%;
+    --foreground: 0 0% 98%;
+    --card: 240 5% 8%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 5% 8%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 228 80% 61%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 4% 11%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 4% 11%;
+    --muted-foreground: 240 5% 45%;
+    --accent: 240 4% 13%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 240 4% 16%;
+    --input: 240 4% 16%;
+    --ring: 228 80% 61%;
+  }
+
   html {
     scroll-behavior: smooth;
     background-color: var(--pg);
@@ -115,11 +160,11 @@
   }
 }
 
-/* Light mode: headings use --tx1 (dark on light, white on dark) */
-:root:not(.dark) h1,
-:root:not(.dark) h2,
-:root:not(.dark) h3,
-:root:not(.dark) h4 {
+/* Light mode only: force headings dark */
+:root:not(.dark):not(.noir) h1,
+:root:not(.dark):not(.noir) h2,
+:root:not(.dark):not(.noir) h3,
+:root:not(.dark):not(.noir) h4 {
   color: var(--tx1) !important;
 }
 
