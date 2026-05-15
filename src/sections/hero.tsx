@@ -30,7 +30,7 @@ export function Hero() {
     <section
       id="home"
       ref={sectionRef}
-      className="relative min-h-screen bg-[#090909] flex items-center justify-center overflow-hidden"
+      className="relative min-h-screen bg-wx-bg flex items-center justify-center overflow-hidden"
     >
       {/* Subtle grid background */}
       <div className="absolute inset-0 grid-bg opacity-50" />
@@ -72,11 +72,11 @@ export function Hero() {
             WAXCELERATE
           </h1>
 
-          <p className="text-xl sm:text-2xl text-[#8896B0] font-light mb-4">
+          <p className="text-xl sm:text-2xl text-wx-tx2 font-light mb-4">
             {t.hero.subtitle}
           </p>
 
-          <p className="text-base text-[#8896B0] mb-12 max-w-lg mx-auto leading-relaxed">
+          <p className="text-base text-wx-tx2 mb-12 max-w-lg mx-auto leading-relaxed">
             {t.hero.tagline}
           </p>
 
@@ -95,7 +95,7 @@ export function Hero() {
             <Button
               variant="outline"
               onClick={() => scrollToSection('#anleitungen')}
-              className="border-[#22222E] text-[#8896B0] hover:bg-[#18181E] hover:text-white px-8 py-6 text-sm rounded-lg transition-all"
+              className="border-wx-bd text-wx-tx2 hover:bg-wx-sf2 hover:text-wx-tx1 px-8 py-6 text-sm rounded-lg transition-all"
             >
               {t.hero.ctaGuide}
               <ArrowRight className="ml-2 h-4 w-4" />
@@ -105,7 +105,7 @@ export function Hero() {
           {/* Trust indicators */}
           <div className="flex flex-wrap justify-center gap-x-8 gap-y-3 mb-14">
             {[t.hero.trust1, t.hero.trust2, t.hero.trust3].map((item, index) => (
-              <div key={index} className="flex items-center gap-2 text-[#8896B0]">
+              <div key={index} className="flex items-center gap-2 text-wx-tx2">
                 <Check className="h-4 w-4 text-[#4A6AEE]" />
                 <span className="text-sm">{item}</span>
               </div>
@@ -114,24 +114,24 @@ export function Hero() {
 
           {/* Spec badges - factual */}
           <div className="flex flex-wrap justify-center gap-4">
-            <div className="bg-[#111117]/80 backdrop-blur-sm border border-[#22222E]/30 rounded-lg px-5 py-3">
-              <p className="text-[10px] text-[#8896B0] uppercase tracking-wider mb-1">Zusammensetzung</p>
-              <p className="text-base font-semibold text-white">Paraffin + PTFE</p>
+            <div className="bg-wx-sf/80 backdrop-blur-sm border border-wx-bd/30 rounded-lg px-5 py-3">
+              <p className="text-[10px] text-wx-tx2 uppercase tracking-wider mb-1">Zusammensetzung</p>
+              <p className="text-base font-semibold text-wx-tx1">Paraffin + PTFE</p>
             </div>
-            <div className="bg-[#111117]/80 backdrop-blur-sm border border-[#22222E]/30 rounded-lg px-5 py-3">
-              <p className="text-[10px] text-[#8896B0] uppercase tracking-wider mb-1">Verkäufer-Bewertung</p>
-              <p className="text-base font-semibold text-white">100% (154)</p>
+            <div className="bg-wx-sf/80 backdrop-blur-sm border border-wx-bd/30 rounded-lg px-5 py-3">
+              <p className="text-[10px] text-wx-tx2 uppercase tracking-wider mb-1">Verkäufer-Bewertung</p>
+              <p className="text-base font-semibold text-wx-tx1">100% (154)</p>
             </div>
-            <div className="bg-[#111117]/80 backdrop-blur-sm border border-[#22222E]/30 rounded-lg px-5 py-3">
-              <p className="text-[10px] text-[#8896B0] uppercase tracking-wider mb-1">Artikel verkauft</p>
-              <p className="text-base font-semibold text-white">294+</p>
+            <div className="bg-wx-sf/80 backdrop-blur-sm border border-wx-bd/30 rounded-lg px-5 py-3">
+              <p className="text-[10px] text-wx-tx2 uppercase tracking-wider mb-1">Artikel verkauft</p>
+              <p className="text-base font-semibold text-wx-tx1">294+</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Bottom fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#090909] to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-32" style={{ background: 'linear-gradient(to top, var(--pg), transparent)' }} />
     </section>
   );
 }

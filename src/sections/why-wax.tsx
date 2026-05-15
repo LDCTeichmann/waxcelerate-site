@@ -110,7 +110,7 @@ export function WhyWax() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="py-24 bg-[#090909]">
+    <section ref={sectionRef} className="py-24 bg-wx-bg">
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-6xl mx-auto">
 
@@ -122,7 +122,7 @@ export function WhyWax() {
             <h2 className="font-display text-4xl sm:text-5xl font-bold text-white mb-4">
               {de ? 'Warum Waxcelerate' : 'Why Waxcelerate'}
             </h2>
-            <p className="text-[#52526A] max-w-lg mx-auto text-[15px]">
+            <p className="text-wx-txm max-w-lg mx-auto text-[15px]">
               {de
                 ? 'Nicht warum Wachs — sondern warum diese Formulierung besser durchdacht ist als die meisten Alternativen.'
                 : 'Not why wax — but why this formulation is more carefully developed than most alternatives.'}
@@ -137,10 +137,10 @@ export function WhyWax() {
               { stat: '~€70', labelDe: 'gespart auf 12.000 km', labelEn: 'saved over 12,000 km' },
             ].map((item, i) => (
               <div key={i} className="text-center">
-                <p className="text-[30px] sm:text-[36px] font-bold text-white tabular-nums leading-none mb-1.5">
+                <p className="text-[30px] sm:text-[36px] font-bold text-wx-tx1 tabular-nums leading-none mb-1.5">
                   {item.stat}
                 </p>
-                <p className="text-[12px] text-[#6B7088]">{de ? item.labelDe : item.labelEn}</p>
+                <p className="text-[12px] text-wx-txm">{de ? item.labelDe : item.labelEn}</p>
               </div>
             ))}
           </div>
@@ -164,21 +164,21 @@ export function WhyWax() {
               <h3 className="font-display text-2xl font-bold text-white">
                 {de ? 'Mit Öl bezahlst du die Kette dreimal' : 'With oil, you pay for the chain three times'}
               </h3>
-              <p className="text-[13px] text-[#6B7088] mt-2">
+              <p className="text-[13px] text-wx-txm mt-2">
                 {de
                   ? 'Basis: Shimano CN-M8100, €45,99 · aktiver Straßenfahrer · 200 km/Woche'
                   : 'Basis: Shimano CN-M8100, €45.99 · active road rider · 200 km/week'}
               </p>
             </div>
 
-            <div ref={costBarsRef} className="rounded-xl border border-[#1E1E2C] overflow-hidden" style={{ background: '#0C0C12' }}>
+            <div ref={costBarsRef} className="rounded-xl border border-[#1E1E2C] overflow-hidden" style={{ background: 'var(--sf3)' }}>
 
               {/* Two-column breakdown */}
               <div className="grid sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-[#1A1A26]">
 
                 {/* Oil side */}
                 <div className="p-5 sm:p-6">
-                  <p className="text-[10px] uppercase tracking-[0.18em] text-[#6B7088] font-medium mb-4">
+                  <p className="text-[10px] uppercase tracking-[0.18em] text-wx-txm font-medium mb-4">
                     {de ? 'Mit Kettenöl' : 'With chain oil'}
                   </p>
 
@@ -192,7 +192,7 @@ export function WhyWax() {
                             <circle cx="10" cy="10" r="3"/>
                           </svg>
                         </div>
-                        <span className="text-[9px] text-[#4A4A62] tabular-nums">€46</span>
+                        <span className="text-[9px] text-wx-txf tabular-nums">€46</span>
                       </div>
                     ))}
                     <div className="flex flex-col items-center gap-1 ml-2">
@@ -202,19 +202,19 @@ export function WhyWax() {
                           <circle cx="10" cy="10" r="7"/>
                         </svg>
                       </div>
-                      <span className="text-[9px] text-[#3A3A52] tabular-nums">Öl</span>
+                      <span className="text-[9px] text-wx-txff tabular-nums">Öl</span>
                     </div>
                   </div>
 
                   {/* Itemized */}
                   <div className="space-y-2 mb-5">
                     <div className="flex justify-between items-center">
-                      <span className="text-[12px] text-[#6B7088]">{de ? '3 Ketten × €46' : '3 chains × €46'}</span>
-                      <span className="text-[13px] font-medium text-[#8896B0] tabular-nums">€138</span>
+                      <span className="text-[12px] text-wx-txm">{de ? '3 Ketten × €46' : '3 chains × €46'}</span>
+                      <span className="text-[13px] font-medium text-wx-tx2 tabular-nums">€138</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-[12px] text-[#6B7088]">{de ? 'Öl (12× Flasche à €1,10)' : 'Oil (12× bottle × €1.10)'}</span>
-                      <span className="text-[13px] font-medium text-[#8896B0] tabular-nums">€13</span>
+                      <span className="text-[12px] text-wx-txm">{de ? 'Öl (12× Flasche à €1,10)' : 'Oil (12× bottle × €1.10)'}</span>
+                      <span className="text-[13px] font-medium text-wx-tx2 tabular-nums">€13</span>
                     </div>
                     <div className="h-px bg-[#1E1E2C] my-1" />
                     <div className="flex justify-between items-baseline">
@@ -228,7 +228,7 @@ export function WhyWax() {
                     <div className="h-2.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)' }}>
                       <div className="cost-bar h-full rounded-full" data-w="100%" style={{ width: '0%', background: '#3A3A50' }} />
                     </div>
-                    <p className="text-[11px] text-[#4A4A62] mt-1.5">
+                    <p className="text-[11px] text-wx-txf mt-1.5">
                       {de ? 'Kette hält ~3.500–4.000 km mit Öl' : 'Chain lasts ~3,500–4,000 km with oil'}
                     </p>
                   </div>
@@ -275,7 +275,7 @@ export function WhyWax() {
                     <div className="h-px bg-[#1E2040] my-1" />
                     <div className="flex justify-between items-baseline">
                       <span className="text-[12px] font-medium text-[#A0AACC]">{de ? 'Gesamt' : 'Total'}</span>
-                      <span className="text-[22px] font-bold text-white tabular-nums leading-none">~€81</span>
+                      <span className="text-[22px] font-bold text-wx-tx1 tabular-nums leading-none">~€81</span>
                     </div>
                   </div>
 
@@ -305,7 +305,7 @@ export function WhyWax() {
                     </p>
                   </div>
                   <div className="flex items-baseline gap-1.5 flex-shrink-0">
-                    <span className="text-[36px] sm:text-[42px] font-bold text-white tabular-nums leading-none">~€70</span>
+                    <span className="text-[36px] sm:text-[42px] font-bold text-wx-tx1 tabular-nums leading-none">~€70</span>
                     <span className="text-[14px] font-semibold text-[#5B7AEE]">−46 %</span>
                   </div>
                 </div>
@@ -321,7 +321,7 @@ export function WhyWax() {
               return (
                 <div
                   key={i}
-                  className="diff-card flex flex-col rounded-xl border border-[#1A1A28] p-4 sm:p-5 hover:border-[#252538] transition-all duration-300"
+                  className="diff-card flex flex-col rounded-xl border border-wx-bd2 p-4 sm:p-5 hover:border-[#252538] transition-all duration-300"
                   style={{
                     background: 'linear-gradient(160deg, #0D0D16 0%, #09090F 100%)',
                     boxShadow: '0 4px 24px rgba(0,0,0,0.5)',
@@ -341,7 +341,7 @@ export function WhyWax() {
                   </div>
 
                   {/* Benefit headline */}
-                  <p className="text-[13px] sm:text-[14px] lg:text-[15px] font-bold text-white leading-snug mb-3">
+                  <p className="text-[13px] sm:text-[14px] lg:text-[15px] font-bold text-wx-tx1 leading-snug mb-3">
                     {de ? d.titleDe : d.titleEn}
                   </p>
 
@@ -356,7 +356,7 @@ export function WhyWax() {
                   </div>
 
                   {/* Plain-language consequence */}
-                  <p className="text-[11px] sm:text-[12px] text-[#6B7088] leading-relaxed flex-1">
+                  <p className="text-[11px] sm:text-[12px] text-wx-txm leading-relaxed flex-1">
                     {de ? d.descDe : d.descEn}
                   </p>
                 </div>
@@ -367,7 +367,7 @@ export function WhyWax() {
           {/* ── Block 3: Classic vs Pro ── */}
           <div className="mb-20">
             <div className="text-center mb-8">
-              <p className="text-[10px] tracking-[0.18em] uppercase text-[#4A4A62] mb-2">
+              <p className="text-[10px] tracking-[0.18em] uppercase text-wx-txf mb-2">
                 {de ? 'Produktwahl' : 'Product choice'}
               </p>
               <h3 className="font-display text-2xl font-bold text-white">
@@ -382,7 +382,7 @@ export function WhyWax() {
                 className={`px-4 py-2 rounded-full text-[12px] font-medium transition-all border ${
                   rider === 'summer'
                     ? 'border-[#C0C0D0]/40 bg-[#C0C0D0]/10 text-[#C0C4DC]'
-                    : 'border-[#1E1E2C] text-[#4E4E62] hover:border-[#2E2E40] hover:text-[#7A7A9A]'
+                    : 'border-[#1E1E2C] text-[#4E4E62] hover:border-[#2E2E40] hover:text-wx-txm'
                 }`}
               >
                 {de ? 'Ich fahre nur im Sommer' : 'I ride only in summer'}
@@ -393,7 +393,7 @@ export function WhyWax() {
                 className={`px-4 py-2 rounded-full text-[12px] font-medium transition-all border ${
                   rider === 'allseason'
                     ? 'border-[#5B7AEE]/50 bg-[#5B7AEE]/12 text-[#A8BFFF]'
-                    : 'border-[#1E1E2C] text-[#4E4E62] hover:border-[#2E2E40] hover:text-[#7A7A9A]'
+                    : 'border-[#1E1E2C] text-[#4E4E62] hover:border-[#2E2E40] hover:text-wx-txm'
                 }`}
               >
                 {de ? 'Ich fahre ganzjährig' : 'I ride year-round'}
@@ -405,7 +405,7 @@ export function WhyWax() {
               <div
                 className="rounded-xl border p-6 transition-all duration-500 flex flex-col"
                 style={{
-                  background: 'linear-gradient(160deg, #0E0E17 0%, #0A0A10 100%)',
+                  background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
                   borderColor: rider === 'summer'
                     ? 'rgba(192,192,208,0.35)'
                     : rider === 'allseason' ? '#111118' : '#1A1A28',
@@ -415,9 +415,9 @@ export function WhyWax() {
                 }}
               >
                 <div className="mb-5">
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-[#6B7088] mb-1">Waxcelerate</p>
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-wx-txm mb-1">Waxcelerate</p>
                   <p className="font-display text-[22px] font-bold text-[#C0C4DC]">Classic</p>
-                  <p className="text-[11px] text-[#3A3A52] mt-1">Paraffin + PTFE + Stearin</p>
+                  <p className="text-[11px] text-wx-txff mt-1">Paraffin + PTFE + Stearin</p>
                 </div>
                 <div className="space-y-3 mb-6 flex-1">
                   {[
@@ -427,14 +427,14 @@ export function WhyWax() {
                     de ? '20–32 Anwendungen pro 500g Block' : '20–32 applications per 500g block',
                   ].map((item, i) => (
                     <div key={i} className="flex items-start gap-3">
-                      <span className="text-[#4A4A62] mt-0.5 flex-shrink-0 text-[10px]">◆</span>
+                      <span className="text-wx-txf mt-0.5 flex-shrink-0 text-[10px]">◆</span>
                       <span className="text-[14px] text-[#8890A8] leading-snug">{item}</span>
                     </div>
                   ))}
                 </div>
                 <div className="border-t border-[#131320] pt-4">
-                  <p className="text-[11px] text-[#4A4A62] mb-1">{de ? 'Für wen' : 'Best for'}</p>
-                  <p className="text-[13px] text-[#6B7088] leading-snug mb-4">
+                  <p className="text-[11px] text-wx-txf mb-1">{de ? 'Für wen' : 'Best for'}</p>
+                  <p className="text-[13px] text-wx-txm leading-snug mb-4">
                     {de ? 'Einstieg, Sommer, regelmäßiges Wachsen' : 'Entry level, summer, regular waxing'}
                   </p>
                   <div className="flex items-center justify-between">
@@ -507,7 +507,7 @@ export function WhyWax() {
                     ].map((bar, i) => (
                       <div key={i} className="mb-3 last:mb-0">
                         <div className="flex justify-between items-center mb-1.5">
-                          <span className="text-[11px] text-[#52526A]">{bar.label}</span>
+                          <span className="text-[11px] text-wx-txm">{bar.label}</span>
                           <span className="text-[11px] text-[#7A80A0] tabular-nums">{bar.display}</span>
                         </div>
                         <div className="h-1.5 rounded-full bg-[#131320]">
@@ -528,7 +528,7 @@ export function WhyWax() {
 
                   <div className="border-t border-[#1A1A2E] pt-4">
                     <p className="text-[11px] text-[#4A5080] mb-1">{de ? 'Für wen' : 'Best for'}</p>
-                    <p className="text-[13px] text-[#6B7088] leading-snug mb-4">
+                    <p className="text-[13px] text-wx-txm leading-snug mb-4">
                       {de ? 'Ganzjahresfahrer, 3-Ketten-Rotation, Winter' : 'Year-round riders, 3-chain rotation, winter'}
                     </p>
                     <div className="flex items-center justify-between">
@@ -547,7 +547,7 @@ export function WhyWax() {
               </div>
             </div>
 
-            <p className="text-center text-[12px] text-[#3A3A52] mt-5 italic">
+            <p className="text-center text-[12px] text-wx-txff mt-5 italic">
               {de
                 ? 'Beide vollwertig — optimiert für unterschiedliche Fahrerprofile.'
                 : 'Both full-featured — optimised for different rider profiles.'}
@@ -557,7 +557,7 @@ export function WhyWax() {
           {/* ── Block 4: Friction Coefficient ── */}
           <div ref={frictionRef} className="mb-20">
             <div className="text-center mb-8">
-              <p className="text-[10px] tracking-[0.18em] uppercase text-[#4A4A62] mb-2">
+              <p className="text-[10px] tracking-[0.18em] uppercase text-wx-txf mb-2">
                 {de ? 'Reibungskoeffizient' : 'Friction coefficient'}
               </p>
               <h3 className="font-display text-2xl font-bold text-white">
@@ -565,8 +565,8 @@ export function WhyWax() {
               </h3>
             </div>
 
-            <div className="rounded-xl border border-[#1A1A28] p-6 sm:p-8" style={{ background: '#0C0C10' }}>
-              <p className="text-[10px] uppercase tracking-[0.16em] text-[#3A3A52] mb-6">
+            <div className="rounded-xl border border-wx-bd2 p-6 sm:p-8" style={{ background: '#0C0C10' }}>
+              <p className="text-[10px] uppercase tracking-[0.16em] text-wx-txff mb-6">
                 {de ? 'Schmierungseffizienz — längerer Balken = besser' : 'Lubrication efficiency — longer bar = better'}
               </p>
               <div className="space-y-6">
@@ -595,11 +595,11 @@ export function WhyWax() {
                 ].map((item, i) => (
                   <div key={i}>
                     <div className="flex justify-between items-center mb-2.5">
-                      <span className={`text-[14px] font-medium ${item.highlight ? 'text-[#C0C4DC]' : 'text-[#52526A]'}`}>
+                      <span className={`text-[14px] font-medium ${item.highlight ? 'text-[#C0C4DC]' : 'text-wx-txm'}`}>
                         {item.label}
                       </span>
                       <span className={`text-[12px] tabular-nums font-mono ${
-                        item.highlight ? 'text-[#8AAAFF]' : item.danger ? 'text-[#7A4A52]' : 'text-[#3A3A52]'
+                        item.highlight ? 'text-[#8AAAFF]' : item.danger ? 'text-[#7A4A52]' : 'text-wx-txff'
                       }`}>
                         {item.descriptor}
                       </span>
@@ -619,7 +619,7 @@ export function WhyWax() {
                   </div>
                 ))}
               </div>
-              <p className="text-[12px] text-[#3A3A52] italic mt-6">
+              <p className="text-[12px] text-wx-txff italic mt-6">
                 {de
                   ? 'Index basiert auf gemessenem Reibungskoeffizient (μ). Waxcelerate Classic auf Augenhöhe mit Graphit-Wachs — bei sauberem Antrieb.'
                   : 'Index derived from measured friction coefficient (μ). Waxcelerate Classic on par with graphite wax on a clean drivetrain.'}
@@ -630,7 +630,7 @@ export function WhyWax() {
           {/* ── Block 5: Maintenance Timeline ── */}
           <div ref={timelineRef} className="mb-20">
             <div className="text-center mb-8">
-              <p className="text-[10px] tracking-[0.18em] uppercase text-[#4A4A62] mb-2">
+              <p className="text-[10px] tracking-[0.18em] uppercase text-wx-txf mb-2">
                 {de ? 'Wartungsaufwand' : 'Maintenance effort'}
               </p>
               <h3 className="font-display text-2xl font-bold text-white">
@@ -638,13 +638,13 @@ export function WhyWax() {
               </h3>
             </div>
 
-            <div className="rounded-xl border border-[#1A1A28] p-6 sm:p-8" style={{ background: '#0C0C10' }}>
+            <div className="rounded-xl border border-wx-bd2 p-6 sm:p-8" style={{ background: '#0C0C10' }}>
 
               {/* Legend */}
               <div className="flex gap-6 mb-7">
                 <div className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-[#3A3452] flex-shrink-0" />
-                  <span className="text-[11px] text-[#3A3A52]">
+                  <span className="text-[11px] text-wx-txff">
                     {de ? '= einmal ölen' : '= one oil application'}
                   </span>
                 </div>
@@ -662,10 +662,10 @@ export function WhyWax() {
               {/* Oil row */}
               <div className="mb-8">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-[13px] font-medium text-[#52526A]">
+                  <span className="text-[13px] font-medium text-wx-txm">
                     {de ? 'Kettenöl' : 'Chain Oil'}
                   </span>
-                  <span className="text-[12px] text-[#3A3A52] tabular-nums">
+                  <span className="text-[12px] text-wx-txff tabular-nums">
                     ~{oilCount}× {de ? 'ölen' : 'oil stops'}
                   </span>
                 </div>
@@ -727,7 +727,7 @@ export function WhyWax() {
                 ))}
               </div>
 
-              <p className="text-[12px] text-[#3A3A52] italic mt-4">
+              <p className="text-[12px] text-wx-txff italic mt-4">
                 {de
                   ? `${oilCount} Ölstopps vs. ${waxCount} Wachsanwendungen — bei gleichzeitig längerer Kettenlaufzeit.`
                   : `${oilCount} oil stops vs. ${waxCount} wax applications — with a longer chain lifetime on top.`}
@@ -738,23 +738,23 @@ export function WhyWax() {
           {/* ── Block 6: Pre-waxed vs Oil ── */}
           <div ref={compBarsRef} className="mb-16">
             <div className="text-center mb-8">
-              <p className="text-[10px] tracking-[0.18em] uppercase text-[#4A4A62] mb-2">
+              <p className="text-[10px] tracking-[0.18em] uppercase text-wx-txf mb-2">
                 {de ? 'Vorgewachste Ketten' : 'Pre-waxed Chains'}
               </p>
               <h3 className="font-display text-2xl font-bold text-white">
                 {de ? 'Einbauen und fahren' : 'Install and ride'}
               </h3>
-              <p className="text-[14px] text-[#52526A] mt-2">
+              <p className="text-[14px] text-wx-txm mt-2">
                 {de
                   ? 'MoS₂-vorgewachst, vollständig fahrbereit, Kettenschloss dabei.'
                   : 'MoS₂ pre-waxed, fully ride-ready, quick-link included.'}
               </p>
             </div>
 
-            <div className="rounded-xl border border-[#1A1A28] p-6 sm:p-8" style={{ background: '#0C0C10' }}>
+            <div className="rounded-xl border border-wx-bd2 p-6 sm:p-8" style={{ background: '#0C0C10' }}>
               <div className="space-y-8">
                 <div>
-                  <p className="text-[11px] uppercase tracking-[0.14em] text-[#4A4A62] mb-4">
+                  <p className="text-[11px] uppercase tracking-[0.14em] text-wx-txf mb-4">
                     {de ? 'Wartungsintervall' : 'Maintenance interval'}
                   </p>
                   <div className="space-y-4">
@@ -770,8 +770,8 @@ export function WhyWax() {
                     </div>
                     <div>
                       <div className="flex justify-between mb-2">
-                        <span className="text-[14px] text-[#52526A]">{de ? 'Kettenöl' : 'Chain oil'}</span>
-                        <span className="text-[14px] text-[#3A3A52] tabular-nums">50–150 km</span>
+                        <span className="text-[14px] text-wx-txm">{de ? 'Kettenöl' : 'Chain oil'}</span>
+                        <span className="text-[14px] text-wx-txff tabular-nums">50–150 km</span>
                       </div>
                       <div className="h-2.5 rounded-full bg-[#131320] overflow-hidden">
                         <div className="cbar h-full rounded-full" data-w="27%"
@@ -782,7 +782,7 @@ export function WhyWax() {
                 </div>
 
                 <div>
-                  <p className="text-[11px] uppercase tracking-[0.14em] text-[#4A4A62] mb-4">
+                  <p className="text-[11px] uppercase tracking-[0.14em] text-wx-txf mb-4">
                     {de ? 'Kettenlaufzeit' : 'Chain lifetime'}
                   </p>
                   <div className="space-y-4">
@@ -798,8 +798,8 @@ export function WhyWax() {
                     </div>
                     <div>
                       <div className="flex justify-between mb-2">
-                        <span className="text-[14px] text-[#52526A]">{de ? 'Kettenöl' : 'Chain oil'}</span>
-                        <span className="text-[14px] text-[#3A3A52]">Basis (1×)</span>
+                        <span className="text-[14px] text-wx-txm">{de ? 'Kettenöl' : 'Chain oil'}</span>
+                        <span className="text-[14px] text-wx-txff">Basis (1×)</span>
                       </div>
                       <div className="h-2.5 rounded-full bg-[#131320] overflow-hidden">
                         <div className="cbar h-full rounded-full" data-w="20%"
@@ -810,7 +810,7 @@ export function WhyWax() {
                 </div>
 
                 <div>
-                  <p className="text-[11px] uppercase tracking-[0.14em] text-[#4A4A62] mb-4">
+                  <p className="text-[11px] uppercase tracking-[0.14em] text-wx-txf mb-4">
                     {de ? 'Pflegeaufwand' : 'Maintenance effort'}
                   </p>
                   <div className="grid grid-cols-2 gap-4">
@@ -827,8 +827,8 @@ export function WhyWax() {
                       className="rounded-lg p-4"
                       style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid #161620' }}
                     >
-                      <p className="text-[11px] font-semibold text-[#3A3A52] mb-2">{de ? 'Kettenöl' : 'Chain oil'}</p>
-                      <p className="text-[15px] text-[#52526A]">
+                      <p className="text-[11px] font-semibold text-wx-txff mb-2">{de ? 'Kettenöl' : 'Chain oil'}</p>
+                      <p className="text-[15px] text-wx-txm">
                         {de ? 'Alle 100–150 km ölen' : 'Oil every 100–150 km'}
                       </p>
                     </div>
@@ -860,8 +860,8 @@ export function WhyWax() {
           </div>
 
           {/* ── CTA ── */}
-          <div className="text-center pt-4 border-t border-[#1A1A28]">
-            <p className="text-[#3A3A52] text-[13px] mb-6">
+          <div className="text-center pt-4 border-t border-wx-bd2">
+            <p className="text-wx-txff text-[13px] mb-6">
               {de
                 ? '145 eBay-Bewertungen · 100% positiv · Versand am gleichen Tag'
                 : '145 eBay reviews · 100% positive · Same-day shipping'}

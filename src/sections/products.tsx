@@ -19,7 +19,7 @@ export function Products() {
     }).format(price);
 
   return (
-    <section id="produkte" className="py-24 bg-[#090909]">
+    <section id="produkte" className="py-24 bg-wx-bg">
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-6xl mx-auto">
 
@@ -31,21 +31,21 @@ export function Products() {
             <h2 className="font-display text-4xl sm:text-5xl font-bold text-white mb-4">
               {t.products.title}
             </h2>
-            <p className="text-[#6B7280] max-w-xl mx-auto">
+            <p className="text-wx-txm max-w-xl mx-auto">
               {t.products.subtitle}
             </p>
           </div>
 
           {/* Tabs */}
-          <div className="flex justify-center gap-1 mb-12 bg-[#111418] border border-[#252525] p-1 rounded-xl w-fit mx-auto">
+          <div className="flex justify-center gap-1 mb-12 bg-wx-sf border border-wx-bd p-1 rounded-xl w-fit mx-auto">
             {(['wax', 'chain'] as const).map(tab => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${
                   activeTab === tab
-                    ? 'bg-[#1A1A1A] text-white shadow-sm'
-                    : 'text-[#52576A] hover:text-[#8896B0]'
+                    ? 'bg-wx-sf2 text-white shadow-sm'
+                    : 'text-wx-txf hover:text-wx-tx2'
                 }`}
               >
                 {tab === 'wax' ? t.products.tabs.wax : t.products.tabs.chains}
@@ -72,8 +72,8 @@ export function Products() {
           {/* Chain Products */}
           {activeTab === 'chain' && (
             <>
-              <div className="border border-[#252525] rounded-xl px-5 py-3.5 mb-8 bg-[#111418]">
-                <p className="text-[#6B7280] text-sm">{t.products.preWaxedHint}</p>
+              <div className="border border-wx-bd rounded-xl px-5 py-3.5 mb-8 bg-wx-sf">
+                <p className="text-wx-txm text-sm">{t.products.preWaxedHint}</p>
               </div>
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {chainProducts.map((product, i) => (
@@ -206,7 +206,7 @@ function WaxCard({ product, de, formatPrice, buyLabel, index }: CardProps & { in
         to={`/produkt/${product.id}`}
         className="group block rounded-2xl overflow-hidden"
         style={{
-          background: 'linear-gradient(175deg, #191c24 0%, #111318 100%)',
+          background: 'linear-gradient(175deg, var(--card-from) 0%, var(--card-to) 100%)',
           border: '1px solid rgba(255,255,255,0.07)',
           boxShadow: '0 2px 4px rgba(0,0,0,0.35), 0 8px 32px rgba(0,0,0,0.55)',
           transition: 'box-shadow 300ms ease, border-color 300ms ease',
@@ -232,7 +232,7 @@ function WaxCard({ product, de, formatPrice, buyLabel, index }: CardProps & { in
           {/* Scrim */}
           <div
             className="absolute inset-0 pointer-events-none"
-            style={{ background: 'linear-gradient(to top, rgba(17,19,24,1) 0%, rgba(17,19,24,0.55) 28%, rgba(0,0,0,0) 58%)' }}
+            style={{ background: 'linear-gradient(to top, var(--card-to) 0%, rgba(var(--card-to-rgb), 0.55) 28%, rgba(0,0,0,0) 58%)' }}
           />
           {/* Overlaid label + badge */}
           <div className="absolute bottom-0 inset-x-0 px-5 pb-4 flex items-center justify-between">
@@ -252,29 +252,29 @@ function WaxCard({ product, de, formatPrice, buyLabel, index }: CardProps & { in
 
         {/* Content */}
         <div className="px-5 pt-4 pb-5 flex flex-col">
-          <h3 className="text-[17px] font-semibold text-white leading-tight mb-3">
+          <h3 className="text-[17px] font-semibold text-wx-tx1 leading-tight mb-3">
             {de ? 'Kettenwachs' : 'Chain Wax'} — {isPro ? 'Pro' : 'Classic'}
           </h3>
 
           <div className="flex flex-col gap-1.5 mb-3">
             {benefits.map(({ icon, label }, i) => (
-              <div key={i} className="flex items-center gap-2 text-[12px] text-[#7A8499]">
+              <div key={i} className="flex items-center gap-2 text-[12px] text-wx-txm">
                 <span style={{ color: accent }} className="flex-shrink-0">{icon}</span>
                 {label}
               </div>
             ))}
           </div>
 
-          <p className="text-[11px] text-[#3A4052] mb-4">
+          <p className="text-[11px] text-wx-txf mb-4">
             {product.weight} · {product.applications} {de ? 'Anw.' : 'uses'} · {product.compatibility}
           </p>
 
           <div className="h-px mb-4" style={{ background: 'rgba(255,255,255,0.06)' }} />
 
           <div className="flex items-center justify-between">
-            <span className="text-[20px] font-semibold text-white">{formatPrice(product.price)}</span>
+            <span className="text-[20px] font-semibold text-wx-tx1">{formatPrice(product.price)}</span>
             <div className="flex items-center gap-2.5">
-              <span className="text-[12px] font-medium text-[#52576A] flex items-center gap-1">
+              <span className="text-[12px] font-medium text-wx-txf flex items-center gap-1">
                 {de ? 'Details' : 'Details'}
                 <ArrowRight className="h-3 w-3" />
               </span>
@@ -327,7 +327,7 @@ function ChainCard({ product, de, formatPrice, buyLabel, index }: CardProps & { 
         rel="noopener noreferrer"
         className="group block rounded-2xl overflow-hidden"
         style={{
-          background: 'linear-gradient(175deg, #191c24 0%, #111318 100%)',
+          background: 'linear-gradient(175deg, var(--card-from) 0%, var(--card-to) 100%)',
           border: '1px solid rgba(255,255,255,0.07)',
           boxShadow: '0 2px 4px rgba(0,0,0,0.35), 0 8px 32px rgba(0,0,0,0.55)',
           transition: 'box-shadow 300ms ease, border-color 300ms ease',
@@ -351,7 +351,7 @@ function ChainCard({ product, de, formatPrice, buyLabel, index }: CardProps & { 
           />
           <div
             className="absolute inset-x-0 bottom-0 pointer-events-none"
-            style={{ height: '70px', background: 'linear-gradient(to top, rgba(17,19,24,1) 0%, transparent 100%)' }}
+            style={{ height: '70px', background: 'linear-gradient(to top, var(--card-to) 0%, transparent 100%)' }}
           />
           {badge && (
             <span
@@ -382,7 +382,7 @@ function ChainCard({ product, de, formatPrice, buyLabel, index }: CardProps & { 
             <p className="text-[9px] uppercase tracking-widest text-[#333B4D] mb-1">
               {de ? 'Kompatibel' : 'Compatible'}
             </p>
-            <p className="text-[11px] text-[#7A8499] leading-relaxed">{compatStr}</p>
+            <p className="text-[11px] text-wx-txm leading-relaxed">{compatStr}</p>
           </div>
 
           <div className="flex items-center gap-2.5 text-[11px] pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
@@ -394,7 +394,7 @@ function ChainCard({ product, de, formatPrice, buyLabel, index }: CardProps & { 
           </div>
 
           <div className="pt-2.5 flex items-center justify-between" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-            <span className="text-[16px] font-semibold text-white">{formatPrice(product.price)}</span>
+            <span className="text-[16px] font-semibold text-wx-tx1">{formatPrice(product.price)}</span>
             <span
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold text-white"
               style={{ background: accent }}

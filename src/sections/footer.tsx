@@ -12,7 +12,7 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-[#090909] border-t border-[#22222E]/30 py-12">
+    <footer className="bg-wx-bg border-t border-wx-bd/30 py-12">
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-6xl mx-auto">
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
@@ -28,7 +28,7 @@ export function Footer() {
                   WAX<span className="text-[#4A6AEE]">C</span>ELERATE
                 </span>
               </div>
-              <p className="text-[#8896B0] text-sm">
+              <p className="text-wx-tx2 text-sm">
                 {t.footer.tagline}
               </p>
             </div>
@@ -46,7 +46,7 @@ export function Footer() {
                     <a
                       href={item.href}
                       onClick={(e) => { e.preventDefault(); scrollToSection(item.href); }}
-                      className="text-[#8896B0] hover:text-white text-sm transition-colors"
+                      className="text-wx-tx2 hover:text-wx-tx1 text-sm transition-colors"
                     >
                       {item.label}
                     </a>
@@ -68,7 +68,7 @@ export function Footer() {
                     <a
                       href={item.href}
                       onClick={(e) => { e.preventDefault(); scrollToSection(item.href); }}
-                      className="text-[#8896B0] hover:text-white text-sm transition-colors"
+                      className="text-wx-tx2 hover:text-wx-tx1 text-sm transition-colors"
                     >
                       {item.label}
                     </a>
@@ -83,7 +83,7 @@ export function Footer() {
               <ul className="space-y-2">
                 {['Impressum', 'Datenschutz', 'AGB'].map((item) => (
                   <li key={item}>
-                    <a href="#" className="text-[#8896B0] hover:text-white text-sm transition-colors">
+                    <a href="#" className="text-wx-tx2 hover:text-wx-tx1 text-sm transition-colors">
                       {item}
                     </a>
                   </li>
@@ -93,8 +93,8 @@ export function Footer() {
           </div>
 
           {/* Bottom Bar */}
-          <div className="pt-8 border-t border-[#22222E]/30 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <p className="text-[#52576A] text-sm">
+          <div className="pt-8 border-t border-wx-bd/30 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <p className="text-wx-txf text-sm">
               {t.footer.copyright.replace('{year}', currentYear.toString())}
             </p>
 
@@ -102,7 +102,7 @@ export function Footer() {
               href="https://www.ebay.de/usr/waxcelerate"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 text-[#8896B0] hover:text-white text-sm transition-colors"
+              className="flex items-center gap-2 text-wx-tx2 hover:text-wx-tx1 text-sm transition-colors"
             >
               {t.nav.ebayShop}
               <ExternalLink className="h-4 w-4" />

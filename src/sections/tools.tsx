@@ -34,16 +34,16 @@ const tog = (active: boolean) =>
   `px-3 py-1.5 rounded-md text-sm transition-all border cursor-pointer ${
     active
       ? 'border-[#5B7AEE]/50 bg-[#5B7AEE]/12 text-[#A8BFFF]'
-      : 'border-[#1E1E2C] text-[#4E4E62] hover:border-[#2E2E40] hover:text-[#7A7A9A]'
+      : 'border-wx-bd2 text-[#4E4E62] hover:border-[#2E2E40] hover:text-[#7A7A9A]'
   }`;
 
 function ToolCard({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="flex flex-col h-full rounded-xl border border-[#1A1A28] transition-colors hover:border-[#2A2A3A]"
+      className="flex flex-col h-full rounded-xl border border-wx-bd transition-colors hover:border-wx-bd2"
       style={{
-        background: 'linear-gradient(160deg, #0E0E17 0%, #0A0A10 100%)',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.03)',
+        background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
+        boxShadow: 'var(--card-shad)',
       }}
     >
       {children}
@@ -61,10 +61,10 @@ function ToolHeader({ icon, title, subtitle }: { icon: React.ReactNode; title: s
         >
           {icon}
         </div>
-        <h3 className="text-[15px] font-semibold text-white">{title}</h3>
+        <h3 className="text-[15px] font-semibold text-wx-tx1">{title}</h3>
       </div>
-      <p className="text-[13px] text-[#6B7088] leading-snug ml-11">{subtitle}</p>
-      <div className="mt-5 border-t border-[#131320]" />
+      <p className="text-[13px] text-wx-txm leading-snug ml-11">{subtitle}</p>
+      <div className="mt-5 border-t border-wx-bd2" />
     </div>
   );
 }
@@ -72,8 +72,8 @@ function ToolHeader({ icon, title, subtitle }: { icon: React.ReactNode; title: s
 function FieldLabel({ label, value }: { label: string; value?: string }) {
   return (
     <div className="flex items-baseline justify-between mb-2">
-      <span className="text-[10px] text-[#4A4A62] uppercase tracking-[0.12em] font-medium">{label}</span>
-      {value && <span className="text-[12px] text-[#7A80A0] tabular-nums">{value}</span>}
+      <span className="text-[10px] text-wx-txf uppercase tracking-[0.12em] font-medium">{label}</span>
+      {value && <span className="text-[12px] text-wx-txm tabular-nums">{value}</span>}
     </div>
   );
 }
@@ -81,8 +81,8 @@ function FieldLabel({ label, value }: { label: string; value?: string }) {
 function ResultBox({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="rounded-lg border border-[#1A1A2E] p-4"
-      style={{ background: 'rgba(6,6,14,0.8)' }}
+      className="rounded-lg border border-wx-bd2 p-4"
+      style={{ background: 'var(--sf2)' }}
     >
       {children}
     </div>
@@ -146,11 +146,11 @@ function RewaxCalculator() {
         </div>
 
         <ResultBox>
-          <p className="text-[42px] font-bold text-white text-center leading-none tracking-tight">{interval}</p>
-          <p className="text-[13px] text-[#4A4A62] text-center mt-1">km bis zum nächsten Rewaxen</p>
-          <p className="text-[12px] text-[#6B7088] text-center mt-0.5">
+          <p className="text-[42px] font-bold text-wx-tx1 text-center leading-none tracking-tight">{interval}</p>
+          <p className="text-[13px] text-wx-txf text-center mt-1">km bis zum nächsten Rewaxen</p>
+          <p className="text-[12px] text-wx-txm text-center mt-0.5">
             ≈ {weeks} {weeks === 1 ? 'Woche' : 'Wochen'} bei {kmPerWeek} km/Wo.
-            {weeksCapped && <span className="text-[#3A3A52]"> (max. — Wachs oxidiert)</span>}
+            {weeksCapped && <span className="text-wx-txff"> (max. — Wachs oxidiert)</span>}
           </p>
         </ResultBox>
       </div>
@@ -221,7 +221,7 @@ function BikeQuestionnaire() {
 
         {is9or10 ? (
           <ResultBox>
-            <p className="text-[10px] text-[#4A4A62] uppercase tracking-[0.1em] mb-2">Empfehlung</p>
+            <p className="text-[10px] text-wx-txf uppercase tracking-[0.1em] mb-2">Empfehlung</p>
             <p className="text-[12px] text-[#7A7A9A] leading-snug mb-3">
               Für 9/10-fach bieten wir keine vorgewachsten Ketten an — aber deine bestehende Kette kannst du einfach selbst wachsen.
             </p>
@@ -237,7 +237,7 @@ function BikeQuestionnaire() {
           </ResultBox>
         ) : (
           <div>
-            <p className="text-[10px] text-[#4A4A62] uppercase tracking-[0.12em] mb-3">Passende Ketten</p>
+            <p className="text-[10px] text-wx-txf uppercase tracking-[0.12em] mb-3">Passende Ketten</p>
             {recommendedChains.length === 0 ? (
               <p className="text-[13px] text-[#3E3E52] text-center py-4">Keine Ketten gefunden</p>
             ) : (
@@ -245,15 +245,15 @@ function BikeQuestionnaire() {
                 {recommendedChains.map((chain) => (
                   <div
                     key={chain.id}
-                    className="flex items-center justify-between rounded-lg px-3 py-2.5 border border-[#181826] hover:border-[#252538] transition-colors"
-                    style={{ background: 'rgba(6,6,14,0.7)' }}
+                    className="flex items-center justify-between rounded-lg px-3 py-2.5 border border-wx-bd2 hover:border-[#252538] transition-colors"
+                    style={{ background: 'var(--sf2)' }}
                   >
                     <div>
-                      <p className="text-[13px] text-[#C0C4DC] leading-tight">{lang === 'de' ? chain.title : chain.titleEn}</p>
+                      <p className="text-[13px] text-wx-tx2 leading-tight">{lang === 'de' ? chain.title : chain.titleEn}</p>
                       <p className="text-[12px] font-semibold mt-0.5" style={{ color: '#8AAAFF' }}>{chain.price.toFixed(2)} €</p>
                     </div>
                     <a href={chain.ebayUrl} target="_blank" rel="noopener noreferrer">
-                      <button className="p-1.5 rounded-md border border-[#1E1E2C] text-[#3E3E52] hover:border-[#5B7AEE]/30 hover:text-[#8AAAFF] transition-all">
+                      <button className="p-1.5 rounded-md border border-wx-bd2 text-[#3E3E52] hover:border-[#5B7AEE]/30 hover:text-[#8AAAFF] transition-all">
                         <ExternalLink className="h-3.5 w-3.5" />
                       </button>
                     </a>
@@ -330,15 +330,15 @@ function WaxStockCalculator() {
         <ResultBox>
           {tooLittle ? (
             <>
-              <p className="text-[10px] text-[#4A4A62] uppercase tracking-[0.1em] mb-2">Empfehlung</p>
+              <p className="text-[10px] text-wx-txf uppercase tracking-[0.1em] mb-2">Empfehlung</p>
               <p className="text-[13px] text-[#7A7A9A] leading-snug">
                 Dein Verbrauch ist sehr niedrig — der 300g-Block reicht länger als seine Haltbarkeit (~2–3 Jahre). Die 300g genügen vollkommen.
               </p>
             </>
           ) : (
             <>
-              <p className="text-[10px] text-[#4A4A62] uppercase tracking-[0.1em] mb-0.5">Empfohlene Packung</p>
-              <p className="text-[11px] text-[#4A4A62] mb-4">
+              <p className="text-[10px] text-wx-txf uppercase tracking-[0.1em] mb-0.5">Empfohlene Packung</p>
+              <p className="text-[11px] text-wx-txf mb-4">
                 ~{Math.round(waxPerMonth)}g/Monat · {(appsPerMonth * chainCount).toFixed(1)} Rewax-Sessions/Monat
               </p>
               <div className="grid grid-cols-2 gap-2">
@@ -358,9 +358,9 @@ function WaxStockCalculator() {
                         }}
                       >
                         {isRec && <p className="text-[9px] text-[#5B7AEE] uppercase tracking-[0.12em] mb-1">Empfohlen</p>}
-                        <p className="text-[20px] font-bold text-white leading-none">~{months}<span className="text-[12px] font-normal text-[#6B7088] ml-1">Mo.</span></p>
-                        <p className="text-[11px] text-[#C0C4DC] mt-1">{size}g — {price} €</p>
-                        <p className="text-[10px] text-[#4A4A62] mt-0.5">{cost} €/Monat</p>
+                        <p className="text-[20px] font-bold text-wx-tx1 leading-none">~{months}<span className="text-[12px] font-normal text-wx-txm ml-1">Mo.</span></p>
+                        <p className="text-[11px] text-wx-tx2 mt-1">{size}g — {price} €</p>
+                        <p className="text-[10px] text-wx-txf mt-0.5">{cost} €/Monat</p>
                       </div>
                     </a>
                   );
@@ -397,7 +397,7 @@ function AnimatedBar({ pct, color, delay = 0 }: { pct: number; color: string; de
   useEffect(() => { setWidth(pct); }, [pct]);
 
   return (
-    <div ref={ref} className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)' }}>
+    <div ref={ref} className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--bd)' }}>
       <div
         className="h-full rounded-full"
         style={{
@@ -466,8 +466,8 @@ function CostSavingsCalculator() {
             </div>
             <div>
               <div className="flex justify-between items-baseline mb-1.5">
-                <span className="text-[11px] text-[#4A4A62]">Kettenöl</span>
-                <span className="text-[13px] font-bold text-[#4A4A62] line-through decoration-[#3E3E52]">{oilCost} €</span>
+                <span className="text-[11px] text-wx-txf">Kettenöl</span>
+                <span className="text-[13px] font-bold text-wx-txf line-through decoration-[#3E3E52]">{oilCost} €</span>
               </div>
               <AnimatedBar pct={100} color="rgba(255,255,255,0.1)" delay={150} />
             </div>
@@ -475,8 +475,8 @@ function CostSavingsCalculator() {
 
           <div className="rounded-lg border border-[#5B7AEE]/20 p-3 text-center" style={{ background: 'rgba(91,122,238,0.06)' }}>
             <p className="text-[10px] text-[#5B7AEE] uppercase tracking-[0.14em] mb-1">Deine Ersparnis</p>
-            <p className="text-[36px] font-bold text-white leading-none tracking-tight">+{savings} €</p>
-            <p className="text-[11px] text-[#4A4A62] mt-0.5">pro Jahr</p>
+            <p className="text-[36px] font-bold text-wx-tx1 leading-none tracking-tight">+{savings} €</p>
+            <p className="text-[11px] text-wx-txf mt-0.5">pro Jahr</p>
           </div>
         </ResultBox>
       </div>
@@ -487,97 +487,57 @@ function CostSavingsCalculator() {
 // ─── Tool 5: Rotation ROI ─────────────────────────────────────────────────────
 function RotationROI() {
   const [kmPerYear, setKmPerYear] = useState(5000);
-  const [cassettePrice, setCassettePrice] = useState(80);
 
-  const CHAIN_LIFE = 6000;
-  const CHAIN_PRICE = 38; // avg pre-waxed chain
-  const WAX_COST_PER_APP = 1.5;
   const REWAX_KM = 500;
-  const BASE_CASSETTE_KM = 12000; // single waxed chain
-  const CASSETTE_MULT: Record<number, number> = { 1: 1, 2: 1.8, 3: 2.4 };
-  const YEARS = 5;
-  const totalKm = kmPerYear * YEARS;
+  const BASE_CASSETTE_KM = 12000;
 
-  const calc = (n: number) => {
-    const cassetteKm = BASE_CASSETTE_KM * CASSETTE_MULT[n];
-    const cassetteEveryYears = parseFloat((cassetteKm / kmPerYear).toFixed(1));
-    const cassetteCost = (totalKm / cassetteKm) * cassettePrice;
-    const chainsConsumed = Math.ceil(totalKm / CHAIN_LIFE) + (n - 1);
-    const chainCost = chainsConsumed * CHAIN_PRICE;
-    const waxCost = (totalKm / REWAX_KM) * WAX_COST_PER_APP;
-    const totalCost = Math.round(chainCost + cassetteCost + waxCost);
-    const rewaxEveryWeeks = Math.max(1, Math.round((REWAX_KM * n) / (kmPerYear / 52)));
-    return { cassetteEveryYears, totalCost, rewaxEveryWeeks };
-  };
-
-  const r1 = calc(1), r2 = calc(2), r3 = calc(3);
-  const savings2 = r1.totalCost - r2.totalCost;
-
-  const cols = [
-    { n: 1, label: '1 Kette', r: r1, rec: false },
-    { n: 2, label: '2 Ketten', r: r2, rec: true },
-    { n: 3, label: '3 Ketten', r: r3, rec: false },
-  ];
+  const rewax1 = Math.max(1, Math.round((REWAX_KM * 1) / (kmPerYear / 52)));
+  const rewax2 = Math.max(1, Math.round((REWAX_KM * 2) / (kmPerYear / 52)));
+  const cassette1 = parseFloat((BASE_CASSETTE_KM / kmPerYear).toFixed(1));
+  const cassette2 = parseFloat((BASE_CASSETTE_KM * 1.8 / kmPerYear).toFixed(1));
 
   return (
     <ToolCard>
       <ToolHeader
         icon={<RotateCcw className="h-4 w-4" style={{ color: '#8AAAFF' }} />}
         title="Lohnen sich mehrere Ketten?"
-        subtitle="Kassettenlaufzeit und Rewax-Aufwand im Vergleich."
+        subtitle="Rewax-Aufwand und Kassettenlaufzeit im Vergleich."
       />
       <div className="px-6 flex flex-col flex-1 gap-5 pb-6">
-        <div className="space-y-5 flex-1">
-          <div>
-            <FieldLabel label="km pro Jahr" value={`${kmPerYear} km`} />
-            <Slider value={[kmPerYear]} onValueChange={v => setKmPerYear(v[0])} min={1000} max={10000} step={500} className="py-1" />
-          </div>
-          <div>
-            <FieldLabel label="Kassettenpreis" value={`${cassettePrice} €`} />
-            <Slider value={[cassettePrice]} onValueChange={v => setCassettePrice(v[0])} min={40} max={200} step={10} className="py-1" />
-          </div>
+        <div>
+          <FieldLabel label="km pro Jahr" value={`${kmPerYear} km`} />
+          <Slider value={[kmPerYear]} onValueChange={v => setKmPerYear(v[0])} min={1000} max={10000} step={500} className="py-1" />
         </div>
 
         <ResultBox>
-          <div className="grid grid-cols-3 gap-1.5 mb-3">
-            {cols.map(({ n, label, r, rec }) => (
-              <div
-                key={n}
-                className="rounded-lg border p-2.5 text-center"
-                style={{
-                  borderColor: rec ? 'rgba(91,122,238,0.45)' : '#1A1A2E',
-                  background: rec ? 'rgba(91,122,238,0.08)' : 'rgba(6,6,14,0.6)',
-                }}
-              >
-                {rec && <p className="text-[8px] text-[#5B7AEE] uppercase tracking-[0.12em] mb-1">Empfohlen</p>}
-                <p className="text-[10px] font-semibold text-[#C0C4DC] mb-2">{label}</p>
-                <div className="space-y-2.5">
-                  <div>
-                    <p className="text-[7.5px] text-[#3A3A52] uppercase tracking-[0.1em]">Kassette hält</p>
-                    <p className="text-[16px] font-bold text-white leading-tight">{r.cassetteEveryYears}<span className="text-[10px] font-normal text-[#6B7088] ml-0.5">J.</span></p>
-                  </div>
-                  <div>
-                    <p className="text-[7.5px] text-[#3A3A52] uppercase tracking-[0.1em]">Rewax alle</p>
-                    <p className="text-[16px] font-bold text-white leading-tight">{r.rewaxEveryWeeks}<span className="text-[10px] font-normal text-[#6B7088] ml-0.5">Wo.</span></p>
-                  </div>
-                  <div>
-                    <p className="text-[7.5px] text-[#3A3A52] uppercase tracking-[0.1em]">Kosten {YEARS}J.</p>
-                    <p className="text-[13px] font-bold leading-tight" style={{ color: rec ? '#A8BFFF' : '#6B7088' }}>€{r.totalCost}</p>
-                  </div>
-                </div>
+          <div className="grid grid-cols-2 gap-3">
+            {/* 1 chain */}
+            <div className="rounded-lg border border-wx-bd2 p-4 text-center" style={{ background: 'var(--sf3)' }}>
+              <p className="text-[11px] text-wx-txf mb-3">1 Kette</p>
+              <p className="text-[36px] font-bold text-wx-tx1 leading-none">{rewax1}</p>
+              <p className="text-[11px] text-wx-txf mt-1">Wo. bis Rewax</p>
+              <div className="mt-3 pt-3 border-t border-wx-bd2">
+                <p className="text-[13px] font-semibold text-wx-txm">{cassette1} J.</p>
+                <p className="text-[10px] text-wx-txff mt-0.5">Kassettenlaufzeit</p>
               </div>
-            ))}
-          </div>
+            </div>
 
-          {savings2 > 0 && (
-            <p className="text-[10px] text-[#3E3E52] text-center mb-3">
-              2 Ketten: Kassette hält {r2.cassetteEveryYears}J. statt {r1.cassetteEveryYears}J. · ~€{savings2} gespart über {YEARS} Jahre
-            </p>
-          )}
+            {/* 2 chains — recommended */}
+            <div className="rounded-lg border p-4 text-center" style={{ borderColor: 'rgba(91,122,238,0.4)', background: 'rgba(91,122,238,0.07)' }}>
+              <p className="text-[9px] text-[#5B7AEE] uppercase tracking-[0.14em] mb-1">Empfohlen</p>
+              <p className="text-[11px] text-[#8AAAFF] mb-2">2 Ketten</p>
+              <p className="text-[36px] font-bold text-wx-tx1 leading-none">{rewax2}</p>
+              <p className="text-[11px] text-wx-txm mt-1">Wo. bis Rewax</p>
+              <div className="mt-3 pt-3 border-t border-[#1E1E3A]">
+                <p className="text-[13px] font-semibold text-[#A8BFFF]">{cassette2} J.</p>
+                <p className="text-[10px] text-wx-txf mt-0.5">Kassettenlaufzeit</p>
+              </div>
+            </div>
+          </div>
 
           <button
             onClick={() => document.querySelector('#products')?.scrollIntoView({ behavior: 'smooth' })}
-            className="w-full rounded-lg border border-[#5B7AEE]/25 p-2.5 text-center hover:border-[#5B7AEE]/45 transition-colors"
+            className="w-full mt-3 rounded-lg border border-[#5B7AEE]/25 p-2.5 text-center hover:border-[#5B7AEE]/45 transition-colors"
             style={{ background: 'rgba(91,122,238,0.05)' }}
           >
             <span className="text-[12px] font-medium" style={{ color: '#8AAAFF' }}>2. Kette hinzufügen →</span>
@@ -611,7 +571,7 @@ export function Tools() {
   ];
 
   return (
-    <section id="tools" className="py-24" style={{ background: '#06060A' }}>
+    <section id="tools" className="py-24" style={{ background: 'var(--tool-bg)' }}>
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">

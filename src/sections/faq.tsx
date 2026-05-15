@@ -7,7 +7,7 @@ export function FAQ() {
   const [openItem, setOpenItem] = useState<string | null>(null);
 
   return (
-    <section id="faq" className="py-24 bg-[#111117]">
+    <section id="faq" className="py-24 bg-wx-sf">
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-16">
@@ -17,7 +17,7 @@ export function FAQ() {
             <h2 className="font-display text-4xl sm:text-5xl font-bold text-white mb-4">
               {t.faq.title}
             </h2>
-            <p className="text-[#8896B0]">
+            <p className="text-wx-tx2">
               {t.faq.subtitle}
             </p>
           </div>
@@ -26,17 +26,17 @@ export function FAQ() {
             {t.faq.items.map((item: {q: string; a: string}, index: number) => (
               <div
                 key={index}
-                className="bg-[#111117] border border-[#22222E]/30 rounded-xl overflow-hidden"
+                className="bg-wx-sf border border-wx-bd/30 rounded-xl overflow-hidden"
               >
                 <button
                   onClick={() => setOpenItem(openItem === index.toString() ? null : index.toString())}
-                  className="w-full flex items-center justify-between p-6 text-left hover:bg-[#18181E]/30 transition-colors"
+                  className="w-full flex items-center justify-between p-6 text-left hover:bg-wx-sf2/30 transition-colors"
                 >
                   <h3 className="text-white font-medium pr-4 text-left text-sm sm:text-base">
                     {item.q}
                   </h3>
                   <ChevronDown
-                    className={`h-5 w-5 text-[#8896B0] flex-shrink-0 transition-transform ${
+                    className={`h-5 w-5 text-wx-tx2 flex-shrink-0 transition-transform ${
                       openItem === index.toString() ? 'rotate-180' : ''
                     }`}
                   />
@@ -44,7 +44,7 @@ export function FAQ() {
 
                 {openItem === index.toString() && (
                   <div className="px-6 pb-6">
-                    <p className="text-[#8896B0] text-sm leading-relaxed">
+                    <p className="text-wx-tx2 text-sm leading-relaxed">
                       {item.a}
                     </p>
                   </div>
@@ -55,7 +55,7 @@ export function FAQ() {
 
           {/* Contact CTA */}
           <div className="mt-10 text-center">
-            <p className="text-[#8896B0] mb-3">
+            <p className="text-wx-tx2 mb-3">
               {t.faq.contactCta}
             </p>
             <a

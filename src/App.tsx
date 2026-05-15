@@ -63,7 +63,7 @@ function AppContent() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#090909] text-white">
+    <div className="min-h-screen bg-wx-bg text-wx-tx1">
       <Routes>
         <Route path="/produkt/:id" element={<ProductDetailPage />} />
         <Route path="*" element={

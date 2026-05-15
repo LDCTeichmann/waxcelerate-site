@@ -53,7 +53,7 @@ export function About() {
   ];
 
   return (
-    <section id="ueber-mich" className="py-24 bg-[#090909]">
+    <section id="ueber-mich" className="py-24 bg-wx-bg">
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
@@ -68,29 +68,29 @@ export function About() {
           <div className="grid md:grid-cols-2 gap-10 items-center">
             {/* Left: Story */}
             <div>
-              <p className="text-[#8896B0] mb-4 leading-relaxed">
+              <p className="text-wx-tx2 mb-4 leading-relaxed">
                 {t.about.bio1}
               </p>
-              <p className="text-[#8896B0] mb-4 leading-relaxed">
+              <p className="text-wx-tx2 mb-4 leading-relaxed">
                 {t.about.bio2}
               </p>
-              <p className="text-[#8896B0] mb-8 leading-relaxed">
+              <p className="text-wx-tx2 mb-8 leading-relaxed">
                 {t.about.bio3}
               </p>
 
               {/* Contact Info */}
               <div className="space-y-3">
-                <div className="flex items-center gap-3 text-[#8896B0]">
+                <div className="flex items-center gap-3 text-wx-tx2">
                   <MapPin className="h-5 w-5 text-[#4A6AEE]" />
                   <span className="text-sm">{t.about.location}</span>
                 </div>
-                <div className="flex items-center gap-3 text-[#8896B0]">
+                <div className="flex items-center gap-3 text-wx-tx2">
                   <Mail className="h-5 w-5 text-[#4A6AEE]" />
                   <a href="mailto:waxcelerate@gmail.com" className="text-sm hover:text-[#4A6AEE] transition-colors">
                     {t.about.email}
                   </a>
                 </div>
-                <div className="flex items-center gap-3 text-[#8896B0]">
+                <div className="flex items-center gap-3 text-wx-tx2">
                   <Phone className="h-5 w-5 text-[#4A6AEE]" />
                   <a href="tel:+4915751957470" className="text-sm hover:text-[#4A6AEE] transition-colors">
                     {t.about.phone}
@@ -109,14 +109,14 @@ export function About() {
             </div>
 
             {/* Right: Stats */}
-            <div className="bg-[#111117] border border-[#22222E]/30 rounded-2xl p-8">
+            <div className="bg-wx-sf border border-wx-bd/30 rounded-2xl p-8">
               <div className="text-center mb-8">
                 <img
                   src="/images/logo.jpg"
                   alt="Waxcelerate"
                   className="h-14 mx-auto mb-4 rounded-sm"
                 />
-                <p className="font-display text-lg text-white">
+                <p className="font-display text-lg text-wx-tx1">
                   WAXCELERATE
                 </p>
               </div>
@@ -135,7 +135,7 @@ export function About() {
                         <><CountUp end={stat.value} />{stat.suffix}</>
                       )}
                     </div>
-                    <div className="text-[#8896B0] text-sm">{stat.label}</div>
+                    <div className="text-wx-tx2 text-sm">{stat.label}</div>
                   </div>
                 ))}
               </div>

@@ -5,8 +5,71 @@
 @tailwind utilities;
 
 @layer base {
+  /* ── Light mode (default) ── */
   :root {
-    /* shadcn tokens — mapped to new palette */
+    --pg:        #F5F5F7;
+    --sf:        #FFFFFF;
+    --sf2:       #ECECF0;
+    --sf3:       #E4E4EA;
+    --tx1:       #0A0A14;
+    --tx2:       #4A5068;
+    --txm:       #6E7288;
+    --txf:       #9898B0;
+    --txff:      #B8B8CC;
+    --bd:        #D8D8E0;
+    --bd2:       #E8E8EE;
+    --card-from: #FFFFFF;
+    --card-to:   #F5F5FA;
+    --card-to-rgb: 245,245,250;
+    --card-shad: 0 2px 16px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,0.9);
+    --nav-bg:    rgba(245,245,247,0.92);
+    --tool-bg:   #EEEEF3;
+
+    /* shadcn tokens */
+    --background: 240 5% 96%;
+    --foreground: 240 10% 4%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 4%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 4%;
+    --primary: 228 80% 61%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 5% 93%;
+    --secondary-foreground: 240 10% 4%;
+    --muted: 240 5% 93%;
+    --muted-foreground: 240 4% 46%;
+    --accent: 240 5% 93%;
+    --accent-foreground: 240 10% 4%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 240 6% 85%;
+    --input: 240 6% 85%;
+    --ring: 228 80% 61%;
+    --radius: 0.75rem;
+    --brand:       #4A6AEE;
+    --brand-hover: #6478F5;
+  }
+
+  /* ── Dark mode ── */
+  .dark {
+    --pg:        #090909;
+    --sf:        #111117;
+    --sf2:       #18181E;
+    --sf3:       #0C0C12;
+    --tx1:       #FFFFFF;
+    --tx2:       #8896B0;
+    --txm:       #6B7088;
+    --txf:       #4A4A62;
+    --txff:      #3A3A52;
+    --bd:        #22222E;
+    --bd2:       #1A1A28;
+    --card-from: #191c24;
+    --card-to:   #111318;
+    --card-to-rgb: 17,19,24;
+    --card-shad: 0 8px 32px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.03);
+    --nav-bg:    rgba(9,9,9,0.9);
+    --tool-bg:   #06060A;
+
     --background: 0 0% 3.5%;
     --foreground: 240 10% 96%;
     --card: 240 8% 7%;
@@ -26,27 +89,17 @@
     --border: 240 10% 16%;
     --input: 240 10% 16%;
     --ring: 228 80% 61%;
-    --radius: 0.75rem;
-
-    /* Brand tokens */
-    --brand:       #4A6AEE;
-    --brand-hover: #6478F5;
-    --brand-dark:  #2A45C8;
-    --bg:          #090909;
-    --surface:     #111117;
-    --surface-2:   #18181E;
-    --border-col:  #22222E;
   }
 
   html {
     scroll-behavior: smooth;
-    background-color: #090909;
+    background-color: var(--pg);
   }
 
   body {
     font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
-    background-color: #090909;
-    color: #E8E8F0;
+    background-color: var(--pg);
+    color: var(--tx1);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -60,6 +113,14 @@
   * {
     @apply border-border;
   }
+}
+
+/* Light mode: headings use --tx1 (dark on light, white on dark) */
+:root:not(.dark) h1,
+:root:not(.dark) h2,
+:root:not(.dark) h3,
+:root:not(.dark) h4 {
+  color: var(--tx1) !important;
 }
 
 /* Spinning wax block animation */

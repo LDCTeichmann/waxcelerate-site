@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Menu, X, ExternalLink } from 'lucide-react';
+import { Menu, X, ExternalLink, Sun, Moon } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useTheme } from '@/hooks/useTheme';
 
 const navItems = [
   { href: '#home', key: 'start' },
@@ -19,6 +20,7 @@ export function Navigation({ onLogoClick }: NavigationProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { t, lang, toggleLang } = useLanguage();
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -39,10 +41,9 @@ export function Navigation({ onLogoClick }: NavigationProps) {
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
-          ? 'bg-[#090909]/90 backdrop-blur-xl border-b border-[#22222E]/30'
-          : 'bg-transparent'
+        isScrolled ? 'backdrop-blur-xl border-b border-wx-bd/30' : 'bg-transparent'
       }`}
+      style={isScrolled ? { background: 'var(--nav-bg)' } : undefined}
     >
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="flex items-center justify-between h-16 lg:h-20">
@@ -73,7 +74,7 @@ export function Navigation({ onLogoClick }: NavigationProps) {
                   e.preventDefault();
                   scrollToSection(item.href);
                 }}
-                className="relative px-4 py-2 text-sm text-[#8896B0] hover:text-white transition-colors"
+                className="relative px-4 py-2 text-sm text-wx-tx2 hover:text-wx-tx1 transition-colors"
               >
                 {t.nav[item.key as keyof typeof t.nav]}
               </a>
@@ -82,10 +83,19 @@ export function Navigation({ onLogoClick }: NavigationProps) {
 
           {/* Actions */}
           <div className="flex items-center gap-3">
+            {/* Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="p-1.5 text-wx-tx2 hover:text-wx-tx1 border border-wx-bd/50 hover:border-[#4A6AEE] rounded transition-colors"
+              aria-label="Toggle theme"
+            >
+              {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
+
             {/* Language Toggle */}
             <button
               onClick={toggleLang}
-              className="px-3 py-1.5 text-xs font-medium text-[#8896B0] hover:text-white border border-[#22222E]/50 hover:border-[#4A6AEE] rounded transition-colors"
+              className="px-3 py-1.5 text-xs font-medium text-wx-tx2 hover:text-wx-tx1 border border-wx-bd/50 hover:border-[#4A6AEE] rounded transition-colors"
             >
               {lang.toUpperCase()}
             </button>
@@ -104,7 +114,7 @@ export function Navigation({ onLogoClick }: NavigationProps) {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden p-2 text-[#8896B0] hover:text-white"
+              className="lg:hidden p-2 text-wx-tx2 hover:text-wx-tx1"
             >
               {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
@@ -114,7 +124,7 @@ export function Navigation({ onLogoClick }: NavigationProps) {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden absolute top-full left-0 right-0 bg-[#090909]/98 backdrop-blur-xl border-t border-[#22222E]/30">
+        <div className="lg:hidden absolute top-full left-0 right-0 backdrop-blur-xl border-t border-wx-bd/30" style={{ background: 'var(--nav-bg)' }}>
           <nav className="flex flex-col p-4">
             {navItems.map((item) => (
               <a
@@ -124,7 +134,7 @@ export function Navigation({ onLogoClick }: NavigationProps) {
                   e.preventDefault();
                   scrollToSection(item.href);
                 }}
-                className="py-3 text-[#8896B0] hover:text-white border-b border-[#22222E]/20 transition-colors"
+                className="py-3 text-wx-tx2 hover:text-wx-tx1 border-b border-wx-bd/20 transition-colors"
               >
                 {t.nav[item.key as keyof typeof t.nav]}
               </a>

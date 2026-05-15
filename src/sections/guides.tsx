@@ -28,7 +28,7 @@ export function Guides() {
   ];
 
   return (
-    <section id="anleitungen" className="py-24 bg-[#090909]">
+    <section id="anleitungen" className="py-24 bg-wx-bg">
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
@@ -38,7 +38,7 @@ export function Guides() {
             <h2 className="font-display text-4xl sm:text-5xl font-bold text-white mb-4">
               {t.guides.title}
             </h2>
-            <p className="text-[#8896B0]">
+            <p className="text-wx-tx2">
               {t.guides.subtitle}
             </p>
           </div>
@@ -47,11 +47,11 @@ export function Guides() {
             {guides.map((guide) => (
               <div
                 key={guide.id}
-                className="bg-[#111117] border border-[#22222E]/30 rounded-xl overflow-hidden"
+                className="bg-wx-sf border border-wx-bd/30 rounded-xl overflow-hidden"
               >
                 <button
                   onClick={() => setOpenGuide(openGuide === guide.id ? null : guide.id)}
-                  className="w-full flex items-center justify-between p-6 text-left hover:bg-[#18181E]/30 transition-colors"
+                  className="w-full flex items-center justify-between p-6 text-left hover:bg-wx-sf2/30 transition-colors"
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 bg-[#4A6AEE]/20 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -62,7 +62,7 @@ export function Guides() {
                     </h3>
                   </div>
                   <ChevronDown
-                    className={`h-5 w-5 text-[#8896B0] transition-transform ${
+                    className={`h-5 w-5 text-wx-tx2 transition-transform ${
                       openGuide === guide.id ? 'rotate-180' : ''
                     }`}
                   />
@@ -70,13 +70,13 @@ export function Guides() {
 
                 {openGuide === guide.id && (
                   <div className="px-6 pb-6">
-                    <div className="relative ml-5 pl-9 border-l border-[#22222E]/30">
+                    <div className="relative ml-5 pl-9 border-l border-wx-bd/30">
                       {guide.steps.map((step: string, index: number) => (
                         <div key={index} className="relative pb-6 last:pb-0">
                           <span className="absolute -left-[41px] w-8 h-8 bg-[#4A6AEE]/20 border border-[#4A6AEE]/30 rounded-full flex items-center justify-center text-sm text-[#4A6AEE] font-medium">
                             {index + 1}
                           </span>
-                          <p className="text-[#8896B0] text-sm leading-relaxed">{step}</p>
+                          <p className="text-wx-tx2 text-sm leading-relaxed">{step}</p>
                         </div>
                       ))}
                     </div>
@@ -88,7 +88,7 @@ export function Guides() {
 
           {/* PDF Download hint */}
           <div className="mt-8 text-center">
-            <p className="text-[#52576A] text-sm">
+            <p className="text-wx-txf text-sm">
               {t.guides.pdfHint}
             </p>
           </div>

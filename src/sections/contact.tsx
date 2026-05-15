@@ -27,7 +27,7 @@ export function Contact() {
   };
 
   return (
-    <section id="kontakt" className="py-24 bg-[#090909]">
+    <section id="kontakt" className="py-24 bg-wx-bg">
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-16">
@@ -37,7 +37,7 @@ export function Contact() {
             <h2 className="font-display text-4xl sm:text-5xl font-bold text-white mb-4">
               {t.contact.title}
             </h2>
-            <p className="text-[#8896B0]">
+            <p className="text-wx-tx2">
               {t.contact.subtitle}
             </p>
           </div>
@@ -49,7 +49,7 @@ export function Contact() {
               className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium text-sm transition-colors ${
                 activeTab === 'email'
                   ? 'bg-[#4A6AEE] text-white'
-                  : 'bg-[#18181E] text-[#8896B0] hover:bg-[#18181E]'
+                  : 'bg-wx-sf2 text-wx-tx2 hover:bg-wx-sf2'
               }`}
             >
               <Send className="h-4 w-4" />
@@ -60,7 +60,7 @@ export function Contact() {
               className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium text-sm transition-colors ${
                 activeTab === 'whatsapp'
                   ? 'bg-green-600 text-white'
-                  : 'bg-[#18181E] text-[#8896B0] hover:bg-[#18181E]'
+                  : 'bg-wx-sf2 text-wx-tx2 hover:bg-wx-sf2'
               }`}
             >
               <MessageCircle className="h-4 w-4" />
@@ -70,16 +70,16 @@ export function Contact() {
 
           {/* Email Form */}
           {activeTab === 'email' && (
-            <div className="bg-[#111117] border border-[#22222E]/30 rounded-xl p-6">
+            <div className="bg-wx-sf border border-wx-bd/30 rounded-xl p-6">
               {submitted ? (
                 <div className="text-center py-8">
                   <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Check className="h-8 w-8 text-green-500" />
                   </div>
-                  <h3 className="text-xl font-medium text-white mb-2">
+                  <h3 className="text-xl font-medium text-wx-tx1 mb-2">
                     {t.contact.success}
                   </h3>
-                  <p className="text-[#8896B0]">
+                  <p className="text-wx-tx2">
                     {t.contact.successSub}
                   </p>
                 </div>
@@ -87,45 +87,45 @@ export function Contact() {
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
-                      <Label className="text-[#8896B0] mb-2 block text-sm">{t.contact.name} *</Label>
+                      <Label className="text-wx-tx2 mb-2 block text-sm">{t.contact.name} *</Label>
                       <Input
                         required
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="bg-[#111117]/50 border-[#22222E]/50 text-white placeholder:text-[#52576A]"
+                        className="bg-wx-sf/50 border-wx-bd/50 text-wx-tx1 placeholder:text-wx-txf"
                       />
                     </div>
                     <div>
-                      <Label className="text-[#8896B0] mb-2 block text-sm">{t.contact.email} *</Label>
+                      <Label className="text-wx-tx2 mb-2 block text-sm">{t.contact.email} *</Label>
                       <Input
                         type="email"
                         required
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className="bg-[#111117]/50 border-[#22222E]/50 text-white placeholder:text-[#52576A]"
+                        className="bg-wx-sf/50 border-wx-bd/50 text-wx-tx1 placeholder:text-wx-txf"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <Label className="text-[#8896B0] mb-2 block text-sm">{t.contact.bikeType}</Label>
+                    <Label className="text-wx-tx2 mb-2 block text-sm">{t.contact.bikeType}</Label>
                     <Input
                       placeholder={t.contact.bikeType}
                       value={formData.bikeType}
                       onChange={(e) => setFormData({ ...formData, bikeType: e.target.value })}
-                      className="bg-[#111117]/50 border-[#22222E]/50 text-white placeholder:text-[#52576A]"
+                      className="bg-wx-sf/50 border-wx-bd/50 text-wx-tx1 placeholder:text-wx-txf"
                     />
                   </div>
 
                   <div>
-                    <Label className="text-[#8896B0] mb-2 block text-sm">{t.contact.message} *</Label>
+                    <Label className="text-wx-tx2 mb-2 block text-sm">{t.contact.message} *</Label>
                     <Textarea
                       required
                       rows={4}
                       placeholder={t.contact.message}
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                      className="bg-[#111117]/50 border-[#22222E]/50 text-white placeholder:text-[#52576A]"
+                      className="bg-wx-sf/50 border-wx-bd/50 text-wx-tx1 placeholder:text-wx-txf"
                     />
                   </div>
 
@@ -134,7 +134,7 @@ export function Contact() {
                     {t.contact.send}
                   </Button>
 
-                  <p className="text-[#52576A] text-xs text-center">
+                  <p className="text-wx-txf text-xs text-center">
                     {t.contact.emailTo}
                   </p>
                 </form>
@@ -144,14 +144,14 @@ export function Contact() {
 
           {/* WhatsApp */}
           {activeTab === 'whatsapp' && (
-            <div className="bg-[#111117] border border-[#22222E]/30 rounded-xl p-8 text-center">
+            <div className="bg-wx-sf border border-wx-bd/30 rounded-xl p-8 text-center">
               <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
                 <MessageCircle className="h-10 w-10 text-green-500" />
               </div>
-              <h3 className="text-xl font-medium text-white mb-2">
+              <h3 className="text-xl font-medium text-wx-tx1 mb-2">
                 {t.contact.whatsappTitle}
               </h3>
-              <p className="text-[#8896B0] mb-6">
+              <p className="text-wx-tx2 mb-6">
                 {t.contact.whatsappDesc}
               </p>
               <a
