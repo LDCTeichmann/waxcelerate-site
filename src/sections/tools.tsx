@@ -487,20 +487,30 @@ function CostSavingsCalculator() {
 function RotationROI() {
   const [kmPerYear, setKmPerYear] = useState(5000);
 
-  const REWAX_KM = 500;
-  const BASE_CASSETTE_KM = 12000;
+  // Numbers consistent with CostSavingsCalculator (wax chain = 6000 km, cassette = 15000 km)
+  const CHAIN_KM_1 = 6000;    // single hot-waxed chain lifespan (road, typical)
+  const CHAIN_KM_2 = 8500;    // each chain in 2-chain rotation (~40% longer per chain)
+  const CASSETTE_KM_1 = 15000; // cassette with 1 waxed chain (consistent with savings calc)
+  const CASSETTE_KM_2 = 22000; // cassette with 2-chain rotation (~47% longer)
+  const REWAX_KM = 500;        // road/dry rewax interval (baseline)
 
-  const rewax1 = Math.max(1, Math.round((REWAX_KM * 1) / (kmPerYear / 52)));
-  const rewax2 = Math.max(1, Math.round((REWAX_KM * 2) / (kmPerYear / 52)));
-  const cassette1 = parseFloat((BASE_CASSETTE_KM / kmPerYear).toFixed(1));
-  const cassette2 = parseFloat((BASE_CASSETTE_KM * 1.8 / kmPerYear).toFixed(1));
+  // Chain lifespan in months at their riding pace
+  const chainMonths1 = Math.max(1, Math.round((CHAIN_KM_1 / kmPerYear) * 12));
+  const chainMonths2 = Math.max(1, Math.round((CHAIN_KM_2 / kmPerYear) * 12));
+
+  // Cassette lifespan in years
+  const cassetteYears1 = parseFloat((CASSETTE_KM_1 / kmPerYear).toFixed(1));
+  const cassetteYears2 = parseFloat((CASSETTE_KM_2 / kmPerYear).toFixed(1));
+
+  // Rewax sessions per year — same regardless of chain count (honest disclosure)
+  const rewaxPerYear = Math.ceil(kmPerYear / REWAX_KM);
 
   return (
     <ToolCard>
       <ToolHeader
         icon={<RotateCcw className="h-4 w-4" style={{ color: '#8AAAFF' }} />}
         title="Lohnen sich mehrere Ketten?"
-        subtitle="Rewax-Aufwand und Kassettenlaufzeit im Vergleich."
+        subtitle="Kettenverschleiß und Kassettenlaufzeit realistisch verglichen."
       />
       <div className="px-6 flex flex-col flex-1 gap-5 pb-6">
         <div>
@@ -513,10 +523,10 @@ function RotationROI() {
             {/* 1 chain */}
             <div className="rounded-lg border border-wx-bd p-4 text-center" style={{ background: 'var(--sf3)' }}>
               <p className="text-[11px] text-wx-txf mb-3">1 Kette</p>
-              <p className="text-[36px] font-bold text-wx-tx1 leading-none">{rewax1}</p>
-              <p className="text-[11px] text-wx-txf mt-1">Wo. bis Rewax</p>
+              <p className="text-[32px] font-bold text-wx-tx1 leading-none">{chainMonths1}</p>
+              <p className="text-[11px] text-wx-txf mt-1">Monate / Kette</p>
               <div className="mt-3 pt-3 border-t border-wx-bd2">
-                <p className="text-[13px] font-semibold text-wx-txm">{cassette1} J.</p>
+                <p className="text-[13px] font-semibold text-wx-txm">{cassetteYears1} J.</p>
                 <p className="text-[10px] text-wx-txff mt-0.5">Kassettenlaufzeit</p>
               </div>
             </div>
@@ -525,14 +535,19 @@ function RotationROI() {
             <div className="rounded-lg border p-4 text-center" style={{ borderColor: 'rgba(91,122,238,0.4)', background: 'rgba(91,122,238,0.07)' }}>
               <p className="text-[9px] text-[#5B7AEE] uppercase tracking-[0.14em] mb-1">Empfohlen</p>
               <p className="text-[11px] text-wx-tx2 mb-2">2 Ketten</p>
-              <p className="text-[36px] font-bold text-wx-tx1 leading-none">{rewax2}</p>
-              <p className="text-[11px] text-wx-txm mt-1">Wo. bis Rewax</p>
+              <p className="text-[32px] font-bold text-wx-tx1 leading-none">{chainMonths2}</p>
+              <p className="text-[11px] text-wx-txm mt-1">Monate / Kette</p>
               <div className="mt-3 pt-3 border-t border-wx-bd2">
-                <p className="text-[13px] font-semibold text-wx-tx1">{cassette2} J.</p>
+                <p className="text-[13px] font-semibold text-wx-tx1">{cassetteYears2} J.</p>
                 <p className="text-[10px] text-wx-txf mt-0.5">Kassettenlaufzeit</p>
               </div>
             </div>
           </div>
+
+          {/* Honest disclosure: rewax frequency doesn't change */}
+          <p className="text-[10px] text-wx-txff text-center mt-3 leading-snug">
+            Rewax-Frequenz bleibt gleich: ~{rewaxPerYear}× pro Jahr — du wechselst nur ab.
+          </p>
 
           <button
             onClick={() => document.querySelector('#produkte')?.scrollIntoView({ behavior: 'smooth' })}
