@@ -16,7 +16,6 @@ export function Products() {
   const [activeTab, setActiveTab] = useState<'wax' | 'chain'>('wax');
   const [speedFilter, setSpeedFilter] = useState<'all' | '11' | '12'>('all');
   const [brandFilter, setBrandFilter] = useState<'all' | 'shimano' | 'sram' | 'campagnolo'>('all');
-  const [budgetFilter, setBudgetFilter] = useState<'all' | 'low' | 'mid' | 'high'>('all');
   const de = lang === 'de';
 
   const waxProducts = products.filter(p => p.category === 'wax');
@@ -26,13 +25,10 @@ export function Products() {
   const filteredChains = chainProducts.filter(p => {
     if (speedFilter !== 'all' && p.chainSpeed !== `${speedFilter}-fach`) return false;
     if (brandFilter !== 'all' && !p.compatibility?.includes(brandMap[brandFilter])) return false;
-    if (budgetFilter === 'low' && p.price >= 35) return false;
-    if (budgetFilter === 'mid' && (p.price < 35 || p.price > 55)) return false;
-    if (budgetFilter === 'high' && p.price <= 55) return false;
     return true;
   });
 
-  const resetFilters = () => { setSpeedFilter('all'); setBrandFilter('all'); setBudgetFilter('all'); };
+  const resetFilters = () => { setSpeedFilter('all'); setBrandFilter('all'); };
 
   const formatPrice = (price: number) =>
     new Intl.NumberFormat(de ? 'de-DE' : 'en-US', {
@@ -95,12 +91,12 @@ export function Products() {
           {activeTab === 'chain' && (
             <>
               {/* Filter bar */}
-              <div className="mb-6 rounded-xl border border-wx-bd p-4 space-y-3" style={{ background: 'var(--sf)' }}>
-                <div className="flex items-center gap-3">
-                  <span className="text-[10px] uppercase tracking-[0.14em] text-wx-txf font-medium w-14 flex-shrink-0">
+              <div className="mb-6 rounded-xl border border-wx-bd px-4 py-3 space-y-2" style={{ background: 'var(--sf)' }}>
+                <div className="flex items-center gap-2.5">
+                  <span className="text-[10px] uppercase tracking-[0.12em] text-wx-txf font-medium w-12 flex-shrink-0">
                     {de ? 'Gänge' : 'Speed'}
                   </span>
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="flex gap-1.5">
                     {(['all', '11', '12'] as const).map(v => (
                       <button key={v} onClick={() => setSpeedFilter(v)} className={filterChip(speedFilter === v)}>
                         {v === 'all' ? (de ? 'Alle' : 'All') : `${v}-fach`}
@@ -108,35 +104,18 @@ export function Products() {
                     ))}
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-[10px] uppercase tracking-[0.14em] text-wx-txf font-medium w-14 flex-shrink-0">
+                <div className="flex items-center gap-2.5">
+                  <span className="text-[10px] uppercase tracking-[0.12em] text-wx-txf font-medium w-12 flex-shrink-0">
                     {de ? 'Marke' : 'Brand'}
                   </span>
                   <div className="flex flex-wrap gap-1.5">
                     {([
-                      { v: 'all',         label: de ? 'Alle' : 'All' },
-                      { v: 'shimano',     label: 'Shimano'            },
-                      { v: 'sram',        label: 'SRAM'               },
-                      { v: 'campagnolo',  label: 'Campagnolo'         },
+                      { v: 'all',        label: de ? 'Alle' : 'All' },
+                      { v: 'shimano',    label: 'Shimano'            },
+                      { v: 'sram',       label: 'SRAM'               },
+                      { v: 'campagnolo', label: 'Campa'              },
                     ] as { v: 'all' | 'shimano' | 'sram' | 'campagnolo'; label: string }[]).map(({ v, label }) => (
                       <button key={v} onClick={() => setBrandFilter(v)} className={filterChip(brandFilter === v)}>
-                        {label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-[10px] uppercase tracking-[0.14em] text-wx-txf font-medium w-14 flex-shrink-0">
-                    Budget
-                  </span>
-                  <div className="flex flex-wrap gap-1.5">
-                    {([
-                      { v: 'all',  label: de ? 'Alle'    : 'All'       },
-                      { v: 'low',  label: de ? 'bis €35' : 'up to €35' },
-                      { v: 'mid',  label: '€35–€55'                     },
-                      { v: 'high', label: de ? 'über €55': 'over €55'  },
-                    ] as { v: 'all' | 'low' | 'mid' | 'high'; label: string }[]).map(({ v, label }) => (
-                      <button key={v} onClick={() => setBudgetFilter(v)} className={filterChip(budgetFilter === v)}>
                         {label}
                       </button>
                     ))}
