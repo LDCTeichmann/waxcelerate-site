@@ -2,43 +2,39 @@ import { useEffect, useRef, useState } from 'react';
 import { MapPin, Mail, Phone, ExternalLink } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useSectionReveal } from '@/hooks/useAnimation';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-function CountUp({ end, duration = 2000 }: { end: number; duration?: number }) {
+gsap.registerPlugin(ScrollTrigger);
+
+function CountUp({ end, duration = 1800 }: { end: number; duration?: number }) {
   const [count, setCount] = useState(0);
-  const [isVisible, setIsVisible] = useState(false);
+  const [started, setStarted] = useState(false);
   const ref = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        }
-      },
-      { threshold: 0.5 }
-    );
-
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
-
-    return () => observer.disconnect();
+    const el = ref.current;
+    if (!el) return;
+    const trigger = ScrollTrigger.create({
+      trigger: el,
+      start: 'top 90%',
+      once: true,
+      onEnter: () => setStarted(true),
+    });
+    return () => trigger.kill();
   }, []);
 
   useEffect(() => {
-    if (!isVisible) return;
-
+    if (!started) return;
     let startTime: number;
-    const animate = (timestamp: number) => {
-      if (!startTime) startTime = timestamp;
-      const progress = Math.min((timestamp - startTime) / duration, 1);
-      setCount(Math.floor(progress * end));
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      }
+    const step = (ts: number) => {
+      if (!startTime) startTime = ts;
+      const p = Math.min((ts - startTime) / duration, 1);
+      setCount(Math.floor(p * end));
+      if (p < 1) requestAnimationFrame(step);
     };
-    requestAnimationFrame(animate);
-  }, [isVisible, end, duration]);
+    requestAnimationFrame(step);
+  }, [started, end, duration]);
 
   return <span ref={ref}>{count}</span>;
 }
@@ -46,103 +42,164 @@ function CountUp({ end, duration = 2000 }: { end: number; duration?: number }) {
 export function About() {
   const { t, lang } = useLanguage();
   const headerRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLDivElement>(null);
   useSectionReveal(headerRef);
 
+  useEffect(() => {
+    const card = cardRef.current;
+    const text = textRef.current;
+    if (!card || !text) return;
+
+    gsap.set([card, text], { opacity: 0, y: 32 });
+
+    const t1 = ScrollTrigger.create({
+      trigger: text,
+      start: 'top 85%',
+      once: true,
+      onEnter: () => gsap.to(text, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }),
+    });
+    const t2 = ScrollTrigger.create({
+      trigger: card,
+      start: 'top 85%',
+      once: true,
+      onEnter: () => gsap.to(card, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out', delay: 0.12 }),
+    });
+
+    return () => { t1.kill(); t2.kill(); };
+  }, []);
+
+  const de = lang === 'de';
+
   const stats = [
-    { value: 100, suffix: '%', label: t.about.stats.rating },
-    { value: 500, suffix: '+', label: t.about.stats.sold },
-    { value: 2024, suffix: '', label: lang === 'de' ? 'Waxcelerate seit' : 'Waxcelerate since' },
-    { value: 24, suffix: 'h', label: lang === 'de' ? 'Versand in < 24h' : 'Ships in < 24h' },
+    { value: 100, prefix: '', suffix: '%', label: t.about.stats.rating },
+    { value: 500, prefix: '', suffix: '+', label: t.about.stats.sold },
+    { value: 2024, prefix: '', suffix: '', label: de ? 'Waxcelerate seit' : 'Waxcelerate since' },
+    { value: 24, prefix: '<', suffix: 'h', label: de ? 'Versand in < 24h' : 'Ships within 24h' },
+  ];
+
+  const contactItems = [
+    { icon: MapPin, label: t.about.location, href: undefined },
+    { icon: Mail, label: t.about.email, href: 'mailto:waxcelerate@gmail.com' },
+    { icon: Phone, label: t.about.phone, href: 'tel:+4915751957470' },
   ];
 
   return (
     <section id="ueber-mich" className="py-24 bg-wx-bg">
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-5xl mx-auto">
+
+          {/* Header */}
           <div ref={headerRef} className="text-center mb-16">
             <span data-reveal="eyebrow" className="text-xs tracking-[0.3em] text-[#4A6AEE] uppercase mb-3 block font-medium">
-              {lang === 'de' ? 'Über Uns' : 'About Us'}
+              {de ? 'Über Uns' : 'About Us'}
             </span>
             <h2 data-reveal="heading" className="font-display text-4xl sm:text-5xl font-bold text-white mb-4">
               {t.about.title}
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-10 items-center">
-            {/* Left: Story */}
-            <div>
-              <p className="text-wx-tx2 mb-4 leading-relaxed">
-                {t.about.bio1}
-              </p>
-              <p className="text-wx-tx2 mb-4 leading-relaxed">
-                {t.about.bio2}
-              </p>
-              <p className="text-wx-tx2 mb-8 leading-relaxed">
-                {t.about.bio3}
-              </p>
+          <div className="grid md:grid-cols-[1fr_400px] gap-12 items-start">
 
-              {/* Contact Info */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-3 text-wx-tx2">
-                  <MapPin className="h-5 w-5 text-[#4A6AEE]" />
-                  <span className="text-sm">{t.about.location}</span>
-                </div>
-                <div className="flex items-center gap-3 text-wx-tx2">
-                  <Mail className="h-5 w-5 text-[#4A6AEE]" />
-                  <a href="mailto:waxcelerate@gmail.com" className="text-sm hover:text-[#4A6AEE] transition-colors">
-                    {t.about.email}
-                  </a>
-                </div>
-                <div className="flex items-center gap-3 text-wx-tx2">
-                  <Phone className="h-5 w-5 text-[#4A6AEE]" />
-                  <a href="tel:+4915751957470" className="text-sm hover:text-[#4A6AEE] transition-colors">
-                    {t.about.phone}
-                  </a>
-                </div>
+            {/* Left: Story + Contact */}
+            <div ref={textRef}>
+              <div className="space-y-5 mb-10">
+                <p className="text-[15px] leading-[1.8] text-wx-tx2">{t.about.bio1}</p>
+                <p className="text-[15px] leading-[1.8] text-wx-tx2">{t.about.bio2}</p>
+                <p className="text-[15px] leading-[1.8] text-wx-tx2">{t.about.bio3}</p>
+              </div>
+
+              {/* Contact */}
+              <div className="space-y-2.5">
+                {contactItems.map(({ icon: Icon, label, href }) => (
+                  href ? (
+                    <a key={label} href={href}
+                      className="flex items-center gap-3 group w-fit"
+                    >
+                      <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#4A6AEE]/10 border border-[#4A6AEE]/20 transition-colors group-hover:bg-[#4A6AEE]/20">
+                        <Icon className="h-3.5 w-3.5 text-[#4A6AEE]" />
+                      </span>
+                      <span className="text-sm text-wx-tx2 group-hover:text-wx-tx1 transition-colors">{label}</span>
+                    </a>
+                  ) : (
+                    <div key={label} className="flex items-center gap-3">
+                      <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#4A6AEE]/10 border border-[#4A6AEE]/20">
+                        <Icon className="h-3.5 w-3.5 text-[#4A6AEE]" />
+                      </span>
+                      <span className="text-sm text-wx-tx2">{label}</span>
+                    </div>
+                  )
+                ))}
                 <a
                   href="https://www.ebay.de/usr/waxcelerate"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-3 text-[#4A6AEE] hover:text-[#6478F5] transition-colors"
+                  className="flex items-center gap-3 group w-fit"
                 >
-                  <ExternalLink className="h-5 w-5" />
-                  <span className="text-sm">{t.about.ebay}</span>
+                  <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#4A6AEE]/10 border border-[#4A6AEE]/20 transition-colors group-hover:bg-[#4A6AEE]/20">
+                    <ExternalLink className="h-3.5 w-3.5 text-[#4A6AEE]" />
+                  </span>
+                  <span className="text-sm text-[#4A6AEE] group-hover:text-[#6A8AFF] transition-colors">{t.about.ebay}</span>
                 </a>
               </div>
             </div>
 
-            {/* Right: Stats */}
-            <div className="bg-wx-sf border border-wx-bd/30 rounded-2xl p-8">
-              <div className="text-center mb-8">
-                <img
-                  src="/images/logo.jpg"
-                  alt="Waxcelerate"
-                  className="h-20 mx-auto mb-4 rounded-sm"
-                />
-                <p className="font-roboto font-medium text-xl tracking-wide text-wx-tx1">
-                  waxcelerate
-                </p>
-              </div>
+            {/* Right: Stats Card */}
+            <div ref={cardRef}>
+              <div
+                className="rounded-2xl overflow-hidden border border-white/[0.07]"
+                style={{ background: 'linear-gradient(160deg, #16191f 0%, #0f1115 100%)' }}
+              >
+                {/* Logo header */}
+                <div className="flex items-center gap-3.5 px-7 py-5 border-b border-white/[0.06]">
+                  <img
+                    src="/images/logo.jpg"
+                    alt="Waxcelerate"
+                    className="h-9 w-9 rounded-lg object-cover"
+                  />
+                  <span className="font-roboto font-semibold text-wx-tx1 tracking-wide text-[15px]">
+                    waxcelerate
+                  </span>
+                  <span className="ml-auto text-[10px] tracking-[0.2em] text-wx-txf uppercase">Stuttgart</span>
+                </div>
 
-              <div className="grid grid-cols-2 gap-6 text-center">
-                {stats.map((stat, index) => (
-                  <div key={index}>
-                    <div className="text-3xl sm:text-4xl font-bold text-[#4A6AEE] mb-1">
-                      {stat.value === 100 ? (
-                        <>{stat.value}{stat.suffix}</>
-                      ) : stat.value === 2024 ? (
-                        <>{stat.value}</>
-                      ) : stat.value === 24 ? (
-                        <>{'<'}{stat.value}{stat.suffix}</>
-                      ) : (
-                        <><CountUp end={stat.value} />{stat.suffix}</>
-                      )}
+                {/* Stats 2×2 */}
+                <div className="grid grid-cols-2">
+                  {stats.map((s, i) => (
+                    <div
+                      key={i}
+                      className={[
+                        'px-7 py-6',
+                        i >= 2 ? 'border-t border-white/[0.06]' : '',
+                        i % 2 === 1 ? 'border-l border-white/[0.06]' : '',
+                      ].join(' ')}
+                    >
+                      <div
+                        className="text-[2rem] font-bold leading-none mb-1.5 tabular-nums"
+                        style={{ color: '#4A6AEE' }}
+                      >
+                        {s.prefix}
+                        {i === 0 || i === 2
+                          ? <>{s.value}</>
+                          : <CountUp end={s.value} />
+                        }
+                        {s.suffix}
+                      </div>
+                      <div className="text-xs text-wx-txf leading-snug">{s.label}</div>
                     </div>
-                    <div className="text-wx-tx2 text-sm">{stat.label}</div>
-                  </div>
-                ))}
+                  ))}
+                </div>
+
+                {/* Footer strip */}
+                <div className="px-7 py-4 border-t border-white/[0.06] flex items-center gap-2">
+                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
+                  <span className="text-[11px] text-wx-txf">
+                    {de ? 'Aktiv auf eBay · Versand aus Deutschland' : 'Active on eBay · Ships from Germany'}
+                  </span>
+                </div>
               </div>
             </div>
+
           </div>
         </div>
       </div>
