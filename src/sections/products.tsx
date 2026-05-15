@@ -44,21 +44,35 @@ export function Products() {
 
     const ctx = gsap.context(() => {
       ScrollTrigger.batch('.wax-card', {
-        onEnter: (els) => gsap.from(els, {
-          y: 24, opacity: 0, duration: 0.6,
-          stagger: 0.08, ease: 'power2.out',
-          onStart: () => els.forEach(el => { (el as HTMLElement).style.willChange = 'transform, opacity'; }),
-          onComplete: () => els.forEach(el => { (el as HTMLElement).style.willChange = 'auto'; }),
-        }),
+        onEnter: (els) => {
+          gsap.set(els, { transformPerspective: 700, transformOrigin: '50% 0%' });
+          gsap.from(els, {
+            y: 30, opacity: 0, rotateX: 8, duration: 0.7,
+            stagger: 0.09, ease: 'power3.out',
+            onStart: () => els.forEach(el => { (el as HTMLElement).style.willChange = 'transform, opacity'; }),
+            onComplete: () => els.forEach(el => {
+              (el as HTMLElement).style.willChange = 'auto';
+              (el as HTMLElement).style.transform = '';
+            }),
+          });
+        },
         start: 'top 87%',
         once: true,
       });
 
       ScrollTrigger.batch('.chain-card', {
-        onEnter: (els) => gsap.from(els, {
-          y: 24, opacity: 0, duration: 0.6,
-          stagger: 0.08, ease: 'power2.out',
-        }),
+        onEnter: (els) => {
+          gsap.set(els, { transformPerspective: 700, transformOrigin: '50% 0%' });
+          gsap.from(els, {
+            y: 30, opacity: 0, rotateX: 8, duration: 0.7,
+            stagger: 0.09, ease: 'power3.out',
+            onStart: () => els.forEach(el => { (el as HTMLElement).style.willChange = 'transform, opacity'; }),
+            onComplete: () => els.forEach(el => {
+              (el as HTMLElement).style.willChange = 'auto';
+              (el as HTMLElement).style.transform = '';
+            }),
+          });
+        },
         start: 'top 87%',
         once: true,
       });

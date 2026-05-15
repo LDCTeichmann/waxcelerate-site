@@ -96,3 +96,47 @@ export function useScrollReveal(
     return () => { trigger.kill(); };
   }, [ref, opts.y, opts.delay, opts.once]);
 }
+
+// ── 3D perspective reveal — staggered cards ──────────────────────────────────
+// Apply to a container ref; all direct children with [data-card] get staggered
+// rotateX entrance. Also works when passed a single element ref.
+export function use3DReveal(
+  containerRef: React.RefObject<HTMLElement | null>,
+  opts: { stagger?: number; delay?: number; start?: string } = {}
+) {
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    if (prefersReducedMotion()) {
+      gsap.set(container, { opacity: 1, rotateX: 0, y: 0 });
+      return;
+    }
+
+    const targets = container.querySelectorAll<HTMLElement>('[data-card]');
+    const els: HTMLElement[] = targets.length ? Array.from(targets) : [container];
+
+    gsap.set(els, { opacity: 0, y: 32, rotateX: 9, transformPerspective: 700, transformOrigin: '50% 0%' });
+
+    const trigger = ScrollTrigger.create({
+      trigger: container,
+      start: opts.start ?? 'top 87%',
+      once: true,
+      onEnter: () => {
+        gsap.to(els, {
+          opacity: 1,
+          y: 0,
+          rotateX: 0,
+          duration: DUR.long,
+          ease: EASE.enter,
+          stagger: opts.stagger ?? 0.10,
+          delay: opts.delay ?? 0,
+          onStart() { els.forEach(e => { e.style.willChange = 'transform, opacity'; }); },
+          onComplete() { els.forEach(e => { e.style.willChange = 'auto'; e.style.transform = ''; }); },
+        });
+      },
+    });
+
+    return () => { trigger.kill(); };
+  }, [containerRef, opts.stagger, opts.delay, opts.start]);
+}

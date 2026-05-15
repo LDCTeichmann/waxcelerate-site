@@ -2,250 +2,274 @@ import { useEffect, useRef } from 'react';
 import { ArrowRight, Check, ExternalLink } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import gsap from 'gsap';
-import { SplitText } from 'gsap/SplitText';
-
-gsap.registerPlugin(SplitText);
 
 // Module-level flag: survives StrictMode unmount/remount cycles
 let heroAnimated = false;
 
+// Split text into word spans for clip-mask reveal
+function WordReveal({
+  text,
+  className,
+  style,
+}: {
+  text: string;
+  className?: string;
+  style?: React.CSSProperties;
+}) {
+  const words = text.split(' ');
+  return (
+    <span className={className} style={style}>
+      {words.map((word, i) => (
+        <span
+          key={i}
+          className="inline-block overflow-hidden leading-[1.15]"
+          style={{ verticalAlign: 'bottom' }}
+        >
+          <span className="word-inner inline-block" style={{ willChange: 'transform' }}>
+            {word}
+            {i < words.length - 1 ? ' ' : ''}
+          </span>
+        </span>
+      ))}
+    </span>
+  );
+}
+
 export function Hero() {
   const { t, lang } = useLanguage();
-  const sectionRef  = useRef<HTMLElement>(null);
-  const pillRef     = useRef<HTMLButtonElement>(null);
-  const h1Line1Ref  = useRef<HTMLSpanElement>(null);
-  const h1Line2Ref  = useRef<HTMLSpanElement>(null);
-  const taglineRef  = useRef<HTMLParagraphElement>(null);
-  const ctaRef      = useRef<HTMLDivElement>(null);
-  const trustRef    = useRef<HTMLDivElement>(null);
+  const pillRef    = useRef<HTMLDivElement>(null);
+  const headRef    = useRef<HTMLDivElement>(null);
+  const taglineRef = useRef<HTMLParagraphElement>(null);
+  const ctaRef     = useRef<HTMLDivElement>(null);
+  const trustRef   = useRef<HTMLDivElement>(null);
+  const imgRef     = useRef<HTMLDivElement>(null);
   const de = lang === 'de';
 
   useEffect(() => {
-    // Run only once — module-level flag survives StrictMode double-invoke
     if (heroAnimated) return;
     heroAnimated = true;
 
-    const refs = [pillRef, h1Line1Ref, h1Line2Ref, taglineRef, ctaRef, trustRef];
-    if (refs.some(r => !r.current)) return;
+    const el = {
+      pill: pillRef.current,
+      head: headRef.current,
+      tagline: taglineRef.current,
+      cta: ctaRef.current,
+      trust: trustRef.current,
+      img: imgRef.current,
+    };
+    if (Object.values(el).some(v => !v)) return;
 
-    // Reduced motion: instant reveal
+    // Reduced motion — instant reveal
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      refs.forEach(r => { if (r.current) gsap.set(r.current, { opacity: 1, y: 0, filter: 'none' }); });
+      gsap.set(Object.values(el), { opacity: 1, y: 0, x: 0, scale: 1 });
+      if (el.head) {
+        el.head.querySelectorAll<HTMLElement>('.word-inner').forEach(w => {
+          w.style.transform = 'translateY(0)';
+        });
+      }
       return;
     }
 
-    const tl = gsap.timeline({ delay: 0.1 });
+    // Set initial states
+    gsap.set([el.pill, el.tagline, el.cta, el.trust], { opacity: 0, y: 18 });
+    gsap.set(el.img, { opacity: 0, x: 40, scale: 1.03 });
+    if (el.head) {
+      el.head.querySelectorAll<HTMLElement>('.word-inner').forEach(w => {
+        w.style.transform = 'translateY(110%)';
+      });
+    }
 
-    // Pill
-    tl.fromTo(pillRef.current,
-      { opacity: 0, y: 16 },
-      { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
-      0.0
-    );
+    const tl = gsap.timeline({ delay: 0.08 });
 
-    // Headline line 1 — blur to sharp
-    tl.fromTo(h1Line1Ref.current,
-      { opacity: 0, y: 24 },
-      { opacity: 1, y: 0, duration: 0.8, ease: 'power4.out',
-        onStart() {
-          gsap.fromTo(h1Line1Ref.current,
-            { filter: 'blur(8px)' },
-            { filter: 'blur(0.5px)', duration: 0.8, ease: 'power4.out',
-              onComplete() { if (h1Line1Ref.current) h1Line1Ref.current.style.filter = ''; } }
-          );
-        } },
-      0.14
-    );
+    // 1. Pill
+    tl.to(el.pill, { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out' }, 0);
 
-    // Headline line 2 — "Waxcelerate." italic, arrives like punctuation
-    tl.fromTo(h1Line2Ref.current,
-      { opacity: 0, y: 20 },
-      { opacity: 1, y: 0, duration: 0.8, ease: 'power4.out',
-        onStart() {
-          gsap.fromTo(h1Line2Ref.current,
-            { filter: 'blur(6px)' },
-            { filter: 'blur(0.5px)', duration: 0.8, ease: 'power4.out',
-              onComplete() { if (h1Line2Ref.current) h1Line2Ref.current.style.filter = ''; } }
-          );
-        } },
-      0.30
-    );
+    // 2. Word-by-word headline reveal
+    if (el.head) {
+      const words = el.head.querySelectorAll<HTMLElement>('.word-inner');
+      tl.to(words, {
+        y: 0,
+        duration: 0.65,
+        ease: 'power3.out',
+        stagger: 0.055,
+      }, 0.18);
+    }
 
-    // Tagline
-    tl.fromTo(taglineRef.current,
-      { opacity: 0, y: 16 },
-      { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
-      0.50
-    );
+    // 3. Tagline
+    tl.to(el.tagline, { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out' }, 0.52);
 
-    // CTA group
-    tl.fromTo(ctaRef.current,
-      { opacity: 0, y: 12 },
-      { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out' },
-      0.62
-    );
+    // 4. CTAs
+    tl.to(el.cta, { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }, 0.64);
 
-    // Trust strip
-    tl.fromTo(trustRef.current,
-      { opacity: 0, y: 8 },
-      { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' },
-      0.74
-    );
+    // 5. Trust strip
+    tl.to(el.trust, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, 0.76);
 
-    // No cleanup needed — hero is mounted once for the page lifetime.
-    // tl.kill() would prevent re-runs (StrictMode) from completing.
+    // 6. Product image — slides in from right
+    tl.to(el.img, { opacity: 1, x: 0, scale: 1, duration: 0.9, ease: 'power3.out' }, 0.22);
   }, []);
 
   const scrollToSection = (href: string) =>
     document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
 
+  const line1 = de ? 'Am Ende der Recherche.' : 'At the end of your research.';
+
   return (
     <section
       id="home"
-      ref={sectionRef}
-      className="relative flex items-end overflow-hidden"
-      style={{ minHeight: '100dvh' }}
+      className="relative overflow-hidden"
+      style={{ minHeight: '100dvh', background: '#090909' }}
     >
-      {/* Full-bleed background image */}
+      {/* Subtle blue radial glow — left side where text lives */}
       <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: "url('/images/wax-hero.jpg')" }}
-      />
-
-      {/* Dark overlay */}
-      <div
-        className="absolute inset-0"
+        className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            'linear-gradient(160deg, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.60) 45%, rgba(0,0,0,0.30) 100%)',
-        }}
-      />
-
-      {/* Subtle blue tint */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            'radial-gradient(ellipse 80% 70% at 50% 60%, rgba(74,106,238,0.10) 0%, transparent 70%)',
+            'radial-gradient(ellipse 60% 55% at 20% 55%, rgba(74,106,238,0.10) 0%, transparent 70%)',
         }}
       />
 
       {/* Grid texture */}
-      <div className="absolute inset-0 grid-bg opacity-20" />
+      <div className="absolute inset-0 grid-bg opacity-[0.12] pointer-events-none" />
 
-      {/* Content — centered */}
-      <div
-        className="relative z-10 w-full px-4 sm:px-10 lg:px-16 xl:px-20 pt-24 sm:pt-32 pb-16 sm:pb-20"
-      >
-        <div className="max-w-4xl mx-auto text-center">
+      {/* ── 2-column layout ── */}
+      <div className="relative z-10 flex items-center min-h-[100dvh]">
+        <div className="w-full grid lg:grid-cols-2 gap-0">
 
-          {/* Announcement pill */}
-          <button
-            ref={pillRef}
-            onClick={() => scrollToSection('#produkte')}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border mb-8 transition-all hover:border-[#6A8AFF]/50 cursor-pointer"
-            style={{
-              background: 'rgba(255,255,255,0.05)',
-              borderColor: 'rgba(255,255,255,0.14)',
-              backdropFilter: 'blur(8px)',
-            }}
-          >
-            <span
-              className="h-1.5 w-1.5 rounded-full flex-shrink-0 animate-pulse"
-              style={{ background: '#6A8AFF' }}
-            />
-            <span className="text-[12px] tracking-wide" style={{ color: 'rgba(255,255,255,0.65)' }}>
-              {de
-                ? 'Neu: Vorgewachste Ketten für alle Antriebe'
-                : 'New: Pre-waxed chains for every drivetrain'}
-            </span>
-            <ArrowRight className="h-3 w-3 flex-shrink-0" style={{ color: '#6A8AFF' }} />
-          </button>
+          {/* LEFT — text content */}
+          <div className="flex flex-col justify-center px-6 sm:px-10 lg:px-16 xl:px-20 pt-28 pb-16 lg:pt-0 lg:pb-0">
 
-          {/* Headline */}
-          <h1
-            className="font-display font-bold leading-[1.0] tracking-[-0.02em] mb-7"
-            style={{ fontSize: 'clamp(2.6rem, 8vw, 6.4rem)', color: '#FFFFFF' }}
-          >
-            <span ref={h1Line1Ref} className="block">
-              {de ? 'Am Ende der Recherche.' : 'At the end of your research.'}
-            </span>
-            <span
-              ref={h1Line2Ref}
-              className="block font-serif-display italic"
-              style={{ color: '#6A8AFF' }}
-            >
-              Waxcelerate.
-            </span>
-          </h1>
-
-          {/* Tagline */}
-          <p
-            ref={taglineRef}
-            className="text-[15px] leading-relaxed mb-9 max-w-md mx-auto"
-            style={{ color: 'rgba(255,255,255,0.65)' }}
-          >
-            {de
-              ? 'Heißwachs aus Stuttgart. Entwickelt auf der Straße.'
-              : 'Hot wax from Stuttgart. Built on the road.'}
-          </p>
-
-          {/* CTAs */}
-          <div ref={ctaRef} className="flex items-center justify-center gap-5 mb-8 flex-wrap">
-            <a
-              href="https://www.ebay.de/usr/waxcelerate"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-semibold text-white rounded-full transition-all"
-              style={{
-                background: '#4A6AEE',
-                boxShadow: '0 0 0 1px rgba(74,106,238,0.5)',
-              }}
-              onMouseEnter={e => {
-                (e.currentTarget as HTMLElement).style.background = '#5B7AEE';
-                (e.currentTarget as HTMLElement).style.boxShadow =
-                  '0 0 28px rgba(74,106,238,0.5), 0 0 0 1px rgba(74,106,238,0.6)';
-              }}
-              onMouseLeave={e => {
-                (e.currentTarget as HTMLElement).style.background = '#4A6AEE';
-                (e.currentTarget as HTMLElement).style.boxShadow =
-                  '0 0 0 1px rgba(74,106,238,0.5)';
-              }}
-            >
-              {t.hero.ctaBuy}
-              <ExternalLink className="h-3.5 w-3.5" />
-            </a>
-
-            <button
-              onClick={() => scrollToSection('#anleitungen')}
-              className="inline-flex items-center gap-1.5 text-sm font-medium transition-colors"
-              style={{ color: 'rgba(255,255,255,0.55)' }}
-              onMouseEnter={e =>
-                ((e.currentTarget as HTMLElement).style.color = '#FFFFFF')
-              }
-              onMouseLeave={e =>
-                ((e.currentTarget as HTMLElement).style.color =
-                  'rgba(255,255,255,0.55)')
-              }
-            >
-              {t.hero.ctaGuide}
-              <ArrowRight className="h-3.5 w-3.5" />
-            </button>
-          </div>
-
-          {/* Trust strip */}
-          <div ref={trustRef} className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5">
-            {[t.hero.trust1, t.hero.trust2, t.hero.trust3].map((item, i) => (
-              <span
-                key={i}
-                className="flex items-center gap-1.5 text-[12px]"
-                style={{ color: 'rgba(255,255,255,0.45)' }}
+            {/* Pill */}
+            <div ref={pillRef} className="mb-8">
+              <button
+                onClick={() => scrollToSection('#produkte')}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full border transition-all hover:border-[#6A8AFF]/50 cursor-pointer"
+                style={{
+                  background: 'rgba(255,255,255,0.05)',
+                  borderColor: 'rgba(255,255,255,0.14)',
+                  backdropFilter: 'blur(8px)',
+                }}
               >
-                <Check className="h-3 w-3 flex-shrink-0" style={{ color: '#6A8AFF' }} />
-                {item}
-              </span>
-            ))}
+                <span
+                  className="h-1.5 w-1.5 rounded-full flex-shrink-0 animate-pulse"
+                  style={{ background: '#6A8AFF' }}
+                />
+                <span className="text-[12px] tracking-wide" style={{ color: 'rgba(255,255,255,0.65)' }}>
+                  {de
+                    ? 'Neu: Vorgewachste Ketten für alle Antriebe'
+                    : 'New: Pre-waxed chains for every drivetrain'}
+                </span>
+                <ArrowRight className="h-3 w-3 flex-shrink-0" style={{ color: '#6A8AFF' }} />
+              </button>
+            </div>
+
+            {/* Headline — word-by-word reveal */}
+            <div ref={headRef} className="mb-7">
+              <h1
+                className="font-display font-bold leading-[1.05] tracking-[-0.02em]"
+                style={{ fontSize: 'clamp(2.4rem, 5.5vw, 5rem)', color: '#FFFFFF' }}
+              >
+                <WordReveal text={line1} className="block" />
+                <span
+                  className="block font-serif-display italic overflow-hidden"
+                  style={{ color: '#6A8AFF', verticalAlign: 'bottom' }}
+                >
+                  <span className="word-inner inline-block" style={{ willChange: 'transform' }}>
+                    Waxcelerate.
+                  </span>
+                </span>
+              </h1>
+            </div>
+
+            {/* Tagline */}
+            <p
+              ref={taglineRef}
+              className="text-[15px] leading-relaxed mb-9 max-w-sm"
+              style={{ color: 'rgba(255,255,255,0.60)' }}
+            >
+              {de
+                ? 'Heißwachs aus Stuttgart. Entwickelt auf der Straße.'
+                : 'Hot wax from Stuttgart. Built on the road.'}
+            </p>
+
+            {/* CTAs */}
+            <div ref={ctaRef} className="flex items-center gap-5 mb-8 flex-wrap">
+              <a
+                href="https://www.ebay.de/usr/waxcelerate"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-semibold text-white rounded-full transition-all"
+                style={{
+                  background: '#4A6AEE',
+                  boxShadow: '0 0 0 1px rgba(74,106,238,0.5)',
+                }}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLElement).style.background = '#5B7AEE';
+                  (e.currentTarget as HTMLElement).style.boxShadow =
+                    '0 0 28px rgba(74,106,238,0.5), 0 0 0 1px rgba(74,106,238,0.6)';
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLElement).style.background = '#4A6AEE';
+                  (e.currentTarget as HTMLElement).style.boxShadow =
+                    '0 0 0 1px rgba(74,106,238,0.5)';
+                }}
+              >
+                {t.hero.ctaBuy}
+                <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+
+              <button
+                onClick={() => scrollToSection('#anleitungen')}
+                className="inline-flex items-center gap-1.5 text-sm font-medium transition-colors"
+                style={{ color: 'rgba(255,255,255,0.55)' }}
+                onMouseEnter={e =>
+                  ((e.currentTarget as HTMLElement).style.color = '#FFFFFF')
+                }
+                onMouseLeave={e =>
+                  ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.55)')
+                }
+              >
+                {t.hero.ctaGuide}
+                <ArrowRight className="h-3.5 w-3.5" />
+              </button>
+            </div>
+
+            {/* Trust strip */}
+            <div ref={trustRef} className="flex flex-wrap items-center gap-x-5 gap-y-1.5">
+              {[t.hero.trust1, t.hero.trust2, t.hero.trust3].map((item, i) => (
+                <span
+                  key={i}
+                  className="flex items-center gap-1.5 text-[12px]"
+                  style={{ color: 'rgba(255,255,255,0.40)' }}
+                >
+                  <Check className="h-3 w-3 flex-shrink-0" style={{ color: '#6A8AFF' }} />
+                  {item}
+                </span>
+              ))}
+            </div>
           </div>
+
+          {/* RIGHT — product image */}
+          <div
+            ref={imgRef}
+            className="hidden lg:flex items-center justify-end relative"
+            style={{ minHeight: '100dvh' }}
+          >
+            <img
+              src="/images/wax-hero-split.png"
+              alt="Waxcelerate Kettenwachs"
+              className="w-full h-full object-cover object-left"
+              style={{ maxHeight: '100dvh' }}
+              draggable={false}
+            />
+            {/* Left-edge fade so image blends into dark bg */}
+            <div
+              className="absolute inset-y-0 left-0 w-32 pointer-events-none"
+              style={{
+                background: 'linear-gradient(to right, #090909 0%, transparent 100%)',
+              }}
+            />
+          </div>
+
         </div>
       </div>
 

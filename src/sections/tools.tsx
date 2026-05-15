@@ -4,31 +4,84 @@ import { Slider } from '@/components/ui/slider';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useSectionReveal } from '@/hooks/useAnimation';
 import { waxIntervals } from '@/lib/data';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const BLUE = '#5B7AEE';
 
-// ─── Scroll-reveal hook ───────────────────────────────────────────────────────
-function useScrollReveal(delay = 0) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
+// ─── Animated number ticker ───────────────────────────────────────────────────
+function AnimatedNumber({
+  value,
+  prefix = '',
+  suffix = '',
+  decimals = 0,
+  className,
+  style,
+}: {
+  value: number;
+  prefix?: string;
+  suffix?: string;
+  decimals?: number;
+  className?: string;
+  style?: React.CSSProperties;
+}) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const prev = useRef(value);
+  const tweenRef = useRef<gsap.core.Tween | null>(null);
+
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.disconnect(); } },
-      { threshold: 0.06 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-  return {
-    ref,
-    style: {
-      opacity: visible ? 1 : 0,
-      transform: visible ? 'translateY(0)' : 'translateY(20px)',
-      transition: `opacity 0.55s ease ${delay}ms, transform 0.55s ease ${delay}ms`,
-    },
-  };
+    const from = prev.current;
+    const to = value;
+    prev.current = to;
+    if (from === to) return;
+
+    tweenRef.current?.kill();
+    const counter = { val: from };
+    tweenRef.current = gsap.to(counter, {
+      val: to,
+      duration: 0.38,
+      ease: 'power2.out',
+      onUpdate: () => {
+        el.textContent = `${prefix}${counter.val.toFixed(decimals)}${suffix}`;
+      },
+    });
+  }, [value, prefix, suffix, decimals]);
+
+  const fmt = value.toFixed(decimals);
+  return (
+    <span ref={ref} className={className} style={style}>
+      {prefix}{fmt}{suffix}
+    </span>
+  );
+}
+
+// ─── Scroll-reveal hook (3D version) ─────────────────────────────────────────
+function useScrollReveal(delay = 0) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    gsap.set(el, { opacity: 0, y: 28, rotateX: 8, transformPerspective: 700, transformOrigin: '50% 0%' });
+    const trigger = ScrollTrigger.create({
+      trigger: el,
+      start: 'top 88%',
+      once: true,
+      onEnter: () => {
+        gsap.to(el, {
+          opacity: 1, y: 0, rotateX: 0,
+          duration: 0.7, ease: 'power3.out', delay: delay / 1000,
+          onComplete: () => { el.style.willChange = 'auto'; el.style.transform = ''; },
+        });
+      },
+    });
+    return () => trigger.kill();
+  }, [delay]);
+  return { ref };
 }
 
 // Theme-aware chip toggle — works in all three modes
@@ -149,7 +202,9 @@ function RewaxCalculator() {
         </div>
 
         <ResultBox>
-          <p className="text-[42px] font-bold text-wx-tx1 text-center leading-none tracking-tight">{weeks}</p>
+          <p className="text-[42px] font-bold text-wx-tx1 text-center leading-none tracking-tight">
+            <AnimatedNumber value={weeks} />
+          </p>
           <p className="text-[13px] text-wx-txf text-center mt-1">
             {weeks === 1 ? 'Woche' : 'Wochen'} bis zum nächsten Rewaxen
             {weeksCapped && <span className="text-wx-txff"> (max.)</span>}
@@ -252,7 +307,7 @@ function WaxStockCalculator() {
                         }}
                       >
                         {isRec && <p className="text-[9px] text-[#5B7AEE] uppercase tracking-[0.12em] mb-1">Empfohlen</p>}
-                        <p className="text-[20px] font-bold text-wx-tx1 leading-none">~{months}<span className="text-[12px] font-normal text-wx-txm ml-1">Mo.</span></p>
+                        <p className="text-[20px] font-bold text-wx-tx1 leading-none">~<AnimatedNumber value={months} /><span className="text-[12px] font-normal text-wx-txm ml-1">Mo.</span></p>
                         <p className="text-[11px] text-wx-tx2 mt-1">{size}g — {price} €</p>
                         <p className="text-[10px] text-wx-txf mt-0.5">{cost} €/Monat</p>
                       </div>
@@ -352,14 +407,14 @@ function CostSavingsCalculator() {
             <div>
               <div className="flex justify-between items-baseline mb-1.5">
                 <span className="text-[11px] text-wx-tx2">Wachs</span>
-                <span className="text-[13px] font-bold text-wx-tx1">{waxCost} €</span>
+                <AnimatedNumber value={waxCost} suffix=" €" className="text-[13px] font-bold text-wx-tx1" />
               </div>
               <AnimatedBar pct={waxBarPct} color="linear-gradient(90deg, #4A68E8, #7090FF)" delay={0} />
             </div>
             <div>
               <div className="flex justify-between items-baseline mb-1.5">
                 <span className="text-[11px] text-wx-txf">Kettenöl</span>
-                <span className="text-[13px] font-bold text-wx-txf line-through decoration-wx-bd">{oilCost} €</span>
+                <AnimatedNumber value={oilCost} suffix=" €" className="text-[13px] font-bold text-wx-txf line-through decoration-wx-bd" />
               </div>
               <AnimatedBar pct={100} color="rgba(255,255,255,0.1)" delay={150} />
             </div>
@@ -367,7 +422,7 @@ function CostSavingsCalculator() {
 
           <div className="rounded-lg border border-[#5B7AEE]/20 p-3 text-center" style={{ background: 'rgba(91,122,238,0.06)' }}>
             <p className="text-[10px] text-[#5B7AEE] uppercase tracking-[0.14em] mb-1">Deine Ersparnis</p>
-            <p className="text-[36px] font-bold text-wx-tx1 leading-none tracking-tight">+{savings} €</p>
+            <AnimatedNumber value={savings} prefix="+" suffix=" €" className="text-[36px] font-bold text-wx-tx1 leading-none tracking-tight" />
             <p className="text-[11px] text-wx-txf mt-0.5">pro Jahr</p>
           </div>
         </ResultBox>
@@ -420,7 +475,7 @@ function RotationROI() {
         {/* Hero: annual savings */}
         <div className="rounded-lg p-4 text-center" style={{ background: 'rgba(91,122,238,0.07)', border: '1px solid rgba(91,122,238,0.22)' }}>
           <p className="text-[10px] uppercase tracking-[0.2em] text-wx-txf mb-2">Ersparnis pro Jahr</p>
-          <p className="text-[38px] font-bold tabular-nums leading-none" style={{ color: '#8AAAFF' }}>~{savingsPerYear} €</p>
+          <p className="text-[38px] font-bold tabular-nums leading-none" style={{ color: '#8AAAFF' }}>~<AnimatedNumber value={savingsPerYear} suffix=" €" /></p>
           <p className="text-[11px] text-wx-txf mt-1.5">
             2. Kette amortisiert sich in ~{breakEvenMonths} Monaten
           </p>
@@ -520,9 +575,9 @@ function RotationROI() {
 
 // ─── Reveal wrapper ──────────────────────────────────────────────────────────
 function RevealSlot({ delay, children }: { delay: number; children: React.ReactNode }) {
-  const { ref, style } = useScrollReveal(delay);
+  const { ref } = useScrollReveal(delay);
   return (
-    <div ref={ref} style={style}>
+    <div ref={ref}>
       {children}
     </div>
   );
