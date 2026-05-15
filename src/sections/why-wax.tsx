@@ -45,6 +45,7 @@ export function WhyWax() {
   const costRef = useRef<HTMLDivElement>(null);
   const frictionRef = useRef<HTMLDivElement>(null);
   const [rider, setRider] = useState<'summer' | 'allseason' | null>(null);
+  const [showCalc, setShowCalc] = useState(false);
   const de = lang === 'de';
 
   useEffect(() => {
@@ -58,11 +59,11 @@ export function WhyWax() {
         });
       }
 
-      // Cost bars
+      // Cost bars (vertical — animate height)
       costRef.current?.querySelectorAll('.cost-bar').forEach((bar) => {
         const w = (bar as HTMLElement).dataset.w!;
-        gsap.fromTo(bar, { width: '0%' }, {
-          width: w, duration: 1.1, ease: 'power3.out',
+        gsap.fromTo(bar, { height: '0%' }, {
+          height: w, duration: 1.1, ease: 'power3.out',
           scrollTrigger: { trigger: costRef.current, start: 'top 82%' },
         });
       });
@@ -111,87 +112,127 @@ export function WhyWax() {
 
           {/* ── Cost Savings ── */}
           <div ref={costRef} className="mb-16">
-            <div className="text-center mb-8">
-              <p className="text-[10px] tracking-[0.18em] uppercase font-medium mb-2" style={{ color: '#5B7AEE' }}>
-                {de ? 'Kostenvergleich · 12.000 km' : 'Cost comparison · 12,000 km'}
-              </p>
-              <h3 className="font-display text-2xl font-bold text-wx-tx1">
-                {de ? 'Mit Öl bezahlst du die Kette dreimal' : 'With oil, you pay for the chain three times'}
-              </h3>
-            </div>
+            <div className="rounded-2xl border border-wx-bd overflow-hidden" style={{ background: 'var(--sf3)' }}>
 
-            <div className="rounded-xl border border-wx-bd overflow-hidden" style={{ background: 'var(--sf3)' }}>
-              <div className="grid sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-wx-bd">
+              {/* Savings hero */}
+              <div
+                className="px-6 pt-7 pb-6 text-center border-b border-wx-bd"
+                style={{ background: 'rgba(74,106,238,0.06)' }}
+              >
+                <p className="text-[10px] tracking-[0.25em] uppercase font-medium mb-3 text-wx-txf">
+                  {de ? 'Kostenvergleich · 12.000 km' : 'Cost comparison · 12,000 km'}
+                </p>
+                <div className="flex items-baseline justify-center gap-3">
+                  <span className="font-display text-[52px] font-bold text-wx-tx1 tabular-nums leading-none">~€70</span>
+                  <div className="flex flex-col items-start">
+                    <span className="text-[15px] font-semibold leading-tight" style={{ color: '#5B7AEE' }}>
+                      {de ? 'gespart' : 'saved'}
+                    </span>
+                    <span className="text-[13px] text-wx-txf leading-tight">−46 %</span>
+                  </div>
+                </div>
+                <p className="text-[12px] text-wx-txf mt-2">
+                  {de ? 'gegenüber Kettenöl auf gleicher Strecke' : 'vs. chain oil over the same distance'}
+                </p>
+              </div>
 
-                {/* Oil */}
-                <div className="p-6">
-                  <p className="text-[10px] uppercase tracking-[0.18em] text-wx-txm font-medium mb-5">
-                    {de ? 'Mit Kettenöl' : 'With chain oil'}
+              {/* Bar chart comparison */}
+              <div className="grid grid-cols-2 divide-x divide-wx-bd">
+
+                {/* Oil column */}
+                <div className="p-6 flex flex-col items-center">
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-wx-txf font-medium mb-6">
+                    {de ? 'Mit Öl' : 'With Oil'}
                   </p>
-                  <div className="space-y-2.5 mb-5">
-                    <div className="flex justify-between">
-                      <span className="text-[13px] text-wx-txm">{de ? '3 Ketten × €46' : '3 chains × €46'}</span>
-                      <span className="text-[13px] font-medium text-wx-tx2 tabular-nums">€138</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-[13px] text-wx-txm">{de ? 'Öl (12× Flasche)' : 'Oil (12× bottle)'}</span>
-                      <span className="text-[13px] font-medium text-wx-tx2 tabular-nums">€13</span>
-                    </div>
-                    <div className="border-t border-wx-bd pt-2.5 flex justify-between items-baseline">
-                      <span className="text-[12px] text-wx-txm">{de ? 'Gesamt' : 'Total'}</span>
-                      <span className="text-[22px] font-bold text-wx-tx2 tabular-nums leading-none">~€151</span>
-                    </div>
+                  {/* bar */}
+                  <div className="flex items-end justify-center mb-5" style={{ height: '7rem' }}>
+                    <div
+                      className="cost-bar w-14 rounded-t-lg"
+                      data-w="100%"
+                      style={{ height: '0%', background: 'var(--bd2)' }}
+                    />
                   </div>
-                  <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--bd)' }}>
-                    <div className="cost-bar h-full rounded-full" data-w="100%" style={{ width: '0%', background: 'var(--txff)' }} />
-                  </div>
-                  <p className="text-[11px] text-wx-txff mt-2">
-                    {de ? 'Kette hält ~3.500–4.000 km' : 'Chain lasts ~3,500–4,000 km'}
-                  </p>
+                  <span className="text-[28px] font-bold text-wx-txm tabular-nums leading-none mb-1">~€151</span>
+                  <span className="text-[11px] text-wx-txff text-center">
+                    {de ? '3 Ketten · ~4.000 km je' : '3 chains · ~4,000 km each'}
+                  </span>
                 </div>
 
-                {/* Wax */}
-                <div className="p-6" style={{ background: 'rgba(74,106,238,0.04)' }}>
-                  <p className="text-[10px] uppercase tracking-[0.18em] font-medium mb-5" style={{ color: '#5B7AEE' }}>
+                {/* Wax column */}
+                <div className="p-6 flex flex-col items-center" style={{ background: 'rgba(74,106,238,0.04)' }}>
+                  <p className="text-[10px] uppercase tracking-[0.2em] font-medium mb-6" style={{ color: '#5B7AEE' }}>
                     Mit Waxcelerate
                   </p>
-                  <div className="space-y-2.5 mb-5">
-                    <div className="flex justify-between">
-                      <span className="text-[13px] text-wx-txm">{de ? '1 Kette × €46' : '1 chain × €46'}</span>
-                      <span className="text-[13px] font-medium text-wx-tx2 tabular-nums">€46</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-[13px] text-wx-txm">{de ? '500g Wachsblock' : '500g wax block'}</span>
-                      <span className="text-[13px] font-medium text-wx-tx2 tabular-nums">€35</span>
-                    </div>
-                    <div className="border-t border-wx-bd pt-2.5 flex justify-between items-baseline">
-                      <span className="text-[12px] text-wx-txm">{de ? 'Gesamt' : 'Total'}</span>
-                      <span className="text-[22px] font-bold text-wx-tx1 tabular-nums leading-none">~€81</span>
-                    </div>
+                  {/* bar */}
+                  <div className="flex items-end justify-center mb-5" style={{ height: '7rem' }}>
+                    <div
+                      className="cost-bar w-14 rounded-t-lg"
+                      data-w="54%"
+                      style={{ height: '0%', background: 'linear-gradient(180deg, #6888FF, #4A6AEE)' }}
+                    />
                   </div>
-                  <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--bd)' }}>
-                    <div className="cost-bar h-full rounded-full" data-w="54%" style={{ width: '0%', background: 'linear-gradient(90deg, #4A6AEE, #6888FF)' }} />
-                  </div>
-                  <p className="text-[11px] mt-2" style={{ color: '#5B7AEE' }}>
-                    {de ? 'Kette hält ~12.000 km' : 'Chain lasts ~12,000 km'}
-                  </p>
+                  <span className="text-[28px] font-bold tabular-nums leading-none mb-1" style={{ color: '#8AAAFF' }}>~€81</span>
+                  <span className="text-[11px] text-center" style={{ color: '#5B7AEE' }}>
+                    {de ? '1 Kette · ~12.000 km' : '1 chain · ~12,000 km'}
+                  </span>
                 </div>
               </div>
 
-              {/* Savings row */}
-              <div
-                className="px-6 py-4 border-t border-wx-bd flex items-center justify-between gap-4"
-                style={{ background: 'rgba(74,106,238,0.06)' }}
-              >
-                <p className="text-[13px] text-wx-txm">
-                  {de ? '€151 − €81 = 46 % weniger Kosten auf 12.000 km' : '€151 − €81 = 46% lower costs over 12,000 km'}
-                </p>
-                <div className="flex items-baseline gap-1.5 flex-shrink-0">
-                  <span className="text-[36px] font-bold text-wx-tx1 tabular-nums leading-none">~€70</span>
-                  <span className="text-[13px] font-semibold" style={{ color: '#5B7AEE' }}>
-                    {de ? 'gespart' : 'saved'}
+              {/* Collapsible detail */}
+              <div className="border-t border-wx-bd">
+                <button
+                  type="button"
+                  onClick={() => setShowCalc(v => !v)}
+                  className="w-full px-6 py-3.5 flex items-center justify-between text-wx-txf hover:text-wx-tx2 transition-colors text-[12px]"
+                >
+                  <span>{de ? 'Wie berechnet?' : 'How is this calculated?'}</span>
+                  <span
+                    className="transition-transform duration-200"
+                    style={{ display: 'inline-block', transform: showCalc ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                  >
+                    ↓
                   </span>
-                </div>
+                </button>
+                {showCalc && (
+                  <div className="px-6 pb-5 grid sm:grid-cols-2 gap-4 border-t border-wx-bd" style={{ background: 'rgba(0,0,0,0.15)' }}>
+                    <div className="pt-4">
+                      <p className="text-[10px] uppercase tracking-[0.18em] text-wx-txf mb-3">{de ? 'Mit Öl' : 'With Oil'}</p>
+                      <div className="space-y-1.5">
+                        {[
+                          [de ? '3 Ketten × €46' : '3 chains × €46', '€138'],
+                          [de ? 'Öl · 12× Flasche à €1,10' : 'Oil · 12× bottle at €1.10', '€13'],
+                        ].map(([label, val]) => (
+                          <div key={label} className="flex justify-between">
+                            <span className="text-[12px] text-wx-txf">{label}</span>
+                            <span className="text-[12px] text-wx-txm tabular-nums">{val}</span>
+                          </div>
+                        ))}
+                        <div className="border-t border-wx-bd pt-1.5 flex justify-between">
+                          <span className="text-[12px] text-wx-txm font-medium">{de ? 'Gesamt' : 'Total'}</span>
+                          <span className="text-[14px] font-bold text-wx-tx2 tabular-nums">~€151</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="pt-4 sm:border-l sm:border-wx-bd sm:pl-4">
+                      <p className="text-[10px] uppercase tracking-[0.18em] mb-3" style={{ color: '#5B7AEE' }}>Mit Waxcelerate</p>
+                      <div className="space-y-1.5">
+                        {[
+                          [de ? '1 Kette × €46' : '1 chain × €46', '€46'],
+                          [de ? '500g Wachsblock (~20 Anw.)' : '500g wax block (~20 uses)', '€35'],
+                        ].map(([label, val]) => (
+                          <div key={label} className="flex justify-between">
+                            <span className="text-[12px] text-wx-txf">{label}</span>
+                            <span className="text-[12px] text-wx-txm tabular-nums">{val}</span>
+                          </div>
+                        ))}
+                        <div className="border-t border-wx-bd pt-1.5 flex justify-between">
+                          <span className="text-[12px] text-wx-txm font-medium">{de ? 'Gesamt' : 'Total'}</span>
+                          <span className="text-[14px] font-bold tabular-nums" style={{ color: '#8AAAFF' }}>~€81</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
