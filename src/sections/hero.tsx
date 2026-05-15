@@ -74,16 +74,16 @@ export function Hero() {
           {/* Editorial headline */}
           <h1
             className="font-display font-bold leading-[0.9] tracking-[-0.02em] mb-7"
-            style={{ fontSize: 'clamp(3rem, 9vw, 7.5rem)', color: '#FFFFFF' }}
+            style={{ fontSize: 'clamp(2.8rem, 8.5vw, 6.8rem)', color: '#FFFFFF' }}
           >
             <span className="block">
-              {de ? 'NICHTS DEM' : 'NOTHING'}
+              {de ? 'KEIN ÖL.' : 'NO OIL.'}
             </span>
             <span className="block">
-              {de ? 'ZUFALL' : 'LEFT TO'}
+              {de ? 'KEIN DRECK.' : 'NO GRIME.'}
             </span>
             <span className="block" style={{ color: '#6A8AFF' }}>
-              {de ? 'ÜBERLASSEN.' : 'CHANCE.'}
+              {de ? 'KEIN LIMIT.' : 'NO LIMITS.'}
             </span>
           </h1>
 
@@ -93,8 +93,8 @@ export function Hero() {
             style={{ color: 'rgba(255,255,255,0.72)' }}
           >
             {de
-              ? 'Stuttgarter Heißwachs. PTFE-Formula. Sauber, leise, messbar schneller als Öl.'
-              : 'Hot wax from Stuttgart. PTFE formula. Cleaner, quieter, measurably faster than oil.'}
+              ? 'Stuttgarter Heißwachs. Entwickelt auf der Straße. Sauber, leise, schneller als Öl.'
+              : 'Hot wax from Stuttgart. Developed on the road. Clean, quiet, faster than oil.'}
           </p>
 
           {/* CTAs */}
