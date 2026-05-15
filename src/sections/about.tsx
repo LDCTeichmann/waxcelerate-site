@@ -51,22 +51,27 @@ export function About() {
     const text = textRef.current;
     if (!card || !text) return;
 
-    gsap.set([card, text], { opacity: 0, y: 32 });
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      gsap.set([text, card], { opacity: 1, y: 0 });
+      return;
+    }
 
-    const t1 = ScrollTrigger.create({
-      trigger: text,
-      start: 'top 85%',
-      once: true,
-      onEnter: () => gsap.to(text, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }),
-    });
-    const t2 = ScrollTrigger.create({
-      trigger: card,
-      start: 'top 85%',
-      once: true,
-      onEnter: () => gsap.to(card, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out', delay: 0.12 }),
+    // Hide immediately, before first paint
+    gsap.set(text, { opacity: 0, y: 28 });
+    gsap.set(card, { opacity: 0, y: 28 });
+
+    const ctx = gsap.context(() => {
+      gsap.to(text, {
+        opacity: 1, y: 0, duration: 0.7, ease: 'power3.out',
+        scrollTrigger: { trigger: text, start: 'top 88%', once: true },
+      });
+      gsap.to(card, {
+        opacity: 1, y: 0, duration: 0.7, ease: 'power3.out', delay: 0.14,
+        scrollTrigger: { trigger: card, start: 'top 88%', once: true },
+      });
     });
 
-    return () => { t1.kill(); t2.kill(); };
+    return () => ctx.revert();
   }, []);
 
   const de = lang === 'de';

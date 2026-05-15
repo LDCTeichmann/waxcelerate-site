@@ -73,30 +73,32 @@ export function WhyWax() {
         });
       });
 
-      // Cost number counters
+      // Cost number counters — use gsap.to so val goes 0 → target (not target → 0)
+      const oilCounter = { val: 0 };
       if (costOilRef.current) {
-        gsap.from({ val: 0 }, {
+        gsap.to(oilCounter, {
           val: 151,
           duration: 1.6,
           ease: 'power2.out',
           snap: { val: 1 },
           scrollTrigger: { trigger: costOilRef.current, start: 'top 80%', once: true },
-          onUpdate: function() {
-            if (costOilRef.current) costOilRef.current.textContent = `~€${Math.round(this.targets()[0].val)}`;
-          }
+          onUpdate: () => {
+            if (costOilRef.current) costOilRef.current.textContent = `~€${Math.round(oilCounter.val)}`;
+          },
         });
       }
 
+      const waxCounter = { val: 0 };
       if (costWaxRef.current) {
-        gsap.from({ val: 0 }, {
+        gsap.to(waxCounter, {
           val: 81,
           duration: 1.6,
           ease: 'power2.out',
           snap: { val: 1 },
           scrollTrigger: { trigger: costWaxRef.current, start: 'top 80%', once: true },
-          onUpdate: function() {
-            if (costWaxRef.current) costWaxRef.current.textContent = `~€${Math.round(this.targets()[0].val)}`;
-          }
+          onUpdate: () => {
+            if (costWaxRef.current) costWaxRef.current.textContent = `~€${Math.round(waxCounter.val)}`;
+          },
         });
       }
 
@@ -174,7 +176,7 @@ export function WhyWax() {
                       style={{ height: '0%', background: 'var(--bd2)' }}
                     />
                   </div>
-                  <span ref={costOilRef} className="text-[28px] font-bold text-wx-txm tabular-nums leading-none mb-1">~€151</span>
+                  <span ref={costOilRef} className="text-[28px] font-bold text-wx-txm tabular-nums leading-none mb-1">~€0</span>
                   <span className="text-[11px] text-wx-txff text-center">
                     {de ? '3 Ketten · ~4.000 km je' : '3 chains · ~4,000 km each'}
                   </span>
@@ -193,7 +195,7 @@ export function WhyWax() {
                       style={{ height: '0%', background: 'linear-gradient(180deg, #6888FF, #4A6AEE)' }}
                     />
                   </div>
-                  <span ref={costWaxRef} className="text-[28px] font-bold tabular-nums leading-none mb-1" style={{ color: '#8AAAFF' }}>~€81</span>
+                  <span ref={costWaxRef} className="text-[28px] font-bold tabular-nums leading-none mb-1" style={{ color: '#8AAAFF' }}>~€0</span>
                   <span className="text-[11px] text-center" style={{ color: '#5B7AEE' }}>
                     {de ? '1 Kette · ~12.000 km' : '1 chain · ~12,000 km'}
                   </span>
