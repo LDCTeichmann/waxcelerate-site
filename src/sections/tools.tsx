@@ -30,11 +30,12 @@ function useScrollReveal(delay = 0) {
   };
 }
 
+// Theme-aware chip toggle — works in all three modes
 const tog = (active: boolean) =>
   `px-3 py-1.5 rounded-md text-sm transition-all border cursor-pointer ${
     active
-      ? 'border-[#5B7AEE]/50 bg-[#5B7AEE]/12 text-[#A8BFFF]'
-      : 'border-wx-bd2 text-[#4E4E62] hover:border-[#2E2E40] hover:text-[#7A7A9A]'
+      ? 'border-[#5B7AEE]/40 bg-[#5B7AEE]/10 text-wx-tx1'
+      : 'border-wx-bd text-wx-txf hover:text-wx-tx2 hover:border-wx-bd'
   }`;
 
 function ToolCard({ children }: { children: React.ReactNode }) {
@@ -145,12 +146,15 @@ function RewaxCalculator() {
           </div>
         </div>
 
+        {/* Weeks as primary output — more intuitive than raw km */}
         <ResultBox>
-          <p className="text-[42px] font-bold text-wx-tx1 text-center leading-none tracking-tight">{interval}</p>
-          <p className="text-[13px] text-wx-txf text-center mt-1">km bis zum nächsten Rewaxen</p>
+          <p className="text-[42px] font-bold text-wx-tx1 text-center leading-none tracking-tight">{weeks}</p>
+          <p className="text-[13px] text-wx-txf text-center mt-1">
+            {weeks === 1 ? 'Woche' : 'Wochen'} bis zum nächsten Rewaxen
+            {weeksCapped && <span className="text-wx-txff"> (max.)</span>}
+          </p>
           <p className="text-[12px] text-wx-txm text-center mt-0.5">
-            ≈ {weeks} {weeks === 1 ? 'Woche' : 'Wochen'} bei {kmPerWeek} km/Wo.
-            {weeksCapped && <span className="text-wx-txff"> (max. — Wachs oxidiert)</span>}
+            {interval} km · bei {kmPerWeek} km/Wo.
           </p>
         </ResultBox>
       </div>
@@ -221,43 +225,44 @@ function BikeQuestionnaire() {
 
         {is9or10 ? (
           <ResultBox>
-            <p className="text-[10px] text-wx-txf uppercase tracking-[0.1em] mb-2">Empfehlung</p>
-            <p className="text-[12px] text-[#7A7A9A] leading-snug mb-3">
-              Für 9/10-fach bieten wir keine vorgewachsten Ketten an — aber deine bestehende Kette kannst du einfach selbst wachsen.
+            <p className="text-[10px] text-wx-txf uppercase tracking-[0.1em] mb-2">Für 9/10-fach</p>
+            <p className="text-[12px] text-wx-txm leading-snug mb-3">
+              Keine vorgewachsten Ketten nötig — wachs einfach deine bestehende Kette selbst.
             </p>
-            <a href="https://www.ebay.de/itm/395811183957" target="_blank" rel="noopener noreferrer">
-              <div
-                className="rounded-lg border p-3 hover:border-[#5B7AEE]/50 transition-colors"
-                style={{ borderColor: 'rgba(91,122,238,0.3)', background: 'rgba(91,122,238,0.06)' }}
-              >
-                <p className="text-[13px] font-semibold text-[#A8BFFF]">Classic Kettenwachs 300g</p>
-                <p className="text-[11px] mt-0.5" style={{ color: '#5B7AEE' }}>22,95 € · Auf eBay ↗</p>
-              </div>
+            <a
+              href="https://www.ebay.de/itm/395811183957"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block rounded-lg border p-3 hover:border-[#5B7AEE]/50 transition-colors"
+              style={{ borderColor: 'rgba(91,122,238,0.3)', background: 'rgba(91,122,238,0.06)' }}
+            >
+              <p className="text-[13px] font-semibold text-wx-tx1">Classic Kettenwachs 300g</p>
+              <p className="text-[11px] mt-0.5" style={{ color: BLUE }}>22,95 € · Auf eBay ↗</p>
             </a>
           </ResultBox>
         ) : (
           <div>
             <p className="text-[10px] text-wx-txf uppercase tracking-[0.12em] mb-3">Passende Ketten</p>
             {recommendedChains.length === 0 ? (
-              <p className="text-[13px] text-[#3E3E52] text-center py-4">Keine Ketten gefunden</p>
+              <p className="text-[13px] text-wx-txm text-center py-4">Keine Ketten gefunden</p>
             ) : (
               <div className="space-y-1.5">
+                {/* Entire row is the link — large tap target, no nested <a><button> */}
                 {recommendedChains.map((chain) => (
-                  <div
+                  <a
                     key={chain.id}
-                    className="flex items-center justify-between rounded-lg px-3 py-2.5 border border-wx-bd2 hover:border-[#252538] transition-colors"
+                    href={chain.ebayUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-between rounded-lg px-3 py-2.5 border border-wx-bd hover:border-[#5B7AEE]/40 transition-colors group"
                     style={{ background: 'var(--sf2)' }}
                   >
                     <div>
                       <p className="text-[13px] text-wx-tx2 leading-tight">{lang === 'de' ? chain.title : chain.titleEn}</p>
                       <p className="text-[12px] font-semibold mt-0.5" style={{ color: '#8AAAFF' }}>{chain.price.toFixed(2)} €</p>
                     </div>
-                    <a href={chain.ebayUrl} target="_blank" rel="noopener noreferrer">
-                      <button className="p-1.5 rounded-md border border-wx-bd2 text-[#3E3E52] hover:border-[#5B7AEE]/30 hover:text-[#8AAAFF] transition-all">
-                        <ExternalLink className="h-3.5 w-3.5" />
-                      </button>
-                    </a>
-                  </div>
+                    <ExternalLink className="h-3.5 w-3.5 text-wx-txf group-hover:text-[#8AAAFF] transition-colors flex-shrink-0" />
+                  </a>
                 ))}
               </div>
             )}
@@ -275,14 +280,13 @@ function WaxStockCalculator() {
   const [kmPerMonth, setKmPerMonth] = useState(400);
   const [weather, setWeather] = useState<'trocken' | 'gemischt' | 'nass'>('gemischt');
 
-  // Use road intervals from waxIntervals (consistent with RewaxCalculator)
   const roadIntervals = {
     trocken: waxIntervals.trocken.strasse,
     gemischt: waxIntervals.gemischt.strasse,
     nass: waxIntervals.nass.strasse,
   };
-  const WAX_GRAMS_PER_APP = 15; // net hot-wax consumption per dip (gross drips return to pot)
-  const MAX_MONTHS = 30; // shelf life cap ~2.5 years
+  const WAX_GRAMS_PER_APP = 15;
+  const MAX_MONTHS = 30;
 
   const appsPerMonth = kmPerMonth / roadIntervals[weather];
   const waxPerMonth = appsPerMonth * WAX_GRAMS_PER_APP * chainCount;
@@ -331,16 +335,13 @@ function WaxStockCalculator() {
           {tooLittle ? (
             <>
               <p className="text-[10px] text-wx-txf uppercase tracking-[0.1em] mb-2">Empfehlung</p>
-              <p className="text-[13px] text-[#7A7A9A] leading-snug">
+              <p className="text-[13px] text-wx-txm leading-snug">
                 Dein Verbrauch ist sehr niedrig — der 300g-Block reicht länger als seine Haltbarkeit (~2–3 Jahre). Die 300g genügen vollkommen.
               </p>
             </>
           ) : (
             <>
-              <p className="text-[10px] text-wx-txf uppercase tracking-[0.1em] mb-0.5">Empfohlene Packung</p>
-              <p className="text-[11px] text-wx-txf mb-4">
-                ~{Math.round(waxPerMonth)}g/Monat · {(appsPerMonth * chainCount).toFixed(1)} Rewax-Sessions/Monat
-              </p>
+              <p className="text-[10px] text-wx-txf uppercase tracking-[0.1em] mb-4">Empfohlene Packung</p>
               <div className="grid grid-cols-2 gap-2">
                 {(['300', '500'] as const).map(size => {
                   const isRec = rec === size;
@@ -353,7 +354,7 @@ function WaxStockCalculator() {
                       <div
                         className="rounded-lg border p-3 text-center transition-all hover:border-[#5B7AEE]/40"
                         style={{
-                          borderColor: isRec ? 'rgba(91,122,238,0.45)' : '#1E1E2C',
+                          borderColor: isRec ? 'rgba(91,122,238,0.45)' : 'var(--bd)',
                           background: isRec ? 'rgba(91,122,238,0.08)' : 'transparent',
                         }}
                       >
@@ -393,11 +394,10 @@ function AnimatedBar({ pct, color, delay = 0 }: { pct: number; color: string; de
     observer.observe(el);
     return () => observer.disconnect();
   }, [pct, delay]);
-  // Reset animation when pct changes (slider moved)
   useEffect(() => { setWidth(pct); }, [pct]);
 
   return (
-    <div ref={ref} className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--bd)' }}>
+    <div ref={ref} className="h-3 rounded-full overflow-hidden" style={{ background: 'var(--bd)' }}>
       <div
         className="h-full rounded-full"
         style={{
@@ -416,8 +416,8 @@ function CostSavingsCalculator() {
   const [chainPrice, setChainPrice] = useState(45);
 
   const CASSETTE_PRICE = 80;
-  const WAX_APP_COST = 1.5;   // €/app — 15g × €29.95/500g ≈ €0.90 + overhead
-  const REWAX_INTERVAL = 500; // km, consistent with road/dry waxIntervals
+  const WAX_APP_COST = 1.5;
+  const REWAX_INTERVAL = 500;
 
   const waxCost = Math.round(
     (kmPerYear / 6000) * chainPrice +
@@ -430,7 +430,6 @@ function CostSavingsCalculator() {
     48
   );
   const savings = Math.max(0, oilCost - waxCost);
-  // Oil is always the baseline (100%) — wax bar is proportional
   const waxBarPct = Math.round((waxCost / Math.max(oilCost, 1)) * 100);
 
   return (
@@ -450,7 +449,7 @@ function CostSavingsCalculator() {
             <FieldLabel label={t.tools.savings.chainPrice} value={`${chainPrice} €`} />
             <Slider value={[chainPrice]} onValueChange={v => setChainPrice(v[0])} min={20} max={100} step={5} className="py-1" />
           </div>
-          <p className="text-[10px] text-[#2E2E42] leading-relaxed -mt-2">
+          <p className="text-[10px] text-wx-txff leading-relaxed -mt-2">
             Kassette €80 · Wachskette 6.000km · Ölkette 2.500km · Wachsen €1,50/Session
           </p>
         </div>
@@ -459,15 +458,15 @@ function CostSavingsCalculator() {
           <div className="space-y-3 mb-4">
             <div>
               <div className="flex justify-between items-baseline mb-1.5">
-                <span className="text-[11px] text-[#A8BFFF]">Wachs</span>
-                <span className="text-[13px] font-bold text-white">{waxCost} €</span>
+                <span className="text-[11px] text-wx-tx2">Wachs</span>
+                <span className="text-[13px] font-bold text-wx-tx1">{waxCost} €</span>
               </div>
               <AnimatedBar pct={waxBarPct} color="linear-gradient(90deg, #4A68E8, #7090FF)" delay={0} />
             </div>
             <div>
               <div className="flex justify-between items-baseline mb-1.5">
                 <span className="text-[11px] text-wx-txf">Kettenöl</span>
-                <span className="text-[13px] font-bold text-wx-txf line-through decoration-[#3E3E52]">{oilCost} €</span>
+                <span className="text-[13px] font-bold text-wx-txf line-through decoration-wx-bd">{oilCost} €</span>
               </div>
               <AnimatedBar pct={100} color="rgba(255,255,255,0.1)" delay={150} />
             </div>
@@ -512,7 +511,7 @@ function RotationROI() {
         <ResultBox>
           <div className="grid grid-cols-2 gap-3">
             {/* 1 chain */}
-            <div className="rounded-lg border border-wx-bd2 p-4 text-center" style={{ background: 'var(--sf3)' }}>
+            <div className="rounded-lg border border-wx-bd p-4 text-center" style={{ background: 'var(--sf3)' }}>
               <p className="text-[11px] text-wx-txf mb-3">1 Kette</p>
               <p className="text-[36px] font-bold text-wx-tx1 leading-none">{rewax1}</p>
               <p className="text-[11px] text-wx-txf mt-1">Wo. bis Rewax</p>
@@ -525,18 +524,18 @@ function RotationROI() {
             {/* 2 chains — recommended */}
             <div className="rounded-lg border p-4 text-center" style={{ borderColor: 'rgba(91,122,238,0.4)', background: 'rgba(91,122,238,0.07)' }}>
               <p className="text-[9px] text-[#5B7AEE] uppercase tracking-[0.14em] mb-1">Empfohlen</p>
-              <p className="text-[11px] text-[#8AAAFF] mb-2">2 Ketten</p>
+              <p className="text-[11px] text-wx-tx2 mb-2">2 Ketten</p>
               <p className="text-[36px] font-bold text-wx-tx1 leading-none">{rewax2}</p>
               <p className="text-[11px] text-wx-txm mt-1">Wo. bis Rewax</p>
-              <div className="mt-3 pt-3 border-t border-[#1E1E3A]">
-                <p className="text-[13px] font-semibold text-[#A8BFFF]">{cassette2} J.</p>
+              <div className="mt-3 pt-3 border-t border-wx-bd2">
+                <p className="text-[13px] font-semibold text-wx-tx1">{cassette2} J.</p>
                 <p className="text-[10px] text-wx-txf mt-0.5">Kassettenlaufzeit</p>
               </div>
             </div>
           </div>
 
           <button
-            onClick={() => document.querySelector('#products')?.scrollIntoView({ behavior: 'smooth' })}
+            onClick={() => document.querySelector('#produkte')?.scrollIntoView({ behavior: 'smooth' })}
             className="w-full mt-3 rounded-lg border border-[#5B7AEE]/25 p-2.5 text-center hover:border-[#5B7AEE]/45 transition-colors"
             style={{ background: 'rgba(91,122,238,0.05)' }}
           >
@@ -548,7 +547,7 @@ function RotationROI() {
   );
 }
 
-// ─── Reveal wrapper (hook must be in component, not in map) ──────────────────
+// ─── Reveal wrapper ──────────────────────────────────────────────────────────
 function RevealSlot({ delay, children }: { delay: number; children: React.ReactNode }) {
   const { ref, style } = useScrollReveal(delay);
   return (
@@ -558,11 +557,15 @@ function RevealSlot({ delay, children }: { delay: number; children: React.ReactN
   );
 }
 
+// ─── Mobile tab labels ────────────────────────────────────────────────────────
+const TAB_LABELS = ['Intervall', 'Kette', 'Vorrat', 'Ersparnis', 'Rotation'];
+
 // ─── Main Export ──────────────────────────────────────────────────────────────
 export function Tools() {
   const { t } = useLanguage();
+  const [activeTab, setActiveTab] = useState(0);
 
-  const tools = [
+  const toolComponents = [
     <RewaxCalculator />,
     <BikeQuestionnaire />,
     <WaxStockCalculator />,
@@ -578,20 +581,49 @@ export function Tools() {
             <span className="text-[10px] tracking-[0.35em] uppercase mb-3 block font-medium" style={{ color: BLUE }}>
               Planungs-Tools
             </span>
-            <h2 className="font-display text-4xl sm:text-5xl font-bold text-white mb-4">
+            <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-4">
               {t.tools.title}
             </h2>
-            <p className="text-[#52526A] max-w-xl mx-auto text-[15px]">
+            <p className="text-wx-tx2 max-w-xl mx-auto text-[15px]">
               {t.tools.subtitle}
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">
-            {tools.map((tool, i) => (
-              <RevealSlot key={i} delay={i * 90}>
-                {tool}
-              </RevealSlot>
-            ))}
+          {/* ── Mobile: tab switcher (one tool at a time) ── */}
+          <div className="md:hidden">
+            <div
+              className="flex gap-1 p-1 rounded-xl border border-wx-bd mb-5 overflow-x-auto"
+              style={{ background: 'var(--sf2)' }}
+            >
+              {TAB_LABELS.map((label, i) => (
+                <button
+                  key={i}
+                  onClick={() => setActiveTab(i)}
+                  className={`flex-1 min-w-[60px] px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${
+                    activeTab === i ? 'text-wx-tx1 shadow-sm' : 'text-wx-txf hover:text-wx-tx2'
+                  }`}
+                  style={activeTab === i ? { background: 'var(--sf)' } : undefined}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            {toolComponents[activeTab]}
+          </div>
+
+          {/* ── Desktop: 2+3 grid layout ── */}
+          <div className="hidden md:block space-y-4">
+            {/* Row 1: primary tools — 2 wide columns */}
+            <div className="grid md:grid-cols-2 gap-4 items-stretch">
+              <RevealSlot delay={0}><RewaxCalculator /></RevealSlot>
+              <RevealSlot delay={90}><BikeQuestionnaire /></RevealSlot>
+            </div>
+            {/* Row 2: secondary tools — 3 columns */}
+            <div className="grid md:grid-cols-3 gap-4 items-stretch">
+              <RevealSlot delay={180}><WaxStockCalculator /></RevealSlot>
+              <RevealSlot delay={270}><CostSavingsCalculator /></RevealSlot>
+              <RevealSlot delay={360}><RotationROI /></RevealSlot>
+            </div>
           </div>
         </div>
       </div>
