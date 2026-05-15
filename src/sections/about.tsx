@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { MapPin, Mail, Phone, ExternalLink } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useSectionReveal } from '@/hooks/useAnimation';
 
 function CountUp({ end, duration = 2000 }: { end: number; duration?: number }) {
   const [count, setCount] = useState(0);
@@ -44,6 +45,8 @@ function CountUp({ end, duration = 2000 }: { end: number; duration?: number }) {
 
 export function About() {
   const { t, lang } = useLanguage();
+  const headerRef = useRef<HTMLDivElement>(null);
+  useSectionReveal(headerRef);
 
   const stats = [
     { value: 100, suffix: '%', label: t.about.stats.rating },
@@ -56,11 +59,11 @@ export function About() {
     <section id="ueber-mich" className="py-24 bg-wx-bg">
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-16">
-            <span className="text-xs tracking-[0.3em] text-[#4A6AEE] uppercase mb-3 block font-medium">
+          <div ref={headerRef} className="text-center mb-16">
+            <span data-reveal="eyebrow" className="text-xs tracking-[0.3em] text-[#4A6AEE] uppercase mb-3 block font-medium">
               {lang === 'de' ? 'Über Uns' : 'About Us'}
             </span>
-            <h2 className="font-display text-4xl sm:text-5xl font-bold text-white mb-4">
+            <h2 data-reveal="heading" className="font-display text-4xl sm:text-5xl font-bold text-white mb-4">
               {t.about.title}
             </h2>
           </div>
@@ -114,10 +117,10 @@ export function About() {
                 <img
                   src="/images/logo.jpg"
                   alt="Waxcelerate"
-                  className="h-14 mx-auto mb-4 rounded-sm"
+                  className="h-20 mx-auto mb-4 rounded-sm"
                 />
-                <p className="font-display text-lg text-wx-tx1">
-                  WAXCELERATE
+                <p className="font-roboto font-medium text-xl tracking-wide text-wx-tx1">
+                  waxcelerate
                 </p>
               </div>
 

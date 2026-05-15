@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from 'react';
 import { ExternalLink, Shield, Snowflake, Droplets, Sun } from 'lucide-react';
-import { ComparisonSlider } from '@/components/comparison-slider';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useSectionReveal } from '@/hooks/useAnimation';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -41,12 +41,17 @@ const differentiators = [
 export function WhyWax() {
   const { lang } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<HTMLDivElement>(null);
   const costRef = useRef<HTMLDivElement>(null);
+  const costOilRef = useRef<HTMLSpanElement>(null);
+  const costWaxRef = useRef<HTMLSpanElement>(null);
   const frictionRef = useRef<HTMLDivElement>(null);
   const [rider, setRider] = useState<'summer' | 'allseason' | null>(null);
   const [showCalc, setShowCalc] = useState(false);
   const de = lang === 'de';
+
+  useSectionReveal(headerRef);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -68,6 +73,33 @@ export function WhyWax() {
         });
       });
 
+      // Cost number counters
+      if (costOilRef.current) {
+        gsap.from({ val: 0 }, {
+          val: 151,
+          duration: 1.6,
+          ease: 'power2.out',
+          snap: { val: 1 },
+          scrollTrigger: { trigger: costOilRef.current, start: 'top 80%', once: true },
+          onUpdate: function() {
+            if (costOilRef.current) costOilRef.current.textContent = `~€${Math.round(this.targets()[0].val)}`;
+          }
+        });
+      }
+
+      if (costWaxRef.current) {
+        gsap.from({ val: 0 }, {
+          val: 81,
+          duration: 1.6,
+          ease: 'power2.out',
+          snap: { val: 1 },
+          scrollTrigger: { trigger: costWaxRef.current, start: 'top 80%', once: true },
+          onUpdate: function() {
+            if (costWaxRef.current) costWaxRef.current.textContent = `~€${Math.round(this.targets()[0].val)}`;
+          }
+        });
+      }
+
       // Friction bars
       frictionRef.current?.querySelectorAll('.fbar').forEach((bar) => {
         const w = (bar as HTMLElement).dataset.w!;
@@ -86,28 +118,18 @@ export function WhyWax() {
         <div className="max-w-5xl mx-auto">
 
           {/* ── Header ── */}
-          <div className="text-center mb-14">
-            <span className="text-[10px] tracking-[0.35em] uppercase mb-3 block font-medium" style={{ color: '#5B7AEE' }}>
+          <div ref={headerRef} className="text-center mb-14">
+            <span data-reveal="eyebrow" className="text-[10px] tracking-[0.35em] uppercase mb-3 block font-medium" style={{ color: '#5B7AEE' }}>
               {de ? 'Die Formulierung' : 'The Formulation'}
             </span>
-            <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-4">
+            <h2 data-reveal="heading" className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-4">
               {de ? 'Warum Waxcelerate' : 'Why Waxcelerate'}
             </h2>
-            <p className="text-wx-txm max-w-lg mx-auto text-[15px]">
+            <p data-reveal="subtitle" className="text-wx-txm max-w-lg mx-auto text-[15px]">
               {de
                 ? 'Nicht warum Wachs — sondern warum diese Formulierung besser durchdacht ist als die meisten Alternativen.'
                 : 'Not why wax — but why this formulation is more carefully developed than most alternatives.'}
             </p>
-          </div>
-
-          {/* ── Comparison Slider ── */}
-          <div className="mb-16">
-            <ComparisonSlider
-              beforeImage="/images/chain-dirty.jpg"
-              afterImage="/images/chain-clean.jpg"
-              beforeLabel={de ? 'Mit Öl · nach 2.000 km' : 'With Oil · after 2,000 km'}
-              afterLabel={de ? 'Mit Wachs · nach 2.000 km' : 'With Wax · after 2,000 km'}
-            />
           </div>
 
           {/* ── Cost Savings ── */}
@@ -123,7 +145,7 @@ export function WhyWax() {
                   {de ? 'Kostenvergleich · 12.000 km' : 'Cost comparison · 12,000 km'}
                 </p>
                 <div className="flex items-baseline justify-center gap-3">
-                  <span className="font-display text-[52px] font-bold text-wx-tx1 tabular-nums leading-none">~€70</span>
+                  <span className="font-display text-[36px] sm:text-[52px] font-bold text-wx-tx1 tabular-nums leading-none">~€70</span>
                   <div className="flex flex-col items-start">
                     <span className="text-[15px] font-semibold leading-tight" style={{ color: '#5B7AEE' }}>
                       {de ? 'gespart' : 'saved'}
@@ -152,7 +174,7 @@ export function WhyWax() {
                       style={{ height: '0%', background: 'var(--bd2)' }}
                     />
                   </div>
-                  <span className="text-[28px] font-bold text-wx-txm tabular-nums leading-none mb-1">~€151</span>
+                  <span ref={costOilRef} className="text-[28px] font-bold text-wx-txm tabular-nums leading-none mb-1">~€151</span>
                   <span className="text-[11px] text-wx-txff text-center">
                     {de ? '3 Ketten · ~4.000 km je' : '3 chains · ~4,000 km each'}
                   </span>
@@ -171,7 +193,7 @@ export function WhyWax() {
                       style={{ height: '0%', background: 'linear-gradient(180deg, #6888FF, #4A6AEE)' }}
                     />
                   </div>
-                  <span className="text-[28px] font-bold tabular-nums leading-none mb-1" style={{ color: '#8AAAFF' }}>~€81</span>
+                  <span ref={costWaxRef} className="text-[28px] font-bold tabular-nums leading-none mb-1" style={{ color: '#8AAAFF' }}>~€81</span>
                   <span className="text-[11px] text-center" style={{ color: '#5B7AEE' }}>
                     {de ? '1 Kette · ~12.000 km' : '1 chain · ~12,000 km'}
                   </span>
@@ -238,7 +260,7 @@ export function WhyWax() {
           </div>
 
           {/* ── Why This Formula — 4 cards ── */}
-          <div ref={cardsRef} className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-16">
+          <div ref={cardsRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-16">
             {differentiators.map((d, i) => {
               const Icon = d.icon;
               return (

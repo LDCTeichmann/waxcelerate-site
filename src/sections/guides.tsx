@@ -47,7 +47,9 @@ export function Guides() {
             {guides.map((guide) => (
               <div
                 key={guide.id}
-                className="bg-wx-sf border border-wx-bd/30 rounded-xl overflow-hidden"
+                className={`bg-wx-sf border rounded-xl overflow-hidden transition-colors duration-300 ${
+                  openGuide === guide.id ? 'border-[#4A6AEE]/20' : 'border-wx-bd/30'
+                }`}
               >
                 <button
                   onClick={() => setOpenGuide(openGuide === guide.id ? null : guide.id)}
@@ -62,26 +64,44 @@ export function Guides() {
                     </h3>
                   </div>
                   <ChevronDown
-                    className={`h-5 w-5 text-wx-tx2 transition-transform ${
+                    className={`h-5 w-5 text-wx-tx2 transition-transform duration-[320ms] ${
                       openGuide === guide.id ? 'rotate-180' : ''
                     }`}
                   />
                 </button>
 
-                {openGuide === guide.id && (
-                  <div className="px-6 pb-6">
-                    <div className="relative ml-5 pl-9 border-l border-wx-bd/30">
-                      {guide.steps.map((step: string, index: number) => (
-                        <div key={index} className="relative pb-6 last:pb-0">
-                          <span className="absolute -left-[41px] w-8 h-8 bg-[#4A6AEE]/20 border border-[#4A6AEE]/30 rounded-full flex items-center justify-center text-sm text-[#4A6AEE] font-medium">
-                            {index + 1}
-                          </span>
-                          <p className="text-wx-tx2 text-sm leading-relaxed">{step}</p>
-                        </div>
-                      ))}
+                <div
+                  className="grid transition-[grid-template-rows,opacity] duration-[320ms]"
+                  style={{
+                    gridTemplateRows: openGuide === guide.id ? '1fr' : '0fr',
+                    opacity: openGuide === guide.id ? 1 : 0,
+                    transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+                  }}
+                >
+                  <div className="overflow-hidden">
+                    <div className="px-6 pb-6">
+                      <div className="relative ml-5 pl-9 border-l border-wx-bd/30">
+                        {guide.steps.map((step: string, index: number) => (
+                          <div
+                            key={index}
+                            className="relative pb-6 last:pb-0"
+                            style={{
+                              opacity: openGuide === guide.id ? 1 : 0,
+                              transform: openGuide === guide.id ? 'translateY(0)' : 'translateY(8px)',
+                              transition: `opacity 0.35s ease, transform 0.35s ease`,
+                              transitionDelay: `${0.15 + index * 0.07}s`,
+                            }}
+                          >
+                            <span className="absolute -left-[41px] w-8 h-8 bg-[#4A6AEE]/20 border border-[#4A6AEE]/30 rounded-full flex items-center justify-center text-sm text-[#4A6AEE] font-medium">
+                              {index + 1}
+                            </span>
+                            <p className="text-wx-tx2 text-sm leading-relaxed">{step}</p>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                )}
+                </div>
               </div>
             ))}
           </div>

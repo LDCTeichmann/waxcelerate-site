@@ -5,8 +5,10 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        display: ['Outfit', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        sans:    ['Inter',  'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display:         ['Outfit', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans:            ['Inter',  'ui-sans-serif', 'system-ui', 'sans-serif'],
+        roboto:          ['Roboto', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        'serif-display': ['Fraunces', 'Georgia', 'serif'],
       },
       colors: {
         wx: {

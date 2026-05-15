@@ -26,7 +26,9 @@ export function FAQ() {
             {t.faq.items.map((item: {q: string; a: string}, index: number) => (
               <div
                 key={index}
-                className="bg-wx-sf border border-wx-bd/30 rounded-xl overflow-hidden"
+                className={`bg-wx-sf border rounded-xl overflow-hidden transition-colors duration-300 ${
+                  openItem === index.toString() ? 'border-[#4A6AEE]/20' : 'border-wx-bd/30'
+                }`}
               >
                 <button
                   onClick={() => setOpenItem(openItem === index.toString() ? null : index.toString())}
@@ -36,19 +38,28 @@ export function FAQ() {
                     {item.q}
                   </h3>
                   <ChevronDown
-                    className={`h-5 w-5 text-wx-tx2 flex-shrink-0 transition-transform ${
+                    className={`h-5 w-5 text-wx-tx2 flex-shrink-0 transition-transform duration-[320ms] ${
                       openItem === index.toString() ? 'rotate-180' : ''
                     }`}
                   />
                 </button>
 
-                {openItem === index.toString() && (
-                  <div className="px-6 pb-6">
-                    <p className="text-wx-tx2 text-sm leading-relaxed">
-                      {item.a}
-                    </p>
+                <div
+                  className="grid transition-[grid-template-rows,opacity] duration-[320ms]"
+                  style={{
+                    gridTemplateRows: openItem === index.toString() ? '1fr' : '0fr',
+                    opacity: openItem === index.toString() ? 1 : 0,
+                    transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+                  }}
+                >
+                  <div className="overflow-hidden">
+                    <div className="px-6 pb-6">
+                      <p className="text-wx-tx2 text-sm leading-relaxed">
+                        {item.a}
+                      </p>
+                    </div>
                   </div>
-                )}
+                </div>
               </div>
             ))}
           </div>

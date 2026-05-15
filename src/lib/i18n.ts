@@ -204,9 +204,9 @@ export const translations = {
     // About
     about: {
       title: 'Über mich',
-      bio1: 'Ich bin Luca, Medizinstudent aus Stuttgart und seit Jahren überzeugter Kettenwachser.',
-      bio2: 'Angefangen hat es mit Frust über schwarze Finger und kurze Kettenlebensdauer — irgendwann hab ich angefangen, selbst zu experimentieren.',
-      bio3: 'Waxcelerate ist das Ergebnis: ein Paraffin-PTFE-Wachs, das ich selbst jeden Tag nutze. Formuliert für minimale Reibung, maximale Sauberkeit und echte Langlebigkeit.',
+      bio1: 'Ich bin Luca. Waxcelerate ist nicht am Schreibtisch entstanden, sondern auf nassen Herbststraßen, bei Ausfahrten tief im Winter und nach Sommerrennen, bei denen Staub und Hitze zeigen, was ein Wachs wirklich kann.',
+      bio2: 'Der Anspruch war von Anfang an konkret: kein Wachs, das im ersten Eindruck überzeugt und nach drei Wochen Kompromisse zeigt. Sondern eines, das seine Arbeit still tut, bei Kälte genauso wie im Hochsommer, über kurze Ausfahrten genauso wie über lange Intervalle. Nicht jede Charge war sofort richtig. Aber jede war näher dran.',
+      bio3: 'Das Ergebnis wird in kleinen Chargen in Stuttgart entwickelt und gefertigt, für Fahrer, die beim Antrieb kein Versprechen brauchen, sondern ein Produkt, das sich seine Überzeugungskraft auf der Straße verdient hat.',
       location: 'Stuttgart, Deutschland',
       email: 'waxcelerate@gmail.com',
       phone: '+49 157 51957470',
@@ -460,9 +460,9 @@ export const translations = {
     // About
     about: {
       title: 'About Me',
-      bio1: 'I\'m Luca, a medical student from Stuttgart and a convinced chain waxer for years.',
-      bio2: 'It started with frustration over black fingers and short chain life — eventually I started experimenting myself.',
-      bio3: 'Waxcelerate is the result: a paraffin-PTFE wax that I use every day myself. Formulated for minimal friction, maximum cleanliness and real longevity.',
+      bio1: 'I\'m Luca. Waxcelerate wasn\'t born at a desk — it came from wet autumn roads, deep winter rides, and summer races where dust and heat reveal what a wax is really made of.',
+      bio2: 'The goal was concrete from the start: not a wax that impresses on first contact and starts making compromises after three weeks. But one that does its work quietly — in the cold just as well as in midsummer, on short rides just as well as long intervals. Not every batch was right straight away. But each one was closer.',
+      bio3: 'The result is developed and produced in small batches in Stuttgart, for riders who don\'t need a promise about their drivetrain — just a product that earns its reputation on the road.',
       location: 'Stuttgart, Germany',
       email: 'waxcelerate@gmail.com',
       phone: '+49 157 51957470',

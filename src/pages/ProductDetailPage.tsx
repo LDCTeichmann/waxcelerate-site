@@ -60,7 +60,7 @@ export function ProductDetailPage() {
           {/* Left — image */}
           <div className="lg:sticky lg:top-20">
             <div
-              className="relative rounded-2xl overflow-hidden border border-[#1A1A28] bg-[#0C0C10] aspect-square flex items-center justify-center p-12"
+              className="relative rounded-2xl overflow-hidden border border-[#1A1A28] bg-[#0C0C10] aspect-square flex items-center justify-center p-6 sm:p-8 lg:p-12"
               style={{ background: `linear-gradient(160deg, #0E0E17 0%, #0A0A10 100%)` }}
             >
               <div
@@ -71,7 +71,7 @@ export function ProductDetailPage() {
                 src={product.image}
                 alt={titleText}
                 className="relative w-full h-full object-contain"
-                onError={e => { (e.target as HTMLImageElement).src = '/images/wax-block-spin.png'; }}
+                onError={e => { (e.target as HTMLImageElement).src = '/images/wax-block-spin.jpg'; }}
               />
               {product.badge && (
                 <span

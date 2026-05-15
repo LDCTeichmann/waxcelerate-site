@@ -1,8 +1,13 @@
 import { ExternalLink, ArrowRight, Check, Droplets, Sun, Shield } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo, memo } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useSectionReveal } from '@/hooks/useAnimation';
 import { products } from '@/lib/data';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const filterChip = (active: boolean) =>
   `px-3 py-1.5 rounded-md text-[12px] transition-all border cursor-pointer ${
@@ -18,38 +23,88 @@ export function Products() {
   const [brandFilter, setBrandFilter] = useState<'all' | 'shimano' | 'sram' | 'campagnolo'>('all');
   const de = lang === 'de';
 
-  const waxProducts = products.filter(p => p.category === 'wax');
-  const chainProducts = products.filter(p => p.category === 'chain');
+  const headerRef = useRef<HTMLDivElement>(null);
+  useSectionReveal(headerRef);
 
-  const brandMap: Record<string, string> = { shimano: 'Shimano', sram: 'SRAM', campagnolo: 'Campagnolo' };
-  const filteredChains = chainProducts.filter(p => {
+  const gridRef = useRef<HTMLDivElement>(null);
+  const prevTabRef = useRef(activeTab);
+  useEffect(() => {
+    if (prevTabRef.current === activeTab) return;
+    prevTabRef.current = activeTab;
+    const grid = gridRef.current;
+    if (!grid) return;
+    gsap.fromTo(grid,
+      { opacity: 0, y: 8 },
+      { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' }
+    );
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const ctx = gsap.context(() => {
+      ScrollTrigger.batch('.wax-card', {
+        onEnter: (els) => gsap.from(els, {
+          y: 24, opacity: 0, duration: 0.6,
+          stagger: 0.08, ease: 'power2.out',
+          onStart: () => els.forEach(el => { (el as HTMLElement).style.willChange = 'transform, opacity'; }),
+          onComplete: () => els.forEach(el => { (el as HTMLElement).style.willChange = 'auto'; }),
+        }),
+        start: 'top 87%',
+        once: true,
+      });
+
+      ScrollTrigger.batch('.chain-card', {
+        onEnter: (els) => gsap.from(els, {
+          y: 24, opacity: 0, duration: 0.6,
+          stagger: 0.08, ease: 'power2.out',
+        }),
+        start: 'top 87%',
+        once: true,
+      });
+    });
+
+    return () => ctx.revert();
+  }, [activeTab]);
+
+  const waxProducts = useMemo(() => products.filter(p => p.category === 'wax'), []);
+  const chainProducts = useMemo(() => products.filter(p => p.category === 'chain'), []);
+
+  const filteredChains = useMemo(() => chainProducts.filter(p => {
     if (speedFilter !== 'all' && p.chainSpeed !== `${speedFilter}-fach`) return false;
-    if (brandFilter !== 'all' && !p.compatibility?.includes(brandMap[brandFilter])) return false;
+    if (brandFilter !== 'all') {
+      const isYBN = p.chainBrand === 'YBN';
+      if (brandFilter === 'campagnolo') {
+        if (!p.compatibility?.includes('Campagnolo')) return false;
+      } else {
+        if (!isYBN && p.chainBrand?.toLowerCase() !== brandFilter) return false;
+      }
+    }
     return true;
-  });
+  }), [chainProducts, speedFilter, brandFilter]);
 
-  const resetFilters = () => { setSpeedFilter('all'); setBrandFilter('all'); };
+  const resetFilters = useCallback(() => { setSpeedFilter('all'); setBrandFilter('all'); }, []);
 
-  const formatPrice = (price: number) =>
+  const formatPrice = useMemo(() => (price: number) =>
     new Intl.NumberFormat(de ? 'de-DE' : 'en-US', {
       style: 'currency',
       currency: 'EUR',
-    }).format(price);
+    }).format(price), [de]);
 
   return (
-    <section id="produkte" className="py-24 bg-wx-bg">
+    <section id="produkte" className="pt-4 pb-24 bg-wx-bg">
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-6xl mx-auto">
 
           {/* Header */}
-          <div className="text-center mb-16">
-            <span className="text-xs tracking-[0.3em] text-[#5B7AEE] uppercase mb-3 block font-medium">
+          <div ref={headerRef} className="text-center mb-10">
+            <span data-reveal="eyebrow" className="text-xs tracking-[0.3em] text-[#5B7AEE] uppercase mb-3 block font-medium">
               {de ? 'Unser Sortiment' : 'Our Products'}
             </span>
-            <h2 className="font-display text-4xl sm:text-5xl font-bold text-white mb-4">
+            <h2 data-reveal="heading" className="font-display text-4xl sm:text-5xl font-bold text-white mb-4">
               {t.products.title}
             </h2>
-            <p className="text-wx-txm max-w-xl mx-auto">
+            <p data-reveal="subtitle" className="text-wx-txm max-w-xl mx-auto">
               {t.products.subtitle}
             </p>
           </div>
@@ -73,15 +128,14 @@ export function Products() {
 
           {/* Wax Products */}
           {activeTab === 'wax' && (
-            <div className="grid sm:grid-cols-2 gap-5">
-              {waxProducts.map((product, i) => (
+            <div ref={gridRef} className="grid sm:grid-cols-2 gap-5">
+              {waxProducts.map((product) => (
                 <WaxCard
                   key={product.id}
                   product={product}
                   de={de}
                   formatPrice={formatPrice}
                   buyLabel={t.products.buyOnEbay}
-                  index={i}
                 />
               ))}
             </div>
@@ -89,7 +143,7 @@ export function Products() {
 
           {/* Chain Products */}
           {activeTab === 'chain' && (
-            <>
+            <div ref={gridRef}>
               {/* Filter bar */}
               <div className="mb-6 rounded-xl border border-wx-bd px-4 py-3 space-y-2" style={{ background: 'var(--sf)' }}>
                 <div className="flex items-center gap-2.5">
@@ -135,19 +189,18 @@ export function Products() {
                 </div>
               ) : (
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredChains.map((product, i) => (
+                  {filteredChains.map((product) => (
                     <ChainCard
                       key={product.id}
                       product={product}
                       de={de}
                       formatPrice={formatPrice}
                       buyLabel={t.products.buyOnEbay}
-                      index={i}
                     />
                   ))}
                 </div>
               )}
-            </>
+            </div>
           )}
         </div>
       </div>
@@ -200,36 +253,9 @@ function useTilt(strength = 5) {
   return ref;
 }
 
-// ── Scroll-reveal hook ─────────────────────────────────────────────────────
-
-function useScrollReveal(delay = 0) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.disconnect(); } },
-      { threshold: 0.08 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  return {
-    ref,
-    style: {
-      opacity: visible ? 1 : 0,
-      transform: visible ? 'translateY(0)' : 'translateY(22px)',
-      transition: `opacity 0.5s ease ${delay}ms, transform 0.5s ease ${delay}ms`,
-    },
-  };
-}
-
 // ── Wax Card ───────────────────────────────────────────────────────────────
 
-function WaxCard({ product, de, formatPrice, buyLabel, index }: CardProps & { index: number }) {
+const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: CardProps) {
   const isPro = product.variant === 'pro';
   const accent = isPro ? '#8B6FFD' : '#5B87F6';
   const accentGlow = isPro ? 'rgba(139,111,253,0.14)' : 'rgba(91,135,246,0.12)';
@@ -252,16 +278,9 @@ function WaxCard({ product, de, formatPrice, buyLabel, index }: CardProps & { in
       ];
 
   const tiltRef = useTilt(4);
-  const { ref: revealRef, style: revealStyle } = useScrollReveal(index * 80);
-
-  // Merge refs
-  const cardRef = useCallback((el: HTMLDivElement | null) => {
-    (tiltRef as React.MutableRefObject<HTMLDivElement | null>).current = el;
-    (revealRef as React.MutableRefObject<HTMLDivElement | null>).current = el;
-  }, []);
 
   return (
-    <div ref={cardRef} style={{ ...revealStyle, willChange: 'transform, opacity' }}>
+    <div ref={tiltRef} className="wax-card">
       <Link
         to={`/produkt/${product.id}`}
         className="group block rounded-2xl overflow-hidden"
@@ -280,14 +299,15 @@ function WaxCard({ product, de, formatPrice, buyLabel, index }: CardProps & { in
           e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)';
         }}
       >
-        {/* Full-bleed image — 360px, per-product positioning */}
-        <div className="relative overflow-hidden" style={{ height: '360px' }}>
+        {/* Full-bleed image — aspect ratio based */}
+        <div className="relative overflow-hidden aspect-[4/3]">
           <img
             src={product.image}
             alt={title}
+            loading="lazy"
             className="absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-[1.05] group-hover:brightness-[1.08]"
             style={{ objectPosition: product.imagePosition ?? 'center 55%' }}
-            onError={e => { (e.target as HTMLImageElement).src = '/images/wax-block-spin.png'; }}
+            onError={e => { (e.target as HTMLImageElement).src = '/images/wax-block-spin.jpg'; }}
           />
           {/* Scrim */}
           <div
@@ -355,11 +375,11 @@ function WaxCard({ product, de, formatPrice, buyLabel, index }: CardProps & { in
       </Link>
     </div>
   );
-}
+});
 
 // ── Chain Card ─────────────────────────────────────────────────────────────
 
-function ChainCard({ product, de, formatPrice, buyLabel, index }: CardProps & { index: number }) {
+const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }: CardProps) {
   const accent = '#5B87F6';
   const accentGlow = 'rgba(91,135,246,0.12)';
   const badge = de ? product.badge : product.badgeEn;
@@ -372,15 +392,9 @@ function ChainCard({ product, de, formatPrice, buyLabel, index }: CardProps & { 
   const compatStr = product.compatibility ?? '';
 
   const tiltRef = useTilt(3);
-  const { ref: revealRef, style: revealStyle } = useScrollReveal(index * 60);
-
-  const cardRef = useCallback((el: HTMLDivElement | null) => {
-    (tiltRef as React.MutableRefObject<HTMLDivElement | null>).current = el;
-    (revealRef as React.MutableRefObject<HTMLDivElement | null>).current = el;
-  }, []);
 
   return (
-    <div ref={cardRef} style={{ ...revealStyle, willChange: 'transform, opacity' }}>
+    <div ref={tiltRef} className="chain-card">
       <a
         href={product.ebayUrl}
         target="_blank"
@@ -402,12 +416,13 @@ function ChainCard({ product, de, formatPrice, buyLabel, index }: CardProps & { 
         }}
       >
         {/* Full-bleed image */}
-        <div className="relative overflow-hidden" style={{ height: '210px' }}>
+        <div className="relative overflow-hidden aspect-[16/9]">
           <img
             src={product.image}
             alt={title}
+            loading="lazy"
             className="absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-[1.05] group-hover:brightness-[1.08]"
-            onError={e => { (e.target as HTMLImageElement).src = '/images/wax-block-spin.png'; }}
+            onError={e => { (e.target as HTMLImageElement).src = '/images/wax-block-spin.jpg'; }}
           />
           <div
             className="absolute inset-x-0 bottom-0 pointer-events-none"
@@ -467,4 +482,4 @@ function ChainCard({ product, de, formatPrice, buyLabel, index }: CardProps & { 
       </a>
     </div>
   );
-}
+});

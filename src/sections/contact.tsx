@@ -1,13 +1,19 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Send, MessageCircle, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useSectionReveal } from '@/hooks/useAnimation';
+import gsap from 'gsap';
 
 export function Contact() {
   const { t } = useLanguage();
+  const headerRef = useRef<HTMLDivElement>(null);
+  const successRef = useRef<HTMLDivElement>(null);
+  const formRef = useRef<HTMLDivElement>(null);
+  useSectionReveal(headerRef);
   const [activeTab, setActiveTab] = useState<'email' | 'whatsapp'>('email');
   const [formData, setFormData] = useState({
     name: '',
@@ -17,27 +23,49 @@ export function Contact() {
   });
   const [submitted, setSubmitted] = useState(false);
 
+  useEffect(() => {
+    if (!submitted || !successRef.current) return;
+    const el = successRef.current;
+    gsap.fromTo(el,
+      { scale: 0.85, opacity: 0, y: 12 },
+      { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: 'back.out(1.4)' }
+    );
+  }, [submitted]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => {
-      setSubmitted(false);
-      setFormData({ name: '', email: '', bikeType: '', message: '' });
-    }, 3000);
+    if (formRef.current) {
+      gsap.to(formRef.current, {
+        opacity: 0, y: -8, duration: 0.2, ease: 'power2.in',
+        onComplete: () => {
+          setSubmitted(true);
+          setTimeout(() => {
+            setSubmitted(false);
+            setFormData({ name: '', email: '', bikeType: '', message: '' });
+          }, 3000);
+        },
+      });
+    } else {
+      setSubmitted(true);
+      setTimeout(() => {
+        setSubmitted(false);
+        setFormData({ name: '', email: '', bikeType: '', message: '' });
+      }, 3000);
+    }
   };
 
   return (
     <section id="kontakt" className="py-24 bg-wx-bg">
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-2xl mx-auto">
-          <div className="text-center mb-16">
-            <span className="text-xs tracking-[0.3em] text-[#4A6AEE] uppercase mb-3 block font-medium">
+          <div ref={headerRef} className="text-center mb-16">
+            <span data-reveal="eyebrow" className="text-xs tracking-[0.3em] text-[#4A6AEE] uppercase mb-3 block font-medium">
               Kontakt
             </span>
-            <h2 className="font-display text-4xl sm:text-5xl font-bold text-white mb-4">
+            <h2 data-reveal="heading" className="font-display text-4xl sm:text-5xl font-bold text-white mb-4">
               {t.contact.title}
             </h2>
-            <p className="text-wx-tx2">
+            <p data-reveal="subtitle" className="text-wx-tx2">
               {t.contact.subtitle}
             </p>
           </div>
@@ -72,7 +100,7 @@ export function Contact() {
           {activeTab === 'email' && (
             <div className="bg-wx-sf border border-wx-bd/30 rounded-xl p-6">
               {submitted ? (
-                <div className="text-center py-8">
+                <div ref={successRef} className="text-center py-8">
                   <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Check className="h-8 w-8 text-green-500" />
                   </div>
@@ -84,6 +112,7 @@ export function Contact() {
                   </p>
                 </div>
               ) : (
+                <div ref={formRef}>
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
@@ -138,6 +167,7 @@ export function Contact() {
                     {t.contact.emailTo}
                   </p>
                 </form>
+                </div>
               )}
             </div>
           )}

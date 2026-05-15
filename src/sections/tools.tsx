@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Calculator, Package, PiggyBank, RotateCcw } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useSectionReveal } from '@/hooks/useAnimation';
 import { waxIntervals } from '@/lib/data';
 
 const BLUE = '#5B7AEE';
@@ -41,10 +42,11 @@ const tog = (active: boolean) =>
 function ToolCard({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="flex flex-col h-full rounded-xl border border-wx-bd transition-colors hover:border-wx-bd2"
+      className="flex flex-col h-full rounded-xl border border-wx-bd hover:border-wx-bd2"
       style={{
         background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
         boxShadow: 'var(--card-shad)',
+        transition: 'background 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease',
       }}
     >
       {children}
@@ -146,7 +148,6 @@ function RewaxCalculator() {
           </div>
         </div>
 
-        {/* Weeks as primary output — more intuitive than raw km */}
         <ResultBox>
           <p className="text-[42px] font-bold text-wx-tx1 text-center leading-none tracking-tight">{weeks}</p>
           <p className="text-[13px] text-wx-txf text-center mt-1">
@@ -155,6 +156,9 @@ function RewaxCalculator() {
           </p>
           <p className="text-[12px] text-wx-txm text-center mt-0.5">
             {interval} km · bei {kmPerWeek} km/Wo.
+          </p>
+          <p className="text-[10px] text-wx-txff text-center mt-3 leading-snug">
+            Rewaxe wenn die Kette leise kratzt oder deutlich lauter läuft als gewohnt — das Wachs ist aufgebraucht.
           </p>
         </ResultBox>
       </div>
@@ -375,24 +379,30 @@ function CostSavingsCalculator() {
 // ─── Tool 5: Rotation ROI ─────────────────────────────────────────────────────
 function RotationROI() {
   const [kmPerYear, setKmPerYear] = useState(5000);
+  const [showHow, setShowHow] = useState(false);
 
-  // Numbers consistent with CostSavingsCalculator (wax chain = 6000 km, cassette = 15000 km)
-  const CHAIN_KM_1 = 6000;    // single hot-waxed chain lifespan (road, typical)
-  const CHAIN_KM_2 = 8500;    // each chain in 2-chain rotation (~40% longer per chain)
-  const CASSETTE_KM_1 = 15000; // cassette with 1 waxed chain (consistent with savings calc)
-  const CASSETTE_KM_2 = 22000; // cassette with 2-chain rotation (~47% longer)
-  const REWAX_KM = 500;        // road/dry rewax interval (baseline)
+  const CHAIN_KM_1   = 6000;
+  const CHAIN_KM_2   = 8500;
+  const CASSETTE_KM_1 = 15000;
+  const CASSETTE_KM_2 = 22000;
+  const CHAIN_PRICE   = 45;
+  const CASSETTE_PRICE = 50;
+  const REWAX_KM      = 500;
 
-  // Chain lifespan in months at their riding pace
-  const chainMonths1 = Math.max(1, Math.round((CHAIN_KM_1 / kmPerYear) * 12));
-  const chainMonths2 = Math.max(1, Math.round((CHAIN_KM_2 / kmPerYear) * 12));
+  const chainMonths1  = Math.max(1, Math.round((CHAIN_KM_1 / kmPerYear) * 12));
+  const chainMonths2  = Math.max(1, Math.round((CHAIN_KM_2 / kmPerYear) * 12));
+  const cassetteYrs1  = parseFloat((CASSETTE_KM_1 / kmPerYear).toFixed(1));
+  const cassetteYrs2  = parseFloat((CASSETTE_KM_2 / kmPerYear).toFixed(1));
+  const chainGain     = chainMonths2 - chainMonths1;
+  const cassetteGain  = parseFloat((cassetteYrs2 - cassetteYrs1).toFixed(1));
+  const rewaxPerYear  = Math.ceil(kmPerYear / REWAX_KM);
 
-  // Cassette lifespan in years
-  const cassetteYears1 = parseFloat((CASSETTE_KM_1 / kmPerYear).toFixed(1));
-  const cassetteYears2 = parseFloat((CASSETTE_KM_2 / kmPerYear).toFixed(1));
-
-  // Rewax sessions per year — same regardless of chain count (honest disclosure)
-  const rewaxPerYear = Math.ceil(kmPerYear / REWAX_KM);
+  // 5-year total cost comparison
+  const km5 = kmPerYear * 5;
+  const cost1 = Math.round((km5 / CHAIN_KM_1) * CHAIN_PRICE + (km5 / CASSETTE_KM_1) * CASSETTE_PRICE);
+  const cost2 = Math.round((km5 / CHAIN_KM_2) * CHAIN_PRICE + (km5 / CASSETTE_KM_2) * CASSETTE_PRICE);
+  const savingsPerYear = Math.round((cost1 - cost2) / 5);
+  const breakEvenMonths = savingsPerYear > 0 ? Math.round((CHAIN_PRICE / savingsPerYear) * 12) : 0;
 
   return (
     <ToolCard>
@@ -401,51 +411,108 @@ function RotationROI() {
         title="Lohnen sich mehrere Ketten?"
         subtitle="Kettenverschleiß und Kassettenlaufzeit realistisch verglichen."
       />
-      <div className="px-6 flex flex-col flex-1 gap-5 pb-6">
+      <div className="px-6 flex flex-col flex-1 gap-4 pb-6">
         <div>
           <FieldLabel label="km pro Jahr" value={`${kmPerYear} km`} />
           <Slider value={[kmPerYear]} onValueChange={v => setKmPerYear(v[0])} min={1000} max={10000} step={500} className="py-1" />
         </div>
 
-        <ResultBox>
-          <div className="grid grid-cols-2 gap-3">
-            {/* 1 chain */}
-            <div className="rounded-lg border border-wx-bd p-4 text-center" style={{ background: 'var(--sf3)' }}>
-              <p className="text-[11px] text-wx-txf mb-3">1 Kette</p>
-              <p className="text-[32px] font-bold text-wx-tx1 leading-none">{chainMonths1}</p>
-              <p className="text-[11px] text-wx-txf mt-1">Monate / Kette</p>
-              <div className="mt-3 pt-3 border-t border-wx-bd2">
-                <p className="text-[13px] font-semibold text-wx-txm">{cassetteYears1} J.</p>
-                <p className="text-[10px] text-wx-txff mt-0.5">Kassettenlaufzeit</p>
-              </div>
-            </div>
+        {/* Hero: annual savings */}
+        <div className="rounded-lg p-4 text-center" style={{ background: 'rgba(91,122,238,0.07)', border: '1px solid rgba(91,122,238,0.22)' }}>
+          <p className="text-[10px] uppercase tracking-[0.2em] text-wx-txf mb-2">Ersparnis pro Jahr</p>
+          <p className="text-[38px] font-bold tabular-nums leading-none" style={{ color: '#8AAAFF' }}>~{savingsPerYear} €</p>
+          <p className="text-[11px] text-wx-txf mt-1.5">
+            2. Kette amortisiert sich in ~{breakEvenMonths} Monaten
+          </p>
+        </div>
 
-            {/* 2 chains — recommended */}
-            <div className="rounded-lg border p-4 text-center" style={{ borderColor: 'rgba(91,122,238,0.4)', background: 'rgba(91,122,238,0.07)' }}>
-              <p className="text-[9px] text-[#5B7AEE] uppercase tracking-[0.14em] mb-1">Empfohlen</p>
-              <p className="text-[11px] text-wx-tx2 mb-2">2 Ketten</p>
-              <p className="text-[32px] font-bold text-wx-tx1 leading-none">{chainMonths2}</p>
-              <p className="text-[11px] text-wx-txm mt-1">Monate / Kette</p>
-              <div className="mt-3 pt-3 border-t border-wx-bd2">
-                <p className="text-[13px] font-semibold text-wx-tx1">{cassetteYears2} J.</p>
-                <p className="text-[10px] text-wx-txf mt-0.5">Kassettenlaufzeit</p>
-              </div>
+        {/* Comparison grid */}
+        <div className="grid grid-cols-2 gap-2">
+          {/* 1 chain */}
+          <div className="rounded-lg border border-wx-bd p-3 text-center" style={{ background: 'var(--sf3)' }}>
+            <p className="text-[10px] text-wx-txff mb-2">1 Kette</p>
+            <p className="text-[22px] font-bold text-wx-txm leading-none">{chainMonths1}</p>
+            <p className="text-[10px] text-wx-txff mt-0.5">Mo. / Kette</p>
+            <div className="mt-2.5 pt-2.5 border-t border-wx-bd2">
+              <p className="text-[13px] font-semibold text-wx-txm">{cassetteYrs1} J.</p>
+              <p className="text-[10px] text-wx-txff mt-0.5">Kassette</p>
             </div>
           </div>
 
-          {/* Honest disclosure: rewax frequency doesn't change */}
-          <p className="text-[10px] text-wx-txff text-center mt-3 leading-snug">
-            Rewax-Frequenz bleibt gleich: ~{rewaxPerYear}× pro Jahr — du wechselst nur ab.
-          </p>
+          {/* 2 chains */}
+          <div className="rounded-lg border p-3 text-center" style={{ borderColor: 'rgba(91,122,238,0.38)', background: 'rgba(91,122,238,0.06)' }}>
+            <p className="text-[9px] uppercase tracking-wider mb-0.5" style={{ color: '#5B7AEE' }}>Empfohlen</p>
+            <p className="text-[10px] text-wx-txf mb-1.5">2 Ketten</p>
+            <div className="flex items-center justify-center gap-1.5">
+              <p className="text-[22px] font-bold text-wx-tx1 leading-none">{chainMonths2}</p>
+              {chainGain > 0 && (
+                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded" style={{ background: 'rgba(91,122,238,0.18)', color: '#8AAAFF' }}>
+                  +{chainGain} Mo.
+                </span>
+              )}
+            </div>
+            <p className="text-[10px] text-wx-txf mt-0.5">Mo. / Kette</p>
+            <div className="mt-2.5 pt-2.5 border-t" style={{ borderColor: 'rgba(91,122,238,0.2)' }}>
+              <div className="flex items-center justify-center gap-1.5">
+                <p className="text-[13px] font-semibold text-wx-tx1">{cassetteYrs2} J.</p>
+                {cassetteGain > 0 && (
+                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded" style={{ background: 'rgba(91,122,238,0.18)', color: '#8AAAFF' }}>
+                    +{cassetteGain} J.
+                  </span>
+                )}
+              </div>
+              <p className="text-[10px] text-wx-txf mt-0.5">Kassette</p>
+            </div>
+          </div>
+        </div>
 
+        {/* Honest note */}
+        <p className="text-[10px] text-wx-txff text-center -mt-1">
+          Rewax-Frequenz bleibt gleich: ~{rewaxPerYear}× pro Jahr — du wechselst nur ab.
+        </p>
+
+        {/* Expandable: how it works */}
+        <div className="rounded-lg border border-wx-bd overflow-hidden" style={{ background: 'var(--sf3)' }}>
           <button
-            onClick={() => document.querySelector('#produkte')?.scrollIntoView({ behavior: 'smooth' })}
-            className="w-full mt-3 rounded-lg border border-[#5B7AEE]/25 p-2.5 text-center hover:border-[#5B7AEE]/45 transition-colors"
-            style={{ background: 'rgba(91,122,238,0.05)' }}
+            type="button"
+            onClick={() => setShowHow(v => !v)}
+            className="w-full px-4 py-2.5 flex items-center justify-between text-wx-txf hover:text-wx-tx2 transition-colors"
           >
-            <span className="text-[12px] font-medium" style={{ color: '#8AAAFF' }}>2. Kette hinzufügen →</span>
+            <span className="text-[11px] font-medium">Wie funktioniert das?</span>
+            <span
+              className="text-[11px] transition-transform duration-[320ms] inline-block"
+              style={{ transform: showHow ? 'rotate(180deg)' : 'rotate(0deg)' }}
+            >↓</span>
           </button>
-        </ResultBox>
+          <div
+            className="overflow-hidden transition-[grid-template-rows,opacity] duration-[320ms]"
+            style={{
+              display: 'grid',
+              gridTemplateRows: showHow ? '1fr' : '0fr',
+              opacity: showHow ? 1 : 0,
+              transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+            }}
+          >
+            <div className="overflow-hidden">
+              <div className="px-4 pb-4 pt-3 border-t border-wx-bd2 space-y-2">
+                <p className="text-[11px] text-wx-txm leading-relaxed">
+                  Beim Abwechseln zwischen zwei Ketten trägt sich jede Kette nur halb so schnell ab — sie hält dadurch ~40 % länger. Da die Kassette durch Kettendehnung verschleißt, lebt auch sie deutlich länger.
+                </p>
+                <p className="text-[11px] text-wx-txf leading-relaxed">
+                  Du rewaxst genauso oft (die Strecke pro Rewax bleibt gleich), wechselst aber die Kette ab. Ergebnis: weniger Ketten kaufen, viel seltener Kassette wechseln.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button
+          onClick={() => document.querySelector('#produkte')?.scrollIntoView({ behavior: 'smooth' })}
+          className="w-full rounded-lg border border-[#5B7AEE]/25 p-2.5 text-center hover:border-[#5B7AEE]/45 transition-colors"
+          style={{ background: 'rgba(91,122,238,0.05)' }}
+        >
+          <span className="text-[12px] font-medium" style={{ color: '#8AAAFF' }}>2. Kette im Shop ansehen →</span>
+        </button>
       </div>
     </ToolCard>
   );
@@ -455,7 +522,7 @@ function RotationROI() {
 function RevealSlot({ delay, children }: { delay: number; children: React.ReactNode }) {
   const { ref, style } = useScrollReveal(delay);
   return (
-    <div ref={ref} style={{ ...style, willChange: 'transform, opacity' }}>
+    <div ref={ref} style={style}>
       {children}
     </div>
   );
@@ -468,6 +535,8 @@ const TAB_LABELS = ['Intervall', 'Vorrat', 'Ersparnis', 'Rotation'];
 export function Tools() {
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState(0);
+  const headerRef = useRef<HTMLDivElement>(null);
+  useSectionReveal(headerRef);
 
   const toolComponents = [
     <RewaxCalculator />,
@@ -480,14 +549,14 @@ export function Tools() {
     <section id="tools" className="py-24" style={{ background: 'var(--tool-bg)' }}>
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <span className="text-[10px] tracking-[0.35em] uppercase mb-3 block font-medium" style={{ color: BLUE }}>
+          <div ref={headerRef} className="text-center mb-16">
+            <span data-reveal="eyebrow" className="text-[10px] tracking-[0.35em] uppercase mb-3 block font-medium" style={{ color: BLUE }}>
               Planungs-Tools
             </span>
-            <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-4">
+            <h2 data-reveal="heading" className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-4">
               {t.tools.title}
             </h2>
-            <p className="text-wx-tx2 max-w-xl mx-auto text-[15px]">
+            <p data-reveal="subtitle" className="text-wx-tx2 max-w-xl mx-auto text-[15px]">
               {t.tools.subtitle}
             </p>
           </div>

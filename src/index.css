@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@1,700&family=Inter:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Roboto:wght@500;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -48,6 +48,12 @@
     --radius: 0.75rem;
     --brand:       #4A6AEE;
     --brand-hover: #6478F5;
+
+    /* Motion tokens */
+    --ease-ui:     cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-enter:  cubic-bezier(0.165, 0.84, 0.44, 1);
+    --ease-hero:   cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   /* ── Dark mode ── */
@@ -201,4 +207,14 @@
 /* Radial glow behind hero */
 .hero-glow {
   background: radial-gradient(ellipse 80% 50% at 50% 50%, rgba(26, 40, 96, 0.35) 0%, transparent 70%);
+}
+
+/* Reduced motion — universal kill switch */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
