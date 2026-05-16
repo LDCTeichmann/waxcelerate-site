@@ -1,10 +1,11 @@
-import { ExternalLink, ArrowRight, Check, Droplets, Sun, Shield } from 'lucide-react';
+import { ExternalLink, Check, Droplets, Sun, Shield } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState, useRef, useEffect, useCallback, useMemo, memo } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useSectionReveal } from '@/hooks/useAnimation';
+import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { products } from '@/lib/data';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -12,7 +13,7 @@ gsap.registerPlugin(ScrollTrigger);
 const filterChip = (active: boolean) =>
   `px-3 py-1.5 rounded-md text-[12px] transition-all border cursor-pointer ${
     active
-      ? 'border-[#5B7AEE]/40 bg-[#5B7AEE]/10 text-wx-tx1'
+      ? 'border-[#4A6AEE]/40 bg-[#4A6AEE]/10 text-wx-tx1'
       : 'border-wx-bd text-wx-txf hover:text-wx-tx2'
   }`;
 
@@ -23,8 +24,58 @@ export function Products() {
   const [brandFilter, setBrandFilter] = useState<'all' | 'shimano' | 'sram' | 'campagnolo'>('all');
   const de = lang === 'de';
 
+  const tabBarRef = useRef<HTMLDivElement>(null);
+  const tabBtnRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const pillRef = useRef<HTMLDivElement>(null);
+
   const headerRef = useRef<HTMLDivElement>(null);
   useSectionReveal(headerRef);
+
+  useEffect(() => {
+    const idx = activeTab === 'wax' ? 0 : 1;
+    const btn = tabBtnRefs.current[idx];
+    const bar = tabBarRef.current;
+    const pill = pillRef.current;
+    if (!btn || !bar || !pill) return;
+    const barRect = bar.getBoundingClientRect();
+    const btnRect = btn.getBoundingClientRect();
+    gsap.to(pill, {
+      x: btnRect.left - barRect.left,
+      width: btnRect.width,
+      duration: 0.35,
+      ease: 'power3.inOut',
+      overwrite: 'auto',
+    });
+  }, [activeTab]);
+
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => {
+      const btn = tabBtnRefs.current[0];
+      const bar = tabBarRef.current;
+      const pill = pillRef.current;
+      if (!btn || !bar || !pill) return;
+      const barRect = bar.getBoundingClientRect();
+      const btnRect = btn.getBoundingClientRect();
+      gsap.set(pill, { x: btnRect.left - barRect.left, width: btnRect.width });
+    });
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  useEffect(() => {
+    const bar = tabBarRef.current;
+    if (!bar) return;
+    const observer = new ResizeObserver(() => {
+      const idx = activeTab === 'wax' ? 0 : 1;
+      const btn = tabBtnRefs.current[idx];
+      const pill = pillRef.current;
+      if (!btn || !pill) return;
+      const barRect = bar.getBoundingClientRect();
+      const btnRect = btn.getBoundingClientRect();
+      gsap.set(pill, { x: btnRect.left - barRect.left, width: btnRect.width });
+    });
+    observer.observe(bar);
+    return () => observer.disconnect();
+  }, [activeTab]);
 
   const gridRef = useRef<HTMLDivElement>(null);
   const prevTabRef = useRef(activeTab);
@@ -35,7 +86,7 @@ export function Products() {
     if (!grid) return;
     gsap.fromTo(grid,
       { opacity: 0, y: 8 },
-      { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' }
+      { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out', overwrite: 'auto' }
     );
   }, [activeTab]);
 
@@ -99,24 +150,24 @@ export function Products() {
 
   const resetFilters = useCallback(() => { setSpeedFilter('all'); setBrandFilter('all'); }, []);
 
-  const formatPrice = useMemo(() => (price: number) =>
-    new Intl.NumberFormat(de ? 'de-DE' : 'en-US', {
+  const formatPrice = useCallback((price: number) =>
+    new Intl.NumberFormat(lang === 'de' ? 'de-DE' : 'en-US', {
       style: 'currency',
       currency: 'EUR',
-    }).format(price), [de]);
+    }).format(price), [lang]);
 
   return (
-    <section id="produkte" className="pt-4 pb-24 bg-wx-bg">
+    <section id="produkte" className="relative py-20 bg-wx-bg">
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-5xl mx-auto">
 
           {/* Header */}
           <div ref={headerRef} className="text-center mb-10">
-            <span data-reveal="eyebrow" className="text-xs tracking-[0.3em] text-[#5B7AEE] uppercase mb-3 block font-medium">
+            <span data-reveal="eyebrow" className="text-xs tracking-[0.3em] text-[#4A6AEE] uppercase mb-3 block font-medium">
               {de ? 'Unser Sortiment' : 'Our Products'}
             </span>
-            <h2 data-reveal="heading" className="font-display text-4xl sm:text-5xl font-bold text-white mb-4">
-              {t.products.title}
+            <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-4">
+              <ScrollWordReveal text={t.products.title} />
             </h2>
             <p data-reveal="subtitle" className="text-wx-txm max-w-xl mx-auto">
               {t.products.subtitle}
@@ -124,20 +175,26 @@ export function Products() {
           </div>
 
           {/* Tabs */}
-          <div className="flex justify-center gap-1 mb-12 bg-wx-sf border border-wx-bd p-1 rounded-xl w-fit mx-auto">
-            {(['wax', 'chain'] as const).map(tab => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${
-                  activeTab === tab
-                    ? 'bg-wx-sf2 text-white shadow-sm'
-                    : 'text-wx-txf hover:text-wx-tx2'
-                }`}
-              >
-                {tab === 'wax' ? t.products.tabs.wax : t.products.tabs.chains}
-              </button>
-            ))}
+          <div ref={tabBarRef} className="relative flex justify-center gap-1 mb-12 bg-wx-sf border border-wx-bd p-1 rounded-xl w-fit mx-auto">
+            <div ref={pillRef} className="absolute top-1 bottom-1 bg-[#4A6AEE] rounded-full pointer-events-none" style={{ width: 0 }} />
+            <button
+              ref={el => { tabBtnRefs.current[0] = el; }}
+              onClick={() => setActiveTab('wax')}
+              className={`relative z-10 px-6 py-2 rounded-lg text-sm font-medium transition-colors ${
+                activeTab === 'wax' ? 'text-white' : 'text-wx-txf hover:text-wx-tx2'
+              }`}
+            >
+              {t.products.tabs.wax}
+            </button>
+            <button
+              ref={el => { tabBtnRefs.current[1] = el; }}
+              onClick={() => setActiveTab('chain')}
+              className={`relative z-10 px-6 py-2 rounded-lg text-sm font-medium transition-colors ${
+                activeTab === 'chain' ? 'text-white' : 'text-wx-txf hover:text-wx-tx2'
+              }`}
+            >
+              {t.products.tabs.chains}
+            </button>
           </div>
 
           {/* Wax Products */}
@@ -161,7 +218,7 @@ export function Products() {
               {/* Filter bar */}
               <div className="mb-6 rounded-xl border border-wx-bd px-4 py-3 space-y-2" style={{ background: 'var(--sf)' }}>
                 <div className="flex items-center gap-2.5">
-                  <span className="text-[10px] uppercase tracking-[0.12em] text-wx-txf font-medium w-12 flex-shrink-0">
+                  <span className="text-xs uppercase tracking-[0.12em] text-wx-txf font-medium w-12 flex-shrink-0">
                     {de ? 'Gänge' : 'Speed'}
                   </span>
                   <div className="flex gap-1.5">
@@ -173,7 +230,7 @@ export function Products() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2.5">
-                  <span className="text-[10px] uppercase tracking-[0.12em] text-wx-txf font-medium w-12 flex-shrink-0">
+                  <span className="text-xs uppercase tracking-[0.12em] text-wx-txf font-medium w-12 flex-shrink-0">
                     {de ? 'Marke' : 'Brand'}
                   </span>
                   <div className="flex flex-wrap gap-1.5">
@@ -197,7 +254,7 @@ export function Products() {
                   <p className="text-wx-txm text-sm mb-3">
                     {de ? 'Keine passende Kette gefunden.' : 'No matching chain found.'}
                   </p>
-                  <button onClick={resetFilters} className="text-[12px] transition-colors" style={{ color: '#5B7AEE' }}>
+                  <button onClick={resetFilters} className="text-[12px] transition-colors" style={{ color: '#4A6AEE' }}>
                     {de ? 'Filter zurücksetzen' : 'Reset filters'}
                   </button>
                 </div>
@@ -218,6 +275,11 @@ export function Products() {
           )}
         </div>
       </div>
+      {/* Bottom gradient — bridges to Tools below */}
+      <div
+        className="absolute bottom-0 left-0 right-0 pointer-events-none"
+        style={{ height: '64px', background: 'linear-gradient(to bottom, transparent, var(--tool-bg))', zIndex: 1 }}
+      />
     </section>
   );
 }
@@ -271,10 +333,10 @@ function useTilt(strength = 5) {
 
 const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: CardProps) {
   const isPro = product.variant === 'pro';
-  const accent = isPro ? '#8B6FFD' : '#5B87F6';
-  const accentGlow = isPro ? 'rgba(139,111,253,0.14)' : 'rgba(91,135,246,0.12)';
-  const accentMuted = isPro ? 'rgba(139,111,253,0.12)' : 'rgba(91,135,246,0.10)';
-  const accentBorder = isPro ? 'rgba(139,111,253,0.26)' : 'rgba(91,135,246,0.22)';
+  const accent = isPro ? '#8B6FFD' : '#4A6AEE';
+  const accentGlow = isPro ? 'rgba(139,111,253,0.14)' : 'rgba(74,106,238,0.12)';
+  const accentMuted = isPro ? 'rgba(139,111,253,0.12)' : 'rgba(74,106,238,0.10)';
+  const accentBorder = isPro ? 'rgba(139,111,253,0.26)' : 'rgba(74,106,238,0.22)';
 
   const title = de ? product.title : product.titleEn;
   const badge = de ? product.badge : product.badgeEn;
@@ -292,27 +354,50 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: Ca
       ];
 
   const tiltRef = useTilt(4);
+  const specularRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div ref={tiltRef} className="wax-card">
+    <div
+      ref={tiltRef}
+      className="wax-card relative"
+      onMouseMove={(e) => {
+        if (!specularRef.current) return;
+        const rect = e.currentTarget.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        const y = ((e.clientY - rect.top) / rect.height) * 100;
+        const lx = 100 - x;
+        const ly = 100 - y;
+        specularRef.current.style.background =
+          `radial-gradient(circle at ${lx}% ${ly}%, rgba(255,255,255,0.065) 0%, transparent 62%)`;
+      }}
+      onMouseLeave={() => {
+        if (specularRef.current) specularRef.current.style.background = '';
+      }}
+    >
       <Link
         to={`/produkt/${product.id}`}
-        className="group block rounded-2xl overflow-hidden"
+        className="group relative block rounded-2xl overflow-hidden"
         style={{
           background: 'linear-gradient(175deg, var(--card-from) 0%, var(--card-to) 100%)',
-          border: '1px solid rgba(255,255,255,0.07)',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.35), 0 8px 32px rgba(0,0,0,0.55)',
+          border: isPro ? '1px solid rgba(139,111,253,0.35)' : '1px solid var(--bd2)',
+          boxShadow: 'var(--card-shad)',
           transition: 'box-shadow 300ms ease, border-color 300ms ease',
         }}
         onMouseEnter={e => {
-          e.currentTarget.style.boxShadow = `0 8px 24px rgba(0,0,0,0.5), 0 24px 64px rgba(0,0,0,0.65), 0 40px 80px ${accentGlow}`;
-          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.13)';
+          e.currentTarget.style.boxShadow = `var(--card-shadow-hover), 0 40px 80px ${accentGlow}`;
+          e.currentTarget.style.borderColor = isPro ? 'rgba(139,111,253,0.60)' : 'var(--bd)';
         }}
         onMouseLeave={e => {
-          e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.35), 0 8px 32px rgba(0,0,0,0.55)';
-          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)';
+          e.currentTarget.style.boxShadow = 'var(--card-shad)';
+          e.currentTarget.style.borderColor = isPro ? 'rgba(139,111,253,0.50)' : 'var(--bd)';
         }}
       >
+        {isPro && (
+          <div
+            className="absolute top-0 left-0 right-0 h-[2px] z-10"
+            style={{ background: 'linear-gradient(90deg, #7B5FFC, #4A6AEE)' }}
+          />
+        )}
         {/* Full-bleed image — aspect ratio based */}
         <div className="relative overflow-hidden aspect-[4/3]">
           <img
@@ -330,12 +415,12 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: Ca
           />
           {/* Overlaid label + badge */}
           <div className="absolute bottom-0 inset-x-0 px-5 pb-4 flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-[0.22em]" style={{ color: accent }}>
+            <span className="text-xs font-bold uppercase tracking-[0.22em]" style={{ color: accent }}>
               {isPro ? 'Pro' : 'Classic'} · {product.weight}
             </span>
             {badge && (
               <span
-                className="text-[9px] font-bold tracking-[0.12em] uppercase px-2.5 py-1 rounded-full"
+                className="text-[11px] font-bold tracking-[0.12em] uppercase px-2.5 py-1 rounded-full"
                 style={{ background: accentMuted, color: accent, border: `1px solid ${accentBorder}` }}
               >
                 {badge}
@@ -347,7 +432,9 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: Ca
         {/* Content */}
         <div className="px-5 pt-4 pb-5 flex flex-col">
           <h3 className="text-[17px] font-semibold text-wx-tx1 leading-tight mb-3">
-            {de ? 'Kettenwachs' : 'Chain Wax'} — {isPro ? 'Pro' : 'Classic'}
+            {isPro
+              ? (de ? 'Pro-Formulierung' : 'Pro Formula')
+              : (de ? 'Classic-Formulierung' : 'Classic Formula')}
           </h3>
 
           <div className="flex flex-col gap-1.5 mb-3">
@@ -363,30 +450,34 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: Ca
             {product.weight} · {product.applications} {de ? 'Anw.' : 'uses'} · {product.compatibility}
           </p>
 
-          <div className="h-px mb-4" style={{ background: 'rgba(255,255,255,0.06)' }} />
+          <div className="h-px mb-4" style={{ background: 'var(--bd2)' }} />
 
           <div className="flex items-center justify-between">
-            <span className="text-[20px] font-semibold text-wx-tx1">{formatPrice(product.price)}</span>
-            <div className="flex items-center gap-2.5">
-              <span className="text-[12px] font-medium text-wx-txf flex items-center gap-1">
-                {de ? 'Details' : 'Details'}
-                <ArrowRight className="h-3 w-3" />
-              </span>
-              <a
+            <span
+              className="text-[20px] font-semibold"
+              style={{ color: isPro ? '#8B6FFD' : 'var(--tx1)' }}
+            >
+              {formatPrice(product.price)}
+            </span>
+            <a
                 href={product.ebayUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={e => e.stopPropagation()}
-                className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[12px] font-semibold text-white hover:opacity-85 transition-opacity"
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold text-white transition-all hover:scale-[1.04] hover:brightness-110 active:scale-[0.97]"
                 style={{ background: accent }}
               >
                 {buyLabel}
                 <ExternalLink className="h-3 w-3" />
               </a>
-            </div>
           </div>
         </div>
       </Link>
+      <div
+        ref={specularRef}
+        className="absolute inset-0 pointer-events-none rounded-2xl"
+        style={{ zIndex: 20 }}
+      />
     </div>
   );
 });
@@ -394,8 +485,8 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: Ca
 // ── Chain Card ─────────────────────────────────────────────────────────────
 
 const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }: CardProps) {
-  const accent = '#5B87F6';
-  const accentGlow = 'rgba(91,135,246,0.12)';
+  const accent = '#4A6AEE';
+  const accentGlow = 'rgba(74,106,238,0.12)';
   const badge = de ? product.badge : product.badgeEn;
 
   const brand = product.chainBrand ?? '';
@@ -406,27 +497,42 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
   const compatStr = product.compatibility ?? '';
 
   const tiltRef = useTilt(3);
+  const chainSpecularRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div ref={tiltRef} className="chain-card">
-      <a
-        href={product.ebayUrl}
-        target="_blank"
-        rel="noopener noreferrer"
+    <div
+      ref={tiltRef}
+      className="chain-card relative"
+      onMouseMove={(e) => {
+        if (!chainSpecularRef.current) return;
+        const rect = e.currentTarget.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        const y = ((e.clientY - rect.top) / rect.height) * 100;
+        const lx = 100 - x;
+        const ly = 100 - y;
+        chainSpecularRef.current.style.background =
+          `radial-gradient(circle at ${lx}% ${ly}%, rgba(255,255,255,0.065) 0%, transparent 62%)`;
+      }}
+      onMouseLeave={() => {
+        if (chainSpecularRef.current) chainSpecularRef.current.style.background = '';
+      }}
+    >
+      <Link
+        to={`/produkt/${product.id}`}
         className="group block rounded-2xl overflow-hidden"
         style={{
           background: 'linear-gradient(175deg, var(--card-from) 0%, var(--card-to) 100%)',
-          border: '1px solid rgba(255,255,255,0.07)',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.35), 0 8px 32px rgba(0,0,0,0.55)',
+          border: '1px solid var(--bd2)',
+          boxShadow: 'var(--card-shad)',
           transition: 'box-shadow 300ms ease, border-color 300ms ease',
         }}
         onMouseEnter={e => {
-          e.currentTarget.style.boxShadow = `0 8px 24px rgba(0,0,0,0.5), 0 24px 64px rgba(0,0,0,0.65), 0 40px 80px ${accentGlow}`;
-          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.13)';
+          e.currentTarget.style.boxShadow = `var(--card-shadow-hover), 0 40px 80px ${accentGlow}`;
+          e.currentTarget.style.borderColor = 'var(--bd)';
         }}
         onMouseLeave={e => {
-          e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.35), 0 8px 32px rgba(0,0,0,0.55)';
-          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)';
+          e.currentTarget.style.boxShadow = 'var(--card-shad)';
+          e.currentTarget.style.borderColor = 'var(--bd2)';
         }}
       >
         {/* Full-bleed image */}
@@ -444,8 +550,8 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
           />
           {badge && (
             <span
-              className="absolute top-2.5 right-2.5 text-[9px] font-bold tracking-widest uppercase px-2 py-1 rounded-md"
-              style={{ background: 'rgba(91,135,246,0.82)', color: '#fff', backdropFilter: 'blur(6px)' }}
+              className="absolute top-2.5 right-2.5 text-[11px] font-bold tracking-widest uppercase px-2 py-1 rounded-md"
+              style={{ background: 'rgba(74,106,238,0.82)', color: '#fff', backdropFilter: 'blur(6px)' }}
             >
               {badge}
             </span>
@@ -456,44 +562,53 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
         <div className="px-4 pt-3 pb-4 flex flex-col gap-2.5">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-[#4A5168] mb-0.5">{brand}</p>
-              <h3 className="text-[13px] font-semibold text-white leading-snug">{model}</h3>
+              <p className="text-xs font-semibold uppercase tracking-[0.15em] mb-0.5" style={{ color: 'var(--txm)' }}>{brand}</p>
+              <h3 className="text-[13px] font-semibold text-wx-tx1 leading-snug">{model}</h3>
             </div>
             <span
-              className="flex-shrink-0 text-[10px] font-bold tracking-widest uppercase px-2 py-1 rounded-md mt-0.5"
-              style={{ background: 'rgba(91,135,246,0.08)', color: accent, border: '1px solid rgba(91,135,246,0.16)' }}
+              className="flex-shrink-0 text-xs font-bold tracking-widest uppercase px-2 py-1 rounded-md mt-0.5"
+              style={{ background: 'rgba(74,106,238,0.08)', color: accent, border: '1px solid rgba(74,106,238,0.16)' }}
             >
               {speed}
             </span>
           </div>
 
           <div>
-            <p className="text-[9px] uppercase tracking-widest text-[#333B4D] mb-1">
+            <p className="text-[11px] uppercase tracking-widest mb-1" style={{ color: 'var(--txf)' }}>
               {de ? 'Kompatibel' : 'Compatible'}
             </p>
             <p className="text-[11px] text-wx-txm leading-relaxed">{compatStr}</p>
           </div>
 
-          <div className="flex items-center gap-2.5 text-[11px] pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-            {chainLinks && <span className="text-[#5A6278] font-medium">{chainLinks}</span>}
-            <span className="text-[#2E3545]">·</span>
-            <span className="text-[#5A6278]">✓ Quick-Link</span>
-            <span className="text-[#2E3545]">·</span>
-            <span className="text-[#5A6278]">{de ? '✓ Gewachst' : '✓ Waxed'}</span>
+          <div className="flex items-center gap-2.5 text-[11px] pt-2" style={{ borderTop: '1px solid var(--bd2)' }}>
+            {chainLinks && <span className="font-medium" style={{ color: 'var(--tx2)' }}>{chainLinks}</span>}
+            <span style={{ color: 'var(--txf)' }}>·</span>
+            <span style={{ color: 'var(--tx2)' }}>✓ Quick-Link</span>
+            <span style={{ color: 'var(--txf)' }}>·</span>
+            <span style={{ color: 'var(--tx2)' }}>{de ? '✓ Gewachst' : '✓ Waxed'}</span>
           </div>
 
-          <div className="pt-2.5 flex items-center justify-between" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+          <div className="pt-2.5 flex items-center justify-between" style={{ borderTop: '1px solid var(--bd2)' }}>
             <span className="text-[16px] font-semibold text-wx-tx1">{formatPrice(product.price)}</span>
-            <span
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold text-white"
-              style={{ background: accent }}
-            >
-              {buyLabel}
-              <ExternalLink className="h-3 w-3" />
-            </span>
+            <a
+                href={product.ebayUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={e => e.stopPropagation()}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition-all hover:scale-[1.04] hover:brightness-110 active:scale-[0.97]"
+                style={{ background: accent }}
+              >
+                {buyLabel}
+                <ExternalLink className="h-3 w-3" />
+              </a>
           </div>
         </div>
-      </a>
+      </Link>
+      <div
+        ref={chainSpecularRef}
+        className="absolute inset-0 pointer-events-none rounded-2xl"
+        style={{ zIndex: 20 }}
+      />
     </div>
   );
 });
