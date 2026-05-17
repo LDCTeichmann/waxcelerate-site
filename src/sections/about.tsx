@@ -82,8 +82,8 @@ export function About() {
   const stats: Array<{ display: ReactNode; label: string }> = [
     { display: <><CountUp end={100} />%</>, label: t.about.stats.rating },
     { display: <><CountUp end={500} />+</>, label: t.about.stats.sold },
-    { display: <>Seit 2024</>, label: de ? 'Im Einsatz auf der Straße' : 'Ridden since 2024' },
-    { display: <>&lt;24h</>, label: de ? 'Versand in &lt; 24h' : 'Ships within 24h' },
+    { display: <>2024</>, label: de ? 'Im Einsatz seit' : 'On the road since' },
+    { display: <>&lt;24h</>, label: de ? 'Versand in < 24h' : 'Ships within 24h' },
   ];
 
   const contactItems = [
