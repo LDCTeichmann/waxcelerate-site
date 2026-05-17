@@ -1,7 +1,9 @@
-import { useEffect, useCallback, useState } from 'react';
+import { useEffect, useCallback, useState, lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { Navigation } from '@/sections/navigation';
 import { Hero } from '@/sections/hero';
+import { SocialProof } from '@/sections/social-proof';
+import { CustomCursor } from '@/components/CustomCursor';
 import { Products } from '@/sections/products';
 import { WhyWax } from '@/sections/why-wax';
 import { Tools } from '@/sections/tools';
@@ -10,10 +12,20 @@ import { FAQ } from '@/sections/faq';
 import { About } from '@/sections/about';
 import { Contact } from '@/sections/contact';
 import { Footer } from '@/sections/footer';
-import { ProductDetailPage } from '@/pages/ProductDetailPage';
+
+const ProductDetailPage = lazy(() => import('@/pages/ProductDetailPage').then(m => ({ default: m.ProductDetailPage })));
+const ImpressumPage = lazy(() => import('@/pages/ImpressumPage').then(m => ({ default: m.ImpressumPage })));
+const DatenschutzPage = lazy(() => import('@/pages/DatenschutzPage').then(m => ({ default: m.DatenschutzPage })));
+const AGBPage = lazy(() => import('@/pages/AGBPage').then(m => ({ default: m.AGBPage })));
+const OrderSuccess = lazy(() => import('@/pages/OrderSuccess').then(m => ({ default: m.OrderSuccess })));
 import { LanguageProvider, useLanguage } from '@/hooks/useLanguage';
 import { toast } from 'sonner';
 import { Toaster } from '@/components/ui/sonner';
+import { CartDrawer } from '@/components/CartDrawer';
+
+const PageLoader = () => (
+  <div style={{ minHeight: '100vh', background: 'var(--pg)' }} />
+);
 
 // Konami code for specs
 const KONAMI = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
@@ -64,15 +76,22 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-wx-bg text-wx-tx1">
+      <CustomCursor />
+      <CartDrawer />
       <Routes>
-        <Route path="/produkt/:id" element={<ProductDetailPage />} />
+        <Route path="/produkt/:id" element={<Suspense fallback={<PageLoader />}><ProductDetailPage /></Suspense>} />
+        <Route path="/bestellung-erfolgreich" element={<Suspense fallback={<PageLoader />}><OrderSuccess /></Suspense>} />
+        <Route path="/impressum" element={<Suspense fallback={<PageLoader />}><ImpressumPage /></Suspense>} />
+        <Route path="/datenschutz" element={<Suspense fallback={<PageLoader />}><DatenschutzPage /></Suspense>} />
+        <Route path="/agb" element={<Suspense fallback={<PageLoader />}><AGBPage /></Suspense>} />
         <Route path="*" element={
           <>
             <Navigation onLogoClick={handleLogoClick} />
             <main>
               <Hero />
-              <Products />
+              <SocialProof />
               <WhyWax />
+              <Products />
               <Tools />
               <Guides />
               <FAQ />

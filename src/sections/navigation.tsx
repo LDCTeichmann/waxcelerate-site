@@ -1,15 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Menu, X, ExternalLink, Sun, Moon } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme, type Theme } from '@/hooks/useTheme';
+import { CartIcon } from '@/components/CartIcon';
 
 const navItems = [
-  { href: '#home', key: 'start' },
-  { href: '#produkte', key: 'products' },
-  { href: '#tools', key: 'tools' },
-  { href: '#anleitungen', key: 'guides' },
-  { href: '#faq', key: 'faq' },
-  { href: '#kontakt', key: 'contact' },
+  { href: '#produkte',    key: 'products' },
+  { href: '#tools',       key: 'tools'    },
+  { href: '#anleitungen', key: 'guides'   },
+  { href: '#faq',         key: 'faq'      },
+  { href: '#ueber-mich',  key: 'about'    },
+  { href: '#kontakt',     key: 'contact'  },
 ];
 
 interface NavigationProps {
@@ -18,9 +19,13 @@ interface NavigationProps {
 
 export function Navigation({ onLogoClick }: NavigationProps) {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const navRef = useRef<HTMLElement>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState<string>('');
   const { t, lang, toggleLang } = useLanguage();
   const { theme, setTheme } = useTheme();
+  const de = lang === 'de';
 
   const themes: { value: Theme; label: string; icon: React.ReactNode }[] = [
     { value: 'light', label: 'Light',  icon: <Sun className="h-3.5 w-3.5" /> },
@@ -29,8 +34,21 @@ export function Navigation({ onLogoClick }: NavigationProps) {
   ];
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 50);
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      setIsScrolled(scrollY > 50);
+      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+      setScrollProgress(totalHeight > 0 ? (scrollY / totalHeight) * 100 : 0);
+
+      const progress = Math.min(scrollY / 200, 1);
+      const blur = progress * 16;
+      if (navRef.current) {
+        navRef.current.style.backdropFilter = `blur(${blur}px)`;
+        (navRef.current.style as CSSStyleDeclaration & { webkitBackdropFilter: string }).webkitBackdropFilter = `blur(${blur}px)`;
+      }
+    };
     window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -39,6 +57,29 @@ export function Navigation({ onLogoClick }: NavigationProps) {
     document.body.style.overflow = isMobileMenuOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
   }, [isMobileMenuOpen]);
+
+  useEffect(() => {
+    const sectionIds = navItems.map(item => item.href.replace('#', ''));
+    const elements = sectionIds
+      .map(id => document.getElementById(id))
+      .filter(Boolean) as HTMLElement[];
+
+    if (elements.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            setActiveSection('#' + entry.target.id);
+          }
+        });
+      },
+      { rootMargin: '-15% 0px -75% 0px', threshold: 0 }
+    );
+
+    elements.forEach(el => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
 
   const scrollToSection = (href: string) => {
     const element = document.querySelector(href);
@@ -50,11 +91,28 @@ export function Navigation({ onLogoClick }: NavigationProps) {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'py-2 backdrop-blur-xl border-b border-wx-bd/30' : 'py-3 bg-transparent'
+      ref={navRef}
+      className={`fixed top-0 left-0 right-0 z-50 overflow-hidden transition-all duration-300 ${
+        isScrolled ? 'py-2' : 'py-3 bg-transparent'
       }`}
-      style={isScrolled ? { background: 'var(--nav-bg)' } : undefined}
+      style={isScrolled ? {
+        background: 'var(--nav-bg)',
+        boxShadow: 'inset 0 -1px 0 var(--bd)',
+      } : { background: 'transparent' }}
     >
+      {/* Scroll progress bar */}
+      <div
+        className="absolute top-0 left-0 right-0 h-[2px] pointer-events-none"
+        style={{ background: 'var(--bd2)', zIndex: 1 }}
+      >
+        <div
+          className="h-full transition-[width] duration-75 ease-linear"
+          style={{
+            width: `${scrollProgress}%`,
+            background: 'linear-gradient(90deg, #4A6AEE, #8AAAFF)',
+          }}
+        />
+      </div>
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Logo - image only */}
@@ -70,11 +128,11 @@ export function Navigation({ onLogoClick }: NavigationProps) {
             <img
               src="/images/logo.jpg"
               alt="Waxcelerate"
-              className="w-auto rounded-sm"
+              className="w-auto rounded-lg"
               style={{ height: isScrolled ? '32px' : '40px', transition: 'height 0.3s ease', width: 'auto' }}
             />
-            <span className={`hidden sm:block font-roboto font-medium tracking-wide text-wx-tx1 transition-all duration-300 ${isScrolled ? 'text-[13px]' : 'text-[15px]'}`}>
-              waxcelerate
+            <span className="font-display text-sm font-bold tracking-wide text-wx-tx1">
+              WAX<span style={{ color: '#4A6AEE' }}>CELERATE</span>
             </span>
           </a>
 
@@ -88,15 +146,34 @@ export function Navigation({ onLogoClick }: NavigationProps) {
                   e.preventDefault();
                   scrollToSection(item.href);
                 }}
-                className="relative px-4 py-2 text-sm text-wx-tx2 hover:text-wx-tx1 transition-colors"
+                className={`relative group px-4 py-2 text-sm transition-colors ${
+                  activeSection === item.href
+                    ? 'text-wx-tx1'
+                    : 'text-wx-tx2 hover:text-wx-tx1'
+                }`}
               >
                 {t.nav[item.key as keyof typeof t.nav]}
+                {activeSection === item.href && (
+                  <span
+                    className="absolute bottom-0 left-4 right-4 h-px"
+                    style={{ background: '#4A6AEE' }}
+                  />
+                )}
+                {activeSection !== item.href && (
+                  <span
+                    className="absolute bottom-0 left-4 right-4 h-px scale-x-0 group-hover:scale-x-100 transition-transform duration-200 origin-left"
+                    style={{ background: 'var(--bd)' }}
+                  />
+                )}
               </a>
             ))}
           </nav>
 
           {/* Actions */}
           <div className="flex items-center gap-3">
+            {/* Cart icon */}
+            <CartIcon />
+
             {/* 3-way theme toggle */}
             <div
               className="flex items-center p-0.5 rounded-lg border border-wx-bd/50 gap-0.5"
@@ -124,8 +201,9 @@ export function Navigation({ onLogoClick }: NavigationProps) {
             <button
               onClick={toggleLang}
               className="px-3 py-1.5 text-xs font-medium text-wx-tx2 hover:text-wx-tx1 border border-wx-bd/50 hover:border-[#4A6AEE] rounded transition-colors"
+              aria-label={lang === 'de' ? 'Switch to English' : 'Zu Deutsch wechseln'}
             >
-              {lang.toUpperCase()}
+              {lang === 'de' ? 'EN' : 'DE'}
             </button>
 
             {/* eBay Shop Link */}
@@ -133,7 +211,7 @@ export function Navigation({ onLogoClick }: NavigationProps) {
               href="https://www.ebay.de/usr/waxcelerate"
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden sm:flex items-center gap-2 px-4 py-2 bg-[#4A6AEE] hover:bg-[#6478F5] text-white text-sm font-medium rounded transition-colors"
+              className="hidden sm:flex items-center gap-2 px-4 py-2 bg-[#4A6AEE] text-white text-sm font-medium rounded-full transition-all hover:opacity-90 hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4A6AEE] focus-visible:ring-offset-2"
             >
               {t.nav.ebayShop}
               <ExternalLink className="h-3.5 w-3.5" />
@@ -141,8 +219,12 @@ export function Navigation({ onLogoClick }: NavigationProps) {
 
             {/* Mobile Menu Button */}
             <button
+              id="mobile-menu-button"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="lg:hidden p-2 text-wx-tx2 hover:text-wx-tx1"
+              aria-label={de ? 'Menü öffnen' : 'Open menu'}
+              aria-expanded={isMobileMenuOpen}
+              aria-controls="mobile-menu"
             >
               {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
@@ -163,6 +245,10 @@ export function Navigation({ onLogoClick }: NavigationProps) {
 
         {/* Panel */}
         <div
+          id="mobile-menu"
+          role="dialog"
+          aria-modal="true"
+          aria-label={de ? 'Navigation' : 'Navigation'}
           className={`lg:hidden fixed inset-0 sm:inset-y-0 sm:left-auto sm:w-80 z-50 flex flex-col transition-transform duration-[350ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
             isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
           }`}
@@ -170,11 +256,11 @@ export function Navigation({ onLogoClick }: NavigationProps) {
         >
           {/* Top bar */}
           <div className="flex items-center justify-between px-5 h-16 border-b border-wx-bd/20 flex-shrink-0">
-            <img src="/images/logo.jpg" alt="Waxcelerate" className="h-9 w-auto rounded-sm" />
+            <img src="/images/logo.jpg" alt="Waxcelerate" className="h-9 w-auto rounded-lg" />
             <button
               onClick={() => setIsMobileMenuOpen(false)}
               className="p-2 text-wx-tx2 hover:text-wx-tx1 transition-colors"
-              aria-label="Menü schließen"
+              aria-label={de ? 'Menü schließen' : 'Close menu'}
             >
               <X className="h-5 w-5" />
             </button>
@@ -206,7 +292,7 @@ export function Navigation({ onLogoClick }: NavigationProps) {
               href="https://www.ebay.de/usr/waxcelerate"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-white text-[14px] font-semibold"
+              className="flex items-center justify-center gap-2 w-full py-3 rounded-full text-white text-[14px] font-semibold"
               style={{ background: 'linear-gradient(135deg, #4A6AEE, #6080F8)' }}
             >
               {t.nav.ebayShop}
@@ -234,7 +320,7 @@ export function Navigation({ onLogoClick }: NavigationProps) {
                 onClick={toggleLang}
                 className="px-4 py-2 text-sm font-medium text-wx-tx2 hover:text-wx-tx1 border border-wx-bd/50 hover:border-[#4A6AEE] rounded transition-colors"
               >
-                {lang.toUpperCase()}
+                {lang === 'de' ? 'EN' : 'DE'}
               </button>
             </div>
           </div>

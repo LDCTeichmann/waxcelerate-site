@@ -19,7 +19,7 @@ export const translations = {
       ctaBuy: 'Zum eBay-Shop',
       ctaGuide: 'Anleitung',
       trust1: '100% positive Bewertungen (154)',
-      trust2: '294+ Artikel verkauft',
+      trust2: '500+ Artikel verkauft',
       trust3: 'Versand aus Stuttgart',
     },
 
@@ -123,44 +123,46 @@ export const translations = {
 
     // Guides
     guides: {
+      eyebrow: 'Schritt für Schritt',
       title: 'Anleitungen',
       subtitle: 'So wachst du deine Kette richtig',
       pdfHint: 'Alle Anleitungen auch als PDF verfügbar — einfach beim Kauf anfragen',
       newChain: {
-        title: 'Neue Kette vorbereiten & erstmalig wachsen',
+        title: 'Neue Kette erstmalig wachsen',
+        note: 'Fabrikfett blockiert den Wirkstoff komplett — Entfetten ist Pflicht.',
         steps: [
-          'Kette entfetten: entweder Ultraschallbad (ideal) oder 2–3x im Lösungsmittel (Isopropanol, Aceton) spülen',
-          'Kette vollständig trocknen lassen — kein Rest-Lösungsmittel darf ins Wachs',
-          'Wachs auf ca. 85–90°C erhitzen, gelegentlich umrühren damit Additive sich verteilen',
-          'Kette 10–15 Minuten im flüssigen Wachs lassen',
-          'Herausnehmen, überschüssiges Wachs abtropfen lassen, auf Zeitungspapier oder Folie abkühlen',
-          'Kette vorsichtig durchbrechen/biegen bis sie wieder geschmeidig ist',
+          'Kette entfetten — Ultraschallbad (ideal) oder 2–3× in Isopropanol/Aceton tauchen',
+          'Vollständig trocknen — kein Lösungsmittelrest darf ins Wachs',
+          'Wachs auf 85–90 °C erhitzen, Kette 10–15 min eintauchen',
+          'Herausnehmen, abtropfen, auf Folie aushärten lassen',
+          'Kette durchbrechen bis sie wieder geschmeidig läuft',
         ],
       },
       rewax: {
-        title: 'Re-Waxen (Kette ist schon gewachst)',
+        title: 'Re-Waxen',
+        note: 'Altes Wachs muss nicht komplett runter — es löst sich im Wachsbad von selbst.',
         steps: [
-          'Alte Kette abziehen, neue (gewaxte) Kette aufziehen',
-          'Alte Kette mit heißem Wasser und Spüli abspülen — das meiste alte Wachs löst sich',
-          'Trocknen lassen oder mit Heißluft beschleunigen',
-          'Wachs auf 85–90°C erhitzen, Kette 10–15 Minuten eintauchen',
-          'Abtropfen lassen, abkühlen, durchbrechen — fertig',
+          'Aktuelle Kette abziehen, frisch gewaxte montieren',
+          'Abgezogene Kette: heißes Wasser + Spüli — altes Wachs löst sich',
+          'Trocknen, dann 10 min ins Wachsbad bei 85–90 °C',
+          'Abtropfen, abkühlen, durchbrechen — fertig',
         ],
       },
       rotation: {
-        title: '3-Ketten-Rotation (der Profi-Ansatz)',
+        title: '3-Ketten-Rotation',
+        note: 'Kein Warten. Immer eine frische Kette parat — alle drei auf einmal wachsen.',
         steps: [
-          '3 Ketten im Wechsel benutzen — immer eine frisch gewaxte bereithalten',
-          'Nach ca. 300–500 km (je nach Wetter) die aktuelle Kette wechseln',
-          'Die abgenutzte Kette wird gereinigt und frisch gewachst',
-          'So hat man immer eine saubere, frisch gewaxte Kette parat',
-          'Alle 3 Ketten in einer Session wachsen — Zeitaufwand ca. 15 Minuten für alle',
+          'Alle 300–500 km Kette wechseln (bei Nässe früher)',
+          'Abgezogene Kette reinigen und zurück ins Wachsbad',
+          '~15 min für alle drei Ketten in einer Session',
+          'Kettenlaufzeit steigt: gleichmäßiger Verschleiß auf Kassette und Kettenblatt',
         ],
       },
     },
 
     // FAQ
     faq: {
+      eyebrow: 'Support',
       title: 'Häufige Fragen',
       subtitle: 'Antworten auf die wichtigsten Fragen zum Thema Kettenwachs',
       contactCta: 'Nicht die richtige Antwort gefunden?',
@@ -221,6 +223,7 @@ export const translations = {
 
     // Contact
     contact: {
+      eyebrow: 'Kontakt',
       title: 'Kontakt',
       subtitle: 'Hast du Fragen? Ich helfe dir gerne!',
       tabEmail: 'Nachricht',
@@ -245,6 +248,28 @@ export const translations = {
       info: 'Info',
       legal: 'Rechtliches',
       copyright: '© {year} Waxcelerate · Stuttgart · waxcelerate@gmail.com',
+    },
+
+    // Cart & Checkout
+    cart: {
+      title: 'Warenkorb',
+      empty: 'Dein Warenkorb ist leer',
+      emptyHint: 'Füge Kettenwachs hinzu, um hier zu bestellen.',
+      browseCta: 'Produkte entdecken',
+      subtotal: 'Zwischensumme',
+      vatNote: 'inkl. 19% MwSt. · Versandkosten werden im Checkout berechnet',
+      freeShippingNote: 'Ab 50 € Bestellwert kostenloser Versand',
+      checkout: 'Zur Kasse',
+      loading: 'Wird geladen...',
+      clear: 'Warenkorb leeren',
+      remove: 'Entfernen',
+      error: 'Checkout fehlgeschlagen. Bitte versuche es erneut.',
+      addToCart: 'In den Warenkorb',
+      added: 'Hinzugefügt',
+      addedToast: 'In den Warenkorb gelegt',
+      orderSuccess: 'Bestellung erfolgreich!',
+      orderSuccessText: 'Vielen Dank für deine Bestellung. Du erhältst in Kürze eine Bestätigungs-E-Mail.',
+      backHome: 'Zurück zur Startseite',
     },
 
     // Easter egg
@@ -275,7 +300,7 @@ export const translations = {
       ctaBuy: 'To eBay Shop',
       ctaGuide: 'Guide',
       trust1: '100% positive feedback (154)',
-      trust2: '294+ items sold',
+      trust2: '500+ items sold',
       trust3: 'Shipping from Stuttgart',
     },
 
@@ -379,44 +404,46 @@ export const translations = {
 
     // Guides
     guides: {
+      eyebrow: 'Step by Step',
       title: 'Guides',
       subtitle: 'How to wax your chain properly',
       pdfHint: 'All guides also available as PDF — just ask when purchasing',
       newChain: {
-        title: 'Prepare new chain & first wax',
+        title: 'First wax on a new chain',
+        note: 'Factory grease blocks the lubricant completely — degreasing is mandatory.',
         steps: [
-          'Degrease chain: either ultrasonic bath (ideal) or rinse 2–3x in solvent (isopropanol, acetone)',
-          'Let chain dry completely — no residual solvent should enter the wax',
-          'Heat wax to approx. 85–90°C, stir occasionally so additives distribute',
-          'Leave chain in liquid wax for 10–15 minutes',
-          'Remove, let excess wax drip off, cool on newspaper or foil',
-          'Carefully break/bend chain until supple again',
+          'Degrease — ultrasonic bath (ideal) or 2–3× in isopropanol/acetone',
+          'Dry completely — no solvent residue should enter the wax',
+          'Heat wax to 85–90 °C, immerse chain for 10–15 min',
+          'Remove, drip off, let harden on foil',
+          'Break chain apart until it runs smoothly again',
         ],
       },
       rewax: {
-        title: 'Re-waxing (chain is already waxed)',
+        title: 'Re-waxing',
+        note: 'Old wax doesn\'t need to come off completely — it dissolves in the wax bath.',
         steps: [
-          'Remove old chain, install new (waxed) chain',
-          'Rinse old chain with hot water and dish soap — most old wax dissolves',
-          'Let dry or speed up with hot air',
-          'Heat wax to 85–90°C, immerse chain for 10–15 minutes',
-          'Let drip, cool, break-in — done',
+          'Remove current chain, install freshly waxed one',
+          'Removed chain: hot water + dish soap — old wax dissolves',
+          'Dry, then 10 min in wax bath at 85–90 °C',
+          'Drip off, cool, break-in — done',
         ],
       },
       rotation: {
-        title: '3-Chain Rotation (the pro approach)',
+        title: '3-Chain Rotation',
+        note: 'No waiting. Always a fresh chain ready — wax all three at once.',
         steps: [
-          'Use 3 chains in rotation — always have a freshly waxed one ready',
-          'After approx. 300–500 km (depending on weather) swap the current chain',
-          'The worn chain gets cleaned and freshly waxed',
-          'This way you always have a clean, freshly waxed chain at hand',
-          'Wax all 3 chains in one session — time needed approx. 15 minutes for all',
+          'Swap chain every 300–500 km (sooner in wet conditions)',
+          'Clean removed chain and put it back in the wax bath',
+          '~15 min for all three chains in one session',
+          'Chain life increases: even wear on cassette and chainring',
         ],
       },
     },
 
     // FAQ
     faq: {
+      eyebrow: 'Support',
       title: 'FAQ',
       subtitle: 'Answers to the most important questions about chain wax',
       contactCta: 'Didn\'t find the right answer?',
@@ -477,6 +504,7 @@ export const translations = {
 
     // Contact
     contact: {
+      eyebrow: 'Get in Touch',
       title: 'Contact',
       subtitle: 'Have questions? I\'m happy to help!',
       tabEmail: 'Message',
@@ -501,6 +529,28 @@ export const translations = {
       info: 'Info',
       legal: 'Legal',
       copyright: '© {year} Waxcelerate · Stuttgart · waxcelerate@gmail.com',
+    },
+
+    // Cart & Checkout
+    cart: {
+      title: 'Cart',
+      empty: 'Your cart is empty',
+      emptyHint: 'Add chain wax to order directly.',
+      browseCta: 'Browse products',
+      subtotal: 'Subtotal',
+      vatNote: 'incl. 19% VAT · Shipping calculated at checkout',
+      freeShippingNote: 'Free shipping on orders over €50',
+      checkout: 'Checkout',
+      loading: 'Loading...',
+      clear: 'Clear cart',
+      remove: 'Remove',
+      error: 'Checkout failed. Please try again.',
+      addToCart: 'Add to cart',
+      added: 'Added',
+      addedToast: 'Added to cart',
+      orderSuccess: 'Order placed!',
+      orderSuccessText: 'Thank you for your order. You will receive a confirmation email shortly.',
+      backHome: 'Back to homepage',
     },
 
     // Easter egg

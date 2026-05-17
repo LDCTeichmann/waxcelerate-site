@@ -1,4 +1,5 @@
 import { ExternalLink, Check, Droplets, Sun, Shield } from 'lucide-react';
+import { AddToCartButton } from '@/components/AddToCartButton';
 import { Link } from 'react-router-dom';
 import { useState, useRef, useEffect, useCallback, useMemo, memo } from 'react';
 import gsap from 'gsap';
@@ -331,7 +332,7 @@ function useTilt(strength = 5) {
 
 // ── Wax Card ───────────────────────────────────────────────────────────────
 
-const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: CardProps) {
+const WaxCard = memo(function WaxCard({ product, de, formatPrice }: CardProps) {
   const isPro = product.variant === 'pro';
   const accent = isPro ? '#8B6FFD' : '#4A6AEE';
   const accentGlow = isPro ? 'rgba(139,111,253,0.14)' : 'rgba(74,106,238,0.12)';
@@ -452,24 +453,27 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: Ca
 
           <div className="h-px mb-4" style={{ background: 'var(--bd2)' }} />
 
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2">
             <span
-              className="text-[20px] font-semibold"
+              className="text-[20px] font-semibold flex-shrink-0"
               style={{ color: isPro ? '#8B6FFD' : 'var(--tx1)' }}
             >
               {formatPrice(product.price)}
             </span>
-            <a
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <AddToCartButton product={product} size="sm" />
+              <a
                 href={product.ebayUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={e => e.stopPropagation()}
-                className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold text-white transition-all hover:scale-[1.04] hover:brightness-110 active:scale-[0.97]"
-                style={{ background: accent }}
+                className="flex items-center gap-1 px-2.5 py-2 rounded-lg text-[11px] font-medium text-wx-txf hover:text-wx-tx1 transition-colors flex-shrink-0"
+                style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)' }}
               >
-                {buyLabel}
-                <ExternalLink className="h-3 w-3" />
+                eBay
+                <ExternalLink className="h-2.5 w-2.5" />
               </a>
+            </div>
           </div>
         </div>
       </Link>

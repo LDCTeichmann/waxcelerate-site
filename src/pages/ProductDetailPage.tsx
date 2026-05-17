@@ -7,6 +7,7 @@ import {
 import { getProductById } from '@/lib/data';
 import { richContent } from '@/lib/productContent';
 import { useLanguage } from '@/hooks/useLanguage';
+import { AddToCartButton } from '@/components/AddToCartButton';
 
 export function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -125,18 +126,28 @@ export function ProductDetailPage() {
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-wx-tx1 leading-tight mb-2">{titleText}</h1>
               <p className="text-wx-txm text-sm leading-relaxed mb-5">{descriptionText}</p>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 flex-wrap">
                 <span className="text-3xl font-bold text-wx-tx1">{formatPrice(product.price)}</span>
-                <a
-                  href={product.ebayUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90"
-                  style={{ background: accentColor }}
-                >
-                  {de ? 'Bei eBay kaufen' : 'Buy on eBay'}
-                  <ExternalLink className="h-3.5 w-3.5" />
-                </a>
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  {isWax && <AddToCartButton product={product} />}
+                  <a
+                    href={product.ebayUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`flex items-center gap-2 rounded-xl text-sm font-semibold transition-all hover:opacity-90 ${
+                      isWax
+                        ? 'px-4 py-2.5 text-wx-txm border hover:text-wx-tx1'
+                        : 'px-5 py-2.5 text-white'
+                    }`}
+                    style={isWax
+                      ? { background: 'var(--sf2)', borderColor: 'var(--bd2)' }
+                      : { background: accentColor }
+                    }
+                  >
+                    {de ? 'Bei eBay kaufen' : 'Buy on eBay'}
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </a>
+                </div>
               </div>
             </div>
 
