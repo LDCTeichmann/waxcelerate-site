@@ -38,17 +38,32 @@ export function CartDrawer() {
   const handleCheckout = async () => {
     setLoading(true);
     try {
+      // Send ONLY productId + quantity — server looks up prices from catalog
+      const orderLines = items.map((i) => ({ productId: i.productId, quantity: i.quantity }));
+
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items, lang }),
+        body: JSON.stringify({ items: orderLines, lang }),
       });
-      if (!res.ok) throw new Error('Checkout failed');
-      const data = await res.json() as { url?: string; error?: string };
+
+      const data = await res.json() as { url?: string; error?: string; productId?: string };
+
+      if (!res.ok) {
+        if (data.error === 'out_of_stock') {
+          const item = items.find((i) => i.productId === data.productId);
+          const name = item ? (de ? item.title : item.titleEn) : (de ? 'Produkt' : 'Product');
+          toast.error(de ? `${name} ist leider ausverkauft` : `${name} is out of stock`);
+        } else {
+          toast.error(t.cart.error);
+        }
+        return;
+      }
+
       if (data.url) {
         window.location.href = data.url;
       } else {
-        throw new Error(data.error ?? 'No URL returned');
+        throw new Error('No redirect URL');
       }
     } catch {
       toast.error(t.cart.error);

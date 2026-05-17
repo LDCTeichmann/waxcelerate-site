@@ -12,6 +12,7 @@ export interface CartItem {
 }
 
 interface CartStore {
+  // Cart state
   items: CartItem[];
   isOpen: boolean;
   addItem: (product: Product) => void;
@@ -20,11 +21,17 @@ interface CartStore {
   clear: () => void;
   openCart: () => void;
   closeCart: () => void;
+
+  // Stock state (fetched from /api/stock on mount)
+  // -1 = not tracked (unlimited), 0 = out of stock, >0 = units available
+  stockMap: Record<string, number>;
+  fetchStock: () => Promise<void>;
 }
 
 export const useCartStore = create<CartStore>()(
   persist(
     (set) => ({
+      // ── Cart ──────────────────────────────────────────────────────────────
       items: [],
       isOpen: false,
 
@@ -71,16 +78,47 @@ export const useCartStore = create<CartStore>()(
       clear: () => set({ items: [] }),
       openCart: () => set({ isOpen: true }),
       closeCart: () => set({ isOpen: false }),
+
+      // ── Stock ─────────────────────────────────────────────────────────────
+      stockMap: {},
+
+      fetchStock: async () => {
+        try {
+          const res = await fetch('/api/stock');
+          if (!res.ok) return;
+          const data = await res.json() as Record<string, number>;
+          set({ stockMap: data });
+        } catch {
+          // Fail silently — stock defaults to -1 (unlimited) when map is empty
+        }
+      },
     }),
     {
       name: 'waxcelerate-cart',
+      // Only persist cart items — stock is always re-fetched on mount
       partialize: (state) => ({ items: state.items }),
     }
   )
 );
+
+// ── Selectors / helpers ────────────────────────────────────────────────────
 
 export const cartItemCount = (items: CartItem[]): number =>
   items.reduce((sum, i) => sum + i.quantity, 0);
 
 export const cartTotalPrice = (items: CartItem[]): number =>
   items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+
+/** -1 = unlimited, 0 = sold out, >0 = units left */
+export const getStock = (stockMap: Record<string, number>, productId: string): number =>
+  stockMap[productId] ?? -1;
+
+export const isInStock = (stockMap: Record<string, number>, productId: string): boolean => {
+  const s = getStock(stockMap, productId);
+  return s === -1 || s > 0;
+};
+
+export const isLowStock = (stockMap: Record<string, number>, productId: string): boolean => {
+  const s = getStock(stockMap, productId);
+  return s > 0 && s <= 5;
+};

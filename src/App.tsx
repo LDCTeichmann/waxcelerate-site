@@ -22,6 +22,7 @@ import { LanguageProvider, useLanguage } from '@/hooks/useLanguage';
 import { toast } from 'sonner';
 import { Toaster } from '@/components/ui/sonner';
 import { CartDrawer } from '@/components/CartDrawer';
+import { useCartStore } from '@/store/cart';
 
 const PageLoader = () => (
   <div style={{ minHeight: '100vh', background: 'var(--pg)' }} />
@@ -34,6 +35,10 @@ function AppContent() {
   const { lang } = useLanguage();
   const [konamiIdx, setKonamiIdx] = useState(0);
   const [logoClicks, setLogoClicks] = useState(0);
+  const fetchStock = useCartStore((s) => s.fetchStock);
+
+  // Fetch live stock levels once on app mount (fails silently — defaults to in-stock)
+  useEffect(() => { void fetchStock(); }, [fetchStock]);
 
   // Konami code - shows technical specs
   useEffect(() => {
