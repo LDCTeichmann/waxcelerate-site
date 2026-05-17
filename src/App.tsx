@@ -96,8 +96,8 @@ function AppContent() {
             <main>
               <Hero />
               <SocialProof />
-              <WhyWax />
               <Products />
+              <WhyWax />
               <Tools />
               <Guides />
               <FAQ />

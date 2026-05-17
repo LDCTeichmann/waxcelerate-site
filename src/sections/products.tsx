@@ -200,16 +200,24 @@ export function Products() {
 
           {/* Wax Products */}
           {activeTab === 'wax' && (
-            <div ref={gridRef} className="grid sm:grid-cols-2 gap-5">
-              {waxProducts.map((product) => (
-                <WaxCard
-                  key={product.id}
-                  product={product}
-                  de={de}
-                  formatPrice={formatPrice}
-                  buyLabel={t.products.buyOnEbay}
-                />
-              ))}
+            <div ref={gridRef}>
+              {/* Decision helper */}
+              <p className="text-center text-sm mb-6" style={{ color: 'var(--txf)' }}>
+                {de
+                  ? 'Neu bei Kettenwachs? Starte mit dem Classic 500g — dem meistgekauften Einstieg.'
+                  : 'New to hot wax? Start with Classic 500g — our most popular entry point.'}
+              </p>
+              <div className="grid sm:grid-cols-2 gap-5">
+                {waxProducts.map((product) => (
+                  <WaxCard
+                    key={product.id}
+                    product={product}
+                    de={de}
+                    formatPrice={formatPrice}
+                    buyLabel={t.products.buyOnEbay}
+                  />
+                ))}
+              </div>
             </div>
           )}
 

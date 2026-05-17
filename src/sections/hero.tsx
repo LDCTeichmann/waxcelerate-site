@@ -41,7 +41,7 @@ export function Hero() {
   const ctaRef     = useRef<HTMLDivElement>(null);
   const trustRef   = useRef<HTMLDivElement>(null);
   const imgRef     = useRef<HTMLDivElement>(null);
-  const ebayBtnRef = useRef<HTMLAnchorElement>(null);
+  const ebayBtnRef = useRef<HTMLButtonElement>(null);
   const de = lang === 'de';
 
   useEffect(() => {
@@ -158,16 +158,6 @@ export function Hero() {
       className="grain relative overflow-hidden"
       style={{ minHeight: '100dvh', background: '#06060f' }}
     >
-      {/* ── Aurora blobs ── */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {/* Blob 1 — blue, left-center */}
-        <div className="aurora-blob aurora-blob-1" />
-        {/* Blob 2 — purple, right-top */}
-        <div className="aurora-blob aurora-blob-2" />
-        {/* Blob 3 — indigo, bottom-center */}
-        <div className="aurora-blob aurora-blob-3" />
-      </div>
-
       {/* Grid texture */}
       <div className="absolute inset-0 grid-bg opacity-[0.07] pointer-events-none" />
 
@@ -233,20 +223,20 @@ export function Hero() {
 
             {/* CTAs */}
             <div ref={ctaRef} className="flex items-center gap-5 mb-8 flex-wrap">
-              <a
+              <button
                 ref={ebayBtnRef}
-                href="https://www.ebay.de/usr/waxcelerate"
-                target="_blank"
-                rel="noopener noreferrer"
+                onClick={() => scrollToSection('#produkte')}
                 className="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-semibold text-white rounded-full transition-opacity duration-150 hover:opacity-90 active:scale-[0.98]"
                 style={{ background: '#4A6AEE', willChange: 'transform' }}
               >
-                {t.hero.ctaBuy}
-                <ExternalLink className="h-3.5 w-3.5" />
-              </a>
+                {de ? 'Produkte ansehen' : 'View products'}
+                <ArrowRight className="h-3.5 w-3.5" />
+              </button>
 
-              <button
-                onClick={() => scrollToSection('#anleitungen')}
+              <a
+                href="https://www.ebay.de/usr/waxcelerate"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 text-sm font-medium transition-colors"
                 style={{ color: 'rgba(255,255,255,0.55)' }}
                 onMouseEnter={e =>
@@ -256,9 +246,9 @@ export function Hero() {
                   ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.55)')
                 }
               >
-                {t.hero.ctaGuide}
-                <ArrowRight className="h-3.5 w-3.5" />
-              </button>
+                {de ? 'Auch auf eBay' : 'Also on eBay'}
+                <ExternalLink className="h-3 w-3" />
+              </a>
             </div>
 
             {/* Trust strip */}
@@ -286,8 +276,7 @@ export function Hero() {
           {/* RIGHT — product image */}
           <div
             ref={imgRef}
-            className="hidden lg:flex items-center justify-end relative"
-            style={{ minHeight: '100dvh' }}
+            className="flex items-center justify-end relative h-64 sm:h-80 lg:min-h-[100dvh]"
           >
             <img
               src="/images/wax-hero-split.png"

@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { Menu, X, ExternalLink, Sun, Moon } from 'lucide-react';
+import { Menu, X, ExternalLink } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
-import { useTheme, type Theme } from '@/hooks/useTheme';
 import { CartIcon } from '@/components/CartIcon';
 
 const navItems = [
@@ -24,14 +23,7 @@ export function Navigation({ onLogoClick }: NavigationProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<string>('');
   const { t, lang, toggleLang } = useLanguage();
-  const { theme, setTheme } = useTheme();
   const de = lang === 'de';
-
-  const themes: { value: Theme; label: string; icon: React.ReactNode }[] = [
-    { value: 'light', label: 'Light',  icon: <Sun className="h-3.5 w-3.5" /> },
-    { value: 'dark',  label: 'Dusk',   icon: <Moon className="h-3.5 w-3.5" /> },
-    { value: 'noir',  label: 'Noir',   icon: <span className="h-3.5 w-3.5 flex items-center justify-center"><span className="block w-2.5 h-2.5 rounded-full bg-current" /></span> },
-  ];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -174,29 +166,6 @@ export function Navigation({ onLogoClick }: NavigationProps) {
             {/* Cart icon */}
             <CartIcon />
 
-            {/* 3-way theme toggle */}
-            <div
-              className="flex items-center p-0.5 rounded-lg border border-wx-bd/50 gap-0.5"
-              style={{ background: 'var(--sf2)' }}
-            >
-              {themes.map(({ value, label, icon }) => (
-                <button
-                  key={value}
-                  onClick={() => setTheme(value)}
-                  aria-label={label}
-                  title={label}
-                  className={`p-1.5 rounded-md transition-all ${
-                    theme === value
-                      ? 'text-wx-tx1 shadow-sm'
-                      : 'text-wx-txf hover:text-wx-tx2'
-                  }`}
-                  style={theme === value ? { background: 'var(--sf)' } : undefined}
-                >
-                  {icon}
-                </button>
-              ))}
-            </div>
-
             {/* Language Toggle */}
             <button
               onClick={toggleLang}
@@ -298,24 +267,7 @@ export function Navigation({ onLogoClick }: NavigationProps) {
               {t.nav.ebayShop}
               <ExternalLink className="h-4 w-4" />
             </a>
-            <div className="flex items-center justify-between pt-1">
-              <div
-                className="flex items-center p-0.5 rounded-lg border border-wx-bd/50 gap-0.5"
-                style={{ background: 'var(--sf2)' }}
-              >
-                {themes.map(({ value, label, icon }) => (
-                  <button
-                    key={value}
-                    onClick={() => setTheme(value)}
-                    aria-label={label}
-                    title={label}
-                    className={`p-1.5 rounded-md transition-all ${theme === value ? 'text-wx-tx1 shadow-sm' : 'text-wx-txf hover:text-wx-tx2'}`}
-                    style={theme === value ? { background: 'var(--sf)' } : undefined}
-                  >
-                    {icon}
-                  </button>
-                ))}
-              </div>
+            <div className="flex items-center justify-end pt-1">
               <button
                 onClick={toggleLang}
                 className="px-4 py-2 text-sm font-medium text-wx-tx2 hover:text-wx-tx1 border border-wx-bd/50 hover:border-[#4A6AEE] rounded transition-colors"

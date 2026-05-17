@@ -50,8 +50,8 @@ export const products: Product[] = [
     image: 'https://i.ebayimg.com/images/g/w8UAAeSwXeVoMeE8/s-l500.jpg',
     imagePosition: '35% 72%',
     ebayUrl: 'https://www.ebay.de/itm/395811184583',
-    badge: 'Bestseller',
-    badgeEn: 'Bestseller',
+    badge: 'Empfohlen',
+    badgeEn: 'Recommended',
     formula: ['Vollraffiniertes Paraffinwachs', 'PTFE < 1 µm', 'Stearinsäurederivat'],
     formulaEn: ['Fully refined paraffin wax', 'PTFE < 1 µm', 'Stearic acid derivative'],
     highlights: [
