@@ -127,7 +127,7 @@ export function WhyWax() {
 
           {/* ── Header ── */}
           <div ref={headerRef} className="text-center mb-14">
-            <span data-reveal="eyebrow" className="text-xs tracking-[0.35em] uppercase mb-3 block font-medium" style={{ color: '#4A6AEE' }}>
+            <span data-reveal="eyebrow" className="section-eyebrow mb-4 block">
               {de ? 'Die Formulierung' : 'The Formulation'}
             </span>
             <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-4">
@@ -489,7 +489,7 @@ export function WhyWax() {
               href="https://www.ebay.de/usr/waxcelerate"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-lg text-white font-medium text-[14px] transition-all hover:scale-[1.03] hover:shadow-[0_0_40px_rgba(74,106,238,0.4)] active:scale-[0.98]"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-lg text-white font-medium text-[14px] transition-all hover:opacity-90 active:scale-[0.98]"
               style={{ background: 'linear-gradient(135deg, #4A6AEE 0%, #6080F8 100%)' }}
             >
               {de ? 'Zum eBay-Shop' : 'Visit eBay Shop'}

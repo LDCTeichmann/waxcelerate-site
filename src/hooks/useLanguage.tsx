@@ -1,4 +1,4 @@
-import React, { useState, useCallback, createContext, useContext } from 'react';
+import React, { useState, useEffect, useCallback, createContext, useContext } from 'react';
 import { translations, type Language, type TranslationType } from '@/lib/i18n';
 
 interface LanguageContextType {
@@ -11,7 +11,15 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [lang, setLang] = useState<Language>('de');
+  const [lang, setLang] = useState<Language>(() => {
+    const stored = localStorage.getItem('wx-lang');
+    return (stored === 'de' || stored === 'en') ? stored : 'de';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('wx-lang', lang);
+    document.documentElement.lang = lang;
+  }, [lang]);
 
   const toggleLang = useCallback(() => {
     setLang((prev) => (prev === 'de' ? 'en' : 'de'));

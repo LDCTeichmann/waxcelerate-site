@@ -1,119 +1,116 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { BookOpen, Droplets, RotateCcw, ChevronDown } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
+import { ScrollWordReveal } from '@/components/ScrollWordReveal';
+import { use3DReveal } from '@/hooks/useAnimation';
 
 export function Guides() {
   const { t } = useLanguage();
   const [openGuide, setOpenGuide] = useState<string | null>('neu');
+  const listRef = useRef<HTMLDivElement>(null);
+  use3DReveal(listRef, { stagger: 0.06, start: 'top 88%' });
 
   const guides = [
-    {
-      id: 'neu',
-      icon: BookOpen,
-      title: t.guides.newChain.title,
-      steps: t.guides.newChain.steps,
-    },
-    {
-      id: 'rewax',
-      icon: Droplets,
-      title: t.guides.rewax.title,
-      steps: t.guides.rewax.steps,
-    },
-    {
-      id: 'rotation',
-      icon: RotateCcw,
-      title: t.guides.rotation.title,
-      steps: t.guides.rotation.steps,
-    },
+    { id: 'neu',      icon: BookOpen,    data: t.guides.newChain },
+    { id: 'rewax',    icon: Droplets,    data: t.guides.rewax },
+    { id: 'rotation', icon: RotateCcw,   data: t.guides.rotation },
   ];
 
   return (
-    <section id="anleitungen" className="py-24 bg-wx-bg">
+    <section id="anleitungen" className="relative py-16 bg-wx-sf">
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-16">
-            <span className="text-xs tracking-[0.3em] text-[#4A6AEE] uppercase mb-3 block font-medium">
-              Schritt für Schritt
+        <div className="max-w-2xl mx-auto">
+
+          <div className="text-center mb-12">
+            <span className="section-eyebrow mb-4 block">
+              {t.guides.eyebrow}
             </span>
-            <h2 className="font-display text-4xl sm:text-5xl font-bold text-white mb-4">
-              {t.guides.title}
+            <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-4">
+              <ScrollWordReveal text={t.guides.title} />
             </h2>
-            <p className="text-wx-tx2">
-              {t.guides.subtitle}
-            </p>
+            <p className="text-wx-tx2">{t.guides.subtitle}</p>
           </div>
 
-          <div className="space-y-4">
-            {guides.map((guide) => (
-              <div
-                key={guide.id}
-                className={`bg-wx-sf border rounded-xl overflow-hidden transition-colors duration-300 ${
-                  openGuide === guide.id ? 'border-[#4A6AEE]/20' : 'border-wx-bd/30'
-                }`}
-              >
-                <button
-                  onClick={() => setOpenGuide(openGuide === guide.id ? null : guide.id)}
-                  className="w-full flex items-center justify-between p-6 text-left hover:bg-wx-sf2/30 transition-colors"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-[#4A6AEE]/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <guide.icon className="h-5 w-5 text-[#4A6AEE]" />
-                    </div>
-                    <h3 className="text-lg font-medium text-white">
-                      {guide.title}
-                    </h3>
-                  </div>
-                  <ChevronDown
-                    className={`h-5 w-5 text-wx-tx2 transition-transform duration-[320ms] ${
-                      openGuide === guide.id ? 'rotate-180' : ''
-                    }`}
-                  />
-                </button>
-
+          <div ref={listRef} className="space-y-2">
+            {guides.map((guide) => {
+              const isOpen = openGuide === guide.id;
+              return (
                 <div
-                  className="grid transition-[grid-template-rows,opacity] duration-[320ms]"
+                  key={guide.id}
+                  data-card
+                  className="rounded-xl overflow-hidden"
                   style={{
-                    gridTemplateRows: openGuide === guide.id ? '1fr' : '0fr',
-                    opacity: openGuide === guide.id ? 1 : 0,
-                    transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+                    background: 'var(--sf3)',
+                    border: `1px solid ${isOpen ? 'rgba(74,106,238,0.25)' : 'var(--bd2)'}`,
+                    transition: 'border-color 0.2s',
                   }}
                 >
-                  <div className="overflow-hidden">
-                    <div className="px-6 pb-6">
-                      <div className="relative ml-5 pl-9 border-l border-wx-bd/30">
-                        {guide.steps.map((step: string, index: number) => (
-                          <div
-                            key={index}
-                            className="relative pb-6 last:pb-0"
-                            style={{
-                              opacity: openGuide === guide.id ? 1 : 0,
-                              transform: openGuide === guide.id ? 'translateY(0)' : 'translateY(8px)',
-                              transition: `opacity 0.35s ease, transform 0.35s ease`,
-                              transitionDelay: `${0.15 + index * 0.07}s`,
-                            }}
-                          >
-                            <span className="absolute -left-[41px] w-8 h-8 bg-[#4A6AEE]/20 border border-[#4A6AEE]/30 rounded-full flex items-center justify-center text-sm text-[#4A6AEE] font-medium">
-                              {index + 1}
-                            </span>
-                            <p className="text-wx-tx2 text-sm leading-relaxed">{step}</p>
-                          </div>
-                        ))}
+                  {/* Header */}
+                  <button
+                    onClick={() => setOpenGuide(isOpen ? null : guide.id)}
+                    className="w-full flex items-center justify-between px-5 py-4 text-left"
+                  >
+                    <div className="flex items-center gap-3">
+                      <guide.icon
+                        className="h-4 w-4 flex-shrink-0"
+                        style={{ color: isOpen ? '#4A6AEE' : 'var(--txf)' }}
+                      />
+                      <span className="text-sm font-medium text-wx-tx1">{guide.data.title}</span>
+                    </div>
+                    <ChevronDown
+                      className="h-4 w-4 flex-shrink-0 transition-transform duration-200"
+                      style={{
+                        color: 'var(--txf)',
+                        transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                      }}
+                    />
+                  </button>
+
+                  {/* Body */}
+                  <div
+                    className="grid transition-[grid-template-rows] duration-[250ms] ease-in-out"
+                    style={{ gridTemplateRows: isOpen ? '1fr' : '0fr' }}
+                  >
+                    <div className="overflow-hidden">
+                      <div className="px-5 pb-5 pt-1">
+                        {/* Note */}
+                        <p className="text-xs mb-4" style={{ color: 'var(--txf)' }}>
+                          {guide.data.note}
+                        </p>
+                        {/* Steps */}
+                        <ol className="space-y-2.5">
+                          {guide.data.steps.map((step: string, i: number) => (
+                            <li key={i} className="flex items-start gap-3">
+                              <span
+                                className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-xs font-semibold mt-0.5"
+                                style={{
+                                  background: 'rgba(74,106,238,0.15)',
+                                  color: '#4A6AEE',
+                                }}
+                              >
+                                {i + 1}
+                              </span>
+                              <span className="text-sm leading-relaxed" style={{ color: 'var(--tx2)' }}>
+                                {step}
+                              </span>
+                            </li>
+                          ))}
+                        </ol>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
-          {/* PDF Download hint */}
-          <div className="mt-8 text-center">
-            <p className="text-wx-txf text-sm">
-              {t.guides.pdfHint}
-            </p>
-          </div>
         </div>
       </div>
+      {/* Bottom gradient — bridges to FAQ below */}
+      <div
+        className="absolute bottom-0 left-0 right-0 pointer-events-none"
+        style={{ height: '64px', background: 'linear-gradient(to bottom, transparent, var(--pg))', zIndex: 1 }}
+      />
     </section>
   );
 }

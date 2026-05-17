@@ -3,9 +3,6 @@ import { ArrowRight, Check, ExternalLink } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import gsap from 'gsap';
 
-// Module-level flag: survives StrictMode unmount/remount cycles
-let heroAnimated = false;
-
 // Split text into word spans for clip-mask reveal
 function WordReveal({
   text,
@@ -37,17 +34,18 @@ function WordReveal({
 
 export function Hero() {
   const { t, lang } = useLanguage();
+  const animatedRef = useRef<boolean>(false);
   const pillRef    = useRef<HTMLDivElement>(null);
   const headRef    = useRef<HTMLDivElement>(null);
   const taglineRef = useRef<HTMLParagraphElement>(null);
   const ctaRef     = useRef<HTMLDivElement>(null);
   const trustRef   = useRef<HTMLDivElement>(null);
   const imgRef     = useRef<HTMLDivElement>(null);
+  const ebayBtnRef = useRef<HTMLAnchorElement>(null);
   const de = lang === 'de';
 
   useEffect(() => {
-    if (heroAnimated) return;
-    heroAnimated = true;
+    if (animatedRef.current) return;
 
     const el = {
       pill: pillRef.current,
@@ -58,6 +56,8 @@ export function Hero() {
       img: imgRef.current,
     };
     if (Object.values(el).some(v => !v)) return;
+
+    animatedRef.current = true;
 
     // Reduced motion — instant reveal
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -108,6 +108,45 @@ export function Hero() {
     tl.to(el.img, { opacity: 1, x: 0, scale: 1, duration: 0.9, ease: 'power3.out' }, 0.22);
   }, []);
 
+  // ── Magnetic CTA button ───────────────────────────────────────────────
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const btn  = ebayBtnRef.current;
+
+    // Magnetic button — drifts toward cursor when nearby, snaps back
+    const STRENGTH = 0.38;
+    const RADIUS   = 90;
+
+    const onMouseMove = (e: MouseEvent) => {
+      if (btn) {
+        const r   = btn.getBoundingClientRect();
+        const cx  = r.left + r.width / 2;
+        const cy  = r.top  + r.height / 2;
+        const dx  = e.clientX - cx;
+        const dy  = e.clientY - cy;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < RADIUS) {
+          gsap.to(btn, { x: dx * STRENGTH, y: dy * STRENGTH, duration: 0.35, ease: 'power2.out', overwrite: 'auto' });
+        } else {
+          gsap.to(btn, { x: 0, y: 0, duration: 0.7, ease: 'elastic.out(1, 0.35)', overwrite: 'auto' });
+        }
+      }
+    };
+
+    const onMouseLeave = () => {
+      if (btn) gsap.to(btn, { x: 0, y: 0, duration: 0.7, ease: 'elastic.out(1, 0.35)', overwrite: 'auto' });
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    if (btn) btn.addEventListener('mouseleave', onMouseLeave);
+
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      if (btn) btn.removeEventListener('mouseleave', onMouseLeave);
+    };
+  }, []);
+
   const scrollToSection = (href: string) =>
     document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
 
@@ -116,20 +155,21 @@ export function Hero() {
   return (
     <section
       id="home"
-      className="relative overflow-hidden"
-      style={{ minHeight: '100dvh', background: '#090909' }}
+      className="grain relative overflow-hidden"
+      style={{ minHeight: '100dvh', background: '#06060f' }}
     >
-      {/* Subtle blue radial glow — left side where text lives */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            'radial-gradient(ellipse 60% 55% at 20% 55%, rgba(74,106,238,0.10) 0%, transparent 70%)',
-        }}
-      />
+      {/* ── Aurora blobs ── */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {/* Blob 1 — blue, left-center */}
+        <div className="aurora-blob aurora-blob-1" />
+        {/* Blob 2 — purple, right-top */}
+        <div className="aurora-blob aurora-blob-2" />
+        {/* Blob 3 — indigo, bottom-center */}
+        <div className="aurora-blob aurora-blob-3" />
+      </div>
 
       {/* Grid texture */}
-      <div className="absolute inset-0 grid-bg opacity-[0.12] pointer-events-none" />
+      <div className="absolute inset-0 grid-bg opacity-[0.07] pointer-events-none" />
 
       {/* ── 2-column layout ── */}
       <div className="relative z-10 flex items-center min-h-[100dvh]">
@@ -194,24 +234,12 @@ export function Hero() {
             {/* CTAs */}
             <div ref={ctaRef} className="flex items-center gap-5 mb-8 flex-wrap">
               <a
+                ref={ebayBtnRef}
                 href="https://www.ebay.de/usr/waxcelerate"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-semibold text-white rounded-full transition-all"
-                style={{
-                  background: '#4A6AEE',
-                  boxShadow: '0 0 0 1px rgba(74,106,238,0.5)',
-                }}
-                onMouseEnter={e => {
-                  (e.currentTarget as HTMLElement).style.background = '#5B7AEE';
-                  (e.currentTarget as HTMLElement).style.boxShadow =
-                    '0 0 28px rgba(74,106,238,0.5), 0 0 0 1px rgba(74,106,238,0.6)';
-                }}
-                onMouseLeave={e => {
-                  (e.currentTarget as HTMLElement).style.background = '#4A6AEE';
-                  (e.currentTarget as HTMLElement).style.boxShadow =
-                    '0 0 0 1px rgba(74,106,238,0.5)';
-                }}
+                className="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-semibold text-white rounded-full transition-opacity duration-150 hover:opacity-90 active:scale-[0.98]"
+                style={{ background: '#4A6AEE', willChange: 'transform' }}
               >
                 {t.hero.ctaBuy}
                 <ExternalLink className="h-3.5 w-3.5" />
@@ -234,15 +262,22 @@ export function Hero() {
             </div>
 
             {/* Trust strip */}
-            <div ref={trustRef} className="flex flex-wrap items-center gap-x-5 gap-y-1.5">
+            <div ref={trustRef} className="flex flex-wrap items-center gap-y-2">
               {[t.hero.trust1, t.hero.trust2, t.hero.trust3].map((item, i) => (
-                <span
-                  key={i}
-                  className="flex items-center gap-1.5 text-[12px]"
-                  style={{ color: 'rgba(255,255,255,0.40)' }}
-                >
-                  <Check className="h-3 w-3 flex-shrink-0" style={{ color: '#6A8AFF' }} />
-                  {item}
+                <span key={i} className="flex items-center">
+                  <span
+                    className="flex items-center gap-1.5 text-[12px]"
+                    style={{ color: 'rgba(255,255,255,0.55)' }}
+                  >
+                    <Check className="h-3 w-3 flex-shrink-0" style={{ color: '#6A8AFF' }} />
+                    {item}
+                  </span>
+                  {i < 2 && (
+                    <span
+                      className="mx-4 h-3 w-px flex-shrink-0"
+                      style={{ background: 'rgba(255,255,255,0.15)' }}
+                    />
+                  )}
                 </span>
               ))}
             </div>
@@ -260,12 +295,15 @@ export function Hero() {
               className="w-full h-full object-cover object-left"
               style={{ maxHeight: '100dvh' }}
               draggable={false}
+              fetchPriority="high"
+              width={1200}
+              height={900}
             />
             {/* Left-edge fade so image blends into dark bg */}
             <div
               className="absolute inset-y-0 left-0 w-32 pointer-events-none"
               style={{
-                background: 'linear-gradient(to right, #090909 0%, transparent 100%)',
+                background: 'linear-gradient(to right, #06060f 0%, transparent 100%)',
               }}
             />
           </div>
@@ -276,7 +314,7 @@ export function Hero() {
       {/* Bottom fade */}
       <div
         className="absolute bottom-0 left-0 right-0 h-24 pointer-events-none"
-        style={{ background: 'linear-gradient(to top, var(--pg), transparent)' }}
+        style={{ background: 'linear-gradient(to top, var(--sf3), transparent)' }}
       />
     </section>
   );

@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { MapPin, Mail, Phone, ExternalLink } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useSectionReveal } from '@/hooks/useAnimation';
+import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -26,14 +27,16 @@ function CountUp({ end, duration = 1800 }: { end: number; duration?: number }) {
 
   useEffect(() => {
     if (!started) return;
+    let frameId: number;
     let startTime: number;
     const step = (ts: number) => {
       if (!startTime) startTime = ts;
       const p = Math.min((ts - startTime) / duration, 1);
       setCount(Math.floor(p * end));
-      if (p < 1) requestAnimationFrame(step);
+      if (p < 1) frameId = requestAnimationFrame(step);
     };
-    requestAnimationFrame(step);
+    frameId = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(frameId);
   }, [started, end, duration]);
 
   return <span ref={ref}>{count}</span>;
@@ -76,11 +79,11 @@ export function About() {
 
   const de = lang === 'de';
 
-  const stats = [
-    { value: 100, prefix: '', suffix: '%', label: t.about.stats.rating },
-    { value: 500, prefix: '', suffix: '+', label: t.about.stats.sold },
-    { value: 2024, prefix: '', suffix: '', label: de ? 'Waxcelerate seit' : 'Waxcelerate since' },
-    { value: 24, prefix: '<', suffix: 'h', label: de ? 'Versand in < 24h' : 'Ships within 24h' },
+  const stats: Array<{ display: ReactNode; label: string }> = [
+    { display: <><CountUp end={100} />%</>, label: t.about.stats.rating },
+    { display: <><CountUp end={500} />+</>, label: t.about.stats.sold },
+    { display: <>Seit 2024</>, label: de ? 'Im Einsatz auf der Straße' : 'Ridden since 2024' },
+    { display: <>&lt;24h</>, label: de ? 'Versand in &lt; 24h' : 'Ships within 24h' },
   ];
 
   const contactItems = [
@@ -90,17 +93,17 @@ export function About() {
   ];
 
   return (
-    <section id="ueber-mich" className="py-24 bg-wx-bg">
+    <section id="ueber-mich" className="relative py-20 bg-wx-sf chain-texture">
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-5xl mx-auto">
 
           {/* Header */}
           <div ref={headerRef} className="text-center mb-16">
-            <span data-reveal="eyebrow" className="text-xs tracking-[0.3em] text-[#4A6AEE] uppercase mb-3 block font-medium">
+            <span data-reveal="eyebrow" className="section-eyebrow mb-4 block">
               {de ? 'Über Uns' : 'About Us'}
             </span>
-            <h2 data-reveal="heading" className="font-display text-4xl sm:text-5xl font-bold text-white mb-4">
-              {t.about.title}
+            <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-4">
+              <ScrollWordReveal text={t.about.title} />
             </h2>
           </div>
 
@@ -152,20 +155,20 @@ export function About() {
             {/* Right: Stats Card */}
             <div ref={cardRef}>
               <div
-                className="rounded-2xl overflow-hidden border border-white/[0.07]"
-                style={{ background: 'linear-gradient(160deg, #16191f 0%, #0f1115 100%)' }}
+                className="rounded-2xl overflow-hidden border border-wx-bd"
+                style={{ background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)' }}
               >
                 {/* Logo header */}
-                <div className="flex items-center gap-3.5 px-7 py-5 border-b border-white/[0.06]">
+                <div className="flex items-center gap-3.5 px-7 py-5 border-b border-wx-bd2">
                   <img
                     src="/images/logo.jpg"
                     alt="Waxcelerate"
                     className="h-9 w-9 rounded-lg object-cover"
                   />
-                  <span className="font-roboto font-semibold text-wx-tx1 tracking-wide text-[15px]">
-                    waxcelerate
+                  <span className="font-display font-bold tracking-wide text-[15px] text-wx-tx1">
+                    WAXCELERATE
                   </span>
-                  <span className="ml-auto text-[10px] tracking-[0.2em] text-wx-txf uppercase">Stuttgart</span>
+                  <span className="ml-auto text-xs tracking-[0.2em] text-wx-txf uppercase">Stuttgart</span>
                 </div>
 
                 {/* Stats 2×2 */}
@@ -175,20 +178,15 @@ export function About() {
                       key={i}
                       className={[
                         'px-7 py-6',
-                        i >= 2 ? 'border-t border-white/[0.06]' : '',
-                        i % 2 === 1 ? 'border-l border-white/[0.06]' : '',
+                        i >= 2 ? 'border-t border-wx-bd2' : '',
+                        i % 2 === 1 ? 'border-l border-wx-bd2' : '',
                       ].join(' ')}
                     >
                       <div
                         className="text-[2rem] font-bold leading-none mb-1.5 tabular-nums"
                         style={{ color: '#4A6AEE' }}
                       >
-                        {s.prefix}
-                        {i === 0 || i === 2
-                          ? <>{s.value}</>
-                          : <CountUp end={s.value} />
-                        }
-                        {s.suffix}
+                        {s.display}
                       </div>
                       <div className="text-xs text-wx-txf leading-snug">{s.label}</div>
                     </div>
@@ -196,9 +194,9 @@ export function About() {
                 </div>
 
                 {/* Footer strip */}
-                <div className="px-7 py-4 border-t border-white/[0.06] flex items-center gap-2">
+                <div className="px-7 py-4 border-t border-wx-bd2 flex items-center gap-2">
                   <span className="inline-block h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-[11px] text-wx-txf">
+                  <span className="text-xs text-wx-txf">
                     {de ? 'Aktiv auf eBay · Versand aus Deutschland' : 'Active on eBay · Ships from Germany'}
                   </span>
                 </div>
@@ -206,8 +204,28 @@ export function About() {
             </div>
 
           </div>
+
+          {/* Conversion CTA */}
+          <div className="text-center pt-8 mt-8 border-t border-wx-bd">
+            <a
+              href="https://www.ebay.de/usr/waxcelerate"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-full text-white font-semibold text-[14px] transition-all hover:opacity-90 active:scale-[0.98]"
+              style={{ background: '#4A6AEE' }}
+            >
+              {de ? 'Jetzt im eBay-Shop kaufen' : 'Shop on eBay'}
+              <ExternalLink className="h-4 w-4" />
+            </a>
+          </div>
+
         </div>
       </div>
+      {/* Bottom gradient — bridges to Contact below */}
+      <div
+        className="absolute bottom-0 left-0 right-0 pointer-events-none"
+        style={{ height: '64px', background: 'linear-gradient(to bottom, transparent, var(--pg))', zIndex: 1 }}
+      />
     </section>
   );
 }

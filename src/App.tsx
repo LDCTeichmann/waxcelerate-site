@@ -3,7 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import { Navigation } from '@/sections/navigation';
 import { Hero } from '@/sections/hero';
 import { SocialProof } from '@/sections/social-proof';
-import { CustomCursor } from '@/components/CustomCursor';
+
 import { Products } from '@/sections/products';
 import { WhyWax } from '@/sections/why-wax';
 import { Tools } from '@/sections/tools';
@@ -18,6 +18,7 @@ const ImpressumPage = lazy(() => import('@/pages/ImpressumPage').then(m => ({ de
 const DatenschutzPage = lazy(() => import('@/pages/DatenschutzPage').then(m => ({ default: m.DatenschutzPage })));
 const AGBPage = lazy(() => import('@/pages/AGBPage').then(m => ({ default: m.AGBPage })));
 const OrderSuccess = lazy(() => import('@/pages/OrderSuccess').then(m => ({ default: m.OrderSuccess })));
+const AdminPage = lazy(() => import('@/pages/AdminPage').then(m => ({ default: m.AdminPage })));
 import { LanguageProvider, useLanguage } from '@/hooks/useLanguage';
 import { toast } from 'sonner';
 import { Toaster } from '@/components/ui/sonner';
@@ -81,7 +82,6 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-wx-bg text-wx-tx1">
-      <CustomCursor />
       <CartDrawer />
       <Routes>
         <Route path="/produkt/:id" element={<Suspense fallback={<PageLoader />}><ProductDetailPage /></Suspense>} />
@@ -89,6 +89,7 @@ function AppContent() {
         <Route path="/impressum" element={<Suspense fallback={<PageLoader />}><ImpressumPage /></Suspense>} />
         <Route path="/datenschutz" element={<Suspense fallback={<PageLoader />}><DatenschutzPage /></Suspense>} />
         <Route path="/agb" element={<Suspense fallback={<PageLoader />}><AGBPage /></Suspense>} />
+        <Route path="/admin" element={<Suspense fallback={<PageLoader />}><AdminPage /></Suspense>} />
         <Route path="*" element={
           <>
             <Navigation onLogoClick={handleLogoClick} />

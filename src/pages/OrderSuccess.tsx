@@ -8,11 +8,12 @@ export function OrderSuccess() {
   const [params] = useSearchParams();
   const sessionId = params.get('session_id');
   const clear = useCartStore((s) => s.clear);
+  const closeCart = useCartStore((s) => s.closeCart);
   const { t } = useLanguage();
 
   useEffect(() => {
-    if (sessionId) clear();
-  }, [sessionId, clear]);
+    if (sessionId) { clear(); closeCart(); }
+  }, [sessionId, clear, closeCart]);
 
   return (
     <div

@@ -143,9 +143,9 @@ export function CartDrawer() {
               </button>
             </div>
           ) : (
-            <div className="divide-y" style={{ '--tw-divide-opacity': 1 } as React.CSSProperties}>
+            <div>
               {items.map((item) => (
-                <div key={item.productId} className="flex gap-3 py-4">
+                <div key={item.productId} className="flex gap-3 py-4" style={{ borderBottom: '1px solid var(--bd2)' }}>
                   {/* Image */}
                   <div
                     className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0"

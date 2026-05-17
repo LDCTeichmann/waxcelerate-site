@@ -132,7 +132,7 @@ export function Navigation({ onLogoClick }: NavigationProps) {
               style={{ height: isScrolled ? '32px' : '40px', transition: 'height 0.3s ease', width: 'auto' }}
             />
             <span className="font-display text-sm font-bold tracking-wide text-wx-tx1">
-              WAX<span style={{ color: '#4A6AEE' }}>CELERATE</span>
+              WAXCELERATE
             </span>
           </a>
 

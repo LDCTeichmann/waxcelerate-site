@@ -164,7 +164,7 @@ export function Products() {
 
           {/* Header */}
           <div ref={headerRef} className="text-center mb-10">
-            <span data-reveal="eyebrow" className="text-xs tracking-[0.3em] text-[#4A6AEE] uppercase mb-3 block font-medium">
+            <span data-reveal="eyebrow" className="section-eyebrow mb-4 block">
               {de ? 'Unser Sortiment' : 'Our Products'}
             </span>
             <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-4">
@@ -405,7 +405,7 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice }: CardProps) {
             src={product.image}
             alt={title}
             loading="lazy"
-            className="absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-[1.05] group-hover:brightness-[1.08]"
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
             style={{ objectPosition: product.imagePosition ?? 'center 55%' }}
             onError={e => { (e.target as HTMLImageElement).src = '/images/wax-block-spin.jpg'; }}
           />
@@ -431,35 +431,43 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice }: CardProps) {
         </div>
 
         {/* Content */}
-        <div className="px-5 pt-4 pb-5 flex flex-col">
-          <h3 className="text-[17px] font-semibold text-wx-tx1 leading-tight mb-3">
-            {isPro
-              ? (de ? 'Pro-Formulierung' : 'Pro Formula')
-              : (de ? 'Classic-Formulierung' : 'Classic Formula')}
-          </h3>
+        <div className="px-5 pt-5 pb-5 flex flex-col">
+          {/* Product name + variant */}
+          <div className="mb-4">
+            <p className="text-[11px] font-medium uppercase tracking-[0.18em] mb-1" style={{ color: accent }}>
+              {isPro ? 'Pro' : 'Classic'} · {product.weight}
+            </p>
+            <h3 className="text-[18px] font-semibold text-wx-tx1 leading-snug tracking-[-0.01em]">
+              {de ? product.title : product.titleEn}
+            </h3>
+          </div>
 
-          <div className="flex flex-col gap-1.5 mb-3">
+          {/* Benefits — tight, readable */}
+          <div className="flex flex-col gap-2 mb-5">
             {benefits.map(({ icon, label }, i) => (
-              <div key={i} className="flex items-center gap-2 text-[12px] text-wx-txm">
-                <span style={{ color: accent }} className="flex-shrink-0">{icon}</span>
+              <div key={i} className="flex items-start gap-2.5 text-[12.5px] leading-snug" style={{ color: 'var(--txm)' }}>
+                <span style={{ color: accent }} className="flex-shrink-0 mt-px">{icon}</span>
                 {label}
               </div>
             ))}
           </div>
 
-          <p className="text-[11px] text-wx-txf mb-4">
-            {product.weight} · {product.applications} {de ? 'Anw.' : 'uses'} · {product.compatibility}
-          </p>
-
+          {/* Divider */}
           <div className="h-px mb-4" style={{ background: 'var(--bd2)' }} />
 
-          <div className="flex items-center justify-between gap-2">
-            <span
-              className="text-[20px] font-semibold flex-shrink-0"
-              style={{ color: isPro ? '#8B6FFD' : 'var(--tx1)' }}
-            >
-              {formatPrice(product.price)}
-            </span>
+          {/* Price + CTA row */}
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <span
+                className="text-[22px] font-bold leading-none tracking-[-0.02em]"
+                style={{ color: 'var(--tx1)' }}
+              >
+                {formatPrice(product.price)}
+              </span>
+              <p className="text-[11px] mt-0.5" style={{ color: 'var(--txf)' }}>
+                {product.applications} {de ? 'Anwendungen' : 'applications'}
+              </p>
+            </div>
             <div className="flex items-center gap-2 flex-shrink-0">
               <AddToCartButton product={product} size="sm" />
               <a
@@ -545,7 +553,7 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
             src={product.image}
             alt={title}
             loading="lazy"
-            className="absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-[1.05] group-hover:brightness-[1.08]"
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
             onError={e => { (e.target as HTMLImageElement).src = '/images/wax-block-spin.jpg'; }}
           />
           <div
@@ -563,48 +571,45 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
         </div>
 
         {/* Content */}
-        <div className="px-4 pt-3 pb-4 flex flex-col gap-2.5">
+        <div className="px-4 pt-4 pb-4 flex flex-col gap-3">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <p className="text-xs font-semibold uppercase tracking-[0.15em] mb-0.5" style={{ color: 'var(--txm)' }}>{brand}</p>
-              <h3 className="text-[13px] font-semibold text-wx-tx1 leading-snug">{model}</h3>
+              <p className="text-[11px] font-medium uppercase tracking-[0.16em] mb-1" style={{ color: accent }}>{brand}</p>
+              <h3 className="text-[14px] font-semibold text-wx-tx1 leading-snug tracking-[-0.01em]">{model}</h3>
             </div>
             <span
-              className="flex-shrink-0 text-xs font-bold tracking-widest uppercase px-2 py-1 rounded-md mt-0.5"
+              className="flex-shrink-0 text-[11px] font-bold tracking-wider uppercase px-2 py-0.5 rounded mt-0.5"
               style={{ background: 'rgba(74,106,238,0.08)', color: accent, border: '1px solid rgba(74,106,238,0.16)' }}
             >
               {speed}
             </span>
           </div>
 
-          <div>
-            <p className="text-[11px] uppercase tracking-widest mb-1" style={{ color: 'var(--txf)' }}>
-              {de ? 'Kompatibel' : 'Compatible'}
-            </p>
-            <p className="text-[11px] text-wx-txm leading-relaxed">{compatStr}</p>
+          <p className="text-[11.5px] leading-relaxed" style={{ color: 'var(--txm)' }}>
+            {compatStr}
+          </p>
+
+          <div className="flex items-center gap-3 text-[11px]" style={{ borderTop: '1px solid var(--bd2)', paddingTop: '10px' }}>
+            {chainLinks && <span style={{ color: 'var(--tx2)' }}>{chainLinks}</span>}
+            <span style={{ color: 'var(--txf)' }}>·</span>
+            <span style={{ color: 'var(--tx2)' }}>Quick-Link</span>
+            <span style={{ color: 'var(--txf)' }}>·</span>
+            <span style={{ color: 'var(--tx2)' }}>{de ? 'Gewachst' : 'Waxed'}</span>
           </div>
 
-          <div className="flex items-center gap-2.5 text-[11px] pt-2" style={{ borderTop: '1px solid var(--bd2)' }}>
-            {chainLinks && <span className="font-medium" style={{ color: 'var(--tx2)' }}>{chainLinks}</span>}
-            <span style={{ color: 'var(--txf)' }}>·</span>
-            <span style={{ color: 'var(--tx2)' }}>✓ Quick-Link</span>
-            <span style={{ color: 'var(--txf)' }}>·</span>
-            <span style={{ color: 'var(--tx2)' }}>{de ? '✓ Gewachst' : '✓ Waxed'}</span>
-          </div>
-
-          <div className="pt-2.5 flex items-center justify-between" style={{ borderTop: '1px solid var(--bd2)' }}>
-            <span className="text-[16px] font-semibold text-wx-tx1">{formatPrice(product.price)}</span>
+          <div className="flex items-center justify-between pt-1">
+            <span className="text-[17px] font-bold text-wx-tx1 tracking-[-0.02em]">{formatPrice(product.price)}</span>
             <a
-                href={product.ebayUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={e => e.stopPropagation()}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition-all hover:scale-[1.04] hover:brightness-110 active:scale-[0.97]"
-                style={{ background: accent }}
-              >
-                {buyLabel}
-                <ExternalLink className="h-3 w-3" />
-              </a>
+              href={product.ebayUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={e => e.stopPropagation()}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold text-white transition-opacity duration-150 hover:opacity-90 active:scale-[0.97]"
+              style={{ background: accent }}
+            >
+              {buyLabel}
+              <ExternalLink className="h-3 w-3" />
+            </a>
           </div>
         </div>
       </Link>
