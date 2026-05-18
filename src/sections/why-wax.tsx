@@ -107,7 +107,7 @@ export function WhyWax() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative py-28 bg-wx-sf chain-texture">
+    <section id="warum-wachs" ref={sectionRef} className="relative py-28 bg-wx-sf chain-texture">
       {/* Top gradient — bridges from SocialProof (sf3) above */}
       <div
         className="absolute top-0 left-0 right-0 pointer-events-none"

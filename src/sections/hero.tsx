@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { ArrowRight, ExternalLink } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import gsap from 'gsap';
 
@@ -211,18 +211,16 @@ export function Hero() {
               <ArrowRight className="h-3.5 w-3.5" />
             </button>
 
-            <a
-              href="https://www.ebay.de/usr/waxcelerate"
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={() => scrollToSection('#warum-wachs')}
               className="inline-flex items-center gap-1.5 text-sm font-medium transition-colors"
               style={{ color: 'rgba(255,255,255,0.45)' }}
               onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = '#FFFFFF')}
               onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.45)')}
             >
-              {de ? 'Auf eBay kaufen' : 'Buy on eBay'}
-              <ExternalLink className="h-3 w-3" />
-            </a>
+              {de ? 'Wie funktioniert Heißwachs?' : 'How does hot wax work?'}
+              <ArrowRight className="h-3 w-3" />
+            </button>
           </div>
 
         </div>

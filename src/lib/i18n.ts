@@ -26,7 +26,7 @@ export const translations = {
     // Products
     products: {
       title: 'Produkte',
-      subtitle: 'Kettenwachs und vorgewachste Ketten — versandbereit aus Stuttgart',
+      subtitle: 'Kettenwachs in zwei Varianten. Vorgewachste Ketten für direktes Einfahren.',
       tabs: {
         wax: 'Kettenwachs',
         chains: 'Vorgewachste Ketten',
@@ -307,7 +307,7 @@ export const translations = {
     // Products
     products: {
       title: 'Products',
-      subtitle: 'Chain wax and pre-waxed chains — shipped from Stuttgart',
+      subtitle: 'Chain wax in two variants. Pre-waxed chains for instant riding.',
       tabs: {
         wax: 'Chain Wax',
         chains: 'Pre-Waxed Chains',
