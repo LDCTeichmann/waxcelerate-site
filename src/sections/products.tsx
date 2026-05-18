@@ -160,7 +160,7 @@ export function Products() {
                     : 'New to hot wax? The Classic 500g is the perfect starting point.'}
                 </p>
               </div>
-              <div className="grid sm:grid-cols-3 gap-5 items-stretch">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 items-stretch">
                 {waxProducts.map((product) => (
                   <WaxCard
                     key={product.id}
@@ -351,8 +351,8 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice }: CardProps) {
           />
         )}
 
-        {/* Image — fixed aspect, never grows */}
-        <div className="relative overflow-hidden aspect-[4/3] flex-shrink-0">
+        {/* Image — square ratio shows the full product without heavy cropping */}
+        <div className="relative overflow-hidden aspect-[1/1] flex-shrink-0">
           <img
             src={product.image}
             alt={title}
