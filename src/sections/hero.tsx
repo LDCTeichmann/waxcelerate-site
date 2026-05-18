@@ -150,8 +150,7 @@ export function Hero() {
   const scrollToSection = (href: string) =>
     document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
 
-  const line1 = de ? 'Sauberer Antrieb.' : 'Cleaner drivetrain.';
-  const line2 = de ? 'Längere Kette.' : 'Longer chain.';
+  const line1 = de ? 'Am Ende der Recherche.' : 'End of the search.';
 
   return (
     <section
@@ -200,7 +199,6 @@ export function Hero() {
                 style={{ fontSize: 'clamp(2.4rem, 5.5vw, 5rem)', color: '#FFFFFF' }}
               >
                 <WordReveal text={line1} className="block" />
-                <WordReveal text={line2} className="block" />
                 <span
                   className="block font-serif-display italic overflow-hidden"
                   style={{ color: '#6A8AFF', verticalAlign: 'bottom' }}

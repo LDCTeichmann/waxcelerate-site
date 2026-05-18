@@ -25,58 +25,10 @@ export function Products() {
   const [brandFilter, setBrandFilter] = useState<'all' | 'shimano' | 'sram' | 'campagnolo'>('all');
   const de = lang === 'de';
 
-  const tabBarRef = useRef<HTMLDivElement>(null);
-  const tabBtnRefs = useRef<(HTMLButtonElement | null)[]>([]);
-  const pillRef = useRef<HTMLDivElement>(null);
 
   const headerRef = useRef<HTMLDivElement>(null);
   useSectionReveal(headerRef);
 
-  useEffect(() => {
-    const idx = activeTab === 'wax' ? 0 : 1;
-    const btn = tabBtnRefs.current[idx];
-    const bar = tabBarRef.current;
-    const pill = pillRef.current;
-    if (!btn || !bar || !pill) return;
-    const barRect = bar.getBoundingClientRect();
-    const btnRect = btn.getBoundingClientRect();
-    gsap.to(pill, {
-      x: btnRect.left - barRect.left,
-      width: btnRect.width,
-      duration: 0.35,
-      ease: 'power3.inOut',
-      overwrite: 'auto',
-    });
-  }, [activeTab]);
-
-  useEffect(() => {
-    const raf = requestAnimationFrame(() => {
-      const btn = tabBtnRefs.current[0];
-      const bar = tabBarRef.current;
-      const pill = pillRef.current;
-      if (!btn || !bar || !pill) return;
-      const barRect = bar.getBoundingClientRect();
-      const btnRect = btn.getBoundingClientRect();
-      gsap.set(pill, { x: btnRect.left - barRect.left, width: btnRect.width });
-    });
-    return () => cancelAnimationFrame(raf);
-  }, []);
-
-  useEffect(() => {
-    const bar = tabBarRef.current;
-    if (!bar) return;
-    const observer = new ResizeObserver(() => {
-      const idx = activeTab === 'wax' ? 0 : 1;
-      const btn = tabBtnRefs.current[idx];
-      const pill = pillRef.current;
-      if (!btn || !pill) return;
-      const barRect = bar.getBoundingClientRect();
-      const btnRect = btn.getBoundingClientRect();
-      gsap.set(pill, { x: btnRect.left - barRect.left, width: btnRect.width });
-    });
-    observer.observe(bar);
-    return () => observer.disconnect();
-  }, [activeTab]);
 
   const gridRef = useRef<HTMLDivElement>(null);
   const prevTabRef = useRef(activeTab);
@@ -134,8 +86,6 @@ export function Products() {
   }, [activeTab]);
 
   const waxProducts = useMemo(() => products.filter(p => p.category === 'wax'), []);
-  const featuredWax = useMemo(() => waxProducts.find(p => p.id === 'wax-500'), [waxProducts]);
-  const remainingWax = useMemo(() => waxProducts.filter(p => p.id !== 'wax-500'), [waxProducts]);
   const chainProducts = useMemo(() => products.filter(p => p.category === 'chain'), []);
 
   const filteredChains = useMemo(() => chainProducts.filter(p => {
@@ -178,21 +128,26 @@ export function Products() {
           </div>
 
           {/* Tabs */}
-          <div ref={tabBarRef} className="relative flex justify-center gap-1 mb-12 bg-wx-sf border border-wx-bd p-1 rounded-xl w-fit mx-auto">
-            <div ref={pillRef} className="absolute top-1 bottom-1 bg-[#4A6AEE] rounded-full pointer-events-none" style={{ width: 0 }} />
+          <div className="relative flex mb-12 bg-wx-sf border border-wx-bd p-1 rounded-xl w-fit mx-auto">
+            <div
+              className="absolute top-1 bottom-1 bg-[#4A6AEE] rounded-full pointer-events-none"
+              style={{
+                transition: 'left 0.35s cubic-bezier(0.65,0,0.35,1), right 0.35s cubic-bezier(0.65,0,0.35,1)',
+                left:  activeTab === 'wax' ? '4px' : 'calc(50% + 2px)',
+                right: activeTab === 'wax' ? 'calc(50% + 2px)' : '4px',
+              }}
+            />
             <button
-              ref={el => { tabBtnRefs.current[0] = el; }}
               onClick={() => setActiveTab('wax')}
-              className={`relative z-10 px-6 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`relative z-10 flex-1 px-6 py-2 rounded-lg text-sm font-medium transition-colors ${
                 activeTab === 'wax' ? 'text-white' : 'text-wx-txf hover:text-wx-tx2'
               }`}
             >
               {t.products.tabs.wax}
             </button>
             <button
-              ref={el => { tabBtnRefs.current[1] = el; }}
               onClick={() => setActiveTab('chain')}
-              className={`relative z-10 px-6 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`relative z-10 flex-1 px-6 py-2 rounded-lg text-sm font-medium transition-colors ${
                 activeTab === 'chain' ? 'text-white' : 'text-wx-txf hover:text-wx-tx2'
               }`}
             >
@@ -203,18 +158,8 @@ export function Products() {
           {/* Wax Products */}
           {activeTab === 'wax' && (
             <div ref={gridRef}>
-              {/* Featured Classic 500g */}
-              {featuredWax && (
-                <FeaturedWaxCard
-                  product={featuredWax}
-                  de={de}
-                  formatPrice={formatPrice}
-                  buyLabel={t.products.buyOnEbay}
-                />
-              )}
-              {/* Remaining wax products */}
               <div className="grid sm:grid-cols-3 gap-4">
-                {remainingWax.map((product) => (
+                {waxProducts.map((product) => (
                   <WaxCard
                     key={product.id}
                     product={product}
@@ -343,104 +288,6 @@ function useTilt(strength = 5) {
 
   return ref;
 }
-
-// ── Featured Wax Card (Classic 500g hero) ─────────────────────────────────
-
-const FeaturedWaxCard = memo(function FeaturedWaxCard({ product, de, formatPrice }: CardProps) {
-  const accent = '#4A6AEE';
-  const badge = de ? product.badge : product.badgeEn;
-  const title = de ? product.title : product.titleEn;
-
-  const benefits = [
-    { icon: <Sun className="h-3.5 w-3.5" />, label: de ? 'Trocken & sauber — kein Ölfilm, kein Dreck' : 'Dry & clean — no oil film, no grime' },
-    { icon: <Check className="h-3.5 w-3.5" />, label: de ? 'Leise & reibungsarm — spürbar am Berg' : 'Quiet & low friction — felt on every climb' },
-    { icon: <Check className="h-3.5 w-3.5" />, label: de ? '250–450 km Intervall unter Trockenheit' : '250–450 km interval in dry conditions' },
-  ];
-
-  return (
-    <Link
-      to={`/produkt/${product.id}`}
-      className="group block rounded-2xl overflow-hidden mb-5"
-      style={{
-        background: 'linear-gradient(175deg, var(--card-from) 0%, var(--card-to) 100%)',
-        border: '1px solid rgba(74,106,238,0.22)',
-        boxShadow: 'var(--card-shad)',
-        transition: 'box-shadow 300ms ease, border-color 300ms ease',
-      }}
-      onMouseEnter={e => {
-        e.currentTarget.style.boxShadow = 'var(--card-shadow-hover), 0 40px 80px rgba(74,106,238,0.12)';
-        e.currentTarget.style.borderColor = 'rgba(74,106,238,0.45)';
-      }}
-      onMouseLeave={e => {
-        e.currentTarget.style.boxShadow = 'var(--card-shad)';
-        e.currentTarget.style.borderColor = 'rgba(74,106,238,0.22)';
-      }}
-    >
-      <div className="grid lg:grid-cols-[2fr_3fr]">
-        {/* Image */}
-        <div className="relative overflow-hidden" style={{ minHeight: '260px' }}>
-          <img
-            src={product.image}
-            alt={title}
-            loading="eager"
-            fetchPriority="high"
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
-            style={{ objectPosition: product.imagePosition ?? 'center 55%' }}
-            onError={e => { (e.target as HTMLImageElement).src = '/images/wax-block-spin.jpg'; }}
-          />
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{ background: 'linear-gradient(to right, transparent 60%, var(--card-to) 100%)' }}
-          />
-        </div>
-
-        {/* Content */}
-        <div className="px-7 py-7 flex flex-col justify-between">
-          <div>
-            {badge && (
-              <span
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-[0.14em] uppercase mb-5"
-                style={{
-                  background: 'rgba(74,106,238,0.12)',
-                  color: accent,
-                  border: '1px solid rgba(74,106,238,0.24)',
-                }}
-              >
-                ★ {badge}
-              </span>
-            )}
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] mb-1.5" style={{ color: accent }}>
-              Classic · {product.weight}
-            </p>
-            <h3 className="text-[22px] font-bold text-wx-tx1 tracking-[-0.02em] leading-tight mb-5">
-              {title}
-            </h3>
-            <div className="flex flex-col gap-2.5 mb-6">
-              {benefits.map(({ icon, label }, i) => (
-                <div key={i} className="flex items-start gap-2.5 text-[13px] leading-snug" style={{ color: 'var(--txm)' }}>
-                  <span style={{ color: accent }} className="flex-shrink-0 mt-px">{icon}</span>
-                  {label}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex items-center gap-5 flex-wrap pt-4" style={{ borderTop: '1px solid var(--bd2)' }}>
-            <div>
-              <span className="text-[28px] font-bold tracking-[-0.02em] leading-none" style={{ color: 'var(--tx1)' }}>
-                {formatPrice(product.price)}
-              </span>
-              <p className="text-[11px] mt-1" style={{ color: 'var(--txf)' }}>
-                {product.applications} {de ? 'Anwendungen pro Block' : 'applications per block'}
-              </p>
-            </div>
-            <AddToCartButton product={product} size="md" />
-          </div>
-        </div>
-      </div>
-    </Link>
-  );
-});
 
 // ── Wax Card ───────────────────────────────────────────────────────────────
 
