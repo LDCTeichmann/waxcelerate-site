@@ -1,29 +1,5 @@
 import { useLanguage } from '@/hooks/useLanguage';
 
-const facts = [
-  {
-    stat: '−46%',
-    labelDe: 'Kosten gegenüber Kettenöl',
-    labelEn: 'Cost vs. chain oil',
-    subDe: 'über 12.000 km gerechnet',
-    subEn: 'calculated over 12,000 km',
-  },
-  {
-    stat: '3×',
-    labelDe: 'längere Kettenlaufzeit',
-    labelEn: 'longer chain life',
-    subDe: 'gegenüber konventionellem Öl',
-    subEn: 'vs. conventional oil',
-  },
-  {
-    stat: '154',
-    labelDe: 'eBay-Bewertungen',
-    labelEn: 'eBay reviews',
-    subDe: '100% positiv',
-    subEn: '100% positive',
-  },
-];
-
 export function Conviction() {
   const { lang } = useLanguage();
   const de = lang === 'de';
@@ -38,30 +14,101 @@ export function Conviction() {
       }}
     >
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
-        <div className="grid grid-cols-1 sm:grid-cols-3">
-          {facts.map((fact, i) => (
-            <div
-              key={i}
-              className="flex flex-col items-center text-center py-10 px-6"
-              style={{
-                borderRight: i < 2 ? '1px solid rgba(255,255,255,0.06)' : undefined,
-                borderBottom: undefined,
-              }}
+        <div className="grid grid-cols-3 max-w-5xl mx-auto">
+
+          {/* Col 1 — Reviews (amber) */}
+          <div
+            className="flex flex-col items-center text-center py-6 sm:py-8 px-3 sm:px-8"
+            style={{ borderRight: '1px solid rgba(255,255,255,0.06)' }}
+          >
+            <span
+              className="text-[11px] sm:text-[13px] leading-none mb-2 tracking-[0.04em]"
+              style={{ color: '#FBBF24' }}
+              aria-label="5 von 5 Sternen"
             >
-              <span
-                className="font-display font-bold tracking-tight text-white tabular-nums"
-                style={{ fontSize: 'clamp(2.6rem, 5vw, 4rem)', lineHeight: 1 }}
-              >
-                {fact.stat}
-              </span>
-              <p className="text-[13px] font-medium mt-3" style={{ color: 'rgba(255,255,255,0.75)' }}>
-                {de ? fact.labelDe : fact.labelEn}
-              </p>
-              <p className="text-[11px] mt-1" style={{ color: 'rgba(255,255,255,0.35)' }}>
-                {de ? fact.subDe : fact.subEn}
-              </p>
-            </div>
-          ))}
+              ★★★★★
+            </span>
+            <span
+              className="font-display font-bold text-white tabular-nums leading-none"
+              style={{ fontSize: 'clamp(1.75rem, 4.5vw, 3.25rem)' }}
+            >
+              154
+            </span>
+            <p
+              className="text-[10px] sm:text-[12px] font-medium mt-2 leading-snug"
+              style={{ color: 'rgba(255,255,255,0.6)' }}
+            >
+              {de ? 'Bewertungen' : 'Reviews'}
+            </p>
+            <p
+              className="text-[9px] sm:text-[11px] mt-0.5 leading-snug"
+              style={{ color: 'rgba(255,255,255,0.28)' }}
+            >
+              100% {de ? 'positiv' : 'positive'}
+            </p>
+          </div>
+
+          {/* Col 2 — Cost saving (brand blue) */}
+          <div
+            className="flex flex-col items-center text-center py-6 sm:py-8 px-3 sm:px-8"
+            style={{ borderRight: '1px solid rgba(255,255,255,0.06)' }}
+          >
+            <span
+              className="text-[11px] sm:text-[13px] leading-none mb-2 invisible"
+              aria-hidden="true"
+            >
+              &nbsp;
+            </span>
+            <span
+              className="font-display font-bold tabular-nums leading-none"
+              style={{ fontSize: 'clamp(1.75rem, 4.5vw, 3.25rem)', color: '#8AAAFF' }}
+            >
+              −46%
+            </span>
+            <p
+              className="text-[10px] sm:text-[12px] font-medium mt-2 leading-snug"
+              style={{ color: 'rgba(255,255,255,0.6)' }}
+            >
+              {de ? 'günstigere Kosten' : 'lower cost'}
+            </p>
+            <p
+              className="text-[9px] sm:text-[11px] mt-0.5 leading-snug"
+              style={{ color: 'rgba(255,255,255,0.28)' }}
+            >
+              {de ? 'vs. Kettenöl' : 'vs. chain oil'}
+            </p>
+          </div>
+
+          {/* Col 3 — Chain life (brand blue) */}
+          <div
+            className="flex flex-col items-center text-center py-6 sm:py-8 px-3 sm:px-8"
+          >
+            <span
+              className="text-[11px] sm:text-[13px] leading-none mb-2 invisible"
+              aria-hidden="true"
+            >
+              &nbsp;
+            </span>
+            <span
+              className="font-display font-bold tabular-nums leading-none"
+              style={{ fontSize: 'clamp(1.75rem, 4.5vw, 3.25rem)', color: '#8AAAFF' }}
+            >
+              3×
+            </span>
+            <p
+              className="text-[10px] sm:text-[12px] font-medium mt-2 leading-snug"
+              style={{ color: 'rgba(255,255,255,0.6)' }}
+            >
+              {de ? 'längere Kette' : 'longer chain'}
+            </p>
+            <p
+              className="text-[9px] sm:text-[11px] mt-0.5 leading-snug"
+              style={{ color: 'rgba(255,255,255,0.28)' }}
+            >
+              {de ? 'vs. Öl' : 'vs. oil'}
+            </p>
+          </div>
+
         </div>
       </div>
     </section>

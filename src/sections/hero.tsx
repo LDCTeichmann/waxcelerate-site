@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { ArrowRight, Check, ExternalLink } from 'lucide-react';
+import { ArrowRight, ExternalLink } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import gsap from 'gsap';
 
@@ -33,13 +33,12 @@ function WordReveal({
 }
 
 export function Hero() {
-  const { t, lang } = useLanguage();
+  const { lang } = useLanguage();
   const animatedRef = useRef<boolean>(false);
   const pillRef    = useRef<HTMLDivElement>(null);
   const headRef    = useRef<HTMLDivElement>(null);
   const taglineRef = useRef<HTMLParagraphElement>(null);
   const ctaRef     = useRef<HTMLDivElement>(null);
-  const trustRef   = useRef<HTMLDivElement>(null);
   const imgRef     = useRef<HTMLDivElement>(null);
   const ebayBtnRef = useRef<HTMLButtonElement>(null);
   const de = lang === 'de';
@@ -52,7 +51,6 @@ export function Hero() {
       head: headRef.current,
       tagline: taglineRef.current,
       cta: ctaRef.current,
-      trust: trustRef.current,
       img: imgRef.current,
     };
     if (Object.values(el).some(v => !v)) return;
@@ -71,7 +69,7 @@ export function Hero() {
     }
 
     // Set initial states
-    gsap.set([el.pill, el.tagline, el.cta, el.trust], { opacity: 0, y: 18 });
+    gsap.set([el.pill, el.tagline, el.cta], { opacity: 0, y: 18 });
     gsap.set(el.img, { opacity: 0, x: 40, scale: 1.03 });
     if (el.head) {
       el.head.querySelectorAll<HTMLElement>('.word-inner').forEach(w => {
@@ -101,10 +99,7 @@ export function Hero() {
     // 4. CTAs
     tl.to(el.cta, { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }, 0.64);
 
-    // 5. Trust strip
-    tl.to(el.trust, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, 0.76);
-
-    // 6. Product image — slides in from right
+    // 5. Product image — slides in from right
     tl.to(el.img, { opacity: 1, x: 0, scale: 1, duration: 0.9, ease: 'power3.out' }, 0.22);
   }, []);
 
@@ -222,7 +217,7 @@ export function Hero() {
             </p>
 
             {/* CTAs */}
-            <div ref={ctaRef} className="flex items-center gap-5 mb-8 flex-wrap">
+            <div ref={ctaRef} className="flex items-center gap-5 flex-wrap">
               <button
                 ref={ebayBtnRef}
                 onClick={() => scrollToSection('#produkte')}
@@ -251,26 +246,6 @@ export function Hero() {
               </a>
             </div>
 
-            {/* Trust strip */}
-            <div ref={trustRef} className="flex flex-wrap items-center gap-y-2">
-              {[t.hero.trust1, t.hero.trust2, t.hero.trust3].map((item, i) => (
-                <span key={i} className="flex items-center">
-                  <span
-                    className="flex items-center gap-1.5 text-[12px]"
-                    style={{ color: 'rgba(255,255,255,0.55)' }}
-                  >
-                    <Check className="h-3 w-3 flex-shrink-0" style={{ color: '#6A8AFF' }} />
-                    {item}
-                  </span>
-                  {i < 2 && (
-                    <span
-                      className="mx-4 h-3 w-px flex-shrink-0"
-                      style={{ background: 'rgba(255,255,255,0.15)' }}
-                    />
-                  )}
-                </span>
-              ))}
-            </div>
           </div>
 
           {/* RIGHT — product image */}

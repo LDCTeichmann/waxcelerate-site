@@ -2,7 +2,6 @@ import { useEffect, useCallback, useState, lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { Navigation } from '@/sections/navigation';
 import { Hero } from '@/sections/hero';
-import { SocialProof } from '@/sections/social-proof';
 
 import { Products } from '@/sections/products';
 import { WhyWax } from '@/sections/why-wax';
@@ -97,7 +96,6 @@ function AppContent() {
             <Navigation onLogoClick={handleLogoClick} />
             <main>
               <Hero />
-              <SocialProof />
               <Conviction />
               <Products />
               <Reviews />
