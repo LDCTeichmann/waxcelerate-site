@@ -94,11 +94,11 @@ export function WhyWax() {
         });
       }
 
-      // Friction bars
+      // Friction bars — animate scaleX (compositor only, no layout recalc)
       frictionRef.current?.querySelectorAll('.fbar').forEach((bar) => {
-        const w = (bar as HTMLElement).dataset.w!;
-        gsap.fromTo(bar, { width: '0%' }, {
-          width: w, duration: 1, ease: 'power3.out',
+        const pct = parseFloat((bar as HTMLElement).dataset.w!) / 100;
+        gsap.fromTo(bar, { scaleX: 0 }, {
+          scaleX: pct, duration: 1, ease: 'power3.out',
           scrollTrigger: { trigger: frictionRef.current, start: 'top 80%', once: true },
         });
       });
@@ -118,9 +118,6 @@ export function WhyWax() {
 
           {/* ── Header ── */}
           <div ref={headerRef} className="text-center mb-14">
-            <span data-reveal="eyebrow" className="section-eyebrow mb-4 block">
-              {de ? 'Die Formulierung' : 'The Formulation'}
-            </span>
             <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-4">
               <ScrollWordReveal text={de ? 'Warum Waxcelerate' : 'Why Waxcelerate'} />
             </h2>
@@ -138,7 +135,7 @@ export function WhyWax() {
               {/* Savings hero */}
               <div
                 className="px-6 pt-7 pb-6 text-center border-b border-wx-bd"
-                style={{ background: 'rgba(74,106,238,0.06)' }}
+                style={{ background: 'rgba(43,82,176,0.06)' }}
               >
                 <p className="text-xs tracking-[0.25em] uppercase font-medium mb-3 text-wx-txf">
                   {de ? 'Kostenvergleich · 12.000 km' : 'Cost comparison · 12,000 km'}
@@ -146,7 +143,7 @@ export function WhyWax() {
                 <div className="flex items-baseline justify-center gap-3">
                   <span className="font-serif-display italic text-[36px] sm:text-[52px] font-bold text-wx-tx1 tabular-nums leading-none">~€70</span>
                   <div className="flex flex-col items-start">
-                    <span className="text-[15px] font-semibold leading-tight" style={{ color: '#4A6AEE' }}>
+                    <span className="text-[15px] font-semibold leading-tight" style={{ color: '#2B52B0' }}>
                       {de ? 'gespart' : 'saved'}
                     </span>
                     <span className="text-[13px] text-wx-txf leading-tight">−46 %</span>
@@ -166,10 +163,10 @@ export function WhyWax() {
                   <p className="text-[10px] text-wx-txff mt-1.5">{de ? '3 Ketten' : '3 chains'}</p>
                 </div>
                 {/* Wax */}
-                <div className="flex-1 rounded-xl border p-4 text-center" style={{ borderColor: 'rgba(74,106,238,0.35)', background: 'rgba(74,106,238,0.06)' }}>
-                  <p className="text-[10px] uppercase tracking-[0.2em] font-semibold mb-2.5" style={{ color: '#6A8AFF' }}>Wax</p>
-                  <span ref={costWaxRef} className="text-[32px] font-bold tabular-nums leading-none" style={{ color: '#8AAAFF' }}>~€0</span>
-                  <p className="text-[10px] mt-1.5" style={{ color: '#6A8AFF' }}>{de ? '1 Kette' : '1 chain'}</p>
+                <div className="flex-1 rounded-xl border p-4 text-center" style={{ borderColor: 'rgba(43,82,176,0.35)', background: 'rgba(43,82,176,0.06)' }}>
+                  <p className="text-[10px] uppercase tracking-[0.2em] font-semibold mb-2.5" style={{ color: '#3D67CA' }}>Wax</p>
+                  <span ref={costWaxRef} className="text-[32px] font-bold tabular-nums leading-none" style={{ color: '#4A72D4' }}>~€0</span>
+                  <p className="text-[10px] mt-1.5" style={{ color: '#3D67CA' }}>{de ? '1 Kette' : '1 chain'}</p>
                 </div>
               </div>
 
@@ -191,7 +188,7 @@ export function WhyWax() {
                   </div>
                 </div>
                 <div className="sm:border-l sm:border-wx-bd sm:pl-5 pt-4 sm:pt-0">
-                  <p className="text-[11px] uppercase tracking-[0.18em] font-medium mb-3" style={{ color: '#4A6AEE' }}>
+                  <p className="text-[11px] uppercase tracking-[0.18em] font-medium mb-3" style={{ color: '#2B52B0' }}>
                     {de ? 'Mit Waxcelerate' : 'With Waxcelerate'}
                   </p>
                   <div className="space-y-1.5">
@@ -202,7 +199,7 @@ export function WhyWax() {
                     ].map(([label, val]) => (
                       <div key={label} className="flex justify-between items-baseline">
                         <span className="text-[12px] text-wx-txf">{label}</span>
-                        <span className="text-[12px] tabular-nums font-semibold" style={{ color: '#8AAAFF' }}>{val}</span>
+                        <span className="text-[12px] tabular-nums font-semibold" style={{ color: '#4A72D4' }}>{val}</span>
                       </div>
                     ))}
                   </div>
@@ -227,11 +224,11 @@ export function WhyWax() {
                   <div className="flex items-center gap-2 mb-3">
                     <div
                       className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0"
-                      style={{ background: 'rgba(74,106,238,0.1)', boxShadow: '0 0 0 1px rgba(74,106,238,0.15)' }}
+                      style={{ background: 'rgba(43,82,176,0.1)', boxShadow: '0 0 0 1px rgba(43,82,176,0.15)' }}
                     >
-                      <Icon className="h-3.5 w-3.5" style={{ color: '#8AAAFF' }} />
+                      <Icon className="h-3.5 w-3.5" style={{ color: '#4A72D4' }} />
                     </div>
-                    <p className="text-[11px] font-medium uppercase tracking-[0.18em]" style={{ color: '#4A6AEE' }}>
+                    <p className="text-[11px] font-medium uppercase tracking-[0.18em]" style={{ color: '#2B52B0' }}>
                       {de ? d.catDe : d.catEn}
                     </p>
                   </div>
@@ -280,13 +277,14 @@ export function WhyWax() {
                     </div>
                     <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--bd)' }}>
                       <div
-                        className="fbar h-full rounded-full"
+                        className="fbar h-full w-full rounded-full"
                         data-w={item.pct}
                         style={{
                           background: item.highlight
-                            ? 'linear-gradient(90deg, #4A6AEE, #8AAAFF)'
+                            ? 'linear-gradient(90deg, #2B52B0, #4A72D4)'
                             : item.dim ? 'var(--bd2)' : 'var(--txff)',
-                          width: '0%',
+                          transformOrigin: 'left center',
+                          transform: 'scaleX(0)',
                         }}
                       />
                     </div>
@@ -323,7 +321,7 @@ export function WhyWax() {
                   onClick={() => setRider(rider === key ? null : key)}
                   className={`px-4 py-2 rounded-full text-[12px] font-medium transition-all border ${
                     rider === key
-                      ? 'border-[#4A6AEE]/50 bg-[#4A6AEE]/10 text-wx-tx1'
+                      ? 'border-[#2B52B0]/50 bg-[#2B52B0]/10 text-wx-tx1'
                       : 'border-wx-bd text-wx-txf hover:text-wx-tx2 hover:border-wx-bd'
                   }`}
                 >
@@ -358,13 +356,16 @@ export function WhyWax() {
                     </div>
                   ))}
                 </div>
+                <p className="text-[11px] uppercase tracking-[0.16em] font-semibold mb-4" style={{ color: 'rgba(255,255,255,0.35)' }}>
+                  {de ? '★ Meistgekauft' : '★ Bestseller'}
+                </p>
                 <div className="border-t border-wx-bd pt-4 flex items-center justify-between">
                   <p className="text-[16px] font-semibold text-wx-tx1">{de ? 'ab €22,95' : 'from €22.95'}</p>
                   <a
                     href="https://www.ebay.de/usr/waxcelerate"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 text-[12px] font-medium px-3 py-1.5 rounded-full border border-wx-bd hover:border-[#4A6AEE]/40 hover:text-wx-tx1 transition-all text-wx-txm"
+                    className="flex items-center gap-1.5 text-[12px] font-medium px-3 py-1.5 rounded-full border border-wx-bd hover:border-[#2B52B0]/40 hover:text-wx-tx1 transition-all text-wx-txm"
                   >
                     {de ? 'Ansehen' : 'View'} <ExternalLink className="h-3 w-3" />
                   </a>
@@ -376,7 +377,7 @@ export function WhyWax() {
                 <div className="absolute -top-3.5 left-0 right-0 flex justify-center z-10">
                   <span
                     className="text-xs font-semibold px-3 py-1 rounded-full text-white"
-                    style={{ background: 'linear-gradient(135deg, #4A6AEE, #8AAAFF)' }}
+                    style={{ background: 'linear-gradient(135deg, #2B52B0, #4A72D4)' }}
                   >
                     {de ? 'Empfohlen für Ganzjahresfahrer' : 'Recommended for year-round riders'}
                   </span>
@@ -385,15 +386,15 @@ export function WhyWax() {
                   className="rounded-xl border p-6 flex flex-col h-full transition-all duration-300"
                   style={{
                     background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
-                    borderColor: rider === 'allseason' ? 'rgba(74,106,238,0.45)' : 'var(--bd)',
+                    borderColor: rider === 'allseason' ? 'rgba(43,82,176,0.45)' : 'var(--bd)',
                     boxShadow: rider === 'allseason'
-                      ? '0 0 40px rgba(74,106,238,0.1), var(--card-shad)'
+                      ? '0 0 40px rgba(43,82,176,0.1), var(--card-shad)'
                       : 'var(--card-shad)',
                     opacity: rider === 'summer' ? 0.45 : 1,
                   }}
                 >
-                  <p className="text-xs uppercase tracking-[0.2em] mb-1 mt-2" style={{ color: '#4A6AEE' }}>Waxcelerate</p>
-                  <p className="font-serif-display italic text-[22px] font-bold mb-1" style={{ color: '#8AAAFF' }}>Pro</p>
+                  <p className="text-xs uppercase tracking-[0.2em] mb-1 mt-2" style={{ color: '#2B52B0' }}>Waxcelerate</p>
+                  <p className="font-serif-display italic text-[22px] font-bold mb-1" style={{ color: '#4A72D4' }}>Pro</p>
                   <p className="text-xs text-wx-txff mb-5">+ MoS₂ · amorph · Antioxidans</p>
                   <div className="space-y-2.5 flex-1 mb-6">
                     {[
@@ -402,18 +403,18 @@ export function WhyWax() {
                       de ? 'Rostschutz durch hydrophobe Matrix' : 'Rust protection via hydrophobic matrix',
                     ].map((item, i) => (
                       <div key={i} className="flex items-start gap-2.5">
-                        <span className="mt-0.5 flex-shrink-0 text-xs" style={{ color: '#4A6AEE' }}>◆</span>
+                        <span className="mt-0.5 flex-shrink-0 text-xs" style={{ color: '#2B52B0' }}>◆</span>
                         <span className="text-[13px] text-wx-tx2 leading-snug">{item}</span>
                       </div>
                     ))}
                   </div>
                   <div className="border-t border-wx-bd pt-4 flex items-center justify-between">
-                    <p className="text-[16px] font-semibold" style={{ color: '#8AAAFF' }}>{de ? 'ab €26,95' : 'from €26.95'}</p>
+                    <p className="text-[16px] font-semibold" style={{ color: '#4A72D4' }}>{de ? 'ab €26,95' : 'from €26.95'}</p>
                     <a
                       href="https://www.ebay.de/usr/waxcelerate"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 text-[12px] font-medium px-3 py-1.5 rounded-full border border-wx-bd hover:border-[#4A6AEE]/40 hover:text-wx-tx1 transition-all text-wx-txm"
+                      className="flex items-center gap-1.5 text-[12px] font-medium px-3 py-1.5 rounded-full border border-wx-bd hover:border-[#2B52B0]/40 hover:text-wx-tx1 transition-all text-wx-txm"
                     >
                       {de ? 'Ansehen' : 'View'} <ExternalLink className="h-3 w-3" />
                     </a>
@@ -427,13 +428,13 @@ export function WhyWax() {
           <div className="text-center pt-6 border-t border-wx-bd">
             <p className="text-wx-txff text-[13px] mb-6">
               {de
-                ? '154 eBay-Bewertungen · 100% positiv · Versand am gleichen Tag'
-                : '154 eBay reviews · 100% positive · Same-day shipping'}
+                ? '164 eBay-Bewertungen · 100% positiv · Versand am gleichen Tag'
+                : '164 eBay reviews · 100% positive · Same-day shipping'}
             </p>
             <button
               onClick={() => document.querySelector('#produkte')?.scrollIntoView({ behavior: 'smooth' })}
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-lg text-white font-medium text-[14px] transition-all hover:opacity-90 active:scale-[0.98]"
-              style={{ background: 'linear-gradient(135deg, #4A6AEE 0%, #6080F8 100%)' }}
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-full text-white font-medium text-[14px] transition-all hover:opacity-90 active:scale-[0.98]"
+              style={{ background: 'linear-gradient(135deg, #2B52B0 0%, #3D67CA 100%)' }}
             >
               {de ? 'Jetzt kaufen' : 'Buy now'}
               <ArrowRight className="h-4 w-4" />

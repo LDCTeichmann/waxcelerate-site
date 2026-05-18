@@ -15,9 +15,6 @@ export function FAQ() {
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-16">
-            <span className="section-eyebrow mb-4 block">
-              {t.faq.eyebrow}
-            </span>
             <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-4">
               <ScrollWordReveal text={t.faq.title} />
             </h2>
@@ -42,7 +39,7 @@ export function FAQ() {
                   </h3>
                   <ChevronDown
                     className={`h-4 w-4 text-wx-txf flex-shrink-0 transition-transform duration-300 ${
-                      openItem === index.toString() ? 'rotate-180 text-[#4A6AEE]' : ''
+                      openItem === index.toString() ? 'rotate-180 text-[#2B52B0]' : ''
                     }`}
                   />
                 </button>
@@ -55,7 +52,7 @@ export function FAQ() {
                   }}
                 >
                   <div className="overflow-hidden">
-                    <div className="pb-5 pr-10 border-l-2 pl-4" style={{ borderColor: 'rgba(74,106,238,0.35)' }}>
+                    <div className="pb-5 pr-10 border-l-2 pl-4" style={{ borderColor: 'rgba(43,82,176,0.35)' }}>
                       <p className="text-wx-tx2 text-[14px] leading-[1.75]">
                         {item.a}
                       </p>
@@ -78,7 +75,7 @@ export function FAQ() {
                 document.querySelector('#kontakt')?.scrollIntoView({ behavior: 'smooth' });
               }}
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium text-white transition-all hover:opacity-90"
-              style={{ background: '#4A6AEE' }}
+              style={{ background: '#2B52B0' }}
             >
               {t.faq.contactLink}
             </a>

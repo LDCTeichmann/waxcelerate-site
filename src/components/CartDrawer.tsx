@@ -105,7 +105,7 @@ export function CartDrawer() {
             {count > 0 && (
               <span
                 className="text-[11px] font-bold text-white rounded-full flex items-center justify-center"
-                style={{ background: '#4A6AEE', minWidth: '1.25rem', height: '1.25rem', padding: '0 4px' }}
+                style={{ background: '#2B52B0', minWidth: '1.25rem', height: '1.25rem', padding: '0 4px' }}
               >
                 {count}
               </span>
@@ -137,7 +137,7 @@ export function CartDrawer() {
               <button
                 onClick={closeCart}
                 className="text-sm font-medium transition-colors"
-                style={{ color: '#4A6AEE' }}
+                style={{ color: '#2B52B0' }}
               >
                 {t.cart.browseCta}
               </button>
@@ -214,9 +214,9 @@ export function CartDrawer() {
             {total < 50 && (
               <div
                 className="rounded-lg px-3 py-2.5 text-xs"
-                style={{ background: 'rgba(74,106,238,0.08)', border: '1px solid rgba(74,106,238,0.18)' }}
+                style={{ background: 'rgba(43,82,176,0.08)', border: '1px solid rgba(43,82,176,0.18)' }}
               >
-                <span style={{ color: '#4A6AEE' }}>
+                <span style={{ color: '#2B52B0' }}>
                   {de
                     ? `Noch ${formatPrice(50 - total)} bis zum kostenlosen Versand`
                     : `${formatPrice(50 - total)} away from free shipping`}
@@ -237,7 +237,7 @@ export function CartDrawer() {
               onClick={handleCheckout}
               disabled={loading}
               className="w-full py-3.5 rounded-xl font-semibold text-white text-sm flex items-center justify-center gap-2 transition-all hover:opacity-90 active:scale-[0.99] disabled:opacity-60"
-              style={{ background: 'linear-gradient(135deg, #4A6AEE, #6080F8)' }}
+              style={{ background: 'linear-gradient(135deg, #2B52B0, #6080F8)' }}
             >
               {loading ? (
                 <>

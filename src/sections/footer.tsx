@@ -31,7 +31,7 @@ export function Footer() {
                   WAXCELERATE
                 </span>
               </div>
-              <p className="text-[13px] text-wx-txf leading-[1.7] mb-5">
+              <p className="text-[13px] text-wx-tx2 leading-[1.7] mb-5">
                 {t.footer.tagline}
               </p>
               <a

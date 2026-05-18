@@ -34,8 +34,8 @@ export function ProductDetailPage() {
   const isPro = product.variant === 'pro';
   const isWax = product.category === 'wax';
   const isChain = product.category === 'chain';
-  const accentColor = isPro ? '#8B5CF6' : '#4A6AEE';
-  const accentBg = isPro ? 'rgba(139,92,246,0.08)' : 'rgba(74,106,238,0.08)';
+  const accentColor = isPro ? '#8B5CF6' : '#2B52B0';
+  const accentBg = isPro ? 'rgba(139,92,246,0.08)' : 'rgba(43,82,176,0.08)';
 
   const formatPrice = useCallback((price: number) =>
     new Intl.NumberFormat(lang === 'de' ? 'de-DE' : 'en-US', {
@@ -55,7 +55,7 @@ export function ProductDetailPage() {
       <header style={{ background: 'var(--sf3)', borderBottom: '1px solid var(--bd)', padding: '0 1rem' }}>
         <div className="max-w-5xl mx-auto h-12 flex items-center">
           <Link to="/" className="text-lg font-bold tracking-tight text-white">
-            WAX<span style={{ color: '#4A6AEE' }}>CELERATE</span>
+            WAX<span style={{ color: '#2B52B0' }}>CELERATE</span>
           </Link>
         </div>
       </header>

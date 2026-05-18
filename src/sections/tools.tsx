@@ -83,22 +83,41 @@ function useScrollReveal(delay = 0) {
   return { ref };
 }
 
-// Theme-aware chip toggle — works in all three modes
-const tog = (active: boolean) =>
-  `px-3 py-1.5 rounded-md text-sm transition-all border cursor-pointer ${
-    active
-      ? 'border-[#4A6AEE]/40 bg-[#4A6AEE]/10 text-wx-tx1'
-      : 'border-wx-bd text-wx-txf hover:text-wx-tx2 hover:border-wx-bd'
-  }`;
+// ─── Toggle button — premium dark/white style ────────────────────────────────
+function TogButton({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className="px-3.5 py-1.5 rounded-lg text-[13px] transition-all cursor-pointer"
+      style={{
+        border: `1px solid ${active ? 'rgba(255,255,255,0.13)' : 'transparent'}`,
+        background: active ? 'rgba(255,255,255,0.08)' : 'transparent',
+        color: active ? 'rgba(255,255,255,0.90)' : 'rgba(255,255,255,0.30)',
+        fontWeight: active ? 500 : 400,
+      }}
+    >
+      {children}
+    </button>
+  );
+}
 
+// ─── Shared card wrapper ──────────────────────────────────────────────────────
 function ToolCard({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="flex flex-col h-full rounded-xl border border-wx-bd hover:border-wx-bd2"
+      className="flex flex-col h-full rounded-2xl"
       style={{
-        background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
-        boxShadow: 'var(--card-shad)',
-        transition: 'background 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease',
+        background: '#0d0d10',
+        border: '1px solid rgba(255,255,255,0.07)',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
       }}
     >
       {children}
@@ -106,38 +125,56 @@ function ToolCard({ children }: { children: React.ReactNode }) {
   );
 }
 
+// ─── Tool header ─────────────────────────────────────────────────────────────
 function ToolHeader({ icon, title, subtitle }: { icon: React.ReactNode; title: string; subtitle: string }) {
   return (
     <div className="px-6 pt-6 pb-5">
-      <div className="flex items-center gap-3 mb-2">
+      <div className="flex items-start gap-3 mb-5">
         <div
-          className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-          style={{ background: 'rgba(74,106,238,0.1)', boxShadow: '0 0 0 1px rgba(74,106,238,0.18)' }}
+          className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
+          style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.09)' }}
         >
           {icon}
         </div>
-        <h3 className="text-[15px] font-semibold text-wx-tx1">{title}</h3>
+        <div>
+          <h3 className="text-[15px] font-semibold leading-snug" style={{ color: 'rgba(255,255,255,0.9)' }}>
+            {title}
+          </h3>
+          <p className="text-[12px] leading-snug mt-0.5" style={{ color: 'rgba(255,255,255,0.35)' }}>
+            {subtitle}
+          </p>
+        </div>
       </div>
-      <p className="text-[13px] text-wx-txm leading-snug ml-11">{subtitle}</p>
-      <div className="mt-5 border-t border-wx-bd2" />
+      <div className="border-t" style={{ borderColor: 'rgba(255,255,255,0.06)' }} />
     </div>
   );
 }
 
+// ─── Field label ─────────────────────────────────────────────────────────────
 function FieldLabel({ label, value }: { label: string; value?: string }) {
   return (
-    <div className="flex items-baseline justify-between mb-2">
-      <span className="text-xs text-wx-txf uppercase tracking-[0.12em] font-medium">{label}</span>
-      {value && <span className="text-[12px] text-wx-txm tabular-nums">{value}</span>}
+    <div className="flex items-baseline justify-between mb-2.5">
+      <span
+        className="text-[11px] uppercase tracking-[0.1em] font-medium"
+        style={{ color: 'rgba(255,255,255,0.32)' }}
+      >
+        {label}
+      </span>
+      {value && (
+        <span className="text-[13px] font-semibold tabular-nums" style={{ color: 'rgba(255,255,255,0.72)' }}>
+          {value}
+        </span>
+      )}
     </div>
   );
 }
 
+// ─── Result inset box ────────────────────────────────────────────────────────
 function ResultBox({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="rounded-lg border border-wx-bd2 p-4"
-      style={{ background: 'var(--sf2)' }}
+      className="rounded-xl p-5"
+      style={{ background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(255,255,255,0.06)' }}
     >
       {children}
     </div>
@@ -152,7 +189,7 @@ function RewaxCalculator({ featured = false }: { featured?: boolean }) {
   const [terrain, setTerrain] = useState<'strasse' | 'gravel' | 'mtb'>('strasse');
   const [kmPerWeek, setKmPerWeek] = useState(100);
 
-  const MAX_REWAX_WEEKS = 26; // ~6 months — wax oxidizes regardless of riding distance
+  const MAX_REWAX_WEEKS = 26;
 
   const interval = waxIntervals[weather][terrain];
   const rawWeeks = kmPerWeek > 0 ? Math.round(interval / kmPerWeek) : MAX_REWAX_WEEKS;
@@ -170,69 +207,163 @@ function RewaxCalculator({ featured = false }: { featured?: boolean }) {
     { value: 'mtb', label: t.tools.rewax.mtb },
   ];
 
+  const hint = de
+    ? 'Rewaxe wenn die Kette leise kratzt oder deutlich lauter läuft als gewohnt — das Wachs ist aufgebraucht.'
+    : 'Re-wax when the chain starts scratching quietly or runs noticeably louder than usual — the wax is used up.';
+
   return (
     <ToolCard>
       {featured && (
         <div className="px-6 pt-5 pb-0">
           <span
             className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] px-2.5 py-1 rounded-full"
-            style={{ background: 'rgba(74,106,238,0.1)', color: '#4A6AEE', border: '1px solid rgba(74,106,238,0.2)' }}
+            style={{ background: 'rgba(43,82,176,0.1)', color: '#2B52B0', border: '1px solid rgba(43,82,176,0.2)' }}
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-[#4A6AEE] animate-pulse inline-block" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[#2B52B0] animate-pulse inline-block" />
             {de ? 'Empfohlener Einstieg' : 'Recommended Start'}
           </span>
         </div>
       )}
       <ToolHeader
-        icon={<Calculator className="h-4 w-4" style={{ color: '#8AAAFF' }} />}
+        icon={<Calculator className="h-4 w-4" style={{ color: 'rgba(255,255,255,0.55)' }} />}
         title={t.tools.rewax.title}
-        subtitle={de ? 'Nie wieder zu früh oder zu spät — erhalte dein genaues Rewax-Intervall.' : 'Never too early or too late — get your exact rewax interval.'}
+        subtitle={de
+          ? 'Nie wieder zu früh oder zu spät — erhalte dein genaues Rewax-Intervall.'
+          : 'Never too early or too late — get your exact rewax interval.'}
       />
-      <div className={`px-6 pb-6 ${featured ? 'grid grid-cols-2 gap-8 items-start pt-2' : 'flex flex-col flex-1 gap-5'}`}>
-        <div className="space-y-5">
-          <div>
-            <FieldLabel label={t.tools.rewax.weather} />
-            <div className="flex flex-wrap gap-2">
-              {weatherOpts.map(o => (
-                <button key={o.value} onClick={() => setWeather(o.value)} className={tog(weather === o.value)}>{o.label}</button>
-              ))}
-            </div>
-          </div>
-          <div>
-            <FieldLabel label={t.tools.rewax.terrain} />
-            <div className="flex flex-wrap gap-2">
-              {terrainOpts.map(o => (
-                <button key={o.value} onClick={() => setTerrain(o.value)} className={tog(terrain === o.value)}>{o.label}</button>
-              ))}
-            </div>
-          </div>
-          <div>
-            <FieldLabel label={t.tools.rewax.kmPerWeek} value={`${kmPerWeek} km`} />
-            <Slider value={[kmPerWeek]} onValueChange={v => setKmPerWeek(v[0])} min={20} max={400} step={10} className="py-1" />
-          </div>
-        </div>
 
-        <ResultBox>
-          <p className="text-[42px] font-bold text-wx-tx1 text-center leading-none tracking-tight">
-            <AnimatedNumber value={weeks} />
-          </p>
-          <p className="text-[13px] text-wx-txf text-center mt-1">
-            {weeks === 1 ? (de ? 'Woche' : 'week') : (de ? 'Wochen' : 'weeks')} {de ? 'bis zum nächsten Rewaxen' : 'until next rewax'}
-            {weeksCapped && <span className="text-wx-txff"> (max.)</span>}
-          </p>
-          <p className="text-[12px] text-wx-txm text-center mt-0.5">
-            {interval} km · {de ? `bei ${kmPerWeek} km/Wo.` : `at ${kmPerWeek} km/wk`}
-          </p>
-          <p className="text-xs text-wx-txff text-center mt-3 leading-snug">
-            {de ? 'Rewaxe wenn die Kette leise kratzt oder deutlich lauter läuft als gewohnt — das Wachs ist aufgebraucht.' : 'Re-wax when the chain starts scratching quietly or runs noticeably louder than usual — the wax is used up.'}
-          </p>
-        </ResultBox>
-      </div>
+      {featured ? (
+        /* ── Featured: 3-col inputs + full-width result ── */
+        <div className="px-6 pb-6 pt-2 space-y-6">
+          <div className="grid grid-cols-3 gap-8">
+            {/* Weather */}
+            <div>
+              <FieldLabel label={t.tools.rewax.weather} />
+              <div className="flex flex-col gap-1.5 mt-1">
+                {weatherOpts.map(o => (
+                  <TogButton key={o.value} active={weather === o.value} onClick={() => setWeather(o.value)}>
+                    {o.label}
+                  </TogButton>
+                ))}
+              </div>
+            </div>
+            {/* Terrain */}
+            <div>
+              <FieldLabel label={t.tools.rewax.terrain} />
+              <div className="flex flex-col gap-1.5 mt-1">
+                {terrainOpts.map(o => (
+                  <TogButton key={o.value} active={terrain === o.value} onClick={() => setTerrain(o.value)}>
+                    {o.label}
+                  </TogButton>
+                ))}
+              </div>
+            </div>
+            {/* km/week */}
+            <div>
+              <FieldLabel label={t.tools.rewax.kmPerWeek} value={`${kmPerWeek} km`} />
+              <Slider
+                value={[kmPerWeek]}
+                onValueChange={v => setKmPerWeek(v[0])}
+                min={20} max={400} step={10}
+                className="py-1 mt-3"
+              />
+              <div className="flex justify-between mt-2">
+                <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.2)' }}>20 km</span>
+                <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.2)' }}>400 km</span>
+              </div>
+            </div>
+          </div>
+
+          <ResultBox>
+            <div className="flex items-end justify-between">
+              <div>
+                <p className="text-[56px] font-bold text-white leading-none tabular-nums">
+                  <AnimatedNumber value={weeks} />
+                </p>
+                <p className="mt-1.5 text-[14px]" style={{ color: 'rgba(255,255,255,0.38)' }}>
+                  {weeks === 1 ? (de ? 'Woche' : 'week') : (de ? 'Wochen' : 'weeks')}{' '}
+                  {de ? 'bis zum nächsten Rewaxen' : 'until next rewax'}
+                  {weeksCapped && <span style={{ color: 'rgba(255,255,255,0.2)' }}> (max.)</span>}
+                </p>
+              </div>
+              <div className="text-right pb-0.5">
+                <p className="text-[13px] tabular-nums" style={{ color: 'rgba(255,255,255,0.32)' }}>
+                  {interval} km
+                </p>
+                <p className="text-[12px] mt-0.5" style={{ color: 'rgba(255,255,255,0.22)' }}>
+                  {de ? `bei ${kmPerWeek} km/Wo.` : `at ${kmPerWeek} km/wk`}
+                </p>
+              </div>
+            </div>
+            <p
+              className="text-[12px] mt-4 pt-3 leading-relaxed"
+              style={{ borderTop: '1px solid rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.22)' }}
+            >
+              {hint}
+            </p>
+          </ResultBox>
+        </div>
+      ) : (
+        /* ── Non-featured: vertical stack ── */
+        <div className="px-6 pb-6 flex flex-col flex-1 gap-5">
+          <div className="space-y-5 flex-1">
+            <div>
+              <FieldLabel label={t.tools.rewax.weather} />
+              <div className="flex flex-wrap gap-1.5">
+                {weatherOpts.map(o => (
+                  <TogButton key={o.value} active={weather === o.value} onClick={() => setWeather(o.value)}>
+                    {o.label}
+                  </TogButton>
+                ))}
+              </div>
+            </div>
+            <div>
+              <FieldLabel label={t.tools.rewax.terrain} />
+              <div className="flex flex-wrap gap-1.5">
+                {terrainOpts.map(o => (
+                  <TogButton key={o.value} active={terrain === o.value} onClick={() => setTerrain(o.value)}>
+                    {o.label}
+                  </TogButton>
+                ))}
+              </div>
+            </div>
+            <div>
+              <FieldLabel label={t.tools.rewax.kmPerWeek} value={`${kmPerWeek} km`} />
+              <Slider
+                value={[kmPerWeek]}
+                onValueChange={v => setKmPerWeek(v[0])}
+                min={20} max={400} step={10}
+                className="py-1"
+              />
+            </div>
+          </div>
+
+          <ResultBox>
+            <p className="text-[46px] font-bold text-white text-center leading-none tabular-nums">
+              <AnimatedNumber value={weeks} />
+            </p>
+            <p className="text-[13px] text-center mt-1.5" style={{ color: 'rgba(255,255,255,0.38)' }}>
+              {weeks === 1 ? (de ? 'Woche' : 'week') : (de ? 'Wochen' : 'weeks')}{' '}
+              {de ? 'bis zum nächsten Rewaxen' : 'until next rewax'}
+              {weeksCapped && <span style={{ color: 'rgba(255,255,255,0.2)' }}> (max.)</span>}
+            </p>
+            <p className="text-[12px] text-center mt-0.5" style={{ color: 'rgba(255,255,255,0.22)' }}>
+              {interval} km · {de ? `bei ${kmPerWeek} km/Wo.` : `at ${kmPerWeek} km/wk`}
+            </p>
+            <p
+              className="text-[11px] text-center mt-3 pt-3 leading-snug"
+              style={{ borderTop: '1px solid rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.2)' }}
+            >
+              {hint}
+            </p>
+          </ResultBox>
+        </div>
+      )}
     </ToolCard>
   );
 }
 
-// ─── Tool 3: Wax Stock Calculator ────────────────────────────────────────────
+// ─── Tool 2: Wax Stock Calculator ────────────────────────────────────────────
 function WaxStockCalculator() {
   const { t, lang } = useLanguage();
   const de = lang === 'de';
@@ -268,25 +399,31 @@ function WaxStockCalculator() {
   return (
     <ToolCard>
       <ToolHeader
-        icon={<Package className="h-4 w-4" style={{ color: '#8AAAFF' }} />}
+        icon={<Package className="h-4 w-4" style={{ color: 'rgba(255,255,255,0.55)' }} />}
         title={t.tools.stock.title}
-        subtitle={de ? 'Bestell genau das richtige Paket — keine Verschwendung, kein Engpass.' : 'Order exactly the right amount — no waste, no shortfall.'}
+        subtitle={de
+          ? 'Bestell genau das richtige Paket — keine Verschwendung, kein Engpass.'
+          : 'Order exactly the right amount — no waste, no shortfall.'}
       />
       <div className="px-6 flex flex-col flex-1 gap-5 pb-6">
         <div className="space-y-5 flex-1">
           <div>
             <FieldLabel label={t.tools.stock.weather} />
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1.5">
               {weatherOpts.map(o => (
-                <button key={o.value} onClick={() => setWeather(o.value)} className={tog(weather === o.value)}>{o.label}</button>
+                <TogButton key={o.value} active={weather === o.value} onClick={() => setWeather(o.value)}>
+                  {o.label}
+                </TogButton>
               ))}
             </div>
           </div>
           <div>
             <FieldLabel label={de ? 'Gelände' : 'Terrain'} />
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1.5">
               {terrainOpts.map(o => (
-                <button key={o.value} onClick={() => setTerrain(o.value)} className={tog(terrain === o.value)}>{o.label}</button>
+                <TogButton key={o.value} active={terrain === o.value} onClick={() => setTerrain(o.value)}>
+                  {o.label}
+                </TogButton>
               ))}
             </div>
           </div>
@@ -303,34 +440,64 @@ function WaxStockCalculator() {
         <ResultBox>
           {tooLittle ? (
             <>
-              <p className="text-xs text-wx-txf uppercase tracking-[0.1em] mb-2">{de ? 'Empfehlung' : 'Recommendation'}</p>
-              <p className="text-[13px] text-wx-txm leading-snug">
-                {de ? 'Dein Verbrauch ist sehr niedrig — der 300g-Block reicht länger als seine Haltbarkeit (~2–3 Jahre). Die 300g genügen vollkommen.' : 'Your usage is very low — the 300g block lasts longer than its shelf life (~2–3 years). The 300g is more than enough.'}
+              <p
+                className="text-[11px] uppercase tracking-[0.1em] mb-2"
+                style={{ color: 'rgba(255,255,255,0.32)' }}
+              >
+                {de ? 'Empfehlung' : 'Recommendation'}
+              </p>
+              <p className="text-[13px] leading-snug" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                {de
+                  ? 'Dein Verbrauch ist sehr niedrig — der 300g-Block reicht länger als seine Haltbarkeit (~2–3 Jahre). Die 300g genügen vollkommen.'
+                  : 'Your usage is very low — the 300g block lasts longer than its shelf life (~2–3 years). The 300g is more than enough.'}
               </p>
             </>
           ) : (
             <>
-              <p className="text-xs text-wx-txf uppercase tracking-[0.1em] mb-4">{de ? 'Empfohlene Packung' : 'Recommended Package'}</p>
+              <p
+                className="text-[11px] uppercase tracking-[0.1em] mb-3"
+                style={{ color: 'rgba(255,255,255,0.32)' }}
+              >
+                {de ? 'Empfohlene Packung' : 'Recommended Package'}
+              </p>
               <div className="grid grid-cols-2 gap-2">
                 {(['300', '500'] as const).map(size => {
                   const isRec = rec === size;
                   const months = size === '300' ? months300 : months500;
                   const cost = size === '300' ? cost300 : cost500;
                   const price = size === '300' ? '22,95' : '29,95';
-                  const url = size === '300' ? 'https://www.ebay.de/itm/395811183957' : 'https://www.ebay.de/itm/395811184583';
+                  const url = size === '300'
+                    ? 'https://www.ebay.de/itm/395811183957'
+                    : 'https://www.ebay.de/itm/395811184583';
                   return (
                     <a key={size} href={url} target="_blank" rel="noopener noreferrer">
                       <div
-                        className="rounded-lg border p-3 text-center transition-all hover:border-[#4A6AEE]/40"
+                        className="rounded-xl border p-3.5 text-center transition-all"
                         style={{
-                          borderColor: isRec ? 'rgba(74,106,238,0.45)' : 'var(--bd)',
-                          background: isRec ? 'rgba(74,106,238,0.08)' : 'transparent',
+                          borderColor: isRec ? 'rgba(255,255,255,0.16)' : 'rgba(255,255,255,0.06)',
+                          background: isRec ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.2)',
                         }}
                       >
-                        {isRec && <p className="text-[11px] text-[#4A6AEE] uppercase tracking-[0.12em] mb-1">{de ? 'Empfohlen' : 'Recommended'}</p>}
-                        <p className="text-[20px] font-bold text-wx-tx1 leading-none">~<AnimatedNumber value={months} /><span className="text-[12px] font-normal text-wx-txm ml-1">{de ? 'Mo.' : 'mo.'}</span></p>
-                        <p className="text-xs text-wx-tx2 mt-1">{size}g — {price} €</p>
-                        <p className="text-xs text-wx-txf mt-0.5">{cost} €/{de ? 'Monat' : 'month'}</p>
+                        {isRec && (
+                          <p
+                            className="text-[10px] uppercase tracking-[0.14em] mb-1.5"
+                            style={{ color: 'rgba(255,255,255,0.45)' }}
+                          >
+                            {de ? 'Empfohlen' : 'Recommended'}
+                          </p>
+                        )}
+                        <p className="text-[22px] font-bold text-white leading-none tabular-nums">
+                          ~<AnimatedNumber value={months} />
+                          <span className="text-[12px] font-normal ml-1" style={{ color: 'rgba(255,255,255,0.38)' }}>
+                            {de ? 'Mo.' : 'mo.'}
+                          </span>
+                        </p>
+                        <p className="text-[12px] mt-1.5" style={{ color: 'rgba(255,255,255,0.48)' }}>
+                          {size}g — {price} €
+                        </p>
+                        <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.26)' }}>
+                          {cost} €/{de ? 'Monat' : 'month'}
+                        </p>
                       </div>
                     </a>
                   );
@@ -344,7 +511,7 @@ function WaxStockCalculator() {
   );
 }
 
-// ─── Tool 4: Cost Savings Calculator ─────────────────────────────────────────
+// ─── Tool 3: Cost Savings Calculator ─────────────────────────────────────────
 function AnimatedBar({ pct, color, delay = 0 }: { pct: number; color: string; delay?: number }) {
   const [width, setWidth] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
@@ -365,13 +532,14 @@ function AnimatedBar({ pct, color, delay = 0 }: { pct: number; color: string; de
   }, [pct, delay]);
 
   return (
-    <div ref={ref} className="h-3 rounded-full overflow-hidden" style={{ background: 'var(--bd)' }}>
+    <div ref={ref} className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
       <div
-        className="h-full rounded-full"
+        className="h-full w-full rounded-full"
         style={{
-          width: `${width}%`,
           background: color,
-          transition: 'width 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)',
+          transform: `scaleX(${width / 100})`,
+          transformOrigin: 'left center',
+          transition: 'transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)',
         }}
       />
     </div>
@@ -388,7 +556,7 @@ function CostSavingsCalculator() {
   const WAX_APP_COST = 1.5;
   const REWAX_INTERVAL = 500;
 
-  const oilLubeCostPerYear = kmPerYear * (8 / (30 * 200)); // ≈ 0.00133 €/km
+  const oilLubeCostPerYear = kmPerYear * (8 / (30 * 200));
 
   const waxCost = Math.round(
     (kmPerYear / 9000) * chainPrice +
@@ -406,9 +574,11 @@ function CostSavingsCalculator() {
   return (
     <ToolCard>
       <ToolHeader
-        icon={<PiggyBank className="h-4 w-4" style={{ color: '#8AAAFF' }} />}
+        icon={<PiggyBank className="h-4 w-4" style={{ color: 'rgba(255,255,255,0.55)' }} />}
         title={t.tools.savings.title}
-        subtitle={de ? 'Sieh in Euro, wie viel Wachs vs. Kettenöl pro Jahr wirklich spart.' : 'See in euros how much wax vs. chain oil really saves per year.'}
+        subtitle={de
+          ? 'Sieh in Euro, wie viel Wachs vs. Kettenöl pro Jahr wirklich spart.'
+          : 'See in euros how much wax vs. chain oil really saves per year.'}
       />
       <div className="px-6 flex flex-col flex-1 gap-5 pb-6">
         <div className="space-y-5 flex-1">
@@ -420,33 +590,66 @@ function CostSavingsCalculator() {
             <FieldLabel label={t.tools.savings.chainPrice} value={`${chainPrice} €`} />
             <Slider value={[chainPrice]} onValueChange={v => setChainPrice(v[0])} min={20} max={100} step={5} className="py-1" />
           </div>
-          <p className="text-xs text-wx-txff leading-relaxed -mt-2">
-            {de ? 'Kassette €80 · Wachskette 9.000km · Ölkette 2.500km · Wachsen €1,50/Session' : 'Cassette €80 · Wax chain 9,000km · Oil chain 2,500km · Waxing €1.50/session'}
+          <p className="text-[11px] leading-relaxed -mt-2" style={{ color: 'rgba(255,255,255,0.2)' }}>
+            {de
+              ? 'Kassette €80 · Wachskette 9.000km · Ölkette 2.500km · Wachsen €1,50/Session'
+              : 'Cassette €80 · Wax chain 9,000km · Oil chain 2,500km · Waxing €1.50/session'}
           </p>
         </div>
 
         <ResultBox>
-          <div className="space-y-3 mb-4">
+          <div className="space-y-3.5 mb-4">
+            {/* Wax bar */}
             <div>
               <div className="flex justify-between items-baseline mb-1.5">
-                <span className="text-xs text-wx-tx2">{de ? 'Wachs' : 'Wax'}</span>
-                <AnimatedNumber value={waxCost} suffix=" €" className="text-[13px] font-bold text-wx-tx1" />
+                <span className="text-[12px]" style={{ color: 'rgba(255,255,255,0.55)' }}>
+                  {de ? 'Wachs' : 'Wax'}
+                </span>
+                <AnimatedNumber
+                  value={waxCost}
+                  suffix=" €"
+                  className="text-[13px] font-bold text-white tabular-nums"
+                />
               </div>
-              <AnimatedBar pct={waxBarPct} color="linear-gradient(90deg, #4A68E8, #7090FF)" delay={0} />
+              <AnimatedBar pct={waxBarPct} color="rgba(255,255,255,0.6)" delay={0} />
             </div>
+            {/* Oil bar */}
             <div>
               <div className="flex justify-between items-baseline mb-1.5">
-                <span className="text-xs text-wx-txf">{de ? 'Kettenöl' : 'Chain oil'}</span>
-                <AnimatedNumber value={oilCost} suffix=" €" className="text-[13px] font-bold text-wx-txf line-through decoration-wx-bd" />
+                <span className="text-[12px]" style={{ color: 'rgba(255,255,255,0.28)' }}>
+                  {de ? 'Kettenöl' : 'Chain oil'}
+                </span>
+                <AnimatedNumber
+                  value={oilCost}
+                  suffix=" €"
+                  className="text-[13px] font-bold tabular-nums line-through"
+                  style={{ color: 'rgba(255,255,255,0.28)', textDecorationColor: 'rgba(255,255,255,0.15)' }}
+                />
               </div>
-              <AnimatedBar pct={100} color="var(--sf3)" delay={150} />
+              <AnimatedBar pct={100} color="rgba(255,255,255,0.14)" delay={150} />
             </div>
           </div>
 
-          <div className="rounded-lg border border-[#4A6AEE]/20 p-3 text-center" style={{ background: 'rgba(74,106,238,0.06)' }}>
-            <p className="text-xs text-[#4A6AEE] uppercase tracking-[0.14em] mb-1">{de ? 'Deine Ersparnis' : 'Your savings'}</p>
-            <AnimatedNumber value={savings} prefix="+" suffix=" €" className="text-[36px] font-bold text-wx-tx1 leading-none tracking-tight" />
-            <p className="text-xs text-wx-txf mt-0.5">{de ? 'pro Jahr' : 'per year'}</p>
+          {/* Savings box */}
+          <div
+            className="rounded-lg p-4 text-center"
+            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+          >
+            <p
+              className="text-[11px] uppercase tracking-[0.14em] mb-1.5"
+              style={{ color: 'rgba(255,255,255,0.32)' }}
+            >
+              {de ? 'Deine Ersparnis' : 'Your savings'}
+            </p>
+            <AnimatedNumber
+              value={savings}
+              prefix="+"
+              suffix=" €"
+              className="text-[38px] font-bold text-white leading-none tracking-tight tabular-nums"
+            />
+            <p className="text-[12px] mt-1" style={{ color: 'rgba(255,255,255,0.28)' }}>
+              {de ? 'pro Jahr' : 'per year'}
+            </p>
           </div>
         </ResultBox>
       </div>
@@ -454,15 +657,15 @@ function CostSavingsCalculator() {
   );
 }
 
-// ─── Tool 5: Rotation ROI ─────────────────────────────────────────────────────
+// ─── Tool 4: Rotation ROI ─────────────────────────────────────────────────────
 function RotationROI() {
   const { lang } = useLanguage();
   const de = lang === 'de';
   const [kmPerYear, setKmPerYear] = useState(5000);
   const [showHow, setShowHow] = useState(false);
 
-  const CHAIN_KM_1   = 6000;
-  const CHAIN_KM_2   = 8500;
+  const CHAIN_KM_1    = 6000;
+  const CHAIN_KM_2    = 8500;
   const CASSETTE_KM_1 = 15000;
   const CASSETTE_KM_2 = 22000;
   const CHAIN_PRICE   = 45;
@@ -477,7 +680,6 @@ function RotationROI() {
   const cassetteGain  = parseFloat((cassetteYrs2 - cassetteYrs1).toFixed(1));
   const rewaxPerYear  = Math.ceil(kmPerYear / REWAX_KM);
 
-  // 5-year total cost comparison
   const km5 = kmPerYear * 5;
   const cost1 = Math.round((km5 / CHAIN_KM_1) * CHAIN_PRICE + (km5 / CASSETTE_KM_1) * CASSETTE_PRICE);
   const cost2 = Math.round((km5 / CHAIN_KM_2) * CHAIN_PRICE + (km5 / CASSETTE_KM_2) * CASSETTE_PRICE);
@@ -487,9 +689,11 @@ function RotationROI() {
   return (
     <ToolCard>
       <ToolHeader
-        icon={<RotateCcw className="h-4 w-4" style={{ color: '#8AAAFF' }} />}
+        icon={<RotateCcw className="h-4 w-4" style={{ color: 'rgba(255,255,255,0.55)' }} />}
         title={de ? 'Lohnen sich mehrere Ketten?' : 'Is rotating multiple chains worth it?'}
-        subtitle={de ? 'Kettenverschleiß und Kassettenlaufzeit realistisch verglichen.' : 'Chain wear and cassette lifetime realistically compared.'}
+        subtitle={de
+          ? 'Kettenverschleiß und Kassettenlaufzeit realistisch verglichen.'
+          : 'Chain wear and cassette lifetime realistically compared.'}
       />
       <div className="px-6 flex flex-col flex-1 gap-4 pb-6">
         <div>
@@ -498,71 +702,129 @@ function RotationROI() {
         </div>
 
         {/* Hero: annual savings */}
-        <div className="rounded-lg p-4 text-center" style={{ background: 'rgba(74,106,238,0.07)', border: '1px solid rgba(74,106,238,0.22)' }}>
-          <p className="text-xs uppercase tracking-[0.2em] text-wx-txf mb-2">{de ? 'Ersparnis pro Jahr' : 'Savings per year'}</p>
-          <p className="text-[38px] font-bold tabular-nums leading-none" style={{ color: '#8AAAFF' }}>~<AnimatedNumber value={savingsPerYear} suffix=" €" /></p>
-          <p className="text-xs text-wx-txf mt-1.5">
-            {de ? `2. Kette amortisiert sich in ~${breakEvenMonths} Monaten` : `2nd chain pays off in ~${breakEvenMonths} months`}
+        <div
+          className="rounded-xl p-4 text-center"
+          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+        >
+          <p
+            className="text-[11px] uppercase tracking-[0.2em] mb-2"
+            style={{ color: 'rgba(255,255,255,0.3)' }}
+          >
+            {de ? 'Ersparnis pro Jahr' : 'Savings per year'}
+          </p>
+          <p className="text-[40px] font-bold tabular-nums leading-none text-white">
+            ~<AnimatedNumber value={savingsPerYear} suffix=" €" />
+          </p>
+          <p className="text-[12px] mt-1.5" style={{ color: 'rgba(255,255,255,0.28)' }}>
+            {de
+              ? `2. Kette amortisiert sich in ~${breakEvenMonths} Monaten`
+              : `2nd chain pays off in ~${breakEvenMonths} months`}
           </p>
         </div>
 
         {/* Comparison grid */}
         <div className="grid grid-cols-2 gap-2">
           {/* 1 chain */}
-          <div className="rounded-lg border border-wx-bd p-3 text-center" style={{ background: 'var(--sf3)' }}>
-            <p className="text-xs text-wx-txff mb-2">{de ? '1 Kette' : '1 chain'}</p>
-            <p className="text-[22px] font-bold text-wx-txm leading-none">{chainMonths1}</p>
-            <p className="text-xs text-wx-txff mt-0.5">{de ? 'Mo. / Kette' : 'mo. / chain'}</p>
-            <div className="mt-2.5 pt-2.5 border-t border-wx-bd2">
-              <p className="text-[13px] font-semibold text-wx-txm">{cassetteYrs1} {de ? 'J.' : 'yr.'}</p>
-              <p className="text-xs text-wx-txff mt-0.5">{de ? 'Kassette' : 'cassette'}</p>
+          <div
+            className="rounded-xl border p-3.5 text-center"
+            style={{ background: 'rgba(0,0,0,0.2)', borderColor: 'rgba(255,255,255,0.07)' }}
+          >
+            <p className="text-[11px] mb-2.5" style={{ color: 'rgba(255,255,255,0.28)' }}>
+              {de ? '1 Kette' : '1 chain'}
+            </p>
+            <p className="text-[24px] font-bold leading-none tabular-nums" style={{ color: 'rgba(255,255,255,0.55)' }}>
+              {chainMonths1}
+            </p>
+            <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.24)' }}>
+              {de ? 'Mo. / Kette' : 'mo. / chain'}
+            </p>
+            <div className="mt-3 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+              <p className="text-[14px] font-semibold tabular-nums" style={{ color: 'rgba(255,255,255,0.45)' }}>
+                {cassetteYrs1} {de ? 'J.' : 'yr.'}
+              </p>
+              <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.24)' }}>
+                {de ? 'Kassette' : 'cassette'}
+              </p>
             </div>
           </div>
 
-          {/* 2 chains */}
-          <div className="rounded-lg border p-3 text-center" style={{ borderColor: 'rgba(74,106,238,0.38)', background: 'rgba(74,106,238,0.06)' }}>
-            <p className="text-[11px] uppercase tracking-wider mb-0.5" style={{ color: '#4A6AEE' }}>{de ? 'Empfohlen' : 'Recommended'}</p>
-            <p className="text-xs text-wx-txf mb-1.5">{de ? '2 Ketten' : '2 chains'}</p>
+          {/* 2 chains — recommended */}
+          <div
+            className="rounded-xl border p-3.5 text-center"
+            style={{ background: 'rgba(255,255,255,0.05)', borderColor: 'rgba(255,255,255,0.14)' }}
+          >
+            <p
+              className="text-[10px] uppercase tracking-wider mb-0.5"
+              style={{ color: 'rgba(255,255,255,0.4)' }}
+            >
+              {de ? 'Empfohlen' : 'Recommended'}
+            </p>
+            <p className="text-[11px] mb-2" style={{ color: 'rgba(255,255,255,0.4)' }}>
+              {de ? '2 Ketten' : '2 chains'}
+            </p>
             <div className="flex items-center justify-center gap-1.5">
-              <p className="text-[22px] font-bold text-wx-tx1 leading-none">{chainMonths2}</p>
+              <p className="text-[24px] font-bold text-white leading-none tabular-nums">{chainMonths2}</p>
               {chainGain > 0 && (
-                <span className="text-[11px] font-bold px-1.5 py-0.5 rounded" style={{ background: 'rgba(74,106,238,0.18)', color: '#8AAAFF' }}>
+                <span
+                  className="text-[11px] font-medium px-1.5 py-0.5 rounded"
+                  style={{ background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.65)' }}
+                >
                   +{chainGain} {de ? 'Mo.' : 'mo.'}
                 </span>
               )}
             </div>
-            <p className="text-xs text-wx-txf mt-0.5">{de ? 'Mo. / Kette' : 'mo. / chain'}</p>
-            <div className="mt-2.5 pt-2.5 border-t" style={{ borderColor: 'rgba(74,106,238,0.2)' }}>
+            <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.35)' }}>
+              {de ? 'Mo. / Kette' : 'mo. / chain'}
+            </p>
+            <div className="mt-3 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
               <div className="flex items-center justify-center gap-1.5">
-                <p className="text-[13px] font-semibold text-wx-tx1">{cassetteYrs2} {de ? 'J.' : 'yr.'}</p>
+                <p className="text-[14px] font-semibold text-white tabular-nums">
+                  {cassetteYrs2} {de ? 'J.' : 'yr.'}
+                </p>
                 {cassetteGain > 0 && (
-                  <span className="text-[11px] font-bold px-1.5 py-0.5 rounded" style={{ background: 'rgba(74,106,238,0.18)', color: '#8AAAFF' }}>
+                  <span
+                    className="text-[11px] font-medium px-1.5 py-0.5 rounded"
+                    style={{ background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.65)' }}
+                  >
                     +{cassetteGain} {de ? 'J.' : 'yr.'}
                   </span>
                 )}
               </div>
-              <p className="text-xs text-wx-txf mt-0.5">{de ? 'Kassette' : 'cassette'}</p>
+              <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.35)' }}>
+                {de ? 'Kassette' : 'cassette'}
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Honest note */}
-        <p className="text-xs text-wx-txff text-center -mt-1">
-          {de ? `Rewax-Frequenz bleibt gleich: ~${rewaxPerYear}× pro Jahr — du wechselst nur ab.` : `Rewax frequency stays the same: ~${rewaxPerYear}× per year — you just alternate.`}
+        <p className="text-[11px] text-center" style={{ color: 'rgba(255,255,255,0.22)' }}>
+          {de
+            ? `Rewax-Frequenz bleibt gleich: ~${rewaxPerYear}× pro Jahr — du wechselst nur ab.`
+            : `Rewax frequency stays the same: ~${rewaxPerYear}× per year — you just alternate.`}
         </p>
 
         {/* Expandable: how it works */}
-        <div className="rounded-lg border border-wx-bd overflow-hidden" style={{ background: 'var(--sf3)' }}>
+        <div
+          className="rounded-xl overflow-hidden"
+          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
+        >
           <button
             type="button"
             onClick={() => setShowHow(v => !v)}
-            className="w-full px-4 py-2.5 flex items-center justify-between text-wx-txf hover:text-wx-tx2 transition-colors"
+            className="w-full px-4 py-3 flex items-center justify-between transition-colors"
           >
-            <span className="text-xs font-medium">{de ? 'Wie funktioniert das?' : 'How does this work?'}</span>
+            <span className="text-[12px] font-medium" style={{ color: 'rgba(255,255,255,0.38)' }}>
+              {de ? 'Wie funktioniert das?' : 'How does this work?'}
+            </span>
             <span
-              className="text-xs transition-transform duration-[320ms] inline-block"
-              style={{ transform: showHow ? 'rotate(180deg)' : 'rotate(0deg)' }}
-            >↓</span>
+              className="text-[12px] transition-transform duration-[320ms] inline-block"
+              style={{
+                transform: showHow ? 'rotate(180deg)' : 'rotate(0deg)',
+                color: 'rgba(255,255,255,0.28)',
+              }}
+            >
+              ↓
+            </span>
           </button>
           <div
             className="overflow-hidden transition-[grid-template-rows,opacity] duration-[320ms]"
@@ -574,12 +836,19 @@ function RotationROI() {
             }}
           >
             <div className="overflow-hidden">
-              <div className="px-4 pb-4 pt-3 border-t border-wx-bd2 space-y-2">
-                <p className="text-xs text-wx-txm leading-relaxed">
-                  {de ? 'Beim Abwechseln zwischen zwei Ketten trägt sich jede Kette nur halb so schnell ab — sie hält dadurch ~40 % länger. Da die Kassette durch Kettendehnung verschleißt, lebt auch sie deutlich länger.' : 'Alternating between two chains means each chain wears at half the rate — lasting ~40% longer. Since the cassette wears through chain stretch, it lasts significantly longer too.'}
+              <div
+                className="px-4 pb-4 pt-3 space-y-2"
+                style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}
+              >
+                <p className="text-[12px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.45)' }}>
+                  {de
+                    ? 'Beim Abwechseln zwischen zwei Ketten trägt sich jede Kette nur halb so schnell ab — sie hält dadurch ~40 % länger. Da die Kassette durch Kettendehnung verschleißt, lebt auch sie deutlich länger.'
+                    : 'Alternating between two chains means each chain wears at half the rate — lasting ~40% longer. Since the cassette wears through chain stretch, it lasts significantly longer too.'}
                 </p>
-                <p className="text-xs text-wx-txf leading-relaxed">
-                  {de ? 'Du rewaxst genauso oft (die Strecke pro Rewax bleibt gleich), wechselst aber die Kette ab. Ergebnis: weniger Ketten kaufen, viel seltener Kassette wechseln.' : 'You re-wax just as often (the distance per rewax stays the same), but alternate the chain. Result: fewer chains to buy, much less frequent cassette replacement.'}
+                <p className="text-[11px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.25)' }}>
+                  {de
+                    ? 'Du rewaxst genauso oft (die Strecke pro Rewax bleibt gleich), wechselst aber die Kette ab. Ergebnis: weniger Ketten kaufen, viel seltener Kassette wechseln.'
+                    : 'You re-wax just as often (the distance per rewax stays the same), but alternate the chain. Result: fewer chains to buy, much less frequent cassette replacement.'}
                 </p>
               </div>
             </div>
@@ -588,10 +857,15 @@ function RotationROI() {
 
         <button
           onClick={() => document.querySelector('#produkte')?.scrollIntoView({ behavior: 'smooth' })}
-          className="w-full rounded-lg border border-[#4A6AEE]/25 p-2.5 text-center hover:border-[#4A6AEE]/45 transition-colors"
-          style={{ background: 'rgba(74,106,238,0.05)' }}
+          className="w-full rounded-xl p-3 text-center transition-all"
+          style={{
+            background: 'rgba(255,255,255,0.04)',
+            border: '1px solid rgba(255,255,255,0.09)',
+          }}
         >
-          <span className="text-[12px] font-medium" style={{ color: '#8AAAFF' }}>{de ? '2. Kette im Shop ansehen →' : 'View 2nd chain in shop →'}</span>
+          <span className="text-[12px] font-medium" style={{ color: 'rgba(255,255,255,0.45)' }}>
+            {de ? '2. Kette im Shop ansehen →' : 'View 2nd chain in shop →'}
+          </span>
         </button>
       </div>
     </ToolCard>
@@ -678,9 +952,6 @@ export function Tools() {
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-7xl mx-auto">
           <div ref={headerRef} className="text-center mb-16">
-            <span data-reveal="eyebrow" className="section-eyebrow mb-4 block">
-              {de ? 'Planungs-Tools' : 'Planning Tools'}
-            </span>
             <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-4">
               <ScrollWordReveal text={t.tools.title} />
             </h2>
@@ -693,22 +964,21 @@ export function Tools() {
           <div className="md:hidden">
             <div
               ref={tabBarRef}
-              className="relative flex gap-1 p-1 rounded-xl border border-wx-bd mb-5 overflow-x-auto"
-              style={{ background: 'var(--sf2)' }}
+              className="relative flex gap-1 p-1 rounded-xl mb-5 overflow-x-auto"
+              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
             >
               <div
                 ref={tabPillRef}
-                className="absolute top-1 bottom-1 rounded-full bg-[#4A6AEE] pointer-events-none"
-                style={{ width: 0 }}
+                className="absolute top-1 bottom-1 rounded-lg pointer-events-none"
+                style={{ width: 0, background: 'rgba(255,255,255,0.09)', border: '1px solid rgba(255,255,255,0.12)' }}
               />
               {TAB_LABELS.map((label, i) => (
                 <button
                   key={i}
                   ref={el => { tabButtonRefs.current[i] = el; }}
                   onClick={() => setActiveTab(i)}
-                  className={`relative z-10 flex-1 min-w-[60px] px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap ${
-                    activeTab === i ? 'text-white' : 'text-wx-txf hover:text-wx-tx2'
-                  }`}
+                  className="relative z-10 flex-1 min-w-[60px] px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap"
+                  style={{ color: activeTab === i ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.32)' }}
                 >
                   {label}
                 </button>
@@ -724,11 +994,9 @@ export function Tools() {
 
           {/* ── Desktop: 1 featured + 3-col ── */}
           <div className="hidden md:block space-y-4">
-            {/* Featured — full width */}
             <RevealSlot delay={0}>
               <RewaxCalculator featured />
             </RevealSlot>
-            {/* Secondary tools — 3 col */}
             <div className="grid md:grid-cols-3 gap-4 items-stretch">
               <RevealSlot delay={90}><WaxStockCalculator /></RevealSlot>
               <RevealSlot delay={180}><CostSavingsCalculator /></RevealSlot>

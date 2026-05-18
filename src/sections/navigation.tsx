@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Menu, X, Sun, Moon } from 'lucide-react';
+import { Menu, X, Sun, Moon, Star } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
 import { CartIcon } from '@/components/CartIcon';
@@ -19,21 +19,29 @@ interface NavigationProps {
 
 export function Navigation({ onLogoClick }: NavigationProps) {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
   const navRef = useRef<HTMLElement>(null);
+  const progressBarRef = useRef<HTMLDivElement>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<string>('');
   const { t, lang, toggleLang } = useLanguage();
   const { theme, setTheme } = useTheme();
   const de = lang === 'de';
-  const isDark = theme === 'dark' || theme === 'noir';
+  const nextTheme = theme === 'light' ? 'dark' : theme === 'dark' ? 'noir' : 'light';
+  const ThemeIcon = theme === 'light' ? Moon : theme === 'dark' ? Star : Sun;
+  const themeLabel = theme === 'light'
+    ? (de ? 'Dunkelmodus' : 'Dark mode')
+    : theme === 'dark'
+    ? 'Noir'
+    : (de ? 'Hellmodus' : 'Light mode');
 
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY;
       setIsScrolled(scrollY > 50);
+      // Drive progress bar directly — avoids a React re-render on every scroll tick
       const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
-      setScrollProgress(totalHeight > 0 ? (scrollY / totalHeight) * 100 : 0);
+      const pct = totalHeight > 0 ? (scrollY / totalHeight) * 100 : 0;
+      if (progressBarRef.current) progressBarRef.current.style.width = `${pct}%`;
 
       const progress = Math.min(scrollY / 200, 1);
       const blur = progress * 16;
@@ -100,10 +108,12 @@ export function Navigation({ onLogoClick }: NavigationProps) {
         {/* Scroll progress bar */}
         <div className="absolute top-0 left-0 right-0 h-[2px] pointer-events-none overflow-hidden" style={{ zIndex: 1 }}>
           <div
-            className="h-full transition-[width] duration-75 ease-linear"
+            ref={progressBarRef}
+            className="h-full"
             style={{
-              width: `${scrollProgress}%`,
-              background: 'linear-gradient(90deg, #4A6AEE, #8AAAFF)',
+              width: '0%',
+              background: 'linear-gradient(90deg, #2B52B0, #4A72D4)',
+              transition: 'width 80ms linear',
             }}
           />
         </div>
@@ -124,7 +134,7 @@ export function Navigation({ onLogoClick }: NavigationProps) {
                 src="/images/logo.jpg"
                 alt="Waxcelerate"
                 className="w-auto rounded-lg"
-                style={{ height: isScrolled ? '32px' : '40px', transition: 'height 0.3s ease', width: 'auto' }}
+                style={{ height: '36px', width: 'auto' }}
               />
               <span className="font-display text-sm font-bold tracking-wide text-wx-tx1">
                 WAXCELERATE
@@ -144,7 +154,7 @@ export function Navigation({ onLogoClick }: NavigationProps) {
                 >
                   {t.nav[item.key as keyof typeof t.nav]}
                   {activeSection === item.href && (
-                    <span className="absolute bottom-0 left-4 right-4 h-px" style={{ background: '#4A6AEE' }} />
+                    <span className="absolute bottom-0 left-4 right-4 h-px" style={{ background: '#2B52B0' }} />
                   )}
                   {activeSection !== item.href && (
                     <span
@@ -162,17 +172,17 @@ export function Navigation({ onLogoClick }: NavigationProps) {
 
               {/* Theme toggle */}
               <button
-                onClick={() => setTheme(isDark ? 'light' : 'dark')}
+                onClick={() => setTheme(nextTheme)}
                 className="p-2 text-wx-tx2 hover:text-wx-tx1 transition-colors rounded-md hover:bg-white/5"
-                aria-label={isDark ? (de ? 'Hellmodus' : 'Light mode') : (de ? 'Dunkelmodus' : 'Dark mode')}
+                aria-label={themeLabel}
               >
-                {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                <ThemeIcon className="h-4 w-4" />
               </button>
 
               {/* Language toggle */}
               <button
                 onClick={toggleLang}
-                className="px-3 py-1.5 text-xs font-medium text-wx-tx2 hover:text-wx-tx1 border border-wx-bd/50 hover:border-[#4A6AEE] rounded transition-colors"
+                className="px-3 py-1.5 text-xs font-medium text-wx-tx2 hover:text-wx-tx1 border border-wx-bd/50 hover:border-[#2B52B0] rounded transition-colors"
                 aria-label={lang === 'de' ? 'Switch to English' : 'Zu Deutsch wechseln'}
               >
                 {lang === 'de' ? 'EN' : 'DE'}
@@ -253,15 +263,15 @@ export function Navigation({ onLogoClick }: NavigationProps) {
         {/* Bottom actions */}
         <div className="px-5 pb-8 pt-4 flex-shrink-0 flex items-center justify-between border-t border-wx-bd/20">
           <button
-            onClick={() => setTheme(isDark ? 'light' : 'dark')}
+            onClick={() => setTheme(nextTheme)}
             className="flex items-center gap-2 text-sm text-wx-tx2 hover:text-wx-tx1 transition-colors"
           >
-            {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            {isDark ? (de ? 'Hellmodus' : 'Light mode') : (de ? 'Dunkelmodus' : 'Dark mode')}
+            <ThemeIcon className="h-4 w-4" />
+            {themeLabel}
           </button>
           <button
             onClick={toggleLang}
-            className="px-4 py-2 text-sm font-medium text-wx-tx2 hover:text-wx-tx1 border border-wx-bd/50 hover:border-[#4A6AEE] rounded transition-colors"
+            className="px-4 py-2 text-sm font-medium text-wx-tx2 hover:text-wx-tx1 border border-wx-bd/50 hover:border-[#2B52B0] rounded transition-colors"
           >
             {lang === 'de' ? 'EN' : 'DE'}
           </button>

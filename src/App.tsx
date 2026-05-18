@@ -96,12 +96,12 @@ function AppContent() {
             <Navigation onLogoClick={handleLogoClick} />
             <main>
               <Hero />
+              <WhyWax />
               <Conviction />
               <Reviews />
-              <WhyWax />
               <Products />
-              <Tools />
               <Guides />
+              <Tools />
               <FAQ />
               <About />
               <Contact />

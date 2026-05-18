@@ -14,7 +14,7 @@ gsap.registerPlugin(ScrollTrigger);
 const filterChip = (active: boolean) =>
   `px-3 py-1.5 rounded-md text-[12px] transition-all border cursor-pointer ${
     active
-      ? 'border-[#4A6AEE]/40 bg-[#4A6AEE]/10 text-wx-tx1'
+      ? 'border-[#2B52B0]/40 bg-[#2B52B0]/10 text-wx-tx1'
       : 'border-wx-bd text-wx-txf hover:text-wx-tx2'
   }`;
 
@@ -104,9 +104,6 @@ export function Products() {
 
           {/* Header */}
           <div ref={headerRef} className="text-center mb-10">
-            <span data-reveal="eyebrow" className="section-eyebrow mb-4 block">
-              {de ? 'Unser Sortiment' : 'Our Products'}
-            </span>
             <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-4">
               <ScrollWordReveal text={t.products.title} />
             </h2>
@@ -126,7 +123,7 @@ export function Products() {
               style={{
                 left: activeTab === 'wax' ? '4px' : 'calc(50% + 2px)',
                 width: 'calc(50% - 6px)',
-                background: 'var(--card-from)',
+                background: 'var(--sf2)',
                 border: '1px solid var(--bd)',
                 boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
               }}
@@ -153,14 +150,14 @@ export function Products() {
           {activeTab === 'wax' && (
             <>
               <div className="flex items-center gap-2.5 mb-6 px-1">
-                <span className="h-1.5 w-1.5 rounded-full flex-shrink-0" style={{ background: '#4A6AEE' }} />
+                <span className="h-1.5 w-1.5 rounded-full flex-shrink-0" style={{ background: '#2B52B0' }} />
                 <p className="text-[13px]" style={{ color: 'var(--txm)' }}>
                   {de
                     ? 'Neu beim Heißwachs? Das Classic 500g ist der ideale Einstieg.'
                     : 'New to hot wax? The Classic 500g is the perfect starting point.'}
                 </p>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 items-stretch">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 items-stretch">
                 {waxProducts.map((product) => (
                   <WaxCard
                     key={product.id}
@@ -219,7 +216,7 @@ export function Products() {
                   <p className="text-wx-txm text-sm mb-3">
                     {de ? 'Keine passende Kette gefunden.' : 'No matching chain found.'}
                   </p>
-                  <button onClick={resetFilters} className="text-[12px] transition-colors" style={{ color: '#4A6AEE' }}>
+                  <button onClick={resetFilters} className="text-[12px] transition-colors" style={{ color: '#2B52B0' }}>
                     {de ? 'Filter zurücksetzen' : 'Reset filters'}
                   </button>
                 </div>
@@ -304,7 +301,7 @@ function useTilt(strength = 5) {
 
 const WaxCard = memo(function WaxCard({ product, de, formatPrice }: CardProps) {
   const isPro = product.variant === 'pro';
-  const accent = isPro ? '#8B6FFD' : '#4A6AEE';
+  const accent = isPro ? '#4A72D4' : '#2B52B0';
 
   const title = de ? product.title : product.titleEn;
   const badge = de ? product.badge : product.badgeEn;
@@ -325,34 +322,35 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice }: CardProps) {
 
   return (
     // h-full so all cards in the grid row stretch to same height
-    <div ref={tiltRef} className="wax-card relative h-full">
+    // overflow-hidden must be on the same element as the 3D transform to prevent corner artifacts
+    <div ref={tiltRef} className="wax-card relative h-full rounded-2xl overflow-hidden" style={{ transform: 'translateZ(0)' }}>
       <Link
         to={`/produkt/${product.id}`}
-        className="group relative flex flex-col h-full rounded-2xl overflow-hidden"
+        className="group relative flex flex-col h-full rounded-2xl"
         style={{
           background: 'linear-gradient(175deg, var(--card-from) 0%, var(--card-to) 100%)',
-          border: isPro ? '1px solid rgba(139,111,253,0.40)' : '1px solid var(--bd)',
+          border: isPro ? '1px solid rgba(43,82,176,0.45)' : '1px solid var(--bd)',
           boxShadow: 'var(--card-shad)',
           transition: 'border-color 250ms ease, box-shadow 250ms ease',
         }}
         onMouseEnter={e => {
           e.currentTarget.style.boxShadow = 'var(--card-shadow-hover)';
-          e.currentTarget.style.borderColor = isPro ? 'rgba(139,111,253,0.65)' : 'var(--bd2)';
+          e.currentTarget.style.borderColor = isPro ? 'rgba(74,114,212,0.70)' : 'var(--bd2)';
         }}
         onMouseLeave={e => {
           e.currentTarget.style.boxShadow = 'var(--card-shad)';
-          e.currentTarget.style.borderColor = isPro ? 'rgba(139,111,253,0.40)' : 'var(--bd)';
+          e.currentTarget.style.borderColor = isPro ? 'rgba(43,82,176,0.45)' : 'var(--bd)';
         }}
       >
         {isPro && (
           <div
             className="absolute top-0 left-0 right-0 h-[2px] z-10"
-            style={{ background: 'linear-gradient(90deg, #7B5FFC, #4A6AEE)' }}
+            style={{ background: 'linear-gradient(90deg, #1A3080, #4A72D4)' }}
           />
         )}
 
-        {/* Image — square ratio shows the full product without heavy cropping */}
-        <div className="relative overflow-hidden aspect-[1/1] flex-shrink-0">
+        {/* Image — 3:2 ratio shows product well at the wider 2-col card size */}
+        <div className="relative overflow-hidden aspect-[3/2] flex-shrink-0">
           <img
             src={product.image}
             alt={title}
@@ -383,9 +381,6 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice }: CardProps) {
         {/* Content — flex-1 so all cards push price to the same baseline */}
         <div className="px-5 pt-5 pb-5 flex flex-col flex-1">
           <div className="mb-4">
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] mb-1" style={{ color: accent }}>
-              {isPro ? 'Pro' : 'Classic'} · {product.weight}
-            </p>
             <h3 className="text-[17px] font-semibold text-wx-tx1 leading-snug tracking-[-0.01em]">
               {de ? product.title : product.titleEn}
             </h3>
@@ -423,7 +418,7 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice }: CardProps) {
 // ── Chain Card ─────────────────────────────────────────────────────────────
 
 const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }: CardProps) {
-  const accent = '#4A6AEE';
+  const accent = '#2B52B0';
   const badge = de ? product.badge : product.badgeEn;
 
   const brand = product.chainBrand ?? '';
@@ -436,10 +431,10 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
   const tiltRef = useTilt(3);
 
   return (
-    <div ref={tiltRef} className="chain-card relative h-full">
+    <div ref={tiltRef} className="chain-card relative h-full rounded-2xl overflow-hidden" style={{ transform: 'translateZ(0)' }}>
       <Link
         to={`/produkt/${product.id}`}
-        className="group flex flex-col h-full rounded-2xl overflow-hidden"
+        className="group flex flex-col h-full rounded-2xl"
         style={{
           background: 'linear-gradient(175deg, var(--card-from) 0%, var(--card-to) 100%)',
           border: '1px solid var(--bd)',
@@ -506,13 +501,13 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
           </div>
 
           <div className="flex items-center justify-between">
-            <span className="text-[17px] font-bold text-wx-tx1 tracking-[-0.02em]">{formatPrice(product.price)}</span>
+            <span className="text-[20px] font-bold text-wx-tx1 tracking-[-0.02em]">{formatPrice(product.price)}</span>
             <a
               href={product.ebayUrl}
               target="_blank"
               rel="noopener noreferrer"
               onClick={e => e.stopPropagation()}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold text-white transition-opacity duration-150 hover:opacity-90 active:scale-[0.97]"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-semibold text-white transition-opacity duration-150 hover:opacity-90 active:scale-[0.97]"
               style={{ background: accent }}
             >
               {buyLabel}

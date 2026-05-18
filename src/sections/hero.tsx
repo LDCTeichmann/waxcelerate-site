@@ -18,7 +18,6 @@ function WordReveal({
   return (
     <span className={className} style={style}>
       {words.map((word, i) => (
-        // Fragment key is supported; lets us place the space text-node outside overflow-hidden
         <span key={i} style={{ display: 'inline' }}>
           <span
             className="inline-block overflow-hidden leading-[1.15]"
@@ -108,7 +107,9 @@ export function Hero() {
       if (btn) gsap.to(btn, { x: 0, y: 0, duration: 0.7, ease: 'elastic.out(1, 0.35)', overwrite: 'auto' });
     };
 
-    window.addEventListener('mousemove', onMouseMove);
+    // Skip magnetic effect on touch-only devices (no mouse)
+    if (window.matchMedia('(pointer: coarse)').matches) return;
+    window.addEventListener('mousemove', onMouseMove, { passive: true });
     if (btn) btn.addEventListener('mouseleave', onMouseLeave);
     return () => {
       window.removeEventListener('mousemove', onMouseMove);
@@ -127,112 +128,167 @@ export function Hero() {
       className="grain relative overflow-hidden"
       style={{ minHeight: '100dvh', background: '#06060f' }}
     >
-      {/* Subtle radial glow behind text */}
+
+      {/* ── Background image ────────────────────────────────────────────────── */}
+
+      {/* Desktop: right-side cinematic panel */}
+      <div
+        className="hidden lg:block absolute top-0 right-0 bottom-0 pointer-events-none"
+        style={{ width: '52%' }}
+      >
+        <img
+          src="/images/wax-hero.jpg"
+          alt=""
+          width={1254}
+          height={910}
+          fetchPriority="high"
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ objectPosition: '62% 50%' }}
+        />
+        {/* Horizontal fade — blends into the dark left side */}
+        <div
+          className="absolute inset-0"
+          style={{ background: 'linear-gradient(to right, #06060f 0%, rgba(6,6,15,0.18) 40%, transparent 70%)' }}
+        />
+        {/* Vertical fades — top & bottom */}
+        <div
+          className="absolute inset-0"
+          style={{ background: 'linear-gradient(to bottom, rgba(6,6,15,0.65) 0%, transparent 22%, transparent 72%, rgba(6,6,15,0.9) 100%)' }}
+        />
+      </div>
+
+      {/* Mobile: full-screen tinted image — keeps visual context without hiding text */}
+      <div className="lg:hidden absolute inset-0 pointer-events-none">
+        <img
+          src="/images/wax-hero.jpg"
+          alt=""
+          width={1254}
+          height={910}
+          loading="lazy"
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ objectPosition: '62% 45%', opacity: 0.30 }}
+        />
+        {/* Stronger vignette on mobile so text stays crisp */}
+        <div
+          className="absolute inset-0"
+          style={{ background: 'radial-gradient(ellipse 100% 100% at 50% 50%, transparent 30%, rgba(6,6,15,0.75) 80%)' }}
+        />
+      </div>
+
+      {/* Accent radial glow — sits behind text on both layouts */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: 'radial-gradient(ellipse 70% 55% at 50% 42%, rgba(74,106,238,0.10) 0%, transparent 70%)',
+          background: 'radial-gradient(ellipse 55% 60% at 27% 48%, rgba(43,82,176,0.09) 0%, transparent 65%)',
         }}
       />
-      {/* Grid texture */}
-      <div className="absolute inset-0 grid-bg opacity-[0.07] pointer-events-none" />
 
-      {/* Centered content */}
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-[100dvh] px-6 sm:px-10 text-center pt-24 pb-16">
-        <div className="max-w-2xl w-full mx-auto flex flex-col items-center">
+      {/* Grid texture removed */}
 
-          {/* Category label — product anchor for cold traffic */}
-          <p
-            className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-semibold mb-6"
-            style={{ color: 'rgba(255,255,255,0.28)' }}
-          >
-            {de ? 'Kettenwachs · Heißwachs · Stuttgart' : 'Chain Wax · Hot Wax · Stuttgart'}
-          </p>
+      {/* ── Content ─────────────────────────────────────────────────────────── */}
+      <div className="relative z-10 flex min-h-[100dvh]">
 
-          {/* Pill */}
-          <div ref={pillRef} className="mb-10">
-            <button
-              onClick={() => scrollToSection('#produkte')}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border transition-all hover:border-[#6A8AFF]/50 cursor-pointer"
-              style={{
-                background: 'rgba(255,255,255,0.05)',
-                borderColor: 'rgba(255,255,255,0.14)',
-                backdropFilter: 'blur(8px)',
-              }}
+        {/*
+          Text block:
+          - Mobile: full-width, centered
+          - Desktop: left 52%, left-aligned, vertically centered
+        */}
+        <div className="w-full lg:w-[52%] flex flex-col items-center lg:items-start justify-center px-6 sm:px-10 lg:pl-16 xl:pl-24 lg:pr-10 pt-24 pb-16">
+          <div className="max-w-lg w-full mx-auto lg:mx-0 flex flex-col items-center lg:items-start text-center lg:text-left">
+
+            {/* Category label */}
+            <p
+              className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-semibold mb-6"
+              style={{ color: 'rgba(255,255,255,0.28)' }}
             >
-              <span
-                className="h-1.5 w-1.5 rounded-full flex-shrink-0 animate-pulse"
-                style={{ background: '#6A8AFF' }}
-              />
-              <span className="text-[12px] tracking-wide" style={{ color: 'rgba(255,255,255,0.65)' }}>
-                {de
-                  ? 'Neu: Vorgewachste Ketten für alle Antriebe'
-                  : 'New: Pre-waxed chains for every drivetrain'}
-              </span>
-              <ArrowRight className="h-3 w-3 flex-shrink-0" style={{ color: '#6A8AFF' }} />
-            </button>
-          </div>
+              {de ? 'Kettenwachs · Heißwachs · Stuttgart' : 'Chain Wax · Hot Wax · Stuttgart'}
+            </p>
 
-          {/* Headline */}
-          <div ref={headRef} className="mb-7">
-            <h1
-              className="font-display font-bold leading-[1.05] tracking-[-0.025em] text-center"
-              style={{ fontSize: 'clamp(2.8rem, 7.5vw, 6rem)', color: '#FFFFFF' }}
-            >
-              <WordReveal text={line1} className="block" />
-              <span
-                className="block font-serif-display italic overflow-hidden"
-                style={{ color: '#6A8AFF', verticalAlign: 'bottom' }}
+            {/* Pill */}
+            <div ref={pillRef} className="mb-10">
+              <button
+                onClick={() => scrollToSection('#produkte')}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full border transition-all hover:border-[#3D67CA]/50 cursor-pointer"
+                style={{
+                  background: 'rgba(255,255,255,0.05)',
+                  borderColor: 'rgba(255,255,255,0.14)',
+                  backdropFilter: 'blur(8px)',
+                }}
               >
-                <span className="word-inner inline-block" style={{ willChange: 'transform' }}>
-                  Waxcelerate.
+                <span
+                  className="h-1.5 w-1.5 rounded-full flex-shrink-0 animate-pulse"
+                  style={{ background: '#3D67CA' }}
+                />
+                <span className="text-[12px] tracking-wide" style={{ color: 'rgba(255,255,255,0.65)' }}>
+                  {de
+                    ? 'Neu: Vorgewachste Ketten für alle Antriebe'
+                    : 'New: Pre-waxed chains for every drivetrain'}
                 </span>
-              </span>
-            </h1>
-          </div>
+                <ArrowRight className="h-3 w-3 flex-shrink-0" style={{ color: '#3D67CA' }} />
+              </button>
+            </div>
 
-          {/* Tagline */}
-          <p
-            ref={taglineRef}
-            className="text-[16px] leading-relaxed mb-10 max-w-xs sm:max-w-sm text-center"
-            style={{ color: 'rgba(255,255,255,0.52)' }}
-          >
-            {de
-              ? 'Heißwachs aus Stuttgart. Entwickelt auf der Straße.'
-              : 'Hot wax from Stuttgart. Built on the road.'}
-          </p>
+            {/* Headline */}
+            <div ref={headRef} className="mb-7">
+              <h1
+                className="font-display font-bold leading-[1.05] tracking-[-0.035em]"
+                style={{ fontSize: 'clamp(2.6rem, 6.5vw, 5.2rem)', color: '#FFFFFF' }}
+              >
+                <WordReveal text={line1} className="block" />
+                <span
+                  className="block font-serif-display italic overflow-hidden"
+                  style={{ color: '#3D67CA', verticalAlign: 'bottom' }}
+                >
+                  <span className="word-inner inline-block" style={{ willChange: 'transform' }}>
+                    Waxcelerate.
+                  </span>
+                </span>
+              </h1>
+            </div>
 
-          {/* CTAs */}
-          <div ref={ctaRef} className="flex items-center justify-center gap-5 flex-wrap">
-            <button
-              ref={ebayBtnRef}
-              onClick={() => scrollToSection('#produkte')}
-              className="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-semibold text-white rounded-full transition-opacity duration-150 hover:opacity-90 active:scale-[0.98]"
-              style={{ background: '#4A6AEE', willChange: 'transform' }}
+            {/* Tagline */}
+            <p
+              ref={taglineRef}
+              className="text-[16px] leading-relaxed mb-10 max-w-xs sm:max-w-sm"
+              style={{ color: 'rgba(255,255,255,0.70)' }}
             >
-              {de ? 'Classic 500g — 29,95 €' : 'Classic 500g — €29.95'}
-              <ArrowRight className="h-3.5 w-3.5" />
-            </button>
+              {de
+                ? 'Heißwachs aus Stuttgart. Entwickelt auf der Straße.'
+                : 'Hot wax from Stuttgart. Built on the road.'}
+            </p>
 
-            <button
-              onClick={() => scrollToSection('#warum-wachs')}
-              className="inline-flex items-center gap-1.5 text-sm font-medium transition-colors"
-              style={{ color: 'rgba(255,255,255,0.45)' }}
-              onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = '#FFFFFF')}
-              onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.45)')}
-            >
-              {de ? 'Wie funktioniert Heißwachs?' : 'How does hot wax work?'}
-              <ArrowRight className="h-3 w-3" />
-            </button>
+            {/* CTAs */}
+            <div ref={ctaRef} className="flex items-center justify-center lg:justify-start gap-5 flex-wrap">
+              <button
+                ref={ebayBtnRef}
+                onClick={() => scrollToSection('#produkte')}
+                className="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-semibold text-white rounded-full transition-opacity duration-150 hover:opacity-90 active:scale-[0.98]"
+                style={{ background: '#2B52B0', willChange: 'transform' }}
+              >
+                {de ? 'Classic 500g — 29,95 €' : 'Classic 500g — €29.95'}
+                <ArrowRight className="h-3.5 w-3.5" />
+              </button>
+
+              <button
+                onClick={() => scrollToSection('#warum-wachs')}
+                className="inline-flex items-center gap-1.5 text-sm font-medium transition-colors"
+                style={{ color: 'rgba(255,255,255,0.45)' }}
+                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = '#FFFFFF')}
+                onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.45)')}
+              >
+                {de ? 'Wie funktioniert Heißwachs?' : 'How does hot wax work?'}
+                <ArrowRight className="h-3 w-3" />
+              </button>
+            </div>
+
           </div>
-
         </div>
       </div>
 
-      {/* Bottom fade into conviction */}
+      {/* Bottom fade into next section */}
       <div
-        className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none"
-        style={{ background: 'linear-gradient(to top, #06060f 0%, transparent 100%)' }}
+        className="absolute bottom-0 left-0 right-0 h-40 pointer-events-none"
+        style={{ background: 'linear-gradient(to top, var(--sf3) 0%, transparent 100%)' }}
       />
     </section>
   );

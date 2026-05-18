@@ -92,7 +92,7 @@ export function CustomCursor() {
           top: 0, left: 0,
           width: 8, height: 8,
           borderRadius: '50%',
-          background: '#4A6AEE',
+          background: '#2B52B0',
           transform: 'translate(-50%, -50%)',
         }}
       />
@@ -104,7 +104,7 @@ export function CustomCursor() {
           top: 0, left: 0,
           width: 36, height: 36,
           borderRadius: '50%',
-          border: '1.5px solid rgba(74,106,238,0.55)',
+          border: '1.5px solid rgba(43,82,176,0.55)',
           transform: 'translate(-50%, -50%)',
         }}
       />

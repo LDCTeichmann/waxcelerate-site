@@ -56,7 +56,7 @@ export function SocialProof() {
               ★★★★★
             </span>
             <span className="text-sm font-bold text-wx-tx1 tabular-nums">
-              <AnimatedCount end={154} />
+              <AnimatedCount end={164} />
             </span>
             <span className="text-sm text-wx-tx2">
               {de ? 'Bewertungen' : 'Reviews'}

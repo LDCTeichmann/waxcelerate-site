@@ -71,9 +71,6 @@ export function Contact() {
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-2xl mx-auto">
           <div ref={headerRef} className="text-center mb-16">
-            <span data-reveal="eyebrow" className="section-eyebrow mb-4 block">
-              {t.contact.eyebrow}
-            </span>
             <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-4">
               <ScrollWordReveal text={t.contact.title} />
             </h2>
@@ -88,7 +85,7 @@ export function Contact() {
               onClick={() => setActiveTab('email')}
               className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all"
               style={activeTab === 'email'
-                ? { background: '#4A6AEE', color: '#fff' }
+                ? { background: '#2B52B0', color: '#fff' }
                 : { color: 'var(--txm)' }}
             >
               <Send className="h-4 w-4" />
@@ -123,7 +120,7 @@ export function Contact() {
                     <a
                       href="mailto:waxcelerate@gmail.com"
                       className="underline"
-                      style={{ color: '#4A6AEE' }}
+                      style={{ color: '#2B52B0' }}
                     >
                       waxcelerate@gmail.com
                     </a>
@@ -142,7 +139,7 @@ export function Contact() {
                           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                           className="w-full rounded-lg px-3.5 py-2.5 text-sm outline-none transition-all"
                           style={{ background: 'var(--sf2)', border: '1px solid var(--bd)', color: 'var(--tx1)' }}
-                          onFocus={e => (e.currentTarget.style.borderColor = 'rgba(74,106,238,0.6)')}
+                          onFocus={e => (e.currentTarget.style.borderColor = 'rgba(43,82,176,0.6)')}
                           onBlur={e => (e.currentTarget.style.borderColor = 'var(--bd)')}
                         />
                       </div>
@@ -156,7 +153,7 @@ export function Contact() {
                           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                           className="w-full rounded-lg px-3.5 py-2.5 text-sm outline-none transition-all"
                           style={{ background: 'var(--sf2)', border: '1px solid var(--bd)', color: 'var(--tx1)' }}
-                          onFocus={e => (e.currentTarget.style.borderColor = 'rgba(74,106,238,0.6)')}
+                          onFocus={e => (e.currentTarget.style.borderColor = 'rgba(43,82,176,0.6)')}
                           onBlur={e => (e.currentTarget.style.borderColor = 'var(--bd)')}
                         />
                       </div>
@@ -171,7 +168,7 @@ export function Contact() {
                         onChange={(e) => setFormData({ ...formData, bikeType: e.target.value })}
                         className="w-full rounded-lg px-3.5 py-2.5 text-sm outline-none transition-all"
                         style={{ background: 'var(--sf2)', border: '1px solid var(--bd)', color: 'var(--tx1)' }}
-                        onFocus={e => (e.currentTarget.style.borderColor = 'rgba(74,106,238,0.6)')}
+                        onFocus={e => (e.currentTarget.style.borderColor = 'rgba(43,82,176,0.6)')}
                         onBlur={e => (e.currentTarget.style.borderColor = 'var(--bd)')}
                       />
                     </div>
@@ -187,7 +184,7 @@ export function Contact() {
                         onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                         className="w-full rounded-lg px-3.5 py-2.5 text-sm outline-none transition-all resize-none"
                         style={{ background: 'var(--sf2)', border: '1px solid var(--bd)', color: 'var(--tx1)' }}
-                        onFocus={e => (e.currentTarget.style.borderColor = 'rgba(74,106,238,0.6)')}
+                        onFocus={e => (e.currentTarget.style.borderColor = 'rgba(43,82,176,0.6)')}
                         onBlur={e => (e.currentTarget.style.borderColor = 'var(--bd)')}
                       />
                     </div>
@@ -195,7 +192,7 @@ export function Contact() {
                     <button
                       type="submit"
                       className="w-full flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-90"
-                      style={{ background: '#4A6AEE' }}
+                      style={{ background: '#2B52B0' }}
                     >
                       <Send className="h-4 w-4" />
                       {t.contact.send}
