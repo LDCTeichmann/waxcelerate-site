@@ -284,7 +284,7 @@ export function Hero() {
               src="/images/wax-hero-split.png"
               alt="Waxcelerate Kettenwachs"
               className="w-full h-full object-cover object-left"
-              style={{ maxHeight: '100dvh' }}
+              style={{ maxHeight: '100dvh', filter: 'brightness(1.15) contrast(1.05) saturate(1.1)' }}
               draggable={false}
               fetchPriority="high"
               width={1200}
@@ -292,7 +292,7 @@ export function Hero() {
             />
             {/* Left-edge fade so image blends into dark bg */}
             <div
-              className="absolute inset-y-0 left-0 w-32 pointer-events-none"
+              className="absolute inset-y-0 left-0 w-16 pointer-events-none"
               style={{
                 background: 'linear-gradient(to right, #06060f 0%, transparent 100%)',
               }}
