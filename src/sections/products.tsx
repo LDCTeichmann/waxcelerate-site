@@ -20,28 +20,12 @@ const filterChip = (active: boolean) =>
 
 export function Products() {
   const { t, lang } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'wax' | 'chain'>('wax');
   const [speedFilter, setSpeedFilter] = useState<'all' | '11' | '12'>('all');
   const [brandFilter, setBrandFilter] = useState<'all' | 'shimano' | 'sram' | 'campagnolo'>('all');
   const de = lang === 'de';
 
-
   const headerRef = useRef<HTMLDivElement>(null);
   useSectionReveal(headerRef);
-
-
-  const gridRef = useRef<HTMLDivElement>(null);
-  const prevTabRef = useRef(activeTab);
-  useEffect(() => {
-    if (prevTabRef.current === activeTab) return;
-    prevTabRef.current = activeTab;
-    const grid = gridRef.current;
-    if (!grid) return;
-    gsap.fromTo(grid,
-      { opacity: 0, y: 8 },
-      { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out', overwrite: 'auto' }
-    );
-  }, [activeTab]);
 
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -83,7 +67,7 @@ export function Products() {
     });
 
     return () => ctx.revert();
-  }, [activeTab]);
+  }, []);
 
   const waxProducts = useMemo(() => products.filter(p => p.category === 'wax'), []);
   const chainProducts = useMemo(() => products.filter(p => p.category === 'chain'), []);
@@ -127,110 +111,97 @@ export function Products() {
             </p>
           </div>
 
-          {/* Tabs */}
-          <div className="relative flex mb-12 bg-wx-sf border border-wx-bd p-1 rounded-xl w-fit mx-auto">
-            <div
-              className="absolute top-1 bottom-1 bg-[#4A6AEE] rounded-full pointer-events-none"
-              style={{
-                transition: 'left 0.35s cubic-bezier(0.65,0,0.35,1), right 0.35s cubic-bezier(0.65,0,0.35,1)',
-                left:  activeTab === 'wax' ? '4px' : 'calc(50% + 2px)',
-                right: activeTab === 'wax' ? 'calc(50% + 2px)' : '4px',
-              }}
-            />
-            <button
-              onClick={() => setActiveTab('wax')}
-              className={`relative z-10 flex-1 px-6 py-2 rounded-lg text-sm font-medium transition-colors ${
-                activeTab === 'wax' ? 'text-white' : 'text-wx-txf hover:text-wx-tx2'
-              }`}
-            >
-              {t.products.tabs.wax}
-            </button>
-            <button
-              onClick={() => setActiveTab('chain')}
-              className={`relative z-10 flex-1 px-6 py-2 rounded-lg text-sm font-medium transition-colors ${
-                activeTab === 'chain' ? 'text-white' : 'text-wx-txf hover:text-wx-tx2'
-              }`}
-            >
-              {t.products.tabs.chains}
-            </button>
+          {/* ── Wax Products ── */}
+          {/* Start-here callout */}
+          <div className="flex items-center gap-2.5 mb-6 px-1">
+            <span className="h-1.5 w-1.5 rounded-full flex-shrink-0" style={{ background: '#4A6AEE' }} />
+            <p className="text-[13px]" style={{ color: 'var(--txm)' }}>
+              {de
+                ? 'Neu beim Heißwachs? Das Classic 500g ist der ideale Einstieg.'
+                : 'New to hot wax? The Classic 500g is the perfect starting point.'}
+            </p>
           </div>
 
-          {/* Wax Products */}
-          {activeTab === 'wax' && (
-            <div ref={gridRef}>
-              <div className="grid sm:grid-cols-3 gap-4">
-                {waxProducts.map((product) => (
-                  <WaxCard
-                    key={product.id}
-                    product={product}
-                    de={de}
-                    formatPrice={formatPrice}
-                    buyLabel={t.products.buyOnEbay}
-                  />
+          <div className="grid sm:grid-cols-3 gap-4 mb-16">
+            {waxProducts.map((product) => (
+              <WaxCard
+                key={product.id}
+                product={product}
+                de={de}
+                formatPrice={formatPrice}
+                buyLabel={t.products.buyOnEbay}
+              />
+            ))}
+          </div>
+
+          {/* ── Pre-waxed Chains — secondary section ── */}
+          <div className="flex items-center gap-4 mb-8">
+            <div className="h-px flex-1" style={{ background: 'var(--bd2)' }} />
+            <h3 className="text-[11px] uppercase tracking-[0.22em] font-semibold flex-shrink-0" style={{ color: 'var(--txf)' }}>
+              {de ? 'Vorgewachste Ketten' : 'Pre-Waxed Chains'}
+            </h3>
+            <div className="h-px flex-1" style={{ background: 'var(--bd2)' }} />
+          </div>
+
+          <p className="text-[13px] mb-6 px-1" style={{ color: 'var(--txm)' }}>
+            {de
+              ? t.products.preWaxedHint
+              : t.products.preWaxedHint}
+          </p>
+
+          {/* Filter bar */}
+          <div className="mb-6 rounded-xl border border-wx-bd px-4 py-3 space-y-2" style={{ background: 'var(--sf)' }}>
+            <div className="flex items-center gap-2.5">
+              <span className="text-xs uppercase tracking-[0.12em] text-wx-txf font-medium w-12 flex-shrink-0">
+                {de ? 'Gänge' : 'Speed'}
+              </span>
+              <div className="flex gap-1.5">
+                {(['all', '11', '12'] as const).map(v => (
+                  <button key={v} onClick={() => setSpeedFilter(v)} className={filterChip(speedFilter === v)}>
+                    {v === 'all' ? (de ? 'Alle' : 'All') : `${v}-fach`}
+                  </button>
                 ))}
               </div>
             </div>
-          )}
-
-          {/* Chain Products */}
-          {activeTab === 'chain' && (
-            <div ref={gridRef}>
-              {/* Filter bar */}
-              <div className="mb-6 rounded-xl border border-wx-bd px-4 py-3 space-y-2" style={{ background: 'var(--sf)' }}>
-                <div className="flex items-center gap-2.5">
-                  <span className="text-xs uppercase tracking-[0.12em] text-wx-txf font-medium w-12 flex-shrink-0">
-                    {de ? 'Gänge' : 'Speed'}
-                  </span>
-                  <div className="flex gap-1.5">
-                    {(['all', '11', '12'] as const).map(v => (
-                      <button key={v} onClick={() => setSpeedFilter(v)} className={filterChip(speedFilter === v)}>
-                        {v === 'all' ? (de ? 'Alle' : 'All') : `${v}-fach`}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex items-center gap-2.5">
-                  <span className="text-xs uppercase tracking-[0.12em] text-wx-txf font-medium w-12 flex-shrink-0">
-                    {de ? 'Marke' : 'Brand'}
-                  </span>
-                  <div className="flex flex-wrap gap-1.5">
-                    {([
-                      { v: 'all',        label: de ? 'Alle' : 'All' },
-                      { v: 'shimano',    label: 'Shimano'            },
-                      { v: 'sram',       label: 'SRAM'               },
-                      { v: 'campagnolo', label: 'Campa'              },
-                    ] as { v: 'all' | 'shimano' | 'sram' | 'campagnolo'; label: string }[]).map(({ v, label }) => (
-                      <button key={v} onClick={() => setBrandFilter(v)} className={filterChip(brandFilter === v)}>
-                        {label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Results */}
-              {filteredChains.length === 0 ? (
-                <div className="text-center py-16">
-                  <p className="text-wx-txm text-sm mb-3">
-                    {de ? 'Keine passende Kette gefunden.' : 'No matching chain found.'}
-                  </p>
-                  <button onClick={resetFilters} className="text-[12px] transition-colors" style={{ color: '#4A6AEE' }}>
-                    {de ? 'Filter zurücksetzen' : 'Reset filters'}
+            <div className="flex items-center gap-2.5">
+              <span className="text-xs uppercase tracking-[0.12em] text-wx-txf font-medium w-12 flex-shrink-0">
+                {de ? 'Marke' : 'Brand'}
+              </span>
+              <div className="flex flex-wrap gap-1.5">
+                {([
+                  { v: 'all',        label: de ? 'Alle' : 'All' },
+                  { v: 'shimano',    label: 'Shimano'            },
+                  { v: 'sram',       label: 'SRAM'               },
+                  { v: 'campagnolo', label: 'Campa'              },
+                ] as { v: 'all' | 'shimano' | 'sram' | 'campagnolo'; label: string }[]).map(({ v, label }) => (
+                  <button key={v} onClick={() => setBrandFilter(v)} className={filterChip(brandFilter === v)}>
+                    {label}
                   </button>
-                </div>
-              ) : (
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredChains.map((product) => (
-                    <ChainCard
-                      key={product.id}
-                      product={product}
-                      de={de}
-                      formatPrice={formatPrice}
-                      buyLabel={t.products.buyOnEbay}
-                    />
-                  ))}
-                </div>
-              )}
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {filteredChains.length === 0 ? (
+            <div className="text-center py-16">
+              <p className="text-wx-txm text-sm mb-3">
+                {de ? 'Keine passende Kette gefunden.' : 'No matching chain found.'}
+              </p>
+              <button onClick={resetFilters} className="text-[12px] transition-colors" style={{ color: '#4A6AEE' }}>
+                {de ? 'Filter zurücksetzen' : 'Reset filters'}
+              </button>
+            </div>
+          ) : (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredChains.map((product) => (
+                <ChainCard
+                  key={product.id}
+                  product={product}
+                  de={de}
+                  formatPrice={formatPrice}
+                  buyLabel={t.products.buyOnEbay}
+                />
+              ))}
             </div>
           )}
         </div>

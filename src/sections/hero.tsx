@@ -138,6 +138,14 @@ export function Hero() {
       <div className="relative z-10 flex flex-col items-center justify-center min-h-[100dvh] px-6 sm:px-10 text-center pt-24 pb-16">
         <div className="max-w-2xl w-full mx-auto flex flex-col items-center">
 
+          {/* Category label — product anchor for cold traffic */}
+          <p
+            className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-semibold mb-6"
+            style={{ color: 'rgba(255,255,255,0.28)' }}
+          >
+            {de ? 'Kettenwachs · Heißwachs · Stuttgart' : 'Chain Wax · Hot Wax · Stuttgart'}
+          </p>
+
           {/* Pill */}
           <div ref={pillRef} className="mb-10">
             <button
