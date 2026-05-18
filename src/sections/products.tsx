@@ -20,6 +20,7 @@ const filterChip = (active: boolean) =>
 
 export function Products() {
   const { t, lang } = useLanguage();
+  const [activeTab, setActiveTab] = useState<'wax' | 'chain'>('wax');
   const [speedFilter, setSpeedFilter] = useState<'all' | '11' | '12'>('all');
   const [brandFilter, setBrandFilter] = useState<'all' | 'shimano' | 'sram' | 'campagnolo'>('all');
   const de = lang === 'de';
@@ -114,98 +115,128 @@ export function Products() {
             </p>
           </div>
 
-          {/* ── Wax Products ── */}
-          {/* Start-here callout */}
-          <div className="flex items-center gap-2.5 mb-6 px-1">
-            <span className="h-1.5 w-1.5 rounded-full flex-shrink-0" style={{ background: '#4A6AEE' }} />
-            <p className="text-[13px]" style={{ color: 'var(--txm)' }}>
-              {de
-                ? 'Neu beim Heißwachs? Das Classic 500g ist der ideale Einstieg.'
-                : 'New to hot wax? The Classic 500g is the perfect starting point.'}
-            </p>
-          </div>
-
-          <div className="grid sm:grid-cols-3 gap-4 mb-16">
-            {waxProducts.map((product) => (
-              <WaxCard
-                key={product.id}
-                product={product}
-                de={de}
-                formatPrice={formatPrice}
-                buyLabel={t.products.buyOnEbay}
-              />
-            ))}
-          </div>
-
-          {/* ── Pre-waxed Chains — secondary section ── */}
-          <div className="flex items-center gap-4 mb-8">
-            <div className="h-px flex-1" style={{ background: 'var(--bd2)' }} />
-            <h3 className="text-[11px] uppercase tracking-[0.22em] font-semibold flex-shrink-0" style={{ color: 'var(--txf)' }}>
+          {/* ── Tab switcher ── */}
+          <div
+            className="relative flex p-1 rounded-xl border border-wx-bd mb-10"
+            style={{ background: 'var(--sf)' }}
+          >
+            {/* Sliding pill — pure CSS, no GSAP needed for 2 tabs */}
+            <div
+              className="absolute top-1 bottom-1 rounded-lg transition-all duration-300 ease-out pointer-events-none"
+              style={{
+                left: activeTab === 'wax' ? '4px' : 'calc(50% + 2px)',
+                width: 'calc(50% - 6px)',
+                background: 'var(--card-from)',
+                border: '1px solid var(--bd)',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
+              }}
+            />
+            <button
+              onClick={() => setActiveTab('wax')}
+              className={`relative z-10 flex-1 py-2.5 text-[13px] font-medium rounded-lg transition-colors duration-200 ${
+                activeTab === 'wax' ? 'text-wx-tx1' : 'text-wx-txf hover:text-wx-tx2'
+              }`}
+            >
+              {de ? 'Kettenwachs' : 'Chain Wax'}
+            </button>
+            <button
+              onClick={() => setActiveTab('chain')}
+              className={`relative z-10 flex-1 py-2.5 text-[13px] font-medium rounded-lg transition-colors duration-200 ${
+                activeTab === 'chain' ? 'text-wx-tx1' : 'text-wx-txf hover:text-wx-tx2'
+              }`}
+            >
               {de ? 'Vorgewachste Ketten' : 'Pre-Waxed Chains'}
-            </h3>
-            <div className="h-px flex-1" style={{ background: 'var(--bd2)' }} />
+            </button>
           </div>
 
-          <p className="text-[13px] mb-6 px-1" style={{ color: 'var(--txm)' }}>
-            {de
-              ? t.products.preWaxedHint
-              : t.products.preWaxedHint}
-          </p>
-
-          {/* Filter bar */}
-          <div className="mb-6 rounded-xl border border-wx-bd px-4 py-3 space-y-2" style={{ background: 'var(--sf)' }}>
-            <div className="flex items-center gap-2.5">
-              <span className="text-xs uppercase tracking-[0.12em] text-wx-txf font-medium w-12 flex-shrink-0">
-                {de ? 'Gänge' : 'Speed'}
-              </span>
-              <div className="flex gap-1.5">
-                {(['all', '11', '12'] as const).map(v => (
-                  <button key={v} onClick={() => setSpeedFilter(v)} className={filterChip(speedFilter === v)}>
-                    {v === 'all' ? (de ? 'Alle' : 'All') : `${v}-fach`}
-                  </button>
+          {/* ── Wax tab ── */}
+          {activeTab === 'wax' && (
+            <>
+              <div className="flex items-center gap-2.5 mb-6 px-1">
+                <span className="h-1.5 w-1.5 rounded-full flex-shrink-0" style={{ background: '#4A6AEE' }} />
+                <p className="text-[13px]" style={{ color: 'var(--txm)' }}>
+                  {de
+                    ? 'Neu beim Heißwachs? Das Classic 500g ist der ideale Einstieg.'
+                    : 'New to hot wax? The Classic 500g is the perfect starting point.'}
+                </p>
+              </div>
+              <div className="grid sm:grid-cols-3 gap-5 items-stretch">
+                {waxProducts.map((product) => (
+                  <WaxCard
+                    key={product.id}
+                    product={product}
+                    de={de}
+                    formatPrice={formatPrice}
+                    buyLabel={t.products.buyOnEbay}
+                  />
                 ))}
               </div>
-            </div>
-            <div className="flex items-center gap-2.5">
-              <span className="text-xs uppercase tracking-[0.12em] text-wx-txf font-medium w-12 flex-shrink-0">
-                {de ? 'Marke' : 'Brand'}
-              </span>
-              <div className="flex flex-wrap gap-1.5">
-                {([
-                  { v: 'all',        label: de ? 'Alle' : 'All' },
-                  { v: 'shimano',    label: 'Shimano'            },
-                  { v: 'sram',       label: 'SRAM'               },
-                  { v: 'campagnolo', label: 'Campa'              },
-                ] as { v: 'all' | 'shimano' | 'sram' | 'campagnolo'; label: string }[]).map(({ v, label }) => (
-                  <button key={v} onClick={() => setBrandFilter(v)} className={filterChip(brandFilter === v)}>
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
+            </>
+          )}
 
-          {filteredChains.length === 0 ? (
-            <div className="text-center py-16">
-              <p className="text-wx-txm text-sm mb-3">
-                {de ? 'Keine passende Kette gefunden.' : 'No matching chain found.'}
+          {/* ── Chains tab ── */}
+          {activeTab === 'chain' && (
+            <>
+              <p className="text-[13px] mb-6 px-1" style={{ color: 'var(--txm)' }}>
+                {t.products.preWaxedHint}
               </p>
-              <button onClick={resetFilters} className="text-[12px] transition-colors" style={{ color: '#4A6AEE' }}>
-                {de ? 'Filter zurücksetzen' : 'Reset filters'}
-              </button>
-            </div>
-          ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredChains.map((product) => (
-                <ChainCard
-                  key={product.id}
-                  product={product}
-                  de={de}
-                  formatPrice={formatPrice}
-                  buyLabel={t.products.buyOnEbay}
-                />
-              ))}
-            </div>
+
+              {/* Filter bar */}
+              <div className="mb-6 rounded-xl border border-wx-bd px-4 py-3 space-y-2" style={{ background: 'var(--sf)' }}>
+                <div className="flex items-center gap-2.5">
+                  <span className="text-xs uppercase tracking-[0.12em] text-wx-txf font-medium w-12 flex-shrink-0">
+                    {de ? 'Gänge' : 'Speed'}
+                  </span>
+                  <div className="flex gap-1.5">
+                    {(['all', '11', '12'] as const).map(v => (
+                      <button key={v} onClick={() => setSpeedFilter(v)} className={filterChip(speedFilter === v)}>
+                        {v === 'all' ? (de ? 'Alle' : 'All') : `${v}-fach`}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <span className="text-xs uppercase tracking-[0.12em] text-wx-txf font-medium w-12 flex-shrink-0">
+                    {de ? 'Marke' : 'Brand'}
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {([
+                      { v: 'all',        label: de ? 'Alle' : 'All' },
+                      { v: 'shimano',    label: 'Shimano'            },
+                      { v: 'sram',       label: 'SRAM'               },
+                      { v: 'campagnolo', label: 'Campa'              },
+                    ] as { v: 'all' | 'shimano' | 'sram' | 'campagnolo'; label: string }[]).map(({ v, label }) => (
+                      <button key={v} onClick={() => setBrandFilter(v)} className={filterChip(brandFilter === v)}>
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {filteredChains.length === 0 ? (
+                <div className="text-center py-16">
+                  <p className="text-wx-txm text-sm mb-3">
+                    {de ? 'Keine passende Kette gefunden.' : 'No matching chain found.'}
+                  </p>
+                  <button onClick={resetFilters} className="text-[12px] transition-colors" style={{ color: '#4A6AEE' }}>
+                    {de ? 'Filter zurücksetzen' : 'Reset filters'}
+                  </button>
+                </div>
+              ) : (
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 items-stretch">
+                  {filteredChains.map((product) => (
+                    <ChainCard
+                      key={product.id}
+                      product={product}
+                      de={de}
+                      formatPrice={formatPrice}
+                      buyLabel={t.products.buyOnEbay}
+                    />
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -274,9 +305,6 @@ function useTilt(strength = 5) {
 const WaxCard = memo(function WaxCard({ product, de, formatPrice }: CardProps) {
   const isPro = product.variant === 'pro';
   const accent = isPro ? '#8B6FFD' : '#4A6AEE';
-  const accentGlow = isPro ? 'rgba(139,111,253,0.14)' : 'rgba(74,106,238,0.12)';
-  const accentMuted = isPro ? 'rgba(139,111,253,0.12)' : 'rgba(74,106,238,0.10)';
-  const accentBorder = isPro ? 'rgba(139,111,253,0.26)' : 'rgba(74,106,238,0.22)';
 
   const title = de ? product.title : product.titleEn;
   const badge = de ? product.badge : product.badgeEn;
@@ -293,43 +321,27 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice }: CardProps) {
         { icon: <Check className="h-3.5 w-3.5" />, label: de ? 'Ideal für Trockenheit & Sommer' : 'Ideal for dry conditions & summer' },
       ];
 
-  const tiltRef = useTilt(4);
-  const specularRef = useRef<HTMLDivElement>(null);
+  const tiltRef = useTilt(3);
 
   return (
-    <div
-      ref={tiltRef}
-      className="wax-card relative"
-      onMouseMove={(e) => {
-        if (!specularRef.current) return;
-        const rect = e.currentTarget.getBoundingClientRect();
-        const x = ((e.clientX - rect.left) / rect.width) * 100;
-        const y = ((e.clientY - rect.top) / rect.height) * 100;
-        const lx = 100 - x;
-        const ly = 100 - y;
-        specularRef.current.style.background =
-          `radial-gradient(circle at ${lx}% ${ly}%, rgba(255,255,255,0.065) 0%, transparent 62%)`;
-      }}
-      onMouseLeave={() => {
-        if (specularRef.current) specularRef.current.style.background = '';
-      }}
-    >
+    // h-full so all cards in the grid row stretch to same height
+    <div ref={tiltRef} className="wax-card relative h-full">
       <Link
         to={`/produkt/${product.id}`}
-        className="group relative block rounded-2xl overflow-hidden"
+        className="group relative flex flex-col h-full rounded-2xl overflow-hidden"
         style={{
           background: 'linear-gradient(175deg, var(--card-from) 0%, var(--card-to) 100%)',
-          border: isPro ? '1px solid rgba(139,111,253,0.35)' : '1px solid var(--bd2)',
+          border: isPro ? '1px solid rgba(139,111,253,0.40)' : '1px solid var(--bd)',
           boxShadow: 'var(--card-shad)',
-          transition: 'box-shadow 300ms ease, border-color 300ms ease',
+          transition: 'border-color 250ms ease, box-shadow 250ms ease',
         }}
         onMouseEnter={e => {
-          e.currentTarget.style.boxShadow = `var(--card-shadow-hover), 0 40px 80px ${accentGlow}`;
-          e.currentTarget.style.borderColor = isPro ? 'rgba(139,111,253,0.60)' : 'var(--bd)';
+          e.currentTarget.style.boxShadow = 'var(--card-shadow-hover)';
+          e.currentTarget.style.borderColor = isPro ? 'rgba(139,111,253,0.65)' : 'var(--bd2)';
         }}
         onMouseLeave={e => {
           e.currentTarget.style.boxShadow = 'var(--card-shad)';
-          e.currentTarget.style.borderColor = isPro ? 'rgba(139,111,253,0.50)' : 'var(--bd)';
+          e.currentTarget.style.borderColor = isPro ? 'rgba(139,111,253,0.40)' : 'var(--bd)';
         }}
       >
         {isPro && (
@@ -338,30 +350,29 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice }: CardProps) {
             style={{ background: 'linear-gradient(90deg, #7B5FFC, #4A6AEE)' }}
           />
         )}
-        {/* Full-bleed image — aspect ratio based */}
-        <div className="relative overflow-hidden aspect-[4/3]">
+
+        {/* Image — fixed aspect, never grows */}
+        <div className="relative overflow-hidden aspect-[4/3] flex-shrink-0">
           <img
             src={product.image}
             alt={title}
             loading="lazy"
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
             style={{ objectPosition: product.imagePosition ?? 'center 55%' }}
             onError={e => { (e.target as HTMLImageElement).src = '/images/wax-block-spin.jpg'; }}
           />
-          {/* Scrim */}
           <div
             className="absolute inset-0 pointer-events-none"
-            style={{ background: 'linear-gradient(to top, var(--card-to) 0%, rgba(var(--card-to-rgb), 0.55) 28%, rgba(0,0,0,0) 58%)' }}
+            style={{ background: 'linear-gradient(to top, var(--card-to) 0%, transparent 55%)' }}
           />
-          {/* Overlaid label + badge */}
           <div className="absolute bottom-0 inset-x-0 px-5 pb-4 flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-[0.22em]" style={{ color: accent }}>
+            <span className="text-[11px] font-bold uppercase tracking-[0.22em]" style={{ color: accent }}>
               {isPro ? 'Pro' : 'Classic'} · {product.weight}
             </span>
             {badge && (
               <span
-                className="text-[11px] font-bold tracking-[0.12em] uppercase px-2.5 py-1 rounded-full"
-                style={{ background: accentMuted, color: accent, border: `1px solid ${accentBorder}` }}
+                className="text-[11px] font-semibold tracking-[0.10em] uppercase px-2.5 py-1 rounded-full"
+                style={{ background: 'rgba(0,0,0,0.45)', color: 'rgba(255,255,255,0.85)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(4px)' }}
               >
                 {badge}
               </span>
@@ -369,20 +380,19 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice }: CardProps) {
           </div>
         </div>
 
-        {/* Content */}
-        <div className="px-5 pt-5 pb-5 flex flex-col">
-          {/* Product name + variant */}
+        {/* Content — flex-1 so all cards push price to the same baseline */}
+        <div className="px-5 pt-5 pb-5 flex flex-col flex-1">
           <div className="mb-4">
             <p className="text-[11px] font-medium uppercase tracking-[0.18em] mb-1" style={{ color: accent }}>
               {isPro ? 'Pro' : 'Classic'} · {product.weight}
             </p>
-            <h3 className="text-[18px] font-semibold text-wx-tx1 leading-snug tracking-[-0.01em]">
+            <h3 className="text-[17px] font-semibold text-wx-tx1 leading-snug tracking-[-0.01em]">
               {de ? product.title : product.titleEn}
             </h3>
           </div>
 
-          {/* Benefits — tight, readable */}
-          <div className="flex flex-col gap-2 mb-5">
+          {/* Benefits grow to fill — this equalises card heights */}
+          <div className="flex flex-col gap-2 mb-5 flex-1">
             {benefits.map(({ icon, label }, i) => (
               <div key={i} className="flex items-start gap-2.5 text-[12.5px] leading-snug" style={{ color: 'var(--txm)' }}>
                 <span style={{ color: accent }} className="flex-shrink-0 mt-px">{icon}</span>
@@ -391,16 +401,11 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice }: CardProps) {
             ))}
           </div>
 
-          {/* Divider */}
+          {/* Price + CTA — always at card bottom */}
           <div className="h-px mb-4" style={{ background: 'var(--bd2)' }} />
-
-          {/* Price + CTA row */}
           <div className="flex items-center justify-between gap-3">
             <div>
-              <span
-                className="text-[22px] font-bold leading-none tracking-[-0.02em]"
-                style={{ color: 'var(--tx1)' }}
-              >
+              <span className="text-[22px] font-bold leading-none tracking-[-0.02em]" style={{ color: 'var(--tx1)' }}>
                 {formatPrice(product.price)}
               </span>
               <p className="text-[11px] mt-0.5" style={{ color: 'var(--txf)' }}>
@@ -411,11 +416,6 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice }: CardProps) {
           </div>
         </div>
       </Link>
-      <div
-        ref={specularRef}
-        className="absolute inset-0 pointer-events-none rounded-2xl"
-        style={{ zIndex: 20 }}
-      />
     </div>
   );
 });
@@ -424,7 +424,6 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice }: CardProps) {
 
 const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }: CardProps) {
   const accent = '#4A6AEE';
-  const accentGlow = 'rgba(74,106,238,0.12)';
   const badge = de ? product.badge : product.badgeEn;
 
   const brand = product.chainBrand ?? '';
@@ -435,61 +434,44 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
   const compatStr = product.compatibility ?? '';
 
   const tiltRef = useTilt(3);
-  const chainSpecularRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div
-      ref={tiltRef}
-      className="chain-card relative"
-      onMouseMove={(e) => {
-        if (!chainSpecularRef.current) return;
-        const rect = e.currentTarget.getBoundingClientRect();
-        const x = ((e.clientX - rect.left) / rect.width) * 100;
-        const y = ((e.clientY - rect.top) / rect.height) * 100;
-        const lx = 100 - x;
-        const ly = 100 - y;
-        chainSpecularRef.current.style.background =
-          `radial-gradient(circle at ${lx}% ${ly}%, rgba(255,255,255,0.065) 0%, transparent 62%)`;
-      }}
-      onMouseLeave={() => {
-        if (chainSpecularRef.current) chainSpecularRef.current.style.background = '';
-      }}
-    >
+    <div ref={tiltRef} className="chain-card relative h-full">
       <Link
         to={`/produkt/${product.id}`}
-        className="group block rounded-2xl overflow-hidden"
+        className="group flex flex-col h-full rounded-2xl overflow-hidden"
         style={{
           background: 'linear-gradient(175deg, var(--card-from) 0%, var(--card-to) 100%)',
-          border: '1px solid var(--bd2)',
+          border: '1px solid var(--bd)',
           boxShadow: 'var(--card-shad)',
-          transition: 'box-shadow 300ms ease, border-color 300ms ease',
+          transition: 'border-color 250ms ease, box-shadow 250ms ease',
         }}
         onMouseEnter={e => {
-          e.currentTarget.style.boxShadow = `var(--card-shadow-hover), 0 40px 80px ${accentGlow}`;
-          e.currentTarget.style.borderColor = 'var(--bd)';
+          e.currentTarget.style.boxShadow = 'var(--card-shadow-hover)';
+          e.currentTarget.style.borderColor = 'var(--bd2)';
         }}
         onMouseLeave={e => {
           e.currentTarget.style.boxShadow = 'var(--card-shad)';
-          e.currentTarget.style.borderColor = 'var(--bd2)';
+          e.currentTarget.style.borderColor = 'var(--bd)';
         }}
       >
-        {/* Full-bleed image */}
-        <div className="relative overflow-hidden aspect-[16/9]">
+        {/* Image */}
+        <div className="relative overflow-hidden aspect-[16/9] flex-shrink-0">
           <img
             src={product.image}
             alt={title}
             loading="lazy"
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
             onError={e => { (e.target as HTMLImageElement).src = '/images/wax-block-spin.jpg'; }}
           />
           <div
             className="absolute inset-x-0 bottom-0 pointer-events-none"
-            style={{ height: '70px', background: 'linear-gradient(to top, var(--card-to) 0%, transparent 100%)' }}
+            style={{ height: '60px', background: 'linear-gradient(to top, var(--card-to) 0%, transparent 100%)' }}
           />
           {badge && (
             <span
-              className="absolute top-2.5 right-2.5 text-[11px] font-bold tracking-widest uppercase px-2 py-1 rounded-md"
-              style={{ background: 'rgba(74,106,238,0.82)', color: '#fff', backdropFilter: 'blur(6px)' }}
+              className="absolute top-2.5 right-2.5 text-[11px] font-semibold tracking-wide uppercase px-2 py-1 rounded-md"
+              style={{ background: 'rgba(0,0,0,0.50)', color: 'rgba(255,255,255,0.85)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(4px)' }}
             >
               {badge}
             </span>
@@ -497,21 +479,21 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
         </div>
 
         {/* Content */}
-        <div className="px-4 pt-4 pb-4 flex flex-col gap-3">
+        <div className="px-4 pt-4 pb-4 flex flex-col flex-1 gap-3">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
               <p className="text-[11px] font-medium uppercase tracking-[0.16em] mb-1" style={{ color: accent }}>{brand}</p>
               <h3 className="text-[14px] font-semibold text-wx-tx1 leading-snug tracking-[-0.01em]">{model}</h3>
             </div>
             <span
-              className="flex-shrink-0 text-[11px] font-bold tracking-wider uppercase px-2 py-0.5 rounded mt-0.5"
-              style={{ background: 'rgba(74,106,238,0.08)', color: accent, border: '1px solid rgba(74,106,238,0.16)' }}
+              className="flex-shrink-0 text-[11px] font-semibold tracking-wider uppercase px-2 py-0.5 rounded mt-0.5"
+              style={{ background: 'var(--sf)', color: 'var(--tx2)', border: '1px solid var(--bd)' }}
             >
               {speed}
             </span>
           </div>
 
-          <p className="text-[11.5px] leading-relaxed" style={{ color: 'var(--txm)' }}>
+          <p className="text-[11.5px] leading-relaxed flex-1" style={{ color: 'var(--txm)' }}>
             {compatStr}
           </p>
 
@@ -523,7 +505,7 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
             <span style={{ color: 'var(--tx2)' }}>{de ? 'Gewachst' : 'Waxed'}</span>
           </div>
 
-          <div className="flex items-center justify-between pt-1">
+          <div className="flex items-center justify-between">
             <span className="text-[17px] font-bold text-wx-tx1 tracking-[-0.02em]">{formatPrice(product.price)}</span>
             <a
               href={product.ebayUrl}
@@ -539,11 +521,6 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
           </div>
         </div>
       </Link>
-      <div
-        ref={chainSpecularRef}
-        className="absolute inset-0 pointer-events-none rounded-2xl"
-        style={{ zIndex: 20 }}
-      />
     </div>
   );
 });
