@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
-import { ExternalLink, Shield, Snowflake, Droplets, Sun } from 'lucide-react';
+import { ExternalLink, ArrowRight, Shield, Snowflake, Droplets, Sun } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useSectionReveal } from '@/hooks/useAnimation';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
@@ -485,16 +485,14 @@ export function WhyWax() {
                 ? '154 eBay-Bewertungen · 100% positiv · Versand am gleichen Tag'
                 : '154 eBay reviews · 100% positive · Same-day shipping'}
             </p>
-            <a
-              href="https://www.ebay.de/usr/waxcelerate"
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={() => document.querySelector('#produkte')?.scrollIntoView({ behavior: 'smooth' })}
               className="inline-flex items-center gap-2 px-8 py-4 rounded-lg text-white font-medium text-[14px] transition-all hover:opacity-90 active:scale-[0.98]"
               style={{ background: 'linear-gradient(135deg, #4A6AEE 0%, #6080F8 100%)' }}
             >
-              {de ? 'Zum eBay-Shop' : 'Visit eBay Shop'}
-              <ExternalLink className="h-4 w-4" />
-            </a>
+              {de ? 'Jetzt kaufen' : 'Buy now'}
+              <ArrowRight className="h-4 w-4" />
+            </button>
           </div>
 
         </div>

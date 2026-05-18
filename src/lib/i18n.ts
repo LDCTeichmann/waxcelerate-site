@@ -7,7 +7,7 @@ export const translations = {
       tools: 'Tools',
       guides: 'Anleitungen',
       faq: 'FAQ',
-      about: 'Über mich',
+      about: 'Das Projekt',
       contact: 'Kontakt',
       ebayShop: 'eBay-Shop',
     },

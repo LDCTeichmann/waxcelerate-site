@@ -150,7 +150,8 @@ export function Hero() {
   const scrollToSection = (href: string) =>
     document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
 
-  const line1 = de ? 'Am Ende der Recherche.' : 'At the end of your research.';
+  const line1 = de ? 'Sauberer Antrieb.' : 'Cleaner drivetrain.';
+  const line2 = de ? 'Längere Kette.' : 'Longer chain.';
 
   return (
     <section
@@ -199,6 +200,7 @@ export function Hero() {
                 style={{ fontSize: 'clamp(2.4rem, 5.5vw, 5rem)', color: '#FFFFFF' }}
               >
                 <WordReveal text={line1} className="block" />
+                <WordReveal text={line2} className="block" />
                 <span
                   className="block font-serif-display italic overflow-hidden"
                   style={{ color: '#6A8AFF', verticalAlign: 'bottom' }}
@@ -229,7 +231,7 @@ export function Hero() {
                 className="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-semibold text-white rounded-full transition-opacity duration-150 hover:opacity-90 active:scale-[0.98]"
                 style={{ background: '#4A6AEE', willChange: 'transform' }}
               >
-                {de ? 'Produkte ansehen' : 'View products'}
+                {de ? 'Classic 500g — 29,95 €' : 'Classic 500g — €29.95'}
                 <ArrowRight className="h-3.5 w-3.5" />
               </button>
 
@@ -246,7 +248,7 @@ export function Hero() {
                   ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.55)')
                 }
               >
-                {de ? 'Auch auf eBay' : 'Also on eBay'}
+                {de ? 'Auf eBay kaufen' : 'Buy on eBay'}
                 <ExternalLink className="h-3 w-3" />
               </a>
             </div>

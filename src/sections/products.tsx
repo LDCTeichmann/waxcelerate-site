@@ -476,20 +476,7 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice }: CardProps) {
                 {product.applications} {de ? 'Anwendungen' : 'applications'}
               </p>
             </div>
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <AddToCartButton product={product} size="sm" />
-              <a
-                href={product.ebayUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={e => e.stopPropagation()}
-                className="flex items-center gap-1 px-2.5 py-2 rounded-lg text-[11px] font-medium text-wx-txf hover:text-wx-tx1 transition-colors flex-shrink-0"
-                style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)' }}
-              >
-                eBay
-                <ExternalLink className="h-2.5 w-2.5" />
-              </a>
-            </div>
+            <AddToCartButton product={product} size="sm" />
           </div>
         </div>
       </Link>

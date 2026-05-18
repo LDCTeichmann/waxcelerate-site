@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Menu, X, ExternalLink } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { CartIcon } from '@/components/CartIcon';
 
@@ -175,17 +175,6 @@ export function Navigation({ onLogoClick }: NavigationProps) {
               {lang === 'de' ? 'EN' : 'DE'}
             </button>
 
-            {/* eBay Shop Link */}
-            <a
-              href="https://www.ebay.de/usr/waxcelerate"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden sm:flex items-center gap-2 px-4 py-2 bg-[#4A6AEE] text-white text-sm font-medium rounded-full transition-all hover:opacity-90 hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4A6AEE] focus-visible:ring-offset-2"
-            >
-              {t.nav.ebayShop}
-              <ExternalLink className="h-3.5 w-3.5" />
-            </a>
-
             {/* Mobile Menu Button */}
             <button
               id="mobile-menu-button"
@@ -257,16 +246,6 @@ export function Navigation({ onLogoClick }: NavigationProps) {
 
           {/* Bottom */}
           <div className="px-5 pb-8 pt-4 flex-shrink-0 space-y-3 border-t border-wx-bd/20">
-            <a
-              href="https://www.ebay.de/usr/waxcelerate"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 w-full py-3 rounded-full text-white text-[14px] font-semibold"
-              style={{ background: 'linear-gradient(135deg, #4A6AEE, #6080F8)' }}
-            >
-              {t.nav.ebayShop}
-              <ExternalLink className="h-4 w-4" />
-            </a>
             <div className="flex items-center justify-end pt-1">
               <button
                 onClick={toggleLang}
