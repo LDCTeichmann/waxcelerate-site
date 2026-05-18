@@ -624,21 +624,23 @@ export function Tools() {
   const tabButtonRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const tabPillRef = useRef<HTMLDivElement>(null);
 
-  // Initialize pill position on mount (instant, no animation)
+  // Initialize pill position — defer to rAF so layout is stable (avoids width:0 flash)
   useEffect(() => {
-    const btn = tabButtonRefs.current[activeTab];
-    const bar = tabBarRef.current;
-    const pill = tabPillRef.current;
-    if (!btn || !bar || !pill) return;
-    const barRect = bar.getBoundingClientRect();
-    const btnRect = btn.getBoundingClientRect();
-    gsap.set(pill, { x: btnRect.left - barRect.left, width: btnRect.width });
+    const frame = requestAnimationFrame(() => {
+      const btn = tabButtonRefs.current[0];
+      const bar = tabBarRef.current;
+      const pill = tabPillRef.current;
+      if (!btn || !bar || !pill) return;
+      const barRect = bar.getBoundingClientRect();
+      const btnRect = btn.getBoundingClientRect();
+      gsap.set(pill, { x: btnRect.left - barRect.left, width: btnRect.width });
+    });
+    return () => cancelAnimationFrame(frame);
   }, []); // eslint-disable-line
 
   // Animate pill on tab change
   useEffect(() => {
-    const idx = TAB_LABELS.indexOf(TAB_LABELS[activeTab]);
-    const btn = tabButtonRefs.current[idx];
+    const btn = tabButtonRefs.current[activeTab];
     const bar = tabBarRef.current;
     const pill = tabPillRef.current;
     if (!btn || !bar || !pill) return;
@@ -653,12 +655,14 @@ export function Tools() {
     });
   }, [activeTab, TAB_LABELS]);
 
-  // Recalculate pill position on window/container resize
+  // Recalculate pill on resize — stable ref tracks active tab so deps stay []
+  const activeTabRef = useRef(activeTab);
+  useEffect(() => { activeTabRef.current = activeTab; }, [activeTab]);
   useEffect(() => {
     const bar = tabBarRef.current;
     if (!bar) return;
     const observer = new ResizeObserver(() => {
-      const btn = tabButtonRefs.current[activeTab];
+      const btn = tabButtonRefs.current[activeTabRef.current];
       const pill = tabPillRef.current;
       if (!btn || !pill) return;
       const barRect = bar.getBoundingClientRect();
@@ -667,14 +671,7 @@ export function Tools() {
     });
     observer.observe(bar);
     return () => observer.disconnect();
-  }, [activeTab, TAB_LABELS]);
-
-  const toolComponents = useMemo(() => [
-    <RewaxCalculator />,
-    <WaxStockCalculator />,
-    <CostSavingsCalculator />,
-    <RotationROI />,
-  ], []);
+  }, []); // eslint-disable-line
 
   return (
     <section id="tools" className="relative py-24" style={{ background: 'var(--tool-bg)' }}>
@@ -717,11 +714,12 @@ export function Tools() {
                 </button>
               ))}
             </div>
-            {toolComponents.map((comp, i) => (
-              <div key={i} style={{ display: activeTab === i ? 'block' : 'none' }}>
-                {comp}
-              </div>
-            ))}
+            {/* Conditional render per tab — unmount/remount ensures scroll-triggered
+                 animations (like AnimatedBar IntersectionObserver) fire correctly */}
+            {activeTab === 0 && <RewaxCalculator />}
+            {activeTab === 1 && <WaxStockCalculator />}
+            {activeTab === 2 && <CostSavingsCalculator />}
+            {activeTab === 3 && <RotationROI />}
           </div>
 
           {/* ── Desktop: 1 featured + 3-col ── */}

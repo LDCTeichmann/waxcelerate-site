@@ -4,6 +4,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import gsap from 'gsap';
 
 // Split text into word spans for clip-mask reveal
+// NOTE: space must live OUTSIDE the overflow-hidden wrapper, otherwise it gets clipped
 function WordReveal({
   text,
   className,
@@ -17,15 +18,17 @@ function WordReveal({
   return (
     <span className={className} style={style}>
       {words.map((word, i) => (
-        <span
-          key={i}
-          className="inline-block overflow-hidden leading-[1.15]"
-          style={{ verticalAlign: 'bottom' }}
-        >
-          <span className="word-inner inline-block" style={{ willChange: 'transform' }}>
-            {word}
-            {i < words.length - 1 ? ' ' : ''}
+        // Fragment key is supported; lets us place the space text-node outside overflow-hidden
+        <span key={i} style={{ display: 'inline' }}>
+          <span
+            className="inline-block overflow-hidden leading-[1.15]"
+            style={{ verticalAlign: 'bottom' }}
+          >
+            <span className="word-inner inline-block" style={{ willChange: 'transform' }}>
+              {word}
+            </span>
           </span>
+          {i < words.length - 1 ? ' ' : ''}
         </span>
       ))}
     </span>

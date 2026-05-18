@@ -27,48 +27,6 @@ export function Products() {
   const headerRef = useRef<HTMLDivElement>(null);
   useSectionReveal(headerRef);
 
-  useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-    const ctx = gsap.context(() => {
-      ScrollTrigger.batch('.wax-card', {
-        onEnter: (els) => {
-          gsap.set(els, { transformPerspective: 700, transformOrigin: '50% 0%' });
-          gsap.from(els, {
-            y: 30, opacity: 0, rotateX: 8, duration: 0.7,
-            stagger: 0.09, ease: 'power3.out',
-            onStart: () => els.forEach(el => { (el as HTMLElement).style.willChange = 'transform, opacity'; }),
-            onComplete: () => els.forEach(el => {
-              (el as HTMLElement).style.willChange = 'auto';
-              (el as HTMLElement).style.transform = '';
-            }),
-          });
-        },
-        start: 'top 87%',
-        once: true,
-      });
-
-      ScrollTrigger.batch('.chain-card', {
-        onEnter: (els) => {
-          gsap.set(els, { transformPerspective: 700, transformOrigin: '50% 0%' });
-          gsap.from(els, {
-            y: 30, opacity: 0, rotateX: 8, duration: 0.7,
-            stagger: 0.09, ease: 'power3.out',
-            onStart: () => els.forEach(el => { (el as HTMLElement).style.willChange = 'transform, opacity'; }),
-            onComplete: () => els.forEach(el => {
-              (el as HTMLElement).style.willChange = 'auto';
-              (el as HTMLElement).style.transform = '';
-            }),
-          });
-        },
-        start: 'top 87%',
-        once: true,
-      });
-    });
-
-    return () => ctx.revert();
-  }, []);
-
   const waxProducts = useMemo(() => products.filter(p => p.category === 'wax'), []);
   const chainProducts = useMemo(() => products.filter(p => p.category === 'chain'), []);
 
@@ -85,13 +43,58 @@ export function Products() {
     return true;
   }), [chainProducts, speedFilter, brandFilter]);
 
+  const formatter = useMemo(() =>
+    new Intl.NumberFormat(lang === 'de' ? 'de-DE' : 'en-US', { style: 'currency', currency: 'EUR' }),
+  [lang]);
+  const formatPrice = useCallback((price: number) => formatter.format(price), [formatter]);
+
   const resetFilters = useCallback(() => { setSpeedFilter('all'); setBrandFilter('all'); }, []);
 
-  const formatPrice = useCallback((price: number) =>
-    new Intl.NumberFormat(lang === 'de' ? 'de-DE' : 'en-US', {
-      style: 'currency',
-      currency: 'EUR',
-    }).format(price), [lang]);
+  // Wax card entrance — runs once, cards never change
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const ctx = gsap.context(() => {
+      ScrollTrigger.batch('.wax-card', {
+        onEnter: (els) => {
+          gsap.set(els, { transformPerspective: 700, transformOrigin: '50% 0%' });
+          gsap.from(els, {
+            y: 30, opacity: 0, rotateX: 8, duration: 0.7,
+            stagger: 0.09, ease: 'power3.out',
+            onStart: () => els.forEach(el => { (el as HTMLElement).style.willChange = 'transform, opacity'; }),
+            onComplete: () => els.forEach(el => {
+              gsap.set(el, { clearProps: 'transform,willChange' });
+            }),
+          });
+        },
+        start: 'top 87%',
+        once: true,
+      });
+    });
+    return () => ctx.revert();
+  }, []);
+
+  // Chain card entrance — re-registers when filter changes so new cards animate in
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const ctx = gsap.context(() => {
+      ScrollTrigger.batch('.chain-card', {
+        onEnter: (els) => {
+          gsap.set(els, { transformPerspective: 700, transformOrigin: '50% 0%' });
+          gsap.from(els, {
+            y: 30, opacity: 0, rotateX: 8, duration: 0.7,
+            stagger: 0.09, ease: 'power3.out',
+            onStart: () => els.forEach(el => { (el as HTMLElement).style.willChange = 'transform, opacity'; }),
+            onComplete: () => els.forEach(el => {
+              gsap.set(el, { clearProps: 'transform,willChange' });
+            }),
+          });
+        },
+        start: 'top 87%',
+        once: true,
+      });
+    });
+    return () => ctx.revert();
+  }, [filteredChains.length]);
 
   return (
     <section id="produkte" className="relative py-20 bg-wx-bg">
@@ -234,8 +237,10 @@ function useTilt(strength = 5) {
   const handleMouseMove = useCallback((e: MouseEvent) => {
     const el = ref.current;
     if (!el) return;
+    // Remove leave-transition so mouse-move is instant
+    el.style.transition = '';
     const rect = el.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;   // -0.5 to 0.5
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
     const y = (e.clientY - rect.top) / rect.height - 0.5;
     el.style.transform = `perspective(900px) rotateY(${x * strength}deg) rotateX(${-y * strength}deg) translateZ(0)`;
   }, [strength]);
@@ -243,7 +248,11 @@ function useTilt(strength = 5) {
   const handleMouseLeave = useCallback(() => {
     const el = ref.current;
     if (!el) return;
+    // Ease back to flat instead of snapping
+    el.style.transition = 'transform 0.4s cubic-bezier(0.33, 1, 0.68, 1)';
     el.style.transform = 'perspective(900px) rotateY(0deg) rotateX(0deg) translateZ(0)';
+    // Remove inline transition after it completes so hover styles aren't delayed
+    setTimeout(() => { if (el) el.style.transition = ''; }, 400);
   }, []);
 
   useEffect(() => {

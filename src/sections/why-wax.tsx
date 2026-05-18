@@ -61,7 +61,7 @@ export function WhyWax() {
       if (cards?.length) {
         gsap.fromTo(cards, { opacity: 0, y: 20 }, {
           opacity: 1, y: 0, duration: 0.5, stagger: 0.08, ease: 'power3.out',
-          scrollTrigger: { trigger: cardsRef.current, start: 'top 82%' },
+          scrollTrigger: { trigger: cardsRef.current, start: 'top 82%', once: true },
         });
       }
 
@@ -99,7 +99,7 @@ export function WhyWax() {
         const w = (bar as HTMLElement).dataset.w!;
         gsap.fromTo(bar, { width: '0%' }, {
           width: w, duration: 1, ease: 'power3.out',
-          scrollTrigger: { trigger: frictionRef.current, start: 'top 80%' },
+          scrollTrigger: { trigger: frictionRef.current, start: 'top 80%', once: true },
         });
       });
     }, sectionRef);
@@ -335,7 +335,7 @@ export function WhyWax() {
             <div className="grid sm:grid-cols-2 gap-4">
               {/* Classic */}
               <div
-                className="rounded-xl border p-6 flex flex-col transition-all duration-400"
+                className="rounded-xl border p-6 flex flex-col transition-all duration-300"
                 style={{
                   background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
                   borderColor: rider === 'summer' ? 'rgba(192,192,208,0.35)' : 'var(--bd)',
@@ -382,7 +382,7 @@ export function WhyWax() {
                   </span>
                 </div>
                 <div
-                  className="rounded-xl border p-6 flex flex-col h-full transition-all duration-400"
+                  className="rounded-xl border p-6 flex flex-col h-full transition-all duration-300"
                   style={{
                     background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
                     borderColor: rider === 'allseason' ? 'rgba(74,106,238,0.45)' : 'var(--bd)',
