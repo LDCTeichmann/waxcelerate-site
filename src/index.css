@@ -379,6 +379,13 @@ footer ul a:hover::after {
   width: 100%;
 }
 
+/* ── Spec data — tabular figures for numbers & measurements ──────────────── */
+.spec-data {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+  letter-spacing: 0.01em;
+}
+
 /* Reduced motion — universal kill switch */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
