@@ -65,15 +65,6 @@ export function WhyWax() {
         });
       }
 
-      // Cost bars (vertical — animate height)
-      costRef.current?.querySelectorAll('.cost-bar').forEach((bar) => {
-        const w = (bar as HTMLElement).dataset.w!;
-        gsap.fromTo(bar, { height: '0%' }, {
-          height: w, duration: 1.1, ease: 'power3.out',
-          scrollTrigger: { trigger: costRef.current, start: 'top 82%', once: true },
-        });
-      });
-
       // Cost number counters — use gsap.to so val goes 0 → target (not target → 0)
       const oilCounter = { val: 0 };
       if (costOilRef.current) {
@@ -166,65 +157,19 @@ export function WhyWax() {
                 </p>
               </div>
 
-              {/* Bar chart — unified frame, shared baseline */}
-              <div className="px-6 pt-6 pb-2">
-                {/* Shared chart frame */}
-                <div className="relative" style={{ height: '148px' }}>
-                  {/* Subtle grid lines */}
-                  <div className="absolute inset-x-0 top-0 h-px" style={{ background: 'var(--bd2)', opacity: 0.45 }} />
-                  <div className="absolute inset-x-0 h-px" style={{ background: 'var(--bd2)', opacity: 0.3, top: '50%' }} />
-                  {/* Baseline */}
-                  <div className="absolute inset-x-0 bottom-0 h-px" style={{ background: 'var(--bd)' }} />
-
-                  {/* Bars — bottom-anchored */}
-                  <div className="absolute bottom-0 left-0 right-0 flex items-end justify-center gap-10 sm:gap-16">
-
-                    {/* Oil bar + label above */}
-                    <div className="flex flex-col items-center gap-0">
-                      <div
-                        className="cost-bar rounded-t-xl"
-                        data-w="100%"
-                        style={{
-                          height: '0%',
-                          width: '64px',
-                          background: 'linear-gradient(180deg, rgba(148,163,184,0.55) 0%, rgba(100,116,139,0.72) 100%)',
-                          border: '1px solid rgba(148,163,184,0.28)',
-                          borderBottom: 'none',
-                        }}
-                      />
-                    </div>
-
-                    {/* Wax bar */}
-                    <div className="flex flex-col items-center gap-0">
-                      <div
-                        className="cost-bar rounded-t-xl"
-                        data-w="54%"
-                        style={{
-                          height: '0%',
-                          width: '64px',
-                          background: 'linear-gradient(180deg, #8AAAFF 0%, #4A6AEE 100%)',
-                          boxShadow: '0 -6px 24px rgba(74,106,238,0.35)',
-                        }}
-                      />
-                    </div>
-                  </div>
+              {/* Side-by-side cost cards */}
+              <div className="px-5 py-5 flex items-stretch gap-3">
+                {/* Oil */}
+                <div className="flex-1 rounded-xl border border-wx-bd p-4 text-center" style={{ background: 'var(--sf3)' }}>
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-wx-txff font-medium mb-2.5">{de ? 'Mit Öl' : 'With Oil'}</p>
+                  <span ref={costOilRef} className="text-[32px] font-bold text-wx-txm tabular-nums leading-none">~€0</span>
+                  <p className="text-[10px] text-wx-txff mt-1.5">{de ? '3 Ketten' : '3 chains'}</p>
                 </div>
-
-                {/* Labels row — directly below bars */}
-                <div className="flex items-start justify-center gap-10 sm:gap-16 pt-4 pb-5">
-                  {/* Oil label */}
-                  <div className="flex flex-col items-center text-center" style={{ width: '64px' }}>
-                    <span ref={costOilRef} className="text-[28px] font-bold text-wx-txm tabular-nums leading-none">~€0</span>
-                    <span className="text-[11px] text-wx-txf mt-1 font-medium uppercase tracking-wide">{de ? 'Mit Öl' : 'Oil'}</span>
-                    <span className="text-[10px] text-wx-txff mt-0.5 leading-tight">{de ? '3 Ketten' : '3 chains'}</span>
-                  </div>
-
-                  {/* Wax label */}
-                  <div className="flex flex-col items-center text-center" style={{ width: '64px' }}>
-                    <span ref={costWaxRef} className="text-[28px] font-bold tabular-nums leading-none" style={{ color: '#8AAAFF' }}>~€0</span>
-                    <span className="text-[11px] font-semibold mt-1 uppercase tracking-wide" style={{ color: '#6A8AFF' }}>Wax</span>
-                    <span className="text-[10px] mt-0.5 leading-tight" style={{ color: '#4A6AEE' }}>{de ? '1 Kette' : '1 chain'}</span>
-                  </div>
+                {/* Wax */}
+                <div className="flex-1 rounded-xl border p-4 text-center" style={{ borderColor: 'rgba(74,106,238,0.35)', background: 'rgba(74,106,238,0.06)' }}>
+                  <p className="text-[10px] uppercase tracking-[0.2em] font-semibold mb-2.5" style={{ color: '#6A8AFF' }}>Wax</p>
+                  <span ref={costWaxRef} className="text-[32px] font-bold tabular-nums leading-none" style={{ color: '#8AAAFF' }}>~€0</span>
+                  <p className="text-[10px] mt-1.5" style={{ color: '#6A8AFF' }}>{de ? '1 Kette' : '1 chain'}</p>
                 </div>
               </div>
 

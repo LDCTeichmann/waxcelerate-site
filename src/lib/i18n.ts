@@ -206,9 +206,9 @@ export const translations = {
     // About
     about: {
       title: 'Das Projekt',
-      bio1: 'Waxcelerate ist eine One-Person-Operation. Ich entwickle, produziere und versende alles selbst — aus Stuttgart.',
-      bio2: 'Die Idee war simpel: ein Heißwachs, das wirklich hält. Nicht für 300 km, sondern für alles, was ein Sommer auf dem Bike bedeutet. Über ein Jahr Entwicklung, viele Chargen, ein Ergebnis, das ich selbst täglich fahre.',
-      bio3: 'Jedes Paket geht direkt von mir raus. Kein Lager, kein Zwischenhändler — das bedeutet frisches Produkt, kurze Wege und direkte Antworten, wenn du Fragen hast.',
+      bio1: 'Waxcelerate ist nicht am Schreibtisch entstanden, sondern auf nassen Herbststraßen, bei Ausfahrten tief im Winter und nach Sommerrennen, bei denen Staub und Hitze zeigen, was ein Wachs wirklich kann.',
+      bio2: 'Der Anspruch war von Anfang an konkret: kein Wachs, das im ersten Eindruck überzeugt und nach drei Wochen Kompromisse zeigt. Sondern eines, das seine Arbeit still tut, bei Kälte genauso wie im Hochsommer, über kurze Ausfahrten genauso wie über lange Intervalle. Nicht jede Charge war sofort richtig. Aber jede war näher dran.',
+      bio3: 'Das Ergebnis wird in kleinen Chargen in Stuttgart entwickelt und gefertigt, für Fahrer, die beim Antrieb kein Versprechen brauchen, sondern ein Produkt, das sich seine Überzeugungskraft auf der Straße verdient hat.',
       location: 'Stuttgart, Deutschland',
       email: 'waxcelerate@gmail.com',
       phone: '+49 157 51957470',
@@ -487,9 +487,9 @@ export const translations = {
     // About
     about: {
       title: 'The Project',
-      bio1: 'Waxcelerate is a one-person operation. I develop, produce, and ship everything myself — from Stuttgart.',
-      bio2: 'The idea was simple: a hot wax that actually lasts. Not for 300 km, but for everything a summer on the bike means. Over a year of development, many batches — one result I ride myself every day.',
-      bio3: 'Every package ships directly from me. No warehouse, no middleman — that means fresher product, shorter lead times, and direct answers when you have questions.',
+      bio1: "Waxcelerate wasn't born at a desk — it came from wet autumn roads, deep winter rides, and summer races where dust and heat reveal what a wax is really made of.",
+      bio2: "The goal was concrete from the start: not a wax that impresses on first contact and starts making compromises after three weeks. But one that does its work quietly — in the cold just as well as in midsummer, on short rides just as well as long intervals. Not every batch was right straight away. But each one was closer.",
+      bio3: "The result is developed and produced in small batches in Stuttgart, for riders who don't need a promise about their drivetrain — just a product that earns its reputation on the road.",
       location: 'Stuttgart, Germany',
       email: 'waxcelerate@gmail.com',
       phone: '+49 157 51957470',
