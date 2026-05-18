@@ -10,6 +10,8 @@ import { Tools } from '@/sections/tools';
 import { Guides } from '@/sections/guides';
 import { FAQ } from '@/sections/faq';
 import { About } from '@/sections/about';
+import { Conviction } from '@/sections/conviction';
+import { Reviews } from '@/sections/reviews';
 import { Contact } from '@/sections/contact';
 import { Footer } from '@/sections/footer';
 
@@ -96,7 +98,9 @@ function AppContent() {
             <main>
               <Hero />
               <SocialProof />
+              <Conviction />
               <Products />
+              <Reviews />
               <WhyWax />
               <Tools />
               <Guides />
