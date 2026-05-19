@@ -224,6 +224,46 @@ export const translations = {
           q: 'Kann ich das Wachs in einem normalen Topf schmelzen?',
           a: 'Ja. Ein alter Kochtopf auf dem Herd oder ein Reiskocher funktionieren prima — kein spezielles Gerät nötig. Den Topf danach nicht mehr für Lebensmittel verwenden. Ein Mini-Slow-Cooker ist ideal, weil die Temperatur einfacher konstant zu halten ist. Zieltemperatur: 85–90 °C.',
         },
+        {
+          q: 'Wie breche ich die Kette nach dem ersten Wachsen richtig ein?',
+          a: 'Nach dem Aushärten sitzt das Wachs fest in allen Gelenken — die Kette fühlt sich steif an. Das ist normal und kein Fehler. Einfach montieren und 10–15 km fahren. Schalten und Treten drückt das überschüssige Wachs aus den Gliedern, danach läuft die Kette wieder flüssig. Weißes Wachspulver auf der Kette ist ein gutes Zeichen — das ist normaler Abrieb und zeigt, dass das Wachs genau dort sitzt, wo es soll.',
+        },
+        {
+          q: 'Wie viele Anwendungen hält ein 500g Block?',
+          a: 'Mit einer Kette und regelmäßigen Intervallen: ca. 20–30 Rewaxing-Sessions pro 500g Block. Mit dem 3-Ketten-System (alle drei auf einmal): ca. 8–10 Komplettbäder. Der 300g Block reicht für ~10–15 Sessions mit einer Kette. Überschlagsrechnung: bei 500 km Intervall und einer Kette kommst du mit einem 500g Block ca. 10.000–15.000 km weit.',
+        },
+        {
+          q: 'Was ist der Vorteil einer vorgewachsten Kette gegenüber selbst wachsen?',
+          a: 'Selbst wachsen ist absolut machbar — aber die Erstentfettung ist der zeitaufwändigste und entscheidendste Schritt. Wir entfetten unsere Ketten professionell im Ultraschallbad mit chemischen Reinigungsmitteln, die das Fabrikfett restlos entfernen. Ergebnis: das Wachs haftet von der ersten Fahrt an optimal. Eine vorgewachste Kette ist damit der perfekte Einstieg — du weißt danach genau, wie es sein soll, und kannst beim Nachwachsen selbst auf dieses Niveau hinarbeiten.',
+        },
+        {
+          q: 'Wann muss ich die Kette komplett ersetzen — nicht nur nachwachsen?',
+          a: 'Mit einem Kettendehnungsmesser prüfen: bei 0,5% Dehnung öfter messen, bei 0,75% Dehnung die Kette wechseln — sonst frisst die gestreckte Kette die Zahnflanken von Kassette und Kettenblatt. Mit Wachs erreichst du diese Grenze deutlich später als mit Öl. Faustregel: gewachste Kette prüfen nach 4.000–5.000 km, geölte nach 2.000 km.',
+        },
+        {
+          q: 'Das Wachs hält bei mir nicht so lange wie erwartet — was mache ich falsch?',
+          a: 'Häufigste Ursache: die Erstentfettung war nicht vollständig. Bestimmte Shimano-11-fach-Ketten und manche SRAM-Ketten haben besonders hartnäckiges Werkfett — hier helfen 2–3 Entfettungsdurchgänge statt einem. Zweite Ursache: Wachs zu heiß aufgetragen. Über ~95 °C läuft es zu dünn und fließt aus den Gelenken. Tipp: Kette kurz vor dem Erstarren entnehmen — wenn sich gerade eine dünne Haut auf dem Wachs bildet, nicht mehr im vollflüssigen Zustand.',
+        },
+        {
+          q: 'Soll ich auch Kassette und Kettenblätter mit Wachs behandeln?',
+          a: 'Nein — das wäre kontraproduktiv. Wachs gehört in die Kette, nicht auf die Ritzel. Kassette und Kettenblätter einfach sauber halten (trockenwischen oder Bremsenreiniger). Beim Umstieg auf Wachs lohnt sich einmal eine gründliche Kassettenreinigung — alte Ölreste darauf können die frisch gewachste Kette nachträglich kontaminieren.',
+        },
+        {
+          q: 'Taugt Waxcelerate auch für Trekking- und Citybikes?',
+          a: 'Für jedes Fahrrad. Wachs ist kein Sportnischenprodukt — es funktioniert auf jedem Stahlkettenantrieb. Für Citybikes ist es sogar besonders praktisch: die Kette bleibt sauber, keine fettigen Hosenbeine, kein schmutziger Antrieb, kein Nachschmieren nach jeder Fahrt. Einzige Einschränkung: wenn das Bike lange ungefahren steht, gelegentlich einen Tropfen Drip Wax als Rostvorsorge auftragen.',
+        },
+        {
+          q: 'Welche Quick-Links / Kettenverschlüsse empfehlt ihr?',
+          a: 'Für Heißwachs ist ein Kettenverschluss Pflicht — du musst die Kette regelmäßig ausbauen. Shimano und SRAM 11/12-fach Quick-Links funktionieren gut; Shimano nennt sie offiziell Einweg, lassen sich aber 3–5× wiederverwenden. Wer auf Nummer sicher geht: Connex Quick-Links (kompatibel mit Shimano, SRAM und KMC) sind unbegrenzt wiederverwendbar und gelten unter Wachsern als Standard. KMC Missing Links sind ebenfalls empfehlenswert.',
+        },
+        {
+          q: 'Was passiert, wenn mein Wachstopf durch Öl verunreinigt wurde?',
+          a: 'Öl und Wachs mischen sich nicht — Öl schwimmt an der Oberfläche und verhindert, dass das Wachs in neue Ketten eindringt. Wenn du sicher weißt, dass Öl ins Bad gelangt ist (z.B. unzureichend entfettete Kette), das Wachs besser entsorgen und frisch beginnen. Zur Kontrolle: das Wachsbad gelegentlich auf einem hellen Tuch erstarren lassen — Öl oder Schmutz zeigen sich als dunkle Eintrübung.',
+        },
+        {
+          q: 'Schadet das Ultraschallbad der Kette?',
+          a: 'Nein. Ultraschall-Reinigung arbeitet mit Kavitation — mikroskopisch kleinen Luftblasen, die Schmutz mechanisch lösen — und greift das Metall der Kette nicht an. Wir nutzen es für die Tiefenreinigung unserer vorgewachsten Ketten, weil es das Fabrikfett aus den Rollenlager-Zwischenräumen deutlich effektiver entfernt als manuelles Entfetten. Für das Nachwachsen zuhause ist es nicht nötig.',
+        },
       ],
     },
 
@@ -528,6 +568,46 @@ export const translations = {
         {
           q: 'Can I melt the wax in a regular cooking pot?',
           a: "Yes. An old pot on the stove or a rice cooker works perfectly — no specialist equipment needed. Don't use the pot for food afterwards. A mini slow cooker is ideal because temperature is easier to hold steady. Target temperature: 85–90 °C.",
+        },
+        {
+          q: 'How do I break in the chain after the first wax?',
+          a: "After hardening, the wax sits solid in all the joints — the chain feels stiff. That's normal, not a mistake. Just mount it and ride 10–15 km. Pedalling and shifting pushes the excess wax out of the links, after which the chain runs smoothly again. White wax powder on the chain is a good sign — that's normal abrasion showing the wax is sitting exactly where it should.",
+        },
+        {
+          q: 'How many applications does a 500g block last?',
+          a: 'With one chain and regular intervals: around 20–30 re-waxing sessions per 500g block. With the 3-chain system (all three at once): roughly 8–10 full baths. The 300g block covers ~10–15 sessions with a single chain. Quick maths: at 500 km intervals with one chain, a 500g block takes you approximately 10,000–15,000 km.',
+        },
+        {
+          q: 'What is the advantage of a pre-waxed chain over waxing it yourself?',
+          a: "Waxing yourself is absolutely doable — but the initial degreasing is the most time-consuming and most critical step. We degrease our chains professionally in an ultrasonic bath with chemical solvents that remove factory grease completely. The result: the wax adheres optimally from the very first ride. A pre-waxed chain is the perfect entry point — you get a reference experience of how it should feel, so when you re-wax yourself you know exactly what you're working towards.",
+        },
+        {
+          q: 'When do I need to replace the chain entirely — not just re-wax?',
+          a: 'Check with a chain wear indicator: at 0.5% elongation, check more regularly. At 0.75% elongation, replace the chain — any later and the stretched chain eats the tooth flanks on your cassette and chainring. With wax you reach this threshold significantly later than with oil. Rule of thumb: check a waxed chain after 4,000–5,000 km, an oiled chain after 2,000 km.',
+        },
+        {
+          q: "My wax doesn't last as long as expected — what am I doing wrong?",
+          a: "Most common cause: the initial degreasing wasn't complete. Certain Shimano 11-speed chains and some SRAM chains have particularly stubborn factory grease — 2–3 degreasing rounds instead of one fixes this. Second cause: wax applied too hot. Above ~95 °C it runs too thin and flows out of the joints. Tip: remove the chain just before the wax solidifies — when a thin skin is just forming on the surface, not while it's still fully liquid.",
+        },
+        {
+          q: 'Should I also treat the cassette and chainrings with wax?',
+          a: "No — it would actually be counterproductive. Wax belongs inside the chain, not on the sprockets. Keep cassette and chainrings clean (wipe dry, or use brake cleaner when needed). When switching to wax, it's worth degreasing them once properly — old oil residue on them can contaminate your freshly waxed chain afterwards.",
+        },
+        {
+          q: 'Is Waxcelerate suitable for trekking and city bikes?',
+          a: "For any bicycle. Wax isn't a niche sports product — it works on every steel chain drivetrain. For city bikes it's actually particularly practical: the chain stays clean, no more oily trouser legs, no dirty drivetrain, no re-lubing after every ride. One caveat: if the bike sits unused for a long time, apply an occasional drop of drip wax as a rust precaution.",
+        },
+        {
+          q: 'Which quick-links do you recommend for hot waxing?',
+          a: "A quick-link is essential for hot waxing — you need to remove the chain regularly. Shimano and SRAM 11/12-speed quick-links work well; Shimano officially calls theirs single-use but they hold up for 3–5 re-uses in practice. For the cleanest system: Connex quick-links (compatible with Shimano, SRAM and KMC) are infinitely reusable and the standard among waxers. KMC Missing Links are also a solid choice.",
+        },
+        {
+          q: 'What happens if my wax pot gets contaminated with oil?',
+          a: "Oil and wax don't mix — oil floats to the surface and prevents the wax from penetrating new chains properly. If you know oil has entered the bath (e.g. from an insufficiently degreased chain), discard the wax and start fresh. As a check: occasionally let the wax solidify on a light-coloured cloth — oil or dirt will show up as dark discolouration.",
+        },
+        {
+          q: 'Does ultrasonic cleaning damage the chain?',
+          a: "No. Ultrasonic cleaning works through cavitation — microscopic air bubbles that mechanically dislodge dirt — and doesn't attack the chain's metal. We use it for the deep cleaning of our pre-waxed chains, because it removes factory grease from roller bearing gaps far more effectively than manual degreasing alone. For home re-waxing, it's not necessary.",
         },
       ],
     },
