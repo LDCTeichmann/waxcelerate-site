@@ -1,8 +1,14 @@
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
 
 export function ImpressumPage() {
   return (
+    <>
+    <Helmet>
+      <title>Impressum | Waxcelerate</title>
+      <meta name="robots" content="noindex" />
+    </Helmet>
     <div className="bg-wx-bg min-h-screen py-20">
       <div className="max-w-2xl mx-auto px-6">
         <Link
@@ -45,5 +51,6 @@ export function ImpressumPage() {
         </section>
       </div>
     </div>
+    </>
   );
 }

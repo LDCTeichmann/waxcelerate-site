@@ -1,5 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import { useState, useCallback } from 'react';
+import { Helmet } from 'react-helmet-async';
 import {
   ArrowLeft, ExternalLink, Check, Thermometer, Droplets, Zap,
   ChevronRight, ChevronDown, Star,
@@ -49,7 +50,18 @@ export function ProductDetailPage() {
   const descriptionText = de ? product.description : product.descriptionEn;
   const titleText = de ? product.title : product.titleEn;
 
+  const metaTitle = `${titleText} | Waxcelerate`;
+  const metaDescription = descriptionText ?? '';
+
   return (
+    <>
+    <Helmet>
+      <title>{metaTitle}</title>
+      <meta name="description" content={metaDescription} />
+      <meta property="og:title" content={metaTitle} />
+      <meta property="og:description" content={metaDescription} />
+      {product.image && <meta property="og:image" content={product.image} />}
+    </Helmet>
     <div className="min-h-screen text-wx-tx1" style={{ background: 'var(--pg)' }}>
       {/* Site logo header — visible to direct-link visitors */}
       <header style={{ background: 'var(--sf3)', borderBottom: '1px solid var(--bd)', padding: '0 1rem' }}>
@@ -599,6 +611,7 @@ export function ProductDetailPage() {
         )}
       </div>
     </div>
+    </>
   );
 }
 

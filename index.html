@@ -3,12 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Waxcelerate</title>
-    <meta name="description" content="Waxcelerate – Professionelles Heißwachs für Fahrradketten aus Stuttgart. 100% positive Bewertungen, 500+ Artikel verkauft auf eBay.">
-    <meta property="og:title" content="Waxcelerate – Heißwachs für Fahrradketten">
-    <meta property="og:description" content="Vorgewachste Ketten und Kettenwachs aus Stuttgart. Schneller Versand, 100% positive eBay-Bewertungen.">
+    <title>Waxcelerate | Heißwachs für Fahrradketten – Sauber, effizient, langlebig</title>
+    <meta name="description" content="Heißwachs für Fahrradketten aus Stuttgart. 164 Bewertungen, 100% positiv auf eBay. Reibungskoeffizient 0,03–0,06 — messbar effizienter als Kettenöl. Jetzt bestellen.">
+    <meta property="og:title" content="Waxcelerate | Heißwachs für Fahrradketten">
+    <meta property="og:description" content="Heißwachs für Fahrradketten aus Stuttgart. 164 Bewertungen, 100% positiv. Messbar effizienter als Kettenöl — Reibungskoeffizient 0,03–0,06.">
     <meta property="og:url" content="https://waxcelerate-site.vercel.app">
     <meta property="og:type" content="website">
+    <meta property="og:locale" content="de_DE" />
+    <meta property="og:site_name" content="Waxcelerate" />
     <meta property="og:image" content="https://waxcelerate-site.vercel.app/images/wax-hero.jpg">
     <meta property="og:image:width" content="1254">
     <meta property="og:image:height" content="910">
@@ -19,6 +21,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@1,700&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=Roboto:wght@500;700&display=swap">
     <link rel="icon" type="image/png" href="/images/logo.jpg" />
     <link rel="apple-touch-icon" href="/images/logo.jpg" />
+    <link rel="preload" as="image" href="/images/wax-hero.jpg" />
     <!-- Prevent theme flash: apply saved class before React mounts -->
     <script>
       (function(){
@@ -27,6 +30,131 @@
         if(t==='dark'||(t===null&&window.matchMedia('(prefers-color-scheme:dark)').matches)){d.classList.add('dark');}
         else if(t==='noir'){d.classList.add('noir');}
       })();
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Waxcelerate",
+      "url": "https://waxcelerate.de",
+      "logo": "https://waxcelerate.de/images/logo.jpg",
+      "description": "Heißwachs-Kettenpflege für Fahrradketten aus Stuttgart",
+      "foundingDate": "2024",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Stuttgart",
+        "addressCountry": "DE"
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "waxcelerate@gmail.com",
+        "contactType": "customer service"
+      },
+      "sameAs": ["https://www.ebay.de/usr/waxcelerate"]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": "Waxcelerate Heißwachs für Fahrradketten",
+      "image": "https://waxcelerate.de/images/wax-hero.jpg",
+      "description": "Paraffinbasiertes Heißwachs mit PTFE für Fahrradketten. Reibungskoeffizient 0,03–0,06. Kompatibel mit 9–12-fach Ketten von Shimano, SRAM und Campagnolo.",
+      "brand": {
+        "@type": "Brand",
+        "name": "Waxcelerate"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "5",
+        "reviewCount": "164",
+        "bestRating": "5",
+        "worstRating": "1"
+      },
+      "offers": {
+        "@type": "AggregateOffer",
+        "priceCurrency": "EUR",
+        "lowPrice": "22.95",
+        "highPrice": "34.95",
+        "availability": "https://schema.org/InStock",
+        "seller": {
+          "@type": "Organization",
+          "name": "Waxcelerate"
+        }
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Wie viele Kilometer hält eine gewaxste Kette?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Das kommt stark auf Wetter und Gelände an. Bei trockenem Straßenbetrieb ca. 400–600 km. Bei nassem Wetter oder MTB eher 200–300 km. Die Kette selbst hält dank Wachs deutlich länger als mit Öl — oft 6000+ km statt 2000–2500 km."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Muss ich eine neue Kette vor dem Wachsen entfetten?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Ja, unbedingt. Das Werkfett auf neuen Ketten verträgt sich nicht mit dem Wachs. Entfetten mit Isopropanol/Aceton oder im Ultraschallbad."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Heißwachs oder Flüssigwachs — was ist besser?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Heißwachs (Waxcelerate) bildet eine dickere, haltbarere Schicht. Flüssigwachs ist bequemer aufzutragen, hält aber weniger lang. Für maximale Laufleistung und Sauberkeit ist Heißwachs klar überlegen."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Ist PTFE in dem Wachs gesundheitlich bedenklich?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "PTFE ist der bewährteste Festschmierstoff im Hochleistungsbereich — Reibungskoeffizient 0,05–0,07, chemisch inert, kein Klebeeffekt. Bei normaler Anwendung im Heißwachs-Bad ist es unbedenklich."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Kann ich alle Ketten mit Waxcelerate wachsen?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Ja, Waxcelerate ist kompatibel mit allen 9-, 10-, 11- und 12-fach Ketten von Shimano, SRAM und Campagnolo."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Wie pflege ich die Kette nach einer Regenfahrt?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Wachs ist wasserabweisend, aber bei längerem Regen kann es abtragen. Nach intensiver Regenfahrt empfiehlt sich ein Re-Wax. Für die Zwischenzeit kann man auch ein Wachs-Top-Up (z.B. Squirt oder Silca Drip Wax) verwenden."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Muss ich immer alles alte Wachs abmachen bevor ich neu wachse?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Nein, das ist ein Vorteil von Wachs. Altes Wachs löst sich im heißen Wachsbad von selbst. Einfach Kette eintauchen, das neue Wachs verdrängt das alte."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Kann ich das Wachs auch in einem normalen Topf schmelzen?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Ja, aber der Topf sollte danach nicht mehr für Lebensmittel verwendet werden. Ein altes Topf oder ein spezielles Wachs-Gerät (Slow Cooker) ist ideal. Temperatur: 85–90°C."
+          }
+        }
+      ]
+    }
     </script>
   </head>
   <body>

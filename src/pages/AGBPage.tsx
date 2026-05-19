@@ -1,8 +1,14 @@
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ExternalLink } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
 
 export function AGBPage() {
   return (
+    <>
+    <Helmet>
+      <title>AGB | Waxcelerate</title>
+      <meta name="robots" content="noindex" />
+    </Helmet>
     <div className="bg-wx-bg min-h-screen py-20">
       <div className="max-w-2xl mx-auto px-6">
         <Link
@@ -60,5 +66,6 @@ export function AGBPage() {
         </section>
       </div>
     </div>
+    </>
   );
 }
