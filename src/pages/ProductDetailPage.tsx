@@ -52,15 +52,36 @@ export function ProductDetailPage() {
 
   const metaTitle = `${titleText} | Waxcelerate`;
   const metaDescription = descriptionText ?? '';
+  const canonicalUrl = `https://waxcelerate.de/produkt/${id}`;
+
+  const breadcrumbSchema = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: de ? 'Startseite' : 'Home', item: 'https://waxcelerate.de' },
+      { '@type': 'ListItem', position: 2, name: titleText, item: canonicalUrl },
+    ],
+  });
 
   return (
     <>
     <Helmet>
       <title>{metaTitle}</title>
       <meta name="description" content={metaDescription} />
+      <meta name="robots" content="index, follow" />
+      <link rel="canonical" href={canonicalUrl} />
       <meta property="og:title" content={metaTitle} />
       <meta property="og:description" content={metaDescription} />
+      <meta property="og:url" content={canonicalUrl} />
+      <meta property="og:type" content="product" />
+      <meta property="og:site_name" content="Waxcelerate" />
+      <meta property="og:locale" content={de ? 'de_DE' : 'en_US'} />
       {product.image && <meta property="og:image" content={product.image} />}
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content={metaTitle} />
+      <meta name="twitter:description" content={metaDescription} />
+      {product.image && <meta name="twitter:image" content={product.image} />}
+      <script type="application/ld+json">{breadcrumbSchema}</script>
     </Helmet>
     <div className="min-h-screen text-wx-tx1" style={{ background: 'var(--pg)' }}>
       {/* Site logo header — visible to direct-link visitors */}
