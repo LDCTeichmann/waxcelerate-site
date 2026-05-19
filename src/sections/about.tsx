@@ -79,7 +79,7 @@ export function About() {
   const stats = [
     { value: 100, prefix: '', suffix: '%',  label: t.about.stats.rating },
     { value: 500, prefix: '', suffix: '+',  label: t.about.stats.sold },
-    { value: 2024, prefix: '', suffix: '',  label: de ? 'Waxcelerate seit' : 'Waxcelerate since' },
+    { value: 164, prefix: '', suffix: '',  label: de ? 'eBay-Bewertungen' : 'eBay Reviews' },
     { value: 24,   prefix: '<', suffix: 'h', label: de ? 'Antwort in < 24h' : 'Reply within 24h' },
   ];
 
@@ -166,8 +166,7 @@ export function About() {
                         style={{ color: '#2B52B0' }}
                       >
                         {s.prefix}
-                        {/* 2024 and 100 are static; 500 and 24 count up */}
-                        {i === 0 || i === 2 ? s.value : <CountUp end={s.value} />}
+                        {<CountUp end={s.value} />}
                         {s.suffix}
                       </div>
                       <div className="text-xs text-wx-txf leading-snug">{s.label}</div>

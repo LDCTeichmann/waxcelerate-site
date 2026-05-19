@@ -15,7 +15,7 @@ export const translations = {
     // Hero
     hero: {
       subtitle: 'Heißwachs für Fahrradketten',
-      tagline: 'Sauberer Antrieb, weniger Verschleiß, keine schwarzen Finger. Paraffinbasis mit PTFE.',
+      tagline: 'Am Ende der Recherche. Entwickelt auf der Straße.',
       ctaBuy: 'Zum eBay-Shop',
       ctaGuide: 'Anleitung',
       trust1: '100% positive Bewertungen (154)',
@@ -206,7 +206,7 @@ export const translations = {
     // About
     about: {
       title: 'Das Projekt',
-      bio1: 'Waxcelerate ist nicht am Schreibtisch entstanden, sondern auf nassen Herbststraßen, bei Ausfahrten tief im Winter und nach Sommerrennen, bei denen Staub und Hitze zeigen, was ein Wachs wirklich kann.',
+      bio1: 'Ich bin Luca Teichmann — Waxcelerate ist nicht am Schreibtisch entstanden, sondern auf nassen Herbststraßen, bei Ausfahrten tief im Winter und nach Sommerrennen, bei denen Staub und Hitze zeigen, was ein Wachs wirklich kann.',
       bio2: 'Der Anspruch war von Anfang an konkret: kein Wachs, das im ersten Eindruck überzeugt und nach drei Wochen Kompromisse zeigt. Sondern eines, das seine Arbeit still tut, bei Kälte genauso wie im Hochsommer, über kurze Ausfahrten genauso wie über lange Intervalle. Nicht jede Charge war sofort richtig. Aber jede war näher dran.',
       bio3: 'Das Ergebnis wird in kleinen Chargen in Stuttgart entwickelt und gefertigt, für Fahrer, die beim Antrieb kein Versprechen brauchen, sondern ein Produkt, das sich seine Überzeugungskraft auf der Straße verdient hat.',
       location: 'Stuttgart, Deutschland',
@@ -225,7 +225,7 @@ export const translations = {
     contact: {
       eyebrow: 'Kontakt',
       title: 'Kontakt',
-      subtitle: 'Hast du Fragen? Ich helfe dir gerne!',
+      subtitle: 'Direkte Antwort. Meistens innerhalb weniger Stunden.',
       tabEmail: 'Nachricht',
       tabWhatsapp: 'WhatsApp',
       name: 'Name',
@@ -296,7 +296,7 @@ export const translations = {
     // Hero
     hero: {
       subtitle: 'Hot Wax for Bicycle Chains',
-      tagline: 'Cleaner drivetrain, less wear, no black fingers. Paraffin base with PTFE.',
+      tagline: 'End of the search. Built on the road.',
       ctaBuy: 'To eBay Shop',
       ctaGuide: 'Guide',
       trust1: '100% positive feedback (154)',
@@ -487,7 +487,7 @@ export const translations = {
     // About
     about: {
       title: 'The Project',
-      bio1: "Waxcelerate wasn't born at a desk — it came from wet autumn roads, deep winter rides, and summer races where dust and heat reveal what a wax is really made of.",
+      bio1: "I'm Luca Teichmann — Waxcelerate wasn't born at a desk — it came from wet autumn roads, deep winter rides, and summer races where dust and heat reveal what a wax is really made of.",
       bio2: "The goal was concrete from the start: not a wax that impresses on first contact and starts making compromises after three weeks. But one that does its work quietly — in the cold just as well as in midsummer, on short rides just as well as long intervals. Not every batch was right straight away. But each one was closer.",
       bio3: "The result is developed and produced in small batches in Stuttgart, for riders who don't need a promise about their drivetrain — just a product that earns its reputation on the road.",
       location: 'Stuttgart, Germany',
@@ -506,7 +506,7 @@ export const translations = {
     contact: {
       eyebrow: 'Get in Touch',
       title: 'Contact',
-      subtitle: 'Have questions? I\'m happy to help!',
+      subtitle: 'Direct reply. Usually within a few hours.',
       tabEmail: 'Message',
       tabWhatsapp: 'WhatsApp',
       name: 'Name',

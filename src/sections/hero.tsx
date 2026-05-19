@@ -201,7 +201,7 @@ export function Hero() {
               className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-semibold mb-6"
               style={{ color: 'rgba(255,255,255,0.28)' }}
             >
-              {de ? 'Kettenwachs · Heißwachs · Stuttgart' : 'Chain Wax · Hot Wax · Stuttgart'}
+              {de ? 'Handgefertigt · Kleine Chargen · Stuttgart' : 'Handcrafted · Small Batches · Stuttgart'}
             </p>
 
             {/* Pill */}

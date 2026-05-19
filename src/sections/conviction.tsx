@@ -11,6 +11,9 @@ export function Conviction() {
       style={{ background: 'var(--sf3)' }}
     >
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
+        <p className="text-center text-[10px] font-semibold uppercase tracking-[0.22em] mb-8" style={{ color: 'var(--txf)' }}>
+          {de ? 'Das Ergebnis in Zahlen' : 'The Numbers'}
+        </p>
         <div className="max-w-3xl mx-auto grid grid-cols-3 gap-2 sm:gap-3">
 
           {/* Card 1 — Reviews */}
@@ -28,11 +31,11 @@ export function Conviction() {
             />
             <div className="w-7 h-7 rounded-md flex items-center justify-center mb-3"
               style={{ background: 'rgba(43,82,176,0.12)', boxShadow: '0 0 0 1px rgba(43,82,176,0.18)' }}>
-              <ThumbsUp className="h-3.5 w-3.5" style={{ color: '#4A72D4' }} />
+              <ThumbsUp className="h-3.5 w-3.5" style={{ color: '#2B52B0' }} />
             </div>
             <span
               className="font-display font-bold tabular-nums leading-none block"
-              style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', color: '#4A72D4' }}
+              style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', color: '#2B52B0' }}
             >
               100%
             </span>
@@ -64,11 +67,11 @@ export function Conviction() {
             />
             <div className="w-7 h-7 rounded-md flex items-center justify-center mb-3"
               style={{ background: 'rgba(43,82,176,0.12)', boxShadow: '0 0 0 1px rgba(43,82,176,0.18)' }}>
-              <TrendingDown className="h-3.5 w-3.5" style={{ color: '#4A72D4' }} />
+              <TrendingDown className="h-3.5 w-3.5" style={{ color: '#2B52B0' }} />
             </div>
             <span
               className="font-display font-bold tabular-nums leading-none block"
-              style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', color: '#4A72D4' }}
+              style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', color: '#2B52B0' }}
             >
               −46%
             </span>
@@ -83,6 +86,9 @@ export function Conviction() {
               style={{ color: 'rgba(255,255,255,0.25)' }}
             >
               {de ? 'vs. Kettenöl' : 'vs. chain oil'}
+            </p>
+            <p className="text-[8px] mt-2 leading-snug" style={{ color: 'rgba(255,255,255,0.15)' }}>
+              {de ? 'Basis: 5.000 km/Jahr, 35€ Kette' : 'Basis: 5,000 km/yr, €35 chain'}
             </p>
           </div>
 
@@ -100,11 +106,11 @@ export function Conviction() {
             />
             <div className="w-7 h-7 rounded-md flex items-center justify-center mb-3"
               style={{ background: 'rgba(43,82,176,0.12)', boxShadow: '0 0 0 1px rgba(43,82,176,0.18)' }}>
-              <Link2 className="h-3.5 w-3.5" style={{ color: '#4A72D4' }} />
+              <Link2 className="h-3.5 w-3.5" style={{ color: '#2B52B0' }} />
             </div>
             <span
               className="font-display font-bold tabular-nums leading-none block"
-              style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', color: '#4A72D4' }}
+              style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', color: '#2B52B0' }}
             >
               3×
             </span>
@@ -119,6 +125,9 @@ export function Conviction() {
               style={{ color: 'rgba(255,255,255,0.25)' }}
             >
               {de ? 'vs. Öl' : 'vs. oil'}
+            </p>
+            <p className="text-[8px] mt-2 leading-snug" style={{ color: 'rgba(255,255,255,0.15)' }}>
+              {de ? 'Quelle: ZeroFriction Cycling' : 'Source: ZeroFriction Cycling'}
             </p>
           </div>
 
