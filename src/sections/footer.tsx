@@ -79,6 +79,9 @@ export function Footer() {
                     <a href={item.href} onClick={(e) => { e.preventDefault(); scrollToSection(item.href); }} className={linkClass}>{item.label}</a>
                   </li>
                 ))}
+                <li>
+                  <Link to="/blog" className={linkClass}>{de ? 'Ratgeber & Anleitungen' : 'Guides & Articles'}</Link>
+                </li>
               </ul>
             </div>
 
