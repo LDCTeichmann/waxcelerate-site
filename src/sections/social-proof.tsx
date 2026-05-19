@@ -13,7 +13,7 @@ function AnimatedCount({ end }: { end: number }) {
       if (!entry.isIntersecting) return;
       obs.disconnect();
       let startTime = 0;
-      const duration = 1100;
+      const duration = 1000;
       const tick = (ts: number) => {
         if (!startTime) startTime = ts;
         const p = Math.min((ts - startTime) / duration, 1);
@@ -29,76 +29,64 @@ function AnimatedCount({ end }: { end: number }) {
   return <span ref={ref}>{count}</span>;
 }
 
-const Divider = () => (
-  <div className="block w-px h-4 self-center" style={{ background: 'var(--bd)' }} />
-);
+interface StatProps {
+  value: React.ReactNode;
+  label: string;
+  sub: string;
+}
+
+function Stat({ value, label, sub }: StatProps) {
+  return (
+    <div className="flex-1 flex flex-col items-center text-center px-4 py-1">
+      <div className="text-[22px] sm:text-[24px] font-bold tracking-tight tabular-nums" style={{ color: 'var(--tx1)' }}>
+        {value}
+      </div>
+      <p className="text-[11px] uppercase tracking-[0.14em] font-medium mt-1" style={{ color: 'var(--tx2)' }}>
+        {label}
+      </p>
+      <p className="text-[10px] mt-0.5" style={{ color: 'var(--txf)' }}>
+        {sub}
+      </p>
+    </div>
+  );
+}
 
 export function SocialProof() {
   const { lang } = useLanguage();
   const de = lang === 'de';
 
   return (
-    <section
-      className="border-b py-4"
-      style={{ background: 'var(--sf3)', borderColor: 'var(--bd2)' }}
+    <div
+      className="border-b"
+      style={{ background: 'var(--sf)', borderColor: 'var(--bd)' }}
     >
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
-        <div className="flex flex-wrap items-center justify-center gap-x-7 gap-y-2.5">
+        <div className="max-w-lg mx-auto flex items-stretch py-5">
 
-          {/* Stars + count */}
-          <div className="flex items-center gap-2">
-            <span
-              className="text-[15px] leading-none"
-              style={{ color: '#FBBF24', letterSpacing: '0.05em' }}
-              role="img"
-              aria-label={de ? '5 von 5 Sternen' : '5 out of 5 stars'}
-            >
-              ★★★★★
-            </span>
-            <span className="text-sm font-bold text-wx-tx1 tabular-nums">
-              <AnimatedCount end={164} />
-            </span>
-            <span className="text-sm text-wx-tx2">
-              {de ? 'Bewertungen' : 'Reviews'}
-            </span>
-          </div>
+          <Stat
+            value={<><AnimatedCount end={164} /></>}
+            label={de ? 'Bewertungen' : 'Reviews'}
+            sub="★★★★★ · eBay"
+          />
 
-          <Divider />
+          <div className="w-px self-stretch" style={{ background: 'var(--bd)' }} />
 
-          {/* 100% positive */}
-          <div className="flex items-center gap-2">
-            <span
-              className="inline-block h-1.5 w-1.5 rounded-full flex-shrink-0"
-              style={{ background: '#22c55e' }}
-            />
-            <span className="text-sm font-semibold" style={{ color: '#22c55e' }}>100%</span>
-            <span className="text-sm text-wx-tx2">{de ? 'positiv' : 'positive'}</span>
-          </div>
+          <Stat
+            value="100%"
+            label={de ? 'Positiv' : 'Positive'}
+            sub={de ? 'Feedback-Score' : 'Feedback score'}
+          />
 
-          <Divider />
+          <div className="w-px self-stretch" style={{ background: 'var(--bd)' }} />
 
-          {/* Sold */}
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-bold text-wx-tx1 tabular-nums">
-              <AnimatedCount end={500} />+
-            </span>
-            <span className="text-sm text-wx-tx2">
-              {de ? 'Artikel verkauft' : 'items sold'}
-            </span>
-          </div>
-
-          <Divider />
-
-          {/* Location */}
-          <div className="flex items-center gap-2">
-            <span className="text-wx-txf text-sm">📦</span>
-            <span className="text-sm text-wx-tx2">
-              {de ? 'Versand aus Stuttgart' : 'Ships from Stuttgart'}
-            </span>
-          </div>
+          <Stat
+            value={<><AnimatedCount end={500} />+</>}
+            label={de ? 'Verkauft' : 'Sold'}
+            sub={de ? 'seit 2023' : 'since 2023'}
+          />
 
         </div>
       </div>
-    </section>
+    </div>
   );
 }

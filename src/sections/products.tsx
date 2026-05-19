@@ -342,13 +342,6 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice }: CardProps) {
           e.currentTarget.style.borderColor = 'var(--bd)';
         }}
       >
-        {isPro && (
-          <div
-            className="absolute top-0 left-0 right-0 h-[4px] z-10"
-            style={{ background: 'linear-gradient(90deg, #1A3080, #4A72D4)' }}
-          />
-        )}
-
         {/* Image — 3:2 ratio shows product well at the wider 2-col card size */}
         <div className="relative overflow-hidden aspect-[3/2] flex-shrink-0">
           <img
