@@ -17,7 +17,7 @@ export function AddToCartButton({ product, size = 'md' }: Props) {
   const { t, lang } = useLanguage();
   const de = lang === 'de';
 
-  const accent = product.variant === 'pro' ? '#8B6FFD' : '#2B52B0';
+  const accent = '#2B52B0';
   const inStock = isInStock(stockMap, product.id);
   const lowStock = isLowStock(stockMap, product.id);
   const stock = stockMap[product.id] ?? -1;

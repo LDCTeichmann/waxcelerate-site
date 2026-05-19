@@ -7,7 +7,7 @@ import { use3DReveal } from '@/hooks/useAnimation';
 export function Guides() {
   const { t, lang } = useLanguage();
   const de = lang === 'de';
-  const [openGuide, setOpenGuide] = useState<string | null>('neu');
+  const [openGuide, setOpenGuide] = useState<string | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
   use3DReveal(listRef, { stagger: 0.06, start: 'top 88%' });
 

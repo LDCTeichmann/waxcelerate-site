@@ -329,17 +329,17 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice }: CardProps) {
         className="group relative flex flex-col h-full rounded-2xl"
         style={{
           background: 'linear-gradient(175deg, var(--card-from) 0%, var(--card-to) 100%)',
-          border: isPro ? '1px solid rgba(43,82,176,0.45)' : '1px solid var(--bd)',
+          border: '1px solid var(--bd)',
           boxShadow: 'var(--card-shad)',
           transition: 'border-color 250ms ease, box-shadow 250ms ease',
         }}
         onMouseEnter={e => {
           e.currentTarget.style.boxShadow = 'var(--card-shadow-hover)';
-          e.currentTarget.style.borderColor = isPro ? 'rgba(74,114,212,0.70)' : 'var(--bd2)';
+          e.currentTarget.style.borderColor = 'var(--bd2)';
         }}
         onMouseLeave={e => {
           e.currentTarget.style.boxShadow = 'var(--card-shad)';
-          e.currentTarget.style.borderColor = isPro ? 'rgba(43,82,176,0.45)' : 'var(--bd)';
+          e.currentTarget.style.borderColor = 'var(--bd)';
         }}
       >
         {isPro && (
@@ -375,7 +375,7 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice }: CardProps) {
             <span className="text-[11px] font-bold uppercase tracking-[0.22em]" style={{ color: accent }}>
               {isPro ? 'Pro' : 'Classic'} · {product.weight}
             </span>
-            {badge && (
+            {badge && !isPro && (
               <span
                 className="text-[11px] font-semibold tracking-[0.10em] uppercase px-2.5 py-1 rounded-full"
                 style={{ background: 'rgba(0,0,0,0.45)', color: 'rgba(255,255,255,0.85)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(4px)' }}
