@@ -63,6 +63,35 @@ export function ProductDetailPage() {
     ],
   });
 
+  const productSchema = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: titleText,
+    description: descriptionText,
+    image: product.image,
+    sku: id,
+    brand: { '@type': 'Brand', name: 'Waxcelerate' },
+    url: canonicalUrl,
+    ...(isWax && {
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: '5',
+        reviewCount: '164',
+        bestRating: '5',
+        worstRating: '1',
+      },
+    }),
+    offers: {
+      '@type': 'Offer',
+      price: product.price.toFixed(2),
+      priceCurrency: 'EUR',
+      availability: 'https://schema.org/InStock',
+      url: product.ebayUrl,
+      seller: { '@type': 'Organization', name: 'Waxcelerate' },
+      priceValidUntil: '2026-12-31',
+    },
+  });
+
   return (
     <>
     <Helmet>
@@ -82,6 +111,7 @@ export function ProductDetailPage() {
       <meta name="twitter:description" content={metaDescription} />
       {product.image && <meta name="twitter:image" content={product.image} />}
       <script type="application/ld+json">{breadcrumbSchema}</script>
+      <script type="application/ld+json">{productSchema}</script>
     </Helmet>
     <div className="min-h-screen text-wx-tx1" style={{ background: 'var(--pg)' }}>
       {/* Site logo header — visible to direct-link visitors */}

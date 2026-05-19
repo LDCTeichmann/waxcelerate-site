@@ -1,0 +1,31 @@
+{
+  "name": "Waxcelerate",
+  "short_name": "Waxcelerate",
+  "description": "Heißwachs für Fahrradketten aus Stuttgart — 164 Bewertungen, 100% positiv auf eBay",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#090909",
+  "theme_color": "#090909",
+  "lang": "de",
+  "icons": [
+    {
+      "src": "/images/logo.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["shopping", "sports"],
+  "related_applications": [
+    {
+      "platform": "web",
+      "url": "https://waxcelerate.de"
+    }
+  ]
+}

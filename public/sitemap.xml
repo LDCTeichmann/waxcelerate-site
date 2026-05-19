@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://waxcelerate.de/</loc>
     <xhtml:link rel="alternate" hreflang="de" href="https://waxcelerate.de/"/>
@@ -8,77 +9,142 @@
     <lastmod>2026-05-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://waxcelerate.de/images/wax-hero.jpg</image:loc>
+      <image:title>Waxcelerate Heißwachs für Fahrradketten</image:title>
+      <image:caption>Heißwachs-Kettenpflege aus Stuttgart — paraffinbasiert mit PTFE</image:caption>
+    </image:image>
   </url>
   <url>
     <loc>https://waxcelerate.de/produkt/wax-500</loc>
     <lastmod>2026-05-19</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://i.ebayimg.com/images/g/w8UAAeSwXeVoMeE8/s-l500.jpg</image:loc>
+      <image:title>Kettenwachs 500g — Classic | Waxcelerate</image:title>
+      <image:caption>Paraffinbasiertes Heißwachs 500g mit PTFE. Reibungskoeffizient 0,05–0,07. 20–32 Anwendungen.</image:caption>
+    </image:image>
   </url>
   <url>
     <loc>https://waxcelerate.de/produkt/wax-300</loc>
     <lastmod>2026-05-19</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://i.ebayimg.com/images/g/tjoAAOSw43xoLlRz/s-l500.jpg</image:loc>
+      <image:title>Kettenwachs 300g — Classic | Waxcelerate</image:title>
+      <image:caption>Paraffinbasiertes Heißwachs 300g, Einsteigergröße. 10–15 Anwendungen.</image:caption>
+    </image:image>
   </url>
   <url>
     <loc>https://waxcelerate.de/produkt/wax-500-mos2</loc>
     <lastmod>2026-05-19</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://i.ebayimg.com/images/g/L3sAAeSw6Ydp5qvx/s-l500.jpg</image:loc>
+      <image:title>Kettenwachs 500g — Pro mit MoS₂ | Waxcelerate</image:title>
+      <image:caption>Ganzjahres-Heißwachs 500g mit MoS₂-Transferfilm. Reibungskoeffizient 0,03–0,06.</image:caption>
+    </image:image>
   </url>
   <url>
     <loc>https://waxcelerate.de/produkt/wax-300-mos2</loc>
     <lastmod>2026-05-19</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://i.ebayimg.com/images/g/7eoAAeSwZeRp6ThD/s-l500.jpg</image:loc>
+      <image:title>Kettenwachs 300g — Pro mit MoS₂ | Waxcelerate</image:title>
+      <image:caption>Pro-Formel im Kompaktformat. MoS₂-Transferfilm, ganzjährig einsetzbar.</image:caption>
+    </image:image>
   </url>
   <url>
     <loc>https://waxcelerate.de/produkt/chain-hg701</loc>
     <lastmod>2026-05-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://i.ebayimg.com/images/g/gWAAAeSwAaFp9na4/s-l500.webp</image:loc>
+      <image:title>Shimano Ultegra HG701 11-fach vorgewachst | Waxcelerate</image:title>
+      <image:caption>Shimano CN-HG701, 11-fach, vollständig entfettet und mit MoS₂ vorgewachst.</image:caption>
+    </image:image>
   </url>
   <url>
     <loc>https://waxcelerate.de/produkt/chain-ybn11</loc>
     <lastmod>2026-05-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://i.ebayimg.com/images/g/ryYAAeSwxC5o08UA/s-l500.webp</image:loc>
+      <image:title>YBN 11S 11-fach vorgewachst | Waxcelerate</image:title>
+      <image:caption>YBN S11 11-fach, universell für Shimano, SRAM, Campagnolo, vorgewachst.</image:caption>
+    </image:image>
   </url>
   <url>
     <loc>https://waxcelerate.de/produkt/chain-force</loc>
     <lastmod>2026-05-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://i.ebayimg.com/images/g/k8MAAeSwUj5otqbb/s-l500.webp</image:loc>
+      <image:title>SRAM Force PC-1170 11-fach vorgewachst | Waxcelerate</image:title>
+      <image:caption>SRAM Force PC-1170, Hollow-Pin, 256g, vollständig entfettet und vorgewachst.</image:caption>
+    </image:image>
   </url>
   <url>
     <loc>https://waxcelerate.de/produkt/chain-m9100</loc>
     <lastmod>2026-05-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://i.ebayimg.com/images/g/8zEAAeSwiXJovq2H/s-l500.webp</image:loc>
+      <image:title>Shimano Dura-Ace XTR CN-M9100 12-fach vorgewachst | Waxcelerate</image:title>
+      <image:caption>Shimano CN-M9100, 12-fach für Dura-Ace und XTR, vorgewachst mit MoS₂.</image:caption>
+    </image:image>
   </url>
   <url>
     <loc>https://waxcelerate.de/produkt/chain-m8100</loc>
     <lastmod>2026-05-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://i.ebayimg.com/images/g/DBwAAeSws-totNAg/s-l500.webp</image:loc>
+      <image:title>Shimano XT Ultegra CN-M8100 12-fach vorgewachst | Waxcelerate</image:title>
+      <image:caption>Shimano CN-M8100, 12-fach für XT, Ultegra und GRX, vorgewachst mit MoS₂.</image:caption>
+    </image:image>
   </url>
   <url>
     <loc>https://waxcelerate.de/produkt/chain-m7100</loc>
     <lastmod>2026-05-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://i.ebayimg.com/images/g/fDUAAeSwf8Fp9KQB/s-l500.webp</image:loc>
+      <image:title>Shimano SLX 105 CN-M7100 12-fach vorgewachst | Waxcelerate</image:title>
+      <image:caption>Shimano CN-M7100, 12-fach für SLX und 105, vorgewachst mit MoS₂.</image:caption>
+    </image:image>
   </url>
   <url>
     <loc>https://waxcelerate.de/produkt/chain-nx</loc>
     <lastmod>2026-05-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://i.ebayimg.com/images/g/SA4AAeSwCiJpWmh6/s-l500.webp</image:loc>
+      <image:title>SRAM NX Eagle 12-fach vorgewachst | Waxcelerate</image:title>
+      <image:caption>SRAM NX Eagle, 12-fach MTB, vollständig entfettet und vorgewachst.</image:caption>
+    </image:image>
   </url>
   <url>
     <loc>https://waxcelerate.de/produkt/chain-ybn12</loc>
     <lastmod>2026-05-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://i.ebayimg.com/images/g/70kAAeSw25Novqt0/s-l500.webp</image:loc>
+      <image:title>YBN S12S 12-fach vorgewachst | Waxcelerate</image:title>
+      <image:caption>YBN S12S, 12-fach, universell für Shimano, SRAM, Campagnolo, vorgewachst.</image:caption>
+    </image:image>
   </url>
 </urlset>
