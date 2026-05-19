@@ -104,8 +104,8 @@ export function Guides() {
               })}
             </div>
 
-            {/* Right: Quick Reference card — desktop only, hidden on mobile */}
-            <div className="hidden md:block md:sticky md:top-28">
+            {/* Right: Quick Reference card — sticky sidebar on desktop */}
+            <div className="md:sticky md:top-28">
               <div
                 className="rounded-2xl p-5"
                 style={{
