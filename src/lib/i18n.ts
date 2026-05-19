@@ -164,45 +164,65 @@ export const translations = {
     faq: {
       eyebrow: 'Support',
       title: 'Häufige Fragen',
-      subtitle: 'Antworten auf die wichtigsten Fragen zum Thema Kettenwachs',
-      contactCta: 'Nicht die richtige Antwort gefunden?',
-      contactLink: 'Kontaktiere mich direkt →',
+      subtitle: 'Echte Antworten — aus Kundengesprächen, Praxiserfahrung und dem, was die Forschung dazu sagt.',
+      contactCta: 'Noch eine Frage?',
+      contactLink: 'Direkt schreiben →',
       items: [
         {
-          q: 'Wie viele Kilometer hält eine gewaxste Kette?',
-          a: 'Das kommt stark auf Wetter und Gelände an. Bei trockenem Straßenbetrieb ca. 400–600 km. Bei nassem Wetter oder MTB eher 200–300 km. Die Kette selbst hält dank Wachs deutlich länger als mit Öl — oft 6000+ km statt 2000–2500 km.',
+          q: 'Ich benutze seit Jahren Kettenöl — warum sollte ich wechseln?',
+          a: 'Öl funktioniert. Aber es bindet Schmutz, der wie Schleifpaste zwischen Rollenlager, Kassette und Kettenblättern wirkt — bei jedem Tritt Metallabrieb. Mit Wachs bleibt die Kette trocken: nichts haftet daran, der Antrieb ist nach hundert Kilometern noch sauber. Dazu hält die Kette zwei- bis dreimal länger. Der Umstieg kostet einmalig 1–2 Stunden für die Erstentfettung. Danach ist der Aufwand pro Rewax kaum höher als mit Öl.',
+        },
+        {
+          q: 'Wie viele Kilometer hält eine gewachste Kette?',
+          a: 'Bei trockenen Bedingungen: ca. 400–600 km bevor das Nachwachsen sinnvoll ist. Bei Nässe oder MTB eher 200–350 km. Das Gesamtleben der Kette ist ein anderes: eine gut gepflegte gewachste Kette hält 6.000–12.000 km oder mehr — geölte Ketten oft nur 2.000–3.000 km, weil Schmutz den Antrieb von innen abschleift.',
+        },
+        {
+          q: 'Wie viele Watt spart Heißwachs im Vergleich zu Kettenöl?',
+          a: 'In kontrollierten Messungen erzeugt unser PTFE-basiertes Wachs ca. 2,6 Watt Reibungsverlust — Kettenöl unter Realbedingungen liegt bei ca. 7,5 Watt. Das sind knapp 5 Watt Unterschied an der Kette. Die oft zitierten „bis zu 8 Watt" stammen aus Labortests bei 300–400 Watt Eingangsleistung. Im Alltag sind die Werte etwas geringer — aber kein anderes Schmiermittel kommt auch nur annähernd an Heißwachs heran.',
+        },
+        {
+          q: 'Was ist der Unterschied zwischen Classic und Pro?',
+          a: 'Classic (Paraffin + PTFE + Stearin) ist die Standardformel: sauber, effizient, ideal von Frühjahr bis Herbst und bei trockenen Bedingungen. Pro enthält zusätzlich amorphes Molybdändisulfid (MoS₂) als Hochdruckadditiv — es füllt mikroskopische Oberflächenrauheiten und senkt den Reibungskoeffizient nochmals messbar. Pro ist die richtige Wahl für Ganzjahresfahrer, Winterbetrieb, E-Bikes und anspruchsvollere Antriebe. Im Zweifel: Pro ist der sicherere Griff.',
         },
         {
           q: 'Muss ich eine neue Kette vor dem Wachsen entfetten?',
-          a: 'Ja, unbedingt. Das Werkfett auf neuen Ketten verträgt sich nicht mit dem Wachs. Entfetten mit Isopropanol/Aceton oder im Ultraschallbad.',
+          a: 'Ja — das ist der wichtigste Schritt. Das Werkfett, mit dem neue Ketten ab Fabrik konserviert werden, verhindert, dass das Wachs tief in die Rollenlager eindringt. Entfetten mit Isopropanol, Bremsenreiniger oder im Ultraschallbad (wie wir es für unsere vorgewachsten Ketten machen). Kette danach vollständig trocknen, erst dann ins Wachs.',
         },
         {
-          q: 'Heißwachs oder Flüssigwachs — was ist besser?',
-          a: 'Heißwachs (Waxcelerate) bildet eine dickere, haltbarere Schicht. Flüssigwachs ist bequemer aufzutragen, hält aber weniger lang. Für maximale Laufleistung und Sauberkeit ist Heißwachs klar überlegen.',
+          q: 'Welche Ausrüstung brauche ich — muss das teuer sein?',
+          a: 'Nein. Ein alter Kochtopf oder Reiskocher, ein Draht zum Aufhängen der Kette, Isopropanol für die Erstentfettung und das Kettenwachs selbst — das ist alles. Kein Ultraschallbad nötig (das nutzen wir für die Initialreinigung unserer vorgewachsten Ketten, für das Nachwachsen ist es unnötig). Zieltemperatur: 85–90 °C.',
         },
         {
-          q: 'Ist PTFE in dem Wachs gesundheitlich bedenklich?',
-          a: 'PTFE ist der bewährteste Festschmierstoff im Hochleistungsbereich — Reibungskoeffizient 0,05–0,07, chemisch inert, kein Klebeeffekt. Bei normaler Anwendung im Heißwachs-Bad ist es unbedenklich.',
+          q: 'Heißwachs oder Flüssigwachs (Drip Wax) — was ist besser?',
+          a: 'Flüssigwachs (z. B. Squirt oder Silca Drip Wax) ist einfacher aufzutragen und braucht keinen Topf — es bleibt aber meist an der Oberfläche. Heißwachs dringt durch Hitze und vollständige Immersion tief in die Gelenke und Rollenlager ein, dorthin wo die eigentliche Schmierung stattfindet. Ergebnis: niedrigere Reibung, längere Intervalle, weniger Aufwand langfristig. Wer einmal auf Heißwachs umgestiegen ist, möchte selten zurück.',
         },
         {
-          q: 'Kann ich alle Ketten mit Waxcelerate wachsen?',
-          a: 'Ja, Waxcelerate ist kompatibel mit allen 9-, 10-, 11- und 12-fach Ketten von Shimano, SRAM und Campagnolo.',
+          q: 'Kann ich mit gewachster Kette im Regen fahren?',
+          a: 'Ja. Wachs ist wasserabweisend — bei kurzen Regenfahrten oder Spritzwasser passiert wenig. Bei längerem intensivem Regen kann die äußere Schutzschicht abtragen, das Ketteninnere bleibt aber gut geschmiert. Wichtig: Kette nach Regenfahrten immer kurz abwischen und nicht nass stehen lassen — gewachste Ketten rosten schneller als geölte, da Wachs weniger Korrosionsschutz bietet. Bei regelmäßigem Winterbetrieb: alle 200–300 km nachwachsen.',
         },
         {
-          q: 'Wie pflege ich die Kette nach einer Regenfahrt?',
-          a: 'Wachs ist wasserabweisend, aber bei längerem Regen kann es abtragen. Nach intensiver Regenfahrt empfiehlt sich ein Re-Wax. Für die Zwischenzeit kann man auch ein Wachs-Top-Up (z.B. Squirt oder Silca Drip Wax) verwenden.',
+          q: 'Was ist eine Ketten-Rotation — und warum drei Ketten?',
+          a: 'Mit einer einzigen Kette wartest du jedes Mal auf das Aushärten. Mit drei Ketten im Wechsel läuft immer eine frisch gewachste auf dem Rad, eine wartet bereit, eine wird gerade gewachst — alle drei auf einmal dauert ca. 15–20 Minuten. Du rewaxst damit nur noch alle 1.200–1.800 km statt alle 400–500 km. Außerdem verteilt sich der Verschleiß gleichmäßig auf drei Ketten, was Kassette und Kettenblätter deutlich schont.',
         },
         {
-          q: 'Muss ich immer alles alte Wachs abmachen bevor ich neu wachse?',
-          a: 'Nein, das ist ein Vorteil von Wachs. Altes Wachs löst sich im heißen Wachsbad von selbst. Einfach Kette eintauchen, das neue Wachs verdrängt das alte.',
+          q: 'Wie erkenne ich, wann meine Kette neu gewachst werden muss?',
+          a: 'Das zuverlässigste Zeichen: der Antrieb klingt trockener, die Kette läuft nicht mehr so geschmeidig. Manchmal ein leises Quietschen oder Kratzen. Du musst nicht nach Kilometern rechnen — hör einfach auf den Antrieb. Wer nach Zahlen geht: bei trockenen Bedingungen nach ~400–500 km, bei Nässe nach ~200–300 km. Lieber früher als zu spät.',
         },
         {
-          q: 'Kann ich das Wachs auch in einem normalen Topf schmelzen?',
-          a: 'Ja, aber der Topf sollte danach nicht mehr für Lebensmittel verwendet werden. Ein altes Topf oder ein spezielles Wachs-Gerät (Slow Cooker) ist ideal. Temperatur: 85–90°C.',
+          q: 'Ist PTFE im Kettenwachs gesundheitlich bedenklich?',
+          a: 'Nein — bei normaler Anwendung vollständig unbedenklich. PTFE ist chemisch inert, wird weder über die Haut aufgenommen noch löst es allergische Reaktionen aus. Die einzige potenzielle Gefahr entsteht bei Erhitzung über 260 °C — beim Heißwachsen einer Kette wird das Wachs aber nie über 90 °C erhitzt. Als Medizinstudent habe ich mich vor dem Einsatz intensiv damit auseinandergesetzt.',
         },
         {
-          q: 'Ich benutze seit Jahren Kettenöl — warum sollte ich wechseln?',
-          a: 'Kettenöl funktioniert. Aber es bindet Schmutz, der wie Schleifpaste auf Kassette und Kettenblättern wirkt. Mit Wachs bleibt die Kette trocken — kein Dreck haftet, der Antrieb ist nach hundert Kilometern noch sauber. Dazu hält die Kette 2–3× länger. Der Umstieg kostet einmalig 1–2 Stunden für die Erstentfettung. Danach ist der Aufwand pro Rewax kaum höher als mit Öl.',
+          q: 'Muss ich beim Nachwachsen immer alles alte Wachs entfernen?',
+          a: 'Nein — das ist ein echter Vorteil von Wachs. Altes Wachs löst sich im heißen Wachsbad von selbst, das neue verdrängt es. Bei regelmäßigen Intervallen genügt ein kurzes Abwischen mit einem trockenen Tuch vor dem Tauchbad. Nur nach Ölkontakt oder starker Verschmutzung muss vollständig neu entfettet werden.',
+        },
+        {
+          q: 'Kann ich alle Ketten mit Waxcelerate wachsen — auch E-Bike?',
+          a: 'Ja. Waxcelerate ist kompatibel mit allen gängigen 9-, 10-, 11- und 12-fach Ketten von Shimano, SRAM, Campagnolo und KMC. Für E-Bikes empfehlen wir das Pro mit MoS₂ — das höhere Drehmoment des E-Bike-Antriebs macht Hochdruckadditive sinnvoll.',
+        },
+        {
+          q: 'Kann ich das Wachs in einem normalen Topf schmelzen?',
+          a: 'Ja. Ein alter Kochtopf auf dem Herd oder ein Reiskocher funktionieren prima — kein spezielles Gerät nötig. Den Topf danach nicht mehr für Lebensmittel verwenden. Ein Mini-Slow-Cooker ist ideal, weil die Temperatur einfacher konstant zu halten ist. Zieltemperatur: 85–90 °C.',
         },
       ],
     },
@@ -449,45 +469,65 @@ export const translations = {
     faq: {
       eyebrow: 'Support',
       title: 'FAQ',
-      subtitle: 'Answers to the most important questions about chain wax',
-      contactCta: 'Didn\'t find the right answer?',
-      contactLink: 'Contact me directly →',
+      subtitle: 'Real answers — drawn from customer conversations, hands-on experience, and what the research actually says.',
+      contactCta: 'Still have a question?',
+      contactLink: 'Write me directly →',
       items: [
         {
-          q: 'How many kilometers does a waxed chain last?',
-          a: 'That depends strongly on weather and terrain. In dry road conditions approx. 400–600 km. In wet weather or MTB rather 200–300 km. The chain itself lasts significantly longer with wax than with oil — often 6000+ km instead of 2000–2500 km.',
+          q: "I've been using chain oil for years — why should I switch?",
+          a: "Oil works. But it binds dirt that acts like grinding paste between rollers, cassette, and chainrings — creating metal wear with every pedal stroke. With wax, the chain stays dry: nothing adheres to it, and the drivetrain is still clean after a hundred kilometres. On top of that, the chain lasts two to three times longer. Switching costs a one-off 1–2 hours for the initial degreasing. After that, re-waxing takes barely more effort than re-oiling.",
+        },
+        {
+          q: 'How many kilometres does a waxed chain last?',
+          a: 'In dry conditions: around 400–600 km before re-waxing makes sense. In wet conditions or MTB, more like 200–350 km. Total chain life is a different story: a well-maintained waxed chain reaches 6,000–12,000 km or more — oiled chains often only 2,000–3,000 km, because dirt abrades the drivetrain from the inside.',
+        },
+        {
+          q: 'How many watts does hot wax save compared to chain oil?',
+          a: "In controlled measurements, our PTFE-based wax produces around 2.6 watts of friction loss — chain oil under real-world conditions sits at around 7.5 watts. That's nearly 5 watts difference at the chain. The widely cited 'up to 8 watts' figures come from lab tests at 300–400 watts input power. In everyday riding the gap is slightly smaller — but no other lubricant comes close to hot wax.",
+        },
+        {
+          q: 'What is the difference between Classic and Pro?',
+          a: 'Classic (paraffin + PTFE + stearin) is the standard formula: clean, efficient, ideal from spring to autumn and in dry conditions. Pro additionally contains amorphous molybdenum disulphide (MoS₂) as a high-pressure additive — it fills microscopic surface roughness and measurably reduces friction further. Pro is the right choice for year-round riders, winter use, e-bikes, and demanding drivetrains. When in doubt: Pro is the safer pick.',
         },
         {
           q: 'Do I need to degrease a new chain before waxing?',
-          a: 'Yes, absolutely. The factory grease on new chains does not mix with wax. Degrease with isopropanol/acetone or in an ultrasonic bath.',
+          a: "Yes — this is the single most important step. The factory grease that preserves new chains from the manufacturer prevents wax from penetrating deep into the rollers and link joints where it belongs. Degrease with isopropanol, brake cleaner, or in an ultrasonic bath (as we do for our pre-waxed chains). Let the chain dry completely before immersing it in wax.",
         },
         {
-          q: 'Hot wax or liquid wax — which is better?',
-          a: 'Hot wax (Waxcelerate) forms a thicker, more durable layer. Liquid wax is more convenient to apply but lasts less long. For maximum durability and cleanliness, hot wax is clearly superior.',
+          q: 'What equipment do I need — does it have to be expensive?',
+          a: "No. An old cooking pot or rice cooker, a piece of wire to hang the chain, isopropanol for initial degreasing, and the chain wax itself — that is everything. No ultrasonic bath needed for re-waxing (we use one for the initial cleaning of our pre-waxed chains). Target temperature: 85–90 °C.",
         },
         {
-          q: 'Is PTFE in the wax harmful to health?',
-          a: 'PTFE is the most proven solid lubricant in high-performance applications — friction coefficient 0.05–0.07, chemically inert, no sticky effect. With normal use in a hot wax bath, it is harmless.',
+          q: 'Hot wax or drip wax (liquid wax) — which is better?',
+          a: "Drip wax (e.g. Squirt or Silca Drip Wax) is easier to apply and needs no pot — but it mostly stays on the surface. Hot wax penetrates deep into the link joints and rollers through heat and full immersion, right where lubrication actually matters. Result: lower friction, longer intervals, less work long-term. Once you've switched to hot wax, going back is rare.",
         },
         {
-          q: 'Can I wax all chains with Waxcelerate?',
-          a: 'Yes, Waxcelerate is compatible with all 9, 10, 11 and 12-speed chains from Shimano, SRAM and Campagnolo.',
+          q: 'Can I ride in the rain with a waxed chain?',
+          a: "Yes. Wax is water-repellent — brief rain or spray causes no issues. During prolonged heavy rain, the outer protective layer can wear down, but the chain interior stays well lubricated. Important: always wipe the chain dry after rainy rides and don't leave it wet — waxed chains rust faster than oiled ones, since wax provides less corrosion protection. For regular winter riding: re-wax every 200–300 km.",
         },
         {
-          q: 'How do I maintain the chain after a rain ride?',
-          a: 'Wax is water-repellent, but can wear off during prolonged rain. After an intensive rain ride, re-waxing is recommended. In between, you can also use a wax top-up (e.g. Squirt or Silca Drip Wax).',
+          q: 'What is a chain rotation system — and why three chains?',
+          a: "With a single chain, you wait every time while the waxed chain hardens. With three chains in rotation, one freshly waxed chain is always on the bike, one is ready to swap, and one is being waxed — all three at once takes around 15–20 minutes. You then only re-wax every 1,200–1,800 km instead of every 400–500 km. Wear is also distributed evenly across three chains, which significantly protects cassette and chainrings.",
+        },
+        {
+          q: 'How do I know when my chain needs re-waxing?',
+          a: "The most reliable sign: the drivetrain sounds drier, the chain no longer runs as smoothly. Sometimes a faint squeak or scraping noise. You don't need to track kilometres — just listen to the drivetrain. If you prefer numbers: in dry conditions after ~400–500 km, in wet conditions after ~200–300 km. Earlier is better than too late.",
+        },
+        {
+          q: 'Is PTFE in chain wax harmful to health?',
+          a: "No — at normal use temperatures it is completely safe. PTFE is chemically inert, is not absorbed through the skin, and doesn't trigger allergic reactions. The only potential hazard arises when PTFE is heated above 260 °C — but hot waxing a chain never exceeds 90 °C. As a medical student I researched this thoroughly before using it myself.",
         },
         {
           q: 'Do I always have to remove all old wax before re-waxing?',
-          a: 'No, that is an advantage of wax. Old wax dissolves by itself in the hot wax bath. Simply immerse the chain, the new wax displaces the old.',
+          a: 'No — that is one of the genuine advantages of wax. Old wax dissolves in the hot wax bath on its own; the new wax displaces it. With regular intervals, a quick wipe with a dry cloth before immersion is enough. Only after oil contact or heavy contamination does the chain need to be fully degreased again.',
         },
         {
-          q: 'Can I melt the wax in a normal pot?',
-          a: 'Yes, but the pot should not be used for food afterwards. An old pot or a dedicated wax device (slow cooker) is ideal. Temperature: 85–90°C.',
+          q: 'Can I wax all chains with Waxcelerate — including e-bike chains?',
+          a: 'Yes. Waxcelerate is compatible with all common 9, 10, 11 and 12-speed chains from Shimano, SRAM, Campagnolo and KMC. For e-bikes we recommend Pro with MoS₂ — the higher torque of an e-bike drivetrain makes high-pressure additives particularly worthwhile.',
         },
         {
-          q: "I've been using chain oil for years — why should I switch?",
-          a: "Chain oil works. But it binds dirt that acts like grinding paste on your cassette and chainrings. With wax, the chain stays dry — nothing sticks to it, the drivetrain is still clean after a hundred kilometres. On top of that, the chain lasts 2–3× longer. Switching costs a one-off 1–2 hours for the initial degreasing. After that, re-waxing takes barely more effort than re-oiling.",
+          q: 'Can I melt the wax in a regular cooking pot?',
+          a: "Yes. An old pot on the stove or a rice cooker works perfectly — no specialist equipment needed. Don't use the pot for food afterwards. A mini slow cooker is ideal because temperature is easier to hold steady. Target temperature: 85–90 °C.",
         },
       ],
     },
