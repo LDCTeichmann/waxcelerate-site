@@ -18,7 +18,7 @@ export const translations = {
       tagline: 'Am Ende der Recherche. Entwickelt auf der Straße.',
       ctaBuy: 'Zum eBay-Shop',
       ctaGuide: 'Anleitung',
-      trust1: '100% positive Bewertungen (154)',
+      trust1: '100% positive Bewertungen (164)',
       trust2: '500+ Artikel verkauft',
       trust3: 'Versand aus Stuttgart',
     },
@@ -200,6 +200,10 @@ export const translations = {
           q: 'Kann ich das Wachs auch in einem normalen Topf schmelzen?',
           a: 'Ja, aber der Topf sollte danach nicht mehr für Lebensmittel verwendet werden. Ein altes Topf oder ein spezielles Wachs-Gerät (Slow Cooker) ist ideal. Temperatur: 85–90°C.',
         },
+        {
+          q: 'Ich benutze seit Jahren Kettenöl — warum sollte ich wechseln?',
+          a: 'Kettenöl funktioniert. Aber es bindet Schmutz, der wie Schleifpaste auf Kassette und Kettenblättern wirkt. Mit Wachs bleibt die Kette trocken — kein Dreck haftet, der Antrieb ist nach hundert Kilometern noch sauber. Dazu hält die Kette 2–3× länger. Der Umstieg kostet einmalig 1–2 Stunden für die Erstentfettung. Danach ist der Aufwand pro Rewax kaum höher als mit Öl.',
+        },
       ],
     },
 
@@ -299,7 +303,7 @@ export const translations = {
       tagline: 'End of the search. Built on the road.',
       ctaBuy: 'To eBay Shop',
       ctaGuide: 'Guide',
-      trust1: '100% positive feedback (154)',
+      trust1: '100% positive feedback (164)',
       trust2: '500+ items sold',
       trust3: 'Shipping from Stuttgart',
     },
@@ -480,6 +484,10 @@ export const translations = {
         {
           q: 'Can I melt the wax in a normal pot?',
           a: 'Yes, but the pot should not be used for food afterwards. An old pot or a dedicated wax device (slow cooker) is ideal. Temperature: 85–90°C.',
+        },
+        {
+          q: "I've been using chain oil for years — why should I switch?",
+          a: "Chain oil works. But it binds dirt that acts like grinding paste on your cassette and chainrings. With wax, the chain stays dry — nothing sticks to it, the drivetrain is still clean after a hundred kilometres. On top of that, the chain lasts 2–3× longer. Switching costs a one-off 1–2 hours for the initial degreasing. After that, re-waxing takes barely more effort than re-oiling.",
         },
       ],
     },

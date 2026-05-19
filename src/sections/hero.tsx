@@ -259,13 +259,14 @@ export function Hero() {
 
             {/* CTAs */}
             <div ref={ctaRef} className="flex items-center justify-center lg:justify-start gap-5 flex-wrap">
+              {/* Primary — links directly to the eBay Classic 500g listing */}
               <button
                 ref={ebayBtnRef}
-                onClick={() => scrollToSection('#produkte')}
+                onClick={() => window.open('https://www.ebay.de/itm/395811184583', '_blank', 'noopener,noreferrer')}
                 className="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-semibold text-white rounded-full transition-opacity duration-150 hover:opacity-90 active:scale-[0.98]"
                 style={{ background: '#2B52B0', willChange: 'transform' }}
               >
-                {de ? 'Classic 500g — 29,95 €' : 'Classic 500g — €29.95'}
+                {de ? 'Classic 500g kaufen — 29,95 €' : 'Buy Classic 500g — €29.95'}
                 <ArrowRight className="h-3.5 w-3.5" />
               </button>
 

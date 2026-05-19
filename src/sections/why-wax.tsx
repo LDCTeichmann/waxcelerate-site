@@ -258,14 +258,23 @@ export function WhyWax() {
               </p>
               <div className="space-y-6">
                 {[
-                  { label: 'Waxcelerate Classic', descriptor: 'μ 0,05–0,07', pct: '95%', highlight: true },
-                  { label: de ? 'Graphit-Heißwachs' : 'Graphite Wax', descriptor: 'μ 0,08–0,12', pct: '72%', highlight: false },
-                  { label: de ? 'Kettenöl (nass)' : 'Chain Oil (wet)', descriptor: 'μ 0,18–0,25', pct: '18%', highlight: false, dim: true },
+                  { label: 'Waxcelerate Pro', descriptor: 'μ 0,03–0,06', pct: '100%', highlight: true, isPro: true },
+                  { label: 'Waxcelerate Classic', descriptor: 'μ 0,05–0,07', pct: '86%', highlight: true, isPro: false },
+                  { label: de ? 'Graphit-Heißwachs' : 'Graphite Wax', descriptor: 'μ 0,08–0,12', pct: '60%', highlight: false },
+                  { label: de ? 'Kettenöl (nass)' : 'Chain Oil (wet)', descriptor: 'μ 0,18–0,25', pct: '15%', highlight: false, dim: true },
                 ].map((item, i) => (
                   <div key={i}>
                     <div className="flex justify-between items-center mb-2">
                       <span className={`text-[14px] font-medium ${item.highlight ? 'text-wx-tx1' : 'text-wx-txm'}`}>
                         {item.label}
+                        {'isPro' in item && item.isPro && (
+                          <span
+                            className="ml-2 text-[10px] font-bold tracking-[0.15em] uppercase px-1.5 py-0.5 rounded"
+                            style={{ background: 'linear-gradient(135deg, #1A3080, #4A72D4)', color: 'rgba(255,255,255,0.9)' }}
+                          >
+                            PRO
+                          </span>
+                        )}
                       </span>
                       <span className={`text-[12px] tabular-nums font-mono ${
                         item.highlight ? 'text-wx-tx2' : item.dim ? 'text-wx-txff' : 'text-wx-txf'
@@ -279,7 +288,9 @@ export function WhyWax() {
                         data-w={item.pct}
                         style={{
                           background: item.highlight
-                            ? 'linear-gradient(90deg, #2B52B0, #4A72D4)'
+                            ? ('isPro' in item && item.isPro
+                                ? 'linear-gradient(90deg, #1A3080, #6A8AE8)'
+                                : 'linear-gradient(90deg, #2B52B0, #4A72D4)')
                             : item.dim ? 'var(--bd2)' : 'var(--txff)',
                           transformOrigin: 'left center',
                           transform: 'scaleX(0)',
@@ -291,8 +302,8 @@ export function WhyWax() {
               </div>
               <p className="text-[12px] text-wx-txff mt-6">
                 {de
-                  ? 'Index basiert auf gemessenem Reibungskoeffizient (μ). Waxcelerate Classic auf Augenhöhe mit Graphit-Wachs — bei sauberem Antrieb.'
-                  : 'Index derived from measured friction coefficient (μ). Waxcelerate Classic on par with graphite wax on a clean drivetrain.'}
+                  ? 'Index basiert auf gemessenem Reibungskoeffizient (μ). Waxcelerate Pro mit MoS₂ führt die Skala an — Classic auf Augenhöhe mit Graphit-Heißwachs.'
+                  : 'Index derived from measured friction coefficient (μ). Waxcelerate Pro with MoS₂ leads the scale — Classic on par with graphite hot wax.'}
               </p>
             </div>
           </div>
@@ -355,7 +366,7 @@ export function WhyWax() {
                   ))}
                 </div>
                 <p className="text-[11px] uppercase tracking-[0.16em] font-semibold mb-4" style={{ color: 'rgba(255,255,255,0.35)' }}>
-                  {de ? '★ Meistgekauft' : '★ Bestseller'}
+                  {de ? '20–32 Anwendungen pro Block' : '20–32 applications per block'}
                 </p>
                 <div className="border-t border-wx-bd pt-4 flex items-center justify-between">
                   <p className="text-[16px] font-semibold text-wx-tx1">{de ? 'ab €22,95' : 'from €22.95'}</p>
@@ -420,7 +431,7 @@ export function WhyWax() {
 
           {/* ── CTA ── */}
           <div className="text-center pt-6 border-t border-wx-bd">
-            <p className="text-wx-txff text-[13px] mb-6">
+            <p className="text-wx-txm text-[13px] mb-6">
               {de
                 ? '164 eBay-Bewertungen · 100% positiv · Versand am gleichen Tag'
                 : '164 eBay reviews · 100% positive · Same-day shipping'}
