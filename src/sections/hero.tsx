@@ -120,7 +120,7 @@ export function Hero() {
   const scrollToSection = (href: string) =>
     document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
 
-  const line1 = de ? 'Am Ende der Recherche.' : 'End of the search.';
+  const line1 = de ? 'Heißwachs aus Stuttgart.' : 'Hot wax from Stuttgart.';
 
   return (
     <section
@@ -253,8 +253,8 @@ export function Hero() {
               style={{ color: 'rgba(255,255,255,0.70)' }}
             >
               {de
-                ? 'Heißwachs aus Stuttgart. Entwickelt auf der Straße.'
-                : 'Hot wax from Stuttgart. Built on the road.'}
+                ? 'Am Ende der Recherche. Entwickelt auf der Straße.'
+                : 'End of the search. Built on the road.'}
             </p>
 
             {/* CTAs */}

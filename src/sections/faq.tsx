@@ -53,9 +53,13 @@ export function FAQ() {
                 >
                   <div className="overflow-hidden">
                     <div className="pb-5 pr-10 border-l-2 pl-4" style={{ borderColor: 'rgba(43,82,176,0.35)' }}>
-                      <p className="text-wx-tx2 text-[14px] leading-[1.75]">
-                        {item.a}
-                      </p>
+                      <div className="space-y-1.5">
+                        {item.a.split(/\.\s+(?=[A-ZÜÖÄ])/).map((sentence, i, arr) => (
+                          <p key={i} className="text-wx-tx2 text-[14px] leading-[1.75]">
+                            {sentence}{i < arr.length - 1 ? '.' : ''}
+                          </p>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
