@@ -1,8 +1,6 @@
 import { useEffect } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { gsap, ScrollTrigger } from '@/lib/gsap';
 
-gsap.registerPlugin(ScrollTrigger);
 
 // ── Easing constants (match CSS vars in index.css) ──────────────────────────
 export const EASE = {

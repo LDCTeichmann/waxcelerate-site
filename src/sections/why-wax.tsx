@@ -3,10 +3,8 @@ import { ArrowRight, Shield, Snowflake, Droplets, Sun } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useSectionReveal } from '@/hooks/useAnimation';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { gsap } from '@/lib/gsap';
 
-gsap.registerPlugin(ScrollTrigger);
 
 const differentiators = [
   {

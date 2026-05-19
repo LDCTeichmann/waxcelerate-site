@@ -2,14 +2,12 @@ import { ExternalLink, Check, Droplets, Sun, Shield } from 'lucide-react';
 import { AddToCartButton } from '@/components/AddToCartButton';
 import { Link } from 'react-router-dom';
 import { useState, useRef, useEffect, useCallback, useMemo, memo } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { gsap, ScrollTrigger } from '@/lib/gsap';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useSectionReveal } from '@/hooks/useAnimation';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { products } from '@/lib/data';
 
-gsap.registerPlugin(ScrollTrigger);
 
 const filterChip = (active: boolean) =>
   `px-3 py-1.5 rounded-md text-[12px] transition-all border cursor-pointer ${
@@ -261,11 +259,16 @@ interface CardProps {
 
 function useTilt(strength = 5) {
   const ref = useRef<HTMLDivElement>(null);
+  const leaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
     const el = ref.current;
     if (!el) return;
-    // Remove leave-transition so mouse-move is instant
+    // Clear any pending leave-reset so it doesn't fight mouse movement
+    if (leaveTimerRef.current) {
+      clearTimeout(leaveTimerRef.current);
+      leaveTimerRef.current = null;
+    }
     el.style.transition = '';
     const rect = el.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width - 0.5;
@@ -276,21 +279,27 @@ function useTilt(strength = 5) {
   const handleMouseLeave = useCallback(() => {
     const el = ref.current;
     if (!el) return;
-    // Ease back to flat instead of snapping
     el.style.transition = 'transform 0.4s cubic-bezier(0.33, 1, 0.68, 1)';
     el.style.transform = 'perspective(900px) rotateY(0deg) rotateX(0deg) translateZ(0)';
-    // Remove inline transition after it completes so hover styles aren't delayed
-    setTimeout(() => { if (el) el.style.transition = ''; }, 400);
+    // Clear previous timer before setting a new one — prevents accumulation
+    if (leaveTimerRef.current) clearTimeout(leaveTimerRef.current);
+    leaveTimerRef.current = setTimeout(() => {
+      if (el) el.style.transition = '';
+      leaveTimerRef.current = null;
+    }, 400);
   }, []);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    // Skip on touch-only devices — mouse events never fire, no need to register them
+    if (window.matchMedia('(pointer: coarse)').matches) return;
     el.addEventListener('mousemove', handleMouseMove);
     el.addEventListener('mouseleave', handleMouseLeave);
     return () => {
       el.removeEventListener('mousemove', handleMouseMove);
       el.removeEventListener('mouseleave', handleMouseLeave);
+      if (leaveTimerRef.current) clearTimeout(leaveTimerRef.current);
     };
   }, [handleMouseMove, handleMouseLeave]);
 

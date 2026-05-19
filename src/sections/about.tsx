@@ -3,10 +3,8 @@ import { ExternalLink } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useSectionReveal } from '@/hooks/useAnimation';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { gsap, ScrollTrigger } from '@/lib/gsap';
 
-gsap.registerPlugin(ScrollTrigger);
 
 // Animated count-up triggered when card scrolls into view
 function CountUp({ end, duration = 1600 }: { end: number; duration?: number }) {

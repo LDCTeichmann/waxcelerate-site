@@ -146,6 +146,7 @@
 
   html {
     background-color: var(--pg);
+    scroll-behavior: smooth;
   }
 
   body {
@@ -173,28 +174,6 @@
 :root:not(.dark):not(.noir) h3,
 :root:not(.dark):not(.noir) h4 {
   color: var(--tx1) !important;
-}
-
-/* Spinning wax block animation */
-@keyframes waxSpin {
-  0%   { transform: perspective(1200px) rotateY(0deg); }
-  100% { transform: perspective(1200px) rotateY(360deg); }
-}
-
-@keyframes waxGlow {
-  0%, 100% { filter: drop-shadow(0 0 30px rgba(255,255,255,0.04)) drop-shadow(0 0 80px rgba(255,255,255,0.02)); }
-  50%       { filter: drop-shadow(0 0 50px rgba(255,255,255,0.06)) drop-shadow(0 0 120px rgba(255,255,255,0.03)); }
-}
-
-.wax-spin-container {
-  perspective: 1200px;
-  transform-style: preserve-3d;
-}
-
-.wax-spin-image {
-  animation: waxSpin 20s linear infinite, waxGlow 4s ease-in-out infinite;
-  transform-style: preserve-3d;
-  will-change: transform;
 }
 
 /* Grid background */
@@ -236,6 +215,8 @@
   background-repeat: repeat;
   background-size: 300px 300px;
   animation: grain 8s steps(10) infinite;
+  /* Promote to own compositor layer — transforms only, no layout/paint spill */
+  will-change: transform;
   z-index: 2;
 }
 

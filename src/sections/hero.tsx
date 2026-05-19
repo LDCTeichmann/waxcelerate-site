@@ -126,7 +126,7 @@ export function Hero() {
     <section
       id="home"
       className="grain relative overflow-hidden"
-      style={{ minHeight: '100dvh', background: '#06060f' }}
+      style={{ minHeight: '100dvh', background: '#06060f', contain: 'paint' }}
     >
 
       {/* ── Background image ────────────────────────────────────────────────── */}

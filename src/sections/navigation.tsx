@@ -19,7 +19,6 @@ interface NavigationProps {
 
 export function Navigation({ onLogoClick }: NavigationProps) {
   const [isScrolled, setIsScrolled] = useState(false);
-  const navRef = useRef<HTMLElement>(null);
   const progressBarRef = useRef<HTMLDivElement>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<string>('');
@@ -38,17 +37,10 @@ export function Navigation({ onLogoClick }: NavigationProps) {
     const handleScroll = () => {
       const scrollY = window.scrollY;
       setIsScrolled(scrollY > 50);
-      // Drive progress bar directly — avoids a React re-render on every scroll tick
+      // Drive progress bar with scaleX (compositor-only, no layout recalc)
       const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
-      const pct = totalHeight > 0 ? (scrollY / totalHeight) * 100 : 0;
-      if (progressBarRef.current) progressBarRef.current.style.width = `${pct}%`;
-
-      const progress = Math.min(scrollY / 200, 1);
-      const blur = progress * 16;
-      if (navRef.current) {
-        navRef.current.style.backdropFilter = `blur(${blur}px)`;
-        (navRef.current.style as CSSStyleDeclaration & { webkitBackdropFilter: string }).webkitBackdropFilter = `blur(${blur}px)`;
-      }
+      const pct = totalHeight > 0 ? scrollY / totalHeight : 0;
+      if (progressBarRef.current) progressBarRef.current.style.transform = `scaleX(${pct})`;
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
@@ -96,24 +88,30 @@ export function Navigation({ onLogoClick }: NavigationProps) {
     <>
       {/* ── Header bar ── */}
       <header
-        ref={navRef}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           isScrolled ? 'py-2' : 'py-3 bg-transparent'
         }`}
         style={isScrolled ? {
           background: 'var(--nav-bg)',
           boxShadow: 'inset 0 -1px 0 var(--bd)',
-        } : { background: 'transparent' }}
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+        } : {
+          background: 'transparent',
+          backdropFilter: 'blur(0px)',
+          WebkitBackdropFilter: 'blur(0px)',
+        }}
       >
         {/* Scroll progress bar */}
         <div className="absolute top-0 left-0 right-0 h-[2px] pointer-events-none overflow-hidden" style={{ zIndex: 1 }}>
           <div
             ref={progressBarRef}
-            className="h-full"
+            className="h-full w-full"
             style={{
-              width: '0%',
+              transform: 'scaleX(0)',
+              transformOrigin: 'left center',
               background: 'linear-gradient(90deg, #2B52B0, #4A72D4)',
-              transition: 'width 80ms linear',
+              willChange: 'transform',
             }}
           />
         </div>

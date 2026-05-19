@@ -1,9 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { gsap, ScrollTrigger } from '@/lib/gsap';
 
-gsap.registerPlugin(ScrollTrigger);
 
 const reviews = [
   {

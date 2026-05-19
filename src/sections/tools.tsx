@@ -4,11 +4,9 @@ import { Slider } from '@/components/ui/slider';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useSectionReveal } from '@/hooks/useAnimation';
 import { waxIntervals } from '@/lib/data';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { gsap, ScrollTrigger } from '@/lib/gsap';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 
-gsap.registerPlugin(ScrollTrigger);
 
 // ─── Animated number ticker ───────────────────────────────────────────────────
 function AnimatedNumber({
