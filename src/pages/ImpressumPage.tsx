@@ -25,7 +25,7 @@ export function ImpressumPage() {
           <h2 className="text-lg font-semibold text-wx-tx1 mb-3">Angaben gemäß § 5 TMG</h2>
           <p className="text-wx-tx2 leading-relaxed">
             Luca Teichmann<br />
-            [ADRESSE EINTRAGEN], Stuttgart<br />
+            Florentinerstraße 17, 70619 Stuttgart<br />
             E-Mail: waxcelerate@gmail.com
           </p>
         </section>
