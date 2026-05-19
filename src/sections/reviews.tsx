@@ -5,22 +5,25 @@ import { gsap, ScrollTrigger } from '@/lib/gsap';
 
 const reviews = [
   {
-    textDe: 'Kette läuft seit 600 km sauber durch. Schaltwerk makellos. Hätte nicht gedacht, dass der Unterschied so spürbar ist.',
-    textEn: 'Chain has been running cleanly for 600 km. Derailleur spotless. Didn\'t expect the difference to be this noticeable.',
-    name: 'M. H.',
+    textDe: 'Positiver als positiv kann leider niemand bewerten – Wäre aber hier angebracht 1+ mit ★',
+    textEn: "Can't rate higher than positive — but this would deserve a 1+ with ★",
+    name: 'volvo210b',
+    reviewerCount: '1.019',
+    date: 'Jan 2026',
+  },
+  {
+    textDe: 'Alles bestens, läuft wie gewachst !!',
+    textEn: 'All good — runs like a dream !!',
+    name: 'maienbuehl',
+    reviewerCount: '774',
     date: 'Feb 2026',
   },
   {
-    textDe: 'Einfache Anwendung, sehr gutes Ergebnis. Wachs hält deutlich länger als erwartet. Klare Kaufempfehlung.',
-    textEn: 'Easy to use, great results. Wax lasts noticeably longer than expected. Clear recommendation.',
-    name: 'T. R.',
+    textDe: 'Schnelle Lieferung, einwandfrei gewachste Kette die sehr gut läuft, gerne wieder',
+    textEn: 'Fast delivery, impeccably waxed chain that runs very well — will order again',
+    name: 'seyrane',
+    reviewerCount: '934',
     date: 'März 2026',
-  },
-  {
-    textDe: 'Schnelle Lieferung, top Qualität. Antrieb ist jetzt leise und sauber. Genau das, was ich gesucht habe.',
-    textEn: 'Fast delivery, top quality. Drivetrain is now quiet and clean. Exactly what I was looking for.',
-    name: 'S. K.',
-    date: 'Apr 2026',
   },
 ];
 
@@ -110,7 +113,10 @@ export function Reviews() {
                     color: 'var(--txf)',
                   }}
                 >
-                  <span className="font-medium" style={{ color: 'var(--tx2)' }}>{r.name}</span>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="font-medium" style={{ color: 'var(--tx2)' }}>{r.name}</span>
+                    <span style={{ color: 'var(--txff)' }}>{r.reviewerCount} eBay-Bew.</span>
+                  </div>
                   <span className="flex items-center gap-1.5">
                     <span
                       className="inline-block h-1.5 w-1.5 rounded-full"
