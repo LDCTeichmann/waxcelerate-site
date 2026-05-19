@@ -276,27 +276,6 @@
   transform: translateY(-3px);
 }
 
-/* ── Section eyebrow — anchored with a short leading rule ─────────────────── */
-.section-eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--txf);
-}
-
-.section-eyebrow::before {
-  content: '';
-  display: block;
-  width: 20px;
-  height: 1px;
-  background: currentColor;
-  flex-shrink: 0;
-}
-
 /* ── Footer link hover — underline slide-in ──────────────────────────────── */
 footer a {
   position: relative;

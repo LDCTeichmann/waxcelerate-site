@@ -270,13 +270,13 @@ export function Hero() {
               </button>
 
               <button
-                onClick={() => scrollToSection('#warum-wachs')}
+                onClick={() => scrollToSection('#produkte')}
                 className="inline-flex items-center gap-1.5 text-sm font-medium transition-colors"
                 style={{ color: 'rgba(255,255,255,0.45)' }}
                 onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = '#FFFFFF')}
                 onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.45)')}
               >
-                {de ? 'Wie funktioniert Heißwachs?' : 'How does hot wax work?'}
+                {de ? 'Alle Produkte ansehen' : 'View all products'}
                 <ArrowRight className="h-3 w-3" />
               </button>
             </div>

@@ -10,19 +10,19 @@ const reviews = [
     textDe: 'Kette läuft seit 600 km sauber durch. Schaltwerk makellos. Hätte nicht gedacht, dass der Unterschied so spürbar ist.',
     textEn: 'Chain has been running cleanly for 600 km. Derailleur spotless. Didn\'t expect the difference to be this noticeable.',
     name: 'M. H.',
-    date: 'Feb 2025',
+    date: 'Feb 2026',
   },
   {
     textDe: 'Einfache Anwendung, sehr gutes Ergebnis. Wachs hält deutlich länger als erwartet. Klare Kaufempfehlung.',
     textEn: 'Easy to use, great results. Wax lasts noticeably longer than expected. Clear recommendation.',
     name: 'T. R.',
-    date: 'März 2025',
+    date: 'März 2026',
   },
   {
     textDe: 'Schnelle Lieferung, top Qualität. Antrieb ist jetzt leise und sauber. Genau das, was ich gesucht habe.',
     textEn: 'Fast delivery, top quality. Drivetrain is now quiet and clean. Exactly what I was looking for.',
     name: 'S. K.',
-    date: 'Apr 2025',
+    date: 'Apr 2026',
   },
 ];
 

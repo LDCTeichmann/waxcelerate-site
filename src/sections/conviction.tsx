@@ -1,3 +1,4 @@
+import { ThumbsUp, TrendingDown, Link2 } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 
 export function Conviction() {
@@ -25,9 +26,13 @@ export function Conviction() {
               className="absolute -top-8 -right-8 w-24 h-24 pointer-events-none"
               style={{ background: 'radial-gradient(circle, rgba(43,82,176,0.28) 0%, transparent 70%)' }}
             />
+            <div className="w-7 h-7 rounded-md flex items-center justify-center mb-3"
+              style={{ background: 'rgba(43,82,176,0.12)', boxShadow: '0 0 0 1px rgba(43,82,176,0.18)' }}>
+              <ThumbsUp className="h-3.5 w-3.5" style={{ color: '#4A72D4' }} />
+            </div>
             <span
               className="font-display font-bold tabular-nums leading-none block"
-              style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', color: '#4A72D4', marginTop: 'calc(11px + 0.75rem)' }}
+              style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', color: '#4A72D4' }}
             >
               100%
             </span>
@@ -57,9 +62,13 @@ export function Conviction() {
               className="absolute -top-8 -right-8 w-24 h-24 pointer-events-none"
               style={{ background: 'radial-gradient(circle, rgba(43,82,176,0.28) 0%, transparent 70%)' }}
             />
+            <div className="w-7 h-7 rounded-md flex items-center justify-center mb-3"
+              style={{ background: 'rgba(43,82,176,0.12)', boxShadow: '0 0 0 1px rgba(43,82,176,0.18)' }}>
+              <TrendingDown className="h-3.5 w-3.5" style={{ color: '#4A72D4' }} />
+            </div>
             <span
               className="font-display font-bold tabular-nums leading-none block"
-              style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', color: '#4A72D4', marginTop: 'calc(11px + 0.75rem)' }}
+              style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', color: '#4A72D4' }}
             >
               −46%
             </span>
@@ -89,9 +98,13 @@ export function Conviction() {
               className="absolute -top-8 -right-8 w-24 h-24 pointer-events-none"
               style={{ background: 'radial-gradient(circle, rgba(43,82,176,0.28) 0%, transparent 70%)' }}
             />
+            <div className="w-7 h-7 rounded-md flex items-center justify-center mb-3"
+              style={{ background: 'rgba(43,82,176,0.12)', boxShadow: '0 0 0 1px rgba(43,82,176,0.18)' }}>
+              <Link2 className="h-3.5 w-3.5" style={{ color: '#4A72D4' }} />
+            </div>
             <span
               className="font-display font-bold tabular-nums leading-none block"
-              style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', color: '#4A72D4', marginTop: 'calc(11px + 0.75rem)' }}
+              style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', color: '#4A72D4' }}
             >
               3×
             </span>

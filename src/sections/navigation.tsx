@@ -6,8 +6,8 @@ import { CartIcon } from '@/components/CartIcon';
 
 const navItems = [
   { href: '#produkte',    key: 'products' },
-  { href: '#tools',       key: 'tools'    },
   { href: '#anleitungen', key: 'guides'   },
+  { href: '#tools',       key: 'tools'    },
   { href: '#faq',         key: 'faq'      },
   { href: '#ueber-mich',  key: 'about'    },
   { href: '#kontakt',     key: 'contact'  },

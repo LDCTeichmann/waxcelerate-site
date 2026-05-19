@@ -40,7 +40,7 @@ src/hooks/useLanguage.tsx        ← { t, lang, setLang }
 |---|---|
 | Seiten-BG | `#090909` |
 | Karten-BG | gradient `#191c24 → #111318` |
-| Akzent-Blau | `#4A6AEE` / `#5B7AEE` |
+| Akzent-Blau | `#2B52B0` / `#3D67CA` |
 | Body-Text | `#8896B0` |
 | Überschriften | `#FFFFFF` |
 

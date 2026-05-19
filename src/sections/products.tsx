@@ -344,7 +344,7 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice }: CardProps) {
       >
         {isPro && (
           <div
-            className="absolute top-0 left-0 right-0 h-[2px] z-10"
+            className="absolute top-0 left-0 right-0 h-[4px] z-10"
             style={{ background: 'linear-gradient(90deg, #1A3080, #4A72D4)' }}
           />
         )}
@@ -363,6 +363,14 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice }: CardProps) {
             className="absolute inset-0 pointer-events-none"
             style={{ background: 'linear-gradient(to top, var(--card-to) 0%, transparent 55%)' }}
           />
+          {isPro && (
+            <span
+              className="absolute top-3 right-3 text-[10px] font-bold tracking-[0.2em] uppercase px-2 py-1 rounded-md z-10"
+              style={{ background: 'linear-gradient(135deg, #1A3080, #4A72D4)', color: 'rgba(255,255,255,0.95)' }}
+            >
+              PRO
+            </span>
+          )}
           <div className="absolute bottom-0 inset-x-0 px-5 pb-4 flex items-center justify-between">
             <span className="text-[11px] font-bold uppercase tracking-[0.22em]" style={{ color: accent }}>
               {isPro ? 'Pro' : 'Classic'} · {product.weight}

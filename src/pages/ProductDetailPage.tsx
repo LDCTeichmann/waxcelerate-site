@@ -22,7 +22,7 @@ export function ProductDetailPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4" style={{ background: 'var(--pg)' }}>
         <p className="text-wx-txm">{de ? 'Produkt nicht gefunden.' : 'Product not found.'}</p>
-        <Link to="/" className="text-[#5B7AEE] hover:underline text-sm flex items-center gap-1">
+        <Link to="/" className="text-[#3D67CA] hover:underline text-sm flex items-center gap-1">
           <ArrowLeft className="h-3.5 w-3.5" /> {de ? 'Zurück' : 'Back'}
         </Link>
       </div>
@@ -34,8 +34,8 @@ export function ProductDetailPage() {
   const isPro = product.variant === 'pro';
   const isWax = product.category === 'wax';
   const isChain = product.category === 'chain';
-  const accentColor = isPro ? '#8B5CF6' : '#2B52B0';
-  const accentBg = isPro ? 'rgba(139,92,246,0.08)' : 'rgba(43,82,176,0.08)';
+  const accentColor = isPro ? '#4A72D4' : '#2B52B0';
+  const accentBg = isPro ? 'rgba(74,114,212,0.08)' : 'rgba(43,82,176,0.08)';
 
   const formatPrice = useCallback((price: number) =>
     new Intl.NumberFormat(lang === 'de' ? 'de-DE' : 'en-US', {
@@ -210,7 +210,7 @@ export function ProductDetailPage() {
 
             {/* Classic → Pro upsell */}
             {isClassic && (
-              <div className="rounded-xl border border-[#8B5CF6]/20 bg-[#8B5CF6]/5 p-4">
+              <div className="rounded-xl border border-[#4A72D4]/20 bg-[#4A72D4]/5 p-4">
                 <p className="text-xs" style={{ color: 'var(--tx2)' }}>
                   {de
                     ? 'Fahre viel im Herbst/Winter oder bei Regen? Das Pro mit MoS₂ bietet längere Intervalle und Rostschutz.'
@@ -218,7 +218,7 @@ export function ProductDetailPage() {
                 </p>
                 <Link
                   to={`/produkt/${product.weight === '500g' ? 'wax-500-mos2' : 'wax-300-mos2'}`}
-                  className="inline-flex items-center gap-1 mt-2 text-xs text-[#8B5CF6] hover:underline"
+                  className="inline-flex items-center gap-1 mt-2 text-xs text-[#4A72D4] hover:underline"
                 >
                   {de ? 'Pro ansehen' : 'View Pro'} <ChevronRight className="h-3 w-3" />
                 </Link>

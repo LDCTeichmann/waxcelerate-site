@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
-import { ExternalLink, ArrowRight, Shield, Snowflake, Droplets, Sun } from 'lucide-react';
+import { ArrowRight, Shield, Snowflake, Droplets, Sun } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useSectionReveal } from '@/hooks/useAnimation';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
@@ -111,14 +111,14 @@ export function WhyWax() {
       {/* Top gradient — bridges from SocialProof (sf3) above */}
       <div
         className="absolute top-0 left-0 right-0 pointer-events-none"
-        style={{ height: '56px', background: 'linear-gradient(to bottom, var(--sf3), transparent)', zIndex: 1 }}
+        style={{ height: '56px', background: 'linear-gradient(to bottom, var(--sf), transparent)', zIndex: 1 }}
       />
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-5xl mx-auto">
 
           {/* ── Header ── */}
           <div ref={headerRef} className="text-center mb-14">
-            <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-4">
+            <h2 className="font-display text-5xl sm:text-6xl font-bold text-wx-tx1 mb-4">
               <ScrollWordReveal text={de ? 'Warum Waxcelerate' : 'Why Waxcelerate'} />
             </h2>
             <p data-reveal="subtitle" className="text-wx-txm max-w-lg mx-auto text-[15px]">
@@ -361,14 +361,12 @@ export function WhyWax() {
                 </p>
                 <div className="border-t border-wx-bd pt-4 flex items-center justify-between">
                   <p className="text-[16px] font-semibold text-wx-tx1">{de ? 'ab €22,95' : 'from €22.95'}</p>
-                  <a
-                    href="https://www.ebay.de/usr/waxcelerate"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    onClick={() => document.querySelector('#produkte')?.scrollIntoView({ behavior: 'smooth' })}
                     className="flex items-center gap-1.5 text-[12px] font-medium px-3 py-1.5 rounded-full border border-wx-bd hover:border-[#2B52B0]/40 hover:text-wx-tx1 transition-all text-wx-txm"
                   >
-                    {de ? 'Ansehen' : 'View'} <ExternalLink className="h-3 w-3" />
-                  </a>
+                    {de ? 'Ansehen' : 'View'} <ArrowRight className="h-3 w-3" />
+                  </button>
                 </div>
               </div>
 
@@ -410,14 +408,12 @@ export function WhyWax() {
                   </div>
                   <div className="border-t border-wx-bd pt-4 flex items-center justify-between">
                     <p className="text-[16px] font-semibold" style={{ color: '#4A72D4' }}>{de ? 'ab €26,95' : 'from €26.95'}</p>
-                    <a
-                      href="https://www.ebay.de/usr/waxcelerate"
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      onClick={() => document.querySelector('#produkte')?.scrollIntoView({ behavior: 'smooth' })}
                       className="flex items-center gap-1.5 text-[12px] font-medium px-3 py-1.5 rounded-full border border-wx-bd hover:border-[#2B52B0]/40 hover:text-wx-tx1 transition-all text-wx-txm"
                     >
-                      {de ? 'Ansehen' : 'View'} <ExternalLink className="h-3 w-3" />
-                    </a>
+                      {de ? 'Ansehen' : 'View'} <ArrowRight className="h-3 w-3" />
+                    </button>
                   </div>
                 </div>
               </div>
