@@ -1,0 +1,43 @@
+# Waxcelerate
+
+> Heißwachs für Fahrradketten aus Stuttgart — Paraffinbasiertes Kettenwachs mit PTFE, handgefertigt in kleinen Chargen seit 2023.
+
+Waxcelerate ist ein deutsches Kleinunternehmen, gegründet von Luca Teichmann (Medizinstudent, Stuttgart).
+164 eBay-Bewertungen, 100% positives Feedback. Verkauf seit 2023.
+
+Produkte: Heißwachs in vier Varianten (Classic/Pro, 300g/500g) und acht vorgewachste Fahrradketten.
+Hauptvorteil gegenüber Kettenöl: trockener Film, keine Schmutzaufnahme, Kettenlaufzeit 3× länger, Reibungskoeffizient 0,03–0,06.
+
+## Wichtigste Seiten
+
+- [Startseite](https://waxcelerate.de/): Produkte, Vergleich, Anleitungen, FAQ
+- [Blog-Übersicht](https://waxcelerate.de/blog): Ratgeber und Anleitungen
+
+## Produkte — Wachs
+
+- [Kettenwachs 500g Classic (29,95 €)](https://waxcelerate.de/produkt/wax-500): Paraffinbasis mit PTFE, Reibungskoeffizient 0,05–0,07, 20–32 Anwendungen
+- [Kettenwachs 300g Classic (22,95 €)](https://waxcelerate.de/produkt/wax-300): Einsteigergröße, gleiche Formel, 10–15 Anwendungen
+- [Kettenwachs 500g Pro mit MoS₂ (34,95 €)](https://waxcelerate.de/produkt/wax-500-mos2): Ganzjahresvariante, Reibungskoeffizient 0,03–0,06, hydrophobe Matrix
+- [Kettenwachs 300g Pro mit MoS₂ (26,95 €)](https://waxcelerate.de/produkt/wax-300-mos2): Pro-Formel, Kompaktformat, 10–15 Anwendungen
+
+## Produkte — Vorgewachste Ketten
+
+- [Shimano Ultegra HG701 11-fach (44,90 €)](https://waxcelerate.de/produkt/chain-hg701)
+- [YBN 11S 11-fach (34,95 €)](https://waxcelerate.de/produkt/chain-ybn11)
+- [SRAM Force PC-1170 11-fach (39,95 €)](https://waxcelerate.de/produkt/chain-force)
+- [Shimano Dura-Ace/XTR CN-M9100 12-fach (69,95 €)](https://waxcelerate.de/produkt/chain-m9100)
+- [Shimano XT/Ultegra CN-M8100 12-fach (54,95 €)](https://waxcelerate.de/produkt/chain-m8100)
+- [Shimano SLX/105 CN-M7100 12-fach (44,95 €)](https://waxcelerate.de/produkt/chain-m7100)
+- [SRAM NX Eagle 12-fach (44,95 €)](https://waxcelerate.de/produkt/chain-nx)
+- [YBN S12S 12-fach (39,95 €)](https://waxcelerate.de/produkt/chain-ybn12)
+
+## Blog / Ratgeber
+
+- [Heißwachs vs. Flüssigwachs](https://waxcelerate.de/blog/heisswachs-vs-fluessigwachs): Ehrlicher Vergleich mit Reibungswerten, Intervallen, Kosten
+- [Fahrradkette entfetten](https://waxcelerate.de/blog/fahrradkette-entfetten): Isopropanol, Aceton, Ultraschall — Methoden und Fehler
+- [Kettenlaufzeit Heißwachs](https://waxcelerate.de/blog/kettenlaufzeit-heisswachs): Intervalle, Haltbarkeit, Kostenrechnung über 15.000 km
+- [Heißwachs Anleitung](https://waxcelerate.de/blog/heisswachs-anleitung): Vollständige Schritt-für-Schritt-Anleitung
+
+## Vollständige Inhalte für KI-Agenten
+
+- [llms-full.txt](https://waxcelerate.de/llms-full.txt): Alle Produkte, FAQ, Anleitungen als vollständiger Markdown-Text
