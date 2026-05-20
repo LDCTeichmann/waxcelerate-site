@@ -95,7 +95,7 @@ export function Contact() {
               onClick={() => setActiveTab('whatsapp')}
               className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all"
               style={activeTab === 'whatsapp'
-                ? { background: '#2B52B0', color: '#fff' }
+                ? { background: '#25D366', color: '#fff' }
                 : { color: 'var(--txm)' }}
             >
               <MessageCircle className="h-4 w-4" />
@@ -203,8 +203,8 @@ export function Contact() {
           {/* WhatsApp */}
           {activeTab === 'whatsapp' && (
             <div className="rounded-xl p-8 text-center" style={{ background: 'var(--sf3)', border: '1px solid var(--bd2)' }}>
-              <div className="w-16 h-16 bg-[#2B52B0]/10 rounded-full flex items-center justify-center mx-auto mb-5">
-                <MessageCircle className="h-8 w-8 text-[#3D67CA]" />
+              <div className="w-16 h-16 bg-[#25D366]/10 rounded-full flex items-center justify-center mx-auto mb-5">
+                <MessageCircle className="h-8 w-8 text-[#25D366]" />
               </div>
               <h3 className="text-lg font-semibold text-wx-tx1 mb-2">{t.contact.whatsappTitle}</h3>
               <p className="text-sm mb-6" style={{ color: 'var(--tx2)' }}>{t.contact.whatsappDesc}</p>
@@ -213,7 +213,7 @@ export function Contact() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-90"
-                style={{ background: '#2B52B0' }}
+                style={{ background: '#25D366' }}
               >
                 <MessageCircle className="h-4 w-4" />
                 {t.contact.whatsappCta}
