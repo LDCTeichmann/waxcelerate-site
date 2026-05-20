@@ -851,6 +851,7 @@ export function Tools() {
   const de = lang === 'de';
   const headerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const switchTweenRef = useRef<gsap.core.Tween | null>(null);
   useSectionReveal(headerRef);
 
   // ── Desktop deck state ────────────────────────────────────────────────────
@@ -885,13 +886,14 @@ export function Tools() {
 
   const switchCard = useCallback((idx: number) => {
     if (idx === activeCard) return;
+    switchTweenRef.current?.kill();
     if (!contentRef.current) { setActiveCard(idx); return; }
-    gsap.to(contentRef.current, {
+    switchTweenRef.current = gsap.to(contentRef.current, {
       opacity: 0, y: 8, duration: 0.16, ease: 'power2.in',
       onComplete: () => {
         setActiveCard(idx);
         if (contentRef.current) {
-          gsap.fromTo(contentRef.current,
+          switchTweenRef.current = gsap.fromTo(contentRef.current,
             { opacity: 0, y: -8 },
             { opacity: 1, y: 0, duration: 0.28, ease: 'power2.out' }
           );
@@ -1102,10 +1104,10 @@ export function Tools() {
 
         </div>
       </div>
-      {/* Bottom gradient — bridges to Guides below */}
+      {/* Bottom gradient — bridges to FAQ below */}
       <div
         className="absolute bottom-0 left-0 right-0 pointer-events-none"
-        style={{ height: '64px', background: 'linear-gradient(to bottom, transparent, var(--sf))', zIndex: 1 }}
+        style={{ height: '64px', background: 'linear-gradient(to bottom, transparent, var(--pg))', zIndex: 1 }}
       />
     </section>
   );
