@@ -235,10 +235,10 @@ export function Products() {
           )}
         </div>
       </div>
-      {/* Bottom gradient — bridges to Tools below */}
+      {/* Bottom gradient — bridges to About below */}
       <div
         className="absolute bottom-0 left-0 right-0 pointer-events-none"
-        style={{ height: '64px', background: 'linear-gradient(to bottom, transparent, var(--tool-bg))', zIndex: 1 }}
+        style={{ height: '64px', background: 'linear-gradient(to bottom, transparent, var(--sf))', zIndex: 1 }}
       />
     </section>
   );

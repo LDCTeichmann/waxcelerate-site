@@ -32,7 +32,7 @@ export const translations = {
         chains: 'Vorgewachste Ketten',
       },
       buyOnEbay: 'Bei eBay kaufen',
-      multiDiscount: 'Multi-Rabatt: 2 Stk. = 10% | 3+ Stk. = 15%',
+      multiDiscount: 'Bei eBay: 2 Stk. = 10% · 3+ Stk. = 15%',
       preWaxedHint: 'Alle Ketten werden professionell entfettet und von Hand gewachst. Einfach aufziehen und losfahren.',
     },
 
@@ -377,7 +377,7 @@ export const translations = {
         chains: 'Pre-Waxed Chains',
       },
       buyOnEbay: 'Buy on eBay',
-      multiDiscount: 'Multi-discount: 2 pcs. = 10% | 3+ pcs. = 15%',
+      multiDiscount: 'On eBay: 2 pcs. = 10% · 3+ pcs. = 15%',
       preWaxedHint: 'All chains are professionally degreased and hand-waxed. Just install and ride.',
     },
 

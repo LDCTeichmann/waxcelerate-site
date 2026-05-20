@@ -66,7 +66,7 @@ export function SocialProof() {
           <Stat
             value={<><AnimatedCount end={164} /></>}
             label={de ? 'Bewertungen' : 'Reviews'}
-            sub="★★★★★ · eBay"
+            sub="5,0 · eBay"
           />
 
           <div className="w-px self-stretch" style={{ background: 'var(--bd)' }} />

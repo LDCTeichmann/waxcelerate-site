@@ -181,7 +181,7 @@ export function About() {
                   className="px-6 py-3.5 flex items-center gap-2"
                   style={{ borderTop: '1px solid var(--bd2)' }}
                 >
-                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse flex-shrink-0" />
+                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#3D67CA] animate-pulse flex-shrink-0" />
                   <span className="text-[11px] text-wx-txf">
                     {de
                       ? 'Aktiv auf eBay · Versand aus Deutschland'
@@ -193,26 +193,12 @@ export function About() {
 
           </div>
 
-          {/* Conversion CTA */}
-          <div className="text-center pt-10 mt-10 border-t border-wx-bd">
-            <a
-              href="https://www.ebay.de/usr/waxcelerate"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-full text-white font-semibold text-[14px] transition-all hover:opacity-90 active:scale-[0.98]"
-              style={{ background: '#2B52B0' }}
-            >
-              {de ? 'Jetzt im eBay-Shop kaufen' : 'Shop on eBay'}
-              <ExternalLink className="h-4 w-4" />
-            </a>
-          </div>
-
         </div>
       </div>
-      {/* Bottom gradient — bridges to Contact below */}
+      {/* Bottom gradient — bridges to Guides below */}
       <div
         className="absolute bottom-0 left-0 right-0 pointer-events-none"
-        style={{ height: '64px', background: 'linear-gradient(to bottom, transparent, var(--pg))', zIndex: 1 }}
+        style={{ height: '64px', background: 'linear-gradient(to bottom, transparent, var(--sf))', zIndex: 1 }}
       />
     </section>
   );
