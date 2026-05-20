@@ -77,8 +77,8 @@ export function About() {
   const stats = [
     { value: 100, prefix: '', suffix: '%',  label: t.about.stats.rating },
     { value: 500, prefix: '', suffix: '+',  label: t.about.stats.sold },
-    { value: 164, prefix: '', suffix: '',  label: de ? 'eBay-Bewertungen' : 'eBay Reviews' },
-    { value: 24,   prefix: '<', suffix: 'h', label: de ? 'Antwort in < 24h' : 'Reply within 24h' },
+    { value: 164, prefix: '', suffix: '',   label: de ? 'eBay-Bewertungen' : 'eBay Reviews' },
+    { value: 24,  prefix: '<', suffix: 'h', label: t.about.stats.response },
   ];
 
   return (
@@ -127,25 +127,29 @@ export function About() {
                   boxShadow: 'var(--card-shad)',
                 }}
               >
-                {/* Logo header */}
+                {/* Founder header — place your photo at /images/luca.jpg (square crop recommended) */}
                 <div
                   className="flex items-center gap-3 px-6 py-4"
                   style={{ borderBottom: '1px solid var(--bd2)' }}
                 >
                   <img
-                    src="/images/logo.jpg"
-                    alt="Waxcelerate"
-                    className="h-9 w-9 rounded-lg object-cover flex-shrink-0"
+                    src="/images/luca.jpg"
+                    alt="Luca Teichmann"
+                    className="h-11 w-11 rounded-full object-cover flex-shrink-0"
+                    onError={(e) => {
+                      const el = e.currentTarget;
+                      el.src = '/images/logo.jpg';
+                      el.className = 'h-9 w-9 rounded-lg object-cover flex-shrink-0';
+                    }}
                   />
-                  <span className="font-semibold text-wx-tx1 tracking-wide text-[14px]">
-                    waxcelerate
-                  </span>
-                  <span
-                    className="ml-auto text-[10px] tracking-[0.2em] uppercase"
-                    style={{ color: 'var(--txf)' }}
-                  >
-                    Stuttgart
-                  </span>
+                  <div className="flex flex-col min-w-0">
+                    <span className="font-semibold text-wx-tx1 tracking-wide text-[14px] leading-tight">
+                      Luca Teichmann
+                    </span>
+                    <span className="text-[10px] tracking-[0.14em] mt-0.5" style={{ color: 'var(--txf)' }}>
+                      Waxcelerate · Stuttgart
+                    </span>
+                  </div>
                 </div>
 
                 {/* Stats 2×2 grid */}

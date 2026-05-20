@@ -14,7 +14,7 @@ export function Conviction() {
         <p className="text-center text-[10px] font-semibold uppercase tracking-[0.22em] mb-8" style={{ color: 'var(--txf)' }}>
           {de ? 'Das Ergebnis in Zahlen' : 'The Numbers'}
         </p>
-        <div className="max-w-3xl mx-auto grid grid-cols-3 gap-2 sm:gap-3">
+        <div className="max-w-3xl mx-auto grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
 
           {/* Card 1 — Reviews */}
           <div
@@ -40,13 +40,13 @@ export function Conviction() {
               100%
             </span>
             <p
-              className="text-[10px] sm:text-[13px] font-medium mt-2.5 leading-snug"
+              className="text-[11px] sm:text-[13px] font-medium mt-2.5 leading-snug"
               style={{ color: 'rgba(255,255,255,0.55)' }}
             >
               {de ? 'positiv' : 'positive'}
             </p>
             <p
-              className="text-[9px] sm:text-[11px] mt-0.5 leading-snug"
+              className="text-[10px] sm:text-[11px] mt-0.5 leading-snug"
               style={{ color: 'rgba(255,255,255,0.25)' }}
             >
               {de ? 'eBay verifiziert' : 'eBay verified'}
@@ -76,13 +76,13 @@ export function Conviction() {
               −46%
             </span>
             <p
-              className="text-[10px] sm:text-[13px] font-medium mt-2.5 leading-snug"
+              className="text-[11px] sm:text-[13px] font-medium mt-2.5 leading-snug"
               style={{ color: 'rgba(255,255,255,0.55)' }}
             >
               {de ? 'günstigere Kosten' : 'lower cost'}
             </p>
             <p
-              className="text-[9px] sm:text-[11px] mt-0.5 leading-snug"
+              className="text-[10px] sm:text-[11px] mt-0.5 leading-snug"
               style={{ color: 'rgba(255,255,255,0.25)' }}
             >
               {de ? 'vs. Kettenöl' : 'vs. chain oil'}
@@ -94,7 +94,7 @@ export function Conviction() {
 
           {/* Card 3 — Chain life */}
           <div
-            className="relative rounded-2xl p-4 sm:p-6 flex flex-col overflow-hidden"
+            className="relative rounded-2xl p-4 sm:p-6 flex flex-col overflow-hidden col-span-2 sm:col-span-1"
             style={{
               background: 'linear-gradient(145deg, rgba(43,82,176,0.10) 0%, rgba(138,170,255,0.03) 60%, transparent 100%)',
               border: '1px solid rgba(43,82,176,0.20)',
@@ -115,13 +115,13 @@ export function Conviction() {
               3×
             </span>
             <p
-              className="text-[10px] sm:text-[13px] font-medium mt-2.5 leading-snug"
+              className="text-[11px] sm:text-[13px] font-medium mt-2.5 leading-snug"
               style={{ color: 'rgba(255,255,255,0.55)' }}
             >
               {de ? 'längere Kette' : 'longer chain'}
             </p>
             <p
-              className="text-[9px] sm:text-[11px] mt-0.5 leading-snug"
+              className="text-[10px] sm:text-[11px] mt-0.5 leading-snug"
               style={{ color: 'rgba(255,255,255,0.25)' }}
             >
               {de ? 'vs. Öl' : 'vs. oil'}

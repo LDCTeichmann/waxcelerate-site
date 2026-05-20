@@ -117,7 +117,7 @@ export function WhyWax() {
           {/* ── Header ── */}
           <div ref={headerRef} className="text-center mb-14">
             <h2 className="font-display text-5xl sm:text-6xl font-bold text-wx-tx1 mb-4">
-              <ScrollWordReveal text={de ? 'Warum Waxcelerate' : 'Why Waxcelerate'} />
+              <ScrollWordReveal text={de ? 'Warum diese Formel' : 'Why This Formula'} />
             </h2>
             <p data-reveal="subtitle" className="text-wx-txm max-w-lg mx-auto text-[15px]">
               {de
@@ -433,8 +433,8 @@ export function WhyWax() {
           <div className="text-center pt-6 border-t border-wx-bd">
             <p className="text-wx-txm text-[13px] mb-6">
               {de
-                ? '164 eBay-Bewertungen · 100% positiv · Versand am gleichen Tag'
-                : '164 eBay reviews · 100% positive · Same-day shipping'}
+                ? '164 eBay-Bewertungen · 100% positiv · Versand innerhalb 1–2 Werktagen'
+                : '164 eBay reviews · 100% positive · Ships within 1–2 business days'}
             </p>
             <button
               onClick={() => document.querySelector('#produkte')?.scrollIntoView({ behavior: 'smooth' })}

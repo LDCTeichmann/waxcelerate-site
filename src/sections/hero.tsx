@@ -221,8 +221,8 @@ export function Hero() {
                 />
                 <span className="text-[12px] tracking-wide" style={{ color: 'rgba(255,255,255,0.65)' }}>
                   {de
-                    ? 'Neu: Vorgewachste Ketten für alle Antriebe'
-                    : 'New: Pre-waxed chains for every drivetrain'}
+                    ? 'Vorgewachste Ketten — sofort einsatzbereit'
+                    : 'Pre-waxed chains — ready to ride instantly'}
                 </span>
                 <ArrowRight className="h-3 w-3 flex-shrink-0" style={{ color: '#3D67CA' }} />
               </button>
@@ -253,8 +253,8 @@ export function Hero() {
               style={{ color: 'rgba(255,255,255,0.70)' }}
             >
               {de
-                ? 'Am Ende der Recherche. Entwickelt auf der Straße.'
-                : 'End of the search. Built on the road.'}
+                ? 'Messbar effizienter als Kettenöl. Entwickelt auf der Straße.'
+                : 'Measurably more efficient than chain oil. Built on the road.'}
             </p>
 
             {/* CTAs */}

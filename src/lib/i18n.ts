@@ -7,7 +7,7 @@ export const translations = {
       tools: 'Tools',
       guides: 'Anleitungen',
       faq: 'FAQ',
-      about: 'Das Projekt',
+      about: 'Über mich',
       contact: 'Kontakt',
       ebayShop: 'eBay-Shop',
     },
@@ -269,7 +269,7 @@ export const translations = {
 
     // About
     about: {
-      title: 'Das Projekt',
+      title: 'Luca Teichmann',
       bio1: 'Ich bin Luca Teichmann — Waxcelerate ist nicht am Schreibtisch entstanden, sondern auf nassen Herbststraßen, bei Ausfahrten tief im Winter und nach Sommerrennen, bei denen Staub und Hitze zeigen, was ein Wachs wirklich kann.',
       bio2: 'Der Anspruch war von Anfang an konkret: kein Wachs, das im ersten Eindruck überzeugt und nach drei Wochen Kompromisse zeigt. Sondern eines, das seine Arbeit still tut, bei Kälte genauso wie im Hochsommer, über kurze Ausfahrten genauso wie über lange Intervalle. Nicht jede Charge war sofort richtig. Aber jede war näher dran.',
       bio3: 'Das Ergebnis wird in kleinen Chargen in Stuttgart entwickelt und gefertigt, für Fahrer, die beim Antrieb kein Versprechen brauchen, sondern ein Produkt, das sich seine Überzeugungskraft auf der Straße verdient hat.',
@@ -298,8 +298,8 @@ export const translations = {
       message: 'Nachricht',
       send: 'Nachricht senden',
       emailTo: 'Deine Nachricht wird an waxcelerate@gmail.com gesendet',
-      success: 'Nachricht gesendet!',
-      successSub: 'Ich antworte in der Regel innerhalb von 12 Stunden.',
+      success: 'E-Mail vorbereitet!',
+      successSub: 'Dein E-Mail-Programm sollte sich geöffnet haben. Falls nicht, schreib direkt an:',
       whatsappTitle: 'Schreib mir auf WhatsApp',
       whatsappDesc: 'Schneller Kontakt für kurze Fragen. Ich antworte so schnell wie möglich.',
       whatsappCta: 'WhatsApp öffnen',
@@ -614,7 +614,7 @@ export const translations = {
 
     // About
     about: {
-      title: 'The Project',
+      title: 'Luca Teichmann',
       bio1: "I'm Luca Teichmann — Waxcelerate wasn't born at a desk — it came from wet autumn roads, deep winter rides, and summer races where dust and heat reveal what a wax is really made of.",
       bio2: "The goal was concrete from the start: not a wax that impresses on first contact and starts making compromises after three weeks. But one that does its work quietly — in the cold just as well as in midsummer, on short rides just as well as long intervals. Not every batch was right straight away. But each one was closer.",
       bio3: "The result is developed and produced in small batches in Stuttgart, for riders who don't need a promise about their drivetrain — just a product that earns its reputation on the road.",
@@ -643,8 +643,8 @@ export const translations = {
       message: 'Message',
       send: 'Send message',
       emailTo: 'Your message will be sent to waxcelerate@gmail.com',
-      success: 'Message sent!',
-      successSub: 'I usually reply within 12 hours.',
+      success: 'Email prepared!',
+      successSub: 'Your email client should have opened. If not, write directly to:',
       whatsappTitle: 'Message me on WhatsApp',
       whatsappDesc: 'Quick contact for short questions. I reply as soon as possible.',
       whatsappCta: 'Open WhatsApp',

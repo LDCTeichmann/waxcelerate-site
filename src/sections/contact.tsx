@@ -95,7 +95,7 @@ export function Contact() {
               onClick={() => setActiveTab('whatsapp')}
               className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all"
               style={activeTab === 'whatsapp'
-                ? { background: '#16a34a', color: '#fff' }
+                ? { background: '#2B52B0', color: '#fff' }
                 : { color: 'var(--txm)' }}
             >
               <MessageCircle className="h-4 w-4" />
@@ -112,19 +112,14 @@ export function Contact() {
                     <Check className="h-8 w-8 text-green-400" />
                   </div>
                   <h3 className="text-xl font-medium text-wx-tx1 mb-2">{t.contact.success}</h3>
-                  <p className="text-wx-tx2">{t.contact.successSub}</p>
-                  <p className="text-[12px] mt-3" style={{ color: 'var(--txf)' }}>
-                    {de
-                      ? 'Kein E-Mail-Programm geöffnet? Schreib direkt an: '
-                      : "Mail client didn't open? Write directly to: "}
-                    <a
-                      href="mailto:waxcelerate@gmail.com"
-                      className="underline"
-                      style={{ color: '#2B52B0' }}
-                    >
-                      waxcelerate@gmail.com
-                    </a>
-                  </p>
+                  <p className="text-wx-tx2 text-sm">{t.contact.successSub}</p>
+                  <a
+                    href="mailto:waxcelerate@gmail.com"
+                    className="inline-block mt-2 text-[13px] font-medium underline"
+                    style={{ color: '#3D67CA' }}
+                  >
+                    waxcelerate@gmail.com
+                  </a>
                 </div>
               ) : (
                 <div ref={formRef}>
@@ -208,8 +203,8 @@ export function Contact() {
           {/* WhatsApp */}
           {activeTab === 'whatsapp' && (
             <div className="rounded-xl p-8 text-center" style={{ background: 'var(--sf3)', border: '1px solid var(--bd2)' }}>
-              <div className="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-5">
-                <MessageCircle className="h-8 w-8 text-green-400" />
+              <div className="w-16 h-16 bg-[#2B52B0]/10 rounded-full flex items-center justify-center mx-auto mb-5">
+                <MessageCircle className="h-8 w-8 text-[#3D67CA]" />
               </div>
               <h3 className="text-lg font-semibold text-wx-tx1 mb-2">{t.contact.whatsappTitle}</h3>
               <p className="text-sm mb-6" style={{ color: 'var(--tx2)' }}>{t.contact.whatsappDesc}</p>
@@ -218,7 +213,7 @@ export function Contact() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-90"
-                style={{ background: '#16a34a' }}
+                style={{ background: '#2B52B0' }}
               >
                 <MessageCircle className="h-4 w-4" />
                 {t.contact.whatsappCta}
