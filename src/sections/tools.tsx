@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { Calculator, Package, PiggyBank, RotateCcw } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useSectionReveal } from '@/hooks/useAnimation';
 import { waxIntervals } from '@/lib/data';
-import { gsap, ScrollTrigger } from '@/lib/gsap';
+import { gsap } from '@/lib/gsap';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 
 
@@ -54,31 +54,6 @@ function AnimatedNumber({
       {prefix}{fmt}{suffix}
     </span>
   );
-}
-
-// ─── Scroll-reveal hook (3D version) ─────────────────────────────────────────
-function useScrollReveal(delay = 0) {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    gsap.set(el, { opacity: 0, y: 28, rotateX: 8, transformPerspective: 700, transformOrigin: '50% 0%' });
-    const trigger = ScrollTrigger.create({
-      trigger: el,
-      start: 'top 88%',
-      once: true,
-      onEnter: () => {
-        gsap.to(el, {
-          opacity: 1, y: 0, rotateX: 0,
-          duration: 0.7, ease: 'power3.out', delay: delay / 1000,
-          onComplete: () => { el.style.willChange = 'auto'; el.style.transform = ''; },
-        });
-      },
-    });
-    return () => trigger.kill();
-  }, [delay]);
-  return { ref };
 }
 
 // ─── Toggle button — premium dark/white style ────────────────────────────────
@@ -870,33 +845,76 @@ function RotationROI() {
   );
 }
 
-// ─── Reveal wrapper ──────────────────────────────────────────────────────────
-function RevealSlot({ delay, children }: { delay: number; children: React.ReactNode }) {
-  const { ref } = useScrollReveal(delay);
-  return (
-    <div ref={ref}>
-      {children}
-    </div>
-  );
-}
-
 // ─── Main Export ──────────────────────────────────────────────────────────────
 export function Tools() {
   const { t, lang } = useLanguage();
   const de = lang === 'de';
+  const headerRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  useSectionReveal(headerRef);
+
+  // ── Desktop deck state ────────────────────────────────────────────────────
+  const [activeCard, setActiveCard] = useState(0);
+
+  const toolMeta = useMemo(() => [
+    {
+      icon: Calculator,
+      eyebrow: de ? 'Wartung' : 'Maintenance',
+      title: de ? 'Wann muss ich rewaxen?' : 'When should I rewax?',
+      desc: de ? 'Dein Intervall nach Wetter & Terrain' : 'Your interval by weather & terrain',
+    },
+    {
+      icon: Package,
+      eyebrow: de ? 'Vorrat' : 'Stock',
+      title: de ? 'Wie viel Wachs brauche ich?' : 'How much wax do I need?',
+      desc: de ? 'Richtige Packungsgröße für dein Profil' : 'Right pack size for your profile',
+    },
+    {
+      icon: PiggyBank,
+      eyebrow: de ? 'Kosten' : 'Savings',
+      title: de ? 'Was spare ich mit Wachs?' : 'What do I save with wax?',
+      desc: de ? 'Wachs vs. Kettenöl in Euro' : 'Wax vs. chain oil in euros',
+    },
+    {
+      icon: RotateCcw,
+      eyebrow: de ? 'Rotation' : 'Rotation',
+      title: de ? 'Lohnen sich mehrere Ketten?' : 'Is chain rotation worth it?',
+      desc: de ? 'Kettenverschleiß & Kassettenlaufzeit' : 'Chain wear & cassette life',
+    },
+  ], [de]);
+
+  const switchCard = useCallback((idx: number) => {
+    if (idx === activeCard) return;
+    if (!contentRef.current) { setActiveCard(idx); return; }
+    gsap.to(contentRef.current, {
+      opacity: 0, y: 8, duration: 0.16, ease: 'power2.in',
+      onComplete: () => {
+        setActiveCard(idx);
+        if (contentRef.current) {
+          gsap.fromTo(contentRef.current,
+            { opacity: 0, y: -8 },
+            { opacity: 1, y: 0, duration: 0.28, ease: 'power2.out' }
+          );
+        }
+      },
+    });
+  }, [activeCard]);
+
+  const previewIndices = useMemo(
+    () => ([0, 1, 2, 3] as const).filter(i => i !== activeCard),
+    [activeCard]
+  );
+
+  // ── Mobile tab state ──────────────────────────────────────────────────────
   const TAB_LABELS = useMemo(() =>
     de ? ['Intervall', 'Vorrat', 'Ersparnis', 'Rotation']
        : ['Interval', 'Stock', 'Savings', 'Rotation'],
   [de]);
   const [activeTab, setActiveTab] = useState(0);
-  const headerRef = useRef<HTMLDivElement>(null);
-  useSectionReveal(headerRef);
-
   const tabBarRef = useRef<HTMLDivElement>(null);
   const tabButtonRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const tabPillRef = useRef<HTMLDivElement>(null);
 
-  // Initialize pill position — defer to rAF so layout is stable (avoids width:0 flash)
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
       const btn = tabButtonRefs.current[0];
@@ -910,7 +928,6 @@ export function Tools() {
     return () => cancelAnimationFrame(frame);
   }, []); // eslint-disable-line
 
-  // Animate pill on tab change
   useEffect(() => {
     const btn = tabButtonRefs.current[activeTab];
     const bar = tabBarRef.current;
@@ -927,7 +944,6 @@ export function Tools() {
     });
   }, [activeTab, TAB_LABELS]);
 
-  // Recalculate pill on resize — stable ref tracks active tab so deps stay []
   const activeTabRef = useRef(activeTab);
   useEffect(() => { activeTabRef.current = activeTab; }, [activeTab]);
   useEffect(() => {
@@ -948,7 +964,8 @@ export function Tools() {
   return (
     <section id="tools" className="relative py-24" style={{ background: 'var(--tool-bg)' }}>
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-6xl mx-auto">
+
           <div ref={headerRef} className="text-center mb-16">
             <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-4">
               <ScrollWordReveal text={t.tools.title} />
@@ -958,7 +975,7 @@ export function Tools() {
             </p>
           </div>
 
-          {/* ── Mobile: tab switcher (one tool at a time) ── */}
+          {/* ── Mobile: tab switcher ── */}
           <div className="md:hidden">
             <div
               ref={tabBarRef}
@@ -982,25 +999,107 @@ export function Tools() {
                 </button>
               ))}
             </div>
-            {/* Conditional render per tab — unmount/remount ensures scroll-triggered
-                 animations (like AnimatedBar IntersectionObserver) fire correctly */}
             {activeTab === 0 && <RewaxCalculator />}
             {activeTab === 1 && <WaxStockCalculator />}
             {activeTab === 2 && <CostSavingsCalculator />}
             {activeTab === 3 && <RotationROI />}
           </div>
 
-          {/* ── Desktop: 1 featured + 3-col ── */}
-          <div className="hidden md:block space-y-4">
-            <RevealSlot delay={0}>
-              <RewaxCalculator featured />
-            </RevealSlot>
-            <div className="grid md:grid-cols-3 gap-4 items-stretch">
-              <RevealSlot delay={90}><WaxStockCalculator /></RevealSlot>
-              <RevealSlot delay={180}><CostSavingsCalculator /></RevealSlot>
-              <RevealSlot delay={270}><RotationROI /></RevealSlot>
+          {/* ── Desktop: card deck ── */}
+          <div
+            className="hidden md:grid gap-5 items-start"
+            style={{ gridTemplateColumns: '1fr 292px' }}
+          >
+            {/* ── Active tool — left ── */}
+            <div ref={contentRef}>
+              {activeCard === 0 && <RewaxCalculator featured />}
+              {activeCard === 1 && <WaxStockCalculator />}
+              {activeCard === 2 && <CostSavingsCalculator />}
+              {activeCard === 3 && <RotationROI />}
+            </div>
+
+            {/* ── Preview deck — right ── */}
+            <div className="flex flex-col gap-2.5">
+              <p
+                className="px-0.5 pb-1 text-[9.5px] font-semibold uppercase tracking-[0.22em]"
+                style={{ color: 'rgba(255,255,255,0.18)' }}
+              >
+                {de ? 'Weitere Tools' : 'More Tools'}
+              </p>
+
+              {previewIndices.map((idx, stackPos) => {
+                const meta = toolMeta[idx];
+                const Icon = meta.icon;
+                const baseOpacity = 1 - stackPos * 0.1;
+                return (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => switchCard(idx)}
+                    className="group text-left rounded-2xl p-4 transition-colors duration-150"
+                    style={{
+                      background: '#0d0d10',
+                      border: '1px solid rgba(255,255,255,0.07)',
+                      opacity: baseOpacity,
+                    }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.borderColor = 'rgba(255,255,255,0.16)';
+                      e.currentTarget.style.opacity = '1';
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)';
+                      e.currentTarget.style.opacity = String(baseOpacity);
+                    }}
+                  >
+                    <div className="flex items-start gap-3">
+                      {/* Icon */}
+                      <div
+                        className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
+                        style={{
+                          background: 'rgba(255,255,255,0.05)',
+                          border: '1px solid rgba(255,255,255,0.08)',
+                        }}
+                      >
+                        <Icon className="h-3.5 w-3.5" style={{ color: 'rgba(255,255,255,0.38)' }} />
+                      </div>
+
+                      {/* Text */}
+                      <div className="flex-1 min-w-0">
+                        <p
+                          className="text-[9px] font-semibold uppercase tracking-[0.18em] mb-0.5"
+                          style={{ color: '#2B52B0' }}
+                        >
+                          {meta.eyebrow}
+                        </p>
+                        <p
+                          className="text-[12px] font-semibold leading-snug"
+                          style={{ color: 'rgba(255,255,255,0.72)' }}
+                        >
+                          {meta.title}
+                        </p>
+                        <p
+                          className="text-[10.5px] mt-1 leading-snug"
+                          style={{ color: 'rgba(255,255,255,0.28)' }}
+                        >
+                          {meta.desc}
+                        </p>
+                      </div>
+
+                      {/* Arrow */}
+                      <span
+                        className="opacity-0 group-hover:opacity-40 transition-opacity flex-shrink-0 self-center ml-1 text-[17px]"
+                        style={{ color: 'rgba(255,255,255,0.7)' }}
+                        aria-hidden
+                      >
+                        ›
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
+
         </div>
       </div>
       {/* Bottom gradient — bridges to Guides below */}
