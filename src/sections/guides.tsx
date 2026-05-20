@@ -136,9 +136,11 @@ export function Guides() {
                     </div>
                   ))}
                 </div>
-                <p className="text-[10.5px] mt-4 leading-snug" style={{ color: 'var(--txf)' }}>
-                  {t.guides.pdfHint}
-                </p>
+                {t.guides.pdfHint && (
+                  <p className="text-[10.5px] mt-4 leading-snug" style={{ color: 'var(--txf)' }}>
+                    {t.guides.pdfHint}
+                  </p>
+                )}
               </div>
             </div>
           </div>

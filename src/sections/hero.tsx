@@ -35,7 +35,7 @@ function WordReveal({
 }
 
 export function Hero() {
-  const { lang } = useLanguage();
+  const { t, lang } = useLanguage();
   const animatedRef = useRef<boolean>(false);
   const pillRef     = useRef<HTMLDivElement>(null);
   const headRef     = useRef<HTMLDivElement>(null);
@@ -201,7 +201,7 @@ export function Hero() {
               className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-semibold mb-6"
               style={{ color: 'rgba(255,255,255,0.28)' }}
             >
-              {de ? 'Handgefertigt · Kleine Chargen · Stuttgart' : 'Handcrafted · Small Batches · Stuttgart'}
+              {de ? 'Kleine Chargen · Stuttgart' : 'Small Batches · Stuttgart'}
             </p>
 
             {/* Pill */}
@@ -252,33 +252,19 @@ export function Hero() {
               className="text-[16px] leading-relaxed mb-10 max-w-xs sm:max-w-sm"
               style={{ color: 'rgba(255,255,255,0.70)' }}
             >
-              {de
-                ? 'Messbar effizienter als Kettenöl. Entwickelt auf der Straße.'
-                : 'Measurably more efficient than chain oil. Built on the road.'}
+              {t.hero.tagline}
             </p>
 
             {/* CTAs */}
             <div ref={ctaRef} className="flex items-center justify-center lg:justify-start gap-5 flex-wrap">
-              {/* Primary — links directly to the eBay Classic 500g listing */}
               <button
                 ref={ebayBtnRef}
-                onClick={() => window.open('https://www.ebay.de/itm/395811184583', '_blank', 'noopener,noreferrer')}
+                onClick={() => scrollToSection('#produkte')}
                 className="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-semibold text-white rounded-full transition-opacity duration-150 hover:opacity-90 active:scale-[0.98]"
                 style={{ background: '#2B52B0', willChange: 'transform' }}
               >
-                {de ? 'Classic 500g kaufen — 29,95 €' : 'Buy Classic 500g — €29.95'}
+                {t.hero.ctaBuy}
                 <ArrowRight className="h-3.5 w-3.5" />
-              </button>
-
-              <button
-                onClick={() => scrollToSection('#produkte')}
-                className="inline-flex items-center gap-1.5 text-sm font-medium transition-colors"
-                style={{ color: 'rgba(255,255,255,0.45)' }}
-                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = '#FFFFFF')}
-                onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.45)')}
-              >
-                {de ? 'Alle Produkte ansehen' : 'View all products'}
-                <ArrowRight className="h-3 w-3" />
               </button>
             </div>
 

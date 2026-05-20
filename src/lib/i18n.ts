@@ -15,8 +15,8 @@ export const translations = {
     // Hero
     hero: {
       subtitle: 'Heißwachs für Fahrradketten',
-      tagline: 'Am Ende der Recherche. Entwickelt auf der Straße.',
-      ctaBuy: 'Zum eBay-Shop',
+      tagline: 'Messbar effizienter als Kettenöl. Entwickelt auf der Straße.',
+      ctaBuy: 'Produkte ansehen',
       ctaGuide: 'Anleitung',
       trust1: '100% positive Bewertungen (164)',
       trust2: '500+ Artikel verkauft',
@@ -126,7 +126,7 @@ export const translations = {
       eyebrow: 'Schritt für Schritt',
       title: 'Anleitungen',
       subtitle: 'So wachst du deine Kette richtig',
-      pdfHint: 'Alle Anleitungen auch als PDF verfügbar — einfach beim Kauf anfragen',
+      pdfHint: '',
       newChain: {
         title: 'Neue Kette erstmalig wachsen',
         note: 'Fabrikfett blockiert den Wirkstoff komplett — Entfetten ist Pflicht.',
@@ -165,7 +165,7 @@ export const translations = {
       eyebrow: 'Support',
       title: 'Häufige Fragen',
       subtitle: 'Echte Antworten — aus Kundengesprächen, Praxiserfahrung und dem, was die Forschung dazu sagt.',
-      contactCta: 'Noch eine Frage?',
+      contactCta: 'Frage nicht dabei?',
       contactLink: 'Direkt schreiben →',
       items: [
         {
@@ -360,8 +360,8 @@ export const translations = {
     // Hero
     hero: {
       subtitle: 'Hot Wax for Bicycle Chains',
-      tagline: 'End of the search. Built on the road.',
-      ctaBuy: 'To eBay Shop',
+      tagline: 'Measurably more efficient than chain oil. Built on the road.',
+      ctaBuy: 'View products',
       ctaGuide: 'Guide',
       trust1: '100% positive feedback (164)',
       trust2: '500+ items sold',
@@ -471,7 +471,7 @@ export const translations = {
       eyebrow: 'Step by Step',
       title: 'Guides',
       subtitle: 'How to wax your chain properly',
-      pdfHint: 'All guides also available as PDF — just ask when purchasing',
+      pdfHint: '',
       newChain: {
         title: 'First wax on a new chain',
         note: 'Factory grease blocks the lubricant completely — degreasing is mandatory.',
@@ -510,7 +510,7 @@ export const translations = {
       eyebrow: 'Support',
       title: 'FAQ',
       subtitle: 'Real answers — drawn from customer conversations, hands-on experience, and what the research actually says.',
-      contactCta: 'Still have a question?',
+      contactCta: 'Not finding what you need?',
       contactLink: 'Write me directly →',
       items: [
         {

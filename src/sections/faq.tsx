@@ -4,11 +4,17 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { use3DReveal } from '@/hooks/useAnimation';
 
+const ITEMS_DEFAULT = 8;
+
 export function FAQ() {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
+  const de = lang === 'de';
   const [openItem, setOpenItem] = useState<string | null>(null);
+  const [showAll, setShowAll] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
   use3DReveal(listRef, { stagger: 0.07, start: 'top 85%' });
+
+  const visibleItems = showAll ? t.faq.items : t.faq.items.slice(0, ITEMS_DEFAULT);
 
   return (
     <section id="faq" className="relative py-20 bg-wx-bg">
@@ -24,7 +30,7 @@ export function FAQ() {
           </div>
 
           <div ref={listRef}>
-            {t.faq.items.map((item: {q: string; a: string}, index: number) => (
+            {visibleItems.map((item: {q: string; a: string}, index: number) => (
               <div
                 key={item.q.slice(0, 30)}
                 data-card
@@ -66,6 +72,20 @@ export function FAQ() {
               </div>
             ))}
           </div>
+
+          {/* Show all toggle */}
+          {!showAll && t.faq.items.length > ITEMS_DEFAULT && (
+            <button
+              onClick={() => setShowAll(true)}
+              className="w-full mt-4 py-3 text-sm font-medium rounded-xl border border-wx-bd/40 transition-colors hover:border-wx-bd"
+              style={{ color: 'var(--txm)', background: 'var(--sf3)' }}
+            >
+              {de
+                ? `Alle ${t.faq.items.length} Fragen anzeigen`
+                : `Show all ${t.faq.items.length} questions`}
+              <ChevronDown className="inline-block h-3.5 w-3.5 ml-1.5 opacity-60" />
+            </button>
+          )}
 
           {/* Contact CTA */}
           <div className="mt-12 rounded-xl border border-wx-bd/40 p-6 text-center" style={{ background: 'var(--sf3)' }}>

@@ -9,21 +9,24 @@ const reviews = [
     textEn: "Can't rate higher than positive — but this would deserve a 1+ with ★",
     name: 'volvo210b',
     reviewerCount: '1.019',
-    date: 'Jan 2026',
+    dateDe: 'Jan 2026',
+    dateEn: 'Jan 2026',
   },
   {
     textDe: 'Alles bestens, läuft wie gewachst !!',
     textEn: 'All good — runs like a dream !!',
     name: 'maienbuehl',
     reviewerCount: '774',
-    date: 'Feb 2026',
+    dateDe: 'Feb 2026',
+    dateEn: 'Feb 2026',
   },
   {
     textDe: 'Schnelle Lieferung, einwandfrei gewachste Kette die sehr gut läuft, gerne wieder',
     textEn: 'Fast delivery, impeccably waxed chain that runs very well — will order again',
     name: 'seyrane',
     reviewerCount: '934',
-    date: 'März 2026',
+    dateDe: 'März 2026',
+    dateEn: 'March 2026',
   },
 ];
 
@@ -122,7 +125,7 @@ export function Reviews() {
                       className="inline-block h-1.5 w-1.5 rounded-full"
                       style={{ background: '#2B52B0' }}
                     />
-                    eBay · {r.date}
+                    eBay · {de ? r.dateDe : r.dateEn}
                   </span>
                 </div>
               </div>

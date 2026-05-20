@@ -117,12 +117,12 @@ export function WhyWax() {
           {/* ── Header ── */}
           <div ref={headerRef} className="text-center mb-14">
             <h2 className="font-display text-5xl sm:text-6xl font-bold text-wx-tx1 mb-4">
-              <ScrollWordReveal text={de ? 'Warum diese Formel' : 'Why This Formula'} />
+              <ScrollWordReveal text={de ? 'Warum Heißwachs?' : 'Why Hot Wax?'} />
             </h2>
             <p data-reveal="subtitle" className="text-wx-txm max-w-lg mx-auto text-[15px]">
               {de
-                ? 'Nicht warum Wachs — sondern warum diese Formulierung besser durchdacht ist als die meisten Alternativen.'
-                : 'Not why wax — but why this formulation is more carefully developed than most alternatives.'}
+                ? 'Messbare Vorteile, konkrete Kosten — und warum diese Formel besser durchdacht ist als die meisten Alternativen.'
+                : 'Measurable advantages, real costs — and why this formulation is more carefully developed than most alternatives.'}
             </p>
           </div>
 
