@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Calculator, Package, RotateCcw } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -155,7 +155,7 @@ function ResultBox({ children }: { children: React.ReactNode }) {
 }
 
 // ─── Tool 1: Rewax Interval Calculator ───────────────────────────────────────
-function RewaxCalculator({ featured = false }: { featured?: boolean }) {
+function RewaxCalculator() {
   const { t, lang } = useLanguage();
   const de = lang === 'de';
   const [weather, setWeather] = useState<'trocken' | 'gemischt' | 'nass'>('trocken');
@@ -186,17 +186,6 @@ function RewaxCalculator({ featured = false }: { featured?: boolean }) {
 
   return (
     <ToolCard>
-      {featured && (
-        <div className="px-6 pt-5 pb-0">
-          <span
-            className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] px-2.5 py-1 rounded-full"
-            style={{ background: 'rgba(43,82,176,0.1)', color: '#2B52B0', border: '1px solid rgba(43,82,176,0.2)' }}
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-[#2B52B0] animate-pulse inline-block" />
-            {de ? 'Empfohlener Einstieg' : 'Recommended Start'}
-          </span>
-        </div>
-      )}
       <ToolHeader
         icon={<Calculator className="h-4 w-4" style={{ color: 'rgba(255,255,255,0.55)' }} />}
         title={t.tools.rewax.title}
@@ -204,134 +193,59 @@ function RewaxCalculator({ featured = false }: { featured?: boolean }) {
           ? 'Nie wieder zu früh oder zu spät — erhalte dein genaues Rewax-Intervall.'
           : 'Never too early or too late — get your exact rewax interval.'}
       />
-
-      {featured ? (
-        /* ── Featured: 3-col inputs + full-width result ── */
-        <div className="px-6 pb-6 pt-2 space-y-6">
-          <div className="grid grid-cols-3 gap-8">
-            {/* Weather */}
-            <div>
-              <FieldLabel label={t.tools.rewax.weather} />
-              <div className="flex flex-col gap-1.5 mt-1">
-                {weatherOpts.map(o => (
-                  <TogButton key={o.value} active={weather === o.value} onClick={() => setWeather(o.value)}>
-                    {o.label}
-                  </TogButton>
-                ))}
-              </div>
-            </div>
-            {/* Terrain */}
-            <div>
-              <FieldLabel label={t.tools.rewax.terrain} />
-              <div className="flex flex-col gap-1.5 mt-1">
-                {terrainOpts.map(o => (
-                  <TogButton key={o.value} active={terrain === o.value} onClick={() => setTerrain(o.value)}>
-                    {o.label}
-                  </TogButton>
-                ))}
-              </div>
-            </div>
-            {/* km/week */}
-            <div>
-              <FieldLabel label={t.tools.rewax.kmPerWeek} value={`${kmPerWeek} km`} />
-              <Slider
-                value={[kmPerWeek]}
-                onValueChange={v => setKmPerWeek(v[0])}
-                min={20} max={400} step={10}
-                className="py-1 mt-3"
-              />
-              <div className="flex justify-between mt-2">
-                <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.2)' }}>20 km</span>
-                <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.2)' }}>400 km</span>
-              </div>
+      <div className="px-6 pb-6 flex flex-col flex-1 gap-5">
+        <div className="space-y-5 flex-1">
+          <div>
+            <FieldLabel label={t.tools.rewax.weather} />
+            <div className="flex flex-wrap gap-1.5">
+              {weatherOpts.map(o => (
+                <TogButton key={o.value} active={weather === o.value} onClick={() => setWeather(o.value)}>
+                  {o.label}
+                </TogButton>
+              ))}
             </div>
           </div>
-
-          <ResultBox>
-            <div className="flex items-end justify-between">
-              <div>
-                <p className="text-[56px] font-bold text-white leading-none tabular-nums">
-                  <AnimatedNumber value={weeks} />
-                </p>
-                <p className="mt-1.5 text-[14px]" style={{ color: 'rgba(255,255,255,0.38)' }}>
-                  {weeks === 1 ? (de ? 'Woche' : 'week') : (de ? 'Wochen' : 'weeks')}{' '}
-                  {de ? 'bis zum nächsten Rewaxen' : 'until next rewax'}
-                  {weeksCapped && <span style={{ color: 'rgba(255,255,255,0.2)' }}> (max.)</span>}
-                </p>
-              </div>
-              <div className="text-right pb-0.5">
-                <p className="text-[13px] tabular-nums" style={{ color: 'rgba(255,255,255,0.32)' }}>
-                  {interval} km
-                </p>
-                <p className="text-[12px] mt-0.5" style={{ color: 'rgba(255,255,255,0.22)' }}>
-                  {de ? `bei ${kmPerWeek} km/Wo.` : `at ${kmPerWeek} km/wk`}
-                </p>
-              </div>
-            </div>
-            <p
-              className="text-[12px] mt-4 pt-3 leading-relaxed"
-              style={{ borderTop: '1px solid rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.22)' }}
-            >
-              {hint}
-            </p>
-          </ResultBox>
-        </div>
-      ) : (
-        /* ── Non-featured: vertical stack ── */
-        <div className="px-6 pb-6 flex flex-col flex-1 gap-5">
-          <div className="space-y-5 flex-1">
-            <div>
-              <FieldLabel label={t.tools.rewax.weather} />
-              <div className="flex flex-wrap gap-1.5">
-                {weatherOpts.map(o => (
-                  <TogButton key={o.value} active={weather === o.value} onClick={() => setWeather(o.value)}>
-                    {o.label}
-                  </TogButton>
-                ))}
-              </div>
-            </div>
-            <div>
-              <FieldLabel label={t.tools.rewax.terrain} />
-              <div className="flex flex-wrap gap-1.5">
-                {terrainOpts.map(o => (
-                  <TogButton key={o.value} active={terrain === o.value} onClick={() => setTerrain(o.value)}>
-                    {o.label}
-                  </TogButton>
-                ))}
-              </div>
-            </div>
-            <div>
-              <FieldLabel label={t.tools.rewax.kmPerWeek} value={`${kmPerWeek} km`} />
-              <Slider
-                value={[kmPerWeek]}
-                onValueChange={v => setKmPerWeek(v[0])}
-                min={20} max={400} step={10}
-                className="py-1"
-              />
+          <div>
+            <FieldLabel label={t.tools.rewax.terrain} />
+            <div className="flex flex-wrap gap-1.5">
+              {terrainOpts.map(o => (
+                <TogButton key={o.value} active={terrain === o.value} onClick={() => setTerrain(o.value)}>
+                  {o.label}
+                </TogButton>
+              ))}
             </div>
           </div>
-
-          <ResultBox>
-            <p className="text-[46px] font-bold text-white text-center leading-none tabular-nums">
-              <AnimatedNumber value={weeks} />
-            </p>
-            <p className="text-[13px] text-center mt-1.5" style={{ color: 'rgba(255,255,255,0.38)' }}>
-              {weeks === 1 ? (de ? 'Woche' : 'week') : (de ? 'Wochen' : 'weeks')}{' '}
-              {de ? 'bis zum nächsten Rewaxen' : 'until next rewax'}
-              {weeksCapped && <span style={{ color: 'rgba(255,255,255,0.2)' }}> (max.)</span>}
-            </p>
-            <p className="text-[12px] text-center mt-0.5" style={{ color: 'rgba(255,255,255,0.22)' }}>
-              {interval} km · {de ? `bei ${kmPerWeek} km/Wo.` : `at ${kmPerWeek} km/wk`}
-            </p>
-            <p
-              className="text-[11px] text-center mt-3 pt-3 leading-snug"
-              style={{ borderTop: '1px solid rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.2)' }}
-            >
-              {hint}
-            </p>
-          </ResultBox>
+          <div>
+            <FieldLabel label={t.tools.rewax.kmPerWeek} value={`${kmPerWeek} km`} />
+            <Slider
+              value={[kmPerWeek]}
+              onValueChange={v => setKmPerWeek(v[0])}
+              min={20} max={400} step={10}
+              className="py-1"
+            />
+          </div>
         </div>
-      )}
+
+        <ResultBox>
+          <p className="text-[46px] font-bold text-white text-center leading-none tabular-nums">
+            <AnimatedNumber value={weeks} />
+          </p>
+          <p className="text-[13px] text-center mt-1.5" style={{ color: 'rgba(255,255,255,0.38)' }}>
+            {weeks === 1 ? (de ? 'Woche' : 'week') : (de ? 'Wochen' : 'weeks')}{' '}
+            {de ? 'bis zum nächsten Rewaxen' : 'until next rewax'}
+            {weeksCapped && <span style={{ color: 'rgba(255,255,255,0.2)' }}> (max.)</span>}
+          </p>
+          <p className="text-[12px] text-center mt-0.5" style={{ color: 'rgba(255,255,255,0.22)' }}>
+            {interval} km · {de ? `bei ${kmPerWeek} km/Wo.` : `at ${kmPerWeek} km/wk`}
+          </p>
+          <p
+            className="text-[11px] text-center mt-3 pt-3 leading-snug"
+            style={{ borderTop: '1px solid rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.2)' }}
+          >
+            {hint}
+          </p>
+        </ResultBox>
+      </div>
     </ToolCard>
   );
 }
@@ -704,56 +618,49 @@ export function Tools() {
   const { t, lang } = useLanguage();
   const de = lang === 'de';
   const headerRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const switchTweenRef = useRef<gsap.core.Tween | null>(null);
   useSectionReveal(headerRef);
 
   // ── Desktop deck state ────────────────────────────────────────────────────
   const [activeCard, setActiveCard] = useState(0);
 
-  const toolMeta = useMemo(() => [
-    {
-      icon: Calculator,
-      eyebrow: de ? 'Wartung' : 'Maintenance',
-      title: de ? 'Wann muss ich rewaxen?' : 'When should I rewax?',
-      desc: de ? 'Dein Intervall nach Wetter & Terrain' : 'Your interval by weather & terrain',
-    },
-    {
-      icon: Package,
-      eyebrow: de ? 'Vorrat' : 'Stock',
-      title: de ? 'Wie viel Wachs brauche ich?' : 'How much wax do I need?',
-      desc: de ? 'Richtige Packungsgröße für dein Profil' : 'Right pack size for your profile',
-    },
-    {
-      icon: RotateCcw,
-      eyebrow: de ? 'Rotation' : 'Rotation',
-      title: de ? 'Lohnen sich mehrere Ketten?' : 'Is chain rotation worth it?',
-      desc: de ? 'Kettenverschleiß & Kassettenlaufzeit' : 'Chain wear & cassette life',
-    },
-  ], [de]);
+  // Card refs — declared individually (no hooks in loops)
+  const cardRef0 = useRef<HTMLDivElement>(null);
+  const cardRef1 = useRef<HTMLDivElement>(null);
+  const cardRef2 = useRef<HTMLDivElement>(null);
+  const cardRefs = useMemo(() => [cardRef0, cardRef1, cardRef2], []);
+  const deckMountedRef = useRef(false);
 
-  const switchCard = useCallback((idx: number) => {
-    if (idx === activeCard) return;
-    switchTweenRef.current?.kill();
-    if (!contentRef.current) { setActiveCard(idx); return; }
-    switchTweenRef.current = gsap.to(contentRef.current, {
-      opacity: 0, y: 8, duration: 0.16, ease: 'power2.in',
-      onComplete: () => {
-        setActiveCard(idx);
-        if (contentRef.current) {
-          switchTweenRef.current = gsap.fromTo(contentRef.current,
-            { opacity: 0, y: -8 },
-            { opacity: 1, y: 0, duration: 0.28, ease: 'power2.out' }
-          );
-        }
-      },
+  // Deck geometry
+  const CARD_WIDTH   = 620;
+  const DECK_HEIGHT  = 580;
+  const SIDE_OFFSET  = 660;
+  const SIDE_SCALE   = 0.82;
+  const SIDE_OPACITY = 0.55;
+
+  // GSAP: position all 3 cards on mount (instant) and on activeCard change (animated)
+  useEffect(() => {
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const animate = deckMountedRef.current && !prefersReduced;
+    deckMountedRef.current = true;
+
+    cardRefs.forEach((ref, i) => {
+      if (!ref.current) return;
+      const rawOffset = (i - activeCard + 3) % 3;
+      const sideSign  = rawOffset === 1 ? 1 : -1;
+      const isActive  = rawOffset === 0;
+      const props = {
+        x:       isActive ? 0 : sideSign * SIDE_OFFSET,
+        scale:   isActive ? 1 : SIDE_SCALE,
+        opacity: isActive ? 1 : SIDE_OPACITY,
+        zIndex:  isActive ? 20 : 10,
+      };
+      if (animate) {
+        gsap.to(ref.current, { ...props, duration: 0.55, ease: 'power3.inOut', overwrite: 'auto' });
+      } else {
+        gsap.set(ref.current, props);
+      }
     });
-  }, [activeCard]);
-
-  const previewIndices = useMemo(
-    () => ([0, 1, 2] as const).filter(i => i !== activeCard),
-    [activeCard]
-  );
+  }, [activeCard, cardRefs]); // eslint-disable-line
 
   // ── Mobile tab state ──────────────────────────────────────────────────────
   const TAB_LABELS = useMemo(() =>
@@ -825,8 +732,8 @@ export function Tools() {
             </p>
           </div>
 
-          {/* ── Mobile: tab switcher ── */}
-          <div className="md:hidden">
+          {/* ── Mobile / tablet: tab switcher (up to lg) ── */}
+          <div className="lg:hidden">
             <div
               ref={tabBarRef}
               className="relative flex gap-1 p-1 rounded-xl mb-5 overflow-x-auto"
@@ -854,98 +761,47 @@ export function Tools() {
             {activeTab === 2 && <RotationROI />}
           </div>
 
-          {/* ── Desktop: card deck ── */}
+          {/* ── Desktop: streaming card deck (lg+) ── */}
           <div
-            className="hidden md:grid gap-5 items-start"
-            style={{ gridTemplateColumns: '1fr 292px' }}
+            className="hidden lg:block relative"
+            style={{
+              height: DECK_HEIGHT,
+              overflow: 'hidden',
+              borderRadius: '1.5rem',
+            }}
           >
-            {/* ── Active tool — left ── */}
-            <div ref={contentRef}>
-              {activeCard === 0 && <RewaxCalculator featured />}
-              {activeCard === 1 && <WaxStockCalculator />}
-              {activeCard === 2 && <RotationROI />}
-            </div>
-
-            {/* ── Preview deck — right ── */}
-            <div className="flex flex-col gap-2.5">
-              <p
-                className="px-0.5 pb-1 text-[9.5px] font-semibold uppercase tracking-[0.22em]"
-                style={{ color: 'rgba(255,255,255,0.18)' }}
+            {([cardRef0, cardRef1, cardRef2] as const).map((ref, i) => (
+              <div
+                key={i}
+                ref={ref}
+                className="absolute top-0"
+                style={{
+                  left: '50%',
+                  marginLeft: -CARD_WIDTH / 2,
+                  width: CARD_WIDTH,
+                  height: '100%',
+                  willChange: 'transform',
+                }}
               >
-                {de ? 'Weitere Tools' : 'More Tools'}
-              </p>
+                {/* Card content — pointer events disabled for inactive cards */}
+                <div style={{ height: '100%', pointerEvents: i === activeCard ? 'auto' : 'none' }}>
+                  {i === 0 && <RewaxCalculator />}
+                  {i === 1 && <WaxStockCalculator />}
+                  {i === 2 && <RotationROI />}
+                </div>
 
-              {previewIndices.map((idx, stackPos) => {
-                const meta = toolMeta[idx];
-                const Icon = meta.icon;
-                const baseOpacity = 1 - stackPos * 0.1;
-                return (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => switchCard(idx)}
-                    className="group text-left rounded-2xl p-4 transition-colors duration-150"
-                    style={{
-                      background: '#0d0d10',
-                      border: '1px solid rgba(255,255,255,0.07)',
-                      opacity: baseOpacity,
-                    }}
-                    onMouseEnter={e => {
-                      e.currentTarget.style.borderColor = 'rgba(255,255,255,0.16)';
-                      e.currentTarget.style.opacity = '1';
-                    }}
-                    onMouseLeave={e => {
-                      e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)';
-                      e.currentTarget.style.opacity = String(baseOpacity);
-                    }}
-                  >
-                    <div className="flex items-start gap-3">
-                      {/* Icon */}
-                      <div
-                        className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
-                        style={{
-                          background: 'rgba(255,255,255,0.05)',
-                          border: '1px solid rgba(255,255,255,0.08)',
-                        }}
-                      >
-                        <Icon className="h-3.5 w-3.5" style={{ color: 'rgba(255,255,255,0.38)' }} />
-                      </div>
-
-                      {/* Text */}
-                      <div className="flex-1 min-w-0">
-                        <p
-                          className="text-[9px] font-semibold uppercase tracking-[0.18em] mb-0.5"
-                          style={{ color: '#2B52B0' }}
-                        >
-                          {meta.eyebrow}
-                        </p>
-                        <p
-                          className="text-[12px] font-semibold leading-snug"
-                          style={{ color: 'rgba(255,255,255,0.72)' }}
-                        >
-                          {meta.title}
-                        </p>
-                        <p
-                          className="text-[10.5px] mt-1 leading-snug"
-                          style={{ color: 'rgba(255,255,255,0.28)' }}
-                        >
-                          {meta.desc}
-                        </p>
-                      </div>
-
-                      {/* Arrow */}
-                      <span
-                        className="opacity-0 group-hover:opacity-40 transition-opacity flex-shrink-0 self-center ml-1 text-[17px]"
-                        style={{ color: 'rgba(255,255,255,0.7)' }}
-                        aria-hidden
-                      >
-                        ›
-                      </span>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
+                {/* Inactive overlay: captures clicks + visual dark tint */}
+                {i !== activeCard && (
+                  <div
+                    className="absolute inset-0 rounded-2xl cursor-pointer"
+                    style={{ background: 'rgba(0,0,0,0.35)', zIndex: 25, transition: 'background 200ms ease' }}
+                    onClick={() => setActiveCard(i)}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(0,0,0,0.15)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'rgba(0,0,0,0.35)'; }}
+                  />
+                )}
+              </div>
+            ))}
           </div>
 
         </div>
