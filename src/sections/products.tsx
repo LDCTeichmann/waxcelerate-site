@@ -26,6 +26,13 @@ export function Products() {
   const headerRef = useRef<HTMLDivElement>(null);
   useSectionReveal(headerRef);
 
+  // Listen for hero pill "Vorgewachste Ketten" click → open chains tab
+  useEffect(() => {
+    const handler = (e: Event) => setActiveTab((e as CustomEvent<'wax' | 'chain'>).detail);
+    window.addEventListener('wax:selectTab', handler);
+    return () => window.removeEventListener('wax:selectTab', handler);
+  }, []);
+
   const waxProducts = useMemo(() => products.filter(p => p.category === 'wax'), []);
   const chainProducts = useMemo(() => products.filter(p => p.category === 'chain'), []);
 
@@ -147,12 +154,17 @@ export function Products() {
           {/* ── Wax tab ── */}
           {activeTab === 'wax' && (
             <>
-              <div className="flex items-center gap-2.5 mb-6 px-1">
-                <span className="h-1.5 w-1.5 rounded-full flex-shrink-0" style={{ background: '#2B52B0' }} />
-                <p className="text-[13px]" style={{ color: 'var(--txm)' }}>
-                  {de
-                    ? 'Neu beim Heißwachs? Das Classic 500g ist der ideale Einstieg.'
-                    : 'New to hot wax? The Classic 500g is the perfect starting point.'}
+              <div className="flex items-start justify-between gap-3 mb-6 px-1">
+                <div className="flex items-center gap-2.5">
+                  <span className="h-1.5 w-1.5 rounded-full flex-shrink-0 mt-[5px]" style={{ background: '#2B52B0' }} />
+                  <p className="text-[13px]" style={{ color: 'var(--txm)' }}>
+                    {de
+                      ? 'Du brauchst nur: alter Topf · Isopropanol · 85–90 °C · ~60 min beim ersten Mal.'
+                      : 'All you need: old pot · isopropanol · 85–90 °C · ~60 min the first time.'}
+                  </p>
+                </div>
+                <p className="text-[12px] whitespace-nowrap flex-shrink-0" style={{ color: 'var(--txf)' }}>
+                  {t.products.multiDiscount}
                 </p>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 items-stretch">

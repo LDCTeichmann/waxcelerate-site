@@ -278,7 +278,7 @@ export const translations = {
     contact: {
       eyebrow: 'Kontakt',
       title: 'Kontakt',
-      subtitle: 'Direkte Antwort. Meistens innerhalb weniger Stunden.',
+      subtitle: 'Direkte Antwort. In der Regel unter 24 Stunden.',
       emailCardTitle: 'Per E-Mail',
       emailCardDesc: 'Kettentyp, Frage zur Bestellung — schreib direkt an:',
       emailCta: 'waxcelerate@gmail.com',
@@ -605,7 +605,7 @@ export const translations = {
     contact: {
       eyebrow: 'Get in Touch',
       title: 'Contact',
-      subtitle: 'Direct reply. Usually within a few hours.',
+      subtitle: 'Direct reply. Usually within 24 hours.',
       emailCardTitle: 'By Email',
       emailCardDesc: 'Chain type, order question — write directly to:',
       emailCta: 'waxcelerate@gmail.com',

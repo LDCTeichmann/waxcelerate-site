@@ -207,7 +207,10 @@ export function Hero() {
             {/* Pill */}
             <div ref={pillRef} className="mb-10">
               <button
-                onClick={() => scrollToSection('#produkte')}
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent('wax:selectTab', { detail: 'chain' }));
+                  scrollToSection('#produkte');
+                }}
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full border transition-all hover:border-[#3D67CA]/50 cursor-pointer"
                 style={{
                   background: 'rgba(255,255,255,0.05)',
