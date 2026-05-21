@@ -4,7 +4,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { use3DReveal } from '@/hooks/useAnimation';
 
-const ITEMS_DEFAULT = 8;
+const ITEMS_DEFAULT = 5;
 
 export function FAQ() {
   const { t, lang } = useLanguage();

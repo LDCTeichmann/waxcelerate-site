@@ -141,6 +141,16 @@ export function Navigation({ onLogoClick }: NavigationProps) {
 
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center gap-1">
+              {isScrolled && (
+                <a
+                  href="#produkte"
+                  onClick={(e) => { e.preventDefault(); scrollToSection('#produkte'); }}
+                  className="inline-flex items-center gap-1.5 px-4 py-1.5 mr-2 text-[13px] font-semibold text-white rounded-full transition-opacity hover:opacity-85"
+                  style={{ background: '#2B52B0' }}
+                >
+                  {de ? 'Jetzt bestellen' : 'Buy now'}
+                </a>
+              )}
               {navItems.map((item) => (
                 <a
                   key={item.href}

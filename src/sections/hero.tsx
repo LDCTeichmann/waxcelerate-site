@@ -120,7 +120,7 @@ export function Hero() {
   const scrollToSection = (href: string) =>
     document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
 
-  const line1 = de ? 'Heißwachs aus Stuttgart.' : 'Hot wax from Stuttgart.';
+  const line1 = de ? 'Kein Öl mehr.' : 'No more oil.';
 
   return (
     <section
@@ -256,15 +256,26 @@ export function Hero() {
             </p>
 
             {/* CTAs */}
-            <div ref={ctaRef} className="flex items-center justify-center lg:justify-start gap-5 flex-wrap">
+            <div ref={ctaRef} className="flex flex-col items-center lg:items-start gap-4">
+              <div className="flex items-center justify-center lg:justify-start gap-5 flex-wrap">
+                <button
+                  ref={ebayBtnRef}
+                  onClick={() => scrollToSection('#produkte')}
+                  className="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-semibold text-white rounded-full transition-opacity duration-150 hover:opacity-90 active:scale-[0.98]"
+                  style={{ background: '#2B52B0', willChange: 'transform' }}
+                >
+                  {t.hero.ctaBuy}
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </button>
+              </div>
               <button
-                ref={ebayBtnRef}
-                onClick={() => scrollToSection('#produkte')}
-                className="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-semibold text-white rounded-full transition-opacity duration-150 hover:opacity-90 active:scale-[0.98]"
-                style={{ background: '#2B52B0', willChange: 'transform' }}
+                onClick={() => scrollToSection('#warum-wachs')}
+                className="text-sm transition-colors cursor-pointer"
+                style={{ color: 'rgba(255,255,255,0.42)' }}
+                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.75)')}
+                onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.42)')}
               >
-                {t.hero.ctaBuy}
-                <ArrowRight className="h-3.5 w-3.5" />
+                {t.hero.ctaSecondary}
               </button>
             </div>
 

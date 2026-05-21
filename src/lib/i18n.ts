@@ -15,8 +15,9 @@ export const translations = {
     // Hero
     hero: {
       subtitle: 'Heißwachs für Fahrradketten',
-      tagline: 'Messbar effizienter als Kettenöl. Entwickelt auf der Straße.',
-      ctaBuy: 'Produkte ansehen',
+      tagline: 'Dreimal längere Kette. Kein Dreck. Kein Nachschmieren.',
+      ctaBuy: 'Jetzt bestellen',
+      ctaSecondary: 'Wie funktioniert Heißwachs? →',
     },
 
     // Products
@@ -278,18 +279,11 @@ export const translations = {
       eyebrow: 'Kontakt',
       title: 'Kontakt',
       subtitle: 'Direkte Antwort. Meistens innerhalb weniger Stunden.',
-      tabEmail: 'Nachricht',
-      tabWhatsapp: 'WhatsApp',
-      name: 'Name',
-      email: 'E-Mail',
-      bikeType: 'Radtyp & Schaltung',
-      message: 'Nachricht',
-      send: 'Nachricht senden',
-      emailTo: 'Deine Nachricht wird an waxcelerate@gmail.com gesendet',
-      success: 'E-Mail vorbereitet!',
-      successSub: 'Dein E-Mail-Programm sollte sich geöffnet haben. Falls nicht, schreib direkt an:',
-      whatsappTitle: 'Schreib mir auf WhatsApp',
-      whatsappDesc: 'Schneller Kontakt für kurze Fragen. Ich antworte so schnell wie möglich.',
+      emailCardTitle: 'Per E-Mail',
+      emailCardDesc: 'Kettentyp, Frage zur Bestellung — schreib direkt an:',
+      emailCta: 'waxcelerate@gmail.com',
+      whatsappTitle: 'Per WhatsApp',
+      whatsappDesc: 'Für kurze Fragen — ich antworte so schnell wie möglich.',
       whatsappCta: 'WhatsApp öffnen',
     },
 
@@ -348,8 +342,9 @@ export const translations = {
     // Hero
     hero: {
       subtitle: 'Hot Wax for Bicycle Chains',
-      tagline: 'Measurably more efficient than chain oil. Built on the road.',
-      ctaBuy: 'View products',
+      tagline: '3× longer chain life. No grime. No re-lubing.',
+      ctaBuy: 'Buy now',
+      ctaSecondary: 'How does hot wax work? →',
     },
 
     // Products
@@ -611,18 +606,11 @@ export const translations = {
       eyebrow: 'Get in Touch',
       title: 'Contact',
       subtitle: 'Direct reply. Usually within a few hours.',
-      tabEmail: 'Message',
-      tabWhatsapp: 'WhatsApp',
-      name: 'Name',
-      email: 'Email',
-      bikeType: 'Bike type & drivetrain',
-      message: 'Message',
-      send: 'Send message',
-      emailTo: 'Your message will be sent to waxcelerate@gmail.com',
-      success: 'Email prepared!',
-      successSub: 'Your email client should have opened. If not, write directly to:',
-      whatsappTitle: 'Message me on WhatsApp',
-      whatsappDesc: 'Quick contact for short questions. I reply as soon as possible.',
+      emailCardTitle: 'By Email',
+      emailCardDesc: 'Chain type, order question — write directly to:',
+      emailCta: 'waxcelerate@gmail.com',
+      whatsappTitle: 'By WhatsApp',
+      whatsappDesc: 'For quick questions — I reply as soon as possible.',
       whatsappCta: 'Open WhatsApp',
     },
 

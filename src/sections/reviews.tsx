@@ -132,15 +132,17 @@ export function Reviews() {
             ))}
           </div>
 
-          <div className="mt-6 text-center">
+          <div className="mt-8 text-center">
             <a
               href="https://www.ebay.de/usr/waxcelerate"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[13px] transition-colors"
-              style={{ color: 'var(--txf)' }}
-              onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = '#2B52B0')}
-              onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = 'var(--txf)')}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[13px] font-medium transition-all hover:opacity-85"
+              style={{
+                border: '1px solid rgba(255,255,255,0.15)',
+                background: 'rgba(255,255,255,0.05)',
+                color: 'rgba(255,255,255,0.72)',
+              }}
             >
               {de ? 'Alle 164 Bewertungen auf eBay ansehen →' : 'See all 164 reviews on eBay →'}
             </a>

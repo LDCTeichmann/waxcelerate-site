@@ -1,43 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { ExternalLink } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useSectionReveal } from '@/hooks/useAnimation';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
-import { gsap, ScrollTrigger } from '@/lib/gsap';
-
-
-// Animated count-up triggered when card scrolls into view
-function CountUp({ end, duration = 1600 }: { end: number; duration?: number }) {
-  const [count, setCount] = useState(0);
-  const [started, setStarted] = useState(false);
-  const ref = useRef<HTMLSpanElement>(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const trigger = ScrollTrigger.create({
-      trigger: el,
-      start: 'top 90%',
-      once: true,
-      onEnter: () => setStarted(true),
-    });
-    return () => trigger.kill();
-  }, []);
-
-  useEffect(() => {
-    if (!started) return;
-    let startTime: number;
-    const step = (ts: number) => {
-      if (!startTime) startTime = ts;
-      const p = Math.min((ts - startTime) / duration, 1);
-      setCount(Math.floor(p * end));
-      if (p < 1) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  }, [started, end, duration]);
-
-  return <span ref={ref}>{count}</span>;
-}
+import { gsap } from '@/lib/gsap';
 
 export function About() {
   const { t, lang } = useLanguage();
@@ -164,12 +130,9 @@ export function About() {
                       }}
                     >
                       <div
-                        className="text-[1.9rem] font-bold leading-none mb-1.5 tabular-nums"
-                        style={{ color: '#2B52B0' }}
+                        className="text-[1.9rem] font-bold leading-none mb-1.5 tabular-nums text-wx-tx1"
                       >
-                        {s.prefix}
-                        {<CountUp end={s.value} />}
-                        {s.suffix}
+                        {s.prefix}{s.value}{s.suffix}
                       </div>
                       <div className="text-xs text-wx-txf leading-snug">{s.label}</div>
                     </div>

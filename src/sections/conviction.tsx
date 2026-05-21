@@ -12,7 +12,7 @@ export function Conviction() {
     >
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <p className="text-center text-[10px] font-semibold uppercase tracking-[0.22em] mb-8" style={{ color: 'var(--txf)' }}>
-          {de ? 'Das Ergebnis in Zahlen' : 'The Numbers'}
+          {de ? 'Wachs vs. Öl — die Zahlen' : 'Wax vs. Oil — the numbers'}
         </p>
         <div className="max-w-3xl mx-auto grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
 
