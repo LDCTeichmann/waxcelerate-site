@@ -17,10 +17,6 @@ export const translations = {
       subtitle: 'Heißwachs für Fahrradketten',
       tagline: 'Messbar effizienter als Kettenöl. Entwickelt auf der Straße.',
       ctaBuy: 'Produkte ansehen',
-      ctaGuide: 'Anleitung',
-      trust1: '100% positive Bewertungen (164)',
-      trust2: '500+ Artikel verkauft',
-      trust3: 'Versand aus Stuttgart',
     },
 
     // Products
@@ -49,8 +45,8 @@ export const translations = {
 
     // Tools
     tools: {
-      title: 'Interaktive Tools',
-      subtitle: 'Plane deine Kettenpflege optimal',
+      title: 'Rechner & Planer',
+      subtitle: 'Wie oft, wie viel, wie lange — konkrete Antworten für dein Setup.',
       rewax: {
         title: 'Wann muss ich rewaxen?',
         weather: 'Wetter',
@@ -173,8 +169,8 @@ export const translations = {
           a: 'Öl funktioniert. Aber es bindet Schmutz, der wie Schleifpaste zwischen Rollenlager, Kassette und Kettenblättern wirkt — bei jedem Tritt Metallabrieb. Mit Wachs bleibt die Kette trocken: nichts haftet daran, der Antrieb ist nach hundert Kilometern noch sauber. Dazu hält die Kette zwei- bis dreimal länger. Der Umstieg kostet einmalig 1–2 Stunden für die Erstentfettung. Danach ist der Aufwand pro Rewax kaum höher als mit Öl.',
         },
         {
-          q: 'Wie viele Kilometer hält eine gewachste Kette?',
-          a: 'Bei trockenen Bedingungen: ca. 400–600 km bevor das Nachwachsen sinnvoll ist. Bei Nässe oder MTB eher 200–350 km. Das Gesamtleben der Kette ist ein anderes: eine gut gepflegte gewachste Kette hält 6.000–12.000 km oder mehr — geölte Ketten oft nur 2.000–3.000 km, weil Schmutz den Antrieb von innen abschleift.',
+          q: 'Wie viele Kilometer hält eine gewachste Kette — und woran merke ich, wann ich rewaxen muss?',
+          a: 'Bei trockenen Bedingungen alle 400–500 km rewaxen, bei Nässe oder MTB alle 200–300 km. Das zuverlässigste Signal: der Antrieb klingt trockener oder die Kette läuft weniger geschmeidig als gewohnt — manchmal ein leises Kratzen oder Quietschen. Hör einfach hin, du wirst es merken. Das Gesamtleben der Kette ist eine andere Zahl: eine gut gepflegte gewachste Kette hält 6.000–12.000 km oder mehr — geölte Ketten oft nur 2.000–3.000 km, weil Schmutz den Antrieb von innen abschleift.',
         },
         {
           q: 'Wie viele Watt spart Heißwachs im Vergleich zu Kettenöl?',
@@ -190,7 +186,7 @@ export const translations = {
         },
         {
           q: 'Welche Ausrüstung brauche ich — muss das teuer sein?',
-          a: 'Nein. Ein alter Kochtopf oder Reiskocher, ein Draht zum Aufhängen der Kette, Isopropanol für die Erstentfettung und das Kettenwachs selbst — das ist alles. Kein Ultraschallbad nötig (das nutzen wir für die Initialreinigung unserer vorgewachsten Ketten, für das Nachwachsen ist es unnötig). Zieltemperatur: 85–90 °C.',
+          a: 'Nein. Ein alter Kochtopf oder Reiskocher, ein Draht zum Aufhängen der Kette, Isopropanol für die Erstentfettung und das Kettenwachs selbst — das ist alles. Kein Ultraschallbad nötig. Zieltemperatur: 85–90 °C; ein Mini-Slow-Cooker ist ideal, weil sich die Temperatur damit einfacher konstant halten lässt. Den Topf danach nicht mehr für Lebensmittel verwenden.',
         },
         {
           q: 'Heißwachs oder Flüssigwachs (Drip Wax) — was ist besser?',
@@ -205,10 +201,6 @@ export const translations = {
           a: 'Mit einer einzigen Kette wartest du jedes Mal auf das Aushärten. Mit drei Ketten im Wechsel läuft immer eine frisch gewachste auf dem Rad, eine wartet bereit, eine wird gerade gewachst — alle drei auf einmal dauert ca. 15–20 Minuten. Du rewaxst damit nur noch alle 1.200–1.800 km statt alle 400–500 km. Außerdem verteilt sich der Verschleiß gleichmäßig auf drei Ketten, was Kassette und Kettenblätter deutlich schont.',
         },
         {
-          q: 'Wie erkenne ich, wann meine Kette neu gewachst werden muss?',
-          a: 'Das zuverlässigste Zeichen: der Antrieb klingt trockener, die Kette läuft nicht mehr so geschmeidig. Manchmal ein leises Quietschen oder Kratzen. Du musst nicht nach Kilometern rechnen — hör einfach auf den Antrieb. Wer nach Zahlen geht: bei trockenen Bedingungen nach ~400–500 km, bei Nässe nach ~200–300 km. Lieber früher als zu spät.',
-        },
-        {
           q: 'Ist PTFE im Kettenwachs gesundheitlich bedenklich?',
           a: 'Nein — bei normaler Anwendung vollständig unbedenklich. PTFE ist chemisch inert, wird weder über die Haut aufgenommen noch löst es allergische Reaktionen aus. Die einzige potenzielle Gefahr entsteht bei Erhitzung über 260 °C — beim Heißwachsen einer Kette wird das Wachs aber nie über 90 °C erhitzt. Als Medizinstudent habe ich mich vor dem Einsatz intensiv damit auseinandergesetzt.',
         },
@@ -219,10 +211,6 @@ export const translations = {
         {
           q: 'Kann ich alle Ketten mit Waxcelerate wachsen — auch E-Bike?',
           a: 'Ja. Waxcelerate ist kompatibel mit allen gängigen 9-, 10-, 11- und 12-fach Ketten von Shimano, SRAM, Campagnolo und KMC. Für E-Bikes empfehlen wir das Pro mit MoS₂ — das höhere Drehmoment des E-Bike-Antriebs macht Hochdruckadditive sinnvoll.',
-        },
-        {
-          q: 'Kann ich das Wachs in einem normalen Topf schmelzen?',
-          a: 'Ja. Ein alter Kochtopf auf dem Herd oder ein Reiskocher funktionieren prima — kein spezielles Gerät nötig. Den Topf danach nicht mehr für Lebensmittel verwenden. Ein Mini-Slow-Cooker ist ideal, weil die Temperatur einfacher konstant zu halten ist. Zieltemperatur: 85–90 °C.',
         },
         {
           q: 'Wie breche ich die Kette nach dem ersten Wachsen richtig ein?',
@@ -338,7 +326,7 @@ export const translations = {
 
     // Easter egg
     easterEgg: {
-      logoHint: 'Wachs-Secret gefunden! Drücke ↑↑↓↓←→←→BA für Tech-Specs.',
+      logoHint: 'Wachs-Secret! Drücke ↑↑↓↓←→←→BA für Tech-Specs.',
     },
 
     language: 'de',
@@ -362,10 +350,6 @@ export const translations = {
       subtitle: 'Hot Wax for Bicycle Chains',
       tagline: 'Measurably more efficient than chain oil. Built on the road.',
       ctaBuy: 'View products',
-      ctaGuide: 'Guide',
-      trust1: '100% positive feedback (164)',
-      trust2: '500+ items sold',
-      trust3: 'Shipping from Stuttgart',
     },
 
     // Products
@@ -394,8 +378,8 @@ export const translations = {
 
     // Tools
     tools: {
-      title: 'Interactive Tools',
-      subtitle: 'Plan your chain maintenance optimally',
+      title: 'Calculators & Planners',
+      subtitle: 'How often, how much, how long — concrete answers for your setup.',
       rewax: {
         title: 'When should I re-wax?',
         weather: 'Weather',
@@ -518,8 +502,8 @@ export const translations = {
           a: "Oil works. But it binds dirt that acts like grinding paste between rollers, cassette, and chainrings — creating metal wear with every pedal stroke. With wax, the chain stays dry: nothing adheres to it, and the drivetrain is still clean after a hundred kilometres. On top of that, the chain lasts two to three times longer. Switching costs a one-off 1–2 hours for the initial degreasing. After that, re-waxing takes barely more effort than re-oiling.",
         },
         {
-          q: 'How many kilometres does a waxed chain last?',
-          a: 'In dry conditions: around 400–600 km before re-waxing makes sense. In wet conditions or MTB, more like 200–350 km. Total chain life is a different story: a well-maintained waxed chain reaches 6,000–12,000 km or more — oiled chains often only 2,000–3,000 km, because dirt abrades the drivetrain from the inside.',
+          q: 'How many kilometres does a waxed chain last — and how do I know when to re-wax?',
+          a: 'In dry conditions re-wax every 400–500 km, in wet or MTB every 200–300 km. The most reliable signal: the drivetrain sounds drier or the chain runs less smoothly than usual — sometimes a faint scratch or squeak. Just listen, you\'ll notice. Total chain life is a different number: a well-maintained waxed chain reaches 6,000–12,000 km or more — oiled chains often only 2,000–3,000 km, because dirt abrades the drivetrain from the inside.',
         },
         {
           q: 'How many watts does hot wax save compared to chain oil?',
@@ -535,7 +519,7 @@ export const translations = {
         },
         {
           q: 'What equipment do I need — does it have to be expensive?',
-          a: "No. An old cooking pot or rice cooker, a piece of wire to hang the chain, isopropanol for initial degreasing, and the chain wax itself — that is everything. No ultrasonic bath needed for re-waxing (we use one for the initial cleaning of our pre-waxed chains). Target temperature: 85–90 °C.",
+          a: "No. An old cooking pot or rice cooker, a piece of wire to hang the chain, isopropanol for initial degreasing, and the chain wax itself — that is everything. No ultrasonic bath needed. Target temperature: 85–90 °C; a mini slow cooker is ideal because the temperature is easier to keep steady. Don't use the pot for food afterwards.",
         },
         {
           q: 'Hot wax or drip wax (liquid wax) — which is better?',
@@ -550,10 +534,6 @@ export const translations = {
           a: "With a single chain, you wait every time while the waxed chain hardens. With three chains in rotation, one freshly waxed chain is always on the bike, one is ready to swap, and one is being waxed — all three at once takes around 15–20 minutes. You then only re-wax every 1,200–1,800 km instead of every 400–500 km. Wear is also distributed evenly across three chains, which significantly protects cassette and chainrings.",
         },
         {
-          q: 'How do I know when my chain needs re-waxing?',
-          a: "The most reliable sign: the drivetrain sounds drier, the chain no longer runs as smoothly. Sometimes a faint squeak or scraping noise. You don't need to track kilometres — just listen to the drivetrain. If you prefer numbers: in dry conditions after ~400–500 km, in wet conditions after ~200–300 km. Earlier is better than too late.",
-        },
-        {
           q: 'Is PTFE in chain wax harmful to health?',
           a: "No — at normal use temperatures it is completely safe. PTFE is chemically inert, is not absorbed through the skin, and doesn't trigger allergic reactions. The only potential hazard arises when PTFE is heated above 260 °C — but hot waxing a chain never exceeds 90 °C. As a medical student I researched this thoroughly before using it myself.",
         },
@@ -564,10 +544,6 @@ export const translations = {
         {
           q: 'Can I wax all chains with Waxcelerate — including e-bike chains?',
           a: 'Yes. Waxcelerate is compatible with all common 9, 10, 11 and 12-speed chains from Shimano, SRAM, Campagnolo and KMC. For e-bikes we recommend Pro with MoS₂ — the higher torque of an e-bike drivetrain makes high-pressure additives particularly worthwhile.',
-        },
-        {
-          q: 'Can I melt the wax in a regular cooking pot?',
-          a: "Yes. An old pot on the stove or a rice cooker works perfectly — no specialist equipment needed. Don't use the pot for food afterwards. A mini slow cooker is ideal because temperature is easier to hold steady. Target temperature: 85–90 °C.",
         },
         {
           q: 'How do I break in the chain after the first wax?',

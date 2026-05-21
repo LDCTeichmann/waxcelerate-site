@@ -1,5 +1,5 @@
-import { useRef, useEffect, useState } from 'react';
-import { ArrowRight, Shield, Snowflake, Droplets, Sun } from 'lucide-react';
+import { useRef, useEffect } from 'react';
+import { Shield, Snowflake, Droplets, Sun } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useSectionReveal } from '@/hooks/useAnimation';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
@@ -46,8 +46,6 @@ export function WhyWax() {
   const costOilRef = useRef<HTMLSpanElement>(null);
   const costWaxRef = useRef<HTMLSpanElement>(null);
   const frictionRef = useRef<HTMLDivElement>(null);
-  const [rider, setRider] = useState<'summer' | 'allseason' | null>(null);
-
   const de = lang === 'de';
 
   useSectionReveal(headerRef);
@@ -306,144 +304,6 @@ export function WhyWax() {
                   : 'Index derived from measured friction coefficient (μ). Waxcelerate Pro with MoS₂ leads the scale — Classic on par with graphite hot wax.'}
               </p>
             </div>
-          </div>
-
-          {/* ── Classic or Pro ── */}
-          <div className="mb-16">
-            <div className="text-center mb-7">
-              <p className="text-xs tracking-[0.18em] uppercase text-wx-txf mb-2">
-                {de ? 'Produktwahl' : 'Product choice'}
-              </p>
-              <h3 className="font-display text-2xl font-bold text-wx-tx1">
-                {de ? 'Classic oder Pro?' : 'Classic or Pro?'}
-              </h3>
-            </div>
-
-            <div className="flex flex-wrap justify-center gap-3 mb-6">
-              {[
-                { key: 'summer' as const, label: de ? 'Ich fahre nur im Sommer' : 'I ride only in summer' },
-                { key: 'allseason' as const, label: de ? 'Ich fahre ganzjährig' : 'I ride year-round' },
-              ].map(({ key, label }) => (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => setRider(rider === key ? null : key)}
-                  className={`px-4 py-2 rounded-full text-[12px] font-medium transition-all border ${
-                    rider === key
-                      ? 'border-[#2B52B0]/50 bg-[#2B52B0]/10 text-wx-tx1'
-                      : 'border-wx-bd text-wx-txf hover:text-wx-tx2 hover:border-wx-bd'
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-
-            <div className="grid sm:grid-cols-2 gap-4">
-              {/* Classic */}
-              <div
-                className="rounded-xl border p-6 flex flex-col transition-all duration-300"
-                style={{
-                  background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
-                  borderColor: rider === 'summer' ? 'rgba(192,192,208,0.35)' : 'var(--bd)',
-                  boxShadow: 'var(--card-shad)',
-                  opacity: rider === 'allseason' ? 0.45 : 1,
-                }}
-              >
-                <p className="text-xs uppercase tracking-[0.2em] text-wx-txm mb-1">Waxcelerate</p>
-                <p className="font-serif-display italic text-[22px] font-bold text-wx-tx1 mb-1">Classic</p>
-                <p className="text-xs text-wx-txff mb-5">Paraffin + PTFE + Stearin</p>
-                <div className="space-y-2.5 flex-1 mb-6">
-                  {[
-                    de ? 'Trocken & sauber — kein Dreck, kein Belag' : 'Dry & clean — no grime, no residue',
-                    de ? '250–450 km Intervall (trocken)' : '250–450 km interval (dry)',
-                    de ? 'Reibungskoeffizient 0,05–0,07' : 'Friction coefficient 0.05–0.07',
-                  ].map((item, i) => (
-                    <div key={i} className="flex items-start gap-2.5">
-                      <span className="text-wx-txf mt-0.5 flex-shrink-0 text-xs">◆</span>
-                      <span className="text-[13px] text-wx-tx2 leading-snug">{item}</span>
-                    </div>
-                  ))}
-                </div>
-                <p className="text-[11px] uppercase tracking-[0.16em] font-semibold mb-4" style={{ color: 'rgba(255,255,255,0.35)' }}>
-                  {de ? '20–32 Anwendungen pro Block' : '20–32 applications per block'}
-                </p>
-                <div className="border-t border-wx-bd pt-4 flex items-center justify-between">
-                  <p className="text-[16px] font-semibold text-wx-tx1">{de ? 'ab €22,95' : 'from €22.95'}</p>
-                  <button
-                    onClick={() => document.querySelector('#produkte')?.scrollIntoView({ behavior: 'smooth' })}
-                    className="flex items-center gap-1.5 text-[12px] font-medium px-3 py-1.5 rounded-full border border-wx-bd hover:border-[#2B52B0]/40 hover:text-wx-tx1 transition-all text-wx-txm"
-                  >
-                    {de ? 'Ansehen' : 'View'} <ArrowRight className="h-3 w-3" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Pro */}
-              <div className="relative">
-                <div className="absolute -top-3.5 left-0 right-0 flex justify-center z-10">
-                  <span
-                    className="text-xs font-semibold px-3 py-1 rounded-full text-white"
-                    style={{ background: 'linear-gradient(135deg, #2B52B0, #4A72D4)' }}
-                  >
-                    {de ? 'Empfohlen für Ganzjahresfahrer' : 'Recommended for year-round riders'}
-                  </span>
-                </div>
-                <div
-                  className="rounded-xl border p-6 flex flex-col h-full transition-all duration-300"
-                  style={{
-                    background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
-                    borderColor: rider === 'allseason' ? 'rgba(43,82,176,0.45)' : 'var(--bd)',
-                    boxShadow: rider === 'allseason'
-                      ? '0 0 40px rgba(43,82,176,0.1), var(--card-shad)'
-                      : 'var(--card-shad)',
-                    opacity: rider === 'summer' ? 0.45 : 1,
-                  }}
-                >
-                  <p className="text-xs uppercase tracking-[0.2em] mb-1 mt-2" style={{ color: '#2B52B0' }}>Waxcelerate</p>
-                  <p className="font-serif-display italic text-[22px] font-bold mb-1" style={{ color: '#4A72D4' }}>Pro</p>
-                  <p className="text-xs text-wx-txff mb-5">+ MoS₂ · amorph · Antioxidans</p>
-                  <div className="space-y-2.5 flex-1 mb-6">
-                    {[
-                      de ? 'Ganzjährig — Sommer, Winter, Nässe' : 'All-season — summer, winter, wet',
-                      de ? 'Reibungskoeffizient 0,03–0,06' : 'Friction coefficient 0.03–0.06',
-                      de ? 'Rostschutz durch hydrophobe Matrix' : 'Rust protection via hydrophobic matrix',
-                    ].map((item, i) => (
-                      <div key={i} className="flex items-start gap-2.5">
-                        <span className="mt-0.5 flex-shrink-0 text-xs" style={{ color: '#2B52B0' }}>◆</span>
-                        <span className="text-[13px] text-wx-tx2 leading-snug">{item}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="border-t border-wx-bd pt-4 flex items-center justify-between">
-                    <p className="text-[16px] font-semibold" style={{ color: '#4A72D4' }}>{de ? 'ab €26,95' : 'from €26.95'}</p>
-                    <button
-                      onClick={() => document.querySelector('#produkte')?.scrollIntoView({ behavior: 'smooth' })}
-                      className="flex items-center gap-1.5 text-[12px] font-medium px-3 py-1.5 rounded-full border border-wx-bd hover:border-[#2B52B0]/40 hover:text-wx-tx1 transition-all text-wx-txm"
-                    >
-                      {de ? 'Ansehen' : 'View'} <ArrowRight className="h-3 w-3" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* ── CTA ── */}
-          <div className="text-center pt-6 border-t border-wx-bd">
-            <p className="text-wx-txm text-[13px] mb-6">
-              {de
-                ? '164 eBay-Bewertungen · 100% positiv · Versand innerhalb 1–2 Werktagen'
-                : '164 eBay reviews · 100% positive · Ships within 1–2 business days'}
-            </p>
-            <button
-              onClick={() => document.querySelector('#produkte')?.scrollIntoView({ behavior: 'smooth' })}
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-full text-white font-medium text-[14px] transition-all hover:opacity-90 active:scale-[0.98]"
-              style={{ background: 'linear-gradient(135deg, #2B52B0 0%, #3D67CA 100%)' }}
-            >
-              {de ? 'Jetzt kaufen' : 'Buy now'}
-              <ArrowRight className="h-4 w-4" />
-            </button>
           </div>
 
         </div>

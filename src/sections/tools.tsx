@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { Calculator, Package, PiggyBank, RotateCcw } from 'lucide-react';
+import { Calculator, Package, RotateCcw } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useSectionReveal } from '@/hooks/useAnimation';
@@ -484,153 +484,7 @@ function WaxStockCalculator() {
   );
 }
 
-// ─── Tool 3: Cost Savings Calculator ─────────────────────────────────────────
-function AnimatedBar({ pct, color, delay = 0 }: { pct: number; color: string; delay?: number }) {
-  const [width, setWidth] = useState(0);
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setTimeout(() => setWidth(pct), delay);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.5 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [pct, delay]);
-
-  return (
-    <div ref={ref} className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
-      <div
-        className="h-full w-full rounded-full"
-        style={{
-          background: color,
-          transform: `scaleX(${width / 100})`,
-          transformOrigin: 'left center',
-          transition: 'transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)',
-        }}
-      />
-    </div>
-  );
-}
-
-function CostSavingsCalculator() {
-  const { t, lang } = useLanguage();
-  const de = lang === 'de';
-  const [kmPerYear, setKmPerYear] = useState(5000);
-  const [chainPrice, setChainPrice] = useState(45);
-
-  const CASSETTE_PRICE = 80;
-  const WAX_APP_COST = 1.5;
-  const REWAX_INTERVAL = 500;
-
-  const oilLubeCostPerYear = kmPerYear * (8 / (30 * 200));
-
-  const waxCost = Math.round(
-    (kmPerYear / 9000) * chainPrice +
-    (kmPerYear / 15000) * CASSETTE_PRICE +
-    (kmPerYear / REWAX_INTERVAL) * WAX_APP_COST
-  );
-  const oilCost = Math.round(
-    (kmPerYear / 2500) * chainPrice +
-    (kmPerYear / 8000) * CASSETTE_PRICE +
-    oilLubeCostPerYear
-  );
-  const savings = Math.max(0, oilCost - waxCost);
-  const waxBarPct = Math.round((waxCost / Math.max(oilCost, 1)) * 100);
-
-  return (
-    <ToolCard>
-      <ToolHeader
-        icon={<PiggyBank className="h-4 w-4" style={{ color: 'rgba(255,255,255,0.55)' }} />}
-        title={t.tools.savings.title}
-        subtitle={de
-          ? 'Sieh in Euro, wie viel Wachs vs. Kettenöl pro Jahr wirklich spart.'
-          : 'See in euros how much wax vs. chain oil really saves per year.'}
-      />
-      <div className="px-6 flex flex-col flex-1 gap-5 pb-6">
-        <div className="space-y-5 flex-1">
-          <div>
-            <FieldLabel label={t.tools.savings.kmPerYear} value={`${kmPerYear} km`} />
-            <Slider value={[kmPerYear]} onValueChange={v => setKmPerYear(v[0])} min={1000} max={15000} step={500} className="py-1" />
-          </div>
-          <div>
-            <FieldLabel label={t.tools.savings.chainPrice} value={`${chainPrice} €`} />
-            <Slider value={[chainPrice]} onValueChange={v => setChainPrice(v[0])} min={20} max={100} step={5} className="py-1" />
-          </div>
-          <p className="text-[11px] leading-relaxed -mt-2" style={{ color: 'rgba(255,255,255,0.2)' }}>
-            {de
-              ? 'Kassette €80 · Wachskette 9.000km · Ölkette 2.500km · Wachsen €1,50/Session'
-              : 'Cassette €80 · Wax chain 9,000km · Oil chain 2,500km · Waxing €1.50/session'}
-          </p>
-        </div>
-
-        <ResultBox>
-          <div className="space-y-3.5 mb-4">
-            {/* Wax bar */}
-            <div>
-              <div className="flex justify-between items-baseline mb-1.5">
-                <span className="text-[12px]" style={{ color: 'rgba(255,255,255,0.55)' }}>
-                  {de ? 'Wachs' : 'Wax'}
-                </span>
-                <AnimatedNumber
-                  value={waxCost}
-                  suffix=" €"
-                  className="text-[13px] font-bold text-white tabular-nums"
-                />
-              </div>
-              <AnimatedBar pct={waxBarPct} color="rgba(255,255,255,0.6)" delay={0} />
-            </div>
-            {/* Oil bar */}
-            <div>
-              <div className="flex justify-between items-baseline mb-1.5">
-                <span className="text-[12px]" style={{ color: 'rgba(255,255,255,0.28)' }}>
-                  {de ? 'Kettenöl' : 'Chain oil'}
-                </span>
-                <AnimatedNumber
-                  value={oilCost}
-                  suffix=" €"
-                  className="text-[13px] font-bold tabular-nums line-through"
-                  style={{ color: 'rgba(255,255,255,0.28)', textDecorationColor: 'rgba(255,255,255,0.15)' }}
-                />
-              </div>
-              <AnimatedBar pct={100} color="rgba(255,255,255,0.14)" delay={150} />
-            </div>
-          </div>
-
-          {/* Savings box */}
-          <div
-            className="rounded-lg p-4 text-center"
-            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
-          >
-            <p
-              className="text-[11px] uppercase tracking-[0.14em] mb-1.5"
-              style={{ color: 'rgba(255,255,255,0.32)' }}
-            >
-              {de ? 'Deine Ersparnis' : 'Your savings'}
-            </p>
-            <AnimatedNumber
-              value={savings}
-              prefix="+"
-              suffix=" €"
-              className="text-[38px] font-bold text-white leading-none tracking-tight tabular-nums"
-            />
-            <p className="text-[12px] mt-1" style={{ color: 'rgba(255,255,255,0.28)' }}>
-              {de ? 'pro Jahr' : 'per year'}
-            </p>
-          </div>
-        </ResultBox>
-      </div>
-    </ToolCard>
-  );
-}
-
-// ─── Tool 4: Rotation ROI ─────────────────────────────────────────────────────
+// ─── Tool 3: Rotation ROI ─────────────────────────────────────────────────────
 function RotationROI() {
   const { lang } = useLanguage();
   const de = lang === 'de';
@@ -871,12 +725,6 @@ export function Tools() {
       desc: de ? 'Richtige Packungsgröße für dein Profil' : 'Right pack size for your profile',
     },
     {
-      icon: PiggyBank,
-      eyebrow: de ? 'Kosten' : 'Savings',
-      title: de ? 'Was spare ich mit Wachs?' : 'What do I save with wax?',
-      desc: de ? 'Wachs vs. Kettenöl in Euro' : 'Wax vs. chain oil in euros',
-    },
-    {
       icon: RotateCcw,
       eyebrow: de ? 'Rotation' : 'Rotation',
       title: de ? 'Lohnen sich mehrere Ketten?' : 'Is chain rotation worth it?',
@@ -903,14 +751,14 @@ export function Tools() {
   }, [activeCard]);
 
   const previewIndices = useMemo(
-    () => ([0, 1, 2, 3] as const).filter(i => i !== activeCard),
+    () => ([0, 1, 2] as const).filter(i => i !== activeCard),
     [activeCard]
   );
 
   // ── Mobile tab state ──────────────────────────────────────────────────────
   const TAB_LABELS = useMemo(() =>
-    de ? ['Intervall', 'Vorrat', 'Ersparnis', 'Rotation']
-       : ['Interval', 'Stock', 'Savings', 'Rotation'],
+    de ? ['Intervall', 'Vorrat', 'Rotation']
+       : ['Interval', 'Stock', 'Rotation'],
   [de]);
   const [activeTab, setActiveTab] = useState(0);
   const tabBarRef = useRef<HTMLDivElement>(null);
@@ -1003,8 +851,7 @@ export function Tools() {
             </div>
             {activeTab === 0 && <RewaxCalculator />}
             {activeTab === 1 && <WaxStockCalculator />}
-            {activeTab === 2 && <CostSavingsCalculator />}
-            {activeTab === 3 && <RotationROI />}
+            {activeTab === 2 && <RotationROI />}
           </div>
 
           {/* ── Desktop: card deck ── */}
@@ -1016,8 +863,7 @@ export function Tools() {
             <div ref={contentRef}>
               {activeCard === 0 && <RewaxCalculator featured />}
               {activeCard === 1 && <WaxStockCalculator />}
-              {activeCard === 2 && <CostSavingsCalculator />}
-              {activeCard === 3 && <RotationROI />}
+              {activeCard === 2 && <RotationROI />}
             </div>
 
             {/* ── Preview deck — right ── */}
