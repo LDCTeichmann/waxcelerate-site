@@ -413,7 +413,7 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice }: CardProps) {
           {/* Benefits grow to fill — this equalises card heights */}
           <div className="flex flex-col gap-2 mb-5 flex-1">
             {benefits.map(({ icon, label }, i) => (
-              <div key={i} className="flex items-start gap-2.5 text-[12.5px] leading-snug" style={{ color: 'var(--txm)' }}>
+              <div key={i} className="flex items-start gap-2.5 text-[13px] leading-relaxed" style={{ color: 'var(--txm)' }}>
                 <span style={{ color: accent }} className="flex-shrink-0 mt-px">{icon}</span>
                 {label}
               </div>
@@ -531,7 +531,7 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
               target="_blank"
               rel="noopener noreferrer"
               onClick={e => e.stopPropagation()}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-semibold text-white transition-opacity duration-150 hover:opacity-90 active:scale-[0.97]"
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-[13px] font-semibold text-white transition-opacity duration-150 hover:opacity-90 active:scale-[0.97]"
               style={{ background: accent }}
             >
               {buyLabel}

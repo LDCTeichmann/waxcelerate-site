@@ -69,7 +69,7 @@ export function Contact() {
                 <p className="text-[13px] leading-relaxed text-wx-tx2 mb-3">{t.contact.whatsappDesc}</p>
                 <span
                   className="inline-flex items-center gap-1.5 text-[13px] font-medium transition-opacity group-hover:opacity-80"
-                  style={{ color: '#25D366' }}
+                  style={{ color: 'var(--tx1)' }}
                 >
                   {t.contact.whatsappCta} →
                 </span>
@@ -79,7 +79,7 @@ export function Contact() {
           </div>
 
           {/* Response time note */}
-          <p className="text-center text-[12px] mt-6" style={{ color: 'rgba(255,255,255,0.22)' }}>
+          <p className="text-center text-[12px] mt-6" style={{ color: 'var(--txf)' }}>
             {de
               ? 'Antwortzeit unter 24 Stunden · Luca Teichmann · Stuttgart'
               : 'Response within 24 hours · Luca Teichmann · Stuttgart'}
