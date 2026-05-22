@@ -487,6 +487,19 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
             className="absolute inset-x-0 bottom-0 pointer-events-none"
             style={{ height: '60px', background: 'linear-gradient(to top, var(--card-to) 0%, transparent 100%)' }}
           />
+          {/* eBay source badge — sets expectation before click */}
+          <span
+            className="absolute top-2.5 left-2.5 flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded"
+            style={{
+              background: 'rgba(0,0,0,0.50)',
+              color: 'rgba(255,255,255,0.50)',
+              border: '1px solid rgba(255,255,255,0.09)',
+              backdropFilter: 'blur(4px)',
+            }}
+          >
+            <span className="inline-block h-1.5 w-1.5 rounded-full flex-shrink-0" style={{ background: '#2B52B0' }} />
+            eBay
+          </span>
           {badge && (
             <span
               className="absolute top-2.5 right-2.5 text-[11px] font-semibold tracking-wide uppercase px-2 py-1 rounded-md"

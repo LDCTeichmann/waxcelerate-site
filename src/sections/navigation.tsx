@@ -181,10 +181,13 @@ export function Navigation({ onLogoClick }: NavigationProps) {
               {/* Theme toggle — desktop only; mobile uses bottom panel */}
               <button
                 onClick={() => setTheme(nextTheme)}
-                className="hidden lg:block p-2 text-wx-tx2 hover:text-wx-tx1 transition-colors rounded-md hover:bg-white/5"
+                className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 text-wx-tx2 hover:text-wx-tx1 transition-colors rounded-md hover:bg-white/5"
                 aria-label={themeLabel}
               >
                 <ThemeIcon className="h-4 w-4" />
+                <span className="text-[11px] font-medium" style={{ opacity: 0.55 }}>
+                  {theme === 'light' ? 'Light' : theme === 'dark' ? 'Dark' : 'Noir'}
+                </span>
               </button>
 
               {/* Language toggle — desktop only; mobile uses bottom panel */}

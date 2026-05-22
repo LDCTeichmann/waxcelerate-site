@@ -804,6 +804,27 @@ export function Tools() {
             ))}
           </div>
 
+          {/* Dot indicator — desktop only, synced to activeCard */}
+          <div className="hidden lg:flex items-center justify-center gap-2 mt-5">
+            {TAB_LABELS.map((label, i) => (
+              <button
+                key={i}
+                onClick={() => setActiveCard(i)}
+                aria-label={label}
+                className="transition-all duration-300"
+                style={{
+                  width: i === activeCard ? '20px' : '6px',
+                  height: '6px',
+                  borderRadius: '3px',
+                  background: i === activeCard ? 'rgba(255,255,255,0.65)' : 'rgba(255,255,255,0.18)',
+                  border: 'none',
+                  padding: 0,
+                  cursor: 'pointer',
+                }}
+              />
+            ))}
+          </div>
+
         </div>
       </div>
       {/* Bottom gradient — bridges to FAQ below */}
