@@ -30,7 +30,7 @@ export const translations = {
       },
       buyOnEbay: 'Bei eBay kaufen',
       multiDiscount: 'Bei eBay: 2 Stk. = 10% · 3+ Stk. = 15%',
-      preWaxedHint: 'Alle Ketten werden professionell entfettet und von Hand gewachst. Einfach aufziehen und losfahren.',
+      preWaxedHint: 'Ultraschallbad-entfettet, von Hand gewachst — Kauf direkt über eBay mit vollem Käuferschutz.',
     },
 
     // Why Wax
@@ -357,7 +357,7 @@ export const translations = {
       },
       buyOnEbay: 'Buy on eBay',
       multiDiscount: 'On eBay: 2 pcs. = 10% · 3+ pcs. = 15%',
-      preWaxedHint: 'All chains are professionally degreased and hand-waxed. Just install and ride.',
+      preWaxedHint: 'Ultrasonic-bath degreased, hand-waxed — order directly via eBay with full buyer protection.',
     },
 
     // Why Wax

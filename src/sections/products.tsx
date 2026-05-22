@@ -154,16 +154,13 @@ export function Products() {
           {/* ── Wax tab ── */}
           {activeTab === 'wax' && (
             <>
-              <div className="flex items-start justify-between gap-3 mb-6 px-1">
-                <div className="flex items-center gap-2.5">
-                  <span className="h-1.5 w-1.5 rounded-full flex-shrink-0 mt-[5px]" style={{ background: '#2B52B0' }} />
-                  <p className="text-[13px]" style={{ color: 'var(--txm)' }}>
-                    {de
-                      ? 'Du brauchst nur: alter Topf · Isopropanol · 85–90 °C · ~60 min beim ersten Mal.'
-                      : 'All you need: old pot · isopropanol · 85–90 °C · ~60 min the first time.'}
-                  </p>
-                </div>
-                <p className="text-[12px] whitespace-nowrap flex-shrink-0" style={{ color: 'var(--txf)' }}>
+              <div className="flex flex-col gap-1.5 sm:flex-row sm:items-start sm:justify-between sm:gap-3 mb-6 px-1">
+                <p className="text-[13px]" style={{ color: 'var(--txm)' }}>
+                  {de
+                    ? 'Du brauchst nur: alter Topf · Isopropanol · 85–90 °C · ~60 min beim ersten Mal.'
+                    : 'All you need: old pot · isopropanol · 85–90 °C · ~60 min the first time.'}
+                </p>
+                <p className="text-[12px] sm:whitespace-nowrap sm:flex-shrink-0" style={{ color: 'var(--txf)' }}>
                   {t.products.multiDiscount}
                 </p>
               </div>
@@ -406,6 +403,11 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice }: CardProps) {
             <h3 className="text-[17px] font-semibold text-wx-tx1 leading-snug tracking-[-0.01em]">
               {de ? product.title : product.titleEn}
             </h3>
+            {((de ? product.bestFor : product.bestForEn)?.[0]) && (
+              <p className="text-[11px] uppercase tracking-[0.14em] font-medium mt-1.5" style={{ color: accent }}>
+                {(de ? product.bestFor : product.bestForEn)![0]}
+              </p>
+            )}
           </div>
 
           {/* Benefits grow to fill — this equalises card heights */}

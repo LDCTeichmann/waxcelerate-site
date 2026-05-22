@@ -35,19 +35,19 @@ export function Conviction() {
             </div>
             <span
               className="font-display font-bold tabular-nums leading-none block"
-              style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', color: '#2B52B0' }}
+              style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', color: 'var(--tx1)' }}
             >
               100%
             </span>
             <p
               className="text-[11px] sm:text-[13px] font-medium mt-2.5 leading-snug"
-              style={{ color: 'rgba(255,255,255,0.55)' }}
+              style={{ color: 'var(--tx2)' }}
             >
               {de ? 'positiv' : 'positive'}
             </p>
             <p
               className="text-[10px] sm:text-[11px] mt-0.5 leading-snug"
-              style={{ color: 'rgba(255,255,255,0.25)' }}
+              style={{ color: 'var(--txm)' }}
             >
               {de ? 'eBay verifiziert' : 'eBay verified'}
             </p>
@@ -71,23 +71,23 @@ export function Conviction() {
             </div>
             <span
               className="font-display font-bold tabular-nums leading-none block"
-              style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', color: '#2B52B0' }}
+              style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', color: 'var(--tx1)' }}
             >
               −46%
             </span>
             <p
               className="text-[11px] sm:text-[13px] font-medium mt-2.5 leading-snug"
-              style={{ color: 'rgba(255,255,255,0.55)' }}
+              style={{ color: 'var(--tx2)' }}
             >
               {de ? 'günstigere Kosten' : 'lower cost'}
             </p>
             <p
               className="text-[10px] sm:text-[11px] mt-0.5 leading-snug"
-              style={{ color: 'rgba(255,255,255,0.25)' }}
+              style={{ color: 'var(--txm)' }}
             >
               {de ? 'vs. Kettenöl' : 'vs. chain oil'}
             </p>
-            <p className="text-[8px] mt-2 leading-snug" style={{ color: 'rgba(255,255,255,0.15)' }}>
+            <p className="text-[9px] mt-2 leading-snug" style={{ color: 'var(--txf)' }}>
               {de ? 'Basis: 5.000 km/Jahr, 35€ Kette' : 'Basis: 5,000 km/yr, €35 chain'}
             </p>
           </div>
@@ -110,23 +110,23 @@ export function Conviction() {
             </div>
             <span
               className="font-display font-bold tabular-nums leading-none block"
-              style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', color: '#2B52B0' }}
+              style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', color: 'var(--tx1)' }}
             >
               3×
             </span>
             <p
               className="text-[11px] sm:text-[13px] font-medium mt-2.5 leading-snug"
-              style={{ color: 'rgba(255,255,255,0.55)' }}
+              style={{ color: 'var(--tx2)' }}
             >
               {de ? 'längere Kette' : 'longer chain'}
             </p>
             <p
               className="text-[10px] sm:text-[11px] mt-0.5 leading-snug"
-              style={{ color: 'rgba(255,255,255,0.25)' }}
+              style={{ color: 'var(--txm)' }}
             >
               {de ? 'vs. Öl' : 'vs. oil'}
             </p>
-            <p className="text-[8px] mt-2 leading-snug" style={{ color: 'rgba(255,255,255,0.15)' }}>
+            <p className="text-[9px] mt-2 leading-snug" style={{ color: 'var(--txf)' }}>
               {de ? 'Quelle: ZeroFriction Cycling' : 'Source: ZeroFriction Cycling'}
             </p>
           </div>

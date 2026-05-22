@@ -67,6 +67,9 @@ export function Reviews() {
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-5xl mx-auto">
 
+          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] mb-4" style={{ color: 'var(--txf)' }}>
+            {de ? '164 Bewertungen · eBay verifiziert' : '164 Reviews · eBay verified'}
+          </p>
           <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-3">
             {de ? 'Was Fahrer sagen' : 'What Riders Say'}
           </h2>
