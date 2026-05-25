@@ -56,7 +56,7 @@ function AnimatedNumber({
   );
 }
 
-// ─── Toggle button — premium dark/white style ────────────────────────────────
+// ─── Toggle button — blue accent active state ────────────────────────────────
 function TogButton({
   active,
   onClick,
@@ -71,10 +71,13 @@ function TogButton({
       onClick={onClick}
       className="px-3.5 py-1.5 rounded-lg text-[13px] transition-all cursor-pointer"
       style={{
-        border: `1px solid ${active ? 'rgba(255,255,255,0.13)' : 'transparent'}`,
-        background: active ? 'rgba(255,255,255,0.08)' : 'transparent',
-        color: active ? 'rgba(255,255,255,0.90)' : 'rgba(255,255,255,0.30)',
+        border: `1px solid ${active ? 'rgba(59,100,210,0.55)' : 'rgba(255,255,255,0.07)'}`,
+        background: active
+          ? 'linear-gradient(135deg, rgba(43,82,176,0.28) 0%, rgba(43,82,176,0.12) 100%)'
+          : 'rgba(255,255,255,0.03)',
+        color: active ? '#ffffff' : 'rgba(255,255,255,0.28)',
         fontWeight: active ? 500 : 400,
+        boxShadow: active ? 'inset 0 1px 0 rgba(255,255,255,0.12)' : 'none',
       }}
     >
       {children}
@@ -88,9 +91,11 @@ function ToolCard({ children }: { children: React.ReactNode }) {
     <div
       className="flex flex-col h-full rounded-2xl"
       style={{
-        background: '#0d0d10',
-        border: '1px solid rgba(255,255,255,0.07)',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
+        background: 'linear-gradient(160deg, rgba(20,20,28,0.97) 0%, rgba(8,8,12,0.99) 100%)',
+        border: '1px solid rgba(255,255,255,0.09)',
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 16px 56px rgba(0,0,0,0.75), 0 4px 16px rgba(0,0,0,0.5)',
+        backdropFilter: 'blur(24px)',
+        WebkitBackdropFilter: 'blur(24px)',
       }}
     >
       {children}
@@ -105,7 +110,10 @@ function ToolHeader({ icon, title, subtitle }: { icon: React.ReactNode; title: s
       <div className="flex items-start gap-3 mb-5">
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
-          style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.09)' }}
+          style={{
+            background: 'linear-gradient(135deg, rgba(43,82,176,0.22) 0%, rgba(43,82,176,0.06) 100%)',
+            border: '1px solid rgba(43,82,176,0.30)',
+          }}
         >
           {icon}
         </div>
@@ -147,7 +155,11 @@ function ResultBox({ children }: { children: React.ReactNode }) {
   return (
     <div
       className="rounded-xl p-5"
-      style={{ background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(255,255,255,0.06)' }}
+      style={{
+        background: 'linear-gradient(160deg, rgba(255,255,255,0.04) 0%, rgba(0,0,0,0.28) 100%)',
+        border: '1px solid rgba(255,255,255,0.08)',
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.07)',
+      }}
     >
       {children}
     </div>
@@ -633,9 +645,9 @@ export function Tools() {
   // Deck geometry
   const CARD_WIDTH   = 620;
   const DECK_HEIGHT  = 580;
-  const SIDE_OFFSET  = 660;
-  const SIDE_SCALE   = 0.82;
-  const SIDE_OPACITY = 0.55;
+  const SIDE_OFFSET  = 560;
+  const SIDE_SCALE   = 0.85;
+  const SIDE_OPACITY = 0.48;
 
   // GSAP: position all 3 cards on mount (instant) and on activeCard change (animated)
   useEffect(() => {
@@ -768,6 +780,7 @@ export function Tools() {
               height: DECK_HEIGHT,
               overflow: 'hidden',
               borderRadius: '1.5rem',
+              background: 'radial-gradient(ellipse 55% 60% at 50% 50%, rgba(43,82,176,0.07) 0%, transparent 70%)',
             }}
           >
             {([cardRef0, cardRef1, cardRef2] as const).map((ref, i) => (
@@ -790,38 +803,54 @@ export function Tools() {
                   {i === 2 && <RotationROI />}
                 </div>
 
-                {/* Inactive overlay: captures clicks + visual dark tint */}
+                {/* Inactive overlay: blur + dark tint — frosted glass effect */}
                 {i !== activeCard && (
                   <div
                     className="absolute inset-0 rounded-2xl cursor-pointer"
-                    style={{ background: 'rgba(0,0,0,0.35)', zIndex: 25, transition: 'background 200ms ease' }}
+                    style={{
+                      background: 'rgba(4,4,10,0.30)',
+                      backdropFilter: 'blur(3px)',
+                      WebkitBackdropFilter: 'blur(3px)',
+                      zIndex: 25,
+                      transition: 'background 250ms ease',
+                    }}
                     onClick={() => setActiveCard(i)}
-                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(0,0,0,0.15)'; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = 'rgba(0,0,0,0.35)'; }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(4,4,10,0.06)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'rgba(4,4,10,0.30)'; }}
                   />
                 )}
               </div>
             ))}
           </div>
 
-          {/* Dot indicator — desktop only, synced to activeCard */}
-          <div className="hidden lg:flex items-center justify-center gap-2 mt-5">
+          {/* Dot + label indicator — desktop only, synced to activeCard */}
+          <div className="hidden lg:flex items-center justify-center gap-5 mt-6">
             {TAB_LABELS.map((label, i) => (
               <button
                 key={i}
                 onClick={() => setActiveCard(i)}
-                aria-label={label}
-                className="transition-all duration-300"
-                style={{
-                  width: i === activeCard ? '20px' : '6px',
-                  height: '6px',
-                  borderRadius: '3px',
-                  background: i === activeCard ? 'rgba(255,255,255,0.65)' : 'rgba(255,255,255,0.18)',
-                  border: 'none',
-                  padding: 0,
-                  cursor: 'pointer',
-                }}
-              />
+                className="flex flex-col items-center gap-1.5 cursor-pointer"
+                style={{ border: 'none', background: 'transparent', padding: 0 }}
+              >
+                <div
+                  className="transition-all duration-300"
+                  style={{
+                    width: i === activeCard ? '22px' : '5px',
+                    height: '4px',
+                    borderRadius: '2px',
+                    background: i === activeCard ? 'rgba(255,255,255,0.72)' : 'rgba(255,255,255,0.16)',
+                  }}
+                />
+                <span
+                  className="text-[10px] tracking-[0.08em] transition-all duration-300"
+                  style={{
+                    color: i === activeCard ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.18)',
+                    fontWeight: i === activeCard ? 500 : 400,
+                  }}
+                >
+                  {label}
+                </span>
+              </button>
             ))}
           </div>
 
