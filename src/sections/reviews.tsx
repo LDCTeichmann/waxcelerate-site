@@ -68,7 +68,7 @@ export function Reviews() {
         <div className="max-w-5xl mx-auto">
 
           <p className="text-[10px] font-semibold uppercase tracking-[0.22em] mb-4" style={{ color: 'var(--txf)' }}>
-            {de ? '164 Bewertungen · eBay verifiziert' : '164 Reviews · eBay verified'}
+            {de ? '168 Bewertungen · eBay verifiziert' : '168 Reviews · eBay verified'}
           </p>
           <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-3">
             {de ? 'Was Fahrer sagen' : 'What Riders Say'}
@@ -82,7 +82,7 @@ export function Reviews() {
                 </svg>
               ))}
             </div>
-            <span className="text-sm font-semibold text-wx-tx1">164</span>
+            <span className="text-sm font-semibold text-wx-tx1">168</span>
             <span className="text-sm text-wx-txm">{de ? '· 100% positive Bewertungen · eBay verifiziert' : '· 100% positive · eBay verified'}</span>
           </div>
 
@@ -147,7 +147,7 @@ export function Reviews() {
                 color: 'rgba(255,255,255,0.72)',
               }}
             >
-              {de ? 'Alle 164 Bewertungen auf eBay ansehen →' : 'See all 164 reviews on eBay →'}
+              {de ? 'Alle 168 Bewertungen auf eBay ansehen →' : 'See all 168 reviews on eBay →'}
             </a>
           </div>
 

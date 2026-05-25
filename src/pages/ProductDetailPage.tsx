@@ -77,7 +77,7 @@ export function ProductDetailPage() {
       aggregateRating: {
         '@type': 'AggregateRating',
         ratingValue: '5',
-        reviewCount: '164',
+        reviewCount: '168',
         bestRating: '5',
         worstRating: '1',
       },

@@ -43,7 +43,7 @@ export function About() {
   const stats = [
     { value: 100, prefix: '', suffix: '%',  label: t.about.stats.rating },
     { value: 500, prefix: '', suffix: '+',  label: t.about.stats.sold },
-    { value: 164, prefix: '', suffix: '',   label: de ? 'eBay-Bewertungen' : 'eBay Reviews' },
+    { value: 168, prefix: '', suffix: '',   label: de ? 'eBay-Bewertungen' : 'eBay Reviews' },
     { value: 24,  prefix: '<', suffix: 'h', label: t.about.stats.response },
   ];
 

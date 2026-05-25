@@ -35,7 +35,7 @@ export function SocialProof() {
         <div className="max-w-lg mx-auto flex items-stretch py-5">
 
           <Stat
-            value={164}
+            value={168}
             label={de ? 'Bewertungen' : 'Reviews'}
             sub="5,0 · eBay"
           />
