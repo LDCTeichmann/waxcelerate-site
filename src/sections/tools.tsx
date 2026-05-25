@@ -647,7 +647,7 @@ export function Tools() {
   const DECK_HEIGHT  = 580;
   const SIDE_OFFSET  = 560;
   const SIDE_SCALE   = 0.85;
-  const SIDE_OPACITY = 0.48;
+  const SIDE_OPACITY = 0.58;
 
   // GSAP: position all 3 cards on mount (instant) and on activeCard change (animated)
   useEffect(() => {
@@ -779,7 +779,6 @@ export function Tools() {
             style={{
               height: DECK_HEIGHT,
               overflow: 'hidden',
-              borderRadius: '1.5rem',
               background: 'radial-gradient(ellipse 55% 60% at 50% 50%, rgba(43,82,176,0.07) 0%, transparent 70%)',
             }}
           >
@@ -808,15 +807,13 @@ export function Tools() {
                   <div
                     className="absolute inset-0 rounded-2xl cursor-pointer"
                     style={{
-                      background: 'rgba(4,4,10,0.30)',
-                      backdropFilter: 'blur(3px)',
-                      WebkitBackdropFilter: 'blur(3px)',
+                      background: 'rgba(4,4,10,0.18)',
                       zIndex: 25,
                       transition: 'background 250ms ease',
                     }}
                     onClick={() => setActiveCard(i)}
-                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(4,4,10,0.06)'; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = 'rgba(4,4,10,0.30)'; }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(4,4,10,0.04)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'rgba(4,4,10,0.18)'; }}
                   />
                 )}
               </div>
