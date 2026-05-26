@@ -7,31 +7,37 @@ import { gsap } from '@/lib/gsap';
 
 export function About() {
   const { t, lang } = useLanguage();
-  const headerRef = useRef<HTMLDivElement>(null);
-  const photosRef = useRef<HTMLDivElement>(null);
-  const textRef   = useRef<HTMLDivElement>(null);
+  const headerRef  = useRef<HTMLDivElement>(null);
+  const portraitRef = useRef<HTMLDivElement>(null);
+  const textRef    = useRef<HTMLDivElement>(null);
+  const ebayBannerRef = useRef<HTMLDivElement>(null);
   useSectionReveal(headerRef);
 
   useEffect(() => {
-    const photos = photosRef.current;
-    const text   = textRef.current;
-    if (!photos || !text) return;
+    const portrait    = portraitRef.current;
+    const text        = textRef.current;
+    const ebayBanner  = ebayBannerRef.current;
+    if (!portrait || !text || !ebayBanner) return;
 
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      gsap.set([photos, text], { opacity: 1, y: 0 });
+      gsap.set([portrait, text, ebayBanner], { opacity: 1, y: 0 });
       return;
     }
 
-    gsap.set([photos, text], { opacity: 0, y: 24 });
+    gsap.set([portrait, text, ebayBanner], { opacity: 0, y: 24 });
 
     const ctx = gsap.context(() => {
-      gsap.to(photos, {
-        opacity: 1, y: 0, duration: 0.7, ease: 'power3.out',
-        scrollTrigger: { trigger: photos, start: 'top 88%', once: true },
+      gsap.to(portrait, {
+        opacity: 1, y: 0, duration: 0.8, ease: 'power3.out',
+        scrollTrigger: { trigger: portrait, start: 'top 88%', once: true },
       });
       gsap.to(text, {
-        opacity: 1, y: 0, duration: 0.7, ease: 'power3.out', delay: 0.08,
+        opacity: 1, y: 0, duration: 0.75, ease: 'power3.out', delay: 0.1,
         scrollTrigger: { trigger: text, start: 'top 88%', once: true },
+      });
+      gsap.to(ebayBanner, {
+        opacity: 1, y: 0, duration: 0.7, ease: 'power3.out', delay: 0.08,
+        scrollTrigger: { trigger: ebayBanner, start: 'top 90%', once: true },
       });
     });
 
@@ -52,8 +58,8 @@ export function About() {
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-5xl mx-auto">
 
-          {/* Header */}
-          <div ref={headerRef} className="text-center mb-12">
+          {/* ── Header ──────────────────────────────────────────────────── */}
+          <div ref={headerRef} className="text-center mb-10">
             <p
               className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-semibold mb-3"
               style={{ color: 'rgba(255,255,255,0.40)' }}
@@ -65,92 +71,65 @@ export function About() {
             </h2>
           </div>
 
-          {/* Body: photos left · bio right */}
-          <div className="flex flex-col md:flex-row gap-8 lg:gap-12 items-start">
+          {/* ── Top row: floating portrait · bio + stats ─────────────── */}
+          <div className="flex flex-col md:flex-row gap-8 lg:gap-12 items-end">
 
-            {/* ── Left: photo column ─────────────────────────────────── */}
-            <div ref={photosRef} className="w-full md:w-[200px] lg:w-[215px] flex-shrink-0">
-
-              {/* Portrait */}
+            {/* Portrait — bg-removed, floats on section background */}
+            <div
+              ref={portraitRef}
+              className="w-full md:w-[200px] lg:w-[218px] flex-shrink-0 relative self-end"
+            >
+              {/* Subtle radial glow behind the figure */}
               <div
-                className="relative overflow-hidden rounded-2xl w-full"
+                className="absolute inset-x-0 bottom-0 pointer-events-none"
                 style={{
-                  aspectRatio: '3 / 4',
-                  background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
-                  border: '1px solid var(--bd)',
-                  boxShadow: '0 0 0 1px rgba(61,103,202,0.08), 0 8px 32px rgba(0,0,0,0.28)',
+                  height: '80%',
+                  background: 'radial-gradient(ellipse 70% 55% at 50% 100%, rgba(43,82,176,0.13) 0%, transparent 70%)',
                 }}
-              >
+              />
+
+              {/* Portrait image — no frame, transparent bg */}
+              <div className="relative" style={{ aspectRatio: '4 / 5' }}>
                 <img
-                  src="/images/luca.jpg"
+                  src="/images/luca-nobg.png"
                   alt="Luca Teichmann"
                   className="absolute inset-0 w-full h-full object-cover"
-                  style={{ objectPosition: '50% 12%' }}
-                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                />
-                {/* Bottom name overlay */}
-                <div
-                  className="absolute bottom-0 left-0 right-0 px-3.5 pb-3 pt-10"
-                  style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.72) 0%, transparent 100%)' }}
-                >
-                  <p className="font-semibold text-white text-[13px] leading-tight">Luca Teichmann</p>
-                  <p className="text-[10.5px] mt-0.5" style={{ color: 'rgba(255,255,255,0.58)' }}>
-                    Waxcelerate · Stuttgart
-                  </p>
-                </div>
-              </div>
-
-              {/* eBay credential */}
-              <div
-                className="relative overflow-hidden rounded-xl mt-2 w-full ebay-credential"
-                style={{
-                  aspectRatio: '16 / 10',
-                  background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
-                  border: '1px solid var(--bd)',
-                  boxShadow: '0 4px 16px rgba(0,0,0,0.20)',
-                }}
-              >
-                <img
-                  src="/images/luca-ebay.jpg"
-                  alt="eBay Seller Leadership Week 2025 San Jose"
-                  className="absolute inset-0 w-full h-full object-cover object-center"
+                  style={{
+                    objectPosition: '50% 8%',
+                    filter: 'drop-shadow(0px 12px 28px rgba(0,0,0,0.50))',
+                  }}
                   onError={(e) => {
-                    const wrap = e.currentTarget.closest('.ebay-credential') as HTMLElement | null;
-                    if (wrap) wrap.style.display = 'none';
+                    // Fallback to photo-with-bg in a card
+                    const el = e.currentTarget;
+                    el.src = '/images/luca.jpg';
+                    el.style.filter = '';
+                    el.style.borderRadius = '16px';
+                    el.style.border = '1px solid var(--bd)';
+                    el.style.objectPosition = '50% 12%';
                   }}
                 />
-                {/* Stronger gradient so caption is always readable */}
+                {/* Bottom fade — blends figure into section background */}
                 <div
-                  className="absolute inset-0"
-                  style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.70) 0%, rgba(0,0,0,0.04) 52%, transparent 100%)' }}
+                  className="absolute bottom-0 left-0 right-0 pointer-events-none"
+                  style={{
+                    height: '38%',
+                    background: 'linear-gradient(to top, var(--sf) 0%, transparent 100%)',
+                  }}
                 />
-                <div className="absolute bottom-0 left-0 right-0 px-3 pb-2 pt-6">
-                  <p
-                    className="text-[8.5px] font-semibold uppercase tracking-[0.18em] leading-none mb-0.5"
-                    style={{ color: 'rgba(255,255,255,0.50)' }}
-                  >
-                    eBay Seller Leadership Week
-                  </p>
-                  <p className="text-[11.5px] font-semibold text-white leading-tight">
-                    2025 · San Jose, CA
-                  </p>
-                </div>
               </div>
             </div>
 
-            {/* ── Right: bio + stats card + link ─────────────────────── */}
-            <div ref={textRef} className="flex-1 min-w-0">
-
-              {/* Bio */}
-              <div className="space-y-4 mb-8">
+            {/* Bio + stats + link */}
+            <div ref={textRef} className="flex-1 min-w-0 pb-1">
+              <div className="space-y-4 mb-7">
                 <p className="text-[15px] leading-[1.8] text-wx-tx2">{t.about.bio1}</p>
                 <p className="text-[15px] leading-[1.8] text-wx-tx2">{t.about.bio2}</p>
                 <p className="text-[15px] leading-[1.8] text-wx-tx2">{t.about.bio3}</p>
               </div>
 
-              {/* Stats — single unified card with 2×2 grid */}
+              {/* Stats — single unified card */}
               <div
-                className="rounded-2xl overflow-hidden mb-7"
+                className="rounded-2xl overflow-hidden mb-6"
                 style={{
                   background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
                   border: '1px solid var(--bd)',
@@ -167,15 +146,13 @@ export function About() {
                         borderLeft: i % 2 === 1 ? '1px solid var(--bd2)' : undefined,
                       }}
                     >
-                      <p className="text-[1.65rem] font-bold leading-none text-wx-tx1 tabular-nums mb-1">
+                      <p className="text-[1.6rem] font-bold leading-none text-wx-tx1 tabular-nums mb-1">
                         {s.value}
                       </p>
                       <p className="text-[11px] text-wx-txf leading-snug">{s.label}</p>
                     </div>
                   ))}
                 </div>
-
-                {/* Active strip */}
                 <div
                   className="px-5 py-2.5 flex items-center gap-2"
                   style={{ borderTop: '1px solid var(--bd2)' }}
@@ -203,15 +180,66 @@ export function About() {
                   <ExternalLink className="h-3 w-3 text-[#2B52B0]" />
                 </span>
                 <span
-                  className="text-[13px] font-medium transition-colors"
-                  style={{ color: '#3D67CA' }}
+                  className="text-[13px] font-medium transition-colors text-[#3D67CA] group-hover:text-[#5580E0]"
                 >
                   {t.about.ebay}
                 </span>
               </a>
             </div>
-
           </div>
+
+          {/* ── eBay credential banner — full width, cinematic ──────────── */}
+          <div
+            ref={ebayBannerRef}
+            className="relative mt-8 rounded-2xl overflow-hidden"
+            style={{
+              height: '220px',
+              border: '1px solid var(--bd)',
+              boxShadow: '0 8px 40px rgba(0,0,0,0.30)',
+            }}
+          >
+            <img
+              src="/images/luca-ebay.jpg"
+              alt="Luca Teichmann auf der Bühne — eBay Seller Leadership Week 2025, San Jose"
+              className="absolute inset-0 w-full h-full object-cover"
+              style={{ objectPosition: '50% 38%' }}
+            />
+            {/* Dark vignette — heaviest on left for text */}
+            <div
+              className="absolute inset-0"
+              style={{
+                background:
+                  'linear-gradient(to right, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.28) 45%, transparent 75%), ' +
+                  'linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 60%)',
+              }}
+            />
+            {/* Caption — bottom left */}
+            <div className="absolute bottom-0 left-0 px-6 pb-5">
+              <p
+                className="text-[9px] font-semibold uppercase tracking-[0.22em] mb-0.5"
+                style={{ color: 'rgba(255,255,255,0.52)' }}
+              >
+                eBay Seller Leadership Week
+              </p>
+              <p className="text-[15px] font-semibold text-white leading-tight">
+                2025 · San Jose, CA
+              </p>
+              <p className="text-[12px] mt-1" style={{ color: 'rgba(255,255,255,0.60)' }}>
+                {de
+                  ? 'Von eBay eingeladen — als Seller Persona auf der Hauptbühne präsentiert'
+                  : 'Invited by eBay — featured as a seller persona on the main stage'}
+              </p>
+            </div>
+            {/* eBay logo badge top-right */}
+            <div
+              className="absolute top-4 right-5 px-3 py-1.5 rounded-lg"
+              style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(6px)', border: '1px solid rgba(255,255,255,0.12)' }}
+            >
+              <span className="text-[11px] font-bold tracking-wide text-white opacity-80">ebay</span>
+              <span className="text-[9px] font-medium tracking-[0.12em] text-white opacity-50 ml-1.5">HQ</span>
+            </div>
+          </div>
+
         </div>
       </div>
 
