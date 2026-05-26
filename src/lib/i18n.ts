@@ -15,9 +15,13 @@ export const translations = {
     // Hero
     hero: {
       subtitle: 'Heißwachs für Fahrradketten',
-      tagline: 'Dreimal längere Kette. Kein Dreck. Kein Nachschmieren.',
+      headline: 'Dreimal längere Kette.',
+      headlineSub: 'Kein Öl mehr.',
+      tagline: 'Kein Dreck. Kein Nachschmieren. 168 Bewertungen, 100 % positiv auf eBay.',
+      priceAnchor: 'Ab €22,95',
+      guarantee: 'Nicht zufrieden? Schreib mir — ich sorge dafür, dass es stimmt.',
       ctaBuy: 'Jetzt bestellen',
-      ctaSecondary: 'Wie funktioniert Heißwachs? →',
+      ctaSecondary: 'Wie funktioniert Heißwachs? →',
     },
 
     // Products
@@ -342,7 +346,11 @@ export const translations = {
     // Hero
     hero: {
       subtitle: 'Hot Wax for Bicycle Chains',
-      tagline: '3× longer chain life. No grime. No re-lubing.',
+      headline: '3× longer chain life.',
+      headlineSub: 'No more oil.',
+      tagline: 'No grime. No re-lubing. 168 reviews — 100 % positive on eBay.',
+      priceAnchor: 'From €22.95',
+      guarantee: "Not happy? Write me — I'll make it right.",
       ctaBuy: 'Buy now',
       ctaSecondary: 'How does hot wax work? →',
     },

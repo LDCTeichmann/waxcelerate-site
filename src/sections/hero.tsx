@@ -120,7 +120,8 @@ export function Hero() {
   const scrollToSection = (href: string) =>
     document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
 
-  const line1 = de ? 'Kein Öl mehr.' : 'No more oil.';
+  const headline    = t.hero.headline;
+  const headlineSub = t.hero.headlineSub;
 
   return (
     <section
@@ -166,12 +167,12 @@ export function Hero() {
           height={910}
           loading="lazy"
           className="absolute inset-0 w-full h-full object-cover"
-          style={{ objectPosition: '62% 45%', opacity: 0.30 }}
+          style={{ objectPosition: '62% 45%', opacity: 0.48 }}
         />
-        {/* Stronger vignette on mobile so text stays crisp */}
+        {/* Bottom fade so text on left stays readable */}
         <div
           className="absolute inset-0"
-          style={{ background: 'radial-gradient(ellipse 100% 100% at 50% 50%, transparent 30%, rgba(6,6,15,0.75) 80%)' }}
+          style={{ background: 'linear-gradient(to right, rgba(6,6,15,0.70) 0%, rgba(6,6,15,0.30) 60%, transparent 100%)' }}
         />
       </div>
 
@@ -237,13 +238,13 @@ export function Hero() {
                 className="font-display font-bold leading-[1.05] tracking-[-0.035em]"
                 style={{ fontSize: 'clamp(2.6rem, 6.5vw, 5.2rem)', color: '#FFFFFF' }}
               >
-                <WordReveal text={line1} className="block" />
+                <WordReveal text={headline} className="block" />
                 <span
                   className="block font-serif-display italic overflow-hidden"
                   style={{ color: '#3D67CA', verticalAlign: 'bottom' }}
                 >
                   <span className="word-inner inline-block" style={{ willChange: 'transform' }}>
-                    Waxcelerate.
+                    {headlineSub}
                   </span>
                 </span>
               </h1>
@@ -252,15 +253,15 @@ export function Hero() {
             {/* Tagline */}
             <p
               ref={taglineRef}
-              className="text-[16px] leading-relaxed mb-10 max-w-xs sm:max-w-sm"
-              style={{ color: 'rgba(255,255,255,0.70)' }}
+              className="text-[18px] leading-relaxed mb-10 max-w-xs sm:max-w-sm"
+              style={{ color: 'rgba(255,255,255,0.82)' }}
             >
               {t.hero.tagline}
             </p>
 
             {/* CTAs */}
-            <div ref={ctaRef} className="flex flex-col items-center lg:items-start gap-4">
-              <div className="flex items-center justify-center lg:justify-start gap-5 flex-wrap">
+            <div ref={ctaRef} className="flex flex-col items-center lg:items-start gap-3">
+              <div className="flex items-center justify-center lg:justify-start gap-4 flex-wrap">
                 <button
                   ref={ebayBtnRef}
                   onClick={() => scrollToSection('#produkte')}
@@ -270,13 +271,19 @@ export function Hero() {
                   {t.hero.ctaBuy}
                   <ArrowRight className="h-3.5 w-3.5" />
                 </button>
+                <span className="text-sm font-medium" style={{ color: 'rgba(255,255,255,0.50)' }}>
+                  {t.hero.priceAnchor}
+                </span>
               </div>
+              <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.38)' }}>
+                {t.hero.guarantee}
+              </p>
               <button
                 onClick={() => scrollToSection('#warum-wachs')}
                 className="text-sm transition-colors cursor-pointer"
-                style={{ color: 'rgba(255,255,255,0.42)' }}
-                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.75)')}
-                onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.42)')}
+                style={{ color: 'rgba(255,255,255,0.65)' }}
+                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.88)')}
+                onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.65)')}
               >
                 {t.hero.ctaSecondary}
               </button>

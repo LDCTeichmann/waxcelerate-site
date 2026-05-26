@@ -1,5 +1,4 @@
 import { ExternalLink, Check, Droplets, Sun, Shield } from 'lucide-react';
-import { AddToCartButton } from '@/components/AddToCartButton';
 import { Link } from 'react-router-dom';
 import { useState, useRef, useEffect, useCallback, useMemo, memo } from 'react';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
@@ -317,7 +316,7 @@ function useTilt(strength = 5) {
 
 // ── Wax Card ───────────────────────────────────────────────────────────────
 
-const WaxCard = memo(function WaxCard({ product, de, formatPrice }: CardProps) {
+const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: CardProps) {
   const isPro = product.variant === 'pro';
   const accent = isPro ? '#4A72D4' : '#2B52B0';
 
@@ -431,7 +430,14 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice }: CardProps) {
                 {product.applications} {de ? 'Anwendungen' : 'applications'}
               </p>
             </div>
-            <AddToCartButton product={product} size="sm" />
+            <button
+              onClick={e => { e.preventDefault(); e.stopPropagation(); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
+              className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-white rounded-xl transition-opacity duration-150 hover:opacity-90 active:scale-[0.97]"
+              style={{ background: '#2B52B0' }}
+            >
+              {buyLabel}
+              <ExternalLink className="h-3 w-3" />
+            </button>
           </div>
         </div>
       </Link>
@@ -539,17 +545,14 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
 
           <div className="flex items-center justify-between">
             <span className="text-[20px] font-bold text-wx-tx1 tracking-[-0.02em]">{formatPrice(product.price)}</span>
-            <a
-              href={product.ebayUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={e => e.stopPropagation()}
+            <button
+              onClick={e => { e.preventDefault(); e.stopPropagation(); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
               className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-[13px] font-semibold text-white transition-opacity duration-150 hover:opacity-90 active:scale-[0.97]"
               style={{ background: accent }}
             >
               {buyLabel}
               <ExternalLink className="h-3 w-3" />
-            </a>
+            </button>
           </div>
         </div>
       </Link>

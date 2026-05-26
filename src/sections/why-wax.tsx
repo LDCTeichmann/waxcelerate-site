@@ -43,8 +43,6 @@ export function WhyWax() {
   const headerRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<HTMLDivElement>(null);
   const costRef = useRef<HTMLDivElement>(null);
-  const costOilRef = useRef<HTMLSpanElement>(null);
-  const costWaxRef = useRef<HTMLSpanElement>(null);
   const frictionRef = useRef<HTMLDivElement>(null);
   const de = lang === 'de';
 
@@ -58,35 +56,6 @@ export function WhyWax() {
         gsap.fromTo(cards, { opacity: 0, y: 20 }, {
           opacity: 1, y: 0, duration: 0.5, stagger: 0.08, ease: 'power3.out',
           scrollTrigger: { trigger: cardsRef.current, start: 'top 82%', once: true },
-        });
-      }
-
-      // Cost number counters — use gsap.to so val goes 0 → target (not target → 0)
-      const oilCounter = { val: 0 };
-      if (costOilRef.current) {
-        gsap.to(oilCounter, {
-          val: 151,
-          duration: 1.6,
-          ease: 'power2.out',
-          snap: { val: 1 },
-          scrollTrigger: { trigger: costOilRef.current, start: 'top 80%', once: true },
-          onUpdate: () => {
-            if (costOilRef.current) costOilRef.current.textContent = `~€${Math.round(oilCounter.val)}`;
-          },
-        });
-      }
-
-      const waxCounter = { val: 0 };
-      if (costWaxRef.current) {
-        gsap.to(waxCounter, {
-          val: 81,
-          duration: 1.6,
-          ease: 'power2.out',
-          snap: { val: 1 },
-          scrollTrigger: { trigger: costWaxRef.current, start: 'top 80%', once: true },
-          onUpdate: () => {
-            if (costWaxRef.current) costWaxRef.current.textContent = `~€${Math.round(waxCounter.val)}`;
-          },
         });
       }
 
@@ -155,13 +124,13 @@ export function WhyWax() {
                 {/* Oil */}
                 <div className="flex-1 rounded-xl border border-wx-bd p-4 text-center" style={{ background: 'var(--sf3)' }}>
                   <p className="text-[10px] uppercase tracking-[0.2em] text-wx-txff font-medium mb-2.5">{de ? 'Mit Öl' : 'With Oil'}</p>
-                  <span ref={costOilRef} className="text-[32px] font-bold text-wx-txm tabular-nums leading-none">~€0</span>
+                  <span className="text-[32px] font-bold text-wx-txm tabular-nums leading-none">~€151</span>
                   <p className="text-[10px] text-wx-txff mt-1.5">{de ? '3 Ketten' : '3 chains'}</p>
                 </div>
                 {/* Wax */}
                 <div className="flex-1 rounded-xl border p-4 text-center" style={{ borderColor: 'rgba(43,82,176,0.35)', background: 'rgba(43,82,176,0.06)' }}>
                   <p className="text-[10px] uppercase tracking-[0.2em] font-semibold mb-2.5" style={{ color: '#3D67CA' }}>Wax</p>
-                  <span ref={costWaxRef} className="text-[32px] font-bold tabular-nums leading-none" style={{ color: '#4A72D4' }}>~€0</span>
+                  <span className="text-[32px] font-bold tabular-nums leading-none" style={{ color: '#4A72D4' }}>~€81</span>
                   <p className="text-[10px] mt-1.5" style={{ color: '#3D67CA' }}>{de ? '1 Kette' : '1 chain'}</p>
                 </div>
               </div>

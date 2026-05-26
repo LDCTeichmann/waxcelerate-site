@@ -5,6 +5,14 @@ import { gsap, ScrollTrigger } from '@/lib/gsap';
 
 const reviews = [
   {
+    textDe: 'Schnelle Lieferung, einwandfrei gewachste Kette die sehr gut läuft, gerne wieder',
+    textEn: 'Fast delivery, impeccably waxed chain that runs very well — will order again',
+    name: 'seyrane',
+    reviewerCount: '934',
+    dateDe: 'März 2026',
+    dateEn: 'March 2026',
+  },
+  {
     textDe: 'Positiver als positiv kann leider niemand bewerten – Wäre aber hier angebracht 1+ mit ★',
     textEn: "Can't rate higher than positive — but this would deserve a 1+ with ★",
     name: 'volvo210b',
@@ -19,14 +27,6 @@ const reviews = [
     reviewerCount: '774',
     dateDe: 'Feb 2026',
     dateEn: 'Feb 2026',
-  },
-  {
-    textDe: 'Schnelle Lieferung, einwandfrei gewachste Kette die sehr gut läuft, gerne wieder',
-    textEn: 'Fast delivery, impeccably waxed chain that runs very well — will order again',
-    name: 'seyrane',
-    reviewerCount: '934',
-    dateDe: 'März 2026',
-    dateEn: 'March 2026',
   },
 ];
 
@@ -68,11 +68,16 @@ export function Reviews() {
         <div className="max-w-5xl mx-auto">
 
           <p className="text-[10px] font-semibold uppercase tracking-[0.22em] mb-4" style={{ color: 'var(--txf)' }}>
-            {de ? '168 Bewertungen · eBay verifiziert' : '168 Reviews · eBay verified'}
+            {de ? 'eBay verifiziert · alle Bewertungen echt' : 'eBay verified · all reviews genuine'}
           </p>
           <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-3">
-            {de ? 'Was Fahrer sagen' : 'What Riders Say'}
+            {de ? '168 Fahrer. 100 % positiv.' : '168 Riders. 100 % positive.'}
           </h2>
+          <p className="text-[15px] text-wx-txm mb-6 max-w-md">
+            {de
+              ? 'Kein einziges negatives Feedback seit 2023 — auf einer Plattform, auf der Käufer anonym bewerten.'
+              : 'Not a single negative review since 2023 — on a platform where buyers rate anonymously.'}
+          </p>
 
           <div className="flex items-center gap-3 mb-8">
             <div className="flex items-center gap-1">
