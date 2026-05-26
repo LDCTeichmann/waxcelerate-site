@@ -415,23 +415,21 @@ function CostSavingsCalculator() {
   const { lang } = useLanguage();
   const de = lang === 'de';
   const [km, setKm] = useState(12000);
+  const [showDetails, setShowDetails] = useState(false);
 
-  // Pricing model — fixed assumptions, one slider keeps it simple
   const CHAIN_PRICE     = 46;
   const OIL_CHAIN_KM    = 4000;
   const WAX_CHAIN_KM    = 12000;
-  const WAX_BLOCK_PRICE = 35; // 500g block, ~20 applications
+  const WAX_BLOCK_PRICE = 35;
 
   const oilChains    = Math.max(1, Math.ceil(km / OIL_CHAIN_KM));
   const oilLube      = Math.round((km / 1000) * 1.1);
   const oilTotal     = oilChains * CHAIN_PRICE + oilLube;
-
   const waxChains    = Math.max(1, Math.ceil(km / WAX_CHAIN_KM));
   const waxBlockCost = waxChains * WAX_BLOCK_PRICE;
   const waxTotal     = waxChains * CHAIN_PRICE + waxBlockCost;
-
-  const savings    = Math.max(0, oilTotal - waxTotal);
-  const savingsPct = oilTotal > 0 ? Math.round((savings / oilTotal) * 100) : 0;
+  const savings      = Math.max(0, oilTotal - waxTotal);
+  const savingsPct   = oilTotal > 0 ? Math.round((savings / oilTotal) * 100) : 0;
 
   const chainLabel = (n: number) =>
     de ? `${n} Kette${n > 1 ? 'n' : ''}` : `${n} chain${n > 1 ? 's' : ''}`;
@@ -459,83 +457,106 @@ function CostSavingsCalculator() {
         {SEP}
 
         {/* ── Savings hero ──────────────────────────────────────────── */}
-        <div className="px-6 py-5 text-center">
+        <div className="px-6 py-8 text-center flex-1 flex flex-col items-center justify-center">
           <p
-            className="text-[9px] uppercase tracking-[0.22em] mb-4"
+            className="text-[9px] uppercase tracking-[0.22em] mb-5"
             style={{ color: 'rgba(255,255,255,0.28)' }}
           >
             {de
               ? `Kostenvergleich · ${km.toLocaleString('de-DE')} km`
               : `Cost comparison · ${km.toLocaleString('en-US')} km`}
           </p>
-          <div className="flex items-baseline justify-center gap-3 mb-2">
+          <div className="flex items-baseline justify-center gap-3 mb-3">
             <AnimatedNumber
               value={savings}
               prefix="~€"
-              className="font-serif-display italic text-[52px] font-bold leading-none tabular-nums text-white"
+              className="font-serif-display italic text-[64px] font-bold leading-none tabular-nums text-white"
             />
-            <div className="flex flex-col items-start gap-0.5">
-              <span className="text-[15px] font-semibold leading-tight" style={{ color: '#4A72D4' }}>
+            <div className="flex flex-col items-start gap-1">
+              <span className="text-[16px] font-semibold leading-tight" style={{ color: '#4A72D4' }}>
                 {de ? 'gespart' : 'saved'}
               </span>
-              <span className="text-[12px] tabular-nums" style={{ color: 'rgba(255,255,255,0.35)' }}>
+              <span className="text-[13px] tabular-nums" style={{ color: 'rgba(255,255,255,0.35)' }}>
                 −<AnimatedNumber value={savingsPct} suffix=" %" />
               </span>
             </div>
           </div>
-          <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.28)' }}>
+          <p className="text-[13px] mb-8" style={{ color: 'rgba(255,255,255,0.30)' }}>
             {de
               ? 'gegenüber Kettenöl auf gleicher Strecke'
               : 'vs. chain oil over the same distance'}
           </p>
+
+          {/* Toggle button */}
+          <button
+            type="button"
+            onClick={() => setShowDetails(v => !v)}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[12px] font-medium transition-all cursor-pointer"
+            style={{
+              background: showDetails ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255,255,255,0.12)',
+              color: 'rgba(255,255,255,0.55)',
+            }}
+          >
+            {showDetails
+              ? (de ? 'Weniger anzeigen ↑' : 'Show less ↑')
+              : (de ? 'Vollständige Aufstellung ↓' : 'Full breakdown ↓')}
+          </button>
         </div>
 
-        {SEP}
+        {/* ── Collapsible detail section ─────────────────────────────── */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateRows: showDetails ? '1fr' : '0fr',
+            transition: 'grid-template-rows 350ms cubic-bezier(0.4,0,0.2,1)',
+          }}
+        >
+          <div className="overflow-hidden">
+            {SEP}
 
-        {/* ── Comparison cards ──────────────────────────────────────── */}
-        <div className="grid grid-cols-2 gap-2.5 px-6 py-4">
-          {/* Oil */}
-          <div
-            className="rounded-xl p-4 text-center"
-            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}
-          >
-            <p className="text-[9px] uppercase tracking-[0.2em] mb-3" style={{ color: 'rgba(255,255,255,0.28)' }}>
-              {de ? 'Mit Öl' : 'With Oil'}
-            </p>
-            <AnimatedNumber
-              value={oilTotal}
-              prefix="~€"
-              className="text-[30px] font-bold leading-none tabular-nums"
-              style={{ color: 'rgba(255,255,255,0.55)' }}
-            />
-            <p className="text-[11px] mt-2" style={{ color: 'rgba(255,255,255,0.28)' }}>
-              {chainLabel(oilChains)}
-            </p>
-          </div>
-          {/* Wax */}
-          <div
-            className="rounded-xl p-4 text-center"
-            style={{ background: 'rgba(43,82,176,0.09)', border: '1px solid rgba(43,82,176,0.32)' }}
-          >
-            <p className="text-[9px] uppercase tracking-[0.2em] mb-3 font-semibold" style={{ color: '#3D67CA' }}>
-              Wax
-            </p>
-            <AnimatedNumber
-              value={waxTotal}
-              prefix="~€"
-              className="text-[30px] font-bold leading-none tabular-nums"
-              style={{ color: '#4A72D4' }}
-            />
-            <p className="text-[11px] mt-2" style={{ color: '#3D67CA' }}>
-              {chainLabel(waxChains)}
-            </p>
-          </div>
-        </div>
+            {/* Comparison cards */}
+            <div className="grid grid-cols-2 gap-2.5 px-6 py-4">
+              <div
+                className="rounded-xl p-4 text-center"
+                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}
+              >
+                <p className="text-[9px] uppercase tracking-[0.2em] mb-3" style={{ color: 'rgba(255,255,255,0.28)' }}>
+                  {de ? 'Mit Öl' : 'With Oil'}
+                </p>
+                <AnimatedNumber
+                  value={oilTotal}
+                  prefix="~€"
+                  className="text-[30px] font-bold leading-none tabular-nums"
+                  style={{ color: 'rgba(255,255,255,0.55)' }}
+                />
+                <p className="text-[11px] mt-2" style={{ color: 'rgba(255,255,255,0.28)' }}>
+                  {chainLabel(oilChains)}
+                </p>
+              </div>
+              <div
+                className="rounded-xl p-4 text-center"
+                style={{ background: 'rgba(43,82,176,0.09)', border: '1px solid rgba(43,82,176,0.32)' }}
+              >
+                <p className="text-[9px] uppercase tracking-[0.2em] mb-3 font-semibold" style={{ color: '#3D67CA' }}>
+                  Wax
+                </p>
+                <AnimatedNumber
+                  value={waxTotal}
+                  prefix="~€"
+                  className="text-[30px] font-bold leading-none tabular-nums"
+                  style={{ color: '#4A72D4' }}
+                />
+                <p className="text-[11px] mt-2" style={{ color: '#3D67CA' }}>
+                  {chainLabel(waxChains)}
+                </p>
+              </div>
+            </div>
 
-        {SEP}
+            {SEP}
 
-        {/* ── Breakdown table — two columns with vertical separator ─── */}
-        <div className="flex gap-3 px-6 py-4 flex-1">
+            {/* Breakdown table */}
+            <div className="flex gap-3 px-6 py-4">
 
           {/* Oil column */}
           <div className="flex-1 space-y-2">
@@ -600,6 +621,9 @@ function CostSavingsCalculator() {
             </div>
           </div>
         </div>
+
+          </div> {/* end overflow-hidden */}
+        </div> {/* end collapsible grid */}
 
       </div>
     </ToolCard>
