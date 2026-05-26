@@ -173,106 +173,115 @@ export function WhyWax() {
             </div>
           </div>
 
-          {/* ── Why This Formula — 4 cards ── */}
-          <div ref={cardsRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-16">
-            {differentiators.map((d, i) => {
-              const Icon = d.icon;
-              return (
-                <div
-                  key={i}
-                  className="diff-card flex flex-col rounded-xl border border-wx-bd p-4 sm:p-5"
-                  style={{
-                    background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
-                    boxShadow: 'var(--card-shad)',
-                  }}
-                >
-                  <div className="flex items-center gap-2 mb-3">
-                    <div
-                      className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0"
-                      style={{ background: 'rgba(43,82,176,0.1)', boxShadow: '0 0 0 1px rgba(43,82,176,0.15)' }}
-                    >
-                      <Icon className="h-3.5 w-3.5" style={{ color: '#4A72D4' }} />
+          {/* ── Side-by-side: 4 diff cards (left) + friction chart (right) ── */}
+          <div className="flex flex-col lg:flex-row gap-4 mb-16 items-stretch">
+
+            {/* 4 differentiator cards — always 2×2 */}
+            <div ref={cardsRef} className="flex-1 grid grid-cols-2 gap-3">
+              {differentiators.map((d, i) => {
+                const Icon = d.icon;
+                return (
+                  <div
+                    key={i}
+                    className="diff-card flex flex-col rounded-xl border border-wx-bd p-4"
+                    style={{
+                      background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
+                      boxShadow: 'var(--card-shad)',
+                    }}
+                  >
+                    <div className="flex items-center gap-2 mb-3">
+                      <div
+                        className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0"
+                        style={{ background: 'rgba(43,82,176,0.1)', boxShadow: '0 0 0 1px rgba(43,82,176,0.15)' }}
+                      >
+                        <Icon className="h-3.5 w-3.5" style={{ color: '#4A72D4' }} />
+                      </div>
+                      <p className="text-[10px] font-medium uppercase tracking-[0.18em]" style={{ color: '#2B52B0' }}>
+                        {de ? d.catDe : d.catEn}
+                      </p>
                     </div>
-                    <p className="text-[11px] font-medium uppercase tracking-[0.18em]" style={{ color: '#2B52B0' }}>
-                      {de ? d.catDe : d.catEn}
+                    <p className="text-[13px] font-bold text-wx-tx1 leading-snug mb-1.5">
+                      {de ? d.titleDe : d.titleEn}
+                    </p>
+                    <p className="text-[11px] text-wx-txm leading-relaxed flex-1">
+                      {de ? d.descDe : d.descEn}
                     </p>
                   </div>
-                  <p className="text-[13px] sm:text-[14px] font-bold text-wx-tx1 leading-snug mb-2">
-                    {de ? d.titleDe : d.titleEn}
-                  </p>
-                  <p className="text-[12px] text-wx-txm leading-relaxed flex-1">
-                    {de ? d.descDe : d.descEn}
-                  </p>
+                );
+              })}
+            </div>
+
+            {/* Friction chart — compact side panel */}
+            <div ref={frictionRef} className="lg:w-[320px] xl:w-[340px] flex-shrink-0">
+              <div
+                className="rounded-xl border border-wx-bd p-5 h-full flex flex-col"
+                style={{ background: 'var(--sf3)' }}
+              >
+                {/* Inline header — no standalone h3 */}
+                <p className="text-[10px] uppercase tracking-[0.18em] text-wx-txf mb-0.5">
+                  {de ? 'Reibungskoeffizient' : 'Friction coefficient'}
+                </p>
+                <p className="text-[15px] font-bold text-wx-tx1 mb-4">
+                  {de ? 'Messbar weniger Reibung' : 'Measurably less friction'}
+                </p>
+
+                <p className="text-[9px] uppercase tracking-[0.16em] text-wx-txff mb-4">
+                  {de ? 'Längerer Balken = besser' : 'Longer bar = better'}
+                </p>
+
+                <div className="space-y-4 flex-1">
+                  {[
+                    { label: 'Waxcelerate Pro',                                           descriptor: 'μ 0,03–0,06', pct: '100%', highlight: true,  isPro: true  },
+                    { label: 'Waxcelerate Classic',                                       descriptor: 'μ 0,05–0,07', pct: '86%',  highlight: true,  isPro: false },
+                    { label: de ? 'Graphit-Heißwachs' : 'Graphite Wax',                  descriptor: 'μ 0,08–0,12', pct: '60%',  highlight: false              },
+                    { label: de ? 'Kettenöl (nass)'   : 'Chain Oil (wet)',                descriptor: 'μ 0,18–0,25', pct: '15%',  highlight: false, dim: true   },
+                  ].map((item, i) => (
+                    <div key={i}>
+                      <div className="flex justify-between items-center mb-1.5">
+                        <span className={`text-[12px] font-medium ${item.highlight ? 'text-wx-tx1' : 'text-wx-txm'}`}>
+                          {item.label}
+                          {'isPro' in item && item.isPro && (
+                            <span
+                              className="ml-1.5 text-[9px] font-bold tracking-[0.15em] uppercase px-1.5 py-0.5 rounded"
+                              style={{ background: 'linear-gradient(135deg, #1A3080, #4A72D4)', color: 'rgba(255,255,255,0.9)' }}
+                            >
+                              PRO
+                            </span>
+                          )}
+                        </span>
+                        <span className={`text-[11px] tabular-nums font-mono ${
+                          item.highlight ? 'text-wx-tx2' : item.dim ? 'text-wx-txff' : 'text-wx-txf'
+                        }`}>
+                          {item.descriptor}
+                        </span>
+                      </div>
+                      <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--bd)' }}>
+                        <div
+                          className="fbar h-full w-full rounded-full"
+                          data-w={item.pct}
+                          style={{
+                            background: item.highlight
+                              ? ('isPro' in item && item.isPro
+                                  ? 'linear-gradient(90deg, #1A3080, #6A8AE8)'
+                                  : 'linear-gradient(90deg, #2B52B0, #4A72D4)')
+                              : item.dim ? 'var(--bd2)' : 'var(--txff)',
+                            transformOrigin: 'left center',
+                            transform: 'scaleX(0)',
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              );
-            })}
-          </div>
 
-          {/* ── Friction ── */}
-          <div ref={frictionRef} className="mb-16">
-            <div className="text-center mb-8">
-              <p className="text-xs tracking-[0.18em] uppercase text-wx-txf mb-2">
-                {de ? 'Reibungskoeffizient' : 'Friction coefficient'}
-              </p>
-              <h3 className="font-display text-2xl font-bold text-wx-tx1">
-                {de ? 'Messbar weniger Reibung' : 'Measurably less friction'}
-              </h3>
-            </div>
-
-            <div className="rounded-xl border border-wx-bd p-6 sm:p-8" style={{ background: 'var(--sf3)' }}>
-              <p className="text-xs uppercase tracking-[0.16em] text-wx-txff mb-6">
-                {de ? 'Schmierungseffizienz — längerer Balken = besser' : 'Lubrication efficiency — longer bar = better'}
-              </p>
-              <div className="space-y-6">
-                {[
-                  { label: 'Waxcelerate Pro', descriptor: 'μ 0,03–0,06', pct: '100%', highlight: true, isPro: true },
-                  { label: 'Waxcelerate Classic', descriptor: 'μ 0,05–0,07', pct: '86%', highlight: true, isPro: false },
-                  { label: de ? 'Graphit-Heißwachs' : 'Graphite Wax', descriptor: 'μ 0,08–0,12', pct: '60%', highlight: false },
-                  { label: de ? 'Kettenöl (nass)' : 'Chain Oil (wet)', descriptor: 'μ 0,18–0,25', pct: '15%', highlight: false, dim: true },
-                ].map((item, i) => (
-                  <div key={i}>
-                    <div className="flex justify-between items-center mb-2">
-                      <span className={`text-[14px] font-medium ${item.highlight ? 'text-wx-tx1' : 'text-wx-txm'}`}>
-                        {item.label}
-                        {'isPro' in item && item.isPro && (
-                          <span
-                            className="ml-2 text-[10px] font-bold tracking-[0.15em] uppercase px-1.5 py-0.5 rounded"
-                            style={{ background: 'linear-gradient(135deg, #1A3080, #4A72D4)', color: 'rgba(255,255,255,0.9)' }}
-                          >
-                            PRO
-                          </span>
-                        )}
-                      </span>
-                      <span className={`text-[12px] tabular-nums font-mono ${
-                        item.highlight ? 'text-wx-tx2' : item.dim ? 'text-wx-txff' : 'text-wx-txf'
-                      }`}>
-                        {item.descriptor}
-                      </span>
-                    </div>
-                    <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--bd)' }}>
-                      <div
-                        className="fbar h-full w-full rounded-full"
-                        data-w={item.pct}
-                        style={{
-                          background: item.highlight
-                            ? ('isPro' in item && item.isPro
-                                ? 'linear-gradient(90deg, #1A3080, #6A8AE8)'
-                                : 'linear-gradient(90deg, #2B52B0, #4A72D4)')
-                            : item.dim ? 'var(--bd2)' : 'var(--txff)',
-                          transformOrigin: 'left center',
-                          transform: 'scaleX(0)',
-                        }}
-                      />
-                    </div>
-                  </div>
-                ))}
+                <p className="text-[10px] text-wx-txff mt-5 pt-4 leading-relaxed" style={{ borderTop: '1px solid var(--bd2)' }}>
+                  {de
+                    ? 'Waxcelerate Pro mit MoS₂ führt die Skala an — Classic auf Augenhöhe mit Graphit-Heißwachs.'
+                    : 'Waxcelerate Pro with MoS₂ leads — Classic on par with graphite hot wax.'}
+                </p>
               </div>
-              <p className="text-[12px] text-wx-txff mt-6">
-                {de
-                  ? 'Index basiert auf gemessenem Reibungskoeffizient (μ). Waxcelerate Pro mit MoS₂ führt die Skala an — Classic auf Augenhöhe mit Graphit-Heißwachs.'
-                  : 'Index derived from measured friction coefficient (μ). Waxcelerate Pro with MoS₂ leads the scale — Classic on par with graphite hot wax.'}
-              </p>
             </div>
+
           </div>
 
         </div>
