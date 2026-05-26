@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { Calculator, Package, PiggyBank, RotateCcw } from 'lucide-react';
+import { Calculator, Package, RotateCcw } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useSectionReveal } from '@/hooks/useAnimation';
@@ -411,133 +411,196 @@ function WaxStockCalculator() {
 }
 
 // ─── Tool 3: Cost Savings Calculator ─────────────────────────────────────────
-function AnimatedBar({ pct, color, delay = 0 }: { pct: number; color: string; delay?: number }) {
-  const [width, setWidth] = useState(0);
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setTimeout(() => setWidth(pct), delay);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.5 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [pct, delay]);
-
-  return (
-    <div ref={ref} className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
-      <div
-        className="h-full w-full rounded-full"
-        style={{
-          background: color,
-          transform: `scaleX(${width / 100})`,
-          transformOrigin: 'left center',
-          transition: 'transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)',
-        }}
-      />
-    </div>
-  );
-}
-
 function CostSavingsCalculator() {
-  const { t, lang } = useLanguage();
+  const { lang } = useLanguage();
   const de = lang === 'de';
-  const [kmPerYear, setKmPerYear] = useState(5000);
-  const [chainPrice, setChainPrice] = useState(45);
+  const [km, setKm] = useState(12000);
 
-  const CASSETTE_PRICE = 80;
-  const WAX_APP_COST = 1.5;
-  const REWAX_INTERVAL = 500;
+  // Pricing model — fixed assumptions, one slider keeps it simple
+  const CHAIN_PRICE     = 46;
+  const OIL_CHAIN_KM    = 4000;
+  const WAX_CHAIN_KM    = 12000;
+  const WAX_BLOCK_PRICE = 35; // 500g block, ~20 applications
 
-  const oilLubeCostPerYear = kmPerYear * (8 / (30 * 200));
-  const waxCost = Math.round(
-    (kmPerYear / 9000) * chainPrice +
-    (kmPerYear / 15000) * CASSETTE_PRICE +
-    (kmPerYear / REWAX_INTERVAL) * WAX_APP_COST
-  );
-  const oilCost = Math.round(
-    (kmPerYear / 2500) * chainPrice +
-    (kmPerYear / 8000) * CASSETTE_PRICE +
-    oilLubeCostPerYear
-  );
-  const savings = Math.max(0, oilCost - waxCost);
-  const waxBarPct = Math.round((waxCost / Math.max(oilCost, 1)) * 100);
+  const oilChains    = Math.max(1, Math.ceil(km / OIL_CHAIN_KM));
+  const oilLube      = Math.round((km / 1000) * 1.1);
+  const oilTotal     = oilChains * CHAIN_PRICE + oilLube;
+
+  const waxChains    = Math.max(1, Math.ceil(km / WAX_CHAIN_KM));
+  const waxBlockCost = waxChains * WAX_BLOCK_PRICE;
+  const waxTotal     = waxChains * CHAIN_PRICE + waxBlockCost;
+
+  const savings    = Math.max(0, oilTotal - waxTotal);
+  const savingsPct = oilTotal > 0 ? Math.round((savings / oilTotal) * 100) : 0;
+
+  const chainLabel = (n: number) =>
+    de ? `${n} Kette${n > 1 ? 'n' : ''}` : `${n} chain${n > 1 ? 's' : ''}`;
+
+  const SEP = <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }} />;
 
   return (
     <ToolCard>
-      <ToolHeader
-        icon={<PiggyBank className="h-4 w-4" style={{ color: 'rgba(255,255,255,0.55)' }} />}
-        title={t.tools.savings.title}
-        subtitle={de
-          ? 'Sieh in Euro, wie viel Wachs vs. Kettenöl pro Jahr wirklich spart.'
-          : 'See in euros how much wax vs. chain oil really saves per year.'}
-      />
-      <div className="px-6 flex flex-col flex-1 gap-5 pb-6">
-        <div className="space-y-5 flex-1">
-          <div>
-            <FieldLabel label={t.tools.savings.kmPerYear} value={`${kmPerYear} km`} />
-            <Slider value={[kmPerYear]} onValueChange={v => setKmPerYear(v[0])} min={1000} max={15000} step={500} className="py-1" />
-          </div>
-          <div>
-            <FieldLabel label={t.tools.savings.chainPrice} value={`${chainPrice} €`} />
-            <Slider value={[chainPrice]} onValueChange={v => setChainPrice(v[0])} min={20} max={100} step={5} className="py-1" />
-          </div>
-          <p className="text-[11px] leading-relaxed -mt-2" style={{ color: 'rgba(255,255,255,0.2)' }}>
-            {de
-              ? 'Kassette €80 · Wachskette 9.000km · Ölkette 2.500km · Wachsen €1,50/Session'
-              : 'Cassette €80 · Wax chain 9,000km · Oil chain 2,500km · Waxing €1.50/session'}
-          </p>
+      <div className="flex flex-col h-full">
+
+        {/* ── Slider ────────────────────────────────────────────────── */}
+        <div className="px-6 pt-5 pb-4">
+          <FieldLabel
+            label={de ? 'Strecke' : 'Distance'}
+            value={`${km.toLocaleString(de ? 'de-DE' : 'en-US')} km`}
+          />
+          <Slider
+            value={[km]}
+            onValueChange={v => setKm(v[0])}
+            min={2000} max={25000} step={1000}
+            className="py-1"
+          />
         </div>
-        <ResultBox>
-          <div className="space-y-3.5 mb-4">
-            <div>
-              <div className="flex justify-between items-baseline mb-1.5">
-                <span className="text-[12px]" style={{ color: 'rgba(255,255,255,0.55)' }}>
-                  {de ? 'Wachs' : 'Wax'}
-                </span>
-                <AnimatedNumber value={waxCost} suffix=" €" className="text-[13px] font-bold text-white tabular-nums" />
-              </div>
-              <AnimatedBar pct={waxBarPct} color="rgba(255,255,255,0.6)" delay={0} />
-            </div>
-            <div>
-              <div className="flex justify-between items-baseline mb-1.5">
-                <span className="text-[12px]" style={{ color: 'rgba(255,255,255,0.28)' }}>
-                  {de ? 'Kettenöl' : 'Chain oil'}
-                </span>
-                <AnimatedNumber
-                  value={oilCost}
-                  suffix=" €"
-                  className="text-[13px] font-bold tabular-nums line-through"
-                  style={{ color: 'rgba(255,255,255,0.28)', textDecorationColor: 'rgba(255,255,255,0.15)' }}
-                />
-              </div>
-              <AnimatedBar pct={100} color="rgba(255,255,255,0.14)" delay={150} />
-            </div>
-          </div>
-          <div
-            className="rounded-lg p-4 text-center"
-            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+
+        {SEP}
+
+        {/* ── Savings hero ──────────────────────────────────────────── */}
+        <div className="px-6 py-5 text-center">
+          <p
+            className="text-[9px] uppercase tracking-[0.22em] mb-4"
+            style={{ color: 'rgba(255,255,255,0.28)' }}
           >
-            <p className="text-[11px] uppercase tracking-[0.14em] mb-1.5" style={{ color: 'rgba(255,255,255,0.32)' }}>
-              {de ? 'Deine Ersparnis' : 'Your savings'}
-            </p>
+            {de
+              ? `Kostenvergleich · ${km.toLocaleString('de-DE')} km`
+              : `Cost comparison · ${km.toLocaleString('en-US')} km`}
+          </p>
+          <div className="flex items-baseline justify-center gap-3 mb-2">
             <AnimatedNumber
               value={savings}
-              prefix="+"
-              suffix=" €"
-              className="text-[38px] font-bold text-white leading-none tracking-tight tabular-nums"
+              prefix="~€"
+              className="font-serif-display italic text-[52px] font-bold leading-none tabular-nums text-white"
             />
-            <p className="text-[12px] mt-1" style={{ color: 'rgba(255,255,255,0.28)' }}>
-              {de ? 'pro Jahr' : 'per year'}
+            <div className="flex flex-col items-start gap-0.5">
+              <span className="text-[15px] font-semibold leading-tight" style={{ color: '#4A72D4' }}>
+                {de ? 'gespart' : 'saved'}
+              </span>
+              <span className="text-[12px] tabular-nums" style={{ color: 'rgba(255,255,255,0.35)' }}>
+                −<AnimatedNumber value={savingsPct} suffix=" %" />
+              </span>
+            </div>
+          </div>
+          <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.28)' }}>
+            {de
+              ? 'gegenüber Kettenöl auf gleicher Strecke'
+              : 'vs. chain oil over the same distance'}
+          </p>
+        </div>
+
+        {SEP}
+
+        {/* ── Comparison cards ──────────────────────────────────────── */}
+        <div className="grid grid-cols-2 gap-2.5 px-6 py-4">
+          {/* Oil */}
+          <div
+            className="rounded-xl p-4 text-center"
+            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}
+          >
+            <p className="text-[9px] uppercase tracking-[0.2em] mb-3" style={{ color: 'rgba(255,255,255,0.28)' }}>
+              {de ? 'Mit Öl' : 'With Oil'}
+            </p>
+            <AnimatedNumber
+              value={oilTotal}
+              prefix="~€"
+              className="text-[30px] font-bold leading-none tabular-nums"
+              style={{ color: 'rgba(255,255,255,0.55)' }}
+            />
+            <p className="text-[11px] mt-2" style={{ color: 'rgba(255,255,255,0.28)' }}>
+              {chainLabel(oilChains)}
             </p>
           </div>
-        </ResultBox>
+          {/* Wax */}
+          <div
+            className="rounded-xl p-4 text-center"
+            style={{ background: 'rgba(43,82,176,0.09)', border: '1px solid rgba(43,82,176,0.32)' }}
+          >
+            <p className="text-[9px] uppercase tracking-[0.2em] mb-3 font-semibold" style={{ color: '#3D67CA' }}>
+              Wax
+            </p>
+            <AnimatedNumber
+              value={waxTotal}
+              prefix="~€"
+              className="text-[30px] font-bold leading-none tabular-nums"
+              style={{ color: '#4A72D4' }}
+            />
+            <p className="text-[11px] mt-2" style={{ color: '#3D67CA' }}>
+              {chainLabel(waxChains)}
+            </p>
+          </div>
+        </div>
+
+        {SEP}
+
+        {/* ── Breakdown table — two columns with vertical separator ─── */}
+        <div className="flex gap-3 px-6 py-4 flex-1">
+
+          {/* Oil column */}
+          <div className="flex-1 space-y-2">
+            <p className="text-[9px] uppercase tracking-[0.18em] mb-2.5" style={{ color: 'rgba(255,255,255,0.28)' }}>
+              {de ? 'Mit Öl' : 'With Oil'}
+            </p>
+            <div className="flex justify-between text-[11px]">
+              <span style={{ color: 'rgba(255,255,255,0.40)' }}>
+                {chainLabel(oilChains)} × €{CHAIN_PRICE}
+              </span>
+              <span style={{ color: 'rgba(255,255,255,0.48)' }}>€{oilChains * CHAIN_PRICE}</span>
+            </div>
+            <div className="flex justify-between text-[11px]">
+              <span style={{ color: 'rgba(255,255,255,0.40)' }}>
+                {de
+                  ? `Öl · ${Math.round(km / 1000)}× à €1,10`
+                  : `Oil · ${Math.round(km / 1000)}× at €1.10`}
+              </span>
+              <span style={{ color: 'rgba(255,255,255,0.48)' }}>€{oilLube}</span>
+            </div>
+            <div
+              className="flex justify-between text-[11px] pt-1.5"
+              style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}
+            >
+              <span style={{ color: 'rgba(255,255,255,0.55)', fontWeight: 500 }}>
+                {de ? 'Gesamt' : 'Total'}
+              </span>
+              <span style={{ color: 'rgba(255,255,255,0.55)', fontWeight: 500 }}>~€{oilTotal}</span>
+            </div>
+          </div>
+
+          {/* Vertical divider */}
+          <div style={{ width: 1, background: 'rgba(255,255,255,0.07)', flexShrink: 0 }} />
+
+          {/* Wax column */}
+          <div className="flex-1 space-y-2">
+            <p className="text-[9px] uppercase tracking-[0.18em] mb-2.5 font-semibold" style={{ color: '#3D67CA' }}>
+              {de ? 'Mit Waxcelerate' : 'With Waxcelerate'}
+            </p>
+            <div className="flex justify-between text-[11px]">
+              <span style={{ color: 'rgba(255,255,255,0.40)' }}>
+                {chainLabel(waxChains)} × €{CHAIN_PRICE}
+              </span>
+              <span style={{ color: '#4A72D4' }}>€{waxChains * CHAIN_PRICE}</span>
+            </div>
+            <div className="flex justify-between text-[11px]">
+              <span style={{ color: 'rgba(255,255,255,0.40)' }}>
+                {de
+                  ? `500g Block (~${waxChains * 20} Anw.)`
+                  : `500g block (~${waxChains * 20} apps)`}
+              </span>
+              <span style={{ color: '#4A72D4' }}>€{waxBlockCost}</span>
+            </div>
+            <div
+              className="flex justify-between text-[11px] pt-1.5"
+              style={{ borderTop: '1px solid rgba(43,82,176,0.20)' }}
+            >
+              <span style={{ color: '#4A72D4', fontWeight: 500 }}>
+                {de ? 'Gesamt' : 'Total'}
+              </span>
+              <span style={{ color: '#4A72D4', fontWeight: 500 }}>~€{waxTotal}</span>
+            </div>
+          </div>
+        </div>
+
       </div>
     </ToolCard>
   );
