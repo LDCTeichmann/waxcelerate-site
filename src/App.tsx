@@ -101,10 +101,10 @@ function AppContent() {
               <Hero />
               <Conviction />
               <WhyWax />
-              <About />
               <Reviews />
               <Products />
               <Tools />
+              <About />
               <Guides />
               <FAQ />
               <Contact />

@@ -127,7 +127,7 @@ export function Hero() {
     <section
       id="home"
       className="grain relative overflow-hidden"
-      style={{ minHeight: '100dvh', background: '#06060f', contain: 'paint' }}
+      style={{ minHeight: '100dvh', background: '#0A0A0A', contain: 'paint' }}
     >
 
       {/* ── Background image ────────────────────────────────────────────────── */}
@@ -149,12 +149,12 @@ export function Hero() {
         {/* Horizontal fade — blends into the dark left side */}
         <div
           className="absolute inset-0"
-          style={{ background: 'linear-gradient(to right, #06060f 0%, rgba(6,6,15,0.18) 40%, transparent 70%)' }}
+          style={{ background: 'linear-gradient(to right, #0A0A0A 0%, rgba(10,10,10,0.18) 40%, transparent 70%)' }}
         />
         {/* Vertical fades — top & bottom */}
         <div
           className="absolute inset-0"
-          style={{ background: 'linear-gradient(to bottom, rgba(6,6,15,0.65) 0%, transparent 22%, transparent 72%, rgba(6,6,15,0.9) 100%)' }}
+          style={{ background: 'linear-gradient(to bottom, rgba(10,10,10,0.65) 0%, transparent 22%, transparent 72%, rgba(10,10,10,0.9) 100%)' }}
         />
       </div>
 
@@ -172,7 +172,7 @@ export function Hero() {
         {/* Bottom fade so text on left stays readable */}
         <div
           className="absolute inset-0"
-          style={{ background: 'linear-gradient(to right, rgba(6,6,15,0.70) 0%, rgba(6,6,15,0.30) 60%, transparent 100%)' }}
+          style={{ background: 'linear-gradient(to right, rgba(10,10,10,0.70) 0%, rgba(10,10,10,0.30) 60%, transparent 100%)' }}
         />
       </div>
 
@@ -200,9 +200,9 @@ export function Hero() {
             {/* Category label */}
             <p
               className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-semibold mb-6"
-              style={{ color: 'rgba(255,255,255,0.28)' }}
+              style={{ color: 'rgba(255,255,255,0.45)' }}
             >
-              {de ? 'Kleine Chargen · Stuttgart' : 'Small Batches · Stuttgart'}
+              {`${t.hero.subtitle} · Stuttgart`}
             </p>
 
             {/* Pill */}
@@ -275,7 +275,7 @@ export function Hero() {
                   {t.hero.priceAnchor}
                 </span>
               </div>
-              <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.38)' }}>
+              <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.72)' }}>
                 {t.hero.guarantee}
               </p>
               <button

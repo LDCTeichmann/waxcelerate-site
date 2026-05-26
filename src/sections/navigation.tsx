@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Menu, X, Sun, Moon, Star } from 'lucide-react';
+import { Menu, X, Sun, Moon } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
 import { CartIcon } from '@/components/CartIcon';
@@ -25,13 +25,11 @@ export function Navigation({ onLogoClick }: NavigationProps) {
   const { t, lang, toggleLang } = useLanguage();
   const { theme, setTheme } = useTheme();
   const de = lang === 'de';
-  const nextTheme = theme === 'light' ? 'dark' : theme === 'dark' ? 'noir' : 'light';
-  const ThemeIcon = theme === 'light' ? Moon : theme === 'dark' ? Star : Sun;
-  const themeLabel = theme === 'light'
-    ? (de ? 'Dunkelmodus' : 'Dark mode')
-    : theme === 'dark'
-    ? 'Noir'
-    : (de ? 'Hellmodus' : 'Light mode');
+  const nextTheme = theme === 'noir' ? 'light' : 'noir';
+  const ThemeIcon = theme === 'noir' ? Sun : Moon;
+  const themeLabel = theme === 'noir'
+    ? (de ? 'Hellmodus' : 'Light mode')
+    : (de ? 'Dunkelmodus (Noir)' : 'Dark mode (Noir)');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -132,7 +130,7 @@ export function Navigation({ onLogoClick }: NavigationProps) {
                 src="/images/logo.jpg"
                 alt="Waxcelerate"
                 className="w-auto rounded-lg"
-                style={{ height: '36px', width: 'auto' }}
+                style={{ height: '36px', width: 'auto', mixBlendMode: 'screen' }}
               />
               <span className="font-display text-sm font-bold tracking-wide text-wx-tx1">
                 WAXCELERATE
@@ -186,7 +184,7 @@ export function Navigation({ onLogoClick }: NavigationProps) {
               >
                 <ThemeIcon className="h-4 w-4" />
                 <span className="text-[11px] font-medium" style={{ opacity: 0.55 }}>
-                  {theme === 'light' ? 'Light' : theme === 'dark' ? 'Dark' : 'Noir'}
+                  {theme === 'noir' ? 'Noir' : 'Light'}
                 </span>
               </button>
 
@@ -241,7 +239,7 @@ export function Navigation({ onLogoClick }: NavigationProps) {
       >
         {/* Top bar */}
         <div className="flex items-center justify-between px-5 h-16 border-b border-wx-bd/20 flex-shrink-0">
-          <img src="/images/logo.jpg" alt="Waxcelerate" className="h-9 w-auto rounded-lg" />
+          <img src="/images/logo.jpg" alt="Waxcelerate" className="h-9 w-auto rounded-lg" style={{ mixBlendMode: 'screen' }} />
           <button
             onClick={() => setIsMobileMenuOpen(false)}
             className="p-2 text-wx-tx2 hover:text-wx-tx1 transition-colors"

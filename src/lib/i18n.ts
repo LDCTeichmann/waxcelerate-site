@@ -15,10 +15,10 @@ export const translations = {
     // Hero
     hero: {
       subtitle: 'Heißwachs für Fahrradketten',
-      headline: 'Dreimal längere Kette.',
-      headlineSub: 'Kein Öl mehr.',
-      tagline: 'Kein Dreck. Kein Nachschmieren. 168 Bewertungen, 100 % positiv auf eBay.',
-      priceAnchor: 'Ab €22,95',
+      headline: 'Am Ende der Recherche.',
+      headlineSub: 'Waxcelerate.',
+      tagline: 'Dreimal längere Kette. Kein Dreck. Kein Nachschmieren. 168 Bewertungen, 100 % positiv auf eBay.',
+      priceAnchor: 'Ab €22,95 · ~€70 gespart auf 12.000 km',
       guarantee: 'Nicht zufrieden? Schreib mir — ich sorge dafür, dass es stimmt.',
       ctaBuy: 'Jetzt bestellen',
       ctaSecondary: 'Wie funktioniert Heißwachs? →',
@@ -163,7 +163,7 @@ export const translations = {
 
     // FAQ
     faq: {
-      eyebrow: 'Support',
+      eyebrow: 'Aus der Praxis',
       title: 'Häufige Fragen',
       subtitle: 'Echte Antworten — aus Kundengesprächen, Praxiserfahrung und dem, was die Forschung dazu sagt.',
       contactCta: 'Frage nicht dabei?',
@@ -263,8 +263,8 @@ export const translations = {
     // About
     about: {
       title: 'Luca Teichmann',
-      bio1: 'Ich bin Luca Teichmann — Waxcelerate ist nicht am Schreibtisch entstanden, sondern auf nassen Herbststraßen, bei Ausfahrten tief im Winter und nach Sommerrennen, bei denen Staub und Hitze zeigen, was ein Wachs wirklich kann.',
-      bio2: 'Der Anspruch war von Anfang an konkret: kein Wachs, das im ersten Eindruck überzeugt und nach drei Wochen Kompromisse zeigt. Sondern eines, das seine Arbeit still tut, bei Kälte genauso wie im Hochsommer, über kurze Ausfahrten genauso wie über lange Intervalle. Nicht jede Charge war sofort richtig. Aber jede war näher dran.',
+      bio1: 'Ich bin Luca Teichmann — Medizinstudent in Stuttgart und 2025 von eBay auf ihr Seller-Leadership-Event in San Jose eingeladen. Waxcelerate ist nicht am Schreibtisch entstanden, sondern auf nassen Herbststraßen, bei Ausfahrten tief im Winter und nach Sommerrennen, bei denen Staub und Hitze zeigen, was ein Wachs wirklich kann.',
+      bio2: 'Als Medizinstudent war die Frage nach der Zusammensetzung nicht akademisch — jede Komponente wurde auf Verträglichkeit, Stabilität und Effizienz geprüft, bevor das erste Batch entstanden ist. Der Anspruch: kein Wachs, das im ersten Eindruck überzeugt und nach drei Wochen Kompromisse zeigt. Nicht jede Charge war sofort richtig. Aber jede war näher dran.',
       bio3: 'Das Ergebnis wird in kleinen Chargen in Stuttgart entwickelt und gefertigt, für Fahrer, die beim Antrieb kein Versprechen brauchen, sondern ein Produkt, das sich seine Überzeugungskraft auf der Straße verdient hat.',
       location: 'Stuttgart, Deutschland',
       email: 'waxcelerate@gmail.com',
@@ -346,10 +346,10 @@ export const translations = {
     // Hero
     hero: {
       subtitle: 'Hot Wax for Bicycle Chains',
-      headline: '3× longer chain life.',
-      headlineSub: 'No more oil.',
-      tagline: 'No grime. No re-lubing. 168 reviews — 100 % positive on eBay.',
-      priceAnchor: 'From €22.95',
+      headline: 'At the end of the research.',
+      headlineSub: 'Waxcelerate.',
+      tagline: '3× longer chain life. No grime. No re-lubing. 168 reviews — 100 % positive on eBay.',
+      priceAnchor: 'From €22.95 · ~€70 saved over 12,000 km',
       guarantee: "Not happy? Write me — I'll make it right.",
       ctaBuy: 'Buy now',
       ctaSecondary: 'How does hot wax work? →',
@@ -494,7 +494,7 @@ export const translations = {
 
     // FAQ
     faq: {
-      eyebrow: 'Support',
+      eyebrow: 'From experience',
       title: 'FAQ',
       subtitle: 'Real answers — drawn from customer conversations, hands-on experience, and what the research actually says.',
       contactCta: 'Not finding what you need?',
@@ -594,8 +594,8 @@ export const translations = {
     // About
     about: {
       title: 'Luca Teichmann',
-      bio1: "I'm Luca Teichmann — Waxcelerate wasn't born at a desk — it came from wet autumn roads, deep winter rides, and summer races where dust and heat reveal what a wax is really made of.",
-      bio2: "The goal was concrete from the start: not a wax that impresses on first contact and starts making compromises after three weeks. But one that does its work quietly — in the cold just as well as in midsummer, on short rides just as well as long intervals. Not every batch was right straight away. But each one was closer.",
+      bio1: "I'm Luca Teichmann — medical student in Stuttgart, invited by eBay to their Seller Leadership Event in San Jose in 2025. Waxcelerate wasn't born at a desk — it came from wet autumn roads, deep winter rides, and summer races where dust and heat reveal what a wax is really made of.",
+      bio2: "As a medical student, the question of composition wasn't academic — every ingredient was evaluated for safety, stability, and efficiency before the first batch was made. The goal: not a wax that impresses on first contact and makes compromises after three weeks. Not every batch was right straight away. But each one was closer.",
       bio3: "The result is developed and produced in small batches in Stuttgart, for riders who don't need a promise about their drivetrain — just a product that earns its reputation on the road.",
       location: 'Stuttgart, Germany',
       email: 'waxcelerate@gmail.com',

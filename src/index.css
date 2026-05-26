@@ -56,48 +56,6 @@
     --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
-  /* ── Dark mode ── */
-  .dark {
-    --pg:        #090909;
-    --sf:        #111117;
-    --sf2:       #18181E;
-    --sf3:       #0C0C12;
-    --tx1:       #FFFFFF;
-    --tx2:       #8896B0;
-    --txm:       #6B7088;
-    --txf:       #4A4A62;
-    --txff:      #3A3A52;
-    --bd:        #22222E;
-    --bd2:       #1A1A28;
-    --card-from: #191c24;
-    --card-to:   #111318;
-    --card-to-rgb: 17,19,24;
-    --card-shad: 0 8px 32px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.03);
-    --nav-bg:    rgba(9,9,9,0.9);
-    --tool-bg:   #06060A;
-    --card-shadow-hover: 0 8px 24px rgba(0,0,0,0.50), 0 24px 64px rgba(0,0,0,0.60), 0 0 0 1px rgba(43,82,176,0.20);
-
-    --background: 0 0% 3.5%;
-    --foreground: 240 10% 96%;
-    --card: 240 8% 7%;
-    --card-foreground: 240 10% 96%;
-    --popover: 240 8% 7%;
-    --popover-foreground: 240 10% 96%;
-    --primary: 222 61% 43%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 240 8% 10%;
-    --secondary-foreground: 240 10% 96%;
-    --muted: 240 8% 10%;
-    --muted-foreground: 225 12% 55%;
-    --accent: 240 8% 12%;
-    --accent-foreground: 240 10% 96%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 240 10% 16%;
-    --input: 240 10% 16%;
-    --ring: 222 61% 43%;
-  }
-
   /* ── Noir mode — zinc-950 neutral blacks, 2026 dark-first ── */
   .noir {
     /* Zinc-tinted neutrals — no blue undertone */
@@ -169,10 +127,10 @@
 }
 
 /* Light mode only: force headings dark */
-:root:not(.dark):not(.noir) h1,
-:root:not(.dark):not(.noir) h2,
-:root:not(.dark):not(.noir) h3,
-:root:not(.dark):not(.noir) h4 {
+:root:not(.noir) h1,
+:root:not(.noir) h2,
+:root:not(.noir) h3,
+:root:not(.noir) h4 {
   color: var(--tx1) !important;
 }
 
@@ -228,7 +186,6 @@
   background-size: 28px 28px;
 }
 
-.dark .chain-texture,
 .noir .chain-texture {
   background-image:
     linear-gradient(45deg,  rgba(255,255,255,0.04) 1px, transparent 1px),
