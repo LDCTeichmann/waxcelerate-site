@@ -69,7 +69,7 @@ function TogButton({
   return (
     <button
       onClick={onClick}
-      className="px-3.5 py-1.5 rounded-lg text-[13px] transition-all cursor-pointer"
+      className="px-4 py-2 rounded-xl text-[13px] transition-all cursor-pointer"
       style={{
         border: `1px solid ${active ? 'rgba(59,100,210,0.55)' : 'var(--tog-bd)'}`,
         background: active
@@ -89,7 +89,7 @@ function TogButton({
 function ToolCard({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="flex flex-col h-full rounded-2xl"
+      className="flex flex-col h-full rounded-3xl"
       style={{
         background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
         border: '1px solid var(--bd)',
@@ -154,10 +154,26 @@ function FieldLabel({ label, value }: { label: string; value?: string }) {
 function ResultBox({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="rounded-xl p-5"
+      className="rounded-2xl p-5"
       style={{
         background: 'var(--inset-bg)',
         border: '1px solid var(--inset-bd)',
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+// ─── Step reveal wrapper — dims inactive inputs ───────────────────────────────
+function StepSection({ active, children }: { active: boolean; children: React.ReactNode }) {
+  return (
+    <div
+      style={{
+        opacity: active ? 1 : 0.2,
+        transform: active ? 'translateY(0)' : 'translateY(6px)',
+        transition: 'opacity 500ms cubic-bezier(0.16,1,0.3,1), transform 500ms cubic-bezier(0.16,1,0.3,1)',
+        pointerEvents: active ? 'auto' : 'none',
       }}
     >
       {children}
@@ -172,6 +188,7 @@ function RewaxCalculator() {
   const [weather, setWeather] = useState<'trocken' | 'gemischt' | 'nass'>('trocken');
   const [terrain, setTerrain] = useState<'strasse' | 'gravel' | 'mtb'>('strasse');
   const [kmPerWeek, setKmPerWeek] = useState(100);
+  const [phase, setPhase] = useState(1);
 
   const MAX_REWAX_WEEKS = 26;
 
@@ -206,56 +223,74 @@ function RewaxCalculator() {
       />
       <div className="px-6 pb-6 flex flex-col flex-1 gap-5">
         <div className="space-y-5 flex-1">
+          {/* Step 1: Weather — always active */}
           <div>
             <FieldLabel label={t.tools.rewax.weather} />
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap gap-2">
               {weatherOpts.map(o => (
-                <TogButton key={o.value} active={weather === o.value} onClick={() => setWeather(o.value)}>
+                <TogButton key={o.value} active={weather === o.value} onClick={() => {
+                  setWeather(o.value);
+                  setPhase(p => Math.max(p, 2));
+                }}>
                   {o.label}
                 </TogButton>
               ))}
             </div>
           </div>
-          <div>
-            <FieldLabel label={t.tools.rewax.terrain} />
-            <div className="flex flex-wrap gap-1.5">
-              {terrainOpts.map(o => (
-                <TogButton key={o.value} active={terrain === o.value} onClick={() => setTerrain(o.value)}>
-                  {o.label}
-                </TogButton>
-              ))}
+
+          {/* Step 2: Terrain — reveals after weather click */}
+          <StepSection active={phase >= 2}>
+            <div>
+              <FieldLabel label={t.tools.rewax.terrain} />
+              <div className="flex flex-wrap gap-2">
+                {terrainOpts.map(o => (
+                  <TogButton key={o.value} active={terrain === o.value} onClick={() => {
+                    setTerrain(o.value);
+                    setPhase(p => Math.max(p, 3));
+                  }}>
+                    {o.label}
+                  </TogButton>
+                ))}
+              </div>
             </div>
-          </div>
-          <div>
-            <FieldLabel label={t.tools.rewax.kmPerWeek} value={`${kmPerWeek} km`} />
-            <Slider
-              value={[kmPerWeek]}
-              onValueChange={v => setKmPerWeek(v[0])}
-              min={20} max={400} step={10}
-              className="py-1"
-            />
-          </div>
+          </StepSection>
+
+          {/* Step 3: KM/week — reveals after terrain click */}
+          <StepSection active={phase >= 3}>
+            <div>
+              <FieldLabel label={t.tools.rewax.kmPerWeek} value={`${kmPerWeek} km`} />
+              <Slider
+                value={[kmPerWeek]}
+                onValueChange={v => setKmPerWeek(v[0])}
+                min={20} max={400} step={10}
+                className="py-1"
+              />
+            </div>
+          </StepSection>
         </div>
 
-        <ResultBox>
-          <p className="text-[46px] font-bold text-center leading-none tabular-nums" style={{ color: 'var(--tx1)' }}>
-            <AnimatedNumber value={weeks} />
-          </p>
-          <p className="text-[13px] text-center mt-1.5" style={{ color: 'var(--txf)' }}>
-            {weeks === 1 ? (de ? 'Woche' : 'week') : (de ? 'Wochen' : 'weeks')}{' '}
-            {de ? 'bis zum nächsten Rewaxen' : 'until next rewax'}
-            {weeksCapped && <span style={{ color: 'var(--txff)' }}> (max.)</span>}
-          </p>
-          <p className="text-[12px] text-center mt-0.5" style={{ color: 'var(--txff)' }}>
-            {interval} km · {de ? `bei ${kmPerWeek} km/Wo.` : `at ${kmPerWeek} km/wk`}
-          </p>
-          <p
-            className="text-[11px] text-center mt-3 pt-3 leading-snug"
-            style={{ borderTop: '1px solid var(--inset-bd)', color: 'var(--txff)' }}
-          >
-            {hint}
-          </p>
-        </ResultBox>
+        {/* Result — reveals with the km slider */}
+        <StepSection active={phase >= 3}>
+          <ResultBox>
+            <p className="text-[46px] font-bold text-center leading-none tabular-nums" style={{ color: 'var(--tx1)' }}>
+              <AnimatedNumber value={weeks} />
+            </p>
+            <p className="text-[13px] text-center mt-1.5" style={{ color: 'var(--tx2)' }}>
+              {weeks === 1 ? (de ? 'Woche' : 'week') : (de ? 'Wochen' : 'weeks')}{' '}
+              {de ? 'bis zum nächsten Rewaxen' : 'until next rewax'}
+              {weeksCapped && <span style={{ color: 'var(--txm)' }}> (max.)</span>}
+            </p>
+            <p className="text-[12px] text-center mt-0.5" style={{ color: 'var(--txm)' }}>
+              {interval} km · {de ? `bei ${kmPerWeek} km/Wo.` : `at ${kmPerWeek} km/wk`}
+            </p>
+            <p
+              className="text-[11px] text-center mt-3 pt-3 leading-snug"
+              style={{ borderTop: '1px solid var(--inset-bd)', color: 'var(--txf)' }}
+            >
+              {hint}
+            </p>
+          </ResultBox>
+        </StepSection>
       </div>
     </ToolCard>
   );
@@ -269,6 +304,7 @@ function WaxStockCalculator() {
   const [kmPerMonth, setKmPerMonth] = useState(400);
   const [weather, setWeather] = useState<'trocken' | 'gemischt' | 'nass'>('gemischt');
   const [terrain, setTerrain] = useState<'strasse' | 'gravel' | 'mtb'>('strasse');
+  const [phase, setPhase] = useState(1);
 
   const WAX_GRAMS_PER_APP = 15;
   const MAX_MONTHS = 30;
@@ -305,36 +341,54 @@ function WaxStockCalculator() {
       />
       <div className="px-6 flex flex-col flex-1 gap-5 pb-6">
         <div className="space-y-5 flex-1">
+          {/* Step 1: Weather — always active */}
           <div>
             <FieldLabel label={t.tools.stock.weather} />
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap gap-2">
               {weatherOpts.map(o => (
-                <TogButton key={o.value} active={weather === o.value} onClick={() => setWeather(o.value)}>
+                <TogButton key={o.value} active={weather === o.value} onClick={() => {
+                  setWeather(o.value);
+                  setPhase(p => Math.max(p, 2));
+                }}>
                   {o.label}
                 </TogButton>
               ))}
             </div>
           </div>
-          <div>
-            <FieldLabel label={de ? 'Gelände' : 'Terrain'} />
-            <div className="flex flex-wrap gap-1.5">
-              {terrainOpts.map(o => (
-                <TogButton key={o.value} active={terrain === o.value} onClick={() => setTerrain(o.value)}>
-                  {o.label}
-                </TogButton>
-              ))}
+
+          {/* Step 2: Terrain — reveals after weather click */}
+          <StepSection active={phase >= 2}>
+            <div>
+              <FieldLabel label={de ? 'Gelände' : 'Terrain'} />
+              <div className="flex flex-wrap gap-2">
+                {terrainOpts.map(o => (
+                  <TogButton key={o.value} active={terrain === o.value} onClick={() => {
+                    setTerrain(o.value);
+                    setPhase(p => Math.max(p, 3));
+                  }}>
+                    {o.label}
+                  </TogButton>
+                ))}
+              </div>
             </div>
-          </div>
-          <div>
-            <FieldLabel label={t.tools.stock.chainCount} value={`${chainCount}`} />
-            <Slider value={[chainCount]} onValueChange={v => setChainCount(v[0])} min={1} max={4} step={1} className="py-1" />
-          </div>
-          <div>
-            <FieldLabel label={t.tools.stock.kmPerMonth} value={`${kmPerMonth} km`} />
-            <Slider value={[kmPerMonth]} onValueChange={v => setKmPerMonth(v[0])} min={50} max={1200} step={50} className="py-1" />
-          </div>
+          </StepSection>
+
+          {/* Step 3: Sliders — reveal after terrain click */}
+          <StepSection active={phase >= 3}>
+            <div className="space-y-5">
+              <div>
+                <FieldLabel label={t.tools.stock.chainCount} value={`${chainCount}`} />
+                <Slider value={[chainCount]} onValueChange={v => setChainCount(v[0])} min={1} max={4} step={1} className="py-1" />
+              </div>
+              <div>
+                <FieldLabel label={t.tools.stock.kmPerMonth} value={`${kmPerMonth} km`} />
+                <Slider value={[kmPerMonth]} onValueChange={v => setKmPerMonth(v[0])} min={50} max={1200} step={50} className="py-1" />
+              </div>
+            </div>
+          </StepSection>
         </div>
 
+        <StepSection active={phase >= 3}>
         <ResultBox>
           {tooLittle ? (
             <>
@@ -404,6 +458,7 @@ function WaxStockCalculator() {
             </>
           )}
         </ResultBox>
+        </StepSection>
       </div>
     </ToolCard>
   );
@@ -1003,8 +1058,6 @@ export function Tools() {
               height: DECK_HEIGHT,
               overflow: 'hidden',
               background: 'radial-gradient(ellipse 55% 60% at 50% 50%, rgba(43,82,176,0.07) 0%, transparent 70%)',
-              maskImage: 'linear-gradient(to right, transparent 0%, black 100px, black calc(100% - 100px), transparent 100%)',
-              WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 100px, black calc(100% - 100px), transparent 100%)',
             }}
           >
             {([cardRef0, cardRef1, cardRef2, cardRef3] as const).map((ref, i) => (
@@ -1031,7 +1084,7 @@ export function Tools() {
                 {/* Inactive overlay: blur + dark tint — frosted glass effect */}
                 {i !== activeCard && (
                   <div
-                    className="absolute inset-0 rounded-2xl cursor-pointer"
+                    className="absolute inset-0 rounded-3xl cursor-pointer"
                     style={{
                       background: 'rgba(4,4,10,0.18)',
                       zIndex: 25,
@@ -1044,6 +1097,16 @@ export function Tools() {
                 )}
               </div>
             ))}
+
+            {/* Left + right edge fades — blend into section background cleanly */}
+            <div
+              className="absolute inset-y-0 left-0 pointer-events-none"
+              style={{ width: 220, zIndex: 50, background: 'linear-gradient(to right, var(--tool-bg) 20%, transparent 100%)' }}
+            />
+            <div
+              className="absolute inset-y-0 right-0 pointer-events-none"
+              style={{ width: 220, zIndex: 50, background: 'linear-gradient(to left, var(--tool-bg) 20%, transparent 100%)' }}
+            />
           </div>
 
           {/* Dot + label indicator — desktop only, synced to activeCard */}

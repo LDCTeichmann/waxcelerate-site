@@ -13,8 +13,8 @@
     --tx1:       #0A0A14;
     --tx2:       #4A5068;
     --txm:       #6E7288;
-    --txf:       #9898B0;
-    --txff:      #B8B8CC;
+    --txf:       #6C6C88;
+    --txff:      #8080A0;
     --bd:        #D8D8E0;
     --bd2:       #E8E8EE;
     --card-from: #FFFFFF;
@@ -73,8 +73,8 @@
     --tx1:       #FAFAFA;    /* off-white — easier on eyes than pure white */
     --tx2:       #A1A1AA;    /* zinc-400 — 7.2:1 contrast */
     --txm:       #71717A;    /* zinc-500 — 4.6:1 contrast */
-    --txf:       #52525B;    /* zinc-600 */
-    --txff:      #3F3F46;    /* zinc-700 */
+    --txf:       #72727E;
+    --txff:      #5A5A66;
     --bd:        #27272A;    /* zinc-800 — subtle neutral border */
     --bd2:       #18181B;    /* zinc-900 — deeper border */
     --card-from: #17171A;    /* card top — neutral, no blue */
