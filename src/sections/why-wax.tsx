@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState } from 'react';
-import { Shield, Snowflake, Droplets, Sun, TrendingDown, BarChart2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Shield, Snowflake, Droplets, Sun, TrendingDown, BarChart2, FlaskConical, ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useSectionReveal } from '@/hooks/useAnimation';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
@@ -108,7 +109,7 @@ export function WhyWax() {
           </div>
 
           {/* ── 6-card uniform grid ── */}
-          <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-16">
+          <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
 
             {/* ── Card 1: Cost savings (collapsible) ── */}
             <div
@@ -309,6 +310,42 @@ export function WhyWax() {
             </div>
 
           </div>
+
+          {/* ── Science entry card ── */}
+          <Link
+            to="/wissenschaft"
+            className="group flex items-center justify-between gap-4 rounded-xl border border-wx-bd p-5 transition-all duration-200 hover:border-blue-700"
+            style={{
+              background: 'linear-gradient(135deg, rgba(26,48,128,0.08) 0%, rgba(43,82,176,0.04) 100%)',
+              boxShadow: '0 0 0 0 rgba(43,82,176,0)',
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 0 0 1px rgba(43,82,176,0.25)'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 0 0 0 rgba(43,82,176,0)'; }}
+          >
+            <div className="flex items-center gap-4 min-w-0">
+              <div
+                className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+                style={{ background: 'rgba(43,82,176,0.12)', boxShadow: '0 0 0 1px rgba(43,82,176,0.2)' }}
+              >
+                <FlaskConical className="w-4 h-4" style={{ color: '#4A72D4' }} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] font-medium uppercase tracking-[0.2em] mb-0.5" style={{ color: '#3D67CA' }}>
+                  {de ? 'Formulierungsdokumentation' : 'Formulation Documentation'}
+                </p>
+                <p className="text-[13px] font-semibold text-wx-tx1 leading-snug">
+                  {de ? 'Die Wissenschaft hinter der Formel — sechs Komponenten, jede mit einem Grund.' : 'The science behind the formula — six components, each for a reason.'}
+                </p>
+              </div>
+            </div>
+            <div
+              className="flex items-center gap-1.5 flex-shrink-0 text-[12px] font-medium transition-transform duration-200 group-hover:translate-x-1"
+              style={{ color: '#4A72D4' }}
+            >
+              {de ? 'Lesen' : 'Read'}
+              <ArrowRight className="w-3.5 h-3.5" />
+            </div>
+          </Link>
 
         </div>
       </div>
