@@ -6,7 +6,7 @@ export function Conviction() {
 
   const stats = [
     {
-      number: '168',
+      number: '171',
       label: de ? 'Bewertungen' : 'Reviews',
       sub: 'eBay verifiziert',
     },
@@ -36,7 +36,7 @@ export function Conviction() {
               <div
                 key={i}
                 className="flex-1 text-center px-4 py-2"
-                style={i > 0 ? { borderLeft: '1px solid rgba(255,255,255,0.08)' } : {}}
+                style={i > 0 ? { borderLeft: '1px solid var(--bd)' } : {}}
               >
                 <p
                   className="font-display font-bold text-wx-tx1 tabular-nums leading-none"

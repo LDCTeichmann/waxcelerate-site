@@ -7,14 +7,13 @@ import { gsap } from '@/lib/gsap';
 
 export function About() {
   const { t, lang } = useLanguage();
-  const headerRef   = useRef<HTMLDivElement>(null);
-  const portraitRef = useRef<HTMLDivElement>(null);
-  const textRef     = useRef<HTMLDivElement>(null);
-  const bannerRef   = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const textRef   = useRef<HTMLDivElement>(null);
+  const bannerRef = useRef<HTMLDivElement>(null);
   useSectionReveal(headerRef);
 
   useEffect(() => {
-    const els = [portraitRef.current, textRef.current, bannerRef.current].filter(Boolean);
+    const els = [textRef.current, bannerRef.current].filter(Boolean);
     if (!els.length) return;
 
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -24,12 +23,8 @@ export function About() {
 
     gsap.set(els, { opacity: 0, y: 24 });
     const ctx = gsap.context(() => {
-      gsap.to(portraitRef.current, {
-        opacity: 1, y: 0, duration: 0.75, ease: 'power3.out',
-        scrollTrigger: { trigger: portraitRef.current, start: 'top 88%', once: true },
-      });
       gsap.to(textRef.current, {
-        opacity: 1, y: 0, duration: 0.75, ease: 'power3.out', delay: 0.08,
+        opacity: 1, y: 0, duration: 0.75, ease: 'power3.out',
         scrollTrigger: { trigger: textRef.current, start: 'top 88%', once: true },
       });
       gsap.to(bannerRef.current, {
@@ -43,10 +38,10 @@ export function About() {
   const de = lang === 'de';
 
   const stats = [
-    { value: '170+',               label: de ? 'eBay-Bewertungen' : 'eBay reviews'   },
-    { value: '100%',               label: de ? 'Positiv seit 2023' : 'Positive since 2023' },
-    { value: '2024',               label: de ? 'Gegründet'         : 'Founded'        },
-    { value: de ? '1 Tag' : '1 Day', label: de ? 'Versandzeit'    : 'Shipping time'  },
+    { value: '171',                   label: de ? 'eBay-Bewertungen'   : 'eBay reviews'       },
+    { value: '100%',                 label: de ? 'Positiv seit 2023'  : 'Positive since 2023' },
+    { value: '2024',                 label: de ? 'Gegründet'          : 'Founded'             },
+    { value: de ? '1 Tag' : '1 Day', label: de ? 'Versandzeit'       : 'Shipping time'       },
   ];
 
   return (
@@ -55,10 +50,10 @@ export function About() {
         <div className="max-w-5xl mx-auto">
 
           {/* ── Header ─────────────────────────────────────────────────── */}
-          <div ref={headerRef} className="text-center mb-12">
+          <div ref={headerRef} className="text-center mb-10">
             <p
               className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-semibold mb-3"
-              style={{ color: 'rgba(255,255,255,0.38)' }}
+              style={{ color: 'var(--txf)' }}
             >
               {de ? 'Über den Gründer' : 'Founder'}
             </p>
@@ -67,76 +62,49 @@ export function About() {
             </h2>
           </div>
 
-          {/* ── Two-column ─────────────────────────────────────────────── */}
-          <div className="flex flex-col md:flex-row gap-8 lg:gap-12 items-start">
+          {/* ── Bio + stats ─────────────────────────────────────────────── */}
+          <div ref={textRef}>
 
-            {/* Portrait card */}
-            <div ref={portraitRef} className="w-full md:w-[210px] flex-shrink-0">
-              <div
-                className="relative overflow-hidden rounded-2xl w-full"
-                style={{
-                  aspectRatio: '3 / 4',
-                  boxShadow: '0 16px 48px rgba(0,0,0,0.30)',
-                }}
-              >
-                <img
-                  src="/images/luca.jpg"
-                  alt="Luca Teichmann"
-                  className="absolute inset-0 w-full h-full object-cover"
-                  style={{ objectPosition: '50% 8%' }}
-                />
-
-                {/* Bottom name strip */}
-                <div
-                  className="absolute bottom-0 left-0 right-0 px-4 pb-3.5 pt-10 pointer-events-none"
-                  style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.78) 0%, transparent 100%)' }}
-                >
-                  <p className="font-semibold text-white text-[13px] leading-tight">Luca Teichmann</p>
-                  <p className="text-[10.5px] mt-0.5 tracking-[0.03em]" style={{ color: 'rgba(255,255,255,0.52)' }}>
-                    {de ? 'Gründer · Waxcelerate' : 'Founder · Waxcelerate'}
-                  </p>
-                </div>
-              </div>
+            {/* Bio */}
+            <div className="max-w-2xl mx-auto mb-10 space-y-4">
+              <p className="text-[15px] leading-[1.8] text-wx-tx2">{t.about.bio1}</p>
+              <p className="text-[15px] leading-[1.8] text-wx-tx2">{t.about.bio3}</p>
             </div>
 
-            {/* Bio + stats + link */}
-            <div ref={textRef} className="flex-1 min-w-0">
-              {/* Bio — bio1 + bio3 (concise) */}
-              <div className="space-y-4 mb-8">
-                <p className="text-[15px] leading-[1.8] text-wx-tx2">{t.about.bio1}</p>
-                <p className="text-[15px] leading-[1.8] text-wx-tx2">{t.about.bio3}</p>
-              </div>
-
-              {/* 4 stats — 2×2 grid */}
-              <div className="grid grid-cols-2 gap-2.5 mb-6">
+            {/* Stats row — gap-px creates 1px dividers from the container bg */}
+            <div
+              className="rounded-2xl overflow-hidden mb-7"
+              style={{ background: 'var(--bd)', border: '1px solid var(--bd)' }}
+            >
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-px">
                 {stats.map((s, i) => (
                   <div
                     key={i}
-                    className="rounded-xl px-4 py-3.5"
-                    style={{
-                      background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
-                      border: '1px solid var(--bd)',
-                    }}
+                    className="py-7 px-5 text-center"
+                    style={{ background: 'var(--sf2)' }}
                   >
-                    <p className="text-[1.45rem] font-bold leading-none text-wx-tx1 tabular-nums mb-1">
+                    <p
+                      className="font-display font-bold text-wx-tx1 tabular-nums leading-none mb-2"
+                      style={{ fontSize: 'clamp(1.75rem, 4vw, 2.25rem)' }}
+                    >
                       {s.value}
                     </p>
-                    <p className="text-[11px] text-wx-txf leading-snug">{s.label}</p>
+                    <p className="text-[11px] leading-snug" style={{ color: 'var(--txf)' }}>
+                      {s.label}
+                    </p>
                   </div>
                 ))}
               </div>
+            </div>
 
-              {/* Active indicator */}
-              <div className="flex items-center gap-2 mb-6">
+            {/* Active indicator + eBay link */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8">
+              <div className="flex items-center gap-2">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#3D67CA] animate-pulse flex-shrink-0" />
-                <span className="text-[11px] text-wx-txf">
-                  {de
-                    ? 'Aktiv auf eBay · Versand aus Stuttgart'
-                    : 'Active on eBay · Ships from Stuttgart'}
+                <span className="text-[11px]" style={{ color: 'var(--txf)' }}>
+                  {de ? 'Aktiv auf eBay · Versand aus Stuttgart' : 'Active on eBay · Ships from Stuttgart'}
                 </span>
               </div>
-
-              {/* eBay link */}
               <a
                 href="https://www.ebay.de/usr/waxcelerate"
                 target="_blank"
@@ -162,8 +130,8 @@ export function About() {
             className="relative mt-10 rounded-2xl overflow-hidden"
             style={{
               height: '340px',
-              border: '1px solid rgba(255,255,255,0.08)',
-              boxShadow: '0 12px 48px rgba(0,0,0,0.40)',
+              border: '1px solid var(--bd)',
+              boxShadow: '0 12px 48px rgba(0,0,0,0.18)',
             }}
           >
             <img
@@ -172,7 +140,6 @@ export function About() {
               className="absolute inset-0 w-full h-full object-cover"
               style={{ objectPosition: '50% 38%' }}
             />
-            {/* Vignette — left-heavy for caption legibility */}
             <div
               className="absolute inset-0"
               style={{
@@ -181,7 +148,6 @@ export function About() {
                   'linear-gradient(to top, rgba(0,0,0,0.50) 0%, transparent 55%)',
               }}
             />
-            {/* Caption */}
             <div className="absolute bottom-0 left-0 px-6 pb-5">
               <p
                 className="text-[9px] font-semibold uppercase tracking-[0.22em] mb-1"

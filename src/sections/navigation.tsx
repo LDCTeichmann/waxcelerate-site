@@ -130,7 +130,7 @@ export function Navigation({ onLogoClick }: NavigationProps) {
                 src="/images/logo.jpg"
                 alt="Waxcelerate"
                 className="w-auto rounded-lg"
-                style={{ height: '36px', width: 'auto', mixBlendMode: 'screen' }}
+                style={{ height: '36px', width: 'auto', mixBlendMode: theme === 'noir' ? 'screen' : 'normal' }}
               />
               <span className="font-display text-sm font-bold tracking-wide text-wx-tx1">
                 WAXCELERATE
@@ -179,7 +179,7 @@ export function Navigation({ onLogoClick }: NavigationProps) {
               {/* Theme toggle — desktop only; mobile uses bottom panel */}
               <button
                 onClick={() => setTheme(nextTheme)}
-                className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 text-wx-tx2 hover:text-wx-tx1 transition-colors rounded-md hover:bg-white/5"
+                className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 text-wx-tx2 hover:text-wx-tx1 transition-colors rounded-md hover:bg-black/5"
                 aria-label={themeLabel}
               >
                 <ThemeIcon className="h-4 w-4" />
@@ -239,7 +239,7 @@ export function Navigation({ onLogoClick }: NavigationProps) {
       >
         {/* Top bar */}
         <div className="flex items-center justify-between px-5 h-16 border-b border-wx-bd/20 flex-shrink-0">
-          <img src="/images/logo.jpg" alt="Waxcelerate" className="h-9 w-auto rounded-lg" style={{ mixBlendMode: 'screen' }} />
+          <img src="/images/logo.jpg" alt="Waxcelerate" className="h-9 w-auto rounded-lg" style={{ mixBlendMode: theme === 'noir' ? 'screen' : 'normal' }} />
           <button
             onClick={() => setIsMobileMenuOpen(false)}
             className="p-2 text-wx-tx2 hover:text-wx-tx1 transition-colors"

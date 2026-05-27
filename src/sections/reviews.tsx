@@ -32,7 +32,7 @@ const reviews = [
 
 function StarIcon() {
   return (
-    <svg className="h-3.5 w-3.5" viewBox="0 0 20 20" style={{ fill: 'rgba(255,255,255,0.82)' }}>
+    <svg className="h-3.5 w-3.5" viewBox="0 0 20 20" style={{ fill: '#F59E0B' }}>
       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
     </svg>
   );
@@ -71,7 +71,7 @@ export function Reviews() {
             {de ? 'eBay verifiziert · alle Bewertungen echt' : 'eBay verified · all reviews genuine'}
           </p>
           <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-3">
-            {de ? '168 Fahrer. 100 % positiv.' : '168 Riders. 100 % positive.'}
+            {de ? '171 Fahrer. 100 % positiv.' : '171 Riders. 100 % positive.'}
           </h2>
           <p className="text-[15px] text-wx-txm mb-6 max-w-md">
             {de
@@ -79,16 +79,19 @@ export function Reviews() {
               : 'Not a single negative review since 2023 — on a platform where buyers rate anonymously.'}
           </p>
 
-          <div className="flex items-center gap-3 mb-8">
-            <div className="flex items-center gap-1">
+          <div className="flex items-center gap-3 mb-8 flex-wrap">
+            <div className="flex items-center gap-0.5">
               {Array.from({ length: 5 }).map((_, i) => (
-                <svg key={i} className="h-4 w-4" viewBox="0 0 20 20" style={{ fill: 'rgba(255,255,255,0.82)' }}>
+                <svg key={i} className="h-4 w-4" viewBox="0 0 20 20" style={{ fill: '#F59E0B' }}>
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
               ))}
             </div>
-            <span className="text-sm font-semibold text-wx-tx1">168</span>
-            <span className="text-sm text-wx-txm">{de ? '· 100% positive Bewertungen · eBay verifiziert' : '· 100% positive · eBay verified'}</span>
+            <span className="text-sm font-semibold text-wx-tx1">171</span>
+            <span style={{ color: 'var(--bd)' }}>·</span>
+            <span className="text-[13px]" style={{ color: 'var(--txm)' }}>
+              {de ? '326 verkauft' : '326 sold'}
+            </span>
           </div>
 
           <div ref={gridRef} className="grid sm:grid-cols-3 gap-4">
@@ -147,12 +150,12 @@ export function Reviews() {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[13px] font-medium transition-all hover:opacity-85"
               style={{
-                border: '1px solid rgba(255,255,255,0.15)',
-                background: 'rgba(255,255,255,0.05)',
-                color: 'rgba(255,255,255,0.72)',
+                border: '1px solid var(--bd)',
+                background: 'var(--sf2)',
+                color: 'var(--tx2)',
               }}
             >
-              {de ? 'Alle 168 Bewertungen auf eBay ansehen →' : 'See all 168 reviews on eBay →'}
+              {de ? 'Alle 171 Bewertungen auf eBay ansehen →' : 'See all 171 reviews on eBay →'}
             </a>
           </div>
 
