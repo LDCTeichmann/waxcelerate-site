@@ -197,21 +197,10 @@ export function Hero() {
         <div className="w-full lg:w-[52%] flex flex-col items-center lg:items-start justify-center px-6 sm:px-10 lg:pl-16 xl:pl-24 lg:pr-10 pt-24 pb-16">
           <div className="max-w-lg w-full mx-auto lg:mx-0 flex flex-col items-center lg:items-start text-center lg:text-left">
 
-            {/* Category label */}
-            <p
-              className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-semibold mb-6"
-              style={{ color: 'rgba(255,255,255,0.45)' }}
-            >
-              {`${t.hero.subtitle} · Stuttgart`}
-            </p>
-
-            {/* Pill */}
-            <div ref={pillRef} className="mb-10">
+            {/* Pill — social proof */}
+            <div ref={pillRef} className="mb-9">
               <button
-                onClick={() => {
-                  window.dispatchEvent(new CustomEvent('wax:selectTab', { detail: 'chain' }));
-                  scrollToSection('#produkte');
-                }}
+                onClick={() => scrollToSection('#ueber-mich')}
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full border transition-all hover:border-[#3D67CA]/50 cursor-pointer"
                 style={{
                   background: 'rgba(255,255,255,0.05)',
@@ -225,15 +214,15 @@ export function Hero() {
                 />
                 <span className="text-[12px] tracking-wide" style={{ color: 'rgba(255,255,255,0.65)' }}>
                   {de
-                    ? 'Vorgewachste Ketten — sofort einsatzbereit'
-                    : 'Pre-waxed chains — ready to ride instantly'}
+                    ? '168 Bewertungen · 100 % positiv auf eBay'
+                    : '168 reviews · 100 % positive on eBay'}
                 </span>
                 <ArrowRight className="h-3 w-3 flex-shrink-0" style={{ color: '#3D67CA' }} />
               </button>
             </div>
 
             {/* Headline */}
-            <div ref={headRef} className="mb-7">
+            <div ref={headRef} className="mb-6">
               <h1
                 className="font-display font-bold leading-[1.05] tracking-[-0.035em]"
                 style={{ fontSize: 'clamp(2.6rem, 6.5vw, 5.2rem)', color: '#FFFFFF' }}
@@ -253,8 +242,8 @@ export function Hero() {
             {/* Tagline */}
             <p
               ref={taglineRef}
-              className="text-[18px] leading-relaxed mb-10 max-w-xs sm:max-w-sm"
-              style={{ color: 'rgba(255,255,255,0.82)' }}
+              className="text-[17px] leading-relaxed mb-9 max-w-xs sm:max-w-sm"
+              style={{ color: 'rgba(255,255,255,0.78)' }}
             >
               {t.hero.tagline}
             </p>
@@ -275,9 +264,6 @@ export function Hero() {
                   {t.hero.priceAnchor}
                 </span>
               </div>
-              <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.72)' }}>
-                {t.hero.guarantee}
-              </p>
               <button
                 onClick={() => scrollToSection('#warum-wachs')}
                 className="text-sm transition-colors cursor-pointer"

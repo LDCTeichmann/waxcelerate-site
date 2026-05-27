@@ -469,7 +469,7 @@ function CostSavingsCalculator() {
             <AnimatedNumber
               value={savings}
               prefix="~€"
-              className="font-serif-display italic text-[64px] font-bold leading-none tabular-nums text-white"
+              className="font-serif-display italic text-[64px] font-bold leading-none tabular-nums" style={{ color: 'var(--tx1)' }}
             />
             <div className="flex flex-col items-start gap-1">
               <span className="text-[16px] font-semibold leading-tight" style={{ color: '#4A72D4' }}>
@@ -492,9 +492,9 @@ function CostSavingsCalculator() {
             onClick={() => setShowDetails(v => !v)}
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[12px] font-medium transition-all cursor-pointer"
             style={{
-              background: showDetails ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.05)',
-              border: '1px solid rgba(255,255,255,0.12)',
-              color: 'rgba(255,255,255,0.55)',
+              background: 'var(--tog-bg)',
+              border: '1px solid var(--tog-bd)',
+              color: 'var(--tog-fg)',
             }}
           >
             {showDetails
@@ -518,7 +518,7 @@ function CostSavingsCalculator() {
             <div className="grid grid-cols-2 gap-2.5 px-6 py-4">
               <div
                 className="rounded-xl p-4 text-center"
-                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}
+                style={{ background: 'var(--inset-bg)', border: '1px solid var(--inset-bd)' }}
               >
                 <p className="text-[9px] uppercase tracking-[0.2em] mb-3" style={{ color: 'var(--txff)' }}>
                   {de ? 'Mit Öl' : 'With Oil'}
@@ -578,17 +578,17 @@ function CostSavingsCalculator() {
             </div>
             <div
               className="flex justify-between text-[11px] pt-1.5"
-              style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}
+              style={{ borderTop: '1px solid var(--inset-bd)' }}
             >
-              <span style={{ color: 'rgba(255,255,255,0.55)', fontWeight: 500 }}>
+              <span style={{ color: 'var(--txm)', fontWeight: 500 }}>
                 {de ? 'Gesamt' : 'Total'}
               </span>
-              <span style={{ color: 'rgba(255,255,255,0.55)', fontWeight: 500 }}>~€{oilTotal}</span>
+              <span style={{ color: 'var(--txm)', fontWeight: 500 }}>~€{oilTotal}</span>
             </div>
           </div>
 
           {/* Vertical divider */}
-          <div style={{ width: 1, background: 'rgba(255,255,255,0.07)', flexShrink: 0 }} />
+          <div style={{ width: 1, background: 'var(--inset-bd)', flexShrink: 0 }} />
 
           {/* Wax column */}
           <div className="flex-1 space-y-2">
@@ -676,7 +676,7 @@ function RotationROI() {
         {/* Hero: annual savings */}
         <div
           className="rounded-xl p-4 text-center"
-          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+          style={{ background: 'var(--inset-bg)', border: '1px solid var(--inset-bd)' }}
         >
           <p
             className="text-[11px] uppercase tracking-[0.2em] mb-2"
@@ -684,7 +684,7 @@ function RotationROI() {
           >
             {de ? 'Ersparnis pro Jahr' : 'Savings per year'}
           </p>
-          <p className="text-[40px] font-bold tabular-nums leading-none text-white">
+          <p className="text-[40px] font-bold tabular-nums leading-none" style={{ color: 'var(--tx1)' }}>
             ~<AnimatedNumber value={savingsPerYear} suffix=" €" />
           </p>
           <p className="text-[12px] mt-1.5" style={{ color: 'var(--txff)' }}>
@@ -699,7 +699,7 @@ function RotationROI() {
           {/* 1 chain */}
           <div
             className="rounded-xl border p-3.5 text-center"
-            style={{ background: 'rgba(0,0,0,0.2)', borderColor: 'rgba(255,255,255,0.07)' }}
+            style={{ background: 'var(--sf3)', borderColor: 'var(--bd2)' }}
           >
             <p className="text-[11px] mb-2.5" style={{ color: 'var(--txff)' }}>
               {de ? '1 Kette' : '1 chain'}
@@ -710,7 +710,7 @@ function RotationROI() {
             <p className="text-[11px] mt-0.5" style={{ color: 'var(--txff)' }}>
               {de ? 'Mo. / Kette' : 'mo. / chain'}
             </p>
-            <div className="mt-3 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+            <div className="mt-3 pt-3" style={{ borderTop: '1px solid var(--inset-bd)' }}>
               <p className="text-[14px] font-semibold tabular-nums" style={{ color: 'var(--txm)' }}>
                 {cassetteYrs1} {de ? 'J.' : 'yr.'}
               </p>
@@ -723,7 +723,7 @@ function RotationROI() {
           {/* 2 chains — recommended */}
           <div
             className="rounded-xl border p-3.5 text-center"
-            style={{ background: 'rgba(255,255,255,0.05)', borderColor: 'rgba(255,255,255,0.14)' }}
+            style={{ background: 'var(--inset-bg)', borderColor: 'var(--bd)' }}
           >
             <p
               className="text-[10px] uppercase tracking-wider mb-0.5"
@@ -735,11 +735,11 @@ function RotationROI() {
               {de ? '2 Ketten' : '2 chains'}
             </p>
             <div className="flex items-center justify-center gap-1.5">
-              <p className="text-[24px] font-bold text-white leading-none tabular-nums">{chainMonths2}</p>
+              <p className="text-[24px] font-bold leading-none tabular-nums" style={{ color: 'var(--tx1)' }}>{chainMonths2}</p>
               {chainGain > 0 && (
                 <span
                   className="text-[11px] font-medium px-1.5 py-0.5 rounded"
-                  style={{ background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.65)' }}
+                  style={{ background: 'var(--inset-bg)', color: 'var(--txm)' }}
                 >
                   +{chainGain} {de ? 'Mo.' : 'mo.'}
                 </span>
@@ -748,15 +748,15 @@ function RotationROI() {
             <p className="text-[11px] mt-0.5" style={{ color: 'var(--txf)' }}>
               {de ? 'Mo. / Kette' : 'mo. / chain'}
             </p>
-            <div className="mt-3 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+            <div className="mt-3 pt-3" style={{ borderTop: '1px solid var(--inset-bd)' }}>
               <div className="flex items-center justify-center gap-1.5">
-                <p className="text-[14px] font-semibold text-white tabular-nums">
+                <p className="text-[14px] font-semibold tabular-nums" style={{ color: 'var(--tx1)' }}>
                   {cassetteYrs2} {de ? 'J.' : 'yr.'}
                 </p>
                 {cassetteGain > 0 && (
                   <span
                     className="text-[11px] font-medium px-1.5 py-0.5 rounded"
-                    style={{ background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.65)' }}
+                    style={{ background: 'var(--inset-bg)', color: 'var(--txm)' }}
                   >
                     +{cassetteGain} {de ? 'J.' : 'yr.'}
                   </span>
@@ -778,7 +778,7 @@ function RotationROI() {
         {/* Expandable: how it works */}
         <div
           className="rounded-xl overflow-hidden"
-          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
+          style={{ background: 'var(--inset-bg)', border: '1px solid var(--inset-bd)' }}
         >
           <button
             type="button"
@@ -792,7 +792,7 @@ function RotationROI() {
               className="text-[12px] transition-transform duration-[320ms] inline-block"
               style={{
                 transform: showHow ? 'rotate(180deg)' : 'rotate(0deg)',
-                color: 'rgba(255,255,255,0.28)',
+                color: 'var(--tog-fg)',
               }}
             >
               ↓
@@ -810,7 +810,7 @@ function RotationROI() {
             <div className="overflow-hidden">
               <div
                 className="px-4 pb-4 pt-3 space-y-2"
-                style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}
+                style={{ borderTop: '1px solid var(--inset-bd)' }}
               >
                 <p className="text-[12px] leading-relaxed" style={{ color: 'var(--txm)' }}>
                   {de
@@ -831,8 +831,8 @@ function RotationROI() {
           onClick={() => document.querySelector('#produkte')?.scrollIntoView({ behavior: 'smooth' })}
           className="w-full rounded-xl p-3 text-center transition-all"
           style={{
-            background: 'rgba(255,255,255,0.04)',
-            border: '1px solid rgba(255,255,255,0.09)',
+            background: 'var(--inset-bg)',
+            border: '1px solid var(--inset-bd)',
           }}
         >
           <span className="text-[12px] font-medium" style={{ color: 'var(--txm)' }}>
@@ -971,12 +971,12 @@ export function Tools() {
             <div
               ref={tabBarRef}
               className="relative flex gap-1 p-1 rounded-xl mb-5 overflow-x-auto"
-              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
+              style={{ background: 'var(--tog-bg)', border: '1px solid var(--tog-bd)' }}
             >
               <div
                 ref={tabPillRef}
                 className="absolute top-1 bottom-1 rounded-lg pointer-events-none"
-                style={{ width: 0, background: 'rgba(255,255,255,0.09)', border: '1px solid rgba(255,255,255,0.12)' }}
+                style={{ width: 0, background: 'var(--sf3)', border: '1px solid var(--bd2)' }}
               />
               {TAB_LABELS.map((label, i) => (
                 <button
@@ -984,7 +984,7 @@ export function Tools() {
                   ref={el => { tabButtonRefs.current[i] = el; }}
                   onClick={() => setActiveTab(i)}
                   className="relative z-10 flex-1 min-w-[60px] px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap"
-                  style={{ color: activeTab === i ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.32)' }}
+                  style={{ color: activeTab === i ? 'var(--tx1)' : 'var(--txm)' }}
                 >
                   {label}
                 </button>
@@ -1061,13 +1061,13 @@ export function Tools() {
                     width: i === activeCard ? '22px' : '5px',
                     height: '4px',
                     borderRadius: '2px',
-                    background: i === activeCard ? 'rgba(255,255,255,0.72)' : 'rgba(255,255,255,0.16)',
+                    background: i === activeCard ? 'var(--tx1)' : 'var(--bd)',
                   }}
                 />
                 <span
                   className="text-[10px] tracking-[0.08em] transition-all duration-300"
                   style={{
-                    color: i === activeCard ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.18)',
+                    color: i === activeCard ? 'var(--txm)' : 'var(--txff)',
                     fontWeight: i === activeCard ? 500 : 400,
                   }}
                 >

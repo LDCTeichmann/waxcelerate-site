@@ -49,12 +49,12 @@ export function Contact() {
   // Input / select shared style
   const fieldStyle: React.CSSProperties = {
     width: '100%',
-    background: 'rgba(255,255,255,0.04)',
-    border: '1px solid rgba(255,255,255,0.10)',
+    background: 'var(--inset-bg)',
+    border: '1px solid var(--bd)',
     borderRadius: 10,
     padding: '10px 14px',
     fontSize: 14,
-    color: 'rgba(255,255,255,0.88)',
+    color: 'var(--tx1)',
     outline: 'none',
     transition: 'border-color 150ms',
   };
@@ -108,7 +108,7 @@ export function Contact() {
                 {/* Name + Email row */}
                 <div className="grid sm:grid-cols-2 gap-3.5">
                   <div>
-                    <label className="block text-[11px] uppercase tracking-[0.1em] font-medium mb-1.5" style={{ color: 'rgba(255,255,255,0.38)' }}>
+                    <label className="block text-[11px] uppercase tracking-[0.1em] font-medium mb-1.5" style={{ color: 'var(--txf)' }}>
                       {de ? 'Name' : 'Name'}
                     </label>
                     <input
@@ -119,11 +119,11 @@ export function Contact() {
                       onChange={e => setName(e.target.value)}
                       style={fieldStyle}
                       onFocus={e => { e.currentTarget.style.borderColor = 'rgba(61,103,202,0.55)'; }}
-                      onBlur={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.10)'; }}
+                      onBlur={e => { e.currentTarget.style.borderColor = 'var(--bd)'; }}
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] uppercase tracking-[0.1em] font-medium mb-1.5" style={{ color: 'rgba(255,255,255,0.38)' }}>
+                    <label className="block text-[11px] uppercase tracking-[0.1em] font-medium mb-1.5" style={{ color: 'var(--txf)' }}>
                       E-Mail
                     </label>
                     <input
@@ -134,14 +134,14 @@ export function Contact() {
                       onChange={e => setEmail(e.target.value)}
                       style={fieldStyle}
                       onFocus={e => { e.currentTarget.style.borderColor = 'rgba(61,103,202,0.55)'; }}
-                      onBlur={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.10)'; }}
+                      onBlur={e => { e.currentTarget.style.borderColor = 'var(--bd)'; }}
                     />
                   </div>
                 </div>
 
                 {/* Subject select */}
                 <div>
-                  <label className="block text-[11px] uppercase tracking-[0.1em] font-medium mb-1.5" style={{ color: 'rgba(255,255,255,0.38)' }}>
+                  <label className="block text-[11px] uppercase tracking-[0.1em] font-medium mb-1.5" style={{ color: 'var(--txf)' }}>
                     {de ? 'Thema' : 'Subject'}
                   </label>
                   <select
@@ -149,17 +149,17 @@ export function Contact() {
                     onChange={e => setSubject(e.target.value)}
                     style={{ ...fieldStyle, cursor: 'pointer' }}
                     onFocus={e => { e.currentTarget.style.borderColor = 'rgba(61,103,202,0.55)'; }}
-                    onBlur={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.10)'; }}
+                    onBlur={e => { e.currentTarget.style.borderColor = 'var(--bd)'; }}
                   >
                     {subjects.map(s => (
-                      <option key={s} value={s} style={{ background: '#141414', color: '#fff' }}>{s}</option>
+                      <option key={s} value={s} style={{ background: 'var(--sf)', color: 'var(--tx1)' }}>{s}</option>
                     ))}
                   </select>
                 </div>
 
                 {/* Message textarea */}
                 <div>
-                  <label className="block text-[11px] uppercase tracking-[0.1em] font-medium mb-1.5" style={{ color: 'rgba(255,255,255,0.38)' }}>
+                  <label className="block text-[11px] uppercase tracking-[0.1em] font-medium mb-1.5" style={{ color: 'var(--txf)' }}>
                     {de ? 'Nachricht' : 'Message'}
                   </label>
                   <textarea
@@ -172,7 +172,7 @@ export function Contact() {
                     onChange={e => setMessage(e.target.value)}
                     style={{ ...fieldStyle, resize: 'vertical', minHeight: 100 }}
                     onFocus={e => { e.currentTarget.style.borderColor = 'rgba(61,103,202,0.55)'; }}
-                    onBlur={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.10)'; }}
+                    onBlur={e => { e.currentTarget.style.borderColor = 'var(--bd)'; }}
                   />
                 </div>
 
