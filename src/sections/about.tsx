@@ -76,42 +76,20 @@ export function About() {
                 className="relative overflow-hidden rounded-2xl w-full"
                 style={{
                   aspectRatio: '3 / 4',
-                  background: 'linear-gradient(175deg, #1c2030 0%, #0d0f18 100%)',
-                  border: '1px solid rgba(255,255,255,0.10)',
-                  boxShadow: '0 16px 48px rgba(0,0,0,0.50)',
+                  boxShadow: '0 16px 48px rgba(0,0,0,0.30)',
                 }}
               >
-                {/* Subtle blue radial glow behind figure */}
-                <div
-                  className="absolute inset-0 pointer-events-none"
-                  style={{ background: 'radial-gradient(ellipse 80% 60% at 50% 10%, rgba(43,82,176,0.13) 0%, transparent 70%)' }}
-                />
-
-                {/* Portrait — bg-removed, contained so dark bg shows around it */}
                 <img
-                  src="/images/luca-nobg.png"
+                  src="/images/luca.jpg"
                   alt="Luca Teichmann"
-                  className="absolute inset-0 w-full h-full"
-                  style={{
-                    objectFit: 'contain',
-                    objectPosition: '50% 6%',
-                    padding: '12px 8px 0',
-                    filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.55))',
-                  }}
-                  onError={(e) => {
-                    const el = e.currentTarget;
-                    el.src = '/images/luca.jpg';
-                    el.style.objectFit = 'cover';
-                    el.style.objectPosition = '50% 12%';
-                    el.style.padding = '0';
-                    el.style.filter = '';
-                  }}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  style={{ objectPosition: '50% 8%' }}
                 />
 
                 {/* Bottom name strip */}
                 <div
                   className="absolute bottom-0 left-0 right-0 px-4 pb-3.5 pt-10 pointer-events-none"
-                  style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.82) 0%, transparent 100%)' }}
+                  style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.78) 0%, transparent 100%)' }}
                 >
                   <p className="font-semibold text-white text-[13px] leading-tight">Luca Teichmann</p>
                   <p className="text-[10.5px] mt-0.5 tracking-[0.03em]" style={{ color: 'rgba(255,255,255,0.52)' }}>
@@ -183,7 +161,7 @@ export function About() {
             ref={bannerRef}
             className="relative mt-10 rounded-2xl overflow-hidden"
             style={{
-              height: '260px',
+              height: '340px',
               border: '1px solid rgba(255,255,255,0.08)',
               boxShadow: '0 12px 48px rgba(0,0,0,0.40)',
             }}
@@ -192,7 +170,7 @@ export function About() {
               src="/images/luca-ebay.jpg"
               alt="eBay Seller Leadership Week 2025, San Jose"
               className="absolute inset-0 w-full h-full object-cover"
-              style={{ objectPosition: '50% 52%' }}
+              style={{ objectPosition: '50% 38%' }}
             />
             {/* Vignette — left-heavy for caption legibility */}
             <div
