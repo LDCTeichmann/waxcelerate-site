@@ -71,13 +71,13 @@ function TogButton({
       onClick={onClick}
       className="px-3.5 py-1.5 rounded-lg text-[13px] transition-all cursor-pointer"
       style={{
-        border: `1px solid ${active ? 'rgba(59,100,210,0.55)' : 'rgba(255,255,255,0.07)'}`,
+        border: `1px solid ${active ? 'rgba(59,100,210,0.55)' : 'var(--tog-bd)'}`,
         background: active
           ? 'linear-gradient(135deg, rgba(43,82,176,0.28) 0%, rgba(43,82,176,0.12) 100%)'
-          : 'rgba(255,255,255,0.03)',
-        color: active ? '#ffffff' : 'rgba(255,255,255,0.28)',
+          : 'var(--tog-bg)',
+        color: active ? 'var(--tx1)' : 'var(--tog-fg)',
         fontWeight: active ? 500 : 400,
-        boxShadow: active ? 'inset 0 1px 0 rgba(255,255,255,0.12)' : 'none',
+        boxShadow: 'none',
       }}
     >
       {children}
@@ -91,9 +91,9 @@ function ToolCard({ children }: { children: React.ReactNode }) {
     <div
       className="flex flex-col h-full rounded-2xl"
       style={{
-        background: 'linear-gradient(160deg, rgba(20,20,28,0.97) 0%, rgba(8,8,12,0.99) 100%)',
-        border: '1px solid rgba(255,255,255,0.09)',
-        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 16px 56px rgba(0,0,0,0.75), 0 4px 16px rgba(0,0,0,0.5)',
+        background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
+        border: '1px solid var(--bd)',
+        boxShadow: 'var(--card-shad)',
         backdropFilter: 'blur(24px)',
         WebkitBackdropFilter: 'blur(24px)',
       }}
@@ -118,15 +118,15 @@ function ToolHeader({ icon, title, subtitle }: { icon: React.ReactNode; title: s
           {icon}
         </div>
         <div>
-          <h3 className="text-[15px] font-semibold leading-snug" style={{ color: 'rgba(255,255,255,0.9)' }}>
+          <h3 className="text-[15px] font-semibold leading-snug" style={{ color: 'var(--tx1)' }}>
             {title}
           </h3>
-          <p className="text-[12px] leading-snug mt-0.5" style={{ color: 'rgba(255,255,255,0.35)' }}>
+          <p className="text-[12px] leading-snug mt-0.5" style={{ color: 'var(--txf)' }}>
             {subtitle}
           </p>
         </div>
       </div>
-      <div className="border-t" style={{ borderColor: 'rgba(255,255,255,0.06)' }} />
+      <div className="border-t" style={{ borderColor: 'var(--inset-bd)' }} />
     </div>
   );
 }
@@ -137,12 +137,12 @@ function FieldLabel({ label, value }: { label: string; value?: string }) {
     <div className="flex items-baseline justify-between mb-2.5">
       <span
         className="text-[11px] uppercase tracking-[0.1em] font-medium"
-        style={{ color: 'rgba(255,255,255,0.32)' }}
+        style={{ color: 'var(--txf)' }}
       >
         {label}
       </span>
       {value && (
-        <span className="text-[13px] font-semibold tabular-nums" style={{ color: 'rgba(255,255,255,0.72)' }}>
+        <span className="text-[13px] font-semibold tabular-nums" style={{ color: 'var(--tx2)' }}>
           {value}
         </span>
       )}
@@ -156,9 +156,8 @@ function ResultBox({ children }: { children: React.ReactNode }) {
     <div
       className="rounded-xl p-5"
       style={{
-        background: 'linear-gradient(160deg, rgba(255,255,255,0.04) 0%, rgba(0,0,0,0.28) 100%)',
-        border: '1px solid rgba(255,255,255,0.08)',
-        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.07)',
+        background: 'var(--inset-bg)',
+        border: '1px solid var(--inset-bd)',
       }}
     >
       {children}
@@ -199,7 +198,7 @@ function RewaxCalculator() {
   return (
     <ToolCard>
       <ToolHeader
-        icon={<Calculator className="h-4 w-4" style={{ color: 'rgba(255,255,255,0.55)' }} />}
+        icon={<Calculator className="h-4 w-4" style={{ color: 'var(--txm)' }} />}
         title={t.tools.rewax.title}
         subtitle={de
           ? 'Nie wieder zu früh oder zu spät — erhalte dein genaues Rewax-Intervall.'
@@ -239,20 +238,20 @@ function RewaxCalculator() {
         </div>
 
         <ResultBox>
-          <p className="text-[46px] font-bold text-white text-center leading-none tabular-nums">
+          <p className="text-[46px] font-bold text-center leading-none tabular-nums" style={{ color: 'var(--tx1)' }}>
             <AnimatedNumber value={weeks} />
           </p>
-          <p className="text-[13px] text-center mt-1.5" style={{ color: 'rgba(255,255,255,0.38)' }}>
+          <p className="text-[13px] text-center mt-1.5" style={{ color: 'var(--txf)' }}>
             {weeks === 1 ? (de ? 'Woche' : 'week') : (de ? 'Wochen' : 'weeks')}{' '}
             {de ? 'bis zum nächsten Rewaxen' : 'until next rewax'}
-            {weeksCapped && <span style={{ color: 'rgba(255,255,255,0.2)' }}> (max.)</span>}
+            {weeksCapped && <span style={{ color: 'var(--txff)' }}> (max.)</span>}
           </p>
-          <p className="text-[12px] text-center mt-0.5" style={{ color: 'rgba(255,255,255,0.22)' }}>
+          <p className="text-[12px] text-center mt-0.5" style={{ color: 'var(--txff)' }}>
             {interval} km · {de ? `bei ${kmPerWeek} km/Wo.` : `at ${kmPerWeek} km/wk`}
           </p>
           <p
             className="text-[11px] text-center mt-3 pt-3 leading-snug"
-            style={{ borderTop: '1px solid rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.2)' }}
+            style={{ borderTop: '1px solid var(--inset-bd)', color: 'var(--txff)' }}
           >
             {hint}
           </p>
@@ -298,7 +297,7 @@ function WaxStockCalculator() {
   return (
     <ToolCard>
       <ToolHeader
-        icon={<Package className="h-4 w-4" style={{ color: 'rgba(255,255,255,0.55)' }} />}
+        icon={<Package className="h-4 w-4" style={{ color: 'var(--txm)' }} />}
         title={t.tools.stock.title}
         subtitle={de
           ? 'Bestell genau das richtige Paket — keine Verschwendung, kein Engpass.'
@@ -341,11 +340,11 @@ function WaxStockCalculator() {
             <>
               <p
                 className="text-[11px] uppercase tracking-[0.1em] mb-2"
-                style={{ color: 'rgba(255,255,255,0.32)' }}
+                style={{ color: 'var(--txf)' }}
               >
                 {de ? 'Empfehlung' : 'Recommendation'}
               </p>
-              <p className="text-[13px] leading-snug" style={{ color: 'rgba(255,255,255,0.5)' }}>
+              <p className="text-[13px] leading-snug" style={{ color: 'var(--txm)' }}>
                 {de
                   ? 'Dein Verbrauch ist sehr niedrig — der 300g-Block reicht länger als seine Haltbarkeit (~2–3 Jahre). Die 300g genügen vollkommen.'
                   : 'Your usage is very low — the 300g block lasts longer than its shelf life (~2–3 years). The 300g is more than enough.'}
@@ -355,7 +354,7 @@ function WaxStockCalculator() {
             <>
               <p
                 className="text-[11px] uppercase tracking-[0.1em] mb-3"
-                style={{ color: 'rgba(255,255,255,0.32)' }}
+                style={{ color: 'var(--txf)' }}
               >
                 {de ? 'Empfohlene Packung' : 'Recommended Package'}
               </p>
@@ -373,28 +372,28 @@ function WaxStockCalculator() {
                       <div
                         className="rounded-xl border p-3.5 text-center transition-all"
                         style={{
-                          borderColor: isRec ? 'rgba(255,255,255,0.16)' : 'rgba(255,255,255,0.06)',
-                          background: isRec ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.2)',
+                          borderColor: isRec ? 'var(--bd)' : 'var(--inset-bd)',
+                          background: isRec ? 'var(--sf3)' : 'var(--inset-bg)',
                         }}
                       >
                         {isRec && (
                           <p
                             className="text-[10px] uppercase tracking-[0.14em] mb-1.5"
-                            style={{ color: 'rgba(255,255,255,0.45)' }}
+                            style={{ color: 'var(--txm)' }}
                           >
                             {de ? 'Empfohlen' : 'Recommended'}
                           </p>
                         )}
-                        <p className="text-[22px] font-bold text-white leading-none tabular-nums">
+                        <p className="text-[22px] font-bold leading-none tabular-nums" style={{ color: 'var(--tx1)' }}>
                           ~<AnimatedNumber value={months} />
-                          <span className="text-[12px] font-normal ml-1" style={{ color: 'rgba(255,255,255,0.38)' }}>
+                          <span className="text-[12px] font-normal ml-1" style={{ color: 'var(--txf)' }}>
                             {de ? 'Mo.' : 'mo.'}
                           </span>
                         </p>
-                        <p className="text-[12px] mt-1.5" style={{ color: 'rgba(255,255,255,0.48)' }}>
+                        <p className="text-[12px] mt-1.5" style={{ color: 'var(--txm)' }}>
                           {size}g — {price} €
                         </p>
-                        <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.26)' }}>
+                        <p className="text-[11px] mt-0.5" style={{ color: 'var(--txff)' }}>
                           {cost} €/{de ? 'Monat' : 'month'}
                         </p>
                       </div>
@@ -434,7 +433,7 @@ function CostSavingsCalculator() {
   const chainLabel = (n: number) =>
     de ? `${n} Kette${n > 1 ? 'n' : ''}` : `${n} chain${n > 1 ? 's' : ''}`;
 
-  const SEP = <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }} />;
+  const SEP = <div style={{ borderTop: '1px solid var(--inset-bd)' }} />;
 
   return (
     <ToolCard>
@@ -460,7 +459,7 @@ function CostSavingsCalculator() {
         <div className="px-6 py-8 text-center flex-1 flex flex-col items-center justify-center">
           <p
             className="text-[9px] uppercase tracking-[0.22em] mb-5"
-            style={{ color: 'rgba(255,255,255,0.28)' }}
+            style={{ color: 'var(--txff)' }}
           >
             {de
               ? `Kostenvergleich · ${km.toLocaleString('de-DE')} km`
@@ -476,12 +475,12 @@ function CostSavingsCalculator() {
               <span className="text-[16px] font-semibold leading-tight" style={{ color: '#4A72D4' }}>
                 {de ? 'gespart' : 'saved'}
               </span>
-              <span className="text-[13px] tabular-nums" style={{ color: 'rgba(255,255,255,0.35)' }}>
+              <span className="text-[13px] tabular-nums" style={{ color: 'var(--txf)' }}>
                 −<AnimatedNumber value={savingsPct} suffix=" %" />
               </span>
             </div>
           </div>
-          <p className="text-[13px] mb-8" style={{ color: 'rgba(255,255,255,0.30)' }}>
+          <p className="text-[13px] mb-8" style={{ color: 'var(--txf)' }}>
             {de
               ? 'gegenüber Kettenöl auf gleicher Strecke'
               : 'vs. chain oil over the same distance'}
@@ -521,16 +520,16 @@ function CostSavingsCalculator() {
                 className="rounded-xl p-4 text-center"
                 style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}
               >
-                <p className="text-[9px] uppercase tracking-[0.2em] mb-3" style={{ color: 'rgba(255,255,255,0.28)' }}>
+                <p className="text-[9px] uppercase tracking-[0.2em] mb-3" style={{ color: 'var(--txff)' }}>
                   {de ? 'Mit Öl' : 'With Oil'}
                 </p>
                 <AnimatedNumber
                   value={oilTotal}
                   prefix="~€"
                   className="text-[30px] font-bold leading-none tabular-nums"
-                  style={{ color: 'rgba(255,255,255,0.55)' }}
+                  style={{ color: 'var(--txm)' }}
                 />
-                <p className="text-[11px] mt-2" style={{ color: 'rgba(255,255,255,0.28)' }}>
+                <p className="text-[11px] mt-2" style={{ color: 'var(--txff)' }}>
                   {chainLabel(oilChains)}
                 </p>
               </div>
@@ -560,22 +559,22 @@ function CostSavingsCalculator() {
 
           {/* Oil column */}
           <div className="flex-1 space-y-2">
-            <p className="text-[9px] uppercase tracking-[0.18em] mb-2.5" style={{ color: 'rgba(255,255,255,0.28)' }}>
+            <p className="text-[9px] uppercase tracking-[0.18em] mb-2.5" style={{ color: 'var(--txff)' }}>
               {de ? 'Mit Öl' : 'With Oil'}
             </p>
             <div className="flex justify-between text-[11px]">
-              <span style={{ color: 'rgba(255,255,255,0.40)' }}>
+              <span style={{ color: 'var(--txf)' }}>
                 {chainLabel(oilChains)} × €{CHAIN_PRICE}
               </span>
-              <span style={{ color: 'rgba(255,255,255,0.48)' }}>€{oilChains * CHAIN_PRICE}</span>
+              <span style={{ color: 'var(--txm)' }}>€{oilChains * CHAIN_PRICE}</span>
             </div>
             <div className="flex justify-between text-[11px]">
-              <span style={{ color: 'rgba(255,255,255,0.40)' }}>
+              <span style={{ color: 'var(--txf)' }}>
                 {de
                   ? `Öl · ${Math.round(km / 1000)}× à €1,10`
                   : `Oil · ${Math.round(km / 1000)}× at €1.10`}
               </span>
-              <span style={{ color: 'rgba(255,255,255,0.48)' }}>€{oilLube}</span>
+              <span style={{ color: 'var(--txm)' }}>€{oilLube}</span>
             </div>
             <div
               className="flex justify-between text-[11px] pt-1.5"
@@ -597,13 +596,13 @@ function CostSavingsCalculator() {
               {de ? 'Mit Waxcelerate' : 'With Waxcelerate'}
             </p>
             <div className="flex justify-between text-[11px]">
-              <span style={{ color: 'rgba(255,255,255,0.40)' }}>
+              <span style={{ color: 'var(--txf)' }}>
                 {chainLabel(waxChains)} × €{CHAIN_PRICE}
               </span>
               <span style={{ color: '#4A72D4' }}>€{waxChains * CHAIN_PRICE}</span>
             </div>
             <div className="flex justify-between text-[11px]">
-              <span style={{ color: 'rgba(255,255,255,0.40)' }}>
+              <span style={{ color: 'var(--txf)' }}>
                 {de
                   ? `500g Block (~${waxChains * 20} Anw.)`
                   : `500g block (~${waxChains * 20} apps)`}
@@ -662,7 +661,7 @@ function RotationROI() {
   return (
     <ToolCard>
       <ToolHeader
-        icon={<RotateCcw className="h-4 w-4" style={{ color: 'rgba(255,255,255,0.55)' }} />}
+        icon={<RotateCcw className="h-4 w-4" style={{ color: 'var(--txm)' }} />}
         title={de ? 'Lohnen sich mehrere Ketten?' : 'Is rotating multiple chains worth it?'}
         subtitle={de
           ? 'Kettenverschleiß und Kassettenlaufzeit realistisch verglichen.'
@@ -681,14 +680,14 @@ function RotationROI() {
         >
           <p
             className="text-[11px] uppercase tracking-[0.2em] mb-2"
-            style={{ color: 'rgba(255,255,255,0.3)' }}
+            style={{ color: 'var(--txf)' }}
           >
             {de ? 'Ersparnis pro Jahr' : 'Savings per year'}
           </p>
           <p className="text-[40px] font-bold tabular-nums leading-none text-white">
             ~<AnimatedNumber value={savingsPerYear} suffix=" €" />
           </p>
-          <p className="text-[12px] mt-1.5" style={{ color: 'rgba(255,255,255,0.28)' }}>
+          <p className="text-[12px] mt-1.5" style={{ color: 'var(--txff)' }}>
             {de
               ? `2. Kette amortisiert sich in ~${breakEvenMonths} Monaten`
               : `2nd chain pays off in ~${breakEvenMonths} months`}
@@ -702,20 +701,20 @@ function RotationROI() {
             className="rounded-xl border p-3.5 text-center"
             style={{ background: 'rgba(0,0,0,0.2)', borderColor: 'rgba(255,255,255,0.07)' }}
           >
-            <p className="text-[11px] mb-2.5" style={{ color: 'rgba(255,255,255,0.28)' }}>
+            <p className="text-[11px] mb-2.5" style={{ color: 'var(--txff)' }}>
               {de ? '1 Kette' : '1 chain'}
             </p>
-            <p className="text-[24px] font-bold leading-none tabular-nums" style={{ color: 'rgba(255,255,255,0.55)' }}>
+            <p className="text-[24px] font-bold leading-none tabular-nums" style={{ color: 'var(--txm)' }}>
               {chainMonths1}
             </p>
-            <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.24)' }}>
+            <p className="text-[11px] mt-0.5" style={{ color: 'var(--txff)' }}>
               {de ? 'Mo. / Kette' : 'mo. / chain'}
             </p>
             <div className="mt-3 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
-              <p className="text-[14px] font-semibold tabular-nums" style={{ color: 'rgba(255,255,255,0.45)' }}>
+              <p className="text-[14px] font-semibold tabular-nums" style={{ color: 'var(--txm)' }}>
                 {cassetteYrs1} {de ? 'J.' : 'yr.'}
               </p>
-              <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.24)' }}>
+              <p className="text-[11px] mt-0.5" style={{ color: 'var(--txff)' }}>
                 {de ? 'Kassette' : 'cassette'}
               </p>
             </div>
@@ -728,11 +727,11 @@ function RotationROI() {
           >
             <p
               className="text-[10px] uppercase tracking-wider mb-0.5"
-              style={{ color: 'rgba(255,255,255,0.4)' }}
+              style={{ color: 'var(--txf)' }}
             >
               {de ? 'Empfohlen' : 'Recommended'}
             </p>
-            <p className="text-[11px] mb-2" style={{ color: 'rgba(255,255,255,0.4)' }}>
+            <p className="text-[11px] mb-2" style={{ color: 'var(--txf)' }}>
               {de ? '2 Ketten' : '2 chains'}
             </p>
             <div className="flex items-center justify-center gap-1.5">
@@ -746,7 +745,7 @@ function RotationROI() {
                 </span>
               )}
             </div>
-            <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.35)' }}>
+            <p className="text-[11px] mt-0.5" style={{ color: 'var(--txf)' }}>
               {de ? 'Mo. / Kette' : 'mo. / chain'}
             </p>
             <div className="mt-3 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
@@ -763,14 +762,14 @@ function RotationROI() {
                   </span>
                 )}
               </div>
-              <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.35)' }}>
+              <p className="text-[11px] mt-0.5" style={{ color: 'var(--txf)' }}>
                 {de ? 'Kassette' : 'cassette'}
               </p>
             </div>
           </div>
         </div>
 
-        <p className="text-[11px] text-center" style={{ color: 'rgba(255,255,255,0.22)' }}>
+        <p className="text-[11px] text-center" style={{ color: 'var(--txff)' }}>
           {de
             ? `Rewax-Frequenz bleibt gleich: ~${rewaxPerYear}× pro Jahr — du wechselst nur ab.`
             : `Rewax frequency stays the same: ~${rewaxPerYear}× per year — you just alternate.`}
@@ -786,7 +785,7 @@ function RotationROI() {
             onClick={() => setShowHow(v => !v)}
             className="w-full px-4 py-3 flex items-center justify-between transition-colors"
           >
-            <span className="text-[12px] font-medium" style={{ color: 'rgba(255,255,255,0.38)' }}>
+            <span className="text-[12px] font-medium" style={{ color: 'var(--txf)' }}>
               {de ? 'Wie funktioniert das?' : 'How does this work?'}
             </span>
             <span
@@ -813,12 +812,12 @@ function RotationROI() {
                 className="px-4 pb-4 pt-3 space-y-2"
                 style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}
               >
-                <p className="text-[12px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.45)' }}>
+                <p className="text-[12px] leading-relaxed" style={{ color: 'var(--txm)' }}>
                   {de
                     ? 'Beim Abwechseln zwischen zwei Ketten trägt sich jede Kette nur halb so schnell ab — sie hält dadurch ~40 % länger. Da die Kassette durch Kettendehnung verschleißt, lebt auch sie deutlich länger.'
                     : 'Alternating between two chains means each chain wears at half the rate — lasting ~40% longer. Since the cassette wears through chain stretch, it lasts significantly longer too.'}
                 </p>
-                <p className="text-[11px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.25)' }}>
+                <p className="text-[11px] leading-relaxed" style={{ color: 'var(--txff)' }}>
                   {de
                     ? 'Du rewaxst genauso oft (die Strecke pro Rewax bleibt gleich), wechselst aber die Kette ab. Ergebnis: weniger Ketten kaufen, viel seltener Kassette wechseln.'
                     : 'You re-wax just as often (the distance per rewax stays the same), but alternate the chain. Result: fewer chains to buy, much less frequent cassette replacement.'}
@@ -836,7 +835,7 @@ function RotationROI() {
             border: '1px solid rgba(255,255,255,0.09)',
           }}
         >
-          <span className="text-[12px] font-medium" style={{ color: 'rgba(255,255,255,0.45)' }}>
+          <span className="text-[12px] font-medium" style={{ color: 'var(--txm)' }}>
             {de ? '2. Kette im Shop ansehen →' : 'View 2nd chain in shop →'}
           </span>
         </button>

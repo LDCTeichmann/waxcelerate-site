@@ -49,6 +49,13 @@
     --brand:       #2B52B0;
     --brand-hover: #3D67CA;
 
+    /* Inset / nested surface tokens — replace hardcoded rgba in dark-first components */
+    --inset-bg:    var(--sf2);           /* subtle inset inside cards */
+    --inset-bd:    var(--bd2);           /* border of inset areas */
+    --tog-bg:      var(--sf2);           /* toggle button — inactive bg */
+    --tog-bd:      var(--bd);            /* toggle button — inactive border */
+    --tog-fg:      var(--txm);           /* toggle button — inactive text */
+
     /* Motion tokens */
     --ease-ui:     cubic-bezier(0.4, 0, 0.2, 1);
     --ease-enter:  cubic-bezier(0.165, 0.84, 0.44, 1);
@@ -80,6 +87,13 @@
     --nav-bg:    rgba(9,9,11,0.94);
     --tool-bg:   #050507;
     --card-shadow-hover: 0 8px 28px rgba(0,0,0,0.70), 0 28px 72px rgba(0,0,0,0.75), 0 0 0 1px rgba(43,82,176,0.25);
+
+    /* Inset tokens — dark-mode values */
+    --inset-bg:    rgba(255,255,255,0.04);
+    --inset-bd:    rgba(255,255,255,0.07);
+    --tog-bg:      rgba(255,255,255,0.03);
+    --tog-bd:      rgba(255,255,255,0.07);
+    --tog-fg:      rgba(255,255,255,0.28);
 
     --background: 240 10% 4%;
     --foreground: 0 0% 98%;
