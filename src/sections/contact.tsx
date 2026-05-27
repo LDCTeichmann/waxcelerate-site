@@ -1,10 +1,9 @@
-import { useRef, useState } from 'react';
-import { Mail, Send } from 'lucide-react';
+import { useRef } from 'react';
+import { Mail } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useSectionReveal } from '@/hooks/useAnimation';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 
-// WhatsApp icon — lucide doesn't include it
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
@@ -19,50 +18,20 @@ export function Contact() {
   const headerRef = useRef<HTMLDivElement>(null);
   useSectionReveal(headerRef);
 
-  const [name, setName]       = useState('');
-  const [email, setEmail]     = useState('');
-  const [subject, setSubject] = useState('');
-  const [message, setMessage] = useState('');
-  const [sent, setSent]       = useState(false);
-
-  const subjects = de
-    ? ['Frage zur Bestellung', 'Produktfrage', 'Kettentyp-Beratung', 'Sonstiges']
-    : ['Order question', 'Product question', 'Chain type advice', 'Other'];
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const sub  = encodeURIComponent(`[Waxcelerate] ${subject || subjects[0]}: ${name}`);
-    const body = encodeURIComponent(
-      `Von: ${name}\nE-Mail: ${email}\nThema: ${subject || subjects[0]}\n\n${message}`
-    );
-    window.location.href = `mailto:waxcelerate@gmail.com?subject=${sub}&body=${body}`;
-    setSent(true);
-    setTimeout(() => setSent(false), 4000);
-  };
-
   const waUrl = `https://wa.me/4915751957470?text=${encodeURIComponent(
     de
       ? 'Hallo Luca, ich habe eine Frage zu Waxcelerate: '
       : 'Hi Luca, I have a question about Waxcelerate: '
   )}`;
 
-  // Input / select shared style
-  const fieldStyle: React.CSSProperties = {
-    width: '100%',
-    background: 'var(--inset-bg)',
-    border: '1px solid var(--bd)',
-    borderRadius: 10,
-    padding: '10px 14px',
-    fontSize: 14,
-    color: 'var(--tx1)',
-    outline: 'none',
-    transition: 'border-color 150ms',
-  };
+  const mailUrl = `mailto:waxcelerate@gmail.com?subject=${encodeURIComponent(
+    de ? '[Waxcelerate] Anfrage' : '[Waxcelerate] Inquiry'
+  )}`;
 
   return (
     <section id="kontakt" className="relative py-16 bg-wx-bg">
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-2xl mx-auto">
 
           {/* Header */}
           <div ref={headerRef} className="text-center mb-12">
@@ -74,198 +43,117 @@ export function Contact() {
             </p>
           </div>
 
-          {/* Two-column: form left, WhatsApp right */}
-          <div className="grid md:grid-cols-[1fr_300px] gap-5 items-start">
+          {/* Two equal contact cards */}
+          <div className="grid sm:grid-cols-2 gap-4">
 
-            {/* ── Contact form ─────────────────────────────────────────── */}
-            <div
-              className="rounded-2xl p-6 sm:p-7"
+            {/* WhatsApp card */}
+            <a
+              href={waUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex flex-col rounded-2xl p-6 transition-all"
+              style={{
+                background: 'linear-gradient(145deg, #075E54 0%, #128C7E 100%)',
+                border: '1px solid rgba(37,211,102,0.25)',
+                boxShadow: '0 8px 32px rgba(37,211,102,0.12)',
+                textDecoration: 'none',
+              }}
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div
+                  className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: 'rgba(255,255,255,0.15)' }}
+                >
+                  <WhatsAppIcon className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <p className="font-bold text-white text-[15px] leading-tight">
+                    {de ? 'Per WhatsApp' : 'Via WhatsApp'}
+                  </p>
+                  <span
+                    className="inline-block mt-0.5 text-[10px] font-semibold px-2 py-0.5 rounded-full tracking-wide"
+                    style={{ background: 'rgba(37,211,102,0.22)', color: '#7FFFA8' }}
+                  >
+                    {de ? 'meist sofort' : 'usually instant'}
+                  </span>
+                </div>
+              </div>
+
+              <p className="text-[13px] leading-relaxed mb-5 flex-1" style={{ color: 'rgba(255,255,255,0.72)' }}>
+                {de
+                  ? 'Kurze Frage, Kettentyp-Check oder Lieferstatus? Schreib direkt — ich antworte persönlich.'
+                  : 'Quick question, chain check, or shipping? Write directly — I reply personally.'}
+              </p>
+
+              <div
+                className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl font-semibold text-[13px] transition-all group-hover:brightness-110"
+                style={{ background: '#25D366', color: '#000' }}
+              >
+                <WhatsAppIcon className="h-3.5 w-3.5" />
+                {de ? 'WhatsApp öffnen →' : 'Open WhatsApp →'}
+              </div>
+            </a>
+
+            {/* Email card */}
+            <a
+              href={mailUrl}
+              className="group flex flex-col rounded-2xl p-6 transition-all"
               style={{
                 background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
                 border: '1px solid var(--bd)',
                 boxShadow: 'var(--card-shad)',
+                textDecoration: 'none',
               }}
             >
-              {/* Card header */}
-              <div className="flex items-center gap-3 mb-6">
+              <div className="flex items-center gap-3 mb-4">
                 <div
-                  className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                  className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0"
                   style={{ background: 'rgba(43,82,176,0.12)', border: '1px solid rgba(43,82,176,0.22)' }}
                 >
-                  <Mail className="h-4 w-4" style={{ color: '#3D67CA' }} />
+                  <Mail className="h-5 w-5" style={{ color: '#3D67CA' }} />
                 </div>
                 <div>
-                  <p className="font-semibold text-wx-tx1 text-[14px] leading-tight">
-                    {de ? 'Nachricht schreiben' : 'Send a message'}
+                  <p className="font-bold text-wx-tx1 text-[15px] leading-tight">
+                    {de ? 'Per E-Mail' : 'Via Email'}
                   </p>
-                  <p className="text-[12px] mt-0.5 text-wx-txf">
-                    {de ? 'Öffnet deinen E-Mail-Client' : 'Opens your email client'}
-                  </p>
+                  <span
+                    className="inline-block mt-0.5 text-[10px] font-semibold px-2 py-0.5 rounded-full tracking-wide"
+                    style={{ background: 'rgba(43,82,176,0.12)', color: '#3D67CA' }}
+                  >
+                    {de ? 'am selben Tag' : 'same day'}
+                  </span>
                 </div>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-3.5">
-                {/* Name + Email row */}
-                <div className="grid sm:grid-cols-2 gap-3.5">
-                  <div>
-                    <label className="block text-[11px] uppercase tracking-[0.1em] font-medium mb-1.5" style={{ color: 'var(--txf)' }}>
-                      {de ? 'Name' : 'Name'}
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder={de ? 'Dein Name' : 'Your name'}
-                      value={name}
-                      onChange={e => setName(e.target.value)}
-                      style={fieldStyle}
-                      onFocus={e => { e.currentTarget.style.borderColor = 'rgba(61,103,202,0.55)'; }}
-                      onBlur={e => { e.currentTarget.style.borderColor = 'var(--bd)'; }}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] uppercase tracking-[0.1em] font-medium mb-1.5" style={{ color: 'var(--txf)' }}>
-                      E-Mail
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      placeholder={de ? 'deine@email.de' : 'your@email.com'}
-                      value={email}
-                      onChange={e => setEmail(e.target.value)}
-                      style={fieldStyle}
-                      onFocus={e => { e.currentTarget.style.borderColor = 'rgba(61,103,202,0.55)'; }}
-                      onBlur={e => { e.currentTarget.style.borderColor = 'var(--bd)'; }}
-                    />
-                  </div>
-                </div>
-
-                {/* Subject select */}
-                <div>
-                  <label className="block text-[11px] uppercase tracking-[0.1em] font-medium mb-1.5" style={{ color: 'var(--txf)' }}>
-                    {de ? 'Thema' : 'Subject'}
-                  </label>
-                  <select
-                    value={subject}
-                    onChange={e => setSubject(e.target.value)}
-                    style={{ ...fieldStyle, cursor: 'pointer' }}
-                    onFocus={e => { e.currentTarget.style.borderColor = 'rgba(61,103,202,0.55)'; }}
-                    onBlur={e => { e.currentTarget.style.borderColor = 'var(--bd)'; }}
-                  >
-                    {subjects.map(s => (
-                      <option key={s} value={s} style={{ background: 'var(--sf)', color: 'var(--tx1)' }}>{s}</option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Message textarea */}
-                <div>
-                  <label className="block text-[11px] uppercase tracking-[0.1em] font-medium mb-1.5" style={{ color: 'var(--txf)' }}>
-                    {de ? 'Nachricht' : 'Message'}
-                  </label>
-                  <textarea
-                    required
-                    rows={4}
-                    placeholder={de
-                      ? 'Deine Frage zur Bestellung, Kettentyp oder zum Produkt…'
-                      : 'Your question about the order, chain type, or product…'}
-                    value={message}
-                    onChange={e => setMessage(e.target.value)}
-                    style={{ ...fieldStyle, resize: 'vertical', minHeight: 100 }}
-                    onFocus={e => { e.currentTarget.style.borderColor = 'rgba(61,103,202,0.55)'; }}
-                    onBlur={e => { e.currentTarget.style.borderColor = 'var(--bd)'; }}
-                  />
-                </div>
-
-                {/* Submit */}
-                <button
-                  type="submit"
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-[14px] text-white transition-opacity hover:opacity-90 active:scale-[0.99]"
-                  style={{ background: '#2B52B0' }}
-                >
-                  {sent
-                    ? (de ? '✓ E-Mail-Client geöffnet' : '✓ Email client opened')
-                    : (
-                      <>
-                        <Send className="h-3.5 w-3.5" />
-                        {de ? 'Nachricht senden' : 'Send message'}
-                      </>
-                    )}
-                </button>
-              </form>
-            </div>
-
-            {/* ── WhatsApp CTA ──────────────────────────────────────────── */}
-            <div className="flex flex-col gap-4">
-              <a
-                href={waUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group block rounded-2xl p-6 transition-all"
-                style={{
-                  background: 'linear-gradient(145deg, #075E54 0%, #128C7E 100%)',
-                  border: '1px solid rgba(37,211,102,0.25)',
-                  boxShadow: '0 8px 32px rgba(37,211,102,0.15)',
-                  textDecoration: 'none',
-                }}
-              >
-                <div className="flex items-start gap-4 mb-5">
-                  <div
-                    className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0"
-                    style={{ background: 'rgba(255,255,255,0.15)' }}
-                  >
-                    <WhatsAppIcon className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <p className="font-bold text-white text-[15px] leading-tight mb-0.5">
-                      {de ? 'Per WhatsApp' : 'Via WhatsApp'}
-                    </p>
-                    <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.68)' }}>
-                      {de ? 'Direkte Antwort — meist sofort' : 'Direct reply — usually instant'}
-                    </p>
-                  </div>
-                </div>
-
-                <p className="text-[13px] leading-relaxed mb-5" style={{ color: 'rgba(255,255,255,0.80)' }}>
-                  {de
-                    ? 'Kurze Frage zur Kette, Kettentyp-Check oder Lieferstatus? Schreib mir direkt — ich antworte persönlich.'
-                    : 'Quick question about your chain, compatibility check or shipping? Write me directly — I reply personally.'}
-                </p>
-
-                <div
-                  className="flex items-center justify-center gap-2 w-full py-3 rounded-xl font-semibold text-[14px] transition-all group-hover:brightness-110"
-                  style={{ background: '#25D366', color: '#000' }}
-                >
-                  <WhatsAppIcon className="h-4 w-4" />
-                  {de ? 'WhatsApp öffnen →' : 'Open WhatsApp →'}
-                </div>
-              </a>
-
-              {/* Email fallback note */}
-              <div
-                className="rounded-xl px-4 py-3.5 text-center"
-                style={{ background: 'var(--sf3)', border: '1px solid var(--bd2)' }}
-              >
-                <p className="text-[12px] text-wx-txf mb-1">
-                  {de ? 'Oder per E-Mail:' : 'Or by email:'}
-                </p>
-                <a
-                  href="mailto:waxcelerate@gmail.com"
-                  className="text-[13px] font-medium transition-colors hover:text-[#5580E0]"
-                  style={{ color: '#3D67CA' }}
-                >
-                  waxcelerate@gmail.com
-                </a>
-              </div>
-
-              {/* Response note */}
-              <p className="text-center text-[11px]" style={{ color: 'var(--txf)' }}>
+              <p className="text-[13px] leading-relaxed mb-3 flex-1 text-wx-tx2">
                 {de
-                  ? '⚡ Antwort in der Regel am selben Tag'
-                  : '⚡ Reply usually the same day'}
+                  ? 'Für ausführlichere Anfragen oder wenn du lieber per E-Mail schreibst.'
+                  : 'For detailed inquiries or if you prefer email.'}
               </p>
-            </div>
+
+              <p
+                className="text-[12px] text-center mb-4 font-medium"
+                style={{ color: 'var(--txf)' }}
+              >
+                waxcelerate@gmail.com
+              </p>
+
+              <div
+                className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl font-semibold text-[13px] text-white transition-opacity group-hover:opacity-90"
+                style={{ background: '#2B52B0' }}
+              >
+                <Mail className="h-3.5 w-3.5" />
+                {de ? 'E-Mail schreiben' : 'Write an email'}
+              </div>
+            </a>
 
           </div>
+
+          {/* Response note */}
+          <p className="text-center text-[11px] mt-5" style={{ color: 'var(--txf)' }}>
+            {de ? '⚡ Antwort in der Regel am selben Tag' : '⚡ Reply usually the same day'}
+          </p>
+
         </div>
       </div>
 
