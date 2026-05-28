@@ -1,8 +1,25 @@
 import { useRef, useState } from 'react';
-import { BookOpen, Droplets, RotateCcw, ChevronDown } from 'lucide-react';
+import { BookOpen, Droplets, RotateCcw, ChevronDown, AlertCircle } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { use3DReveal } from '@/hooks/useAnimation';
+
+function StepText({ text }: { text: string }) {
+  const unitPattern = /(~?\d+(?:[––]\d+)?\s*(?:°C|min|km))/g;
+  const parts = text.split(unitPattern);
+  const isHighlight = (s: string) => /^~?\d+(?:[––]\d+)?\s*(?:°C|min|km)$/.test(s);
+  return (
+    <>
+      {parts.map((part, i) =>
+        isHighlight(part) ? (
+          <span key={i} className="font-semibold" style={{ color: '#3D67CA' }}>{part}</span>
+        ) : (
+          part
+        )
+      )}
+    </>
+  );
+}
 
 export function Guides() {
   const { t, lang } = useLanguage();
@@ -73,14 +90,36 @@ export function Guides() {
                     >
                       <div className="overflow-hidden">
                         <div className="px-5 pb-5 pt-1">
-                          {/* Note */}
-                          <p className="text-xs mb-4" style={{ color: 'var(--txf)' }}>
-                            {guide.data.note}
-                          </p>
+                          {/* Note callout */}
+                          {guide.data.note && (
+                            <div
+                              className="flex items-start gap-2.5 mb-4 px-3 py-2.5 rounded-lg"
+                              style={{
+                                background: 'rgba(43,82,176,0.07)',
+                                borderLeft: '2px solid rgba(43,82,176,0.4)',
+                              }}
+                            >
+                              <AlertCircle
+                                className="h-3.5 w-3.5 mt-0.5 flex-shrink-0"
+                                style={{ color: '#2B52B0' }}
+                              />
+                              <p className="text-xs leading-relaxed" style={{ color: 'var(--txf)' }}>
+                                {guide.data.note}
+                              </p>
+                            </div>
+                          )}
                           {/* Steps */}
-                          <ol className="space-y-2.5">
+                          <ol className="space-y-0">
                             {guide.data.steps.map((step: string, i: number) => (
-                              <li key={i} className="flex items-start gap-3">
+                              <li
+                                key={i}
+                                className="flex items-start gap-3 py-2.5"
+                                style={{
+                                  borderBottom: i < guide.data.steps.length - 1
+                                    ? '1px solid var(--bd2)'
+                                    : 'none',
+                                }}
+                              >
                                 <span
                                   className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-xs font-semibold mt-0.5"
                                   style={{
@@ -91,7 +130,7 @@ export function Guides() {
                                   {i + 1}
                                 </span>
                                 <span className="text-sm leading-relaxed" style={{ color: 'var(--tx2)' }}>
-                                  {step}
+                                  <StepText text={step} />
                                 </span>
                               </li>
                             ))}
