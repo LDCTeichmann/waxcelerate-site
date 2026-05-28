@@ -314,34 +314,33 @@ export function WhyWax() {
           {/* ── Science entry card ── */}
           <Link
             to="/wissenschaft"
-            className="group flex items-center justify-between gap-4 rounded-xl border border-wx-bd p-5 transition-all duration-200 hover:border-blue-700"
-            style={{
-              background: 'linear-gradient(135deg, rgba(26,48,128,0.08) 0%, rgba(43,82,176,0.04) 100%)',
-              boxShadow: '0 0 0 0 rgba(43,82,176,0)',
-            }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 0 0 1px rgba(43,82,176,0.25)'; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 0 0 0 rgba(43,82,176,0)'; }}
+            className="group relative flex items-center justify-between gap-4 rounded-xl p-5 overflow-hidden transition-all duration-300"
+            style={{ background: 'linear-gradient(135deg, rgba(26,48,128,0.1) 0%, rgba(43,82,176,0.05) 100%)', border: '1px solid rgba(43,82,176,0.2)', boxShadow: '0 0 0 0 rgba(43,82,176,0)', outline: 'none' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 0 0 1px rgba(43,82,176,0.35), 0 4px 24px rgba(43,82,176,0.12)'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(74,114,212,0.45)'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 0 0 0 rgba(43,82,176,0)'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(43,82,176,0.2)'; }}
           >
+            {/* Subtle corner glow */}
+            <div className="absolute top-0 right-0 w-24 h-24 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: 'radial-gradient(circle at top right, rgba(74,114,212,0.12), transparent 70%)' }} />
+
             <div className="flex items-center gap-4 min-w-0">
-              <div
-                className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
-                style={{ background: 'rgba(43,82,176,0.12)', boxShadow: '0 0 0 1px rgba(43,82,176,0.2)' }}
-              >
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-300 group-hover:scale-105" style={{ background: 'rgba(43,82,176,0.14)', boxShadow: '0 0 0 1px rgba(43,82,176,0.25), 0 0 16px rgba(43,82,176,0.08)' }}>
                 <FlaskConical className="w-4 h-4" style={{ color: '#4A72D4' }} />
               </div>
               <div className="min-w-0">
-                <p className="text-[10px] font-medium uppercase tracking-[0.2em] mb-0.5" style={{ color: '#3D67CA' }}>
+                <p className="text-[9px] font-semibold uppercase tracking-[0.28em] mb-1" style={{ color: '#4A72D4' }}>
                   {de ? 'Formulierungsdokumentation' : 'Formulation Documentation'}
                 </p>
-                <p className="text-[13px] font-semibold text-wx-tx1 leading-snug">
-                  {de ? 'Die Wissenschaft hinter der Formel — sechs Komponenten, jede mit einem Grund.' : 'The science behind the formula — six components, each for a reason.'}
+                <p className="text-[13px] font-semibold text-wx-tx1 leading-snug mb-2">
+                  {de ? 'Die Wissenschaft hinter der Formel' : 'The science behind the formula'}
                 </p>
+                <div className="flex items-center gap-2 flex-wrap">
+                  {['6 Stoffe', 'MoS₂ &lt;5 µm', 'μ 0.03'].map((tag, i) => (
+                    <span key={i} className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: 'rgba(43,82,176,0.1)', color: 'rgba(106,138,232,0.9)', border: '1px solid rgba(43,82,176,0.15)' }} dangerouslySetInnerHTML={{ __html: tag }} />
+                  ))}
+                </div>
               </div>
             </div>
-            <div
-              className="flex items-center gap-1.5 flex-shrink-0 text-[12px] font-medium transition-transform duration-200 group-hover:translate-x-1"
-              style={{ color: '#4A72D4' }}
-            >
+            <div className="flex items-center gap-1.5 flex-shrink-0 text-[12px] font-semibold transition-transform duration-200 group-hover:translate-x-1" style={{ color: '#4A72D4' }}>
               {de ? 'Lesen' : 'Read'}
               <ArrowRight className="w-3.5 h-3.5" />
             </div>
