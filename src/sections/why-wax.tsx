@@ -38,22 +38,13 @@ const differentiators = [
   },
 ];
 
-const frictionBars = [
-  { label: 'Waxcelerate Pro',    descriptor: 'μ 0,03–0,06', pct: '100%', highlight: true,  isPro: true  },
-  { label: 'Waxcelerate Classic', descriptor: 'μ 0,05–0,07', pct: '86%',  highlight: true               },
-  { labelDe: 'Graphit-Heißwachs', labelEn: 'Graphite Wax',  descriptor: 'μ 0,08–0,12', pct: '60%',  highlight: false              },
-  { labelDe: 'Kettenöl (nass)',   labelEn: 'Chain Oil (wet)', descriptor: 'μ 0,18–0,25', pct: '15%',  highlight: false, dim: true   },
-];
 
 const cardStyle = {
   background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
   boxShadow: 'var(--card-shad)',
 };
 
-const iconBadgeStyle = {
-  background: 'rgba(43,82,176,0.1)',
-  boxShadow: '0 0 0 1px rgba(43,82,176,0.15)',
-};
+
 
 export function WhyWax() {
   const { lang } = useLanguage();
@@ -103,8 +94,8 @@ export function WhyWax() {
             </h2>
             <p data-reveal="subtitle" className="text-wx-txm max-w-lg mx-auto text-[15px]">
               {de
-                ? 'Messbare Vorteile, konkrete Kosten — und warum diese Formel besser durchdacht ist als die meisten Alternativen.'
-                : 'Measurable advantages, real costs — and why this formulation is more carefully developed than most alternatives.'}
+                ? 'Was Heißwachs physikalisch anders macht — in Watt, in Verschleiß und in Euro.'
+                : 'What hot wax does differently — in watts, in wear, and in euros.'}
             </p>
           </div>
 
@@ -118,10 +109,8 @@ export function WhyWax() {
             >
               {/* Eyebrow */}
               <div className="flex items-center gap-2 mb-3">
-                <div className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0" style={iconBadgeStyle}>
-                  <TrendingDown className="h-3.5 w-3.5" style={{ color: '#4A72D4' }} />
-                </div>
-                <p className="text-[10px] font-medium uppercase tracking-[0.18em]" style={{ color: '#2B52B0' }}>
+                <TrendingDown className="h-4 w-4 flex-shrink-0 text-wx-txm" />
+                <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-wx-txm">
                   {de ? 'Kostenersparnis' : 'Cost Savings'}
                 </p>
               </div>
@@ -130,7 +119,7 @@ export function WhyWax() {
               <div className="flex items-baseline gap-2.5 mb-1">
                 <span className="font-serif-display italic text-[38px] font-bold text-wx-tx1 tabular-nums leading-none">~€70</span>
                 <div className="flex flex-col">
-                  <span className="text-[14px] font-semibold leading-tight" style={{ color: '#2B52B0' }}>
+                  <span className="text-[14px] font-semibold leading-tight" style={{ color: '#1A3C6E' }}>
                     {de ? 'gespart' : 'saved'}
                   </span>
                   <span className="text-[11px] text-wx-txf leading-tight">−46 %</span>
@@ -145,7 +134,7 @@ export function WhyWax() {
                 type="button"
                 onClick={() => setCostOpen(v => !v)}
                 className="flex items-center gap-1 text-[11px] font-medium cursor-pointer self-start transition-opacity hover:opacity-70"
-                style={{ color: '#3D67CA' }}
+                style={{ color: '#264E8C' }}
               >
                 {costOpen
                   ? (de ? 'Weniger ↑' : 'Less ↑')
@@ -171,10 +160,10 @@ export function WhyWax() {
                         <p className="text-[20px] font-bold text-wx-txm tabular-nums leading-none">~€151</p>
                         <p className="text-[9px] text-wx-txff mt-0.5">{de ? '3 Ketten' : '3 chains'}</p>
                       </div>
-                      <div className="rounded-lg p-2.5 text-center" style={{ background: 'rgba(43,82,176,0.08)', border: '1px solid rgba(43,82,176,0.25)' }}>
-                        <p className="text-[9px] uppercase tracking-[0.18em] font-semibold mb-1" style={{ color: '#3D67CA' }}>Wax</p>
-                        <p className="text-[20px] font-bold tabular-nums leading-none" style={{ color: '#4A72D4' }}>~€81</p>
-                        <p className="text-[9px] mt-0.5" style={{ color: '#3D67CA' }}>{de ? '1 Kette' : '1 chain'}</p>
+                      <div className="rounded-lg p-2.5 text-center" style={{ background: 'rgba(184,114,26,0.08)', border: '1px solid rgba(184,114,26,0.25)' }}>
+                        <p className="text-[9px] uppercase tracking-[0.18em] font-semibold mb-1" style={{ color: '#B8721A' }}>Wax</p>
+                        <p className="text-[20px] font-bold tabular-nums leading-none" style={{ color: '#C8842F' }}>~€81</p>
+                        <p className="text-[9px] mt-0.5" style={{ color: '#B8721A' }}>{de ? '1 Kette' : '1 chain'}</p>
                       </div>
                     </div>
                     {/* Breakdown rows */}
@@ -195,7 +184,7 @@ export function WhyWax() {
                         ))}
                       </div>
                       <div className="space-y-1 pl-3 border-l border-wx-bd">
-                        <p className="text-[9px] uppercase tracking-[0.16em] font-medium mb-1.5" style={{ color: '#2B52B0' }}>
+                        <p className="text-[9px] uppercase tracking-[0.16em] font-medium mb-1.5" style={{ color: '#B8721A' }}>
                           Wax
                         </p>
                         {[
@@ -205,7 +194,7 @@ export function WhyWax() {
                         ].map(([l, v], i) => (
                           <div key={i} className="flex justify-between text-[10px]">
                             <span className="text-wx-txf">{l}</span>
-                            <span className="tabular-nums font-semibold" style={{ color: '#4A72D4' }}>{v}</span>
+                            <span className="tabular-nums font-semibold" style={{ color: '#C8842F' }}>{v}</span>
                           </div>
                         ))}
                       </div>
@@ -225,10 +214,8 @@ export function WhyWax() {
                   style={cardStyle}
                 >
                   <div className="flex items-center gap-2 mb-3">
-                    <div className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0" style={iconBadgeStyle}>
-                      <Icon className="h-3.5 w-3.5" style={{ color: '#4A72D4' }} />
-                    </div>
-                    <p className="text-[10px] font-medium uppercase tracking-[0.18em]" style={{ color: '#2B52B0' }}>
+                    <Icon className="h-4 w-4 flex-shrink-0 text-wx-txm" />
+                    <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-wx-txm">
                       {de ? d.catDe : d.catEn}
                     </p>
                   </div>
@@ -242,71 +229,35 @@ export function WhyWax() {
               );
             })}
 
-            {/* ── Card 6: Friction chart ── */}
+            {/* ── Card 6: Friction stat ── */}
             <div
               className="diff-card flex flex-col rounded-xl border border-wx-bd p-4"
               style={cardStyle}
             >
               <div className="flex items-center gap-2 mb-3">
-                <div className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0" style={iconBadgeStyle}>
-                  <BarChart2 className="h-3.5 w-3.5" style={{ color: '#4A72D4' }} />
-                </div>
-                <p className="text-[10px] font-medium uppercase tracking-[0.18em]" style={{ color: '#2B52B0' }}>
+                <BarChart2 className="h-4 w-4 flex-shrink-0 text-wx-txm" />
+                <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-wx-txm">
                   {de ? 'Reibung' : 'Friction'}
                 </p>
               </div>
-              <p className="text-[13px] font-bold text-wx-tx1 leading-snug mb-3">
-                {de ? 'Messbar weniger Reibung' : 'Measurably less friction'}
-              </p>
 
-              <div className="space-y-3 flex-1">
-                {frictionBars.map((item, i) => {
-                  const label = 'label' in item ? item.label : (de ? item.labelDe : item.labelEn);
-                  return (
-                    <div key={i}>
-                      <div className="flex justify-between items-center mb-1">
-                        <span className={`text-[11px] font-medium ${item.highlight ? 'text-wx-tx1' : 'text-wx-txm'}`}>
-                          {label}
-                          {item.isPro && (
-                            <span
-                              className="ml-1.5 text-[9px] font-bold tracking-[0.15em] uppercase px-1 py-0.5 rounded"
-                              style={{ background: 'linear-gradient(135deg, #1A3080, #4A72D4)', color: 'rgba(255,255,255,0.9)' }}
-                            >
-                              PRO
-                            </span>
-                          )}
-                        </span>
-                        <span className={`text-[10px] tabular-nums font-mono ${
-                          item.highlight ? 'text-wx-tx2' : item.dim ? 'text-wx-txff' : 'text-wx-txf'
-                        }`}>
-                          {item.descriptor}
-                        </span>
-                      </div>
-                      <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--bd)' }}>
-                        <div
-                          className="fbar h-full w-full rounded-full"
-                          data-w={item.pct}
-                          style={{
-                            background: item.highlight
-                              ? (item.isPro
-                                  ? 'linear-gradient(90deg, #1A3080, #6A8AE8)'
-                                  : 'linear-gradient(90deg, #2B52B0, #4A72D4)')
-                              : item.dim ? 'var(--bd2)' : 'var(--txff)',
-                            transformOrigin: 'left center',
-                            transform: 'scaleX(0)',
-                          }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
+              <div className="flex items-baseline gap-2.5 mb-1">
+                <span className="font-serif-display italic text-[38px] font-bold text-wx-tx1 tabular-nums leading-none">μ 0,03</span>
               </div>
-
-              <p className="text-[10px] text-wx-txff mt-4 pt-3 leading-relaxed" style={{ borderTop: '1px solid var(--bd2)' }}>
+              <p className="text-[11px] text-wx-txm leading-relaxed mb-3 flex-1">
                 {de
-                  ? 'Pro mit MoS₂ führt die Skala an — Classic auf Augenhöhe mit Graphit-Heißwachs.'
-                  : 'Pro with MoS₂ leads — Classic on par with graphite hot wax.'}
+                  ? 'Waxcelerate Pro — niedrigster gemessener Wert vs. Kettenöl (μ 0,18–0,25).'
+                  : 'Waxcelerate Pro — lowest measured value vs. chain oil (μ 0.18–0.25).'}
               </p>
+
+              <Link
+                to="/wissenschaft"
+                className="flex items-center gap-1 text-[11px] font-medium self-start transition-opacity hover:opacity-70"
+                style={{ color: '#264E8C' }}
+                onClick={e => e.stopPropagation()}
+              >
+                {de ? 'Vollständiger Vergleich →' : 'Full comparison →'}
+              </Link>
             </div>
 
           </div>
@@ -315,32 +266,32 @@ export function WhyWax() {
           <Link
             to="/wissenschaft"
             className="group relative flex items-center justify-between gap-4 rounded-xl p-5 overflow-hidden transition-all duration-300"
-            style={{ background: 'linear-gradient(135deg, rgba(26,48,128,0.1) 0%, rgba(43,82,176,0.05) 100%)', border: '1px solid rgba(43,82,176,0.2)', boxShadow: '0 0 0 0 rgba(43,82,176,0)', outline: 'none' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 0 0 1px rgba(43,82,176,0.35), 0 4px 24px rgba(43,82,176,0.12)'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(74,114,212,0.45)'; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 0 0 0 rgba(43,82,176,0)'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(43,82,176,0.2)'; }}
+            style={{ background: 'linear-gradient(135deg, rgba(26,60,110,0.1) 0%, rgba(26,60,110,0.05) 100%)', border: '1px solid rgba(26,60,110,0.2)', boxShadow: '0 0 0 0 rgba(26,60,110,0)', outline: 'none' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 0 0 1px rgba(26,60,110,0.35), 0 4px 24px rgba(26,60,110,0.12)'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(42,84,153,0.45)'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 0 0 0 rgba(26,60,110,0)'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(26,60,110,0.2)'; }}
           >
             {/* Subtle corner glow */}
-            <div className="absolute top-0 right-0 w-24 h-24 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: 'radial-gradient(circle at top right, rgba(74,114,212,0.12), transparent 70%)' }} />
+            <div className="absolute top-0 right-0 w-24 h-24 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: 'radial-gradient(circle at top right, rgba(42,84,153,0.12), transparent 70%)' }} />
 
             <div className="flex items-center gap-4 min-w-0">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-300 group-hover:scale-105" style={{ background: 'rgba(43,82,176,0.14)', boxShadow: '0 0 0 1px rgba(43,82,176,0.25), 0 0 16px rgba(43,82,176,0.08)' }}>
-                <FlaskConical className="w-4 h-4" style={{ color: '#4A72D4' }} />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-300 group-hover:scale-105" style={{ background: 'rgba(26,60,110,0.14)', boxShadow: '0 0 0 1px rgba(26,60,110,0.25), 0 0 16px rgba(26,60,110,0.08)' }}>
+                <FlaskConical className="w-4 h-4" style={{ color: '#2A5499' }} />
               </div>
               <div className="min-w-0">
-                <p className="text-[9px] font-semibold uppercase tracking-[0.28em] mb-1" style={{ color: '#4A72D4' }}>
-                  {de ? 'Formulierungsdokumentation' : 'Formulation Documentation'}
+                <p className="text-[9px] font-semibold uppercase tracking-[0.28em] mb-1" style={{ color: '#2A5499' }}>
+                  {de ? 'Wissenschaft & Formel' : 'Science & Formula'}
                 </p>
                 <p className="text-[13px] font-semibold text-wx-tx1 leading-snug mb-2">
                   {de ? 'Die Wissenschaft hinter der Formel' : 'The science behind the formula'}
                 </p>
                 <div className="flex items-center gap-2 flex-wrap">
                   {['6 Stoffe', 'MoS₂ &lt;5 µm', 'μ 0.03'].map((tag, i) => (
-                    <span key={i} className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: 'rgba(43,82,176,0.1)', color: 'rgba(106,138,232,0.9)', border: '1px solid rgba(43,82,176,0.15)' }} dangerouslySetInnerHTML={{ __html: tag }} />
+                    <span key={i} className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: 'rgba(26,60,110,0.1)', color: 'rgba(106,138,232,0.9)', border: '1px solid rgba(26,60,110,0.15)' }} dangerouslySetInnerHTML={{ __html: tag }} />
                   ))}
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-1.5 flex-shrink-0 text-[12px] font-semibold transition-transform duration-200 group-hover:translate-x-1" style={{ color: '#4A72D4' }}>
+            <div className="flex items-center gap-1.5 flex-shrink-0 text-[12px] font-semibold transition-transform duration-200 group-hover:translate-x-1" style={{ color: '#2A5499' }}>
               {de ? 'Lesen' : 'Read'}
               <ArrowRight className="w-3.5 h-3.5" />
             </div>

@@ -8,16 +8,17 @@ import type { Product } from '@/lib/data';
 interface Props {
   product: Product;
   size?: 'sm' | 'md';
+  fullWidth?: boolean;
 }
 
-export function AddToCartButton({ product, size = 'md' }: Props) {
+export function AddToCartButton({ product, size = 'md', fullWidth = false }: Props) {
   const [added, setAdded] = useState(false);
   const addItem = useCartStore((s) => s.addItem);
   const stockMap = useCartStore((s) => s.stockMap);
   const { t, lang } = useLanguage();
   const de = lang === 'de';
 
-  const accent = '#2B52B0';
+  const accent = '#1A3C6E';
   const inStock = isInStock(stockMap, product.id);
   const lowStock = isLowStock(stockMap, product.id);
   const stock = stockMap[product.id] ?? -1;
@@ -51,14 +52,14 @@ export function AddToCartButton({ product, size = 'md' }: Props) {
   }
 
   return (
-    <div className="flex flex-col items-start gap-1">
+    <div className={`flex flex-col gap-1 ${fullWidth ? 'w-full' : 'items-start'}`}>
       <button
         onClick={handleClick}
         className={`flex items-center gap-1.5 font-semibold text-white rounded-xl transition-all active:scale-[0.97] ${
           size === 'sm'
             ? 'px-3.5 py-2 text-xs hover:scale-[1.03]'
             : 'px-5 py-2.5 text-sm hover:opacity-90'
-        }`}
+        } ${fullWidth ? 'w-full justify-center' : ''}`}
         style={{
           background: added ? '#22c55e' : accent,
           transition: 'background 0.2s ease, transform 0.15s ease',
