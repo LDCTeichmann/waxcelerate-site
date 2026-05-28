@@ -1,15 +1,21 @@
-import { useEffect } from 'react';
-import { X, ShoppingCart, Minus, Plus, Trash2, ExternalLink } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { X, ShoppingCart, Minus, Plus, Trash2, Loader2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useCartStore, cartItemCount, cartTotalPrice } from '@/store/cart';
 import { useLanguage } from '@/hooks/useLanguage';
+import { toast } from 'sonner';
 
 export function CartDrawer() {
   const items = useCartStore((s) => s.items);
   const isOpen = useCartStore((s) => s.isOpen);
+  const isCheckingOut = useCartStore((s) => s.isCheckingOut);
   const removeItem = useCartStore((s) => s.removeItem);
   const updateQty = useCartStore((s) => s.updateQty);
   const clear = useCartStore((s) => s.clear);
   const closeCart = useCartStore((s) => s.closeCart);
+  const checkout = useCartStore((s) => s.checkout);
+
+  const [agbAccepted, setAgbAccepted] = useState(false);
 
   const { t, lang } = useLanguage();
   const de = lang === 'de';
@@ -194,25 +200,63 @@ export function CartDrawer() {
 
             <p className="text-[11px] text-wx-txf leading-relaxed">{t.cart.vatNote}</p>
 
-            {/* eBay checkout + clear */}
-            <a
-              href="https://www.ebay.de/usr/waxcelerate"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full py-3.5 rounded-xl font-semibold text-white text-sm flex items-center justify-center gap-2 transition-all hover:opacity-90 active:scale-[0.99]"
+            {/* AGB acceptance */}
+            <label className="flex items-start gap-2.5 cursor-pointer group">
+              <input
+                type="checkbox"
+                checked={agbAccepted}
+                onChange={(e) => setAgbAccepted(e.target.checked)}
+                className="mt-0.5 flex-shrink-0 accent-[#2B52B0] w-3.5 h-3.5"
+              />
+              <span className="text-[11px] leading-relaxed" style={{ color: 'var(--txf)' }}>
+                {de ? (
+                  <>Ich habe die{' '}
+                    <Link to="/agb" onClick={closeCart} className="underline hover:text-white transition-colors">AGB</Link>
+                    {' '}gelesen und akzeptiere das{' '}
+                    <a href="https://www.gesetze-im-internet.de/bgb/__312g.html" target="_blank" rel="noopener noreferrer" className="underline hover:text-white transition-colors">14-tägige Widerrufsrecht</a>.
+                  </>
+                ) : (
+                  <>I have read the{' '}
+                    <Link to="/agb" onClick={closeCart} className="underline hover:text-white transition-colors">Terms</Link>
+                    {' '}and accept the 14-day right of withdrawal.
+                  </>
+                )}
+              </span>
+            </label>
+
+            {/* Checkout button */}
+            <button
+              onClick={async () => {
+                try {
+                  await checkout();
+                } catch (err) {
+                  const msg = err instanceof Error ? err.message : t.cart.error;
+                  toast.error(msg);
+                }
+              }}
+              disabled={!agbAccepted || isCheckingOut}
+              className="w-full py-3.5 rounded-xl font-semibold text-white text-sm flex items-center justify-center gap-2 transition-all hover:opacity-90 active:scale-[0.99] disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100"
               style={{ background: 'linear-gradient(135deg, #2B52B0, #3D67CA)' }}
-              onClick={closeCart}
             >
-              {de ? 'Bei eBay kaufen' : 'Buy on eBay'}
-              <ExternalLink className="h-3.5 w-3.5" />
-            </a>
+              {isCheckingOut ? (
+                <><Loader2 className="h-4 w-4 animate-spin" />{t.cart.loading}</>
+              ) : (
+                t.cart.checkout
+              )}
+            </button>
 
             <div className="flex items-center justify-between pt-0.5">
-              <p className="text-[11px] text-wx-txff">
-                {de ? 'Wähle dort das Produkt — Käuferschutz inklusive.' : 'Select your product there — buyer protection included.'}
-              </p>
+              <a
+                href="https://www.ebay.de/usr/waxcelerate"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[11px] transition-colors hover:text-white"
+                style={{ color: 'var(--txf)' }}
+              >
+                {de ? 'Lieber bei eBay kaufen →' : 'Buy on eBay instead →'}
+              </a>
               <button
-                onClick={() => { clear(); }}
+                onClick={clear}
                 className="text-xs text-wx-txf hover:text-wx-tx2 transition-colors flex-shrink-0 ml-3"
               >
                 {t.cart.clear}

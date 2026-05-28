@@ -15,12 +15,14 @@ interface CartStore {
   // Cart state
   items: CartItem[];
   isOpen: boolean;
+  isCheckingOut: boolean;
   addItem: (product: Product) => void;
   removeItem: (productId: string) => void;
   updateQty: (productId: string, qty: number) => void;
   clear: () => void;
   openCart: () => void;
   closeCart: () => void;
+  checkout: () => Promise<void>;
 
   // Stock state (fetched from /api/stock on mount)
   // -1 = not tracked (unlimited), 0 = out of stock, >0 = units available
@@ -30,10 +32,11 @@ interface CartStore {
 
 export const useCartStore = create<CartStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       // ── Cart ──────────────────────────────────────────────────────────────
       items: [],
       isOpen: false,
+      isCheckingOut: false,
 
       addItem: (product) =>
         set((state) => {
@@ -78,6 +81,29 @@ export const useCartStore = create<CartStore>()(
       clear: () => set({ items: [] }),
       openCart: () => set({ isOpen: true }),
       closeCart: () => set({ isOpen: false }),
+
+      checkout: async () => {
+        const { items } = get();
+        set({ isCheckingOut: true });
+        try {
+          const res = await fetch('/api/create-checkout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              items: items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
+            }),
+          });
+          if (!res.ok) {
+            const { error } = await res.json() as { error: string };
+            throw new Error(error ?? 'Checkout failed');
+          }
+          const { url } = await res.json() as { url: string };
+          window.location.href = url;
+        } catch (err) {
+          set({ isCheckingOut: false });
+          throw err;
+        }
+      },
 
       // ── Stock ─────────────────────────────────────────────────────────────
       stockMap: {},

@@ -8,6 +8,8 @@ export interface Product {
   price: number;
   image: string;
   ebayUrl: string;
+  /** Stripe Price ID — set after creating products in Stripe Dashboard → Products → copy price_xxx */
+  stripePriceId?: string;
   badge?: string;
   badgeEn?: string;
   // Enriched fields
