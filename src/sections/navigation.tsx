@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Menu, X, Sun, Moon, Star } from 'lucide-react';
+import { Menu, X, Sun, Moon } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
 import { CartIcon } from '@/components/CartIcon';
@@ -25,13 +25,11 @@ export function Navigation({ onLogoClick }: NavigationProps) {
   const { t, lang, toggleLang } = useLanguage();
   const { theme, setTheme } = useTheme();
   const de = lang === 'de';
-  const nextTheme = theme === 'light' ? 'dark' : theme === 'dark' ? 'noir' : 'light';
-  const ThemeIcon = theme === 'light' ? Moon : theme === 'dark' ? Star : Sun;
-  const themeLabel = theme === 'light'
-    ? (de ? 'Dunkelmodus' : 'Dark mode')
-    : theme === 'dark'
-    ? 'Noir'
-    : (de ? 'Hellmodus' : 'Light mode');
+  const nextTheme = theme === 'noir' ? 'light' : 'noir';
+  const ThemeIcon = theme === 'noir' ? Sun : Moon;
+  const themeLabel = theme === 'noir'
+    ? (de ? 'Hellmodus' : 'Light mode')
+    : (de ? 'Dunkelmodus (Noir)' : 'Dark mode (Noir)');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -132,7 +130,7 @@ export function Navigation({ onLogoClick }: NavigationProps) {
                 src="/images/logo.jpg"
                 alt="Waxcelerate"
                 className="w-auto rounded-lg"
-                style={{ height: '36px', width: 'auto' }}
+                style={{ height: '36px', width: 'auto', mixBlendMode: theme === 'noir' ? 'screen' : 'normal' }}
               />
               <span className="font-display text-sm font-bold tracking-wide text-wx-tx1">
                 WAXCELERATE
@@ -141,6 +139,16 @@ export function Navigation({ onLogoClick }: NavigationProps) {
 
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center gap-1">
+              <a
+                href="#produkte"
+                onClick={(e) => { e.preventDefault(); scrollToSection('#produkte'); }}
+                className={`inline-flex items-center gap-1.5 px-4 py-1.5 mr-2 text-[13px] font-semibold text-white rounded-full transition-all duration-300 hover:opacity-85 ${
+                  isScrolled ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                }`}
+                style={{ background: '#2B52B0' }}
+              >
+                {de ? 'Jetzt bestellen' : 'Buy now'}
+              </a>
               {navItems.map((item) => (
                 <a
                   key={item.href}
@@ -168,19 +176,22 @@ export function Navigation({ onLogoClick }: NavigationProps) {
             <div className="flex items-center gap-3">
               <CartIcon />
 
-              {/* Theme toggle */}
+              {/* Theme toggle — desktop only; mobile uses bottom panel */}
               <button
                 onClick={() => setTheme(nextTheme)}
-                className="p-2 text-wx-tx2 hover:text-wx-tx1 transition-colors rounded-md hover:bg-white/5"
+                className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 text-wx-tx2 hover:text-wx-tx1 transition-colors rounded-md hover:bg-black/5"
                 aria-label={themeLabel}
               >
                 <ThemeIcon className="h-4 w-4" />
+                <span className="text-[11px] font-medium" style={{ opacity: 0.55 }}>
+                  {theme === 'noir' ? 'Noir' : 'Light'}
+                </span>
               </button>
 
-              {/* Language toggle */}
+              {/* Language toggle — desktop only; mobile uses bottom panel */}
               <button
                 onClick={toggleLang}
-                className="px-3 py-1.5 text-xs font-medium text-wx-tx2 hover:text-wx-tx1 border border-wx-bd/50 hover:border-[#2B52B0] rounded transition-colors"
+                className="hidden lg:block px-3 py-1.5 text-xs font-medium text-wx-tx2 hover:text-wx-tx1 border border-wx-bd/50 hover:border-[#2B52B0] rounded transition-colors"
                 aria-label={lang === 'de' ? 'Switch to English' : 'Zu Deutsch wechseln'}
               >
                 {lang === 'de' ? 'EN' : 'DE'}
@@ -206,9 +217,9 @@ export function Navigation({ onLogoClick }: NavigationProps) {
            This avoids iOS Safari treating backdrop-filter as a containing
            block and overflow-hidden clipping the slide-in panel. ── */}
 
-      {/* Backdrop (tablet: sidebar mode) */}
+      {/* Backdrop */}
       <div
-        className={`lg:hidden fixed inset-0 z-[60] hidden sm:block transition-opacity duration-[250ms] ease-in-out ${
+        className={`lg:hidden fixed inset-0 z-[60] transition-opacity duration-[250ms] ease-in-out ${
           isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
         style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
@@ -228,7 +239,7 @@ export function Navigation({ onLogoClick }: NavigationProps) {
       >
         {/* Top bar */}
         <div className="flex items-center justify-between px-5 h-16 border-b border-wx-bd/20 flex-shrink-0">
-          <img src="/images/logo.jpg" alt="Waxcelerate" className="h-9 w-auto rounded-lg" />
+          <img src="/images/logo.jpg" alt="Waxcelerate" className="h-9 w-auto rounded-lg" style={{ mixBlendMode: theme === 'noir' ? 'screen' : 'normal' }} />
           <button
             onClick={() => setIsMobileMenuOpen(false)}
             className="p-2 text-wx-tx2 hover:text-wx-tx1 transition-colors"

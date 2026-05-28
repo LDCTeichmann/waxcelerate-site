@@ -9,6 +9,7 @@ import { getProductById } from '@/lib/data';
 import { richContent } from '@/lib/productContent';
 import { useLanguage } from '@/hooks/useLanguage';
 import { AddToCartButton } from '@/components/AddToCartButton';
+import { CartIcon } from '@/components/CartIcon';
 
 export function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -76,7 +77,7 @@ export function ProductDetailPage() {
       aggregateRating: {
         '@type': 'AggregateRating',
         ratingValue: '5',
-        reviewCount: '164',
+        reviewCount: '168',
         bestRating: '5',
         worstRating: '1',
       },
@@ -114,28 +115,25 @@ export function ProductDetailPage() {
       <script type="application/ld+json">{productSchema}</script>
     </Helmet>
     <div className="min-h-screen text-wx-tx1" style={{ background: 'var(--pg)' }}>
-      {/* Site logo header — visible to direct-link visitors */}
-      <header style={{ background: 'var(--sf3)', borderBottom: '1px solid var(--bd)', padding: '0 1rem' }}>
-        <div className="max-w-5xl mx-auto h-12 flex items-center">
-          <Link to="/" className="text-lg font-bold tracking-tight text-white">
-            WAX<span style={{ color: '#2B52B0' }}>CELERATE</span>
+      {/* Single sticky PDP nav: logo + breadcrumb + cart */}
+      <header className="sticky top-0 z-50 backdrop-blur-md border-b" style={{ background: 'var(--sf)', borderColor: 'var(--bd2)' }}>
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center gap-2.5">
+          <Link to="/" className="flex-shrink-0">
+            <img src="/images/logo.jpg" alt="Waxcelerate" className="h-7 w-auto rounded-md" />
           </Link>
-        </div>
-      </header>
-      {/* Nav */}
-      <div className="sticky top-0 z-50 backdrop-blur-md border-b" style={{ background: 'var(--sf)', borderColor: 'var(--bd2)' }}>
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center gap-3">
+          <ChevronRight className="h-3.5 w-3.5 flex-shrink-0 text-wx-txff" />
           <Link
             to="/"
-            className="flex items-center gap-1.5 text-sm text-wx-txm hover:text-wx-tx1 transition-colors"
+            className="flex items-center gap-1.5 text-sm text-wx-txm hover:text-wx-tx1 transition-colors flex-shrink-0"
           >
             <ArrowLeft className="h-4 w-4" />
             {de ? 'Zurück' : 'Back'}
           </Link>
-          <ChevronRight className="h-3.5 w-3.5 text-wx-txff" />
-          <span className="text-sm text-wx-txff truncate">{titleText}</span>
+          <ChevronRight className="h-3.5 w-3.5 flex-shrink-0 text-wx-txff" />
+          <span className="text-sm text-wx-txff truncate flex-1 min-w-0">{titleText}</span>
+          <CartIcon />
         </div>
-      </div>
+      </header>
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
 
@@ -315,7 +313,7 @@ export function ProductDetailPage() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {rc.stats.map((s, i) => (
                 <div key={i} className="rounded-xl px-4 py-4" style={{ border: '1px solid var(--bd2)', background: 'var(--sf3)' }}>
-                  <div className="text-xl sm:text-2xl font-bold tabular-nums mb-1" style={{ color: accentColor }}>{s.value}</div>
+                  <div className="text-xl sm:text-2xl font-bold tabular-nums mb-1" style={{ color: 'var(--tx1)' }}>{s.value}</div>
                   <div className="text-xs font-medium text-wx-tx2 leading-snug mb-0.5">{s.label}</div>
                   {s.sub && <div className="text-[10px] text-wx-txff leading-snug">{s.sub}</div>}
                 </div>

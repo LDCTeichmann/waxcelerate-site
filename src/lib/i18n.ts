@@ -15,12 +15,13 @@ export const translations = {
     // Hero
     hero: {
       subtitle: 'Heißwachs für Fahrradketten',
-      tagline: 'Messbar effizienter als Kettenöl. Entwickelt auf der Straße.',
-      ctaBuy: 'Produkte ansehen',
-      ctaGuide: 'Anleitung',
-      trust1: '100% positive Bewertungen (164)',
-      trust2: '500+ Artikel verkauft',
-      trust3: 'Versand aus Stuttgart',
+      headline: 'Am Ende der Recherche.',
+      headlineSub: 'Waxcelerate.',
+      tagline: 'Dreimal längere Kette. Kein Dreck. Kein Nachschmieren.',
+      priceAnchor: 'Ab €22,95 · ~€70 gespart auf 12.000 km',
+      guarantee: 'Nicht zufrieden? Schreib mir — ich sorge dafür, dass es stimmt.',
+      ctaBuy: 'Jetzt bestellen',
+      ctaSecondary: 'Wie funktioniert Heißwachs? →',
     },
 
     // Products
@@ -33,7 +34,7 @@ export const translations = {
       },
       buyOnEbay: 'Bei eBay kaufen',
       multiDiscount: 'Bei eBay: 2 Stk. = 10% · 3+ Stk. = 15%',
-      preWaxedHint: 'Alle Ketten werden professionell entfettet und von Hand gewachst. Einfach aufziehen und losfahren.',
+      preWaxedHint: 'Ultraschallbad-entfettet, von Hand gewachst — Kauf direkt über eBay mit vollem Käuferschutz.',
     },
 
     // Why Wax
@@ -49,8 +50,8 @@ export const translations = {
 
     // Tools
     tools: {
-      title: 'Interaktive Tools',
-      subtitle: 'Plane deine Kettenpflege optimal',
+      title: 'Rechner & Planer',
+      subtitle: 'Wie oft, wie viel, wie lange — konkrete Antworten für dein Setup.',
       rewax: {
         title: 'Wann muss ich rewaxen?',
         weather: 'Wetter',
@@ -131,30 +132,30 @@ export const translations = {
         title: 'Neue Kette erstmalig wachsen',
         note: 'Fabrikfett blockiert den Wirkstoff komplett — Entfetten ist Pflicht.',
         steps: [
-          'Kette entfetten — Ultraschallbad (ideal) oder 2–3× in Isopropanol/Aceton tauchen',
+          'Kette 2–3-mal in Isopropanol oder Aceton eintauchen, kräftig schütteln, mit einem Tuch abwischen und wiederholen, bis die Flüssigkeit klar bleibt.',
           'Vollständig trocknen — kein Lösungsmittelrest darf ins Wachs',
-          'Wachs auf 85–90 °C erhitzen, Kette 10–15 min eintauchen',
-          'Herausnehmen, abtropfen, auf Folie aushärten lassen',
-          'Kette durchbrechen bis sie wieder geschmeidig läuft',
+          'Wachs auf 75–90 °C erhitzen, Kette 10–15 min eintauchen und gelegentlich bewegen',
+          'Herausnehmen, abtropfen und vollständig aushärten lassen',
+          'Kette durchbrechen — über eine Metallstange oder einen Besenstiel ziehen, bis sie wieder geschmeidig läuft',
         ],
       },
       rewax: {
         title: 'Re-Waxen',
-        note: 'Altes Wachs muss nicht komplett runter — es löst sich im Wachsbad von selbst.',
+        note: '',
         steps: [
-          'Aktuelle Kette abziehen, frisch gewaxte montieren',
-          'Abgezogene Kette: heißes Wasser + Spüli — altes Wachs löst sich',
-          'Trocknen, dann 10 min ins Wachsbad bei 85–90 °C',
-          'Abtropfen, abkühlen, durchbrechen — fertig',
+          'Kette abnehmen (Kettenschloss öffnen) — frisch gewaxte Kette montieren und weiterfahren',
+          'Abgezogene Kette mit kochendem Wasser übergießen — altes Wachs löst sich und läuft ab',
+          'Vollständig trocknen, dann 10 min ins Wachsbad bei 75–90 °C',
+          'Abtropfen lassen, abkühlen und durchbrechen — fertig',
         ],
       },
       rotation: {
         title: '3-Ketten-Rotation',
-        note: 'Kein Warten. Immer eine frische Kette parat — alle drei auf einmal wachsen.',
+        note: 'Kein Warten. Immer eine frische Kette parat — alle drei gleichzeitig in ~15 min wachsen.',
         steps: [
           'Alle 300–500 km Kette wechseln (bei Nässe früher)',
-          'Abgezogene Kette reinigen und zurück ins Wachsbad',
-          '~15 min für alle drei Ketten in einer Session',
+          'Abgezogene Ketten sammeln — alle drei gemeinsam reinigen (heißes Wasser) und ins Wachsbad',
+          '~15 min für alle drei Ketten in einer Session — einmal Aufwand, dreimal Ertrag',
           'Kettenlaufzeit steigt: gleichmäßiger Verschleiß auf Kassette und Kettenblatt',
         ],
       },
@@ -162,7 +163,7 @@ export const translations = {
 
     // FAQ
     faq: {
-      eyebrow: 'Support',
+      eyebrow: 'Aus der Praxis',
       title: 'Häufige Fragen',
       subtitle: 'Echte Antworten — aus Kundengesprächen, Praxiserfahrung und dem, was die Forschung dazu sagt.',
       contactCta: 'Frage nicht dabei?',
@@ -173,8 +174,8 @@ export const translations = {
           a: 'Öl funktioniert. Aber es bindet Schmutz, der wie Schleifpaste zwischen Rollenlager, Kassette und Kettenblättern wirkt — bei jedem Tritt Metallabrieb. Mit Wachs bleibt die Kette trocken: nichts haftet daran, der Antrieb ist nach hundert Kilometern noch sauber. Dazu hält die Kette zwei- bis dreimal länger. Der Umstieg kostet einmalig 1–2 Stunden für die Erstentfettung. Danach ist der Aufwand pro Rewax kaum höher als mit Öl.',
         },
         {
-          q: 'Wie viele Kilometer hält eine gewachste Kette?',
-          a: 'Bei trockenen Bedingungen: ca. 400–600 km bevor das Nachwachsen sinnvoll ist. Bei Nässe oder MTB eher 200–350 km. Das Gesamtleben der Kette ist ein anderes: eine gut gepflegte gewachste Kette hält 6.000–12.000 km oder mehr — geölte Ketten oft nur 2.000–3.000 km, weil Schmutz den Antrieb von innen abschleift.',
+          q: 'Wie viele Kilometer hält eine gewachste Kette — und woran merke ich, wann ich rewaxen muss?',
+          a: 'Bei trockenen Bedingungen alle 400–500 km rewaxen, bei Nässe oder MTB alle 200–300 km. Das zuverlässigste Signal: der Antrieb klingt trockener oder die Kette läuft weniger geschmeidig als gewohnt — manchmal ein leises Kratzen oder Quietschen. Hör einfach hin, du wirst es merken. Das Gesamtleben der Kette ist eine andere Zahl: eine gut gepflegte gewachste Kette hält 6.000–12.000 km oder mehr — geölte Ketten oft nur 2.000–3.000 km, weil Schmutz den Antrieb von innen abschleift.',
         },
         {
           q: 'Wie viele Watt spart Heißwachs im Vergleich zu Kettenöl?',
@@ -190,7 +191,7 @@ export const translations = {
         },
         {
           q: 'Welche Ausrüstung brauche ich — muss das teuer sein?',
-          a: 'Nein. Ein alter Kochtopf oder Reiskocher, ein Draht zum Aufhängen der Kette, Isopropanol für die Erstentfettung und das Kettenwachs selbst — das ist alles. Kein Ultraschallbad nötig (das nutzen wir für die Initialreinigung unserer vorgewachsten Ketten, für das Nachwachsen ist es unnötig). Zieltemperatur: 85–90 °C.',
+          a: 'Nein. Ein alter Kochtopf oder Reiskocher, ein Draht zum Aufhängen der Kette, Isopropanol für die Erstentfettung und das Kettenwachs selbst — das ist alles. Kein Ultraschallbad nötig. Zieltemperatur: 85–90 °C; ein Mini-Slow-Cooker ist ideal, weil sich die Temperatur damit einfacher konstant halten lässt. Den Topf danach nicht mehr für Lebensmittel verwenden.',
         },
         {
           q: 'Heißwachs oder Flüssigwachs (Drip Wax) — was ist besser?',
@@ -205,10 +206,6 @@ export const translations = {
           a: 'Mit einer einzigen Kette wartest du jedes Mal auf das Aushärten. Mit drei Ketten im Wechsel läuft immer eine frisch gewachste auf dem Rad, eine wartet bereit, eine wird gerade gewachst — alle drei auf einmal dauert ca. 15–20 Minuten. Du rewaxst damit nur noch alle 1.200–1.800 km statt alle 400–500 km. Außerdem verteilt sich der Verschleiß gleichmäßig auf drei Ketten, was Kassette und Kettenblätter deutlich schont.',
         },
         {
-          q: 'Wie erkenne ich, wann meine Kette neu gewachst werden muss?',
-          a: 'Das zuverlässigste Zeichen: der Antrieb klingt trockener, die Kette läuft nicht mehr so geschmeidig. Manchmal ein leises Quietschen oder Kratzen. Du musst nicht nach Kilometern rechnen — hör einfach auf den Antrieb. Wer nach Zahlen geht: bei trockenen Bedingungen nach ~400–500 km, bei Nässe nach ~200–300 km. Lieber früher als zu spät.',
-        },
-        {
           q: 'Ist PTFE im Kettenwachs gesundheitlich bedenklich?',
           a: 'Nein — bei normaler Anwendung vollständig unbedenklich. PTFE ist chemisch inert, wird weder über die Haut aufgenommen noch löst es allergische Reaktionen aus. Die einzige potenzielle Gefahr entsteht bei Erhitzung über 260 °C — beim Heißwachsen einer Kette wird das Wachs aber nie über 90 °C erhitzt. Als Medizinstudent habe ich mich vor dem Einsatz intensiv damit auseinandergesetzt.',
         },
@@ -219,10 +216,6 @@ export const translations = {
         {
           q: 'Kann ich alle Ketten mit Waxcelerate wachsen — auch E-Bike?',
           a: 'Ja. Waxcelerate ist kompatibel mit allen gängigen 9-, 10-, 11- und 12-fach Ketten von Shimano, SRAM, Campagnolo und KMC. Für E-Bikes empfehlen wir das Pro mit MoS₂ — das höhere Drehmoment des E-Bike-Antriebs macht Hochdruckadditive sinnvoll.',
-        },
-        {
-          q: 'Kann ich das Wachs in einem normalen Topf schmelzen?',
-          a: 'Ja. Ein alter Kochtopf auf dem Herd oder ein Reiskocher funktionieren prima — kein spezielles Gerät nötig. Den Topf danach nicht mehr für Lebensmittel verwenden. Ein Mini-Slow-Cooker ist ideal, weil die Temperatur einfacher konstant zu halten ist. Zieltemperatur: 85–90 °C.',
         },
         {
           q: 'Wie breche ich die Kette nach dem ersten Wachsen richtig ein?',
@@ -269,9 +262,9 @@ export const translations = {
 
     // About
     about: {
-      title: 'Luca Teichmann',
-      bio1: 'Ich bin Luca Teichmann — Waxcelerate ist nicht am Schreibtisch entstanden, sondern auf nassen Herbststraßen, bei Ausfahrten tief im Winter und nach Sommerrennen, bei denen Staub und Hitze zeigen, was ein Wachs wirklich kann.',
-      bio2: 'Der Anspruch war von Anfang an konkret: kein Wachs, das im ersten Eindruck überzeugt und nach drei Wochen Kompromisse zeigt. Sondern eines, das seine Arbeit still tut, bei Kälte genauso wie im Hochsommer, über kurze Ausfahrten genauso wie über lange Intervalle. Nicht jede Charge war sofort richtig. Aber jede war näher dran.',
+      title: 'Entstanden auf der Straße.',
+      bio1: 'Ich bin Luca. Waxcelerate ist nicht am Schreibtisch entstanden, sondern auf nassen Herbststraßen, bei Ausfahrten tief im Winter und nach Sommerrennen, bei denen Staub und Hitze zeigen, was ein Wachs wirklich kann.',
+      bio2: 'Der Anspruch war von Anfang an konkret: kein Wachs, das im ersten Eindruck überzeugt und nach drei Wochen Kompromisse zeigt. Sondern eines, das seine Arbeit still tut — bei Kälte genauso wie im Hochsommer, über kurze Ausfahrten genauso wie über lange Intervalle. Nicht jede Charge war sofort richtig. Aber jede war näher dran.',
       bio3: 'Das Ergebnis wird in kleinen Chargen in Stuttgart entwickelt und gefertigt, für Fahrer, die beim Antrieb kein Versprechen brauchen, sondern ein Produkt, das sich seine Überzeugungskraft auf der Straße verdient hat.',
       location: 'Stuttgart, Deutschland',
       email: 'waxcelerate@gmail.com',
@@ -289,19 +282,12 @@ export const translations = {
     contact: {
       eyebrow: 'Kontakt',
       title: 'Kontakt',
-      subtitle: 'Direkte Antwort. Meistens innerhalb weniger Stunden.',
-      tabEmail: 'Nachricht',
-      tabWhatsapp: 'WhatsApp',
-      name: 'Name',
-      email: 'E-Mail',
-      bikeType: 'Radtyp & Schaltung',
-      message: 'Nachricht',
-      send: 'Nachricht senden',
-      emailTo: 'Deine Nachricht wird an waxcelerate@gmail.com gesendet',
-      success: 'E-Mail vorbereitet!',
-      successSub: 'Dein E-Mail-Programm sollte sich geöffnet haben. Falls nicht, schreib direkt an:',
-      whatsappTitle: 'Schreib mir auf WhatsApp',
-      whatsappDesc: 'Schneller Kontakt für kurze Fragen. Ich antworte so schnell wie möglich.',
+      subtitle: 'Direkte Antwort. In der Regel unter 24 Stunden.',
+      emailCardTitle: 'Per E-Mail',
+      emailCardDesc: 'Kettentyp, Frage zur Bestellung — schreib direkt an:',
+      emailCta: 'waxcelerate@gmail.com',
+      whatsappTitle: 'Per WhatsApp',
+      whatsappDesc: 'Für kurze Fragen — ich antworte so schnell wie möglich.',
       whatsappCta: 'WhatsApp öffnen',
     },
 
@@ -338,7 +324,7 @@ export const translations = {
 
     // Easter egg
     easterEgg: {
-      logoHint: 'Wachs-Secret gefunden! Drücke ↑↑↓↓←→←→BA für Tech-Specs.',
+      logoHint: 'Wachs-Secret! Drücke ↑↑↓↓←→←→BA für Tech-Specs.',
     },
 
     language: 'de',
@@ -360,12 +346,13 @@ export const translations = {
     // Hero
     hero: {
       subtitle: 'Hot Wax for Bicycle Chains',
-      tagline: 'Measurably more efficient than chain oil. Built on the road.',
-      ctaBuy: 'View products',
-      ctaGuide: 'Guide',
-      trust1: '100% positive feedback (164)',
-      trust2: '500+ items sold',
-      trust3: 'Shipping from Stuttgart',
+      headline: 'At the end of the research.',
+      headlineSub: 'Waxcelerate.',
+      tagline: '3× longer chain life. No grime. No re-lubing.',
+      priceAnchor: 'From €22.95 · ~€70 saved over 12,000 km',
+      guarantee: "Not happy? Write me — I'll make it right.",
+      ctaBuy: 'Buy now',
+      ctaSecondary: 'How does hot wax work? →',
     },
 
     // Products
@@ -378,7 +365,7 @@ export const translations = {
       },
       buyOnEbay: 'Buy on eBay',
       multiDiscount: 'On eBay: 2 pcs. = 10% · 3+ pcs. = 15%',
-      preWaxedHint: 'All chains are professionally degreased and hand-waxed. Just install and ride.',
+      preWaxedHint: 'Ultrasonic-bath degreased, hand-waxed — order directly via eBay with full buyer protection.',
     },
 
     // Why Wax
@@ -394,8 +381,8 @@ export const translations = {
 
     // Tools
     tools: {
-      title: 'Interactive Tools',
-      subtitle: 'Plan your chain maintenance optimally',
+      title: 'Calculators & Planners',
+      subtitle: 'How often, how much, how long — concrete answers for your setup.',
       rewax: {
         title: 'When should I re-wax?',
         weather: 'Weather',
@@ -476,30 +463,30 @@ export const translations = {
         title: 'First wax on a new chain',
         note: 'Factory grease blocks the lubricant completely — degreasing is mandatory.',
         steps: [
-          'Degrease — ultrasonic bath (ideal) or 2–3× in isopropanol/acetone',
+          'Dip chain 2–3 times in isopropanol or acetone, shake vigorously, wipe with a cloth and repeat until the liquid stays clear.',
           'Dry completely — no solvent residue should enter the wax',
-          'Heat wax to 85–90 °C, immerse chain for 10–15 min',
-          'Remove, drip off, let harden on foil',
-          'Break chain apart until it runs smoothly again',
+          'Heat wax to 75–90 °C, immerse chain for 10–15 min and move occasionally',
+          'Remove, drip off and let harden completely',
+          'Break the chain — pull over a metal rod or broomstick until it runs smoothly again',
         ],
       },
       rewax: {
         title: 'Re-waxing',
-        note: 'Old wax doesn\'t need to come off completely — it dissolves in the wax bath.',
+        note: '',
         steps: [
-          'Remove current chain, install freshly waxed one',
-          'Removed chain: hot water + dish soap — old wax dissolves',
-          'Dry, then 10 min in wax bath at 85–90 °C',
-          'Drip off, cool, break-in — done',
+          'Remove chain (open quick link) — install freshly waxed chain and keep riding',
+          'Pour boiling water over the removed chain — old wax dissolves and runs off',
+          'Dry completely, then 10 min in wax bath at 75–90 °C',
+          'Drip off, cool down and break in — done',
         ],
       },
       rotation: {
         title: '3-Chain Rotation',
-        note: 'No waiting. Always a fresh chain ready — wax all three at once.',
+        note: 'No waiting. Always a fresh chain ready — wax all three at once in ~15 min.',
         steps: [
           'Swap chain every 300–500 km (sooner in wet conditions)',
-          'Clean removed chain and put it back in the wax bath',
-          '~15 min for all three chains in one session',
+          'Collect removed chains — clean all three together (hot water) and into the wax bath',
+          '~15 min for all three chains in one session — one effort, triple the return',
           'Chain life increases: even wear on cassette and chainring',
         ],
       },
@@ -507,7 +494,7 @@ export const translations = {
 
     // FAQ
     faq: {
-      eyebrow: 'Support',
+      eyebrow: 'From experience',
       title: 'FAQ',
       subtitle: 'Real answers — drawn from customer conversations, hands-on experience, and what the research actually says.',
       contactCta: 'Not finding what you need?',
@@ -518,8 +505,8 @@ export const translations = {
           a: "Oil works. But it binds dirt that acts like grinding paste between rollers, cassette, and chainrings — creating metal wear with every pedal stroke. With wax, the chain stays dry: nothing adheres to it, and the drivetrain is still clean after a hundred kilometres. On top of that, the chain lasts two to three times longer. Switching costs a one-off 1–2 hours for the initial degreasing. After that, re-waxing takes barely more effort than re-oiling.",
         },
         {
-          q: 'How many kilometres does a waxed chain last?',
-          a: 'In dry conditions: around 400–600 km before re-waxing makes sense. In wet conditions or MTB, more like 200–350 km. Total chain life is a different story: a well-maintained waxed chain reaches 6,000–12,000 km or more — oiled chains often only 2,000–3,000 km, because dirt abrades the drivetrain from the inside.',
+          q: 'How many kilometres does a waxed chain last — and how do I know when to re-wax?',
+          a: 'In dry conditions re-wax every 400–500 km, in wet or MTB every 200–300 km. The most reliable signal: the drivetrain sounds drier or the chain runs less smoothly than usual — sometimes a faint scratch or squeak. Just listen, you\'ll notice. Total chain life is a different number: a well-maintained waxed chain reaches 6,000–12,000 km or more — oiled chains often only 2,000–3,000 km, because dirt abrades the drivetrain from the inside.',
         },
         {
           q: 'How many watts does hot wax save compared to chain oil?',
@@ -535,7 +522,7 @@ export const translations = {
         },
         {
           q: 'What equipment do I need — does it have to be expensive?',
-          a: "No. An old cooking pot or rice cooker, a piece of wire to hang the chain, isopropanol for initial degreasing, and the chain wax itself — that is everything. No ultrasonic bath needed for re-waxing (we use one for the initial cleaning of our pre-waxed chains). Target temperature: 85–90 °C.",
+          a: "No. An old cooking pot or rice cooker, a piece of wire to hang the chain, isopropanol for initial degreasing, and the chain wax itself — that is everything. No ultrasonic bath needed. Target temperature: 85–90 °C; a mini slow cooker is ideal because the temperature is easier to keep steady. Don't use the pot for food afterwards.",
         },
         {
           q: 'Hot wax or drip wax (liquid wax) — which is better?',
@@ -550,10 +537,6 @@ export const translations = {
           a: "With a single chain, you wait every time while the waxed chain hardens. With three chains in rotation, one freshly waxed chain is always on the bike, one is ready to swap, and one is being waxed — all three at once takes around 15–20 minutes. You then only re-wax every 1,200–1,800 km instead of every 400–500 km. Wear is also distributed evenly across three chains, which significantly protects cassette and chainrings.",
         },
         {
-          q: 'How do I know when my chain needs re-waxing?',
-          a: "The most reliable sign: the drivetrain sounds drier, the chain no longer runs as smoothly. Sometimes a faint squeak or scraping noise. You don't need to track kilometres — just listen to the drivetrain. If you prefer numbers: in dry conditions after ~400–500 km, in wet conditions after ~200–300 km. Earlier is better than too late.",
-        },
-        {
           q: 'Is PTFE in chain wax harmful to health?',
           a: "No — at normal use temperatures it is completely safe. PTFE is chemically inert, is not absorbed through the skin, and doesn't trigger allergic reactions. The only potential hazard arises when PTFE is heated above 260 °C — but hot waxing a chain never exceeds 90 °C. As a medical student I researched this thoroughly before using it myself.",
         },
@@ -564,10 +547,6 @@ export const translations = {
         {
           q: 'Can I wax all chains with Waxcelerate — including e-bike chains?',
           a: 'Yes. Waxcelerate is compatible with all common 9, 10, 11 and 12-speed chains from Shimano, SRAM, Campagnolo and KMC. For e-bikes we recommend Pro with MoS₂ — the higher torque of an e-bike drivetrain makes high-pressure additives particularly worthwhile.',
-        },
-        {
-          q: 'Can I melt the wax in a regular cooking pot?',
-          a: "Yes. An old pot on the stove or a rice cooker works perfectly — no specialist equipment needed. Don't use the pot for food afterwards. A mini slow cooker is ideal because temperature is easier to hold steady. Target temperature: 85–90 °C.",
         },
         {
           q: 'How do I break in the chain after the first wax?',
@@ -614,9 +593,9 @@ export const translations = {
 
     // About
     about: {
-      title: 'Luca Teichmann',
-      bio1: "I'm Luca Teichmann — Waxcelerate wasn't born at a desk — it came from wet autumn roads, deep winter rides, and summer races where dust and heat reveal what a wax is really made of.",
-      bio2: "The goal was concrete from the start: not a wax that impresses on first contact and starts making compromises after three weeks. But one that does its work quietly — in the cold just as well as in midsummer, on short rides just as well as long intervals. Not every batch was right straight away. But each one was closer.",
+      title: 'Built on the road.',
+      bio1: "I'm Luca. Waxcelerate wasn't born at a desk — it came from wet autumn roads, deep winter rides, and summer races where dust and heat reveal what a wax is really made of.",
+      bio2: "The standard was concrete from day one: not a wax that impresses at first contact and starts making compromises after three weeks. One that does its job quietly — in the cold as much as midsummer, over short rides as much as long ones. Not every batch was right straight away. But each one was closer.",
       bio3: "The result is developed and produced in small batches in Stuttgart, for riders who don't need a promise about their drivetrain — just a product that earns its reputation on the road.",
       location: 'Stuttgart, Germany',
       email: 'waxcelerate@gmail.com',
@@ -634,19 +613,12 @@ export const translations = {
     contact: {
       eyebrow: 'Get in Touch',
       title: 'Contact',
-      subtitle: 'Direct reply. Usually within a few hours.',
-      tabEmail: 'Message',
-      tabWhatsapp: 'WhatsApp',
-      name: 'Name',
-      email: 'Email',
-      bikeType: 'Bike type & drivetrain',
-      message: 'Message',
-      send: 'Send message',
-      emailTo: 'Your message will be sent to waxcelerate@gmail.com',
-      success: 'Email prepared!',
-      successSub: 'Your email client should have opened. If not, write directly to:',
-      whatsappTitle: 'Message me on WhatsApp',
-      whatsappDesc: 'Quick contact for short questions. I reply as soon as possible.',
+      subtitle: 'Direct reply. Usually within 24 hours.',
+      emailCardTitle: 'By Email',
+      emailCardDesc: 'Chain type, order question — write directly to:',
+      emailCta: 'waxcelerate@gmail.com',
+      whatsappTitle: 'By WhatsApp',
+      whatsappDesc: 'For quick questions — I reply as soon as possible.',
       whatsappCta: 'Open WhatsApp',
     },
 

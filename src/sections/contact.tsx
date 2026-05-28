@@ -1,76 +1,40 @@
-import { useState, useRef, useEffect } from 'react';
-import { Send, MessageCircle, Check } from 'lucide-react';
+import { useRef } from 'react';
+import { Mail } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useSectionReveal } from '@/hooks/useAnimation';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
-import gsap from 'gsap';
+
+function WhatsAppIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+    </svg>
+  );
+}
 
 export function Contact() {
   const { t, lang } = useLanguage();
   const de = lang === 'de';
   const headerRef = useRef<HTMLDivElement>(null);
-  const successRef = useRef<HTMLDivElement>(null);
-  const formRef = useRef<HTMLDivElement>(null);
   useSectionReveal(headerRef);
-  const [activeTab, setActiveTab] = useState<'email' | 'whatsapp'>('email');
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    bikeType: '',
-    message: '',
-  });
-  const [submitted, setSubmitted] = useState(false);
 
-  useEffect(() => {
-    if (!submitted || !successRef.current) return;
-    const el = successRef.current;
-    gsap.fromTo(el,
-      { scale: 0.85, opacity: 0, y: 12 },
-      { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: 'back.out(1.4)' }
-    );
-  }, [submitted]);
+  const waUrl = `https://wa.me/4915751957470?text=${encodeURIComponent(
+    de
+      ? 'Hallo Luca, ich habe eine Frage zu Waxcelerate: '
+      : 'Hi Luca, I have a question about Waxcelerate: '
+  )}`;
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const subject = encodeURIComponent(
-      `Anfrage von ${formData.name}${formData.bikeType ? ` — ${formData.bikeType}` : ''}`
-    );
-    const body = encodeURIComponent(
-      `Name: ${formData.name}\nEmail: ${formData.email}${formData.bikeType ? `\nFahrrad/Bike: ${formData.bikeType}` : ''}\n\n${formData.message}`
-    );
-    window.location.href = `mailto:waxcelerate@gmail.com?subject=${subject}&body=${body}`;
-
-    // Animate form out, show success
-    if (formRef.current) {
-      gsap.to(formRef.current, {
-        opacity: 0, y: -8, duration: 0.2, ease: 'power2.in',
-        onComplete: () => {
-          setSubmitted(true);
-          setTimeout(() => {
-            setSubmitted(false);
-            requestAnimationFrame(() => {
-              if (formRef.current) {
-                gsap.fromTo(formRef.current, { opacity: 0 }, { opacity: 1, duration: 0.4, ease: 'power2.out' });
-              }
-            });
-            setFormData({ name: '', email: '', bikeType: '', message: '' });
-          }, 3000);
-        },
-      });
-    } else {
-      setSubmitted(true);
-      setTimeout(() => {
-        setSubmitted(false);
-        setFormData({ name: '', email: '', bikeType: '', message: '' });
-      }, 3000);
-    }
-  };
+  const mailUrl = `mailto:waxcelerate@gmail.com?subject=${encodeURIComponent(
+    de ? '[Waxcelerate] Anfrage' : '[Waxcelerate] Inquiry'
+  )}`;
 
   return (
     <section id="kontakt" className="relative py-16 bg-wx-bg">
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-2xl mx-auto">
-          <div ref={headerRef} className="text-center mb-16">
+
+          {/* Header */}
+          <div ref={headerRef} className="text-center mb-12">
             <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-4">
               <ScrollWordReveal text={t.contact.title} />
             </h2>
@@ -79,150 +43,121 @@ export function Contact() {
             </p>
           </div>
 
-          {/* Tabs */}
-          <div className="flex gap-2 mb-6 p-1 rounded-xl" style={{ background: 'var(--sf3)', border: '1px solid var(--bd2)' }}>
-            <button
-              onClick={() => setActiveTab('email')}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all"
-              style={activeTab === 'email'
-                ? { background: '#2B52B0', color: '#fff' }
-                : { color: 'var(--txm)' }}
+          {/* Two equal contact cards */}
+          <div className="grid sm:grid-cols-2 gap-4">
+
+            {/* WhatsApp card */}
+            <a
+              href={waUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex flex-col rounded-2xl p-6 transition-all"
+              style={{
+                background: 'linear-gradient(145deg, #075E54 0%, #128C7E 100%)',
+                border: '1px solid rgba(37,211,102,0.25)',
+                boxShadow: '0 8px 32px rgba(37,211,102,0.12)',
+                textDecoration: 'none',
+              }}
             >
-              <Send className="h-4 w-4" />
-              {t.contact.tabEmail}
-            </button>
-            <button
-              onClick={() => setActiveTab('whatsapp')}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all"
-              style={activeTab === 'whatsapp'
-                ? { background: '#25D366', color: '#fff' }
-                : { color: 'var(--txm)' }}
+              <div className="flex items-center gap-3 mb-4">
+                <div
+                  className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: 'rgba(255,255,255,0.15)' }}
+                >
+                  <WhatsAppIcon className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <p className="font-bold text-white text-[15px] leading-tight">
+                    {de ? 'Per WhatsApp' : 'Via WhatsApp'}
+                  </p>
+                  <span
+                    className="inline-block mt-0.5 text-[10px] font-semibold px-2 py-0.5 rounded-full tracking-wide"
+                    style={{ background: 'rgba(37,211,102,0.22)', color: '#7FFFA8' }}
+                  >
+                    {de ? 'meist sofort' : 'usually instant'}
+                  </span>
+                </div>
+              </div>
+
+              <p className="text-[13px] leading-relaxed mb-5 flex-1" style={{ color: 'rgba(255,255,255,0.72)' }}>
+                {de
+                  ? 'Kurze Frage, Kettentyp-Check oder Lieferstatus? Schreib direkt — ich antworte persönlich.'
+                  : 'Quick question, chain check, or shipping? Write directly — I reply personally.'}
+              </p>
+
+              <div
+                className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl font-semibold text-[13px] transition-all group-hover:brightness-110"
+                style={{ background: '#25D366', color: '#000' }}
+              >
+                <WhatsAppIcon className="h-3.5 w-3.5" />
+                {de ? 'WhatsApp öffnen →' : 'Open WhatsApp →'}
+              </div>
+            </a>
+
+            {/* Email card */}
+            <a
+              href={mailUrl}
+              className="group flex flex-col rounded-2xl p-6 transition-all"
+              style={{
+                background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
+                border: '1px solid var(--bd)',
+                boxShadow: 'var(--card-shad)',
+                textDecoration: 'none',
+              }}
             >
-              <MessageCircle className="h-4 w-4" />
-              {t.contact.tabWhatsapp}
-            </button>
+              <div className="flex items-center gap-3 mb-4">
+                <div
+                  className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: 'rgba(43,82,176,0.12)', border: '1px solid rgba(43,82,176,0.22)' }}
+                >
+                  <Mail className="h-5 w-5" style={{ color: '#3D67CA' }} />
+                </div>
+                <div>
+                  <p className="font-bold text-wx-tx1 text-[15px] leading-tight">
+                    {de ? 'Per E-Mail' : 'Via Email'}
+                  </p>
+                  <span
+                    className="inline-block mt-0.5 text-[10px] font-semibold px-2 py-0.5 rounded-full tracking-wide"
+                    style={{ background: 'rgba(43,82,176,0.12)', color: '#3D67CA' }}
+                  >
+                    {de ? 'am selben Tag' : 'same day'}
+                  </span>
+                </div>
+              </div>
+
+              <p className="text-[13px] leading-relaxed mb-3 flex-1 text-wx-tx2">
+                {de
+                  ? 'Für ausführlichere Anfragen oder wenn du lieber per E-Mail schreibst.'
+                  : 'For detailed inquiries or if you prefer email.'}
+              </p>
+
+              <p
+                className="text-[12px] text-center mb-4 font-medium"
+                style={{ color: 'var(--txf)' }}
+              >
+                waxcelerate@gmail.com
+              </p>
+
+              <div
+                className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl font-semibold text-[13px] text-white transition-opacity group-hover:opacity-90"
+                style={{ background: '#2B52B0' }}
+              >
+                <Mail className="h-3.5 w-3.5" />
+                {de ? 'E-Mail schreiben' : 'Write an email'}
+              </div>
+            </a>
+
           </div>
 
-          {/* Email Form */}
-          {activeTab === 'email' && (
-            <div className="rounded-xl p-6" style={{ background: 'var(--sf3)', border: '1px solid var(--bd2)' }}>
-              {submitted ? (
-                <div ref={successRef} className="text-center py-8">
-                  <div className="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Check className="h-8 w-8 text-green-400" />
-                  </div>
-                  <h3 className="text-xl font-medium text-wx-tx1 mb-2">{t.contact.success}</h3>
-                  <p className="text-wx-tx2 text-sm">{t.contact.successSub}</p>
-                  <a
-                    href="mailto:waxcelerate@gmail.com"
-                    className="inline-block mt-2 text-[13px] font-medium underline"
-                    style={{ color: '#3D67CA' }}
-                  >
-                    waxcelerate@gmail.com
-                  </a>
-                </div>
-              ) : (
-                <div ref={formRef}>
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="grid sm:grid-cols-2 gap-4">
-                      <div>
-                        <label htmlFor="contact-name" className="block text-xs uppercase tracking-widest text-wx-tx2 mb-2">{t.contact.name} *</label>
-                        <input
-                          id="contact-name"
-                          required
-                          value={formData.name}
-                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                          className="w-full rounded-lg px-3.5 py-2.5 text-sm outline-none transition-all"
-                          style={{ background: 'var(--sf2)', border: '1px solid var(--bd)', color: 'var(--tx1)' }}
-                          onFocus={e => (e.currentTarget.style.borderColor = 'rgba(43,82,176,0.6)')}
-                          onBlur={e => (e.currentTarget.style.borderColor = 'var(--bd)')}
-                        />
-                      </div>
-                      <div>
-                        <label htmlFor="contact-email" className="block text-xs uppercase tracking-widest text-wx-tx2 mb-2">{t.contact.email} *</label>
-                        <input
-                          id="contact-email"
-                          type="email"
-                          required
-                          value={formData.email}
-                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                          className="w-full rounded-lg px-3.5 py-2.5 text-sm outline-none transition-all"
-                          style={{ background: 'var(--sf2)', border: '1px solid var(--bd)', color: 'var(--tx1)' }}
-                          onFocus={e => (e.currentTarget.style.borderColor = 'rgba(43,82,176,0.6)')}
-                          onBlur={e => (e.currentTarget.style.borderColor = 'var(--bd)')}
-                        />
-                      </div>
-                    </div>
+          {/* Response note */}
+          <p className="text-center text-[11px] mt-5" style={{ color: 'var(--txf)' }}>
+            {de ? '⚡ Antwort in der Regel am selben Tag' : '⚡ Reply usually the same day'}
+          </p>
 
-                    <div>
-                      <label htmlFor="contact-bike" className="block text-xs uppercase tracking-widest text-wx-tx2 mb-2">{t.contact.bikeType}</label>
-                      <input
-                        id="contact-bike"
-                        placeholder={de ? 'z.B. Rennrad, 11-fach Shimano' : 'e.g. Road bike, 11-speed Shimano'}
-                        value={formData.bikeType}
-                        onChange={(e) => setFormData({ ...formData, bikeType: e.target.value })}
-                        className="w-full rounded-lg px-3.5 py-2.5 text-sm outline-none transition-all"
-                        style={{ background: 'var(--sf2)', border: '1px solid var(--bd)', color: 'var(--tx1)' }}
-                        onFocus={e => (e.currentTarget.style.borderColor = 'rgba(43,82,176,0.6)')}
-                        onBlur={e => (e.currentTarget.style.borderColor = 'var(--bd)')}
-                      />
-                    </div>
-
-                    <div>
-                      <label htmlFor="contact-message" className="block text-xs uppercase tracking-widest text-wx-tx2 mb-2">{t.contact.message} *</label>
-                      <textarea
-                        id="contact-message"
-                        required
-                        rows={4}
-                        placeholder={de ? 'Deine Nachricht, z.B. Kettentyp, Frage zur Bestellung...' : 'Your message, e.g. chain type, order question...'}
-                        value={formData.message}
-                        onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                        className="w-full rounded-lg px-3.5 py-2.5 text-sm outline-none transition-all resize-none"
-                        style={{ background: 'var(--sf2)', border: '1px solid var(--bd)', color: 'var(--tx1)' }}
-                        onFocus={e => (e.currentTarget.style.borderColor = 'rgba(43,82,176,0.6)')}
-                        onBlur={e => (e.currentTarget.style.borderColor = 'var(--bd)')}
-                      />
-                    </div>
-
-                    <button
-                      type="submit"
-                      className="w-full flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-90"
-                      style={{ background: '#2B52B0' }}
-                    >
-                      <Send className="h-4 w-4" />
-                      {t.contact.send}
-                    </button>
-
-                    <p className="text-wx-txf text-xs text-center">{t.contact.emailTo}</p>
-                  </form>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* WhatsApp */}
-          {activeTab === 'whatsapp' && (
-            <div className="rounded-xl p-8 text-center" style={{ background: 'var(--sf3)', border: '1px solid var(--bd2)' }}>
-              <div className="w-16 h-16 bg-[#25D366]/10 rounded-full flex items-center justify-center mx-auto mb-5">
-                <MessageCircle className="h-8 w-8 text-[#25D366]" />
-              </div>
-              <h3 className="text-lg font-semibold text-wx-tx1 mb-2">{t.contact.whatsappTitle}</h3>
-              <p className="text-sm mb-6" style={{ color: 'var(--tx2)' }}>{t.contact.whatsappDesc}</p>
-              <a
-                href="https://wa.me/4915751957470"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-90"
-                style={{ background: '#25D366' }}
-              >
-                <MessageCircle className="h-4 w-4" />
-                {t.contact.whatsappCta}
-              </a>
-            </div>
-          )}
         </div>
       </div>
-      {/* Bottom gradient — bridges to Footer below */}
+
+      {/* Bottom gradient */}
       <div
         className="absolute bottom-0 left-0 right-0 pointer-events-none"
         style={{ height: '64px', background: 'linear-gradient(to bottom, transparent, var(--sf3))', zIndex: 1 }}

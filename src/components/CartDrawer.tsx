@@ -1,8 +1,7 @@
-import { useEffect, useState } from 'react';
-import { X, ShoppingCart, Minus, Plus, Trash2, Loader2, ExternalLink } from 'lucide-react';
+import { useEffect } from 'react';
+import { X, ShoppingCart, Minus, Plus, Trash2, ExternalLink } from 'lucide-react';
 import { useCartStore, cartItemCount, cartTotalPrice } from '@/store/cart';
 import { useLanguage } from '@/hooks/useLanguage';
-import { toast } from 'sonner';
 
 export function CartDrawer() {
   const items = useCartStore((s) => s.items);
@@ -14,7 +13,6 @@ export function CartDrawer() {
 
   const { t, lang } = useLanguage();
   const de = lang === 'de';
-  const [loading, setLoading] = useState(false);
 
   const count = cartItemCount(items);
   const total = cartTotalPrice(items);
@@ -35,42 +33,6 @@ export function CartDrawer() {
   const formatPrice = (price: number) =>
     new Intl.NumberFormat(de ? 'de-DE' : 'en-US', { style: 'currency', currency: 'EUR' }).format(price);
 
-  const handleCheckout = async () => {
-    setLoading(true);
-    try {
-      // Send ONLY productId + quantity — server looks up prices from catalog
-      const orderLines = items.map((i) => ({ productId: i.productId, quantity: i.quantity }));
-
-      const res = await fetch('/api/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items: orderLines, lang }),
-      });
-
-      const data = await res.json() as { url?: string; error?: string; productId?: string };
-
-      if (!res.ok) {
-        if (data.error === 'out_of_stock') {
-          const item = items.find((i) => i.productId === data.productId);
-          const name = item ? (de ? item.title : item.titleEn) : (de ? 'Produkt' : 'Product');
-          toast.error(de ? `${name} ist leider ausverkauft` : `${name} is out of stock`);
-        } else {
-          toast.error(t.cart.error);
-        }
-        return;
-      }
-
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error('No redirect URL');
-      }
-    } catch {
-      toast.error(t.cart.error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <>
@@ -232,38 +194,26 @@ export function CartDrawer() {
 
             <p className="text-[11px] text-wx-txf leading-relaxed">{t.cart.vatNote}</p>
 
-            {/* Checkout button */}
-            <button
-              onClick={handleCheckout}
-              disabled={loading}
-              className="w-full py-3.5 rounded-xl font-semibold text-white text-sm flex items-center justify-center gap-2 transition-all hover:opacity-90 active:scale-[0.99] disabled:opacity-60"
-              style={{ background: 'linear-gradient(135deg, #2B52B0, #6080F8)' }}
+            {/* eBay checkout + clear */}
+            <a
+              href="https://www.ebay.de/usr/waxcelerate"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full py-3.5 rounded-xl font-semibold text-white text-sm flex items-center justify-center gap-2 transition-all hover:opacity-90 active:scale-[0.99]"
+              style={{ background: 'linear-gradient(135deg, #2B52B0, #3D67CA)' }}
+              onClick={closeCart}
             >
-              {loading ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  {t.cart.loading}
-                </>
-              ) : (
-                `${t.cart.checkout} — ${formatPrice(total)}`
-              )}
-            </button>
+              {de ? 'Bei eBay kaufen' : 'Buy on eBay'}
+              <ExternalLink className="h-3.5 w-3.5" />
+            </a>
 
-            {/* eBay fallback + clear */}
             <div className="flex items-center justify-between pt-0.5">
-              <a
-                href="https://www.ebay.de/usr/waxcelerate"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-wx-txf hover:text-wx-tx2 transition-colors flex items-center gap-1"
-                onClick={closeCart}
-              >
-                {de ? 'Alternativ bei eBay' : 'Also on eBay'}
-                <ExternalLink className="h-3 w-3" />
-              </a>
+              <p className="text-[11px] text-wx-txff">
+                {de ? 'Wähle dort das Produkt — Käuferschutz inklusive.' : 'Select your product there — buyer protection included.'}
+              </p>
               <button
                 onClick={() => { clear(); }}
-                className="text-xs text-wx-txf hover:text-wx-tx2 transition-colors"
+                className="text-xs text-wx-txf hover:text-wx-tx2 transition-colors flex-shrink-0 ml-3"
               >
                 {t.cart.clear}
               </button>

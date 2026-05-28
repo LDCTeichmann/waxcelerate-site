@@ -2,7 +2,6 @@ import { useEffect, useCallback, useState, lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { Navigation } from '@/sections/navigation';
 import { Hero } from '@/sections/hero';
-import { SocialProof } from '@/sections/social-proof';
 import { Products } from '@/sections/products';
 import { WhyWax } from '@/sections/why-wax';
 import { Tools } from '@/sections/tools';
@@ -22,6 +21,7 @@ const OrderSuccess = lazy(() => import('@/pages/OrderSuccess').then(m => ({ defa
 const AdminPage = lazy(() => import('@/pages/AdminPage').then(m => ({ default: m.AdminPage })));
 const BlogIndexPage = lazy(() => import('@/pages/blog/BlogIndexPage').then(m => ({ default: m.BlogIndexPage })));
 const BlogArticlePage = lazy(() => import('@/pages/blog/BlogArticlePage').then(m => ({ default: m.BlogArticlePage })));
+const SciencePage = lazy(() => import('@/pages/SciencePage').then(m => ({ default: m.SciencePage })));
 import { LanguageProvider, useLanguage } from '@/hooks/useLanguage';
 import { toast } from 'sonner';
 import { Toaster } from '@/components/ui/sonner';
@@ -95,19 +95,19 @@ function AppContent() {
         <Route path="/datenschutz" element={<Suspense fallback={<PageLoader />}><DatenschutzPage /></Suspense>} />
         <Route path="/agb" element={<Suspense fallback={<PageLoader />}><AGBPage /></Suspense>} />
         <Route path="/admin" element={<Suspense fallback={<PageLoader />}><AdminPage /></Suspense>} />
+        <Route path="/wissenschaft" element={<Suspense fallback={<PageLoader />}><SciencePage /></Suspense>} />
         <Route path="*" element={
           <>
             <Navigation onLogoClick={handleLogoClick} />
             <main>
               <Hero />
-              <SocialProof />
               <Conviction />
               <WhyWax />
               <Reviews />
               <Products />
+              <Tools />
               <About />
               <Guides />
-              <Tools />
               <FAQ />
               <Contact />
             </main>

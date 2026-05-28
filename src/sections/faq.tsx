@@ -4,7 +4,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { use3DReveal } from '@/hooks/useAnimation';
 
-const ITEMS_DEFAULT = 8;
+const ITEMS_DEFAULT = 5;
 
 export function FAQ() {
   const { t, lang } = useLanguage();
@@ -37,7 +37,13 @@ export function FAQ() {
                 className="border-b border-wx-bd/25 last:border-0 first:border-t first:border-wx-bd/25"
               >
                 <button
-                  onClick={() => setOpenItem(openItem === index.toString() ? null : index.toString())}
+                  onClick={(e) => {
+                    const next = openItem === index.toString() ? null : index.toString();
+                    setOpenItem(next);
+                    if (next !== null) {
+                      (e.currentTarget as HTMLButtonElement).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                  }}
                   className="w-full flex items-center justify-between py-5 text-left gap-5 hover:text-wx-tx1 transition-colors group"
                 >
                   <h3 className="text-wx-tx1 font-medium text-[15px] leading-snug text-left flex-1 group-hover:text-wx-tx1 transition-colors">

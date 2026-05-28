@@ -1,5 +1,4 @@
 import { ExternalLink, Check, Droplets, Sun, Shield } from 'lucide-react';
-import { AddToCartButton } from '@/components/AddToCartButton';
 import { Link } from 'react-router-dom';
 import { useState, useRef, useEffect, useCallback, useMemo, memo } from 'react';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
@@ -25,6 +24,13 @@ export function Products() {
 
   const headerRef = useRef<HTMLDivElement>(null);
   useSectionReveal(headerRef);
+
+  // Listen for hero pill "Vorgewachste Ketten" click → open chains tab
+  useEffect(() => {
+    const handler = (e: Event) => setActiveTab((e as CustomEvent<'wax' | 'chain'>).detail);
+    window.addEventListener('wax:selectTab', handler);
+    return () => window.removeEventListener('wax:selectTab', handler);
+  }, []);
 
   const waxProducts = useMemo(() => products.filter(p => p.category === 'wax'), []);
   const chainProducts = useMemo(() => products.filter(p => p.category === 'chain'), []);
@@ -147,12 +153,14 @@ export function Products() {
           {/* ── Wax tab ── */}
           {activeTab === 'wax' && (
             <>
-              <div className="flex items-center gap-2.5 mb-6 px-1">
-                <span className="h-1.5 w-1.5 rounded-full flex-shrink-0" style={{ background: '#2B52B0' }} />
+              <div className="flex flex-col gap-1.5 sm:flex-row sm:items-start sm:justify-between sm:gap-3 mb-6 px-1">
                 <p className="text-[13px]" style={{ color: 'var(--txm)' }}>
                   {de
-                    ? 'Neu beim Heißwachs? Das Classic 500g ist der ideale Einstieg.'
-                    : 'New to hot wax? The Classic 500g is the perfect starting point.'}
+                    ? 'Du brauchst nur: alter Topf · Isopropanol · 85–90 °C · ~60 min beim ersten Mal.'
+                    : 'All you need: old pot · isopropanol · 85–90 °C · ~60 min the first time.'}
+                </p>
+                <p className="text-[12px] sm:whitespace-nowrap sm:flex-shrink-0" style={{ color: 'var(--txf)' }}>
+                  {t.products.multiDiscount}
                 </p>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 items-stretch">
@@ -308,7 +316,7 @@ function useTilt(strength = 5) {
 
 // ── Wax Card ───────────────────────────────────────────────────────────────
 
-const WaxCard = memo(function WaxCard({ product, de, formatPrice }: CardProps) {
+const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: CardProps) {
   const isPro = product.variant === 'pro';
   const accent = isPro ? '#4A72D4' : '#2B52B0';
 
@@ -394,12 +402,17 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice }: CardProps) {
             <h3 className="text-[17px] font-semibold text-wx-tx1 leading-snug tracking-[-0.01em]">
               {de ? product.title : product.titleEn}
             </h3>
+            {((de ? product.bestFor : product.bestForEn)?.[0]) && (
+              <p className="text-[11px] uppercase tracking-[0.14em] font-medium mt-1.5" style={{ color: accent }}>
+                {(de ? product.bestFor : product.bestForEn)![0]}
+              </p>
+            )}
           </div>
 
           {/* Benefits grow to fill — this equalises card heights */}
           <div className="flex flex-col gap-2 mb-5 flex-1">
             {benefits.map(({ icon, label }, i) => (
-              <div key={i} className="flex items-start gap-2.5 text-[12.5px] leading-snug" style={{ color: 'var(--txm)' }}>
+              <div key={i} className="flex items-start gap-2.5 text-[13px] leading-relaxed" style={{ color: 'var(--txm)' }}>
                 <span style={{ color: accent }} className="flex-shrink-0 mt-px">{icon}</span>
                 {label}
               </div>
@@ -417,7 +430,14 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice }: CardProps) {
                 {product.applications} {de ? 'Anwendungen' : 'applications'}
               </p>
             </div>
-            <AddToCartButton product={product} size="sm" />
+            <button
+              onClick={e => { e.preventDefault(); e.stopPropagation(); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
+              className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-white rounded-xl transition-opacity duration-150 hover:opacity-90 active:scale-[0.97]"
+              style={{ background: '#2B52B0' }}
+            >
+              {buyLabel}
+              <ExternalLink className="h-3 w-3" />
+            </button>
           </div>
         </div>
       </Link>
@@ -473,6 +493,19 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
             className="absolute inset-x-0 bottom-0 pointer-events-none"
             style={{ height: '60px', background: 'linear-gradient(to top, var(--card-to) 0%, transparent 100%)' }}
           />
+          {/* eBay source badge — sets expectation before click */}
+          <span
+            className="absolute top-2.5 left-2.5 flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded"
+            style={{
+              background: 'rgba(0,0,0,0.50)',
+              color: 'rgba(255,255,255,0.50)',
+              border: '1px solid rgba(255,255,255,0.09)',
+              backdropFilter: 'blur(4px)',
+            }}
+          >
+            <span className="inline-block h-1.5 w-1.5 rounded-full flex-shrink-0" style={{ background: '#2B52B0' }} />
+            eBay
+          </span>
           {badge && (
             <span
               className="absolute top-2.5 right-2.5 text-[11px] font-semibold tracking-wide uppercase px-2 py-1 rounded-md"
@@ -512,17 +545,14 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
 
           <div className="flex items-center justify-between">
             <span className="text-[20px] font-bold text-wx-tx1 tracking-[-0.02em]">{formatPrice(product.price)}</span>
-            <a
-              href={product.ebayUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={e => e.stopPropagation()}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-semibold text-white transition-opacity duration-150 hover:opacity-90 active:scale-[0.97]"
+            <button
+              onClick={e => { e.preventDefault(); e.stopPropagation(); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-[13px] font-semibold text-white transition-opacity duration-150 hover:opacity-90 active:scale-[0.97]"
               style={{ background: accent }}
             >
               {buyLabel}
               <ExternalLink className="h-3 w-3" />
-            </a>
+            </button>
           </div>
         </div>
       </Link>

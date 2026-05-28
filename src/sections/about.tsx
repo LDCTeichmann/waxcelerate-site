@@ -1,84 +1,65 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { ExternalLink } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useSectionReveal } from '@/hooks/useAnimation';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
-import { gsap, ScrollTrigger } from '@/lib/gsap';
-
-
-// Animated count-up triggered when card scrolls into view
-function CountUp({ end, duration = 1600 }: { end: number; duration?: number }) {
-  const [count, setCount] = useState(0);
-  const [started, setStarted] = useState(false);
-  const ref = useRef<HTMLSpanElement>(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const trigger = ScrollTrigger.create({
-      trigger: el,
-      start: 'top 90%',
-      once: true,
-      onEnter: () => setStarted(true),
-    });
-    return () => trigger.kill();
-  }, []);
-
-  useEffect(() => {
-    if (!started) return;
-    let startTime: number;
-    const step = (ts: number) => {
-      if (!startTime) startTime = ts;
-      const p = Math.min((ts - startTime) / duration, 1);
-      setCount(Math.floor(p * end));
-      if (p < 1) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  }, [started, end, duration]);
-
-  return <span ref={ref}>{count}</span>;
-}
+import { gsap } from '@/lib/gsap';
 
 export function About() {
   const { t, lang } = useLanguage();
   const headerRef = useRef<HTMLDivElement>(null);
-  const textRef = useRef<HTMLDivElement>(null);
-  const cardRef = useRef<HTMLDivElement>(null);
+  const textRef   = useRef<HTMLDivElement>(null);
+  const bannerRef = useRef<HTMLDivElement>(null);
+  const statsRef  = useRef<HTMLDivElement>(null);
   useSectionReveal(headerRef);
 
   useEffect(() => {
-    const text = textRef.current;
-    const card = cardRef.current;
-    if (!text || !card) return;
+    const els = [textRef.current, bannerRef.current, statsRef.current].filter(Boolean);
+    if (!els.length) return;
 
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      gsap.set([text, card], { opacity: 1, y: 0 });
+      gsap.set(els, { opacity: 1, y: 0 });
       return;
     }
 
-    gsap.set([text, card], { opacity: 0, y: 28 });
-
+    gsap.set(els, { opacity: 0, y: 24 });
     const ctx = gsap.context(() => {
-      gsap.to(text, {
-        opacity: 1, y: 0, duration: 0.7, ease: 'power3.out',
-        scrollTrigger: { trigger: text, start: 'top 88%', once: true },
+      gsap.to(textRef.current, {
+        opacity: 1, y: 0, duration: 0.75, ease: 'power3.out',
+        scrollTrigger: { trigger: textRef.current, start: 'top 88%', once: true },
       });
-      gsap.to(card, {
-        opacity: 1, y: 0, duration: 0.7, ease: 'power3.out', delay: 0.12,
-        scrollTrigger: { trigger: card, start: 'top 88%', once: true },
+      gsap.to(bannerRef.current, {
+        opacity: 1, y: 0, duration: 0.7, ease: 'power3.out', delay: 0.08,
+        scrollTrigger: { trigger: bannerRef.current, start: 'top 88%', once: true },
+      });
+      gsap.to(statsRef.current, {
+        opacity: 1, y: 0, duration: 0.65, ease: 'power3.out',
+        scrollTrigger: { trigger: statsRef.current, start: 'top 92%', once: true },
       });
     });
-
     return () => ctx.revert();
   }, []);
 
   const de = lang === 'de';
 
-  const stats = [
-    { value: 100, prefix: '', suffix: '%',  label: t.about.stats.rating },
-    { value: 500, prefix: '', suffix: '+',  label: t.about.stats.sold },
-    { value: 164, prefix: '', suffix: '',   label: de ? 'eBay-Bewertungen' : 'eBay Reviews' },
-    { value: 24,  prefix: '<', suffix: 'h', label: t.about.stats.response },
+  const stats: { value: string; badge?: string; label: string }[] = [
+    {
+      value: '171',
+      badge: '100% positiv',
+      label: de ? 'eBay-Bewertungen' : 'eBay reviews',
+    },
+    {
+      value: de ? '1 Tag' : '1 day',
+      label: de ? 'Versand nach Bestellung' : 'Ships after order',
+    },
+    {
+      value: de ? 'Seit 2024' : 'Since 2024',
+      label: de ? 'In Stuttgart gegründet' : 'Founded in Stuttgart',
+    },
+    {
+      value: '3×',
+      label: de ? 'Längere Kettenlebensdauer' : 'Longer chain lifetime',
+    },
   ];
 
   return (
@@ -86,116 +67,139 @@ export function About() {
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-5xl mx-auto">
 
-          {/* Header */}
-          <div ref={headerRef} className="text-center mb-16">
-            <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-4">
+          {/* ── Header ─────────────────────────────────────────────────── */}
+          <div ref={headerRef} className="text-center mb-10">
+            <p
+              className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-semibold mb-3"
+              style={{ color: 'var(--txf)' }}
+            >
+              {de ? 'Die Geschichte' : 'Our Story'}
+            </p>
+            <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1">
               <ScrollWordReveal text={t.about.title} />
             </h2>
           </div>
 
-          {/* Two-column: bio left, stats card right */}
-          <div className="grid md:grid-cols-[1fr_380px] gap-10 lg:gap-16 items-start">
+          {/* ── Two-column: bio left · image right ─────────────────────── */}
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start mb-8">
 
-            {/* Left: Story + Contact */}
-            <div ref={textRef}>
-              <div className="space-y-5 mb-10">
-                <p className="text-[15px] leading-[1.8] text-wx-tx2">{t.about.bio1}</p>
-                <p className="text-[15px] leading-[1.8] text-wx-tx2">{t.about.bio2}</p>
-                <p className="text-[15px] leading-[1.8] text-wx-tx2">{t.about.bio3}</p>
-              </div>
+            {/* Left: bio paragraphs + links */}
+            <div ref={textRef} className="space-y-4">
+              <p className="text-[15px] leading-[1.8] text-wx-tx2">{t.about.bio1}</p>
+              <p className="text-[15px] leading-[1.8] text-wx-tx2">{t.about.bio2}</p>
+              <p className="text-[15px] leading-[1.8] text-wx-tx2">{t.about.bio3}</p>
 
-              <a
-                href="https://www.ebay.de/usr/waxcelerate"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 group w-fit"
-              >
-                <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#2B52B0]/10 border border-[#2B52B0]/20 transition-colors group-hover:bg-[#2B52B0]/20">
-                  <ExternalLink className="h-3.5 w-3.5 text-[#2B52B0]" />
-                </span>
-                <span className="text-sm text-[#2B52B0] group-hover:text-[#3D67CA] transition-colors">{t.about.ebay}</span>
-              </a>
-            </div>
-
-            {/* Right: Stats card */}
-            <div ref={cardRef}>
-              <div
-                className="rounded-2xl overflow-hidden"
-                style={{
-                  background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
-                  border: '1px solid var(--bd)',
-                  boxShadow: 'var(--card-shad)',
-                }}
-              >
-                {/* Founder header — place your photo at /images/luca.jpg (square crop recommended) */}
-                <div
-                  className="flex items-center gap-3 px-6 py-4"
-                  style={{ borderBottom: '1px solid var(--bd2)' }}
-                >
-                  <img
-                    src="/images/luca.jpg"
-                    alt="Luca Teichmann"
-                    className="h-11 w-11 rounded-full object-cover flex-shrink-0"
-                    onError={(e) => {
-                      const el = e.currentTarget;
-                      el.src = '/images/logo.jpg';
-                      el.className = 'h-9 w-9 rounded-lg object-cover flex-shrink-0';
-                    }}
-                  />
-                  <div className="flex flex-col min-w-0">
-                    <span className="font-semibold text-wx-tx1 tracking-wide text-[14px] leading-tight">
-                      Luca Teichmann
-                    </span>
-                    <span className="text-[10px] tracking-[0.14em] mt-0.5" style={{ color: 'var(--txf)' }}>
-                      Waxcelerate · Stuttgart
-                    </span>
-                  </div>
-                </div>
-
-                {/* Stats 2×2 grid */}
-                <div className="grid grid-cols-2">
-                  {stats.map((s, i) => (
-                    <div
-                      key={i}
-                      className="px-6 py-5"
-                      style={{
-                        borderTop: i >= 2 ? '1px solid var(--bd2)' : undefined,
-                        borderLeft: i % 2 === 1 ? '1px solid var(--bd2)' : undefined,
-                      }}
-                    >
-                      <div
-                        className="text-[1.9rem] font-bold leading-none mb-1.5 tabular-nums"
-                        style={{ color: '#2B52B0' }}
-                      >
-                        {s.prefix}
-                        {<CountUp end={s.value} />}
-                        {s.suffix}
-                      </div>
-                      <div className="text-xs text-wx-txf leading-snug">{s.label}</div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Footer strip */}
-                <div
-                  className="px-6 py-3.5 flex items-center gap-2"
-                  style={{ borderTop: '1px solid var(--bd2)' }}
-                >
-                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#3D67CA] animate-pulse flex-shrink-0" />
-                  <span className="text-[11px] text-wx-txf">
-                    {de
-                      ? 'Aktiv auf eBay · Versand aus Deutschland'
-                      : 'Active on eBay · Ships from Germany'}
+              <div className="pt-3 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8">
+                <div className="flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#3D67CA] animate-pulse flex-shrink-0" />
+                  <span className="text-[11px]" style={{ color: 'var(--txm)' }}>
+                    {de ? 'Aktiv auf eBay · Versand aus Stuttgart' : 'Active on eBay · Ships from Stuttgart'}
                   </span>
                 </div>
+                <a
+                  href="https://www.ebay.de/usr/waxcelerate"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2.5 group"
+                >
+                  <span
+                    className="flex items-center justify-center w-7 h-7 rounded-lg flex-shrink-0 transition-colors"
+                    style={{ background: 'rgba(43,82,176,0.12)', border: '1px solid rgba(43,82,176,0.22)' }}
+                  >
+                    <ExternalLink className="h-3 w-3 text-[#2B52B0]" />
+                  </span>
+                  <span className="text-[13px] font-medium text-[#3D67CA] group-hover:text-[#5580E0] transition-colors">
+                    {t.about.ebay}
+                  </span>
+                </a>
               </div>
             </div>
 
+            {/* Right: eBay credential image */}
+            <div
+              ref={bannerRef}
+              className="relative rounded-2xl overflow-hidden"
+              style={{
+                height: '340px',
+                border: '1px solid var(--bd)',
+                boxShadow: '0 12px 48px rgba(0,0,0,0.18)',
+              }}
+            >
+              <img
+                src="/images/luca-ebay.jpg"
+                alt="eBay Seller Leadership Week 2025, San Jose"
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{ objectPosition: '50% 38%' }}
+              />
+              <div
+                className="absolute inset-0"
+                style={{
+                  background:
+                    'linear-gradient(to right, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.30) 40%, transparent 65%), ' +
+                    'linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 55%)',
+                }}
+              />
+              <div className="absolute bottom-0 left-0 px-6 pb-5">
+                <p
+                  className="text-[9px] font-semibold uppercase tracking-[0.22em] mb-1"
+                  style={{ color: 'rgba(255,255,255,0.48)' }}
+                >
+                  eBay Seller Leadership Week
+                </p>
+                <p className="text-[16px] font-bold text-white leading-tight mb-1">
+                  2025 · San Jose, CA
+                </p>
+                <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.65)' }}>
+                  {de
+                    ? 'Von eBay eingeladen — als Seller Persona auf der Hauptbühne präsentiert'
+                    : 'Invited by eBay — featured as a seller persona on the main stage'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* ── Stats strip ─────────────────────────────────────────────── */}
+          <div
+            ref={statsRef}
+            className="rounded-2xl overflow-hidden"
+            style={{ background: 'var(--bd)', border: '1px solid var(--bd)' }}
+          >
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-px">
+              {stats.map((s, i) => (
+                <div
+                  key={i}
+                  className="py-6 px-5 text-center"
+                  style={{ background: 'var(--sf2)' }}
+                >
+                  <p
+                    className="font-display font-bold text-wx-tx1 tabular-nums leading-none"
+                    style={{ fontSize: 'clamp(1.6rem, 3.5vw, 2.1rem)' }}
+                  >
+                    {s.value}
+                  </p>
+                  {s.badge && (
+                    <span
+                      className="inline-block mt-1.5 mb-1 px-2 py-0.5 rounded-full text-[10px] font-semibold"
+                      style={{ background: 'rgba(43,82,176,0.10)', color: '#4A72D4' }}
+                    >
+                      {s.badge}
+                    </span>
+                  )}
+                  <p
+                    className="text-[12px] leading-snug mt-1.5"
+                    style={{ color: 'var(--tx2)' }}
+                  >
+                    {s.label}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
 
         </div>
       </div>
-      {/* Bottom gradient — bridges to Guides below */}
+
+      {/* Bottom gradient */}
       <div
         className="absolute bottom-0 left-0 right-0 pointer-events-none"
         style={{ height: '64px', background: 'linear-gradient(to bottom, transparent, var(--sf))', zIndex: 1 }}
