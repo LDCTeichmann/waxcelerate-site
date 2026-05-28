@@ -34,6 +34,8 @@ export interface Product {
   chainSpeed?: string;
   // Image display
   imagePosition?: string;
+  // Gallery — additional images shown in thumbnail strip on the detail page
+  images?: string[];
 }
 
 export const products: Product[] = [
@@ -49,8 +51,12 @@ export const products: Product[] = [
     description: 'Standard-Wachs für trockene Bedingungen. Paraffinbasis mit PTFE-Additiv, Reibungskoeffizient 0,05–0,07. 20–32 Anwendungen pro Block.',
     descriptionEn: 'Standard wax for dry conditions. Paraffin base with PTFE additive, friction coefficient 0.05–0.07. 20–32 applications per block.',
     price: 29.95,
-    image: 'https://i.ebayimg.com/images/g/w8UAAeSwXeVoMeE8/s-l500.jpg',
-    imagePosition: '35% 72%',
+    image: '/images/wax-classic-hero.png',
+    imagePosition: 'center 60%',
+    images: [
+      '/images/wax-classic-balcony.png',
+      '/images/wax-classic-topdown.png',
+    ],
     ebayUrl: 'https://www.ebay.de/itm/395811184583',
     badge: 'Empfohlen',
     badgeEn: 'Recommended',

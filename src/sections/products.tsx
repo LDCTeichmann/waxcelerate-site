@@ -1,4 +1,4 @@
-import { ExternalLink, Check, Droplets, Sun, Shield } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState, useRef, useEffect, useCallback, useMemo, memo } from 'react';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
@@ -263,56 +263,6 @@ interface CardProps {
   buyLabel: string;
 }
 
-// ── 3D tilt hook ──────────────────────────────────────────────────────────
-
-function useTilt(strength = 5) {
-  const ref = useRef<HTMLDivElement>(null);
-  const leaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    const el = ref.current;
-    if (!el) return;
-    // Clear any pending leave-reset so it doesn't fight mouse movement
-    if (leaveTimerRef.current) {
-      clearTimeout(leaveTimerRef.current);
-      leaveTimerRef.current = null;
-    }
-    el.style.transition = '';
-    const rect = el.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    el.style.transform = `perspective(900px) rotateY(${x * strength}deg) rotateX(${-y * strength}deg) translateZ(0)`;
-  }, [strength]);
-
-  const handleMouseLeave = useCallback(() => {
-    const el = ref.current;
-    if (!el) return;
-    el.style.transition = 'transform 0.4s cubic-bezier(0.33, 1, 0.68, 1)';
-    el.style.transform = 'perspective(900px) rotateY(0deg) rotateX(0deg) translateZ(0)';
-    // Clear previous timer before setting a new one — prevents accumulation
-    if (leaveTimerRef.current) clearTimeout(leaveTimerRef.current);
-    leaveTimerRef.current = setTimeout(() => {
-      if (el) el.style.transition = '';
-      leaveTimerRef.current = null;
-    }, 400);
-  }, []);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    // Skip on touch-only devices — mouse events never fire, no need to register them
-    if (window.matchMedia('(pointer: coarse)').matches) return;
-    el.addEventListener('mousemove', handleMouseMove);
-    el.addEventListener('mouseleave', handleMouseLeave);
-    return () => {
-      el.removeEventListener('mousemove', handleMouseMove);
-      el.removeEventListener('mouseleave', handleMouseLeave);
-      if (leaveTimerRef.current) clearTimeout(leaveTimerRef.current);
-    };
-  }, [handleMouseMove, handleMouseLeave]);
-
-  return ref;
-}
 
 // ── Wax Card ───────────────────────────────────────────────────────────────
 
@@ -322,25 +272,10 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: Ca
 
   const title = de ? product.title : product.titleEn;
   const badge = de ? product.badge : product.badgeEn;
-
-  const benefits = isPro
-    ? [
-        { icon: <Shield className="h-3.5 w-3.5" />, label: de ? 'MoS₂-Film bindet ans Metall — schützt auch wenn Wachs nachlässt' : 'MoS₂ bonds to metal — protects even as wax fades' },
-        { icon: <Droplets className="h-3.5 w-3.5" />, label: de ? 'Hydrophobe Matrix — reduzierte Korrosionsneigung' : 'Hydrophobic matrix — reduced corrosion tendency' },
-        { icon: <Check className="h-3.5 w-3.5" />, label: de ? 'Reibungskoeffizient 0,03–0,06 — messbar weniger Verlust' : 'Friction coefficient 0.03–0.06 — measurably less loss' },
-      ]
-    : [
-        { icon: <Sun className="h-3.5 w-3.5" />, label: de ? 'Trocken & sauber — kein Ölfilm, kein Dreck' : 'Dry & clean — no oil film, no grime' },
-        { icon: <Check className="h-3.5 w-3.5" />, label: de ? 'Leise & reibungsarm — spürbar am Berg' : 'Quiet & low friction — felt on every climb' },
-        { icon: <Check className="h-3.5 w-3.5" />, label: de ? 'Ideal für Trockenheit & Sommer' : 'Ideal for dry conditions & summer' },
-      ];
-
-  const tiltRef = useTilt(3);
+  const desc = de ? product.description : product.descriptionEn;
 
   return (
-    // h-full so all cards in the grid row stretch to same height
-    // overflow-hidden must be on the same element as the 3D transform to prevent corner artifacts
-    <div ref={tiltRef} className="wax-card relative h-full rounded-2xl overflow-hidden" style={{ transform: 'translateZ(0)' }}>
+    <div className="wax-card relative h-full rounded-2xl overflow-hidden" style={{ transform: 'translateZ(0)' }}>
       <Link
         to={`/produkt/${product.id}`}
         className="group relative flex flex-col h-full rounded-2xl"
@@ -359,7 +294,7 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: Ca
           e.currentTarget.style.borderColor = 'var(--bd)';
         }}
       >
-        {/* Image — 3:2 ratio shows product well at the wider 2-col card size */}
+        {/* Image */}
         <div className="relative overflow-hidden aspect-[3/2] flex-shrink-0">
           <img
             src={product.image}
@@ -369,26 +304,19 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: Ca
             style={{ objectPosition: product.imagePosition ?? 'center 55%' }}
             onError={e => { (e.target as HTMLImageElement).src = '/images/wax-block-spin.jpg'; }}
           />
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{ background: 'linear-gradient(to top, var(--card-to) 0%, transparent 55%)' }}
-          />
-          {isPro && (
+          <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to top, var(--card-to) 0%, transparent 50%)' }} />
+          {/* Badges */}
+          <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2">
             <span
-              className="absolute top-3 right-3 text-[10px] font-bold tracking-[0.2em] uppercase px-2 py-1 rounded-md z-10"
-              style={{ background: 'linear-gradient(135deg, #1A3080, #4A72D4)', color: 'rgba(255,255,255,0.95)' }}
+              className="text-[10px] font-semibold tracking-[0.15em] uppercase px-2.5 py-1 rounded-full"
+              style={{ background: 'rgba(0,0,0,0.50)', color: accent, border: `1px solid ${accent}40`, backdropFilter: 'blur(4px)' }}
             >
-              PRO
-            </span>
-          )}
-          <div className="absolute bottom-0 inset-x-0 px-5 pb-4 flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-[0.22em]" style={{ color: accent }}>
               {isPro ? 'Pro' : 'Classic'} · {product.weight}
             </span>
-            {badge && !isPro && (
+            {badge && (
               <span
-                className="text-[11px] font-semibold tracking-[0.10em] uppercase px-2.5 py-1 rounded-full"
-                style={{ background: 'rgba(0,0,0,0.45)', color: 'rgba(255,255,255,0.85)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(4px)' }}
+                className="text-[10px] font-semibold tracking-wide uppercase px-2.5 py-1 rounded-full"
+                style={{ background: 'rgba(0,0,0,0.50)', color: 'rgba(255,255,255,0.80)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(4px)' }}
               >
                 {badge}
               </span>
@@ -396,31 +324,41 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: Ca
           </div>
         </div>
 
-        {/* Content — flex-1 so all cards push price to the same baseline */}
-        <div className="px-5 pt-5 pb-5 flex flex-col flex-1">
-          <div className="mb-4">
-            <h3 className="text-[17px] font-semibold text-wx-tx1 leading-snug tracking-[-0.01em]">
-              {de ? product.title : product.titleEn}
+        {/* Content */}
+        <div className="px-5 pt-4 pb-5 flex flex-col flex-1">
+          {/* Title + description */}
+          <div className="mb-5 flex-1">
+            <h3 className="text-[18px] font-bold text-wx-tx1 leading-tight tracking-[-0.02em] mb-1.5">
+              {title}
             </h3>
-            {((de ? product.bestFor : product.bestForEn)?.[0]) && (
-              <p className="text-[11px] uppercase tracking-[0.14em] font-medium mt-1.5" style={{ color: accent }}>
-                {(de ? product.bestFor : product.bestForEn)![0]}
-              </p>
-            )}
+            <p className="text-[13px] leading-relaxed line-clamp-2" style={{ color: 'var(--txm)' }}>
+              {desc}
+            </p>
           </div>
 
-          {/* Benefits grow to fill — this equalises card heights */}
-          <div className="flex flex-col gap-2 mb-5 flex-1">
-            {benefits.map(({ icon, label }, i) => (
-              <div key={i} className="flex items-start gap-2.5 text-[13px] leading-relaxed" style={{ color: 'var(--txm)' }}>
-                <span style={{ color: accent }} className="flex-shrink-0 mt-px">{icon}</span>
-                {label}
-              </div>
-            ))}
-          </div>
+          {/* Interval metrics */}
+          {(product.intervalDry || product.intervalWet) && (
+            <div className="flex gap-3 mb-5">
+              {product.intervalDry && (
+                <div className="flex-1 rounded-xl px-3 py-2.5" style={{ background: 'var(--sf3)', border: '1px solid var(--bd2)' }}>
+                  <p className="text-[9px] uppercase tracking-[0.12em] font-medium mb-0.5" style={{ color: 'var(--txff)' }}>
+                    {de ? 'Trocken' : 'Dry'}
+                  </p>
+                  <p className="text-[13px] font-semibold" style={{ color: 'var(--tx1)' }}>{product.intervalDry}</p>
+                </div>
+              )}
+              {product.intervalWet && (
+                <div className="flex-1 rounded-xl px-3 py-2.5" style={{ background: 'var(--sf3)', border: '1px solid var(--bd2)' }}>
+                  <p className="text-[9px] uppercase tracking-[0.12em] font-medium mb-0.5" style={{ color: 'var(--txff)' }}>
+                    {de ? 'Nass' : 'Wet'}
+                  </p>
+                  <p className="text-[13px] font-semibold" style={{ color: 'var(--tx1)' }}>{product.intervalWet}</p>
+                </div>
+              )}
+            </div>
+          )}
 
-          {/* Price + CTA — always at card bottom */}
-          <div className="h-px mb-4" style={{ background: 'var(--bd2)' }} />
+          {/* Price + CTA */}
           <div className="flex items-center justify-between gap-3">
             <div>
               <span className="text-[22px] font-bold leading-none tracking-[-0.02em]" style={{ color: 'var(--tx1)' }}>
@@ -432,11 +370,11 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: Ca
             </div>
             <button
               onClick={e => { e.preventDefault(); e.stopPropagation(); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
-              className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-white rounded-xl transition-opacity duration-150 hover:opacity-90 active:scale-[0.97]"
-              style={{ background: '#2B52B0' }}
+              className="flex items-center gap-1.5 px-4 py-2.5 text-[13px] font-semibold text-white rounded-xl transition-opacity duration-150 hover:opacity-90 active:scale-[0.97]"
+              style={{ background: accent }}
             >
               {buyLabel}
-              <ExternalLink className="h-3 w-3" />
+              <ExternalLink className="h-3.5 w-3.5" />
             </button>
           </div>
         </div>
@@ -456,12 +394,9 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
   const speed = product.chainSpeed ?? '';
   const chainLinks = product.chainLinks ?? '';
   const title = de ? product.title : product.titleEn;
-  const compatStr = product.compatibility ?? '';
-
-  const tiltRef = useTilt(3);
 
   return (
-    <div ref={tiltRef} className="chain-card relative h-full rounded-2xl overflow-hidden" style={{ transform: 'translateZ(0)' }}>
+    <div className="chain-card relative h-full rounded-2xl overflow-hidden" style={{ transform: 'translateZ(0)' }}>
       <Link
         to={`/produkt/${product.id}`}
         className="group flex flex-col h-full rounded-2xl"
@@ -489,69 +424,58 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
             onError={e => { (e.target as HTMLImageElement).src = '/images/wax-block-spin.jpg'; }}
           />
-          <div
-            className="absolute inset-x-0 bottom-0 pointer-events-none"
-            style={{ height: '60px', background: 'linear-gradient(to top, var(--card-to) 0%, transparent 100%)' }}
-          />
-          {/* eBay source badge — sets expectation before click */}
-          <span
-            className="absolute top-2.5 left-2.5 flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded"
-            style={{
-              background: 'rgba(0,0,0,0.50)',
-              color: 'rgba(255,255,255,0.50)',
-              border: '1px solid rgba(255,255,255,0.09)',
-              backdropFilter: 'blur(4px)',
-            }}
-          >
-            <span className="inline-block h-1.5 w-1.5 rounded-full flex-shrink-0" style={{ background: '#2B52B0' }} />
-            eBay
-          </span>
-          {badge && (
+          <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to top, var(--card-to) 0%, transparent 55%)' }} />
+          <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between gap-2">
             <span
-              className="absolute top-2.5 right-2.5 text-[11px] font-semibold tracking-wide uppercase px-2 py-1 rounded-md"
-              style={{ background: 'rgba(0,0,0,0.50)', color: 'rgba(255,255,255,0.85)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(4px)' }}
-            >
-              {badge}
-            </span>
-          )}
-        </div>
-
-        {/* Content */}
-        <div className="px-4 pt-4 pb-4 flex flex-col flex-1 gap-3">
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0">
-              <p className="text-[11px] font-medium uppercase tracking-[0.16em] mb-1" style={{ color: accent }}>{brand}</p>
-              <h3 className="text-[14px] font-semibold text-wx-tx1 leading-snug tracking-[-0.01em]">{model}</h3>
-            </div>
-            <span
-              className="flex-shrink-0 text-[11px] font-semibold tracking-wider uppercase px-2 py-0.5 rounded mt-0.5"
-              style={{ background: 'var(--sf)', color: 'var(--tx2)', border: '1px solid var(--bd)' }}
+              className="text-[10px] font-semibold tracking-[0.15em] uppercase px-2.5 py-1 rounded-full"
+              style={{ background: 'rgba(0,0,0,0.50)', color: accent, border: `1px solid ${accent}40`, backdropFilter: 'blur(4px)' }}
             >
               {speed}
             </span>
+            {badge && (
+              <span
+                className="text-[10px] font-semibold tracking-wide uppercase px-2.5 py-1 rounded-full"
+                style={{ background: 'rgba(0,0,0,0.50)', color: 'rgba(255,255,255,0.80)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(4px)' }}
+              >
+                {badge}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="px-4 pt-4 pb-4 flex flex-col flex-1">
+          {/* Brand + model */}
+          <div className="mb-4 flex-1">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] mb-1" style={{ color: accent }}>{brand}</p>
+            <h3 className="text-[15px] font-bold text-wx-tx1 leading-snug tracking-[-0.02em]">{model}</h3>
           </div>
 
-          <p className="text-[11.5px] leading-relaxed flex-1" style={{ color: 'var(--txm)' }}>
-            {compatStr}
-          </p>
-
-          <div className="flex items-center gap-3 text-[11px]" style={{ borderTop: '1px solid var(--bd2)', paddingTop: '10px' }}>
-            {chainLinks && <span style={{ color: 'var(--tx2)' }}>{chainLinks}</span>}
-            <span style={{ color: 'var(--txf)' }}>·</span>
-            <span style={{ color: 'var(--tx2)' }}>Quick-Link</span>
-            <span style={{ color: 'var(--txf)' }}>·</span>
-            <span style={{ color: 'var(--tx2)' }}>{de ? 'Gewachst' : 'Waxed'}</span>
+          {/* Spec pills */}
+          <div className="flex flex-wrap gap-1.5 mb-4">
+            {chainLinks && (
+              <span className="text-[11px] px-2.5 py-1 rounded-lg font-medium" style={{ background: 'var(--sf3)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
+                {chainLinks}
+              </span>
+            )}
+            <span className="text-[11px] px-2.5 py-1 rounded-lg font-medium" style={{ background: 'var(--sf3)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
+              Quick-Link
+            </span>
+            <span className="text-[11px] px-2.5 py-1 rounded-lg font-medium" style={{ background: 'var(--sf3)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
+              {de ? 'Vorgewachst' : 'Pre-waxed'}
+            </span>
           </div>
 
-          <div className="flex items-center justify-between">
+          {/* Price + CTA */}
+          <div className="flex items-center justify-between gap-3 pt-3" style={{ borderTop: '1px solid var(--bd2)' }}>
             <span className="text-[20px] font-bold text-wx-tx1 tracking-[-0.02em]">{formatPrice(product.price)}</span>
             <button
               onClick={e => { e.preventDefault(); e.stopPropagation(); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
-              className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-[13px] font-semibold text-white transition-opacity duration-150 hover:opacity-90 active:scale-[0.97]"
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-opacity duration-150 hover:opacity-90 active:scale-[0.97]"
               style={{ background: accent }}
             >
               {buyLabel}
-              <ExternalLink className="h-3 w-3" />
+              <ExternalLink className="h-3.5 w-3.5" />
             </button>
           </div>
         </div>

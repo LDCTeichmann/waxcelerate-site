@@ -41,7 +41,6 @@ export function Hero() {
   const headRef     = useRef<HTMLDivElement>(null);
   const taglineRef  = useRef<HTMLParagraphElement>(null);
   const ctaRef      = useRef<HTMLDivElement>(null);
-  const ebayBtnRef  = useRef<HTMLButtonElement>(null);
   const de = lang === 'de';
 
   useEffect(() => {
@@ -84,38 +83,6 @@ export function Hero() {
     tl.to(el.cta,     { opacity: 1, y: 0, duration: 0.5,  ease: 'power3.out' }, 0.64);
   }, []);
 
-  // Magnetic CTA button
-  useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const btn = ebayBtnRef.current;
-    const STRENGTH = 0.38;
-    const RADIUS   = 90;
-
-    const onMouseMove = (e: MouseEvent) => {
-      if (!btn) return;
-      const r  = btn.getBoundingClientRect();
-      const dx = e.clientX - (r.left + r.width  / 2);
-      const dy = e.clientY - (r.top  + r.height / 2);
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < RADIUS) {
-        gsap.to(btn, { x: dx * STRENGTH, y: dy * STRENGTH, duration: 0.35, ease: 'power2.out', overwrite: 'auto' });
-      } else {
-        gsap.to(btn, { x: 0, y: 0, duration: 0.7, ease: 'elastic.out(1, 0.35)', overwrite: 'auto' });
-      }
-    };
-    const onMouseLeave = () => {
-      if (btn) gsap.to(btn, { x: 0, y: 0, duration: 0.7, ease: 'elastic.out(1, 0.35)', overwrite: 'auto' });
-    };
-
-    // Skip magnetic effect on touch-only devices (no mouse)
-    if (window.matchMedia('(pointer: coarse)').matches) return;
-    window.addEventListener('mousemove', onMouseMove, { passive: true });
-    if (btn) btn.addEventListener('mouseleave', onMouseLeave);
-    return () => {
-      window.removeEventListener('mousemove', onMouseMove);
-      if (btn) btn.removeEventListener('mouseleave', onMouseLeave);
-    };
-  }, []);
 
   const scrollToSection = (href: string) =>
     document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
@@ -252,10 +219,9 @@ export function Hero() {
             <div ref={ctaRef} className="flex flex-col items-center lg:items-start gap-3">
               <div className="flex items-center justify-center lg:justify-start gap-4 flex-wrap">
                 <button
-                  ref={ebayBtnRef}
                   onClick={() => scrollToSection('#produkte')}
                   className="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-semibold text-white rounded-full transition-opacity duration-150 hover:opacity-90 active:scale-[0.98]"
-                  style={{ background: '#2B52B0', willChange: 'transform' }}
+                  style={{ background: '#2B52B0' }}
                 >
                   {t.hero.ctaBuy}
                   <ArrowRight className="h-3.5 w-3.5" />

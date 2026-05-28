@@ -1,7 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
-import { Menu, X, Sun, Moon } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Menu, X } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
-import { useTheme } from '@/hooks/useTheme';
 import { CartIcon } from '@/components/CartIcon';
 
 const navItems = [
@@ -13,39 +12,22 @@ const navItems = [
   { href: '#kontakt',     key: 'contact'  },
 ];
 
-interface NavigationProps {
-  onLogoClick?: () => void;
-}
-
-export function Navigation({ onLogoClick }: NavigationProps) {
+export function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
-  const progressBarRef = useRef<HTMLDivElement>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<string>('');
   const { t, lang, toggleLang } = useLanguage();
-  const { theme, setTheme } = useTheme();
   const de = lang === 'de';
-  const nextTheme = theme === 'noir' ? 'light' : 'noir';
-  const ThemeIcon = theme === 'noir' ? Sun : Moon;
-  const themeLabel = theme === 'noir'
-    ? (de ? 'Hellmodus' : 'Light mode')
-    : (de ? 'Dunkelmodus (Noir)' : 'Dark mode (Noir)');
 
   useEffect(() => {
     const handleScroll = () => {
-      const scrollY = window.scrollY;
-      setIsScrolled(scrollY > 50);
-      // Drive progress bar with scaleX (compositor-only, no layout recalc)
-      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
-      const pct = totalHeight > 0 ? scrollY / totalHeight : 0;
-      if (progressBarRef.current) progressBarRef.current.style.transform = `scaleX(${pct})`;
+      setIsScrolled(window.scrollY > 50);
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Lock body scroll when mobile menu is open
   useEffect(() => {
     document.body.style.overflow = isMobileMenuOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
@@ -100,28 +82,14 @@ export function Navigation({ onLogoClick }: NavigationProps) {
           WebkitBackdropFilter: 'blur(0px)',
         }}
       >
-        {/* Scroll progress bar */}
-        <div className="absolute top-0 left-0 right-0 h-[2px] pointer-events-none overflow-hidden" style={{ zIndex: 1 }}>
-          <div
-            ref={progressBarRef}
-            className="h-full w-full"
-            style={{
-              transform: 'scaleX(0)',
-              transformOrigin: 'left center',
-              background: 'linear-gradient(90deg, #2B52B0, #4A72D4)',
-              willChange: 'transform',
-            }}
-          />
-        </div>
-
         <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
           <div className="flex items-center justify-between h-16 lg:h-20">
+
             {/* Logo */}
             <a
               href="#home"
               onClick={(e) => {
                 e.preventDefault();
-                onLogoClick?.();
                 scrollToSection('#home');
               }}
               className="flex items-center gap-2.5"
@@ -130,7 +98,7 @@ export function Navigation({ onLogoClick }: NavigationProps) {
                 src="/images/logo.jpg"
                 alt="Waxcelerate"
                 className="w-auto rounded-lg"
-                style={{ height: '36px', width: 'auto', mixBlendMode: theme === 'noir' ? 'screen' : 'normal' }}
+                style={{ height: '36px', width: 'auto' }}
               />
               <span className="font-display text-sm font-bold tracking-wide text-wx-tx1">
                 WAXCELERATE
@@ -176,19 +144,7 @@ export function Navigation({ onLogoClick }: NavigationProps) {
             <div className="flex items-center gap-3">
               <CartIcon />
 
-              {/* Theme toggle — desktop only; mobile uses bottom panel */}
-              <button
-                onClick={() => setTheme(nextTheme)}
-                className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 text-wx-tx2 hover:text-wx-tx1 transition-colors rounded-md hover:bg-black/5"
-                aria-label={themeLabel}
-              >
-                <ThemeIcon className="h-4 w-4" />
-                <span className="text-[11px] font-medium" style={{ opacity: 0.55 }}>
-                  {theme === 'noir' ? 'Noir' : 'Light'}
-                </span>
-              </button>
-
-              {/* Language toggle — desktop only; mobile uses bottom panel */}
+              {/* Language toggle — desktop only */}
               <button
                 onClick={toggleLang}
                 className="hidden lg:block px-3 py-1.5 text-xs font-medium text-wx-tx2 hover:text-wx-tx1 border border-wx-bd/50 hover:border-[#2B52B0] rounded transition-colors"
@@ -239,7 +195,7 @@ export function Navigation({ onLogoClick }: NavigationProps) {
       >
         {/* Top bar */}
         <div className="flex items-center justify-between px-5 h-16 border-b border-wx-bd/20 flex-shrink-0">
-          <img src="/images/logo.jpg" alt="Waxcelerate" className="h-9 w-auto rounded-lg" style={{ mixBlendMode: theme === 'noir' ? 'screen' : 'normal' }} />
+          <img src="/images/logo.jpg" alt="Waxcelerate" className="h-9 w-auto rounded-lg" />
           <button
             onClick={() => setIsMobileMenuOpen(false)}
             className="p-2 text-wx-tx2 hover:text-wx-tx1 transition-colors"
@@ -270,14 +226,7 @@ export function Navigation({ onLogoClick }: NavigationProps) {
         </nav>
 
         {/* Bottom actions */}
-        <div className="px-5 pb-8 pt-4 flex-shrink-0 flex items-center justify-between border-t border-wx-bd/20">
-          <button
-            onClick={() => setTheme(nextTheme)}
-            className="flex items-center gap-2 text-sm text-wx-tx2 hover:text-wx-tx1 transition-colors"
-          >
-            <ThemeIcon className="h-4 w-4" />
-            {themeLabel}
-          </button>
+        <div className="px-5 pb-8 pt-4 flex-shrink-0 flex items-center justify-end border-t border-wx-bd/20">
           <button
             onClick={toggleLang}
             className="px-4 py-2 text-sm font-medium text-wx-tx2 hover:text-wx-tx1 border border-wx-bd/50 hover:border-[#2B52B0] rounded transition-colors"

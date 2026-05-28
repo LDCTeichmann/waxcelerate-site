@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useState, lazy, Suspense } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { Navigation } from '@/sections/navigation';
 import { Hero } from '@/sections/hero';
@@ -22,8 +22,7 @@ const AdminPage = lazy(() => import('@/pages/AdminPage').then(m => ({ default: m
 const BlogIndexPage = lazy(() => import('@/pages/blog/BlogIndexPage').then(m => ({ default: m.BlogIndexPage })));
 const BlogArticlePage = lazy(() => import('@/pages/blog/BlogArticlePage').then(m => ({ default: m.BlogArticlePage })));
 const SciencePage = lazy(() => import('@/pages/SciencePage').then(m => ({ default: m.SciencePage })));
-import { LanguageProvider, useLanguage } from '@/hooks/useLanguage';
-import { toast } from 'sonner';
+import { LanguageProvider } from '@/hooks/useLanguage';
 import { Toaster } from '@/components/ui/sonner';
 import { CartDrawer } from '@/components/CartDrawer';
 import { useCartStore } from '@/store/cart';
@@ -32,56 +31,10 @@ const PageLoader = () => (
   <div style={{ minHeight: '100vh', background: 'var(--pg)' }} />
 );
 
-// Konami code for specs
-const KONAMI = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
-
 function AppContent() {
-  const { lang } = useLanguage();
-  const [konamiIdx, setKonamiIdx] = useState(0);
-  const [logoClicks, setLogoClicks] = useState(0);
   const fetchStock = useCartStore((s) => s.fetchStock);
 
-  // Fetch live stock levels once on app mount (fails silently — defaults to in-stock)
   useEffect(() => { void fetchStock(); }, [fetchStock]);
-
-  // Konami code - shows technical specs
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === KONAMI[konamiIdx]) {
-        const next = konamiIdx + 1;
-        setKonamiIdx(next);
-        if (next === KONAMI.length) {
-          toast(
-            <div className="text-sm">
-              <p className="font-semibold mb-1">Waxcelerate Specs</p>
-              <p className="text-[#8896B0]">Schmelzpunkt: 58°C | Bad-Temp: 85°C | PTFE: &lt;1μm</p>
-              <p className="text-zinc-500 text-xs mt-1">Made in Stuttgart • Ships worldwide</p>
-            </div>,
-            { duration: 5000 }
-          );
-          setKonamiIdx(0);
-        }
-      } else {
-        setKonamiIdx(0);
-      }
-    };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [konamiIdx]);
-
-  // Logo click Easter egg - 5 clicks shows hint
-  useEffect(() => {
-    if (logoClicks === 5) {
-      toast.info(lang === 'de' ? 'Profi-Tipp: Pfeiltasten ↑↑↓↓←→←→BA' : 'Pro tip: Arrow keys ↑↑↓↓←→←→BA', {
-        duration: 3000,
-      });
-      setLogoClicks(0);
-    }
-  }, [logoClicks, lang]);
-
-  const handleLogoClick = useCallback(() => {
-    setLogoClicks(c => c + 1);
-  }, []);
 
   return (
     <div className="min-h-screen bg-wx-bg text-wx-tx1">
@@ -98,15 +51,15 @@ function AppContent() {
         <Route path="/wissenschaft" element={<Suspense fallback={<PageLoader />}><SciencePage /></Suspense>} />
         <Route path="*" element={
           <>
-            <Navigation onLogoClick={handleLogoClick} />
+            <Navigation />
             <main>
               <Hero />
               <Conviction />
+              <About />
               <WhyWax />
               <Reviews />
               <Products />
               <Tools />
-              <About />
               <Guides />
               <FAQ />
               <Contact />
