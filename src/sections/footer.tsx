@@ -29,7 +29,7 @@ export function Footer() {
             <div className="col-span-2 lg:col-span-1 max-w-xs">
               <div className="flex items-center gap-2.5 mb-5">
                 <img src="/images/logo.jpg" alt="Waxcelerate" className="h-8 w-8 rounded-lg object-cover" style={{ mixBlendMode: theme === 'noir' ? 'screen' : 'normal' }} />
-                <span className="font-display text-sm font-bold tracking-wide text-wx-tx1">
+                <span className="font-sans text-sm font-bold tracking-wide text-wx-tx1">
                   WAXCELERATE
                 </span>
               </div>

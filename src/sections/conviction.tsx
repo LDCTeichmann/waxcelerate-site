@@ -18,7 +18,7 @@ export function Conviction() {
     {
       number: '−46%',
       label: de ? 'günstiger' : 'lower cost',
-      sub: de ? 'über 12.000 km' : 'over 12,000 km',
+      sub: de ? 'vs. Öl · 12.000 km' : 'vs. oil · 12,000 km',
     },
     {
       number: '3×',

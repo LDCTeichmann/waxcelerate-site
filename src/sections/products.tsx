@@ -153,7 +153,7 @@ export function Products() {
           {/* ── Wax tab ── */}
           {activeTab === 'wax' && (
             <>
-              <div className="flex flex-col gap-1.5 sm:flex-row sm:items-start sm:justify-between sm:gap-3 mb-6 px-1">
+              <div className="flex flex-col gap-1.5 sm:flex-row sm:items-start sm:justify-between sm:gap-3 mb-3 px-1">
                 <p className="text-[13px]" style={{ color: 'var(--txm)' }}>
                   {de
                     ? 'Du brauchst nur: alter Topf · Isopropanol · 85–90 °C · ~60 min beim ersten Mal.'
@@ -161,6 +161,14 @@ export function Products() {
                 </p>
                 <p className="text-[12px] sm:whitespace-nowrap sm:flex-shrink-0" style={{ color: 'var(--txf)' }}>
                   {t.products.multiDiscount}
+                </p>
+              </div>
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between mb-6 px-1">
+                <p className="text-[12px]" style={{ color: 'var(--txm)' }}>
+                  {t.products.decisionAid}
+                </p>
+                <p className="text-[11px] sm:whitespace-nowrap sm:flex-shrink-0" style={{ color: 'var(--txf)' }}>
+                  {t.products.shippingHint}
                 </p>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 items-stretch">
@@ -370,8 +378,8 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: Ca
             </div>
             <button
               onClick={e => { e.preventDefault(); e.stopPropagation(); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
-              className="flex items-center gap-1.5 px-4 py-2.5 text-[13px] font-semibold text-white rounded-xl transition-opacity duration-150 hover:opacity-90 active:scale-[0.97]"
-              style={{ background: '#1A3C6E' }}
+              className="flex items-center gap-1.5 px-4 py-2.5 text-[13px] font-semibold rounded-xl transition-opacity duration-150 hover:opacity-90 active:scale-[0.97]"
+              style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
             >
               {buyLabel}
               <ExternalLink className="h-3.5 w-3.5" />

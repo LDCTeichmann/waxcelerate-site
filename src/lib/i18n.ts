@@ -27,7 +27,7 @@ export const translations = {
     // Products
     products: {
       title: 'Produkte',
-      subtitle: 'Kettenwachs in zwei Varianten. Vorgewachste Ketten für direktes Einfahren.',
+      subtitle: 'Sauberer Antrieb. Dreifache Kettenlaufzeit. Ab morgen auf deinem Rad.',
       tabs: {
         wax: 'Kettenwachs',
         chains: 'Vorgewachste Ketten',
@@ -35,6 +35,8 @@ export const translations = {
       buyOnEbay: 'Bei eBay kaufen',
       multiDiscount: 'Bei eBay: 2 Stk. = 10% · 3+ Stk. = 15%',
       preWaxedHint: 'Ultraschallbad-entfettet, von Hand gewachst — Kauf direkt über eBay mit vollem Käuferschutz.',
+      decisionAid: 'Nicht sicher? Classic 500g für Einsteiger und trockene Bedingungen — Pro 500g für Ganzjahr, Winter und E-Bike.',
+      shippingHint: 'Versand in 1 Werktag · Kostenlos ab €50 (Deutschland)',
     },
 
     // Why Wax
@@ -174,16 +176,16 @@ export const translations = {
           a: 'Öl funktioniert. Aber es bindet Schmutz, der wie Schleifpaste zwischen Rollenlager, Kassette und Kettenblättern wirkt — bei jedem Tritt Metallabrieb. Mit Wachs bleibt die Kette trocken: nichts haftet daran, der Antrieb ist nach hundert Kilometern noch sauber. Dazu hält die Kette zwei- bis dreimal länger. Der Umstieg kostet einmalig 1–2 Stunden für die Erstentfettung. Danach ist der Aufwand pro Rewax kaum höher als mit Öl.',
         },
         {
+          q: 'Was ist der Unterschied zwischen Classic und Pro?',
+          a: 'Classic (Paraffin + PTFE + Stearin) ist die Standardformel: sauber, effizient, ideal von Frühjahr bis Herbst und bei trockenen Bedingungen. Pro enthält zusätzlich amorphes Molybdändisulfid (MoS₂) als Hochdruckadditiv — es füllt mikroskopische Oberflächenrauheiten und senkt den Reibungskoeffizient nochmals messbar. Pro ist die richtige Wahl für Ganzjahresfahrer, Winterbetrieb, E-Bikes und anspruchsvollere Antriebe. Im Zweifel: Pro ist der sicherere Griff.',
+        },
+        {
           q: 'Wie viele Kilometer hält eine gewachste Kette — und woran merke ich, wann ich rewaxen muss?',
           a: 'Bei trockenen Bedingungen alle 400–500 km rewaxen, bei Nässe oder MTB alle 200–300 km. Das zuverlässigste Signal: der Antrieb klingt trockener oder die Kette läuft weniger geschmeidig als gewohnt — manchmal ein leises Kratzen oder Quietschen. Hör einfach hin, du wirst es merken. Das Gesamtleben der Kette ist eine andere Zahl: eine gut gepflegte gewachste Kette hält 6.000–12.000 km oder mehr — geölte Ketten oft nur 2.000–3.000 km, weil Schmutz den Antrieb von innen abschleift.',
         },
         {
           q: 'Wie viele Watt spart Heißwachs im Vergleich zu Kettenöl?',
           a: 'In kontrollierten Messungen erzeugt unser PTFE-basiertes Wachs ca. 2,6 Watt Reibungsverlust — Kettenöl unter Realbedingungen liegt bei ca. 7,5 Watt. Das sind knapp 5 Watt Unterschied an der Kette. Die oft zitierten „bis zu 8 Watt" stammen aus Labortests bei 300–400 Watt Eingangsleistung. Im Alltag sind die Werte etwas geringer — aber kein anderes Schmiermittel kommt auch nur annähernd an Heißwachs heran.',
-        },
-        {
-          q: 'Was ist der Unterschied zwischen Classic und Pro?',
-          a: 'Classic (Paraffin + PTFE + Stearin) ist die Standardformel: sauber, effizient, ideal von Frühjahr bis Herbst und bei trockenen Bedingungen. Pro enthält zusätzlich amorphes Molybdändisulfid (MoS₂) als Hochdruckadditiv — es füllt mikroskopische Oberflächenrauheiten und senkt den Reibungskoeffizient nochmals messbar. Pro ist die richtige Wahl für Ganzjahresfahrer, Winterbetrieb, E-Bikes und anspruchsvollere Antriebe. Im Zweifel: Pro ist der sicherere Griff.',
         },
         {
           q: 'Muss ich eine neue Kette vor dem Wachsen entfetten?',
@@ -358,7 +360,7 @@ export const translations = {
     // Products
     products: {
       title: 'Products',
-      subtitle: 'Chain wax in two variants. Pre-waxed chains for instant riding.',
+      subtitle: 'Clean drivetrain. Triple chain life. On your bike by tomorrow.',
       tabs: {
         wax: 'Chain Wax',
         chains: 'Pre-Waxed Chains',
@@ -366,6 +368,8 @@ export const translations = {
       buyOnEbay: 'Buy on eBay',
       multiDiscount: 'On eBay: 2 pcs. = 10% · 3+ pcs. = 15%',
       preWaxedHint: 'Ultrasonic-bath degreased, hand-waxed — order directly via eBay with full buyer protection.',
+      decisionAid: 'Not sure? Classic 500g for beginners and dry conditions — Pro 500g for year-round, winter and e-bike.',
+      shippingHint: 'Ships within 1 working day · Free shipping over €50 (Germany)',
     },
 
     // Why Wax
@@ -505,16 +509,16 @@ export const translations = {
           a: "Oil works. But it binds dirt that acts like grinding paste between rollers, cassette, and chainrings — creating metal wear with every pedal stroke. With wax, the chain stays dry: nothing adheres to it, and the drivetrain is still clean after a hundred kilometres. On top of that, the chain lasts two to three times longer. Switching costs a one-off 1–2 hours for the initial degreasing. After that, re-waxing takes barely more effort than re-oiling.",
         },
         {
+          q: 'What is the difference between Classic and Pro?',
+          a: 'Classic (paraffin + PTFE + stearin) is the standard formula: clean, efficient, ideal from spring to autumn and in dry conditions. Pro additionally contains amorphous molybdenum disulphide (MoS₂) as a high-pressure additive — it fills microscopic surface roughness and measurably reduces friction further. Pro is the right choice for year-round riders, winter use, e-bikes, and demanding drivetrains. When in doubt: Pro is the safer pick.',
+        },
+        {
           q: 'How many kilometres does a waxed chain last — and how do I know when to re-wax?',
           a: 'In dry conditions re-wax every 400–500 km, in wet or MTB every 200–300 km. The most reliable signal: the drivetrain sounds drier or the chain runs less smoothly than usual — sometimes a faint scratch or squeak. Just listen, you\'ll notice. Total chain life is a different number: a well-maintained waxed chain reaches 6,000–12,000 km or more — oiled chains often only 2,000–3,000 km, because dirt abrades the drivetrain from the inside.',
         },
         {
           q: 'How many watts does hot wax save compared to chain oil?',
           a: "In controlled measurements, our PTFE-based wax produces around 2.6 watts of friction loss — chain oil under real-world conditions sits at around 7.5 watts. That's nearly 5 watts difference at the chain. The widely cited 'up to 8 watts' figures come from lab tests at 300–400 watts input power. In everyday riding the gap is slightly smaller — but no other lubricant comes close to hot wax.",
-        },
-        {
-          q: 'What is the difference between Classic and Pro?',
-          a: 'Classic (paraffin + PTFE + stearin) is the standard formula: clean, efficient, ideal from spring to autumn and in dry conditions. Pro additionally contains amorphous molybdenum disulphide (MoS₂) as a high-pressure additive — it fills microscopic surface roughness and measurably reduces friction further. Pro is the right choice for year-round riders, winter use, e-bikes, and demanding drivetrains. When in doubt: Pro is the safer pick.',
         },
         {
           q: 'Do I need to degrease a new chain before waxing?',

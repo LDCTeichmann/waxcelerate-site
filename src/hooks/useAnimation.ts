@@ -43,7 +43,7 @@ export function useSectionReveal(containerRef: React.RefObject<HTMLElement | nul
     if (!els.length) return;
 
     // Set correct initial positions once, before trigger is created
-    gsap.set(eyebrow, { opacity: 0, y: 14 });
+    if (eyebrow) gsap.set(eyebrow, { opacity: 0, y: 14 });
     if (heading)  gsap.set(heading,  { opacity: 0, y: 24 });
     if (subtitle) gsap.set(subtitle, { opacity: 0, y: 14 });
 
@@ -52,7 +52,7 @@ export function useSectionReveal(containerRef: React.RefObject<HTMLElement | nul
       start: 'top 88%',
       once: true,
       onEnter: () => {
-        gsap.to(eyebrow, { opacity: 1, y: 0, duration: DUR.standard, ease: EASE.enter });
+        if (eyebrow) gsap.to(eyebrow, { opacity: 1, y: 0, duration: DUR.standard, ease: EASE.enter });
         if (heading)  gsap.to(heading,  { opacity: 1, y: 0, duration: DUR.long,     ease: EASE.hero,  delay: 0.09 });
         if (subtitle) gsap.to(subtitle, { opacity: 1, y: 0, duration: DUR.standard, ease: EASE.enter, delay: 0.20 });
       },

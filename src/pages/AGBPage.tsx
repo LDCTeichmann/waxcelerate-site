@@ -30,7 +30,7 @@ export function AGBPage() {
               href="https://www.ebay.de/help/policies/member-behavior-policies/allgemeine-geschaftsbedingungen?id=4076"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[#2B52B0] hover:underline inline-flex items-center gap-1"
+              className="text-[#1A3C6E] hover:underline inline-flex items-center gap-1"
             >
               Allgemeinen Geschäftsbedingungen von eBay
               <ExternalLink className="h-3 w-3" />

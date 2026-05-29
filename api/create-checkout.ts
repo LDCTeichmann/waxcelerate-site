@@ -1,6 +1,6 @@
 import Stripe from 'stripe';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { products } from '../src/lib/data';
+import { products } from '../src/lib/data.js';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -16,7 +16,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // Look up Stripe price IDs from data.ts — client never sends price amounts
-  const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
+  const lineItems: { price: string; quantity: number }[] = [];
   let subtotalCents = 0;
 
   for (const item of items) {
@@ -34,7 +34,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // Free shipping over €50, otherwise show standard rate
-  const shippingOptions: Stripe.Checkout.SessionCreateParams.ShippingOption[] =
+  const shippingOptions: { shipping_rate: string }[] =
     subtotalCents >= FREE_SHIPPING_THRESHOLD
       ? [{ shipping_rate: process.env.STRIPE_SHIPPING_FREE! }]
       : [{ shipping_rate: process.env.STRIPE_SHIPPING_STANDARD! }];

@@ -23,7 +23,7 @@
     --card-shad: 0 2px 16px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,0.9);
     --nav-bg:    rgba(245,245,247,0.92);
     --tool-bg:   #EEEEF3;
-    --card-shadow-hover: 0 4px 20px rgba(0,0,0,0.10), 0 12px 40px rgba(0,0,0,0.08), 0 0 0 1px rgba(43,82,176,0.15);
+    --card-shadow-hover: 0 4px 20px rgba(0,0,0,0.10), 0 12px 40px rgba(0,0,0,0.08), 0 0 0 1px rgba(26,60,110,0.15);
 
     /* shadcn tokens */
     --background: 240 5% 96%;
@@ -32,7 +32,7 @@
     --card-foreground: 240 10% 4%;
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 4%;
-    --primary: 222 61% 43%;
+    --primary: 220 58% 27%;
     --primary-foreground: 0 0% 100%;
     --secondary: 240 5% 93%;
     --secondary-foreground: 240 10% 4%;
@@ -44,10 +44,17 @@
     --destructive-foreground: 0 0% 100%;
     --border: 240 6% 85%;
     --input: 240 6% 85%;
-    --ring: 222 61% 43%;
+    --ring: 220 58% 27%;
     --radius: 0.75rem;
-    --brand:       #2B52B0;
-    --brand-hover: #3D67CA;
+    --brand:       #1A3C6E;
+    --brand-hover: #264E8C;
+    --brand-warm:  #B8721A;
+    --brand-warm-hover: #C8842F;
+
+    /* CTA button system — dark near-black in light mode */
+    --cta-bg:    #111318;
+    --cta-fg:    #FAFAFA;
+    --cta-hover: #1C2028;
 
     /* Inset / nested surface tokens — replace hardcoded rgba in dark-first components */
     --inset-bg:    var(--sf2);           /* subtle inset inside cards */
@@ -86,7 +93,12 @@
                  0 0 0 1px rgba(255,255,255,0.04);
     --nav-bg:    rgba(9,9,11,0.94);
     --tool-bg:   #050507;
-    --card-shadow-hover: 0 8px 28px rgba(0,0,0,0.70), 0 28px 72px rgba(0,0,0,0.75), 0 0 0 1px rgba(43,82,176,0.25);
+    --card-shadow-hover: 0 8px 28px rgba(0,0,0,0.70), 0 28px 72px rgba(0,0,0,0.75), 0 0 0 1px rgba(26,60,110,0.25);
+
+    /* CTA button system — warm ivory in dark mode */
+    --cta-bg:    #EDE9E0;
+    --cta-fg:    #0A0A0A;
+    --cta-hover: #E2DED5;
 
     /* Inset tokens — dark-mode values */
     --inset-bg:    rgba(255,255,255,0.04);
@@ -101,7 +113,7 @@
     --card-foreground: 0 0% 98%;
     --popover: 240 5% 8%;
     --popover-foreground: 0 0% 98%;
-    --primary: 222 61% 43%;
+    --primary: 220 58% 27%;
     --primary-foreground: 0 0% 100%;
     --secondary: 240 4% 11%;
     --secondary-foreground: 0 0% 98%;
@@ -113,7 +125,7 @@
     --destructive-foreground: 0 0% 100%;
     --border: 240 4% 16%;
     --input: 240 4% 16%;
-    --ring: 222 61% 43%;
+    --ring: 220 58% 27%;
   }
 
   html {
@@ -122,7 +134,7 @@
   }
 
   body {
-    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    font-family: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
     background-color: var(--pg);
     color: var(--tx1);
     -webkit-font-smoothing: antialiased;
@@ -130,7 +142,7 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+    font-family: 'Fraunces', Georgia, serif;
   }
 }
 
@@ -181,7 +193,7 @@
   inset: -50%;
   width: 200%;
   height: 200%;
-  opacity: 0.038;
+  opacity: 0.06;
   pointer-events: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-repeat: repeat;

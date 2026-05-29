@@ -108,9 +108,9 @@ export function Contact() {
               <div className="flex items-center gap-3 mb-4">
                 <div
                   className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0"
-                  style={{ background: 'rgba(43,82,176,0.12)', border: '1px solid rgba(43,82,176,0.22)' }}
+                  style={{ background: 'rgba(26,60,110,0.12)', border: '1px solid rgba(26,60,110,0.22)' }}
                 >
-                  <Mail className="h-5 w-5" style={{ color: '#3D67CA' }} />
+                  <Mail className="h-5 w-5" style={{ color: '#264E8C' }} />
                 </div>
                 <div>
                   <p className="font-bold text-wx-tx1 text-[15px] leading-tight">
@@ -118,7 +118,7 @@ export function Contact() {
                   </p>
                   <span
                     className="inline-block mt-0.5 text-[10px] font-semibold px-2 py-0.5 rounded-full tracking-wide"
-                    style={{ background: 'rgba(43,82,176,0.12)', color: '#3D67CA' }}
+                    style={{ background: 'rgba(26,60,110,0.12)', color: '#264E8C' }}
                   >
                     {de ? 'am selben Tag' : 'same day'}
                   </span>
@@ -140,7 +140,7 @@ export function Contact() {
 
               <div
                 className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl font-semibold text-[13px] text-white transition-opacity group-hover:opacity-90"
-                style={{ background: '#2B52B0' }}
+                style={{ background: '#1A3C6E' }}
               >
                 <Mail className="h-3.5 w-3.5" />
                 {de ? 'E-Mail schreiben' : 'Write an email'}
@@ -151,7 +151,7 @@ export function Contact() {
 
           {/* Response note */}
           <p className="text-center text-[11px] mt-5" style={{ color: 'var(--txf)' }}>
-            {de ? '⚡ Antwort in der Regel am selben Tag' : '⚡ Reply usually the same day'}
+            {de ? 'Antwort in der Regel am selben Tag' : 'Reply usually the same day'}
           </p>
 
         </div>

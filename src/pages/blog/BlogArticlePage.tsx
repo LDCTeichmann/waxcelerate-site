@@ -53,11 +53,11 @@ function renderSection(section: ArticleSection, idx: number): React.ReactNode {
           key={idx}
           className="rounded-lg px-4 py-3 mb-4 text-[14px] leading-[1.75] text-wx-txm"
           style={{
-            background: 'rgba(43,82,176,0.08)',
-            borderLeft: '3px solid #2B52B0',
+            background: 'rgba(26,60,110,0.08)',
+            borderLeft: '3px solid #1A3C6E',
           }}
         >
-          <span className="font-semibold" style={{ color: '#3D67CA' }}>
+          <span className="font-semibold" style={{ color: '#264E8C' }}>
             💡 Tipp:{' '}
           </span>
           {section.text}
@@ -96,7 +96,7 @@ export function BlogArticlePage() {
         <Link
           to="/blog"
           className="text-sm flex items-center gap-1 hover:underline"
-          style={{ color: '#3D67CA' }}
+          style={{ color: '#264E8C' }}
         >
           ← Zurück zum Blog
         </Link>
@@ -146,7 +146,7 @@ export function BlogArticlePage() {
       >
         <div className="max-w-2xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <Link to="/" className="font-display font-bold text-lg tracking-tight text-wx-tx1">
-            WAX<span style={{ color: '#2B52B0' }}>CELERATE</span>
+            WAX<span style={{ color: '#1A3C6E' }}>CELERATE</span>
           </Link>
           <Link
             to="/blog"
@@ -163,7 +163,7 @@ export function BlogArticlePage() {
           {/* Category label */}
           <p
             className="text-[11px] font-semibold uppercase tracking-widest mb-3"
-            style={{ color: '#2B52B0' }}
+            style={{ color: '#1A3C6E' }}
           >
             Kettenpflege
           </p>
@@ -205,7 +205,7 @@ export function BlogArticlePage() {
             <Link
               to={`/produkt/${article.ctaSlug}`}
               className="text-[15px] font-semibold hover:underline"
-              style={{ color: '#3D67CA' }}
+              style={{ color: '#264E8C' }}
             >
               {article.ctaText}
             </Link>

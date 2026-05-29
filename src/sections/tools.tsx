@@ -73,7 +73,7 @@ function TogButton({
       style={{
         border: `1px solid ${active ? 'rgba(59,100,210,0.55)' : 'var(--tog-bd)'}`,
         background: active
-          ? 'linear-gradient(135deg, rgba(43,82,176,0.28) 0%, rgba(43,82,176,0.12) 100%)'
+          ? 'linear-gradient(135deg, rgba(26,60,110,0.28) 0%, rgba(26,60,110,0.12) 100%)'
           : 'var(--tog-bg)',
         color: active ? 'var(--tx1)' : 'var(--tog-fg)',
         fontWeight: active ? 500 : 400,
@@ -111,8 +111,8 @@ function ToolHeader({ icon, title, subtitle }: { icon: React.ReactNode; title: s
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
           style={{
-            background: 'linear-gradient(135deg, rgba(43,82,176,0.22) 0%, rgba(43,82,176,0.06) 100%)',
-            border: '1px solid rgba(43,82,176,0.30)',
+            background: 'linear-gradient(135deg, rgba(26,60,110,0.22) 0%, rgba(26,60,110,0.06) 100%)',
+            border: '1px solid rgba(26,60,110,0.30)',
           }}
         >
           {icon}
@@ -527,7 +527,7 @@ function CostSavingsCalculator() {
               className="font-serif-display italic text-[64px] font-bold leading-none tabular-nums" style={{ color: 'var(--tx1)' }}
             />
             <div className="flex flex-col items-start gap-1">
-              <span className="text-[16px] font-semibold leading-tight" style={{ color: '#4A72D4' }}>
+              <span className="text-[16px] font-semibold leading-tight" style={{ color: '#2A5499' }}>
                 {de ? 'gespart' : 'saved'}
               </span>
               <span className="text-[13px] tabular-nums" style={{ color: 'var(--txf)' }}>
@@ -590,18 +590,18 @@ function CostSavingsCalculator() {
               </div>
               <div
                 className="rounded-xl p-4 text-center"
-                style={{ background: 'rgba(43,82,176,0.09)', border: '1px solid rgba(43,82,176,0.32)' }}
+                style={{ background: 'rgba(26,60,110,0.09)', border: '1px solid rgba(26,60,110,0.32)' }}
               >
-                <p className="text-[9px] uppercase tracking-[0.2em] mb-3 font-semibold" style={{ color: '#3D67CA' }}>
+                <p className="text-[9px] uppercase tracking-[0.2em] mb-3 font-semibold" style={{ color: '#264E8C' }}>
                   Wax
                 </p>
                 <AnimatedNumber
                   value={waxTotal}
                   prefix="~€"
                   className="text-[30px] font-bold leading-none tabular-nums"
-                  style={{ color: '#4A72D4' }}
+                  style={{ color: '#2A5499' }}
                 />
-                <p className="text-[11px] mt-2" style={{ color: '#3D67CA' }}>
+                <p className="text-[11px] mt-2" style={{ color: '#264E8C' }}>
                   {chainLabel(waxChains)}
                 </p>
               </div>
@@ -647,14 +647,14 @@ function CostSavingsCalculator() {
 
           {/* Wax column */}
           <div className="flex-1 space-y-2">
-            <p className="text-[9px] uppercase tracking-[0.18em] mb-2.5 font-semibold" style={{ color: '#3D67CA' }}>
+            <p className="text-[9px] uppercase tracking-[0.18em] mb-2.5 font-semibold" style={{ color: '#264E8C' }}>
               {de ? 'Mit Waxcelerate' : 'With Waxcelerate'}
             </p>
             <div className="flex justify-between text-[11px]">
               <span style={{ color: 'var(--txf)' }}>
                 {chainLabel(waxChains)} × €{CHAIN_PRICE}
               </span>
-              <span style={{ color: '#4A72D4' }}>€{waxChains * CHAIN_PRICE}</span>
+              <span style={{ color: '#2A5499' }}>€{waxChains * CHAIN_PRICE}</span>
             </div>
             <div className="flex justify-between text-[11px]">
               <span style={{ color: 'var(--txf)' }}>
@@ -662,16 +662,16 @@ function CostSavingsCalculator() {
                   ? `500g Block (~${waxChains * 20} Anw.)`
                   : `500g block (~${waxChains * 20} apps)`}
               </span>
-              <span style={{ color: '#4A72D4' }}>€{waxBlockCost}</span>
+              <span style={{ color: '#2A5499' }}>€{waxBlockCost}</span>
             </div>
             <div
               className="flex justify-between text-[11px] pt-1.5"
-              style={{ borderTop: '1px solid rgba(43,82,176,0.20)' }}
+              style={{ borderTop: '1px solid rgba(26,60,110,0.20)' }}
             >
-              <span style={{ color: '#4A72D4', fontWeight: 500 }}>
+              <span style={{ color: '#2A5499', fontWeight: 500 }}>
                 {de ? 'Gesamt' : 'Total'}
               </span>
-              <span style={{ color: '#4A72D4', fontWeight: 500 }}>~€{waxTotal}</span>
+              <span style={{ color: '#2A5499', fontWeight: 500 }}>~€{waxTotal}</span>
             </div>
           </div>
         </div>
@@ -1012,11 +1012,11 @@ export function Tools() {
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-6xl mx-auto">
 
-          <div ref={headerRef} className="text-center mb-16">
+          <div ref={headerRef} className="mb-16">
             <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-4">
               <ScrollWordReveal text={t.tools.title} />
             </h2>
-            <p data-reveal="subtitle" className="text-wx-tx2 max-w-xl mx-auto text-[15px]">
+            <p data-reveal="subtitle" className="text-wx-tx2 max-w-xl text-[15px]">
               {t.tools.subtitle}
             </p>
           </div>
@@ -1057,7 +1057,7 @@ export function Tools() {
             style={{
               height: DECK_HEIGHT,
               overflow: 'hidden',
-              background: 'radial-gradient(ellipse 55% 60% at 50% 50%, rgba(43,82,176,0.07) 0%, transparent 70%)',
+              background: 'radial-gradient(ellipse 55% 60% at 50% 50%, rgba(26,60,110,0.07) 0%, transparent 70%)',
             }}
           >
             {([cardRef0, cardRef1, cardRef2, cardRef3] as const).map((ref, i) => (

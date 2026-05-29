@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, Snowflake, Droplets, Sun, TrendingDown, BarChart2, FlaskConical } from 'lucide-react';
+import { Shield, Snowflake, Droplets, Layers, TrendingDown, BarChart2, FlaskConical } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useSectionReveal } from '@/hooks/useAnimation';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
@@ -25,43 +25,47 @@ const differentiators: {
 }[] = [
   {
     icon: Shield,
-    catDe: 'Konsistenz', catEn: 'Consistency',
-    titleDe: 'Jeder Block wirkt gleich', titleEn: 'Every block performs identically',
-    beforeDe: 'Additive sedimentieren → letzter Block schwächer',
-    beforeEn: 'Additives sediment → last block weaker',
-    afterDe: 'Homogene Schmelze — erster = letzter Block',
-    afterEn: 'Uniform melt — first block = last block',
+    catDe: 'Chargenqualität', catEn: 'Batch Quality',
+    titleDe: 'Erster Block = letzter Block — garantiert',
+    titleEn: 'First block = last block — guaranteed',
+    beforeDe: 'Industrielle Chargen: Additive sedimentieren — letzter Block schwächer als der erste',
+    beforeEn: 'Industrial batches: additives sediment — last block weaker than the first',
+    afterDe: 'Kleinstchargen in Stuttgart — kontrolliert homogenisiert. Konstante Wirksamkeit von Block zu Block.',
+    afterEn: 'Small batches in Stuttgart — controlled homogenisation. Consistent performance from block to block.',
+    filters: ['road', 'commute', 'gravel'],
+  },
+  {
+    icon: Layers,
+    catDe: 'Zwei Formeln', catEn: 'Two Formulas',
+    titleDe: 'Classic oder Pro — für jede Saison das Richtige',
+    titleEn: 'Classic or Pro — the right choice for every season',
+    beforeDe: 'Ein einziges Wachs für alle Bedingungen — Kompromisse bei Kälte, Nässe oder Hochsommer',
+    beforeEn: 'One single wax for all conditions — compromises in cold, wet or summer heat',
+    afterDe: 'Classic (PTFE) für Frühjahr bis Herbst. Pro (MoS₂) für Ganzjahr, Winter und E-Bike. Kein Kompromiss.',
+    afterEn: 'Classic (PTFE) for spring to autumn. Pro (MoS₂) for year-round, winter and e-bike. No compromise.',
     filters: ['road', 'commute', 'gravel'],
   },
   {
     icon: Snowflake,
-    catDe: 'Winter', catEn: 'Winter',
-    titleDe: 'Schaltet noch bei −8°C', titleEn: 'Shifts cleanly at −8°C',
-    beforeDe: 'Öl verdickt bei Frost → Schalten schwergängig',
-    beforeEn: 'Oil thickens at frost → stiff shifting',
-    afterDe: 'Matrix bleibt flexibel — kein Verhärten in Gelenken',
-    afterEn: 'Matrix stays flexible — no hardening in links',
+    catDe: 'Winterformel', catEn: 'Winter Formula',
+    titleDe: 'Pro mit MoS₂ — flexibel bis −8°C',
+    titleEn: 'Pro with MoS₂ — flexible down to −8°C',
+    beforeDe: 'Herkömmliche Wachse verhärten bei Frost — Gelenke blockieren, Schaltung schwergängig',
+    beforeEn: 'Generic waxes harden at frost — link joints seize up, shifting turns stiff',
+    afterDe: 'Amorphes MoS₂ als Hochdruckadditiv hält die Matrix flexibel — kein Verhärten in Gelenken',
+    afterEn: 'Amorphous MoS₂ as high-pressure additive keeps the matrix flexible — no hardening in link joints',
     filters: ['commute', 'gravel'],
   },
   {
     icon: Droplets,
-    catDe: 'Rostschutz', catEn: 'Rust Protection',
-    titleDe: 'Weniger Rost nach Regen', titleEn: 'Less rust after rain',
-    beforeDe: 'Öl zieht Wasser ein → rostet nach Regenfahrten',
-    beforeEn: 'Oil absorbs water → rust after wet rides',
-    afterDe: 'Hydrophobe Matrix — kein Wassereinschluss',
-    afterEn: 'Hydrophobic matrix — no water retention',
+    catDe: 'Feuchtigkeitsschutz', catEn: 'Moisture Protection',
+    titleDe: 'Hydrophobe Matrix — Wasser bleibt außen',
+    titleEn: 'Hydrophobic matrix — water stays out',
+    beforeDe: 'Wachse ohne hydrophobe Matrix lassen Feuchtigkeit ins Metall — Rostflecken nach Regenfahrt',
+    beforeEn: 'Waxes without hydrophobic matrix let moisture into the metal — rust spots after rain',
+    afterDe: 'Paraffin-Hartwachs-Verbund schließt Wassereinschluss aus — besonders wirksam im Pro',
+    afterEn: 'Paraffin-hardwax compound prevents water retention — especially effective in Pro',
     filters: ['commute', 'gravel'],
-  },
-  {
-    icon: Sun,
-    catDe: 'Sommer', catEn: 'Summer',
-    titleDe: 'Bleibt auf der Kette — auch bei 35°C', titleEn: 'Stays on the chain — even at 35°C',
-    beforeDe: 'Öl migriert bei Hitze → verschmiert Schaltwerk',
-    beforeEn: 'Oil migrates in heat → contaminates derailleur',
-    afterDe: 'Kein Wachsverlust im Hochsommer',
-    afterEn: 'No wax loss in summer heat',
-    filters: ['road', 'gravel'],
   },
 ];
 
@@ -131,15 +135,15 @@ export function WhyWax() {
           {/* ── Header ── */}
           <div ref={headerRef} className="mb-10">
             <p className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-semibold mb-3" style={{ color: 'var(--txf)' }}>
-              {de ? 'Das Material' : 'The Material'}
+              {de ? 'Die Formel' : 'The Formula'}
             </p>
             <h2 className="font-display text-5xl sm:text-6xl font-bold text-wx-tx1 mb-4">
-              <ScrollWordReveal text={de ? 'Warum Heißwachs?' : 'Why Hot Wax?'} />
+              <ScrollWordReveal text={de ? 'Was Waxcelerate anders macht.' : 'What makes Waxcelerate different.'} />
             </h2>
             <p data-reveal="subtitle" className="text-wx-txm max-w-lg text-[15px]">
               {de
-                ? 'Was Heißwachs physikalisch anders macht — in Watt, in Verschleiß und in Euro.'
-                : 'What hot wax does differently — in watts, in wear, and in euros.'}
+                ? 'Die Formel, die Charge, der Preis — warum Waxcelerate kein Kompromiss ist.'
+                : 'The formula, the batch, the price — why Waxcelerate makes no compromise.'}
             </p>
           </div>
 
@@ -201,11 +205,11 @@ export function WhyWax() {
                       </p>
                       <div className="space-y-1.5">
                         <p className="text-[13px] text-wx-txf leading-relaxed">
-                          <span className="text-[9px] font-medium uppercase tracking-[0.1em] text-wx-txff mr-2">Öl</span>
+                          <span className="text-[9px] font-medium uppercase tracking-[0.1em] text-wx-txff mr-2">{de ? 'Andere' : 'Others'}</span>
                           {de ? d.beforeDe : d.beforeEn}
                         </p>
                         <p className="text-[13px] leading-relaxed" style={{ color: 'rgba(106,138,232,0.85)' }}>
-                          <span className="text-[9px] font-semibold uppercase tracking-[0.1em] mr-2" style={{ color: '#264E8C' }}>Wax</span>
+                          <span className="text-[9px] font-semibold uppercase tracking-[0.1em] mr-2" style={{ color: '#264E8C' }}>Waxcelerate</span>
                           {de ? d.afterDe : d.afterEn}
                         </p>
                       </div>

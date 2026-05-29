@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { Redis } from '@upstash/redis';
-import { products } from '../src/lib/data';
+import { products } from '../src/lib/data.js';
 
 // Redis is optional — if env vars are missing, all stock returns as -1 (unlimited/not tracked)
 const redis =

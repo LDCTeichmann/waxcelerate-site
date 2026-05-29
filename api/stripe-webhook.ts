@@ -35,7 +35,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       id: session.id,
       customer_email: session.customer_details?.email,
       amount_total: session.amount_total,
-      shipping: session.shipping_details?.address,
+      shipping: session.customer_details?.address,
       created: new Date(session.created * 1000).toISOString(),
     });
 

@@ -17,7 +17,7 @@ export function CartIcon() {
         <span
           className="absolute -top-0.5 -right-0.5 text-[10px] font-bold text-white rounded-full flex items-center justify-center pointer-events-none"
           style={{
-            background: '#2B52B0',
+            background: '#1A3C6E',
             minWidth: '1rem',
             height: '1rem',
             padding: '0 3px',

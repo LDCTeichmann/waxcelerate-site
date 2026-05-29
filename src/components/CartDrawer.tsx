@@ -73,7 +73,7 @@ export function CartDrawer() {
             {count > 0 && (
               <span
                 className="text-[11px] font-bold text-white rounded-full flex items-center justify-center"
-                style={{ background: '#2B52B0', minWidth: '1.25rem', height: '1.25rem', padding: '0 4px' }}
+                style={{ background: '#1A3C6E', minWidth: '1.25rem', height: '1.25rem', padding: '0 4px' }}
               >
                 {count}
               </span>
@@ -105,7 +105,7 @@ export function CartDrawer() {
               <button
                 onClick={closeCart}
                 className="text-sm font-medium transition-colors"
-                style={{ color: '#2B52B0' }}
+                style={{ color: '#1A3C6E' }}
               >
                 {t.cart.browseCta}
               </button>
@@ -182,9 +182,9 @@ export function CartDrawer() {
             {total < 50 && (
               <div
                 className="rounded-lg px-3 py-2.5 text-xs"
-                style={{ background: 'rgba(43,82,176,0.08)', border: '1px solid rgba(43,82,176,0.18)' }}
+                style={{ background: 'rgba(26,60,110,0.08)', border: '1px solid rgba(26,60,110,0.18)' }}
               >
-                <span style={{ color: '#2B52B0' }}>
+                <span style={{ color: '#1A3C6E' }}>
                   {de
                     ? `Noch ${formatPrice(50 - total)} bis zum kostenlosen Versand`
                     : `${formatPrice(50 - total)} away from free shipping`}
@@ -206,7 +206,7 @@ export function CartDrawer() {
                 type="checkbox"
                 checked={agbAccepted}
                 onChange={(e) => setAgbAccepted(e.target.checked)}
-                className="mt-0.5 flex-shrink-0 accent-[#2B52B0] w-3.5 h-3.5"
+                className="mt-0.5 flex-shrink-0 accent-[#1A3C6E] w-3.5 h-3.5"
               />
               <span className="text-[11px] leading-relaxed" style={{ color: 'var(--txf)' }}>
                 {de ? (
@@ -235,8 +235,8 @@ export function CartDrawer() {
                 }
               }}
               disabled={!agbAccepted || isCheckingOut}
-              className="w-full py-3.5 rounded-xl font-semibold text-white text-sm flex items-center justify-center gap-2 transition-all hover:opacity-90 active:scale-[0.99] disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100"
-              style={{ background: 'linear-gradient(135deg, #2B52B0, #3D67CA)' }}
+              className="w-full py-3.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all hover:opacity-90 active:scale-[0.99] disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100"
+              style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
             >
               {isCheckingOut ? (
                 <><Loader2 className="h-4 w-4 animate-spin" />{t.cart.loading}</>
