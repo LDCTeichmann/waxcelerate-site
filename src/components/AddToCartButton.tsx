@@ -18,7 +18,6 @@ export function AddToCartButton({ product, size = 'md', fullWidth = false }: Pro
   const { t, lang } = useLanguage();
   const de = lang === 'de';
 
-  const accent = '#1A3C6E';
   const inStock = isInStock(stockMap, product.id);
   const lowStock = isLowStock(stockMap, product.id);
   const stock = stockMap[product.id] ?? -1;
@@ -55,13 +54,14 @@ export function AddToCartButton({ product, size = 'md', fullWidth = false }: Pro
     <div className={`flex flex-col gap-1 ${fullWidth ? 'w-full' : 'items-start'}`}>
       <button
         onClick={handleClick}
-        className={`flex items-center gap-1.5 font-semibold text-white rounded-xl transition-all active:scale-[0.97] ${
+        className={`flex items-center gap-1.5 font-semibold rounded-xl transition-all active:scale-[0.97] ${
           size === 'sm'
             ? 'px-3.5 py-2 text-xs hover:scale-[1.03]'
             : 'px-5 py-2.5 text-sm hover:opacity-90'
         } ${fullWidth ? 'w-full justify-center' : ''}`}
         style={{
-          background: added ? '#22c55e' : accent,
+          background: added ? '#22c55e' : 'var(--cta-bg)',
+          color: added ? '#ffffff' : 'var(--cta-fg)',
           transition: 'background 0.2s ease, transform 0.15s ease',
         }}
       >

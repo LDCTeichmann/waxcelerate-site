@@ -102,44 +102,44 @@ export function Hero() {
       {/* Desktop: right-side cinematic panel */}
       <div
         className="hidden lg:block absolute top-0 right-0 bottom-0 pointer-events-none"
-        style={{ width: '52%' }}
+        style={{ width: '55%' }}
       >
         <img
-          src="/images/wax-hero.jpg"
+          src="/images/wax-hero-bubbles.jpg"
           alt=""
           width={1254}
-          height={910}
+          height={1254}
           fetchPriority="high"
           className="absolute inset-0 w-full h-full object-cover"
-          style={{ objectPosition: '62% 50%' }}
+          style={{ objectPosition: '65% 52%' }}
         />
-        {/* Horizontal fade — blends into the dark left side */}
+        {/* Horizontal fade — blends dark slate into hero background seamlessly */}
         <div
           className="absolute inset-0"
-          style={{ background: 'linear-gradient(to right, #0A0A0A 0%, rgba(10,10,10,0.18) 40%, transparent 70%)' }}
+          style={{ background: 'linear-gradient(to right, #0A0A0A 0%, rgba(10,10,10,0.55) 28%, rgba(10,10,10,0.10) 55%, transparent 75%)' }}
         />
-        {/* Vertical fades — top & bottom */}
+        {/* Vertical vignette — top & bottom */}
         <div
           className="absolute inset-0"
-          style={{ background: 'linear-gradient(to bottom, rgba(10,10,10,0.65) 0%, transparent 22%, transparent 72%, rgba(10,10,10,0.9) 100%)' }}
+          style={{ background: 'linear-gradient(to bottom, rgba(10,10,10,0.55) 0%, transparent 18%, transparent 75%, rgba(10,10,10,0.95) 100%)' }}
         />
       </div>
 
-      {/* Mobile: full-screen tinted image — keeps visual context without hiding text */}
+      {/* Mobile: full-screen tinted image */}
       <div className="lg:hidden absolute inset-0 pointer-events-none">
         <img
-          src="/images/wax-hero.jpg"
+          src="/images/wax-hero-bubbles.jpg"
           alt=""
           width={1254}
-          height={910}
-          loading="lazy"
+          height={1254}
+          fetchPriority="high"
           className="absolute inset-0 w-full h-full object-cover"
-          style={{ objectPosition: '62% 45%', opacity: 0.48 }}
+          style={{ objectPosition: '50% 45%', opacity: 0.42 }}
         />
-        {/* Bottom fade so text on left stays readable */}
+        {/* Left fade so text stays readable */}
         <div
           className="absolute inset-0"
-          style={{ background: 'linear-gradient(to right, rgba(10,10,10,0.70) 0%, rgba(10,10,10,0.30) 60%, transparent 100%)' }}
+          style={{ background: 'linear-gradient(to right, rgba(10,10,10,0.80) 0%, rgba(10,10,10,0.45) 55%, rgba(10,10,10,0.15) 100%)' }}
         />
       </div>
 
@@ -220,8 +220,8 @@ export function Hero() {
               <div className="flex items-center justify-center lg:justify-start gap-4 flex-wrap">
                 <button
                   onClick={() => scrollToSection('#produkte')}
-                  className="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-semibold text-white rounded-full transition-opacity duration-150 hover:opacity-90 active:scale-[0.98]"
-                  style={{ background: '#2B52B0' }}
+                  className="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-semibold rounded-full transition-opacity duration-150 hover:opacity-90 active:scale-[0.98]"
+                  style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
                 >
                   {t.hero.ctaBuy}
                   <ArrowRight className="h-3.5 w-3.5" />

@@ -70,18 +70,12 @@ export function Navigation() {
     <>
       {/* ── Header bar ── */}
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled ? 'py-2' : 'py-3 bg-transparent'
-        }`}
-        style={isScrolled ? {
-          background: 'var(--nav-bg)',
-          boxShadow: 'inset 0 -1px 0 var(--bd)',
+        className="fixed top-0 left-0 right-0 z-50 py-2 transition-all duration-300"
+        style={{
+          background: isScrolled ? 'var(--nav-bg)' : 'rgba(10,10,10,0.45)',
+          boxShadow: isScrolled ? 'inset 0 -1px 0 var(--bd)' : 'none',
           backdropFilter: 'blur(16px)',
           WebkitBackdropFilter: 'blur(16px)',
-        } : {
-          background: 'transparent',
-          backdropFilter: 'blur(0px)',
-          WebkitBackdropFilter: 'blur(0px)',
         }}
       >
         <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
@@ -112,10 +106,10 @@ export function Navigation() {
               <a
                 href="#produkte"
                 onClick={(e) => { e.preventDefault(); scrollToSection('#produkte'); }}
-                className={`inline-flex items-center gap-1.5 px-4 py-1.5 mr-2 text-[13px] font-semibold text-white rounded-full transition-all duration-300 hover:opacity-85 ${
+                className={`inline-flex items-center gap-1.5 px-4 py-1.5 mr-2 text-[13px] font-semibold rounded-full transition-all duration-300 hover:opacity-85 ${
                   isScrolled ? 'opacity-100' : 'opacity-0 pointer-events-none'
                 }`}
-                style={{ background: '#1A3C6E' }}
+                style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
               >
                 {de ? 'Jetzt bestellen' : 'Buy now'}
               </a>
