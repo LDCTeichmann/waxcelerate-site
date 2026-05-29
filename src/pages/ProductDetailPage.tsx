@@ -43,7 +43,7 @@ export function ProductDetailPage() {
   const isWax = product.category === 'wax';
   const isChain = product.category === 'chain';
   const accentColor = isPro ? '#4A72D4' : '#2B52B0';  // text/icon accent — lighter for contrast on dark bg
-  const buttonColor = '#1A3C6E';  // amber — consistent with all purchase CTAs
+  // buttonColor now uses CSS variable — see inline styles below
   const accentBg = isPro ? 'rgba(74,114,212,0.08)' : 'rgba(43,82,176,0.08)';
 
   const formatPrice = useCallback((price: number) =>
@@ -259,8 +259,8 @@ export function ProductDetailPage() {
                     href={product.ebayUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90 mt-1"
-                    style={{ background: buttonColor }}
+                    className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-semibold transition-all hover:opacity-90 mt-1"
+                    style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
                   >
                     {de ? 'Jetzt bei eBay kaufen' : 'Buy on eBay'}
                     <ExternalLink className="h-3.5 w-3.5" />
@@ -372,13 +372,13 @@ export function ProductDetailPage() {
               )}
 
               {/* Stats — single container, internal dividers */}
-              <div className="mt-10 rounded-2xl overflow-hidden" style={{ border: '1px solid var(--bd2)' }}>
-                <div className="grid grid-cols-4">
+              <div className="mt-10 rounded-2xl overflow-hidden" style={{ border: '1px solid var(--bd2)', background: 'var(--bd2)' }}>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-px">
                   {rc.stats.map((s, i) => (
                     <div
                       key={i}
                       className="px-4 py-5 sm:px-5 sm:py-6"
-                      style={{ borderRight: i < rc.stats.length - 1 ? '1px solid var(--bd2)' : 'none' }}
+                      style={{ background: 'var(--pg)' }}
                     >
                       <div className="text-lg sm:text-[22px] font-bold tabular-nums text-wx-tx1 leading-none mb-1.5">{s.value}</div>
                       <div className="text-[11px] leading-snug" style={{ color: 'var(--tx2)' }}>{s.label}</div>
@@ -782,8 +782,8 @@ export function ProductDetailPage() {
                 href={product.ebayUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-8 flex items-center justify-center gap-2 w-full py-4 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90"
-                style={{ background: buttonColor }}
+                className="mt-8 flex items-center justify-center gap-2 w-full py-4 rounded-xl text-sm font-semibold transition-all hover:opacity-90"
+                style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
               >
                 {de ? 'Jetzt bei eBay kaufen' : 'Buy now on eBay'} — {formatPrice(product.price)}
                 <ExternalLink className="h-3.5 w-3.5" />

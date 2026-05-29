@@ -72,7 +72,7 @@ const v9SharedChainCompRows = [
   { label: 'Startbereit', good: 'Sofort ✓', bad: 'Nach Ölen' },
   { label: 'Antrieb', good: 'Trocken & sauber', bad: 'Ölfilm, Dreck' },
   { label: 'Intervall', good: '300–550 km', bad: '50–150 km' },
-  { label: 'Kettenlaufzeit', good: '3–5× länger', bad: 'Basis' },
+  { label: 'Kettenlaufzeit', good: '3× länger', bad: 'Basis' },
   { label: 'Aufwand', good: 'Einbauen & fahren', bad: 'Alle 100–150 km ölen' },
 ];
 
@@ -103,7 +103,7 @@ const waxCompRowsClassic = [
   { label: 'Reibungskoeffizient', cols: ['0,05–0,07', '0,08–0,12', '0,18–0,25'], winCol: 0, dimCols: [2] },
   { label: 'Antrieb', cols: ['Trocken, sauber', 'Leicht grauer Belag', 'Ölfilm, bindet Dreck'], winCol: 0, dimCols: [2] },
   { label: 'Intervall trocken', cols: ['250–450 km', '200–350 km', '50–150 km'], winCol: 0, dimCols: [2] },
-  { label: 'Kettenlaufzeit', cols: ['3–5× länger als Öl', '2–4× länger als Öl', 'Basis'], winCol: 0, dimCols: [2] },
+  { label: 'Kettenlaufzeit', cols: ['3× länger als Öl', '2–4× länger als Öl', 'Basis'], winCol: 0, dimCols: [2] },
 ];
 
 const waxFormulaProMos2 = [
@@ -134,7 +134,7 @@ export const richContent: Record<string, RichContent> = {
   'wax-500': {
     stats: [
       { value: '20–32', label: 'Tauchgänge pro Block', sub: 'pro 500g · je nach Kettengröße' },
-      { value: '3–5×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
+      { value: '3×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
       { value: '250–450 km', label: 'Intervall trocken', sub: 'Kein Nachölen nach jeder Fahrt.' },
       { value: '≤ 0,07', label: 'Reibungskoeffizient', sub: 'Messbar weniger als Öl (0,18–0,25).' },
     ],
@@ -159,7 +159,7 @@ export const richContent: Record<string, RichContent> = {
   'wax-300': {
     stats: [
       { value: '10–15', label: 'Tauchgänge pro Block', sub: 'pro 300g · je nach Kettengröße' },
-      { value: '3–5×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
+      { value: '3×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
       { value: '250–450 km', label: 'Intervall trocken', sub: 'Kein Nachölen nach jeder Fahrt.' },
       { value: '≤ 0,07', label: 'Reibungskoeffizient', sub: 'Messbar weniger als Öl (0,18–0,25).' },
     ],
@@ -184,7 +184,7 @@ export const richContent: Record<string, RichContent> = {
   'wax-500-mos2': {
     stats: [
       { value: '20–32', label: 'Tauchgänge pro Block', sub: 'pro 500g · je nach Kettengröße' },
-      { value: '3–5×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
+      { value: '3×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
       { value: '300–550 km', label: 'Intervall trocken', sub: 'Mit Topup bis 1.200 km.' },
       { value: '0,03–0,06', label: 'Reibungskoeffizient', sub: 'MoS₂-Transferfilm. Öl: 0,18–0,25.' },
     ],
@@ -209,7 +209,7 @@ export const richContent: Record<string, RichContent> = {
   'wax-300-mos2': {
     stats: [
       { value: '10–15', label: 'Tauchgänge pro Block', sub: 'pro 300g · je nach Kettengröße' },
-      { value: '3–5×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
+      { value: '3×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
       { value: '300–550 km', label: 'Intervall trocken', sub: 'Mit Topup bis 1.200 km.' },
       { value: '0,03–0,06', label: 'Reibungskoeffizient', sub: 'MoS₂-Transferfilm. Öl: 0,18–0,25.' },
     ],
@@ -235,7 +235,7 @@ export const richContent: Record<string, RichContent> = {
     hook: 'Shimanos universellste 11-fach-Kette — SIL-TEC, 116 Glieder, kompatibel mit Ultegra, XT, GRX, 105 und mehr — vollständig entfettet und mit Molybdändisulfid-Transferfilm vorgewachst. Kettenschloss liegt bei. Einbauen und fahren.',
     stats: [
       { value: '0,03–0,06', label: 'Reibungskoeffizient', sub: 'MoS₂-Transferfilm. Öl liegt bei 0,18–0,25.' },
-      { value: '3–5×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
+      { value: '3×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
       { value: '300–550 km', label: 'Intervall trocken', sub: 'Mit Topup bis 1.200 km. Kein Nachölen.' },
       { value: '116', label: 'Glieder', sub: '11-fach · Ultegra / XT / GRX · SIL-TEC' },
     ],
@@ -265,7 +265,7 @@ export const richContent: Record<string, RichContent> = {
     hook: 'YBN 11S — universal 11-fach für Shimano, SRAM, Campagnolo und KMC. 116 Glieder, keine Kompatibilitätskompromisse. Vollständig entfettet und mit Molybdändisulfid-Transferfilm vorgewachst. Kettenschloss liegt bei. Einbauen und fahren.',
     stats: [
       { value: '0,03–0,06', label: 'Reibungskoeffizient', sub: 'MoS₂-Transferfilm. Öl liegt bei 0,18–0,25.' },
-      { value: '3–5×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
+      { value: '3×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
       { value: '300–550 km', label: 'Intervall trocken', sub: 'Mit Topup bis 1.200 km. Kein Nachölen.' },
       { value: '116', label: 'Glieder', sub: '11-fach universal · Shimano + SRAM + Campa' },
     ],
@@ -295,7 +295,7 @@ export const richContent: Record<string, RichContent> = {
     hook: 'Drei Antriebe, eine Kette — Deore XT M8100, Ultegra R8100, GRX 12-fach — 116 Glieder, SIL-TEC, Hyperglide+. Vollständig entfettet und mit Molybdändisulfid-Transferfilm vorgewachst. Kettenschloss liegt bei. Einbauen und fahren.',
     stats: [
       { value: '0,03–0,06', label: 'Reibungskoeffizient', sub: 'MoS₂-Transferfilm. Öl liegt bei 0,18–0,25.' },
-      { value: '3–5×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
+      { value: '3×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
       { value: '300–550 km', label: 'Intervall trocken', sub: 'Mit Topup bis 1.200 km. Kein Nachölen.' },
       { value: '116', label: 'Glieder', sub: '12-fach · XT / Ultegra / GRX · Hyperglide+' },
     ],
@@ -325,7 +325,7 @@ export const richContent: Record<string, RichContent> = {
     hook: 'SLX und 105 — Shimanos Einstieg in 12-fach mit voller Hyperglide+- und DCE+-Architektur. 116 Glieder, SIL-TEC, identisches System wie XT und XTR. Vollständig entfettet und mit Molybdändisulfid-Transferfilm vorgewachst. Kettenschloss liegt bei. Einbauen und fahren.',
     stats: [
       { value: '0,03–0,06', label: 'Reibungskoeffizient', sub: 'MoS₂-Transferfilm. Öl liegt bei 0,18–0,25.' },
-      { value: '3–5×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
+      { value: '3×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
       { value: '300–550 km', label: 'Intervall trocken', sub: 'Mit Topup bis 1.200 km. Kein Nachölen.' },
       { value: '116', label: 'Glieder', sub: '12-fach · SLX / 105 · Hyperglide+' },
     ],
@@ -355,7 +355,7 @@ export const richContent: Record<string, RichContent> = {
     hook: 'Shimanos präziseste 12-fach-Kette — Hohlnieten, SIL-TEC, 289 g — vollständig entfettet und mit Molybdändisulfid-Transferfilm vorgewachst. Kettenschloss liegt bei. Einbauen und fahren.',
     stats: [
       { value: '0,03–0,06', label: 'Reibungskoeffizient', sub: 'MoS₂-Transferfilm. Öl liegt bei 0,18–0,25.' },
-      { value: '3–5×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
+      { value: '3×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
       { value: '300–550 km', label: 'Intervall trocken', sub: 'Mit Topup bis 1.200 km. Kein Nachölen.' },
       { value: '138', label: 'Glieder · Hohlnieten', sub: 'XTR / Dura-Ace · 12-fach · ~289 g' },
     ],
@@ -385,7 +385,7 @@ export const richContent: Record<string, RichContent> = {
     hook: 'SRAM Force PC-1170 — Hollow-Pin, 114 Glieder, 256 g — vollständig entfettet und mit Molybdändisulfid-Transferfilm vorgewachst. PowerLock® liegt bei. Einbauen und fahren.',
     stats: [
       { value: '0,03–0,06', label: 'Reibungskoeffizient', sub: 'MoS₂-Transferfilm. Öl liegt bei 0,18–0,25.' },
-      { value: '3–5×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
+      { value: '3×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
       { value: '300–550 km', label: 'Intervall trocken', sub: 'Mit Topup bis 1.200 km. Kein Nachölen.' },
       { value: '114', label: 'Glieder · Hollow-Pin', sub: 'SRAM Force · 11-fach · 256 g' },
     ],
@@ -421,7 +421,7 @@ export const richContent: Record<string, RichContent> = {
     hook: 'SRAM NX Eagle — 118 Glieder, 12-fach MTB — vollständig entfettet und mit Molybdändisulfid-Transferfilm vorgewachst. PowerLock® liegt bei. Einbauen und fahren.',
     stats: [
       { value: '0,03–0,06', label: 'Reibungskoeffizient', sub: 'MoS₂-Transferfilm. Öl liegt bei 0,18–0,25.' },
-      { value: '3–5×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
+      { value: '3×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
       { value: '300–550 km', label: 'Intervall trocken', sub: 'Mit Topup bis 1.200 km. Kein Nachölen.' },
       { value: '118', label: 'Glieder · Eagle', sub: 'SRAM NX Eagle · 12-fach MTB' },
     ],
@@ -457,7 +457,7 @@ export const richContent: Record<string, RichContent> = {
     hook: 'YBN S12S — 116 Glieder, 259 g, 12-fach universal für Shimano, SRAM und Campagnolo — vollständig entfettet und mit Molybdändisulfid-Transferfilm vorgewachst. Quick-Link liegt bei. Einbauen und fahren.',
     stats: [
       { value: '0,03–0,06', label: 'Reibungskoeffizient', sub: 'MoS₂-Transferfilm. Öl liegt bei 0,18–0,25.' },
-      { value: '3–5×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
+      { value: '3×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
       { value: '300–550 km', label: 'Intervall trocken', sub: 'Mit Topup bis 1.200 km. Kein Nachölen.' },
       { value: '259 g', label: 'Gewicht · 116 Glieder', sub: 'YBN S12S · 12-fach universal' },
     ],
