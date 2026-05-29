@@ -75,8 +75,8 @@ export function Reviews() {
           </h2>
           <p className="text-[15px] text-wx-txm mb-6 max-w-md">
             {de
-              ? 'Kein einziges negatives Feedback seit 2023 — auf einer Plattform, auf der Käufer anonym bewerten.'
-              : 'Not a single negative review since 2023 — on a platform where buyers rate anonymously.'}
+              ? 'Kein einziges negatives Feedback seit 2024 — auf einer Plattform, auf der Käufer anonym bewerten.'
+              : 'Not a single negative review since 2024 — on a platform where buyers rate anonymously.'}
           </p>
 
           <div className="flex items-center gap-3 mb-8 flex-wrap">

@@ -42,7 +42,7 @@ export function About() {
 
   const de = lang === 'de';
 
-  const stats: { value: string; badge?: string; label: string }[] = [
+  const stats: { value: string; badge?: string; label: string; sub?: string }[] = [
     {
       value: '171',
       badge: '100% positiv',
@@ -53,12 +53,13 @@ export function About() {
       label: de ? 'Versand nach Bestellung' : 'Ships after order',
     },
     {
-      value: de ? 'Seit 2023' : 'Since 2023',
+      value: '2024',
       label: de ? 'In Stuttgart gegründet' : 'Founded in Stuttgart',
     },
     {
       value: '3×',
-      label: de ? 'Längere Kettenlebensdauer' : 'Longer chain lifetime',
+      label: de ? 'Kette & Kassette halten länger' : 'Chain & cassette last longer',
+      sub: de ? 'vs. Öl-Schmiermittel' : 'vs. oil lubricant',
     },
   ];
 
@@ -199,6 +200,11 @@ export function About() {
                   >
                     {s.label}
                   </p>
+                  {s.sub && (
+                    <p className="text-[11px] mt-0.5 leading-snug" style={{ color: 'var(--txf)' }}>
+                      {s.sub}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>

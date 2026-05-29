@@ -13,7 +13,7 @@ export function Conviction() {
     {
       number: '100%',
       label: de ? 'positiv' : 'positive',
-      sub: de ? 'seit 2023' : 'since 2023',
+      sub: de ? 'seit 2024' : 'since 2024',
     },
     {
       number: '−46%',
