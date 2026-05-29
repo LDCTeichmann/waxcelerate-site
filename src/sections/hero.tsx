@@ -147,7 +147,7 @@ export function Hero() {
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: 'radial-gradient(ellipse 55% 60% at 27% 48%, rgba(43,82,176,0.09) 0%, transparent 65%)',
+          background: 'radial-gradient(ellipse 55% 60% at 27% 48%, rgba(26,60,110,0.09) 0%, transparent 65%)',
         }}
       />
 
@@ -168,7 +168,7 @@ export function Hero() {
             <div ref={pillRef} className="mb-9">
               <button
                 onClick={() => scrollToSection('#ueber-mich')}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full border transition-all hover:border-[#3D67CA]/50 cursor-pointer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full border transition-all hover:border-[#264E8C]/50 cursor-pointer"
                 style={{
                   background: 'rgba(255,255,255,0.05)',
                   borderColor: 'rgba(255,255,255,0.14)',
@@ -177,14 +177,14 @@ export function Hero() {
               >
                 <span
                   className="h-1.5 w-1.5 rounded-full flex-shrink-0 animate-pulse"
-                  style={{ background: '#3D67CA' }}
+                  style={{ background: '#2B52B0' }}
                 />
                 <span className="text-[12px] tracking-wide" style={{ color: 'rgba(255,255,255,0.65)' }}>
                   {de
-                    ? '168 Bewertungen · 100 % positiv auf eBay'
-                    : '168 reviews · 100 % positive on eBay'}
+                    ? '171 Bewertungen · 100 % positiv auf eBay'
+                    : '171 reviews · 100 % positive on eBay'}
                 </span>
-                <ArrowRight className="h-3 w-3 flex-shrink-0" style={{ color: '#3D67CA' }} />
+                <ArrowRight className="h-3 w-3 flex-shrink-0" style={{ color: '#264E8C' }} />
               </button>
             </div>
 
@@ -197,7 +197,7 @@ export function Hero() {
                 <WordReveal text={headline} className="block" />
                 <span
                   className="block font-serif-display italic overflow-hidden"
-                  style={{ color: '#3D67CA', verticalAlign: 'bottom' }}
+                  style={{ color: '#264E8C', verticalAlign: 'bottom' }}
                 >
                   <span className="word-inner inline-block" style={{ willChange: 'transform' }}>
                     {headlineSub}

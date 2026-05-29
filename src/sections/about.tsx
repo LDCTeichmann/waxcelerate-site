@@ -53,7 +53,7 @@ export function About() {
       label: de ? 'Versand nach Bestellung' : 'Ships after order',
     },
     {
-      value: de ? 'Seit 2024' : 'Since 2024',
+      value: de ? 'Seit 2023' : 'Since 2023',
       label: de ? 'In Stuttgart gegründet' : 'Founded in Stuttgart',
     },
     {
@@ -87,11 +87,19 @@ export function About() {
             <div ref={textRef} className="space-y-4">
               <p className="text-[15px] leading-[1.8] text-wx-tx2">{t.about.bio1}</p>
               <p className="text-[15px] leading-[1.8] text-wx-tx2">{t.about.bio2}</p>
+              <blockquote
+                className="font-serif-display italic text-[19px] leading-snug text-wx-tx1 pl-4 my-1"
+                style={{ borderLeft: '2px solid #2B52B0' }}
+              >
+                {de
+                  ? 'Nicht jede Charge war sofort richtig. Aber jede war näher dran.'
+                  : 'Not every batch was right straight away. But each one was closer.'}
+              </blockquote>
               <p className="text-[15px] leading-[1.8] text-wx-tx2">{t.about.bio3}</p>
 
               <div className="pt-3 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8">
                 <div className="flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#3D67CA] animate-pulse flex-shrink-0" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#2B52B0] animate-pulse flex-shrink-0" />
                   <span className="text-[11px]" style={{ color: 'var(--txm)' }}>
                     {de ? 'Aktiv auf eBay · Versand aus Stuttgart' : 'Active on eBay · Ships from Stuttgart'}
                   </span>
@@ -104,11 +112,11 @@ export function About() {
                 >
                   <span
                     className="flex items-center justify-center w-7 h-7 rounded-lg flex-shrink-0 transition-colors"
-                    style={{ background: 'rgba(43,82,176,0.12)', border: '1px solid rgba(43,82,176,0.22)' }}
+                    style={{ background: 'rgba(26,60,110,0.12)', border: '1px solid rgba(26,60,110,0.22)' }}
                   >
-                    <ExternalLink className="h-3 w-3 text-[#2B52B0]" />
+                    <ExternalLink className="h-3 w-3 text-[#1A3C6E]" />
                   </span>
-                  <span className="text-[13px] font-medium text-[#3D67CA] group-hover:text-[#5580E0] transition-colors">
+                  <span className="text-[13px] font-medium text-[#264E8C] group-hover:text-[#3A65B8] transition-colors">
                     {t.about.ebay}
                   </span>
                 </a>
@@ -180,7 +188,7 @@ export function About() {
                   {s.badge && (
                     <span
                       className="inline-block mt-1.5 mb-1 px-2 py-0.5 rounded-full text-[10px] font-semibold"
-                      style={{ background: 'rgba(43,82,176,0.10)', color: '#4A72D4' }}
+                      style={{ background: 'rgba(26,60,110,0.10)', color: '#2A5499' }}
                     >
                       {s.badge}
                     </span>

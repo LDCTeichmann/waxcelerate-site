@@ -23,6 +23,7 @@ const BlogIndexPage = lazy(() => import('@/pages/blog/BlogIndexPage').then(m => 
 const BlogArticlePage = lazy(() => import('@/pages/blog/BlogArticlePage').then(m => ({ default: m.BlogArticlePage })));
 const SciencePage = lazy(() => import('@/pages/SciencePage').then(m => ({ default: m.SciencePage })));
 import { LanguageProvider } from '@/hooks/useLanguage';
+import { ThemeProvider } from '@/hooks/useTheme';
 import { Toaster } from '@/components/ui/sonner';
 import { CartDrawer } from '@/components/CartDrawer';
 import { useCartStore } from '@/store/cart';
@@ -55,10 +56,10 @@ function AppContent() {
             <main>
               <Hero />
               <Conviction />
-              <About />
+              <Products />
               <WhyWax />
               <Reviews />
-              <Products />
+              <About />
               <Tools />
               <Guides />
               <FAQ />
@@ -81,9 +82,11 @@ function AppContent() {
 
 function App() {
   return (
-    <LanguageProvider>
-      <AppContent />
-    </LanguageProvider>
+    <ThemeProvider>
+      <LanguageProvider>
+        <AppContent />
+      </LanguageProvider>
+    </ThemeProvider>
   );
 }
 

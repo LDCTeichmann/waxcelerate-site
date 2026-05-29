@@ -43,7 +43,7 @@ export function ProductDetailPage() {
   const isWax = product.category === 'wax';
   const isChain = product.category === 'chain';
   const accentColor = isPro ? '#4A72D4' : '#2B52B0';  // text/icon accent — lighter for contrast on dark bg
-  const buttonColor = isPro ? '#2A5499' : '#1A3C6E';  // CTA bg — matches product card buttons
+  const buttonColor = '#1A3C6E';  // amber — consistent with all purchase CTAs
   const accentBg = isPro ? 'rgba(74,114,212,0.08)' : 'rgba(43,82,176,0.08)';
 
   const formatPrice = useCallback((price: number) =>
@@ -83,7 +83,7 @@ export function ProductDetailPage() {
     brand: { '@type': 'Brand', name: 'Waxcelerate' },
     url: canonicalUrl,
     ...(isWax && {
-      aggregateRating: { '@type': 'AggregateRating', ratingValue: '5', reviewCount: '168', bestRating: '5', worstRating: '1' },
+      aggregateRating: { '@type': 'AggregateRating', ratingValue: '5', reviewCount: '171', bestRating: '5', worstRating: '1' },
     }),
     offers: {
       '@type': 'Offer',
