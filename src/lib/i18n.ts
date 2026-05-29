@@ -266,7 +266,7 @@ export const translations = {
     about: {
       title: 'Entstanden auf der Straße.',
       bio1: 'Ich bin Luca. Waxcelerate ist nicht am Schreibtisch entstanden, sondern auf nassen Herbststraßen, bei Ausfahrten tief im Winter und nach Sommerrennen, bei denen Staub und Hitze zeigen, was ein Wachs wirklich kann.',
-      bio2: 'Der Anspruch war von Anfang an konkret: kein Wachs, das im ersten Eindruck überzeugt und nach drei Wochen Kompromisse zeigt. Sondern eines, das seine Arbeit still tut — bei Kälte genauso wie im Hochsommer, über kurze Ausfahrten genauso wie über lange Intervalle. Nicht jede Charge war sofort richtig. Aber jede war näher dran.',
+      bio2: 'Der Anspruch war von Anfang an konkret: kein Wachs, das im ersten Eindruck überzeugt und nach drei Wochen Kompromisse zeigt. Sondern eines, das seine Arbeit still tut — bei Kälte genauso wie im Hochsommer, über kurze Ausfahrten genauso wie über lange Intervalle.',
       bio3: 'Das Ergebnis wird in kleinen Chargen in Stuttgart entwickelt und gefertigt, für Fahrer, die beim Antrieb kein Versprechen brauchen, sondern ein Produkt, das sich seine Überzeugungskraft auf der Straße verdient hat.',
       location: 'Stuttgart, Deutschland',
       email: 'waxcelerate@gmail.com',
@@ -599,7 +599,7 @@ export const translations = {
     about: {
       title: 'Built on the road.',
       bio1: "I'm Luca. Waxcelerate wasn't born at a desk — it came from wet autumn roads, deep winter rides, and summer races where dust and heat reveal what a wax is really made of.",
-      bio2: "The standard was concrete from day one: not a wax that impresses at first contact and starts making compromises after three weeks. One that does its job quietly — in the cold as much as midsummer, over short rides as much as long ones. Not every batch was right straight away. But each one was closer.",
+      bio2: "The standard was concrete from day one: not a wax that impresses at first contact and starts making compromises after three weeks. One that does its job quietly — in the cold as much as midsummer, over short rides as much as long ones.",
       bio3: "The result is developed and produced in small batches in Stuttgart, for riders who don't need a promise about their drivetrain — just a product that earns its reputation on the road.",
       location: 'Stuttgart, Germany',
       email: 'waxcelerate@gmail.com',
