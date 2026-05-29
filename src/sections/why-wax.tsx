@@ -59,12 +59,12 @@ const differentiators: {
   {
     icon: Droplets,
     catDe: 'Feuchtigkeitsschutz', catEn: 'Moisture Protection',
-    titleDe: 'Hydrophobe Matrix — Wasser bleibt außen',
-    titleEn: 'Hydrophobic matrix — water stays out',
-    beforeDe: 'Wachse ohne hydrophobe Matrix lassen Feuchtigkeit ins Metall — Rostflecken nach Regenfahrt',
-    beforeEn: 'Waxes without hydrophobic matrix let moisture into the metal — rust spots after rain',
-    afterDe: 'Paraffin-Hartwachs-Verbund schließt Wassereinschluss aus — besonders wirksam im Pro',
-    afterEn: 'Paraffin-hardwax compound prevents water retention — especially effective in Pro',
+    titleDe: 'Mikrokristalline Schicht — Metall bleibt geschützt',
+    titleEn: 'Microcrystalline layer — metal stays protected',
+    beforeDe: 'Standard-Paraffin deckt die Metalloberfläche nicht vollständig ab — Wasser gelangt ans Metall, Rost entsteht',
+    beforeEn: 'Standard paraffin alone doesn\'t fully cover the metal surface — water reaches the metal, rust forms',
+    afterDe: 'Mikrokristallines Hartwachs vernetzt dichter — deckt mehr Metalloberfläche ab, weniger Wasserkontakt, weniger Oxidation',
+    afterEn: 'Microcrystalline hard wax cross-links more densely — covers more metal surface, less water contact, less oxidation',
     filters: ['commute', 'gravel'],
   },
 ];
@@ -234,20 +234,22 @@ export function WhyWax() {
 
               {/* Cost savings card */}
               <div
-                className="rounded-xl border border-wx-bd p-5"
+                className="rounded-xl border border-wx-bd p-4"
                 style={{ ...cardStyle, ...rowOpacity(activeFilter, ['road', 'commute', 'gravel']) }}
               >
-                <div className="flex items-center gap-2 mb-4">
-                  <TrendingDown className="h-4 w-4 flex-shrink-0 text-wx-txm" />
-                  <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-wx-txm">
-                    {de ? 'Kostenersparnis' : 'Cost Savings'}
-                  </p>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <TrendingDown className="h-3.5 w-3.5 flex-shrink-0 text-wx-txm" />
+                    <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-wx-txm">
+                      {de ? 'Kostenersparnis' : 'Cost Savings'}
+                    </p>
+                  </div>
+                  <span className="font-display font-bold text-wx-tx1 tabular-nums text-[22px] leading-none">~€70</span>
                 </div>
-                <span className="font-serif-display italic text-[40px] font-bold text-wx-tx1 tabular-nums leading-none block mb-1">~€70</span>
-                <p className="text-[12px] font-semibold mb-4" style={{ color: '#2B52B0' }}>
+                <p className="text-[11px] font-semibold mb-2.5" style={{ color: '#2B52B0' }}>
                   {de ? '46 % weniger über 12.000 km' : '46% less over 12,000 km'}
                 </p>
-                <div className="space-y-1.5 pt-3" style={{ borderTop: '1px solid var(--bd2)' }}>
+                <div className="space-y-1 pt-2" style={{ borderTop: '1px solid var(--bd2)' }}>
                   <div className="flex justify-between text-[11px]">
                     <span className="text-wx-txf">{de ? 'Mit Öl (3 Ketten)' : 'With oil (3 chains)'}</span>
                     <span className="text-wx-txm tabular-nums">~€151</span>
@@ -261,31 +263,28 @@ export function WhyWax() {
 
               {/* Friction card */}
               <div
-                className="flex flex-col rounded-xl border border-wx-bd p-5"
+                className="flex flex-col rounded-xl border border-wx-bd p-4"
                 style={{ ...cardStyle, ...rowOpacity(activeFilter, ['road', 'gravel']) }}
               >
-                <div className="flex items-center gap-2 mb-3">
-                  <BarChart2 className="h-4 w-4 flex-shrink-0 text-wx-txm" />
-                  <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-wx-txm">
-                    {de ? 'Reibung' : 'Friction'}
-                  </p>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-1.5">
+                    <BarChart2 className="h-3.5 w-3.5 flex-shrink-0 text-wx-txm" />
+                    <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-wx-txm">
+                      {de ? 'Reibung' : 'Friction'}
+                    </p>
+                  </div>
+                  <span className="font-display font-bold text-wx-tx1 tabular-nums text-[18px] leading-none">μ 0,03</span>
                 </div>
-                <p className="font-serif-display italic text-[36px] font-bold text-wx-tx1 tabular-nums leading-none mb-1">
-                  μ 0,03
-                </p>
-                <p className="text-[11px] text-wx-txm leading-relaxed mb-4">
-                  {de ? 'Waxcelerate Pro — niedrigster gemessener Wert' : 'Waxcelerate Pro — lowest measured value'}
-                </p>
-                <div className="space-y-2.5 flex-1">
+                <div className="space-y-2 flex-1">
                   {frictionMini.map((item, i) => {
                     const label = 'label' in item ? item.label : (de ? item.labelDe : item.labelEn);
                     return (
                       <div key={i}>
-                        <div className="flex justify-between mb-1">
+                        <div className="flex justify-between mb-0.5">
                           <span className={`text-[10px] font-medium ${item.highlight ? 'text-wx-tx1' : 'text-wx-txf'}`}>{label}</span>
                           <span className={`text-[10px] font-mono tabular-nums ${item.highlight ? 'text-wx-tx2' : 'text-wx-txff'}`}>{item.val}</span>
                         </div>
-                        <div className="h-1 rounded-full overflow-hidden" style={{ background: 'var(--bd)' }}>
+                        <div className="h-0.5 rounded-full overflow-hidden" style={{ background: 'var(--bd)' }}>
                           <div
                             className="fbar h-full w-full rounded-full"
                             data-w={item.pct}
@@ -302,7 +301,7 @@ export function WhyWax() {
                 </div>
                 <Link
                   to="/wissenschaft"
-                  className="flex items-center gap-1 text-[11px] font-medium mt-4 pt-3 transition-opacity hover:opacity-70"
+                  className="flex items-center gap-1 text-[11px] font-medium mt-3 pt-2.5 transition-opacity hover:opacity-70"
                   style={{ color: '#264E8C', borderTop: '1px solid var(--bd2)' }}
                 >
                   {de ? 'Vollständiger Vergleich →' : 'Full comparison →'}
