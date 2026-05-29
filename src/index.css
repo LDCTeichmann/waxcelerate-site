@@ -56,6 +56,13 @@
     --cta-fg:    #FAFAFA;
     --cta-hover: #1C2028;
 
+    /* Tab/segment switcher */
+    --tab-track-bg:  var(--sf2);
+    --tab-track-bd:  var(--bd2);
+    --tab-pill-bg:   var(--sf);
+    --tab-pill-bd:   var(--bd);
+    --tab-pill-shadow: 0 1px 3px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.55);
+
     /* Inset / nested surface tokens — replace hardcoded rgba in dark-first components */
     --inset-bg:    var(--sf2);           /* subtle inset inside cards */
     --inset-bd:    var(--bd2);           /* border of inset areas */
@@ -99,6 +106,13 @@
     --cta-bg:    #EDE9E0;
     --cta-fg:    #0A0A0A;
     --cta-hover: #E2DED5;
+
+    /* Tab/segment switcher — dark mode: subtle groove + bright elevated pill */
+    --tab-track-bg:  rgba(255,255,255,0.04);
+    --tab-track-bd:  rgba(255,255,255,0.08);
+    --tab-pill-bg:   rgba(255,255,255,0.10);
+    --tab-pill-bd:   rgba(255,255,255,0.14);
+    --tab-pill-shadow: 0 1px 4px rgba(0,0,0,0.40), 0 0 0 0.5px rgba(255,255,255,0.06);
 
     /* Inset tokens — dark-mode values */
     --inset-bg:    rgba(255,255,255,0.04);

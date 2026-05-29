@@ -961,6 +961,10 @@ export function Tools() {
   const tabButtonRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const tabPillRef = useRef<HTMLDivElement>(null);
 
+  // borderLeft = 1px — subtract so pill sits flush inside the track's padding box
+  const pillX = (btnRect: DOMRect, barRect: DOMRect) =>
+    btnRect.left - barRect.left - 1;
+
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
       const btn = tabButtonRefs.current[0];
@@ -969,7 +973,7 @@ export function Tools() {
       if (!btn || !bar || !pill) return;
       const barRect = bar.getBoundingClientRect();
       const btnRect = btn.getBoundingClientRect();
-      gsap.set(pill, { x: btnRect.left - barRect.left, width: btnRect.width });
+      gsap.set(pill, { x: pillX(btnRect, barRect), width: btnRect.width });
     });
     return () => cancelAnimationFrame(frame);
   }, []); // eslint-disable-line
@@ -982,9 +986,9 @@ export function Tools() {
     const barRect = bar.getBoundingClientRect();
     const btnRect = btn.getBoundingClientRect();
     gsap.to(pill, {
-      x: btnRect.left - barRect.left,
+      x: pillX(btnRect, barRect),
       width: btnRect.width,
-      duration: 0.38,
+      duration: 0.35,
       ease: 'power3.inOut',
       overwrite: 'auto',
     });
@@ -1001,7 +1005,7 @@ export function Tools() {
       if (!btn || !pill) return;
       const barRect = bar.getBoundingClientRect();
       const btnRect = btn.getBoundingClientRect();
-      gsap.set(pill, { x: btnRect.left - barRect.left, width: btnRect.width });
+      gsap.set(pill, { x: pillX(btnRect, barRect), width: btnRect.width });
     });
     observer.observe(bar);
     return () => observer.disconnect();
@@ -1025,21 +1029,29 @@ export function Tools() {
           <div className="lg:hidden">
             <div
               ref={tabBarRef}
-              className="relative flex gap-1 p-1 rounded-xl mb-5 overflow-x-auto"
-              style={{ background: 'var(--tog-bg)', border: '1px solid var(--tog-bd)' }}
+              className="relative flex p-1 rounded-2xl mb-5 overflow-x-auto"
+              style={{ background: 'var(--tab-track-bg)', border: '1px solid var(--tab-track-bd)' }}
             >
               <div
                 ref={tabPillRef}
-                className="absolute top-1 bottom-1 rounded-lg pointer-events-none"
-                style={{ width: 0, background: 'var(--sf3)', border: '1px solid var(--bd2)' }}
+                className="absolute top-1 bottom-1 rounded-xl pointer-events-none"
+                style={{
+                  width: 0,
+                  background: 'var(--tab-pill-bg)',
+                  border: '1px solid var(--tab-pill-bd)',
+                  boxShadow: 'var(--tab-pill-shadow)',
+                }}
               />
               {TAB_LABELS.map((label, i) => (
                 <button
                   key={i}
                   ref={el => { tabButtonRefs.current[i] = el; }}
                   onClick={() => setActiveTab(i)}
-                  className="relative z-10 flex-1 min-w-[60px] px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap"
-                  style={{ color: activeTab === i ? 'var(--tx1)' : 'var(--txm)' }}
+                  className="relative z-10 flex-1 min-w-[60px] px-3 py-2 rounded-xl text-[12px] font-semibold transition-colors whitespace-nowrap"
+                  style={{
+                    color: activeTab === i ? 'var(--tx1)' : 'var(--txf)',
+                    letterSpacing: activeTab === i ? '-0.01em' : '0',
+                  }}
                 >
                   {label}
                 </button>
