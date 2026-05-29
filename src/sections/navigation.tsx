@@ -231,7 +231,15 @@ export function Navigation() {
         </nav>
 
         {/* Bottom actions */}
-        <div className="px-5 pb-8 pt-4 flex-shrink-0 flex items-center justify-end border-t border-wx-bd/20">
+        <div className="px-5 pb-8 pt-4 flex-shrink-0 flex items-center justify-between border-t border-wx-bd/20">
+          <button
+            onClick={() => setTheme(theme === 'light' ? 'noir' : 'light')}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-wx-tx2 hover:text-wx-tx1 border border-wx-bd/50 hover:border-[#1A3C6E] rounded transition-colors"
+            aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+          >
+            {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+            {theme === 'light' ? (de ? 'Dark Mode' : 'Dark mode') : (de ? 'Light Mode' : 'Light mode')}
+          </button>
           <button
             onClick={toggleLang}
             className="px-4 py-2 text-sm font-medium text-wx-tx2 hover:text-wx-tx1 border border-wx-bd/50 hover:border-[#1A3C6E] rounded transition-colors"
