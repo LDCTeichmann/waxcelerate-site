@@ -275,7 +275,8 @@ function HexMoS2({ de }: { de: boolean }) {
     ]);
 
   return (
-    <div className="w-full rounded-2xl overflow-hidden p-5 cursor-default select-none" style={{ ...CARD, ...DOT_GRID }}
+    <div className="w-full rounded-2xl overflow-hidden p-5 cursor-default select-none"
+      style={{ ...CARD, ...DOT_GRID, transition: 'box-shadow 0.35s ease', boxShadow: hov ? '0 0 0 1px rgba(68,114,212,0.3), 0 8px 32px rgba(26,60,110,0.14)' : 'none' }}
       onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}>
       <p className="text-[10px] uppercase tracking-[0.2em] mb-4 text-center" style={{ color: 'var(--txff)' }}>
         {de ? '2H-MoS₂ — Schichtstruktur (Seitenansicht)' : '2H-MoS₂ — Layer structure (side view)'}
@@ -338,6 +339,7 @@ function HexMoS2({ de }: { de: boolean }) {
 // ─── Transfer film animation — chain cross-section ────────────────────────────
 function TransferFilm({ de }: { de: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
+  const [hov, setHov] = useState(false);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -369,7 +371,9 @@ function TransferFilm({ de }: { de: boolean }) {
   }, []);
 
   return (
-    <div ref={ref} className="w-full rounded-2xl overflow-hidden p-5" style={{ ...CARD, ...DOT_GRID }}>
+    <div ref={ref} className="w-full rounded-2xl overflow-hidden p-5"
+      style={{ ...CARD, ...DOT_GRID, transition: 'box-shadow 0.35s ease', boxShadow: hov ? '0 0 0 1px rgba(68,114,212,0.3), 0 8px 32px rgba(26,60,110,0.14)' : 'none' }}
+      onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}>
       <p className="text-[10px] uppercase tracking-[0.2em] mb-4 text-center" style={{ color: 'var(--txff)' }}>
         {de ? 'Transferfilm-Bildung unter Kontaktdruck' : 'Transfer film formation under contact pressure'}
       </p>
@@ -417,30 +421,64 @@ function TransferFilm({ de }: { de: boolean }) {
   );
 }
 
-// ─── Crystal lattice ──────────────────────────────────────────────────────────
+// ─── Crystal lattice — hexagonal close-packed SVG ────────────────────────────
 function CrystalLattice() {
-  const ref = useRef<HTMLDivElement>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+
+  const COLS = 10, ROWS = 6, HEX_W = 38, HEX_H = 30;
+
+  // Build atom positions — hexagonal close-packed
+  const atoms = Array.from({ length: ROWS * COLS }, (_, i) => {
+    const r = Math.floor(i / COLS), c = i % COLS;
+    return {
+      x: c * HEX_W + (r % 2 === 1 ? HEX_W / 2 : 0) + 16,
+      y: r * HEX_H + 14,
+      big: (r + c * 2) % 4 === 0,
+    };
+  });
+
+  // Compute HCP bonds
+  const bonds: { x1: number; y1: number; x2: number; y2: number }[] = [];
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const a = atoms[r * COLS + c];
+      if (c < COLS - 1) bonds.push({ x1: a.x, y1: a.y, x2: atoms[r * COLS + c + 1].x, y2: atoms[r * COLS + c + 1].y });
+      if (r < ROWS - 1) {
+        const nbC = r % 2 === 0 ? c : c + 1;
+        if (nbC < COLS) { const nb = atoms[(r + 1) * COLS + nbC]; bonds.push({ x1: a.x, y1: a.y, x2: nb.x, y2: nb.y }); }
+        const nbC2 = r % 2 === 0 ? c - 1 : c;
+        if (nbC2 >= 0) { const nb = atoms[(r + 1) * COLS + nbC2]; bonds.push({ x1: a.x, y1: a.y, x2: nb.x, y2: nb.y }); }
+      }
+    }
+  }
+
   useEffect(() => {
-    const nodes = ref.current?.querySelectorAll('.lat-node') as NodeListOf<HTMLElement>;
+    const nodes = svgRef.current?.querySelectorAll<SVGCircleElement>('.lat-atom');
     if (!nodes?.length) return;
     nodes.forEach((n, i) => {
-      gsap.to(n, { opacity: Math.random() * 0.4 + 0.6, scale: Math.random() * 0.3 + 0.85, duration: 1.8 + Math.random() * 1.4, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: i * 0.06 });
+      gsap.to(n, {
+        opacity: 0.5 + (i * 7 % 5) * 0.1,
+        duration: 1.5 + (i % 5) * 0.45,
+        repeat: -1, yoyo: true, ease: 'sine.inOut', delay: i * 0.048,
+      });
     });
-    return () => gsap.killTweensOf(nodes);
+    return () => gsap.killTweensOf(Array.from(nodes));
   }, []);
-  const rows = 6, cols = 9;
+
   return (
-    <div className="w-full rounded-2xl overflow-hidden p-7" style={{ ...CARD, ...DOT_GRID }}>
-      <div ref={ref} className="grid mb-4" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: '12px' }}>
-        {Array.from({ length: rows * cols }).map((_, i) => {
-          const isBig = ((Math.floor(i / cols)) * 3 + (i % cols) * 2) % 5 === 0;
-          return (
-            <div key={i} className="lat-node mx-auto rounded-full"
-              style={{ width: isBig ? '9px' : '5px', height: isBig ? '9px' : '5px', background: isBig ? '#1A3C6E' : 'var(--bd)', boxShadow: isBig ? '0 0 10px rgba(26,60,110,0.55)' : 'none' }}
-            />
-          );
-        })}
-      </div>
+    <div className="w-full rounded-2xl overflow-hidden p-5" style={{ ...CARD, ...DOT_GRID }}>
+      <svg ref={svgRef} viewBox="0 0 395 196" className="w-full mb-3" style={{ overflow: 'visible' }}>
+        {bonds.map((b, i) => (
+          <line key={i} x1={b.x1} y1={b.y1} x2={b.x2} y2={b.y2} stroke="rgba(42,84,153,0.14)" strokeWidth="0.85" />
+        ))}
+        {atoms.map((a, i) => (
+          <circle
+            key={i} className="lat-atom" cx={a.x} cy={a.y} r={a.big ? 5.5 : 3}
+            fill={a.big ? '#1A3C6E' : 'var(--bd)'} opacity={a.big ? 0.88 : 0.6}
+            style={{ filter: a.big ? 'drop-shadow(0 0 5px rgba(26,60,110,0.65))' : 'none' }}
+          />
+        ))}
+      </svg>
       <p className="text-center text-[9px] uppercase tracking-[0.2em]" style={{ color: 'var(--txff)' }}>
         Lamellare Kristalldomänen · C₂₀–C₃₆
       </p>
@@ -665,7 +703,8 @@ interface ChapterProps {
 }
 
 function Chapter({ num, catDe, catEn, titleDe, titleEn, ledeDe, ledeEn, bodyDe, bodyEn, insightDe, insightEn, visual, extraVisual, flip, de }: ChapterProps) {
-  const ref   = useRef<HTMLDivElement>(null);
+  const ref     = useRef<HTMLDivElement>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -678,6 +717,18 @@ function Chapter({ num, catDe, catEn, titleDe, titleEn, ledeDe, ledeEn, bodyDe, 
     });
     return () => ctx.revert();
   }, []);
+
+  // Stagger paragraphs in when expanding
+  useEffect(() => {
+    if (!open) return;
+    const ps = bodyRef.current?.querySelectorAll('p');
+    if (ps?.length) {
+      gsap.fromTo(ps,
+        { opacity: 0, y: 10 },
+        { opacity: 1, y: 0, duration: 0.42, stagger: 0.1, ease: 'power2.out', delay: 0.08 },
+      );
+    }
+  }, [open]);
 
   return (
     <div ref={ref} className="mb-24 lg:mb-32" style={{ opacity: 0 }} data-chapter={num}>
@@ -721,8 +772,8 @@ function Chapter({ num, catDe, catEn, titleDe, titleEn, ledeDe, ledeEn, bodyDe, 
             {de ? (open ? 'Schließen' : 'Die Physik dahinter') : (open ? 'Close' : 'The physics')}
           </button>
           {/* Expandable body */}
-          <div style={{ maxHeight: open ? '1800px' : '0', overflow: 'hidden', opacity: open ? 1 : 0, transition: 'max-height 0.55s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease' }}>
-            <div className="space-y-4 text-[15px] leading-[1.88] text-wx-txm pb-2">
+          <div style={{ maxHeight: open ? '1800px' : '0', overflow: 'hidden', transition: 'max-height 0.55s cubic-bezier(0.4,0,0.2,1)' }}>
+            <div ref={bodyRef} className="space-y-4 text-[15px] leading-[1.88] text-wx-txm pb-2">
               {de ? bodyDe : bodyEn}
             </div>
           </div>
@@ -829,6 +880,16 @@ export function SciencePage() {
         style={{ background: '#07070A', minHeight: '88vh' }}
       >
         <HeroParticles />
+
+        {/* Product image — very faint, grayscale, ties hero to product */}
+        <img
+          src="/images/wax-hero.jpg"
+          alt=""
+          aria-hidden
+          className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none"
+          style={{ opacity: 0.055, objectPosition: '62% 50%', filter: 'grayscale(1) blur(1px)' }}
+          loading="eager"
+        />
 
         {/* Hexagonal grid texture */}
         <div
