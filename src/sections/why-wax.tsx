@@ -137,7 +137,7 @@ export function WhyWax() {
             <p className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-semibold mb-3" style={{ color: 'var(--txf)' }}>
               {de ? 'Die Formel' : 'The Formula'}
             </p>
-            <h2 className="font-display text-5xl sm:text-6xl font-bold text-wx-tx1 mb-4">
+            <h2 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-wx-tx1 mb-4">
               <ScrollWordReveal text={de ? 'Was Waxcelerate anders macht.' : 'What makes Waxcelerate different.'} />
             </h2>
             <p data-reveal="subtitle" className="text-wx-txm max-w-lg text-[15px]">

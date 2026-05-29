@@ -233,9 +233,9 @@ export function Hero() {
               <button
                 onClick={() => scrollToSection('#warum-wachs')}
                 className="text-sm transition-colors cursor-pointer"
-                style={{ color: 'rgba(255,255,255,0.65)' }}
-                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.88)')}
-                onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.65)')}
+                style={{ color: 'rgba(255,255,255,0.82)' }}
+                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,1)')}
+                onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.82)')}
               >
                 {t.hero.ctaSecondary}
               </button>

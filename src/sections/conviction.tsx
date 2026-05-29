@@ -31,23 +31,26 @@ export function Conviction() {
     <section className="py-8 sm:py-10" style={{ background: 'var(--sf3)' }}>
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-3xl mx-auto">
-          <div className="flex items-center">
+          <div
+            className="grid grid-cols-2 sm:grid-cols-4 gap-px rounded-xl overflow-hidden"
+            style={{ background: 'var(--bd)' }}
+          >
             {stats.map((s, i) => (
               <div
                 key={i}
-                className="flex-1 text-center px-4 py-2"
-                style={i > 0 ? { borderLeft: '1px solid var(--bd)' } : {}}
+                className="text-center px-4 py-5"
+                style={{ background: 'var(--sf3)' }}
               >
                 <p
                   className="font-display font-bold text-wx-tx1 tabular-nums leading-none"
-                  style={{ fontSize: 'clamp(1.5rem, 3.5vw, 2.25rem)' }}
+                  style={{ fontSize: 'clamp(1.4rem, 4vw, 2.25rem)' }}
                 >
                   {s.number}
                 </p>
                 <p className="text-[12px] font-medium mt-1.5" style={{ color: 'var(--tx2)' }}>
                   {s.label}
                 </p>
-                <p className="text-[11px] mt-0.5" style={{ color: 'var(--txf)' }}>
+                <p className="text-[11px] mt-0.5 leading-snug" style={{ color: 'var(--txf)' }}>
                   {s.sub}
                 </p>
               </div>
