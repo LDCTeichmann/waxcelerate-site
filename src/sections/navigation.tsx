@@ -93,10 +93,17 @@ export function Navigation() {
               <img
                 src="/images/No BG No Sign Logo.png"
                 alt="Waxcelerate"
-                className="w-auto"
-                style={{ height: '36px', width: 'auto' }}
+                className="w-auto transition-all duration-300"
+                style={{
+                  height: '36px',
+                  width: 'auto',
+                  filter: isScrolled ? 'none' : 'brightness(0) invert(1)',
+                }}
               />
-              <span className="font-sans text-sm font-bold tracking-wide text-wx-tx1">
+              <span
+                className="font-sans text-sm font-bold tracking-wide transition-colors duration-300"
+                style={{ color: isScrolled ? 'var(--tx1)' : 'rgba(255,255,255,0.9)' }}
+              >
                 WAXCELERATE
               </span>
             </a>
@@ -118,13 +125,16 @@ export function Navigation() {
                   key={item.href}
                   href={item.href}
                   onClick={(e) => { e.preventDefault(); scrollToSection(item.href); }}
-                  className={`relative group px-4 py-2 text-sm transition-colors ${
-                    activeSection === item.href ? 'text-wx-tx1' : 'text-wx-tx2 hover:text-wx-tx1'
-                  }`}
+                  className="relative group px-4 py-2 text-sm transition-colors duration-300"
+                  style={{
+                    color: isScrolled
+                      ? (activeSection === item.href ? 'var(--tx1)' : 'var(--tx2)')
+                      : (activeSection === item.href ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0.70)'),
+                  }}
                 >
                   {t.nav[item.key as keyof typeof t.nav]}
                   {activeSection === item.href && (
-                    <span className="absolute bottom-0 left-4 right-4 h-px" style={{ background: '#1A3C6E' }} />
+                    <span className="absolute bottom-0 left-4 right-4 h-px" style={{ background: isScrolled ? '#1A3C6E' : 'rgba(255,255,255,0.5)' }} />
                   )}
                   {activeSection !== item.href && (
                     <span
