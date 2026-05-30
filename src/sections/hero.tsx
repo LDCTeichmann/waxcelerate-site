@@ -97,16 +97,11 @@ export function Hero() {
     <section
       id="home"
       className="grain relative overflow-hidden"
-      style={{ minHeight: '100dvh', background: isDark ? '#0A0A0A' : 'var(--pg)', contain: 'paint' }}
+      style={{ minHeight: '100dvh', background: isDark ? '#0A0A0A' : 'transparent', contain: 'paint' }}
     >
 
-      {/* ── Background image ────────────────────────────────────────────────── */}
-
-      {/* Desktop: right-side panel */}
-      <div
-        className="hidden lg:block absolute top-0 right-0 bottom-0 pointer-events-none"
-        style={{ width: '52%' }}
-      >
+      {/* ── Background image — full width on both layouts ── */}
+      <div className="absolute inset-0 pointer-events-none">
         <img
           src="/images/DSC01455.JPG"
           alt=""
@@ -114,46 +109,28 @@ export function Hero() {
           height={912}
           fetchPriority="high"
           className="absolute inset-0 w-full h-full object-cover"
-          style={{ objectPosition: '40% 72%' }}
+          style={{ objectPosition: '60% 72%' }}
         />
-        {/* Dark mode only: blend left edge + bottom vignette */}
-        {isDark && <>
-          <div
-            className="absolute inset-0"
-            style={{ background: 'linear-gradient(to right, #0A0A0A 0%, rgba(10,10,10,0.50) 18%, rgba(10,10,10,0.08) 48%, transparent 65%)' }}
-          />
-          <div
-            className="absolute inset-0"
-            style={{ background: 'linear-gradient(to bottom, rgba(10,10,10,0.20) 0%, transparent 15%, transparent 72%, rgba(10,10,10,0.92) 100%)' }}
-          />
-        </>}
-        {/* Light mode only: subtle left edge blend into page bg */}
-        {!isDark && (
-          <div
-            className="absolute inset-0"
-            style={{ background: 'linear-gradient(to right, var(--pg) 0%, rgba(245,245,247,0.6) 12%, transparent 30%)' }}
-          />
+        {isDark ? (
+          /* Dark mode: strong left-to-right fade + bottom vignette */
+          <>
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, #0A0A0A 0%, rgba(10,10,10,0.75) 25%, rgba(10,10,10,0.25) 55%, transparent 75%)' }} />
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(10,10,10,0.20) 0%, transparent 15%, transparent 72%, rgba(10,10,10,0.92) 100%)' }} />
+          </>
+        ) : (
+          /* Light mode: very subtle bottom vignette only — let the photo breathe */
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(255,255,255,0.08) 0%, transparent 20%, transparent 75%, rgba(245,245,247,0.5) 100%)' }} />
         )}
       </div>
 
-      {/* Mobile: full-screen image */}
+      {/* Mobile: extra scrim for text readability over full-bleed image */}
       <div className="lg:hidden absolute inset-0 pointer-events-none">
-        <img
-          src="/images/DSC01455.JPG"
-          alt=""
-          width={1366}
-          height={912}
-          fetchPriority="high"
-          className="absolute inset-0 w-full h-full object-cover"
-          style={{ objectPosition: '45% 70%', opacity: isDark ? 0.52 : 0.18 }}
-        />
-        {/* Overlay: dark mode = dark tint, light mode = light fade for text readability */}
         <div
           className="absolute inset-0"
           style={{
             background: isDark
-              ? 'linear-gradient(to right, rgba(10,10,10,0.80) 0%, rgba(10,10,10,0.45) 55%, rgba(10,10,10,0.15) 100%)'
-              : 'linear-gradient(to bottom, var(--pg) 0%, rgba(245,245,247,0.55) 50%, var(--pg) 100%)',
+              ? 'linear-gradient(to right, rgba(10,10,10,0.82) 0%, rgba(10,10,10,0.50) 60%, rgba(10,10,10,0.20) 100%)'
+              : 'linear-gradient(to right, rgba(245,245,247,0.82) 0%, rgba(245,245,247,0.50) 60%, rgba(245,245,247,0.10) 100%)',
           }}
         />
       </div>
@@ -178,7 +155,12 @@ export function Hero() {
           - Mobile: full-width, centered
           - Desktop: left 52%, left-aligned, vertically centered
         */}
-        <div className="w-full lg:w-[52%] flex flex-col items-center lg:items-start justify-center px-6 sm:px-10 lg:pl-16 xl:pl-24 lg:pr-10 pt-24 pb-16">
+        <div
+          className="w-full lg:w-[52%] flex flex-col items-center lg:items-start justify-center px-6 sm:px-10 lg:pl-16 xl:pl-24 lg:pr-10 pt-24 pb-16"
+          style={!isDark ? {
+            background: 'linear-gradient(to right, rgba(245,245,247,0.88) 0%, rgba(245,245,247,0.60) 70%, transparent 100%)',
+          } : undefined}
+        >
           <div className="max-w-lg w-full mx-auto lg:mx-0 flex flex-col items-center lg:items-start text-center lg:text-left">
 
             {/* Pill — social proof */}
