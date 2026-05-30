@@ -919,7 +919,7 @@ export function Tools() {
 
   // Deck geometry
   const CARD_WIDTH   = 620;
-  const DECK_HEIGHT  = 580;
+  const DECK_HEIGHT  = 650;
   const SIDE_OFFSET  = 560;
   const SIDE_SCALE   = 0.85;
   const SIDE_OPACITY = 0.58;

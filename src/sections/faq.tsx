@@ -93,41 +93,15 @@ export function FAQ() {
             </button>
           )}
 
-          {/* Product CTA close — appears after full FAQ for high-intent readers */}
-          <div className="mt-12 mb-4 rounded-xl px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-4" style={{ background: 'var(--sf3)', border: '1px solid var(--bd)' }}>
-            <div>
-              <p className="text-[14px] font-semibold text-wx-tx1 mb-0.5">
-                {de ? 'Bereit loszulegen?' : 'Ready to start?'}
-              </p>
-              <p className="text-[12px]" style={{ color: 'var(--txm)' }}>
-                {de ? 'Ab €22,95 · Versand in 1 Werktag · Kostenlos ab €50' : 'From €22.95 · Ships in 1 business day · Free over €50'}
-              </p>
-            </div>
+          {/* Single CTA — high-intent readers who finished the FAQ */}
+          <div className="mt-10 flex justify-center">
             <button
               onClick={() => document.querySelector('#produkte')?.scrollIntoView({ behavior: 'smooth' })}
-              className="flex-shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[13px] font-semibold transition-opacity hover:opacity-90"
+              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-[14px] font-semibold transition-opacity hover:opacity-90"
               style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
             >
-              {de ? 'Produkte ansehen' : 'See products'}
+              {de ? 'Kette jetzt sauber halten →' : 'Keep my chain clean →'}
             </button>
-          </div>
-
-          {/* Contact CTA */}
-          <div className="mt-12 rounded-xl border border-wx-bd/40 p-6 text-center" style={{ background: 'var(--sf3)' }}>
-            <p className="text-wx-tx2 text-sm mb-4">
-              {t.faq.contactCta}
-            </p>
-            <a
-              href="#kontakt"
-              onClick={(e) => {
-                e.preventDefault();
-                document.querySelector('#kontakt')?.scrollIntoView({ behavior: 'smooth' });
-              }}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium text-white transition-all hover:opacity-90"
-              style={{ background: '#1A3C6E' }}
-            >
-              {t.faq.contactLink}
-            </a>
           </div>
         </div>
       </div>

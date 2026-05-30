@@ -516,7 +516,7 @@ export function ProductDetailPage() {
 
                       <div className="grid sm:grid-cols-2 gap-3">
                         <div className="rounded-xl p-4" style={{ border: '1px solid var(--bd2)' }}>
-                          <div className="text-[11px] font-semibold uppercase tracking-widest text-wx-txff mb-3">
+                          <div className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--txm)' }}>
                             {rc.oilCount ? `${rc.oilCount} ${rc.oilLabel}` : de ? 'Mit Kettenöl' : 'With chain oil'}
                           </div>
                           <div className="space-y-2 mb-4">
@@ -528,8 +528,8 @@ export function ProductDetailPage() {
                             ))}
                           </div>
                           <div className="pt-3 flex justify-between items-baseline" style={{ borderTop: '1px solid var(--bd2)' }}>
-                            <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--txf)' }}>{de ? 'Gesamt' : 'Total'}</span>
-                            <span className="text-[18px] font-bold font-mono" style={{ color: '#ef4444' }}>{rc.oilTotal}</span>
+                            <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--txm)' }}>{de ? 'Gesamt' : 'Total'}</span>
+                            <span className="text-[18px] font-bold font-mono" style={{ color: '#f87171' }}>{rc.oilTotal}</span>
                           </div>
                         </div>
 

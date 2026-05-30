@@ -65,7 +65,7 @@ export function Guides() {
                     {/* Header */}
                     <button
                       onClick={() => setOpenGuide(isOpen ? null : guide.id)}
-                      className="w-full flex items-center justify-between px-5 py-4 text-left"
+                      className="w-full flex items-center justify-between px-5 py-3 text-left"
                     >
                       <div className="flex items-center gap-3">
                         <guide.icon
@@ -143,43 +143,83 @@ export function Guides() {
               })}
             </div>
 
-            {/* Right: Quick Reference card — sticky sidebar on desktop */}
+            {/* Right: Stats card — sticky sidebar on desktop */}
             <div className="md:sticky md:top-28">
               <div
-                className="rounded-2xl p-5"
+                className="rounded-2xl overflow-hidden"
                 style={{
                   background: 'var(--sf)',
                   border: '1px solid var(--bd)',
                   boxShadow: 'var(--card-shad)',
                 }}
               >
-                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] mb-4 block" style={{ color: 'var(--txf)' }}>
-                  {de ? 'Kurzreferenz' : 'Quick Reference'}
-                </p>
-                <div className="space-y-0">
+                {/* Temperature bar */}
+                <div className="px-5 pt-5 pb-4" style={{ borderBottom: '1px solid var(--bd2)' }}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[11px]" style={{ color: 'var(--txm)' }}>
+                      {de ? 'Wachstemperatur' : 'Wax temperature'}
+                    </span>
+                    <span className="font-display font-bold text-[15px]" style={{ color: 'var(--tx1)' }}>
+                      85–90 °C
+                    </span>
+                  </div>
+                  {/* Animated fill bar */}
+                  <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--sf3)' }}>
+                    <div
+                      className="h-full rounded-full"
+                      style={{
+                        background: 'linear-gradient(to right, #1A3C6E, #5B8BED)',
+                        width: '90%',
+                        animation: 'guides-bar-fill 1.2s cubic-bezier(0.16,1,0.3,1) forwards',
+                        transformOrigin: 'left',
+                      }}
+                    />
+                  </div>
+                  <style>{`
+                    @keyframes guides-bar-fill {
+                      from { clip-path: inset(0 100% 0 0); }
+                      to   { clip-path: inset(0 0% 0 0); }
+                    }
+                  `}</style>
+                </div>
+
+                {/* 2×2 stat grid */}
+                <div className="grid grid-cols-2" style={{ borderBottom: '1px solid var(--bd2)' }}>
                   {[
-                    { label: de ? 'Wachstemperatur' : 'Wax temperature', value: '85–90 °C' },
-                    { label: de ? 'Erstmalig wachsen' : 'First wax', value: '10–15 min' },
-                    { label: de ? 'Re-Wax' : 'Re-wax', value: '~10 min' },
-                    { label: de ? 'Kettenlaufzeit' : 'Chain life', value: de ? '3× vs Öl' : '3× vs oil' },
-                    { label: de ? 'Ketten-Rotation' : 'Chain rotation', value: de ? '3 Ketten' : '3 chains' },
-                    { label: de ? 'Entfetten nötig?' : 'Degreasing needed?', value: de ? 'Ja, neue Kette' : 'Yes, new chain' },
-                  ].map(({ label, value }, i, arr) => (
+                    { value: '~10 min', label: de ? 'Re-Wax Dauer' : 'Re-wax time' },
+                    { value: de ? '3× länger' : '3× longer', label: de ? 'Kettenlaufzeit' : 'Chain lifespan' },
+                    { value: de ? '0 Tropfen' : '0 drops', label: de ? 'Öl nötig' : 'Oil needed' },
+                    { value: '3 Ketten', label: de ? 'gleichzeitig wachsen' : 'wax at once' },
+                  ].map(({ value, label }, i) => (
                     <div
                       key={label}
-                      className="flex items-center justify-between py-2.5"
-                      style={{ borderBottom: i < arr.length - 1 ? '1px solid var(--bd2)' : 'none' }}
+                      className="flex flex-col items-center justify-center px-3 py-4 text-center gap-1"
+                      style={{
+                        borderRight: i % 2 === 0 ? '1px solid var(--bd2)' : 'none',
+                        borderBottom: i < 2 ? '1px solid var(--bd2)' : 'none',
+                      }}
                     >
-                      <span className="text-[11.5px]" style={{ color: 'var(--txm)' }}>{label}</span>
-                      <span className="text-[12px] font-semibold tabular-nums" style={{ color: 'var(--tx1)' }}>{value}</span>
+                      <span
+                        className="font-display font-bold tabular-nums"
+                        style={{ fontSize: 'clamp(1.1rem, 2.5vw, 1.35rem)', color: 'var(--tx1)', lineHeight: 1.1 }}
+                      >
+                        {value}
+                      </span>
+                      <span className="text-[10px] leading-snug" style={{ color: 'var(--txm)' }}>
+                        {label}
+                      </span>
                     </div>
                   ))}
                 </div>
-                {t.guides.pdfHint && (
-                  <p className="text-[10.5px] mt-4 leading-snug" style={{ color: 'var(--txf)' }}>
-                    {t.guides.pdfHint}
+
+                {/* Bottom note */}
+                <div className="px-5 py-3">
+                  <p className="text-[10.5px] leading-snug" style={{ color: 'var(--txf)' }}>
+                    {de
+                      ? 'Neue Kette einmalig entfetten — danach nur noch ins Wachsbad.'
+                      : 'Degrease a new chain once — then just dip and go.'}
                   </p>
-                )}
+                </div>
               </div>
             </div>
           </div>
