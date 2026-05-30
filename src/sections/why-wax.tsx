@@ -8,151 +8,151 @@ import { gsap } from '@/lib/gsap';
 
 // ─── CSS keyframes ────────────────────────────────────────────────────────────
 const ANIM_STYLES = `
-/* Strip 1 — water droplet falls through gap in coarse wax, hits metal */
-@keyframes wx-drop-gap {
-  0%,10%  { transform: translateY(0);   opacity: 1; }
-  52%     { transform: translateY(38px); opacity: 1; }
-  62%     { transform: translateY(38px); opacity: 0; }
-  63%     { transform: translateY(0);   opacity: 0; }
-  80%,100%{ transform: translateY(0);   opacity: 1; }
-}
-/* Rust spot grows in via scale after droplet lands */
-@keyframes wx-rust-grow {
-  0%,55%  { transform: scale(0); opacity: 0; }
-  72%     { transform: scale(1.2); opacity: 0.7; }
-  82%     { transform: scale(1);   opacity: 0.6; }
-  100%    { transform: scale(1);   opacity: 0.6; }
-}
-/* Strip 1 — droplet on dense side slides off surface */
-@keyframes wx-drop-slide {
-  0%,15% { transform: translate(0, 0);   opacity: 1; }
-  48%    { transform: translate(-11px, 9px); opacity: 1; }
-  58%    { transform: translate(-14px, 9px); opacity: 0; }
-  59%    { transform: translate(0, 0);   opacity: 0; }
-  78%,100%{ transform: translate(0, 0); opacity: 1; }
-}
-
-/* Strip 2 — crack line draws itself in, then holds */
-@keyframes wx-crack-draw {
-  0%,20%  { stroke-dashoffset: 20; opacity: 0; }
-  38%     { stroke-dashoffset: 0;  opacity: 1; }
-  80%     { stroke-dashoffset: 0;  opacity: 1; }
-  92%,100%{ stroke-dashoffset: 20; opacity: 0; }
-}
-/* Wax chip flies off chain */
-@keyframes wx-chip-off {
-  0%,32%  { transform: translate(0,0) rotate(0deg);   opacity: 0; }
-  38%     { transform: translate(0,0) rotate(0deg);   opacity: 1; }
-  65%     { transform: translate(10px,-8px) rotate(25deg); opacity: 0.9; }
-  75%     { transform: translate(14px,-10px) rotate(35deg); opacity: 0; }
-  76%,100%{ transform: translate(0,0) rotate(0deg);   opacity: 0; }
-}
-/* Right side chain — subtle flex pulse to show elasticity */
-@keyframes wx-flex-pulse {
-  0%,100%{ transform: scaleX(1)   scaleY(1);   }
-  35%    { transform: scaleX(1.03) scaleY(0.97); }
-  65%    { transform: scaleX(0.97) scaleY(1.03); }
-}
-
-/* Strip 3 — wax layer thinning (the outer bar shrinks in height) */
-@keyframes wx-wax-thin {
-  0%,10%  { transform: scaleY(1);   }
-  55%     { transform: scaleY(0.38); }
-  70%     { transform: scaleY(0.38); }
-  88%,100%{ transform: scaleY(1);   }
-}
-/* Wax drip falls from thinning layer */
+/* D1 — droplet falls through inter-grain gap */
 @keyframes wx-drip-fall {
-  0%,18%  { transform: translateY(0);   opacity: 0;   }
-  24%     { transform: translateY(0);   opacity: 0.8; }
-  58%     { transform: translateY(28px); opacity: 0.8; }
-  68%     { transform: translateY(28px); opacity: 0;   }
-  69%,100%{ transform: translateY(0);   opacity: 0;   }
+  0%,12%  { transform:translateY(0);    opacity:0; }
+  18%     { transform:translateY(0);    opacity:0.6; }
+  50%     { transform:translateY(36px); opacity:0.6; }
+  58%     { transform:translateY(36px); opacity:0; }
+  59%,100%{ transform:translateY(0);    opacity:0; }
 }
-/* Dirt particle appears after wax leaves */
-@keyframes wx-dirt-in {
-  0%,55%  { transform: scale(0); opacity: 0; }
-  72%     { transform: scale(1.1); opacity: 0.75; }
-  82%,100%{ transform: scale(1);   opacity: 0.65; }
+/* D1 — oxidation mark fades in after droplet hits, resets near loop end */
+@keyframes wx-oxide {
+  0%,54%  { transform:scale(0);    opacity:0; }
+  66%     { transform:scale(1.15); opacity:1; }
+  76%     { transform:scale(1);    opacity:0.85; }
+  90%     { transform:scale(1);    opacity:0.85; }
+  98%     { transform:scale(0.7);  opacity:0; }
+  99%,100%{ transform:scale(0);    opacity:0; }
+}
+/* D1 — droplet deflects off dense surface */
+@keyframes wx-deflect {
+  0%,24%  { transform:translate(0,0);         opacity:0; }
+  30%     { transform:translate(0,0);         opacity:0.6; }
+  52%     { transform:translate(-5px,13px);   opacity:0.6; }
+  60%     { transform:translate(-9px,16px);   opacity:0; }
+  61%,100%{ transform:translate(0,0);         opacity:0; }
+}
+
+/* D2 — crack draws in */
+@keyframes wx-crack {
+  0%,20%  { stroke-dashoffset:22; opacity:0; }
+  36%     { stroke-dashoffset:0;  opacity:0.8; }
+  76%     { stroke-dashoffset:0;  opacity:0.8; }
+  88%     { stroke-dashoffset:22; opacity:0; }
+  100%    { stroke-dashoffset:22; opacity:0; }
+}
+/* D2 — wax chip detaches and drifts away */
+@keyframes wx-chip {
+  0%,34%  { transform:translate(0,0) rotate(0deg);          opacity:0; }
+  40%     { transform:translate(0,0) rotate(0deg);          opacity:0.65; }
+  70%     { transform:translate(14px,-11px) rotate(30deg);  opacity:0.4; }
+  78%     { transform:translate(18px,-14px) rotate(40deg);  opacity:0; }
+  79%,100%{ transform:translate(0,0) rotate(0deg);          opacity:0; }
+}
+/* D2 — right coating: elastic deformation, no cracking */
+@keyframes wx-elastic {
+  0%,100%{ transform:scaleX(1)     scaleY(1);    }
+  32%    { transform:scaleX(1.025) scaleY(0.972); }
+  64%    { transform:scaleX(0.975) scaleY(1.028); }
+}
+
+/* D3 — wax layer thins (scaleY, origin anchored to bottom of layer) */
+@keyframes wx-thin {
+  0%,10%  { transform:scaleY(1);    }
+  55%     { transform:scaleY(0.26); }
+  70%     { transform:scaleY(0.26); }
+  90%,100%{ transform:scaleY(1);    }
+}
+/* D3 — wax micro-drip falls */
+@keyframes wx-drop {
+  0%,22%  { transform:translateY(0);    opacity:0; }
+  29%     { transform:translateY(0);    opacity:0.42; }
+  62%     { transform:translateY(22px); opacity:0.42; }
+  71%     { transform:translateY(24px); opacity:0; }
+  72%,100%{ transform:translateY(0);    opacity:0; }
+}
+/* D3 — contamination speck appears where wax left */
+@keyframes wx-dirt {
+  0%,60%  { transform:scale(0);   opacity:0; }
+  73%     { transform:scale(1.1); opacity:0.4; }
+  84%,100%{ transform:scale(1);   opacity:0.3; }
 }
 `;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // DIAGRAM 1 — Crystal grain size: why microcrystalline covers metal better
 //
-// Mechanism: coarse paraffin grains leave gaps between them → water reaches
-// bare metal → oxidation. Fine microcrystalline grains pack tightly → no gaps.
-// The animation SHOWS this: droplet falls through gap on left (rust appears),
-// slides off surface on right (no rust).
+// LEFT:  4 coarse polygon grains with clear 8 px gaps → droplet falls through,
+//        faint oxidation mark appears on metal surface.
+// RIGHT: continuous coverage band (many fine crystals → no visible gaps) →
+//        droplet deflects off the surface without penetrating.
 // ─────────────────────────────────────────────────────────────────────────────
 function CrystalDiagram() {
-  // Right panel: 18 small grains arranged in 2 rows — tightly packed, no gaps
-  const smallGrains: { cx: number; cy: number; r: number }[] = [];
-  for (let i = 0; i < 10; i++) {
-    smallGrains.push({ cx: 150 + i * 13, cy: 104, r: 5.5 });
-  }
-  for (let i = 0; i < 9; i++) {
-    smallGrains.push({ cx: 156.5 + i * 13, cy: 115, r: 5 });
-  }
+  // Teardrop path: tip at bottom, centered at (cx, cy), ~10 px wide, 13 px tall
+  const drop = (cx: number, cy: number) =>
+    `M${cx},${cy + 7} C${cx - 5},${cy + 3} ${cx - 5},${cy - 4} ${cx},${cy - 5} C${cx + 5},${cy - 4} ${cx + 5},${cy + 3} ${cx},${cy + 7} Z`;
 
   return (
     <svg viewBox="0 0 280 152" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
       style={{ width: '100%', height: 'auto', display: 'block' }}>
 
-      {/* ── panels ── */}
+      {/* panels */}
       <rect x="0"   y="0" width="138" height="152" fill="var(--sf2)" />
       <rect x="142" y="0" width="138" height="152" fill="var(--sf2)" />
-      <line x1="140" y1="0" x2="140" y2="152" stroke="var(--bd)" strokeWidth="1" />
+      <line x1="140" y1="0" x2="140" y2="152" stroke="var(--bd2)" strokeWidth="0.75" />
 
-      {/* ── metal surfaces ── */}
-      <rect x="0"   y="128" width="138" height="24" fill="var(--bd2)" />
-      <rect x="0"   y="128" width="138" height="2.5" fill="var(--bd)" />
-      <rect x="142" y="128" width="138" height="24" fill="var(--bd2)" />
-      <rect x="142" y="128" width="138" height="2.5" fill="var(--bd)" />
+      {/* metal surfaces */}
+      <rect x="0"   y="128" width="138" height="24" fill="rgba(255,255,255,0.025)" />
+      <rect x="0"   y="128" width="138" height="1.5" fill="rgba(255,255,255,0.12)" />
+      <rect x="142" y="128" width="138" height="24" fill="rgba(255,255,255,0.025)" />
+      <rect x="142" y="128" width="138" height="1.5" fill="rgba(255,255,255,0.12)" />
 
-      {/* ── LEFT: 4 coarse grains, visible gaps between them ── */}
-      {/* Grain positions chosen so gaps at ~x=38 and ~x=70 are clearly visible */}
-      <ellipse cx="18"  cy="112" rx="16" ry="14" fill="var(--sf3)" stroke="var(--bd)" strokeWidth="1" />
-      <ellipse cx="52"  cy="111" rx="14" ry="15" fill="var(--sf3)" stroke="var(--bd)" strokeWidth="1" />
-      <ellipse cx="85"  cy="113" rx="15" ry="13" fill="var(--sf3)" stroke="var(--bd)" strokeWidth="1" />
-      <ellipse cx="118" cy="111" rx="13" ry="14" fill="var(--sf3)" stroke="var(--bd)" strokeWidth="1" />
-      {/* Down-arrows in the two main gaps to signal "water gets through here" */}
-      <path d="M38,75 L38,95 M34,90 L38,96 L42,90" stroke="var(--bd)" strokeWidth="1.2"
-        strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.5" />
-      <path d="M70,75 L70,95 M66,90 L70,96 L74,90" stroke="var(--bd)" strokeWidth="1.2"
-        strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.5" />
+      {/* LEFT — 4 coarse crystal grains (irregular polygons, 8 px gaps at ~x=36, 68, 100) */}
+      <polygon points="2,128 4,114 8,102 16,91 26,90 30,100 32,114 32,128"
+        fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.17)" strokeWidth="0.8" />
+      <polygon points="40,128 40,114 42,104 50,95 58,93 62,102 64,114 64,128"
+        fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.17)" strokeWidth="0.8" />
+      <polygon points="72,128 72,115 74,104 82,93 90,92 96,102 98,113 98,128"
+        fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.17)" strokeWidth="0.8" />
+      <polygon points="104,128 104,115 107,104 116,93 124,92 130,102 134,113 134,128"
+        fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.17)" strokeWidth="0.8" />
 
-      {/* Water droplet — falls through gap at x≈38, animates continuously */}
-      <g style={{ animation: 'wx-drop-gap 4s ease-in-out infinite', transformOrigin: '38px 70px' }}>
-        <ellipse cx="38" cy="66" rx="4" ry="5.5" fill="#4A90D9" opacity="0.9" />
-        <polygon points="34,69 42,69 38,76" fill="#4A90D9" opacity="0.9" />
+      {/* label */}
+      <text x="69" y="14" textAnchor="middle" fontSize="7.5" fill="rgba(255,255,255,0.27)"
+        fontFamily="system-ui,sans-serif" letterSpacing="0.05em">Paraffin</text>
+
+      {/* droplet — falls through gap at x=36 */}
+      <g style={{ animation: 'wx-drip-fall 4.5s ease-in-out infinite',
+                  transformOrigin: '36px 74px' }}>
+        <path d={drop(36, 72)} fill="none" stroke="rgba(255,255,255,0.52)" strokeWidth="1.1" />
       </g>
 
-      {/* Rust spot — appears after droplet reaches metal */}
-      <g style={{ animation: 'wx-rust-grow 4s ease-in-out infinite', transformOrigin: '38px 133px' }}>
-        <circle cx="38" cy="133" r="6" fill="rgba(192,57,43,0.55)" />
-        <circle cx="38" cy="133" r="3" fill="rgba(192,57,43,0.4)" />
+      {/* oxidation mark — barely-visible warm stain where droplet lands */}
+      <g style={{ animation: 'wx-oxide 4.5s ease-in-out infinite',
+                  transformOrigin: '36px 130px' }}>
+        <ellipse cx="36" cy="130" rx="11" ry="4.5" fill="rgba(210,175,105,0.22)" />
+        <ellipse cx="36" cy="130" rx="5"  ry="2"   fill="rgba(210,175,105,0.16)" />
       </g>
 
-      {/* ✗ badge */}
-      <circle cx="10" cy="10" r="8" fill="rgba(192,57,43,0.12)" stroke="rgba(192,57,43,0.25)" strokeWidth="1" />
-      <text x="10" y="14" textAnchor="middle" fontSize="9" fontWeight="700" fill="#C0392B">✗</text>
-
-      {/* ── RIGHT: 19 small grains, dense packing — no gaps visible ── */}
-      {smallGrains.map((g, i) => (
-        <ellipse key={i} cx={g.cx} cy={g.cy} rx={g.r} ry={g.r * 0.9}
-          fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.5" />
+      {/* RIGHT — continuous microcrystalline coverage: single tight band, no gaps */}
+      <rect x="144" y="108" width="134" height="20" rx="1.5"
+        fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.15)" strokeWidth="0.6" />
+      {/* subtle internal grain-boundary suggestions */}
+      {[167, 189, 211, 233, 253].map((x, i) => (
+        <line key={i} x1={x} y1="108" x2={x + (i % 2 === 0 ? -1 : 1)} y2="128"
+          stroke="rgba(255,255,255,0.04)" strokeWidth="0.6" />
       ))}
 
-      {/* Water droplet — arrives, cannot penetrate, slides off */}
-      <g style={{ animation: 'wx-drop-slide 4s ease-in-out infinite', animationDelay: '1.4s', transformOrigin: '211px 88px' }}>
-        <ellipse cx="211" cy="88" rx="4" ry="5.5" fill="#4A90D9" opacity="0.9" />
-        <polygon points="207,91 215,91 211,98" fill="#4A90D9" opacity="0.9" />
-      </g>
+      {/* label */}
+      <text x="211" y="14" textAnchor="middle" fontSize="7.5" fill="rgba(255,255,255,0.27)"
+        fontFamily="system-ui,sans-serif" letterSpacing="0.05em">Mikrokristallin</text>
 
-      {/* ✓ badge */}
-      <circle cx="152" cy="10" r="8" fill="rgba(43,82,176,0.12)" stroke="rgba(43,82,176,0.25)" strokeWidth="1" />
-      <text x="152" y="14" textAnchor="middle" fontSize="9" fontWeight="700" fill="#3D67CA">✓</text>
+      {/* droplet — deflects off dense surface */}
+      <g style={{ animation: 'wx-deflect 4.5s ease-in-out infinite',
+                  animationDelay: '1.6s', transformOrigin: '211px 93px' }}>
+        <path d={drop(211, 91)} fill="none" stroke="rgba(255,255,255,0.52)" strokeWidth="1.1" />
+      </g>
     </svg>
   );
 }
@@ -160,90 +160,84 @@ function CrystalDiagram() {
 // ─────────────────────────────────────────────────────────────────────────────
 // DIAGRAM 2 — Wax brittleness in cold: why the chain flakes and shifts
 //
-// Mechanism: standard wax becomes brittle under ~5°C — flex stress from chain
-// movement cracks the matrix and chips it off → lubrication fails → shifting
-// degrades. MoS₂ keeps the matrix elastic so it deforms rather than cracks.
-// Animation: left side shows crack lines appear + chip flies off.
-//            Right side flexes smoothly, no cracking.
+// Shows a chain bar cross-section with a wax coating layer on top.
+// LEFT:  coating develops hairline cracks under flex stress → chip lifts off.
+// RIGHT: coating deforms elastically (subtle scaleX/scaleY breathing), no cracks.
+// Temperature marker shared at top-center.
 // ─────────────────────────────────────────────────────────────────────────────
 function ColdDiagram() {
   return (
     <svg viewBox="0 0 280 152" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
       style={{ width: '100%', height: 'auto', display: 'block' }}>
 
-      {/* ── panels ── */}
+      {/* panels */}
       <rect x="0"   y="0" width="138" height="152" fill="var(--sf2)" />
       <rect x="142" y="0" width="138" height="152" fill="var(--sf2)" />
-      <line x1="140" y1="0" x2="140" y2="152" stroke="var(--bd)" strokeWidth="1" />
+      <line x1="140" y1="0" x2="140" y2="152" stroke="var(--bd2)" strokeWidth="0.75" />
 
-      {/* ── temperature indicator shared at top ── */}
-      {/* Snowflake — simple 6-pointed star */}
-      <g transform="translate(140, 16)" opacity="0.55">
-        <line x1="0" y1="-9" x2="0" y2="9"  stroke="var(--txm)" strokeWidth="1.5" strokeLinecap="round" />
-        <line x1="-8" y1="-4.5" x2="8" y2="4.5" stroke="var(--txm)" strokeWidth="1.5" strokeLinecap="round" />
-        <line x1="8" y1="-4.5"  x2="-8" y2="4.5" stroke="var(--txm)" strokeWidth="1.5" strokeLinecap="round" />
-        <line x1="-4" y1="-7.5" x2="4" y2="7.5"  stroke="var(--txm)" strokeWidth="1" strokeLinecap="round" />
-        <line x1="4" y1="-7.5"  x2="-4" y2="7.5" stroke="var(--txm)" strokeWidth="1" strokeLinecap="round" />
+      {/* snowflake — 6 radial lines, refined, centered at top */}
+      <g transform="translate(140,19)" opacity="0.38">
+        <line x1="0" y1="-8"  x2="0"  y2="8"   stroke="rgba(255,255,255,0.9)" strokeWidth="1.3" strokeLinecap="round" />
+        <line x1="-7" y1="-4" x2="7"  y2="4"   stroke="rgba(255,255,255,0.9)" strokeWidth="1.3" strokeLinecap="round" />
+        <line x1="7"  y1="-4" x2="-7" y2="4"   stroke="rgba(255,255,255,0.9)" strokeWidth="1.3" strokeLinecap="round" />
+        {/* short branch tips */}
+        <line x1="-2.5" y1="-6" x2="2.5" y2="-6" stroke="rgba(255,255,255,0.6)" strokeWidth="0.9" strokeLinecap="round" />
+        <line x1="-2.5" y1="6"  x2="2.5" y2="6"  stroke="rgba(255,255,255,0.6)" strokeWidth="0.9" strokeLinecap="round" />
+        <line x1="5.2"  y1="-1.5" x2="5.2" y2="1.5" stroke="rgba(255,255,255,0.6)" strokeWidth="0.9" strokeLinecap="round" />
+        <line x1="-5.2" y1="-1.5" x2="-5.2" y2="1.5" stroke="rgba(255,255,255,0.6)" strokeWidth="0.9" strokeLinecap="round" />
       </g>
+      <text x="140" y="44" textAnchor="middle" fontSize="7.5" fill="rgba(255,255,255,0.28)"
+        fontFamily="system-ui,sans-serif">−8 °C</text>
 
-      {/* ── LEFT: brittle wax chain link ── */}
-      {/* Chain link outer ring */}
-      <rect x="18" y="50" width="100" height="64" rx="32" fill="none"
-        stroke="var(--txm)" strokeWidth="2.5" />
-      {/* Inner cutout */}
-      <rect x="36" y="67" width="64" height="30" rx="15" fill="none"
-        stroke="var(--txm)" strokeWidth="1.5" />
-      {/* Wax coating layer — shown as a slightly larger ring, rigid, will crack */}
-      <rect x="13" y="45" width="110" height="74" rx="37" fill="none"
-        stroke="var(--sf3)" strokeWidth="7" />
+      {/* LEFT — chain cross-section bar */}
+      <rect x="16" y="76" width="106" height="30" rx="3"
+        fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
 
-      {/* Crack line 1 — draws itself in, then fades */}
-      <line x1="32" y1="58" x2="46" y2="72"
-        stroke="var(--tx1)" strokeWidth="1.5" strokeLinecap="round"
-        strokeDasharray="20" strokeDashoffset="20"
-        style={{ animation: 'wx-crack-draw 4s ease-in-out infinite', animationDelay: '0s' }}
-        opacity="0" />
-      {/* Crack line 2 */}
-      <line x1="58" y1="48" x2="68" y2="62"
-        stroke="var(--tx1)" strokeWidth="1.2" strokeLinecap="round"
-        strokeDasharray="18" strokeDashoffset="18"
-        style={{ animation: 'wx-crack-draw 4s ease-in-out infinite', animationDelay: '0.3s' }}
-        opacity="0" />
-      {/* Crack line 3 */}
-      <line x1="90" y1="52" x2="100" y2="63"
-        stroke="var(--tx1)" strokeWidth="1.4" strokeLinecap="round"
+      {/* LEFT — wax coating layer (brittle, will crack) */}
+      <rect x="12" y="64" width="114" height="14" rx="2"
+        fill="rgba(255,255,255,0.09)" stroke="rgba(255,255,255,0.19)" strokeWidth="0.9" />
+
+      {/* LEFT — three hairline crack lines draw in */}
+      <line x1="28" y1="65"  x2="36" y2="78"
+        stroke="rgba(255,255,255,0.78)" strokeWidth="1.1" strokeLinecap="round"
         strokeDasharray="16" strokeDashoffset="16"
-        style={{ animation: 'wx-crack-draw 4s ease-in-out infinite', animationDelay: '0.18s' }}
+        style={{ animation: 'wx-crack 4.5s ease-in-out infinite', animationDelay: '0s' }}
+        opacity="0" />
+      <line x1="60" y1="64"  x2="66" y2="76"
+        stroke="rgba(255,255,255,0.72)" strokeWidth="0.9" strokeLinecap="round"
+        strokeDasharray="14" strokeDashoffset="14"
+        style={{ animation: 'wx-crack 4.5s ease-in-out infinite', animationDelay: '0.22s' }}
+        opacity="0" />
+      <line x1="94" y1="65"  x2="100" y2="76"
+        stroke="rgba(255,255,255,0.72)" strokeWidth="0.9" strokeLinecap="round"
+        strokeDasharray="14" strokeDashoffset="14"
+        style={{ animation: 'wx-crack 4.5s ease-in-out infinite', animationDelay: '0.42s' }}
         opacity="0" />
 
-      {/* Wax chip that flies off */}
-      <g style={{ animation: 'wx-chip-off 4s ease-in-out infinite', animationDelay: '0s' }}
-        opacity="0">
-        <rect x="28" y="54" width="10" height="6" rx="2"
-          fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.8" />
+      {/* LEFT — wax chip that lifts off from first crack */}
+      <g style={{ animation: 'wx-chip 4.5s ease-in-out infinite' }} opacity="0">
+        <rect x="24" y="64" width="10" height="8" rx="1.5"
+          fill="rgba(255,255,255,0.09)" stroke="rgba(255,255,255,0.22)" strokeWidth="0.8" />
       </g>
 
-      {/* ✗ badge */}
-      <circle cx="10" cy="10" r="8" fill="rgba(192,57,43,0.12)" stroke="rgba(192,57,43,0.25)" strokeWidth="1" />
-      <text x="10" y="14" textAnchor="middle" fontSize="9" fontWeight="700" fill="#C0392B">✗</text>
+      {/* LEFT label */}
+      <text x="69" y="138" textAnchor="middle" fontSize="7.5" fill="rgba(255,255,255,0.27)"
+        fontFamily="system-ui,sans-serif" letterSpacing="0.04em">Standard-Wachs</text>
 
-      {/* ── RIGHT: elastic Pro wax — flexes, no cracking ── */}
-      {/* Chain link outer ring */}
-      <g style={{ animation: 'wx-flex-pulse 4s ease-in-out infinite', transformOrigin: '211px 82px' }}>
-        <rect x="160" y="50" width="100" height="64" rx="32" fill="none"
-          stroke="var(--txm)" strokeWidth="2.5" />
-        <rect x="178" y="67" width="64" height="30" rx="15" fill="none"
-          stroke="var(--txm)" strokeWidth="1.5" />
-        {/* Wax coating — smooth, no cracks, slightly glowing to suggest elasticity */}
-        <rect x="155" y="45" width="110" height="74" rx="37" fill="none"
-          stroke="rgba(61,103,202,0.45)" strokeWidth="7" />
+      {/* RIGHT — chain cross-section bar */}
+      <rect x="158" y="76" width="106" height="30" rx="3"
+        fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
+
+      {/* RIGHT — elastic wax coating (no cracks, gentle breathing) */}
+      <g style={{ animation: 'wx-elastic 4.5s ease-in-out infinite',
+                  transformOrigin: '211px 71px' }}>
+        <rect x="154" y="64" width="114" height="14" rx="2"
+          fill="rgba(255,255,255,0.09)" stroke="rgba(255,255,255,0.19)" strokeWidth="0.9" />
       </g>
 
-      {/* No cracks, no chips */}
-
-      {/* ✓ badge */}
-      <circle cx="152" cy="10" r="8" fill="rgba(43,82,176,0.12)" stroke="rgba(43,82,176,0.25)" strokeWidth="1" />
-      <text x="152" y="14" textAnchor="middle" fontSize="9" fontWeight="700" fill="#3D67CA">✓</text>
+      {/* RIGHT label */}
+      <text x="211" y="138" textAnchor="middle" fontSize="7.5" fill="rgba(255,255,255,0.27)"
+        fontFamily="system-ui,sans-serif" letterSpacing="0.04em">MoS₂-Matrix</text>
     </svg>
   );
 }
@@ -251,85 +245,75 @@ function ColdDiagram() {
 // ─────────────────────────────────────────────────────────────────────────────
 // DIAGRAM 3 — Wax migration under heat: why soft wax thins and exposes chain
 //
-// Mechanism: soft paraffin reaches its flow point at chain contact temperatures
-// (~45–55°C) → wax migrates away from joints → thin spots → dirt sticks to
-// exposed metal. Hard Fischer-Tropsch matrix (drop point ~75°C) stays in place.
-// Animation: LEFT shows wax layer visibly thinning + drips + dirt.
-//            RIGHT shows wax layer stable, clean chain.
+// Chain bar cross-section with wax coating above it.
+// LEFT:  coating thins (scaleY, origin at bottom) → micro-drips form → faint
+//        contamination specks appear on exposed metal surface.
+// RIGHT: coating stays at full thickness — no drips, no dirt.
 // ─────────────────────────────────────────────────────────────────────────────
 function HeatDiagram() {
+  const dripPositions = [
+    { cx: 32,  delay: '0s'    },
+    { cx: 69,  delay: '0.85s' },
+    { cx: 106, delay: '1.6s'  },
+  ] as const;
+
   return (
     <svg viewBox="0 0 280 152" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
       style={{ width: '100%', height: 'auto', display: 'block' }}>
 
-      {/* ── panels ── */}
+      {/* panels */}
       <rect x="0"   y="0" width="138" height="152" fill="var(--sf2)" />
       <rect x="142" y="0" width="138" height="152" fill="var(--sf2)" />
-      <line x1="140" y1="0" x2="140" y2="152" stroke="var(--bd)" strokeWidth="1" />
+      <line x1="140" y1="0" x2="140" y2="152" stroke="var(--bd2)" strokeWidth="0.75" />
 
-      {/* ── shared heat indicator: wavy line at bottom of each panel ── */}
-      {/* Left heat waves */}
-      <path d="M4,145 Q17,138 30,145 Q43,152 56,145 Q69,138 82,145 Q95,152 108,145 Q121,138 134,145"
-        fill="none" stroke="rgba(192,100,43,0.35)" strokeWidth="1.5" strokeLinecap="round" />
-      {/* Right heat waves */}
-      <path d="M146,145 Q159,138 172,145 Q185,152 198,145 Q211,138 224,145 Q237,152 250,145 Q263,138 276,145"
-        fill="none" stroke="rgba(192,100,43,0.35)" strokeWidth="1.5" strokeLinecap="round" />
+      {/* temperature label */}
+      <text x="140" y="14" textAnchor="middle" fontSize="7.5" fill="rgba(255,255,255,0.28)"
+        fontFamily="system-ui,sans-serif">+75 °C</text>
 
-      {/* ── Chain representation: two horizontal bars (cross-section side view) ── */}
-      {/* LEFT chain body */}
-      <rect x="8"   y="88" width="122" height="26" rx="4" fill="var(--bd2)" stroke="var(--bd)" strokeWidth="1" />
-      {/* RIGHT chain body */}
-      <rect x="150" y="88" width="122" height="26" rx="4" fill="var(--bd2)" stroke="var(--bd)" strokeWidth="1" />
+      {/* LEFT — chain bar */}
+      <rect x="8"   y="88" width="122" height="26" rx="3"
+        fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
 
-      {/* ── LEFT: wax coating layer — thinning animation ── */}
-      {/* The wax layer sits ON TOP of the chain (y=72 to y=88, height=16) */}
-      {/* We animate scaleY from 1 → 0.38, transform-origin at bottom edge (y=88) */}
-      <g style={{ animation: 'wx-wax-thin 4s ease-in-out infinite', transformOrigin: '69px 88px' }}>
-        <rect x="8" y="72" width="122" height="16" rx="3"
-          fill="rgba(200,170,60,0.45)" stroke="rgba(200,170,60,0.6)" strokeWidth="1" />
+      {/* LEFT — wax coating (thinning, anchored at bottom = y 88) */}
+      <g style={{ animation: 'wx-thin 4.5s ease-in-out infinite',
+                  transformOrigin: '69px 88px' }}>
+        <rect x="8" y="72" width="122" height="16" rx="2"
+          fill="rgba(255,255,255,0.09)" stroke="rgba(255,255,255,0.19)" strokeWidth="0.9" />
       </g>
 
-      {/* Three wax drips — staggered */}
-      <g style={{ animation: 'wx-drip-fall 4s ease-in-out infinite', animationDelay: '0s', transformOrigin: '35px 90px' }}>
-        <ellipse cx="35" cy="90" rx="3" ry="4" fill="rgba(200,170,60,0.65)" />
-        <polygon points="32,93 38,93 35,100" fill="rgba(200,170,60,0.65)" />
-      </g>
-      <g style={{ animation: 'wx-drip-fall 4s ease-in-out infinite', animationDelay: '0.8s', transformOrigin: '69px 90px' }}>
-        <ellipse cx="69" cy="90" rx="2.5" ry="3.5" fill="rgba(200,170,60,0.6)" />
-        <polygon points="66.5,93 71.5,93 69,99" fill="rgba(200,170,60,0.6)" />
-      </g>
-      <g style={{ animation: 'wx-drip-fall 4s ease-in-out infinite', animationDelay: '1.5s', transformOrigin: '100px 90px' }}>
-        <ellipse cx="100" cy="90" rx="3" ry="4" fill="rgba(200,170,60,0.65)" />
-        <polygon points="97,93 103,93 100,100" fill="rgba(200,170,60,0.65)" />
-      </g>
+      {/* LEFT — micro-drips (outline only, monochromatic) */}
+      {dripPositions.map(({ cx, delay }) => (
+        <g key={cx} style={{ animation: `wx-drop 4.5s ease-in-out infinite`,
+            animationDelay: delay, transformOrigin: `${cx}px 89px` }}>
+          <ellipse cx={cx} cy="89" rx="2.2" ry="2.8" fill="rgba(255,255,255,0.28)" />
+          <polygon points={`${cx - 2.2},91 ${cx + 2.2},91 ${cx},97`}
+            fill="rgba(255,255,255,0.28)" />
+        </g>
+      ))}
 
-      {/* Dirt particles appear on exposed chain surface */}
-      <g style={{ animation: 'wx-dirt-in 4s ease-in-out infinite', transformOrigin: '35px 97px' }}>
-        <circle cx="35" cy="97" r="3" fill="rgba(90,65,40,0.65)" />
-      </g>
-      <g style={{ animation: 'wx-dirt-in 4s ease-in-out infinite', animationDelay: '0.3s', transformOrigin: '69px 97px' }}>
-        <circle cx="69" cy="97" r="2.5" fill="rgba(90,65,40,0.6)" />
-      </g>
-      <g style={{ animation: 'wx-dirt-in 4s ease-in-out infinite', animationDelay: '0.6s', transformOrigin: '100px 97px' }}>
-        <circle cx="100" cy="97" r="3" fill="rgba(90,65,40,0.65)" />
-      </g>
+      {/* LEFT — contamination specks appear after drip */}
+      {dripPositions.map(({ cx, delay }) => (
+        <g key={cx} style={{ animation: `wx-dirt 4.5s ease-in-out infinite`,
+            animationDelay: delay, transformOrigin: `${cx}px 97px` }}>
+          <circle cx={cx} cy="97" r="2.4" fill="rgba(255,255,255,0.18)" />
+        </g>
+      ))}
 
-      {/* ✗ badge */}
-      <circle cx="10" cy="10" r="8" fill="rgba(192,57,43,0.12)" stroke="rgba(192,57,43,0.25)" strokeWidth="1" />
-      <text x="10" y="14" textAnchor="middle" fontSize="9" fontWeight="700" fill="#C0392B">✗</text>
+      {/* LEFT label */}
+      <text x="69" y="138" textAnchor="middle" fontSize="7.5" fill="rgba(255,255,255,0.27)"
+        fontFamily="system-ui,sans-serif" letterSpacing="0.04em">Paraffin</text>
 
-      {/* ── RIGHT: stable wax layer — no thinning, no drips ── */}
-      {/* Wax layer stays constant thickness */}
-      <rect x="150" y="72" width="122" height="16" rx="3"
-        fill="rgba(61,103,202,0.30)" stroke="rgba(61,103,202,0.45)" strokeWidth="1" />
+      {/* RIGHT — chain bar */}
+      <rect x="150" y="88" width="122" height="26" rx="3"
+        fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
 
-      {/* No drips, no dirt. Subtle glow to signal stability */}
-      {/* Clean indicator line */}
-      <line x1="150" y1="88" x2="272" y2="88" stroke="rgba(61,103,202,0.2)" strokeWidth="0.5" />
+      {/* RIGHT — stable wax coating (no animation, no drips) */}
+      <rect x="150" y="72" width="122" height="16" rx="2"
+        fill="rgba(255,255,255,0.09)" stroke="rgba(255,255,255,0.19)" strokeWidth="0.9" />
 
-      {/* ✓ badge */}
-      <circle cx="152" cy="10" r="8" fill="rgba(43,82,176,0.12)" stroke="rgba(43,82,176,0.25)" strokeWidth="1" />
-      <text x="152" y="14" textAnchor="middle" fontSize="9" fontWeight="700" fill="#3D67CA">✓</text>
+      {/* RIGHT label */}
+      <text x="211" y="138" textAnchor="middle" fontSize="7.5" fill="rgba(255,255,255,0.27)"
+        fontFamily="system-ui,sans-serif" letterSpacing="0.04em">Fischer-Tropsch</text>
     </svg>
   );
 }
