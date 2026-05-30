@@ -105,36 +105,36 @@ export function Hero() {
         style={{ width: '55%' }}
       >
         <img
-          src="/images/wax-hero-bubbles.jpg"
+          src="/images/DSC01455.JPG"
           alt=""
-          width={1254}
-          height={1254}
+          width={1366}
+          height={912}
           fetchPriority="high"
           className="absolute inset-0 w-full h-full object-cover"
-          style={{ objectPosition: '65% 52%' }}
+          style={{ objectPosition: '40% 72%' }}
         />
-        {/* Horizontal fade — blends dark slate into hero background seamlessly */}
+        {/* Horizontal fade — blends dark left panel into image */}
         <div
           className="absolute inset-0"
-          style={{ background: 'linear-gradient(to right, #0A0A0A 0%, rgba(10,10,10,0.55) 28%, rgba(10,10,10,0.10) 55%, transparent 75%)' }}
+          style={{ background: 'linear-gradient(to right, #0A0A0A 0%, rgba(10,10,10,0.65) 22%, rgba(10,10,10,0.18) 52%, transparent 72%)' }}
         />
         {/* Vertical vignette — top & bottom */}
         <div
           className="absolute inset-0"
-          style={{ background: 'linear-gradient(to bottom, rgba(10,10,10,0.55) 0%, transparent 18%, transparent 75%, rgba(10,10,10,0.95) 100%)' }}
+          style={{ background: 'linear-gradient(to bottom, rgba(10,10,10,0.60) 0%, transparent 22%, transparent 68%, rgba(10,10,10,0.97) 100%)' }}
         />
       </div>
 
       {/* Mobile: full-screen tinted image */}
       <div className="lg:hidden absolute inset-0 pointer-events-none">
         <img
-          src="/images/wax-hero-bubbles.jpg"
+          src="/images/DSC01455.JPG"
           alt=""
-          width={1254}
-          height={1254}
+          width={1366}
+          height={912}
           fetchPriority="high"
           className="absolute inset-0 w-full h-full object-cover"
-          style={{ objectPosition: '50% 45%', opacity: 0.42 }}
+          style={{ objectPosition: '45% 70%', opacity: 0.38 }}
         />
         {/* Left fade so text stays readable */}
         <div
