@@ -55,6 +55,19 @@ const CARD: React.CSSProperties = {
   border: '1px solid var(--bd)',
 };
 
+// For components inside forced-dark sections — always dark regardless of theme
+// @ts-ignore -- reserved for future use
+const DARK_CARD: React.CSSProperties = {
+  background: 'rgba(255,255,255,0.04)',
+  border: '1px solid rgba(255,255,255,0.09)',
+};
+
+// @ts-ignore -- reserved for future use
+const DARK_DOT_GRID: React.CSSProperties = {
+  backgroundImage: 'radial-gradient(circle, rgba(100,140,220,0.12) 1px, transparent 1px)',
+  backgroundSize: '22px 22px',
+};
+
 // Shared container width
 const W = 'max-w-5xl mx-auto px-4 sm:px-6 lg:px-8';
 
@@ -168,7 +181,7 @@ function ScrollProgress() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 h-[2px]" style={{ background: 'rgba(255,255,255,0.04)' }}>
+    <div className="fixed top-0 left-0 right-0 z-50 h-[2px]" style={{ background: 'var(--bd)' }}>
       <div className="h-full" style={{ width: `${p * 100}%`, background: 'linear-gradient(90deg,#1A3080,#6A8AE8)', transition: 'width 0.06s linear' }} />
     </div>
   );
@@ -193,8 +206,8 @@ function StatCallout({ stat, ctxDe, ctxEn, de }: { stat: string; ctxDe: string; 
       className="w-full py-24 sm:py-32 flex flex-col items-center text-center"
       style={{
         background: '#07070A',
-        borderTop: '1px solid rgba(255,255,255,0.05)',
-        borderBottom: '1px solid rgba(255,255,255,0.05)',
+        borderTop: '1px solid rgba(255,255,255,0.10)',
+        borderBottom: '1px solid rgba(255,255,255,0.10)',
         opacity: 0,
       }}
     >
@@ -203,7 +216,7 @@ function StatCallout({ stat, ctxDe, ctxEn, de }: { stat: string; ctxDe: string; 
         {stat}
       </p>
       <p className="text-[11px] uppercase tracking-[0.3em] mt-6 max-w-[400px] leading-relaxed"
-        style={{ color: 'rgba(255,255,255,0.28)' }}>
+        style={{ color: 'rgba(255,255,255,0.50)' }}>
         {de ? ctxDe : ctxEn}
       </p>
     </div>
@@ -623,8 +636,8 @@ function FrictionBars({ de }: { de: boolean }) {
   }, []);
 
   return (
-    <div className="w-full rounded-2xl p-5" style={{ ...CARD, ...DOT_GRID }}>
-      <p className="text-[10px] uppercase tracking-[0.2em] mb-5" style={{ color: 'var(--txff)' }}>
+    <div className="w-full rounded-2xl p-5" style={{ ...DARK_CARD, ...DARK_DOT_GRID }}>
+      <p className="text-[10px] uppercase tracking-[0.2em] mb-5" style={{ color: 'rgba(255,255,255,0.38)' }}>
         {de ? 'Reibungskoeffizient μ — Grenzschmierung' : 'Friction coefficient μ — boundary lubrication'}
       </p>
       <div ref={ref} className="space-y-3.5">
@@ -633,7 +646,7 @@ function FrictionBars({ de }: { de: boolean }) {
           return (
             <div key={i}>
               <div className="flex justify-between items-center mb-1.5">
-                <span className={`text-[12px] font-medium ${b.hi ? 'text-wx-tx1' : 'text-wx-txm'}`}>
+                <span className="text-[12px] font-medium" style={{ color: b.hi ? 'rgba(255,255,255,0.90)' : 'rgba(255,255,255,0.55)' }}>
                   {label}
                   {'tag' in b && b.tag && (
                     <span className="ml-1.5 text-[8px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded" style={{ background: 'linear-gradient(135deg,#1A3080,#2A5499)', color: 'rgba(255,255,255,0.9)' }}>
@@ -641,11 +654,11 @@ function FrictionBars({ de }: { de: boolean }) {
                     </span>
                   )}
                 </span>
-                <span className={`text-[11px] font-mono ${b.hi ? 'text-wx-tx2' : 'dim' in b && b.dim ? 'text-wx-txff' : 'text-wx-txf'}`}>{b.desc}</span>
+                <span className="text-[11px] font-mono" style={{ color: b.hi ? 'rgba(255,255,255,0.72)' : 'dim' in b && b.dim ? 'rgba(255,255,255,0.28)' : 'rgba(255,255,255,0.40)' }}>{b.desc}</span>
               </div>
-              <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--bd)' }}>
+              <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.11)' }}>
                 <div className="fb h-full w-full rounded-full" data-w={b.pct}
-                  style={{ background: b.hi ? (b.pct === 100 ? 'linear-gradient(90deg,#1A3080,#6A8AE8)' : 'linear-gradient(90deg,#1A3C6E,#2A5499)') : ('dim' in b && b.dim) ? 'var(--bd2)' : 'var(--txff)', transformOrigin: 'left center', transform: 'scaleX(0)' }}
+                  style={{ background: b.hi ? (b.pct === 100 ? 'linear-gradient(90deg,#1A3080,#6A8AE8)' : 'linear-gradient(90deg,#1A3C6E,#2A5499)') : ('dim' in b && b.dim) ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.28)', transformOrigin: 'left center', transform: 'scaleX(0)' }}
                 />
               </div>
             </div>
@@ -1246,8 +1259,7 @@ export function SciencePage() {
 
       {/* ══ RESULTS — dark section ════════════════════════════════════════════ */}
       <section
-        className="noir"
-        style={{ background: '#07070A', borderTop: '1px solid rgba(255,255,255,0.05)' }}
+        style={{ background: '#07070A', borderTop: '1px solid rgba(255,255,255,0.08)' }}
       >
         <div className={`${W} py-24`}>
           <div className="text-center mb-14">
