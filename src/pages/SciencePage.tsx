@@ -67,10 +67,16 @@ const DARK_DOT_GRID: React.CSSProperties = {
   backgroundSize: '22px 22px',
 };
 
-// Always-dark card for SVG visualizations — works in both light and dark mode
+// Always-dark card for SVG visualizations
 const VIZ_CARD: React.CSSProperties = {
   background: '#0D1117',
   border: '1px solid rgba(68,114,212,0.20)',
+};
+// Light-mode equivalent — dark-blue panel that reads as a deliberate "scientific display"
+const VIZ_CARD_LIGHT: React.CSSProperties = {
+  background: '#141d2b',
+  border: '1px solid rgba(68,114,212,0.28)',
+  boxShadow: '0 4px 28px rgba(0,0,0,0.18)',
 };
 
 // Shared container width
@@ -301,14 +307,18 @@ function HexMoS2({ de }: { de: boolean }) {
       { x1: mx, y1: moY, x2: mx + 20, y2: sDn },
     ]);
 
+  const { theme } = useTheme();
+  const isDark = theme === 'dark' || theme === 'noir';
+  const vizCard = isDark ? VIZ_CARD : VIZ_CARD_LIGHT;
+
   return (
     <div className="w-full rounded-2xl overflow-hidden p-5 cursor-default select-none"
-      style={{ ...VIZ_CARD, ...DARK_DOT_GRID, transition: 'box-shadow 0.35s ease', boxShadow: hov ? '0 0 0 1px rgba(68,114,212,0.4), 0 8px 32px rgba(26,60,110,0.3)' : 'none' }}
+      style={{ ...vizCard, ...DARK_DOT_GRID, transition: 'box-shadow 0.35s ease', boxShadow: hov ? '0 0 0 1px rgba(68,114,212,0.4), 0 8px 32px rgba(26,60,110,0.3)' : 'none' }}
       onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}>
-      <p className="text-[10px] uppercase tracking-[0.2em] mb-4 text-center" style={{ color: 'rgba(255,255,255,0.38)' }}>
-        {de ? '2H-MoS₂ — Schichtstruktur (Seitenansicht)' : '2H-MoS₂ — Layer structure (side view)'}
+      <p className="text-[10px] uppercase tracking-[0.2em] mb-3 text-center" style={{ color: 'rgba(255,255,255,0.38)' }}>
+        {de ? 'MoS₂ — S–Mo–S Schichtstruktur' : 'MoS₂ — S–Mo–S layer structure'}
       </p>
-      <svg viewBox="0 0 395 168" className="w-full" style={{ overflow: 'visible' }}>
+      <svg viewBox="0 0 395 155" className="w-full" style={{ overflow: 'visible' }}>
         <g ref={topRef}>
           {bonds(TOP_MO, TOP_S1, TOP_S2).map((b, i) => (
             <line key={i} x1={b.x1} y1={b.y1} x2={b.x2} y2={b.y2} stroke="rgba(42,84,153,0.22)" strokeWidth="1.2" />
@@ -316,14 +326,10 @@ function HexMoS2({ de }: { de: boolean }) {
           {S_X.map((x, i) => <circle key={`ts1${i}`} cx={x} cy={TOP_S1} r="5" fill="#A8C0F4" opacity="0.92" />)}
           {MO_X.map((x, i) => <circle key={`tmo${i}`} cx={x} cy={TOP_MO} r="7.5" fill="#2A5499" style={{ filter: 'drop-shadow(0 0 5px rgba(68,114,212,0.60))' }} />)}
           {S_X.map((x, i) => <circle key={`ts2${i}`} cx={x} cy={TOP_S2} r="5" fill="#A8C0F4" opacity="0.92" />)}
-          <text x="385" y={TOP_S1 + 4} fontSize="9" fill="rgba(168,192,244,0.65)" fontFamily="monospace" textAnchor="start">S</text>
-          <text x="385" y={TOP_MO + 4} fontSize="9" fill="rgba(130,170,240,0.85)"  fontFamily="monospace" textAnchor="start">Mo</text>
-          <text x="385" y={TOP_S2 + 4} fontSize="9" fill="rgba(168,192,244,0.65)" fontFamily="monospace" textAnchor="start">S</text>
         </g>
-        <line x1="8" y1={GAP_Y} x2="372" y2={GAP_Y} stroke="rgba(26,60,110,0.12)" strokeWidth="1" strokeDasharray="5 4" />
-        <text x="197" y={GAP_Y + 9} textAnchor="middle" fontSize="8" fill="rgba(168,192,244,0.45)" letterSpacing="1" fontFamily="monospace">
-          {de ? 'van-der-Waals' : 'van der Waals'}
-        </text>
+        {/* Van der Waals gap */}
+        <line x1="8" y1={GAP_Y} x2="310" y2={GAP_Y} stroke="rgba(100,140,220,0.28)" strokeWidth="1" strokeDasharray="5 4" />
+        <text x="316" y={GAP_Y + 4} fontSize="8.5" fill="rgba(168,192,244,0.45)" fontFamily="monospace">vdW</text>
         <g ref={botRef}>
           {bonds(BOT_MO, BOT_S1, BOT_S2).map((b, i) => (
             <line key={i} x1={b.x1} y1={b.y1} x2={b.x2} y2={b.y2} stroke="rgba(42,84,153,0.22)" strokeWidth="1.2" />
@@ -331,32 +337,38 @@ function HexMoS2({ de }: { de: boolean }) {
           {S_X.map((x, i) => <circle key={`bs1${i}`} cx={x} cy={BOT_S1} r="5" fill="#A8C0F4" opacity="0.92" />)}
           {MO_X.map((x, i) => <circle key={`bmo${i}`} cx={x} cy={BOT_MO} r="7.5" fill="#1A3C6E" style={{ filter: 'drop-shadow(0 0 5px rgba(26,60,110,0.55))' }} />)}
           {S_X.map((x, i) => <circle key={`bs2${i}`} cx={x} cy={BOT_S2} r="5" fill="#A8C0F4" opacity="0.92" />)}
-          <text x="385" y={BOT_S1 + 4} fontSize="9" fill="rgba(168,192,244,0.65)" fontFamily="monospace" textAnchor="start">S</text>
-          <text x="385" y={BOT_MO + 4} fontSize="9" fill="rgba(42,84,153,0.8)"  fontFamily="monospace" textAnchor="start">Mo</text>
-          <text x="385" y={BOT_S2 + 4} fontSize="9" fill="rgba(168,192,244,0.65)" fontFamily="monospace" textAnchor="start">S</text>
         </g>
+        {/* Single-side labels only */}
+        <text x="10" y={TOP_S1 + 4}  fontSize="8.5" fill="rgba(168,192,244,0.55)" fontFamily="monospace">S</text>
+        <text x="10" y={TOP_MO + 4}  fontSize="8.5" fill="rgba(130,170,240,0.80)" fontFamily="monospace">Mo</text>
+        <text x="10" y={TOP_S2 + 4}  fontSize="8.5" fill="rgba(168,192,244,0.55)" fontFamily="monospace">S</text>
+        <text x="10" y={BOT_S1 + 4}  fontSize="8.5" fill="rgba(168,192,244,0.55)" fontFamily="monospace">S</text>
+        <text x="10" y={BOT_MO + 4}  fontSize="8.5" fill="rgba(130,170,240,0.80)" fontFamily="monospace">Mo</text>
+        <text x="10" y={BOT_S2 + 4}  fontSize="8.5" fill="rgba(168,192,244,0.55)" fontFamily="monospace">S</text>
+        {/* Hover arrow cue */}
+        {hov && (
+          <text x="197" y={GAP_Y - 4} textAnchor="middle" fontSize="8" fill="rgba(100,140,220,0.60)" fontFamily="monospace" letterSpacing="1">
+            {de ? '← Schicht gleitet →' : '← layer slides →'}
+          </text>
+        )}
       </svg>
-      <div className="flex justify-center gap-6 mt-4 mb-2">
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded-full" style={{ background: '#A8C0F4' }} />
-          <span className="text-[11px] font-mono" style={{ color: 'rgba(255,255,255,0.55)' }}>S (Schwefel)</span>
+      <div className="flex items-center justify-between mt-3 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-full" style={{ background: '#A8C0F4' }} />
+            <span className="text-[9px] font-mono" style={{ color: 'rgba(255,255,255,0.45)' }}>S</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-4 h-4 rounded-full" style={{ background: '#2A5499', boxShadow: '0 0 4px rgba(68,114,212,0.5)' }} />
+            <span className="text-[9px] font-mono" style={{ color: 'rgba(255,255,255,0.45)' }}>Mo</span>
+          </div>
+          <span className="text-[9px]" style={{ color: 'rgba(255,255,255,0.25)' }}>
+            {de ? '· Hover: Schicht gleitet' : '· Hover: layer shears'}
+          </span>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-5 h-5 rounded-full" style={{ background: '#2A5499', boxShadow: '0 0 6px rgba(68,114,212,0.5)' }} />
-          <span className="text-[11px] font-mono" style={{ color: 'rgba(255,255,255,0.55)' }}>Mo (Molybdän)</span>
-        </div>
-      </div>
-      <p className="text-center text-[10px] transition-opacity duration-300" style={{ color: 'rgba(255,255,255,0.45)', opacity: hov ? 1 : 0.4 }}>
-        {de ? '↑ Hover — Scherschicht wird sichtbar' : '↑ Hover — shear layer becomes visible'}
-      </p>
-      <div className="mt-4 pt-4 grid grid-cols-2 gap-3" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-        <div className="text-center">
-          <p className="font-serif-display italic text-[24px] font-bold" style={{ color: '#6A8AE8', textShadow: '0 0 20px rgba(68,114,212,0.55)' }}>μ 0.03</p>
-          <p className="text-[10px] mt-0.5" style={{ color: 'rgba(255,255,255,0.40)' }}>{de ? 'Reibungskoeff. Grenzschmierung' : 'Friction coeff. boundary lubrication'}</p>
-        </div>
-        <div className="text-center">
-          <p className="font-serif-display italic text-[24px] font-bold" style={{ color: 'rgba(255,255,255,0.88)' }}>&lt;5 µm</p>
-          <p className="text-[10px] mt-0.5" style={{ color: 'rgba(255,255,255,0.40)' }}>{de ? 'Partikelgröße d₅₀' : 'Particle size d₅₀'}</p>
+        <div className="text-right">
+          <p className="font-serif-display italic text-[20px] font-bold leading-none" style={{ color: '#6A8AE8', textShadow: '0 0 16px rgba(68,114,212,0.55)' }}>μ 0.03</p>
+          <p className="text-[9px] mt-0.5" style={{ color: 'rgba(255,255,255,0.35)' }}>{de ? 'Grenzschmierung' : 'Boundary lubrication'}</p>
         </div>
       </div>
     </div>
@@ -397,14 +409,18 @@ function TransferFilm({ de }: { de: boolean }) {
     return () => ctx.revert();
   }, []);
 
+  const { theme } = useTheme();
+  const isDark = theme === 'dark' || theme === 'noir';
+  const vizCard = isDark ? VIZ_CARD : VIZ_CARD_LIGHT;
+
   return (
     <div ref={ref} className="w-full rounded-2xl overflow-hidden p-5"
-      style={{ ...VIZ_CARD, ...DARK_DOT_GRID, transition: 'box-shadow 0.35s ease', boxShadow: hov ? '0 0 0 1px rgba(68,114,212,0.4), 0 8px 32px rgba(26,60,110,0.30)' : 'none' }}
+      style={{ ...vizCard, ...DARK_DOT_GRID, transition: 'box-shadow 0.35s ease', boxShadow: hov ? '0 0 0 1px rgba(68,114,212,0.4), 0 8px 32px rgba(26,60,110,0.30)' : 'none' }}
       onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}>
-      <p className="text-[10px] uppercase tracking-[0.2em] mb-4 text-center" style={{ color: 'rgba(255,255,255,0.38)' }}>
-        {de ? 'Transferfilm-Bildung unter Kontaktdruck' : 'Transfer film formation under contact pressure'}
+      <p className="text-[10px] uppercase tracking-[0.2em] mb-3 text-center" style={{ color: 'rgba(255,255,255,0.38)' }}>
+        {de ? 'Transferfilm unter Kontaktdruck' : 'Transfer film under contact pressure'}
       </p>
-      <svg viewBox="0 0 440 185" className="w-full" style={{ overflow: 'visible' }}>
+      <svg viewBox="0 0 440 175" className="w-full" style={{ overflow: 'visible' }}>
         <defs>
           <linearGradient id="steel-grad-t" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#2a2a38" />
@@ -415,31 +431,32 @@ function TransferFilm({ de }: { de: boolean }) {
             <stop offset="100%" stopColor="#2a2a38" />
           </linearGradient>
         </defs>
-        <rect x="0" y="0"   width="440" height="26" fill="url(#steel-grad-t)" rx="2" />
-        <rect x="0" y="159" width="440" height="26" fill="url(#steel-grad-b)" rx="2" />
-        <text x="220" y="17" textAnchor="middle" fontSize="9" fill="rgba(255,255,255,0.3)" fontFamily="monospace" letterSpacing="2">
-          {de ? 'STAHL — KETTENLASCHE' : 'STEEL — LINK PLATE'}
-        </text>
-        <text x="220" y="174" textAnchor="middle" fontSize="9" fill="rgba(255,255,255,0.3)" fontFamily="monospace" letterSpacing="2">
-          {de ? 'STAHL — KETTENBOLZEN' : 'STEEL — CHAIN PIN'}
-        </text>
-        <rect className="tf-film" x="0" y="26"  width="440" height="5" fill="#1A3C6E" opacity="0" rx="1" />
-        <rect className="tf-film" x="0" y="154" width="440" height="5" fill="#1A3C6E" opacity="0" rx="1" />
+        {/* Steel plates — no text inside them */}
+        <rect x="0" y="0"   width="440" height="22" fill="url(#steel-grad-t)" rx="2" />
+        <rect x="0" y="153" width="440" height="22" fill="url(#steel-grad-b)" rx="2" />
+        {/* Side labels for the plates */}
+        <text x="6" y="15"  fontSize="8" fill="rgba(255,255,255,0.28)" fontFamily="monospace">{de ? 'Stahl' : 'Steel'}</text>
+        <text x="6" y="167" fontSize="8" fill="rgba(255,255,255,0.28)" fontFamily="monospace">{de ? 'Stahl' : 'Steel'}</text>
+        {/* Transfer film deposits */}
+        <rect className="tf-film" x="0" y="22"  width="440" height="5" fill="#1A3C6E" opacity="0" rx="1" />
+        <rect className="tf-film" x="0" y="148" width="440" height="5" fill="#1A3C6E" opacity="0" rx="1" />
+        {/* MoS₂ particles */}
         {TF_PARTICLES.map((p, i) => (
           <circle key={i} className="tf-p" cx={p.x} cy={p.y} r={p.r} fill="#2A5499" opacity="0.85" />
         ))}
-        <text className="tf-label" x="220" y="43" textAnchor="middle" fontSize="8.5" fill="rgba(106,138,232,0.9)" fontFamily="monospace" letterSpacing="1" opacity="0">
-          {de ? 'Transferfilm — Fe-S tribochemische Bindung' : 'Transfer film — Fe-S tribochemical bond'}
+        {/* Film label — appears after animation */}
+        <text className="tf-label" x="220" y="38" textAnchor="middle" fontSize="8.5" fill="rgba(106,138,232,0.9)" fontFamily="monospace" letterSpacing="1" opacity="0">
+          {de ? 'Fe-S Transferfilm' : 'Fe-S transfer film'}
         </text>
       </svg>
       <div className="mt-3 pt-3 grid grid-cols-3 gap-2 text-center" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
         {[
-          { de: '50–300 MPa',  en: '50–300 MPa',  sub: de ? 'Kontaktdruck' : 'Contact pressure' },
-          { de: '2–5 nm',     en: '2–5 nm',      sub: de ? 'Filmdicke'    : 'Film thickness'   },
-          { de: 'Fe–S Bindung', en: 'Fe–S bond',  sub: de ? 'Verankerung'  : 'Anchoring'       },
+          { val: '50–300 MPa', sub: de ? 'Kontaktdruck' : 'Contact pressure' },
+          { val: '2–5 nm',     sub: de ? 'Filmdicke'    : 'Film thickness'   },
+          { val: 'Fe–S',       sub: de ? 'tribochem. Bindung' : 'tribochem. bond' },
         ].map((s, i) => (
           <div key={i}>
-            <p className="font-mono text-[12px] font-semibold" style={{ color: 'rgba(255,255,255,0.88)' }}>{s.de}</p>
+            <p className="font-mono text-[12px] font-semibold" style={{ color: 'rgba(255,255,255,0.85)' }}>{s.val}</p>
             <p className="text-[9px] mt-0.5" style={{ color: 'rgba(255,255,255,0.38)' }}>{s.sub}</p>
           </div>
         ))}
@@ -448,97 +465,89 @@ function TransferFilm({ de }: { de: boolean }) {
   );
 }
 
-// ─── Crystal lattice — hexagonal close-packed SVG ────────────────────────────
+// ─── Crystal lattice — lamellar chain visualization ──────────────────────────
+// Shows aligned hydrocarbon chains packed in parallel layers (the actual lamellar structure)
 function CrystalLattice({ de }: { de: boolean }) {
   const svgRef = useRef<SVGSVGElement>(null);
+  const { theme } = useTheme();
+  const isDark = theme === 'dark' || theme === 'noir';
+  const vizCard = isDark ? VIZ_CARD : VIZ_CARD_LIGHT;
 
-  const COLS = 10, ROWS = 6, HEX_W = 38, HEX_H = 30;
+  // 3 crystal layers, each with 7 parallel chain rods
+  const LAYERS = [
+    { yCenter: 36,  color: '#4472D4' },
+    { yCenter: 96,  color: '#3D67CA' },
+    { yCenter: 156, color: '#4472D4' },
+  ];
+  const CHAIN_W = 46, CHAIN_H = 9, CHAIN_GAP = 7;
+  const CHAINS = 7;
+  const totalChainWidth = CHAINS * CHAIN_W + (CHAINS - 1) * CHAIN_GAP;
+  const startX = (395 - totalChainWidth) / 2;
 
-  // Build atom positions — hexagonal close-packed
-  const atoms = Array.from({ length: ROWS * COLS }, (_, i) => {
-    const r = Math.floor(i / COLS), c = i % COLS;
-    return {
-      x: c * HEX_W + (r % 2 === 1 ? HEX_W / 2 : 0) + 16,
-      y: r * HEX_H + 14,
-      big: (r + c * 2) % 4 === 0,
-    };
-  });
-
-  // Compute HCP bonds
-  const bonds: { x1: number; y1: number; x2: number; y2: number }[] = [];
-  for (let r = 0; r < ROWS; r++) {
-    for (let c = 0; c < COLS; c++) {
-      const a = atoms[r * COLS + c];
-      if (c < COLS - 1) bonds.push({ x1: a.x, y1: a.y, x2: atoms[r * COLS + c + 1].x, y2: atoms[r * COLS + c + 1].y });
-      if (r < ROWS - 1) {
-        const nbC = r % 2 === 0 ? c : c + 1;
-        if (nbC < COLS) { const nb = atoms[(r + 1) * COLS + nbC]; bonds.push({ x1: a.x, y1: a.y, x2: nb.x, y2: nb.y }); }
-        const nbC2 = r % 2 === 0 ? c - 1 : c;
-        if (nbC2 >= 0) { const nb = atoms[(r + 1) * COLS + nbC2]; bonds.push({ x1: a.x, y1: a.y, x2: nb.x, y2: nb.y }); }
-      }
-    }
-  }
+  // Van der Waals gap positions (between layers)
+  const VDW_Y = [66, 126];
 
   useEffect(() => {
-    const nodes = svgRef.current?.querySelectorAll<SVGCircleElement>('.lat-atom');
-    if (!nodes?.length) return;
-    nodes.forEach((n, i) => {
-      gsap.to(n, {
-        opacity: 0.5 + (i * 7 % 5) * 0.1,
-        duration: 1.5 + (i % 5) * 0.45,
-        repeat: -1, yoyo: true, ease: 'sine.inOut', delay: i * 0.048,
+    const rods = svgRef.current?.querySelectorAll<SVGRectElement>('.chain-rod');
+    if (!rods?.length) return;
+    rods.forEach((rod, i) => {
+      gsap.to(rod, {
+        x: (i % 3 === 0 ? 1.5 : i % 3 === 1 ? -1.5 : 0.8),
+        duration: 1.6 + (i % 5) * 0.28,
+        repeat: -1, yoyo: true, ease: 'sine.inOut',
+        delay: i * 0.09,
       });
     });
-    return () => gsap.killTweensOf(Array.from(nodes));
+    return () => gsap.killTweensOf(Array.from(rods));
   }, []);
 
-  // Layer boundaries sit between rows 1-2, 3-4, 5-6
-  const LAYER_Y = [HEX_H * 1.5 + 14, HEX_H * 3.5 + 14, HEX_H * 5 + 14];
-
   return (
-    <div className="w-full rounded-2xl overflow-hidden p-5" style={{ ...VIZ_CARD, ...DARK_DOT_GRID }}>
+    <div className="w-full rounded-2xl overflow-hidden p-5" style={{ ...vizCard, ...DARK_DOT_GRID }}>
       <p className="text-[10px] uppercase tracking-[0.2em] mb-3 text-center" style={{ color: 'rgba(255,255,255,0.38)' }}>
         {de ? 'Lamellare Kristallstruktur — C₂₀–C₃₆' : 'Lamellar crystal structure — C₂₀–C₃₆'}
       </p>
-      <svg ref={svgRef} viewBox="0 0 395 196" className="w-full" style={{ overflow: 'visible' }}>
-        {/* Layer band highlights */}
-        {[0, 2, 4].map((startRow, li) => {
-          const y1 = startRow * HEX_H + 6;
-          const y2 = (startRow + 2) * HEX_H + 6;
-          return (
-            <rect key={li} x="0" y={y1} width="395" height={y2 - y1}
-              fill={li % 2 === 0 ? 'rgba(26,60,110,0.10)' : 'rgba(26,60,110,0.04)'} rx="2" />
-          );
-        })}
-        {/* Layer boundary lines */}
-        {LAYER_Y.map((y, i) => (
-          <line key={i} x1="8" y1={y} x2="387" y2={y}
-            stroke="rgba(68,114,212,0.28)" strokeWidth="0.8" strokeDasharray="4 3" />
+      <svg ref={svgRef} viewBox="0 0 395 192" className="w-full">
+        {/* Layer background bands */}
+        {LAYERS.map((l, li) => (
+          <rect key={li} x="0" y={l.yCenter - 22} width="395" height="44"
+            fill={li % 2 === 0 ? 'rgba(26,60,110,0.14)' : 'rgba(26,60,110,0.07)'} />
         ))}
-        {bonds.map((b, i) => (
-          <line key={i} x1={b.x1} y1={b.y1} x2={b.x2} y2={b.y2} stroke="rgba(68,114,212,0.22)" strokeWidth="0.85" />
+        {/* Van der Waals gap lines */}
+        {VDW_Y.map((y, i) => (
+          <g key={i}>
+            <line x1="12" y1={y} x2="340" y2={y} stroke="rgba(100,140,220,0.32)" strokeWidth="0.8" strokeDasharray="5 4" />
+            <text x="348" y={y + 4} fontSize="8.5" fill="rgba(100,140,220,0.45)" fontFamily="monospace" textAnchor="start">vdW</text>
+          </g>
         ))}
-        {atoms.map((a, i) => (
-          <circle
-            key={i} className="lat-atom" cx={a.x} cy={a.y} r={a.big ? 5.5 : 3}
-            fill={a.big ? '#3D67CA' : 'rgba(100,140,220,0.28)'} opacity={a.big ? 0.88 : 0.7}
-            style={{ filter: a.big ? 'drop-shadow(0 0 5px rgba(68,114,212,0.60))' : 'none' }}
-          />
-        ))}
-        {/* Layer labels */}
-        <text x="380" y={HEX_H * 1 + 14} fontSize="8" fill="rgba(100,140,220,0.45)" fontFamily="monospace" textAnchor="end">{de ? 'Ebene 1' : 'Layer 1'}</text>
-        <text x="380" y={HEX_H * 3 + 14} fontSize="8" fill="rgba(100,140,220,0.45)" fontFamily="monospace" textAnchor="end">{de ? 'Ebene 2' : 'Layer 2'}</text>
-        <text x="380" y={HEX_H * 5 + 14} fontSize="8" fill="rgba(100,140,220,0.45)" fontFamily="monospace" textAnchor="end">{de ? 'Ebene 3' : 'Layer 3'}</text>
+        {/* Chain rods */}
+        {LAYERS.map((l, li) =>
+          [...Array(CHAINS)].map((_, ci) => {
+            const x = startX + ci * (CHAIN_W + CHAIN_GAP);
+            return (
+              <rect
+                key={`${li}-${ci}`}
+                className="chain-rod"
+                x={x} y={l.yCenter - CHAIN_H / 2} width={CHAIN_W} height={CHAIN_H}
+                rx="4.5"
+                fill={l.color}
+                opacity={0.70 + (ci % 3) * 0.09}
+                style={{ filter: 'drop-shadow(0 0 4px rgba(68,114,212,0.55))' }}
+              />
+            );
+          })
+        )}
+        {/* Side bracket showing one crystal layer */}
+        <line x1="10" y1={LAYERS[1].yCenter - 20} x2="10" y2={LAYERS[1].yCenter + 20}
+          stroke="rgba(100,140,220,0.45)" strokeWidth="1" />
+        <text x="14" y={LAYERS[1].yCenter + 4} fontSize="8.5" fill="rgba(100,140,220,0.50)" fontFamily="monospace">
+          {de ? 'Kristallebene' : 'Crystal plane'}
+        </text>
       </svg>
-      <div className="flex justify-center gap-5 mt-3 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
-        <div className="flex items-center gap-1.5">
-          <div className="w-2 h-px" style={{ background: 'rgba(68,114,212,0.5)', borderTop: '1px dashed rgba(68,114,212,0.5)' }} />
-          <span className="text-[9px] font-mono" style={{ color: 'rgba(255,255,255,0.35)' }}>{de ? 'Schichtgrenze' : 'Layer boundary'}</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-2.5 h-2.5 rounded-full" style={{ background: '#3D67CA' }} />
-          <span className="text-[9px] font-mono" style={{ color: 'rgba(255,255,255,0.35)' }}>{de ? 'C-Atom (Hauptkette)' : 'C atom (backbone)'}</span>
-        </div>
+      <div className="flex items-center justify-center gap-2 mt-3 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+        <div className="w-7 h-2.5 rounded-full" style={{ background: '#4472D4', opacity: 0.75 }} />
+        <span className="text-[9px] font-mono" style={{ color: 'rgba(255,255,255,0.38)' }}>
+          {de ? 'Kohlenwasserstoffkette, parallel ausgerichtet' : 'Hydrocarbon chain, aligned in parallel'}
+        </span>
       </div>
     </div>
   );
@@ -923,19 +932,6 @@ export function SciencePage() {
         { opacity: 0, y: 16 },
         { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out', delay: 1.0 },
       );
-      // Scroll cue
-      gsap.fromTo('[data-scroll-cue]',
-        { opacity: 0 },
-        { opacity: 1, duration: 0.6, ease: 'power2.out', delay: 1.7 },
-      );
-      // Scroll cue line animation
-      const scrollBar = heroRef.current?.querySelector<HTMLElement>('.scroll-bar');
-      if (scrollBar) {
-        const stl = gsap.timeline({ repeat: -1, delay: 2.3 });
-        stl.fromTo(scrollBar, { y: '-100%', opacity: 0 }, { y: '0%', opacity: 1, duration: 0.65, ease: 'power1.in' });
-        stl.to(scrollBar, { y: '100%', opacity: 0, duration: 0.55, ease: 'power1.out' });
-        stl.set(scrollBar, { y: '-100%', opacity: 0 });
-      }
     }, heroRef);
     return () => ctx.revert();
   }, []);
@@ -1047,26 +1043,13 @@ export function SciencePage() {
           {/* Subtitle */}
           <p
             data-hero-sub
-            className="text-[14px] sm:text-[15px] leading-relaxed max-w-[480px] mx-auto mb-8"
+            className="text-[14px] sm:text-[15px] leading-relaxed max-w-[480px] mx-auto mb-0"
             style={{ color: isDark ? 'rgba(255,255,255,0.42)' : 'var(--txm)', opacity: 0 }}
           >
             {de
               ? 'Jede Komponente in dieser Formel existiert, weil ein Test gescheitert ist — oder weil ein Kompromiss nicht akzeptabel war.'
               : "Every component in this formula exists because a test failed — or because a compromise was unacceptable."}
           </p>
-
-          {/* Scroll cue */}
-          <div data-scroll-cue className="flex flex-col items-center gap-2" style={{ opacity: 0 }}>
-            <span className="text-[9px] font-mono uppercase tracking-[0.3em]" style={{ color: isDark ? 'rgba(255,255,255,0.18)' : 'var(--txff)' }}>
-              scroll
-            </span>
-            <div className="relative h-8 w-px overflow-hidden" style={{ background: isDark ? 'rgba(255,255,255,0.07)' : 'var(--bd)' }}>
-              <div
-                className="scroll-bar absolute top-0 left-0 w-full h-1/2"
-                style={{ background: 'linear-gradient(to bottom, transparent, rgba(68,114,212,0.9))' }}
-              />
-            </div>
-          </div>
         </div>
 
         {/* Bottom fade into page bg */}
