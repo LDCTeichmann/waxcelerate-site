@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FlaskConical } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -6,101 +6,63 @@ import { useSectionReveal } from '@/hooks/useAnimation';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { gsap } from '@/lib/gsap';
 
-
-type FilterKey = 'road' | 'commute' | 'gravel';
-
-const filterChips: { id: FilterKey; labelDe: string; labelEn: string }[] = [
-  { id: 'road',    labelDe: 'Rennrad',          labelEn: 'Road'           },
-  { id: 'commute', labelDe: 'Alltag / Pendeln',  labelEn: 'Commute'        },
-  { id: 'gravel',  labelDe: 'Gravel / Winter',   labelEn: 'Gravel / Winter' },
+const frictionBars = [
+  { labelDe: 'Waxcelerate Pro',     labelEn: 'Waxcelerate Pro',     val: 'μ 0,03–0,06', pct: 100, highlight: true  },
+  { labelDe: 'Waxcelerate Classic', labelEn: 'Waxcelerate Classic', val: 'μ 0,05–0,07', pct: 80,  highlight: true  },
+  { labelDe: 'Kettenöl',            labelEn: 'Chain oil',           val: 'μ 0,18–0,25', pct: 18,  highlight: false },
 ];
-
-const differentiators: {
-  catDe: string; catEn: string;
-  titleDe: string; titleEn: string;
-  proofDe: string; proofEn: string;
-  filters: FilterKey[];
-}[] = [
-  {
-    catDe: 'Chargenqualität', catEn: 'Batch Quality',
-    titleDe: 'Erster Block = letzter Block',
-    titleEn: 'First block = last block',
-    proofDe: 'Kleinstchargen in Stuttgart, kontrolliert homogenisiert — jeder Block identisch.',
-    proofEn: 'Small batches in Stuttgart, controlled homogenisation — every block identical.',
-    filters: ['road', 'commute', 'gravel'],
-  },
-  {
-    catDe: 'Zwei Formeln', catEn: 'Two Formulas',
-    titleDe: 'Classic oder Pro — kein Kompromiss',
-    titleEn: 'Classic or Pro — no compromise',
-    proofDe: 'Classic (PTFE) für Frühjahr bis Herbst. Pro (MoS₂) für Ganzjahr, Winter & E-Bike.',
-    proofEn: 'Classic (PTFE) spring to autumn. Pro (MoS₂) year-round, winter & e-bike.',
-    filters: ['road', 'commute', 'gravel'],
-  },
-  {
-    catDe: 'Winterformel', catEn: 'Winter Formula',
-    titleDe: 'Pro mit MoS₂ — flexibel bis −8 °C',
-    titleEn: 'Pro with MoS₂ — flexible to −8 °C',
-    proofDe: 'Amorphes MoS₂ hält die Wachsmatrix auch bei Frost geschmeidig — kein Verhärten in den Kettengelenken.',
-    proofEn: 'Amorphous MoS₂ keeps the wax matrix supple at frost — no hardening inside chain links.',
-    filters: ['commute', 'gravel'],
-  },
-  {
-    catDe: 'Korrosionsschutz', catEn: 'Corrosion Protection',
-    titleDe: 'Dichter Schutzfilm — Rost bleibt draußen',
-    titleEn: 'Dense protective film — rust stays out',
-    proofDe: 'Mikrokristallines Hartwachs schließt die Metalloberfläche dichter ab — weniger Kontakt mit Wasser und Sauerstoff.',
-    proofEn: 'Microcrystalline hard wax seals the metal surface more tightly — less contact with water and oxygen.',
-    filters: ['commute', 'gravel'],
-  },
-];
-
-const frictionMini = [
-  { label: 'Pro',     val: 'μ 0,03–0,06', pct: 100, highlight: true  },
-  { label: 'Classic', val: 'μ 0,05–0,07', pct: 80,  highlight: true  },
-  { labelDe: 'Kettenöl', labelEn: 'Chain Oil', val: 'μ 0,18–0,25', pct: 18, highlight: false },
-];
-
-function rowOpacity(active: FilterKey | null, rowFilters: FilterKey[]): React.CSSProperties {
-  if (!active) return {};
-  return {
-    opacity: rowFilters.includes(active) ? 1 : 0.22,
-    transition: 'opacity 0.25s ease',
-  };
-}
-
 
 export function WhyWax() {
   const { lang } = useLanguage();
-  const sectionRef = useRef<HTMLElement>(null);
-  const headerRef  = useRef<HTMLDivElement>(null);
-  const gridRef    = useRef<HTMLDivElement>(null);
+  const sectionRef  = useRef<HTMLElement>(null);
+  const headerRef   = useRef<HTMLDivElement>(null);
+  const act1Ref     = useRef<HTMLDivElement>(null);
+  const act2Ref     = useRef<HTMLDivElement>(null);
+  const act3Ref     = useRef<HTMLDivElement>(null);
   const de = lang === 'de';
-  const [activeFilter, setActiveFilter] = useState<FilterKey | null>(null);
 
   useSectionReveal(headerRef);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      const items = gridRef.current?.querySelectorAll('.diff-card');
-      if (items?.length) {
-        gsap.fromTo(items, { opacity: 0, y: 20 }, {
-          opacity: 1, y: 0, duration: 0.5, stagger: 0.08, ease: 'power3.out',
-          scrollTrigger: { trigger: gridRef.current, start: 'top 82%', once: true },
+      // Act 1 images — stagger in
+      const imgs = act1Ref.current?.querySelectorAll('.act1-img');
+      if (imgs?.length) {
+        gsap.fromTo(imgs, { opacity: 0, y: 24, scale: 0.97 }, {
+          opacity: 1, y: 0, scale: 1, duration: 0.7, stagger: 0.12, ease: 'power3.out',
+          scrollTrigger: { trigger: act1Ref.current, start: 'top 80%', once: true },
         });
       }
-      gridRef.current?.querySelectorAll('.fbar').forEach((bar) => {
+
+      // Act 2 friction bars
+      act2Ref.current?.querySelectorAll('.fbar').forEach((bar) => {
         const pct = parseFloat((bar as HTMLElement).dataset.w!) / 100;
         gsap.fromTo(bar, { scaleX: 0 }, {
-          scaleX: pct, duration: 1, ease: 'power3.out',
-          scrollTrigger: { trigger: gridRef.current, start: 'top 80%', once: true },
+          scaleX: pct, duration: 1.1, ease: 'power3.out',
+          scrollTrigger: { trigger: act2Ref.current, start: 'top 78%', once: true },
         });
       });
+
+      // Act 2 cost numbers count-up feel
+      const costNums = act2Ref.current?.querySelectorAll('.cost-num');
+      if (costNums?.length) {
+        gsap.fromTo(costNums, { opacity: 0, y: 16 }, {
+          opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: 'power3.out',
+          scrollTrigger: { trigger: act2Ref.current, start: 'top 78%', once: true },
+        });
+      }
+
+      // Act 3 cards
+      const cards = act3Ref.current?.querySelectorAll('.act3-card');
+      if (cards?.length) {
+        gsap.fromTo(cards, { opacity: 0, y: 20 }, {
+          opacity: 1, y: 0, duration: 0.55, stagger: 0.1, ease: 'power3.out',
+          scrollTrigger: { trigger: act3Ref.current, start: 'top 82%', once: true },
+        });
+      }
     }, sectionRef);
     return () => ctx.revert();
   }, []);
-
-  const toggleFilter = (id: FilterKey) => setActiveFilter(v => v === id ? null : id);
 
   return (
     <section id="warum-wachs" ref={sectionRef} className="relative py-24 bg-wx-sf chain-texture">
@@ -110,10 +72,10 @@ export function WhyWax() {
       />
 
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-5xl mx-auto space-y-20">
 
           {/* ── Header ── */}
-          <div ref={headerRef} className="mb-8">
+          <div ref={headerRef}>
             <p className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-semibold mb-3" style={{ color: 'var(--txf)' }}>
               {de ? 'Die Formel' : 'The Formula'}
             </p>
@@ -127,141 +89,329 @@ export function WhyWax() {
             </p>
           </div>
 
-          {/* ── Filter chips ── */}
-          <div className="flex items-center gap-2 mb-7 flex-wrap">
-            <span className="text-[10px] uppercase tracking-[0.16em] text-wx-txff mr-1">
-              {de ? 'Für mich relevant:' : 'Show for:'}
-            </span>
-            {filterChips.map(chip => {
-              const isActive = activeFilter === chip.id;
-              return (
-                <button
-                  key={chip.id}
-                  type="button"
-                  onClick={() => toggleFilter(chip.id)}
-                  className="text-[11px] font-medium px-3 py-1.5 rounded-full border transition-all duration-200"
-                  style={isActive ? {
-                    background: 'rgba(26,60,110,0.15)',
-                    borderColor: 'rgba(42,84,153,0.5)',
-                    color: 'rgba(106,138,232,0.95)',
-                  } : {
-                    background: 'transparent',
-                    borderColor: 'var(--bd)',
-                    color: 'var(--txm)',
-                  }}
-                >
-                  {de ? chip.labelDe : chip.labelEn}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* ── 2×2 feature cards — clean: eyebrow · title · proof only ── */}
-          <div ref={gridRef} className="grid sm:grid-cols-2 gap-3 mb-3">
-            {differentiators.map((d, i) => (
-              <div
-                key={i}
-                className="diff-card rounded-2xl border border-wx-bd p-6 flex flex-col gap-3"
-                style={{
-                  background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
-                  boxShadow: 'var(--card-shad)',
-                  ...rowOpacity(activeFilter, d.filters),
-                }}
-              >
-                <p className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: 'var(--txf)' }}>
-                  {de ? d.catDe : d.catEn}
-                </p>
-                <p className="font-serif-display italic text-[18px] font-bold text-wx-tx1 leading-[1.2]">
-                  {de ? d.titleDe : d.titleEn}
-                </p>
-                <p className="text-[13px] leading-relaxed" style={{ color: 'var(--txm)' }}>
-                  {de ? d.proofDe : d.proofEn}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          {/* ── Proof strip: cost + friction ── */}
-          <div className="grid sm:grid-cols-2 gap-3 mb-6">
-
-            {/* Cost savings */}
-            <div
-              className="diff-card rounded-2xl border border-wx-bd px-5 py-5 flex items-center gap-5"
-              style={{
-                background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
-                boxShadow: 'var(--card-shad)',
-                ...rowOpacity(activeFilter, ['road', 'commute', 'gravel']),
-              }}
-            >
-              <div className="flex-1 min-w-0">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] mb-2" style={{ color: 'var(--txf)' }}>
-                  {de ? 'Kostenersparnis' : 'Cost Savings'}
-                </p>
-                <p className="text-[13px] leading-snug" style={{ color: 'var(--txm)' }}>
-                  {de
-                    ? '46 % weniger über 12.000 km — ~€151 mit Öl, ~€81 mit Wachs.'
-                    : '46% less over 12,000 km — ~€151 with oil, ~€81 with wax.'}
-                </p>
-              </div>
-              <p className="font-display font-bold text-wx-tx1 tabular-nums text-[28px] leading-none flex-shrink-0 tracking-[-0.03em]">
-                ~€70
+          {/* ══ ACT 1 — Das Problem ══ */}
+          <div ref={act1Ref}>
+            {/* Problem statement */}
+            <div className="mb-8">
+              <p className="text-[11px] uppercase tracking-[0.22em] font-semibold mb-3" style={{ color: 'var(--txf)' }}>
+                {de ? 'Das Problem' : 'The Problem'}
+              </p>
+              <p className="font-display text-2xl sm:text-3xl font-bold text-wx-tx1 leading-[1.2] max-w-xl">
+                {de
+                  ? 'Kettenöl klebt. Sammelt Dreck. Frisst deine Kette.'
+                  : 'Chain oil clings. Collects grit. Eats your chain.'}
               </p>
             </div>
 
-            {/* Friction */}
-            <div
-              className="diff-card rounded-2xl border border-wx-bd p-5 flex flex-col gap-3"
-              style={{
-                background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
-                boxShadow: 'var(--card-shad)',
-                ...rowOpacity(activeFilter, ['road', 'gravel']),
-              }}
-            >
-              <div className="flex items-start justify-between">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: 'var(--txf)' }}>
-                  {de ? 'Reibung' : 'Friction'}
-                </p>
-                <span className="font-display font-bold text-wx-tx1 tabular-nums text-[20px] leading-none tracking-[-0.02em]">
-                  μ 0,03
-                </span>
+            {/* Chain comparison images */}
+            <div className="grid sm:grid-cols-2 gap-3">
+              <div className="act1-img relative rounded-2xl overflow-hidden" style={{ aspectRatio: '16/9' }}>
+                <img
+                  src="/images/chain-dirty.jpg"
+                  alt={de ? 'Kette mit Kettenöl — schmutzig' : 'Chain with oil — dirty'}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 55%)' }} />
+                <div className="absolute bottom-0 left-0 right-0 p-4 flex items-end justify-between">
+                  <span className="text-white font-semibold text-[13px]">{de ? 'Mit Kettenöl' : 'With chain oil'}</span>
+                  <span
+                    className="text-[11px] font-semibold px-2.5 py-1 rounded-full"
+                    style={{ background: 'rgba(220,60,60,0.85)', color: '#fff' }}
+                  >
+                    {de ? 'Dreck & Verschleiß' : 'Grit & wear'}
+                  </span>
+                </div>
               </div>
-              <div className="space-y-2.5 flex-1">
-                {frictionMini.map((item, i) => {
-                  const label = 'label' in item ? item.label : (de ? item.labelDe : item.labelEn);
-                  return (
-                    <div key={i}>
-                      <div className="flex justify-between mb-1">
-                        <span className="text-[11px] font-medium" style={{ color: item.highlight ? 'var(--tx1)' : 'var(--txf)' }}>
-                          {label}
-                        </span>
-                        <span className="text-[11px] font-mono tabular-nums" style={{ color: item.highlight ? 'var(--tx2)' : 'var(--txff)' }}>
-                          {item.val}
-                        </span>
-                      </div>
-                      <div className="h-0.5 rounded-full overflow-hidden" style={{ background: 'var(--bd)' }}>
-                        <div
-                          className="fbar h-full w-full rounded-full"
-                          data-w={item.pct}
-                          style={{
-                            background: item.highlight
-                              ? 'linear-gradient(90deg, #0F2450, #3D67CA)'
-                              : 'var(--bd2)',
-                            transformOrigin: 'left center',
-                            transform: 'scaleX(0)',
-                          }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
+
+              <div className="act1-img relative rounded-2xl overflow-hidden" style={{ aspectRatio: '16/9' }}>
+                <img
+                  src="/images/chain-clean.jpg"
+                  alt={de ? 'Kette mit Heißwachs — sauber' : 'Chain with hot wax — clean'}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 55%)' }} />
+                <div className="absolute bottom-0 left-0 right-0 p-4 flex items-end justify-between">
+                  <span className="text-white font-semibold text-[13px]">{de ? 'Mit Heißwachs' : 'With hot wax'}</span>
+                  <span
+                    className="text-[11px] font-semibold px-2.5 py-1 rounded-full"
+                    style={{ background: 'rgba(26,120,74,0.85)', color: '#fff' }}
+                  >
+                    {de ? 'Trocken & sauber' : 'Dry & clean'}
+                  </span>
+                </div>
               </div>
-              <Link
-                to="/wissenschaft"
-                className="text-[11px] font-medium pt-3 transition-opacity hover:opacity-70 inline-block"
-                style={{ color: '#264E8C', borderTop: '1px solid var(--bd2)' }}
+            </div>
+          </div>
+
+          {/* ══ ACT 2 — Die Zahlen ══ */}
+          <div ref={act2Ref}>
+            <p className="text-[11px] uppercase tracking-[0.22em] font-semibold mb-8" style={{ color: 'var(--txf)' }}>
+              {de ? 'Die Zahlen' : 'The Numbers'}
+            </p>
+
+            <div className="grid sm:grid-cols-2 gap-3">
+
+              {/* Friction chart — hero */}
+              <div
+                className="rounded-2xl border border-wx-bd p-6 flex flex-col gap-5"
+                style={{
+                  background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
+                  boxShadow: 'var(--card-shad)',
+                }}
               >
-                {de ? 'Vollständiger Vergleich →' : 'Full comparison →'}
-              </Link>
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] mb-1" style={{ color: 'var(--txf)' }}>
+                    {de ? 'Reibungsverlust' : 'Friction loss'}
+                  </p>
+                  <p className="font-display font-bold text-wx-tx1 text-[40px] leading-none tracking-[-0.03em]">
+                    μ 0,03
+                  </p>
+                  <p className="text-[12px] mt-1" style={{ color: 'var(--txm)' }}>
+                    {de ? 'gegenüber μ 0,25 mit Kettenöl — 8× weniger Verlust' : 'vs. μ 0.25 with chain oil — 8× less friction'}
+                  </p>
+                </div>
+
+                <div className="space-y-4 flex-1">
+                  {frictionBars.map((item, i) => {
+                    const label = de ? item.labelDe : item.labelEn;
+                    return (
+                      <div key={i}>
+                        <div className="flex justify-between mb-1.5">
+                          <span
+                            className="text-[12px] font-medium"
+                            style={{ color: item.highlight ? 'var(--tx1)' : 'var(--txf)' }}
+                          >
+                            {label}
+                          </span>
+                          <span
+                            className="text-[12px] font-mono tabular-nums"
+                            style={{ color: item.highlight ? 'var(--tx2)' : 'var(--txff)' }}
+                          >
+                            {item.val}
+                          </span>
+                        </div>
+                        <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--bd)' }}>
+                          <div
+                            className="fbar h-full w-full rounded-full"
+                            data-w={item.pct}
+                            style={{
+                              background: item.highlight
+                                ? 'linear-gradient(90deg, #0F2450, #3D67CA)'
+                                : 'var(--bd2)',
+                              transformOrigin: 'left center',
+                              transform: 'scaleX(0)',
+                            }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <Link
+                  to="/wissenschaft"
+                  className="inline-flex items-center gap-1.5 text-[11px] font-medium pt-3 transition-opacity hover:opacity-70"
+                  style={{ color: '#264E8C', borderTop: '1px solid var(--bd2)' }}
+                >
+                  <FlaskConical className="w-3 h-3" />
+                  {de ? 'Vollständiger Vergleich →' : 'Full comparison →'}
+                </Link>
+              </div>
+
+              {/* Cost comparison */}
+              <div
+                className="rounded-2xl border border-wx-bd p-6 flex flex-col justify-between"
+                style={{
+                  background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
+                  boxShadow: 'var(--card-shad)',
+                }}
+              >
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] mb-1" style={{ color: 'var(--txf)' }}>
+                    {de ? 'Kosten über 12.000 km' : 'Cost over 12,000 km'}
+                  </p>
+                  <p className="text-[12px] mb-6" style={{ color: 'var(--txm)' }}>
+                    {de ? 'Schmiermittel + Kette + Ritzel gerechnet' : 'Lubricant + chain + cassette included'}
+                  </p>
+                </div>
+
+                <div className="flex items-end justify-around mb-6">
+                  <div className="text-center cost-num">
+                    <p
+                      className="font-display font-bold leading-none tracking-[-0.03em]"
+                      style={{ fontSize: 'clamp(2.2rem, 5vw, 3.2rem)', color: 'var(--txm)' }}
+                    >
+                      €151
+                    </p>
+                    <p className="text-[11px] mt-2" style={{ color: 'var(--txf)' }}>
+                      {de ? 'mit Kettenöl' : 'with chain oil'}
+                    </p>
+                    {/* Bar */}
+                    <div className="mx-auto mt-3 w-1.5 rounded-full" style={{ height: '64px', background: 'var(--bd2)' }} />
+                  </div>
+
+                  <div className="text-center cost-num">
+                    <p
+                      className="font-display font-bold leading-none tracking-[-0.03em]"
+                      style={{ fontSize: 'clamp(2.2rem, 5vw, 3.2rem)', color: 'var(--tx1)' }}
+                    >
+                      €81
+                    </p>
+                    <p className="text-[11px] mt-2" style={{ color: 'var(--txf)' }}>
+                      {de ? 'mit Waxcelerate' : 'with Waxcelerate'}
+                    </p>
+                    {/* Bar — shorter = cheaper */}
+                    <div
+                      className="mx-auto mt-3 w-1.5 rounded-full"
+                      style={{ height: '32px', background: 'linear-gradient(180deg, #0F2450, #3D67CA)' }}
+                    />
+                  </div>
+
+                  <div className="text-center cost-num">
+                    <p
+                      className="font-display font-bold leading-none tracking-[-0.02em] text-wx-tx1"
+                      style={{ fontSize: 'clamp(1.8rem, 4vw, 2.6rem)' }}
+                    >
+                      ~€70
+                    </p>
+                    <p className="text-[11px] mt-2" style={{ color: 'var(--txf)' }}>
+                      {de ? 'gespart' : 'saved'}
+                    </p>
+                    <div
+                      className="mx-auto mt-3 w-1.5 rounded-full"
+                      style={{ height: '48px', background: 'linear-gradient(180deg, #1a7a4a, #25D366)' }}
+                    />
+                  </div>
+                </div>
+
+                <p className="text-[11px] text-center" style={{ color: 'var(--txff)' }}>
+                  {de
+                    ? '* Kette €30, Ritzel €45, Rewax-Intervall ~500 km, Ölwechsel ~300 km'
+                    : '* Chain €30, cassette €45, rewax interval ~500 km, oil interval ~300 km'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* ══ ACT 3 — Die Formel ══ */}
+          <div ref={act3Ref}>
+            <p className="text-[11px] uppercase tracking-[0.22em] font-semibold mb-8" style={{ color: 'var(--txf)' }}>
+              {de ? 'Die Formel' : 'The Formula'}
+            </p>
+
+            <div className="grid sm:grid-cols-2 gap-3">
+
+              {/* Stuttgart batch card — with product image */}
+              <div
+                className="act3-card rounded-2xl border border-wx-bd overflow-hidden flex flex-col"
+                style={{
+                  background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
+                  boxShadow: 'var(--card-shad)',
+                }}
+              >
+                <div className="relative overflow-hidden" style={{ height: '160px' }}>
+                  <img
+                    src="/images/wax-packaging.jpeg"
+                    alt={de ? 'Waxcelerate Produktion Stuttgart' : 'Waxcelerate production Stuttgart'}
+                    className="w-full h-full object-cover"
+                  />
+                  <div
+                    className="absolute inset-0"
+                    style={{ background: 'linear-gradient(to bottom, transparent 40%, var(--card-to) 100%)' }}
+                  />
+                </div>
+                <div className="p-5 flex flex-col gap-2 flex-1">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: 'var(--txf)' }}>
+                    {de ? 'Chargenqualität' : 'Batch Quality'}
+                  </p>
+                  <p className="font-serif-display italic text-[18px] font-bold text-wx-tx1 leading-[1.2]">
+                    {de ? 'Erster Block = letzter Block' : 'First block = last block'}
+                  </p>
+                  <p className="text-[13px] leading-relaxed" style={{ color: 'var(--txm)' }}>
+                    {de
+                      ? 'Kleinstchargen in Stuttgart, kontrolliert homogenisiert — jeder Block identisch.'
+                      : 'Small batches in Stuttgart, controlled homogenisation — every block identical.'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Classic vs Pro selector */}
+              <div
+                className="act3-card rounded-2xl border border-wx-bd p-5 flex flex-col gap-4"
+                style={{
+                  background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
+                  boxShadow: 'var(--card-shad)',
+                }}
+              >
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] mb-1" style={{ color: 'var(--txf)' }}>
+                    {de ? 'Zwei Formeln' : 'Two Formulas'}
+                  </p>
+                  <p className="font-serif-display italic text-[18px] font-bold text-wx-tx1 leading-[1.2]">
+                    {de ? 'Classic oder Pro — kein Kompromiss' : 'Classic or Pro — no compromise'}
+                  </p>
+                </div>
+
+                <div className="flex flex-col gap-2 flex-1">
+                  {/* Classic */}
+                  <div
+                    className="rounded-xl p-4 flex items-start gap-3"
+                    style={{ background: 'var(--sf2)', border: '1px solid var(--bd)' }}
+                  >
+                    <div
+                      className="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center text-[10px] font-bold"
+                      style={{ background: 'rgba(42,84,153,0.12)', color: '#264E8C' }}
+                    >
+                      C
+                    </div>
+                    <div>
+                      <p className="text-[13px] font-semibold text-wx-tx1">Classic (PTFE)</p>
+                      <p className="text-[11px] mt-0.5" style={{ color: 'var(--txm)' }}>
+                        {de ? 'Frühjahr – Herbst · Straße · Gravel' : 'Spring – Autumn · Road · Gravel'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Pro */}
+                  <div
+                    className="rounded-xl p-4 flex items-start gap-3"
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(15,36,80,0.08) 0%, rgba(61,103,202,0.06) 100%)',
+                      border: '1px solid rgba(42,84,153,0.25)',
+                    }}
+                  >
+                    <div
+                      className="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center text-[10px] font-bold"
+                      style={{ background: 'rgba(42,84,153,0.15)', color: '#264E8C' }}
+                    >
+                      P
+                    </div>
+                    <div>
+                      <p className="text-[13px] font-semibold text-wx-tx1">
+                        Pro (MoS₂)
+                        <span
+                          className="ml-2 text-[10px] font-semibold px-1.5 py-0.5 rounded-full"
+                          style={{ background: 'rgba(42,84,153,0.12)', color: '#264E8C' }}
+                        >
+                          {de ? 'Ganzjahr' : 'Year-round'}
+                        </span>
+                      </p>
+                      <p className="text-[11px] mt-0.5" style={{ color: 'var(--txm)' }}>
+                        {de ? 'Winter · E-Bike · Nässe · −8 °C' : 'Winter · E-Bike · Wet · −8 °C'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <Link
+                  to="/#produkte"
+                  onClick={(e) => { e.preventDefault(); document.querySelector('#produkte')?.scrollIntoView({ behavior: 'smooth' }); }}
+                  className="flex items-center justify-center w-full py-2.5 rounded-xl text-[13px] font-semibold transition-opacity hover:opacity-90"
+                  style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
+                >
+                  {de ? 'Produkte ansehen →' : 'See products →'}
+                </Link>
+              </div>
             </div>
           </div>
 
