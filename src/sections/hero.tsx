@@ -197,7 +197,7 @@ export function Hero() {
                 <WordReveal text={headline} className="block" />
                 <span
                   className="block font-serif-display italic overflow-hidden"
-                  style={{ color: '#264E8C', verticalAlign: 'bottom' }}
+                  style={{ color: '#5B8BED', verticalAlign: 'bottom' }}
                 >
                   <span className="word-inner inline-block" style={{ willChange: 'transform' }}>
                     {headlineSub}
@@ -221,7 +221,7 @@ export function Hero() {
                 <button
                   onClick={() => scrollToSection('#produkte')}
                   className="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-semibold rounded-full transition-opacity duration-150 hover:opacity-90 active:scale-[0.98]"
-                  style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
+                  style={{ background: '#EDE9E0', color: '#0A0A0A' }}
                 >
                   {t.hero.ctaBuy}
                   <ArrowRight className="h-3.5 w-3.5" />
@@ -248,7 +248,7 @@ export function Hero() {
       {/* Bottom fade into next section */}
       <div
         className="absolute bottom-0 left-0 right-0 h-40 pointer-events-none"
-        style={{ background: 'linear-gradient(to top, var(--sf3) 0%, transparent 100%)' }}
+        style={{ background: 'linear-gradient(to top, #0A0A0A 0%, transparent 100%)' }}
       />
     </section>
   );
