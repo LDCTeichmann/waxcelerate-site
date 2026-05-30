@@ -145,10 +145,10 @@ export function About() {
                 style={{
                   background:
                     'linear-gradient(to right, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.30) 40%, transparent 65%), ' +
-                    'linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 55%)',
+                    'linear-gradient(to bottom, rgba(0,0,0,0.65) 0%, transparent 55%)',
                 }}
               />
-              <div className="absolute bottom-0 left-0 px-6 pb-5">
+              <div className="absolute top-0 left-0 px-6 pt-5">
                 <p
                   className="text-[9px] font-semibold uppercase tracking-[0.22em] mb-1"
                   style={{ color: 'rgba(255,255,255,0.48)' }}
