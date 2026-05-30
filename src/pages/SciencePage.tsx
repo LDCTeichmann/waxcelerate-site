@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ChevronDown } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useTheme } from '@/hooks/useTheme';
 import { gsap } from '@/lib/gsap';
 
 // ─── Static data ──────────────────────────────────────────────────────────────
@@ -192,7 +193,7 @@ function ScrollProgress() {
 }
 
 // ─── Stat callout — full-bleed dark section ───────────────────────────────────
-function StatCallout({ stat, ctxDe, ctxEn, de }: { stat: string; ctxDe: string; ctxEn: string; de: boolean }) {
+function StatCallout({ stat, ctxDe, ctxEn, de, isDark }: { stat: string; ctxDe: string; ctxEn: string; de: boolean; isDark: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -207,20 +208,29 @@ function StatCallout({ stat, ctxDe, ctxEn, de }: { stat: string; ctxDe: string; 
   return (
     <div
       ref={ref}
-      className="w-full py-24 sm:py-32 flex flex-col items-center text-center"
-      style={{
+      className="w-full py-20 sm:py-28 flex flex-col items-center text-center"
+      style={isDark ? {
         background: '#07070A',
         borderTop: '1px solid rgba(255,255,255,0.10)',
         borderBottom: '1px solid rgba(255,255,255,0.10)',
         opacity: 0,
+      } : {
+        background: 'var(--sf2)',
+        borderTop: '1px solid var(--bd)',
+        borderBottom: '1px solid var(--bd)',
+        opacity: 0,
       }}
     >
       <p className="font-serif-display italic font-bold leading-none select-none"
-        style={{ fontSize: 'clamp(5.5rem,16vw,10.5rem)', color: '#3060C8', textShadow: '0 0 60px rgba(43,82,176,0.55), 0 0 130px rgba(43,82,176,0.22)' }}>
+        style={{
+          fontSize: 'clamp(5rem,14vw,9rem)',
+          color: isDark ? '#3060C8' : '#1A3C6E',
+          textShadow: isDark ? '0 0 60px rgba(43,82,176,0.55), 0 0 130px rgba(43,82,176,0.22)' : 'none',
+        }}>
         {stat}
       </p>
-      <p className="text-[11px] uppercase tracking-[0.3em] mt-6 max-w-[400px] leading-relaxed"
-        style={{ color: 'rgba(255,255,255,0.50)' }}>
+      <p className="text-[11px] uppercase tracking-[0.3em] mt-5 max-w-[400px] leading-relaxed"
+        style={{ color: isDark ? 'rgba(255,255,255,0.50)' : 'var(--txm)' }}>
         {de ? ctxDe : ctxEn}
       </p>
     </div>
@@ -809,6 +819,8 @@ function Chapter({ num, catDe, catEn, titleDe, titleEn, ledeDe, ledeEn, bodyDe, 
 // ─── Main page ────────────────────────────────────────────────────────────────
 export function SciencePage() {
   const { lang, toggleLang } = useLanguage();
+  const { theme } = useTheme();
+  const isDark = theme === 'dark' || theme === 'noir';
   const de = lang === 'de';
   const heroRef  = useRef<HTMLElement>(null);
   const wordsRef = useRef<HTMLSpanElement[]>([]);
@@ -890,11 +902,11 @@ export function SciencePage() {
         </div>
       </nav>
 
-      {/* ══ HERO — forced dark, cinematic ══════════════════════════════════════ */}
+      {/* ══ HERO — compact subpage header ══════════════════════════════════════ */}
       <section
         ref={heroRef}
         className="relative overflow-hidden flex flex-col items-center justify-center"
-        style={{ background: '#07070A', minHeight: '88vh' }}
+        style={{ background: isDark ? '#07070A' : 'var(--sf)', minHeight: isDark ? '52vh' : '44vh' }}
       >
         <HeroParticles />
 
@@ -922,23 +934,25 @@ export function SciencePage() {
         <div
           aria-hidden
           className="absolute inset-0 pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse 72% 58% at 50% 42%, rgba(26,60,110,0.16) 0%, transparent 65%)' }}
+          style={{ background: isDark
+            ? 'radial-gradient(ellipse 72% 58% at 50% 42%, rgba(26,60,110,0.16) 0%, transparent 65%)'
+            : 'radial-gradient(ellipse 72% 58% at 50% 42%, rgba(26,60,110,0.05) 0%, transparent 65%)' }}
         />
 
-        <div className="relative z-10 text-center px-4 sm:px-8 py-24">
+        <div className="relative z-10 text-center px-4 sm:px-8 py-16">
           {/* Classification badge */}
-          <div data-hero-badge className="inline-flex items-center gap-3 mb-9" style={{ opacity: 0 }}>
-            <div className="h-px w-8" style={{ background: 'rgba(68,114,212,0.45)' }} />
-            <span className="text-[9px] font-mono uppercase tracking-[0.38em]" style={{ color: 'rgba(68,114,212,0.65)' }}>
+          <div data-hero-badge className="inline-flex items-center gap-3 mb-6" style={{ opacity: 0 }}>
+            <div className="h-px w-8" style={{ background: isDark ? 'rgba(68,114,212,0.45)' : 'rgba(26,60,110,0.25)' }} />
+            <span className="text-[9px] font-mono uppercase tracking-[0.38em]" style={{ color: isDark ? 'rgba(68,114,212,0.65)' : '#4472D4' }}>
               {de ? 'Formulierungsdokumentation' : 'Formulation Documentation'}
             </span>
-            <div className="h-px w-8" style={{ background: 'rgba(68,114,212,0.45)' }} />
+            <div className="h-px w-8" style={{ background: isDark ? 'rgba(68,114,212,0.45)' : 'rgba(26,60,110,0.25)' }} />
           </div>
 
           {/* Headline */}
           <h1
-            className="font-display font-bold leading-[1.05] mb-8 flex flex-wrap justify-center gap-x-4 gap-y-1"
-            style={{ fontSize: 'clamp(2.6rem,7.5vw,5rem)', color: '#FFFFFF', perspective: '600px' }}
+            className="font-display font-bold leading-[1.05] mb-5 flex flex-wrap justify-center gap-x-4 gap-y-1"
+            style={{ fontSize: 'clamp(2rem,5.5vw,3.5rem)', color: isDark ? '#FFFFFF' : 'var(--tx1)', perspective: '600px' }}
           >
             {heroWords.map((w, i) => (
               <span
@@ -954,8 +968,8 @@ export function SciencePage() {
           {/* Subtitle */}
           <p
             data-hero-sub
-            className="text-[15px] sm:text-[16px] leading-relaxed max-w-[540px] mx-auto mb-16"
-            style={{ color: 'rgba(255,255,255,0.42)', opacity: 0 }}
+            className="text-[14px] sm:text-[15px] leading-relaxed max-w-[480px] mx-auto mb-8"
+            style={{ color: isDark ? 'rgba(255,255,255,0.42)' : 'var(--txm)', opacity: 0 }}
           >
             {de
               ? 'Jede Komponente in dieser Formel existiert, weil ein Test gescheitert ist — oder weil ein Kompromiss nicht akzeptabel war.'
@@ -964,10 +978,10 @@ export function SciencePage() {
 
           {/* Scroll cue */}
           <div data-scroll-cue className="flex flex-col items-center gap-2" style={{ opacity: 0 }}>
-            <span className="text-[9px] font-mono uppercase tracking-[0.3em]" style={{ color: 'rgba(255,255,255,0.18)' }}>
+            <span className="text-[9px] font-mono uppercase tracking-[0.3em]" style={{ color: isDark ? 'rgba(255,255,255,0.18)' : 'var(--txff)' }}>
               scroll
             </span>
-            <div className="relative h-8 w-px overflow-hidden" style={{ background: 'rgba(255,255,255,0.07)' }}>
+            <div className="relative h-8 w-px overflow-hidden" style={{ background: isDark ? 'rgba(255,255,255,0.07)' : 'var(--bd)' }}>
               <div
                 className="scroll-bar absolute top-0 left-0 w-full h-1/2"
                 style={{ background: 'linear-gradient(to bottom, transparent, rgba(68,114,212,0.9))' }}
@@ -978,7 +992,7 @@ export function SciencePage() {
 
         {/* Bottom fade into page bg */}
         <div
-          className="absolute bottom-0 left-0 right-0 h-28 pointer-events-none"
+          className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none"
           style={{ background: 'linear-gradient(to bottom, transparent, var(--pg))' }}
         />
       </section>
@@ -1082,8 +1096,8 @@ export function SciencePage() {
         />
       </div>
 
-      {/* ══ STAT 1 — full-bleed dark ══════════════════════════════════════════ */}
-      <StatCallout de={de} stat="2°C"
+      {/* ══ STAT 1 ══════════════════════════════════════════════════════════════ */}
+      <StatCallout de={de} isDark={isDark} stat="2°C"
         ctxDe="Erstarrungsfenster — Basis jeder Batch-Konsistenz"
         ctxEn="Solidification window — foundation of every batch" />
 
@@ -1160,8 +1174,8 @@ export function SciencePage() {
         />
       </div>
 
-      {/* ══ STAT 2 — full-bleed dark ══════════════════════════════════════════ */}
-      <StatCallout de={de} stat="5.6×"
+      {/* ══ STAT 2 ══════════════════════════════════════════════════════════════ */}
+      <StatCallout de={de} isDark={isDark} stat="5.6×"
         ctxDe="Dichteunterschied MoS₂ zu Paraffin — deshalb ist Dispergierung unverzichtbar"
         ctxEn="Density ratio MoS₂ to paraffin — why dispersion is non-negotiable" />
 
@@ -1190,8 +1204,8 @@ export function SciencePage() {
         />
       </div>
 
-      {/* ══ STAT 3 — full-bleed dark ══════════════════════════════════════════ */}
-      <StatCallout de={de} stat="μ 0.03"
+      {/* ══ STAT 3 ══════════════════════════════════════════════════════════════ */}
+      <StatCallout de={de} isDark={isDark} stat="μ 0.03"
         ctxDe="Reibungskoeffizient unter Grenzschmierung — einer der niedrigsten Werte im Vergleich"
         ctxEn="Friction coefficient under boundary lubrication — among the lowest in comparison" />
 
@@ -1261,19 +1275,22 @@ export function SciencePage() {
         />
       </div>
 
-      {/* ══ RESULTS — dark section ════════════════════════════════════════════ */}
+      {/* ══ RESULTS ═══════════════════════════════════════════════════════════ */}
       <section
-        style={{ background: '#07070A', borderTop: '1px solid rgba(255,255,255,0.08)' }}
+        style={{
+          background: isDark ? '#07070A' : 'var(--sf2)',
+          borderTop: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid var(--bd)',
+        }}
       >
         <div className={`${W} py-24`}>
           <div className="text-center mb-14">
             <p className="text-[10px] font-medium uppercase tracking-[0.25em] mb-3" style={{ color: '#4472D4' }}>
               {de ? 'Das Ergebnis' : 'The Result'}
             </p>
-            <h2 className="font-serif-display text-3xl sm:text-4xl font-bold leading-tight" style={{ color: '#FAFAFA' }}>
+            <h2 className="font-serif-display text-3xl sm:text-4xl font-bold leading-tight" style={{ color: isDark ? '#FAFAFA' : 'var(--tx1)' }}>
               {de ? 'Was die Formel leistet' : 'What the formula delivers'}
             </h2>
-            <p className="mt-4 text-[14px] max-w-md mx-auto" style={{ color: 'rgba(255,255,255,0.38)' }}>
+            <p className="mt-4 text-[14px] max-w-md mx-auto" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'var(--txm)' }}>
               {de
                 ? 'Sechs Entscheidungen. Kein Kompromiss in der Kette.'
                 : 'Six decisions. No compromise in the chain.'}
@@ -1308,24 +1325,30 @@ export function SciencePage() {
         </div>
       </section>
 
-      {/* ══ CTA — dark gradient ═══════════════════════════════════════════════ */}
-      <section style={{ background: 'linear-gradient(160deg, #07070A 0%, #0B1830 55%, #07070A 100%)', borderTop: '1px solid rgba(68,114,212,0.1)' }}>
-        <div className={`${W} py-28 text-center`}>
+      {/* ══ CTA ══════════════════════════════════════════════════════════════ */}
+      <section style={{
+        background: isDark ? 'linear-gradient(160deg, #07070A 0%, #0B1830 55%, #07070A 100%)' : 'var(--sf3)',
+        borderTop: isDark ? '1px solid rgba(68,114,212,0.1)' : '1px solid var(--bd)',
+      }}>
+        <div className={`${W} py-20 text-center`}>
           <p className="text-[10px] font-medium uppercase tracking-[0.28em] mb-4" style={{ color: '#4472D4' }}>
             {de ? 'Bereit?' : 'Ready?'}
           </p>
-          <h2 className="font-serif-display text-2xl sm:text-3xl font-bold mb-4 leading-tight" style={{ color: '#FAFAFA' }}>
+          <h2 className="font-serif-display text-2xl sm:text-3xl font-bold mb-4 leading-tight" style={{ color: isDark ? '#FAFAFA' : 'var(--tx1)' }}>
             {de ? 'Die Formel auf deiner Kette.' : 'Put the formula on your chain.'}
           </h2>
-          <p className="text-[14px] mb-10 max-w-sm mx-auto" style={{ color: 'rgba(255,255,255,0.38)' }}>
+          <p className="text-[14px] mb-10 max-w-sm mx-auto" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'var(--txm)' }}>
             {de
               ? 'Waxcelerate Pro und Classic direkt über eBay — mit vollem Käuferschutz.'
               : 'Waxcelerate Pro and Classic via eBay — with full buyer protection.'}
           </p>
           <Link
             to="/"
-            className="inline-flex items-center gap-2.5 px-8 py-4 rounded-full font-semibold text-[14px] text-white transition-opacity hover:opacity-80"
-            style={{ background: 'linear-gradient(135deg,#1A3080,#2A5499)' }}
+            className="inline-flex items-center gap-2.5 px-8 py-4 rounded-full font-semibold text-[14px] transition-opacity hover:opacity-80"
+            style={{
+              background: isDark ? 'linear-gradient(135deg,#1A3080,#2A5499)' : 'var(--cta-bg)',
+              color: isDark ? '#fff' : 'var(--cta-fg)',
+            }}
           >
             <ArrowLeft className="w-4 h-4" />
             {de ? 'Zurück zu den Produkten' : 'Back to products'}
