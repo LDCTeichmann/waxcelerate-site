@@ -631,19 +631,22 @@ function ParticleSuspension({ de }: { de: boolean }) {
 }
 
 // ─── Friction bars ────────────────────────────────────────────────────────────
+// Scale: 0 → SCALE_MAX; shorter bar = lower μ = better performance
+const FRICTION_SCALE = 0.26;
+const FRICTION_BARS = [
+  { label: 'Waxcelerate Pro',     tag: 'PRO' as const, muLo: 0.03, muHi: 0.06, best: true  },
+  { label: 'Waxcelerate Classic',                       muLo: 0.05, muHi: 0.07, best: true  },
+  { labelDe: 'Graphit-Heißwachs', labelEn: 'Graphite hot wax', muLo: 0.08, muHi: 0.12, best: false },
+  { labelDe: 'Kettenöl (nass)',   labelEn: 'Chain oil (wet)',   muLo: 0.10, muHi: 0.16, best: false, dim: true },
+];
+
 function FrictionBars({ de }: { de: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
-  const bars = [
-    { label: 'Waxcelerate Pro', tag: 'PRO', desc: 'μ 0.03–0.06', pct: 100, hi: true },
-    { label: 'Waxcelerate Classic',          desc: 'μ 0.05–0.07', pct: 86,  hi: true },
-    { labelDe: 'Graphit-Heißwachs', labelEn: 'Graphite wax',    desc: 'μ 0.08–0.12', pct: 60,  hi: false },
-    { labelDe: 'Kettenöl (nass)',   labelEn: 'Chain oil (wet)', desc: 'μ 0.18–0.25', pct: 15,  hi: false, dim: true },
-  ];
   useEffect(() => {
     const ctx = gsap.context(() => {
       ref.current?.querySelectorAll('.fb').forEach(bar => {
-        const pct = parseFloat((bar as HTMLElement).dataset.w!) / 100;
-        gsap.fromTo(bar, { scaleX: 0 }, { scaleX: pct, duration: 1, ease: 'power3.out', transformOrigin: 'left center', scrollTrigger: { trigger: ref.current, start: 'top 80%', once: true } });
+        const w = parseFloat((bar as HTMLElement).dataset.w!);
+        gsap.fromTo(bar, { scaleX: 0 }, { scaleX: w / 100, duration: 1, ease: 'power3.out', transformOrigin: 'left center', scrollTrigger: { trigger: ref.current, start: 'top 80%', once: true } });
       });
     }, ref);
     return () => ctx.revert();
@@ -651,33 +654,65 @@ function FrictionBars({ de }: { de: boolean }) {
 
   return (
     <div className="w-full rounded-2xl p-5" style={{ ...DARK_CARD, ...DARK_DOT_GRID }}>
-      <p className="text-[10px] uppercase tracking-[0.2em] mb-5" style={{ color: 'rgba(255,255,255,0.38)' }}>
-        {de ? 'Reibungskoeffizient μ — Grenzschmierung' : 'Friction coefficient μ — boundary lubrication'}
+      <div className="flex items-baseline justify-between mb-1">
+        <p className="text-[10px] uppercase tracking-[0.2em]" style={{ color: 'rgba(255,255,255,0.38)' }}>
+          {de ? 'Reibungskoeffizient μ' : 'Friction coefficient μ'}
+        </p>
+        <span className="text-[9px]" style={{ color: 'rgba(255,255,255,0.22)' }}>
+          {de ? '← kürzer = weniger Reibung' : '← shorter = less friction'}
+        </span>
+      </div>
+      <p className="text-[9px] font-mono mb-5" style={{ color: 'rgba(255,255,255,0.18)' }}>
+        {de ? 'Grenzschmierung · 50–300 MPa Kontaktdruck' : 'Boundary lubrication · 50–300 MPa contact pressure'}
       </p>
       <div ref={ref} className="space-y-3.5">
-        {bars.map((b, i) => {
+        {FRICTION_BARS.map((b, i) => {
           const label = 'label' in b ? b.label : (de ? b.labelDe : b.labelEn);
+          const hiPct = Math.round((b.muHi / FRICTION_SCALE) * 100);
+          const loPct = Math.round((b.muLo / FRICTION_SCALE) * 100);
+          const isDim = 'dim' in b && b.dim;
           return (
             <div key={i}>
               <div className="flex justify-between items-center mb-1.5">
-                <span className="text-[12px] font-medium" style={{ color: b.hi ? 'rgba(255,255,255,0.90)' : 'rgba(255,255,255,0.55)' }}>
+                <span className="text-[12px] font-medium" style={{ color: b.best ? 'rgba(255,255,255,0.90)' : 'rgba(255,255,255,0.55)' }}>
                   {label}
-                  {'tag' in b && b.tag && (
+                  {'tag' in b && (
                     <span className="ml-1.5 text-[8px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded" style={{ background: 'linear-gradient(135deg,#1A3080,#2A5499)', color: 'rgba(255,255,255,0.9)' }}>
                       {b.tag}
                     </span>
                   )}
                 </span>
-                <span className="text-[11px] font-mono" style={{ color: b.hi ? 'rgba(255,255,255,0.72)' : 'dim' in b && b.dim ? 'rgba(255,255,255,0.28)' : 'rgba(255,255,255,0.40)' }}>{b.desc}</span>
+                <span className="text-[11px] font-mono" style={{ color: b.best ? 'rgba(255,255,255,0.72)' : isDim ? 'rgba(255,255,255,0.28)' : 'rgba(255,255,255,0.40)' }}>
+                  μ {b.muLo.toFixed(2)}–{b.muHi.toFixed(2)}
+                </span>
               </div>
-              <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.11)' }}>
-                <div className="fb h-full w-full rounded-full" data-w={b.pct}
-                  style={{ background: b.hi ? (b.pct === 100 ? 'linear-gradient(90deg,#1A3080,#6A8AE8)' : 'linear-gradient(90deg,#1A3C6E,#2A5499)') : ('dim' in b && b.dim) ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.28)', transformOrigin: 'left center', transform: 'scaleX(0)' }}
-                />
+              <div className="relative h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.11)' }}>
+                {/* solid region: 0 → lo */}
+                <div className="absolute top-0 left-0 h-full"
+                  style={{
+                    width: `${loPct}%`,
+                    background: b.best ? (i === 0 ? '#1A3080' : '#1A3C6E') : isDim ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.16)',
+                  }} />
+                {/* animated range region: lo → hi */}
+                <div className="fb absolute top-0 h-full rounded-r-full" data-w={hiPct - loPct}
+                  style={{
+                    left: `${loPct}%`,
+                    width: `${hiPct - loPct}%`,
+                    background: b.best ? (i === 0 ? 'linear-gradient(90deg,#2A5499,#6A8AE8)' : 'linear-gradient(90deg,#2A5499,#4472D4)') : isDim ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.28)',
+                    transformOrigin: 'left center',
+                    transform: 'scaleX(0)',
+                  }} />
               </div>
             </div>
           );
         })}
+      </div>
+      <div className="flex justify-between mt-3 pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        {[0, 0.05, 0.10, 0.15, 0.20, 0.25].map(v => (
+          <span key={v} className="text-[8px] font-mono" style={{ color: 'rgba(255,255,255,0.20)' }}>
+            {v === 0 ? '0' : v.toFixed(2)}
+          </span>
+        ))}
       </div>
     </div>
   );
@@ -718,6 +753,7 @@ function Insight({ children }: { children: React.ReactNode }) {
 // ─── Chapter ──────────────────────────────────────────────────────────────────
 interface ChapterProps {
   num: string;
+  anchorId?: string;
   catDe: string; catEn: string;
   titleDe: string; titleEn: string;
   ledeDe: string; ledeEn: string;
@@ -729,7 +765,7 @@ interface ChapterProps {
   de: boolean;
 }
 
-function Chapter({ num, catDe, catEn, titleDe, titleEn, ledeDe, ledeEn, bodyDe, bodyEn, insightDe, insightEn, visual, extraVisual, flip, de }: ChapterProps) {
+function Chapter({ num, anchorId, catDe, catEn, titleDe, titleEn, ledeDe, ledeEn, bodyDe, bodyEn, insightDe, insightEn, visual, extraVisual, flip, de }: ChapterProps) {
   const ref     = useRef<HTMLDivElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
@@ -758,7 +794,7 @@ function Chapter({ num, catDe, catEn, titleDe, titleEn, ledeDe, ledeEn, bodyDe, 
   }, [open]);
 
   return (
-    <div ref={ref} className="mb-24 lg:mb-32" style={{ opacity: 0 }} data-chapter={num}>
+    <div ref={ref} id={anchorId} className="mb-24 lg:mb-32" style={{ opacity: 0 }} data-chapter={num}>
 
       {/* Eyebrow — refined pill badge */}
       <div className="flex items-center gap-3 mb-8">
@@ -939,7 +975,7 @@ export function SciencePage() {
             : 'radial-gradient(ellipse 72% 58% at 50% 42%, rgba(26,60,110,0.05) 0%, transparent 65%)' }}
         />
 
-        <div className="relative z-10 text-center px-4 sm:px-8 py-16">
+        <div className="relative z-10 text-center px-4 sm:px-8 py-10">
           {/* Classification badge */}
           <div data-hero-badge className="inline-flex items-center gap-3 mb-6" style={{ opacity: 0 }}>
             <div className="h-px w-8" style={{ background: isDark ? 'rgba(68,114,212,0.45)' : 'rgba(26,60,110,0.25)' }} />
@@ -998,7 +1034,7 @@ export function SciencePage() {
       </section>
 
       {/* ══ COMPOSITION OVERVIEW ══════════════════════════════════════════════ */}
-      <div className={`${W} py-20`}>
+      <div className={`${W} py-14`}>
         <div className="rounded-2xl p-8 sm:p-10" style={{ background: 'linear-gradient(160deg,var(--card-from) 0%,var(--card-to) 100%)', border: '1px solid var(--bd)', ...DOT_GRID }}>
           <div className="grid grid-cols-1 md:grid-cols-[1fr_1.2fr] gap-10 lg:gap-16 items-start">
             <div>
@@ -1065,7 +1101,7 @@ export function SciencePage() {
         </div>
 
         {/* Section divider */}
-        <div className="flex items-center gap-5 my-24">
+        <div className="flex items-center gap-5 my-14">
           <div className="flex-1 h-px" style={{ background: 'var(--bd)' }} />
           <span className="text-[9px] uppercase tracking-[0.3em]" style={{ color: 'var(--txff)' }}>
             {de ? 'Kapitel für Kapitel' : 'Chapter by chapter'}
@@ -1074,7 +1110,7 @@ export function SciencePage() {
         </div>
 
         {/* ══ CH 01 ══════════════════════════════════════════════════════════ */}
-        <Chapter num="01" de={de}
+        <Chapter num="01" de={de} anchorId="kristallstruktur"
           catDe="Die Basis" catEn="The Foundation"
           titleDe="Das kristalline Gerüst"
           titleEn="The crystalline scaffold"
@@ -1103,7 +1139,7 @@ export function SciencePage() {
 
       {/* ══ CH 02 + CH 03 ════════════════════════════════════════════════════ */}
       <div className={`${W} pt-20`}>
-        <Chapter num="02" de={de} flip
+        <Chapter num="02" de={de} flip anchorId="matrix"
           catDe="Härtemodul" catEn="Hardener Module"
           titleDe="Synthetisch reines Härtewachs"
           titleEn="Synthetically pure hard wax"
@@ -1124,7 +1160,7 @@ export function SciencePage() {
           visual={<TempRange de={de} />}
         />
 
-        <Chapter num="03" de={de}
+        <Chapter num="03" de={de} anchorId="winterformel"
           catDe="Kälteflexibilität" catEn="Cold Flexibility"
           titleDe="Mikrokristallines Wachs"
           titleEn="Microcrystalline wax"
@@ -1211,7 +1247,7 @@ export function SciencePage() {
 
       {/* ══ CH 05 + CH 06 ════════════════════════════════════════════════════ */}
       <div className={`${W} pt-20 pb-20`}>
-        <Chapter num="05" de={de}
+        <Chapter num="05" de={de} anchorId="sedimentation"
           catDe="Dispergiersystem" catEn="Dispersant System"
           titleDe="Amphiphiler Fettsäureester"
           titleEn="Amphiphilic fatty acid ester"
@@ -1277,6 +1313,7 @@ export function SciencePage() {
 
       {/* ══ RESULTS ═══════════════════════════════════════════════════════════ */}
       <section
+        id="reibung"
         style={{
           background: isDark ? '#07070A' : 'var(--sf2)',
           borderTop: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid var(--bd)',
@@ -1299,26 +1336,49 @@ export function SciencePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <FrictionBars de={de} />
             <div className="w-full rounded-2xl p-5" style={{ ...DARK_CARD, ...DARK_DOT_GRID }}>
-              <p className="text-[10px] uppercase tracking-[0.2em] mb-5" style={{ color: 'rgba(255,255,255,0.38)' }}>
-                {de ? 'Konsistenz — Block zu Block' : 'Consistency — block to block'}
+              <p className="text-[10px] uppercase tracking-[0.2em] mb-1" style={{ color: 'rgba(255,255,255,0.38)' }}>
+                {de ? 'MoS₂-Verteilung im Gussblock' : 'MoS₂ distribution in cast block'}
               </p>
-              <div className="space-y-4">
-                {[{ de: 'Erster Block', en: 'First block' }, { de: 'Zehnter Block', en: 'Tenth block' }, { de: 'Zwanzigster Block', en: 'Twentieth block' }].map((item, i) => (
-                  <div key={i}>
-                    <div className="flex justify-between mb-1.5">
-                      <span className="text-[12px]" style={{ color: 'rgba(255,255,255,0.62)' }}>{de ? item.de : item.en}</span>
-                      <span className="text-[11px] font-medium" style={{ color: '#4472D4' }}>{de ? 'Identisch' : 'Identical'}</span>
+              <p className="text-[9px] font-mono mb-4" style={{ color: 'rgba(255,255,255,0.18)' }}>
+                {de ? 'Querschnitt — Oben / Mitte / Unten' : 'Cross-section — Top / Mid / Bottom'}
+              </p>
+              {/* Block cross-section: 3 slices, uniform particle grid */}
+              <div className="grid grid-cols-3 gap-2 mb-4">
+                {(de
+                  ? ['Scheibe — Oben', 'Scheibe — Mitte', 'Scheibe — Unten']
+                  : ['Slice — Top', 'Slice — Mid', 'Slice — Bottom']
+                ).map((label, si) => (
+                  <div key={si} className="flex flex-col items-center gap-2">
+                    <div className="w-full rounded-lg p-2.5" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                      <div className="grid grid-cols-4 gap-1 justify-items-center">
+                        {[...Array(12)].map((_, j) => (
+                          <div key={j} className="w-1.5 h-1.5 rounded-full" style={{ background: '#2A5499', opacity: 0.55 + (j % 4) * 0.12 }} />
+                        ))}
+                      </div>
                     </div>
-                    <div className="h-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.11)' }}>
-                      <div className="h-full w-full rounded-full" style={{ background: 'linear-gradient(90deg,#1A3080,#4472D4)' }} />
-                    </div>
+                    <span className="text-[8px] font-mono text-center leading-tight" style={{ color: 'rgba(255,255,255,0.28)' }}>{label}</span>
                   </div>
                 ))}
               </div>
-              <p className="text-[11px] mt-5 pt-4 leading-relaxed" style={{ color: 'rgba(255,255,255,0.50)', borderTop: '1px solid rgba(255,255,255,0.10)' }}>
+              {/* Key stats */}
+              <div className="grid grid-cols-2 gap-2 mb-4">
+                <div className="text-center p-2 rounded-lg" style={{ background: 'rgba(26,60,110,0.15)', border: '1px solid rgba(68,114,212,0.15)' }}>
+                  <p className="font-serif-display italic text-[18px] font-bold" style={{ color: '#6A8AE8', textShadow: '0 0 16px rgba(68,114,212,0.45)' }}>
+                    {de ? 'kein Gradient' : 'no gradient'}
+                  </p>
+                  <p className="text-[9px] mt-0.5" style={{ color: 'rgba(255,255,255,0.32)' }}>{de ? 'von oben bis unten' : 'top to bottom'}</p>
+                </div>
+                <div className="text-center p-2 rounded-lg" style={{ background: 'rgba(26,60,110,0.15)', border: '1px solid rgba(68,114,212,0.15)' }}>
+                  <p className="font-serif-display italic text-[18px] font-bold" style={{ color: '#6A8AE8', textShadow: '0 0 16px rgba(68,114,212,0.45)' }}>
+                    {de ? 'Block 1 = 20' : 'Block 1 = 20'}
+                  </p>
+                  <p className="text-[9px] mt-0.5" style={{ color: 'rgba(255,255,255,0.32)' }}>{de ? 'identische Performance' : 'identical performance'}</p>
+                </div>
+              </div>
+              <p className="text-[11px] pt-3.5 leading-relaxed" style={{ color: 'rgba(255,255,255,0.45)', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
                 {de
-                  ? 'Das Dispergiersystem stellt sicher, dass MoS₂ gleichmäßig im Gussblock verteilt ist — von der ersten bis zur letzten Scheibe.'
-                  : 'The dispersant system ensures MoS₂ is uniformly distributed throughout the cast block — from first slice to last.'}
+                  ? 'MoS₂ ist 5,6× dichter als Paraffin. Ohne Dispergiermittel entsteht ein messbarer Konzentrationsgradient — mehr Partikel unten, weniger oben. Der Fettsäureester verhindert genau das.'
+                  : 'MoS₂ is 5.6× denser than paraffin. Without dispersant a measurable concentration gradient forms — more particles at the bottom, fewer at the top. The fatty acid ester prevents exactly this.'}
               </p>
             </div>
           </div>
