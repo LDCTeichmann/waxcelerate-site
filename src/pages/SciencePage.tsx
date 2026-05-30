@@ -56,16 +56,20 @@ const CARD: React.CSSProperties = {
 };
 
 // For components inside forced-dark sections — always dark regardless of theme
-// @ts-ignore -- reserved for future use
 const DARK_CARD: React.CSSProperties = {
   background: 'rgba(255,255,255,0.04)',
   border: '1px solid rgba(255,255,255,0.09)',
 };
 
-// @ts-ignore -- reserved for future use
 const DARK_DOT_GRID: React.CSSProperties = {
   backgroundImage: 'radial-gradient(circle, rgba(100,140,220,0.12) 1px, transparent 1px)',
   backgroundSize: '22px 22px',
+};
+
+// Always-dark card for SVG visualizations — works in both light and dark mode
+const VIZ_CARD: React.CSSProperties = {
+  background: '#0D1117',
+  border: '1px solid rgba(68,114,212,0.20)',
 };
 
 // Shared container width
@@ -289,9 +293,9 @@ function HexMoS2({ de }: { de: boolean }) {
 
   return (
     <div className="w-full rounded-2xl overflow-hidden p-5 cursor-default select-none"
-      style={{ ...CARD, ...DOT_GRID, transition: 'box-shadow 0.35s ease', boxShadow: hov ? '0 0 0 1px rgba(68,114,212,0.3), 0 8px 32px rgba(26,60,110,0.14)' : 'none' }}
+      style={{ ...VIZ_CARD, ...DARK_DOT_GRID, transition: 'box-shadow 0.35s ease', boxShadow: hov ? '0 0 0 1px rgba(68,114,212,0.4), 0 8px 32px rgba(26,60,110,0.3)' : 'none' }}
       onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}>
-      <p className="text-[10px] uppercase tracking-[0.2em] mb-4 text-center" style={{ color: 'var(--txff)' }}>
+      <p className="text-[10px] uppercase tracking-[0.2em] mb-4 text-center" style={{ color: 'rgba(255,255,255,0.38)' }}>
         {de ? '2H-MoS₂ — Schichtstruktur (Seitenansicht)' : '2H-MoS₂ — Layer structure (side view)'}
       </p>
       <svg viewBox="0 0 395 168" className="w-full" style={{ overflow: 'visible' }}>
@@ -300,10 +304,10 @@ function HexMoS2({ de }: { de: boolean }) {
             <line key={i} x1={b.x1} y1={b.y1} x2={b.x2} y2={b.y2} stroke="rgba(42,84,153,0.22)" strokeWidth="1.2" />
           ))}
           {S_X.map((x, i) => <circle key={`ts1${i}`} cx={x} cy={TOP_S1} r="5" fill="#A8C0F4" opacity="0.92" />)}
-          {MO_X.map((x, i) => <circle key={`tmo${i}`} cx={x} cy={TOP_MO} r="7.5" fill="#1A3C6E" style={{ filter: 'drop-shadow(0 0 5px rgba(26,60,110,0.55))' }} />)}
+          {MO_X.map((x, i) => <circle key={`tmo${i}`} cx={x} cy={TOP_MO} r="7.5" fill="#2A5499" style={{ filter: 'drop-shadow(0 0 5px rgba(68,114,212,0.60))' }} />)}
           {S_X.map((x, i) => <circle key={`ts2${i}`} cx={x} cy={TOP_S2} r="5" fill="#A8C0F4" opacity="0.92" />)}
           <text x="385" y={TOP_S1 + 4} fontSize="9" fill="rgba(168,192,244,0.65)" fontFamily="monospace" textAnchor="start">S</text>
-          <text x="385" y={TOP_MO + 4} fontSize="9" fill="rgba(42,84,153,0.8)"  fontFamily="monospace" textAnchor="start">Mo</text>
+          <text x="385" y={TOP_MO + 4} fontSize="9" fill="rgba(130,170,240,0.85)"  fontFamily="monospace" textAnchor="start">Mo</text>
           <text x="385" y={TOP_S2 + 4} fontSize="9" fill="rgba(168,192,244,0.65)" fontFamily="monospace" textAnchor="start">S</text>
         </g>
         <line x1="8" y1={GAP_Y} x2="372" y2={GAP_Y} stroke="rgba(26,60,110,0.12)" strokeWidth="1" strokeDasharray="5 4" />
@@ -325,24 +329,24 @@ function HexMoS2({ de }: { de: boolean }) {
       <div className="flex justify-center gap-6 mt-4 mb-2">
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded-full" style={{ background: '#A8C0F4' }} />
-          <span className="text-[11px] font-mono" style={{ color: 'var(--txf)' }}>S (Schwefel)</span>
+          <span className="text-[11px] font-mono" style={{ color: 'rgba(255,255,255,0.55)' }}>S (Schwefel)</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-5 h-5 rounded-full" style={{ background: '#1A3C6E', boxShadow: '0 0 6px rgba(26,60,110,0.5)' }} />
-          <span className="text-[11px] font-mono" style={{ color: 'var(--txf)' }}>Mo (Molybdän)</span>
+          <div className="w-5 h-5 rounded-full" style={{ background: '#2A5499', boxShadow: '0 0 6px rgba(68,114,212,0.5)' }} />
+          <span className="text-[11px] font-mono" style={{ color: 'rgba(255,255,255,0.55)' }}>Mo (Molybdän)</span>
         </div>
       </div>
-      <p className="text-center text-[10px] transition-opacity duration-300" style={{ color: 'var(--txff)', opacity: hov ? 1 : 0.4 }}>
+      <p className="text-center text-[10px] transition-opacity duration-300" style={{ color: 'rgba(255,255,255,0.45)', opacity: hov ? 1 : 0.4 }}>
         {de ? '↑ Hover — Scherschicht wird sichtbar' : '↑ Hover — shear layer becomes visible'}
       </p>
-      <div className="mt-4 pt-4 grid grid-cols-2 gap-3" style={{ borderTop: '1px solid var(--bd2)' }}>
+      <div className="mt-4 pt-4 grid grid-cols-2 gap-3" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
         <div className="text-center">
-          <p className="font-serif-display italic text-[24px] font-bold" style={{ color: '#2A5499', textShadow: '0 0 20px rgba(42,84,153,0.5)' }}>μ 0.03</p>
-          <p className="text-[10px] mt-0.5" style={{ color: 'var(--txff)' }}>{de ? 'Reibungskoeff. Grenzschmierung' : 'Friction coeff. boundary lubrication'}</p>
+          <p className="font-serif-display italic text-[24px] font-bold" style={{ color: '#6A8AE8', textShadow: '0 0 20px rgba(68,114,212,0.55)' }}>μ 0.03</p>
+          <p className="text-[10px] mt-0.5" style={{ color: 'rgba(255,255,255,0.40)' }}>{de ? 'Reibungskoeff. Grenzschmierung' : 'Friction coeff. boundary lubrication'}</p>
         </div>
         <div className="text-center">
-          <p className="font-serif-display italic text-[24px] font-bold text-wx-tx1">&lt;5 µm</p>
-          <p className="text-[10px] mt-0.5" style={{ color: 'var(--txff)' }}>{de ? 'Partikelgröße d₅₀' : 'Particle size d₅₀'}</p>
+          <p className="font-serif-display italic text-[24px] font-bold" style={{ color: 'rgba(255,255,255,0.88)' }}>&lt;5 µm</p>
+          <p className="text-[10px] mt-0.5" style={{ color: 'rgba(255,255,255,0.40)' }}>{de ? 'Partikelgröße d₅₀' : 'Particle size d₅₀'}</p>
         </div>
       </div>
     </div>
@@ -385,9 +389,9 @@ function TransferFilm({ de }: { de: boolean }) {
 
   return (
     <div ref={ref} className="w-full rounded-2xl overflow-hidden p-5"
-      style={{ ...CARD, ...DOT_GRID, transition: 'box-shadow 0.35s ease', boxShadow: hov ? '0 0 0 1px rgba(68,114,212,0.3), 0 8px 32px rgba(26,60,110,0.14)' : 'none' }}
+      style={{ ...VIZ_CARD, ...DARK_DOT_GRID, transition: 'box-shadow 0.35s ease', boxShadow: hov ? '0 0 0 1px rgba(68,114,212,0.4), 0 8px 32px rgba(26,60,110,0.30)' : 'none' }}
       onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}>
-      <p className="text-[10px] uppercase tracking-[0.2em] mb-4 text-center" style={{ color: 'var(--txff)' }}>
+      <p className="text-[10px] uppercase tracking-[0.2em] mb-4 text-center" style={{ color: 'rgba(255,255,255,0.38)' }}>
         {de ? 'Transferfilm-Bildung unter Kontaktdruck' : 'Transfer film formation under contact pressure'}
       </p>
       <svg viewBox="0 0 440 185" className="w-full" style={{ overflow: 'visible' }}>
@@ -418,15 +422,15 @@ function TransferFilm({ de }: { de: boolean }) {
           {de ? 'Transferfilm — Fe-S tribochemische Bindung' : 'Transfer film — Fe-S tribochemical bond'}
         </text>
       </svg>
-      <div className="mt-3 pt-3 grid grid-cols-3 gap-2 text-center" style={{ borderTop: '1px solid var(--bd2)' }}>
+      <div className="mt-3 pt-3 grid grid-cols-3 gap-2 text-center" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
         {[
           { de: '50–300 MPa',  en: '50–300 MPa',  sub: de ? 'Kontaktdruck' : 'Contact pressure' },
           { de: '2–5 nm',     en: '2–5 nm',      sub: de ? 'Filmdicke'    : 'Film thickness'   },
           { de: 'Fe–S Bindung', en: 'Fe–S bond',  sub: de ? 'Verankerung'  : 'Anchoring'       },
         ].map((s, i) => (
           <div key={i}>
-            <p className="font-mono text-[12px] font-semibold text-wx-tx1">{s.de}</p>
-            <p className="text-[9px] mt-0.5" style={{ color: 'var(--txff)' }}>{s.sub}</p>
+            <p className="font-mono text-[12px] font-semibold" style={{ color: 'rgba(255,255,255,0.88)' }}>{s.de}</p>
+            <p className="text-[9px] mt-0.5" style={{ color: 'rgba(255,255,255,0.38)' }}>{s.sub}</p>
           </div>
         ))}
       </div>
@@ -479,20 +483,20 @@ function CrystalLattice() {
   }, []);
 
   return (
-    <div className="w-full rounded-2xl overflow-hidden p-5" style={{ ...CARD, ...DOT_GRID }}>
+    <div className="w-full rounded-2xl overflow-hidden p-5" style={{ ...VIZ_CARD, ...DARK_DOT_GRID }}>
       <svg ref={svgRef} viewBox="0 0 395 196" className="w-full mb-3" style={{ overflow: 'visible' }}>
         {bonds.map((b, i) => (
-          <line key={i} x1={b.x1} y1={b.y1} x2={b.x2} y2={b.y2} stroke="rgba(42,84,153,0.14)" strokeWidth="0.85" />
+          <line key={i} x1={b.x1} y1={b.y1} x2={b.x2} y2={b.y2} stroke="rgba(68,114,212,0.22)" strokeWidth="0.85" />
         ))}
         {atoms.map((a, i) => (
           <circle
             key={i} className="lat-atom" cx={a.x} cy={a.y} r={a.big ? 5.5 : 3}
-            fill={a.big ? '#1A3C6E' : 'var(--bd)'} opacity={a.big ? 0.88 : 0.6}
-            style={{ filter: a.big ? 'drop-shadow(0 0 5px rgba(26,60,110,0.65))' : 'none' }}
+            fill={a.big ? '#3D67CA' : 'rgba(100,140,220,0.28)'} opacity={a.big ? 0.88 : 0.7}
+            style={{ filter: a.big ? 'drop-shadow(0 0 5px rgba(68,114,212,0.60))' : 'none' }}
           />
         ))}
       </svg>
-      <p className="text-center text-[9px] uppercase tracking-[0.2em]" style={{ color: 'var(--txff)' }}>
+      <p className="text-center text-[9px] uppercase tracking-[0.2em]" style={{ color: 'rgba(255,255,255,0.35)' }}>
         Lamellare Kristalldomänen · C₂₀–C₃₆
       </p>
     </div>
