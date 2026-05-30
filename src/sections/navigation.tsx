@@ -91,9 +91,9 @@ export function Navigation() {
               className="flex items-center gap-2.5"
             >
               <img
-                src="/images/logo.jpg"
+                src="/images/No BG No Sign Logo.png"
                 alt="Waxcelerate"
-                className="w-auto rounded-lg"
+                className="w-auto"
                 style={{ height: '36px', width: 'auto' }}
               />
               <span className="font-sans text-sm font-bold tracking-wide text-wx-tx1">
@@ -200,7 +200,7 @@ export function Navigation() {
       >
         {/* Top bar */}
         <div className="flex items-center justify-between px-5 h-16 border-b border-wx-bd/20 flex-shrink-0">
-          <img src="/images/logo.jpg" alt="Waxcelerate" className="h-9 w-auto rounded-lg" />
+          <img src="/images/No BG No Sign Logo.png" alt="Waxcelerate" className="h-9 w-auto" />
           <button
             onClick={() => setIsMobileMenuOpen(false)}
             className="p-2 text-wx-tx2 hover:text-wx-tx1 transition-colors"

@@ -1,11 +1,8 @@
 import { ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/hooks/useLanguage';
-import { useTheme } from '@/hooks/useTheme';
-
 export function Footer() {
   const { t, lang } = useLanguage();
-  const { theme } = useTheme();
   const de = lang === 'de';
 
   const scrollToSection = (href: string) => {
@@ -28,7 +25,7 @@ export function Footer() {
             {/* Brand — full width on mobile, 2/5 on desktop */}
             <div className="col-span-2 lg:col-span-1 max-w-xs">
               <div className="flex items-center gap-2.5 mb-5">
-                <img src="/images/logo.jpg" alt="Waxcelerate" className="h-8 w-8 rounded-lg object-cover" style={{ mixBlendMode: theme === 'noir' ? 'screen' : 'normal' }} />
+                <img src="/images/No BG No Sign Logo.png" alt="Waxcelerate" className="h-8 w-auto" />
                 <span className="font-sans text-sm font-bold tracking-wide text-wx-tx1">
                   WAXCELERATE
                 </span>
