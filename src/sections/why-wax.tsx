@@ -6,370 +6,338 @@ import { useSectionReveal } from '@/hooks/useAnimation';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { gsap } from '@/lib/gsap';
 
-// ─── CSS keyframes injected once ─────────────────────────────────────────────
+// ─── CSS keyframes ────────────────────────────────────────────────────────────
 const ANIM_STYLES = `
-@keyframes wx-drop-bad {
-  0%   { transform: translateY(0px);   opacity: 1; }
-  55%  { transform: translateY(32px);  opacity: 1; }
-  70%  { transform: translateY(32px);  opacity: 0; }
-  71%  { transform: translateY(0px);   opacity: 0; }
-  85%  { transform: translateY(0px);   opacity: 1; }
-  100% { transform: translateY(0px);   opacity: 1; }
+/* Strip 1 — water droplet falls through gap in coarse wax, hits metal */
+@keyframes wx-drop-gap {
+  0%,10%  { transform: translateY(0);   opacity: 1; }
+  52%     { transform: translateY(38px); opacity: 1; }
+  62%     { transform: translateY(38px); opacity: 0; }
+  63%     { transform: translateY(0);   opacity: 0; }
+  80%,100%{ transform: translateY(0);   opacity: 1; }
 }
-@keyframes wx-rust-pulse {
-  0%,60%  { opacity: 0; r: 0; }
-  75%     { opacity: 1; r: 5; }
-  90%     { opacity: 0.7; r: 4; }
-  100%    { opacity: 0.7; r: 4; }
+/* Rust spot grows in via scale after droplet lands */
+@keyframes wx-rust-grow {
+  0%,55%  { transform: scale(0); opacity: 0; }
+  72%     { transform: scale(1.2); opacity: 0.7; }
+  82%     { transform: scale(1);   opacity: 0.6; }
+  100%    { transform: scale(1);   opacity: 0.6; }
 }
-@keyframes wx-droplet-slide {
-  0%   { transform: translateY(0px) translateX(0px); opacity: 1; }
-  40%  { transform: translateY(10px) translateX(-8px); opacity: 1; }
-  55%  { transform: translateY(10px) translateX(-8px); opacity: 0; }
-  56%  { transform: translateY(0px) translateX(0px);  opacity: 0; }
-  75%  { transform: translateY(0px) translateX(0px);  opacity: 1; }
-  100% { transform: translateY(0px) translateX(0px);  opacity: 1; }
+/* Strip 1 — droplet on dense side slides off surface */
+@keyframes wx-drop-slide {
+  0%,15% { transform: translate(0, 0);   opacity: 1; }
+  48%    { transform: translate(-11px, 9px); opacity: 1; }
+  58%    { transform: translate(-14px, 9px); opacity: 0; }
+  59%    { transform: translate(0, 0);   opacity: 0; }
+  78%,100%{ transform: translate(0, 0); opacity: 1; }
 }
-@keyframes wx-wax-drip {
-  0%   { transform: translateY(0px);  opacity: 0.9; }
-  50%  { transform: translateY(22px); opacity: 0.9; }
-  65%  { transform: translateY(22px); opacity: 0; }
-  66%  { transform: translateY(0px);  opacity: 0; }
-  80%  { transform: translateY(0px);  opacity: 0.9; }
-  100% { transform: translateY(0px);  opacity: 0.9; }
+
+/* Strip 2 — crack line draws itself in, then holds */
+@keyframes wx-crack-draw {
+  0%,20%  { stroke-dashoffset: 20; opacity: 0; }
+  38%     { stroke-dashoffset: 0;  opacity: 1; }
+  80%     { stroke-dashoffset: 0;  opacity: 1; }
+  92%,100%{ stroke-dashoffset: 20; opacity: 0; }
 }
-@keyframes wx-dirt-appear {
-  0%,55%  { opacity: 0; }
-  80%     { opacity: 1; }
-  100%    { opacity: 1; }
+/* Wax chip flies off chain */
+@keyframes wx-chip-off {
+  0%,32%  { transform: translate(0,0) rotate(0deg);   opacity: 0; }
+  38%     { transform: translate(0,0) rotate(0deg);   opacity: 1; }
+  65%     { transform: translate(10px,-8px) rotate(25deg); opacity: 0.9; }
+  75%     { transform: translate(14px,-10px) rotate(35deg); opacity: 0; }
+  76%,100%{ transform: translate(0,0) rotate(0deg);   opacity: 0; }
 }
-@keyframes wx-temp-pulse {
-  0%,100% { opacity: 0.6; }
-  50%     { opacity: 1; }
+/* Right side chain — subtle flex pulse to show elasticity */
+@keyframes wx-flex-pulse {
+  0%,100%{ transform: scaleX(1)   scaleY(1);   }
+  35%    { transform: scaleX(1.03) scaleY(0.97); }
+  65%    { transform: scaleX(0.97) scaleY(1.03); }
 }
-@keyframes wx-chain-shake {
-  0%,100% { transform: translateX(0); }
-  20%     { transform: translateX(-1.5px); }
-  40%     { transform: translateX(1.5px); }
-  60%     { transform: translateX(-1px); }
-  80%     { transform: translateX(1px); }
+
+/* Strip 3 — wax layer thinning (the outer bar shrinks in height) */
+@keyframes wx-wax-thin {
+  0%,10%  { transform: scaleY(1);   }
+  55%     { transform: scaleY(0.38); }
+  70%     { transform: scaleY(0.38); }
+  88%,100%{ transform: scaleY(1);   }
 }
-@keyframes wx-strip-in {
-  from { opacity: 0; transform: translateY(28px); }
-  to   { opacity: 1; transform: translateY(0); }
+/* Wax drip falls from thinning layer */
+@keyframes wx-drip-fall {
+  0%,18%  { transform: translateY(0);   opacity: 0;   }
+  24%     { transform: translateY(0);   opacity: 0.8; }
+  58%     { transform: translateY(28px); opacity: 0.8; }
+  68%     { transform: translateY(28px); opacity: 0;   }
+  69%,100%{ transform: translateY(0);   opacity: 0;   }
+}
+/* Dirt particle appears after wax leaves */
+@keyframes wx-dirt-in {
+  0%,55%  { transform: scale(0); opacity: 0; }
+  72%     { transform: scale(1.1); opacity: 0.75; }
+  82%,100%{ transform: scale(1);   opacity: 0.65; }
 }
 `;
 
-// ─── Crystal Coverage Diagram — Strip 1 ──────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// DIAGRAM 1 — Crystal grain size: why microcrystalline covers metal better
+//
+// Mechanism: coarse paraffin grains leave gaps between them → water reaches
+// bare metal → oxidation. Fine microcrystalline grains pack tightly → no gaps.
+// The animation SHOWS this: droplet falls through gap on left (rust appears),
+// slides off surface on right (no rust).
+// ─────────────────────────────────────────────────────────────────────────────
 function CrystalDiagram() {
+  // Right panel: 18 small grains arranged in 2 rows — tightly packed, no gaps
+  const smallGrains: { cx: number; cy: number; r: number }[] = [];
+  for (let i = 0; i < 10; i++) {
+    smallGrains.push({ cx: 150 + i * 13, cy: 104, r: 5.5 });
+  }
+  for (let i = 0; i < 9; i++) {
+    smallGrains.push({ cx: 156.5 + i * 13, cy: 115, r: 5 });
+  }
+
   return (
-    <svg
-      viewBox="0 0 280 160"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-      style={{ width: '100%', maxWidth: 280, height: 'auto', display: 'block' }}
-    >
-      {/* ── LEFT panel: coarse paraffin ── */}
-      {/* background */}
-      <rect x="0" y="0" width="134" height="160" fill="var(--sf2)" />
+    <svg viewBox="0 0 280 152" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
+      style={{ width: '100%', height: 'auto', display: 'block' }}>
 
-      {/* Label */}
-      <text x="67" y="14" textAnchor="middle" fontSize="7" fontWeight="600"
-        letterSpacing="0.08em" fill="var(--txff)" style={{ textTransform: 'uppercase' }}>
-        Standard-Paraffin
-      </text>
+      {/* ── panels ── */}
+      <rect x="0"   y="0" width="138" height="152" fill="var(--sf2)" />
+      <rect x="142" y="0" width="138" height="152" fill="var(--sf2)" />
+      <line x1="140" y1="0" x2="140" y2="152" stroke="var(--bd)" strokeWidth="1" />
 
-      {/* Metal surface line */}
-      <rect x="4" y="130" width="126" height="26" rx="2"
-        fill="var(--bd2)" />
-      <rect x="4" y="130" width="126" height="3"
-        fill="var(--bd)" />
+      {/* ── metal surfaces ── */}
+      <rect x="0"   y="128" width="138" height="24" fill="var(--bd2)" />
+      <rect x="0"   y="128" width="138" height="2.5" fill="var(--bd)" />
+      <rect x="142" y="128" width="138" height="24" fill="var(--bd2)" />
+      <rect x="142" y="128" width="138" height="2.5" fill="var(--bd)" />
 
-      {/* Coarse, irregular crystals — big angular shapes with visible gaps */}
-      {/* Crystal 1 */}
-      <polygon points="8,110 28,68 50,110" fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.8" />
-      {/* Crystal 2 */}
-      <polygon points="42,110 58,72 76,110" fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.8" />
-      {/* Crystal 3 */}
-      <polygon points="70,110 84,76 100,110" fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.8" />
-      {/* Crystal 4 */}
-      <polygon points="96,110 110,70 130,110" fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.8" />
-      {/* Gap indicators — small gap lines between crystals visible */}
-      <line x1="40" y1="110" x2="44" y2="126" stroke="var(--bd)" strokeWidth="0.6" strokeDasharray="2,2" />
-      <line x1="68" y1="110" x2="72" y2="126" stroke="var(--bd)" strokeWidth="0.6" strokeDasharray="2,2" />
-      <line x1="94" y1="110" x2="98" y2="126" stroke="var(--bd)" strokeWidth="0.6" strokeDasharray="2,2" />
+      {/* ── LEFT: 4 coarse grains, visible gaps between them ── */}
+      {/* Grain positions chosen so gaps at ~x=38 and ~x=70 are clearly visible */}
+      <ellipse cx="18"  cy="112" rx="16" ry="14" fill="var(--sf3)" stroke="var(--bd)" strokeWidth="1" />
+      <ellipse cx="52"  cy="111" rx="14" ry="15" fill="var(--sf3)" stroke="var(--bd)" strokeWidth="1" />
+      <ellipse cx="85"  cy="113" rx="15" ry="13" fill="var(--sf3)" stroke="var(--bd)" strokeWidth="1" />
+      <ellipse cx="118" cy="111" rx="13" ry="14" fill="var(--sf3)" stroke="var(--bd)" strokeWidth="1" />
+      {/* Down-arrows in the two main gaps to signal "water gets through here" */}
+      <path d="M38,75 L38,95 M34,90 L38,96 L42,90" stroke="var(--bd)" strokeWidth="1.2"
+        strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.5" />
+      <path d="M70,75 L70,95 M66,90 L70,96 L74,90" stroke="var(--bd)" strokeWidth="1.2"
+        strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.5" />
 
-      {/* Water droplet falling through gap — animated */}
-      <g style={{ animation: 'wx-drop-bad 3.6s ease-in-out infinite', animationDelay: '0.3s' }}>
-        {/* droplet body */}
-        <ellipse cx="70" cy="92" rx="4" ry="5.5" fill="#4A90D9" opacity="0.85" />
-        {/* droplet tip */}
-        <polygon points="67,94 73,94 70,100" fill="#4A90D9" opacity="0.85" />
+      {/* Water droplet — falls through gap at x≈38, animates continuously */}
+      <g style={{ animation: 'wx-drop-gap 4s ease-in-out infinite', transformOrigin: '38px 70px' }}>
+        <ellipse cx="38" cy="66" rx="4" ry="5.5" fill="#4A90D9" opacity="0.9" />
+        <polygon points="34,69 42,69 38,76" fill="#4A90D9" opacity="0.9" />
       </g>
 
-      {/* Rust dot at metal surface — appears after droplet lands */}
-      <circle cx="70" cy="133" r="0" fill="#C0392B" opacity="0"
-        style={{ animation: 'wx-rust-pulse 3.6s ease-in-out infinite', animationDelay: '0.3s' }} />
+      {/* Rust spot — appears after droplet reaches metal */}
+      <g style={{ animation: 'wx-rust-grow 4s ease-in-out infinite', transformOrigin: '38px 133px' }}>
+        <circle cx="38" cy="133" r="6" fill="rgba(192,57,43,0.55)" />
+        <circle cx="38" cy="133" r="3" fill="rgba(192,57,43,0.4)" />
+      </g>
 
       {/* ✗ badge */}
-      <rect x="4" y="18" width="16" height="10" rx="2" fill="rgba(192,57,43,0.15)" />
-      <text x="12" y="26" textAnchor="middle" fontSize="6.5" fontWeight="700" fill="#C0392B">✗</text>
+      <circle cx="10" cy="10" r="8" fill="rgba(192,57,43,0.12)" stroke="rgba(192,57,43,0.25)" strokeWidth="1" />
+      <text x="10" y="14" textAnchor="middle" fontSize="9" fontWeight="700" fill="#C0392B">✗</text>
 
-      {/* ── Divider ── */}
-      <line x1="137" y1="4" x2="137" y2="156" stroke="var(--bd)" strokeWidth="0.8" />
+      {/* ── RIGHT: 19 small grains, dense packing — no gaps visible ── */}
+      {smallGrains.map((g, i) => (
+        <ellipse key={i} cx={g.cx} cy={g.cy} rx={g.r} ry={g.r * 0.9}
+          fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.5" />
+      ))}
 
-      {/* ── RIGHT panel: microcrystalline ── */}
-      {/* background */}
-      <rect x="146" y="0" width="134" height="160" fill="var(--sf2)" />
-
-      {/* Label */}
-      <text x="213" y="14" textAnchor="middle" fontSize="7" fontWeight="600"
-        letterSpacing="0.08em" fill="var(--txff)" style={{ textTransform: 'uppercase' }}>
-        Mikrokristallin
-      </text>
-
-      {/* Metal surface */}
-      <rect x="150" y="130" width="126" height="26" rx="2" fill="var(--bd2)" />
-      <rect x="150" y="130" width="126" height="3" fill="var(--bd)" />
-
-      {/* Fine, tightly-packed crystals — many small shapes, no gaps visible */}
-      {/* Row 1 */}
-      <polygon points="150,110 157,90 164,110" fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.5" />
-      <polygon points="163,110 170,88 177,110" fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.5" />
-      <polygon points="176,110 183,92 190,110" fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.5" />
-      <polygon points="189,110 196,90 203,110" fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.5" />
-      <polygon points="202,110 209,88 216,110" fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.5" />
-      <polygon points="215,110 222,92 229,110" fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.5" />
-      <polygon points="228,110 235,90 242,110" fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.5" />
-      <polygon points="241,110 248,88 255,110" fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.5" />
-      <polygon points="254,110 261,92 268,110" fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.5" />
-      {/* Row 2 — offset fill to close gaps */}
-      <polygon points="156,110 163,96 170,110" fill="var(--bd2)" stroke="var(--bd)" strokeWidth="0.4" opacity="0.7" />
-      <polygon points="169,110 176,94 183,110" fill="var(--bd2)" stroke="var(--bd)" strokeWidth="0.4" opacity="0.7" />
-      <polygon points="182,110 189,96 196,110" fill="var(--bd2)" stroke="var(--bd)" strokeWidth="0.4" opacity="0.7" />
-      <polygon points="195,110 202,94 209,110" fill="var(--bd2)" stroke="var(--bd)" strokeWidth="0.4" opacity="0.7" />
-      <polygon points="208,110 215,96 222,110" fill="var(--bd2)" stroke="var(--bd)" strokeWidth="0.4" opacity="0.7" />
-      <polygon points="221,110 228,94 235,110" fill="var(--bd2)" stroke="var(--bd)" strokeWidth="0.4" opacity="0.7" />
-      <polygon points="234,110 241,96 248,110" fill="var(--bd2)" stroke="var(--bd)" strokeWidth="0.4" opacity="0.7" />
-      <polygon points="247,110 254,94 261,110" fill="var(--bd2)" stroke="var(--bd)" strokeWidth="0.4" opacity="0.7" />
-
-      {/* Water droplet bouncing off surface — no penetration */}
-      <g style={{ animation: 'wx-droplet-slide 3.6s ease-in-out infinite', animationDelay: '1.2s' }}>
-        <ellipse cx="213" cy="90" rx="4" ry="5.5" fill="#4A90D9" opacity="0.85" />
-        <polygon points="210,92 216,92 213,98" fill="#4A90D9" opacity="0.85" />
+      {/* Water droplet — arrives, cannot penetrate, slides off */}
+      <g style={{ animation: 'wx-drop-slide 4s ease-in-out infinite', animationDelay: '1.4s', transformOrigin: '211px 88px' }}>
+        <ellipse cx="211" cy="88" rx="4" ry="5.5" fill="#4A90D9" opacity="0.9" />
+        <polygon points="207,91 215,91 211,98" fill="#4A90D9" opacity="0.9" />
       </g>
 
       {/* ✓ badge */}
-      <rect x="150" y="18" width="16" height="10" rx="2" fill="rgba(43,82,176,0.15)" />
-      <text x="158" y="26" textAnchor="middle" fontSize="6.5" fontWeight="700" fill="#3D67CA">✓</text>
-
-      {/* No rust dot on right side — clean metal surface */}
-      <text x="213" y="146" textAnchor="middle" fontSize="6.5" fill="var(--txff)">kein Kontakt</text>
+      <circle cx="152" cy="10" r="8" fill="rgba(43,82,176,0.12)" stroke="rgba(43,82,176,0.25)" strokeWidth="1" />
+      <text x="152" y="14" textAnchor="middle" fontSize="9" fontWeight="700" fill="#3D67CA">✓</text>
     </svg>
   );
 }
 
-// ─── Temperature Range Diagram — Strip 2 ─────────────────────────────────────
-function TempDiagram({ de }: { de: boolean }) {
-  // Temp range: -15°C to +45°C = 60° total range, 260px wide
-  // -8°C position: ((-8 - (-15)) / 60) * 260 = (7/60)*260 ≈ 30px
-  // 0°C position:  (15/60)*260 ≈ 65px
-  // +5°C position: (20/60)*260 ≈ 87px
-  const BAR_W = 240;
-  const RANGE = 60; // -15 to +45
-  const toX = (t: number) => ((t + 15) / RANGE) * BAR_W;
-  const xNeg8 = toX(-8);   // ≈ 28px — left end of Waxcelerate range
-  const xZero = toX(0);    // ≈ 60px — zero line
-  const xStd  = toX(5);    // ≈ 80px — where std wax starts working properly
-  const BAR_Y = 72;
-
+// ─────────────────────────────────────────────────────────────────────────────
+// DIAGRAM 2 — Wax brittleness in cold: why the chain flakes and shifts
+//
+// Mechanism: standard wax becomes brittle under ~5°C — flex stress from chain
+// movement cracks the matrix and chips it off → lubrication fails → shifting
+// degrades. MoS₂ keeps the matrix elastic so it deforms rather than cracks.
+// Animation: left side shows crack lines appear + chip flies off.
+//            Right side flexes smoothly, no cracking.
+// ─────────────────────────────────────────────────────────────────────────────
+function ColdDiagram() {
   return (
-    <svg
-      viewBox="0 0 280 160"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-      style={{ width: '100%', maxWidth: 280, height: 'auto', display: 'block' }}
-    >
-      {/* Temperature scale labels */}
-      <text x="20" y="28" fontSize="8" fontWeight="600" fill="var(--txff)">−15 °C</text>
-      <text x="240" y="28" textAnchor="end" fontSize="8" fontWeight="600" fill="var(--txff)">+45 °C</text>
-      <text x={20 + xZero} y="28" textAnchor="middle" fontSize="8" fill="var(--txm)">0°</text>
+    <svg viewBox="0 0 280 152" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
+      style={{ width: '100%', height: 'auto', display: 'block' }}>
 
-      {/* Zero line */}
-      <line x1={20 + xZero} y1="32" x2={20 + xZero} y2={BAR_Y + 54}
-        stroke="var(--bd)" strokeWidth="0.8" strokeDasharray="3,3" />
+      {/* ── panels ── */}
+      <rect x="0"   y="0" width="138" height="152" fill="var(--sf2)" />
+      <rect x="142" y="0" width="138" height="152" fill="var(--sf2)" />
+      <line x1="140" y1="0" x2="140" y2="152" stroke="var(--bd)" strokeWidth="1" />
 
-      {/* ── Standard wax zone bar ── */}
-      {/* Gray track — full range */}
-      <rect x="20" y={BAR_Y} width={BAR_W} height="18" rx="9"
-        fill="var(--sf3)" />
-      {/* Standard wax: works from ~+5°C upward */}
-      <rect x={20 + xStd} y={BAR_Y} width={BAR_W - xStd} height="18" rx="5"
-        fill="var(--bd)" opacity="0.9" />
-      {/* Frozen zone for std (below +5): red-muted */}
-      <rect x="20" y={BAR_Y} width={xStd} height="18" rx="9"
-        fill="rgba(192,57,43,0.22)" />
-
-      {/* ── Waxcelerate Pro zone ── */}
-      <rect x={20 + xNeg8} y={BAR_Y + 22} width={BAR_W - xNeg8} height="18" rx="5"
-        fill="rgba(43,82,176,0.30)" />
-      <rect x={20 + xNeg8} y={BAR_Y + 22} width={xZero - xNeg8} height="18" rx="0"
-        fill="rgba(61,103,202,0.50)"
-        style={{ animation: 'wx-temp-pulse 2.8s ease-in-out infinite' }} />
-
-      {/* Labels on bars */}
-      <text x="22" y={BAR_Y + 13} fontSize="7" fontWeight="600" fill="rgba(192,57,43,0.8)">
-        {de ? 'std. Wachs verhärtet' : 'std. wax hardens'}
-      </text>
-      <text x={20 + xStd + 4} y={BAR_Y + 13} fontSize="7" fill="var(--txm)">
-        {de ? 'standard Bereich' : 'standard range'}
-      </text>
-
-      <text x={20 + xNeg8 + 2} y={BAR_Y + 35} fontSize="7" fontWeight="600" fill="#5B8BED">
-        Pro — {de ? 'flexibel ab' : 'flexible from'}
-      </text>
-
-      {/* Bracket showing the Pro advantage zone (below 0°C) */}
-      <line x1={20 + xNeg8} y1={BAR_Y + 46} x2={20 + xZero} y2={BAR_Y + 46}
-        stroke="#3D67CA" strokeWidth="1" />
-      <line x1={20 + xNeg8} y1={BAR_Y + 43} x2={20 + xNeg8} y2={BAR_Y + 49}
-        stroke="#3D67CA" strokeWidth="1" />
-      <line x1={20 + xZero} y1={BAR_Y + 43} x2={20 + xZero} y2={BAR_Y + 49}
-        stroke="#3D67CA" strokeWidth="1" />
-      <text x={(20 + xNeg8 + 20 + xZero) / 2} y={BAR_Y + 57}
-        textAnchor="middle" fontSize="7.5" fontWeight="700" fill="#3D67CA">
-        −8 °C
-      </text>
-
-      {/* Chain-link icon at the frozen zone — with shake animation */}
-      <g transform={`translate(${20 + xNeg8 / 2 - 8}, ${BAR_Y - 28})`}
-        style={{ animation: 'wx-chain-shake 0.5s ease-in-out infinite', animationDelay: '1s', animationIterationCount: '3', animationPlayState: 'running' }}>
-        {/* Simple chain link */}
-        <rect x="4" y="4" width="16" height="12" rx="6" fill="none" stroke="rgba(192,57,43,0.6)" strokeWidth="2" />
-        <rect x="7" y="7" width="10" height="6" rx="3" fill="none" stroke="rgba(192,57,43,0.4)" strokeWidth="1.2" />
+      {/* ── temperature indicator shared at top ── */}
+      {/* Snowflake — simple 6-pointed star */}
+      <g transform="translate(140, 16)" opacity="0.55">
+        <line x1="0" y1="-9" x2="0" y2="9"  stroke="var(--txm)" strokeWidth="1.5" strokeLinecap="round" />
+        <line x1="-8" y1="-4.5" x2="8" y2="4.5" stroke="var(--txm)" strokeWidth="1.5" strokeLinecap="round" />
+        <line x1="8" y1="-4.5"  x2="-8" y2="4.5" stroke="var(--txm)" strokeWidth="1.5" strokeLinecap="round" />
+        <line x1="-4" y1="-7.5" x2="4" y2="7.5"  stroke="var(--txm)" strokeWidth="1" strokeLinecap="round" />
+        <line x1="4" y1="-7.5"  x2="-4" y2="7.5" stroke="var(--txm)" strokeWidth="1" strokeLinecap="round" />
       </g>
 
-      {/* Legend */}
-      <rect x="20" y={BAR_Y + 70} width="8" height="8" rx="2" fill="rgba(192,57,43,0.22)" />
-      <text x="32" y={BAR_Y + 78} fontSize="7" fill="var(--txm)">
-        {de ? 'Standard-Wachs' : 'Standard wax'}
-      </text>
-      <rect x="120" y={BAR_Y + 70} width="8" height="8" rx="2" fill="rgba(43,82,176,0.40)" />
-      <text x="132" y={BAR_Y + 78} fontSize="7" fill="var(--txm)">
-        Pro (MoS₂)
-      </text>
+      {/* ── LEFT: brittle wax chain link ── */}
+      {/* Chain link outer ring */}
+      <rect x="18" y="50" width="100" height="64" rx="32" fill="none"
+        stroke="var(--txm)" strokeWidth="2.5" />
+      {/* Inner cutout */}
+      <rect x="36" y="67" width="64" height="30" rx="15" fill="none"
+        stroke="var(--txm)" strokeWidth="1.5" />
+      {/* Wax coating layer — shown as a slightly larger ring, rigid, will crack */}
+      <rect x="13" y="45" width="110" height="74" rx="37" fill="none"
+        stroke="var(--sf3)" strokeWidth="7" />
+
+      {/* Crack line 1 — draws itself in, then fades */}
+      <line x1="32" y1="58" x2="46" y2="72"
+        stroke="var(--tx1)" strokeWidth="1.5" strokeLinecap="round"
+        strokeDasharray="20" strokeDashoffset="20"
+        style={{ animation: 'wx-crack-draw 4s ease-in-out infinite', animationDelay: '0s' }}
+        opacity="0" />
+      {/* Crack line 2 */}
+      <line x1="58" y1="48" x2="68" y2="62"
+        stroke="var(--tx1)" strokeWidth="1.2" strokeLinecap="round"
+        strokeDasharray="18" strokeDashoffset="18"
+        style={{ animation: 'wx-crack-draw 4s ease-in-out infinite', animationDelay: '0.3s' }}
+        opacity="0" />
+      {/* Crack line 3 */}
+      <line x1="90" y1="52" x2="100" y2="63"
+        stroke="var(--tx1)" strokeWidth="1.4" strokeLinecap="round"
+        strokeDasharray="16" strokeDashoffset="16"
+        style={{ animation: 'wx-crack-draw 4s ease-in-out infinite', animationDelay: '0.18s' }}
+        opacity="0" />
+
+      {/* Wax chip that flies off */}
+      <g style={{ animation: 'wx-chip-off 4s ease-in-out infinite', animationDelay: '0s' }}
+        opacity="0">
+        <rect x="28" y="54" width="10" height="6" rx="2"
+          fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.8" />
+      </g>
+
+      {/* ✗ badge */}
+      <circle cx="10" cy="10" r="8" fill="rgba(192,57,43,0.12)" stroke="rgba(192,57,43,0.25)" strokeWidth="1" />
+      <text x="10" y="14" textAnchor="middle" fontSize="9" fontWeight="700" fill="#C0392B">✗</text>
+
+      {/* ── RIGHT: elastic Pro wax — flexes, no cracking ── */}
+      {/* Chain link outer ring */}
+      <g style={{ animation: 'wx-flex-pulse 4s ease-in-out infinite', transformOrigin: '211px 82px' }}>
+        <rect x="160" y="50" width="100" height="64" rx="32" fill="none"
+          stroke="var(--txm)" strokeWidth="2.5" />
+        <rect x="178" y="67" width="64" height="30" rx="15" fill="none"
+          stroke="var(--txm)" strokeWidth="1.5" />
+        {/* Wax coating — smooth, no cracks, slightly glowing to suggest elasticity */}
+        <rect x="155" y="45" width="110" height="74" rx="37" fill="none"
+          stroke="rgba(61,103,202,0.45)" strokeWidth="7" />
+      </g>
+
+      {/* No cracks, no chips */}
+
+      {/* ✓ badge */}
+      <circle cx="152" cy="10" r="8" fill="rgba(43,82,176,0.12)" stroke="rgba(43,82,176,0.25)" strokeWidth="1" />
+      <text x="152" y="14" textAnchor="middle" fontSize="9" fontWeight="700" fill="#3D67CA">✓</text>
     </svg>
   );
 }
 
-// ─── Wax Shedding Diagram — Strip 3 ──────────────────────────────────────────
-function SheddingDiagram({ de }: { de: boolean }) {
+// ─────────────────────────────────────────────────────────────────────────────
+// DIAGRAM 3 — Wax migration under heat: why soft wax thins and exposes chain
+//
+// Mechanism: soft paraffin reaches its flow point at chain contact temperatures
+// (~45–55°C) → wax migrates away from joints → thin spots → dirt sticks to
+// exposed metal. Hard Fischer-Tropsch matrix (drop point ~75°C) stays in place.
+// Animation: LEFT shows wax layer visibly thinning + drips + dirt.
+//            RIGHT shows wax layer stable, clean chain.
+// ─────────────────────────────────────────────────────────────────────────────
+function HeatDiagram() {
   return (
-    <svg
-      viewBox="0 0 280 160"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-      style={{ width: '100%', maxWidth: 280, height: 'auto', display: 'block' }}
-    >
-      {/* ── LEFT: wax migrating off chain ── */}
-      <rect x="0" y="0" width="134" height="160" fill="var(--sf2)" />
-      <text x="67" y="14" textAnchor="middle" fontSize="7" fontWeight="600"
-        letterSpacing="0.08em" fill="var(--txff)" style={{ textTransform: 'uppercase' }}>
-        {de ? 'Weiches Wachs' : 'Soft wax'}
-      </text>
+    <svg viewBox="0 0 280 152" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
+      style={{ width: '100%', height: 'auto', display: 'block' }}>
 
-      {/* Chain link outline */}
-      <rect x="24" y="52" width="86" height="50" rx="25" fill="none"
-        stroke="var(--bd)" strokeWidth="3" />
-      <rect x="37" y="64" width="60" height="26" rx="13" fill="none"
-        stroke="var(--bd)" strokeWidth="1.5" />
+      {/* ── panels ── */}
+      <rect x="0"   y="0" width="138" height="152" fill="var(--sf2)" />
+      <rect x="142" y="0" width="138" height="152" fill="var(--sf2)" />
+      <line x1="140" y1="0" x2="140" y2="152" stroke="var(--bd)" strokeWidth="1" />
 
-      {/* Wax coating on chain — shown as dripping off */}
-      {/* Wax layer that's thinning */}
-      <rect x="24" y="49" width="86" height="6" rx="3"
-        fill="rgba(180,160,80,0.35)" />
-      <rect x="24" y="95" width="86" height="6" rx="3"
-        fill="rgba(180,160,80,0.35)" />
+      {/* ── shared heat indicator: wavy line at bottom of each panel ── */}
+      {/* Left heat waves */}
+      <path d="M4,145 Q17,138 30,145 Q43,152 56,145 Q69,138 82,145 Q95,152 108,145 Q121,138 134,145"
+        fill="none" stroke="rgba(192,100,43,0.35)" strokeWidth="1.5" strokeLinecap="round" />
+      {/* Right heat waves */}
+      <path d="M146,145 Q159,138 172,145 Q185,152 198,145 Q211,138 224,145 Q237,152 250,145 Q263,138 276,145"
+        fill="none" stroke="rgba(192,100,43,0.35)" strokeWidth="1.5" strokeLinecap="round" />
 
-      {/* Dripping wax droplets — animated */}
-      <g style={{ animation: 'wx-wax-drip 2.8s ease-in-out infinite', animationDelay: '0s' }}>
-        <ellipse cx="48" cy="102" rx="3.5" ry="5" fill="rgba(200,170,60,0.7)" />
-        <polygon points="45,105 51,105 48,113" fill="rgba(200,170,60,0.7)" />
-      </g>
-      <g style={{ animation: 'wx-wax-drip 2.8s ease-in-out infinite', animationDelay: '0.9s' }}>
-        <ellipse cx="67" cy="104" rx="3" ry="4.5" fill="rgba(200,170,60,0.65)" />
-        <polygon points="64,107 70,107 67,114" fill="rgba(200,170,60,0.65)" />
-      </g>
-      <g style={{ animation: 'wx-wax-drip 2.8s ease-in-out infinite', animationDelay: '1.7s' }}>
-        <ellipse cx="87" cy="101" rx="3.5" ry="5" fill="rgba(200,170,60,0.7)" />
-        <polygon points="84,104 90,104 87,112" fill="rgba(200,170,60,0.7)" />
+      {/* ── Chain representation: two horizontal bars (cross-section side view) ── */}
+      {/* LEFT chain body */}
+      <rect x="8"   y="88" width="122" height="26" rx="4" fill="var(--bd2)" stroke="var(--bd)" strokeWidth="1" />
+      {/* RIGHT chain body */}
+      <rect x="150" y="88" width="122" height="26" rx="4" fill="var(--bd2)" stroke="var(--bd)" strokeWidth="1" />
+
+      {/* ── LEFT: wax coating layer — thinning animation ── */}
+      {/* The wax layer sits ON TOP of the chain (y=72 to y=88, height=16) */}
+      {/* We animate scaleY from 1 → 0.38, transform-origin at bottom edge (y=88) */}
+      <g style={{ animation: 'wx-wax-thin 4s ease-in-out infinite', transformOrigin: '69px 88px' }}>
+        <rect x="8" y="72" width="122" height="16" rx="3"
+          fill="rgba(200,170,60,0.45)" stroke="rgba(200,170,60,0.6)" strokeWidth="1" />
       </g>
 
-      {/* Dirt particles sticking to chain — appear after wax leaves */}
-      <circle cx="43" cy="57" r="2" fill="rgba(100,80,50,0.6)"
-        style={{ animation: 'wx-dirt-appear 2.8s ease-in-out infinite', animationDelay: '0s' }} />
-      <circle cx="72" cy="55" r="1.5" fill="rgba(100,80,50,0.55)"
-        style={{ animation: 'wx-dirt-appear 2.8s ease-in-out infinite', animationDelay: '0.5s' }} />
-      <circle cx="95" cy="58" r="2" fill="rgba(100,80,50,0.6)"
-        style={{ animation: 'wx-dirt-appear 2.8s ease-in-out infinite', animationDelay: '1s' }} />
+      {/* Three wax drips — staggered */}
+      <g style={{ animation: 'wx-drip-fall 4s ease-in-out infinite', animationDelay: '0s', transformOrigin: '35px 90px' }}>
+        <ellipse cx="35" cy="90" rx="3" ry="4" fill="rgba(200,170,60,0.65)" />
+        <polygon points="32,93 38,93 35,100" fill="rgba(200,170,60,0.65)" />
+      </g>
+      <g style={{ animation: 'wx-drip-fall 4s ease-in-out infinite', animationDelay: '0.8s', transformOrigin: '69px 90px' }}>
+        <ellipse cx="69" cy="90" rx="2.5" ry="3.5" fill="rgba(200,170,60,0.6)" />
+        <polygon points="66.5,93 71.5,93 69,99" fill="rgba(200,170,60,0.6)" />
+      </g>
+      <g style={{ animation: 'wx-drip-fall 4s ease-in-out infinite', animationDelay: '1.5s', transformOrigin: '100px 90px' }}>
+        <ellipse cx="100" cy="90" rx="3" ry="4" fill="rgba(200,170,60,0.65)" />
+        <polygon points="97,93 103,93 100,100" fill="rgba(200,170,60,0.65)" />
+      </g>
 
-      {/* Time label */}
-      <text x="67" y="148" textAnchor="middle" fontSize="7" fill="var(--txff)">
-        {de ? 'nach 40 km · 28 °C' : 'after 40 km · 28 °C'}
-      </text>
+      {/* Dirt particles appear on exposed chain surface */}
+      <g style={{ animation: 'wx-dirt-in 4s ease-in-out infinite', transformOrigin: '35px 97px' }}>
+        <circle cx="35" cy="97" r="3" fill="rgba(90,65,40,0.65)" />
+      </g>
+      <g style={{ animation: 'wx-dirt-in 4s ease-in-out infinite', animationDelay: '0.3s', transformOrigin: '69px 97px' }}>
+        <circle cx="69" cy="97" r="2.5" fill="rgba(90,65,40,0.6)" />
+      </g>
+      <g style={{ animation: 'wx-dirt-in 4s ease-in-out infinite', animationDelay: '0.6s', transformOrigin: '100px 97px' }}>
+        <circle cx="100" cy="97" r="3" fill="rgba(90,65,40,0.65)" />
+      </g>
 
       {/* ✗ badge */}
-      <rect x="4" y="18" width="16" height="10" rx="2" fill="rgba(192,57,43,0.15)" />
-      <text x="12" y="26" textAnchor="middle" fontSize="6.5" fontWeight="700" fill="#C0392B">✗</text>
+      <circle cx="10" cy="10" r="8" fill="rgba(192,57,43,0.12)" stroke="rgba(192,57,43,0.25)" strokeWidth="1" />
+      <text x="10" y="14" textAnchor="middle" fontSize="9" fontWeight="700" fill="#C0392B">✗</text>
 
-      {/* ── Divider ── */}
-      <line x1="137" y1="4" x2="137" y2="156" stroke="var(--bd)" strokeWidth="0.8" />
+      {/* ── RIGHT: stable wax layer — no thinning, no drips ── */}
+      {/* Wax layer stays constant thickness */}
+      <rect x="150" y="72" width="122" height="16" rx="3"
+        fill="rgba(61,103,202,0.30)" stroke="rgba(61,103,202,0.45)" strokeWidth="1" />
 
-      {/* ── RIGHT: wax stays on chain ── */}
-      <rect x="146" y="0" width="134" height="160" fill="var(--sf2)" />
-      <text x="213" y="14" textAnchor="middle" fontSize="7" fontWeight="600"
-        letterSpacing="0.08em" fill="var(--txff)" style={{ textTransform: 'uppercase' }}>
-        {de ? 'Härtere Matrix' : 'Harder matrix'}
-      </text>
-
-      {/* Chain link outline */}
-      <rect x="170" y="52" width="86" height="50" rx="25" fill="none"
-        stroke="var(--bd)" strokeWidth="3" />
-      <rect x="183" y="64" width="60" height="26" rx="13" fill="none"
-        stroke="var(--bd)" strokeWidth="1.5" />
-
-      {/* Wax coating — solid, thicker, no drips */}
-      <rect x="170" y="48" width="86" height="8" rx="4"
-        fill="rgba(61,103,202,0.35)" />
-      <rect x="170" y="94" width="86" height="8" rx="4"
-        fill="rgba(61,103,202,0.35)" />
-      {/* Left and right wax edges */}
-      <rect x="170" y="56" width="8" height="38" rx="4"
-        fill="rgba(61,103,202,0.25)" />
-      <rect x="248" y="56" width="8" height="38" rx="4"
-        fill="rgba(61,103,202,0.25)" />
-
-      {/* No droplets, no dirt — clean chain */}
-      <text x="213" y="80" textAnchor="middle" fontSize="7.5" fontWeight="500" fill="rgba(61,103,202,0.7)">
-        {de ? 'kein Shedding' : 'no shedding'}
-      </text>
-
-      {/* Time label */}
-      <text x="213" y="148" textAnchor="middle" fontSize="7" fill="var(--txff)">
-        {de ? 'nach 400 km · 28 °C' : 'after 400 km · 28 °C'}
-      </text>
+      {/* No drips, no dirt. Subtle glow to signal stability */}
+      {/* Clean indicator line */}
+      <line x1="150" y1="88" x2="272" y2="88" stroke="rgba(61,103,202,0.2)" strokeWidth="0.5" />
 
       {/* ✓ badge */}
-      <rect x="150" y="18" width="16" height="10" rx="2" fill="rgba(43,82,176,0.15)" />
-      <text x="158" y="26" textAnchor="middle" fontSize="6.5" fontWeight="700" fill="#3D67CA">✓</text>
+      <circle cx="152" cy="10" r="8" fill="rgba(43,82,176,0.12)" stroke="rgba(43,82,176,0.25)" strokeWidth="1" />
+      <text x="152" y="14" textAnchor="middle" fontSize="9" fontWeight="700" fill="#3D67CA">✓</text>
     </svg>
   );
 }
 
 // ─── Friction bar data ────────────────────────────────────────────────────────
 const frictionMini = [
-  { label: 'Pro',                           val: 'μ 0,03–0,06', pct: 100, highlight: true  },
-  { label: 'Classic',                       val: 'μ 0,05–0,07', pct: 80,  highlight: true  },
+  { label: 'Pro',                              val: 'μ 0,03–0,06', pct: 100, highlight: true  },
+  { label: 'Classic',                          val: 'μ 0,05–0,07', pct: 80,  highlight: true  },
   { labelDe: 'Kettenöl', labelEn: 'Chain Oil', val: 'μ 0,18–0,25', pct: 18,  highlight: false },
 ];
 
@@ -382,8 +350,8 @@ const cardStyle = {
 interface StripProps {
   index: number;
   catDe: string; catEn: string;
-  specValue: string;
-  specLabelDe: string; specLabelEn: string;
+  specValue?: string;
+  specLabelDe?: string; specLabelEn?: string;
   titleDe: string; titleEn: string;
   bodyDe: string; bodyEn: string;
   scienceLinkDe: string; scienceLinkEn: string;
@@ -392,10 +360,11 @@ interface StripProps {
   de: boolean;
 }
 
-function MechanismStrip({ index, catDe, catEn, specValue, specLabelDe, specLabelEn,
-  titleDe, titleEn, bodyDe, bodyEn, scienceLinkDe, scienceLinkEn,
-  scienceAnchor, diagram, de }: StripProps) {
-
+function MechanismStrip({
+  index, catDe, catEn, specValue, specLabelDe, specLabelEn,
+  titleDe, titleEn, bodyDe, bodyEn,
+  scienceLinkDe, scienceLinkEn, scienceAnchor, diagram, de,
+}: StripProps) {
   const stripRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -411,7 +380,6 @@ function MechanismStrip({ index, catDe, catEn, specValue, specLabelDe, specLabel
       delay: index * 0.10,
       scrollTrigger: { trigger: el, start: 'top 86%', once: true },
     });
-    return () => {};
   }, [index]);
 
   const isEven = index % 2 === 0;
@@ -419,54 +387,44 @@ function MechanismStrip({ index, catDe, catEn, specValue, specLabelDe, specLabel
   return (
     <div
       ref={stripRef}
-      className="strip-row py-8 sm:py-10"
+      className="py-10 sm:py-12"
       style={{ borderBottom: '1px solid var(--bd2)' }}
     >
-      <div className={`flex flex-col sm:flex-row gap-6 sm:gap-10 items-center ${isEven ? '' : 'sm:flex-row-reverse'}`}>
+      <div className={`flex flex-col sm:flex-row gap-8 sm:gap-12 items-center ${isEven ? '' : 'sm:flex-row-reverse'}`}>
 
-        {/* ── Diagram panel ── */}
-        <div
-          className="flex-shrink-0 rounded-xl overflow-hidden"
-          style={{
-            width: '100%',
-            maxWidth: 280,
-            background: 'var(--sf2)',
-            border: '1px solid var(--bd2)',
-          }}
-        >
+        {/* ── Diagram ── */}
+        <div className="flex-shrink-0 w-full sm:w-auto rounded-xl overflow-hidden"
+          style={{ maxWidth: 300, border: '1px solid var(--bd2)', background: 'var(--sf2)' }}>
           {diagram}
         </div>
 
-        {/* ── Text panel ── */}
+        {/* ── Text ── */}
         <div className="flex-1 min-w-0">
 
-          {/* Eyebrow + spec number row */}
-          <div className="flex items-center justify-between mb-3 gap-4">
-            <span
-              className="text-[10px] font-semibold uppercase tracking-[0.22em] flex-shrink-0"
-              style={{ color: 'var(--txff)' }}
-            >
+          {/* Eyebrow + spec */}
+          <div className="flex items-start justify-between gap-4 mb-2">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.22em]"
+              style={{ color: 'var(--txff)' }}>
               {de ? catDe : catEn}
             </span>
-            <span
-              className="font-display font-bold tabular-nums leading-none flex-shrink-0"
-              style={{ fontSize: 'clamp(1.6rem, 3.5vw, 2.4rem)', color: 'var(--tx1)' }}
-            >
-              {specValue}
-            </span>
+            {specValue && (
+              <span className="font-display font-bold tabular-nums leading-none flex-shrink-0"
+                style={{ fontSize: 'clamp(1.55rem, 3vw, 2.2rem)', color: 'var(--tx1)' }}>
+                {specValue}
+              </span>
+            )}
           </div>
 
           {/* Spec label */}
-          <p className="text-[10px] font-medium mb-3 -mt-1 text-right"
-            style={{ color: '#3D67CA' }}>
-            {de ? specLabelDe : specLabelEn}
-          </p>
+          {specValue && (specLabelDe || specLabelEn) && (
+            <p className="text-[10px] font-medium mb-3 text-right" style={{ color: '#3D67CA' }}>
+              {de ? specLabelDe : specLabelEn}
+            </p>
+          )}
 
           {/* Title */}
-          <h3
-            className="font-serif-display italic font-bold text-wx-tx1 mb-3 leading-tight"
-            style={{ fontSize: 'clamp(1.15rem, 2.2vw, 1.45rem)' }}
-          >
+          <h3 className="font-serif-display italic font-bold text-wx-tx1 mb-3 leading-tight"
+            style={{ fontSize: 'clamp(1.1rem, 2.1vw, 1.4rem)' }}>
             {de ? titleDe : titleEn}
           </h3>
 
@@ -476,15 +434,12 @@ function MechanismStrip({ index, catDe, catEn, specValue, specLabelDe, specLabel
           </p>
 
           {/* Science link */}
-          <Link
-            to={`/wissenschaft${scienceAnchor}`}
+          <Link to={`/wissenschaft${scienceAnchor}`}
             className="inline-flex items-center gap-1 text-[11px] font-medium transition-opacity hover:opacity-70"
-            style={{ color: '#264E8C' }}
-          >
+            style={{ color: '#264E8C' }}>
             {de ? scienceLinkDe : scienceLinkEn}
             <span aria-hidden="true" style={{ fontSize: 10 }}>→</span>
           </Link>
-
         </div>
       </div>
     </div>
@@ -493,11 +448,11 @@ function MechanismStrip({ index, catDe, catEn, specValue, specLabelDe, specLabel
 
 // ─── Main export ──────────────────────────────────────────────────────────────
 export function WhyWax() {
-  const { lang } = useLanguage();
+  const { lang }   = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const headerRef  = useRef<HTMLDivElement>(null);
   const proofRef   = useRef<HTMLDivElement>(null);
-  const de = lang === 'de';
+  const de         = lang === 'de';
 
   useSectionReveal(headerRef);
 
@@ -512,7 +467,7 @@ export function WhyWax() {
     return () => { document.getElementById(id)?.remove(); };
   }, []);
 
-  // Proof strip: friction bars animate in on scroll
+  // Friction bars animate in on scroll
   useEffect(() => {
     if (!proofRef.current) return;
     const ctx = gsap.context(() => {
@@ -531,32 +486,30 @@ export function WhyWax() {
     {
       catDe: 'Feuchtigkeitsschutz',
       catEn: 'Moisture protection',
-      specValue: 'μ-Dicht',
-      specLabelDe: 'Mikrokristalline Abdeckung',
-      specLabelEn: 'Microcrystalline coverage',
-      titleDe: 'Kein Rost nach der Regenfahrt',
-      titleEn: 'No rust after a wet ride',
-      bodyDe: 'Standard-Paraffin hat eine grobkristalline Struktur — zwischen den Kristallen entstehen Lücken, durch die Wasser das Metall erreicht. Mikrokristallines Hartwachs vernetzt dichter, schließt diese Lücken und deckt mehr Metalloberfläche ab.',
-      bodyEn: 'Standard paraffin has a coarse crystal structure — gaps form between crystals through which water reaches bare metal. Microcrystalline hard wax cross-links more densely, closes those gaps, and covers more metal surface.',
+      // No single number — the diagram is the proof
+      titleDe: 'Weniger Oxidation nach der Regenfahrt',
+      titleEn: 'Less oxidation after a wet ride',
+      bodyDe: 'Standard-Paraffin bildet grobkristalline Strukturen mit messbaren Lücken — durch diese Lücken erreicht Wasser die Metalloberfläche und Oxidation entsteht schneller. Mikrokristallines Hartwachs hat deutlich kleinere Kristallite, die dichter packen und mehr Metalloberfläche bedecken. Das reduziert den Wasserkontakt mit dem Stahl erheblich.',
+      bodyEn: 'Standard paraffin forms coarse crystal structures with measurable gaps — through these gaps water reaches the metal and oxidation sets in faster. Microcrystalline hard wax has significantly smaller crystallites that pack more densely and cover more metal surface area, substantially reducing water contact with the steel.',
       scienceLinkDe: 'Kristallstruktur erklärt',
       scienceLinkEn: 'Crystal structure explained',
       scienceAnchor: '#kristallstruktur',
       diagram: <CrystalDiagram />,
     },
     {
-      catDe: 'Winterformel · Pro',
-      catEn: 'Winter formula · Pro',
+      catDe: 'Winterformel · Pro (MoS₂)',
+      catEn: 'Winter formula · Pro (MoS₂)',
       specValue: '−8 °C',
-      specLabelDe: 'Untergrenze für saubere Schaltung',
-      specLabelEn: 'Lower limit for clean shifting',
-      titleDe: 'Keine Schaltprobleme unter Null',
-      titleEn: 'No shifting problems below zero',
-      bodyDe: 'Standard-Wachse verhärten unter ~5 °C — Kettengelenke blockieren, die Schaltung springt oder blockiert. Amorphes MoS₂ als Hochdruckadditiv hält die Wachsmatrix flexibel, auch tief im Minusbereich.',
-      bodyEn: 'Standard waxes harden below ~5 °C — link joints seize, shifting skips or locks. Amorphous MoS₂ as a high-pressure additive keeps the wax matrix flexible, even deep below freezing.',
+      specLabelDe: 'Grenze für einwandfreien Betrieb',
+      specLabelEn: 'Lower limit for reliable operation',
+      titleDe: 'Weniger Abplatzen und Schaltprobleme bei Frost',
+      titleEn: 'Less flaking and shifting issues in frost',
+      bodyDe: 'Standard-Wachse werden unter ~5 °C spröde — die Matrix bricht bei Biegebewegungen auf, Stücke platzen ab, Schmierung fällt aus. Amorphes MoS₂ hält die Matrix elastisch bis −8 °C, verhindert Abplatzen und sorgt für konsistentere Schaltperformance. Ein Phenol-Antioxidans schützt zusätzlich das MoS₂ vor Umwandlung zu MoO₃ — einem abrasiven Oxidationsprodukt, das statt zu schmieren schadet.',
+      bodyEn: 'Standard waxes become brittle below ~5 °C — the matrix fractures under flex stress, pieces chip off, and lubrication fails. Amorphous MoS₂ keeps the matrix elastic down to −8 °C, preventing flaking and maintaining more consistent shifting. A phenolic antioxidant also protects the MoS₂ from converting to MoO₃ — an abrasive oxidation product that harms rather than lubricates.',
       scienceLinkDe: 'Winterformel & MoS₂ erklärt',
       scienceLinkEn: 'Winter formula & MoS₂ explained',
       scienceAnchor: '#winterformel',
-      diagram: <TempDiagram de={de} />,
+      diagram: <ColdDiagram />,
     },
     {
       catDe: 'Sommerbeständigkeit',
@@ -564,21 +517,20 @@ export function WhyWax() {
       specValue: '+75 °C',
       specLabelDe: 'Tropfpunkt der Wachsmatrix',
       specLabelEn: 'Drop point of wax matrix',
-      titleDe: 'Kein Shedding in der Sommerhitze',
-      titleEn: 'No shedding in summer heat',
-      bodyDe: 'Weiches Wachs migriert auf heißem Asphalt — Rückstände tropfen ab, Schmutz haftet an der nackten Kette. Die härtere Wachsmatrix hält Position: kein Shedding, kein Schmutzfilm, deutlich längere Intervalle.',
-      bodyEn: 'Soft wax migrates on hot asphalt — residue drips off and dirt sticks to the exposed chain. The harder wax matrix holds its position: no shedding, no grime film, significantly longer intervals.',
+      titleDe: 'Weniger Shedding und Migration bei Hitze',
+      titleEn: 'Less shedding and migration in heat',
+      bodyDe: 'An Kettenkontaktpunkten unter Last entstehen Temperaturen von 45–55 °C. Weiches Wachs erreicht hier seine thermische Grenze — es migriert weg vom Gelenk, dünnt aus, und Schmutz haftet an der Stelle. Die härtere Fischer-Tropsch-Matrix (Tropfpunkt ~75 °C) bleibt an Position: deutlich weniger Migration und Shedding, längere Rewax-Intervalle.',
+      bodyEn: 'Under load, chain contact points reach 45–55 °C. Soft wax approaches its thermal limit here — it migrates away from the joint, thins out, and dirt sticks where it exposed the metal. The harder Fischer-Tropsch matrix (drop point ~75 °C) holds its position: significantly less migration and shedding, longer re-wax intervals.',
       scienceLinkDe: 'Matrix & Tropfpunkt erklärt',
       scienceLinkEn: 'Matrix & drop point explained',
       scienceAnchor: '#matrix',
-      diagram: <SheddingDiagram de={de} />,
+      diagram: <HeatDiagram />,
     },
   ];
 
   return (
     <section id="warum-wachs" ref={sectionRef} className="relative py-20 sm:py-28 bg-wx-sf chain-texture">
 
-      {/* Top fade */}
       <div className="absolute top-0 left-0 right-0 pointer-events-none"
         style={{ height: '56px', background: 'linear-gradient(to bottom, var(--sf), transparent)', zIndex: 1 }} />
 
@@ -595,10 +547,10 @@ export function WhyWax() {
               <ScrollWordReveal
                 text={de ? 'Was Waxcelerate anders macht.' : 'What makes Waxcelerate different.'} />
             </h2>
-            <p data-reveal="subtitle" className="text-wx-txm max-w-lg text-[15px]">
+            <p data-reveal="subtitle" className="text-wx-txm max-w-xl text-[15px]">
               {de
-                ? 'Drei Bedingungen, an denen Schmiermittel versagen. Hier ist die Chemie dahinter — und warum sie bei Waxcelerate nicht versagen.'
-                : 'Three conditions where lubricants fail. Here is the chemistry behind each — and why they don\'t fail with Waxcelerate.'}
+                ? 'Drei Bedingungen, an denen Schmiermittel versagen. Hier ist die Chemie dahinter — und warum sie bei Waxcelerate weniger versagen.'
+                : 'Three conditions where lubricants fail. Here is the chemistry behind each — and why they fail less with Waxcelerate.'}
             </p>
           </div>
 
@@ -610,48 +562,42 @@ export function WhyWax() {
           </div>
 
           {/* ── Batch quality trust bar ── */}
-          <div
-            className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 py-6 mt-1 mb-8"
-            style={{ borderBottom: '1px solid var(--bd2)' }}
-          >
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 py-6 mt-1 mb-8"
+            style={{ borderBottom: '1px solid var(--bd2)' }}>
             <div className="flex items-center gap-3 flex-wrap">
-              {/* Five block icons — equal fill to signal consistency */}
               <div className="flex gap-1.5">
                 {[0,1,2,3,4].map(n => (
-                  <div key={n} className="flex flex-col gap-0.5">
-                    {/* Fill indicator */}
-                    <div style={{ width: 10, height: 18, background: 'var(--sf3)', borderRadius: 3, border: '1px solid var(--bd)', overflow: 'hidden', position: 'relative' }}>
-                      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '78%', background: 'rgba(43,82,176,0.40)', borderRadius: 2 }} />
-                      {/* MoS₂ dots — evenly distributed */}
-                      <div style={{ position: 'absolute', width: 3, height: 3, borderRadius: '50%', background: 'rgba(61,103,202,0.7)', top: '30%', left: '50%', transform: 'translate(-50%,-50%)' }} />
-                    </div>
+                  <div key={n} style={{ width: 10, height: 18, background: 'var(--sf3)', borderRadius: 3,
+                    border: '1px solid var(--bd)', overflow: 'hidden', position: 'relative' }}>
+                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '78%',
+                      background: 'rgba(43,82,176,0.40)', borderRadius: 2 }} />
+                    <div style={{ position: 'absolute', width: 3, height: 3, borderRadius: '50%',
+                      background: 'rgba(61,103,202,0.7)', top: '28%', left: '50%', transform: 'translate(-50%,-50%)' }} />
                   </div>
                 ))}
               </div>
               <div>
                 <p className="text-[12px] font-semibold" style={{ color: 'var(--tx2)' }}>
-                  {de ? 'Block 1 = Block 100' : 'Block 1 = Block 100'}
+                  {de ? 'Gleichmäßige Qualität — Block für Block' : 'Consistent quality — block to block'}
                 </p>
                 <p className="text-[11px]" style={{ color: 'var(--txf)' }}>
                   {de
-                    ? 'Kleinstchargen in Stuttgart — MoS₂ gleichmäßig verteilt, jede Charge kontrolliert homogenisiert'
-                    : 'Small batches in Stuttgart — MoS₂ evenly distributed, every batch controlled homogenised'}
+                    ? 'MoS₂ ist 5,6× dichter als Paraffin und sedimentiert in Großchargen. Kleinstchargen in Stuttgart mit kontrollierter Homogenisierung verhindern das.'
+                    : 'MoS₂ is 5.6× denser than paraffin and settles in large batches. Small-batch production in Stuttgart with controlled homogenisation prevents this.'}
                 </p>
               </div>
             </div>
-            <Link
-              to="/wissenschaft#sedimentation"
+            <Link to="/wissenschaft#sedimentation"
               className="text-[11px] font-medium flex-shrink-0 transition-opacity hover:opacity-70"
-              style={{ color: '#264E8C' }}
-            >
+              style={{ color: '#264E8C' }}>
               {de ? 'Sedimentation erklärt →' : 'Sedimentation explained →'}
             </Link>
           </div>
 
-          {/* ── Proof strip: friction + cost ── */}
+          {/* ── Proof: friction + cost ── */}
           <div ref={proofRef} className="grid sm:grid-cols-2 gap-3 mb-7">
 
-            {/* Friction card */}
+            {/* Friction */}
             <div className="rounded-xl border border-wx-bd p-5 flex flex-col" style={cardStyle}>
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-1.5">
@@ -660,9 +606,7 @@ export function WhyWax() {
                     {de ? 'Reibung' : 'Friction'}
                   </p>
                 </div>
-                <span className="font-display font-bold text-wx-tx1 tabular-nums text-[22px] leading-none">
-                  μ 0,03
-                </span>
+                <span className="font-display font-bold text-wx-tx1 tabular-nums text-[22px] leading-none">μ 0,03</span>
               </div>
               <div className="space-y-2.5 flex-1">
                 {frictionMini.map((item, i) => {
@@ -670,40 +614,28 @@ export function WhyWax() {
                   return (
                     <div key={i}>
                       <div className="flex justify-between mb-1">
-                        <span className={`text-[11px] font-medium ${item.highlight ? 'text-wx-tx1' : 'text-wx-txf'}`}>
-                          {label}
-                        </span>
-                        <span className={`text-[11px] font-mono tabular-nums ${item.highlight ? 'text-wx-tx2' : 'text-wx-txff'}`}>
-                          {item.val}
-                        </span>
+                        <span className={`text-[11px] font-medium ${item.highlight ? 'text-wx-tx1' : 'text-wx-txf'}`}>{label}</span>
+                        <span className={`text-[11px] font-mono tabular-nums ${item.highlight ? 'text-wx-tx2' : 'text-wx-txff'}`}>{item.val}</span>
                       </div>
                       <div className="h-0.5 rounded-full overflow-hidden" style={{ background: 'var(--bd)' }}>
-                        <div
-                          className="fbar h-full w-full rounded-full"
-                          data-w={item.pct}
+                        <div className="fbar h-full w-full rounded-full" data-w={item.pct}
                           style={{
-                            background: item.highlight
-                              ? 'linear-gradient(90deg, #0F2450, #3D67CA)'
-                              : 'var(--bd2)',
-                            transformOrigin: 'left center',
-                            transform: 'scaleX(0)',
-                          }}
-                        />
+                            background: item.highlight ? 'linear-gradient(90deg, #0F2450, #3D67CA)' : 'var(--bd2)',
+                            transformOrigin: 'left center', transform: 'scaleX(0)',
+                          }} />
                       </div>
                     </div>
                   );
                 })}
               </div>
-              <Link
-                to="/wissenschaft#reibung"
+              <Link to="/wissenschaft#reibung"
                 className="flex items-center gap-1 text-[11px] font-medium mt-3 pt-3 transition-opacity hover:opacity-70"
-                style={{ color: '#264E8C', borderTop: '1px solid var(--bd2)' }}
-              >
+                style={{ color: '#264E8C', borderTop: '1px solid var(--bd2)' }}>
                 {de ? 'Vollständiger Vergleich →' : 'Full comparison →'}
               </Link>
             </div>
 
-            {/* Cost savings card */}
+            {/* Cost savings */}
             <div className="rounded-xl border border-wx-bd p-5" style={cardStyle}>
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-1.5">
@@ -712,9 +644,7 @@ export function WhyWax() {
                     {de ? 'Kostenersparnis' : 'Cost savings'}
                   </p>
                 </div>
-                <span className="font-display font-bold text-wx-tx1 tabular-nums text-[22px] leading-none">
-                  ~€70
-                </span>
+                <span className="font-display font-bold text-wx-tx1 tabular-nums text-[22px] leading-none">~€70</span>
               </div>
               <p className="text-[11px] font-semibold mb-3" style={{ color: '#2B52B0' }}>
                 {de ? '46 % weniger über 12.000 km' : '46% less over 12,000 km'}
@@ -729,7 +659,8 @@ export function WhyWax() {
                   <span className="tabular-nums font-semibold" style={{ color: '#2B52B0' }}>~€81</span>
                 </div>
               </div>
-              <p className="text-[10px] mt-3 pt-3 leading-relaxed" style={{ borderTop: '1px solid var(--bd2)', color: 'var(--txff)' }}>
+              <p className="text-[10px] mt-3 pt-3 leading-relaxed"
+                style={{ borderTop: '1px solid var(--bd2)', color: 'var(--txff)' }}>
                 {de
                   ? '* Kettenpreis €30 · Rewax alle 400 km · Ölwechsel alle 300 km · 12.000 km'
                   : '* Chain price €30 · re-wax every 400 km · oil change every 300 km · 12,000 km'}
@@ -737,11 +668,9 @@ export function WhyWax() {
             </div>
           </div>
 
-          {/* ── Formula selector note (replaces filter chips) ── */}
-          <div
-            className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 py-4 px-4 rounded-xl"
-            style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)' }}
-          >
+          {/* ── Formula selector note ── */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 py-4 px-4 rounded-xl"
+            style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)' }}>
             <p className="text-[12px]" style={{ color: 'var(--txm)' }}>
               <span className="font-semibold" style={{ color: 'var(--tx2)' }}>
                 {de ? 'Welche Formel?' : 'Which formula?'}
@@ -751,11 +680,9 @@ export function WhyWax() {
               {'  ·  '}
               <span>Pro (MoS₂) — {de ? 'Ganzjahr, Winter & E-Bike' : 'year-round, winter & e-bike'}</span>
             </p>
-            <Link
-              to="/#produkte"
+            <Link to="/#produkte"
               className="text-[11px] font-medium flex-shrink-0 transition-opacity hover:opacity-70"
-              style={{ color: '#264E8C' }}
-            >
+              style={{ color: '#264E8C' }}>
               {de ? 'Zu den Produkten →' : 'See products →'}
             </Link>
           </div>
@@ -763,7 +690,6 @@ export function WhyWax() {
         </div>
       </div>
 
-      {/* Bottom fade */}
       <div className="absolute bottom-0 left-0 right-0 pointer-events-none"
         style={{ height: '64px', background: 'linear-gradient(to bottom, transparent, var(--pg))', zIndex: 1 }} />
     </section>
