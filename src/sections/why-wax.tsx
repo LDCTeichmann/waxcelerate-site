@@ -6,109 +6,93 @@ import { useSectionReveal } from '@/hooks/useAnimation';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { gsap } from '@/lib/gsap';
 
-// ─── CSS keyframes ────────────────────────────────────────────────────────────
-const ANIM_STYLES = `
-/* D1 — droplet falls through inter-grain gap */
-@keyframes wx-drip-fall {
-  0%,12%  { transform:translateY(0);    opacity:0; }
-  18%     { transform:translateY(0);    opacity:0.6; }
-  50%     { transform:translateY(36px); opacity:0.6; }
-  58%     { transform:translateY(36px); opacity:0; }
-  59%,100%{ transform:translateY(0);    opacity:0; }
-}
-/* D1 — oxidation mark fades in after droplet hits, resets near loop end */
-@keyframes wx-oxide {
-  0%,54%  { transform:scale(0);    opacity:0; }
-  66%     { transform:scale(1.15); opacity:1; }
-  76%     { transform:scale(1);    opacity:0.85; }
-  90%     { transform:scale(1);    opacity:0.85; }
-  98%     { transform:scale(0.7);  opacity:0; }
-  99%,100%{ transform:scale(0);    opacity:0; }
-}
-/* D1 — droplet deflects off dense surface */
-@keyframes wx-deflect {
-  0%,24%  { transform:translate(0,0);         opacity:0; }
-  30%     { transform:translate(0,0);         opacity:0.6; }
-  52%     { transform:translate(-5px,13px);   opacity:0.6; }
-  60%     { transform:translate(-9px,16px);   opacity:0; }
-  61%,100%{ transform:translate(0,0);         opacity:0; }
-}
-
-/* D2 — crack draws in */
-@keyframes wx-crack {
-  0%,20%  { stroke-dashoffset:22; opacity:0; }
-  36%     { stroke-dashoffset:0;  opacity:0.8; }
-  76%     { stroke-dashoffset:0;  opacity:0.8; }
-  88%     { stroke-dashoffset:22; opacity:0; }
-  100%    { stroke-dashoffset:22; opacity:0; }
-}
-/* D2 — wax chip detaches and drifts away */
-@keyframes wx-chip {
-  0%,34%  { transform:translate(0,0) rotate(0deg);          opacity:0; }
-  40%     { transform:translate(0,0) rotate(0deg);          opacity:0.65; }
-  70%     { transform:translate(14px,-11px) rotate(30deg);  opacity:0.4; }
-  78%     { transform:translate(18px,-14px) rotate(40deg);  opacity:0; }
-  79%,100%{ transform:translate(0,0) rotate(0deg);          opacity:0; }
-}
-/* D2 — right coating: elastic deformation, no cracking */
-@keyframes wx-elastic {
-  0%,100%{ transform:scaleX(1)     scaleY(1);    }
-  32%    { transform:scaleX(1.025) scaleY(0.972); }
-  64%    { transform:scaleX(0.975) scaleY(1.028); }
-}
-
-/* D3 — wax layer thins (scaleY, origin anchored to bottom of layer) */
-@keyframes wx-thin {
-  0%,10%  { transform:scaleY(1);    }
-  55%     { transform:scaleY(0.26); }
-  70%     { transform:scaleY(0.26); }
-  90%,100%{ transform:scaleY(1);    }
-}
-/* D3 — wax micro-drip falls */
-@keyframes wx-drop {
-  0%,22%  { transform:translateY(0);    opacity:0; }
-  29%     { transform:translateY(0);    opacity:0.42; }
-  62%     { transform:translateY(22px); opacity:0.42; }
-  71%     { transform:translateY(24px); opacity:0; }
-  72%,100%{ transform:translateY(0);    opacity:0; }
-}
-/* D3 — contamination speck appears where wax left */
-@keyframes wx-dirt {
-  0%,60%  { transform:scale(0);   opacity:0; }
-  73%     { transform:scale(1.1); opacity:0.4; }
-  84%,100%{ transform:scale(1);   opacity:0.3; }
-}
-`;
+// Animations are now fully GSAP-driven (see each diagram component below).
 
 // ─────────────────────────────────────────────────────────────────────────────
-// DIAGRAM 1 — Crystal grain size: why microcrystalline covers metal better
-//
-// LEFT:  4 coarse polygon grains with clear 8 px gaps → droplet falls through,
-//        faint oxidation mark appears on metal surface.
-// RIGHT: continuous coverage band (many fine crystals → no visible gaps) →
-//        droplet deflects off the surface without penetrating.
+// DIAGRAM 1 — Crystal grain size (GSAP-driven)
+// LEFT:  4 coarse polygon grains, gaps visible → droplet falls through → oxidation
+//        bloom appears with glowing SVG filter + elastic.out easing.
+// RIGHT: continuous dense band → droplet arrives, bounces off, slides away clean.
 // ─────────────────────────────────────────────────────────────────────────────
 function CrystalDiagram() {
-  // Teardrop path: tip at bottom, centered at (cx, cy), ~10 px wide, 13 px tall
+  const svgRef  = useRef<SVGSVGElement>(null);
+  const dropL   = useRef<SVGPathElement>(null);
+  const oxide   = useRef<SVGGElement>(null);
+  const dropR   = useRef<SVGPathElement>(null);
+
   const drop = (cx: number, cy: number) =>
-    `M${cx},${cy + 7} C${cx - 5},${cy + 3} ${cx - 5},${cy - 4} ${cx},${cy - 5} C${cx + 5},${cy - 4} ${cx + 5},${cy + 3} ${cx},${cy + 7} Z`;
+    `M${cx},${cy+7} C${cx-5},${cy+3} ${cx-5},${cy-4} ${cx},${cy-5} C${cx+5},${cy-4} ${cx+5},${cy+3} ${cx},${cy+7} Z`;
+
+  useEffect(() => {
+    if (!svgRef.current || !dropL.current || !oxide.current || !dropR.current) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const ctx = gsap.context(() => {
+      // ── initial states ──
+      gsap.set(dropL.current, { y: 0, opacity: 0 });
+      gsap.set(oxide.current, { scale: 0, opacity: 0, transformOrigin: '36px 132px' });
+      gsap.set(dropR.current, { x: 0, y: 0, opacity: 0 });
+
+      // ── LEFT: droplet falls → oxidation blooms ──
+      const tlL = gsap.timeline({ repeat: -1, repeatDelay: 0.6 });
+      tlL
+        .to(dropL.current, { opacity: 0.72, duration: 0.18, ease: 'none' }, 0.25)
+        .to(dropL.current, { y: 36, duration: 0.65, ease: 'power2.in' }, 0.25)
+        .to(dropL.current, { opacity: 0, duration: 0.1 }, 0.85)
+        // bloom: elastic overshoot, then hold, then collapse
+        .to(oxide.current, { scale: 1.5, opacity: 0.95, duration: 0.22, ease: 'power3.out' }, 1.05)
+        .to(oxide.current, { scale: 1.0, opacity: 0.7, duration: 0.45, ease: 'elastic.out(1.4, 0.4)' }, 1.27)
+        .to(oxide.current, { opacity: 0.55, duration: 2.1, ease: 'power1.out' }, 1.72)
+        .to(oxide.current, { scale: 0.5, opacity: 0, duration: 0.38, ease: 'power2.in' }, 4.2)
+        .set(dropL.current, { y: 0, opacity: 0 })
+        .set(oxide.current, { scale: 0, opacity: 0 });
+
+      // ── RIGHT: droplet arrives, bounces, slides off ──
+      const tlR = gsap.timeline({ repeat: -1, repeatDelay: 0.6, delay: 0.85 });
+      tlR
+        .to(dropR.current, { opacity: 0.72, duration: 0.18 }, 0.0)
+        .to(dropR.current, { y: 17, duration: 0.5, ease: 'power2.in' }, 0.0)
+        // micro-bounce at surface
+        .to(dropR.current, { y: 13, duration: 0.12, ease: 'power2.out' })
+        // deflect diagonally off surface
+        .to(dropR.current, { x: -11, y: 23, duration: 0.42, ease: 'power2.out' })
+        .to(dropR.current, { opacity: 0, duration: 0.18 }, '-=0.18')
+        .set(dropR.current, { x: 0, y: 0, opacity: 0 });
+    }, svgRef);
+
+    return () => ctx.revert();
+  }, []);
 
   return (
-    <svg viewBox="0 0 280 152" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
+    <svg ref={svgRef} viewBox="0 0 280 152" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
       style={{ width: '100%', height: 'auto', display: 'block' }}>
+
+      <defs>
+        {/* Glow filter for oxidation bloom */}
+        <filter id="cd-glow" x="-80%" y="-80%" width="260%" height="260%">
+          <feGaussianBlur stdDeviation="4" result="blur" />
+          <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+        </filter>
+        {/* Metallic gradient for steel surface */}
+        <linearGradient id="cd-steel" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stopColor="var(--bd)"  />
+          <stop offset="45%"  stopColor="var(--bd2)" />
+          <stop offset="100%" stopColor="var(--bd)"  />
+        </linearGradient>
+      </defs>
 
       {/* panels */}
       <rect x="0"   y="0" width="138" height="152" fill="var(--sf2)" />
       <rect x="142" y="0" width="138" height="152" fill="var(--sf2)" />
       <line x1="140" y1="0" x2="140" y2="152" stroke="var(--bd2)" strokeWidth="0.75" />
 
-      {/* metal surfaces */}
-      <rect x="0"   y="128" width="138" height="24" fill="var(--bd2)" />
-      <rect x="0"   y="128" width="138" height="1.5" fill="var(--bd)" />
-      <rect x="142" y="128" width="138" height="24" fill="var(--bd2)" />
-      <rect x="142" y="128" width="138" height="1.5" fill="var(--bd)" />
+      {/* steel surfaces — metallic gradient */}
+      <rect x="0"   y="128" width="138" height="24" fill="url(#cd-steel)" />
+      <rect x="0"   y="128" width="138" height="1.5" fill="var(--txm)" opacity="0.14" />
+      <rect x="142" y="128" width="138" height="24" fill="url(#cd-steel)" />
+      <rect x="142" y="128" width="138" height="1.5" fill="var(--txm)" opacity="0.14" />
 
-      {/* LEFT — 4 coarse crystal grains (irregular polygons, 8 px gaps at ~x=36, 68, 100) */}
+      {/* LEFT — 4 coarse polygon grains, clear 8 px gaps */}
       <polygon points="2,128 4,114 8,102 16,91 26,90 30,100 32,114 32,128"
         fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.8" />
       <polygon points="40,128 40,114 42,104 50,95 58,93 62,102 64,114 64,128"
@@ -117,202 +101,298 @@ function CrystalDiagram() {
         fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.8" />
       <polygon points="104,128 104,115 107,104 116,93 124,92 130,102 134,113 134,128"
         fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.8" />
+      <text x="69" y="13" textAnchor="middle" fontSize="6.5" fill="var(--txf)"
+        fontFamily="system-ui,sans-serif" letterSpacing="0.08em">PARAFFIN</text>
 
-      {/* label */}
-      <text x="69" y="14" textAnchor="middle" fontSize="7.5" fill="var(--txf)"
-        fontFamily="system-ui,sans-serif" letterSpacing="0.05em">Paraffin</text>
+      {/* LEFT droplet — GSAP-animated */}
+      <path ref={dropL} d={drop(36, 72)} fill="none" stroke="var(--txm)" strokeWidth="1.2" opacity="0" />
 
-      {/* droplet — falls through gap at x=36 */}
-      <g style={{ animation: 'wx-drip-fall 4.5s ease-in-out infinite',
-                  transformOrigin: '36px 74px' }}>
-        <path d={drop(36, 72)} fill="none" stroke="var(--txm)" strokeWidth="1.1" />
+      {/* LEFT oxidation bloom — SVG glow filter + GSAP elastic */}
+      <g ref={oxide} filter="url(#cd-glow)" style={{ opacity: 0 }}>
+        <ellipse cx="36" cy="132" rx="15" ry="5.5" fill="rgba(185,125,50,0.52)" />
+        <ellipse cx="36" cy="132" rx="7"  ry="2.5" fill="rgba(185,125,50,0.42)" />
       </g>
 
-      {/* oxidation mark — faint warm stain where droplet lands */}
-      <g style={{ animation: 'wx-oxide 4.5s ease-in-out infinite',
-                  transformOrigin: '36px 130px' }}>
-        <ellipse cx="36" cy="130" rx="11" ry="4.5" fill="rgba(200,150,80,0.38)" />
-        <ellipse cx="36" cy="130" rx="5"  ry="2"   fill="rgba(200,150,80,0.28)" />
-      </g>
-
-      {/* RIGHT — continuous microcrystalline coverage: single tight band, no gaps */}
+      {/* RIGHT — continuous dense band, no visible gaps */}
       <rect x="144" y="108" width="134" height="20" rx="1.5"
         fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.6" />
-      {/* subtle internal grain-boundary suggestions */}
-      {[167, 189, 211, 233, 253].map((x, i) => (
+      {[168, 191, 211, 231, 252].map((x, i) => (
         <line key={i} x1={x} y1="108" x2={x + (i % 2 === 0 ? -1 : 1)} y2="128"
-          stroke="var(--bd2)" strokeWidth="0.6" />
+          stroke="var(--bd2)" strokeWidth="0.55" />
       ))}
+      <text x="211" y="13" textAnchor="middle" fontSize="6.5" fill="var(--txf)"
+        fontFamily="system-ui,sans-serif" letterSpacing="0.08em">MIKROKRISTALLIN</text>
 
-      {/* label */}
-      <text x="211" y="14" textAnchor="middle" fontSize="7.5" fill="var(--txf)"
-        fontFamily="system-ui,sans-serif" letterSpacing="0.05em">Mikrokristallin</text>
-
-      {/* droplet — deflects off dense surface */}
-      <g style={{ animation: 'wx-deflect 4.5s ease-in-out infinite',
-                  animationDelay: '1.6s', transformOrigin: '211px 93px' }}>
-        <path d={drop(211, 91)} fill="none" stroke="var(--txm)" strokeWidth="1.1" />
-      </g>
+      {/* RIGHT droplet — GSAP-animated */}
+      <path ref={dropR} d={drop(211, 89)} fill="none" stroke="var(--txm)" strokeWidth="1.2" opacity="0" />
     </svg>
   );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// DIAGRAM 2 — Wax brittleness in cold: why the chain flakes and shifts
-//
-// Shows a chain bar cross-section with a wax coating layer on top.
-// LEFT:  coating develops hairline cracks under flex stress → chip lifts off.
-// RIGHT: coating deforms elastically (subtle scaleX/scaleY breathing), no cracks.
-// Temperature marker shared at top-center.
+// DIAGRAM 2 — Cold brittleness (GSAP-driven)
+// Chain roller cross-section: outer ring + wax annulus + inner pin.
+// LEFT:  pin shifts under load → radial crack snaps in (brittle speed) →
+//        chip ejects outward with momentum.
+// RIGHT: same load → wax ring deforms elastically (scaleX/Y) → springs back.
 // ─────────────────────────────────────────────────────────────────────────────
 function ColdDiagram() {
+  const svgRef    = useRef<SVGSVGElement>(null);
+  const pinL      = useRef<SVGGElement>(null);
+  const crackLine = useRef<SVGLineElement>(null);
+  const chip      = useRef<SVGCircleElement>(null);
+  const waxRingR  = useRef<SVGCircleElement>(null);
+
+  useEffect(() => {
+    const el = svgRef.current;
+    if (!el || !pinL.current || !crackLine.current || !chip.current || !waxRingR.current) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const ctx = gsap.context(() => {
+      // initial states
+      gsap.set(crackLine.current, { strokeDasharray: 22, strokeDashoffset: 22, opacity: 0 });
+      gsap.set(chip.current,      { x: 0, y: 0, rotation: 0, opacity: 0, transformOrigin: '82px 71px' });
+
+      // LEFT: subtle flex load → sudden brittle crack → chip ejects
+      const tlL = gsap.timeline({ repeat: -1, repeatDelay: 1.1 });
+      tlL
+        // flex load: pin nudges (simulates articulation stress)
+        .to(pinL.current, { x: 1.8,  duration: 0.32, ease: 'power2.inOut' }, 0.4)
+        .to(pinL.current, { x: -1.0, duration: 0.22, ease: 'power2.inOut' }, 0.72)
+        .to(pinL.current, { x: 0,    duration: 0.18, ease: 'power2.out'   }, 0.94)
+        // crack snaps in — fast, brittle (power4 = very sharp acceleration)
+        .to(crackLine.current, { opacity: 0.9, duration: 0.04 }, 1.18)
+        .to(crackLine.current, { strokeDashoffset: 0, duration: 0.13, ease: 'power4.out' }, 1.18)
+        // chip detaches and ejects radially
+        .to(chip.current, { opacity: 0.78, duration: 0.04 }, 1.3)
+        .to(chip.current, { x: 14, y: -10, rotation: -38, opacity: 0, duration: 0.52, ease: 'power2.out' }, 1.34)
+        // hold crack visible, then fade before loop
+        .to(crackLine.current, { opacity: 0, duration: 0.35, ease: 'power1.in' }, 3.8)
+        .set(crackLine.current, { strokeDashoffset: 22 })
+        .set(chip.current,      { x: 0, y: 0, rotation: 0, opacity: 0 });
+
+      // RIGHT: same load timing → wax ring deforms elastically → springs back, no crack
+      gsap.timeline({ repeat: -1, repeatDelay: 1.1, delay: 0.35 })
+        .to(waxRingR.current, {
+          scaleX: 1.06, scaleY: 0.93,
+          transformOrigin: '211px 84px',
+          duration: 0.38, ease: 'power2.in',
+        }, 0.4)
+        .to(waxRingR.current, {
+          scaleX: 1, scaleY: 1,
+          transformOrigin: '211px 84px',
+          duration: 0.65, ease: 'elastic.out(1.3, 0.38)',
+        }, 0.78);
+    }, el);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <svg viewBox="0 0 280 152" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
+    <svg ref={svgRef} viewBox="0 0 280 152" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
       style={{ width: '100%', height: 'auto', display: 'block' }}>
+
+      <defs>
+        <filter id="cold-shadow" x="-25%" y="-25%" width="150%" height="150%">
+          <feDropShadow dx="0" dy="1.5" stdDeviation="2.5" floodOpacity="0.18" />
+        </filter>
+      </defs>
 
       {/* panels */}
       <rect x="0"   y="0" width="138" height="152" fill="var(--sf2)" />
       <rect x="142" y="0" width="138" height="152" fill="var(--sf2)" />
       <line x1="140" y1="0" x2="140" y2="152" stroke="var(--bd2)" strokeWidth="0.75" />
 
-      {/* snowflake — 6 radial lines, centered at top */}
-      <g transform="translate(140,19)" opacity="0.5">
+      {/* snowflake — centered, refined */}
+      <g transform="translate(140,20)" opacity="0.45">
         <line x1="0" y1="-8"  x2="0"  y2="8"   stroke="var(--txm)" strokeWidth="1.3" strokeLinecap="round" />
-        <line x1="-7" y1="-4" x2="7"  y2="4"   stroke="var(--txm)" strokeWidth="1.3" strokeLinecap="round" />
-        <line x1="7"  y1="-4" x2="-7" y2="4"   stroke="var(--txm)" strokeWidth="1.3" strokeLinecap="round" />
-        <line x1="-2.5" y1="-6" x2="2.5" y2="-6" stroke="var(--txm)" strokeWidth="0.9" strokeLinecap="round" />
-        <line x1="-2.5" y1="6"  x2="2.5" y2="6"  stroke="var(--txm)" strokeWidth="0.9" strokeLinecap="round" />
-        <line x1="5.2"  y1="-1.5" x2="5.2" y2="1.5" stroke="var(--txm)" strokeWidth="0.9" strokeLinecap="round" />
-        <line x1="-5.2" y1="-1.5" x2="-5.2" y2="1.5" stroke="var(--txm)" strokeWidth="0.9" strokeLinecap="round" />
+        <line x1="-6.9" y1="-4" x2="6.9" y2="4" stroke="var(--txm)" strokeWidth="1.3" strokeLinecap="round" />
+        <line x1="6.9" y1="-4" x2="-6.9" y2="4" stroke="var(--txm)" strokeWidth="1.3" strokeLinecap="round" />
+        <line x1="-2.4" y1="-6.2" x2="2.4" y2="-6.2" stroke="var(--txm)" strokeWidth="0.9" strokeLinecap="round" />
+        <line x1="-2.4" y1="6.2"  x2="2.4" y2="6.2"  stroke="var(--txm)" strokeWidth="0.9" strokeLinecap="round" />
+        <line x1="5.0" y1="-1.5" x2="5.0" y2="1.5"   stroke="var(--txm)" strokeWidth="0.9" strokeLinecap="round" />
+        <line x1="-5.0" y1="-1.5" x2="-5.0" y2="1.5" stroke="var(--txm)" strokeWidth="0.9" strokeLinecap="round" />
       </g>
       <text x="140" y="44" textAnchor="middle" fontSize="7.5" fill="var(--txf)"
         fontFamily="system-ui,sans-serif">−8 °C</text>
 
-      {/* LEFT — chain cross-section bar */}
-      <rect x="16" y="76" width="106" height="30" rx="3"
-        fill="var(--bd2)" stroke="var(--bd)" strokeWidth="1" />
-
-      {/* LEFT — wax coating layer (brittle, will crack) */}
-      <rect x="12" y="64" width="114" height="14" rx="2"
-        fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.9" />
-
-      {/* LEFT — three hairline crack lines draw in */}
-      <line x1="28" y1="65"  x2="36" y2="78"
-        stroke="var(--tx1)" strokeWidth="1.1" strokeLinecap="round"
-        strokeDasharray="16" strokeDashoffset="16"
-        style={{ animation: 'wx-crack 4.5s ease-in-out infinite', animationDelay: '0s' }}
-        opacity="0" />
-      <line x1="60" y1="64"  x2="66" y2="76"
-        stroke="var(--tx1)" strokeWidth="0.9" strokeLinecap="round"
-        strokeDasharray="14" strokeDashoffset="14"
-        style={{ animation: 'wx-crack 4.5s ease-in-out infinite', animationDelay: '0.22s' }}
-        opacity="0" />
-      <line x1="94" y1="65"  x2="100" y2="76"
-        stroke="var(--tx1)" strokeWidth="0.9" strokeLinecap="round"
-        strokeDasharray="14" strokeDashoffset="14"
-        style={{ animation: 'wx-crack 4.5s ease-in-out infinite', animationDelay: '0.42s' }}
-        opacity="0" />
-
-      {/* LEFT — wax chip that lifts off from first crack */}
-      <g style={{ animation: 'wx-chip 4.5s ease-in-out infinite' }} opacity="0">
-        <rect x="24" y="64" width="10" height="8" rx="1.5"
-          fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.8" />
+      {/* ── LEFT cross-section: roller → wax ring → pin ── */}
+      {/* outer roller */}
+      <circle cx="69" cy="84" r="26" fill="none" stroke="var(--bd)" strokeWidth="1.5"
+        filter="url(#cold-shadow)" />
+      {/* wax annulus: circle at r=19, strokeWidth=8 → ring from r≈15 to r≈23 */}
+      <circle cx="69" cy="84" r="19" strokeWidth="8" stroke="var(--sf3)" fill="none" />
+      {/* inner pin — GSAP-animated group */}
+      <g ref={pinL}>
+        <circle cx="69" cy="84" r="13" fill="var(--bd2)" stroke="var(--bd)" strokeWidth="1" />
+        <circle cx="69" cy="84" r="3"  fill="var(--bd)" opacity="0.45" />
       </g>
+      {/* crack line — radial, at ~315° (upper-right), drawn by GSAP */}
+      {/* from r≈15 to r≈23 at angle −45°: (69+10.6,84−10.6)→(69+16.3,84−16.3) */}
+      <line ref={crackLine}
+        x1="80" y1="73" x2="85" y2="68"
+        stroke="var(--tx1)" strokeWidth="1.3" strokeLinecap="round"
+        opacity="0" />
+      {/* chip fragment */}
+      <circle ref={chip} cx="82" cy="71" r="3.8"
+        fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.7" opacity="0" />
+      <text x="69" y="143" textAnchor="middle" fontSize="6.5" fill="var(--txf)"
+        fontFamily="system-ui,sans-serif" letterSpacing="0.07em">STANDARD-WACHS</text>
 
-      {/* LEFT label */}
-      <text x="69" y="138" textAnchor="middle" fontSize="7.5" fill="var(--txf)"
-        fontFamily="system-ui,sans-serif" letterSpacing="0.04em">Standard-Wachs</text>
-
-      {/* RIGHT — chain cross-section bar */}
-      <rect x="158" y="76" width="106" height="30" rx="3"
-        fill="var(--bd2)" stroke="var(--bd)" strokeWidth="1" />
-
-      {/* RIGHT — elastic wax coating (no cracks, gentle breathing) */}
-      <g style={{ animation: 'wx-elastic 4.5s ease-in-out infinite',
-                  transformOrigin: '211px 71px' }}>
-        <rect x="154" y="64" width="114" height="14" rx="2"
-          fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.9" />
-      </g>
-
-      {/* RIGHT label */}
-      <text x="211" y="138" textAnchor="middle" fontSize="7.5" fill="var(--txf)"
-        fontFamily="system-ui,sans-serif" letterSpacing="0.04em">MoS₂-Matrix</text>
+      {/* ── RIGHT cross-section: same geometry, elastic wax ring ── */}
+      <circle cx="211" cy="84" r="26" fill="none" stroke="var(--bd)" strokeWidth="1.5"
+        filter="url(#cold-shadow)" />
+      <circle ref={waxRingR} cx="211" cy="84" r="19" strokeWidth="8"
+        stroke="var(--sf3)" fill="none" />
+      <circle cx="211" cy="84" r="13" fill="var(--bd2)" stroke="var(--bd)" strokeWidth="1" />
+      <circle cx="211" cy="84" r="3"  fill="var(--bd)" opacity="0.45" />
+      <text x="211" y="143" textAnchor="middle" fontSize="6.5" fill="var(--txf)"
+        fontFamily="system-ui,sans-serif" letterSpacing="0.07em">MOS₂-MATRIX</text>
     </svg>
   );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// DIAGRAM 3 — Wax migration under heat: why soft wax thins and exposes chain
-//
-// Chain bar cross-section with wax coating above it.
-// LEFT:  coating thins (scaleY, origin at bottom) → micro-drips form → faint
-//        contamination specks appear on exposed metal surface.
-// RIGHT: coating stays at full thickness — no drips, no dirt.
+// DIAGRAM 3 — Heat migration (GSAP-driven)
+// LEFT:  3 independent wax segments thin at staggered rates → each drips →
+//        contamination dots appear on exposed metal. Center segment fails first
+//        (highest thermal load at contact point — physically accurate).
+// RIGHT: single stable wax layer, nothing changes.
 // ─────────────────────────────────────────────────────────────────────────────
 function HeatDiagram() {
-  const dripPositions = [
-    { cx: 32,  delay: '0s'    },
-    { cx: 69,  delay: '0.85s' },
-    { cx: 106, delay: '1.6s'  },
-  ] as const;
+  const svgRef = useRef<SVGSVGElement>(null);
+  const segA   = useRef<SVGRectElement>(null);
+  const segB   = useRef<SVGRectElement>(null);
+  const segC   = useRef<SVGRectElement>(null);
+  const dripA  = useRef<SVGGElement>(null);
+  const dripB  = useRef<SVGGElement>(null);
+  const dripC  = useRef<SVGGElement>(null);
+  const dirtA  = useRef<SVGCircleElement>(null);
+  const dirtB  = useRef<SVGCircleElement>(null);
+  const dirtC  = useRef<SVGCircleElement>(null);
+
+  useEffect(() => {
+    const el = svgRef.current;
+    if (!el) return;
+    const refs = [segA, segB, segC, dripA, dripB, dripC, dirtA, dirtB, dirtC];
+    if (refs.some(r => !r.current)) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const ctx = gsap.context(() => {
+      // initial states — all anchored to bottom of wax layer (y=88)
+      gsap.set(segA.current, { transformOrigin: '29px 88px',  scaleY: 1 });
+      gsap.set(segB.current, { transformOrigin: '73px 88px',  scaleY: 1 });
+      gsap.set(segC.current, { transformOrigin: '117px 88px', scaleY: 1 });
+      gsap.set([dripA.current, dripB.current, dripC.current], { y: 0, opacity: 0 });
+      gsap.set([dirtA.current, dirtB.current, dirtC.current], { scale: 0, opacity: 0 });
+
+      // single master timeline keeps all three segments choreographed
+      const tl = gsap.timeline({ repeat: -1, repeatDelay: 0.7 });
+
+      // ── Center (B) fails first — highest heat at contact point ──
+      tl.to(segB.current,  { scaleY: 0.18, duration: 1.3, ease: 'power1.inOut' }, 0.3)
+        .to(dripB.current,  { opacity: 0.6, duration: 0.14 }, 0.65)
+        .to(dripB.current,  { y: 22, duration: 0.68, ease: 'power2.in' }, 0.65)
+        .to(dripB.current,  { opacity: 0, duration: 0.18 }, 1.18)
+        .to(dirtB.current,  { scale: 1.15, opacity: 0.58, duration: 0.28, ease: 'back.out(2)' }, 1.38)
+        .to(dirtB.current,  { scale: 1.0,  opacity: 0.42, duration: 0.2 }, 1.66)
+
+      // ── Left (A) fails — 0.55s behind B ──
+        .to(segA.current,  { scaleY: 0.22, duration: 1.25, ease: 'power1.inOut' }, 0.85)
+        .to(dripA.current,  { opacity: 0.6, duration: 0.14 }, 1.18)
+        .to(dripA.current,  { y: 22, duration: 0.68, ease: 'power2.in' }, 1.18)
+        .to(dripA.current,  { opacity: 0, duration: 0.18 }, 1.72)
+        .to(dirtA.current,  { scale: 1.15, opacity: 0.52, duration: 0.28, ease: 'back.out(2)' }, 1.9)
+        .to(dirtA.current,  { scale: 1.0,  opacity: 0.38, duration: 0.2 }, 2.18)
+
+      // ── Right (C) fails last ──
+        .to(segC.current,  { scaleY: 0.2,  duration: 1.25, ease: 'power1.inOut' }, 1.3)
+        .to(dripC.current,  { opacity: 0.6, duration: 0.14 }, 1.65)
+        .to(dripC.current,  { y: 22, duration: 0.68, ease: 'power2.in' }, 1.65)
+        .to(dripC.current,  { opacity: 0, duration: 0.18 }, 2.18)
+        .to(dirtC.current,  { scale: 1.15, opacity: 0.52, duration: 0.28, ease: 'back.out(2)' }, 2.38)
+        .to(dirtC.current,  { scale: 1.0,  opacity: 0.38, duration: 0.2 }, 2.66)
+
+      // ── hold degraded state ──
+      // ── reset ──
+        .to([segA.current, segB.current, segC.current],
+            { scaleY: 1, duration: 0.5, ease: 'power2.inOut' }, 4.6)
+        .to([dirtA.current, dirtB.current, dirtC.current],
+            { scale: 0, opacity: 0, duration: 0.4, ease: 'power2.in' }, 4.6)
+        .set([dripA.current, dripB.current, dripC.current], { y: 0, opacity: 0 });
+    }, el);
+
+    return () => ctx.revert();
+  }, []);
 
   return (
-    <svg viewBox="0 0 280 152" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
+    <svg ref={svgRef} viewBox="0 0 280 152" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
       style={{ width: '100%', height: 'auto', display: 'block' }}>
+
+      <defs>
+        <linearGradient id="ht-steel" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stopColor="var(--bd)"  />
+          <stop offset="45%"  stopColor="var(--bd2)" />
+          <stop offset="100%" stopColor="var(--bd)"  />
+        </linearGradient>
+      </defs>
 
       {/* panels */}
       <rect x="0"   y="0" width="138" height="152" fill="var(--sf2)" />
       <rect x="142" y="0" width="138" height="152" fill="var(--sf2)" />
       <line x1="140" y1="0" x2="140" y2="152" stroke="var(--bd2)" strokeWidth="0.75" />
 
-      {/* temperature label */}
-      <text x="140" y="14" textAnchor="middle" fontSize="7.5" fill="var(--txf)"
+      <text x="140" y="13" textAnchor="middle" fontSize="7.5" fill="var(--txf)"
         fontFamily="system-ui,sans-serif">+75 °C</text>
 
-      {/* LEFT — chain bar */}
+      {/* LEFT — chain bar with metallic gradient */}
       <rect x="8"   y="88" width="122" height="26" rx="3"
-        fill="var(--bd2)" stroke="var(--bd)" strokeWidth="1" />
+        fill="url(#ht-steel)" stroke="var(--bd)" strokeWidth="1" />
 
-      {/* LEFT — wax coating (thinning, anchored at bottom = y 88) */}
-      <g style={{ animation: 'wx-thin 4.5s ease-in-out infinite',
-                  transformOrigin: '69px 88px' }}>
-        <rect x="8" y="72" width="122" height="16" rx="2"
-          fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.9" />
+      {/* LEFT — 3 independent wax segments (center first, then sides) */}
+      {/* A: x=10–48 */}
+      <rect ref={segA} x="10"  y="72" width="38" height="16" rx="2"
+        fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.8" />
+      {/* B: x=54–92 (center, most heat) */}
+      <rect ref={segB} x="54"  y="72" width="38" height="16" rx="2"
+        fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.8" />
+      {/* C: x=98–136 */}
+      <rect ref={segC} x="98"  y="72" width="38" height="16" rx="2"
+        fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.8" />
+
+      {/* drip A */}
+      <g ref={dripA}>
+        <ellipse cx="29" cy="89" rx="2" ry="2.6" fill="var(--txm)" opacity="0.52" />
+        <polygon points="27,91.5 31,91.5 29,97" fill="var(--txm)" opacity="0.52" />
+      </g>
+      {/* drip B */}
+      <g ref={dripB}>
+        <ellipse cx="73" cy="89" rx="2" ry="2.6" fill="var(--txm)" opacity="0.52" />
+        <polygon points="71,91.5 75,91.5 73,97" fill="var(--txm)" opacity="0.52" />
+      </g>
+      {/* drip C */}
+      <g ref={dripC}>
+        <ellipse cx="117" cy="89" rx="2" ry="2.6" fill="var(--txm)" opacity="0.52" />
+        <polygon points="115,91.5 119,91.5 117,97" fill="var(--txm)" opacity="0.52" />
       </g>
 
-      {/* LEFT — micro-drips */}
-      {dripPositions.map(({ cx, delay }) => (
-        <g key={cx} style={{ animation: `wx-drop 4.5s ease-in-out infinite`,
-            animationDelay: delay, transformOrigin: `${cx}px 89px` }}>
-          <ellipse cx={cx} cy="89" rx="2.2" ry="2.8" fill="var(--txm)" opacity="0.5" />
-          <polygon points={`${cx - 2.2},91 ${cx + 2.2},91 ${cx},97`}
-            fill="var(--txm)" opacity="0.5" />
-        </g>
-      ))}
+      {/* contamination specks */}
+      <circle ref={dirtA} cx="29"  cy="98" r="2.5" fill="var(--txm)" opacity="0" />
+      <circle ref={dirtB} cx="73"  cy="98" r="2.5" fill="var(--txm)" opacity="0" />
+      <circle ref={dirtC} cx="117" cy="98" r="2.5" fill="var(--txm)" opacity="0" />
 
-      {/* LEFT — contamination specks appear after drip */}
-      {dripPositions.map(({ cx, delay }) => (
-        <g key={cx} style={{ animation: `wx-dirt 4.5s ease-in-out infinite`,
-            animationDelay: delay, transformOrigin: `${cx}px 97px` }}>
-          <circle cx={cx} cy="97" r="2.4" fill="var(--txm)" opacity="0.4" />
-        </g>
-      ))}
-
-      {/* LEFT label */}
-      <text x="69" y="138" textAnchor="middle" fontSize="7.5" fill="var(--txf)"
-        fontFamily="system-ui,sans-serif" letterSpacing="0.04em">Paraffin</text>
+      <text x="69" y="143" textAnchor="middle" fontSize="6.5" fill="var(--txf)"
+        fontFamily="system-ui,sans-serif" letterSpacing="0.07em">PARAFFIN</text>
 
       {/* RIGHT — chain bar */}
       <rect x="150" y="88" width="122" height="26" rx="3"
-        fill="var(--bd2)" stroke="var(--bd)" strokeWidth="1" />
-
-      {/* RIGHT — stable wax coating (no animation, no drips) */}
+        fill="url(#ht-steel)" stroke="var(--bd)" strokeWidth="1" />
+      {/* RIGHT — single stable wax layer — no animation */}
       <rect x="150" y="72" width="122" height="16" rx="2"
-        fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.9" />
+        fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.8" />
 
-      {/* RIGHT label */}
-      <text x="211" y="138" textAnchor="middle" fontSize="7.5" fill="var(--txf)"
-        fontFamily="system-ui,sans-serif" letterSpacing="0.04em">Fischer-Tropsch</text>
+      <text x="211" y="143" textAnchor="middle" fontSize="6.5" fill="var(--txf)"
+        fontFamily="system-ui,sans-serif" letterSpacing="0.07em">FISCHER-TROPSCH</text>
     </svg>
   );
 }
@@ -438,17 +518,6 @@ export function WhyWax() {
   const de         = lang === 'de';
 
   useSectionReveal(headerRef);
-
-  // Inject keyframes once
-  useEffect(() => {
-    const id = 'wx-anim-styles';
-    if (document.getElementById(id)) return;
-    const style = document.createElement('style');
-    style.id = id;
-    style.textContent = ANIM_STYLES;
-    document.head.appendChild(style);
-    return () => { document.getElementById(id)?.remove(); };
-  }, []);
 
   // Friction bars animate in on scroll
   useEffect(() => {
