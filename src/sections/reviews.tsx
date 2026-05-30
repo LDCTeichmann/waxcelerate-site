@@ -13,8 +13,8 @@ const reviews = [
     dateEn: 'March 2026',
   },
   {
-    textDe: 'Positiver als positiv kann leider niemand bewerten – Wäre aber hier angebracht 1+ mit ★',
-    textEn: "Can't rate higher than positive — but this would deserve a 1+ with ★",
+    textDe: 'Positiver als positiv kann leider niemand bewerten – Wäre aber hier angebracht 1+ mit ★',
+    textEn: "Can't rate higher than positive — but this would deserve a 1+ with ★",
     name: 'volvo210b',
     reviewerCount: '1.019',
     dateDe: 'Jan 2026',
