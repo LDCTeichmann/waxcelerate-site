@@ -72,8 +72,8 @@ export function Navigation() {
       <header
         className="fixed top-0 left-0 right-0 z-50 py-2 transition-all duration-300"
         style={{
-          background: isScrolled ? 'var(--nav-bg)' : 'rgba(10,10,10,0.45)',
-          boxShadow: isScrolled ? 'inset 0 -1px 0 var(--bd)' : 'none',
+          background: isScrolled ? 'var(--nav-bg)' : 'rgba(10,10,10,0.72)',
+          boxShadow: isScrolled ? 'inset 0 -1px 0 var(--bd)' : 'inset 0 -1px 0 rgba(255,255,255,0.06)',
           backdropFilter: 'blur(16px)',
           WebkitBackdropFilter: 'blur(16px)',
         }}
@@ -125,7 +125,7 @@ export function Navigation() {
                   style={{
                     color: isScrolled
                       ? (activeSection === item.href ? 'var(--tx1)' : 'var(--tx2)')
-                      : (activeSection === item.href ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0.70)'),
+                      : (activeSection === item.href ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0.88)'),
                   }}
                 >
                   {t.nav[item.key as keyof typeof t.nav]}
