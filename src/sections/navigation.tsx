@@ -19,6 +19,7 @@ export function Navigation() {
   const [activeSection, setActiveSection] = useState<string>('');
   const { t, lang, toggleLang } = useLanguage();
   const { theme, setTheme } = useTheme();
+  const isDark = theme === 'dark' || theme === 'noir';
   const de = lang === 'de';
 
   useEffect(() => {
@@ -72,8 +73,8 @@ export function Navigation() {
       <header
         className="fixed top-0 left-0 right-0 z-50 py-2 transition-all duration-300"
         style={{
-          background: isScrolled ? 'var(--nav-bg)' : 'rgba(10,10,10,0.72)',
-          boxShadow: isScrolled ? 'inset 0 -1px 0 var(--bd)' : 'inset 0 -1px 0 rgba(255,255,255,0.06)',
+          background: isScrolled ? 'var(--nav-bg)' : (isDark ? 'rgba(10,10,10,0.72)' : 'transparent'),
+          boxShadow: isScrolled ? 'inset 0 -1px 0 var(--bd)' : (isDark ? 'inset 0 -1px 0 rgba(255,255,255,0.06)' : 'none'),
           backdropFilter: 'blur(16px)',
           WebkitBackdropFilter: 'blur(16px)',
         }}
@@ -98,7 +99,7 @@ export function Navigation() {
               />
               <span
                 className="font-sans text-sm font-bold tracking-wide transition-colors duration-300"
-                style={{ color: isScrolled ? 'var(--tx1)' : 'rgba(255,255,255,0.9)' }}
+                style={{ color: isScrolled ? 'var(--tx1)' : (isDark ? 'rgba(255,255,255,0.9)' : 'var(--tx1)') }}
               >
                 WAXCELERATE
               </span>
@@ -125,12 +126,14 @@ export function Navigation() {
                   style={{
                     color: isScrolled
                       ? (activeSection === item.href ? 'var(--tx1)' : 'var(--tx2)')
-                      : (activeSection === item.href ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0.88)'),
+                      : (isDark
+                          ? (activeSection === item.href ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0.88)')
+                          : (activeSection === item.href ? 'var(--tx1)' : 'var(--tx2)')),
                   }}
                 >
                   {t.nav[item.key as keyof typeof t.nav]}
                   {activeSection === item.href && (
-                    <span className="absolute bottom-0 left-4 right-4 h-px" style={{ background: isScrolled ? '#1A3C6E' : 'rgba(255,255,255,0.5)' }} />
+                    <span className="absolute bottom-0 left-4 right-4 h-px" style={{ background: (isScrolled || !isDark) ? '#1A3C6E' : 'rgba(255,255,255,0.5)' }} />
                   )}
                   {activeSection !== item.href && (
                     <span
