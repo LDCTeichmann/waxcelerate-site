@@ -6,14 +6,15 @@ import { useSectionReveal } from '@/hooks/useAnimation';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { gsap } from '@/lib/gsap';
 
-// ─── Diagram colour tokens (concrete values — CSS vars for wax/steel collapse to
-//     near-identical dark tones in both modes, making elements invisible) ────────
-const C_WAX   = 'rgba(200,178,128,0.92)';   // warm amber — wax appearance
-const C_WAX_S = 'rgba(200,178,128,0.42)';   // wax stroke / secondary
-const C_RUST  = 'rgba(190,70,16,0.92)';     // rust core
-const C_RUST2 = 'rgba(190,70,16,0.52)';     // rust spread / halo
-const C_DROP  = 'rgba(118,164,200,0.90)';   // water droplet
-const C_GRIME = 'rgba(100,82,58,0.92)';     // contamination / grime
+// ─── Diagram colour tokens — monochrome / silver palette ─────────────────────
+// Wax elements: light silver-white — high contrast on dark panel bg, neutral.
+// Rust: only chromatic accent — functional (rust IS orange). Everything else grey.
+const C_WAX   = 'rgba(215,217,222,0.90)';   // silver-white wax
+const C_WAX_S = 'rgba(215,217,222,0.38)';   // wax stroke / secondary
+const C_RUST  = 'rgba(195,72,18,0.92)';     // rust core (functional orange)
+const C_RUST2 = 'rgba(195,72,18,0.50)';     // rust spread / halo
+const C_DROP  = 'rgba(195,200,210,0.88)';   // water droplet (cool near-white)
+const C_GRIME = 'rgba(42,44,52,0.92)';      // contamination / grime (near-black)
 
 // ─────────────────────────────────────────────────────────────────────────────
 // DIAGRAM 1 — Crystal grain size
