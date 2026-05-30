@@ -103,55 +103,55 @@ function CrystalDiagram() {
       <line x1="140" y1="0" x2="140" y2="152" stroke="var(--bd2)" strokeWidth="0.75" />
 
       {/* metal surfaces */}
-      <rect x="0"   y="128" width="138" height="24" fill="rgba(255,255,255,0.025)" />
-      <rect x="0"   y="128" width="138" height="1.5" fill="rgba(255,255,255,0.12)" />
-      <rect x="142" y="128" width="138" height="24" fill="rgba(255,255,255,0.025)" />
-      <rect x="142" y="128" width="138" height="1.5" fill="rgba(255,255,255,0.12)" />
+      <rect x="0"   y="128" width="138" height="24" fill="var(--bd2)" />
+      <rect x="0"   y="128" width="138" height="1.5" fill="var(--bd)" />
+      <rect x="142" y="128" width="138" height="24" fill="var(--bd2)" />
+      <rect x="142" y="128" width="138" height="1.5" fill="var(--bd)" />
 
       {/* LEFT — 4 coarse crystal grains (irregular polygons, 8 px gaps at ~x=36, 68, 100) */}
       <polygon points="2,128 4,114 8,102 16,91 26,90 30,100 32,114 32,128"
-        fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.17)" strokeWidth="0.8" />
+        fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.8" />
       <polygon points="40,128 40,114 42,104 50,95 58,93 62,102 64,114 64,128"
-        fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.17)" strokeWidth="0.8" />
+        fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.8" />
       <polygon points="72,128 72,115 74,104 82,93 90,92 96,102 98,113 98,128"
-        fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.17)" strokeWidth="0.8" />
+        fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.8" />
       <polygon points="104,128 104,115 107,104 116,93 124,92 130,102 134,113 134,128"
-        fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.17)" strokeWidth="0.8" />
+        fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.8" />
 
       {/* label */}
-      <text x="69" y="14" textAnchor="middle" fontSize="7.5" fill="rgba(255,255,255,0.27)"
+      <text x="69" y="14" textAnchor="middle" fontSize="7.5" fill="var(--txf)"
         fontFamily="system-ui,sans-serif" letterSpacing="0.05em">Paraffin</text>
 
       {/* droplet — falls through gap at x=36 */}
       <g style={{ animation: 'wx-drip-fall 4.5s ease-in-out infinite',
                   transformOrigin: '36px 74px' }}>
-        <path d={drop(36, 72)} fill="none" stroke="rgba(255,255,255,0.52)" strokeWidth="1.1" />
+        <path d={drop(36, 72)} fill="none" stroke="var(--txm)" strokeWidth="1.1" />
       </g>
 
-      {/* oxidation mark — barely-visible warm stain where droplet lands */}
+      {/* oxidation mark — faint warm stain where droplet lands */}
       <g style={{ animation: 'wx-oxide 4.5s ease-in-out infinite',
                   transformOrigin: '36px 130px' }}>
-        <ellipse cx="36" cy="130" rx="11" ry="4.5" fill="rgba(210,175,105,0.22)" />
-        <ellipse cx="36" cy="130" rx="5"  ry="2"   fill="rgba(210,175,105,0.16)" />
+        <ellipse cx="36" cy="130" rx="11" ry="4.5" fill="rgba(200,150,80,0.38)" />
+        <ellipse cx="36" cy="130" rx="5"  ry="2"   fill="rgba(200,150,80,0.28)" />
       </g>
 
       {/* RIGHT — continuous microcrystalline coverage: single tight band, no gaps */}
       <rect x="144" y="108" width="134" height="20" rx="1.5"
-        fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.15)" strokeWidth="0.6" />
+        fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.6" />
       {/* subtle internal grain-boundary suggestions */}
       {[167, 189, 211, 233, 253].map((x, i) => (
         <line key={i} x1={x} y1="108" x2={x + (i % 2 === 0 ? -1 : 1)} y2="128"
-          stroke="rgba(255,255,255,0.04)" strokeWidth="0.6" />
+          stroke="var(--bd2)" strokeWidth="0.6" />
       ))}
 
       {/* label */}
-      <text x="211" y="14" textAnchor="middle" fontSize="7.5" fill="rgba(255,255,255,0.27)"
+      <text x="211" y="14" textAnchor="middle" fontSize="7.5" fill="var(--txf)"
         fontFamily="system-ui,sans-serif" letterSpacing="0.05em">Mikrokristallin</text>
 
       {/* droplet — deflects off dense surface */}
       <g style={{ animation: 'wx-deflect 4.5s ease-in-out infinite',
                   animationDelay: '1.6s', transformOrigin: '211px 93px' }}>
-        <path d={drop(211, 91)} fill="none" stroke="rgba(255,255,255,0.52)" strokeWidth="1.1" />
+        <path d={drop(211, 91)} fill="none" stroke="var(--txm)" strokeWidth="1.1" />
       </g>
     </svg>
   );
@@ -175,41 +175,40 @@ function ColdDiagram() {
       <rect x="142" y="0" width="138" height="152" fill="var(--sf2)" />
       <line x1="140" y1="0" x2="140" y2="152" stroke="var(--bd2)" strokeWidth="0.75" />
 
-      {/* snowflake — 6 radial lines, refined, centered at top */}
-      <g transform="translate(140,19)" opacity="0.38">
-        <line x1="0" y1="-8"  x2="0"  y2="8"   stroke="rgba(255,255,255,0.9)" strokeWidth="1.3" strokeLinecap="round" />
-        <line x1="-7" y1="-4" x2="7"  y2="4"   stroke="rgba(255,255,255,0.9)" strokeWidth="1.3" strokeLinecap="round" />
-        <line x1="7"  y1="-4" x2="-7" y2="4"   stroke="rgba(255,255,255,0.9)" strokeWidth="1.3" strokeLinecap="round" />
-        {/* short branch tips */}
-        <line x1="-2.5" y1="-6" x2="2.5" y2="-6" stroke="rgba(255,255,255,0.6)" strokeWidth="0.9" strokeLinecap="round" />
-        <line x1="-2.5" y1="6"  x2="2.5" y2="6"  stroke="rgba(255,255,255,0.6)" strokeWidth="0.9" strokeLinecap="round" />
-        <line x1="5.2"  y1="-1.5" x2="5.2" y2="1.5" stroke="rgba(255,255,255,0.6)" strokeWidth="0.9" strokeLinecap="round" />
-        <line x1="-5.2" y1="-1.5" x2="-5.2" y2="1.5" stroke="rgba(255,255,255,0.6)" strokeWidth="0.9" strokeLinecap="round" />
+      {/* snowflake — 6 radial lines, centered at top */}
+      <g transform="translate(140,19)" opacity="0.5">
+        <line x1="0" y1="-8"  x2="0"  y2="8"   stroke="var(--txm)" strokeWidth="1.3" strokeLinecap="round" />
+        <line x1="-7" y1="-4" x2="7"  y2="4"   stroke="var(--txm)" strokeWidth="1.3" strokeLinecap="round" />
+        <line x1="7"  y1="-4" x2="-7" y2="4"   stroke="var(--txm)" strokeWidth="1.3" strokeLinecap="round" />
+        <line x1="-2.5" y1="-6" x2="2.5" y2="-6" stroke="var(--txm)" strokeWidth="0.9" strokeLinecap="round" />
+        <line x1="-2.5" y1="6"  x2="2.5" y2="6"  stroke="var(--txm)" strokeWidth="0.9" strokeLinecap="round" />
+        <line x1="5.2"  y1="-1.5" x2="5.2" y2="1.5" stroke="var(--txm)" strokeWidth="0.9" strokeLinecap="round" />
+        <line x1="-5.2" y1="-1.5" x2="-5.2" y2="1.5" stroke="var(--txm)" strokeWidth="0.9" strokeLinecap="round" />
       </g>
-      <text x="140" y="44" textAnchor="middle" fontSize="7.5" fill="rgba(255,255,255,0.28)"
+      <text x="140" y="44" textAnchor="middle" fontSize="7.5" fill="var(--txf)"
         fontFamily="system-ui,sans-serif">−8 °C</text>
 
       {/* LEFT — chain cross-section bar */}
       <rect x="16" y="76" width="106" height="30" rx="3"
-        fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
+        fill="var(--bd2)" stroke="var(--bd)" strokeWidth="1" />
 
       {/* LEFT — wax coating layer (brittle, will crack) */}
       <rect x="12" y="64" width="114" height="14" rx="2"
-        fill="rgba(255,255,255,0.09)" stroke="rgba(255,255,255,0.19)" strokeWidth="0.9" />
+        fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.9" />
 
       {/* LEFT — three hairline crack lines draw in */}
       <line x1="28" y1="65"  x2="36" y2="78"
-        stroke="rgba(255,255,255,0.78)" strokeWidth="1.1" strokeLinecap="round"
+        stroke="var(--tx1)" strokeWidth="1.1" strokeLinecap="round"
         strokeDasharray="16" strokeDashoffset="16"
         style={{ animation: 'wx-crack 4.5s ease-in-out infinite', animationDelay: '0s' }}
         opacity="0" />
       <line x1="60" y1="64"  x2="66" y2="76"
-        stroke="rgba(255,255,255,0.72)" strokeWidth="0.9" strokeLinecap="round"
+        stroke="var(--tx1)" strokeWidth="0.9" strokeLinecap="round"
         strokeDasharray="14" strokeDashoffset="14"
         style={{ animation: 'wx-crack 4.5s ease-in-out infinite', animationDelay: '0.22s' }}
         opacity="0" />
       <line x1="94" y1="65"  x2="100" y2="76"
-        stroke="rgba(255,255,255,0.72)" strokeWidth="0.9" strokeLinecap="round"
+        stroke="var(--tx1)" strokeWidth="0.9" strokeLinecap="round"
         strokeDasharray="14" strokeDashoffset="14"
         style={{ animation: 'wx-crack 4.5s ease-in-out infinite', animationDelay: '0.42s' }}
         opacity="0" />
@@ -217,26 +216,26 @@ function ColdDiagram() {
       {/* LEFT — wax chip that lifts off from first crack */}
       <g style={{ animation: 'wx-chip 4.5s ease-in-out infinite' }} opacity="0">
         <rect x="24" y="64" width="10" height="8" rx="1.5"
-          fill="rgba(255,255,255,0.09)" stroke="rgba(255,255,255,0.22)" strokeWidth="0.8" />
+          fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.8" />
       </g>
 
       {/* LEFT label */}
-      <text x="69" y="138" textAnchor="middle" fontSize="7.5" fill="rgba(255,255,255,0.27)"
+      <text x="69" y="138" textAnchor="middle" fontSize="7.5" fill="var(--txf)"
         fontFamily="system-ui,sans-serif" letterSpacing="0.04em">Standard-Wachs</text>
 
       {/* RIGHT — chain cross-section bar */}
       <rect x="158" y="76" width="106" height="30" rx="3"
-        fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
+        fill="var(--bd2)" stroke="var(--bd)" strokeWidth="1" />
 
       {/* RIGHT — elastic wax coating (no cracks, gentle breathing) */}
       <g style={{ animation: 'wx-elastic 4.5s ease-in-out infinite',
                   transformOrigin: '211px 71px' }}>
         <rect x="154" y="64" width="114" height="14" rx="2"
-          fill="rgba(255,255,255,0.09)" stroke="rgba(255,255,255,0.19)" strokeWidth="0.9" />
+          fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.9" />
       </g>
 
       {/* RIGHT label */}
-      <text x="211" y="138" textAnchor="middle" fontSize="7.5" fill="rgba(255,255,255,0.27)"
+      <text x="211" y="138" textAnchor="middle" fontSize="7.5" fill="var(--txf)"
         fontFamily="system-ui,sans-serif" letterSpacing="0.04em">MoS₂-Matrix</text>
     </svg>
   );
@@ -267,27 +266,27 @@ function HeatDiagram() {
       <line x1="140" y1="0" x2="140" y2="152" stroke="var(--bd2)" strokeWidth="0.75" />
 
       {/* temperature label */}
-      <text x="140" y="14" textAnchor="middle" fontSize="7.5" fill="rgba(255,255,255,0.28)"
+      <text x="140" y="14" textAnchor="middle" fontSize="7.5" fill="var(--txf)"
         fontFamily="system-ui,sans-serif">+75 °C</text>
 
       {/* LEFT — chain bar */}
       <rect x="8"   y="88" width="122" height="26" rx="3"
-        fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
+        fill="var(--bd2)" stroke="var(--bd)" strokeWidth="1" />
 
       {/* LEFT — wax coating (thinning, anchored at bottom = y 88) */}
       <g style={{ animation: 'wx-thin 4.5s ease-in-out infinite',
                   transformOrigin: '69px 88px' }}>
         <rect x="8" y="72" width="122" height="16" rx="2"
-          fill="rgba(255,255,255,0.09)" stroke="rgba(255,255,255,0.19)" strokeWidth="0.9" />
+          fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.9" />
       </g>
 
-      {/* LEFT — micro-drips (outline only, monochromatic) */}
+      {/* LEFT — micro-drips */}
       {dripPositions.map(({ cx, delay }) => (
         <g key={cx} style={{ animation: `wx-drop 4.5s ease-in-out infinite`,
             animationDelay: delay, transformOrigin: `${cx}px 89px` }}>
-          <ellipse cx={cx} cy="89" rx="2.2" ry="2.8" fill="rgba(255,255,255,0.28)" />
+          <ellipse cx={cx} cy="89" rx="2.2" ry="2.8" fill="var(--txm)" opacity="0.5" />
           <polygon points={`${cx - 2.2},91 ${cx + 2.2},91 ${cx},97`}
-            fill="rgba(255,255,255,0.28)" />
+            fill="var(--txm)" opacity="0.5" />
         </g>
       ))}
 
@@ -295,24 +294,24 @@ function HeatDiagram() {
       {dripPositions.map(({ cx, delay }) => (
         <g key={cx} style={{ animation: `wx-dirt 4.5s ease-in-out infinite`,
             animationDelay: delay, transformOrigin: `${cx}px 97px` }}>
-          <circle cx={cx} cy="97" r="2.4" fill="rgba(255,255,255,0.18)" />
+          <circle cx={cx} cy="97" r="2.4" fill="var(--txm)" opacity="0.4" />
         </g>
       ))}
 
       {/* LEFT label */}
-      <text x="69" y="138" textAnchor="middle" fontSize="7.5" fill="rgba(255,255,255,0.27)"
+      <text x="69" y="138" textAnchor="middle" fontSize="7.5" fill="var(--txf)"
         fontFamily="system-ui,sans-serif" letterSpacing="0.04em">Paraffin</text>
 
       {/* RIGHT — chain bar */}
       <rect x="150" y="88" width="122" height="26" rx="3"
-        fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
+        fill="var(--bd2)" stroke="var(--bd)" strokeWidth="1" />
 
       {/* RIGHT — stable wax coating (no animation, no drips) */}
       <rect x="150" y="72" width="122" height="16" rx="2"
-        fill="rgba(255,255,255,0.09)" stroke="rgba(255,255,255,0.19)" strokeWidth="0.9" />
+        fill="var(--sf3)" stroke="var(--bd)" strokeWidth="0.9" />
 
       {/* RIGHT label */}
-      <text x="211" y="138" textAnchor="middle" fontSize="7.5" fill="rgba(255,255,255,0.27)"
+      <text x="211" y="138" textAnchor="middle" fontSize="7.5" fill="var(--txf)"
         fontFamily="system-ui,sans-serif" letterSpacing="0.04em">Fischer-Tropsch</text>
     </svg>
   );
