@@ -16,7 +16,7 @@ export const translations = {
     hero: {
       subtitle: 'Heißwachs für Fahrradketten',
       headline: 'Am Ende der Recherche.',
-      headlineSub: 'Waxcelerate.',
+      headlineSub: 'Schluss mit Öl.',
       tagline: 'Dreimal längere Kette. Kein Dreck. Kein Nachschmieren.',
       priceAnchor: 'Ab €22,95 · ~€70 gespart auf 12.000 km',
       guarantee: 'Nicht zufrieden? Schreib mir — ich sorge dafür, dass es stimmt.',
@@ -185,7 +185,7 @@ export const translations = {
         },
         {
           q: 'Wie viele Watt spart Heißwachs im Vergleich zu Kettenöl?',
-          a: 'In kontrollierten Messungen erzeugt unser PTFE-basiertes Wachs ca. 2,6 Watt Reibungsverlust — Kettenöl unter Realbedingungen liegt bei ca. 7,5 Watt. Das sind knapp 5 Watt Unterschied an der Kette. Die oft zitierten „bis zu 8 Watt" stammen aus Labortests bei 300–400 Watt Eingangsleistung. Im Alltag sind die Werte etwas geringer — aber kein anderes Schmiermittel kommt auch nur annähernd an Heißwachs heran.',
+          a: 'In publizierten Kettenschmiermittel-Tests liegt PTFE-Heißwachs typischerweise bei ca. 2–4 Watt Reibungsverlust — Kettenöl unter Realbedingungen bei ca. 6–10 Watt. Das sind ca. 4–6 Watt Unterschied an der Kette. Die oft zitierten „bis zu 8 Watt" stammen aus Labortests bei 300–400 Watt Eingangsleistung. Im Alltag sind die Werte etwas geringer — aber kein anderes Schmiermittel kommt auch nur annähernd an Heißwachs heran.',
         },
         {
           q: 'Muss ich eine neue Kette vor dem Wachsen entfetten?',
@@ -265,9 +265,9 @@ export const translations = {
     // About
     about: {
       title: 'Entstanden auf der Straße.',
-      bio1: 'Ich bin Luca. Waxcelerate ist nicht am Schreibtisch entstanden, sondern auf nassen Herbststraßen, bei Ausfahrten tief im Winter und nach Sommerrennen, bei denen Staub und Hitze zeigen, was ein Wachs wirklich kann.',
+      bio1: 'Ich bin Luca — Medizinstudent an der FAU und aktiver Fahrer. Waxcelerate ist nicht am Schreibtisch entstanden, sondern auf nassen Herbststraßen, bei Ausfahrten tief im Winter und nach Sommerrennen, bei denen Staub und Hitze zeigen, was ein Wachs wirklich kann.',
       bio2: 'Der Anspruch war von Anfang an konkret: kein Wachs, das im ersten Eindruck überzeugt und nach drei Wochen Kompromisse zeigt. Sondern eines, das seine Arbeit still tut — bei Kälte genauso wie im Hochsommer, über kurze Ausfahrten genauso wie über lange Intervalle.',
-      bio3: 'Das Ergebnis wird in kleinen Chargen in Stuttgart entwickelt und gefertigt, für Fahrer, die beim Antrieb kein Versprechen brauchen, sondern ein Produkt, das sich seine Überzeugungskraft auf der Straße verdient hat.',
+      bio3: 'Das Ergebnis wird in kleinen Chargen in Stuttgart entwickelt und gefertigt, für Fahrer, die beim Antrieb kein Versprechen brauchen, sondern ein Produkt, das sich seine Überzeugungskraft auf der Straße verdient hat. 2025 lud mich eBay zur Seller Leadership Week nach San Jose ein — eines von wenigen Projekten weltweit, die auf der Hauptbühne vorgestellt wurden.',
       location: 'Stuttgart, Deutschland',
       email: 'waxcelerate@gmail.com',
       phone: '+49 157 51957470',
@@ -349,7 +349,7 @@ export const translations = {
     hero: {
       subtitle: 'Hot Wax for Bicycle Chains',
       headline: 'At the end of the research.',
-      headlineSub: 'Waxcelerate.',
+      headlineSub: 'Done with oil.',
       tagline: '3× longer chain life. No grime. No re-lubing.',
       priceAnchor: 'From €22.95 · ~€70 saved over 12,000 km',
       guarantee: "Not happy? Write me — I'll make it right.",
@@ -518,7 +518,7 @@ export const translations = {
         },
         {
           q: 'How many watts does hot wax save compared to chain oil?',
-          a: "In controlled measurements, our PTFE-based wax produces around 2.6 watts of friction loss — chain oil under real-world conditions sits at around 7.5 watts. That's nearly 5 watts difference at the chain. The widely cited 'up to 8 watts' figures come from lab tests at 300–400 watts input power. In everyday riding the gap is slightly smaller — but no other lubricant comes close to hot wax.",
+          a: "Published drivetrain friction tests place PTFE-based hot wax at around 2–4 watts of friction loss — chain oil under real-world conditions at around 6–10 watts. That's roughly 4–6 watts difference at the chain. The widely cited 'up to 8 watts' figures come from lab tests at 300–400 watts input power. In everyday riding the gap is slightly smaller — but no other lubricant comes close to hot wax.",
         },
         {
           q: 'Do I need to degrease a new chain before waxing?',
@@ -598,9 +598,9 @@ export const translations = {
     // About
     about: {
       title: 'Built on the road.',
-      bio1: "I'm Luca. Waxcelerate wasn't born at a desk — it came from wet autumn roads, deep winter rides, and summer races where dust and heat reveal what a wax is really made of.",
+      bio1: "I'm Luca — medical student at FAU and active rider. Waxcelerate wasn't born at a desk — it came from wet autumn roads, deep winter rides, and summer races where dust and heat reveal what a wax is really made of.",
       bio2: "The standard was concrete from day one: not a wax that impresses at first contact and starts making compromises after three weeks. One that does its job quietly — in the cold as much as midsummer, over short rides as much as long ones.",
-      bio3: "The result is developed and produced in small batches in Stuttgart, for riders who don't need a promise about their drivetrain — just a product that earns its reputation on the road.",
+      bio3: "The result is developed and produced in small batches in Stuttgart, for riders who don't need a promise about their drivetrain — just a product that earns its reputation on the road. In 2025, eBay invited me to their Seller Leadership Week in San Jose — one of a handful of projects featured on the main stage.",
       location: 'Stuttgart, Germany',
       email: 'waxcelerate@gmail.com',
       phone: '+49 157 51957470',

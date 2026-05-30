@@ -93,6 +93,25 @@ export function FAQ() {
             </button>
           )}
 
+          {/* Product CTA close — appears after full FAQ for high-intent readers */}
+          <div className="mt-12 mb-4 rounded-xl px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-4" style={{ background: 'var(--sf3)', border: '1px solid var(--bd)' }}>
+            <div>
+              <p className="text-[14px] font-semibold text-wx-tx1 mb-0.5">
+                {de ? 'Bereit loszulegen?' : 'Ready to start?'}
+              </p>
+              <p className="text-[12px]" style={{ color: 'var(--txm)' }}>
+                {de ? 'Ab €22,95 · Versand in 1 Werktag · Kostenlos ab €50' : 'From €22.95 · Ships in 1 business day · Free over €50'}
+              </p>
+            </div>
+            <button
+              onClick={() => document.querySelector('#produkte')?.scrollIntoView({ behavior: 'smooth' })}
+              className="flex-shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[13px] font-semibold transition-opacity hover:opacity-90"
+              style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
+            >
+              {de ? 'Produkte ansehen' : 'See products'}
+            </button>
+          </div>
+
           {/* Contact CTA */}
           <div className="mt-12 rounded-xl border border-wx-bd/40 p-6 text-center" style={{ background: 'var(--sf3)' }}>
             <p className="text-wx-tx2 text-sm mb-4">

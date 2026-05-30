@@ -163,11 +163,14 @@ export function Products() {
                   {t.products.multiDiscount}
                 </p>
               </div>
-              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between mb-6 px-1">
-                <p className="text-[12px]" style={{ color: 'var(--txm)' }}>
+              {/* Decision aid — visually distinct callout, not buried muted text */}
+              <div className="mb-3 rounded-xl px-4 py-3.5" style={{ background: 'var(--sf3)', border: '1px solid var(--bd)' }}>
+                <p className="text-[13px]" style={{ color: 'var(--tx2)' }}>
                   {t.products.decisionAid}
                 </p>
-                <p className="text-[11px] sm:whitespace-nowrap sm:flex-shrink-0" style={{ color: 'var(--txf)' }}>
+              </div>
+              <div className="flex justify-end mb-4 px-1">
+                <p className="text-[11px]" style={{ color: 'var(--txf)' }}>
                   {t.products.shippingHint}
                 </p>
               </div>
@@ -312,12 +315,12 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: Ca
             style={{ objectPosition: product.imagePosition ?? 'center 55%' }}
             onError={e => { (e.target as HTMLImageElement).src = '/images/wax-block-spin.jpg'; }}
           />
-          <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to top, var(--card-to) 0%, transparent 50%)' }} />
+          <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to top, var(--card-img-fade) 0%, transparent 50%)' }} />
           {/* Badges */}
           <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2">
             <span
               className="text-[10px] font-semibold tracking-[0.15em] uppercase px-2.5 py-1 rounded-full"
-              style={{ background: 'rgba(0,0,0,0.50)', color: accent, border: `1px solid ${accent}40`, backdropFilter: 'blur(4px)' }}
+              style={{ background: 'rgba(0,0,0,0.50)', color: 'rgba(180,210,255,0.92)', border: `1px solid ${accent}40`, backdropFilter: 'blur(4px)' }}
             >
               {isPro ? 'Pro' : 'Classic'} · {product.weight}
             </span>
@@ -432,7 +435,7 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
             onError={e => { (e.target as HTMLImageElement).src = '/images/wax-block-spin.jpg'; }}
           />
-          <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to top, var(--card-to) 0%, transparent 55%)' }} />
+          <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to top, var(--card-img-fade) 0%, transparent 55%)' }} />
           <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between gap-2">
             <span
               className="text-[10px] font-semibold tracking-[0.15em] uppercase px-2.5 py-1 rounded-full"

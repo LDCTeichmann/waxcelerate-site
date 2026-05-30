@@ -188,6 +188,13 @@ export function Hero() {
               </button>
             </div>
 
+            <p
+              className="text-[11px] uppercase tracking-[0.28em] font-semibold mb-4"
+              style={{ color: 'var(--txf)' }}
+            >
+              {t.hero.subtitle}
+            </p>
+
             {/* Headline */}
             <div ref={headRef} className="mb-6">
               <h1
@@ -232,10 +239,8 @@ export function Hero() {
               </div>
               <button
                 onClick={() => scrollToSection('#warum-wachs')}
-                className="text-sm transition-colors cursor-pointer"
-                style={{ color: 'rgba(255,255,255,0.82)' }}
-                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,1)')}
-                onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.82)')}
+                className="text-sm cursor-pointer"
+                style={{ color: 'rgba(255,255,255,0.82)', textDecoration: 'underline', textUnderlineOffset: '3px' }}
               >
                 {t.hero.ctaSecondary}
               </button>
