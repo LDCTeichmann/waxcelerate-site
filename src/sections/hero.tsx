@@ -116,12 +116,12 @@ export function Hero() {
         {/* Horizontal fade — blends dark left panel into image */}
         <div
           className="absolute inset-0"
-          style={{ background: 'linear-gradient(to right, #0A0A0A 0%, rgba(10,10,10,0.65) 22%, rgba(10,10,10,0.18) 52%, transparent 72%)' }}
+          style={{ background: 'linear-gradient(to right, #0A0A0A 0%, rgba(10,10,10,0.50) 18%, rgba(10,10,10,0.08) 48%, transparent 65%)' }}
         />
         {/* Vertical vignette — top & bottom */}
         <div
           className="absolute inset-0"
-          style={{ background: 'linear-gradient(to bottom, rgba(10,10,10,0.60) 0%, transparent 22%, transparent 68%, rgba(10,10,10,0.97) 100%)' }}
+          style={{ background: 'linear-gradient(to bottom, rgba(10,10,10,0.20) 0%, transparent 15%, transparent 72%, rgba(10,10,10,0.92) 100%)' }}
         />
       </div>
 
@@ -134,7 +134,7 @@ export function Hero() {
           height={912}
           fetchPriority="high"
           className="absolute inset-0 w-full h-full object-cover"
-          style={{ objectPosition: '45% 70%', opacity: 0.38 }}
+          style={{ objectPosition: '45% 70%', opacity: 0.52 }}
         />
         {/* Left fade so text stays readable */}
         <div
