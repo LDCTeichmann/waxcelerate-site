@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, Snowflake, Droplets, Layers, TrendingDown, BarChart2, FlaskConical } from 'lucide-react';
+import { FlaskConical } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useSectionReveal } from '@/hooks/useAnimation';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
@@ -16,55 +16,41 @@ const filterChips: { id: FilterKey; labelDe: string; labelEn: string }[] = [
 ];
 
 const differentiators: {
-  icon: React.ElementType;
   catDe: string; catEn: string;
   titleDe: string; titleEn: string;
-  beforeDe: string; beforeEn: string;
-  afterDe: string; afterEn: string;
+  proofDe: string; proofEn: string;
   filters: FilterKey[];
 }[] = [
   {
-    icon: Shield,
     catDe: 'Chargenqualität', catEn: 'Batch Quality',
     titleDe: 'Erster Block = letzter Block',
     titleEn: 'First block = last block',
-    beforeDe: 'Additivverteilung variiert — letzter Block schwächer als der erste',
-    beforeEn: 'Additive distribution varies — last block weaker than the first',
-    afterDe: 'Kleinstchargen in Stuttgart, kontrolliert homogenisiert — jeder Block identisch',
-    afterEn: 'Small batches in Stuttgart, controlled homogenisation — every block identical',
+    proofDe: 'Kleinstchargen in Stuttgart, kontrolliert homogenisiert — jeder Block identisch.',
+    proofEn: 'Small batches in Stuttgart, controlled homogenisation — every block identical.',
     filters: ['road', 'commute', 'gravel'],
   },
   {
-    icon: Layers,
     catDe: 'Zwei Formeln', catEn: 'Two Formulas',
     titleDe: 'Classic oder Pro — kein Kompromiss',
     titleEn: 'Classic or Pro — no compromise',
-    beforeDe: 'Ein Wachs für alle Bedingungen — Kompromisse bei Kälte und Hitze',
-    beforeEn: 'One wax for all conditions — compromises in cold and heat',
-    afterDe: 'Classic (PTFE) Frühjahr–Herbst. Pro (MoS₂) Ganzjahr, Winter & E-Bike.',
-    afterEn: 'Classic (PTFE) spring–autumn. Pro (MoS₂) year-round, winter & e-bike.',
+    proofDe: 'Classic (PTFE) für Frühjahr bis Herbst. Pro (MoS₂) für Ganzjahr, Winter & E-Bike.',
+    proofEn: 'Classic (PTFE) spring to autumn. Pro (MoS₂) year-round, winter & e-bike.',
     filters: ['road', 'commute', 'gravel'],
   },
   {
-    icon: Snowflake,
     catDe: 'Winterformel', catEn: 'Winter Formula',
-    titleDe: 'Pro mit MoS₂ — flexibel bis −8°C',
-    titleEn: 'Pro with MoS₂ — flexible down to −8°C',
-    beforeDe: 'Standard-Wachse verhärten bei Frost — Gelenke blockieren, Schaltung schwergängig',
-    beforeEn: 'Generic waxes harden at frost — joints seize, shifting turns stiff',
-    afterDe: 'Amorphes MoS₂ hält die Matrix flexibel — kein Verhärten in Gelenken',
-    afterEn: 'Amorphous MoS₂ keeps the matrix flexible — no hardening in link joints',
+    titleDe: 'Pro mit MoS₂ — flexibel bis −8 °C',
+    titleEn: 'Pro with MoS₂ — flexible to −8 °C',
+    proofDe: 'Amorphes MoS₂ hält die Wachsmatrix auch bei Frost geschmeidig — kein Verhärten in den Kettengelenken.',
+    proofEn: 'Amorphous MoS₂ keeps the wax matrix supple at frost — no hardening inside chain links.',
     filters: ['commute', 'gravel'],
   },
   {
-    icon: Droplets,
-    catDe: 'Feuchtigkeitsschutz', catEn: 'Moisture Protection',
-    titleDe: 'Mikrokristalline Matrix — weniger freie Metalloberfläche',
-    titleEn: 'Microcrystalline matrix — less exposed metal surface',
-    beforeDe: 'Standard-Paraffin: grobkristallin, Lücken im Wachsfilm — Wasser an Metall, Rost entsteht',
-    beforeEn: 'Standard paraffin: coarse-crystalline, gaps in film — water reaches metal, rust forms',
-    afterDe: 'Mikrokristallines Hartwachs vernetzt dichter — mehr Metalloberfläche abgedeckt, weniger Oxidation',
-    afterEn: 'Microcrystalline hard wax cross-links more densely — more surface covered, less oxidation',
+    catDe: 'Korrosionsschutz', catEn: 'Corrosion Protection',
+    titleDe: 'Dichter Schutzfilm — Rost bleibt draußen',
+    titleEn: 'Dense protective film — rust stays out',
+    proofDe: 'Mikrokristallines Hartwachs schließt die Metalloberfläche dichter ab — weniger Kontakt mit Wasser und Sauerstoff.',
+    proofEn: 'Microcrystalline hard wax seals the metal surface more tightly — less contact with water and oxygen.',
     filters: ['commute', 'gravel'],
   },
 ];
@@ -74,11 +60,6 @@ const frictionMini = [
   { label: 'Classic', val: 'μ 0,05–0,07', pct: 80,  highlight: true  },
   { labelDe: 'Kettenöl', labelEn: 'Chain Oil', val: 'μ 0,18–0,25', pct: 18, highlight: false },
 ];
-
-const cardStyle = {
-  background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
-  boxShadow: 'var(--card-shad)',
-};
 
 function rowOpacity(active: FilterKey | null, rowFilters: FilterKey[]): React.CSSProperties {
   if (!active) return {};
@@ -108,7 +89,6 @@ export function WhyWax() {
           scrollTrigger: { trigger: gridRef.current, start: 'top 82%', once: true },
         });
       }
-
       gridRef.current?.querySelectorAll('.fbar').forEach((bar) => {
         const pct = parseFloat((bar as HTMLElement).dataset.w!) / 100;
         gsap.fromTo(bar, { scaleX: 0 }, {
@@ -159,7 +139,7 @@ export function WhyWax() {
                   key={chip.id}
                   type="button"
                   onClick={() => toggleFilter(chip.id)}
-                  className="text-[11px] font-medium px-3 py-1 rounded-full border transition-all duration-200"
+                  className="text-[11px] font-medium px-3 py-1.5 rounded-full border transition-all duration-200"
                   style={isActive ? {
                     background: 'rgba(26,60,110,0.15)',
                     borderColor: 'rgba(42,84,153,0.5)',
@@ -176,65 +156,29 @@ export function WhyWax() {
             })}
           </div>
 
-          {/* ── 2×2 feature card grid ── */}
+          {/* ── 2×2 feature cards — clean: eyebrow · title · proof only ── */}
           <div ref={gridRef} className="grid sm:grid-cols-2 gap-3 mb-3">
-            {differentiators.map((d, i) => {
-              const Icon = d.icon;
-              return (
-                <div
-                  key={i}
-                  className="diff-card rounded-xl border border-wx-bd p-5 flex flex-col gap-3"
-                  style={{
-                    ...cardStyle,
-                    ...rowOpacity(activeFilter, d.filters),
-                  }}
-                >
-                  {/* Category row */}
-                  <div className="flex items-center gap-2">
-                    <Icon className="h-3.5 w-3.5 flex-shrink-0" style={{ color: 'var(--txm)' }} />
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: 'var(--txf)' }}>
-                      {de ? d.catDe : d.catEn}
-                    </span>
-                  </div>
-
-                  {/* Title */}
-                  <p className="font-serif-display italic text-[17px] font-bold text-wx-tx1 leading-snug">
-                    {de ? d.titleDe : d.titleEn}
-                  </p>
-
-                  {/* Comparison */}
-                  <div
-                    className="space-y-2 pt-3 flex-1"
-                    style={{ borderTop: '1px solid var(--bd2)' }}
-                  >
-                    {/* Before */}
-                    <div className="flex gap-2.5 items-start">
-                      <span
-                        className="mt-0.5 flex-shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded"
-                        style={{ background: 'var(--sf3)', color: 'var(--txff)', letterSpacing: '0.05em' }}
-                      >
-                        ✗
-                      </span>
-                      <p className="text-[12px] leading-relaxed" style={{ color: 'var(--txf)' }}>
-                        {de ? d.beforeDe : d.beforeEn}
-                      </p>
-                    </div>
-                    {/* After */}
-                    <div className="flex gap-2.5 items-start">
-                      <span
-                        className="mt-0.5 flex-shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded"
-                        style={{ background: 'rgba(26,60,110,0.12)', color: '#5B8BED', letterSpacing: '0.05em' }}
-                      >
-                        ✓
-                      </span>
-                      <p className="text-[12px] leading-relaxed" style={{ color: 'rgba(106,138,232,0.9)' }}>
-                        {de ? d.afterDe : d.afterEn}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {differentiators.map((d, i) => (
+              <div
+                key={i}
+                className="diff-card rounded-2xl border border-wx-bd p-6 flex flex-col gap-3"
+                style={{
+                  background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
+                  boxShadow: 'var(--card-shad)',
+                  ...rowOpacity(activeFilter, d.filters),
+                }}
+              >
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: 'var(--txf)' }}>
+                  {de ? d.catDe : d.catEn}
+                </p>
+                <p className="font-serif-display italic text-[18px] font-bold text-wx-tx1 leading-[1.2]">
+                  {de ? d.titleDe : d.titleEn}
+                </p>
+                <p className="text-[13px] leading-relaxed" style={{ color: 'var(--txm)' }}>
+                  {de ? d.proofDe : d.proofEn}
+                </p>
+              </div>
+            ))}
           </div>
 
           {/* ── Proof strip: cost + friction ── */}
@@ -242,46 +186,44 @@ export function WhyWax() {
 
             {/* Cost savings */}
             <div
-              className="diff-card rounded-xl border border-wx-bd p-5"
-              style={{ ...cardStyle, ...rowOpacity(activeFilter, ['road', 'commute', 'gravel']) }}
+              className="diff-card rounded-2xl border border-wx-bd px-5 py-5 flex items-center gap-5"
+              style={{
+                background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
+                boxShadow: 'var(--card-shad)',
+                ...rowOpacity(activeFilter, ['road', 'commute', 'gravel']),
+              }}
             >
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center gap-1.5">
-                  <TrendingDown className="h-3.5 w-3.5 flex-shrink-0 text-wx-txm" />
-                  <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-wx-txm">
-                    {de ? 'Kostenersparnis' : 'Cost Savings'}
-                  </p>
-                </div>
-                <span className="font-display font-bold text-wx-tx1 tabular-nums text-[22px] leading-none">~€70</span>
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] mb-2" style={{ color: 'var(--txf)' }}>
+                  {de ? 'Kostenersparnis' : 'Cost Savings'}
+                </p>
+                <p className="text-[13px] leading-snug" style={{ color: 'var(--txm)' }}>
+                  {de
+                    ? '46 % weniger über 12.000 km — ~€151 mit Öl, ~€81 mit Wachs.'
+                    : '46% less over 12,000 km — ~€151 with oil, ~€81 with wax.'}
+                </p>
               </div>
-              <p className="text-[11px] font-semibold mb-3" style={{ color: '#2B52B0' }}>
-                {de ? '46 % weniger über 12.000 km' : '46% less over 12,000 km'}
+              <p className="font-display font-bold text-wx-tx1 tabular-nums text-[28px] leading-none flex-shrink-0 tracking-[-0.03em]">
+                ~€70
               </p>
-              <div className="space-y-1.5 pt-3" style={{ borderTop: '1px solid var(--bd2)' }}>
-                <div className="flex justify-between text-[11px]">
-                  <span className="text-wx-txf">{de ? 'Mit Öl (3 Ketten)' : 'With oil (3 chains)'}</span>
-                  <span className="text-wx-txm tabular-nums">~€151</span>
-                </div>
-                <div className="flex justify-between text-[11px]">
-                  <span className="text-wx-txf">{de ? 'Mit Wachs (1 Kette)' : 'With wax (1 chain)'}</span>
-                  <span className="tabular-nums font-semibold" style={{ color: '#2B52B0' }}>~€81</span>
-                </div>
-              </div>
             </div>
 
             {/* Friction */}
             <div
-              className="diff-card rounded-xl border border-wx-bd p-5 flex flex-col"
-              style={{ ...cardStyle, ...rowOpacity(activeFilter, ['road', 'gravel']) }}
+              className="diff-card rounded-2xl border border-wx-bd p-5 flex flex-col gap-3"
+              style={{
+                background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
+                boxShadow: 'var(--card-shad)',
+                ...rowOpacity(activeFilter, ['road', 'gravel']),
+              }}
             >
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center gap-1.5">
-                  <BarChart2 className="h-3.5 w-3.5 flex-shrink-0 text-wx-txm" />
-                  <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-wx-txm">
-                    {de ? 'Reibung' : 'Friction'}
-                  </p>
-                </div>
-                <span className="font-display font-bold text-wx-tx1 tabular-nums text-[22px] leading-none">μ 0,03</span>
+              <div className="flex items-start justify-between">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: 'var(--txf)' }}>
+                  {de ? 'Reibung' : 'Friction'}
+                </p>
+                <span className="font-display font-bold text-wx-tx1 tabular-nums text-[20px] leading-none tracking-[-0.02em]">
+                  μ 0,03
+                </span>
               </div>
               <div className="space-y-2.5 flex-1">
                 {frictionMini.map((item, i) => {
@@ -289,15 +231,21 @@ export function WhyWax() {
                   return (
                     <div key={i}>
                       <div className="flex justify-between mb-1">
-                        <span className={`text-[11px] font-medium ${item.highlight ? 'text-wx-tx1' : 'text-wx-txf'}`}>{label}</span>
-                        <span className={`text-[11px] font-mono tabular-nums ${item.highlight ? 'text-wx-tx2' : 'text-wx-txff'}`}>{item.val}</span>
+                        <span className="text-[11px] font-medium" style={{ color: item.highlight ? 'var(--tx1)' : 'var(--txf)' }}>
+                          {label}
+                        </span>
+                        <span className="text-[11px] font-mono tabular-nums" style={{ color: item.highlight ? 'var(--tx2)' : 'var(--txff)' }}>
+                          {item.val}
+                        </span>
                       </div>
                       <div className="h-0.5 rounded-full overflow-hidden" style={{ background: 'var(--bd)' }}>
                         <div
                           className="fbar h-full w-full rounded-full"
                           data-w={item.pct}
                           style={{
-                            background: item.highlight ? 'linear-gradient(90deg, #0F2450, #3D67CA)' : 'var(--bd2)',
+                            background: item.highlight
+                              ? 'linear-gradient(90deg, #0F2450, #3D67CA)'
+                              : 'var(--bd2)',
                             transformOrigin: 'left center',
                             transform: 'scaleX(0)',
                           }}
@@ -309,7 +257,7 @@ export function WhyWax() {
               </div>
               <Link
                 to="/wissenschaft"
-                className="flex items-center gap-1 text-[11px] font-medium mt-3 pt-3 transition-opacity hover:opacity-70"
+                className="text-[11px] font-medium pt-3 transition-opacity hover:opacity-70 inline-block"
                 style={{ color: '#264E8C', borderTop: '1px solid var(--bd2)' }}
               >
                 {de ? 'Vollständiger Vergleich →' : 'Full comparison →'}
