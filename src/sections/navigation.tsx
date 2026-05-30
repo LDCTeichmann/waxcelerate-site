@@ -93,12 +93,8 @@ export function Navigation() {
               <img
                 src="/images/No BG No Sign Logo.png"
                 alt="Waxcelerate"
-                className="w-auto transition-all duration-300"
-                style={{
-                  height: '36px',
-                  width: 'auto',
-                  filter: isScrolled ? 'none' : 'brightness(0) invert(1)',
-                }}
+                className="w-auto"
+                style={{ height: '36px', width: 'auto' }}
               />
               <span
                 className="font-sans text-sm font-bold tracking-wide transition-colors duration-300"
