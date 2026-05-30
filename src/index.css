@@ -176,11 +176,9 @@
   color: var(--tx1) !important;
 }
 
-/* Hero section always uses a hardcoded dark background — force white headings */
-#home h1,
-#home h2,
-#home h3,
-#home h4 {
+/* Hero: dark/noir modes need white headings (overrides the global tx1 rule) */
+.dark #home h1, .dark #home h2, .dark #home h3, .dark #home h4,
+.noir #home h1, .noir #home h2, .noir #home h3, .noir #home h4 {
   color: #FFFFFF !important;
 }
 

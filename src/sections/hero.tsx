@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useTheme } from '@/hooks/useTheme';
 import gsap from 'gsap';
 
 // Split text into word spans for clip-mask reveal
@@ -36,6 +37,8 @@ function WordReveal({
 
 export function Hero() {
   const { t, lang } = useLanguage();
+  const { theme } = useTheme();
+  const isDark = theme === 'dark' || theme === 'noir';
   const animatedRef = useRef<boolean>(false);
   const pillRef     = useRef<HTMLDivElement>(null);
   const headRef     = useRef<HTMLDivElement>(null);
@@ -94,15 +97,15 @@ export function Hero() {
     <section
       id="home"
       className="grain relative overflow-hidden"
-      style={{ minHeight: '100dvh', background: '#0A0A0A', contain: 'paint' }}
+      style={{ minHeight: '100dvh', background: isDark ? '#0A0A0A' : 'var(--pg)', contain: 'paint' }}
     >
 
       {/* ── Background image ────────────────────────────────────────────────── */}
 
-      {/* Desktop: right-side cinematic panel */}
+      {/* Desktop: right-side panel */}
       <div
         className="hidden lg:block absolute top-0 right-0 bottom-0 pointer-events-none"
-        style={{ width: '55%' }}
+        style={{ width: '52%' }}
       >
         <img
           src="/images/DSC01455.JPG"
@@ -113,19 +116,27 @@ export function Hero() {
           className="absolute inset-0 w-full h-full object-cover"
           style={{ objectPosition: '40% 72%' }}
         />
-        {/* Horizontal fade — blends dark left panel into image */}
-        <div
-          className="absolute inset-0"
-          style={{ background: 'linear-gradient(to right, #0A0A0A 0%, rgba(10,10,10,0.50) 18%, rgba(10,10,10,0.08) 48%, transparent 65%)' }}
-        />
-        {/* Vertical vignette — top & bottom */}
-        <div
-          className="absolute inset-0"
-          style={{ background: 'linear-gradient(to bottom, rgba(10,10,10,0.20) 0%, transparent 15%, transparent 72%, rgba(10,10,10,0.92) 100%)' }}
-        />
+        {/* Dark mode only: blend left edge + bottom vignette */}
+        {isDark && <>
+          <div
+            className="absolute inset-0"
+            style={{ background: 'linear-gradient(to right, #0A0A0A 0%, rgba(10,10,10,0.50) 18%, rgba(10,10,10,0.08) 48%, transparent 65%)' }}
+          />
+          <div
+            className="absolute inset-0"
+            style={{ background: 'linear-gradient(to bottom, rgba(10,10,10,0.20) 0%, transparent 15%, transparent 72%, rgba(10,10,10,0.92) 100%)' }}
+          />
+        </>}
+        {/* Light mode only: subtle left edge blend into page bg */}
+        {!isDark && (
+          <div
+            className="absolute inset-0"
+            style={{ background: 'linear-gradient(to right, var(--pg) 0%, rgba(245,245,247,0.6) 12%, transparent 30%)' }}
+          />
+        )}
       </div>
 
-      {/* Mobile: full-screen tinted image */}
+      {/* Mobile: full-screen image */}
       <div className="lg:hidden absolute inset-0 pointer-events-none">
         <img
           src="/images/DSC01455.JPG"
@@ -134,22 +145,28 @@ export function Hero() {
           height={912}
           fetchPriority="high"
           className="absolute inset-0 w-full h-full object-cover"
-          style={{ objectPosition: '45% 70%', opacity: 0.52 }}
+          style={{ objectPosition: '45% 70%', opacity: isDark ? 0.52 : 0.18 }}
         />
-        {/* Left fade so text stays readable */}
+        {/* Overlay: dark mode = dark tint, light mode = light fade for text readability */}
         <div
           className="absolute inset-0"
-          style={{ background: 'linear-gradient(to right, rgba(10,10,10,0.80) 0%, rgba(10,10,10,0.45) 55%, rgba(10,10,10,0.15) 100%)' }}
+          style={{
+            background: isDark
+              ? 'linear-gradient(to right, rgba(10,10,10,0.80) 0%, rgba(10,10,10,0.45) 55%, rgba(10,10,10,0.15) 100%)'
+              : 'linear-gradient(to bottom, var(--pg) 0%, rgba(245,245,247,0.55) 50%, var(--pg) 100%)',
+          }}
         />
       </div>
 
-      {/* Accent radial glow — sits behind text on both layouts */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: 'radial-gradient(ellipse 55% 60% at 27% 48%, rgba(26,60,110,0.09) 0%, transparent 65%)',
-        }}
-      />
+      {/* Dark mode accent glow */}
+      {isDark && (
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: 'radial-gradient(ellipse 55% 60% at 27% 48%, rgba(26,60,110,0.09) 0%, transparent 65%)',
+          }}
+        />
+      )}
 
       {/* Grid texture removed */}
 
@@ -168,10 +185,10 @@ export function Hero() {
             <div ref={pillRef} className="mb-9">
               <button
                 onClick={() => scrollToSection('#ueber-mich')}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full border transition-all hover:border-[#264E8C]/50 cursor-pointer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full border transition-all cursor-pointer"
                 style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  borderColor: 'rgba(255,255,255,0.14)',
+                  background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)',
+                  borderColor: isDark ? 'rgba(255,255,255,0.14)' : 'rgba(0,0,0,0.12)',
                   backdropFilter: 'blur(8px)',
                 }}
               >
@@ -179,12 +196,12 @@ export function Hero() {
                   className="h-1.5 w-1.5 rounded-full flex-shrink-0 animate-pulse"
                   style={{ background: '#2B52B0' }}
                 />
-                <span className="text-[12px] tracking-wide" style={{ color: 'rgba(255,255,255,0.65)' }}>
+                <span className="text-[12px] tracking-wide" style={{ color: isDark ? 'rgba(255,255,255,0.65)' : 'var(--tx2)' }}>
                   {de
                     ? '171 Bewertungen · 100 % positiv auf eBay'
                     : '171 reviews · 100 % positive on eBay'}
                 </span>
-                <ArrowRight className="h-3 w-3 flex-shrink-0" style={{ color: '#264E8C' }} />
+                <ArrowRight className="h-3 w-3 flex-shrink-0" style={{ color: '#2B52B0' }} />
               </button>
             </div>
 
@@ -199,7 +216,7 @@ export function Hero() {
             <div ref={headRef} className="mb-6">
               <h1
                 className="font-display font-bold leading-[1.05] tracking-[-0.035em]"
-                style={{ fontSize: 'clamp(2.6rem, 6.5vw, 5.2rem)', color: '#FFFFFF' }}
+                style={{ fontSize: 'clamp(2.6rem, 6.5vw, 5.2rem)', color: isDark ? '#FFFFFF' : 'var(--tx1)' }}
               >
                 <WordReveal text={headline} className="block" />
                 <span
@@ -217,7 +234,7 @@ export function Hero() {
             <p
               ref={taglineRef}
               className="text-[17px] leading-relaxed mb-9 max-w-xs sm:max-w-sm"
-              style={{ color: 'rgba(255,255,255,0.78)' }}
+              style={{ color: isDark ? 'rgba(255,255,255,0.78)' : 'var(--tx2)' }}
             >
               {t.hero.tagline}
             </p>
@@ -228,19 +245,19 @@ export function Hero() {
                 <button
                   onClick={() => scrollToSection('#produkte')}
                   className="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-semibold rounded-full transition-opacity duration-150 hover:opacity-90 active:scale-[0.98]"
-                  style={{ background: '#EDE9E0', color: '#0A0A0A' }}
+                  style={{ background: isDark ? '#EDE9E0' : 'var(--cta-bg)', color: isDark ? '#0A0A0A' : 'var(--cta-fg)' }}
                 >
                   {t.hero.ctaBuy}
                   <ArrowRight className="h-3.5 w-3.5" />
                 </button>
-                <span className="text-sm font-medium" style={{ color: 'rgba(255,255,255,0.50)' }}>
+                <span className="text-sm font-medium" style={{ color: isDark ? 'rgba(255,255,255,0.50)' : 'var(--txm)' }}>
                   {t.hero.priceAnchor}
                 </span>
               </div>
               <button
                 onClick={() => scrollToSection('#warum-wachs')}
                 className="text-sm cursor-pointer"
-                style={{ color: 'rgba(255,255,255,0.82)', textDecoration: 'underline', textUnderlineOffset: '3px' }}
+                style={{ color: isDark ? 'rgba(255,255,255,0.82)' : 'var(--tx2)', textDecoration: 'underline', textUnderlineOffset: '3px' }}
               >
                 {t.hero.ctaSecondary}
               </button>
@@ -253,7 +270,7 @@ export function Hero() {
       {/* Bottom fade into next section */}
       <div
         className="absolute bottom-0 left-0 right-0 h-40 pointer-events-none"
-        style={{ background: 'linear-gradient(to top, #0A0A0A 0%, transparent 100%)' }}
+        style={{ background: isDark ? 'linear-gradient(to top, #0A0A0A 0%, transparent 100%)' : 'none' }}
       />
     </section>
   );
