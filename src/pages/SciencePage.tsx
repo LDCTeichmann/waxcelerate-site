@@ -208,7 +208,7 @@ function StatCallout({ stat, ctxDe, ctxEn, de, isDark }: { stat: string; ctxDe: 
   return (
     <div
       ref={ref}
-      className="w-full py-20 sm:py-28 flex flex-col items-center text-center"
+      className="w-full py-10 sm:py-14 flex flex-col items-center text-center"
       style={isDark ? {
         background: '#07070A',
         borderTop: '1px solid rgba(255,255,255,0.10)',
@@ -223,7 +223,7 @@ function StatCallout({ stat, ctxDe, ctxEn, de, isDark }: { stat: string; ctxDe: 
     >
       <p className="font-serif-display italic font-bold leading-none select-none"
         style={{
-          fontSize: 'clamp(5rem,14vw,9rem)',
+          fontSize: 'clamp(2.8rem,7vw,4.5rem)',
           color: isDark ? '#3060C8' : '#1A3C6E',
           textShadow: isDark ? '0 0 60px rgba(43,82,176,0.55), 0 0 130px rgba(43,82,176,0.22)' : 'none',
         }}>
@@ -449,7 +449,7 @@ function TransferFilm({ de }: { de: boolean }) {
 }
 
 // ─── Crystal lattice — hexagonal close-packed SVG ────────────────────────────
-function CrystalLattice() {
+function CrystalLattice({ de }: { de: boolean }) {
   const svgRef = useRef<SVGSVGElement>(null);
 
   const COLS = 10, ROWS = 6, HEX_W = 38, HEX_H = 30;
@@ -492,9 +492,29 @@ function CrystalLattice() {
     return () => gsap.killTweensOf(Array.from(nodes));
   }, []);
 
+  // Layer boundaries sit between rows 1-2, 3-4, 5-6
+  const LAYER_Y = [HEX_H * 1.5 + 14, HEX_H * 3.5 + 14, HEX_H * 5 + 14];
+
   return (
     <div className="w-full rounded-2xl overflow-hidden p-5" style={{ ...VIZ_CARD, ...DARK_DOT_GRID }}>
-      <svg ref={svgRef} viewBox="0 0 395 196" className="w-full mb-3" style={{ overflow: 'visible' }}>
+      <p className="text-[10px] uppercase tracking-[0.2em] mb-3 text-center" style={{ color: 'rgba(255,255,255,0.38)' }}>
+        {de ? 'Lamellare Kristallstruktur — C₂₀–C₃₆' : 'Lamellar crystal structure — C₂₀–C₃₆'}
+      </p>
+      <svg ref={svgRef} viewBox="0 0 395 196" className="w-full" style={{ overflow: 'visible' }}>
+        {/* Layer band highlights */}
+        {[0, 2, 4].map((startRow, li) => {
+          const y1 = startRow * HEX_H + 6;
+          const y2 = (startRow + 2) * HEX_H + 6;
+          return (
+            <rect key={li} x="0" y={y1} width="395" height={y2 - y1}
+              fill={li % 2 === 0 ? 'rgba(26,60,110,0.10)' : 'rgba(26,60,110,0.04)'} rx="2" />
+          );
+        })}
+        {/* Layer boundary lines */}
+        {LAYER_Y.map((y, i) => (
+          <line key={i} x1="8" y1={y} x2="387" y2={y}
+            stroke="rgba(68,114,212,0.28)" strokeWidth="0.8" strokeDasharray="4 3" />
+        ))}
         {bonds.map((b, i) => (
           <line key={i} x1={b.x1} y1={b.y1} x2={b.x2} y2={b.y2} stroke="rgba(68,114,212,0.22)" strokeWidth="0.85" />
         ))}
@@ -505,10 +525,21 @@ function CrystalLattice() {
             style={{ filter: a.big ? 'drop-shadow(0 0 5px rgba(68,114,212,0.60))' : 'none' }}
           />
         ))}
+        {/* Layer labels */}
+        <text x="380" y={HEX_H * 1 + 14} fontSize="8" fill="rgba(100,140,220,0.45)" fontFamily="monospace" textAnchor="end">{de ? 'Ebene 1' : 'Layer 1'}</text>
+        <text x="380" y={HEX_H * 3 + 14} fontSize="8" fill="rgba(100,140,220,0.45)" fontFamily="monospace" textAnchor="end">{de ? 'Ebene 2' : 'Layer 2'}</text>
+        <text x="380" y={HEX_H * 5 + 14} fontSize="8" fill="rgba(100,140,220,0.45)" fontFamily="monospace" textAnchor="end">{de ? 'Ebene 3' : 'Layer 3'}</text>
       </svg>
-      <p className="text-center text-[9px] uppercase tracking-[0.2em]" style={{ color: 'rgba(255,255,255,0.35)' }}>
-        Lamellare Kristalldomänen · C₂₀–C₃₆
-      </p>
+      <div className="flex justify-center gap-5 mt-3 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+        <div className="flex items-center gap-1.5">
+          <div className="w-2 h-px" style={{ background: 'rgba(68,114,212,0.5)', borderTop: '1px dashed rgba(68,114,212,0.5)' }} />
+          <span className="text-[9px] font-mono" style={{ color: 'rgba(255,255,255,0.35)' }}>{de ? 'Schichtgrenze' : 'Layer boundary'}</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-2.5 h-2.5 rounded-full" style={{ background: '#3D67CA' }} />
+          <span className="text-[9px] font-mono" style={{ color: 'rgba(255,255,255,0.35)' }}>{de ? 'C-Atom (Hauptkette)' : 'C atom (backbone)'}</span>
+        </div>
+      </div>
     </div>
   );
 }
@@ -642,6 +673,9 @@ const FRICTION_BARS = [
 
 function FrictionBars({ de }: { de: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
+  const { theme } = useTheme();
+  const isDark = theme === 'dark' || theme === 'noir';
+
   useEffect(() => {
     const ctx = gsap.context(() => {
       ref.current?.querySelectorAll('.fb').forEach(bar => {
@@ -652,17 +686,24 @@ function FrictionBars({ de }: { de: boolean }) {
     return () => ctx.revert();
   }, []);
 
+  const cardSt = isDark ? { ...DARK_CARD, ...DARK_DOT_GRID } : { ...CARD, ...DOT_GRID };
+  const hdrClr = isDark ? 'rgba(255,255,255,0.38)' : 'var(--txff)';
+  const subClr = isDark ? 'rgba(255,255,255,0.18)' : 'var(--txff)';
+  const trackClr = isDark ? 'rgba(255,255,255,0.11)' : 'var(--bd2)';
+  const tickClr = isDark ? 'rgba(255,255,255,0.20)' : 'var(--txff)';
+  const tickBorder = isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid var(--bd2)';
+
   return (
-    <div className="w-full rounded-2xl p-5" style={{ ...DARK_CARD, ...DARK_DOT_GRID }}>
+    <div className="w-full rounded-2xl p-5" style={cardSt}>
       <div className="flex items-baseline justify-between mb-1">
-        <p className="text-[10px] uppercase tracking-[0.2em]" style={{ color: 'rgba(255,255,255,0.38)' }}>
+        <p className="text-[10px] uppercase tracking-[0.2em]" style={{ color: hdrClr }}>
           {de ? 'Reibungskoeffizient μ' : 'Friction coefficient μ'}
         </p>
-        <span className="text-[9px]" style={{ color: 'rgba(255,255,255,0.22)' }}>
+        <span className="text-[9px]" style={{ color: subClr }}>
           {de ? '← kürzer = weniger Reibung' : '← shorter = less friction'}
         </span>
       </div>
-      <p className="text-[9px] font-mono mb-5" style={{ color: 'rgba(255,255,255,0.18)' }}>
+      <p className="text-[9px] font-mono mb-5" style={{ color: subClr }}>
         {de ? 'Grenzschmierung · 50–300 MPa Kontaktdruck' : 'Boundary lubrication · 50–300 MPa contact pressure'}
       </p>
       <div ref={ref} className="space-y-3.5">
@@ -671,10 +712,24 @@ function FrictionBars({ de }: { de: boolean }) {
           const hiPct = Math.round((b.muHi / FRICTION_SCALE) * 100);
           const loPct = Math.round((b.muLo / FRICTION_SCALE) * 100);
           const isDim = 'dim' in b && b.dim;
+          const labelClr = b.best
+            ? (isDark ? 'rgba(255,255,255,0.90)' : 'var(--tx1)')
+            : (isDark ? 'rgba(255,255,255,0.55)' : 'var(--txm)');
+          const muClr = b.best
+            ? (isDark ? 'rgba(255,255,255,0.72)' : 'var(--tx1)')
+            : isDim
+              ? (isDark ? 'rgba(255,255,255,0.28)' : 'var(--txff)')
+              : (isDark ? 'rgba(255,255,255,0.40)' : 'var(--txm)');
+          const solidClr = b.best
+            ? (i === 0 ? '#1A3080' : '#1A3C6E')
+            : (isDark ? (isDim ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.16)') : (isDim ? 'var(--bd2)' : 'var(--bd)'));
+          const rangeClr = b.best
+            ? (i === 0 ? 'linear-gradient(90deg,#2A5499,#6A8AE8)' : 'linear-gradient(90deg,#2A5499,#4472D4)')
+            : (isDark ? (isDim ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.28)') : (isDim ? 'var(--bd)' : 'var(--txff)'));
           return (
             <div key={i}>
               <div className="flex justify-between items-center mb-1.5">
-                <span className="text-[12px] font-medium" style={{ color: b.best ? 'rgba(255,255,255,0.90)' : 'rgba(255,255,255,0.55)' }}>
+                <span className="text-[12px] font-medium" style={{ color: labelClr }}>
                   {label}
                   {'tag' in b && (
                     <span className="ml-1.5 text-[8px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded" style={{ background: 'linear-gradient(135deg,#1A3080,#2A5499)', color: 'rgba(255,255,255,0.9)' }}>
@@ -682,34 +737,22 @@ function FrictionBars({ de }: { de: boolean }) {
                     </span>
                   )}
                 </span>
-                <span className="text-[11px] font-mono" style={{ color: b.best ? 'rgba(255,255,255,0.72)' : isDim ? 'rgba(255,255,255,0.28)' : 'rgba(255,255,255,0.40)' }}>
+                <span className="text-[11px] font-mono" style={{ color: muClr }}>
                   μ {b.muLo.toFixed(2)}–{b.muHi.toFixed(2)}
                 </span>
               </div>
-              <div className="relative h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.11)' }}>
-                {/* solid region: 0 → lo */}
-                <div className="absolute top-0 left-0 h-full"
-                  style={{
-                    width: `${loPct}%`,
-                    background: b.best ? (i === 0 ? '#1A3080' : '#1A3C6E') : isDim ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.16)',
-                  }} />
-                {/* animated range region: lo → hi */}
+              <div className="relative h-1.5 rounded-full overflow-hidden" style={{ background: trackClr }}>
+                <div className="absolute top-0 left-0 h-full" style={{ width: `${loPct}%`, background: solidClr }} />
                 <div className="fb absolute top-0 h-full rounded-r-full" data-w={hiPct - loPct}
-                  style={{
-                    left: `${loPct}%`,
-                    width: `${hiPct - loPct}%`,
-                    background: b.best ? (i === 0 ? 'linear-gradient(90deg,#2A5499,#6A8AE8)' : 'linear-gradient(90deg,#2A5499,#4472D4)') : isDim ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.28)',
-                    transformOrigin: 'left center',
-                    transform: 'scaleX(0)',
-                  }} />
+                  style={{ left: `${loPct}%`, width: `${hiPct - loPct}%`, background: rangeClr, transformOrigin: 'left center', transform: 'scaleX(0)' }} />
               </div>
             </div>
           );
         })}
       </div>
-      <div className="flex justify-between mt-3 pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+      <div className="flex justify-between mt-3 pt-2" style={{ borderTop: tickBorder }}>
         {[0, 0.05, 0.10, 0.15, 0.20, 0.25].map(v => (
-          <span key={v} className="text-[8px] font-mono" style={{ color: 'rgba(255,255,255,0.20)' }}>
+          <span key={v} className="text-[8px] font-mono" style={{ color: tickClr }}>
             {v === 0 ? '0' : v.toFixed(2)}
           </span>
         ))}
@@ -942,7 +985,7 @@ export function SciencePage() {
       <section
         ref={heroRef}
         className="relative overflow-hidden flex flex-col items-center justify-center"
-        style={{ background: isDark ? '#07070A' : 'var(--sf)', minHeight: isDark ? '52vh' : '44vh' }}
+        style={{ background: isDark ? '#07070A' : 'var(--sf)', minHeight: isDark ? '44vh' : '26vh' }}
       >
         <HeroParticles />
 
@@ -1128,7 +1171,7 @@ export function SciencePage() {
           </>}
           insightDe="Das enge Erstarrungsfenster ist der Schlüssel zur Batch-Konsistenz — und damit zur gleichmäßigen Performance jedes Blocks."
           insightEn="The narrow solidification window is the key to batch consistency — every block performing identically."
-          visual={<CrystalLattice />}
+          visual={<CrystalLattice de={de} />}
         />
       </div>
 
@@ -1335,47 +1378,46 @@ export function SciencePage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <FrictionBars de={de} />
-            <div className="w-full rounded-2xl p-5" style={{ ...DARK_CARD, ...DARK_DOT_GRID }}>
-              <p className="text-[10px] uppercase tracking-[0.2em] mb-1" style={{ color: 'rgba(255,255,255,0.38)' }}>
+            <div className="w-full rounded-2xl p-5" style={isDark ? { ...DARK_CARD, ...DARK_DOT_GRID } : { ...CARD, ...DOT_GRID }}>
+              <p className="text-[10px] uppercase tracking-[0.2em] mb-1" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'var(--txff)' }}>
                 {de ? 'MoS₂-Verteilung im Gussblock' : 'MoS₂ distribution in cast block'}
               </p>
-              <p className="text-[9px] font-mono mb-4" style={{ color: 'rgba(255,255,255,0.18)' }}>
+              <p className="text-[9px] font-mono mb-4" style={{ color: isDark ? 'rgba(255,255,255,0.18)' : 'var(--txff)' }}>
                 {de ? 'Querschnitt — Oben / Mitte / Unten' : 'Cross-section — Top / Mid / Bottom'}
               </p>
               {/* Block cross-section: 3 slices, uniform particle grid */}
               <div className="grid grid-cols-3 gap-2 mb-4">
                 {(de
-                  ? ['Scheibe — Oben', 'Scheibe — Mitte', 'Scheibe — Unten']
-                  : ['Slice — Top', 'Slice — Mid', 'Slice — Bottom']
+                  ? ['Oben', 'Mitte', 'Unten']
+                  : ['Top', 'Mid', 'Bottom']
                 ).map((label, si) => (
                   <div key={si} className="flex flex-col items-center gap-2">
-                    <div className="w-full rounded-lg p-2.5" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                    <div className="w-full rounded-lg p-2.5" style={{ background: isDark ? 'rgba(255,255,255,0.03)' : 'var(--sf3)', border: isDark ? '1px solid rgba(255,255,255,0.07)' : '1px solid var(--bd2)' }}>
                       <div className="grid grid-cols-4 gap-1 justify-items-center">
                         {[...Array(12)].map((_, j) => (
-                          <div key={j} className="w-1.5 h-1.5 rounded-full" style={{ background: '#2A5499', opacity: 0.55 + (j % 4) * 0.12 }} />
+                          <div key={j} className="w-1.5 h-1.5 rounded-full" style={{ background: '#2A5499', opacity: isDark ? (0.55 + (j % 4) * 0.12) : (0.45 + (j % 4) * 0.12) }} />
                         ))}
                       </div>
                     </div>
-                    <span className="text-[8px] font-mono text-center leading-tight" style={{ color: 'rgba(255,255,255,0.28)' }}>{label}</span>
+                    <span className="text-[8px] font-mono text-center" style={{ color: isDark ? 'rgba(255,255,255,0.28)' : 'var(--txff)' }}>{label}</span>
                   </div>
                 ))}
               </div>
               {/* Key stats */}
               <div className="grid grid-cols-2 gap-2 mb-4">
-                <div className="text-center p-2 rounded-lg" style={{ background: 'rgba(26,60,110,0.15)', border: '1px solid rgba(68,114,212,0.15)' }}>
-                  <p className="font-serif-display italic text-[18px] font-bold" style={{ color: '#6A8AE8', textShadow: '0 0 16px rgba(68,114,212,0.45)' }}>
-                    {de ? 'kein Gradient' : 'no gradient'}
-                  </p>
-                  <p className="text-[9px] mt-0.5" style={{ color: 'rgba(255,255,255,0.32)' }}>{de ? 'von oben bis unten' : 'top to bottom'}</p>
-                </div>
-                <div className="text-center p-2 rounded-lg" style={{ background: 'rgba(26,60,110,0.15)', border: '1px solid rgba(68,114,212,0.15)' }}>
-                  <p className="font-serif-display italic text-[18px] font-bold" style={{ color: '#6A8AE8', textShadow: '0 0 16px rgba(68,114,212,0.45)' }}>
-                    {de ? 'Block 1 = 20' : 'Block 1 = 20'}
-                  </p>
-                  <p className="text-[9px] mt-0.5" style={{ color: 'rgba(255,255,255,0.32)' }}>{de ? 'identische Performance' : 'identical performance'}</p>
-                </div>
+                {[
+                  { de: 'kein Gradient', en: 'no gradient', sub: de ? 'von oben bis unten' : 'top to bottom' },
+                  { de: 'Block 1 = 20', en: 'Block 1 = 20', sub: de ? 'identische Performance' : 'identical performance' },
+                ].map((s, i) => (
+                  <div key={i} className="text-center p-2 rounded-lg" style={{ background: 'rgba(26,60,110,0.10)', border: '1px solid rgba(26,60,110,0.18)' }}>
+                    <p className="font-serif-display italic text-[16px] font-bold" style={{ color: isDark ? '#6A8AE8' : '#1A3C6E', textShadow: isDark ? '0 0 14px rgba(68,114,212,0.45)' : 'none' }}>
+                      {de ? s.de : s.en}
+                    </p>
+                    <p className="text-[9px] mt-0.5" style={{ color: isDark ? 'rgba(255,255,255,0.32)' : 'var(--txm)' }}>{s.sub}</p>
+                  </div>
+                ))}
               </div>
-              <p className="text-[11px] pt-3.5 leading-relaxed" style={{ color: 'rgba(255,255,255,0.45)', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+              <p className="text-[11px] pt-3.5 leading-relaxed" style={{ color: isDark ? 'rgba(255,255,255,0.45)' : 'var(--txm)', borderTop: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid var(--bd2)' }}>
                 {de
                   ? 'MoS₂ ist 5,6× dichter als Paraffin. Ohne Dispergiermittel entsteht ein messbarer Konzentrationsgradient — mehr Partikel unten, weniger oben. Der Fettsäureester verhindert genau das.'
                   : 'MoS₂ is 5.6× denser than paraffin. Without dispersant a measurable concentration gradient forms — more particles at the bottom, fewer at the top. The fatty acid ester prevents exactly this.'}
