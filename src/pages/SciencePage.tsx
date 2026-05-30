@@ -1277,24 +1277,24 @@ export function SciencePage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <FrictionBars de={de} />
-            <div className="w-full rounded-2xl p-5" style={{ ...CARD, ...DOT_GRID }}>
-              <p className="text-[10px] uppercase tracking-[0.2em] mb-5" style={{ color: 'var(--txff)' }}>
+            <div className="w-full rounded-2xl p-5" style={{ ...DARK_CARD, ...DARK_DOT_GRID }}>
+              <p className="text-[10px] uppercase tracking-[0.2em] mb-5" style={{ color: 'rgba(255,255,255,0.38)' }}>
                 {de ? 'Konsistenz — Block zu Block' : 'Consistency — block to block'}
               </p>
               <div className="space-y-4">
                 {[{ de: 'Erster Block', en: 'First block' }, { de: 'Zehnter Block', en: 'Tenth block' }, { de: 'Zwanzigster Block', en: 'Twentieth block' }].map((item, i) => (
                   <div key={i}>
                     <div className="flex justify-between mb-1.5">
-                      <span className="text-[12px] text-wx-txm">{de ? item.de : item.en}</span>
+                      <span className="text-[12px]" style={{ color: 'rgba(255,255,255,0.62)' }}>{de ? item.de : item.en}</span>
                       <span className="text-[11px] font-medium" style={{ color: '#4472D4' }}>{de ? 'Identisch' : 'Identical'}</span>
                     </div>
-                    <div className="h-1.5 rounded-full" style={{ background: 'var(--bd2)' }}>
+                    <div className="h-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.11)' }}>
                       <div className="h-full w-full rounded-full" style={{ background: 'linear-gradient(90deg,#1A3080,#4472D4)' }} />
                     </div>
                   </div>
                 ))}
               </div>
-              <p className="text-[11px] text-wx-txm mt-5 pt-4 leading-relaxed" style={{ borderTop: '1px solid var(--bd2)' }}>
+              <p className="text-[11px] mt-5 pt-4 leading-relaxed" style={{ color: 'rgba(255,255,255,0.50)', borderTop: '1px solid rgba(255,255,255,0.10)' }}>
                 {de
                   ? 'Das Dispergiersystem stellt sicher, dass MoS₂ gleichmäßig im Gussblock verteilt ist — von der ersten bis zur letzten Scheibe.'
                   : 'The dispersant system ensures MoS₂ is uniformly distributed throughout the cast block — from first slice to last.'}
