@@ -136,7 +136,7 @@ export const translations = {
         steps: [
           'Kette 2–3-mal in Isopropanol oder Aceton eintauchen, kräftig schütteln, mit einem Tuch abwischen und wiederholen, bis die Flüssigkeit klar bleibt.',
           'Vollständig trocknen — kein Lösungsmittelrest darf ins Wachs',
-          'Wachs auf 75–90 °C erhitzen, Kette 10–15 min eintauchen und gelegentlich bewegen',
+          'Wachs auf 80–90 °C erhitzen, Kette 10–15 min eintauchen und gelegentlich bewegen',
           'Herausnehmen, abtropfen und vollständig aushärten lassen',
           'Kette durchbrechen — über eine Metallstange oder einen Besenstiel ziehen, bis sie wieder geschmeidig läuft',
         ],
@@ -147,7 +147,7 @@ export const translations = {
         steps: [
           'Kette abnehmen (Kettenschloss öffnen) — frisch gewaxte Kette montieren und weiterfahren',
           'Abgezogene Kette mit kochendem Wasser übergießen — altes Wachs löst sich und läuft ab',
-          'Vollständig trocknen, dann 10 min ins Wachsbad bei 75–90 °C',
+          'Vollständig trocknen, dann 10 min ins Wachsbad bei 80–90 °C',
           'Abtropfen lassen, abkühlen und durchbrechen — fertig',
         ],
       },
@@ -265,9 +265,10 @@ export const translations = {
     // About
     about: {
       title: 'Entstanden auf der Straße.',
-      bio1: 'Ich bin Luca — Medizinstudent an der FAU und aktiver Fahrer. Waxcelerate ist nicht am Schreibtisch entstanden, sondern auf nassen Herbststraßen, bei Ausfahrten tief im Winter und nach Sommerrennen, bei denen Staub und Hitze zeigen, was ein Wachs wirklich kann.',
-      bio2: 'Der Anspruch war von Anfang an konkret: kein Wachs, das im ersten Eindruck überzeugt und nach drei Wochen Kompromisse zeigt. Sondern eines, das seine Arbeit still tut — bei Kälte genauso wie im Hochsommer, über kurze Ausfahrten genauso wie über lange Intervalle.',
-      bio3: 'Das Ergebnis wird in kleinen Chargen in Stuttgart entwickelt und gefertigt, für Fahrer, die beim Antrieb kein Versprechen brauchen, sondern ein Produkt, das sich seine Überzeugungskraft auf der Straße verdient hat. 2025 lud mich eBay zur Seller Leadership Week nach San Jose ein — eines von wenigen Projekten weltweit, die auf der Hauptbühne vorgestellt wurden.',
+      bio1: 'Ich bin Luca — Medizinstudent, aktiver Fahrer. Waxcelerate ist auf der Straße entstanden: auf nassen Herbststraßen, bei Ausfahrten im tiefsten Winter, nach Sommerrennen, bei denen Hitze und Schmutz zeigen, wie viel Spielraum eine Formel wirklich hat.',
+      bio2: 'Was mich beschäftigt hat, waren nicht die Wachse, die funktionieren — sondern die Frage, warum gute irgendwann aufhören, es zu tun. Kälte verändert das Verhalten in den Kettengelenken. Hitze treibt die Migration. Feuchtigkeit stellt Anforderungen an den Korrosionsschutz. Keines dieser Probleme ist trivial, und keine Formel löst alle gleichzeitig, ohne woanders Abstriche zu machen. Die Entwicklung war systematisch, eine Variable nach der anderen — und sie hat Zeit gebraucht.',
+      bio3: 'Entwickelt und gefertigt in kleinen Chargen in Stuttgart. Der Preis ist so, wie er ist, weil es keinen Grund gibt, ihn höher anzusetzen.',
+      bio4: '2025 lud mich eBay zur Seller Leadership Week ins Silicon Valley ein. Waxcelerate auf der Hauptbühne — eines von wenigen Projekten weltweit.',
       location: 'Stuttgart, Deutschland',
       email: 'waxcelerate@gmail.com',
       phone: '+49 157 51957470',
@@ -469,7 +470,7 @@ export const translations = {
         steps: [
           'Dip chain 2–3 times in isopropanol or acetone, shake vigorously, wipe with a cloth and repeat until the liquid stays clear.',
           'Dry completely — no solvent residue should enter the wax',
-          'Heat wax to 75–90 °C, immerse chain for 10–15 min and move occasionally',
+          'Heat wax to 80–90 °C, immerse chain for 10–15 min and move occasionally',
           'Remove, drip off and let harden completely',
           'Break the chain — pull over a metal rod or broomstick until it runs smoothly again',
         ],
@@ -480,7 +481,7 @@ export const translations = {
         steps: [
           'Remove chain (open quick link) — install freshly waxed chain and keep riding',
           'Pour boiling water over the removed chain — old wax dissolves and runs off',
-          'Dry completely, then 10 min in wax bath at 75–90 °C',
+          'Dry completely, then 10 min in wax bath at 80–90 °C',
           'Drip off, cool down and break in — done',
         ],
       },
@@ -598,9 +599,10 @@ export const translations = {
     // About
     about: {
       title: 'Built on the road.',
-      bio1: "I'm Luca — medical student at FAU and active rider. Waxcelerate wasn't born at a desk — it came from wet autumn roads, deep winter rides, and summer races where dust and heat reveal what a wax is really made of.",
-      bio2: "The standard was concrete from day one: not a wax that impresses at first contact and starts making compromises after three weeks. One that does its job quietly — in the cold as much as midsummer, over short rides as much as long ones.",
-      bio3: "The result is developed and produced in small batches in Stuttgart, for riders who don't need a promise about their drivetrain — just a product that earns its reputation on the road. In 2025, eBay invited me to their Seller Leadership Week in San Jose — one of a handful of projects featured on the main stage.",
+      bio1: "I'm Luca — medical student, active rider. Waxcelerate was born on the road: on wet autumn roads, on rides deep into winter, after summer races where heat and dirt show how much margin a formula really has.",
+      bio2: "What kept me thinking wasn't the waxes that work — it was the question of why good ones eventually stop. Cold changes how the chain joints behave. Heat drives migration. Moisture puts demands on corrosion protection. None of these problems is trivial, and no formula solves all of them without making tradeoffs somewhere else. The development was systematic, one variable at a time — and it took a while.",
+      bio3: "Developed and produced in small batches in Stuttgart. The price is what it is because there's no reason to charge more.",
+      bio4: "In 2025, eBay invited me to their Seller Leadership Week in Silicon Valley. Waxcelerate on the main stage — one of a handful of projects worldwide.",
       location: 'Stuttgart, Germany',
       email: 'waxcelerate@gmail.com',
       phone: '+49 157 51957470',

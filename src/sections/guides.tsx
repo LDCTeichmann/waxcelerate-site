@@ -35,7 +35,7 @@ export function Guides() {
   ];
 
   return (
-    <section id="anleitungen" className="relative py-16 bg-wx-sf">
+    <section id="anleitungen" className="relative pt-16 pb-10 bg-wx-sf">
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-4xl mx-auto">
 
@@ -46,7 +46,7 @@ export function Guides() {
             <p className="text-wx-tx2">{t.guides.subtitle}</p>
           </div>
 
-          <div className="grid md:grid-cols-[1fr_260px] gap-8 lg:gap-12 items-start">
+          <div className="grid md:grid-cols-[1fr_260px] gap-8 lg:gap-12 items-center">
             {/* Left: accordion */}
             <div ref={listRef} className="space-y-2">
               {guides.map((guide) => {
@@ -144,7 +144,7 @@ export function Guides() {
             </div>
 
             {/* Right: Stats card — sticky sidebar on desktop */}
-            <div className="md:sticky md:top-28">
+            <div>
               <div
                 className="rounded-2xl overflow-hidden"
                 style={{
@@ -155,16 +155,15 @@ export function Guides() {
               >
                 {/* Temperature bar */}
                 <div className="px-5 pt-5 pb-4" style={{ borderBottom: '1px solid var(--bd2)' }}>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[11px]" style={{ color: 'var(--txm)' }}>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-[10px] tracking-widest uppercase" style={{ color: 'var(--txm)', letterSpacing: '0.1em' }}>
                       {de ? 'Wachstemperatur' : 'Wax temperature'}
                     </span>
-                    <span className="font-display font-bold text-[15px]" style={{ color: 'var(--tx1)' }}>
-                      85–90 °C
+                    <span className="font-display font-bold text-[14px]" style={{ color: 'var(--tx1)' }}>
+                      80–90 °C
                     </span>
                   </div>
-                  {/* Animated fill bar */}
-                  <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--sf3)' }}>
+                  <div className="h-[3px] rounded-full overflow-hidden" style={{ background: 'var(--sf3)' }}>
                     <div
                       className="h-full rounded-full"
                       style={{
@@ -183,43 +182,34 @@ export function Guides() {
                   `}</style>
                 </div>
 
-                {/* 2×2 stat grid */}
-                <div className="grid grid-cols-2" style={{ borderBottom: '1px solid var(--bd2)' }}>
-                  {[
-                    { value: '~10 min', label: de ? 'Re-Wax Dauer' : 'Re-wax time' },
-                    { value: de ? '3× länger' : '3× longer', label: de ? 'Kettenlaufzeit' : 'Chain lifespan' },
-                    { value: de ? '0 Tropfen' : '0 drops', label: de ? 'Öl nötig' : 'Oil needed' },
-                    { value: '3 Ketten', label: de ? 'gleichzeitig wachsen' : 'wax at once' },
-                  ].map(({ value, label }, i) => (
-                    <div
-                      key={label}
-                      className="flex flex-col items-center justify-center px-3 py-4 text-center gap-1"
-                      style={{
-                        borderRight: i % 2 === 0 ? '1px solid var(--bd2)' : 'none',
-                        borderBottom: i < 2 ? '1px solid var(--bd2)' : 'none',
-                      }}
+                {/* Stat rows */}
+                {(
+                  [
+                    { value: '5–10 min',  label: de ? 'Im Wachsbad'        : 'In the wax',     note: de ? 'Alte Schicht abschmelzen'     : 'Melt off old layer'         },
+                    { value: '10–15 min', label: de ? 'Abkühlen/Aushärten' : 'Cool & harden',  note: de ? 'Bis steif, Glieder lockern'   : 'Until stiff, flex links'    },
+                    { value: '10–20 min', label: de ? 'Einfahren'          : 'Break in',       note: de ? 'Erst dann läuft sie leise'    : 'Chain quiets down after'    },
+                    { value: '<300 km',    label: de ? 'Nachwachsen'        : 'Re-wax',         note: de ? 'Für optimale Performance'     : 'For best performance'       },
+                    { value: '1×',        label: de ? 'Entfetten'          : 'Degrease',       note: de ? 'Nur beim ersten Mal'          : 'New chain only, once'       },
+                  ] as { value: string; label: string; note: string }[]
+                ).map(({ value, label, note }, i, arr) => (
+                  <div
+                    key={label}
+                    className="flex items-center gap-3 px-5 py-3"
+                    style={{ borderBottom: i < arr.length - 1 ? '1px solid var(--bd2)' : 'none' }}
+                  >
+                    <span
+                      className="font-display font-bold tabular-nums shrink-0 text-right"
+                      style={{ fontSize: '0.875rem', color: 'var(--tx1)', width: '76px', whiteSpace: 'nowrap' }}
                     >
-                      <span
-                        className="font-display font-bold tabular-nums"
-                        style={{ fontSize: 'clamp(1.1rem, 2.5vw, 1.35rem)', color: 'var(--tx1)', lineHeight: 1.1 }}
-                      >
-                        {value}
-                      </span>
-                      <span className="text-[10px] leading-snug" style={{ color: 'var(--txm)' }}>
-                        {label}
-                      </span>
+                      {value}
+                    </span>
+                    <div className="w-px self-stretch shrink-0" style={{ background: 'var(--bd2)' }} />
+                    <div className="flex flex-col gap-[3px]">
+                      <span className="text-[11.5px] font-semibold leading-none" style={{ color: 'var(--tx1)' }}>{label}</span>
+                      <span className="text-[10px] leading-none" style={{ color: 'var(--txm)' }}>{note}</span>
                     </div>
-                  ))}
-                </div>
-
-                {/* Bottom note */}
-                <div className="px-5 py-3">
-                  <p className="text-[10.5px] leading-snug" style={{ color: 'var(--txf)' }}>
-                    {de
-                      ? 'Neue Kette einmalig entfetten — danach nur noch ins Wachsbad.'
-                      : 'Degrease a new chain once — then just dip and go.'}
-                  </p>
-                </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>

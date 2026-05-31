@@ -9,11 +9,11 @@ import { gsap } from '@/lib/gsap';
 // ─── Diagram colour tokens — monochrome / silver palette ─────────────────────
 // Wax elements: light silver-white — high contrast on dark panel bg, neutral.
 // Rust: only chromatic accent — functional (rust IS orange). Everything else grey.
-const C_WAX   = 'rgba(215,217,222,0.90)';   // silver-white wax
-const C_WAX_S = 'rgba(215,217,222,0.38)';   // wax stroke / secondary
+const C_WAX   = 'rgba(178,182,194,0.93)';   // silver-gray wax — darker for contrast
+const C_WAX_S = 'rgba(130,135,152,0.70)';   // wax stroke / secondary — more visible
 const C_RUST  = 'rgba(195,72,18,0.92)';     // rust core (functional orange)
 const C_RUST2 = 'rgba(195,72,18,0.50)';     // rust spread / halo
-const C_DROP  = 'rgba(195,200,210,0.88)';   // water droplet (cool near-white)
+const C_DROP  = 'rgba(68,114,212,0.88)';    // water droplet (blue)
 const C_GRIME = 'rgba(42,44,52,0.92)';      // contamination / grime (near-black)
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -256,17 +256,17 @@ function ColdDiagram() {
       <line x1="140" y1="0" x2="140" y2="152" stroke="var(--bd)" strokeWidth="0.8" />
 
       {/* snowflake centred on divider */}
-      <g transform="translate(140,19)" opacity="0.55">
-        <line x1="0" y1="-9"   x2="0"   y2="9"    stroke="var(--txm)" strokeWidth="1.4" strokeLinecap="round" />
-        <line x1="-7.8" y1="-4.5" x2="7.8" y2="4.5" stroke="var(--txm)" strokeWidth="1.4" strokeLinecap="round" />
-        <line x1="7.8"  y1="-4.5" x2="-7.8" y2="4.5" stroke="var(--txm)" strokeWidth="1.4" strokeLinecap="round" />
-        <line x1="-2.6" y1="-7"  x2="2.6" y2="-7"  stroke="var(--txm)" strokeWidth="1.0" strokeLinecap="round" />
-        <line x1="-2.6" y1="7"   x2="2.6" y2="7"   stroke="var(--txm)" strokeWidth="1.0" strokeLinecap="round" />
-        <line x1="5.5"  y1="-1.8" x2="5.5" y2="1.8" stroke="var(--txm)" strokeWidth="1.0" strokeLinecap="round" />
-        <line x1="-5.5" y1="-1.8" x2="-5.5" y2="1.8" stroke="var(--txm)" strokeWidth="1.0" strokeLinecap="round" />
+      <g transform="translate(140,19)" opacity="0.85">
+        <line x1="0" y1="-9"   x2="0"   y2="9"    stroke="#4472D4" strokeWidth="1.4" strokeLinecap="round" />
+        <line x1="-7.8" y1="-4.5" x2="7.8" y2="4.5" stroke="#4472D4" strokeWidth="1.4" strokeLinecap="round" />
+        <line x1="7.8"  y1="-4.5" x2="-7.8" y2="4.5" stroke="#4472D4" strokeWidth="1.4" strokeLinecap="round" />
+        <line x1="-2.6" y1="-7"  x2="2.6" y2="-7"  stroke="#4472D4" strokeWidth="1.0" strokeLinecap="round" />
+        <line x1="-2.6" y1="7"   x2="2.6" y2="7"   stroke="#4472D4" strokeWidth="1.0" strokeLinecap="round" />
+        <line x1="5.5"  y1="-1.8" x2="5.5" y2="1.8" stroke="#4472D4" strokeWidth="1.0" strokeLinecap="round" />
+        <line x1="-5.5" y1="-1.8" x2="-5.5" y2="1.8" stroke="#4472D4" strokeWidth="1.0" strokeLinecap="round" />
       </g>
-      <text x="140" y="42" textAnchor="middle" fontSize="8" fill="var(--txm)"
-        fontFamily="system-ui,sans-serif" fontWeight="500">−8 °C</text>
+      <text x="140" y="42" textAnchor="middle" fontSize="8" fill="#4472D4"
+        fontFamily="system-ui,sans-serif" fontWeight="600">−8 °C</text>
 
       {/* ── LEFT panel ── */}
       {/* chain bar */}
@@ -401,8 +401,8 @@ function HeatDiagram() {
       <rect x="142" y="0" width="138" height="152" fill="var(--sf2)" />
       <line x1="140" y1="0" x2="140" y2="152" stroke="var(--bd)" strokeWidth="0.8" />
 
-      <text x="140" y="14" textAnchor="middle" fontSize="8" fill="var(--txm)"
-        fontFamily="system-ui,sans-serif" fontWeight="500">+75 °C</text>
+      <text x="140" y="14" textAnchor="middle" fontSize="8" fill="#C84020"
+        fontFamily="system-ui,sans-serif" fontWeight="600">+75 °C</text>
 
       {/* LEFT — metallic chain bar */}
       <rect x="8" y="90" width="122" height="26" rx="3"
