@@ -5,6 +5,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { useSectionReveal } from '@/hooks/useAnimation';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { gsap } from '@/lib/gsap';
+import { Delaunay } from 'd3-delaunay';
 
 // ─── Diagram colour tokens — monochrome / silver palette ─────────────────────
 // Wax elements: light silver-white — high contrast on dark panel bg, neutral.
@@ -16,6 +17,27 @@ const C_RUST2 = 'rgba(195,72,18,0.50)';     // rust spread / halo
 const C_DROP  = 'rgba(68,114,212,0.88)';    // water droplet (blue)
 const C_GRIME = 'rgba(42,44,52,0.92)';      // contamination / grime (near-black)
 
+// ─── Voronoi grain data — computed once at module load (pure math, no DOM) ───
+// Crystal zone above steel bar: x 0–138 (left), 142–280 (right), y 78–124.
+// Left (PARAFFIN):       5 coarse grains → large cells, ~3.5 px visible gaps.
+// Right (MIKROKRISTALLIN): 44 dense grains → tiny cells, ~0.8 px boundaries.
+const _VOR_BOUNDS_L: [number,number,number,number] = [0,   78, 138, 124];
+const _VOR_BOUNDS_R: [number,number,number,number] = [142, 78, 280, 124];
+
+const _SEEDS_P: [number,number][] = [[18,102],[55,92],[89,96],[122,100],[35,115]];
+const _CELLS_P = (() => {
+  const v = Delaunay.from(_SEEDS_P).voronoi(_VOR_BOUNDS_L);
+  return _SEEDS_P.map((_, i) => v.renderCell(i));
+})();
+
+// deterministic LCG so grain positions are always identical
+const _lcg = (() => { let s = 0xbeef42; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; })();
+const _SEEDS_M: [number,number][] = Array.from({ length: 44 }, () => [142 + _lcg() * 136, 79 + _lcg() * 43] as [number,number]);
+const _CELLS_M = (() => {
+  const v = Delaunay.from(_SEEDS_M).voronoi(_VOR_BOUNDS_R);
+  return _SEEDS_M.map((_, i) => v.renderCell(i));
+})();
+
 // ─────────────────────────────────────────────────────────────────────────────
 // DIAGRAM 1 — Crystal grain size
 // LEFT:  4 coarse warm-amber crystal grains with visible 9 px gaps.
@@ -24,10 +46,11 @@ const C_GRIME = 'rgba(42,44,52,0.92)';      // contamination / grime (near-black
 //        beads into sphere, rolls off — surface stays clean.
 // ─────────────────────────────────────────────────────────────────────────────
 function CrystalDiagram() {
-  const svgRef = useRef<SVGSVGElement>(null);
-  const dropL  = useRef<SVGPathElement>(null);
-  const oxide  = useRef<SVGGElement>(null);
-  const dropR  = useRef<SVGPathElement>(null);
+  const svgRef  = useRef<SVGSVGElement>(null);
+  const dropL   = useRef<SVGPathElement>(null);
+  const oxide   = useRef<SVGGElement>(null);
+  const dropR   = useRef<SVGPathElement>(null);
+  const turbRef = useRef<SVGFETurbulenceElement>(null);  // animated for rust bloom
 
   // Filled teardrop: tip at (cx, cy−top), round bottom at (cx, cy+bot)
   const tear = (cx: number, cy: number, top = 9, bot = 11, w = 7) =>
@@ -52,10 +75,13 @@ function CrystalDiagram() {
         // rust bloom: fast overshoot then elastic settle, then slow decay
         .to(oxide.current, { scale: 1.8, opacity: 1, duration: 0.22, ease: 'power3.out' }, 1.45)
         .to(oxide.current, { scale: 1.0, opacity: 0.92, duration: 0.52, ease: 'elastic.out(1.4, 0.38)' }, 1.67)
+        // feTurbulence baseFrequency breathes while rust holds → organic spreading feel
+        .to(turbRef.current, { attr: { baseFrequency: 0.055 }, duration: 2.8, ease: 'sine.inOut', yoyo: true, repeat: 1 }, 1.67)
         .to(oxide.current, { opacity: 0.68, duration: 2.8, ease: 'power1.out' }, 2.2)
         .to(oxide.current, { scale: 0.3, opacity: 0, duration: 0.42, ease: 'power2.in' }, 5.3)
         .set(dropL.current, { y: 0, opacity: 0, scaleX: 1 })
-        .set(oxide.current, { scale: 0, opacity: 0 });
+        .set(oxide.current, { scale: 0, opacity: 0 })
+        .set(turbRef.current, { attr: { baseFrequency: 0.038 } });
 
       // ── RIGHT: drop hits dense surface → squish → bead → rolls off ──
       const tlR = gsap.timeline({ repeat: -1, repeatDelay: 1.0, delay: 1.0 });
@@ -80,11 +106,19 @@ function CrystalDiagram() {
     <svg ref={svgRef} viewBox="0 0 280 152" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
       style={{ width: '100%', height: 'auto', display: 'block' }}>
       <defs>
-        <filter id="cd-glow" x="-100%" y="-100%" width="300%" height="300%">
-          <feGaussianBlur stdDeviation="5.5" result="blur" />
-          <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+        {/* Organic rust-bloom filter: turbulence displaces + blurs the rust ellipses.
+            GSAP animates baseFrequency on turbRef to make rust "breathe" as it spreads. */}
+        <filter id="cd-rust" x="-120%" y="-120%" width="340%" height="340%">
+          <feTurbulence ref={turbRef} type="fractalNoise" baseFrequency="0.038"
+            numOctaves="3" seed="4" result="noise" />
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="14"
+            xChannelSelector="R" yChannelSelector="G" result="disp" />
+          <feGaussianBlur in="disp" stdDeviation="3.5" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="disp" />
+          </feMerge>
         </filter>
-        {/* Metallic steel gradient — concrete tones so it reads on dark bg */}
         <linearGradient id="cd-steel" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%"   stopColor="rgba(90,92,102,0.95)" />
           <stop offset="40%"  stopColor="rgba(58,60,68,0.95)"  />
@@ -103,28 +137,18 @@ function CrystalDiagram() {
       <rect x="142" y="124" width="138" height="28" fill="url(#cd-steel)" />
       <rect x="142" y="124" width="138" height="1"  fill="rgba(255,255,255,0.10)" />
 
-      {/* ── LEFT: 4 coarse grains with 9 px gaps — warm amber fill so they're visible ── */}
-      {/* Grain A: x 2–32 */}
-      <polygon points="3,124 5,110 9,98 17,87 26,86 30,98 32,111 32,124"
-        fill={C_WAX} stroke={C_WAX_S} strokeWidth="1.4" />
-      {/* Grain B: x 41–71  (gap x 32–41) */}
-      <polygon points="41,124 41,111 44,100 52,90 60,88 65,99 67,111 67,124"
-        fill={C_WAX} stroke={C_WAX_S} strokeWidth="1.4" />
-      {/* Grain C: x 76–106  (gap x 67–76) */}
-      <polygon points="76,124 76,111 79,100 87,88 96,87 101,99 103,111 103,124"
-        fill={C_WAX} stroke={C_WAX_S} strokeWidth="1.4" />
-      {/* Grain D: x 112–136  (gap x 103–112) */}
-      <polygon points="112,124 112,111 115,100 123,88 131,87 135,98 136,111 136,124"
-        fill={C_WAX} stroke={C_WAX_S} strokeWidth="1.4" />
-
+      {/* ── LEFT: D3 Voronoi — 5 coarse grains, stroke=panel-bg creates visible gaps ── */}
+      {_CELLS_P.map((d, i) => (
+        <path key={i} d={d} fill={C_WAX} stroke="var(--sf2)" strokeWidth="3.5" />
+      ))}
       <text x="69" y="14" textAnchor="middle" fontSize="7" fill="var(--txf)"
         fontFamily="system-ui,sans-serif" letterSpacing="0.10em" fontWeight="600">PARAFFIN</text>
 
-      {/* LEFT droplet — falls into gap between grain A (ends x=32) and B (starts x=41), center x=36 */}
+      {/* LEFT droplet — falls near the Voronoi boundary that bisects x≈36 */}
       <path ref={dropL} d={tear(36, 57)} fill={C_DROP} opacity="0" />
 
-      {/* LEFT rust bloom on steel surface */}
-      <g ref={oxide} filter="url(#cd-glow)" style={{ opacity: 0 }}>
+      {/* LEFT rust bloom — turbulence-displaced so it looks like real corrosion */}
+      <g ref={oxide} filter="url(#cd-rust)" style={{ opacity: 0 }}>
         <ellipse cx="36" cy="135" rx="20" ry="8"    fill={C_RUST2} />
         <ellipse cx="36" cy="135" rx="12" ry="5"    fill={C_RUST}  />
         <ellipse cx="36" cy="135" rx="5.5" ry="2.5" fill="rgba(230,120,50,0.95)" />
@@ -133,19 +157,14 @@ function CrystalDiagram() {
         <circle  cx="31" cy="139" r="1.8"            fill={C_RUST2} />
       </g>
 
-      {/* ── RIGHT: dense microcrystalline band — same amber, solid, no gaps ── */}
-      <rect x="144" y="90" width="134" height="34" rx="2"
-        fill={C_WAX} stroke={C_WAX_S} strokeWidth="1.2" />
-      {/* internal grain texture — faint vertical lines suggesting crystallite boundaries */}
-      {[161,177,193,210,226,243,259].map((x, i) => (
-        <line key={i} x1={x} y1="90" x2={x + (i % 2 ? 1 : -1)} y2="124"
-          stroke={C_WAX_S} strokeWidth="0.65" />
+      {/* ── RIGHT: D3 Voronoi — 44 dense micro-grains, thin boundaries ── */}
+      {_CELLS_M.map((d, i) => (
+        <path key={i} d={d} fill={C_WAX} stroke="var(--sf2)" strokeWidth="0.9" />
       ))}
-
       <text x="211" y="14" textAnchor="middle" fontSize="7" fill="var(--txf)"
         fontFamily="system-ui,sans-serif" letterSpacing="0.10em" fontWeight="600">MIKROKRISTALLIN</text>
 
-      {/* RIGHT droplet — falls toward dense surface top at y=90 */}
+      {/* RIGHT droplet — falls onto dense surface */}
       <path ref={dropR} d={tear(207, 62)} fill={C_DROP} opacity="0" />
     </svg>
   );
@@ -248,6 +267,12 @@ function ColdDiagram() {
           <stop offset="45%"  stopColor="rgba(56,58,66,0.95)"  />
           <stop offset="100%" stopColor="rgba(30,31,36,0.95)"  />
         </linearGradient>
+        {/* High-frequency turbulence roughens the straight crack lines into
+            jagged fracture edges — looks brittle rather than geometric. Static. */}
+        <filter id="cold-crack" x="-30%" y="-60%" width="160%" height="220%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.9 0.35" numOctaves="2" result="noise" />
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="2.8" />
+        </filter>
       </defs>
 
       {/* panels */}
@@ -276,13 +301,16 @@ function ColdDiagram() {
       {/* wax slab — warm amber, clearly visible */}
       <rect ref={waxL} x="14" y="70" width="110" height="24" rx="2"
         fill={C_WAX} stroke={C_WAX_S} strokeWidth="1.4" />
-      {/* crack lines — stroke=var(--sf2) = dark panel bg, so they appear as dark slits through wax */}
+      {/* crack lines — turbulence filter makes edges jagged (brittle fracture) */}
       <line ref={crackL1} x1="42"  y1="70" x2="36"  y2="94"
-        stroke="var(--sf2)" strokeWidth="2.4" strokeLinecap="round" opacity="0" />
+        stroke="var(--sf2)" strokeWidth="2.4" strokeLinecap="round" opacity="0"
+        filter="url(#cold-crack)" />
       <line ref={crackL2} x1="73"  y1="70" x2="68"  y2="94"
-        stroke="var(--sf2)" strokeWidth="2.4" strokeLinecap="round" opacity="0" />
+        stroke="var(--sf2)" strokeWidth="2.4" strokeLinecap="round" opacity="0"
+        filter="url(#cold-crack)" />
       <line ref={crackL3} x1="104" y1="70" x2="99"  y2="94"
-        stroke="var(--sf2)" strokeWidth="2.4" strokeLinecap="round" opacity="0" />
+        stroke="var(--sf2)" strokeWidth="2.4" strokeLinecap="round" opacity="0"
+        filter="url(#cold-crack)" />
       {/* fragment chips */}
       <polygon ref={chipL1} points="34,76 47,76 42,85"
         fill={C_WAX} stroke={C_WAX_S} strokeWidth="0.8" opacity="0" />
@@ -322,16 +350,17 @@ function ColdDiagram() {
 // RIGHT (FISCHER-TROPSCH): single stable wax layer, no change.
 // ─────────────────────────────────────────────────────────────────────────────
 function HeatDiagram() {
-  const svgRef = useRef<SVGSVGElement>(null);
-  const segA   = useRef<SVGRectElement>(null);
-  const segB   = useRef<SVGRectElement>(null);
-  const segC   = useRef<SVGRectElement>(null);
-  const dripA  = useRef<SVGPathElement>(null);
-  const dripB  = useRef<SVGPathElement>(null);
-  const dripC  = useRef<SVGPathElement>(null);
-  const dirtA  = useRef<SVGGElement>(null);
-  const dirtB  = useRef<SVGGElement>(null);
-  const dirtC  = useRef<SVGGElement>(null);
+  const svgRef     = useRef<SVGSVGElement>(null);
+  const segA       = useRef<SVGRectElement>(null);
+  const segB       = useRef<SVGRectElement>(null);
+  const segC       = useRef<SVGRectElement>(null);
+  const dripA      = useRef<SVGPathElement>(null);
+  const dripB      = useRef<SVGPathElement>(null);
+  const dripC      = useRef<SVGPathElement>(null);
+  const dirtA      = useRef<SVGGElement>(null);
+  const dirtB      = useRef<SVGGElement>(null);
+  const dirtC      = useRef<SVGGElement>(null);
+  const shimmerTurb = useRef<SVGFETurbulenceElement>(null); // heat shimmer
 
   // Small teardrop for wax drip — amber fill
   const drip = (cx: number, cy: number) =>
@@ -345,6 +374,15 @@ function HeatDiagram() {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const ctx = gsap.context(() => {
+      // continuous heat shimmer on left chain bar — independent of main timeline
+      if (shimmerTurb.current) {
+        gsap.to(shimmerTurb.current, {
+          attr: { baseFrequency: '0.022 0.09' },
+          duration: 1.9, ease: 'sine.inOut',
+          yoyo: true, repeat: -1,
+        });
+      }
+
       // anchor each segment's scaleY at its bottom edge (y=90)
       gsap.set(segA.current, { svgOrigin: '29 90'  });
       gsap.set(segB.current, { svgOrigin: '73 90'  });
@@ -394,6 +432,14 @@ function HeatDiagram() {
           <stop offset="45%"  stopColor="rgba(56,58,66,0.95)"  />
           <stop offset="100%" stopColor="rgba(30,31,36,0.95)"  />
         </linearGradient>
+        {/* Heat shimmer: low-frequency turbulence displaces the left chain bar surface.
+            GSAP animates baseFrequency continuously → surface appears to radiate heat. */}
+        <filter id="ht-shimmer" x="-5%" y="-40%" width="110%" height="180%">
+          <feTurbulence ref={shimmerTurb} type="turbulence"
+            baseFrequency="0.015 0.06" numOctaves="2" seed="11" result="noise" />
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="3.5"
+            xChannelSelector="R" yChannelSelector="G" />
+        </filter>
       </defs>
 
       {/* panels */}
@@ -404,9 +450,10 @@ function HeatDiagram() {
       <text x="140" y="14" textAnchor="middle" fontSize="8" fill="#C84020"
         fontFamily="system-ui,sans-serif" fontWeight="600">+75 °C</text>
 
-      {/* LEFT — metallic chain bar */}
+      {/* LEFT — metallic chain bar with heat shimmer filter */}
       <rect x="8" y="90" width="122" height="26" rx="3"
-        fill="url(#ht-steel)" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+        fill="url(#ht-steel)" stroke="rgba(255,255,255,0.08)" strokeWidth="1"
+        filter="url(#ht-shimmer)" />
       <rect x="8" y="90" width="122" height="1" fill="rgba(255,255,255,0.10)" />
 
       {/* LEFT — 3 wax segments in warm amber (visible!) */}
