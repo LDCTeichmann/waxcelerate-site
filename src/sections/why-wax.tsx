@@ -763,7 +763,7 @@ export function WhyWax() {
           {/* ── Three mechanism strips ── */}
           <div style={{ borderTop: '1px solid var(--bd2)', paddingTop: '8px' }}>
             {strips.map((strip, i) => (
-              <MechanismStrip key={i} index={i} de={de} isLast={i === strips.length - 1} {...strip} />
+              <MechanismStrip key={i} {...strip} index={i} de={de} isLast={i === strips.length - 1} />
             ))}
           </div>
 

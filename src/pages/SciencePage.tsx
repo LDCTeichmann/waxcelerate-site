@@ -766,14 +766,14 @@ function FailureTimeline({ de, isDark }: { de: boolean; isDark: boolean }) {
             <div
               className="w-[18px] h-[18px] rounded-full flex-shrink-0 z-10 flex items-center justify-center mb-3"
               style={{
-                background: f.isCurrent ? '#2A5499' : dotFail,
-                border: `2px solid ${f.isCurrent ? '#4472D4' : (isDark ? 'rgba(255,255,255,0.15)' : 'rgba(26,60,110,0.20)')}`,
-                boxShadow: f.isCurrent ? '0 0 10px rgba(68,114,212,0.5)' : 'none',
+                background: ('isCurrent' in f && f.isCurrent) ? '#2A5499' : dotFail,
+                border: `2px solid ${('isCurrent' in f && f.isCurrent) ? '#4472D4' : (isDark ? 'rgba(255,255,255,0.15)' : 'rgba(26,60,110,0.20)')}`,
+                boxShadow: ('isCurrent' in f && f.isCurrent) ? '0 0 10px rgba(68,114,212,0.5)' : 'none',
               }}
             />
             {/* Card */}
-            <div className="w-full rounded-xl p-3" style={{ background: f.isCurrent ? (isDark ? 'rgba(26,60,110,0.20)' : 'rgba(26,60,110,0.07)') : cardBg, border: `1px solid ${f.isCurrent ? 'rgba(68,114,212,0.30)' : cardBd}` }}>
-              <p className="text-[9px] font-mono font-bold uppercase tracking-wide mb-1.5" style={{ color: f.isCurrent ? '#4472D4' : (isDark ? 'rgba(255,255,255,0.35)' : 'var(--txff)') }}>
+            <div className="w-full rounded-xl p-3" style={{ background: ('isCurrent' in f && f.isCurrent) ? (isDark ? 'rgba(26,60,110,0.20)' : 'rgba(26,60,110,0.07)') : cardBg, border: `1px solid ${('isCurrent' in f && f.isCurrent) ? 'rgba(68,114,212,0.30)' : cardBd}` }}>
+              <p className="text-[9px] font-mono font-bold uppercase tracking-wide mb-1.5" style={{ color: ('isCurrent' in f && f.isCurrent) ? '#4472D4' : (isDark ? 'rgba(255,255,255,0.35)' : 'var(--txff)') }}>
                 {de ? f.vDe : f.vEn}
               </p>
               <p className="text-[10px] leading-snug mb-2" style={{ color: failClr }}>
@@ -791,11 +791,11 @@ function FailureTimeline({ de, isDark }: { de: boolean; isDark: boolean }) {
         {FAILURES.map((f, i) => (
           <div key={i} className="ft-item flex gap-3 opacity-0">
             <div className="flex flex-col items-center flex-shrink-0 pt-1">
-              <div className="w-3 h-3 rounded-full" style={{ background: f.isCurrent ? '#2A5499' : dotFail, border: `1.5px solid ${f.isCurrent ? '#4472D4' : (isDark ? 'rgba(255,255,255,0.15)' : 'rgba(26,60,110,0.20)')}` }} />
+              <div className="w-3 h-3 rounded-full" style={{ background: ('isCurrent' in f && f.isCurrent) ? '#2A5499' : dotFail, border: `1.5px solid ${('isCurrent' in f && f.isCurrent) ? '#4472D4' : (isDark ? 'rgba(255,255,255,0.15)' : 'rgba(26,60,110,0.20)')}` }} />
               {i < FAILURES.length - 1 && <div className="w-px flex-1 mt-1" style={{ background: lineClr, minHeight: '20px' }} />}
             </div>
             <div className="pb-2">
-              <p className="text-[9px] font-mono font-bold uppercase tracking-wide mb-1" style={{ color: f.isCurrent ? '#4472D4' : (isDark ? 'rgba(255,255,255,0.35)' : 'var(--txff)') }}>
+              <p className="text-[9px] font-mono font-bold uppercase tracking-wide mb-1" style={{ color: ('isCurrent' in f && f.isCurrent) ? '#4472D4' : (isDark ? 'rgba(255,255,255,0.35)' : 'var(--txff)') }}>
                 {de ? f.vDe : f.vEn}
               </p>
               <p className="text-[11px] leading-snug mb-1" style={{ color: failClr }}>{de ? f.failDe : f.failEn}</p>
