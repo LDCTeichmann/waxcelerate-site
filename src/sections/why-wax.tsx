@@ -533,32 +533,6 @@ interface StripProps {
   isLast: boolean;
 }
 
-// Curved dashed path connecting one strip's diagram column to the next.
-// x1/x2 are percentage positions (0–100) matching the diagram column centres.
-function StripConnector({ fromEven }: { fromEven: boolean }) {
-  // diagram column centres: ~16 % (left) and ~84 % (right) of the container.
-  const x1 = fromEven ? 16 : 84;
-  const x2 = fromEven ? 84 : 16;
-  return (
-    <div className="hidden sm:block" aria-hidden="true" style={{ height: 52, position: 'relative' }}>
-      <svg
-        viewBox="0 0 100 100"
-        preserveAspectRatio="none"
-        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
-      >
-        <path
-          d={`M ${x1},0 C ${x1},50 ${x2},50 ${x2},100`}
-          fill="none"
-          stroke="var(--txf)"
-          strokeOpacity="0.35"
-          strokeWidth="1.2"
-          strokeDasharray="4 6"
-          strokeLinecap="round"
-        />
-      </svg>
-    </div>
-  );
-}
 
 function MechanismStrip({
   index, catDe, catEn, specValue, specLabelDe, specLabelEn,
@@ -579,7 +553,6 @@ function MechanismStrip({
     );
   }, [index]);
 
-  const isEven = index % 2 === 0;
   const num = String(index + 1).padStart(2, '0');
 
   return (
@@ -587,24 +560,14 @@ function MechanismStrip({
       <div ref={stripRef} className="py-8 sm:py-10">
 
         {/* ── Content ── */}
-        <div className={`flex flex-col sm:flex-row gap-8 sm:gap-12 items-center ${isEven ? '' : 'sm:flex-row-reverse'}`}>
+        <div className="flex flex-col sm:flex-row gap-8 sm:gap-12 items-center">
 
           {/* Diagram — number badge overlaps the outer corner */}
           <div className="relative flex-shrink-0 w-full sm:w-auto" style={{ maxWidth: 308 }}>
-            <div
-              className={`absolute z-10 flex items-center justify-center select-none ${isEven ? '-top-4 -left-4' : '-top-4 -right-4 left-auto'}`}
-              style={{
-                width: 38, height: 38, borderRadius: '50%',
-                background: 'var(--sf2)',
-                border: '1.5px solid #3D67CA',
-                boxShadow: '0 0 0 3px var(--sf), 0 2px 8px rgba(0,0,0,0.14)',
-              }}
-            >
-              <span className="font-mono font-bold leading-none"
-                style={{ fontSize: 11, letterSpacing: '0.06em', color: '#3D67CA' }}>
-                {num}
-              </span>
-            </div>
+            <span className="absolute -top-3 -left-1 z-10 font-mono font-bold select-none"
+              style={{ fontSize: 11, letterSpacing: '0.06em', color: 'var(--txf)' }}>
+              {num}.
+            </span>
             <div className="rounded-xl overflow-hidden"
               style={{ border: '1px solid var(--bd2)', background: 'var(--sf2)' }}>
               {diagram}
@@ -617,7 +580,7 @@ function MechanismStrip({
             {/* Eyebrow + spec */}
             <div className="flex items-start justify-between gap-4 mb-2">
               <span className="text-[10px] font-semibold uppercase tracking-[0.22em]"
-                style={{ color: 'var(--txff)' }}>
+                style={{ color: '#3D67CA' }}>
                 {de ? catDe : catEn}
               </span>
               {specValue && (
@@ -636,20 +599,20 @@ function MechanismStrip({
             )}
 
             {/* Title */}
-            <h3 className="font-serif-display italic font-bold text-wx-tx1 mb-3 leading-tight"
+            <h3 className="font-display font-bold text-wx-tx1 mb-3 leading-tight"
               style={{ fontSize: 'clamp(1.1rem, 2.1vw, 1.4rem)' }}>
               {de ? titleDe : titleEn}
             </h3>
 
             {/* Body */}
-            <p className="text-[13px] leading-relaxed mb-4" style={{ color: 'var(--txm)' }}>
+            <p className="text-[14px] leading-relaxed mb-4" style={{ color: 'var(--txm)' }}>
               {de ? bodyDe : bodyEn}
             </p>
 
             {/* Science link */}
             <Link to={`/wissenschaft${scienceAnchor}`}
               className="inline-flex items-center gap-1 text-[11px] font-medium transition-opacity hover:opacity-70"
-              style={{ color: '#264E8C' }}>
+              style={{ color: '#3D67CA' }}>
               {de ? scienceLinkDe : scienceLinkEn}
               <span aria-hidden="true" style={{ fontSize: 10 }}>→</span>
             </Link>
@@ -657,8 +620,7 @@ function MechanismStrip({
         </div>
       </div>
 
-      {/* ── Curved path connector to the next strip ── */}
-      {!isLast && <StripConnector fromEven={isEven} />}
+      {!isLast && <div style={{ borderBottom: '1px solid var(--bd2)' }} />}
     </>
   );
 }
@@ -695,8 +657,8 @@ export function WhyWax() {
       // No single number — the diagram is the proof
       titleDe: 'Weniger Oxidation nach der Regenfahrt',
       titleEn: 'Less oxidation after a wet ride',
-      bodyDe: 'Standard-Paraffin bildet grobkristalline Strukturen mit messbaren Lücken — durch diese Lücken erreicht Wasser die Metalloberfläche und Oxidation entsteht schneller. Mikrokristallines Hartwachs hat deutlich kleinere Kristallite, die dichter packen und mehr Metalloberfläche bedecken. Das reduziert den Wasserkontakt mit dem Stahl erheblich.',
-      bodyEn: 'Standard paraffin forms coarse crystal structures with measurable gaps — through these gaps water reaches the metal and oxidation sets in faster. Microcrystalline hard wax has significantly smaller crystallites that pack more densely and cover more metal surface area, substantially reducing water contact with the steel.',
+      bodyDe: 'Standard-Paraffin bildet grobkristalline Strukturen mit Lücken — durch diese Lücken erreicht Wasser die Metalloberfläche. Mikrokristallines Hartwachs packt dichter und reduziert den Wasserkontakt mit dem Stahl erheblich.',
+      bodyEn: 'Standard paraffin forms coarse crystal structures with measurable gaps — water reaches the metal through those gaps and oxidation sets in faster. Microcrystalline hard wax packs more densely, substantially reducing water contact with the steel.',
       scienceLinkDe: 'Kristallstruktur erklärt',
       scienceLinkEn: 'Crystal structure explained',
       scienceAnchor: '#kristallstruktur',
@@ -710,8 +672,8 @@ export function WhyWax() {
       specLabelEn: 'Lower limit for reliable operation',
       titleDe: 'Weniger Abplatzen und Schaltprobleme bei Frost',
       titleEn: 'Less flaking and shifting issues in frost',
-      bodyDe: 'Standard-Wachse werden unter ~5 °C spröde — die Matrix bricht bei Biegebewegungen auf, Stücke platzen ab, Schmierung fällt aus. Amorphes MoS₂ hält die Matrix elastisch bis −8 °C, verhindert Abplatzen und sorgt für konsistentere Schaltperformance. Ein Phenol-Antioxidans schützt zusätzlich das MoS₂ vor Umwandlung zu MoO₃ — einem abrasiven Oxidationsprodukt, das statt zu schmieren schadet.',
-      bodyEn: 'Standard waxes become brittle below ~5 °C — the matrix fractures under flex stress, pieces chip off, and lubrication fails. Amorphous MoS₂ keeps the matrix elastic down to −8 °C, preventing flaking and maintaining more consistent shifting. A phenolic antioxidant also protects the MoS₂ from converting to MoO₃ — an abrasive oxidation product that harms rather than lubricates.',
+      bodyDe: 'Standard-Wachs wird unter ~5 °C spröde — die Matrix bricht auf, Stücke platzen ab, Schmierung fällt aus. Amorphes MoS₂ hält die Matrix elastisch bis −8 °C und sorgt für konsistente Schaltperformance auch im Winter.',
+      bodyEn: 'Standard wax becomes brittle below ~5 °C — the matrix fractures under flex stress, pieces chip off, and lubrication fails. Amorphous MoS₂ keeps the matrix elastic down to −8 °C, maintaining consistent shifting performance through winter.',
       scienceLinkDe: 'Winterformel & MoS₂ erklärt',
       scienceLinkEn: 'Winter formula & MoS₂ explained',
       scienceAnchor: '#winterformel',
@@ -725,8 +687,8 @@ export function WhyWax() {
       specLabelEn: 'Drop point of wax matrix',
       titleDe: 'Weniger Shedding und Migration bei Hitze',
       titleEn: 'Less shedding and migration in heat',
-      bodyDe: 'An Kettenkontaktpunkten unter Last entstehen Temperaturen von 45–55 °C. Weiches Wachs erreicht hier seine thermische Grenze — es migriert weg vom Gelenk, dünnt aus, und Schmutz haftet an der Stelle. Die härtere Fischer-Tropsch-Matrix (Tropfpunkt ~75 °C) bleibt an Position: deutlich weniger Migration und Shedding, längere Rewax-Intervalle.',
-      bodyEn: 'Under load, chain contact points reach 45–55 °C. Soft wax approaches its thermal limit here — it migrates away from the joint, thins out, and dirt sticks where it exposed the metal. The harder Fischer-Tropsch matrix (drop point ~75 °C) holds its position: significantly less migration and shedding, longer re-wax intervals.',
+      bodyDe: 'An Kettenkontaktpunkten unter Last entstehen Temperaturen von 45–55 °C — weiches Wachs migriert weg, dünnt aus, und Schmutz haftet an der exponierten Stelle. Die Fischer-Tropsch-Matrix bleibt an Position: weniger Shedding, längere Rewax-Intervalle.',
+      bodyEn: 'Under load, chain contact points reach 45–55 °C — soft wax migrates away, thins out, and dirt sticks where it exposes the metal. The Fischer-Tropsch matrix holds its position: less shedding, longer re-wax intervals.',
       scienceLinkDe: 'Matrix & Tropfpunkt erklärt',
       scienceLinkEn: 'Matrix & drop point explained',
       scienceAnchor: '#matrix',
@@ -795,7 +757,7 @@ export function WhyWax() {
             </div>
             <Link to="/wissenschaft#sedimentation"
               className="text-[11px] font-medium flex-shrink-0 transition-opacity hover:opacity-70"
-              style={{ color: '#264E8C' }}>
+              style={{ color: '#3D67CA' }}>
               {de ? 'Sedimentation erklärt →' : 'Sedimentation explained →'}
             </Link>
           </div>
@@ -888,7 +850,7 @@ export function WhyWax() {
             </p>
             <Link to="/#produkte"
               className="text-[11px] font-medium flex-shrink-0 transition-opacity hover:opacity-70"
-              style={{ color: '#264E8C' }}>
+              style={{ color: '#3D67CA' }}>
               {de ? 'Zu den Produkten →' : 'See products →'}
             </Link>
           </div>
