@@ -128,8 +128,8 @@ export function Reviews() {
                   }}
                 >
                   <div className="flex flex-col gap-0.5">
-                    <span className="font-medium" style={{ color: 'var(--tx2)' }}>{r.name}</span>
-                    <span style={{ color: 'var(--txff)' }}>{r.reviewerCount} eBay-Bew.</span>
+                    <span className="font-medium" style={{ color: 'var(--txff)' }}>{r.name}</span>
+                    <span style={{ color: 'var(--tx2)' }}>{r.reviewerCount} eBay-Bew.</span>
                   </div>
                   <span className="flex items-center gap-1.5">
                     <span
@@ -143,21 +143,18 @@ export function Reviews() {
             ))}
           </div>
 
-          <div className="mt-8">
+          <p className="mt-6 text-[11px]" style={{ color: 'var(--txff)' }}>
+            {de ? 'Quelle: ' : 'Source: '}
             <a
               href="https://www.ebay.de/usr/waxcelerate"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[13px] font-medium transition-all hover:opacity-85"
-              style={{
-                border: '1px solid var(--bd)',
-                background: 'var(--sf2)',
-                color: 'var(--tx2)',
-              }}
+              className="underline hover:opacity-70 transition-opacity"
+              style={{ textUnderlineOffset: '3px' }}
             >
-              {de ? 'Alle 171 Bewertungen auf eBay ansehen →' : 'See all 171 reviews on eBay →'}
+              ebay.de/usr/waxcelerate
             </a>
-          </div>
+          </p>
 
         </div>
       </div>

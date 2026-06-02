@@ -31,7 +31,6 @@ import { ScrollToTop } from '@/components/ScrollToTop';
 import { ScrollProgress } from '@/components/ScrollProgress';
 import { MobileStickyCTA } from '@/components/MobileStickyCTA';
 import { CartPersistenceHint } from '@/components/CartPersistenceHint';
-import { SectionDots } from '@/components/SectionDots';
 
 const PageLoader = () => (
   <div style={{ minHeight: '100vh', background: 'var(--pg)' }} />
@@ -47,7 +46,7 @@ function AppContent() {
       <ScrollProgress />
       <CartPersistenceHint />
       <ScrollToTop />
-      <SectionDots />
+      {/* SectionDots removed — signals "overwhelming page" and adds escape routes */}
       <MobileStickyCTA />
       <CartDrawer />
       <Routes>
@@ -66,13 +65,13 @@ function AppContent() {
             <main>
               <Hero />
               <Conviction />
+              <Products />
               <WhyWax />
               <Reviews />
-              <Products />
               <About />
+              <FAQ />
               <Tools />
               <Guides />
-              <FAQ />
               <Contact />
             </main>
             <Footer />

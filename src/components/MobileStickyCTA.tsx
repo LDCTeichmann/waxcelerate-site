@@ -40,7 +40,7 @@ export function MobileStickyCTA() {
 
   if (!isMain) return null;
 
-  const label = lang === 'de' ? 'Jetzt bestellen →' : 'Buy now →';
+  const label = lang === 'de' ? 'Ab €22,95 kaufen →' : 'From €22.95 →';
 
   const handleClick = () => {
     document.getElementById('produkte')?.scrollIntoView({ behavior: 'smooth' });

@@ -106,6 +106,13 @@ export function About() {
                     {de ? 'Aktiv auf eBay · Versand aus Stuttgart' : 'Active on eBay · Ships from Stuttgart'}
                   </span>
                 </div>
+                <button
+                  onClick={() => document.querySelector('#produkte')?.scrollIntoView({ behavior: 'smooth' })}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[13px] font-semibold transition-opacity hover:opacity-85"
+                  style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
+                >
+                  {de ? 'Produkte ansehen →' : 'See products →'}
+                </button>
                 <a
                   href="https://www.ebay.de/usr/waxcelerate"
                   target="_blank"

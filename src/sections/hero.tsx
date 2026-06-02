@@ -344,6 +344,9 @@ export function Hero() {
                 {t.hero.ctaSecondary}
               </button>
             </div>
+            <p className="text-[11px] mt-3" style={{ color: 'rgba(255,255,255,0.20)' }}>
+              {t.hero.priceAnchor}
+            </p>
           </div>
         </div>
 
@@ -401,14 +404,14 @@ export function Hero() {
           <p
             className="font-display font-black uppercase select-none mb-4"
             style={{
-              fontSize: 'clamp(3.4rem, 13.5vw, 5rem)',
+              fontSize: 'clamp(2.8rem, 11vw, 5rem)',
               letterSpacing: '-0.025em',
               lineHeight: 0.88,
               color: 'rgba(245,245,248,0.94)',
             }}
             aria-hidden="true"
           >
-            WAX<br />CELERATE
+            WAXCELERATE
           </p>
           <div style={{ height: '1px', background: 'rgba(255,255,255,0.07)', marginBottom: '20px' }} />
           <p className="font-display font-bold leading-tight tracking-[-0.02em] mb-1.5"
@@ -454,6 +457,9 @@ export function Hero() {
               {t.hero.ctaSecondary}
             </button>
           </div>
+          <p className="text-[11px] mt-3" style={{ color: 'rgba(255,255,255,0.20)' }}>
+            {t.hero.priceAnchor}
+          </p>
         </div>
       </div>
 

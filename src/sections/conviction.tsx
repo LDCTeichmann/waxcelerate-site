@@ -56,7 +56,7 @@ export function Conviction() {
               </div>
             ))}
           </div>
-          <p className="text-[10px] mt-3 text-center px-2 leading-relaxed" style={{ color: 'var(--txf)' }}>
+          <p className="text-[11px] mt-3 text-left px-2 leading-relaxed" style={{ color: 'var(--txm)' }}>
             {de
               ? '* Basis: Kettenpreis €30, Rewax alle 400 km vs. Ölwechsel alle 300 km, 12.000 km. † Kette 6.000–12.000 km mit Wachs vs. 2.000–3.000 km mit Öl (Kettendehnung 0,75%).'
               : '* Based on: chain price €30, re-wax every 400 km vs. oil every 300 km, 12,000 km total. † Chain 6,000–12,000 km with wax vs. 2,000–3,000 km with oil (chain stretch 0.75%).'}
