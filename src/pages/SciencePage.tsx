@@ -616,28 +616,28 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
         })}
       </svg>
 
-      {/* ── Mobile: color-coded grid ── */}
+      {/* ── Mobile: clean uniform-blue grid ── */}
       <div className="grid grid-cols-3 gap-2 sm:hidden">
         {ASSEMBLY_NODES.map(node => {
-          const isMos   = node.id === 4;
-          const accent  = NODE_COLORS[node.id].accent;
-          const darkA   = NODE_COLORS[node.id].darkA;
+          const isMos = node.id === 4;
           return (
             <div key={node.id} className="rounded-xl p-2.5 text-center"
               style={{
-                background: isDark
-                  ? (isMos ? `linear-gradient(145deg, ${darkA}, ${NODE_COLORS[node.id].darkB})` : `${darkA}88`)
-                  : (isMos ? `linear-gradient(145deg, #1C3C9C, #060E28)` : `${accent}12`),
-                border: `1.5px solid ${isDark ? `${accent}55` : `${accent}44`}`,
+                background: isMos
+                  ? 'linear-gradient(145deg, #1C3C9C, #060E28)'
+                  : (isDark ? 'rgba(26,52,110,0.18)' : 'rgba(68,114,212,0.08)'),
+                border: `1.5px solid ${isMos ? '#3d6ad4' : (isDark ? 'rgba(68,114,212,0.30)' : 'rgba(42,84,153,0.22)')}`,
               }}>
-              <p className="text-[12px] font-bold leading-tight" style={{ color: isDark ? accent : accent }}>
+              <p className="text-[12px] font-bold leading-tight"
+                style={{ color: isMos ? '#88c0ff' : (isDark ? '#7aaaff' : '#1a3c8e') }}>
                 {node.metric}
               </p>
               <p className="text-[8.5px] font-semibold mt-0.5"
-                style={{ color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(20,40,80,0.65)' }}>
+                style={{ color: isMos ? 'rgba(255,255,255,0.80)' : (isDark ? 'rgba(255,255,255,0.70)' : 'rgba(20,40,80,0.70)') }}>
                 {de ? node.labelDe : node.labelEn}
               </p>
-              <p className="text-[7px] mt-0.5" style={{ color: isDark ? `${accent}77` : `${accent}99` }}>
+              <p className="text-[7px] mt-0.5"
+                style={{ color: isMos ? 'rgba(255,255,255,0.38)' : (isDark ? 'rgba(140,180,240,0.45)' : 'rgba(42,84,153,0.50)') }}>
                 {de ? node.subDe : node.subEn}
               </p>
             </div>
