@@ -402,14 +402,14 @@ const ASSEMBLY_NODES = [
   },
 ] as const;
 
-// dash=true: chemical/protective bond · weight: visual thickness
+// dash=true: chemical/protective bond · main=true: primary delivery spine · weight: visual thickness
 const ASSEMBLY_EDGES = [
-  { from: 2, to: 1, labelDe: 'Ko-Kristallisation',   labelEn: 'co-crystallises',   dash: false, weight: 1.6 },
-  { from: 3, to: 1, labelDe: 'Plastifiziert',         labelEn: 'plasticises',       dash: false, weight: 1.4 },
-  { from: 1, to: 4, labelDe: 'Trägermatrix',           labelEn: 'carrier matrix',    dash: false, weight: 2.4 },
-  { from: 3, to: 4, labelDe: 'Partikeleinbettung',    labelEn: 'particle embedding', dash: false, weight: 1.2 },
-  { from: 5, to: 4, labelDe: 'Sterische Hülle',       labelEn: 'steric shell',       dash: true,  weight: 1.6 },
-  { from: 6, to: 4, labelDe: 'Oxidationsschutz',      labelEn: 'oxidation guard',    dash: true,  weight: 1.6 },
+  { from: 2, to: 1, labelDe: 'Ko-Kristallisation',   labelEn: 'co-crystallises',   dash: false, main: false, weight: 1.6 },
+  { from: 3, to: 1, labelDe: 'Plastifiziert',         labelEn: 'plasticises',       dash: false, main: false, weight: 1.4 },
+  { from: 1, to: 4, labelDe: 'Trägermatrix',           labelEn: 'carrier matrix',    dash: false, main: true,  weight: 5.0 },
+  { from: 3, to: 4, labelDe: 'Partikeleinbettung',    labelEn: 'particle embedding', dash: false, main: false, weight: 1.4 },
+  { from: 5, to: 4, labelDe: 'Sterische Hülle',       labelEn: 'steric shell',       dash: true,  main: false, weight: 1.8 },
+  { from: 6, to: 4, labelDe: 'Oxidationsschutz',      labelEn: 'oxidation guard',    dash: true,  main: false, weight: 1.8 },
 ] as const;
 
 // Returns bezier path + label position + raw control points (for particle animation)
@@ -528,23 +528,17 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
   const metricClr   = isDark ? '#88bbff' : '#1a3c8e';
   const subClr      = isDark ? 'rgba(140,180,240,0.42)' : 'rgba(42,84,153,0.48)';
 
-  // Zone fills — three concentric rings encoding functional distance from MoS₂
-  const z1Fill = isDark ? 'rgba(40,68,155,0.26)' : 'rgba(68,114,212,0.09)';   // Carrier
-  const z2Fill = isDark ? 'rgba(28,50,115,0.16)' : 'rgba(68,114,212,0.055)';  // Modifiers
-  const z3Fill = isDark ? 'rgba(18,34,80,0.10)'  : 'rgba(68,114,212,0.03)';   // Stabilizers
-  const ringClr = isDark ? 'rgba(100,140,220,0.12)' : 'rgba(42,84,153,0.10)';
+  // Zone fills — innermost = most saturated (closest functional relationship to MoS₂)
+  const z1Fill = isDark ? 'rgba(40,68,155,0.32)' : 'rgba(68,114,212,0.12)';   // Inner: protective agents
+  const z2Fill = isDark ? 'rgba(28,50,115,0.18)' : 'rgba(68,114,212,0.07)';   // Mid: carrier
+  const z3Fill = isDark ? 'rgba(18,34,80,0.10)'  : 'rgba(68,114,212,0.035)';  // Outer: matrix modifiers
+  const ringClr = isDark ? 'rgba(100,140,220,0.14)' : 'rgba(42,84,153,0.12)';
 
   // Edge colors — structural vs protective
   const edgeSolid  = isDark ? 'rgba(80,130,230,0.55)' : 'rgba(42,84,153,0.42)';
   const edgeDash   = isDark ? 'rgba(80,130,230,0.38)' : 'rgba(42,84,153,0.28)';
   const edgeHot    = isDark ? 'rgba(140,190,255,0.95)' : '#1a3c8e';
-  const edgeLblClr = isDark ? 'rgba(160,200,255,0.58)' : 'rgba(26,60,130,0.55)';
-  const pillBg     = isDark ? 'rgba(8,14,32,0.88)'     : 'rgba(232,240,255,0.95)';
-  const pillBgHot  = isDark ? 'rgba(16,30,75,0.95)'    : 'rgba(210,226,255,0.98)';
-
-  // Zone label colors
-  const zLblClr  = isDark ? 'rgba(160,190,240,0.26)' : 'rgba(42,80,160,0.20)';
-  const zTickClr = isDark ? 'rgba(160,190,240,0.14)' : 'rgba(42,80,160,0.12)';
+  const edgeLblClr = isDark ? 'rgba(160,200,255,0.52)' : 'rgba(26,60,130,0.48)';
 
   // ── Hover adjacency ───────────────────────────────────────────────────────
   const connected: Set<number> | null = hoveredNode !== null ? (() => {
@@ -612,7 +606,7 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
       // 9. "So what" vignette — chain link + performance stat briefly appear
       if (vignetteRef.current) {
         tl.to(vignetteRef.current, { opacity: 1, duration: 0.45, ease: 'power2.out' }, '>0.2');
-        tl.to(vignetteRef.current, { opacity: 0, duration: 0.55, ease: 'power2.in' }, '>1.6');
+        tl.to(vignetteRef.current, { opacity: 0, duration: 0.65, ease: 'power2.in' }, '>3.2');
       }
     }, svgRef);
     return () => ctx.revert();
@@ -726,6 +720,15 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
           <marker id={`${uid}-ah`} markerWidth="6" markerHeight="6" refX="5.5" refY="3" orient="auto">
             <path d="M0,0.5 L0,5.5 L5.5,3 z" fill={edgeHot} />
           </marker>
+          {/* Main carrier edge — larger arrowhead to match heavier stroke */}
+          <marker id={`${uid}-am`} markerWidth="7" markerHeight="7" refX="5.5" refY="3.5" orient="auto">
+            <path d="M0,0 L0,7 L7,3.5 z" fill={isDark ? 'rgba(80,130,230,0.70)' : 'rgba(42,84,153,0.55)'} />
+          </marker>
+          {/* Edge glow filter */}
+          <filter id={`${uid}-eg`} x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur stdDeviation="2.5" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
         </defs>
 
         {/* ── Zone fills: inner=protective agents, mid=carrier, outer=matrix modifiers ── */}
@@ -751,79 +754,98 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
           fill={isDark ? '#7ab8ff' : '#2a56c4'} opacity={0}
           style={{ filter: `drop-shadow(0 0 5px ${isDark ? '#7ab8ffCC' : '#2a56c4AA'})` }} />
 
-        {/* ── "So what" vignette — appears briefly after full assembly ── */}
-        <g ref={vignetteRef} opacity={0} style={{ pointerEvents: 'none' }}>
-          {/* Chain links — simplified: two overlapping rectangles with rounded ends */}
-          <rect x={GRAPH_CX - 34} y={GRAPH_CY + 58} width={26} height={14} rx={7}
-            fill="none" stroke={isDark ? 'rgba(120,180,255,0.85)' : 'rgba(42,84,153,0.80)'} strokeWidth={2.2}
-            style={{ filter: isDark ? 'drop-shadow(0 0 6px rgba(80,140,255,0.6))' : 'none' }} />
-          <rect x={GRAPH_CX + 8}  y={GRAPH_CY + 58} width={26} height={14} rx={7}
-            fill="none" stroke={isDark ? 'rgba(120,180,255,0.85)' : 'rgba(42,84,153,0.80)'} strokeWidth={2.2}
-            style={{ filter: isDark ? 'drop-shadow(0 0 6px rgba(80,140,255,0.6))' : 'none' }} />
-          {/* Interlock pin */}
-          <rect x={GRAPH_CX - 8} y={GRAPH_CY + 60} width={16} height={10} rx={5}
-            fill={isDark ? 'rgba(30,55,140,0.80)' : 'rgba(200,220,255,0.85)'}
-            stroke={isDark ? 'rgba(120,180,255,0.70)' : 'rgba(42,84,153,0.65)'} strokeWidth={1.4} />
-          {/* Performance stat */}
-          <text x={GRAPH_CX} y={GRAPH_CY + 88} textAnchor="middle" dominantBaseline="middle"
-            fontSize="8" fontFamily="monospace" letterSpacing="0.14em"
-            fill={isDark ? 'rgba(140,190,255,0.90)' : 'rgba(26,60,110,0.85)'}>
-            {de ? '~300 km SCHUTZ' : '~300 km PROTECTION'}
-          </text>
-        </g>
+        {/* ── "So what" vignette — friction comparison bars, appear after full assembly ── */}
+        {/* Positions: centered at GRAPH_CX, rows at GRAPH_CY+62, +76, +90 */}
+        {(() => {
+          const vx = GRAPH_CX - 72;  // bar left edge
+          const maxW = 120;           // max bar width at μ=0.18
+          const scale = maxW / 0.18;  // px per μ unit
+          const bars = [
+            { label: de ? 'Waxcelerate' : 'Waxcelerate', mu: 0.03, isThis: true  },
+            { label: de ? 'Graphit'     : 'Graphite',    mu: 0.10, isThis: false },
+            { label: de ? 'Kettenöl'    : 'Chain oil',   mu: 0.18, isThis: false },
+          ];
+          const accentFill = isDark ? 'rgba(80,130,230,0.80)' : 'rgba(42,84,153,0.65)';
+          const dimFill    = isDark ? 'rgba(80,130,230,0.22)' : 'rgba(42,84,153,0.16)';
+          const textClr    = isDark ? 'rgba(180,210,255,0.80)' : 'rgba(26,60,110,0.75)';
+          const muClr      = isDark ? 'rgba(140,180,255,0.65)' : 'rgba(42,84,153,0.55)';
+          return (
+            <g ref={vignetteRef} opacity={0} style={{ pointerEvents: 'none' }}>
+              {/* Title */}
+              <text x={GRAPH_CX} y={GRAPH_CY + 54} textAnchor="middle"
+                fontSize="6.5" fontFamily="monospace" letterSpacing="0.18em"
+                fill={isDark ? 'rgba(160,200,255,0.45)' : 'rgba(42,80,160,0.38)'}>
+                {de ? 'REIBUNGSKOEFF.' : 'FRICTION COEFF.'}
+              </text>
+              {bars.map((b, idx) => {
+                const y  = GRAPH_CY + 63 + idx * 16;
+                const bw = b.mu * scale;
+                return (
+                  <g key={idx}>
+                    {/* Track */}
+                    <rect x={vx} y={y} width={maxW} height={7} rx={2}
+                      fill={isDark ? 'rgba(255,255,255,0.04)' : 'rgba(42,84,153,0.06)'} />
+                    {/* Bar fill */}
+                    <rect x={vx} y={y} width={bw} height={7} rx={2}
+                      fill={b.isThis ? accentFill : dimFill}
+                      style={b.isThis ? { filter: isDark ? 'drop-shadow(0 0 4px rgba(80,130,230,0.6))' : 'none' } : undefined} />
+                    {/* Label */}
+                    <text x={vx + maxW + 6} y={y + 4} dominantBaseline="middle"
+                      fontSize="7" fontFamily="monospace" fill={textClr}>
+                      {b.label}
+                    </text>
+                    {/* μ value */}
+                    <text x={vx - 4} y={y + 4} textAnchor="end" dominantBaseline="middle"
+                      fontSize="6.5" fontFamily="monospace" fill={b.isThis ? accentFill : muClr}>
+                      {b.mu.toFixed(2)}
+                    </text>
+                  </g>
+                );
+              })}
+              {/* μ axis label */}
+              <text x={vx + maxW / 2} y={GRAPH_CY + 114} textAnchor="middle"
+                fontSize="6" fontFamily="monospace" letterSpacing="0.12em"
+                fill={isDark ? 'rgba(140,180,255,0.30)' : 'rgba(42,80,160,0.28)'}>
+                μ →  {de ? '(niedriger = besser)' : '(lower = better)'}
+              </text>
+            </g>
+          );
+        })()}
 
-        {/* ── Zone labels (synthesis mode only) ── */}
-        {!isOverview && (
-          <>
-            <line x1={GRAPH_CX + 144} y1={GRAPH_CY} x2={GRAPH_CX + 151} y2={GRAPH_CY} stroke={zTickClr} strokeWidth={0.8} />
-            <text x={GRAPH_CX + 154} y={GRAPH_CY} textAnchor="start" dominantBaseline="middle"
-              fontSize="7" fontFamily="monospace" letterSpacing="0.14em" fill={zLblClr}>
-              {de ? 'SCHUTZ' : 'PROTECTION'}
-            </text>
-            <line x1={GRAPH_CX + 245} y1={GRAPH_CY - 55} x2={GRAPH_CX + 252} y2={GRAPH_CY - 55} stroke={zTickClr} strokeWidth={0.8} />
-            <text x={GRAPH_CX + 255} y={GRAPH_CY - 55} textAnchor="start" dominantBaseline="middle"
-              fontSize="7" fontFamily="monospace" letterSpacing="0.12em" fill={zLblClr}>
-              {de ? 'TRÄGER' : 'CARRIER'}
-            </text>
-            <line x1={GRAPH_CX + 245} y1={GRAPH_CY + 55} x2={GRAPH_CX + 252} y2={GRAPH_CY + 55} stroke={zTickClr} strokeWidth={0.8} />
-            <text x={GRAPH_CX + 255} y={GRAPH_CY + 55} textAnchor="start" dominantBaseline="middle"
-              fontSize="7" fontFamily="monospace" letterSpacing="0.12em" fill={zLblClr}>
-              {de ? 'MODIFIKATION' : 'MODIFIER'}
-            </text>
-            {/* Edge type legend — bottom left */}
-            <line x1={22} y1={470} x2={44} y2={470} stroke={edgeSolid} strokeWidth={1.5} />
-            <text x={48} y={471} dominantBaseline="middle" fontSize="7.5" fontFamily="monospace" fill={zLblClr}>
-              {de ? 'strukturell' : 'structural'}
-            </text>
-            <line x1={130} y1={470} x2={150} y2={470} stroke={edgeDash} strokeWidth={1.5} strokeDasharray="3 2.5" />
-            <text x={154} y={471} dominantBaseline="middle" fontSize="7.5" fontFamily="monospace" fill={zLblClr}>
-              {de ? 'chemisch/schützend' : 'chemical/protective'}
-            </text>
-          </>
-        )}
+        {/* Zone labels removed — spatial position + fill intensity encodes meaning.
+            Inner zone (darker): protective agents · Outer zone (lighter): matrix modifiers */}
 
         {/* ── Edges ── */}
         {ASSEMBLY_EDGES.map((edge, i) => {
-          const a    = ASSEMBLY_NODES[edge.from - 1];
-          const b    = ASSEMBLY_NODES[edge.to - 1];
+          const a      = ASSEMBLY_NODES[edge.from - 1];
+          const b      = ASSEMBLY_NODES[edge.to - 1];
           const { path, lx, ly } = curvedEdge(a.cx, a.cy, b.cx, b.cy, a.r, b.r);
           const label  = de ? edge.labelDe : edge.labelEn;
           const hot    = isEdgeHot(edge.from, edge.to);
           const dimmed = isEdgeDimmed(edge.from, edge.to);
+          const isMain = edge.main && !isOverview;
 
           const baseStroke = edge.dash ? edgeDash : edgeSolid;
-          const stroke = hot ? edgeHot : (isOverview ? (isDark ? 'rgba(80,130,230,0.30)' : 'rgba(42,84,153,0.20)') : baseStroke);
+          const mainStroke = isDark ? 'rgba(80,130,230,0.65)' : 'rgba(42,84,153,0.50)';
+          const stroke = hot ? edgeHot : isMain ? mainStroke : (isOverview ? (isDark ? 'rgba(80,130,230,0.28)' : 'rgba(42,84,153,0.18)') : baseStroke);
           const sw     = hot ? 2.5 : isOverview ? 0.8 : edge.weight;
           const dashArr = (!hot && edge.dash && !isOverview) ? '5 3.5' : undefined;
           const arrow  = hot
             ? `url(#${uid}-ah)`
-            : isOverview
-              ? (edge.dash ? `url(#${uid}-ad)` : `url(#${uid}-ao)`)
-              : (edge.dash ? `url(#${uid}-asd)` : `url(#${uid}-as)`);
-          const pillW  = label.length * 5.3 + 18;
+            : isMain
+              ? `url(#${uid}-am)`
+              : isOverview
+                ? (edge.dash ? `url(#${uid}-ad)` : `url(#${uid}-ao)`)
+                : (edge.dash ? `url(#${uid}-asd)` : `url(#${uid}-as)`);
+          const edgePathId = `${uid}-ep-${i}`;
 
           return (
             <g key={i} style={{ opacity: dimmed ? 0.08 : 1, transition: 'opacity 0.22s ease' }}>
+              {/* Ghost path for textPath reference (no stroke, not animated) */}
+              {!isOverview && !isMain && (
+                <path id={edgePathId} d={path} fill="none" stroke="none" />
+              )}
+              {/* Main edge stroke — main carrier gets glow filter */}
               <path
                 ref={el => { edgeRefs.current[i] = el; }}
                 d={path}
@@ -834,17 +856,34 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
                 strokeDasharray={dashArr}
                 fill="none"
                 markerEnd={arrow}
+                filter={isMain && !hot ? `url(#${uid}-eg)` : undefined}
                 style={mode === 'synthesis'
                   ? { strokeDasharray: dashArr ?? 1, strokeDashoffset: 1, opacity: 0, transition: 'stroke 0.2s, stroke-width 0.2s' }
                   : { transition: 'stroke 0.2s, stroke-width 0.2s' }}
               />
-              {!isOverview && (
+              {/* Inline edge label — tiny text at midpoint, no pill box */}
+              {!isOverview && !isMain && !hot && (
+                <text style={{ pointerEvents: 'none' }}>
+                  <textPath
+                    href={`#${edgePathId}`}
+                    startOffset="50%"
+                    textAnchor="middle"
+                    fontSize="7"
+                    fontFamily="monospace"
+                    letterSpacing="0.04em"
+                    fill={edgeLblClr}
+                    dy={edge.dash ? -5 : -4}
+                  >
+                    {label}
+                  </textPath>
+                </text>
+              )}
+              {/* Hot state: floating label (clearer on hover) */}
+              {!isOverview && hot && (
                 <g transform={`translate(${lx},${ly})`} style={{ pointerEvents: 'none' }}>
-                  <rect x={-pillW / 2} y={-7} width={pillW} height={14} rx={3.5}
-                    fill={hot ? pillBgHot : pillBg} style={{ transition: 'fill 0.2s' }} />
                   <text x={0} y={0} textAnchor="middle" dominantBaseline="middle"
-                    fontSize="7.8" fontFamily="monospace" letterSpacing="0.01em"
-                    fill={hot ? edgeHot : edgeLblClr} style={{ transition: 'fill 0.2s' }}>
+                    fontSize="8" fontFamily="monospace" letterSpacing="0.04em"
+                    fill={edgeHot}>
                     {label}
                   </text>
                 </g>
@@ -895,20 +934,38 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
                   }}
                 />
               ) : (
-                <circle
-                  cx={node.cx} cy={node.cy} r={node.r}
-                  fill={`url(#${uid}-ng)`}
-                  stroke={isHot ? nodeStrokeH : nodeStroke}
-                  strokeWidth={isHot ? 2.2 : 1.6}
-                  style={{
-                    transform: `scale(${scaleVal})`,
-                    transformOrigin: `${node.cx}px ${node.cy}px`,
-                    transition: 'transform 0.24s ease, stroke 0.2s',
-                    filter: isHot
-                      ? (isDark ? 'drop-shadow(0 0 10px rgba(68,120,240,0.55))' : 'drop-shadow(0 2px 10px rgba(26,60,110,0.25))')
-                      : 'none',
-                  }}
-                />
+                <>
+                  {/* Chemical-agent nodes (Dispersant id=5, Antioxidant id=6) get a dashed outer ring
+                      encoding: "this is a chemical agent wrapping/protecting the core particle" */}
+                  {(node.id === 5 || node.id === 6) && (
+                    <circle
+                      cx={node.cx} cy={node.cy} r={node.r + 11}
+                      fill="none"
+                      stroke={isHot ? nodeStrokeH : (isDark ? 'rgba(100,150,230,0.38)' : 'rgba(42,84,153,0.30)')}
+                      strokeWidth={1.2}
+                      strokeDasharray="3 3"
+                      style={{
+                        transform: `scale(${scaleVal})`,
+                        transformOrigin: `${node.cx}px ${node.cy}px`,
+                        transition: 'transform 0.24s ease, stroke 0.2s',
+                      }}
+                    />
+                  )}
+                  <circle
+                    cx={node.cx} cy={node.cy} r={node.r}
+                    fill={`url(#${uid}-ng)`}
+                    stroke={isHot ? nodeStrokeH : nodeStroke}
+                    strokeWidth={isHot ? 2.2 : 1.6}
+                    style={{
+                      transform: `scale(${scaleVal})`,
+                      transformOrigin: `${node.cx}px ${node.cy}px`,
+                      transition: 'transform 0.24s ease, stroke 0.2s',
+                      filter: isHot
+                        ? (isDark ? 'drop-shadow(0 0 10px rgba(68,120,240,0.55))' : 'drop-shadow(0 2px 10px rgba(26,60,110,0.25))')
+                        : 'none',
+                    }}
+                  />
+                </>
               )}
 
               {/* ── Mechanism micro-visualization ── */}
@@ -938,6 +995,13 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
                       stroke={isDark ? 'rgba(140,180,255,0.30)' : 'rgba(100,150,255,0.30)'} strokeWidth={0.6} strokeDasharray="1.5 1.5" />
                     <line x1={node.cx + 24} y1={node.cy - 3.5} x2={node.cx + 24} y2={node.cy + 2}
                       stroke={isDark ? 'rgba(140,180,255,0.30)' : 'rgba(100,150,255,0.30)'} strokeWidth={0.6} strokeDasharray="1.5 1.5" />
+                    {/* S-Mo-S atom labels — left side of each layer band */}
+                    <text x={node.cx - 28} y={node.cy - 8} textAnchor="end" dominantBaseline="middle"
+                      fontSize="5.5" fontFamily="monospace" fill="rgba(200,225,255,0.45)" letterSpacing="0.05em">S</text>
+                    <text x={node.cx - 28} y={node.cy - 1.5} textAnchor="end" dominantBaseline="middle"
+                      fontSize="5.5" fontFamily="monospace" fill="rgba(200,225,255,0.55)" letterSpacing="0.05em">Mo</text>
+                    <text x={node.cx - 28} y={node.cy + 4.5} textAnchor="end" dominantBaseline="middle"
+                      fontSize="5.5" fontFamily="monospace" fill="rgba(200,225,255,0.45)" letterSpacing="0.05em">S</text>
                   </g>
                 )}
                 <text x={node.cx} y={node.cy - 14} textAnchor="middle" dominantBaseline="middle"
