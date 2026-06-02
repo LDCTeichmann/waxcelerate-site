@@ -248,45 +248,82 @@ function StatCallout({ stat, ctxDe, ctxEn, de, isDark }: { stat: string; ctxDe: 
 }
 
 // ─── Formula Assembly System Map ─────────────────────────────────────────────
-// Radial zone diagram. Each component color-coded by functional role:
-//   Paraffin → steel-blue (neutral carrier scaffold)
-//   FT-Wachs → amber      (thermal hardener — communicates HEAT)
-//   Mikrokris.→ ice-cyan  (cold-flex modifier — communicates COLD)
-//   MoS₂     → cobalt     (active lubricant — dominant center)
-//   Dispersant→ violet    (particle stabilizer chemistry)
-//   Antioxidans→ emerald  (oxidation protector / longevity)
-// Metric value is the PRIMARY text inside each node — name is secondary.
-// Edge direction = "A → B means A enables / modifies B".
-const GRAPH_CX = 320;
-const GRAPH_CY = 258;
+// Science-driven radial diagram. Each node contains a micro-visualization
+// of its actual physical/chemical mechanism, not just a label.
+//
+// Physics encoded visually:
+//   Paraffin   → lamellar crystal lines (C₂₀–C₃₆ chains aligning)
+//   FT-Wachs   → temperature lift bar (drop point +14°C)
+//   Mikrokris. → scattered amorphous dots (branched molecules in void space)
+//   MoS₂       → S–Mo–S layer pair that shears (hexagonal layered crystal)
+//   Dispersant → particle + steric coating ring (amphiphilic barrier)
+//   Antioxidant→ radical chain break arc (ROO• interceptor)
+//
+// Edge encoding:
+//   solid = structural/physical relationship
+//   dashed = chemical/protective relationship
+//   thickness = relative importance of that relationship
+//
+// Animation tells the scientific assembly story:
+//   MoS₂ nucleates → Paraffin carrier arrives → main edge draws →
+//   FT-Wachs co-crystallizes → Mikrokris. fills voids → stabilizers coat
 
-// Per-component accent colors encode functional role.
-// amber=thermal · cyan=cold · cobalt=active lubricant · violet=stabilizer chemistry · emerald=protection
-const NODE_COLORS: Record<number, { accent: string; darkA: string; darkB: string; lightA: string; lightB: string; zoneFill: string }> = {
-  1: { accent: '#7A98B8', darkA: '#223660', darkB: '#0D1A30', lightA: '#EEF4FF', lightB: '#D2E2F4', zoneFill: 'rgba(120,152,184,0.22)' },
-  2: { accent: '#C4802A', darkA: '#3C2010', darkB: '#1C0C04', lightA: '#FFF5E8', lightB: '#F8DDB8', zoneFill: 'rgba(196,128,42,0.18)'  },
-  3: { accent: '#2AAAC8', darkA: '#0C3A4A', darkB: '#041820', lightA: '#E8F8FF', lightB: '#C0E8F8', zoneFill: 'rgba(42,170,200,0.18)'  },
-  4: { accent: '#4472D4', darkA: '#1C3C9C', darkB: '#060E28', lightA: '#E8EFFF', lightB: '#C4D4FF', zoneFill: 'rgba(68,114,212,0.30)'  },
-  5: { accent: '#8058D0', darkA: '#281458', darkB: '#100828', lightA: '#F4EEFF', lightB: '#DDD0F8', zoneFill: 'rgba(128,88,208,0.18)'  },
-  6: { accent: '#28B080', darkA: '#0A3028', darkB: '#041814', lightA: '#E4FFF5', lightB: '#BCEEE0', zoneFill: 'rgba(40,176,128,0.18)'  },
-};
+const GRAPH_CX = 320;
+const GRAPH_CY = 260;
 
 const ASSEMBLY_NODES = [
-  { id: 1, labelDe: 'Paraffin',     labelEn: 'Paraffin',    subDe: 'Trägermatrix',   subEn: 'Base scaffold',  cx: 320,      cy: 118, r: 34, metric: '58–60°C', msDe: 'Erstarrungsb.',   msEn: 'Solidif. range'  },
-  { id: 2, labelDe: 'FT-Wachs',     labelEn: 'FT-Wax',      subDe: 'Härtemodul',     subEn: 'Hardener',       cx: 93,       cy: 180, r: 30, metric: '+14°C',   msDe: 'Tropfpunkt',      msEn: 'Drop point'      },
-  { id: 3, labelDe: 'Mikrokris.',    labelEn: 'Microcris.',   subDe: 'Kälteflex.',     subEn: 'Cold flex.',     cx: 547,      cy: 180, r: 30, metric: '−10°C',   msDe: 'Flexgrenze',      msEn: 'Flex limit'      },
-  { id: 4, labelDe: 'MoS₂',         labelEn: 'MoS₂',        subDe: 'Festschmierst.', subEn: 'Solid lubricant',cx: GRAPH_CX, cy: GRAPH_CY, r: 50, metric: 'μ 0.03', msDe: '< 5 µm',     msEn: '< 5 µm'          },
-  { id: 5, labelDe: 'Dispergierm.', labelEn: 'Dispersant',   subDe: 'Partikelstab.',  subEn: 'Particle stab.', cx: 108,      cy: 412, r: 30, metric: '5.6×',    msDe: 'Dichtekomp.',     msEn: 'Density ratio'   },
-  { id: 6, labelDe: 'Antioxidans',  labelEn: 'Antioxidant',  subDe: 'MoO₃-Schutz',   subEn: 'MoO₃ shield',   cx: 532,      cy: 412, r: 30, metric: '12 Mo.',  msDe: 'Lagerstab.',      msEn: 'Shelf life'      },
+  {
+    id: 1, labelDe: 'Paraffin',     labelEn: 'Paraffin',
+    subDe: 'Trägermatrix',   subEn: 'Base scaffold',
+    whyDe: 'C₂₀–C₃₆ Ketten kristallisieren zu lamellaren Domänen · enger 2°C-Bereich sichert Batch-Konsistenz',
+    whyEn: 'C₂₀–C₃₆ chains crystallize into lamellar domains · narrow 2°C window ensures batch consistency',
+    cx: 320, cy: 115, r: 32, metric: '58–60°C',
+  },
+  {
+    id: 2, labelDe: 'FT-Wachs',     labelEn: 'FT-Wax',
+    subDe: 'Härtemodul',     subEn: 'Hardener',
+    whyDe: 'Ko-kristallisiert mit Paraffin · defektärmere Domänen brauchen mehr Energie zum Schmelzen → Tropfpunkt 72–78°C',
+    whyEn: 'Co-crystallizes with paraffin · more defect-free domains need more energy to melt → drop point 72–78°C',
+    cx: 92, cy: 182, r: 28, metric: '+14°C',
+  },
+  {
+    id: 3, labelDe: 'Mikrokris.',    labelEn: 'Microcris.',
+    subDe: 'Kälteflex.',     subEn: 'Cold flex.',
+    whyDe: 'Verzweigte Moleküle füllen amorphe Zonen · Matrix bleibt bis −10°C elastisch · bettet MoS₂-Partikel ein',
+    whyEn: 'Branched molecules fill amorphous zones · matrix stays elastic to −10°C · mechanically embeds MoS₂',
+    cx: 548, cy: 182, r: 28, metric: '−10°C',
+  },
+  {
+    id: 4, labelDe: 'MoS₂',         labelEn: 'MoS₂',
+    subDe: 'Festschmierst.', subEn: 'Solid lubricant',
+    whyDe: '50–300 MPa Kontaktdruck → Fe–S Transferfilm auf Stahl · aktiv auch nachdem das Wachs abgetragen ist',
+    whyEn: '50–300 MPa contact pressure → Fe–S transfer film on steel · active long after the wax is spent',
+    cx: GRAPH_CX, cy: GRAPH_CY, r: 48,  metric: 'μ 0.03',
+  },
+  {
+    id: 5, labelDe: 'Dispergierm.', labelEn: 'Dispersant',
+    subDe: 'Partikelstab.',  subEn: 'Particle stab.',
+    whyDe: 'Amphiphile Fettsäurehülle um jeden MoS₂-Partikel · verhindert Sedimentation · MoS₂ ist 5,6× dichter als Paraffin',
+    whyEn: 'Amphiphilic fatty acid shell around each MoS₂ particle · prevents sedimentation · MoS₂ is 5.6× denser than paraffin',
+    cx: 108, cy: 412, r: 28, metric: '5.6×',
+  },
+  {
+    id: 6, labelDe: 'Antioxidans',  labelEn: 'Antioxidant',
+    subDe: 'MoO₃-Schutz',   subEn: 'MoO₃ shield',
+    whyDe: 'Phenolische OH-Gruppe bricht Autoxidationskette (ROO•) · verhindert MoS₂→MoO₃-Umwandlung · 12 Monate Lagerstab.',
+    whyEn: 'Phenolic OH group breaks autoxidation chain (ROO•) · prevents MoS₂→MoO₃ conversion · 12-month shelf life',
+    cx: 532, cy: 412, r: 28, metric: '12 Mo.',
+  },
 ] as const;
 
+// dash=true: chemical/protective bond · weight: visual thickness
 const ASSEMBLY_EDGES = [
-  { from: 2, to: 1, labelDe: 'Ko-Kristallisation',   labelEn: 'co-crystallises'    },
-  { from: 3, to: 1, labelDe: 'Plastifiziert Matrix', labelEn: 'plasticises matrix' },
-  { from: 1, to: 4, labelDe: 'Trägermatrix',          labelEn: 'carrier matrix'     },
-  { from: 3, to: 4, labelDe: 'Partikeleinbettung',   labelEn: 'particle embedding' },
-  { from: 5, to: 4, labelDe: 'Sterische Barriere',   labelEn: 'steric barrier'     },
-  { from: 6, to: 4, labelDe: 'Schützt vor MoO₃',    labelEn: 'prevents MoO₃'     },
+  { from: 2, to: 1, labelDe: 'Ko-Kristallisation',   labelEn: 'co-crystallises',   dash: false, weight: 1.6 },
+  { from: 3, to: 1, labelDe: 'Plastifiziert',         labelEn: 'plasticises',       dash: false, weight: 1.4 },
+  { from: 1, to: 4, labelDe: 'Trägermatrix',           labelEn: 'carrier matrix',    dash: false, weight: 2.4 },
+  { from: 3, to: 4, labelDe: 'Partikeleinbettung',    labelEn: 'particle embedding', dash: false, weight: 1.2 },
+  { from: 5, to: 4, labelDe: 'Sterische Hülle',       labelEn: 'steric shell',       dash: true,  weight: 1.6 },
+  { from: 6, to: 4, labelDe: 'Oxidationsschutz',      labelEn: 'oxidation guard',    dash: true,  weight: 1.6 },
 ] as const;
 
 function curvedEdge(ax: number, ay: number, bx: number, by: number, ra: number, rb: number) {
@@ -296,14 +333,78 @@ function curvedEdge(ax: number, ay: number, bx: number, by: number, ra: number, 
   const x1 = ax + ux * (ra + 5), y1 = ay + uy * (ra + 5);
   const x2 = bx - ux * (rb + 6), y2 = by - uy * (rb + 6);
   const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
-  const cpx = mx - (GRAPH_CX - mx) * 0.30;
-  const cpy = my - (GRAPH_CY - my) * 0.30;
+  const cpx = mx - (GRAPH_CX - mx) * 0.28;
+  const cpy = my - (GRAPH_CY - my) * 0.28;
   const lx = 0.25 * x1 + 0.5 * cpx + 0.25 * x2;
   const ly = 0.25 * y1 + 0.5 * cpy + 0.25 * y2;
   const ex = x2 - x1, ey = y2 - y1, el = Math.sqrt(ex * ex + ey * ey);
   const px = -ey / el, py = ex / el;
   const sign = (px * (GRAPH_CX - lx) + py * (GRAPH_CY - ly)) <= 0 ? 1 : -1;
-  return { path: `M${x1},${y1} Q${cpx},${cpy} ${x2},${y2}`, lx: lx + sign * px * 16, ly: ly + sign * py * 16, len };
+  return { path: `M${x1},${y1} Q${cpx},${cpy} ${x2},${y2}`, lx: lx + sign * px * 15, ly: ly + sign * py * 15, len };
+}
+
+// ── Node micro-visualizations — each shows the physical/chemical mechanism ──
+function NodeMechViz({ id, cx, cy, isDark, isHot }: { id: number; cx: number; cy: number; isDark: boolean; isHot: boolean }) {
+  const base = isDark ? 'rgba(130,175,255,0.22)' : 'rgba(42,84,153,0.16)';
+  const hot  = isDark ? 'rgba(160,205,255,0.40)' : 'rgba(42,84,153,0.30)';
+  const c = isHot ? hot : base;
+
+  if (id === 1) {
+    // Paraffin: lamellar crystal structure — parallel aligned chains
+    return (
+      <g>
+        {[-7, -2, 3, 8].map((dy, i) => (
+          <line key={i}
+            x1={cx - 14 + (i % 2) * 2} y1={cy + dy}
+            x2={cx + 14 - (i % 2) * 2} y2={cy + dy}
+            stroke={c} strokeWidth={1.6} strokeLinecap="round" />
+        ))}
+      </g>
+    );
+  }
+  if (id === 2) {
+    // FT-Wachs: temperature lift — upward arrow with baseline
+    return (
+      <g>
+        <line x1={cx} y1={cy + 8} x2={cx} y2={cy - 7} stroke={c} strokeWidth={1.4} />
+        <polyline points={`${cx - 4},${cy - 4} ${cx},${cy - 10} ${cx + 4},${cy - 4}`}
+          stroke={c} strokeWidth={1.4} fill="none" strokeLinejoin="round" />
+        <line x1={cx - 6} y1={cy + 8} x2={cx + 6} y2={cy + 8} stroke={c} strokeWidth={1.2} />
+      </g>
+    );
+  }
+  if (id === 3) {
+    // Mikrokris.: amorphous structure — irregular scattered dots
+    return (
+      <g>
+        {[[-9,-4,2.2],[5,-7,2.8],[-3,2,2],[8,5,2.5],[0,-9,1.8],[-7,6,2]].map(([dx,dy,r],i) => (
+          <circle key={i} cx={cx+dx} cy={cy+dy} r={r} fill={c} />
+        ))}
+      </g>
+    );
+  }
+  if (id === 5) {
+    // Dispersant: steric coating — central particle + amphiphilic shell
+    return (
+      <g>
+        <circle cx={cx} cy={cy} r={5} fill={c} />
+        <circle cx={cx} cy={cy} r={13} fill="none" stroke={c} strokeWidth={1.2} strokeDasharray="2.5 2" />
+        <circle cx={cx} cy={cy} r={18} fill="none" stroke={c} strokeWidth={0.7} opacity={0.6} />
+      </g>
+    );
+  }
+  if (id === 6) {
+    // Antioxidant: radical chain break — shield arc + intercepted radical
+    return (
+      <g>
+        <path d={`M${cx - 10},${cy + 2} Q${cx},${cy - 12} ${cx + 10},${cy + 2}`}
+          fill="none" stroke={c} strokeWidth={1.8} strokeLinecap="round" />
+        <line x1={cx} y1={cy + 2} x2={cx} y2={cy + 9} stroke={c} strokeWidth={1.4} />
+        <circle cx={cx} cy={cy + 11} r={2.2} fill={c} opacity={0.7} />
+      </g>
+    );
+  }
+  return null;
 }
 
 function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' | 'synthesis'; isDark: boolean }) {
@@ -317,22 +418,32 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
   const isOverview = mode === 'overview';
   const uid = `fa-${mode}-${isDark ? 'd' : 'l'}`;
 
-  // ── Shared color tokens ───────────────────────────────────────────────────
-  const ringClr     = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(26,48,100,0.08)';
-  const edgeClrBase = isDark ? 'rgba(255,255,255,0.18)' : 'rgba(26,48,100,0.14)';
-  const edgeClrHot  = isDark ? 'rgba(255,255,255,0.90)' : '#1a3c8e';
-  const edgeLblClr  = isDark ? 'rgba(200,220,255,0.60)' : 'rgba(30,60,140,0.58)';
-  const pillBg      = isDark ? 'rgba(10,16,36,0.90)'    : 'rgba(230,238,255,0.95)';
-  const pillBgHot   = isDark ? 'rgba(20,36,90,0.95)'    : 'rgba(210,226,255,0.98)';
+  // ── Color system (uniform cobalt — clean, professional) ───────────────────
+  const nodeGradA   = isDark ? '#1c3060' : '#f0f5ff';
+  const nodeGradB   = isDark ? '#090f28' : '#d0e0f8';
+  const nodeStroke  = isDark ? 'rgba(68,120,220,0.55)' : 'rgba(42,84,153,0.70)';
+  const nodeStrokeH = isDark ? '#7ab0ff' : '#1535a0';
+  const labelClr    = isDark ? 'rgba(255,255,255,0.92)' : '#0f2050';
+  const metricClr   = isDark ? '#88bbff' : '#1a3c8e';
+  const subClr      = isDark ? 'rgba(140,180,240,0.42)' : 'rgba(42,84,153,0.48)';
 
+  // Zone fills — three concentric rings encoding functional distance from MoS₂
+  const z1Fill = isDark ? 'rgba(40,68,155,0.26)' : 'rgba(68,114,212,0.09)';   // Carrier
+  const z2Fill = isDark ? 'rgba(28,50,115,0.16)' : 'rgba(68,114,212,0.055)';  // Modifiers
+  const z3Fill = isDark ? 'rgba(18,34,80,0.10)'  : 'rgba(68,114,212,0.03)';   // Stabilizers
+  const ringClr = isDark ? 'rgba(100,140,220,0.12)' : 'rgba(42,84,153,0.10)';
 
-  // ── Zone fills — strong enough to actually see ────────────────────────────
-  // Inner zone (Paraffin, r≈140): cobalt tint — the carrier zone
-  const z1Fill = isDark ? 'rgba(40,70,160,0.28)' : 'rgba(68,114,212,0.10)';
-  // Mid zone (FT-Wachs+Mikrokris., r≈240): mixed amber+cyan warm/cool blend
-  const z2Fill = isDark ? 'rgba(30,55,120,0.18)' : 'rgba(68,114,212,0.06)';
-  // Outer zone (stabilizers, r≈290)
-  const z3Fill = isDark ? 'rgba(20,38,80,0.12)'  : 'rgba(68,114,212,0.03)';
+  // Edge colors — structural vs protective
+  const edgeSolid  = isDark ? 'rgba(80,130,230,0.55)' : 'rgba(42,84,153,0.42)';
+  const edgeDash   = isDark ? 'rgba(80,130,230,0.38)' : 'rgba(42,84,153,0.28)';
+  const edgeHot    = isDark ? 'rgba(140,190,255,0.95)' : '#1a3c8e';
+  const edgeLblClr = isDark ? 'rgba(160,200,255,0.58)' : 'rgba(26,60,130,0.55)';
+  const pillBg     = isDark ? 'rgba(8,14,32,0.88)'     : 'rgba(232,240,255,0.95)';
+  const pillBgHot  = isDark ? 'rgba(16,30,75,0.95)'    : 'rgba(210,226,255,0.98)';
+
+  // Zone label colors
+  const zLblClr  = isDark ? 'rgba(160,190,240,0.26)' : 'rgba(42,80,160,0.20)';
+  const zTickClr = isDark ? 'rgba(160,190,240,0.14)' : 'rgba(42,80,160,0.12)';
 
   // ── Hover adjacency ───────────────────────────────────────────────────────
   const connected: Set<number> | null = hoveredNode !== null ? (() => {
@@ -348,17 +459,17 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
   const isEdgeHot    = (f: number, t: number) => canHover && !!connected && connected.has(f) && connected.has(t);
   const isEdgeDimmed = (f: number, t: number) => canHover && !!connected && !(connected.has(f) && connected.has(t));
 
-  // ── Animation ─────────────────────────────────────────────────────────────
+  // ── Scientific assembly story animation ───────────────────────────────────
   useEffect(() => {
     if (mode !== 'synthesis' || didAnimate.current) return;
     const ctx = gsap.context(() => {
-      const mos2 = ASSEMBLY_NODES[3];
+      const mos2 = ASSEMBLY_NODES[3]; // idx 3
+
+      // All start hidden
       gsap.set(nodeRefs.current[3], { opacity: 0, scale: 0, svgOrigin: `${mos2.cx} ${mos2.cy}` });
       ASSEMBLY_NODES.forEach((node, i) => {
         if (i === 3) return;
-        const el = nodeRefs.current[i];
-        if (!el) return;
-        gsap.set(el, { opacity: 0, x: mos2.cx - node.cx, y: mos2.cy - node.cy });
+        gsap.set(nodeRefs.current[i], { opacity: 0, x: mos2.cx - node.cx, y: mos2.cy - node.cy });
       });
       edgeRefs.current.forEach(e => { if (e) gsap.set(e, { strokeDashoffset: 1, opacity: 0 }); });
 
@@ -367,120 +478,139 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
         onComplete: () => { didAnimate.current = true; setCanHover(true); },
       });
 
-      tl.to(nodeRefs.current[3], { opacity: 1, scale: 1, duration: 0.65, ease: 'back.out(1.8)', svgOrigin: `${mos2.cx} ${mos2.cy}` });
+      // 1. MoS₂ crystallizes — the REASON for the entire formula
+      tl.to(nodeRefs.current[3], { opacity: 1, scale: 1, duration: 0.7, ease: 'back.out(2.0)', svgOrigin: `${mos2.cx} ${mos2.cy}` });
 
-      const flyOrder = [0, 2, 1, 5, 4];
-      flyOrder.forEach((idx, j) => {
-        const el = nodeRefs.current[idx];
-        if (!el) return;
-        tl.to(el, { opacity: 1, x: 0, y: 0, duration: 0.55, ease: 'power3.out' }, j === 0 ? '>-0.10' : '<0.10');
-      });
+      // 2. Paraffin carrier arrives from above
+      tl.to(nodeRefs.current[0], { opacity: 1, x: 0, y: 0, duration: 0.55, ease: 'power3.out' }, '>-0.15');
 
-      edgeRefs.current.forEach((edge, i) => {
-        if (!edge) return;
-        tl.to(edge, { strokeDashoffset: 0, opacity: 1, duration: 0.50, ease: 'power2.inOut' }, i === 0 ? '>-0.15' : '<0.08');
-      });
+      // 3. The carrier-to-active edge draws — the foundation of the system
+      tl.to(edgeRefs.current[2], { strokeDashoffset: 0, opacity: 1, duration: 0.6, ease: 'power2.inOut' }, '>0.05');
 
-      tl.to(nodeRefs.current[3], { scale: 1.09, duration: 0.22, ease: 'power2.out', svgOrigin: `${mos2.cx} ${mos2.cy}` }, '>0.10');
-      tl.to(nodeRefs.current[3], { scale: 1.00, duration: 0.55, ease: 'elastic.out(1, 0.5)', svgOrigin: `${mos2.cx} ${mos2.cy}` });
+      // 4. FT-Wachs co-crystallizes into the Paraffin lattice
+      tl.to(nodeRefs.current[1], { opacity: 1, x: 0, y: 0, duration: 0.50, ease: 'power3.out' }, '>-0.1');
+      tl.to(edgeRefs.current[0], { strokeDashoffset: 0, opacity: 1, duration: 0.40, ease: 'power2.inOut' }, '<0.1');
+
+      // 5. Mikrokris. fills the amorphous zones
+      tl.to(nodeRefs.current[2], { opacity: 1, x: 0, y: 0, duration: 0.50, ease: 'power3.out' }, '<0.0');
+      tl.to(edgeRefs.current[1], { strokeDashoffset: 0, opacity: 1, duration: 0.38, ease: 'power2.inOut' }, '<0.08');
+      tl.to(edgeRefs.current[3], { strokeDashoffset: 0, opacity: 1, duration: 0.38, ease: 'power2.inOut' }, '<0.06');
+
+      // 6. Dispersant coats each particle
+      tl.to(nodeRefs.current[4], { opacity: 1, x: 0, y: 0, duration: 0.50, ease: 'power3.out' }, '>0.05');
+      tl.to(edgeRefs.current[4], { strokeDashoffset: 0, opacity: 1, duration: 0.45, ease: 'power2.inOut' }, '<0.12');
+
+      // 7. Antioxidant shields the system
+      tl.to(nodeRefs.current[5], { opacity: 1, x: 0, y: 0, duration: 0.50, ease: 'power3.out' }, '<0.0');
+      tl.to(edgeRefs.current[5], { strokeDashoffset: 0, opacity: 1, duration: 0.45, ease: 'power2.inOut' }, '<0.12');
+
+      // 8. MoS₂ pulses — formula is complete and live
+      tl.to(nodeRefs.current[3], { scale: 1.10, duration: 0.22, ease: 'power2.out', svgOrigin: `${mos2.cx} ${mos2.cy}` }, '>0.15');
+      tl.to(nodeRefs.current[3], { scale: 1.00, duration: 0.55, ease: 'elastic.out(1, 0.55)', svgOrigin: `${mos2.cx} ${mos2.cy}` });
     }, svgRef);
     return () => ctx.revert();
   }, [mode]);
+
+  const hovNode = ASSEMBLY_NODES.find(n => n.id === hoveredNode) ?? null;
 
   return (
     <div className="w-full select-none">
       <svg
         ref={svgRef}
-        viewBox="0 0 640 500"
+        viewBox="0 0 640 490"
         className="w-full hidden sm:block"
         style={{ overflow: 'visible' }}
       >
         <defs>
-          {/* Per-node radial gradients — color-coded by function */}
-          {ASSEMBLY_NODES.map(node => {
-            const c = NODE_COLORS[node.id];
-            const isMos = node.id === 4;
-            const gA = isMos ? (isDark ? '#2256D0' : '#3060D8') : (isDark ? c.darkA : c.lightA);
-            const gB = isMos ? (isDark ? '#050E28' : '#0A1E60') : (isDark ? c.darkB : c.lightB);
-            return (
-              <radialGradient key={node.id} id={`${uid}-g${node.id}`} cx="32%" cy="26%" r="74%">
-                <stop offset="0%"   stopColor={gA} />
-                <stop offset="100%" stopColor={gB} />
-              </radialGradient>
-            );
-          })}
-
-          {/* Arrowhead markers — per-mode */}
+          {/* Shared satellite gradient */}
+          <radialGradient id={`${uid}-ng`} cx="34%" cy="28%" r="72%">
+            <stop offset="0%"   stopColor={nodeGradA} />
+            <stop offset="100%" stopColor={nodeGradB} />
+          </radialGradient>
+          {/* MoS₂ cobalt gradient */}
+          <radialGradient id={`${uid}-mg`} cx="30%" cy="24%" r="74%">
+            <stop offset="0%"   stopColor={isDark ? '#2456cc' : '#2c5acc'} />
+            <stop offset="100%" stopColor={isDark ? '#05102a' : '#08144a'} />
+          </radialGradient>
+          {/* Arrowheads */}
           <marker id={`${uid}-ao`} markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto">
-            <path d="M0,0 L0,5 L5,2.5 z" fill={edgeClrBase} />
+            <path d="M0,0 L0,5 L5,2.5 z" fill={edgeSolid} />
+          </marker>
+          <marker id={`${uid}-ad`} markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto">
+            <path d="M0,0 L0,5 L5,2.5 z" fill={edgeDash} />
           </marker>
           <marker id={`${uid}-as`} markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto">
-            <path d="M0,0 L0,5 L5,2.5 z" fill={edgeClrHot} />
+            <path d="M0,0 L0,5 L5,2.5 z" fill={edgeSolid} />
+          </marker>
+          <marker id={`${uid}-asd`} markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto">
+            <path d="M0,0 L0,5 L5,2.5 z" fill={edgeDash} />
           </marker>
           <marker id={`${uid}-ah`} markerWidth="6" markerHeight="6" refX="5.5" refY="3" orient="auto">
-            <path d="M0,0.5 L0,5.5 L5.5,3 z" fill={edgeClrHot} />
+            <path d="M0,0.5 L0,5.5 L5.5,3 z" fill={edgeHot} />
           </marker>
         </defs>
 
-        {/* ── Zone background fills ── */}
-        <circle cx={GRAPH_CX} cy={GRAPH_CY} r={295} fill={z3Fill} />
-        <circle cx={GRAPH_CX} cy={GRAPH_CY} r={250} fill={z2Fill} />
-        <circle cx={GRAPH_CX} cy={GRAPH_CY} r={158} fill={z1Fill} />
+        {/* ── Zone fills ── */}
+        <circle cx={GRAPH_CX} cy={GRAPH_CY} r={292} fill={z3Fill} />
+        <circle cx={GRAPH_CX} cy={GRAPH_CY} r={248} fill={z2Fill} />
+        <circle cx={GRAPH_CX} cy={GRAPH_CY} r={155} fill={z1Fill} />
 
         {/* ── Zone ring borders ── */}
-        <circle cx={GRAPH_CX} cy={GRAPH_CY} r={158} fill="none" stroke={ringClr} strokeWidth={1} strokeDasharray="3 6" />
-        <circle cx={GRAPH_CX} cy={GRAPH_CY} r={250} fill="none" stroke={ringClr} strokeWidth={1} strokeDasharray="3 6" />
+        <circle cx={GRAPH_CX} cy={GRAPH_CY} r={155} fill="none" stroke={ringClr} strokeWidth={0.9} strokeDasharray="4 6" />
+        <circle cx={GRAPH_CX} cy={GRAPH_CY} r={248} fill="none" stroke={ringClr} strokeWidth={0.9} strokeDasharray="4 6" />
 
-        {/* ── Zone function labels (synthesis only) — right side with tick ── */}
-        {!isOverview && (() => {
-          const lx = GRAPH_CX + 165;
-          const lClr = isDark ? 'rgba(180,200,240,0.28)' : 'rgba(42,80,160,0.22)';
-          const tickClr = isDark ? 'rgba(180,200,240,0.15)' : 'rgba(42,80,160,0.14)';
-          return (
-            <>
-              {/* Carrier zone label */}
-              <line x1={GRAPH_CX + 158} y1={GRAPH_CY} x2={lx - 4} y2={GRAPH_CY} stroke={tickClr} strokeWidth={0.8} />
-              <text x={lx} y={GRAPH_CY} textAnchor="start" dominantBaseline="middle"
-                fontSize="7" fontFamily="monospace" letterSpacing="0.14em" fill={lClr}>
-                {de ? 'TRÄGER' : 'CARRIER'}
-              </text>
-              {/* Modifier zone label */}
-              <line x1={GRAPH_CX + 250} y1={GRAPH_CY - 60} x2={GRAPH_CX + 265} y2={GRAPH_CY - 60} stroke={tickClr} strokeWidth={0.8} />
-              <text x={GRAPH_CX + 268} y={GRAPH_CY - 60} textAnchor="start" dominantBaseline="middle"
-                fontSize="7" fontFamily="monospace" letterSpacing="0.14em" fill={lClr}>
-                {de ? 'MODIFIKATION' : 'MODIFICATION'}
-              </text>
-              {/* Stabilizer zone label */}
-              <line x1={GRAPH_CX + 250} y1={GRAPH_CY + 60} x2={GRAPH_CX + 265} y2={GRAPH_CY + 60} stroke={tickClr} strokeWidth={0.8} />
-              <text x={GRAPH_CX + 268} y={GRAPH_CY + 60} textAnchor="start" dominantBaseline="middle"
-                fontSize="7" fontFamily="monospace" letterSpacing="0.14em" fill={lClr}>
-                {de ? 'STABILISIERUNG' : 'STABILIZATION'}
-              </text>
-            </>
-          );
-        })()}
+        {/* ── Zone labels (synthesis mode only) ── */}
+        {!isOverview && (
+          <>
+            <line x1={GRAPH_CX + 155} y1={GRAPH_CY} x2={GRAPH_CX + 162} y2={GRAPH_CY} stroke={zTickClr} strokeWidth={0.8} />
+            <text x={GRAPH_CX + 165} y={GRAPH_CY} textAnchor="start" dominantBaseline="middle"
+              fontSize="7" fontFamily="monospace" letterSpacing="0.14em" fill={zLblClr}>
+              {de ? 'TRÄGER' : 'CARRIER'}
+            </text>
+            <line x1={GRAPH_CX + 248} y1={GRAPH_CY - 65} x2={GRAPH_CX + 258} y2={GRAPH_CY - 65} stroke={zTickClr} strokeWidth={0.8} />
+            <text x={GRAPH_CX + 261} y={GRAPH_CY - 65} textAnchor="start" dominantBaseline="middle"
+              fontSize="7" fontFamily="monospace" letterSpacing="0.12em" fill={zLblClr}>
+              {de ? 'MODIFIKATION' : 'MODIFICATION'}
+            </text>
+            <line x1={GRAPH_CX + 248} y1={GRAPH_CY + 65} x2={GRAPH_CX + 258} y2={GRAPH_CY + 65} stroke={zTickClr} strokeWidth={0.8} />
+            <text x={GRAPH_CX + 261} y={GRAPH_CY + 65} textAnchor="start" dominantBaseline="middle"
+              fontSize="7" fontFamily="monospace" letterSpacing="0.12em" fill={zLblClr}>
+              {de ? 'STABILISIERUNG' : 'STABILIZATION'}
+            </text>
+            {/* Edge type legend — bottom left */}
+            <line x1={22} y1={470} x2={44} y2={470} stroke={edgeSolid} strokeWidth={1.5} />
+            <text x={48} y={471} dominantBaseline="middle" fontSize="7.5" fontFamily="monospace" fill={zLblClr}>
+              {de ? 'strukturell' : 'structural'}
+            </text>
+            <line x1={130} y1={470} x2={150} y2={470} stroke={edgeDash} strokeWidth={1.5} strokeDasharray="3 2.5" />
+            <text x={154} y={471} dominantBaseline="middle" fontSize="7.5" fontFamily="monospace" fill={zLblClr}>
+              {de ? 'chemisch/schützend' : 'chemical/protective'}
+            </text>
+          </>
+        )}
 
         {/* ── Edges ── */}
         {ASSEMBLY_EDGES.map((edge, i) => {
-          const a = ASSEMBLY_NODES[edge.from - 1];
-          const b = ASSEMBLY_NODES[edge.to - 1];
+          const a    = ASSEMBLY_NODES[edge.from - 1];
+          const b    = ASSEMBLY_NODES[edge.to - 1];
           const { path, lx, ly } = curvedEdge(a.cx, a.cy, b.cx, b.cy, a.r, b.r);
-          const label   = de ? edge.labelDe : edge.labelEn;
-          const hot     = isEdgeHot(edge.from, edge.to);
-          const dimmed  = isEdgeDimmed(edge.from, edge.to);
-          // In synthesis mode, edge color matches the SOURCE node's accent
-          const srcAccent = NODE_COLORS[edge.from].accent;
-          const stroke  = hot
-            ? (isDark ? 'rgba(255,255,255,0.88)' : edgeClrHot)
+          const label  = de ? edge.labelDe : edge.labelEn;
+          const hot    = isEdgeHot(edge.from, edge.to);
+          const dimmed = isEdgeDimmed(edge.from, edge.to);
+
+          const baseStroke = edge.dash ? edgeDash : edgeSolid;
+          const stroke = hot ? edgeHot : (isOverview ? (isDark ? 'rgba(80,130,230,0.30)' : 'rgba(42,84,153,0.20)') : baseStroke);
+          const sw     = hot ? 2.5 : isOverview ? 0.8 : edge.weight;
+          const dashArr = (!hot && edge.dash && !isOverview) ? '5 3.5' : undefined;
+          const arrow  = hot
+            ? `url(#${uid}-ah)`
             : isOverview
-              ? edgeClrBase
-              : (isDark ? `${srcAccent}CC` : `${srcAccent}AA`);
-          const sw      = hot ? 2.2 : isOverview ? 0.9 : 1.6;
-          const arrow   = hot ? `url(#${uid}-ah)` : isOverview ? `url(#${uid}-ao)` : `url(#${uid}-as)`;
-          const pillW   = label.length * 5.4 + 18;
+              ? (edge.dash ? `url(#${uid}-ad)` : `url(#${uid}-ao)`)
+              : (edge.dash ? `url(#${uid}-asd)` : `url(#${uid}-as)`);
+          const pillW  = label.length * 5.3 + 18;
 
           return (
-            <g key={i} style={{ opacity: dimmed ? 0.09 : 1, transition: 'opacity 0.22s ease' }}>
+            <g key={i} style={{ opacity: dimmed ? 0.08 : 1, transition: 'opacity 0.22s ease' }}>
               <path
                 ref={el => { edgeRefs.current[i] = el; }}
                 d={path}
@@ -488,19 +618,20 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
                 stroke={stroke}
                 strokeWidth={sw}
                 strokeLinecap="round"
+                strokeDasharray={dashArr}
                 fill="none"
                 markerEnd={arrow}
                 style={mode === 'synthesis'
-                  ? { strokeDasharray: 1, strokeDashoffset: 1, opacity: 0, transition: 'stroke 0.2s, stroke-width 0.2s' }
+                  ? { strokeDasharray: dashArr ?? 1, strokeDashoffset: 1, opacity: 0, transition: 'stroke 0.2s, stroke-width 0.2s' }
                   : { transition: 'stroke 0.2s, stroke-width 0.2s' }}
               />
               {!isOverview && (
                 <g transform={`translate(${lx},${ly})`} style={{ pointerEvents: 'none' }}>
-                  <rect x={-pillW / 2} y={-7.5} width={pillW} height={15} rx={4}
+                  <rect x={-pillW / 2} y={-7} width={pillW} height={14} rx={3.5}
                     fill={hot ? pillBgHot : pillBg} style={{ transition: 'fill 0.2s' }} />
                   <text x={0} y={0} textAnchor="middle" dominantBaseline="middle"
-                    fontSize="8" fontFamily="monospace" letterSpacing="0.01em"
-                    fill={hot ? edgeClrHot : edgeLblClr} style={{ transition: 'fill 0.2s' }}>
+                    fontSize="7.8" fontFamily="monospace" letterSpacing="0.01em"
+                    fill={hot ? edgeHot : edgeLblClr} style={{ transition: 'fill 0.2s' }}>
                     {label}
                   </text>
                 </g>
@@ -512,11 +643,9 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
         {/* ── Nodes ── */}
         {ASSEMBLY_NODES.map((node, i) => {
           const isMos    = node.id === 4;
-          const isHot    = hoveredNode === node.id;
-          const colors   = NODE_COLORS[node.id];
-          const accent   = colors.accent;
+          const isHot    = canHover && hoveredNode === node.id;
           const subAbove = node.id <= 3;
-          const scaleV   = isHot ? (isMos ? 1.06 : 1.10) : 1;
+          const scaleVal = isHot ? (isMos ? 1.07 : 1.10) : 1;
 
           return (
             <g
@@ -531,83 +660,90 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
               onPointerLeave={() => canHover && setHoveredNode(null)}
             >
               {/* MoS₂ halo rings */}
-              {isMos && (
-                <>
-                  <circle cx={node.cx} cy={node.cy} r={node.r + 18} fill="none"
-                    stroke={isDark ? `${accent}30` : `${accent}22`} strokeWidth={1.2} />
-                  <circle cx={node.cx} cy={node.cy} r={node.r + 34} fill="none"
-                    stroke={isDark ? `${accent}14` : `${accent}10`} strokeWidth={0.8} />
-                </>
-              )}
+              {isMos && (<>
+                <circle cx={node.cx} cy={node.cy} r={node.r + 16} fill="none"
+                  stroke={isDark ? 'rgba(68,114,212,0.20)' : 'rgba(42,84,153,0.14)'} strokeWidth={1} />
+                <circle cx={node.cx} cy={node.cy} r={node.r + 30} fill="none"
+                  stroke={isDark ? 'rgba(68,114,212,0.08)' : 'rgba(42,84,153,0.06)'} strokeWidth={0.8} />
+              </>)}
 
-              {/* Main circle — filled with per-node gradient, accented stroke */}
+              {/* Main circle */}
               <circle
                 cx={node.cx} cy={node.cy} r={node.r}
-                fill={`url(#${uid}-g${node.id})`}
-                stroke={isHot ? accent : (isDark ? `${accent}80` : `${accent}CC`)}
-                strokeWidth={isHot ? (isMos ? 2.8 : 2.4) : (isMos ? 2.2 : 1.8)}
+                fill={isMos ? `url(#${uid}-mg)` : `url(#${uid}-ng)`}
+                stroke={isHot ? nodeStrokeH : (isMos ? (isDark ? '#3d6ad4' : '#2a56c4') : nodeStroke)}
+                strokeWidth={isHot ? (isMos ? 2.8 : 2.2) : (isMos ? 2.2 : 1.6)}
                 style={{
-                  transform: `scale(${scaleV})`,
+                  transform: `scale(${scaleVal})`,
                   transformOrigin: `${node.cx}px ${node.cy}px`,
-                  transition: 'transform 0.22s ease, stroke 0.2s, stroke-width 0.2s',
-                  filter: isHot
-                    ? `drop-shadow(0 0 ${isMos ? 24 : 10}px ${accent}88)`
-                    : isMos
-                      ? `drop-shadow(0 0 16px ${accent}55)`
-                      : `drop-shadow(0 2px 6px ${accent}28)`,
+                  transition: 'transform 0.24s ease, stroke 0.2s',
+                  filter: isMos
+                    ? `drop-shadow(0 0 ${isHot ? 22 : 14}px rgba(55,100,215,${isHot ? 0.88 : 0.58}))`
+                    : isHot
+                      ? (isDark ? 'drop-shadow(0 0 10px rgba(68,120,240,0.55))' : 'drop-shadow(0 2px 10px rgba(26,60,110,0.25))')
+                      : 'none',
                 }}
               />
 
-              {/* MoS₂ — name (small) + metric (large) + spec (tiny) */}
+              {/* ── Mechanism micro-visualization ── */}
+              {!isMos && !isOverview && (
+                <NodeMechViz id={node.id} cx={node.cx} cy={node.cy} isDark={isDark} isHot={isHot} />
+              )}
+
+              {/* MoS₂ content: S–Mo–S layer hint + μ 0.03 + spec */}
               {isMos && (<>
+                {/* S-Mo-S layered crystal hint (two subtle horizontal bands) */}
+                {!isOverview && (
+                  <g opacity={0.35}>
+                    <rect x={node.cx - 20} y={node.cy - 10} width={40} height={5} rx={2.5}
+                      fill={isDark ? 'rgba(140,180,255,0.40)' : 'rgba(200,220,255,0.60)'} />
+                    <rect x={node.cx - 20} y={node.cy - 3} width={40} height={3} rx={1.5}
+                      fill={isDark ? 'rgba(100,150,255,0.55)' : 'rgba(160,190,255,0.70)'} />
+                    <rect x={node.cx - 20} y={node.cy + 2} width={40} height={5} rx={2.5}
+                      fill={isDark ? 'rgba(140,180,255,0.40)' : 'rgba(200,220,255,0.60)'} />
+                  </g>
+                )}
                 <text x={node.cx} y={node.cy - 14} textAnchor="middle" dominantBaseline="middle"
                   fontSize="12" fontWeight="800" fontFamily="system-ui, sans-serif"
-                  letterSpacing="-0.01em"
-                  fill={isDark ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.98)'}>
+                  letterSpacing="-0.01em" fill="rgba(255,255,255,0.95)">
                   MoS₂
                 </text>
                 <text x={node.cx} y={node.cy + 4} textAnchor="middle" dominantBaseline="middle"
-                  fontSize="20" fontWeight="800" fontFamily="system-ui, sans-serif"
+                  fontSize="19" fontWeight="800" fontFamily="system-ui, sans-serif"
                   letterSpacing="-0.04em"
-                  fill={isDark ? '#a0d0ff' : '#c8e4ff'}
-                  style={{ filter: `drop-shadow(0 0 10px ${accent}88)` }}>
+                  fill={isDark ? '#a0ccff' : '#cce0ff'}
+                  style={{ filter: 'drop-shadow(0 0 10px rgba(80,140,255,0.55))' }}>
                   μ 0.03
                 </text>
                 <text x={node.cx} y={node.cy + 22} textAnchor="middle" dominantBaseline="middle"
-                  fontSize="8" fontFamily="monospace" letterSpacing="0.05em"
-                  fill="rgba(255,255,255,0.40)">
+                  fontSize="7.5" fontFamily="monospace" letterSpacing="0.04em"
+                  fill="rgba(255,255,255,0.38)">
                   {'< 5 µm · 5.06 g/cm³'}
                 </text>
               </>)}
 
-              {/* Satellites — metric LARGE (primary), name SMALL (secondary) */}
+              {/* Satellite content: metric (primary) + name (secondary) */}
               {!isMos && (<>
-                {/* Metric value — the scientific reason it's in the formula */}
-                <text x={node.cx} y={node.cy - 3} textAnchor="middle" dominantBaseline="middle"
+                <text x={node.cx} y={node.cy - 5} textAnchor="middle" dominantBaseline="middle"
                   fontSize="13" fontWeight="800" fontFamily="system-ui, sans-serif"
-                  letterSpacing="-0.03em"
-                  fill={isDark ? accent : accent}
-                  style={{ filter: isHot ? `drop-shadow(0 0 6px ${accent}88)` : 'none' }}>
+                  letterSpacing="-0.03em" fill={isHot ? (isDark ? '#aad0ff' : '#1535a0') : metricClr}
+                  style={{ transition: 'fill 0.2s' }}>
                   {node.metric}
                 </text>
-                {/* Component name — secondary, below metric */}
-                <text x={node.cx} y={node.cy + 11} textAnchor="middle" dominantBaseline="middle"
+                <text x={node.cx} y={node.cy + 9} textAnchor="middle" dominantBaseline="middle"
                   fontSize="8.5" fontWeight="600" fontFamily="system-ui, sans-serif"
-                  letterSpacing="0.01em"
-                  fill={isDark ? 'rgba(255,255,255,0.55)' : 'rgba(20,40,80,0.55)'}>
+                  letterSpacing="0.01em" fill={isDark ? 'rgba(255,255,255,0.52)' : 'rgba(15,30,70,0.52)'}>
                   {de ? node.labelDe : node.labelEn}
                 </text>
               </>)}
 
-              {/* Function role tag — outside, above or below */}
+              {/* Sub-label outside (above for top nodes, below for lower) */}
               {!isMos && (
                 <text
                   x={node.cx}
                   y={subAbove ? node.cy - node.r - 8 : node.cy + node.r + 13}
-                  textAnchor="middle"
-                  dominantBaseline={subAbove ? 'auto' : 'middle'}
-                  fontSize="7.5" fontFamily="monospace" letterSpacing="0.08em"
-                  fill={isDark ? `${accent}88` : `${accent}BB`}>
+                  textAnchor="middle" dominantBaseline={subAbove ? 'auto' : 'middle'}
+                  fontSize="7.5" fontFamily="monospace" letterSpacing="0.08em" fill={subClr}>
                   {de ? node.subDe : node.subEn}
                 </text>
               )}
@@ -616,7 +752,32 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
         })}
       </svg>
 
-      {/* ── Mobile: clean uniform-blue grid ── */}
+      {/* ── Hover info panel — shows the scientific "why" for each component ── */}
+      {!isOverview && (
+        <div
+          className="hidden sm:flex items-start gap-3 mt-4 px-5 py-3.5 rounded-xl"
+          style={{
+            minHeight: '52px',
+            background: isDark ? 'rgba(20,36,80,0.35)' : 'rgba(230,238,255,0.60)',
+            border: `1px solid ${isDark ? 'rgba(68,114,212,0.18)' : 'rgba(42,84,153,0.14)'}`,
+            opacity: (canHover && hovNode) ? 1 : 0,
+            transform: (canHover && hovNode) ? 'translateY(0)' : 'translateY(4px)',
+            transition: 'opacity 0.22s ease, transform 0.22s ease',
+          }}
+        >
+          {hovNode && (<>
+            <span className="text-[10px] font-mono font-bold flex-shrink-0 mt-0.5 px-2 py-1 rounded-md"
+              style={{ background: isDark ? 'rgba(68,114,212,0.25)' : 'rgba(68,114,212,0.12)', color: isDark ? '#7ab0ff' : '#2a56c4' }}>
+              {hovNode.metric}
+            </span>
+            <p className="text-[12px] leading-relaxed" style={{ color: isDark ? 'rgba(200,220,255,0.78)' : 'rgba(15,40,90,0.72)' }}>
+              {de ? hovNode.whyDe : hovNode.whyEn}
+            </p>
+          </>)}
+        </div>
+      )}
+
+      {/* ── Mobile grid ── */}
       <div className="grid grid-cols-3 gap-2 sm:hidden">
         {ASSEMBLY_NODES.map(node => {
           const isMos = node.id === 4;
@@ -624,20 +785,19 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
             <div key={node.id} className="rounded-xl p-2.5 text-center"
               style={{
                 background: isMos
-                  ? 'linear-gradient(145deg, #1C3C9C, #060E28)'
-                  : (isDark ? 'rgba(26,52,110,0.18)' : 'rgba(68,114,212,0.08)'),
-                border: `1.5px solid ${isMos ? '#3d6ad4' : (isDark ? 'rgba(68,114,212,0.30)' : 'rgba(42,84,153,0.22)')}`,
+                  ? `linear-gradient(145deg, ${isDark ? '#1C3C9C' : '#2a52c0'}, ${isDark ? '#060E28' : '#0a1845'})`
+                  : (isDark ? 'rgba(26,52,110,0.20)' : 'rgba(68,114,212,0.08)'),
+                border: `1.5px solid ${isMos ? (isDark ? '#4472D4' : '#3060c8') : (isDark ? 'rgba(68,114,212,0.32)' : 'rgba(42,84,153,0.24)')}`,
               }}>
-              <p className="text-[12px] font-bold leading-tight"
-                style={{ color: isMos ? '#88c0ff' : (isDark ? '#7aaaff' : '#1a3c8e') }}>
+              <p className="text-[13px] font-bold leading-none mb-0.5"
+                style={{ color: isMos ? (isDark ? '#88c0ff' : '#c0d8ff') : (isDark ? '#7aaaff' : '#1a3c8e') }}>
                 {node.metric}
               </p>
-              <p className="text-[8.5px] font-semibold mt-0.5"
-                style={{ color: isMos ? 'rgba(255,255,255,0.80)' : (isDark ? 'rgba(255,255,255,0.70)' : 'rgba(20,40,80,0.70)') }}>
+              <p className="text-[8.5px] font-semibold"
+                style={{ color: isMos ? 'rgba(255,255,255,0.82)' : labelClr }}>
                 {de ? node.labelDe : node.labelEn}
               </p>
-              <p className="text-[7px] mt-0.5"
-                style={{ color: isMos ? 'rgba(255,255,255,0.38)' : (isDark ? 'rgba(140,180,240,0.45)' : 'rgba(42,84,153,0.50)') }}>
+              <p className="text-[7px] mt-0.5" style={{ color: isMos ? 'rgba(255,255,255,0.38)' : subClr }}>
                 {de ? node.subDe : node.subEn}
               </p>
             </div>
