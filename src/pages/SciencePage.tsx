@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, ChevronDown } from 'lucide-react';
+import { ArrowLeft, ChevronDown, RotateCcw } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
 import { gsap } from '@/lib/gsap';
@@ -44,6 +44,12 @@ const HERO_PARTICLES = [
   { cx: 370, cy: 235, r: 2,   dur: 5.7, dx: -9  },
   { cx: 425, cy: 185, r: 1.5, dur: 6.5, dx: 13  },
   { cx: 478, cy: 320, r: 2.5, dur: 5.2, dx: -10 },
+  { cx: 155, cy: 180, r: 1.5, dur: 6.1, dx: 8   },
+  { cx: 340, cy: 290, r: 2,   dur: 5.8, dx: -11 },
+  { cx: 200, cy: 350, r: 1.5, dur: 7.2, dx: 10  },
+  { cx: 440, cy: 270, r: 2.5, dur: 5.4, dx: -8  },
+  { cx: 90,  cy: 400, r: 1.5, dur: 6.7, dx: 12  },
+  { cx: 390, cy: 130, r: 2,   dur: 5.0, dx: -10 },
 ] as const;
 
 const DOT_GRID: React.CSSProperties = {
@@ -130,14 +136,14 @@ function HeroParticles() {
   return (
     <svg ref={svgRef} aria-hidden className="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="xMidYMid slice">
       {HERO_PARTICLES.map((p, i) => (
-        <circle key={i} className="hp" cx={p.cx} cy={p.cy} r={p.r} fill="#4472D4" opacity="0.14" />
+        <circle key={i} className="hp" cx={p.cx} cy={p.cy} r={p.r} fill="#4472D4" opacity="0.22" />
       ))}
     </svg>
   );
 }
 
 // ─── Chapter navigation sidebar ───────────────────────────────────────────────
-function ChapterNav({ de }: { de: boolean }) {
+function ChapterNav({ de, onActiveChange }: { de: boolean; onActiveChange?: (i: number) => void }) {
   const [active, setActive] = useState(-1);
   const LABELS = [
     { de: 'Die Basis',    en: 'Foundation'  },
@@ -151,13 +157,17 @@ function ChapterNav({ de }: { de: boolean }) {
     const els = document.querySelectorAll('[data-chapter]');
     const obs = new IntersectionObserver(
       entries => entries.forEach(e => {
-        if (e.isIntersecting) setActive(parseInt(e.target.getAttribute('data-chapter') ?? '1', 10) - 1);
+        if (e.isIntersecting) {
+          const idx = parseInt(e.target.getAttribute('data-chapter') ?? '1', 10) - 1;
+          setActive(idx);
+          onActiveChange?.(idx);
+        }
       }),
       { threshold: 0.25, rootMargin: '-5% 0px -58% 0px' },
     );
     els.forEach(el => obs.observe(el));
     return () => obs.disconnect();
-  }, []);
+  }, [onActiveChange]);
   return (
     <div className="fixed right-5 top-1/2 -translate-y-1/2 z-30 hidden xl:flex flex-col gap-4" aria-label="Chapter navigation">
       <div className="absolute right-[4px] top-0 bottom-0 w-px" style={{ background: 'var(--bd)' }} />
@@ -202,8 +212,86 @@ function ScrollProgress() {
   );
 }
 
+// ─── Mini-SVG visualizations for StatCallout ─────────────────────────────────
+function TempBandViz({ isDark }: { isDark: boolean }) {
+  const trackClr  = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(26,60,110,0.10)';
+  const bandClr   = isDark ? '#3060C8'                : '#1A3C6E';
+  const wideClr   = isDark ? 'rgba(68,114,212,0.22)'  : 'rgba(68,114,212,0.15)';
+  const labelClr  = isDark ? 'rgba(255,255,255,0.32)' : 'rgba(26,60,110,0.45)';
+  const tickClr   = isDark ? 'rgba(255,255,255,0.20)' : 'rgba(26,60,110,0.30)';
+  const toX = (t: number) => ((t - 52) / 18) * 200;
+  return (
+    <svg viewBox="0 0 220 80" style={{ width: 220, height: 80 }}>
+      <rect x="10" y="28" width="200" height="6" rx="3" fill={trackClr} />
+      <rect x={10 + toX(55)} y="22" width={toX(65) - toX(55)} height="18" rx="3" fill={wideClr} />
+      <rect x={10 + toX(58)} y="20" width={toX(60) - toX(58)} height="22" rx="3" fill={bandClr}
+        style={{ filter: isDark ? 'drop-shadow(0 0 6px rgba(48,96,200,0.7))' : 'none' }} />
+      {[55, 58, 60, 65].map(t => (
+        <g key={t}>
+          <line x1={10 + toX(t)} y1="46" x2={10 + toX(t)} y2="52" stroke={tickClr} strokeWidth="0.8" />
+          <text x={10 + toX(t)} y="62" textAnchor="middle" fontSize="7" fontFamily="monospace" fill={labelClr}>{t}°</text>
+        </g>
+      ))}
+      <text x={10 + toX(59)} y="14" textAnchor="middle" fontSize="6.5" fontFamily="monospace" fill={bandClr} letterSpacing="0.05em">WAXCELERATE</text>
+    </svg>
+  );
+}
+
+function DensityViz({ isDark }: { isDark: boolean }) {
+  const parClr   = isDark ? 'rgba(68,114,212,0.25)'  : 'rgba(68,114,212,0.15)';
+  const parBd    = isDark ? 'rgba(68,114,212,0.45)'  : 'rgba(68,114,212,0.40)';
+  const mosClr   = isDark ? '#2A5499'                : '#2A5499';
+  const labelClr = isDark ? 'rgba(255,255,255,0.35)' : 'rgba(26,60,110,0.45)';
+  const valClr   = isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,30,70,0.75)';
+  const rPar = 14, rMos = 36;
+  return (
+    <svg viewBox="0 0 160 90" style={{ width: 160, height: 90 }}>
+      <circle cx="35" cy="45" r={rPar} fill={parClr} stroke={parBd} strokeWidth="1" />
+      <text x="35" y="42" textAnchor="middle" dominantBaseline="middle" fontSize="6" fontFamily="monospace" fill={labelClr}>Paraffin</text>
+      <text x="35" y="51" textAnchor="middle" dominantBaseline="middle" fontSize="7" fontFamily="monospace" fontWeight="700" fill={valClr}>0.9</text>
+      <circle cx="108" cy="45" r={rMos} fill={mosClr}
+        style={{ filter: isDark ? 'drop-shadow(0 0 10px rgba(42,84,153,0.55))' : 'drop-shadow(0 3px 8px rgba(42,84,153,0.25))' }} />
+      <text x="108" y="40" textAnchor="middle" dominantBaseline="middle" fontSize="7.5" fontFamily="monospace" fill="rgba(255,255,255,0.75)">MoS₂</text>
+      <text x="108" y="51" textAnchor="middle" dominantBaseline="middle" fontSize="8" fontFamily="monospace" fontWeight="700" fill="rgba(255,255,255,0.90)">5.06</text>
+      <text x="80" y="84" textAnchor="middle" fontSize="6.5" fontFamily="monospace" fill={labelClr}>g/cm³</text>
+    </svg>
+  );
+}
+
+function FrictionLadderViz({ isDark }: { isDark: boolean }) {
+  const labelClr = isDark ? 'rgba(255,255,255,0.35)' : 'rgba(26,60,110,0.45)';
+  const dotClr   = isDark ? '#4472D4'                : '#1A3C6E';
+  const bars = [
+    { label: 'Pro',      val: 0.03, color: isDark ? '#3060C8' : '#1A3C6E', glow: true  },
+    { label: 'Graphite', val: 0.10, color: isDark ? 'rgba(68,114,212,0.45)' : 'rgba(42,84,153,0.35)', glow: false },
+    { label: 'Oil',      val: 0.18, color: isDark ? 'rgba(68,114,212,0.22)' : 'rgba(42,84,153,0.18)', glow: false },
+  ];
+  const scale = 160 / 0.25;
+  return (
+    <svg viewBox="0 0 200 80" style={{ width: 200, height: 80 }}>
+      {bars.map((b, i) => {
+        const barW = b.val * scale;
+        const y = 12 + i * 22;
+        return (
+          <g key={i}>
+            <circle cx="8" cy={y + 5} r="3" fill={dotClr} opacity={b.glow ? 1 : 0.4}
+              style={b.glow ? { filter: `drop-shadow(0 0 4px ${b.color})` } : undefined} />
+            <rect x="14" y={y} width={barW} height="10" rx="2" fill={b.color}
+              style={b.glow ? { filter: isDark ? `drop-shadow(0 0 6px rgba(48,96,200,0.65))` : 'none' } : undefined} />
+            <text x={14 + barW + 5} y={y + 7} dominantBaseline="middle" fontSize="6.5" fontFamily="monospace" fill={labelClr}>{b.label}</text>
+          </g>
+        );
+      })}
+      <text x="14" y="75" fontSize="6.5" fontFamily="monospace" fill={labelClr}>μ →</text>
+    </svg>
+  );
+}
+
 // ─── Stat callout — full-bleed dark section ───────────────────────────────────
-function StatCallout({ stat, ctxDe, ctxEn, de, isDark }: { stat: string; ctxDe: string; ctxEn: string; de: boolean; isDark: boolean }) {
+function StatCallout({ stat, ctxDe, ctxEn, de, isDark, miniViz }: {
+  stat: string; ctxDe: string; ctxEn: string; de: boolean; isDark: boolean;
+  miniViz?: React.ReactNode;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -218,7 +306,7 @@ function StatCallout({ stat, ctxDe, ctxEn, de, isDark }: { stat: string; ctxDe: 
   return (
     <div
       ref={ref}
-      className="w-full py-10 sm:py-14 flex flex-col items-center text-center"
+      className="w-full py-10 sm:py-12 flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-16 px-6"
       style={isDark ? {
         background: '#07070A',
         borderTop: '1px solid rgba(255,255,255,0.10)',
@@ -231,18 +319,25 @@ function StatCallout({ stat, ctxDe, ctxEn, de, isDark }: { stat: string; ctxDe: 
         opacity: 0,
       }}
     >
-      <p className="font-serif-display italic font-bold leading-none select-none"
-        style={{
-          fontSize: 'clamp(2.8rem,7vw,4.5rem)',
-          color: isDark ? '#3060C8' : '#1A3C6E',
-          textShadow: isDark ? '0 0 60px rgba(43,82,176,0.55), 0 0 130px rgba(43,82,176,0.22)' : 'none',
-        }}>
-        {stat}
-      </p>
-      <p className="text-[11px] uppercase tracking-[0.3em] mt-5 max-w-[400px] leading-relaxed"
-        style={{ color: isDark ? 'rgba(255,255,255,0.50)' : 'var(--txm)' }}>
-        {de ? ctxDe : ctxEn}
-      </p>
+      <div className="flex flex-col items-center sm:items-start">
+        <p className="font-serif-display italic font-bold leading-none select-none"
+          style={{
+            fontSize: 'clamp(2.8rem,7vw,4.5rem)',
+            color: isDark ? '#3060C8' : '#1A3C6E',
+            textShadow: isDark ? '0 0 60px rgba(43,82,176,0.55), 0 0 130px rgba(43,82,176,0.22)' : 'none',
+          }}>
+          {stat}
+        </p>
+        <p className="text-[11px] uppercase tracking-[0.3em] mt-5 max-w-[400px] leading-relaxed text-center sm:text-left"
+          style={{ color: isDark ? 'rgba(255,255,255,0.50)' : 'var(--txm)' }}>
+          {de ? ctxDe : ctxEn}
+        </p>
+      </div>
+      {miniViz && (
+        <div className="flex-shrink-0 hidden sm:block" aria-hidden="true">
+          {miniViz}
+        </div>
+      )}
     </div>
   );
 }
@@ -870,6 +965,40 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
         </div>
       )}
 
+      {/* ── Mobile relationship summary — 3 key edges, sm:hidden ── */}
+      <div
+        className="mt-4 pt-3.5 sm:hidden space-y-2"
+        style={{ borderTop: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(26,60,110,0.10)'}` }}
+      >
+        {([ASSEMBLY_EDGES[2], ASSEMBLY_EDGES[0], ASSEMBLY_EDGES[4]] as typeof ASSEMBLY_EDGES[number][]).map((edge, i) => {
+          const from = ASSEMBLY_NODES.find(n => n.id === edge.from)!;
+          const to   = ASSEMBLY_NODES.find(n => n.id === edge.to)!;
+          return (
+            <div key={i} className="flex items-center gap-2 text-left">
+              <span
+                className="text-[9px] font-semibold px-1.5 py-0.5 rounded flex-shrink-0"
+                style={{ background: isDark ? 'rgba(68,114,212,0.15)' : 'rgba(68,114,212,0.08)', color: isDark ? '#7ab0ff' : '#1a3c8e' }}
+              >
+                {de ? from.labelDe : from.labelEn}
+              </span>
+              <span className="text-[8px]" style={{ color: isDark ? 'rgba(255,255,255,0.25)' : 'rgba(26,60,110,0.35)' }}>→</span>
+              <span
+                className="text-[8px] font-mono flex-1 truncate"
+                style={{ color: isDark ? 'rgba(160,195,248,0.55)' : 'rgba(30,68,158,0.52)' }}
+              >
+                {de ? edge.labelDe : edge.labelEn}
+              </span>
+              <span
+                className="text-[9px] font-semibold px-1.5 py-0.5 rounded flex-shrink-0"
+                style={{ background: isDark ? 'rgba(68,114,212,0.25)' : 'rgba(68,114,212,0.12)', color: isDark ? '#88c0ff' : '#1535a0' }}
+              >
+                {de ? to.labelDe : to.labelEn}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+
     </div>
   );
 }
@@ -954,6 +1083,7 @@ const FAILURES: { vDe: string; vEn: string; failDe: string; failEn: string; fixD
 
 function FailureTimeline({ de, isDark }: { de: boolean; isDark: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
+  const connectorRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const ctx = gsap.context(() => {
       const items = ref.current?.querySelectorAll('.ft-item');
@@ -961,6 +1091,30 @@ function FailureTimeline({ de, isDark }: { de: boolean; isDark: boolean }) {
         gsap.fromTo(items,
           { opacity: 0, x: -16 },
           { opacity: 1, x: 0, duration: 0.5, stagger: 0.14, ease: 'power2.out',
+            scrollTrigger: { trigger: ref.current, start: 'top 82%', once: true } },
+        );
+      }
+      if (connectorRef.current) {
+        gsap.fromTo(connectorRef.current,
+          { scaleX: 0 },
+          { scaleX: 1, duration: 0.8, ease: 'power2.out', transformOrigin: 'left center',
+            scrollTrigger: { trigger: ref.current, start: 'top 82%', once: true } },
+        );
+      }
+      const lastDot = ref.current?.querySelector('.ft-item:last-child .ft-dot');
+      if (lastDot) {
+        gsap.fromTo(lastDot,
+          { scale: 1 },
+          { scale: 1.4, duration: 0.22, ease: 'back.out(3)',
+            scrollTrigger: { trigger: ref.current, start: 'top 78%', once: true },
+            yoyo: true, repeat: 1 },
+        );
+      }
+      const vLines = ref.current?.querySelectorAll('.ft-vline');
+      if (vLines?.length) {
+        gsap.fromTo(vLines,
+          { scaleY: 0 },
+          { scaleY: 1, duration: 0.5, stagger: 0.14, ease: 'power2.out', transformOrigin: 'top center',
             scrollTrigger: { trigger: ref.current, start: 'top 82%', once: true } },
         );
       }
@@ -977,20 +1131,22 @@ function FailureTimeline({ de, isDark }: { de: boolean; isDark: boolean }) {
 
   return (
     <div ref={ref} className="w-full">
-      <div className="flex items-center gap-3 mb-5">
-        <p className="text-[9px] uppercase tracking-[0.28em]" style={{ color: isDark ? 'rgba(255,255,255,0.35)' : 'var(--txff)' }}>
+      <div className="flex items-center gap-3 mb-6 pl-4 relative">
+        <div className="absolute left-0 top-0 bottom-0 w-[3px] rounded-full"
+          style={{ background: 'linear-gradient(to bottom, #2A5499, rgba(68,114,212,0.2))' }} />
+        <p className="text-[10px] uppercase tracking-[0.28em]" style={{ color: isDark ? 'rgba(255,255,255,0.35)' : 'var(--txff)' }}>
           {de ? 'Entwicklungsiterationen — nur dokumentierte Fakten' : 'Development iterations — documented facts only'}
         </p>
       </div>
       {/* Desktop: horizontal timeline */}
       <div className="hidden sm:flex items-start gap-0 relative">
         {/* connector line */}
-        <div className="absolute top-[18px] left-0 right-0 h-px" style={{ background: lineClr }} />
+        <div ref={connectorRef} className="absolute top-[18px] left-0 right-0 h-px" style={{ background: lineClr, transform: 'scaleX(0)', transformOrigin: 'left center' }} />
         {FAILURES.map((f, i) => (
           <div key={i} className="ft-item flex-1 flex flex-col items-center px-2 opacity-0" style={{ minWidth: 0 }}>
             {/* Dot */}
             <div
-              className="w-[18px] h-[18px] rounded-full flex-shrink-0 z-10 flex items-center justify-center mb-3"
+              className="ft-dot w-[18px] h-[18px] rounded-full flex-shrink-0 z-10 flex items-center justify-center mb-3"
               style={{
                 background: f.isCurrent ? '#2A5499' : dotFail,
                 border: `2px solid ${f.isCurrent ? '#4472D4' : (isDark ? 'rgba(255,255,255,0.15)' : 'rgba(26,60,110,0.20)')}`,
@@ -998,7 +1154,11 @@ function FailureTimeline({ de, isDark }: { de: boolean; isDark: boolean }) {
               }}
             />
             {/* Card */}
-            <div className="w-full rounded-xl p-3" style={{ background: f.isCurrent ? (isDark ? 'rgba(26,60,110,0.20)' : 'rgba(26,60,110,0.07)') : cardBg, border: `1px solid ${f.isCurrent ? 'rgba(68,114,212,0.30)' : cardBd}` }}>
+            <div className="w-full rounded-xl p-3" style={{
+              background: f.isCurrent ? (isDark ? 'rgba(26,60,110,0.20)' : 'rgba(26,60,110,0.07)') : cardBg,
+              border: `1px solid ${f.isCurrent ? 'rgba(68,114,212,0.30)' : cardBd}`,
+              boxShadow: f.isCurrent ? '0 0 0 2px rgba(68,114,212,0.35), 0 4px 20px rgba(26,60,110,0.15)' : 'none',
+            }}>
               <p className="text-[9px] font-mono font-bold uppercase tracking-wide mb-1.5" style={{ color: f.isCurrent ? '#4472D4' : (isDark ? 'rgba(255,255,255,0.35)' : 'var(--txff)') }}>
                 {de ? f.vDe : f.vEn}
               </p>
@@ -1017,8 +1177,8 @@ function FailureTimeline({ de, isDark }: { de: boolean; isDark: boolean }) {
         {FAILURES.map((f, i) => (
           <div key={i} className="ft-item flex gap-3 opacity-0">
             <div className="flex flex-col items-center flex-shrink-0 pt-1">
-              <div className="w-3 h-3 rounded-full" style={{ background: f.isCurrent ? '#2A5499' : dotFail, border: `1.5px solid ${f.isCurrent ? '#4472D4' : (isDark ? 'rgba(255,255,255,0.15)' : 'rgba(26,60,110,0.20)')}` }} />
-              {i < FAILURES.length - 1 && <div className="w-px flex-1 mt-1" style={{ background: lineClr, minHeight: '20px' }} />}
+              <div className="ft-dot w-3 h-3 rounded-full" style={{ background: f.isCurrent ? '#2A5499' : dotFail, border: `1.5px solid ${f.isCurrent ? '#4472D4' : (isDark ? 'rgba(255,255,255,0.15)' : 'rgba(26,60,110,0.20)')}` }} />
+              {i < FAILURES.length - 1 && <div className="ft-vline w-px flex-1 mt-1" style={{ background: lineClr, minHeight: '20px' }} />}
             </div>
             <div className="pb-2">
               <p className="text-[9px] font-mono font-bold uppercase tracking-wide mb-1" style={{ color: f.isCurrent ? '#4472D4' : (isDark ? 'rgba(255,255,255,0.35)' : 'var(--txff)') }}>
@@ -1039,6 +1199,10 @@ function HexMoS2({ de }: { de: boolean }) {
   const topRef  = useRef<SVGGElement>(null);
   const botRef  = useRef<SVGGElement>(null);
   const [hov, setHov] = useState(false);
+  const [isTouch, setIsTouch] = useState(false);
+  useEffect(() => {
+    setIsTouch(window.matchMedia('(hover: none)').matches);
+  }, []);
 
   useEffect(() => {
     if (!topRef.current || !botRef.current) return;
@@ -1076,8 +1240,17 @@ function HexMoS2({ de }: { de: boolean }) {
 
   return (
     <div className="w-full rounded-2xl overflow-hidden p-5 cursor-default select-none"
-      style={{ ...vizCard, ...dotGrid, transition: 'box-shadow 0.35s ease', boxShadow: hov ? '0 0 0 1px rgba(68,114,212,0.4), 0 8px 32px rgba(26,60,110,0.3)' : 'none' }}
-      onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}>
+      style={{ ...vizCard, ...dotGrid, transition: 'box-shadow 0.35s ease', boxShadow: hov ? '0 0 0 1px rgba(68,114,212,0.4), 0 8px 32px rgba(26,60,110,0.3)' : 'none', cursor: isTouch ? 'pointer' : undefined }}
+      onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
+      onClick={() => {
+        if (!isTouch) return;
+        const next = !hov;
+        setHov(next);
+        if (next) {
+          setTimeout(() => setHov(false), 2200);
+        }
+      }}>
+      <style>{`@keyframes pulse-gap { 0%,100% { opacity: 0.4 } 50% { opacity: 1 } }`}</style>
       <p className="text-[10px] uppercase tracking-[0.2em] mb-3 text-center" style={{ color: txMid }}>
         {de ? 'MoS₂ — S–Mo–S Schichtstruktur' : 'MoS₂ — S–Mo–S layer structure'}
       </p>
@@ -1091,8 +1264,17 @@ function HexMoS2({ de }: { de: boolean }) {
           {S_X.map((x, i) => <circle key={`ts2${i}`} cx={x} cy={TOP_S2} r="5" fill="#A8C0F4" opacity="0.92" />)}
         </g>
         {/* Van der Waals gap */}
-        <line x1="8" y1={GAP_Y} x2="310" y2={GAP_Y} stroke={vdwClr} strokeWidth="1" strokeDasharray="5 4" />
-        <text x="316" y={GAP_Y + 4} fontSize="8.5" fill={vdwTxt} fontFamily="monospace">vdW</text>
+        <g>
+          <line x1="8" y1={GAP_Y} x2="310" y2={GAP_Y} stroke={vdwClr} strokeWidth="1" strokeDasharray="5 4" />
+          {isTouch && !hov && (
+            <rect
+              x="8" y={GAP_Y - 4} width="302" height="8" rx="2"
+              fill={isDark ? 'rgba(68,114,212,0.12)' : 'rgba(68,114,212,0.08)'}
+              style={{ animation: 'pulse-gap 2s ease-in-out infinite' }}
+            />
+          )}
+          <text x="316" y={GAP_Y + 4} fontSize="8.5" fill={vdwTxt} fontFamily="monospace">vdW</text>
+        </g>
         <g ref={botRef}>
           {bonds(BOT_MO, BOT_S1, BOT_S2).map((b, i) => (
             <line key={i} x1={b.x1} y1={b.y1} x2={b.x2} y2={b.y2} stroke={isDark ? 'rgba(42,84,153,0.22)' : 'rgba(42,84,153,0.35)'} strokeWidth="1.2" />
@@ -1126,7 +1308,9 @@ function HexMoS2({ de }: { de: boolean }) {
             <span className="text-[9px] font-mono" style={{ color: txMono }}>Mo</span>
           </div>
           <span className="text-[9px]" style={{ color: txLow }}>
-            {de ? '· Hover: Schicht gleitet' : '· Hover: layer shears'}
+            {isTouch
+              ? (de ? '· Tippen: Schicht gleitet' : '· Tap: layer shears')
+              : (de ? '· Hover: Schicht gleitet' : '· Hover: layer shears')}
           </span>
         </div>
         <div className="text-right">
@@ -1142,6 +1326,24 @@ function HexMoS2({ de }: { de: boolean }) {
 function TransferFilm({ de }: { de: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   const [hov, setHov] = useState(false);
+  const [hasPlayed, setHasPlayed] = useState(false);
+  const tlRef = useRef<gsap.core.Timeline | null>(null);
+
+  const replay = () => {
+    if (!tlRef.current) return;
+    const container = ref.current;
+    if (!container) return;
+    const particles = Array.from(container.querySelectorAll<SVGCircleElement>('.tf-p'));
+    const films = Array.from(container.querySelectorAll<SVGRectElement>('.tf-film'));
+    const label = container.querySelector<SVGTextElement>('.tf-label');
+    particles.forEach((el, i) => {
+      const p = TF_PARTICLES[i];
+      gsap.set(el, { attr: { cy: p.y } });
+    });
+    gsap.set(films, { opacity: 0 });
+    if (label) gsap.set(label, { opacity: 0 });
+    tlRef.current.restart();
+  };
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -1153,8 +1355,10 @@ function TransferFilm({ de }: { de: boolean }) {
       const label     = container.querySelector<SVGTextElement>('.tf-label');
 
       const tl = gsap.timeline({
-        scrollTrigger: { trigger: container, start: 'top 74%', once: true },
+        scrollTrigger: { trigger: container, start: 'top 88%', once: true },
+        onComplete: () => setHasPlayed(true),
       });
+      tlRef.current = tl;
 
       particles.forEach((el, i) => {
         const p = TF_PARTICLES[i];
@@ -1189,7 +1393,7 @@ function TransferFilm({ de }: { de: boolean }) {
 
   return (
     <div ref={ref} className="w-full rounded-2xl overflow-hidden p-5"
-      style={{ ...vizCard, ...dotGrid, transition: 'box-shadow 0.35s ease', boxShadow: hov ? '0 0 0 1px rgba(68,114,212,0.4), 0 8px 32px rgba(26,60,110,0.30)' : 'none' }}
+      style={{ ...vizCard, ...dotGrid, position: 'relative', transition: 'box-shadow 0.35s ease', boxShadow: hov ? '0 0 0 1px rgba(68,114,212,0.4), 0 8px 32px rgba(26,60,110,0.30)' : 'none' }}
       onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}>
       <p className="text-[10px] uppercase tracking-[0.2em] mb-3 text-center" style={{ color: txMid }}>
         {de ? 'Transferfilm unter Kontaktdruck' : 'Transfer film under contact pressure'}
@@ -1235,12 +1439,26 @@ function TransferFilm({ de }: { de: boolean }) {
           </div>
         ))}
       </div>
+      {hasPlayed && (
+        <button
+          onClick={replay}
+          aria-label="Replay animation"
+          className="absolute top-3 right-3 p-1.5 rounded-full transition-opacity hover:opacity-70"
+          style={{
+            background: isDark ? 'rgba(68,114,212,0.18)' : 'rgba(68,114,212,0.10)',
+            border: `1px solid ${isDark ? 'rgba(68,114,212,0.30)' : 'rgba(68,114,212,0.20)'}`,
+            color: isDark ? 'rgba(168,192,244,0.80)' : '#2a56c4',
+          }}
+        >
+          <RotateCcw className="w-3.5 h-3.5" />
+        </button>
+      )}
     </div>
   );
 }
 
-// ─── Crystal lattice — lamellar chain visualization ──────────────────────────
-// Shows aligned hydrocarbon chains packed in parallel layers (the actual lamellar structure)
+// ─── Crystal lattice — split-panel comparison: ordered vs disordered ──────────
+// LEFT: Waxcelerate (uniform, narrow 58–60°C) · RIGHT: Generic paraffin (wide, irregular)
 function CrystalLattice({ de }: { de: boolean }) {
   const svgRef = useRef<SVGSVGElement>(null);
   const { theme } = useTheme();
@@ -1257,7 +1475,7 @@ function CrystalLattice({ de }: { de: boolean }) {
   const bandA  = isDark ? 'rgba(26,60,110,0.14)'   : 'rgba(68,114,212,0.10)';
   const bandB  = isDark ? 'rgba(26,60,110,0.07)'   : 'rgba(68,114,212,0.05)';
 
-  // 3 crystal layers, each with 7 parallel chain rods
+  // LEFT panel — 3 crystal layers, 7 aligned chain rods
   const LAYERS = [
     { yCenter: 36,  color: '#4472D4' },
     { yCenter: 96,  color: '#3D67CA' },
@@ -1268,48 +1486,87 @@ function CrystalLattice({ de }: { de: boolean }) {
   const totalChainWidth = CHAINS * CHAIN_W + (CHAINS - 1) * CHAIN_GAP;
   const startX = (395 - totalChainWidth) / 2;
 
-  // Van der Waals gap positions (between layers)
+  // RIGHT panel — disordered (varied widths/gaps/heights/ycenters)
+  const RIGHT_WIDTHS = [38, 52, 42, 58, 36, 50, 44];
+  const RIGHT_GAPS   = [5, 9, 6, 11, 4, 8, 0];
+  const CHAINS_R = 7;
+  const CHAIN_H_R = [8, 10, 7, 11, 8, 9, 10];
+  const RIGHT_LAYERS_Y = [34, 98, 152];
+  const RIGHT_COLOR = 'rgba(68,114,212,0.38)';
+  const totalRightWidth = RIGHT_WIDTHS.reduce((s, w) => s + w, 0) + RIGHT_GAPS.slice(0, CHAINS_R - 1).reduce((s, g) => s + g, 0);
+  const startXR = 420 + (400 - totalRightWidth) / 2;
+
+  // Van der Waals gap positions
   const VDW_Y = [66, 126];
 
   useEffect(() => {
-    const rods = svgRef.current?.querySelectorAll<SVGRectElement>('.chain-rod');
-    if (!rods?.length) return;
-    rods.forEach((rod, i) => {
-      gsap.to(rod, {
-        x: (i % 3 === 0 ? 1.5 : i % 3 === 1 ? -1.5 : 0.8),
-        duration: 1.6 + (i % 5) * 0.28,
-        repeat: -1, yoyo: true, ease: 'sine.inOut',
-        delay: i * 0.09,
+    const rods  = svgRef.current?.querySelectorAll<SVGRectElement>('.chain-rod');
+    const rodsR = svgRef.current?.querySelectorAll<SVGRectElement>('.chain-rod-r');
+    if (rods?.length) {
+      rods.forEach((rod, i) => {
+        gsap.to(rod, {
+          x: (i % 3 === 0 ? 1.5 : i % 3 === 1 ? -1.5 : 0.8),
+          duration: 1.6 + (i % 5) * 0.28,
+          repeat: -1, yoyo: true, ease: 'sine.inOut',
+          delay: i * 0.09,
+        });
       });
-    });
-    return () => gsap.killTweensOf(Array.from(rods));
+    }
+    if (rodsR?.length) {
+      rodsR.forEach((rod, i) => {
+        gsap.to(rod, {
+          x: (i % 3 === 0 ? 3.5 : i % 3 === 1 ? -3.5 : 2.0),
+          duration: 1.2 + (i % 5) * 0.22,
+          repeat: -1, yoyo: true, ease: 'sine.inOut',
+          delay: i * 0.07,
+        });
+      });
+    }
+    return () => {
+      if (rods?.length)  gsap.killTweensOf(Array.from(rods));
+      if (rodsR?.length) gsap.killTweensOf(Array.from(rodsR));
+    };
   }, []);
+
+  // Build right-panel rod x positions
+  const rightRodXs: number[] = [];
+  let rx = startXR;
+  for (let ci = 0; ci < CHAINS_R; ci++) {
+    rightRodXs.push(rx);
+    rx += RIGHT_WIDTHS[ci] + (ci < CHAINS_R - 1 ? RIGHT_GAPS[ci] : 0);
+  }
+
+  const dividerClr = isDark ? 'rgba(255,255,255,0.10)' : 'rgba(26,60,110,0.12)';
 
   return (
     <div className="w-full rounded-2xl overflow-hidden p-5" style={{ ...vizCard, ...dotGrid }}>
       <p className="text-[10px] uppercase tracking-[0.2em] mb-3 text-center" style={{ color: txMid }}>
         {de ? 'Lamellare Kristallstruktur — C₂₀–C₃₆' : 'Lamellar crystal structure — C₂₀–C₃₆'}
       </p>
-      <svg ref={svgRef} viewBox="0 0 395 192" className="w-full">
-        {/* Layer background bands */}
+      <svg ref={svgRef} viewBox="0 0 820 210" className="w-full" style={{ minHeight: 100 }}>
+        {/* ── LEFT panel background bands ── */}
         {LAYERS.map((l, li) => (
-          <rect key={li} x="0" y={l.yCenter - 22} width="395" height="44"
+          <rect key={li} x="0" y={l.yCenter - 22} width="400" height="44"
             fill={li % 2 === 0 ? bandA : bandB} />
         ))}
-        {/* Van der Waals gap lines */}
+        {/* ── LEFT label ── */}
+        <text x="197" y="8" fontSize="8" fontFamily="monospace" textAnchor="middle" fill={txMid}>
+          58–60°C
+        </text>
+        {/* ── LEFT VdW gap lines ── */}
         {VDW_Y.map((y, i) => (
           <g key={i}>
             <line x1="12" y1={y} x2="340" y2={y} stroke={vdwClr} strokeWidth="0.8" strokeDasharray="5 4" />
             <text x="348" y={y + 4} fontSize="8.5" fill={vdwTxt} fontFamily="monospace" textAnchor="start">vdW</text>
           </g>
         ))}
-        {/* Chain rods */}
+        {/* ── LEFT chain rods ── */}
         {LAYERS.map((l, li) =>
           [...Array(CHAINS)].map((_, ci) => {
             const x = startX + ci * (CHAIN_W + CHAIN_GAP);
             return (
               <rect
-                key={`${li}-${ci}`}
+                key={`L${li}-${ci}`}
                 className="chain-rod"
                 x={x} y={l.yCenter - CHAIN_H / 2} width={CHAIN_W} height={CHAIN_H}
                 rx="4.5"
@@ -1320,18 +1577,66 @@ function CrystalLattice({ de }: { de: boolean }) {
             );
           })
         )}
-        {/* Side bracket showing one crystal layer */}
+        {/* ── LEFT side bracket ── */}
         <line x1="10" y1={LAYERS[1].yCenter - 20} x2="10" y2={LAYERS[1].yCenter + 20}
           stroke={bktClr} strokeWidth="1" />
         <text x="14" y={LAYERS[1].yCenter + 4} fontSize="8.5" fill={bktTxt} fontFamily="monospace">
           {de ? 'Kristallebene' : 'Crystal plane'}
         </text>
+
+        {/* ── CENTER divider ── */}
+        <line x1="410" y1="0" x2="410" y2="210" stroke={dividerClr} strokeWidth="0.8" />
+        <g transform="translate(410,105) rotate(-90)">
+          <text x="0" y="0" textAnchor="middle" dominantBaseline="middle"
+            fontSize="7.5" fontFamily="monospace"
+            fill={isDark ? 'rgba(255,255,255,0.28)' : 'rgba(26,60,110,0.35)'}>
+            vs
+          </text>
+        </g>
+
+        {/* ── RIGHT panel background bands ── */}
+        {RIGHT_LAYERS_Y.map((yc, li) => (
+          <rect key={`rb${li}`} x="420" y={yc - 22} width="400" height="44"
+            fill={li % 2 === 0 ? bandA : bandB} />
+        ))}
+        {/* ── RIGHT label ── */}
+        <text x="617" y="8" fontSize="8" fontFamily="monospace" textAnchor="middle" fill={txMid}>
+          55–65°C
+        </text>
+        {/* ── RIGHT VdW gap lines ── */}
+        {VDW_Y.map((y, i) => (
+          <line key={`rvdw${i}`} x1="432" y1={y} x2="770" y2={y} stroke={vdwClr} strokeWidth="0.8" strokeDasharray="5 4" />
+        ))}
+        {/* ── RIGHT chain rods (disordered) ── */}
+        {RIGHT_LAYERS_Y.map((yc, li) =>
+          [...Array(CHAINS_R)].map((_, ci) => {
+            const h = CHAIN_H_R[ci % CHAIN_H_R.length];
+            return (
+              <rect
+                key={`R${li}-${ci}`}
+                className="chain-rod-r"
+                x={rightRodXs[ci]} y={yc - h / 2} width={RIGHT_WIDTHS[ci]} height={h}
+                rx="4.5"
+                fill={RIGHT_COLOR}
+                opacity={0.80}
+              />
+            );
+          })
+        )}
       </svg>
-      <div className="flex items-center justify-center gap-2 mt-3 pt-3" style={{ borderTop: `1px solid ${divClr}` }}>
-        <div className="w-7 h-2.5 rounded-full" style={{ background: '#4472D4', opacity: 0.75 }} />
-        <span className="text-[9px] font-mono" style={{ color: txMid }}>
-          {de ? 'Kohlenwasserstoffkette, parallel ausgerichtet' : 'Hydrocarbon chain, aligned in parallel'}
-        </span>
+      <div className="flex items-center justify-center gap-4 mt-3 pt-3" style={{ borderTop: `1px solid ${divClr}` }}>
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-2.5 rounded-full" style={{ background: '#4472D4', opacity: 0.75 }} />
+          <span className="text-[9px] font-mono" style={{ color: txMid }}>
+            {de ? 'Waxcelerate (geordnet)' : 'Waxcelerate (ordered)'}
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-2.5 rounded-full" style={{ background: 'rgba(68,114,212,0.38)' }} />
+          <span className="text-[9px] font-mono" style={{ color: txMid }}>
+            {de ? 'Generisches Paraffin' : 'Generic paraffin'}
+          </span>
+        </div>
       </div>
     </div>
   );
@@ -1389,12 +1694,12 @@ function ParticleSuspension({ de }: { de: boolean }) {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // "Without": top floating dots drift downward (sedimentation)
+      // "Without": top floating dots drift downward (sedimentation) — longer, more dramatic
       const floating = wRef.current?.querySelectorAll<HTMLElement>('.sp-float');
       if (floating?.length) {
         gsap.to(floating, {
-          y: 32, opacity: 0.18,
-          duration: 3.0, ease: 'power1.in',
+          y: 64, opacity: 0.18,
+          duration: 4.2, ease: 'power1.in',
           stagger: 0.18,
           scrollTrigger: { trigger: wRef.current, start: 'top 78%', once: true },
         });
@@ -1403,7 +1708,7 @@ function ParticleSuspension({ de }: { de: boolean }) {
       const stable = mRef.current?.querySelectorAll<HTMLElement>('.sp-stable');
       if (stable?.length) {
         gsap.to(stable, {
-          scale: 0.82, opacity: 0.72,
+          scale: 0.88, opacity: 0.75,
           duration: 1.7, repeat: -1, yoyo: true,
           ease: 'sine.inOut',
           stagger: { each: 0.11, from: 'random' },
@@ -1420,24 +1725,30 @@ function ParticleSuspension({ de }: { de: boolean }) {
       </p>
       <div className="grid grid-cols-2 gap-4">
         <div ref={wRef} className="flex flex-col items-center">
-          <div className="relative w-full rounded-xl overflow-hidden" style={{ height: '90px', background: 'var(--bd2)', border: '1px solid var(--bd)' }}>
-            <div className="absolute inset-x-0 top-2 flex flex-wrap gap-1.5 px-3 justify-center">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="sp-float w-2 h-2 rounded-full flex-shrink-0" style={{ background: '#2A5499', opacity: 0.8 }} />
+          <div className="relative w-full rounded-xl overflow-hidden" style={{ height: '148px', background: 'var(--bd2)', border: '1px solid var(--bd)' }}>
+            {/* Center-of-mass reference line */}
+            <div className="absolute inset-x-2" style={{ top: '50%', height: '1px', background: 'rgba(26,60,110,0.08)' }} />
+            <div className="absolute inset-x-0 top-2 flex flex-wrap gap-2 px-3 justify-center">
+              {[...Array(7)].map((_, i) => (
+                <div key={i} className="sp-float w-3.5 h-3.5 rounded-full flex-shrink-0" style={{ background: '#2A5499', opacity: 0.8 }} />
               ))}
             </div>
-            <div className="absolute inset-x-0 bottom-0 flex flex-wrap gap-1 p-2 justify-center rounded-b" style={{ background: 'rgba(26,60,110,0.2)' }}>
-              {[...Array(14)].map((_, i) => <div key={i} className="w-2 h-2 rounded-full" style={{ background: '#1A3C6E' }} />)}
+            <div className="absolute inset-x-0 bottom-0 px-2 pt-1.5 pb-1 rounded-b" style={{ background: 'rgba(26,60,110,0.30)' }}>
+              <div className="flex flex-wrap gap-1.5 justify-center">
+                {[...Array(18)].map((_, i) => <div key={i} className="w-3 h-3 rounded-full" style={{ background: '#1A3C6E' }} />)}
+              </div>
             </div>
           </div>
           <p className="text-[11px] font-semibold text-wx-tx1 mt-2">{de ? 'Ohne' : 'Without'}</p>
           <p className="text-[10px] text-center mt-0.5" style={{ color: 'var(--txff)' }}>{de ? 'Gradient im Block' : 'Gradient in block'}</p>
         </div>
         <div ref={mRef} className="flex flex-col items-center">
-          <div className="relative w-full rounded-xl overflow-hidden" style={{ height: '90px', background: 'var(--bd2)', border: '1px solid var(--bd)' }}>
-            <div className="absolute inset-0 flex flex-wrap gap-1.5 p-3 items-center justify-center">
-              {[...Array(16)].map((_, i) => (
-                <div key={i} className="sp-stable w-2 h-2 rounded-full" style={{ background: '#2A5499', opacity: 0.9 }} />
+          <div className="relative w-full rounded-xl overflow-hidden" style={{ height: '148px', background: 'var(--bd2)', border: '1px solid var(--bd)' }}>
+            {/* Center-of-mass reference line */}
+            <div className="absolute inset-x-2" style={{ top: '50%', height: '1px', background: 'rgba(26,60,110,0.08)' }} />
+            <div className="absolute inset-0 flex flex-wrap gap-2 p-3 items-center justify-center">
+              {[...Array(20)].map((_, i) => (
+                <div key={i} className="sp-stable w-3.5 h-3.5 rounded-full" style={{ background: '#2A5499', opacity: 0.9 }} />
               ))}
             </div>
           </div>
@@ -1608,10 +1919,11 @@ interface ChapterProps {
   extraVisual?: React.ReactNode;
   flip?: boolean;
   featured?: boolean;
+  visualFirst?: boolean;
   de: boolean;
 }
 
-function Chapter({ num, anchorId, catDe, catEn, titleDe, titleEn, ledeDe, ledeEn, teaserDe, teaserEn, bodyDe, bodyEn, insightDe, insightEn, visual, extraVisual, flip, featured, de }: ChapterProps) {
+function Chapter({ num, anchorId, catDe, catEn, titleDe, titleEn, ledeDe, ledeEn, teaserDe, teaserEn, bodyDe, bodyEn, insightDe, insightEn, visual, extraVisual, flip, featured, visualFirst = false, de }: ChapterProps) {
   const ref     = useRef<HTMLDivElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
@@ -1695,7 +2007,7 @@ function Chapter({ num, anchorId, catDe, catEn, titleDe, titleEn, ledeDe, ledeEn
           <Insight>{de ? insightDe : insightEn}</Insight>
         </div>
         {/* Visual column — featured removes card border for immersive treatment */}
-        <div className={`flex flex-col gap-6 ${flip ? 'lg:order-1' : 'lg:order-2'} ${featured ? 'lg:-mx-8' : ''}`}>
+        <div className={`flex flex-col gap-6 ${visualFirst ? 'order-first' : ''} ${flip ? 'lg:order-1' : 'lg:order-2'} ${featured ? 'lg:-mx-8' : ''}`}>
           {visual}
           {extraVisual}
         </div>
@@ -1710,6 +2022,7 @@ export function SciencePage() {
   const { theme } = useTheme();
   const isDark = theme === 'dark' || theme === 'noir';
   const de = lang === 'de';
+  const [activeChapter, setActiveChapter] = useState(-1);
   const heroRef  = useRef<HTMLElement>(null);
   const wordsRef = useRef<HTMLSpanElement[]>([]);
 
@@ -1753,7 +2066,7 @@ export function SciencePage() {
     <div className="min-h-screen" style={{ background: 'var(--pg)' }}>
       <GrainOverlay />
       <ScrollProgress />
-      <ChapterNav de={de} />
+      <ChapterNav de={de} onActiveChange={setActiveChapter} />
 
       {/* ── Navigation ─────────────────────────────────────────────────────── */}
       <nav className="sticky top-0 z-40" style={{ background: 'var(--nav-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid var(--bd)' }}>
@@ -1762,8 +2075,18 @@ export function SciencePage() {
             <ArrowLeft className="w-4 h-4" />
             {de ? 'Zurück' : 'Back'}
           </Link>
-          <span className="font-display text-[13px] font-semibold text-wx-tx1 tracking-wide">
-            Waxcelerate <span style={{ color: '#4472D4' }}>·</span> {de ? 'Wissenschaft' : 'Science'}
+          <span className="font-display text-[13px] font-semibold text-wx-tx1 tracking-wide transition-all duration-300">
+            {activeChapter >= 0 && CHAPTER_MAP[activeChapter] ? (
+              <>
+                <span className="font-mono text-[11px]" style={{ color: '#4472D4' }}>
+                  {CHAPTER_MAP[activeChapter].n}
+                </span>
+                <span style={{ color: '#4472D4' }}> · </span>
+                {de ? CHAPTER_MAP[activeChapter].de : CHAPTER_MAP[activeChapter].en}
+              </>
+            ) : (
+              <>Waxcelerate <span style={{ color: '#4472D4' }}>·</span> {de ? 'Wissenschaft' : 'Science'}</>
+            )}
           </span>
           <button
             onClick={toggleLang}
@@ -1781,7 +2104,7 @@ export function SciencePage() {
       <section
         ref={heroRef}
         className="relative overflow-hidden flex flex-col items-center justify-center"
-        style={{ background: isDark ? '#07070A' : 'var(--sf)', minHeight: isDark ? '44vh' : '26vh' }}
+        style={{ background: isDark ? '#07070A' : 'var(--sf)', minHeight: isDark ? '44vh' : '40vh' }}
       >
         <HeroParticles />
 
@@ -1800,7 +2123,9 @@ export function SciencePage() {
           aria-hidden
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='46'%3E%3Cpath d='M20 0 L40 11.5 L40 34.5 L20 46 L0 34.5 L0 11.5 Z' fill='none' stroke='rgba(43%2C82%2C176%2C0.07)' stroke-width='0.7'/%3E%3C/svg%3E\")",
+            backgroundImage: isDark
+              ? "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='46'%3E%3Cpath d='M20 0 L40 11.5 L40 34.5 L20 46 L0 34.5 L0 11.5 Z' fill='none' stroke='rgba(43%2C82%2C176%2C0.07)' stroke-width='0.7'/%3E%3C/svg%3E\")"
+              : "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='46'%3E%3Cpath d='M20 0 L40 11.5 L40 34.5 L20 46 L0 34.5 L0 11.5 Z' fill='none' stroke='rgba(43%2C82%2C176%2C0.11)' stroke-width='0.7'/%3E%3C/svg%3E\")",
             backgroundSize: '40px 46px',
           }}
         />
@@ -1814,7 +2139,7 @@ export function SciencePage() {
             : 'radial-gradient(ellipse 72% 58% at 50% 42%, rgba(26,60,110,0.05) 0%, transparent 65%)' }}
         />
 
-        <div className="relative z-10 text-center px-4 sm:px-8 py-10">
+        <div className="relative z-10 text-center px-4 sm:px-8 py-12 sm:py-16">
           {/* Classification badge */}
           <div data-hero-badge className="inline-flex items-center gap-3 mb-6" style={{ opacity: 0 }}>
             <div className="h-px w-8" style={{ background: isDark ? 'rgba(68,114,212,0.45)' : 'rgba(26,60,110,0.25)' }} />
@@ -1854,7 +2179,7 @@ export function SciencePage() {
 
         {/* Bottom fade into page bg */}
         <div
-          className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none"
+          className="absolute bottom-0 left-0 right-0 h-24 pointer-events-none"
           style={{ background: 'linear-gradient(to bottom, transparent, var(--pg))' }}
         />
       </section>
@@ -1968,7 +2293,8 @@ export function SciencePage() {
       {/* ══ STAT 1 ══════════════════════════════════════════════════════════════ */}
       <StatCallout de={de} isDark={isDark} stat="2°C"
         ctxDe="Erstarrungsfenster — Basis jeder Batch-Konsistenz"
-        ctxEn="Solidification window — foundation of every batch" />
+        ctxEn="Solidification window — foundation of every batch"
+        miniViz={<TempBandViz isDark={isDark} />} />
 
       {/* ══ CH 02 + CH 03 ════════════════════════════════════════════════════ */}
       <div className={`${W} pt-20`}>
@@ -2050,11 +2376,12 @@ export function SciencePage() {
       {/* ══ STAT 2 ══════════════════════════════════════════════════════════════ */}
       <StatCallout de={de} isDark={isDark} stat="5.6×"
         ctxDe="Dichteunterschied MoS₂ zu Paraffin — deshalb ist Dispergierung unverzichtbar"
-        ctxEn="Density ratio MoS₂ to paraffin — why dispersion is non-negotiable" />
+        ctxEn="Density ratio MoS₂ to paraffin — why dispersion is non-negotiable"
+        miniViz={<DensityViz isDark={isDark} />} />
 
       {/* ══ CH 04 ════════════════════════════════════════════════════════════ */}
       <div className={`${W} pt-20`}>
-        <Chapter num="04" de={de} flip featured
+        <Chapter num="04" de={de} flip featured visualFirst
           catDe="Festschmierstoff" catEn="Solid Lubricant"
           titleDe="Molybdändisulfid — <5 µm"
           titleEn="Molybdenum disulfide — <5 µm"
@@ -2082,11 +2409,12 @@ export function SciencePage() {
       {/* ══ STAT 3 — concludes CH04 friction claim ══════════════════════════════ */}
       <StatCallout de={de} isDark={isDark} stat="μ 0.03"
         ctxDe="Reibungskoeffizient unter Grenzschmierung — einer der niedrigsten Werte im Vergleich"
-        ctxEn="Friction coefficient under boundary lubrication — among the lowest in comparison" />
+        ctxEn="Friction coefficient under boundary lubrication — among the lowest in comparison"
+        miniViz={<FrictionLadderViz isDark={isDark} />} />
 
       {/* ══ CH 05 + CH 06 ════════════════════════════════════════════════════ */}
       <div className={`${W} pt-20 pb-0`}>
-        <Chapter num="05" de={de} anchorId="sedimentation"
+        <Chapter num="05" de={de} anchorId="sedimentation" visualFirst
           catDe="Dispergiersystem" catEn="Dispersant System"
           titleDe="Amphiphiler Fettsäureester"
           titleEn="Amphiphilic fatty acid ester"
@@ -2233,9 +2561,9 @@ export function SciencePage() {
                 ).map((label, si) => (
                   <div key={si} className="flex flex-col items-center gap-2">
                     <div className="w-full rounded-lg p-2.5" style={{ background: isDark ? 'rgba(255,255,255,0.03)' : 'var(--sf3)', border: isDark ? '1px solid rgba(255,255,255,0.07)' : '1px solid var(--bd2)' }}>
-                      <div className="grid grid-cols-4 gap-1 justify-items-center">
+                      <div className="grid grid-cols-4 gap-1.5 justify-items-center py-1">
                         {[...Array(12)].map((_, j) => (
-                          <div key={j} className="w-1.5 h-1.5 rounded-full" style={{ background: '#2A5499', opacity: isDark ? (0.55 + (j % 4) * 0.12) : (0.45 + (j % 4) * 0.12) }} />
+                          <div key={j} className="w-2.5 h-2.5 rounded-full" style={{ background: '#2A5499', opacity: isDark ? (0.55 + (j % 4) * 0.12) : (0.45 + (j % 4) * 0.12) }} />
                         ))}
                       </div>
                     </div>
