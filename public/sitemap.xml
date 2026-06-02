@@ -174,7 +174,19 @@
   </url>
   <url>
     <loc>https://waxcelerate.de/blog/heisswachs-anleitung</loc>
-    <lastmod>2026-05-19</lastmod>
+    <lastmod>2026-06-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://waxcelerate.de/blog/mos2-kettenwachs</loc>
+    <lastmod>2026-06-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://waxcelerate.de/blog/kettenwachs-rennrad-gravelbike</loc>
+    <lastmod>2026-06-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>

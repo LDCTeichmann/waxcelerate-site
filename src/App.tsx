@@ -27,6 +27,11 @@ import { ThemeProvider } from '@/hooks/useTheme';
 import { Toaster } from '@/components/ui/sonner';
 import { CartDrawer } from '@/components/CartDrawer';
 import { useCartStore } from '@/store/cart';
+import { ScrollToTop } from '@/components/ScrollToTop';
+import { ScrollProgress } from '@/components/ScrollProgress';
+import { MobileStickyCTA } from '@/components/MobileStickyCTA';
+import { CartPersistenceHint } from '@/components/CartPersistenceHint';
+import { SectionDots } from '@/components/SectionDots';
 
 const PageLoader = () => (
   <div style={{ minHeight: '100vh', background: 'var(--pg)' }} />
@@ -39,6 +44,11 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-wx-bg text-wx-tx1">
+      <ScrollProgress />
+      <CartPersistenceHint />
+      <ScrollToTop />
+      <SectionDots />
+      <MobileStickyCTA />
       <CartDrawer />
       <Routes>
         <Route path="/produkt/:id" element={<Suspense fallback={<PageLoader />}><ProductDetailPage /></Suspense>} />

@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
@@ -11,10 +11,19 @@ export function FAQ() {
   const de = lang === 'de';
   const [openItem, setOpenItem] = useState<string | null>(null);
   const [showAll, setShowAll] = useState(false);
+  const [query, setQuery] = useState('');
   const listRef = useRef<HTMLDivElement>(null);
   use3DReveal(listRef, { stagger: 0.07, start: 'top 85%' });
 
-  const visibleItems = showAll ? t.faq.items : t.faq.items.slice(0, ITEMS_DEFAULT);
+  useEffect(() => { setOpenItem(null); }, [query]);
+
+  const filteredItems = query.trim()
+    ? t.faq.items.filter((item: {q: string; a: string}) =>
+        (item.q + ' ' + item.a).toLowerCase().includes(query.trim().toLowerCase())
+      )
+    : t.faq.items;
+
+  const visibleItems = query.trim() ? filteredItems : (showAll ? filteredItems : filteredItems.slice(0, ITEMS_DEFAULT));
 
   return (
     <section id="faq" className="relative py-20 bg-wx-bg">
@@ -29,6 +38,29 @@ export function FAQ() {
             </p>
           </div>
 
+          {/* Search input */}
+          <div className="relative mb-6">
+            <input
+              type="search"
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              placeholder={t.faq.searchPlaceholder}
+              className="w-full px-4 py-2.5 rounded-xl text-[14px] outline-none transition-colors"
+              style={{
+                background: 'var(--sf)',
+                border: '1px solid var(--bd)',
+                color: 'var(--tx1)',
+              }}
+              onFocus={e => { e.currentTarget.style.borderColor = '#1A3C6E'; }}
+              onBlur={e => { e.currentTarget.style.borderColor = 'var(--bd)'; }}
+            />
+          </div>
+
+          {visibleItems.length === 0 ? (
+            <p className="py-8 text-center text-sm" style={{ color: 'var(--txm)' }}>
+              {t.faq.noResults}
+            </p>
+          ) : (
           <div ref={listRef}>
             {visibleItems.map((item: {q: string; a: string}, index: number) => (
               <div
@@ -42,6 +74,11 @@ export function FAQ() {
                     setOpenItem(next);
                     if (next !== null) {
                       (e.currentTarget as HTMLButtonElement).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Escape' && openItem === index.toString()) {
+                      setOpenItem(null);
                     }
                   }}
                   className="w-full flex items-center justify-between py-5 text-left gap-5 hover:text-wx-tx1 transition-colors group"
@@ -78,9 +115,10 @@ export function FAQ() {
               </div>
             ))}
           </div>
+          )}
 
           {/* Show all toggle */}
-          {!showAll && t.faq.items.length > ITEMS_DEFAULT && (
+          {!showAll && filteredItems.length > ITEMS_DEFAULT && !query.trim() && (
             <button
               onClick={() => setShowAll(true)}
               className="w-full mt-4 py-3 text-sm font-medium rounded-xl border border-wx-bd/40 transition-colors hover:border-wx-bd"

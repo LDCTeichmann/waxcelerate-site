@@ -72,11 +72,15 @@ const VIZ_CARD: React.CSSProperties = {
   background: '#0D1117',
   border: '1px solid rgba(68,114,212,0.20)',
 };
-// Light-mode equivalent — dark-blue panel that reads as a deliberate "scientific display"
 const VIZ_CARD_LIGHT: React.CSSProperties = {
-  background: '#141d2b',
-  border: '1px solid rgba(68,114,212,0.28)',
-  boxShadow: '0 4px 28px rgba(0,0,0,0.18)',
+  background: '#f0f4fb',
+  border: '1px solid rgba(68,114,212,0.22)',
+  boxShadow: '0 4px 28px rgba(0,0,0,0.07)',
+};
+
+const LIGHT_DOT_GRID: React.CSSProperties = {
+  backgroundImage: 'radial-gradient(circle, rgba(68,114,212,0.10) 1px, transparent 1px)',
+  backgroundSize: '22px 22px',
 };
 
 // Shared container width
@@ -243,42 +247,563 @@ function StatCallout({ stat, ctxDe, ctxEn, de, isDark }: { stat: string; ctxDe: 
   );
 }
 
-// ─── Composition tiers (qualitative, no quantities) ───────────────────────────
-const TIERS = [
-  { color: '#1A3080', barW: '82%', roleDe: 'Basisstruktur', roleEn: 'Base Structure', tagDe: 'Volumenbestimmend', tagEn: 'Volume-determining', dotsDe: '3 Komponenten', dotsEn: '3 components', descDe: 'Kristallines Paraffingerüst · Mikrokristalliner Plastifikator · Synthetisches Härtewachs', descEn: 'Crystalline paraffin scaffold · Microcrystalline plasticizer · Synthetic hard wax' },
-  { color: '#2A5499', barW: '46%', roleDe: 'Festschmierstoff', roleEn: 'Solid Lubricant', tagDe: 'Hochaktiv · Spurenkonzentration', tagEn: 'Highly active · Trace concentration', dotsDe: '1 Komponente', dotsEn: '1 component', descDe: 'MoS₂ — Hexagonales Schichtgitter · Partikelgröße &lt;5 µm', descEn: 'MoS₂ — Hexagonal layer lattice · Particle size &lt;5 µm' },
-  { color: '#8AAAF0', barW: '24%', roleDe: 'Stabilisatoren', roleEn: 'Stabilizers', tagDe: 'Spurenadditive · Unverzichtbar', tagEn: 'Trace additives · Non-negotiable', dotsDe: '2 Komponenten', dotsEn: '2 components', descDe: 'Amphiphiler Fettsäureester · Gehindertes Phenol-Antioxidans', descEn: 'Amphiphilic fatty acid ester · Hindered phenolic antioxidant' },
-];
+// ─── Formula Assembly System Map ─────────────────────────────────────────────
+// Radial zone diagram. Each component color-coded by functional role:
+//   Paraffin → steel-blue (neutral carrier scaffold)
+//   FT-Wachs → amber      (thermal hardener — communicates HEAT)
+//   Mikrokris.→ ice-cyan  (cold-flex modifier — communicates COLD)
+//   MoS₂     → cobalt     (active lubricant — dominant center)
+//   Dispersant→ violet    (particle stabilizer chemistry)
+//   Antioxidans→ emerald  (oxidation protector / longevity)
+// Metric value is the PRIMARY text inside each node — name is secondary.
+// Edge direction = "A → B means A enables / modifies B".
+const GRAPH_CX = 320;
+const GRAPH_CY = 258;
 
-function CompositionTiers({ de }: { de: boolean }) {
+// Per-component accent colors encode functional role.
+// amber=thermal · cyan=cold · cobalt=active lubricant · violet=stabilizer chemistry · emerald=protection
+const NODE_COLORS: Record<number, { accent: string; darkA: string; darkB: string; lightA: string; lightB: string; zoneFill: string }> = {
+  1: { accent: '#7A98B8', darkA: '#223660', darkB: '#0D1A30', lightA: '#EEF4FF', lightB: '#D2E2F4', zoneFill: 'rgba(120,152,184,0.22)' },
+  2: { accent: '#C4802A', darkA: '#3C2010', darkB: '#1C0C04', lightA: '#FFF5E8', lightB: '#F8DDB8', zoneFill: 'rgba(196,128,42,0.18)'  },
+  3: { accent: '#2AAAC8', darkA: '#0C3A4A', darkB: '#041820', lightA: '#E8F8FF', lightB: '#C0E8F8', zoneFill: 'rgba(42,170,200,0.18)'  },
+  4: { accent: '#4472D4', darkA: '#1C3C9C', darkB: '#060E28', lightA: '#E8EFFF', lightB: '#C4D4FF', zoneFill: 'rgba(68,114,212,0.30)'  },
+  5: { accent: '#8058D0', darkA: '#281458', darkB: '#100828', lightA: '#F4EEFF', lightB: '#DDD0F8', zoneFill: 'rgba(128,88,208,0.18)'  },
+  6: { accent: '#28B080', darkA: '#0A3028', darkB: '#041814', lightA: '#E4FFF5', lightB: '#BCEEE0', zoneFill: 'rgba(40,176,128,0.18)'  },
+};
+
+const ASSEMBLY_NODES = [
+  { id: 1, labelDe: 'Paraffin',     labelEn: 'Paraffin',    subDe: 'Trägermatrix',   subEn: 'Base scaffold',  cx: 320,      cy: 118, r: 34, metric: '58–60°C', msDe: 'Erstarrungsb.',   msEn: 'Solidif. range'  },
+  { id: 2, labelDe: 'FT-Wachs',     labelEn: 'FT-Wax',      subDe: 'Härtemodul',     subEn: 'Hardener',       cx: 93,       cy: 180, r: 30, metric: '+14°C',   msDe: 'Tropfpunkt',      msEn: 'Drop point'      },
+  { id: 3, labelDe: 'Mikrokris.',    labelEn: 'Microcris.',   subDe: 'Kälteflex.',     subEn: 'Cold flex.',     cx: 547,      cy: 180, r: 30, metric: '−10°C',   msDe: 'Flexgrenze',      msEn: 'Flex limit'      },
+  { id: 4, labelDe: 'MoS₂',         labelEn: 'MoS₂',        subDe: 'Festschmierst.', subEn: 'Solid lubricant',cx: GRAPH_CX, cy: GRAPH_CY, r: 50, metric: 'μ 0.03', msDe: '< 5 µm',     msEn: '< 5 µm'          },
+  { id: 5, labelDe: 'Dispergierm.', labelEn: 'Dispersant',   subDe: 'Partikelstab.',  subEn: 'Particle stab.', cx: 108,      cy: 412, r: 30, metric: '5.6×',    msDe: 'Dichtekomp.',     msEn: 'Density ratio'   },
+  { id: 6, labelDe: 'Antioxidans',  labelEn: 'Antioxidant',  subDe: 'MoO₃-Schutz',   subEn: 'MoO₃ shield',   cx: 532,      cy: 412, r: 30, metric: '12 Mo.',  msDe: 'Lagerstab.',      msEn: 'Shelf life'      },
+] as const;
+
+const ASSEMBLY_EDGES = [
+  { from: 2, to: 1, labelDe: 'Ko-Kristallisation',   labelEn: 'co-crystallises'    },
+  { from: 3, to: 1, labelDe: 'Plastifiziert Matrix', labelEn: 'plasticises matrix' },
+  { from: 1, to: 4, labelDe: 'Trägermatrix',          labelEn: 'carrier matrix'     },
+  { from: 3, to: 4, labelDe: 'Partikeleinbettung',   labelEn: 'particle embedding' },
+  { from: 5, to: 4, labelDe: 'Sterische Barriere',   labelEn: 'steric barrier'     },
+  { from: 6, to: 4, labelDe: 'Schützt vor MoO₃',    labelEn: 'prevents MoO₃'     },
+] as const;
+
+function curvedEdge(ax: number, ay: number, bx: number, by: number, ra: number, rb: number) {
+  const dx = bx - ax, dy = by - ay;
+  const len = Math.sqrt(dx * dx + dy * dy);
+  const ux = dx / len, uy = dy / len;
+  const x1 = ax + ux * (ra + 5), y1 = ay + uy * (ra + 5);
+  const x2 = bx - ux * (rb + 6), y2 = by - uy * (rb + 6);
+  const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+  const cpx = mx - (GRAPH_CX - mx) * 0.30;
+  const cpy = my - (GRAPH_CY - my) * 0.30;
+  const lx = 0.25 * x1 + 0.5 * cpx + 0.25 * x2;
+  const ly = 0.25 * y1 + 0.5 * cpy + 0.25 * y2;
+  const ex = x2 - x1, ey = y2 - y1, el = Math.sqrt(ex * ex + ey * ey);
+  const px = -ey / el, py = ex / el;
+  const sign = (px * (GRAPH_CX - lx) + py * (GRAPH_CY - ly)) <= 0 ? 1 : -1;
+  return { path: `M${x1},${y1} Q${cpx},${cpy} ${x2},${y2}`, lx: lx + sign * px * 16, ly: ly + sign * py * 16, len };
+}
+
+function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' | 'synthesis'; isDark: boolean }) {
+  const svgRef   = useRef<SVGSVGElement>(null);
+  const edgeRefs = useRef<(SVGPathElement | null)[]>([]);
+  const nodeRefs = useRef<(SVGGElement | null)[]>([]);
+  const didAnimate = useRef(false);
+  const [hoveredNode, setHoveredNode] = useState<number | null>(null);
+  const [canHover,    setCanHover]    = useState(mode === 'overview');
+
+  const isOverview = mode === 'overview';
+  const uid = `fa-${mode}-${isDark ? 'd' : 'l'}`;
+
+  // ── Shared color tokens ───────────────────────────────────────────────────
+  const ringClr     = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(26,48,100,0.08)';
+  const edgeClrBase = isDark ? 'rgba(255,255,255,0.18)' : 'rgba(26,48,100,0.14)';
+  const edgeClrHot  = isDark ? 'rgba(255,255,255,0.90)' : '#1a3c8e';
+  const edgeLblClr  = isDark ? 'rgba(200,220,255,0.60)' : 'rgba(30,60,140,0.58)';
+  const pillBg      = isDark ? 'rgba(10,16,36,0.90)'    : 'rgba(230,238,255,0.95)';
+  const pillBgHot   = isDark ? 'rgba(20,36,90,0.95)'    : 'rgba(210,226,255,0.98)';
+
+
+  // ── Zone fills — strong enough to actually see ────────────────────────────
+  // Inner zone (Paraffin, r≈140): cobalt tint — the carrier zone
+  const z1Fill = isDark ? 'rgba(40,70,160,0.28)' : 'rgba(68,114,212,0.10)';
+  // Mid zone (FT-Wachs+Mikrokris., r≈240): mixed amber+cyan warm/cool blend
+  const z2Fill = isDark ? 'rgba(30,55,120,0.18)' : 'rgba(68,114,212,0.06)';
+  // Outer zone (stabilizers, r≈290)
+  const z3Fill = isDark ? 'rgba(20,38,80,0.12)'  : 'rgba(68,114,212,0.03)';
+
+  // ── Hover adjacency ───────────────────────────────────────────────────────
+  const connected: Set<number> | null = hoveredNode !== null ? (() => {
+    const s = new Set([hoveredNode]);
+    ASSEMBLY_EDGES.forEach(e => {
+      if (e.from === hoveredNode) s.add(e.to);
+      if (e.to   === hoveredNode) s.add(e.from);
+    });
+    return s;
+  })() : null;
+
+  const nodeOpacity  = (id: number) => !canHover || !connected ? 1 : connected.has(id) ? 1 : 0.15;
+  const isEdgeHot    = (f: number, t: number) => canHover && !!connected && connected.has(f) && connected.has(t);
+  const isEdgeDimmed = (f: number, t: number) => canHover && !!connected && !(connected.has(f) && connected.has(t));
+
+  // ── Animation ─────────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (mode !== 'synthesis' || didAnimate.current) return;
+    const ctx = gsap.context(() => {
+      const mos2 = ASSEMBLY_NODES[3];
+      gsap.set(nodeRefs.current[3], { opacity: 0, scale: 0, svgOrigin: `${mos2.cx} ${mos2.cy}` });
+      ASSEMBLY_NODES.forEach((node, i) => {
+        if (i === 3) return;
+        const el = nodeRefs.current[i];
+        if (!el) return;
+        gsap.set(el, { opacity: 0, x: mos2.cx - node.cx, y: mos2.cy - node.cy });
+      });
+      edgeRefs.current.forEach(e => { if (e) gsap.set(e, { strokeDashoffset: 1, opacity: 0 }); });
+
+      const tl = gsap.timeline({
+        scrollTrigger: { trigger: svgRef.current, start: 'top 80%', once: true },
+        onComplete: () => { didAnimate.current = true; setCanHover(true); },
+      });
+
+      tl.to(nodeRefs.current[3], { opacity: 1, scale: 1, duration: 0.65, ease: 'back.out(1.8)', svgOrigin: `${mos2.cx} ${mos2.cy}` });
+
+      const flyOrder = [0, 2, 1, 5, 4];
+      flyOrder.forEach((idx, j) => {
+        const el = nodeRefs.current[idx];
+        if (!el) return;
+        tl.to(el, { opacity: 1, x: 0, y: 0, duration: 0.55, ease: 'power3.out' }, j === 0 ? '>-0.10' : '<0.10');
+      });
+
+      edgeRefs.current.forEach((edge, i) => {
+        if (!edge) return;
+        tl.to(edge, { strokeDashoffset: 0, opacity: 1, duration: 0.50, ease: 'power2.inOut' }, i === 0 ? '>-0.15' : '<0.08');
+      });
+
+      tl.to(nodeRefs.current[3], { scale: 1.09, duration: 0.22, ease: 'power2.out', svgOrigin: `${mos2.cx} ${mos2.cy}` }, '>0.10');
+      tl.to(nodeRefs.current[3], { scale: 1.00, duration: 0.55, ease: 'elastic.out(1, 0.5)', svgOrigin: `${mos2.cx} ${mos2.cy}` });
+    }, svgRef);
+    return () => ctx.revert();
+  }, [mode]);
+
+  return (
+    <div className="w-full select-none">
+      <svg
+        ref={svgRef}
+        viewBox="0 0 640 500"
+        className="w-full hidden sm:block"
+        style={{ overflow: 'visible' }}
+      >
+        <defs>
+          {/* Per-node radial gradients — color-coded by function */}
+          {ASSEMBLY_NODES.map(node => {
+            const c = NODE_COLORS[node.id];
+            const isMos = node.id === 4;
+            const gA = isMos ? (isDark ? '#2256D0' : '#3060D8') : (isDark ? c.darkA : c.lightA);
+            const gB = isMos ? (isDark ? '#050E28' : '#0A1E60') : (isDark ? c.darkB : c.lightB);
+            return (
+              <radialGradient key={node.id} id={`${uid}-g${node.id}`} cx="32%" cy="26%" r="74%">
+                <stop offset="0%"   stopColor={gA} />
+                <stop offset="100%" stopColor={gB} />
+              </radialGradient>
+            );
+          })}
+
+          {/* Arrowhead markers — per-mode */}
+          <marker id={`${uid}-ao`} markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto">
+            <path d="M0,0 L0,5 L5,2.5 z" fill={edgeClrBase} />
+          </marker>
+          <marker id={`${uid}-as`} markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto">
+            <path d="M0,0 L0,5 L5,2.5 z" fill={edgeClrHot} />
+          </marker>
+          <marker id={`${uid}-ah`} markerWidth="6" markerHeight="6" refX="5.5" refY="3" orient="auto">
+            <path d="M0,0.5 L0,5.5 L5.5,3 z" fill={edgeClrHot} />
+          </marker>
+        </defs>
+
+        {/* ── Zone background fills ── */}
+        <circle cx={GRAPH_CX} cy={GRAPH_CY} r={295} fill={z3Fill} />
+        <circle cx={GRAPH_CX} cy={GRAPH_CY} r={250} fill={z2Fill} />
+        <circle cx={GRAPH_CX} cy={GRAPH_CY} r={158} fill={z1Fill} />
+
+        {/* ── Zone ring borders ── */}
+        <circle cx={GRAPH_CX} cy={GRAPH_CY} r={158} fill="none" stroke={ringClr} strokeWidth={1} strokeDasharray="3 6" />
+        <circle cx={GRAPH_CX} cy={GRAPH_CY} r={250} fill="none" stroke={ringClr} strokeWidth={1} strokeDasharray="3 6" />
+
+        {/* ── Zone function labels (synthesis only) — right side with tick ── */}
+        {!isOverview && (() => {
+          const lx = GRAPH_CX + 165;
+          const lClr = isDark ? 'rgba(180,200,240,0.28)' : 'rgba(42,80,160,0.22)';
+          const tickClr = isDark ? 'rgba(180,200,240,0.15)' : 'rgba(42,80,160,0.14)';
+          return (
+            <>
+              {/* Carrier zone label */}
+              <line x1={GRAPH_CX + 158} y1={GRAPH_CY} x2={lx - 4} y2={GRAPH_CY} stroke={tickClr} strokeWidth={0.8} />
+              <text x={lx} y={GRAPH_CY} textAnchor="start" dominantBaseline="middle"
+                fontSize="7" fontFamily="monospace" letterSpacing="0.14em" fill={lClr}>
+                {de ? 'TRÄGER' : 'CARRIER'}
+              </text>
+              {/* Modifier zone label */}
+              <line x1={GRAPH_CX + 250} y1={GRAPH_CY - 60} x2={GRAPH_CX + 265} y2={GRAPH_CY - 60} stroke={tickClr} strokeWidth={0.8} />
+              <text x={GRAPH_CX + 268} y={GRAPH_CY - 60} textAnchor="start" dominantBaseline="middle"
+                fontSize="7" fontFamily="monospace" letterSpacing="0.14em" fill={lClr}>
+                {de ? 'MODIFIKATION' : 'MODIFICATION'}
+              </text>
+              {/* Stabilizer zone label */}
+              <line x1={GRAPH_CX + 250} y1={GRAPH_CY + 60} x2={GRAPH_CX + 265} y2={GRAPH_CY + 60} stroke={tickClr} strokeWidth={0.8} />
+              <text x={GRAPH_CX + 268} y={GRAPH_CY + 60} textAnchor="start" dominantBaseline="middle"
+                fontSize="7" fontFamily="monospace" letterSpacing="0.14em" fill={lClr}>
+                {de ? 'STABILISIERUNG' : 'STABILIZATION'}
+              </text>
+            </>
+          );
+        })()}
+
+        {/* ── Edges ── */}
+        {ASSEMBLY_EDGES.map((edge, i) => {
+          const a = ASSEMBLY_NODES[edge.from - 1];
+          const b = ASSEMBLY_NODES[edge.to - 1];
+          const { path, lx, ly } = curvedEdge(a.cx, a.cy, b.cx, b.cy, a.r, b.r);
+          const label   = de ? edge.labelDe : edge.labelEn;
+          const hot     = isEdgeHot(edge.from, edge.to);
+          const dimmed  = isEdgeDimmed(edge.from, edge.to);
+          // In synthesis mode, edge color matches the SOURCE node's accent
+          const srcAccent = NODE_COLORS[edge.from].accent;
+          const stroke  = hot
+            ? (isDark ? 'rgba(255,255,255,0.88)' : edgeClrHot)
+            : isOverview
+              ? edgeClrBase
+              : (isDark ? `${srcAccent}CC` : `${srcAccent}AA`);
+          const sw      = hot ? 2.2 : isOverview ? 0.9 : 1.6;
+          const arrow   = hot ? `url(#${uid}-ah)` : isOverview ? `url(#${uid}-ao)` : `url(#${uid}-as)`;
+          const pillW   = label.length * 5.4 + 18;
+
+          return (
+            <g key={i} style={{ opacity: dimmed ? 0.09 : 1, transition: 'opacity 0.22s ease' }}>
+              <path
+                ref={el => { edgeRefs.current[i] = el; }}
+                d={path}
+                pathLength="1"
+                stroke={stroke}
+                strokeWidth={sw}
+                strokeLinecap="round"
+                fill="none"
+                markerEnd={arrow}
+                style={mode === 'synthesis'
+                  ? { strokeDasharray: 1, strokeDashoffset: 1, opacity: 0, transition: 'stroke 0.2s, stroke-width 0.2s' }
+                  : { transition: 'stroke 0.2s, stroke-width 0.2s' }}
+              />
+              {!isOverview && (
+                <g transform={`translate(${lx},${ly})`} style={{ pointerEvents: 'none' }}>
+                  <rect x={-pillW / 2} y={-7.5} width={pillW} height={15} rx={4}
+                    fill={hot ? pillBgHot : pillBg} style={{ transition: 'fill 0.2s' }} />
+                  <text x={0} y={0} textAnchor="middle" dominantBaseline="middle"
+                    fontSize="8" fontFamily="monospace" letterSpacing="0.01em"
+                    fill={hot ? edgeClrHot : edgeLblClr} style={{ transition: 'fill 0.2s' }}>
+                    {label}
+                  </text>
+                </g>
+              )}
+            </g>
+          );
+        })}
+
+        {/* ── Nodes ── */}
+        {ASSEMBLY_NODES.map((node, i) => {
+          const isMos    = node.id === 4;
+          const isHot    = hoveredNode === node.id;
+          const colors   = NODE_COLORS[node.id];
+          const accent   = colors.accent;
+          const subAbove = node.id <= 3;
+          const scaleV   = isHot ? (isMos ? 1.06 : 1.10) : 1;
+
+          return (
+            <g
+              key={node.id}
+              ref={el => { nodeRefs.current[i] = el as SVGGElement; }}
+              style={{
+                opacity: (mode === 'synthesis' && !canHover) ? 0 : nodeOpacity(node.id),
+                transition: canHover ? 'opacity 0.22s ease' : 'none',
+                cursor: canHover ? 'pointer' : 'default',
+              }}
+              onPointerEnter={() => canHover && setHoveredNode(node.id)}
+              onPointerLeave={() => canHover && setHoveredNode(null)}
+            >
+              {/* MoS₂ halo rings */}
+              {isMos && (
+                <>
+                  <circle cx={node.cx} cy={node.cy} r={node.r + 18} fill="none"
+                    stroke={isDark ? `${accent}30` : `${accent}22`} strokeWidth={1.2} />
+                  <circle cx={node.cx} cy={node.cy} r={node.r + 34} fill="none"
+                    stroke={isDark ? `${accent}14` : `${accent}10`} strokeWidth={0.8} />
+                </>
+              )}
+
+              {/* Main circle — filled with per-node gradient, accented stroke */}
+              <circle
+                cx={node.cx} cy={node.cy} r={node.r}
+                fill={`url(#${uid}-g${node.id})`}
+                stroke={isHot ? accent : (isDark ? `${accent}80` : `${accent}CC`)}
+                strokeWidth={isHot ? (isMos ? 2.8 : 2.4) : (isMos ? 2.2 : 1.8)}
+                style={{
+                  transform: `scale(${scaleV})`,
+                  transformOrigin: `${node.cx}px ${node.cy}px`,
+                  transition: 'transform 0.22s ease, stroke 0.2s, stroke-width 0.2s',
+                  filter: isHot
+                    ? `drop-shadow(0 0 ${isMos ? 24 : 10}px ${accent}88)`
+                    : isMos
+                      ? `drop-shadow(0 0 16px ${accent}55)`
+                      : `drop-shadow(0 2px 6px ${accent}28)`,
+                }}
+              />
+
+              {/* MoS₂ — name (small) + metric (large) + spec (tiny) */}
+              {isMos && (<>
+                <text x={node.cx} y={node.cy - 14} textAnchor="middle" dominantBaseline="middle"
+                  fontSize="12" fontWeight="800" fontFamily="system-ui, sans-serif"
+                  letterSpacing="-0.01em"
+                  fill={isDark ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.98)'}>
+                  MoS₂
+                </text>
+                <text x={node.cx} y={node.cy + 4} textAnchor="middle" dominantBaseline="middle"
+                  fontSize="20" fontWeight="800" fontFamily="system-ui, sans-serif"
+                  letterSpacing="-0.04em"
+                  fill={isDark ? '#a0d0ff' : '#c8e4ff'}
+                  style={{ filter: `drop-shadow(0 0 10px ${accent}88)` }}>
+                  μ 0.03
+                </text>
+                <text x={node.cx} y={node.cy + 22} textAnchor="middle" dominantBaseline="middle"
+                  fontSize="8" fontFamily="monospace" letterSpacing="0.05em"
+                  fill="rgba(255,255,255,0.40)">
+                  {'< 5 µm · 5.06 g/cm³'}
+                </text>
+              </>)}
+
+              {/* Satellites — metric LARGE (primary), name SMALL (secondary) */}
+              {!isMos && (<>
+                {/* Metric value — the scientific reason it's in the formula */}
+                <text x={node.cx} y={node.cy - 3} textAnchor="middle" dominantBaseline="middle"
+                  fontSize="13" fontWeight="800" fontFamily="system-ui, sans-serif"
+                  letterSpacing="-0.03em"
+                  fill={isDark ? accent : accent}
+                  style={{ filter: isHot ? `drop-shadow(0 0 6px ${accent}88)` : 'none' }}>
+                  {node.metric}
+                </text>
+                {/* Component name — secondary, below metric */}
+                <text x={node.cx} y={node.cy + 11} textAnchor="middle" dominantBaseline="middle"
+                  fontSize="8.5" fontWeight="600" fontFamily="system-ui, sans-serif"
+                  letterSpacing="0.01em"
+                  fill={isDark ? 'rgba(255,255,255,0.55)' : 'rgba(20,40,80,0.55)'}>
+                  {de ? node.labelDe : node.labelEn}
+                </text>
+              </>)}
+
+              {/* Function role tag — outside, above or below */}
+              {!isMos && (
+                <text
+                  x={node.cx}
+                  y={subAbove ? node.cy - node.r - 8 : node.cy + node.r + 13}
+                  textAnchor="middle"
+                  dominantBaseline={subAbove ? 'auto' : 'middle'}
+                  fontSize="7.5" fontFamily="monospace" letterSpacing="0.08em"
+                  fill={isDark ? `${accent}88` : `${accent}BB`}>
+                  {de ? node.subDe : node.subEn}
+                </text>
+              )}
+            </g>
+          );
+        })}
+      </svg>
+
+      {/* ── Mobile: color-coded grid ── */}
+      <div className="grid grid-cols-3 gap-2 sm:hidden">
+        {ASSEMBLY_NODES.map(node => {
+          const isMos   = node.id === 4;
+          const accent  = NODE_COLORS[node.id].accent;
+          const darkA   = NODE_COLORS[node.id].darkA;
+          return (
+            <div key={node.id} className="rounded-xl p-2.5 text-center"
+              style={{
+                background: isDark
+                  ? (isMos ? `linear-gradient(145deg, ${darkA}, ${NODE_COLORS[node.id].darkB})` : `${darkA}88`)
+                  : (isMos ? `linear-gradient(145deg, #1C3C9C, #060E28)` : `${accent}12`),
+                border: `1.5px solid ${isDark ? `${accent}55` : `${accent}44`}`,
+              }}>
+              <p className="text-[12px] font-bold leading-tight" style={{ color: isDark ? accent : accent }}>
+                {node.metric}
+              </p>
+              <p className="text-[8.5px] font-semibold mt-0.5"
+                style={{ color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(20,40,80,0.65)' }}>
+                {de ? node.labelDe : node.labelEn}
+              </p>
+              <p className="text-[7px] mt-0.5" style={{ color: isDark ? `${accent}77` : `${accent}99` }}>
+                {de ? node.subDe : node.subEn}
+              </p>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─── Synthesis Reveal — full section after Ch06 ───────────────────────────────
+function SynthesisReveal({ de, isDark }: { de: boolean; isDark: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const ctx = gsap.context(() => {
-      const bars = ref.current?.querySelectorAll('.tier-bar');
-      if (bars?.length) {
-        gsap.fromTo(bars, { scaleX: 0 }, { scaleX: 1, duration: 1.1, stagger: 0.2, ease: 'power3.out', transformOrigin: 'left center', scrollTrigger: { trigger: ref.current, start: 'top 80%', once: true } });
+      gsap.fromTo(ref.current,
+        { opacity: 0, y: 24 },
+        { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out',
+          scrollTrigger: { trigger: ref.current, start: 'top 82%', once: true } },
+      );
+    }, ref);
+    return () => ctx.revert();
+  }, []);
+  const divClr = isDark ? 'rgba(255,255,255,0.08)' : 'var(--bd)';
+  return (
+    <div ref={ref} className="rounded-2xl p-8 sm:p-10" style={{ background: isDark ? 'rgba(26,60,110,0.14)' : 'rgba(26,60,110,0.06)', border: `1px solid ${isDark ? 'rgba(68,114,212,0.22)' : 'rgba(26,60,110,0.18)'}`, opacity: 0 }}>
+      <div className="text-center mb-8">
+        <p className="text-[9px] uppercase tracking-[0.28em] mb-2" style={{ color: '#4472D4' }}>
+          {de ? 'Das vollständige System' : 'The complete system'}
+        </p>
+        <h2 className="font-serif-display text-[1.6rem] sm:text-[2rem] font-bold leading-tight text-wx-tx1 mb-3">
+          {de ? 'Sechs Komponenten. Ein System.' : 'Six components. One system.'}
+        </h2>
+        <p className="text-[14px] max-w-md mx-auto" style={{ color: 'var(--txm)' }}>
+          {de
+            ? 'Jede Konzentration hat die einer anderen beeinflusst. Kein Bestandteil wurde isoliert gewählt.'
+            : 'Every concentration influenced another. No component was chosen in isolation.'}
+        </p>
+      </div>
+      <FormulaAssembly de={de} mode="synthesis" isDark={isDark} />
+      <div className="mt-6 pt-5 flex flex-wrap items-center justify-center gap-6" style={{ borderTop: `1px solid ${divClr}` }}>
+        {ASSEMBLY_EDGES.map((edge, i) => (
+          <div key={i} className="flex items-center gap-1.5">
+            <div className="w-4 h-px" style={{ background: '#4472D4', opacity: 0.6 }} />
+            <span className="text-[9px] font-mono" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'rgba(26,60,110,0.55)' }}>
+              {de ? edge.labelDe : edge.labelEn}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Failure Timeline ─────────────────────────────────────────────────────────
+// Only verified facts from existing chapter text — no invented history.
+const FAILURES: { vDe: string; vEn: string; failDe: string; failEn: string; fixDe: string; fixEn: string; isCurrent?: true }[] = [
+  {
+    vDe: 'Frühe Formel',     vEn: 'Early formula',
+    failDe: 'Wachsschicht platzte bei < 5°C ab — Biegebelastung brach die spröde Matrix.',
+    failEn: 'Wax coating spalled below 5°C — flexing cracked the brittle matrix.',
+    fixDe: '→ Mikrokristallines Wachs als Plastifikator (Ch. 03)',
+    fixEn: '→ Microcrystalline wax as plasticizer (Ch. 03)',
+  },
+  {
+    vDe: 'Iteration 2',      vEn: 'Iteration 2',
+    failDe: 'Höhere FT-Wachs-Konzentration getestet — keine messbare Verbesserung beim Tropfpunkt.',
+    failEn: 'Higher FT-wax concentration tested — no measurable drop point improvement.',
+    fixDe: '→ Optimum liegt niedriger als intuitiv erwartet (Ch. 02)',
+    fixEn: '→ Optimum is lower than intuitively expected (Ch. 02)',
+  },
+  {
+    vDe: 'Iteration 3',      vEn: 'Iteration 3',
+    failDe: 'MoS₂ ohne Dispergiermittel: messbarer Konzentrationsgradient von oben nach unten im Block.',
+    failEn: 'MoS₂ without dispersant: measurable concentration gradient top-to-bottom in the block.',
+    fixDe: '→ Amphiphiler Fettsäureester stabilisiert Partikel (Ch. 05)',
+    fixEn: '→ Amphiphilic fatty acid ester stabilizes particles (Ch. 05)',
+  },
+  {
+    vDe: 'Aktuelle Formel',  vEn: 'Current formula',
+    failDe: 'Separater Korrosionsinhibitor entfernt — seine antioxidative Nebenwirkung kompensiert.',
+    failEn: 'Separate corrosion inhibitor removed — its secondary antioxidant effect compensated.',
+    fixDe: '→ Phenol-Antioxidans-Konzentration leicht erhöht (Ch. 06)',
+    fixEn: '→ Phenolic antioxidant concentration raised slightly (Ch. 06)',
+    isCurrent: true,
+  },
+];
+
+function FailureTimeline({ de, isDark }: { de: boolean; isDark: boolean }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      const items = ref.current?.querySelectorAll('.ft-item');
+      if (items?.length) {
+        gsap.fromTo(items,
+          { opacity: 0, x: -16 },
+          { opacity: 1, x: 0, duration: 0.5, stagger: 0.14, ease: 'power2.out',
+            scrollTrigger: { trigger: ref.current, start: 'top 82%', once: true } },
+        );
       }
     }, ref);
     return () => ctx.revert();
   }, []);
+
+  const cardBg   = isDark ? 'rgba(255,255,255,0.03)' : 'var(--sf3)';
+  const cardBd   = isDark ? 'rgba(255,255,255,0.08)' : 'var(--bd2)';
+  const failClr  = isDark ? 'rgba(255,255,255,0.50)' : 'var(--txm)';
+  const fixClr   = isDark ? 'rgba(100,140,220,0.80)' : '#2A5499';
+  const dotFail  = isDark ? 'rgba(255,255,255,0.18)' : 'rgba(26,60,110,0.25)';
+  const lineClr  = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(26,60,110,0.12)';
+
   return (
-    <div ref={ref} className="space-y-7">
-      {TIERS.map((t, i) => (
-        <div key={i}>
-          <div className="flex items-baseline justify-between mb-2 gap-4">
-            <div className="flex items-center gap-2.5">
-              <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: t.color }} />
-              <span className="text-[13px] font-bold text-wx-tx1">{de ? t.roleDe : t.roleEn}</span>
-              <span className="text-[10px] font-mono" style={{ color: 'var(--txff)' }}>{de ? t.dotsDe : t.dotsEn}</span>
+    <div ref={ref} className="w-full">
+      <div className="flex items-center gap-3 mb-5">
+        <p className="text-[9px] uppercase tracking-[0.28em]" style={{ color: isDark ? 'rgba(255,255,255,0.35)' : 'var(--txff)' }}>
+          {de ? 'Entwicklungsiterationen — nur dokumentierte Fakten' : 'Development iterations — documented facts only'}
+        </p>
+      </div>
+      {/* Desktop: horizontal timeline */}
+      <div className="hidden sm:flex items-start gap-0 relative">
+        {/* connector line */}
+        <div className="absolute top-[18px] left-0 right-0 h-px" style={{ background: lineClr }} />
+        {FAILURES.map((f, i) => (
+          <div key={i} className="ft-item flex-1 flex flex-col items-center px-2 opacity-0" style={{ minWidth: 0 }}>
+            {/* Dot */}
+            <div
+              className="w-[18px] h-[18px] rounded-full flex-shrink-0 z-10 flex items-center justify-center mb-3"
+              style={{
+                background: f.isCurrent ? '#2A5499' : dotFail,
+                border: `2px solid ${f.isCurrent ? '#4472D4' : (isDark ? 'rgba(255,255,255,0.15)' : 'rgba(26,60,110,0.20)')}`,
+                boxShadow: f.isCurrent ? '0 0 10px rgba(68,114,212,0.5)' : 'none',
+              }}
+            />
+            {/* Card */}
+            <div className="w-full rounded-xl p-3" style={{ background: f.isCurrent ? (isDark ? 'rgba(26,60,110,0.20)' : 'rgba(26,60,110,0.07)') : cardBg, border: `1px solid ${f.isCurrent ? 'rgba(68,114,212,0.30)' : cardBd}` }}>
+              <p className="text-[9px] font-mono font-bold uppercase tracking-wide mb-1.5" style={{ color: f.isCurrent ? '#4472D4' : (isDark ? 'rgba(255,255,255,0.35)' : 'var(--txff)') }}>
+                {de ? f.vDe : f.vEn}
+              </p>
+              <p className="text-[10px] leading-snug mb-2" style={{ color: failClr }}>
+                {de ? f.failDe : f.failEn}
+              </p>
+              <p className="text-[10px] font-medium leading-snug" style={{ color: fixClr }}>
+                {de ? f.fixDe : f.fixEn}
+              </p>
             </div>
-            <span className="text-[10px] shrink-0 hidden sm:block" style={{ color: 'var(--txff)' }}>{de ? t.tagDe : t.tagEn}</span>
           </div>
-          <div className="h-1 rounded-full overflow-hidden mb-2" style={{ background: 'var(--bd2)' }}>
-            <div className="tier-bar h-full rounded-full" style={{ width: t.barW, background: t.color }} />
+        ))}
+      </div>
+      {/* Mobile: vertical list */}
+      <div className="flex flex-col gap-3 sm:hidden">
+        {FAILURES.map((f, i) => (
+          <div key={i} className="ft-item flex gap-3 opacity-0">
+            <div className="flex flex-col items-center flex-shrink-0 pt-1">
+              <div className="w-3 h-3 rounded-full" style={{ background: f.isCurrent ? '#2A5499' : dotFail, border: `1.5px solid ${f.isCurrent ? '#4472D4' : (isDark ? 'rgba(255,255,255,0.15)' : 'rgba(26,60,110,0.20)')}` }} />
+              {i < FAILURES.length - 1 && <div className="w-px flex-1 mt-1" style={{ background: lineClr, minHeight: '20px' }} />}
+            </div>
+            <div className="pb-2">
+              <p className="text-[9px] font-mono font-bold uppercase tracking-wide mb-1" style={{ color: f.isCurrent ? '#4472D4' : (isDark ? 'rgba(255,255,255,0.35)' : 'var(--txff)') }}>
+                {de ? f.vDe : f.vEn}
+              </p>
+              <p className="text-[11px] leading-snug mb-1" style={{ color: failClr }}>{de ? f.failDe : f.failEn}</p>
+              <p className="text-[11px] font-medium" style={{ color: fixClr }}>{de ? f.fixDe : f.fixEn}</p>
+            </div>
           </div>
-          <p className="text-[11px] leading-relaxed" style={{ color: 'var(--txff)' }} dangerouslySetInnerHTML={{ __html: de ? t.descDe : t.descEn }} />
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
@@ -310,65 +835,77 @@ function HexMoS2({ de }: { de: boolean }) {
   const { theme } = useTheme();
   const isDark = theme === 'dark' || theme === 'noir';
   const vizCard = isDark ? VIZ_CARD : VIZ_CARD_LIGHT;
+  const dotGrid = isDark ? DARK_DOT_GRID : LIGHT_DOT_GRID;
+
+  const txMid  = isDark ? 'rgba(255,255,255,0.38)' : 'rgba(26,60,110,0.60)';
+  const txLow  = isDark ? 'rgba(255,255,255,0.25)' : 'rgba(26,60,110,0.40)';
+  const txMono = isDark ? 'rgba(255,255,255,0.45)' : 'rgba(26,60,110,0.65)';
+  const sLabel = isDark ? 'rgba(168,192,244,0.55)'  : 'rgba(68,114,212,0.70)';
+  const moLabel= isDark ? 'rgba(130,170,240,0.80)'  : 'rgba(26,60,110,0.90)';
+  const vdwClr = isDark ? 'rgba(100,140,220,0.28)'  : 'rgba(68,114,212,0.45)';
+  const vdwTxt = isDark ? 'rgba(168,192,244,0.45)'  : 'rgba(68,114,212,0.60)';
+  const hovClr = isDark ? 'rgba(100,140,220,0.60)'  : 'rgba(26,60,110,0.65)';
+  const divClr = isDark ? 'rgba(255,255,255,0.08)'  : 'rgba(26,60,110,0.12)';
+  const txSub  = isDark ? 'rgba(255,255,255,0.35)'  : 'rgba(26,60,110,0.55)';
 
   return (
     <div className="w-full rounded-2xl overflow-hidden p-5 cursor-default select-none"
-      style={{ ...vizCard, ...DARK_DOT_GRID, transition: 'box-shadow 0.35s ease', boxShadow: hov ? '0 0 0 1px rgba(68,114,212,0.4), 0 8px 32px rgba(26,60,110,0.3)' : 'none' }}
+      style={{ ...vizCard, ...dotGrid, transition: 'box-shadow 0.35s ease', boxShadow: hov ? '0 0 0 1px rgba(68,114,212,0.4), 0 8px 32px rgba(26,60,110,0.3)' : 'none' }}
       onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}>
-      <p className="text-[10px] uppercase tracking-[0.2em] mb-3 text-center" style={{ color: 'rgba(255,255,255,0.38)' }}>
+      <p className="text-[10px] uppercase tracking-[0.2em] mb-3 text-center" style={{ color: txMid }}>
         {de ? 'MoS₂ — S–Mo–S Schichtstruktur' : 'MoS₂ — S–Mo–S layer structure'}
       </p>
       <svg viewBox="0 0 395 155" className="w-full" style={{ overflow: 'visible' }}>
         <g ref={topRef}>
           {bonds(TOP_MO, TOP_S1, TOP_S2).map((b, i) => (
-            <line key={i} x1={b.x1} y1={b.y1} x2={b.x2} y2={b.y2} stroke="rgba(42,84,153,0.22)" strokeWidth="1.2" />
+            <line key={i} x1={b.x1} y1={b.y1} x2={b.x2} y2={b.y2} stroke={isDark ? 'rgba(42,84,153,0.22)' : 'rgba(42,84,153,0.35)'} strokeWidth="1.2" />
           ))}
           {S_X.map((x, i) => <circle key={`ts1${i}`} cx={x} cy={TOP_S1} r="5" fill="#A8C0F4" opacity="0.92" />)}
           {MO_X.map((x, i) => <circle key={`tmo${i}`} cx={x} cy={TOP_MO} r="7.5" fill="#2A5499" style={{ filter: 'drop-shadow(0 0 5px rgba(68,114,212,0.60))' }} />)}
           {S_X.map((x, i) => <circle key={`ts2${i}`} cx={x} cy={TOP_S2} r="5" fill="#A8C0F4" opacity="0.92" />)}
         </g>
         {/* Van der Waals gap */}
-        <line x1="8" y1={GAP_Y} x2="310" y2={GAP_Y} stroke="rgba(100,140,220,0.28)" strokeWidth="1" strokeDasharray="5 4" />
-        <text x="316" y={GAP_Y + 4} fontSize="8.5" fill="rgba(168,192,244,0.45)" fontFamily="monospace">vdW</text>
+        <line x1="8" y1={GAP_Y} x2="310" y2={GAP_Y} stroke={vdwClr} strokeWidth="1" strokeDasharray="5 4" />
+        <text x="316" y={GAP_Y + 4} fontSize="8.5" fill={vdwTxt} fontFamily="monospace">vdW</text>
         <g ref={botRef}>
           {bonds(BOT_MO, BOT_S1, BOT_S2).map((b, i) => (
-            <line key={i} x1={b.x1} y1={b.y1} x2={b.x2} y2={b.y2} stroke="rgba(42,84,153,0.22)" strokeWidth="1.2" />
+            <line key={i} x1={b.x1} y1={b.y1} x2={b.x2} y2={b.y2} stroke={isDark ? 'rgba(42,84,153,0.22)' : 'rgba(42,84,153,0.35)'} strokeWidth="1.2" />
           ))}
           {S_X.map((x, i) => <circle key={`bs1${i}`} cx={x} cy={BOT_S1} r="5" fill="#A8C0F4" opacity="0.92" />)}
           {MO_X.map((x, i) => <circle key={`bmo${i}`} cx={x} cy={BOT_MO} r="7.5" fill="#1A3C6E" style={{ filter: 'drop-shadow(0 0 5px rgba(26,60,110,0.55))' }} />)}
           {S_X.map((x, i) => <circle key={`bs2${i}`} cx={x} cy={BOT_S2} r="5" fill="#A8C0F4" opacity="0.92" />)}
         </g>
         {/* Single-side labels only */}
-        <text x="10" y={TOP_S1 + 4}  fontSize="8.5" fill="rgba(168,192,244,0.55)" fontFamily="monospace">S</text>
-        <text x="10" y={TOP_MO + 4}  fontSize="8.5" fill="rgba(130,170,240,0.80)" fontFamily="monospace">Mo</text>
-        <text x="10" y={TOP_S2 + 4}  fontSize="8.5" fill="rgba(168,192,244,0.55)" fontFamily="monospace">S</text>
-        <text x="10" y={BOT_S1 + 4}  fontSize="8.5" fill="rgba(168,192,244,0.55)" fontFamily="monospace">S</text>
-        <text x="10" y={BOT_MO + 4}  fontSize="8.5" fill="rgba(130,170,240,0.80)" fontFamily="monospace">Mo</text>
-        <text x="10" y={BOT_S2 + 4}  fontSize="8.5" fill="rgba(168,192,244,0.55)" fontFamily="monospace">S</text>
+        <text x="10" y={TOP_S1 + 4}  fontSize="8.5" fill={sLabel}  fontFamily="monospace">S</text>
+        <text x="10" y={TOP_MO + 4}  fontSize="8.5" fill={moLabel} fontFamily="monospace">Mo</text>
+        <text x="10" y={TOP_S2 + 4}  fontSize="8.5" fill={sLabel}  fontFamily="monospace">S</text>
+        <text x="10" y={BOT_S1 + 4}  fontSize="8.5" fill={sLabel}  fontFamily="monospace">S</text>
+        <text x="10" y={BOT_MO + 4}  fontSize="8.5" fill={moLabel} fontFamily="monospace">Mo</text>
+        <text x="10" y={BOT_S2 + 4}  fontSize="8.5" fill={sLabel}  fontFamily="monospace">S</text>
         {/* Hover arrow cue */}
         {hov && (
-          <text x="197" y={GAP_Y - 4} textAnchor="middle" fontSize="8" fill="rgba(100,140,220,0.60)" fontFamily="monospace" letterSpacing="1">
+          <text x="197" y={GAP_Y - 4} textAnchor="middle" fontSize="8" fill={hovClr} fontFamily="monospace" letterSpacing="1">
             {de ? '← Schicht gleitet →' : '← layer slides →'}
           </text>
         )}
       </svg>
-      <div className="flex items-center justify-between mt-3 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+      <div className="flex items-center justify-between mt-3 pt-3" style={{ borderTop: `1px solid ${divClr}` }}>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5">
             <div className="w-3 h-3 rounded-full" style={{ background: '#A8C0F4' }} />
-            <span className="text-[9px] font-mono" style={{ color: 'rgba(255,255,255,0.45)' }}>S</span>
+            <span className="text-[9px] font-mono" style={{ color: txMono }}>S</span>
           </div>
           <div className="flex items-center gap-1.5">
             <div className="w-4 h-4 rounded-full" style={{ background: '#2A5499', boxShadow: '0 0 4px rgba(68,114,212,0.5)' }} />
-            <span className="text-[9px] font-mono" style={{ color: 'rgba(255,255,255,0.45)' }}>Mo</span>
+            <span className="text-[9px] font-mono" style={{ color: txMono }}>Mo</span>
           </div>
-          <span className="text-[9px]" style={{ color: 'rgba(255,255,255,0.25)' }}>
+          <span className="text-[9px]" style={{ color: txLow }}>
             {de ? '· Hover: Schicht gleitet' : '· Hover: layer shears'}
           </span>
         </div>
         <div className="text-right">
           <p className="font-serif-display italic text-[20px] font-bold leading-none" style={{ color: '#6A8AE8', textShadow: '0 0 16px rgba(68,114,212,0.55)' }}>μ 0.03</p>
-          <p className="text-[9px] mt-0.5" style={{ color: 'rgba(255,255,255,0.35)' }}>{de ? 'Grenzschmierung' : 'Boundary lubrication'}</p>
+          <p className="text-[9px] mt-0.5" style={{ color: txSub }}>{de ? 'Grenzschmierung' : 'Boundary lubrication'}</p>
         </div>
       </div>
     </div>
@@ -412,31 +949,42 @@ function TransferFilm({ de }: { de: boolean }) {
   const { theme } = useTheme();
   const isDark = theme === 'dark' || theme === 'noir';
   const vizCard = isDark ? VIZ_CARD : VIZ_CARD_LIGHT;
+  const dotGrid = isDark ? DARK_DOT_GRID : LIGHT_DOT_GRID;
+
+  const txMid   = isDark ? 'rgba(255,255,255,0.38)' : 'rgba(26,60,110,0.60)';
+  const txVal   = isDark ? 'rgba(255,255,255,0.85)' : 'rgba(15,30,70,0.85)';
+  const txSub   = isDark ? 'rgba(255,255,255,0.38)' : 'rgba(26,60,110,0.55)';
+  const divClr  = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(26,60,110,0.12)';
+  const sLabelC = isDark ? 'rgba(255,255,255,0.28)' : 'rgba(26,60,110,0.50)';
+  const steelT0 = isDark ? '#2a2a38' : '#c4cedf';
+  const steelT1 = isDark ? '#1c1c28' : '#b0bcce';
+  const steelB0 = isDark ? '#1c1c28' : '#b0bcce';
+  const steelB1 = isDark ? '#2a2a38' : '#c4cedf';
 
   return (
     <div ref={ref} className="w-full rounded-2xl overflow-hidden p-5"
-      style={{ ...vizCard, ...DARK_DOT_GRID, transition: 'box-shadow 0.35s ease', boxShadow: hov ? '0 0 0 1px rgba(68,114,212,0.4), 0 8px 32px rgba(26,60,110,0.30)' : 'none' }}
+      style={{ ...vizCard, ...dotGrid, transition: 'box-shadow 0.35s ease', boxShadow: hov ? '0 0 0 1px rgba(68,114,212,0.4), 0 8px 32px rgba(26,60,110,0.30)' : 'none' }}
       onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}>
-      <p className="text-[10px] uppercase tracking-[0.2em] mb-3 text-center" style={{ color: 'rgba(255,255,255,0.38)' }}>
+      <p className="text-[10px] uppercase tracking-[0.2em] mb-3 text-center" style={{ color: txMid }}>
         {de ? 'Transferfilm unter Kontaktdruck' : 'Transfer film under contact pressure'}
       </p>
       <svg viewBox="0 0 440 175" className="w-full" style={{ overflow: 'visible' }}>
         <defs>
           <linearGradient id="steel-grad-t" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#2a2a38" />
-            <stop offset="100%" stopColor="#1c1c28" />
+            <stop offset="0%" stopColor={steelT0} />
+            <stop offset="100%" stopColor={steelT1} />
           </linearGradient>
           <linearGradient id="steel-grad-b" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#1c1c28" />
-            <stop offset="100%" stopColor="#2a2a38" />
+            <stop offset="0%" stopColor={steelB0} />
+            <stop offset="100%" stopColor={steelB1} />
           </linearGradient>
         </defs>
         {/* Steel plates — no text inside them */}
         <rect x="0" y="0"   width="440" height="22" fill="url(#steel-grad-t)" rx="2" />
         <rect x="0" y="153" width="440" height="22" fill="url(#steel-grad-b)" rx="2" />
         {/* Side labels for the plates */}
-        <text x="6" y="15"  fontSize="8" fill="rgba(255,255,255,0.28)" fontFamily="monospace">{de ? 'Stahl' : 'Steel'}</text>
-        <text x="6" y="167" fontSize="8" fill="rgba(255,255,255,0.28)" fontFamily="monospace">{de ? 'Stahl' : 'Steel'}</text>
+        <text x="6" y="15"  fontSize="8" fill={sLabelC} fontFamily="monospace">{de ? 'Stahl' : 'Steel'}</text>
+        <text x="6" y="167" fontSize="8" fill={sLabelC} fontFamily="monospace">{de ? 'Stahl' : 'Steel'}</text>
         {/* Transfer film deposits */}
         <rect className="tf-film" x="0" y="22"  width="440" height="5" fill="#1A3C6E" opacity="0" rx="1" />
         <rect className="tf-film" x="0" y="148" width="440" height="5" fill="#1A3C6E" opacity="0" rx="1" />
@@ -449,15 +997,15 @@ function TransferFilm({ de }: { de: boolean }) {
           {de ? 'Fe-S Transferfilm' : 'Fe-S transfer film'}
         </text>
       </svg>
-      <div className="mt-3 pt-3 grid grid-cols-3 gap-2 text-center" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+      <div className="mt-3 pt-3 grid grid-cols-3 gap-2 text-center" style={{ borderTop: `1px solid ${divClr}` }}>
         {[
           { val: '50–300 MPa', sub: de ? 'Kontaktdruck' : 'Contact pressure' },
           { val: '2–5 nm',     sub: de ? 'Filmdicke'    : 'Film thickness'   },
           { val: 'Fe–S',       sub: de ? 'tribochem. Bindung' : 'tribochem. bond' },
         ].map((s, i) => (
           <div key={i}>
-            <p className="font-mono text-[12px] font-semibold" style={{ color: 'rgba(255,255,255,0.85)' }}>{s.val}</p>
-            <p className="text-[9px] mt-0.5" style={{ color: 'rgba(255,255,255,0.38)' }}>{s.sub}</p>
+            <p className="font-mono text-[12px] font-semibold" style={{ color: txVal }}>{s.val}</p>
+            <p className="text-[9px] mt-0.5" style={{ color: txSub }}>{s.sub}</p>
           </div>
         ))}
       </div>
@@ -472,6 +1020,16 @@ function CrystalLattice({ de }: { de: boolean }) {
   const { theme } = useTheme();
   const isDark = theme === 'dark' || theme === 'noir';
   const vizCard = isDark ? VIZ_CARD : VIZ_CARD_LIGHT;
+  const dotGrid = isDark ? DARK_DOT_GRID : LIGHT_DOT_GRID;
+
+  const txMid  = isDark ? 'rgba(255,255,255,0.38)' : 'rgba(26,60,110,0.60)';
+  const divClr = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(26,60,110,0.12)';
+  const vdwClr = isDark ? 'rgba(100,140,220,0.32)' : 'rgba(68,114,212,0.50)';
+  const vdwTxt = isDark ? 'rgba(100,140,220,0.45)' : 'rgba(68,114,212,0.65)';
+  const bktClr = isDark ? 'rgba(100,140,220,0.45)' : 'rgba(68,114,212,0.65)';
+  const bktTxt = isDark ? 'rgba(100,140,220,0.50)' : 'rgba(26,60,110,0.70)';
+  const bandA  = isDark ? 'rgba(26,60,110,0.14)'   : 'rgba(68,114,212,0.10)';
+  const bandB  = isDark ? 'rgba(26,60,110,0.07)'   : 'rgba(68,114,212,0.05)';
 
   // 3 crystal layers, each with 7 parallel chain rods
   const LAYERS = [
@@ -502,21 +1060,21 @@ function CrystalLattice({ de }: { de: boolean }) {
   }, []);
 
   return (
-    <div className="w-full rounded-2xl overflow-hidden p-5" style={{ ...vizCard, ...DARK_DOT_GRID }}>
-      <p className="text-[10px] uppercase tracking-[0.2em] mb-3 text-center" style={{ color: 'rgba(255,255,255,0.38)' }}>
+    <div className="w-full rounded-2xl overflow-hidden p-5" style={{ ...vizCard, ...dotGrid }}>
+      <p className="text-[10px] uppercase tracking-[0.2em] mb-3 text-center" style={{ color: txMid }}>
         {de ? 'Lamellare Kristallstruktur — C₂₀–C₃₆' : 'Lamellar crystal structure — C₂₀–C₃₆'}
       </p>
       <svg ref={svgRef} viewBox="0 0 395 192" className="w-full">
         {/* Layer background bands */}
         {LAYERS.map((l, li) => (
           <rect key={li} x="0" y={l.yCenter - 22} width="395" height="44"
-            fill={li % 2 === 0 ? 'rgba(26,60,110,0.14)' : 'rgba(26,60,110,0.07)'} />
+            fill={li % 2 === 0 ? bandA : bandB} />
         ))}
         {/* Van der Waals gap lines */}
         {VDW_Y.map((y, i) => (
           <g key={i}>
-            <line x1="12" y1={y} x2="340" y2={y} stroke="rgba(100,140,220,0.32)" strokeWidth="0.8" strokeDasharray="5 4" />
-            <text x="348" y={y + 4} fontSize="8.5" fill="rgba(100,140,220,0.45)" fontFamily="monospace" textAnchor="start">vdW</text>
+            <line x1="12" y1={y} x2="340" y2={y} stroke={vdwClr} strokeWidth="0.8" strokeDasharray="5 4" />
+            <text x="348" y={y + 4} fontSize="8.5" fill={vdwTxt} fontFamily="monospace" textAnchor="start">vdW</text>
           </g>
         ))}
         {/* Chain rods */}
@@ -531,21 +1089,21 @@ function CrystalLattice({ de }: { de: boolean }) {
                 rx="4.5"
                 fill={l.color}
                 opacity={0.70 + (ci % 3) * 0.09}
-                style={{ filter: 'drop-shadow(0 0 4px rgba(68,114,212,0.55))' }}
+                style={{ filter: isDark ? 'drop-shadow(0 0 4px rgba(68,114,212,0.55))' : 'drop-shadow(0 2px 6px rgba(68,114,212,0.30))' }}
               />
             );
           })
         )}
         {/* Side bracket showing one crystal layer */}
         <line x1="10" y1={LAYERS[1].yCenter - 20} x2="10" y2={LAYERS[1].yCenter + 20}
-          stroke="rgba(100,140,220,0.45)" strokeWidth="1" />
-        <text x="14" y={LAYERS[1].yCenter + 4} fontSize="8.5" fill="rgba(100,140,220,0.50)" fontFamily="monospace">
+          stroke={bktClr} strokeWidth="1" />
+        <text x="14" y={LAYERS[1].yCenter + 4} fontSize="8.5" fill={bktTxt} fontFamily="monospace">
           {de ? 'Kristallebene' : 'Crystal plane'}
         </text>
       </svg>
-      <div className="flex items-center justify-center gap-2 mt-3 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+      <div className="flex items-center justify-center gap-2 mt-3 pt-3" style={{ borderTop: `1px solid ${divClr}` }}>
         <div className="w-7 h-2.5 rounded-full" style={{ background: '#4472D4', opacity: 0.75 }} />
-        <span className="text-[9px] font-mono" style={{ color: 'rgba(255,255,255,0.38)' }}>
+        <span className="text-[9px] font-mono" style={{ color: txMid }}>
           {de ? 'Kohlenwasserstoffkette, parallel ausgerichtet' : 'Hydrocarbon chain, aligned in parallel'}
         </span>
       </div>
@@ -712,6 +1270,14 @@ function FrictionBars({ de }: { de: boolean }) {
           {de ? '← kürzer = weniger Reibung' : '← shorter = less friction'}
         </span>
       </div>
+      <p className="text-[9px] font-mono mb-1" style={{ color: subClr }}>
+        {de ? 'Eigentest · nicht extern zertifiziert' : 'Self-tested · not third-party certified'}
+      </p>
+      <p className="text-[9px] font-mono mb-5" style={{ color: subClr }}>
+        {de
+          ? 'μ 0.03 vs. μ 0.14 (Kettenöl) ≈ 2–5 W weniger Kettenverlust bei 250 W Ausgangsleistung'
+          : 'μ 0.03 vs. μ 0.14 (chain oil) ≈ 2–5 W less drivetrain loss at 250 W output'}
+      </p>
       <p className="text-[9px] font-mono mb-5" style={{ color: subClr }}>
         {de ? 'Grenzschmierung · 50–300 MPa Kontaktdruck' : 'Boundary lubrication · 50–300 MPa contact pressure'}
       </p>
@@ -809,15 +1375,17 @@ interface ChapterProps {
   catDe: string; catEn: string;
   titleDe: string; titleEn: string;
   ledeDe: string; ledeEn: string;
+  teaserDe?: string; teaserEn?: string;
   bodyDe: React.ReactNode; bodyEn: React.ReactNode;
   insightDe: string; insightEn: string;
   visual: React.ReactNode;
   extraVisual?: React.ReactNode;
   flip?: boolean;
+  featured?: boolean;
   de: boolean;
 }
 
-function Chapter({ num, anchorId, catDe, catEn, titleDe, titleEn, ledeDe, ledeEn, bodyDe, bodyEn, insightDe, insightEn, visual, extraVisual, flip, de }: ChapterProps) {
+function Chapter({ num, anchorId, catDe, catEn, titleDe, titleEn, ledeDe, ledeEn, teaserDe, teaserEn, bodyDe, bodyEn, insightDe, insightEn, visual, extraVisual, flip, featured, de }: ChapterProps) {
   const ref     = useRef<HTMLDivElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
@@ -872,6 +1440,12 @@ function Chapter({ num, anchorId, catDe, catEn, titleDe, titleEn, ledeDe, ledeEn
           <p className="text-[16px] font-medium leading-snug" style={{ color: 'var(--tx1)' }}>
             {de ? ledeDe : ledeEn}
           </p>
+          {/* Teaser — first sentence hook, always visible */}
+          {(teaserDe || teaserEn) && (
+            <p className="text-[14px] leading-relaxed" style={{ color: 'var(--txm)' }}>
+              {de ? teaserDe : teaserEn}
+            </p>
+          )}
           {/* Toggle */}
           <button
             onClick={() => setOpen(o => !o)}
@@ -894,8 +1468,8 @@ function Chapter({ num, anchorId, catDe, catEn, titleDe, titleEn, ledeDe, ledeEn
           </div>
           <Insight>{de ? insightDe : insightEn}</Insight>
         </div>
-        {/* Visual column */}
-        <div className={`flex flex-col gap-6 ${flip ? 'lg:order-1' : 'lg:order-2'}`}>
+        {/* Visual column — featured removes card border for immersive treatment */}
+        <div className={`flex flex-col gap-6 ${flip ? 'lg:order-1' : 'lg:order-2'} ${featured ? 'lg:-mx-8' : ''}`}>
           {visual}
           {extraVisual}
         </div>
@@ -1019,7 +1593,7 @@ export function SciencePage() {
           <div data-hero-badge className="inline-flex items-center gap-3 mb-6" style={{ opacity: 0 }}>
             <div className="h-px w-8" style={{ background: isDark ? 'rgba(68,114,212,0.45)' : 'rgba(26,60,110,0.25)' }} />
             <span className="text-[9px] font-mono uppercase tracking-[0.38em]" style={{ color: isDark ? 'rgba(68,114,212,0.65)' : '#4472D4' }}>
-              {de ? 'Formulierungsdokumentation' : 'Formulation Documentation'}
+              {de ? 'Formulierungsgeschichte' : 'Formula Story'}
             </span>
             <div className="h-px w-8" style={{ background: isDark ? 'rgba(68,114,212,0.45)' : 'rgba(26,60,110,0.25)' }} />
           </div>
@@ -1044,7 +1618,7 @@ export function SciencePage() {
           <p
             data-hero-sub
             className="text-[14px] sm:text-[15px] leading-relaxed max-w-[480px] mx-auto mb-0"
-            style={{ color: isDark ? 'rgba(255,255,255,0.42)' : 'var(--txm)', opacity: 0 }}
+            style={{ color: isDark ? 'rgba(255,255,255,0.70)' : 'var(--tx2)', opacity: 0 }}
           >
             {de
               ? 'Jede Komponente in dieser Formel existiert, weil ein Test gescheitert ist — oder weil ein Kompromiss nicht akzeptabel war.'
@@ -1096,10 +1670,10 @@ export function SciencePage() {
               </div>
             </div>
             <div>
-              <p className="text-[10px] font-medium uppercase tracking-[0.2em] mb-6" style={{ color: 'var(--txff)' }}>
-                {de ? 'Relative Bedeutung — keine Mengenangaben' : 'Relative importance — no quantities shown'}
+              <p className="text-[10px] font-medium uppercase tracking-[0.2em] mb-4" style={{ color: 'var(--txff)' }}>
+                {de ? 'Abhängigkeiten zwischen Komponenten' : 'Component dependencies'}
               </p>
-              <CompositionTiers de={de} />
+              <FormulaAssembly de={de} mode="overview" isDark={isDark} />
             </div>
           </div>
 
@@ -1135,6 +1709,11 @@ export function SciencePage() {
           <div className="flex-1 h-px" style={{ background: 'var(--bd)' }} />
         </div>
 
+        {/* ══ FAILURE TIMELINE ══════════════════════════════════════════════ */}
+        <div className="mb-16">
+          <FailureTimeline de={de} isDark={isDark} />
+        </div>
+
         {/* ══ CH 01 ══════════════════════════════════════════════════════════ */}
         <Chapter num="01" de={de} anchorId="kristallstruktur"
           catDe="Die Basis" catEn="The Foundation"
@@ -1142,6 +1721,8 @@ export function SciencePage() {
           titleEn="The crystalline scaffold"
           ledeDe="Welches Paraffin — und warum ein 2°C-Erstarrungsfenster über Batch-Konsistenz entscheidet."
           ledeEn="Which paraffin — and why a 2°C solidification window determines batch consistency."
+          teaserDe="Paraffin ist keine Substanz, sondern eine Kategorie — von weichen Kerzenwachsen bis zu spröden Technikalqualitäten. Die entscheidende Variable ist der Erstarrungsbereich."
+          teaserEn="Paraffin isn't a material, it's a category — spanning soft candle waxes to brittle technical grades. The decisive variable is the solidification range."
           bodyDe={<>
             <p>Die erste Frage war täuschend einfach: Welches Paraffin? Paraffin ist keine Substanz, sondern eine Kategorie — sie reicht von weichen, öligen Kerzenwachsen bis zu spröden Technikalqualitäten. Die entscheidende Variable ist der Erstarrungsbereich.</p>
             <p>Wir haben uns für ein vollraffiniertes Erdöldestillat mit einem exakt definierten 2°C-Erstarrungsfenster (58–60°C) entschieden. Diese Enge ist keine Präzision um ihrer selbst willen — sie sichert die Reproduzierbarkeit. Ein breiterer Erstarrungsbereich produziert je nach Batch leicht unterschiedliche Kristallstrukturen.</p>
@@ -1171,6 +1752,8 @@ export function SciencePage() {
           titleEn="Synthetically pure hard wax"
           ledeDe="Fischer-Tropsch-Wachs: synthetisch lineare Moleküle, die den Tropfpunkt auf 72–78°C anheben."
           ledeEn="Fischer-Tropsch wax: synthetically linear molecules that push the drop point to 72–78°C."
+          teaserDe="An Kettenkontaktpunkten unter Last können Temperaturen 45–55°C erreichen. Reines Paraffinwachs wäre an seiner thermischen Grenze."
+          teaserEn="At chain contact points under load, temperatures can reach 45–55°C. Unmodified paraffin wax would be at its thermal limit."
           bodyDe={<>
             <p>Das zweite Problem war der Sommer. An Kettenkontaktpunkten unter Last können Temperaturen 45–55°C erreichen. Reines Paraffinwachs wäre an seiner thermischen Grenze — es würde erweichen, migrieren, auf dem Schaltwerk landen statt in den Gelenkstiften.</p>
             <p>Die Lösung war ein synthetisches Wachs, hergestellt über den Fischer-Tropsch-Prozess: eine Kohlenstoff-Syntheseroute, die Kohlenwasserstoffketten von außergewöhnlicher Reinheit liefert. Kein Schwefel, keine Aromaten, keine Verzweigungen — nur vollständig lineare Moleküle.</p>
@@ -1192,6 +1775,8 @@ export function SciencePage() {
           titleEn="Microcrystalline wax"
           ledeDe="Verzweigte Moleküle füllen die amorphen Bereiche zwischen Kristalldomänen — Matrix bleibt bis −10°C elastisch."
           ledeEn="Branched molecules fill the amorphous zones between crystal domains — keeping the matrix elastic to −10°C."
+          teaserDe="Eine reine Paraffinmatrix ist unterhalb von 5°C extrem spröde — spröde genug, um bei Biegebelastung zu brechen. Die Wachsschicht platzte buchstäblich ab."
+          teaserEn="A pure paraffin matrix is extremely brittle below 5°C — brittle enough to crack under bending stress. The wax coating literally spalled off."
           bodyDe={<>
             <p>Das entgegengesetzte Problem folgte sofort: Winter. Eine reine Paraffinmatrix mit Fischer-Tropsch-Härtemodul ist unterhalb von 5°C extrem spröde — spröde genug, um bei Biegebelastung zu brechen. Ein Kettengelenk, das sich in der Kälte bewegt, ließ die Wachsschicht buchstäblich abplatzen.</p>
             <p>Mikrokristallines Wachs löst dieses Problem strukturell. Im Gegensatz zu den geradkettigen Paraffinen besteht es aus hochverzweigten und zyklischen Molekülen, die keine geordneten Kristallstrukturen bilden können. Sie besetzen die amorphen Bereiche zwischen den Paraffindomänen — molekulare Plastifizierung.</p>
@@ -1243,12 +1828,14 @@ export function SciencePage() {
 
       {/* ══ CH 04 ════════════════════════════════════════════════════════════ */}
       <div className={`${W} pt-20`}>
-        <Chapter num="04" de={de} flip
+        <Chapter num="04" de={de} flip featured
           catDe="Festschmierstoff" catEn="Solid Lubricant"
           titleDe="Molybdändisulfid — <5 µm"
           titleEn="Molybdenum disulfide — <5 µm"
           ledeDe="MoS₂ bildet unter Kontaktdruck einen Transferfilm auf dem Stahl — er schmiert noch, wenn das Wachs längst verbraucht ist."
           ledeEn="MoS₂ forms a transfer film on steel under contact pressure — it lubricates long after the wax is spent."
+          teaserDe="MoS₂ ist eines der wenigen Materialien mit einem Reibungskoeffizienten unter 0,05 unter Grenzschmierbedingungen — dem Regime, das in Kettenkontaktstellen tatsächlich herrscht."
+          teaserEn="MoS₂ is one of the few materials with a friction coefficient below 0.05 under boundary lubrication — the regime that actually governs chain contact points."
           bodyDe={<>
             <p>MoS₂ ist eines der wenigen Materialien mit einem Reibungskoeffizienten unter 0.05 unter Grenzschmierbedingungen. Der Grund liegt in der Kristallstruktur: Mo-Atome sandwichartig zwischen zwei Schwefelschichten, die Schichten untereinander nur durch schwache van-der-Waals-Kräfte gebunden. Unter Kontaktdruck scheren diese Bindungen — die Schichten gleiten lateral fast widerstandslos.</p>
             <p>An Kettenkontaktflächen unter Last entstehen Drücke von 50–300 MPa. Das ist das Regime der Grenzschmierung — konventionelle Öle können keinen kontinuierlichen Film aufrechterhalten. MoS₂ bildet stattdessen einen Transferfilm: Partikel werden unter Druck auf der Stahloberfläche deponiert und durch tribochemische Bindungen (Mo–S → Fe–S) verankert. Dieser Film persistiert, auch nachdem der Wachsträger längst abgetragen ist.</p>
@@ -1266,6 +1853,28 @@ export function SciencePage() {
         />
       </div>
 
+      {/* ══ WHAT THIS MEANS FOR YOU ════════════════════════════════════════════ */}
+      <div className={`${W} py-8`}>
+        <div className="rounded-2xl p-6 sm:p-8 grid grid-cols-1 sm:grid-cols-3 gap-6 text-center"
+          style={{ background: isDark ? 'rgba(26,60,110,0.12)' : 'rgba(26,60,110,0.05)', border: '1px solid rgba(26,60,110,0.18)' }}>
+          <div>
+            <p className="font-serif-display italic font-bold text-[2.2rem] leading-none mb-1" style={{ color: isDark ? '#6A8AE8' : '#1A3C6E' }}>~300 km</p>
+            <p className="text-[11px] font-semibold" style={{ color: isDark ? 'rgba(255,255,255,0.70)' : 'var(--tx1)' }}>{de ? 'pro Rewax-Vorgang' : 'per rewax'}</p>
+            <p className="text-[10px] mt-0.5" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'var(--txm)' }}>{de ? 'bei trockenen Bedingungen' : 'in dry conditions'}</p>
+          </div>
+          <div>
+            <p className="font-serif-display italic font-bold text-[2.2rem] leading-none mb-1" style={{ color: isDark ? '#6A8AE8' : '#1A3C6E' }}>3×</p>
+            <p className="text-[11px] font-semibold" style={{ color: isDark ? 'rgba(255,255,255,0.70)' : 'var(--tx1)' }}>{de ? 'längere Kettenlaufzeit' : 'longer chain life'}</p>
+            <p className="text-[10px] mt-0.5" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'var(--txm)' }}>{de ? 'gegenüber Kettenöl' : 'vs. chain oil'}</p>
+          </div>
+          <div>
+            <p className="font-serif-display italic font-bold text-[2.2rem] leading-none mb-1" style={{ color: isDark ? '#6A8AE8' : '#1A3C6E' }}>~€35</p>
+            <p className="text-[11px] font-semibold" style={{ color: isDark ? 'rgba(255,255,255,0.70)' : 'var(--tx1)' }}>{de ? 'gespart pro Jahr' : 'saved per year'}</p>
+            <p className="text-[10px] mt-0.5" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'var(--txm)' }}>{de ? 'bei 5.000 km/Jahr' : 'at 5,000 km/year'}</p>
+          </div>
+        </div>
+      </div>
+
       {/* ══ STAT 3 ══════════════════════════════════════════════════════════════ */}
       <StatCallout de={de} isDark={isDark} stat="μ 0.03"
         ctxDe="Reibungskoeffizient unter Grenzschmierung — einer der niedrigsten Werte im Vergleich"
@@ -1279,6 +1888,8 @@ export function SciencePage() {
           titleEn="Amphiphilic fatty acid ester"
           ledeDe="MoS₂ ist 5,6× dichter als Paraffin — ohne Dispergiermittel entsteht ein messbarer Konzentrationsgradient im fertigen Block."
           ledeEn="MoS₂ is 5.6× denser than paraffin — without dispersant a measurable concentration gradient forms in the finished block."
+          teaserDe="Gibt man MoS₂ ohne Stabilisierung in geschmolzenes Wachs, sinken die Partikel messbar schnell — der erste Rewax-Vorgang wäre anders als der zwanzigste."
+          teaserEn="Add MoS₂ to molten wax without stabilization and the particles sink measurably fast — the first rewax would perform differently from the twentieth."
           bodyDe={<>
             <p>MoS₂ hat eine Dichte von 5.06 g/cm³. Paraffinwachs hat eine Dichte von 0.9 g/cm³. Dichteunterschied: Faktor 5,6. Gibt man MoS₂ in geschmolzenes Wachs ohne Stabilisierung, sinken die Partikel messbar schnell. In den Minuten zwischen Rührstopp und Guss bedeutet das messbare Konzentrationsgradienten im fertigen Block.</p>
             <p>Das Dispergiermittel ist ein amphiphiler Fettsäureester: ein Molekül mit einer polaren Kopfgruppe, die über Wasserstoffbrücken an MoS₂-Partikelkanten adsorbiert, und einer langen unpolaren Fettsäurekette, die sich in die Paraffinschmelze erstreckt. Diese Hülle um jeden Partikel erzeugt eine sterische Barriere: annähernde Partikel müssen die Fettsäureketten komprimieren — dieser entropische Widerstand verhindert Agglomeration und Sedimentation.</p>
@@ -1300,6 +1911,8 @@ export function SciencePage() {
           titleEn="Hindered phenolic antioxidant"
           ledeDe="Oxidiertes MoS₂ ist MoO₃ — abrasiv. Das Antioxidans schützt den Festschmierstoff, nicht nur das Wachs."
           ledeEn="Oxidized MoS₂ is MoO₃ — abrasive. The antioxidant protects the solid lubricant, not just the wax."
+          teaserDe="Ein Wachsblock, der in Woche 1 performt aber in Monat 6 nachlässt, ist kein Produkt. Kohlenwasserstoffwachse sind anfällig für Autoxidation."
+          teaserEn="A wax block that performs in week 1 but degrades by month 6 isn't a product. Hydrocarbon waxes are susceptible to autoxidation."
           bodyDe={<>
             <p>Die letzte Frage war Zeit. Ein Wachsblock, der in Woche 1 performt aber in Monat 6 nachlässt, ist kein Produkt. Kohlenwasserstoffwachse sind anfällig für Autoxidation: Sauerstoffradikale greifen C–H-Bindungen an und initiieren eine Kettenreaktion, die Peroxide, Alkohole und Ketone produziert. Diese Oxidationsprodukte verspröden die Matrix.</p>
             <p>Und sie können die MoS₂-Oberfläche von einem Schmierstoff (MoS₂) in ein Abrasivum verwandeln (MoO₃, gebildet durch Mo⁴⁺ → Mo⁶⁺ Oxidation). Ein gehindertes Phenol-Antioxidans wirkt als Radikalkettenabbrecher: Die phenolische OH-Gruppe doniert ein Wasserstoffatom an Peroxylradikale (ROO•) und bricht die Oxidationskaskade ab.</p>
@@ -1335,6 +1948,11 @@ export function SciencePage() {
             </div>
           }
         />
+      </div>
+
+      {/* ══ SYNTHESIS REVEAL ════════════════════════════════════════════════ */}
+      <div className={`${W} pb-20`}>
+        <SynthesisReveal de={de} isDark={isDark} />
       </div>
 
       {/* ══ RESULTS ═══════════════════════════════════════════════════════════ */}
@@ -1424,19 +2042,39 @@ export function SciencePage() {
           </h2>
           <p className="text-[14px] mb-10 max-w-sm mx-auto" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'var(--txm)' }}>
             {de
-              ? 'Waxcelerate Pro und Classic direkt über eBay — mit vollem Käuferschutz.'
-              : 'Waxcelerate Pro and Classic via eBay — with full buyer protection.'}
+              ? 'Direkt über eBay — mit vollem Käuferschutz.'
+              : 'Directly via eBay — with full buyer protection.'}
           </p>
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2.5 px-8 py-4 rounded-full font-semibold text-[14px] transition-opacity hover:opacity-80"
-            style={{
-              background: isDark ? 'linear-gradient(135deg,#1A3080,#2A5499)' : 'var(--cta-bg)',
-              color: isDark ? '#fff' : 'var(--cta-fg)',
-            }}
-          >
-            <ArrowLeft className="w-4 h-4" />
-            {de ? 'Zurück zu den Produkten' : 'Back to products'}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <a
+              href="https://www.ebay.de/itm/396468036330"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2.5 px-8 py-4 rounded-full font-semibold text-[14px] transition-opacity hover:opacity-80"
+              style={{
+                background: isDark ? 'linear-gradient(135deg,#1A3080,#2A5499)' : 'var(--cta-bg)',
+                color: isDark ? '#fff' : 'var(--cta-fg)',
+              }}
+            >
+              {de ? 'Pro kaufen →' : 'Buy Pro →'}
+            </a>
+            <a
+              href="https://www.ebay.de/itm/395811184583"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2.5 px-8 py-4 rounded-full font-semibold text-[14px] transition-opacity hover:opacity-80"
+              style={{
+                background: 'transparent',
+                border: isDark ? '1.5px solid rgba(106,138,232,0.55)' : '1.5px solid var(--brand)',
+                color: isDark ? 'rgba(168,192,244,0.85)' : 'var(--brand)',
+              }}
+            >
+              {de ? 'Classic kaufen →' : 'Buy Classic →'}
+            </a>
+          </div>
+          <Link to="/" className="mt-6 inline-flex items-center gap-1.5 text-[12px] transition-opacity hover:opacity-70" style={{ color: isDark ? 'rgba(255,255,255,0.30)' : 'var(--txff)' }}>
+            <ArrowLeft className="w-3 h-3" />
+            {de ? 'Zurück zur Übersicht' : 'Back to overview'}
           </Link>
         </div>
       </section>

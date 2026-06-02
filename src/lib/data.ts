@@ -175,8 +175,8 @@ export const products: Product[] = [
     intervalDry: '300–550 km',
     intervalWet: '150–300 km',
     intervalTopup: 'bis 1.200 km',
-    bestFor: ['Ganzjahresbetrieb', '3-Ketten-Rotation', 'Herbst & leichter Regen', 'Längere Intervalle'],
-    bestForEn: ['Year-round use', '3-chain rotation', 'Autumn & light rain', 'Longer intervals'],
+    bestFor: ['Ganzjahresbetrieb', '3-Ketten-Rotation', 'Herbst & Winter', 'Längere Intervalle'],
+    bestForEn: ['Year-round use', '3-chain rotation', 'Autumn & Winter', 'Longer intervals'],
     compatibility: '9/10/11/12-fach',
     specs: {
       Gewicht: '500g',
@@ -231,8 +231,8 @@ export const products: Product[] = [
     intervalDry: '300–550 km',
     intervalWet: '150–300 km',
     intervalTopup: 'bis 1.200 km',
-    bestFor: ['Einstieg in Pro', 'Ganzjahresbetrieb', 'Herbst & leichter Regen'],
-    bestForEn: ['Starting with Pro', 'Year-round use', 'Autumn & light rain'],
+    bestFor: ['Einstieg in Pro', 'Ganzjahresbetrieb', 'Herbst & Winter'],
+    bestForEn: ['Starting with Pro', 'Year-round use', 'Autumn & Winter'],
     compatibility: '9/10/11/12-fach',
     specs: {
       Gewicht: '300g',

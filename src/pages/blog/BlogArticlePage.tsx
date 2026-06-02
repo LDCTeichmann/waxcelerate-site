@@ -127,6 +127,22 @@ export function BlogArticlePage() {
     },
   });
 
+  const howToSchema = article.howTo
+    ? JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'HowTo',
+        name: article.howTo.name,
+        description: article.description,
+        totalTime: article.howTo.totalTime,
+        step: article.howTo.steps.map((s, i) => ({
+          '@type': 'HowToStep',
+          position: i + 1,
+          name: s.name,
+          text: s.text,
+        })),
+      })
+    : null;
+
   return (
     <div className="min-h-screen" style={{ background: 'var(--pg)' }}>
       <Helmet>
@@ -137,6 +153,7 @@ export function BlogArticlePage() {
           href={`https://waxcelerate.de/blog/${article.slug}`}
         />
         <script type="application/ld+json">{articleSchema}</script>
+        {howToSchema && <script type="application/ld+json">{howToSchema}</script>}
       </Helmet>
 
       {/* Header */}

@@ -1,9 +1,9 @@
 # Waxcelerate
 
-> Heißwachs für Fahrradketten aus Stuttgart — Paraffinbasiertes Kettenwachs mit PTFE, handgefertigt in kleinen Chargen seit 2023.
+> Heißwachs für Fahrradketten aus Stuttgart — Paraffinbasiertes Kettenwachs mit PTFE, handgefertigt in kleinen Chargen seit 2024.
 
 Waxcelerate ist ein deutsches Kleinunternehmen, gegründet von Luca Teichmann (Medizinstudent, Stuttgart).
-164 eBay-Bewertungen, 100% positives Feedback. Verkauf seit 2023.
+171 eBay-Bewertungen, 100% positives Feedback. Verkauf seit 2024.
 
 Produkte: Heißwachs in vier Varianten (Classic/Pro, 300g/500g) und acht vorgewachste Fahrradketten.
 Hauptvorteil gegenüber Kettenöl: trockener Film, keine Schmutzaufnahme, Kettenlaufzeit 3× länger, Reibungskoeffizient 0,03–0,06.
@@ -37,6 +37,8 @@ Hauptvorteil gegenüber Kettenöl: trockener Film, keine Schmutzaufnahme, Ketten
 - [Fahrradkette entfetten](https://waxcelerate.de/blog/fahrradkette-entfetten): Isopropanol, Aceton, Ultraschall — Methoden und Fehler
 - [Kettenlaufzeit Heißwachs](https://waxcelerate.de/blog/kettenlaufzeit-heisswachs): Intervalle, Haltbarkeit, Kostenrechnung über 15.000 km
 - [Heißwachs Anleitung](https://waxcelerate.de/blog/heisswachs-anleitung): Vollständige Schritt-für-Schritt-Anleitung
+- [MoS₂ Kettenwachs](https://waxcelerate.de/blog/mos2-kettenwachs): Was Molybdändisulfid im Wachs bewirkt — Physik, Einsatzgebiete, Unterschied zu Classic
+- [Kettenwachs für Rennrad & Gravelbike](https://waxcelerate.de/blog/kettenwachs-rennrad-gravelbike): Warum Heißwachs besonders für sportliche Fahrer sinnvoll ist
 
 ## Vollständige Inhalte für KI-Agenten
 

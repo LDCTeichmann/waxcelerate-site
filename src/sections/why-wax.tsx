@@ -530,91 +530,136 @@ interface StripProps {
   scienceAnchor: string;
   diagram: React.ReactNode;
   de: boolean;
+  isLast: boolean;
+}
+
+// Curved dashed path connecting one strip's diagram column to the next.
+// x1/x2 are percentage positions (0–100) matching the diagram column centres.
+function StripConnector({ fromEven }: { fromEven: boolean }) {
+  // diagram column centres: ~16 % (left) and ~84 % (right) of the container.
+  const x1 = fromEven ? 16 : 84;
+  const x2 = fromEven ? 84 : 16;
+  return (
+    <div className="hidden sm:block" aria-hidden="true" style={{ height: 52, position: 'relative' }}>
+      <svg
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
+      >
+        <path
+          d={`M ${x1},0 C ${x1},50 ${x2},50 ${x2},100`}
+          fill="none"
+          stroke="var(--txf)"
+          strokeOpacity="0.35"
+          strokeWidth="1.2"
+          strokeDasharray="4 6"
+          strokeLinecap="round"
+        />
+      </svg>
+    </div>
+  );
 }
 
 function MechanismStrip({
   index, catDe, catEn, specValue, specLabelDe, specLabelEn,
   titleDe, titleEn, bodyDe, bodyEn,
-  scienceLinkDe, scienceLinkEn, scienceAnchor, diagram, de,
+  scienceLinkDe, scienceLinkEn, scienceAnchor, diagram, de, isLast,
 }: StripProps) {
   const stripRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const el = stripRef.current;
     if (!el) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      gsap.set(el, { opacity: 1, y: 0 });
-      return;
-    }
-    gsap.set(el, { opacity: 0, y: 28 });
-    gsap.to(el, {
-      opacity: 1, y: 0, duration: 0.65, ease: 'power3.out',
-      delay: index * 0.10,
-      scrollTrigger: { trigger: el, start: 'top 86%', once: true },
-    });
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    gsap.fromTo(el,
+      { y: 22, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.55, ease: 'power3.out',
+        delay: index * 0.08,
+        scrollTrigger: { trigger: el, start: 'top 98%', once: true } },
+    );
   }, [index]);
 
   const isEven = index % 2 === 0;
+  const num = String(index + 1).padStart(2, '0');
 
   return (
-    <div
-      ref={stripRef}
-      className="py-10 sm:py-12"
-      style={{ borderBottom: '1px solid var(--bd2)' }}
-    >
-      <div className={`flex flex-col sm:flex-row gap-8 sm:gap-12 items-center ${isEven ? '' : 'sm:flex-row-reverse'}`}>
+    <>
+      <div ref={stripRef} className="py-8 sm:py-10">
 
-        {/* ── Diagram ── */}
-        <div className="flex-shrink-0 w-full sm:w-auto rounded-xl overflow-hidden"
-          style={{ maxWidth: 300, border: '1px solid var(--bd2)', background: 'var(--sf2)' }}>
-          {diagram}
-        </div>
+        {/* ── Content ── */}
+        <div className={`flex flex-col sm:flex-row gap-8 sm:gap-12 items-center ${isEven ? '' : 'sm:flex-row-reverse'}`}>
 
-        {/* ── Text ── */}
-        <div className="flex-1 min-w-0">
-
-          {/* Eyebrow + spec */}
-          <div className="flex items-start justify-between gap-4 mb-2">
-            <span className="text-[10px] font-semibold uppercase tracking-[0.22em]"
-              style={{ color: 'var(--txff)' }}>
-              {de ? catDe : catEn}
-            </span>
-            {specValue && (
-              <span className="font-display font-bold tabular-nums leading-none flex-shrink-0"
-                style={{ fontSize: 'clamp(1.55rem, 3vw, 2.2rem)', color: 'var(--tx1)' }}>
-                {specValue}
+          {/* Diagram — number badge overlaps the outer corner */}
+          <div className="relative flex-shrink-0 w-full sm:w-auto" style={{ maxWidth: 308 }}>
+            <div
+              className={`absolute z-10 flex items-center justify-center select-none ${isEven ? '-top-4 -left-4' : '-top-4 -right-4 left-auto'}`}
+              style={{
+                width: 38, height: 38, borderRadius: '50%',
+                background: 'var(--sf2)',
+                border: '1.5px solid #3D67CA',
+                boxShadow: '0 0 0 3px var(--sf), 0 2px 8px rgba(0,0,0,0.14)',
+              }}
+            >
+              <span className="font-mono font-bold leading-none"
+                style={{ fontSize: 11, letterSpacing: '0.06em', color: '#3D67CA' }}>
+                {num}
               </span>
-            )}
+            </div>
+            <div className="rounded-xl overflow-hidden"
+              style={{ border: '1px solid var(--bd2)', background: 'var(--sf2)' }}>
+              {diagram}
+            </div>
           </div>
 
-          {/* Spec label */}
-          {specValue && (specLabelDe || specLabelEn) && (
-            <p className="text-[10px] font-medium mb-3 text-right" style={{ color: '#3D67CA' }}>
-              {de ? specLabelDe : specLabelEn}
+          {/* Text */}
+          <div className="flex-1 min-w-0">
+
+            {/* Eyebrow + spec */}
+            <div className="flex items-start justify-between gap-4 mb-2">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.22em]"
+                style={{ color: 'var(--txff)' }}>
+                {de ? catDe : catEn}
+              </span>
+              {specValue && (
+                <span className="font-display font-bold tabular-nums leading-none flex-shrink-0"
+                  style={{ fontSize: 'clamp(1.55rem, 3vw, 2.2rem)', color: 'var(--tx1)' }}>
+                  {specValue}
+                </span>
+              )}
+            </div>
+
+            {/* Spec label */}
+            {specValue && (specLabelDe || specLabelEn) && (
+              <p className="text-[10px] font-medium mb-3 text-right" style={{ color: '#3D67CA' }}>
+                {de ? specLabelDe : specLabelEn}
+              </p>
+            )}
+
+            {/* Title */}
+            <h3 className="font-serif-display italic font-bold text-wx-tx1 mb-3 leading-tight"
+              style={{ fontSize: 'clamp(1.1rem, 2.1vw, 1.4rem)' }}>
+              {de ? titleDe : titleEn}
+            </h3>
+
+            {/* Body */}
+            <p className="text-[13px] leading-relaxed mb-4" style={{ color: 'var(--txm)' }}>
+              {de ? bodyDe : bodyEn}
             </p>
-          )}
 
-          {/* Title */}
-          <h3 className="font-serif-display italic font-bold text-wx-tx1 mb-3 leading-tight"
-            style={{ fontSize: 'clamp(1.1rem, 2.1vw, 1.4rem)' }}>
-            {de ? titleDe : titleEn}
-          </h3>
-
-          {/* Body */}
-          <p className="text-[13px] leading-relaxed mb-4" style={{ color: 'var(--txm)' }}>
-            {de ? bodyDe : bodyEn}
-          </p>
-
-          {/* Science link */}
-          <Link to={`/wissenschaft${scienceAnchor}`}
-            className="inline-flex items-center gap-1 text-[11px] font-medium transition-opacity hover:opacity-70"
-            style={{ color: '#264E8C' }}>
-            {de ? scienceLinkDe : scienceLinkEn}
-            <span aria-hidden="true" style={{ fontSize: 10 }}>→</span>
-          </Link>
+            {/* Science link */}
+            <Link to={`/wissenschaft${scienceAnchor}`}
+              className="inline-flex items-center gap-1 text-[11px] font-medium transition-opacity hover:opacity-70"
+              style={{ color: '#264E8C' }}>
+              {de ? scienceLinkDe : scienceLinkEn}
+              <span aria-hidden="true" style={{ fontSize: 10 }}>→</span>
+            </Link>
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* ── Curved path connector to the next strip ── */}
+      {!isLast && <StripConnector fromEven={isEven} />}
+    </>
   );
 }
 
@@ -643,7 +688,7 @@ export function WhyWax() {
     return () => ctx.revert();
   }, []);
 
-  const strips: Omit<StripProps, 'de' | 'index'>[] = [
+  const strips: Omit<StripProps, 'de' | 'index' | 'isLast'>[] = [
     {
       catDe: 'Feuchtigkeitsschutz',
       catEn: 'Moisture protection',
@@ -716,9 +761,9 @@ export function WhyWax() {
           </div>
 
           {/* ── Three mechanism strips ── */}
-          <div style={{ borderTop: '1px solid var(--bd2)' }}>
+          <div style={{ borderTop: '1px solid var(--bd2)', paddingTop: '8px' }}>
             {strips.map((strip, i) => (
-              <MechanismStrip key={i} index={i} de={de} {...strip} />
+              <MechanismStrip key={i} index={i} de={de} isLast={i === strips.length - 1} {...strip} />
             ))}
           </div>
 

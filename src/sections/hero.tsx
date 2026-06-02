@@ -1,259 +1,470 @@
 import { useEffect, useRef } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
-import { useTheme } from '@/hooks/useTheme';
 import gsap from 'gsap';
-
-// Split text into word spans for clip-mask reveal
-// NOTE: space must live OUTSIDE the overflow-hidden wrapper, otherwise it gets clipped
-function WordReveal({
-  text,
-  className,
-  style,
-}: {
-  text: string;
-  className?: string;
-  style?: React.CSSProperties;
-}) {
-  const words = text.split(' ');
-  return (
-    <span className={className} style={style}>
-      {words.map((word, i) => (
-        <span key={i} style={{ display: 'inline' }}>
-          <span
-            className="inline-block overflow-hidden leading-[1.15]"
-            style={{ verticalAlign: 'bottom' }}
-          >
-            <span className="word-inner inline-block" style={{ willChange: 'transform' }}>
-              {word}
-            </span>
-          </span>
-          {i < words.length - 1 ? ' ' : ''}
-        </span>
-      ))}
-    </span>
-  );
-}
 
 export function Hero() {
   const { t, lang } = useLanguage();
-  const { theme } = useTheme();
-  const isDark = theme === 'dark' || theme === 'noir';
-  const animatedRef = useRef<boolean>(false);
-  const pillRef     = useRef<HTMLDivElement>(null);
-  const headRef     = useRef<HTMLDivElement>(null);
-  const taglineRef  = useRef<HTMLParagraphElement>(null);
-  const ctaRef      = useRef<HTMLDivElement>(null);
   const de = lang === 'de';
+
+  const animatedRef  = useRef<boolean>(false);
+  const pillRef      = useRef<HTMLDivElement>(null);
+  const brandRef     = useRef<HTMLDivElement>(null);
+  const contentRef   = useRef<HTMLDivElement>(null);
+  const badgeRef     = useRef<HTMLDivElement>(null);
+  const frostedRef   = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (animatedRef.current) return;
-
-    const el = {
+    const els = {
       pill:    pillRef.current,
-      head:    headRef.current,
-      tagline: taglineRef.current,
-      cta:     ctaRef.current,
+      brand:   brandRef.current,
+      content: contentRef.current,
+      badge:   badgeRef.current,
+      frosted: frostedRef.current,
     };
-    if (Object.values(el).some(v => !v)) return;
-
+    if (Object.values(els).some(v => !v)) return;
     animatedRef.current = true;
 
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      gsap.set(Object.values(el), { opacity: 1, y: 0 });
-      if (el.head) {
-        el.head.querySelectorAll<HTMLElement>('.word-inner').forEach(w => {
-          w.style.transform = 'translateY(0)';
-        });
-      }
+      gsap.set(Object.values(els), { opacity: 1, y: 0, x: 0, scale: 1 });
       return;
     }
 
-    gsap.set([el.pill, el.tagline, el.cta], { opacity: 0, y: 18 });
-    if (el.head) {
-      el.head.querySelectorAll<HTMLElement>('.word-inner').forEach(w => {
-        w.style.transform = 'translateY(110%)';
-      });
-    }
+    gsap.set(els.pill,    { opacity: 0, y: -14 });
+    gsap.set(els.brand,   { opacity: 0, scale: 0.97, y: 16 });
+    gsap.set(els.frosted, { opacity: 0 });
+    gsap.set(els.content, { opacity: 0, y: 24 });
+    gsap.set(els.badge,   { opacity: 0, scale: 0.86 });
 
     const tl = gsap.timeline({ delay: 0.08 });
-    tl.to(el.pill,    { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out' }, 0);
-    if (el.head) {
-      const words = el.head.querySelectorAll<HTMLElement>('.word-inner');
-      tl.to(words, { y: 0, duration: 0.65, ease: 'power3.out', stagger: 0.055 }, 0.18);
-    }
-    tl.to(el.tagline, { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out' }, 0.52);
-    tl.to(el.cta,     { opacity: 1, y: 0, duration: 0.5,  ease: 'power3.out' }, 0.64);
+    tl.to(els.frosted, { opacity: 1, duration: 0.9, ease: 'power2.out' }, 0);
+    tl.to(els.brand,   { opacity: 1, scale: 1, y: 0, duration: 1.1, ease: 'power3.out' }, 0.1);
+    tl.to(els.pill,    { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, 0.3);
+    tl.to(els.content, { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' }, 0.55);
+    tl.to(els.badge,   { opacity: 1, scale: 1, duration: 0.7, ease: 'back.out(1.5)' }, 1.0);
   }, []);
-
 
   const scrollToSection = (href: string) =>
     document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
 
-  const headline    = t.hero.headline;
-  const headlineSub = t.hero.headlineSub;
-
   return (
     <section
       id="home"
-      className="grain relative overflow-hidden"
-      style={{ minHeight: '100dvh', background: isDark ? '#0A0A0A' : 'transparent', contain: 'paint' }}
+      className="relative overflow-hidden"
+      style={{
+        height: '100dvh',
+        background: '#07080A',
+        // Override global !important h1 color rule for light mode
+        '--tx1': '#F8F8F8',
+        '--tx2': 'rgba(248,248,248,0.55)',
+      } as React.CSSProperties}
     >
 
-      {/* ── Background image — full width on both layouts ── */}
-      <div className="absolute inset-0 pointer-events-none">
-        <img
-          src="/images/DSC01455.JPG"
-          alt=""
-          width={1366}
-          height={912}
-          fetchPriority="high"
-          className="absolute inset-0 w-full h-full object-cover"
-          style={{ objectPosition: '60% 72%' }}
-        />
-        {isDark ? (
-          /* Dark mode: strong left-to-right fade + bottom vignette */
-          <>
-            <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, #0A0A0A 0%, rgba(10,10,10,0.75) 25%, rgba(10,10,10,0.25) 55%, transparent 75%)' }} />
-            <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(10,10,10,0.20) 0%, transparent 15%, transparent 72%, rgba(10,10,10,0.92) 100%)' }} />
-          </>
-        ) : (
-          /* Light mode: very subtle bottom vignette only — let the photo breathe */
-          <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(255,255,255,0.08) 0%, transparent 20%, transparent 75%, rgba(245,245,247,0.5) 100%)' }} />
-        )}
-      </div>
+      {/* ── LAYER 0: Full-bleed photo ── */}
+      <img
+        src="/images/hero-chain-wax.jpg"
+        alt=""
+        className="absolute inset-0 w-full h-full object-cover"
+        style={{ objectPosition: '62% 50%' }}
+        fetchPriority="high"
+      />
 
-      {/* Mobile: extra scrim for text readability over full-bleed image */}
-      <div className="lg:hidden absolute inset-0 pointer-events-none">
+      {/* ── LAYER 1: Top scrim for nav readability ── */}
+      <div
+        className="absolute top-0 inset-x-0 pointer-events-none"
+        style={{
+          height: '200px',
+          background: 'linear-gradient(to bottom, rgba(5,6,8,0.6) 0%, transparent 100%)',
+        }}
+      />
+
+      {/* ── LAYER 2: Bottom fade into next section ── */}
+      <div
+        className="absolute bottom-0 inset-x-0 pointer-events-none"
+        style={{
+          height: '100px',
+          background: 'linear-gradient(to top, #07080A 0%, transparent 100%)',
+        }}
+      />
+
+      {/* ══════════════════════════════════════════
+          DESKTOP — Iceland-style split composition
+      ══════════════════════════════════════════ */}
+      <div className="hidden lg:block absolute inset-0">
+
+        {/* ── LAYER 3: Frosted glass LEFT panel ── */}
+        {/* Sits behind the brand name, above the photo */}
         <div
-          className="absolute inset-0"
+          ref={frostedRef}
+          className="absolute top-0 left-0 bottom-0"
           style={{
-            background: isDark
-              ? 'linear-gradient(to right, rgba(10,10,10,0.82) 0%, rgba(10,10,10,0.50) 60%, rgba(10,10,10,0.20) 100%)'
-              : 'linear-gradient(to right, rgba(245,245,247,0.82) 0%, rgba(245,245,247,0.50) 60%, rgba(245,245,247,0.10) 100%)',
+            width: '48%',
+            backdropFilter: 'blur(36px) saturate(0.65) brightness(0.78)',
+            WebkitBackdropFilter: 'blur(36px) saturate(0.65) brightness(0.78)',
+            background: 'rgba(4,5,7,0.48)',
           }}
         />
-      </div>
 
-      {/* Dark mode accent glow */}
-      {isDark && (
+        {/* Subtle right-edge gradient on left panel: bleeds into photo */}
         <div
-          className="absolute inset-0 pointer-events-none"
+          className="absolute top-0 bottom-0 pointer-events-none"
           style={{
-            background: 'radial-gradient(ellipse 55% 60% at 27% 48%, rgba(26,60,110,0.09) 0%, transparent 65%)',
+            left: '42%',
+            width: '12%',
+            background: 'linear-gradient(to right, rgba(4,5,7,0.22) 0%, transparent 100%)',
           }}
         />
-      )}
 
-      {/* Grid texture removed */}
-
-      {/* ── Content ─────────────────────────────────────────────────────────── */}
-      <div className="relative z-10 flex min-h-[100dvh]">
-
-        {/*
-          Text block:
-          - Mobile: full-width, centered
-          - Desktop: left 52%, left-aligned, vertically centered
-        */}
+        {/* Blue radial glow — top right of photo panel */}
         <div
-          className="w-full lg:w-[52%] flex flex-col items-center lg:items-start justify-center px-6 sm:px-10 lg:pl-16 xl:pl-24 lg:pr-10 pt-24 pb-16"
-          style={!isDark ? {
-            background: 'linear-gradient(to right, rgba(245,245,247,0.88) 0%, rgba(245,245,247,0.60) 70%, transparent 100%)',
-          } : undefined}
+          className="absolute pointer-events-none"
+          style={{
+            top: '-60px',
+            right: '-60px',
+            width: '500px',
+            height: '500px',
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(91,139,237,0.16) 0%, transparent 65%)',
+          }}
+        />
+
+        {/* ── Eyebrow pill — top left ── */}
+        <div
+          ref={pillRef}
+          className="absolute flex items-center gap-3"
+          style={{ top: '108px', left: '72px' }}
         >
-          <div className="max-w-lg w-full mx-auto lg:mx-0 flex flex-col items-center lg:items-start text-center lg:text-left">
+          <div style={{ width: '22px', height: '1px', background: 'rgba(255,255,255,0.2)' }} />
+          <p
+            className="text-[10px] uppercase tracking-[0.38em] font-semibold"
+            style={{ color: 'rgba(255,255,255,0.26)' }}
+          >
+            {t.hero.subtitle}
+          </p>
+          <button
+            onClick={() => scrollToSection('#ueber-mich')}
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border cursor-pointer hover:opacity-75 transition-opacity"
+            style={{
+              background: 'rgba(255,255,255,0.05)',
+              borderColor: 'rgba(255,255,255,0.10)',
+            }}
+          >
+            <span
+              className="h-1.5 w-1.5 rounded-full animate-pulse"
+              style={{ background: '#5B8BED' }}
+            />
+            <span
+              className="text-[10px] tracking-wide"
+              style={{ color: 'rgba(255,255,255,0.36)' }}
+            >
+              {de ? '171 × ★★★★★ auf eBay' : '171 × ★★★★★ on eBay'}
+            </span>
+          </button>
+        </div>
 
-            {/* Pill — social proof */}
-            <div ref={pillRef} className="mb-9">
-              <button
-                onClick={() => scrollToSection('#ueber-mich')}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full border transition-all cursor-pointer"
+        {/* ── Vertical brand stamp — far right ── */}
+        <div
+          className="absolute select-none pointer-events-none"
+          aria-hidden="true"
+          style={{
+            right: '22px',
+            top: '50%',
+            transform: 'translateY(-50%) rotate(90deg)',
+            fontSize: '9px',
+            letterSpacing: '0.46em',
+            color: 'rgba(255,255,255,0.14)',
+            textTransform: 'uppercase',
+            fontWeight: 700,
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {de ? 'Premium Kettenwachs · seit 2022' : 'Premium Chain Wax · since 2022'}
+        </div>
+
+        {/* ══════════════════════════════════════
+            THE BRAND NAME — visual centerpiece
+            Spans full width, bridges both panels
+            Iceland-pattern: text above the divide
+        ══════════════════════════════════════ */}
+        <div
+          ref={brandRef}
+          className="absolute inset-x-0 select-none pointer-events-none"
+          style={{ top: '34%', transform: 'translateY(-50%)' }}
+          aria-hidden="true"
+        >
+          <p
+            className="font-display font-black uppercase text-center"
+            style={{
+              fontSize: 'clamp(5.5rem, 12vw, 16rem)',
+              letterSpacing: '-0.025em',
+              lineHeight: 1,
+              color: 'rgba(255,255,255,0.92)',
+              textShadow: '0 4px 80px rgba(0,0,0,0.25)',
+            }}
+          >
+            WAXCELERATE
+          </p>
+        </div>
+
+        {/* ══════════════════════════════
+            Content block — lower left
+            Lives inside the frosted panel
+        ══════════════════════════════ */}
+        <div
+          ref={contentRef}
+          className="absolute flex flex-col"
+          style={{ bottom: '68px', left: '72px', width: '38%' }}
+        >
+
+          {/* Index marker (like Iceland's "01") */}
+          <div className="flex items-center gap-4 mb-5">
+            <span
+              style={{
+                fontSize: '11px',
+                fontWeight: 700,
+                letterSpacing: '0.32em',
+                color: 'rgba(255,255,255,0.20)',
+              }}
+            >
+              01
+            </span>
+            <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
+          </div>
+
+          {/* Sub-headline */}
+          <p
+            className="font-display font-bold leading-tight tracking-[-0.025em] mb-4"
+            style={{
+              fontSize: 'clamp(1.5rem, 2.4vw, 2.6rem)',
+              color: '#F5F5F5',
+            }}
+          >
+            {t.hero.headline}
+          </p>
+
+          {/* Tagline */}
+          <p
+            className="text-[14px] leading-relaxed mb-8"
+            style={{ color: 'rgba(255,255,255,0.36)', maxWidth: '340px' }}
+          >
+            {t.hero.tagline}
+          </p>
+
+          {/* Stats row */}
+          <div
+            className="flex items-start gap-0 mb-8"
+            style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '22px' }}
+          >
+            {[
+              { v: '3×',   l: de ? 'Kettenlaufzeit'     : 'Chain life'      },
+              { v: '~€70', l: de ? 'gespart · 12.000km' : 'saved · 12k km'  },
+              { v: '100%', l: de ? 'positiv auf eBay'   : 'positive on eBay' },
+            ].map((s, i) => (
+              <div
+                key={i}
                 style={{
-                  background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)',
-                  borderColor: isDark ? 'rgba(255,255,255,0.14)' : 'rgba(0,0,0,0.12)',
-                  backdropFilter: 'blur(8px)',
+                  paddingRight: i < 2 ? '28px' : '0',
+                  marginRight: i < 2 ? '8px' : '0',
+                  borderRight: i < 2 ? '1px solid rgba(255,255,255,0.07)' : 'none',
                 }}
               >
-                <span
-                  className="h-1.5 w-1.5 rounded-full flex-shrink-0 animate-pulse"
-                  style={{ background: '#2B52B0' }}
-                />
-                <span className="text-[12px] tracking-wide" style={{ color: isDark ? 'rgba(255,255,255,0.65)' : 'var(--tx2)' }}>
-                  {de
-                    ? '171 Bewertungen · 100 % positiv auf eBay'
-                    : '171 reviews · 100 % positive on eBay'}
-                </span>
-                <ArrowRight className="h-3 w-3 flex-shrink-0" style={{ color: '#2B52B0' }} />
-              </button>
-            </div>
+                <p
+                  className="font-black tabular-nums leading-none"
+                  style={{ fontSize: 'clamp(18px, 2vw, 26px)', color: '#F5F5F5' }}
+                >
+                  {s.v}
+                </p>
+                <p
+                  className="text-[10px] mt-1.5 leading-none"
+                  style={{ color: 'rgba(255,255,255,0.22)' }}
+                >
+                  {s.l}
+                </p>
+              </div>
+            ))}
+          </div>
 
+          {/* CTAs */}
+          <div className="flex items-center gap-5">
+            <button
+              onClick={() => scrollToSection('#produkte')}
+              className="inline-flex items-center gap-2.5 px-8 py-3.5 text-[13px] font-bold rounded-full hover:opacity-90 transition-all active:scale-[0.97]"
+              style={{
+                background: '#5B8BED',
+                color: '#fff',
+                letterSpacing: '0.04em',
+                boxShadow: '0 0 36px rgba(91,139,237,0.28)',
+              }}
+            >
+              {t.hero.ctaBuy}
+              <ArrowRight className="h-3.5 w-3.5" />
+            </button>
+            <button
+              onClick={() => scrollToSection('#warum-wachs')}
+              className="text-[12.5px] cursor-pointer hover:opacity-70 transition-opacity"
+              style={{
+                color: 'rgba(255,255,255,0.28)',
+                textDecoration: 'underline',
+                textUnderlineOffset: '4px',
+                textDecorationColor: 'rgba(255,255,255,0.12)',
+              }}
+            >
+              {t.hero.ctaSecondary}
+            </button>
+          </div>
+
+        </div>
+
+        {/* ── Proof badge — floats over the PHOTO side ── */}
+        <div
+          ref={badgeRef}
+          className="absolute"
+          style={{
+            right: '8%',
+            bottom: '20%',
+            background: 'rgba(5,6,8,0.76)',
+            backdropFilter: 'blur(40px)',
+            WebkitBackdropFilter: 'blur(40px)',
+            border: '1px solid rgba(91,139,237,0.20)',
+            borderRadius: '20px',
+            padding: '26px 34px',
+            minWidth: '210px',
+            boxShadow:
+              '0 40px 80px rgba(0,0,0,0.52), 0 0 0 1px rgba(255,255,255,0.03), inset 0 1px 0 rgba(255,255,255,0.06)',
+          }}
+        >
+          <div
+            style={{
+              width: '28px',
+              height: '2px',
+              background: '#5B8BED',
+              borderRadius: '2px',
+              marginBottom: '14px',
+            }}
+          />
+          <p
+            className="font-serif-display italic leading-none"
+            style={{
+              fontSize: '46px',
+              fontWeight: 700,
+              color: '#5B8BED',
+              letterSpacing: '-0.02em',
+              marginBottom: '8px',
+            }}
+          >
+            ~€70
+          </p>
+          <p className="text-[12px] font-medium leading-none" style={{ color: 'rgba(255,255,255,0.50)' }}>
+            {de ? 'gespart / 12.000 km' : 'saved / 12,000 km'}
+          </p>
+          <p className="text-[10px]" style={{ color: 'rgba(255,255,255,0.22)', marginTop: '6px' }}>
+            {de ? 'gegenüber Kettenöl' : 'vs. chain oil'}
+          </p>
+        </div>
+
+      </div>
+
+      {/* ══════════════════════════════
+          MOBILE — full-bleed photo
+          content anchored at bottom
+      ══════════════════════════════ */}
+      <div
+        className="lg:hidden absolute inset-0 flex flex-col justify-end"
+        style={{
+          background:
+            'linear-gradient(to top, rgba(5,6,8,0.97) 0%, rgba(5,6,8,0.75) 42%, rgba(5,6,8,0.20) 70%, transparent 100%)',
+        }}
+      >
+        <div className="relative px-6 pb-12 pt-32">
+
+          {/* Tiny brand stamp mobile */}
+          <p
+            className="font-display font-black uppercase mb-4 select-none"
+            style={{
+              fontSize: 'clamp(3.4rem, 13vw, 5rem)',
+              letterSpacing: '-0.025em',
+              lineHeight: 1,
+              color: 'rgba(255,255,255,0.90)',
+            }}
+          >
+            WAXCE<br />LERATE
+          </p>
+
+          <div className="flex items-center gap-3 mb-4">
+            <div style={{ width: '18px', height: '1px', background: 'rgba(255,255,255,0.18)' }} />
             <p
-              className="text-[11px] uppercase tracking-[0.28em] font-semibold mb-4"
-              style={{ color: 'var(--txf)' }}
+              className="text-[10px] uppercase tracking-[0.32em] font-semibold"
+              style={{ color: 'rgba(255,255,255,0.24)' }}
             >
               {t.hero.subtitle}
             </p>
-
-            {/* Headline */}
-            <div ref={headRef} className="mb-6">
-              <h1
-                className="font-display font-bold leading-[1.05] tracking-[-0.035em]"
-                style={{ fontSize: 'clamp(2.6rem, 6.5vw, 5.2rem)', color: isDark ? '#FFFFFF' : 'var(--tx1)' }}
-              >
-                <WordReveal text={headline} className="block" />
-                <span
-                  className="block font-serif-display italic overflow-hidden"
-                  style={{ color: '#5B8BED', verticalAlign: 'bottom' }}
-                >
-                  <span className="word-inner inline-block" style={{ willChange: 'transform' }}>
-                    {headlineSub}
-                  </span>
-                </span>
-              </h1>
-            </div>
-
-            {/* Tagline */}
-            <p
-              ref={taglineRef}
-              className="text-[17px] leading-relaxed mb-9 max-w-xs sm:max-w-sm"
-              style={{ color: isDark ? 'rgba(255,255,255,0.78)' : 'var(--tx2)' }}
-            >
-              {t.hero.tagline}
-            </p>
-
-            {/* CTAs */}
-            <div ref={ctaRef} className="flex flex-col items-center lg:items-start gap-3">
-              <div className="flex items-center justify-center lg:justify-start gap-4 flex-wrap">
-                <button
-                  onClick={() => scrollToSection('#produkte')}
-                  className="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-semibold rounded-full transition-opacity duration-150 hover:opacity-90 active:scale-[0.98]"
-                  style={{ background: isDark ? '#EDE9E0' : 'var(--cta-bg)', color: isDark ? '#0A0A0A' : 'var(--cta-fg)' }}
-                >
-                  {t.hero.ctaBuy}
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </button>
-                <span className="text-sm font-medium" style={{ color: isDark ? 'rgba(255,255,255,0.50)' : 'var(--txm)' }}>
-                  {t.hero.priceAnchor}
-                </span>
-              </div>
-              <button
-                onClick={() => scrollToSection('#warum-wachs')}
-                className="text-sm cursor-pointer"
-                style={{ color: isDark ? 'rgba(255,255,255,0.82)' : 'var(--tx2)', textDecoration: 'underline', textUnderlineOffset: '3px' }}
-              >
-                {t.hero.ctaSecondary}
-              </button>
-            </div>
-
           </div>
+
+          <p
+            className="font-display font-bold leading-tight tracking-[-0.02em] mb-4"
+            style={{ fontSize: 'clamp(1.5rem, 6.5vw, 2rem)', color: '#F5F5F5' }}
+          >
+            {t.hero.headline}
+          </p>
+
+          <p
+            className="text-[14px] leading-relaxed mb-6"
+            style={{ color: 'rgba(255,255,255,0.36)' }}
+          >
+            {t.hero.tagline}
+          </p>
+
+          <div
+            className="flex items-start gap-7 mb-7"
+            style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '18px' }}
+          >
+            {[
+              { v: '3×',   l: de ? 'Kettenlaufzeit' : 'Chain life'    },
+              { v: '~€70', l: de ? 'gespart/12k km' : 'saved/12k km'  },
+              { v: '100%', l: de ? 'positiv eBay'   : 'positive eBay' },
+            ].map((s, i) => (
+              <div
+                key={i}
+                style={{
+                  paddingLeft: i > 0 ? '28px' : '0',
+                  borderLeft: i > 0 ? '1px solid rgba(255,255,255,0.08)' : 'none',
+                }}
+              >
+                <p className="text-[22px] font-black leading-none" style={{ color: '#F5F5F5' }}>
+                  {s.v}
+                </p>
+                <p className="text-[10px] mt-1.5" style={{ color: 'rgba(255,255,255,0.24)' }}>
+                  {s.l}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-4 flex-wrap">
+            <button
+              onClick={() => scrollToSection('#produkte')}
+              className="inline-flex items-center gap-2 px-7 py-3.5 text-sm font-bold rounded-full"
+              style={{ background: '#5B8BED', color: '#fff' }}
+            >
+              {t.hero.ctaBuy} <ArrowRight className="h-3.5 w-3.5" />
+            </button>
+            <button
+              onClick={() => scrollToSection('#warum-wachs')}
+              className="text-sm cursor-pointer"
+              style={{
+                color: 'rgba(255,255,255,0.28)',
+                textDecoration: 'underline',
+                textUnderlineOffset: '3px',
+              }}
+            >
+              {t.hero.ctaSecondary}
+            </button>
+          </div>
+
         </div>
       </div>
 
-      {/* Bottom fade into next section */}
-      <div
-        className="absolute bottom-0 left-0 right-0 h-40 pointer-events-none"
-        style={{ background: isDark ? 'linear-gradient(to top, #0A0A0A 0%, transparent 100%)' : 'none' }}
-      />
     </section>
   );
 }

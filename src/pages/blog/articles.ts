@@ -4,6 +4,11 @@ export interface ArticleSection {
   items?: string[];
 }
 
+export interface HowToStep {
+  name: string;
+  text: string;
+}
+
 export interface Article {
   slug: string;
   title: string;
@@ -15,6 +20,11 @@ export interface Article {
   sections: ArticleSection[];
   ctaSlug: string;
   ctaText: string;
+  howTo?: {
+    name: string;
+    totalTime: string;
+    steps: HowToStep[];
+  };
 }
 
 export const articles: Article[] = [
@@ -483,8 +493,197 @@ export const articles: Article[] = [
         text: 'Pro-Tipp für Vielfahr: Behalte denselben Topf und dasselbe Wachs für alle Ketten deiner Rotation. Das Wachs "lernt" über Zeit – die Zusammensetzung stabilisiert sich nach den ersten paar Ketten.',
       },
     ],
+    howTo: {
+      name: 'Fahrradkette mit Heißwachs behandeln',
+      totalTime: 'PT45M',
+      steps: [
+        { name: 'Kette entfetten', text: 'Neue Kette 2× je 60 Sekunden in Isopropanol 99 % schütteln, bis das IPA nicht mehr trüb wird. Dann vollständig trocknen lassen (10–15 min) und mit weißem Tuch prüfen — kein Ölfilm mehr sichtbar.' },
+        { name: 'Wachs erhitzen', text: 'Waxcelerate auf 85–90 °C erhitzen. Das Wachs ist bereit, wenn es vollständig flüssig ist und leicht glänzt, aber noch keine Dämpfe sichtbar sind.' },
+        { name: 'Kette eintauchen', text: 'Kette vollständig ins Wachsbad hängen. Mindestens 10–15 Minuten einwirken lassen — Deckel schließen hält die Temperatur stabiler.' },
+        { name: 'Kette aushängen und abkühlen', text: 'Kette an einem Haken aufhängen und abtropfen lassen. 10 Minuten auf Raumtemperatur abkühlen lassen.' },
+        { name: 'Einfahren', text: 'Kette 10–20 Mal durch die Hände laufen lassen, bis sie wieder biegsam ist. Überschüssiges Außenwachs bricht auf — das weiße Pulver, das abfällt, ist normal.' },
+      ],
+    },
     ctaSlug: 'wax-300',
     ctaText: 'Classic Heißwachs 300 g ansehen →',
+  },
+  {
+    slug: 'mos2-kettenwachs',
+    title: 'MoS₂ im Kettenwachs: Was Molybdändisulfid für deine Kette tut',
+    titleShort: 'MoS₂ Kettenwachs erklärt',
+    description: 'Was ist Molybdändisulfid (MoS₂) und warum ist es im Kettenwachs sinnvoll? Physik, Einsatzgebiete und wann Classic ausreicht.',
+    publishDate: '2026-06-01',
+    readingTime: '6 min',
+    intro: 'Waxcelerate Pro enthält neben Paraffin und PTFE auch Molybdändisulfid — abgekürzt MoS₂. Auf Produktverpackungen taucht der Begriff regelmäßig auf, eine Erklärung bleibt meist aus. Dieser Artikel erklärt, was MoS₂ auf atomarer Ebene tut, warum es bei Kettenschmierung sinnvoll ist, und wann du es wirklich brauchst.',
+    sections: [
+      {
+        type: 'h2',
+        text: 'Was ist Molybdändisulfid?',
+      },
+      {
+        type: 'p',
+        text: 'Molybdändisulfid (MoS₂) ist ein natürlich vorkommendes Mineral aus der Gruppe der Übergangsmetall-Dichalkogenide. Chemisch besteht es aus einem Molybdänatom zwischen zwei Schwefelatomen — S–Mo–S. Diese Schichtstruktur ist der Schlüssel zu seiner Schmierwirkung.',
+      },
+      {
+        type: 'p',
+        text: 'MoS₂-Kristalle sind in dünne Schichten aufgebaut, die durch schwache Van-der-Waals-Kräfte zusammengehalten werden. Unter mechanischem Druck gleiten diese Schichten gegeneinander ab — ähnlich wie Blätter in einem Stapel. Der Reibungskoeffizient liegt je nach Belastung und Atmosphäre zwischen 0,03 und 0,06. Unter Vakuum und extremem Druck sogar darunter — weshalb MoS₂ in der Raumfahrt und im Hochdruckmaschinenbau eingesetzt wird.',
+      },
+      {
+        type: 'h2',
+        text: 'Wie wirkt MoS₂ in einer Fahrradkette?',
+      },
+      {
+        type: 'p',
+        text: 'In einer Fahrradkette entstehen die größten Reibungskräfte in den Rollenlagern — dem Kontakt zwischen Kettenbolzen und Kettenhülse. Bei jedem Umlauf über das Kettenblatt und die Kassettenzähne verbiegt sich die Kette leicht, die Bolzen drehen sich in den Hülsen. Genau dort muss das Schmiermittel wirken.',
+      },
+      {
+        type: 'p',
+        text: 'Reines Paraffin mit PTFE (Waxcelerate Classic) schmiert gut bei normalen Bedingungen. Bei erhöhtem Druck — hohes Tretkraft, hohes Körpergewicht, E-Bike-Unterstützung oder schwere Geländebelastung — kann die Paraffinschicht komprimiert werden, und die Metallteile kommen näher aneinander. MoS₂ lagert sich als Transferfilm direkt auf den Metalloberflächen ab. Dieser Film bleibt auch dann wirksam, wenn der Paraffinfilm verdrängt wird.',
+      },
+      {
+        type: 'tip',
+        text: 'Der MoS₂-Transferfilm bildet sich nach den ersten 20–30 km. Deshalb läuft eine frisch mit Pro gewachste Kette nach kurzer Einfahrzeit noch etwas geschmeidiger als direkt nach der Montage.',
+      },
+      {
+        type: 'h2',
+        text: 'MoS₂ und Wasser: der Nasswitterungsvorteil',
+      },
+      {
+        type: 'p',
+        text: 'Paraffin alleine ist zwar wasserabweisend, wird aber bei längerem Regenkontakt von den Metalloberflächen abgewaschen — besonders an exponierten Stellen wie Kettenbolzen und Nieten. MoS₂ haftet als kovalent gebundener Transferfilm direkter auf der Stahloberfläche und widersteht Wasser besser als die rein physikalische Schicht aus Paraffin.',
+      },
+      {
+        type: 'p',
+        text: 'In der Praxis: Waxcelerate Classic hält bei Trockenheit 250–450 km, bei Nässe 150–250 km. Waxcelerate Pro hält trocken 300–550 km, nass 150–300 km. Der Unterschied bei Nässe ist geringer als bei Trockenheit, weil der MoS₂-Transferfilm unter Feuchtigkeit besonders schützend wirkt.',
+      },
+      {
+        type: 'h2',
+        text: 'Ist MoS₂ gesundheitlich bedenklich?',
+      },
+      {
+        type: 'p',
+        text: 'Nein. Molybdändisulfid ist chemisch inert, nicht wasserlöslich und wird nicht über die Haut aufgenommen. Es ist in der EU als Schmierstoffadditiv für Lebensmittelkontaktmaterialien zugelassen und wird seit Jahrzehnten in der Automobilindustrie, Luft- und Raumfahrt sowie im Maschinenbau eingesetzt. Die schwarze Farbe des Pro-Wachses kommt von den feinen MoS₂-Partikeln — sie hinterlässt auf der Kette eine leicht dunklere Patina, aber keinen Schmierfilm.',
+      },
+      {
+        type: 'h2',
+        text: 'Wann reicht Classic, wann brauche ich Pro?',
+      },
+      {
+        type: 'ul',
+        items: [
+          'Classic reicht: Überwiegend trockene Ausfahrten, Rennrad im Sommer, Gewicht unter 80 kg, keine E-Bike-Unterstützung',
+          'Pro sinnvoll: Ganzjahresbetrieb, häufige Regenfahrten, Gravelbike auf Schotter, schweres Gepäck oder E-Bike, Cyclocross',
+          'Pro empfohlen: Herbst und Winter, wenn Temperaturen unter 5 °C fallen — MoS₂ behält seine Schmierwirkung bis −8 °C',
+          'Im Zweifel: Pro. Der Preisunterschied (5 €) ist gering, der Vorteil bei wechselhaftem Wetter messbar',
+        ],
+      },
+      {
+        type: 'h2',
+        text: 'Warum das Wachs schwarz ist — und was das bedeutet',
+      },
+      {
+        type: 'p',
+        text: 'MoS₂ ist von Natur aus silbergrau bis schwarz. In Waxcelerate Pro ist es in feiner Partikelgröße in das Paraffinwachs eingemischt — daher die schwarze Farbe des Blocks und des flüssigen Wachses. Auf der Kette selbst ist nach dem Aushärten kaum Verfärbung sichtbar; der Großteil des überschüssigen Wachses bricht beim Einfahren ab (das weiße Pulver, das du an der Kette siehst). Was bleibt, ist der dünne, unsichtbare MoS₂-Transferfilm auf den Kontaktflächen.',
+      },
+      {
+        type: 'note',
+        text: 'Den Wachstopf nach der Nutzung von Pro-Wachs nicht mit Classic mischen — die schwarzen MoS₂-Partikel verbleiben im Topf und würden das Classic-Wachs leicht verunreinigen. Für Pro-Nutzer empfiehlt sich ein dedizierter Topf.',
+      },
+    ],
+    ctaSlug: 'wax-500-mos2',
+    ctaText: 'Waxcelerate Pro mit MoS₂ ansehen →',
+  },
+  {
+    slug: 'kettenwachs-rennrad-gravelbike',
+    title: 'Kettenwachs für Rennrad und Gravelbike: Warum Heißwachs hier besonders sinnvoll ist',
+    titleShort: 'Kettenwachs für Rennrad & Gravelbike',
+    description: 'Für Rennrad- und Gravelbike-Fahrer lohnt sich Heißwachs besonders: niedrigste Reibung, sauberer Antrieb, längere Kettenlaufzeit. Was zu beachten ist.',
+    publishDate: '2026-06-01',
+    readingTime: '7 min',
+    intro: 'Heißwachs ist für jede Fahrradkette geeignet — aber für Rennrad- und Gravelbike-Fahrer lohnt es sich besonders. Wer auf Leistung und Sauberkeit achtet, für wen jedes Watt zählt oder wer einfach nicht will, dass die Kette nach 50 km Gravelpiste eine schwarze Öllage trägt: Heißwachs ist die logische Wahl.',
+    sections: [
+      {
+        type: 'h2',
+        text: 'Reibung — warum Wachs auf dem Rennrad besonders wirkt',
+      },
+      {
+        type: 'p',
+        text: 'Eine Fahrradkette überträgt unter Last nie 100 % der Tretkraft. Ein Teil geht als Wärme verloren — durch innere Reibung in den Kettengelenken. Bei Kettenöl liegt dieser Verlust je nach Produkt bei 6–10 Watt (gemessen bei 250 W Eingangsleistung). Heißwachs mit PTFE kommt auf 3–5 Watt. Das klingt wenig, macht über 3 Stunden Fahrt aber einen merklichen Unterschied — und auf dem Rennrad, wo Watts gezählt werden, ist jede Reduktion relevant.',
+      },
+      {
+        type: 'p',
+        text: 'Waxcelerate Classic erzielt einen Reibungskoeffizient von 0,05–0,07, die Pro-Variante mit MoS₂ 0,03–0,06. Zum Vergleich: handelsübliches Nassöl liegt bei 0,15–0,25 — je nachdem wie viel Schmutz es bereits aufgenommen hat.',
+      },
+      {
+        type: 'h2',
+        text: 'Sauberkeit auf dem Gravelbike',
+      },
+      {
+        type: 'p',
+        text: 'Schotterfahrten bringen feinen Kies, Sand und Staub in direkten Kontakt mit dem Antrieb. Auf einer geölten Kette wirken diese Partikel wie Schleifpaste — der Verschleiß an Kassette und Kettenblatt steigt stark. Eine gewachste Kette ist trocken und zieht keinen Schmutz an. Partikel, die auf die Kette gelangen, haften nicht und werden beim nächsten Pedaltritt einfach weggeworfen.',
+      },
+      {
+        type: 'p',
+        text: 'Das Ergebnis: gewachste Ketten auf dem Gravelbike bleiben auch nach 60 km Schotter deutlich sauberer als geölte. Die Kassette bleibt länger scharf, das Schaltwerk funktioniert präziser, und das Antriebsgewicht bleibt stabil statt Dreck aufzunehmen.',
+      },
+      {
+        type: 'h2',
+        text: 'Welches Wachs für Rennrad, welches für Gravel?',
+      },
+      {
+        type: 'ul',
+        items: [
+          'Rennrad, Sommer, überwiegend Asphalt: Waxcelerate Classic reicht vollkommen. Reibungskoeffizient 0,05–0,07, Intervall 250–450 km trocken.',
+          'Rennrad, Ganzjahr oder häufig Regen: Waxcelerate Pro mit MoS₂. Bessere Nasswetterbeständigkeit, längere Intervalle (300–550 km trocken).',
+          'Gravelbike, gemischtes Terrain: Waxcelerate Pro. Der MoS₂-Transferfilm widersteht mechanischem Druck und Feuchtigkeit besser.',
+          'Cyclocross: Waxcelerate Pro. Kurze Intervalle, oft nass — die hydrophobe Matrix macht einen Unterschied.',
+        ],
+      },
+      {
+        type: 'h2',
+        text: 'Intervalle: Wie oft muss ich auf dem Rennrad nachwachsen?',
+      },
+      {
+        type: 'p',
+        text: 'Die Faustregeln aus der Praxis: Waxcelerate Classic bei trockenen Asphaltbedingungen alle 250–450 km. Bei Regen oder gemischten Bedingungen alle 150–250 km. Waxcelerate Pro trocken alle 300–550 km, bei Nässe alle 150–300 km.',
+      },
+      {
+        type: 'p',
+        text: 'Erkennbar ist das Ende des Intervalls am Klang: Der Antrieb klingt trockener, manchmal leichtes Quietschen unter Last. Auf dem Rennrad bei sportlicher Belastung spürst du auch minimal mehr Widerstand. Lieber 50 km früher nachwachsen als zu spät.',
+      },
+      {
+        type: 'tip',
+        text: '3-Ketten-Rotation auf dem Rennrad: Mit drei Ketten im Wechsel wächst du alle drei auf einmal (ca. 15 Minuten) und wechselst alle 300–400 km. Keine Wartezeit, kein Aufwand während der Saison, und alle drei Ketten verschleißen gleichmäßig — die Kassette hält doppelt so lange.',
+      },
+      {
+        type: 'h2',
+        text: 'Was ist mit modernen 12-fach-Systemen?',
+      },
+      {
+        type: 'p',
+        text: '12-fach-Ketten (Shimano Dura-Ace, SRAM Red/Force AXS, Campagnolo Super Record) sind enger gefertigt und empfindlicher gegenüber Abrasion. Genau deshalb profitieren sie besonders von Heißwachs: kein Schmutz, der die engen Toleranzen angreift. Waxcelerate ist mit allen gängigen 12-fach-Ketten getestet und kompatibel. Die Erstentfettung ist bei modernen 12-fach-Ketten wichtiger denn je — das Werkfett haftet stärker.',
+      },
+      {
+        type: 'h2',
+        text: 'Umstieg von Öl auf Wachs: Was auf dem Rennrad zu beachten ist',
+      },
+      {
+        type: 'ol',
+        items: [
+          'Alte Kette entsorgen oder vollständig entfetten (Ultraschallbad für beste Ergebnisse)',
+          'Kassette und Kettenblätter reinigen — Ölreste dort kontaminieren die neue Wachskette schnell',
+          'Neue Kette oder sauber entfettete Kette 10–15 min im Wachsbad (85–90 °C)',
+          'Erste 20–30 km sind die Einfahrphase — der MoS₂-Transferfilm bildet sich erst, Wachs bricht ein',
+          'Nach der Einfahrphase läuft die Kette auf dem Niveau, das du kennst: leise, leicht, sauber',
+        ],
+      },
+      {
+        type: 'note',
+        text: 'Vorgewachste Ketten von Waxcelerate überspringen Schritt 1–3 komplett. Die Kette kommt bereits entfettet, gewachst und einfahrbereit — einfach montieren und losfahren.',
+      },
+    ],
+    ctaSlug: 'wax-500',
+    ctaText: 'Waxcelerate Classic für Rennrad & Gravel ansehen →',
   },
 ];
 

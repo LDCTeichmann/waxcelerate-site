@@ -3,6 +3,12 @@
 @tailwind components;
 @tailwind utilities;
 
+:focus-visible {
+  outline: 2px solid #1A3C6E;
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
 @layer base {
   /* ── Light mode (default) ── */
   :root {

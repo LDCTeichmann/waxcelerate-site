@@ -5,11 +5,13 @@ import {
   ArrowLeft, ExternalLink, Check,
   ChevronRight, ChevronDown, Star,
 } from 'lucide-react';
-import { getProductById } from '@/lib/data';
+import { getProductById, products } from '@/lib/data';
+import type { Product } from '@/lib/data';
 import { richContent } from '@/lib/productContent';
 import { useLanguage } from '@/hooks/useLanguage';
 import { AddToCartButton } from '@/components/AddToCartButton';
 import { CartIcon } from '@/components/CartIcon';
+import { ImageLightbox } from '@/components/ImageLightbox';
 
 type RichTab = 'formula' | 'vergleich' | 'kosten';
 
@@ -20,6 +22,7 @@ export function ProductDetailPage() {
   const de = lang === 'de';
 
   const [activeImage, setActiveImage] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
   const [highlightsOpen, setHighlightsOpen] = useState(false);
   const [specsOpen, setSpecsOpen] = useState(false);
   const [compatExpanded, setCompatExpanded] = useState(false);
@@ -55,6 +58,17 @@ export function ProductDetailPage() {
   const highlights = de ? product.highlights : product.highlightsEn;
   const descriptionText = de ? product.description : product.descriptionEn;
   const titleText = de ? product.title : product.titleEn;
+
+  const related = products
+    .filter(p => p.id !== product.id)
+    .filter(p => {
+      if (product.category === 'wax') {
+        return p.category === 'wax' || (p.category === 'chain' && p.variant === undefined);
+      } else {
+        return p.category === 'wax';
+      }
+    })
+    .slice(0, 3);
 
   const pricePerApp = product.applications
     ? product.price / parseFloat(product.applications.split('–')[1] ?? product.applications)
@@ -156,8 +170,9 @@ export function ProductDetailPage() {
             {/* Left — image */}
             <div className="lg:sticky lg:top-24 flex flex-col gap-3">
               <div
-                className="relative rounded-2xl overflow-hidden aspect-square"
-                style={{ border: '1px solid var(--bd2)', background: 'var(--sf2)' }}
+                className={`relative rounded-2xl overflow-hidden aspect-square${gallery.length > 1 ? ' ring-2 ring-transparent hover:ring-white/30 transition-all' : ''}`}
+                style={{ border: '1px solid var(--bd2)', background: 'var(--sf2)', cursor: gallery.length > 1 ? 'zoom-in' : undefined }}
+                onClick={gallery.length > 1 ? () => setLightboxOpen(true) : undefined}
               >
                 <img
                   key={activeImage}
@@ -790,8 +805,29 @@ export function ProductDetailPage() {
               </a>
             </div>
           )}
+          {/* ── RELATED PRODUCTS ── */}
+          {related.length > 0 && (
+            <section className="mt-12 pt-8" style={{ borderTop: '1px solid var(--bd)' }}>
+              <h2 className="text-[15px] font-semibold text-wx-tx1 mb-4">
+                {de ? 'Passend dazu' : 'You might also like'}
+              </h2>
+              <div className="flex flex-col gap-2">
+                {related.map(p => <RelatedCard key={p.id} product={p} de={de} formatPrice={formatPrice} />)}
+              </div>
+            </section>
+          )}
+
         </div>
       </div>
+
+      {lightboxOpen && (
+        <ImageLightbox
+          images={gallery}
+          activeIndex={activeImage}
+          onClose={() => setLightboxOpen(false)}
+          onChange={(i) => setActiveImage(i)}
+        />
+      )}
     </>
   );
 }
@@ -850,5 +886,37 @@ function SpecRow({ label, value }: { label: string; value: string }) {
       <span className="text-[10px] uppercase tracking-wide text-wx-txff">{label}</span>
       <span className="text-sm font-medium" style={{ color: 'var(--txm)' }}>{value}</span>
     </div>
+  );
+}
+
+function RelatedCard({ product: p, de, formatPrice }: { product: Product; de: boolean; formatPrice: (n: number) => string }) {
+  const title = de ? p.title : p.titleEn;
+  const cardInner = (
+    <div
+      className="flex items-center gap-3 p-3 rounded-xl transition-all"
+      style={{ border: '1px solid var(--bd)', background: 'var(--sf)' }}
+      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--bd2)'; }}
+      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--bd)'; }}
+    >
+      <img
+        src={p.image}
+        alt={title}
+        className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
+        onError={e => { (e.target as HTMLImageElement).src = '/images/wax-block-spin.jpg'; }}
+      />
+      <div className="min-w-0">
+        <p className="text-[14px] font-semibold text-wx-tx1 leading-tight truncate">{title}</p>
+        <p className="text-[13px] mt-1" style={{ color: '#1A3C6E' }}>{formatPrice(p.price)}</p>
+      </div>
+    </div>
+  );
+
+  if (p.category === 'wax') {
+    return <Link to={`/produkt/${p.id}`}>{cardInner}</Link>;
+  }
+  return (
+    <a href={p.ebayUrl} target="_blank" rel="noopener noreferrer">
+      {cardInner}
+    </a>
   );
 }

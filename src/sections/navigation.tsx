@@ -3,6 +3,7 @@ import { Menu, X, Moon, Sun } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
 import { CartIcon } from '@/components/CartIcon';
+import { useActiveSection } from '@/hooks/useActiveSection';
 
 const navItems = [
   { href: '#produkte',    key: 'products' },
@@ -16,11 +17,11 @@ const navItems = [
 export function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState<string>('');
   const { t, lang, toggleLang } = useLanguage();
   const { theme, setTheme } = useTheme();
-  const isDark = theme === 'dark' || theme === 'noir';
+
   const de = lang === 'de';
+  const activeSection = useActiveSection(navItems.map(i => i.href));
 
   useEffect(() => {
     const handleScroll = () => {
@@ -33,31 +34,21 @@ export function Navigation() {
 
   useEffect(() => {
     document.body.style.overflow = isMobileMenuOpen ? 'hidden' : '';
+
+    if (isMobileMenuOpen) {
+      setTimeout(() => {
+        const panel = document.getElementById('mobile-menu');
+        const focusable = panel?.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        focusable?.[0]?.focus();
+      }, 100);
+    } else {
+      document.getElementById('mobile-menu-button')?.focus();
+    }
+
     return () => { document.body.style.overflow = ''; };
   }, [isMobileMenuOpen]);
-
-  useEffect(() => {
-    const sectionIds = navItems.map(item => item.href.replace('#', ''));
-    const elements = sectionIds
-      .map(id => document.getElementById(id))
-      .filter(Boolean) as HTMLElement[];
-
-    if (elements.length === 0) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            setActiveSection('#' + entry.target.id);
-          }
-        });
-      },
-      { rootMargin: '-15% 0px -75% 0px', threshold: 0 }
-    );
-
-    elements.forEach(el => observer.observe(el));
-    return () => observer.disconnect();
-  }, []);
 
   const scrollToSection = (href: string) => {
     const element = document.querySelector(href);
@@ -73,8 +64,8 @@ export function Navigation() {
       <header
         className="fixed top-0 left-0 right-0 z-50 py-2 transition-all duration-300"
         style={{
-          background: isScrolled ? 'var(--nav-bg)' : (isDark ? 'rgba(10,10,10,0.72)' : 'transparent'),
-          boxShadow: isScrolled ? 'inset 0 -1px 0 var(--bd)' : (isDark ? 'inset 0 -1px 0 rgba(255,255,255,0.06)' : 'none'),
+          background: isScrolled ? 'var(--nav-bg)' : 'rgba(6,7,8,0.0)',
+          boxShadow: isScrolled ? 'inset 0 -1px 0 var(--bd)' : 'inset 0 -1px 0 rgba(255,255,255,0.06)',
           backdropFilter: 'blur(16px)',
           WebkitBackdropFilter: 'blur(16px)',
         }}
@@ -99,10 +90,19 @@ export function Navigation() {
               />
               <span
                 className="font-sans text-sm font-bold tracking-wide transition-colors duration-300"
-                style={{ color: isScrolled ? 'var(--tx1)' : (isDark ? 'rgba(255,255,255,0.9)' : 'var(--tx1)') }}
+                style={{ color: isScrolled ? 'var(--tx1)' : 'rgba(255,255,255,0.9)' }}
               >
                 WAXCELERATE
               </span>
+              {isScrolled && activeSection !== '' && activeSection !== '#home' && (
+                <span
+                  className="hidden lg:inline-flex items-center gap-1 text-[10px] ml-1 px-2 py-0.5 rounded-full"
+                  style={{ background: 'var(--sf3)', color: 'var(--txf)', border: '1px solid var(--bd)' }}
+                >
+                  <span style={{ color: '#D4AA30' }}>★★★★★</span>
+                  <span>171</span>
+                </span>
+              )}
             </a>
 
             {/* Desktop Navigation */}
@@ -126,14 +126,12 @@ export function Navigation() {
                   style={{
                     color: isScrolled
                       ? (activeSection === item.href ? 'var(--tx1)' : 'var(--tx2)')
-                      : (isDark
-                          ? (activeSection === item.href ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0.88)')
-                          : (activeSection === item.href ? 'var(--tx1)' : 'var(--tx2)')),
+                      : (activeSection === item.href ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0.82)'),
                   }}
                 >
                   {t.nav[item.key as keyof typeof t.nav]}
                   {activeSection === item.href && (
-                    <span className="absolute bottom-0 left-4 right-4 h-px" style={{ background: (isScrolled || !isDark) ? '#1A3C6E' : 'rgba(255,255,255,0.5)' }} />
+                    <span className="absolute bottom-0 left-4 right-4 h-px" style={{ background: isScrolled ? '#1A3C6E' : 'rgba(255,255,255,0.5)' }} />
                   )}
                   {activeSection !== item.href && (
                     <span
@@ -206,6 +204,26 @@ export function Navigation() {
           isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
         style={{ background: 'var(--pg)' }}
+        onKeyDown={(e) => {
+          if (!isMobileMenuOpen) return;
+          const panel = document.getElementById('mobile-menu');
+          const focusable = Array.from(
+            panel?.querySelectorAll<HTMLElement>(
+              'button:not([disabled]), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+            ) ?? []
+          );
+          if (focusable.length === 0) return;
+          const first = focusable[0];
+          const last = focusable[focusable.length - 1];
+          if (e.key === 'Tab') {
+            if (e.shiftKey) {
+              if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+            } else {
+              if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+            }
+          }
+          if (e.key === 'Escape') setIsMobileMenuOpen(false);
+        }}
       >
         {/* Top bar */}
         <div className="flex items-center justify-between px-5 h-16 border-b border-wx-bd/20 flex-shrink-0">

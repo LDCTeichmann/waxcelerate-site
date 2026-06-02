@@ -181,6 +181,36 @@ function StepSection({ active, children }: { active: boolean; children: React.Re
   );
 }
 
+// ─── Shared CTA button — consistent across all tools ────────────────────────
+function ToolCTA({ onClick, href, children }: {
+  onClick?: () => void;
+  href?: string;
+  children: React.ReactNode;
+}) {
+  const style: React.CSSProperties = {
+    background: 'var(--inset-bg)',
+    border: '1px solid var(--brand)',
+  };
+  const className = "w-full rounded-xl py-2.5 px-4 text-center transition-opacity hover:opacity-70 active:opacity-50 cursor-pointer";
+  const inner = (
+    <span className="text-[12px] font-medium" style={{ color: 'var(--brand)' }}>
+      {children}
+    </span>
+  );
+  if (href) {
+    return (
+      <a href={href} target="_blank" rel="noopener noreferrer" className={`block ${className}`} style={style}>
+        {inner}
+      </a>
+    );
+  }
+  return (
+    <button onClick={onClick} className={className} style={style}>
+      {inner}
+    </button>
+  );
+}
+
 // ─── Tool 1: Rewax Interval Calculator ───────────────────────────────────────
 function RewaxCalculator() {
   const { t, lang } = useLanguage();
@@ -188,10 +218,8 @@ function RewaxCalculator() {
   const [weather, setWeather] = useState<'trocken' | 'gemischt' | 'nass'>('trocken');
   const [terrain, setTerrain] = useState<'strasse' | 'gravel' | 'mtb'>('strasse');
   const [kmPerWeek, setKmPerWeek] = useState(100);
-  const [phase, setPhase] = useState(1);
 
   const MAX_REWAX_WEEKS = 26;
-
   const interval = waxIntervals[weather][terrain];
   const rawWeeks = kmPerWeek > 0 ? Math.round(interval / kmPerWeek) : MAX_REWAX_WEEKS;
   const weeks = Math.min(rawWeeks, MAX_REWAX_WEEKS);
@@ -208,9 +236,18 @@ function RewaxCalculator() {
     { value: 'mtb', label: t.tools.rewax.mtb },
   ];
 
-  const hint = de
-    ? 'Rewaxe wenn die Kette leise kratzt oder deutlich lauter läuft als gewohnt — das Wachs ist aufgebraucht.'
-    : 'Re-wax when the chain starts scratching quietly or runs noticeably louder than usual — the wax is used up.';
+  const goToWax = () => {
+    document.querySelector('#produkte')?.scrollIntoView({ behavior: 'smooth' });
+    window.dispatchEvent(new CustomEvent('wax:selectTab', { detail: 'wax' }));
+  };
+
+  const rewaxDate = useMemo(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + weeks * 7);
+    return d.toLocaleDateString(de ? 'de-DE' : 'en-GB', { day: 'numeric', month: 'long' });
+  }, [weeks, de]);
+
+  const SEP = <div style={{ borderTop: '1px solid var(--inset-bd)' }} />;
 
   return (
     <ToolCard>
@@ -221,74 +258,225 @@ function RewaxCalculator() {
           ? 'Nie wieder zu früh oder zu spät — erhalte dein genaues Rewax-Intervall.'
           : 'Never too early or too late — get your exact rewax interval.'}
       />
-      <div className="px-6 pb-6 flex flex-col flex-1 gap-5">
-        <div className="space-y-5 flex-1">
-          {/* Step 1: Weather — always active */}
+      <div className="flex flex-col flex-1">
+
+        {/* Hero result — always visible, updates live as parameters change below */}
+        <div className="px-6 pt-5 pb-5 text-center flex flex-col items-center">
+          <div className="flex items-baseline justify-center gap-2 mb-2">
+            <span className="text-[56px] font-bold leading-none tabular-nums" style={{ color: 'var(--tx1)' }}>
+              <AnimatedNumber value={weeks} />
+            </span>
+            <span className="text-[22px] font-semibold leading-none" style={{ color: 'var(--tx2)' }}>
+              {weeks === 1 ? (de ? 'Woche' : 'week') : (de ? 'Wochen' : 'weeks')}
+              {weeksCapped && <span className="text-[14px]" style={{ color: 'var(--txm)' }}> max.</span>}
+            </span>
+          </div>
+          <p className="text-[12px] mb-3" style={{ color: 'var(--txf)' }}>
+            {de ? 'bis zum nächsten Rewaxen' : 'until next rewax'}
+          </p>
+          {/* Compact meta: date · range per wax */}
+          <div className="flex items-center gap-2.5">
+            <span className="text-[12px] font-medium" style={{ color: 'var(--txm)' }}>
+              {de ? `ca. ${rewaxDate}` : `~${rewaxDate}`}
+            </span>
+            <span style={{ color: 'var(--bd2)' }}>·</span>
+            <span className="text-[12px] tabular-nums" style={{ color: 'var(--txff)' }}>
+              <AnimatedNumber value={interval} suffix=" km" />
+            </span>
+          </div>
+        </div>
+
+        {SEP}
+
+        {/* Parameters — evenly distributed vertically to fill the card height */}
+        <div className="px-6 pt-4 pb-4 flex flex-col flex-1 justify-evenly">
           <div>
             <FieldLabel label={t.tools.rewax.weather} />
             <div className="flex flex-wrap gap-2">
               {weatherOpts.map(o => (
-                <TogButton key={o.value} active={weather === o.value} onClick={() => {
-                  setWeather(o.value);
-                  setPhase(p => Math.max(p, 2));
-                }}>
+                <TogButton key={o.value} active={weather === o.value} onClick={() => setWeather(o.value)}>
                   {o.label}
                 </TogButton>
               ))}
             </div>
           </div>
 
-          {/* Step 2: Terrain — reveals after weather click */}
-          <StepSection active={phase >= 2}>
-            <div>
-              <FieldLabel label={t.tools.rewax.terrain} />
-              <div className="flex flex-wrap gap-2">
-                {terrainOpts.map(o => (
-                  <TogButton key={o.value} active={terrain === o.value} onClick={() => {
-                    setTerrain(o.value);
-                    setPhase(p => Math.max(p, 3));
-                  }}>
-                    {o.label}
-                  </TogButton>
-                ))}
-              </div>
+          <div>
+            <FieldLabel label={t.tools.rewax.terrain} />
+            <div className="flex flex-wrap gap-2">
+              {terrainOpts.map(o => (
+                <TogButton key={o.value} active={terrain === o.value} onClick={() => setTerrain(o.value)}>
+                  {o.label}
+                </TogButton>
+              ))}
             </div>
-          </StepSection>
+          </div>
 
-          {/* Step 3: KM/week — reveals after terrain click */}
-          <StepSection active={phase >= 3}>
-            <div>
-              <FieldLabel label={t.tools.rewax.kmPerWeek} value={`${kmPerWeek} km`} />
-              <Slider
-                value={[kmPerWeek]}
-                onValueChange={v => setKmPerWeek(v[0])}
-                min={20} max={400} step={10}
-                className="py-1"
-              />
-            </div>
-          </StepSection>
+          <div>
+            <FieldLabel label={t.tools.rewax.kmPerWeek} value={`${kmPerWeek} km`} />
+            <Slider
+              value={[kmPerWeek]}
+              onValueChange={v => setKmPerWeek(v[0])}
+              min={20} max={400} step={10}
+              className="py-1"
+            />
+          </div>
         </div>
 
-        {/* Result — reveals with the km slider */}
-        <StepSection active={phase >= 3}>
+        {/* CTA — prompt to buy wax after seeing the interval */}
+        <div className="px-6 pb-5 pt-2">
+          <ToolCTA onClick={goToWax}>
+            {de ? 'Wachs kaufen →' : 'Buy wax →'}
+          </ToolCTA>
+        </div>
+      </div>
+    </ToolCard>
+  );
+}
+
+// ─── Tool 2: Wax Stock Calculator ────────────────────────────────────────────
+function fmtDuration(months: number, de: boolean): string {
+  if (months > 24) return de ? `~${Math.round(months / 12)} Jahre` : `~${Math.round(months / 12)} yrs`;
+  return de ? `~${months} Monate` : `~${months} months`;
+}
+
+function WaxStockCalculator() {
+  const { lang } = useLanguage();
+  const de = lang === 'de';
+
+  type FreqKey = 'frequent' | 'regular' | 'occasional' | 'rare';
+  const [freq, setFreq] = useState<FreqKey | null>(null);
+
+  const freqOpts: { value: FreqKey; label: string; hint: string; km: string; rewaxPerMonth: number }[] = [
+    { value: 'frequent',   label: de ? 'Alle 2–3 Wochen' : 'Every 2–3 weeks',  hint: de ? 'Vielfahrer · Rennsport' : 'Heavy rider · Racing',  km: de ? '~150 km/Wo.' : '~150 km/wk',  rewaxPerMonth: 1.67 },
+    { value: 'regular',    label: de ? 'Einmal im Monat'  : 'Once a month',     hint: de ? 'Wochenend­fahrer'       : 'Weekend rider',         km: de ? '~100 km/Wo.' : '~100 km/wk',  rewaxPerMonth: 1 },
+    { value: 'occasional', label: de ? 'Alle 2–3 Monate'  : 'Every 2–3 months', hint: de ? 'Gelegenheits­fahrer'   : 'Occasional rider',      km: de ? '~40 km/Wo.'  : '~40 km/wk',   rewaxPerMonth: 0.4 },
+    { value: 'rare',       label: de ? 'Noch seltener'    : 'Less often',       hint: de ? 'Selten unterwegs'      : 'Infrequent rider',      km: de ? '< 20 km/Wo.' : '< 20 km/wk',  rewaxPerMonth: 0.18 },
+  ];
+
+  const WAX_PER_REWAX = 20; // grams per wax session (300g ÷ 20 = 15 sessions, aligns with "20–25 apps/300g")
+  const SHELF_LIFE_MONTHS = 30;
+
+  const selected = freqOpts.find(f => f.value === freq);
+  const waxPerMonth = selected ? selected.rewaxPerMonth * WAX_PER_REWAX : 0;
+  const hasResult = selected !== undefined;
+
+  const months300 = hasResult && waxPerMonth > 0 ? Math.max(1, Math.round(300 / waxPerMonth)) : 0;
+  const months500 = hasResult && waxPerMonth > 0 ? Math.max(1, Math.round(500 / waxPerMonth)) : 0;
+
+  // Recommend 300g only when 300g already outlasts shelf life
+  const rec: '300' | '500' = months300 > SHELF_LIFE_MONTHS ? '300' : '500';
+
+  const recMonths  = rec === '500' ? months500 : months300;
+  const altMonths  = rec === '500' ? months300 : months500;
+  const recPrice   = rec === '500' ? (de ? '29,95' : '29.95') : (de ? '22,95' : '22.95');
+  const altPrice   = rec === '500' ? (de ? '22,95' : '22.95') : (de ? '29,95' : '29.95');
+  const altSize    = rec === '500' ? '300' : '500';
+  const recUrl     = rec === '500' ? 'https://www.ebay.de/itm/395811184583' : 'https://www.ebay.de/itm/395811183957';
+  const altUrl     = altSize === '500' ? 'https://www.ebay.de/itm/395811184583' : 'https://www.ebay.de/itm/395811183957';
+
+  // Concrete reason based on actual session count
+  const rewaxPerYear = hasResult ? Math.round(selected!.rewaxPerMonth * 12) : 0;
+  const recReason = !hasResult ? '' : rec === '500'
+    ? (de
+      ? `Du wachst ~${rewaxPerYear}× im Jahr — 500g ist günstiger pro Anwendung.`
+      : `You wax ~${rewaxPerYear}× per year — 500g is cheaper per session.`)
+    : (de
+      ? `Bei ~${rewaxPerYear}× im Jahr reicht 300g über die gesamte Saison.`
+      : `At ~${rewaxPerYear}× per year, 300g lasts the whole season.`);
+
+  return (
+    <ToolCard>
+      <ToolHeader
+        icon={<Package className="h-4 w-4" style={{ color: 'var(--txm)' }} />}
+        title={de ? 'Wie viel Wachs brauche ich?' : 'How much wax do I need?'}
+        subtitle={de
+          ? 'Bestell genau das richtige Paket — keine Verschwendung, kein Engpass.'
+          : 'Order exactly the right amount — no waste, no shortfall.'}
+      />
+      <div className="px-6 flex flex-col flex-1 gap-5 pb-6">
+        {/* Single question: rewax frequency */}
+        <div className="flex-1">
+          <FieldLabel label={de ? 'Wie oft rewaxst du?' : 'How often do you re-wax?'} />
+          <div className="grid grid-cols-2 gap-2">
+            {freqOpts.map(o => (
+              <button
+                key={o.value}
+                onClick={() => setFreq(o.value)}
+                className="rounded-xl px-3 py-3 text-left transition-all cursor-pointer"
+                style={{
+                  border: `1px solid ${freq === o.value ? 'rgba(59,100,210,0.55)' : 'var(--tog-bd)'}`,
+                  background: freq === o.value
+                    ? 'linear-gradient(135deg, rgba(26,60,110,0.28) 0%, rgba(26,60,110,0.12) 100%)'
+                    : 'var(--tog-bg)',
+                }}
+              >
+                <p className="text-[13px] font-medium leading-snug" style={{ color: freq === o.value ? 'var(--tx1)' : 'var(--tog-fg)' }}>
+                  {o.label}
+                </p>
+                <p className="text-[11px] mt-0.5 leading-snug" style={{ color: freq === o.value ? 'var(--tx2)' : 'var(--txff)' }}>
+                  {o.hint}
+                </p>
+                <p className="text-[11px] mt-0.5 tabular-nums" style={{ color: freq === o.value ? 'var(--txm)' : 'var(--txff)' }}>
+                  {o.km}
+                </p>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Result — fades in after selection */}
+        <StepSection active={hasResult}>
           <ResultBox>
-            <p className="text-[46px] font-bold text-center leading-none tabular-nums" style={{ color: 'var(--tx1)' }}>
-              <AnimatedNumber value={weeks} />
-            </p>
-            <p className="text-[13px] text-center mt-1.5" style={{ color: 'var(--tx2)' }}>
-              {weeks === 1 ? (de ? 'Woche' : 'week') : (de ? 'Wochen' : 'weeks')}{' '}
-              {de ? 'bis zum nächsten Rewaxen' : 'until next rewax'}
-              {weeksCapped && <span style={{ color: 'var(--txm)' }}> (max.)</span>}
-            </p>
-            <p className="text-[12px] text-center mt-0.5" style={{ color: 'var(--txm)' }}>
-              {interval} km · {de ? `bei ${kmPerWeek} km/Wo.` : `at ${kmPerWeek} km/wk`}
-            </p>
-            <p
-              className="text-[11px] text-center mt-3 pt-3 leading-snug"
-              style={{ borderTop: '1px solid var(--inset-bd)', color: 'var(--txf)' }}
-            >
-              {hint}
-            </p>
+            {/* Primary recommendation — links to eBay */}
+            <a href={recUrl} target="_blank" rel="noopener noreferrer" className="block group">
+              <div
+                className="rounded-xl p-4 transition-opacity group-hover:opacity-80"
+                style={{
+                  background: 'var(--sf3)',
+                  border: '1px solid var(--brand)',
+                }}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-[10px] uppercase tracking-[0.14em]" style={{ color: 'var(--brand)' }}>
+                    {de ? 'Empfohlen' : 'Recommended'}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-[12px]" style={{ color: 'var(--txf)' }}>
+                      {rec}g — {recPrice} €
+                    </p>
+                    <span className="text-[11px]" style={{ color: 'var(--brand)' }}>eBay →</span>
+                  </div>
+                </div>
+                <p className="text-[42px] font-bold leading-none mb-2" style={{ color: 'var(--tx1)' }}>
+                  {fmtDuration(recMonths, de)}
+                </p>
+                <p className="text-[11px] leading-snug" style={{ color: 'var(--txf)' }}>
+                  {recReason}
+                </p>
+              </div>
+            </a>
+
+            {/* Alt option — secondary button style */}
+            <a href={altUrl} target="_blank" rel="noopener noreferrer" className="block mt-3 group">
+              <div
+                className="rounded-xl px-4 py-3 flex items-center justify-between transition-opacity group-hover:opacity-70"
+                style={{
+                  background: 'var(--tog-bg)',
+                  border: '1px solid var(--tog-bd)',
+                }}
+              >
+                <p className="text-[12px]" style={{ color: 'var(--txff)' }}>
+                  {altSize}g — {altPrice} €
+                </p>
+                <div className="flex items-center gap-2">
+                  <p className="text-[12px] tabular-nums" style={{ color: 'var(--txff)' }}>
+                    {fmtDuration(altMonths, de)}
+                  </p>
+                  <span className="text-[11px]" style={{ color: 'var(--txff)' }}>eBay →</span>
+                </div>
+              </div>
+            </a>
           </ResultBox>
         </StepSection>
       </div>
@@ -296,604 +484,229 @@ function RewaxCalculator() {
   );
 }
 
-// ─── Tool 2: Wax Stock Calculator ────────────────────────────────────────────
-function WaxStockCalculator() {
-  const { t, lang } = useLanguage();
-  const de = lang === 'de';
-  const [chainCount, setChainCount] = useState(2);
-  const [kmPerMonth, setKmPerMonth] = useState(400);
-  const [weather, setWeather] = useState<'trocken' | 'gemischt' | 'nass'>('gemischt');
-  const [terrain, setTerrain] = useState<'strasse' | 'gravel' | 'mtb'>('strasse');
-  const [phase, setPhase] = useState(1);
-
-  const WAX_GRAMS_PER_APP = 15;
-  const MAX_MONTHS = 30;
-
-  const appsPerMonth = kmPerMonth / waxIntervals[weather][terrain];
-  const waxPerMonth = appsPerMonth * WAX_GRAMS_PER_APP * chainCount;
-  const tooLittle = waxPerMonth < 5;
-
-  const months300 = tooLittle ? MAX_MONTHS : Math.min(Math.max(1, Math.round(300 / waxPerMonth)), MAX_MONTHS);
-  const months500 = tooLittle ? MAX_MONTHS : Math.min(Math.max(1, Math.round(500 / waxPerMonth)), MAX_MONTHS);
-  const cost300 = (22.95 / months300).toFixed(2);
-  const cost500 = (29.95 / months500).toFixed(2);
-  const rec = waxPerMonth > 80 ? '500' : parseFloat(cost500) < parseFloat(cost300) ? '500' : '300';
-
-  const weatherOpts: { value: 'trocken' | 'gemischt' | 'nass'; label: string }[] = [
-    { value: 'trocken', label: t.tools.rewax.dry },
-    { value: 'gemischt', label: t.tools.rewax.mixed },
-    { value: 'nass', label: t.tools.rewax.wet },
-  ];
-  const terrainOpts: { value: 'strasse' | 'gravel' | 'mtb'; label: string }[] = [
-    { value: 'strasse', label: t.tools.rewax.road },
-    { value: 'gravel', label: t.tools.rewax.gravel },
-    { value: 'mtb', label: t.tools.rewax.mtb },
-  ];
-
-  return (
-    <ToolCard>
-      <ToolHeader
-        icon={<Package className="h-4 w-4" style={{ color: 'var(--txm)' }} />}
-        title={t.tools.stock.title}
-        subtitle={de
-          ? 'Bestell genau das richtige Paket — keine Verschwendung, kein Engpass.'
-          : 'Order exactly the right amount — no waste, no shortfall.'}
-      />
-      <div className="px-6 flex flex-col flex-1 gap-5 pb-6">
-        <div className="space-y-5 flex-1">
-          {/* Step 1: Weather — always active */}
-          <div>
-            <FieldLabel label={t.tools.stock.weather} />
-            <div className="flex flex-wrap gap-2">
-              {weatherOpts.map(o => (
-                <TogButton key={o.value} active={weather === o.value} onClick={() => {
-                  setWeather(o.value);
-                  setPhase(p => Math.max(p, 2));
-                }}>
-                  {o.label}
-                </TogButton>
-              ))}
-            </div>
-          </div>
-
-          {/* Step 2: Terrain — reveals after weather click */}
-          <StepSection active={phase >= 2}>
-            <div>
-              <FieldLabel label={de ? 'Gelände' : 'Terrain'} />
-              <div className="flex flex-wrap gap-2">
-                {terrainOpts.map(o => (
-                  <TogButton key={o.value} active={terrain === o.value} onClick={() => {
-                    setTerrain(o.value);
-                    setPhase(p => Math.max(p, 3));
-                  }}>
-                    {o.label}
-                  </TogButton>
-                ))}
-              </div>
-            </div>
-          </StepSection>
-
-          {/* Step 3: Sliders — reveal after terrain click */}
-          <StepSection active={phase >= 3}>
-            <div className="space-y-5">
-              <div>
-                <FieldLabel label={t.tools.stock.chainCount} value={`${chainCount}`} />
-                <Slider value={[chainCount]} onValueChange={v => setChainCount(v[0])} min={1} max={4} step={1} className="py-1" />
-              </div>
-              <div>
-                <FieldLabel label={t.tools.stock.kmPerMonth} value={`${kmPerMonth} km`} />
-                <Slider value={[kmPerMonth]} onValueChange={v => setKmPerMonth(v[0])} min={50} max={1200} step={50} className="py-1" />
-              </div>
-            </div>
-          </StepSection>
-        </div>
-
-        <StepSection active={phase >= 3}>
-        <ResultBox>
-          {tooLittle ? (
-            <>
-              <p
-                className="text-[11px] uppercase tracking-[0.1em] mb-2"
-                style={{ color: 'var(--txf)' }}
-              >
-                {de ? 'Empfehlung' : 'Recommendation'}
-              </p>
-              <p className="text-[13px] leading-snug" style={{ color: 'var(--txm)' }}>
-                {de
-                  ? 'Dein Verbrauch ist sehr niedrig — der 300g-Block reicht länger als seine Haltbarkeit (~2–3 Jahre). Die 300g genügen vollkommen.'
-                  : 'Your usage is very low — the 300g block lasts longer than its shelf life (~2–3 years). The 300g is more than enough.'}
-              </p>
-            </>
-          ) : (
-            <>
-              <p
-                className="text-[11px] uppercase tracking-[0.1em] mb-3"
-                style={{ color: 'var(--txf)' }}
-              >
-                {de ? 'Empfohlene Packung' : 'Recommended Package'}
-              </p>
-              <div className="grid grid-cols-2 gap-2">
-                {(['300', '500'] as const).map(size => {
-                  const isRec = rec === size;
-                  const months = size === '300' ? months300 : months500;
-                  const cost = size === '300' ? cost300 : cost500;
-                  const price = size === '300' ? '22,95' : '29,95';
-                  const url = size === '300'
-                    ? 'https://www.ebay.de/itm/395811183957'
-                    : 'https://www.ebay.de/itm/395811184583';
-                  return (
-                    <a key={size} href={url} target="_blank" rel="noopener noreferrer">
-                      <div
-                        className="rounded-xl border p-3.5 text-center transition-all"
-                        style={{
-                          borderColor: isRec ? 'var(--bd)' : 'var(--inset-bd)',
-                          background: isRec ? 'var(--sf3)' : 'var(--inset-bg)',
-                        }}
-                      >
-                        {isRec && (
-                          <p
-                            className="text-[10px] uppercase tracking-[0.14em] mb-1.5"
-                            style={{ color: 'var(--txm)' }}
-                          >
-                            {de ? 'Empfohlen' : 'Recommended'}
-                          </p>
-                        )}
-                        <p className="text-[22px] font-bold leading-none tabular-nums" style={{ color: 'var(--tx1)' }}>
-                          ~<AnimatedNumber value={months} />
-                          <span className="text-[12px] font-normal ml-1" style={{ color: 'var(--txf)' }}>
-                            {de ? 'Mo.' : 'mo.'}
-                          </span>
-                        </p>
-                        <p className="text-[12px] mt-1.5" style={{ color: 'var(--txm)' }}>
-                          {size}g — {price} €
-                        </p>
-                        <p className="text-[11px] mt-0.5" style={{ color: 'var(--txff)' }}>
-                          {cost} €/{de ? 'Monat' : 'month'}
-                        </p>
-                      </div>
-                    </a>
-                  );
-                })}
-              </div>
-            </>
-          )}
-        </ResultBox>
-        </StepSection>
-      </div>
-    </ToolCard>
-  );
-}
-
-// ─── Tool 3: Cost Savings Calculator ─────────────────────────────────────────
-function CostSavingsCalculator() {
+// ─── Tool 3: Rotation & Savings (merged) ─────────────────────────────────────
+function RotationAndSavings() {
   const { lang } = useLanguage();
   const de = lang === 'de';
-  const [km, setKm] = useState(12000);
-  const [showDetails, setShowDetails] = useState(false);
+  const [kmPerYear, setKmPerYear] = useState(5000);
 
-  const CHAIN_PRICE     = 46;
-  const OIL_CHAIN_KM    = 4000;
-  const WAX_CHAIN_KM    = 12000;
+  // Financial constants — Shimano M8100 12s reference
+  const REWAX_KM        = 300;
+  const CHAIN_PRICE     = 45;
+  const CASSETTE_PRICE  = 85.70;
   const WAX_BLOCK_PRICE = 35;
+  const APPS_PER_BLOCK  = 33;
+  const OIL_CHAIN_KM    = 4000;
+  const OIL_CASSETTE_KM = 15000;
+  const OIL_PRICE_PER_APP     = 1.10;
+  const OIL_APP_INTERVAL_KM   = 1000;
+  const CASSETTE_KM: number[] = [30000, 40000, 48000]; // per chain count 1/2/3
+  const CHAIN_KM:    number[] = [6000,  8500,  10500];
 
-  const oilChains    = Math.max(1, Math.ceil(km / OIL_CHAIN_KM));
-  const oilLube      = Math.round((km / 1000) * 1.1);
-  const oilTotal     = oilChains * CHAIN_PRICE + oilLube;
-  const waxChains    = Math.max(1, Math.ceil(km / WAX_CHAIN_KM));
-  const waxBlockCost = waxChains * WAX_BLOCK_PRICE;
-  const waxTotal     = waxChains * CHAIN_PRICE + waxBlockCost;
-  const savings      = Math.max(0, oilTotal - waxTotal);
-  const savingsPct   = oilTotal > 0 ? Math.round((savings / oilTotal) * 100) : 0;
+  type ChainOption = {
+    n: number;
+    sessionsPerYear: number;
+    annualCost: number;
+    annualSavings: number;
+    savingsPct: number;
+    cassetteSavingsVsOil: number;
+    sessionsSavedPct: number;
+    dateStr: string;
+  };
 
-  const chainLabel = (n: number) =>
-    de ? `${n} Kette${n > 1 ? 'n' : ''}` : `${n} chain${n > 1 ? 's' : ''}`;
+  type CalcResult = {
+    oilAnnual: number;
+    chains: ChainOption[];
+  };
+
+  const data: CalcResult = useMemo(() => {
+    const today = new Date();
+    const kmPerWeek = kmPerYear / 52;
+    const WAX_LUBE_PER_KM = WAX_BLOCK_PRICE / (APPS_PER_BLOCK * REWAX_KM);
+    const OIL_LUBE_PER_KM = OIL_PRICE_PER_APP / OIL_APP_INTERVAL_KM;
+    const oilCassettePerKm = CASSETTE_PRICE / OIL_CASSETTE_KM;
+    const oilCostPerKm = CHAIN_PRICE / OIL_CHAIN_KM + oilCassettePerKm + OIL_LUBE_PER_KM;
+    const oilAnnual = Math.round(kmPerYear * oilCostPerKm);
+
+    const singleChainSessionsPerYear = Math.ceil(kmPerYear / REWAX_KM);
+
+    const chains: ChainOption[] = [1, 2, 3].map(n => {
+      const weeksRaw = (n * REWAX_KM) / kmPerWeek;
+      const sessionsPerYear = Math.ceil(kmPerYear / (n * REWAX_KM));
+      const waxCassettePerKm = CASSETTE_PRICE / CASSETTE_KM[n - 1];
+      const costPerKm = CHAIN_PRICE / CHAIN_KM[n - 1] + waxCassettePerKm + WAX_LUBE_PER_KM;
+      const annualCost = Math.round(kmPerYear * costPerKm);
+      const annualSavings = Math.max(0, oilAnnual - annualCost);
+      const savingsPct = oilAnnual > 0 ? Math.round((annualSavings / oilAnnual) * 100) : 0;
+      const cassetteSavingsVsOil = Math.max(0, Math.round(kmPerYear * (oilCassettePerKm - waxCassettePerKm)));
+      const sessionsSavedPct = n > 1 ? Math.round((1 - sessionsPerYear / singleChainSessionsPerYear) * 100) : 0;
+      const nextDate = new Date(today);
+      nextDate.setDate(nextDate.getDate() + Math.round(weeksRaw * 7));
+      const opts: Intl.DateTimeFormatOptions = {
+        day: 'numeric', month: 'short',
+        ...(nextDate.getFullYear() !== today.getFullYear() ? { year: 'numeric' } : {}),
+      };
+      const dateStr = nextDate.toLocaleDateString(de ? 'de-DE' : 'en-GB', opts);
+      return { n, sessionsPerYear, annualCost, annualSavings, savingsPct, cassetteSavingsVsOil, sessionsSavedPct, dateStr };
+    });
+
+    return { oilAnnual, chains };
+  }, [kmPerYear, de]); // eslint-disable-line
+
+  // Dynamic recommendation — adapts to actual km/year
+  const rec = kmPerYear < 2500 ? 1 : kmPerYear >= 8000 ? 3 : 2;
+  const recData = data.chains[rec - 1];
+  const discountPct = rec === 2 ? 5 : rec === 3 ? 10 : 0;
+
+  const goToChains = () => {
+    document.querySelector('#produkte')?.scrollIntoView({ behavior: 'smooth' });
+    window.dispatchEvent(new CustomEvent('wax:selectTab', { detail: 'chain' }));
+  };
 
   const SEP = <div style={{ borderTop: '1px solid var(--inset-bd)' }} />;
 
   return (
     <ToolCard>
-      <div className="flex flex-col h-full">
+      <ToolHeader
+        icon={<RotateCcw className="h-4 w-4" style={{ color: 'var(--txm)' }} />}
+        title={de ? 'Rotation & Ersparnis' : 'Rotation & Savings'}
+        subtitle={de
+          ? 'Ketten im Wechsel: seltener waxen, Kassette schonen, Geld sparen.'
+          : 'Rotate chains: wax less often, protect the cassette, save money.'}
+      />
+      <div className="flex flex-col flex-1">
 
-        {/* ── Slider ────────────────────────────────────────────────── */}
-        <div className="px-6 pt-5 pb-4">
+        {/* Hero — savings + recommendation + oil baseline context in one block */}
+        <div className="px-6 pt-5 pb-5 text-center flex flex-col items-center">
+          <div className="flex items-baseline justify-center gap-3 mb-2">
+            <AnimatedNumber
+              value={recData.annualSavings}
+              prefix="~€"
+              className="font-serif-display italic text-[56px] font-bold leading-none tabular-nums"
+              style={{ color: 'var(--tx1)' }}
+            />
+            <div className="flex flex-col items-start gap-0.5">
+              <span className="text-[14px] font-semibold leading-tight" style={{ color: 'var(--brand)' }}>
+                {de ? 'gespart' : 'saved'}
+              </span>
+              <span className="text-[11px]" style={{ color: 'var(--txf)' }}>
+                {de ? '/Jahr' : '/year'}
+              </span>
+            </div>
+          </div>
+          {/* Single subtitle line: recommendation + oil baseline */}
+          <p className="text-[12px]" style={{ color: 'var(--txf)' }}>
+            {de
+              ? `mit ${rec} ${rec === 1 ? 'Kette' : 'Ketten'} · vs. Kettenöl (~€${data.oilAnnual}/Jahr)`
+              : `with ${rec} ${rec === 1 ? 'chain' : 'chains'} · vs. chain oil (~€${data.oilAnnual}/yr)`}
+          </p>
+        </div>
+
+        {SEP}
+
+        {/* Slider — adjust km/year to tune results */}
+        <div className="px-6 pt-4 pb-3">
           <FieldLabel
-            label={de ? 'Strecke' : 'Distance'}
-            value={`${km.toLocaleString(de ? 'de-DE' : 'en-US')} km`}
+            label={de ? 'km pro Jahr' : 'km per year'}
+            value={`${kmPerYear.toLocaleString(de ? 'de-DE' : 'en-US')} km`}
           />
           <Slider
-            value={[km]}
-            onValueChange={v => setKm(v[0])}
-            min={2000} max={25000} step={1000}
+            value={[kmPerYear]}
+            onValueChange={v => setKmPerYear(v[0])}
+            min={1000} max={10000} step={500}
             className="py-1"
           />
         </div>
 
         {SEP}
 
-        {/* ── Savings hero ──────────────────────────────────────────── */}
-        <div className="px-6 py-8 text-center flex-1 flex flex-col items-center justify-center">
-          <p
-            className="text-[9px] uppercase tracking-[0.22em] mb-5"
-            style={{ color: 'var(--txff)' }}
-          >
-            {de
-              ? `Kostenvergleich · ${km.toLocaleString('de-DE')} km`
-              : `Cost comparison · ${km.toLocaleString('en-US')} km`}
-          </p>
-          <div className="flex items-baseline justify-center gap-3 mb-3">
-            <AnimatedNumber
-              value={savings}
-              prefix="~€"
-              className="font-serif-display italic text-[64px] font-bold leading-none tabular-nums" style={{ color: 'var(--tx1)' }}
-            />
-            <div className="flex flex-col items-start gap-1">
-              <span className="text-[16px] font-semibold leading-tight" style={{ color: '#2A5499' }}>
-                {de ? 'gespart' : 'saved'}
-              </span>
-              <span className="text-[13px] tabular-nums" style={{ color: 'var(--txf)' }}>
-                −<AnimatedNumber value={savingsPct} suffix=" %" />
-              </span>
-            </div>
-          </div>
-          <p className="text-[13px] mb-8" style={{ color: 'var(--txf)' }}>
-            {de
-              ? 'gegenüber Kettenöl auf gleicher Strecke'
-              : 'vs. chain oil over the same distance'}
-          </p>
-
-          {/* Toggle button */}
-          <button
-            type="button"
-            onClick={() => setShowDetails(v => !v)}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[12px] font-medium transition-all cursor-pointer"
-            style={{
-              background: 'var(--tog-bg)',
-              border: '1px solid var(--tog-bd)',
-              color: 'var(--tog-fg)',
-            }}
-          >
-            {showDetails
-              ? (de ? 'Weniger anzeigen ↑' : 'Show less ↑')
-              : (de ? 'Vollständige Aufstellung ↓' : 'Full breakdown ↓')}
-          </button>
-        </div>
-
-        {/* ── Collapsible detail section ─────────────────────────────── */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateRows: showDetails ? '1fr' : '0fr',
-            transition: 'grid-template-rows 350ms cubic-bezier(0.4,0,0.2,1)',
-          }}
-        >
-          <div className="overflow-hidden">
-            {SEP}
-
-            {/* Comparison cards */}
-            <div className="grid grid-cols-2 gap-2.5 px-6 py-4">
-              <div
-                className="rounded-xl p-4 text-center"
-                style={{ background: 'var(--inset-bg)', border: '1px solid var(--inset-bd)' }}
-              >
-                <p className="text-[9px] uppercase tracking-[0.2em] mb-3" style={{ color: 'var(--txff)' }}>
-                  {de ? 'Mit Öl' : 'With Oil'}
-                </p>
-                <AnimatedNumber
-                  value={oilTotal}
-                  prefix="~€"
-                  className="text-[30px] font-bold leading-none tabular-nums"
-                  style={{ color: 'var(--txm)' }}
-                />
-                <p className="text-[11px] mt-2" style={{ color: 'var(--txff)' }}>
-                  {chainLabel(oilChains)}
-                </p>
-              </div>
-              <div
-                className="rounded-xl p-4 text-center"
-                style={{ background: 'rgba(26,60,110,0.09)', border: '1px solid rgba(26,60,110,0.32)' }}
-              >
-                <p className="text-[9px] uppercase tracking-[0.2em] mb-3 font-semibold" style={{ color: '#264E8C' }}>
-                  Wax
-                </p>
-                <AnimatedNumber
-                  value={waxTotal}
-                  prefix="~€"
-                  className="text-[30px] font-bold leading-none tabular-nums"
-                  style={{ color: '#2A5499' }}
-                />
-                <p className="text-[11px] mt-2" style={{ color: '#264E8C' }}>
-                  {chainLabel(waxChains)}
-                </p>
-              </div>
-            </div>
-
-            {SEP}
-
-            {/* Breakdown table */}
-            <div className="flex gap-3 px-6 py-4">
-
-          {/* Oil column */}
-          <div className="flex-1 space-y-2">
-            <p className="text-[9px] uppercase tracking-[0.18em] mb-2.5" style={{ color: 'var(--txff)' }}>
-              {de ? 'Mit Öl' : 'With Oil'}
-            </p>
-            <div className="flex justify-between text-[11px]">
-              <span style={{ color: 'var(--txf)' }}>
-                {chainLabel(oilChains)} × €{CHAIN_PRICE}
-              </span>
-              <span style={{ color: 'var(--txm)' }}>€{oilChains * CHAIN_PRICE}</span>
-            </div>
-            <div className="flex justify-between text-[11px]">
-              <span style={{ color: 'var(--txf)' }}>
-                {de
-                  ? `Öl · ${Math.round(km / 1000)}× à €1,10`
-                  : `Oil · ${Math.round(km / 1000)}× at €1.10`}
-              </span>
-              <span style={{ color: 'var(--txm)' }}>€{oilLube}</span>
-            </div>
-            <div
-              className="flex justify-between text-[11px] pt-1.5"
-              style={{ borderTop: '1px solid var(--inset-bd)' }}
-            >
-              <span style={{ color: 'var(--txm)', fontWeight: 500 }}>
-                {de ? 'Gesamt' : 'Total'}
-              </span>
-              <span style={{ color: 'var(--txm)', fontWeight: 500 }}>~€{oilTotal}</span>
-            </div>
-          </div>
-
-          {/* Vertical divider */}
-          <div style={{ width: 1, background: 'var(--inset-bd)', flexShrink: 0 }} />
-
-          {/* Wax column */}
-          <div className="flex-1 space-y-2">
-            <p className="text-[9px] uppercase tracking-[0.18em] mb-2.5 font-semibold" style={{ color: '#264E8C' }}>
-              {de ? 'Mit Waxcelerate' : 'With Waxcelerate'}
-            </p>
-            <div className="flex justify-between text-[11px]">
-              <span style={{ color: 'var(--txf)' }}>
-                {chainLabel(waxChains)} × €{CHAIN_PRICE}
-              </span>
-              <span style={{ color: '#2A5499' }}>€{waxChains * CHAIN_PRICE}</span>
-            </div>
-            <div className="flex justify-between text-[11px]">
-              <span style={{ color: 'var(--txf)' }}>
-                {de
-                  ? `500g Block (~${waxChains * 20} Anw.)`
-                  : `500g block (~${waxChains * 20} apps)`}
-              </span>
-              <span style={{ color: '#2A5499' }}>€{waxBlockCost}</span>
-            </div>
-            <div
-              className="flex justify-between text-[11px] pt-1.5"
-              style={{ borderTop: '1px solid rgba(26,60,110,0.20)' }}
-            >
-              <span style={{ color: '#2A5499', fontWeight: 500 }}>
-                {de ? 'Gesamt' : 'Total'}
-              </span>
-              <span style={{ color: '#2A5499', fontWeight: 500 }}>~€{waxTotal}</span>
-            </div>
-          </div>
-        </div>
-
-          </div> {/* end overflow-hidden */}
-        </div> {/* end collapsible grid */}
-
-      </div>
-    </ToolCard>
-  );
-}
-
-// ─── Tool 4: Rotation ROI ─────────────────────────────────────────────────────
-function RotationROI() {
-  const { lang } = useLanguage();
-  const de = lang === 'de';
-  const [kmPerYear, setKmPerYear] = useState(5000);
-  const [showHow, setShowHow] = useState(false);
-
-  const CHAIN_KM_1    = 6000;
-  const CHAIN_KM_2    = 8500;
-  const CASSETTE_KM_1 = 15000;
-  const CASSETTE_KM_2 = 22000;
-  const CHAIN_PRICE   = 45;
-  const CASSETTE_PRICE = 80;
-  const REWAX_KM      = 500;
-
-  const chainMonths1  = Math.max(1, Math.round((CHAIN_KM_1 / kmPerYear) * 12));
-  const chainMonths2  = Math.max(1, Math.round((CHAIN_KM_2 / kmPerYear) * 12));
-  const cassetteYrs1  = parseFloat((CASSETTE_KM_1 / kmPerYear).toFixed(1));
-  const cassetteYrs2  = parseFloat((CASSETTE_KM_2 / kmPerYear).toFixed(1));
-  const chainGain     = chainMonths2 - chainMonths1;
-  const cassetteGain  = parseFloat((cassetteYrs2 - cassetteYrs1).toFixed(1));
-  const rewaxPerYear  = Math.ceil(kmPerYear / REWAX_KM);
-
-  const km5 = kmPerYear * 5;
-  const cost1 = Math.round((km5 / CHAIN_KM_1) * CHAIN_PRICE + (km5 / CASSETTE_KM_1) * CASSETTE_PRICE);
-  const cost2 = Math.round((km5 / CHAIN_KM_2) * CHAIN_PRICE + (km5 / CASSETTE_KM_2) * CASSETTE_PRICE);
-  const savingsPerYear = Math.round((cost1 - cost2) / 5);
-  const breakEvenMonths = savingsPerYear > 0 ? Math.round((CHAIN_PRICE / savingsPerYear) * 12) : 0;
-
-  return (
-    <ToolCard>
-      <ToolHeader
-        icon={<RotateCcw className="h-4 w-4" style={{ color: 'var(--txm)' }} />}
-        title={de ? 'Lohnen sich mehrere Ketten?' : 'Is rotating multiple chains worth it?'}
-        subtitle={de
-          ? 'Kettenverschleiß und Kassettenlaufzeit realistisch verglichen.'
-          : 'Chain wear and cassette lifetime realistically compared.'}
-      />
-      <div className="px-6 flex flex-col flex-1 gap-4 pb-6">
-        <div>
-          <FieldLabel label={de ? 'km pro Jahr' : 'km per year'} value={`${kmPerYear} km`} />
-          <Slider value={[kmPerYear]} onValueChange={v => setKmPerYear(v[0])} min={1000} max={10000} step={500} className="py-1" />
-        </div>
-
-        {/* Hero: annual savings */}
-        <div
-          className="rounded-xl p-4 text-center"
-          style={{ background: 'var(--inset-bg)', border: '1px solid var(--inset-bd)' }}
-        >
-          <p
-            className="text-[11px] uppercase tracking-[0.2em] mb-2"
-            style={{ color: 'var(--txf)' }}
-          >
-            {de ? 'Ersparnis pro Jahr' : 'Savings per year'}
-          </p>
-          <p className="text-[40px] font-bold tabular-nums leading-none" style={{ color: 'var(--tx1)' }}>
-            ~<AnimatedNumber value={savingsPerYear} suffix=" €" />
-          </p>
-          <p className="text-[12px] mt-1.5" style={{ color: 'var(--txff)' }}>
-            {de
-              ? `2. Kette amortisiert sich in ~${breakEvenMonths} Monaten`
-              : `2nd chain pays off in ~${breakEvenMonths} months`}
-          </p>
-        </div>
-
-        {/* Comparison grid */}
-        <div className="grid grid-cols-2 gap-2">
-          {/* 1 chain */}
-          <div
-            className="rounded-xl border p-3.5 text-center"
-            style={{ background: 'var(--sf3)', borderColor: 'var(--bd2)' }}
-          >
-            <p className="text-[11px] mb-2.5" style={{ color: 'var(--txff)' }}>
-              {de ? '1 Kette' : '1 chain'}
-            </p>
-            <p className="text-[24px] font-bold leading-none tabular-nums" style={{ color: 'var(--txm)' }}>
-              {chainMonths1}
-            </p>
-            <p className="text-[11px] mt-0.5" style={{ color: 'var(--txff)' }}>
-              {de ? 'Mo. / Kette' : 'mo. / chain'}
-            </p>
-            <div className="mt-3 pt-3" style={{ borderTop: '1px solid var(--inset-bd)' }}>
-              <p className="text-[14px] font-semibold tabular-nums" style={{ color: 'var(--txm)' }}>
-                {cassetteYrs1} {de ? 'J.' : 'yr.'}
-              </p>
-              <p className="text-[11px] mt-0.5" style={{ color: 'var(--txff)' }}>
-                {de ? 'Kassette' : 'cassette'}
-              </p>
-            </div>
-          </div>
-
-          {/* 2 chains — recommended */}
-          <div
-            className="rounded-xl border p-3.5 text-center"
-            style={{ background: 'var(--inset-bg)', borderColor: 'var(--bd)' }}
-          >
-            <p
-              className="text-[10px] uppercase tracking-wider mb-0.5"
-              style={{ color: 'var(--txf)' }}
-            >
-              {de ? 'Empfohlen' : 'Recommended'}
-            </p>
-            <p className="text-[11px] mb-2" style={{ color: 'var(--txf)' }}>
-              {de ? '2 Ketten' : '2 chains'}
-            </p>
-            <div className="flex items-center justify-center gap-1.5">
-              <p className="text-[24px] font-bold leading-none tabular-nums" style={{ color: 'var(--tx1)' }}>{chainMonths2}</p>
-              {chainGain > 0 && (
-                <span
-                  className="text-[11px] font-medium px-1.5 py-0.5 rounded"
-                  style={{ background: 'var(--inset-bg)', color: 'var(--txm)' }}
+        {/* 3 comparison cards — the single source of truth */}
+        <div className="px-4 py-4 flex-1">
+          <div className="grid grid-cols-3 gap-2 h-full">
+            {data.chains.map(({ n, sessionsPerYear, annualSavings, savingsPct, sessionsSavedPct, dateStr }) => {
+              const isRec = n === rec;
+              const cardDiscountPct = n === 2 ? 5 : n === 3 ? 10 : 0;
+              return (
+                <div
+                  key={n}
+                  className="rounded-2xl flex flex-col"
+                  style={{
+                    background: isRec ? 'rgba(26,60,110,0.08)' : 'var(--sf3)',
+                    border: isRec ? '1.5px solid var(--brand)' : '1px solid var(--bd2)',
+                    padding: '12px 10px',
+                  }}
                 >
-                  +{chainGain} {de ? 'Mo.' : 'mo.'}
-                </span>
-              )}
-            </div>
-            <p className="text-[11px] mt-0.5" style={{ color: 'var(--txf)' }}>
-              {de ? 'Mo. / Kette' : 'mo. / chain'}
-            </p>
-            <div className="mt-3 pt-3" style={{ borderTop: '1px solid var(--inset-bd)' }}>
-              <div className="flex items-center justify-center gap-1.5">
-                <p className="text-[14px] font-semibold tabular-nums" style={{ color: 'var(--tx1)' }}>
-                  {cassetteYrs2} {de ? 'J.' : 'yr.'}
-                </p>
-                {cassetteGain > 0 && (
-                  <span
-                    className="text-[11px] font-medium px-1.5 py-0.5 rounded"
-                    style={{ background: 'var(--inset-bg)', color: 'var(--txm)' }}
+                  {/* Top: label row */}
+                  <div className="flex items-center justify-between mb-2">
+                    <p
+                      className="text-[11px] font-semibold leading-none"
+                      style={{ color: isRec ? 'var(--brand)' : 'var(--tx2)' }}
+                    >
+                      {n} {de ? (n === 1 ? 'Kette' : 'Ketten') : (n === 1 ? 'chain' : 'chains')}
+                    </p>
+                    {cardDiscountPct > 0 && (
+                      <span
+                        className="rounded px-1 py-0.5 text-[8px] font-semibold leading-none"
+                        style={{ background: 'rgba(43,84,153,0.12)', color: 'var(--brand)' }}
+                      >
+                        −{cardDiscountPct}%
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Savings — primary metric */}
+                  <p
+                    className="text-[22px] font-bold tabular-nums leading-none"
+                    style={{ color: isRec ? 'var(--brand)' : annualSavings > 0 ? 'var(--tx2)' : 'var(--txff)' }}
                   >
-                    +{cassetteGain} {de ? 'J.' : 'yr.'}
-                  </span>
-                )}
-              </div>
-              <p className="text-[11px] mt-0.5" style={{ color: 'var(--txf)' }}>
-                {de ? 'Kassette' : 'cassette'}
-              </p>
-            </div>
+                    {annualSavings > 0 ? `~€${annualSavings}` : '—'}
+                  </p>
+                  <p className="text-[9px] mt-0.5 mb-3" style={{ color: 'var(--txff)' }}>
+                    {savingsPct > 0
+                      ? (de ? `/Jahr · −${savingsPct}%` : `/yr · −${savingsPct}%`)
+                      : (de ? '/Jahr vs. Öl' : '/yr vs. oil')}
+                  </p>
+
+                  {/* Sessions */}
+                  <div className="flex items-baseline gap-1 mb-0.5">
+                    <p className="text-[16px] font-bold tabular-nums leading-none" style={{ color: 'var(--txm)' }}>
+                      {sessionsPerYear}×
+                    </p>
+                    {sessionsSavedPct > 0 && (
+                      <p className="text-[9px] font-semibold" style={{ color: 'var(--brand)' }}>−{sessionsSavedPct}%</p>
+                    )}
+                  </div>
+                  <p className="text-[9px]" style={{ color: 'var(--txff)' }}>
+                    {de ? 'Waxen/Jahr' : 'wax/yr'}
+                  </p>
+
+                  {/* Next wax date — always at bottom */}
+                  <div className="mt-auto pt-3">
+                    <p className="text-[9px]" style={{ color: 'var(--txff)' }}>
+                      {de ? 'Nächstes Waxen' : 'Next wax'}
+                    </p>
+                    <p className="text-[11px] font-medium mt-0.5" style={{ color: isRec ? 'var(--brand)' : 'var(--txm)' }}>
+                      {dateStr}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
-        <p className="text-[11px] text-center" style={{ color: 'var(--txff)' }}>
-          {de
-            ? `Rewax-Frequenz bleibt gleich: ~${rewaxPerYear}× pro Jahr — du wechselst nur ab.`
-            : `Rewax frequency stays the same: ~${rewaxPerYear}× per year — you just alternate.`}
-        </p>
-
-        {/* Expandable: how it works */}
-        <div
-          className="rounded-xl overflow-hidden"
-          style={{ background: 'var(--inset-bg)', border: '1px solid var(--inset-bd)' }}
-        >
-          <button
-            type="button"
-            onClick={() => setShowHow(v => !v)}
-            className="w-full px-4 py-3 flex items-center justify-between transition-colors"
-          >
-            <span className="text-[12px] font-medium" style={{ color: 'var(--txf)' }}>
-              {de ? 'Wie funktioniert das?' : 'How does this work?'}
-            </span>
-            <span
-              className="text-[12px] transition-transform duration-[320ms] inline-block"
-              style={{
-                transform: showHow ? 'rotate(180deg)' : 'rotate(0deg)',
-                color: 'var(--tog-fg)',
-              }}
-            >
-              ↓
-            </span>
-          </button>
-          <div
-            className="overflow-hidden transition-[grid-template-rows,opacity] duration-[320ms]"
-            style={{
-              display: 'grid',
-              gridTemplateRows: showHow ? '1fr' : '0fr',
-              opacity: showHow ? 1 : 0,
-              transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
-            }}
-          >
-            <div className="overflow-hidden">
-              <div
-                className="px-4 pb-4 pt-3 space-y-2"
-                style={{ borderTop: '1px solid var(--inset-bd)' }}
-              >
-                <p className="text-[12px] leading-relaxed" style={{ color: 'var(--txm)' }}>
-                  {de
-                    ? 'Beim Abwechseln zwischen zwei Ketten trägt sich jede Kette nur halb so schnell ab — sie hält dadurch ~40 % länger. Da die Kassette durch Kettendehnung verschleißt, lebt auch sie deutlich länger.'
-                    : 'Alternating between two chains means each chain wears at half the rate — lasting ~40% longer. Since the cassette wears through chain stretch, it lasts significantly longer too.'}
-                </p>
-                <p className="text-[11px] leading-relaxed" style={{ color: 'var(--txff)' }}>
-                  {de
-                    ? 'Du rewaxst genauso oft (die Strecke pro Rewax bleibt gleich), wechselst aber die Kette ab. Ergebnis: weniger Ketten kaufen, viel seltener Kassette wechseln.'
-                    : 'You re-wax just as often (the distance per rewax stays the same), but alternate the chain. Result: fewer chains to buy, much less frequent cassette replacement.'}
-                </p>
-              </div>
-            </div>
-          </div>
+        {/* CTA */}
+        <div className="px-6 pb-5 pt-2">
+          <ToolCTA onClick={goToChains}>
+            {de
+              ? rec === 1
+                ? 'Einzelkette ansehen →'
+                : `${rec}-Ketten-Kit ansehen · ${discountPct}% Rabatt →`
+              : rec === 1
+                ? 'View single chain →'
+                : `View ${rec}-chain kit · ${discountPct}% off →`}
+          </ToolCTA>
         </div>
-
-        <button
-          onClick={() => document.querySelector('#produkte')?.scrollIntoView({ behavior: 'smooth' })}
-          className="w-full rounded-xl p-3 text-center transition-all"
-          style={{
-            background: 'var(--inset-bg)',
-            border: '1px solid var(--inset-bd)',
-          }}
-        >
-          <span className="text-[12px] font-medium" style={{ color: 'var(--txm)' }}>
-            {de ? '2. Kette im Shop ansehen →' : 'View 2nd chain in shop →'}
-          </span>
-        </button>
       </div>
     </ToolCard>
   );
@@ -909,22 +722,21 @@ export function Tools() {
   // ── Desktop deck state ────────────────────────────────────────────────────
   const [activeCard, setActiveCard] = useState(0);
 
-  // Card refs — declared individually (no hooks in loops)
+  // 3 card refs (no hooks in loops)
   const cardRef0 = useRef<HTMLDivElement>(null);
   const cardRef1 = useRef<HTMLDivElement>(null);
   const cardRef2 = useRef<HTMLDivElement>(null);
-  const cardRef3 = useRef<HTMLDivElement>(null);
-  const cardRefs = useMemo(() => [cardRef0, cardRef1, cardRef2, cardRef3], []);
+  const cardRefs = useMemo(() => [cardRef0, cardRef1, cardRef2], []);
   const deckMountedRef = useRef(false);
 
   // Deck geometry
   const CARD_WIDTH   = 620;
-  const DECK_HEIGHT  = 650;
+  const DECK_HEIGHT  = 700;
   const SIDE_OFFSET  = 560;
   const SIDE_SCALE   = 0.85;
   const SIDE_OPACITY = 0.58;
 
-  // GSAP: position all 3 cards on mount (instant) and on activeCard change (animated)
+  // GSAP: position 3 cards in a circular deck
   useEffect(() => {
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const animate = deckMountedRef.current && !prefersReduced;
@@ -932,16 +744,15 @@ export function Tools() {
 
     cardRefs.forEach((ref, i) => {
       if (!ref.current) return;
-      const rawOffset = (i - activeCard + 4) % 4;
-      const isActive  = rawOffset === 0;
-      const isRight   = rawOffset === 1;
-      const isHidden  = rawOffset === 2; // off-screen, not visible
-      const isLeft    = rawOffset === 3;
+      // 3-card circular: 0=active, 1=right, 2=left
+      const rawOffset = (i - activeCard + 3) % 3;
+      const isActive = rawOffset === 0;
+      const isRight  = rawOffset === 1;
       const props = {
-        x:       isActive ? 0 : isRight ? SIDE_OFFSET : isLeft ? -SIDE_OFFSET : SIDE_OFFSET * 2,
-        scale:   isActive ? 1 : isHidden ? 0.7 : SIDE_SCALE,
-        opacity: isActive ? 1 : isHidden ? 0   : SIDE_OPACITY,
-        zIndex:  isActive ? 20 : isHidden ? 1  : 10,
+        x:       isActive ? 0 : isRight ? SIDE_OFFSET : -SIDE_OFFSET,
+        scale:   isActive ? 1 : SIDE_SCALE,
+        opacity: isActive ? 1 : SIDE_OPACITY,
+        zIndex:  isActive ? 20 : 10,
       };
       if (animate) {
         gsap.to(ref.current, { ...props, duration: 0.55, ease: 'power3.inOut', overwrite: 'auto' });
@@ -953,15 +764,14 @@ export function Tools() {
 
   // ── Mobile tab state ──────────────────────────────────────────────────────
   const TAB_LABELS = useMemo(() =>
-    de ? ['Intervall', 'Vorrat', 'Ersparnis', 'Rotation']
-       : ['Interval', 'Stock', 'Savings', 'Rotation'],
+    de ? ['Intervall', 'Vorrat', 'Rotation']
+       : ['Interval', 'Stock', 'Rotation'],
   [de]);
   const [activeTab, setActiveTab] = useState(0);
   const tabBarRef = useRef<HTMLDivElement>(null);
   const tabButtonRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const tabPillRef = useRef<HTMLDivElement>(null);
 
-  // borderLeft = 1px — subtract so pill sits flush inside the track's padding box
   const pillX = (btnRect: DOMRect, barRect: DOMRect) =>
     btnRect.left - barRect.left - 1;
 
@@ -1059,11 +869,10 @@ export function Tools() {
             </div>
             {activeTab === 0 && <RewaxCalculator />}
             {activeTab === 1 && <WaxStockCalculator />}
-            {activeTab === 2 && <CostSavingsCalculator />}
-            {activeTab === 3 && <RotationROI />}
+            {activeTab === 2 && <RotationAndSavings />}
           </div>
 
-          {/* ── Desktop: streaming card deck (lg+) ── */}
+          {/* ── Desktop: 3-card streaming deck (lg+) ── */}
           <div
             className="hidden lg:block relative"
             style={{
@@ -1072,7 +881,7 @@ export function Tools() {
               background: 'radial-gradient(ellipse 55% 60% at 50% 50%, rgba(26,60,110,0.07) 0%, transparent 70%)',
             }}
           >
-            {([cardRef0, cardRef1, cardRef2, cardRef3] as const).map((ref, i) => (
+            {([cardRef0, cardRef1, cardRef2] as const).map((ref, i) => (
               <div
                 key={i}
                 ref={ref}
@@ -1085,15 +894,13 @@ export function Tools() {
                   willChange: 'transform',
                 }}
               >
-                {/* Card content — pointer events disabled for inactive cards */}
                 <div style={{ height: '100%', pointerEvents: i === activeCard ? 'auto' : 'none' }}>
                   {i === 0 && <RewaxCalculator />}
                   {i === 1 && <WaxStockCalculator />}
-                  {i === 2 && <CostSavingsCalculator />}
-                  {i === 3 && <RotationROI />}
+                  {i === 2 && <RotationAndSavings />}
                 </div>
 
-                {/* Inactive overlay: blur + dark tint — frosted glass effect */}
+                {/* Inactive overlay: frosted glass tint */}
                 {i !== activeCard && (
                   <div
                     className="absolute inset-0 rounded-3xl cursor-pointer"
@@ -1110,7 +917,7 @@ export function Tools() {
               </div>
             ))}
 
-            {/* Left + right edge fades — blend into section background cleanly */}
+            {/* Edge fades */}
             <div
               className="absolute inset-y-0 left-0 pointer-events-none"
               style={{ width: 220, zIndex: 50, background: 'linear-gradient(to right, var(--tool-bg) 20%, transparent 100%)' }}
@@ -1121,7 +928,7 @@ export function Tools() {
             />
           </div>
 
-          {/* Dot + label indicator — desktop only, synced to activeCard */}
+          {/* Dot + label indicator — desktop only */}
           <div className="hidden lg:flex items-center justify-center gap-5 mt-6">
             {TAB_LABELS.map((label, i) => (
               <button

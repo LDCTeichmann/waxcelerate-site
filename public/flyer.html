@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Waxcelerate — Insert Card</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0c0c0e;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 48px 24px 72px;
+      font-family: 'Inter', sans-serif;
+      gap: 0;
+    }
+
+    .label {
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #232325;
+      margin-bottom: 10px;
+    }
+
+    .gap { height: 48px; }
+
+    .card {
+      width: 396px;
+      height: 840px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.06),
+        0 20px 60px rgba(0,0,0,0.8),
+        0 60px 120px rgba(0,0,0,0.5);
+    }
+
+
+    /* ══════════════════════════════════
+       FRONT
+    ══════════════════════════════════ */
+
+    .front {
+      background: url('/images/wax-hero.jpg') center 25% / cover no-repeat;
+    }
+
+    /* Atmospheric gradient — image stays background, not hero */
+    .front::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        160deg,
+        rgba(4,4,6,0.72) 0%,
+        rgba(4,4,6,0.32) 28%,
+        rgba(4,4,6,0.50) 52%,
+        rgba(4,4,6,0.90) 76%,
+        #040406 100%
+      );
+      z-index: 1;
+    }
+
+    .front > * { position: relative; z-index: 2; }
+
+    /* Logo — top left, tasteful */
+    .f-logo {
+      padding: 24px 26px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .f-logo img {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      display: block;
+      opacity: 0.7;
+    }
+
+    .f-logo-name {
+      font-size: 9.5px;
+      font-weight: 600;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: #737475;
+    }
+
+    /* Pushes content block to lower 55% */
+    .f-push { flex: 1; }
+
+    /* ── Headline ── */
+    .f-headline {
+      padding: 0 26px;
+    }
+
+    .f-h1 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      line-height: 0.88;
+      letter-spacing: -0.02em;
+    }
+
+    .f-h1 .line1 {
+      display: block;
+      font-size: 62px;
+      color: #E8E8E9;
+    }
+
+    .f-h1 .line2 {
+      display: block;
+      font-size: 70px;
+      color: #2B52B0;
+      margin-top: 4px;
+    }
+
+    /* ── Subhead ── */
+    .f-subhead {
+      padding: 13px 26px 0;
+      font-size: 11.5px;
+      font-weight: 400;
+      line-height: 1.6;
+      color: #838486;
+      max-width: 310px;
+    }
+
+    /* ── Referral block ── */
+    .f-referral {
+      margin: 20px 26px 0;
+      border: 1px solid #1A2B5A;
+      border-left: 3px solid #2B52B0;
+      border-radius: 0 6px 6px 0;
+      padding: 10px 14px;
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .f-ref-label {
+      font-size: 8px;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #3D67CA;
+      margin-bottom: 4px;
+    }
+
+    .f-ref-code {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 17px;
+      letter-spacing: 0.08em;
+      color: #4A72D0;
+    }
+
+    .f-ref-text {
+      font-size: 9.5px;
+      font-weight: 400;
+      color: #545658;
+      line-height: 1.45;
+      margin-top: 1px;
+    }
+
+    /* ── Proof ── */
+    .f-proof {
+      padding: 14px 26px 0;
+      font-size: 9.5px;
+      font-weight: 500;
+      color: #545658;
+      letter-spacing: 0.03em;
+    }
+
+    /* ── Bottom strip ── */
+    .f-bottom {
+      margin-top: auto;
+      padding: 16px 26px 22px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      border-top: 1px solid #131315;
+    }
+
+    .f-url-block {}
+
+    .f-cta-label {
+      font-size: 8px;
+      font-weight: 600;
+      letter-spacing: 0.20em;
+      text-transform: uppercase;
+      color: #2B52B0;
+      margin-bottom: 6px;
+    }
+
+    .f-url {
+      font-size: 13px;
+      font-weight: 600;
+      color: #C0C0C2;
+      letter-spacing: 0.01em;
+    }
+
+    .f-qr-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* QR: 76px = ~19mm at 4px/mm scale — minimum for reliable scanning at print */
+    .f-qr {
+      width: 76px;
+      height: 76px;
+      background: #ffffff;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 5px;
+      flex-shrink: 0;
+    }
+
+    .f-qr-label {
+      font-size: 8px;
+      font-weight: 400;
+      color: #545658;
+      letter-spacing: 0.04em;
+      text-align: center;
+      line-height: 1.45;
+    }
+
+
+    /* ══════════════════════════════════
+       BACK
+    ══════════════════════════════════ */
+
+    .back {
+      background: #060608;
+    }
+
+    .b-logo {
+      padding: 36px 26px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .b-logo img {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      display: block;
+      opacity: 0.6;
+    }
+
+    .b-logo-name {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: #4A4A4C;
+    }
+
+    .b-rule {
+      height: 1px;
+      background: #111113;
+      margin: 28px 26px 0;
+    }
+
+    /* ── Formula section ── */
+    .b-section {
+      padding: 26px 26px 0;
+    }
+
+    .b-sec-label {
+      font-size: 8px;
+      font-weight: 600;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: #3660CF;
+      margin-bottom: 18px;
+    }
+
+    .formula {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .f-variant {
+      display: flex;
+      align-items: baseline;
+      gap: 0;
+    }
+
+    .fv-name {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #606062;
+      width: 56px;
+      flex-shrink: 0;
+    }
+
+    .fv-name-pro { color: #3660CF; }
+
+    .fv-dots {
+      flex: 1;
+      height: 1px;
+      background: #111113;
+      margin: 0 10px;
+      position: relative;
+      top: -4px;
+    }
+
+    .fv-val {
+      font-size: 10px;
+      color: #787880;
+      text-align: right;
+    }
+
+    .shared {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid #0E0E10;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      font-size: 9px;
+      color: #606062;
+      padding: 2px 8px;
+      border: 1px solid #1A1A1C;
+      border-radius: 20px;
+    }
+
+    /* ── Stats ── */
+    .b-stats {
+      padding: 26px 26px 0;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: #111113;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .stat {
+      background: #060608;
+      padding: 16px 0;
+      text-align: center;
+    }
+
+    .stat-n {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: 28px;
+      color: #ffffff;
+      line-height: 1;
+      letter-spacing: -0.01em;
+    }
+
+    .stat-l {
+      font-size: 8px;
+      color: #606062;
+      margin-top: 5px;
+      line-height: 1.4;
+    }
+
+    /* ── Quote ── */
+    .b-quote {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 0 26px 6px;
+    }
+
+    .q-rule {
+      width: 18px;
+      height: 2px;
+      background: #1A2B5A;
+      border-radius: 1px;
+      margin-bottom: 14px;
+    }
+
+    .q-text {
+      font-size: 11px;
+      line-height: 1.65;
+      color: #787880;
+      font-style: italic;
+      margin-bottom: 8px;
+    }
+
+    .q-attr {
+      font-size: 9px;
+      color: #505052;
+    }
+
+    /* ── Footer ── */
+    .b-foot {
+      flex-shrink: 0;
+      padding: 14px 26px 24px;
+      display: flex;
+      justify-content: space-between;
+      border-top: 1px solid #0E0E10;
+    }
+
+    .b-foot span {
+      font-size: 9px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #282828;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════ FRONT ════ -->
+<p class="label">Vorderseite</p>
+<div class="card front">
+
+  <div class="f-logo">
+    <img src="/images/logo.jpg" alt="Waxcelerate">
+    <span class="f-logo-name">Waxcelerate</span>
+  </div>
+
+  <div class="f-push"></div>
+
+  <div class="f-headline">
+    <h1 class="f-h1">
+      <span class="line1">Nächstes Mal</span>
+      <span class="line2">direkt.</span>
+    </h1>
+  </div>
+
+  <p class="f-subhead">
+    Gleiche Qualität. Kein eBay.<br>Bestell direkt bei uns — schneller, persönlicher.
+  </p>
+
+  <div class="f-referral">
+    <div>
+      <p class="f-ref-label">Freunde empfehlen</p>
+      <p class="f-ref-code">WAXFRIEND10</p>
+      <p class="f-ref-text">10 % Rabatt auf die erste Bestellung</p>
+    </div>
+  </div>
+
+  <p class="f-proof">168 Bewertungen &middot; 5,0 &#9733; auf eBay</p>
+
+  <div class="f-bottom">
+    <div class="f-url-block">
+      <p class="f-cta-label">Direkt bestellen</p>
+      <p class="f-url">waxcelerate.de</p>
+    </div>
+    <div class="f-qr-block">
+      <div class="f-qr">
+        <!-- ⚠ Replace with real QR → https://waxcelerate.de before printing. Min 20mm at final print size. -->
+        <svg width="66" height="66" viewBox="0 0 44 44" fill="none">
+          <rect x="2"  y="2"  width="13" height="13" rx="1.5" fill="none" stroke="#111" stroke-width="1.8"/>
+          <rect x="5.5" y="5.5" width="6" height="6" rx="0.5" fill="#111"/>
+          <rect x="29" y="2"  width="13" height="13" rx="1.5" fill="none" stroke="#111" stroke-width="1.8"/>
+          <rect x="32.5" y="5.5" width="6" height="6" rx="0.5" fill="#111"/>
+          <rect x="2"  y="29" width="13" height="13" rx="1.5" fill="none" stroke="#111" stroke-width="1.8"/>
+          <rect x="5.5" y="32.5" width="6" height="6" rx="0.5" fill="#111"/>
+          <rect x="18" y="2"  width="3" height="3" rx="0.5" fill="#111"/>
+          <rect x="23" y="2"  width="3" height="3" rx="0.5" fill="#111"/>
+          <rect x="18" y="7"  width="5" height="3" rx="0.5" fill="#111"/>
+          <rect x="2"  y="18" width="3" height="5" rx="0.5" fill="#111"/>
+          <rect x="7"  y="18" width="5" height="3" rx="0.5" fill="#111"/>
+          <rect x="2"  y="23" width="5" height="3" rx="0.5" fill="#111"/>
+          <rect x="18" y="18" width="3" height="3" rx="0.5" fill="#111"/>
+          <rect x="23" y="18" width="5" height="3" rx="0.5" fill="#111"/>
+          <rect x="30" y="18" width="3" height="3" rx="0.5" fill="#111"/>
+          <rect x="35" y="18" width="7" height="3" rx="0.5" fill="#111"/>
+          <rect x="18" y="23" width="5" height="3" rx="0.5" fill="#111"/>
+          <rect x="25" y="23" width="3" height="5" rx="0.5" fill="#111"/>
+          <rect x="30" y="23" width="5" height="3" rx="0.5" fill="#111"/>
+          <rect x="18" y="30" width="3" height="5" rx="0.5" fill="#111"/>
+          <rect x="23" y="30" width="5" height="3" rx="0.5" fill="#111"/>
+          <rect x="30" y="30" width="3" height="3" rx="0.5" fill="#111"/>
+          <rect x="35" y="30" width="7" height="3" rx="0.5" fill="#111"/>
+          <rect x="18" y="37" width="8" height="3" rx="0.5" fill="#111"/>
+          <rect x="30" y="37" width="3" height="3" rx="0.5" fill="#111"/>
+          <rect x="35" y="35" width="7" height="5" rx="0.5" fill="#111"/>
+        </svg>
+      </div>
+      <p class="f-qr-label">Scannen &amp;<br>direkt bestellen</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════ BACK ════ -->
+<div class="gap"></div>
+<p class="label">Rückseite</p>
+<div class="card back">
+
+  <div class="b-logo">
+    <img src="/images/logo.jpg" alt="Waxcelerate">
+    <span class="b-logo-name">Waxcelerate</span>
+  </div>
+
+  <div class="b-rule"></div>
+
+  <!-- Formula -->
+  <div class="b-section">
+    <p class="b-sec-label">Wachsformel</p>
+    <div class="formula">
+      <div class="f-variant">
+        <span class="fv-name">Classic</span>
+        <span class="fv-dots"></span>
+        <span class="fv-val">Paraffin · Carnauba · PTFE</span>
+      </div>
+      <div class="f-variant">
+        <span class="fv-name fv-name-pro">Pro MoS₂</span>
+        <span class="fv-dots"></span>
+        <span class="fv-val">Paraffin · Carnauba · MoS₂ · Graphit</span>
+      </div>
+    </div>
+    <div class="shared">
+      <span class="tag">Schmelzpunkt 68–72 °C</span>
+      <span class="tag">Tauchbad</span>
+      <span class="tag">8–13-fach</span>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="b-stats">
+    <div class="stats-row">
+      <div class="stat">
+        <p class="stat-n">500+</p>
+        <p class="stat-l">km / Rewax<br>trocken</p>
+      </div>
+      <div class="stat">
+        <p class="stat-n">≥ 3×</p>
+        <p class="stat-l">länger als<br>Kettenöl</p>
+      </div>
+      <div class="stat">
+        <p class="stat-n">−46%</p>
+        <p class="stat-l">Unterhalts-<br>kosten/Jahr</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quote -->
+  <div class="b-quote">
+    <div class="q-rule"></div>
+    <p class="q-text">„Nach 2.000 km Regen-Gravel keine Verschleißspuren an der Kette. Hätte ich nie gedacht."</p>
+    <p class="q-attr">eBay-Käufer · 5 Sterne · verifizierter Kauf</p>
+  </div>
+
+  <div class="b-foot">
+    <span>Waxcelerate</span>
+    <span>waxcelerate.de</span>
+  </div>
+
+</div>
+</body>
+</html>

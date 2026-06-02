@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { X, ShoppingCart, Minus, Plus, Trash2, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCartStore, cartItemCount, cartTotalPrice } from '@/store/cart';
+import { getEstimatedDelivery } from '@/lib/utils';
 import { useLanguage } from '@/hooks/useLanguage';
 import { toast } from 'sonner';
 
@@ -199,6 +200,10 @@ export function CartDrawer() {
             </div>
 
             <p className="text-[11px] text-wx-txf leading-relaxed">{t.cart.vatNote}</p>
+            <p className="text-[11px]" style={{ color: 'var(--txf)' }}>
+              📦 {de ? 'Lieferung voraussichtlich' : 'Est. delivery'}{' '}
+              <span style={{ color: 'var(--tx2)' }}>{getEstimatedDelivery(lang)}</span>
+            </p>
 
             {/* AGB acceptance */}
             <label className="flex items-start gap-2.5 cursor-pointer group">
