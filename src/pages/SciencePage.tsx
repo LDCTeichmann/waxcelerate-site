@@ -423,7 +423,7 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
   const nodeGradB   = isDark ? '#090f28' : '#d0e0f8';
   const nodeStroke  = isDark ? 'rgba(68,120,220,0.55)' : 'rgba(42,84,153,0.70)';
   const nodeStrokeH = isDark ? '#7ab0ff' : '#1535a0';
-  const labelClr    = isDark ? 'rgba(255,255,255,0.92)' : '#0f2050';
+
   const metricClr   = isDark ? '#88bbff' : '#1a3c8e';
   const subClr      = isDark ? 'rgba(140,180,240,0.42)' : 'rgba(42,84,153,0.48)';
 
@@ -518,7 +518,7 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
       <svg
         ref={svgRef}
         viewBox="0 0 640 490"
-        className="w-full hidden sm:block"
+        className="w-full block"
         style={{ overflow: 'visible' }}
       >
         <defs>
@@ -777,33 +777,6 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
         </div>
       )}
 
-      {/* ── Mobile grid ── */}
-      <div className="grid grid-cols-3 gap-2 sm:hidden">
-        {ASSEMBLY_NODES.map(node => {
-          const isMos = node.id === 4;
-          return (
-            <div key={node.id} className="rounded-xl p-2.5 text-center"
-              style={{
-                background: isMos
-                  ? `linear-gradient(145deg, ${isDark ? '#1C3C9C' : '#2a52c0'}, ${isDark ? '#060E28' : '#0a1845'})`
-                  : (isDark ? 'rgba(26,52,110,0.20)' : 'rgba(68,114,212,0.08)'),
-                border: `1.5px solid ${isMos ? (isDark ? '#4472D4' : '#3060c8') : (isDark ? 'rgba(68,114,212,0.32)' : 'rgba(42,84,153,0.24)')}`,
-              }}>
-              <p className="text-[13px] font-bold leading-none mb-0.5"
-                style={{ color: isMos ? (isDark ? '#88c0ff' : '#c0d8ff') : (isDark ? '#7aaaff' : '#1a3c8e') }}>
-                {node.metric}
-              </p>
-              <p className="text-[8.5px] font-semibold"
-                style={{ color: isMos ? 'rgba(255,255,255,0.82)' : labelClr }}>
-                {de ? node.labelDe : node.labelEn}
-              </p>
-              <p className="text-[7px] mt-0.5" style={{ color: isMos ? 'rgba(255,255,255,0.38)' : subClr }}>
-                {de ? node.subDe : node.subEn}
-              </p>
-            </div>
-          );
-        })}
-      </div>
     </div>
   );
 }
