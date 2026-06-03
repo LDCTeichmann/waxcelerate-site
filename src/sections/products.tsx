@@ -187,7 +187,7 @@ export function Products() {
                     className="text-[11px] px-3 py-1.5 rounded-full whitespace-nowrap"
                     style={{ background: 'var(--sf2)', border: '1px solid var(--bd)', color: 'var(--txf)' }}
                   >
-                    📦 <span style={{ color: 'var(--tx2)' }}>{getEstimatedDelivery(lang)}</span>
+                    <span style={{ color: 'var(--tx2)' }}>{getEstimatedDelivery(lang)}</span>
                     {' · '}{de ? 'gratis ab €50' : 'free from €50'}
                   </span>
                 </div>

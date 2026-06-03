@@ -216,7 +216,30 @@ export function Guides() {
 
         </div>
       </div>
-      {/* Bottom gradient — bridges to FAQ below */}
+      {/* Closing CTA — visitor has read the full how-to, now ready to buy */}
+      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 pb-10">
+        <div className="max-w-4xl mx-auto pt-8 border-t" style={{ borderColor: 'var(--bd2)' }}>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <p className="text-[14px] font-medium text-wx-tx1">
+                {de ? 'Bereit anzufangen?' : 'Ready to start?'}
+              </p>
+              <p className="text-[12px] mt-0.5" style={{ color: 'var(--txm)' }}>
+                {de ? 'Kettenwachs — direkt versandfertig aus Stuttgart.' : 'Chain wax — shipped from Stuttgart.'}
+              </p>
+            </div>
+            <button
+              onClick={() => document.querySelector('#produkte')?.scrollIntoView({ behavior: 'smooth' })}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-[13px] font-semibold transition-opacity hover:opacity-90 whitespace-nowrap"
+              style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
+            >
+              {de ? 'Wachs bestellen →' : 'Order wax →'}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom gradient — bridges to Contact below */}
       <div
         className="absolute bottom-0 left-0 right-0 pointer-events-none"
         style={{ height: '64px', background: 'linear-gradient(to bottom, transparent, var(--pg))', zIndex: 1 }}

@@ -21,7 +21,7 @@ export const translations = {
       priceAnchor: 'Ab €22,95 · ~€70 gespart auf 12.000 km',
       guarantee: 'Nicht zufrieden? Schreib mir — ich sorge dafür, dass es stimmt.',
       ctaBuy: 'Jetzt bestellen',
-      ctaSecondary: 'Wie funktioniert Heißwachs? →',
+      ctaSecondary: 'Warum Heißwachs? →',
     },
 
     // Products
@@ -49,7 +49,7 @@ export const translations = {
     // Why Wax
     whyWax: {
       title: 'Warum Heißwachs?',
-      subtitle: 'Vergleiche Öl und Wachs — sieh den Unterschied selbst.',
+      subtitle: 'Die Wissenschaft dahinter — warum Wachs Öl in jedem Punkt schlägt.',
       comparisonTitle: 'Öl vs. Wachs',
       oilLabel: 'Mit Öl',
       waxLabel: 'Mit Wachs',
@@ -364,7 +364,7 @@ export const translations = {
       priceAnchor: 'From €22.95 · ~€70 saved over 12,000 km',
       guarantee: "Not happy? Write me — I'll make it right.",
       ctaBuy: 'Buy now',
-      ctaSecondary: 'How does hot wax work? →',
+      ctaSecondary: 'Why hot wax? →',
     },
 
     // Products
@@ -392,7 +392,7 @@ export const translations = {
     // Why Wax
     whyWax: {
       title: 'Why Hot Wax?',
-      subtitle: 'Compare oil and wax — see the difference yourself.',
+      subtitle: 'The science behind it — why wax beats oil on every measure.',
       comparisonTitle: 'Oil vs. Wax',
       oilLabel: 'With Oil',
       waxLabel: 'With Wax',

@@ -143,18 +143,27 @@ export function Reviews() {
             ))}
           </div>
 
-          <p className="mt-6 text-[11px]" style={{ color: 'var(--txff)' }}>
-            {de ? 'Quelle: ' : 'Source: '}
-            <a
-              href="https://www.ebay.de/usr/waxcelerate"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline hover:opacity-70 transition-opacity"
-              style={{ textUnderlineOffset: '3px' }}
+          <div className="mt-8 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <button
+              onClick={() => document.querySelector('#produkte')?.scrollIntoView({ behavior: 'smooth' })}
+              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-[14px] font-semibold transition-opacity hover:opacity-90"
+              style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
             >
-              ebay.de/usr/waxcelerate
-            </a>
-          </p>
+              {de ? 'Jetzt bestellen →' : 'Buy now →'}
+            </button>
+            <p className="text-[11px]" style={{ color: 'var(--txff)' }}>
+              {de ? 'Quelle: ' : 'Source: '}
+              <a
+                href="https://www.ebay.de/usr/waxcelerate"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline hover:opacity-70 transition-opacity"
+                style={{ textUnderlineOffset: '3px' }}
+              >
+                ebay.de/usr/waxcelerate
+              </a>
+            </p>
+          </div>
 
         </div>
       </div>

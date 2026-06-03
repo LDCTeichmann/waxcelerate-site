@@ -138,7 +138,7 @@ export function FAQ() {
               className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-[14px] font-semibold transition-opacity hover:opacity-90"
               style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
             >
-              {de ? 'Kette jetzt sauber halten →' : 'Keep my chain clean →'}
+              {de ? 'Meine Kette jetzt wachsen →' : 'Start waxing my chain →'}
             </button>
           </div>
         </div>

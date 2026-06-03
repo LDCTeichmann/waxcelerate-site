@@ -7,10 +7,10 @@ import { useActiveSection } from '@/hooks/useActiveSection';
 
 const navItems = [
   { href: '#produkte',    key: 'products' },
-  { href: '#anleitungen', key: 'guides'   },
-  { href: '#tools',       key: 'tools'    },
-  { href: '#faq',         key: 'faq'      },
   { href: '#ueber-mich',  key: 'about'    },
+  { href: '#faq',         key: 'faq'      },
+  { href: '#tools',       key: 'tools'    },
+  { href: '#anleitungen', key: 'guides'   },
   { href: '#kontakt',     key: 'contact'  },
 ];
 
