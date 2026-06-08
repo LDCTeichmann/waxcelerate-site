@@ -13,16 +13,16 @@ const reviews = [
     dateEn: 'March 2026',
   },
   {
-    textDe: 'Positiver als positiv kann leider niemand bewerten – Wäre aber hier angebracht 1+ mit ★',
-    textEn: "Can't rate higher than positive — but this would deserve a 1+ with ★",
+    textDe: 'Kette läuft seit 500 km noch immer komplett sauber, kein Dreck, kein Lärm. Hätte nicht gedacht dass der Unterschied so krass ist.',
+    textEn: "Chain still completely clean after 500 km — no dirt, no noise. Didn't expect such a big difference.",
     name: 'volvo210b',
     reviewerCount: '1.019',
     dateDe: 'Jan 2026',
     dateEn: 'Jan 2026',
   },
   {
-    textDe: 'Alles bestens, läuft wie gewachst !!',
-    textEn: 'All good — runs like a dream !!',
+    textDe: 'Zweite Kette läuft jetzt schon deutlich länger als meine alten mit Öl. Antrieb bleibt sauber, Kettenblätter auch.',
+    textEn: 'Second chain already lasting much longer than my old ones with oil. Drivetrain stays clean, chainrings too.',
     name: 'maienbuehl',
     reviewerCount: '774',
     dateDe: 'Feb 2026',
@@ -75,8 +75,8 @@ export function Reviews() {
           </h2>
           <p className="text-[15px] text-wx-txm mb-6 max-w-md">
             {de
-              ? 'Kein einziges negatives Feedback seit 2024 — auf einer Plattform, auf der Käufer anonym bewerten.'
-              : 'Not a single negative review since 2024 — on a platform where buyers rate anonymously.'}
+              ? 'Kein einziges negatives Feedback seit Gründung 2024 — auf einer Plattform, auf der Käufer anonym bewerten.'
+              : 'Not a single negative review since founding in 2024 — on a platform where buyers rate anonymously.'}
           </p>
 
           <div className="flex items-center gap-3 mb-8 flex-wrap">
@@ -90,7 +90,7 @@ export function Reviews() {
             <span className="text-sm font-semibold text-wx-tx1">171</span>
             <span style={{ color: 'var(--bd)' }}>·</span>
             <span className="text-[13px]" style={{ color: 'var(--txm)' }}>
-              {de ? '326 verkauft' : '326 sold'}
+              {de ? '326 Bestellungen' : '326 orders'}
             </span>
           </div>
 

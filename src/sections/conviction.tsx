@@ -13,12 +13,12 @@ export function Conviction() {
     {
       number: '100%',
       label: de ? 'positiv' : 'positive',
-      sub: de ? 'seit 2024' : 'since 2024',
+      sub: de ? 'seit Gründung 2024' : 'since founding 2024',
     },
     {
       number: '−46%',
       label: de ? 'günstiger' : 'lower cost',
-      sub: de ? 'vs. Öl · 12.000 km *' : 'vs. oil · 12,000 km *',
+      sub: de ? 'vs. Öl · 12 Tkm *' : 'vs. oil · 12k km *',
     },
     {
       number: '3×',
@@ -56,7 +56,7 @@ export function Conviction() {
               </div>
             ))}
           </div>
-          <p className="text-[10px] mt-3 text-center px-2 leading-relaxed" style={{ color: 'var(--txf)' }}>
+          <p className="text-[11px] mt-3 text-center px-2 leading-relaxed" style={{ color: 'var(--txf)' }}>
             {de
               ? '* Basis: Kettenpreis €30, Rewax alle 400 km vs. Ölwechsel alle 300 km, 12.000 km. † Kette 6.000–12.000 km mit Wachs vs. 2.000–3.000 km mit Öl (Kettendehnung 0,75%).'
               : '* Based on: chain price €30, re-wax every 400 km vs. oil every 300 km, 12,000 km total. † Chain 6,000–12,000 km with wax vs. 2,000–3,000 km with oil (chain stretch 0.75%).'}

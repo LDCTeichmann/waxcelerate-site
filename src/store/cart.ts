@@ -83,7 +83,14 @@ export const useCartStore = create<CartStore>()(
       closeCart: () => set({ isOpen: false }),
 
       checkout: async () => {
-        const { items } = get();
+        const { items, stockMap } = get();
+        for (const item of items) {
+          const stock = getStock(stockMap, item.productId);
+          if (stock === 0) throw new Error(\`"\${item.title}" ist nicht mehr vorrätig.\`);
+          if (stock > 0 && item.quantity > stock) {
+            throw new Error(\`Nur noch \${stock}× "\${item.title}" verfügbar.\`);
+          }
+        }
         set({ isCheckingOut: true });
         try {
           const res = await fetch('/api/create-checkout', {

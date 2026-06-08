@@ -68,12 +68,12 @@ function AppContent() {
               <Hero />
               <Conviction />
               <ErrorBoundary><WhyWax /></ErrorBoundary>
-              <Reviews />
               <Products />
+              <Reviews />
               <About />
+              <FAQ />
               <ErrorBoundary><Tools /></ErrorBoundary>
               <Guides />
-              <FAQ />
               <Contact />
             </main>
             <Footer />

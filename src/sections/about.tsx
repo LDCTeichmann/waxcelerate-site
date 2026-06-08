@@ -74,7 +74,7 @@ export function About() {
               className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-semibold mb-3"
               style={{ color: 'var(--txf)' }}
             >
-              {de ? 'Die Geschichte' : 'Our Story'}
+              {de ? 'Gründer & Hintergrund' : 'Founder & Background'}
             </p>
             <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1">
               <ScrollWordReveal text={t.about.title} />

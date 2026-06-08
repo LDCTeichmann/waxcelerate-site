@@ -9,6 +9,7 @@ import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { products } from '@/lib/data';
 import { richContent } from '@/lib/productContent';
 import { getEstimatedDelivery } from '@/lib/utils';
+import { useCartStore, isInStock, isLowStock, getStock } from '@/store/cart';
 
 
 const filterChip = (active: boolean) =>
@@ -192,7 +193,7 @@ export function Products() {
                   </span>
                 </div>
               </div>
-              <CompareModal open={compareOpen} onClose={() => setCompareOpen(false)} de={de} t={t} />
+              <CompareModal open={compareOpen} onClose={() => setCompareOpen(false)} de={de} t={t} formatPrice={formatPrice} />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 items-stretch">
                 {waxProducts.map((product) => (
                   <WaxCard
@@ -200,7 +201,6 @@ export function Products() {
                     product={product}
                     de={de}
                     formatPrice={formatPrice}
-                    buyLabel={t.products.buyOnEbay}
                   />
                 ))}
               </div>
@@ -296,13 +296,20 @@ interface CardProps {
 
 // ── Wax Card ───────────────────────────────────────────────────────────────
 
-const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: CardProps) {
+const WaxCard = memo(function WaxCard({ product, de, formatPrice }: CardProps) {
   const isPro = product.variant === 'pro';
   const accent = isPro ? '#2A5499' : '#1A3C6E';
 
   const title = de ? product.title : product.titleEn;
   const badge = de ? product.badge : product.badgeEn;
   const desc = de ? product.description : product.descriptionEn;
+
+  const addItem = useCartStore((s) => s.addItem);
+  const openCart = useCartStore((s) => s.openCart);
+  const stockMap = useCartStore((s) => s.stockMap);
+  const inStock = isInStock(stockMap, product.id);
+  const lowStock = isLowStock(stockMap, product.id);
+  const stockCount = getStock(stockMap, product.id);
 
   return (
     <div className="wax-card relative h-full rounded-2xl overflow-hidden" style={{ transform: 'translateZ(0)' }}>
@@ -385,14 +392,29 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: Ca
                 })()}
               </p>
             </div>
-            <button
-              onClick={e => { e.preventDefault(); e.stopPropagation(); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
-              className="flex items-center gap-1.5 px-4 py-2.5 text-[13px] font-semibold rounded-xl transition-opacity duration-150 hover:opacity-90 active:scale-[0.97]"
-              style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
-            >
-              {buyLabel}
-              <ExternalLink className="h-3.5 w-3.5" />
-            </button>
+            <div className="flex flex-col items-end gap-1">
+              <button
+                onClick={e => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (!inStock) return;
+                  addItem(product);
+                  openCart();
+                }}
+                disabled={!inStock}
+                className="flex items-center gap-1.5 px-4 py-2.5 text-[13px] font-semibold rounded-xl transition-opacity duration-150 hover:opacity-90 active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed"
+                style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
+              >
+                {inStock
+                  ? (de ? 'In den Warenkorb' : 'Add to cart')
+                  : (de ? 'Ausverkauft' : 'Sold out')}
+              </button>
+              {lowStock && stockCount > 0 && (
+                <p className="text-[10px]" style={{ color: '#e67e22' }}>
+                  {de ? `Nur noch ${stockCount} verfügbar` : `Only ${stockCount} left`}
+                </p>
+              )}
+            </div>
           </div>
         </div>
       </Link>
@@ -506,11 +528,12 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
 const CLASSIC_ACCENT = '#2B52B0';
 const PRO_ACCENT = '#3D67CA';
 
-function CompareModal({ open, onClose, de, t }: {
+function CompareModal({ open, onClose, de, t, formatPrice }: {
   open: boolean;
   onClose: () => void;
   de: boolean;
   t: TranslationType;
+  formatPrice: (p: number) => string;
 }) {
   const [classicOpen, setClassicOpen] = useState(false);
   const [proOpen, setProOpen] = useState(false);
@@ -533,8 +556,10 @@ function CompareModal({ open, onClose, de, t }: {
   const proRc = richContent['wax-500-mos2'];
   const pt = t.products;
 
-  const classicPrice = '29,95 €';
-  const proPrice = '34,95 €';
+  const classicProduct = products.find(p => p.id === 'wax-500');
+  const proProduct = products.find(p => p.id === 'wax-500-mos2');
+  const classicPrice = classicProduct ? formatPrice(classicProduct.price) : '29,95 €';
+  const proPrice = proProduct ? formatPrice(proProduct.price) : '34,95 €';
 
   const rows = [
     {
