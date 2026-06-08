@@ -1,11 +1,13 @@
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/hooks/useLanguage';
+import { PageTransition } from '@/components/PageTransition';
 
 export function NotFoundPage() {
   const { lang } = useLanguage();
   const de = lang === 'de';
 
   return (
+    <PageTransition>
     <div
       className="min-h-screen flex flex-col items-center justify-center gap-6 px-4 text-center"
       style={{ background: 'var(--pg)' }}
@@ -44,5 +46,6 @@ export function NotFoundPage() {
         </Link>
       </div>
     </div>
+    </PageTransition>
   );
 }

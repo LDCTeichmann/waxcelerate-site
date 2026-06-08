@@ -173,7 +173,10 @@ export function ProductDetailPage() {
               backdropFilter: 'blur(12px)',
             }}
           >
-            <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-4">
+            <div
+              className="max-w-5xl mx-auto px-4 sm:px-6 flex items-center gap-4"
+              style={{ paddingTop: '0.75rem', paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}
+            >
               <img
                 src={product.image}
                 alt={titleText}

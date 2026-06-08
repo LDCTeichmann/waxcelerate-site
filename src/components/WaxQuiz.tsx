@@ -65,9 +65,10 @@ const QUESTIONS_EN = [
   },
 ];
 
-function getRecommendation(answers: Answer[]): 'pro' | 'classic' {
+function getRecommendation(answers: Answer[]): 'pro' | 'classic' | 'classic-small' {
   const [weather, bike, freq] = answers;
   if (bike === 'ebike' || weather === 'rain' || weather === 'both' || freq === 'daily') return 'pro';
+  if (freq === 'occasional') return 'classic-small';
   return 'classic';
 }
 
@@ -90,6 +91,16 @@ const CLASSIC_REASONS_EN = [
   'Clean, dry Classic formula — ideal from spring through autumn',
   'Paraffin + PTFE: proven, simple, efficient',
   '20–32 applications per 500g block — low cost per km',
+];
+const SMALL_REASONS_DE = [
+  '300 g Block — ideal für Gelegenheitsfahrer (6–12 Anwendungen)',
+  'Gleiche Classic-Formel: Paraffin + PTFE, sauber und effizient',
+  'Günstiger Einstiegspreis — perfekt zum Ausprobieren',
+];
+const SMALL_REASONS_EN = [
+  '300 g block — ideal for occasional riders (6–12 applications)',
+  'Same Classic formula: paraffin + PTFE, clean and efficient',
+  'Lower entry price — perfect for trying out wax lubing',
 ];
 
 export function WaxQuiz({ de, onClose }: Props) {
@@ -118,11 +129,17 @@ export function WaxQuiz({ de, onClose }: Props) {
   };
 
   const recommendation = done ? getRecommendation(answers) : null;
-  const productId = recommendation === 'pro' ? 'wax-500-mos2' : 'wax-500';
+  const productId =
+    recommendation === 'pro' ? 'wax-500-mos2' :
+    recommendation === 'classic-small' ? 'wax-300' :
+    'wax-500';
   const product = getProductById(productId);
-  const reasons = recommendation === 'pro'
-    ? (de ? PRO_REASONS_DE : PRO_REASONS_EN)
-    : (de ? CLASSIC_REASONS_DE : CLASSIC_REASONS_EN);
+  const reasons =
+    recommendation === 'pro'
+      ? (de ? PRO_REASONS_DE : PRO_REASONS_EN)
+      : recommendation === 'classic-small'
+      ? (de ? SMALL_REASONS_DE : SMALL_REASONS_EN)
+      : (de ? CLASSIC_REASONS_DE : CLASSIC_REASONS_EN);
 
   return (
     <div

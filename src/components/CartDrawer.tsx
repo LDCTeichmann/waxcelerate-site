@@ -233,7 +233,15 @@ export function CartDrawer() {
                         : `${formatPrice(FREE_SHIPPING_THRESHOLD - total)} away from free shipping`)}
                 </span>
               </div>
-              <div className="h-1 rounded-full overflow-hidden" style={{ background: 'rgba(26,60,110,0.18)' }}>
+              <div
+                className="h-1 rounded-full overflow-hidden"
+                style={{ background: 'rgba(26,60,110,0.18)' }}
+                role="progressbar"
+                aria-valuenow={Math.min(total, FREE_SHIPPING_THRESHOLD)}
+                aria-valuemin={0}
+                aria-valuemax={FREE_SHIPPING_THRESHOLD}
+                aria-label={de ? 'Fortschritt zum kostenlosen Versand' : 'Progress toward free shipping'}
+              >
                 <div
                   className="h-1 rounded-full transition-all duration-500"
                   style={{
