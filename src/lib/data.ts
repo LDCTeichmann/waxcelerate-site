@@ -36,6 +36,8 @@ export interface Product {
   imagePosition?: string;
   // Gallery — additional images shown in thumbnail strip on the detail page
   images?: string[];
+  // Indices into t.faq.items for inline FAQ on product detail page
+  faqIds?: number[];
 }
 
 export const products: Product[] = [
@@ -46,6 +48,7 @@ export const products: Product[] = [
     variant: 'classic',
     weight: '500g',
     applications: '20–32',
+    faqIds: [0, 4, 5, 7, 9],
     title: 'Kettenwachs 500g — Classic',
     titleEn: 'Chain Wax 500g — Classic',
     description: 'Der Einstieg — und für die meisten der einzige Block, den sie je brauchen. Sauberer Antrieb, kein Nachschmieren, kein Dreck. Ideal für Frühling bis Herbst.',
@@ -93,6 +96,7 @@ export const products: Product[] = [
     variant: 'classic',
     weight: '300g',
     applications: '10–15',
+    faqIds: [0, 4, 5, 7, 9],
     title: 'Kettenwachs 300g — Classic',
     titleEn: 'Chain Wax 300g — Classic',
     description: 'Gleiche Formel wie der 500g-Block — nur kleiner. Perfekt zum Ausprobieren, als Reiseblock oder wenn du selten wächst.',
@@ -136,6 +140,7 @@ export const products: Product[] = [
     variant: 'pro',
     weight: '500g',
     applications: '20–32',
+    faqIds: [1, 7, 9, 11, 3],
     title: 'Kettenwachs 500g — Pro',
     titleEn: 'Chain Wax 500g — Pro',
     description: 'Für Herbst, Winter und nasse Ausfahrten. MoS₂ bildet einen festeren Transferfilm — längere Intervalle, weniger Rost, flexibel bis −8 °C.',
@@ -192,6 +197,7 @@ export const products: Product[] = [
     variant: 'pro',
     weight: '300g',
     applications: '10–15',
+    faqIds: [1, 7, 9, 11, 3],
     title: 'Kettenwachs 300g — Pro',
     titleEn: 'Chain Wax 300g — Pro',
     description: 'Pro-Formel kompakt — für Fahrer, die zwischen Sommer und Winter die Formel wechseln, oder als Winterblock zum Mitnehmen.',

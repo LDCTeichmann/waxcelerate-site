@@ -10,6 +10,7 @@ import { products } from '@/lib/data';
 import { richContent } from '@/lib/productContent';
 import { getEstimatedDelivery } from '@/lib/utils';
 import { useCartStore, isInStock, isLowStock, getStock } from '@/store/cart';
+import { WaxQuiz } from '@/components/WaxQuiz';
 
 
 const filterChip = (active: boolean) =>
@@ -23,6 +24,7 @@ export function Products() {
   const { t, lang } = useLanguage();
   const [activeTab, setActiveTab] = useState<'wax' | 'chain'>('wax');
   const [compareOpen, setCompareOpen] = useState(false);
+  const [quizOpen, setQuizOpen] = useState(false);
   const [speedFilter, setSpeedFilter] = useState<'all' | '11' | '12'>('all');
   const [brandFilter, setBrandFilter] = useState<'all' | 'shimano' | 'sram' | 'campagnolo'>('all');
   const de = lang === 'de';
@@ -193,8 +195,29 @@ export function Products() {
                   </span>
                 </div>
               </div>
+              {/* Quiz trigger */}
+              <button
+                onClick={() => setQuizOpen(v => !v)}
+                className="flex items-center gap-2 w-fit text-[13px] font-medium transition-all mb-2"
+                style={{ color: quizOpen ? '#2B52B0' : 'var(--txm)' }}
+              >
+                <span
+                  className="px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all"
+                  style={{
+                    background: quizOpen ? 'rgba(43,82,176,0.15)' : 'rgba(43,82,176,0.08)',
+                    border: `1px solid ${quizOpen ? 'rgba(43,82,176,0.40)' : 'rgba(43,82,176,0.20)'}`,
+                    color: '#2B52B0',
+                  }}
+                >
+                  ✦
+                </span>
+                {de ? 'Welches Wachs passt zu mir?' : 'Which wax is right for me?'}
+              </button>
+
+              {quizOpen && <WaxQuiz de={de} onClose={() => setQuizOpen(false)} />}
+
               <CompareModal open={compareOpen} onClose={() => setCompareOpen(false)} de={de} t={t} formatPrice={formatPrice} />
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 items-stretch">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 items-stretch mt-4">
                 {waxProducts.map((product) => (
                   <WaxCard
                     key={product.id}

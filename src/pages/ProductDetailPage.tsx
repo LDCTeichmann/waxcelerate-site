@@ -1,5 +1,5 @@
 import { useParams, Link } from 'react-router-dom';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
   ArrowLeft, ExternalLink, Check,
@@ -13,6 +13,7 @@ import { AddToCartButton } from '@/components/AddToCartButton';
 import { PageTransition } from '@/components/PageTransition';
 import { CartIcon } from '@/components/CartIcon';
 import { ImageLightbox } from '@/components/ImageLightbox';
+import { ProductFAQ } from '@/components/ProductFAQ';
 
 type RichTab = 'formula' | 'vergleich' | 'kosten';
 
@@ -29,6 +30,20 @@ export function ProductDetailPage() {
   const [compatExpanded, setCompatExpanded] = useState(false);
   const [v9Expanded, setV9Expanded] = useState(false);
   const [richTab, setRichTab] = useState<RichTab>('formula');
+  const [stickyVisible, setStickyVisible] = useState(false);
+  const ctaSentinelRef = useRef<HTMLDivElement>(null);
+  const isWaxProduct = product?.category === 'wax';
+
+  useEffect(() => {
+    const el = ctaSentinelRef.current;
+    if (!el || !isWaxProduct) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setStickyVisible(!entry.isIntersecting),
+      { threshold: 0, rootMargin: '-64px 0px 0px 0px' }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [isWaxProduct]);
 
   if (!product) {
     return (
@@ -146,6 +161,35 @@ export function ProductDetailPage() {
       </Helmet>
 
       <div className="min-h-screen text-wx-tx1" style={{ background: 'var(--pg)' }}>
+
+        {/* Sticky Add-to-Cart bar */}
+        {isWax && (
+          <div
+            className="fixed bottom-0 left-0 right-0 z-40 transition-transform duration-300"
+            style={{
+              transform: stickyVisible ? 'translateY(0)' : 'translateY(100%)',
+              background: 'var(--pg)',
+              borderTop: '1px solid var(--bd)',
+              backdropFilter: 'blur(12px)',
+            }}
+          >
+            <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-4">
+              <img
+                src={product.image}
+                alt={titleText}
+                className="w-10 h-10 rounded-lg object-cover flex-shrink-0"
+                style={{ objectPosition: product.imagePosition ?? 'center' }}
+              />
+              <div className="flex-1 min-w-0">
+                <p className="text-[13px] font-semibold text-wx-tx1 truncate">{titleText}</p>
+                <p className="text-[12px]" style={{ color: 'var(--txm)' }}>{formatPrice(product.price)}</p>
+              </div>
+              <div className="flex-shrink-0">
+                <AddToCartButton product={product} />
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Nav */}
         <header className="sticky top-0 z-50 backdrop-blur-md border-b" style={{ background: 'var(--nav-bg)', borderColor: 'var(--bd)' }}>
@@ -285,6 +329,9 @@ export function ProductDetailPage() {
                   </a>
                 )}
               </div>
+
+              {/* Sentinel — sticky bar observes this */}
+              {isWax && <div ref={ctaSentinelRef} aria-hidden="true" />}
 
               {/* Divider */}
               <div style={{ height: '1px', background: 'var(--bd2)' }} />
@@ -826,18 +873,41 @@ export function ProductDetailPage() {
               )}
 
               {/* Final CTA */}
-              <a
-                href={product.ebayUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-8 flex items-center justify-center gap-2 w-full py-4 rounded-xl text-sm font-semibold transition-all hover:opacity-90"
-                style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
-              >
-                {de ? 'Jetzt bei eBay kaufen' : 'Buy now on eBay'} — {formatPrice(product.price)}
-                <ExternalLink className="h-3.5 w-3.5" />
-              </a>
+              {isWax ? (
+                <div className="mt-8 flex flex-col gap-1.5">
+                  <AddToCartButton product={product} fullWidth />
+                  <a
+                    href={product.ebayUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-1.5 py-2 text-[12px] transition-opacity hover:opacity-60"
+                    style={{ color: 'var(--txm)' }}
+                  >
+                    {de ? 'Oder direkt bei eBay kaufen' : 'Or buy directly on eBay'}
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                </div>
+              ) : (
+                <a
+                  href={product.ebayUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-8 flex items-center justify-center gap-2 w-full py-4 rounded-xl text-sm font-semibold transition-all hover:opacity-90"
+                  style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
+                >
+                  {de ? 'Jetzt bei eBay kaufen' : 'Buy now on eBay'} — {formatPrice(product.price)}
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </a>
+              )}
             </div>
           )}
+          {/* ── INLINE FAQ ── */}
+          {isWax && product.faqIds && product.faqIds.length > 0 && (
+            <div className="pb-8" style={{ borderTop: related.length > 0 ? 'none' : undefined }}>
+              <ProductFAQ faqIds={product.faqIds} accentColor={accentColor} />
+            </div>
+          )}
+
           {/* ── RELATED PRODUCTS ── */}
           {related.length > 0 && (
             <section className="mt-12 pt-8" style={{ borderTop: '1px solid var(--bd)' }}>

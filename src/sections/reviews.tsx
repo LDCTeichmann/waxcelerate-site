@@ -31,6 +31,13 @@ const reviews = [
   },
 ];
 
+const AVATAR_COLORS = ['#2B52B0', '#1A6E4A', '#7C3AED', '#B45309', '#0E6DA8'];
+function avatarColor(name: string): string {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) & 0xffffff;
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+}
+
 function StarIcon() {
   return (
     <svg className="h-3.5 w-3.5" viewBox="0 0 20 20" style={{ fill: '#D4AA30' }}>
@@ -128,9 +135,18 @@ export function Reviews() {
                     color: 'var(--txf)',
                   }}
                 >
-                  <div className="flex flex-col gap-0.5">
-                    <span className="font-medium" style={{ color: 'var(--tx2)' }}>{r.name}</span>
-                    <span style={{ color: 'var(--txff)' }}>{r.reviewerCount} eBay-Bew.</span>
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-white flex-shrink-0"
+                      style={{ background: avatarColor(r.name) }}
+                      aria-hidden="true"
+                    >
+                      {r.name[0].toUpperCase()}
+                    </div>
+                    <div className="flex flex-col gap-0.5">
+                      <span className="font-medium" style={{ color: 'var(--tx2)' }}>{r.name}</span>
+                      <span style={{ color: 'var(--txff)' }}>{r.reviewerCount} eBay-Bew.</span>
+                    </div>
                   </div>
                   <span className="flex items-center gap-1.5">
                     <span

@@ -4,7 +4,10 @@ import { Link } from 'react-router-dom';
 import { useCartStore, cartItemCount, cartTotalPrice } from '@/store/cart';
 import { getEstimatedDelivery } from '@/lib/utils';
 import { useLanguage } from '@/hooks/useLanguage';
+import { products } from '@/lib/data';
 import { toast } from 'sonner';
+
+const FREE_SHIPPING_THRESHOLD = 50;
 
 export function CartDrawer() {
   const items = useCartStore((s) => s.items);
@@ -92,6 +95,7 @@ export function CartDrawer() {
         {/* Items list */}
         <div className="flex-1 overflow-y-auto px-5 py-4">
           {items.length === 0 ? (
+
             <div className="flex flex-col items-center justify-center h-full gap-4 text-center pb-16">
               <div
                 className="w-14 h-14 rounded-2xl flex items-center justify-center"
@@ -113,6 +117,42 @@ export function CartDrawer() {
             </div>
           ) : (
             <div>
+              {/* Upsell: suggest a chain when only wax is in cart */}
+              {(() => {
+                const hasWax = items.some(i => i.productId.startsWith('wax'));
+                const hasChain = items.some(i => i.productId.startsWith('chain'));
+                const upsellChain = hasWax && !hasChain ? products.find(p => p.id === 'chain-ybn11') : null;
+                if (!upsellChain) return null;
+                return (
+                  <div
+                    className="mb-4 rounded-xl p-3 flex items-center gap-3"
+                    style={{ background: 'rgba(43,82,176,0.07)', border: '1px solid rgba(43,82,176,0.20)' }}
+                  >
+                    <img
+                      src={upsellChain.image}
+                      alt={de ? upsellChain.title : upsellChain.titleEn}
+                      className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[11px] font-semibold uppercase tracking-widest mb-0.5" style={{ color: '#2B52B0' }}>
+                        {de ? 'Komplett durchstarten?' : 'Ready to ride instantly?'}
+                      </p>
+                      <p className="text-[12px] leading-snug" style={{ color: 'var(--txm)' }}>
+                        {de ? 'Vorgewachste Kette — einfach einhängen und fahren.' : 'Pre-waxed chain — clip in and ride.'}
+                      </p>
+                    </div>
+                    <Link
+                      to={`/produkt/${upsellChain.id}`}
+                      onClick={closeCart}
+                      className="text-[11px] font-semibold shrink-0 hover:underline"
+                      style={{ color: '#2B52B0' }}
+                    >
+                      {de ? 'Ansehen →' : 'View →'}
+                    </Link>
+                  </div>
+                );
+              })()}
+
               {items.map((item) => (
                 <div key={item.productId} className="flex gap-3 py-4" style={{ borderBottom: '1px solid var(--bd2)' }}>
                   {/* Image */}
@@ -179,19 +219,30 @@ export function CartDrawer() {
             className="px-5 pt-4 pb-8 flex-shrink-0 space-y-3"
             style={{ borderTop: '1px solid var(--bd)' }}
           >
-            {/* Free shipping indicator */}
-            {total < 50 && (
-              <div
-                className="rounded-lg px-3 py-2.5 text-xs"
-                style={{ background: 'rgba(26,60,110,0.08)', border: '1px solid rgba(26,60,110,0.18)' }}
-              >
-                <span style={{ color: '#1A3C6E' }}>
-                  {de
-                    ? `Noch ${formatPrice(50 - total)} bis zum kostenlosen Versand`
-                    : `${formatPrice(50 - total)} away from free shipping`}
+            {/* Free shipping progress bar */}
+            <div
+              className="rounded-lg px-3 py-2.5"
+              style={{ background: 'rgba(26,60,110,0.08)', border: '1px solid rgba(26,60,110,0.18)' }}
+            >
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[11px]" style={{ color: total >= FREE_SHIPPING_THRESHOLD ? '#22c55e' : '#1A3C6E' }}>
+                  {total >= FREE_SHIPPING_THRESHOLD
+                    ? (de ? '✓ Kostenloser Versand' : '✓ Free shipping')
+                    : (de
+                        ? `Noch ${formatPrice(FREE_SHIPPING_THRESHOLD - total)} bis zum kostenlosen Versand`
+                        : `${formatPrice(FREE_SHIPPING_THRESHOLD - total)} away from free shipping`)}
                 </span>
               </div>
-            )}
+              <div className="h-1 rounded-full overflow-hidden" style={{ background: 'rgba(26,60,110,0.18)' }}>
+                <div
+                  className="h-1 rounded-full transition-all duration-500"
+                  style={{
+                    width: `${Math.min((total / FREE_SHIPPING_THRESHOLD) * 100, 100)}%`,
+                    background: total >= FREE_SHIPPING_THRESHOLD ? '#22c55e' : '#2B52B0',
+                  }}
+                />
+              </div>
+            </div>
 
             {/* Subtotal row */}
             <div className="flex items-center justify-between">
@@ -249,6 +300,21 @@ export function CartDrawer() {
                 t.cart.checkout
               )}
             </button>
+
+            {/* Trust icons */}
+            <div className="flex items-center justify-center gap-4 py-1">
+              <span className="flex items-center gap-1 text-[10px]" style={{ color: 'var(--txff)' }}>
+                <svg width="10" height="12" viewBox="0 0 10 12" fill="currentColor" aria-hidden="true"><path d="M5 0C3.3 0 2 1.3 2 3v1H1C.4 4 0 4.4 0 5v6c0 .6.4 1 1 1h8c.6 0 1-.4 1-1V5c0-.6-.4-1-1-1H8V3C8 1.3 6.7 0 5 0zm0 1.5c.8 0 1.5.7 1.5 1.5v1h-3V3c0-.8.7-1.5 1.5-1.5zM5 7c.6 0 1 .4 1 1s-.4 1-1 1-1-.4-1-1 .4-1 1-1z"/></svg>
+                SSL
+              </span>
+              <span className="text-[10px]" style={{ color: 'var(--txff)' }}>
+                powered by <span style={{ color: 'var(--tx2)' }}>Stripe</span>
+              </span>
+              <span className="flex items-center gap-1 text-[10px]" style={{ color: 'var(--txff)' }}>
+                <svg width="12" height="11" viewBox="0 0 12 11" fill="currentColor" aria-hidden="true"><path d="M6 0L7.35 4.15H12L8.5 6.65L9.85 10.8L6 8.3L2.15 10.8L3.5 6.65L0 4.15H4.65L6 0Z"/></svg>
+                {de ? 'Käuferschutz' : 'Buyer protection'}
+              </span>
+            </div>
 
             <div className="flex items-center justify-between pt-0.5">
               <a

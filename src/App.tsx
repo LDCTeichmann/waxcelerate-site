@@ -33,6 +33,7 @@ const AdminPage = lazy(() => import('@/pages/AdminPage').then(m => ({ default: m
 const BlogIndexPage = lazy(() => import('@/pages/blog/BlogIndexPage').then(m => ({ default: m.BlogIndexPage })));
 const BlogArticlePage = lazy(() => import('@/pages/blog/BlogArticlePage').then(m => ({ default: m.BlogArticlePage })));
 const SciencePage = lazy(() => import('@/pages/SciencePage').then(m => ({ default: m.SciencePage })));
+const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 
 const PageLoader = () => (
   <div style={{ minHeight: '100vh', background: 'var(--pg)' }} />
@@ -61,7 +62,7 @@ function AppContent() {
         <Route path="/agb" element={<Suspense fallback={<PageLoader />}><AGBPage /></Suspense>} />
         <Route path="/admin" element={<Suspense fallback={<PageLoader />}><AdminPage /></Suspense>} />
         <Route path="/wissenschaft" element={<Suspense fallback={<PageLoader />}><SciencePage /></Suspense>} />
-        <Route path="*" element={
+        <Route path="/" element={
           <>
             <Navigation />
             <main>
@@ -79,6 +80,7 @@ function AppContent() {
             <Footer />
           </>
         } />
+        <Route path="*" element={<Suspense fallback={<PageLoader />}><NotFoundPage /></Suspense>} />
       </Routes>
       <Toaster position="bottom-center" toastOptions={{
         style: {
