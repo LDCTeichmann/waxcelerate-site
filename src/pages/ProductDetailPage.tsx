@@ -25,7 +25,6 @@ export function ProductDetailPage() {
 
   const [activeImage, setActiveImage] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [highlightsOpen, setHighlightsOpen] = useState(false);
   const [specsOpen, setSpecsOpen] = useState(false);
   const [compatExpanded, setCompatExpanded] = useState(false);
   const [v9Expanded, setV9Expanded] = useState(false);
@@ -341,36 +340,39 @@ export function ProductDetailPage() {
 
               {/* Intervals */}
               {(product.intervalDry || product.intervalWet || product.intervalTopup) && (
-                <div className="flex items-center gap-6">
+                <div className="flex gap-2.5">
                   {product.intervalDry && (
-                    <div>
-                      <p className="text-[10px] uppercase tracking-[0.14em] font-medium mb-1.5" style={{ color: 'var(--txff)' }}>
+                    <div className="flex-1 rounded-xl px-3.5 py-3" style={{ border: '1px solid var(--bd2)', background: 'var(--sf3)' }}>
+                      <p className="text-[9px] font-semibold uppercase tracking-[0.14em] mb-2" style={{ color: 'var(--txff)' }}>
                         {de ? 'Trocken' : 'Dry'}
                       </p>
-                      <p className="text-[20px] font-bold text-wx-tx1 leading-none">{product.intervalDry}</p>
+                      <p className="text-[16px] font-bold text-wx-tx1 leading-none mb-3">{product.intervalDry}</p>
+                      <div className="h-[2px] rounded-full" style={{ background: 'var(--bd2)' }}>
+                        <div className="h-full rounded-full" style={{ width: `${intervalPct(product.intervalDry)}%`, background: accentColor }} />
+                      </div>
                     </div>
                   )}
                   {product.intervalWet && (
-                    <>
-                      <div className="w-px self-stretch" style={{ background: 'var(--bd2)' }} />
-                      <div>
-                        <p className="text-[10px] uppercase tracking-[0.14em] font-medium mb-1.5" style={{ color: 'var(--txff)' }}>
-                          {de ? 'Nass' : 'Wet'}
-                        </p>
-                        <p className="text-[20px] font-bold text-wx-tx1 leading-none">{product.intervalWet}</p>
+                    <div className="flex-1 rounded-xl px-3.5 py-3" style={{ border: '1px solid var(--bd2)', background: 'var(--sf3)' }}>
+                      <p className="text-[9px] font-semibold uppercase tracking-[0.14em] mb-2" style={{ color: 'var(--txff)' }}>
+                        {de ? 'Nass' : 'Wet'}
+                      </p>
+                      <p className="text-[16px] font-bold text-wx-tx1 leading-none mb-3">{product.intervalWet}</p>
+                      <div className="h-[2px] rounded-full" style={{ background: 'var(--bd2)' }}>
+                        <div className="h-full rounded-full" style={{ width: `${intervalPct(product.intervalWet)}%`, background: accentColor }} />
                       </div>
-                    </>
+                    </div>
                   )}
                   {product.intervalTopup && (
-                    <>
-                      <div className="w-px self-stretch" style={{ background: 'var(--bd2)' }} />
-                      <div>
-                        <p className="text-[10px] uppercase tracking-[0.14em] font-medium mb-1.5" style={{ color: 'var(--txff)' }}>
-                          {de ? 'Topup max.' : 'Max. topup'}
-                        </p>
-                        <p className="text-[20px] font-bold text-wx-tx1 leading-none">{product.intervalTopup}</p>
+                    <div className="flex-1 rounded-xl px-3.5 py-3" style={{ border: '1px solid var(--bd2)', background: 'var(--sf3)' }}>
+                      <p className="text-[9px] font-semibold uppercase tracking-[0.14em] mb-2" style={{ color: 'var(--txff)' }}>
+                        {de ? 'Topup max.' : 'Max. topup'}
+                      </p>
+                      <p className="text-[16px] font-bold text-wx-tx1 leading-none mb-3">{product.intervalTopup}</p>
+                      <div className="h-[2px] rounded-full" style={{ background: 'var(--bd2)' }}>
+                        <div className="h-full rounded-full" style={{ width: `${intervalPct(product.intervalTopup, 1200)}%`, background: accentColor }} />
                       </div>
-                    </>
+                    </div>
                   )}
                 </div>
               )}
@@ -379,13 +381,11 @@ export function ProductDetailPage() {
               {((highlights && highlights.length > 0) || hasSpecs) && (
                 <div style={{ borderTop: '1px solid var(--bd2)' }}>
                   {highlights && highlights.length > 0 && (
-                    <AccordionItem
-                      title={de ? 'Das Wichtigste' : 'Key Features'}
-                      preview={highlights[0]}
-                      open={highlightsOpen}
-                      onToggle={() => setHighlightsOpen(v => !v)}
-                    >
-                      <ul className="space-y-2.5 pt-1">
+                    <div style={{ borderBottom: '1px solid var(--bd2)' }}>
+                      <p className="text-sm font-medium text-wx-tx1 py-3.5">
+                        {de ? 'Das Wichtigste' : 'Key Features'}
+                      </p>
+                      <ul className="space-y-2.5 pb-4">
                         {highlights.map(h => (
                           <li key={h} className="flex items-start gap-3 text-sm" style={{ color: 'var(--txm)' }}>
                             <Check className="h-4 w-4 mt-0.5 flex-shrink-0" style={{ color: accentColor }} />
@@ -393,7 +393,7 @@ export function ProductDetailPage() {
                           </li>
                         ))}
                       </ul>
-                    </AccordionItem>
+                    </div>
                   )}
 
                   {hasSpecs && (
@@ -561,14 +561,14 @@ export function ProductDetailPage() {
                   {richTab === 'vergleich' && rc.compHeaders && rc.compRows && (
                     <div className="space-y-5">
                       <div className="overflow-x-auto rounded-xl" style={{ border: '1px solid var(--bd2)' }}>
-                        <div style={{ minWidth: '420px' }}>
+                        <div>
                           <div
                             className="grid text-[10px] font-semibold uppercase tracking-wider text-wx-txf px-4 py-3"
                             style={{ gridTemplateColumns: `1.6fr repeat(${rc.compHeaders.length}, 1fr)`, borderBottom: '1px solid var(--bd2)' }}
                           >
                             <span />
                             {rc.compHeaders.map((h, i) => (
-                              <span key={i} className="text-center leading-tight whitespace-nowrap">
+                              <span key={i} className="text-center leading-tight break-words">
                                 {h.replace('Waxcelerate ', '').replace('-Heißwachs', '').replace('Heißwachs', '')}
                               </span>
                             ))}
@@ -579,7 +579,7 @@ export function ProductDetailPage() {
                               className="grid px-4 py-3"
                               style={{ gridTemplateColumns: `1.6fr repeat(${rc.compHeaders!.length}, 1fr)`, borderBottom: '1px solid var(--bd2)' }}
                             >
-                              <span className="text-wx-txm text-xs whitespace-nowrap pr-3">{row.label}</span>
+                              <span className="text-wx-txm text-xs leading-snug break-words pr-2">{row.label}</span>
                               {row.cols.map((col, ci) => (
                                 <span key={ci} className="text-center text-xs font-medium" style={{
                                   color: ci === row.winCol ? accentColor
@@ -994,6 +994,14 @@ function SpecRow({ label, value }: { label: string; value: string }) {
       <span className="text-sm font-medium" style={{ color: 'var(--txm)' }}>{value}</span>
     </div>
   );
+}
+
+function intervalPct(interval: string, maxKm = 600): number {
+  const clean = interval.replace(/(\d)\.(\d{3})/g, '$1$2');
+  const nums = clean.match(/\d+/g);
+  if (!nums) return 0;
+  const upper = parseInt(nums[nums.length - 1]);
+  return Math.min(Math.round((upper / maxKm) * 100), 100);
 }
 
 function RelatedCard({ product: p, de, formatPrice }: { product: Product; de: boolean; formatPrice: (n: number) => string }) {

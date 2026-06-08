@@ -398,7 +398,7 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice }: CardProps) {
         {/* Content */}
         <div className="px-5 pt-4 pb-5 flex flex-col flex-1">
           {/* Title + description */}
-          <div className="mb-5 flex-1">
+          <div className="mb-3 flex-1">
             <h3 className="text-[18px] font-bold text-wx-tx1 leading-tight tracking-[-0.02em] mb-1.5">
               {title}
             </h3>
@@ -406,6 +406,29 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice }: CardProps) {
               {desc}
             </p>
           </div>
+
+          {/* Interval stat strip */}
+          {product.intervalDry && (
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[9px] font-semibold uppercase tracking-[0.14em]" style={{ color: 'var(--txff)' }}>
+                  {de ? 'Trocken' : 'Dry'}
+                </span>
+                <span className="text-[13px] font-bold text-wx-tx1">{product.intervalDry}</span>
+              </div>
+              {product.intervalWet && (
+                <>
+                  <div className="w-px h-3" style={{ background: 'var(--bd2)' }} />
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[9px] font-semibold uppercase tracking-[0.14em]" style={{ color: 'var(--txff)' }}>
+                      {de ? 'Nass' : 'Wet'}
+                    </span>
+                    <span className="text-[13px] font-bold text-wx-tx1">{product.intervalWet}</span>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
 
           {/* Price + CTA */}
           <div className="flex items-center justify-between gap-3">
