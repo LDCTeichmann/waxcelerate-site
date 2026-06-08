@@ -745,7 +745,12 @@ export function WhyWax() {
 
           {/* ── Header ── */}
           <div ref={headerRef} className="mb-10">
-            <p className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-semibold mb-3"
+            {/* Engineering section number */}
+            <div className="flex items-center gap-4 mb-4">
+              <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.32em', color: 'var(--txff)' }}>02</span>
+              <div style={{ flex: 1, height: '1px', background: 'var(--bd)' }} />
+            </div>
+            <p className="text-[10px] sm:text-[11px] uppercase tracking-[0.38em] font-semibold mb-3"
               style={{ color: 'var(--txf)' }}>
               {de ? 'Die Formel' : 'The Formula'}
             </p>
@@ -758,6 +763,44 @@ export function WhyWax() {
                 ? 'Drei Bedingungen, an denen Schmiermittel versagen. Hier ist die Chemie dahinter — und warum sie bei Waxcelerate weniger versagen.'
                 : 'Three conditions where lubricants fail. Here is the chemistry behind each — and why they fail less with Waxcelerate.'}
             </p>
+          </div>
+
+          {/* ── Before/After photo context — grounds the diagrams in physical reality ── */}
+          <div className="grid grid-cols-2 gap-3 mb-14 rounded-xl overflow-hidden">
+            <div className="relative" style={{ aspectRatio: '3/2' }}>
+              <img
+                src="/images/chain-dirty.jpg"
+                alt={de ? 'Kette mit Öl – verschmutzt und korrodiert' : 'Chain with oil — dirty and corroded'}
+                className="w-full h-full object-cover"
+              />
+              <div
+                className="absolute inset-0"
+                style={{ background: 'linear-gradient(to top, rgba(5,6,8,0.82) 0%, rgba(5,6,8,0.18) 60%, transparent 100%)' }}
+              />
+              <p
+                className="absolute bottom-3 left-4 text-[10px] uppercase font-semibold"
+                style={{ letterSpacing: '0.32em', color: 'rgba(255,255,255,0.42)' }}
+              >
+                {de ? 'Mit Öl' : 'With oil'}
+              </p>
+            </div>
+            <div className="relative" style={{ aspectRatio: '3/2' }}>
+              <img
+                src="/images/chain-clean.jpg"
+                alt={de ? 'Kette mit Wachs – sauber und geschützt' : 'Chain with wax — clean and protected'}
+                className="w-full h-full object-cover"
+              />
+              <div
+                className="absolute inset-0"
+                style={{ background: 'linear-gradient(to top, rgba(5,6,8,0.82) 0%, rgba(5,6,8,0.18) 60%, transparent 100%)' }}
+              />
+              <p
+                className="absolute bottom-3 left-4 text-[10px] uppercase font-semibold"
+                style={{ letterSpacing: '0.32em', color: 'rgba(255,255,255,0.56)' }}
+              >
+                {de ? 'Mit Wachs' : 'With wax'}
+              </p>
+            </div>
           </div>
 
           {/* ── Three mechanism strips ── */}

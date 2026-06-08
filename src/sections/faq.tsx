@@ -30,6 +30,10 @@ export function FAQ() {
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-2xl mx-auto">
           <div className="mb-16">
+            <div className="flex items-center gap-4 mb-4">
+              <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.32em', color: 'var(--txff)' }}>08</span>
+              <div style={{ flex: 1, height: '1px', background: 'var(--bd)' }} />
+            </div>
             <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-4">
               <ScrollWordReveal text={t.faq.title} />
             </h2>

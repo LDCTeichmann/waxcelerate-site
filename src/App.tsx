@@ -12,6 +12,7 @@ import { Conviction } from '@/sections/conviction';
 import { Reviews } from '@/sections/reviews';
 import { Contact } from '@/sections/contact';
 import { Footer } from '@/sections/footer';
+import { ProcessBreak } from '@/sections/process-break';
 
 const ProductDetailPage = lazy(() => import('@/pages/ProductDetailPage').then(m => ({ default: m.ProductDetailPage })));
 const ImpressumPage = lazy(() => import('@/pages/ImpressumPage').then(m => ({ default: m.ImpressumPage })));
@@ -67,9 +68,10 @@ function AppContent() {
               <Hero />
               <Conviction />
               <WhyWax />
-              <Reviews />
               <Products />
+              <Reviews />
               <About />
+              <ProcessBreak />
               <Tools />
               <Guides />
               <FAQ />

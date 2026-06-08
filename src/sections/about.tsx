@@ -70,8 +70,12 @@ export function About() {
 
           {/* ── Header ─────────────────────────────────────────────────── */}
           <div ref={headerRef} className="text-center mb-10">
+            <div className="flex items-center gap-4 mb-4">
+              <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.32em', color: 'var(--txff)' }}>05</span>
+              <div style={{ flex: 1, height: '1px', background: 'var(--bd)' }} />
+            </div>
             <p
-              className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-semibold mb-3"
+              className="text-[10px] sm:text-[11px] uppercase tracking-[0.38em] font-semibold mb-3"
               style={{ color: 'var(--txf)' }}
             >
               {de ? 'Die Geschichte' : 'Our Story'}
@@ -131,7 +135,7 @@ export function About() {
               <div
                 className="relative rounded-t-2xl overflow-hidden"
                 style={{
-                  height: '300px',
+                  aspectRatio: '4/3',
                   border: '1px solid var(--bd)',
                   borderBottom: 'none',
                   boxShadow: '0 12px 48px rgba(0,0,0,0.18)',
@@ -143,6 +147,25 @@ export function About() {
                   className="absolute inset-0 w-full h-full object-cover"
                   style={{ objectPosition: '50% 38%' }}
                 />
+                {/* Founder portrait inset — humanises the credential photo */}
+                <div
+                  className="absolute bottom-4 left-4 hidden sm:block"
+                  style={{
+                    width: '72px',
+                    height: '72px',
+                    borderRadius: '50%',
+                    overflow: 'hidden',
+                    border: '2px solid rgba(255,255,255,0.15)',
+                    boxShadow: '0 4px 16px rgba(0,0,0,0.6)',
+                  }}
+                >
+                  <img
+                    src="/images/luca.jpg"
+                    alt="Luca Teichmann"
+                    className="w-full h-full object-cover"
+                    style={{ objectPosition: '50% 15%' }}
+                  />
+                </div>
                 <div
                   className="absolute inset-0"
                   style={{

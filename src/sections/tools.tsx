@@ -827,6 +827,10 @@ export function Tools() {
         <div className="max-w-6xl mx-auto">
 
           <div ref={headerRef} className="mb-16">
+            <div className="flex items-center gap-4 mb-4">
+              <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.32em', color: 'var(--txff)' }}>06</span>
+              <div style={{ flex: 1, height: '1px', background: 'var(--bd)' }} />
+            </div>
             <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-4">
               <ScrollWordReveal text={t.tools.title} />
             </h2>

@@ -63,11 +63,27 @@ export function Reviews() {
   }, []);
 
   return (
-    <section className="relative py-20 bg-wx-bg">
-      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
+    <section className="relative py-20 bg-wx-bg overflow-hidden">
+
+      {/* Subtle chain texture — barely perceptible, adds material depth */}
+      <img
+        src="/images/chain-clean.jpg"
+        alt=""
+        aria-hidden
+        className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none"
+        style={{ opacity: 0.04, objectPosition: 'center' }}
+      />
+      <div className="absolute inset-0 pointer-events-none" style={{ background: 'var(--pg)' }} />
+
+      <div className="relative w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-5xl mx-auto">
 
-          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] mb-4" style={{ color: 'var(--txf)' }}>
+          {/* Engineering section header */}
+          <div className="flex items-center gap-4 mb-4">
+            <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.32em', color: 'var(--txff)' }}>04</span>
+            <div style={{ flex: 1, height: '1px', background: 'var(--bd)' }} />
+          </div>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.38em] mb-4" style={{ color: 'var(--txf)' }}>
             {de ? 'eBay verifiziert · alle Bewertungen echt' : 'eBay verified · all reviews genuine'}
           </p>
           <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-3">
@@ -102,6 +118,8 @@ export function Reviews() {
                 style={{
                   background: 'var(--sf3)',
                   border: '1px solid var(--bd2)',
+                  backdropFilter: 'blur(8px)',
+                  WebkitBackdropFilter: 'blur(8px)',
                 }}
               >
                 {/* Stars */}

@@ -38,12 +38,12 @@ export function Conviction() {
             {stats.map((s, i) => (
               <div
                 key={i}
-                className="text-center px-4 py-5"
+                className="text-center px-4 py-7"
                 style={{ background: 'var(--sf3)' }}
               >
                 <p
                   className="font-display font-bold text-wx-tx1 tabular-nums leading-none"
-                  style={{ fontSize: 'clamp(1.4rem, 4vw, 2.25rem)' }}
+                  style={{ fontSize: 'clamp(2rem, 5vw, 3rem)' }}
                 >
                   {s.number}
                 </p>

@@ -112,6 +112,10 @@ export function Products() {
 
           {/* Header */}
           <div ref={headerRef} className="mb-10">
+            <div className="flex items-center gap-4 mb-4">
+              <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.32em', color: 'var(--txff)' }}>03</span>
+              <div style={{ flex: 1, height: '1px', background: 'var(--bd)' }} />
+            </div>
             <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-4">
               <ScrollWordReveal text={t.products.title} />
             </h2>

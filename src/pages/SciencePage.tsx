@@ -33,25 +33,6 @@ const TF_PARTICLES = [
   { x: 430, y: 108, r: 3.5, top: true  },
 ] as const;
 
-const HERO_PARTICLES = [
-  { cx: 22,  cy: 300, r: 1.5, dur: 6.2, dx: 10  },
-  { cx: 68,  cy: 240, r: 2,   dur: 5.1, dx: -9  },
-  { cx: 118, cy: 330, r: 1.5, dur: 7.0, dx: 12  },
-  { cx: 172, cy: 200, r: 2.5, dur: 5.5, dx: -11 },
-  { cx: 218, cy: 280, r: 1.5, dur: 6.8, dx: 9   },
-  { cx: 268, cy: 160, r: 2,   dur: 4.9, dx: -13 },
-  { cx: 315, cy: 315, r: 1.5, dur: 6.3, dx: 11  },
-  { cx: 370, cy: 235, r: 2,   dur: 5.7, dx: -9  },
-  { cx: 425, cy: 185, r: 1.5, dur: 6.5, dx: 13  },
-  { cx: 478, cy: 320, r: 2.5, dur: 5.2, dx: -10 },
-  { cx: 155, cy: 180, r: 1.5, dur: 6.1, dx: 8   },
-  { cx: 340, cy: 290, r: 2,   dur: 5.8, dx: -11 },
-  { cx: 200, cy: 350, r: 1.5, dur: 7.2, dx: 10  },
-  { cx: 440, cy: 270, r: 2.5, dur: 5.4, dx: -8  },
-  { cx: 90,  cy: 400, r: 1.5, dur: 6.7, dx: 12  },
-  { cx: 390, cy: 130, r: 2,   dur: 5.0, dx: -10 },
-] as const;
-
 const DOT_GRID: React.CSSProperties = {
   backgroundImage: 'radial-gradient(circle, rgba(26,60,110,0.11) 1px, transparent 1px)',
   backgroundSize: '22px 22px',
@@ -107,38 +88,6 @@ function GrainOverlay() {
         mixBlendMode: 'overlay',
       }}
     />
-  );
-}
-
-// ─── Hero floating particles ──────────────────────────────────────────────────
-function HeroParticles() {
-  const svgRef = useRef<SVGSVGElement>(null);
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      const nodes = svgRef.current?.querySelectorAll<SVGCircleElement>('.hp');
-      if (!nodes?.length) return;
-      HERO_PARTICLES.forEach((p, i) => {
-        const el = nodes[i];
-        if (!el) return;
-        gsap.fromTo(el,
-          { attr: { cy: p.cy + 50 } },
-          { attr: { cy: p.cy - 130 }, duration: p.dur, ease: 'none', repeat: -1, delay: i * 0.55 },
-        );
-        gsap.to(el, {
-          attr: { cx: p.cx + p.dx },
-          duration: 2.8 + i * 0.25,
-          repeat: -1, yoyo: true, ease: 'sine.inOut', delay: i * 0.2,
-        });
-      });
-    }, svgRef);
-    return () => ctx.revert();
-  }, []);
-  return (
-    <svg ref={svgRef} aria-hidden className="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="xMidYMid slice">
-      {HERO_PARTICLES.map((p, i) => (
-        <circle key={i} className="hp" cx={p.cx} cy={p.cy} r={p.r} fill="#4472D4" opacity="0.22" />
-      ))}
-    </svg>
   );
 }
 
@@ -208,954 +157,6 @@ function ScrollProgress() {
   return (
     <div className="fixed top-0 left-0 right-0 z-50 h-[2px]" style={{ background: 'var(--bd)' }}>
       <div className="h-full" style={{ width: `${p * 100}%`, background: 'linear-gradient(90deg,#1A3080,#6A8AE8)', transition: 'width 0.06s linear' }} />
-    </div>
-  );
-}
-
-// ─── Mini-SVG visualizations for StatCallout ─────────────────────────────────
-function TempBandViz({ isDark }: { isDark: boolean }) {
-  const trackClr  = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(26,60,110,0.10)';
-  const bandClr   = isDark ? '#3060C8'                : '#1A3C6E';
-  const wideClr   = isDark ? 'rgba(68,114,212,0.22)'  : 'rgba(68,114,212,0.15)';
-  const labelClr  = isDark ? 'rgba(255,255,255,0.32)' : 'rgba(26,60,110,0.45)';
-  const tickClr   = isDark ? 'rgba(255,255,255,0.20)' : 'rgba(26,60,110,0.30)';
-  const toX = (t: number) => ((t - 52) / 18) * 200;
-  return (
-    <svg viewBox="0 0 220 80" style={{ width: 220, height: 80 }}>
-      <rect x="10" y="28" width="200" height="6" rx="3" fill={trackClr} />
-      <rect x={10 + toX(55)} y="22" width={toX(65) - toX(55)} height="18" rx="3" fill={wideClr} />
-      <rect x={10 + toX(58)} y="20" width={toX(60) - toX(58)} height="22" rx="3" fill={bandClr}
-        style={{ filter: isDark ? 'drop-shadow(0 0 6px rgba(48,96,200,0.7))' : 'none' }} />
-      {[55, 58, 60, 65].map(t => (
-        <g key={t}>
-          <line x1={10 + toX(t)} y1="46" x2={10 + toX(t)} y2="52" stroke={tickClr} strokeWidth="0.8" />
-          <text x={10 + toX(t)} y="62" textAnchor="middle" fontSize="7" fontFamily="monospace" fill={labelClr}>{t}°</text>
-        </g>
-      ))}
-      <text x={10 + toX(59)} y="14" textAnchor="middle" fontSize="6.5" fontFamily="monospace" fill={bandClr} letterSpacing="0.05em">WAXCELERATE</text>
-    </svg>
-  );
-}
-
-function DensityViz({ isDark }: { isDark: boolean }) {
-  const parClr   = isDark ? 'rgba(68,114,212,0.25)'  : 'rgba(68,114,212,0.15)';
-  const parBd    = isDark ? 'rgba(68,114,212,0.45)'  : 'rgba(68,114,212,0.40)';
-  const mosClr   = isDark ? '#2A5499'                : '#2A5499';
-  const labelClr = isDark ? 'rgba(255,255,255,0.35)' : 'rgba(26,60,110,0.45)';
-  const valClr   = isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,30,70,0.75)';
-  const rPar = 14, rMos = 36;
-  return (
-    <svg viewBox="0 0 160 90" style={{ width: 160, height: 90 }}>
-      <circle cx="35" cy="45" r={rPar} fill={parClr} stroke={parBd} strokeWidth="1" />
-      <text x="35" y="42" textAnchor="middle" dominantBaseline="middle" fontSize="6" fontFamily="monospace" fill={labelClr}>Paraffin</text>
-      <text x="35" y="51" textAnchor="middle" dominantBaseline="middle" fontSize="7" fontFamily="monospace" fontWeight="700" fill={valClr}>0.9</text>
-      <circle cx="108" cy="45" r={rMos} fill={mosClr}
-        style={{ filter: isDark ? 'drop-shadow(0 0 10px rgba(42,84,153,0.55))' : 'drop-shadow(0 3px 8px rgba(42,84,153,0.25))' }} />
-      <text x="108" y="40" textAnchor="middle" dominantBaseline="middle" fontSize="7.5" fontFamily="monospace" fill="rgba(255,255,255,0.75)">MoS₂</text>
-      <text x="108" y="51" textAnchor="middle" dominantBaseline="middle" fontSize="8" fontFamily="monospace" fontWeight="700" fill="rgba(255,255,255,0.90)">5.06</text>
-      <text x="80" y="84" textAnchor="middle" fontSize="6.5" fontFamily="monospace" fill={labelClr}>g/cm³</text>
-    </svg>
-  );
-}
-
-function FrictionLadderViz({ isDark }: { isDark: boolean }) {
-  const labelClr = isDark ? 'rgba(255,255,255,0.35)' : 'rgba(26,60,110,0.45)';
-  const dotClr   = isDark ? '#4472D4'                : '#1A3C6E';
-  const bars = [
-    { label: 'Pro',      val: 0.03, color: isDark ? '#3060C8' : '#1A3C6E', glow: true  },
-    { label: 'Graphite', val: 0.10, color: isDark ? 'rgba(68,114,212,0.45)' : 'rgba(42,84,153,0.35)', glow: false },
-    { label: 'Oil',      val: 0.18, color: isDark ? 'rgba(68,114,212,0.22)' : 'rgba(42,84,153,0.18)', glow: false },
-  ];
-  const scale = 160 / 0.25;
-  return (
-    <svg viewBox="0 0 200 80" style={{ width: 200, height: 80 }}>
-      {bars.map((b, i) => {
-        const barW = b.val * scale;
-        const y = 12 + i * 22;
-        return (
-          <g key={i}>
-            <circle cx="8" cy={y + 5} r="3" fill={dotClr} opacity={b.glow ? 1 : 0.4}
-              style={b.glow ? { filter: `drop-shadow(0 0 4px ${b.color})` } : undefined} />
-            <rect x="14" y={y} width={barW} height="10" rx="2" fill={b.color}
-              style={b.glow ? { filter: isDark ? `drop-shadow(0 0 6px rgba(48,96,200,0.65))` : 'none' } : undefined} />
-            <text x={14 + barW + 5} y={y + 7} dominantBaseline="middle" fontSize="6.5" fontFamily="monospace" fill={labelClr}>{b.label}</text>
-          </g>
-        );
-      })}
-      <text x="14" y="75" fontSize="6.5" fontFamily="monospace" fill={labelClr}>μ →</text>
-    </svg>
-  );
-}
-
-// ─── Stat callout — full-bleed dark section ───────────────────────────────────
-function StatCallout({ stat, ctxDe, ctxEn, de, isDark, miniViz }: {
-  stat: string; ctxDe: string; ctxEn: string; de: boolean; isDark: boolean;
-  miniViz?: React.ReactNode;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.fromTo(ref.current,
-        { opacity: 0, scale: 0.97 },
-        { opacity: 1, scale: 1, duration: 0.9, ease: 'power3.out',
-          scrollTrigger: { trigger: ref.current, start: 'top 85%', once: true } },
-      );
-    }, ref);
-    return () => ctx.revert();
-  }, []);
-  return (
-    <div
-      ref={ref}
-      className="w-full py-10 sm:py-12 flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-16 px-6"
-      style={isDark ? {
-        background: '#07070A',
-        borderTop: '1px solid rgba(255,255,255,0.10)',
-        borderBottom: '1px solid rgba(255,255,255,0.10)',
-        opacity: 0,
-      } : {
-        background: 'var(--sf2)',
-        borderTop: '1px solid var(--bd)',
-        borderBottom: '1px solid var(--bd)',
-        opacity: 0,
-      }}
-    >
-      <div className="flex flex-col items-center sm:items-start">
-        <p className="font-serif-display italic font-bold leading-none select-none"
-          style={{
-            fontSize: 'clamp(2.8rem,7vw,4.5rem)',
-            color: isDark ? '#3060C8' : '#1A3C6E',
-            textShadow: isDark ? '0 0 60px rgba(43,82,176,0.55), 0 0 130px rgba(43,82,176,0.22)' : 'none',
-          }}>
-          {stat}
-        </p>
-        <p className="text-[11px] uppercase tracking-[0.3em] mt-5 max-w-[400px] leading-relaxed text-center sm:text-left"
-          style={{ color: isDark ? 'rgba(255,255,255,0.50)' : 'var(--txm)' }}>
-          {de ? ctxDe : ctxEn}
-        </p>
-      </div>
-      {miniViz && (
-        <div className="flex-shrink-0 hidden sm:block" aria-hidden="true">
-          {miniViz}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ─── Formula Assembly System Map ─────────────────────────────────────────────
-// Living radial diagram with persistent ambient animations after assembly:
-//   • Zone rings breathe independently (different periods/phases)
-//   • MoS₂ S–Mo–S layers shear continuously (demonstrating μ=0.03 mechanism)
-//   • Expanding pulse ring from MoS₂ every ~4 seconds
-//   • Protective edges (Dispersant, Antioxidant) have flowing dashes toward MoS₂
-//   • Carrier particle travels Paraffin→MoS₂ edge (material transport)
-//
-// Each node contains a micro-visualization of its actual physical mechanism.
-// Edges: solid = structural/physical · dashed = chemical/protective
-// Assembly animation follows scientific order: MoS₂ → Paraffin → matrix modifiers → stabilizers
-
-const GRAPH_CX = 320;
-const GRAPH_CY = 260;
-
-const ASSEMBLY_NODES = [
-  {
-    id: 1, labelDe: 'Paraffin',     labelEn: 'Paraffin',
-    subDe: 'Trägermatrix',   subEn: 'Base scaffold',
-    whyDe: 'C₂₀–C₃₆ Ketten kristallisieren zu lamellaren Domänen · enger 2°C-Bereich sichert Batch-Konsistenz',
-    whyEn: 'C₂₀–C₃₆ chains crystallize into lamellar domains · narrow 2°C window ensures batch consistency',
-    cx: 320, cy: 112, r: 32, metric: '58–60°C',
-  },
-  {
-    id: 2, labelDe: 'FT-Wachs',     labelEn: 'FT-Wax',
-    subDe: 'Härtemodul',     subEn: 'Hardener',
-    whyDe: 'Ko-kristallisiert mit Paraffin · defektärmere Domänen brauchen mehr Energie zum Schmelzen → Tropfpunkt 72–78°C',
-    whyEn: 'Co-crystallizes with paraffin · more defect-free domains need more energy to melt → drop point 72–78°C',
-    cx: 154, cy: 88, r: 28, metric: '+14°C',
-  },
-  {
-    id: 3, labelDe: 'Mikrokris.',    labelEn: 'Microcris.',
-    subDe: 'Kälteflex.',     subEn: 'Cold flex.',
-    whyDe: 'Verzweigte Moleküle füllen amorphe Zonen · Matrix bleibt bis −10°C elastisch · bettet MoS₂-Partikel ein',
-    whyEn: 'Branched molecules fill amorphous zones · matrix stays elastic to −10°C · mechanically embeds MoS₂',
-    cx: 486, cy: 88, r: 28, metric: '−10°C',
-  },
-  {
-    id: 4, labelDe: 'MoS₂',         labelEn: 'MoS₂',
-    subDe: 'Festschmierst.', subEn: 'Solid lubricant',
-    whyDe: '50–300 MPa Kontaktdruck → Fe–S Transferfilm auf Stahl · aktiv auch nachdem das Wachs abgetragen ist · hexagonales Kristallsystem (P6₃/mmc)',
-    whyEn: '50–300 MPa contact pressure → Fe–S transfer film on steel · active long after the wax is spent · hexagonal crystal system (P6₃/mmc)',
-    cx: GRAPH_CX, cy: GRAPH_CY, r: 48,  metric: 'μ 0.03',
-  },
-  {
-    id: 5, labelDe: 'Dispergierm.', labelEn: 'Dispersant',
-    subDe: 'Partikelstab.',  subEn: 'Particle stab.',
-    whyDe: 'Amphiphile Fettsäurehülle direkt um jeden MoS₂-Partikel · verhindert Sedimentation · MoS₂ ist 5,6× dichter als Paraffin',
-    whyEn: 'Amphiphilic fatty acid shell directly around each MoS₂ particle · prevents sedimentation · MoS₂ is 5.6× denser than paraffin',
-    cx: 214, cy: 358, r: 28, metric: '5.6×',
-  },
-  {
-    id: 6, labelDe: 'Antioxidans',  labelEn: 'Antioxidant',
-    subDe: 'MoO₃-Schutz',   subEn: 'MoO₃ shield',
-    whyDe: 'Phenolische OH-Gruppe bricht Autoxidationskette (ROO•) · verhindert MoS₂→MoO₃-Umwandlung · 12 Monate Lagerstab.',
-    whyEn: 'Phenolic OH group breaks autoxidation chain (ROO•) · prevents MoS₂→MoO₃ conversion · 12-month shelf life',
-    cx: 426, cy: 358, r: 28, metric: '12 Mo.',
-  },
-] as const;
-
-// dash=true: chemical/protective bond · main=true: primary delivery spine · weight: visual thickness
-const ASSEMBLY_EDGES = [
-  { from: 2, to: 1, labelDe: 'Ko-Kristallisation',   labelEn: 'co-crystallises',   dash: false, main: false, weight: 1.6 },
-  { from: 3, to: 1, labelDe: 'Plastifiziert',         labelEn: 'plasticises',       dash: false, main: false, weight: 1.4 },
-  { from: 1, to: 4, labelDe: 'Trägermatrix',           labelEn: 'carrier matrix',    dash: false, main: true,  weight: 5.0 },
-  { from: 3, to: 4, labelDe: 'Partikeleinbettung',    labelEn: 'particle embedding', dash: false, main: false, weight: 1.4 },
-  { from: 5, to: 4, labelDe: 'Sterische Hülle',       labelEn: 'steric shell',       dash: true,  main: false, weight: 1.8 },
-  { from: 6, to: 4, labelDe: 'Oxidationsschutz',      labelEn: 'oxidation guard',    dash: true,  main: false, weight: 1.8 },
-] as const;
-
-// Returns bezier path + label position + raw control points (for particle animation)
-function curvedEdge(ax: number, ay: number, bx: number, by: number, ra: number, rb: number) {
-  const dx = bx - ax, dy = by - ay;
-  const len = Math.sqrt(dx * dx + dy * dy);
-  const ux = dx / len, uy = dy / len;
-  const x1 = ax + ux * (ra + 5), y1 = ay + uy * (ra + 5);
-  const x2 = bx - ux * (rb + 6), y2 = by - uy * (rb + 6);
-  const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
-  const cpx = mx - (GRAPH_CX - mx) * 0.28;
-  const cpy = my - (GRAPH_CY - my) * 0.28;
-  const lx = 0.25 * x1 + 0.5 * cpx + 0.25 * x2;
-  const ly = 0.25 * y1 + 0.5 * cpy + 0.25 * y2;
-  const ex = x2 - x1, ey = y2 - y1, el = Math.sqrt(ex * ex + ey * ey);
-  const px = -ey / el, py = ex / el;
-  const sign = (px * (GRAPH_CX - lx) + py * (GRAPH_CY - ly)) <= 0 ? 1 : -1;
-  return { path: `M${x1},${y1} Q${cpx},${cpy} ${x2},${y2}`, lx: lx + sign * px * 15, ly: ly + sign * py * 15, len, x1, y1, x2, y2, cpx, cpy };
-}
-
-// ── Node micro-visualizations — each shows the physical/chemical mechanism ──
-function NodeMechViz({ id, cx, cy, isDark, isHot }: { id: number; cx: number; cy: number; isDark: boolean; isHot: boolean }) {
-  const base = isDark ? 'rgba(130,175,255,0.22)' : 'rgba(42,84,153,0.16)';
-  const hot  = isDark ? 'rgba(160,205,255,0.40)' : 'rgba(42,84,153,0.30)';
-  const c = isHot ? hot : base;
-
-  if (id === 1) {
-    // Paraffin: lamellar crystal structure — parallel aligned chains
-    return (
-      <g>
-        {[-7, -2, 3, 8].map((dy, i) => (
-          <line key={i}
-            x1={cx - 14 + (i % 2) * 2} y1={cy + dy}
-            x2={cx + 14 - (i % 2) * 2} y2={cy + dy}
-            stroke={c} strokeWidth={1.6} strokeLinecap="round" />
-        ))}
-      </g>
-    );
-  }
-  if (id === 2) {
-    // FT-Wachs: temperature lift — upward arrow with baseline
-    return (
-      <g>
-        <line x1={cx} y1={cy + 8} x2={cx} y2={cy - 7} stroke={c} strokeWidth={1.4} />
-        <polyline points={`${cx - 4},${cy - 4} ${cx},${cy - 10} ${cx + 4},${cy - 4}`}
-          stroke={c} strokeWidth={1.4} fill="none" strokeLinejoin="round" />
-        <line x1={cx - 6} y1={cy + 8} x2={cx + 6} y2={cy + 8} stroke={c} strokeWidth={1.2} />
-      </g>
-    );
-  }
-  if (id === 3) {
-    // Mikrokris.: amorphous structure — irregular scattered dots
-    return (
-      <g>
-        {[[-9,-4,2.2],[5,-7,2.8],[-3,2,2],[8,5,2.5],[0,-9,1.8],[-7,6,2]].map(([dx,dy,r],i) => (
-          <circle key={i} cx={cx+dx} cy={cy+dy} r={r} fill={c} />
-        ))}
-      </g>
-    );
-  }
-  if (id === 5) {
-    // Dispersant: steric coating — central particle + amphiphilic shell
-    return (
-      <g>
-        <circle cx={cx} cy={cy} r={5} fill={c} />
-        <circle cx={cx} cy={cy} r={13} fill="none" stroke={c} strokeWidth={1.2} strokeDasharray="2.5 2" />
-        <circle cx={cx} cy={cy} r={18} fill="none" stroke={c} strokeWidth={0.7} opacity={0.6} />
-      </g>
-    );
-  }
-  if (id === 6) {
-    // Antioxidant: radical chain break — shield arc + intercepted radical
-    return (
-      <g>
-        <path d={`M${cx - 10},${cy + 2} Q${cx},${cy - 12} ${cx + 10},${cy + 2}`}
-          fill="none" stroke={c} strokeWidth={1.8} strokeLinecap="round" />
-        <line x1={cx} y1={cy + 2} x2={cx} y2={cy + 9} stroke={c} strokeWidth={1.4} />
-        <circle cx={cx} cy={cy + 11} r={2.2} fill={c} opacity={0.7} />
-      </g>
-    );
-  }
-  return null;
-}
-
-// Returns SVG polygon points string for a regular hexagon (pointy-top)
-function hexPoints(cx: number, cy: number, r: number): string {
-  return Array.from({ length: 6 }, (_, i) => {
-    const angle = (Math.PI / 180) * (-90 + 60 * i); // start from top
-    return `${(cx + r * Math.cos(angle)).toFixed(2)},${(cy + r * Math.sin(angle)).toFixed(2)}`;
-  }).join(' ');
-}
-
-function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' | 'synthesis'; isDark: boolean }) {
-  const svgRef        = useRef<SVGSVGElement>(null);
-  const edgeRefs      = useRef<(SVGPathElement | null)[]>([]);
-  const nodeRefs      = useRef<(SVGGElement | null)[]>([]);
-  const ringRefs      = useRef<(SVGCircleElement | null)[]>([]);
-  const mos2LayerRefs = useRef<(SVGRectElement | null)[]>([]);
-  const pulseRef       = useRef<SVGCircleElement | null>(null);
-  const carrierDotRef  = useRef<SVGCircleElement | null>(null);
-  const vignetteRef    = useRef<SVGGElement | null>(null);
-  const didAnimate     = useRef(false);
-  const [hoveredNode, setHoveredNode] = useState<number | null>(null);
-  const [canHover,    setCanHover]    = useState(mode === 'overview');
-  const [assembled,   setAssembled]   = useState(mode === 'overview');
-
-  const isOverview = mode === 'overview';
-  const uid = `fa-${mode}-${isDark ? 'd' : 'l'}`;
-
-  // ── Color system (uniform cobalt — clean, professional) ───────────────────
-  const nodeGradA   = isDark ? '#1c3060' : '#f0f5ff';
-  const nodeGradB   = isDark ? '#090f28' : '#d0e0f8';
-  const nodeStroke  = isDark ? 'rgba(68,120,220,0.55)' : 'rgba(42,84,153,0.70)';
-  const nodeStrokeH = isDark ? '#7ab0ff' : '#1535a0';
-
-  const metricClr   = isDark ? '#88bbff' : '#1a3c8e';
-  const subClr      = isDark ? 'rgba(140,180,240,0.42)' : 'rgba(42,84,153,0.48)';
-
-  // Zone fills — innermost = most saturated (closest functional relationship to MoS₂)
-  const z1Fill = isDark ? 'rgba(40,68,155,0.32)' : 'rgba(68,114,212,0.12)';   // Inner: protective agents
-  const z2Fill = isDark ? 'rgba(28,50,115,0.18)' : 'rgba(68,114,212,0.07)';   // Mid: carrier
-  const z3Fill = isDark ? 'rgba(18,34,80,0.10)'  : 'rgba(68,114,212,0.035)';  // Outer: matrix modifiers
-  const ringClr = isDark ? 'rgba(100,140,220,0.14)' : 'rgba(42,84,153,0.12)';
-
-  // Edge colors — structural vs protective
-  const edgeSolid  = isDark ? 'rgba(80,130,230,0.55)' : 'rgba(42,84,153,0.42)';
-  const edgeDash   = isDark ? 'rgba(80,130,230,0.38)' : 'rgba(42,84,153,0.28)';
-  const edgeHot    = isDark ? 'rgba(140,190,255,0.95)' : '#1a3c8e';
-  const edgeLblClr = isDark ? 'rgba(160,200,255,0.52)' : 'rgba(26,60,130,0.48)';
-
-  // ── Hover adjacency ───────────────────────────────────────────────────────
-  const connected: Set<number> | null = hoveredNode !== null ? (() => {
-    const s = new Set([hoveredNode]);
-    ASSEMBLY_EDGES.forEach(e => {
-      if (e.from === hoveredNode) s.add(e.to);
-      if (e.to   === hoveredNode) s.add(e.from);
-    });
-    return s;
-  })() : null;
-
-  const nodeOpacity  = (id: number) => !canHover || !connected ? 1 : connected.has(id) ? 1 : 0.15;
-  const isEdgeHot    = (f: number, t: number) => canHover && !!connected && connected.has(f) && connected.has(t);
-  const isEdgeDimmed = (f: number, t: number) => canHover && !!connected && !(connected.has(f) && connected.has(t));
-
-  // ── Scientific assembly story animation ───────────────────────────────────
-  useEffect(() => {
-    if (mode !== 'synthesis' || didAnimate.current) return;
-    const ctx = gsap.context(() => {
-      const mos2 = ASSEMBLY_NODES[3]; // idx 3
-
-      // All start hidden
-      gsap.set(nodeRefs.current[3], { opacity: 0, scale: 0, svgOrigin: `${mos2.cx} ${mos2.cy}` });
-      ASSEMBLY_NODES.forEach((node, i) => {
-        if (i === 3) return;
-        gsap.set(nodeRefs.current[i], { opacity: 0, x: mos2.cx - node.cx, y: mos2.cy - node.cy });
-      });
-      edgeRefs.current.forEach(e => { if (e) gsap.set(e, { strokeDashoffset: 1, opacity: 0 }); });
-
-      const tl = gsap.timeline({
-        scrollTrigger: { trigger: svgRef.current, start: 'top 80%', once: true },
-        onComplete: () => { didAnimate.current = true; setCanHover(true); setAssembled(true); },
-      });
-
-      // 1. MoS₂ crystallizes — the REASON for the entire formula
-      tl.to(nodeRefs.current[3], { opacity: 1, scale: 1, duration: 0.7, ease: 'back.out(2.0)', svgOrigin: `${mos2.cx} ${mos2.cy}` });
-
-      // 2. Paraffin carrier arrives from above
-      tl.to(nodeRefs.current[0], { opacity: 1, x: 0, y: 0, duration: 0.55, ease: 'power3.out' }, '>-0.15');
-
-      // 3. The carrier-to-active edge draws — the foundation of the system
-      tl.to(edgeRefs.current[2], { strokeDashoffset: 0, opacity: 1, duration: 0.6, ease: 'power2.inOut' }, '>0.05');
-
-      // 4. FT-Wachs co-crystallizes into the Paraffin lattice
-      tl.to(nodeRefs.current[1], { opacity: 1, x: 0, y: 0, duration: 0.50, ease: 'power3.out' }, '>-0.1');
-      tl.to(edgeRefs.current[0], { strokeDashoffset: 0, opacity: 1, duration: 0.40, ease: 'power2.inOut' }, '<0.1');
-
-      // 5. Mikrokris. fills the amorphous zones
-      tl.to(nodeRefs.current[2], { opacity: 1, x: 0, y: 0, duration: 0.50, ease: 'power3.out' }, '<0.0');
-      tl.to(edgeRefs.current[1], { strokeDashoffset: 0, opacity: 1, duration: 0.38, ease: 'power2.inOut' }, '<0.08');
-      tl.to(edgeRefs.current[3], { strokeDashoffset: 0, opacity: 1, duration: 0.38, ease: 'power2.inOut' }, '<0.06');
-
-      // 6. Dispersant coats each particle
-      tl.to(nodeRefs.current[4], { opacity: 1, x: 0, y: 0, duration: 0.50, ease: 'power3.out' }, '>0.05');
-      tl.to(edgeRefs.current[4], { strokeDashoffset: 0, opacity: 1, duration: 0.45, ease: 'power2.inOut' }, '<0.12');
-
-      // 7. Antioxidant shields the system
-      tl.to(nodeRefs.current[5], { opacity: 1, x: 0, y: 0, duration: 0.50, ease: 'power3.out' }, '<0.0');
-      tl.to(edgeRefs.current[5], { strokeDashoffset: 0, opacity: 1, duration: 0.45, ease: 'power2.inOut' }, '<0.12');
-
-      // 8. MoS₂ pulses — formula is complete and live
-      tl.to(nodeRefs.current[3], { scale: 1.10, duration: 0.22, ease: 'power2.out', svgOrigin: `${mos2.cx} ${mos2.cy}` }, '>0.15');
-      tl.to(nodeRefs.current[3], { scale: 1.00, duration: 0.55, ease: 'elastic.out(1, 0.55)', svgOrigin: `${mos2.cx} ${mos2.cy}` });
-
-      // 9. "So what" vignette — chain link + performance stat briefly appear
-      if (vignetteRef.current) {
-        tl.to(vignetteRef.current, { opacity: 1, duration: 0.45, ease: 'power2.out' }, '>0.2');
-        tl.to(vignetteRef.current, { opacity: 0, duration: 0.65, ease: 'power2.in' }, '>3.2');
-      }
-    }, svgRef);
-    return () => ctx.revert();
-  }, [mode]);
-
-  // ── Ambient animations — run after assembly, make the system feel alive ──────
-  useEffect(() => {
-    if (!assembled || isOverview) return;
-    const ctx = gsap.context(() => {
-
-      // 1. Zone rings breathe — independent periods create organic feel
-      ringRefs.current.forEach((ring, i) => {
-        if (!ring) return;
-        const baseR = i === 0 ? 144 : 245;
-        const amplitude = i === 0 ? 4 : 7;
-        gsap.to(ring, {
-          attr: { r: baseR + amplitude },
-          duration: 3.4 + i * 1.6,
-          yoyo: true, repeat: -1, ease: 'sine.inOut',
-          delay: i * 1.8,
-        });
-      });
-
-      // 2. MoS₂ S–Mo–S layers shear — demonstrates why μ = 0.03
-      // The van der Waals gap between layers allows near-frictionless lateral slip
-      const [topLayer,, botLayer] = mos2LayerRefs.current;
-      if (topLayer) gsap.to(topLayer, { x: 6, duration: 5.2, yoyo: true, repeat: -1, ease: 'sine.inOut', delay: 1.0 });
-      if (botLayer) gsap.to(botLayer, { x: -6, duration: 5.2, yoyo: true, repeat: -1, ease: 'sine.inOut', delay: 1.0 });
-
-      // 3. MoS₂ expanding pulse — system heartbeat every ~5 seconds
-      if (pulseRef.current) {
-        const pulseTl = gsap.timeline({ repeat: -1, delay: 1.5 });
-        pulseTl.set(pulseRef.current, { attr: { r: 50 }, opacity: 0 });
-        pulseTl.to(pulseRef.current, { opacity: 0.50, duration: 0.15, ease: 'power2.out' });
-        pulseTl.to(pulseRef.current, { attr: { r: 95 }, opacity: 0, duration: 2.2, ease: 'power2.out' });
-        pulseTl.to({}, { duration: 2.8 }); // pause between pulses
-      }
-
-      // 4. Protective edges: flowing dashes toward MoS₂ (ongoing chemical protection)
-      edgeRefs.current.forEach((edge, i) => {
-        if (!edge || !ASSEMBLY_EDGES[i].dash) return;
-        // Remove pathLength normalization → switch to real pixel units
-        edge.removeAttribute('pathLength');
-        gsap.set(edge, { strokeDasharray: '8 5', strokeDashoffset: 0, opacity: 1 });
-        // Negative offset = dashes flow toward arrowhead (toward MoS₂)
-        gsap.to(edge, { strokeDashoffset: -13, duration: 1.0, repeat: -1, ease: 'none' });
-      });
-
-      // 5. Carrier particle — visualizes wax delivering MoS₂ to chain joint
-      if (carrierDotRef.current) {
-        const parNode = ASSEMBLY_NODES[0];  // Paraffin
-        const mos2Node = ASSEMBLY_NODES[3]; // MoS₂
-        const ce = curvedEdge(parNode.cx, parNode.cy, mos2Node.cx, mos2Node.cy, parNode.r, mos2Node.r);
-        const prog = { t: 0 };
-        gsap.set(carrierDotRef.current, { opacity: 0 });
-        gsap.to(prog, {
-          t: 1, duration: 2.0, repeat: -1, ease: 'power1.inOut', delay: 0.6,
-          onUpdate() {
-            const t = prog.t, mt = 1 - t;
-            const bx = mt * mt * ce.x1 + 2 * mt * t * ce.cpx + t * t * ce.x2;
-            const by = mt * mt * ce.y1 + 2 * mt * t * ce.cpy + t * t * ce.y2;
-            // Fade in/out at endpoints
-            const opacity = t < 0.12 ? t / 0.12 : t > 0.88 ? (1 - t) / 0.12 : 1;
-            if (carrierDotRef.current) {
-              carrierDotRef.current.setAttribute('cx', String(Math.round(bx * 10) / 10));
-              carrierDotRef.current.setAttribute('cy', String(Math.round(by * 10) / 10));
-              carrierDotRef.current.setAttribute('opacity', String(opacity * 0.9));
-            }
-          },
-        });
-      }
-
-    }, svgRef);
-    return () => ctx.revert();
-  }, [assembled, isOverview]);
-
-  const hovNode = ASSEMBLY_NODES.find(n => n.id === hoveredNode) ?? null;
-
-  return (
-    <div className="w-full select-none">
-      <svg
-        ref={svgRef}
-        viewBox="0 0 640 430"
-        className="w-full block"
-        style={{ overflow: 'visible' }}
-      >
-        <defs>
-          {/* Shared satellite gradient */}
-          <radialGradient id={`${uid}-ng`} cx="34%" cy="28%" r="72%">
-            <stop offset="0%"   stopColor={nodeGradA} />
-            <stop offset="100%" stopColor={nodeGradB} />
-          </radialGradient>
-          {/* MoS₂ cobalt gradient */}
-          <radialGradient id={`${uid}-mg`} cx="30%" cy="24%" r="74%">
-            <stop offset="0%"   stopColor={isDark ? '#2456cc' : '#2c5acc'} />
-            <stop offset="100%" stopColor={isDark ? '#05102a' : '#08144a'} />
-          </radialGradient>
-          {/* Arrowheads */}
-          <marker id={`${uid}-ao`} markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto">
-            <path d="M0,0 L0,5 L5,2.5 z" fill={edgeSolid} />
-          </marker>
-          <marker id={`${uid}-ad`} markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto">
-            <path d="M0,0 L0,5 L5,2.5 z" fill={edgeDash} />
-          </marker>
-          <marker id={`${uid}-as`} markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto">
-            <path d="M0,0 L0,5 L5,2.5 z" fill={edgeSolid} />
-          </marker>
-          <marker id={`${uid}-asd`} markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto">
-            <path d="M0,0 L0,5 L5,2.5 z" fill={edgeDash} />
-          </marker>
-          <marker id={`${uid}-ah`} markerWidth="6" markerHeight="6" refX="5.5" refY="3" orient="auto">
-            <path d="M0,0.5 L0,5.5 L5.5,3 z" fill={edgeHot} />
-          </marker>
-          {/* Main carrier edge — larger arrowhead to match heavier stroke */}
-          <marker id={`${uid}-am`} markerWidth="7" markerHeight="7" refX="5.5" refY="3.5" orient="auto">
-            <path d="M0,0 L0,7 L7,3.5 z" fill={isDark ? 'rgba(80,130,230,0.70)' : 'rgba(42,84,153,0.55)'} />
-          </marker>
-          {/* Edge glow filter */}
-          <filter id={`${uid}-eg`} x="-30%" y="-30%" width="160%" height="160%">
-            <feGaussianBlur stdDeviation="2.5" result="blur"/>
-            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-          </filter>
-        </defs>
-
-        {/* ── Zone fills: inner=protective agents, mid=carrier, outer=matrix modifiers ── */}
-        <circle cx={GRAPH_CX} cy={GRAPH_CY} r={245} fill={z3Fill} />
-        <circle cx={GRAPH_CX} cy={GRAPH_CY} r={195} fill={z2Fill} />
-        <circle cx={GRAPH_CX} cy={GRAPH_CY} r={144} fill={z1Fill} />
-
-        {/* ── Zone ring borders — refs allow breathing animation ── */}
-        <circle ref={el => { ringRefs.current[0] = el; }}
-          cx={GRAPH_CX} cy={GRAPH_CY} r={144} fill="none" stroke={ringClr} strokeWidth={0.9} strokeDasharray="4 6" />
-        <circle ref={el => { ringRefs.current[1] = el; }}
-          cx={GRAPH_CX} cy={GRAPH_CY} r={245} fill="none" stroke={ringClr} strokeWidth={0.9} strokeDasharray="4 6" />
-
-        {/* ── MoS₂ expanding pulse ring (ambient heartbeat) ── */}
-        <circle ref={pulseRef}
-          cx={GRAPH_CX} cy={GRAPH_CY} r={50} fill="none"
-          stroke={isDark ? 'rgba(68,114,212,0.50)' : 'rgba(42,84,153,0.38)'}
-          strokeWidth={1.2} opacity={0} />
-
-        {/* ── Carrier edge particle (wax delivering MoS₂) ── */}
-        <circle ref={carrierDotRef}
-          cx={ASSEMBLY_NODES[0].cx} cy={ASSEMBLY_NODES[0].cy} r={3.5}
-          fill={isDark ? '#7ab8ff' : '#2a56c4'} opacity={0}
-          style={{ filter: `drop-shadow(0 0 5px ${isDark ? '#7ab8ffCC' : '#2a56c4AA'})` }} />
-
-        {/* ── "So what" vignette — friction comparison bars, appear after full assembly ── */}
-        {/* Positions: centered at GRAPH_CX, rows at GRAPH_CY+62, +76, +90 */}
-        {(() => {
-          const vx = GRAPH_CX - 72;  // bar left edge
-          const maxW = 120;           // max bar width at μ=0.18
-          const scale = maxW / 0.18;  // px per μ unit
-          const bars = [
-            { label: de ? 'Waxcelerate' : 'Waxcelerate', mu: 0.03, isThis: true  },
-            { label: de ? 'Graphit'     : 'Graphite',    mu: 0.10, isThis: false },
-            { label: de ? 'Kettenöl'    : 'Chain oil',   mu: 0.18, isThis: false },
-          ];
-          const accentFill = isDark ? 'rgba(80,130,230,0.80)' : 'rgba(42,84,153,0.65)';
-          const dimFill    = isDark ? 'rgba(80,130,230,0.22)' : 'rgba(42,84,153,0.16)';
-          const textClr    = isDark ? 'rgba(180,210,255,0.80)' : 'rgba(26,60,110,0.75)';
-          const muClr      = isDark ? 'rgba(140,180,255,0.65)' : 'rgba(42,84,153,0.55)';
-          return (
-            <g ref={vignetteRef} opacity={0} style={{ pointerEvents: 'none' }}>
-              {/* Title */}
-              <text x={GRAPH_CX} y={GRAPH_CY + 54} textAnchor="middle"
-                fontSize="6.5" fontFamily="monospace" letterSpacing="0.18em"
-                fill={isDark ? 'rgba(160,200,255,0.45)' : 'rgba(42,80,160,0.38)'}>
-                {de ? 'REIBUNGSKOEFF.' : 'FRICTION COEFF.'}
-              </text>
-              {bars.map((b, idx) => {
-                const y  = GRAPH_CY + 63 + idx * 16;
-                const bw = b.mu * scale;
-                return (
-                  <g key={idx}>
-                    {/* Track */}
-                    <rect x={vx} y={y} width={maxW} height={7} rx={2}
-                      fill={isDark ? 'rgba(255,255,255,0.04)' : 'rgba(42,84,153,0.06)'} />
-                    {/* Bar fill */}
-                    <rect x={vx} y={y} width={bw} height={7} rx={2}
-                      fill={b.isThis ? accentFill : dimFill}
-                      style={b.isThis ? { filter: isDark ? 'drop-shadow(0 0 4px rgba(80,130,230,0.6))' : 'none' } : undefined} />
-                    {/* Label */}
-                    <text x={vx + maxW + 6} y={y + 4} dominantBaseline="middle"
-                      fontSize="7" fontFamily="monospace" fill={textClr}>
-                      {b.label}
-                    </text>
-                    {/* μ value */}
-                    <text x={vx - 4} y={y + 4} textAnchor="end" dominantBaseline="middle"
-                      fontSize="6.5" fontFamily="monospace" fill={b.isThis ? accentFill : muClr}>
-                      {b.mu.toFixed(2)}
-                    </text>
-                  </g>
-                );
-              })}
-              {/* μ axis label */}
-              <text x={vx + maxW / 2} y={GRAPH_CY + 114} textAnchor="middle"
-                fontSize="6" fontFamily="monospace" letterSpacing="0.12em"
-                fill={isDark ? 'rgba(140,180,255,0.30)' : 'rgba(42,80,160,0.28)'}>
-                μ →  {de ? '(niedriger = besser)' : '(lower = better)'}
-              </text>
-            </g>
-          );
-        })()}
-
-        {/* Zone labels removed — spatial position + fill intensity encodes meaning.
-            Inner zone (darker): protective agents · Outer zone (lighter): matrix modifiers */}
-
-        {/* ── Edges ── */}
-        {ASSEMBLY_EDGES.map((edge, i) => {
-          const a      = ASSEMBLY_NODES[edge.from - 1];
-          const b      = ASSEMBLY_NODES[edge.to - 1];
-          const { path, lx, ly } = curvedEdge(a.cx, a.cy, b.cx, b.cy, a.r, b.r);
-          const label  = de ? edge.labelDe : edge.labelEn;
-          const hot    = isEdgeHot(edge.from, edge.to);
-          const dimmed = isEdgeDimmed(edge.from, edge.to);
-          const isMain = edge.main && !isOverview;
-
-          const baseStroke = edge.dash ? edgeDash : edgeSolid;
-          const mainStroke = isDark ? 'rgba(80,130,230,0.65)' : 'rgba(42,84,153,0.50)';
-          const stroke = hot ? edgeHot : isMain ? mainStroke : (isOverview ? (isDark ? 'rgba(80,130,230,0.28)' : 'rgba(42,84,153,0.18)') : baseStroke);
-          const sw     = hot ? 2.5 : isOverview ? 0.8 : edge.weight;
-          const dashArr = (!hot && edge.dash && !isOverview) ? '5 3.5' : undefined;
-          const arrow  = hot
-            ? `url(#${uid}-ah)`
-            : isMain
-              ? `url(#${uid}-am)`
-              : isOverview
-                ? (edge.dash ? `url(#${uid}-ad)` : `url(#${uid}-ao)`)
-                : (edge.dash ? `url(#${uid}-asd)` : `url(#${uid}-as)`);
-          const edgePathId = `${uid}-ep-${i}`;
-
-          return (
-            <g key={i} style={{ opacity: dimmed ? 0.08 : 1, transition: 'opacity 0.22s ease' }}>
-              {/* Ghost path for textPath reference (no stroke, not animated) */}
-              {!isOverview && !isMain && (
-                <path id={edgePathId} d={path} fill="none" stroke="none" />
-              )}
-              {/* Main edge stroke — main carrier gets glow filter */}
-              <path
-                ref={el => { edgeRefs.current[i] = el; }}
-                d={path}
-                pathLength="1"
-                stroke={stroke}
-                strokeWidth={sw}
-                strokeLinecap="round"
-                strokeDasharray={dashArr}
-                fill="none"
-                markerEnd={arrow}
-                filter={isMain && !hot ? `url(#${uid}-eg)` : undefined}
-                style={mode === 'synthesis'
-                  ? { strokeDasharray: dashArr ?? 1, strokeDashoffset: 1, opacity: 0, transition: 'stroke 0.2s, stroke-width 0.2s' }
-                  : { transition: 'stroke 0.2s, stroke-width 0.2s' }}
-              />
-              {/* Inline edge label — tiny text at midpoint, no pill box */}
-              {!isOverview && !isMain && !hot && (
-                <text style={{ pointerEvents: 'none' }}>
-                  <textPath
-                    href={`#${edgePathId}`}
-                    startOffset="50%"
-                    textAnchor="middle"
-                    fontSize="7"
-                    fontFamily="monospace"
-                    letterSpacing="0.04em"
-                    fill={edgeLblClr}
-                    dy={edge.dash ? -5 : -4}
-                  >
-                    {label}
-                  </textPath>
-                </text>
-              )}
-              {/* Hot state: floating label (clearer on hover) */}
-              {!isOverview && hot && (
-                <g transform={`translate(${lx},${ly})`} style={{ pointerEvents: 'none' }}>
-                  <text x={0} y={0} textAnchor="middle" dominantBaseline="middle"
-                    fontSize="8" fontFamily="monospace" letterSpacing="0.04em"
-                    fill={edgeHot}>
-                    {label}
-                  </text>
-                </g>
-              )}
-            </g>
-          );
-        })}
-
-        {/* ── Nodes ── */}
-        {ASSEMBLY_NODES.map((node, i) => {
-          const isMos    = node.id === 4;
-          const isHot    = canHover && hoveredNode === node.id;
-          const subAbove = node.id <= 3;
-          const scaleVal = isHot ? (isMos ? 1.07 : 1.10) : 1;
-
-          return (
-            <g
-              key={node.id}
-              ref={el => { nodeRefs.current[i] = el as SVGGElement; }}
-              style={{
-                opacity: (mode === 'synthesis' && !canHover) ? 0 : nodeOpacity(node.id),
-                transition: canHover ? 'opacity 0.22s ease' : 'none',
-                cursor: canHover ? 'pointer' : 'default',
-              }}
-              onPointerEnter={() => canHover && setHoveredNode(node.id)}
-              onPointerLeave={() => canHover && setHoveredNode(null)}
-            >
-              {/* MoS₂ halo rings */}
-              {isMos && (<>
-                <polygon points={hexPoints(node.cx, node.cy, node.r + 16)} fill="none"
-                  stroke={isDark ? 'rgba(68,114,212,0.18)' : 'rgba(42,84,153,0.12)'} strokeWidth={1} />
-                <polygon points={hexPoints(node.cx, node.cy, node.r + 30)} fill="none"
-                  stroke={isDark ? 'rgba(68,114,212,0.07)' : 'rgba(42,84,153,0.05)'} strokeWidth={0.8} />
-              </>)}
-
-              {/* Main shape: hexagon for MoS₂ (actual P6₃/mmc crystal system), circle for satellites */}
-              {isMos ? (
-                <polygon
-                  points={hexPoints(node.cx, node.cy, node.r)}
-                  fill={`url(#${uid}-mg)`}
-                  stroke={isHot ? nodeStrokeH : (isDark ? '#3d6ad4' : '#2a56c4')}
-                  strokeWidth={isHot ? 2.8 : 2.2}
-                  style={{
-                    transform: `scale(${scaleVal})`,
-                    transformOrigin: `${node.cx}px ${node.cy}px`,
-                    transition: 'transform 0.24s ease, stroke 0.2s',
-                    filter: `drop-shadow(0 0 ${isHot ? 22 : 14}px rgba(55,100,215,${isHot ? 0.88 : 0.58}))`,
-                  }}
-                />
-              ) : (
-                <>
-                  {/* Chemical-agent nodes (Dispersant id=5, Antioxidant id=6) get a dashed outer ring
-                      encoding: "this is a chemical agent wrapping/protecting the core particle" */}
-                  {(node.id === 5 || node.id === 6) && (
-                    <circle
-                      cx={node.cx} cy={node.cy} r={node.r + 11}
-                      fill="none"
-                      stroke={isHot ? nodeStrokeH : (isDark ? 'rgba(100,150,230,0.38)' : 'rgba(42,84,153,0.30)')}
-                      strokeWidth={1.2}
-                      strokeDasharray="3 3"
-                      style={{
-                        transform: `scale(${scaleVal})`,
-                        transformOrigin: `${node.cx}px ${node.cy}px`,
-                        transition: 'transform 0.24s ease, stroke 0.2s',
-                      }}
-                    />
-                  )}
-                  <circle
-                    cx={node.cx} cy={node.cy} r={node.r}
-                    fill={`url(#${uid}-ng)`}
-                    stroke={isHot ? nodeStrokeH : nodeStroke}
-                    strokeWidth={isHot ? 2.2 : 1.6}
-                    style={{
-                      transform: `scale(${scaleVal})`,
-                      transformOrigin: `${node.cx}px ${node.cy}px`,
-                      transition: 'transform 0.24s ease, stroke 0.2s',
-                      filter: isHot
-                        ? (isDark ? 'drop-shadow(0 0 10px rgba(68,120,240,0.55))' : 'drop-shadow(0 2px 10px rgba(26,60,110,0.25))')
-                        : 'none',
-                    }}
-                  />
-                </>
-              )}
-
-              {/* ── Mechanism micro-visualization ── */}
-              {!isMos && !isOverview && (
-                <NodeMechViz id={node.id} cx={node.cx} cy={node.cy} isDark={isDark} isHot={isHot} />
-              )}
-
-              {/* MoS₂ content: S–Mo–S layer hint + μ 0.03 + spec */}
-              {isMos && (<>
-                {/* S-Mo-S layered crystal hint (two subtle horizontal bands) */}
-                {!isOverview && (
-                  <g opacity={0.38}>
-                    {/* Top S layer — ref[0], shears right in ambient animation */}
-                    <rect ref={el => { mos2LayerRefs.current[0] = el; }}
-                      x={node.cx - 21} y={node.cy - 11} width={42} height={5.5} rx={2.5}
-                      fill={isDark ? 'rgba(150,195,255,0.50)' : 'rgba(180,210,255,0.65)'} />
-                    {/* Mo layer — middle (fixed) */}
-                    <rect ref={el => { mos2LayerRefs.current[1] = el; }}
-                      x={node.cx - 19} y={node.cy - 3.5} width={38} height={4} rx={1.5}
-                      fill={isDark ? 'rgba(100,155,255,0.65)' : 'rgba(140,180,255,0.75)'} />
-                    {/* Bottom S layer — ref[2], shears left in ambient animation */}
-                    <rect ref={el => { mos2LayerRefs.current[2] = el; }}
-                      x={node.cx - 21} y={node.cy + 2} width={42} height={5.5} rx={2.5}
-                      fill={isDark ? 'rgba(150,195,255,0.50)' : 'rgba(180,210,255,0.65)'} />
-                    {/* vdW gap hint lines */}
-                    <line x1={node.cx - 24} y1={node.cy - 3.5} x2={node.cx - 24} y2={node.cy + 2}
-                      stroke={isDark ? 'rgba(140,180,255,0.30)' : 'rgba(100,150,255,0.30)'} strokeWidth={0.6} strokeDasharray="1.5 1.5" />
-                    <line x1={node.cx + 24} y1={node.cy - 3.5} x2={node.cx + 24} y2={node.cy + 2}
-                      stroke={isDark ? 'rgba(140,180,255,0.30)' : 'rgba(100,150,255,0.30)'} strokeWidth={0.6} strokeDasharray="1.5 1.5" />
-                    {/* S-Mo-S atom labels — left side of each layer band */}
-                    <text x={node.cx - 28} y={node.cy - 8} textAnchor="end" dominantBaseline="middle"
-                      fontSize="5.5" fontFamily="monospace" fill="rgba(200,225,255,0.45)" letterSpacing="0.05em">S</text>
-                    <text x={node.cx - 28} y={node.cy - 1.5} textAnchor="end" dominantBaseline="middle"
-                      fontSize="5.5" fontFamily="monospace" fill="rgba(200,225,255,0.55)" letterSpacing="0.05em">Mo</text>
-                    <text x={node.cx - 28} y={node.cy + 4.5} textAnchor="end" dominantBaseline="middle"
-                      fontSize="5.5" fontFamily="monospace" fill="rgba(200,225,255,0.45)" letterSpacing="0.05em">S</text>
-                  </g>
-                )}
-                <text x={node.cx} y={node.cy - 14} textAnchor="middle" dominantBaseline="middle"
-                  fontSize="12" fontWeight="800" fontFamily="system-ui, sans-serif"
-                  letterSpacing="-0.01em" fill="rgba(255,255,255,0.95)">
-                  MoS₂
-                </text>
-                <text x={node.cx} y={node.cy + 4} textAnchor="middle" dominantBaseline="middle"
-                  fontSize="19" fontWeight="800" fontFamily="system-ui, sans-serif"
-                  letterSpacing="-0.04em"
-                  fill={isDark ? '#a0ccff' : '#cce0ff'}
-                  style={{ filter: 'drop-shadow(0 0 10px rgba(80,140,255,0.55))' }}>
-                  μ 0.03
-                </text>
-                <text x={node.cx} y={node.cy + 22} textAnchor="middle" dominantBaseline="middle"
-                  fontSize="7.5" fontFamily="monospace" letterSpacing="0.04em"
-                  fill="rgba(255,255,255,0.38)">
-                  {'< 5 µm · 5.06 g/cm³'}
-                </text>
-              </>)}
-
-              {/* Satellite content: metric (primary) + name (secondary) */}
-              {!isMos && (<>
-                <text x={node.cx} y={node.cy - 5} textAnchor="middle" dominantBaseline="middle"
-                  fontSize="13" fontWeight="800" fontFamily="system-ui, sans-serif"
-                  letterSpacing="-0.03em" fill={isHot ? (isDark ? '#aad0ff' : '#1535a0') : metricClr}
-                  style={{ transition: 'fill 0.2s' }}>
-                  {node.metric}
-                </text>
-                <text x={node.cx} y={node.cy + 9} textAnchor="middle" dominantBaseline="middle"
-                  fontSize="8.5" fontWeight="600" fontFamily="system-ui, sans-serif"
-                  letterSpacing="0.01em" fill={isDark ? 'rgba(255,255,255,0.52)' : 'rgba(15,30,70,0.52)'}>
-                  {de ? node.labelDe : node.labelEn}
-                </text>
-              </>)}
-
-              {/* Sub-label outside (above for top nodes, below for lower) */}
-              {!isMos && (
-                <text
-                  x={node.cx}
-                  y={subAbove ? node.cy - node.r - 8 : node.cy + node.r + 13}
-                  textAnchor="middle" dominantBaseline={subAbove ? 'auto' : 'middle'}
-                  fontSize="7.5" fontFamily="monospace" letterSpacing="0.08em" fill={subClr}>
-                  {de ? node.subDe : node.subEn}
-                </text>
-              )}
-            </g>
-          );
-        })}
-      </svg>
-
-      {/* ── Hover info panel — shows the scientific "why" for each component ── */}
-      {!isOverview && (
-        <div
-          className="hidden sm:flex items-start gap-3 mt-4 px-5 py-3.5 rounded-xl"
-          style={{
-            minHeight: '52px',
-            background: isDark ? 'rgba(20,36,80,0.35)' : 'rgba(230,238,255,0.60)',
-            border: `1px solid ${isDark ? 'rgba(68,114,212,0.18)' : 'rgba(42,84,153,0.14)'}`,
-            opacity: (canHover && hovNode) ? 1 : 0,
-            transform: (canHover && hovNode) ? 'translateY(0)' : 'translateY(4px)',
-            transition: 'opacity 0.22s ease, transform 0.22s ease',
-          }}
-        >
-          {hovNode && (<>
-            <span className="text-[10px] font-mono font-bold flex-shrink-0 mt-0.5 px-2 py-1 rounded-md"
-              style={{ background: isDark ? 'rgba(68,114,212,0.25)' : 'rgba(68,114,212,0.12)', color: isDark ? '#7ab0ff' : '#2a56c4' }}>
-              {hovNode.metric}
-            </span>
-            <p className="text-[12px] leading-relaxed" style={{ color: isDark ? 'rgba(200,220,255,0.78)' : 'rgba(15,40,90,0.72)' }}>
-              {de ? hovNode.whyDe : hovNode.whyEn}
-            </p>
-          </>)}
-        </div>
-      )}
-
-      {/* ── Mobile relationship summary — 3 key edges, sm:hidden ── */}
-      <div
-        className="mt-4 pt-3.5 sm:hidden space-y-2"
-        style={{ borderTop: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(26,60,110,0.10)'}` }}
-      >
-        {([ASSEMBLY_EDGES[2], ASSEMBLY_EDGES[0], ASSEMBLY_EDGES[4]] as typeof ASSEMBLY_EDGES[number][]).map((edge, i) => {
-          const from = ASSEMBLY_NODES.find(n => n.id === edge.from)!;
-          const to   = ASSEMBLY_NODES.find(n => n.id === edge.to)!;
-          return (
-            <div key={i} className="flex items-center gap-2 text-left">
-              <span
-                className="text-[9px] font-semibold px-1.5 py-0.5 rounded flex-shrink-0"
-                style={{ background: isDark ? 'rgba(68,114,212,0.15)' : 'rgba(68,114,212,0.08)', color: isDark ? '#7ab0ff' : '#1a3c8e' }}
-              >
-                {de ? from.labelDe : from.labelEn}
-              </span>
-              <span className="text-[8px]" style={{ color: isDark ? 'rgba(255,255,255,0.25)' : 'rgba(26,60,110,0.35)' }}>→</span>
-              <span
-                className="text-[8px] font-mono flex-1 truncate"
-                style={{ color: isDark ? 'rgba(160,195,248,0.55)' : 'rgba(30,68,158,0.52)' }}
-              >
-                {de ? edge.labelDe : edge.labelEn}
-              </span>
-              <span
-                className="text-[9px] font-semibold px-1.5 py-0.5 rounded flex-shrink-0"
-                style={{ background: isDark ? 'rgba(68,114,212,0.25)' : 'rgba(68,114,212,0.12)', color: isDark ? '#88c0ff' : '#1535a0' }}
-              >
-                {de ? to.labelDe : to.labelEn}
-              </span>
-            </div>
-          );
-        })}
-      </div>
-
-    </div>
-  );
-}
-
-// ─── Synthesis Reveal — full section after Ch06 ───────────────────────────────
-function SynthesisReveal({ de, isDark }: { de: boolean; isDark: boolean }) {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.fromTo(ref.current,
-        { opacity: 0, y: 24 },
-        { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out',
-          scrollTrigger: { trigger: ref.current, start: 'top 82%', once: true } },
-      );
-    }, ref);
-    return () => ctx.revert();
-  }, []);
-  const divClr = isDark ? 'rgba(255,255,255,0.08)' : 'var(--bd)';
-  return (
-    <div ref={ref} className="rounded-2xl p-8 sm:p-10" style={{ background: isDark ? 'rgba(26,60,110,0.14)' : 'rgba(26,60,110,0.06)', border: `1px solid ${isDark ? 'rgba(68,114,212,0.22)' : 'rgba(26,60,110,0.18)'}`, opacity: 0 }}>
-      <div className="text-center mb-8">
-        <p className="text-[9px] uppercase tracking-[0.28em] mb-2" style={{ color: '#4472D4' }}>
-          {de ? 'Das vollständige System' : 'The complete system'}
-        </p>
-        <h2 className="font-serif-display text-[1.6rem] sm:text-[2rem] font-bold leading-tight text-wx-tx1 mb-3">
-          {de ? 'Sechs Komponenten. Ein System.' : 'Six components. One system.'}
-        </h2>
-        <p className="text-[14px] max-w-md mx-auto" style={{ color: 'var(--txm)' }}>
-          {de
-            ? 'Jede Konzentration hat die einer anderen beeinflusst. Kein Bestandteil wurde isoliert gewählt.'
-            : 'Every concentration influenced another. No component was chosen in isolation.'}
-        </p>
-      </div>
-      <FormulaAssembly de={de} mode="synthesis" isDark={isDark} />
-      <div className="mt-6 pt-5 flex flex-wrap items-center justify-center gap-6" style={{ borderTop: `1px solid ${divClr}` }}>
-        {ASSEMBLY_EDGES.map((edge, i) => (
-          <div key={i} className="flex items-center gap-1.5">
-            <div className="w-4 h-px" style={{ background: '#4472D4', opacity: 0.6 }} />
-            <span className="text-[9px] font-mono" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'rgba(26,60,110,0.55)' }}>
-              {de ? edge.labelDe : edge.labelEn}
-            </span>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }
@@ -2129,6 +1130,267 @@ function Chapter({ num, anchorId, catDe, catEn, titleDe, titleEn, ledeDe, ledeEn
   );
 }
 
+// ─── Ingredient Matrix ────────────────────────────────────────────────────────
+const MATRIX_ROWS = [
+  { num: '01', nameDe: 'Paraffin C₂₀–C₃₆',   nameEn: 'Paraffin C₂₀–C₃₆',   roleDe: 'Basismatrix',      roleEn: 'Foundation',        metricDe: '2°C Erstarrungsfenster', metricEn: '2°C solidification window' },
+  { num: '02', nameDe: 'FT-Wachs',             nameEn: 'FT-Wax',              roleDe: 'Härtemodul',       roleEn: 'Hardener',          metricDe: '+14°C Tropfpunkt',       metricEn: '+14°C drop point'          },
+  { num: '03', nameDe: 'Mikrokristallin',       nameEn: 'Microcrystalline',    roleDe: 'Kälteflexibilität',roleEn: 'Cold Flexibility',  metricDe: 'Elastisch bis −10°C',    metricEn: 'Elastic to −10°C'          },
+  { num: '04', nameDe: 'MoS₂ <5 µm',           nameEn: 'MoS₂ <5 µm',         roleDe: 'Festschmierstoff', roleEn: 'Solid lubricant',   metricDe: 'μ 0.03 Grenzschmierung', metricEn: 'μ 0.03 boundary lubrication' },
+  { num: '05', nameDe: 'Fettsäureester',        nameEn: 'Fatty acid ester',    roleDe: 'Dispergierung',    roleEn: 'Dispersant',        metricDe: '5,6× Dichteverhältnis',  metricEn: '5.6× density bridged'      },
+  { num: '06', nameDe: 'Phenol-Antioxidans',    nameEn: 'Phenolic antioxidant',roleDe: 'Langzeitschutz',   roleEn: 'Longevity',         metricDe: '12 Monate Lagerstabilität', metricEn: '12-month shelf life'      },
+] as const;
+
+function MatrixRowContent({ index, de }: { index: number; de: boolean }) {
+  switch (index) {
+    case 0: return (
+      <Chapter num="01" de={de} anchorId="kristallstruktur"
+        catDe="Die Basis" catEn="The Foundation"
+        titleDe="Das kristalline Gerüst" titleEn="The crystalline scaffold"
+        ledeDe="Welches Paraffin — und warum ein 2°C-Erstarrungsfenster über Batch-Konsistenz entscheidet."
+        ledeEn="Which paraffin — and why a 2°C solidification window determines batch consistency."
+        teaserDe="Paraffin ist keine Substanz, sondern eine Kategorie — von weichen Kerzenwachsen bis zu spröden Technikalqualitäten. Die entscheidende Variable ist der Erstarrungsbereich."
+        teaserEn="Paraffin isn't a material, it's a category — spanning soft candle waxes to brittle technical grades. The decisive variable is the solidification range."
+        bodyDe={<>
+          <p>Die erste Frage war täuschend einfach: Welches Paraffin? Paraffin ist keine Substanz, sondern eine Kategorie — sie reicht von weichen, öligen Kerzenwachsen bis zu spröden Technikalqualitäten. Die entscheidende Variable ist der Erstarrungsbereich.</p>
+          <p>Wir haben uns für ein vollraffiniertes Erdöldestillat mit einem exakt definierten 2°C-Erstarrungsfenster (58–60°C) entschieden. Diese Enge ist keine Präzision um ihrer selbst willen — sie sichert die Reproduzierbarkeit. Ein breiterer Erstarrungsbereich produziert je nach Batch leicht unterschiedliche Kristallstrukturen.</p>
+          <p>Beim Abkühlen aus der Schmelze nucleieren die linearen Kohlenwasserstoffketten (C₂₀–C₃₆) und bilden lamellare Kristalldomänen — ein dreidimensionales Gitterwerk. Alle anderen Komponenten werden in den Zwischenbereichen dieses Gitters eingeschlossen. Die Basismatrix ist das Skelett. Alles andere ist eingebettet.</p>
+        </>}
+        bodyEn={<>
+          <p>The first question was deceptively simple: which paraffin? Paraffin isn't a material, it's a category — spanning soft, oily candle waxes to brittle technical grades. The decisive variable is the solidification range.</p>
+          <p>We chose a fully refined petroleum distillate with a precisely defined 2°C solidification window (58–60°C). This narrow range isn't precision for its own sake — it ensures reproducibility. A wider solidification range produces subtly different crystal structures batch-to-batch.</p>
+          <p>On cooling from the melt, the linear hydrocarbon chains (C₂₀–C₃₆) nucleate and form lamellar crystal domains — an interlocking three-dimensional lattice. All other components are trapped in the spaces between these crystals. The base matrix is the skeleton. Everything else is embedded within it.</p>
+        </>}
+        insightDe="Das enge Erstarrungsfenster ist der Schlüssel zur Batch-Konsistenz — und damit zur gleichmäßigen Performance jedes Blocks."
+        insightEn="The narrow solidification window is the key to batch consistency — every block performing identically."
+        visual={<CrystalLattice de={de} />}
+      />
+    );
+    case 1: return (
+      <Chapter num="02" de={de} flip anchorId="matrix"
+        catDe="Härtemodul" catEn="Hardener Module"
+        titleDe="Synthetisch reines Härtewachs" titleEn="Synthetically pure hard wax"
+        ledeDe="Fischer-Tropsch-Wachs: synthetisch lineare Moleküle, die den Tropfpunkt auf 72–78°C anheben."
+        ledeEn="Fischer-Tropsch wax: synthetically linear molecules that push the drop point to 72–78°C."
+        teaserDe="An Kettenkontaktpunkten unter Last können Temperaturen 45–55°C erreichen. Reines Paraffinwachs wäre an seiner thermischen Grenze."
+        teaserEn="At chain contact points under load, temperatures can reach 45–55°C. Unmodified paraffin wax would be at its thermal limit."
+        bodyDe={<>
+          <p>Das zweite Problem war der Sommer. An Kettenkontaktpunkten unter Last können Temperaturen 45–55°C erreichen. Reines Paraffinwachs wäre an seiner thermischen Grenze — es würde erweichen, migrieren, auf dem Schaltwerk landen statt in den Gelenkstiften.</p>
+          <p>Die Lösung war ein synthetisches Wachs, hergestellt über den Fischer-Tropsch-Prozess: eine Kohlenstoff-Syntheseroute, die Kohlenwasserstoffketten von außergewöhnlicher Reinheit liefert. Kein Schwefel, keine Aromaten, keine Verzweigungen — nur vollständig lineare Moleküle.</p>
+          <p>In gezielt gewählter Konzentration erhöht dieses Additiv den effektiven Tropfpunkt der Gesamtmatrix auf ~72–78°C. Der Mechanismus: Es ko-kristallisiert mit der Basismatrix, bildet aber dichtere, defektärmere Kristalldomänen, die deutlich mehr Energie zum Schmelzen benötigen.</p>
+        </>}
+        bodyEn={<>
+          <p>The second problem was summer. At chain contact points under load, temperatures can reach 45–55°C. Unmodified paraffin wax would be at its thermal limit — it would soften, migrate, end up on the derailleur instead of the chain pins.</p>
+          <p>The solution was a synthetic wax produced via the Fischer-Tropsch process: a carbon synthesis route that yields hydrocarbon chains of exceptional purity. No sulfur, no aromatics, no branching — only perfectly linear molecules.</p>
+          <p>At a carefully chosen concentration, this additive raises the effective drop point of the matrix to ~72–78°C. The mechanism: it co-crystallizes with the base wax but forms denser, more defect-free crystal domains requiring significantly more energy to melt.</p>
+        </>}
+        insightDe="Tests mit höherer Konzentration zeigten keine messbare Verbesserung. Das Optimum liegt unter dem, was man intuitiv erwarten würde."
+        insightEn="Tests at higher concentrations showed no measurable improvement. The optimum is lower than you'd intuitively expect."
+        visual={<TempRange de={de} />}
+      />
+    );
+    case 2: return (
+      <Chapter num="03" de={de} anchorId="winterformel"
+        catDe="Kälteflexibilität" catEn="Cold Flexibility"
+        titleDe="Mikrokristallines Wachs" titleEn="Microcrystalline wax"
+        ledeDe="Verzweigte Moleküle füllen die amorphen Bereiche zwischen Kristalldomänen — Matrix bleibt bis −10°C elastisch."
+        ledeEn="Branched molecules fill the amorphous zones between crystal domains — keeping the matrix elastic to −10°C."
+        teaserDe="Eine reine Paraffinmatrix ist unterhalb von 5°C extrem spröde — spröde genug, um bei Biegebelastung zu brechen. Die Wachsschicht platzte buchstäblich ab."
+        teaserEn="A pure paraffin matrix is extremely brittle below 5°C — brittle enough to crack under bending stress. The wax coating literally spalled off."
+        bodyDe={<>
+          <p>Das entgegengesetzte Problem folgte sofort: Winter. Eine reine Paraffinmatrix mit Fischer-Tropsch-Härtemodul ist unterhalb von 5°C extrem spröde — spröde genug, um bei Biegebelastung zu brechen. Ein Kettengelenk, das sich in der Kälte bewegt, ließ die Wachsschicht buchstäblich abplatzen.</p>
+          <p>Mikrokristallines Wachs löst dieses Problem strukturell. Im Gegensatz zu den geradkettigen Paraffinen besteht es aus hochverzweigten und zyklischen Molekülen, die keine geordneten Kristallstrukturen bilden können. Sie besetzen die amorphen Bereiche zwischen den Paraffindomänen — molekulare Plastifizierung.</p>
+          <p>Diese Komponente erfüllt drei Funktionen gleichzeitig: (1) Die Matrix bleibt bis −10°C elastisch verformbar statt zu brechen. (2) Die verzweigten Moleküle haben stärkere van-der-Waals-Wechselwirkungen mit der Stahloberfläche — bessere Haftung unter Scherkraft. (3) Die amorphen Bereiche betten die MoS₂-Partikel mechanisch in die Matrix ein.</p>
+        </>}
+        bodyEn={<>
+          <p>The opposite problem arrived immediately: winter. A pure paraffin matrix with a Fischer-Tropsch hardener is extremely brittle below 5°C — brittle enough to crack under bending stress. A chain link flexing in cold weather caused the wax coating to literally spall off.</p>
+          <p>Microcrystalline wax solves this structurally. Unlike the straight-chain paraffins, it consists of highly branched and cyclic molecules that cannot form ordered crystal structures. They occupy the amorphous zones between paraffin crystal domains — molecular plasticization.</p>
+          <p>This component serves three functions simultaneously: (1) The matrix remains elastically deformable down to −10°C. (2) Branched molecules have stronger van-der-Waals interactions with the steel surface — better adhesion. (3) The amorphous regions mechanically embed the MoS₂ particles in the matrix.</p>
+        </>}
+        insightDe="Ursprünglich höher konzentriert. Die Reduzierung war möglich, weil gleichzeitig der MoS₂-Anteil überarbeitet wurde."
+        insightEn="Originally at higher concentration. The reduction was possible because MoS₂ loading was revised simultaneously."
+        visual={
+          <div className="rounded-2xl p-5 space-y-5" style={{ ...CARD, ...DOT_GRID }}>
+            <p className="text-[10px] uppercase tracking-[0.2em]" style={{ color: 'var(--txff)' }}>
+              {de ? 'Temperaturfenster — Matrix flexibel' : 'Temperature window — matrix stays flexible'}
+            </p>
+            {[
+              { labelDe: 'Kälteflexibilität bis', labelEn: 'Cold flexibility to', val: '−10°C', w: 20, color: '#4472D4' },
+              { labelDe: 'Optimale Performance',  labelEn: 'Optimal performance',  val: '−8°C → +35°C', w: 80, color: '#2A5499' },
+              { labelDe: 'Thermisch stabil bis',  labelEn: 'Thermally stable to',   val: '+78°C', w: 100, color: '#1A3080' },
+            ].map((item, i) => (
+              <div key={i}>
+                <div className="flex justify-between mb-1.5">
+                  <span className="text-[11px] text-wx-txm">{de ? item.labelDe : item.labelEn}</span>
+                  <span className="text-[11px] font-mono font-semibold text-wx-tx1">{item.val}</span>
+                </div>
+                <div className="h-1.5 rounded-full" style={{ background: 'var(--bd2)' }}>
+                  <div className="h-full rounded-full" style={{ width: `${item.w}%`, background: item.color }} />
+                </div>
+              </div>
+            ))}
+            <div className="grid grid-cols-3 gap-2 pt-3" style={{ borderTop: '1px solid var(--bd2)' }}>
+              {[{ de: 'Plastifizierung', en: 'Plastification' }, { de: 'Haftung', en: 'Adhesion' }, { de: 'Partikelbindung', en: 'Particle binding' }].map((fn, i) => (
+                <div key={i} className="text-center rounded-lg py-2 px-1" style={{ background: 'rgba(26,60,110,0.07)', border: '1px solid rgba(26,60,110,0.13)' }}>
+                  <p className="text-[10px] font-medium" style={{ color: '#4472D4' }}>{de ? fn.de : fn.en}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        }
+      />
+    );
+    case 3: return (
+      <Chapter num="04" de={de} flip featured visualFirst anchorId="mos2"
+        catDe="Festschmierstoff" catEn="Solid Lubricant"
+        titleDe="Molybdändisulfid — <5 µm" titleEn="Molybdenum disulfide — <5 µm"
+        ledeDe="MoS₂ bildet unter Kontaktdruck einen Transferfilm auf dem Stahl — er schmiert noch, wenn das Wachs längst verbraucht ist."
+        ledeEn="MoS₂ forms a transfer film on steel under contact pressure — it lubricates long after the wax is spent."
+        teaserDe="MoS₂ ist eines der wenigen Materialien mit einem Reibungskoeffizienten unter 0,05 unter Grenzschmierbedingungen — dem Regime, das in Kettenkontaktstellen tatsächlich herrscht."
+        teaserEn="MoS₂ is one of the few materials with a friction coefficient below 0.05 under boundary lubrication — the regime that actually governs chain contact points."
+        bodyDe={<>
+          <p>MoS₂ ist eines der wenigen Materialien mit einem Reibungskoeffizienten unter 0.05 unter Grenzschmierbedingungen. Der Grund liegt in der Kristallstruktur: Mo-Atome sandwichartig zwischen zwei Schwefelschichten, die Schichten untereinander nur durch schwache van-der-Waals-Kräfte gebunden. Unter Kontaktdruck scheren diese Bindungen — die Schichten gleiten lateral fast widerstandslos.</p>
+          <p>An Kettenkontaktflächen unter Last entstehen Drücke von 50–300 MPa. Das ist das Regime der Grenzschmierung — konventionelle Öle können keinen kontinuierlichen Film aufrechterhalten. MoS₂ bildet stattdessen einen Transferfilm: Partikel werden unter Druck auf der Stahloberfläche deponiert und durch tribochemische Bindungen (Mo–S → Fe–S) verankert. Dieser Film persistiert, auch nachdem der Wachsträger längst abgetragen ist.</p>
+          <p>Die Partikelgröße ist nicht zufällig: Unter 5 µm passen die Partikel in die Kettenlagerungsspalte (typisch 5–15 µm). Eine einzige Ladung Wachs enthält Millionen von Partikeln — ausreichend für mehrfache Transferfilm-Regeneration über hunderte Kilometer. Mehr Konzentration schwächt die Wachsmatrix ohne tribologischen Mehrwert.</p>
+        </>}
+        bodyEn={<>
+          <p>MoS₂ is one of the few materials with a friction coefficient below 0.05 under boundary lubrication conditions. The crystal structure is the reason: Mo atoms sandwiched between two sulfur layers, with the layers bonded only by weak van-der-Waals forces. Under contact pressure, these bonds shear — the layers slide laterally with almost no resistance.</p>
+          <p>At chain contact surfaces under load, pressures reach 50–300 MPa. This is the boundary lubrication regime — conventional oils cannot maintain a continuous film here. MoS₂ instead forms a transfer film: particles deposited on the steel surface and anchored by tribochemical bonds (Mo–S → Fe–S). This film persists long after the wax carrier is worn away.</p>
+          <p>Particle size is deliberate: below 5 µm, particles fit within chain clearances (typically 5–15 µm). A single charge of wax contains millions of particles — sufficient for multiple transfer film regeneration cycles over hundreds of kilometers. Higher concentrations weaken the wax matrix without tribological benefit.</p>
+        </>}
+        insightDe="Der Transferfilm ist der eigentliche Schmierstoff — das Wachs ist nur das Trägervehikel. MoS₂-Schichten, nanometerdick auf dem Stahl, schmieren noch, wenn der Block längst aufgebraucht ist."
+        insightEn="The transfer film is the actual lubricant — the wax is just the delivery vehicle. Nanometer-thin MoS₂ layers on the steel continue lubricating long after the block is spent."
+        visual={<HexMoS2 de={de} />}
+        extraVisual={<TransferFilm de={de} />}
+      />
+    );
+    case 4: return (
+      <Chapter num="05" de={de} anchorId="sedimentation" visualFirst
+        catDe="Dispergiersystem" catEn="Dispersant System"
+        titleDe="Amphiphiler Fettsäureester" titleEn="Amphiphilic fatty acid ester"
+        ledeDe="MoS₂ ist 5,6× dichter als Paraffin — ohne Dispergiermittel entsteht ein messbarer Konzentrationsgradient im fertigen Block."
+        ledeEn="MoS₂ is 5.6× denser than paraffin — without dispersant a measurable concentration gradient forms in the finished block."
+        teaserDe="Gibt man MoS₂ ohne Stabilisierung in geschmolzenes Wachs, sinken die Partikel messbar schnell — der erste Rewax-Vorgang wäre anders als der zwanzigste."
+        teaserEn="Add MoS₂ to molten wax without stabilization and the particles sink measurably fast — the first rewax would perform differently from the twentieth."
+        bodyDe={<>
+          <p>MoS₂ hat eine Dichte von 5.06 g/cm³. Paraffinwachs hat eine Dichte von 0.9 g/cm³. Dichteunterschied: Faktor 5,6. Gibt man MoS₂ in geschmolzenes Wachs ohne Stabilisierung, sinken die Partikel messbar schnell. In den Minuten zwischen Rührstopp und Guss bedeutet das messbare Konzentrationsgradienten im fertigen Block.</p>
+          <p>Das Dispergiermittel ist ein amphiphiler Fettsäureester: ein Molekül mit einer polaren Kopfgruppe, die über Wasserstoffbrücken an MoS₂-Partikelkanten adsorbiert, und einer langen unpolaren Fettsäurekette, die sich in die Paraffinschmelze erstreckt. Diese Hülle um jeden Partikel erzeugt eine sterische Barriere: annähernde Partikel müssen die Fettsäureketten komprimieren — dieser entropische Widerstand verhindert Agglomeration und Sedimentation.</p>
+          <p>Entscheidend für die Wahl dieses spezifischen Esters: Sein Schmelzpunkt (58–60°C) ist identisch mit der Basismatrix. Die Integration in die erstarrende Matrix verläuft thermodynamisch nahtlos — kein Auftrennen, keine Phasenseparation beim Abkühlen.</p>
+        </>}
+        bodyEn={<>
+          <p>MoS₂ has a density of 5.06 g/cm³. Paraffin wax has a density of 0.9 g/cm³. Density ratio: 5.6×. Add MoS₂ to molten wax without stabilization and the particles sink measurably fast. In the minutes between stopping agitation and casting, this creates measurable concentration gradients in the finished block.</p>
+          <p>The dispersant is an amphiphilic fatty acid ester: a molecule with a polar head group that adsorbs to MoS₂ particle edges via hydrogen bonds, and a long nonpolar fatty acid tail extending into the paraffin melt. This shell around each particle creates a steric barrier: approaching particles must compress the tails — this entropic resistance prevents agglomeration and sedimentation.</p>
+          <p>Critical to the choice of this specific ester: its melting point (58–60°C) is identical to the base matrix. Integration into the solidifying matrix is thermodynamically seamless — no phase separation on cooling.</p>
+        </>}
+        insightDe="Ohne Dispergiermittel variiert die MoS₂-Konzentration durch den Block. Der erste Rewax-Vorgang wäre anders als der zwanzigste. Das ist nicht akzeptabel."
+        insightEn="Without dispersant, MoS₂ concentration varies through the block. The first rewax would perform differently from the twentieth. Unacceptable."
+        visual={<ParticleSuspension de={de} />}
+      />
+    );
+    case 5: return (
+      <Chapter num="06" de={de} flip
+        catDe="Langzeitstabilität" catEn="Long-term Stability"
+        titleDe="Gehindertes Phenol-Antioxidans" titleEn="Hindered phenolic antioxidant"
+        ledeDe="Oxidiertes MoS₂ ist MoO₃ — abrasiv. Das Antioxidans schützt den Festschmierstoff, nicht nur das Wachs."
+        ledeEn="Oxidized MoS₂ is MoO₃ — abrasive. The antioxidant protects the solid lubricant, not just the wax."
+        teaserDe="Ein Wachsblock, der in Woche 1 performt aber in Monat 6 nachlässt, ist kein Produkt. Kohlenwasserstoffwachse sind anfällig für Autoxidation."
+        teaserEn="A wax block that performs in week 1 but degrades by month 6 isn't a product. Hydrocarbon waxes are susceptible to autoxidation."
+        bodyDe={<>
+          <p>Die letzte Frage war Zeit. Ein Wachsblock, der in Woche 1 performt aber in Monat 6 nachlässt, ist kein Produkt. Kohlenwasserstoffwachse sind anfällig für Autoxidation: Sauerstoffradikale greifen C–H-Bindungen an und initiieren eine Kettenreaktion, die Peroxide, Alkohole und Ketone produziert. Diese Oxidationsprodukte verspröden die Matrix.</p>
+          <p>Und sie können die MoS₂-Oberfläche von einem Schmierstoff (MoS₂) in ein Abrasivum verwandeln (MoO₃, gebildet durch Mo⁴⁺ → Mo⁶⁺ Oxidation). Ein gehindertes Phenol-Antioxidans wirkt als Radikalkettenabbrecher: Die phenolische OH-Gruppe doniert ein Wasserstoffatom an Peroxylradikale (ROO•) und bricht die Oxidationskaskade ab.</p>
+          <p>Die Konzentration wurde leicht erhöht, als wir einen separaten Korrosionsinhibitor aus einer früheren Formulierungsversion entfernt haben. Dieser hatte eine sekundäre antioxidative Wirkung. Ohne ihn trägt das Phenol-Antioxidans die gesamte Last — eine leichte Erhöhung kompensiert dies vollständig.</p>
+        </>}
+        bodyEn={<>
+          <p>The last question was time. A wax block that performs in week 1 but degrades by month 6 isn't a product. Hydrocarbon waxes are susceptible to autoxidation: oxygen radicals attack C–H bonds, initiating a chain reaction producing peroxides, alcohols, and ketones. These oxidation products embrittle the matrix.</p>
+          <p>And they can convert the MoS₂ surface from a lubricant (MoS₂) into an abrasive (MoO₃, formed by Mo⁴⁺ → Mo⁶⁺ oxidation). A hindered phenolic antioxidant acts as a radical chain-breaker: the phenolic OH group donates a hydrogen atom to peroxyl radicals (ROO•), breaking the oxidation cascade.</p>
+          <p>Concentration was raised slightly when we removed a separate corrosion inhibitor from an earlier formula version. That inhibitor had a secondary antioxidant effect. Without it, the phenolic antioxidant carries the full stabilization load — a slight increase covers this completely.</p>
+        </>}
+        insightDe="Das Antioxidans schützt nicht nur das Wachs, sondern auch den Festschmierstoff. Eine Komponente, die zwei Versagensmodi gleichzeitig verhindert."
+        insightEn="The antioxidant protects not just the wax, but also the solid lubricant. One component preventing two failure modes simultaneously."
+        visual={
+          <div className="rounded-2xl p-5" style={{ ...CARD, ...DOT_GRID }}>
+            <p className="text-[10px] uppercase tracking-[0.2em] mb-5" style={{ color: 'var(--txff)' }}>
+              {de ? 'Drei Schutzebenen' : 'Three protection layers'}
+            </p>
+            <div className="space-y-3">
+              {[
+                { n: '01', titleDe: 'Wachsmatrix', titleEn: 'Wax matrix', descDe: 'Stoppt Autoxidation der Kohlenwasserstoffketten — bei Produktion und Lagerung.', descEn: 'Stops autoxidation of hydrocarbon chains — during production and storage.' },
+                { n: '02', titleDe: 'MoS₂-Oberfläche', titleEn: 'MoS₂ surface', descDe: 'Verhindert langsame MoS₂ → MoO₃ Oxidation durch Sauerstoffspuren in der Matrix.', descEn: 'Prevents slow MoS₂ → MoO₃ surface oxidation from trace oxygen in the matrix.' },
+                { n: '03', titleDe: 'Lagerstabilität', titleEn: 'Shelf life', descDe: 'Peroxidzahl bleibt auch nach 12–24 Monaten unter dem Leistungsgrenzwert.', descEn: 'Peroxide value stays below the performance threshold after 12–24 months.' },
+              ].map((item, i) => (
+                <div key={i} className="flex gap-3.5 p-3.5 rounded-xl" style={{ background: 'rgba(26,60,110,0.06)', border: '1px solid rgba(26,60,110,0.13)' }}>
+                  <span className="font-display text-[22px] font-bold tabular-nums flex-shrink-0 leading-none mt-0.5" style={{ color: 'rgba(26,60,110,0.28)' }}>{item.n}</span>
+                  <div>
+                    <p className="text-[12px] font-semibold text-wx-tx1 mb-1">{de ? item.titleDe : item.titleEn}</p>
+                    <p className="text-[11px] text-wx-txm leading-relaxed">{de ? item.descDe : item.descEn}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        }
+      />
+    );
+    default: return null;
+  }
+}
+
+function IngredientMatrix({ de, isDark }: { de: boolean; isDark: boolean }) {
+  const [openRow, setOpenRow] = useState<number | null>(null);
+  const [everOpened, setEverOpened] = useState<Set<number>>(new Set());
+
+  const toggle = (i: number) => {
+    const next = openRow === i ? null : i;
+    if (next !== null) setEverOpened(prev => new Set([...prev, i]));
+    setOpenRow(next);
+  };
+
+  return (
+    <div style={{ border: '1px solid var(--bd)', borderRadius: '12px', overflow: 'hidden' }}>
+      {MATRIX_ROWS.map((row, i) => {
+        const isOpen = openRow === i;
+        return (
+          <div
+            key={i}
+            style={{ borderBottom: i < MATRIX_ROWS.length - 1 ? '1px solid var(--bd)' : 'none' }}
+          >
+            <button
+              onClick={() => toggle(i)}
+              className="w-full flex items-center gap-3 sm:gap-5 px-5 py-4 text-left transition-colors"
+              style={{ background: isOpen ? (isDark ? 'rgba(26,60,110,0.10)' : 'rgba(26,60,110,0.05)') : 'transparent' }}
+            >
+              <span className="font-mono text-[11px] font-bold flex-shrink-0" style={{ color: isOpen ? '#4472D4' : 'var(--txff)', width: '20px' }}>
+                {row.num}
+              </span>
+              <div className="w-px self-stretch flex-shrink-0" style={{ background: 'var(--bd2)', minHeight: '20px' }} />
+              <span className="text-[13px] font-semibold flex-shrink-0" style={{ color: 'var(--tx1)', width: '152px' }}>
+                {de ? row.nameDe : row.nameEn}
+              </span>
+              <span className="text-[11px] hidden sm:block flex-shrink-0" style={{ color: 'var(--txm)', width: '108px' }}>
+                {de ? row.roleDe : row.roleEn}
+              </span>
+              <span className="text-[11px] font-mono flex-1 text-right hidden sm:block" style={{ color: 'var(--txff)' }}>
+                {de ? row.metricDe : row.metricEn}
+              </span>
+              <ChevronDown
+                className="h-4 w-4 flex-shrink-0 transition-transform duration-300 ml-auto sm:ml-0"
+                style={{ color: isOpen ? '#4472D4' : 'var(--txf)', transform: isOpen ? 'rotate(180deg)' : 'none' }}
+              />
+            </button>
+            <div style={{ maxHeight: isOpen ? '3200px' : '0', overflow: 'hidden', transition: 'max-height 0.55s cubic-bezier(0.4,0,0.2,1)' }}>
+              {everOpened.has(i) && (
+                <div className="px-4 pt-6 pb-8" style={{ borderTop: '1px solid var(--bd2)' }}>
+                  <MatrixRowContent index={i} de={de} />
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+
 // ─── Main page ────────────────────────────────────────────────────────────────
 export function SciencePage() {
   const { lang, toggleLang } = useLanguage();
@@ -2213,15 +1475,12 @@ export function SciencePage() {
         </div>
       </nav>
 
-      {/* ══ HERO — compact subpage header ══════════════════════════════════════ */}
+      {/* ══ HERO — no particles, no hex grid ══════════════════════════════════ */}
       <section
         ref={heroRef}
         className="relative overflow-hidden flex flex-col items-center justify-center"
         style={{ background: isDark ? '#07070A' : 'var(--sf)', minHeight: isDark ? '44vh' : '40vh' }}
       >
-        <HeroParticles />
-
-        {/* Product image — very faint, grayscale, ties hero to product */}
         <img
           src="/images/wax-hero.jpg"
           alt=""
@@ -2230,30 +1489,7 @@ export function SciencePage() {
           style={{ opacity: 0.055, objectPosition: '62% 50%', filter: 'grayscale(1) blur(1px)' }}
           loading="eager"
         />
-
-        {/* Hexagonal grid texture */}
-        <div
-          aria-hidden
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage: isDark
-              ? "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='46'%3E%3Cpath d='M20 0 L40 11.5 L40 34.5 L20 46 L0 34.5 L0 11.5 Z' fill='none' stroke='rgba(43%2C82%2C176%2C0.07)' stroke-width='0.7'/%3E%3C/svg%3E\")"
-              : "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='46'%3E%3Cpath d='M20 0 L40 11.5 L40 34.5 L20 46 L0 34.5 L0 11.5 Z' fill='none' stroke='rgba(43%2C82%2C176%2C0.11)' stroke-width='0.7'/%3E%3C/svg%3E\")",
-            backgroundSize: '40px 46px',
-          }}
-        />
-
-        {/* Radial atmospheric glow */}
-        <div
-          aria-hidden
-          className="absolute inset-0 pointer-events-none"
-          style={{ background: isDark
-            ? 'radial-gradient(ellipse 72% 58% at 50% 42%, rgba(26,60,110,0.16) 0%, transparent 65%)'
-            : 'radial-gradient(ellipse 72% 58% at 50% 42%, rgba(26,60,110,0.05) 0%, transparent 65%)' }}
-        />
-
         <div className="relative z-10 text-center px-4 sm:px-8 py-12 sm:py-16">
-          {/* Classification badge */}
           <div data-hero-badge className="inline-flex items-center gap-3 mb-6" style={{ opacity: 0 }}>
             <div className="h-px w-8" style={{ background: isDark ? 'rgba(68,114,212,0.45)' : 'rgba(26,60,110,0.25)' }} />
             <span className="text-[9px] font-mono uppercase tracking-[0.38em]" style={{ color: isDark ? 'rgba(68,114,212,0.65)' : '#4472D4' }}>
@@ -2261,8 +1497,6 @@ export function SciencePage() {
             </span>
             <div className="h-px w-8" style={{ background: isDark ? 'rgba(68,114,212,0.45)' : 'rgba(26,60,110,0.25)' }} />
           </div>
-
-          {/* Headline */}
           <h1
             className="font-display font-bold leading-[1.05] mb-5 flex flex-wrap justify-center gap-x-4 gap-y-1"
             style={{ fontSize: 'clamp(2rem,5.5vw,3.5rem)', color: isDark ? '#FFFFFF' : 'var(--tx1)', perspective: '600px' }}
@@ -2277,436 +1511,121 @@ export function SciencePage() {
               </span>
             ))}
           </h1>
-
-          {/* Subtitle */}
           <p
             data-hero-sub
-            className="text-[14px] sm:text-[15px] leading-relaxed max-w-[480px] mx-auto mb-0"
+            className="text-[14px] sm:text-[15px] leading-relaxed max-w-[480px] mx-auto mb-6"
             style={{ color: isDark ? 'rgba(255,255,255,0.70)' : 'var(--tx2)', opacity: 0 }}
           >
             {de
               ? 'Jede Komponente in dieser Formel existiert, weil ein Test gescheitert ist — oder weil ein Kompromiss nicht akzeptabel war.'
               : "Every component in this formula exists because a test failed — or because a compromise was unacceptable."}
           </p>
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-5 text-[11px] font-mono" style={{ color: isDark ? 'rgba(255,255,255,0.30)' : 'var(--txff)' }}>
+            <span>μ 0.03</span>
+            <span style={{ opacity: 0.4 }}>·</span>
+            <span>{de ? 'bis zu 3× Kettenlaufzeit' : 'up to 3× chain life'}</span>
+            <span style={{ opacity: 0.4 }}>·</span>
+            <span>{de ? '6 Komponenten' : '6 components'}</span>
+          </div>
         </div>
-
-        {/* Bottom fade into page bg */}
         <div
           className="absolute bottom-0 left-0 right-0 h-24 pointer-events-none"
           style={{ background: 'linear-gradient(to bottom, transparent, var(--pg))' }}
         />
       </section>
 
-      {/* ══ COMPOSITION OVERVIEW ══════════════════════════════════════════════ */}
-      <div className={`${W} py-14`}>
-        <div className="rounded-2xl p-8 sm:p-10" style={{ background: 'linear-gradient(160deg,var(--card-from) 0%,var(--card-to) 100%)', border: '1px solid var(--bd)', ...DOT_GRID }}>
-          <div className="grid grid-cols-1 md:grid-cols-[1fr_1.2fr] gap-10 lg:gap-16 items-start">
-            <div>
-              <p className="text-[10px] font-medium uppercase tracking-[0.25em] mb-3" style={{ color: '#4472D4' }}>
-                {de ? 'Sechs Bestandteile' : 'Six components'}
-              </p>
-              <h2 className="font-serif-display text-2xl font-bold text-wx-tx1 mb-4 leading-tight">
-                {de ? 'Die vollständige Formel' : 'The complete formula'}
-              </h2>
-              <p className="text-[14px] leading-relaxed text-wx-txm mb-6">
-                {de
-                  ? 'Ein Jahr Iteration — von ersten Schmelzversuchen bis zur stabilen Produktion. Die Mengen werden hier nicht genannt. Was zählt: warum jede Komponente überhaupt drin ist.'
-                  : 'A year of iteration — from first melt tests to stable production. Exact quantities not disclosed. What matters: why each component is in there at all.'}
-              </p>
-              <div className="space-y-3">
-                {[
-                  { catDe: 'Basismatrix',     catEn: 'Base matrix',   descDe: 'Kristallines Trägergerüst',   descEn: 'Crystalline scaffold'       },
-                  { catDe: 'Plastifikator',   catEn: 'Plasticizer',   descDe: 'Kälteflexibilität & Haftung', descEn: 'Cold flexibility & adhesion' },
-                  { catDe: 'Härtemodul',      catEn: 'Hardener',      descDe: 'Schmelzpunkterhöhung',        descEn: 'Drop point elevation'        },
-                  { catDe: 'MoS₂',            catEn: 'MoS₂',         descDe: 'Primärer Festschmierstoff',   descEn: 'Primary solid lubricant'     },
-                  { catDe: 'Dispergiermittel',catEn: 'Dispersant',    descDe: 'Partikelstabilisierung',      descEn: 'Particle stabilization'      },
-                  { catDe: 'Antioxidans',     catEn: 'Antioxidant',   descDe: 'Langzeitschutz',              descEn: 'Long-term protection'        },
-                ].map((item, i) => {
-                  const colors = ['#1A3080','#1A3C6E','#2A5499','#4472D4','#7A9AEC','#A8C0F4'];
-                  return (
-                    <div key={i} className="flex items-center gap-3">
-                      <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: colors[i] }} />
-                      <span className="text-[12px] font-semibold text-wx-tx1 w-28 flex-shrink-0">{de ? item.catDe : item.catEn}</span>
-                      <span className="text-[12px] text-wx-txf">{de ? item.descDe : item.descEn}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-            <div>
-              <p className="text-[10px] font-medium uppercase tracking-[0.2em] mb-4" style={{ color: 'var(--txff)' }}>
-                {de ? 'Abhängigkeiten zwischen Komponenten' : 'Component dependencies'}
-              </p>
-              <FormulaAssembly de={de} mode="overview" isDark={isDark} />
-            </div>
+      {/* ══ 01 THE RESULT ════════════════════════════════════════════════════════ */}
+      <section id="reibung" style={{ borderTop: '1px solid var(--bd)' }}>
+        <div className={`${W} py-16`}>
+          <div className="flex items-center gap-4 mb-8">
+            <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.32em', color: 'var(--txff)' }}>01</span>
+            <div style={{ flex: 1, height: '1px', background: 'var(--bd)' }} />
           </div>
+          <h2 className="font-display text-3xl sm:text-4xl font-bold text-wx-tx1 mb-3">
+            {de ? 'Das Ergebnis' : 'The Result'}
+          </h2>
+          <p className="text-wx-tx2 mb-10 max-w-xl">
+            {de
+              ? 'Was die Formel messbar leistet — Reibungskoeffizient unter Grenzschmierung, 50–300 MPa Kontaktdruck.'
+              : 'What the formula measurably delivers — friction coefficient under boundary lubrication, 50–300 MPa contact pressure.'}
+          </p>
+          <FrictionBars de={de} />
+        </div>
+      </section>
 
-          {/* Chapter quick-nav */}
-          <div className="mt-8 pt-6" style={{ borderTop: '1px solid var(--bd2)' }}>
-            <p className="text-[9px] uppercase tracking-[0.22em] mb-3" style={{ color: 'var(--txff)' }}>
-              {de ? 'Direkt zu Kapitel' : 'Jump to chapter'}
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {CHAPTER_MAP.map(ch => (
-                <button
-                  key={ch.n}
-                  onClick={() => document.querySelector(`[data-chapter="${ch.n}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] transition-all duration-200"
-                  style={{ background: 'rgba(26,60,110,0.07)', border: '1px solid rgba(26,60,110,0.15)', color: 'var(--txm)' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(68,114,212,0.35)'; (e.currentTarget as HTMLButtonElement).style.background = 'rgba(26,60,110,0.13)'; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(26,60,110,0.15)'; (e.currentTarget as HTMLButtonElement).style.background = 'rgba(26,60,110,0.07)'; }}
-                >
-                  <span className="font-mono text-[9px] font-bold" style={{ color: '#4472D4' }}>{ch.n}</span>
-                  <span>{de ? ch.de : ch.en}</span>
-                </button>
-              ))}
-            </div>
+      {/* ══ 02 THE FORMULA ═══════════════════════════════════════════════════════ */}
+      <div style={{ borderTop: '1px solid var(--bd)' }}>
+        <div className={`${W} py-16`}>
+          <div className="flex items-center gap-4 mb-8">
+            <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.32em', color: 'var(--txff)' }}>02</span>
+            <div style={{ flex: 1, height: '1px', background: 'var(--bd)' }} />
           </div>
+          <h2 className="font-display text-3xl sm:text-4xl font-bold text-wx-tx1 mb-3">
+            {de ? 'Die Formel' : 'The Formula'}
+          </h2>
+          <p className="text-wx-tx2 mb-10 max-w-xl">
+            {de
+              ? 'Sechs Bestandteile. Jeder einzeln begründet. Zeile aufklappen für die vollständige Wissenschaft.'
+              : 'Six components. Each individually justified. Expand any row for the full science.'}
+          </p>
+          <IngredientMatrix de={de} isDark={isDark} />
         </div>
+      </div>
 
-        {/* Section divider */}
-        <div className="flex items-center gap-5 my-14">
-          <div className="flex-1 h-px" style={{ background: 'var(--bd)' }} />
-          <span className="text-[9px] uppercase tracking-[0.3em]" style={{ color: 'var(--txff)' }}>
-            {de ? 'Kapitel für Kapitel' : 'Chapter by chapter'}
-          </span>
-          <div className="flex-1 h-px" style={{ background: 'var(--bd)' }} />
-        </div>
-
-        {/* ══ FAILURE TIMELINE ══════════════════════════════════════════════ */}
-        <div className="mb-16">
+      {/* ══ 03 HOW WE GOT HERE ═══════════════════════════════════════════════════ */}
+      <div style={{ borderTop: '1px solid var(--bd)' }}>
+        <div className={`${W} py-16`}>
+          <div className="flex items-center gap-4 mb-8">
+            <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.32em', color: 'var(--txff)' }}>03</span>
+            <div style={{ flex: 1, height: '1px', background: 'var(--bd)' }} />
+          </div>
+          <h2 className="font-display text-3xl sm:text-4xl font-bold text-wx-tx1 mb-3">
+            {de ? 'Wie wir dahin kamen' : 'How we got here'}
+          </h2>
+          <p className="text-wx-tx2 mb-10 max-w-xl">
+            {de
+              ? 'Vier Iterationen. Jede hat etwas geändert, das heute noch in der Formel steckt.'
+              : 'Four iterations. Each one changed something that is still in the formula today.'}
+          </p>
           <FailureTimeline de={de} isDark={isDark} />
         </div>
-
-        {/* ══ CH 01 ══════════════════════════════════════════════════════════ */}
-        <Chapter num="01" de={de} anchorId="kristallstruktur"
-          catDe="Die Basis" catEn="The Foundation"
-          titleDe="Das kristalline Gerüst"
-          titleEn="The crystalline scaffold"
-          ledeDe="Welches Paraffin — und warum ein 2°C-Erstarrungsfenster über Batch-Konsistenz entscheidet."
-          ledeEn="Which paraffin — and why a 2°C solidification window determines batch consistency."
-          teaserDe="Paraffin ist keine Substanz, sondern eine Kategorie — von weichen Kerzenwachsen bis zu spröden Technikalqualitäten. Die entscheidende Variable ist der Erstarrungsbereich."
-          teaserEn="Paraffin isn't a material, it's a category — spanning soft candle waxes to brittle technical grades. The decisive variable is the solidification range."
-          bodyDe={<>
-            <p>Die erste Frage war täuschend einfach: Welches Paraffin? Paraffin ist keine Substanz, sondern eine Kategorie — sie reicht von weichen, öligen Kerzenwachsen bis zu spröden Technikalqualitäten. Die entscheidende Variable ist der Erstarrungsbereich.</p>
-            <p>Wir haben uns für ein vollraffiniertes Erdöldestillat mit einem exakt definierten 2°C-Erstarrungsfenster (58–60°C) entschieden. Diese Enge ist keine Präzision um ihrer selbst willen — sie sichert die Reproduzierbarkeit. Ein breiterer Erstarrungsbereich produziert je nach Batch leicht unterschiedliche Kristallstrukturen.</p>
-            <p>Beim Abkühlen aus der Schmelze nucleieren die linearen Kohlenwasserstoffketten (C₂₀–C₃₆) und bilden lamellare Kristalldomänen — ein dreidimensionales Gitterwerk. Alle anderen Komponenten werden in den Zwischenbereichen dieses Gitters eingeschlossen. Die Basismatrix ist das Skelett. Alles andere ist eingebettet.</p>
-          </>}
-          bodyEn={<>
-            <p>The first question was deceptively simple: which paraffin? Paraffin isn't a material, it's a category — spanning soft, oily candle waxes to brittle technical grades. The decisive variable is the solidification range.</p>
-            <p>We chose a fully refined petroleum distillate with a precisely defined 2°C solidification window (58–60°C). This narrow range isn't precision for its own sake — it ensures reproducibility. A wider solidification range produces subtly different crystal structures batch-to-batch.</p>
-            <p>On cooling from the melt, the linear hydrocarbon chains (C₂₀–C₃₆) nucleate and form lamellar crystal domains — an interlocking three-dimensional lattice. All other components are trapped in the spaces between these crystals. The base matrix is the skeleton. Everything else is embedded within it.</p>
-          </>}
-          insightDe="Das enge Erstarrungsfenster ist der Schlüssel zur Batch-Konsistenz — und damit zur gleichmäßigen Performance jedes Blocks."
-          insightEn="The narrow solidification window is the key to batch consistency — every block performing identically."
-          visual={<CrystalLattice de={de} />}
-        />
       </div>
 
-      {/* ══ STAT 1 ══════════════════════════════════════════════════════════════ */}
-      <StatCallout de={de} isDark={isDark} stat="2°C"
-        ctxDe="Erstarrungsfenster — Basis jeder Batch-Konsistenz"
-        ctxEn="Solidification window — foundation of every batch"
-        miniViz={<TempBandViz isDark={isDark} />} />
-
-      {/* ══ CH 02 + CH 03 ════════════════════════════════════════════════════ */}
-      <div className={`${W} pt-20`}>
-        <Chapter num="02" de={de} flip anchorId="matrix"
-          catDe="Härtemodul" catEn="Hardener Module"
-          titleDe="Synthetisch reines Härtewachs"
-          titleEn="Synthetically pure hard wax"
-          ledeDe="Fischer-Tropsch-Wachs: synthetisch lineare Moleküle, die den Tropfpunkt auf 72–78°C anheben."
-          ledeEn="Fischer-Tropsch wax: synthetically linear molecules that push the drop point to 72–78°C."
-          teaserDe="An Kettenkontaktpunkten unter Last können Temperaturen 45–55°C erreichen. Reines Paraffinwachs wäre an seiner thermischen Grenze."
-          teaserEn="At chain contact points under load, temperatures can reach 45–55°C. Unmodified paraffin wax would be at its thermal limit."
-          bodyDe={<>
-            <p>Das zweite Problem war der Sommer. An Kettenkontaktpunkten unter Last können Temperaturen 45–55°C erreichen. Reines Paraffinwachs wäre an seiner thermischen Grenze — es würde erweichen, migrieren, auf dem Schaltwerk landen statt in den Gelenkstiften.</p>
-            <p>Die Lösung war ein synthetisches Wachs, hergestellt über den Fischer-Tropsch-Prozess: eine Kohlenstoff-Syntheseroute, die Kohlenwasserstoffketten von außergewöhnlicher Reinheit liefert. Kein Schwefel, keine Aromaten, keine Verzweigungen — nur vollständig lineare Moleküle.</p>
-            <p>In gezielt gewählter Konzentration erhöht dieses Additiv den effektiven Tropfpunkt der Gesamtmatrix auf ~72–78°C. Der Mechanismus: Es ko-kristallisiert mit der Basismatrix, bildet aber dichtere, defektärmere Kristalldomänen, die deutlich mehr Energie zum Schmelzen benötigen.</p>
-          </>}
-          bodyEn={<>
-            <p>The second problem was summer. At chain contact points under load, temperatures can reach 45–55°C. Unmodified paraffin wax would be at its thermal limit — it would soften, migrate, end up on the derailleur instead of the chain pins.</p>
-            <p>The solution was a synthetic wax produced via the Fischer-Tropsch process: a carbon synthesis route that yields hydrocarbon chains of exceptional purity. No sulfur, no aromatics, no branching — only perfectly linear molecules.</p>
-            <p>At a carefully chosen concentration, this additive raises the effective drop point of the matrix to ~72–78°C. The mechanism: it co-crystallizes with the base wax but forms denser, more defect-free crystal domains requiring significantly more energy to melt.</p>
-          </>}
-          insightDe="Tests mit höherer Konzentration zeigten keine messbare Verbesserung. Das Optimum liegt unter dem, was man intuitiv erwarten würde."
-          insightEn="Tests at higher concentrations showed no measurable improvement. The optimum is lower than you'd intuitively expect."
-          visual={<TempRange de={de} />}
-        />
-
-        <Chapter num="03" de={de} anchorId="winterformel"
-          catDe="Kälteflexibilität" catEn="Cold Flexibility"
-          titleDe="Mikrokristallines Wachs"
-          titleEn="Microcrystalline wax"
-          ledeDe="Verzweigte Moleküle füllen die amorphen Bereiche zwischen Kristalldomänen — Matrix bleibt bis −10°C elastisch."
-          ledeEn="Branched molecules fill the amorphous zones between crystal domains — keeping the matrix elastic to −10°C."
-          teaserDe="Eine reine Paraffinmatrix ist unterhalb von 5°C extrem spröde — spröde genug, um bei Biegebelastung zu brechen. Die Wachsschicht platzte buchstäblich ab."
-          teaserEn="A pure paraffin matrix is extremely brittle below 5°C — brittle enough to crack under bending stress. The wax coating literally spalled off."
-          bodyDe={<>
-            <p>Das entgegengesetzte Problem folgte sofort: Winter. Eine reine Paraffinmatrix mit Fischer-Tropsch-Härtemodul ist unterhalb von 5°C extrem spröde — spröde genug, um bei Biegebelastung zu brechen. Ein Kettengelenk, das sich in der Kälte bewegt, ließ die Wachsschicht buchstäblich abplatzen.</p>
-            <p>Mikrokristallines Wachs löst dieses Problem strukturell. Im Gegensatz zu den geradkettigen Paraffinen besteht es aus hochverzweigten und zyklischen Molekülen, die keine geordneten Kristallstrukturen bilden können. Sie besetzen die amorphen Bereiche zwischen den Paraffindomänen — molekulare Plastifizierung.</p>
-            <p>Diese Komponente erfüllt drei Funktionen gleichzeitig: (1) Die Matrix bleibt bis −10°C elastisch verformbar statt zu brechen. (2) Die verzweigten Moleküle haben stärkere van-der-Waals-Wechselwirkungen mit der Stahloberfläche — bessere Haftung unter Scherkraft. (3) Die amorphen Bereiche betten die MoS₂-Partikel mechanisch in die Matrix ein.</p>
-          </>}
-          bodyEn={<>
-            <p>The opposite problem arrived immediately: winter. A pure paraffin matrix with a Fischer-Tropsch hardener is extremely brittle below 5°C — brittle enough to crack under bending stress. A chain link flexing in cold weather caused the wax coating to literally spall off.</p>
-            <p>Microcrystalline wax solves this structurally. Unlike the straight-chain paraffins, it consists of highly branched and cyclic molecules that cannot form ordered crystal structures. They occupy the amorphous zones between paraffin crystal domains — molecular plasticization.</p>
-            <p>This component serves three functions simultaneously: (1) The matrix remains elastically deformable down to −10°C. (2) Branched molecules have stronger van-der-Waals interactions with the steel surface — better adhesion. (3) The amorphous regions mechanically embed the MoS₂ particles in the matrix.</p>
-          </>}
-          insightDe="Ursprünglich höher konzentriert. Die Reduzierung war möglich, weil gleichzeitig der MoS₂-Anteil überarbeitet wurde."
-          insightEn="Originally at higher concentration. The reduction was possible because MoS₂ loading was revised simultaneously."
-          visual={
-            <div className="rounded-2xl p-5 space-y-5" style={{ ...CARD, ...DOT_GRID }}>
-              <p className="text-[10px] uppercase tracking-[0.2em]" style={{ color: 'var(--txff)' }}>
-                {de ? 'Temperaturfenster — Matrix flexibel' : 'Temperature window — matrix stays flexible'}
-              </p>
-              {[
-                { labelDe: 'Kälteflexibilität bis', labelEn: 'Cold flexibility to', val: '−10°C', w: 20, color: '#4472D4' },
-                { labelDe: 'Optimale Performance',  labelEn: 'Optimal performance',  val: '−8°C → +35°C', w: 80, color: '#2A5499' },
-                { labelDe: 'Thermisch stabil bis',  labelEn: 'Thermally stable to',   val: '+78°C', w: 100, color: '#1A3080' },
-              ].map((item, i) => (
-                <div key={i}>
-                  <div className="flex justify-between mb-1.5">
-                    <span className="text-[11px] text-wx-txm">{de ? item.labelDe : item.labelEn}</span>
-                    <span className="text-[11px] font-mono font-semibold text-wx-tx1">{item.val}</span>
-                  </div>
-                  <div className="h-1.5 rounded-full" style={{ background: 'var(--bd2)' }}>
-                    <div className="h-full rounded-full" style={{ width: `${item.w}%`, background: item.color }} />
-                  </div>
-                </div>
-              ))}
-              <div className="grid grid-cols-3 gap-2 pt-3" style={{ borderTop: '1px solid var(--bd2)' }}>
-                {[{ de: 'Plastifizierung', en: 'Plastification' }, { de: 'Haftung', en: 'Adhesion' }, { de: 'Partikelbindung', en: 'Particle binding' }].map((fn, i) => (
-                  <div key={i} className="text-center rounded-lg py-2 px-1" style={{ background: 'rgba(26,60,110,0.07)', border: '1px solid rgba(26,60,110,0.13)' }}>
-                    <p className="text-[10px] font-medium" style={{ color: '#4472D4' }}>{de ? fn.de : fn.en}</p>
-                  </div>
-                ))}
-              </div>
+      {/* ══ 04 WHAT THIS MEANS ═══════════════════════════════════════════════════ */}
+      <div style={{ borderTop: '1px solid var(--bd)' }}>
+        <div className={`${W} py-14`}>
+          <div className="flex items-center gap-4 mb-8">
+            <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.32em', color: 'var(--txff)' }}>04</span>
+            <div style={{ flex: 1, height: '1px', background: 'var(--bd)' }} />
+          </div>
+          <h2 className="font-display text-3xl sm:text-4xl font-bold text-wx-tx1 mb-10">
+            {de ? 'Was das bedeutet' : 'What this means'}
+          </h2>
+          <div
+            className="rounded-2xl p-6 sm:p-10 grid grid-cols-1 sm:grid-cols-3 gap-8 text-center"
+            style={{
+              background: isDark ? 'rgba(26,60,110,0.12)' : 'rgba(26,60,110,0.05)',
+              border: '1px solid rgba(26,60,110,0.18)',
+            }}
+          >
+            <div>
+              <p className="font-display font-bold text-[2.4rem] leading-none mb-1.5" style={{ color: isDark ? '#6A8AE8' : '#1A3C6E' }}>~300 km</p>
+              <p className="text-[11px] font-semibold" style={{ color: isDark ? 'rgba(255,255,255,0.70)' : 'var(--tx1)' }}>{de ? 'pro Rewax-Vorgang' : 'per rewax'}</p>
+              <p className="text-[10px] mt-0.5" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'var(--txm)' }}>{de ? 'bei trockenen Bedingungen' : 'in dry conditions'}</p>
             </div>
-          }
-        />
-      </div>
-
-      {/* ══ STAT 2 ══════════════════════════════════════════════════════════════ */}
-      <StatCallout de={de} isDark={isDark} stat="5.6×"
-        ctxDe="Dichteunterschied MoS₂ zu Paraffin — deshalb ist Dispergierung unverzichtbar"
-        ctxEn="Density ratio MoS₂ to paraffin — why dispersion is non-negotiable"
-        miniViz={<DensityViz isDark={isDark} />} />
-
-      {/* ══ CH 04 ════════════════════════════════════════════════════════════ */}
-      <div className={`${W} pt-20`}>
-        <Chapter num="04" de={de} flip featured visualFirst
-          catDe="Festschmierstoff" catEn="Solid Lubricant"
-          titleDe="Molybdändisulfid — <5 µm"
-          titleEn="Molybdenum disulfide — <5 µm"
-          ledeDe="MoS₂ bildet unter Kontaktdruck einen Transferfilm auf dem Stahl — er schmiert noch, wenn das Wachs längst verbraucht ist."
-          ledeEn="MoS₂ forms a transfer film on steel under contact pressure — it lubricates long after the wax is spent."
-          teaserDe="MoS₂ ist eines der wenigen Materialien mit einem Reibungskoeffizienten unter 0,05 unter Grenzschmierbedingungen — dem Regime, das in Kettenkontaktstellen tatsächlich herrscht."
-          teaserEn="MoS₂ is one of the few materials with a friction coefficient below 0.05 under boundary lubrication — the regime that actually governs chain contact points."
-          bodyDe={<>
-            <p>MoS₂ ist eines der wenigen Materialien mit einem Reibungskoeffizienten unter 0.05 unter Grenzschmierbedingungen. Der Grund liegt in der Kristallstruktur: Mo-Atome sandwichartig zwischen zwei Schwefelschichten, die Schichten untereinander nur durch schwache van-der-Waals-Kräfte gebunden. Unter Kontaktdruck scheren diese Bindungen — die Schichten gleiten lateral fast widerstandslos.</p>
-            <p>An Kettenkontaktflächen unter Last entstehen Drücke von 50–300 MPa. Das ist das Regime der Grenzschmierung — konventionelle Öle können keinen kontinuierlichen Film aufrechterhalten. MoS₂ bildet stattdessen einen Transferfilm: Partikel werden unter Druck auf der Stahloberfläche deponiert und durch tribochemische Bindungen (Mo–S → Fe–S) verankert. Dieser Film persistiert, auch nachdem der Wachsträger längst abgetragen ist.</p>
-            <p>Die Partikelgröße ist nicht zufällig: Unter 5 µm passen die Partikel in die Kettenlagerungsspalte (typisch 5–15 µm). Eine einzige Ladung Wachs enthält Millionen von Partikeln — ausreichend für mehrfache Transferfilm-Regeneration über hunderte Kilometer. Mehr Konzentration schwächt die Wachsmatrix ohne tribologischen Mehrwert.</p>
-          </>}
-          bodyEn={<>
-            <p>MoS₂ is one of the few materials with a friction coefficient below 0.05 under boundary lubrication conditions. The crystal structure is the reason: Mo atoms sandwiched between two sulfur layers, with the layers bonded only by weak van-der-Waals forces. Under contact pressure, these bonds shear — the layers slide laterally with almost no resistance.</p>
-            <p>At chain contact surfaces under load, pressures reach 50–300 MPa. This is the boundary lubrication regime — conventional oils cannot maintain a continuous film here. MoS₂ instead forms a transfer film: particles deposited on the steel surface and anchored by tribochemical bonds (Mo–S → Fe–S). This film persists long after the wax carrier is worn away.</p>
-            <p>Particle size is deliberate: below 5 µm, particles fit within chain clearances (typically 5–15 µm). A single charge of wax contains millions of particles — sufficient for multiple transfer film regeneration cycles over hundreds of kilometers. Higher concentrations weaken the wax matrix without tribological benefit.</p>
-          </>}
-          insightDe="Der Transferfilm ist der eigentliche Schmierstoff — das Wachs ist nur das Trägervehikel. MoS₂-Schichten, nanometerdick auf dem Stahl, schmieren noch, wenn der Block längst aufgebraucht ist."
-          insightEn="The transfer film is the actual lubricant — the wax is just the delivery vehicle. Nanometer-thin MoS₂ layers on the steel continue lubricating long after the block is spent."
-          visual={<HexMoS2 de={de} />}
-          extraVisual={<TransferFilm de={de} />}
-        />
-      </div>
-
-      {/* ══ STAT 3 — concludes CH04 friction claim ══════════════════════════════ */}
-      <StatCallout de={de} isDark={isDark} stat="μ 0.03"
-        ctxDe="Reibungskoeffizient unter Grenzschmierung — einer der niedrigsten Werte im Vergleich"
-        ctxEn="Friction coefficient under boundary lubrication — among the lowest in comparison"
-        miniViz={<FrictionLadderViz isDark={isDark} />} />
-
-      {/* ══ CH 05 + CH 06 ════════════════════════════════════════════════════ */}
-      <div className={`${W} pt-20 pb-0`}>
-        <Chapter num="05" de={de} anchorId="sedimentation" visualFirst
-          catDe="Dispergiersystem" catEn="Dispersant System"
-          titleDe="Amphiphiler Fettsäureester"
-          titleEn="Amphiphilic fatty acid ester"
-          ledeDe="MoS₂ ist 5,6× dichter als Paraffin — ohne Dispergiermittel entsteht ein messbarer Konzentrationsgradient im fertigen Block."
-          ledeEn="MoS₂ is 5.6× denser than paraffin — without dispersant a measurable concentration gradient forms in the finished block."
-          teaserDe="Gibt man MoS₂ ohne Stabilisierung in geschmolzenes Wachs, sinken die Partikel messbar schnell — der erste Rewax-Vorgang wäre anders als der zwanzigste."
-          teaserEn="Add MoS₂ to molten wax without stabilization and the particles sink measurably fast — the first rewax would perform differently from the twentieth."
-          bodyDe={<>
-            <p>MoS₂ hat eine Dichte von 5.06 g/cm³. Paraffinwachs hat eine Dichte von 0.9 g/cm³. Dichteunterschied: Faktor 5,6. Gibt man MoS₂ in geschmolzenes Wachs ohne Stabilisierung, sinken die Partikel messbar schnell. In den Minuten zwischen Rührstopp und Guss bedeutet das messbare Konzentrationsgradienten im fertigen Block.</p>
-            <p>Das Dispergiermittel ist ein amphiphiler Fettsäureester: ein Molekül mit einer polaren Kopfgruppe, die über Wasserstoffbrücken an MoS₂-Partikelkanten adsorbiert, und einer langen unpolaren Fettsäurekette, die sich in die Paraffinschmelze erstreckt. Diese Hülle um jeden Partikel erzeugt eine sterische Barriere: annähernde Partikel müssen die Fettsäureketten komprimieren — dieser entropische Widerstand verhindert Agglomeration und Sedimentation.</p>
-            <p>Entscheidend für die Wahl dieses spezifischen Esters: Sein Schmelzpunkt (58–60°C) ist identisch mit der Basismatrix. Die Integration in die erstarrende Matrix verläuft thermodynamisch nahtlos — kein Auftrennen, keine Phasenseparation beim Abkühlen.</p>
-          </>}
-          bodyEn={<>
-            <p>MoS₂ has a density of 5.06 g/cm³. Paraffin wax has a density of 0.9 g/cm³. Density ratio: 5.6×. Add MoS₂ to molten wax without stabilization and the particles sink measurably fast. In the minutes between stopping agitation and casting, this creates measurable concentration gradients in the finished block.</p>
-            <p>The dispersant is an amphiphilic fatty acid ester: a molecule with a polar head group that adsorbs to MoS₂ particle edges via hydrogen bonds, and a long nonpolar fatty acid tail extending into the paraffin melt. This shell around each particle creates a steric barrier: approaching particles must compress the tails — this entropic resistance prevents agglomeration and sedimentation.</p>
-            <p>Critical to the choice of this specific ester: its melting point (58–60°C) is identical to the base matrix. Integration into the solidifying matrix is thermodynamically seamless — no phase separation on cooling.</p>
-          </>}
-          insightDe="Ohne Dispergiermittel variiert die MoS₂-Konzentration durch den Block. Der erste Rewax-Vorgang wäre anders als der zwanzigste. Das ist nicht akzeptabel."
-          insightEn="Without dispersant, MoS₂ concentration varies through the block. The first rewax would perform differently from the twentieth. Unacceptable."
-          visual={<ParticleSuspension de={de} />}
-        />
-
-        <Chapter num="06" de={de} flip
-          catDe="Langzeitstabilität" catEn="Long-term Stability"
-          titleDe="Gehindertes Phenol-Antioxidans"
-          titleEn="Hindered phenolic antioxidant"
-          ledeDe="Oxidiertes MoS₂ ist MoO₃ — abrasiv. Das Antioxidans schützt den Festschmierstoff, nicht nur das Wachs."
-          ledeEn="Oxidized MoS₂ is MoO₃ — abrasive. The antioxidant protects the solid lubricant, not just the wax."
-          teaserDe="Ein Wachsblock, der in Woche 1 performt aber in Monat 6 nachlässt, ist kein Produkt. Kohlenwasserstoffwachse sind anfällig für Autoxidation."
-          teaserEn="A wax block that performs in week 1 but degrades by month 6 isn't a product. Hydrocarbon waxes are susceptible to autoxidation."
-          bodyDe={<>
-            <p>Die letzte Frage war Zeit. Ein Wachsblock, der in Woche 1 performt aber in Monat 6 nachlässt, ist kein Produkt. Kohlenwasserstoffwachse sind anfällig für Autoxidation: Sauerstoffradikale greifen C–H-Bindungen an und initiieren eine Kettenreaktion, die Peroxide, Alkohole und Ketone produziert. Diese Oxidationsprodukte verspröden die Matrix.</p>
-            <p>Und sie können die MoS₂-Oberfläche von einem Schmierstoff (MoS₂) in ein Abrasivum verwandeln (MoO₃, gebildet durch Mo⁴⁺ → Mo⁶⁺ Oxidation). Ein gehindertes Phenol-Antioxidans wirkt als Radikalkettenabbrecher: Die phenolische OH-Gruppe doniert ein Wasserstoffatom an Peroxylradikale (ROO•) und bricht die Oxidationskaskade ab.</p>
-            <p>Die Konzentration wurde leicht erhöht, als wir einen separaten Korrosionsinhibitor aus einer früheren Formulierungsversion entfernt haben. Dieser hatte eine sekundäre antioxidative Wirkung. Ohne ihn trägt das Phenol-Antioxidans die gesamte Last — eine leichte Erhöhung kompensiert dies vollständig.</p>
-          </>}
-          bodyEn={<>
-            <p>The last question was time. A wax block that performs in week 1 but degrades by month 6 isn't a product. Hydrocarbon waxes are susceptible to autoxidation: oxygen radicals attack C–H bonds, initiating a chain reaction producing peroxides, alcohols, and ketones. These oxidation products embrittle the matrix.</p>
-            <p>And they can convert the MoS₂ surface from a lubricant (MoS₂) into an abrasive (MoO₃, formed by Mo⁴⁺ → Mo⁶⁺ oxidation). A hindered phenolic antioxidant acts as a radical chain-breaker: the phenolic OH group donates a hydrogen atom to peroxyl radicals (ROO•), breaking the oxidation cascade.</p>
-            <p>Concentration was raised slightly when we removed a separate corrosion inhibitor from an earlier formula version. That inhibitor had a secondary antioxidant effect. Without it, the phenolic antioxidant carries the full stabilization load — a slight increase covers this completely.</p>
-          </>}
-          insightDe="Das Antioxidans schützt nicht nur das Wachs, sondern auch den Festschmierstoff. Eine Komponente, die zwei Versagensmodi gleichzeitig verhindert."
-          insightEn="The antioxidant protects not just the wax, but also the solid lubricant. One component preventing two failure modes simultaneously."
-          visual={
-            <div className="rounded-2xl p-5" style={{ ...CARD, ...DOT_GRID }}>
-              <p className="text-[10px] uppercase tracking-[0.2em] mb-5" style={{ color: 'var(--txff)' }}>
-                {de ? 'Drei Schutzebenen' : 'Three protection layers'}
-              </p>
-              <div className="space-y-3">
-                {[
-                  { n: '01', titleDe: 'Wachsmatrix', titleEn: 'Wax matrix', descDe: 'Stoppt Autoxidation der Kohlenwasserstoffketten — bei Produktion und Lagerung.', descEn: 'Stops autoxidation of hydrocarbon chains — during production and storage.' },
-                  { n: '02', titleDe: 'MoS₂-Oberfläche', titleEn: 'MoS₂ surface', descDe: 'Verhindert langsame MoS₂ → MoO₃ Oxidation durch Sauerstoffspuren in der Matrix.', descEn: 'Prevents slow MoS₂ → MoO₃ surface oxidation from trace oxygen in the matrix.' },
-                  { n: '03', titleDe: 'Lagerstabilität', titleEn: 'Shelf life', descDe: 'Peroxidzahl bleibt auch nach 12–24 Monaten unter dem Leistungsgrenzwert.', descEn: 'Peroxide value stays below the performance threshold after 12–24 months.' },
-                ].map((item, i) => (
-                  <div key={i} className="flex gap-3.5 p-3.5 rounded-xl" style={{ background: 'rgba(26,60,110,0.06)', border: '1px solid rgba(26,60,110,0.13)' }}>
-                    <span className="font-display text-[22px] font-bold tabular-nums flex-shrink-0 leading-none mt-0.5" style={{ color: 'rgba(26,60,110,0.28)' }}>{item.n}</span>
-                    <div>
-                      <p className="text-[12px] font-semibold text-wx-tx1 mb-1">{de ? item.titleDe : item.titleEn}</p>
-                      <p className="text-[11px] text-wx-txm leading-relaxed">{de ? item.descDe : item.descEn}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+            <div>
+              <p className="font-display font-bold text-[2.4rem] leading-none mb-1.5" style={{ color: isDark ? '#6A8AE8' : '#1A3C6E' }}>{de ? 'bis zu 3×' : 'up to 3×'}</p>
+              <p className="text-[11px] font-semibold" style={{ color: isDark ? 'rgba(255,255,255,0.70)' : 'var(--tx1)' }}>{de ? 'längere Kettenlaufzeit' : 'longer chain life'}</p>
+              <p className="text-[10px] mt-0.5" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'var(--txm)' }}>{de ? 'gegenüber Kettenöl' : 'vs. chain oil'}</p>
             </div>
-          }
-        />
-      </div>
-
-      {/* ══ SYNTHESIS REVEAL — standalone full section ═══════════════════════ */}
-      <section
-        style={{
-          background: isDark ? 'rgba(15,30,70,0.10)' : 'rgba(26,60,110,0.04)',
-          borderTop: isDark ? '1px solid rgba(68,114,212,0.12)' : '1px solid rgba(26,60,110,0.08)',
-          borderBottom: isDark ? '1px solid rgba(68,114,212,0.12)' : '1px solid rgba(26,60,110,0.08)',
-        }}
-      >
-        <div className={`${W} py-24`}>
-          <SynthesisReveal de={de} isDark={isDark} />
-        </div>
-      </section>
-
-      {/* ══ WHAT THIS MEANS FOR YOU — outcome bridge before results ══════════ */}
-      <div className={`${W} py-14`}>
-        <div
-          className="rounded-2xl p-6 sm:p-10 grid grid-cols-1 sm:grid-cols-3 gap-8 text-center"
-          style={{
-            background: isDark ? 'rgba(26,60,110,0.12)' : 'rgba(26,60,110,0.05)',
-            border: '1px solid rgba(26,60,110,0.18)',
-          }}
-        >
-          <div>
-            <p className="font-serif-display italic font-bold text-[2.4rem] leading-none mb-1.5" style={{ color: isDark ? '#6A8AE8' : '#1A3C6E' }}>~300 km</p>
-            <p className="text-[11px] font-semibold" style={{ color: isDark ? 'rgba(255,255,255,0.70)' : 'var(--tx1)' }}>{de ? 'pro Rewax-Vorgang' : 'per rewax'}</p>
-            <p className="text-[10px] mt-0.5" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'var(--txm)' }}>{de ? 'bei trockenen Bedingungen' : 'in dry conditions'}</p>
-          </div>
-          <div>
-            <p className="font-serif-display italic font-bold text-[2.4rem] leading-none mb-1.5" style={{ color: isDark ? '#6A8AE8' : '#1A3C6E' }}>3×</p>
-            <p className="text-[11px] font-semibold" style={{ color: isDark ? 'rgba(255,255,255,0.70)' : 'var(--tx1)' }}>{de ? 'längere Kettenlaufzeit' : 'longer chain life'}</p>
-            <p className="text-[10px] mt-0.5" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'var(--txm)' }}>{de ? 'gegenüber Kettenöl' : 'vs. chain oil'}</p>
-          </div>
-          <div>
-            <p className="font-serif-display italic font-bold text-[2.4rem] leading-none mb-1.5" style={{ color: isDark ? '#6A8AE8' : '#1A3C6E' }}>~€35</p>
-            <p className="text-[11px] font-semibold" style={{ color: isDark ? 'rgba(255,255,255,0.70)' : 'var(--tx1)' }}>{de ? 'gespart pro Jahr' : 'saved per year'}</p>
-            <p className="text-[10px] mt-0.5" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'var(--txm)' }}>{de ? 'bei 5.000 km/Jahr' : 'at 5,000 km/year'}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* ══ RESULTS ═══════════════════════════════════════════════════════════ */}
-      <section
-        id="reibung"
-        style={{
-          background: isDark ? '#07070A' : 'var(--sf2)',
-          borderTop: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid var(--bd)',
-        }}
-      >
-        <div className={`${W} py-24`}>
-          <div className="text-center mb-14">
-            <p className="text-[10px] font-medium uppercase tracking-[0.25em] mb-3" style={{ color: '#4472D4' }}>
-              {de ? 'Das Ergebnis' : 'The Result'}
-            </p>
-            <h2 className="font-serif-display text-3xl sm:text-4xl font-bold leading-tight" style={{ color: isDark ? '#FAFAFA' : 'var(--tx1)' }}>
-              {de ? 'Was die Formel leistet' : 'What the formula delivers'}
-            </h2>
-            <p className="mt-4 text-[14px] max-w-md mx-auto" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'var(--txm)' }}>
-              {de
-                ? 'Sechs Entscheidungen. Kein Kompromiss in der Kette.'
-                : 'Six decisions. No compromise in the chain.'}
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <FrictionBars de={de} />
-            <div className="w-full rounded-2xl p-5" style={isDark ? { ...DARK_CARD, ...DARK_DOT_GRID } : { ...CARD, ...DOT_GRID }}>
-              <p className="text-[10px] uppercase tracking-[0.2em] mb-1" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'var(--txff)' }}>
-                {de ? 'MoS₂-Verteilung im Gussblock' : 'MoS₂ distribution in cast block'}
-              </p>
-              <p className="text-[9px] font-mono mb-4" style={{ color: isDark ? 'rgba(255,255,255,0.18)' : 'var(--txff)' }}>
-                {de ? 'Querschnitt — Oben / Mitte / Unten' : 'Cross-section — Top / Mid / Bottom'}
-              </p>
-              {/* Block cross-section: 3 slices, uniform particle grid */}
-              <div className="grid grid-cols-3 gap-2 mb-4">
-                {(de
-                  ? ['Oben', 'Mitte', 'Unten']
-                  : ['Top', 'Mid', 'Bottom']
-                ).map((label, si) => (
-                  <div key={si} className="flex flex-col items-center gap-2">
-                    <div className="w-full rounded-lg p-2.5" style={{ background: isDark ? 'rgba(255,255,255,0.03)' : 'var(--sf3)', border: isDark ? '1px solid rgba(255,255,255,0.07)' : '1px solid var(--bd2)' }}>
-                      <div className="grid grid-cols-4 gap-1.5 justify-items-center py-1">
-                        {[...Array(12)].map((_, j) => (
-                          <div key={j} className="w-2.5 h-2.5 rounded-full" style={{ background: '#2A5499', opacity: isDark ? (0.55 + (j % 4) * 0.12) : (0.45 + (j % 4) * 0.12) }} />
-                        ))}
-                      </div>
-                    </div>
-                    <span className="text-[8px] font-mono text-center" style={{ color: isDark ? 'rgba(255,255,255,0.28)' : 'var(--txff)' }}>{label}</span>
-                  </div>
-                ))}
-              </div>
-              {/* Key stats */}
-              <div className="grid grid-cols-2 gap-2 mb-4">
-                {[
-                  { de: 'kein Gradient', en: 'no gradient', sub: de ? 'von oben bis unten' : 'top to bottom' },
-                  { de: 'Block 1 = 20', en: 'Block 1 = 20', sub: de ? 'identische Performance' : 'identical performance' },
-                ].map((s, i) => (
-                  <div key={i} className="text-center p-2 rounded-lg" style={{ background: 'rgba(26,60,110,0.10)', border: '1px solid rgba(26,60,110,0.18)' }}>
-                    <p className="font-serif-display italic text-[16px] font-bold" style={{ color: isDark ? '#6A8AE8' : '#1A3C6E', textShadow: isDark ? '0 0 14px rgba(68,114,212,0.45)' : 'none' }}>
-                      {de ? s.de : s.en}
-                    </p>
-                    <p className="text-[9px] mt-0.5" style={{ color: isDark ? 'rgba(255,255,255,0.32)' : 'var(--txm)' }}>{s.sub}</p>
-                  </div>
-                ))}
-              </div>
-              <p className="text-[11px] pt-3.5 leading-relaxed" style={{ color: isDark ? 'rgba(255,255,255,0.45)' : 'var(--txm)', borderTop: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid var(--bd2)' }}>
-                {de
-                  ? 'MoS₂ ist 5,6× dichter als Paraffin. Ohne Dispergiermittel entsteht ein messbarer Konzentrationsgradient — mehr Partikel unten, weniger oben. Der Fettsäureester verhindert genau das.'
-                  : 'MoS₂ is 5.6× denser than paraffin. Without dispersant a measurable concentration gradient forms — more particles at the bottom, fewer at the top. The fatty acid ester prevents exactly this.'}
-              </p>
+            <div>
+              <p className="font-display font-bold text-[2.4rem] leading-none mb-1.5" style={{ color: isDark ? '#6A8AE8' : '#1A3C6E' }}>~€35</p>
+              <p className="text-[11px] font-semibold" style={{ color: isDark ? 'rgba(255,255,255,0.70)' : 'var(--tx1)' }}>{de ? 'gespart pro Jahr' : 'saved per year'}</p>
+              <p className="text-[10px] mt-0.5" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'var(--txm)' }}>{de ? 'bei 5.000 km/Jahr' : 'at 5,000 km/year'}</p>
             </div>
           </div>
         </div>
-      </section>
+      </div>
 
       {/* ══ CTA ══════════════════════════════════════════════════════════════ */}
       <section style={{
@@ -2717,7 +1636,7 @@ export function SciencePage() {
           <p className="text-[10px] font-medium uppercase tracking-[0.28em] mb-4" style={{ color: '#4472D4' }}>
             {de ? 'Bereit?' : 'Ready?'}
           </p>
-          <h2 className="font-serif-display text-2xl sm:text-3xl font-bold mb-4 leading-tight" style={{ color: isDark ? '#FAFAFA' : 'var(--tx1)' }}>
+          <h2 className="font-display text-2xl sm:text-3xl font-bold mb-4 leading-tight" style={{ color: isDark ? '#FAFAFA' : 'var(--tx1)' }}>
             {de ? 'Die Formel auf deiner Kette.' : 'Put the formula on your chain.'}
           </h2>
           <p className="text-[14px] mb-10 max-w-sm mx-auto" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'var(--txm)' }}>

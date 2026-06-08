@@ -382,7 +382,7 @@ export function Hero() {
           <p
             className="font-display font-black uppercase mb-4 select-none"
             style={{
-              fontSize: 'clamp(3.4rem, 13vw, 5rem)',
+              fontSize: 'clamp(4rem, 16vw, 6rem)',
               letterSpacing: '-0.025em',
               lineHeight: 1,
               color: 'rgba(255,255,255,0.90)',
