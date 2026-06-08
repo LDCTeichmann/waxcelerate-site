@@ -220,6 +220,7 @@ export function ProductDetailPage() {
                         src={img}
                         alt={`${titleText} ${i + 1}`}
                         className="w-full h-full object-cover"
+                        loading="lazy"
                         style={{ objectPosition: product.imagePosition ?? 'center' }}
                         onError={e => { (e.target as HTMLImageElement).src = '/images/wax-block-spin.jpg'; }}
                       />

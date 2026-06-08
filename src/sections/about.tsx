@@ -141,6 +141,7 @@ export function About() {
                   src="/images/luca-ebay.jpg"
                   alt="eBay Seller Leadership Week 2025, San Jose"
                   className="absolute inset-0 w-full h-full object-cover"
+                  loading="lazy"
                   style={{ objectPosition: '50% 38%' }}
                 />
                 <div
