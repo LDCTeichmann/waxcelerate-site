@@ -14,6 +14,7 @@ import { PageTransition } from '@/components/PageTransition';
 import { CartIcon } from '@/components/CartIcon';
 import { ImageLightbox } from '@/components/ImageLightbox';
 import { ProductFAQ } from '@/components/ProductFAQ';
+import { AnimatedNumber } from '@/components/AnimatedNumber';
 
 type RichTab = 'formula' | 'vergleich' | 'kosten';
 
@@ -344,33 +345,33 @@ export function ProductDetailPage() {
                   {product.intervalDry && (
                     <div className="flex-1 rounded-xl px-3.5 py-3" style={{ border: '1px solid var(--bd2)', background: 'var(--sf3)' }}>
                       <p className="text-[9px] font-semibold uppercase tracking-[0.14em] mb-2" style={{ color: 'var(--txff)' }}>
-                        {de ? 'Trocken' : 'Dry'}
+                        ☀️ {de ? 'Trocken' : 'Dry'}
                       </p>
                       <p className="text-[16px] font-bold text-wx-tx1 leading-none mb-3">{product.intervalDry}</p>
                       <div className="h-[2px] rounded-full" style={{ background: 'var(--bd2)' }}>
-                        <div className="h-full rounded-full" style={{ width: `${intervalPct(product.intervalDry)}%`, background: accentColor }} />
+                        <div className="h-full rounded-full" style={{ width: `${intervalPct(product.intervalDry)}%`, background: accentColor, transformOrigin: 'left', animation: 'wx-bar-grow 0.9s var(--ease-hero) 0.1s both' }} />
                       </div>
                     </div>
                   )}
                   {product.intervalWet && (
                     <div className="flex-1 rounded-xl px-3.5 py-3" style={{ border: '1px solid var(--bd2)', background: 'var(--sf3)' }}>
                       <p className="text-[9px] font-semibold uppercase tracking-[0.14em] mb-2" style={{ color: 'var(--txff)' }}>
-                        {de ? 'Nass' : 'Wet'}
+                        🌧️ {de ? 'Nass' : 'Wet'}
                       </p>
                       <p className="text-[16px] font-bold text-wx-tx1 leading-none mb-3">{product.intervalWet}</p>
                       <div className="h-[2px] rounded-full" style={{ background: 'var(--bd2)' }}>
-                        <div className="h-full rounded-full" style={{ width: `${intervalPct(product.intervalWet)}%`, background: accentColor }} />
+                        <div className="h-full rounded-full" style={{ width: `${intervalPct(product.intervalWet)}%`, background: accentColor, transformOrigin: 'left', animation: 'wx-bar-grow 0.9s var(--ease-hero) 0.25s both' }} />
                       </div>
                     </div>
                   )}
                   {product.intervalTopup && (
                     <div className="flex-1 rounded-xl px-3.5 py-3" style={{ border: '1px solid var(--bd2)', background: 'var(--sf3)' }}>
                       <p className="text-[9px] font-semibold uppercase tracking-[0.14em] mb-2" style={{ color: 'var(--txff)' }}>
-                        {de ? 'Topup max.' : 'Max. topup'}
+                        ⬆️ {de ? 'Topup max.' : 'Max. topup'}
                       </p>
                       <p className="text-[16px] font-bold text-wx-tx1 leading-none mb-3">{product.intervalTopup}</p>
                       <div className="h-[2px] rounded-full" style={{ background: 'var(--bd2)' }}>
-                        <div className="h-full rounded-full" style={{ width: `${intervalPct(product.intervalTopup, 1200)}%`, background: accentColor }} />
+                        <div className="h-full rounded-full" style={{ width: `${intervalPct(product.intervalTopup, 1200)}%`, background: accentColor, transformOrigin: 'left', animation: 'wx-bar-grow 0.9s var(--ease-hero) 0.4s both' }} />
                       </div>
                     </div>
                   )}
@@ -465,10 +466,12 @@ export function ProductDetailPage() {
                   {rc.stats.map((s, i) => (
                     <div
                       key={i}
-                      className="px-4 py-5 sm:px-5 sm:py-6"
-                      style={{ background: 'var(--pg)' }}
+                      className="px-4 py-5 sm:px-5 sm:py-6 transition-all duration-200"
+                      style={{ background: 'var(--pg)', borderLeft: `3px solid ${accentColor}25` }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderLeftColor = `${accentColor}60`; }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderLeftColor = `${accentColor}25`; }}
                     >
-                      <div className="text-lg sm:text-[22px] font-bold tabular-nums text-wx-tx1 leading-none mb-1.5">{s.value}</div>
+                      <div className="font-display text-lg sm:text-[22px] font-bold tabular-nums text-wx-tx1 leading-none mb-1.5">{s.value}</div>
                       <div className="text-[11px] leading-snug" style={{ color: 'var(--tx2)' }}>{s.label}</div>
                       {s.sub && <div className="text-[10px] text-wx-txff mt-1 leading-snug">{s.sub}</div>}
                     </div>
@@ -496,22 +499,22 @@ export function ProductDetailPage() {
               {isWax && tabs.length > 0 && (
                 <div className="mt-10">
 
-                  {/* Underline tabs */}
-                  <div className="flex gap-7 mb-8" style={{ borderBottom: '1px solid var(--bd2)' }}>
+                  {/* Pill tabs */}
+                  <div className="flex gap-1 p-1 rounded-xl mb-8" style={{ background: 'var(--sf2)' }}>
                     {tabs.map(tab => (
                       <button
                         key={tab.key}
                         onClick={() => setRichTab(tab.key)}
-                        className="pb-3.5 text-sm font-medium transition-colors relative"
-                        style={{ color: richTab === tab.key ? 'var(--tx1)' : 'var(--txm)' }}
+                        className="flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+                        style={{
+                          background: richTab === tab.key ? 'var(--sf)' : 'transparent',
+                          color: richTab === tab.key ? 'var(--tx1)' : 'var(--txm)',
+                          boxShadow: richTab === tab.key
+                            ? '0 1px 3px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.06)'
+                            : 'none',
+                        }}
                       >
                         {tab.label}
-                        {richTab === tab.key && (
-                          <span
-                            className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
-                            style={{ background: accentColor }}
-                          />
-                        )}
                       </button>
                     ))}
                   </div>
@@ -522,10 +525,10 @@ export function ProductDetailPage() {
                       {rc.formulaDetails.map((f, i) => (
                         <div key={i} className="flex gap-5 py-5" style={{ borderBottom: '1px solid var(--bd2)' }}>
                           <span
-                            className="text-[13px] font-bold tabular-nums flex-shrink-0 mt-0.5"
-                            style={{ color: accentColor, minWidth: '22px' }}
+                            className="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0 mt-0.5"
+                            style={{ background: `${accentColor}18`, color: accentColor, border: `1px solid ${accentColor}30` }}
                           >
-                            {String(i + 1).padStart(2, '0')}
+                            {i + 1}
                           </span>
                           <div>
                             <div className="text-sm font-semibold text-wx-tx1 mb-1">{f.name}</div>
@@ -599,75 +602,109 @@ export function ProductDetailPage() {
 
                   {/* Kosten */}
                   {richTab === 'kosten' && rc.oilItems && rc.waxItems && (
-                    <div className="space-y-4">
-                      <div className="rounded-xl p-4" style={{ background: 'var(--sf3)', border: '1px solid var(--bd2)' }}>
-                        <p className="text-xs font-semibold uppercase tracking-[0.14em] mb-1.5" style={{ color: 'var(--txff)' }}>
-                          {de ? 'Szenario' : 'Scenario'}
-                        </p>
-                        {rc.costExample && (
-                          <p className="text-sm font-medium text-wx-tx1 mb-1">{rc.costExample}</p>
-                        )}
-                        {rc.costNote && (
-                          <p className="text-[12px] leading-relaxed" style={{ color: 'var(--txm)' }}>{rc.costNote}</p>
-                        )}
-                      </div>
+                    <div className="space-y-5">
 
-                      <div className="grid sm:grid-cols-2 gap-3">
-                        <div className="rounded-xl p-4" style={{ border: '1px solid var(--bd2)' }}>
-                          <div className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--txm)' }}>
-                            {rc.oilCount ? `${rc.oilCount} ${rc.oilLabel}` : de ? 'Mit Kettenöl' : 'With chain oil'}
-                          </div>
-                          <div className="space-y-2 mb-4">
-                            {rc.oilItems.map((item, i) => (
-                              <div key={i} className="flex justify-between text-sm">
-                                <span style={{ color: 'var(--txm)' }}>{item.label}</span>
-                                <span className="font-mono" style={{ color: 'var(--tx2)' }}>{item.cost}</span>
-                              </div>
-                            ))}
-                          </div>
-                          <div className="pt-3 flex justify-between items-baseline" style={{ borderTop: '1px solid var(--bd2)' }}>
-                            <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--txm)' }}>{de ? 'Gesamt' : 'Total'}</span>
-                            <span className="text-[18px] font-bold font-mono" style={{ color: '#f87171' }}>{rc.oilTotal}</span>
-                          </div>
-                        </div>
-
-                        <div className="rounded-xl p-4" style={{ border: `1px solid ${accentColor}30`, background: `${accentColor}06` }}>
-                          <div className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: accentColor }}>
-                            {rc.waxCount ? `${rc.waxCount} ${rc.waxLabel}` : de ? 'Mit Waxcelerate' : 'With Waxcelerate'}
-                          </div>
-                          <div className="space-y-2 mb-4">
-                            {rc.waxItems.map((item, i) => (
-                              <div key={i} className="flex justify-between text-sm">
-                                <span style={{ color: 'var(--txm)' }}>{item.label}</span>
-                                <span className="font-mono" style={{ color: 'var(--tx2)' }}>{item.cost}</span>
-                              </div>
-                            ))}
-                          </div>
-                          <div className="pt-3 flex justify-between items-baseline" style={{ borderTop: `1px solid ${accentColor}20` }}>
-                            <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: accentColor }}>{de ? 'Gesamt' : 'Total'}</span>
-                            <span className="text-[18px] font-bold font-mono text-wx-tx1">{rc.waxTotal}</span>
-                          </div>
-                        </div>
-                      </div>
-
+                      {/* Savings hero */}
                       {rc.savings && (
                         <div
-                          className="rounded-xl p-4 flex items-center justify-between gap-4"
-                          style={{ background: 'rgba(34,197,94,0.07)', border: '1px solid rgba(34,197,94,0.25)' }}
+                          className="rounded-2xl p-5 text-center"
+                          style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.20)', animation: 'wx-pop-in 0.4s var(--ease-hero) both' }}
                         >
-                          <div>
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] mb-0.5" style={{ color: 'rgba(34,197,94,0.8)' }}>
-                              {de ? 'Ersparnis über ~12.000 km' : 'Savings over ~12,000 km'}
-                            </p>
-                            <p className="text-xs" style={{ color: 'var(--txm)' }}>
-                              {de
-                                ? 'Weniger Kettenverschleiß, seltener Kassettenwechsel — nicht eingerechnet.'
-                                : 'Reduced chain and cassette wear not included.'}
-                            </p>
+                          <AnimatedNumber
+                            value={parseCostNum(rc.savings)}
+                            prefix="≈€"
+                            duration={1.8}
+                            className="font-display text-[40px] font-bold tabular-nums leading-none block"
+                            style={{ color: '#22c55e' }}
+                          />
+                          <p className="text-[13px] font-semibold mt-1.5" style={{ color: 'rgba(34,197,94,0.75)' }}>
+                            {de ? 'gespart über ~12.000 km' : 'saved over ~12,000 km'}
+                          </p>
+                          <p className="text-[11px] mt-1" style={{ color: 'var(--txff)' }}>
+                            {de
+                              ? 'vs. Kettenöl · Ketten- und Kassettenverschleiß nicht eingerechnet'
+                              : 'vs. chain oil · chain and cassette wear not included'}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Proportional cost bars */}
+                      <div className="space-y-4">
+                        {/* Oil bar */}
+                        <div>
+                          <div className="flex items-baseline justify-between mb-2">
+                            <span className="text-[11px] font-semibold uppercase tracking-[0.12em]" style={{ color: 'var(--txm)' }}>
+                              {rc.oilCount ? `${rc.oilCount} ${rc.oilLabel}` : (de ? 'Mit Kettenöl' : 'With chain oil')}
+                            </span>
+                            <span className="text-[17px] font-bold font-mono tabular-nums" style={{ color: '#f87171' }}>
+                              {rc.oilTotal}
+                            </span>
                           </div>
-                          <span className="text-[22px] font-bold font-mono flex-shrink-0" style={{ color: '#22c55e' }}>
-                            {rc.savings}
-                          </span>
+                          <div className="h-7 rounded-lg overflow-hidden" style={{ background: 'var(--sf3)', border: '1px solid var(--bd2)' }}>
+                            <div
+                              className="h-full rounded-lg"
+                              style={{
+                                width: '100%',
+                                transformOrigin: 'left',
+                                animation: 'wx-bar-grow 0.65s var(--ease-hero) 0.1s both',
+                                background: 'linear-gradient(90deg, rgba(248,113,113,0.40) 0%, rgba(248,113,113,0.15) 100%)',
+                                borderRight: '2px solid rgba(248,113,113,0.55)',
+                              }}
+                            />
+                          </div>
+                          <div className="flex gap-3 mt-1.5 flex-wrap">
+                            {rc.oilItems.map((item, i) => (
+                              <span key={i} className="text-[11px]" style={{ color: 'var(--txff)' }}>
+                                {item.label} <span className="font-mono" style={{ color: 'var(--txm)' }}>{item.cost}</span>
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Wax bar */}
+                        <div>
+                          <div className="flex items-baseline justify-between mb-2">
+                            <span className="text-[11px] font-semibold uppercase tracking-[0.12em]" style={{ color: accentColor }}>
+                              {rc.waxCount ? `${rc.waxCount} ${rc.waxLabel}` : (de ? 'Mit Waxcelerate' : 'With Waxcelerate')}
+                            </span>
+                            <span className="text-[17px] font-bold font-mono tabular-nums text-wx-tx1">
+                              {rc.waxTotal}
+                            </span>
+                          </div>
+                          <div className="h-7 rounded-lg overflow-hidden" style={{ background: 'var(--sf3)', border: '1px solid var(--bd2)' }}>
+                            <div
+                              className="h-full rounded-lg"
+                              style={{
+                                width: `${(rc.oilTotal && rc.waxTotal && parseCostNum(rc.oilTotal) > 0) ? Math.round(parseCostNum(rc.waxTotal) / parseCostNum(rc.oilTotal) * 100) : 55}%`,
+                                transformOrigin: 'left',
+                                animation: 'wx-bar-grow 0.65s var(--ease-hero) 0.28s both',
+                                background: `linear-gradient(90deg, ${accentColor}55 0%, ${accentColor}20 100%)`,
+                                borderRight: `2px solid ${accentColor}70`,
+                              }}
+                            />
+                          </div>
+                          <div className="flex gap-3 mt-1.5 flex-wrap">
+                            {rc.waxItems.map((item, i) => (
+                              <span key={i} className="text-[11px]" style={{ color: 'var(--txff)' }}>
+                                {item.label} <span className="font-mono" style={{ color: 'var(--txm)' }}>{item.cost}</span>
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Calculation basis (quiet footnote) */}
+                      {(rc.costExample || rc.costNote) && (
+                        <div className="rounded-xl p-4" style={{ background: 'var(--sf3)', border: '1px solid var(--bd2)' }}>
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] mb-1" style={{ color: 'var(--txff)' }}>
+                            {de ? 'Berechnungsbasis' : 'Calculation basis'}
+                          </p>
+                          {rc.costExample && (
+                            <p className="text-[12px] font-medium text-wx-tx1 mb-0.5">{rc.costExample}</p>
+                          )}
+                          {rc.costNote && (
+                            <p className="text-[11px] leading-relaxed" style={{ color: 'var(--txm)' }}>{rc.costNote}</p>
+                          )}
                         </div>
                       )}
                     </div>
@@ -1002,6 +1039,10 @@ function intervalPct(interval: string, maxKm = 600): number {
   if (!nums) return 0;
   const upper = parseInt(nums[nums.length - 1]);
   return Math.min(Math.round((upper / maxKm) * 100), 100);
+}
+
+function parseCostNum(s: string): number {
+  return parseInt(s.replace(/[^0-9]/g, '')) || 0;
 }
 
 function RelatedCard({ product: p, de, formatPrice }: { product: Product; de: boolean; formatPrice: (n: number) => string }) {
