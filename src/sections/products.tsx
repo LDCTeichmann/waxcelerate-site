@@ -360,7 +360,7 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice }: CardProps) {
             src={product.image}
             alt={title}
             loading="lazy"
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
             style={{ objectPosition: product.imagePosition ?? 'center 55%' }}
             onError={e => { (e.target as HTMLImageElement).src = '/images/wax-block-spin.jpg'; }}
           />
@@ -517,7 +517,7 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
             src={product.image}
             alt={title}
             loading="lazy"
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
             onError={e => { (e.target as HTMLImageElement).src = '/images/wax-block-spin.jpg'; }}
           />
           <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to top, var(--card-img-fade) 0%, transparent 55%)' }} />

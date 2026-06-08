@@ -207,9 +207,25 @@
   to   { transform: scaleX(1); opacity: 1;   }
 }
 
+/* Gentle slide-up + fade — replaces the scale-pop version */
 @keyframes wx-pop-in {
-  from { transform: scale(0.85); opacity: 0; }
-  to   { transform: scale(1);    opacity: 1; }
+  from { transform: translateY(6px); opacity: 0; }
+  to   { transform: none;            opacity: 1; }
+}
+
+/* Ultra-subtle tab content entrance — 4px shift, pure fade */
+@keyframes wx-fade-in {
+  from { transform: translateY(4px); opacity: 0; }
+  to   { transform: none;            opacity: 1; }
+}
+
+/* Slow live-indicator blink — replaces Tailwind animate-pulse (2s, too fast) */
+@keyframes live-blink {
+  0%, 100% { opacity: 1;    }
+  50%       { opacity: 0.40; }
+}
+.animate-blink {
+  animation: live-blink 4.5s ease-in-out infinite;
 }
 
 /* ── Animated film grain overlay ────────────────────────────────────────── */

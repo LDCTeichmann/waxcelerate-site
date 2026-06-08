@@ -1384,7 +1384,7 @@ function HexMoS2({ de }: { de: boolean }) {
             <rect
               x="8" y={GAP_Y - 4} width="302" height="8" rx="2"
               fill={isDark ? 'rgba(68,114,212,0.12)' : 'rgba(68,114,212,0.08)'}
-              style={{ animation: 'pulse-gap 2s ease-in-out infinite' }}
+              style={{ animation: 'pulse-gap 4.5s ease-in-out infinite' }}
             />
           )}
           <text x="316" y={GAP_Y + 4} fontSize="8.5" fill={vdwTxt} fontFamily="monospace">vdW</text>

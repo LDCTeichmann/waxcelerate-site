@@ -147,7 +147,7 @@ export function Hero() {
             }}
           >
             <span
-              className="h-1.5 w-1.5 rounded-full animate-pulse"
+              className="h-1.5 w-1.5 rounded-full animate-blink"
               style={{ background: '#5B8BED' }}
             />
             <span

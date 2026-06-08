@@ -521,7 +521,7 @@ export function ProductDetailPage() {
 
                   {/* Formel */}
                   {richTab === 'formula' && rc.formulaDetails && (
-                    <div>
+                    <div style={{ animation: 'wx-fade-in 0.18s ease both' }}>
                       {rc.formulaDetails.map((f, i) => (
                         <div key={i} className="flex gap-5 py-5" style={{ borderBottom: '1px solid var(--bd2)' }}>
                           <span
@@ -562,7 +562,7 @@ export function ProductDetailPage() {
 
                   {/* Vergleich */}
                   {richTab === 'vergleich' && rc.compHeaders && rc.compRows && (
-                    <div className="space-y-5">
+                    <div className="space-y-5" style={{ animation: 'wx-fade-in 0.18s ease both' }}>
                       <div className="overflow-x-auto rounded-xl" style={{ border: '1px solid var(--bd2)' }}>
                         <div>
                           <div
@@ -602,22 +602,22 @@ export function ProductDetailPage() {
 
                   {/* Kosten */}
                   {richTab === 'kosten' && rc.oilItems && rc.waxItems && (
-                    <div className="space-y-5">
+                    <div className="space-y-5" style={{ animation: 'wx-fade-in 0.18s ease both' }}>
 
                       {/* Savings hero */}
                       {rc.savings && (
                         <div
                           className="rounded-2xl p-5 text-center"
-                          style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.20)', animation: 'wx-pop-in 0.4s cubic-bezier(0.16,1,0.3,1) both' }}
+                          style={{ background: 'rgba(110,231,183,0.06)', border: '1px solid rgba(110,231,183,0.18)', animation: 'wx-pop-in 0.4s cubic-bezier(0.16,1,0.3,1) both' }}
                         >
                           <AnimatedNumber
                             value={parseCostNum(rc.savings)}
                             prefix="≈€"
                             duration={1.8}
                             className="text-[40px] font-bold tabular-nums leading-none block"
-                            style={{ color: '#22c55e' }}
+                            style={{ color: '#6ee7b7' }}
                           />
-                          <p className="text-[13px] font-semibold mt-1.5" style={{ color: 'rgba(34,197,94,0.75)' }}>
+                          <p className="text-[13px] font-semibold mt-1.5" style={{ color: 'rgba(110,231,183,0.70)' }}>
                             {de ? 'gespart über ~12.000 km' : 'saved over ~12,000 km'}
                           </p>
                           <p className="text-[11px] mt-1" style={{ color: 'var(--txff)' }}>
@@ -636,7 +636,7 @@ export function ProductDetailPage() {
                             <span className="text-[11px] font-semibold uppercase tracking-[0.12em]" style={{ color: 'var(--txm)' }}>
                               {rc.oilCount ? `${rc.oilCount} ${rc.oilLabel}` : (de ? 'Mit Kettenöl' : 'With chain oil')}
                             </span>
-                            <span className="text-[17px] font-bold font-mono tabular-nums" style={{ color: '#f87171' }}>
+                            <span className="text-[17px] font-bold font-mono tabular-nums" style={{ color: '#fca5a5' }}>
                               {rc.oilTotal}
                             </span>
                           </div>
@@ -647,8 +647,8 @@ export function ProductDetailPage() {
                                 width: '100%',
                                 transformOrigin: 'left',
                                 animation: 'wx-bar-grow 0.65s cubic-bezier(0.16,1,0.3,1) 0.1s both',
-                                background: 'linear-gradient(90deg, rgba(248,113,113,0.40) 0%, rgba(248,113,113,0.15) 100%)',
-                                borderRight: '2px solid rgba(248,113,113,0.55)',
+                                background: 'linear-gradient(90deg, rgba(252,165,165,0.28) 0%, rgba(252,165,165,0.10) 100%)',
+                                borderRight: '2px solid rgba(252,165,165,0.38)',
                               }}
                             />
                           </div>
@@ -667,7 +667,7 @@ export function ProductDetailPage() {
                             <div className="h-px flex-1" style={{ background: 'var(--bd2)' }} />
                             <span
                               className="text-[11px] font-bold px-2.5 py-1 rounded-full flex-shrink-0"
-                              style={{ background: 'rgba(34,197,94,0.10)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.25)' }}
+                              style={{ background: 'rgba(110,231,183,0.08)', color: '#6ee7b7', border: '1px solid rgba(110,231,183,0.20)' }}
                             >
                               ↓ {Math.round((1 - parseCostNum(rc.waxTotal) / parseCostNum(rc.oilTotal)) * 100)}%
                               {de ? ' günstiger' : ' cheaper'}
@@ -907,7 +907,7 @@ export function ProductDetailPage() {
                       <div>
                         <div className="flex items-center gap-0.5 mb-1">
                           {[0, 1, 2, 3, 4].map(i => (
-                            <Star key={i} className="h-3.5 w-3.5 fill-current" style={{ color: '#FBBF24' }} />
+                            <Star key={i} className="h-3.5 w-3.5 fill-current" style={{ color: '#D4AA30' }} />
                           ))}
                         </div>
                         <span className="text-[11px]" style={{ color: 'var(--txff)' }}>

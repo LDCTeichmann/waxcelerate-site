@@ -101,7 +101,7 @@ export function About() {
 
               <div className="pt-3 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8">
                 <div className="flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#2B52B0] animate-pulse flex-shrink-0" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#2B52B0] animate-blink flex-shrink-0" />
                   <span className="text-[11px]" style={{ color: 'var(--txm)' }}>
                     {de ? 'Aktiv auf eBay · Versand aus Stuttgart' : 'Active on eBay · Ships from Stuttgart'}
                   </span>
