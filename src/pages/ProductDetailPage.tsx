@@ -343,35 +343,35 @@ export function ProductDetailPage() {
               {(product.intervalDry || product.intervalWet || product.intervalTopup) && (
                 <div className="flex gap-2.5">
                   {product.intervalDry && (
-                    <div className="flex-1 rounded-xl px-3.5 py-3" style={{ border: '1px solid var(--bd2)', background: 'var(--sf3)' }}>
-                      <p className="text-[9px] font-semibold uppercase tracking-[0.14em] mb-2" style={{ color: 'var(--txff)' }}>
+                    <div className="flex-1 min-w-0 rounded-xl px-3.5 py-3" style={{ border: '1px solid var(--bd2)', background: 'var(--sf3)' }}>
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] mb-2" style={{ color: 'var(--txff)' }}>
                         ☀️ {de ? 'Trocken' : 'Dry'}
                       </p>
-                      <p className="text-[16px] font-bold text-wx-tx1 leading-none mb-3">{product.intervalDry}</p>
-                      <div className="h-[2px] rounded-full" style={{ background: 'var(--bd2)' }}>
-                        <div className="h-full rounded-full" style={{ width: `${intervalPct(product.intervalDry)}%`, background: accentColor, transformOrigin: 'left', animation: 'wx-bar-grow 0.9s var(--ease-hero) 0.1s both' }} />
+                      <p className="text-[14px] font-bold text-wx-tx1 leading-none mb-3 truncate">{product.intervalDry}</p>
+                      <div className="h-[2px] rounded-full overflow-hidden" style={{ background: 'var(--bd2)' }}>
+                        <div className="h-full rounded-full" style={{ width: `${intervalPct(product.intervalDry)}%`, background: accentColor, transformOrigin: 'left', animation: 'wx-bar-grow 0.9s cubic-bezier(0.16,1,0.3,1) 0.1s both' }} />
                       </div>
                     </div>
                   )}
                   {product.intervalWet && (
-                    <div className="flex-1 rounded-xl px-3.5 py-3" style={{ border: '1px solid var(--bd2)', background: 'var(--sf3)' }}>
-                      <p className="text-[9px] font-semibold uppercase tracking-[0.14em] mb-2" style={{ color: 'var(--txff)' }}>
+                    <div className="flex-1 min-w-0 rounded-xl px-3.5 py-3" style={{ border: '1px solid var(--bd2)', background: 'var(--sf3)' }}>
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] mb-2" style={{ color: 'var(--txff)' }}>
                         🌧️ {de ? 'Nass' : 'Wet'}
                       </p>
-                      <p className="text-[16px] font-bold text-wx-tx1 leading-none mb-3">{product.intervalWet}</p>
-                      <div className="h-[2px] rounded-full" style={{ background: 'var(--bd2)' }}>
-                        <div className="h-full rounded-full" style={{ width: `${intervalPct(product.intervalWet)}%`, background: accentColor, transformOrigin: 'left', animation: 'wx-bar-grow 0.9s var(--ease-hero) 0.25s both' }} />
+                      <p className="text-[14px] font-bold text-wx-tx1 leading-none mb-3 truncate">{product.intervalWet}</p>
+                      <div className="h-[2px] rounded-full overflow-hidden" style={{ background: 'var(--bd2)' }}>
+                        <div className="h-full rounded-full" style={{ width: `${intervalPct(product.intervalWet)}%`, background: accentColor, transformOrigin: 'left', animation: 'wx-bar-grow 0.9s cubic-bezier(0.16,1,0.3,1) 0.25s both' }} />
                       </div>
                     </div>
                   )}
                   {product.intervalTopup && (
-                    <div className="flex-1 rounded-xl px-3.5 py-3" style={{ border: '1px solid var(--bd2)', background: 'var(--sf3)' }}>
-                      <p className="text-[9px] font-semibold uppercase tracking-[0.14em] mb-2" style={{ color: 'var(--txff)' }}>
+                    <div className="flex-1 min-w-0 rounded-xl px-3.5 py-3" style={{ border: '1px solid var(--bd2)', background: 'var(--sf3)' }}>
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] mb-2" style={{ color: 'var(--txff)' }}>
                         ⬆️ {de ? 'Topup max.' : 'Max. topup'}
                       </p>
-                      <p className="text-[16px] font-bold text-wx-tx1 leading-none mb-3">{product.intervalTopup}</p>
-                      <div className="h-[2px] rounded-full" style={{ background: 'var(--bd2)' }}>
-                        <div className="h-full rounded-full" style={{ width: `${intervalPct(product.intervalTopup, 1200)}%`, background: accentColor, transformOrigin: 'left', animation: 'wx-bar-grow 0.9s var(--ease-hero) 0.4s both' }} />
+                      <p className="text-[14px] font-bold text-wx-tx1 leading-none mb-3 truncate">{product.intervalTopup}</p>
+                      <div className="h-[2px] rounded-full overflow-hidden" style={{ background: 'var(--bd2)' }}>
+                        <div className="h-full rounded-full" style={{ width: `${intervalPct(product.intervalTopup, 1200)}%`, background: accentColor, transformOrigin: 'left', animation: 'wx-bar-grow 0.9s cubic-bezier(0.16,1,0.3,1) 0.4s both' }} />
                       </div>
                     </div>
                   )}
@@ -471,7 +471,7 @@ export function ProductDetailPage() {
                       onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderLeftColor = `${accentColor}60`; }}
                       onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderLeftColor = `${accentColor}25`; }}
                     >
-                      <div className="font-display text-lg sm:text-[22px] font-bold tabular-nums text-wx-tx1 leading-none mb-1.5">{s.value}</div>
+                      <div className="text-lg sm:text-[22px] font-bold tabular-nums text-wx-tx1 leading-none mb-1.5">{s.value}</div>
                       <div className="text-[11px] leading-snug" style={{ color: 'var(--tx2)' }}>{s.label}</div>
                       {s.sub && <div className="text-[10px] text-wx-txff mt-1 leading-snug">{s.sub}</div>}
                     </div>
@@ -608,13 +608,13 @@ export function ProductDetailPage() {
                       {rc.savings && (
                         <div
                           className="rounded-2xl p-5 text-center"
-                          style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.20)', animation: 'wx-pop-in 0.4s var(--ease-hero) both' }}
+                          style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.20)', animation: 'wx-pop-in 0.4s cubic-bezier(0.16,1,0.3,1) both' }}
                         >
                           <AnimatedNumber
                             value={parseCostNum(rc.savings)}
                             prefix="≈€"
                             duration={1.8}
-                            className="font-display text-[40px] font-bold tabular-nums leading-none block"
+                            className="text-[40px] font-bold tabular-nums leading-none block"
                             style={{ color: '#22c55e' }}
                           />
                           <p className="text-[13px] font-semibold mt-1.5" style={{ color: 'rgba(34,197,94,0.75)' }}>
@@ -646,7 +646,7 @@ export function ProductDetailPage() {
                               style={{
                                 width: '100%',
                                 transformOrigin: 'left',
-                                animation: 'wx-bar-grow 0.65s var(--ease-hero) 0.1s both',
+                                animation: 'wx-bar-grow 0.65s cubic-bezier(0.16,1,0.3,1) 0.1s both',
                                 background: 'linear-gradient(90deg, rgba(248,113,113,0.40) 0%, rgba(248,113,113,0.15) 100%)',
                                 borderRight: '2px solid rgba(248,113,113,0.55)',
                               }}
@@ -660,6 +660,21 @@ export function ProductDetailPage() {
                             ))}
                           </div>
                         </div>
+
+                        {/* % savings callout */}
+                        {rc.oilTotal && rc.waxTotal && parseCostNum(rc.oilTotal) > 0 && (
+                          <div className="flex items-center gap-3 py-0.5">
+                            <div className="h-px flex-1" style={{ background: 'var(--bd2)' }} />
+                            <span
+                              className="text-[11px] font-bold px-2.5 py-1 rounded-full flex-shrink-0"
+                              style={{ background: 'rgba(34,197,94,0.10)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.25)' }}
+                            >
+                              ↓ {Math.round((1 - parseCostNum(rc.waxTotal) / parseCostNum(rc.oilTotal)) * 100)}%
+                              {de ? ' günstiger' : ' cheaper'}
+                            </span>
+                            <div className="h-px flex-1" style={{ background: 'var(--bd2)' }} />
+                          </div>
+                        )}
 
                         {/* Wax bar */}
                         <div>
@@ -677,7 +692,7 @@ export function ProductDetailPage() {
                               style={{
                                 width: `${(rc.oilTotal && rc.waxTotal && parseCostNum(rc.oilTotal) > 0) ? Math.round(parseCostNum(rc.waxTotal) / parseCostNum(rc.oilTotal) * 100) : 55}%`,
                                 transformOrigin: 'left',
-                                animation: 'wx-bar-grow 0.65s var(--ease-hero) 0.28s both',
+                                animation: 'wx-bar-grow 0.65s cubic-bezier(0.16,1,0.3,1) 0.28s both',
                                 background: `linear-gradient(90deg, ${accentColor}55 0%, ${accentColor}20 100%)`,
                                 borderRight: `2px solid ${accentColor}70`,
                               }}
@@ -886,23 +901,26 @@ export function ProductDetailPage() {
               {/* Reviews */}
               {rc.reviewCount > 0 && (
                 <div className="mt-8 rounded-xl px-4 py-4" style={{ border: '1px solid var(--bd2)', background: 'var(--sf3)' }}>
-                  <div className="flex items-center justify-between gap-3 mb-1.5">
-                    <div className="flex items-center gap-1.5">
-                      <div className="flex items-center gap-0.5">
-                        {[0, 1, 2, 3, 4].map(i => (
-                          <Star key={i} className="h-3.5 w-3.5 fill-current" style={{ color: '#FBBF24' }} />
-                        ))}
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <span className="text-[30px] font-bold text-wx-tx1 leading-none tabular-nums">5.0</span>
+                      <div>
+                        <div className="flex items-center gap-0.5 mb-1">
+                          {[0, 1, 2, 3, 4].map(i => (
+                            <Star key={i} className="h-3.5 w-3.5 fill-current" style={{ color: '#FBBF24' }} />
+                          ))}
+                        </div>
+                        <span className="text-[11px]" style={{ color: 'var(--txff)' }}>
+                          {rc.reviewCount}+ {de ? 'Bewertungen' : 'reviews'}
+                        </span>
                       </div>
-                      <span className="text-sm font-semibold text-wx-tx1">
-                        {rc.reviewCount}+ {de ? 'Bewertungen' : 'reviews'}
-                      </span>
                     </div>
                     <a href={product.ebayUrl} target="_blank" rel="noopener noreferrer"
                       className="text-xs flex items-center gap-1 flex-shrink-0" style={{ color: accentColor }}>
                       {de ? 'Alle' : 'All'} <ExternalLink className="h-3 w-3" />
                     </a>
                   </div>
-                  {rc.reviewCats && <p className="text-[11px] text-wx-txff">{rc.reviewCats}</p>}
+                  {rc.reviewCats && <p className="text-[11px] text-wx-txff mt-2">{rc.reviewCats}</p>}
                 </div>
               )}
 
@@ -1047,6 +1065,7 @@ function parseCostNum(s: string): number {
 
 function RelatedCard({ product: p, de, formatPrice }: { product: Product; de: boolean; formatPrice: (n: number) => string }) {
   const title = de ? p.title : p.titleEn;
+  const cardAccent = p.variant === 'pro' ? '#4A72D4' : '#2B52B0';
   const cardInner = (
     <div
       className="flex items-center gap-3 p-3 rounded-xl transition-all"
@@ -1062,7 +1081,7 @@ function RelatedCard({ product: p, de, formatPrice }: { product: Product; de: bo
       />
       <div className="min-w-0">
         <p className="text-[14px] font-semibold text-wx-tx1 leading-tight truncate">{title}</p>
-        <p className="text-[13px] mt-1" style={{ color: '#1A3C6E' }}>{formatPrice(p.price)}</p>
+        <p className="text-[13px] mt-1" style={{ color: cardAccent }}>{formatPrice(p.price)}</p>
       </div>
     </div>
   );
