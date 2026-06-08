@@ -290,7 +290,7 @@ interface CardProps {
   product: AnyProduct;
   de: boolean;
   formatPrice: (p: number) => string;
-  buyLabel: string;
+  buyLabel?: string;
 }
 
 
