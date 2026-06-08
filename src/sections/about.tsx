@@ -64,18 +64,18 @@ export function About() {
   ];
 
   return (
-    <section id="ueber-mich" className="relative py-20 bg-wx-sf chain-texture">
+    <section id="ueber-mich" className="relative py-20 bg-wx-sf chain-texture" style={{ borderTop: '1px solid var(--bd)' }}>
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-5xl mx-auto">
 
           {/* ── Header ─────────────────────────────────────────────────── */}
           <div ref={headerRef} className="text-center mb-10">
             <div className="flex items-center gap-4 mb-4">
-              <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.32em', color: 'var(--txff)' }}>05</span>
+              <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.36em', color: 'var(--txff)' }}>05</span>
               <div style={{ flex: 1, height: '1px', background: 'var(--bd)' }} />
             </div>
             <p
-              className="text-[10px] sm:text-[11px] uppercase tracking-[0.38em] font-semibold mb-3"
+              className="text-[10px] sm:text-[11px] uppercase tracking-[0.36em] font-semibold mb-3"
               style={{ color: 'var(--txf)' }}
             >
               {de ? 'Die Geschichte' : 'Our Story'}
@@ -105,7 +105,7 @@ export function About() {
 
               <div className="pt-3 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8">
                 <div className="flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#2B52B0] animate-pulse flex-shrink-0" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--ac-hi)] animate-pulse flex-shrink-0" />
                   <span className="text-[11px]" style={{ color: 'var(--txm)' }}>
                     {de ? 'Aktiv auf eBay · Versand aus Stuttgart' : 'Active on eBay · Ships from Stuttgart'}
                   </span>
@@ -120,9 +120,9 @@ export function About() {
                     className="flex items-center justify-center w-7 h-7 rounded-lg flex-shrink-0 transition-colors"
                     style={{ background: 'rgba(26,60,110,0.12)', border: '1px solid rgba(26,60,110,0.22)' }}
                   >
-                    <ExternalLink className="h-3 w-3 text-[#1A3C6E]" />
+                    <ExternalLink className="h-3 w-3 text-[var(--brand)]" />
                   </span>
-                  <span className="text-[13px] font-medium text-[#264E8C] group-hover:text-[#3A65B8] transition-colors">
+                  <span className="text-[13px] font-medium text-[var(--brand-hover)] group-hover:text-[var(--brand-hover)] transition-colors">
                     {t.about.ebay}
                   </span>
                 </a>
@@ -217,7 +217,7 @@ export function About() {
                     {s.badge && (
                       <span
                         className="inline-block mt-1 mb-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-semibold"
-                        style={{ background: 'rgba(26,60,110,0.10)', color: '#2A5499' }}
+                        style={{ background: 'rgba(26,60,110,0.10)', color: 'var(--ac-hi)' }}
                       >
                         {s.badge}
                       </span>

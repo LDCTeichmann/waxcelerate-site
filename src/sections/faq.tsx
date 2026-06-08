@@ -26,7 +26,7 @@ export function FAQ() {
   const visibleItems = query.trim() ? filteredItems : (showAll ? filteredItems : filteredItems.slice(0, ITEMS_DEFAULT));
 
   return (
-    <section id="faq" className="relative py-20 bg-wx-bg">
+    <section id="faq" className="relative py-20 bg-wx-bg" style={{ borderTop: '1px solid var(--bd)' }}>
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-2xl mx-auto">
           <div className="mb-16">

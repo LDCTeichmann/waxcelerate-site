@@ -282,15 +282,15 @@ function ColdDiagram() {
 
       {/* snowflake centred on divider */}
       <g transform="translate(140,19)" opacity="0.85">
-        <line x1="0" y1="-9"   x2="0"   y2="9"    stroke="#4472D4" strokeWidth="1.4" strokeLinecap="round" />
-        <line x1="-7.8" y1="-4.5" x2="7.8" y2="4.5" stroke="#4472D4" strokeWidth="1.4" strokeLinecap="round" />
-        <line x1="7.8"  y1="-4.5" x2="-7.8" y2="4.5" stroke="#4472D4" strokeWidth="1.4" strokeLinecap="round" />
-        <line x1="-2.6" y1="-7"  x2="2.6" y2="-7"  stroke="#4472D4" strokeWidth="1.0" strokeLinecap="round" />
-        <line x1="-2.6" y1="7"   x2="2.6" y2="7"   stroke="#4472D4" strokeWidth="1.0" strokeLinecap="round" />
-        <line x1="5.5"  y1="-1.8" x2="5.5" y2="1.8" stroke="#4472D4" strokeWidth="1.0" strokeLinecap="round" />
-        <line x1="-5.5" y1="-1.8" x2="-5.5" y2="1.8" stroke="#4472D4" strokeWidth="1.0" strokeLinecap="round" />
+        <line x1="0" y1="-9"   x2="0"   y2="9"    stroke="var(--ac)" strokeWidth="1.4" strokeLinecap="round" />
+        <line x1="-7.8" y1="-4.5" x2="7.8" y2="4.5" stroke="var(--ac)" strokeWidth="1.4" strokeLinecap="round" />
+        <line x1="7.8"  y1="-4.5" x2="-7.8" y2="4.5" stroke="var(--ac)" strokeWidth="1.4" strokeLinecap="round" />
+        <line x1="-2.6" y1="-7"  x2="2.6" y2="-7"  stroke="var(--ac)" strokeWidth="1.0" strokeLinecap="round" />
+        <line x1="-2.6" y1="7"   x2="2.6" y2="7"   stroke="var(--ac)" strokeWidth="1.0" strokeLinecap="round" />
+        <line x1="5.5"  y1="-1.8" x2="5.5" y2="1.8" stroke="var(--ac)" strokeWidth="1.0" strokeLinecap="round" />
+        <line x1="-5.5" y1="-1.8" x2="-5.5" y2="1.8" stroke="var(--ac)" strokeWidth="1.0" strokeLinecap="round" />
       </g>
-      <text x="140" y="42" textAnchor="middle" fontSize="8" fill="#4472D4"
+      <text x="140" y="42" textAnchor="middle" fontSize="8" fill="var(--ac)"
         fontFamily="system-ui,sans-serif" fontWeight="600">−8 °C</text>
 
       {/* ── LEFT panel ── */}
@@ -596,12 +596,12 @@ function MechanismStrip({
               style={{
                 width: 38, height: 38, borderRadius: '50%',
                 background: 'var(--sf2)',
-                border: '1.5px solid #3D67CA',
+                border: '1.5px solid var(--ac)',
                 boxShadow: '0 0 0 3px var(--sf), 0 2px 8px rgba(0,0,0,0.14)',
               }}
             >
               <span className="font-mono font-bold leading-none"
-                style={{ fontSize: 11, letterSpacing: '0.06em', color: '#3D67CA' }}>
+                style={{ fontSize: 11, letterSpacing: '0.06em', color: 'var(--ac)' }}>
                 {num}
               </span>
             </div>
@@ -630,7 +630,7 @@ function MechanismStrip({
 
             {/* Spec label */}
             {specValue && (specLabelDe || specLabelEn) && (
-              <p className="text-[10px] font-medium mb-3 text-right" style={{ color: '#3D67CA' }}>
+              <p className="text-[10px] font-medium mb-3 text-right" style={{ color: 'var(--ac)' }}>
                 {de ? specLabelDe : specLabelEn}
               </p>
             )}
@@ -649,7 +649,7 @@ function MechanismStrip({
             {/* Science link */}
             <Link to={`/wissenschaft${scienceAnchor}`}
               className="inline-flex items-center gap-1 text-[11px] font-medium transition-opacity hover:opacity-70"
-              style={{ color: '#264E8C' }}>
+              style={{ color: 'var(--brand-hover)' }}>
               {de ? scienceLinkDe : scienceLinkEn}
               <span aria-hidden="true" style={{ fontSize: 10 }}>→</span>
             </Link>
@@ -735,7 +735,7 @@ export function WhyWax() {
   ];
 
   return (
-    <section id="warum-wachs" ref={sectionRef} className="relative py-20 sm:py-28 bg-wx-sf chain-texture">
+    <section id="warum-wachs" ref={sectionRef} className="relative py-20 sm:py-28 bg-wx-sf chain-texture" style={{ borderTop: '1px solid var(--bd)' }}>
 
       <div className="absolute top-0 left-0 right-0 pointer-events-none"
         style={{ height: '56px', background: 'linear-gradient(to bottom, var(--sf), transparent)', zIndex: 1 }} />
@@ -747,10 +747,10 @@ export function WhyWax() {
           <div ref={headerRef} className="mb-10">
             {/* Engineering section number */}
             <div className="flex items-center gap-4 mb-4">
-              <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.32em', color: 'var(--txff)' }}>02</span>
+              <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.36em', color: 'var(--txff)' }}>02</span>
               <div style={{ flex: 1, height: '1px', background: 'var(--bd)' }} />
             </div>
-            <p className="text-[10px] sm:text-[11px] uppercase tracking-[0.38em] font-semibold mb-3"
+            <p className="text-[10px] sm:text-[11px] uppercase tracking-[0.36em] font-semibold mb-3"
               style={{ color: 'var(--txf)' }}>
               {de ? 'Die Formel' : 'The Formula'}
             </p>
@@ -838,7 +838,7 @@ export function WhyWax() {
             </div>
             <Link to="/wissenschaft#sedimentation"
               className="text-[11px] font-medium flex-shrink-0 transition-opacity hover:opacity-70"
-              style={{ color: '#264E8C' }}>
+              style={{ color: 'var(--brand-hover)' }}>
               {de ? 'Sedimentation erklärt →' : 'Sedimentation explained →'}
             </Link>
           </div>
@@ -869,7 +869,7 @@ export function WhyWax() {
                       <div className="h-0.5 rounded-full overflow-hidden" style={{ background: 'var(--bd)' }}>
                         <div className="fbar h-full w-full rounded-full" data-w={item.pct}
                           style={{
-                            background: item.highlight ? 'linear-gradient(90deg, #0F2450, #3D67CA)' : 'var(--bd2)',
+                            background: item.highlight ? 'linear-gradient(90deg, var(--brand), var(--ac))' : 'var(--bd2)',
                             transformOrigin: 'left center', transform: 'scaleX(0)',
                           }} />
                       </div>
@@ -879,7 +879,7 @@ export function WhyWax() {
               </div>
               <Link to="/wissenschaft#reibung"
                 className="flex items-center gap-1 text-[11px] font-medium mt-3 pt-3 transition-opacity hover:opacity-70"
-                style={{ color: '#264E8C', borderTop: '1px solid var(--bd2)' }}>
+                style={{ color: 'var(--brand-hover)', borderTop: '1px solid var(--bd2)' }}>
                 {de ? 'Vollständiger Vergleich →' : 'Full comparison →'}
               </Link>
             </div>
@@ -895,7 +895,7 @@ export function WhyWax() {
                 </div>
                 <span className="font-display font-bold text-wx-tx1 tabular-nums text-[22px] leading-none">~€70</span>
               </div>
-              <p className="text-[11px] font-semibold mb-3" style={{ color: '#2B52B0' }}>
+              <p className="text-[11px] font-semibold mb-3" style={{ color: 'var(--ac-hi)' }}>
                 {de ? '46 % weniger über 12.000 km' : '46% less over 12,000 km'}
               </p>
               <div className="space-y-1.5 pt-3" style={{ borderTop: '1px solid var(--bd2)' }}>
@@ -905,7 +905,7 @@ export function WhyWax() {
                 </div>
                 <div className="flex justify-between text-[11px]">
                   <span className="text-wx-txf">{de ? 'Mit Wachs (1 Kette)' : 'With wax (1 chain)'}</span>
-                  <span className="tabular-nums font-semibold" style={{ color: '#2B52B0' }}>~€81</span>
+                  <span className="tabular-nums font-semibold" style={{ color: 'var(--ac-hi)' }}>~€81</span>
                 </div>
               </div>
               <p className="text-[10px] mt-3 pt-3 leading-relaxed"
@@ -931,7 +931,7 @@ export function WhyWax() {
             </p>
             <Link to="/#produkte"
               className="text-[11px] font-medium flex-shrink-0 transition-opacity hover:opacity-70"
-              style={{ color: '#264E8C' }}>
+              style={{ color: 'var(--brand-hover)' }}>
               {de ? 'Zu den Produkten →' : 'See products →'}
             </Link>
           </div>

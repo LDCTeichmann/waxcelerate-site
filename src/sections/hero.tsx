@@ -137,7 +137,7 @@ export function Hero() {
         >
           <div style={{ width: '22px', height: '1px', background: 'rgba(255,255,255,0.2)' }} />
           <p
-            className="text-[10px] uppercase tracking-[0.38em] font-semibold"
+            className="text-[10px] uppercase tracking-[0.36em] font-semibold"
             style={{ color: 'rgba(255,255,255,0.26)' }}
           >
             {t.hero.subtitle}
@@ -152,7 +152,7 @@ export function Hero() {
           >
             <span
               className="h-1.5 w-1.5 rounded-full animate-pulse"
-              style={{ background: '#5B8BED' }}
+              style={{ background: 'var(--ac-lo)' }}
             />
             <span
               className="text-[10px] tracking-wide"
@@ -291,7 +291,7 @@ export function Hero() {
               onClick={() => scrollToSection('#produkte')}
               className="inline-flex items-center gap-2.5 px-8 py-3.5 text-[13px] font-bold rounded-full hover:opacity-90 transition-all active:scale-[0.97]"
               style={{
-                background: '#5B8BED',
+                background: 'var(--ac-lo)',
                 color: '#fff',
                 letterSpacing: '0.04em',
                 boxShadow: '0 0 36px rgba(91,139,237,0.28)',
@@ -338,7 +338,7 @@ export function Hero() {
             style={{
               width: '28px',
               height: '2px',
-              background: '#5B8BED',
+              background: 'var(--ac-lo)',
               borderRadius: '2px',
               marginBottom: '14px',
             }}
@@ -348,7 +348,7 @@ export function Hero() {
             style={{
               fontSize: '46px',
               fontWeight: 700,
-              color: '#5B8BED',
+              color: 'var(--ac-lo)',
               letterSpacing: '-0.02em',
               marginBottom: '8px',
             }}
@@ -445,7 +445,7 @@ export function Hero() {
             <button
               onClick={() => scrollToSection('#produkte')}
               className="inline-flex items-center gap-2 px-7 py-3.5 text-sm font-bold rounded-full"
-              style={{ background: '#5B8BED', color: '#fff' }}
+              style={{ background: 'var(--ac-lo)', color: '#fff' }}
             >
               {t.hero.ctaBuy} <ArrowRight className="h-3.5 w-3.5" />
             </button>

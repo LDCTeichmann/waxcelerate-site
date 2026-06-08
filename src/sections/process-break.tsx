@@ -30,7 +30,7 @@ export function ProcessBreak() {
         <p
           style={{
             fontSize: '10px',
-            letterSpacing: '0.42em',
+            letterSpacing: '0.36em',
             color: 'rgba(255,255,255,0.28)',
             textTransform: 'uppercase',
             marginBottom: '24px',

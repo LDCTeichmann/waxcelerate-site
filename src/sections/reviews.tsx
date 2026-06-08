@@ -63,7 +63,7 @@ export function Reviews() {
   }, []);
 
   return (
-    <section className="relative py-20 bg-wx-bg overflow-hidden">
+    <section className="relative py-20 bg-wx-bg overflow-hidden" style={{ borderTop: '1px solid var(--bd)' }}>
 
       {/* Subtle chain texture — barely perceptible, adds material depth */}
       <img
@@ -152,7 +152,7 @@ export function Reviews() {
                   <span className="flex items-center gap-1.5">
                     <span
                       className="inline-block h-1.5 w-1.5 rounded-full"
-                      style={{ background: '#2B52B0' }}
+                      style={{ background: 'var(--ac-hi)' }}
                     />
                     eBay · {de ? r.dateDe : r.dateEn}
                   </span>

@@ -12,7 +12,7 @@ function StepText({ text }: { text: string }) {
     <>
       {parts.map((part, i) =>
         isHighlight(part) ? (
-          <span key={i} className="font-semibold" style={{ color: '#264E8C' }}>{part}</span>
+          <span key={i} className="font-semibold" style={{ color: 'var(--brand-hover)' }}>{part}</span>
         ) : (
           part
         )
@@ -35,13 +35,13 @@ export function Guides() {
   ];
 
   return (
-    <section id="anleitungen" className="relative pt-16 pb-10 bg-wx-sf">
+    <section id="anleitungen" className="relative pt-16 pb-10 bg-wx-sf" style={{ borderTop: '1px solid var(--bd)' }}>
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-4xl mx-auto">
 
           <div className="mb-12">
             <div className="flex items-center gap-4 mb-4">
-              <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.32em', color: 'var(--txff)' }}>07</span>
+              <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.36em', color: 'var(--txff)' }}>07</span>
               <div style={{ flex: 1, height: '1px', background: 'var(--bd)' }} />
             </div>
             <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-4">
@@ -74,7 +74,7 @@ export function Guides() {
                       <div className="flex items-center gap-3">
                         <guide.icon
                           className="h-4 w-4 flex-shrink-0"
-                          style={{ color: isOpen ? '#1A3C6E' : 'var(--txf)' }}
+                          style={{ color: isOpen ? 'var(--brand)' : 'var(--txf)' }}
                         />
                         <span className="text-sm font-medium text-wx-tx1">{guide.data.title}</span>
                       </div>
@@ -105,7 +105,7 @@ export function Guides() {
                             >
                               <AlertCircle
                                 className="h-3.5 w-3.5 mt-0.5 flex-shrink-0"
-                                style={{ color: '#1A3C6E' }}
+                                style={{ color: 'var(--brand)' }}
                               />
                               <p className="text-xs leading-relaxed" style={{ color: 'var(--txf)' }}>
                                 {guide.data.note}
@@ -128,7 +128,7 @@ export function Guides() {
                                   className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-xs font-semibold mt-0.5"
                                   style={{
                                     background: 'rgba(26,60,110,0.15)',
-                                    color: '#1A3C6E',
+                                    color: 'var(--brand)',
                                   }}
                                 >
                                   {i + 1}
@@ -171,7 +171,7 @@ export function Guides() {
                     <div
                       className="h-full rounded-full"
                       style={{
-                        background: 'linear-gradient(to right, #1A3C6E, #5B8BED)',
+                        background: 'linear-gradient(to right, var(--brand), var(--ac-lo))',
                         width: '90%',
                         animation: 'guides-bar-fill 1.2s cubic-bezier(0.16,1,0.3,1) forwards',
                         transformOrigin: 'left',

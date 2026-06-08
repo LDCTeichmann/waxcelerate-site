@@ -28,7 +28,7 @@ export function Conviction() {
   ];
 
   return (
-    <section className="py-8 sm:py-10" style={{ background: 'var(--sf3)' }}>
+    <section className="py-8 sm:py-10" style={{ background: 'var(--pg)', borderTop: '1px solid var(--bd)' }}>
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-3xl mx-auto">
           <div
@@ -39,7 +39,7 @@ export function Conviction() {
               <div
                 key={i}
                 className="text-center px-4 py-7"
-                style={{ background: 'var(--sf3)' }}
+                style={{ background: 'var(--sf2)' }}
               >
                 <p
                   className="font-display font-bold text-wx-tx1 tabular-nums leading-none"

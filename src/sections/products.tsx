@@ -106,7 +106,7 @@ export function Products() {
   }, [filteredChains.length]);
 
   return (
-    <section id="produkte" className="relative py-20 bg-wx-bg">
+    <section id="produkte" className="relative py-20 bg-wx-bg" style={{ borderTop: '1px solid var(--bd)' }}>
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-5xl mx-auto">
 
@@ -174,7 +174,7 @@ export function Products() {
                     style={{
                       background: 'rgba(43,82,176,0.10)',
                       border: '1px solid rgba(43,82,176,0.25)',
-                      color: '#3D67CA',
+                      color: 'var(--ac)',
                     }}
                   >
                     {t.products.compareBtn} →
@@ -256,7 +256,7 @@ export function Products() {
                   <p className="text-wx-txm text-sm mb-3">
                     {de ? 'Keine passende Kette gefunden.' : 'No matching chain found.'}
                   </p>
-                  <button onClick={resetFilters} className="text-[12px] transition-colors" style={{ color: '#1A3C6E' }}>
+                  <button onClick={resetFilters} className="text-[12px] transition-colors" style={{ color: 'var(--brand)' }}>
                     {de ? 'Filter zurücksetzen' : 'Reset filters'}
                   </button>
                 </div>
@@ -302,7 +302,7 @@ interface CardProps {
 
 const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: CardProps) {
   const isPro = product.variant === 'pro';
-  const accent = isPro ? '#2A5499' : '#1A3C6E';
+  const accent = isPro ? 'var(--ac-hi)' : 'var(--brand)';
 
   const title = de ? product.title : product.titleEn;
   const badge = de ? product.badge : product.badgeEn;
@@ -407,7 +407,7 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: Ca
 // ── Chain Card ─────────────────────────────────────────────────────────────
 
 const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }: CardProps) {
-  const accent = '#1A3C6E'; // used for badge border/text only
+  const accent = 'var(--brand)'; // used for badge border/text only
   const badge = de ? product.badge : product.badgeEn;
 
   const brand = product.chainBrand ?? '';
@@ -493,7 +493,7 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
             <button
               onClick={e => { e.preventDefault(); e.stopPropagation(); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
               className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-opacity duration-150 hover:opacity-90 active:scale-[0.97]"
-              style={{ background: '#1A3C6E' }}
+              style={{ background: 'var(--brand)' }}
             >
               {buyLabel}
               <ExternalLink className="h-3.5 w-3.5" />
@@ -507,8 +507,8 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
 
 // ── Compare Modal ──────────────────────────────────────────────────────────
 
-const CLASSIC_ACCENT = '#2B52B0';
-const PRO_ACCENT = '#3D67CA';
+const CLASSIC_ACCENT = 'var(--ac-hi)';
+const PRO_ACCENT = 'var(--ac)';
 
 function CompareModal({ open, onClose, de, t }: {
   open: boolean;

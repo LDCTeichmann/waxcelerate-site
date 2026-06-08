@@ -131,11 +131,11 @@ function ChapterNav({ de, onActiveChange }: { de: boolean; onActiveChange?: (i: 
             title={de ? l.de : l.en}
           >
             <span className="text-[9px] uppercase tracking-widest whitespace-nowrap text-right transition-all duration-200 opacity-0 group-hover:opacity-100"
-              style={{ color: isActive ? '#4472D4' : 'var(--txff)' }}>
+              style={{ color: isActive ? 'var(--ac)' : 'var(--txff)' }}>
               {de ? l.de : l.en}
             </span>
             <div className="relative z-10 rounded-full flex-shrink-0 transition-all duration-300"
-              style={{ width: isActive ? '9px' : '5px', height: isActive ? '9px' : '5px', background: isActive ? '#4472D4' : 'var(--bd)', boxShadow: isActive ? '0 0 10px rgba(68,114,212,0.75)' : 'none' }} />
+              style={{ width: isActive ? '9px' : '5px', height: isActive ? '9px' : '5px', background: isActive ? 'var(--ac)' : 'var(--bd)', boxShadow: isActive ? '0 0 10px rgba(68,114,212,0.75)' : 'none' }} />
           </button>
         );
       })}
@@ -156,7 +156,7 @@ function ScrollProgress() {
   }, []);
   return (
     <div className="fixed top-0 left-0 right-0 z-50 h-[2px]" style={{ background: 'var(--bd)' }}>
-      <div className="h-full" style={{ width: `${p * 100}%`, background: 'linear-gradient(90deg,#1A3080,#6A8AE8)', transition: 'width 0.06s linear' }} />
+      <div className="h-full" style={{ width: `${p * 100}%`, background: 'linear-gradient(90deg,var(--brand),var(--ac-lo))', transition: 'width 0.06s linear' }} />
     </div>
   );
 }
@@ -239,7 +239,7 @@ function FailureTimeline({ de, isDark }: { de: boolean; isDark: boolean }) {
   const cardBg   = isDark ? 'rgba(255,255,255,0.03)' : 'var(--sf3)';
   const cardBd   = isDark ? 'rgba(255,255,255,0.08)' : 'var(--bd2)';
   const failClr  = isDark ? 'rgba(255,255,255,0.50)' : 'var(--txm)';
-  const fixClr   = isDark ? 'rgba(100,140,220,0.80)' : '#2A5499';
+  const fixClr   = isDark ? 'rgba(100,140,220,0.80)' : 'var(--ac-hi)';
   const dotFail  = isDark ? 'rgba(255,255,255,0.18)' : 'rgba(26,60,110,0.25)';
   const lineClr  = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(26,60,110,0.12)';
 
@@ -247,7 +247,7 @@ function FailureTimeline({ de, isDark }: { de: boolean; isDark: boolean }) {
     <div ref={ref} className="w-full">
       <div className="flex items-center gap-3 mb-6 pl-4 relative">
         <div className="absolute left-0 top-0 bottom-0 w-[3px] rounded-full"
-          style={{ background: 'linear-gradient(to bottom, #2A5499, rgba(68,114,212,0.2))' }} />
+          style={{ background: 'linear-gradient(to bottom, var(--ac-hi), rgba(68,114,212,0.2))' }} />
         <p className="text-[10px] uppercase tracking-[0.28em]" style={{ color: isDark ? 'rgba(255,255,255,0.35)' : 'var(--txff)' }}>
           {de ? 'Entwicklungsiterationen — nur dokumentierte Fakten' : 'Development iterations — documented facts only'}
         </p>
@@ -262,8 +262,8 @@ function FailureTimeline({ de, isDark }: { de: boolean; isDark: boolean }) {
             <div
               className="ft-dot w-[18px] h-[18px] rounded-full flex-shrink-0 z-10 flex items-center justify-center mb-3"
               style={{
-                background: f.isCurrent ? '#2A5499' : dotFail,
-                border: `2px solid ${f.isCurrent ? '#4472D4' : (isDark ? 'rgba(255,255,255,0.15)' : 'rgba(26,60,110,0.20)')}`,
+                background: f.isCurrent ? 'var(--ac-hi)' : dotFail,
+                border: `2px solid ${f.isCurrent ? 'var(--ac)' : (isDark ? 'rgba(255,255,255,0.15)' : 'rgba(26,60,110,0.20)')}`,
                 boxShadow: f.isCurrent ? '0 0 10px rgba(68,114,212,0.5)' : 'none',
               }}
             />
@@ -273,7 +273,7 @@ function FailureTimeline({ de, isDark }: { de: boolean; isDark: boolean }) {
               border: `1px solid ${f.isCurrent ? 'rgba(68,114,212,0.30)' : cardBd}`,
               boxShadow: f.isCurrent ? '0 0 0 2px rgba(68,114,212,0.35), 0 4px 20px rgba(26,60,110,0.15)' : 'none',
             }}>
-              <p className="text-[9px] font-mono font-bold uppercase tracking-wide mb-1.5" style={{ color: f.isCurrent ? '#4472D4' : (isDark ? 'rgba(255,255,255,0.35)' : 'var(--txff)') }}>
+              <p className="text-[9px] font-mono font-bold uppercase tracking-wide mb-1.5" style={{ color: f.isCurrent ? 'var(--ac)' : (isDark ? 'rgba(255,255,255,0.35)' : 'var(--txff)') }}>
                 {de ? f.vDe : f.vEn}
               </p>
               <p className="text-[10px] leading-snug mb-2" style={{ color: failClr }}>
@@ -291,11 +291,11 @@ function FailureTimeline({ de, isDark }: { de: boolean; isDark: boolean }) {
         {FAILURES.map((f, i) => (
           <div key={i} className="ft-item flex gap-3 opacity-0">
             <div className="flex flex-col items-center flex-shrink-0 pt-1">
-              <div className="ft-dot w-3 h-3 rounded-full" style={{ background: f.isCurrent ? '#2A5499' : dotFail, border: `1.5px solid ${f.isCurrent ? '#4472D4' : (isDark ? 'rgba(255,255,255,0.15)' : 'rgba(26,60,110,0.20)')}` }} />
+              <div className="ft-dot w-3 h-3 rounded-full" style={{ background: f.isCurrent ? 'var(--ac-hi)' : dotFail, border: `1.5px solid ${f.isCurrent ? 'var(--ac)' : (isDark ? 'rgba(255,255,255,0.15)' : 'rgba(26,60,110,0.20)')}` }} />
               {i < FAILURES.length - 1 && <div className="ft-vline w-px flex-1 mt-1" style={{ background: lineClr, minHeight: '20px' }} />}
             </div>
             <div className="pb-2">
-              <p className="text-[9px] font-mono font-bold uppercase tracking-wide mb-1" style={{ color: f.isCurrent ? '#4472D4' : (isDark ? 'rgba(255,255,255,0.35)' : 'var(--txff)') }}>
+              <p className="text-[9px] font-mono font-bold uppercase tracking-wide mb-1" style={{ color: f.isCurrent ? 'var(--ac)' : (isDark ? 'rgba(255,255,255,0.35)' : 'var(--txff)') }}>
                 {de ? f.vDe : f.vEn}
               </p>
               <p className="text-[11px] leading-snug mb-1" style={{ color: failClr }}>{de ? f.failDe : f.failEn}</p>
@@ -337,7 +337,7 @@ function HexMoS2({ de }: { de: boolean }) {
     ]);
 
   const { theme } = useTheme();
-  const isDark = theme === 'dark' || theme === 'noir';
+  const isDark = theme === 'noir';
   const vizCard = isDark ? VIZ_CARD : VIZ_CARD_LIGHT;
   const dotGrid = isDark ? DARK_DOT_GRID : LIGHT_DOT_GRID;
 
@@ -374,7 +374,7 @@ function HexMoS2({ de }: { de: boolean }) {
             <line key={i} x1={b.x1} y1={b.y1} x2={b.x2} y2={b.y2} stroke={isDark ? 'rgba(42,84,153,0.22)' : 'rgba(42,84,153,0.35)'} strokeWidth="1.2" />
           ))}
           {S_X.map((x, i) => <circle key={`ts1${i}`} cx={x} cy={TOP_S1} r="5" fill="#A8C0F4" opacity="0.92" />)}
-          {MO_X.map((x, i) => <circle key={`tmo${i}`} cx={x} cy={TOP_MO} r="7.5" fill="#2A5499" style={{ filter: 'drop-shadow(0 0 5px rgba(68,114,212,0.60))' }} />)}
+          {MO_X.map((x, i) => <circle key={`tmo${i}`} cx={x} cy={TOP_MO} r="7.5" fill="var(--ac-hi)" style={{ filter: 'drop-shadow(0 0 5px rgba(68,114,212,0.60))' }} />)}
           {S_X.map((x, i) => <circle key={`ts2${i}`} cx={x} cy={TOP_S2} r="5" fill="#A8C0F4" opacity="0.92" />)}
         </g>
         {/* Van der Waals gap */}
@@ -394,7 +394,7 @@ function HexMoS2({ de }: { de: boolean }) {
             <line key={i} x1={b.x1} y1={b.y1} x2={b.x2} y2={b.y2} stroke={isDark ? 'rgba(42,84,153,0.22)' : 'rgba(42,84,153,0.35)'} strokeWidth="1.2" />
           ))}
           {S_X.map((x, i) => <circle key={`bs1${i}`} cx={x} cy={BOT_S1} r="5" fill="#A8C0F4" opacity="0.92" />)}
-          {MO_X.map((x, i) => <circle key={`bmo${i}`} cx={x} cy={BOT_MO} r="7.5" fill="#1A3C6E" style={{ filter: 'drop-shadow(0 0 5px rgba(26,60,110,0.55))' }} />)}
+          {MO_X.map((x, i) => <circle key={`bmo${i}`} cx={x} cy={BOT_MO} r="7.5" fill="var(--brand)" style={{ filter: 'drop-shadow(0 0 5px rgba(26,60,110,0.55))' }} />)}
           {S_X.map((x, i) => <circle key={`bs2${i}`} cx={x} cy={BOT_S2} r="5" fill="#A8C0F4" opacity="0.92" />)}
         </g>
         {/* Single-side labels only */}
@@ -418,7 +418,7 @@ function HexMoS2({ de }: { de: boolean }) {
             <span className="text-[9px] font-mono" style={{ color: txMono }}>S</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-4 h-4 rounded-full" style={{ background: '#2A5499', boxShadow: '0 0 4px rgba(68,114,212,0.5)' }} />
+            <div className="w-4 h-4 rounded-full" style={{ background: 'var(--ac-hi)', boxShadow: '0 0 4px rgba(68,114,212,0.5)' }} />
             <span className="text-[9px] font-mono" style={{ color: txMono }}>Mo</span>
           </div>
           <span className="text-[9px]" style={{ color: txLow }}>
@@ -428,7 +428,7 @@ function HexMoS2({ de }: { de: boolean }) {
           </span>
         </div>
         <div className="text-right">
-          <p className="font-serif-display italic text-[20px] font-bold leading-none" style={{ color: '#6A8AE8', textShadow: '0 0 16px rgba(68,114,212,0.55)' }}>μ 0.03</p>
+          <p className="font-serif-display italic text-[20px] font-bold leading-none" style={{ color: 'var(--ac-lo)', textShadow: '0 0 16px rgba(68,114,212,0.55)' }}>μ 0.03</p>
           <p className="text-[9px] mt-0.5" style={{ color: txSub }}>{de ? 'Grenzschmierung' : 'Boundary lubrication'}</p>
         </div>
       </div>
@@ -491,7 +491,7 @@ function TransferFilm({ de }: { de: boolean }) {
   }, []);
 
   const { theme } = useTheme();
-  const isDark = theme === 'dark' || theme === 'noir';
+  const isDark = theme === 'noir';
   const vizCard = isDark ? VIZ_CARD : VIZ_CARD_LIGHT;
   const dotGrid = isDark ? DARK_DOT_GRID : LIGHT_DOT_GRID;
 
@@ -530,11 +530,11 @@ function TransferFilm({ de }: { de: boolean }) {
         <text x="6" y="15"  fontSize="8" fill={sLabelC} fontFamily="monospace">{de ? 'Stahl' : 'Steel'}</text>
         <text x="6" y="167" fontSize="8" fill={sLabelC} fontFamily="monospace">{de ? 'Stahl' : 'Steel'}</text>
         {/* Transfer film deposits */}
-        <rect className="tf-film" x="0" y="22"  width="440" height="5" fill="#1A3C6E" opacity="0" rx="1" />
-        <rect className="tf-film" x="0" y="148" width="440" height="5" fill="#1A3C6E" opacity="0" rx="1" />
+        <rect className="tf-film" x="0" y="22"  width="440" height="5" fill="var(--brand)" opacity="0" rx="1" />
+        <rect className="tf-film" x="0" y="148" width="440" height="5" fill="var(--brand)" opacity="0" rx="1" />
         {/* MoS₂ particles */}
         {TF_PARTICLES.map((p, i) => (
-          <circle key={i} className="tf-p" cx={p.x} cy={p.y} r={p.r} fill="#2A5499" opacity="0.85" />
+          <circle key={i} className="tf-p" cx={p.x} cy={p.y} r={p.r} fill="var(--ac-hi)" opacity="0.85" />
         ))}
         {/* Film label — appears after animation */}
         <text className="tf-label" x="220" y="38" textAnchor="middle" fontSize="8.5" fill="rgba(106,138,232,0.9)" fontFamily="monospace" letterSpacing="1" opacity="0">
@@ -576,7 +576,7 @@ function TransferFilm({ de }: { de: boolean }) {
 function CrystalLattice({ de }: { de: boolean }) {
   const svgRef = useRef<SVGSVGElement>(null);
   const { theme } = useTheme();
-  const isDark = theme === 'dark' || theme === 'noir';
+  const isDark = theme === 'noir';
   const vizCard = isDark ? VIZ_CARD : VIZ_CARD_LIGHT;
   const dotGrid = isDark ? DARK_DOT_GRID : LIGHT_DOT_GRID;
 
@@ -591,9 +591,9 @@ function CrystalLattice({ de }: { de: boolean }) {
 
   // LEFT panel — 3 crystal layers, 7 aligned chain rods
   const LAYERS = [
-    { yCenter: 36,  color: '#4472D4' },
+    { yCenter: 36,  color: 'var(--ac)' },
     { yCenter: 96,  color: '#3D67CA' },
-    { yCenter: 156, color: '#4472D4' },
+    { yCenter: 156, color: 'var(--ac)' },
   ];
   const CHAIN_W = 46, CHAIN_H = 9, CHAIN_GAP = 7;
   const CHAINS = 7;
@@ -740,7 +740,7 @@ function CrystalLattice({ de }: { de: boolean }) {
       </svg>
       <div className="flex items-center justify-center gap-4 mt-3 pt-3" style={{ borderTop: `1px solid ${divClr}` }}>
         <div className="flex items-center gap-2">
-          <div className="w-7 h-2.5 rounded-full" style={{ background: '#4472D4', opacity: 0.75 }} />
+          <div className="w-7 h-2.5 rounded-full" style={{ background: 'var(--ac)', opacity: 0.75 }} />
           <span className="text-[9px] font-mono" style={{ color: txMid }}>
             {de ? 'Waxcelerate (geordnet)' : 'Waxcelerate (ordered)'}
           </span>
@@ -760,8 +760,8 @@ function CrystalLattice({ de }: { de: boolean }) {
 function TempRange({ de }: { de: boolean }) {
   const items = [
     { labelDe: 'Unmodifiziertes Paraffin', labelEn: 'Unmodified paraffin', lo: 58, hi: 62, color: 'var(--bd)' },
-    { labelDe: 'Waxcelerate Classic',      labelEn: 'Waxcelerate Classic', lo: 60, hi: 76, color: '#1A3C6E' },
-    { labelDe: 'Waxcelerate Pro',          labelEn: 'Waxcelerate Pro',     lo: 60, hi: 79, color: '#2A5499' },
+    { labelDe: 'Waxcelerate Classic',      labelEn: 'Waxcelerate Classic', lo: 60, hi: 76, color: 'var(--brand)' },
+    { labelDe: 'Waxcelerate Pro',          labelEn: 'Waxcelerate Pro',     lo: 60, hi: 79, color: 'var(--ac-hi)' },
   ];
   const min = 55, max = 85;
   const toX = (v: number) => ((v - min) / (max - min)) * 100;
@@ -844,12 +844,12 @@ function ParticleSuspension({ de }: { de: boolean }) {
             <div className="absolute inset-x-2" style={{ top: '50%', height: '1px', background: 'rgba(26,60,110,0.08)' }} />
             <div className="absolute inset-x-0 top-2 flex flex-wrap gap-2 px-3 justify-center">
               {[...Array(7)].map((_, i) => (
-                <div key={i} className="sp-float w-3.5 h-3.5 rounded-full flex-shrink-0" style={{ background: '#2A5499', opacity: 0.8 }} />
+                <div key={i} className="sp-float w-3.5 h-3.5 rounded-full flex-shrink-0" style={{ background: 'var(--ac-hi)', opacity: 0.8 }} />
               ))}
             </div>
             <div className="absolute inset-x-0 bottom-0 px-2 pt-1.5 pb-1 rounded-b" style={{ background: 'rgba(26,60,110,0.30)' }}>
               <div className="flex flex-wrap gap-1.5 justify-center">
-                {[...Array(18)].map((_, i) => <div key={i} className="w-3 h-3 rounded-full" style={{ background: '#1A3C6E' }} />)}
+                {[...Array(18)].map((_, i) => <div key={i} className="w-3 h-3 rounded-full" style={{ background: 'var(--brand)' }} />)}
               </div>
             </div>
           </div>
@@ -862,7 +862,7 @@ function ParticleSuspension({ de }: { de: boolean }) {
             <div className="absolute inset-x-2" style={{ top: '50%', height: '1px', background: 'rgba(26,60,110,0.08)' }} />
             <div className="absolute inset-0 flex flex-wrap gap-2 p-3 items-center justify-center">
               {[...Array(20)].map((_, i) => (
-                <div key={i} className="sp-stable w-3.5 h-3.5 rounded-full" style={{ background: '#2A5499', opacity: 0.9 }} />
+                <div key={i} className="sp-stable w-3.5 h-3.5 rounded-full" style={{ background: 'var(--ac-hi)', opacity: 0.9 }} />
               ))}
             </div>
           </div>
@@ -892,7 +892,7 @@ const FRICTION_BARS = [
 function FrictionBars({ de }: { de: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   const { theme } = useTheme();
-  const isDark = theme === 'dark' || theme === 'noir';
+  const isDark = theme === 'noir';
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -908,7 +908,7 @@ function FrictionBars({ de }: { de: boolean }) {
   const hdrClr = isDark ? 'rgba(255,255,255,0.38)' : 'var(--txff)';
   const subClr = isDark ? 'rgba(255,255,255,0.18)' : 'var(--txff)';
   const trackClr = isDark ? 'rgba(255,255,255,0.11)' : 'var(--bd2)';
-  const tickClr = isDark ? 'rgba(255,255,255,0.20)' : 'var(--txff)';
+  const tickClr = isDark ? 'rgba(255,255,255,0.40)' : 'var(--txff)';
   const tickBorder = isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid var(--bd2)';
 
   return (
@@ -947,10 +947,10 @@ function FrictionBars({ de }: { de: boolean }) {
               ? (isDark ? 'rgba(255,255,255,0.28)' : 'var(--txff)')
               : (isDark ? 'rgba(255,255,255,0.40)' : 'var(--txm)');
           const solidClr = b.best
-            ? (i === 0 ? '#1A3080' : '#1A3C6E')
+            ? (i === 0 ? 'var(--brand)' : 'var(--brand)')
             : (isDark ? (isDim ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.16)') : (isDim ? 'var(--bd2)' : 'var(--bd)'));
           const rangeClr = b.best
-            ? (i === 0 ? 'linear-gradient(90deg,#2A5499,#6A8AE8)' : 'linear-gradient(90deg,#2A5499,#4472D4)')
+            ? (i === 0 ? 'linear-gradient(90deg,var(--ac-hi),var(--ac-lo))' : 'linear-gradient(90deg,var(--ac-hi),var(--ac))')
             : (isDark ? (isDim ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.28)') : (isDim ? 'var(--bd)' : 'var(--txff)'));
           return (
             <div key={i}>
@@ -958,7 +958,7 @@ function FrictionBars({ de }: { de: boolean }) {
                 <span className="text-[12px] font-medium" style={{ color: labelClr }}>
                   {label}
                   {'tag' in b && (
-                    <span className="ml-1.5 text-[8px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded" style={{ background: 'linear-gradient(135deg,#1A3080,#2A5499)', color: 'rgba(255,255,255,0.9)' }}>
+                    <span className="ml-1.5 text-[8px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded" style={{ background: 'var(--ac-hi)', color: 'rgba(255,255,255,0.9)' }}>
                       {b.tag}
                     </span>
                   )}
@@ -1011,7 +1011,7 @@ function Insight({ children }: { children: React.ReactNode }) {
   }, []);
   return (
     <div ref={ref} className="relative pl-5 py-1">
-      <div ref={barRef} className="absolute left-0 top-0 bottom-0 w-[3px] rounded-full" style={{ background: 'linear-gradient(to bottom,#2A5499,#7A9AEC)', opacity: 0 }} />
+      <div ref={barRef} className="absolute left-0 top-0 bottom-0 w-[3px] rounded-full" style={{ background: 'linear-gradient(to bottom,var(--ac-hi),var(--ac-lo))', opacity: 0 }} />
       <p className="font-serif-display text-[15px] leading-[1.75] italic" style={{ color: 'var(--tx2)', opacity: 0 }}>
         {children}
       </p>
@@ -1072,12 +1072,12 @@ function Chapter({ num, anchorId, catDe, catEn, titleDe, titleEn, ledeDe, ledeEn
       <div className="flex items-center gap-3 mb-8">
         <span
           className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] px-2.5 py-1.5 rounded-md leading-none select-none flex-shrink-0"
-          style={{ background: 'rgba(26,60,110,0.1)', color: '#4472D4', border: '1px solid rgba(26,60,110,0.2)' }}
+          style={{ background: 'rgba(26,60,110,0.1)', color: 'var(--ac)', border: '1px solid rgba(26,60,110,0.2)' }}
         >
           {num}
         </span>
         <div className="h-px w-8 flex-shrink-0" style={{ background: 'rgba(26,60,110,0.2)' }} />
-        <p className="text-[11px] font-medium uppercase tracking-[0.24em]" style={{ color: '#4472D4' }}>
+        <p className="text-[11px] font-medium uppercase tracking-[0.24em]" style={{ color: 'var(--ac)' }}>
           {de ? catDe : catEn}
         </p>
       </div>
@@ -1103,7 +1103,7 @@ function Chapter({ num, anchorId, catDe, catEn, titleDe, titleEn, ledeDe, ledeEn
             onClick={() => setOpen(o => !o)}
             className="flex items-center gap-2 w-fit text-[10px] uppercase tracking-[0.22em] font-semibold transition-all duration-200 px-3.5 py-1.5 rounded-full"
             style={{
-              color: open ? 'var(--txm)' : '#4472D4',
+              color: open ? 'var(--txm)' : 'var(--ac)',
               background: open ? 'var(--sf2)' : 'rgba(26,60,110,0.08)',
               border: '1px solid',
               borderColor: open ? 'var(--bd)' : 'rgba(26,60,110,0.2)',
@@ -1214,9 +1214,9 @@ function MatrixRowContent({ index, de }: { index: number; de: boolean }) {
               {de ? 'Temperaturfenster — Matrix flexibel' : 'Temperature window — matrix stays flexible'}
             </p>
             {[
-              { labelDe: 'Kälteflexibilität bis', labelEn: 'Cold flexibility to', val: '−10°C', w: 20, color: '#4472D4' },
-              { labelDe: 'Optimale Performance',  labelEn: 'Optimal performance',  val: '−8°C → +35°C', w: 80, color: '#2A5499' },
-              { labelDe: 'Thermisch stabil bis',  labelEn: 'Thermally stable to',   val: '+78°C', w: 100, color: '#1A3080' },
+              { labelDe: 'Kälteflexibilität bis', labelEn: 'Cold flexibility to', val: '−10°C', w: 20, color: 'var(--ac)' },
+              { labelDe: 'Optimale Performance',  labelEn: 'Optimal performance',  val: '−8°C → +35°C', w: 80, color: 'var(--ac-hi)' },
+              { labelDe: 'Thermisch stabil bis',  labelEn: 'Thermally stable to',   val: '+78°C', w: 100, color: 'var(--brand)' },
             ].map((item, i) => (
               <div key={i}>
                 <div className="flex justify-between mb-1.5">
@@ -1231,7 +1231,7 @@ function MatrixRowContent({ index, de }: { index: number; de: boolean }) {
             <div className="grid grid-cols-3 gap-2 pt-3" style={{ borderTop: '1px solid var(--bd2)' }}>
               {[{ de: 'Plastifizierung', en: 'Plastification' }, { de: 'Haftung', en: 'Adhesion' }, { de: 'Partikelbindung', en: 'Particle binding' }].map((fn, i) => (
                 <div key={i} className="text-center rounded-lg py-2 px-1" style={{ background: 'rgba(26,60,110,0.07)', border: '1px solid rgba(26,60,110,0.13)' }}>
-                  <p className="text-[10px] font-medium" style={{ color: '#4472D4' }}>{de ? fn.de : fn.en}</p>
+                  <p className="text-[10px] font-medium" style={{ color: 'var(--ac)' }}>{de ? fn.de : fn.en}</p>
                 </div>
               ))}
             </div>
@@ -1358,7 +1358,7 @@ function IngredientMatrix({ de, isDark }: { de: boolean; isDark: boolean }) {
               className="w-full flex items-center gap-3 sm:gap-5 px-5 py-4 text-left transition-colors"
               style={{ background: isOpen ? (isDark ? 'rgba(26,60,110,0.10)' : 'rgba(26,60,110,0.05)') : 'transparent' }}
             >
-              <span className="font-mono text-[11px] font-bold flex-shrink-0" style={{ color: isOpen ? '#4472D4' : 'var(--txff)', width: '20px' }}>
+              <span className="font-mono text-[11px] font-bold flex-shrink-0" style={{ color: isOpen ? 'var(--ac)' : 'var(--txff)', width: '20px' }}>
                 {row.num}
               </span>
               <div className="w-px self-stretch flex-shrink-0" style={{ background: 'var(--bd2)', minHeight: '20px' }} />
@@ -1373,7 +1373,7 @@ function IngredientMatrix({ de, isDark }: { de: boolean; isDark: boolean }) {
               </span>
               <ChevronDown
                 className="h-4 w-4 flex-shrink-0 transition-transform duration-300 ml-auto sm:ml-0"
-                style={{ color: isOpen ? '#4472D4' : 'var(--txf)', transform: isOpen ? 'rotate(180deg)' : 'none' }}
+                style={{ color: isOpen ? 'var(--ac)' : 'var(--txf)', transform: isOpen ? 'rotate(180deg)' : 'none' }}
               />
             </button>
             <div style={{ maxHeight: isOpen ? '3200px' : '0', overflow: 'hidden', transition: 'max-height 0.55s cubic-bezier(0.4,0,0.2,1)' }}>
@@ -1395,7 +1395,7 @@ function IngredientMatrix({ de, isDark }: { de: boolean; isDark: boolean }) {
 export function SciencePage() {
   const { lang, toggleLang } = useLanguage();
   const { theme } = useTheme();
-  const isDark = theme === 'dark' || theme === 'noir';
+  const isDark = theme === 'noir';
   const de = lang === 'de';
   const [activeChapter, setActiveChapter] = useState(-1);
   const heroRef  = useRef<HTMLElement>(null);
@@ -1453,21 +1453,21 @@ export function SciencePage() {
           <span className="font-display text-[13px] font-semibold text-wx-tx1 tracking-wide transition-all duration-300">
             {activeChapter >= 0 && CHAPTER_MAP[activeChapter] ? (
               <>
-                <span className="font-mono text-[11px]" style={{ color: '#4472D4' }}>
+                <span className="font-mono text-[11px]" style={{ color: 'var(--ac)' }}>
                   {CHAPTER_MAP[activeChapter].n}
                 </span>
-                <span style={{ color: '#4472D4' }}> · </span>
+                <span style={{ color: 'var(--ac)' }}> · </span>
                 {de ? CHAPTER_MAP[activeChapter].de : CHAPTER_MAP[activeChapter].en}
               </>
             ) : (
-              <>Waxcelerate <span style={{ color: '#4472D4' }}>·</span> {de ? 'Wissenschaft' : 'Science'}</>
+              <>Waxcelerate <span style={{ color: 'var(--ac)' }}>·</span> {de ? 'Wissenschaft' : 'Science'}</>
             )}
           </span>
           <button
             onClick={toggleLang}
             className="text-[11px] font-medium px-2.5 py-1 rounded-md border transition-all duration-200"
             style={{ color: 'var(--txm)', borderColor: 'var(--bd)', background: 'transparent' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#4472D4'; (e.currentTarget as HTMLButtonElement).style.color = '#4472D4'; }}
+            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--ac)'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--ac)'; }}
             onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--bd)'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--txm)'; }}
           >
             {lang === 'de' ? 'EN' : 'DE'}
@@ -1479,7 +1479,7 @@ export function SciencePage() {
       <section
         ref={heroRef}
         className="relative overflow-hidden flex flex-col items-center justify-center"
-        style={{ background: isDark ? '#07070A' : 'var(--sf)', minHeight: isDark ? '44vh' : '40vh' }}
+        style={{ background: isDark ? 'var(--pg)' : 'var(--sf)', minHeight: isDark ? '44vh' : '40vh' }}
       >
         <img
           src="/images/wax-hero.jpg"
@@ -1492,7 +1492,7 @@ export function SciencePage() {
         <div className="relative z-10 text-center px-4 sm:px-8 py-12 sm:py-16">
           <div data-hero-badge className="inline-flex items-center gap-3 mb-6" style={{ opacity: 0 }}>
             <div className="h-px w-8" style={{ background: isDark ? 'rgba(68,114,212,0.45)' : 'rgba(26,60,110,0.25)' }} />
-            <span className="text-[9px] font-mono uppercase tracking-[0.38em]" style={{ color: isDark ? 'rgba(68,114,212,0.65)' : '#4472D4' }}>
+            <span className="text-[9px] font-mono uppercase tracking-[0.36em]" style={{ color: isDark ? 'rgba(68,114,212,0.65)' : 'var(--ac)' }}>
               {de ? 'Formulierungsgeschichte' : 'Formula Story'}
             </span>
             <div className="h-px w-8" style={{ background: isDark ? 'rgba(68,114,212,0.45)' : 'rgba(26,60,110,0.25)' }} />
@@ -1538,7 +1538,7 @@ export function SciencePage() {
       <section id="reibung" style={{ borderTop: '1px solid var(--bd)' }}>
         <div className={`${W} py-16`}>
           <div className="flex items-center gap-4 mb-8">
-            <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.32em', color: 'var(--txff)' }}>01</span>
+            <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.36em', color: 'var(--txff)' }}>01</span>
             <div style={{ flex: 1, height: '1px', background: 'var(--bd)' }} />
           </div>
           <h2 className="font-display text-3xl sm:text-4xl font-bold text-wx-tx1 mb-3">
@@ -1557,7 +1557,7 @@ export function SciencePage() {
       <div style={{ borderTop: '1px solid var(--bd)' }}>
         <div className={`${W} py-16`}>
           <div className="flex items-center gap-4 mb-8">
-            <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.32em', color: 'var(--txff)' }}>02</span>
+            <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.36em', color: 'var(--txff)' }}>02</span>
             <div style={{ flex: 1, height: '1px', background: 'var(--bd)' }} />
           </div>
           <h2 className="font-display text-3xl sm:text-4xl font-bold text-wx-tx1 mb-3">
@@ -1576,7 +1576,7 @@ export function SciencePage() {
       <div style={{ borderTop: '1px solid var(--bd)' }}>
         <div className={`${W} py-16`}>
           <div className="flex items-center gap-4 mb-8">
-            <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.32em', color: 'var(--txff)' }}>03</span>
+            <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.36em', color: 'var(--txff)' }}>03</span>
             <div style={{ flex: 1, height: '1px', background: 'var(--bd)' }} />
           </div>
           <h2 className="font-display text-3xl sm:text-4xl font-bold text-wx-tx1 mb-3">
@@ -1595,7 +1595,7 @@ export function SciencePage() {
       <div style={{ borderTop: '1px solid var(--bd)' }}>
         <div className={`${W} py-14`}>
           <div className="flex items-center gap-4 mb-8">
-            <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.32em', color: 'var(--txff)' }}>04</span>
+            <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.36em', color: 'var(--txff)' }}>04</span>
             <div style={{ flex: 1, height: '1px', background: 'var(--bd)' }} />
           </div>
           <h2 className="font-display text-3xl sm:text-4xl font-bold text-wx-tx1 mb-10">
@@ -1609,17 +1609,17 @@ export function SciencePage() {
             }}
           >
             <div>
-              <p className="font-display font-bold text-[2.4rem] leading-none mb-1.5" style={{ color: isDark ? '#6A8AE8' : '#1A3C6E' }}>~300 km</p>
+              <p className="font-display font-bold text-[2.4rem] leading-none mb-1.5" style={{ color: isDark ? 'var(--ac-lo)' : 'var(--brand)' }}>~300 km</p>
               <p className="text-[11px] font-semibold" style={{ color: isDark ? 'rgba(255,255,255,0.70)' : 'var(--tx1)' }}>{de ? 'pro Rewax-Vorgang' : 'per rewax'}</p>
               <p className="text-[10px] mt-0.5" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'var(--txm)' }}>{de ? 'bei trockenen Bedingungen' : 'in dry conditions'}</p>
             </div>
             <div>
-              <p className="font-display font-bold text-[2.4rem] leading-none mb-1.5" style={{ color: isDark ? '#6A8AE8' : '#1A3C6E' }}>{de ? 'bis zu 3×' : 'up to 3×'}</p>
+              <p className="font-display font-bold text-[2.4rem] leading-none mb-1.5" style={{ color: isDark ? 'var(--ac-lo)' : 'var(--brand)' }}>{de ? 'bis zu 3×' : 'up to 3×'}</p>
               <p className="text-[11px] font-semibold" style={{ color: isDark ? 'rgba(255,255,255,0.70)' : 'var(--tx1)' }}>{de ? 'längere Kettenlaufzeit' : 'longer chain life'}</p>
               <p className="text-[10px] mt-0.5" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'var(--txm)' }}>{de ? 'gegenüber Kettenöl' : 'vs. chain oil'}</p>
             </div>
             <div>
-              <p className="font-display font-bold text-[2.4rem] leading-none mb-1.5" style={{ color: isDark ? '#6A8AE8' : '#1A3C6E' }}>~€35</p>
+              <p className="font-display font-bold text-[2.4rem] leading-none mb-1.5" style={{ color: isDark ? 'var(--ac-lo)' : 'var(--brand)' }}>~€35</p>
               <p className="text-[11px] font-semibold" style={{ color: isDark ? 'rgba(255,255,255,0.70)' : 'var(--tx1)' }}>{de ? 'gespart pro Jahr' : 'saved per year'}</p>
               <p className="text-[10px] mt-0.5" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'var(--txm)' }}>{de ? 'bei 5.000 km/Jahr' : 'at 5,000 km/year'}</p>
             </div>
@@ -1629,11 +1629,11 @@ export function SciencePage() {
 
       {/* ══ CTA ══════════════════════════════════════════════════════════════ */}
       <section style={{
-        background: isDark ? 'linear-gradient(160deg, #07070A 0%, #0B1830 55%, #07070A 100%)' : 'var(--sf3)',
+        background: isDark ? 'linear-gradient(160deg, var(--pg) 0%, var(--brand) 55%, var(--pg) 100%)' : 'var(--sf3)',
         borderTop: isDark ? '1px solid rgba(68,114,212,0.1)' : '1px solid var(--bd)',
       }}>
         <div className={`${W} py-20 text-center`}>
-          <p className="text-[10px] font-medium uppercase tracking-[0.28em] mb-4" style={{ color: '#4472D4' }}>
+          <p className="text-[10px] font-medium uppercase tracking-[0.28em] mb-4" style={{ color: 'var(--ac)' }}>
             {de ? 'Bereit?' : 'Ready?'}
           </p>
           <h2 className="font-display text-2xl sm:text-3xl font-bold mb-4 leading-tight" style={{ color: isDark ? '#FAFAFA' : 'var(--tx1)' }}>
@@ -1651,7 +1651,7 @@ export function SciencePage() {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2.5 px-8 py-4 rounded-full font-semibold text-[14px] transition-opacity hover:opacity-80"
               style={{
-                background: isDark ? 'linear-gradient(135deg,#1A3080,#2A5499)' : 'var(--cta-bg)',
+                background: isDark ? 'linear-gradient(135deg,var(--brand),var(--ac-hi))' : 'var(--cta-bg)',
                 color: isDark ? '#fff' : 'var(--cta-fg)',
               }}
             >

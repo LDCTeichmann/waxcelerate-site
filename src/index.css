@@ -55,8 +55,9 @@
     --radius: 0.75rem;
     --brand:       #1A3C6E;
     --brand-hover: #264E8C;
-    --brand-warm:  #B8721A;
-    --brand-warm-hover: #C8842F;
+    --ac:          #4472D4;   /* interactive: active states, highlights */
+    --ac-lo:       #5B8BED;   /* light: badges, proof accents */
+    --ac-hi:       #2A5499;   /* deep: chart fills, solid data viz */
 
     /* CTA button system — dark near-black in light mode */
     --cta-bg:    #111318;
@@ -109,6 +110,10 @@
     --tool-bg:   #050507;
     --card-shadow-hover: 0 8px 28px rgba(0,0,0,0.70), 0 28px 72px rgba(0,0,0,0.75), 0 0 0 1px rgba(26,60,110,0.25);
     --card-img-fade: var(--card-to);
+
+    --ac:          #4472D4;
+    --ac-lo:       #5B8BED;
+    --ac-hi:       #2A5499;
 
     /* CTA button system — warm ivory in dark mode */
     --cta-bg:    #EDE9E0;
