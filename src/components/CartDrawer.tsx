@@ -233,7 +233,7 @@ export function CartDrawer() {
             <button
               onClick={async () => {
                 try {
-                  await checkout();
+                  await checkout(de);
                 } catch (err) {
                   const msg = err instanceof Error ? err.message : t.cart.error;
                   toast.error(msg);
