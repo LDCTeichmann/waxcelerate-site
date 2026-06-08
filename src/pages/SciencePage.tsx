@@ -4,6 +4,7 @@ import { ArrowLeft, ChevronDown, RotateCcw } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
 import { gsap } from '@/lib/gsap';
+import { PageTransition } from '@/components/PageTransition';
 
 // ─── Static data ──────────────────────────────────────────────────────────────
 
@@ -2176,6 +2177,8 @@ export function SciencePage() {
   ];
 
   return (
+    <PageTransition>
+
     <div className="min-h-screen" style={{ background: 'var(--pg)' }}>
       <GrainOverlay />
       <ScrollProgress />
@@ -2760,5 +2763,7 @@ export function SciencePage() {
       </section>
 
     </div>
+  
+    </PageTransition>
   );
 }

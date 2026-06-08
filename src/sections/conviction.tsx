@@ -1,4 +1,5 @@
 import { useLanguage } from '@/hooks/useLanguage';
+import { AnimatedNumber } from '@/components/AnimatedNumber';
 
 export function Conviction() {
   const { lang } = useLanguage();
@@ -6,22 +7,22 @@ export function Conviction() {
 
   const stats = [
     {
-      number: '171',
+      numValue: 171, prefix: '', suffix: '',
       label: de ? 'Bewertungen' : 'Reviews',
       sub: 'eBay verifiziert',
     },
     {
-      number: '100%',
+      numValue: 100, prefix: '', suffix: '%',
       label: de ? 'positiv' : 'positive',
       sub: de ? 'seit Gründung 2024' : 'since founding 2024',
     },
     {
-      number: '−46%',
+      numValue: 46, prefix: '−', suffix: '%',
       label: de ? 'günstiger' : 'lower cost',
       sub: de ? 'vs. Öl · 12 Tkm *' : 'vs. oil · 12k km *',
     },
     {
-      number: '3×',
+      numValue: 3, prefix: '', suffix: '×',
       label: de ? 'Kettenlaufzeit' : 'chain life',
       sub: de ? 'vs. Öl †' : 'vs. oil †',
     },
@@ -45,7 +46,7 @@ export function Conviction() {
                   className="font-display font-bold text-wx-tx1 tabular-nums leading-none"
                   style={{ fontSize: 'clamp(1.4rem, 4vw, 2.25rem)' }}
                 >
-                  {s.number}
+                  <AnimatedNumber value={s.numValue} prefix={s.prefix} suffix={s.suffix} duration={1.6} />
                 </p>
                 <p className="text-[12px] font-medium mt-1.5" style={{ color: 'var(--tx2)' }}>
                   {s.label}

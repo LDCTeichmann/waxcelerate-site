@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { TrendingDown, BarChart2 } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useSectionReveal } from '@/hooks/useAnimation';
+import { BeforeAfterSlider } from '@/components/BeforeAfterSlider';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { gsap } from '@/lib/gsap';
 
@@ -893,6 +894,13 @@ export function WhyWax() {
             </Link>
           </div>
 
+        </div>
+      </div>
+
+      {/* ── Visual proof: before/after drag comparison ── */}
+      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 pb-16 relative z-10">
+        <div className="max-w-3xl mx-auto">
+          <BeforeAfterSlider />
         </div>
       </div>
 

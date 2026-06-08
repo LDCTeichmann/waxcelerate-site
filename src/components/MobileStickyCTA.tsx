@@ -1,11 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useCartStore, cartItemCount } from '@/store/cart';
 
 export function MobileStickyCTA() {
   const location = useLocation();
   const { lang } = useLanguage();
+  const de = lang === 'de';
   const [visible, setVisible] = useState(false);
+
+  const items = useCartStore((s) => s.items);
+  const openCart = useCartStore((s) => s.openCart);
+  const count = cartItemCount(items);
+  const hasItems = count > 0;
 
   const isMain = location.pathname === '/';
 
@@ -16,35 +23,34 @@ export function MobileStickyCTA() {
     if (!home || !products) return;
 
     const homeObserver = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry.isIntersecting) setVisible(true);
-      },
+      ([entry]) => { if (!entry.isIntersecting) setVisible(true); },
       { threshold: 0 }
     );
 
     const productsObserver = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setVisible(false);
-      },
+      ([entry]) => { if (entry.isIntersecting) setVisible(false); },
       { rootMargin: '0px 0px -50% 0px', threshold: 0 }
     );
 
     homeObserver.observe(home);
     productsObserver.observe(products);
 
-    return () => {
-      homeObserver.disconnect();
-      productsObserver.disconnect();
-    };
+    return () => { homeObserver.disconnect(); productsObserver.disconnect(); };
   }, [isMain]);
 
   if (!isMain) return null;
 
-  const label = lang === 'de' ? 'Jetzt bestellen →' : 'Buy now →';
-
   const handleClick = () => {
-    document.getElementById('produkte')?.scrollIntoView({ behavior: 'smooth' });
+    if (hasItems) {
+      openCart();
+    } else {
+      document.getElementById('produkte')?.scrollIntoView({ behavior: 'smooth' });
+    }
   };
+
+  const label = hasItems
+    ? (de ? `Warenkorb ansehen · ${count}` : `View cart · ${count}`)
+    : (de ? 'Jetzt bestellen →' : 'Buy now →');
 
   return (
     <div
@@ -52,7 +58,7 @@ export function MobileStickyCTA() {
     >
       <button
         onClick={handleClick}
-        className="w-full py-4 text-sm font-semibold"
+        className="w-full py-4 text-sm font-semibold flex items-center justify-center gap-2"
         style={{
           background: 'var(--cta-bg)',
           color: 'var(--cta-fg)',
@@ -60,6 +66,14 @@ export function MobileStickyCTA() {
         }}
       >
         {label}
+        {hasItems && (
+          <span
+            className="inline-flex items-center justify-center rounded-full text-[11px] font-bold"
+            style={{ background: 'rgba(255,255,255,0.25)', minWidth: '1.25rem', height: '1.25rem', padding: '0 4px' }}
+          >
+            {count}
+          </span>
+        )}
       </button>
     </div>
   );

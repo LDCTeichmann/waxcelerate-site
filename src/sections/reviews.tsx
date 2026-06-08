@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
+import { AnimatedNumber } from '@/components/AnimatedNumber';
 
 
 const reviews = [
@@ -71,7 +72,7 @@ export function Reviews() {
             {de ? 'eBay verifiziert · alle Bewertungen echt' : 'eBay verified · all reviews genuine'}
           </p>
           <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-3">
-            {de ? '171 Fahrer. 100 % positiv.' : '171 Riders. 100 % positive.'}
+            {de ? (<><AnimatedNumber value={171} /> Fahrer. 100 % positiv.</>) : (<><AnimatedNumber value={171} /> Riders. 100 % positive.</>)}
           </h2>
           <p className="text-[15px] text-wx-txm mb-6 max-w-md">
             {de
@@ -87,7 +88,7 @@ export function Reviews() {
                 </svg>
               ))}
             </div>
-            <span className="text-sm font-semibold text-wx-tx1">171</span>
+            <span className="text-sm font-semibold text-wx-tx1"><AnimatedNumber value={171} /></span>
             <span style={{ color: 'var(--bd)' }}>·</span>
             <span className="text-[13px]" style={{ color: 'var(--txm)' }}>
               {de ? '326 Bestellungen' : '326 orders'}

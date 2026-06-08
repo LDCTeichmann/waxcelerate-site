@@ -359,6 +359,17 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice }: CardProps) {
               </span>
             )}
           </div>
+          {/* Low-stock overlay */}
+          {lowStock && stockCount > 0 && (
+            <div className="absolute bottom-3 left-3">
+              <span
+                className="text-[10px] font-semibold px-2.5 py-1 rounded-full"
+                style={{ background: 'rgba(230,126,34,0.85)', color: '#fff', backdropFilter: 'blur(4px)' }}
+              >
+                {de ? `Nur noch ${stockCount} verfügbar` : `Only ${stockCount} left`}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Content */}

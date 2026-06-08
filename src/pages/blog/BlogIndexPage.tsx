@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { articles } from './articles';
+import { PageTransition } from '@/components/PageTransition';
 
 export function BlogIndexPage() {
   return (
+    <PageTransition>
     <div className="min-h-screen" style={{ background: 'var(--pg)' }}>
       <Helmet>
         <title>Heißwachs Tipps &amp; Anleitungen | Waxcelerate Blog</title>
@@ -110,5 +112,7 @@ export function BlogIndexPage() {
         </div>
       </main>
     </div>
+  
+    </PageTransition>
   );
 }
