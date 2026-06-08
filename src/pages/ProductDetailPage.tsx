@@ -637,7 +637,7 @@ export function ProductDetailPage() {
                     />
                   </button>
                   <div
-                    className="grid transition-[grid-template-rows] duration-[250ms] ease-in-out"
+                    className="grid transition-[grid-template-rows] duration-250 ease-in-out"
                     style={{ gridTemplateRows: v9Expanded ? '1fr' : '0fr' }}
                   >
                     <div className="overflow-hidden">

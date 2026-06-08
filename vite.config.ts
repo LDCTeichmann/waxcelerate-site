@@ -14,9 +14,13 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          gsap: ['gsap'],
-          vendor: ['react', 'react-dom', 'react-router-dom'],
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('/gsap/')) return 'gsap';
+            if (id.includes('/react/') || id.includes('/react-dom/') || id.includes('/react-router')) return 'vendor';
+            if (id.includes('/d3-delaunay/') || id.includes('/delaunator/') || id.includes('/robust-predicates/')) return 'd3';
+            if (id.includes('/lucide-react/')) return 'icons';
+          }
         },
       },
     },

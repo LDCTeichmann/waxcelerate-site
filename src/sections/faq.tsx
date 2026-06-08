@@ -94,7 +94,7 @@ export function FAQ() {
                 </button>
 
                 <div
-                  className="grid transition-[grid-template-rows] duration-[320ms]"
+                  className="grid transition-[grid-template-rows] duration-320"
                   style={{
                     gridTemplateRows: openItem === index.toString() ? '1fr' : '0fr',
                     transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',

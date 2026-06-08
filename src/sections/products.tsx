@@ -697,7 +697,7 @@ function CompareModal({ open, onClose, de, t }: {
                 />
               </button>
               <div
-                className="grid transition-[grid-template-rows] duration-[280ms] ease-in-out"
+                className="grid transition-[grid-template-rows] duration-280 ease-in-out"
                 style={{ gridTemplateRows: classicOpen ? '1fr' : '0fr' }}
               >
                 <div className="overflow-hidden">
@@ -762,7 +762,7 @@ function CompareModal({ open, onClose, de, t }: {
                 />
               </button>
               <div
-                className="grid transition-[grid-template-rows] duration-[280ms] ease-in-out"
+                className="grid transition-[grid-template-rows] duration-280 ease-in-out"
                 style={{ gridTemplateRows: proOpen ? '1fr' : '0fr' }}
               >
                 <div className="overflow-hidden">

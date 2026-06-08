@@ -1,9 +1,14 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: false,
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
+      transitionDuration: {
+        '250': '250ms',
+        '280': '280ms',
+        '320': '320ms',
+        '350': '350ms',
+      },
       fontFamily: {
         display:         ['Fraunces', 'Georgia', 'serif'],
         sans:            ['Space Grotesk', 'ui-sans-serif', 'system-ui', 'sans-serif'],
