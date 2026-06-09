@@ -53,21 +53,25 @@ export function Hero() {
         ['--tx1' as string]: '#F7F7F8',
       } as React.CSSProperties}
     >
-      {/* Full-bleed macro — the clean, waxed chain (lightweight 582 KB source) */}
-      <img
-        src="/images/chain-clean.jpg"
-        alt=""
-        className="absolute inset-0 w-full h-full object-cover"
-        style={{ objectPosition: '62% 42%' }}
-        fetchPriority="high"
-      />
+      {/* Full-bleed dark chain-texture macro — material, präzise, ruhig.
+          Optimiert: 66 KB webp / 146 KB jpg (aus 5,5 MB Original). */}
+      <picture>
+        <source srcSet="/images/hero-texture.webp" type="image/webp" />
+        <img
+          src="/images/hero-texture.jpg"
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ objectPosition: '50% 48%' }}
+          fetchPriority="high"
+        />
+      </picture>
 
       {/* Scrims — left-weighted for legibility, no blue glow */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            'linear-gradient(90deg, rgba(8,8,10,0.94) 0%, rgba(8,8,10,0.74) 38%, rgba(8,8,10,0.32) 70%, rgba(8,8,10,0.08) 100%)',
+            'linear-gradient(90deg, rgba(8,8,10,0.92) 0%, rgba(8,8,10,0.70) 42%, rgba(8,8,10,0.36) 72%, rgba(8,8,10,0.12) 100%)',
         }}
       />
       <div
@@ -86,7 +90,7 @@ export function Hero() {
 
             {/* Eyebrow */}
             <div data-hero className="flex items-center gap-3 mb-6">
-              <span style={{ width: '26px', height: '1px', background: 'var(--accent-soft)' }} />
+              <span style={{ width: '26px', height: '2px', background: 'var(--brand-blue)' }} />
               <p
                 className="text-[10px] sm:text-[11px] uppercase font-semibold"
                 style={{ letterSpacing: '0.34em', color: 'rgba(255,255,255,0.58)' }}

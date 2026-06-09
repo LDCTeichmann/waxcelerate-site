@@ -33,13 +33,16 @@
     --card-shadow-hover: 0 4px 20px rgba(0,0,0,0.10), 0 12px 40px rgba(0,0,0,0.08), 0 0 0 1px rgba(var(--accent-rgb),0.15);
     --card-img-fade: transparent;
 
-    /* ── Single ink-blue accent ramp (light) ── */
+    /* ── Single ink-blue accent ramp (light) — STRUKTUR / Vertrauen ── */
     --accent:            #1F4A7D;
     --accent-rgb:        31,74,125;
     --accent-strong:     #16385F;
     --accent-strong-rgb: 22,56,95;
     --accent-soft:       #3A66A0;
     --accent-soft-rgb:   58,102,160;
+    /* ── Echtes Produktblau — SELTENER Signature-Akzent (<5% Fläche) ── */
+    --brand-blue:        #2E78C8;
+    --brand-blue-rgb:    46,120,200;
 
     /* Documented off-system exceptions (external brand / status only) */
     --ext-whatsapp:      #1A7A4A;
@@ -131,6 +134,9 @@
     --accent-strong-rgb: 58,102,160;
     --accent-soft:       #7AA0CE;
     --accent-soft-rgb:   122,160,206;
+    /* Echtes Produktblau — seltener Signature-Akzent (heller auf Dunkel) */
+    --brand-blue:        #3E8FE0;
+    --brand-blue-rgb:    62,143,224;
 
     --ext-whatsapp:      #25D366;
     --ext-whatsapp-rgb:  37,211,102;
@@ -183,7 +189,7 @@
   }
 
   body {
-    font-family: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+    font-family: 'Hanken Grotesk', ui-sans-serif, system-ui, sans-serif;
     background-color: var(--pg);
     color: var(--tx1);
     -webkit-font-smoothing: antialiased;
