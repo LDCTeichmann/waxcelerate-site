@@ -10,6 +10,15 @@ module.exports = {
         roboto:          ['Roboto', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         'serif-display': ['Fraunces', 'Georgia', 'serif'],
       },
+      // Semantic type scale (Workstream 2) — for the micro/label long-tail.
+      // Coexists with Tailwind defaults; migrate ad-hoc text-[Npx] to these.
+      fontSize: {
+        'eyebrow': ['0.6875rem', { lineHeight: '1', letterSpacing: '0.24em' }],
+        'meta':    ['0.75rem',   { lineHeight: '1.45' }],   // 12px
+        'small':   ['0.8125rem', { lineHeight: '1.55' }],   // 13px
+        'body':    ['0.9375rem', { lineHeight: '1.6'  }],   // 15px
+        'lead':    ['1.0625rem', { lineHeight: '1.6'  }],   // 17px
+      },
       colors: {
         wx: {
           bg:   'var(--pg)',

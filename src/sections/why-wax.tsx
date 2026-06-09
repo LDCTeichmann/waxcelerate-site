@@ -584,7 +584,7 @@ function MechanismStrip({
 
             {/* Eyebrow + spec */}
             <div className="flex items-start justify-between gap-4 mb-2">
-              <span className="text-[10px] font-semibold uppercase tracking-[0.22em]"
+              <span className="eyebrow"
                 style={{ color: 'var(--txff)' }}>
                 {de ? catDe : catEn}
               </span>
@@ -713,7 +713,7 @@ export function WhyWax() {
 
           {/* ── Header ── */}
           <div ref={headerRef} className="mb-10">
-            <p className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-semibold mb-3"
+            <p className="eyebrow mb-3"
               style={{ color: 'var(--txf)' }}>
               {de ? 'Die Formel' : 'The Formula'}
             </p>

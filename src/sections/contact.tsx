@@ -35,7 +35,7 @@ export function Contact() {
 
           {/* Header */}
           <div ref={headerRef} className="text-center mb-12">
-            <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-4">
+            <h2 className="section-title mb-4">
               <ScrollWordReveal text={t.contact.title} />
             </h2>
             <p data-reveal="subtitle" className="text-wx-tx2">

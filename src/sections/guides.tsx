@@ -40,7 +40,7 @@ export function Guides() {
         <div className="max-w-4xl mx-auto">
 
           <div className="mb-12">
-            <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-4">
+            <h2 className="section-title mb-4">
               <ScrollWordReveal text={t.guides.title} />
             </h2>
             <p className="text-wx-tx2">{t.guides.subtitle}</p>

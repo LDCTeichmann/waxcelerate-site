@@ -827,7 +827,7 @@ export function Tools() {
         <div className="max-w-6xl mx-auto">
 
           <div ref={headerRef} className="mb-16">
-            <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-4">
+            <h2 className="section-title mb-4">
               <ScrollWordReveal text={t.tools.title} />
             </h2>
             <p data-reveal="subtitle" className="text-wx-tx2 max-w-xl text-[15px]">

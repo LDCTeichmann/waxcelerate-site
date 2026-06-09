@@ -71,12 +71,12 @@ export function About() {
           {/* ── Header ─────────────────────────────────────────────────── */}
           <div ref={headerRef} className="text-center mb-10">
             <p
-              className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-semibold mb-3"
+              className="eyebrow mb-3"
               style={{ color: 'var(--txf)' }}
             >
               {de ? 'Die Geschichte' : 'Our Story'}
             </p>
-            <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1">
+            <h2 className="section-title">
               <ScrollWordReveal text={t.about.title} />
             </h2>
           </div>

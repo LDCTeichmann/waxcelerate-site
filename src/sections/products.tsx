@@ -112,7 +112,7 @@ export function Products() {
 
           {/* Header */}
           <div ref={headerRef} className="mb-10">
-            <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-4">
+            <h2 className="section-title mb-4">
               <ScrollWordReveal text={t.products.title} />
             </h2>
             <p data-reveal="subtitle" className="text-wx-txm max-w-xl">

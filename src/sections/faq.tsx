@@ -30,7 +30,7 @@ export function FAQ() {
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-2xl mx-auto">
           <div className="mb-16">
-            <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-4">
+            <h2 className="section-title mb-4">
               <ScrollWordReveal text={t.faq.title} />
             </h2>
             <p className="text-wx-tx2">
@@ -135,8 +135,7 @@ export function FAQ() {
           <div className="mt-10 flex justify-center">
             <button
               onClick={() => document.querySelector('#produkte')?.scrollIntoView({ behavior: 'smooth' })}
-              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-[14px] font-semibold transition-opacity hover:opacity-90"
-              style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
+              className="btn-primary px-7 py-3.5 text-[14px]"
             >
               {de ? 'Kette jetzt sauber halten →' : 'Keep my chain clean →'}
             </button>
