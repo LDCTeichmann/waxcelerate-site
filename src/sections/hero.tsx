@@ -4,16 +4,17 @@ import { useLanguage } from '@/hooks/useLanguage';
 import gsap from 'gsap';
 
 /**
- * Hero — Engineered Editorial.
- * One clean composition: a value-led headline over a light waxed-chain macro,
- * a single primary CTA, an inline trust strip, and a spec ribbon at the foot.
- * No frosted panel, no giant wordmark, no glow, no infinite particle loops.
+ * Hero — „Proven Performance", aber mit Seele.
+ * Cineastisch: lebendiges Ketten-Makro, großes ausdrucksstarkes Fraunces-Italic
+ * als emotionaler Hook, ruhiger Image-Settle + gewichtetes Reveal, Vignette/Grain
+ * für Stimmung. Ein einziger Produktblau-Akzent. Kein Glow, keine Loops.
  */
 export function Hero() {
   const { t, lang } = useLanguage();
   const de = lang === 'de';
 
   const rootRef  = useRef<HTMLElement>(null);
+  const imgRef   = useRef<HTMLDivElement>(null);
   const animated = useRef(false);
 
   useEffect(() => {
@@ -25,11 +26,16 @@ export function Hero() {
     const items = root.querySelectorAll<HTMLElement>('[data-hero]');
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       gsap.set(items, { opacity: 1, y: 0 });
+      if (imgRef.current) gsap.set(imgRef.current, { scale: 1 });
       return;
     }
-    gsap.set(items, { opacity: 0, y: 22 });
+    // Cineastischer Bild-Settle — langsam, schwer, kein Tech-Demo.
+    if (imgRef.current) {
+      gsap.fromTo(imgRef.current, { scale: 1.09 }, { scale: 1, duration: 2.2, ease: 'power2.out' });
+    }
+    gsap.set(items, { opacity: 0, y: 30 });
     gsap.to(items, {
-      opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', stagger: 0.1, delay: 0.12,
+      opacity: 1, y: 0, duration: 1.0, ease: 'power3.out', stagger: 0.13, delay: 0.15,
     });
   }, []);
 
@@ -49,79 +55,90 @@ export function Hero() {
       className="relative overflow-hidden grain"
       style={{
         height: '100dvh',
-        background: '#0A0A0B',
+        background: '#08080A',
         ['--tx1' as string]: '#F7F7F8',
       } as React.CSSProperties}
     >
-      {/* Full-bleed dark chain-texture macro — material, präzise, ruhig.
-          Optimiert: 66 KB webp / 146 KB jpg (aus 5,5 MB Original). */}
-      <picture>
-        <source srcSet="/images/hero-texture.webp" type="image/webp" />
-        <img
-          src="/images/hero-texture.jpg"
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover"
-          style={{ objectPosition: '50% 48%' }}
-          fetchPriority="high"
-        />
-      </picture>
+      {/* Lebendiges Ketten-Makro mit langsamem Settle (77 KB webp / 166 KB jpg) */}
+      <div ref={imgRef} className="absolute inset-0 will-change-transform">
+        <picture>
+          <source srcSet="/images/hero-silver.webp" type="image/webp" />
+          <img
+            src="/images/hero-silver.jpg"
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ objectPosition: '50% 45%' }}
+            fetchPriority="high"
+          />
+        </picture>
+      </div>
 
-      {/* Scrims — left-weighted for legibility, no blue glow */}
+      {/* Cineastische Gradation: Vignette + linker Scrim + Säume */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{ background: 'radial-gradient(125% 120% at 32% 36%, transparent 28%, rgba(5,5,7,0.60) 100%)' }}
+      />
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            'linear-gradient(90deg, rgba(8,8,10,0.92) 0%, rgba(8,8,10,0.70) 42%, rgba(8,8,10,0.36) 72%, rgba(8,8,10,0.12) 100%)',
+            'linear-gradient(90deg, rgba(7,7,9,0.93) 0%, rgba(7,7,9,0.72) 40%, rgba(7,7,9,0.34) 72%, rgba(7,7,9,0.10) 100%)',
         }}
       />
       <div
         className="absolute top-0 inset-x-0 h-32 pointer-events-none"
-        style={{ background: 'linear-gradient(to bottom, rgba(8,8,10,0.65), transparent)' }}
+        style={{ background: 'linear-gradient(to bottom, rgba(7,7,9,0.6), transparent)' }}
       />
       <div
         className="absolute bottom-0 inset-x-0 h-44 pointer-events-none"
-        style={{ background: 'linear-gradient(to top, #0A0A0B 0%, transparent 100%)' }}
+        style={{ background: 'linear-gradient(to top, #08080A 0%, transparent 100%)' }}
       />
 
       {/* Content */}
       <div className="relative z-10 h-full w-full px-6 sm:px-10 lg:px-16 xl:px-24">
         <div className="h-full max-w-7xl mx-auto flex flex-col justify-center">
-          <div className="max-w-2xl pb-20 sm:pb-16">
+          <div className="max-w-3xl pb-20 sm:pb-16">
 
-            {/* Eyebrow */}
-            <div data-hero className="flex items-center gap-3 mb-6">
-              <span style={{ width: '26px', height: '2px', background: 'var(--brand-blue)' }} />
+            {/* Eyebrow — der einzige Produktblau-Akzent */}
+            <div data-hero className="flex items-center gap-3 mb-7">
+              <span style={{ width: '30px', height: '2px', background: 'var(--brand-blue)' }} />
               <p
                 className="text-[10px] sm:text-[11px] uppercase font-semibold"
-                style={{ letterSpacing: '0.34em', color: 'rgba(255,255,255,0.58)' }}
+                style={{ letterSpacing: '0.36em', color: 'rgba(255,255,255,0.6)' }}
               >
                 {t.hero.subtitle}
               </p>
             </div>
 
-            {/* Poetic kicker (existing brand line) */}
-            <p
-              data-hero
-              className="font-display italic mb-3"
-              style={{ fontSize: 'clamp(1.05rem, 1.9vw, 1.5rem)', color: 'rgba(255,255,255,0.5)' }}
-            >
-              {t.hero.headline}
-            </p>
-
-            {/* Value-led headline */}
+            {/* Emotionaler Hook — großes Fraunces-Italic */}
             <h1
               data-hero
-              className="font-display font-black text-white mb-7"
-              style={{ fontSize: 'clamp(2.3rem, 5.2vw, 4.5rem)', lineHeight: 1.03, letterSpacing: '-0.022em' }}
+              className="font-display italic text-white"
+              style={{
+                fontSize: 'clamp(2.9rem, 7.2vw, 6rem)',
+                lineHeight: 0.98,
+                letterSpacing: '-0.02em',
+                fontWeight: 700,
+                textShadow: '0 6px 60px rgba(0,0,0,0.45)',
+              }}
             >
-              {t.hero.tagline}
+              {t.hero.headline}
             </h1>
 
-            {/* Trust strip */}
+            {/* Konkreter Nutzen — ruhige Stütze */}
+            <p
+              data-hero
+              className="mt-6 max-w-xl leading-relaxed"
+              style={{ fontSize: 'clamp(0.95rem, 1.5vw, 1.0625rem)', color: 'rgba(255,255,255,0.72)' }}
+            >
+              {t.hero.tagline}
+            </p>
+
+            {/* Trust-Zeile */}
             <div
               data-hero
-              className="flex flex-wrap items-center gap-x-4 gap-y-2 mb-9 text-[13px]"
-              style={{ color: 'rgba(255,255,255,0.64)' }}
+              className="mt-7 flex flex-wrap items-center gap-x-4 gap-y-2 text-[13px]"
+              style={{ color: 'rgba(255,255,255,0.62)' }}
             >
               <span className="inline-flex items-center gap-1.5">
                 <span style={{ color: 'rgba(255,255,255,0.92)', letterSpacing: '0.05em' }}>★★★★★</span>
@@ -134,7 +151,7 @@ export function Hero() {
             </div>
 
             {/* CTAs */}
-            <div data-hero className="flex items-center gap-5 flex-wrap">
+            <div data-hero className="mt-9 flex items-center gap-5 flex-wrap">
               <button
                 onClick={() => scrollTo('#produkte')}
                 className="inline-flex items-center gap-2.5 px-8 py-3.5 text-[14px] font-bold rounded-full transition-all active:scale-[0.98]"
@@ -161,7 +178,7 @@ export function Hero() {
         </div>
       </div>
 
-      {/* Spec ribbon — engineered signature; single home for the 3 headline stats */}
+      {/* Spec-Ribbon — engineering signature, Heimat der drei Headline-Stats */}
       <div data-hero className="absolute bottom-0 inset-x-0 z-10">
         <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 xl:px-24">
           <div
