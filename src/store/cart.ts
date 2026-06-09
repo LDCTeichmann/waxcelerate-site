@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Product } from '@/lib/data';
+import { analytics } from '@/lib/analytics';
 
 export interface CartItem {
   productId: string;
@@ -84,6 +85,10 @@ export const useCartStore = create<CartStore>()(
 
       checkout: async () => {
         const { items } = get();
+        analytics.beginCheckout(
+          items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
+          cartTotalPrice(items)
+        );
         set({ isCheckingOut: true });
         try {
           const res = await fetch('/api/create-checkout', {

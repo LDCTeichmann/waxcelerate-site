@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { CheckCircle } from 'lucide-react';
 import { useCartStore } from '@/store/cart';
 import { useLanguage } from '@/hooks/useLanguage';
+import { analytics } from '@/lib/analytics';
 
 export function OrderSuccess() {
   const [params] = useSearchParams();
@@ -12,7 +13,7 @@ export function OrderSuccess() {
   const { t } = useLanguage();
 
   useEffect(() => {
-    if (sessionId) { clear(); closeCart(); }
+    if (sessionId) { analytics.purchase(sessionId); clear(); closeCart(); }
   }, [sessionId, clear, closeCart]);
 
   return (
