@@ -1,5 +1,5 @@
 import { useParams, Link } from 'react-router-dom';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
   ArrowLeft, ExternalLink, Check,
@@ -12,6 +12,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { AddToCartButton } from '@/components/AddToCartButton';
 import { CartIcon } from '@/components/CartIcon';
 import { ImageLightbox } from '@/components/ImageLightbox';
+import { analytics } from '@/lib/analytics';
 
 type RichTab = 'formula' | 'vergleich' | 'kosten';
 
@@ -28,6 +29,11 @@ export function ProductDetailPage() {
   const [compatExpanded, setCompatExpanded] = useState(false);
   const [v9Expanded, setV9Expanded] = useState(false);
   const [richTab, setRichTab] = useState<RichTab>('formula');
+
+  // Fire once per product view (guarded so hook order stays stable above the early return).
+  useEffect(() => {
+    if (product) analytics.viewProduct(product.id, product.price);
+  }, [product]);
 
   if (!product) {
     return (
@@ -262,6 +268,7 @@ export function ProductDetailPage() {
                       href={product.ebayUrl}
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={() => analytics.ebayClick(product.id)}
                       className="flex items-center justify-center gap-1.5 py-2 text-[12px] transition-opacity hover:opacity-60"
                       style={{ color: 'var(--txm)' }}
                     >
@@ -274,6 +281,7 @@ export function ProductDetailPage() {
                     href={product.ebayUrl}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={() => analytics.ebayClick(product.id)}
                     className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-semibold transition-all hover:opacity-90 mt-1"
                     style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
                   >
@@ -797,6 +805,7 @@ export function ProductDetailPage() {
                 href={product.ebayUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => analytics.ebayClick(product.id)}
                 className="mt-8 flex items-center justify-center gap-2 w-full py-4 rounded-xl text-sm font-semibold transition-all hover:opacity-90"
                 style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
               >

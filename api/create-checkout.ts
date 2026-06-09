@@ -59,7 +59,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     },
     success_url: `${origin}/bestellung-erfolgreich?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${origin}/#produkte`,
-    metadata: { source: 'website' },
+    // Compact cart snapshot ([id, qty] pairs) so the webhook can decrement stock
+    // without re-deriving products from Stripe price IDs. Metadata caps at 500 chars.
+    metadata: {
+      source: 'website',
+      cart: JSON.stringify(items.map((i) => [i.productId, i.quantity])),
+    },
   });
 
   return res.json({ url: session.url });

@@ -1,5 +1,5 @@
 import { useEffect, lazy, Suspense } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import { Navigation } from '@/sections/navigation';
 import { Hero } from '@/sections/hero';
 import { Products } from '@/sections/products';
@@ -32,6 +32,7 @@ import { ScrollProgress } from '@/components/ScrollProgress';
 import { MobileStickyCTA } from '@/components/MobileStickyCTA';
 import { CartPersistenceHint } from '@/components/CartPersistenceHint';
 import { SectionDots } from '@/components/SectionDots';
+import { analytics } from '@/lib/analytics';
 
 const PageLoader = () => (
   <div style={{ minHeight: '100vh', background: 'var(--pg)' }} />
@@ -39,8 +40,14 @@ const PageLoader = () => (
 
 function AppContent() {
   const fetchStock = useCartStore((s) => s.fetchStock);
+  const location = useLocation();
 
   useEffect(() => { void fetchStock(); }, [fetchStock]);
+
+  // Capture an SPA pageview on every route change (initial load included).
+  useEffect(() => {
+    analytics.pageview(location.pathname + location.search);
+  }, [location.pathname, location.search]);
 
   return (
     <div className="min-h-screen bg-wx-bg text-wx-tx1">

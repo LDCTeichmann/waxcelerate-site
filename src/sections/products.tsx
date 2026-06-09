@@ -9,6 +9,7 @@ import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { products } from '@/lib/data';
 import { richContent } from '@/lib/productContent';
 import { getEstimatedDelivery } from '@/lib/utils';
+import { analytics } from '@/lib/analytics';
 
 
 const filterChip = (active: boolean) =>
@@ -386,7 +387,7 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: Ca
               </p>
             </div>
             <button
-              onClick={e => { e.preventDefault(); e.stopPropagation(); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
+              onClick={e => { e.preventDefault(); e.stopPropagation(); analytics.ebayClick(product.id); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
               className="flex items-center gap-1.5 px-4 py-2.5 text-[13px] font-semibold rounded-xl transition-opacity duration-150 hover:opacity-90 active:scale-[0.97]"
               style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
             >
@@ -487,7 +488,7 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
           <div className="flex items-center justify-between gap-3 pt-3" style={{ borderTop: '1px solid var(--bd2)' }}>
             <span className="text-[20px] font-bold text-wx-tx1 tracking-[-0.02em]">{formatPrice(product.price)}</span>
             <button
-              onClick={e => { e.preventDefault(); e.stopPropagation(); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
+              onClick={e => { e.preventDefault(); e.stopPropagation(); analytics.ebayClick(product.id); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
               className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-opacity duration-150 hover:opacity-90 active:scale-[0.97]"
               style={{ background: '#1A3C6E' }}
             >
