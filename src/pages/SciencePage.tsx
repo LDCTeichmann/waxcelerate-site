@@ -506,15 +506,10 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
   const svgRef        = useRef<SVGSVGElement>(null);
   const edgeRefs      = useRef<(SVGPathElement | null)[]>([]);
   const nodeRefs      = useRef<(SVGGElement | null)[]>([]);
-  const ringRefs      = useRef<(SVGCircleElement | null)[]>([]);
-  const mos2LayerRefs = useRef<(SVGRectElement | null)[]>([]);
-  const pulseRef       = useRef<SVGCircleElement | null>(null);
-  const carrierDotRef  = useRef<SVGCircleElement | null>(null);
   const vignetteRef    = useRef<SVGGElement | null>(null);
   const didAnimate     = useRef(false);
   const [hoveredNode, setHoveredNode] = useState<number | null>(null);
   const [canHover,    setCanHover]    = useState(mode === 'overview');
-  const [assembled,   setAssembled]   = useState(mode === 'overview');
 
   const isOverview = mode === 'overview';
   const uid = `fa-${mode}-${isDark ? 'd' : 'l'}`;
@@ -570,7 +565,7 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
 
       const tl = gsap.timeline({
         scrollTrigger: { trigger: svgRef.current, start: 'top 80%', once: true },
-        onComplete: () => { didAnimate.current = true; setCanHover(true); setAssembled(true); },
+        onComplete: () => { didAnimate.current = true; setCanHover(true); },
       });
 
       // 1. MoS₂ crystallizes — the REASON for the entire formula
@@ -612,76 +607,7 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
     return () => ctx.revert();
   }, [mode]);
 
-  // ── Ambient animations — run after assembly, make the system feel alive ──────
-  useEffect(() => {
-    if (!assembled || isOverview) return;
-    const ctx = gsap.context(() => {
-
-      // 1. Zone rings breathe — independent periods create organic feel
-      ringRefs.current.forEach((ring, i) => {
-        if (!ring) return;
-        const baseR = i === 0 ? 144 : 245;
-        const amplitude = i === 0 ? 4 : 7;
-        gsap.to(ring, {
-          attr: { r: baseR + amplitude },
-          duration: 3.4 + i * 1.6,
-          yoyo: true, repeat: -1, ease: 'sine.inOut',
-          delay: i * 1.8,
-        });
-      });
-
-      // 2. MoS₂ S–Mo–S layers shear — demonstrates why μ = 0.03
-      // The van der Waals gap between layers allows near-frictionless lateral slip
-      const [topLayer,, botLayer] = mos2LayerRefs.current;
-      if (topLayer) gsap.to(topLayer, { x: 6, duration: 5.2, yoyo: true, repeat: -1, ease: 'sine.inOut', delay: 1.0 });
-      if (botLayer) gsap.to(botLayer, { x: -6, duration: 5.2, yoyo: true, repeat: -1, ease: 'sine.inOut', delay: 1.0 });
-
-      // 3. MoS₂ expanding pulse — system heartbeat every ~5 seconds
-      if (pulseRef.current) {
-        const pulseTl = gsap.timeline({ repeat: -1, delay: 1.5 });
-        pulseTl.set(pulseRef.current, { attr: { r: 50 }, opacity: 0 });
-        pulseTl.to(pulseRef.current, { opacity: 0.50, duration: 0.15, ease: 'power2.out' });
-        pulseTl.to(pulseRef.current, { attr: { r: 95 }, opacity: 0, duration: 2.2, ease: 'power2.out' });
-        pulseTl.to({}, { duration: 2.8 }); // pause between pulses
-      }
-
-      // 4. Protective edges: flowing dashes toward MoS₂ (ongoing chemical protection)
-      edgeRefs.current.forEach((edge, i) => {
-        if (!edge || !ASSEMBLY_EDGES[i].dash) return;
-        // Remove pathLength normalization → switch to real pixel units
-        edge.removeAttribute('pathLength');
-        gsap.set(edge, { strokeDasharray: '8 5', strokeDashoffset: 0, opacity: 1 });
-        // Negative offset = dashes flow toward arrowhead (toward MoS₂)
-        gsap.to(edge, { strokeDashoffset: -13, duration: 1.0, repeat: -1, ease: 'none' });
-      });
-
-      // 5. Carrier particle — visualizes wax delivering MoS₂ to chain joint
-      if (carrierDotRef.current) {
-        const parNode = ASSEMBLY_NODES[0];  // Paraffin
-        const mos2Node = ASSEMBLY_NODES[3]; // MoS₂
-        const ce = curvedEdge(parNode.cx, parNode.cy, mos2Node.cx, mos2Node.cy, parNode.r, mos2Node.r);
-        const prog = { t: 0 };
-        gsap.set(carrierDotRef.current, { opacity: 0 });
-        gsap.to(prog, {
-          t: 1, duration: 2.0, repeat: -1, ease: 'power1.inOut', delay: 0.6,
-          onUpdate() {
-            const t = prog.t, mt = 1 - t;
-            const bx = mt * mt * ce.x1 + 2 * mt * t * ce.cpx + t * t * ce.x2;
-            const by = mt * mt * ce.y1 + 2 * mt * t * ce.cpy + t * t * ce.y2;
-            // Fade in/out at endpoints
-            const opacity = t < 0.12 ? t / 0.12 : t > 0.88 ? (1 - t) / 0.12 : 1;
-            if (carrierDotRef.current) {
-              carrierDotRef.current.setAttribute('cx', String(Math.round(bx * 10) / 10));
-              carrierDotRef.current.setAttribute('cy', String(Math.round(by * 10) / 10));
-              carrierDotRef.current.setAttribute('opacity', String(opacity * 0.9));
-            }
-          },
-        });
-      }
-
-    }, svgRef);
-    return () => ctx.revert();
-  }, [assembled, isOverview]);
+  // Ambient looping animations removed — after assembly the graph stays still.
 
   const hovNode = ASSEMBLY_NODES.find(n => n.id === hoveredNode) ?? null;
 
@@ -736,23 +662,11 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
         <circle cx={GRAPH_CX} cy={GRAPH_CY} r={195} fill={z2Fill} />
         <circle cx={GRAPH_CX} cy={GRAPH_CY} r={144} fill={z1Fill} />
 
-        {/* ── Zone ring borders — refs allow breathing animation ── */}
-        <circle ref={el => { ringRefs.current[0] = el; }}
+        {/* ── Zone ring borders (static) ── */}
+        <circle
           cx={GRAPH_CX} cy={GRAPH_CY} r={144} fill="none" stroke={ringClr} strokeWidth={0.9} strokeDasharray="4 6" />
-        <circle ref={el => { ringRefs.current[1] = el; }}
+        <circle
           cx={GRAPH_CX} cy={GRAPH_CY} r={245} fill="none" stroke={ringClr} strokeWidth={0.9} strokeDasharray="4 6" />
-
-        {/* ── MoS₂ expanding pulse ring (ambient heartbeat) ── */}
-        <circle ref={pulseRef}
-          cx={GRAPH_CX} cy={GRAPH_CY} r={50} fill="none"
-          stroke={isDark ? 'rgba(68,114,212,0.50)' : 'rgba(42,84,153,0.38)'}
-          strokeWidth={1.2} opacity={0} />
-
-        {/* ── Carrier edge particle (wax delivering MoS₂) ── */}
-        <circle ref={carrierDotRef}
-          cx={ASSEMBLY_NODES[0].cx} cy={ASSEMBLY_NODES[0].cy} r={3.5}
-          fill={isDark ? '#7ab8ff' : '#2a56c4'} opacity={0}
-          style={{ filter: `drop-shadow(0 0 5px ${isDark ? '#7ab8ffCC' : '#2a56c4AA'})` }} />
 
         {/* ── "So what" vignette — friction comparison bars, appear after full assembly ── */}
         {/* Positions: centered at GRAPH_CX, rows at GRAPH_CY+62, +76, +90 */}
@@ -978,16 +892,16 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
                 {/* S-Mo-S layered crystal hint (two subtle horizontal bands) */}
                 {!isOverview && (
                   <g opacity={0.38}>
-                    {/* Top S layer — ref[0], shears right in ambient animation */}
-                    <rect ref={el => { mos2LayerRefs.current[0] = el; }}
+                    {/* Top S layer */}
+                    <rect
                       x={node.cx - 21} y={node.cy - 11} width={42} height={5.5} rx={2.5}
                       fill={isDark ? 'rgba(150,195,255,0.50)' : 'rgba(180,210,255,0.65)'} />
-                    {/* Mo layer — middle (fixed) */}
-                    <rect ref={el => { mos2LayerRefs.current[1] = el; }}
+                    {/* Mo layer — middle */}
+                    <rect
                       x={node.cx - 19} y={node.cy - 3.5} width={38} height={4} rx={1.5}
                       fill={isDark ? 'rgba(100,155,255,0.65)' : 'rgba(140,180,255,0.75)'} />
-                    {/* Bottom S layer — ref[2], shears left in ambient animation */}
-                    <rect ref={el => { mos2LayerRefs.current[2] = el; }}
+                    {/* Bottom S layer */}
+                    <rect
                       x={node.cx - 21} y={node.cy + 2} width={42} height={5.5} rx={2.5}
                       fill={isDark ? 'rgba(150,195,255,0.50)' : 'rgba(180,210,255,0.65)'} />
                     {/* vdW gap hint lines */}
