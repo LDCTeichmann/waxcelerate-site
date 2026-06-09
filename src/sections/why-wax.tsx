@@ -12,9 +12,9 @@ import { Delaunay } from 'd3-delaunay';
 // Rust: only chromatic accent — functional (rust IS orange). Everything else grey.
 const C_WAX   = 'rgba(178,182,194,0.93)';   // silver-gray wax — darker for contrast
 const C_WAX_S = 'rgba(130,135,152,0.70)';   // wax stroke / secondary — more visible
-const C_RUST  = 'rgba(195,72,18,0.92)';     // rust core (functional orange)
-const C_RUST2 = 'rgba(195,72,18,0.50)';     // rust spread / halo
-const C_DROP  = 'rgba(68,114,212,0.88)';    // water droplet (blue)
+const C_RUST  = 'rgba(124,124,132,0.92)';     // rust core (functional orange)
+const C_RUST2 = 'rgba(124,124,132,0.50)';     // rust spread / halo
+const C_DROP  = 'rgba(var(--accent-soft-rgb),0.88)';    // water droplet (blue)
 const C_GRIME = 'rgba(42,44,52,0.92)';      // contamination / grime (near-black)
 
 // ─── Voronoi grain data — computed once at module load (pure math, no DOM) ───
@@ -282,15 +282,15 @@ function ColdDiagram() {
 
       {/* snowflake centred on divider */}
       <g transform="translate(140,19)" opacity="0.85">
-        <line x1="0" y1="-9"   x2="0"   y2="9"    stroke="#4472D4" strokeWidth="1.4" strokeLinecap="round" />
-        <line x1="-7.8" y1="-4.5" x2="7.8" y2="4.5" stroke="#4472D4" strokeWidth="1.4" strokeLinecap="round" />
-        <line x1="7.8"  y1="-4.5" x2="-7.8" y2="4.5" stroke="#4472D4" strokeWidth="1.4" strokeLinecap="round" />
-        <line x1="-2.6" y1="-7"  x2="2.6" y2="-7"  stroke="#4472D4" strokeWidth="1.0" strokeLinecap="round" />
-        <line x1="-2.6" y1="7"   x2="2.6" y2="7"   stroke="#4472D4" strokeWidth="1.0" strokeLinecap="round" />
-        <line x1="5.5"  y1="-1.8" x2="5.5" y2="1.8" stroke="#4472D4" strokeWidth="1.0" strokeLinecap="round" />
-        <line x1="-5.5" y1="-1.8" x2="-5.5" y2="1.8" stroke="#4472D4" strokeWidth="1.0" strokeLinecap="round" />
+        <line x1="0" y1="-9"   x2="0"   y2="9"    stroke="var(--accent-soft)" strokeWidth="1.4" strokeLinecap="round" />
+        <line x1="-7.8" y1="-4.5" x2="7.8" y2="4.5" stroke="var(--accent-soft)" strokeWidth="1.4" strokeLinecap="round" />
+        <line x1="7.8"  y1="-4.5" x2="-7.8" y2="4.5" stroke="var(--accent-soft)" strokeWidth="1.4" strokeLinecap="round" />
+        <line x1="-2.6" y1="-7"  x2="2.6" y2="-7"  stroke="var(--accent-soft)" strokeWidth="1.0" strokeLinecap="round" />
+        <line x1="-2.6" y1="7"   x2="2.6" y2="7"   stroke="var(--accent-soft)" strokeWidth="1.0" strokeLinecap="round" />
+        <line x1="5.5"  y1="-1.8" x2="5.5" y2="1.8" stroke="var(--accent-soft)" strokeWidth="1.0" strokeLinecap="round" />
+        <line x1="-5.5" y1="-1.8" x2="-5.5" y2="1.8" stroke="var(--accent-soft)" strokeWidth="1.0" strokeLinecap="round" />
       </g>
-      <text x="140" y="42" textAnchor="middle" fontSize="8" fill="#4472D4"
+      <text x="140" y="42" textAnchor="middle" fontSize="8" fill="var(--accent-soft)"
         fontFamily="system-ui,sans-serif" fontWeight="600">−8 °C</text>
 
       {/* ── LEFT panel ── */}
@@ -447,7 +447,7 @@ function HeatDiagram() {
       <rect x="142" y="0" width="138" height="152" fill="var(--sf2)" />
       <line x1="140" y1="0" x2="140" y2="152" stroke="var(--bd)" strokeWidth="0.8" />
 
-      <text x="140" y="14" textAnchor="middle" fontSize="8" fill="#C84020"
+      <text x="140" y="14" textAnchor="middle" fontSize="8" fill="#7A7A82"
         fontFamily="system-ui,sans-serif" fontWeight="600">+75 °C</text>
 
       {/* LEFT — metallic chain bar with heat shimmer filter */}
@@ -596,12 +596,12 @@ function MechanismStrip({
               style={{
                 width: 38, height: 38, borderRadius: '50%',
                 background: 'var(--sf2)',
-                border: '1.5px solid #3D67CA',
+                border: '1.5px solid var(--accent-soft)',
                 boxShadow: '0 0 0 3px var(--sf), 0 2px 8px rgba(0,0,0,0.14)',
               }}
             >
               <span className="font-mono font-bold leading-none"
-                style={{ fontSize: 11, letterSpacing: '0.06em', color: '#3D67CA' }}>
+                style={{ fontSize: 11, letterSpacing: '0.06em', color: 'var(--accent-soft)' }}>
                 {num}
               </span>
             </div>
@@ -630,7 +630,7 @@ function MechanismStrip({
 
             {/* Spec label */}
             {specValue && (specLabelDe || specLabelEn) && (
-              <p className="text-[10px] font-medium mb-3 text-right" style={{ color: '#3D67CA' }}>
+              <p className="text-[10px] font-medium mb-3 text-right" style={{ color: 'var(--accent-soft)' }}>
                 {de ? specLabelDe : specLabelEn}
               </p>
             )}
@@ -649,7 +649,7 @@ function MechanismStrip({
             {/* Science link */}
             <Link to={`/wissenschaft${scienceAnchor}`}
               className="inline-flex items-center gap-1 text-[11px] font-medium transition-opacity hover:opacity-70"
-              style={{ color: '#264E8C' }}>
+              style={{ color: 'var(--accent)' }}>
               {de ? scienceLinkDe : scienceLinkEn}
               <span aria-hidden="true" style={{ fontSize: 10 }}>→</span>
             </Link>
@@ -776,7 +776,7 @@ export function WhyWax() {
                   <div key={n} style={{ width: 10, height: 18, background: 'var(--sf3)', borderRadius: 3,
                     border: '1px solid var(--bd)', overflow: 'hidden', position: 'relative' }}>
                     <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '78%',
-                      background: 'rgba(43,82,176,0.40)', borderRadius: 2 }} />
+                      background: 'rgba(var(--accent-rgb),0.40)', borderRadius: 2 }} />
                     <div style={{ position: 'absolute', width: 3, height: 3, borderRadius: '50%',
                       background: 'rgba(61,103,202,0.7)', top: '28%', left: '50%', transform: 'translate(-50%,-50%)' }} />
                   </div>
@@ -795,7 +795,7 @@ export function WhyWax() {
             </div>
             <Link to="/wissenschaft#sedimentation"
               className="text-[11px] font-medium flex-shrink-0 transition-opacity hover:opacity-70"
-              style={{ color: '#264E8C' }}>
+              style={{ color: 'var(--accent)' }}>
               {de ? 'Sedimentation erklärt →' : 'Sedimentation explained →'}
             </Link>
           </div>
@@ -826,7 +826,7 @@ export function WhyWax() {
                       <div className="h-0.5 rounded-full overflow-hidden" style={{ background: 'var(--bd)' }}>
                         <div className="fbar h-full w-full rounded-full" data-w={item.pct}
                           style={{
-                            background: item.highlight ? 'linear-gradient(90deg, #0F2450, #3D67CA)' : 'var(--bd2)',
+                            background: item.highlight ? 'linear-gradient(90deg, var(--accent-strong), var(--accent-soft))' : 'var(--bd2)',
                             transformOrigin: 'left center', transform: 'scaleX(0)',
                           }} />
                       </div>
@@ -836,7 +836,7 @@ export function WhyWax() {
               </div>
               <Link to="/wissenschaft#reibung"
                 className="flex items-center gap-1 text-[11px] font-medium mt-3 pt-3 transition-opacity hover:opacity-70"
-                style={{ color: '#264E8C', borderTop: '1px solid var(--bd2)' }}>
+                style={{ color: 'var(--accent)', borderTop: '1px solid var(--bd2)' }}>
                 {de ? 'Vollständiger Vergleich →' : 'Full comparison →'}
               </Link>
             </div>
@@ -852,7 +852,7 @@ export function WhyWax() {
                 </div>
                 <span className="font-display font-bold text-wx-tx1 tabular-nums text-[22px] leading-none">~€70</span>
               </div>
-              <p className="text-[11px] font-semibold mb-3" style={{ color: '#2B52B0' }}>
+              <p className="text-[11px] font-semibold mb-3" style={{ color: 'var(--accent)' }}>
                 {de ? '46 % weniger über 12.000 km' : '46% less over 12,000 km'}
               </p>
               <div className="space-y-1.5 pt-3" style={{ borderTop: '1px solid var(--bd2)' }}>
@@ -862,7 +862,7 @@ export function WhyWax() {
                 </div>
                 <div className="flex justify-between text-[11px]">
                   <span className="text-wx-txf">{de ? 'Mit Wachs (1 Kette)' : 'With wax (1 chain)'}</span>
-                  <span className="tabular-nums font-semibold" style={{ color: '#2B52B0' }}>~€81</span>
+                  <span className="tabular-nums font-semibold" style={{ color: 'var(--accent)' }}>~€81</span>
                 </div>
               </div>
               <p className="text-[10px] mt-3 pt-3 leading-relaxed"
@@ -888,7 +888,7 @@ export function WhyWax() {
             </p>
             <Link to="/#produkte"
               className="text-[11px] font-medium flex-shrink-0 transition-opacity hover:opacity-70"
-              style={{ color: '#264E8C' }}>
+              style={{ color: 'var(--accent)' }}>
               {de ? 'Zu den Produkten →' : 'See products →'}
             </Link>
           </div>

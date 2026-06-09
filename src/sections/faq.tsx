@@ -51,7 +51,7 @@ export function FAQ() {
                 border: '1px solid var(--bd)',
                 color: 'var(--tx1)',
               }}
-              onFocus={e => { e.currentTarget.style.borderColor = '#1A3C6E'; }}
+              onFocus={e => { e.currentTarget.style.borderColor = 'var(--accent)'; }}
               onBlur={e => { e.currentTarget.style.borderColor = 'var(--bd)'; }}
             />
           </div>
@@ -88,7 +88,7 @@ export function FAQ() {
                   </h3>
                   <ChevronDown
                     className={`h-4 w-4 text-wx-txf flex-shrink-0 transition-transform duration-300 ${
-                      openItem === index.toString() ? 'rotate-180 text-[#1A3C6E]' : ''
+                      openItem === index.toString() ? 'rotate-180 text-[var(--accent)]' : ''
                     }`}
                   />
                 </button>
@@ -101,7 +101,7 @@ export function FAQ() {
                   }}
                 >
                   <div className="overflow-hidden">
-                    <div className="pb-5 pr-10 border-l-2 pl-4" style={{ borderColor: 'rgba(26,60,110,0.35)' }}>
+                    <div className="pb-5 pr-10 border-l-2 pl-4" style={{ borderColor: 'rgba(var(--accent-rgb),0.35)' }}>
                       <div className="space-y-1.5">
                         {item.a.split(/\.\s+(?=[A-ZÜÖÄ])/).map((sentence, i, arr) => (
                           <p key={i} className="text-wx-tx2 text-[14px] leading-[1.75]">

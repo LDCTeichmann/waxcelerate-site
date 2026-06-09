@@ -14,7 +14,7 @@ import { getEstimatedDelivery } from '@/lib/utils';
 const filterChip = (active: boolean) =>
   `px-3 py-1.5 rounded-md text-[12px] transition-all border cursor-pointer ${
     active
-      ? 'border-[#1A3C6E]/40 bg-[#1A3C6E]/10 text-wx-tx1'
+      ? 'chip-active text-wx-tx1'
       : 'border-wx-bd text-wx-txf hover:text-wx-tx2'
   }`;
 
@@ -168,9 +168,9 @@ export function Products() {
                   <span
                     className="text-[12px] font-medium px-2.5 py-1 rounded-full transition-all"
                     style={{
-                      background: 'rgba(43,82,176,0.10)',
-                      border: '1px solid rgba(43,82,176,0.25)',
-                      color: '#3D67CA',
+                      background: 'rgba(var(--accent-rgb),0.10)',
+                      border: '1px solid rgba(var(--accent-rgb),0.25)',
+                      color: 'var(--accent-soft)',
                     }}
                   >
                     {t.products.compareBtn} →
@@ -252,7 +252,7 @@ export function Products() {
                   <p className="text-wx-txm text-sm mb-3">
                     {de ? 'Keine passende Kette gefunden.' : 'No matching chain found.'}
                   </p>
-                  <button onClick={resetFilters} className="text-[12px] transition-colors" style={{ color: '#1A3C6E' }}>
+                  <button onClick={resetFilters} className="text-[12px] transition-colors" style={{ color: 'var(--accent)' }}>
                     {de ? 'Filter zurücksetzen' : 'Reset filters'}
                   </button>
                 </div>
@@ -298,7 +298,7 @@ interface CardProps {
 
 const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: CardProps) {
   const isPro = product.variant === 'pro';
-  const accent = isPro ? '#2A5499' : '#1A3C6E';
+  const accent = isPro ? 'var(--accent)' : 'var(--accent)';
 
   const title = de ? product.title : product.titleEn;
   const badge = de ? product.badge : product.badgeEn;
@@ -403,7 +403,7 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: Ca
 // ── Chain Card ─────────────────────────────────────────────────────────────
 
 const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }: CardProps) {
-  const accent = '#1A3C6E'; // used for badge border/text only
+  const accent = 'var(--accent)'; // used for badge border/text only
   const badge = de ? product.badge : product.badgeEn;
 
   const brand = product.chainBrand ?? '';
@@ -489,7 +489,7 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
             <button
               onClick={e => { e.preventDefault(); e.stopPropagation(); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
               className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-opacity duration-150 hover:opacity-90 active:scale-[0.97]"
-              style={{ background: '#1A3C6E' }}
+              style={{ background: 'var(--accent)' }}
             >
               {buyLabel}
               <ExternalLink className="h-3.5 w-3.5" />
@@ -503,8 +503,8 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
 
 // ── Compare Modal ──────────────────────────────────────────────────────────
 
-const CLASSIC_ACCENT = '#2B52B0';
-const PRO_ACCENT = '#3D67CA';
+const CLASSIC_ACCENT = 'var(--accent)';
+const PRO_ACCENT = 'var(--accent-soft)';
 
 function CompareModal({ open, onClose, de, t }: {
   open: boolean;

@@ -71,9 +71,9 @@ function TogButton({
       onClick={onClick}
       className="px-4 py-2 rounded-xl text-[13px] transition-all cursor-pointer"
       style={{
-        border: `1px solid ${active ? 'rgba(59,100,210,0.55)' : 'var(--tog-bd)'}`,
+        border: `1px solid ${active ? 'rgba(var(--accent-soft-rgb),0.55)' : 'var(--tog-bd)'}`,
         background: active
-          ? 'linear-gradient(135deg, rgba(26,60,110,0.28) 0%, rgba(26,60,110,0.12) 100%)'
+          ? 'linear-gradient(135deg, rgba(var(--accent-rgb),0.28) 0%, rgba(var(--accent-rgb),0.12) 100%)'
           : 'var(--tog-bg)',
         color: active ? 'var(--tx1)' : 'var(--tog-fg)',
         fontWeight: active ? 500 : 400,
@@ -111,8 +111,8 @@ function ToolHeader({ icon, title, subtitle }: { icon: React.ReactNode; title: s
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
           style={{
-            background: 'linear-gradient(135deg, rgba(26,60,110,0.22) 0%, rgba(26,60,110,0.06) 100%)',
-            border: '1px solid rgba(26,60,110,0.30)',
+            background: 'linear-gradient(135deg, rgba(var(--accent-rgb),0.22) 0%, rgba(var(--accent-rgb),0.06) 100%)',
+            border: '1px solid rgba(var(--accent-rgb),0.30)',
           }}
         >
           {icon}
@@ -405,9 +405,9 @@ function WaxStockCalculator() {
                 onClick={() => setFreq(o.value)}
                 className="rounded-xl px-3 py-3 text-left transition-all cursor-pointer"
                 style={{
-                  border: `1px solid ${freq === o.value ? 'rgba(59,100,210,0.55)' : 'var(--tog-bd)'}`,
+                  border: `1px solid ${freq === o.value ? 'rgba(var(--accent-soft-rgb),0.55)' : 'var(--tog-bd)'}`,
                   background: freq === o.value
-                    ? 'linear-gradient(135deg, rgba(26,60,110,0.28) 0%, rgba(26,60,110,0.12) 100%)'
+                    ? 'linear-gradient(135deg, rgba(var(--accent-rgb),0.28) 0%, rgba(var(--accent-rgb),0.12) 100%)'
                     : 'var(--tog-bg)',
                 }}
               >
@@ -631,7 +631,7 @@ function RotationAndSavings() {
                   key={n}
                   className="rounded-2xl flex flex-col"
                   style={{
-                    background: isRec ? 'rgba(26,60,110,0.08)' : 'var(--sf3)',
+                    background: isRec ? 'rgba(var(--accent-rgb),0.08)' : 'var(--sf3)',
                     border: isRec ? '1.5px solid var(--brand)' : '1px solid var(--bd2)',
                     padding: '12px 10px',
                   }}
@@ -878,7 +878,7 @@ export function Tools() {
             style={{
               height: DECK_HEIGHT,
               overflow: 'hidden',
-              background: 'radial-gradient(ellipse 55% 60% at 50% 50%, rgba(26,60,110,0.07) 0%, transparent 70%)',
+              background: 'radial-gradient(ellipse 55% 60% at 50% 50%, rgba(var(--accent-rgb),0.07) 0%, transparent 70%)',
             }}
           >
             {([cardRef0, cardRef1, cardRef2] as const).map((ref, i) => (

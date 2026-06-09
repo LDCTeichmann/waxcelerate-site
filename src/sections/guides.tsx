@@ -12,7 +12,7 @@ function StepText({ text }: { text: string }) {
     <>
       {parts.map((part, i) =>
         isHighlight(part) ? (
-          <span key={i} className="font-semibold" style={{ color: '#264E8C' }}>{part}</span>
+          <span key={i} className="font-semibold" style={{ color: 'var(--accent)' }}>{part}</span>
         ) : (
           part
         )
@@ -58,7 +58,7 @@ export function Guides() {
                     className="rounded-xl overflow-hidden"
                     style={{
                       background: 'var(--sf3)',
-                      border: `1px solid ${isOpen ? 'rgba(26,60,110,0.25)' : 'var(--bd2)'}`,
+                      border: `1px solid ${isOpen ? 'rgba(var(--accent-rgb),0.25)' : 'var(--bd2)'}`,
                       transition: 'border-color 0.2s',
                     }}
                   >
@@ -70,7 +70,7 @@ export function Guides() {
                       <div className="flex items-center gap-3">
                         <guide.icon
                           className="h-4 w-4 flex-shrink-0"
-                          style={{ color: isOpen ? '#1A3C6E' : 'var(--txf)' }}
+                          style={{ color: isOpen ? 'var(--accent)' : 'var(--txf)' }}
                         />
                         <span className="text-sm font-medium text-wx-tx1">{guide.data.title}</span>
                       </div>
@@ -95,13 +95,13 @@ export function Guides() {
                             <div
                               className="flex items-start gap-2.5 mb-4 px-3 py-2.5 rounded-lg"
                               style={{
-                                background: 'rgba(26,60,110,0.07)',
-                                borderLeft: '2px solid rgba(26,60,110,0.4)',
+                                background: 'rgba(var(--accent-rgb),0.07)',
+                                borderLeft: '2px solid rgba(var(--accent-rgb),0.4)',
                               }}
                             >
                               <AlertCircle
                                 className="h-3.5 w-3.5 mt-0.5 flex-shrink-0"
-                                style={{ color: '#1A3C6E' }}
+                                style={{ color: 'var(--accent)' }}
                               />
                               <p className="text-xs leading-relaxed" style={{ color: 'var(--txf)' }}>
                                 {guide.data.note}
@@ -123,8 +123,8 @@ export function Guides() {
                                 <span
                                   className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-xs font-semibold mt-0.5"
                                   style={{
-                                    background: 'rgba(26,60,110,0.15)',
-                                    color: '#1A3C6E',
+                                    background: 'rgba(var(--accent-rgb),0.15)',
+                                    color: 'var(--accent)',
                                   }}
                                 >
                                   {i + 1}
@@ -167,7 +167,7 @@ export function Guides() {
                     <div
                       className="h-full rounded-full"
                       style={{
-                        background: 'linear-gradient(to right, #1A3C6E, #5B8BED)',
+                        background: 'linear-gradient(to right, var(--accent), var(--accent-soft))',
                         width: '90%',
                         animation: 'guides-bar-fill 1.2s cubic-bezier(0.16,1,0.3,1) forwards',
                         transformOrigin: 'left',

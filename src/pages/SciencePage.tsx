@@ -1336,7 +1336,7 @@ function HexMoS2({ de }: { de: boolean }) {
     ]);
 
   const { theme } = useTheme();
-  const isDark = theme === 'dark' || theme === 'noir';
+  const isDark = theme === 'noir';
   const vizCard = isDark ? VIZ_CARD : VIZ_CARD_LIGHT;
   const dotGrid = isDark ? DARK_DOT_GRID : LIGHT_DOT_GRID;
 
@@ -1490,7 +1490,7 @@ function TransferFilm({ de }: { de: boolean }) {
   }, []);
 
   const { theme } = useTheme();
-  const isDark = theme === 'dark' || theme === 'noir';
+  const isDark = theme === 'noir';
   const vizCard = isDark ? VIZ_CARD : VIZ_CARD_LIGHT;
   const dotGrid = isDark ? DARK_DOT_GRID : LIGHT_DOT_GRID;
 
@@ -1575,7 +1575,7 @@ function TransferFilm({ de }: { de: boolean }) {
 function CrystalLattice({ de }: { de: boolean }) {
   const svgRef = useRef<SVGSVGElement>(null);
   const { theme } = useTheme();
-  const isDark = theme === 'dark' || theme === 'noir';
+  const isDark = theme === 'noir';
   const vizCard = isDark ? VIZ_CARD : VIZ_CARD_LIGHT;
   const dotGrid = isDark ? DARK_DOT_GRID : LIGHT_DOT_GRID;
 
@@ -1891,7 +1891,7 @@ const FRICTION_BARS = [
 function FrictionBars({ de }: { de: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   const { theme } = useTheme();
-  const isDark = theme === 'dark' || theme === 'noir';
+  const isDark = theme === 'noir';
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -2133,7 +2133,7 @@ function Chapter({ num, anchorId, catDe, catEn, titleDe, titleEn, ledeDe, ledeEn
 export function SciencePage() {
   const { lang, toggleLang } = useLanguage();
   const { theme } = useTheme();
-  const isDark = theme === 'dark' || theme === 'noir';
+  const isDark = theme === 'noir';
   const de = lang === 'de';
   const [activeChapter, setActiveChapter] = useState(-1);
   const heroRef  = useRef<HTMLElement>(null);

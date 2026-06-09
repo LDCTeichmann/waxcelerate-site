@@ -4,7 +4,7 @@
 @tailwind utilities;
 
 :focus-visible {
-  outline: 2px solid #1A3C6E;
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
   border-radius: 3px;
 }
@@ -12,25 +12,40 @@
 @layer base {
   /* ── Light mode (default) ── */
   :root {
-    --pg:        #F5F5F7;
+    /* ── Engineered Editorial — neutralized greyscale (no blue/purple undertone) ── */
+    --pg:        #F5F5F6;
     --sf:        #FFFFFF;
-    --sf2:       #ECECF0;
-    --sf3:       #E4E4EA;
-    --tx1:       #0A0A14;
-    --tx2:       #4A5068;
-    --txm:       #6E7288;
-    --txf:       #6C6C88;
-    --txff:      #8080A0;
-    --bd:        #D8D8E0;
-    --bd2:       #E8E8EE;
+    --sf2:       #EDEDEF;
+    --sf3:       #E5E5E8;
+    --tx1:       #101013;   /* near-black, neutral */
+    --tx2:       #44444A;   /* zinc-700-ish */
+    --txm:       #6B6B72;   /* zinc-500 */
+    --txf:       #8A8A92;   /* zinc-450 */
+    --txff:      #A8A8B0;   /* zinc-400 */
+    --bd:        #D9D9DD;
+    --bd2:       #E7E7EA;
     --card-from: #FFFFFF;
-    --card-to:   #F5F5FA;
-    --card-to-rgb: 245,245,250;
+    --card-to:   #F5F5F7;
+    --card-to-rgb: 245,245,247;
     --card-shad: 0 2px 16px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,0.9);
-    --nav-bg:    rgba(245,245,247,0.92);
-    --tool-bg:   #EEEEF3;
-    --card-shadow-hover: 0 4px 20px rgba(0,0,0,0.10), 0 12px 40px rgba(0,0,0,0.08), 0 0 0 1px rgba(26,60,110,0.15);
+    --nav-bg:    rgba(245,245,246,0.92);
+    --tool-bg:   #EEEEF1;
+    --card-shadow-hover: 0 4px 20px rgba(0,0,0,0.10), 0 12px 40px rgba(0,0,0,0.08), 0 0 0 1px rgba(var(--accent-rgb),0.15);
     --card-img-fade: transparent;
+
+    /* ── Single ink-blue accent ramp (light) ── */
+    --accent:            #1F4A7D;
+    --accent-rgb:        31,74,125;
+    --accent-strong:     #16385F;
+    --accent-strong-rgb: 22,56,95;
+    --accent-soft:       #3A66A0;
+    --accent-soft-rgb:   58,102,160;
+
+    /* Documented off-system exceptions (external brand / status only) */
+    --ext-whatsapp:      #1A7A4A;
+    --ext-whatsapp-rgb:  26,122,74;
+    --ok:                #22C55E;
+    --danger:            #DC2626;
 
     /* shadcn tokens */
     --background: 240 5% 96%;
@@ -53,10 +68,9 @@
     --input: 240 6% 85%;
     --ring: 220 58% 27%;
     --radius: 0.75rem;
-    --brand:       #1A3C6E;
-    --brand-hover: #264E8C;
-    --brand-warm:  #B8721A;
-    --brand-warm-hover: #C8842F;
+    /* Legacy aliases → single accent (kept so existing var(--brand) refs unify) */
+    --brand:       var(--accent);
+    --brand-hover: var(--accent-soft);
 
     /* CTA button system — dark near-black in light mode */
     --cta-bg:    #111318;
@@ -110,10 +124,23 @@
     --card-shadow-hover: 0 8px 28px rgba(0,0,0,0.70), 0 28px 72px rgba(0,0,0,0.75), 0 0 0 1px rgba(26,60,110,0.25);
     --card-img-fade: var(--card-to);
 
-    /* CTA button system — warm ivory in dark mode */
-    --cta-bg:    #EDE9E0;
+    /* ── Single ink-blue accent ramp (dark — brightened for contrast) ── */
+    --accent:            #5685C0;
+    --accent-rgb:        86,133,192;
+    --accent-strong:     #3A66A0;
+    --accent-strong-rgb: 58,102,160;
+    --accent-soft:       #7AA0CE;
+    --accent-soft-rgb:   122,160,206;
+
+    --ext-whatsapp:      #25D366;
+    --ext-whatsapp-rgb:  37,211,102;
+    --ok:                #22C55E;
+    --danger:            #F87171;
+
+    /* CTA button system — neutral off-white in dark mode */
+    --cta-bg:    #ECECEC;
     --cta-fg:    #0A0A0A;
-    --cta-hover: #E2DED5;
+    --cta-hover: #DEDEDE;
 
     /* Tab/segment switcher — dark mode: subtle groove + bright elevated pill */
     --tab-track-bg:  rgba(255,255,255,0.04);
@@ -182,8 +209,7 @@
   color: var(--tx1) !important;
 }
 
-/* Hero: dark/noir modes need white headings (overrides the global tx1 rule) */
-.dark #home h1, .dark #home h2, .dark #home h3, .dark #home h4,
+/* Hero: dark mode needs white headings (overrides the global tx1 rule) */
 .noir #home h1, .noir #home h2, .noir #home h3, .noir #home h4 {
   color: #FFFFFF !important;
 }
@@ -295,6 +321,12 @@ footer ul a::after {
 footer nav a:hover::after,
 footer ul a:hover::after {
   width: 100%;
+}
+
+/* ── Accent-tinted active state (chips, filters, toggles) ─────────────────── */
+.chip-active {
+  border-color: rgba(var(--accent-rgb), 0.40);
+  background:   rgba(var(--accent-rgb), 0.10);
 }
 
 /* ── Spec data — tabular figures for numbers & measurements ──────────────── */

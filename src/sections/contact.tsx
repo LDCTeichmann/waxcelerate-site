@@ -108,9 +108,9 @@ export function Contact() {
               <div className="flex items-center gap-3 mb-4">
                 <div
                   className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0"
-                  style={{ background: 'rgba(26,60,110,0.12)', border: '1px solid rgba(26,60,110,0.22)' }}
+                  style={{ background: 'rgba(var(--accent-rgb),0.12)', border: '1px solid rgba(var(--accent-rgb),0.22)' }}
                 >
-                  <Mail className="h-5 w-5" style={{ color: '#264E8C' }} />
+                  <Mail className="h-5 w-5" style={{ color: 'var(--accent)' }} />
                 </div>
                 <div>
                   <p className="font-bold text-wx-tx1 text-[15px] leading-tight">
@@ -118,7 +118,7 @@ export function Contact() {
                   </p>
                   <span
                     className="inline-block mt-0.5 text-[10px] font-semibold px-2 py-0.5 rounded-full tracking-wide"
-                    style={{ background: 'rgba(26,60,110,0.12)', color: '#264E8C' }}
+                    style={{ background: 'rgba(var(--accent-rgb),0.12)', color: 'var(--accent)' }}
                   >
                     {de ? 'am selben Tag' : 'same day'}
                   </span>
@@ -140,7 +140,7 @@ export function Contact() {
 
               <div
                 className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl font-semibold text-[13px] text-white transition-opacity group-hover:opacity-90"
-                style={{ background: '#1A3C6E' }}
+                style={{ background: 'var(--accent)' }}
               >
                 <Mail className="h-3.5 w-3.5" />
                 {de ? 'E-Mail schreiben' : 'Write an email'}

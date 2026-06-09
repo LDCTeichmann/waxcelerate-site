@@ -125,7 +125,7 @@ export function Hero() {
             width: '500px',
             height: '500px',
             borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(91,139,237,0.16) 0%, transparent 65%)',
+            background: 'radial-gradient(circle, rgba(var(--accent-soft-rgb),0.16) 0%, transparent 65%)',
           }}
         />
 
@@ -152,7 +152,7 @@ export function Hero() {
           >
             <span
               className="h-1.5 w-1.5 rounded-full animate-pulse"
-              style={{ background: '#5B8BED' }}
+              style={{ background: 'var(--accent-soft)' }}
             />
             <span
               className="text-[10px] tracking-wide"
@@ -291,10 +291,10 @@ export function Hero() {
               onClick={() => scrollToSection('#produkte')}
               className="inline-flex items-center gap-2.5 px-8 py-3.5 text-[13px] font-bold rounded-full hover:opacity-90 transition-all active:scale-[0.97]"
               style={{
-                background: '#5B8BED',
+                background: 'var(--accent-soft)',
                 color: '#fff',
                 letterSpacing: '0.04em',
-                boxShadow: '0 0 36px rgba(91,139,237,0.28)',
+                boxShadow: '0 0 36px rgba(var(--accent-soft-rgb),0.28)',
               }}
             >
               {t.hero.ctaBuy}
@@ -326,7 +326,7 @@ export function Hero() {
             background: 'rgba(5,6,8,0.76)',
             backdropFilter: 'blur(40px)',
             WebkitBackdropFilter: 'blur(40px)',
-            border: '1px solid rgba(91,139,237,0.20)',
+            border: '1px solid rgba(var(--accent-soft-rgb),0.20)',
             borderRadius: '20px',
             padding: '26px 34px',
             minWidth: '210px',
@@ -338,7 +338,7 @@ export function Hero() {
             style={{
               width: '28px',
               height: '2px',
-              background: '#5B8BED',
+              background: 'var(--accent-soft)',
               borderRadius: '2px',
               marginBottom: '14px',
             }}
@@ -348,7 +348,7 @@ export function Hero() {
             style={{
               fontSize: '46px',
               fontWeight: 700,
-              color: '#5B8BED',
+              color: 'var(--accent-soft)',
               letterSpacing: '-0.02em',
               marginBottom: '8px',
             }}
@@ -445,7 +445,7 @@ export function Hero() {
             <button
               onClick={() => scrollToSection('#produkte')}
               className="inline-flex items-center gap-2 px-7 py-3.5 text-sm font-bold rounded-full"
-              style={{ background: '#5B8BED', color: '#fff' }}
+              style={{ background: 'var(--accent-soft)', color: '#fff' }}
             >
               {t.hero.ctaBuy} <ArrowRight className="h-3.5 w-3.5" />
             </button>
