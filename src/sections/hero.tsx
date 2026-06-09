@@ -3,468 +3,193 @@ import { ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import gsap from 'gsap';
 
+/**
+ * Hero — Engineered Editorial.
+ * One clean composition: a value-led headline over a light waxed-chain macro,
+ * a single primary CTA, an inline trust strip, and a spec ribbon at the foot.
+ * No frosted panel, no giant wordmark, no glow, no infinite particle loops.
+ */
 export function Hero() {
   const { t, lang } = useLanguage();
   const de = lang === 'de';
 
-  const animatedRef  = useRef<boolean>(false);
-  const pillRef      = useRef<HTMLDivElement>(null);
-  const brandRef     = useRef<HTMLDivElement>(null);
-  const contentRef   = useRef<HTMLDivElement>(null);
-  const badgeRef     = useRef<HTMLDivElement>(null);
-  const frostedRef   = useRef<HTMLDivElement>(null);
+  const rootRef  = useRef<HTMLElement>(null);
+  const animated = useRef(false);
 
   useEffect(() => {
-    if (animatedRef.current) return;
-    const els = {
-      pill:    pillRef.current,
-      brand:   brandRef.current,
-      content: contentRef.current,
-      badge:   badgeRef.current,
-      frosted: frostedRef.current,
-    };
-    if (Object.values(els).some(v => !v)) return;
-    animatedRef.current = true;
+    if (animated.current) return;
+    const root = rootRef.current;
+    if (!root) return;
+    animated.current = true;
 
+    const items = root.querySelectorAll<HTMLElement>('[data-hero]');
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      gsap.set(Object.values(els), { opacity: 1, y: 0, x: 0, scale: 1 });
+      gsap.set(items, { opacity: 1, y: 0 });
       return;
     }
-
-    gsap.set(els.pill,    { opacity: 0, y: -14 });
-    gsap.set(els.brand,   { opacity: 0, scale: 0.97, y: 16 });
-    gsap.set(els.frosted, { opacity: 0 });
-    gsap.set(els.content, { opacity: 0, y: 24 });
-    gsap.set(els.badge,   { opacity: 0, scale: 0.86 });
-
-    const tl = gsap.timeline({ delay: 0.08 });
-    tl.to(els.frosted, { opacity: 1, duration: 0.9, ease: 'power2.out' }, 0);
-    tl.to(els.brand,   { opacity: 1, scale: 1, y: 0, duration: 1.1, ease: 'power3.out' }, 0.1);
-    tl.to(els.pill,    { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, 0.3);
-    tl.to(els.content, { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' }, 0.55);
-    tl.to(els.badge,   { opacity: 1, scale: 1, duration: 0.7, ease: 'back.out(1.5)' }, 1.0);
+    gsap.set(items, { opacity: 0, y: 22 });
+    gsap.to(items, {
+      opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', stagger: 0.1, delay: 0.12,
+    });
   }, []);
 
-  const scrollToSection = (href: string) =>
+  const scrollTo = (href: string) =>
     document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
+
+  const stats = [
+    { v: '3×',   l: de ? 'Kettenlaufzeit'      : 'chain life'        },
+    { v: '~€70', l: de ? 'gespart · 12.000 km' : 'saved · 12,000 km' },
+    { v: '−46%', l: de ? 'Kosten vs. Öl'       : 'cost vs. oil'      },
+  ];
 
   return (
     <section
       id="home"
-      className="relative overflow-hidden"
+      ref={rootRef}
+      className="relative overflow-hidden grain"
       style={{
         height: '100dvh',
-        background: '#07080A',
-        // Override global !important h1 color rule for light mode
-        '--tx1': '#F8F8F8',
-        '--tx2': 'rgba(248,248,248,0.55)',
+        background: '#0A0A0B',
+        ['--tx1' as string]: '#F7F7F8',
       } as React.CSSProperties}
     >
-
-      {/* ── LAYER 0: Full-bleed photo ── */}
+      {/* Full-bleed macro — the clean, waxed chain (lightweight 582 KB source) */}
       <img
-        src="/images/hero-chain-wax.jpg"
+        src="/images/chain-clean.jpg"
         alt=""
         className="absolute inset-0 w-full h-full object-cover"
-        style={{ objectPosition: '62% 50%' }}
+        style={{ objectPosition: '62% 42%' }}
         fetchPriority="high"
       />
 
-      {/* ── LAYER 1: Top scrim for nav readability ── */}
+      {/* Scrims — left-weighted for legibility, no blue glow */}
       <div
-        className="absolute top-0 inset-x-0 pointer-events-none"
-        style={{
-          height: '200px',
-          background: 'linear-gradient(to bottom, rgba(5,6,8,0.6) 0%, transparent 100%)',
-        }}
-      />
-
-      {/* ── LAYER 2: Bottom fade into next section ── */}
-      <div
-        className="absolute bottom-0 inset-x-0 pointer-events-none"
-        style={{
-          height: '100px',
-          background: 'linear-gradient(to top, #07080A 0%, transparent 100%)',
-        }}
-      />
-
-      {/* ══════════════════════════════════════════
-          DESKTOP — Iceland-style split composition
-      ══════════════════════════════════════════ */}
-      <div className="hidden lg:block absolute inset-0">
-
-        {/* ── LAYER 3: Frosted glass LEFT panel ── */}
-        {/* Sits behind the brand name, above the photo */}
-        <div
-          ref={frostedRef}
-          className="absolute top-0 left-0 bottom-0"
-          style={{
-            width: '48%',
-            backdropFilter: 'blur(36px) saturate(0.65) brightness(0.78)',
-            WebkitBackdropFilter: 'blur(36px) saturate(0.65) brightness(0.78)',
-            background: 'rgba(4,5,7,0.48)',
-          }}
-        />
-
-        {/* Subtle right-edge gradient on left panel: bleeds into photo */}
-        <div
-          className="absolute top-0 bottom-0 pointer-events-none"
-          style={{
-            left: '42%',
-            width: '12%',
-            background: 'linear-gradient(to right, rgba(4,5,7,0.22) 0%, transparent 100%)',
-          }}
-        />
-
-        {/* Blue radial glow — top right of photo panel */}
-        <div
-          className="absolute pointer-events-none"
-          style={{
-            top: '-60px',
-            right: '-60px',
-            width: '500px',
-            height: '500px',
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(var(--accent-soft-rgb),0.16) 0%, transparent 65%)',
-          }}
-        />
-
-        {/* ── Eyebrow pill — top left ── */}
-        <div
-          ref={pillRef}
-          className="absolute flex items-center gap-3"
-          style={{ top: '108px', left: '72px' }}
-        >
-          <div style={{ width: '22px', height: '1px', background: 'rgba(255,255,255,0.2)' }} />
-          <p
-            className="text-[10px] uppercase tracking-[0.38em] font-semibold"
-            style={{ color: 'rgba(255,255,255,0.26)' }}
-          >
-            {t.hero.subtitle}
-          </p>
-          <button
-            onClick={() => scrollToSection('#ueber-mich')}
-            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border cursor-pointer hover:opacity-75 transition-opacity"
-            style={{
-              background: 'rgba(255,255,255,0.05)',
-              borderColor: 'rgba(255,255,255,0.10)',
-            }}
-          >
-            <span
-              className="h-1.5 w-1.5 rounded-full animate-pulse"
-              style={{ background: 'var(--accent-soft)' }}
-            />
-            <span
-              className="text-[10px] tracking-wide"
-              style={{ color: 'rgba(255,255,255,0.36)' }}
-            >
-              {de ? '171 × ★★★★★ auf eBay' : '171 × ★★★★★ on eBay'}
-            </span>
-          </button>
-        </div>
-
-        {/* ── Vertical brand stamp — far right ── */}
-        <div
-          className="absolute select-none pointer-events-none"
-          aria-hidden="true"
-          style={{
-            right: '22px',
-            top: '50%',
-            transform: 'translateY(-50%) rotate(90deg)',
-            fontSize: '9px',
-            letterSpacing: '0.46em',
-            color: 'rgba(255,255,255,0.14)',
-            textTransform: 'uppercase',
-            fontWeight: 700,
-            whiteSpace: 'nowrap',
-          }}
-        >
-          {de ? 'Premium Kettenwachs · seit 2022' : 'Premium Chain Wax · since 2022'}
-        </div>
-
-        {/* ══════════════════════════════════════
-            THE BRAND NAME — visual centerpiece
-            Spans full width, bridges both panels
-            Iceland-pattern: text above the divide
-        ══════════════════════════════════════ */}
-        <div
-          ref={brandRef}
-          className="absolute inset-x-0 select-none pointer-events-none"
-          style={{ top: '34%', transform: 'translateY(-50%)' }}
-          aria-hidden="true"
-        >
-          <p
-            className="font-display font-black uppercase text-center"
-            style={{
-              fontSize: 'clamp(5.5rem, 12vw, 16rem)',
-              letterSpacing: '-0.025em',
-              lineHeight: 1,
-              color: 'rgba(255,255,255,0.92)',
-              textShadow: '0 4px 80px rgba(0,0,0,0.25)',
-            }}
-          >
-            WAXCELERATE
-          </p>
-        </div>
-
-        {/* ══════════════════════════════
-            Content block — lower left
-            Lives inside the frosted panel
-        ══════════════════════════════ */}
-        <div
-          ref={contentRef}
-          className="absolute flex flex-col"
-          style={{ bottom: '68px', left: '72px', width: '38%' }}
-        >
-
-          {/* Index marker (like Iceland's "01") */}
-          <div className="flex items-center gap-4 mb-5">
-            <span
-              style={{
-                fontSize: '11px',
-                fontWeight: 700,
-                letterSpacing: '0.32em',
-                color: 'rgba(255,255,255,0.20)',
-              }}
-            >
-              01
-            </span>
-            <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
-          </div>
-
-          {/* Sub-headline */}
-          <p
-            className="font-display font-bold leading-tight tracking-[-0.025em] mb-4"
-            style={{
-              fontSize: 'clamp(1.5rem, 2.4vw, 2.6rem)',
-              color: '#F5F5F5',
-            }}
-          >
-            {t.hero.headline}
-          </p>
-
-          {/* Tagline */}
-          <p
-            className="text-[14px] leading-relaxed mb-8"
-            style={{ color: 'rgba(255,255,255,0.36)', maxWidth: '340px' }}
-          >
-            {t.hero.tagline}
-          </p>
-
-          {/* Stats row */}
-          <div
-            className="flex items-start gap-0 mb-8"
-            style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '22px' }}
-          >
-            {[
-              { v: '3×',   l: de ? 'Kettenlaufzeit'     : 'Chain life'      },
-              { v: '~€70', l: de ? 'gespart · 12.000km' : 'saved · 12k km'  },
-              { v: '100%', l: de ? 'positiv auf eBay'   : 'positive on eBay' },
-            ].map((s, i) => (
-              <div
-                key={i}
-                style={{
-                  paddingRight: i < 2 ? '28px' : '0',
-                  marginRight: i < 2 ? '8px' : '0',
-                  borderRight: i < 2 ? '1px solid rgba(255,255,255,0.07)' : 'none',
-                }}
-              >
-                <p
-                  className="font-black tabular-nums leading-none"
-                  style={{ fontSize: 'clamp(18px, 2vw, 26px)', color: '#F5F5F5' }}
-                >
-                  {s.v}
-                </p>
-                <p
-                  className="text-[10px] mt-1.5 leading-none"
-                  style={{ color: 'rgba(255,255,255,0.22)' }}
-                >
-                  {s.l}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          {/* CTAs */}
-          <div className="flex items-center gap-5">
-            <button
-              onClick={() => scrollToSection('#produkte')}
-              className="inline-flex items-center gap-2.5 px-8 py-3.5 text-[13px] font-bold rounded-full hover:opacity-90 transition-all active:scale-[0.97]"
-              style={{
-                background: 'var(--accent-soft)',
-                color: '#fff',
-                letterSpacing: '0.04em',
-                boxShadow: '0 0 36px rgba(var(--accent-soft-rgb),0.28)',
-              }}
-            >
-              {t.hero.ctaBuy}
-              <ArrowRight className="h-3.5 w-3.5" />
-            </button>
-            <button
-              onClick={() => scrollToSection('#warum-wachs')}
-              className="text-[12.5px] cursor-pointer hover:opacity-70 transition-opacity"
-              style={{
-                color: 'rgba(255,255,255,0.28)',
-                textDecoration: 'underline',
-                textUnderlineOffset: '4px',
-                textDecorationColor: 'rgba(255,255,255,0.12)',
-              }}
-            >
-              {t.hero.ctaSecondary}
-            </button>
-          </div>
-
-        </div>
-
-        {/* ── Proof badge — floats over the PHOTO side ── */}
-        <div
-          ref={badgeRef}
-          className="absolute"
-          style={{
-            right: '8%',
-            bottom: '20%',
-            background: 'rgba(5,6,8,0.76)',
-            backdropFilter: 'blur(40px)',
-            WebkitBackdropFilter: 'blur(40px)',
-            border: '1px solid rgba(var(--accent-soft-rgb),0.20)',
-            borderRadius: '20px',
-            padding: '26px 34px',
-            minWidth: '210px',
-            boxShadow:
-              '0 40px 80px rgba(0,0,0,0.52), 0 0 0 1px rgba(255,255,255,0.03), inset 0 1px 0 rgba(255,255,255,0.06)',
-          }}
-        >
-          <div
-            style={{
-              width: '28px',
-              height: '2px',
-              background: 'var(--accent-soft)',
-              borderRadius: '2px',
-              marginBottom: '14px',
-            }}
-          />
-          <p
-            className="font-serif-display italic leading-none"
-            style={{
-              fontSize: '46px',
-              fontWeight: 700,
-              color: 'var(--accent-soft)',
-              letterSpacing: '-0.02em',
-              marginBottom: '8px',
-            }}
-          >
-            ~€70
-          </p>
-          <p className="text-[12px] font-medium leading-none" style={{ color: 'rgba(255,255,255,0.50)' }}>
-            {de ? 'gespart / 12.000 km' : 'saved / 12,000 km'}
-          </p>
-          <p className="text-[10px]" style={{ color: 'rgba(255,255,255,0.22)', marginTop: '6px' }}>
-            {de ? 'gegenüber Kettenöl' : 'vs. chain oil'}
-          </p>
-        </div>
-
-      </div>
-
-      {/* ══════════════════════════════
-          MOBILE — full-bleed photo
-          content anchored at bottom
-      ══════════════════════════════ */}
-      <div
-        className="lg:hidden absolute inset-0 flex flex-col justify-end"
+        className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            'linear-gradient(to top, rgba(5,6,8,0.97) 0%, rgba(5,6,8,0.75) 42%, rgba(5,6,8,0.20) 70%, transparent 100%)',
+            'linear-gradient(90deg, rgba(8,8,10,0.94) 0%, rgba(8,8,10,0.74) 38%, rgba(8,8,10,0.32) 70%, rgba(8,8,10,0.08) 100%)',
         }}
-      >
-        <div className="relative px-6 pb-12 pt-32">
+      />
+      <div
+        className="absolute top-0 inset-x-0 h-32 pointer-events-none"
+        style={{ background: 'linear-gradient(to bottom, rgba(8,8,10,0.65), transparent)' }}
+      />
+      <div
+        className="absolute bottom-0 inset-x-0 h-44 pointer-events-none"
+        style={{ background: 'linear-gradient(to top, #0A0A0B 0%, transparent 100%)' }}
+      />
 
-          {/* Tiny brand stamp mobile */}
-          <p
-            className="font-display font-black uppercase mb-4 select-none"
-            style={{
-              fontSize: 'clamp(3.4rem, 13vw, 5rem)',
-              letterSpacing: '-0.025em',
-              lineHeight: 1,
-              color: 'rgba(255,255,255,0.90)',
-            }}
-          >
-            WAXCE<br />LERATE
-          </p>
+      {/* Content */}
+      <div className="relative z-10 h-full w-full px-6 sm:px-10 lg:px-16 xl:px-24">
+        <div className="h-full max-w-7xl mx-auto flex flex-col justify-center">
+          <div className="max-w-2xl pb-20 sm:pb-16">
 
-          <div className="flex items-center gap-3 mb-4">
-            <div style={{ width: '18px', height: '1px', background: 'rgba(255,255,255,0.18)' }} />
+            {/* Eyebrow */}
+            <div data-hero className="flex items-center gap-3 mb-6">
+              <span style={{ width: '26px', height: '1px', background: 'var(--accent-soft)' }} />
+              <p
+                className="text-[10px] sm:text-[11px] uppercase font-semibold"
+                style={{ letterSpacing: '0.34em', color: 'rgba(255,255,255,0.58)' }}
+              >
+                {t.hero.subtitle}
+              </p>
+            </div>
+
+            {/* Poetic kicker (existing brand line) */}
             <p
-              className="text-[10px] uppercase tracking-[0.32em] font-semibold"
-              style={{ color: 'rgba(255,255,255,0.24)' }}
+              data-hero
+              className="font-display italic mb-3"
+              style={{ fontSize: 'clamp(1.05rem, 1.9vw, 1.5rem)', color: 'rgba(255,255,255,0.5)' }}
             >
-              {t.hero.subtitle}
+              {t.hero.headline}
             </p>
-          </div>
 
-          <p
-            className="font-display font-bold leading-tight tracking-[-0.02em] mb-4"
-            style={{ fontSize: 'clamp(1.5rem, 6.5vw, 2rem)', color: '#F5F5F5' }}
-          >
-            {t.hero.headline}
-          </p>
+            {/* Value-led headline */}
+            <h1
+              data-hero
+              className="font-display font-black text-white mb-7"
+              style={{ fontSize: 'clamp(2.3rem, 5.2vw, 4.5rem)', lineHeight: 1.03, letterSpacing: '-0.022em' }}
+            >
+              {t.hero.tagline}
+            </h1>
 
-          <p
-            className="text-[14px] leading-relaxed mb-6"
-            style={{ color: 'rgba(255,255,255,0.36)' }}
-          >
-            {t.hero.tagline}
-          </p>
+            {/* Trust strip */}
+            <div
+              data-hero
+              className="flex flex-wrap items-center gap-x-4 gap-y-2 mb-9 text-[13px]"
+              style={{ color: 'rgba(255,255,255,0.64)' }}
+            >
+              <span className="inline-flex items-center gap-1.5">
+                <span style={{ color: 'rgba(255,255,255,0.92)', letterSpacing: '0.05em' }}>★★★★★</span>
+                <span className="tabular-nums">171</span>
+              </span>
+              <span className="h-3 w-px" style={{ background: 'rgba(255,255,255,0.18)' }} />
+              <span>{de ? '100% positiv' : '100% positive'}</span>
+              <span className="h-3 w-px" style={{ background: 'rgba(255,255,255,0.18)' }} />
+              <span>{de ? 'eBay-Käuferschutz' : 'eBay buyer protection'}</span>
+            </div>
 
-          <div
-            className="flex items-start gap-7 mb-7"
-            style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '18px' }}
-          >
-            {[
-              { v: '3×',   l: de ? 'Kettenlaufzeit' : 'Chain life'    },
-              { v: '~€70', l: de ? 'gespart/12k km' : 'saved/12k km'  },
-              { v: '100%', l: de ? 'positiv eBay'   : 'positive eBay' },
-            ].map((s, i) => (
-              <div
-                key={i}
+            {/* CTAs */}
+            <div data-hero className="flex items-center gap-5 flex-wrap">
+              <button
+                onClick={() => scrollTo('#produkte')}
+                className="inline-flex items-center gap-2.5 px-8 py-3.5 text-[14px] font-bold rounded-full transition-all active:scale-[0.98]"
+                style={{ background: '#FFFFFF', color: '#0F0F12' }}
+              >
+                {t.hero.ctaBuy}
+                <ArrowRight className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => scrollTo('#warum-wachs')}
+                className="text-[13px] transition-opacity hover:opacity-80"
                 style={{
-                  paddingLeft: i > 0 ? '28px' : '0',
-                  borderLeft: i > 0 ? '1px solid rgba(255,255,255,0.08)' : 'none',
+                  color: 'rgba(255,255,255,0.6)',
+                  textDecoration: 'underline',
+                  textUnderlineOffset: '4px',
+                  textDecorationColor: 'rgba(255,255,255,0.22)',
                 }}
               >
-                <p className="text-[22px] font-black leading-none" style={{ color: '#F5F5F5' }}>
+                {t.hero.ctaSecondary}
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      {/* Spec ribbon — engineered signature; single home for the 3 headline stats */}
+      <div data-hero className="absolute bottom-0 inset-x-0 z-10">
+        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 xl:px-24">
+          <div
+            className="grid grid-cols-3 py-4 sm:py-5"
+            style={{ borderTop: '1px solid rgba(255,255,255,0.12)' }}
+          >
+            {stats.map((s, i) => (
+              <div
+                key={i}
+                className="px-1 sm:px-4"
+                style={{
+                  borderLeft: i > 0 ? '1px solid rgba(255,255,255,0.10)' : 'none',
+                  paddingLeft: i > 0 ? '16px' : '0',
+                }}
+              >
+                <p
+                  className="font-display font-bold tabular-nums text-white leading-none"
+                  style={{ fontSize: 'clamp(1.15rem, 2.2vw, 1.7rem)' }}
+                >
                   {s.v}
                 </p>
-                <p className="text-[10px] mt-1.5" style={{ color: 'rgba(255,255,255,0.24)' }}>
+                <p
+                  className="text-[10px] sm:text-[11px] uppercase mt-1.5"
+                  style={{ letterSpacing: '0.06em', color: 'rgba(255,255,255,0.46)' }}
+                >
                   {s.l}
                 </p>
               </div>
             ))}
           </div>
-
-          <div className="flex items-center gap-4 flex-wrap">
-            <button
-              onClick={() => scrollToSection('#produkte')}
-              className="inline-flex items-center gap-2 px-7 py-3.5 text-sm font-bold rounded-full"
-              style={{ background: 'var(--accent-soft)', color: '#fff' }}
-            >
-              {t.hero.ctaBuy} <ArrowRight className="h-3.5 w-3.5" />
-            </button>
-            <button
-              onClick={() => scrollToSection('#warum-wachs')}
-              className="text-sm cursor-pointer"
-              style={{
-                color: 'rgba(255,255,255,0.28)',
-                textDecoration: 'underline',
-                textUnderlineOffset: '3px',
-              }}
-            >
-              {t.hero.ctaSecondary}
-            </button>
-          </div>
-
         </div>
       </div>
-
     </section>
   );
 }
