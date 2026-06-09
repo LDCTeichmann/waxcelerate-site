@@ -11,11 +11,12 @@ import { richContent } from '@/lib/productContent';
 import { getEstimatedDelivery } from '@/lib/utils';
 
 
-const filterChip = (active: boolean) =>
-  `px-3 py-1.5 rounded-md text-[12px] transition-all border cursor-pointer ${
+// Segmented-control button: segments share the row evenly (flex-1) and never wrap.
+const segment = (active: boolean) =>
+  `flex-1 min-w-0 px-2 py-1.5 rounded-md text-[12px] leading-none text-center truncate transition-all border cursor-pointer ${
     active
       ? 'chip-active text-wx-tx1'
-      : 'border-wx-bd text-wx-txf hover:text-wx-tx2'
+      : 'border-transparent text-wx-txf hover:text-wx-tx2'
   }`;
 
 export function Products() {
@@ -214,38 +215,54 @@ export function Products() {
                 {t.products.preWaxedHint}
               </p>
 
-              {/* Filter bar */}
-              <div className="mb-6 rounded-xl border border-wx-bd px-4 py-3 space-y-2" style={{ background: 'var(--sf)' }}>
+              {/* Shared info — shown once instead of repeating identical pills on every card */}
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 mb-4 px-1 text-[11px]" style={{ color: 'var(--txf)' }}>
+                <span className="font-medium" style={{ color: 'var(--tx2)' }}>
+                  {de ? 'Alle Ketten: vorgewachst · Quick-Link inklusive' : 'All chains: pre-waxed · Quick-Link included'}
+                </span>
+                <span className="hidden sm:inline" style={{ color: 'var(--bd2)' }}>·</span>
+                <span>{t.products.multiDiscount}</span>
+              </div>
+
+              {/* Filter bar — two compact segmented controls (no wrap on 375px) */}
+              <div className="mb-3 rounded-xl border border-wx-bd px-3 py-3 space-y-2.5" style={{ background: 'var(--sf)' }}>
+                {/* Speed */}
                 <div className="flex items-center gap-2.5">
                   <span className="text-xs uppercase tracking-[0.12em] text-wx-txf font-medium w-12 flex-shrink-0">
                     {de ? 'Gänge' : 'Speed'}
                   </span>
-                  <div className="flex gap-1.5">
+                  <div className="flex flex-1 min-w-0 gap-1 p-0.5 rounded-lg border border-wx-bd" style={{ background: 'var(--sf2)' }}>
                     {(['all', '11', '12'] as const).map(v => (
-                      <button key={v} onClick={() => setSpeedFilter(v)} className={filterChip(speedFilter === v)}>
+                      <button key={v} onClick={() => setSpeedFilter(v)} className={segment(speedFilter === v)}>
                         {v === 'all' ? (de ? 'Alle' : 'All') : `${v}-fach`}
                       </button>
                     ))}
                   </div>
                 </div>
+                {/* Brand */}
                 <div className="flex items-center gap-2.5">
                   <span className="text-xs uppercase tracking-[0.12em] text-wx-txf font-medium w-12 flex-shrink-0">
                     {de ? 'Marke' : 'Brand'}
                   </span>
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="flex flex-1 min-w-0 gap-1 p-0.5 rounded-lg border border-wx-bd" style={{ background: 'var(--sf2)' }}>
                     {([
                       { v: 'all',        label: de ? 'Alle' : 'All' },
                       { v: 'shimano',    label: 'Shimano'            },
                       { v: 'sram',       label: 'SRAM'               },
                       { v: 'campagnolo', label: 'Campa'              },
                     ] as { v: 'all' | 'shimano' | 'sram' | 'campagnolo'; label: string }[]).map(({ v, label }) => (
-                      <button key={v} onClick={() => setBrandFilter(v)} className={filterChip(brandFilter === v)}>
+                      <button key={v} onClick={() => setBrandFilter(v)} className={segment(brandFilter === v)}>
                         {label}
                       </button>
                     ))}
                   </div>
                 </div>
               </div>
+
+              {/* Live result count */}
+              <p className="mb-6 px-1 text-[11px]" style={{ color: 'var(--txf)' }}>
+                {filteredChains.length} {de ? 'Ketten' : 'chains'}
+              </p>
 
               {filteredChains.length === 0 ? (
                 <div className="text-center py-16">
@@ -468,20 +485,14 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
             <h3 className="text-[15px] font-bold text-wx-tx1 leading-snug tracking-[-0.02em]">{model}</h3>
           </div>
 
-          {/* Spec pills */}
-          <div className="flex flex-wrap gap-1.5 mb-3">
-            {chainLinks && (
+          {/* Spec pills — only per-card-varying info; shared "Quick-Link / pre-waxed" lives once above the grid */}
+          {chainLinks && (
+            <div className="flex flex-wrap gap-1.5 mb-3">
               <span className="text-[11px] px-2.5 py-1 rounded-lg font-medium" style={{ background: 'var(--sf3)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
                 {chainLinks}
               </span>
-            )}
-            <span className="text-[11px] px-2.5 py-1 rounded-lg font-medium" style={{ background: 'var(--sf3)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
-              Quick-Link
-            </span>
-            <span className="text-[11px] px-2.5 py-1 rounded-lg font-medium" style={{ background: 'var(--sf3)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
-              {de ? 'Vorgewachst' : 'Pre-waxed'}
-            </span>
-          </div>
+            </div>
+          )}
 
           {/* Price + CTA */}
           <div className="flex items-center justify-between gap-3 pt-3" style={{ borderTop: '1px solid var(--bd2)' }}>

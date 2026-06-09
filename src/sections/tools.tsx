@@ -69,12 +69,10 @@ function TogButton({
   return (
     <button
       onClick={onClick}
-      className="px-4 py-2 rounded-xl text-[13px] transition-all cursor-pointer"
+      className={`px-4 py-2 rounded-xl text-[13px] transition-all cursor-pointer${active ? ' chip-active' : ''}`}
       style={{
-        border: `1px solid ${active ? 'rgba(var(--accent-soft-rgb),0.55)' : 'var(--tog-bd)'}`,
-        background: active
-          ? 'linear-gradient(135deg, rgba(var(--accent-rgb),0.28) 0%, rgba(var(--accent-rgb),0.12) 100%)'
-          : 'var(--tog-bg)',
+        border: active ? undefined : '1px solid var(--tog-bd)',
+        background: active ? undefined : 'var(--tog-bg)',
         color: active ? 'var(--tx1)' : 'var(--tog-fg)',
         fontWeight: active ? 500 : 400,
         boxShadow: 'none',
@@ -345,7 +343,8 @@ function WaxStockCalculator() {
   const de = lang === 'de';
 
   type FreqKey = 'frequent' | 'regular' | 'occasional' | 'rare';
-  const [freq, setFreq] = useState<FreqKey | null>(null);
+  // Default to 'regular' so a meaningful recommendation shows immediately on load.
+  const [freq, setFreq] = useState<FreqKey>('regular');
 
   const freqOpts: { value: FreqKey; label: string; hint: string; km: string; rewaxPerMonth: number }[] = [
     { value: 'frequent',   label: de ? 'Alle 2–3 Wochen' : 'Every 2–3 weeks',  hint: de ? 'Vielfahrer · Rennsport' : 'Heavy rider · Racing',  km: de ? '~150 km/Wo.' : '~150 km/wk',  rewaxPerMonth: 1.67 },
@@ -403,12 +402,10 @@ function WaxStockCalculator() {
               <button
                 key={o.value}
                 onClick={() => setFreq(o.value)}
-                className="rounded-xl px-3 py-3 text-left transition-all cursor-pointer"
+                className={`rounded-xl px-3 py-3 text-left transition-all cursor-pointer${freq === o.value ? ' chip-active' : ''}`}
                 style={{
-                  border: `1px solid ${freq === o.value ? 'rgba(var(--accent-soft-rgb),0.55)' : 'var(--tog-bd)'}`,
-                  background: freq === o.value
-                    ? 'linear-gradient(135deg, rgba(var(--accent-rgb),0.28) 0%, rgba(var(--accent-rgb),0.12) 100%)'
-                    : 'var(--tog-bg)',
+                  border: freq === o.value ? undefined : '1px solid var(--tog-bd)',
+                  background: freq === o.value ? undefined : 'var(--tog-bg)',
                 }}
               >
                 <p className="text-[13px] font-medium leading-snug" style={{ color: freq === o.value ? 'var(--tx1)' : 'var(--tog-fg)' }}>

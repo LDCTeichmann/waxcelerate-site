@@ -42,12 +42,9 @@ export function About() {
 
   const de = lang === 'de';
 
-  const stats: { value: string; badge?: string; label: string; sub?: string }[] = [
-    {
-      value: '171',
-      badge: '100% positiv',
-      label: de ? 'eBay-Bewertungen' : 'eBay reviews',
-    },
+  // De-duplicated: 171/100% live in Reviews + nav badge, 3× lives in the
+  // hero ribbon / why-wax. About keeps only its own, unique facts.
+  const stats: { value: string; label: string }[] = [
     {
       value: de ? '1 Tag' : '1 day',
       label: de ? 'Versand nach Bestellung' : 'Ships after order',
@@ -55,11 +52,6 @@ export function About() {
     {
       value: '2024',
       label: de ? 'In Stuttgart gegründet' : 'Founded in Stuttgart',
-    },
-    {
-      value: '3×',
-      label: de ? 'Kette & Kassette halten länger' : 'Chain & cassette last longer',
-      sub: de ? 'vs. Öl-Schmiermittel' : 'vs. oil lubricant',
     },
   ];
 
@@ -181,8 +173,7 @@ export function About() {
                     className="py-4 px-4 text-center"
                     style={{
                       background: 'var(--sf2)',
-                      borderRight: i % 2 === 0 ? '1px solid var(--bd2)' : 'none',
-                      borderBottom: i < 2 ? '1px solid var(--bd2)' : 'none',
+                      borderRight: i === 0 ? '1px solid var(--bd2)' : 'none',
                     }}
                   >
                     <p
@@ -191,22 +182,9 @@ export function About() {
                     >
                       {s.value}
                     </p>
-                    {s.badge && (
-                      <span
-                        className="inline-block mt-1 mb-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-semibold"
-                        style={{ background: 'rgba(var(--accent-rgb),0.10)', color: 'var(--accent)' }}
-                      >
-                        {s.badge}
-                      </span>
-                    )}
-                    <p className="text-[11px] leading-snug mt-1" style={{ color: 'var(--tx2)' }}>
+                    <p className="text-[11px] leading-snug mt-1.5" style={{ color: 'var(--tx2)' }}>
                       {s.label}
                     </p>
-                    {s.sub && (
-                      <p className="text-[10px] mt-0.5 leading-snug" style={{ color: 'var(--txf)' }}>
-                        {s.sub}
-                      </p>
-                    )}
                   </div>
                 ))}
               </div>
