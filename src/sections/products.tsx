@@ -107,7 +107,7 @@ export function Products() {
   }, [filteredChains.length]);
 
   return (
-    <section id="produkte" className="relative py-20 bg-wx-bg">
+    <section id="produkte" className="relative py-20 sm:py-28 bg-wx-bg">
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-5xl mx-auto">
 

@@ -35,7 +35,7 @@ export function Guides() {
   ];
 
   return (
-    <section id="anleitungen" className="relative pt-16 pb-10 bg-wx-sf">
+    <section id="anleitungen" className="relative py-20 sm:py-28 bg-wx-sf">
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-4xl mx-auto">
 

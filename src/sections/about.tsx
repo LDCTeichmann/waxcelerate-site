@@ -56,7 +56,7 @@ export function About() {
   ];
 
   return (
-    <section id="ueber-mich" className="relative py-20 bg-wx-sf chain-texture">
+    <section id="ueber-mich" className="relative py-20 sm:py-28 bg-wx-sf chain-texture">
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-5xl mx-auto">
 

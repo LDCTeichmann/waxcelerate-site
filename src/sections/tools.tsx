@@ -819,7 +819,7 @@ export function Tools() {
   }, []); // eslint-disable-line
 
   return (
-    <section id="tools" className="relative py-24" style={{ background: 'var(--tool-bg)' }}>
+    <section id="tools" className="relative py-20 sm:py-28" style={{ background: 'var(--tool-bg)' }}>
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-6xl mx-auto">
 
