@@ -199,8 +199,9 @@
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Fraunces', Georgia, serif;
-    /* More character: high optical contrast + soft terminals + WONK alternates */
-    font-variation-settings: "opsz" 72, "wght" 700, "SOFT" 32, "WONK" 1;
+    /* Character (soft terminals + WONK alternates); moderate opsz so SMALL
+       headings stay sturdy. Large display overrides opsz below. */
+    font-variation-settings: "opsz" 36, "wght" 700, "SOFT" 28, "WONK" 1;
   }
 }
 
@@ -356,6 +357,8 @@ footer ul a:hover::after {
   line-height: 1.05;
   letter-spacing: -0.02em;
   color: var(--tx1);
+  /* Display drama: higher optical contrast + full character */
+  font-variation-settings: "opsz" 88, "wght" 700, "SOFT" 36, "WONK" 1;
 }
 
 /* ── Button system — one primary + one ghost (Workstream 3) ───────────────── */

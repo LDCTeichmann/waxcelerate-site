@@ -119,6 +119,7 @@ export function Hero() {
                 lineHeight: 0.98,
                 letterSpacing: '-0.02em',
                 fontWeight: 700,
+                fontVariationSettings: '"opsz" 120, "wght" 700, "SOFT" 40, "WONK" 1',
                 textShadow: '0 6px 60px rgba(0,0,0,0.45)',
               }}
             >
