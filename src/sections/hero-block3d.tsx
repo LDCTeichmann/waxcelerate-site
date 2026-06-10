@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { RoundedBox, ContactShadows } from '@react-three/drei';
 import * as THREE from 'three';
