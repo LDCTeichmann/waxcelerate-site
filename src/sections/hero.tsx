@@ -97,7 +97,7 @@ export function Hero() {
       {/* Content */}
       <div className="relative z-10 h-full w-full px-6 sm:px-10 lg:px-16 xl:px-24">
         <div className="h-full max-w-7xl mx-auto flex flex-col justify-center">
-          <div className="max-w-3xl pb-20 sm:pb-16">
+          <div className="max-w-3xl pb-24 sm:pb-20">
 
             {/* Eyebrow — der einzige Produktblau-Akzent */}
             <div data-hero className="flex items-center gap-3 mb-7">

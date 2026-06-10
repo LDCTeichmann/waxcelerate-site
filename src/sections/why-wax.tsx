@@ -582,15 +582,20 @@ function MechanismStrip({
           {/* Text */}
           <div className="flex-1 min-w-0">
 
-            {/* Eyebrow + spec */}
-            <div className="flex items-start justify-between gap-4 mb-2">
-              <span className="eyebrow"
-                style={{ color: 'var(--txff)' }}>
+            {/* Klartext-Takeaway — verdict first, reads in <1 s */}
+            <h3 className="font-display font-bold text-wx-tx1 mb-3 leading-tight"
+              style={{ fontSize: 'clamp(1.15rem, 2.3vw, 1.6rem)', letterSpacing: '-0.01em' }}>
+              {de ? titleDe : titleEn}
+            </h3>
+
+            {/* Eyebrow + spec — metadata below the verdict */}
+            <div className="flex items-center justify-between gap-4 mb-1">
+              <span className="eyebrow" style={{ color: 'var(--txff)' }}>
                 {de ? catDe : catEn}
               </span>
               {specValue && (
                 <span className="font-display font-bold tabular-nums leading-none flex-shrink-0"
-                  style={{ fontSize: 'clamp(1.55rem, 3vw, 2.2rem)', color: 'var(--tx1)' }}>
+                  style={{ fontSize: 'clamp(1.4rem, 2.8vw, 2rem)', color: 'var(--accent-soft)' }}>
                   {specValue}
                 </span>
               )}
@@ -598,16 +603,11 @@ function MechanismStrip({
 
             {/* Spec label */}
             {specValue && (specLabelDe || specLabelEn) && (
-              <p className="text-[10px] font-medium mb-3 text-right" style={{ color: 'var(--accent-soft)' }}>
+              <p className="text-[10px] font-medium mb-4 text-right" style={{ color: 'var(--txf)' }}>
                 {de ? specLabelDe : specLabelEn}
               </p>
             )}
-
-            {/* Title */}
-            <h3 className="font-serif-display italic font-bold text-wx-tx1 mb-3 leading-tight"
-              style={{ fontSize: 'clamp(1.1rem, 2.1vw, 1.4rem)' }}>
-              {de ? titleDe : titleEn}
-            </h3>
+            {!specValue && <div className="mb-4" />}
 
             {/* Body */}
             <p className="text-[13px] leading-relaxed mb-4" style={{ color: 'var(--txm)' }}>
