@@ -59,15 +59,15 @@ export function Hero() {
         ['--tx1' as string]: '#F7F7F8',
       } as React.CSSProperties}
     >
-      {/* Lebendiges Ketten-Makro mit langsamem Settle (77 KB webp / 166 KB jpg) */}
+      {/* Dunkles Graphit-Ketten-Makro mit langsamem Settle (66 KB webp / 146 KB jpg) */}
       <div ref={imgRef} className="absolute inset-0 will-change-transform">
         <picture>
-          <source srcSet="/images/hero-silver.webp" type="image/webp" />
+          <source srcSet="/images/hero-texture.webp" type="image/webp" />
           <img
-            src="/images/hero-silver.jpg"
+            src="/images/hero-texture.jpg"
             alt=""
             className="absolute inset-0 w-full h-full object-cover"
-            style={{ objectPosition: '50% 45%' }}
+            style={{ objectPosition: '50% 50%' }}
             fetchPriority="high"
           />
         </picture>

@@ -6,7 +6,7 @@ module.exports = {
     extend: {
       fontFamily: {
         display:         ['Fraunces', 'Georgia', 'serif'],
-        sans:            ['Hanken Grotesk', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans:            ['Libre Franklin', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         roboto:          ['Roboto', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         'serif-display': ['Fraunces', 'Georgia', 'serif'],
       },

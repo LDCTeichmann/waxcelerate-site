@@ -190,7 +190,7 @@
   }
 
   body {
-    font-family: 'Hanken Grotesk', ui-sans-serif, system-ui, sans-serif;
+    font-family: 'Libre Franklin', ui-sans-serif, system-ui, sans-serif;
     background-color: var(--pg);
     color: var(--tx1);
     -webkit-font-smoothing: antialiased;
@@ -199,6 +199,8 @@
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Fraunces', Georgia, serif;
+    /* More character: high optical contrast + soft terminals + WONK alternates */
+    font-variation-settings: "opsz" 72, "wght" 700, "SOFT" 32, "WONK" 1;
   }
 }
 
