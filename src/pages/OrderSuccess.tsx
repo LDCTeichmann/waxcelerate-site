@@ -38,7 +38,7 @@ export function OrderSuccess() {
       <Link
         to="/"
         className="flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-white text-sm transition-all hover:opacity-90"
-        style={{ background: '#1A3C6E' }}
+        style={{ background: 'var(--accent)' }}
       >
         {t.cart.backHome}
       </Link>

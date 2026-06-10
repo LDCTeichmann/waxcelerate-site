@@ -129,7 +129,7 @@ export function AdminPage() {
             type="submit"
             disabled={loading || !password}
             className="w-full py-2.5 rounded-xl font-semibold text-white text-sm transition-opacity hover:opacity-90 disabled:opacity-50"
-            style={{ background: '#1A3C6E' }}
+            style={{ background: 'var(--accent)' }}
           >
             {loading ? 'Loading…' : 'Sign in'}
           </button>
@@ -210,7 +210,7 @@ export function AdminPage() {
                     }}
                     disabled={!isDirty || isNaN(draftNum) || draftNum < -1 || state === 'saving'}
                     className="px-3 py-2 rounded-lg text-xs font-semibold text-white transition-all hover:opacity-90 disabled:opacity-40"
-                    style={{ background: '#1A3C6E' }}
+                    style={{ background: 'var(--accent)' }}
                   >
                     {state === 'saving' ? 'Saving…' : 'Save'}
                   </button>
