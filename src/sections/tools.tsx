@@ -89,7 +89,7 @@ function ToolCard({ children }: { children: React.ReactNode }) {
     <div
       className="flex flex-col h-full rounded-3xl"
       style={{
-        background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
+        background: 'var(--card-bg)',
         border: '1px solid var(--bd)',
         boxShadow: 'var(--card-shad)',
         backdropFilter: 'blur(24px)',

@@ -53,7 +53,7 @@ export function Contact() {
               rel="noopener noreferrer"
               className="group flex flex-col rounded-2xl p-6 transition-all"
               style={{
-                background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
+                background: 'var(--card-bg)',
                 border: '1px solid rgba(37,211,102,0.45)',
                 boxShadow: 'var(--card-shad)',
                 textDecoration: 'none',
@@ -99,7 +99,7 @@ export function Contact() {
               href={mailUrl}
               className="group flex flex-col rounded-2xl p-6 transition-all"
               style={{
-                background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
+                background: 'var(--card-bg)',
                 border: '1px solid var(--bd)',
                 boxShadow: 'var(--card-shad)',
                 textDecoration: 'none',

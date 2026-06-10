@@ -327,7 +327,7 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: Ca
         to={`/produkt/${product.id}`}
         className="group relative flex flex-col h-full rounded-2xl"
         style={{
-          background: 'linear-gradient(175deg, var(--card-from) 0%, var(--card-to) 100%)',
+          background: 'var(--card-bg)',
           border: '1px solid var(--bd)',
           boxShadow: 'var(--card-shad)',
           transition: 'border-color 250ms ease, box-shadow 250ms ease',
@@ -355,14 +355,14 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: Ca
           {/* Badges */}
           <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2">
             <span
-              className="text-[10px] font-semibold tracking-[0.15em] uppercase px-2.5 py-1 rounded-full"
+              className="wx-badge"
               style={{ background: 'rgba(0,0,0,0.60)', color: 'rgba(180,210,255,0.95)', border: `1px solid ${accent}50`, backdropFilter: 'blur(4px)' }}
             >
               {isPro ? 'Pro' : 'Classic'} · {product.weight}
             </span>
             {badge && (
               <span
-                className="text-[10px] font-semibold tracking-wide uppercase px-2.5 py-1 rounded-full"
+                className="wx-badge"
                 style={{ background: 'rgba(0,0,0,0.60)', color: 'rgba(255,255,255,0.92)', border: '1px solid rgba(255,255,255,0.20)', backdropFilter: 'blur(4px)' }}
               >
                 {badge}
@@ -435,7 +435,7 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
         to={`/produkt/${product.id}`}
         className="group flex flex-col h-full rounded-2xl"
         style={{
-          background: 'linear-gradient(175deg, var(--card-from) 0%, var(--card-to) 100%)',
+          background: 'var(--card-bg)',
           border: '1px solid var(--bd)',
           boxShadow: 'var(--card-shad)',
           transition: 'border-color 250ms ease, box-shadow 250ms ease',
@@ -461,14 +461,14 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
           <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to top, var(--card-img-fade) 0%, transparent 55%)' }} />
           <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between gap-2">
             <span
-              className="text-[10px] font-semibold tracking-[0.15em] uppercase px-2.5 py-1 rounded-full"
+              className="wx-badge"
               style={{ background: 'rgba(0,0,0,0.60)', color: 'rgba(160,200,255,0.95)', border: '1px solid rgba(100,160,255,0.35)', backdropFilter: 'blur(4px)' }}
             >
               {speed}
             </span>
             {badge && (
               <span
-                className="text-[10px] font-semibold tracking-wide uppercase px-2.5 py-1 rounded-full"
+                className="wx-badge"
                 style={{ background: 'rgba(0,0,0,0.60)', color: 'rgba(255,255,255,0.92)', border: '1px solid rgba(255,255,255,0.20)', backdropFilter: 'blur(4px)' }}
               >
                 {badge}

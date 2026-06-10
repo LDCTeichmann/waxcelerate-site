@@ -482,7 +482,7 @@ const frictionMini = [
 ];
 
 const cardStyle = {
-  background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
+  background: 'var(--card-bg)',
   boxShadow: 'var(--card-shad)',
 };
 

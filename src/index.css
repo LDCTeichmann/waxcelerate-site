@@ -27,6 +27,7 @@
     --card-from: #FFFFFF;
     --card-to:   #F5F5F7;
     --card-to-rgb: 245,245,247;
+    --card-bg:   linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%);
     --card-shad: 0 2px 16px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,0.9);
     --nav-bg:    rgba(245,245,246,0.92);
     --tool-bg:   #EEEEF1;
@@ -315,6 +316,25 @@ footer ul a:hover::after {
 .chip-active {
   border-color: rgba(var(--accent-rgb), 0.40);
   background:   rgba(var(--accent-rgb), 0.10);
+}
+
+/* ── Card + badge primitives (one source of truth) ────────────────────────── */
+.wx-card {
+  background:    var(--card-bg);
+  border:        1px solid var(--bd);
+  box-shadow:    var(--card-shad);
+  border-radius: 1rem;
+}
+.wx-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.625rem;          /* 10px */
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  white-space: nowrap;
 }
 
 /* ── Typography scale — semantic, reusable (Workstream 2) ─────────────────── */
