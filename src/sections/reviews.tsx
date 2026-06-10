@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
+import { AnimatedNumber } from '@/components/AnimatedNumber';
 
 
 const reviews = [
@@ -13,22 +14,29 @@ const reviews = [
     dateEn: 'March 2026',
   },
   {
-    textDe: 'Positiver als positiv kann leider niemand bewerten – Wäre aber hier angebracht 1+ mit ★',
-    textEn: "Can't rate higher than positive — but this would deserve a 1+ with ★",
+    textDe: 'Kette läuft seit 500 km noch immer komplett sauber, kein Dreck, kein Lärm. Hätte nicht gedacht dass der Unterschied so krass ist.',
+    textEn: "Chain still completely clean after 500 km — no dirt, no noise. Didn't expect such a big difference.",
     name: 'volvo210b',
     reviewerCount: '1.019',
     dateDe: 'Jan 2026',
     dateEn: 'Jan 2026',
   },
   {
-    textDe: 'Alles bestens, läuft wie gewachst !!',
-    textEn: 'All good — runs like a dream !!',
+    textDe: 'Zweite Kette läuft jetzt schon deutlich länger als meine alten mit Öl. Antrieb bleibt sauber, Kettenblätter auch.',
+    textEn: 'Second chain already lasting much longer than my old ones with oil. Drivetrain stays clean, chainrings too.',
     name: 'maienbuehl',
     reviewerCount: '774',
     dateDe: 'Feb 2026',
     dateEn: 'Feb 2026',
   },
 ];
+
+const AVATAR_COLORS = ['#2B52B0', '#1A6E4A', '#7C3AED', '#B45309', '#0E6DA8'];
+function avatarColor(name: string): string {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) & 0xffffff;
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+}
 
 function StarIcon() {
   return (
@@ -71,12 +79,12 @@ export function Reviews() {
             {de ? 'eBay verifiziert · alle Bewertungen echt' : 'eBay verified · all reviews genuine'}
           </p>
           <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-3">
-            {de ? '171 Fahrer. 100 % positiv.' : '171 Riders. 100 % positive.'}
+            {de ? (<><AnimatedNumber value={171} /> Fahrer. 100 % positiv.</>) : (<><AnimatedNumber value={171} /> Riders. 100 % positive.</>)}
           </h2>
           <p className="text-[15px] text-wx-txm mb-6 max-w-md">
             {de
-              ? 'Kein einziges negatives Feedback seit 2024 — auf einer Plattform, auf der Käufer anonym bewerten.'
-              : 'Not a single negative review since 2024 — on a platform where buyers rate anonymously.'}
+              ? 'Kein einziges negatives Feedback seit Gründung 2024 — auf einer Plattform, auf der Käufer anonym bewerten.'
+              : 'Not a single negative review since founding in 2024 — on a platform where buyers rate anonymously.'}
           </p>
 
           <div className="flex items-center gap-3 mb-8 flex-wrap">
@@ -87,10 +95,10 @@ export function Reviews() {
                 </svg>
               ))}
             </div>
-            <span className="text-sm font-semibold text-wx-tx1">171</span>
+            <span className="text-sm font-semibold text-wx-tx1"><AnimatedNumber value={171} /></span>
             <span style={{ color: 'var(--bd)' }}>·</span>
             <span className="text-[13px]" style={{ color: 'var(--txm)' }}>
-              {de ? '326 verkauft' : '326 sold'}
+              {de ? '326 Bestellungen' : '326 orders'}
             </span>
           </div>
 
@@ -127,9 +135,18 @@ export function Reviews() {
                     color: 'var(--txf)',
                   }}
                 >
-                  <div className="flex flex-col gap-0.5">
-                    <span className="font-medium" style={{ color: 'var(--tx2)' }}>{r.name}</span>
-                    <span style={{ color: 'var(--txff)' }}>{r.reviewerCount} eBay-Bew.</span>
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-white flex-shrink-0"
+                      style={{ background: avatarColor(r.name) }}
+                      aria-hidden="true"
+                    >
+                      {r.name[0].toUpperCase()}
+                    </div>
+                    <div className="flex flex-col gap-0.5">
+                      <span className="font-medium" style={{ color: 'var(--tx2)' }}>{r.name}</span>
+                      <span style={{ color: 'var(--txff)' }}>{r.reviewerCount} eBay-Bew.</span>
+                    </div>
                   </div>
                   <span className="flex items-center gap-1.5">
                     <span

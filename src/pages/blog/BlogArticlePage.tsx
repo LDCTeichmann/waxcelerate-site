@@ -2,6 +2,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { getArticleBySlug } from './articles';
 import type { ArticleSection } from './articles';
+import { PageTransition } from '@/components/PageTransition';
 
 function renderSection(section: ArticleSection, idx: number): React.ReactNode {
   switch (section.type) {
@@ -144,6 +145,8 @@ export function BlogArticlePage() {
     : null;
 
   return (
+    <PageTransition>
+
     <div className="min-h-screen" style={{ background: 'var(--pg)' }}>
       <Helmet>
         <title>{article.title} | Waxcelerate</title>
@@ -230,5 +233,7 @@ export function BlogArticlePage() {
         </article>
       </main>
     </div>
+  
+    </PageTransition>
   );
 }

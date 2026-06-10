@@ -9,6 +9,8 @@ import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { products } from '@/lib/data';
 import { richContent } from '@/lib/productContent';
 import { getEstimatedDelivery } from '@/lib/utils';
+import { useCartStore, isInStock, isLowStock, getStock } from '@/store/cart';
+import { WaxQuiz } from '@/components/WaxQuiz';
 
 
 const filterChip = (active: boolean) =>
@@ -22,6 +24,7 @@ export function Products() {
   const { t, lang } = useLanguage();
   const [activeTab, setActiveTab] = useState<'wax' | 'chain'>('wax');
   const [compareOpen, setCompareOpen] = useState(false);
+  const [quizOpen, setQuizOpen] = useState(false);
   const [speedFilter, setSpeedFilter] = useState<'all' | '11' | '12'>('all');
   const [brandFilter, setBrandFilter] = useState<'all' | 'shimano' | 'sram' | 'campagnolo'>('all');
   const de = lang === 'de';
@@ -192,15 +195,35 @@ export function Products() {
                   </span>
                 </div>
               </div>
-              <CompareModal open={compareOpen} onClose={() => setCompareOpen(false)} de={de} t={t} />
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 items-stretch">
+              {/* Quiz trigger */}
+              <button
+                onClick={() => setQuizOpen(v => !v)}
+                className="flex items-center gap-2 w-fit text-[13px] font-medium transition-all mb-2"
+                style={{ color: quizOpen ? '#2B52B0' : 'var(--txm)' }}
+              >
+                <span
+                  className="px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all"
+                  style={{
+                    background: quizOpen ? 'rgba(43,82,176,0.15)' : 'rgba(43,82,176,0.08)',
+                    border: `1px solid ${quizOpen ? 'rgba(43,82,176,0.40)' : 'rgba(43,82,176,0.20)'}`,
+                    color: '#2B52B0',
+                  }}
+                >
+                  ✦
+                </span>
+                {de ? 'Welches Wachs passt zu mir?' : 'Which wax is right for me?'}
+              </button>
+
+              {quizOpen && <WaxQuiz de={de} onClose={() => setQuizOpen(false)} />}
+
+              <CompareModal open={compareOpen} onClose={() => setCompareOpen(false)} de={de} t={t} formatPrice={formatPrice} />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 items-stretch mt-4">
                 {waxProducts.map((product) => (
                   <WaxCard
                     key={product.id}
                     product={product}
                     de={de}
                     formatPrice={formatPrice}
-                    buyLabel={t.products.buyOnEbay}
                   />
                 ))}
               </div>
@@ -290,19 +313,26 @@ interface CardProps {
   product: AnyProduct;
   de: boolean;
   formatPrice: (p: number) => string;
-  buyLabel: string;
+  buyLabel?: string;
 }
 
 
 // ── Wax Card ───────────────────────────────────────────────────────────────
 
-const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: CardProps) {
+const WaxCard = memo(function WaxCard({ product, de, formatPrice }: CardProps) {
   const isPro = product.variant === 'pro';
   const accent = isPro ? '#2A5499' : '#1A3C6E';
 
   const title = de ? product.title : product.titleEn;
   const badge = de ? product.badge : product.badgeEn;
   const desc = de ? product.description : product.descriptionEn;
+
+  const addItem = useCartStore((s) => s.addItem);
+  const openCart = useCartStore((s) => s.openCart);
+  const stockMap = useCartStore((s) => s.stockMap);
+  const inStock = isInStock(stockMap, product.id);
+  const lowStock = isLowStock(stockMap, product.id);
+  const stockCount = getStock(stockMap, product.id);
 
   return (
     <div className="wax-card relative h-full rounded-2xl overflow-hidden" style={{ transform: 'translateZ(0)' }}>
@@ -330,7 +360,7 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: Ca
             src={product.image}
             alt={title}
             loading="lazy"
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
             style={{ objectPosition: product.imagePosition ?? 'center 55%' }}
             onError={e => { (e.target as HTMLImageElement).src = '/images/wax-block-spin.jpg'; }}
           />
@@ -352,12 +382,23 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: Ca
               </span>
             )}
           </div>
+          {/* Low-stock overlay */}
+          {lowStock && stockCount > 0 && (
+            <div className="absolute bottom-3 left-3">
+              <span
+                className="text-[10px] font-semibold px-2.5 py-1 rounded-full"
+                style={{ background: 'rgba(230,126,34,0.85)', color: '#fff', backdropFilter: 'blur(4px)' }}
+              >
+                {de ? `Nur noch ${stockCount} verfügbar` : `Only ${stockCount} left`}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Content */}
         <div className="px-5 pt-4 pb-5 flex flex-col flex-1">
           {/* Title + description */}
-          <div className="mb-5 flex-1">
+          <div className="mb-3 flex-1">
             <h3 className="text-[18px] font-bold text-wx-tx1 leading-tight tracking-[-0.02em] mb-1.5">
               {title}
             </h3>
@@ -365,6 +406,29 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: Ca
               {desc}
             </p>
           </div>
+
+          {/* Interval stat strip */}
+          {product.intervalDry && (
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[9px] font-semibold uppercase tracking-[0.14em]" style={{ color: 'var(--txff)' }}>
+                  {de ? 'Trocken' : 'Dry'}
+                </span>
+                <span className="text-[13px] font-bold text-wx-tx1">{product.intervalDry}</span>
+              </div>
+              {product.intervalWet && (
+                <>
+                  <div className="w-px h-3" style={{ background: 'var(--bd2)' }} />
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[9px] font-semibold uppercase tracking-[0.14em]" style={{ color: 'var(--txff)' }}>
+                      {de ? 'Nass' : 'Wet'}
+                    </span>
+                    <span className="text-[13px] font-bold text-wx-tx1">{product.intervalWet}</span>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
 
           {/* Price + CTA */}
           <div className="flex items-center justify-between gap-3">
@@ -385,14 +449,29 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: Ca
                 })()}
               </p>
             </div>
-            <button
-              onClick={e => { e.preventDefault(); e.stopPropagation(); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
-              className="flex items-center gap-1.5 px-4 py-2.5 text-[13px] font-semibold rounded-xl transition-opacity duration-150 hover:opacity-90 active:scale-[0.97]"
-              style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
-            >
-              {buyLabel}
-              <ExternalLink className="h-3.5 w-3.5" />
-            </button>
+            <div className="flex flex-col items-end gap-1">
+              <button
+                onClick={e => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (!inStock) return;
+                  addItem(product);
+                  openCart();
+                }}
+                disabled={!inStock}
+                className="flex items-center gap-1.5 px-4 py-2.5 text-[13px] font-semibold rounded-xl transition-opacity duration-150 hover:opacity-90 active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed"
+                style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
+              >
+                {inStock
+                  ? (de ? 'In den Warenkorb' : 'Add to cart')
+                  : (de ? 'Ausverkauft' : 'Sold out')}
+              </button>
+              {lowStock && stockCount > 0 && (
+                <p className="text-[10px]" style={{ color: '#e67e22' }}>
+                  {de ? `Nur noch ${stockCount} verfügbar` : `Only ${stockCount} left`}
+                </p>
+              )}
+            </div>
           </div>
         </div>
       </Link>
@@ -438,7 +517,7 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
             src={product.image}
             alt={title}
             loading="lazy"
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
             onError={e => { (e.target as HTMLImageElement).src = '/images/wax-block-spin.jpg'; }}
           />
           <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to top, var(--card-img-fade) 0%, transparent 55%)' }} />
@@ -506,11 +585,12 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
 const CLASSIC_ACCENT = '#2B52B0';
 const PRO_ACCENT = '#3D67CA';
 
-function CompareModal({ open, onClose, de, t }: {
+function CompareModal({ open, onClose, de, t, formatPrice }: {
   open: boolean;
   onClose: () => void;
   de: boolean;
   t: TranslationType;
+  formatPrice: (p: number) => string;
 }) {
   const [classicOpen, setClassicOpen] = useState(false);
   const [proOpen, setProOpen] = useState(false);
@@ -533,8 +613,10 @@ function CompareModal({ open, onClose, de, t }: {
   const proRc = richContent['wax-500-mos2'];
   const pt = t.products;
 
-  const classicPrice = '29,95 €';
-  const proPrice = '34,95 €';
+  const classicProduct = products.find(p => p.id === 'wax-500');
+  const proProduct = products.find(p => p.id === 'wax-500-mos2');
+  const classicPrice = classicProduct ? formatPrice(classicProduct.price) : '29,95 €';
+  const proPrice = proProduct ? formatPrice(proProduct.price) : '34,95 €';
 
   const rows = [
     {
@@ -697,7 +779,7 @@ function CompareModal({ open, onClose, de, t }: {
                 />
               </button>
               <div
-                className="grid transition-[grid-template-rows] duration-[280ms] ease-in-out"
+                className="grid transition-[grid-template-rows] duration-280 ease-in-out"
                 style={{ gridTemplateRows: classicOpen ? '1fr' : '0fr' }}
               >
                 <div className="overflow-hidden">
@@ -762,7 +844,7 @@ function CompareModal({ open, onClose, de, t }: {
                 />
               </button>
               <div
-                className="grid transition-[grid-template-rows] duration-[280ms] ease-in-out"
+                className="grid transition-[grid-template-rows] duration-280 ease-in-out"
                 style={{ gridTemplateRows: proOpen ? '1fr' : '0fr' }}
               >
                 <div className="overflow-hidden">

@@ -4,6 +4,7 @@ import { ArrowLeft, ChevronDown, RotateCcw } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
 import { gsap } from '@/lib/gsap';
+import { PageTransition } from '@/components/PageTransition';
 
 // ─── Static data ──────────────────────────────────────────────────────────────
 
@@ -1383,7 +1384,7 @@ function HexMoS2({ de }: { de: boolean }) {
             <rect
               x="8" y={GAP_Y - 4} width="302" height="8" rx="2"
               fill={isDark ? 'rgba(68,114,212,0.12)' : 'rgba(68,114,212,0.08)'}
-              style={{ animation: 'pulse-gap 2s ease-in-out infinite' }}
+              style={{ animation: 'pulse-gap 4.5s ease-in-out infinite' }}
             />
           )}
           <text x="316" y={GAP_Y + 4} fontSize="8.5" fill={vdwTxt} fontFamily="monospace">vdW</text>
@@ -2176,6 +2177,8 @@ export function SciencePage() {
   ];
 
   return (
+    <PageTransition>
+
     <div className="min-h-screen" style={{ background: 'var(--pg)' }}>
       <GrainOverlay />
       <ScrollProgress />
@@ -2722,26 +2725,22 @@ export function SciencePage() {
           </h2>
           <p className="text-[14px] mb-10 max-w-sm mx-auto" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'var(--txm)' }}>
             {de
-              ? 'Direkt über eBay — mit vollem Käuferschutz.'
-              : 'Directly via eBay — with full buyer protection.'}
+              ? 'Direkt bestellen — mit Stripe sicher bezahlen.'
+              : 'Order directly — secure payment via Stripe.'}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <a
-              href="https://www.ebay.de/itm/396468036330"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              to="/produkt/wax-500-mos2"
               className="inline-flex items-center gap-2.5 px-8 py-4 rounded-full font-semibold text-[14px] transition-opacity hover:opacity-80"
               style={{
                 background: isDark ? 'linear-gradient(135deg,#1A3080,#2A5499)' : 'var(--cta-bg)',
                 color: isDark ? '#fff' : 'var(--cta-fg)',
               }}
             >
-              {de ? 'Pro kaufen →' : 'Buy Pro →'}
-            </a>
-            <a
-              href="https://www.ebay.de/itm/395811184583"
-              target="_blank"
-              rel="noopener noreferrer"
+              {de ? 'Pro ansehen →' : 'View Pro →'}
+            </Link>
+            <Link
+              to="/produkt/wax-500"
               className="inline-flex items-center gap-2.5 px-8 py-4 rounded-full font-semibold text-[14px] transition-opacity hover:opacity-80"
               style={{
                 background: 'transparent',
@@ -2749,8 +2748,8 @@ export function SciencePage() {
                 color: isDark ? 'rgba(168,192,244,0.85)' : 'var(--brand)',
               }}
             >
-              {de ? 'Classic kaufen →' : 'Buy Classic →'}
-            </a>
+              {de ? 'Classic ansehen →' : 'View Classic →'}
+            </Link>
           </div>
           <Link to="/" className="mt-6 inline-flex items-center gap-1.5 text-[12px] transition-opacity hover:opacity-70" style={{ color: isDark ? 'rgba(255,255,255,0.30)' : 'var(--txff)' }}>
             <ArrowLeft className="w-3 h-3" />
@@ -2760,5 +2759,7 @@ export function SciencePage() {
       </section>
 
     </div>
+  
+    </PageTransition>
   );
 }

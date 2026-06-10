@@ -59,7 +59,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     },
     success_url: `${origin}/bestellung-erfolgreich?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${origin}/#produkte`,
-    metadata: { source: 'website' },
+    metadata: { source: 'website', items: JSON.stringify(items.map(i => ({ id: i.productId, qty: i.quantity }))) },
   });
 
   return res.json({ url: session.url });

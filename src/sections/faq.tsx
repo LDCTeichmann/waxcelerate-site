@@ -4,6 +4,18 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { use3DReveal } from '@/hooks/useAnimation';
 
+function highlightMatch(text: string, query: string): React.ReactNode {
+  if (!query.trim()) return text;
+  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp(`(${escaped})`, 'gi');
+  const parts = text.split(regex);
+  return parts.map((part, i) =>
+    regex.test(part)
+      ? <mark key={i} style={{ background: 'rgba(43,82,176,0.28)', color: 'inherit', borderRadius: '2px', padding: '0 1px' }}>{part}</mark>
+      : part
+  );
+}
+
 const ITEMS_DEFAULT = 5;
 
 export function FAQ() {
@@ -84,7 +96,7 @@ export function FAQ() {
                   className="w-full flex items-center justify-between py-5 text-left gap-5 hover:text-wx-tx1 transition-colors group"
                 >
                   <h3 className="text-wx-tx1 font-medium text-[15px] leading-snug text-left flex-1 group-hover:text-wx-tx1 transition-colors">
-                    {item.q}
+                    {highlightMatch(item.q, query)}
                   </h3>
                   <ChevronDown
                     className={`h-4 w-4 text-wx-txf flex-shrink-0 transition-transform duration-300 ${
@@ -94,7 +106,7 @@ export function FAQ() {
                 </button>
 
                 <div
-                  className="grid transition-[grid-template-rows] duration-[320ms]"
+                  className="grid transition-[grid-template-rows] duration-320"
                   style={{
                     gridTemplateRows: openItem === index.toString() ? '1fr' : '0fr',
                     transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
@@ -105,7 +117,7 @@ export function FAQ() {
                       <div className="space-y-1.5">
                         {item.a.split(/\.\s+(?=[A-ZÜÖÄ])/).map((sentence, i, arr) => (
                           <p key={i} className="text-wx-tx2 text-[14px] leading-[1.75]">
-                            {sentence}{i < arr.length - 1 ? '.' : ''}
+                            {highlightMatch(sentence + (i < arr.length - 1 ? '.' : ''), query)}
                           </p>
                         ))}
                       </div>

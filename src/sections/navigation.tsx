@@ -187,7 +187,7 @@ export function Navigation() {
 
       {/* Backdrop */}
       <div
-        className={`lg:hidden fixed inset-0 z-[60] transition-opacity duration-[250ms] ease-in-out ${
+        className={`lg:hidden fixed inset-0 z-[60] transition-opacity duration-250 ease-in-out ${
           isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
         style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
@@ -200,10 +200,10 @@ export function Navigation() {
         role="dialog"
         aria-modal="true"
         aria-label={de ? 'Navigation' : 'Navigation'}
-        className={`lg:hidden fixed inset-0 sm:inset-y-0 sm:left-auto sm:w-80 z-[70] flex flex-col transition-transform duration-[350ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
+        className={`lg:hidden fixed inset-0 sm:inset-y-0 sm:left-auto sm:w-80 z-[70] flex flex-col transition-transform duration-350 ${
           isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
-        style={{ background: 'var(--pg)' }}
+        style={{ background: 'var(--pg)', transitionTimingFunction: 'cubic-bezier(0.22,1,0.36,1)' }}
         onKeyDown={(e) => {
           if (!isMobileMenuOpen) return;
           const panel = document.getElementById('mobile-menu');

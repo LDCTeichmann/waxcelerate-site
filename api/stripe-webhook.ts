@@ -1,7 +1,12 @@
 import Stripe from 'stripe';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { Redis } from '@upstash/redis';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL!,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+});
 
 // Vercel must not parse the body — Stripe needs the raw buffer to verify the signature
 export const config = { api: { bodyParser: false } };
@@ -31,6 +36,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session;
 
+    // Idempotency — skip if already processed
+    const alreadyDone = await redis.get(`order:${session.id}`);
+    if (alreadyDone) return res.json({ received: true });
+
+    // Decrement stock for each purchased product
+    const itemsJson = session.metadata?.items;
+    if (itemsJson) {
+      const items = JSON.parse(itemsJson) as { id: string; qty: number }[];
+      const results = await Promise.all(
+        items.map(item => redis.decrby(`stock:${item.id}`, item.qty))
+      );
+      results.forEach((newStock, i) => {
+        if (newStock < 0) {
+          console.error('[OVERSELL]', { productId: items[i].id, newStock, sessionId: session.id });
+        }
+      });
+    }
+
+    // Mark order as processed (7-day TTL for idempotency)
+    await redis.setex(`order:${session.id}`, 7 * 24 * 3600, '1');
+
     console.log('[order]', {
       id: session.id,
       customer_email: session.customer_details?.email,
@@ -38,24 +64,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       shipping: session.customer_details?.address,
       created: new Date(session.created * 1000).toISOString(),
     });
-
-    // ── Phase 2: uncomment to send branded email via Resend ─────────────────
-    // await fetch('https://api.resend.com/emails', {
-    //   method: 'POST',
-    //   headers: {
-    //     Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify({
-    //     from: 'Waxcelerate <bestellungen@waxcelerate.de>',
-    //     to: [session.customer_details?.email!],
-    //     subject: 'Deine Bestellung bei Waxcelerate',
-    //     html: `<p>Vielen Dank für deine Bestellung! Wir melden uns sobald sie versendet wurde.</p>`,
-    //   }),
-    // });
-
-    // ── Phase 2: uncomment to save to Supabase ───────────────────────────────
-    // await supabase.from('orders').insert({ stripe_session_id: session.id, ... });
   }
 
   return res.json({ received: true });

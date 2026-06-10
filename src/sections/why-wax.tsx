@@ -1,11 +1,11 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { TrendingDown, BarChart2 } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useSectionReveal } from '@/hooks/useAnimation';
+import { BeforeAfterSlider } from '@/components/BeforeAfterSlider';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { gsap } from '@/lib/gsap';
-import { Delaunay } from 'd3-delaunay';
 
 // ─── Diagram colour tokens — monochrome / silver palette ─────────────────────
 // Wax elements: light silver-white — high contrast on dark panel bg, neutral.
@@ -17,26 +17,15 @@ const C_RUST2 = 'rgba(195,72,18,0.50)';     // rust spread / halo
 const C_DROP  = 'rgba(68,114,212,0.88)';    // water droplet (blue)
 const C_GRIME = 'rgba(42,44,52,0.92)';      // contamination / grime (near-black)
 
-// ─── Voronoi grain data — computed once at module load (pure math, no DOM) ───
-// Crystal zone above steel bar: x 0–138 (left), 142–280 (right), y 78–124.
-// Left (PARAFFIN):       5 coarse grains → large cells, ~3.5 px visible gaps.
-// Right (MIKROKRISTALLIN): 44 dense grains → tiny cells, ~0.8 px boundaries.
+// ─── Voronoi seed data — pure arrays, no d3 needed at module load ────────────
 const _VOR_BOUNDS_L: [number,number,number,number] = [0,   78, 138, 124];
 const _VOR_BOUNDS_R: [number,number,number,number] = [142, 78, 280, 124];
 
 const _SEEDS_P: [number,number][] = [[18,102],[55,92],[89,96],[122,100],[35,115]];
-const _CELLS_P = (() => {
-  const v = Delaunay.from(_SEEDS_P).voronoi(_VOR_BOUNDS_L);
-  return _SEEDS_P.map((_, i) => v.renderCell(i));
-})();
 
 // deterministic LCG so grain positions are always identical
 const _lcg = (() => { let s = 0xbeef42; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; })();
 const _SEEDS_M: [number,number][] = Array.from({ length: 44 }, () => [142 + _lcg() * 136, 79 + _lcg() * 43] as [number,number]);
-const _CELLS_M = (() => {
-  const v = Delaunay.from(_SEEDS_M).voronoi(_VOR_BOUNDS_R);
-  return _SEEDS_M.map((_, i) => v.renderCell(i));
-})();
 
 // ─────────────────────────────────────────────────────────────────────────────
 // DIAGRAM 1 — Crystal grain size
@@ -51,6 +40,18 @@ function CrystalDiagram() {
   const oxide   = useRef<SVGGElement>(null);
   const dropR   = useRef<SVGPathElement>(null);
   const turbRef = useRef<SVGFETurbulenceElement>(null);  // animated for rust bloom
+  const [cells, setCells] = useState<{ p: string[]; m: string[] } | null>(null);
+
+  useEffect(() => {
+    import('d3-delaunay').then(({ Delaunay }) => {
+      const vP = Delaunay.from(_SEEDS_P).voronoi(_VOR_BOUNDS_L);
+      const vM = Delaunay.from(_SEEDS_M).voronoi(_VOR_BOUNDS_R);
+      setCells({
+        p: _SEEDS_P.map((_, i) => vP.renderCell(i)),
+        m: _SEEDS_M.map((_, i) => vM.renderCell(i)),
+      });
+    });
+  }, []);
 
   // Filled teardrop: tip at (cx, cy−top), round bottom at (cx, cy+bot)
   const tear = (cx: number, cy: number, top = 9, bot = 11, w = 7) =>
@@ -138,7 +139,7 @@ function CrystalDiagram() {
       <rect x="142" y="124" width="138" height="1"  fill="rgba(255,255,255,0.10)" />
 
       {/* ── LEFT: D3 Voronoi — 5 coarse grains, stroke=panel-bg creates visible gaps ── */}
-      {_CELLS_P.map((d, i) => (
+      {cells?.p.map((d, i) => (
         <path key={i} d={d} fill={C_WAX} stroke="var(--sf2)" strokeWidth="3.5" />
       ))}
       <text x="69" y="14" textAnchor="middle" fontSize="7" fill="var(--txf)"
@@ -158,7 +159,7 @@ function CrystalDiagram() {
       </g>
 
       {/* ── RIGHT: D3 Voronoi — 44 dense micro-grains, thin boundaries ── */}
-      {_CELLS_M.map((d, i) => (
+      {cells?.m.map((d, i) => (
         <path key={i} d={d} fill={C_WAX} stroke="var(--sf2)" strokeWidth="0.9" />
       ))}
       <text x="211" y="14" textAnchor="middle" fontSize="7" fill="var(--txf)"
@@ -893,6 +894,13 @@ export function WhyWax() {
             </Link>
           </div>
 
+        </div>
+      </div>
+
+      {/* ── Visual proof: before/after drag comparison ── */}
+      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 pb-16 relative z-10">
+        <div className="max-w-3xl mx-auto">
+          <BeforeAfterSlider />
         </div>
       </div>
 

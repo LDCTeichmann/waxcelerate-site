@@ -22,7 +22,7 @@ interface CartStore {
   clear: () => void;
   openCart: () => void;
   closeCart: () => void;
-  checkout: () => Promise<void>;
+  checkout: (de?: boolean) => Promise<void>;
 
   // Stock state (fetched from /api/stock on mount)
   // -1 = not tracked (unlimited), 0 = out of stock, >0 = units available
@@ -82,8 +82,18 @@ export const useCartStore = create<CartStore>()(
       openCart: () => set({ isOpen: true }),
       closeCart: () => set({ isOpen: false }),
 
-      checkout: async () => {
-        const { items } = get();
+      checkout: async (de = true) => {
+        const { items, stockMap } = get();
+        for (const item of items) {
+          const stock = getStock(stockMap, item.productId);
+          const name = de ? item.title : item.titleEn;
+          if (stock === 0) throw new Error(de
+            ? `"${name}" ist nicht mehr vorrätig.`
+            : `"${name}" is out of stock.`);
+          if (stock > 0 && item.quantity > stock) throw new Error(de
+            ? `Nur noch ${stock}× "${name}" verfügbar.`
+            : `Only ${stock}× "${name}" available.`);
+        }
         set({ isCheckingOut: true });
         try {
           const res = await fetch('/api/create-checkout', {

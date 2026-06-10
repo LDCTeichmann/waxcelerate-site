@@ -74,7 +74,7 @@ export function About() {
               className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-semibold mb-3"
               style={{ color: 'var(--txf)' }}
             >
-              {de ? 'Die Geschichte' : 'Our Story'}
+              {de ? 'Gründer & Hintergrund' : 'Founder & Background'}
             </p>
             <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1">
               <ScrollWordReveal text={t.about.title} />
@@ -101,7 +101,7 @@ export function About() {
 
               <div className="pt-3 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8">
                 <div className="flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#2B52B0] animate-pulse flex-shrink-0" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#2B52B0] animate-blink flex-shrink-0" />
                   <span className="text-[11px]" style={{ color: 'var(--txm)' }}>
                     {de ? 'Aktiv auf eBay · Versand aus Stuttgart' : 'Active on eBay · Ships from Stuttgart'}
                   </span>
@@ -141,6 +141,7 @@ export function About() {
                   src="/images/luca-ebay.jpg"
                   alt="eBay Seller Leadership Week 2025, San Jose"
                   className="absolute inset-0 w-full h-full object-cover"
+                  loading="lazy"
                   style={{ objectPosition: '50% 38%' }}
                 />
                 <div

@@ -1,5 +1,5 @@
 import { useParams, Link } from 'react-router-dom';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
   ArrowLeft, ExternalLink, Check,
@@ -10,8 +10,11 @@ import type { Product } from '@/lib/data';
 import { richContent } from '@/lib/productContent';
 import { useLanguage } from '@/hooks/useLanguage';
 import { AddToCartButton } from '@/components/AddToCartButton';
+import { PageTransition } from '@/components/PageTransition';
 import { CartIcon } from '@/components/CartIcon';
 import { ImageLightbox } from '@/components/ImageLightbox';
+import { ProductFAQ } from '@/components/ProductFAQ';
+import { AnimatedNumber } from '@/components/AnimatedNumber';
 
 type RichTab = 'formula' | 'vergleich' | 'kosten';
 
@@ -23,11 +26,24 @@ export function ProductDetailPage() {
 
   const [activeImage, setActiveImage] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [highlightsOpen, setHighlightsOpen] = useState(false);
   const [specsOpen, setSpecsOpen] = useState(false);
   const [compatExpanded, setCompatExpanded] = useState(false);
   const [v9Expanded, setV9Expanded] = useState(false);
   const [richTab, setRichTab] = useState<RichTab>('formula');
+  const [stickyVisible, setStickyVisible] = useState(false);
+  const ctaSentinelRef = useRef<HTMLDivElement>(null);
+  const isWaxProduct = product?.category === 'wax';
+
+  useEffect(() => {
+    const el = ctaSentinelRef.current;
+    if (!el || !isWaxProduct) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setStickyVisible(!entry.isIntersecting),
+      { threshold: 0, rootMargin: '-64px 0px 0px 0px' }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [isWaxProduct]);
 
   if (!product) {
     return (
@@ -122,6 +138,7 @@ export function ProductDetailPage() {
   ];
 
   return (
+    <PageTransition>
     <>
       <Helmet>
         <title>{metaTitle}</title>
@@ -144,6 +161,38 @@ export function ProductDetailPage() {
       </Helmet>
 
       <div className="min-h-screen text-wx-tx1" style={{ background: 'var(--pg)' }}>
+
+        {/* Sticky Add-to-Cart bar */}
+        {isWax && (
+          <div
+            className="fixed bottom-0 left-0 right-0 z-40 transition-transform duration-300"
+            style={{
+              transform: stickyVisible ? 'translateY(0)' : 'translateY(100%)',
+              background: 'var(--pg)',
+              borderTop: '1px solid var(--bd)',
+              backdropFilter: 'blur(12px)',
+            }}
+          >
+            <div
+              className="max-w-5xl mx-auto px-4 sm:px-6 flex items-center gap-4"
+              style={{ paddingTop: '0.75rem', paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}
+            >
+              <img
+                src={product.image}
+                alt={titleText}
+                className="w-10 h-10 rounded-lg object-cover flex-shrink-0"
+                style={{ objectPosition: product.imagePosition ?? 'center' }}
+              />
+              <div className="flex-1 min-w-0">
+                <p className="text-[13px] font-semibold text-wx-tx1 truncate">{titleText}</p>
+                <p className="text-[12px]" style={{ color: 'var(--txm)' }}>{formatPrice(product.price)}</p>
+              </div>
+              <div className="flex-shrink-0">
+                <AddToCartButton product={product} />
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Nav */}
         <header className="sticky top-0 z-50 backdrop-blur-md border-b" style={{ background: 'var(--nav-bg)', borderColor: 'var(--bd)' }}>
@@ -220,6 +269,7 @@ export function ProductDetailPage() {
                         src={img}
                         alt={`${titleText} ${i + 1}`}
                         className="w-full h-full object-cover"
+                        loading="lazy"
                         style={{ objectPosition: product.imagePosition ?? 'center' }}
                         onError={e => { (e.target as HTMLImageElement).src = '/images/wax-block-spin.jpg'; }}
                       />
@@ -283,41 +333,47 @@ export function ProductDetailPage() {
                 )}
               </div>
 
+              {/* Sentinel — sticky bar observes this */}
+              {isWax && <div ref={ctaSentinelRef} aria-hidden="true" />}
+
               {/* Divider */}
               <div style={{ height: '1px', background: 'var(--bd2)' }} />
 
               {/* Intervals */}
               {(product.intervalDry || product.intervalWet || product.intervalTopup) && (
-                <div className="flex items-center gap-6">
+                <div className="flex gap-2.5">
                   {product.intervalDry && (
-                    <div>
-                      <p className="text-[10px] uppercase tracking-[0.14em] font-medium mb-1.5" style={{ color: 'var(--txff)' }}>
-                        {de ? 'Trocken' : 'Dry'}
+                    <div className="flex-1 min-w-0 rounded-xl px-3.5 py-3" style={{ border: '1px solid var(--bd2)', background: 'var(--sf3)' }}>
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] mb-2" style={{ color: 'var(--txff)' }}>
+                        ☀️ {de ? 'Trocken' : 'Dry'}
                       </p>
-                      <p className="text-[20px] font-bold text-wx-tx1 leading-none">{product.intervalDry}</p>
+                      <p className="text-[14px] font-bold text-wx-tx1 leading-none mb-3 truncate">{product.intervalDry}</p>
+                      <div className="h-[2px] rounded-full overflow-hidden" style={{ background: 'var(--bd2)' }}>
+                        <div className="h-full rounded-full" style={{ width: `${intervalPct(product.intervalDry)}%`, background: accentColor, transformOrigin: 'left', animation: 'wx-bar-grow 0.9s cubic-bezier(0.16,1,0.3,1) 0.1s both' }} />
+                      </div>
                     </div>
                   )}
                   {product.intervalWet && (
-                    <>
-                      <div className="w-px self-stretch" style={{ background: 'var(--bd2)' }} />
-                      <div>
-                        <p className="text-[10px] uppercase tracking-[0.14em] font-medium mb-1.5" style={{ color: 'var(--txff)' }}>
-                          {de ? 'Nass' : 'Wet'}
-                        </p>
-                        <p className="text-[20px] font-bold text-wx-tx1 leading-none">{product.intervalWet}</p>
+                    <div className="flex-1 min-w-0 rounded-xl px-3.5 py-3" style={{ border: '1px solid var(--bd2)', background: 'var(--sf3)' }}>
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] mb-2" style={{ color: 'var(--txff)' }}>
+                        🌧️ {de ? 'Nass' : 'Wet'}
+                      </p>
+                      <p className="text-[14px] font-bold text-wx-tx1 leading-none mb-3 truncate">{product.intervalWet}</p>
+                      <div className="h-[2px] rounded-full overflow-hidden" style={{ background: 'var(--bd2)' }}>
+                        <div className="h-full rounded-full" style={{ width: `${intervalPct(product.intervalWet)}%`, background: accentColor, transformOrigin: 'left', animation: 'wx-bar-grow 0.9s cubic-bezier(0.16,1,0.3,1) 0.25s both' }} />
                       </div>
-                    </>
+                    </div>
                   )}
                   {product.intervalTopup && (
-                    <>
-                      <div className="w-px self-stretch" style={{ background: 'var(--bd2)' }} />
-                      <div>
-                        <p className="text-[10px] uppercase tracking-[0.14em] font-medium mb-1.5" style={{ color: 'var(--txff)' }}>
-                          {de ? 'Topup max.' : 'Max. topup'}
-                        </p>
-                        <p className="text-[20px] font-bold text-wx-tx1 leading-none">{product.intervalTopup}</p>
+                    <div className="flex-1 min-w-0 rounded-xl px-3.5 py-3" style={{ border: '1px solid var(--bd2)', background: 'var(--sf3)' }}>
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] mb-2" style={{ color: 'var(--txff)' }}>
+                        ⬆️ {de ? 'Topup max.' : 'Max. topup'}
+                      </p>
+                      <p className="text-[14px] font-bold text-wx-tx1 leading-none mb-3 truncate">{product.intervalTopup}</p>
+                      <div className="h-[2px] rounded-full overflow-hidden" style={{ background: 'var(--bd2)' }}>
+                        <div className="h-full rounded-full" style={{ width: `${intervalPct(product.intervalTopup, 1200)}%`, background: accentColor, transformOrigin: 'left', animation: 'wx-bar-grow 0.9s cubic-bezier(0.16,1,0.3,1) 0.4s both' }} />
                       </div>
-                    </>
+                    </div>
                   )}
                 </div>
               )}
@@ -326,13 +382,11 @@ export function ProductDetailPage() {
               {((highlights && highlights.length > 0) || hasSpecs) && (
                 <div style={{ borderTop: '1px solid var(--bd2)' }}>
                   {highlights && highlights.length > 0 && (
-                    <AccordionItem
-                      title={de ? 'Das Wichtigste' : 'Key Features'}
-                      preview={highlights[0]}
-                      open={highlightsOpen}
-                      onToggle={() => setHighlightsOpen(v => !v)}
-                    >
-                      <ul className="space-y-2.5 pt-1">
+                    <div style={{ borderBottom: '1px solid var(--bd2)' }}>
+                      <p className="text-sm font-medium text-wx-tx1 py-3.5">
+                        {de ? 'Das Wichtigste' : 'Key Features'}
+                      </p>
+                      <ul className="space-y-2.5 pb-4">
                         {highlights.map(h => (
                           <li key={h} className="flex items-start gap-3 text-sm" style={{ color: 'var(--txm)' }}>
                             <Check className="h-4 w-4 mt-0.5 flex-shrink-0" style={{ color: accentColor }} />
@@ -340,7 +394,7 @@ export function ProductDetailPage() {
                           </li>
                         ))}
                       </ul>
-                    </AccordionItem>
+                    </div>
                   )}
 
                   {hasSpecs && (
@@ -375,6 +429,26 @@ export function ProductDetailPage() {
                   </Link>
                 </p>
               )}
+
+              {/* WhatsApp — context-aware */}
+              {isWax && (
+                <a
+                  href={`https://wa.me/4915751957470?text=${encodeURIComponent(
+                    de
+                      ? `Hi Luca! Ich interessiere mich für ${titleText} und habe eine Frage: `
+                      : `Hi Luca! I'm interested in ${titleText} and have a question: `
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-[12px] transition-opacity hover:opacity-70"
+                  style={{ color: 'var(--txff)' }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                  </svg>
+                  {de ? 'Frage? Direkt per WhatsApp fragen' : 'Question? Ask directly on WhatsApp'}
+                </a>
+              )}
             </div>
           </div>
 
@@ -392,8 +466,10 @@ export function ProductDetailPage() {
                   {rc.stats.map((s, i) => (
                     <div
                       key={i}
-                      className="px-4 py-5 sm:px-5 sm:py-6"
-                      style={{ background: 'var(--pg)' }}
+                      className="px-4 py-5 sm:px-5 sm:py-6 transition-all duration-200"
+                      style={{ background: 'var(--pg)', borderLeft: `3px solid ${accentColor}25` }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderLeftColor = `${accentColor}60`; }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderLeftColor = `${accentColor}25`; }}
                     >
                       <div className="text-lg sm:text-[22px] font-bold tabular-nums text-wx-tx1 leading-none mb-1.5">{s.value}</div>
                       <div className="text-[11px] leading-snug" style={{ color: 'var(--tx2)' }}>{s.label}</div>
@@ -423,36 +499,36 @@ export function ProductDetailPage() {
               {isWax && tabs.length > 0 && (
                 <div className="mt-10">
 
-                  {/* Underline tabs */}
-                  <div className="flex gap-7 mb-8" style={{ borderBottom: '1px solid var(--bd2)' }}>
+                  {/* Pill tabs */}
+                  <div className="flex gap-1 p-1 rounded-xl mb-8" style={{ background: 'var(--sf2)' }}>
                     {tabs.map(tab => (
                       <button
                         key={tab.key}
                         onClick={() => setRichTab(tab.key)}
-                        className="pb-3.5 text-sm font-medium transition-colors relative"
-                        style={{ color: richTab === tab.key ? 'var(--tx1)' : 'var(--txm)' }}
+                        className="flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+                        style={{
+                          background: richTab === tab.key ? 'var(--sf)' : 'transparent',
+                          color: richTab === tab.key ? 'var(--tx1)' : 'var(--txm)',
+                          boxShadow: richTab === tab.key
+                            ? '0 1px 3px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.06)'
+                            : 'none',
+                        }}
                       >
                         {tab.label}
-                        {richTab === tab.key && (
-                          <span
-                            className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
-                            style={{ background: accentColor }}
-                          />
-                        )}
                       </button>
                     ))}
                   </div>
 
                   {/* Formel */}
                   {richTab === 'formula' && rc.formulaDetails && (
-                    <div>
+                    <div style={{ animation: 'wx-fade-in 0.18s ease both' }}>
                       {rc.formulaDetails.map((f, i) => (
                         <div key={i} className="flex gap-5 py-5" style={{ borderBottom: '1px solid var(--bd2)' }}>
                           <span
-                            className="text-[13px] font-bold tabular-nums flex-shrink-0 mt-0.5"
-                            style={{ color: accentColor, minWidth: '22px' }}
+                            className="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0 mt-0.5"
+                            style={{ background: `${accentColor}18`, color: accentColor, border: `1px solid ${accentColor}30` }}
                           >
-                            {String(i + 1).padStart(2, '0')}
+                            {i + 1}
                           </span>
                           <div>
                             <div className="text-sm font-semibold text-wx-tx1 mb-1">{f.name}</div>
@@ -471,21 +547,31 @@ export function ProductDetailPage() {
                           <p className="text-sm leading-relaxed" style={{ color: 'var(--tx2)' }}>{rc.techNote.body}</p>
                         </div>
                       )}
+                      {/* Science deeplink */}
+                      <div className="mt-5 pt-5" style={{ borderTop: '1px solid var(--bd2)' }}>
+                        <Link
+                          to={isPro ? '/wissenschaft#mos2' : '/wissenschaft'}
+                          className="text-[13px] hover:underline flex items-center gap-1.5"
+                          style={{ color: accentColor }}
+                        >
+                          💡 {de ? 'Warum funktioniert das? → Zur Wissenschaft' : 'Why does this work? → Read the science'}
+                        </Link>
+                      </div>
                     </div>
                   )}
 
                   {/* Vergleich */}
                   {richTab === 'vergleich' && rc.compHeaders && rc.compRows && (
-                    <div className="space-y-5">
+                    <div className="space-y-5" style={{ animation: 'wx-fade-in 0.18s ease both' }}>
                       <div className="overflow-x-auto rounded-xl" style={{ border: '1px solid var(--bd2)' }}>
-                        <div style={{ minWidth: '420px' }}>
+                        <div>
                           <div
                             className="grid text-[10px] font-semibold uppercase tracking-wider text-wx-txf px-4 py-3"
                             style={{ gridTemplateColumns: `1.6fr repeat(${rc.compHeaders.length}, 1fr)`, borderBottom: '1px solid var(--bd2)' }}
                           >
                             <span />
                             {rc.compHeaders.map((h, i) => (
-                              <span key={i} className="text-center leading-tight whitespace-nowrap">
+                              <span key={i} className="text-center leading-tight break-words">
                                 {h.replace('Waxcelerate ', '').replace('-Heißwachs', '').replace('Heißwachs', '')}
                               </span>
                             ))}
@@ -496,7 +582,7 @@ export function ProductDetailPage() {
                               className="grid px-4 py-3"
                               style={{ gridTemplateColumns: `1.6fr repeat(${rc.compHeaders!.length}, 1fr)`, borderBottom: '1px solid var(--bd2)' }}
                             >
-                              <span className="text-wx-txm text-xs whitespace-nowrap pr-3">{row.label}</span>
+                              <span className="text-wx-txm text-xs leading-snug break-words pr-2">{row.label}</span>
                               {row.cols.map((col, ci) => (
                                 <span key={ci} className="text-center text-xs font-medium" style={{
                                   color: ci === row.winCol ? accentColor
@@ -516,75 +602,124 @@ export function ProductDetailPage() {
 
                   {/* Kosten */}
                   {richTab === 'kosten' && rc.oilItems && rc.waxItems && (
-                    <div className="space-y-4">
-                      <div className="rounded-xl p-4" style={{ background: 'var(--sf3)', border: '1px solid var(--bd2)' }}>
-                        <p className="text-xs font-semibold uppercase tracking-[0.14em] mb-1.5" style={{ color: 'var(--txff)' }}>
-                          {de ? 'Szenario' : 'Scenario'}
-                        </p>
-                        {rc.costExample && (
-                          <p className="text-sm font-medium text-wx-tx1 mb-1">{rc.costExample}</p>
-                        )}
-                        {rc.costNote && (
-                          <p className="text-[12px] leading-relaxed" style={{ color: 'var(--txm)' }}>{rc.costNote}</p>
-                        )}
-                      </div>
+                    <div className="space-y-5" style={{ animation: 'wx-fade-in 0.18s ease both' }}>
 
-                      <div className="grid sm:grid-cols-2 gap-3">
-                        <div className="rounded-xl p-4" style={{ border: '1px solid var(--bd2)' }}>
-                          <div className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--txm)' }}>
-                            {rc.oilCount ? `${rc.oilCount} ${rc.oilLabel}` : de ? 'Mit Kettenöl' : 'With chain oil'}
-                          </div>
-                          <div className="space-y-2 mb-4">
-                            {rc.oilItems.map((item, i) => (
-                              <div key={i} className="flex justify-between text-sm">
-                                <span style={{ color: 'var(--txm)' }}>{item.label}</span>
-                                <span className="font-mono" style={{ color: 'var(--tx2)' }}>{item.cost}</span>
-                              </div>
-                            ))}
-                          </div>
-                          <div className="pt-3 flex justify-between items-baseline" style={{ borderTop: '1px solid var(--bd2)' }}>
-                            <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--txm)' }}>{de ? 'Gesamt' : 'Total'}</span>
-                            <span className="text-[18px] font-bold font-mono" style={{ color: '#f87171' }}>{rc.oilTotal}</span>
-                          </div>
-                        </div>
-
-                        <div className="rounded-xl p-4" style={{ border: `1px solid ${accentColor}30`, background: `${accentColor}06` }}>
-                          <div className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: accentColor }}>
-                            {rc.waxCount ? `${rc.waxCount} ${rc.waxLabel}` : de ? 'Mit Waxcelerate' : 'With Waxcelerate'}
-                          </div>
-                          <div className="space-y-2 mb-4">
-                            {rc.waxItems.map((item, i) => (
-                              <div key={i} className="flex justify-between text-sm">
-                                <span style={{ color: 'var(--txm)' }}>{item.label}</span>
-                                <span className="font-mono" style={{ color: 'var(--tx2)' }}>{item.cost}</span>
-                              </div>
-                            ))}
-                          </div>
-                          <div className="pt-3 flex justify-between items-baseline" style={{ borderTop: `1px solid ${accentColor}20` }}>
-                            <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: accentColor }}>{de ? 'Gesamt' : 'Total'}</span>
-                            <span className="text-[18px] font-bold font-mono text-wx-tx1">{rc.waxTotal}</span>
-                          </div>
-                        </div>
-                      </div>
-
+                      {/* Savings hero */}
                       {rc.savings && (
                         <div
-                          className="rounded-xl p-4 flex items-center justify-between gap-4"
-                          style={{ background: 'rgba(34,197,94,0.07)', border: '1px solid rgba(34,197,94,0.25)' }}
+                          className="rounded-2xl p-5 text-center"
+                          style={{ background: 'rgba(110,231,183,0.06)', border: '1px solid rgba(110,231,183,0.18)', animation: 'wx-pop-in 0.4s cubic-bezier(0.16,1,0.3,1) both' }}
                         >
-                          <div>
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] mb-0.5" style={{ color: 'rgba(34,197,94,0.8)' }}>
-                              {de ? 'Ersparnis über ~12.000 km' : 'Savings over ~12,000 km'}
-                            </p>
-                            <p className="text-xs" style={{ color: 'var(--txm)' }}>
-                              {de
-                                ? 'Weniger Kettenverschleiß, seltener Kassettenwechsel — nicht eingerechnet.'
-                                : 'Reduced chain and cassette wear not included.'}
-                            </p>
+                          <AnimatedNumber
+                            value={parseCostNum(rc.savings)}
+                            prefix="≈€"
+                            duration={1.8}
+                            className="text-[40px] font-bold tabular-nums leading-none block"
+                            style={{ color: '#6ee7b7' }}
+                          />
+                          <p className="text-[13px] font-semibold mt-1.5" style={{ color: 'rgba(110,231,183,0.70)' }}>
+                            {de ? 'gespart über ~12.000 km' : 'saved over ~12,000 km'}
+                          </p>
+                          <p className="text-[11px] mt-1" style={{ color: 'var(--txff)' }}>
+                            {de
+                              ? 'vs. Kettenöl · Ketten- und Kassettenverschleiß nicht eingerechnet'
+                              : 'vs. chain oil · chain and cassette wear not included'}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Proportional cost bars */}
+                      <div className="space-y-4">
+                        {/* Oil bar */}
+                        <div>
+                          <div className="flex items-baseline justify-between mb-2">
+                            <span className="text-[11px] font-semibold uppercase tracking-[0.12em]" style={{ color: 'var(--txm)' }}>
+                              {rc.oilCount ? `${rc.oilCount} ${rc.oilLabel}` : (de ? 'Mit Kettenöl' : 'With chain oil')}
+                            </span>
+                            <span className="text-[17px] font-bold font-mono tabular-nums" style={{ color: '#fca5a5' }}>
+                              {rc.oilTotal}
+                            </span>
                           </div>
-                          <span className="text-[22px] font-bold font-mono flex-shrink-0" style={{ color: '#22c55e' }}>
-                            {rc.savings}
-                          </span>
+                          <div className="h-7 rounded-lg overflow-hidden" style={{ background: 'var(--sf3)', border: '1px solid var(--bd2)' }}>
+                            <div
+                              className="h-full rounded-lg"
+                              style={{
+                                width: '100%',
+                                transformOrigin: 'left',
+                                animation: 'wx-bar-grow 0.65s cubic-bezier(0.16,1,0.3,1) 0.1s both',
+                                background: 'linear-gradient(90deg, rgba(252,165,165,0.28) 0%, rgba(252,165,165,0.10) 100%)',
+                                borderRight: '2px solid rgba(252,165,165,0.38)',
+                              }}
+                            />
+                          </div>
+                          <div className="flex gap-3 mt-1.5 flex-wrap">
+                            {rc.oilItems.map((item, i) => (
+                              <span key={i} className="text-[11px]" style={{ color: 'var(--txff)' }}>
+                                {item.label} <span className="font-mono" style={{ color: 'var(--txm)' }}>{item.cost}</span>
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* % savings callout */}
+                        {rc.oilTotal && rc.waxTotal && parseCostNum(rc.oilTotal) > 0 && (
+                          <div className="flex items-center gap-3 py-0.5">
+                            <div className="h-px flex-1" style={{ background: 'var(--bd2)' }} />
+                            <span
+                              className="text-[11px] font-bold px-2.5 py-1 rounded-full flex-shrink-0"
+                              style={{ background: 'rgba(110,231,183,0.08)', color: '#6ee7b7', border: '1px solid rgba(110,231,183,0.20)' }}
+                            >
+                              ↓ {Math.round((1 - parseCostNum(rc.waxTotal) / parseCostNum(rc.oilTotal)) * 100)}%
+                              {de ? ' günstiger' : ' cheaper'}
+                            </span>
+                            <div className="h-px flex-1" style={{ background: 'var(--bd2)' }} />
+                          </div>
+                        )}
+
+                        {/* Wax bar */}
+                        <div>
+                          <div className="flex items-baseline justify-between mb-2">
+                            <span className="text-[11px] font-semibold uppercase tracking-[0.12em]" style={{ color: accentColor }}>
+                              {rc.waxCount ? `${rc.waxCount} ${rc.waxLabel}` : (de ? 'Mit Waxcelerate' : 'With Waxcelerate')}
+                            </span>
+                            <span className="text-[17px] font-bold font-mono tabular-nums text-wx-tx1">
+                              {rc.waxTotal}
+                            </span>
+                          </div>
+                          <div className="h-7 rounded-lg overflow-hidden" style={{ background: 'var(--sf3)', border: '1px solid var(--bd2)' }}>
+                            <div
+                              className="h-full rounded-lg"
+                              style={{
+                                width: `${(rc.oilTotal && rc.waxTotal && parseCostNum(rc.oilTotal) > 0) ? Math.round(parseCostNum(rc.waxTotal) / parseCostNum(rc.oilTotal) * 100) : 55}%`,
+                                transformOrigin: 'left',
+                                animation: 'wx-bar-grow 0.65s cubic-bezier(0.16,1,0.3,1) 0.28s both',
+                                background: `linear-gradient(90deg, ${accentColor}55 0%, ${accentColor}20 100%)`,
+                                borderRight: `2px solid ${accentColor}70`,
+                              }}
+                            />
+                          </div>
+                          <div className="flex gap-3 mt-1.5 flex-wrap">
+                            {rc.waxItems.map((item, i) => (
+                              <span key={i} className="text-[11px]" style={{ color: 'var(--txff)' }}>
+                                {item.label} <span className="font-mono" style={{ color: 'var(--txm)' }}>{item.cost}</span>
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Calculation basis (quiet footnote) */}
+                      {(rc.costExample || rc.costNote) && (
+                        <div className="rounded-xl p-4" style={{ background: 'var(--sf3)', border: '1px solid var(--bd2)' }}>
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] mb-1" style={{ color: 'var(--txff)' }}>
+                            {de ? 'Berechnungsbasis' : 'Calculation basis'}
+                          </p>
+                          {rc.costExample && (
+                            <p className="text-[12px] font-medium text-wx-tx1 mb-0.5">{rc.costExample}</p>
+                          )}
+                          {rc.costNote && (
+                            <p className="text-[11px] leading-relaxed" style={{ color: 'var(--txm)' }}>{rc.costNote}</p>
+                          )}
                         </div>
                       )}
                     </div>
@@ -636,7 +771,7 @@ export function ProductDetailPage() {
                     />
                   </button>
                   <div
-                    className="grid transition-[grid-template-rows] duration-[250ms] ease-in-out"
+                    className="grid transition-[grid-template-rows] duration-250 ease-in-out"
                     style={{ gridTemplateRows: v9Expanded ? '1fr' : '0fr' }}
                   >
                     <div className="overflow-hidden">
@@ -766,23 +901,26 @@ export function ProductDetailPage() {
               {/* Reviews */}
               {rc.reviewCount > 0 && (
                 <div className="mt-8 rounded-xl px-4 py-4" style={{ border: '1px solid var(--bd2)', background: 'var(--sf3)' }}>
-                  <div className="flex items-center justify-between gap-3 mb-1.5">
-                    <div className="flex items-center gap-1.5">
-                      <div className="flex items-center gap-0.5">
-                        {[0, 1, 2, 3, 4].map(i => (
-                          <Star key={i} className="h-3.5 w-3.5 fill-current" style={{ color: '#FBBF24' }} />
-                        ))}
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <span className="text-[30px] font-bold text-wx-tx1 leading-none tabular-nums">5.0</span>
+                      <div>
+                        <div className="flex items-center gap-0.5 mb-1">
+                          {[0, 1, 2, 3, 4].map(i => (
+                            <Star key={i} className="h-3.5 w-3.5 fill-current" style={{ color: '#D4AA30' }} />
+                          ))}
+                        </div>
+                        <span className="text-[11px]" style={{ color: 'var(--txff)' }}>
+                          {rc.reviewCount}+ {de ? 'Bewertungen' : 'reviews'}
+                        </span>
                       </div>
-                      <span className="text-sm font-semibold text-wx-tx1">
-                        {rc.reviewCount}+ {de ? 'Bewertungen' : 'reviews'}
-                      </span>
                     </div>
                     <a href={product.ebayUrl} target="_blank" rel="noopener noreferrer"
                       className="text-xs flex items-center gap-1 flex-shrink-0" style={{ color: accentColor }}>
                       {de ? 'Alle' : 'All'} <ExternalLink className="h-3 w-3" />
                     </a>
                   </div>
-                  {rc.reviewCats && <p className="text-[11px] text-wx-txff">{rc.reviewCats}</p>}
+                  {rc.reviewCats && <p className="text-[11px] text-wx-txff mt-2">{rc.reviewCats}</p>}
                 </div>
               )}
 
@@ -793,18 +931,41 @@ export function ProductDetailPage() {
               )}
 
               {/* Final CTA */}
-              <a
-                href={product.ebayUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-8 flex items-center justify-center gap-2 w-full py-4 rounded-xl text-sm font-semibold transition-all hover:opacity-90"
-                style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
-              >
-                {de ? 'Jetzt bei eBay kaufen' : 'Buy now on eBay'} — {formatPrice(product.price)}
-                <ExternalLink className="h-3.5 w-3.5" />
-              </a>
+              {isWax ? (
+                <div className="mt-8 flex flex-col gap-1.5">
+                  <AddToCartButton product={product} fullWidth />
+                  <a
+                    href={product.ebayUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-1.5 py-2 text-[12px] transition-opacity hover:opacity-60"
+                    style={{ color: 'var(--txm)' }}
+                  >
+                    {de ? 'Oder direkt bei eBay kaufen' : 'Or buy directly on eBay'}
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                </div>
+              ) : (
+                <a
+                  href={product.ebayUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-8 flex items-center justify-center gap-2 w-full py-4 rounded-xl text-sm font-semibold transition-all hover:opacity-90"
+                  style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
+                >
+                  {de ? 'Jetzt bei eBay kaufen' : 'Buy now on eBay'} — {formatPrice(product.price)}
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </a>
+              )}
             </div>
           )}
+          {/* ── INLINE FAQ ── */}
+          {isWax && product.faqIds && product.faqIds.length > 0 && (
+            <div className="pb-8" style={{ borderTop: related.length > 0 ? 'none' : undefined }}>
+              <ProductFAQ faqIds={product.faqIds} accentColor={accentColor} />
+            </div>
+          )}
+
           {/* ── RELATED PRODUCTS ── */}
           {related.length > 0 && (
             <section className="mt-12 pt-8" style={{ borderTop: '1px solid var(--bd)' }}>
@@ -829,6 +990,7 @@ export function ProductDetailPage() {
         />
       )}
     </>
+    </PageTransition>
   );
 }
 
@@ -889,8 +1051,21 @@ function SpecRow({ label, value }: { label: string; value: string }) {
   );
 }
 
+function intervalPct(interval: string, maxKm = 600): number {
+  const clean = interval.replace(/(\d)\.(\d{3})/g, '$1$2');
+  const nums = clean.match(/\d+/g);
+  if (!nums) return 0;
+  const upper = parseInt(nums[nums.length - 1]);
+  return Math.min(Math.round((upper / maxKm) * 100), 100);
+}
+
+function parseCostNum(s: string): number {
+  return parseInt(s.replace(/[^0-9]/g, '')) || 0;
+}
+
 function RelatedCard({ product: p, de, formatPrice }: { product: Product; de: boolean; formatPrice: (n: number) => string }) {
   const title = de ? p.title : p.titleEn;
+  const cardAccent = p.variant === 'pro' ? '#4A72D4' : '#2B52B0';
   const cardInner = (
     <div
       className="flex items-center gap-3 p-3 rounded-xl transition-all"
@@ -906,7 +1081,7 @@ function RelatedCard({ product: p, de, formatPrice }: { product: Product; de: bo
       />
       <div className="min-w-0">
         <p className="text-[14px] font-semibold text-wx-tx1 leading-tight truncate">{title}</p>
-        <p className="text-[13px] mt-1" style={{ color: '#1A3C6E' }}>{formatPrice(p.price)}</p>
+        <p className="text-[13px] mt-1" style={{ color: cardAccent }}>{formatPrice(p.price)}</p>
       </div>
     </div>
   );

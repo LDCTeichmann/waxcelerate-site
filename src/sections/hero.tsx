@@ -11,7 +11,6 @@ export function Hero() {
   const pillRef      = useRef<HTMLDivElement>(null);
   const brandRef     = useRef<HTMLDivElement>(null);
   const contentRef   = useRef<HTMLDivElement>(null);
-  const badgeRef     = useRef<HTMLDivElement>(null);
   const frostedRef   = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -20,7 +19,6 @@ export function Hero() {
       pill:    pillRef.current,
       brand:   brandRef.current,
       content: contentRef.current,
-      badge:   badgeRef.current,
       frosted: frostedRef.current,
     };
     if (Object.values(els).some(v => !v)) return;
@@ -35,14 +33,12 @@ export function Hero() {
     gsap.set(els.brand,   { opacity: 0, scale: 0.97, y: 16 });
     gsap.set(els.frosted, { opacity: 0 });
     gsap.set(els.content, { opacity: 0, y: 24 });
-    gsap.set(els.badge,   { opacity: 0, scale: 0.86 });
 
     const tl = gsap.timeline({ delay: 0.08 });
     tl.to(els.frosted, { opacity: 1, duration: 0.9, ease: 'power2.out' }, 0);
     tl.to(els.brand,   { opacity: 1, scale: 1, y: 0, duration: 1.1, ease: 'power3.out' }, 0.1);
     tl.to(els.pill,    { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, 0.3);
     tl.to(els.content, { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' }, 0.55);
-    tl.to(els.badge,   { opacity: 1, scale: 1, duration: 0.7, ease: 'back.out(1.5)' }, 1.0);
   }, []);
 
   const scrollToSection = (href: string) =>
@@ -151,7 +147,7 @@ export function Hero() {
             }}
           >
             <span
-              className="h-1.5 w-1.5 rounded-full animate-pulse"
+              className="h-1.5 w-1.5 rounded-full animate-blink"
               style={{ background: '#5B8BED' }}
             />
             <span
@@ -233,7 +229,7 @@ export function Hero() {
           </div>
 
           {/* Sub-headline */}
-          <p
+          <h1
             className="font-display font-bold leading-tight tracking-[-0.025em] mb-4"
             style={{
               fontSize: 'clamp(1.5rem, 2.4vw, 2.6rem)',
@@ -241,12 +237,12 @@ export function Hero() {
             }}
           >
             {t.hero.headline}
-          </p>
+          </h1>
 
           {/* Tagline */}
           <p
             className="text-[14px] leading-relaxed mb-8"
-            style={{ color: 'rgba(255,255,255,0.36)', maxWidth: '340px' }}
+            style={{ color: 'rgba(255,255,255,0.55)', maxWidth: '340px' }}
           >
             {t.hero.tagline}
           </p>
@@ -316,52 +312,7 @@ export function Hero() {
 
         </div>
 
-        {/* ── Proof badge — floats over the PHOTO side ── */}
-        <div
-          ref={badgeRef}
-          className="absolute"
-          style={{
-            right: '8%',
-            bottom: '20%',
-            background: 'rgba(5,6,8,0.76)',
-            backdropFilter: 'blur(40px)',
-            WebkitBackdropFilter: 'blur(40px)',
-            border: '1px solid rgba(91,139,237,0.20)',
-            borderRadius: '20px',
-            padding: '26px 34px',
-            minWidth: '210px',
-            boxShadow:
-              '0 40px 80px rgba(0,0,0,0.52), 0 0 0 1px rgba(255,255,255,0.03), inset 0 1px 0 rgba(255,255,255,0.06)',
-          }}
-        >
-          <div
-            style={{
-              width: '28px',
-              height: '2px',
-              background: '#5B8BED',
-              borderRadius: '2px',
-              marginBottom: '14px',
-            }}
-          />
-          <p
-            className="font-serif-display italic leading-none"
-            style={{
-              fontSize: '46px',
-              fontWeight: 700,
-              color: '#5B8BED',
-              letterSpacing: '-0.02em',
-              marginBottom: '8px',
-            }}
-          >
-            ~€70
-          </p>
-          <p className="text-[12px] font-medium leading-none" style={{ color: 'rgba(255,255,255,0.50)' }}>
-            {de ? 'gespart / 12.000 km' : 'saved / 12,000 km'}
-          </p>
-          <p className="text-[10px]" style={{ color: 'rgba(255,255,255,0.22)', marginTop: '6px' }}>
-            {de ? 'gegenüber Kettenöl' : 'vs. chain oil'}
-          </p>
-        </div>
+
 
       </div>
 
@@ -401,16 +352,16 @@ export function Hero() {
             </p>
           </div>
 
-          <p
+          <h1
             className="font-display font-bold leading-tight tracking-[-0.02em] mb-4"
             style={{ fontSize: 'clamp(1.5rem, 6.5vw, 2rem)', color: '#F5F5F5' }}
           >
             {t.hero.headline}
-          </p>
+          </h1>
 
           <p
             className="text-[14px] leading-relaxed mb-6"
-            style={{ color: 'rgba(255,255,255,0.36)' }}
+            style={{ color: 'rgba(255,255,255,0.55)' }}
           >
             {t.hero.tagline}
           </p>

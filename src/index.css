@@ -201,6 +201,33 @@
   background: radial-gradient(ellipse 80% 50% at 50% 50%, rgba(11, 20, 74, 0.22) 0%, transparent 70%);
 }
 
+/* ── Product page bar / counter animations ──────────────────────────────── */
+@keyframes wx-bar-grow {
+  from { transform: scaleX(0); opacity: 0.5; }
+  to   { transform: scaleX(1); opacity: 1;   }
+}
+
+/* Gentle slide-up + fade — replaces the scale-pop version */
+@keyframes wx-pop-in {
+  from { transform: translateY(6px); opacity: 0; }
+  to   { transform: none;            opacity: 1; }
+}
+
+/* Ultra-subtle tab content entrance — 4px shift, pure fade */
+@keyframes wx-fade-in {
+  from { transform: translateY(4px); opacity: 0; }
+  to   { transform: none;            opacity: 1; }
+}
+
+/* Slow live-indicator blink — replaces Tailwind animate-pulse (2s, too fast) */
+@keyframes live-blink {
+  0%, 100% { opacity: 1;    }
+  50%       { opacity: 0.40; }
+}
+.animate-blink {
+  animation: live-blink 4.5s ease-in-out infinite;
+}
+
 /* ── Animated film grain overlay ────────────────────────────────────────── */
 @keyframes grain {
   0%, 100% { transform: translate(0, 0); }
