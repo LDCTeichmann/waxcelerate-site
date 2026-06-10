@@ -81,8 +81,14 @@ export function About() {
               <p className="text-[15px] leading-[1.8] text-wx-tx2">{t.about.bio1}</p>
               <p className="text-[15px] leading-[1.8] text-wx-tx2">{t.about.bio2}</p>
               <blockquote
-                className="italic text-[14px] leading-relaxed pl-4 my-1"
-                style={{ borderLeft: '2px solid rgba(var(--accent-rgb),0.4)', color: 'var(--txm)' }}
+                className="font-display italic my-3 pl-5"
+                style={{
+                  borderLeft: '2px solid rgba(var(--accent-rgb),0.45)',
+                  color: 'var(--tx1)',
+                  fontSize: 'clamp(1.15rem, 1.9vw, 1.5rem)',
+                  lineHeight: 1.3,
+                  letterSpacing: '-0.01em',
+                }}
               >
                 {de
                   ? 'Nicht jede Charge war sofort richtig. Aber jede war näher dran.'
@@ -123,18 +129,21 @@ export function About() {
               <div
                 className="relative rounded-t-2xl overflow-hidden"
                 style={{
-                  height: '300px',
+                  height: '360px',
                   border: '1px solid var(--bd)',
                   borderBottom: 'none',
                   boxShadow: '0 12px 48px rgba(0,0,0,0.18)',
                 }}
               >
-                <img
-                  src="/images/luca-ebay.jpg"
-                  alt="eBay Seller Leadership Week 2025, San Jose"
-                  className="absolute inset-0 w-full h-full object-cover"
-                  style={{ objectPosition: '50% 38%' }}
-                />
+                <picture>
+                  <source srcSet="/images/luca-stage.webp" type="image/webp" />
+                  <img
+                    src="/images/luca-stage.jpg"
+                    alt="eBay Seller Leadership Week 2025, San Jose"
+                    className="absolute inset-0 w-full h-full object-cover"
+                    style={{ objectPosition: '50% 38%' }}
+                  />
+                </picture>
                 <div
                   className="absolute inset-0"
                   style={{
