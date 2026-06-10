@@ -1,7 +1,7 @@
 import { ShoppingCart } from 'lucide-react';
 import { useCartStore, cartItemCount } from '@/store/cart';
 
-export function CartIcon() {
+export function CartIcon({ light = false }: { light?: boolean }) {
   const items = useCartStore((s) => s.items);
   const openCart = useCartStore((s) => s.openCart);
   const count = cartItemCount(items);
@@ -9,7 +9,9 @@ export function CartIcon() {
   return (
     <button
       onClick={openCart}
-      className="relative p-2 text-wx-tx2 hover:text-wx-tx1 transition-colors rounded-lg"
+      className={`relative p-2 transition-colors rounded-lg ${
+        light ? 'text-white/85 hover:text-white' : 'text-wx-tx2 hover:text-wx-tx1'
+      }`}
       aria-label={`Warenkorb (${count} Artikel)`}
     >
       <ShoppingCart className="h-5 w-5" />
