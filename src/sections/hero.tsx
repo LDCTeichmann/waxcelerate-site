@@ -116,12 +116,12 @@ export function Hero() {
       {/* Echtes Produktfoto: Wachsblock auf Schiefer mit Pflanze — full-bleed */}
       <div ref={imgRef} className="absolute inset-0 will-change-transform">
         <picture>
-          <source srcSet="/images/hero-wax-v2.webp" type="image/webp" />
+          <source srcSet="/images/hero-wax-v3.webp" type="image/webp" />
           <img
-            src="/images/hero-wax-v2.jpg"
+            src="/images/hero-wax-v3.jpg"
             alt={de ? 'Waxcelerate Heißwachs-Block auf Schiefer' : 'Waxcelerate hot wax block on slate'}
             className="absolute inset-0 w-full h-full object-cover"
-            style={{ objectPosition: '55% 45%' }}
+            style={{ objectPosition: '62% 50%' }}
             fetchPriority="high"
           />
         </picture>
