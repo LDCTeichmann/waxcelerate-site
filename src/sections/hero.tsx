@@ -27,6 +27,7 @@ export function Hero() {
   const blockRef   = useRef<HTMLDivElement>(null);
   const wordRef    = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const ctaRef     = useRef<HTMLButtonElement>(null);
   const animated   = useRef(false);
 
   useEffect(() => {
@@ -87,6 +88,8 @@ export function Hero() {
       const mid = (letters.length - 1) / 2;
       scrub(gsap.to(letters, { x: (i: number) => (i - mid) * 5, ease: 'none' }));
     }
+    // Die Bühne weicht beim Scrollen minimal zurück — cineastischer Abgang.
+    scrub(gsap.to(card, { scale: 0.965, transformOrigin: '50% 100%', ease: 'none' }));
 
     // Cursor-Tiefe: Bildebenen folgen der Maus stärker als die Wortmarke —
     // der Versatz zwischen Block und Typo erzeugt echte Parallaxe.
@@ -108,8 +111,28 @@ export function Hero() {
       card.addEventListener('mousemove', onMove);
     }
 
+    // Magnetischer Primär-CTA: zieht sich wenige Pixel zum Cursor,
+    // federt beim Verlassen elastisch zurück.
+    let ctaMove: ((e: MouseEvent) => void) | undefined;
+    let ctaLeave: (() => void) | undefined;
+    const cta = ctaRef.current;
+    if (finePointer && cta) {
+      const qx = gsap.quickTo(cta, 'x', { duration: 0.35, ease: 'power3.out' });
+      const qy = gsap.quickTo(cta, 'y', { duration: 0.35, ease: 'power3.out' });
+      ctaMove = (e: MouseEvent) => {
+        const r = cta.getBoundingClientRect();
+        qx(((e.clientX - r.left) / r.width - 0.5) * 10);
+        qy(((e.clientY - r.top) / r.height - 0.5) * 8);
+      };
+      ctaLeave = () => gsap.to(cta, { x: 0, y: 0, duration: 0.7, ease: 'elastic.out(1, 0.45)' });
+      cta.addEventListener('mousemove', ctaMove);
+      cta.addEventListener('mouseleave', ctaLeave);
+    }
+
     return () => {
       if (onMove) card.removeEventListener('mousemove', onMove);
+      if (cta && ctaMove) cta.removeEventListener('mousemove', ctaMove);
+      if (cta && ctaLeave) cta.removeEventListener('mouseleave', ctaLeave);
       triggers.forEach((s) => s.kill());
     };
   }, []);
@@ -126,9 +149,9 @@ export function Hero() {
   // Bild-Ebene (für Basis + maskierte Block-Ebene identisch aufgebaut)
   const imgEl = (masked: boolean) => (
     <picture>
-      <source srcSet="/images/hero-wax-v4.webp" type="image/webp" />
+      <source srcSet="/images/hero-wax-v5.webp" type="image/webp" />
       <img
-        src="/images/hero-wax-v4.jpg"
+        src="/images/hero-wax-v5.jpg"
         alt={masked ? '' : de ? 'Waxcelerate Heißwachs-Block auf Schiefer' : 'Waxcelerate hot wax block on slate'}
         aria-hidden={masked || undefined}
         className="absolute inset-0 w-full h-full object-cover"
@@ -136,8 +159,8 @@ export function Hero() {
           objectPosition: IMG_POS,
           ...(masked
             ? {
-                WebkitMaskImage: 'url(/images/hero-wax-v4-mask.png)',
-                maskImage: 'url(/images/hero-wax-v4-mask.png)',
+                WebkitMaskImage: 'url(/images/hero-wax-v5-mask.png)',
+                maskImage: 'url(/images/hero-wax-v5-mask.png)',
                 WebkitMaskSize: 'cover',
                 maskSize: 'cover',
                 WebkitMaskPosition: IMG_POS,
@@ -208,9 +231,9 @@ export function Hero() {
               style={{
                 fontFamily: '"Roboto", "Libre Franklin", ui-sans-serif, system-ui, sans-serif',
                 fontWeight: 700,
-                fontSize: 'clamp(2.7rem, 9.2vw, 9rem)',
+                fontSize: 'clamp(2.9rem, 10.6vw, 10.4rem)',
                 lineHeight: 1,
-                letterSpacing: '-0.03em',
+                letterSpacing: '-0.035em',
                 color: 'rgba(255,255,255,0.97)',
               }}
             >
@@ -291,8 +314,9 @@ export function Hero() {
                 {/* CTAs — ruhige Mikrointeraktionen: Lift + Pfeil-Nudge */}
                 <div data-hero className="mt-7 flex items-center gap-4 flex-wrap">
                   <button
+                    ref={ctaRef}
                     onClick={() => scrollTo('#produkte')}
-                    className="group inline-flex items-center gap-2.5 px-8 py-3.5 text-[14px] font-bold rounded-full transition-all duration-300 active:scale-[0.98] hover:-translate-y-0.5 hover:shadow-[0_14px_36px_rgba(0,0,0,0.45)]"
+                    className="group inline-flex items-center gap-2.5 px-8 py-3.5 text-[14px] font-bold rounded-full transition-shadow duration-300 hover:shadow-[0_14px_36px_rgba(0,0,0,0.45)] will-change-transform"
                     style={{ background: '#FFFFFF', color: '#0F0F12' }}
                   >
                     {t.hero.ctaBuy}
@@ -323,6 +347,29 @@ export function Hero() {
             </div>
           </div>
 
+          {/* Scroll-Rail — rechte Kante, leise Einladung weiterzulesen */}
+          <button
+            data-hero
+            onClick={() => scrollTo('#warum-wachs')}
+            aria-label={de ? 'Weiterscrollen' : 'Scroll down'}
+            className="hidden lg:flex absolute right-7 top-1/2 -translate-y-1/2 z-10 flex-col items-center gap-3 group cursor-pointer"
+          >
+            <span
+              className="text-[9px] uppercase font-medium transition-colors duration-300 group-hover:text-white"
+              style={{
+                writingMode: 'vertical-rl',
+                letterSpacing: '0.32em',
+                color: 'rgba(255,255,255,0.45)',
+              }}
+            >
+              Scroll
+            </span>
+            <span
+              className="w-px h-12 transition-all duration-300 group-hover:h-16"
+              style={{ background: 'linear-gradient(to bottom, rgba(255,255,255,0.55), rgba(255,255,255,0.08))' }}
+            />
+          </button>
+
           {/* Trust + Daten — ein ruhiges Band am Fuß der Bühne */}
           <div data-hero className="absolute bottom-0 inset-x-0 z-10">
             <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-14 xl:px-20">
@@ -343,19 +390,23 @@ export function Hero() {
                   </span>
                 </div>
 
-                {/* Daten — drei klare Werte, nur Abstand trennt sie */}
-                <div className="grid grid-cols-3 sm:flex sm:items-end gap-x-7 sm:gap-x-10 order-1 sm:order-2">
+                {/* Daten — drei klare Werte, durch Hairlines kolumniert */}
+                <div className="flex items-stretch order-1 sm:order-2">
                   {stats.map((s, i) => (
-                    <div key={i}>
+                    <div
+                      key={i}
+                      className="px-3 sm:px-7 first:pl-0 last:pr-0"
+                      style={{ borderLeft: i > 0 ? '1px solid rgba(255,255,255,0.14)' : 'none' }}
+                    >
                       <p
                         className="font-display font-bold tabular-nums text-white leading-none"
-                        style={{ fontSize: 'clamp(1.2rem, 1.8vw, 1.5rem)' }}
+                        style={{ fontSize: 'clamp(1.3rem, 2vw, 1.7rem)' }}
                       >
                         {s.v}
                       </p>
                       <p
                         className="text-[9px] sm:text-[10px] uppercase mt-1.5 whitespace-nowrap"
-                        style={{ letterSpacing: '0.07em', color: 'rgba(255,255,255,0.48)' }}
+                        style={{ letterSpacing: '0.09em', color: 'rgba(255,255,255,0.52)' }}
                       >
                         {s.l}
                       </p>

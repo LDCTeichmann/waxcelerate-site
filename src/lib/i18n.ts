@@ -3,6 +3,7 @@ export const translations = {
     // Navigation
     nav: {
       start: 'Start',
+      whyWax: 'Warum Wachs?',
       products: 'Produkte',
       tools: 'Tools',
       guides: 'Anleitungen',
@@ -346,6 +347,7 @@ export const translations = {
     // Navigation
     nav: {
       start: 'Home',
+      whyWax: 'Why wax?',
       products: 'Products',
       tools: 'Tools',
       guides: 'Guides',
