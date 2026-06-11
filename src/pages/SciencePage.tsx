@@ -53,7 +53,7 @@ const HERO_PARTICLES = [
 ] as const;
 
 const DOT_GRID: React.CSSProperties = {
-  backgroundImage: 'radial-gradient(circle, rgba(26,60,110,0.11) 1px, transparent 1px)',
+  backgroundImage: 'radial-gradient(circle, rgba(var(--accent-rgb),0.11) 1px, transparent 1px)',
   backgroundSize: '22px 22px',
 };
 
@@ -76,16 +76,16 @@ const DARK_DOT_GRID: React.CSSProperties = {
 // Always-dark card for SVG visualizations
 const VIZ_CARD: React.CSSProperties = {
   background: '#0D1117',
-  border: '1px solid rgba(68,114,212,0.20)',
+  border: '1px solid rgba(var(--accent-soft-rgb),0.20)',
 };
 const VIZ_CARD_LIGHT: React.CSSProperties = {
   background: '#f0f4fb',
-  border: '1px solid rgba(68,114,212,0.22)',
+  border: '1px solid rgba(var(--accent-soft-rgb),0.22)',
   boxShadow: '0 4px 28px rgba(0,0,0,0.07)',
 };
 
 const LIGHT_DOT_GRID: React.CSSProperties = {
-  backgroundImage: 'radial-gradient(circle, rgba(68,114,212,0.10) 1px, transparent 1px)',
+  backgroundImage: 'radial-gradient(circle, rgba(var(--accent-soft-rgb),0.10) 1px, transparent 1px)',
   backgroundSize: '22px 22px',
 };
 
@@ -136,7 +136,7 @@ function HeroParticles() {
   return (
     <svg ref={svgRef} aria-hidden className="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="xMidYMid slice">
       {HERO_PARTICLES.map((p, i) => (
-        <circle key={i} className="hp" cx={p.cx} cy={p.cy} r={p.r} fill="#4472D4" opacity="0.22" />
+        <circle key={i} className="hp" cx={p.cx} cy={p.cy} r={p.r} fill="var(--accent-soft)" opacity="0.22" />
       ))}
     </svg>
   );
@@ -182,11 +182,11 @@ function ChapterNav({ de, onActiveChange }: { de: boolean; onActiveChange?: (i: 
             title={de ? l.de : l.en}
           >
             <span className="text-[9px] uppercase tracking-widest whitespace-nowrap text-right transition-all duration-200 opacity-0 group-hover:opacity-100"
-              style={{ color: isActive ? '#4472D4' : 'var(--txff)' }}>
+              style={{ color: isActive ? 'var(--accent-soft)' : 'var(--txff)' }}>
               {de ? l.de : l.en}
             </span>
             <div className="relative z-10 rounded-full flex-shrink-0 transition-all duration-300"
-              style={{ width: isActive ? '9px' : '5px', height: isActive ? '9px' : '5px', background: isActive ? '#4472D4' : 'var(--bd)', boxShadow: isActive ? '0 0 10px rgba(68,114,212,0.75)' : 'none' }} />
+              style={{ width: isActive ? '9px' : '5px', height: isActive ? '9px' : '5px', background: isActive ? 'var(--accent-soft)' : 'var(--bd)', boxShadow: isActive ? '0 0 10px rgba(var(--accent-soft-rgb),0.75)' : 'none' }} />
           </button>
         );
       })}
@@ -214,11 +214,11 @@ function ScrollProgress() {
 
 // ─── Mini-SVG visualizations for StatCallout ─────────────────────────────────
 function TempBandViz({ isDark }: { isDark: boolean }) {
-  const trackClr  = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(26,60,110,0.10)';
-  const bandClr   = isDark ? '#3060C8'                : '#1A3C6E';
-  const wideClr   = isDark ? 'rgba(68,114,212,0.22)'  : 'rgba(68,114,212,0.15)';
-  const labelClr  = isDark ? 'rgba(255,255,255,0.32)' : 'rgba(26,60,110,0.45)';
-  const tickClr   = isDark ? 'rgba(255,255,255,0.20)' : 'rgba(26,60,110,0.30)';
+  const trackClr  = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(var(--accent-rgb),0.10)';
+  const bandClr   = isDark ? '#3060C8'                : 'var(--accent)';
+  const wideClr   = isDark ? 'rgba(var(--accent-soft-rgb),0.22)'  : 'rgba(var(--accent-soft-rgb),0.15)';
+  const labelClr  = isDark ? 'rgba(255,255,255,0.32)' : 'rgba(var(--accent-rgb),0.45)';
+  const tickClr   = isDark ? 'rgba(255,255,255,0.20)' : 'rgba(var(--accent-rgb),0.30)';
   const toX = (t: number) => ((t - 52) / 18) * 200;
   return (
     <svg viewBox="0 0 220 80" style={{ width: 220, height: 80 }}>
@@ -238,11 +238,11 @@ function TempBandViz({ isDark }: { isDark: boolean }) {
 }
 
 function DensityViz({ isDark }: { isDark: boolean }) {
-  const parClr   = isDark ? 'rgba(68,114,212,0.25)'  : 'rgba(68,114,212,0.15)';
-  const parBd    = isDark ? 'rgba(68,114,212,0.45)'  : 'rgba(68,114,212,0.40)';
-  const mosClr   = isDark ? '#2A5499'                : '#2A5499';
-  const labelClr = isDark ? 'rgba(255,255,255,0.35)' : 'rgba(26,60,110,0.45)';
-  const valClr   = isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,30,70,0.75)';
+  const parClr   = isDark ? 'rgba(var(--accent-soft-rgb),0.25)'  : 'rgba(var(--accent-soft-rgb),0.15)';
+  const parBd    = isDark ? 'rgba(var(--accent-soft-rgb),0.45)'  : 'rgba(var(--accent-soft-rgb),0.40)';
+  const mosClr   = isDark ? 'var(--accent)'                : 'var(--accent)';
+  const labelClr = isDark ? 'rgba(255,255,255,0.35)' : 'rgba(var(--accent-rgb),0.45)';
+  const valClr   = isDark ? 'rgba(255,255,255,0.70)' : 'rgba(var(--accent-strong-rgb),0.75)';
   const rPar = 14, rMos = 36;
   return (
     <svg viewBox="0 0 160 90" style={{ width: 160, height: 90 }}>
@@ -250,7 +250,7 @@ function DensityViz({ isDark }: { isDark: boolean }) {
       <text x="35" y="42" textAnchor="middle" dominantBaseline="middle" fontSize="6" fontFamily="monospace" fill={labelClr}>Paraffin</text>
       <text x="35" y="51" textAnchor="middle" dominantBaseline="middle" fontSize="7" fontFamily="monospace" fontWeight="700" fill={valClr}>0.9</text>
       <circle cx="108" cy="45" r={rMos} fill={mosClr}
-        style={{ filter: isDark ? 'drop-shadow(0 0 10px rgba(42,84,153,0.55))' : 'drop-shadow(0 3px 8px rgba(42,84,153,0.25))' }} />
+        style={{ filter: isDark ? 'drop-shadow(0 0 10px rgba(var(--accent-rgb),0.55))' : 'drop-shadow(0 3px 8px rgba(var(--accent-rgb),0.25))' }} />
       <text x="108" y="40" textAnchor="middle" dominantBaseline="middle" fontSize="7.5" fontFamily="monospace" fill="rgba(255,255,255,0.75)">MoS₂</text>
       <text x="108" y="51" textAnchor="middle" dominantBaseline="middle" fontSize="8" fontFamily="monospace" fontWeight="700" fill="rgba(255,255,255,0.90)">5.06</text>
       <text x="80" y="84" textAnchor="middle" fontSize="6.5" fontFamily="monospace" fill={labelClr}>g/cm³</text>
@@ -259,12 +259,12 @@ function DensityViz({ isDark }: { isDark: boolean }) {
 }
 
 function FrictionLadderViz({ isDark }: { isDark: boolean }) {
-  const labelClr = isDark ? 'rgba(255,255,255,0.35)' : 'rgba(26,60,110,0.45)';
-  const dotClr   = isDark ? '#4472D4'                : '#1A3C6E';
+  const labelClr = isDark ? 'rgba(255,255,255,0.35)' : 'rgba(var(--accent-rgb),0.45)';
+  const dotClr   = isDark ? 'var(--accent-soft)'                : 'var(--accent)';
   const bars = [
-    { label: 'Pro',      val: 0.03, color: isDark ? '#3060C8' : '#1A3C6E', glow: true  },
-    { label: 'Graphite', val: 0.10, color: isDark ? 'rgba(68,114,212,0.45)' : 'rgba(42,84,153,0.35)', glow: false },
-    { label: 'Oil',      val: 0.18, color: isDark ? 'rgba(68,114,212,0.22)' : 'rgba(42,84,153,0.18)', glow: false },
+    { label: 'Pro',      val: 0.03, color: isDark ? '#3060C8' : 'var(--accent)', glow: true  },
+    { label: 'Graphite', val: 0.10, color: isDark ? 'rgba(var(--accent-soft-rgb),0.45)' : 'rgba(var(--accent-rgb),0.35)', glow: false },
+    { label: 'Oil',      val: 0.18, color: isDark ? 'rgba(var(--accent-soft-rgb),0.22)' : 'rgba(var(--accent-rgb),0.18)', glow: false },
   ];
   const scale = 160 / 0.25;
   return (
@@ -323,8 +323,8 @@ function StatCallout({ stat, ctxDe, ctxEn, de, isDark, miniViz }: {
         <p className="font-serif-display italic font-bold leading-none select-none"
           style={{
             fontSize: 'clamp(2.8rem,7vw,4.5rem)',
-            color: isDark ? '#3060C8' : '#1A3C6E',
-            textShadow: isDark ? '0 0 60px rgba(43,82,176,0.55), 0 0 130px rgba(43,82,176,0.22)' : 'none',
+            color: isDark ? '#3060C8' : 'var(--accent)',
+            textShadow: isDark ? '0 0 60px rgba(var(--accent-rgb),0.55), 0 0 130px rgba(var(--accent-rgb),0.22)' : 'none',
           }}>
           {stat}
         </p>
@@ -432,8 +432,8 @@ function curvedEdge(ax: number, ay: number, bx: number, by: number, ra: number, 
 
 // ── Node micro-visualizations — each shows the physical/chemical mechanism ──
 function NodeMechViz({ id, cx, cy, isDark, isHot }: { id: number; cx: number; cy: number; isDark: boolean; isHot: boolean }) {
-  const base = isDark ? 'rgba(130,175,255,0.22)' : 'rgba(42,84,153,0.16)';
-  const hot  = isDark ? 'rgba(160,205,255,0.40)' : 'rgba(42,84,153,0.30)';
+  const base = isDark ? 'rgba(130,175,255,0.22)' : 'rgba(var(--accent-rgb),0.16)';
+  const hot  = isDark ? 'rgba(160,205,255,0.40)' : 'rgba(var(--accent-rgb),0.30)';
   const c = isHot ? hot : base;
 
   if (id === 1) {
@@ -506,15 +506,10 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
   const svgRef        = useRef<SVGSVGElement>(null);
   const edgeRefs      = useRef<(SVGPathElement | null)[]>([]);
   const nodeRefs      = useRef<(SVGGElement | null)[]>([]);
-  const ringRefs      = useRef<(SVGCircleElement | null)[]>([]);
-  const mos2LayerRefs = useRef<(SVGRectElement | null)[]>([]);
-  const pulseRef       = useRef<SVGCircleElement | null>(null);
-  const carrierDotRef  = useRef<SVGCircleElement | null>(null);
   const vignetteRef    = useRef<SVGGElement | null>(null);
   const didAnimate     = useRef(false);
   const [hoveredNode, setHoveredNode] = useState<number | null>(null);
   const [canHover,    setCanHover]    = useState(mode === 'overview');
-  const [assembled,   setAssembled]   = useState(mode === 'overview');
 
   const isOverview = mode === 'overview';
   const uid = `fa-${mode}-${isDark ? 'd' : 'l'}`;
@@ -522,21 +517,21 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
   // ── Color system (uniform cobalt — clean, professional) ───────────────────
   const nodeGradA   = isDark ? '#1c3060' : '#f0f5ff';
   const nodeGradB   = isDark ? '#090f28' : '#d0e0f8';
-  const nodeStroke  = isDark ? 'rgba(68,120,220,0.55)' : 'rgba(42,84,153,0.70)';
+  const nodeStroke  = isDark ? 'rgba(68,120,220,0.55)' : 'rgba(var(--accent-rgb),0.70)';
   const nodeStrokeH = isDark ? '#7ab0ff' : '#1535a0';
 
   const metricClr   = isDark ? '#88bbff' : '#1a3c8e';
-  const subClr      = isDark ? 'rgba(140,180,240,0.42)' : 'rgba(42,84,153,0.48)';
+  const subClr      = isDark ? 'rgba(140,180,240,0.42)' : 'rgba(var(--accent-rgb),0.48)';
 
   // Zone fills — innermost = most saturated (closest functional relationship to MoS₂)
-  const z1Fill = isDark ? 'rgba(40,68,155,0.32)' : 'rgba(68,114,212,0.12)';   // Inner: protective agents
-  const z2Fill = isDark ? 'rgba(28,50,115,0.18)' : 'rgba(68,114,212,0.07)';   // Mid: carrier
-  const z3Fill = isDark ? 'rgba(18,34,80,0.10)'  : 'rgba(68,114,212,0.035)';  // Outer: matrix modifiers
-  const ringClr = isDark ? 'rgba(100,140,220,0.14)' : 'rgba(42,84,153,0.12)';
+  const z1Fill = isDark ? 'rgba(40,68,155,0.32)' : 'rgba(var(--accent-soft-rgb),0.12)';   // Inner: protective agents
+  const z2Fill = isDark ? 'rgba(28,50,115,0.18)' : 'rgba(var(--accent-soft-rgb),0.07)';   // Mid: carrier
+  const z3Fill = isDark ? 'rgba(18,34,80,0.10)'  : 'rgba(var(--accent-soft-rgb),0.035)';  // Outer: matrix modifiers
+  const ringClr = isDark ? 'rgba(100,140,220,0.14)' : 'rgba(var(--accent-rgb),0.12)';
 
   // Edge colors — structural vs protective
-  const edgeSolid  = isDark ? 'rgba(80,130,230,0.55)' : 'rgba(42,84,153,0.42)';
-  const edgeDash   = isDark ? 'rgba(80,130,230,0.38)' : 'rgba(42,84,153,0.28)';
+  const edgeSolid  = isDark ? 'rgba(80,130,230,0.55)' : 'rgba(var(--accent-rgb),0.42)';
+  const edgeDash   = isDark ? 'rgba(80,130,230,0.38)' : 'rgba(var(--accent-rgb),0.28)';
   const edgeHot    = isDark ? 'rgba(140,190,255,0.95)' : '#1a3c8e';
   const edgeLblClr = isDark ? 'rgba(160,200,255,0.52)' : 'rgba(26,60,130,0.48)';
 
@@ -570,7 +565,7 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
 
       const tl = gsap.timeline({
         scrollTrigger: { trigger: svgRef.current, start: 'top 80%', once: true },
-        onComplete: () => { didAnimate.current = true; setCanHover(true); setAssembled(true); },
+        onComplete: () => { didAnimate.current = true; setCanHover(true); },
       });
 
       // 1. MoS₂ crystallizes — the REASON for the entire formula
@@ -612,76 +607,7 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
     return () => ctx.revert();
   }, [mode]);
 
-  // ── Ambient animations — run after assembly, make the system feel alive ──────
-  useEffect(() => {
-    if (!assembled || isOverview) return;
-    const ctx = gsap.context(() => {
-
-      // 1. Zone rings breathe — independent periods create organic feel
-      ringRefs.current.forEach((ring, i) => {
-        if (!ring) return;
-        const baseR = i === 0 ? 144 : 245;
-        const amplitude = i === 0 ? 4 : 7;
-        gsap.to(ring, {
-          attr: { r: baseR + amplitude },
-          duration: 3.4 + i * 1.6,
-          yoyo: true, repeat: -1, ease: 'sine.inOut',
-          delay: i * 1.8,
-        });
-      });
-
-      // 2. MoS₂ S–Mo–S layers shear — demonstrates why μ = 0.03
-      // The van der Waals gap between layers allows near-frictionless lateral slip
-      const [topLayer,, botLayer] = mos2LayerRefs.current;
-      if (topLayer) gsap.to(topLayer, { x: 6, duration: 5.2, yoyo: true, repeat: -1, ease: 'sine.inOut', delay: 1.0 });
-      if (botLayer) gsap.to(botLayer, { x: -6, duration: 5.2, yoyo: true, repeat: -1, ease: 'sine.inOut', delay: 1.0 });
-
-      // 3. MoS₂ expanding pulse — system heartbeat every ~5 seconds
-      if (pulseRef.current) {
-        const pulseTl = gsap.timeline({ repeat: -1, delay: 1.5 });
-        pulseTl.set(pulseRef.current, { attr: { r: 50 }, opacity: 0 });
-        pulseTl.to(pulseRef.current, { opacity: 0.50, duration: 0.15, ease: 'power2.out' });
-        pulseTl.to(pulseRef.current, { attr: { r: 95 }, opacity: 0, duration: 2.2, ease: 'power2.out' });
-        pulseTl.to({}, { duration: 2.8 }); // pause between pulses
-      }
-
-      // 4. Protective edges: flowing dashes toward MoS₂ (ongoing chemical protection)
-      edgeRefs.current.forEach((edge, i) => {
-        if (!edge || !ASSEMBLY_EDGES[i].dash) return;
-        // Remove pathLength normalization → switch to real pixel units
-        edge.removeAttribute('pathLength');
-        gsap.set(edge, { strokeDasharray: '8 5', strokeDashoffset: 0, opacity: 1 });
-        // Negative offset = dashes flow toward arrowhead (toward MoS₂)
-        gsap.to(edge, { strokeDashoffset: -13, duration: 1.0, repeat: -1, ease: 'none' });
-      });
-
-      // 5. Carrier particle — visualizes wax delivering MoS₂ to chain joint
-      if (carrierDotRef.current) {
-        const parNode = ASSEMBLY_NODES[0];  // Paraffin
-        const mos2Node = ASSEMBLY_NODES[3]; // MoS₂
-        const ce = curvedEdge(parNode.cx, parNode.cy, mos2Node.cx, mos2Node.cy, parNode.r, mos2Node.r);
-        const prog = { t: 0 };
-        gsap.set(carrierDotRef.current, { opacity: 0 });
-        gsap.to(prog, {
-          t: 1, duration: 2.0, repeat: -1, ease: 'power1.inOut', delay: 0.6,
-          onUpdate() {
-            const t = prog.t, mt = 1 - t;
-            const bx = mt * mt * ce.x1 + 2 * mt * t * ce.cpx + t * t * ce.x2;
-            const by = mt * mt * ce.y1 + 2 * mt * t * ce.cpy + t * t * ce.y2;
-            // Fade in/out at endpoints
-            const opacity = t < 0.12 ? t / 0.12 : t > 0.88 ? (1 - t) / 0.12 : 1;
-            if (carrierDotRef.current) {
-              carrierDotRef.current.setAttribute('cx', String(Math.round(bx * 10) / 10));
-              carrierDotRef.current.setAttribute('cy', String(Math.round(by * 10) / 10));
-              carrierDotRef.current.setAttribute('opacity', String(opacity * 0.9));
-            }
-          },
-        });
-      }
-
-    }, svgRef);
-    return () => ctx.revert();
-  }, [assembled, isOverview]);
+  // Ambient looping animations removed — after assembly the graph stays still.
 
   const hovNode = ASSEMBLY_NODES.find(n => n.id === hoveredNode) ?? null;
 
@@ -722,7 +648,7 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
           </marker>
           {/* Main carrier edge — larger arrowhead to match heavier stroke */}
           <marker id={`${uid}-am`} markerWidth="7" markerHeight="7" refX="5.5" refY="3.5" orient="auto">
-            <path d="M0,0 L0,7 L7,3.5 z" fill={isDark ? 'rgba(80,130,230,0.70)' : 'rgba(42,84,153,0.55)'} />
+            <path d="M0,0 L0,7 L7,3.5 z" fill={isDark ? 'rgba(80,130,230,0.70)' : 'rgba(var(--accent-rgb),0.55)'} />
           </marker>
           {/* Edge glow filter */}
           <filter id={`${uid}-eg`} x="-30%" y="-30%" width="160%" height="160%">
@@ -736,23 +662,11 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
         <circle cx={GRAPH_CX} cy={GRAPH_CY} r={195} fill={z2Fill} />
         <circle cx={GRAPH_CX} cy={GRAPH_CY} r={144} fill={z1Fill} />
 
-        {/* ── Zone ring borders — refs allow breathing animation ── */}
-        <circle ref={el => { ringRefs.current[0] = el; }}
+        {/* ── Zone ring borders (static) ── */}
+        <circle
           cx={GRAPH_CX} cy={GRAPH_CY} r={144} fill="none" stroke={ringClr} strokeWidth={0.9} strokeDasharray="4 6" />
-        <circle ref={el => { ringRefs.current[1] = el; }}
+        <circle
           cx={GRAPH_CX} cy={GRAPH_CY} r={245} fill="none" stroke={ringClr} strokeWidth={0.9} strokeDasharray="4 6" />
-
-        {/* ── MoS₂ expanding pulse ring (ambient heartbeat) ── */}
-        <circle ref={pulseRef}
-          cx={GRAPH_CX} cy={GRAPH_CY} r={50} fill="none"
-          stroke={isDark ? 'rgba(68,114,212,0.50)' : 'rgba(42,84,153,0.38)'}
-          strokeWidth={1.2} opacity={0} />
-
-        {/* ── Carrier edge particle (wax delivering MoS₂) ── */}
-        <circle ref={carrierDotRef}
-          cx={ASSEMBLY_NODES[0].cx} cy={ASSEMBLY_NODES[0].cy} r={3.5}
-          fill={isDark ? '#7ab8ff' : '#2a56c4'} opacity={0}
-          style={{ filter: `drop-shadow(0 0 5px ${isDark ? '#7ab8ffCC' : '#2a56c4AA'})` }} />
 
         {/* ── "So what" vignette — friction comparison bars, appear after full assembly ── */}
         {/* Positions: centered at GRAPH_CX, rows at GRAPH_CY+62, +76, +90 */}
@@ -765,10 +679,10 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
             { label: de ? 'Graphit'     : 'Graphite',    mu: 0.10, isThis: false },
             { label: de ? 'Kettenöl'    : 'Chain oil',   mu: 0.18, isThis: false },
           ];
-          const accentFill = isDark ? 'rgba(80,130,230,0.80)' : 'rgba(42,84,153,0.65)';
-          const dimFill    = isDark ? 'rgba(80,130,230,0.22)' : 'rgba(42,84,153,0.16)';
-          const textClr    = isDark ? 'rgba(180,210,255,0.80)' : 'rgba(26,60,110,0.75)';
-          const muClr      = isDark ? 'rgba(140,180,255,0.65)' : 'rgba(42,84,153,0.55)';
+          const accentFill = isDark ? 'rgba(80,130,230,0.80)' : 'rgba(var(--accent-rgb),0.65)';
+          const dimFill    = isDark ? 'rgba(80,130,230,0.22)' : 'rgba(var(--accent-rgb),0.16)';
+          const textClr    = isDark ? 'rgba(180,210,255,0.80)' : 'rgba(var(--accent-rgb),0.75)';
+          const muClr      = isDark ? 'rgba(140,180,255,0.65)' : 'rgba(var(--accent-rgb),0.55)';
           return (
             <g ref={vignetteRef} opacity={0} style={{ pointerEvents: 'none' }}>
               {/* Title */}
@@ -784,7 +698,7 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
                   <g key={idx}>
                     {/* Track */}
                     <rect x={vx} y={y} width={maxW} height={7} rx={2}
-                      fill={isDark ? 'rgba(255,255,255,0.04)' : 'rgba(42,84,153,0.06)'} />
+                      fill={isDark ? 'rgba(255,255,255,0.04)' : 'rgba(var(--accent-rgb),0.06)'} />
                     {/* Bar fill */}
                     <rect x={vx} y={y} width={bw} height={7} rx={2}
                       fill={b.isThis ? accentFill : dimFill}
@@ -826,8 +740,8 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
           const isMain = edge.main && !isOverview;
 
           const baseStroke = edge.dash ? edgeDash : edgeSolid;
-          const mainStroke = isDark ? 'rgba(80,130,230,0.65)' : 'rgba(42,84,153,0.50)';
-          const stroke = hot ? edgeHot : isMain ? mainStroke : (isOverview ? (isDark ? 'rgba(80,130,230,0.28)' : 'rgba(42,84,153,0.18)') : baseStroke);
+          const mainStroke = isDark ? 'rgba(80,130,230,0.65)' : 'rgba(var(--accent-rgb),0.50)';
+          const stroke = hot ? edgeHot : isMain ? mainStroke : (isOverview ? (isDark ? 'rgba(80,130,230,0.28)' : 'rgba(var(--accent-rgb),0.18)') : baseStroke);
           const sw     = hot ? 2.5 : isOverview ? 0.8 : edge.weight;
           const dashArr = (!hot && edge.dash && !isOverview) ? '5 3.5' : undefined;
           const arrow  = hot
@@ -914,9 +828,9 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
               {/* MoS₂ halo rings */}
               {isMos && (<>
                 <polygon points={hexPoints(node.cx, node.cy, node.r + 16)} fill="none"
-                  stroke={isDark ? 'rgba(68,114,212,0.18)' : 'rgba(42,84,153,0.12)'} strokeWidth={1} />
+                  stroke={isDark ? 'rgba(var(--accent-soft-rgb),0.18)' : 'rgba(var(--accent-rgb),0.12)'} strokeWidth={1} />
                 <polygon points={hexPoints(node.cx, node.cy, node.r + 30)} fill="none"
-                  stroke={isDark ? 'rgba(68,114,212,0.07)' : 'rgba(42,84,153,0.05)'} strokeWidth={0.8} />
+                  stroke={isDark ? 'rgba(var(--accent-soft-rgb),0.07)' : 'rgba(var(--accent-rgb),0.05)'} strokeWidth={0.8} />
               </>)}
 
               {/* Main shape: hexagon for MoS₂ (actual P6₃/mmc crystal system), circle for satellites */}
@@ -941,7 +855,7 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
                     <circle
                       cx={node.cx} cy={node.cy} r={node.r + 11}
                       fill="none"
-                      stroke={isHot ? nodeStrokeH : (isDark ? 'rgba(100,150,230,0.38)' : 'rgba(42,84,153,0.30)')}
+                      stroke={isHot ? nodeStrokeH : (isDark ? 'rgba(100,150,230,0.38)' : 'rgba(var(--accent-rgb),0.30)')}
                       strokeWidth={1.2}
                       strokeDasharray="3 3"
                       style={{
@@ -961,7 +875,7 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
                       transformOrigin: `${node.cx}px ${node.cy}px`,
                       transition: 'transform 0.24s ease, stroke 0.2s',
                       filter: isHot
-                        ? (isDark ? 'drop-shadow(0 0 10px rgba(68,120,240,0.55))' : 'drop-shadow(0 2px 10px rgba(26,60,110,0.25))')
+                        ? (isDark ? 'drop-shadow(0 0 10px rgba(68,120,240,0.55))' : 'drop-shadow(0 2px 10px rgba(var(--accent-rgb),0.25))')
                         : 'none',
                     }}
                   />
@@ -978,16 +892,16 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
                 {/* S-Mo-S layered crystal hint (two subtle horizontal bands) */}
                 {!isOverview && (
                   <g opacity={0.38}>
-                    {/* Top S layer — ref[0], shears right in ambient animation */}
-                    <rect ref={el => { mos2LayerRefs.current[0] = el; }}
+                    {/* Top S layer */}
+                    <rect
                       x={node.cx - 21} y={node.cy - 11} width={42} height={5.5} rx={2.5}
                       fill={isDark ? 'rgba(150,195,255,0.50)' : 'rgba(180,210,255,0.65)'} />
-                    {/* Mo layer — middle (fixed) */}
-                    <rect ref={el => { mos2LayerRefs.current[1] = el; }}
+                    {/* Mo layer — middle */}
+                    <rect
                       x={node.cx - 19} y={node.cy - 3.5} width={38} height={4} rx={1.5}
                       fill={isDark ? 'rgba(100,155,255,0.65)' : 'rgba(140,180,255,0.75)'} />
-                    {/* Bottom S layer — ref[2], shears left in ambient animation */}
-                    <rect ref={el => { mos2LayerRefs.current[2] = el; }}
+                    {/* Bottom S layer */}
+                    <rect
                       x={node.cx - 21} y={node.cy + 2} width={42} height={5.5} rx={2.5}
                       fill={isDark ? 'rgba(150,195,255,0.50)' : 'rgba(180,210,255,0.65)'} />
                     {/* vdW gap hint lines */}
@@ -1033,7 +947,7 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
                 </text>
                 <text x={node.cx} y={node.cy + 9} textAnchor="middle" dominantBaseline="middle"
                   fontSize="8.5" fontWeight="600" fontFamily="system-ui, sans-serif"
-                  letterSpacing="0.01em" fill={isDark ? 'rgba(255,255,255,0.52)' : 'rgba(15,30,70,0.52)'}>
+                  letterSpacing="0.01em" fill={isDark ? 'rgba(255,255,255,0.52)' : 'rgba(var(--accent-strong-rgb),0.52)'}>
                   {de ? node.labelDe : node.labelEn}
                 </text>
               </>)}
@@ -1060,7 +974,7 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
           style={{
             minHeight: '52px',
             background: isDark ? 'rgba(20,36,80,0.35)' : 'rgba(230,238,255,0.60)',
-            border: `1px solid ${isDark ? 'rgba(68,114,212,0.18)' : 'rgba(42,84,153,0.14)'}`,
+            border: `1px solid ${isDark ? 'rgba(var(--accent-soft-rgb),0.18)' : 'rgba(var(--accent-rgb),0.14)'}`,
             opacity: (canHover && hovNode) ? 1 : 0,
             transform: (canHover && hovNode) ? 'translateY(0)' : 'translateY(4px)',
             transition: 'opacity 0.22s ease, transform 0.22s ease',
@@ -1068,7 +982,7 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
         >
           {hovNode && (<>
             <span className="text-[10px] font-mono font-bold flex-shrink-0 mt-0.5 px-2 py-1 rounded-md"
-              style={{ background: isDark ? 'rgba(68,114,212,0.25)' : 'rgba(68,114,212,0.12)', color: isDark ? '#7ab0ff' : '#2a56c4' }}>
+              style={{ background: isDark ? 'rgba(var(--accent-soft-rgb),0.25)' : 'rgba(var(--accent-soft-rgb),0.12)', color: isDark ? '#7ab0ff' : '#2a56c4' }}>
               {hovNode.metric}
             </span>
             <p className="text-[12px] leading-relaxed" style={{ color: isDark ? 'rgba(200,220,255,0.78)' : 'rgba(15,40,90,0.72)' }}>
@@ -1081,7 +995,7 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
       {/* ── Mobile relationship summary — 3 key edges, sm:hidden ── */}
       <div
         className="mt-4 pt-3.5 sm:hidden space-y-2"
-        style={{ borderTop: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(26,60,110,0.10)'}` }}
+        style={{ borderTop: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(var(--accent-rgb),0.10)'}` }}
       >
         {([ASSEMBLY_EDGES[2], ASSEMBLY_EDGES[0], ASSEMBLY_EDGES[4]] as typeof ASSEMBLY_EDGES[number][]).map((edge, i) => {
           const from = ASSEMBLY_NODES.find(n => n.id === edge.from)!;
@@ -1090,11 +1004,11 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
             <div key={i} className="flex items-center gap-2 text-left">
               <span
                 className="text-[9px] font-semibold px-1.5 py-0.5 rounded flex-shrink-0"
-                style={{ background: isDark ? 'rgba(68,114,212,0.15)' : 'rgba(68,114,212,0.08)', color: isDark ? '#7ab0ff' : '#1a3c8e' }}
+                style={{ background: isDark ? 'rgba(var(--accent-soft-rgb),0.15)' : 'rgba(var(--accent-soft-rgb),0.08)', color: isDark ? '#7ab0ff' : '#1a3c8e' }}
               >
                 {de ? from.labelDe : from.labelEn}
               </span>
-              <span className="text-[8px]" style={{ color: isDark ? 'rgba(255,255,255,0.25)' : 'rgba(26,60,110,0.35)' }}>→</span>
+              <span className="text-[8px]" style={{ color: isDark ? 'rgba(255,255,255,0.25)' : 'rgba(var(--accent-rgb),0.35)' }}>→</span>
               <span
                 className="text-[8px] font-mono flex-1 truncate"
                 style={{ color: isDark ? 'rgba(160,195,248,0.55)' : 'rgba(30,68,158,0.52)' }}
@@ -1103,7 +1017,7 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
               </span>
               <span
                 className="text-[9px] font-semibold px-1.5 py-0.5 rounded flex-shrink-0"
-                style={{ background: isDark ? 'rgba(68,114,212,0.25)' : 'rgba(68,114,212,0.12)', color: isDark ? '#88c0ff' : '#1535a0' }}
+                style={{ background: isDark ? 'rgba(var(--accent-soft-rgb),0.25)' : 'rgba(var(--accent-soft-rgb),0.12)', color: isDark ? '#88c0ff' : '#1535a0' }}
               >
                 {de ? to.labelDe : to.labelEn}
               </span>
@@ -1131,9 +1045,9 @@ function SynthesisReveal({ de, isDark }: { de: boolean; isDark: boolean }) {
   }, []);
   const divClr = isDark ? 'rgba(255,255,255,0.08)' : 'var(--bd)';
   return (
-    <div ref={ref} className="rounded-2xl p-8 sm:p-10" style={{ background: isDark ? 'rgba(26,60,110,0.14)' : 'rgba(26,60,110,0.06)', border: `1px solid ${isDark ? 'rgba(68,114,212,0.22)' : 'rgba(26,60,110,0.18)'}`, opacity: 0 }}>
+    <div ref={ref} className="rounded-2xl p-8 sm:p-10" style={{ background: isDark ? 'rgba(var(--accent-rgb),0.14)' : 'rgba(var(--accent-rgb),0.06)', border: `1px solid ${isDark ? 'rgba(var(--accent-soft-rgb),0.22)' : 'rgba(var(--accent-rgb),0.18)'}`, opacity: 0 }}>
       <div className="text-center mb-8">
-        <p className="text-[9px] uppercase tracking-[0.28em] mb-2" style={{ color: '#4472D4' }}>
+        <p className="text-[9px] uppercase tracking-[0.28em] mb-2" style={{ color: 'var(--accent-soft)' }}>
           {de ? 'Das vollständige System' : 'The complete system'}
         </p>
         <h2 className="font-serif-display text-[1.6rem] sm:text-[2rem] font-bold leading-tight text-wx-tx1 mb-3">
@@ -1149,8 +1063,8 @@ function SynthesisReveal({ de, isDark }: { de: boolean; isDark: boolean }) {
       <div className="mt-6 pt-5 flex flex-wrap items-center justify-center gap-6" style={{ borderTop: `1px solid ${divClr}` }}>
         {ASSEMBLY_EDGES.map((edge, i) => (
           <div key={i} className="flex items-center gap-1.5">
-            <div className="w-4 h-px" style={{ background: '#4472D4', opacity: 0.6 }} />
-            <span className="text-[9px] font-mono" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'rgba(26,60,110,0.55)' }}>
+            <div className="w-4 h-px" style={{ background: 'var(--accent-soft)', opacity: 0.6 }} />
+            <span className="text-[9px] font-mono" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'rgba(var(--accent-rgb),0.55)' }}>
               {de ? edge.labelDe : edge.labelEn}
             </span>
           </div>
@@ -1238,15 +1152,15 @@ function FailureTimeline({ de, isDark }: { de: boolean; isDark: boolean }) {
   const cardBg   = isDark ? 'rgba(255,255,255,0.03)' : 'var(--sf3)';
   const cardBd   = isDark ? 'rgba(255,255,255,0.08)' : 'var(--bd2)';
   const failClr  = isDark ? 'rgba(255,255,255,0.50)' : 'var(--txm)';
-  const fixClr   = isDark ? 'rgba(100,140,220,0.80)' : '#2A5499';
-  const dotFail  = isDark ? 'rgba(255,255,255,0.18)' : 'rgba(26,60,110,0.25)';
-  const lineClr  = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(26,60,110,0.12)';
+  const fixClr   = isDark ? 'rgba(100,140,220,0.80)' : 'var(--accent)';
+  const dotFail  = isDark ? 'rgba(255,255,255,0.18)' : 'rgba(var(--accent-rgb),0.25)';
+  const lineClr  = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(var(--accent-rgb),0.12)';
 
   return (
     <div ref={ref} className="w-full">
       <div className="flex items-center gap-3 mb-6 pl-4 relative">
         <div className="absolute left-0 top-0 bottom-0 w-[3px] rounded-full"
-          style={{ background: 'linear-gradient(to bottom, #2A5499, rgba(68,114,212,0.2))' }} />
+          style={{ background: 'linear-gradient(to bottom, var(--accent), rgba(var(--accent-soft-rgb),0.2))' }} />
         <p className="text-[10px] uppercase tracking-[0.28em]" style={{ color: isDark ? 'rgba(255,255,255,0.35)' : 'var(--txff)' }}>
           {de ? 'Entwicklungsiterationen — nur dokumentierte Fakten' : 'Development iterations — documented facts only'}
         </p>
@@ -1261,18 +1175,18 @@ function FailureTimeline({ de, isDark }: { de: boolean; isDark: boolean }) {
             <div
               className="ft-dot w-[18px] h-[18px] rounded-full flex-shrink-0 z-10 flex items-center justify-center mb-3"
               style={{
-                background: f.isCurrent ? '#2A5499' : dotFail,
-                border: `2px solid ${f.isCurrent ? '#4472D4' : (isDark ? 'rgba(255,255,255,0.15)' : 'rgba(26,60,110,0.20)')}`,
-                boxShadow: f.isCurrent ? '0 0 10px rgba(68,114,212,0.5)' : 'none',
+                background: f.isCurrent ? 'var(--accent)' : dotFail,
+                border: `2px solid ${f.isCurrent ? 'var(--accent-soft)' : (isDark ? 'rgba(255,255,255,0.15)' : 'rgba(var(--accent-rgb),0.20)')}`,
+                boxShadow: f.isCurrent ? '0 0 10px rgba(var(--accent-soft-rgb),0.5)' : 'none',
               }}
             />
             {/* Card */}
             <div className="w-full rounded-xl p-3" style={{
-              background: f.isCurrent ? (isDark ? 'rgba(26,60,110,0.20)' : 'rgba(26,60,110,0.07)') : cardBg,
-              border: `1px solid ${f.isCurrent ? 'rgba(68,114,212,0.30)' : cardBd}`,
-              boxShadow: f.isCurrent ? '0 0 0 2px rgba(68,114,212,0.35), 0 4px 20px rgba(26,60,110,0.15)' : 'none',
+              background: f.isCurrent ? (isDark ? 'rgba(var(--accent-rgb),0.20)' : 'rgba(var(--accent-rgb),0.07)') : cardBg,
+              border: `1px solid ${f.isCurrent ? 'rgba(var(--accent-soft-rgb),0.30)' : cardBd}`,
+              boxShadow: f.isCurrent ? '0 0 0 2px rgba(var(--accent-soft-rgb),0.35), 0 4px 20px rgba(var(--accent-rgb),0.15)' : 'none',
             }}>
-              <p className="text-[9px] font-mono font-bold uppercase tracking-wide mb-1.5" style={{ color: f.isCurrent ? '#4472D4' : (isDark ? 'rgba(255,255,255,0.35)' : 'var(--txff)') }}>
+              <p className="text-[9px] font-mono font-bold uppercase tracking-wide mb-1.5" style={{ color: f.isCurrent ? 'var(--accent-soft)' : (isDark ? 'rgba(255,255,255,0.35)' : 'var(--txff)') }}>
                 {de ? f.vDe : f.vEn}
               </p>
               <p className="text-[10px] leading-snug mb-2" style={{ color: failClr }}>
@@ -1290,11 +1204,11 @@ function FailureTimeline({ de, isDark }: { de: boolean; isDark: boolean }) {
         {FAILURES.map((f, i) => (
           <div key={i} className="ft-item flex gap-3 opacity-0">
             <div className="flex flex-col items-center flex-shrink-0 pt-1">
-              <div className="ft-dot w-3 h-3 rounded-full" style={{ background: f.isCurrent ? '#2A5499' : dotFail, border: `1.5px solid ${f.isCurrent ? '#4472D4' : (isDark ? 'rgba(255,255,255,0.15)' : 'rgba(26,60,110,0.20)')}` }} />
+              <div className="ft-dot w-3 h-3 rounded-full" style={{ background: f.isCurrent ? 'var(--accent)' : dotFail, border: `1.5px solid ${f.isCurrent ? 'var(--accent-soft)' : (isDark ? 'rgba(255,255,255,0.15)' : 'rgba(var(--accent-rgb),0.20)')}` }} />
               {i < FAILURES.length - 1 && <div className="ft-vline w-px flex-1 mt-1" style={{ background: lineClr, minHeight: '20px' }} />}
             </div>
             <div className="pb-2">
-              <p className="text-[9px] font-mono font-bold uppercase tracking-wide mb-1" style={{ color: f.isCurrent ? '#4472D4' : (isDark ? 'rgba(255,255,255,0.35)' : 'var(--txff)') }}>
+              <p className="text-[9px] font-mono font-bold uppercase tracking-wide mb-1" style={{ color: f.isCurrent ? 'var(--accent-soft)' : (isDark ? 'rgba(255,255,255,0.35)' : 'var(--txff)') }}>
                 {de ? f.vDe : f.vEn}
               </p>
               <p className="text-[11px] leading-snug mb-1" style={{ color: failClr }}>{de ? f.failDe : f.failEn}</p>
@@ -1336,24 +1250,24 @@ function HexMoS2({ de }: { de: boolean }) {
     ]);
 
   const { theme } = useTheme();
-  const isDark = theme === 'dark' || theme === 'noir';
+  const isDark = theme === 'noir';
   const vizCard = isDark ? VIZ_CARD : VIZ_CARD_LIGHT;
   const dotGrid = isDark ? DARK_DOT_GRID : LIGHT_DOT_GRID;
 
-  const txMid  = isDark ? 'rgba(255,255,255,0.38)' : 'rgba(26,60,110,0.60)';
-  const txLow  = isDark ? 'rgba(255,255,255,0.25)' : 'rgba(26,60,110,0.40)';
-  const txMono = isDark ? 'rgba(255,255,255,0.45)' : 'rgba(26,60,110,0.65)';
-  const sLabel = isDark ? 'rgba(168,192,244,0.55)'  : 'rgba(68,114,212,0.70)';
-  const moLabel= isDark ? 'rgba(130,170,240,0.80)'  : 'rgba(26,60,110,0.90)';
-  const vdwClr = isDark ? 'rgba(100,140,220,0.28)'  : 'rgba(68,114,212,0.45)';
-  const vdwTxt = isDark ? 'rgba(168,192,244,0.45)'  : 'rgba(68,114,212,0.60)';
-  const hovClr = isDark ? 'rgba(100,140,220,0.60)'  : 'rgba(26,60,110,0.65)';
-  const divClr = isDark ? 'rgba(255,255,255,0.08)'  : 'rgba(26,60,110,0.12)';
-  const txSub  = isDark ? 'rgba(255,255,255,0.35)'  : 'rgba(26,60,110,0.55)';
+  const txMid  = isDark ? 'rgba(255,255,255,0.38)' : 'rgba(var(--accent-rgb),0.60)';
+  const txLow  = isDark ? 'rgba(255,255,255,0.25)' : 'rgba(var(--accent-rgb),0.40)';
+  const txMono = isDark ? 'rgba(255,255,255,0.45)' : 'rgba(var(--accent-rgb),0.65)';
+  const sLabel = isDark ? 'rgba(168,192,244,0.55)'  : 'rgba(var(--accent-soft-rgb),0.70)';
+  const moLabel= isDark ? 'rgba(130,170,240,0.80)'  : 'rgba(var(--accent-rgb),0.90)';
+  const vdwClr = isDark ? 'rgba(100,140,220,0.28)'  : 'rgba(var(--accent-soft-rgb),0.45)';
+  const vdwTxt = isDark ? 'rgba(168,192,244,0.45)'  : 'rgba(var(--accent-soft-rgb),0.60)';
+  const hovClr = isDark ? 'rgba(100,140,220,0.60)'  : 'rgba(var(--accent-rgb),0.65)';
+  const divClr = isDark ? 'rgba(255,255,255,0.08)'  : 'rgba(var(--accent-rgb),0.12)';
+  const txSub  = isDark ? 'rgba(255,255,255,0.35)'  : 'rgba(var(--accent-rgb),0.55)';
 
   return (
     <div className="w-full rounded-2xl overflow-hidden p-5 cursor-default select-none"
-      style={{ ...vizCard, ...dotGrid, transition: 'box-shadow 0.35s ease', boxShadow: hov ? '0 0 0 1px rgba(68,114,212,0.4), 0 8px 32px rgba(26,60,110,0.3)' : 'none', cursor: isTouch ? 'pointer' : undefined }}
+      style={{ ...vizCard, ...dotGrid, transition: 'box-shadow 0.35s ease', boxShadow: hov ? '0 0 0 1px rgba(var(--accent-soft-rgb),0.4), 0 8px 32px rgba(var(--accent-rgb),0.3)' : 'none', cursor: isTouch ? 'pointer' : undefined }}
       onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
       onClick={() => {
         if (!isTouch) return;
@@ -1370,11 +1284,11 @@ function HexMoS2({ de }: { de: boolean }) {
       <svg viewBox="0 0 395 155" className="w-full" style={{ overflow: 'visible' }}>
         <g ref={topRef}>
           {bonds(TOP_MO, TOP_S1, TOP_S2).map((b, i) => (
-            <line key={i} x1={b.x1} y1={b.y1} x2={b.x2} y2={b.y2} stroke={isDark ? 'rgba(42,84,153,0.22)' : 'rgba(42,84,153,0.35)'} strokeWidth="1.2" />
+            <line key={i} x1={b.x1} y1={b.y1} x2={b.x2} y2={b.y2} stroke={isDark ? 'rgba(var(--accent-rgb),0.22)' : 'rgba(var(--accent-rgb),0.35)'} strokeWidth="1.2" />
           ))}
-          {S_X.map((x, i) => <circle key={`ts1${i}`} cx={x} cy={TOP_S1} r="5" fill="#A8C0F4" opacity="0.92" />)}
-          {MO_X.map((x, i) => <circle key={`tmo${i}`} cx={x} cy={TOP_MO} r="7.5" fill="#2A5499" style={{ filter: 'drop-shadow(0 0 5px rgba(68,114,212,0.60))' }} />)}
-          {S_X.map((x, i) => <circle key={`ts2${i}`} cx={x} cy={TOP_S2} r="5" fill="#A8C0F4" opacity="0.92" />)}
+          {S_X.map((x, i) => <circle key={`ts1${i}`} cx={x} cy={TOP_S1} r="5" fill="var(--accent-soft)" opacity="0.92" />)}
+          {MO_X.map((x, i) => <circle key={`tmo${i}`} cx={x} cy={TOP_MO} r="7.5" fill="var(--accent)" style={{ filter: 'drop-shadow(0 0 5px rgba(var(--accent-soft-rgb),0.60))' }} />)}
+          {S_X.map((x, i) => <circle key={`ts2${i}`} cx={x} cy={TOP_S2} r="5" fill="var(--accent-soft)" opacity="0.92" />)}
         </g>
         {/* Van der Waals gap */}
         <g>
@@ -1382,7 +1296,7 @@ function HexMoS2({ de }: { de: boolean }) {
           {isTouch && !hov && (
             <rect
               x="8" y={GAP_Y - 4} width="302" height="8" rx="2"
-              fill={isDark ? 'rgba(68,114,212,0.12)' : 'rgba(68,114,212,0.08)'}
+              fill={isDark ? 'rgba(var(--accent-soft-rgb),0.12)' : 'rgba(var(--accent-soft-rgb),0.08)'}
               style={{ animation: 'pulse-gap 2s ease-in-out infinite' }}
             />
           )}
@@ -1390,11 +1304,11 @@ function HexMoS2({ de }: { de: boolean }) {
         </g>
         <g ref={botRef}>
           {bonds(BOT_MO, BOT_S1, BOT_S2).map((b, i) => (
-            <line key={i} x1={b.x1} y1={b.y1} x2={b.x2} y2={b.y2} stroke={isDark ? 'rgba(42,84,153,0.22)' : 'rgba(42,84,153,0.35)'} strokeWidth="1.2" />
+            <line key={i} x1={b.x1} y1={b.y1} x2={b.x2} y2={b.y2} stroke={isDark ? 'rgba(var(--accent-rgb),0.22)' : 'rgba(var(--accent-rgb),0.35)'} strokeWidth="1.2" />
           ))}
-          {S_X.map((x, i) => <circle key={`bs1${i}`} cx={x} cy={BOT_S1} r="5" fill="#A8C0F4" opacity="0.92" />)}
-          {MO_X.map((x, i) => <circle key={`bmo${i}`} cx={x} cy={BOT_MO} r="7.5" fill="#1A3C6E" style={{ filter: 'drop-shadow(0 0 5px rgba(26,60,110,0.55))' }} />)}
-          {S_X.map((x, i) => <circle key={`bs2${i}`} cx={x} cy={BOT_S2} r="5" fill="#A8C0F4" opacity="0.92" />)}
+          {S_X.map((x, i) => <circle key={`bs1${i}`} cx={x} cy={BOT_S1} r="5" fill="var(--accent-soft)" opacity="0.92" />)}
+          {MO_X.map((x, i) => <circle key={`bmo${i}`} cx={x} cy={BOT_MO} r="7.5" fill="var(--accent)" style={{ filter: 'drop-shadow(0 0 5px rgba(var(--accent-rgb),0.55))' }} />)}
+          {S_X.map((x, i) => <circle key={`bs2${i}`} cx={x} cy={BOT_S2} r="5" fill="var(--accent-soft)" opacity="0.92" />)}
         </g>
         {/* Single-side labels only */}
         <text x="10" y={TOP_S1 + 4}  fontSize="8.5" fill={sLabel}  fontFamily="monospace">S</text>
@@ -1413,11 +1327,11 @@ function HexMoS2({ de }: { de: boolean }) {
       <div className="flex items-center justify-between mt-3 pt-3" style={{ borderTop: `1px solid ${divClr}` }}>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-full" style={{ background: '#A8C0F4' }} />
+            <div className="w-3 h-3 rounded-full" style={{ background: 'var(--accent-soft)' }} />
             <span className="text-[9px] font-mono" style={{ color: txMono }}>S</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-4 h-4 rounded-full" style={{ background: '#2A5499', boxShadow: '0 0 4px rgba(68,114,212,0.5)' }} />
+            <div className="w-4 h-4 rounded-full" style={{ background: 'var(--accent)', boxShadow: '0 0 4px rgba(var(--accent-soft-rgb),0.5)' }} />
             <span className="text-[9px] font-mono" style={{ color: txMono }}>Mo</span>
           </div>
           <span className="text-[9px]" style={{ color: txLow }}>
@@ -1427,7 +1341,7 @@ function HexMoS2({ de }: { de: boolean }) {
           </span>
         </div>
         <div className="text-right">
-          <p className="font-serif-display italic text-[20px] font-bold leading-none" style={{ color: '#6A8AE8', textShadow: '0 0 16px rgba(68,114,212,0.55)' }}>μ 0.03</p>
+          <p className="font-serif-display italic text-[20px] font-bold leading-none" style={{ color: '#6A8AE8', textShadow: '0 0 16px rgba(var(--accent-soft-rgb),0.55)' }}>μ 0.03</p>
           <p className="text-[9px] mt-0.5" style={{ color: txSub }}>{de ? 'Grenzschmierung' : 'Boundary lubrication'}</p>
         </div>
       </div>
@@ -1490,15 +1404,15 @@ function TransferFilm({ de }: { de: boolean }) {
   }, []);
 
   const { theme } = useTheme();
-  const isDark = theme === 'dark' || theme === 'noir';
+  const isDark = theme === 'noir';
   const vizCard = isDark ? VIZ_CARD : VIZ_CARD_LIGHT;
   const dotGrid = isDark ? DARK_DOT_GRID : LIGHT_DOT_GRID;
 
-  const txMid   = isDark ? 'rgba(255,255,255,0.38)' : 'rgba(26,60,110,0.60)';
-  const txVal   = isDark ? 'rgba(255,255,255,0.85)' : 'rgba(15,30,70,0.85)';
-  const txSub   = isDark ? 'rgba(255,255,255,0.38)' : 'rgba(26,60,110,0.55)';
-  const divClr  = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(26,60,110,0.12)';
-  const sLabelC = isDark ? 'rgba(255,255,255,0.28)' : 'rgba(26,60,110,0.50)';
+  const txMid   = isDark ? 'rgba(255,255,255,0.38)' : 'rgba(var(--accent-rgb),0.60)';
+  const txVal   = isDark ? 'rgba(255,255,255,0.85)' : 'rgba(var(--accent-strong-rgb),0.85)';
+  const txSub   = isDark ? 'rgba(255,255,255,0.38)' : 'rgba(var(--accent-rgb),0.55)';
+  const divClr  = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(var(--accent-rgb),0.12)';
+  const sLabelC = isDark ? 'rgba(255,255,255,0.28)' : 'rgba(var(--accent-rgb),0.50)';
   const steelT0 = isDark ? '#2a2a38' : '#c4cedf';
   const steelT1 = isDark ? '#1c1c28' : '#b0bcce';
   const steelB0 = isDark ? '#1c1c28' : '#b0bcce';
@@ -1506,7 +1420,7 @@ function TransferFilm({ de }: { de: boolean }) {
 
   return (
     <div ref={ref} className="w-full rounded-2xl overflow-hidden p-5"
-      style={{ ...vizCard, ...dotGrid, position: 'relative', transition: 'box-shadow 0.35s ease', boxShadow: hov ? '0 0 0 1px rgba(68,114,212,0.4), 0 8px 32px rgba(26,60,110,0.30)' : 'none' }}
+      style={{ ...vizCard, ...dotGrid, position: 'relative', transition: 'box-shadow 0.35s ease', boxShadow: hov ? '0 0 0 1px rgba(var(--accent-soft-rgb),0.4), 0 8px 32px rgba(var(--accent-rgb),0.30)' : 'none' }}
       onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}>
       <p className="text-[10px] uppercase tracking-[0.2em] mb-3 text-center" style={{ color: txMid }}>
         {de ? 'Transferfilm unter Kontaktdruck' : 'Transfer film under contact pressure'}
@@ -1529,11 +1443,11 @@ function TransferFilm({ de }: { de: boolean }) {
         <text x="6" y="15"  fontSize="8" fill={sLabelC} fontFamily="monospace">{de ? 'Stahl' : 'Steel'}</text>
         <text x="6" y="167" fontSize="8" fill={sLabelC} fontFamily="monospace">{de ? 'Stahl' : 'Steel'}</text>
         {/* Transfer film deposits */}
-        <rect className="tf-film" x="0" y="22"  width="440" height="5" fill="#1A3C6E" opacity="0" rx="1" />
-        <rect className="tf-film" x="0" y="148" width="440" height="5" fill="#1A3C6E" opacity="0" rx="1" />
+        <rect className="tf-film" x="0" y="22"  width="440" height="5" fill="var(--accent)" opacity="0" rx="1" />
+        <rect className="tf-film" x="0" y="148" width="440" height="5" fill="var(--accent)" opacity="0" rx="1" />
         {/* MoS₂ particles */}
         {TF_PARTICLES.map((p, i) => (
-          <circle key={i} className="tf-p" cx={p.x} cy={p.y} r={p.r} fill="#2A5499" opacity="0.85" />
+          <circle key={i} className="tf-p" cx={p.x} cy={p.y} r={p.r} fill="var(--accent)" opacity="0.85" />
         ))}
         {/* Film label — appears after animation */}
         <text className="tf-label" x="220" y="38" textAnchor="middle" fontSize="8.5" fill="rgba(106,138,232,0.9)" fontFamily="monospace" letterSpacing="1" opacity="0">
@@ -1558,8 +1472,8 @@ function TransferFilm({ de }: { de: boolean }) {
           aria-label="Replay animation"
           className="absolute top-3 right-3 p-1.5 rounded-full transition-opacity hover:opacity-70"
           style={{
-            background: isDark ? 'rgba(68,114,212,0.18)' : 'rgba(68,114,212,0.10)',
-            border: `1px solid ${isDark ? 'rgba(68,114,212,0.30)' : 'rgba(68,114,212,0.20)'}`,
+            background: isDark ? 'rgba(var(--accent-soft-rgb),0.18)' : 'rgba(var(--accent-soft-rgb),0.10)',
+            border: `1px solid ${isDark ? 'rgba(var(--accent-soft-rgb),0.30)' : 'rgba(var(--accent-soft-rgb),0.20)'}`,
             color: isDark ? 'rgba(168,192,244,0.80)' : '#2a56c4',
           }}
         >
@@ -1575,24 +1489,24 @@ function TransferFilm({ de }: { de: boolean }) {
 function CrystalLattice({ de }: { de: boolean }) {
   const svgRef = useRef<SVGSVGElement>(null);
   const { theme } = useTheme();
-  const isDark = theme === 'dark' || theme === 'noir';
+  const isDark = theme === 'noir';
   const vizCard = isDark ? VIZ_CARD : VIZ_CARD_LIGHT;
   const dotGrid = isDark ? DARK_DOT_GRID : LIGHT_DOT_GRID;
 
-  const txMid  = isDark ? 'rgba(255,255,255,0.38)' : 'rgba(26,60,110,0.60)';
-  const divClr = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(26,60,110,0.12)';
-  const vdwClr = isDark ? 'rgba(100,140,220,0.32)' : 'rgba(68,114,212,0.50)';
-  const vdwTxt = isDark ? 'rgba(100,140,220,0.45)' : 'rgba(68,114,212,0.65)';
-  const bktClr = isDark ? 'rgba(100,140,220,0.45)' : 'rgba(68,114,212,0.65)';
-  const bktTxt = isDark ? 'rgba(100,140,220,0.50)' : 'rgba(26,60,110,0.70)';
-  const bandA  = isDark ? 'rgba(26,60,110,0.14)'   : 'rgba(68,114,212,0.10)';
-  const bandB  = isDark ? 'rgba(26,60,110,0.07)'   : 'rgba(68,114,212,0.05)';
+  const txMid  = isDark ? 'rgba(255,255,255,0.38)' : 'rgba(var(--accent-rgb),0.60)';
+  const divClr = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(var(--accent-rgb),0.12)';
+  const vdwClr = isDark ? 'rgba(100,140,220,0.32)' : 'rgba(var(--accent-soft-rgb),0.50)';
+  const vdwTxt = isDark ? 'rgba(100,140,220,0.45)' : 'rgba(var(--accent-soft-rgb),0.65)';
+  const bktClr = isDark ? 'rgba(100,140,220,0.45)' : 'rgba(var(--accent-soft-rgb),0.65)';
+  const bktTxt = isDark ? 'rgba(100,140,220,0.50)' : 'rgba(var(--accent-rgb),0.70)';
+  const bandA  = isDark ? 'rgba(var(--accent-rgb),0.14)'   : 'rgba(var(--accent-soft-rgb),0.10)';
+  const bandB  = isDark ? 'rgba(var(--accent-rgb),0.07)'   : 'rgba(var(--accent-soft-rgb),0.05)';
 
   // LEFT panel — 3 crystal layers, 7 aligned chain rods
   const LAYERS = [
-    { yCenter: 36,  color: '#4472D4' },
-    { yCenter: 96,  color: '#3D67CA' },
-    { yCenter: 156, color: '#4472D4' },
+    { yCenter: 36,  color: 'var(--accent-soft)' },
+    { yCenter: 96,  color: 'var(--accent-soft)' },
+    { yCenter: 156, color: 'var(--accent-soft)' },
   ];
   const CHAIN_W = 46, CHAIN_H = 9, CHAIN_GAP = 7;
   const CHAINS = 7;
@@ -1605,7 +1519,7 @@ function CrystalLattice({ de }: { de: boolean }) {
   const CHAINS_R = 7;
   const CHAIN_H_R = [8, 10, 7, 11, 8, 9, 10];
   const RIGHT_LAYERS_Y = [34, 98, 152];
-  const RIGHT_COLOR = 'rgba(68,114,212,0.38)';
+  const RIGHT_COLOR = 'rgba(var(--accent-soft-rgb),0.38)';
   const totalRightWidth = RIGHT_WIDTHS.reduce((s, w) => s + w, 0) + RIGHT_GAPS.slice(0, CHAINS_R - 1).reduce((s, g) => s + g, 0);
   const startXR = 420 + (400 - totalRightWidth) / 2;
 
@@ -1649,7 +1563,7 @@ function CrystalLattice({ de }: { de: boolean }) {
     rx += RIGHT_WIDTHS[ci] + (ci < CHAINS_R - 1 ? RIGHT_GAPS[ci] : 0);
   }
 
-  const dividerClr = isDark ? 'rgba(255,255,255,0.10)' : 'rgba(26,60,110,0.12)';
+  const dividerClr = isDark ? 'rgba(255,255,255,0.10)' : 'rgba(var(--accent-rgb),0.12)';
 
   return (
     <div className="w-full rounded-2xl overflow-hidden p-5" style={{ ...vizCard, ...dotGrid }}>
@@ -1685,7 +1599,7 @@ function CrystalLattice({ de }: { de: boolean }) {
                 rx="4.5"
                 fill={l.color}
                 opacity={0.70 + (ci % 3) * 0.09}
-                style={{ filter: isDark ? 'drop-shadow(0 0 4px rgba(68,114,212,0.55))' : 'drop-shadow(0 2px 6px rgba(68,114,212,0.30))' }}
+                style={{ filter: isDark ? 'drop-shadow(0 0 4px rgba(var(--accent-soft-rgb),0.55))' : 'drop-shadow(0 2px 6px rgba(var(--accent-soft-rgb),0.30))' }}
               />
             );
           })
@@ -1702,7 +1616,7 @@ function CrystalLattice({ de }: { de: boolean }) {
         <g transform="translate(410,105) rotate(-90)">
           <text x="0" y="0" textAnchor="middle" dominantBaseline="middle"
             fontSize="7.5" fontFamily="monospace"
-            fill={isDark ? 'rgba(255,255,255,0.28)' : 'rgba(26,60,110,0.35)'}>
+            fill={isDark ? 'rgba(255,255,255,0.28)' : 'rgba(var(--accent-rgb),0.35)'}>
             vs
           </text>
         </g>
@@ -1739,13 +1653,13 @@ function CrystalLattice({ de }: { de: boolean }) {
       </svg>
       <div className="flex items-center justify-center gap-4 mt-3 pt-3" style={{ borderTop: `1px solid ${divClr}` }}>
         <div className="flex items-center gap-2">
-          <div className="w-7 h-2.5 rounded-full" style={{ background: '#4472D4', opacity: 0.75 }} />
+          <div className="w-7 h-2.5 rounded-full" style={{ background: 'var(--accent-soft)', opacity: 0.75 }} />
           <span className="text-[9px] font-mono" style={{ color: txMid }}>
             {de ? 'Waxcelerate (geordnet)' : 'Waxcelerate (ordered)'}
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-7 h-2.5 rounded-full" style={{ background: 'rgba(68,114,212,0.38)' }} />
+          <div className="w-7 h-2.5 rounded-full" style={{ background: 'rgba(var(--accent-soft-rgb),0.38)' }} />
           <span className="text-[9px] font-mono" style={{ color: txMid }}>
             {de ? 'Generisches Paraffin' : 'Generic paraffin'}
           </span>
@@ -1759,8 +1673,8 @@ function CrystalLattice({ de }: { de: boolean }) {
 function TempRange({ de }: { de: boolean }) {
   const items = [
     { labelDe: 'Unmodifiziertes Paraffin', labelEn: 'Unmodified paraffin', lo: 58, hi: 62, color: 'var(--bd)' },
-    { labelDe: 'Waxcelerate Classic',      labelEn: 'Waxcelerate Classic', lo: 60, hi: 76, color: '#1A3C6E' },
-    { labelDe: 'Waxcelerate Pro',          labelEn: 'Waxcelerate Pro',     lo: 60, hi: 79, color: '#2A5499' },
+    { labelDe: 'Waxcelerate Classic',      labelEn: 'Waxcelerate Classic', lo: 60, hi: 76, color: 'var(--accent)' },
+    { labelDe: 'Waxcelerate Pro',          labelEn: 'Waxcelerate Pro',     lo: 60, hi: 79, color: 'var(--accent)' },
   ];
   const min = 55, max = 85;
   const toX = (v: number) => ((v - min) / (max - min)) * 100;
@@ -1840,15 +1754,15 @@ function ParticleSuspension({ de }: { de: boolean }) {
         <div ref={wRef} className="flex flex-col items-center">
           <div className="relative w-full rounded-xl overflow-hidden" style={{ height: '148px', background: 'var(--bd2)', border: '1px solid var(--bd)' }}>
             {/* Center-of-mass reference line */}
-            <div className="absolute inset-x-2" style={{ top: '50%', height: '1px', background: 'rgba(26,60,110,0.08)' }} />
+            <div className="absolute inset-x-2" style={{ top: '50%', height: '1px', background: 'rgba(var(--accent-rgb),0.08)' }} />
             <div className="absolute inset-x-0 top-2 flex flex-wrap gap-2 px-3 justify-center">
               {[...Array(7)].map((_, i) => (
-                <div key={i} className="sp-float w-3.5 h-3.5 rounded-full flex-shrink-0" style={{ background: '#2A5499', opacity: 0.8 }} />
+                <div key={i} className="sp-float w-3.5 h-3.5 rounded-full flex-shrink-0" style={{ background: 'var(--accent)', opacity: 0.8 }} />
               ))}
             </div>
-            <div className="absolute inset-x-0 bottom-0 px-2 pt-1.5 pb-1 rounded-b" style={{ background: 'rgba(26,60,110,0.30)' }}>
+            <div className="absolute inset-x-0 bottom-0 px-2 pt-1.5 pb-1 rounded-b" style={{ background: 'rgba(var(--accent-rgb),0.30)' }}>
               <div className="flex flex-wrap gap-1.5 justify-center">
-                {[...Array(18)].map((_, i) => <div key={i} className="w-3 h-3 rounded-full" style={{ background: '#1A3C6E' }} />)}
+                {[...Array(18)].map((_, i) => <div key={i} className="w-3 h-3 rounded-full" style={{ background: 'var(--accent)' }} />)}
               </div>
             </div>
           </div>
@@ -1858,10 +1772,10 @@ function ParticleSuspension({ de }: { de: boolean }) {
         <div ref={mRef} className="flex flex-col items-center">
           <div className="relative w-full rounded-xl overflow-hidden" style={{ height: '148px', background: 'var(--bd2)', border: '1px solid var(--bd)' }}>
             {/* Center-of-mass reference line */}
-            <div className="absolute inset-x-2" style={{ top: '50%', height: '1px', background: 'rgba(26,60,110,0.08)' }} />
+            <div className="absolute inset-x-2" style={{ top: '50%', height: '1px', background: 'rgba(var(--accent-rgb),0.08)' }} />
             <div className="absolute inset-0 flex flex-wrap gap-2 p-3 items-center justify-center">
               {[...Array(20)].map((_, i) => (
-                <div key={i} className="sp-stable w-3.5 h-3.5 rounded-full" style={{ background: '#2A5499', opacity: 0.9 }} />
+                <div key={i} className="sp-stable w-3.5 h-3.5 rounded-full" style={{ background: 'var(--accent)', opacity: 0.9 }} />
               ))}
             </div>
           </div>
@@ -1891,7 +1805,7 @@ const FRICTION_BARS = [
 function FrictionBars({ de }: { de: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   const { theme } = useTheme();
-  const isDark = theme === 'dark' || theme === 'noir';
+  const isDark = theme === 'noir';
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -1946,10 +1860,10 @@ function FrictionBars({ de }: { de: boolean }) {
               ? (isDark ? 'rgba(255,255,255,0.28)' : 'var(--txff)')
               : (isDark ? 'rgba(255,255,255,0.40)' : 'var(--txm)');
           const solidClr = b.best
-            ? (i === 0 ? '#1A3080' : '#1A3C6E')
+            ? (i === 0 ? '#1A3080' : 'var(--accent)')
             : (isDark ? (isDim ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.16)') : (isDim ? 'var(--bd2)' : 'var(--bd)'));
           const rangeClr = b.best
-            ? (i === 0 ? 'linear-gradient(90deg,#2A5499,#6A8AE8)' : 'linear-gradient(90deg,#2A5499,#4472D4)')
+            ? (i === 0 ? 'linear-gradient(90deg,var(--accent),#6A8AE8)' : 'linear-gradient(90deg,var(--accent),var(--accent-soft))')
             : (isDark ? (isDim ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.28)') : (isDim ? 'var(--bd)' : 'var(--txff)'));
           return (
             <div key={i}>
@@ -1957,7 +1871,7 @@ function FrictionBars({ de }: { de: boolean }) {
                 <span className="text-[12px] font-medium" style={{ color: labelClr }}>
                   {label}
                   {'tag' in b && (
-                    <span className="ml-1.5 text-[8px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded" style={{ background: 'linear-gradient(135deg,#1A3080,#2A5499)', color: 'rgba(255,255,255,0.9)' }}>
+                    <span className="ml-1.5 text-[8px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded" style={{ background: 'linear-gradient(135deg,#1A3080,var(--accent))', color: 'rgba(255,255,255,0.9)' }}>
                       {b.tag}
                     </span>
                   )}
@@ -2010,7 +1924,7 @@ function Insight({ children }: { children: React.ReactNode }) {
   }, []);
   return (
     <div ref={ref} className="relative pl-5 py-1">
-      <div ref={barRef} className="absolute left-0 top-0 bottom-0 w-[3px] rounded-full" style={{ background: 'linear-gradient(to bottom,#2A5499,#7A9AEC)', opacity: 0 }} />
+      <div ref={barRef} className="absolute left-0 top-0 bottom-0 w-[3px] rounded-full" style={{ background: 'linear-gradient(to bottom,var(--accent),#7A9AEC)', opacity: 0 }} />
       <p className="font-serif-display text-[15px] leading-[1.75] italic" style={{ color: 'var(--tx2)', opacity: 0 }}>
         {children}
       </p>
@@ -2071,12 +1985,12 @@ function Chapter({ num, anchorId, catDe, catEn, titleDe, titleEn, ledeDe, ledeEn
       <div className="flex items-center gap-3 mb-8">
         <span
           className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] px-2.5 py-1.5 rounded-md leading-none select-none flex-shrink-0"
-          style={{ background: 'rgba(26,60,110,0.1)', color: '#4472D4', border: '1px solid rgba(26,60,110,0.2)' }}
+          style={{ background: 'rgba(var(--accent-rgb),0.1)', color: 'var(--accent-soft)', border: '1px solid rgba(var(--accent-rgb),0.2)' }}
         >
           {num}
         </span>
-        <div className="h-px w-8 flex-shrink-0" style={{ background: 'rgba(26,60,110,0.2)' }} />
-        <p className="text-[11px] font-medium uppercase tracking-[0.24em]" style={{ color: '#4472D4' }}>
+        <div className="h-px w-8 flex-shrink-0" style={{ background: 'rgba(var(--accent-rgb),0.2)' }} />
+        <p className="text-[11px] font-medium uppercase tracking-[0.24em]" style={{ color: 'var(--accent-soft)' }}>
           {de ? catDe : catEn}
         </p>
       </div>
@@ -2102,10 +2016,10 @@ function Chapter({ num, anchorId, catDe, catEn, titleDe, titleEn, ledeDe, ledeEn
             onClick={() => setOpen(o => !o)}
             className="flex items-center gap-2 w-fit text-[10px] uppercase tracking-[0.22em] font-semibold transition-all duration-200 px-3.5 py-1.5 rounded-full"
             style={{
-              color: open ? 'var(--txm)' : '#4472D4',
-              background: open ? 'var(--sf2)' : 'rgba(26,60,110,0.08)',
+              color: open ? 'var(--txm)' : 'var(--accent-soft)',
+              background: open ? 'var(--sf2)' : 'rgba(var(--accent-rgb),0.08)',
               border: '1px solid',
-              borderColor: open ? 'var(--bd)' : 'rgba(26,60,110,0.2)',
+              borderColor: open ? 'var(--bd)' : 'rgba(var(--accent-rgb),0.2)',
             }}
           >
             <ChevronDown className="w-3 h-3 transition-transform duration-300" style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }} />
@@ -2133,7 +2047,7 @@ function Chapter({ num, anchorId, catDe, catEn, titleDe, titleEn, ledeDe, ledeEn
 export function SciencePage() {
   const { lang, toggleLang } = useLanguage();
   const { theme } = useTheme();
-  const isDark = theme === 'dark' || theme === 'noir';
+  const isDark = theme === 'noir';
   const de = lang === 'de';
   const [activeChapter, setActiveChapter] = useState(-1);
   const heroRef  = useRef<HTMLElement>(null);
@@ -2191,21 +2105,21 @@ export function SciencePage() {
           <span className="font-display text-[13px] font-semibold text-wx-tx1 tracking-wide transition-all duration-300">
             {activeChapter >= 0 && CHAPTER_MAP[activeChapter] ? (
               <>
-                <span className="font-mono text-[11px]" style={{ color: '#4472D4' }}>
+                <span className="font-mono text-[11px]" style={{ color: 'var(--accent-soft)' }}>
                   {CHAPTER_MAP[activeChapter].n}
                 </span>
-                <span style={{ color: '#4472D4' }}> · </span>
+                <span style={{ color: 'var(--accent-soft)' }}> · </span>
                 {de ? CHAPTER_MAP[activeChapter].de : CHAPTER_MAP[activeChapter].en}
               </>
             ) : (
-              <>Waxcelerate <span style={{ color: '#4472D4' }}>·</span> {de ? 'Wissenschaft' : 'Science'}</>
+              <>Waxcelerate <span style={{ color: 'var(--accent-soft)' }}>·</span> {de ? 'Wissenschaft' : 'Science'}</>
             )}
           </span>
           <button
             onClick={toggleLang}
             className="text-[11px] font-medium px-2.5 py-1 rounded-md border transition-all duration-200"
             style={{ color: 'var(--txm)', borderColor: 'var(--bd)', background: 'transparent' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#4472D4'; (e.currentTarget as HTMLButtonElement).style.color = '#4472D4'; }}
+            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--accent-soft)'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--accent-soft)'; }}
             onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--bd)'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--txm)'; }}
           >
             {lang === 'de' ? 'EN' : 'DE'}
@@ -2248,18 +2162,18 @@ export function SciencePage() {
           aria-hidden
           className="absolute inset-0 pointer-events-none"
           style={{ background: isDark
-            ? 'radial-gradient(ellipse 72% 58% at 50% 42%, rgba(26,60,110,0.16) 0%, transparent 65%)'
-            : 'radial-gradient(ellipse 72% 58% at 50% 42%, rgba(26,60,110,0.05) 0%, transparent 65%)' }}
+            ? 'radial-gradient(ellipse 72% 58% at 50% 42%, rgba(var(--accent-rgb),0.16) 0%, transparent 65%)'
+            : 'radial-gradient(ellipse 72% 58% at 50% 42%, rgba(var(--accent-rgb),0.05) 0%, transparent 65%)' }}
         />
 
         <div className="relative z-10 text-center px-4 sm:px-8 py-12 sm:py-16">
           {/* Classification badge */}
           <div data-hero-badge className="inline-flex items-center gap-3 mb-6" style={{ opacity: 0 }}>
-            <div className="h-px w-8" style={{ background: isDark ? 'rgba(68,114,212,0.45)' : 'rgba(26,60,110,0.25)' }} />
-            <span className="text-[9px] font-mono uppercase tracking-[0.38em]" style={{ color: isDark ? 'rgba(68,114,212,0.65)' : '#4472D4' }}>
+            <div className="h-px w-8" style={{ background: isDark ? 'rgba(var(--accent-soft-rgb),0.45)' : 'rgba(var(--accent-rgb),0.25)' }} />
+            <span className="text-[9px] font-mono uppercase tracking-[0.38em]" style={{ color: isDark ? 'rgba(var(--accent-soft-rgb),0.65)' : 'var(--accent-soft)' }}>
               {de ? 'Formulierungsgeschichte' : 'Formula Story'}
             </span>
-            <div className="h-px w-8" style={{ background: isDark ? 'rgba(68,114,212,0.45)' : 'rgba(26,60,110,0.25)' }} />
+            <div className="h-px w-8" style={{ background: isDark ? 'rgba(var(--accent-soft-rgb),0.45)' : 'rgba(var(--accent-rgb),0.25)' }} />
           </div>
 
           {/* Headline */}
@@ -2302,7 +2216,7 @@ export function SciencePage() {
         <div className="rounded-2xl p-8 sm:p-10" style={{ background: 'linear-gradient(160deg,var(--card-from) 0%,var(--card-to) 100%)', border: '1px solid var(--bd)', ...DOT_GRID }}>
           <div className="grid grid-cols-1 md:grid-cols-[1fr_1.2fr] gap-10 lg:gap-16 items-start">
             <div>
-              <p className="text-[10px] font-medium uppercase tracking-[0.25em] mb-3" style={{ color: '#4472D4' }}>
+              <p className="text-[10px] font-medium uppercase tracking-[0.25em] mb-3" style={{ color: 'var(--accent-soft)' }}>
                 {de ? 'Sechs Bestandteile' : 'Six components'}
               </p>
               <h2 className="font-serif-display text-2xl font-bold text-wx-tx1 mb-4 leading-tight">
@@ -2322,7 +2236,7 @@ export function SciencePage() {
                   { catDe: 'Dispergiermittel',catEn: 'Dispersant',    descDe: 'Partikelstabilisierung',      descEn: 'Particle stabilization'      },
                   { catDe: 'Antioxidans',     catEn: 'Antioxidant',   descDe: 'Langzeitschutz',              descEn: 'Long-term protection'        },
                 ].map((item, i) => {
-                  const colors = ['#1A3080','#1A3C6E','#2A5499','#4472D4','#7A9AEC','#A8C0F4'];
+                  const colors = ['#1A3080','var(--accent)','var(--accent)','var(--accent-soft)','#7A9AEC','var(--accent-soft)'];
                   return (
                     <div key={i} className="flex items-center gap-3">
                       <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: colors[i] }} />
@@ -2352,11 +2266,11 @@ export function SciencePage() {
                   key={ch.n}
                   onClick={() => document.querySelector(`[data-chapter="${ch.n}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
                   className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] transition-all duration-200"
-                  style={{ background: 'rgba(26,60,110,0.07)', border: '1px solid rgba(26,60,110,0.15)', color: 'var(--txm)' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(68,114,212,0.35)'; (e.currentTarget as HTMLButtonElement).style.background = 'rgba(26,60,110,0.13)'; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(26,60,110,0.15)'; (e.currentTarget as HTMLButtonElement).style.background = 'rgba(26,60,110,0.07)'; }}
+                  style={{ background: 'rgba(var(--accent-rgb),0.07)', border: '1px solid rgba(var(--accent-rgb),0.15)', color: 'var(--txm)' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(var(--accent-soft-rgb),0.35)'; (e.currentTarget as HTMLButtonElement).style.background = 'rgba(var(--accent-rgb),0.13)'; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(var(--accent-rgb),0.15)'; (e.currentTarget as HTMLButtonElement).style.background = 'rgba(var(--accent-rgb),0.07)'; }}
                 >
-                  <span className="font-mono text-[9px] font-bold" style={{ color: '#4472D4' }}>{ch.n}</span>
+                  <span className="font-mono text-[9px] font-bold" style={{ color: 'var(--accent-soft)' }}>{ch.n}</span>
                   <span>{de ? ch.de : ch.en}</span>
                 </button>
               ))}
@@ -2460,8 +2374,8 @@ export function SciencePage() {
                 {de ? 'Temperaturfenster — Matrix flexibel' : 'Temperature window — matrix stays flexible'}
               </p>
               {[
-                { labelDe: 'Kälteflexibilität bis', labelEn: 'Cold flexibility to', val: '−10°C', w: 20, color: '#4472D4' },
-                { labelDe: 'Optimale Performance',  labelEn: 'Optimal performance',  val: '−8°C → +35°C', w: 80, color: '#2A5499' },
+                { labelDe: 'Kälteflexibilität bis', labelEn: 'Cold flexibility to', val: '−10°C', w: 20, color: 'var(--accent-soft)' },
+                { labelDe: 'Optimale Performance',  labelEn: 'Optimal performance',  val: '−8°C → +35°C', w: 80, color: 'var(--accent)' },
                 { labelDe: 'Thermisch stabil bis',  labelEn: 'Thermally stable to',   val: '+78°C', w: 100, color: '#1A3080' },
               ].map((item, i) => (
                 <div key={i}>
@@ -2476,8 +2390,8 @@ export function SciencePage() {
               ))}
               <div className="grid grid-cols-3 gap-2 pt-3" style={{ borderTop: '1px solid var(--bd2)' }}>
                 {[{ de: 'Plastifizierung', en: 'Plastification' }, { de: 'Haftung', en: 'Adhesion' }, { de: 'Partikelbindung', en: 'Particle binding' }].map((fn, i) => (
-                  <div key={i} className="text-center rounded-lg py-2 px-1" style={{ background: 'rgba(26,60,110,0.07)', border: '1px solid rgba(26,60,110,0.13)' }}>
-                    <p className="text-[10px] font-medium" style={{ color: '#4472D4' }}>{de ? fn.de : fn.en}</p>
+                  <div key={i} className="text-center rounded-lg py-2 px-1" style={{ background: 'rgba(var(--accent-rgb),0.07)', border: '1px solid rgba(var(--accent-rgb),0.13)' }}>
+                    <p className="text-[10px] font-medium" style={{ color: 'var(--accent-soft)' }}>{de ? fn.de : fn.en}</p>
                   </div>
                 ))}
               </div>
@@ -2581,8 +2495,8 @@ export function SciencePage() {
                   { n: '02', titleDe: 'MoS₂-Oberfläche', titleEn: 'MoS₂ surface', descDe: 'Verhindert langsame MoS₂ → MoO₃ Oxidation durch Sauerstoffspuren in der Matrix.', descEn: 'Prevents slow MoS₂ → MoO₃ surface oxidation from trace oxygen in the matrix.' },
                   { n: '03', titleDe: 'Lagerstabilität', titleEn: 'Shelf life', descDe: 'Peroxidzahl bleibt auch nach 12–24 Monaten unter dem Leistungsgrenzwert.', descEn: 'Peroxide value stays below the performance threshold after 12–24 months.' },
                 ].map((item, i) => (
-                  <div key={i} className="flex gap-3.5 p-3.5 rounded-xl" style={{ background: 'rgba(26,60,110,0.06)', border: '1px solid rgba(26,60,110,0.13)' }}>
-                    <span className="font-display text-[22px] font-bold tabular-nums flex-shrink-0 leading-none mt-0.5" style={{ color: 'rgba(26,60,110,0.28)' }}>{item.n}</span>
+                  <div key={i} className="flex gap-3.5 p-3.5 rounded-xl" style={{ background: 'rgba(var(--accent-rgb),0.06)', border: '1px solid rgba(var(--accent-rgb),0.13)' }}>
+                    <span className="font-display text-[22px] font-bold tabular-nums flex-shrink-0 leading-none mt-0.5" style={{ color: 'rgba(var(--accent-rgb),0.28)' }}>{item.n}</span>
                     <div>
                       <p className="text-[12px] font-semibold text-wx-tx1 mb-1">{de ? item.titleDe : item.titleEn}</p>
                       <p className="text-[11px] text-wx-txm leading-relaxed">{de ? item.descDe : item.descEn}</p>
@@ -2598,9 +2512,9 @@ export function SciencePage() {
       {/* ══ SYNTHESIS REVEAL — standalone full section ═══════════════════════ */}
       <section
         style={{
-          background: isDark ? 'rgba(15,30,70,0.10)' : 'rgba(26,60,110,0.04)',
-          borderTop: isDark ? '1px solid rgba(68,114,212,0.12)' : '1px solid rgba(26,60,110,0.08)',
-          borderBottom: isDark ? '1px solid rgba(68,114,212,0.12)' : '1px solid rgba(26,60,110,0.08)',
+          background: isDark ? 'rgba(var(--accent-strong-rgb),0.10)' : 'rgba(var(--accent-rgb),0.04)',
+          borderTop: isDark ? '1px solid rgba(var(--accent-soft-rgb),0.12)' : '1px solid rgba(var(--accent-rgb),0.08)',
+          borderBottom: isDark ? '1px solid rgba(var(--accent-soft-rgb),0.12)' : '1px solid rgba(var(--accent-rgb),0.08)',
         }}
       >
         <div className={`${W} py-24`}>
@@ -2613,22 +2527,22 @@ export function SciencePage() {
         <div
           className="rounded-2xl p-6 sm:p-10 grid grid-cols-1 sm:grid-cols-3 gap-8 text-center"
           style={{
-            background: isDark ? 'rgba(26,60,110,0.12)' : 'rgba(26,60,110,0.05)',
-            border: '1px solid rgba(26,60,110,0.18)',
+            background: isDark ? 'rgba(var(--accent-rgb),0.12)' : 'rgba(var(--accent-rgb),0.05)',
+            border: '1px solid rgba(var(--accent-rgb),0.18)',
           }}
         >
           <div>
-            <p className="font-serif-display italic font-bold text-[2.4rem] leading-none mb-1.5" style={{ color: isDark ? '#6A8AE8' : '#1A3C6E' }}>~300 km</p>
+            <p className="font-serif-display italic font-bold text-[2.4rem] leading-none mb-1.5" style={{ color: isDark ? '#6A8AE8' : 'var(--accent)' }}>~300 km</p>
             <p className="text-[11px] font-semibold" style={{ color: isDark ? 'rgba(255,255,255,0.70)' : 'var(--tx1)' }}>{de ? 'pro Rewax-Vorgang' : 'per rewax'}</p>
             <p className="text-[10px] mt-0.5" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'var(--txm)' }}>{de ? 'bei trockenen Bedingungen' : 'in dry conditions'}</p>
           </div>
           <div>
-            <p className="font-serif-display italic font-bold text-[2.4rem] leading-none mb-1.5" style={{ color: isDark ? '#6A8AE8' : '#1A3C6E' }}>3×</p>
+            <p className="font-serif-display italic font-bold text-[2.4rem] leading-none mb-1.5" style={{ color: isDark ? '#6A8AE8' : 'var(--accent)' }}>3×</p>
             <p className="text-[11px] font-semibold" style={{ color: isDark ? 'rgba(255,255,255,0.70)' : 'var(--tx1)' }}>{de ? 'längere Kettenlaufzeit' : 'longer chain life'}</p>
             <p className="text-[10px] mt-0.5" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'var(--txm)' }}>{de ? 'gegenüber Kettenöl' : 'vs. chain oil'}</p>
           </div>
           <div>
-            <p className="font-serif-display italic font-bold text-[2.4rem] leading-none mb-1.5" style={{ color: isDark ? '#6A8AE8' : '#1A3C6E' }}>~€35</p>
+            <p className="font-serif-display italic font-bold text-[2.4rem] leading-none mb-1.5" style={{ color: isDark ? '#6A8AE8' : 'var(--accent)' }}>~€35</p>
             <p className="text-[11px] font-semibold" style={{ color: isDark ? 'rgba(255,255,255,0.70)' : 'var(--tx1)' }}>{de ? 'gespart pro Jahr' : 'saved per year'}</p>
             <p className="text-[10px] mt-0.5" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'var(--txm)' }}>{de ? 'bei 5.000 km/Jahr' : 'at 5,000 km/year'}</p>
           </div>
@@ -2645,7 +2559,7 @@ export function SciencePage() {
       >
         <div className={`${W} py-24`}>
           <div className="text-center mb-14">
-            <p className="text-[10px] font-medium uppercase tracking-[0.25em] mb-3" style={{ color: '#4472D4' }}>
+            <p className="text-[10px] font-medium uppercase tracking-[0.25em] mb-3" style={{ color: 'var(--accent-soft)' }}>
               {de ? 'Das Ergebnis' : 'The Result'}
             </p>
             <h2 className="font-serif-display text-3xl sm:text-4xl font-bold leading-tight" style={{ color: isDark ? '#FAFAFA' : 'var(--tx1)' }}>
@@ -2676,7 +2590,7 @@ export function SciencePage() {
                     <div className="w-full rounded-lg p-2.5" style={{ background: isDark ? 'rgba(255,255,255,0.03)' : 'var(--sf3)', border: isDark ? '1px solid rgba(255,255,255,0.07)' : '1px solid var(--bd2)' }}>
                       <div className="grid grid-cols-4 gap-1.5 justify-items-center py-1">
                         {[...Array(12)].map((_, j) => (
-                          <div key={j} className="w-2.5 h-2.5 rounded-full" style={{ background: '#2A5499', opacity: isDark ? (0.55 + (j % 4) * 0.12) : (0.45 + (j % 4) * 0.12) }} />
+                          <div key={j} className="w-2.5 h-2.5 rounded-full" style={{ background: 'var(--accent)', opacity: isDark ? (0.55 + (j % 4) * 0.12) : (0.45 + (j % 4) * 0.12) }} />
                         ))}
                       </div>
                     </div>
@@ -2690,8 +2604,8 @@ export function SciencePage() {
                   { de: 'kein Gradient', en: 'no gradient', sub: de ? 'von oben bis unten' : 'top to bottom' },
                   { de: 'Block 1 = 20', en: 'Block 1 = 20', sub: de ? 'identische Performance' : 'identical performance' },
                 ].map((s, i) => (
-                  <div key={i} className="text-center p-2 rounded-lg" style={{ background: 'rgba(26,60,110,0.10)', border: '1px solid rgba(26,60,110,0.18)' }}>
-                    <p className="font-serif-display italic text-[16px] font-bold" style={{ color: isDark ? '#6A8AE8' : '#1A3C6E', textShadow: isDark ? '0 0 14px rgba(68,114,212,0.45)' : 'none' }}>
+                  <div key={i} className="text-center p-2 rounded-lg" style={{ background: 'rgba(var(--accent-rgb),0.10)', border: '1px solid rgba(var(--accent-rgb),0.18)' }}>
+                    <p className="font-serif-display italic text-[16px] font-bold" style={{ color: isDark ? '#6A8AE8' : 'var(--accent)', textShadow: isDark ? '0 0 14px rgba(var(--accent-soft-rgb),0.45)' : 'none' }}>
                       {de ? s.de : s.en}
                     </p>
                     <p className="text-[9px] mt-0.5" style={{ color: isDark ? 'rgba(255,255,255,0.32)' : 'var(--txm)' }}>{s.sub}</p>
@@ -2711,10 +2625,10 @@ export function SciencePage() {
       {/* ══ CTA ══════════════════════════════════════════════════════════════ */}
       <section style={{
         background: isDark ? 'linear-gradient(160deg, #07070A 0%, #0B1830 55%, #07070A 100%)' : 'var(--sf3)',
-        borderTop: isDark ? '1px solid rgba(68,114,212,0.1)' : '1px solid var(--bd)',
+        borderTop: isDark ? '1px solid rgba(var(--accent-soft-rgb),0.1)' : '1px solid var(--bd)',
       }}>
         <div className={`${W} py-20 text-center`}>
-          <p className="text-[10px] font-medium uppercase tracking-[0.28em] mb-4" style={{ color: '#4472D4' }}>
+          <p className="text-[10px] font-medium uppercase tracking-[0.28em] mb-4" style={{ color: 'var(--accent-soft)' }}>
             {de ? 'Bereit?' : 'Ready?'}
           </p>
           <h2 className="font-serif-display text-2xl sm:text-3xl font-bold mb-4 leading-tight" style={{ color: isDark ? '#FAFAFA' : 'var(--tx1)' }}>
@@ -2732,7 +2646,7 @@ export function SciencePage() {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2.5 px-8 py-4 rounded-full font-semibold text-[14px] transition-opacity hover:opacity-80"
               style={{
-                background: isDark ? 'linear-gradient(135deg,#1A3080,#2A5499)' : 'var(--cta-bg)',
+                background: isDark ? 'linear-gradient(135deg,#1A3080,var(--accent))' : 'var(--cta-bg)',
                 color: isDark ? '#fff' : 'var(--cta-fg)',
               }}
             >

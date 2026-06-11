@@ -32,7 +32,7 @@ const reviews = [
 
 function StarIcon() {
   return (
-    <svg className="h-3.5 w-3.5" viewBox="0 0 20 20" style={{ fill: '#D4AA30' }}>
+    <svg className="h-3.5 w-3.5" viewBox="0 0 20 20" style={{ fill: 'var(--accent)' }}>
       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
     </svg>
   );
@@ -63,14 +63,14 @@ export function Reviews() {
   }, []);
 
   return (
-    <section className="relative py-20 bg-wx-bg">
+    <section className="relative py-20 sm:py-28 bg-wx-bg">
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-5xl mx-auto">
 
-          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] mb-4" style={{ color: 'var(--txf)' }}>
+          <p className="eyebrow mb-4" style={{ color: 'var(--txf)' }}>
             {de ? 'eBay verifiziert · alle Bewertungen echt' : 'eBay verified · all reviews genuine'}
           </p>
-          <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-3">
+          <h2 className="section-title mb-3">
             {de ? '171 Fahrer. 100 % positiv.' : '171 Riders. 100 % positive.'}
           </h2>
           <p className="text-[15px] text-wx-txm mb-6 max-w-md">
@@ -82,7 +82,7 @@ export function Reviews() {
           <div className="flex items-center gap-3 mb-8 flex-wrap">
             <div className="flex items-center gap-0.5">
               {Array.from({ length: 5 }).map((_, i) => (
-                <svg key={i} className="h-4 w-4" viewBox="0 0 20 20" style={{ fill: '#D4AA30' }}>
+                <svg key={i} className="h-4 w-4" viewBox="0 0 20 20" style={{ fill: 'var(--accent)' }}>
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
               ))}
@@ -134,7 +134,7 @@ export function Reviews() {
                   <span className="flex items-center gap-1.5">
                     <span
                       className="inline-block h-1.5 w-1.5 rounded-full"
-                      style={{ background: '#2B52B0' }}
+                      style={{ background: 'var(--accent)' }}
                     />
                     eBay · {de ? r.dateDe : r.dateEn}
                   </span>

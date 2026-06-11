@@ -42,12 +42,9 @@ export function About() {
 
   const de = lang === 'de';
 
-  const stats: { value: string; badge?: string; label: string; sub?: string }[] = [
-    {
-      value: '171',
-      badge: '100% positiv',
-      label: de ? 'eBay-Bewertungen' : 'eBay reviews',
-    },
+  // De-duplicated: 171/100% live in Reviews + nav badge, 3× lives in the
+  // hero ribbon / why-wax. About keeps only its own, unique facts.
+  const stats: { value: string; label: string }[] = [
     {
       value: de ? '1 Tag' : '1 day',
       label: de ? 'Versand nach Bestellung' : 'Ships after order',
@@ -56,27 +53,22 @@ export function About() {
       value: '2024',
       label: de ? 'In Stuttgart gegründet' : 'Founded in Stuttgart',
     },
-    {
-      value: '3×',
-      label: de ? 'Kette & Kassette halten länger' : 'Chain & cassette last longer',
-      sub: de ? 'vs. Öl-Schmiermittel' : 'vs. oil lubricant',
-    },
   ];
 
   return (
-    <section id="ueber-mich" className="relative py-20 bg-wx-sf chain-texture">
+    <section id="ueber-mich" className="relative py-20 sm:py-28 bg-wx-sf chain-texture">
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-5xl mx-auto">
 
           {/* ── Header ─────────────────────────────────────────────────── */}
           <div ref={headerRef} className="text-center mb-10">
             <p
-              className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-semibold mb-3"
+              className="eyebrow mb-3"
               style={{ color: 'var(--txf)' }}
             >
               {de ? 'Die Geschichte' : 'Our Story'}
             </p>
-            <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1">
+            <h2 className="section-title">
               <ScrollWordReveal text={t.about.title} />
             </h2>
           </div>
@@ -89,8 +81,14 @@ export function About() {
               <p className="text-[15px] leading-[1.8] text-wx-tx2">{t.about.bio1}</p>
               <p className="text-[15px] leading-[1.8] text-wx-tx2">{t.about.bio2}</p>
               <blockquote
-                className="italic text-[14px] leading-relaxed pl-4 my-1"
-                style={{ borderLeft: '2px solid rgba(43,82,176,0.4)', color: 'var(--txm)' }}
+                className="font-display italic my-3 pl-5"
+                style={{
+                  borderLeft: '2px solid rgba(var(--accent-rgb),0.45)',
+                  color: 'var(--tx1)',
+                  fontSize: 'clamp(1.15rem, 1.9vw, 1.5rem)',
+                  lineHeight: 1.3,
+                  letterSpacing: '-0.01em',
+                }}
               >
                 {de
                   ? 'Nicht jede Charge war sofort richtig. Aber jede war näher dran.'
@@ -101,7 +99,7 @@ export function About() {
 
               <div className="pt-3 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8">
                 <div className="flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#2B52B0] animate-pulse flex-shrink-0" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)] animate-pulse flex-shrink-0" />
                   <span className="text-[11px]" style={{ color: 'var(--txm)' }}>
                     {de ? 'Aktiv auf eBay · Versand aus Stuttgart' : 'Active on eBay · Ships from Stuttgart'}
                   </span>
@@ -114,11 +112,11 @@ export function About() {
                 >
                   <span
                     className="flex items-center justify-center w-7 h-7 rounded-lg flex-shrink-0 transition-colors"
-                    style={{ background: 'rgba(26,60,110,0.12)', border: '1px solid rgba(26,60,110,0.22)' }}
+                    style={{ background: 'rgba(var(--accent-rgb),0.12)', border: '1px solid rgba(var(--accent-rgb),0.22)' }}
                   >
-                    <ExternalLink className="h-3 w-3 text-[#1A3C6E]" />
+                    <ExternalLink className="h-3 w-3 text-[var(--accent)]" />
                   </span>
-                  <span className="text-[13px] font-medium text-[#264E8C] group-hover:text-[#3A65B8] transition-colors">
+                  <span className="text-[13px] font-medium text-[var(--accent)] group-hover:text-[var(--accent)] transition-colors">
                     {t.about.ebay}
                   </span>
                 </a>
@@ -131,18 +129,21 @@ export function About() {
               <div
                 className="relative rounded-t-2xl overflow-hidden"
                 style={{
-                  height: '300px',
+                  height: '360px',
                   border: '1px solid var(--bd)',
                   borderBottom: 'none',
                   boxShadow: '0 12px 48px rgba(0,0,0,0.18)',
                 }}
               >
-                <img
-                  src="/images/luca-ebay.jpg"
-                  alt="eBay Seller Leadership Week 2025, San Jose"
-                  className="absolute inset-0 w-full h-full object-cover"
-                  style={{ objectPosition: '50% 38%' }}
-                />
+                <picture>
+                  <source srcSet="/images/luca-stage.webp" type="image/webp" />
+                  <img
+                    src="/images/luca-stage.jpg"
+                    alt="eBay Seller Leadership Week 2025, San Jose"
+                    className="absolute inset-0 w-full h-full object-cover"
+                    style={{ objectPosition: '50% 38%' }}
+                  />
+                </picture>
                 <div
                   className="absolute inset-0"
                   style={{
@@ -181,8 +182,7 @@ export function About() {
                     className="py-4 px-4 text-center"
                     style={{
                       background: 'var(--sf2)',
-                      borderRight: i % 2 === 0 ? '1px solid var(--bd2)' : 'none',
-                      borderBottom: i < 2 ? '1px solid var(--bd2)' : 'none',
+                      borderRight: i === 0 ? '1px solid var(--bd2)' : 'none',
                     }}
                   >
                     <p
@@ -191,22 +191,9 @@ export function About() {
                     >
                       {s.value}
                     </p>
-                    {s.badge && (
-                      <span
-                        className="inline-block mt-1 mb-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-semibold"
-                        style={{ background: 'rgba(26,60,110,0.10)', color: '#2A5499' }}
-                      >
-                        {s.badge}
-                      </span>
-                    )}
-                    <p className="text-[11px] leading-snug mt-1" style={{ color: 'var(--tx2)' }}>
+                    <p className="text-[11px] leading-snug mt-1.5" style={{ color: 'var(--tx2)' }}>
                       {s.label}
                     </p>
-                    {s.sub && (
-                      <p className="text-[10px] mt-0.5 leading-snug" style={{ color: 'var(--txf)' }}>
-                        {s.sub}
-                      </p>
-                    )}
                   </div>
                 ))}
               </div>

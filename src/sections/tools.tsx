@@ -69,12 +69,10 @@ function TogButton({
   return (
     <button
       onClick={onClick}
-      className="px-4 py-2 rounded-xl text-[13px] transition-all cursor-pointer"
+      className={`px-4 py-2 rounded-xl text-[13px] transition-all cursor-pointer${active ? ' chip-active' : ''}`}
       style={{
-        border: `1px solid ${active ? 'rgba(59,100,210,0.55)' : 'var(--tog-bd)'}`,
-        background: active
-          ? 'linear-gradient(135deg, rgba(26,60,110,0.28) 0%, rgba(26,60,110,0.12) 100%)'
-          : 'var(--tog-bg)',
+        border: active ? undefined : '1px solid var(--tog-bd)',
+        background: active ? undefined : 'var(--tog-bg)',
         color: active ? 'var(--tx1)' : 'var(--tog-fg)',
         fontWeight: active ? 500 : 400,
         boxShadow: 'none',
@@ -91,7 +89,7 @@ function ToolCard({ children }: { children: React.ReactNode }) {
     <div
       className="flex flex-col h-full rounded-3xl"
       style={{
-        background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
+        background: 'var(--card-bg)',
         border: '1px solid var(--bd)',
         boxShadow: 'var(--card-shad)',
         backdropFilter: 'blur(24px)',
@@ -111,8 +109,8 @@ function ToolHeader({ icon, title, subtitle }: { icon: React.ReactNode; title: s
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
           style={{
-            background: 'linear-gradient(135deg, rgba(26,60,110,0.22) 0%, rgba(26,60,110,0.06) 100%)',
-            border: '1px solid rgba(26,60,110,0.30)',
+            background: 'linear-gradient(135deg, rgba(var(--accent-rgb),0.22) 0%, rgba(var(--accent-rgb),0.06) 100%)',
+            border: '1px solid rgba(var(--accent-rgb),0.30)',
           }}
         >
           {icon}
@@ -345,7 +343,8 @@ function WaxStockCalculator() {
   const de = lang === 'de';
 
   type FreqKey = 'frequent' | 'regular' | 'occasional' | 'rare';
-  const [freq, setFreq] = useState<FreqKey | null>(null);
+  // Default to 'regular' so a meaningful recommendation shows immediately on load.
+  const [freq, setFreq] = useState<FreqKey>('regular');
 
   const freqOpts: { value: FreqKey; label: string; hint: string; km: string; rewaxPerMonth: number }[] = [
     { value: 'frequent',   label: de ? 'Alle 2–3 Wochen' : 'Every 2–3 weeks',  hint: de ? 'Vielfahrer · Rennsport' : 'Heavy rider · Racing',  km: de ? '~150 km/Wo.' : '~150 km/wk',  rewaxPerMonth: 1.67 },
@@ -403,12 +402,10 @@ function WaxStockCalculator() {
               <button
                 key={o.value}
                 onClick={() => setFreq(o.value)}
-                className="rounded-xl px-3 py-3 text-left transition-all cursor-pointer"
+                className={`rounded-xl px-3 py-3 text-left transition-all cursor-pointer${freq === o.value ? ' chip-active' : ''}`}
                 style={{
-                  border: `1px solid ${freq === o.value ? 'rgba(59,100,210,0.55)' : 'var(--tog-bd)'}`,
-                  background: freq === o.value
-                    ? 'linear-gradient(135deg, rgba(26,60,110,0.28) 0%, rgba(26,60,110,0.12) 100%)'
-                    : 'var(--tog-bg)',
+                  border: freq === o.value ? undefined : '1px solid var(--tog-bd)',
+                  background: freq === o.value ? undefined : 'var(--tog-bg)',
                 }}
               >
                 <p className="text-[13px] font-medium leading-snug" style={{ color: freq === o.value ? 'var(--tx1)' : 'var(--tog-fg)' }}>
@@ -631,7 +628,7 @@ function RotationAndSavings() {
                   key={n}
                   className="rounded-2xl flex flex-col"
                   style={{
-                    background: isRec ? 'rgba(26,60,110,0.08)' : 'var(--sf3)',
+                    background: isRec ? 'rgba(var(--accent-rgb),0.08)' : 'var(--sf3)',
                     border: isRec ? '1.5px solid var(--brand)' : '1px solid var(--bd2)',
                     padding: '12px 10px',
                   }}
@@ -822,12 +819,12 @@ export function Tools() {
   }, []); // eslint-disable-line
 
   return (
-    <section id="tools" className="relative py-24" style={{ background: 'var(--tool-bg)' }}>
+    <section id="tools" className="relative py-20 sm:py-28" style={{ background: 'var(--tool-bg)' }}>
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-6xl mx-auto">
 
           <div ref={headerRef} className="mb-16">
-            <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-4">
+            <h2 className="section-title mb-4">
               <ScrollWordReveal text={t.tools.title} />
             </h2>
             <p data-reveal="subtitle" className="text-wx-tx2 max-w-xl text-[15px]">
@@ -878,7 +875,7 @@ export function Tools() {
             style={{
               height: DECK_HEIGHT,
               overflow: 'hidden',
-              background: 'radial-gradient(ellipse 55% 60% at 50% 50%, rgba(26,60,110,0.07) 0%, transparent 70%)',
+              background: 'radial-gradient(ellipse 55% 60% at 50% 50%, rgba(var(--accent-rgb),0.07) 0%, transparent 70%)',
             }}
           >
             {([cardRef0, cardRef1, cardRef2] as const).map((ref, i) => (

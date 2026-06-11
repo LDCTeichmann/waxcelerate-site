@@ -47,7 +47,7 @@ export function SectionDots() {
                 width: '6px',
                 height: isActive ? '18px' : '6px',
                 borderRadius: isActive ? '3px' : '50%',
-                background: isActive ? '#1A3C6E' : 'var(--bd2)',
+                background: isActive ? 'var(--accent)' : 'var(--bd2)',
                 opacity: isActive ? 1 : 0.6,
                 display: 'block',
               }}

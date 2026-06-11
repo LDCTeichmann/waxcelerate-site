@@ -99,7 +99,7 @@ export function Navigation() {
                   className="hidden lg:inline-flex items-center gap-1 text-[10px] ml-1 px-2 py-0.5 rounded-full"
                   style={{ background: 'var(--sf3)', color: 'var(--txf)', border: '1px solid var(--bd)' }}
                 >
-                  <span style={{ color: '#D4AA30' }}>★★★★★</span>
+                  <span style={{ color: 'var(--accent)' }}>★★★★★</span>
                   <span>171</span>
                 </span>
               )}
@@ -131,7 +131,7 @@ export function Navigation() {
                 >
                   {t.nav[item.key as keyof typeof t.nav]}
                   {activeSection === item.href && (
-                    <span className="absolute bottom-0 left-4 right-4 h-px" style={{ background: isScrolled ? '#1A3C6E' : 'rgba(255,255,255,0.5)' }} />
+                    <span className="absolute bottom-0 left-4 right-4 h-px" style={{ background: isScrolled ? 'var(--accent)' : 'rgba(255,255,255,0.5)' }} />
                   )}
                   {activeSection !== item.href && (
                     <span
@@ -145,12 +145,16 @@ export function Navigation() {
 
             {/* Actions */}
             <div className="flex items-center gap-3">
-              <CartIcon />
+              <CartIcon light={!isScrolled} />
 
               {/* Theme toggle — desktop only */}
               <button
                 onClick={() => setTheme(theme === 'light' ? 'noir' : 'light')}
-                className="hidden lg:flex items-center justify-center w-8 h-8 rounded-md border border-wx-bd/50 hover:border-[#1A3C6E] transition-colors text-wx-tx2 hover:text-wx-tx1"
+                className={`hidden lg:flex items-center justify-center w-8 h-8 rounded-md border transition-colors ${
+                  isScrolled
+                    ? 'border-wx-bd/50 hover:border-[var(--accent)] text-wx-tx2 hover:text-wx-tx1'
+                    : 'border-white/25 hover:border-white/55 text-white/85 hover:text-white'
+                }`}
                 aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
               >
                 {theme === 'light' ? <Moon className="h-3.5 w-3.5" /> : <Sun className="h-3.5 w-3.5" />}
@@ -159,7 +163,11 @@ export function Navigation() {
               {/* Language toggle — desktop only */}
               <button
                 onClick={toggleLang}
-                className="hidden lg:block px-3 py-1.5 text-xs font-medium text-wx-tx2 hover:text-wx-tx1 border border-wx-bd/50 hover:border-[#1A3C6E] rounded transition-colors"
+                className={`hidden lg:block px-3 py-1.5 text-xs font-medium border rounded transition-colors ${
+                  isScrolled
+                    ? 'border-wx-bd/50 hover:border-[var(--accent)] text-wx-tx2 hover:text-wx-tx1'
+                    : 'border-white/25 hover:border-white/55 text-white/85 hover:text-white'
+                }`}
                 aria-label={lang === 'de' ? 'Switch to English' : 'Zu Deutsch wechseln'}
               >
                 {lang === 'de' ? 'EN' : 'DE'}
@@ -169,7 +177,9 @@ export function Navigation() {
               <button
                 id="mobile-menu-button"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="lg:hidden p-2 text-wx-tx2 hover:text-wx-tx1"
+                className={`lg:hidden p-2 transition-colors ${
+                  isScrolled ? 'text-wx-tx2 hover:text-wx-tx1' : 'text-white/90 hover:text-white'
+                }`}
                 aria-label={de ? 'Menü öffnen' : 'Open menu'}
                 aria-expanded={isMobileMenuOpen}
                 aria-controls="mobile-menu"
@@ -261,7 +271,7 @@ export function Navigation() {
         <div className="px-5 pb-8 pt-4 flex-shrink-0 flex items-center justify-between border-t border-wx-bd/20">
           <button
             onClick={() => setTheme(theme === 'light' ? 'noir' : 'light')}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-wx-tx2 hover:text-wx-tx1 border border-wx-bd/50 hover:border-[#1A3C6E] rounded transition-colors"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-wx-tx2 hover:text-wx-tx1 border border-wx-bd/50 hover:border-[var(--accent)] rounded transition-colors"
             aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
           >
             {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
@@ -269,7 +279,7 @@ export function Navigation() {
           </button>
           <button
             onClick={toggleLang}
-            className="px-4 py-2 text-sm font-medium text-wx-tx2 hover:text-wx-tx1 border border-wx-bd/50 hover:border-[#1A3C6E] rounded transition-colors"
+            className="px-4 py-2 text-sm font-medium text-wx-tx2 hover:text-wx-tx1 border border-wx-bd/50 hover:border-[var(--accent)] rounded transition-colors"
           >
             {lang === 'de' ? 'EN' : 'DE'}
           </button>

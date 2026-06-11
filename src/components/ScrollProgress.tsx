@@ -27,7 +27,7 @@ export function ScrollProgress() {
           transform: `scaleX(${progress})`,
           transformOrigin: 'left',
           willChange: 'transform',
-          background: '#1A3C6E',
+          background: 'var(--accent)',
           height: '100%',
         }}
       />

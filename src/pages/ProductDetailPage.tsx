@@ -33,7 +33,7 @@ export function ProductDetailPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4" style={{ background: 'var(--pg)' }}>
         <p className="text-wx-txm">{de ? 'Produkt nicht gefunden.' : 'Product not found.'}</p>
-        <Link to="/" className="text-[#3D67CA] hover:underline text-sm flex items-center gap-1">
+        <Link to="/" className="text-[var(--accent-soft)] hover:underline text-sm flex items-center gap-1">
           <ArrowLeft className="h-3.5 w-3.5" /> {de ? 'Zurück' : 'Back'}
         </Link>
       </div>
@@ -45,7 +45,7 @@ export function ProductDetailPage() {
   const isPro = product.variant === 'pro';
   const isWax = product.category === 'wax';
   const isChain = product.category === 'chain';
-  const accentColor = isPro ? '#4A72D4' : '#2B52B0';  // text/icon accent — lighter for contrast on dark bg
+  const accentColor = isPro ? '#4A72D4' : 'var(--accent)';  // text/icon accent — lighter for contrast on dark bg
   // buttonColor now uses CSS variable — see inline styles below
   const accentBg = isPro ? 'rgba(74,114,212,0.08)' : 'rgba(43,82,176,0.08)';
 
@@ -906,7 +906,7 @@ function RelatedCard({ product: p, de, formatPrice }: { product: Product; de: bo
       />
       <div className="min-w-0">
         <p className="text-[14px] font-semibold text-wx-tx1 leading-tight truncate">{title}</p>
-        <p className="text-[13px] mt-1" style={{ color: '#1A3C6E' }}>{formatPrice(p.price)}</p>
+        <p className="text-[13px] mt-1" style={{ color: 'var(--accent)' }}>{formatPrice(p.price)}</p>
       </div>
     </div>
   );

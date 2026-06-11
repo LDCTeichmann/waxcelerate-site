@@ -29,13 +29,13 @@ export function Contact() {
   )}`;
 
   return (
-    <section id="kontakt" className="relative py-16 bg-wx-bg">
+    <section id="kontakt" className="relative py-20 sm:py-28 bg-wx-bg">
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-2xl mx-auto">
 
           {/* Header */}
           <div ref={headerRef} className="text-center mb-12">
-            <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-4">
+            <h2 className="section-title mb-4">
               <ScrollWordReveal text={t.contact.title} />
             </h2>
             <p data-reveal="subtitle" className="text-wx-tx2">
@@ -53,7 +53,7 @@ export function Contact() {
               rel="noopener noreferrer"
               className="group flex flex-col rounded-2xl p-6 transition-all"
               style={{
-                background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
+                background: 'var(--card-bg)',
                 border: '1px solid rgba(37,211,102,0.45)',
                 boxShadow: 'var(--card-shad)',
                 textDecoration: 'none',
@@ -99,7 +99,7 @@ export function Contact() {
               href={mailUrl}
               className="group flex flex-col rounded-2xl p-6 transition-all"
               style={{
-                background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
+                background: 'var(--card-bg)',
                 border: '1px solid var(--bd)',
                 boxShadow: 'var(--card-shad)',
                 textDecoration: 'none',
@@ -108,9 +108,9 @@ export function Contact() {
               <div className="flex items-center gap-3 mb-4">
                 <div
                   className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0"
-                  style={{ background: 'rgba(26,60,110,0.12)', border: '1px solid rgba(26,60,110,0.22)' }}
+                  style={{ background: 'rgba(var(--accent-rgb),0.12)', border: '1px solid rgba(var(--accent-rgb),0.22)' }}
                 >
-                  <Mail className="h-5 w-5" style={{ color: '#264E8C' }} />
+                  <Mail className="h-5 w-5" style={{ color: 'var(--accent)' }} />
                 </div>
                 <div>
                   <p className="font-bold text-wx-tx1 text-[15px] leading-tight">
@@ -118,7 +118,7 @@ export function Contact() {
                   </p>
                   <span
                     className="inline-block mt-0.5 text-[10px] font-semibold px-2 py-0.5 rounded-full tracking-wide"
-                    style={{ background: 'rgba(26,60,110,0.12)', color: '#264E8C' }}
+                    style={{ background: 'rgba(var(--accent-rgb),0.12)', color: 'var(--accent)' }}
                   >
                     {de ? 'am selben Tag' : 'same day'}
                   </span>
@@ -140,7 +140,7 @@ export function Contact() {
 
               <div
                 className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl font-semibold text-[13px] text-white transition-opacity group-hover:opacity-90"
-                style={{ background: '#1A3C6E' }}
+                style={{ background: 'var(--accent)' }}
               >
                 <Mail className="h-3.5 w-3.5" />
                 {de ? 'E-Mail schreiben' : 'Write an email'}

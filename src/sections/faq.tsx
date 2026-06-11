@@ -26,11 +26,11 @@ export function FAQ() {
   const visibleItems = query.trim() ? filteredItems : (showAll ? filteredItems : filteredItems.slice(0, ITEMS_DEFAULT));
 
   return (
-    <section id="faq" className="relative py-20 bg-wx-bg">
+    <section id="faq" className="relative py-20 sm:py-28 bg-wx-bg">
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-2xl mx-auto">
           <div className="mb-16">
-            <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-4">
+            <h2 className="section-title mb-4">
               <ScrollWordReveal text={t.faq.title} />
             </h2>
             <p className="text-wx-tx2">
@@ -51,7 +51,7 @@ export function FAQ() {
                 border: '1px solid var(--bd)',
                 color: 'var(--tx1)',
               }}
-              onFocus={e => { e.currentTarget.style.borderColor = '#1A3C6E'; }}
+              onFocus={e => { e.currentTarget.style.borderColor = 'var(--accent)'; }}
               onBlur={e => { e.currentTarget.style.borderColor = 'var(--bd)'; }}
             />
           </div>
@@ -88,7 +88,7 @@ export function FAQ() {
                   </h3>
                   <ChevronDown
                     className={`h-4 w-4 text-wx-txf flex-shrink-0 transition-transform duration-300 ${
-                      openItem === index.toString() ? 'rotate-180 text-[#1A3C6E]' : ''
+                      openItem === index.toString() ? 'rotate-180 text-[var(--accent)]' : ''
                     }`}
                   />
                 </button>
@@ -101,7 +101,7 @@ export function FAQ() {
                   }}
                 >
                   <div className="overflow-hidden">
-                    <div className="pb-5 pr-10 border-l-2 pl-4" style={{ borderColor: 'rgba(26,60,110,0.35)' }}>
+                    <div className="pb-5 pr-10 border-l-2 pl-4" style={{ borderColor: 'rgba(var(--accent-rgb),0.35)' }}>
                       <div className="space-y-1.5">
                         {item.a.split(/\.\s+(?=[A-ZÜÖÄ])/).map((sentence, i, arr) => (
                           <p key={i} className="text-wx-tx2 text-[14px] leading-[1.75]">
@@ -135,8 +135,7 @@ export function FAQ() {
           <div className="mt-10 flex justify-center">
             <button
               onClick={() => document.querySelector('#produkte')?.scrollIntoView({ behavior: 'smooth' })}
-              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-[14px] font-semibold transition-opacity hover:opacity-90"
-              style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
+              className="btn-primary px-7 py-3.5 text-[14px]"
             >
               {de ? 'Kette jetzt sauber halten →' : 'Keep my chain clean →'}
             </button>

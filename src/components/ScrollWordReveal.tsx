@@ -20,8 +20,8 @@ interface Props {
 
 export function ScrollWordReveal({
   text,
-  stagger = 0.07,
-  duration = 0.75,
+  stagger = 0,          // calm: reveal as a single unit (no per-word cascade)
+  duration = 0.65,
   start = 'top 90%',
 }: Props) {
   const ref = useRef<HTMLSpanElement>(null);

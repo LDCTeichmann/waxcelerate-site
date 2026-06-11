@@ -21,7 +21,7 @@ export function BlogIndexPage() {
       >
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <Link to="/" className="font-display font-bold text-lg tracking-tight text-wx-tx1">
-            WAX<span style={{ color: '#1A3C6E' }}>CELERATE</span>
+            WAX<span style={{ color: 'var(--accent)' }}>CELERATE</span>
           </Link>
           <Link
             to="/"
@@ -59,7 +59,7 @@ export function BlogIndexPage() {
               {/* Category */}
               <p
                 className="text-[11px] font-semibold uppercase tracking-widest mb-2"
-                style={{ color: '#1A3C6E' }}
+                style={{ color: 'var(--accent)' }}
               >
                 Kettenpflege
               </p>
@@ -83,7 +83,7 @@ export function BlogIndexPage() {
                 </span>
                 <span
                   className="text-[12px] font-medium group-hover:underline"
-                  style={{ color: '#264E8C' }}
+                  style={{ color: 'var(--accent)' }}
                 >
                   Lesen →
                 </span>
@@ -103,7 +103,7 @@ export function BlogIndexPage() {
           <Link
             to="/#kontakt"
             className="text-[14px] font-semibold hover:underline shrink-0"
-            style={{ color: '#264E8C' }}
+            style={{ color: 'var(--accent)' }}
           >
             Zum Kontakt →
           </Link>

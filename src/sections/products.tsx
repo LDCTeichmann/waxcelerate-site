@@ -11,11 +11,12 @@ import { richContent } from '@/lib/productContent';
 import { getEstimatedDelivery } from '@/lib/utils';
 
 
-const filterChip = (active: boolean) =>
-  `px-3 py-1.5 rounded-md text-[12px] transition-all border cursor-pointer ${
+// Segmented-control button: segments share the row evenly (flex-1) and never wrap.
+const segment = (active: boolean) =>
+  `flex-1 min-w-0 px-2 py-1.5 rounded-md text-[12px] leading-none text-center truncate transition-all border cursor-pointer ${
     active
-      ? 'border-[#1A3C6E]/40 bg-[#1A3C6E]/10 text-wx-tx1'
-      : 'border-wx-bd text-wx-txf hover:text-wx-tx2'
+      ? 'chip-active text-wx-tx1'
+      : 'border-transparent text-wx-txf hover:text-wx-tx2'
   }`;
 
 export function Products() {
@@ -106,13 +107,13 @@ export function Products() {
   }, [filteredChains.length]);
 
   return (
-    <section id="produkte" className="relative py-20 bg-wx-bg">
+    <section id="produkte" className="relative py-20 sm:py-28 bg-wx-bg">
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-5xl mx-auto">
 
           {/* Header */}
           <div ref={headerRef} className="mb-10">
-            <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-4">
+            <h2 className="section-title mb-4">
               <ScrollWordReveal text={t.products.title} />
             </h2>
             <p data-reveal="subtitle" className="text-wx-txm max-w-xl">
@@ -168,9 +169,9 @@ export function Products() {
                   <span
                     className="text-[12px] font-medium px-2.5 py-1 rounded-full transition-all"
                     style={{
-                      background: 'rgba(43,82,176,0.10)',
-                      border: '1px solid rgba(43,82,176,0.25)',
-                      color: '#3D67CA',
+                      background: 'rgba(var(--accent-rgb),0.10)',
+                      border: '1px solid rgba(var(--accent-rgb),0.25)',
+                      color: 'var(--accent-soft)',
                     }}
                   >
                     {t.products.compareBtn} →
@@ -214,32 +215,43 @@ export function Products() {
                 {t.products.preWaxedHint}
               </p>
 
-              {/* Filter bar */}
-              <div className="mb-6 rounded-xl border border-wx-bd px-4 py-3 space-y-2" style={{ background: 'var(--sf)' }}>
+              {/* Shared info — shown once instead of repeating identical pills on every card */}
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 mb-4 px-1 text-[11px]" style={{ color: 'var(--txf)' }}>
+                <span className="font-medium" style={{ color: 'var(--tx2)' }}>
+                  {de ? 'Alle Ketten: vorgewachst · Quick-Link inklusive' : 'All chains: pre-waxed · Quick-Link included'}
+                </span>
+                <span className="hidden sm:inline" style={{ color: 'var(--bd2)' }}>·</span>
+                <span>{t.products.multiDiscount}</span>
+              </div>
+
+              {/* Filter bar — two compact segmented controls (no wrap on 375px) */}
+              <div className="mb-3 rounded-xl border border-wx-bd px-3 py-3 space-y-2.5" style={{ background: 'var(--sf)' }}>
+                {/* Speed */}
                 <div className="flex items-center gap-2.5">
                   <span className="text-xs uppercase tracking-[0.12em] text-wx-txf font-medium w-12 flex-shrink-0">
                     {de ? 'Gänge' : 'Speed'}
                   </span>
-                  <div className="flex gap-1.5">
+                  <div className="flex flex-1 min-w-0 gap-1 p-0.5 rounded-lg border border-wx-bd" style={{ background: 'var(--sf2)' }}>
                     {(['all', '11', '12'] as const).map(v => (
-                      <button key={v} onClick={() => setSpeedFilter(v)} className={filterChip(speedFilter === v)}>
+                      <button key={v} onClick={() => setSpeedFilter(v)} className={segment(speedFilter === v)}>
                         {v === 'all' ? (de ? 'Alle' : 'All') : `${v}-fach`}
                       </button>
                     ))}
                   </div>
                 </div>
+                {/* Brand */}
                 <div className="flex items-center gap-2.5">
                   <span className="text-xs uppercase tracking-[0.12em] text-wx-txf font-medium w-12 flex-shrink-0">
                     {de ? 'Marke' : 'Brand'}
                   </span>
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="flex flex-1 min-w-0 gap-1 p-0.5 rounded-lg border border-wx-bd" style={{ background: 'var(--sf2)' }}>
                     {([
                       { v: 'all',        label: de ? 'Alle' : 'All' },
                       { v: 'shimano',    label: 'Shimano'            },
                       { v: 'sram',       label: 'SRAM'               },
                       { v: 'campagnolo', label: 'Campa'              },
                     ] as { v: 'all' | 'shimano' | 'sram' | 'campagnolo'; label: string }[]).map(({ v, label }) => (
-                      <button key={v} onClick={() => setBrandFilter(v)} className={filterChip(brandFilter === v)}>
+                      <button key={v} onClick={() => setBrandFilter(v)} className={segment(brandFilter === v)}>
                         {label}
                       </button>
                     ))}
@@ -247,12 +259,17 @@ export function Products() {
                 </div>
               </div>
 
+              {/* Live result count */}
+              <p className="mb-6 px-1 text-[11px]" style={{ color: 'var(--txf)' }}>
+                {filteredChains.length} {de ? 'Ketten' : 'chains'}
+              </p>
+
               {filteredChains.length === 0 ? (
                 <div className="text-center py-16">
                   <p className="text-wx-txm text-sm mb-3">
                     {de ? 'Keine passende Kette gefunden.' : 'No matching chain found.'}
                   </p>
-                  <button onClick={resetFilters} className="text-[12px] transition-colors" style={{ color: '#1A3C6E' }}>
+                  <button onClick={resetFilters} className="text-[12px] transition-colors" style={{ color: 'var(--accent)' }}>
                     {de ? 'Filter zurücksetzen' : 'Reset filters'}
                   </button>
                 </div>
@@ -298,7 +315,7 @@ interface CardProps {
 
 const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: CardProps) {
   const isPro = product.variant === 'pro';
-  const accent = isPro ? '#2A5499' : '#1A3C6E';
+  const accent = isPro ? 'var(--accent)' : 'var(--accent)';
 
   const title = de ? product.title : product.titleEn;
   const badge = de ? product.badge : product.badgeEn;
@@ -310,7 +327,7 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: Ca
         to={`/produkt/${product.id}`}
         className="group relative flex flex-col h-full rounded-2xl"
         style={{
-          background: 'linear-gradient(175deg, var(--card-from) 0%, var(--card-to) 100%)',
+          background: 'var(--card-bg)',
           border: '1px solid var(--bd)',
           boxShadow: 'var(--card-shad)',
           transition: 'border-color 250ms ease, box-shadow 250ms ease',
@@ -338,14 +355,14 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: Ca
           {/* Badges */}
           <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2">
             <span
-              className="text-[10px] font-semibold tracking-[0.15em] uppercase px-2.5 py-1 rounded-full"
+              className="wx-badge"
               style={{ background: 'rgba(0,0,0,0.60)', color: 'rgba(180,210,255,0.95)', border: `1px solid ${accent}50`, backdropFilter: 'blur(4px)' }}
             >
               {isPro ? 'Pro' : 'Classic'} · {product.weight}
             </span>
             {badge && (
               <span
-                className="text-[10px] font-semibold tracking-wide uppercase px-2.5 py-1 rounded-full"
+                className="wx-badge"
                 style={{ background: 'rgba(0,0,0,0.60)', color: 'rgba(255,255,255,0.92)', border: '1px solid rgba(255,255,255,0.20)', backdropFilter: 'blur(4px)' }}
               >
                 {badge}
@@ -403,7 +420,7 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: Ca
 // ── Chain Card ─────────────────────────────────────────────────────────────
 
 const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }: CardProps) {
-  const accent = '#1A3C6E'; // used for badge border/text only
+  const accent = 'var(--accent)'; // used for badge border/text only
   const badge = de ? product.badge : product.badgeEn;
 
   const brand = product.chainBrand ?? '';
@@ -418,7 +435,7 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
         to={`/produkt/${product.id}`}
         className="group flex flex-col h-full rounded-2xl"
         style={{
-          background: 'linear-gradient(175deg, var(--card-from) 0%, var(--card-to) 100%)',
+          background: 'var(--card-bg)',
           border: '1px solid var(--bd)',
           boxShadow: 'var(--card-shad)',
           transition: 'border-color 250ms ease, box-shadow 250ms ease',
@@ -444,14 +461,14 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
           <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to top, var(--card-img-fade) 0%, transparent 55%)' }} />
           <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between gap-2">
             <span
-              className="text-[10px] font-semibold tracking-[0.15em] uppercase px-2.5 py-1 rounded-full"
+              className="wx-badge"
               style={{ background: 'rgba(0,0,0,0.60)', color: 'rgba(160,200,255,0.95)', border: '1px solid rgba(100,160,255,0.35)', backdropFilter: 'blur(4px)' }}
             >
               {speed}
             </span>
             {badge && (
               <span
-                className="text-[10px] font-semibold tracking-wide uppercase px-2.5 py-1 rounded-full"
+                className="wx-badge"
                 style={{ background: 'rgba(0,0,0,0.60)', color: 'rgba(255,255,255,0.92)', border: '1px solid rgba(255,255,255,0.20)', backdropFilter: 'blur(4px)' }}
               >
                 {badge}
@@ -468,20 +485,14 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
             <h3 className="text-[15px] font-bold text-wx-tx1 leading-snug tracking-[-0.02em]">{model}</h3>
           </div>
 
-          {/* Spec pills */}
-          <div className="flex flex-wrap gap-1.5 mb-3">
-            {chainLinks && (
+          {/* Spec pills — only per-card-varying info; shared "Quick-Link / pre-waxed" lives once above the grid */}
+          {chainLinks && (
+            <div className="flex flex-wrap gap-1.5 mb-3">
               <span className="text-[11px] px-2.5 py-1 rounded-lg font-medium" style={{ background: 'var(--sf3)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
                 {chainLinks}
               </span>
-            )}
-            <span className="text-[11px] px-2.5 py-1 rounded-lg font-medium" style={{ background: 'var(--sf3)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
-              Quick-Link
-            </span>
-            <span className="text-[11px] px-2.5 py-1 rounded-lg font-medium" style={{ background: 'var(--sf3)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
-              {de ? 'Vorgewachst' : 'Pre-waxed'}
-            </span>
-          </div>
+            </div>
+          )}
 
           {/* Price + CTA */}
           <div className="flex items-center justify-between gap-3 pt-3" style={{ borderTop: '1px solid var(--bd2)' }}>
@@ -489,7 +500,7 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
             <button
               onClick={e => { e.preventDefault(); e.stopPropagation(); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
               className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-opacity duration-150 hover:opacity-90 active:scale-[0.97]"
-              style={{ background: '#1A3C6E' }}
+              style={{ background: 'var(--accent)' }}
             >
               {buyLabel}
               <ExternalLink className="h-3.5 w-3.5" />
@@ -503,8 +514,8 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
 
 // ── Compare Modal ──────────────────────────────────────────────────────────
 
-const CLASSIC_ACCENT = '#2B52B0';
-const PRO_ACCENT = '#3D67CA';
+const CLASSIC_ACCENT = 'var(--accent)';
+const PRO_ACCENT = 'var(--accent-soft)';
 
 function CompareModal({ open, onClose, de, t }: {
   open: boolean;
