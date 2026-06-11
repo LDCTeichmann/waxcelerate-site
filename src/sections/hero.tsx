@@ -19,10 +19,11 @@ export function Hero() {
   const { t, lang } = useLanguage();
   const de = lang === 'de';
 
-  const rootRef  = useRef<HTMLElement>(null);
-  const imgRef   = useRef<HTMLDivElement>(null);
-  const wordRef  = useRef<HTMLDivElement>(null);
-  const animated = useRef(false);
+  const rootRef    = useRef<HTMLElement>(null);
+  const imgRef     = useRef<HTMLDivElement>(null);
+  const wordRef    = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const animated   = useRef(false);
 
   useEffect(() => {
     if (animated.current) return;
@@ -67,6 +68,8 @@ export function Hero() {
         ScrollTrigger.create({ trigger: root, start: 'top top', end: 'bottom top', scrub: true, animation }),
       );
     if (imgRef.current) scrub(gsap.to(imgRef.current, { yPercent: 4, ease: 'none' }));
+    // Exit-Fade: der Text verabschiedet sich ruhig nach oben.
+    if (contentRef.current) scrub(gsap.to(contentRef.current, { y: -44, opacity: 0.25, ease: 'none' }));
     if (letters.length) {
       const mid = (letters.length - 1) / 2;
       scrub(gsap.to(letters, { x: (i: number) => (i - mid) * 6, ease: 'none' }));
@@ -175,7 +178,7 @@ export function Hero() {
       {/* Content — links, über der dunklen Negativfläche */}
       <div className="relative z-10 min-h-[100dvh] lg:h-full w-full px-6 sm:px-10 lg:px-16 xl:px-24">
         <div className="min-h-[100dvh] lg:h-full max-w-7xl mx-auto flex flex-col justify-center lg:justify-end pt-24 pb-28 lg:pt-0 lg:pb-28">
-          <div className="max-w-xl">
+          <div ref={contentRef} className="max-w-xl will-change-transform">
 
             {/* Eyebrow — der einzige Produktblau-Akzent */}
             <div data-hero className="flex items-center gap-3 mb-6">
@@ -222,26 +225,32 @@ export function Hero() {
               {t.hero.tagline}
             </p>
 
-            {/* CTAs */}
+            {/* CTAs — ruhige Mikrointeraktionen: Lift + Pfeil-Nudge */}
             <div data-hero className="mt-8 flex items-center gap-5 flex-wrap">
               <button
                 onClick={() => scrollTo('#produkte')}
-                className="inline-flex items-center gap-2.5 px-8 py-3.5 text-[14px] font-bold rounded-full transition-all active:scale-[0.98]"
+                className="group inline-flex items-center gap-2.5 px-8 py-3.5 text-[14px] font-bold rounded-full transition-all duration-300 active:scale-[0.98] hover:-translate-y-0.5 hover:shadow-[0_14px_36px_rgba(0,0,0,0.45)]"
                 style={{ background: '#FFFFFF', color: '#0F0F12' }}
               >
                 {t.hero.ctaBuy}
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
               </button>
               <button
                 onClick={() => scrollTo('#warum-wachs')}
-                className="px-6 py-3.5 text-[13px] font-medium rounded-full transition-colors"
+                className="px-6 py-3.5 text-[13px] font-medium rounded-full transition-all duration-300"
                 style={{
                   color: 'rgba(255,255,255,0.85)',
                   border: '1px solid rgba(255,255,255,0.28)',
                   background: 'transparent',
                 }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.07)';
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.5)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.28)';
+                }}
               >
                 {t.hero.ctaSecondary}
               </button>
