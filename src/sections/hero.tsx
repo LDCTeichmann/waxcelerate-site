@@ -49,9 +49,9 @@ export function Hero() {
 
     const tl = gsap.timeline({ delay: 0.1, defaults: { ease: 'power4.out' } });
 
-    // Cineastischer Bild-Settle — langsam, schwer.
+    // Cineastischer Bild-Settle — sanft, das Bild bleibt 1:1 erhalten.
     if (imgRef.current) {
-      tl.fromTo(imgRef.current, { scale: 1.12 }, { scale: 1.04, duration: 2.4, ease: 'power2.out' }, 0);
+      tl.fromTo(imgRef.current, { scale: 1.07 }, { scale: 1.015, duration: 2.4, ease: 'power2.out' }, 0);
     }
     // Kinetische Wortmarke: jeder Letter steigt maskiert aus der Grundlinie.
     tl.fromTo(letters, { yPercent: 110 }, { yPercent: 0, duration: 1.1, stagger: { each: 0.04 } }, 0.2);
@@ -66,7 +66,7 @@ export function Hero() {
       triggers.push(
         ScrollTrigger.create({ trigger: root, start: 'top top', end: 'bottom top', scrub: true, animation }),
       );
-    if (imgRef.current) scrub(gsap.to(imgRef.current, { yPercent: 8, ease: 'none' }));
+    if (imgRef.current) scrub(gsap.to(imgRef.current, { yPercent: 4, ease: 'none' }));
     if (letters.length) {
       const mid = (letters.length - 1) / 2;
       scrub(gsap.to(letters, { x: (i: number) => (i - mid) * 6, ease: 'none' }));
@@ -79,8 +79,8 @@ export function Hero() {
       const qy = gsap.quickTo(imgRef.current, 'y', { duration: 1.0, ease: 'power3.out' });
       onMove = (e: MouseEvent) => {
         const r = root.getBoundingClientRect();
-        qx(((e.clientX - r.left) / r.width - 0.5) * -16);
-        qy(((e.clientY - r.top) / r.height - 0.5) * -10);
+        qx(((e.clientX - r.left) / r.width - 0.5) * -9);
+        qy(((e.clientY - r.top) / r.height - 0.5) * -6);
       };
       root.addEventListener('mousemove', onMove);
     }
@@ -118,7 +118,7 @@ export function Hero() {
             src="/images/hero-wax.jpg"
             alt={de ? 'Waxcelerate Heißwachs-Block auf Schiefer' : 'Waxcelerate hot wax block on slate'}
             className="absolute inset-0 w-full h-full object-cover"
-            style={{ objectPosition: '68% 50%' }}
+            style={{ objectPosition: '50% 42%' }}
             fetchPriority="high"
           />
         </picture>
@@ -156,23 +156,16 @@ export function Hero() {
           style={{
             fontFamily: '"Libre Franklin", ui-sans-serif, system-ui, sans-serif',
             fontWeight: 900,
-            fontSize: 'clamp(2.4rem, 9.6vw, 9rem)',
+            fontSize: 'clamp(2.4rem, 8.9vw, 8.4rem)',
             lineHeight: 0.9,
-            letterSpacing: '-0.012em',
+            letterSpacing: '-0.01em',
+            color: '#FFFFFF',
+            textShadow: '0 4px 44px rgba(0,0,0,0.35)',
           }}
         >
           {BRAND.map((ch, i) => (
             <span key={i} className="inline-block overflow-hidden align-bottom" style={{ paddingBottom: '0.05em' }}>
-              <span
-                data-letter
-                className="inline-block will-change-transform"
-                style={{
-                  backgroundImage: 'linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(226,232,240,0.55) 52%, rgba(174,185,198,0.32) 100%)',
-                  WebkitBackgroundClip: 'text',
-                  backgroundClip: 'text',
-                  color: 'transparent',
-                }}
-              >
+              <span data-letter className="inline-block will-change-transform">
                 {ch}
               </span>
             </span>
@@ -242,30 +235,18 @@ export function Hero() {
               </button>
               <button
                 onClick={() => scrollTo('#warum-wachs')}
-                className="text-[13px] transition-opacity hover:opacity-80"
+                className="px-6 py-3.5 text-[13px] font-medium rounded-full transition-colors"
                 style={{
-                  color: 'rgba(255,255,255,0.62)',
-                  textDecoration: 'underline',
-                  textUnderlineOffset: '4px',
-                  textDecorationColor: 'rgba(255,255,255,0.24)',
+                  color: 'rgba(255,255,255,0.85)',
+                  border: '1px solid rgba(255,255,255,0.28)',
+                  background: 'transparent',
                 }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
               >
                 {t.hero.ctaSecondary}
               </button>
             </div>
-
-            {/* Trust — eine ruhige Mikro-Zeile */}
-            <p
-              data-hero
-              className="mt-7 text-[12px] uppercase tabular-nums"
-              style={{ letterSpacing: '0.14em', color: 'rgba(255,255,255,0.5)' }}
-            >
-              <span style={{ color: 'rgba(255,255,255,0.82)' }}>★★★★★</span>
-              {'  171 · '}
-              {de ? '100 % positiv' : '100% positive'}
-              {' · '}
-              {de ? 'eBay-Käuferschutz' : 'eBay buyer protection'}
-            </p>
           </div>
         </div>
       </div>
@@ -274,9 +255,44 @@ export function Hero() {
       <div data-hero className="absolute bottom-0 inset-x-0 z-10">
         <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 xl:px-24">
           <div
-            className="grid grid-cols-3 gap-x-5 sm:gap-x-8 py-4 sm:py-5"
+            className="grid grid-cols-2 sm:grid-cols-4 gap-x-5 sm:gap-x-8 gap-y-5 py-4 sm:py-5"
             style={{ borderTop: '1px solid rgba(255,255,255,0.12)' }}
           >
+            {/* Trust als erste Zelle — Beweis und Daten in einem System */}
+            <div>
+              <div className="flex items-center gap-2.5 mb-2.5 sm:mb-3">
+                <span
+                  className="inline-flex items-center justify-center flex-shrink-0 rounded-full"
+                  style={{
+                    width: '21px',
+                    height: '21px',
+                    fontSize: '9px',
+                    color: 'rgba(255,255,255,0.72)',
+                    border: '1px solid rgba(255,255,255,0.28)',
+                  }}
+                >
+                  ★
+                </span>
+                <span
+                  data-hero-line
+                  className="h-px flex-1 origin-left"
+                  style={{ background: 'rgba(255,255,255,0.16)' }}
+                />
+              </div>
+              <p
+                className="font-display font-bold tabular-nums text-white leading-none"
+                style={{ fontSize: 'clamp(1.15rem, 2.2vw, 1.7rem)', letterSpacing: '0.04em' }}
+              >
+                ★★★★★
+              </p>
+              <p
+                className="text-[10px] sm:text-[11px] uppercase mt-1.5"
+                style={{ letterSpacing: '0.06em', color: 'rgba(255,255,255,0.46)' }}
+              >
+                {de ? '171 · 100 % positiv · eBay' : '171 · 100% positive · eBay'}
+              </p>
+            </div>
+
             {stats.map((s, i) => (
               <div key={i}>
                 <div className="flex items-center gap-2.5 mb-2.5 sm:mb-3">
