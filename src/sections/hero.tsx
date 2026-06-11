@@ -15,7 +15,7 @@ import { gsap, ScrollTrigger } from '@/lib/gsap';
  */
 
 const BRAND = 'Waxcelerate'.split('');
-const IMG_POS = '62% 50%'; // identisch für object-position UND mask-position
+const IMG_POS = '68% 50%'; // identisch für object-position UND mask-position
 
 export function Hero() {
   const { t, lang } = useLanguage();
@@ -29,6 +29,7 @@ export function Hero() {
   const contentRef = useRef<HTMLDivElement>(null);
   const ctaRef     = useRef<HTMLButtonElement>(null);
   const animated   = useRef(false);
+  const spotRef    = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (animated.current) return;
@@ -76,6 +77,25 @@ export function Hero() {
     );
     tl.fromTo(items, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', stagger: 0.09 }, 1.0);
 
+    // Zahlen im Daten-Band zählen kurz hoch — macht konkrete Werte spürbar.
+    const statEls = root.querySelectorAll<HTMLElement>('[data-stat-val]');
+    if (statEls[0]) {
+      const el0 = statEls[0];
+      const c0 = { val: 0 };
+      gsap.to(c0, { val: 3, duration: 0.9, delay: 1.2, ease: 'power2.out', snap: { val: 1 },
+        onStart() { el0.textContent = '0×'; },
+        onUpdate() { el0.textContent = c0.val + '×'; },
+      });
+    }
+    if (statEls[1]) {
+      const el1 = statEls[1];
+      const c1 = { val: 0 };
+      gsap.to(c1, { val: 70, duration: 1.1, delay: 1.2, ease: 'power2.out', snap: { val: 1 },
+        onStart() { el1.textContent = '~€0'; },
+        onUpdate() { el1.textContent = '~€' + c1.val; },
+      });
+    }
+
     // Scroll: Bild driftet, Wortmarke atmet auseinander, Text verabschiedet sich.
     const triggers: ScrollTrigger[] = [];
     const scrub = (animation: gsap.core.Tween) =>
@@ -93,7 +113,8 @@ export function Hero() {
 
     // Cursor-Tiefe: Bildebenen folgen der Maus stärker als die Wortmarke —
     // der Versatz zwischen Block und Typo erzeugt echte Parallaxe.
-    let onMove: ((e: MouseEvent) => void) | undefined;
+    let onMove:  ((e: MouseEvent) => void) | undefined;
+    let onLeave: (() => void) | undefined;
     if (finePointer) {
       const qImg = imgLayers.map((el) => [
         gsap.quickTo(el, 'x', { duration: 1.0, ease: 'power3.out' }),
@@ -107,8 +128,14 @@ export function Hero() {
         const ny = (e.clientY - r.top) / r.height - 0.5;
         qImg.forEach(([qx, qy]) => { qx(nx * -10); qy(ny * -7); });
         if (qWordX && qWordY) { qWordX(nx * -3); qWordY(ny * -2); }
+        if (spotRef.current) {
+          spotRef.current.style.background =
+            `radial-gradient(ellipse 520px 340px at ${e.clientX - r.left}px ${e.clientY - r.top}px, rgba(255,255,255,0.028) 0%, transparent 68%)`;
+        }
       };
+      onLeave = () => { if (spotRef.current) spotRef.current.style.background = 'none'; };
       card.addEventListener('mousemove', onMove);
+      card.addEventListener('mouseleave', onLeave);
     }
 
     // Magnetischer Primär-CTA: zieht sich wenige Pixel zum Cursor,
@@ -130,8 +157,9 @@ export function Hero() {
     }
 
     return () => {
-      if (onMove) card.removeEventListener('mousemove', onMove);
-      if (cta && ctaMove) cta.removeEventListener('mousemove', ctaMove);
+      if (onMove)  card.removeEventListener('mousemove', onMove);
+      if (onLeave) card.removeEventListener('mouseleave', onLeave);
+      if (cta && ctaMove)  cta.removeEventListener('mousemove', ctaMove);
       if (cta && ctaLeave) cta.removeEventListener('mouseleave', ctaLeave);
       triggers.forEach((s) => s.kill());
     };
@@ -141,9 +169,9 @@ export function Hero() {
     document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
 
   const stats = [
-    { v: '3×',   l: de ? 'Kettenlaufzeit'      : 'chain life'        },
-    { v: '~€70', l: de ? 'gespart · 12.000 km' : 'saved · 12,000 km' },
-    { v: '−46%', l: de ? 'Kosten vs. Öl'       : 'cost vs. oil'      },
+    { v: '3×',    l: de ? 'Kettenlaufzeit'           : 'chain life'          },
+    { v: '~€70',  l: de ? 'gespart · 12.000 km'      : 'saved · 12,000 km'  },
+    { v: '1 Tag', l: de ? 'Versand nach Bestellung'   : 'ships after order'  },
   ];
 
   // Bild-Ebene (für Basis + maskierte Block-Ebene identisch aufgebaut)
@@ -220,11 +248,14 @@ export function Hero() {
             }}
           />
 
+          {/* Cursor-Spotlight — kaum sichtbare Aufhellung unter der Maus */}
+          <div ref={spotRef} className="absolute inset-0 z-[2] pointer-events-none" />
+
           {/* Ebene 2 — Wortmarke (Roboto), läuft hinter dem Block durch */}
           <div
             ref={wordRef}
             aria-hidden
-            className="absolute left-0 right-0 top-[10%] sm:top-[12%] z-[2] flex justify-center pointer-events-none select-none px-4 will-change-transform"
+            className="absolute left-0 right-0 top-[7%] sm:top-[9%] z-[2] flex justify-center pointer-events-none select-none px-4 will-change-transform"
           >
             <div
               className="whitespace-nowrap"
@@ -324,12 +355,13 @@ export function Hero() {
                   </button>
                   <button
                     onClick={() => scrollTo('#warum-wachs')}
-                    className="px-6 py-3.5 text-[13px] font-medium rounded-full transition-all duration-300"
+                    className="px-6 py-3.5 text-[13px] font-medium rounded-full"
                     style={{
                       color: 'rgba(255,255,255,0.88)',
                       border: '1px solid rgba(255,255,255,0.30)',
                       background: 'rgba(10,11,13,0.18)',
                       backdropFilter: 'blur(6px)',
+                      transition: 'background 0.25s ease, border-color 0.25s ease',
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.background = 'rgba(255,255,255,0.10)';
@@ -399,6 +431,7 @@ export function Hero() {
                       style={{ borderLeft: i > 0 ? '1px solid rgba(255,255,255,0.14)' : 'none' }}
                     >
                       <p
+                        data-stat-val
                         className="font-display font-bold tabular-nums text-white leading-none"
                         style={{ fontSize: 'clamp(1.3rem, 2vw, 1.7rem)' }}
                       >

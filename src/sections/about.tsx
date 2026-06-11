@@ -53,10 +53,14 @@ export function About() {
       value: '2024',
       label: de ? 'In Stuttgart gegründet' : 'Founded in Stuttgart',
     },
+    {
+      value: '171 ×',
+      label: de ? 'eBay Top-Bewertungen' : 'eBay top reviews',
+    },
   ];
 
   return (
-    <section id="ueber-mich" className="relative py-20 sm:py-28 bg-wx-sf chain-texture">
+    <section id="ueber-mich" className="relative py-24 sm:py-32 bg-wx-sf chain-texture">
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-5xl mx-auto">
 
@@ -66,7 +70,7 @@ export function About() {
               className="eyebrow mb-3"
               style={{ color: 'var(--txf)' }}
             >
-              {de ? 'Die Geschichte' : 'Our Story'}
+              {de ? 'Gründer & Expertise' : 'Founder & Expertise'}
             </p>
             <h2 className="section-title">
               <ScrollWordReveal text={t.about.title} />
@@ -83,7 +87,7 @@ export function About() {
               <blockquote
                 className="font-display italic my-3 pl-5"
                 style={{
-                  borderLeft: '2px solid rgba(var(--accent-rgb),0.45)',
+                  borderLeft: '3px solid var(--accent)',
                   color: 'var(--tx1)',
                   fontSize: 'clamp(1.15rem, 1.9vw, 1.5rem)',
                   lineHeight: 1.3,
@@ -127,9 +131,9 @@ export function About() {
             <div ref={bannerRef} className="flex flex-col gap-0">
               {/* Image */}
               <div
-                className="relative rounded-t-2xl overflow-hidden"
+                className="relative rounded-t-2xl overflow-hidden group"
                 style={{
-                  height: '360px',
+                  height: '420px',
                   border: '1px solid var(--bd)',
                   borderBottom: 'none',
                   boxShadow: '0 12px 48px rgba(0,0,0,0.18)',
@@ -140,7 +144,7 @@ export function About() {
                   <img
                     src="/images/luca-stage.jpg"
                     alt="eBay Seller Leadership Week 2025, San Jose"
-                    className="absolute inset-0 w-full h-full object-cover"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
                     style={{ objectPosition: '50% 38%' }}
                   />
                 </picture>
@@ -154,15 +158,15 @@ export function About() {
                 />
                 <div className="absolute top-0 left-0 px-6 pt-5">
                   <p
-                    className="text-[9px] font-semibold uppercase tracking-[0.22em] mb-1"
-                    style={{ color: 'rgba(255,255,255,0.48)' }}
+                    className="text-[10px] font-semibold uppercase tracking-[0.22em] mb-1"
+                    style={{ color: '#0064D2' }}
                   >
                     eBay Seller Leadership Week
                   </p>
-                  <p className="text-[16px] font-bold text-white leading-tight mb-1">
+                  <p className="text-[20px] font-black text-white leading-tight mb-1">
                     2025 · San Jose, CA
                   </p>
-                  <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.65)' }}>
+                  <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.75)' }}>
                     {de
                       ? 'Von eBay eingeladen — als Seller Persona auf der Hauptbühne präsentiert'
                       : 'Invited by eBay — featured as a seller persona on the main stage'}
@@ -173,7 +177,7 @@ export function About() {
               {/* Stats — compact 2×2 grid below image */}
               <div
                 ref={statsRef}
-                className="grid grid-cols-2 rounded-b-2xl overflow-hidden"
+                className="grid grid-cols-3 rounded-b-2xl overflow-hidden"
                 style={{ border: '1px solid var(--bd)', borderTop: '1px solid var(--bd2)' }}
               >
                 {stats.map((s, i) => (
@@ -182,7 +186,7 @@ export function About() {
                     className="py-4 px-4 text-center"
                     style={{
                       background: 'var(--sf2)',
-                      borderRight: i === 0 ? '1px solid var(--bd2)' : 'none',
+                      borderRight: i < 2 ? '1px solid var(--bd2)' : 'none',
                     }}
                   >
                     <p
