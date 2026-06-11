@@ -219,8 +219,9 @@
   color: var(--tx1) !important;
 }
 
-/* Hero: dark mode needs white headings (overrides the global tx1 rule) */
-.noir #home h1, .noir #home h2, .noir #home h3, .noir #home h4 {
+/* Hero sits on a photo stage in BOTH themes — headings stay white
+   (ID selector outranks the :root:not(.noir) light-mode rule above) */
+#home h1, #home h2, #home h3, #home h4 {
   color: #FFFFFF !important;
 }
 
