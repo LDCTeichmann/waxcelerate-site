@@ -121,7 +121,7 @@ export function Hero() {
             src="/images/hero-wax.jpg"
             alt={de ? 'Waxcelerate Heißwachs-Block auf Schiefer' : 'Waxcelerate hot wax block on slate'}
             className="absolute inset-0 w-full h-full object-cover"
-            style={{ objectPosition: '50% 42%' }}
+            style={{ objectPosition: '55% 45%' }}
             fetchPriority="high"
           />
         </picture>
