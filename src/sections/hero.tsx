@@ -156,11 +156,10 @@ export function Hero() {
           style={{
             fontFamily: '"Libre Franklin", ui-sans-serif, system-ui, sans-serif',
             fontWeight: 900,
-            fontSize: 'clamp(2.4rem, 8.9vw, 8.4rem)',
+            fontSize: 'clamp(2.4rem, 8.6vw, 8rem)',
             lineHeight: 0.9,
-            letterSpacing: '-0.01em',
-            color: '#FFFFFF',
-            textShadow: '0 4px 44px rgba(0,0,0,0.35)',
+            letterSpacing: '-0.005em',
+            color: 'rgba(255,255,255,0.96)',
           }}
         >
           {BRAND.map((ch, i) => (
@@ -251,85 +250,45 @@ export function Hero() {
         </div>
       </div>
 
-      {/* Spec-Ribbon — nummerierte Editorial-Einträge */}
+      {/* Trust + Daten — ein ruhiges, elegantes Band. Eine Hairline, keine Kreise. */}
       <div data-hero className="absolute bottom-0 inset-x-0 z-10">
         <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 xl:px-24">
           <div
-            className="grid grid-cols-2 sm:grid-cols-4 gap-x-5 sm:gap-x-8 gap-y-5 py-4 sm:py-5"
+            className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between py-5 sm:py-6"
             style={{ borderTop: '1px solid rgba(255,255,255,0.12)' }}
           >
-            {/* Trust als erste Zelle — Beweis und Daten in einem System */}
-            <div>
-              <div className="flex items-center gap-2.5 mb-2.5 sm:mb-3">
-                <span
-                  className="inline-flex items-center justify-center flex-shrink-0 rounded-full"
-                  style={{
-                    width: '21px',
-                    height: '21px',
-                    fontSize: '9px',
-                    color: 'rgba(255,255,255,0.72)',
-                    border: '1px solid rgba(255,255,255,0.28)',
-                  }}
-                >
-                  ★
-                </span>
-                <span
-                  data-hero-line
-                  className="h-px flex-1 origin-left"
-                  style={{ background: 'rgba(255,255,255,0.16)' }}
-                />
-              </div>
-              <p
-                className="font-display font-bold tabular-nums text-white leading-none"
-                style={{ fontSize: 'clamp(1.15rem, 2.2vw, 1.7rem)', letterSpacing: '0.04em' }}
-              >
+            {/* Trust — eine leise Zeile */}
+            <div className="flex items-center gap-3 order-2 sm:order-1">
+              <span style={{ color: 'rgba(255,255,255,0.9)', letterSpacing: '0.08em', fontSize: '13px' }}>
                 ★★★★★
-              </p>
-              <p
-                className="text-[10px] sm:text-[11px] uppercase mt-1.5"
-                style={{ letterSpacing: '0.06em', color: 'rgba(255,255,255,0.46)' }}
+              </span>
+              <span
+                className="text-[10.5px] sm:text-[11px] uppercase tabular-nums"
+                style={{ letterSpacing: '0.13em', color: 'rgba(255,255,255,0.5)' }}
               >
-                {de ? '171 · 100 % positiv · eBay' : '171 · 100% positive · eBay'}
-              </p>
+                171 · {de ? '100 % positiv' : '100% positive'} · {de ? 'eBay-Käuferschutz' : 'eBay buyer protection'}
+              </span>
             </div>
 
-            {stats.map((s, i) => (
-              <div key={i}>
-                <div className="flex items-center gap-2.5 mb-2.5 sm:mb-3">
-                  <span
-                    className="inline-flex items-center justify-center flex-shrink-0 rounded-full tabular-nums"
-                    style={{
-                      width: '21px',
-                      height: '21px',
-                      fontSize: '9px',
-                      fontWeight: 600,
-                      letterSpacing: '0.04em',
-                      color: 'rgba(255,255,255,0.72)',
-                      border: '1px solid rgba(255,255,255,0.28)',
-                    }}
+            {/* Daten — drei klare Werte, nur Abstand trennt sie */}
+            <div className="grid grid-cols-3 sm:flex sm:items-end gap-x-7 sm:gap-x-10 order-1 sm:order-2">
+              {stats.map((s, i) => (
+                <div key={i}>
+                  <p
+                    className="font-display font-bold tabular-nums text-white leading-none"
+                    style={{ fontSize: 'clamp(1.25rem, 1.9vw, 1.6rem)' }}
                   >
-                    {i + 1}
-                  </span>
-                  <span
-                    data-hero-line
-                    className="h-px flex-1 origin-left"
-                    style={{ background: 'rgba(255,255,255,0.16)' }}
-                  />
+                    {s.v}
+                  </p>
+                  <p
+                    className="text-[9px] sm:text-[10px] uppercase mt-1.5 whitespace-nowrap"
+                    style={{ letterSpacing: '0.07em', color: 'rgba(255,255,255,0.44)' }}
+                  >
+                    {s.l}
+                  </p>
                 </div>
-                <p
-                  className="font-display font-bold tabular-nums text-white leading-none"
-                  style={{ fontSize: 'clamp(1.15rem, 2.2vw, 1.7rem)' }}
-                >
-                  {s.v}
-                </p>
-                <p
-                  className="text-[10px] sm:text-[11px] uppercase mt-1.5"
-                  style={{ letterSpacing: '0.06em', color: 'rgba(255,255,255,0.46)' }}
-                >
-                  {s.l}
-                </p>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </div>
