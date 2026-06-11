@@ -15,8 +15,8 @@ export const translations = {
     // Hero
     hero: {
       subtitle: 'Heißwachs für Fahrradketten',
-      headline: 'Wachs schlägt',
-      headlineSub: 'Öl.',
+      headline: 'Am Ende der',
+      headlineSub: 'Recherche.',
       tagline: 'Dreimal längere Kettenlaufzeit. Kein Dreck, kein Nachschmieren — messbar weniger Reibung.',
       priceAnchor: 'Ab €22,95 · ~€70 gespart auf 12.000 km',
       guarantee: 'Nicht zufrieden? Schreib mir — ich sorge dafür, dass es stimmt.',
@@ -358,8 +358,8 @@ export const translations = {
     // Hero
     hero: {
       subtitle: 'Hot Wax for Bicycle Chains',
-      headline: 'Wax beats',
-      headlineSub: 'oil.',
+      headline: 'At the end of',
+      headlineSub: 'the research.',
       tagline: '3× longer chain life. No grime, no re-lubing — measurably less friction.',
       priceAnchor: 'From €22.95 · ~€70 saved over 12,000 km',
       guarantee: "Not happy? Write me — I'll make it right.",
