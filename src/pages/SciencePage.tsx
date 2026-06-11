@@ -33,24 +33,6 @@ const TF_PARTICLES = [
   { x: 430, y: 108, r: 3.5, top: true  },
 ] as const;
 
-const HERO_PARTICLES = [
-  { cx: 22,  cy: 300, r: 1.5, dur: 6.2, dx: 10  },
-  { cx: 68,  cy: 240, r: 2,   dur: 5.1, dx: -9  },
-  { cx: 118, cy: 330, r: 1.5, dur: 7.0, dx: 12  },
-  { cx: 172, cy: 200, r: 2.5, dur: 5.5, dx: -11 },
-  { cx: 218, cy: 280, r: 1.5, dur: 6.8, dx: 9   },
-  { cx: 268, cy: 160, r: 2,   dur: 4.9, dx: -13 },
-  { cx: 315, cy: 315, r: 1.5, dur: 6.3, dx: 11  },
-  { cx: 370, cy: 235, r: 2,   dur: 5.7, dx: -9  },
-  { cx: 425, cy: 185, r: 1.5, dur: 6.5, dx: 13  },
-  { cx: 478, cy: 320, r: 2.5, dur: 5.2, dx: -10 },
-  { cx: 155, cy: 180, r: 1.5, dur: 6.1, dx: 8   },
-  { cx: 340, cy: 290, r: 2,   dur: 5.8, dx: -11 },
-  { cx: 200, cy: 350, r: 1.5, dur: 7.2, dx: 10  },
-  { cx: 440, cy: 270, r: 2.5, dur: 5.4, dx: -8  },
-  { cx: 90,  cy: 400, r: 1.5, dur: 6.7, dx: 12  },
-  { cx: 390, cy: 130, r: 2,   dur: 5.0, dx: -10 },
-] as const;
 
 const DOT_GRID: React.CSSProperties = {
   backgroundImage: 'radial-gradient(circle, rgba(var(--accent-rgb),0.11) 1px, transparent 1px)',
@@ -92,55 +74,6 @@ const LIGHT_DOT_GRID: React.CSSProperties = {
 // Shared container width
 const W = 'max-w-5xl mx-auto px-4 sm:px-6 lg:px-8';
 
-// ─── Grain overlay ────────────────────────────────────────────────────────────
-function GrainOverlay() {
-  return (
-    <div
-      aria-hidden="true"
-      style={{
-        position: 'fixed', inset: 0, zIndex: 2, pointerEvents: 'none',
-        // eslint-disable-next-line max-len
-        backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E\")",
-        backgroundRepeat: 'repeat',
-        backgroundSize: '300px 300px',
-        opacity: 0.032,
-        mixBlendMode: 'overlay',
-      }}
-    />
-  );
-}
-
-// ─── Hero floating particles ──────────────────────────────────────────────────
-function HeroParticles() {
-  const svgRef = useRef<SVGSVGElement>(null);
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      const nodes = svgRef.current?.querySelectorAll<SVGCircleElement>('.hp');
-      if (!nodes?.length) return;
-      HERO_PARTICLES.forEach((p, i) => {
-        const el = nodes[i];
-        if (!el) return;
-        gsap.fromTo(el,
-          { attr: { cy: p.cy + 50 } },
-          { attr: { cy: p.cy - 130 }, duration: p.dur, ease: 'none', repeat: -1, delay: i * 0.55 },
-        );
-        gsap.to(el, {
-          attr: { cx: p.cx + p.dx },
-          duration: 2.8 + i * 0.25,
-          repeat: -1, yoyo: true, ease: 'sine.inOut', delay: i * 0.2,
-        });
-      });
-    }, svgRef);
-    return () => ctx.revert();
-  }, []);
-  return (
-    <svg ref={svgRef} aria-hidden className="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="xMidYMid slice">
-      {HERO_PARTICLES.map((p, i) => (
-        <circle key={i} className="hp" cx={p.cx} cy={p.cy} r={p.r} fill="var(--accent-soft)" opacity="0.22" />
-      ))}
-    </svg>
-  );
-}
 
 // ─── Chapter navigation sidebar ───────────────────────────────────────────────
 function ChapterNav({ de, onActiveChange }: { de: boolean; onActiveChange?: (i: number) => void }) {
@@ -287,49 +220,53 @@ function FrictionLadderViz({ isDark }: { isDark: boolean }) {
   );
 }
 
-// ─── Stat callout — full-bleed dark section ───────────────────────────────────
+// ─── Stat callout — clean divider section ────────────────────────────────────
 function StatCallout({ stat, ctxDe, ctxEn, de, isDark, miniViz }: {
   stat: string; ctxDe: string; ctxEn: string; de: boolean; isDark: boolean;
   miniViz?: React.ReactNode;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  const numRef = useRef<HTMLParagraphElement>(null);
   useEffect(() => {
     const ctx = gsap.context(() => {
       gsap.fromTo(ref.current,
-        { opacity: 0, scale: 0.97 },
-        { opacity: 1, scale: 1, duration: 0.9, ease: 'power3.out',
-          scrollTrigger: { trigger: ref.current, start: 'top 85%', once: true } },
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out',
+          scrollTrigger: { trigger: ref.current, start: 'top 88%', once: true } },
       );
+      if (numRef.current) {
+        gsap.fromTo(numRef.current,
+          { opacity: 0, scale: 0.9 },
+          { opacity: 1, scale: 1, duration: 0.8, ease: 'back.out(1.4)', delay: 0.2,
+            scrollTrigger: { trigger: ref.current, start: 'top 88%', once: true } },
+        );
+      }
     }, ref);
     return () => ctx.revert();
   }, []);
   return (
     <div
       ref={ref}
-      className="w-full py-10 sm:py-12 flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-16 px-6"
-      style={isDark ? {
-        background: '#07070A',
-        borderTop: '1px solid rgba(255,255,255,0.10)',
-        borderBottom: '1px solid rgba(255,255,255,0.10)',
-        opacity: 0,
-      } : {
-        background: 'var(--sf2)',
-        borderTop: '1px solid var(--bd)',
-        borderBottom: '1px solid var(--bd)',
+      className="w-full py-12 sm:py-16 flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-16 px-6"
+      style={{
+        background: isDark ? '#07070A' : 'var(--sf2)',
+        borderTop: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid var(--bd)',
+        borderBottom: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid var(--bd)',
         opacity: 0,
       }}
     >
       <div className="flex flex-col items-center sm:items-start">
-        <p className="font-serif-display italic font-bold leading-none select-none"
+        <p ref={numRef} className="font-display font-bold leading-none select-none tabular-nums"
           style={{
-            fontSize: 'clamp(2.8rem,7vw,4.5rem)',
-            color: isDark ? '#3060C8' : 'var(--accent)',
-            textShadow: isDark ? '0 0 60px rgba(var(--accent-rgb),0.55), 0 0 130px rgba(var(--accent-rgb),0.22)' : 'none',
+            fontSize: 'clamp(3rem,7vw,4.8rem)',
+            color: isDark ? 'var(--accent)' : 'var(--accent)',
+            letterSpacing: '-0.03em',
+            opacity: 0,
           }}>
           {stat}
         </p>
-        <p className="text-[11px] uppercase tracking-[0.3em] mt-5 max-w-[400px] leading-relaxed text-center sm:text-left"
-          style={{ color: isDark ? 'rgba(255,255,255,0.50)' : 'var(--txm)' }}>
+        <p className="text-[11px] uppercase tracking-[0.24em] mt-4 max-w-[420px] leading-relaxed text-center sm:text-left"
+          style={{ color: isDark ? 'rgba(255,255,255,0.45)' : 'var(--txm)' }}>
           {de ? ctxDe : ctxEn}
         </p>
       </div>
@@ -1047,10 +984,10 @@ function SynthesisReveal({ de, isDark }: { de: boolean; isDark: boolean }) {
   return (
     <div ref={ref} className="rounded-2xl p-8 sm:p-10" style={{ background: isDark ? 'rgba(var(--accent-rgb),0.14)' : 'rgba(var(--accent-rgb),0.06)', border: `1px solid ${isDark ? 'rgba(var(--accent-soft-rgb),0.22)' : 'rgba(var(--accent-rgb),0.18)'}`, opacity: 0 }}>
       <div className="text-center mb-8">
-        <p className="text-[9px] uppercase tracking-[0.28em] mb-2" style={{ color: 'var(--accent-soft)' }}>
+        <p className="eyebrow mb-2" style={{ color: 'var(--accent-soft)' }}>
           {de ? 'Das vollständige System' : 'The complete system'}
         </p>
-        <h2 className="font-serif-display text-[1.6rem] sm:text-[2rem] font-bold leading-tight text-wx-tx1 mb-3">
+        <h2 className="font-display text-[1.6rem] sm:text-[2.2rem] font-bold leading-tight text-wx-tx1 mb-3" style={{ letterSpacing: '-0.01em' }}>
           {de ? 'Sechs Komponenten. Ein System.' : 'Six components. One system.'}
         </h2>
         <p className="text-[14px] max-w-md mx-auto" style={{ color: 'var(--txm)' }}>
@@ -1277,7 +1214,6 @@ function HexMoS2({ de }: { de: boolean }) {
           setTimeout(() => setHov(false), 2200);
         }
       }}>
-      <style>{`@keyframes pulse-gap { 0%,100% { opacity: 0.4 } 50% { opacity: 1 } }`}</style>
       <p className="text-[10px] uppercase tracking-[0.2em] mb-3 text-center" style={{ color: txMid }}>
         {de ? 'MoS₂ — S–Mo–S Schichtstruktur' : 'MoS₂ — S–Mo–S layer structure'}
       </p>
@@ -1293,13 +1229,6 @@ function HexMoS2({ de }: { de: boolean }) {
         {/* Van der Waals gap */}
         <g>
           <line x1="8" y1={GAP_Y} x2="310" y2={GAP_Y} stroke={vdwClr} strokeWidth="1" strokeDasharray="5 4" />
-          {isTouch && !hov && (
-            <rect
-              x="8" y={GAP_Y - 4} width="302" height="8" rx="2"
-              fill={isDark ? 'rgba(var(--accent-soft-rgb),0.12)' : 'rgba(var(--accent-soft-rgb),0.08)'}
-              style={{ animation: 'pulse-gap 2s ease-in-out infinite' }}
-            />
-          )}
           <text x="316" y={GAP_Y + 4} fontSize="8.5" fill={vdwTxt} fontFamily="monospace">vdW</text>
         </g>
         <g ref={botRef}>
@@ -1341,7 +1270,7 @@ function HexMoS2({ de }: { de: boolean }) {
           </span>
         </div>
         <div className="text-right">
-          <p className="font-serif-display italic text-[20px] font-bold leading-none" style={{ color: '#6A8AE8', textShadow: '0 0 16px rgba(var(--accent-soft-rgb),0.55)' }}>μ 0.03</p>
+          <p className="font-display italic text-[20px] font-bold leading-none" style={{ color: '#6A8AE8', textShadow: '0 0 16px rgba(var(--accent-soft-rgb),0.55)' }}>μ 0.03</p>
           <p className="text-[9px] mt-0.5" style={{ color: txSub }}>{de ? 'Grenzschmierung' : 'Boundary lubrication'}</p>
         </div>
       </div>
@@ -1527,32 +1456,25 @@ function CrystalLattice({ de }: { de: boolean }) {
   const VDW_Y = [66, 126];
 
   useEffect(() => {
-    const rods  = svgRef.current?.querySelectorAll<SVGRectElement>('.chain-rod');
-    const rodsR = svgRef.current?.querySelectorAll<SVGRectElement>('.chain-rod-r');
-    if (rods?.length) {
-      rods.forEach((rod, i) => {
-        gsap.to(rod, {
-          x: (i % 3 === 0 ? 1.5 : i % 3 === 1 ? -1.5 : 0.8),
-          duration: 1.6 + (i % 5) * 0.28,
-          repeat: -1, yoyo: true, ease: 'sine.inOut',
-          delay: i * 0.09,
-        });
-      });
-    }
-    if (rodsR?.length) {
-      rodsR.forEach((rod, i) => {
-        gsap.to(rod, {
-          x: (i % 3 === 0 ? 3.5 : i % 3 === 1 ? -3.5 : 2.0),
-          duration: 1.2 + (i % 5) * 0.22,
-          repeat: -1, yoyo: true, ease: 'sine.inOut',
-          delay: i * 0.07,
-        });
-      });
-    }
-    return () => {
-      if (rods?.length)  gsap.killTweensOf(Array.from(rods));
-      if (rodsR?.length) gsap.killTweensOf(Array.from(rodsR));
-    };
+    const ctx = gsap.context(() => {
+      const rods  = svgRef.current?.querySelectorAll<SVGRectElement>('.chain-rod');
+      const rodsR = svgRef.current?.querySelectorAll<SVGRectElement>('.chain-rod-r');
+      if (rods?.length) {
+        gsap.fromTo(rods,
+          { opacity: 0, x: -6 },
+          { opacity: 1, x: 0, duration: 0.6, stagger: 0.03, ease: 'power2.out',
+            scrollTrigger: { trigger: svgRef.current, start: 'top 85%', once: true } },
+        );
+      }
+      if (rodsR?.length) {
+        gsap.fromTo(rodsR,
+          { opacity: 0.3, x: () => (Math.random() - 0.5) * 12 },
+          { opacity: 0.8, x: 0, duration: 0.8, stagger: 0.04, ease: 'power2.out',
+            scrollTrigger: { trigger: svgRef.current, start: 'top 85%', once: true } },
+        );
+      }
+    }, svgRef);
+    return () => ctx.revert();
   }, []);
 
   // Build right-panel rod x positions
@@ -1731,15 +1653,15 @@ function ParticleSuspension({ de }: { de: boolean }) {
           scrollTrigger: { trigger: wRef.current, start: 'top 78%', once: true },
         });
       }
-      // "With": uniformly distributed dots gently breathe
+      // "With": uniformly distributed dots appear with stagger
       const stable = mRef.current?.querySelectorAll<HTMLElement>('.sp-stable');
       if (stable?.length) {
-        gsap.to(stable, {
-          scale: 0.88, opacity: 0.75,
-          duration: 1.7, repeat: -1, yoyo: true,
-          ease: 'sine.inOut',
-          stagger: { each: 0.11, from: 'random' },
-        });
+        gsap.fromTo(stable,
+          { scale: 0, opacity: 0 },
+          { scale: 1, opacity: 0.9, duration: 0.5, ease: 'back.out(1.5)',
+            stagger: { each: 0.04, from: 'center' },
+            scrollTrigger: { trigger: mRef.current, start: 'top 82%', once: true } },
+        );
       }
     });
     return () => ctx.revert();
@@ -1925,7 +1847,7 @@ function Insight({ children }: { children: React.ReactNode }) {
   return (
     <div ref={ref} className="relative pl-5 py-1">
       <div ref={barRef} className="absolute left-0 top-0 bottom-0 w-[3px] rounded-full" style={{ background: 'linear-gradient(to bottom,var(--accent),#7A9AEC)', opacity: 0 }} />
-      <p className="font-serif-display text-[15px] leading-[1.75] italic" style={{ color: 'var(--tx2)', opacity: 0 }}>
+      <p className="font-display text-[15px] leading-[1.75] italic" style={{ color: 'var(--tx2)', opacity: 0 }}>
         {children}
       </p>
     </div>
@@ -1981,16 +1903,16 @@ function Chapter({ num, anchorId, catDe, catEn, titleDe, titleEn, ledeDe, ledeEn
   return (
     <div ref={ref} id={anchorId} className="mb-24 lg:mb-32" style={{ opacity: 0 }} data-chapter={num}>
 
-      {/* Eyebrow — refined pill badge */}
-      <div className="flex items-center gap-3 mb-8">
+      {/* Eyebrow */}
+      <div className="flex items-center gap-3 mb-6">
         <span
-          className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] px-2.5 py-1.5 rounded-md leading-none select-none flex-shrink-0"
-          style={{ background: 'rgba(var(--accent-rgb),0.1)', color: 'var(--accent-soft)', border: '1px solid rgba(var(--accent-rgb),0.2)' }}
+          className="font-display text-[28px] font-bold tabular-nums leading-none select-none flex-shrink-0"
+          style={{ color: 'rgba(var(--accent-rgb),0.12)' }}
         >
           {num}
         </span>
-        <div className="h-px w-8 flex-shrink-0" style={{ background: 'rgba(var(--accent-rgb),0.2)' }} />
-        <p className="text-[11px] font-medium uppercase tracking-[0.24em]" style={{ color: 'var(--accent-soft)' }}>
+        <div className="h-px flex-1 max-w-[40px]" style={{ background: 'rgba(var(--accent-rgb),0.15)' }} />
+        <p className="text-[11px] font-medium uppercase tracking-[0.20em]" style={{ color: 'var(--accent-soft)' }}>
           {de ? catDe : catEn}
         </p>
       </div>
@@ -1998,7 +1920,7 @@ function Chapter({ num, anchorId, catDe, catEn, titleDe, titleEn, ledeDe, ledeEn
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
         {/* Text column */}
         <div className={`flex flex-col gap-5 ${flip ? 'lg:order-2' : 'lg:order-1'}`}>
-          <h2 className="font-serif-display text-[1.75rem] sm:text-[2.05rem] font-bold text-wx-tx1 leading-[1.12]">
+          <h2 className="font-display text-[1.75rem] sm:text-[2.1rem] font-bold text-wx-tx1 leading-[1.12]" style={{ letterSpacing: '-0.01em' }}>
             {de ? titleDe : titleEn}
           </h2>
           {/* Lede — always visible */}
@@ -2014,21 +1936,25 @@ function Chapter({ num, anchorId, catDe, catEn, titleDe, titleEn, ledeDe, ledeEn
           {/* Toggle */}
           <button
             onClick={() => setOpen(o => !o)}
-            className="flex items-center gap-2 w-fit text-[10px] uppercase tracking-[0.22em] font-semibold transition-all duration-200 px-3.5 py-1.5 rounded-full"
-            style={{
-              color: open ? 'var(--txm)' : 'var(--accent-soft)',
-              background: open ? 'var(--sf2)' : 'rgba(var(--accent-rgb),0.08)',
-              border: '1px solid',
-              borderColor: open ? 'var(--bd)' : 'rgba(var(--accent-rgb),0.2)',
-            }}
+            className="inline-flex items-center gap-1.5 text-[12px] font-medium self-start transition-colors duration-200"
+            style={{ color: 'var(--accent)' }}
           >
-            <ChevronDown className="w-3 h-3 transition-transform duration-300" style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }} />
-            {de ? (open ? 'Schließen' : 'Die Physik dahinter') : (open ? 'Close' : 'The physics')}
+            {de ? (open ? 'Weniger' : 'Die Physik dahinter') : (open ? 'Less' : 'The physics')}
+            <ChevronDown
+              className="h-3.5 w-3.5 transition-transform duration-300"
+              style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
+            />
           </button>
           {/* Expandable body */}
-          <div style={{ maxHeight: open ? '1800px' : '0', overflow: 'hidden', transition: 'max-height 0.55s cubic-bezier(0.4,0,0.2,1)' }}>
-            <div ref={bodyRef} className="space-y-4 text-[15px] leading-[1.88] text-wx-txm pb-2">
-              {de ? bodyDe : bodyEn}
+          <div style={{
+            display: 'grid',
+            gridTemplateRows: open ? '1fr' : '0fr',
+            transition: 'grid-template-rows 0.5s cubic-bezier(0.22, 1, 0.36, 1)',
+          }}>
+            <div style={{ overflow: 'hidden' }}>
+              <div ref={bodyRef} className="space-y-4 text-[15px] leading-[1.88] text-wx-txm pb-2">
+                {de ? bodyDe : bodyEn}
+              </div>
             </div>
           </div>
           <Insight>{de ? insightDe : insightEn}</Insight>
@@ -2091,7 +2017,6 @@ export function SciencePage() {
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--pg)' }}>
-      <GrainOverlay />
       <ScrollProgress />
       <ChapterNav de={de} onActiveChange={setActiveChapter} />
 
@@ -2127,59 +2052,45 @@ export function SciencePage() {
         </div>
       </nav>
 
-      {/* ══ HERO — compact subpage header ══════════════════════════════════════ */}
+      {/* ══ HERO — clean subpage header ═══════════════════════════════════════ */}
       <section
         ref={heroRef}
         className="relative overflow-hidden flex flex-col items-center justify-center"
-        style={{ background: isDark ? '#07070A' : 'var(--sf)', minHeight: isDark ? '44vh' : '40vh' }}
+        style={{ background: isDark ? '#07070A' : 'var(--sf)', minHeight: '50vh' }}
       >
-        <HeroParticles />
-
-        {/* Product image — very faint, grayscale, ties hero to product */}
+        {/* Product image — very faint, grayscale */}
         <img
           src="/images/wax-hero.jpg"
           alt=""
           aria-hidden
           className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none"
-          style={{ opacity: 0.055, objectPosition: '62% 50%', filter: 'grayscale(1) blur(1px)' }}
+          style={{ opacity: isDark ? 0.06 : 0.04, objectPosition: '62% 50%', filter: 'grayscale(1) blur(1px)' }}
           loading="eager"
         />
 
-        {/* Hexagonal grid texture */}
-        <div
-          aria-hidden
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage: isDark
-              ? "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='46'%3E%3Cpath d='M20 0 L40 11.5 L40 34.5 L20 46 L0 34.5 L0 11.5 Z' fill='none' stroke='rgba(43%2C82%2C176%2C0.07)' stroke-width='0.7'/%3E%3C/svg%3E\")"
-              : "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='46'%3E%3Cpath d='M20 0 L40 11.5 L40 34.5 L20 46 L0 34.5 L0 11.5 Z' fill='none' stroke='rgba(43%2C82%2C176%2C0.11)' stroke-width='0.7'/%3E%3C/svg%3E\")",
-            backgroundSize: '40px 46px',
-          }}
-        />
-
-        {/* Radial atmospheric glow */}
+        {/* Atmospheric glow */}
         <div
           aria-hidden
           className="absolute inset-0 pointer-events-none"
           style={{ background: isDark
-            ? 'radial-gradient(ellipse 72% 58% at 50% 42%, rgba(var(--accent-rgb),0.16) 0%, transparent 65%)'
-            : 'radial-gradient(ellipse 72% 58% at 50% 42%, rgba(var(--accent-rgb),0.05) 0%, transparent 65%)' }}
+            ? 'radial-gradient(ellipse 80% 60% at 50% 40%, rgba(var(--accent-rgb),0.12) 0%, transparent 70%)'
+            : 'radial-gradient(ellipse 80% 60% at 50% 40%, rgba(var(--accent-rgb),0.04) 0%, transparent 70%)' }}
         />
 
-        <div className="relative z-10 text-center px-4 sm:px-8 py-12 sm:py-16">
+        <div className="relative z-10 text-center px-4 sm:px-8 py-16 sm:py-20">
           {/* Classification badge */}
-          <div data-hero-badge className="inline-flex items-center gap-3 mb-6" style={{ opacity: 0 }}>
-            <div className="h-px w-8" style={{ background: isDark ? 'rgba(var(--accent-soft-rgb),0.45)' : 'rgba(var(--accent-rgb),0.25)' }} />
-            <span className="text-[9px] font-mono uppercase tracking-[0.38em]" style={{ color: isDark ? 'rgba(var(--accent-soft-rgb),0.65)' : 'var(--accent-soft)' }}>
+          <div data-hero-badge className="inline-flex items-center gap-3 mb-8" style={{ opacity: 0 }}>
+            <div className="h-px w-10" style={{ background: isDark ? 'rgba(var(--accent-soft-rgb),0.40)' : 'rgba(var(--accent-rgb),0.20)' }} />
+            <span className="text-[10px] font-mono uppercase tracking-[0.32em]" style={{ color: isDark ? 'rgba(var(--accent-soft-rgb),0.60)' : 'var(--accent-soft)' }}>
               {de ? 'Formulierungsgeschichte' : 'Formula Story'}
             </span>
-            <div className="h-px w-8" style={{ background: isDark ? 'rgba(var(--accent-soft-rgb),0.45)' : 'rgba(var(--accent-rgb),0.25)' }} />
+            <div className="h-px w-10" style={{ background: isDark ? 'rgba(var(--accent-soft-rgb),0.40)' : 'rgba(var(--accent-rgb),0.20)' }} />
           </div>
 
           {/* Headline */}
           <h1
-            className="font-display font-bold leading-[1.05] mb-5 flex flex-wrap justify-center gap-x-4 gap-y-1"
-            style={{ fontSize: 'clamp(2rem,5.5vw,3.5rem)', color: isDark ? '#FFFFFF' : 'var(--tx1)', perspective: '600px' }}
+            className="font-display font-bold leading-[1.05] mb-6 flex flex-wrap justify-center gap-x-4 gap-y-1"
+            style={{ fontSize: 'clamp(2.2rem,6vw,4rem)', color: isDark ? '#FFFFFF' : 'var(--tx1)', perspective: '600px', letterSpacing: '-0.02em' }}
           >
             {heroWords.map((w, i) => (
               <span
@@ -2195,8 +2106,8 @@ export function SciencePage() {
           {/* Subtitle */}
           <p
             data-hero-sub
-            className="text-[14px] sm:text-[15px] leading-relaxed max-w-[480px] mx-auto mb-0"
-            style={{ color: isDark ? 'rgba(255,255,255,0.70)' : 'var(--tx2)', opacity: 0 }}
+            className="text-[15px] sm:text-[16px] leading-relaxed max-w-[520px] mx-auto mb-0"
+            style={{ color: isDark ? 'rgba(255,255,255,0.65)' : 'var(--tx2)', opacity: 0 }}
           >
             {de
               ? 'Jede Komponente in dieser Formel existiert, weil ein Test gescheitert ist — oder weil ein Kompromiss nicht akzeptabel war.'
@@ -2206,20 +2117,20 @@ export function SciencePage() {
 
         {/* Bottom fade into page bg */}
         <div
-          className="absolute bottom-0 left-0 right-0 h-24 pointer-events-none"
+          className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none"
           style={{ background: 'linear-gradient(to bottom, transparent, var(--pg))' }}
         />
       </section>
 
       {/* ══ COMPOSITION OVERVIEW ══════════════════════════════════════════════ */}
-      <div className={`${W} py-14`}>
-        <div className="rounded-2xl p-8 sm:p-10" style={{ background: 'linear-gradient(160deg,var(--card-from) 0%,var(--card-to) 100%)', border: '1px solid var(--bd)', ...DOT_GRID }}>
+      <div className={`${W} py-16`}>
+        <div className="rounded-2xl p-8 sm:p-10" style={{ background: 'linear-gradient(160deg,var(--card-from) 0%,var(--card-to) 100%)', border: '1px solid var(--bd)' }}>
           <div className="grid grid-cols-1 md:grid-cols-[1fr_1.2fr] gap-10 lg:gap-16 items-start">
             <div>
-              <p className="text-[10px] font-medium uppercase tracking-[0.25em] mb-3" style={{ color: 'var(--accent-soft)' }}>
+              <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
                 {de ? 'Sechs Bestandteile' : 'Six components'}
               </p>
-              <h2 className="font-serif-display text-2xl font-bold text-wx-tx1 mb-4 leading-tight">
+              <h2 className="font-display text-2xl sm:text-3xl font-bold text-wx-tx1 mb-4 leading-tight" style={{ letterSpacing: '-0.01em' }}>
                 {de ? 'Die vollständige Formel' : 'The complete formula'}
               </h2>
               <p className="text-[14px] leading-relaxed text-wx-txm mb-6">
@@ -2532,17 +2443,17 @@ export function SciencePage() {
           }}
         >
           <div>
-            <p className="font-serif-display italic font-bold text-[2.4rem] leading-none mb-1.5" style={{ color: isDark ? '#6A8AE8' : 'var(--accent)' }}>~300 km</p>
+            <p className="font-display italic font-bold text-[2.4rem] leading-none mb-1.5" style={{ color: isDark ? '#6A8AE8' : 'var(--accent)' }}>~300 km</p>
             <p className="text-[11px] font-semibold" style={{ color: isDark ? 'rgba(255,255,255,0.70)' : 'var(--tx1)' }}>{de ? 'pro Rewax-Vorgang' : 'per rewax'}</p>
             <p className="text-[10px] mt-0.5" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'var(--txm)' }}>{de ? 'bei trockenen Bedingungen' : 'in dry conditions'}</p>
           </div>
           <div>
-            <p className="font-serif-display italic font-bold text-[2.4rem] leading-none mb-1.5" style={{ color: isDark ? '#6A8AE8' : 'var(--accent)' }}>3×</p>
+            <p className="font-display italic font-bold text-[2.4rem] leading-none mb-1.5" style={{ color: isDark ? '#6A8AE8' : 'var(--accent)' }}>3×</p>
             <p className="text-[11px] font-semibold" style={{ color: isDark ? 'rgba(255,255,255,0.70)' : 'var(--tx1)' }}>{de ? 'längere Kettenlaufzeit' : 'longer chain life'}</p>
             <p className="text-[10px] mt-0.5" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'var(--txm)' }}>{de ? 'gegenüber Kettenöl' : 'vs. chain oil'}</p>
           </div>
           <div>
-            <p className="font-serif-display italic font-bold text-[2.4rem] leading-none mb-1.5" style={{ color: isDark ? '#6A8AE8' : 'var(--accent)' }}>~€35</p>
+            <p className="font-display italic font-bold text-[2.4rem] leading-none mb-1.5" style={{ color: isDark ? '#6A8AE8' : 'var(--accent)' }}>~€35</p>
             <p className="text-[11px] font-semibold" style={{ color: isDark ? 'rgba(255,255,255,0.70)' : 'var(--tx1)' }}>{de ? 'gespart pro Jahr' : 'saved per year'}</p>
             <p className="text-[10px] mt-0.5" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'var(--txm)' }}>{de ? 'bei 5.000 km/Jahr' : 'at 5,000 km/year'}</p>
           </div>
@@ -2559,10 +2470,10 @@ export function SciencePage() {
       >
         <div className={`${W} py-24`}>
           <div className="text-center mb-14">
-            <p className="text-[10px] font-medium uppercase tracking-[0.25em] mb-3" style={{ color: 'var(--accent-soft)' }}>
+            <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
               {de ? 'Das Ergebnis' : 'The Result'}
             </p>
-            <h2 className="font-serif-display text-3xl sm:text-4xl font-bold leading-tight" style={{ color: isDark ? '#FAFAFA' : 'var(--tx1)' }}>
+            <h2 className="font-display text-3xl sm:text-4xl font-bold leading-tight" style={{ color: isDark ? '#FAFAFA' : 'var(--tx1)', letterSpacing: '-0.01em' }}>
               {de ? 'Was die Formel leistet' : 'What the formula delivers'}
             </h2>
             <p className="mt-4 text-[14px] max-w-md mx-auto" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'var(--txm)' }}>
@@ -2605,7 +2516,7 @@ export function SciencePage() {
                   { de: 'Block 1 = 20', en: 'Block 1 = 20', sub: de ? 'identische Performance' : 'identical performance' },
                 ].map((s, i) => (
                   <div key={i} className="text-center p-2 rounded-lg" style={{ background: 'rgba(var(--accent-rgb),0.10)', border: '1px solid rgba(var(--accent-rgb),0.18)' }}>
-                    <p className="font-serif-display italic text-[16px] font-bold" style={{ color: isDark ? '#6A8AE8' : 'var(--accent)', textShadow: isDark ? '0 0 14px rgba(var(--accent-soft-rgb),0.45)' : 'none' }}>
+                    <p className="font-display italic text-[16px] font-bold" style={{ color: isDark ? '#6A8AE8' : 'var(--accent)', textShadow: isDark ? '0 0 14px rgba(var(--accent-soft-rgb),0.45)' : 'none' }}>
                       {de ? s.de : s.en}
                     </p>
                     <p className="text-[9px] mt-0.5" style={{ color: isDark ? 'rgba(255,255,255,0.32)' : 'var(--txm)' }}>{s.sub}</p>
@@ -2628,10 +2539,10 @@ export function SciencePage() {
         borderTop: isDark ? '1px solid rgba(var(--accent-soft-rgb),0.1)' : '1px solid var(--bd)',
       }}>
         <div className={`${W} py-20 text-center`}>
-          <p className="text-[10px] font-medium uppercase tracking-[0.28em] mb-4" style={{ color: 'var(--accent-soft)' }}>
+          <p className="eyebrow mb-4" style={{ color: 'var(--accent-soft)' }}>
             {de ? 'Bereit?' : 'Ready?'}
           </p>
-          <h2 className="font-serif-display text-2xl sm:text-3xl font-bold mb-4 leading-tight" style={{ color: isDark ? '#FAFAFA' : 'var(--tx1)' }}>
+          <h2 className="font-display text-2xl sm:text-3xl font-bold mb-4 leading-tight" style={{ color: isDark ? '#FAFAFA' : 'var(--tx1)', letterSpacing: '-0.01em' }}>
             {de ? 'Die Formel auf deiner Kette.' : 'Put the formula on your chain.'}
           </h2>
           <p className="text-[14px] mb-10 max-w-sm mx-auto" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'var(--txm)' }}>
