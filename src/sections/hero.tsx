@@ -1,27 +1,15 @@
-import { Suspense, lazy, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
 
-const HeroBlock3D = lazy(() => import('./hero-block3d'));
-
-function hasWebGL(): boolean {
-  try {
-    const c = document.createElement('canvas');
-    return !!(c.getContext('webgl2') || c.getContext('webgl'));
-  } catch {
-    return false;
-  }
-}
-
 /**
- * Hero — „Monolith".
- * Radikal reduziert: ein monumentales WAXCELERATE über die volle Breite
- * (Letter für Letter maskiert enthüllt, mit feinem Silber-Verlauf), davor
- * schwebt der echte freigestellte Wachsblock — tiefblau, MoS₂-Partikel
- * sichtbar, das Produkt als Objekt. Beim Scrollen atmet die Wortmarke
- * auseinander (Letter-Spread), der Block sinkt langsamer als die Seite
- * (Parallax) und dreht minimal. Cursor gibt dem Block Tiefe.
+ * Hero — „Editorial Monument" mit echter Produktfotografie.
+ * Full-bleed: das reale Wachsblock-Foto auf Schiefer (mit Pflanze) trägt die
+ * rechte Bühne; links die ruhige dunkle Negativfläche für Typo. Darüber das
+ * kolossale, kinetisch enthüllte WAXCELERATE als typografische Wirbelsäule.
+ * Echtes Bild, echtes Material — kein 3D, kein Fake. Bild-Settle + Parallax,
+ * Letter-für-Letter-Reveal, maskierte Headline, sich zeichnende Hairlines.
  * Alles einmal getriggert oder scroll-gebunden — kein Loop, kein Glow.
  */
 
@@ -32,14 +20,9 @@ export function Hero() {
   const de = lang === 'de';
 
   const rootRef  = useRef<HTMLElement>(null);
+  const imgRef   = useRef<HTMLDivElement>(null);
   const wordRef  = useRef<HTMLDivElement>(null);
-  const cubeRef  = useRef<HTMLDivElement>(null);
   const animated = useRef(false);
-
-  const [webgl] = useState(hasWebGL);
-  const [reduced] = useState(
-    () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-  );
 
   useEffect(() => {
     if (animated.current) return;
@@ -60,68 +43,44 @@ export function Hero() {
       gsap.set(masks, { yPercent: 0 });
       gsap.set(items, { opacity: 1, y: 0 });
       gsap.set(lines, { scaleX: 1 });
-      if (cubeRef.current) gsap.set(cubeRef.current, { opacity: 1, y: 0, scale: 1 });
+      if (imgRef.current) gsap.set(imgRef.current, { scale: 1 });
       return;
     }
 
-    const tl = gsap.timeline({ delay: 0.15, defaults: { ease: 'power4.out' } });
+    const tl = gsap.timeline({ delay: 0.1, defaults: { ease: 'power4.out' } });
 
-    // Kinetische Wortmarke: jeder Letter steigt maskiert aus der Grundlinie.
-    tl.fromTo(
-      letters,
-      { yPercent: 108 },
-      { yPercent: 0, duration: 1.15, stagger: { each: 0.042, from: 'start' } },
-      0,
-    );
-    // Der Block blendet ein — die Bewegung selbst macht das 3D-Modell (Settle).
-    if (cubeRef.current) {
-      tl.fromTo(
-        cubeRef.current,
-        { opacity: 0 },
-        { opacity: 1, duration: 1.1, ease: 'power2.out' },
-        0.55,
-      );
+    // Cineastischer Bild-Settle — langsam, schwer.
+    if (imgRef.current) {
+      tl.fromTo(imgRef.current, { scale: 1.12 }, { scale: 1.04, duration: 2.4, ease: 'power2.out' }, 0);
     }
-    tl.fromTo(masks, { yPercent: 112 }, { yPercent: 0, duration: 1.0, stagger: 0.1 }, 0.75);
-    tl.fromTo(items, { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 0.85, ease: 'power3.out', stagger: 0.09 }, 0.85);
-    tl.fromTo(lines, { scaleX: 0 }, { scaleX: 1, duration: 0.9, ease: 'power2.inOut', stagger: 0.09 }, 1.15);
+    // Kinetische Wortmarke: jeder Letter steigt maskiert aus der Grundlinie.
+    tl.fromTo(letters, { yPercent: 110 }, { yPercent: 0, duration: 1.1, stagger: { each: 0.04 } }, 0.2);
+    // Headline-Zeilen + Stütztext steigen maskiert nach.
+    tl.fromTo(masks, { yPercent: 115 }, { yPercent: 0, duration: 1.05, stagger: 0.1 }, 0.55);
+    tl.fromTo(items, { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 0.85, ease: 'power3.out', stagger: 0.09 }, 0.7);
+    tl.fromTo(lines, { scaleX: 0 }, { scaleX: 1, duration: 0.9, ease: 'power2.inOut', stagger: 0.09 }, 1.0);
 
-    // Scroll: die Wortmarke atmet auseinander, der Block sinkt langsamer + dreht minimal.
+    // Scroll: Bild driftet sanft, die Wortmarke atmet leicht auseinander.
     const triggers: ScrollTrigger[] = [];
     const scrub = (animation: gsap.core.Tween) =>
       triggers.push(
         ScrollTrigger.create({ trigger: root, start: 'top top', end: 'bottom top', scrub: true, animation }),
       );
+    if (imgRef.current) scrub(gsap.to(imgRef.current, { yPercent: 8, ease: 'none' }));
     if (letters.length) {
       const mid = (letters.length - 1) / 2;
-      scrub(gsap.to(letters, { x: (i: number) => (i - mid) * 9, ease: 'none' }));
-    }
-    // Beim 3D-Block übernimmt das Modell Scroll-Drehung + Drift selbst.
-    if (cubeRef.current && !hasWebGL()) {
-      scrub(gsap.to(cubeRef.current, { y: 110, rotation: 5, ease: 'none' }));
-    }
-    if (wordRef.current) {
-      scrub(gsap.to(wordRef.current, { yPercent: -6, ease: 'none' }));
+      scrub(gsap.to(letters, { x: (i: number) => (i - mid) * 6, ease: 'none' }));
     }
 
-    // Cursor-Tiefe: der Block folgt der Maus, die Wortmarke hält leise dagegen.
+    // Cursor-Tiefe: das Bild folgt der Maus um wenige Pixel.
     let onMove: ((e: MouseEvent) => void) | undefined;
-    if (finePointer && wordRef.current) {
-      const webglHere = hasWebGL();
-      const cx = !webglHere && cubeRef.current
-        ? gsap.quickTo(cubeRef.current, 'x', { duration: 1.0, ease: 'power3.out' })
-        : undefined;
-      const cy = !webglHere && cubeRef.current
-        ? gsap.quickTo(cubeRef.current, 'y', { duration: 1.0, ease: 'power3.out' })
-        : undefined;
-      const wx = gsap.quickTo(wordRef.current, 'x', { duration: 1.2, ease: 'power3.out' });
+    if (finePointer && imgRef.current) {
+      const qx = gsap.quickTo(imgRef.current, 'x', { duration: 1.0, ease: 'power3.out' });
+      const qy = gsap.quickTo(imgRef.current, 'y', { duration: 1.0, ease: 'power3.out' });
       onMove = (e: MouseEvent) => {
         const r = root.getBoundingClientRect();
-        const nx = (e.clientX - r.left) / r.width - 0.5;
-        const ny = (e.clientY - r.top) / r.height - 0.5;
-        cx?.(nx * -22);
-        cy?.(ny * -14);
-        wx(nx * 7);
+        qx(((e.clientX - r.left) / r.width - 0.5) * -16);
+        qy(((e.clientY - r.top) / r.height - 0.5) * -10);
       };
       root.addEventListener('mousemove', onMove);
     }
@@ -147,61 +106,58 @@ export function Hero() {
       ref={rootRef}
       className="relative overflow-hidden min-h-[100dvh] lg:h-[100dvh]"
       style={{
-        background: '#0B0C0E',
+        background: '#0A0B0D',
         ['--tx1' as string]: '#F7F7F8',
       } as React.CSSProperties}
     >
-      {/* Schiefer-Bühne: das echte Material unter den Produktfotos — fast schwarz, taktil */}
-      <div className="absolute inset-0 pointer-events-none">
+      {/* Echtes Produktfoto: Wachsblock auf Schiefer mit Pflanze — full-bleed */}
+      <div ref={imgRef} className="absolute inset-0 will-change-transform">
         <picture>
-          <source srcSet="/images/hero-slate.webp" type="image/webp" />
+          <source srcSet="/images/hero-wax.webp" type="image/webp" />
           <img
-            src="/images/hero-slate.jpg"
-            alt=""
+            src="/images/hero-wax.jpg"
+            alt={de ? 'Waxcelerate Heißwachs-Block auf Schiefer' : 'Waxcelerate hot wax block on slate'}
             className="absolute inset-0 w-full h-full object-cover"
-            style={{ opacity: 0.55 }}
+            style={{ objectPosition: '68% 50%' }}
+            fetchPriority="high"
           />
         </picture>
-        {/* Vignette hält die Ränder still, Saum führt in die nächste Section */}
-        <div
-          className="absolute inset-0"
-          style={{ background: 'radial-gradient(115% 95% at 50% 34%, transparent 30%, rgba(8,9,11,0.88) 100%)' }}
-        />
-        <div
-          className="absolute bottom-0 inset-x-0 h-40"
-          style={{ background: 'linear-gradient(to top, #0B0C0E 0%, transparent 100%)' }}
-        />
-        {/* Ein einziger, kaum sichtbarer Lichteinfall hinter dem Block */}
-        <div
-          className="absolute inset-0"
-          style={{ background: 'radial-gradient(48% 38% at 50% 42%, rgba(255,255,255,0.05), transparent 70%)' }}
-        />
       </div>
 
-      <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-5 sm:px-8 pt-24 pb-10 lg:pt-28 lg:pb-28">
+      {/* Gradation: linker Scrim für Typo-Legibilität + Säume oben/unten */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            'linear-gradient(90deg, rgba(8,9,11,0.94) 0%, rgba(8,9,11,0.82) 34%, rgba(8,9,11,0.42) 64%, rgba(8,9,11,0.12) 100%)',
+        }}
+      />
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{ background: 'radial-gradient(120% 120% at 28% 40%, transparent 36%, rgba(6,7,9,0.55) 100%)' }}
+      />
+      <div
+        className="absolute top-0 inset-x-0 h-28 pointer-events-none"
+        style={{ background: 'linear-gradient(to bottom, rgba(8,9,11,0.7), transparent)' }}
+      />
+      <div
+        className="absolute bottom-0 inset-x-0 h-40 pointer-events-none"
+        style={{ background: 'linear-gradient(to top, #0A0B0D 0%, transparent 100%)' }}
+      />
 
-        {/* Eyebrow — der einzige Produktblau-Akzent */}
-        <div data-hero className="flex items-center gap-3 mb-6 sm:mb-8">
-          <span style={{ width: '26px', height: '2px', background: 'var(--brand-blue)' }} />
-          <p
-            className="text-[10px] sm:text-[11px] uppercase font-semibold"
-            style={{ letterSpacing: '0.36em', color: 'rgba(255,255,255,0.55)' }}
-          >
-            {t.hero.subtitle}
-          </p>
-          <span style={{ width: '26px', height: '2px', background: 'var(--brand-blue)' }} />
-        </div>
-
-        {/* Monolith-Wortmarke — volle Breite, Letter für Letter, Silber-Verlauf */}
+      {/* Kinetische Monument-Wortmarke — quer über die obere Bühne, Stahl-Verlauf */}
+      <div
+        ref={wordRef}
+        aria-hidden
+        className="absolute left-0 right-0 top-[15%] z-[2] hidden lg:flex justify-center pointer-events-none select-none px-4"
+      >
         <div
-          ref={wordRef}
-          aria-hidden
-          className="whitespace-nowrap select-none pointer-events-none will-change-transform"
+          className="whitespace-nowrap will-change-transform"
           style={{
             fontFamily: '"Libre Franklin", ui-sans-serif, system-ui, sans-serif',
             fontWeight: 900,
-            fontSize: 'clamp(2.55rem, 9.7vw, 9.2rem)',
-            lineHeight: 0.92,
+            fontSize: 'clamp(2.4rem, 9.6vw, 9rem)',
+            lineHeight: 0.9,
             letterSpacing: '-0.012em',
           }}
         >
@@ -211,7 +167,7 @@ export function Hero() {
                 data-letter
                 className="inline-block will-change-transform"
                 style={{
-                  backgroundImage: 'linear-gradient(180deg, #FFFFFF 0%, #E9EDF2 52%, #AEB9C6 100%)',
+                  backgroundImage: 'linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(226,232,240,0.55) 52%, rgba(174,185,198,0.32) 100%)',
                   WebkitBackgroundClip: 'text',
                   backgroundClip: 'text',
                   color: 'transparent',
@@ -222,117 +178,107 @@ export function Hero() {
             </span>
           ))}
         </div>
+      </div>
 
-        {/* Der Block — das Produkt als Objekt: Echtzeit-3D, PNG als Fallback */}
-        <div
-          ref={cubeRef}
-          className="relative z-[5] will-change-transform aspect-square"
-          style={{
-            width: 'clamp(220px, 23.5vw, 320px)',
-            marginTop: 'clamp(-4.6rem, -5.8vw, -1.8rem)',
-          }}
-        >
-          {webgl ? (
-            <Suspense
-              fallback={
-                <img
-                  src="/images/wax-cube.webp"
-                  alt=""
-                  className="block w-[72%] h-auto mx-auto mt-[14%]"
-                  style={{ filter: 'drop-shadow(0 46px 60px rgba(0,0,0,0.65))' }}
-                />
-              }
+      {/* Content — links, über der dunklen Negativfläche */}
+      <div className="relative z-10 min-h-[100dvh] lg:h-full w-full px-6 sm:px-10 lg:px-16 xl:px-24">
+        <div className="min-h-[100dvh] lg:h-full max-w-7xl mx-auto flex flex-col justify-center lg:justify-end pt-24 pb-28 lg:pt-0 lg:pb-28">
+          <div className="max-w-xl">
+
+            {/* Eyebrow — der einzige Produktblau-Akzent */}
+            <div data-hero className="flex items-center gap-3 mb-6">
+              <span style={{ width: '30px', height: '2px', background: 'var(--brand-blue)' }} />
+              <p
+                className="text-[10px] sm:text-[11px] uppercase font-semibold"
+                style={{ letterSpacing: '0.36em', color: 'rgba(255,255,255,0.6)' }}
+              >
+                {t.hero.subtitle}
+              </p>
+            </div>
+
+            {/* Headline — Fraunces, maskierte Zeilen */}
+            <h1
+              className="font-display text-white"
+              style={{
+                fontSize: 'clamp(2.4rem, 4.8vw, 4.3rem)',
+                lineHeight: 0.98,
+                letterSpacing: '-0.025em',
+                fontWeight: 600,
+                fontVariationSettings: '"opsz" 144, "wght" 620, "SOFT" 0, "WONK" 0',
+              }}
             >
-              <HeroBlock3D reduced={reduced} />
-            </Suspense>
-          ) : (
-            <picture>
-              <source srcSet="/images/wax-cube.webp" type="image/webp" />
-              <img
-                src="/images/wax-cube.png"
-                alt={de ? 'Waxcelerate Heißwachs-Block mit MoS₂-Partikeln' : 'Waxcelerate hot wax block with MoS₂ particles'}
-                className="block w-[72%] h-auto mx-auto mt-[14%]"
-                style={{ filter: 'drop-shadow(0 46px 60px rgba(0,0,0,0.65)) drop-shadow(0 12px 24px rgba(0,0,0,0.5))' }}
-                fetchPriority="high"
-              />
-            </picture>
-          )}
+              <span className="block overflow-hidden" style={{ paddingBottom: '0.05em' }}>
+                <span data-hero-mask className="block will-change-transform">{t.hero.headline}</span>
+              </span>
+              <span className="block overflow-hidden" style={{ paddingBottom: '0.08em' }}>
+                <span
+                  data-hero-mask
+                  className="block italic will-change-transform"
+                  style={{ fontVariationSettings: '"opsz" 144, "wght" 620, "SOFT" 30, "WONK" 0' }}
+                >
+                  {t.hero.headlineSub}
+                </span>
+              </span>
+            </h1>
+
+            {/* Konkreter Nutzen */}
+            <p
+              data-hero
+              className="mt-6 max-w-md leading-relaxed"
+              style={{ fontSize: 'clamp(0.95rem, 1.4vw, 1.0625rem)', color: 'rgba(255,255,255,0.72)' }}
+            >
+              {t.hero.tagline}
+            </p>
+
+            {/* CTAs */}
+            <div data-hero className="mt-8 flex items-center gap-5 flex-wrap">
+              <button
+                onClick={() => scrollTo('#produkte')}
+                className="inline-flex items-center gap-2.5 px-8 py-3.5 text-[14px] font-bold rounded-full transition-all active:scale-[0.98]"
+                style={{ background: '#FFFFFF', color: '#0F0F12' }}
+              >
+                {t.hero.ctaBuy}
+                <ArrowRight className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => scrollTo('#warum-wachs')}
+                className="text-[13px] transition-opacity hover:opacity-80"
+                style={{
+                  color: 'rgba(255,255,255,0.62)',
+                  textDecoration: 'underline',
+                  textUnderlineOffset: '4px',
+                  textDecorationColor: 'rgba(255,255,255,0.24)',
+                }}
+              >
+                {t.hero.ctaSecondary}
+              </button>
+            </div>
+
+            {/* Trust — eine ruhige Mikro-Zeile */}
+            <p
+              data-hero
+              className="mt-7 text-[12px] uppercase tabular-nums"
+              style={{ letterSpacing: '0.14em', color: 'rgba(255,255,255,0.5)' }}
+            >
+              <span style={{ color: 'rgba(255,255,255,0.82)' }}>★★★★★</span>
+              {'  171 · '}
+              {de ? '100 % positiv' : '100% positive'}
+              {' · '}
+              {de ? 'eBay-Käuferschutz' : 'eBay buyer protection'}
+            </p>
+          </div>
         </div>
-
-        {/* Claim — ruhig, kursiv, ein Satz */}
-        <h1
-          className="font-display text-white mt-5 sm:mt-6"
-          style={{
-            fontSize: 'clamp(1.65rem, 2.7vw, 2.4rem)',
-            lineHeight: 1.1,
-            letterSpacing: '-0.015em',
-            fontWeight: 600,
-            fontVariationSettings: '"opsz" 144, "wght" 600, "SOFT" 30, "WONK" 0',
-          }}
-        >
-          <span className="block overflow-hidden" style={{ paddingBottom: '0.1em' }}>
-            <span data-hero-mask className="block italic will-change-transform">
-              {t.hero.headline} {t.hero.headlineSub}
-            </span>
-          </span>
-        </h1>
-
-        {/* Konkreter Nutzen — eine ruhige Zeile */}
-        <p
-          data-hero
-          className="mt-3.5 max-w-md leading-relaxed"
-          style={{ fontSize: 'clamp(0.875rem, 1.2vw, 0.9375rem)', color: 'rgba(255,255,255,0.56)' }}
-        >
-          {t.hero.tagline}
-        </p>
-
-        {/* CTAs */}
-        <div data-hero className="mt-8 flex items-center justify-center gap-5 flex-wrap">
-          <button
-            onClick={() => scrollTo('#produkte')}
-            className="inline-flex items-center gap-2.5 px-8 py-3.5 text-[14px] font-bold rounded-full transition-all active:scale-[0.98]"
-            style={{ background: '#FFFFFF', color: '#0F0F12' }}
-          >
-            {t.hero.ctaBuy}
-            <ArrowRight className="h-4 w-4" />
-          </button>
-          <button
-            onClick={() => scrollTo('#warum-wachs')}
-            className="text-[13px] transition-opacity hover:opacity-80"
-            style={{
-              color: 'rgba(255,255,255,0.6)',
-              textDecoration: 'underline',
-              textUnderlineOffset: '4px',
-              textDecorationColor: 'rgba(255,255,255,0.22)',
-            }}
-          >
-            {t.hero.ctaSecondary}
-          </button>
-        </div>
-
-        {/* Trust — eine einzige Mikro-Zeile, ganz unten in der Hierarchie */}
-        <p
-          data-hero
-          className="mt-6 text-[10.5px] uppercase tabular-nums"
-          style={{ letterSpacing: '0.16em', color: 'rgba(255,255,255,0.42)' }}
-        >
-          <span style={{ color: 'rgba(255,255,255,0.7)' }}>★★★★★</span>
-          {'  171 · '}
-          {de ? '100 % positiv' : '100% positive'}
-          {' · '}
-          {de ? 'eBay-Käuferschutz' : 'eBay buyer protection'}
-        </p>
       </div>
 
       {/* Spec-Ribbon — nummerierte Editorial-Einträge */}
-      <div data-hero className="relative lg:absolute lg:bottom-0 lg:inset-x-0 z-10 mt-10 lg:mt-0">
+      <div data-hero className="absolute bottom-0 inset-x-0 z-10">
         <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 xl:px-24">
           <div
             className="grid grid-cols-3 gap-x-5 sm:gap-x-8 py-4 sm:py-5"
             style={{ borderTop: '1px solid rgba(255,255,255,0.12)' }}
           >
             {stats.map((s, i) => (
-              <div key={i} className="text-left">
+              <div key={i}>
                 <div className="flex items-center gap-2.5 mb-2.5 sm:mb-3">
                   <span
                     className="inline-flex items-center justify-center flex-shrink-0 rounded-full tabular-nums"
