@@ -49,33 +49,6 @@ const CARD: React.CSSProperties = {
   border: '1px solid var(--bd)',
 };
 
-// For components inside forced-dark sections — always dark regardless of theme
-const DARK_CARD: React.CSSProperties = {
-  background: 'rgba(255,255,255,0.04)',
-  border: '1px solid rgba(255,255,255,0.09)',
-};
-
-const DARK_DOT_GRID: React.CSSProperties = {
-  backgroundImage: 'radial-gradient(circle, rgba(100,140,220,0.12) 1px, transparent 1px)',
-  backgroundSize: '22px 22px',
-};
-
-// Always-dark card for SVG visualizations
-const VIZ_CARD: React.CSSProperties = {
-  background: '#0D1117',
-  border: '1px solid rgba(var(--accent-soft-rgb),0.20)',
-};
-const VIZ_CARD_LIGHT: React.CSSProperties = {
-  background: '#f0f4fb',
-  border: '1px solid rgba(var(--accent-soft-rgb),0.22)',
-  boxShadow: '0 4px 28px rgba(0,0,0,0.07)',
-};
-
-const LIGHT_DOT_GRID: React.CSSProperties = {
-  backgroundImage: 'radial-gradient(circle, rgba(var(--accent-soft-rgb),0.10) 1px, transparent 1px)',
-  backgroundSize: '22px 22px',
-};
-
 // Shared container width
 const W = 'max-w-5xl mx-auto px-4 sm:px-6 lg:px-8';
 
@@ -621,14 +594,14 @@ function hexPoints(cx: number, cy: number, r: number): string {
 
 // ─── FormulaSpine — mobile (<sm) vertical card layout replacing unreadable radial ─
 // MoS₂ hero at top, 5 component cards connected by accent spine + relation chips.
-const SPINE_ITEMS = [
+const SPINE_ITEMS: readonly { nodeIdx: number; edgeIdx: number }[] = [
   { nodeIdx: 3, edgeIdx: -1 },  // MoS₂ (hero)
   { nodeIdx: 0, edgeIdx: 2  },  // Paraffin ← Trägermatrix
   { nodeIdx: 1, edgeIdx: 0  },  // FT-Wachs ← Ko-Kristallisation
   { nodeIdx: 2, edgeIdx: 1  },  // Mikrokris. ← Plastifiziert
   { nodeIdx: 4, edgeIdx: 4  },  // Dispersant ← Sterische Hülle
   { nodeIdx: 5, edgeIdx: 5  },  // Antioxidant ← Oxidationsschutz
-] as const;
+];
 
 function FormulaSpine({ de, isDark }: { de: boolean; isDark: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
