@@ -3,7 +3,7 @@ import { useState, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
   ArrowLeft, ExternalLink, Check,
-  ChevronRight, ChevronDown, Star,
+  ChevronRight, ChevronDown, Star, Lightbulb,
 } from 'lucide-react';
 import { getProductById, products } from '@/lib/data';
 import type { Product } from '@/lib/data';
@@ -234,7 +234,7 @@ export function ProductDetailPage() {
 
               {/* Title + description */}
               <div>
-                <h1 className="text-[26px] sm:text-[28px] font-bold tracking-[-0.02em] text-wx-tx1 leading-tight">
+                <h1 className="font-display text-[28px] sm:text-[32px] font-bold tracking-[-0.02em] text-wx-tx1 leading-[1.1]">
                   {titleText}
                 </h1>
                 <p className="mt-2.5 text-[13px] leading-relaxed" style={{ color: 'var(--txm)' }}>
@@ -544,7 +544,7 @@ export function ProductDetailPage() {
                           </div>
                           <div className="pt-3 flex justify-between items-baseline" style={{ borderTop: '1px solid var(--bd2)' }}>
                             <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--txm)' }}>{de ? 'Gesamt' : 'Total'}</span>
-                            <span className="text-[18px] font-bold font-mono" style={{ color: '#f87171' }}>{rc.oilTotal}</span>
+                            <span className="text-[18px] font-bold font-mono" style={{ color: 'var(--txm)' }}>{rc.oilTotal}</span>
                           </div>
                         </div>
 
@@ -570,10 +570,10 @@ export function ProductDetailPage() {
                       {rc.savings && (
                         <div
                           className="rounded-xl p-4 flex items-center justify-between gap-4"
-                          style={{ background: 'rgba(34,197,94,0.07)', border: '1px solid rgba(34,197,94,0.25)' }}
+                          style={{ background: `${accentColor}0A`, border: `1px solid ${accentColor}30` }}
                         >
                           <div>
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] mb-0.5" style={{ color: 'rgba(34,197,94,0.8)' }}>
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] mb-0.5" style={{ color: accentColor }}>
                               {de ? 'Ersparnis über ~12.000 km' : 'Savings over ~12,000 km'}
                             </p>
                             <p className="text-xs" style={{ color: 'var(--txm)' }}>
@@ -582,7 +582,7 @@ export function ProductDetailPage() {
                                 : 'Reduced chain and cassette wear not included.'}
                             </p>
                           </div>
-                          <span className="text-[22px] font-bold font-mono flex-shrink-0" style={{ color: '#22c55e' }}>
+                          <span className="font-display text-[26px] font-bold flex-shrink-0 tabular-nums" style={{ color: accentColor }}>
                             {rc.savings}
                           </span>
                         </div>
@@ -595,7 +595,7 @@ export function ProductDetailPage() {
               {/* 300g nudge */}
               {isWax && product.weight === '300g' && (
                 <div className="mt-8 rounded-xl p-4 flex items-start gap-3" style={{ background: 'var(--sf3)', border: '1px solid var(--bd2)' }}>
-                  <span className="text-base flex-shrink-0 mt-0.5">💡</span>
+                  <Lightbulb className="h-4 w-4 flex-shrink-0 mt-0.5" style={{ color: accentColor }} />
                   <div>
                     <p className="text-sm" style={{ color: 'var(--txm)' }}>
                       {de
@@ -770,7 +770,7 @@ export function ProductDetailPage() {
                     <div className="flex items-center gap-1.5">
                       <div className="flex items-center gap-0.5">
                         {[0, 1, 2, 3, 4].map(i => (
-                          <Star key={i} className="h-3.5 w-3.5 fill-current" style={{ color: '#FBBF24' }} />
+                          <Star key={i} className="h-3.5 w-3.5 fill-current" style={{ color: 'var(--accent-soft)' }} />
                         ))}
                       </div>
                       <span className="text-sm font-semibold text-wx-tx1">

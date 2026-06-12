@@ -1,4 +1,4 @@
-import { ExternalLink, X, ChevronDown } from 'lucide-react';
+import { ExternalLink, X, ChevronDown, Package } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState, useRef, useEffect, useCallback, useMemo, memo } from 'react';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
@@ -185,10 +185,11 @@ export function Products() {
                     {t.products.multiDiscount}
                   </span>
                   <span
-                    className="text-[11px] px-3 py-1.5 rounded-full whitespace-nowrap"
+                    className="inline-flex items-center gap-1.5 text-[11px] px-3 py-1.5 rounded-full whitespace-nowrap"
                     style={{ background: 'var(--sf2)', border: '1px solid var(--bd)', color: 'var(--txf)' }}
                   >
-                    📦 <span style={{ color: 'var(--tx2)' }}>{getEstimatedDelivery(lang)}</span>
+                    <Package className="h-3 w-3 flex-shrink-0" />
+                    <span style={{ color: 'var(--tx2)' }}>{getEstimatedDelivery(lang)}</span>
                     {' · '}{de ? 'gratis ab €50' : 'free from €50'}
                   </span>
                 </div>
@@ -375,7 +376,7 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: Ca
         <div className="px-5 pt-4 pb-5 flex flex-col flex-1">
           {/* Title + description */}
           <div className="mb-5 flex-1">
-            <h3 className="text-[18px] font-bold text-wx-tx1 leading-tight tracking-[-0.02em] mb-1.5">
+            <h3 className="font-display text-[19px] font-bold text-wx-tx1 leading-tight tracking-[-0.02em] mb-1.5">
               {title}
             </h3>
             <p className="text-[13px] leading-relaxed line-clamp-2" style={{ color: 'var(--txm)' }}>
