@@ -619,6 +619,112 @@ function hexPoints(cx: number, cy: number, r: number): string {
   }).join(' ');
 }
 
+// ─── FormulaSpine — mobile (<sm) vertical card layout replacing unreadable radial ─
+// MoS₂ hero at top, 5 component cards connected by accent spine + relation chips.
+const SPINE_ITEMS = [
+  { nodeIdx: 3, edgeIdx: -1 },  // MoS₂ (hero)
+  { nodeIdx: 0, edgeIdx: 2  },  // Paraffin ← Trägermatrix
+  { nodeIdx: 1, edgeIdx: 0  },  // FT-Wachs ← Ko-Kristallisation
+  { nodeIdx: 2, edgeIdx: 1  },  // Mikrokris. ← Plastifiziert
+  { nodeIdx: 4, edgeIdx: 4  },  // Dispersant ← Sterische Hülle
+  { nodeIdx: 5, edgeIdx: 5  },  // Antioxidant ← Oxidationsschutz
+] as const;
+
+function FormulaSpine({ de, isDark }: { de: boolean; isDark: boolean }) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!ref.current || prefersReducedMotion()) return;
+    const ctx = gsap.context(() => {
+      gsap.matchMedia({
+        '(max-width: 639px)': () => {
+          const spine = ref.current?.querySelector<HTMLDivElement>('[data-spine]');
+          if (spine) {
+            gsap.fromTo(spine, { scaleY: 0 }, {
+              scaleY: 1, ease: 'none',
+              scrollTrigger: { trigger: ref.current!, start: 'top 85%', end: 'bottom 50%', scrub: 0.6 },
+            });
+          }
+          const cards = ref.current?.querySelectorAll<HTMLDivElement>('[data-spine-card]');
+          if (cards?.length) {
+            gsap.set(cards, { opacity: 0, y: 24 });
+            ScrollTrigger.create({
+              trigger: ref.current!,
+              start: 'top 80%',
+              once: true,
+              onEnter: () => {
+                gsap.to(cards, { opacity: 1, y: 0, duration: DUR.standard, ease: 'back.out(1.4)', stagger: 0.10 });
+              },
+            });
+          }
+        },
+      });
+    }, ref);
+    return () => ctx.revert();
+  }, []);
+
+  return (
+    <div ref={ref} className="relative sm:hidden pl-6">
+      <div data-spine className="absolute left-[18px] top-4 bottom-4 w-[2px] origin-top rounded-full"
+        style={{ background: 'linear-gradient(to bottom, var(--accent), rgba(var(--accent-rgb),0.12))' }} />
+      {SPINE_ITEMS.map((item, i) => {
+        const node = ASSEMBLY_NODES[item.nodeIdx];
+        const edge = item.edgeIdx >= 0 ? ASSEMBLY_EDGES[item.edgeIdx] : null;
+        const isHero = i === 0;
+        return (
+          <div key={node.id}>
+            {edge && (
+              <div className="relative flex items-center gap-2 py-3 pl-6">
+                <div className="absolute left-[14px] w-[9px] h-[9px] rounded-full border-2"
+                  style={{ borderColor: 'var(--accent-soft)', background: isDark ? '#090909' : 'var(--pg)' }} />
+                <span className="text-[11px] font-mono tracking-wide"
+                  style={{ color: isDark ? 'rgba(160,195,248,0.55)' : 'rgba(var(--accent-rgb),0.50)' }}>
+                  {de ? edge.labelDe : edge.labelEn}
+                </span>
+              </div>
+            )}
+            <div data-spine-card className="relative ml-5 rounded-xl overflow-hidden"
+              style={isHero
+                ? { background: '#0E1626', border: '1px solid rgba(var(--accent-soft-rgb),0.25)', padding: '20px' }
+                : { background: 'var(--sf2)', border: '1px solid var(--bd)', padding: '14px 16px' }}>
+              <div className="absolute -left-[21px] top-1/2 w-[21px] h-[2px]"
+                style={{ background: isHero ? 'var(--accent)' : 'rgba(var(--accent-rgb),0.25)' }} />
+              {isHero ? (<>
+                <div className="flex items-center gap-3 mb-3">
+                  <svg viewBox="0 0 30 30" className="w-6 h-6 flex-shrink-0">
+                    <polygon points={hexPoints(15, 15, 13)} fill="none" stroke="var(--accent)" strokeWidth="1.5" />
+                  </svg>
+                  <span className="text-[11px] uppercase tracking-[0.24em] font-medium"
+                    style={{ color: 'rgba(150,185,245,0.78)' }}>MoS₂</span>
+                </div>
+                <CountUp value="μ 0.03" className="font-display italic text-[40px] font-bold leading-none"
+                  style={{ color: '#6A8AE8', textShadow: '0 0 24px rgba(var(--accent-soft-rgb),0.55)' }} />
+                <p className="text-[12px] font-mono mt-2" style={{ color: 'rgba(168,192,244,0.55)' }}>
+                  {'< 5 µm · 5.06 g/cm³'}
+                </p>
+              </>) : (
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <CountUp value={node.metric} className="font-display text-[17px] font-bold leading-none"
+                      style={{ color: isDark ? '#88bbff' : '#1a3c8e' }} />
+                    <p className="text-[13px] font-semibold mt-1" style={{ color: isDark ? 'rgba(255,255,255,0.60)' : 'var(--tx1)' }}>
+                      {de ? node.labelDe : node.labelEn}
+                    </p>
+                  </div>
+                  <span className="text-[11px] font-mono flex-shrink-0"
+                    style={{ color: isDark ? 'rgba(140,180,240,0.42)' : 'rgba(var(--accent-rgb),0.48)' }}>
+                    {de ? node.subDe : node.subEn}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' | 'synthesis'; isDark: boolean }) {
   const svgRef        = useRef<SVGSVGElement>(null);
   const edgeRefs      = useRef<(SVGPathElement | null)[]>([]);
@@ -738,10 +844,11 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
 
   return (
     <div className="w-full select-none">
+      <FormulaSpine de={de} isDark={isDark} />
       <svg
         ref={svgRef}
         viewBox="0 0 640 430"
-        className="w-full block"
+        className="w-full hidden sm:block"
         style={{ overflow: 'visible' }}
       >
         <defs>
@@ -867,7 +974,7 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
           const baseStroke = edge.dash ? edgeDash : edgeSolid;
           const mainStroke = isDark ? 'rgba(80,130,230,0.65)' : 'rgba(var(--accent-rgb),0.50)';
           const stroke = hot ? edgeHot : isMain ? mainStroke : (isOverview ? (isDark ? 'rgba(80,130,230,0.28)' : 'rgba(var(--accent-rgb),0.18)') : baseStroke);
-          const sw     = hot ? 2.5 : isOverview ? 0.8 : edge.weight;
+          const sw     = hot ? 2.9 : isOverview ? 1.0 : edge.weight + 0.4;
           const dashArr = (!hot && edge.dash && !isOverview) ? '5 3.5' : undefined;
           const arrow  = hot
             ? `url(#${uid}-ah)`
@@ -907,11 +1014,11 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
                     href={`#${edgePathId}`}
                     startOffset="50%"
                     textAnchor="middle"
-                    fontSize="7"
+                    fontSize="9"
                     fontFamily="monospace"
                     letterSpacing="0.04em"
                     fill={edgeLblClr}
-                    dy={edge.dash ? -5 : -4}
+                    dy={edge.dash ? -6 : -5}
                   >
                     {label}
                   </textPath>
@@ -921,7 +1028,7 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
               {!isOverview && hot && (
                 <g transform={`translate(${lx},${ly})`} style={{ pointerEvents: 'none' }}>
                   <text x={0} y={0} textAnchor="middle" dominantBaseline="middle"
-                    fontSize="8" fontFamily="monospace" letterSpacing="0.04em"
+                    fontSize="10" fontFamily="monospace" letterSpacing="0.04em"
                     fill={edgeHot}>
                     {label}
                   </text>
@@ -994,7 +1101,7 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
                     cx={node.cx} cy={node.cy} r={node.r}
                     fill={`url(#${uid}-ng)`}
                     stroke={isHot ? nodeStrokeH : nodeStroke}
-                    strokeWidth={isHot ? 2.2 : 1.6}
+                    strokeWidth={isHot ? 2.6 : 2.0}
                     style={{
                       transform: `scale(${scaleVal})`,
                       transformOrigin: `${node.cx}px ${node.cy}px`,
@@ -1065,13 +1172,13 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
               {/* Satellite content: metric (primary) + name (secondary) */}
               {!isMos && (<>
                 <text x={node.cx} y={node.cy - 5} textAnchor="middle" dominantBaseline="middle"
-                  fontSize="13" fontWeight="800" fontFamily="system-ui, sans-serif"
+                  fontSize="15" fontWeight="800" fontFamily="system-ui, sans-serif"
                   letterSpacing="-0.03em" fill={isHot ? (isDark ? '#aad0ff' : '#1535a0') : metricClr}
                   style={{ transition: 'fill 0.2s' }}>
                   {node.metric}
                 </text>
-                <text x={node.cx} y={node.cy + 9} textAnchor="middle" dominantBaseline="middle"
-                  fontSize="8.5" fontWeight="600" fontFamily="system-ui, sans-serif"
+                <text x={node.cx} y={node.cy + 10} textAnchor="middle" dominantBaseline="middle"
+                  fontSize="9.5" fontWeight="600" fontFamily="system-ui, sans-serif"
                   letterSpacing="0.01em" fill={isDark ? 'rgba(255,255,255,0.52)' : 'rgba(var(--accent-strong-rgb),0.52)'}>
                   {de ? node.labelDe : node.labelEn}
                 </text>
@@ -1081,9 +1188,9 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
               {!isMos && (
                 <text
                   x={node.cx}
-                  y={subAbove ? node.cy - node.r - 8 : node.cy + node.r + 13}
+                  y={subAbove ? node.cy - node.r - 8 : node.cy + node.r + 14}
                   textAnchor="middle" dominantBaseline={subAbove ? 'auto' : 'middle'}
-                  fontSize="7.5" fontFamily="monospace" letterSpacing="0.08em" fill={subClr}>
+                  fontSize="9.5" fontFamily="monospace" letterSpacing="0.08em" fill={subClr}>
                   {de ? node.subDe : node.subEn}
                 </text>
               )}
@@ -1116,40 +1223,6 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
           </>)}
         </div>
       )}
-
-      {/* ── Mobile relationship summary — 3 key edges, sm:hidden ── */}
-      <div
-        className="mt-4 pt-3.5 sm:hidden space-y-2"
-        style={{ borderTop: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(var(--accent-rgb),0.10)'}` }}
-      >
-        {([ASSEMBLY_EDGES[2], ASSEMBLY_EDGES[0], ASSEMBLY_EDGES[4]] as typeof ASSEMBLY_EDGES[number][]).map((edge, i) => {
-          const from = ASSEMBLY_NODES.find(n => n.id === edge.from)!;
-          const to   = ASSEMBLY_NODES.find(n => n.id === edge.to)!;
-          return (
-            <div key={i} className="flex items-center gap-2 text-left">
-              <span
-                className="text-[9px] font-semibold px-1.5 py-0.5 rounded flex-shrink-0"
-                style={{ background: isDark ? 'rgba(var(--accent-soft-rgb),0.15)' : 'rgba(var(--accent-soft-rgb),0.08)', color: isDark ? '#7ab0ff' : '#1a3c8e' }}
-              >
-                {de ? from.labelDe : from.labelEn}
-              </span>
-              <span className="text-[8px]" style={{ color: isDark ? 'rgba(255,255,255,0.25)' : 'rgba(var(--accent-rgb),0.35)' }}>→</span>
-              <span
-                className="text-[8px] font-mono flex-1 truncate"
-                style={{ color: isDark ? 'rgba(160,195,248,0.55)' : 'rgba(30,68,158,0.52)' }}
-              >
-                {de ? edge.labelDe : edge.labelEn}
-              </span>
-              <span
-                className="text-[9px] font-semibold px-1.5 py-0.5 rounded flex-shrink-0"
-                style={{ background: isDark ? 'rgba(var(--accent-soft-rgb),0.25)' : 'rgba(var(--accent-soft-rgb),0.12)', color: isDark ? '#88c0ff' : '#1535a0' }}
-              >
-                {de ? to.labelDe : to.labelEn}
-              </span>
-            </div>
-          );
-        })}
-      </div>
 
     </div>
   );
