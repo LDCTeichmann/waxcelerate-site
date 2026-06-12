@@ -1419,8 +1419,8 @@ function FailureTimeline({ de, isDark }: { de: boolean; isDark: boolean }) {
               <p className="text-[9px] font-mono font-bold uppercase tracking-wide mb-1" style={{ color: f.isCurrent ? 'var(--accent-soft)' : (isDark ? 'rgba(255,255,255,0.35)' : 'var(--txff)') }}>
                 {de ? f.vDe : f.vEn}
               </p>
-              <p className="text-[11px] leading-snug mb-1" style={{ color: failClr }}>{de ? f.failDe : f.failEn}</p>
-              <p className="text-[11px] font-medium" style={{ color: fixClr }}>{de ? f.fixDe : f.fixEn}</p>
+              <p className="text-[11.5px] leading-snug mb-1" style={{ color: failClr }}>{de ? f.failDe : f.failEn}</p>
+              <p className="text-[11.5px] font-medium" style={{ color: fixClr }}>{de ? f.fixDe : f.fixEn}</p>
             </div>
           </div>
         ))}
@@ -2154,136 +2154,183 @@ const FRICTION_BARS = [
 
 function FrictionBars({ de }: { de: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
-  const { theme } = useTheme();
-  const isDark = theme === 'noir';
 
   useEffect(() => {
+    const container = ref.current;
+    if (!container) return;
+    if (prefersReducedMotion()) {
+      container.querySelectorAll<HTMLElement>('.fb').forEach(bar => {
+        bar.style.transform = `scaleX(${parseFloat(bar.dataset.w!) / 100})`;
+      });
+      return;
+    }
     const ctx = gsap.context(() => {
-      ref.current?.querySelectorAll('.fb').forEach(bar => {
+      container.querySelectorAll('.fb').forEach(bar => {
         const w = parseFloat((bar as HTMLElement).dataset.w!);
-        gsap.fromTo(bar, { scaleX: 0 }, { scaleX: w / 100, duration: 1, ease: 'power3.out', transformOrigin: 'left center', scrollTrigger: { trigger: ref.current, start: 'top 80%', once: true } });
+        gsap.fromTo(bar, { scaleX: 0 }, {
+          scaleX: w / 100, duration: DUR.long, ease: EASE.enter,
+          transformOrigin: 'left center',
+          scrollTrigger: { trigger: container, start: 'top 80%', once: true },
+        });
       });
     }, ref);
     return () => ctx.revert();
   }, []);
 
-  const cardSt = isDark ? { ...DARK_CARD, ...DARK_DOT_GRID } : { ...CARD, ...DOT_GRID };
-  const hdrClr = isDark ? 'rgba(255,255,255,0.38)' : 'var(--txff)';
-  const subClr = isDark ? 'rgba(255,255,255,0.18)' : 'var(--txff)';
-  const trackClr = isDark ? 'rgba(255,255,255,0.11)' : 'var(--bd2)';
-  const tickClr = isDark ? 'rgba(255,255,255,0.20)' : 'var(--txff)';
-  const tickBorder = isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid var(--bd2)';
+  const ticks = [0, 0.05, 0.10, 0.15, 0.20, 0.25];
 
   return (
-    <div className="w-full rounded-2xl p-5" style={cardSt}>
-      <div className="flex items-baseline justify-between mb-1">
-        <p className="text-[10px] uppercase tracking-[0.2em]" style={{ color: hdrClr }}>
-          {de ? 'Reibungskoeffizient μ' : 'Friction coefficient μ'}
+    <VizFrame
+      eyebrow={de ? 'Reibungskoeffizient μ' : 'Friction coefficient μ'}
+      chip={de ? '≈ 2–5 W gespart @ 250 W' : '≈ 2–5 W saved @ 250 W'}
+      footer={
+        <p className="text-[11px] font-mono text-center" style={{ color: 'var(--accent-soft)', opacity: 0.6 }}>
+          {de ? 'Eigentest · Grenzschmierung · 50–300 MPa' : 'Self-tested · boundary lubrication · 50–300 MPa'}
         </p>
-        <span className="text-[9px]" style={{ color: subClr }}>
-          {de ? '← kürzer = weniger Reibung' : '← shorter = less friction'}
-        </span>
-      </div>
-      <p className="text-[9px] font-mono mb-1" style={{ color: subClr }}>
-        {de ? 'Eigentest · nicht extern zertifiziert' : 'Self-tested · not third-party certified'}
-      </p>
-      <p className="text-[9px] font-mono mb-5" style={{ color: subClr }}>
-        {de
-          ? 'μ 0.03 vs. μ 0.14 (Kettenöl) ≈ 2–5 W weniger Kettenverlust bei 250 W Ausgangsleistung'
-          : 'μ 0.03 vs. μ 0.14 (chain oil) ≈ 2–5 W less drivetrain loss at 250 W output'}
-      </p>
-      <p className="text-[9px] font-mono mb-5" style={{ color: subClr }}>
-        {de ? 'Grenzschmierung · 50–300 MPa Kontaktdruck' : 'Boundary lubrication · 50–300 MPa contact pressure'}
-      </p>
-      <div ref={ref} className="space-y-3.5">
-        {FRICTION_BARS.map((b, i) => {
-          const label = 'label' in b ? b.label : (de ? b.labelDe : b.labelEn);
-          const hiPct = Math.round((b.muHi / FRICTION_SCALE) * 100);
-          const loPct = Math.round((b.muLo / FRICTION_SCALE) * 100);
-          const isDim = 'dim' in b && b.dim;
-          const labelClr = b.best
-            ? (isDark ? 'rgba(255,255,255,0.90)' : 'var(--tx1)')
-            : (isDark ? 'rgba(255,255,255,0.55)' : 'var(--txm)');
-          const muClr = b.best
-            ? (isDark ? 'rgba(255,255,255,0.72)' : 'var(--tx1)')
-            : isDim
-              ? (isDark ? 'rgba(255,255,255,0.28)' : 'var(--txff)')
-              : (isDark ? 'rgba(255,255,255,0.40)' : 'var(--txm)');
-          const solidClr = b.best
-            ? (i === 0 ? '#1A3080' : 'var(--accent)')
-            : (isDark ? (isDim ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.16)') : (isDim ? 'var(--bd2)' : 'var(--bd)'));
-          const rangeClr = b.best
-            ? (i === 0 ? 'linear-gradient(90deg,var(--accent),#6A8AE8)' : 'linear-gradient(90deg,var(--accent),var(--accent-soft))')
-            : (isDark ? (isDim ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.28)') : (isDim ? 'var(--bd)' : 'var(--txff)'));
-          return (
-            <div key={i}>
-              <div className="flex justify-between items-center mb-1.5">
-                <span className="text-[12px] font-medium" style={{ color: labelClr }}>
-                  {label}
-                  {'tag' in b && (
-                    <span className="ml-1.5 text-[8px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded" style={{ background: 'linear-gradient(135deg,#1A3080,var(--accent))', color: 'rgba(255,255,255,0.9)' }}>
-                      {b.tag}
-                    </span>
+      }
+      innerRef={ref}
+    >
+      {/* Gridlines */}
+      <div className="relative">
+        <div className="absolute inset-0 flex justify-between pointer-events-none" aria-hidden>
+          {ticks.map(v => (
+            <div key={v} className="h-full w-px" style={{ background: 'rgba(var(--accent-rgb),0.08)' }} />
+          ))}
+        </div>
+        <div className="relative space-y-4 py-1">
+          {FRICTION_BARS.map((b, i) => {
+            const label = 'label' in b ? b.label : (de ? b.labelDe : b.labelEn);
+            const hiPct = Math.round((b.muHi / FRICTION_SCALE) * 100);
+            const loPct = Math.round((b.muLo / FRICTION_SCALE) * 100);
+            const isDim = 'dim' in b && b.dim;
+            const barGrad = b.best
+              ? (i === 0 ? 'linear-gradient(90deg,var(--accent),#6A8AE8)' : 'linear-gradient(90deg,var(--accent),var(--accent-soft))')
+              : (isDim ? 'rgba(var(--accent-rgb),0.12)' : 'rgba(var(--accent-rgb),0.22)');
+            const solidFill = b.best
+              ? (i === 0 ? '#1A3080' : 'var(--accent)') : 'rgba(var(--accent-rgb),0.10)';
+            const glowDot = b.best && i === 0;
+            return (
+              <div key={i}>
+                <div className="flex justify-between items-center mb-1.5">
+                  <span className={`text-[13px] font-medium ${b.best ? 'text-wx-tx1' : 'text-wx-txm'}`}>
+                    {label}
+                    {'tag' in b && (
+                      <span className="ml-2 text-[8px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded"
+                        style={{ background: 'linear-gradient(135deg,#1A3080,var(--accent))', color: 'rgba(255,255,255,0.9)' }}>
+                        {b.tag}
+                      </span>
+                    )}
+                  </span>
+                  <CountUp value={`μ ${b.muLo.toFixed(2)}–${b.muHi.toFixed(2)}`}
+                    className="font-display text-[15px] font-semibold tabular-nums"
+                    style={{ color: b.best ? 'var(--accent)' : (isDim ? 'var(--txff)' : 'var(--txm)') }} />
+                </div>
+                <div className="relative h-2.5 rounded-full overflow-hidden" style={{ background: 'rgba(var(--accent-rgb),0.06)' }}>
+                  <div className="absolute top-0 left-0 h-full" style={{ width: `${loPct}%`, background: solidFill }} />
+                  <div className="fb absolute top-0 h-full rounded-r-full" data-w={hiPct - loPct}
+                    style={{ left: `${loPct}%`, width: `${hiPct - loPct}%`, background: barGrad, transformOrigin: 'left center', transform: 'scaleX(0)' }} />
+                  {glowDot && (
+                    <div className="absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full"
+                      style={{ left: `${hiPct}%`, transform: `translateX(-50%) translateY(-50%)`, background: '#6A8AE8', boxShadow: '0 0 8px rgba(106,138,232,0.7)' }} />
                   )}
-                </span>
-                <span className="text-[11px] font-mono" style={{ color: muClr }}>
-                  μ {b.muLo.toFixed(2)}–{b.muHi.toFixed(2)}
-                </span>
+                </div>
               </div>
-              <div className="relative h-1.5 rounded-full overflow-hidden" style={{ background: trackClr }}>
-                <div className="absolute top-0 left-0 h-full" style={{ width: `${loPct}%`, background: solidClr }} />
-                <div className="fb absolute top-0 h-full rounded-r-full" data-w={hiPct - loPct}
-                  style={{ left: `${loPct}%`, width: `${hiPct - loPct}%`, background: rangeClr, transformOrigin: 'left center', transform: 'scaleX(0)' }} />
-              </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
-      <div className="flex justify-between mt-3 pt-2" style={{ borderTop: tickBorder }}>
-        {[0, 0.05, 0.10, 0.15, 0.20, 0.25].map(v => (
-          <span key={v} className="text-[8px] font-mono" style={{ color: tickClr }}>
+      {/* Tick axis */}
+      <div className="flex justify-between mt-3 pt-2" style={{ borderTop: '1px solid rgba(var(--accent-rgb),0.08)' }}>
+        {ticks.map(v => (
+          <span key={v} className="text-[10px] font-mono" style={{ color: 'var(--accent-soft)', opacity: 0.5 }}>
             {v === 0 ? '0' : v.toFixed(2)}
           </span>
         ))}
       </div>
-    </div>
+    </VizFrame>
   );
 }
 
 // ─── Insight callout ──────────────────────────────────────────────────────────
-function Insight({ children }: { children: React.ReactNode }) {
+function Insight({ children, de }: { children: React.ReactNode; de: boolean }) {
   const ref    = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (prefersReducedMotion()) {
-      gsap.set(barRef.current, { scaleY: 1, opacity: 1 });
-      const p = ref.current?.querySelector('p');
-      if (p) gsap.set(p, { opacity: 1, x: 0 });
+      if (barRef.current) gsap.set(barRef.current, { scaleY: 1, opacity: 1 });
       return;
     }
     const ctx = gsap.context(() => {
       gsap.fromTo(barRef.current,
-        { scaleY: 0, opacity: 0 },
-        { scaleY: 1, opacity: 1, duration: 0.55, ease: 'power2.out', transformOrigin: 'top center',
-          scrollTrigger: { trigger: ref.current, start: 'top 87%', once: true } },
+        { scaleY: 0 },
+        { scaleY: 1, ease: 'none', transformOrigin: 'top center',
+          scrollTrigger: { trigger: ref.current, start: 'top 87%', end: 'top 55%', scrub: 0.6 } },
       );
-      const p = ref.current?.querySelector('p');
-      if (p) {
-        gsap.fromTo(p,
-          { opacity: 0, x: 6 },
-          { opacity: 1, x: 0, duration: 0.5, ease: 'power2.out', delay: 0.18,
-            scrollTrigger: { trigger: ref.current, start: 'top 87%', once: true } },
-        );
-      }
     }, ref);
     return () => ctx.revert();
   }, []);
   return (
-    <div ref={ref} className="relative pl-5 py-1">
-      <div ref={barRef} className="absolute left-0 top-0 bottom-0 w-[3px] rounded-full" style={{ background: 'linear-gradient(to bottom,var(--accent),#7A9AEC)', opacity: 0 }} />
-      <p className="font-display text-[15px] leading-[1.75] italic" style={{ color: 'var(--tx2)', opacity: 0 }}>
+    <div ref={ref} className="relative pl-5 py-1.5">
+      <div ref={barRef} className="absolute left-0 top-0 bottom-0 w-[3px] rounded-full origin-top" style={{ background: 'linear-gradient(to bottom,var(--accent),#7A9AEC)' }} />
+      <p className="text-[11px] uppercase tracking-[0.24em] font-medium mb-1.5" style={{ color: 'var(--accent-soft)' }}>
+        {de ? 'Erkenntnis' : 'Insight'}
+      </p>
+      <p className="font-display text-[16px] leading-[1.75] italic" style={{ color: 'var(--tx2)', fontVariationSettings: '"SOFT" 30' }}>
         {children}
       </p>
+    </div>
+  );
+}
+
+// ─── Outcome band — 3 key stats with 3D-reveal stagger + CountUp ─────────────
+function OutcomeBand({ de, isDark }: { de: boolean; isDark: boolean }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (prefersReducedMotion()) return;
+    const cards = el.querySelectorAll<HTMLElement>('[data-card]');
+    if (!cards.length) return;
+    gsap.set(cards, { opacity: 0, y: 32, rotateX: 9, transformPerspective: 700, transformOrigin: '50% 0%' });
+    const trigger = ScrollTrigger.create({
+      trigger: el, start: 'top 87%', once: true,
+      onEnter: () => {
+        gsap.to(cards, {
+          opacity: 1, y: 0, rotateX: 0, duration: DUR.long, ease: EASE.enter, stagger: 0.12,
+          onStart()    { cards.forEach(c => { c.style.willChange = 'transform, opacity'; }); },
+          onComplete() { cards.forEach(c => { c.style.willChange = 'auto'; c.style.transform = ''; }); },
+        });
+      },
+    });
+    return () => trigger.kill();
+  }, []);
+
+  const items = [
+    { val: '~300 km', labelDe: 'pro Rewax-Vorgang', labelEn: 'per rewax', subDe: 'bei trockenen Bedingungen', subEn: 'in dry conditions' },
+    { val: '3×',      labelDe: 'längere Kettenlaufzeit', labelEn: 'longer chain life', subDe: 'gegenüber Kettenöl', subEn: 'vs. chain oil' },
+    { val: '~€35',    labelDe: 'gespart pro Jahr', labelEn: 'saved per year', subDe: 'bei 5.000 km/Jahr', subEn: 'at 5,000 km/year' },
+  ];
+
+  return (
+    <div ref={ref} className={`${W} py-14`}>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {items.map((item, i) => (
+          <div key={i} data-card className="rounded-2xl p-6 sm:p-8 text-center"
+            style={{
+              background: isDark ? 'rgba(var(--accent-rgb),0.12)' : 'rgba(var(--accent-rgb),0.05)',
+              border: '1px solid rgba(var(--accent-rgb),0.18)',
+            }}>
+            <CountUp value={item.val} className="font-display italic font-bold text-[2.4rem] leading-none mb-1.5"
+              style={{ color: isDark ? '#6A8AE8' : 'var(--accent)' }} />
+            <p className="text-[12px] font-semibold" style={{ color: isDark ? 'rgba(255,255,255,0.70)' : 'var(--tx1)' }}>
+              {de ? item.labelDe : item.labelEn}
+            </p>
+            <p className="text-[11px] mt-0.5" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'var(--txm)' }}>
+              {de ? item.subDe : item.subEn}
+            </p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -2399,7 +2446,7 @@ function Chapter({ num, anchorId, catDe, catEn, titleDe, titleEn, ledeDe, ledeEn
               </div>
             </div>
           </div>
-          <Insight>{de ? insightDe : insightEn}</Insight>
+          <Insight de={de}>{de ? insightDe : insightEn}</Insight>
         </div>
         {/* Visual column — featured removes card border for immersive treatment */}
         <div className={`flex flex-col gap-6 ${visualFirst ? 'order-first' : ''} ${flip ? 'lg:order-1' : 'lg:order-2'} ${featured ? 'lg:-mx-8' : ''}`}>
@@ -3008,31 +3055,7 @@ export function SciencePage() {
       </section>
 
       {/* ══ WHAT THIS MEANS FOR YOU — outcome bridge before results ══════════ */}
-      <div className={`${W} py-14`}>
-        <div
-          className="rounded-2xl p-6 sm:p-10 grid grid-cols-1 sm:grid-cols-3 gap-8 text-center"
-          style={{
-            background: isDark ? 'rgba(var(--accent-rgb),0.12)' : 'rgba(var(--accent-rgb),0.05)',
-            border: '1px solid rgba(var(--accent-rgb),0.18)',
-          }}
-        >
-          <div>
-            <p className="font-display italic font-bold text-[2.4rem] leading-none mb-1.5" style={{ color: isDark ? '#6A8AE8' : 'var(--accent)' }}>~300 km</p>
-            <p className="text-[11px] font-semibold" style={{ color: isDark ? 'rgba(255,255,255,0.70)' : 'var(--tx1)' }}>{de ? 'pro Rewax-Vorgang' : 'per rewax'}</p>
-            <p className="text-[10px] mt-0.5" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'var(--txm)' }}>{de ? 'bei trockenen Bedingungen' : 'in dry conditions'}</p>
-          </div>
-          <div>
-            <p className="font-display italic font-bold text-[2.4rem] leading-none mb-1.5" style={{ color: isDark ? '#6A8AE8' : 'var(--accent)' }}>3×</p>
-            <p className="text-[11px] font-semibold" style={{ color: isDark ? 'rgba(255,255,255,0.70)' : 'var(--tx1)' }}>{de ? 'längere Kettenlaufzeit' : 'longer chain life'}</p>
-            <p className="text-[10px] mt-0.5" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'var(--txm)' }}>{de ? 'gegenüber Kettenöl' : 'vs. chain oil'}</p>
-          </div>
-          <div>
-            <p className="font-display italic font-bold text-[2.4rem] leading-none mb-1.5" style={{ color: isDark ? '#6A8AE8' : 'var(--accent)' }}>~€35</p>
-            <p className="text-[11px] font-semibold" style={{ color: isDark ? 'rgba(255,255,255,0.70)' : 'var(--tx1)' }}>{de ? 'gespart pro Jahr' : 'saved per year'}</p>
-            <p className="text-[10px] mt-0.5" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'var(--txm)' }}>{de ? 'bei 5.000 km/Jahr' : 'at 5,000 km/year'}</p>
-          </div>
-        </div>
-      </div>
+      <OutcomeBand de={de} isDark={isDark} />
 
       {/* ══ RESULTS ═══════════════════════════════════════════════════════════ */}
       <section
@@ -3058,51 +3081,43 @@ export function SciencePage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <FrictionBars de={de} />
-            <div className="w-full rounded-2xl p-5" style={isDark ? { ...DARK_CARD, ...DARK_DOT_GRID } : { ...CARD, ...DOT_GRID }}>
-              <p className="text-[10px] uppercase tracking-[0.2em] mb-1" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'var(--txff)' }}>
-                {de ? 'MoS₂-Verteilung im Gussblock' : 'MoS₂ distribution in cast block'}
-              </p>
-              <p className="text-[9px] font-mono mb-4" style={{ color: isDark ? 'rgba(255,255,255,0.18)' : 'var(--txff)' }}>
-                {de ? 'Querschnitt — Oben / Mitte / Unten' : 'Cross-section — Top / Mid / Bottom'}
-              </p>
-              {/* Block cross-section: 3 slices, uniform particle grid */}
-              <div className="grid grid-cols-3 gap-2 mb-4">
-                {(de
-                  ? ['Oben', 'Mitte', 'Unten']
-                  : ['Top', 'Mid', 'Bottom']
-                ).map((label, si) => (
+            <VizFrame
+              eyebrow={de ? 'MoS₂-Verteilung im Gussblock' : 'MoS₂ distribution in cast block'}
+              chip={de ? 'Oben = Mitte = Unten' : 'Top = Mid = Bottom'}
+              footer={
+                <p className="text-[11px] leading-relaxed" style={{ color: 'var(--txm)' }}>
+                  {de
+                    ? 'MoS₂ ist 5,6× dichter als Paraffin. Der Fettsäureester verhindert Sedimentation.'
+                    : 'MoS₂ is 5.6× denser than paraffin. The fatty acid ester prevents sedimentation.'}
+                </p>
+              }
+            >
+              <div className="grid grid-cols-3 gap-3 mb-5">
+                {(de ? ['Oben', 'Mitte', 'Unten'] : ['Top', 'Mid', 'Bottom']).map((label, si) => (
                   <div key={si} className="flex flex-col items-center gap-2">
-                    <div className="w-full rounded-lg p-2.5" style={{ background: isDark ? 'rgba(255,255,255,0.03)' : 'var(--sf3)', border: isDark ? '1px solid rgba(255,255,255,0.07)' : '1px solid var(--bd2)' }}>
-                      <div className="grid grid-cols-4 gap-1.5 justify-items-center py-1">
+                    <div className="w-full rounded-lg p-3" style={{ background: 'rgba(var(--accent-rgb),0.05)', border: '1px solid rgba(var(--accent-rgb),0.12)' }}>
+                      <div className="grid grid-cols-4 gap-2 justify-items-center py-1">
                         {[...Array(12)].map((_, j) => (
-                          <div key={j} className="w-2.5 h-2.5 rounded-full" style={{ background: 'var(--accent)', opacity: isDark ? (0.55 + (j % 4) * 0.12) : (0.45 + (j % 4) * 0.12) }} />
+                          <div key={j} className="w-3 h-3 rounded-full" style={{ background: 'var(--accent)', opacity: 0.5 + (j % 4) * 0.12 }} />
                         ))}
                       </div>
                     </div>
-                    <span className="text-[8px] font-mono text-center" style={{ color: isDark ? 'rgba(255,255,255,0.28)' : 'var(--txff)' }}>{label}</span>
+                    <span className="text-[11px] font-mono text-center" style={{ color: 'var(--accent-soft)', opacity: 0.6 }}>{label}</span>
                   </div>
                 ))}
               </div>
-              {/* Key stats */}
-              <div className="grid grid-cols-2 gap-2 mb-4">
+              <div className="grid grid-cols-2 gap-3">
                 {[
-                  { de: 'kein Gradient', en: 'no gradient', sub: de ? 'von oben bis unten' : 'top to bottom' },
-                  { de: 'Block 1 = 20', en: 'Block 1 = 20', sub: de ? 'identische Performance' : 'identical performance' },
+                  { val: de ? 'kein Gradient' : 'no gradient', sub: de ? 'von oben bis unten' : 'top to bottom' },
+                  { val: 'Block 1 = 20', sub: de ? 'identische Performance' : 'identical performance' },
                 ].map((s, i) => (
-                  <div key={i} className="text-center p-2 rounded-lg" style={{ background: 'rgba(var(--accent-rgb),0.10)', border: '1px solid rgba(var(--accent-rgb),0.18)' }}>
-                    <p className="font-display italic text-[16px] font-bold" style={{ color: isDark ? '#6A8AE8' : 'var(--accent)', textShadow: isDark ? '0 0 14px rgba(var(--accent-soft-rgb),0.45)' : 'none' }}>
-                      {de ? s.de : s.en}
-                    </p>
-                    <p className="text-[9px] mt-0.5" style={{ color: isDark ? 'rgba(255,255,255,0.32)' : 'var(--txm)' }}>{s.sub}</p>
+                  <div key={i} className="text-center p-3 rounded-lg" style={{ background: 'rgba(var(--accent-rgb),0.08)', border: '1px solid rgba(var(--accent-rgb),0.15)' }}>
+                    <CountUp value={s.val} className="font-display italic text-[18px] font-bold" style={{ color: 'var(--accent)' }} />
+                    <p className="text-[11px] mt-0.5" style={{ color: 'var(--txm)' }}>{s.sub}</p>
                   </div>
                 ))}
               </div>
-              <p className="text-[11px] pt-3.5 leading-relaxed" style={{ color: isDark ? 'rgba(255,255,255,0.45)' : 'var(--txm)', borderTop: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid var(--bd2)' }}>
-                {de
-                  ? 'MoS₂ ist 5,6× dichter als Paraffin. Ohne Dispergiermittel entsteht ein messbarer Konzentrationsgradient — mehr Partikel unten, weniger oben. Der Fettsäureester verhindert genau das.'
-                  : 'MoS₂ is 5.6× denser than paraffin. Without dispersant a measurable concentration gradient forms — more particles at the bottom, fewer at the top. The fatty acid ester prevents exactly this.'}
-              </p>
-            </div>
+            </VizFrame>
           </div>
         </div>
       </section>
