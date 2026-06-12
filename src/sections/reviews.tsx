@@ -32,7 +32,7 @@ const reviews = [
 
 function StarIcon() {
   return (
-    <svg className="h-3.5 w-3.5" viewBox="0 0 20 20" style={{ fill: 'var(--accent)' }}>
+    <svg className="h-3.5 w-3.5" viewBox="0 0 20 20" style={{ fill: 'var(--accent-soft)' }}>
       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
     </svg>
   );
@@ -67,43 +67,82 @@ export function Reviews() {
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-5xl mx-auto">
 
-          <p className="eyebrow mb-4" style={{ color: 'var(--txf)' }}>
-            {de ? 'eBay verifiziert · alle Bewertungen echt' : 'eBay verified · all reviews genuine'}
-          </p>
-          <h2 className="section-title mb-3">
-            {de ? '171 Fahrer. 100 % positiv.' : '171 Riders. 100 % positive.'}
-          </h2>
-          <p className="text-[15px] text-wx-txm mb-6 max-w-md">
-            {de
-              ? 'Kein einziges negatives Feedback seit 2024 — auf einer Plattform, auf der Käufer anonym bewerten.'
-              : 'Not a single negative review since 2024 — on a platform where buyers rate anonymously.'}
-          </p>
-
-          <div className="flex items-center gap-3 mb-8 flex-wrap">
-            <div className="flex items-center gap-0.5">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <svg key={i} className="h-4 w-4" viewBox="0 0 20 20" style={{ fill: 'var(--accent)' }}>
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
-              ))}
+          {/* ── Header: claim left · aggregate proof panel right ── */}
+          <div className="grid lg:grid-cols-[1.15fr_1fr] gap-8 lg:gap-12 items-end mb-10">
+            <div>
+              <p className="eyebrow mb-4" style={{ color: 'var(--txf)' }}>
+                {de ? 'eBay verifiziert · alle Bewertungen echt' : 'eBay verified · all reviews genuine'}
+              </p>
+              <h2 className="section-title mb-3">
+                {de ? '171 Fahrer. 100 % positiv.' : '171 Riders. 100 % positive.'}
+              </h2>
+              <p className="text-[15px] text-wx-txm max-w-md">
+                {de
+                  ? 'Kein einziges negatives Feedback seit 2024 — auf einer Plattform, auf der Käufer anonym bewerten.'
+                  : 'Not a single negative review since 2024 — on a platform where buyers rate anonymously.'}
+              </p>
             </div>
-            <span className="text-sm font-semibold text-wx-tx1">171</span>
-            <span style={{ color: 'var(--bd)' }}>·</span>
-            <span className="text-[13px]" style={{ color: 'var(--txm)' }}>
-              {de ? '326 verkauft' : '326 sold'}
-            </span>
+
+            {/* Aggregate proof panel */}
+            <div
+              className="rounded-2xl p-6"
+              style={{ background: 'var(--sf2)', border: '1px solid var(--bd)' }}
+            >
+              <div className="flex items-baseline gap-3">
+                <span
+                  className="font-display font-bold leading-none tabular-nums"
+                  style={{ fontSize: 'clamp(2.6rem, 5vw, 3.4rem)', color: 'var(--accent)', letterSpacing: '-0.03em' }}
+                >
+                  100 %
+                </span>
+                <div className="flex items-center gap-0.5 pb-1.5">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <svg key={i} className="h-4 w-4" viewBox="0 0 20 20" style={{ fill: 'var(--accent-soft)' }}>
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  ))}
+                </div>
+              </div>
+              <p className="text-[12px] mt-2" style={{ color: 'var(--txm)' }}>
+                {de ? 'positive Bewertungen seit 2024' : 'positive reviews since 2024'}
+              </p>
+              <div className="grid grid-cols-2 gap-px mt-5 rounded-xl overflow-hidden" style={{ background: 'var(--bd2)' }}>
+                {[
+                  { v: '171', l: de ? 'Bewertungen' : 'reviews' },
+                  { v: '326', l: de ? 'verkauft' : 'sold' },
+                ].map((s, i) => (
+                  <div key={i} className="py-3 px-4 text-center" style={{ background: 'var(--sf3)' }}>
+                    <p className="font-display font-bold text-wx-tx1 tabular-nums leading-none" style={{ fontSize: '1.5rem', letterSpacing: '-0.02em' }}>
+                      {s.v}
+                    </p>
+                    <p className="text-[11px] mt-1" style={{ color: 'var(--txf)' }}>{s.l}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
 
           <div ref={gridRef} className="grid sm:grid-cols-3 gap-4">
             {reviews.map((r, i) => (
               <div
                 key={i}
-                className="review-card rounded-xl p-5 flex flex-col gap-3"
+                className="review-card relative rounded-xl p-5 flex flex-col gap-3 transition-colors duration-300"
                 style={{
                   background: 'var(--sf3)',
                   border: '1px solid var(--bd2)',
                 }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--bd)'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--bd2)'; }}
               >
+                {/* Decorative quote mark */}
+                <span
+                  className="absolute top-3 right-4 font-display leading-none select-none pointer-events-none"
+                  style={{ fontSize: '2.6rem', color: 'rgba(var(--accent-rgb),0.10)' }}
+                  aria-hidden="true"
+                >
+                  &rdquo;
+                </span>
+
                 {/* Stars */}
                 <div className="flex items-center gap-0.5">
                   {Array.from({ length: 5 }).map((_, j) => (
