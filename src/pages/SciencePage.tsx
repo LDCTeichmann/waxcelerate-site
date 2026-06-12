@@ -3,7 +3,18 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft, ChevronDown, RotateCcw } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
-import { gsap } from '@/lib/gsap';
+import { gsap, ScrollTrigger } from '@/lib/gsap';
+import { prefersReducedMotion, EASE, DUR } from '@/hooks/useAnimation';
+
+// ─── Chapter registry — single source for sidebar, mobile rail & quick-nav ───
+const CHAPTERS = [
+  { n: '01', de: 'Die Basis',    en: 'Foundation'  },
+  { n: '02', de: 'Härtemodul',  en: 'Hardener'    },
+  { n: '03', de: 'Kälteflex.',  en: 'Cold Flex.'  },
+  { n: '04', de: 'MoS₂',        en: 'MoS₂'        },
+  { n: '05', de: 'Dispergier.', en: 'Dispersant'  },
+  { n: '06', de: 'Antioxidans', en: 'Antioxidant' },
+] as const;
 
 // ─── Static data ──────────────────────────────────────────────────────────────
 
@@ -74,18 +85,129 @@ const LIGHT_DOT_GRID: React.CSSProperties = {
 // Shared container width
 const W = 'max-w-5xl mx-auto px-4 sm:px-6 lg:px-8';
 
+// ─── VizFrame — unified instrument-panel container for every visualization ───
+// variant 'panel': theme-aware surface · variant 'lab': forced-dark lab panel
+// (#0E1626 in BOTH themes — deliberate cinematic moment for the MoS₂ diagrams)
+function VizFrame({ eyebrow, chip, footer, variant = 'panel', children, className = '', innerRef }: {
+  eyebrow: string;
+  chip?: React.ReactNode;
+  footer?: React.ReactNode;
+  variant?: 'panel' | 'lab';
+  children: React.ReactNode;
+  className?: string;
+  innerRef?: React.Ref<HTMLDivElement>;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const lab = variant === 'lab';
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (prefersReducedMotion()) { gsap.set(el, { opacity: 1 }); return; }
+    gsap.set(el, { opacity: 0, y: 28, rotateX: 9, transformPerspective: 700, transformOrigin: '50% 0%' });
+    const trigger = ScrollTrigger.create({
+      trigger: el, start: 'top 87%', once: true,
+      onEnter: () => gsap.to(el, {
+        opacity: 1, y: 0, rotateX: 0, duration: DUR.long, ease: EASE.enter,
+        onStart()    { el.style.willChange = 'transform, opacity'; },
+        onComplete() { el.style.willChange = 'auto'; el.style.transform = ''; },
+      }),
+    });
+    return () => trigger.kill();
+  }, []);
+  const tick = lab ? 'rgba(130,170,240,0.32)' : 'rgba(var(--accent-rgb),0.25)';
+  return (
+    <div
+      ref={ref}
+      className={`relative w-full rounded-2xl overflow-hidden grain ${className}`}
+      style={lab
+        ? { background: '#0E1626', border: '1px solid rgba(var(--accent-soft-rgb),0.25)' }
+        : { background: 'var(--sf2)', border: '1px solid var(--bd)' }}
+    >
+      {/* Dot grid */}
+      <div aria-hidden className="absolute inset-0 pointer-events-none" style={{
+        backgroundImage: lab
+          ? 'radial-gradient(circle, rgba(130,170,240,0.10) 1px, transparent 1px)'
+          : 'radial-gradient(circle, rgba(var(--accent-rgb),0.09) 1px, transparent 1px)',
+        backgroundSize: '28px 28px',
+      }} />
+      {/* Corner registration ticks */}
+      {(['tl', 'tr', 'bl', 'br'] as const).map(c => (
+        <div key={c} aria-hidden className="absolute w-2.5 h-2.5 pointer-events-none" style={{
+          top:    c[0] === 't' ? 7 : undefined,
+          bottom: c[0] === 'b' ? 7 : undefined,
+          left:   c[1] === 'l' ? 7 : undefined,
+          right:  c[1] === 'r' ? 7 : undefined,
+          borderTop:    c[0] === 't' ? `1px solid ${tick}` : undefined,
+          borderBottom: c[0] === 'b' ? `1px solid ${tick}` : undefined,
+          borderLeft:   c[1] === 'l' ? `1px solid ${tick}` : undefined,
+          borderRight:  c[1] === 'r' ? `1px solid ${tick}` : undefined,
+        }} />
+      ))}
+      <div ref={innerRef} className="relative p-5">
+        <div className="flex items-center justify-between gap-3 mb-4">
+          <p className="text-[11px] uppercase tracking-[0.24em] font-medium"
+            style={{ color: lab ? 'rgba(150,185,245,0.78)' : 'var(--accent-soft)' }}>
+            {eyebrow}
+          </p>
+          {chip && (
+            <span className="text-[11px] font-mono tabular-nums px-2 py-0.5 rounded-md flex-shrink-0"
+              style={{
+                background: lab ? 'rgba(var(--accent-soft-rgb),0.16)' : 'rgba(var(--accent-rgb),0.08)',
+                border: lab ? '1px solid rgba(var(--accent-soft-rgb),0.30)' : '1px solid rgba(var(--accent-rgb),0.16)',
+                color: lab ? '#9CC2FF' : 'var(--accent)',
+              }}>
+              {chip}
+            </span>
+          )}
+        </div>
+        {children}
+        {footer && (
+          <div className="mt-4 pt-3.5" style={{ borderTop: lab ? '1px solid rgba(255,255,255,0.08)' : '1px solid var(--bd2)' }}>
+            {footer}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── CountUp — every number in the string counts 0 → target on scroll ────────
+function CountUp({ value, className, style, duration = 1.1 }: {
+  value: string; className?: string; style?: React.CSSProperties; duration?: number;
+}) {
+  const ref = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const NUM = /-?\d+(?:[.,]\d+)?/g;
+    if (!NUM.test(value) || prefersReducedMotion()) { el.textContent = value; return; }
+    const render = (p: number) =>
+      value.replace(NUM, raw => {
+        const target   = parseFloat(raw.replace(',', '.'));
+        const decimals = (raw.split(/[.,]/)[1] ?? '').length;
+        const sep      = raw.includes(',') ? ',' : '.';
+        return (target * p).toFixed(decimals).replace('.', sep);
+      });
+    el.textContent = render(0);
+    const proxy = { p: 0 };
+    const trigger = ScrollTrigger.create({
+      trigger: el, start: 'top 90%', once: true,
+      onEnter: () => gsap.to(proxy, {
+        p: 1, duration, ease: 'power2.out',
+        onUpdate()   { el.textContent = render(proxy.p); },
+        onComplete() { el.textContent = value; },
+      }),
+    });
+    return () => trigger.kill();
+  }, [value, duration]);
+  return <span ref={ref} className={`tabular-nums ${className ?? ''}`} style={style}>{value}</span>;
+}
+
 
 // ─── Chapter navigation sidebar ───────────────────────────────────────────────
 function ChapterNav({ de, onActiveChange }: { de: boolean; onActiveChange?: (i: number) => void }) {
   const [active, setActive] = useState(-1);
-  const LABELS = [
-    { de: 'Die Basis',    en: 'Foundation'  },
-    { de: 'Härtemodul',  en: 'Hardener'    },
-    { de: 'Kälteflex.',  en: 'Cold Flex.'  },
-    { de: 'MoS₂',        en: 'MoS₂'        },
-    { de: 'Dispergier.', en: 'Dispersant'  },
-    { de: 'Antioxidans', en: 'Antioxidant' },
-  ];
+  const LABELS = CHAPTERS;
   useEffect(() => {
     const els = document.querySelectorAll('[data-chapter]');
     const obs = new IntersectionObserver(
@@ -123,6 +245,68 @@ function ChapterNav({ de, onActiveChange }: { de: boolean; onActiveChange?: (i: 
           </button>
         );
       })}
+    </div>
+  );
+}
+
+// ─── Mobile chapter rail — fixed chip nav below the top bar, <xl only ────────
+// Reuses the IntersectionObserver state owned by ChapterNav (via SciencePage).
+function MobileChapterRail({ de, active }: { de: boolean; active: number }) {
+  const railRef = useRef<HTMLDivElement>(null);
+  const visible = active >= 0;
+  useEffect(() => {
+    if (active < 0) return;
+    const chip = railRef.current?.querySelector<HTMLElement>(`[data-rail="${active}"]`);
+    if (chip && railRef.current) {
+      const rail = railRef.current;
+      const target = chip.offsetLeft - (rail.clientWidth - chip.clientWidth) / 2;
+      rail.scrollTo({ left: target, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+    }
+  }, [active]);
+  return (
+    <div
+      className="fixed top-14 left-0 right-0 z-30 xl:hidden"
+      aria-hidden={!visible}
+      style={{
+        background: 'var(--nav-bg)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        borderBottom: '1px solid var(--bd)',
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateY(0)' : 'translateY(-8px)',
+        pointerEvents: visible ? 'auto' : 'none',
+        transition: 'opacity 0.3s ease, transform 0.3s ease',
+      }}
+    >
+      <div
+        ref={railRef}
+        className="flex items-stretch gap-1 overflow-x-auto px-2 h-10 hide-scrollbar"
+        style={{ scrollbarWidth: 'none' }}
+      >
+        {CHAPTERS.map((ch, i) => {
+          const isActive = active === i;
+          return (
+            <button
+              key={ch.n}
+              data-rail={i}
+              tabIndex={visible ? 0 : -1}
+              onClick={() => document.querySelector(`[data-chapter="${ch.n}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+              className="relative flex items-center gap-1.5 px-2.5 whitespace-nowrap flex-shrink-0"
+            >
+              <span className="font-mono text-[10px] font-bold tabular-nums" style={{ color: isActive ? 'var(--accent)' : 'var(--txff)' }}>
+                {ch.n}
+              </span>
+              <span className="text-[11px] font-medium" style={{ color: isActive ? 'var(--tx1)' : 'var(--txm)' }}>
+                {de ? ch.de : ch.en}
+              </span>
+              <span
+                className="absolute bottom-0 left-2 right-2 h-[2px] rounded-full"
+                style={{ background: 'var(--accent)', opacity: isActive ? 1 : 0, transition: 'opacity 0.2s ease' }}
+              />
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -228,10 +412,14 @@ function StatCallout({ stat, ctxDe, ctxEn, de, isDark, miniViz }: {
   const ref = useRef<HTMLDivElement>(null);
   const numRef = useRef<HTMLParagraphElement>(null);
   useEffect(() => {
+    if (prefersReducedMotion()) {
+      gsap.set([ref.current, numRef.current], { opacity: 1, y: 0, scale: 1 });
+      return;
+    }
     const ctx = gsap.context(() => {
       gsap.fromTo(ref.current,
         { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out',
+        { opacity: 1, y: 0, duration: 0.7, ease: EASE.enter,
           scrollTrigger: { trigger: ref.current, start: 'top 88%', once: true } },
       );
       if (numRef.current) {
@@ -252,18 +440,16 @@ function StatCallout({ stat, ctxDe, ctxEn, de, isDark, miniViz }: {
         background: isDark ? '#07070A' : 'var(--sf2)',
         borderTop: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid var(--bd)',
         borderBottom: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid var(--bd)',
-        opacity: 0,
       }}
     >
       <div className="flex flex-col items-center sm:items-start">
         <p ref={numRef} className="font-display font-bold leading-none select-none tabular-nums"
           style={{
             fontSize: 'clamp(3rem,7vw,4.8rem)',
-            color: isDark ? 'var(--accent)' : 'var(--accent)',
+            color: 'var(--accent)',
             letterSpacing: '-0.03em',
-            opacity: 0,
           }}>
-          {stat}
+          <CountUp value={stat} duration={1.3} />
         </p>
         <p className="text-[11px] uppercase tracking-[0.24em] mt-4 max-w-[420px] leading-relaxed text-center sm:text-left"
           style={{ color: isDark ? 'rgba(255,255,255,0.45)' : 'var(--txm)' }}>
@@ -271,7 +457,7 @@ function StatCallout({ stat, ctxDe, ctxEn, de, isDark, miniViz }: {
         </p>
       </div>
       {miniViz && (
-        <div className="flex-shrink-0 hidden sm:block" aria-hidden="true">
+        <div className="flex-shrink-0 scale-[0.85] sm:scale-100" aria-hidden="true">
           {miniViz}
         </div>
       )}
@@ -489,6 +675,14 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
   // ── Scientific assembly story animation ───────────────────────────────────
   useEffect(() => {
     if (mode !== 'synthesis' || didAnimate.current) return;
+    if (prefersReducedMotion()) {
+      // Skip the choreography — everything visible & interactive immediately
+      didAnimate.current = true;
+      setCanHover(true);
+      nodeRefs.current.forEach(n => { if (n) gsap.set(n, { opacity: 1, scale: 1, x: 0, y: 0 }); });
+      edgeRefs.current.forEach(e => { if (e) gsap.set(e, { strokeDashoffset: 0, opacity: 1 }); });
+      return;
+    }
     const ctx = gsap.context(() => {
       const mos2 = ASSEMBLY_NODES[3]; // idx 3
 
@@ -971,10 +1165,11 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
 function SynthesisReveal({ de, isDark }: { de: boolean; isDark: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
+    if (prefersReducedMotion()) { gsap.set(ref.current, { opacity: 1, y: 0 }); return; }
     const ctx = gsap.context(() => {
       gsap.fromTo(ref.current,
         { opacity: 0, y: 24 },
-        { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out',
+        { opacity: 1, y: 0, duration: 0.8, ease: EASE.enter,
           scrollTrigger: { trigger: ref.current, start: 'top 82%', once: true } },
       );
     }, ref);
@@ -982,7 +1177,7 @@ function SynthesisReveal({ de, isDark }: { de: boolean; isDark: boolean }) {
   }, []);
   const divClr = isDark ? 'rgba(255,255,255,0.08)' : 'var(--bd)';
   return (
-    <div ref={ref} className="rounded-2xl p-8 sm:p-10" style={{ background: isDark ? 'rgba(var(--accent-rgb),0.14)' : 'rgba(var(--accent-rgb),0.06)', border: `1px solid ${isDark ? 'rgba(var(--accent-soft-rgb),0.22)' : 'rgba(var(--accent-rgb),0.18)'}`, opacity: 0 }}>
+    <div ref={ref} className="rounded-2xl p-8 sm:p-10" style={{ background: isDark ? 'rgba(var(--accent-rgb),0.14)' : 'rgba(var(--accent-rgb),0.06)', border: `1px solid ${isDark ? 'rgba(var(--accent-soft-rgb),0.22)' : 'rgba(var(--accent-rgb),0.18)'}` }}>
       <div className="text-center mb-8">
         <p className="eyebrow mb-2" style={{ color: 'var(--accent-soft)' }}>
           {de ? 'Das vollständige System' : 'The complete system'}
@@ -1049,6 +1244,15 @@ function FailureTimeline({ de, isDark }: { de: boolean; isDark: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   const connectorRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
+    if (prefersReducedMotion()) {
+      const root = ref.current;
+      if (root) {
+        gsap.set(root.querySelectorAll('.ft-item'), { opacity: 1, x: 0 });
+        gsap.set(root.querySelectorAll('.ft-vline'), { scaleY: 1 });
+      }
+      if (connectorRef.current) gsap.set(connectorRef.current, { scaleX: 1 });
+      return;
+    }
     const ctx = gsap.context(() => {
       const items = ref.current?.querySelectorAll('.ft-item');
       if (items?.length) {
@@ -1107,7 +1311,7 @@ function FailureTimeline({ de, isDark }: { de: boolean; isDark: boolean }) {
         {/* connector line */}
         <div ref={connectorRef} className="absolute top-[18px] left-0 right-0 h-px" style={{ background: lineClr, transform: 'scaleX(0)', transformOrigin: 'left center' }} />
         {FAILURES.map((f, i) => (
-          <div key={i} className="ft-item flex-1 flex flex-col items-center px-2 opacity-0" style={{ minWidth: 0 }}>
+          <div key={i} className="ft-item flex-1 flex flex-col items-center px-2" style={{ minWidth: 0, opacity: 0 }}>
             {/* Dot */}
             <div
               className="ft-dot w-[18px] h-[18px] rounded-full flex-shrink-0 z-10 flex items-center justify-center mb-3"
@@ -1126,10 +1330,10 @@ function FailureTimeline({ de, isDark }: { de: boolean; isDark: boolean }) {
               <p className="text-[9px] font-mono font-bold uppercase tracking-wide mb-1.5" style={{ color: f.isCurrent ? 'var(--accent-soft)' : (isDark ? 'rgba(255,255,255,0.35)' : 'var(--txff)') }}>
                 {de ? f.vDe : f.vEn}
               </p>
-              <p className="text-[10px] leading-snug mb-2" style={{ color: failClr }}>
+              <p className="text-[11.5px] leading-snug mb-2" style={{ color: failClr }}>
                 {de ? f.failDe : f.failEn}
               </p>
-              <p className="text-[10px] font-medium leading-snug" style={{ color: fixClr }}>
+              <p className="text-[11.5px] font-medium leading-snug" style={{ color: fixClr }}>
                 {de ? f.fixDe : f.fixEn}
               </p>
             </div>
@@ -1139,7 +1343,7 @@ function FailureTimeline({ de, isDark }: { de: boolean; isDark: boolean }) {
       {/* Mobile: vertical list */}
       <div className="flex flex-col gap-3 sm:hidden">
         {FAILURES.map((f, i) => (
-          <div key={i} className="ft-item flex gap-3 opacity-0">
+          <div key={i} className="ft-item flex gap-3" style={{ opacity: 0 }}>
             <div className="flex flex-col items-center flex-shrink-0 pt-1">
               <div className="ft-dot w-3 h-3 rounded-full" style={{ background: f.isCurrent ? 'var(--accent)' : dotFail, border: `1.5px solid ${f.isCurrent ? 'var(--accent-soft)' : (isDark ? 'rgba(255,255,255,0.15)' : 'rgba(var(--accent-rgb),0.20)')}` }} />
               {i < FAILURES.length - 1 && <div className="ft-vline w-px flex-1 mt-1" style={{ background: lineClr, minHeight: '20px' }} />}
@@ -1642,6 +1846,13 @@ function ParticleSuspension({ de }: { de: boolean }) {
   const mRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (prefersReducedMotion()) {
+      const floating = wRef.current?.querySelectorAll<HTMLElement>('.sp-float');
+      const stable   = mRef.current?.querySelectorAll<HTMLElement>('.sp-stable');
+      if (floating?.length) gsap.set(floating, { y: 64, opacity: 0.18 });
+      if (stable?.length)   gsap.set(stable,   { scale: 1, opacity: 0.9 });
+      return;
+    }
     const ctx = gsap.context(() => {
       // "Without": top floating dots drift downward (sedimentation) — longer, more dramatic
       const floating = wRef.current?.querySelectorAll<HTMLElement>('.sp-float');
@@ -1827,6 +2038,12 @@ function Insight({ children }: { children: React.ReactNode }) {
   const ref    = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
+    if (prefersReducedMotion()) {
+      gsap.set(barRef.current, { scaleY: 1, opacity: 1 });
+      const p = ref.current?.querySelector('p');
+      if (p) gsap.set(p, { opacity: 1, x: 0 });
+      return;
+    }
     const ctx = gsap.context(() => {
       gsap.fromTo(barRef.current,
         { scaleY: 0, opacity: 0 },
@@ -1878,26 +2095,34 @@ function Chapter({ num, anchorId, catDe, catEn, titleDe, titleEn, ledeDe, ledeEn
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
+    if (prefersReducedMotion()) { gsap.set(ref.current, { opacity: 1, y: 0 }); return; }
     const ctx = gsap.context(() => {
       gsap.fromTo(ref.current,
         { opacity: 0, y: 28 },
-        { opacity: 1, y: 0, duration: 0.75, ease: 'power3.out',
+        { opacity: 1, y: 0, duration: 0.75, ease: EASE.enter,
           scrollTrigger: { trigger: ref.current, start: 'top 86%', once: true } },
       );
     });
     return () => ctx.revert();
   }, []);
 
+  // Expanding/collapsing changes the page height — downstream ScrollTrigger
+  // positions go stale without a refresh (after the 0.5s grid transition).
+  useEffect(() => {
+    const id = window.setTimeout(() => ScrollTrigger.refresh(), 550);
+    return () => window.clearTimeout(id);
+  }, [open]);
+
   // Stagger paragraphs in when expanding
   useEffect(() => {
     if (!open) return;
     const ps = bodyRef.current?.querySelectorAll('p');
-    if (ps?.length) {
-      gsap.fromTo(ps,
-        { opacity: 0, y: 10 },
-        { opacity: 1, y: 0, duration: 0.42, stagger: 0.1, ease: 'power2.out', delay: 0.08 },
-      );
-    }
+    if (!ps?.length) return;
+    if (prefersReducedMotion()) { gsap.set(ps, { opacity: 1, y: 0 }); return; }
+    gsap.fromTo(ps,
+      { opacity: 0, y: 10 },
+      { opacity: 1, y: 0, duration: 0.42, stagger: 0.1, ease: 'power2.out', delay: 0.08 },
+    );
   }, [open]);
 
   return (
@@ -2006,19 +2231,13 @@ export function SciencePage() {
     ? ['Sechs', 'Stoffe.', 'Jede', 'mit', 'Geschichte.']
     : ['Six', 'components.', 'Each', 'one', 'earned.'];
 
-  const CHAPTER_MAP = [
-    { n: '01', de: 'Die Basis',    en: 'Foundation'  },
-    { n: '02', de: 'Härtemodul',  en: 'Hardener'    },
-    { n: '03', de: 'Kälteflex.',  en: 'Cold Flex.'  },
-    { n: '04', de: 'MoS₂',        en: 'MoS₂'        },
-    { n: '05', de: 'Dispergier.', en: 'Dispersant'  },
-    { n: '06', de: 'Antioxidans', en: 'Antioxidant' },
-  ];
+  const CHAPTER_MAP = CHAPTERS;
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--pg)' }}>
       <ScrollProgress />
       <ChapterNav de={de} onActiveChange={setActiveChapter} />
+      <MobileChapterRail de={de} active={activeChapter} />
 
       {/* ── Navigation ─────────────────────────────────────────────────────── */}
       <nav className="sticky top-0 z-40" style={{ background: 'var(--nav-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid var(--bd)' }}>
