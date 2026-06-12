@@ -1617,226 +1617,330 @@ function TransferFilm({ de }: { de: boolean }) {
   );
 }
 
-// ─── Crystal lattice — split-panel comparison: ordered vs disordered ──────────
-// LEFT: Waxcelerate (uniform, narrow 58–60°C) · RIGHT: Generic paraffin (wide, irregular)
-function CrystalLattice({ de }: { de: boolean }) {
+// ─── Crystal lattice — twin panels: order crystallizes, disorder stays ───────
+// Scroll scrub drives the argument: Waxcelerate rods converge into perfect
+// alignment while the generic-paraffin rods settle but keep their jitter.
+const LAT_ROWS_Y = [46, 116, 186];
+const LAT_RODS = 5;
+const LAT_ROD_W = 64, LAT_ROD_H = 14, LAT_ROD_GAP = 9;
+const LAT_START_X = (400 - (LAT_RODS * LAT_ROD_W + (LAT_RODS - 1) * LAT_ROD_GAP)) / 2;
+const LAT_VDW_Y = [81, 151];
+// Deterministic per-rod jitter [dy, rot] — disorder that reads as disorder
+const LAT_JITTER: [number, number][][] = [
+  [[-3, -4], [2, 3],  [-1, -2], [3, 5],   [-2, 2]],
+  [[2, 4],   [-3, -3], [1, 2],  [-2, -5], [3, 3]],
+  [[-2, 3],  [1, -4],  [3, 4],  [-3, -2], [1, -3]],
+];
+const LAT_WIDTHS_R = [52, 70, 46, 66, 58];
+const LAT_HEIGHTS_R = [12, 16, 11, 15, 13];
+
+function LatticePanel({ ordered, de }: { ordered: boolean; de: boolean }) {
   const svgRef = useRef<SVGSVGElement>(null);
-  const { theme } = useTheme();
-  const isDark = theme === 'noir';
-  const vizCard = isDark ? VIZ_CARD : VIZ_CARD_LIGHT;
-  const dotGrid = isDark ? DARK_DOT_GRID : LIGHT_DOT_GRID;
-
-  const txMid  = isDark ? 'rgba(255,255,255,0.38)' : 'rgba(var(--accent-rgb),0.60)';
-  const divClr = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(var(--accent-rgb),0.12)';
-  const vdwClr = isDark ? 'rgba(100,140,220,0.32)' : 'rgba(var(--accent-soft-rgb),0.50)';
-  const vdwTxt = isDark ? 'rgba(100,140,220,0.45)' : 'rgba(var(--accent-soft-rgb),0.65)';
-  const bktClr = isDark ? 'rgba(100,140,220,0.45)' : 'rgba(var(--accent-soft-rgb),0.65)';
-  const bktTxt = isDark ? 'rgba(100,140,220,0.50)' : 'rgba(var(--accent-rgb),0.70)';
-  const bandA  = isDark ? 'rgba(var(--accent-rgb),0.14)'   : 'rgba(var(--accent-soft-rgb),0.10)';
-  const bandB  = isDark ? 'rgba(var(--accent-rgb),0.07)'   : 'rgba(var(--accent-soft-rgb),0.05)';
-
-  // LEFT panel — 3 crystal layers, 7 aligned chain rods
-  const LAYERS = [
-    { yCenter: 36,  color: 'var(--accent-soft)' },
-    { yCenter: 96,  color: 'var(--accent-soft)' },
-    { yCenter: 156, color: 'var(--accent-soft)' },
-  ];
-  const CHAIN_W = 46, CHAIN_H = 9, CHAIN_GAP = 7;
-  const CHAINS = 7;
-  const totalChainWidth = CHAINS * CHAIN_W + (CHAINS - 1) * CHAIN_GAP;
-  const startX = (395 - totalChainWidth) / 2;
-
-  // RIGHT panel — disordered (varied widths/gaps/heights/ycenters)
-  const RIGHT_WIDTHS = [38, 52, 42, 58, 36, 50, 44];
-  const RIGHT_GAPS   = [5, 9, 6, 11, 4, 8, 0];
-  const CHAINS_R = 7;
-  const CHAIN_H_R = [8, 10, 7, 11, 8, 9, 10];
-  const RIGHT_LAYERS_Y = [34, 98, 152];
-  const RIGHT_COLOR = 'rgba(var(--accent-soft-rgb),0.38)';
-  const totalRightWidth = RIGHT_WIDTHS.reduce((s, w) => s + w, 0) + RIGHT_GAPS.slice(0, CHAINS_R - 1).reduce((s, g) => s + g, 0);
-  const startXR = 420 + (400 - totalRightWidth) / 2;
-
-  // Van der Waals gap positions
-  const VDW_Y = [66, 126];
+  const bandA = 'rgba(var(--accent-soft-rgb),0.10)';
+  const bandB = 'rgba(var(--accent-soft-rgb),0.05)';
+  const vdwClr = 'rgba(var(--accent-soft-rgb),0.45)';
+  const vdwTxt = 'rgba(var(--accent-soft-rgb),0.65)';
 
   useEffect(() => {
+    const svg = svgRef.current;
+    if (!svg) return;
+    const rods = Array.from(svg.querySelectorAll<SVGRectElement>('.lat-rod'));
+    if (!rods.length) return;
+
+    if (prefersReducedMotion()) {
+      // Ordered side: aligned. Disordered side keeps its baked-in jitter.
+      if (ordered) gsap.set(rods, { x: 0, y: 0, rotation: 0 });
+      return;
+    }
+
     const ctx = gsap.context(() => {
-      const rods  = svgRef.current?.querySelectorAll<SVGRectElement>('.chain-rod');
-      const rodsR = svgRef.current?.querySelectorAll<SVGRectElement>('.chain-rod-r');
-      if (rods?.length) {
-        gsap.fromTo(rods,
-          { opacity: 0, x: -6 },
-          { opacity: 1, x: 0, duration: 0.6, stagger: 0.03, ease: 'power2.out',
-            scrollTrigger: { trigger: svgRef.current, start: 'top 85%', once: true } },
-        );
+      if (ordered) {
+        // Watch order crystallize: rods converge from jitter into alignment
+        const tl = gsap.timeline({
+          scrollTrigger: { trigger: svg, start: 'top 85%', end: 'top 35%', scrub: 0.6 },
+        });
+        rods.forEach((rod, i) => {
+          const row = Math.floor(i / LAT_RODS), col = i % LAT_RODS;
+          const [dy, rot] = LAT_JITTER[row][col];
+          tl.fromTo(rod,
+            { y: dy * 2.2, rotation: rot * 1.5, transformOrigin: '50% 50%' },
+            { y: 0, rotation: 0, ease: 'power2.out' },
+            col * 0.06,
+          );
+        });
+      } else {
+        // Disorder never settles: slow ambient wobble (±1.5px)
+        gsap.to(rods, {
+          y: '+=1.5',
+          duration: 3,
+          ease: 'sine.inOut',
+          yoyo: true,
+          repeat: -1,
+          stagger: { each: 0.3, from: 'random' },
+        });
       }
-      if (rodsR?.length) {
-        gsap.fromTo(rodsR,
-          { opacity: 0.3, x: () => (Math.random() - 0.5) * 12 },
-          { opacity: 0.8, x: 0, duration: 0.8, stagger: 0.04, ease: 'power2.out',
-            scrollTrigger: { trigger: svgRef.current, start: 'top 85%', once: true } },
-        );
-      }
-    }, svgRef);
+    }, svg);
     return () => ctx.revert();
-  }, []);
-
-  // Build right-panel rod x positions
-  const rightRodXs: number[] = [];
-  let rx = startXR;
-  for (let ci = 0; ci < CHAINS_R; ci++) {
-    rightRodXs.push(rx);
-    rx += RIGHT_WIDTHS[ci] + (ci < CHAINS_R - 1 ? RIGHT_GAPS[ci] : 0);
-  }
-
-  const dividerClr = isDark ? 'rgba(255,255,255,0.10)' : 'rgba(var(--accent-rgb),0.12)';
+  }, [ordered]);
 
   return (
-    <div className="w-full rounded-2xl overflow-hidden p-5" style={{ ...vizCard, ...dotGrid }}>
-      <p className="text-[10px] uppercase tracking-[0.2em] mb-3 text-center" style={{ color: txMid }}>
-        {de ? 'Lamellare Kristallstruktur — C₂₀–C₃₆' : 'Lamellar crystal structure — C₂₀–C₃₆'}
-      </p>
-      <svg ref={svgRef} viewBox="0 0 820 210" className="w-full" style={{ minHeight: 100 }}>
-        {/* ── LEFT panel background bands ── */}
-        {LAYERS.map((l, li) => (
-          <rect key={li} x="0" y={l.yCenter - 22} width="400" height="44"
-            fill={li % 2 === 0 ? bandA : bandB} />
+    <div>
+      {/* Panel header — HTML chip, never SVG text */}
+      <div className="flex items-center justify-between gap-2 mb-2">
+        <span
+          className="text-[12px] font-semibold px-2 py-0.5 rounded-md"
+          style={ordered
+            ? { background: 'rgba(var(--accent-rgb),0.10)', border: '1px solid rgba(var(--accent-rgb),0.22)', color: 'var(--accent)' }
+            : { color: 'var(--txm)' }}
+        >
+          {ordered ? 'Waxcelerate' : (de ? 'Generisches Paraffin' : 'Generic paraffin')}
+        </span>
+        <span className="text-[12px] font-mono tabular-nums" style={{ color: ordered ? 'var(--accent)' : 'var(--txf)' }}>
+          {ordered ? '58–60°C' : '55–65°C'}
+        </span>
+      </div>
+      <svg ref={svgRef} viewBox="0 0 400 230" className="w-full block rounded-lg"
+        style={{ background: 'rgba(var(--accent-rgb),0.025)' }}>
+        {/* Crystal plane bands */}
+        {LAT_ROWS_Y.map((yc, li) => (
+          <rect key={li} x="0" y={yc - 26} width="400" height="52" fill={li % 2 === 0 ? bandA : bandB} />
         ))}
-        {/* ── LEFT label ── */}
-        <text x="197" y="8" fontSize="8" fontFamily="monospace" textAnchor="middle" fill={txMid}>
-          58–60°C
-        </text>
-        {/* ── LEFT VdW gap lines ── */}
-        {VDW_Y.map((y, i) => (
+        {/* Van-der-Waals gaps */}
+        {LAT_VDW_Y.map((y, i) => (
           <g key={i}>
-            <line x1="12" y1={y} x2="340" y2={y} stroke={vdwClr} strokeWidth="0.8" strokeDasharray="5 4" />
-            <text x="348" y={y + 4} fontSize="8.5" fill={vdwTxt} fontFamily="monospace" textAnchor="start">vdW</text>
+            <line x1="14" y1={y} x2="340" y2={y} stroke={vdwClr} strokeWidth="1" strokeDasharray="6 5" />
+            <text x="350" y={y + 4} fontSize="11" fill={vdwTxt} fontFamily="monospace">vdW</text>
           </g>
         ))}
-        {/* ── LEFT chain rods ── */}
-        {LAYERS.map((l, li) =>
-          [...Array(CHAINS)].map((_, ci) => {
-            const x = startX + ci * (CHAIN_W + CHAIN_GAP);
+        {/* Chain rods */}
+        {LAT_ROWS_Y.map((yc, row) =>
+          [...Array(LAT_RODS)].map((_, col) => {
+            const [dy, rot] = LAT_JITTER[row][col];
+            const w = ordered ? LAT_ROD_W : LAT_WIDTHS_R[col];
+            const h = ordered ? LAT_ROD_H : LAT_HEIGHTS_R[col];
+            const x = ordered
+              ? LAT_START_X + col * (LAT_ROD_W + LAT_ROD_GAP)
+              : LAT_START_X + col * (LAT_ROD_W + LAT_ROD_GAP) + (LAT_ROD_W - w) / 2;
+            const cx = x + w / 2, cy = yc;
             return (
               <rect
-                key={`L${li}-${ci}`}
-                className="chain-rod"
-                x={x} y={l.yCenter - CHAIN_H / 2} width={CHAIN_W} height={CHAIN_H}
-                rx="4.5"
-                fill={l.color}
-                opacity={0.70 + (ci % 3) * 0.09}
-                style={{ filter: isDark ? 'drop-shadow(0 0 4px rgba(var(--accent-soft-rgb),0.55))' : 'drop-shadow(0 2px 6px rgba(var(--accent-soft-rgb),0.30))' }}
-              />
-            );
-          })
-        )}
-        {/* ── LEFT side bracket ── */}
-        <line x1="10" y1={LAYERS[1].yCenter - 20} x2="10" y2={LAYERS[1].yCenter + 20}
-          stroke={bktClr} strokeWidth="1" />
-        <text x="14" y={LAYERS[1].yCenter + 4} fontSize="8.5" fill={bktTxt} fontFamily="monospace">
-          {de ? 'Kristallebene' : 'Crystal plane'}
-        </text>
-
-        {/* ── CENTER divider ── */}
-        <line x1="410" y1="0" x2="410" y2="210" stroke={dividerClr} strokeWidth="0.8" />
-        <g transform="translate(410,105) rotate(-90)">
-          <text x="0" y="0" textAnchor="middle" dominantBaseline="middle"
-            fontSize="7.5" fontFamily="monospace"
-            fill={isDark ? 'rgba(255,255,255,0.28)' : 'rgba(var(--accent-rgb),0.35)'}>
-            vs
-          </text>
-        </g>
-
-        {/* ── RIGHT panel background bands ── */}
-        {RIGHT_LAYERS_Y.map((yc, li) => (
-          <rect key={`rb${li}`} x="420" y={yc - 22} width="400" height="44"
-            fill={li % 2 === 0 ? bandA : bandB} />
-        ))}
-        {/* ── RIGHT label ── */}
-        <text x="617" y="8" fontSize="8" fontFamily="monospace" textAnchor="middle" fill={txMid}>
-          55–65°C
-        </text>
-        {/* ── RIGHT VdW gap lines ── */}
-        {VDW_Y.map((y, i) => (
-          <line key={`rvdw${i}`} x1="432" y1={y} x2="770" y2={y} stroke={vdwClr} strokeWidth="0.8" strokeDasharray="5 4" />
-        ))}
-        {/* ── RIGHT chain rods (disordered) ── */}
-        {RIGHT_LAYERS_Y.map((yc, li) =>
-          [...Array(CHAINS_R)].map((_, ci) => {
-            const h = CHAIN_H_R[ci % CHAIN_H_R.length];
-            return (
-              <rect
-                key={`R${li}-${ci}`}
-                className="chain-rod-r"
-                x={rightRodXs[ci]} y={yc - h / 2} width={RIGHT_WIDTHS[ci]} height={h}
-                rx="4.5"
-                fill={RIGHT_COLOR}
-                opacity={0.80}
+                key={`${row}-${col}`}
+                className="lat-rod"
+                x={x} y={yc - h / 2} width={w} height={h} rx={7}
+                fill={ordered ? 'var(--accent-soft)' : 'rgba(var(--accent-soft-rgb),0.35)'}
+                opacity={ordered ? 0.88 : 1}
+                transform={ordered ? undefined : `rotate(${rot} ${cx} ${cy}) translate(0 ${dy})`}
+                style={ordered ? { filter: 'drop-shadow(0 0 5px rgba(var(--accent-soft-rgb),0.45))' } : undefined}
               />
             );
           })
         )}
       </svg>
-      <div className="flex items-center justify-center gap-4 mt-3 pt-3" style={{ borderTop: `1px solid ${divClr}` }}>
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-2.5 rounded-full" style={{ background: 'var(--accent-soft)', opacity: 0.75 }} />
-          <span className="text-[9px] font-mono" style={{ color: txMid }}>
-            {de ? 'Waxcelerate (geordnet)' : 'Waxcelerate (ordered)'}
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-2.5 rounded-full" style={{ background: 'rgba(var(--accent-soft-rgb),0.38)' }} />
-          <span className="text-[9px] font-mono" style={{ color: txMid }}>
-            {de ? 'Generisches Paraffin' : 'Generic paraffin'}
-          </span>
-        </div>
-      </div>
+      <p className="text-[11px] mt-2" style={{ color: 'var(--txf)' }}>
+        {ordered
+          ? (de ? 'Geordnet — jede Charge identisch' : 'Ordered — every batch identical')
+          : (de ? 'Ungeordnet — variiert je Charge' : 'Disordered — varies batch to batch')}
+      </p>
     </div>
   );
 }
 
-// ─── Temperature range ────────────────────────────────────────────────────────
+function CrystalLattice({ de }: { de: boolean }) {
+  return (
+    <VizFrame
+      eyebrow={de ? 'Lamellare Kristallstruktur' : 'Lamellar crystal structure'}
+      chip="C₂₀–C₃₆"
+      footer={
+        <p className="text-[11px] leading-relaxed" style={{ color: 'var(--txf)' }}>
+          {de
+            ? 'vdW = van-der-Waals-Lücke zwischen Kristallebenen. Das enge 2°C-Erstarrungsfenster erzwingt die geordnete Struktur links.'
+            : 'vdW = van-der-Waals gap between crystal planes. The narrow 2°C solidification window forces the ordered structure on the left.'}
+        </p>
+      }
+    >
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-4">
+        <LatticePanel ordered de={de} />
+        <LatticePanel ordered={false} de={de} />
+      </div>
+    </VizFrame>
+  );
+}
+
+// ─── Temperature range — instrument panel with real axis ─────────────────────
 function TempRange({ de }: { de: boolean }) {
   const items = [
-    { labelDe: 'Unmodifiziertes Paraffin', labelEn: 'Unmodified paraffin', lo: 58, hi: 62, color: 'var(--bd)' },
-    { labelDe: 'Waxcelerate Classic',      labelEn: 'Waxcelerate Classic', lo: 60, hi: 76, color: 'var(--accent)' },
-    { labelDe: 'Waxcelerate Pro',          labelEn: 'Waxcelerate Pro',     lo: 60, hi: 79, color: 'var(--accent)' },
+    { labelDe: 'Unmodifiziertes Paraffin', labelEn: 'Unmodified paraffin', lo: 58, hi: 62, dim: true  },
+    { labelDe: 'Waxcelerate Classic',      labelEn: 'Waxcelerate Classic', lo: 60, hi: 76, dim: false },
+    { labelDe: 'Waxcelerate Pro',          labelEn: 'Waxcelerate Pro',     lo: 60, hi: 79, dim: false },
   ];
   const min = 55, max = 85;
+  const TICKS = [55, 60, 65, 70, 75, 80, 85];
   const toX = (v: number) => ((v - min) / (max - min)) * 100;
   const ref = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
+    const root = ref.current;
+    if (!root) return;
+    const bars = root.querySelectorAll('.t-bar');
+    const dots = root.querySelectorAll('.t-dot');
+    if (prefersReducedMotion()) {
+      gsap.set(bars, { scaleX: 1 });
+      gsap.set(dots, { scale: 1, opacity: 1 });
+      return;
+    }
     const ctx = gsap.context(() => {
-      ref.current?.querySelectorAll('.t-bar').forEach(bar => {
-        gsap.fromTo(bar, { scaleX: 0 }, { scaleX: 1, duration: 0.9, ease: 'power3.out', transformOrigin: 'left center', scrollTrigger: { trigger: ref.current, start: 'top 82%', once: true } });
+      gsap.fromTo(bars, { scaleX: 0 }, {
+        scaleX: 1, duration: 0.9, stagger: 0.12, ease: EASE.enter, transformOrigin: 'left center',
+        scrollTrigger: { trigger: root, start: 'top 82%', once: true },
       });
-    }, ref);
+      gsap.fromTo(dots, { scale: 0, opacity: 0 }, {
+        scale: 1, opacity: 1, duration: 0.45, stagger: 0.12, delay: 0.55, ease: 'back.out(2.2)',
+        scrollTrigger: { trigger: root, start: 'top 82%', once: true },
+      });
+    }, root);
+    return () => ctx.revert();
+  }, []);
+
+  return (
+    <VizFrame
+      eyebrow={de ? 'Effektiver Tropfpunkt' : 'Effective drop point'}
+      chip="+14–19°C"
+      footer={
+        <div>
+          <div className="flex justify-between">
+            {TICKS.map(t => (
+              <span
+                key={t}
+                className={`text-[10px] font-mono tabular-nums ${t % 10 === 0 ? 'hidden min-[400px]:inline' : ''}`}
+                style={{ color: 'var(--txf)' }}
+              >
+                {t}°
+              </span>
+            ))}
+          </div>
+          <p className="text-[11px] mt-2.5" style={{ color: 'var(--txf)' }}>
+            {de
+              ? 'Schraffiertes Band = Betriebsfenster 60–79°C. Kontaktpunkte erreichen unter Last 45–55°C.'
+              : 'Shaded band = operating window 60–79°C. Contact points reach 45–55°C under load.'}
+          </p>
+        </div>
+      }
+    >
+      <div ref={ref} className="relative">
+        {/* Axis gridlines + operating window — span all rows */}
+        <div className="absolute inset-0 pointer-events-none" aria-hidden>
+          {TICKS.map(t => (
+            <div key={t} className="absolute top-0 bottom-0 w-px" style={{ left: `${toX(t)}%`, background: 'rgba(var(--accent-rgb),0.08)' }} />
+          ))}
+          <div
+            className="absolute top-0 bottom-0"
+            style={{
+              left: `${toX(60)}%`,
+              width: `${toX(79) - toX(60)}%`,
+              background: 'rgba(var(--accent-rgb),0.05)',
+              borderLeft: '1px dashed rgba(var(--accent-rgb),0.22)',
+              borderRight: '1px dashed rgba(var(--accent-rgb),0.22)',
+            }}
+          />
+        </div>
+        <div className="relative space-y-5 py-1">
+          {items.map((item, i) => (
+            <div key={i}>
+              <div className="flex justify-between items-baseline mb-1.5 gap-2">
+                <span className="text-[13px]" style={{ color: item.dim ? 'var(--txm)' : 'var(--tx1)' }}>
+                  {de ? item.labelDe : item.labelEn}
+                </span>
+                <CountUp
+                  value={`${item.lo}–${item.hi}°C`}
+                  className="font-display text-[17px] font-bold leading-none flex-shrink-0"
+                  style={{ color: item.dim ? 'var(--txm)' : 'var(--accent)' }}
+                />
+              </div>
+              <div className="relative h-2.5 rounded-full" style={{ background: 'var(--bd2)' }}>
+                <div
+                  className="t-bar absolute top-0 h-full rounded-full"
+                  style={{
+                    left: `${toX(item.lo)}%`,
+                    width: `${toX(item.hi) - toX(item.lo)}%`,
+                    background: item.dim ? 'var(--bd)' : 'linear-gradient(90deg, var(--accent), var(--accent-soft))',
+                    transformOrigin: 'left center',
+                  }}
+                />
+                {!item.dim && (
+                  <div
+                    className="t-dot absolute top-1/2 -translate-y-1/2 w-[7px] h-[7px] rounded-full"
+                    style={{
+                      left: `calc(${toX(item.hi)}% - 3.5px)`,
+                      background: 'var(--accent-soft)',
+                      boxShadow: '0 0 8px rgba(var(--accent-soft-rgb),0.85)',
+                    }}
+                  />
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </VizFrame>
+  );
+}
+
+// ─── Chapter 03 — temperature window panel (same instrument language) ────────
+function TempWindowPanel({ de }: { de: boolean }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const items = [
+    { labelDe: 'Kälteflexibilität bis', labelEn: 'Cold flexibility to', val: '−10°C',        w: 20,  dim: false },
+    { labelDe: 'Optimale Performance',  labelEn: 'Optimal performance', val: '−8°C → +35°C', w: 80,  dim: false },
+    { labelDe: 'Thermisch stabil bis',  labelEn: 'Thermally stable to', val: '+78°C',        w: 100, dim: false },
+  ];
+  useEffect(() => {
+    const root = ref.current;
+    if (!root) return;
+    const bars = root.querySelectorAll('.tw-bar');
+    if (prefersReducedMotion()) { gsap.set(bars, { scaleX: 1 }); return; }
+    const ctx = gsap.context(() => {
+      gsap.fromTo(bars, { scaleX: 0 }, {
+        scaleX: 1, duration: 0.9, stagger: 0.12, ease: EASE.enter, transformOrigin: 'left center',
+        scrollTrigger: { trigger: root, start: 'top 82%', once: true },
+      });
+    }, root);
     return () => ctx.revert();
   }, []);
   return (
-    <div className="w-full rounded-2xl p-5" style={{ ...CARD, ...DOT_GRID }}>
-      <p className="text-[10px] uppercase tracking-[0.2em] mb-5" style={{ color: 'var(--txff)' }}>
-        {de ? 'Effektiver Tropfpunkt' : 'Effective drop point'}
-      </p>
-      <div ref={ref} className="space-y-4">
+    <VizFrame
+      eyebrow={de ? 'Temperaturfenster' : 'Temperature window'}
+      chip="−10°C → +78°C"
+      footer={
+        <div className="grid grid-cols-3 gap-2">
+          {[{ de: 'Plastifizierung', en: 'Plastification' }, { de: 'Haftung', en: 'Adhesion' }, { de: 'Partikelbindung', en: 'Particle binding' }].map((fn, i) => (
+            <div key={i} className="text-center rounded-lg py-2 px-1" style={{ background: 'rgba(var(--accent-rgb),0.07)', border: '1px solid rgba(var(--accent-rgb),0.13)' }}>
+              <p className="text-[10px] font-medium" style={{ color: 'var(--accent-soft)' }}>{de ? fn.de : fn.en}</p>
+            </div>
+          ))}
+        </div>
+      }
+    >
+      <div ref={ref} className="space-y-5 py-1">
         {items.map((item, i) => (
           <div key={i}>
-            <div className="flex justify-between mb-1.5">
-              <span className="text-[11px] text-wx-txm">{de ? item.labelDe : item.labelEn}</span>
-              <span className="text-[11px] font-mono font-semibold text-wx-tx1">{item.lo}–{item.hi}°C</span>
+            <div className="flex justify-between items-baseline mb-1.5 gap-2">
+              <span className="text-[13px]" style={{ color: 'var(--tx1)' }}>{de ? item.labelDe : item.labelEn}</span>
+              <CountUp
+                value={item.val}
+                className="font-display text-[17px] font-bold leading-none flex-shrink-0"
+                style={{ color: 'var(--accent)' }}
+              />
             </div>
-            <div className="relative h-1.5 rounded-full" style={{ background: 'var(--bd2)' }}>
-              <div className="t-bar absolute top-0 h-full rounded-full" style={{ left: `${toX(item.lo)}%`, width: `${toX(item.hi) - toX(item.lo)}%`, background: item.color }} />
+            <div className="h-2.5 rounded-full" style={{ background: 'var(--bd2)' }}>
+              <div
+                className="tw-bar h-full rounded-full"
+                style={{ width: `${item.w}%`, background: 'linear-gradient(90deg, var(--accent), var(--accent-soft))', transformOrigin: 'left center' }}
+              />
             </div>
           </div>
         ))}
       </div>
-      <div className="flex justify-between mt-3">
-        {[55, 60, 65, 70, 75, 80, 85].map(t => (
-          <span key={t} className="text-[9px] font-mono" style={{ color: 'var(--txff)' }}>{t}°</span>
-        ))}
-      </div>
-    </div>
+    </VizFrame>
   );
 }
 
@@ -2664,35 +2768,7 @@ export function SciencePage() {
           </>}
           insightDe="Ursprünglich höher konzentriert. Die Reduzierung war möglich, weil gleichzeitig der MoS₂-Anteil überarbeitet wurde."
           insightEn="Originally at higher concentration. The reduction was possible because MoS₂ loading was revised simultaneously."
-          visual={
-            <div className="rounded-2xl p-5 space-y-5" style={{ ...CARD, ...DOT_GRID }}>
-              <p className="text-[10px] uppercase tracking-[0.2em]" style={{ color: 'var(--txff)' }}>
-                {de ? 'Temperaturfenster — Matrix flexibel' : 'Temperature window — matrix stays flexible'}
-              </p>
-              {[
-                { labelDe: 'Kälteflexibilität bis', labelEn: 'Cold flexibility to', val: '−10°C', w: 20, color: 'var(--accent-soft)' },
-                { labelDe: 'Optimale Performance',  labelEn: 'Optimal performance',  val: '−8°C → +35°C', w: 80, color: 'var(--accent)' },
-                { labelDe: 'Thermisch stabil bis',  labelEn: 'Thermally stable to',   val: '+78°C', w: 100, color: '#1A3080' },
-              ].map((item, i) => (
-                <div key={i}>
-                  <div className="flex justify-between mb-1.5">
-                    <span className="text-[11px] text-wx-txm">{de ? item.labelDe : item.labelEn}</span>
-                    <span className="text-[11px] font-mono font-semibold text-wx-tx1">{item.val}</span>
-                  </div>
-                  <div className="h-1.5 rounded-full" style={{ background: 'var(--bd2)' }}>
-                    <div className="h-full rounded-full" style={{ width: `${item.w}%`, background: item.color }} />
-                  </div>
-                </div>
-              ))}
-              <div className="grid grid-cols-3 gap-2 pt-3" style={{ borderTop: '1px solid var(--bd2)' }}>
-                {[{ de: 'Plastifizierung', en: 'Plastification' }, { de: 'Haftung', en: 'Adhesion' }, { de: 'Partikelbindung', en: 'Particle binding' }].map((fn, i) => (
-                  <div key={i} className="text-center rounded-lg py-2 px-1" style={{ background: 'rgba(var(--accent-rgb),0.07)', border: '1px solid rgba(var(--accent-rgb),0.13)' }}>
-                    <p className="text-[10px] font-medium" style={{ color: 'var(--accent-soft)' }}>{de ? fn.de : fn.en}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          }
+          visual={<TempWindowPanel de={de} />}
         />
       </div>
 
