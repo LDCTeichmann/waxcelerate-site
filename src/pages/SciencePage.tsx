@@ -2201,35 +2201,114 @@ export function SciencePage() {
   const isDark = theme === 'noir';
   const de = lang === 'de';
   const [activeChapter, setActiveChapter] = useState(-1);
-  const heroRef  = useRef<HTMLElement>(null);
-  const wordsRef = useRef<HTMLSpanElement[]>([]);
+  const heroRef        = useRef<HTMLElement>(null);
+  const heroCardRef    = useRef<HTMLDivElement>(null);
+  const heroImgRef     = useRef<HTMLDivElement>(null);
+  const heroHexRef     = useRef<HTMLDivElement>(null);
+  const heroContentRef = useRef<HTMLDivElement>(null);
+  const heroSpotRef    = useRef<HTMLDivElement>(null);
+  const heroAnimated   = useRef(false);
 
+  // ── Lab-stage hero choreography — mirrors the main hero's motion language ──
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      // Badge
-      gsap.fromTo('[data-hero-badge]',
-        { opacity: 0, y: -10 },
-        { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out', delay: 0.1 },
-      );
-      // Headline words
-      if (wordsRef.current.length) {
-        gsap.fromTo(wordsRef.current,
-          { opacity: 0, y: 28, rotateX: -16 },
-          { opacity: 1, y: 0, rotateX: 0, duration: 0.72, stagger: 0.1, ease: 'power3.out', delay: 0.35 },
-        );
-      }
-      // Subtitle
-      gsap.fromTo('[data-hero-sub]',
-        { opacity: 0, y: 16 },
-        { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out', delay: 1.0 },
-      );
-    }, heroRef);
-    return () => ctx.revert();
+    if (heroAnimated.current) return;
+    const root = heroRef.current;
+    const card = heroCardRef.current;
+    if (!root || !card) return;
+    heroAnimated.current = true;
+
+    const words   = root.querySelectorAll<HTMLElement>('[data-word]');
+    const items   = root.querySelectorAll<HTMLElement>('[data-hero-item]');
+    const statEls = root.querySelectorAll<HTMLElement>('[data-stat-val]');
+    const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+    if (prefersReducedMotion()) {
+      gsap.set(words, { yPercent: 0 });
+      gsap.set(items, { opacity: 1, y: 0 });
+      gsap.set(card,  { opacity: 1, y: 0 });
+      if (heroImgRef.current) gsap.set(heroImgRef.current, { scale: 1 });
+      return;
+    }
+
+    const tl = gsap.timeline({ delay: 0.05, defaults: { ease: EASE.hero } });
+    // Stage lifts off the page background
+    tl.fromTo(card, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' }, 0);
+    // Cinematic image settle
+    if (heroImgRef.current) {
+      tl.fromTo(heroImgRef.current, { scale: 1.06 }, { scale: 1.01, duration: 2.4, ease: 'power2.out' }, 0);
+    }
+    // Headline words drop in with slight overshoot
+    tl.fromTo(words,
+      { yPercent: -120 },
+      { yPercent: 0, duration: 0.72, ease: 'back.out(1.3)', stagger: 0.15 },
+      0.45,
+    );
+    tl.fromTo(items, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', stagger: 0.09 }, 0.9);
+
+    // Data band counts up — components · months of iteration · μ
+    const SPECS = [
+      { to: 6,    fmt: (v: number) => String(Math.round(v)) },
+      { to: 12,   fmt: (v: number) => String(Math.round(v)) },
+      { to: 0.03, fmt: (v: number) => 'μ ' + v.toFixed(2) },
+    ];
+    statEls.forEach((el, i) => {
+      const spec = SPECS[i];
+      if (!spec) return;
+      const c = { v: 0 };
+      gsap.to(c, {
+        v: spec.to, duration: 1.0, delay: 1.15 + i * 0.12, ease: 'power2.out',
+        onUpdate() { el.textContent = spec.fmt(c.v); },
+      });
+    });
+
+    // Scroll scrub: image drifts, hexagon rotates away, content recedes, stage steps back
+    const triggers: ScrollTrigger[] = [];
+    const scrub = (animation: gsap.core.Tween) =>
+      triggers.push(ScrollTrigger.create({ trigger: root, start: 'top top', end: 'bottom top', scrub: true, animation }));
+    if (heroImgRef.current)     scrub(gsap.to(heroImgRef.current,     { yPercent: 4, ease: 'none' }));
+    if (heroContentRef.current) scrub(gsap.to(heroContentRef.current, { y: -40, opacity: 0.25, ease: 'none' }));
+    if (heroHexRef.current)     scrub(gsap.to(heroHexRef.current,     { y: 70, rotate: 9, ease: 'none' }));
+    scrub(gsap.to(card, { scale: 0.965, transformOrigin: '50% 100%', ease: 'none' }));
+
+    // Cursor depth: image follows the pointer, hexagon counter-drifts, spotlight trails
+    let onMove:  ((e: MouseEvent) => void) | undefined;
+    let onLeave: (() => void) | undefined;
+    if (finePointer) {
+      const qImgX = heroImgRef.current ? gsap.quickTo(heroImgRef.current, 'x', { duration: 1.0, ease: 'power3.out' }) : null;
+      const qImgY = heroImgRef.current ? gsap.quickTo(heroImgRef.current, 'y', { duration: 1.0, ease: 'power3.out' }) : null;
+      const qHexX = heroHexRef.current ? gsap.quickTo(heroHexRef.current, 'x', { duration: 1.3, ease: 'power3.out' }) : null;
+      onMove = (e: MouseEvent) => {
+        const r = card.getBoundingClientRect();
+        const nx = (e.clientX - r.left) / r.width - 0.5;
+        const ny = (e.clientY - r.top) / r.height - 0.5;
+        if (qImgX && qImgY) { qImgX(nx * -9); qImgY(ny * -6); }
+        if (qHexX) qHexX(nx * 14);
+        if (heroSpotRef.current) {
+          heroSpotRef.current.style.background =
+            `radial-gradient(ellipse 520px 340px at ${e.clientX - r.left}px ${e.clientY - r.top}px, rgba(255,255,255,0.028) 0%, transparent 68%)`;
+        }
+      };
+      onLeave = () => { if (heroSpotRef.current) heroSpotRef.current.style.background = 'none'; };
+      card.addEventListener('mousemove', onMove);
+      card.addEventListener('mouseleave', onLeave);
+    }
+
+    return () => {
+      if (onMove)  card.removeEventListener('mousemove', onMove);
+      if (onLeave) card.removeEventListener('mouseleave', onLeave);
+      triggers.forEach(s => s.kill());
+    };
   }, []);
 
-  const heroWords = de
-    ? ['Sechs', 'Stoffe.', 'Jede', 'mit', 'Geschichte.']
-    : ['Six', 'components.', 'Each', 'one', 'earned.'];
+  const heroLines: [string[], string[]] = de
+    ? [['Sechs', 'Stoffe.'], ['Jede', 'mit', 'Geschichte.']]
+    : [['Six', 'components.'], ['Each', 'one', 'earned.']];
+
+  const heroStats = [
+    { v: '6',      l: de ? 'Komponenten'       : 'components'          },
+    { v: '12',     l: de ? 'Monate Iteration'  : 'months of iteration' },
+    { v: 'μ 0.03', l: de ? 'Reibungskoeffizient' : 'friction coefficient' },
+  ];
 
   const CHAPTER_MAP = CHAPTERS;
 
@@ -2271,74 +2350,161 @@ export function SciencePage() {
         </div>
       </nav>
 
-      {/* ══ HERO — clean subpage header ═══════════════════════════════════════ */}
-      <section
-        ref={heroRef}
-        className="relative overflow-hidden flex flex-col items-center justify-center"
-        style={{ background: isDark ? '#07070A' : 'var(--sf)', minHeight: '50vh' }}
-      >
-        {/* Product image — very faint, grayscale */}
-        <img
-          src="/images/wax-hero.jpg"
-          alt=""
-          aria-hidden
-          className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none"
-          style={{ opacity: isDark ? 0.06 : 0.04, objectPosition: '62% 50%', filter: 'grayscale(1) blur(1px)' }}
-          loading="eager"
-        />
-
-        {/* Atmospheric glow */}
-        <div
-          aria-hidden
-          className="absolute inset-0 pointer-events-none"
-          style={{ background: isDark
-            ? 'radial-gradient(ellipse 80% 60% at 50% 40%, rgba(var(--accent-rgb),0.12) 0%, transparent 70%)'
-            : 'radial-gradient(ellipse 80% 60% at 50% 40%, rgba(var(--accent-rgb),0.04) 0%, transparent 70%)' }}
-        />
-
-        <div className="relative z-10 text-center px-4 sm:px-8 py-16 sm:py-20">
-          {/* Classification badge */}
-          <div data-hero-badge className="inline-flex items-center gap-3 mb-8" style={{ opacity: 0 }}>
-            <div className="h-px w-10" style={{ background: isDark ? 'rgba(var(--accent-soft-rgb),0.40)' : 'rgba(var(--accent-rgb),0.20)' }} />
-            <span className="text-[10px] font-mono uppercase tracking-[0.32em]" style={{ color: isDark ? 'rgba(var(--accent-soft-rgb),0.60)' : 'var(--accent-soft)' }}>
-              {de ? 'Formulierungsgeschichte' : 'Formula Story'}
-            </span>
-            <div className="h-px w-10" style={{ background: isDark ? 'rgba(var(--accent-soft-rgb),0.40)' : 'rgba(var(--accent-rgb),0.20)' }} />
-          </div>
-
-          {/* Headline */}
-          <h1
-            className="font-display font-bold leading-[1.05] mb-6 flex flex-wrap justify-center gap-x-4 gap-y-1"
-            style={{ fontSize: 'clamp(2.2rem,6vw,4rem)', color: isDark ? '#FFFFFF' : 'var(--tx1)', perspective: '600px', letterSpacing: '-0.02em' }}
+      {/* ══ HERO — Lab Stage: cinematic photo card, mirrors the main hero ═════ */}
+      <section ref={heroRef} className="relative" style={{ background: 'var(--pg)' }}>
+        <div className="px-3 sm:px-4 lg:px-6 pt-3 sm:pt-4 pb-3 sm:pb-4">
+          <div
+            ref={heroCardRef}
+            className="relative overflow-hidden rounded-[20px] sm:rounded-[28px] will-change-transform
+                       min-h-[74dvh] sm:min-h-[72dvh] flex flex-col"
+            style={{
+              background: '#0B0C0E',
+              boxShadow: '0 28px 90px rgba(10,10,16,0.22), 0 4px 18px rgba(10,10,16,0.10)',
+            }}
           >
-            {heroWords.map((w, i) => (
-              <span
-                key={i}
-                ref={el => { if (el) wordsRef.current[i] = el; }}
-                style={{ display: 'inline-block', opacity: 0 }}
+            {/* Layer 1 — molten wax bath, chain submerged */}
+            <div ref={heroImgRef} className="absolute inset-0 will-change-transform">
+              <picture>
+                <source srcSet="/images/hero-bath.webp" type="image/webp" />
+                <img
+                  src="/images/hero-bath.jpg"
+                  alt={de ? 'Fahrradkette im heißen Wachsbad' : 'Bicycle chain submerged in molten wax'}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  style={{ objectPosition: '70% 42%' }}
+                  fetchPriority="high"
+                />
+              </picture>
+            </div>
+
+            {/* Scrims — typography zones only */}
+            <div
+              className="absolute inset-0 pointer-events-none z-[1]"
+              style={{ background: 'linear-gradient(90deg, rgba(7,8,10,0.78) 0%, rgba(7,8,10,0.50) 34%, rgba(7,8,10,0.12) 60%, transparent 76%)' }}
+            />
+            <div
+              className="absolute top-0 inset-x-0 h-24 pointer-events-none z-[1]"
+              style={{ background: 'linear-gradient(to bottom, rgba(5,6,8,0.45), transparent)' }}
+            />
+            <div
+              className="absolute bottom-0 inset-x-0 h-40 pointer-events-none z-[1]"
+              style={{ background: 'linear-gradient(to top, rgba(5,6,8,0.78), transparent)' }}
+            />
+            {/* Mobile: stronger floor scrim — content sits over the image */}
+            <div
+              className="absolute inset-x-0 bottom-0 h-[64%] pointer-events-none z-[1] sm:hidden"
+              style={{ background: 'linear-gradient(to top, rgba(5,6,8,0.94) 0%, rgba(5,6,8,0.74) 42%, rgba(5,6,8,0.30) 74%, transparent 100%)' }}
+            />
+
+            {/* Hexagon ornament — the MoS₂ crystal system as quiet signature */}
+            <div
+              ref={heroHexRef}
+              aria-hidden
+              className="absolute z-[1] pointer-events-none will-change-transform
+                         w-[58vh] h-[58vh] sm:w-[70vh] sm:h-[70vh]
+                         -right-[14vh] sm:-right-[10vh] top-1/2 -translate-y-1/2"
+            >
+              <svg viewBox="-110 -110 220 220" className="w-full h-full" style={{ overflow: 'visible' }}>
+                <polygon points={hexPoints(0, 0, 100)} fill="none" stroke="rgba(255,255,255,0.075)" strokeWidth="0.8" />
+                <polygon points={hexPoints(0, 0, 68)}  fill="none" stroke="rgba(255,255,255,0.05)"  strokeWidth="0.7" />
+                <polygon points={hexPoints(0, 0, 38)}  fill="none" stroke="rgba(255,255,255,0.035)" strokeWidth="0.6" />
+              </svg>
+            </div>
+
+            {/* Cursor spotlight */}
+            <div ref={heroSpotRef} className="absolute inset-0 z-[2] pointer-events-none" />
+
+            {/* Content — bottom-left over the calm scrim */}
+            <div className="relative z-10 flex-1 flex flex-col justify-end px-6 sm:px-10 lg:px-14">
+              <div ref={heroContentRef} className="max-w-2xl pb-8 sm:pb-10 will-change-transform">
+
+                {/* Eyebrow — single brand-blue accent, like the main hero */}
+                <div data-hero-item className="flex items-center gap-3 mb-5">
+                  <span style={{ width: '28px', height: '2px', background: 'var(--brand-blue)' }} />
+                  <p
+                    className="text-[10px] sm:text-[11px] uppercase font-semibold"
+                    style={{ letterSpacing: '0.34em', color: 'rgba(255,255,255,0.62)' }}
+                  >
+                    {de ? 'Formulierungsgeschichte' : 'Formula Story'}
+                  </p>
+                </div>
+
+                {/* Headline — two Fraunces lines, words drop in */}
+                <h1
+                  className="font-display text-white"
+                  style={{
+                    fontSize: 'clamp(2.5rem, 5.4vw, 4.6rem)',
+                    lineHeight: 1.02,
+                    letterSpacing: '-0.025em',
+                    fontWeight: 600,
+                    fontVariationSettings: '"opsz" 144, "wght" 620, "SOFT" 0, "WONK" 0',
+                  }}
+                >
+                  <span className="block" style={{ paddingBottom: '0.05em' }}>
+                    {heroLines[0].map((w, i) => (
+                      <span key={i} className="inline-block overflow-hidden align-bottom mr-[0.24em]">
+                        <span data-word className="inline-block will-change-transform">{w}</span>
+                      </span>
+                    ))}
+                  </span>
+                  <span className="block" style={{ paddingBottom: '0.08em' }}>
+                    {heroLines[1].map((w, i) => (
+                      <span key={i} className="inline-block overflow-hidden align-bottom mr-[0.24em]">
+                        <span
+                          data-word
+                          className="inline-block italic will-change-transform"
+                          style={{ fontVariationSettings: '"opsz" 144, "wght" 620, "SOFT" 30, "WONK" 0' }}
+                        >
+                          {w}
+                        </span>
+                      </span>
+                    ))}
+                  </span>
+                </h1>
+
+                {/* Premise */}
+                <p
+                  data-hero-item
+                  className="mt-5 max-w-md leading-relaxed"
+                  style={{ fontSize: 'clamp(0.95rem, 1.4vw, 1.0625rem)', color: 'rgba(255,255,255,0.78)' }}
+                >
+                  {de
+                    ? 'Jede Komponente in dieser Formel existiert, weil ein Test gescheitert ist — oder weil ein Kompromiss nicht akzeptabel war.'
+                    : 'Every component in this formula exists because a test failed — or because a compromise was unacceptable.'}
+                </p>
+              </div>
+            </div>
+
+            {/* Data band — three values, hairline-columned, count up on load */}
+            <div data-hero-item className="relative z-10 px-6 sm:px-10 lg:px-14">
+              <div
+                className="flex items-stretch justify-between sm:justify-start sm:gap-0 py-4 sm:py-5"
+                style={{ borderTop: '1px solid rgba(255,255,255,0.14)' }}
               >
-                {w}
-              </span>
-            ))}
-          </h1>
-
-          {/* Subtitle */}
-          <p
-            data-hero-sub
-            className="text-[15px] sm:text-[16px] leading-relaxed max-w-[520px] mx-auto mb-0"
-            style={{ color: isDark ? 'rgba(255,255,255,0.65)' : 'var(--tx2)', opacity: 0 }}
-          >
-            {de
-              ? 'Jede Komponente in dieser Formel existiert, weil ein Test gescheitert ist — oder weil ein Kompromiss nicht akzeptabel war.'
-              : "Every component in this formula exists because a test failed — or because a compromise was unacceptable."}
-          </p>
+                {heroStats.map((s, i) => (
+                  <div
+                    key={i}
+                    className="px-3 sm:px-10 first:pl-0 last:pr-0"
+                    style={{ borderLeft: i > 0 ? '1px solid rgba(255,255,255,0.14)' : 'none' }}
+                  >
+                    <p
+                      data-stat-val
+                      className="font-display font-bold tabular-nums text-white leading-none"
+                      style={{ fontSize: 'clamp(1.3rem, 2vw, 1.7rem)' }}
+                    >
+                      {s.v}
+                    </p>
+                    <p
+                      className="text-[9px] sm:text-[10px] uppercase mt-1.5 whitespace-nowrap"
+                      style={{ letterSpacing: '0.09em', color: 'rgba(255,255,255,0.52)' }}
+                    >
+                      {s.l}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
-
-        {/* Bottom fade into page bg */}
-        <div
-          className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none"
-          style={{ background: 'linear-gradient(to bottom, transparent, var(--pg))' }}
-        />
       </section>
 
       {/* ══ COMPOSITION OVERVIEW ══════════════════════════════════════════════ */}
