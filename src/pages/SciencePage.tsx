@@ -18,30 +18,24 @@ const CHAPTERS = [
 
 // ─── Static data ──────────────────────────────────────────────────────────────
 
-const S_X  = [10, 50, 90, 130, 170, 210, 250, 290, 330, 370];
-const MO_X = [30, 70, 110, 150, 190, 230, 270, 310, 350];
+// HexMoS2 constants — viewBox 0 0 360 250, 7 S / 6 Mo columns, bigger atoms
+const HEX_S_X  = [20, 70, 120, 170, 220, 270, 320];
+const HEX_MO_X = [45, 95, 145, 195, 245, 295];
 
+// TransferFilm constants — viewBox 0 0 400 230, 12 particles at r6-9
 const TF_PARTICLES = [
-  { x: 28,  y: 75,  r: 4.5, top: true  },
-  { x: 68,  y: 112, r: 3.5, top: false },
-  { x: 110, y: 52,  r: 4,   top: true  },
-  { x: 155, y: 130, r: 5,   top: false },
-  { x: 198, y: 88,  r: 3.5, top: true  },
-  { x: 240, y: 62,  r: 4.5, top: false },
-  { x: 285, y: 140, r: 4,   top: true  },
-  { x: 328, y: 95,  r: 3,   top: false },
-  { x: 370, y: 118, r: 5,   top: true  },
-  { x: 412, y: 70,  r: 4,   top: false },
-  { x: 50,  y: 138, r: 3.5, top: false },
-  { x: 90,  y: 65,  r: 4.5, top: true  },
-  { x: 132, y: 102, r: 3,   top: false },
-  { x: 176, y: 48,  r: 5,   top: true  },
-  { x: 218, y: 148, r: 4,   top: false },
-  { x: 262, y: 82,  r: 3.5, top: true  },
-  { x: 306, y: 42,  r: 4.5, top: false },
-  { x: 348, y: 130, r: 3,   top: true  },
-  { x: 390, y: 58,  r: 4,   top: false },
-  { x: 430, y: 108, r: 3.5, top: true  },
+  { x: 30,  y: 100, r: 7,   top: true  },
+  { x: 75,  y: 140, r: 6,   top: false },
+  { x: 120, y: 85,  r: 8,   top: true  },
+  { x: 165, y: 155, r: 9,   top: false },
+  { x: 210, y: 110, r: 7,   top: true  },
+  { x: 255, y: 90,  r: 8,   top: false },
+  { x: 300, y: 160, r: 6,   top: true  },
+  { x: 345, y: 120, r: 7,   top: false },
+  { x: 60,  y: 165, r: 6,   top: false },
+  { x: 140, y: 75,  r: 7,   top: true  },
+  { x: 280, y: 130, r: 8,   top: true  },
+  { x: 370, y: 95,  r: 6,   top: false },
 ] as const;
 
 
@@ -1364,128 +1358,140 @@ function FailureTimeline({ de, isDark }: { de: boolean; isDark: boolean }) {
 
 // ─── Hexagonal MoS₂ crystal (proper SVG) ─────────────────────────────────────
 function HexMoS2({ de }: { de: boolean }) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const topRef  = useRef<SVGGElement>(null);
   const botRef  = useRef<SVGGElement>(null);
-  const [hov, setHov] = useState(false);
-  const [isTouch, setIsTouch] = useState(false);
-  useEffect(() => {
-    setIsTouch(window.matchMedia('(hover: none)').matches);
-  }, []);
+  const labelRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (!topRef.current || !botRef.current) return;
-    gsap.to(topRef.current, { x: hov ?  18 : 0, duration: 0.65, ease: 'power2.inOut' });
-    gsap.to(botRef.current, { x: hov ? -18 : 0, duration: 0.65, ease: 'power2.inOut' });
-  }, [hov]);
-
-  const TOP_S1 = 18, TOP_MO = 44, TOP_S2 = 70;
-  const BOT_S1 = 95, BOT_MO = 121, BOT_S2 = 147;
-  const GAP_Y  = 82;
+  // Rows: viewBox 0 0 360 250
+  const TOP_S1 = 30, TOP_MO = 62, TOP_S2 = 94;
+  const GAP_Y  = 125;
+  const BOT_S1 = 156, BOT_MO = 188, BOT_S2 = 220;
 
   const bonds = (moY: number, sUp: number, sDn: number) =>
-    MO_X.flatMap(mx => [
-      { x1: mx, y1: moY, x2: mx - 20, y2: sUp },
-      { x1: mx, y1: moY, x2: mx + 20, y2: sUp },
-      { x1: mx, y1: moY, x2: mx - 20, y2: sDn },
-      { x1: mx, y1: moY, x2: mx + 20, y2: sDn },
+    HEX_MO_X.flatMap(mx => [
+      { x1: mx, y1: moY, x2: mx - 25, y2: sUp },
+      { x1: mx, y1: moY, x2: mx + 25, y2: sUp },
+      { x1: mx, y1: moY, x2: mx - 25, y2: sDn },
+      { x1: mx, y1: moY, x2: mx + 25, y2: sDn },
     ]);
 
-  const { theme } = useTheme();
-  const isDark = theme === 'noir';
-  const vizCard = isDark ? VIZ_CARD : VIZ_CARD_LIGHT;
-  const dotGrid = isDark ? DARK_DOT_GRID : LIGHT_DOT_GRID;
+  useEffect(() => {
+    const container = containerRef.current;
+    const top = topRef.current;
+    const bot = botRef.current;
+    const lbl = labelRef.current;
+    if (!container || !top || !bot) return;
 
-  const txMid  = isDark ? 'rgba(255,255,255,0.38)' : 'rgba(var(--accent-rgb),0.60)';
-  const txLow  = isDark ? 'rgba(255,255,255,0.25)' : 'rgba(var(--accent-rgb),0.40)';
-  const txMono = isDark ? 'rgba(255,255,255,0.45)' : 'rgba(var(--accent-rgb),0.65)';
-  const sLabel = isDark ? 'rgba(168,192,244,0.55)'  : 'rgba(var(--accent-soft-rgb),0.70)';
-  const moLabel= isDark ? 'rgba(130,170,240,0.80)'  : 'rgba(var(--accent-rgb),0.90)';
-  const vdwClr = isDark ? 'rgba(100,140,220,0.28)'  : 'rgba(var(--accent-soft-rgb),0.45)';
-  const vdwTxt = isDark ? 'rgba(168,192,244,0.45)'  : 'rgba(var(--accent-soft-rgb),0.60)';
-  const hovClr = isDark ? 'rgba(100,140,220,0.60)'  : 'rgba(var(--accent-rgb),0.65)';
-  const divClr = isDark ? 'rgba(255,255,255,0.08)'  : 'rgba(var(--accent-rgb),0.12)';
-  const txSub  = isDark ? 'rgba(255,255,255,0.35)'  : 'rgba(var(--accent-rgb),0.55)';
+    if (prefersReducedMotion()) return;
+
+    const ctx = gsap.context(() => {
+      gsap.matchMedia({
+        '(max-width: 639px)': () => {
+          const tl = gsap.timeline({
+            scrollTrigger: {
+              trigger: container, start: 'top 85%', end: 'top 35%', scrub: 0.6,
+            },
+          });
+          tl.fromTo(top, { x: 0 }, { x: 26, ease: 'none' }, 0);
+          tl.fromTo(bot, { x: 0 }, { x: -26, ease: 'none' }, 0);
+          if (lbl) {
+            tl.fromTo(lbl, { opacity: 0 }, { opacity: 1, ease: 'none' }, 0.3);
+            tl.to(lbl, { opacity: 0, ease: 'none' }, 0.7);
+          }
+        },
+        '(min-width: 640px)': () => {
+          const onEnter = () => {
+            gsap.to(top, { x: 26, duration: DUR.standard, ease: EASE.enter });
+            gsap.to(bot, { x: -26, duration: DUR.standard, ease: EASE.enter });
+            if (lbl) gsap.to(lbl, { opacity: 1, duration: DUR.short, delay: 0.15 });
+          };
+          const onLeave = () => {
+            gsap.to(top, { x: 0, duration: DUR.standard, ease: EASE.enter });
+            gsap.to(bot, { x: 0, duration: DUR.standard, ease: EASE.enter });
+            if (lbl) gsap.to(lbl, { opacity: 0, duration: DUR.fast });
+          };
+          container.addEventListener('mouseenter', onEnter);
+          container.addEventListener('mouseleave', onLeave);
+          return () => {
+            container.removeEventListener('mouseenter', onEnter);
+            container.removeEventListener('mouseleave', onLeave);
+          };
+        },
+      });
+    }, containerRef);
+    return () => ctx.revert();
+  }, []);
 
   return (
-    <div className="w-full rounded-2xl overflow-hidden p-5 cursor-default select-none"
-      style={{ ...vizCard, ...dotGrid, transition: 'box-shadow 0.35s ease', boxShadow: hov ? '0 0 0 1px rgba(var(--accent-soft-rgb),0.4), 0 8px 32px rgba(var(--accent-rgb),0.3)' : 'none', cursor: isTouch ? 'pointer' : undefined }}
-      onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
-      onClick={() => {
-        if (!isTouch) return;
-        const next = !hov;
-        setHov(next);
-        if (next) {
-          setTimeout(() => setHov(false), 2200);
-        }
-      }}>
-      <p className="text-[10px] uppercase tracking-[0.2em] mb-3 text-center" style={{ color: txMid }}>
-        {de ? 'MoS₂ — S–Mo–S Schichtstruktur' : 'MoS₂ — S–Mo–S layer structure'}
-      </p>
-      <svg viewBox="0 0 395 155" className="w-full" style={{ overflow: 'visible' }}>
-        <g ref={topRef}>
-          {bonds(TOP_MO, TOP_S1, TOP_S2).map((b, i) => (
-            <line key={i} x1={b.x1} y1={b.y1} x2={b.x2} y2={b.y2} stroke={isDark ? 'rgba(var(--accent-rgb),0.22)' : 'rgba(var(--accent-rgb),0.35)'} strokeWidth="1.2" />
-          ))}
-          {S_X.map((x, i) => <circle key={`ts1${i}`} cx={x} cy={TOP_S1} r="5" fill="var(--accent-soft)" opacity="0.92" />)}
-          {MO_X.map((x, i) => <circle key={`tmo${i}`} cx={x} cy={TOP_MO} r="7.5" fill="var(--accent)" style={{ filter: 'drop-shadow(0 0 5px rgba(var(--accent-soft-rgb),0.60))' }} />)}
-          {S_X.map((x, i) => <circle key={`ts2${i}`} cx={x} cy={TOP_S2} r="5" fill="var(--accent-soft)" opacity="0.92" />)}
-        </g>
-        {/* Van der Waals gap */}
-        <g>
-          <line x1="8" y1={GAP_Y} x2="310" y2={GAP_Y} stroke={vdwClr} strokeWidth="1" strokeDasharray="5 4" />
-          <text x="316" y={GAP_Y + 4} fontSize="8.5" fill={vdwTxt} fontFamily="monospace">vdW</text>
-        </g>
-        <g ref={botRef}>
-          {bonds(BOT_MO, BOT_S1, BOT_S2).map((b, i) => (
-            <line key={i} x1={b.x1} y1={b.y1} x2={b.x2} y2={b.y2} stroke={isDark ? 'rgba(var(--accent-rgb),0.22)' : 'rgba(var(--accent-rgb),0.35)'} strokeWidth="1.2" />
-          ))}
-          {S_X.map((x, i) => <circle key={`bs1${i}`} cx={x} cy={BOT_S1} r="5" fill="var(--accent-soft)" opacity="0.92" />)}
-          {MO_X.map((x, i) => <circle key={`bmo${i}`} cx={x} cy={BOT_MO} r="7.5" fill="var(--accent)" style={{ filter: 'drop-shadow(0 0 5px rgba(var(--accent-rgb),0.55))' }} />)}
-          {S_X.map((x, i) => <circle key={`bs2${i}`} cx={x} cy={BOT_S2} r="5" fill="var(--accent-soft)" opacity="0.92" />)}
-        </g>
-        {/* Single-side labels only */}
-        <text x="10" y={TOP_S1 + 4}  fontSize="8.5" fill={sLabel}  fontFamily="monospace">S</text>
-        <text x="10" y={TOP_MO + 4}  fontSize="8.5" fill={moLabel} fontFamily="monospace">Mo</text>
-        <text x="10" y={TOP_S2 + 4}  fontSize="8.5" fill={sLabel}  fontFamily="monospace">S</text>
-        <text x="10" y={BOT_S1 + 4}  fontSize="8.5" fill={sLabel}  fontFamily="monospace">S</text>
-        <text x="10" y={BOT_MO + 4}  fontSize="8.5" fill={moLabel} fontFamily="monospace">Mo</text>
-        <text x="10" y={BOT_S2 + 4}  fontSize="8.5" fill={sLabel}  fontFamily="monospace">S</text>
-        {/* Hover arrow cue */}
-        {hov && (
-          <text x="197" y={GAP_Y - 4} textAnchor="middle" fontSize="8" fill={hovClr} fontFamily="monospace" letterSpacing="1">
+    <VizFrame variant="lab"
+      eyebrow={de ? 'MoS₂ — S–Mo–S Schichtstruktur' : 'MoS₂ — S–Mo–S layer structure'}
+      chip="< 5 µm"
+      footer={
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-5">
+            <div className="flex items-center gap-2">
+              <div className="w-[18px] h-[18px] rounded-full" style={{ background: 'var(--accent-soft)', opacity: 0.9 }} />
+              <span className="text-[11px] font-mono" style={{ color: 'rgba(168,192,244,0.65)' }}>S</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-[26px] h-[26px] rounded-full" style={{ background: 'var(--accent)', boxShadow: '0 0 8px rgba(var(--accent-soft-rgb),0.55)' }} />
+              <span className="text-[11px] font-mono" style={{ color: 'rgba(168,192,244,0.65)' }}>Mo</span>
+            </div>
+          </div>
+          <div className="text-right">
+            <CountUp value="μ 0.03" className="font-display italic text-[26px] font-bold leading-none" style={{ color: '#6A8AE8', textShadow: '0 0 20px rgba(var(--accent-soft-rgb),0.55)' }} />
+            <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.38)' }}>{de ? 'Grenzschmierung' : 'Boundary lubrication'}</p>
+          </div>
+        </div>
+      }
+      innerRef={containerRef}
+    >
+      <div className="relative select-none cursor-default">
+        <svg viewBox="0 0 360 250" className="w-full" style={{ overflow: 'visible' }}>
+          <g ref={topRef}>
+            {bonds(TOP_MO, TOP_S1, TOP_S2).map((b, i) => (
+              <line key={i} x1={b.x1} y1={b.y1} x2={b.x2} y2={b.y2} stroke="rgba(var(--accent-rgb),0.25)" strokeWidth="2" />
+            ))}
+            {HEX_S_X.map((x, i) => <circle key={`ts1${i}`} cx={x} cy={TOP_S1} r="9" fill="var(--accent-soft)" opacity="0.9" />)}
+            {HEX_MO_X.map((x, i) => <circle key={`tmo${i}`} cx={x} cy={TOP_MO} r="13" fill="var(--accent)" style={{ filter: 'drop-shadow(0 0 7px rgba(var(--accent-soft-rgb),0.60))' }} />)}
+            {HEX_S_X.map((x, i) => <circle key={`ts2${i}`} cx={x} cy={TOP_S2} r="9" fill="var(--accent-soft)" opacity="0.9" />)}
+          </g>
+          {/* Van der Waals gap */}
+          <line x1="15" y1={GAP_Y} x2="310" y2={GAP_Y} stroke="rgba(100,140,220,0.28)" strokeWidth="1" strokeDasharray="6 5" />
+          <text x="318" y={GAP_Y + 4} fontSize="11" fill="rgba(168,192,244,0.45)" fontFamily="monospace">vdW</text>
+          <g ref={botRef}>
+            {bonds(BOT_MO, BOT_S1, BOT_S2).map((b, i) => (
+              <line key={i} x1={b.x1} y1={b.y1} x2={b.x2} y2={b.y2} stroke="rgba(var(--accent-rgb),0.25)" strokeWidth="2" />
+            ))}
+            {HEX_S_X.map((x, i) => <circle key={`bs1${i}`} cx={x} cy={BOT_S1} r="9" fill="var(--accent-soft)" opacity="0.9" />)}
+            {HEX_MO_X.map((x, i) => <circle key={`bmo${i}`} cx={x} cy={BOT_MO} r="13" fill="var(--accent)" style={{ filter: 'drop-shadow(0 0 7px rgba(var(--accent-rgb),0.55))' }} />)}
+            {HEX_S_X.map((x, i) => <circle key={`bs2${i}`} cx={x} cy={BOT_S2} r="9" fill="var(--accent-soft)" opacity="0.9" />)}
+          </g>
+          {/* Side labels — 13px Mo, 11px S */}
+          <text x="5" y={TOP_S1 + 4} fontSize="11" fill="rgba(168,192,244,0.55)" fontFamily="monospace">S</text>
+          <text x="5" y={TOP_MO + 5} fontSize="13" fill="rgba(130,170,240,0.80)" fontFamily="monospace" fontWeight="600">Mo</text>
+          <text x="5" y={TOP_S2 + 4} fontSize="11" fill="rgba(168,192,244,0.55)" fontFamily="monospace">S</text>
+          <text x="5" y={BOT_S1 + 4} fontSize="11" fill="rgba(168,192,244,0.55)" fontFamily="monospace">S</text>
+          <text x="5" y={BOT_MO + 5} fontSize="13" fill="rgba(130,170,240,0.80)" fontFamily="monospace" fontWeight="600">Mo</text>
+          <text x="5" y={BOT_S2 + 4} fontSize="11" fill="rgba(168,192,244,0.55)" fontFamily="monospace">S</text>
+        </svg>
+        {/* Shear label — fades in on scroll (mobile) or hover (desktop) */}
+        <div ref={labelRef} className="absolute left-1/2 -translate-x-1/2 pointer-events-none" style={{ top: '46%', opacity: 0 }}>
+          <span className="text-[11px] font-mono tracking-wider px-2.5 py-1 rounded-md" style={{ background: 'rgba(14,22,38,0.85)', border: '1px solid rgba(100,140,220,0.35)', color: 'rgba(130,170,240,0.80)' }}>
             {de ? '← Schicht gleitet →' : '← layer slides →'}
-          </text>
-        )}
-      </svg>
-      <div className="flex items-center justify-between mt-3 pt-3" style={{ borderTop: `1px solid ${divClr}` }}>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-full" style={{ background: 'var(--accent-soft)' }} />
-            <span className="text-[9px] font-mono" style={{ color: txMono }}>S</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-4 h-4 rounded-full" style={{ background: 'var(--accent)', boxShadow: '0 0 4px rgba(var(--accent-soft-rgb),0.5)' }} />
-            <span className="text-[9px] font-mono" style={{ color: txMono }}>Mo</span>
-          </div>
-          <span className="text-[9px]" style={{ color: txLow }}>
-            {isTouch
-              ? (de ? '· Tippen: Schicht gleitet' : '· Tap: layer shears')
-              : (de ? '· Hover: Schicht gleitet' : '· Hover: layer shears')}
           </span>
         </div>
-        <div className="text-right">
-          <p className="font-display italic text-[20px] font-bold leading-none" style={{ color: '#6A8AE8', textShadow: '0 0 16px rgba(var(--accent-soft-rgb),0.55)' }}>μ 0.03</p>
-          <p className="text-[9px] mt-0.5" style={{ color: txSub }}>{de ? 'Grenzschmierung' : 'Boundary lubrication'}</p>
-        </div>
       </div>
-    </div>
+    </VizFrame>
   );
 }
 
 // ─── Transfer film animation — chain cross-section ────────────────────────────
+// 3-beat timeline: (1) plates nudge + pressure arrows, (2) particles migrate,
+// (3) films draw scaleX + label. viewBox 0 0 400 230, 30px plates, 8px films.
 function TransferFilm({ de }: { de: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [hov, setHov] = useState(false);
   const [hasPlayed, setHasPlayed] = useState(false);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
 
@@ -1496,23 +1502,45 @@ function TransferFilm({ de }: { de: boolean }) {
     const particles = Array.from(container.querySelectorAll<SVGCircleElement>('.tf-p'));
     const films = Array.from(container.querySelectorAll<SVGRectElement>('.tf-film'));
     const label = container.querySelector<SVGTextElement>('.tf-label');
-    particles.forEach((el, i) => {
-      const p = TF_PARTICLES[i];
-      gsap.set(el, { attr: { cy: p.y } });
-    });
-    gsap.set(films, { opacity: 0 });
+    const arrows = Array.from(container.querySelectorAll<SVGElement>('.tf-arrow'));
+    const topPlate = container.querySelector<SVGRectElement>('.tf-plate-t');
+    const botPlate = container.querySelector<SVGRectElement>('.tf-plate-b');
+    particles.forEach((el, i) => { const p = TF_PARTICLES[i]; gsap.set(el, { attr: { cy: p.y } }); });
+    gsap.set(films, { scaleX: 0, opacity: 0 });
     if (label) gsap.set(label, { opacity: 0 });
+    gsap.set(arrows, { opacity: 0 });
+    if (topPlate) gsap.set(topPlate, { attr: { y: 0 } });
+    if (botPlate) gsap.set(botPlate, { attr: { y: 200 } });
     tlRef.current.restart();
   };
 
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      const container = ref.current;
-      if (!container) return;
+    const container = ref.current;
+    if (!container) return;
 
+    if (prefersReducedMotion()) {
+      const particles = Array.from(container.querySelectorAll<SVGCircleElement>('.tf-p'));
+      const films = Array.from(container.querySelectorAll<SVGRectElement>('.tf-film'));
+      const label = container.querySelector<SVGTextElement>('.tf-label');
+      particles.forEach((el, i) => {
+        const p = TF_PARTICLES[i];
+        gsap.set(el, { attr: { cy: p.top ? 38 + p.r : 192 - p.r } });
+      });
+      gsap.set(films, { scaleX: 1, opacity: 0.92 });
+      if (label) gsap.set(label, { opacity: 1 });
+      setHasPlayed(true);
+      return;
+    }
+
+    const ctx = gsap.context(() => {
       const particles = Array.from(container.querySelectorAll<SVGCircleElement>('.tf-p'));
       const films     = Array.from(container.querySelectorAll<SVGRectElement>('.tf-film'));
       const label     = container.querySelector<SVGTextElement>('.tf-label');
+      const arrows    = Array.from(container.querySelectorAll<SVGElement>('.tf-arrow'));
+      const topPlate  = container.querySelector<SVGRectElement>('.tf-plate-t');
+      const botPlate  = container.querySelector<SVGRectElement>('.tf-plate-b');
+
+      gsap.set(films, { scaleX: 0, transformOrigin: '50% 50%' });
 
       const tl = gsap.timeline({
         scrollTrigger: { trigger: container, start: 'top 88%', once: true },
@@ -1520,100 +1548,112 @@ function TransferFilm({ de }: { de: boolean }) {
       });
       tlRef.current = tl;
 
+      // Beat 1: plates nudge inward + pressure arrows fade in
+      if (topPlate) tl.fromTo(topPlate, { attr: { y: -4 } }, { attr: { y: 0 }, duration: DUR.standard, ease: EASE.enter }, 0);
+      if (botPlate) tl.fromTo(botPlate, { attr: { y: 204 } }, { attr: { y: 200 }, duration: DUR.standard, ease: EASE.enter }, 0);
+      tl.to(arrows, { opacity: 1, duration: DUR.short, stagger: 0.06, ease: EASE.enter }, 0.15);
+
+      // Beat 2: particles migrate to plate surfaces
       particles.forEach((el, i) => {
         const p = TF_PARTICLES[i];
         tl.to(el, {
-          attr: { cy: p.top ? 30 + p.r : 153 - p.r },
-          duration: 1.4,
+          attr: { cy: p.top ? 38 + p.r : 192 - p.r },
+          duration: 1.2,
           ease: 'power3.inOut',
-        }, i * 0.048);
+        }, 0.4 + i * 0.04);
       });
 
-      tl.to(films, { opacity: 0.88, duration: 0.7, stagger: 0.12, ease: 'power2.out' }, 0.7);
-      if (label) tl.to(label, { opacity: 1, duration: 0.5 }, 1.5);
+      // Beat 3: films draw scaleX + label
+      tl.to(films, { scaleX: 1, opacity: 0.92, duration: DUR.long, stagger: 0.12, ease: EASE.enter }, 1.2);
+      if (label) tl.to(label, { opacity: 1, duration: DUR.standard }, 1.8);
+      tl.to(arrows, { opacity: 0, duration: DUR.short }, 1.4);
 
     }, ref);
     return () => ctx.revert();
   }, []);
 
-  const { theme } = useTheme();
-  const isDark = theme === 'noir';
-  const vizCard = isDark ? VIZ_CARD : VIZ_CARD_LIGHT;
-  const dotGrid = isDark ? DARK_DOT_GRID : LIGHT_DOT_GRID;
-
-  const txMid   = isDark ? 'rgba(255,255,255,0.38)' : 'rgba(var(--accent-rgb),0.60)';
-  const txVal   = isDark ? 'rgba(255,255,255,0.85)' : 'rgba(var(--accent-strong-rgb),0.85)';
-  const txSub   = isDark ? 'rgba(255,255,255,0.38)' : 'rgba(var(--accent-rgb),0.55)';
-  const divClr  = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(var(--accent-rgb),0.12)';
-  const sLabelC = isDark ? 'rgba(255,255,255,0.28)' : 'rgba(var(--accent-rgb),0.50)';
-  const steelT0 = isDark ? '#2a2a38' : '#c4cedf';
-  const steelT1 = isDark ? '#1c1c28' : '#b0bcce';
-  const steelB0 = isDark ? '#1c1c28' : '#b0bcce';
-  const steelB1 = isDark ? '#2a2a38' : '#c4cedf';
-
   return (
-    <div ref={ref} className="w-full rounded-2xl overflow-hidden p-5"
-      style={{ ...vizCard, ...dotGrid, position: 'relative', transition: 'box-shadow 0.35s ease', boxShadow: hov ? '0 0 0 1px rgba(var(--accent-soft-rgb),0.4), 0 8px 32px rgba(var(--accent-rgb),0.30)' : 'none' }}
-      onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}>
-      <p className="text-[10px] uppercase tracking-[0.2em] mb-3 text-center" style={{ color: txMid }}>
-        {de ? 'Transferfilm unter Kontaktdruck' : 'Transfer film under contact pressure'}
-      </p>
-      <svg viewBox="0 0 440 175" className="w-full" style={{ overflow: 'visible' }}>
-        <defs>
-          <linearGradient id="steel-grad-t" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={steelT0} />
-            <stop offset="100%" stopColor={steelT1} />
-          </linearGradient>
-          <linearGradient id="steel-grad-b" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={steelB0} />
-            <stop offset="100%" stopColor={steelB1} />
-          </linearGradient>
-        </defs>
-        {/* Steel plates — no text inside them */}
-        <rect x="0" y="0"   width="440" height="22" fill="url(#steel-grad-t)" rx="2" />
-        <rect x="0" y="153" width="440" height="22" fill="url(#steel-grad-b)" rx="2" />
-        {/* Side labels for the plates */}
-        <text x="6" y="15"  fontSize="8" fill={sLabelC} fontFamily="monospace">{de ? 'Stahl' : 'Steel'}</text>
-        <text x="6" y="167" fontSize="8" fill={sLabelC} fontFamily="monospace">{de ? 'Stahl' : 'Steel'}</text>
-        {/* Transfer film deposits */}
-        <rect className="tf-film" x="0" y="22"  width="440" height="5" fill="var(--accent)" opacity="0" rx="1" />
-        <rect className="tf-film" x="0" y="148" width="440" height="5" fill="var(--accent)" opacity="0" rx="1" />
-        {/* MoS₂ particles */}
-        {TF_PARTICLES.map((p, i) => (
-          <circle key={i} className="tf-p" cx={p.x} cy={p.y} r={p.r} fill="var(--accent)" opacity="0.85" />
-        ))}
-        {/* Film label — appears after animation */}
-        <text className="tf-label" x="220" y="38" textAnchor="middle" fontSize="8.5" fill="rgba(106,138,232,0.9)" fontFamily="monospace" letterSpacing="1" opacity="0">
-          {de ? 'Fe-S Transferfilm' : 'Fe-S transfer film'}
-        </text>
-      </svg>
-      <div className="mt-3 pt-3 grid grid-cols-3 gap-2 text-center" style={{ borderTop: `1px solid ${divClr}` }}>
-        {[
-          { val: '50–300 MPa', sub: de ? 'Kontaktdruck' : 'Contact pressure' },
-          { val: '2–5 nm',     sub: de ? 'Filmdicke'    : 'Film thickness'   },
-          { val: 'Fe–S',       sub: de ? 'tribochem. Bindung' : 'tribochem. bond' },
-        ].map((s, i) => (
-          <div key={i}>
-            <p className="font-mono text-[12px] font-semibold" style={{ color: txVal }}>{s.val}</p>
-            <p className="text-[9px] mt-0.5" style={{ color: txSub }}>{s.sub}</p>
-          </div>
-        ))}
+    <VizFrame variant="lab"
+      eyebrow={de ? 'Transferfilm unter Kontaktdruck' : 'Transfer film under contact pressure'}
+      chip="Fe–S"
+      footer={
+        <div className="grid grid-cols-3 gap-3 text-center">
+          {[
+            { val: '50–300 MPa', sub: de ? 'Kontaktdruck' : 'Contact pressure' },
+            { val: '2–5 nm',     sub: de ? 'Filmdicke'    : 'Film thickness'   },
+            { val: 'Fe–S',       sub: de ? 'tribochem. Bindung' : 'tribochem. bond' },
+          ].map((s, i) => (
+            <div key={i}>
+              <CountUp value={s.val} className="font-mono text-[13px] font-semibold" style={{ color: 'rgba(255,255,255,0.88)' }} />
+              <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.38)' }}>{s.sub}</p>
+            </div>
+          ))}
+        </div>
+      }
+      innerRef={ref}
+    >
+      <div className="relative">
+        <svg viewBox="0 0 400 230" className="w-full" style={{ overflow: 'visible' }}>
+          <defs>
+            <linearGradient id="tf-steel-t" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#2a2e3e" />
+              <stop offset="100%" stopColor="#1c2030" />
+            </linearGradient>
+            <linearGradient id="tf-steel-b" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#1c2030" />
+              <stop offset="100%" stopColor="#2a2e3e" />
+            </linearGradient>
+            <pattern id="tf-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+              <line x1="0" y1="0" x2="0" y2="6" stroke="rgba(130,170,240,0.12)" strokeWidth="1" />
+            </pattern>
+            <filter id="tf-film-glow">
+              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+            </filter>
+          </defs>
+          {/* Steel plates — 30px with hatch + inside label */}
+          <rect className="tf-plate-t" x="0" y="0" width="400" height="30" fill="url(#tf-steel-t)" rx="3" />
+          <rect x="0" y="0" width="400" height="30" fill="url(#tf-hatch)" rx="3" />
+          <text x="12" y="20" fontSize="11" fill="rgba(168,192,244,0.40)" fontFamily="monospace">{de ? 'Stahl' : 'Steel'}</text>
+          <rect className="tf-plate-b" x="0" y="200" width="400" height="30" fill="url(#tf-steel-b)" rx="3" />
+          <rect x="0" y="200" width="400" height="30" fill="url(#tf-hatch)" rx="3" />
+          <text x="12" y="220" fontSize="11" fill="rgba(168,192,244,0.40)" fontFamily="monospace">{de ? 'Stahl' : 'Steel'}</text>
+          {/* Pressure arrows — fade in beat 1 */}
+          <g className="tf-arrow" opacity="0">
+            <line x1="200" y1="-8" x2="200" y2="8" stroke="rgba(168,192,244,0.50)" strokeWidth="1.5" markerEnd="url(#tf-arw)" />
+            <text x="200" y="-14" textAnchor="middle" fontSize="10" fill="rgba(168,192,244,0.55)" fontFamily="monospace">50–300 MPa</text>
+          </g>
+          <g className="tf-arrow" opacity="0">
+            <line x1="200" y1="238" x2="200" y2="222" stroke="rgba(168,192,244,0.50)" strokeWidth="1.5" />
+          </g>
+          {/* Transfer film deposits — 8px with glow */}
+          <rect className="tf-film" x="0" y="30" width="400" height="8" fill="var(--accent)" opacity="0" rx="2" filter="url(#tf-film-glow)" />
+          <rect className="tf-film" x="0" y="192" width="400" height="8" fill="var(--accent)" opacity="0" rx="2" filter="url(#tf-film-glow)" />
+          {/* MoS₂ particles */}
+          {TF_PARTICLES.map((p, i) => (
+            <circle key={i} className="tf-p" cx={p.x} cy={p.y} r={p.r} fill="var(--accent)" opacity="0.85" />
+          ))}
+          {/* Film label — appears after animation */}
+          <text className="tf-label" x="200" y="48" textAnchor="middle" fontSize="11" fill="rgba(106,138,232,0.9)" fontFamily="monospace" letterSpacing="1.5" opacity="0">
+            {de ? 'Fe-S Transferfilm' : 'Fe-S transfer film'}
+          </text>
+        </svg>
+        {hasPlayed && (
+          <button
+            onClick={replay}
+            aria-label="Replay animation"
+            className="absolute top-0 right-0 p-1.5 rounded-full transition-opacity hover:opacity-70"
+            style={{
+              background: 'rgba(var(--accent-soft-rgb),0.18)',
+              border: '1px solid rgba(var(--accent-soft-rgb),0.30)',
+              color: 'rgba(168,192,244,0.80)',
+            }}
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+          </button>
+        )}
       </div>
-      {hasPlayed && (
-        <button
-          onClick={replay}
-          aria-label="Replay animation"
-          className="absolute top-3 right-3 p-1.5 rounded-full transition-opacity hover:opacity-70"
-          style={{
-            background: isDark ? 'rgba(var(--accent-soft-rgb),0.18)' : 'rgba(var(--accent-soft-rgb),0.10)',
-            border: `1px solid ${isDark ? 'rgba(var(--accent-soft-rgb),0.30)' : 'rgba(var(--accent-soft-rgb),0.20)'}`,
-            color: isDark ? 'rgba(168,192,244,0.80)' : '#2a56c4',
-          }}
-        >
-          <RotateCcw className="w-3.5 h-3.5" />
-        </button>
-      )}
-    </div>
+    </VizFrame>
   );
 }
 
