@@ -414,3 +414,20 @@ export const compatibilityMatrix: Record<string, Record<string, string[]>> = {
     '12': ['chain-ybn12'],
   },
 };
+
+// ─── Wax vs. Oil head-to-head — single source for landing + science page ──────
+// Used by the Wax⇄Oil toggle (why-wax.tsx) and the science page problem act.
+export const waxVsOil = {
+  friction: { wax: 0.03, oil: 0.2 },        // μ — boundary friction coefficient
+  watts: { wax: [2, 4], oil: [6, 10] },     // drivetrain loss range (W)
+  life: { wax: 3, oil: 1 },                 // relative chain lifetime (× vs oil)
+  cost: { savedEur: 70, pctLess: 46, km: 12000, oilEur: 151, waxEur: 81 },
+} as const;
+
+// Friction comparison ranges (performance bars — higher bar = better, never invert).
+// pct = performance index (lower μ → higher bar). Mirrors the science FrictionBars.
+export const frictionRanges = [
+  { id: 'pro',     muLo: 0.03, muHi: 0.06, pct: 100, highlight: true  },
+  { id: 'classic', muLo: 0.05, muHi: 0.07, pct: 80,  highlight: true  },
+  { id: 'oil',     muLo: 0.18, muHi: 0.25, pct: 18,  highlight: false },
+] as const;

@@ -6,55 +6,8 @@ import { useSectionReveal } from '@/hooks/useAnimation';
 import { waxIntervals } from '@/lib/data';
 import { gsap } from '@/lib/gsap';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
+import { AnimatedNumber } from '@/components/viz';
 
-
-// ─── Animated number ticker ───────────────────────────────────────────────────
-function AnimatedNumber({
-  value,
-  prefix = '',
-  suffix = '',
-  decimals = 0,
-  className,
-  style,
-}: {
-  value: number;
-  prefix?: string;
-  suffix?: string;
-  decimals?: number;
-  className?: string;
-  style?: React.CSSProperties;
-}) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const prev = useRef(value);
-  const tweenRef = useRef<gsap.core.Tween | null>(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const from = prev.current;
-    const to = value;
-    prev.current = to;
-    if (from === to) return;
-
-    tweenRef.current?.kill();
-    const counter = { val: from };
-    tweenRef.current = gsap.to(counter, {
-      val: to,
-      duration: 0.38,
-      ease: 'power2.out',
-      onUpdate: () => {
-        el.textContent = `${prefix}${counter.val.toFixed(decimals)}${suffix}`;
-      },
-    });
-  }, [value, prefix, suffix, decimals]);
-
-  const fmt = value.toFixed(decimals);
-  return (
-    <span ref={ref} className={className} style={style}>
-      {prefix}{fmt}{suffix}
-    </span>
-  );
-}
 
 // ─── Toggle button — blue accent active state ────────────────────────────────
 function TogButton({
