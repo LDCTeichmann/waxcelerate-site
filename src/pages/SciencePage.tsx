@@ -39,6 +39,9 @@ const TF_PARTICLES = [
 ] as const;
 
 
+// One voice for every SVG diagram label — the defined instrument-data font.
+const MONO = "'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace";
+
 const DOT_GRID: React.CSSProperties = {
   backgroundImage: 'radial-gradient(circle, rgba(var(--accent-rgb),0.11) 1px, transparent 1px)',
   backgroundSize: '22px 22px',
@@ -313,10 +316,10 @@ function TempBandViz({ isDark }: { isDark: boolean }) {
       {[55, 58, 60, 65].map(t => (
         <g key={t}>
           <line x1={10 + toX(t)} y1="46" x2={10 + toX(t)} y2="52" stroke={tickClr} strokeWidth="0.8" />
-          <text x={10 + toX(t)} y="62" textAnchor="middle" fontSize="7" fontFamily="monospace" fill={labelClr}>{t}°</text>
+          <text x={10 + toX(t)} y="62" textAnchor="middle" fontSize="7" fontFamily={MONO} fill={labelClr}>{t}°</text>
         </g>
       ))}
-      <text x={10 + toX(59)} y="14" textAnchor="middle" fontSize="6.5" fontFamily="monospace" fill={bandClr} letterSpacing="0.05em">WAXCELERATE</text>
+      <text x={10 + toX(59)} y="14" textAnchor="middle" fontSize="6.5" fontFamily={MONO} fill={bandClr} letterSpacing="0.05em">WAXCELERATE</text>
     </svg>
   );
 }
@@ -331,13 +334,13 @@ function DensityViz({ isDark }: { isDark: boolean }) {
   return (
     <svg viewBox="0 0 160 90" style={{ width: 160, height: 90 }}>
       <circle cx="35" cy="45" r={rPar} fill={parClr} stroke={parBd} strokeWidth="1" />
-      <text x="35" y="42" textAnchor="middle" dominantBaseline="middle" fontSize="6" fontFamily="monospace" fill={labelClr}>Paraffin</text>
-      <text x="35" y="51" textAnchor="middle" dominantBaseline="middle" fontSize="7" fontFamily="monospace" fontWeight="700" fill={valClr}>0.9</text>
+      <text x="35" y="42" textAnchor="middle" dominantBaseline="middle" fontSize="6" fontFamily={MONO} fill={labelClr}>Paraffin</text>
+      <text x="35" y="51" textAnchor="middle" dominantBaseline="middle" fontSize="7" fontFamily={MONO} fontWeight="700" fill={valClr}>0.9</text>
       <circle cx="108" cy="45" r={rMos} fill={mosClr}
         style={{ filter: isDark ? 'drop-shadow(0 0 10px rgba(var(--accent-rgb),0.55))' : 'drop-shadow(0 3px 8px rgba(var(--accent-rgb),0.25))' }} />
-      <text x="108" y="40" textAnchor="middle" dominantBaseline="middle" fontSize="7.5" fontFamily="monospace" fill="rgba(255,255,255,0.75)">MoS₂</text>
-      <text x="108" y="51" textAnchor="middle" dominantBaseline="middle" fontSize="8" fontFamily="monospace" fontWeight="700" fill="rgba(255,255,255,0.90)">5.06</text>
-      <text x="80" y="84" textAnchor="middle" fontSize="6.5" fontFamily="monospace" fill={labelClr}>g/cm³</text>
+      <text x="108" y="40" textAnchor="middle" dominantBaseline="middle" fontSize="7.5" fontFamily={MONO} fill="rgba(255,255,255,0.75)">MoS₂</text>
+      <text x="108" y="51" textAnchor="middle" dominantBaseline="middle" fontSize="8" fontFamily={MONO} fontWeight="700" fill="rgba(255,255,255,0.90)">5.06</text>
+      <text x="80" y="84" textAnchor="middle" fontSize="6.5" fontFamily={MONO} fill={labelClr}>g/cm³</text>
     </svg>
   );
 }
@@ -362,11 +365,11 @@ function FrictionLadderViz({ isDark }: { isDark: boolean }) {
               style={b.glow ? { filter: `drop-shadow(0 0 4px ${b.color})` } : undefined} />
             <rect x="14" y={y} width={barW} height="10" rx="2" fill={b.color}
               style={b.glow ? { filter: isDark ? `drop-shadow(0 0 6px rgba(48,96,200,0.65))` : 'none' } : undefined} />
-            <text x={14 + barW + 5} y={y + 7} dominantBaseline="middle" fontSize="6.5" fontFamily="monospace" fill={labelClr}>{b.label}</text>
+            <text x={14 + barW + 5} y={y + 7} dominantBaseline="middle" fontSize="6.5" fontFamily={MONO} fill={labelClr}>{b.label}</text>
           </g>
         );
       })}
-      <text x="14" y="75" fontSize="6.5" fontFamily="monospace" fill={labelClr}>μ →</text>
+      <text x="14" y="75" fontSize="6.5" fontFamily={MONO} fill={labelClr}>μ →</text>
     </svg>
   );
 }
@@ -670,7 +673,7 @@ function FormulaSpine({ de, isDark }: { de: boolean; isDark: boolean }) {
                   <span className="text-[11px] uppercase tracking-[0.24em] font-medium"
                     style={{ color: 'rgba(150,185,245,0.78)' }}>MoS₂</span>
                 </div>
-                <CountUp value="μ 0.03" className="font-display italic text-[40px] font-bold leading-none"
+                <CountUp value="μ 0.03" className="num-data text-[38px] font-bold leading-none"
                   style={{ color: '#6A8AE8', textShadow: '0 0 24px rgba(var(--accent-soft-rgb),0.55)' }} />
                 <p className="text-[12px] font-mono mt-2" style={{ color: 'rgba(168,192,244,0.55)' }}>
                   {'< 5 µm · 5.06 g/cm³'}
@@ -678,7 +681,7 @@ function FormulaSpine({ de, isDark }: { de: boolean; isDark: boolean }) {
               </>) : (
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <CountUp value={node.metric} className="font-display text-[17px] font-bold leading-none"
+                    <CountUp value={node.metric} className="num-data text-[16px] font-bold leading-none"
                       style={{ color: isDark ? '#88bbff' : '#1a3c8e' }} />
                     <p className="text-[13px] font-semibold mt-1" style={{ color: isDark ? 'rgba(255,255,255,0.60)' : 'var(--tx1)' }}>
                       {de ? node.labelDe : node.labelEn}
@@ -892,7 +895,7 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
             <g ref={vignetteRef} opacity={0} style={{ pointerEvents: 'none' }}>
               {/* Title */}
               <text x={GRAPH_CX} y={GRAPH_CY + 54} textAnchor="middle"
-                fontSize="6.5" fontFamily="monospace" letterSpacing="0.18em"
+                fontSize="6.5" fontFamily={MONO} letterSpacing="0.18em"
                 fill={isDark ? 'rgba(160,200,255,0.45)' : 'rgba(42,80,160,0.38)'}>
                 {de ? 'REIBUNGSKOEFF.' : 'FRICTION COEFF.'}
               </text>
@@ -910,12 +913,12 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
                       style={b.isThis ? { filter: isDark ? 'drop-shadow(0 0 4px rgba(80,130,230,0.6))' : 'none' } : undefined} />
                     {/* Label */}
                     <text x={vx + maxW + 6} y={y + 4} dominantBaseline="middle"
-                      fontSize="7" fontFamily="monospace" fill={textClr}>
+                      fontSize="7" fontFamily={MONO} fill={textClr}>
                       {b.label}
                     </text>
                     {/* μ value */}
                     <text x={vx - 4} y={y + 4} textAnchor="end" dominantBaseline="middle"
-                      fontSize="6.5" fontFamily="monospace" fill={b.isThis ? accentFill : muClr}>
+                      fontSize="6.5" fontFamily={MONO} fill={b.isThis ? accentFill : muClr}>
                       {b.mu.toFixed(2)}
                     </text>
                   </g>
@@ -923,7 +926,7 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
               })}
               {/* μ axis label */}
               <text x={vx + maxW / 2} y={GRAPH_CY + 114} textAnchor="middle"
-                fontSize="6" fontFamily="monospace" letterSpacing="0.12em"
+                fontSize="6" fontFamily={MONO} letterSpacing="0.12em"
                 fill={isDark ? 'rgba(140,180,255,0.30)' : 'rgba(42,80,160,0.28)'}>
                 μ →  {de ? '(niedriger = besser)' : '(lower = better)'}
               </text>
@@ -988,7 +991,7 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
                     startOffset="50%"
                     textAnchor="middle"
                     fontSize="9"
-                    fontFamily="monospace"
+                    fontFamily={MONO}
                     letterSpacing="0.04em"
                     fill={edgeLblClr}
                     dy={edge.dash ? -6 : -5}
@@ -1001,7 +1004,7 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
               {!isOverview && hot && (
                 <g transform={`translate(${lx},${ly})`} style={{ pointerEvents: 'none' }}>
                   <text x={0} y={0} textAnchor="middle" dominantBaseline="middle"
-                    fontSize="10" fontFamily="monospace" letterSpacing="0.04em"
+                    fontSize="10" fontFamily={MONO} letterSpacing="0.04em"
                     fill={edgeHot}>
                     {label}
                   </text>
@@ -1116,27 +1119,27 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
                       stroke={isDark ? 'rgba(140,180,255,0.30)' : 'rgba(100,150,255,0.30)'} strokeWidth={0.6} strokeDasharray="1.5 1.5" />
                     {/* S-Mo-S atom labels — left side of each layer band */}
                     <text x={node.cx - 28} y={node.cy - 8} textAnchor="end" dominantBaseline="middle"
-                      fontSize="5.5" fontFamily="monospace" fill="rgba(200,225,255,0.45)" letterSpacing="0.05em">S</text>
+                      fontSize="5.5" fontFamily={MONO} fill="rgba(200,225,255,0.45)" letterSpacing="0.05em">S</text>
                     <text x={node.cx - 28} y={node.cy - 1.5} textAnchor="end" dominantBaseline="middle"
-                      fontSize="5.5" fontFamily="monospace" fill="rgba(200,225,255,0.55)" letterSpacing="0.05em">Mo</text>
+                      fontSize="5.5" fontFamily={MONO} fill="rgba(200,225,255,0.55)" letterSpacing="0.05em">Mo</text>
                     <text x={node.cx - 28} y={node.cy + 4.5} textAnchor="end" dominantBaseline="middle"
-                      fontSize="5.5" fontFamily="monospace" fill="rgba(200,225,255,0.45)" letterSpacing="0.05em">S</text>
+                      fontSize="5.5" fontFamily={MONO} fill="rgba(200,225,255,0.45)" letterSpacing="0.05em">S</text>
                   </g>
                 )}
                 <text x={node.cx} y={node.cy - 14} textAnchor="middle" dominantBaseline="middle"
-                  fontSize="12" fontWeight="800" fontFamily="system-ui, sans-serif"
+                  fontSize="12" fontWeight="800" fontFamily={MONO}
                   letterSpacing="-0.01em" fill="rgba(255,255,255,0.95)">
                   MoS₂
                 </text>
                 <text x={node.cx} y={node.cy + 4} textAnchor="middle" dominantBaseline="middle"
-                  fontSize="19" fontWeight="800" fontFamily="system-ui, sans-serif"
+                  fontSize="19" fontWeight="800" fontFamily={MONO}
                   letterSpacing="-0.04em"
                   fill={isDark ? '#a0ccff' : '#cce0ff'}
                   style={{ filter: 'drop-shadow(0 0 10px rgba(80,140,255,0.55))' }}>
                   μ 0.03
                 </text>
                 <text x={node.cx} y={node.cy + 22} textAnchor="middle" dominantBaseline="middle"
-                  fontSize="7.5" fontFamily="monospace" letterSpacing="0.04em"
+                  fontSize="7.5" fontFamily={MONO} letterSpacing="0.04em"
                   fill="rgba(255,255,255,0.38)">
                   {'< 5 µm · 5.06 g/cm³'}
                 </text>
@@ -1145,13 +1148,13 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
               {/* Satellite content: metric (primary) + name (secondary) */}
               {!isMos && (<>
                 <text x={node.cx} y={node.cy - 5} textAnchor="middle" dominantBaseline="middle"
-                  fontSize="15" fontWeight="800" fontFamily="system-ui, sans-serif"
+                  fontSize="15" fontWeight="800" fontFamily={MONO}
                   letterSpacing="-0.03em" fill={isHot ? (isDark ? '#aad0ff' : '#1535a0') : metricClr}
                   style={{ transition: 'fill 0.2s' }}>
                   {node.metric}
                 </text>
                 <text x={node.cx} y={node.cy + 10} textAnchor="middle" dominantBaseline="middle"
-                  fontSize="9.5" fontWeight="600" fontFamily="system-ui, sans-serif"
+                  fontSize="9.5" fontWeight="600" fontFamily={MONO}
                   letterSpacing="0.01em" fill={isDark ? 'rgba(255,255,255,0.52)' : 'rgba(var(--accent-strong-rgb),0.52)'}>
                   {de ? node.labelDe : node.labelEn}
                 </text>
@@ -1163,7 +1166,7 @@ function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' |
                   x={node.cx}
                   y={subAbove ? node.cy - node.r - 8 : node.cy + node.r + 14}
                   textAnchor="middle" dominantBaseline={subAbove ? 'auto' : 'middle'}
-                  fontSize="9.5" fontFamily="monospace" letterSpacing="0.08em" fill={subClr}>
+                  fontSize="9.5" fontFamily={MONO} letterSpacing="0.08em" fill={subClr}>
                   {de ? node.subDe : node.subEn}
                 </text>
               )}
@@ -1486,7 +1489,7 @@ function HexMoS2({ de }: { de: boolean }) {
             </div>
           </div>
           <div className="text-right">
-            <CountUp value="μ 0.03" className="font-display italic text-[26px] font-bold leading-none" style={{ color: '#6A8AE8', textShadow: '0 0 20px rgba(var(--accent-soft-rgb),0.55)' }} />
+            <CountUp value="μ 0.03" className="num-data text-[24px] font-bold leading-none" style={{ color: '#6A8AE8', textShadow: '0 0 20px rgba(var(--accent-soft-rgb),0.55)' }} />
             <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.38)' }}>{de ? 'Grenzschmierung' : 'Boundary lubrication'}</p>
           </div>
         </div>
@@ -1505,7 +1508,7 @@ function HexMoS2({ de }: { de: boolean }) {
           </g>
           {/* Van der Waals gap */}
           <line x1="15" y1={GAP_Y} x2="310" y2={GAP_Y} stroke="rgba(100,140,220,0.28)" strokeWidth="1" strokeDasharray="6 5" />
-          <text x="318" y={GAP_Y + 4} fontSize="11" fill="rgba(168,192,244,0.45)" fontFamily="monospace">vdW</text>
+          <text x="318" y={GAP_Y + 4} fontSize="11" fill="rgba(168,192,244,0.45)" fontFamily={MONO}>vdW</text>
           <g ref={botRef}>
             {bonds(BOT_MO, BOT_S1, BOT_S2).map((b, i) => (
               <line key={i} x1={b.x1} y1={b.y1} x2={b.x2} y2={b.y2} stroke="rgba(var(--accent-rgb),0.25)" strokeWidth="2" />
@@ -1515,12 +1518,12 @@ function HexMoS2({ de }: { de: boolean }) {
             {HEX_S_X.map((x, i) => <circle key={`bs2${i}`} cx={x} cy={BOT_S2} r="9" fill="var(--accent-soft)" opacity="0.9" />)}
           </g>
           {/* Side labels — 13px Mo, 11px S */}
-          <text x="5" y={TOP_S1 + 4} fontSize="11" fill="rgba(168,192,244,0.55)" fontFamily="monospace">S</text>
-          <text x="5" y={TOP_MO + 5} fontSize="13" fill="rgba(130,170,240,0.80)" fontFamily="monospace" fontWeight="600">Mo</text>
-          <text x="5" y={TOP_S2 + 4} fontSize="11" fill="rgba(168,192,244,0.55)" fontFamily="monospace">S</text>
-          <text x="5" y={BOT_S1 + 4} fontSize="11" fill="rgba(168,192,244,0.55)" fontFamily="monospace">S</text>
-          <text x="5" y={BOT_MO + 5} fontSize="13" fill="rgba(130,170,240,0.80)" fontFamily="monospace" fontWeight="600">Mo</text>
-          <text x="5" y={BOT_S2 + 4} fontSize="11" fill="rgba(168,192,244,0.55)" fontFamily="monospace">S</text>
+          <text x="5" y={TOP_S1 + 4} fontSize="11" fill="rgba(168,192,244,0.55)" fontFamily={MONO}>S</text>
+          <text x="5" y={TOP_MO + 5} fontSize="13" fill="rgba(130,170,240,0.80)" fontFamily={MONO} fontWeight="600">Mo</text>
+          <text x="5" y={TOP_S2 + 4} fontSize="11" fill="rgba(168,192,244,0.55)" fontFamily={MONO}>S</text>
+          <text x="5" y={BOT_S1 + 4} fontSize="11" fill="rgba(168,192,244,0.55)" fontFamily={MONO}>S</text>
+          <text x="5" y={BOT_MO + 5} fontSize="13" fill="rgba(130,170,240,0.80)" fontFamily={MONO} fontWeight="600">Mo</text>
+          <text x="5" y={BOT_S2 + 4} fontSize="11" fill="rgba(168,192,244,0.55)" fontFamily={MONO}>S</text>
         </svg>
         {/* Shear label — fades in on scroll (mobile) or hover (desktop) */}
         <div ref={labelRef} className="absolute left-1/2 -translate-x-1/2 pointer-events-none" style={{ top: '46%', opacity: 0 }}>
@@ -1660,14 +1663,14 @@ function TransferFilm({ de }: { de: boolean }) {
           {/* Steel plates — 30px with hatch + inside label */}
           <rect className="tf-plate-t" x="0" y="0" width="400" height="30" fill="url(#tf-steel-t)" rx="3" />
           <rect x="0" y="0" width="400" height="30" fill="url(#tf-hatch)" rx="3" />
-          <text x="12" y="20" fontSize="11" fill="rgba(168,192,244,0.40)" fontFamily="monospace">{de ? 'Stahl' : 'Steel'}</text>
+          <text x="12" y="20" fontSize="11" fill="rgba(168,192,244,0.40)" fontFamily={MONO}>{de ? 'Stahl' : 'Steel'}</text>
           <rect className="tf-plate-b" x="0" y="200" width="400" height="30" fill="url(#tf-steel-b)" rx="3" />
           <rect x="0" y="200" width="400" height="30" fill="url(#tf-hatch)" rx="3" />
-          <text x="12" y="220" fontSize="11" fill="rgba(168,192,244,0.40)" fontFamily="monospace">{de ? 'Stahl' : 'Steel'}</text>
+          <text x="12" y="220" fontSize="11" fill="rgba(168,192,244,0.40)" fontFamily={MONO}>{de ? 'Stahl' : 'Steel'}</text>
           {/* Pressure arrows — fade in beat 1 */}
           <g className="tf-arrow" opacity="0">
             <line x1="200" y1="-8" x2="200" y2="8" stroke="rgba(168,192,244,0.50)" strokeWidth="1.5" markerEnd="url(#tf-arw)" />
-            <text x="200" y="-14" textAnchor="middle" fontSize="10" fill="rgba(168,192,244,0.55)" fontFamily="monospace">50–300 MPa</text>
+            <text x="200" y="-14" textAnchor="middle" fontSize="10" fill="rgba(168,192,244,0.55)" fontFamily={MONO}>50–300 MPa</text>
           </g>
           <g className="tf-arrow" opacity="0">
             <line x1="200" y1="238" x2="200" y2="222" stroke="rgba(168,192,244,0.50)" strokeWidth="1.5" />
@@ -1680,7 +1683,7 @@ function TransferFilm({ de }: { de: boolean }) {
             <circle key={i} className="tf-p" cx={p.x} cy={p.y} r={p.r} fill="var(--accent)" opacity="0.85" />
           ))}
           {/* Film label — appears after animation */}
-          <text className="tf-label" x="200" y="48" textAnchor="middle" fontSize="11" fill="rgba(106,138,232,0.9)" fontFamily="monospace" letterSpacing="1.5" opacity="0">
+          <text className="tf-label" x="200" y="48" textAnchor="middle" fontSize="11" fill="rgba(106,138,232,0.9)" fontFamily={MONO} letterSpacing="1.5" opacity="0">
             {de ? 'Fe-S Transferfilm' : 'Fe-S transfer film'}
           </text>
         </svg>
@@ -1795,7 +1798,7 @@ function LatticePanel({ ordered, de }: { ordered: boolean; de: boolean }) {
         {LAT_VDW_Y.map((y, i) => (
           <g key={i}>
             <line x1="14" y1={y} x2="340" y2={y} stroke={vdwClr} strokeWidth="1" strokeDasharray="6 5" />
-            <text x="350" y={y + 4} fontSize="11" fill={vdwTxt} fontFamily="monospace">vdW</text>
+            <text x="350" y={y + 4} fontSize="11" fill={vdwTxt} fontFamily={MONO}>vdW</text>
           </g>
         ))}
         {/* Chain rods */}
@@ -1938,7 +1941,7 @@ function TempRange({ de }: { de: boolean }) {
                 </span>
                 <CountUp
                   value={`${item.lo}–${item.hi}°C`}
-                  className="font-display text-[17px] font-bold leading-none flex-shrink-0"
+                  className="num-data text-[16px] font-bold leading-none flex-shrink-0"
                   style={{ color: item.dim ? 'var(--txm)' : 'var(--accent)' }}
                 />
               </div>
@@ -2013,7 +2016,7 @@ function TempWindowPanel({ de }: { de: boolean }) {
               <span className="text-[13px]" style={{ color: 'var(--tx1)' }}>{de ? item.labelDe : item.labelEn}</span>
               <CountUp
                 value={item.val}
-                className="font-display text-[17px] font-bold leading-none flex-shrink-0"
+                className="num-data text-[16px] font-bold leading-none flex-shrink-0"
                 style={{ color: 'var(--accent)' }}
               />
             </div>
@@ -2194,9 +2197,10 @@ function FrictionBars({ de }: { de: boolean }) {
                       </span>
                     )}
                   </span>
-                  <CountUp value={`μ ${b.muLo.toFixed(2)}–${b.muHi.toFixed(2)}`}
-                    className="font-display text-[15px] font-semibold tabular-nums"
-                    style={{ color: b.best ? 'var(--accent)' : (isDim ? 'var(--txff)' : 'var(--txm)') }} />
+                  <span className="num-data text-[14px] font-semibold"
+                    style={{ color: b.best ? 'var(--accent)' : (isDim ? 'var(--txff)' : 'var(--txm)') }}>
+                    {`μ ${b.muLo.toFixed(2)}–${b.muHi.toFixed(2)}`}
+                  </span>
                 </div>
                 <div className="relative h-2.5 rounded-full overflow-hidden" style={{ background: 'rgba(var(--accent-rgb),0.06)' }}>
                   <div className="absolute top-0 left-0 h-full" style={{ width: `${loPct}%`, background: solidFill }} />
@@ -3085,7 +3089,7 @@ export function SciencePage() {
                   { val: 'Block 1 = 20', sub: de ? 'identische Performance' : 'identical performance' },
                 ].map((s, i) => (
                   <div key={i} className="text-center p-3 rounded-lg" style={{ background: 'rgba(var(--accent-rgb),0.08)', border: '1px solid rgba(var(--accent-rgb),0.15)' }}>
-                    <CountUp value={s.val} className="font-display italic text-[18px] font-bold" style={{ color: 'var(--accent)' }} />
+                    <span className="font-display italic text-[18px] font-bold" style={{ color: 'var(--accent)' }}>{s.val}</span>
                     <p className="text-[11px] mt-0.5" style={{ color: 'var(--txm)' }}>{s.sub}</p>
                   </div>
                 ))}

@@ -132,7 +132,7 @@ export function CartDrawer() {
                     <p className="text-sm font-medium text-wx-tx1 leading-snug mb-1 line-clamp-2">
                       {de ? item.title : item.titleEn}
                     </p>
-                    <p className="text-sm font-semibold text-wx-tx1 mb-2.5">
+                    <p className="num text-sm font-semibold text-wx-tx1 mb-2.5">
                       {formatPrice(item.price * item.quantity)}
                     </p>
                     {/* Qty controls */}

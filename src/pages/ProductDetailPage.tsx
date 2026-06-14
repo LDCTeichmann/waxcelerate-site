@@ -245,7 +245,7 @@ export function ProductDetailPage() {
               {/* Price + CTAs */}
               <div className="flex flex-col gap-2.5">
                 <div>
-                  <p className="text-[32px] font-bold tracking-[-0.03em] text-wx-tx1 leading-none">
+                  <p className="num text-[32px] font-bold tracking-[-0.03em] text-wx-tx1 leading-none">
                     {formatPrice(product.price)}
                   </p>
                   {pricePerApp !== null && (
@@ -294,7 +294,7 @@ export function ProductDetailPage() {
                       <p className="text-[10px] uppercase tracking-[0.14em] font-medium mb-1.5" style={{ color: 'var(--txff)' }}>
                         {de ? 'Trocken' : 'Dry'}
                       </p>
-                      <p className="text-[20px] font-bold text-wx-tx1 leading-none">{product.intervalDry}</p>
+                      <p className="num text-[20px] font-bold text-wx-tx1 leading-none">{product.intervalDry}</p>
                     </div>
                   )}
                   {product.intervalWet && (
@@ -304,7 +304,7 @@ export function ProductDetailPage() {
                         <p className="text-[10px] uppercase tracking-[0.14em] font-medium mb-1.5" style={{ color: 'var(--txff)' }}>
                           {de ? 'Nass' : 'Wet'}
                         </p>
-                        <p className="text-[20px] font-bold text-wx-tx1 leading-none">{product.intervalWet}</p>
+                        <p className="num text-[20px] font-bold text-wx-tx1 leading-none">{product.intervalWet}</p>
                       </div>
                     </>
                   )}
@@ -315,7 +315,7 @@ export function ProductDetailPage() {
                         <p className="text-[10px] uppercase tracking-[0.14em] font-medium mb-1.5" style={{ color: 'var(--txff)' }}>
                           {de ? 'Topup max.' : 'Max. topup'}
                         </p>
-                        <p className="text-[20px] font-bold text-wx-tx1 leading-none">{product.intervalTopup}</p>
+                        <p className="num text-[20px] font-bold text-wx-tx1 leading-none">{product.intervalTopup}</p>
                       </div>
                     </>
                   )}
@@ -906,7 +906,7 @@ function RelatedCard({ product: p, de, formatPrice }: { product: Product; de: bo
       />
       <div className="min-w-0">
         <p className="text-[14px] font-semibold text-wx-tx1 leading-tight truncate">{title}</p>
-        <p className="text-[13px] mt-1" style={{ color: 'var(--accent)' }}>{formatPrice(p.price)}</p>
+        <p className="num text-[13px] mt-1" style={{ color: 'var(--accent)' }}>{formatPrice(p.price)}</p>
       </div>
     </div>
   );
