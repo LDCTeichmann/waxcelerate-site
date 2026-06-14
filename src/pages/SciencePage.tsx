@@ -6,74 +6,11 @@ import { ScrollTrigger } from '@/lib/gsap';
 import { prefersReducedMotion } from '@/hooks/useAnimation';
 import { InstrumentFrame, SegmentedToggle, AnimatedNumber, CountUp, Chain } from '@/components/viz';
 import { waxVsOil, frictionRanges } from '@/lib/data';
+import { COMPONENTS, FAILURES, type ScienceComponent } from '@/lib/science';
+import { FormulaGraph } from '@/sections/science/FormulaGraph';
+import { ComponentDiagram } from '@/sections/science/diagrams';
 
 const W = 'max-w-4xl mx-auto px-4 sm:px-6 lg:px-8';
-
-// ─── The 6-component story — editorial science content ───────────────────────
-interface Comp {
-  id: string;
-  nameDe: string; nameEn: string;
-  roleDe: string; roleEn: string;
-  metric: string;
-  sumDe: string;  sumEn: string;
-  detDe: string;  detEn: string;
-}
-const COMPONENTS: Comp[] = [
-  {
-    id: 'kristallstruktur',
-    nameDe: 'Paraffin', nameEn: 'Paraffin',
-    roleDe: 'Trägermatrix', roleEn: 'Base scaffold', metric: '58–60 °C',
-    sumDe: 'Vollraffiniertes Paraffin bildet den Grundfilm — kleine, dicht gepackte Kristalle bedecken mehr Metall und lassen weniger Wasser durch.',
-    sumEn: 'Fully refined paraffin forms the base film — small, densely packed crystals cover more metal and let less water through.',
-    detDe: 'Grobkristallines Standard-Wachs lässt messbare Lücken, durch die Wasser die Stahloberfläche erreicht. Ein eng schmelzendes Paraffin (58–60 °C) kristallisiert feiner und dichter — der Film schließt besser ab und schützt vor Oxidation.',
-    detEn: 'Coarse standard wax leaves measurable gaps where water reaches the steel. A tight-melting paraffin (58–60 °C) crystallises finer and denser — the film seals better and protects against oxidation.',
-  },
-  {
-    id: 'matrix',
-    nameDe: 'Fischer-Tropsch-Wachs', nameEn: 'Fischer–Tropsch wax',
-    roleDe: 'Härtemodul', roleEn: 'Hardener', metric: '+75 °C',
-    sumDe: 'Synthetisches Hartwachs hebt den Tropfpunkt auf ~75 °C — die Matrix hält Position unter Last statt wegzuwandern.',
-    sumEn: 'Synthetic hard wax raises the drop point to ~75 °C — the matrix holds position under load instead of migrating.',
-    detDe: 'An Kontaktpunkten entstehen unter Last 45–55 °C. Weiches Wachs erreicht hier seine Grenze, migriert vom Gelenk weg und dünnt aus. Das härtere FT-Wachs (Tropfpunkt ~75 °C) bleibt an Ort und Stelle: weniger Migration, längere Intervalle.',
-    detEn: 'Contact points reach 45–55 °C under load. Soft wax hits its limit here, migrating away from the joint and thinning out. The harder FT wax (drop point ~75 °C) stays put: less migration, longer intervals.',
-  },
-  {
-    id: 'winterformel',
-    nameDe: 'Mikrokristallines Wachs', nameEn: 'Microcrystalline wax',
-    roleDe: 'Plastifizierer', roleEn: 'Plastifier', metric: '−10 °C',
-    sumDe: 'Hält die Matrix bei Frost elastisch bis −10 °C — kein Verspröden, kein Abplatzen an den Gelenken.',
-    sumEn: 'Keeps the matrix elastic in frost down to −10 °C — no embrittlement, no flaking at the joints.',
-    detDe: 'Standard-Wachse werden unter ~5 °C spröde und brechen bei Biegung auf. Die amorphe, mikrokristalline Komponente bleibt elastisch und verhindert, dass der Film an den Kettengelenken abplatzt — entscheidend für Winter- und E-Bike-Betrieb.',
-    detEn: 'Standard waxes turn brittle below ~5 °C and fracture under flex. The amorphous microcrystalline component stays elastic and stops the film flaking off the chain joints — decisive for winter and e-bike use.',
-  },
-  {
-    id: 'mos2',
-    nameDe: 'Molybdändisulfid (MoS₂)', nameEn: 'Molybdenum disulfide (MoS₂)',
-    roleDe: 'Festschmierstoff', roleEn: 'Solid lubricant', metric: 'μ 0,03',
-    sumDe: 'Lamellare MoS₂-Partikel (< 5 µm) gleiten wie Spielkarten aufeinander und bilden einen Transferfilm auf dem Stahl — Reibung bis μ 0,03.',
-    sumEn: 'Lamellar MoS₂ particles (< 5 µm) glide like playing cards and form a transfer film on the steel — friction down to μ 0.03.',
-    detDe: 'MoS₂ besteht aus S–Mo–S-Schichten mit schwacher Bindung dazwischen. Unter Druck scheren die Schichten ab und legen sich als 2–5 nm dünner Transferfilm auf die Metalloberfläche (50–300 MPa an den Gelenken). Das senkt die Grenzreibung deutlich unter die von Öl.',
-    detEn: 'MoS₂ is built from S–Mo–S layers weakly bound between sheets. Under pressure the layers shear and lay down as a 2–5 nm transfer film on the metal (50–300 MPa at the joints). This drops boundary friction well below oil.',
-  },
-  {
-    id: 'sedimentation',
-    nameDe: 'Dispergiersystem', nameEn: 'Dispersant system',
-    roleDe: 'Stabilisator', roleEn: 'Stabiliser', metric: '5,6×',
-    sumDe: 'MoS₂ ist 5,6× dichter als Wachs und würde absinken. Ein amphiphiler Ester hält die Partikel gleichmäßig in der Schmelze verteilt — Block für Block.',
-    sumEn: 'MoS₂ is 5.6× denser than wax and would sink. An amphiphilic ester keeps the particles evenly suspended in the melt — block after block.',
-    detDe: 'Dichte: MoS₂ 5,06 g/cm³ vs. Paraffin 0,9 g/cm³. Ohne Stabilisator sedimentieren die Partikel — der erste Block wäre arm, der letzte überladen. Der Dispersant umhüllt jedes Partikel und sorgt für gleichmäßige Qualität in jeder Kleinstcharge.',
-    detEn: 'Density: MoS₂ 5.06 g/cm³ vs. paraffin 0.9 g/cm³. Without a stabiliser the particles settle — the first block would be lean, the last overloaded. The dispersant coats each particle for consistent quality in every small batch.',
-  },
-  {
-    id: 'antioxidans',
-    nameDe: 'Phenolisches Antioxidans', nameEn: 'Phenolic antioxidant',
-    roleDe: 'Schutz', roleEn: 'Protection', metric: '12 Mo.',
-    sumDe: 'Fängt Radikale ab und schützt das MoS₂ vor Umwandlung zu abrasivem MoO₃ — 12 Monate stabile Lagerung.',
-    sumEn: 'Scavenges radicals and protects the MoS₂ from converting to abrasive MoO₃ — 12 months of stable shelf life.',
-    detDe: 'Sauerstoff oxidiert MoS₂ langsam zu MoO₃ — einem harten, abrasiven Produkt, das genau das Gegenteil von Schmierung bewirkt. Das gehinderte phenolische Antioxidans unterbricht die Radikalkette und hält die Formel über die gesamte Haltbarkeit wirksam.',
-    detEn: 'Oxygen slowly converts MoS₂ to MoO₃ — a hard, abrasive product that does the opposite of lubrication. The hindered phenolic antioxidant breaks the radical chain and keeps the formula effective across its full shelf life.',
-  },
-];
 
 // ─── Top scroll-progress bar (the one consolidated nav cue) ──────────────────
 function ScrollProgress() {
@@ -163,9 +100,38 @@ function ProblemHero({ de }: { de: boolean }) {
   );
 }
 
-// ─── ACT II — one component, one instant-read row (expandable detail) ─────────
-function CompRow({ c, n, de }: { c: Comp; n: number; de: boolean }) {
+// ─── Insight — accent-bar callout used inside the deep "Die Physik" tier ──────
+function Insight({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex gap-3 mt-4 pl-1">
+      <span className="w-0.5 flex-shrink-0 rounded-full" style={{ background: 'var(--accent)' }} />
+      <p className="text-[13px] leading-relaxed italic" style={{ color: 'var(--tx2)' }}>{children}</p>
+    </div>
+  );
+}
+
+// ─── Disclosure — one collapsible tier (grid-rows 0fr→1fr) ───────────────────
+function Disclosure({ label, children }: { label: string; children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
+  return (
+    <div className="mt-3">
+      <button onClick={() => setOpen(o => !o)}
+        className="inline-flex items-center gap-1.5 text-[12px] font-medium"
+        style={{ color: 'var(--accent)' }} aria-expanded={open}>
+        {label}
+        <ChevronDown className="h-3.5 w-3.5 transition-transform duration-300"
+          style={{ transform: open ? 'rotate(180deg)' : 'none' }} />
+      </button>
+      <div style={{ display: 'grid', gridTemplateRows: open ? '1fr' : '0fr',
+        transition: 'grid-template-rows 0.4s cubic-bezier(0.22,1,0.36,1)' }}>
+        <div style={{ overflow: 'hidden' }}>{children}</div>
+      </div>
+    </div>
+  );
+}
+
+// ─── ACT II — component row: skim summary + two depth tiers ───────────────────
+function CompRow({ c, n, de }: { c: ScienceComponent; n: number; de: boolean }) {
   return (
     <div id={c.id} className="scroll-mt-24 rounded-2xl border border-wx-bd p-5 sm:p-6"
       style={{ background: 'var(--card-bg)', boxShadow: 'var(--card-shad)' }}>
@@ -189,21 +155,59 @@ function CompRow({ c, n, de }: { c: Comp; n: number; de: boolean }) {
             {de ? c.sumDe : c.sumEn}
           </p>
 
-          <button onClick={() => setOpen(o => !o)}
-            className="inline-flex items-center gap-1.5 text-[12px] font-medium mt-3"
-            style={{ color: 'var(--accent)' }}>
-            {open ? (de ? 'Weniger' : 'Less') : (de ? 'Warum das zählt' : 'Why it matters')}
-            <ChevronDown className="h-3.5 w-3.5 transition-transform duration-300"
-              style={{ transform: open ? 'rotate(180deg)' : 'none' }} />
-          </button>
-          <div style={{ display: 'grid', gridTemplateRows: open ? '1fr' : '0fr',
-            transition: 'grid-template-rows 0.4s cubic-bezier(0.22,1,0.36,1)' }}>
-            <div style={{ overflow: 'hidden' }}>
-              <p className="text-[13px] leading-relaxed pt-3" style={{ color: 'var(--txm)' }}>
-                {de ? c.detDe : c.detEn}
-              </p>
+          {/* Tier 2a — short rationale */}
+          <Disclosure label={de ? 'Warum das zählt' : 'Why it matters'}>
+            <p className="text-[13px] leading-relaxed pt-3" style={{ color: 'var(--txm)' }}>
+              {de ? c.whyDe : c.whyEn}
+            </p>
+          </Disclosure>
+
+          {/* Tier 2b — deep physics + diagram + insight */}
+          <Disclosure label={de ? 'Die Physik' : 'The physics'}>
+            <div className="pt-3 space-y-3">
+              {(de ? c.physicsDe : c.physicsEn).map((p, i) => (
+                <p key={i} className="text-[13px] leading-relaxed" style={{ color: 'var(--txm)' }}>{p}</p>
+              ))}
             </div>
-          </div>
+            <ComponentDiagram which={c.diagram} de={de} />
+            <Insight>{de ? c.insightDe : c.insightEn}</Insight>
+          </Disclosure>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── ACT II — development-iteration story (compact, collapsible) ──────────────
+function FailureTimeline({ de }: { de: boolean }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="mt-12">
+      <button onClick={() => setOpen(o => !o)}
+        className="flex items-center gap-2 font-display font-bold text-wx-tx1"
+        style={{ fontSize: '1.15rem' }} aria-expanded={open}>
+        {de ? 'Wie die Formel entstand' : 'How the formula evolved'}
+        <ChevronDown className="h-4 w-4 transition-transform duration-300"
+          style={{ transform: open ? 'rotate(180deg)' : 'none', color: 'var(--accent)' }} />
+      </button>
+      <div style={{ display: 'grid', gridTemplateRows: open ? '1fr' : '0fr',
+        transition: 'grid-template-rows 0.45s cubic-bezier(0.22,1,0.36,1)' }}>
+        <div style={{ overflow: 'hidden' }}>
+          <ol className="mt-5 space-y-4 border-l" style={{ borderColor: 'var(--bd)' }}>
+            {FAILURES.map((f, i) => (
+              <li key={i} className="relative pl-5">
+                <span className="absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full"
+                  style={{ background: f.isCurrent ? 'var(--accent)' : 'var(--bd)',
+                    boxShadow: f.isCurrent ? '0 0 0 3px rgba(var(--accent-rgb),0.18)' : 'none' }} />
+                <p className="text-[12px] uppercase tracking-[0.14em]"
+                  style={{ color: f.isCurrent ? 'var(--accent)' : 'var(--txf)' }}>
+                  {de ? f.vDe : f.vEn}
+                </p>
+                <p className="text-[13px] text-wx-tx2 mt-1">{de ? f.failDe : f.failEn}</p>
+                <p className="text-[13px] mt-0.5" style={{ color: 'var(--accent)' }}>→ {de ? f.fixDe : f.fixEn}</p>
+              </li>
+            ))}
+          </ol>
         </div>
       </div>
     </div>
@@ -323,6 +327,10 @@ export function SciencePage() {
     if (el) requestAnimationFrame(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }));
   }, [hash]);
 
+  // Tapping a graph node jumps to that component's row.
+  const scrollToAnchor = (id: string) =>
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
   return (
     <div className="min-h-screen bg-wx-bg">
       <ScrollProgress />
@@ -354,6 +362,12 @@ export function SciencePage() {
             ? 'Jede Zutat löst ein konkretes Versagensszenario. Zusammen ergeben sie einen Film, der sauber bleibt, unter Last hält und im Winter nicht bricht.'
             : 'Each ingredient solves a specific failure mode. Together they make a film that stays clean, holds under load, and doesn’t crack in winter.'}
         />
+
+        {/* Relationship diagram — the system at a glance */}
+        <InstrumentFrame eyebrow={de ? 'Das System' : 'The system'} className="mb-8">
+          <FormulaGraph de={de} onSelect={scrollToAnchor} />
+        </InstrumentFrame>
+
         <div className="space-y-4">
           {COMPONENTS.map((c, i) => <CompRow key={c.id} c={c} n={i + 1} de={de} />)}
         </div>
@@ -361,6 +375,8 @@ export function SciencePage() {
         <div id="matrix-window" className="mt-12">
           <TempWindow de={de} />
         </div>
+
+        <FailureTimeline de={de} />
       </section>
 
       {/* ── ACT III — PROOF ── */}
