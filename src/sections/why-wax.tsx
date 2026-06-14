@@ -315,7 +315,7 @@ export function WhyWax() {
                   style={cardStyle}
                 >
                   <span
-                    className="font-display font-bold tabular-nums leading-none block"
+                    className="num-data font-semibold leading-none block"
                     style={{ fontSize: 'clamp(1.05rem, 2vw, 1.35rem)', color: 'var(--accent-soft)' }}
                   >
                     {ing.metric}
@@ -374,7 +374,7 @@ export function WhyWax() {
                     {de ? 'Reibung' : 'Friction'}
                   </p>
                 </div>
-                <span className="font-display font-bold text-wx-tx1 tabular-nums text-[22px] leading-none">μ 0,03</span>
+                <span className="num-data font-semibold text-wx-tx1 text-[22px] leading-none">μ 0,03</span>
               </div>
               <div className="space-y-2.5 flex-1">
                 {frictionData.map((item, j) => (
@@ -383,7 +383,7 @@ export function WhyWax() {
                       <span className={`text-[11px] font-medium ${item.highlight ? 'text-wx-tx1' : 'text-wx-txf'}`}>
                         {de ? item.labelDe : item.labelEn}
                       </span>
-                      <span className={`text-[11px] font-mono tabular-nums ${item.highlight ? 'text-wx-tx2' : 'text-wx-txff'}`}>
+                      <span className={`text-[11px] num-data ${item.highlight ? 'text-wx-tx2' : 'text-wx-txff'}`}>
                         {item.val}
                       </span>
                     </div>
@@ -416,7 +416,7 @@ export function WhyWax() {
                     {de ? 'Kostenersparnis' : 'Cost savings'}
                   </p>
                 </div>
-                <span className="font-display font-bold text-wx-tx1 tabular-nums text-[22px] leading-none">~€70</span>
+                <span className="num font-bold text-wx-tx1 text-[22px] leading-none">~€70</span>
               </div>
               <p className="text-[11px] font-semibold mb-3" style={{ color: 'var(--accent)' }}>
                 {de ? '46 % weniger über 12.000 km' : '46% less over 12,000 km'}
@@ -424,11 +424,11 @@ export function WhyWax() {
               <div className="space-y-1.5 pt-3" style={{ borderTop: '1px solid var(--bd2)' }}>
                 <div className="flex justify-between text-[11px]">
                   <span className="text-wx-txf">{de ? 'Mit Öl (3 Ketten)' : 'With oil (3 chains)'}</span>
-                  <span className="text-wx-txm tabular-nums">~€151</span>
+                  <span className="text-wx-txm num">~€151</span>
                 </div>
                 <div className="flex justify-between text-[11px]">
                   <span className="text-wx-txf">{de ? 'Mit Wachs (1 Kette)' : 'With wax (1 chain)'}</span>
-                  <span className="tabular-nums font-semibold" style={{ color: 'var(--accent)' }}>~€81</span>
+                  <span className="num font-semibold" style={{ color: 'var(--accent)' }}>~€81</span>
                 </div>
               </div>
               <p className="text-[10px] mt-3 pt-3 leading-relaxed"

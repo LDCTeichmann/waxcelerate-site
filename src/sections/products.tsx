@@ -387,7 +387,7 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: Ca
           {/* Price + CTA */}
           <div className="flex items-center justify-between gap-3">
             <div>
-              <span className="text-[22px] font-bold leading-none tracking-[-0.02em]" style={{ color: 'var(--tx1)' }}>
+              <span className="num text-[22px] font-bold leading-none tracking-[-0.02em]" style={{ color: 'var(--tx1)' }}>
                 {formatPrice(product.price)}
               </span>
               <p className="text-[11px] mt-0.5" style={{ color: 'var(--txf)' }}>
@@ -497,7 +497,7 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
 
           {/* Price + CTA */}
           <div className="flex items-center justify-between gap-3 pt-3" style={{ borderTop: '1px solid var(--bd2)' }}>
-            <span className="text-[20px] font-bold text-wx-tx1 tracking-[-0.02em]">{formatPrice(product.price)}</span>
+            <span className="num text-[20px] font-bold text-wx-tx1 tracking-[-0.02em]">{formatPrice(product.price)}</span>
             <button
               onClick={e => { e.preventDefault(); e.stopPropagation(); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
               className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-opacity duration-150 hover:opacity-90 active:scale-[0.97]"

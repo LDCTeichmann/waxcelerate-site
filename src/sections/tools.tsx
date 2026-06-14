@@ -579,7 +579,7 @@ function RotationAndSavings() {
             <AnimatedNumber
               value={recData.annualSavings}
               prefix="~€"
-              className="font-display italic text-[56px] font-bold leading-none tabular-nums"
+              className="num text-[56px] font-bold leading-none"
               style={{ color: 'var(--tx1)' }}
             />
             <div className="flex flex-col items-start gap-0.5">
