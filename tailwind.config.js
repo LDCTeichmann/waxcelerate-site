@@ -5,10 +5,9 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        display:         ['Fraunces', 'Georgia', 'serif'],
-        sans:            ['Libre Franklin', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        roboto:          ['Roboto', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        'serif-display': ['Fraunces', 'Georgia', 'serif'],
+        display: ['Fraunces', 'Georgia', 'serif'],
+        sans:    ['Libre Franklin', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        mono:    ['IBM Plex Mono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
       },
       // Semantic type scale (Workstream 2) — for the micro/label long-tail.
       // Coexists with Tailwind defaults; migrate ad-hoc text-[Npx] to these.

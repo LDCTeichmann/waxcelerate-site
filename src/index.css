@@ -401,6 +401,23 @@ footer ul a:hover::after {
   letter-spacing: 0.01em;
 }
 
+/* ── Numeral system — "three fonts, three jobs" ──────────────────────────────
+   Every number has one predictable voice:
+   .num-display → Fraunces moments (hero stats, stat callouts) — set font-display too
+   .num         → Libre Franklin functional numbers (prices, counts, durations)
+   .num-data    → IBM Plex Mono scientific/instrument data (μ, °C, chemistry, axes) */
+.num-display,
+.num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+.num-data {
+  font-family: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+  letter-spacing: -0.01em;
+}
+
 /* Reduced motion — universal kill switch */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

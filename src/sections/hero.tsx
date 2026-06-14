@@ -6,7 +6,7 @@ import { gsap, ScrollTrigger } from '@/lib/gsap';
 /**
  * Hero — „Gallery Stage" mit Tiefenebenen.
  * Das Foto liegt als gerundete Bühne auf dem Seitenhintergrund (funktioniert
- * in Light & Noir). Die Waxcelerate-Wortmarke (Roboto) läuft HINTER dem
+ * in Light & Noir). Die Waxcelerate-Wortmarke (Libre Franklin) läuft HINTER dem
  * Wachsblock durch: eine zweite, per Alpha-Maske auf die Block-Silhouette
  * beschnittene Bildebene liegt über der Typo — Maske und Bild teilen
  * dieselbe cover-Geometrie und bleiben dadurch in jedem Viewport deckungs-
@@ -251,7 +251,7 @@ export function Hero() {
           {/* Cursor-Spotlight — kaum sichtbare Aufhellung unter der Maus */}
           <div ref={spotRef} className="absolute inset-0 z-[2] pointer-events-none" />
 
-          {/* Ebene 2 — Wortmarke (Roboto), läuft hinter dem Block durch */}
+          {/* Ebene 2 — Wortmarke (Libre Franklin), läuft hinter dem Block durch */}
           <div
             ref={wordRef}
             aria-hidden
@@ -260,8 +260,8 @@ export function Hero() {
             <div
               className="whitespace-nowrap"
               style={{
-                fontFamily: '"Roboto", "Libre Franklin", ui-sans-serif, system-ui, sans-serif',
-                fontWeight: 700,
+                fontFamily: '"Libre Franklin", ui-sans-serif, system-ui, sans-serif',
+                fontWeight: 900,
                 fontSize: 'clamp(2.9rem, 10.6vw, 10.4rem)',
                 lineHeight: 1,
                 letterSpacing: '-0.035em',
