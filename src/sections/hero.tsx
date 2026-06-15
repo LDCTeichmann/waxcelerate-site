@@ -3,6 +3,8 @@ import { ArrowRight, Search } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
 import { WaxDive } from '@/sections/hero/WaxDive';
+import { WaxLens } from '@/sections/hero/WaxLens';
+import { IMG_POS } from '@/sections/hero/constants';
 
 /**
  * Hero — „Gallery Stage" mit Tiefenebenen.
@@ -16,7 +18,8 @@ import { WaxDive } from '@/sections/hero/WaxDive';
  */
 
 const BRAND = 'Waxcelerate'.split('');
-const IMG_POS = '68% 50%'; // identisch für object-position UND mask-position
+// IMG_POS lebt zentral in ./constants — Foto (hier) und WebGL-Lupe teilen die
+// exakt gleiche cover-Geometrie, sonst „springt" das vergrößerte Bild.
 
 export function Hero() {
   const { t, lang } = useLanguage();
@@ -57,45 +60,64 @@ export function Hero() {
       return;
     }
 
-    const tl = gsap.timeline({ delay: 0.05, defaults: { ease: 'power4.out' } });
+    // Eine durchkomponierte Eröffnung: alle Beats hängen an EINER Timeline,
+    // damit Karte, Bild-Settle, Typo, Items und Zahlen als ein Takt lesen.
+    const statEls = root.querySelectorAll<HTMLElement>('[data-stat-val]');
+    const tl = gsap.timeline({ delay: 0.05, defaults: { ease: 'power3.out' } });
 
     // Bühne hebt sich leise vom Seitenhintergrund ab.
     tl.fromTo(card, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' }, 0);
     // Cineastischer Bild-Settle — beide Ebenen synchron, Maske bleibt deckungsgleich.
+    // Läuft über die ganze Sequenz und gibt ihr den ruhigen Unterton.
     tl.fromTo(imgLayers, { scale: 1.06 }, { scale: 1.01, duration: 2.4, ease: 'power2.out' }, 0);
-    // Wortmarke: jeder Letter fällt von oben hinter den Block.
+    // Wortmarke: jeder Letter fällt von oben hinter den Block. Drop von -115%
+    // → 0; back.out overschwingt nach UNTEN (positives yPercent), nie über die
+    // Oberkante, daher kein Top-Clip im overflow-hidden-Wrapper. Sanfter
+    // Überschwung (1.25) hält die Glyphen ruhiger.
     tl.fromTo(
       letters,
       { yPercent: -115 },
-      { yPercent: 0, duration: 0.85, ease: 'back.out(1.4)', stagger: { each: 0.042 } },
+      { yPercent: 0, duration: 0.85, ease: 'back.out(1.25)', stagger: { each: 0.042 } },
       0.3,
     );
-    // Headline: Wörter fallen nacheinander ein — Drop mit leichtem Überschwung.
+    // Headline: Wörter fallen im selben Rhythmus ein — gleicher Überschwung wie
+    // die Wortmarke, nur etwas später, damit der Blick mitwandert.
     tl.fromTo(
       words,
       { yPercent: -120 },
-      { yPercent: 0, duration: 0.72, ease: 'back.out(1.3)', stagger: 0.15 },
-      0.75,
+      { yPercent: 0, duration: 0.74, ease: 'back.out(1.25)', stagger: 0.13 },
+      0.78,
     );
-    tl.fromTo(items, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', stagger: 0.09 }, 1.0);
+    tl.fromTo(items, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', stagger: 0.09 }, 1.05);
 
-    // Zahlen im Daten-Band zählen kurz hoch — macht konkrete Werte spürbar.
-    const statEls = root.querySelectorAll<HTMLElement>('[data-stat-val]');
+    // Zahlen im Daten-Band zählen kurz hoch — in die Timeline gehängt, damit sie
+    // exakt mit dem Items-Fade als ein Beat landen.
     if (statEls[0]) {
       const el0 = statEls[0];
       const c0 = { val: 0 };
-      gsap.to(c0, { val: 3, duration: 0.9, delay: 1.2, ease: 'power2.out', snap: { val: 1 },
+      tl.to(c0, { val: 3, duration: 0.9, ease: 'power2.out', snap: { val: 1 },
         onStart() { el0.textContent = '0×'; },
         onUpdate() { el0.textContent = c0.val + '×'; },
-      });
+      }, 1.2);
     }
     if (statEls[1]) {
       const el1 = statEls[1];
       const c1 = { val: 0 };
-      gsap.to(c1, { val: 70, duration: 1.1, delay: 1.2, ease: 'power2.out', snap: { val: 1 },
+      tl.to(c1, { val: 70, duration: 1.1, ease: 'power2.out', snap: { val: 1 },
         onStart() { el1.textContent = '~€0'; },
         onUpdate() { el1.textContent = '~€' + c1.val; },
-      });
+      }, 1.2);
+    }
+    // Dritter Wert ('1 Tag'/'1 day') zählt numerisch nicht — er klärt sich
+    // stattdessen mit einem feinen Clip-in, das genau dann landet, wenn die
+    // beiden Count-ups auslaufen. So liest das Trio als bewusster Dreiklang.
+    if (statEls[2]) {
+      tl.fromTo(
+        statEls[2],
+        { yPercent: 105, opacity: 0 },
+        { yPercent: 0, opacity: 1, duration: 0.7, ease: 'power3.out' },
+        1.55,
+      );
     }
 
     // Scroll: Bild driftet, Wortmarke atmet auseinander, Text verabschiedet sich.
@@ -105,10 +127,12 @@ export function Hero() {
         ScrollTrigger.create({ trigger: root, start: 'top top', end: 'bottom top', scrub: true, animation }),
       );
     scrub(gsap.to(imgLayers, { yPercent: 4, ease: 'none' }));
-    if (contentRef.current) scrub(gsap.to(contentRef.current, { y: -40, opacity: 0.25, ease: 'none' }));
+    // Content verabschiedet sich etwas früher als das Band scrollt — y und
+    // opacity bleiben subtil, damit nichts hart wegklappt.
+    if (contentRef.current) scrub(gsap.to(contentRef.current, { y: -40, opacity: 0.3, ease: 'none' }));
     if (letters.length) {
       const mid = (letters.length - 1) / 2;
-      scrub(gsap.to(letters, { x: (i: number) => (i - mid) * 5, ease: 'none' }));
+      scrub(gsap.to(letters, { x: (i: number) => (i - mid) * 4.5, ease: 'none' }));
     }
     // Die Bühne weicht beim Scrollen minimal zurück — cineastischer Abgang.
     scrub(gsap.to(card, { scale: 0.965, transformOrigin: '50% 100%', ease: 'none' }));
@@ -286,6 +310,11 @@ export function Hero() {
             {imgEl(true)}
           </div>
 
+          {/* WebGL-Lupe — beim Hover über den Block vergrößert sie das Foto und
+              blendet eine kristalline Mikrotextur ein (z-[4], pointer-events-none,
+              komplett gegated: kein Touch / reduced-motion / WebGL2 → rendert null). */}
+          <WaxLens cardRef={cardRef} />
+
           {/* Block-Hotspot — der Wachsblock ist anklickbar: „Blick ins Wachs".
               Liegt über der rechten Blockregion (Desktop), unter dem Content. */}
           <button
@@ -377,19 +406,21 @@ export function Hero() {
                     onClick={() => scrollTo('#warum-wachs')}
                     className="px-6 py-3.5 text-[13px] font-medium rounded-full"
                     style={{
-                      color: 'rgba(255,255,255,0.88)',
-                      border: '1px solid rgba(255,255,255,0.30)',
+                      color: 'rgba(255,255,255,0.82)',
+                      border: '1px solid rgba(255,255,255,0.26)',
                       background: 'rgba(10,11,13,0.18)',
                       backdropFilter: 'blur(6px)',
-                      transition: 'background 0.25s ease, border-color 0.25s ease',
+                      transition: 'background 0.28s ease, border-color 0.28s ease, color 0.28s ease',
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'rgba(255,255,255,0.10)';
-                      e.currentTarget.style.borderColor = 'rgba(255,255,255,0.52)';
+                      e.currentTarget.style.background = 'rgba(255,255,255,0.09)';
+                      e.currentTarget.style.borderColor = 'rgba(255,255,255,0.48)';
+                      e.currentTarget.style.color = 'rgba(255,255,255,1)';
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.background = 'rgba(10,11,13,0.18)';
-                      e.currentTarget.style.borderColor = 'rgba(255,255,255,0.30)';
+                      e.currentTarget.style.borderColor = 'rgba(255,255,255,0.26)';
+                      e.currentTarget.style.color = 'rgba(255,255,255,0.82)';
                     }}
                   >
                     {t.hero.ctaSecondary}
