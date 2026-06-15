@@ -341,10 +341,12 @@ export function Hero() {
             </span>
           </button>
 
-          {/* Ebene 4 — Content links über der ruhigen Schieferfläche */}
-          <div className="relative z-10 h-full w-full px-6 sm:px-10 lg:px-14 xl:px-20">
+          {/* Ebene 4 — Content links über der ruhigen Schieferfläche.
+              pointer-events-none, damit der freie (rechte) Bereich Klicks zum
+              Block-Hotspot durchreicht; nur der Textblock selbst fängt Klicks. */}
+          <div className="relative z-10 h-full w-full px-6 sm:px-10 lg:px-14 xl:px-20 pointer-events-none">
             <div className="h-full max-w-7xl mx-auto flex flex-col justify-end pb-28 sm:pb-32 lg:pb-28">
-              <div ref={contentRef} className="max-w-xl will-change-transform">
+              <div ref={contentRef} className="max-w-xl will-change-transform pointer-events-auto">
 
                 {/* Eyebrow — der einzige Produktblau-Akzent */}
                 <div data-hero className="flex items-center gap-3 mb-5">
@@ -489,7 +491,7 @@ export function Hero() {
                     className="text-[10.5px] sm:text-[11px] uppercase tabular-nums"
                     style={{ letterSpacing: '0.13em', color: 'rgba(255,255,255,0.55)' }}
                   >
-                    171 · {de ? '100 % positiv' : '100% positive'} · {de ? 'eBay-Käuferschutz' : 'eBay buyer protection'}
+                    189 · {de ? '100 % positiv' : '100% positive'} · {de ? 'eBay-Käuferschutz' : 'eBay buyer protection'}
                   </span>
                 </div>
 

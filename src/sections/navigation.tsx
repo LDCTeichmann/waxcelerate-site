@@ -132,7 +132,7 @@ export function Navigation() {
                   style={{ background: 'var(--sf3)', color: 'var(--txf)', border: '1px solid var(--bd)' }}
                 >
                   <span style={{ color: 'var(--accent)' }}>★★★★★</span>
-                  <span>171</span>
+                  <span>189</span>
                 </span>
               )}
             </a>

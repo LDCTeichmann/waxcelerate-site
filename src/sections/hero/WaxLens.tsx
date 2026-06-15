@@ -32,9 +32,9 @@ export function WaxLens({ cardRef, enabled, de }: {
 
     // Disc auf den Cursor zentrieren; Start unsichtbar und klein.
     gsap.set(lens, { xPercent: -50, yPercent: -50, scale: 0.3, autoAlpha: 0 });
-    // Magnetischer Eased-Follow — der „liquide" Award-Touch.
-    const qx = gsap.quickTo(lens, 'x', { duration: 0.45, ease: 'power3.out' });
-    const qy = gsap.quickTo(lens, 'y', { duration: 0.45, ease: 'power3.out' });
+    // Magnetischer Eased-Follow — eng genug, dass die Linse am Cursor „klebt".
+    const qx = gsap.quickTo(lens, 'x', { duration: 0.34, ease: 'power3.out' });
+    const qy = gsap.quickTo(lens, 'y', { duration: 0.34, ease: 'power3.out' });
 
     let inside = false;
     const within = (px: number, py: number, w: number, h: number) => {
@@ -91,20 +91,24 @@ export function WaxLens({ cardRef, enabled, de }: {
     <div
       ref={lensRef}
       aria-hidden
-      className="absolute top-0 left-0 z-[6] flex items-center justify-center rounded-full pointer-events-none will-change-transform"
+      className="absolute top-0 left-0 z-[12] flex items-center justify-center rounded-full pointer-events-none will-change-transform"
       style={{
-        width: 96,
-        height: 96,
+        width: 116,
+        height: 116,
         visibility: 'hidden',
-        border: '1.5px solid rgba(255,255,255,0.88)',
-        background: 'rgba(255,255,255,0.08)',
-        backdropFilter: 'blur(4px) saturate(1.1)',
-        WebkitBackdropFilter: 'blur(4px) saturate(1.1)',
-        boxShadow: '0 14px 44px rgba(0,0,0,0.32), inset 0 0 0 1px rgba(255,255,255,0.10)',
+        border: '1.5px solid rgba(255,255,255,0.92)',
+        // Glasige Linse: heller Lichtpunkt oben links, zur Kante hin klarer.
+        background: 'radial-gradient(125% 125% at 32% 26%, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.07) 40%, rgba(255,255,255,0.03) 100%)',
+        backdropFilter: 'blur(3px) saturate(1.05)',
+        WebkitBackdropFilter: 'blur(3px) saturate(1.05)',
+        boxShadow: '0 16px 48px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.55), inset 0 0 0 1px rgba(255,255,255,0.08)',
       }}
     >
-      <ZoomIn className="h-7 w-7" strokeWidth={1.5} style={{ color: '#fff' }} />
-      {/* Label hängt unter der Disc — beeinflusst die Zentrierung nicht. */}
+      {/* innerer Bezel + Spiegelung — lässt die Scheibe als echte Linse lesen */}
+      <span className="absolute rounded-full pointer-events-none" style={{ inset: 7, border: '1px solid rgba(255,255,255,0.16)' }} />
+      <span className="absolute rounded-full pointer-events-none" style={{ top: 14, left: 20, width: 34, height: 22, background: 'radial-gradient(closest-side, rgba(255,255,255,0.5), transparent)', filter: 'blur(2px)' }} />
+      <ZoomIn className="h-8 w-8" strokeWidth={1.75} style={{ color: '#fff' }} />
+      {/* Label hängt unter der Linse — beeinflusst die Zentrierung nicht. */}
       <span
         className="absolute left-1/2 top-full -translate-x-1/2 mt-3 whitespace-nowrap text-[10px] uppercase font-semibold"
         style={{ letterSpacing: '0.24em', color: 'rgba(255,255,255,0.94)', textShadow: '0 1px 10px rgba(0,0,0,0.55)' }}

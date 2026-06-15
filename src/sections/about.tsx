@@ -42,7 +42,7 @@ export function About() {
 
   const de = lang === 'de';
 
-  // De-duplicated: 171/100% live in Reviews + nav badge, 3× lives in the
+  // De-duplicated: 189/100% live in Reviews + nav badge, 3× lives in the
   // hero ribbon / why-wax. About keeps only its own, unique facts.
   const stats: { value: string; label: string }[] = [
     {
@@ -54,7 +54,7 @@ export function About() {
       label: de ? 'In Stuttgart gegründet' : 'Founded in Stuttgart',
     },
     {
-      value: '171 ×',
+      value: '189 ×',
       label: de ? 'eBay Top-Bewertungen' : 'eBay top reviews',
     },
   ];

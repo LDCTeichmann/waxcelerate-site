@@ -97,7 +97,7 @@ export function ProductDetailPage() {
     brand: { '@type': 'Brand', name: 'Waxcelerate' },
     url: canonicalUrl,
     ...(isWax && {
-      aggregateRating: { '@type': 'AggregateRating', ratingValue: '5', reviewCount: '171', bestRating: '5', worstRating: '1' },
+      aggregateRating: { '@type': 'AggregateRating', ratingValue: '5', reviewCount: '189', bestRating: '5', worstRating: '1' },
     }),
     offers: {
       '@type': 'Offer',
