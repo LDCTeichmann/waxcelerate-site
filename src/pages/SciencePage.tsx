@@ -9,6 +9,7 @@ import { waxVsOil, frictionRanges } from '@/lib/data';
 import { COMPONENTS, FAILURES, type ScienceComponent } from '@/lib/science';
 import { FormulaGraph } from '@/sections/science/FormulaGraph';
 import { ComponentDiagram } from '@/sections/science/diagrams';
+import { HexMoS2, TransferFilm } from '@/sections/science/LabViz';
 
 const W = 'max-w-4xl mx-auto px-4 sm:px-6 lg:px-8';
 
@@ -372,6 +373,11 @@ export function SciencePage() {
           {COMPONENTS.map((c, i) => <CompRow key={c.id} c={c} n={i + 1} de={de} />)}
         </div>
 
+        {/* Signature visual — MoS₂ layers shearing (the heart of the formula) */}
+        <div className="mt-8">
+          <HexMoS2 de={de} />
+        </div>
+
         <div id="matrix-window" className="mt-12">
           <TempWindow de={de} />
         </div>
@@ -389,6 +395,11 @@ export function SciencePage() {
         <InstrumentFrame eyebrow={de ? 'Reibung' : 'Friction'} className="mb-6">
           <FrictionBars de={de} />
         </InstrumentFrame>
+
+        {/* Signature visual — Fe–S transfer film deposition (the payoff) */}
+        <div className="mb-6">
+          <TransferFilm de={de} />
+        </div>
 
         {/* Outcome stats */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
