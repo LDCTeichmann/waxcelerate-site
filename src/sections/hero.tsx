@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowRight, Search } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
@@ -27,6 +27,7 @@ export function Hero() {
   const [diveOpen, setDiveOpen] = useState(false);
   // Custom-Cursor-Lupe nur auf Desktop/Maus — steuert auch das Cursor-Hiding.
   const [lensOn] = useState(() => waxLensEnabled());
+  const openDive = useCallback(() => setDiveOpen(true), []);
 
   const rootRef    = useRef<HTMLElement>(null);
   const cardRef    = useRef<HTMLDivElement>(null);
@@ -315,7 +316,7 @@ export function Hero() {
           {/* „Blick ins Wachs"-Lupe — weiße Glas-Zoom-Affordanz, die beim Hover
               über den Block dem Cursor folgt; der Klick öffnet die Wissenschafts-
               Übersicht. pointer-events-none → Klick geht auf den Hotspot darunter. */}
-          <WaxLens cardRef={cardRef} enabled={lensOn} de={de} />
+          <WaxLens cardRef={cardRef} enabled={lensOn} de={de} onOpen={openDive} />
 
           {/* Block-Hotspot — der Wachsblock ist anklickbar: „Blick ins Wachs".
               Liegt über der rechten Blockregion (Desktop), unter dem Content.
