@@ -4,7 +4,8 @@
 // FormulaGraph. (Editorial science copy — distinct from product SKU data.)
 
 export type DiagramKey =
-  | 'lamellar' | 'droplift' | 'coldflex' | 'shear' | 'density' | 'radical';
+  | 'lamellar' | 'droplift' | 'coldflex' | 'shear' | 'density' | 'radical'
+  | 'ptfe' | 'stearin';
 
 export interface ScienceComponent {
   node: number;          // graph node id (1–6), referenced by EDGES
@@ -219,3 +220,64 @@ export const FAILURES: ScienceFailure[] = [
     isCurrent: true,
   },
 ];
+
+// ─── Classic-only components ──────────────────────────────────────────────────
+// The 6 COMPONENTS above describe the Pro/MoS₂ system. The Classic formula
+// (paraffin + PTFE + stearic-acid derivative) shares the paraffin base but
+// replaces the solid-lubricant package with PTFE. These extra entries let the
+// hero "look inside" dive show real ingredient cards for Classic too. They are
+// NOT part of the relationship graph (no EDGES), so SciencePage/FormulaGraph are
+// unaffected. Node ids 7–8 avoid collision with the graph nodes 1–6.
+export const CLASSIC_EXTRA: ScienceComponent[] = [
+  {
+    node: 7, id: 'ptfe',
+    graphLabelDe: 'PTFE', graphLabelEn: 'PTFE',
+    nameDe: 'PTFE (Polytetrafluorethylen)', nameEn: 'PTFE (polytetrafluoroethylene)',
+    roleDe: 'Gleitzusatz', roleEn: 'Glide additive', metric: '< 1 µm',
+    sumDe: 'Submikrone PTFE-Partikel (< 1 µm) senken die Oberflächenreibung und halten den Film glatt — der Trockenschmierstoff der Classic-Formel.',
+    sumEn: 'Sub-micron PTFE particles (< 1 µm) lower surface friction and keep the film slick — the dry lubricant of the Classic formula.',
+    whyDe: 'PTFE hat einen der niedrigsten Reibungskoeffizienten aller Feststoffe. Fein in die Wachsmatrix eingebettet, gleiten die Kettengelenke leichter, ohne dass der Film klebrig wird oder Schmutz bindet.',
+    whyEn: 'PTFE has one of the lowest friction coefficients of any solid. Finely embedded in the wax matrix, the chain joints glide more easily without the film turning tacky or attracting dirt.',
+    physicsDe: [
+      'PTFE besteht aus langen Fluorkohlenstoffketten, deren Fluorhülle nahezu keine zwischenmolekularen Bindungen eingeht — daher die extreme Gleitfähigkeit und die Antihaft-Wirkung.',
+      'Als Partikel unter 1 µm verteilt sich PTFE gleichmäßig im erstarrenden Paraffin und legt sich an den Reibflächen als dünner, gleitfähiger Belag an. Das ergänzt die trockene Sauberkeit des Wachses um eine spürbar niedrigere Reibung im milden Temperaturbereich.',
+    ],
+    physicsEn: [
+      'PTFE is built from long fluorocarbon chains whose fluorine shell forms almost no intermolecular bonds — hence the extreme slipperiness and non-stick behaviour.',
+      'As sub-micron particles it disperses evenly through the solidifying paraffin and deposits a thin, glide-friendly layer at the friction surfaces. This adds a noticeably lower friction to the dry cleanliness of the wax across the mild temperature range.',
+    ],
+    insightDe: 'Classic setzt auf PTFE statt MoS₂: ideal für trockene Bedingungen von Frühjahr bis Herbst, ohne die Komplexität des Ganzjahres-Pakets.',
+    insightEn: 'Classic uses PTFE instead of MoS₂: ideal for dry conditions from spring to autumn, without the complexity of the year-round package.',
+    diagram: 'ptfe', cx: 320, cy: 260, r: 40,
+  },
+  {
+    node: 8, id: 'haftung',
+    graphLabelDe: 'Stearat', graphLabelEn: 'Stearate',
+    nameDe: 'Stearinsäure-Derivat', nameEn: 'Stearic-acid derivative',
+    roleDe: 'Haftvermittler', roleEn: 'Adhesion promoter', metric: 'Fe-Bindung',
+    sumDe: 'Ein Fettsäurederivat verankert den Wachsfilm an der Stahloberfläche — bessere Haftung, gleichmäßigerer Film, weniger Abrieb beim Einfahren.',
+    sumEn: 'A fatty-acid derivative anchors the wax film to the steel surface — better adhesion, a more even film, less shedding during break-in.',
+    whyDe: 'Reines Paraffin haftet nur schwach auf Metall. Die polare Kopfgruppe des Stearinsäure-Derivats bindet an die Stahloberfläche, während der unpolare Schwanz in der Wachsmatrix verankert ist — eine molekulare Brücke zwischen Film und Kette.',
+    whyEn: 'Pure paraffin adheres only weakly to metal. The polar head group of the stearic-acid derivative bonds to the steel surface while the non-polar tail anchors in the wax matrix — a molecular bridge between film and chain.',
+    physicsDe: [
+      'Die Carboxyl-Kopfgruppe (–COOH) adsorbiert über Wasserstoffbrücken und Chemisorption an der oxidischen Stahloberfläche; die lange Alkylkette ko-kristallisiert mit dem Paraffin.',
+      'Das Ergebnis ist ein Film, der unter Scherbelastung an Ort und Stelle bleibt, statt sich abzulösen — entscheidend für die ersten Kilometer nach dem Wachsen.',
+    ],
+    physicsEn: [
+      'The carboxyl head group (–COOH) adsorbs to the oxidic steel surface via hydrogen bonding and chemisorption; the long alkyl tail co-crystallises with the paraffin.',
+      'The result is a film that stays in place under shear instead of shedding — decisive for the first kilometres after waxing.',
+    ],
+    insightDe: 'Der gleiche Haftmechanismus steckt auch in der Pro-Formel — bei Classic trägt er den PTFE-Film, bei Pro den MoS₂-Transferfilm.',
+    insightEn: 'The same adhesion mechanism is in the Pro formula too — in Classic it carries the PTFE film, in Pro the MoS₂ transfer film.',
+    diagram: 'stearin', cx: 214, cy: 358, r: 28,
+  },
+];
+
+// Ingredient set shown in the hero "look inside" dive, per product variant.
+// Classic = paraffin base + PTFE + adhesion promoter (matches data.ts `formula`).
+// Pro     = the full six-component MoS₂ system.
+export function diveFormula(variant: 'classic' | 'pro'): ScienceComponent[] {
+  if (variant === 'pro') return COMPONENTS;
+  const paraffin = COMPONENTS.find(c => c.id === 'kristallstruktur')!;
+  return [paraffin, ...CLASSIC_EXTRA];
+}

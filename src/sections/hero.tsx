@@ -1,7 +1,8 @@
-import { useEffect, useRef } from 'react';
-import { ArrowRight } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { ArrowRight, Search } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
+import { WaxDive } from '@/sections/hero/WaxDive';
 
 /**
  * Hero — „Gallery Stage" mit Tiefenebenen.
@@ -20,6 +21,7 @@ const IMG_POS = '68% 50%'; // identisch für object-position UND mask-position
 export function Hero() {
   const { t, lang } = useLanguage();
   const de = lang === 'de';
+  const [diveOpen, setDiveOpen] = useState(false);
 
   const rootRef    = useRef<HTMLElement>(null);
   const cardRef    = useRef<HTMLDivElement>(null);
@@ -284,6 +286,24 @@ export function Hero() {
             {imgEl(true)}
           </div>
 
+          {/* Block-Hotspot — der Wachsblock ist anklickbar: „Blick ins Wachs".
+              Liegt über der rechten Blockregion (Desktop), unter dem Content. */}
+          <button
+            type="button"
+            onClick={() => setDiveOpen(true)}
+            aria-label={de ? 'Blick ins Wachs — Inhaltsstoffe ansehen' : 'Look inside the wax — see the ingredients'}
+            className="group hidden lg:flex absolute z-[5] items-center justify-center cursor-pointer"
+            style={{ right: '4%', top: '16%', width: '44%', height: '60%' }}
+          >
+            <span
+              className="flex items-center gap-2 px-4 py-2 rounded-full opacity-0 translate-y-1 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0 group-focus-visible:opacity-100"
+              style={{ background: 'rgba(8,10,14,0.62)', border: '1px solid rgba(255,255,255,0.28)', backdropFilter: 'blur(6px)', color: '#fff' }}
+            >
+              <Search className="h-4 w-4" />
+              <span className="text-[12px] font-semibold">{de ? 'Blick ins Wachs' : 'Look inside'}</span>
+            </span>
+          </button>
+
           {/* Ebene 4 — Content links über der ruhigen Schieferfläche */}
           <div className="relative z-10 h-full w-full px-6 sm:px-10 lg:px-14 xl:px-20">
             <div className="h-full max-w-7xl mx-auto flex flex-col justify-end pb-28 sm:pb-32 lg:pb-28">
@@ -374,6 +394,18 @@ export function Hero() {
                   >
                     {t.hero.ctaSecondary}
                   </button>
+                  {/* „Blick ins Wachs" — sichtbarer Trigger (v.a. mobil, wo der
+                      Block-Hotspot hinter dem Text liegt) */}
+                  <button
+                    onClick={() => setDiveOpen(true)}
+                    className="group inline-flex items-center gap-2 text-[13px] font-medium transition-opacity hover:opacity-80"
+                    style={{ color: 'rgba(255,255,255,0.62)' }}
+                  >
+                    <Search className="h-3.5 w-3.5" />
+                    <span style={{ textDecoration: 'underline', textUnderlineOffset: '4px', textDecorationColor: 'rgba(255,255,255,0.25)' }}>
+                      {de ? 'Blick ins Wachs' : 'Look inside the wax'}
+                    </span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -451,6 +483,9 @@ export function Hero() {
           </div>
         </div>
       </div>
+
+      {/* „Look inside the wax" — Inhaltsstoff-Dive */}
+      <WaxDive open={diveOpen} onClose={() => setDiveOpen(false)} de={de} />
     </section>
   );
 }

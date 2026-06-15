@@ -138,6 +138,45 @@ function Radical({ de }: { de: boolean }) {
   );
 }
 
+// PTFE — slick film: nothing sticks, lower surface friction
+function Ptfe({ de }: { de: boolean }) {
+  return (
+    <figure>
+      <svg viewBox="0 0 200 80" className="w-full h-auto" role="img" aria-label="PTFE glide film">
+        <line x1={12} y1={58} x2={188} y2={58} stroke="var(--accent)" strokeWidth={2.5} strokeLinecap="round" />
+        {[40, 70, 100].map((x, i) => (
+          <circle key={x} cx={x} cy={50 - i * 2} r={5 - i} fill="none" stroke="var(--tx2)" strokeWidth={1.5} opacity={0.6} />
+        ))}
+        <path d="M120 50 L168 50 M168 50 L162 46 M168 50 L162 54" stroke="var(--accent)" strokeWidth={1.5} fill="none" strokeLinecap="round" />
+        <text x={100} y={74} textAnchor="middle" fontSize={9} fill="var(--accent)" fontFamily={MONO}>
+          {de ? '← glatt, nichts haftet →' : '← slick, nothing sticks →'}
+        </text>
+      </svg>
+      <Cap>{de ? 'PTFE < 1 µm senkt die Oberflächenreibung — trocken & sauber.' : 'PTFE < 1 µm lowers surface friction — dry & clean.'}</Cap>
+    </figure>
+  );
+}
+
+// Stearate — molecular bridge: polar head bonds to steel, tail into wax
+function Stearin({ de }: { de: boolean }) {
+  return (
+    <figure>
+      <svg viewBox="0 0 200 80" className="w-full h-auto" role="img" aria-label="adhesion promoter">
+        <rect x={8} y={60} width={184} height={8} rx={2} fill="var(--tx2)" opacity={0.35} />
+        <text x={16} y={54} fontSize={8} fill="var(--txf)" fontFamily={MONO}>Fe</text>
+        {[50, 100, 150].map(x => (
+          <g key={x}>
+            <circle cx={x} cy={58} r={3.5} fill="var(--accent)" />
+            <path d={`M${x} 55 L${x - 5} 44 L${x + 5} 32 L${x - 5} 20`} stroke="var(--accent)" strokeWidth={1.5} fill="none" strokeLinecap="round" />
+          </g>
+        ))}
+        <text x={100} y={14} textAnchor="middle" fontSize={8} fill="var(--txf)" fontFamily={MONO}>{de ? 'Wachsmatrix' : 'wax matrix'}</text>
+      </svg>
+      <Cap>{de ? 'Polarer Kopf bindet an Stahl, Kette verankert im Wachs.' : 'Polar head bonds to steel, tail anchors in the wax.'}</Cap>
+    </figure>
+  );
+}
+
 export function ComponentDiagram({ which, de }: { which: DiagramKey; de: boolean }) {
   const map: Record<DiagramKey, React.ReactNode> = {
     lamellar: <Lamellar de={de} />,
@@ -146,6 +185,8 @@ export function ComponentDiagram({ which, de }: { which: DiagramKey; de: boolean
     shear: <Shear de={de} />,
     density: <Density de={de} />,
     radical: <Radical de={de} />,
+    ptfe: <Ptfe de={de} />,
+    stearin: <Stearin de={de} />,
   };
   return (
     <div className="rounded-xl p-4 mt-3" style={{ background: 'var(--sf2)', border: '1px solid var(--bd)' }}>
