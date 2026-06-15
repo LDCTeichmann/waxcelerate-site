@@ -273,11 +273,54 @@ export const CLASSIC_EXTRA: ScienceComponent[] = [
   },
 ];
 
-// Ingredient set shown in the hero "look inside" dive, per product variant.
-// Classic = paraffin base + PTFE + adhesion promoter (matches data.ts `formula`).
-// Pro     = the full six-component MoS₂ system.
+// ─── Hero "look inside" dive — shared six-role system ─────────────────────────
+// Both variants fill the SAME six functional roles, so the dive reads as one
+// engineered system in Classic AND Pro — not a short "mix these three" list.
+// The lubricant package is what differs: Classic = PTFE + adhesion promoter,
+// Pro = MoS₂ + dispersant. Everything else (base, hardener, plasticiser,
+// antioxidant) is genuinely shared across both products.
+//
+//                       0  base (top centre)
+//              1 hardener            2 plasticiser
+//                       3  lubricant (heart, large)
+//              4 stabiliser          5 protection
+export interface DiveSlot { x: number; y: number; r: number }
+export const DIVE_SLOTS: DiveSlot[] = [
+  { x: 320, y: 78,  r: 33 }, // 0 Trägermatrix      — Paraffin
+  { x: 138, y: 170, r: 29 }, // 1 Härtemodul        — FT-Wachs
+  { x: 502, y: 170, r: 29 }, // 2 Plastifizierer     — Mikrokristallin
+  { x: 320, y: 250, r: 47 }, // 3 Schmierstoff       — MoS₂ / PTFE
+  { x: 150, y: 352, r: 29 }, // 4 Stabilisator/Haftung — Dispersant / Stearat
+  { x: 490, y: 352, r: 29 }, // 5 Schutz            — Antioxidans
+];
+
+export interface DiveEdge { a: number; b: number; main?: boolean; dash?: boolean; labelDe: string; labelEn: string }
+const DIVE_EDGES_PRO: DiveEdge[] = [
+  { a: 0, b: 3, main: true, labelDe: 'Trägermatrix',       labelEn: 'carrier matrix' },
+  { a: 1, b: 0,             labelDe: 'Ko-Kristallisation',  labelEn: 'co-crystallises' },
+  { a: 2, b: 0,             labelDe: 'Plastifiziert',       labelEn: 'plasticises' },
+  { a: 2, b: 3,             labelDe: 'Einbettung',          labelEn: 'embedding' },
+  { a: 4, b: 3, dash: true, labelDe: 'Sterische Hülle',    labelEn: 'steric shell' },
+  { a: 5, b: 3, dash: true, labelDe: 'Oxidationsschutz',   labelEn: 'oxidation guard' },
+];
+const DIVE_EDGES_CLASSIC: DiveEdge[] = [
+  { a: 0, b: 3, main: true, labelDe: 'Trägermatrix',       labelEn: 'carrier matrix' },
+  { a: 1, b: 0,             labelDe: 'Ko-Kristallisation',  labelEn: 'co-crystallises' },
+  { a: 2, b: 0,             labelDe: 'Plastifiziert',       labelEn: 'plasticises' },
+  { a: 4, b: 3, dash: true, labelDe: 'Haftvermittlung',    labelEn: 'adhesion' },
+  { a: 4, b: 0, dash: true, labelDe: 'Stahlbindung',       labelEn: 'steel bond' },
+  { a: 5, b: 3, dash: true, labelDe: 'Oxidationsschutz',   labelEn: 'oxidation guard' },
+];
+export const diveEdges = (variant: 'classic' | 'pro') =>
+  variant === 'pro' ? DIVE_EDGES_PRO : DIVE_EDGES_CLASSIC;
+
+// The six components, in slot order, per product variant.
 export function diveFormula(variant: 'classic' | 'pro'): ScienceComponent[] {
-  if (variant === 'pro') return COMPONENTS;
-  const paraffin = COMPONENTS.find(c => c.id === 'kristallstruktur')!;
-  return [paraffin, ...CLASSIC_EXTRA];
+  const all = [...COMPONENTS, ...CLASSIC_EXTRA];
+  const get = (id: string) => all.find(c => c.id === id)!;
+  const shared = [get('kristallstruktur'), get('matrix'), get('winterformel')]; // base, hardener, plasticiser
+  const antiox = get('antioxidans');                                            // protection
+  return variant === 'pro'
+    ? [...shared, get('mos2'), get('sedimentation'), antiox]
+    : [...shared, get('ptfe'), get('haftung'), antiox];
 }
