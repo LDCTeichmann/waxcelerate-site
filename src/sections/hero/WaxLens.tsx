@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { RefObject } from 'react';
+import { createPortal } from 'react-dom';
 import { ZoomIn } from 'lucide-react';
 import { gsap } from '@/lib/gsap';
 import { BLOCK_HOTSPOT } from '@/sections/hero/constants';
@@ -7,12 +8,14 @@ import { BLOCK_HOTSPOT } from '@/sections/hero/constants';
 /**
  * WaxLens — die „Blick ins Wachs"-Lupe als Custom-Cursor-Affordanz.
  *
- * Über dem Wachsblock verschwindet der native Cursor und eine weiße Glas-Lupe
- * folgt dem Zeiger eng und ruckelfrei (Hysterese gegen Rand-Flackern). Ein
- * Klick auf den Block öffnet die „Blick ins Wachs"-Übersicht — der Klick wird
- * direkt auf der Karte abgegriffen (`onOpen`), unabhängig von darüber liegenden
- * Ebenen. Ein dezent pulsierender Punkt in der Blockmitte macht vorab sichtbar,
- * dass es hier etwas zu entdecken gibt; er blendet beim Hovern aus.
+ * Robustheit zuerst: Die Lupe wird per Portal an <body> gehängt und in REINEN
+ * Viewport-Koordinaten (`position: fixed`, Translate = clientX/clientY)
+ * positioniert. So beeinflusst KEINE Transformation der Hero-Bühne (Entrance-
+ * Scale, Scroll-Scrub, Parallax) ihre Position — sie sitzt immer exakt am
+ * Cursor. Sichtbar ist sie nur, solange der Cursor im Bildschirm-Rechteck des
+ * Wachsblocks liegt (aus der aktuellen Bühnen-Bounding-Box berechnet, inkl.
+ * aller Transforms). Ein Klick auf den Block öffnet die Übersicht (`onOpen`).
+ * Ein dezent pulsierender Punkt in der Blockmitte macht das Ganze auffindbar.
  *
  * Gegated über `enabled` (Desktop + feiner Zeiger, kein reduced-motion).
  */
@@ -34,23 +37,24 @@ export function WaxLens({ cardRef, enabled, de, onOpen }: {
 
     gsap.set(lens, { xPercent: -50, yPercent: -50, scale: 0.3, autoAlpha: 0 });
     if (hint) gsap.set(hint, { autoAlpha: 0.9 });
-    // Enger Eased-Follow — die Linse „klebt" am Cursor.
-    const qx = gsap.quickTo(lens, 'x', { duration: 0.22, ease: 'power3.out' });
-    const qy = gsap.quickTo(lens, 'y', { duration: 0.22, ease: 'power3.out' });
+    const qx = gsap.quickTo(lens, 'x', { duration: 0.18, ease: 'power3.out' });
+    const qy = gsap.quickTo(lens, 'y', { duration: 0.18, ease: 'power3.out' });
 
-    // Block-Rechteck in Pixeln; `margin` gibt eine Hysterese (Ein 0 / Aus 30px),
-    // damit die Linse an der Kante nicht flackert.
-    const within = (px: number, py: number, w: number, h: number, margin = 0) => {
-      const left   = (1 - BLOCK_HOTSPOT.right - BLOCK_HOTSPOT.width) * w - margin;
-      const right  = (1 - BLOCK_HOTSPOT.right) * w + margin;
-      const top    = BLOCK_HOTSPOT.top * h - margin;
-      const bottom = (BLOCK_HOTSPOT.top + BLOCK_HOTSPOT.height) * h + margin;
-      return px >= left && px <= right && py >= top && py <= bottom;
+    // Bildschirm-Rechteck des Wachsblocks aus der aktuellen Bühnen-Box (mit allen
+    // Transforms). `margin` gibt Hysterese: Eintritt scharf, Austritt 30px später.
+    const inBlock = (cx: number, cy: number, margin: number) => {
+      const r = card.getBoundingClientRect();
+      const l = r.left + (1 - BLOCK_HOTSPOT.right - BLOCK_HOTSPOT.width) * r.width;
+      const rt = r.left + (1 - BLOCK_HOTSPOT.right) * r.width;
+      const t = r.top + BLOCK_HOTSPOT.top * r.height;
+      const b = r.top + (BLOCK_HOTSPOT.top + BLOCK_HOTSPOT.height) * r.height;
+      return cx >= l - margin && cx <= rt + margin && cy >= t - margin && cy <= b + margin;
     };
 
     let inside = false;
+    let lastX = -1, lastY = -1;
     const reveal = () => {
-      gsap.to(lens, { scale: 1, autoAlpha: 1, duration: 0.45, ease: 'back.out(1.6)', overwrite: true });
+      gsap.to(lens, { scale: 1, autoAlpha: 1, duration: 0.4, ease: 'back.out(1.6)', overwrite: true });
       if (hint) gsap.to(hint, { autoAlpha: 0, duration: 0.25, overwrite: true });
     };
     const dismiss = () => {
@@ -59,44 +63,31 @@ export function WaxLens({ cardRef, enabled, de, onOpen }: {
     };
 
     const onMove = (e: MouseEvent) => {
-      const r = card.getBoundingClientRect();
-      const px = e.clientX - r.left;
-      const py = e.clientY - r.top;
-      // Eintritt scharf, Austritt erst 30px außerhalb — kein Boundary-Flackern.
-      const now = within(px, py, r.width, r.height, inside ? 30 : 0);
-      if (now) {
-        if (!inside) {
-          inside = true;
-          gsap.set(lens, { x: px, y: py }); // sofort am Cursor, kein Hereinfliegen
-          reveal();
-        } else {
-          qx(px); qy(py);
-        }
+      lastX = e.clientX; lastY = e.clientY;
+      if (inBlock(e.clientX, e.clientY, inside ? 30 : 0)) {
+        if (!inside) { inside = true; gsap.set(lens, { x: e.clientX, y: e.clientY }); reveal(); }
+        else { qx(e.clientX); qy(e.clientY); }
       } else if (inside) {
-        inside = false;
-        dismiss();
+        inside = false; dismiss();
       }
     };
-    const onLeave = () => { if (inside) { inside = false; dismiss(); } };
     const onDown = () => { if (inside) gsap.to(lens, { scale: 0.86, duration: 0.12, ease: 'power2.out', overwrite: 'auto' }); };
     const onUp   = () => { if (inside) gsap.to(lens, { scale: 1, duration: 0.4, ease: 'back.out(2.2)', overwrite: 'auto' }); };
-    // Klick auf dem Block → Übersicht öffnen (robust, egal welche Ebene oben liegt).
-    const onClick = (e: MouseEvent) => {
-      const r = card.getBoundingClientRect();
-      if (within(e.clientX - r.left, e.clientY - r.top, r.width, r.height)) onOpen();
-    };
+    const onClick = (e: MouseEvent) => { if (inBlock(e.clientX, e.clientY, 0)) onOpen(); };
+    // Beim Scrollen wandert der Block unter dem (ruhenden) Cursor weg → neu prüfen.
+    const onScroll = () => { if (inside && !inBlock(lastX, lastY, 30)) { inside = false; dismiss(); } };
 
-    card.addEventListener('mousemove', onMove);
-    card.addEventListener('mouseleave', onLeave);
-    card.addEventListener('mousedown', onDown);
-    card.addEventListener('click', onClick);
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mousedown', onDown);
     window.addEventListener('mouseup', onUp);
+    card.addEventListener('click', onClick);
+    window.addEventListener('scroll', onScroll, { passive: true });
     return () => {
-      card.removeEventListener('mousemove', onMove);
-      card.removeEventListener('mouseleave', onLeave);
-      card.removeEventListener('mousedown', onDown);
-      card.removeEventListener('click', onClick);
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mousedown', onDown);
       window.removeEventListener('mouseup', onUp);
+      card.removeEventListener('click', onClick);
+      window.removeEventListener('scroll', onScroll);
       gsap.killTweensOf(lens);
       if (hint) gsap.killTweensOf(hint);
     };
@@ -106,7 +97,8 @@ export function WaxLens({ cardRef, enabled, de, onOpen }: {
 
   return (
     <>
-      {/* Vorab-Hinweis: dezent pulsierender Punkt in der Blockmitte */}
+      {/* Vorab-Hinweis: dezent pulsierender Punkt in der Blockmitte (in der Bühne,
+          folgt damit Scroll & Parallax automatisch) */}
       <div
         ref={hintRef}
         aria-hidden
@@ -119,32 +111,35 @@ export function WaxLens({ cardRef, enabled, de, onOpen }: {
         </span>
       </div>
 
-      {/* Glas-Lupe, die dem Cursor folgt */}
-      <div
-        ref={lensRef}
-        aria-hidden
-        className="absolute top-0 left-0 z-[12] flex items-center justify-center rounded-full pointer-events-none will-change-transform"
-        style={{
-          width: 116,
-          height: 116,
-          visibility: 'hidden',
-          border: '1.5px solid rgba(255,255,255,0.92)',
-          background: 'radial-gradient(125% 125% at 32% 26%, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.07) 40%, rgba(255,255,255,0.03) 100%)',
-          backdropFilter: 'blur(3px) saturate(1.05)',
-          WebkitBackdropFilter: 'blur(3px) saturate(1.05)',
-          boxShadow: '0 16px 48px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.55), inset 0 0 0 1px rgba(255,255,255,0.08)',
-        }}
-      >
-        <span className="absolute rounded-full pointer-events-none" style={{ inset: 7, border: '1px solid rgba(255,255,255,0.16)' }} />
-        <span className="absolute rounded-full pointer-events-none" style={{ top: 14, left: 20, width: 34, height: 22, background: 'radial-gradient(closest-side, rgba(255,255,255,0.5), transparent)', filter: 'blur(2px)' }} />
-        <ZoomIn className="h-8 w-8" strokeWidth={1.75} style={{ color: '#fff' }} />
-        <span
-          className="absolute left-1/2 top-full -translate-x-1/2 mt-3 whitespace-nowrap text-[10px] uppercase font-semibold"
-          style={{ letterSpacing: '0.24em', color: 'rgba(255,255,255,0.94)', textShadow: '0 1px 10px rgba(0,0,0,0.55)' }}
+      {/* Glas-Lupe — per Portal an <body>, fixed, in Viewport-Koordinaten */}
+      {createPortal(
+        <div
+          ref={lensRef}
+          aria-hidden
+          className="fixed left-0 top-0 z-[60] flex items-center justify-center rounded-full pointer-events-none will-change-transform"
+          style={{
+            width: 116,
+            height: 116,
+            visibility: 'hidden',
+            border: '1.5px solid rgba(255,255,255,0.92)',
+            background: 'radial-gradient(125% 125% at 32% 26%, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.07) 40%, rgba(255,255,255,0.03) 100%)',
+            backdropFilter: 'blur(3px) saturate(1.05)',
+            WebkitBackdropFilter: 'blur(3px) saturate(1.05)',
+            boxShadow: '0 16px 48px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.55), inset 0 0 0 1px rgba(255,255,255,0.08)',
+          }}
         >
-          {de ? 'Blick ins Wachs' : 'Look inside'}
-        </span>
-      </div>
+          <span className="absolute rounded-full pointer-events-none" style={{ inset: 7, border: '1px solid rgba(255,255,255,0.16)' }} />
+          <span className="absolute rounded-full pointer-events-none" style={{ top: 14, left: 20, width: 34, height: 22, background: 'radial-gradient(closest-side, rgba(255,255,255,0.5), transparent)', filter: 'blur(2px)' }} />
+          <ZoomIn className="h-8 w-8" strokeWidth={1.75} style={{ color: '#fff' }} />
+          <span
+            className="absolute left-1/2 top-full -translate-x-1/2 mt-3 whitespace-nowrap text-[10px] uppercase font-semibold"
+            style={{ letterSpacing: '0.24em', color: 'rgba(255,255,255,0.94)', textShadow: '0 1px 10px rgba(0,0,0,0.55)' }}
+          >
+            {de ? 'Blick ins Wachs' : 'Look inside'}
+          </span>
+        </div>,
+        document.body,
+      )}
     </>
   );
 }
