@@ -6,10 +6,11 @@ import { useLanguage } from '@/hooks/useLanguage';
 import type { TranslationType } from '@/lib/i18n';
 import { useSectionReveal } from '@/hooks/useAnimation';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
-import { products } from '@/lib/data';
+import { products, canCheckout } from '@/lib/data';
 import { richContent } from '@/lib/productContent';
 import { getEstimatedDelivery } from '@/lib/utils';
 import { ChainFinder } from '@/sections/ChainFinder';
+import { AddToCartButton } from '@/components/AddToCartButton';
 
 export function Products() {
   const { t, lang } = useLanguage();
@@ -365,14 +366,27 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: Ca
                 })()}
               </p>
             </div>
-            <button
-              onClick={e => { e.preventDefault(); e.stopPropagation(); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
-              className="flex items-center gap-1.5 px-4 py-2.5 text-[13px] font-semibold rounded-xl transition-opacity duration-150 hover:opacity-90 active:scale-[0.97]"
-              style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
-            >
-              {buyLabel}
-              <ExternalLink className="h-3.5 w-3.5" />
-            </button>
+            {canCheckout(product) ? (
+              <div className="flex flex-col items-end gap-1">
+                <AddToCartButton product={product} size="sm" />
+                <button
+                  onClick={e => { e.preventDefault(); e.stopPropagation(); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
+                  className="text-[11px] transition-opacity hover:opacity-70"
+                  style={{ color: 'var(--txm)' }}
+                >
+                  {de ? 'oder bei eBay →' : 'or on eBay →'}
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={e => { e.preventDefault(); e.stopPropagation(); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
+                className="flex items-center gap-1.5 px-4 py-2.5 text-[13px] font-semibold rounded-xl transition-opacity duration-150 hover:opacity-90 active:scale-[0.97]"
+                style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
+              >
+                {buyLabel}
+                <ExternalLink className="h-3.5 w-3.5" />
+              </button>
+            )}
           </div>
         </div>
       </Link>
@@ -460,14 +474,27 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
           {/* Price + CTA */}
           <div className="flex items-center justify-between gap-3 pt-3" style={{ borderTop: '1px solid var(--bd2)' }}>
             <span className="num text-[20px] font-bold text-wx-tx1 tracking-[-0.02em]">{formatPrice(product.price)}</span>
-            <button
-              onClick={e => { e.preventDefault(); e.stopPropagation(); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
-              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-opacity duration-150 hover:opacity-90 active:scale-[0.97]"
-              style={{ background: 'var(--accent)' }}
-            >
-              {buyLabel}
-              <ExternalLink className="h-3.5 w-3.5" />
-            </button>
+            {canCheckout(product) ? (
+              <div className="flex flex-col items-end gap-1">
+                <AddToCartButton product={product} size="sm" />
+                <button
+                  onClick={e => { e.preventDefault(); e.stopPropagation(); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
+                  className="text-[11px] transition-opacity hover:opacity-70"
+                  style={{ color: 'var(--txm)' }}
+                >
+                  {de ? 'oder bei eBay →' : 'or on eBay →'}
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={e => { e.preventDefault(); e.stopPropagation(); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
+                className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-opacity duration-150 hover:opacity-90 active:scale-[0.97]"
+                style={{ background: 'var(--accent)' }}
+              >
+                {buyLabel}
+                <ExternalLink className="h-3.5 w-3.5" />
+              </button>
+            )}
           </div>
         </div>
       </Link>

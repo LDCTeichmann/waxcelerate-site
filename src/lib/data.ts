@@ -394,6 +394,15 @@ export function getProductById(id: string): Product | undefined {
   return products.find((p) => p.id === id);
 }
 
+/**
+ * Native Stripe checkout is only offered once a product has a real `stripePriceId`
+ * (otherwise /api/create-checkout 503s). Until the owner sets price IDs, eBay stays
+ * the primary buy path. Gating the cart CTA on this keeps the UI free of dead-ends
+ * and lets native checkout appear automatically the moment price IDs are added.
+ */
+export const canCheckout = (p: Pick<Product, 'stripePriceId'>): boolean =>
+  typeof p.stripePriceId === 'string' && p.stripePriceId.length > 0;
+
 export const waxIntervals: Record<string, Record<string, number>> = {
   trocken: { strasse: 500, gravel: 350, mtb: 250 },
   gemischt: { strasse: 350, gravel: 250, mtb: 180 },
