@@ -35,10 +35,20 @@ export function WaxLens({ cardRef, enabled, de, onOpen }: {
     const hint = hintRef.current;
     if (!card || !lens) return;
 
-    gsap.set(lens, { xPercent: -50, yPercent: -50, scale: 0.3, autoAlpha: 0 });
+    gsap.set(lens, { xPercent: -50, yPercent: -50, scale: 0.3, autoAlpha: 0, x: 0, y: 0 });
     if (hint) gsap.set(hint, { autoAlpha: 0.9 });
-    const qx = gsap.quickTo(lens, 'x', { duration: 0.18, ease: 'power3.out' });
-    const qy = gsap.quickTo(lens, 'y', { duration: 0.18, ease: 'power3.out' });
+
+    // ── Position: per-Frame-Lerp via gsap.ticker (KEIN Tween!) ────────────────
+    // Die Lupe folgt dem Cursor über einen kontinuierlichen ticker, der jeden
+    // Frame `gsap.set({x,y})` aufruft. Da das kein Tween ist, kann es von keinem
+    // overwrite (scale/autoAlpha) gekillt werden — die Position friert nie ein.
+    let targetX = 0, targetY = 0, curX = 0, curY = 0, primed = false;
+    const tick = () => {
+      curX += (targetX - curX) * 0.3;
+      curY += (targetY - curY) * 0.3;
+      gsap.set(lens, { x: curX, y: curY });
+    };
+    gsap.ticker.add(tick);
 
     // Bildschirm-Rechteck des Wachsblocks aus der aktuellen Bühnen-Box (mit allen
     // Transforms). `margin` gibt Hysterese: Eintritt scharf, Austritt 30px später.
@@ -53,23 +63,24 @@ export function WaxLens({ cardRef, enabled, de, onOpen }: {
 
     let inside = false;
     let lastX = -1, lastY = -1;
+    // Nur scale + autoAlpha werden getweent, mit overwrite:'auto' (eigenschafts-
+    // bezogen) — die Position (x/y) bleibt davon unberührt.
     const reveal = () => {
-      gsap.to(lens, { scale: 1, autoAlpha: 1, duration: 0.4, ease: 'back.out(1.6)', overwrite: true });
-      if (hint) gsap.to(hint, { autoAlpha: 0, duration: 0.25, overwrite: true });
+      gsap.to(lens, { scale: 1, autoAlpha: 1, duration: 0.4, ease: 'back.out(1.6)', overwrite: 'auto' });
+      if (hint) gsap.to(hint, { autoAlpha: 0, duration: 0.25, overwrite: 'auto' });
     };
     const dismiss = () => {
-      gsap.to(lens, { scale: 0.3, autoAlpha: 0, duration: 0.3, ease: 'power2.out', overwrite: true });
-      if (hint) gsap.to(hint, { autoAlpha: 0.9, duration: 0.4, overwrite: true });
+      gsap.to(lens, { scale: 0.3, autoAlpha: 0, duration: 0.3, ease: 'power2.out', overwrite: 'auto' });
+      if (hint) gsap.to(hint, { autoAlpha: 0.9, duration: 0.4, overwrite: 'auto' });
     };
 
     const onMove = (e: MouseEvent) => {
+      targetX = e.clientX; targetY = e.clientY;
       lastX = e.clientX; lastY = e.clientY;
-      if (inBlock(e.clientX, e.clientY, inside ? 30 : 0)) {
-        if (!inside) { inside = true; gsap.set(lens, { x: e.clientX, y: e.clientY }); reveal(); }
-        else { qx(e.clientX); qy(e.clientY); }
-      } else if (inside) {
-        inside = false; dismiss();
-      }
+      if (!primed) { primed = true; curX = targetX; curY = targetY; } // kein Hereinfliegen
+      const now = inBlock(e.clientX, e.clientY, inside ? 30 : 0);
+      if (now && !inside) { inside = true; reveal(); }
+      else if (!now && inside) { inside = false; dismiss(); }
     };
     const onDown = () => { if (inside) gsap.to(lens, { scale: 0.86, duration: 0.12, ease: 'power2.out', overwrite: 'auto' }); };
     const onUp   = () => { if (inside) gsap.to(lens, { scale: 1, duration: 0.4, ease: 'back.out(2.2)', overwrite: 'auto' }); };
@@ -83,6 +94,7 @@ export function WaxLens({ cardRef, enabled, de, onOpen }: {
     card.addEventListener('click', onClick);
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => {
+      gsap.ticker.remove(tick);
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('mousedown', onDown);
       window.removeEventListener('mouseup', onUp);
