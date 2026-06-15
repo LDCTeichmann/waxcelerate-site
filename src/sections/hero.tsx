@@ -4,7 +4,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
 import { WaxDive } from '@/sections/hero/WaxDive';
 import { WaxLens } from '@/sections/hero/WaxLens';
-import { IMG_POS } from '@/sections/hero/constants';
+import { IMG_POS, waxLensEnabled } from '@/sections/hero/constants';
 
 /**
  * Hero — „Gallery Stage" mit Tiefenebenen.
@@ -25,6 +25,8 @@ export function Hero() {
   const { t, lang } = useLanguage();
   const de = lang === 'de';
   const [diveOpen, setDiveOpen] = useState(false);
+  // Custom-Cursor-Lupe nur auf Desktop/Maus — steuert auch das Cursor-Hiding.
+  const [lensOn] = useState(() => waxLensEnabled());
 
   const rootRef    = useRef<HTMLElement>(null);
   const cardRef    = useRef<HTMLDivElement>(null);
@@ -310,22 +312,28 @@ export function Hero() {
             {imgEl(true)}
           </div>
 
-          {/* WebGL-Lupe — beim Hover über den Block vergrößert sie das Foto und
-              blendet eine kristalline Mikrotextur ein (z-[4], pointer-events-none,
-              komplett gegated: kein Touch / reduced-motion / WebGL2 → rendert null). */}
-          <WaxLens cardRef={cardRef} />
+          {/* „Blick ins Wachs"-Lupe — weiße Glas-Zoom-Affordanz, die beim Hover
+              über den Block dem Cursor folgt; der Klick öffnet die Wissenschafts-
+              Übersicht. pointer-events-none → Klick geht auf den Hotspot darunter. */}
+          <WaxLens cardRef={cardRef} enabled={lensOn} de={de} />
 
           {/* Block-Hotspot — der Wachsblock ist anklickbar: „Blick ins Wachs".
-              Liegt über der rechten Blockregion (Desktop), unter dem Content. */}
+              Liegt über der rechten Blockregion (Desktop), unter dem Content.
+              Mit aktiver Lupe wird der native Cursor versteckt (die Lupe ersetzt
+              ihn) und die Hover-Pill nur noch per Tastatur-Fokus gezeigt. */}
           <button
             type="button"
             onClick={() => setDiveOpen(true)}
             aria-label={de ? 'Blick ins Wachs — Inhaltsstoffe ansehen' : 'Look inside the wax — see the ingredients'}
-            className="group hidden lg:flex absolute z-[5] items-center justify-center cursor-pointer"
-            style={{ right: '4%', top: '16%', width: '44%', height: '60%' }}
+            className="group hidden lg:flex absolute z-[5] items-center justify-center"
+            style={{ right: '4%', top: '16%', width: '44%', height: '60%', cursor: lensOn ? 'none' : 'pointer' }}
           >
             <span
-              className="flex items-center gap-2 px-4 py-2 rounded-full opacity-0 translate-y-1 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0 group-focus-visible:opacity-100"
+              className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 ${
+                lensOn
+                  ? 'opacity-0 group-focus-visible:opacity-100'
+                  : 'opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 group-focus-visible:opacity-100'
+              }`}
               style={{ background: 'rgba(8,10,14,0.62)', border: '1px solid rgba(255,255,255,0.28)', backdropFilter: 'blur(6px)', color: '#fff' }}
             >
               <Search className="h-4 w-4" />
