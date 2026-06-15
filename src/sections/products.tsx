@@ -9,15 +9,7 @@ import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { products } from '@/lib/data';
 import { richContent } from '@/lib/productContent';
 import { getEstimatedDelivery } from '@/lib/utils';
-
-
-// Segmented-control button: segments share the row evenly (flex-1) and never wrap.
-const segment = (active: boolean) =>
-  `flex-1 min-w-0 px-2 py-1.5 rounded-md text-[12px] leading-none text-center truncate transition-all border cursor-pointer ${
-    active
-      ? 'chip-active text-wx-tx1'
-      : 'border-transparent text-wx-txf hover:text-wx-tx2'
-  }`;
+import { ChainFinder } from '@/sections/ChainFinder';
 
 export function Products() {
   const { t, lang } = useLanguage();
@@ -225,45 +217,15 @@ export function Products() {
                 <span>{t.products.multiDiscount}</span>
               </div>
 
-              {/* Filter bar — two compact segmented controls (no wrap on 375px) */}
-              <div className="mb-3 rounded-xl border border-wx-bd px-3 py-3 space-y-2.5" style={{ background: 'var(--sf)' }}>
-                {/* Speed */}
-                <div className="flex items-center gap-2.5">
-                  <span className="text-xs uppercase tracking-[0.12em] text-wx-txf font-medium w-12 flex-shrink-0">
-                    {de ? 'Gänge' : 'Speed'}
-                  </span>
-                  <div className="flex flex-1 min-w-0 gap-1 p-0.5 rounded-lg border border-wx-bd" style={{ background: 'var(--sf2)' }}>
-                    {(['all', '11', '12'] as const).map(v => (
-                      <button key={v} onClick={() => setSpeedFilter(v)} className={segment(speedFilter === v)}>
-                        {v === 'all' ? (de ? 'Alle' : 'All') : `${v}-fach`}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                {/* Brand */}
-                <div className="flex items-center gap-2.5">
-                  <span className="text-xs uppercase tracking-[0.12em] text-wx-txf font-medium w-12 flex-shrink-0">
-                    {de ? 'Marke' : 'Brand'}
-                  </span>
-                  <div className="flex flex-1 min-w-0 gap-1 p-0.5 rounded-lg border border-wx-bd" style={{ background: 'var(--sf2)' }}>
-                    {([
-                      { v: 'all',        label: de ? 'Alle' : 'All' },
-                      { v: 'shimano',    label: 'Shimano'            },
-                      { v: 'sram',       label: 'SRAM'               },
-                      { v: 'campagnolo', label: 'Campa'              },
-                    ] as { v: 'all' | 'shimano' | 'sram' | 'campagnolo'; label: string }[]).map(({ v, label }) => (
-                      <button key={v} onClick={() => setBrandFilter(v)} className={segment(brandFilter === v)}>
-                        {label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Live result count */}
-              <p className="mb-6 px-1 text-[11px]" style={{ color: 'var(--txf)' }}>
-                {filteredChains.length} {de ? 'Ketten' : 'chains'}
-              </p>
+              {/* Guided "Finde deine Kette" finder — drives the same brand/speed state */}
+              <ChainFinder
+                de={de}
+                brand={brandFilter}
+                speed={speedFilter}
+                setBrand={setBrandFilter}
+                setSpeed={setSpeedFilter}
+                count={filteredChains.length}
+              />
 
               {filteredChains.length === 0 ? (
                 <div className="text-center py-16">
