@@ -87,7 +87,7 @@ const waxCompatTags: string[][] = [
 
 const waxFormulaClassic = [
   { name: 'Vollraffiniertes Paraffinwachs', detail: 'Kristalline Trägermatrix, 58–60°C. Hält den Wirkstoff in den Gelenken und bildet nach dem Erstarren eine formstabile, trockene Schicht.' },
-  { name: 'PTFE mit optimierter Verteilung', detail: 'Durch gezielte Formulierung wird der Wirkstoff in der Schmelze besser verteilt. Das erhöht die aktive Schmierfläche und erlaubt eine effizientere Dosierung bei gleichwertiger Leistung. Reibungskoeffizient 0,05–0,07.' },
+  { name: 'PTFE-Gleitzusatz mit optimierter Verteilung', detail: 'Durch gezielte Formulierung verteilt sich der Gleitzusatz feiner in der Schmelze. Das hält den erstarrten Wachsfilm glatt, antihaftend und sauber — und erlaubt eine effizientere Dosierung bei gleichwertiger Leistung.' },
   { name: 'Stearin', detail: 'Fettsäurederivat, verbessert Matrixkohäsion und Gleichmäßigkeit des Auftrags.' },
 ];
 
@@ -99,7 +99,7 @@ const waxTechNoteClassic = {
 const waxCompHeadersClassic = ['Waxcelerate Standard', 'Graphit-Heißwachs', 'Kettenöl'];
 
 const waxCompRowsClassic = [
-  { label: 'Wirkstoff', cols: ['PTFE-Film', 'Graphit-Matrix', 'Nassschmierung'], winCol: 0, dimCols: [2] },
+  { label: 'Wirkstoff', cols: ['Wachsfilm + PTFE', 'Graphit-Matrix', 'Nassschmierung'], winCol: 0, dimCols: [2] },
   { label: 'Reibungskoeffizient', cols: ['0,05–0,07', '0,08–0,12', '0,18–0,25'], winCol: 0, dimCols: [2] },
   { label: 'Antrieb', cols: ['Trocken, sauber', 'Leicht grauer Belag', 'Ölfilm, bindet Dreck'], winCol: 0, dimCols: [2] },
   { label: 'Intervall trocken', cols: ['250–450 km', '200–350 km', '50–150 km'], winCol: 0, dimCols: [2] },
@@ -122,7 +122,7 @@ const waxTechNoteProMos2 = {
 const waxCompHeadersProMos2 = ['Waxcelerate Pro MoS₂', 'Waxcelerate Standard', 'Kettenöl'];
 
 const waxCompRowsProMos2 = [
-  { label: 'Wirkstoff', cols: ['MoS₂-Transferfilm', 'PTFE-Film', 'Nassschmierung'], winCol: 0, dimCols: [2] },
+  { label: 'Wirkstoff', cols: ['MoS₂-Transferfilm', 'Wachsfilm + PTFE', 'Nassschmierung'], winCol: 0, dimCols: [2] },
   { label: 'Reibungskoeffizient', cols: ['0,03–0,06', '0,05–0,07', '0,18–0,25'], winCol: 0, dimCols: [2] },
   { label: 'Intervall trocken', cols: ['300–550 km', '250–450 km', '50–150 km'], winCol: 0, dimCols: [2] },
   { label: 'Wintereignung', cols: ['bis −8°C ✓', 'bedingt', '—'], winCol: 0, dimCols: [2] },

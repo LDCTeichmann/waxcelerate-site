@@ -197,7 +197,7 @@ export const translations = {
         },
         {
           q: 'Wie viele Watt spart Heißwachs im Vergleich zu Kettenöl?',
-          a: 'In publizierten Kettenschmiermittel-Tests liegt PTFE-Heißwachs typischerweise bei ca. 2–4 Watt Reibungsverlust — Kettenöl unter Realbedingungen bei ca. 6–10 Watt. Das sind ca. 4–6 Watt Unterschied an der Kette. Die oft zitierten „bis zu 8 Watt" stammen aus Labortests bei 300–400 Watt Eingangsleistung. Im Alltag sind die Werte etwas geringer — aber kein anderes Schmiermittel kommt auch nur annähernd an Heißwachs heran.',
+          a: 'In publizierten Kettenschmiermittel-Tests liegt immersives Heißwachs typischerweise bei ca. 2–4 Watt Reibungsverlust — Kettenöl unter Realbedingungen bei ca. 6–10 Watt. Das sind ca. 4–6 Watt Unterschied an der Kette. Die oft zitierten „bis zu 8 Watt" stammen aus Labortests bei 300–400 Watt Eingangsleistung. Im Alltag sind die Werte etwas geringer — aber kein anderes Schmiermittel kommt auch nur annähernd an Heißwachs heran.',
         },
         {
           q: 'Muss ich eine neue Kette vor dem Wachsen entfetten?',
@@ -543,7 +543,7 @@ export const translations = {
         },
         {
           q: 'How many watts does hot wax save compared to chain oil?',
-          a: "Published drivetrain friction tests place PTFE-based hot wax at around 2–4 watts of friction loss — chain oil under real-world conditions at around 6–10 watts. That's roughly 4–6 watts difference at the chain. The widely cited 'up to 8 watts' figures come from lab tests at 300–400 watts input power. In everyday riding the gap is slightly smaller — but no other lubricant comes close to hot wax.",
+          a: "Published drivetrain friction tests place immersive hot wax at around 2–4 watts of friction loss — chain oil under real-world conditions at around 6–10 watts. That's roughly 4–6 watts difference at the chain. The widely cited 'up to 8 watts' figures come from lab tests at 300–400 watts input power. In everyday riding the gap is slightly smaller — but no other lubricant comes close to hot wax.",
         },
         {
           q: 'Do I need to degrease a new chain before waxing?',
