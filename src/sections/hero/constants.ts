@@ -7,6 +7,16 @@
 // Identisch für object-position UND mask-position des Hero-Fotos.
 export const IMG_POS = '68% 50%';
 
+// Bruchteile aus IMG_POS ('68% 50%') — für die object-cover-Abbildung der Lupe
+// (WaxLens) auf die Maske. Muss mit IMG_POS deckungsgleich bleiben.
+export const IMG_POS_X = 0.68;
+export const IMG_POS_Y = 0.5;
+
+// Silhouette des Wachsblocks — dieselbe Maske wie die maskierte Bildebene in
+// hero.tsx. Die Lupe sampelt deren Alpha, um pixelgenau „nur auf dem Wachs" zu
+// erscheinen (statt im umgebenden Schiefer-Rechteck).
+export const HERO_MASK_SRC = '/images/hero-wax-v5-mask.png';
+
 /**
  * Der Wachsblock-Bereich als Bruchteile der Karten-Box (rechts/oben/Breite/Höhe).
  * Deckt sich mit dem Hotspot-Button in hero.tsx (right:4% top:16% w:44% h:60%).

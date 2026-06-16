@@ -27,6 +27,11 @@ export function Hero() {
   const [diveOpen, setDiveOpen] = useState(false);
   // Custom-Cursor-Lupe nur auf Desktop/Maus — steuert auch das Cursor-Hiding.
   const [lensOn] = useState(() => waxLensEnabled());
+  // True nur, solange der Cursor wirklich über der Wachs-Silhouette liegt (von
+  // WaxLens gemeldet). Steuert das Verstecken des nativen Cursors deckungsgleich
+  // mit der Lupe — sonst gäbe es im Rechteck-aber-nicht-Wachs-Spalt einen
+  // unsichtbaren Cursor.
+  const [lensActive, setLensActive] = useState(false);
   const openDive = useCallback(() => setDiveOpen(true), []);
 
   const rootRef    = useRef<HTMLElement>(null);
@@ -316,7 +321,7 @@ export function Hero() {
           {/* „Blick ins Wachs"-Lupe — weiße Glas-Zoom-Affordanz, die beim Hover
               über den Block dem Cursor folgt; der Klick öffnet die Wissenschafts-
               Übersicht. pointer-events-none → Klick geht auf den Hotspot darunter. */}
-          <WaxLens cardRef={cardRef} enabled={lensOn} de={de} onOpen={openDive} />
+          <WaxLens cardRef={cardRef} enabled={lensOn} de={de} onOpen={openDive} onActiveChange={setLensActive} />
 
           {/* Block-Hotspot — der Wachsblock ist anklickbar: „Blick ins Wachs".
               Liegt über der rechten Blockregion (Desktop), unter dem Content.
@@ -327,7 +332,7 @@ export function Hero() {
             onClick={() => setDiveOpen(true)}
             aria-label={de ? 'Blick ins Wachs — Inhaltsstoffe ansehen' : 'Look inside the wax — see the ingredients'}
             className="group hidden lg:flex absolute z-[5] items-center justify-center"
-            style={{ right: '4%', top: '16%', width: '44%', height: '60%', cursor: lensOn ? 'none' : 'pointer' }}
+            style={{ right: '4%', top: '16%', width: '44%', height: '60%', cursor: lensOn && lensActive ? 'none' : 'pointer' }}
           >
             <span
               className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 ${
