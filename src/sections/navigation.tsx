@@ -91,8 +91,11 @@ export function Navigation() {
         style={{
           background: isScrolled ? 'var(--nav-bg)' : 'transparent',
           boxShadow: isScrolled ? 'inset 0 -1px 0 var(--bd)' : 'none',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
+          // Live-Blur nur wenn die Leiste tatsächlich einen Hintergrund hat
+          // (gescrollt) und mit kleinerem Radius — der frühere blur(16px) lief
+          // permanent und ließ jedes Scroll-Frame die ganze Leiste neu rastern.
+          backdropFilter: isScrolled ? 'blur(8px)' : 'none',
+          WebkitBackdropFilter: isScrolled ? 'blur(8px)' : 'none',
         }}
       >
         {/* Scroll-Progress — eine Accent-Hairline an der Unterkante */}

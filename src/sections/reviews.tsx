@@ -1,4 +1,4 @@
-import { useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { BadgeCheck } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 
@@ -161,7 +161,9 @@ function ReviewCard({ r, de }: { r: Review; de: boolean }) {
 }
 
 // Seamless marquee row: cards rendered twice, the track slides one set width.
-function Marquee({ items, dur, reduced }: { items: Review[]; dur: number; reduced: boolean }) {
+// `paused` halts the animation when the section is off-screen so it isn't
+// compositing a wide track no one can see.
+function Marquee({ items, dur, reduced, paused }: { items: Review[]; dur: number; reduced: boolean; paused: boolean }) {
   const { lang } = useLanguage();
   const de = lang === 'de';
   if (reduced) {
@@ -173,7 +175,8 @@ function Marquee({ items, dur, reduced }: { items: Review[]; dur: number; reduce
   }
   return (
     <div className="marquee overflow-hidden edge-fade-x">
-      <div className="marquee-track inline-flex" style={{ '--dur': `${dur}s` } as CSSProperties}>
+      <div className="marquee-track inline-flex"
+        style={{ '--dur': `${dur}s`, animationPlayState: paused ? 'paused' : 'running' } as CSSProperties}>
         {[...items, ...items].map((r, i) => <ReviewCard key={i} r={r} de={de} />)}
       </div>
     </div>
@@ -186,12 +189,24 @@ export function Reviews() {
   const [reduced] = useState(() =>
     typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
+  // Pause the marquee animations while the section is off-screen so it isn't
+  // compositing a wide track no one can see.
+  const sectionRef = useRef<HTMLElement>(null);
+  const [inView, setInView] = useState(true);
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { rootMargin: '120px' });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   // Two rows from different slices so they never read as the same short loop.
   const rowA = REVIEWS;
   const rowB = [...REVIEWS.slice(4), ...REVIEWS.slice(0, 4)];
 
   return (
-    <section className="relative py-20 sm:py-28 overflow-hidden" style={{ background: 'var(--pg)' }}>
+    <section ref={sectionRef} className="relative py-20 sm:py-28 overflow-hidden" style={{ background: 'var(--pg)' }}>
       {/* ── Header ── */}
       <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto mb-9">
@@ -209,8 +224,8 @@ export function Reviews() {
 
       {/* ── Two self-scrolling rows ── */}
       <div className="flex flex-col gap-4 sm:gap-5">
-        <Marquee items={rowA} dur={66} reduced={reduced} />
-        <Marquee items={rowB} dur={86} reduced={reduced} />
+        <Marquee items={rowA} dur={66} reduced={reduced} paused={!inView} />
+        <Marquee items={rowB} dur={86} reduced={reduced} paused={!inView} />
       </div>
 
       {/* ── Proof strip + source link ── */}

@@ -1,9 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react';
 import { ArrowRight, Search } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
-import { WaxDive } from '@/sections/hero/WaxDive';
 import { WaxLens } from '@/sections/hero/WaxLens';
+
+// The dive dialog (graph + diagrams) is heavy and only needed once opened, so it
+// is split out of the initial homepage bundle and loaded on first open.
+const WaxDive = lazy(() => import('@/sections/hero/WaxDive').then(m => ({ default: m.WaxDive })));
 import { IMG_POS, waxLensEnabled } from '@/sections/hero/constants';
 
 /**
@@ -138,12 +141,12 @@ export function Hero() {
     // Content verabschiedet sich etwas früher als das Band scrollt — y und
     // opacity bleiben subtil, damit nichts hart wegklappt.
     if (contentRef.current) scrub(gsap.to(contentRef.current, { y: -40, opacity: 0.3, ease: 'none' }));
-    if (letters.length) {
-      const mid = (letters.length - 1) / 2;
-      scrub(gsap.to(letters, { x: (i: number) => (i - mid) * 4.5, ease: 'none' }));
-    }
-    // Die Bühne weicht beim Scrollen minimal zurück — cineastischer Abgang.
-    scrub(gsap.to(card, { scale: 0.965, transformOrigin: '50% 100%', ease: 'none' }));
+    // Wortmarke driftet als EIN Element leicht nach oben — gleicher Tiefen-
+    // Eindruck wie der frühere Per-Letter-Scrub, aber nur ein Compositor-Layer
+    // statt eines Transforms pro Glyphe je Frame. Die Karten-Skalierung beim
+    // Scrollen entfällt ganz (das teure Neuzeichnen der großen Bühne war der
+    // Haupt-Ruckler).
+    if (wordRef.current) scrub(gsap.to(wordRef.current, { yPercent: -8, ease: 'none' }));
 
     // Cursor-Tiefe: Bildebenen folgen der Maus stärker als die Wortmarke —
     // der Versatz zwischen Block und Typo erzeugt echte Parallaxe.
@@ -243,7 +246,7 @@ export function Hero() {
         {/* Bühne: gerundete Foto-Karte auf dem Seitenhintergrund — Light & Noir */}
         <div
           ref={cardRef}
-          className="relative overflow-hidden rounded-[20px] sm:rounded-[28px] will-change-transform
+          className="relative overflow-hidden rounded-[20px] sm:rounded-[28px]
                      h-[calc(100dvh-108px)] lg:h-[calc(100dvh-134px)] min-h-[540px]"
           style={{
             background: '#0B0C0E',
@@ -304,7 +307,7 @@ export function Hero() {
             >
               {BRAND.map((ch, i) => (
                 <span key={i} className="inline-block overflow-hidden align-bottom">
-                  <span data-letter className="inline-block will-change-transform">
+                  <span data-letter className="inline-block">
                     {ch}
                   </span>
                 </span>
@@ -379,7 +382,7 @@ export function Hero() {
                   <span className="block" style={{ paddingBottom: '0.05em' }}>
                     {t.hero.headline.split(' ').map((w, i) => (
                       <span key={i} className="inline-block overflow-hidden align-bottom mr-[0.24em]">
-                        <span data-word className="inline-block will-change-transform">{w}</span>
+                        <span data-word className="inline-block">{w}</span>
                       </span>
                     ))}
                   </span>
@@ -388,7 +391,7 @@ export function Hero() {
                       <span key={i} className="inline-block overflow-hidden align-bottom mr-[0.24em]">
                         <span
                           data-word
-                          className="inline-block italic will-change-transform"
+                          className="inline-block italic"
                           style={{ fontVariationSettings: '"opsz" 144, "wght" 620, "SOFT" 30, "WONK" 0' }}
                         >
                           {w}
@@ -532,7 +535,11 @@ export function Hero() {
       </div>
 
       {/* „Look inside the wax" — Inhaltsstoff-Dive */}
-      <WaxDive open={diveOpen} onClose={() => setDiveOpen(false)} de={de} />
+      {diveOpen && (
+        <Suspense fallback={null}>
+          <WaxDive open={diveOpen} onClose={() => setDiveOpen(false)} de={de} />
+        </Suspense>
+      )}
     </section>
   );
 }
