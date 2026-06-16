@@ -300,3 +300,50 @@ export function diveFormula(variant: 'classic' | 'pro'): ScienceComponent[] {
     get('haftung'),            // Stearin — Haftvermittler
   ];
 }
+
+// ─── Hero dive — relationship map (positions + labelled links) ────────────────
+// The genuine relationships between components (mirrors EDGES), laid out as a
+// readable network: paraffin is the matrix hub, the solid lubricant the second
+// hub. Solid links = structural, dashed = protective/surface. Used by WaxDive to
+// show WHICH ingredients relate and HOW (each link carries a relationship label).
+export interface DiveNodePos { id: string; x: number; y: number; big?: boolean }
+export interface DiveLink {
+  a: string; b: string; labelDe: string; labelEn: string; main?: boolean; dash?: boolean;
+}
+export interface DiveGraph { nodes: DiveNodePos[]; links: DiveLink[] }
+
+export const DIVE_GRAPH: Record<'classic' | 'pro', DiveGraph> = {
+  pro: {
+    nodes: [
+      { id: 'kristallstruktur', x: 230, y: 86,  big: true }, // Paraffin (matrix hub)
+      { id: 'matrix',           x: 100, y: 150 },             // FT-Wachs
+      { id: 'winterformel',     x: 360, y: 150 },             // Mikrokristallin
+      { id: 'mos2',             x: 230, y: 250, big: true },  // MoS₂ (lubricant hub)
+      { id: 'sedimentation',    x: 104, y: 352 },             // Dispersant
+      { id: 'antioxidans',      x: 356, y: 352 },             // Antioxidans
+    ],
+    links: [
+      { a: 'kristallstruktur', b: 'mos2',            labelDe: 'Trägermatrix',      labelEn: 'carrier matrix',  main: true },
+      { a: 'matrix',           b: 'kristallstruktur', labelDe: 'Ko-Kristallisation', labelEn: 'co-crystallises' },
+      { a: 'winterformel',     b: 'kristallstruktur', labelDe: 'Plastifiziert',    labelEn: 'plasticises' },
+      { a: 'winterformel',     b: 'mos2',            labelDe: 'Einbettung',        labelEn: 'embedding' },
+      { a: 'sedimentation',    b: 'mos2',            labelDe: 'Sterische Hülle',   labelEn: 'steric shell',    dash: true },
+      { a: 'antioxidans',      b: 'mos2',            labelDe: 'Oxidationsschutz',  labelEn: 'oxidation guard', dash: true },
+    ],
+  },
+  classic: {
+    nodes: [
+      { id: 'kristallstruktur', x: 230, y: 96,  big: true }, // Paraffin (matrix hub)
+      { id: 'winterformel',     x: 100, y: 200 },            // Mikrokristallin
+      { id: 'haftung',          x: 360, y: 200 },            // Stearin
+      { id: 'ptfe',             x: 230, y: 300, big: true }, // PTFE (lubricant hub)
+    ],
+    links: [
+      { a: 'kristallstruktur', b: 'ptfe',            labelDe: 'Trägermatrix',     labelEn: 'carrier matrix', main: true },
+      { a: 'winterformel',     b: 'kristallstruktur', labelDe: 'Plastifiziert',   labelEn: 'plasticises' },
+      { a: 'winterformel',     b: 'ptfe',            labelDe: 'Einbettung',       labelEn: 'embedding' },
+      { a: 'haftung',          b: 'kristallstruktur', labelDe: 'Haftvermittlung', labelEn: 'adhesion',       dash: true },
+      { a: 'haftung',          b: 'ptfe',            labelDe: 'Filmhaftung',      labelEn: 'film bond',      dash: true },
+    ],
+  },
+};

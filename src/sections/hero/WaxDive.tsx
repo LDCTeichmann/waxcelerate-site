@@ -6,50 +6,51 @@ import { gsap } from '@/lib/gsap';
 import { prefersReducedMotion } from '@/hooks/useAnimation';
 import { SegmentedToggle } from '@/components/viz';
 import { ComponentDiagram } from '@/sections/science/diagrams';
-import { diveFormula, type ScienceComponent } from '@/lib/science';
+import { diveFormula, DIVE_GRAPH, type ScienceComponent, type DiveNodePos } from '@/lib/science';
 
 const MONO = "'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace";
-
-// Radial map geometry — the paraffin matrix is the hub, additives orbit it.
-const VB_W = 440, VB_H = 420;
-const CX = 220, CY = 210;
-const ORBIT_R = 140, HUB_R = 48, NODE_R = 35;
+const VB_W = 460, VB_H = 430;
+const radOf = (big?: boolean) => (big ? 44 : 33);
 
 /**
  * WaxDive — the "look inside the wax" experience.
  *
- * LEFT: a radial system map — paraffin (the carrier matrix) sits at the centre,
- * every other component orbits it on a spoke, because everything is embedded in
- * that matrix. Nodes pop in, spokes draw, the selected node pulses; hovering
- * lifts a node. RIGHT: the selected component's card (role, metric, summary, a
- * compact diagram, the development insight) deep-linking to /wissenschaft#id.
+ * LEFT: a real relationship map. Paraffin is the matrix hub, the solid lubricant
+ * the second hub; every link carries the genuine relationship (Trägermatrix,
+ * Ko-Kristallisation, Einbettung, …). Hovering/selecting a node lights up ITS
+ * connections with labels and dims the rest — so it reads which ingredients
+ * relate and how. RIGHT: the selected component's card incl. a "Verbindungen"
+ * list, deep-linking to /wissenschaft#id.
  *
- * Themed entirely with design tokens (light in light mode) and rendered through
- * a portal so the hero white-heading rule doesn't leak in. Classic and Pro list
- * only what each variant genuinely contains.
+ * Themed with design tokens (light in light mode) and portaled to <body>.
  */
 export function WaxDive({ open, onClose, de }: { open: boolean; onClose: () => void; de: boolean }) {
   const [variant, setVariant] = useState<'classic' | 'pro'>('pro');
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [hoverId, setHoverId] = useState<string | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const detailRef = useRef<HTMLDivElement>(null);
 
   const components = diveFormula(variant);
+  const graph = DIVE_GRAPH[variant];
   const active = components.find(c => c.id === activeId) ?? components[0];
-  const hub = components[0];
-  const orbitals = components.slice(1);
-  const layout = orbitals.map((c, i) => {
-    const a = (-90 + (360 / orbitals.length) * i) * Math.PI / 180;
-    return { c, x: CX + ORBIT_R * Math.cos(a), y: CY + ORBIT_R * Math.sin(a), ang: a };
-  });
-  const activePos = active.id === hub.id
-    ? { x: CX, y: CY, r: HUB_R }
-    : (() => { const f = layout.find(l => l.c.id === active.id)!; return { x: f.x, y: f.y, r: NODE_R }; })();
+  const focusId = hoverId ?? active.id;
 
-  useEffect(() => { setActiveId(null); }, [variant]);
+  const compById = (id: string) => components.find(c => c.id === id)!;
+  const posById = (id: string) => graph.nodes.find(n => n.id === id)!;
 
-  // Body scroll lock + Escape + initial focus.
+  // Links touching the focus node → its neighbours light up, the rest dim.
+  const incident = (id: string) => graph.links.filter(l => l.a === id || l.b === id);
+  const neighbours = new Set(incident(focusId).flatMap(l => [l.a, l.b]).filter(id => id !== focusId));
+  const nodeState = (id: string): 'active' | 'near' | 'dim' =>
+    id === focusId ? 'active' : neighbours.has(id) ? 'near' : 'dim';
+  const activePos = posById(active.id);
+  const activeLinks = incident(active.id);
+
+  useEffect(() => { setActiveId(null); setHoverId(null); }, [variant]);
+
+  // Scroll lock + Escape + focus.
   useEffect(() => {
     if (!open) return;
     document.body.style.overflow = 'hidden';
@@ -59,36 +60,36 @@ export function WaxDive({ open, onClose, de }: { open: boolean; onClose: () => v
     return () => { document.body.style.overflow = ''; window.removeEventListener('keydown', onKey); };
   }, [open, onClose]);
 
-  // Spokes draw in on open / variant switch; the hint arrow nudges.
+  // Links draw in (solid) / fade in (dashed); the hint arrow nudges.
   useEffect(() => {
     if (!open || prefersReducedMotion()) return;
     const svg = svgRef.current;
     if (!svg) return;
     const ctx = gsap.context(() => {
-      const spokes = svg.querySelectorAll<SVGLineElement>('[data-spoke]');
-      spokes.forEach((ln) => {
-        const len = ln.getTotalLength?.() ?? 200;
-        gsap.fromTo(ln, { strokeDasharray: len, strokeDashoffset: len }, { strokeDashoffset: 0, duration: 0.6, ease: 'power2.out', delay: 0.1 });
+      svg.querySelectorAll<SVGLineElement>('[data-link]').forEach((ln) => {
+        if (ln.dataset.dash === '1') {
+          gsap.fromTo(ln, { opacity: 0 }, { opacity: 1, duration: 0.5, ease: 'power2.out', delay: 0.25 });
+        } else {
+          const len = ln.getTotalLength?.() ?? 240;
+          gsap.fromTo(ln, { strokeDasharray: len, strokeDashoffset: len }, { strokeDashoffset: 0, duration: 0.65, ease: 'power2.out', delay: 0.1 });
+        }
       });
       gsap.to('[data-nudge]', { x: 4, repeat: -1, yoyo: true, duration: 0.8, ease: 'sine.inOut' });
     }, svg);
     return () => ctx.revert();
   }, [open, variant]);
 
-  // Selection ring pulses around the active node.
+  // Selection ring pulses around the committed (selected) node.
   useEffect(() => {
     if (!open || prefersReducedMotion()) return;
-    const svg = svgRef.current;
-    const ring = svg?.querySelector('[data-pulse]') as SVGCircleElement | null;
+    const ring = svgRef.current?.querySelector('[data-pulse]') as SVGCircleElement | null;
     if (!ring) return;
     const cx = ring.getAttribute('cx'); const cy = ring.getAttribute('cy');
-    const tw = gsap.fromTo(ring,
-      { scale: 1, opacity: 0.5 },
-      { scale: 1.4, opacity: 0, duration: 1.5, ease: 'power1.out', repeat: -1, svgOrigin: `${cx} ${cy}` });
+    const tw = gsap.fromTo(ring, { scale: 1, opacity: 0.5 }, { scale: 1.4, opacity: 0, duration: 1.5, ease: 'power1.out', repeat: -1, svgOrigin: `${cx} ${cy}` });
     return () => { tw.kill(); gsap.set(ring, { opacity: 0 }); };
   }, [active.id, open, variant]);
 
-  // Detail cross-fades when the selection changes.
+  // Detail cross-fades on selection change.
   useEffect(() => {
     if (!open || prefersReducedMotion()) return;
     const el = detailRef.current;
@@ -97,6 +98,10 @@ export function WaxDive({ open, onClose, de }: { open: boolean; onClose: () => v
   }, [active.id, open]);
 
   if (!open) return null;
+
+  const variantLine = variant === 'pro'
+    ? (de ? 'Sechs Komponenten · MoS₂-Festschmierstoff' : 'Six components · MoS₂ solid lubricant')
+    : (de ? 'Vier Komponenten · PTFE-Trockenfilm' : 'Four components · PTFE dry film');
 
   return createPortal(
     <div
@@ -117,12 +122,11 @@ export function WaxDive({ open, onClose, de }: { open: boolean; onClose: () => v
         <div className="sticky top-0 z-10 flex items-center justify-between gap-3 px-5 sm:px-7 py-4"
           style={{ background: 'var(--nav-bg)', borderBottom: '1px solid var(--bd)', backdropFilter: 'blur(10px)' }}>
           <div>
-            <p className="eyebrow" style={{ color: 'var(--accent)' }}>
-              {de ? 'Blick ins Wachs' : 'Inside the wax'}
-            </p>
+            <p className="eyebrow" style={{ color: 'var(--accent)' }}>{de ? 'Blick ins Wachs' : 'Inside the wax'}</p>
             <p className="font-display font-bold text-[17px] leading-tight mt-0.5" style={{ color: 'var(--tx1)' }}>
               {de ? 'Die Formel unter der Lupe' : 'The formula up close'}
             </p>
+            <p className="text-[11px] mt-0.5" style={{ color: 'var(--txm)' }}>{variantLine}</p>
           </div>
           <div className="flex items-center gap-3">
             <SegmentedToggle
@@ -145,77 +149,79 @@ export function WaxDive({ open, onClose, de }: { open: boolean; onClose: () => v
 
         <div className="grid lg:grid-cols-[1.05fr_1fr] gap-5 sm:gap-7 p-5 sm:p-7">
 
-          {/* LEFT — radial system map */}
+          {/* LEFT — relationship map */}
           <div className="flex flex-col">
             <div className="flex items-center justify-between mb-2">
               <p className="eyebrow" style={{ color: 'var(--txf)' }}>
-                {de ? `Aufbau · ${components.length} Komponenten` : `System · ${components.length} components`}
+                {de ? 'Beziehungen' : 'Relationships'}
               </p>
               <span className="inline-flex items-center gap-1.5 text-[11px] font-medium" style={{ color: 'var(--accent)' }}>
-                {de ? 'Tippe einen Knoten' : 'Tap a node'}
+                {de ? 'Knoten erkunden' : 'Explore the nodes'}
                 <ArrowRight data-nudge className="h-3.5 w-3.5" />
               </span>
             </div>
 
             <div className="relative rounded-xl" style={{ background: 'var(--sf2)', border: '1px solid var(--bd)' }}>
               <svg ref={svgRef} viewBox={`0 0 ${VB_W} ${VB_H}`} className="w-full h-auto"
-                role="group" aria-label={de ? 'Aufbau der Formel' : 'Formula system'}>
-                <defs>
-                  <radialGradient id="diveHubGlow" cx="0.5" cy="0.5" r="0.5">
-                    <stop offset="0" stopColor="rgba(var(--accent-rgb),0.10)" />
-                    <stop offset="1" stopColor="rgba(var(--accent-rgb),0)" />
-                  </radialGradient>
-                </defs>
-
-                {/* matrix field — faint glow + orbit ring */}
-                <circle cx={CX} cy={CY} r={ORBIT_R + 30} fill="url(#diveHubGlow)" />
-                <circle cx={CX} cy={CY} r={ORBIT_R} fill="none" stroke="var(--bd)" strokeWidth={1} strokeDasharray="3 6" opacity={0.7} />
-
-                {/* spokes hub → orbital */}
-                {layout.map((l) => {
-                  const on = active.id === l.c.id;
+                role="group" aria-label={de ? 'Beziehungsgraph der Formel' : 'Formula relationship graph'}>
+                {/* links */}
+                {graph.links.map((l, i) => {
+                  const A = posById(l.a), B = posById(l.b);
+                  const on = l.a === focusId || l.b === focusId;
                   return (
-                    <line key={`s-${l.c.id}`} data-spoke x1={CX} y1={CY} x2={l.x} y2={l.y}
-                      stroke={on ? 'var(--accent)' : 'rgba(var(--accent-rgb),0.28)'}
-                      strokeWidth={on ? 2.5 : 1.5} strokeLinecap="round"
-                      style={{ transition: 'stroke 0.25s, stroke-width 0.25s' }} />
+                    <line key={`l-${i}`} data-link data-dash={l.dash ? '1' : undefined}
+                      x1={A.x} y1={A.y} x2={B.x} y2={B.y}
+                      stroke={on ? 'var(--accent)' : 'rgba(var(--accent-rgb),0.16)'}
+                      strokeWidth={on ? (l.main ? 2.8 : 2.2) : 1.2}
+                      strokeDasharray={l.dash ? '5 6' : undefined}
+                      strokeLinecap="round"
+                      style={{ transition: 'stroke 0.3s, stroke-width 0.3s' }} />
                   );
                 })}
 
-                {/* pulse ring behind active node */}
-                <circle data-pulse cx={activePos.x} cy={activePos.y} r={activePos.r + 6}
+                {/* pulse ring around the selected node */}
+                <circle data-pulse cx={activePos.x} cy={activePos.y} r={radOf(activePos.big) + 6}
                   fill="none" stroke="var(--accent)" strokeWidth={1.5} opacity={0} />
 
-                {/* orbital metric labels (outside the hover-scaling node groups) */}
-                {layout.map((l) => {
-                  const mr = NODE_R + 13;
-                  const mx = l.x + mr * Math.cos(l.ang);
-                  const my = l.y + mr * Math.sin(l.ang);
-                  const on = active.id === l.c.id;
+                {/* link labels — visible only for the focus node's links */}
+                {graph.links.map((l, i) => {
+                  const A = posById(l.a), B = posById(l.b);
+                  const on = l.a === focusId || l.b === focusId;
                   return (
-                    <text key={`m-${l.c.id}`} x={mx} y={my} textAnchor="middle" dominantBaseline="middle"
-                      fontSize={9.5} fontFamily={MONO} fill={on ? 'var(--accent)' : 'var(--txm)'}
-                      style={{ pointerEvents: 'none', transition: 'fill 0.25s' }}>
-                      {l.c.metric}
+                    <text key={`t-${i}`} x={(A.x + B.x) / 2} y={(A.y + B.y) / 2} textAnchor="middle" dominantBaseline="middle"
+                      fontSize={9.5} fontFamily={MONO} fill="var(--accent)" opacity={on ? 1 : 0}
+                      style={{ pointerEvents: 'none', transition: 'opacity 0.3s', paintOrder: 'stroke', stroke: 'var(--sf2)', strokeWidth: 3.5, strokeLinejoin: 'round' }}>
+                      {de ? l.labelDe : l.labelEn}
                     </text>
                   );
                 })}
 
-                {/* hub */}
-                <DiveNode c={hub} x={CX} y={CY} r={HUB_R} isHub index={0} de={de}
-                  selected={active.id === hub.id} onSelect={() => setActiveId(hub.id)} />
-                {/* orbital nodes */}
-                {layout.map((l, i) => (
-                  <DiveNode key={l.c.id} c={l.c} x={l.x} y={l.y} r={NODE_R} index={i + 1} de={de}
-                    selected={active.id === l.c.id} onSelect={() => setActiveId(l.c.id)} />
+                {/* nodes */}
+                {graph.nodes.map((n, i) => (
+                  <DiveNode key={n.id} comp={compById(n.id)} pos={n} index={i} de={de}
+                    state={nodeState(n.id)}
+                    onSelect={() => setActiveId(n.id)}
+                    onHover={setHoverId} />
                 ))}
               </svg>
+
+              {/* legend */}
+              <div className="absolute bottom-2 right-3 flex items-center gap-3 text-[9.5px]" style={{ color: 'var(--txm)' }}>
+                <span className="inline-flex items-center gap-1.5">
+                  <svg width="16" height="4"><line x1="0" y1="2" x2="16" y2="2" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" /></svg>
+                  {de ? 'Aufbau' : 'structure'}
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <svg width="16" height="4"><line x1="0" y1="2" x2="16" y2="2" stroke="var(--accent)" strokeWidth="2" strokeDasharray="3 3" strokeLinecap="round" /></svg>
+                  {de ? 'Schutz' : 'surface'}
+                </span>
+              </div>
             </div>
 
             <p className="text-[11px] mt-3" style={{ color: 'var(--txm)' }}>
               {de
-                ? 'Paraffin bildet die Matrix — alles andere ist darin eingebettet. Die Abstimmung ist die eigentliche Rezeptur.'
-                : 'Paraffin forms the matrix — everything else is embedded in it. The balance is the real recipe.'}
+                ? 'Paraffin ist die Matrix, der Festschmierstoff das Herz — die Verbindungen dazwischen sind die eigentliche Rezeptur.'
+                : 'Paraffin is the matrix, the solid lubricant the heart — the links between them are the real recipe.'}
             </p>
           </div>
 
@@ -236,8 +242,27 @@ export function WaxDive({ open, onClose, de }: { open: boolean; onClose: () => v
               {de ? active.sumDe : active.sumEn}
             </p>
 
-            {/* compact diagram — deliberately small */}
-            <div className="mt-4 max-w-[300px]">
+            {/* Verbindungen — what this component connects to, and how */}
+            {activeLinks.length > 0 && (
+              <div className="mt-4">
+                <p className="eyebrow mb-2" style={{ color: 'var(--txf)' }}>{de ? 'Verbindungen' : 'Connections'}</p>
+                <ul className="flex flex-col gap-1.5">
+                  {activeLinks.map((l, i) => {
+                    const other = compById(l.a === active.id ? l.b : l.a);
+                    return (
+                      <li key={i} className="flex items-center gap-2 text-[12.5px]">
+                        <span className="num-data" style={{ color: 'var(--accent)' }}>{de ? l.labelDe : l.labelEn}</span>
+                        <span style={{ color: 'var(--txff)' }}>→</span>
+                        <span style={{ color: 'var(--tx2)' }}>{de ? other.graphLabelDe : other.graphLabelEn}</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
+
+            {/* compact diagram */}
+            <div className="mt-4 max-w-[280px]">
               <ComponentDiagram which={active.diagram} de={de} />
             </div>
 
@@ -263,13 +288,15 @@ export function WaxDive({ open, onClose, de }: { open: boolean; onClose: () => v
   );
 }
 
-// One node of the map (wrapper component → no hooks in .map). Pops in on mount,
-// lifts on hover, and flips to the accent fill when selected.
-function DiveNode({ c, x, y, r, isHub, index, de, selected, onSelect }: {
-  c: ScienceComponent; x: number; y: number; r: number; isHub?: boolean;
-  index: number; de: boolean; selected: boolean; onSelect: () => void;
+// One node (wrapper component → no hooks in .map). Pops in on mount, lifts on
+// hover (which also previews its relationships), flips to accent when focused.
+function DiveNode({ comp, pos, state, index, de, onSelect, onHover }: {
+  comp: ScienceComponent; pos: DiveNodePos; state: 'active' | 'near' | 'dim';
+  index: number; de: boolean; onSelect: () => void; onHover: (id: string | null) => void;
 }) {
   const gref = useRef<SVGGElement>(null);
+  const r = radOf(pos.big);
+  const { x, y } = pos;
 
   useEffect(() => {
     if (prefersReducedMotion()) return;
@@ -279,9 +306,13 @@ function DiveNode({ c, x, y, r, isHub, index, de, selected, onSelect }: {
     return () => { t.kill(); };
   }, []); // mount only
 
-  const scaleTo = (s: number, d: number) => {
+  const lift = (s: number, d: number) => {
     if (!prefersReducedMotion()) gsap.to(gref.current, { scale: s, duration: d, svgOrigin: `${x} ${y}`, overwrite: 'auto' });
   };
+
+  const active = state === 'active';
+  const dim = state === 'dim';
+  const stroke = active ? 'var(--accent)' : state === 'near' ? 'rgba(var(--accent-rgb),0.6)' : 'var(--bd)';
 
   return (
     <g
@@ -289,35 +320,29 @@ function DiveNode({ c, x, y, r, isHub, index, de, selected, onSelect }: {
       data-dive-node
       role="button"
       tabIndex={0}
-      aria-label={de ? c.nameDe : c.nameEn}
-      style={{ cursor: 'pointer', outline: 'none' }}
+      aria-label={de ? comp.nameDe : comp.nameEn}
+      style={{ cursor: 'pointer', outline: 'none', opacity: dim ? 0.55 : 1, transition: 'opacity 0.3s' }}
       onClick={onSelect}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect(); } }}
-      onMouseEnter={() => scaleTo(1.07, 0.2)}
-      onMouseLeave={() => scaleTo(1, 0.3)}
+      onMouseEnter={() => { onHover(comp.id); lift(1.07, 0.2); }}
+      onMouseLeave={() => { onHover(null); lift(1, 0.3); }}
+      onFocus={() => onHover(comp.id)}
+      onBlur={() => onHover(null)}
     >
-      <circle
-        cx={x} cy={y} r={r}
-        fill={selected ? 'var(--accent)' : 'var(--sf)'}
-        stroke={selected ? 'var(--accent)' : 'var(--bd)'}
-        strokeWidth={selected ? 2 : 1.5}
+      <circle cx={x} cy={y} r={r}
+        fill={active ? 'var(--accent)' : 'var(--sf)'} stroke={stroke} strokeWidth={active ? 2 : 1.5}
         style={{
-          filter: selected
-            ? 'drop-shadow(0 6px 16px rgba(var(--accent-rgb),0.35))'
-            : 'drop-shadow(0 3px 8px rgba(0,0,0,0.12))',
+          filter: active ? 'drop-shadow(0 6px 16px rgba(var(--accent-rgb),0.35))' : 'drop-shadow(0 3px 8px rgba(0,0,0,0.12))',
           transition: 'fill 0.25s, stroke 0.25s',
-        }}
-      />
-      <text x={x} y={isHub ? y - 3 : y + 1} textAnchor="middle" fontSize={isHub ? 13 : 10}
-        fontWeight={600} fill={selected ? '#fff' : 'var(--tx1)'} style={{ pointerEvents: 'none' }}>
-        {de ? c.graphLabelDe : c.graphLabelEn}
+        }} />
+      <text x={x} y={pos.big ? y - 4 : y - 2} textAnchor="middle" fontSize={pos.big ? 13 : 10}
+        fontWeight={600} fill={active ? '#fff' : 'var(--tx1)'} style={{ pointerEvents: 'none' }}>
+        {de ? comp.graphLabelDe : comp.graphLabelEn}
       </text>
-      {isHub && (
-        <text x={x} y={y + 14} textAnchor="middle" fontSize={10} fontFamily={MONO}
-          fill={selected ? 'rgba(255,255,255,0.85)' : 'var(--txm)'} style={{ pointerEvents: 'none' }}>
-          {c.metric}
-        </text>
-      )}
+      <text x={x} y={pos.big ? y + 13 : y + 11} textAnchor="middle" fontSize={pos.big ? 10 : 8.5} fontFamily={MONO}
+        fill={active ? 'rgba(255,255,255,0.85)' : 'var(--txm)'} style={{ pointerEvents: 'none' }}>
+        {comp.metric}
+      </text>
     </g>
   );
 }
