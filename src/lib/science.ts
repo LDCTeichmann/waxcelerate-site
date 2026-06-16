@@ -4,7 +4,8 @@
 // FormulaGraph. (Editorial science copy — distinct from product SKU data.)
 
 export type DiagramKey =
-  | 'lamellar' | 'droplift' | 'coldflex' | 'shear' | 'density' | 'radical';
+  | 'lamellar' | 'droplift' | 'coldflex' | 'shear' | 'density' | 'radical'
+  | 'ptfe' | 'stearin';
 
 export interface ScienceComponent {
   node: number;          // graph node id (1–6), referenced by EDGES
@@ -181,6 +182,53 @@ export const EDGES: ScienceEdge[] = [
   { from: 6, to: 4, labelDe: 'Oxidationsschutz',    labelEn: 'oxidation guard',  dash: true,  main: false },
 ];
 
+// ─── Story-led build — the narrated assembly of the Pro recipe ────────────────
+// Each step focuses one component and draws the relationship(s) that connect it to
+// what's already on the stage. FormulaGraph plays this as a guided build (spine
+// first, then each spoke), one relationship at a time — which is also why the hub
+// pills never stack. `edges` holds indices into EDGES above.
+export interface FormulaStep {
+  node: number;        // component introduced / focused this step (node id)
+  edges: number[];     // EDGES indices drawn + highlighted this step
+  captionDe: string; captionEn: string;
+}
+export const FORMULA_STORY: FormulaStep[] = [
+  {
+    node: 1, edges: [],
+    captionDe: 'Alles beginnt mit der Trägermatrix: vollraffiniertes Paraffin, das bei 58–60 °C erstarrt und jedes weitere Molekül in sein Kristallgitter einschließt.',
+    captionEn: 'It all starts with the carrier matrix: fully refined paraffin that sets at 58–60 °C and locks every other molecule into its crystal lattice.',
+  },
+  {
+    node: 4, edges: [2],
+    captionDe: 'In die Matrix eingebettet sitzt das Herz der Formel — Molybdändisulfid. Es schert unter Druck zu einem Transferfilm und drückt die Reibung auf μ 0,03.',
+    captionEn: 'Embedded in the matrix sits the heart of the formula — molybdenum disulfide. It shears under pressure into a transfer film and pushes friction to μ 0.03.',
+  },
+  {
+    node: 2, edges: [0],
+    captionDe: 'Fischer-Tropsch-Wachs ko-kristallisiert mit dem Paraffin und hebt den Tropfpunkt auf ~75 °C — die Matrix bleibt unter Sommerlast an Ort und Stelle.',
+    captionEn: 'Fischer–Tropsch wax co-crystallises with the paraffin and lifts the drop point to ~75 °C — the matrix stays put under summer load.',
+  },
+  {
+    node: 3, edges: [1, 3],
+    captionDe: 'Mikrokristallines Wachs plastifiziert die Matrix bis −10 °C und bettet zugleich die MoS₂-Partikel mechanisch ein — Kälteflex ohne Abplatzen.',
+    captionEn: 'Microcrystalline wax plasticises the matrix to −10 °C and mechanically embeds the MoS₂ particles — cold flex without flaking.',
+  },
+  {
+    node: 5, edges: [4],
+    captionDe: 'MoS₂ ist 5,6× dichter als Wachs und würde absinken. Ein amphiphiler Ester legt eine sterische Hülle um jedes Partikel — gleichmäßige Verteilung, Block für Block.',
+    captionEn: 'MoS₂ is 5.6× denser than wax and would sink. An amphiphilic ester wraps each particle in a steric shell — even dispersion, block after block.',
+  },
+  {
+    node: 6, edges: [5],
+    captionDe: 'Ein gehindertes Phenol fängt Radikale ab und schützt das MoS₂ vor Umwandlung zu abrasivem MoO₃ — 12 Monate stabile Lagerung.',
+    captionEn: 'A hindered phenol scavenges radicals and shields the MoS₂ from turning into abrasive MoO₃ — 12 months of stable shelf life.',
+  },
+];
+export const STORY_DONE = {
+  de: 'Das ist die Pro-Rezeptur: Trägermatrix, Festschmierstoff und Schutz in einem Block. Tippe eine Komponente, um sie zu erkunden.',
+  en: 'That’s the Pro recipe: carrier matrix, solid lubricant and protection in a single block. Tap any component to explore it.',
+};
+
 // ─── Development-iteration story — why the combination evolved ────────────────
 export interface ScienceFailure {
   vDe: string; vEn: string;
@@ -219,3 +267,130 @@ export const FAILURES: ScienceFailure[] = [
     isCurrent: true,
   },
 ];
+
+// ─── Classic-only components ──────────────────────────────────────────────────
+// The 6 COMPONENTS above describe the Pro/MoS₂ system. The Classic formula
+// (paraffin + PTFE + stearic-acid derivative) shares the paraffin base but
+// replaces the solid-lubricant package with PTFE. These extra entries let the
+// hero "look inside" dive show real ingredient cards for Classic too. They are
+// NOT part of the relationship graph (no EDGES), so SciencePage/FormulaGraph are
+// unaffected. Node ids 7–8 avoid collision with the graph nodes 1–6.
+export const CLASSIC_EXTRA: ScienceComponent[] = [
+  {
+    node: 7, id: 'ptfe',
+    graphLabelDe: 'PTFE', graphLabelEn: 'PTFE',
+    nameDe: 'PTFE (Polytetrafluorethylen)', nameEn: 'PTFE (polytetrafluoroethylene)',
+    roleDe: 'Gleitzusatz', roleEn: 'Glide additive', metric: '< 1 µm',
+    sumDe: 'Submikrone PTFE-Partikel (< 1 µm) halten den Wachsfilm glatt und antihaftend — der Gleitzusatz der Classic-Formel für trockene Bedingungen.',
+    sumEn: 'Sub-micron PTFE particles (< 1 µm) keep the wax film slick and non-stick — the glide additive in the Classic formula for dry conditions.',
+    whyDe: 'PTFE ist als Feststoff ausgesprochen gleitfähig und antihaftend. Fein in die Wachsmatrix eingebettet hält es den Film glatt und sauber: Er bleibt trocken, wird nicht klebrig und bindet keinen Schmutz.',
+    whyEn: 'As a solid, PTFE is exceptionally slippery and non-stick. Finely embedded in the wax matrix it keeps the film smooth and clean: it stays dry, never turns tacky, and doesn’t attract dirt.',
+    physicsDe: [
+      'PTFE besteht aus langen Fluorkohlenstoffketten, deren Fluorhülle nahezu keine zwischenmolekularen Bindungen eingeht — daher die hohe Gleitfähigkeit und die Antihaft-Wirkung des Materials.',
+      'Als Partikel unter 1 µm verteilt sich PTFE gleichmäßig im erstarrenden Paraffin und legt sich als dünner, glatter Belag an die Oberfläche. Das unterstreicht die trockene Sauberkeit des Wachses — ein gleitfähiger Schönwetter-Film für milde, trockene Bedingungen.',
+    ],
+    physicsEn: [
+      'PTFE is built from long fluorocarbon chains whose fluorine shell forms almost no intermolecular bonds — hence the material’s slipperiness and non-stick behaviour.',
+      'As sub-micron particles it disperses evenly through the solidifying paraffin and forms a thin, smooth surface layer. This reinforces the dry cleanliness of the wax — a slick fair-weather film for mild, dry conditions.',
+    ],
+    insightDe: 'Classic setzt auf PTFE statt MoS₂: ideal für trockene Bedingungen von Frühjahr bis Herbst, ohne die Komplexität des Ganzjahres-Pakets.',
+    insightEn: 'Classic uses PTFE instead of MoS₂: ideal for dry conditions from spring to autumn, without the complexity of the year-round package.',
+    diagram: 'ptfe', cx: 320, cy: 260, r: 40,
+  },
+  {
+    node: 8, id: 'haftung',
+    graphLabelDe: 'Stearat', graphLabelEn: 'Stearate',
+    nameDe: 'Stearinsäure-Derivat', nameEn: 'Stearic-acid derivative',
+    roleDe: 'Haftvermittler', roleEn: 'Adhesion promoter', metric: 'Fe-Bindung',
+    sumDe: 'Ein Fettsäurederivat verankert den Wachsfilm an der Stahloberfläche — bessere Haftung, gleichmäßigerer Film, weniger Abrieb beim Einfahren.',
+    sumEn: 'A fatty-acid derivative anchors the wax film to the steel surface — better adhesion, a more even film, less shedding during break-in.',
+    whyDe: 'Reines Paraffin haftet nur schwach auf Metall. Die polare Kopfgruppe des Stearinsäure-Derivats bindet an die Stahloberfläche, während der unpolare Schwanz in der Wachsmatrix verankert ist — eine molekulare Brücke zwischen Film und Kette.',
+    whyEn: 'Pure paraffin adheres only weakly to metal. The polar head group of the stearic-acid derivative bonds to the steel surface while the non-polar tail anchors in the wax matrix — a molecular bridge between film and chain.',
+    physicsDe: [
+      'Die Carboxyl-Kopfgruppe (–COOH) adsorbiert über Wasserstoffbrücken und Chemisorption an der oxidischen Stahloberfläche; die lange Alkylkette ko-kristallisiert mit dem Paraffin.',
+      'Das Ergebnis ist ein Film, der unter Scherbelastung an Ort und Stelle bleibt, statt sich abzulösen — entscheidend für die ersten Kilometer nach dem Wachsen.',
+    ],
+    physicsEn: [
+      'The carboxyl head group (–COOH) adsorbs to the oxidic steel surface via hydrogen bonding and chemisorption; the long alkyl tail co-crystallises with the paraffin.',
+      'The result is a film that stays in place under shear instead of shedding — decisive for the first kilometres after waxing.',
+    ],
+    insightDe: 'Der gleiche Haftmechanismus steckt auch in der Pro-Formel — bei Classic trägt er den PTFE-Film, bei Pro den MoS₂-Transferfilm.',
+    insightEn: 'The same adhesion mechanism is in the Pro formula too — in Classic it carries the PTFE film, in Pro the MoS₂ transfer film.',
+    diagram: 'stearin', cx: 214, cy: 358, r: 28,
+  },
+];
+
+// ─── Hero "look inside" dive — honest per-variant composition ─────────────────
+// Each variant lists only what is genuinely in it (matches data.ts `formula`).
+//   Pro     — the full six-component MoS₂ system.
+//   Classic — paraffin base + a little microcrystalline wax + PTFE + stearate.
+//             No FT-wax, no antioxidant: Classic is the simpler, dry-weather mix.
+// Order is "base → matrix additives → lubricant → surface", i.e. how the block
+// is built up, so the dive's cross-section reads from foundation to function.
+export function diveFormula(variant: 'classic' | 'pro'): ScienceComponent[] {
+  const all = [...COMPONENTS, ...CLASSIC_EXTRA];
+  const get = (id: string) => all.find(c => c.id === id)!;
+  if (variant === 'pro') {
+    return [
+      get('kristallstruktur'), // Paraffin — Trägermatrix
+      get('matrix'),           // FT-Wachs — Härtemodul
+      get('winterformel'),     // Mikrokristallin — Plastifizierer
+      get('mos2'),             // MoS₂ — Festschmierstoff
+      get('sedimentation'),    // Dispersant — Stabilisator
+      get('antioxidans'),      // Antioxidans — Schutz
+    ];
+  }
+  return [
+    get('kristallstruktur'),   // Paraffin — Trägermatrix
+    get('winterformel'),       // Mikrokristallin — etwas Elastizität
+    get('ptfe'),               // PTFE — Gleitzusatz
+    get('haftung'),            // Stearin — Haftvermittler
+  ];
+}
+
+// ─── Hero dive — relationship map (positions + labelled links) ────────────────
+// The genuine relationships between components (mirrors EDGES), laid out as a
+// readable network: paraffin is the matrix hub, the solid lubricant the second
+// hub. Solid links = structural, dashed = protective/surface. Used by WaxDive to
+// show WHICH ingredients relate and HOW (each link carries a relationship label).
+export interface DiveNodePos { id: string; x: number; y: number; big?: boolean }
+export interface DiveLink {
+  a: string; b: string; labelDe: string; labelEn: string; main?: boolean; dash?: boolean;
+}
+export interface DiveGraph { nodes: DiveNodePos[]; links: DiveLink[] }
+
+export const DIVE_GRAPH: Record<'classic' | 'pro', DiveGraph> = {
+  pro: {
+    nodes: [
+      { id: 'kristallstruktur', x: 230, y: 70,  big: true }, // Paraffin (matrix hub)
+      { id: 'matrix',           x: 86,  y: 150 },             // FT-Wachs
+      { id: 'winterformel',     x: 374, y: 150 },             // Mikrokristallin
+      { id: 'mos2',             x: 230, y: 215, big: true },  // MoS₂ (lubricant hub)
+      { id: 'sedimentation',    x: 96,  y: 312 },             // Dispersant
+      { id: 'antioxidans',      x: 364, y: 312 },             // Antioxidans
+    ],
+    links: [
+      { a: 'kristallstruktur', b: 'mos2',            labelDe: 'Trägermatrix',      labelEn: 'carrier matrix',  main: true },
+      { a: 'matrix',           b: 'kristallstruktur', labelDe: 'Ko-Kristallisation', labelEn: 'co-crystallises' },
+      { a: 'winterformel',     b: 'kristallstruktur', labelDe: 'Plastifiziert',    labelEn: 'plasticises' },
+      { a: 'winterformel',     b: 'mos2',            labelDe: 'Einbettung',        labelEn: 'embedding' },
+      { a: 'sedimentation',    b: 'mos2',            labelDe: 'Sterische Hülle',   labelEn: 'steric shell',    dash: true },
+      { a: 'antioxidans',      b: 'mos2',            labelDe: 'Oxidationsschutz',  labelEn: 'oxidation guard', dash: true },
+    ],
+  },
+  classic: {
+    nodes: [
+      { id: 'kristallstruktur', x: 230, y: 86,  big: true }, // Paraffin (matrix hub)
+      { id: 'winterformel',     x: 96,  y: 200 },            // Mikrokristallin
+      { id: 'haftung',          x: 364, y: 200 },            // Stearin
+      { id: 'ptfe',             x: 230, y: 300, big: true }, // PTFE (lubricant hub)
+    ],
+    links: [
+      { a: 'kristallstruktur', b: 'ptfe',            labelDe: 'Trägermatrix',     labelEn: 'carrier matrix', main: true },
+      { a: 'winterformel',     b: 'kristallstruktur', labelDe: 'Plastifiziert',   labelEn: 'plasticises' },
+      { a: 'winterformel',     b: 'ptfe',            labelDe: 'Einbettung',       labelEn: 'embedding' },
+      { a: 'haftung',          b: 'kristallstruktur', labelDe: 'Haftvermittlung', labelEn: 'adhesion',       dash: true },
+      { a: 'haftung',          b: 'ptfe',            labelDe: 'Filmhaftung',      labelEn: 'film bond',      dash: true },
+    ],
+  },
+};

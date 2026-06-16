@@ -6,18 +6,11 @@ import { useLanguage } from '@/hooks/useLanguage';
 import type { TranslationType } from '@/lib/i18n';
 import { useSectionReveal } from '@/hooks/useAnimation';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
-import { products } from '@/lib/data';
+import { products, canCheckout } from '@/lib/data';
 import { richContent } from '@/lib/productContent';
 import { getEstimatedDelivery } from '@/lib/utils';
-
-
-// Segmented-control button: segments share the row evenly (flex-1) and never wrap.
-const segment = (active: boolean) =>
-  `flex-1 min-w-0 px-2 py-1.5 rounded-md text-[12px] leading-none text-center truncate transition-all border cursor-pointer ${
-    active
-      ? 'chip-active text-wx-tx1'
-      : 'border-transparent text-wx-txf hover:text-wx-tx2'
-  }`;
+import { ChainFinder } from '@/sections/ChainFinder';
+import { AddToCartButton } from '@/components/AddToCartButton';
 
 export function Products() {
   const { t, lang } = useLanguage();
@@ -225,45 +218,15 @@ export function Products() {
                 <span>{t.products.multiDiscount}</span>
               </div>
 
-              {/* Filter bar — two compact segmented controls (no wrap on 375px) */}
-              <div className="mb-3 rounded-xl border border-wx-bd px-3 py-3 space-y-2.5" style={{ background: 'var(--sf)' }}>
-                {/* Speed */}
-                <div className="flex items-center gap-2.5">
-                  <span className="text-xs uppercase tracking-[0.12em] text-wx-txf font-medium w-12 flex-shrink-0">
-                    {de ? 'Gänge' : 'Speed'}
-                  </span>
-                  <div className="flex flex-1 min-w-0 gap-1 p-0.5 rounded-lg border border-wx-bd" style={{ background: 'var(--sf2)' }}>
-                    {(['all', '11', '12'] as const).map(v => (
-                      <button key={v} onClick={() => setSpeedFilter(v)} className={segment(speedFilter === v)}>
-                        {v === 'all' ? (de ? 'Alle' : 'All') : `${v}-fach`}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                {/* Brand */}
-                <div className="flex items-center gap-2.5">
-                  <span className="text-xs uppercase tracking-[0.12em] text-wx-txf font-medium w-12 flex-shrink-0">
-                    {de ? 'Marke' : 'Brand'}
-                  </span>
-                  <div className="flex flex-1 min-w-0 gap-1 p-0.5 rounded-lg border border-wx-bd" style={{ background: 'var(--sf2)' }}>
-                    {([
-                      { v: 'all',        label: de ? 'Alle' : 'All' },
-                      { v: 'shimano',    label: 'Shimano'            },
-                      { v: 'sram',       label: 'SRAM'               },
-                      { v: 'campagnolo', label: 'Campa'              },
-                    ] as { v: 'all' | 'shimano' | 'sram' | 'campagnolo'; label: string }[]).map(({ v, label }) => (
-                      <button key={v} onClick={() => setBrandFilter(v)} className={segment(brandFilter === v)}>
-                        {label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Live result count */}
-              <p className="mb-6 px-1 text-[11px]" style={{ color: 'var(--txf)' }}>
-                {filteredChains.length} {de ? 'Ketten' : 'chains'}
-              </p>
+              {/* Guided "Finde deine Kette" finder — drives the same brand/speed state */}
+              <ChainFinder
+                de={de}
+                brand={brandFilter}
+                speed={speedFilter}
+                setBrand={setBrandFilter}
+                setSpeed={setSpeedFilter}
+                count={filteredChains.length}
+              />
 
               {filteredChains.length === 0 ? (
                 <div className="text-center py-16">
@@ -403,14 +366,27 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: Ca
                 })()}
               </p>
             </div>
-            <button
-              onClick={e => { e.preventDefault(); e.stopPropagation(); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
-              className="flex items-center gap-1.5 px-4 py-2.5 text-[13px] font-semibold rounded-xl transition-opacity duration-150 hover:opacity-90 active:scale-[0.97]"
-              style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
-            >
-              {buyLabel}
-              <ExternalLink className="h-3.5 w-3.5" />
-            </button>
+            {canCheckout(product) ? (
+              <div className="flex flex-col items-end gap-1">
+                <AddToCartButton product={product} size="sm" />
+                <button
+                  onClick={e => { e.preventDefault(); e.stopPropagation(); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
+                  className="text-[11px] transition-opacity hover:opacity-70"
+                  style={{ color: 'var(--txm)' }}
+                >
+                  {de ? 'oder bei eBay →' : 'or on eBay →'}
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={e => { e.preventDefault(); e.stopPropagation(); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
+                className="flex items-center gap-1.5 px-4 py-2.5 text-[13px] font-semibold rounded-xl transition-opacity duration-150 hover:opacity-90 active:scale-[0.97]"
+                style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
+              >
+                {buyLabel}
+                <ExternalLink className="h-3.5 w-3.5" />
+              </button>
+            )}
           </div>
         </div>
       </Link>
@@ -498,14 +474,27 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
           {/* Price + CTA */}
           <div className="flex items-center justify-between gap-3 pt-3" style={{ borderTop: '1px solid var(--bd2)' }}>
             <span className="num text-[20px] font-bold text-wx-tx1 tracking-[-0.02em]">{formatPrice(product.price)}</span>
-            <button
-              onClick={e => { e.preventDefault(); e.stopPropagation(); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
-              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-opacity duration-150 hover:opacity-90 active:scale-[0.97]"
-              style={{ background: 'var(--accent)' }}
-            >
-              {buyLabel}
-              <ExternalLink className="h-3.5 w-3.5" />
-            </button>
+            {canCheckout(product) ? (
+              <div className="flex flex-col items-end gap-1">
+                <AddToCartButton product={product} size="sm" />
+                <button
+                  onClick={e => { e.preventDefault(); e.stopPropagation(); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
+                  className="text-[11px] transition-opacity hover:opacity-70"
+                  style={{ color: 'var(--txm)' }}
+                >
+                  {de ? 'oder bei eBay →' : 'or on eBay →'}
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={e => { e.preventDefault(); e.stopPropagation(); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
+                className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-opacity duration-150 hover:opacity-90 active:scale-[0.97]"
+                style={{ background: 'var(--accent)' }}
+              >
+                {buyLabel}
+                <ExternalLink className="h-3.5 w-3.5" />
+              </button>
+            )}
           </div>
         </div>
       </Link>

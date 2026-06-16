@@ -5,7 +5,7 @@ import {
   ArrowLeft, ExternalLink, Check,
   ChevronRight, ChevronDown, Star, Lightbulb,
 } from 'lucide-react';
-import { getProductById, products } from '@/lib/data';
+import { getProductById, products, canCheckout } from '@/lib/data';
 import type { Product } from '@/lib/data';
 import { richContent } from '@/lib/productContent';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -97,7 +97,7 @@ export function ProductDetailPage() {
     brand: { '@type': 'Brand', name: 'Waxcelerate' },
     url: canonicalUrl,
     ...(isWax && {
-      aggregateRating: { '@type': 'AggregateRating', ratingValue: '5', reviewCount: '171', bestRating: '5', worstRating: '1' },
+      aggregateRating: { '@type': 'AggregateRating', ratingValue: '5', reviewCount: '189', bestRating: '5', worstRating: '1' },
     }),
     offers: {
       '@type': 'Offer',
@@ -255,7 +255,9 @@ export function ProductDetailPage() {
                   )}
                 </div>
 
-                {isWax ? (
+                {/* Native checkout only once a Stripe price ID exists; otherwise
+                    eBay stays the primary (working) buy path. Applies to wax + chains. */}
+                {canCheckout(product) ? (
                   <div className="flex flex-col gap-1.5 mt-1">
                     <AddToCartButton product={product} fullWidth />
                     <a

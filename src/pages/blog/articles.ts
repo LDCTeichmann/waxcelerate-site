@@ -72,7 +72,7 @@ export const articles: Article[] = [
       {
         type: 'ul',
         items: [
-          'Heißwachs (Paraffin + PTFE): 2,5–4,5 W Verlust – Reibungskoeffizient ~0,03–0,06',
+          'Heißwachs (Immersion): 2,5–4,5 W Verlust – Reibungskoeffizient ~0,03–0,06',
           'Flüssigwachs (Squirt, Silca): 5–8 W – Reibungskoeffizient ~0,09–0,12',
           'Nasses Kettenöl (Bio-based, Standard): 8–16 W – Reibungskoeffizient ~0,15–0,25',
           'Trockenes Kettenöl: 6–10 W – besser als nasses Öl, schlechter als Wachs',
@@ -608,7 +608,7 @@ export const articles: Article[] = [
       },
       {
         type: 'p',
-        text: 'Eine Fahrradkette überträgt unter Last nie 100 % der Tretkraft. Ein Teil geht als Wärme verloren — durch innere Reibung in den Kettengelenken. Bei Kettenöl liegt dieser Verlust je nach Produkt bei 6–10 Watt (gemessen bei 250 W Eingangsleistung). Heißwachs mit PTFE kommt auf 3–5 Watt. Das klingt wenig, macht über 3 Stunden Fahrt aber einen merklichen Unterschied — und auf dem Rennrad, wo Watts gezählt werden, ist jede Reduktion relevant.',
+        text: 'Eine Fahrradkette überträgt unter Last nie 100 % der Tretkraft. Ein Teil geht als Wärme verloren — durch innere Reibung in den Kettengelenken. Bei Kettenöl liegt dieser Verlust je nach Produkt bei 6–10 Watt (gemessen bei 250 W Eingangsleistung). Immersives Heißwachs kommt auf 3–5 Watt. Das klingt wenig, macht über 3 Stunden Fahrt aber einen merklichen Unterschied — und auf dem Rennrad, wo Watts gezählt werden, ist jede Reduktion relevant.',
       },
       {
         type: 'p',

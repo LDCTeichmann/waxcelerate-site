@@ -65,8 +65,8 @@ function AppContent() {
             <main>
               <Hero />
               <WhyWax />
-              <Reviews />
               <Products />
+              <Reviews />
               <About />
               <Tools />
               <Guides />

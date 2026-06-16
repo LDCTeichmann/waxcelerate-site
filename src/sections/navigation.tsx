@@ -1,18 +1,22 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Menu, X, Moon, Sun } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
 import { CartIcon } from '@/components/CartIcon';
 import { useActiveSection } from '@/hooks/useActiveSection';
 
-// Reihenfolge = Scroll-Reihenfolge der Sections auf der Seite
+// Reihenfolge = Scroll-Reihenfolge der Sections auf der Seite.
+// `route: true` → eigene Seite (React-Router-Navigation statt Scroll-Anchor).
 const navItems = [
   { href: '#warum-wachs', key: 'whyWax'   },
   { href: '#produkte',    key: 'products' },
+  { href: '/wissenschaft', key: 'science', route: true },
   { href: '#ueber-mich',  key: 'about'    },
   { href: '#tools',       key: 'tools'    },
   { href: '#anleitungen', key: 'guides'   },
   { href: '#faq',         key: 'faq'      },
+  { href: '/blog',        key: 'blog',    route: true },
   { href: '#kontakt',     key: 'contact'  },
 ];
 
@@ -24,7 +28,8 @@ export function Navigation() {
   const { theme, setTheme } = useTheme();
 
   const de = lang === 'de';
-  const activeSection = useActiveSection(navItems.map(i => i.href));
+  const navigate = useNavigate();
+  const activeSection = useActiveSection(navItems.filter(i => !i.route).map(i => i.href));
 
   useEffect(() => {
     const handleScroll = () => {
@@ -67,6 +72,17 @@ export function Navigation() {
     setIsMobileMenuOpen(false);
   };
 
+  // Anchor-Items scrollen innerhalb der Startseite; Route-Items (Wissenschaft,
+  // Blog) wechseln die Seite über den Router.
+  const handleNav = (item: { href: string; route?: boolean }) => {
+    if (item.route) {
+      navigate(item.href);
+      setIsMobileMenuOpen(false);
+      return;
+    }
+    scrollToSection(item.href);
+  };
+
   return (
     <>
       {/* ── Header bar ── */}
@@ -75,8 +91,11 @@ export function Navigation() {
         style={{
           background: isScrolled ? 'var(--nav-bg)' : 'transparent',
           boxShadow: isScrolled ? 'inset 0 -1px 0 var(--bd)' : 'none',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
+          // Live-Blur nur wenn die Leiste tatsächlich einen Hintergrund hat
+          // (gescrollt) und mit kleinerem Radius — der frühere blur(16px) lief
+          // permanent und ließ jedes Scroll-Frame die ganze Leiste neu rastern.
+          backdropFilter: isScrolled ? 'blur(8px)' : 'none',
+          WebkitBackdropFilter: isScrolled ? 'blur(8px)' : 'none',
         }}
       >
         {/* Scroll-Progress — eine Accent-Hairline an der Unterkante */}
@@ -116,7 +135,7 @@ export function Navigation() {
                   style={{ background: 'var(--sf3)', color: 'var(--txf)', border: '1px solid var(--bd)' }}
                 >
                   <span style={{ color: 'var(--accent)' }}>★★★★★</span>
-                  <span>171</span>
+                  <span>189</span>
                 </span>
               )}
             </a>
@@ -137,7 +156,7 @@ export function Navigation() {
                 <a
                   key={item.href}
                   href={item.href}
-                  onClick={(e) => { e.preventDefault(); scrollToSection(item.href); }}
+                  onClick={(e) => { e.preventDefault(); handleNav(item); }}
                   className="relative group px-4 py-2 text-sm transition-colors duration-300"
                   style={{
                     color: activeSection === item.href ? 'var(--tx1)' : 'var(--tx2)',
@@ -257,7 +276,7 @@ export function Navigation() {
             <a
               key={item.href}
               href={item.href}
-              onClick={(e) => { e.preventDefault(); scrollToSection(item.href); }}
+              onClick={(e) => { e.preventDefault(); handleNav(item); }}
               className="py-4 text-[17px] font-medium text-wx-tx2 hover:text-wx-tx1 border-b border-wx-bd/15 transition-colors last:border-0"
               style={{
                 opacity: isMobileMenuOpen ? 1 : 0,
