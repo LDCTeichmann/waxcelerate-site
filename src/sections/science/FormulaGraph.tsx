@@ -2,13 +2,14 @@ import { useEffect, useRef, useState } from 'react';
 import { COMPONENTS, EDGES, type ScienceComponent } from '@/lib/science';
 import { gsap } from '@/lib/gsap';
 import { prefersReducedMotion } from '@/hooks/useAnimation';
+import { curvedEdge, NodeCircle, EdgeLabel, type NodeState } from '@/sections/science/graphPrimitives';
 
-const MONO = "'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace";
+const VB_W = 640, VB_H = 430;
 const byNode = (n: number) => COMPONENTS.find(c => c.node === n)!;
 
 // One interactive node (no hooks → safe to render inside .map via this wrapper)
-function GraphNode({ c, de, dim, active, onActivate, onSelect }: {
-  c: ScienceComponent; de: boolean; dim: boolean; active: boolean;
+function GraphNode({ c, de, dim, state, onActivate, onSelect }: {
+  c: ScienceComponent; de: boolean; dim: boolean; state: NodeState;
   onActivate: (n: number | null) => void; onSelect: (id: string) => void;
 }) {
   return (
@@ -25,10 +26,7 @@ function GraphNode({ c, de, dim, active, onActivate, onSelect }: {
       onClick={() => onSelect(c.id)}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect(c.id); } }}
     >
-      <circle cx={c.cx} cy={c.cy} r={c.r}
-        fill="var(--sf2)"
-        stroke={active ? 'var(--accent)' : 'var(--tx2)'}
-        strokeWidth={c.node === 4 ? 2.5 : 1.75} />
+      <NodeCircle x={c.cx} y={c.cy} r={c.r} big={c.node === 4} state={state} />
       {/* enlarged transparent hit area for comfortable mobile tapping */}
       <circle cx={c.cx} cy={c.cy} r={c.r + 10} fill="transparent" />
     </g>
@@ -53,6 +51,15 @@ export function FormulaGraph({ de, onSelect }: { de: boolean; onSelect: (id: str
   const dimNode = (n: number) => active != null && !connected.has(n);
   const edgeActive = (e: typeof EDGES[number]) => active != null && (e.from === active || e.to === active);
   const activeComp = active != null ? byNode(active) : null;
+  const nodeStateOf = (n: number): NodeState =>
+    active === n ? 'active' : (active != null && connected.has(n)) ? 'near' : 'dim';
+
+  // Curved edge geometry + on-curve midpoints for the relationship label pills.
+  const edgeGeo = EDGES.map((e) => {
+    const a = byNode(e.from), b = byNode(e.to);
+    const { d, mid } = curvedEdge(a.cx, a.cy, b.cx, b.cy);
+    return { e, d, mid, on: edgeActive(e) };
+  });
 
   // Assemble-on-scroll animation + auto-cycle that walks the relationships.
   useEffect(() => {
@@ -102,44 +109,32 @@ export function FormulaGraph({ de, onSelect }: { de: boolean; onSelect: (id: str
   return (
     <div ref={rootRef}>
       <div className="relative">
-        <svg viewBox="0 0 640 430" className="w-full h-auto" style={{ overflow: 'visible' }}
+        <svg viewBox={`0 0 ${VB_W} ${VB_H}`} className="w-full h-auto" style={{ overflow: 'visible' }}
           role="group" aria-label={de ? 'Komponenten-Beziehungen' : 'Component relationships'}>
-          {/* edges */}
+          {/* curved edges */}
           <g data-edges>
-            {EDGES.map((e, i) => {
-              const a = byNode(e.from), b = byNode(e.to);
-              const on = edgeActive(e);
-              const mx = (a.cx + b.cx) / 2, my = (a.cy + b.cy) / 2;
-              return (
-                <g key={i} style={{ opacity: active == null ? (e.main ? 0.55 : 0.32) : on ? 1 : 0.08, transition: 'opacity 220ms ease' }}>
-                  <line x1={a.cx} y1={a.cy} x2={b.cx} y2={b.cy}
-                    stroke={on ? 'var(--accent)' : 'var(--tx2)'}
-                    strokeWidth={e.main ? 3 : 1.75}
-                    strokeDasharray={e.dash ? '5 5' : undefined} strokeLinecap="round" />
-                  {on && (
-                    <text x={mx} y={my - 5} textAnchor="middle" fontSize={15} fontFamily={MONO}
-                      fill="var(--accent)" style={{ paintOrder: 'stroke' }} stroke="var(--sf2)" strokeWidth={5}>
-                      {de ? e.labelDe : e.labelEn}
-                    </text>
-                  )}
-                </g>
-              );
-            })}
+            {edgeGeo.map(({ e, d, on }, i) => (
+              <path key={i} d={d} fill="none"
+                stroke={on ? 'var(--accent)' : 'var(--tx2)'}
+                strokeWidth={e.main ? 3 : 1.75}
+                strokeDasharray={e.dash ? '5 5' : undefined} strokeLinecap="round"
+                style={{ opacity: active == null ? (e.main ? 0.55 : 0.32) : on ? 1 : 0.08, transition: 'opacity 220ms ease, stroke 220ms ease' }} />
+            ))}
           </g>
           {/* nodes (geometry + interaction) */}
           {COMPONENTS.map(c => (
-            <GraphNode key={c.node} c={c} de={de} active={active === c.node} dim={dimNode(c.node)}
+            <GraphNode key={c.node} c={c} de={de} state={nodeStateOf(c.node)} dim={dimNode(c.node)}
               onActivate={onActivate} onSelect={onPick} />
           ))}
         </svg>
 
-        {/* Node labels — HTML overlay so text stays legible at any width */}
+        {/* Node labels + relationship pills — HTML overlay so text stays legible at any width */}
         <div data-labels className="absolute inset-0 pointer-events-none">
           {COMPONENTS.map(c => (
             <div key={c.node}
               className="absolute text-center leading-tight"
               style={{
-                left: `${(c.cx / 640) * 100}%`, top: `${(c.cy / 430) * 100}%`,
+                left: `${(c.cx / VB_W) * 100}%`, top: `${(c.cy / VB_H) * 100}%`,
                 transform: 'translate(-50%, -50%)',
                 opacity: dimNode(c.node) ? 0.16 : 1, transition: 'opacity 220ms ease',
               }}>
@@ -151,6 +146,11 @@ export function FormulaGraph({ de, onSelect }: { de: boolean; onSelect: (id: str
                 {c.metric}
               </span>
             </div>
+          ))}
+          {edgeGeo.map(({ e, mid, on }, i) => (
+            <EdgeLabel key={`e-${i}`} x={mid.x} y={mid.y} vbW={VB_W} vbH={VB_H} on={on}>
+              {de ? e.labelDe : e.labelEn}
+            </EdgeLabel>
           ))}
         </div>
       </div>

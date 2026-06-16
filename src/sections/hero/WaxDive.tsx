@@ -4,8 +4,9 @@ import { Link } from 'react-router-dom';
 import { X, ArrowRight } from 'lucide-react';
 import { gsap } from '@/lib/gsap';
 import { prefersReducedMotion } from '@/hooks/useAnimation';
-import { SegmentedToggle } from '@/components/viz';
+import { SegmentedToggle, InstrumentFrame } from '@/components/viz';
 import { ComponentDiagram } from '@/sections/science/diagrams';
+import { curvedEdge, NodeCircle, EdgeLabel, LegendSwatch, type NodeState } from '@/sections/science/graphPrimitives';
 import { diveFormula, DIVE_GRAPH, type ScienceComponent, type DiveNodePos } from '@/lib/science';
 
 const MONO = "'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace";
@@ -47,6 +48,13 @@ export function WaxDive({ open, onClose, de }: { open: boolean; onClose: () => v
     id === focusId ? 'active' : neighbours.has(id) ? 'near' : 'dim';
   const activePos = posById(active.id);
   const activeLinks = incident(active.id);
+
+  // Pre-computed edge geometry (curved path + on-curve midpoint for the label pill).
+  const edgeGeo = graph.links.map((l) => {
+    const A = posById(l.a), B = posById(l.b);
+    const { d, mid } = curvedEdge(A.x, A.y, B.x, B.y);
+    return { l, d, mid, on: l.a === focusId || l.b === focusId };
+  });
 
   useEffect(() => { setActiveId(null); setHoverId(null); }, [variant]);
 
@@ -161,62 +169,52 @@ export function WaxDive({ open, onClose, de }: { open: boolean; onClose: () => v
               </span>
             </div>
 
-            <div className="relative rounded-xl" style={{ background: 'var(--sf2)', border: '1px solid var(--bd)' }}>
-              <svg ref={svgRef} viewBox={`0 0 ${VB_W} ${VB_H}`} className="w-full h-auto"
-                role="group" aria-label={de ? 'Beziehungsgraph der Formel' : 'Formula relationship graph'}>
-                {/* links */}
-                {graph.links.map((l, i) => {
-                  const A = posById(l.a), B = posById(l.b);
-                  const on = l.a === focusId || l.b === focusId;
-                  return (
-                    <line key={`l-${i}`} data-link data-dash={l.dash ? '1' : undefined}
-                      x1={A.x} y1={A.y} x2={B.x} y2={B.y}
+            <InstrumentFrame
+              noReveal
+              footer={
+                <div className="flex items-center gap-4 text-[10.5px]" style={{ color: 'var(--txm)' }}>
+                  <span className="inline-flex items-center gap-1.5"><LegendSwatch /> {de ? 'Aufbau' : 'structure'}</span>
+                  <span className="inline-flex items-center gap-1.5"><LegendSwatch dashed /> {de ? 'Schutz' : 'surface'}</span>
+                </div>
+              }
+            >
+              <div className="relative">
+                <svg ref={svgRef} viewBox={`0 0 ${VB_W} ${VB_H}`} className="w-full h-auto"
+                  role="group" aria-label={de ? 'Beziehungsgraph der Formel' : 'Formula relationship graph'}>
+                  {/* curved links */}
+                  {edgeGeo.map(({ l, d, on }, i) => (
+                    <path key={`l-${i}`} data-link data-dash={l.dash ? '1' : undefined}
+                      d={d} fill="none"
                       stroke={on ? 'var(--accent)' : 'rgba(var(--accent-rgb),0.16)'}
-                      strokeWidth={on ? (l.main ? 2.8 : 2.2) : 1.2}
+                      strokeWidth={on ? (l.main ? 2.6 : 2) : 1.2}
                       strokeDasharray={l.dash ? '5 6' : undefined}
                       strokeLinecap="round"
                       style={{ transition: 'stroke 0.3s, stroke-width 0.3s' }} />
-                  );
-                })}
+                  ))}
 
-                {/* pulse ring around the selected node */}
-                <circle data-pulse cx={activePos.x} cy={activePos.y} r={radOf(activePos.big) + 6}
-                  fill="none" stroke="var(--accent)" strokeWidth={1.5} opacity={0} />
+                  {/* pulse ring around the selected node */}
+                  <circle data-pulse cx={activePos.x} cy={activePos.y} r={radOf(activePos.big) + 6}
+                    fill="none" stroke="var(--accent)" strokeWidth={1.5} opacity={0} />
 
-                {/* link labels — visible only for the focus node's links */}
-                {graph.links.map((l, i) => {
-                  const A = posById(l.a), B = posById(l.b);
-                  const on = l.a === focusId || l.b === focusId;
-                  return (
-                    <text key={`t-${i}`} x={(A.x + B.x) / 2} y={(A.y + B.y) / 2} textAnchor="middle" dominantBaseline="middle"
-                      fontSize={9.5} fontFamily={MONO} fill="var(--accent)" opacity={on ? 1 : 0}
-                      style={{ pointerEvents: 'none', transition: 'opacity 0.3s', paintOrder: 'stroke', stroke: 'var(--sf2)', strokeWidth: 3.5, strokeLinejoin: 'round' }}>
+                  {/* nodes */}
+                  {graph.nodes.map((n, i) => (
+                    <DiveNode key={n.id} comp={compById(n.id)} pos={n} index={i} de={de}
+                      state={nodeState(n.id)}
+                      onSelect={() => setActiveId(n.id)}
+                      onHover={setHoverId} />
+                  ))}
+                </svg>
+
+                {/* relationship labels — pills over the focus node's links */}
+                <div className="absolute inset-0 pointer-events-none">
+                  {edgeGeo.map(({ l, mid, on }, i) => (
+                    <EdgeLabel key={`p-${i}`} x={mid.x} y={mid.y} vbW={VB_W} vbH={VB_H} on={on}>
                       {de ? l.labelDe : l.labelEn}
-                    </text>
-                  );
-                })}
-
-                {/* nodes */}
-                {graph.nodes.map((n, i) => (
-                  <DiveNode key={n.id} comp={compById(n.id)} pos={n} index={i} de={de}
-                    state={nodeState(n.id)}
-                    onSelect={() => setActiveId(n.id)}
-                    onHover={setHoverId} />
-                ))}
-              </svg>
-
-              {/* legend */}
-              <div className="absolute bottom-2 right-3 flex items-center gap-3 text-[9.5px]" style={{ color: 'var(--txm)' }}>
-                <span className="inline-flex items-center gap-1.5">
-                  <svg width="16" height="4"><line x1="0" y1="2" x2="16" y2="2" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" /></svg>
-                  {de ? 'Aufbau' : 'structure'}
-                </span>
-                <span className="inline-flex items-center gap-1.5">
-                  <svg width="16" height="4"><line x1="0" y1="2" x2="16" y2="2" stroke="var(--accent)" strokeWidth="2" strokeDasharray="3 3" strokeLinecap="round" /></svg>
-                  {de ? 'Schutz' : 'surface'}
-                </span>
+                    </EdgeLabel>
+                  ))}
+                </div>
               </div>
-            </div>
+            </InstrumentFrame>
 
             <p className="text-[11px] mt-3" style={{ color: 'var(--txm)' }}>
               {de
@@ -251,7 +249,10 @@ export function WaxDive({ open, onClose, de }: { open: boolean; onClose: () => v
                     const other = compById(l.a === active.id ? l.b : l.a);
                     return (
                       <li key={i} className="flex items-center gap-2 text-[12.5px]">
-                        <span className="num-data" style={{ color: 'var(--accent)' }}>{de ? l.labelDe : l.labelEn}</span>
+                        <span className="inline-block rounded-full px-2 py-[2px] text-[10.5px] font-medium leading-none"
+                          style={{ background: 'rgba(var(--accent-rgb),0.10)', color: 'var(--accent)', border: '1px solid rgba(var(--accent-rgb),0.18)' }}>
+                          {de ? l.labelDe : l.labelEn}
+                        </span>
                         <span style={{ color: 'var(--txff)' }}>→</span>
                         <span style={{ color: 'var(--tx2)' }}>{de ? other.graphLabelDe : other.graphLabelEn}</span>
                       </li>
@@ -291,7 +292,7 @@ export function WaxDive({ open, onClose, de }: { open: boolean; onClose: () => v
 // One node (wrapper component → no hooks in .map). Pops in on mount, lifts on
 // hover (which also previews its relationships), flips to accent when focused.
 function DiveNode({ comp, pos, state, index, de, onSelect, onHover }: {
-  comp: ScienceComponent; pos: DiveNodePos; state: 'active' | 'near' | 'dim';
+  comp: ScienceComponent; pos: DiveNodePos; state: NodeState;
   index: number; de: boolean; onSelect: () => void; onHover: (id: string | null) => void;
 }) {
   const gref = useRef<SVGGElement>(null);
@@ -312,7 +313,6 @@ function DiveNode({ comp, pos, state, index, de, onSelect, onHover }: {
 
   const active = state === 'active';
   const dim = state === 'dim';
-  const stroke = active ? 'var(--accent)' : state === 'near' ? 'rgba(var(--accent-rgb),0.6)' : 'var(--bd)';
 
   return (
     <g
@@ -321,7 +321,7 @@ function DiveNode({ comp, pos, state, index, de, onSelect, onHover }: {
       role="button"
       tabIndex={0}
       aria-label={de ? comp.nameDe : comp.nameEn}
-      style={{ cursor: 'pointer', outline: 'none', opacity: dim ? 0.55 : 1, transition: 'opacity 0.3s' }}
+      style={{ cursor: 'pointer', outline: 'none', opacity: dim ? 0.5 : 1, transition: 'opacity 0.3s' }}
       onClick={onSelect}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect(); } }}
       onMouseEnter={() => { onHover(comp.id); lift(1.07, 0.2); }}
@@ -329,12 +329,7 @@ function DiveNode({ comp, pos, state, index, de, onSelect, onHover }: {
       onFocus={() => onHover(comp.id)}
       onBlur={() => onHover(null)}
     >
-      <circle cx={x} cy={y} r={r}
-        fill={active ? 'var(--accent)' : 'var(--sf)'} stroke={stroke} strokeWidth={active ? 2 : 1.5}
-        style={{
-          filter: active ? 'drop-shadow(0 6px 16px rgba(var(--accent-rgb),0.35))' : 'drop-shadow(0 3px 8px rgba(0,0,0,0.12))',
-          transition: 'fill 0.25s, stroke 0.25s',
-        }} />
+      <NodeCircle x={x} y={y} r={r} big={pos.big} state={state} />
       <text x={x} y={pos.big ? y - 4 : y - 2} textAnchor="middle" fontSize={pos.big ? 13 : 10}
         fontWeight={600} fill={active ? '#fff' : 'var(--tx1)'} style={{ pointerEvents: 'none' }}>
         {de ? comp.graphLabelDe : comp.graphLabelEn}

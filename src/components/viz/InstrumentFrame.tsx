@@ -11,6 +11,7 @@ export function InstrumentFrame({
   chip,
   footer,
   variant = 'panel',
+  noReveal = false,
   children,
   className = '',
   innerRef,
@@ -19,6 +20,7 @@ export function InstrumentFrame({
   chip?: React.ReactNode;
   footer?: React.ReactNode;
   variant?: 'panel' | 'lab';
+  noReveal?: boolean;            // skip the scroll-in (e.g. inside a modal that doesn't scroll the page)
   children: React.ReactNode;
   className?: string;
   innerRef?: React.Ref<HTMLDivElement>;
@@ -29,7 +31,7 @@ export function InstrumentFrame({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    if (prefersReducedMotion()) { gsap.set(el, { opacity: 1 }); return; }
+    if (noReveal || prefersReducedMotion()) { gsap.set(el, { opacity: 1 }); return; }
     gsap.set(el, { opacity: 0, y: 28, rotateX: 9, transformPerspective: 700, transformOrigin: '50% 0%' });
     const trigger = ScrollTrigger.create({
       trigger: el, start: 'top 87%', once: true,
