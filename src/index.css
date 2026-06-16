@@ -15,6 +15,17 @@
 .graph-flow { animation: graph-flow 1.15s linear infinite; }
 @media (prefers-reduced-motion: reduce) { .graph-flow { animation: none; } }
 
+/* Reviews — seamless right-to-left marquee. The track holds the cards twice and
+   slides exactly one set width, so the loop is invisible. Pause on hover. */
+@keyframes marquee-x { from { transform: translate3d(0,0,0); } to { transform: translate3d(-50%,0,0); } }
+.marquee-track { animation: marquee-x var(--dur, 64s) linear infinite; will-change: transform; }
+.marquee:hover .marquee-track, .marquee:focus-within .marquee-track { animation-play-state: paused; }
+.edge-fade-x {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+          mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+}
+@media (prefers-reduced-motion: reduce) { .marquee-track { animation: none; } }
+
 @layer base {
   /* ── Light mode (default) ── */
   :root {
