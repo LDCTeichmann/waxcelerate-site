@@ -142,11 +142,11 @@ function Radical({ de }: { de: boolean }) {
   );
 }
 
-// PTFE — slick film: nothing sticks, lower surface friction
+// PTFE — slick, non-stick film: nothing sticks, stays dry & clean
 function Ptfe({ de }: { de: boolean }) {
   return (
     <Fig vb="0 0 240 120" label="PTFE glide film"
-      cap={de ? 'PTFE < 1 µm senkt die Oberflächenreibung — trocken & sauber.' : 'PTFE < 1 µm lowers surface friction — dry & clean.'}>
+      cap={de ? 'PTFE < 1 µm hält den Film glatt und antihaftend — trocken & sauber.' : 'PTFE < 1 µm keeps the film slick and non-stick — dry & clean.'}>
       <defs><ArrowMarker id="ptfe-arrow" /></defs>
       <line x1={24} y1={88} x2={216} y2={88} stroke="var(--accent)" strokeWidth={2.6} strokeLinecap="round" />
       {[56, 98, 140].map((x, i) => (

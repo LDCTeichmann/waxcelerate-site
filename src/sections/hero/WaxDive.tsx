@@ -109,7 +109,7 @@ export function WaxDive({ open, onClose, de }: { open: boolean; onClose: () => v
 
   const variantLine = variant === 'pro'
     ? (de ? 'Sechs Komponenten · MoS₂-Festschmierstoff' : 'Six components · MoS₂ solid lubricant')
-    : (de ? 'Vier Komponenten · PTFE-Trockenfilm' : 'Four components · PTFE dry film');
+    : (de ? 'Vier Komponenten · PTFE-Gleitzusatz' : 'Four components · PTFE glide additive');
 
   return createPortal(
     <div
