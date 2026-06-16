@@ -182,6 +182,53 @@ export const EDGES: ScienceEdge[] = [
   { from: 6, to: 4, labelDe: 'Oxidationsschutz',    labelEn: 'oxidation guard',  dash: true,  main: false },
 ];
 
+// ─── Story-led build — the narrated assembly of the Pro recipe ────────────────
+// Each step focuses one component and draws the relationship(s) that connect it to
+// what's already on the stage. FormulaGraph plays this as a guided build (spine
+// first, then each spoke), one relationship at a time — which is also why the hub
+// pills never stack. `edges` holds indices into EDGES above.
+export interface FormulaStep {
+  node: number;        // component introduced / focused this step (node id)
+  edges: number[];     // EDGES indices drawn + highlighted this step
+  captionDe: string; captionEn: string;
+}
+export const FORMULA_STORY: FormulaStep[] = [
+  {
+    node: 1, edges: [],
+    captionDe: 'Alles beginnt mit der Trägermatrix: vollraffiniertes Paraffin, das bei 58–60 °C erstarrt und jedes weitere Molekül in sein Kristallgitter einschließt.',
+    captionEn: 'It all starts with the carrier matrix: fully refined paraffin that sets at 58–60 °C and locks every other molecule into its crystal lattice.',
+  },
+  {
+    node: 4, edges: [2],
+    captionDe: 'In die Matrix eingebettet sitzt das Herz der Formel — Molybdändisulfid. Es schert unter Druck zu einem Transferfilm und drückt die Reibung auf μ 0,03.',
+    captionEn: 'Embedded in the matrix sits the heart of the formula — molybdenum disulfide. It shears under pressure into a transfer film and pushes friction to μ 0.03.',
+  },
+  {
+    node: 2, edges: [0],
+    captionDe: 'Fischer-Tropsch-Wachs ko-kristallisiert mit dem Paraffin und hebt den Tropfpunkt auf ~75 °C — die Matrix bleibt unter Sommerlast an Ort und Stelle.',
+    captionEn: 'Fischer–Tropsch wax co-crystallises with the paraffin and lifts the drop point to ~75 °C — the matrix stays put under summer load.',
+  },
+  {
+    node: 3, edges: [1, 3],
+    captionDe: 'Mikrokristallines Wachs plastifiziert die Matrix bis −10 °C und bettet zugleich die MoS₂-Partikel mechanisch ein — Kälteflex ohne Abplatzen.',
+    captionEn: 'Microcrystalline wax plasticises the matrix to −10 °C and mechanically embeds the MoS₂ particles — cold flex without flaking.',
+  },
+  {
+    node: 5, edges: [4],
+    captionDe: 'MoS₂ ist 5,6× dichter als Wachs und würde absinken. Ein amphiphiler Ester legt eine sterische Hülle um jedes Partikel — gleichmäßige Verteilung, Block für Block.',
+    captionEn: 'MoS₂ is 5.6× denser than wax and would sink. An amphiphilic ester wraps each particle in a steric shell — even dispersion, block after block.',
+  },
+  {
+    node: 6, edges: [5],
+    captionDe: 'Ein gehindertes Phenol fängt Radikale ab und schützt das MoS₂ vor Umwandlung zu abrasivem MoO₃ — 12 Monate stabile Lagerung.',
+    captionEn: 'A hindered phenol scavenges radicals and shields the MoS₂ from turning into abrasive MoO₃ — 12 months of stable shelf life.',
+  },
+];
+export const STORY_DONE = {
+  de: 'Das ist die Pro-Rezeptur: Trägermatrix, Festschmierstoff und Schutz in einem Block. Tippe eine Komponente, um sie zu erkunden.',
+  en: 'That’s the Pro recipe: carrier matrix, solid lubricant and protection in a single block. Tap any component to explore it.',
+};
+
 // ─── Development-iteration story — why the combination evolved ────────────────
 export interface ScienceFailure {
   vDe: string; vEn: string;

@@ -15,7 +15,15 @@ export function curvedEdge(ax: number, ay: number, bx: number, by: number, bend 
   const dx = bx - ax, dy = by - ay;
   const cx = mx - dy * bend, cy = my + dx * bend;       // control point
   const mid = { x: 0.25 * ax + 0.5 * cx + 0.25 * bx, y: 0.25 * ay + 0.5 * cy + 0.25 * by };
-  return { d: `M${ax} ${ay} Q${cx} ${cy} ${bx} ${by}`, mid };
+  // `c` (control point) is additive — existing callers destructure only { d, mid }.
+  return { d: `M${ax} ${ay} Q${cx} ${cy} ${bx} ${by}`, mid, c: { x: cx, y: cy } };
+}
+
+// Point on a quadratic Bézier at parameter t∈[0,1] (a→b, control c). Lets callers
+// ride a relationship label out toward one endpoint instead of the midpoint.
+export function quadPoint(ax: number, ay: number, cx: number, cy: number, bx: number, by: number, t: number) {
+  const u = 1 - t;
+  return { x: u * u * ax + 2 * u * t * cx + t * t * bx, y: u * u * ay + 2 * u * t * cy + t * t * by };
 }
 
 // Refined node disc. Hubs (big) carry a faint concentric halo ring so importance
