@@ -49,7 +49,7 @@ const REVIEWS: Review[] = [
   {
     textDe: 'Schnelle Lieferung, einwandfrei gewachste Kette die sehr gut läuft, gerne wieder.',
     textEn: 'Fast delivery, impeccably waxed chain that runs very well — will order again.',
-    name: 'seyrane', dateDe: 'März 2026', dateEn: 'March 2026', source: 'ebay',
+    name: 'seyrane', dateDe: 'März 2026', dateEn: 'March 2026', source: 'ebay', photo: '/images/reviews/ride-5.jpg',
   },
   {
     textDe: 'Positiver als positiv kann leider niemand bewerten – wäre hier aber angebracht, 1+ mit ★.',
@@ -201,10 +201,6 @@ export function Reviews() {
     return () => io.disconnect();
   }, []);
 
-  // Two rows from different slices so they never read as the same short loop.
-  const rowA = REVIEWS;
-  const rowB = [...REVIEWS.slice(4), ...REVIEWS.slice(0, 4)];
-
   return (
     <section ref={sectionRef} className="relative py-20 sm:py-28 overflow-hidden" style={{ background: 'var(--pg)' }}>
       {/* ── Header ── */}
@@ -222,10 +218,9 @@ export function Reviews() {
         </div>
       </div>
 
-      {/* ── Two self-scrolling rows ── */}
-      <div className="flex flex-col gap-4 sm:gap-5">
-        <Marquee items={rowA} dur={66} reduced={reduced} paused={!inView} />
-        <Marquee items={rowB} dur={86} reduced={reduced} paused={!inView} />
+      {/* ── Single self-scrolling row, contained so cards fade in before the edge ── */}
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <Marquee items={REVIEWS} dur={64} reduced={reduced} paused={!inView} />
       </div>
 
       {/* ── Proof strip + source link ── */}
