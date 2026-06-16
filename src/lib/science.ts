@@ -362,12 +362,12 @@ export interface DiveGraph { nodes: DiveNodePos[]; links: DiveLink[] }
 export const DIVE_GRAPH: Record<'classic' | 'pro', DiveGraph> = {
   pro: {
     nodes: [
-      { id: 'kristallstruktur', x: 230, y: 86,  big: true }, // Paraffin (matrix hub)
-      { id: 'matrix',           x: 100, y: 150 },             // FT-Wachs
-      { id: 'winterformel',     x: 360, y: 150 },             // Mikrokristallin
-      { id: 'mos2',             x: 230, y: 250, big: true },  // MoS₂ (lubricant hub)
-      { id: 'sedimentation',    x: 104, y: 352 },             // Dispersant
-      { id: 'antioxidans',      x: 356, y: 352 },             // Antioxidans
+      { id: 'kristallstruktur', x: 230, y: 70,  big: true }, // Paraffin (matrix hub)
+      { id: 'matrix',           x: 86,  y: 150 },             // FT-Wachs
+      { id: 'winterformel',     x: 374, y: 150 },             // Mikrokristallin
+      { id: 'mos2',             x: 230, y: 215, big: true },  // MoS₂ (lubricant hub)
+      { id: 'sedimentation',    x: 96,  y: 312 },             // Dispersant
+      { id: 'antioxidans',      x: 364, y: 312 },             // Antioxidans
     ],
     links: [
       { a: 'kristallstruktur', b: 'mos2',            labelDe: 'Trägermatrix',      labelEn: 'carrier matrix',  main: true },
@@ -380,9 +380,9 @@ export const DIVE_GRAPH: Record<'classic' | 'pro', DiveGraph> = {
   },
   classic: {
     nodes: [
-      { id: 'kristallstruktur', x: 230, y: 96,  big: true }, // Paraffin (matrix hub)
-      { id: 'winterformel',     x: 100, y: 200 },            // Mikrokristallin
-      { id: 'haftung',          x: 360, y: 200 },            // Stearin
+      { id: 'kristallstruktur', x: 230, y: 86,  big: true }, // Paraffin (matrix hub)
+      { id: 'winterformel',     x: 96,  y: 200 },            // Mikrokristallin
+      { id: 'haftung',          x: 364, y: 200 },            // Stearin
       { id: 'ptfe',             x: 230, y: 300, big: true }, // PTFE (lubricant hub)
     ],
     links: [

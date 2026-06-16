@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { X, ArrowRight } from 'lucide-react';
@@ -6,12 +6,12 @@ import { gsap } from '@/lib/gsap';
 import { prefersReducedMotion } from '@/hooks/useAnimation';
 import { SegmentedToggle, InstrumentFrame } from '@/components/viz';
 import { ComponentDiagram } from '@/sections/science/diagrams';
-import { curvedEdge, NodeCircle, EdgeLabel, LegendSwatch, type NodeState } from '@/sections/science/graphPrimitives';
+import { curvedEdge, quadPoint, NodeCircle, EdgeLabel, LegendSwatch, type NodeState } from '@/sections/science/graphPrimitives';
 import { diveFormula, DIVE_GRAPH, type ScienceComponent, type DiveNodePos } from '@/lib/science';
 
 const MONO = "'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace";
-const VB_W = 460, VB_H = 430;
-const radOf = (big?: boolean) => (big ? 44 : 33);
+const VB_W = 460, VB_H = 380;
+const radOf = (big?: boolean) => (big ? 48 : 38);
 
 /**
  * WaxDive — the "look inside the wax" experience.
@@ -43,18 +43,41 @@ export function WaxDive({ open, onClose, de }: { open: boolean; onClose: () => v
 
   // Links touching the focus node → its neighbours light up, the rest dim.
   const incident = (id: string) => graph.links.filter(l => l.a === id || l.b === id);
-  const neighbours = new Set(incident(focusId).flatMap(l => [l.a, l.b]).filter(id => id !== focusId));
+  const neighbours = useMemo(
+    () => new Set(graph.links.filter(l => l.a === focusId || l.b === focusId)
+      .flatMap(l => [l.a, l.b]).filter(id => id !== focusId)),
+    [graph, focusId]);
   const nodeState = (id: string): 'active' | 'near' | 'dim' =>
     id === focusId ? 'active' : neighbours.has(id) ? 'near' : 'dim';
   const activePos = posById(active.id);
   const activeLinks = incident(active.id);
 
-  // Pre-computed edge geometry (curved path + on-curve midpoint for the label pill).
-  const edgeGeo = graph.links.map((l) => {
+  // Curved path + a label point ridden out toward the spoke (non-focus) end, so the
+  // pills fan out beside their landing nodes instead of stacking on the hub.
+  const edgeGeo = useMemo(() => graph.links.map((l) => {
     const A = posById(l.a), B = posById(l.b);
-    const { d, mid } = curvedEdge(A.x, A.y, B.x, B.y);
-    return { l, d, mid, on: l.a === focusId || l.b === focusId };
-  });
+    const { d, mid, c } = curvedEdge(A.x, A.y, B.x, B.y);
+    const on = l.a === focusId || l.b === focusId;
+    const t = l.a === focusId ? 0.62 : l.b === focusId ? 0.38 : 0.5;
+    const labelPt = quadPoint(A.x, A.y, c.x, c.y, B.x, B.y, t);
+    return { l, d, mid, labelPt, on };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [graph, focusId]);
+
+  // Recipe logic broken into role groups (derived per variant) for the summary card.
+  const logic = variant === 'pro'
+    ? [
+        { roleDe: 'Matrix', roleEn: 'Matrix', ids: ['kristallstruktur'], noteDe: 'trägt den Film', noteEn: 'carries the film' },
+        { roleDe: 'Schmierung', roleEn: 'Lubrication', ids: ['mos2'], noteDe: 'senkt die Reibung', noteEn: 'cuts the friction' },
+        { roleDe: 'Temperaturfenster', roleEn: 'Temperature window', ids: ['matrix', 'winterformel'], noteDe: 'fest bei Hitze, flexibel bei Kälte', noteEn: 'firm in heat, flexible in cold' },
+        { roleDe: 'Stabilität & Schutz', roleEn: 'Stability & protection', ids: ['sedimentation', 'antioxidans'], noteDe: 'gleichmäßig verteilt, lange haltbar', noteEn: 'evenly dispersed, long shelf life' },
+      ]
+    : [
+        { roleDe: 'Matrix', roleEn: 'Matrix', ids: ['kristallstruktur'], noteDe: 'trägt den Film', noteEn: 'carries the film' },
+        { roleDe: 'Gleitfilm', roleEn: 'Glide film', ids: ['ptfe'], noteDe: 'glatt & antihaftend', noteEn: 'slick & non-stick' },
+        { roleDe: 'Flexibilität', roleEn: 'Flexibility', ids: ['winterformel'], noteDe: 'etwas Elastizität bei Kälte', noteEn: 'a little cold-weather give' },
+        { roleDe: 'Haftung', roleEn: 'Adhesion', ids: ['haftung'], noteDe: 'verankert den Film am Stahl', noteEn: 'anchors the film to steel' },
+      ];
 
   useEffect(() => { setActiveId(null); setHoverId(null); }, [variant]);
 
@@ -114,7 +137,7 @@ export function WaxDive({ open, onClose, de }: { open: boolean; onClose: () => v
   return createPortal(
     <div
       className="fixed inset-0 z-[80] flex items-center justify-center p-3 sm:p-6"
-      style={{ background: 'rgba(10,10,12,0.55)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}
+      style={{ background: 'rgba(10,10,12,0.62)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)' }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div
@@ -128,7 +151,7 @@ export function WaxDive({ open, onClose, de }: { open: boolean; onClose: () => v
       >
         {/* Header */}
         <div className="sticky top-0 z-10 flex items-center justify-between gap-3 px-5 sm:px-7 py-4"
-          style={{ background: 'var(--nav-bg)', borderBottom: '1px solid var(--bd)', backdropFilter: 'blur(10px)' }}>
+          style={{ background: 'var(--sf)', borderBottom: '1px solid var(--bd)' }}>
           <div>
             <p className="eyebrow" style={{ color: 'var(--accent)' }}>{de ? 'Blick ins Wachs' : 'Inside the wax'}</p>
             <p className="font-display font-bold text-[17px] leading-tight mt-0.5" style={{ color: 'var(--tx1)' }}>
@@ -207,8 +230,8 @@ export function WaxDive({ open, onClose, de }: { open: boolean; onClose: () => v
 
                 {/* relationship labels — pills over the focus node's links */}
                 <div className="absolute inset-0 pointer-events-none">
-                  {edgeGeo.map(({ l, mid, on }, i) => (
-                    <EdgeLabel key={`p-${i}`} x={mid.x} y={mid.y} vbW={VB_W} vbH={VB_H} on={on}>
+                  {edgeGeo.map(({ l, labelPt, on }, i) => (
+                    <EdgeLabel key={`p-${i}`} x={labelPt.x} y={labelPt.y} vbW={VB_W} vbH={VB_H} on={on}>
                       {de ? l.labelDe : l.labelEn}
                     </EdgeLabel>
                   ))}
@@ -216,11 +239,38 @@ export function WaxDive({ open, onClose, de }: { open: boolean; onClose: () => v
               </div>
             </InstrumentFrame>
 
-            <p className="text-[11px] mt-3" style={{ color: 'var(--txm)' }}>
-              {de
-                ? 'Paraffin ist die Matrix, der Festschmierstoff das Herz — die Verbindungen dazwischen sind die eigentliche Rezeptur.'
-                : 'Paraffin is the matrix, the solid lubricant the heart — the links between them are the real recipe.'}
-            </p>
+            {/* Rezept-Logik — the whole system at a glance; chips switch the detail */}
+            <div className="mt-3 rounded-xl p-4" style={{ background: 'var(--sf2)', border: '1px solid var(--bd)' }}>
+              <p className="eyebrow mb-3" style={{ color: 'var(--txf)' }}>
+                {de ? 'Die Logik der Rezeptur' : 'How the recipe works'}
+              </p>
+              <ul className="flex flex-col gap-2.5">
+                {logic.map((g, i) => (
+                  <li key={i} className="flex items-baseline gap-3">
+                    <span className="w-[88px] flex-shrink-0 text-[11px] font-semibold leading-tight" style={{ color: 'var(--tx2)' }}>
+                      {de ? g.roleDe : g.roleEn}
+                    </span>
+                    <div className="flex flex-wrap items-center gap-1.5 flex-1">
+                      {g.ids.map((id) => {
+                        const c = compById(id);
+                        const sel = id === active.id;
+                        return (
+                          <button key={id} type="button"
+                            onClick={() => { setHoverId(null); setActiveId(id); }}
+                            className="rounded-full px-2 py-[2px] text-[10.5px] font-medium leading-none transition-colors"
+                            style={sel
+                              ? { background: 'var(--accent)', color: '#fff', border: '1px solid var(--accent)' }
+                              : { background: 'rgba(var(--accent-rgb),0.08)', color: 'var(--accent)', border: '1px solid rgba(var(--accent-rgb),0.18)' }}>
+                            {de ? c.graphLabelDe : c.graphLabelEn}
+                          </button>
+                        );
+                      })}
+                      <span className="text-[11.5px]" style={{ color: 'var(--txm)' }}>{de ? g.noteDe : g.noteEn}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
 
           {/* RIGHT — selected component detail */}
@@ -329,12 +379,15 @@ function DiveNode({ comp, pos, state, index, de, onSelect, onHover }: {
       onFocus={() => onHover(comp.id)}
       onBlur={() => onHover(null)}
     >
+      {/* opaque hit area — NodeCircle + labels are pointer-events:none, so without
+          this the node has no clickable/hoverable surface */}
+      <circle cx={x} cy={y} r={r + 10} fill="transparent" />
       <NodeCircle x={x} y={y} r={r} big={pos.big} state={state} />
-      <text x={x} y={pos.big ? y - 4 : y - 2} textAnchor="middle" fontSize={pos.big ? 13 : 10}
+      <text x={x} y={pos.big ? y - 5 : y - 3} textAnchor="middle" fontSize={pos.big ? 14 : 11}
         fontWeight={600} fill={active ? '#fff' : 'var(--tx1)'} style={{ pointerEvents: 'none' }}>
         {de ? comp.graphLabelDe : comp.graphLabelEn}
       </text>
-      <text x={x} y={pos.big ? y + 13 : y + 11} textAnchor="middle" fontSize={pos.big ? 10 : 8.5} fontFamily={MONO}
+      <text x={x} y={pos.big ? y + 15 : y + 13} textAnchor="middle" fontSize={pos.big ? 10.5 : 9} fontFamily={MONO}
         fill={active ? 'rgba(255,255,255,0.85)' : 'var(--txm)'} style={{ pointerEvents: 'none' }}>
         {comp.metric}
       </text>
