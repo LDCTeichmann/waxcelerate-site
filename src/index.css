@@ -81,7 +81,10 @@
     --secondary-foreground: 240 10% 4%;
     --muted: 240 5% 93%;
     --muted-foreground: 240 4% 46%;
-    --accent: 240 5% 93%;
+    /* shadcn surface token (HSL triplet, consumed only as hsl(var(--accent-ui))
+       via Tailwind `accent`). Namespaced as --accent-ui so the site's ink-blue
+       --accent (#1F4A7D, declared above) wins for bare var(--accent) usage. */
+    --accent-ui: 240 5% 93%;
     --accent-foreground: 240 10% 4%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
@@ -192,7 +195,8 @@
     --secondary-foreground: 0 0% 98%;
     --muted: 240 4% 11%;
     --muted-foreground: 240 5% 45%;
-    --accent: 240 4% 13%;
+    /* shadcn surface token — see --accent-ui note in :root */
+    --accent-ui: 240 4% 13%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
@@ -240,6 +244,66 @@
    (ID selector outranks the :root:not(.noir) light-mode rule above) */
 #home h1, #home h2, #home h3, #home h4 {
   color: #FFFFFF !important;
+}
+
+/* Editorial light hero — sits on a LIGHT stage, so headings are dark in light
+   mode and white in noir. Scoped to .hero-editorial so the legacy dark-photo
+   hero (plain #home) keeps its white headings. Specificity #home.hero-editorial
+   (1,1,1) beats the #home rule above (1,0,1). */
+#home.hero-editorial h1, #home.hero-editorial h2,
+#home.hero-editorial h3, #home.hero-editorial h4 {
+  color: var(--tx1) !important;
+}
+.noir #home.hero-editorial h1, .noir #home.hero-editorial h2,
+.noir #home.hero-editorial h3, .noir #home.hero-editorial h4 {
+  color: #FAFAFA !important;
+}
+
+/* Editorial hero — feines Film-Grain über der Bühne (Material/Wärme, high-end). */
+.hero-grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  opacity: 0.05;
+}
+.noir .hero-grain { opacity: 0.08; }
+
+/* Editorial hero — Bühnen-Hintergrund. Light: warmes Off-White-Radial.
+   Noir: dunkle Bühne, damit Wortmarke/Headline (in Noir hell) lesbar bleiben. */
+.hero-stage {
+  background: linear-gradient(177deg, #FCFCFD 0%, #F4F4F6 100%);
+}
+.noir .hero-stage {
+  background: linear-gradient(177deg, #161619 0%, #0E0E11 100%);
+}
+/* Top-Fade — hält die transparente Nav über dem full-bleed Hero lesbar
+   (hellt die Kette unter der Leiste auf; über der hellen Zone unsichtbar). */
+.hero-topfade {
+  background: linear-gradient(to bottom, rgba(245,245,246,0.85) 0%, rgba(245,245,246,0.50) 30%, rgba(245,245,246,0) 100%);
+}
+.noir .hero-topfade {
+  background: linear-gradient(to bottom, #0B0B0E 0%, rgba(11,11,14,0.62) 42%, rgba(11,11,14,0) 100%);
+}
+
+/* Frosted-Footer — Kette verläuft am Fuß in die Bühnenfarbe (lesbares Band) */
+.hero-footer-fade {
+  background: linear-gradient(to top, #F2F2F4 4%, rgba(242,242,244,0.92) 34%, rgba(242,242,244,0) 100%);
+}
+.noir .hero-footer-fade {
+  background: linear-gradient(to top, #0B0B0E 4%, rgba(11,11,14,0.92) 34%, rgba(11,11,14,0) 100%);
+}
+
+/* Editorial light hero — responsive Ketten-Panel-Clip.
+   Mobile: Band oben mit diagonaler Unterkante. Desktop (≥1024px): rechtes
+   Panel mit diagonaler linker Kante. */
+.hero-chain-clip {
+  clip-path: polygon(0 0, 100% 0, 100% 86%, 0 100%);
+  -webkit-clip-path: polygon(0 0, 100% 0, 100% 86%, 0 100%);
+}
+@media (min-width: 1024px) {
+  .hero-chain-clip {
+    clip-path: polygon(20% 0, 100% 0, 100% 100%, 2% 100%);
+    -webkit-clip-path: polygon(20% 0, 100% 0, 100% 100%, 2% 100%);
+  }
 }
 
 /* Grid background */
@@ -300,19 +364,27 @@
 }
 
 /* ── Card lift on hover ────────────────────────────────────────────────────── */
-/* Applied to the Link inside .wax-card and .chain-card.
-   Composites with the JS 3D tilt on the outer wrapper. */
-.wax-card > a,
-.chain-card > a {
-  transition:
-    transform 240ms cubic-bezier(0.4, 0, 0.2, 1),
-    box-shadow 300ms ease,
-    border-color 300ms ease;
+/* The lift sits on the inner <a> (which carries NO inline transform — the wrapper
+   has translateZ(0) + a GSAP entrance, so a CSS transform there would be ignored).
+   The wrapper no longer has overflow:hidden (the image clips itself via
+   rounded-t-2xl), so lifting the <a> never clips. The card's shadow is static on
+   the <a> → only `transform` composites per frame (GPU): no paint/layout thrash,
+   no JS hover writes. Hover effects only on real hover devices → no "stuck" lift
+   after a tap on touch screens. */
+@media (hover: hover) and (pointer: fine) {
+  .wax-card > a,
+  .chain-card > a {
+    transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .wax-card:hover > a,
+  .chain-card:hover > a {
+    transform: translateY(-4px);
+  }
 }
 
-.wax-card:hover > a,
-.chain-card:hover > a {
-  transform: translateY(-3px);
+@media (prefers-reduced-motion: reduce) {
+  .wax-card:hover > a,
+  .chain-card:hover > a { transform: none !important; }
 }
 
 /* ── Footer link hover — underline slide-in ──────────────────────────────── */

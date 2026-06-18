@@ -8,9 +8,10 @@ import { useActiveSection } from '@/hooks/useActiveSection';
 
 // Reihenfolge = Scroll-Reihenfolge der Sections auf der Seite.
 // `route: true` → eigene Seite (React-Router-Navigation statt Scroll-Anchor).
+// „Produkte" entfällt im Desktop-Header — der „Jetzt bestellen"-Button (→ #produkte)
+// übernimmt diese Rolle, ohne sich zu doppeln. Mobil bleibt Produkte erhalten.
 const navItems = [
   { href: '#warum-wachs', key: 'whyWax'   },
-  { href: '#produkte',    key: 'products' },
   { href: '/wissenschaft', key: 'science', route: true },
   { href: '#ueber-mich',  key: 'about'    },
   { href: '#tools',       key: 'tools'    },
@@ -18,6 +19,11 @@ const navItems = [
   { href: '#faq',         key: 'faq'      },
   { href: '/blog',        key: 'blog',    route: true },
   { href: '#kontakt',     key: 'contact'  },
+];
+
+const mobileNavItems = [
+  { href: '#produkte', key: 'products' },
+  ...navItems,
 ];
 
 export function Navigation() {
@@ -89,13 +95,10 @@ export function Navigation() {
       <header
         className="fixed top-0 left-0 right-0 z-50 py-2 transition-all duration-300"
         style={{
-          background: isScrolled ? 'var(--nav-bg)' : 'transparent',
+          background: isScrolled ? 'var(--nav-bg)' : 'rgba(245,245,246,0.72)',
           boxShadow: isScrolled ? 'inset 0 -1px 0 var(--bd)' : 'none',
-          // Live-Blur nur wenn die Leiste tatsächlich einen Hintergrund hat
-          // (gescrollt) und mit kleinerem Radius — der frühere blur(16px) lief
-          // permanent und ließ jedes Scroll-Frame die ganze Leiste neu rastern.
-          backdropFilter: isScrolled ? 'blur(8px)' : 'none',
-          WebkitBackdropFilter: isScrolled ? 'blur(8px)' : 'none',
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
         }}
       >
         {/* Scroll-Progress — eine Accent-Hairline an der Unterkante */}
@@ -108,95 +111,77 @@ export function Navigation() {
         <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
           <div className="flex items-center justify-between h-16 lg:h-20">
 
-            {/* Logo */}
+            {/* Logo — Wortmarke steht groß im Hero, daher hier nur das Zeichen */}
             <a
               href="#home"
               onClick={(e) => {
                 e.preventDefault();
                 scrollToSection('#home');
               }}
-              className="flex items-center gap-2.5"
+              className="flex items-center shrink-0"
+              aria-label="Waxcelerate"
             >
               <img
                 src="/images/No BG No Sign Logo.png"
                 alt="Waxcelerate"
-                className="w-auto"
-                style={{ height: '36px', width: 'auto' }}
+                className="w-auto h-12 lg:h-[3.5rem]"
               />
-              <span
-                className="font-sans text-sm font-bold tracking-wide transition-colors duration-300"
-                style={{ color: 'var(--tx1)' }}
-              >
-                WAXCELERATE
-              </span>
-              {isScrolled && activeSection !== '' && activeSection !== '#home' && (
-                <span
-                  className="hidden lg:inline-flex items-center gap-1 text-[10px] ml-1 px-2 py-0.5 rounded-full"
-                  style={{ background: 'var(--sf3)', color: 'var(--txf)', border: '1px solid var(--bd)' }}
-                >
-                  <span style={{ color: 'var(--accent)' }}>★★★★★</span>
-                  <span>189</span>
-                </span>
-              )}
             </a>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center gap-1">
-              <a
-                href="#produkte"
-                onClick={(e) => { e.preventDefault(); scrollToSection('#produkte'); }}
-                className={`inline-flex items-center gap-1.5 px-4 py-1.5 mr-2 text-[13px] font-semibold rounded-full transition-all duration-300 hover:opacity-85 ${
-                  isScrolled ? 'opacity-100' : 'opacity-0 pointer-events-none'
-                }`}
-                style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
-              >
-                {de ? 'Jetzt bestellen' : 'Buy now'}
-              </a>
+            {/* Desktop Navigation — zentriert, ruhige Editorial-Typo */}
+            <nav className="hidden lg:flex flex-1 items-center justify-center gap-7">
               {navItems.map((item) => (
                 <a
                   key={item.href}
                   href={item.href}
                   onClick={(e) => { e.preventDefault(); handleNav(item); }}
-                  className="relative group px-4 py-2 text-sm transition-colors duration-300"
+                  className="relative group text-[13.5px] tracking-[0.01em] transition-colors duration-300"
                   style={{
                     color: activeSection === item.href ? 'var(--tx1)' : 'var(--tx2)',
                   }}
                 >
                   {t.nav[item.key as keyof typeof t.nav]}
-                  {activeSection === item.href && (
-                    <span className="absolute bottom-0 left-4 right-4 h-px" style={{ background: 'var(--accent)' }} />
-                  )}
-                  {activeSection !== item.href && (
-                    <span
-                      className="absolute bottom-0 left-4 right-4 h-px scale-x-0 group-hover:scale-x-100 transition-transform duration-200 origin-left"
-                      style={{ background: 'var(--bd)' }}
-                    />
-                  )}
+                  <span
+                    className={`absolute -bottom-1.5 left-0 right-0 h-px origin-left transition-transform duration-200 ${
+                      activeSection === item.href ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
+                    }`}
+                    style={{ background: activeSection === item.href ? 'var(--accent)' : 'var(--bd)' }}
+                  />
                 </a>
               ))}
             </nav>
 
             {/* Actions */}
-            <div className="flex items-center gap-3">
-              <CartIcon light={false} />
-
-              {/* Theme toggle — desktop only */}
-              <button
-                onClick={() => setTheme(theme === 'light' ? 'noir' : 'light')}
-                className="hidden lg:flex items-center justify-center w-8 h-8 rounded-md border transition-colors border-wx-bd/50 hover:border-[var(--accent)] text-wx-tx2 hover:text-wx-tx1"
-                aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
-              >
-                {theme === 'light' ? <Moon className="h-3.5 w-3.5" /> : <Sun className="h-3.5 w-3.5" />}
-              </button>
-
+            <div className="flex items-center gap-2.5 lg:gap-4 shrink-0">
               {/* Language toggle — desktop only */}
               <button
                 onClick={toggleLang}
-                className="hidden lg:block px-3 py-1.5 text-xs font-medium border rounded transition-colors border-wx-bd/50 hover:border-[var(--accent)] text-wx-tx2 hover:text-wx-tx1"
+                className="hidden lg:block text-[12px] font-medium tracking-wide transition-colors text-wx-tx2 hover:text-wx-tx1"
                 aria-label={lang === 'de' ? 'Switch to English' : 'Zu Deutsch wechseln'}
               >
                 {lang === 'de' ? 'EN' : 'DE'}
               </button>
+
+              {/* Theme toggle — desktop only */}
+              <button
+                onClick={() => setTheme(theme === 'light' ? 'noir' : 'light')}
+                className="hidden lg:flex items-center justify-center w-9 h-9 rounded-full transition-colors text-wx-tx2 hover:text-wx-tx1 hover:bg-[var(--sf2)]"
+                aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+              >
+                {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+              </button>
+
+              <CartIcon light={false} />
+
+              {/* Primär-CTA — immer sichtbar, ersetzt den „Produkte"-Link */}
+              <a
+                href="#produkte"
+                onClick={(e) => { e.preventDefault(); scrollToSection('#produkte'); }}
+                className="hidden lg:inline-flex items-center px-5 py-2.5 text-[13px] font-semibold rounded-full transition-transform duration-300 hover:-translate-y-0.5"
+                style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
+              >
+                {de ? 'Jetzt bestellen' : 'Buy now'}
+              </a>
 
               {/* Mobile menu button */}
               <button
@@ -272,7 +257,7 @@ export function Navigation() {
 
         {/* Nav links */}
         <nav className="flex flex-col flex-1 overflow-y-auto px-5 py-4">
-          {navItems.map((item, index) => (
+          {mobileNavItems.map((item, index) => (
             <a
               key={item.href}
               href={item.href}

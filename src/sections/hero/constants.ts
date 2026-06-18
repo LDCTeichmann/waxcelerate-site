@@ -15,7 +15,7 @@ export const IMG_POS_Y = 0.5;
 // Silhouette des Wachsblocks — dieselbe Maske wie die maskierte Bildebene in
 // hero.tsx. Die Lupe sampelt deren Alpha, um pixelgenau „nur auf dem Wachs" zu
 // erscheinen (statt im umgebenden Schiefer-Rechteck).
-export const HERO_MASK_SRC = '/images/hero-wax-v5-mask.png';
+export const HERO_MASK_SRC = '/images/hero/wax-v5-mask.png';
 
 /**
  * Der Wachsblock-Bereich als Bruchteile der Karten-Box (rechts/oben/Breite/Höhe).

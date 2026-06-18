@@ -12,6 +12,8 @@ import { getEstimatedDelivery } from '@/lib/utils';
 import { ChainFinder } from '@/sections/ChainFinder';
 import { AddToCartButton } from '@/components/AddToCartButton';
 
+const MONO = "'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace";
+
 export function Products() {
   const { t, lang } = useLanguage();
   const [activeTab, setActiveTab] = useState<'wax' | 'chain'>('wax');
@@ -233,7 +235,7 @@ export function Products() {
                   <p className="text-wx-txm text-sm mb-3">
                     {de ? 'Keine passende Kette gefunden.' : 'No matching chain found.'}
                   </p>
-                  <button onClick={resetFilters} className="text-[12px] transition-colors" style={{ color: 'var(--accent)' }}>
+                  <button onClick={resetFilters} className="text-[12px] transition-colors" style={{ color: 'var(--accent-soft)' }}>
                     {de ? 'Filter zurücksetzen' : 'Reset filters'}
                   </button>
                 </div>
@@ -279,14 +281,22 @@ interface CardProps {
 
 const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: CardProps) {
   const isPro = product.variant === 'pro';
-  const accent = isPro ? 'var(--accent)' : 'var(--accent)';
-
   const title = de ? product.title : product.titleEn;
   const badge = de ? product.badge : product.badgeEn;
   const desc = de ? product.description : product.descriptionEn;
+  const featured = product.badge === 'Empfohlen' || product.badgeEn === 'Recommended';
+
+  // Mono "instrument" specs — the same readout language as the detail page.
+  const specs = [
+    { l: de ? 'Reichweite' : 'Range', v: product.intervalDry },
+    { l: de ? 'Anwendungen' : 'Applications', v: product.applications },
+  ].filter(s => s.v);
+
+  const grams = product.weight ? parseInt(product.weight) : 0;
+  const per100 = grams > 0 ? `${(product.price / (grams / 100)).toFixed(2).replace('.', ',')} €/100g` : null;
 
   return (
-    <div className="wax-card relative h-full rounded-2xl overflow-hidden" style={{ transform: 'translateZ(0)' }}>
+    <div className="wax-card relative h-full rounded-2xl" style={{ transform: 'translateZ(0)' }}>
       <Link
         to={`/produkt/${product.id}`}
         className="group relative flex flex-col h-full rounded-2xl"
@@ -294,41 +304,28 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: Ca
           background: 'var(--card-bg)',
           border: '1px solid var(--bd)',
           boxShadow: 'var(--card-shad)',
-          transition: 'border-color 250ms ease, box-shadow 250ms ease',
-        }}
-        onMouseEnter={e => {
-          e.currentTarget.style.boxShadow = 'var(--card-shadow-hover)';
-          e.currentTarget.style.borderColor = 'var(--bd2)';
-        }}
-        onMouseLeave={e => {
-          e.currentTarget.style.boxShadow = 'var(--card-shad)';
-          e.currentTarget.style.borderColor = 'var(--bd)';
         }}
       >
         {/* Image */}
-        <div className="relative overflow-hidden aspect-[3/2] flex-shrink-0">
+        <div className="relative overflow-hidden rounded-t-2xl aspect-[3/2] flex-shrink-0">
           <img
             src={product.image}
             alt={title}
             loading="lazy"
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
             style={{ objectPosition: product.imagePosition ?? 'center 55%' }}
-            onError={e => { (e.target as HTMLImageElement).src = '/images/wax-block-spin.jpg'; }}
+            onError={e => { (e.target as HTMLImageElement).src = '/images/products/wax-block-spin.png'; }}
           />
-          <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to top, var(--card-img-fade) 0%, transparent 50%)' }} />
           {/* Badges */}
           <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2">
-            <span
-              className="wx-badge"
-              style={{ background: 'rgba(0,0,0,0.60)', color: 'rgba(180,210,255,0.95)', border: `1px solid ${accent}50`, backdropFilter: 'blur(4px)' }}
-            >
+            <span className="wx-badge"
+              style={{ background: 'rgba(8,11,18,0.50)', color: 'rgba(224,234,255,0.95)', border: '1px solid rgba(255,255,255,0.16)', backdropFilter: 'blur(6px)' }}>
               {isPro ? 'Pro' : 'Classic'} · {product.weight}
             </span>
             {badge && (
-              <span
-                className="wx-badge"
-                style={{ background: 'rgba(0,0,0,0.60)', color: 'rgba(255,255,255,0.92)', border: '1px solid rgba(255,255,255,0.20)', backdropFilter: 'blur(4px)' }}
-              >
+              <span className="wx-badge" style={featured
+                ? { background: 'var(--brand-blue)', color: '#fff', border: '1px solid var(--brand-blue)', boxShadow: '0 3px 12px rgba(46,120,200,0.40)' }
+                : { background: 'rgba(8,11,18,0.50)', color: 'rgba(255,255,255,0.92)', border: '1px solid rgba(255,255,255,0.18)', backdropFilter: 'blur(6px)' }}>
                 {badge}
               </span>
             )}
@@ -337,34 +334,35 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: Ca
 
         {/* Content */}
         <div className="px-5 pt-4 pb-5 flex flex-col flex-1">
-          {/* Title + description */}
-          <div className="mb-5 flex-1">
-            <h3 className="font-display text-[19px] font-bold text-wx-tx1 leading-tight tracking-[-0.02em] mb-1.5">
-              {title}
-            </h3>
-            <p className="text-[13px] leading-relaxed line-clamp-2" style={{ color: 'var(--txm)' }}>
-              {desc}
-            </p>
-          </div>
+          <h3 className="font-display text-[19px] font-bold text-wx-tx1 leading-tight tracking-[-0.02em] mb-1.5">
+            {title}
+          </h3>
+          <p className="text-[13px] leading-relaxed line-clamp-2 flex-1" style={{ color: 'var(--txm)' }}>
+            {desc}
+          </p>
+
+          {/* Instrument spec strip — mono readout, like the detail page */}
+          {specs.length > 0 && (
+            <div className="grid grid-cols-2 mt-4 mb-4">
+              {specs.map((s, i) => (
+                <div key={s.l} className={i > 0 ? 'pl-4' : 'pr-4'}
+                  style={i > 0 ? { borderLeft: '1px solid var(--bd2)' } : undefined}>
+                  <p className="text-[9px] uppercase" style={{ fontFamily: MONO, letterSpacing: '0.14em', color: 'var(--txf)' }}>{s.l}</p>
+                  <p className="text-[13px] mt-1 tabular-nums" style={{ fontFamily: MONO, color: 'var(--tx1)' }}>{s.v}</p>
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Price + CTA */}
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex items-end justify-between gap-3 pt-4" style={{ borderTop: '1px solid var(--bd2)' }}>
             <div>
               <span className="num text-[22px] font-bold leading-none tracking-[-0.02em]" style={{ color: 'var(--tx1)' }}>
                 {formatPrice(product.price)}
               </span>
-              <p className="text-[11px] mt-0.5" style={{ color: 'var(--txf)' }}>
-                {(() => {
-                  const grams = product.weight ? parseInt(product.weight) : 0;
-                  const per100g = grams > 0
-                    ? `${(product.price / (grams / 100)).toFixed(2).replace('.', ',')} €/100g`
-                    : null;
-                  const appsLabel = product.applications
-                    ? `${product.applications} ${de ? 'Anwendungen' : 'applications'}`
-                    : null;
-                  return [appsLabel, per100g].filter(Boolean).join(' · ');
-                })()}
-              </p>
+              {per100 && (
+                <p className="text-[10.5px] mt-1.5 tabular-nums" style={{ fontFamily: MONO, color: 'var(--txf)' }}>{per100}</p>
+              )}
             </div>
             {canCheckout(product) ? (
               <div className="flex flex-col items-end gap-1">
@@ -380,7 +378,7 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: Ca
             ) : (
               <button
                 onClick={e => { e.preventDefault(); e.stopPropagation(); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
-                className="flex items-center gap-1.5 px-4 py-2.5 text-[13px] font-semibold rounded-xl transition-opacity duration-150 hover:opacity-90 active:scale-[0.97]"
+                className="flex items-center gap-1.5 px-5 py-2.5 text-[13px] font-semibold rounded-full transition-all duration-150 hover:opacity-90 active:scale-[0.97]"
                 style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
               >
                 {buyLabel}
@@ -397,7 +395,7 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: Ca
 // ── Chain Card ─────────────────────────────────────────────────────────────
 
 const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }: CardProps) {
-  const accent = 'var(--accent)'; // used for badge border/text only
+  const accent = 'var(--accent-soft)'; // used for badge border/text only
   const badge = de ? product.badge : product.badgeEn;
 
   const brand = product.chainBrand ?? '';
@@ -407,7 +405,7 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
   const title = de ? product.title : product.titleEn;
 
   return (
-    <div className="chain-card relative h-full rounded-2xl overflow-hidden" style={{ transform: 'translateZ(0)' }}>
+    <div className="chain-card relative h-full rounded-2xl" style={{ transform: 'translateZ(0)' }}>
       <Link
         to={`/produkt/${product.id}`}
         className="group flex flex-col h-full rounded-2xl"
@@ -415,25 +413,16 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
           background: 'var(--card-bg)',
           border: '1px solid var(--bd)',
           boxShadow: 'var(--card-shad)',
-          transition: 'border-color 250ms ease, box-shadow 250ms ease',
-        }}
-        onMouseEnter={e => {
-          e.currentTarget.style.boxShadow = 'var(--card-shadow-hover)';
-          e.currentTarget.style.borderColor = 'var(--bd2)';
-        }}
-        onMouseLeave={e => {
-          e.currentTarget.style.boxShadow = 'var(--card-shad)';
-          e.currentTarget.style.borderColor = 'var(--bd)';
         }}
       >
         {/* Image */}
-        <div className="relative overflow-hidden aspect-[16/9] flex-shrink-0">
+        <div className="relative overflow-hidden rounded-t-2xl aspect-[16/9] flex-shrink-0">
           <img
             src={product.image}
             alt={title}
             loading="lazy"
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
-            onError={e => { (e.target as HTMLImageElement).src = '/images/wax-block-spin.jpg'; }}
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+            onError={e => { (e.target as HTMLImageElement).src = '/images/products/wax-block-spin.png'; }}
           />
           <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to top, var(--card-img-fade) 0%, transparent 55%)' }} />
           <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between gap-2">
@@ -462,12 +451,19 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
             <h3 className="text-[15px] font-bold text-wx-tx1 leading-snug tracking-[-0.02em]">{model}</h3>
           </div>
 
-          {/* Spec pills — only per-card-varying info; shared "Quick-Link / pre-waxed" lives once above the grid */}
-          {chainLinks && (
-            <div className="flex flex-wrap gap-1.5 mb-3">
-              <span className="text-[11px] px-2.5 py-1 rounded-lg font-medium" style={{ background: 'var(--sf3)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
-                {chainLinks}
-              </span>
+          {/* Instrument spec readout — per-card-varying info in the mono "panel" voice */}
+          {(chainLinks || speed) && (
+            <div className="grid grid-cols-2 mt-1 mb-4">
+              {[
+                { l: de ? 'Schaltung' : 'Speeds', v: speed },
+                { l: de ? 'Glieder' : 'Links', v: chainLinks },
+              ].filter(s => s.v).map((s, i) => (
+                <div key={s.l} className={i > 0 ? 'pl-4' : 'pr-4'}
+                  style={i > 0 ? { borderLeft: '1px solid var(--bd2)' } : undefined}>
+                  <p className="text-[9px] uppercase" style={{ fontFamily: MONO, letterSpacing: '0.14em', color: 'var(--txf)' }}>{s.l}</p>
+                  <p className="text-[12.5px] mt-1 tabular-nums" style={{ fontFamily: MONO, color: 'var(--tx1)' }}>{s.v}</p>
+                </div>
+              ))}
             </div>
           )}
 
@@ -488,8 +484,8 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
             ) : (
               <button
                 onClick={e => { e.preventDefault(); e.stopPropagation(); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
-                className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-opacity duration-150 hover:opacity-90 active:scale-[0.97]"
-                style={{ background: 'var(--accent)' }}
+                className="flex items-center gap-1.5 px-5 py-2.5 rounded-full text-[13px] font-semibold transition-all duration-150 hover:opacity-90 active:scale-[0.97]"
+                style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
               >
                 {buyLabel}
                 <ExternalLink className="h-3.5 w-3.5" />
@@ -504,7 +500,7 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
 
 // ── Compare Modal ──────────────────────────────────────────────────────────
 
-const CLASSIC_ACCENT = 'var(--accent)';
+const CLASSIC_ACCENT = 'var(--accent-soft)';
 const PRO_ACCENT = 'var(--accent-soft)';
 
 function CompareModal({ open, onClose, de, t }: {

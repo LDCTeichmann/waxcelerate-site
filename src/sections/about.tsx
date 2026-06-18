@@ -85,13 +85,14 @@ export function About() {
               <p className="text-[15px] leading-[1.8] text-wx-tx2">{t.about.bio1}</p>
               <p className="text-[15px] leading-[1.8] text-wx-tx2">{t.about.bio2}</p>
               <blockquote
-                className="font-display italic my-3 pl-5"
+                className="italic my-4 pl-4"
                 style={{
-                  borderLeft: '3px solid var(--accent)',
-                  color: 'var(--tx1)',
-                  fontSize: 'clamp(1.15rem, 1.9vw, 1.5rem)',
-                  lineHeight: 1.3,
-                  letterSpacing: '-0.01em',
+                  borderLeft: '2px solid var(--accent-soft)',
+                  color: 'var(--tx2)',
+                  fontSize: 'clamp(0.95rem, 1.1vw, 1.05rem)',
+                  lineHeight: 1.55,
+                  fontWeight: 400,
+                  letterSpacing: '0',
                 }}
               >
                 {de
@@ -140,9 +141,9 @@ export function About() {
                 }}
               >
                 <picture>
-                  <source srcSet="/images/luca-stage.webp" type="image/webp" />
+                  <source srcSet="/images/people/luca-stage.webp" type="image/webp" />
                   <img
-                    src="/images/luca-stage.jpg"
+                    src="/images/people/luca-stage.jpg"
                     alt="eBay Seller Leadership Week 2025, San Jose"
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
                     style={{ objectPosition: '50% 38%' }}

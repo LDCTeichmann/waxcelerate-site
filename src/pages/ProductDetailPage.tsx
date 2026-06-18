@@ -1,5 +1,5 @@
 import { useParams, Link } from 'react-router-dom';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
   ArrowLeft, ExternalLink, Check,
@@ -23,11 +23,26 @@ export function ProductDetailPage() {
 
   const [activeImage, setActiveImage] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [highlightsOpen, setHighlightsOpen] = useState(false);
-  const [specsOpen, setSpecsOpen] = useState(false);
+  // Single-open accordion → only one panel expands at a time (less noise).
+  const [openAcc, setOpenAcc] = useState<'highlights' | 'specs' | null>(null);
+  // Sticky buy-bar slides in once the hero purchase block scrolls out of view.
+  const [showBuyBar, setShowBuyBar] = useState(false);
+  const buyRef = useRef<HTMLDivElement>(null);
   const [compatExpanded, setCompatExpanded] = useState(false);
   const [v9Expanded, setV9Expanded] = useState(false);
   const [richTab, setRichTab] = useState<RichTab>('formula');
+
+  // Reveal the sticky buy-bar only once the hero purchase block has scrolled away.
+  useEffect(() => {
+    const el = buyRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => setShowBuyBar(!entry.isIntersecting && entry.boundingClientRect.top < 0),
+      { threshold: 0 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   if (!product) {
     return (
@@ -45,7 +60,7 @@ export function ProductDetailPage() {
   const isPro = product.variant === 'pro';
   const isWax = product.category === 'wax';
   const isChain = product.category === 'chain';
-  const accentColor = isPro ? '#4A72D4' : 'var(--accent)';  // text/icon accent — lighter for contrast on dark bg
+  const accentColor = isPro ? '#4A72D4' : 'var(--accent-soft)';  // text/icon accent — lighter for contrast on dark bg
   // buttonColor now uses CSS variable — see inline styles below
   const accentBg = isPro ? 'rgba(74,114,212,0.08)' : 'rgba(43,82,176,0.08)';
 
@@ -180,7 +195,7 @@ export function ProductDetailPage() {
                   alt={titleText}
                   className="w-full h-full object-cover transition-opacity duration-300"
                   style={{ objectPosition: product.imagePosition ?? 'center' }}
-                  onError={e => { (e.target as HTMLImageElement).src = '/images/wax-block-spin.jpg'; }}
+                  onError={e => { (e.target as HTMLImageElement).src = '/images/products/wax-block-spin.png'; }}
                 />
                 <div
                   className="absolute inset-0 pointer-events-none"
@@ -221,7 +236,7 @@ export function ProductDetailPage() {
                         alt={`${titleText} ${i + 1}`}
                         className="w-full h-full object-cover"
                         style={{ objectPosition: product.imagePosition ?? 'center' }}
-                        onError={e => { (e.target as HTMLImageElement).src = '/images/wax-block-spin.jpg'; }}
+                        onError={e => { (e.target as HTMLImageElement).src = '/images/products/wax-block-spin.png'; }}
                       />
                     </button>
                   ))}
@@ -243,7 +258,7 @@ export function ProductDetailPage() {
               </div>
 
               {/* Price + CTAs */}
-              <div className="flex flex-col gap-2.5">
+              <div ref={buyRef} className="flex flex-col gap-2.5">
                 <div>
                   <p className="num text-[32px] font-bold tracking-[-0.03em] text-wx-tx1 leading-none">
                     {formatPrice(product.price)}
@@ -276,7 +291,7 @@ export function ProductDetailPage() {
                     href={product.ebayUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-semibold transition-all hover:opacity-90 mt-1"
+                    className="flex items-center justify-center gap-2 w-full py-3.5 rounded-full text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.99] mt-1"
                     style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
                   >
                     {de ? 'Jetzt bei eBay kaufen' : 'Buy on eBay'}
@@ -331,8 +346,8 @@ export function ProductDetailPage() {
                     <AccordionItem
                       title={de ? 'Das Wichtigste' : 'Key Features'}
                       preview={highlights[0]}
-                      open={highlightsOpen}
-                      onToggle={() => setHighlightsOpen(v => !v)}
+                      open={openAcc === 'highlights'}
+                      onToggle={() => setOpenAcc(v => (v === 'highlights' ? null : 'highlights'))}
                     >
                       <ul className="space-y-2.5 pt-1">
                         {highlights.map(h => (
@@ -348,8 +363,8 @@ export function ProductDetailPage() {
                   {hasSpecs && (
                     <AccordionItem
                       title={de ? 'Kompatibilität & Specs' : 'Compatibility & Specs'}
-                      open={specsOpen}
-                      onToggle={() => setSpecsOpen(v => !v)}
+                      open={openAcc === 'specs'}
+                      onToggle={() => setOpenAcc(v => (v === 'specs' ? null : 'specs'))}
                     >
                       <div className="grid grid-cols-2 gap-2 pt-1">
                         {product.compatibility && <SpecRow label={de ? 'Kompatibel' : 'Compatible'} value={product.compatibility} />}
@@ -409,10 +424,10 @@ export function ProductDetailPage() {
               {isChain && rc.chainSpec && (
                 <div className="mt-10">
                   <SectionHeading>{de ? 'Technische Daten' : 'Technical specs'}</SectionHeading>
-                  <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--bd2)' }}>
-                    {Object.entries(rc.chainSpec).map(([key, val], i, arr) => (
-                      <div key={key} className="flex gap-4 px-4 py-3 text-sm"
-                        style={{ borderBottom: i < arr.length - 1 ? '1px solid var(--bd2)' : 'none' }}>
+                  <div style={{ borderTop: '1px solid var(--bd2)' }}>
+                    {Object.entries(rc.chainSpec).map(([key, val]) => (
+                      <div key={key} className="flex gap-4 py-3 text-sm"
+                        style={{ borderBottom: '1px solid var(--bd2)' }}>
                         <span className="text-wx-txff w-32 flex-shrink-0 text-xs">{key}</span>
                         <span style={{ color: 'var(--txm)' }}>{val}</span>
                       </div>
@@ -647,9 +662,9 @@ export function ProductDetailPage() {
                           <p className="text-xs font-semibold uppercase tracking-widest text-wx-txff mb-3">
                             {de ? 'Unser Wachsprozess' : 'Our waxing process'}
                           </p>
-                          <div className="space-y-3">
+                          <div style={{ borderTop: '1px solid var(--bd2)' }}>
                             {rc.processSteps.map(step => (
-                              <div key={step.n} className="flex gap-4 rounded-xl p-4" style={{ border: '1px solid var(--bd2)', background: 'var(--sf3)' }}>
+                              <div key={step.n} className="flex gap-4 py-4" style={{ borderBottom: '1px solid var(--bd2)' }}>
                                 <span className="flex-shrink-0 w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center"
                                   style={{ background: accentBg, color: accentColor }}>{step.n}</span>
                                 <div>
@@ -664,7 +679,7 @@ export function ProductDetailPage() {
                           )}
                         </div>
                         {rc.v9Intro && (
-                          <div className="rounded-xl p-5" style={{ border: '1px solid var(--bd2)', background: 'var(--sf3)' }}>
+                          <div className="pl-4" style={{ borderLeft: `2px solid ${accentColor}` }}>
                             <div className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: accentColor }}>
                               Waxcelerate V9 MoS₂
                             </div>
@@ -675,9 +690,9 @@ export function ProductDetailPage() {
                           <p className="text-xs font-semibold uppercase tracking-widest text-wx-txff mb-3">
                             {de ? 'Warum V9 MoS₂?' : 'Why V9 MoS₂?'}
                           </p>
-                          <div className="space-y-3">
+                          <div style={{ borderTop: '1px solid var(--bd2)' }}>
                             {rc.v9Bullets.map((b, i) => (
-                              <div key={i} className="flex gap-4 rounded-xl p-4" style={{ border: '1px solid var(--bd2)', background: 'var(--sf3)' }}>
+                              <div key={i} className="flex gap-4 py-4" style={{ borderBottom: '1px solid var(--bd2)' }}>
                                 <Check className="h-4 w-4 flex-shrink-0 mt-0.5" style={{ color: accentColor }} />
                                 <div>
                                   <div className="text-sm font-semibold text-wx-tx1 mb-1">{b.title}</div>
@@ -687,10 +702,10 @@ export function ProductDetailPage() {
                             ))}
                           </div>
                           {rc.v9Note && (
-                            <div className="mt-4 rounded-xl border p-4 text-sm leading-relaxed"
-                              style={{ borderColor: `${accentColor}25`, background: `${accentColor}08`, color: 'var(--txm)' }}>
+                            <p className="mt-5 pl-4 text-sm leading-relaxed"
+                              style={{ borderLeft: `2px solid ${accentColor}`, color: 'var(--txm)' }}>
                               {rc.v9Note}
-                            </div>
+                            </p>
                           )}
                         </div>
                       </div>
@@ -703,15 +718,15 @@ export function ProductDetailPage() {
               {isChain && rc.chainCompRows && (
                 <div className="mt-8">
                   <SectionHeading>{de ? 'Vorgewachst vs. Kettenöl' : 'Pre-waxed vs. chain oil'}</SectionHeading>
-                  <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--bd2)' }}>
-                    <div className="grid grid-cols-3 text-[11px] font-semibold uppercase tracking-wider text-wx-txf px-4 py-3"
+                  <div>
+                    <div className="grid grid-cols-3 text-[11px] font-semibold uppercase tracking-wider text-wx-txf py-3"
                       style={{ borderBottom: '1px solid var(--bd2)' }}>
                       <span />
                       <span className="text-center" style={{ color: accentColor }}>{de ? 'Vorgewachst' : 'Pre-waxed'}</span>
                       <span className="text-center text-wx-txff">{de ? 'Kettenöl' : 'Chain oil'}</span>
                     </div>
                     {rc.chainCompRows.map((row, ri) => (
-                      <div key={ri} className="grid grid-cols-3 px-4 py-3" style={{ borderBottom: '1px solid var(--bd2)' }}>
+                      <div key={ri} className="grid grid-cols-3 py-3" style={{ borderBottom: '1px solid var(--bd2)' }}>
                         <span className="text-wx-txf text-xs">{row.label}</span>
                         <span className="text-center text-xs font-medium" style={{ color: accentColor }}>{row.good}</span>
                         <span className="text-center text-xs text-wx-txff">{row.bad}</span>
@@ -722,7 +737,7 @@ export function ProductDetailPage() {
               )}
 
               {isChain && rc.proTip && (
-                <div className="mt-8 rounded-xl border p-5" style={{ borderColor: `${accentColor}30`, background: `${accentColor}08` }}>
+                <div className="mt-8 pl-4" style={{ borderLeft: `2px solid ${accentColor}` }}>
                   <div className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: accentColor }}>
                     {de ? 'Pro-Tipp' : 'Pro tip'}
                   </div>
@@ -767,7 +782,7 @@ export function ProductDetailPage() {
 
               {/* Reviews */}
               {rc.reviewCount > 0 && (
-                <div className="mt-8 rounded-xl px-4 py-4" style={{ border: '1px solid var(--bd2)', background: 'var(--sf3)' }}>
+                <div className="mt-8 py-4" style={{ borderTop: '1px solid var(--bd2)', borderBottom: '1px solid var(--bd2)' }}>
                   <div className="flex items-center justify-between gap-3 mb-1.5">
                     <div className="flex items-center gap-1.5">
                       <div className="flex items-center gap-0.5">
@@ -799,7 +814,7 @@ export function ProductDetailPage() {
                 href={product.ebayUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-8 flex items-center justify-center gap-2 w-full py-4 rounded-xl text-sm font-semibold transition-all hover:opacity-90"
+                className="mt-8 flex items-center justify-center gap-2 w-full py-4 rounded-full text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.99]"
                 style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
               >
                 {de ? 'Jetzt bei eBay kaufen' : 'Buy now on eBay'} — {formatPrice(product.price)}
@@ -819,6 +834,42 @@ export function ProductDetailPage() {
             </section>
           )}
 
+        </div>
+      </div>
+
+      {/* Sticky buy-bar — slides up once the hero purchase block is out of view */}
+      <div
+        className={`fixed bottom-0 inset-x-0 z-50 ${showBuyBar ? 'translate-y-0' : 'translate-y-full'}`}
+        style={{
+          background: 'var(--nav-bg)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+          borderTop: '1px solid var(--bd)', boxShadow: '0 -8px 30px rgba(0,0,0,0.10)',
+          transition: 'transform 320ms cubic-bezier(0.22,1,0.36,1)',
+        }}
+        aria-hidden={!showBuyBar}
+      >
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-2.5 flex items-center gap-3 sm:gap-4">
+          <img
+            src={gallery[0]} alt=""
+            className="w-11 h-11 rounded-xl object-cover flex-shrink-0 hidden sm:block"
+            style={{ border: '1px solid var(--bd2)' }}
+            onError={e => { (e.target as HTMLImageElement).src = '/images/products/wax-block-spin.png'; }}
+          />
+          <div className="min-w-0 flex-1">
+            <p className="text-[13px] font-semibold text-wx-tx1 leading-tight truncate">{titleText}</p>
+            <p className="num text-[15px] font-bold text-wx-tx1 leading-none mt-0.5">{formatPrice(product.price)}</p>
+          </div>
+          {canCheckout(product) ? (
+            <div className="flex-shrink-0"><AddToCartButton product={product} size="sm" /></div>
+          ) : (
+            <a
+              href={product.ebayUrl} target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-5 py-2.5 rounded-full text-[13px] font-semibold flex-shrink-0 transition-all hover:opacity-90 active:scale-[0.97]"
+              style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
+            >
+              {de ? 'Bei eBay kaufen' : 'Buy on eBay'}
+              <ExternalLink className="h-3.5 w-3.5" />
+            </a>
+          )}
         </div>
       </div>
 
@@ -884,9 +935,9 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
 
 function SpecRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex flex-col gap-0.5 px-3 py-2.5 rounded-lg" style={{ border: '1px solid var(--bd2)', background: 'var(--sf3)' }}>
-      <span className="text-[10px] uppercase tracking-wide text-wx-txff">{label}</span>
-      <span className="text-sm font-medium" style={{ color: 'var(--txm)' }}>{value}</span>
+    <div className="flex flex-col gap-0.5 py-2.5" style={{ borderTop: '1px solid var(--bd2)' }}>
+      <span className="text-[10px] uppercase tracking-wide" style={{ fontFamily: "'IBM Plex Mono', ui-monospace, monospace", color: 'var(--txff)' }}>{label}</span>
+      <span className="text-[13px] font-medium" style={{ color: 'var(--tx2)' }}>{value}</span>
     </div>
   );
 }
@@ -904,11 +955,11 @@ function RelatedCard({ product: p, de, formatPrice }: { product: Product; de: bo
         src={p.image}
         alt={title}
         className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
-        onError={e => { (e.target as HTMLImageElement).src = '/images/wax-block-spin.jpg'; }}
+        onError={e => { (e.target as HTMLImageElement).src = '/images/products/wax-block-spin.png'; }}
       />
       <div className="min-w-0">
         <p className="text-[14px] font-semibold text-wx-tx1 leading-tight truncate">{title}</p>
-        <p className="num text-[13px] mt-1" style={{ color: 'var(--accent)' }}>{formatPrice(p.price)}</p>
+        <p className="num text-[13px] mt-1" style={{ color: 'var(--accent-soft)' }}>{formatPrice(p.price)}</p>
       </div>
     </div>
   );

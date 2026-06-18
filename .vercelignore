@@ -1,0 +1,6 @@
+# Raw image working folders — used locally for asset prep, never shipped.
+# (Vite copies all of public/ verbatim into the build, so exclude them here.)
+public/images/Wax Marketing : website images/
+public/images/Old wax and chain images/
+public/images/Luca Bilder (owner)/
+public/images/logo/

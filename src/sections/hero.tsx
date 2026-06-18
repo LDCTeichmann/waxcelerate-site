@@ -214,9 +214,9 @@ export function Hero() {
   // Bild-Ebene (für Basis + maskierte Block-Ebene identisch aufgebaut)
   const imgEl = (masked: boolean) => (
     <picture>
-      <source srcSet="/images/hero-wax-v5.webp" type="image/webp" />
+      <source srcSet="/images/hero/wax-v5.webp" type="image/webp" />
       <img
-        src="/images/hero-wax-v5.jpg"
+        src="/images/hero/wax-v5.jpg"
         alt={masked ? '' : de ? 'Waxcelerate Heißwachs-Block auf Schiefer' : 'Waxcelerate hot wax block on slate'}
         aria-hidden={masked || undefined}
         className="absolute inset-0 w-full h-full object-cover"
@@ -224,8 +224,8 @@ export function Hero() {
           objectPosition: IMG_POS,
           ...(masked
             ? {
-                WebkitMaskImage: 'url(/images/hero-wax-v5-mask.png)',
-                maskImage: 'url(/images/hero-wax-v5-mask.png)',
+                WebkitMaskImage: 'url(/images/hero/wax-v5-mask.png)',
+                maskImage: 'url(/images/hero/wax-v5-mask.png)',
                 WebkitMaskSize: 'cover',
                 maskSize: 'cover',
                 WebkitMaskPosition: IMG_POS,
