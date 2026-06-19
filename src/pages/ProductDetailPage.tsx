@@ -2,7 +2,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
-  ArrowLeft, ExternalLink, Check,
+  ArrowLeft, ArrowRight, ExternalLink, Check,
   ChevronRight, ChevronDown, Star, Lightbulb,
 } from 'lucide-react';
 import { getProductById, products, canCheckout } from '@/lib/data';
@@ -12,6 +12,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { AddToCartButton } from '@/components/AddToCartButton';
 import { CartIcon } from '@/components/CartIcon';
 import { ImageLightbox } from '@/components/ImageLightbox';
+import { gsap } from '@/lib/gsap';
 
 type RichTab = 'formula' | 'vergleich' | 'kosten';
 
@@ -28,6 +29,9 @@ export function ProductDetailPage() {
   // Sticky buy-bar slides in once the hero purchase block scrolls out of view.
   const [showBuyBar, setShowBuyBar] = useState(false);
   const buyRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const wipeRef = useRef<HTMLDivElement>(null);
   const [compatExpanded, setCompatExpanded] = useState(false);
   const [v9Expanded, setV9Expanded] = useState(false);
   const [richTab, setRichTab] = useState<RichTab>('formula');
@@ -43,6 +47,40 @@ export function ProductDetailPage() {
     io.observe(el);
     return () => io.disconnect();
   }, []);
+
+  // Editorial entrance — a column "curtain" lifts away to reveal the product,
+  // the image stage settles in, and the purchase-panel items rise in a staggered
+  // beat. GPU-only (transform/opacity), reduced-motion safe, re-runs per product
+  // so client-side route changes feel composed and intentional, not abrupt.
+  useEffect(() => {
+    const wipe = wipeRef.current;
+    const panels = wipe?.querySelectorAll<HTMLElement>('[data-wipe-panel]');
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) { if (wipe) wipe.style.display = 'none'; return; }
+
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+      // Curtain reveal — light columns lift away, left-to-right.
+      if (panels?.length) {
+        gsap.set(panels, { yPercent: 0 });
+        tl.to(panels, {
+          yPercent: -101, duration: 0.72, ease: 'power4.inOut', stagger: 0.06,
+          onComplete: () => { if (wipe) wipe.style.display = 'none'; },
+        }, 0);
+      }
+      // Image stage emerges as the curtain clears.
+      if (stageRef.current) {
+        tl.fromTo(stageRef.current, { opacity: 0, y: 26, scale: 0.985 },
+          { opacity: 1, y: 0, scale: 1, duration: 0.85 }, 0.28);
+      }
+      const items = panelRef.current?.querySelectorAll('[data-panel-item]');
+      if (items?.length) {
+        tl.fromTo(items, { opacity: 0, y: 18 },
+          { opacity: 1, y: 0, duration: 0.6, stagger: 0.075 }, 0.42);
+      }
+    });
+    return () => { ctx.revert(); if (wipe) wipe.style.display = ''; };
+  }, [id]);
 
   if (!product) {
     return (
@@ -158,6 +196,21 @@ export function ProductDetailPage() {
         <script type="application/ld+json">{productSchema}</script>
       </Helmet>
 
+      {/* Curtain reveal — light columns lift away on load / product change */}
+      <div ref={wipeRef} aria-hidden className="fixed inset-0 z-[60] flex pointer-events-none">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div
+            key={i}
+            data-wipe-panel
+            className="h-full flex-1 will-change-transform"
+            style={{
+              background: 'var(--pg)',
+              borderRight: i < 5 ? '1px solid var(--bd2)' : undefined,
+            }}
+          />
+        ))}
+      </div>
+
       <div className="min-h-screen text-wx-tx1" style={{ background: 'var(--pg)' }}>
 
         {/* Nav */}
@@ -182,37 +235,45 @@ export function ProductDetailPage() {
           {/* ── HERO ── */}
           <div className="py-10 grid lg:grid-cols-2 gap-10 lg:gap-14 items-start">
 
-            {/* Left — image */}
-            <div className="lg:sticky lg:top-24 flex flex-col gap-3">
+            {/* Left — editorial image stage */}
+            <div className="lg:sticky lg:top-24 flex flex-col gap-4">
               <div
-                className={`relative rounded-2xl overflow-hidden aspect-square${gallery.length > 1 ? ' ring-2 ring-transparent hover:ring-white/30 transition-all' : ''}`}
-                style={{ border: '1px solid var(--bd2)', background: 'var(--sf2)', cursor: gallery.length > 1 ? 'zoom-in' : undefined }}
+                ref={stageRef}
+                className={`group relative overflow-hidden rounded-[26px] aspect-square${gallery.length > 1 ? ' cursor-zoom-in' : ''}`}
+                style={{
+                  border: '1px solid var(--bd2)',
+                  background: 'var(--sf2)',
+                  boxShadow: '0 32px 64px -28px rgba(16,16,19,0.32)',
+                }}
                 onClick={gallery.length > 1 ? () => setLightboxOpen(true) : undefined}
               >
-                <img
-                  key={activeImage}
-                  src={gallery[activeImage]}
-                  alt={titleText}
-                  className="w-full h-full object-cover transition-opacity duration-300"
-                  style={{ objectPosition: product.imagePosition ?? 'center' }}
-                  onError={e => { (e.target as HTMLImageElement).src = '/images/products/wax-block-spin.png'; }}
-                />
-                <div
-                  className="absolute inset-0 pointer-events-none"
-                  style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.22) 0%, transparent 40%)' }}
-                />
+                {/* Stacked crossfade — switching thumbnails dissolves, never flashes */}
+                {gallery.map((img, i) => (
+                  <img
+                    key={img}
+                    src={img}
+                    alt={i === activeImage ? titleText : ''}
+                    aria-hidden={i !== activeImage}
+                    className="absolute inset-0 w-full h-full object-cover transition-[opacity,transform] duration-700 ease-out group-hover:scale-[1.04]"
+                    style={{ objectPosition: product.imagePosition ?? 'center', opacity: i === activeImage ? 1 : 0 }}
+                    onError={e => { (e.target as HTMLImageElement).src = '/images/products/wax-block-spin.png'; }}
+                  />
+                ))}
+                {/* Soft inner vignette — gives the lifestyle photo depth without noise */}
+                <div aria-hidden className="absolute inset-0 pointer-events-none"
+                  style={{ boxShadow: 'inset 0 0 70px rgba(16,16,19,0.10)', borderRadius: 'inherit' }} />
                 {product.badge && (
                   <span
-                    className="absolute top-3.5 right-3.5 text-[10px] font-semibold tracking-widest uppercase px-2.5 py-1 rounded-full"
-                    style={{ background: 'rgba(0,0,0,0.48)', color: 'rgba(255,255,255,0.88)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(6px)' }}
+                    className="absolute top-4 right-4 text-[10px] font-semibold tracking-widest uppercase px-2.5 py-1 rounded-full"
+                    style={{ background: 'rgba(16,16,19,0.42)', color: 'rgba(255,255,255,0.92)', border: '1px solid rgba(255,255,255,0.14)', backdropFilter: 'blur(8px)' }}
                   >
                     {de ? product.badge : product.badgeEn}
                   </span>
                 )}
                 {(isPro || isClassic) && (
                   <span
-                    className="absolute bottom-3.5 left-3.5 text-[10px] font-semibold tracking-[0.16em] uppercase px-2.5 py-1 rounded-full"
-                    style={{ background: accentBg, color: accentColor, border: `1px solid ${accentColor}50`, backdropFilter: 'blur(6px)' }}
+                    className="absolute bottom-4 left-4 text-[10px] font-semibold tracking-[0.16em] uppercase px-2.5 py-1 rounded-full"
+                    style={{ background: accentBg, color: accentColor, border: `1px solid ${accentColor}50`, backdropFilter: 'blur(8px)' }}
                   >
                     {isPro ? 'Pro' : 'Classic'}{product.weight ? ` · ${product.weight}` : ''}
                   </span>
@@ -220,20 +281,24 @@ export function ProductDetailPage() {
               </div>
 
               {gallery.length > 1 && (
-                <div className="flex gap-2">
+                <div className="flex gap-2.5">
                   {gallery.map((img, i) => (
                     <button
                       key={i}
                       onClick={() => setActiveImage(i)}
-                      className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 transition-all"
+                      aria-label={`${titleText} — ${i + 1}`}
+                      aria-current={i === activeImage}
+                      className="relative w-[64px] h-[64px] rounded-xl overflow-hidden flex-shrink-0 transition-[transform,opacity,box-shadow] duration-300 ease-out"
                       style={{
-                        border: `2px solid ${i === activeImage ? accentColor : 'var(--bd2)'}`,
-                        opacity: i === activeImage ? 1 : 0.4,
+                        opacity: i === activeImage ? 1 : 0.5,
+                        transform: i === activeImage ? 'translateY(-2px)' : 'none',
+                        boxShadow: i === activeImage ? `0 0 0 2px ${accentColor}, 0 8px 18px -8px ${accentColor}80` : '0 0 0 1px var(--bd2)',
                       }}
                     >
                       <img
                         src={img}
-                        alt={`${titleText} ${i + 1}`}
+                        alt=""
+                        aria-hidden
                         className="w-full h-full object-cover"
                         style={{ objectPosition: product.imagePosition ?? 'center' }}
                         onError={e => { (e.target as HTMLImageElement).src = '/images/products/wax-block-spin.png'; }}
@@ -245,10 +310,10 @@ export function ProductDetailPage() {
             </div>
 
             {/* Right — info */}
-            <div className="flex flex-col gap-5">
+            <div ref={panelRef} className="flex flex-col gap-5">
 
               {/* Title + description */}
-              <div>
+              <div data-panel-item>
                 <h1 className="font-display text-[28px] sm:text-[32px] font-bold tracking-[-0.02em] text-wx-tx1 leading-[1.1]">
                   {titleText}
                 </h1>
@@ -258,7 +323,7 @@ export function ProductDetailPage() {
               </div>
 
               {/* Price + CTAs */}
-              <div ref={buyRef} className="flex flex-col gap-2.5">
+              <div ref={buyRef} data-panel-item className="flex flex-col gap-2.5">
                 <div>
                   <p className="num text-[32px] font-bold tracking-[-0.03em] text-wx-tx1 leading-none">
                     {formatPrice(product.price)}
@@ -305,7 +370,7 @@ export function ProductDetailPage() {
 
               {/* Intervals */}
               {(product.intervalDry || product.intervalWet || product.intervalTopup) && (
-                <div className="flex items-center gap-6">
+                <div data-panel-item className="flex items-center gap-6">
                   {product.intervalDry && (
                     <div>
                       <p className="text-[10px] uppercase tracking-[0.14em] font-medium mb-1.5" style={{ color: 'var(--txff)' }}>
@@ -341,7 +406,7 @@ export function ProductDetailPage() {
 
               {/* Accordions — flat divider style, no border boxes */}
               {((highlights && highlights.length > 0) || hasSpecs) && (
-                <div style={{ borderTop: '1px solid var(--bd2)' }}>
+                <div data-panel-item style={{ borderTop: '1px solid var(--bd2)' }}>
                   {highlights && highlights.length > 0 && (
                     <AccordionItem
                       title={de ? 'Das Wichtigste' : 'Key Features'}
@@ -824,11 +889,11 @@ export function ProductDetailPage() {
           )}
           {/* ── RELATED PRODUCTS ── */}
           {related.length > 0 && (
-            <section className="mt-12 pt-8" style={{ borderTop: '1px solid var(--bd)' }}>
-              <h2 className="text-[15px] font-semibold text-wx-tx1 mb-4">
+            <section className="mt-16 pt-10" style={{ borderTop: '1px solid var(--bd)' }}>
+              <h2 className="font-display text-2xl sm:text-[1.7rem] text-wx-tx1 mb-6">
                 {de ? 'Passend dazu' : 'You might also like'}
               </h2>
-              <div className="flex flex-col gap-2">
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5">
                 {related.map(p => <RelatedCard key={p.id} product={p} de={de} formatPrice={formatPrice} />)}
               </div>
             </section>
@@ -944,32 +1009,52 @@ function SpecRow({ label, value }: { label: string; value: string }) {
 
 function RelatedCard({ product: p, de, formatPrice }: { product: Product; de: boolean; formatPrice: (n: number) => string }) {
   const title = de ? p.title : p.titleEn;
+  const desc = de ? p.description : p.descriptionEn;
+  const isWax = p.category === 'wax';
+  const eyebrow = isWax
+    ? [p.variant, p.weight].filter(Boolean).join(' · ').toUpperCase()
+    : (p.chainSpeed ?? (de ? 'Kette' : 'Chain')).toUpperCase();
+
   const cardInner = (
     <div
-      className="flex items-center gap-3 p-3 rounded-xl transition-all"
-      style={{ border: '1px solid var(--bd)', background: 'var(--sf)' }}
-      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--bd2)'; }}
-      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--bd)'; }}
+      className="related-card group relative flex h-full flex-col overflow-hidden rounded-2xl"
+      style={{ background: 'var(--card-bg)', border: '1px solid var(--bd)', boxShadow: 'var(--card-shad)' }}
     >
-      <img
-        src={p.image}
-        alt={title}
-        className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
-        onError={e => { (e.target as HTMLImageElement).src = '/images/products/wax-block-spin.png'; }}
-      />
-      <div className="min-w-0">
-        <p className="text-[14px] font-semibold text-wx-tx1 leading-tight truncate">{title}</p>
-        <p className="num text-[13px] mt-1" style={{ color: 'var(--accent-soft)' }}>{formatPrice(p.price)}</p>
+      {/* Image */}
+      <div className="relative aspect-[4/3] overflow-hidden" style={{ background: 'var(--sf2)' }}>
+        <img
+          src={p.image}
+          alt={title}
+          loading="lazy"
+          className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.05]"
+          style={{ objectPosition: p.imagePosition ?? 'center' }}
+          onError={e => { (e.target as HTMLImageElement).src = '/images/products/wax-block-spin.png'; }}
+        />
+      </div>
+      {/* Body */}
+      <div className="flex flex-1 flex-col p-3.5 sm:p-4">
+        <span className="text-[9.5px] font-semibold uppercase tracking-[0.16em]"
+          style={{ color: 'var(--accent-soft)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
+          {eyebrow}
+        </span>
+        <p className="font-display mt-1.5 text-[15px] leading-snug text-wx-tx1 sm:text-[16px]">{title}</p>
+        <p className="mt-1.5 hidden text-[12px] leading-relaxed sm:block"
+          style={{ color: 'var(--txm)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+          {desc}
+        </p>
+        <div className="mt-auto flex items-center justify-between pt-3.5">
+          <span className="num text-[15px] font-semibold text-wx-tx1">{formatPrice(p.price)}</span>
+          <span className="inline-flex h-8 w-8 items-center justify-center rounded-full transition-colors duration-300 group-hover:bg-[var(--accent-soft)] group-hover:text-white"
+            style={{ border: '1px solid var(--bd)', color: 'var(--accent-soft)' }} aria-hidden>
+            {isWax
+              ? <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5" />
+              : <ExternalLink className="h-3.5 w-3.5" />}
+          </span>
+        </div>
       </div>
     </div>
   );
 
-  if (p.category === 'wax') {
-    return <Link to={`/produkt/${p.id}`}>{cardInner}</Link>;
-  }
-  return (
-    <a href={p.ebayUrl} target="_blank" rel="noopener noreferrer">
-      {cardInner}
-    </a>
-  );
+  if (isWax) return <Link to={`/produkt/${p.id}`} className="block h-full">{cardInner}</Link>;
+  return <a href={p.ebayUrl} target="_blank" rel="noopener noreferrer" className="block h-full">{cardInner}</a>;
 }
