@@ -69,9 +69,14 @@ export function FormulaGraph({ de, onSelect }: { de: boolean; onSelect: (id: str
 
     const startCycle = () => {
       cycle = window.setInterval(() => {
-        if (userRef.current) return;
-        setActive(order[idx % order.length]);
-        idx++;
+        if (userRef.current) return;            // user is driving → pause
+        if (idx < order.length) {               // tour each component once…
+          setActive(order[idx]);
+          idx++;
+        } else {                                // …then settle on neutral and stop
+          setActive(null);
+          if (cycle) clearInterval(cycle);
+        }
       }, 2200);
     };
 
