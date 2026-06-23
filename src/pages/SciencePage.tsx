@@ -384,7 +384,7 @@ function TempWindow({ de }: { de: boolean }) {
 
   return (
     <InstrumentFrame eyebrow={de ? 'Einsatzbereich' : 'Operating range'}
-      chip={de ? 'Außentemperatur' : 'Ambient temp.'}>
+      chip={de ? 'Außentemperatur' : 'Ambient temp.'} className="h-full">
 
       <div className="space-y-5">
         {/* Pro bar */}
@@ -469,8 +469,8 @@ function Microscope({ de }: { de: boolean }) {
       </h2>
       <p className="text-[15px] max-w-xl mb-8" style={{ color: 'var(--txm)' }}>
         {de
-          ? 'Originalaufnahmen von Antriebskomponenten unter identischen Bedingungen und identischer Vergrößerung.'
-          : 'Original micrographs of drivetrain components under identical conditions and magnification.'}
+          ? 'Originalaufnahmen von Antriebskomponenten — jede Gegenüberstellung bei identischer Vergrößerung und identischen Aufnahmebedingungen.'
+          : 'Original micrographs of drivetrain components — each pair shot at identical magnification and conditions.'}
       </p>
 
       {/* Legend */}
@@ -504,24 +504,24 @@ function Microscope({ de }: { de: boolean }) {
                 {row.mag}
               </span>
             </div>
-            {/* Column labels */}
-            <div className="grid grid-cols-2 gap-2 px-4 pb-1.5">
-              <span className="text-[9px] uppercase tracking-wider" style={{ color: 'var(--txf)' }}>
+            {/* Column labels — aligned to the two stage halves */}
+            <div className="grid grid-cols-2 mx-3 mb-1.5">
+              <span className="text-[9px] uppercase tracking-[0.14em] pl-0.5" style={{ color: 'var(--txf)' }}>
                 {de ? 'Referenz' : 'Reference'}
               </span>
-              <span className="text-[9px] uppercase tracking-wider" style={{ color: 'var(--accent-soft)' }}>
+              <span className="text-[9px] uppercase tracking-[0.14em] pl-2.5" style={{ color: 'var(--accent-soft)' }}>
                 Waxcelerate
               </span>
             </div>
-            {/* Image pair */}
-            <div className="grid grid-cols-2 gap-2 px-3 pb-3">
-              <div className="aspect-[4/3] rounded-xl overflow-hidden" style={{ background: '#0a0e1a' }}>
+            {/* Image pair — one dark "microscope stage", hairline divider, full frame (no crop) */}
+            <div className="grid grid-cols-2 mx-3 mb-3 rounded-xl overflow-hidden" style={{ background: '#0a0e1a' }}>
+              <div className="aspect-[4/3]">
                 <img src={row.ref} alt={`${de ? row.de : row.en} – ${de ? 'Referenz' : 'Reference'}`}
-                  className="w-full h-full object-cover" loading="lazy" />
+                  className="w-full h-full object-contain" loading="lazy" />
               </div>
-              <div className="aspect-[4/3] rounded-xl overflow-hidden" style={{ background: '#0a0e1a' }}>
+              <div className="aspect-[4/3]" style={{ borderLeft: '1px solid rgba(255,255,255,0.09)' }}>
                 <img src={row.mos2} alt={`${de ? row.de : row.en} – Waxcelerate + MoS₂`}
-                  className="w-full h-full object-cover" loading="lazy" />
+                  className="w-full h-full object-contain" loading="lazy" />
               </div>
             </div>
           </div>
@@ -531,8 +531,8 @@ function Microscope({ de }: { de: boolean }) {
       {/* Methodology note */}
       <p className="text-[11px] leading-relaxed mt-5" style={{ color: 'var(--txff)' }}>
         {de
-          ? 'Alle Aufnahmen bei identischer Vergrößerung und identischen Aufnahmebedingungen. Reale Oberflächenstrukturen — keine Simulationen.'
-          : 'All images at identical magnification and conditions. Real surface structures — not simulations.'}
+          ? 'Reale Oberflächenstrukturen, keine Simulationen. Referenz und Waxcelerate-Probe je Gegenüberstellung bei identischer Vergrößerung und unter identischen Bedingungen aufgenommen.'
+          : 'Real surface structures, not simulations. Reference and Waxcelerate sample shot at identical magnification and conditions within each pair.'}
       </p>
     </div>
   );
@@ -800,9 +800,9 @@ export function SciencePage() {
 
         {/* Below: full-width deep-dive sections */}
         <div className={`${W} py-14`}>
-          <div className="grid lg:grid-cols-2 gap-6 items-start">
+          <div className="grid lg:grid-cols-2 gap-6 items-stretch">
             <HexMoS2 de={de} />
-            <div id="matrix-window">
+            <div id="matrix-window" className="h-full">
               <TempWindow de={de} />
             </div>
           </div>
