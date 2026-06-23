@@ -32,6 +32,7 @@ export interface Product {
   chainModel?: string;
   chainLinks?: string;
   chainSpeed?: string;
+  unitsSold?: number;
   // Image display
   imagePosition?: string;
   // Gallery — additional images shown in thumbnail strip on the detail page
@@ -61,6 +62,7 @@ export const products: Product[] = [
       '/images/products/classic/classic-3.webp',
     ],
     ebayUrl: 'https://www.ebay.de/itm/395811184583',
+    unitsSold: 147,
     badge: 'Empfohlen',
     badgeEn: 'Recommended',
     formula: ['Vollraffiniertes Paraffinwachs', 'PTFE < 1 µm', 'Stearinsäurederivat'],
@@ -111,6 +113,7 @@ export const products: Product[] = [
       '/images/products/classic/classic-3.webp',
     ],
     ebayUrl: 'https://www.ebay.de/itm/395811183957',
+    unitsSold: 52,
     badge: 'Kompakt',
     badgeEn: 'Compact',
     formula: ['Vollraffiniertes Paraffinwachs', 'PTFE < 1 µm', 'Stearinsäurederivat'],
@@ -161,6 +164,7 @@ export const products: Product[] = [
       '/images/products/pro/pro-6.webp',
     ],
     ebayUrl: 'https://www.ebay.de/itm/396468036330',
+    unitsSold: 89,
     badge: 'Pro',
     badgeEn: 'Pro',
     formula: [
@@ -224,6 +228,7 @@ export const products: Product[] = [
       '/images/products/pro/pro-6.webp',
     ],
     ebayUrl: 'https://www.ebay.de/itm/397861543533',
+    unitsSold: 34,
     badge: 'Pro',
     badgeEn: 'Pro',
     formula: [

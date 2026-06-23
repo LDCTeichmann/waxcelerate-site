@@ -1,4 +1,4 @@
-import { ExternalLink, X, ChevronDown, Package } from 'lucide-react';
+import { ExternalLink, X, ChevronDown, Package, TrendingUp, Truck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState, useRef, useEffect, useCallback, useMemo, memo } from 'react';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
@@ -153,42 +153,6 @@ export function Products() {
           {/* ── Wax tab ── */}
           {activeTab === 'wax' && (
             <>
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
-                <button
-                  onClick={() => setCompareOpen(true)}
-                  className="flex items-center gap-2 group w-fit"
-                >
-                  <span className="text-[13px]" style={{ color: 'var(--txm)' }}>
-                    {t.products.decisionAid}
-                  </span>
-                  <span
-                    className="text-[12px] font-medium px-2.5 py-1 rounded-full transition-all"
-                    style={{
-                      background: 'rgba(var(--accent-rgb),0.10)',
-                      border: '1px solid rgba(var(--accent-rgb),0.25)',
-                      color: 'var(--accent-soft)',
-                    }}
-                  >
-                    {t.products.compareBtn} →
-                  </span>
-                </button>
-                <div className="flex items-center gap-2 flex-shrink-0 flex-wrap sm:flex-nowrap">
-                  <span
-                    className="text-[11px] font-medium px-3 py-1.5 rounded-full whitespace-nowrap"
-                    style={{ background: 'var(--sf2)', border: '1px solid var(--bd)', color: 'var(--tx2)' }}
-                  >
-                    {t.products.multiDiscount}
-                  </span>
-                  <span
-                    className="inline-flex items-center gap-1.5 text-[11px] px-3 py-1.5 rounded-full whitespace-nowrap"
-                    style={{ background: 'var(--sf2)', border: '1px solid var(--bd)', color: 'var(--txf)' }}
-                  >
-                    <Package className="h-3 w-3 flex-shrink-0" />
-                    <span style={{ color: 'var(--tx2)' }}>{getEstimatedDelivery(lang)}</span>
-                    {' · '}{de ? 'gratis ab €50' : 'free from €50'}
-                  </span>
-                </div>
-              </div>
               <CompareModal open={compareOpen} onClose={() => setCompareOpen(false)} de={de} t={t} />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 items-stretch">
                 {waxProducts.map((product) => (
@@ -198,9 +162,20 @@ export function Products() {
                     de={de}
                     formatPrice={formatPrice}
                     buyLabel={t.products.buyOnEbay}
+                    deliveryDate={getEstimatedDelivery(lang)}
+                    multiDiscount={t.products.multiDiscount}
                   />
                 ))}
               </div>
+              {/* Comparison link — clear, accessible */}
+              <button
+                onClick={() => setCompareOpen(true)}
+                className="flex items-center justify-center gap-2 w-full mt-5 py-3 rounded-xl text-[13px] font-medium transition-all hover:opacity-80"
+                style={{ background: 'var(--sf2)', border: '1px solid var(--bd)', color: 'var(--tx2)' }}
+              >
+                {t.products.decisionAid}{' '}
+                <span style={{ color: 'var(--accent-soft)' }}>{t.products.compareBtn} →</span>
+              </button>
             </>
           )}
 
@@ -274,12 +249,14 @@ interface CardProps {
   de: boolean;
   formatPrice: (p: number) => string;
   buyLabel: string;
+  deliveryDate?: string;
+  multiDiscount?: string;
 }
 
 
 // ── Wax Card ───────────────────────────────────────────────────────────────
 
-const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: CardProps) {
+const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deliveryDate, multiDiscount }: CardProps) {
   const isPro = product.variant === 'pro';
   const title = de ? product.title : product.titleEn;
   const badge = de ? product.badge : product.badgeEn;
@@ -386,6 +363,34 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel }: Ca
               </button>
             )}
           </div>
+
+          {/* Trust signals */}
+          <div className="mt-3 space-y-1.5">
+            {product.unitsSold != null && product.unitsSold > 0 && (
+              <div className="flex items-center gap-1.5">
+                <TrendingUp className="h-3 w-3 flex-shrink-0" style={{ color: 'var(--accent-soft)' }} />
+                <span className="text-[11px] font-medium" style={{ color: 'var(--tx2)' }}>
+                  {product.unitsSold}+ {de ? 'verkauft' : 'sold'}
+                </span>
+              </div>
+            )}
+            {deliveryDate && (
+              <div className="flex items-center gap-1.5">
+                <Truck className="h-3 w-3 flex-shrink-0" style={{ color: 'var(--txf)' }} />
+                <span className="text-[11px] tabular-nums" style={{ fontFamily: MONO, color: 'var(--txm)' }}>
+                  <span style={{ color: '#16a34a', fontFamily: 'inherit' }}>{de ? 'Gratis' : 'Free'}</span>
+                  {' '}{de ? 'Lieferung' : 'delivery'} · {deliveryDate}
+                </span>
+              </div>
+            )}
+            {multiDiscount && (
+              <div className="flex items-center gap-1.5">
+                <Package className="h-3 w-3 flex-shrink-0" style={{ color: 'var(--txf)' }} />
+                <span className="text-[11px]" style={{ color: 'var(--txm)' }}>
+                  {de ? 'Bis 15% sparen bei Mehrkauf' : 'Up to 15% off on multi-buy'}
+                </span>
+              </div>
+            )}</div>
         </div>
       </Link>
     </div>

@@ -4,3 +4,7 @@ public/images/Wax Marketing : website images/
 public/images/Old wax and chain images/
 public/images/Luca Bilder (owner)/
 public/images/logo/
+
+# Local raw originals + customer/owner photos (506 MB) — gitignored, but a CLI
+# deploy ignores .gitignore when a .vercelignore exists, so exclude it here too.
+raw-image-library/

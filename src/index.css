@@ -232,12 +232,18 @@
   }
 }
 
-/* Light mode only: force headings dark */
+/* Light mode only: force headings dark (except inside .pdp-dark sections) */
 :root:not(.noir) h1,
 :root:not(.noir) h2,
 :root:not(.noir) h3,
 :root:not(.noir) h4 {
   color: var(--tx1) !important;
+}
+:root:not(.noir) .pdp-dark h1,
+:root:not(.noir) .pdp-dark h2,
+:root:not(.noir) .pdp-dark h3,
+:root:not(.noir) .pdp-dark h4 {
+  color: #FFFFFF !important;
 }
 
 /* Hero sits on a photo stage in BOTH themes — headings stay white
@@ -527,4 +533,11 @@ footer ul a:hover::after {
   .cta-glow {
     animation: none;
   }
+}
+
+@keyframes scrollPulse {
+  0% { transform: translateY(-100%); opacity: 0; }
+  30% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { transform: translateY(100%); opacity: 0; }
 }

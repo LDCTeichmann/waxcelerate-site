@@ -7,64 +7,80 @@ import { AddToCartButton } from '@/components/AddToCartButton';
 import { CartIcon } from '@/components/CartIcon';
 import { gsap } from '@/lib/gsap';
 
-type Fit = 'full' | 'frame';
-
-// High-res variant for the big stage image (falls back to the card-sized webp).
 const lg = (src: string) =>
   src.includes('/products/') && src.endsWith('.webp') && !src.endsWith('-lg.webp')
     ? src.replace('.webp', '-lg.webp')
     : src;
 
-const COLS = 7; // vertical curtain columns
+const AUTO_INTERVAL = 5000;
+const FADE_MS = 900;
 
-/**
- * MANGO-style split product layout (preview/experiment route: /produkt/:id/stage).
- * Fixed info card on the left, full-height image stage on the right that swaps
- * with a column-curtain wipe. Toggle between true full-bleed and a framed stage.
- * The canonical product page (/produkt/:id) is untouched.
- */
 export function ProductStagePage() {
   const { id } = useParams<{ id: string }>();
   const { lang } = useLanguage();
   const de = lang === 'de';
   const product = id ? getProductById(id) : undefined;
 
-  const [fit, setFit] = useState<Fit>('full');
-  const [active, setActive] = useState(0);   // selected index (drives the numbered rail)
-  const [display, setDisplay] = useState(0); // currently rendered image (swaps mid-wipe)
-  const wipeRef = useRef<HTMLDivElement>(null);
-  const animating = useRef(false);
+  const [active, setActive] = useState(0);
+  const [prev, setPrev] = useState(-1);
+  const autoRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pausedRef = useRef(false);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
   const reduce = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const gallery = product ? [product.image, ...(product.images ?? [])] : [];
+  const total = gallery.length;
 
   const goTo = useCallback((i: number) => {
-    if (i === active || animating.current) return;
+    if (i === active) return;
+    setPrev(active);
     setActive(i);
-    if (reduce || !wipeRef.current) { setDisplay(i); return; }
-    const cols = wipeRef.current.querySelectorAll<HTMLElement>('[data-col]');
-    if (!cols.length) { setDisplay(i); return; }
-    animating.current = true;
-    const tl = gsap.timeline({ onComplete: () => { animating.current = false; } });
-    tl.set(wipeRef.current, { display: 'flex' })
-      .set(cols, { yPercent: -100 })
-      .to(cols, { yPercent: 0, duration: 0.42, ease: 'power3.in', stagger: 0.045 })
-      .add(() => setDisplay(i))
-      .to(cols, { yPercent: 100, duration: 0.52, ease: 'power3.out', stagger: 0.045 }, '+=0.03')
-      .set(wipeRef.current, { display: 'none' });
-  }, [active, reduce]);
+  }, [active]);
 
-  // Mount reveal — the curtain lifts away to unveil the first image.
+  const next = useCallback(() => {
+    if (total <= 1) return;
+    goTo((active + 1) % total);
+  }, [active, total, goTo]);
+
+  // Auto-play
   useEffect(() => {
-    if (reduce || !wipeRef.current) return;
-    const cols = wipeRef.current.querySelectorAll<HTMLElement>('[data-col]');
-    if (!cols.length) return;
-    const tl = gsap.timeline();
-    tl.set(wipeRef.current, { display: 'flex' })
-      .set(cols, { yPercent: 0 })
-      .to(cols, { yPercent: 100, duration: 0.6, ease: 'power4.inOut', stagger: 0.05, delay: 0.05 })
-      .set(wipeRef.current, { display: 'none' });
-    return () => { tl.kill(); };
+    if (reduce || total <= 1) return;
+    const start = () => {
+      if (autoRef.current) clearInterval(autoRef.current);
+      autoRef.current = setInterval(() => {
+        if (!pausedRef.current) next();
+      }, AUTO_INTERVAL);
+    };
+    start();
+    return () => { if (autoRef.current) clearInterval(autoRef.current); };
+  }, [next, reduce, total]);
+
+  const pause = useCallback(() => { pausedRef.current = true; }, []);
+  const resume = useCallback(() => {
+    pausedRef.current = false;
+    if (autoRef.current) clearInterval(autoRef.current);
+    autoRef.current = setInterval(() => {
+      if (!pausedRef.current) next();
+    }, AUTO_INTERVAL);
+  }, [next]);
+
+  // Mount entrance animation
+  useEffect(() => {
+    if (reduce) return;
+    const ctx = gsap.context(() => {
+      if (cardRef.current) {
+        gsap.from(cardRef.current, {
+          y: 30, opacity: 0, duration: 0.7, ease: 'power3.out', delay: 0.15,
+        });
+      }
+      if (stageRef.current) {
+        gsap.from(stageRef.current, {
+          scale: 1.06, opacity: 0, duration: 1.1, ease: 'power2.out',
+        });
+      }
+    });
+    return () => ctx.revert();
   }, [id, reduce]);
 
   if (!product) {
@@ -80,140 +96,197 @@ export function ProductStagePage() {
 
   const title = de ? product.title : product.titleEn;
   const desc = de ? product.description : product.descriptionEn;
-  const ref = `REF. ${product.id.toUpperCase()}`;
   const fmt = (n: number) => new Intl.NumberFormat(de ? 'de-DE' : 'en-US', { style: 'currency', currency: 'EUR' }).format(n);
 
   return (
-    <div className="lg:fixed lg:inset-0 lg:flex" style={{ background: 'var(--pg)' }}>
+    <div className="fixed inset-0" style={{ background: '#0a0a0b' }}>
+      {/* ── Full-screen image stage ── */}
+      <div ref={stageRef} className="absolute inset-0 overflow-hidden">
+        {gallery.map((src, i) => (
+          <img
+            key={i}
+            src={lg(src)}
+            alt={i === active ? title : ''}
+            aria-hidden={i !== active}
+            className="absolute inset-0 h-full w-full object-cover"
+            style={{
+              objectPosition: product.imagePosition ?? 'center',
+              opacity: i === active ? 1 : 0,
+              scale: i === active ? '1' : '1.04',
+              transition: reduce ? 'none' : `opacity ${FADE_MS}ms cubic-bezier(0.4,0,0.2,1), scale ${FADE_MS * 2}ms cubic-bezier(0.4,0,0.2,1)`,
+              zIndex: i === active ? 2 : (i === prev ? 1 : 0),
+            }}
+            onError={e => { const t = e.target as HTMLImageElement; if (!t.src.includes('wax-block-spin')) t.src = src; }}
+          />
+        ))}
+        {/* Scrim for card readability */}
+        <div className="absolute inset-0 z-[3] pointer-events-none"
+          style={{ background: 'linear-gradient(105deg, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.40) 32%, transparent 58%)' }} />
+        <div className="absolute inset-0 z-[3] pointer-events-none"
+          style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.35) 0%, transparent 30%)' }} />
+      </div>
 
-      {/* ── LEFT — fixed info card ── */}
-      <aside className="relative z-30 flex flex-col flex-shrink-0 px-7 sm:px-9 py-7 lg:py-9 lg:h-full lg:w-[clamp(340px,31vw,440px)]"
-        style={{ background: 'var(--pg)' }}>
-        <div className="flex items-center justify-between">
-          <Link to={`/produkt/${product.id}`} className="inline-flex items-center gap-1.5 text-[13px] transition-opacity hover:opacity-60" style={{ color: 'var(--txm)' }}>
-            <ArrowLeft className="h-4 w-4" /> {de ? 'Zurück' : 'Back'}
-          </Link>
-          <div className="lg:hidden"><CartIcon /></div>
-        </div>
+      {/* ── Top bar ── */}
+      <div className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-5 sm:px-8 py-5">
+        <Link
+          to={`/produkt/${product.id}`}
+          className="inline-flex items-center gap-2 text-[13px] font-medium text-white/80 hover:text-white transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" /> {de ? 'Zurück' : 'Back'}
+        </Link>
+        <CartIcon />
+      </div>
 
-        <div className="lg:my-auto lg:py-10">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: 'var(--accent-soft)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
+      {/* ── Floating info card ── */}
+      <div
+        ref={cardRef}
+        className="absolute z-20 left-5 sm:left-8 lg:left-12 bottom-5 sm:bottom-7 lg:bottom-10 w-[calc(100%-40px)] sm:w-[360px] lg:w-[380px]"
+        onMouseEnter={pause}
+        onMouseLeave={resume}
+      >
+        <div
+          className="rounded-2xl px-6 py-6 sm:px-7 sm:py-7"
+          style={{
+            background: 'rgba(255,255,255,0.08)',
+            backdropFilter: 'blur(32px) saturate(1.4)',
+            WebkitBackdropFilter: 'blur(32px) saturate(1.4)',
+            border: '1px solid rgba(255,255,255,0.12)',
+            boxShadow: '0 32px 64px -16px rgba(0,0,0,0.5)',
+          }}
+        >
+          {/* Variant chip */}
+          <span
+            className="inline-block text-[10px] font-semibold uppercase tracking-[0.18em] mb-2"
+            style={{ color: 'rgba(255,255,255,0.55)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}
+          >
             {product.variant ? `${product.variant} · ${product.weight ?? ''}` : (product.chainSpeed ?? '')}
           </span>
-          <h1 className="font-display mt-3 text-[30px] sm:text-[34px] font-bold leading-[1.05] tracking-[-0.02em]" style={{ color: 'var(--tx1)' }}>
+
+          <h1 className="font-display text-[24px] sm:text-[28px] font-bold leading-[1.08] tracking-[-0.02em] text-white">
             {title}
           </h1>
-          <p className="mt-2 text-[10px] tracking-[0.14em]" style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>{ref}</p>
 
-          <p className="mt-5 text-[13.5px] leading-relaxed max-w-[42ch]" style={{ color: 'var(--txm)' }}>{desc}</p>
+          <p className="mt-2.5 text-[12.5px] leading-relaxed text-white/50 max-w-[36ch] line-clamp-2">{desc}</p>
 
-          {/* Intervals */}
-          {(product.intervalDry || product.intervalWet) && (
-            <div className="mt-6 flex items-center gap-7">
-              {product.intervalDry && (
-                <div>
-                  <p className="text-[9.5px] uppercase tracking-[0.16em] mb-1" style={{ color: 'var(--txff)' }}>{de ? 'Trocken' : 'Dry'}</p>
-                  <p className="num text-[17px] font-bold leading-none" style={{ color: 'var(--tx1)' }}>{product.intervalDry}</p>
-                </div>
-              )}
-              {product.intervalWet && (
-                <div>
-                  <p className="text-[9.5px] uppercase tracking-[0.16em] mb-1" style={{ color: 'var(--txff)' }}>{de ? 'Nass' : 'Wet'}</p>
-                  <p className="num text-[17px] font-bold leading-none" style={{ color: 'var(--tx1)' }}>{product.intervalWet}</p>
-                </div>
-              )}
-            </div>
-          )}
+          {/* Intervals + Thumbnails row */}
+          <div className="mt-4 flex items-end justify-between gap-4">
+            {(product.intervalDry || product.intervalWet) && (
+              <div className="flex items-center gap-5">
+                {product.intervalDry && (
+                  <div>
+                    <p className="text-[8.5px] uppercase tracking-[0.16em] mb-0.5 text-white/30">{de ? 'Trocken' : 'Dry'}</p>
+                    <p className="num text-[15px] font-bold leading-none text-white">{product.intervalDry}</p>
+                  </div>
+                )}
+                {product.intervalWet && (
+                  <div>
+                    <p className="text-[8.5px] uppercase tracking-[0.16em] mb-0.5 text-white/30">{de ? 'Nass' : 'Wet'}</p>
+                    <p className="num text-[15px] font-bold leading-none text-white">{product.intervalWet}</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
 
-          {/* Thumbnails */}
-          {gallery.length > 1 && (
-            <div className="mt-6 flex gap-2.5">
+          {/* Thumbnail strip */}
+          {total > 1 && (
+            <div className="mt-4 flex gap-1.5">
               {gallery.map((src, i) => (
-                <button key={i} onClick={() => goTo(i)} aria-label={`${title} ${i + 1}`} aria-current={i === active}
-                  className="h-14 w-14 overflow-hidden rounded-lg flex-shrink-0 transition-[transform,opacity,box-shadow] duration-300"
+                <button
+                  key={i}
+                  onClick={() => { goTo(i); pause(); setTimeout(resume, AUTO_INTERVAL); }}
+                  aria-label={`${title} ${i + 1}`}
+                  className="relative h-10 w-10 overflow-hidden rounded-md flex-shrink-0 transition-all duration-300"
                   style={{
-                    opacity: i === active ? 1 : 0.45,
-                    transform: i === active ? 'translateY(-2px)' : 'none',
-                    boxShadow: i === active ? '0 0 0 2px var(--accent-soft), 0 8px 16px -8px rgba(58,102,160,0.5)' : '0 0 0 1px var(--bd2)',
-                  }}>
-                  <img src={src} alt="" aria-hidden className="h-full w-full object-cover"
-                    onError={e => { (e.target as HTMLImageElement).src = '/images/products/wax-block-spin.png'; }} />
+                    opacity: i === active ? 1 : 0.35,
+                    transform: i === active ? 'translateY(-1px)' : 'none',
+                    boxShadow: i === active ? '0 0 0 1.5px rgba(255,255,255,0.65)' : 'none',
+                  }}
+                >
+                  <img src={src} alt="" aria-hidden className="h-full w-full object-cover" />
                 </button>
               ))}
             </div>
           )}
 
-          {/* Price + buy */}
-          <div className="mt-7">
-            <p className="num text-[26px] font-bold leading-none" style={{ color: 'var(--tx1)' }}>{fmt(product.price)}</p>
-            <div className="mt-4 max-w-[320px]">
+          {/* Price + CTA */}
+          <div className="mt-5 flex items-center justify-between gap-4">
+            <p className="num text-[22px] font-bold leading-none text-white">{fmt(product.price)}</p>
+            <div className="flex-shrink-0">
               {canCheckout(product) ? (
-                <AddToCartButton product={product} fullWidth />
+                <AddToCartButton product={product} />
               ) : (
-                <a href={product.ebayUrl} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 w-full py-3.5 rounded-full text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.99]"
-                  style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}>
-                  {de ? 'Jetzt bei eBay kaufen' : 'Buy on eBay'} <ExternalLink className="h-3.5 w-3.5" />
+                <a
+                  href={product.ebayUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-6 py-3 rounded-full text-[13px] font-semibold transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  style={{ background: 'rgba(255,255,255,0.95)', color: '#0a0a0b' }}
+                >
+                  {de ? 'Kaufen' : 'Buy'} <ExternalLink className="h-3.5 w-3.5" />
                 </a>
               )}
             </div>
           </div>
         </div>
 
-        <p className="hidden lg:block text-[10px] tracking-[0.14em] uppercase" style={{ color: 'var(--txff)' }}>
-          {de ? 'Made in Germany · Stuttgart' : 'Made in Germany · Stuttgart'}
-        </p>
-      </aside>
-
-      {/* ── RIGHT — image stage ── */}
-      <main className="relative flex-1 overflow-hidden h-[58vh] lg:h-full">
-        <div className={`absolute inset-0 ${fit === 'frame' ? 'p-5 lg:p-9' : ''}`}>
-          <div className={`relative h-full w-full overflow-hidden ${fit === 'frame' ? 'rounded-[20px]' : ''}`}
-            style={fit === 'frame' ? { boxShadow: '0 40px 90px -34px rgba(16,16,19,0.45)', border: '1px solid var(--bd2)' } : undefined}>
-            {/* Stacked images — display index visible */}
-            {gallery.map((src, i) => (
-              <img key={i} src={lg(src)} alt={i === display ? title : ''} aria-hidden={i !== display}
-                className="absolute inset-0 h-full w-full object-cover"
-                style={{ objectPosition: product.imagePosition ?? 'center', opacity: i === display ? 1 : 0, transition: 'opacity 180ms linear' }}
-                onError={e => { const t = e.target as HTMLImageElement; if (!t.src.includes('wax-block-spin')) t.src = src; }} />
-            ))}
-            {/* Column curtain */}
-            <div ref={wipeRef} aria-hidden className="absolute inset-0 flex pointer-events-none" style={{ display: 'none' }}>
-              {Array.from({ length: COLS }).map((_, i) => (
-                <div key={i} data-col className="h-full flex-1 will-change-transform"
-                  style={{ background: 'var(--pg)', borderRight: i < COLS - 1 ? '1px solid var(--bd2)' : undefined }} />
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Top bar — cart (desktop) */}
-        <div className="absolute top-6 right-6 z-20 hidden lg:block"><CartIcon /></div>
-
-        {/* Numbered index rail */}
-        {gallery.length > 1 && (
-          <div className="absolute right-3 lg:right-6 top-1/2 -translate-y-1/2 z-20 hidden sm:flex flex-col gap-2.5">
+        {/* Auto-play progress dots */}
+        {total > 1 && (
+          <div className="flex items-center justify-center gap-2 mt-4">
             {gallery.map((_, i) => (
-              <button key={i} onClick={() => goTo(i)} className="num text-[12px] tabular-nums transition-all duration-300"
-                style={{ color: i === active ? 'var(--tx1)' : 'var(--txff)', fontWeight: i === active ? 700 : 400, letterSpacing: '0.05em' }}>
-                {String(i + 1).padStart(2, '0')}
+              <button
+                key={i}
+                onClick={() => { goTo(i); pause(); setTimeout(resume, AUTO_INTERVAL); }}
+                className="relative h-1 rounded-full overflow-hidden transition-all duration-300"
+                style={{
+                  width: i === active ? 28 : 8,
+                  background: i === active ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.25)',
+                }}
+                aria-label={`Image ${i + 1}`}
+              >
+                {i === active && !pausedRef.current && (
+                  <span
+                    className="absolute inset-0 rounded-full origin-left"
+                    style={{
+                      background: 'rgba(255,255,255,1)',
+                      animation: `progress ${AUTO_INTERVAL}ms linear`,
+                    }}
+                  />
+                )}
               </button>
             ))}
           </div>
         )}
+      </div>
 
-        {/* Fit toggle */}
-        <div className="absolute left-5 bottom-5 z-20 flex items-center gap-1 rounded-full p-1"
-          style={{ background: 'rgba(255,255,255,0.72)', border: '1px solid var(--bd2)', backdropFilter: 'blur(8px)' }}>
-          {(['full', 'frame'] as Fit[]).map(f => (
-            <button key={f} onClick={() => setFit(f)}
-              className="px-3.5 py-1.5 rounded-full text-[11px] font-semibold uppercase tracking-[0.1em] transition-colors"
-              style={{ background: fit === f ? 'var(--tx1)' : 'transparent', color: fit === f ? '#fff' : 'var(--txm)' }}>
-              {f === 'full' ? (de ? 'Vollbild' : 'Full') : (de ? 'Rahmen' : 'Framed')}
+      {/* ── Right index rail ── */}
+      {total > 1 && (
+        <div className="absolute right-5 sm:right-8 top-1/2 -translate-y-1/2 z-20 hidden sm:flex flex-col gap-3">
+          {gallery.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => { goTo(i); pause(); setTimeout(resume, AUTO_INTERVAL); }}
+              className="num text-[12px] tabular-nums transition-all duration-300"
+              style={{
+                color: i === active ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.25)',
+                fontWeight: i === active ? 700 : 400,
+                letterSpacing: '0.05em',
+                textShadow: i === active ? '0 1px 8px rgba(0,0,0,0.5)' : 'none',
+              }}
+            >
+              {String(i + 1).padStart(2, '0')}
             </button>
           ))}
         </div>
-      </main>
+      )}
+
+      {/* Auto-play progress keyframe */}
+      <style>{`
+        @keyframes progress {
+          from { transform: scaleX(0); }
+          to { transform: scaleX(1); }
+        }
+      `}</style>
     </div>
   );
 }

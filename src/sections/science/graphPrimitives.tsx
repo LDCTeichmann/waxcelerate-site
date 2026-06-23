@@ -10,13 +10,16 @@ export type NodeState = 'active' | 'near' | 'dim';
 // Quadratic Bézier between two points, bent perpendicular by `bend` (fraction of
 // the segment length). Returns the path `d` and the on-curve midpoint (t=0.5) for
 // label placement.
-export function curvedEdge(ax: number, ay: number, bx: number, by: number, bend = 0.09) {
-  const mx = (ax + bx) / 2, my = (ay + by) / 2;
+export function curvedEdge(ax: number, ay: number, bx: number, by: number, bend = 0.09, rA = 0, rB = 0) {
   const dx = bx - ax, dy = by - ay;
-  const cx = mx - dy * bend, cy = my + dx * bend;       // control point
-  const mid = { x: 0.25 * ax + 0.5 * cx + 0.25 * bx, y: 0.25 * ay + 0.5 * cy + 0.25 * by };
-  // `c` (control point) is additive — existing callers destructure only { d, mid }.
-  return { d: `M${ax} ${ay} Q${cx} ${cy} ${bx} ${by}`, mid, c: { x: cx, y: cy } };
+  const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+  const ux = dx / dist, uy = dy / dist;
+  const sx = ax + ux * rA, sy = ay + uy * rA;
+  const ex = bx - ux * rB, ey = by - uy * rB;
+  const mx = (ax + bx) / 2, my = (ay + by) / 2;
+  const cx = mx - dy * bend, cy = my + dx * bend;
+  const mid = { x: 0.25 * sx + 0.5 * cx + 0.25 * ex, y: 0.25 * sy + 0.5 * cy + 0.25 * ey };
+  return { d: `M${sx} ${sy} Q${cx} ${cy} ${ex} ${ey}`, mid, c: { x: cx, y: cy } };
 }
 
 // Point on a quadratic Bézier at parameter t∈[0,1] (a→b, control c). Lets callers
@@ -29,28 +32,50 @@ export function quadPoint(ax: number, ay: number, cx: number, cy: number, bx: nu
 // Refined node disc. Hubs (big) carry a faint concentric halo ring so importance
 // reads from the ring, not just the radius; the active node fills with accent and
 // gains a soft outer glow. Render this inside the caller's interactive <g>.
+let _ncId = 0;
 export function NodeCircle({ x, y, r, big, state }: {
   x: number; y: number; r: number; big?: boolean; state: NodeState;
 }) {
   const active = state === 'active';
+  const id = `nc${_ncId++}`;
   const ring = active ? 'var(--accent)'
     : state === 'near' ? 'rgba(var(--accent-rgb),0.55)'
     : 'var(--bd)';
   return (
     <g style={{ pointerEvents: 'none' }}>
+      <defs>
+        <radialGradient id={`${id}f`} cx="38%" cy="32%" r="68%">
+          {active ? (
+            <>
+              <stop offset="0%" stopColor="var(--accent-strong)" />
+              <stop offset="100%" stopColor="var(--accent)" />
+            </>
+          ) : (
+            <>
+              <stop offset="0%" stopColor="var(--sf)" />
+              <stop offset="100%" stopColor="var(--sf2)" />
+            </>
+          )}
+        </radialGradient>
+      </defs>
+      {active && (
+        <circle cx={x} cy={y} r={r + (big ? 14 : 10)} fill="none"
+          stroke="rgba(var(--accent-rgb),0.16)" strokeWidth={1}
+          style={{ transition: 'opacity 0.3s' }} />
+      )}
       {big && (
         <circle cx={x} cy={y} r={r + 6} fill="none"
-          stroke={active ? 'rgba(var(--accent-rgb),0.45)' : 'rgba(var(--accent-rgb),0.20)'}
+          stroke={active ? 'rgba(var(--accent-rgb),0.40)' : 'rgba(var(--accent-rgb),0.15)'}
           strokeWidth={1} style={{ transition: 'stroke 0.25s' }} />
       )}
       <circle cx={x} cy={y} r={r}
-        fill={active ? 'var(--accent)' : 'var(--sf)'}
-        stroke={ring} strokeWidth={active ? 2 : 1.5}
+        fill={`url(#${id}f)`}
+        stroke={ring} strokeWidth={active ? 2.2 : 1.5}
         style={{
           filter: active
-            ? 'drop-shadow(0 4px 16px rgba(var(--accent-rgb),0.42))'
-            : 'drop-shadow(0 2px 7px rgba(0,0,0,0.10))',
-          transition: 'fill 0.25s, stroke 0.25s',
+            ? 'drop-shadow(0 0 18px rgba(var(--accent-rgb),0.45)) drop-shadow(0 4px 12px rgba(var(--accent-rgb),0.28))'
+            : 'drop-shadow(0 2px 6px rgba(0,0,0,0.08))',
+          transition: 'fill 0.3s, stroke 0.3s, filter 0.3s',
         }} />
     </g>
   );

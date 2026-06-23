@@ -3,7 +3,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
   ArrowLeft, ArrowRight, ExternalLink, Check,
-  ChevronRight, ChevronDown, Star, Lightbulb,
+  ChevronRight, ChevronLeft, ChevronDown, Star, Lightbulb,
 } from 'lucide-react';
 import { getProductById, products, canCheckout } from '@/lib/data';
 import type { Product } from '@/lib/data';
@@ -14,7 +14,13 @@ import { CartIcon } from '@/components/CartIcon';
 import { ImageLightbox } from '@/components/ImageLightbox';
 import { gsap } from '@/lib/gsap';
 
-type RichTab = 'formula' | 'vergleich' | 'kosten';
+const AUTO_INTERVAL = 5000;
+const FADE_MS = 900;
+
+const lg = (src: string) =>
+  src.includes('/products/') && src.endsWith('.webp') && !src.endsWith('-lg.webp')
+    ? src.replace('.webp', '-lg.webp')
+    : src;
 
 export function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -23,20 +29,60 @@ export function ProductDetailPage() {
   const de = lang === 'de';
 
   const [activeImage, setActiveImage] = useState(0);
+  const [prevImage, setPrevImage] = useState(-1);
   const [lightboxOpen, setLightboxOpen] = useState(false);
-  // Single-open accordion → only one panel expands at a time (less noise).
-  const [openAcc, setOpenAcc] = useState<'highlights' | 'specs' | null>(null);
-  // Sticky buy-bar slides in once the hero purchase block scrolls out of view.
   const [showBuyBar, setShowBuyBar] = useState(false);
+  const [navSolid, setNavSolid] = useState(false);
   const buyRef = useRef<HTMLDivElement>(null);
-  const stageRef = useRef<HTMLDivElement>(null);
-  const panelRef = useRef<HTMLDivElement>(null);
-  const wipeRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const detailRef = useRef<HTMLDivElement>(null);
+  const autoRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pausedRef = useRef(false);
   const [compatExpanded, setCompatExpanded] = useState(false);
-  const [v9Expanded, setV9Expanded] = useState(false);
-  const [richTab, setRichTab] = useState<RichTab>('formula');
+  const [openAccordion, setOpenAccordion] = useState<string | null>(null);
+  const reduce = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // Reveal the sticky buy-bar only once the hero purchase block has scrolled away.
+  const gallery = product ? [product.image, ...(product.images ?? [])] : [];
+  const total = gallery.length;
+
+  const goTo = useCallback((i: number) => {
+    if (i === activeImage) return;
+    setPrevImage(activeImage);
+    setActiveImage(i);
+  }, [activeImage]);
+
+  const next = useCallback(() => {
+    if (total <= 1) return;
+    goTo((activeImage + 1) % total);
+  }, [activeImage, total, goTo]);
+
+  useEffect(() => {
+    if (reduce || total <= 1) return;
+    if (autoRef.current) clearInterval(autoRef.current);
+    autoRef.current = setInterval(() => {
+      if (!pausedRef.current) next();
+    }, AUTO_INTERVAL);
+    return () => { if (autoRef.current) clearInterval(autoRef.current); };
+  }, [next, reduce, total]);
+
+  const pause = useCallback(() => { pausedRef.current = true; }, []);
+  const resume = useCallback(() => {
+    pausedRef.current = false;
+    if (autoRef.current) clearInterval(autoRef.current);
+    autoRef.current = setInterval(() => {
+      if (!pausedRef.current) next();
+    }, AUTO_INTERVAL);
+  }, [next]);
+
+  useEffect(() => {
+    const el = heroRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([entry]) => setNavSolid(!entry.isIntersecting), { threshold: 0 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   useEffect(() => {
     const el = buyRef.current;
     if (!el) return;
@@ -48,45 +94,21 @@ export function ProductDetailPage() {
     return () => io.disconnect();
   }, []);
 
-  // Editorial entrance — a column "curtain" lifts away to reveal the product,
-  // the image stage settles in, and the purchase-panel items rise in a staggered
-  // beat. GPU-only (transform/opacity), reduced-motion safe, re-runs per product
-  // so client-side route changes feel composed and intentional, not abrupt.
   useEffect(() => {
-    const wipe = wipeRef.current;
-    const panels = wipe?.querySelectorAll<HTMLElement>('[data-wipe-panel]');
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduce) { if (wipe) wipe.style.display = 'none'; return; }
-
+    if (reduce) return;
     const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
-      // Curtain reveal — light columns lift away, left-to-right.
-      if (panels?.length) {
-        gsap.set(panels, { yPercent: 0 });
-        tl.to(panels, {
-          yPercent: -101, duration: 0.72, ease: 'power4.inOut', stagger: 0.06,
-          onComplete: () => { if (wipe) wipe.style.display = 'none'; },
-        }, 0);
-      }
-      // Image stage emerges as the curtain clears.
-      if (stageRef.current) {
-        tl.fromTo(stageRef.current, { opacity: 0, y: 26, scale: 0.985 },
-          { opacity: 1, y: 0, scale: 1, duration: 0.85 }, 0.28);
-      }
-      const items = panelRef.current?.querySelectorAll('[data-panel-item]');
-      if (items?.length) {
-        tl.fromTo(items, { opacity: 0, y: 18 },
-          { opacity: 1, y: 0, duration: 0.6, stagger: 0.075 }, 0.42);
+      if (cardRef.current) {
+        gsap.from(cardRef.current, { y: 24, opacity: 0, duration: 0.6, ease: 'power3.out', delay: 0.15 });
       }
     });
-    return () => { ctx.revert(); if (wipe) wipe.style.display = ''; };
-  }, [id]);
+    return () => ctx.revert();
+  }, [id, reduce]);
 
   if (!product) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4" style={{ background: 'var(--pg)' }}>
-        <p className="text-wx-txm">{de ? 'Produkt nicht gefunden.' : 'Product not found.'}</p>
-        <Link to="/" className="text-[var(--accent-soft)] hover:underline text-sm flex items-center gap-1">
+        <p style={{ color: 'var(--txm)' }}>{de ? 'Produkt nicht gefunden.' : 'Product not found.'}</p>
+        <Link to="/" className="text-sm flex items-center gap-1" style={{ color: 'var(--accent-soft)' }}>
           <ArrowLeft className="h-3.5 w-3.5" /> {de ? 'Zurück' : 'Back'}
         </Link>
       </div>
@@ -94,46 +116,58 @@ export function ProductDetailPage() {
   }
 
   const rc = id ? richContent[id] : undefined;
-  const isClassic = product.variant === 'classic';
   const isPro = product.variant === 'pro';
+  const isClassic = product.variant === 'classic';
   const isWax = product.category === 'wax';
   const isChain = product.category === 'chain';
-  const accentColor = isPro ? '#4A72D4' : 'var(--accent-soft)';  // text/icon accent — lighter for contrast on dark bg
-  // buttonColor now uses CSS variable — see inline styles below
-  const accentBg = isPro ? 'rgba(74,114,212,0.08)' : 'rgba(43,82,176,0.08)';
+  const accentColor = isPro ? '#4A72D4' : 'var(--accent-soft)';
+  const accentBg = isPro ? 'rgba(74,114,212,0.06)' : 'rgba(43,82,176,0.06)';
+  const cardAccent = isPro ? '#4A72D4' : '#2B52B0';
 
   const formatPrice = useCallback((price: number) =>
     new Intl.NumberFormat(lang === 'de' ? 'de-DE' : 'en-US', {
       style: 'currency', currency: 'EUR',
     }).format(price), [lang]);
 
-  const gallery = [product.image, ...(product.images ?? [])];
   const highlights = de ? product.highlights : product.highlightsEn;
   const descriptionText = de ? product.description : product.descriptionEn;
   const titleText = de ? product.title : product.titleEn;
 
+  const alternatives = products
+    .filter(p => p.id !== product.id && p.category === product.category)
+    .filter(p => product.category === 'wax' ? p.category === 'wax' : true)
+    .slice(0, 3);
+
   const related = products
     .filter(p => p.id !== product.id)
-    .filter(p => {
-      if (product.category === 'wax') {
-        return p.category === 'wax' || (p.category === 'chain' && p.variant === undefined);
-      } else {
-        return p.category === 'wax';
-      }
-    })
+    .filter(p => product.category === 'wax' ? (p.category === 'chain' && !p.variant) : p.category === 'wax')
     .slice(0, 3);
 
   const pricePerApp = product.applications
     ? product.price / parseFloat(product.applications.split('–')[1] ?? product.applications)
     : null;
 
+  const cardBenefits = (highlights ?? []).filter(h => {
+    const lower = h.toLowerCase();
+    if (product.applications && lower.includes(product.applications.split('–')[0])) return false;
+    return true;
+  }).slice(0, 3);
+
+  const specsData = [
+    product.compatibility && { l: de ? 'Kompatibel' : 'Compatible', v: product.compatibility },
+    product.weight && { l: de ? 'Gewicht' : 'Weight', v: product.weight },
+    product.applications && { l: de ? 'Anwendungen' : 'Uses', v: product.applications },
+    isWax && { l: de ? 'Verarbeitung' : 'Processing', v: '80–90°C' },
+    product.chainLinks && { l: de ? 'Glieder' : 'Links', v: product.chainLinks },
+    product.chainSpeed && { l: de ? 'Schaltung' : 'Speed', v: product.chainSpeed },
+  ].filter(Boolean) as { l: string; v: string }[];
+
   const metaTitle = `${titleText} | Waxcelerate`;
   const metaDescription = descriptionText ?? '';
   const canonicalUrl = `https://waxcelerate.de/produkt/${id}`;
 
   const breadcrumbSchema = JSON.stringify({
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: de ? 'Startseite' : 'Home', item: 'https://waxcelerate.de' },
       { '@type': 'ListItem', position: 2, name: titleText, item: canonicalUrl },
@@ -141,38 +175,25 @@ export function ProductDetailPage() {
   });
 
   const productSchema = JSON.stringify({
-    '@context': 'https://schema.org',
-    '@type': 'Product',
-    name: titleText,
-    description: descriptionText,
-    image: product.image,
-    sku: id,
-    brand: { '@type': 'Brand', name: 'Waxcelerate' },
-    url: canonicalUrl,
-    ...(isWax && {
-      aggregateRating: { '@type': 'AggregateRating', ratingValue: '5', reviewCount: '189', bestRating: '5', worstRating: '1' },
-    }),
+    '@context': 'https://schema.org', '@type': 'Product',
+    name: titleText, description: descriptionText, image: product.image, sku: id,
+    brand: { '@type': 'Brand', name: 'Waxcelerate' }, url: canonicalUrl,
+    ...(isWax && { aggregateRating: { '@type': 'AggregateRating', ratingValue: '5', reviewCount: '189', bestRating: '5', worstRating: '1' } }),
     offers: {
-      '@type': 'Offer',
-      price: product.price.toFixed(2),
-      priceCurrency: 'EUR',
-      availability: 'https://schema.org/InStock',
-      url: product.ebayUrl,
-      seller: { '@type': 'Organization', name: 'Waxcelerate' },
-      priceValidUntil: '2026-12-31',
+      '@type': 'Offer', price: product.price.toFixed(2), priceCurrency: 'EUR',
+      availability: 'https://schema.org/InStock', url: product.ebayUrl,
+      seller: { '@type': 'Organization', name: 'Waxcelerate' }, priceValidUntil: '2026-12-31',
     },
   });
 
   const hasFormula = !!(isWax && rc?.formulaDetails);
   const hasVergleich = !!(rc?.compHeaders && rc?.compRows);
   const hasKosten = !!(rc?.oilItems && rc?.waxItems);
-  const hasSpecs = !!(product.compatibility || product.weight || product.applications || product.chainLinks || product.chainSpeed);
+  const toggleAccordion = (key: string) => setOpenAccordion(prev => prev === key ? null : key);
 
-  const tabs: { key: RichTab; label: string }[] = [
-    ...(hasFormula ? [{ key: 'formula' as RichTab, label: de ? 'Formel' : 'Formula' }] : []),
-    ...(hasVergleich ? [{ key: 'vergleich' as RichTab, label: de ? 'Vergleich' : 'Comparison' }] : []),
-    ...(hasKosten ? [{ key: 'kosten' as RichTab, label: de ? 'Kosten' : 'Costs' }] : []),
-  ];
+  const scrollToDetails = () => {
+    detailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   return (
     <>
@@ -188,873 +209,897 @@ export function ProductDetailPage() {
         <meta property="og:site_name" content="Waxcelerate" />
         <meta property="og:locale" content={de ? 'de_DE' : 'en_US'} />
         {product.image && <meta property="og:image" content={product.image} />}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={metaTitle} />
-        <meta name="twitter:description" content={metaDescription} />
-        {product.image && <meta name="twitter:image" content={product.image} />}
         <script type="application/ld+json">{breadcrumbSchema}</script>
         <script type="application/ld+json">{productSchema}</script>
       </Helmet>
 
-      {/* Curtain reveal — light columns lift away on load / product change */}
-      <div ref={wipeRef} aria-hidden className="fixed inset-0 z-[60] flex pointer-events-none">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div
-            key={i}
-            data-wipe-panel
-            className="h-full flex-1 will-change-transform"
-            style={{
-              background: 'var(--pg)',
-              borderRight: i < 5 ? '1px solid var(--bd2)' : undefined,
-            }}
-          />
-        ))}
-      </div>
+      <div className="min-h-screen overflow-x-hidden" style={{ background: 'var(--pg)' }}>
 
-      <div className="min-h-screen text-wx-tx1" style={{ background: 'var(--pg)' }}>
-
-        {/* Nav */}
-        <header className="sticky top-0 z-50 backdrop-blur-md border-b" style={{ background: 'var(--nav-bg)', borderColor: 'var(--bd)' }}>
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center gap-2.5">
-            <Link to="/" className="flex-shrink-0">
-              <img src="/images/logo.jpg" alt="Waxcelerate" className="h-7 w-auto rounded-md" />
+        {/* ── NAV ── */}
+        <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-500"
+          style={{
+            background: navSolid ? 'var(--nav-bg)' : 'transparent',
+            backdropFilter: navSolid ? 'blur(12px)' : 'none',
+            borderBottom: navSolid ? '1px solid var(--bd)' : '1px solid transparent',
+          }}>
+          <div className="max-w-[1440px] mx-auto px-5 sm:px-8 h-14 flex items-center justify-between">
+            <Link to="/" className="flex items-center gap-2 text-[13px] font-medium transition-colors"
+              style={{ color: navSolid ? 'var(--txm)' : 'rgba(255,255,255,0.8)' }}>
+              <ArrowLeft className="h-4 w-4" /> {de ? 'Zurück' : 'Back'}
             </Link>
-            <ChevronRight className="h-3.5 w-3.5 flex-shrink-0 text-wx-txff" />
-            <Link to="/" className="flex items-center gap-1.5 text-sm text-wx-txm hover:text-wx-tx1 transition-colors flex-shrink-0">
-              <ArrowLeft className="h-4 w-4" />
-              {de ? 'Zurück' : 'Back'}
-            </Link>
-            <ChevronRight className="h-3.5 w-3.5 flex-shrink-0 text-wx-txff" />
-            <span className="text-sm text-wx-txff truncate flex-1 min-w-0">{titleText}</span>
+            {navSolid && <span className="text-sm truncate max-w-[200px] hidden sm:block" style={{ color: 'var(--txm)' }}>{titleText}</span>}
             <CartIcon />
           </div>
         </header>
 
-        <div className="max-w-5xl mx-auto px-4 sm:px-6">
-
-          {/* ── HERO ── */}
-          <div className="py-10 grid lg:grid-cols-2 gap-10 lg:gap-14 items-start">
-
-            {/* Left — editorial image stage */}
-            <div className="lg:sticky lg:top-24 flex flex-col gap-4">
-              <div
-                ref={stageRef}
-                className={`group relative overflow-hidden rounded-[26px] aspect-square${gallery.length > 1 ? ' cursor-zoom-in' : ''}`}
+        {/* ══════════════════════════════════════════════════════════════
+            MOBILE HERO — stacked: image top, info below
+           ══════════════════════════════════════════════════════════════ */}
+        <section className="lg:hidden">
+          <div ref={heroRef} className="relative h-[54vh] min-h-[300px] overflow-hidden">
+            {gallery.map((src, i) => (
+              <img key={i} src={lg(src)} alt={i === activeImage ? titleText : ''} aria-hidden={i !== activeImage}
+                className="absolute inset-0 h-full w-full object-cover"
                 style={{
-                  border: '1px solid var(--bd2)',
-                  background: 'var(--sf2)',
-                  boxShadow: '0 32px 64px -28px rgba(16,16,19,0.32)',
+                  objectPosition: product.imagePosition ?? 'center',
+                  opacity: i === activeImage ? 1 : 0, scale: i === activeImage ? '1' : '1.04',
+                  transition: reduce ? 'none' : `opacity ${FADE_MS}ms ease, scale ${FADE_MS * 2}ms ease`,
+                  zIndex: i === activeImage ? 2 : (i === prevImage ? 1 : 0),
                 }}
-                onClick={gallery.length > 1 ? () => setLightboxOpen(true) : undefined}
-              >
-                {/* Stacked crossfade — switching thumbnails dissolves, never flashes */}
-                {gallery.map((img, i) => (
-                  <img
-                    key={img}
-                    src={img}
-                    alt={i === activeImage ? titleText : ''}
-                    aria-hidden={i !== activeImage}
-                    className="absolute inset-0 w-full h-full object-cover transition-[opacity,transform] duration-700 ease-out group-hover:scale-[1.04]"
-                    style={{ objectPosition: product.imagePosition ?? 'center', opacity: i === activeImage ? 1 : 0 }}
-                    onError={e => { (e.target as HTMLImageElement).src = '/images/products/wax-block-spin.png'; }}
-                  />
+                onError={e => { const t = e.target as HTMLImageElement; if (!t.src.includes('wax-block-spin')) t.src = src; }}
+              />
+            ))}
+            <div className="absolute inset-0 z-[3] pointer-events-none" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.2) 0%, transparent 35%)' }} />
+            {total > 1 && (
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex gap-1.5">
+                {gallery.map((_, i) => (
+                  <button key={i} onClick={() => { goTo(i); pause(); setTimeout(resume, AUTO_INTERVAL); }}
+                    className="h-[2.5px] rounded-full transition-all duration-500"
+                    style={{ width: i === activeImage ? 22 : 7, background: i === activeImage ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.3)' }}
+                    aria-label={`Image ${i + 1}`} />
                 ))}
-                {/* Soft inner vignette — gives the lifestyle photo depth without noise */}
-                <div aria-hidden className="absolute inset-0 pointer-events-none"
-                  style={{ boxShadow: 'inset 0 0 70px rgba(16,16,19,0.10)', borderRadius: 'inherit' }} />
-                {product.badge && (
-                  <span
-                    className="absolute top-4 right-4 text-[10px] font-semibold tracking-widest uppercase px-2.5 py-1 rounded-full"
-                    style={{ background: 'rgba(16,16,19,0.42)', color: 'rgba(255,255,255,0.92)', border: '1px solid rgba(255,255,255,0.14)', backdropFilter: 'blur(8px)' }}
-                  >
-                    {de ? product.badge : product.badgeEn}
-                  </span>
+              </div>
+            )}
+          </div>
+
+          <div className="px-5 sm:px-8 py-6" style={{ background: 'var(--pg)' }}>
+            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] block mb-2"
+              style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
+              {product.variant ? `${product.variant} · ${product.weight ?? ''}` : (product.chainSpeed ?? '')}
+            </span>
+            <h1 className="font-display text-[26px] font-bold leading-[1.08] tracking-[-0.025em] mb-2" style={{ color: 'var(--tx1)' }}>{titleText}</h1>
+            <p className="text-[13px] leading-[1.6] mb-4" style={{ color: 'var(--txm)' }}>{descriptionText}</p>
+
+            {cardBenefits.length > 0 && (
+              <div className="space-y-1.5 mb-4">
+                {cardBenefits.map((b, i) => (
+                  <div key={i} className="flex gap-2 items-start">
+                    <Check className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" style={{ color: accentColor }} />
+                    <p className="text-[12px] leading-[1.5]" style={{ color: 'var(--txm)' }}>{b}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {(product.intervalDry || product.intervalWet) && (
+              <div className="flex items-center gap-6 mb-4 pb-4" style={{ borderBottom: '1px solid var(--bd)' }}>
+                {product.intervalDry && (
+                  <div>
+                    <p className="text-[9px] uppercase tracking-[0.16em] mb-0.5" style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>{de ? 'Trocken' : 'Dry'}</p>
+                    <p className="num text-[20px] font-bold leading-none" style={{ color: 'var(--tx1)' }}>{product.intervalDry}</p>
+                  </div>
                 )}
-                {(isPro || isClassic) && (
-                  <span
-                    className="absolute bottom-4 left-4 text-[10px] font-semibold tracking-[0.16em] uppercase px-2.5 py-1 rounded-full"
-                    style={{ background: accentBg, color: accentColor, border: `1px solid ${accentColor}50`, backdropFilter: 'blur(8px)' }}
-                  >
-                    {isPro ? 'Pro' : 'Classic'}{product.weight ? ` · ${product.weight}` : ''}
-                  </span>
+                {product.intervalDry && product.intervalWet && <div className="w-px h-8" style={{ background: 'var(--bd)' }} />}
+                {product.intervalWet && (
+                  <div>
+                    <p className="text-[9px] uppercase tracking-[0.16em] mb-0.5" style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>{de ? 'Nass' : 'Wet'}</p>
+                    <p className="num text-[20px] font-bold leading-none" style={{ color: 'var(--tx1)' }}>{product.intervalWet}</p>
+                  </div>
                 )}
               </div>
+            )}
 
-              {gallery.length > 1 && (
-                <div className="flex gap-2.5">
-                  {gallery.map((img, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setActiveImage(i)}
-                      aria-label={`${titleText} — ${i + 1}`}
-                      aria-current={i === activeImage}
-                      className="relative w-[64px] h-[64px] rounded-xl overflow-hidden flex-shrink-0 transition-[transform,opacity,box-shadow] duration-300 ease-out"
-                      style={{
-                        opacity: i === activeImage ? 1 : 0.5,
-                        transform: i === activeImage ? 'translateY(-2px)' : 'none',
-                        boxShadow: i === activeImage ? `0 0 0 2px ${accentColor}, 0 8px 18px -8px ${accentColor}80` : '0 0 0 1px var(--bd2)',
-                      }}
-                    >
-                      <img
-                        src={img}
-                        alt=""
-                        aria-hidden
-                        className="w-full h-full object-cover"
-                        style={{ objectPosition: product.imagePosition ?? 'center' }}
-                        onError={e => { (e.target as HTMLImageElement).src = '/images/products/wax-block-spin.png'; }}
-                      />
-                    </button>
-                  ))}
-                </div>
+            {total > 1 && (
+              <div className="flex gap-2 mb-4">
+                {gallery.slice(0, 6).map((src, i) => (
+                  <button key={i} onClick={() => { goTo(i); pause(); setTimeout(resume, AUTO_INTERVAL); }}
+                    className="h-11 w-11 rounded-lg overflow-hidden flex-shrink-0 transition-all duration-300"
+                    style={{ opacity: i === activeImage ? 1 : 0.35, boxShadow: i === activeImage ? '0 0 0 2px var(--tx1)' : '0 0 0 1px var(--bd)' }}>
+                    <img src={src} alt="" className="h-full w-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div className="flex items-end justify-between gap-4 mb-5">
+              <div>
+                <p className="num text-[28px] font-bold leading-none tracking-[-0.02em]" style={{ color: 'var(--tx1)' }}>{formatPrice(product.price)}</p>
+                {pricePerApp !== null && (
+                  <p className="text-[11px] mt-1" style={{ color: 'var(--txff)' }}>~{formatPrice(pricePerApp)} / {de ? 'Anwendung' : 'use'}</p>
+                )}
+              </div>
+              {canCheckout(product) ? <AddToCartButton product={product} /> : (
+                <a href={product.ebayUrl} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-7 py-3 rounded-full text-[13px] font-semibold active:scale-[0.97]"
+                  style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}>
+                  {de ? 'Kaufen' : 'Buy'} <ExternalLink className="h-3.5 w-3.5" />
+                </a>
               )}
             </div>
 
-            {/* Right — info */}
-            <div ref={panelRef} className="flex flex-col gap-5">
+            {(alternatives.length > 0 || related.length > 0) && (
+              <div className="pt-4" style={{ borderTop: '1px solid var(--bd)' }}>
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em]"
+                    style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
+                    {de ? 'Auch erhältlich' : 'Also available'}
+                  </p>
+                  <span className="text-[9px]" style={{ color: 'var(--txff)' }}>
+                    ← {de ? 'wischen' : 'swipe'} →
+                  </span>
+                </div>
+                <div className="flex gap-2.5 overflow-x-auto pb-2 snap-x snap-mandatory"
+                  style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}>
+                  {[...alternatives, ...related].slice(0, 5).map(alt => <AltMiniCard key={alt.id} product={alt} de={de} formatPrice={formatPrice} />)}
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
 
-              {/* Title + description */}
-              <div data-panel-item>
-                <h1 className="font-display text-[28px] sm:text-[32px] font-bold tracking-[-0.02em] text-wx-tx1 leading-[1.1]">
+        {/* ══════════════════════════════════════════════════════════════
+            DESKTOP HERO — full-bleed image, focused conversion card
+           ══════════════════════════════════════════════════════════════ */}
+        <section ref={heroRef} className="relative h-screen min-h-[680px] overflow-hidden hidden lg:block">
+          {gallery.map((src, i) => (
+            <img key={i} src={lg(src)} alt={i === activeImage ? titleText : ''} aria-hidden={i !== activeImage}
+              className="absolute inset-0 h-full w-full object-cover"
+              style={{
+                objectPosition: product.imagePosition ?? 'center',
+                opacity: i === activeImage ? 1 : 0, scale: i === activeImage ? '1' : '1.04',
+                transition: reduce ? 'none' : `opacity ${FADE_MS}ms cubic-bezier(0.4,0,0.2,1), scale ${FADE_MS * 2}ms cubic-bezier(0.4,0,0.2,1)`,
+                zIndex: i === activeImage ? 2 : (i === prevImage ? 1 : 0),
+              }}
+              onError={e => { const t = e.target as HTMLImageElement; if (!t.src.includes('wax-block-spin')) t.src = src; }}
+            />
+          ))}
+
+          <div className="absolute inset-0 z-[3] pointer-events-none"
+            style={{ background: 'linear-gradient(105deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.20) 28%, transparent 48%)' }} />
+          <div className="absolute inset-0 z-[3] pointer-events-none"
+            style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.25) 0%, transparent 30%)' }} />
+
+          {/* ── MAIN CARD — focused conversion funnel ── */}
+          <div ref={cardRef}
+            className="absolute z-20 left-10 xl:left-14 top-1/2 -translate-y-1/2 w-[380px] xl:w-[400px]"
+            onMouseEnter={pause} onMouseLeave={resume}>
+            <div className="pdp-hero-card rounded-[22px] overflow-hidden"
+              style={{
+                background: 'rgba(255,255,255,0.96)',
+                backdropFilter: 'blur(40px) saturate(1.5)',
+                WebkitBackdropFilter: 'blur(40px) saturate(1.5)',
+                boxShadow: '0 24px 64px -16px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.15)',
+              }}>
+
+              <div className="px-6 xl:px-7 pt-6 pb-5">
+                {/* Eyebrow + bestseller badge */}
+                <div className="flex items-center gap-2.5 mb-2.5">
+                  <span className="text-[9px] font-semibold uppercase tracking-[0.2em]"
+                    style={{ color: 'rgba(0,0,0,0.35)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
+                    {product.variant ? `${product.variant} · ${product.weight ?? ''}` : (product.chainSpeed ?? '')}
+                  </span>
+                  {isWax && product.weight === '500g' && (
+                    <span className="text-[8px] font-bold uppercase tracking-[0.1em] px-1.5 py-[1px] rounded"
+                      style={{ background: `${cardAccent}12`, color: cardAccent }}>
+                      {de ? 'Bestseller' : 'Bestseller'}
+                    </span>
+                  )}
+                </div>
+
+                {/* Title */}
+                <h1 className="font-display text-[26px] xl:text-[28px] font-bold leading-[1.06] tracking-[-0.03em] mb-4"
+                  style={{ color: '#0a0a0a' }}>
                   {titleText}
                 </h1>
-                <p className="mt-2.5 text-[13px] leading-relaxed" style={{ color: 'var(--txm)' }}>
-                  {descriptionText}
-                </p>
-              </div>
 
-              {/* Price + CTAs */}
-              <div ref={buyRef} data-panel-item className="flex flex-col gap-2.5">
-                <div>
-                  <p className="num text-[32px] font-bold tracking-[-0.03em] text-wx-tx1 leading-none">
-                    {formatPrice(product.price)}
-                  </p>
-                  {pricePerApp !== null && (
-                    <p className="text-[12px] mt-1.5" style={{ color: 'var(--txff)' }}>
-                      ~{formatPrice(pricePerApp)} {de ? 'pro Anwendung' : 'per use'}
+                {/* Benefits — tight, no circles */}
+                {cardBenefits.length > 0 && (
+                  <div className="space-y-2 mb-4">
+                    {cardBenefits.map((b, i) => (
+                      <div key={i} className="flex gap-2 items-start">
+                        <Check className="h-3.5 w-3.5 flex-shrink-0 mt-px" style={{ color: cardAccent }} />
+                        <p className="text-[12px] leading-[1.45]" style={{ color: 'rgba(0,0,0,0.52)' }}>{b}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Intervals */}
+                {(product.intervalDry || product.intervalWet) && (
+                  <div className="flex items-stretch gap-0 mb-4 rounded-xl overflow-hidden" style={{ border: '1px solid rgba(0,0,0,0.06)' }}>
+                    {product.intervalDry && (
+                      <div className="flex-1 px-4 py-2" style={{ background: 'rgba(0,0,0,0.015)' }}>
+                        <p className="text-[7.5px] uppercase tracking-[0.18em] mb-0.5 font-semibold"
+                          style={{ color: 'rgba(0,0,0,0.28)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
+                          {de ? 'Trocken' : 'Dry'}
+                        </p>
+                        <p className="num text-[18px] font-bold leading-none tracking-[-0.02em]" style={{ color: '#0a0a0a' }}>
+                          {product.intervalDry}
+                        </p>
+                      </div>
+                    )}
+                    {product.intervalDry && product.intervalWet && <div className="w-px" style={{ background: 'rgba(0,0,0,0.06)' }} />}
+                    {product.intervalWet && (
+                      <div className="flex-1 px-4 py-2" style={{ background: 'rgba(0,0,0,0.015)' }}>
+                        <p className="text-[7.5px] uppercase tracking-[0.18em] mb-0.5 font-semibold"
+                          style={{ color: 'rgba(0,0,0,0.28)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
+                          {de ? 'Nass' : 'Wet'}
+                        </p>
+                        <p className="num text-[18px] font-bold leading-none tracking-[-0.02em]" style={{ color: '#0a0a0a' }}>
+                          {product.intervalWet}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Social proof — close to CTA for conversion */}
+                {rc && rc.reviewCount > 0 && (
+                  <div className="flex items-center gap-1.5 mb-3">
+                    <div className="flex gap-px">
+                      {[0, 1, 2, 3, 4].map(i => <Star key={i} className="h-3 w-3 fill-current" style={{ color: '#F5A623' }} />)}
+                    </div>
+                    <span className="text-[10px] font-medium" style={{ color: 'rgba(0,0,0,0.32)' }}>
+                      {rc.reviewCount}+ {de ? 'zufriedene Kunden' : 'happy customers'}
+                    </span>
+                  </div>
+                )}
+
+                {/* Price block */}
+                <div className="mb-3">
+                  <div className="flex items-baseline gap-2.5">
+                    <p className="num text-[28px] font-bold leading-none tracking-[-0.02em]" style={{ color: '#0a0a0a' }}>
+                      {formatPrice(product.price)}
+                    </p>
+                    {pricePerApp !== null && (
+                      <span className="text-[10px] font-medium" style={{ color: 'rgba(0,0,0,0.3)' }}>
+                        ~{formatPrice(pricePerApp)}/{de ? 'Anw.' : 'use'}
+                      </span>
+                    )}
+                  </div>
+                  {rc?.savings && (
+                    <p className="text-[10px] font-semibold mt-1" style={{ color: cardAccent }}>
+                      {de ? `Spart ${rc.savings} vs. Kettenöl` : `Saves ${rc.savings} vs. chain oil`}
                     </p>
                   )}
                 </div>
 
-                {/* Native checkout only once a Stripe price ID exists; otherwise
-                    eBay stays the primary (working) buy path. Applies to wax + chains. */}
-                {canCheckout(product) ? (
-                  <div className="flex flex-col gap-1.5 mt-1">
-                    <AddToCartButton product={product} fullWidth />
-                    <a
-                      href={product.ebayUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-1.5 py-2 text-[12px] transition-opacity hover:opacity-60"
-                      style={{ color: 'var(--txm)' }}
-                    >
-                      {de ? 'Oder direkt bei eBay kaufen' : 'Or buy directly on eBay'}
-                      <ExternalLink className="h-3 w-3" />
+                {/* CTA — full width for maximum conversion */}
+                <div className="mb-3">
+                  {canCheckout(product) ? (
+                    <div className="w-full"><AddToCartButton product={product} /></div>
+                  ) : (
+                    <a href={product.ebayUrl} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 w-full py-3.5 rounded-full text-[14px] font-semibold tracking-wide transition-all duration-300 hover:scale-[1.01] active:scale-[0.97]"
+                      style={{ background: '#0a0a0a', color: '#fff', boxShadow: '0 6px 24px -6px rgba(0,0,0,0.4)' }}>
+                      {de ? 'Jetzt bestellen' : 'Order now'} <ExternalLink className="h-3.5 w-3.5 opacity-60" />
                     </a>
-                  </div>
-                ) : (
-                  <a
-                    href={product.ebayUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 w-full py-3.5 rounded-full text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.99] mt-1"
-                    style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
-                  >
-                    {de ? 'Jetzt bei eBay kaufen' : 'Buy on eBay'}
-                    <ExternalLink className="h-3.5 w-3.5" />
-                  </a>
-                )}
+                  )}
+                </div>
+
+                {/* Trust signals */}
+                <p className="text-[9.5px] text-center font-medium" style={{ color: 'rgba(0,0,0,0.3)' }}>
+                  Made in Germany · {de ? 'Versand 1–2 Werktage' : 'Ships 1–2 days'}
+                </p>
               </div>
 
-              {/* Divider */}
-              <div style={{ height: '1px', background: 'var(--bd2)' }} />
-
-              {/* Intervals */}
-              {(product.intervalDry || product.intervalWet || product.intervalTopup) && (
-                <div data-panel-item className="flex items-center gap-6">
-                  {product.intervalDry && (
-                    <div>
-                      <p className="text-[10px] uppercase tracking-[0.14em] font-medium mb-1.5" style={{ color: 'var(--txff)' }}>
-                        {de ? 'Trocken' : 'Dry'}
-                      </p>
-                      <p className="num text-[20px] font-bold text-wx-tx1 leading-none">{product.intervalDry}</p>
-                    </div>
-                  )}
-                  {product.intervalWet && (
-                    <>
-                      <div className="w-px self-stretch" style={{ background: 'var(--bd2)' }} />
-                      <div>
-                        <p className="text-[10px] uppercase tracking-[0.14em] font-medium mb-1.5" style={{ color: 'var(--txff)' }}>
-                          {de ? 'Nass' : 'Wet'}
-                        </p>
-                        <p className="num text-[20px] font-bold text-wx-tx1 leading-none">{product.intervalWet}</p>
-                      </div>
-                    </>
-                  )}
-                  {product.intervalTopup && (
-                    <>
-                      <div className="w-px self-stretch" style={{ background: 'var(--bd2)' }} />
-                      <div>
-                        <p className="text-[10px] uppercase tracking-[0.14em] font-medium mb-1.5" style={{ color: 'var(--txff)' }}>
-                          {de ? 'Topup max.' : 'Max. topup'}
-                        </p>
-                        <p className="num text-[20px] font-bold text-wx-tx1 leading-none">{product.intervalTopup}</p>
-                      </div>
-                    </>
-                  )}
+              {/* Footer: spec pills + details link */}
+              <div className="flex items-center justify-between px-6 xl:px-7 py-2.5" style={{ borderTop: '1px solid rgba(0,0,0,0.05)', background: 'rgba(0,0,0,0.015)' }}>
+                <div className="flex flex-wrap gap-1.5">
+                  {specsData.slice(0, 4).map((spec, i) => (
+                    <span key={i} className="text-[8.5px] font-medium px-2 py-0.5 rounded-full"
+                      style={{ background: 'rgba(0,0,0,0.04)', color: 'rgba(0,0,0,0.35)' }}>
+                      {spec.v}
+                    </span>
+                  ))}
                 </div>
-              )}
-
-              {/* Accordions — flat divider style, no border boxes */}
-              {((highlights && highlights.length > 0) || hasSpecs) && (
-                <div data-panel-item style={{ borderTop: '1px solid var(--bd2)' }}>
-                  {highlights && highlights.length > 0 && (
-                    <AccordionItem
-                      title={de ? 'Das Wichtigste' : 'Key Features'}
-                      preview={highlights[0]}
-                      open={openAcc === 'highlights'}
-                      onToggle={() => setOpenAcc(v => (v === 'highlights' ? null : 'highlights'))}
-                    >
-                      <ul className="space-y-2.5 pt-1">
-                        {highlights.map(h => (
-                          <li key={h} className="flex items-start gap-3 text-sm" style={{ color: 'var(--txm)' }}>
-                            <Check className="h-4 w-4 mt-0.5 flex-shrink-0" style={{ color: accentColor }} />
-                            {h}
-                          </li>
-                        ))}
-                      </ul>
-                    </AccordionItem>
-                  )}
-
-                  {hasSpecs && (
-                    <AccordionItem
-                      title={de ? 'Kompatibilität & Specs' : 'Compatibility & Specs'}
-                      open={openAcc === 'specs'}
-                      onToggle={() => setOpenAcc(v => (v === 'specs' ? null : 'specs'))}
-                    >
-                      <div className="grid grid-cols-2 gap-2 pt-1">
-                        {product.compatibility && <SpecRow label={de ? 'Kompatibel' : 'Compatible'} value={product.compatibility} />}
-                        {product.weight && <SpecRow label={de ? 'Gewicht' : 'Weight'} value={product.weight} />}
-                        {product.applications && <SpecRow label={de ? 'Anwendungen' : 'Applications'} value={product.applications} />}
-                        {isWax && <SpecRow label={de ? 'Verarbeitung' : 'Processing'} value="80–90°C" />}
-                        {product.chainLinks && <SpecRow label={de ? 'Glieder' : 'Links'} value={product.chainLinks} />}
-                        {product.chainSpeed && <SpecRow label={de ? 'Schaltung' : 'Speed'} value={product.chainSpeed} />}
-                      </div>
-                    </AccordionItem>
-                  )}
-                </div>
-              )}
-
-              {/* Classic → Pro — one-liner */}
-              {isClassic && (
-                <p className="text-[12px]" style={{ color: 'var(--txff)' }}>
-                  {de ? 'Viel Regen oder Winter? ' : 'Lots of rain or winter? '}
-                  <Link
-                    to={`/produkt/${product.weight === '500g' ? 'wax-500-mos2' : 'wax-300-mos2'}`}
-                    className="hover:underline"
-                    style={{ color: accentColor }}
-                  >
-                    {de ? 'Pro mit MoS₂ ansehen →' : 'See Pro with MoS₂ →'}
-                  </Link>
-                </p>
-              )}
+                <button onClick={scrollToDetails}
+                  className="flex items-center gap-0.5 text-[10px] font-semibold flex-shrink-0 transition-colors hover:opacity-70"
+                  style={{ color: cardAccent }}>
+                  Details <ChevronDown className="h-3 w-3" />
+                </button>
+              </div>
             </div>
+
+            {/* Thumbnail strip */}
+            {total > 1 && (
+              <div className="flex gap-1 mt-2.5">
+                {gallery.slice(0, 6).map((src, i) => (
+                  <button key={i} onClick={() => { goTo(i); pause(); setTimeout(resume, AUTO_INTERVAL); }}
+                    className="h-[36px] flex-1 rounded-lg overflow-hidden transition-all duration-400"
+                    style={{
+                      opacity: i === activeImage ? 1 : 0.22,
+                      boxShadow: i === activeImage ? '0 0 0 1.5px rgba(255,255,255,0.7)' : 'none',
+                      transform: i === activeImage ? 'translateY(-1px)' : 'none',
+                    }}>
+                    <img src={src} alt="" className="h-full w-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Recommendation strip — same column width, integrated feel */}
+            {(alternatives.length > 0 || related.length > 0) && (
+              <FlipCard items={[...alternatives, ...related].slice(0, 5)} de={de} formatPrice={formatPrice} />
+            )}
           </div>
 
-          {/* ── RICH CONTENT ── */}
-          {rc && (
-            <div className="pb-20" style={{ borderTop: '1px solid var(--bd2)' }}>
+          {/* Number rail */}
+          {total > 1 && (
+            <div className="absolute right-6 xl:right-10 top-1/2 -translate-y-1/2 z-20 flex flex-col gap-3">
+              {gallery.map((_, i) => (
+                <button key={i} onClick={() => { goTo(i); pause(); setTimeout(resume, AUTO_INTERVAL); }}
+                  className="num text-[12px] tabular-nums transition-all duration-300"
+                  style={{
+                    color: i === activeImage ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.48)',
+                    fontWeight: i === activeImage ? 700 : 500,
+                    textShadow: '0 1px 8px rgba(0,0,0,0.7)',
+                    letterSpacing: '0.05em',
+                  }}>
+                  {String(i + 1).padStart(2, '0')}
+                </button>
+              ))}
+            </div>
+          )}
 
-              {isChain && rc.hook && (
-                <p className="text-[15px] leading-[1.8] max-w-2xl pt-10" style={{ color: 'var(--txm)' }}>{rc.hook}</p>
-              )}
+          {/* Scroll hint */}
+          <button onClick={scrollToDetails}
+            className="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-1 transition-opacity hover:opacity-80"
+            aria-label={de ? 'Mehr erfahren' : 'Learn more'}>
+            <span className="text-[8px] uppercase tracking-[0.25em] font-semibold" style={{ color: 'rgba(255,255,255,0.5)', textShadow: '0 1px 6px rgba(0,0,0,0.4)' }}>
+              {de ? 'Mehr erfahren' : 'Learn more'}
+            </span>
+            <ChevronDown className="h-3.5 w-3.5 pdp-bounce" style={{ color: 'rgba(255,255,255,0.4)', filter: 'drop-shadow(0 1px 4px rgba(0,0,0,0.3))' }} />
+          </button>
+        </section>
 
-              {/* Stats — single container, internal dividers */}
-              <div className="mt-10 rounded-2xl overflow-hidden" style={{ border: '1px solid var(--bd2)', background: 'var(--bd2)' }}>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-px">
-                  {rc.stats.map((s, i) => (
-                    <div
-                      key={i}
-                      className="px-4 py-5 sm:px-5 sm:py-6"
-                      style={{ background: 'var(--pg)' }}
-                    >
-                      <div className="text-lg sm:text-[22px] font-bold tabular-nums text-wx-tx1 leading-none mb-1.5">{s.value}</div>
-                      <div className="text-[11px] leading-snug" style={{ color: 'var(--tx2)' }}>{s.label}</div>
-                      {s.sub && <div className="text-[10px] text-wx-txff mt-1 leading-snug">{s.sub}</div>}
+        {/* Buy-bar scroll trigger */}
+        <div ref={buyRef} className="h-0" />
+
+        {/* ══════════════════════════════════════════════════════════════
+            BELOW FOLD — Specs + Deep dive (all sizes)
+           ══════════════════════════════════════════════════════════════ */}
+        <section ref={detailRef} style={{ background: 'var(--pg)' }}>
+          <div className="max-w-6xl mx-auto px-5 sm:px-8 py-14 sm:py-20">
+            <div className="grid lg:grid-cols-[1fr_1.15fr] gap-8 lg:gap-12">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.22em] mb-3"
+                  style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
+                  {de ? 'Spezifikationen' : 'Specifications'}
+                </p>
+                <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--bd)' }}>
+                  {specsData.map((spec, i, arr) => (
+                    <div key={i} className="flex items-baseline justify-between px-4 py-3"
+                      style={{ borderBottom: i < arr.length - 1 ? '1px solid var(--bd)' : 'none', background: i % 2 === 0 ? 'var(--sf2)' : 'var(--pg)' }}>
+                      <span className="text-[10px] uppercase tracking-[0.14em]"
+                        style={{ fontFamily: "'IBM Plex Mono', ui-monospace, monospace", color: 'var(--txff)' }}>
+                        {spec.l}
+                      </span>
+                      <span className="text-[13px] font-medium" style={{ color: 'var(--tx1)' }}>
+                        {spec.v}
+                      </span>
                     </div>
                   ))}
                 </div>
+                {isClassic && (
+                  <p className="text-[12px] mt-4" style={{ color: 'var(--txff)' }}>
+                    {de ? 'Regen / Winter? ' : 'Rain / winter? '}
+                    <Link to={`/produkt/${product.weight === '500g' ? 'wax-500-mos2' : 'wax-300-mos2'}`}
+                      className="hover:underline" style={{ color: accentColor }}>
+                      Pro MoS₂ →
+                    </Link>
+                  </p>
+                )}
               </div>
 
-              {/* Chain spec table */}
-              {isChain && rc.chainSpec && (
-                <div className="mt-10">
-                  <SectionHeading>{de ? 'Technische Daten' : 'Technical specs'}</SectionHeading>
-                  <div style={{ borderTop: '1px solid var(--bd2)' }}>
-                    {Object.entries(rc.chainSpec).map(([key, val]) => (
-                      <div key={key} className="flex gap-4 py-3 text-sm"
-                        style={{ borderBottom: '1px solid var(--bd2)' }}>
-                        <span className="text-wx-txff w-32 flex-shrink-0 text-xs">{key}</span>
-                        <span style={{ color: 'var(--txm)' }}>{val}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* WAX — tabbed */}
-              {isWax && tabs.length > 0 && (
-                <div className="mt-10">
-
-                  {/* Underline tabs */}
-                  <div className="flex gap-7 mb-8" style={{ borderBottom: '1px solid var(--bd2)' }}>
-                    {tabs.map(tab => (
-                      <button
-                        key={tab.key}
-                        onClick={() => setRichTab(tab.key)}
-                        className="pb-3.5 text-sm font-medium transition-colors relative"
-                        style={{ color: richTab === tab.key ? 'var(--tx1)' : 'var(--txm)' }}
-                      >
-                        {tab.label}
-                        {richTab === tab.key && (
-                          <span
-                            className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
-                            style={{ background: accentColor }}
-                          />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Formel */}
-                  {richTab === 'formula' && rc.formulaDetails && (
-                    <div>
-                      {rc.formulaDetails.map((f, i) => (
-                        <div key={i} className="flex gap-5 py-5" style={{ borderBottom: '1px solid var(--bd2)' }}>
-                          <span
-                            className="text-[13px] font-bold tabular-nums flex-shrink-0 mt-0.5"
-                            style={{ color: accentColor, minWidth: '22px' }}
-                          >
-                            {String(i + 1).padStart(2, '0')}
-                          </span>
-                          <div>
-                            <div className="text-sm font-semibold text-wx-tx1 mb-1">{f.name}</div>
-                            <div className="text-sm leading-relaxed" style={{ color: 'var(--txm)' }}>{f.detail}</div>
-                          </div>
+              {rc && (isWax ? (hasFormula || hasVergleich || hasKosten) : true) && (
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.22em] mb-3"
+                    style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
+                    {de ? 'Im Detail' : 'Deep dive'}
+                  </p>
+                  {rc.hook && isChain && <p className="text-[13px] leading-[1.7] mb-3" style={{ color: 'var(--txm)' }}>{rc.hook}</p>}
+                  <div className="space-y-2.5">
+                    {hasFormula && rc.formulaDetails && (
+                      <AccordionItem title={de ? 'Formel & Inhaltsstoffe' : 'Formula & Ingredients'}
+                        subtitle={rc.formulaDetails.map(f => f.name).join(' · ')}
+                        open={openAccordion === 'formula'} onToggle={() => toggleAccordion('formula')}>
+                        <div className="space-y-3">
+                          {rc.formulaDetails.map((f, i) => (
+                            <div key={i} className="flex gap-3">
+                              <span className="num text-[18px] font-bold leading-none flex-shrink-0 w-6 pt-0.5" style={{ color: 'var(--bd2)' }}>
+                                {String(i + 1).padStart(2, '0')}
+                              </span>
+                              <div>
+                                <p className="text-[13px] font-semibold mb-0.5" style={{ color: 'var(--tx1)' }}>{f.name}</p>
+                                <p className="text-[12px] leading-[1.65]" style={{ color: 'var(--txm)' }}>{f.detail}</p>
+                              </div>
+                            </div>
+                          ))}
+                          {rc.techNote && (
+                            <div className="rounded-lg p-3 mt-2" style={{ background: accentBg }}>
+                              <p className="text-[9px] font-semibold uppercase tracking-[0.16em] mb-1" style={{ color: accentColor }}>{rc.techNote.title}</p>
+                              <p className="text-[11px] leading-[1.65]" style={{ color: 'var(--txm)' }}>{rc.techNote.body}</p>
+                            </div>
+                          )}
                         </div>
-                      ))}
-                      {rc.techNote && (
-                        <div
-                          className="mt-6 rounded-xl p-5"
-                          style={{ background: `${accentColor}0A`, border: `1px solid ${accentColor}25` }}
-                        >
-                          <div className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: accentColor }}>
-                            {rc.techNote.title}
-                          </div>
-                          <p className="text-sm leading-relaxed" style={{ color: 'var(--tx2)' }}>{rc.techNote.body}</p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Vergleich */}
-                  {richTab === 'vergleich' && rc.compHeaders && rc.compRows && (
-                    <div className="space-y-5">
-                      <div className="overflow-x-auto rounded-xl" style={{ border: '1px solid var(--bd2)' }}>
-                        <div style={{ minWidth: '420px' }}>
-                          <div
-                            className="grid text-[10px] font-semibold uppercase tracking-wider text-wx-txf px-4 py-3"
-                            style={{ gridTemplateColumns: `1.6fr repeat(${rc.compHeaders.length}, 1fr)`, borderBottom: '1px solid var(--bd2)' }}
-                          >
+                      </AccordionItem>
+                    )}
+                    {hasVergleich && rc.compHeaders && rc.compRows && (
+                      <AccordionItem title={de ? 'Vergleich' : 'Comparison'}
+                        subtitle={rc.compHeaders.join(' vs. ')}
+                        open={openAccordion === 'vergleich'} onToggle={() => toggleAccordion('vergleich')}>
+                        <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--bd)' }}>
+                          <div className="grid text-[9px] font-semibold uppercase tracking-wider px-3 py-2.5"
+                            style={{ gridTemplateColumns: `1.4fr repeat(${rc.compHeaders.length}, 1fr)`, background: 'var(--sf2)', borderBottom: '1px solid var(--bd)', color: 'var(--txff)' }}>
                             <span />
                             {rc.compHeaders.map((h, i) => (
-                              <span key={i} className="text-center leading-tight whitespace-nowrap">
-                                {h.replace('Waxcelerate ', '').replace('-Heißwachs', '').replace('Heißwachs', '')}
+                              <span key={i} className="text-center leading-tight text-[8.5px]">
+                                {h.replace('Waxcelerate ', '').replace('-Heißwachs', '')}
                               </span>
                             ))}
                           </div>
                           {rc.compRows.map((row, ri) => (
-                            <div
-                              key={ri}
-                              className="grid px-4 py-3"
-                              style={{ gridTemplateColumns: `1.6fr repeat(${rc.compHeaders!.length}, 1fr)`, borderBottom: '1px solid var(--bd2)' }}
-                            >
-                              <span className="text-wx-txm text-xs whitespace-nowrap pr-3">{row.label}</span>
+                            <div key={ri} className="grid px-3 py-2.5 text-[11px]"
+                              style={{ gridTemplateColumns: `1.4fr repeat(${rc.compHeaders!.length}, 1fr)`, borderBottom: ri < rc.compRows!.length - 1 ? '1px solid var(--bd)' : 'none' }}>
+                              <span style={{ color: 'var(--txm)' }}>{row.label}</span>
                               {row.cols.map((col, ci) => (
-                                <span key={ci} className="text-center text-xs font-medium" style={{
-                                  color: ci === row.winCol ? accentColor
-                                    : row.dimCols?.includes(ci) ? 'var(--txff)'
-                                    : 'var(--tx2)',
-                                }}>{col}</span>
+                                <span key={ci} className="text-center font-medium"
+                                  style={{ color: ci === row.winCol ? accentColor : row.dimCols?.includes(ci) ? 'var(--txff)' : 'var(--tx2)' }}>
+                                  {col}
+                                </span>
                               ))}
                             </div>
                           ))}
                         </div>
-                      </div>
-                      {rc.compFootnote && (
-                        <p className="text-[11px] text-wx-txff px-1">{rc.compFootnote}</p>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Kosten */}
-                  {richTab === 'kosten' && rc.oilItems && rc.waxItems && (
-                    <div className="space-y-4">
-                      <div className="rounded-xl p-4" style={{ background: 'var(--sf3)', border: '1px solid var(--bd2)' }}>
-                        <p className="text-xs font-semibold uppercase tracking-[0.14em] mb-1.5" style={{ color: 'var(--txff)' }}>
-                          {de ? 'Szenario' : 'Scenario'}
-                        </p>
-                        {rc.costExample && (
-                          <p className="text-sm font-medium text-wx-tx1 mb-1">{rc.costExample}</p>
-                        )}
-                        {rc.costNote && (
-                          <p className="text-[12px] leading-relaxed" style={{ color: 'var(--txm)' }}>{rc.costNote}</p>
-                        )}
-                      </div>
-
-                      <div className="grid sm:grid-cols-2 gap-3">
-                        <div className="rounded-xl p-4" style={{ border: '1px solid var(--bd2)' }}>
-                          <div className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--txm)' }}>
-                            {rc.oilCount ? `${rc.oilCount} ${rc.oilLabel}` : de ? 'Mit Kettenöl' : 'With chain oil'}
-                          </div>
-                          <div className="space-y-2 mb-4">
-                            {rc.oilItems.map((item, i) => (
-                              <div key={i} className="flex justify-between text-sm">
-                                <span style={{ color: 'var(--txm)' }}>{item.label}</span>
-                                <span className="font-mono" style={{ color: 'var(--tx2)' }}>{item.cost}</span>
-                              </div>
-                            ))}
-                          </div>
-                          <div className="pt-3 flex justify-between items-baseline" style={{ borderTop: '1px solid var(--bd2)' }}>
-                            <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--txm)' }}>{de ? 'Gesamt' : 'Total'}</span>
-                            <span className="text-[18px] font-bold font-mono" style={{ color: 'var(--txm)' }}>{rc.oilTotal}</span>
-                          </div>
-                        </div>
-
-                        <div className="rounded-xl p-4" style={{ border: `1px solid ${accentColor}30`, background: `${accentColor}06` }}>
-                          <div className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: accentColor }}>
-                            {rc.waxCount ? `${rc.waxCount} ${rc.waxLabel}` : de ? 'Mit Waxcelerate' : 'With Waxcelerate'}
-                          </div>
-                          <div className="space-y-2 mb-4">
-                            {rc.waxItems.map((item, i) => (
-                              <div key={i} className="flex justify-between text-sm">
-                                <span style={{ color: 'var(--txm)' }}>{item.label}</span>
-                                <span className="font-mono" style={{ color: 'var(--tx2)' }}>{item.cost}</span>
-                              </div>
-                            ))}
-                          </div>
-                          <div className="pt-3 flex justify-between items-baseline" style={{ borderTop: `1px solid ${accentColor}20` }}>
-                            <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: accentColor }}>{de ? 'Gesamt' : 'Total'}</span>
-                            <span className="text-[18px] font-bold font-mono text-wx-tx1">{rc.waxTotal}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {rc.savings && (
-                        <div
-                          className="rounded-xl p-4 flex items-center justify-between gap-4"
-                          style={{ background: `${accentColor}0A`, border: `1px solid ${accentColor}30` }}
-                        >
-                          <div>
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] mb-0.5" style={{ color: accentColor }}>
-                              {de ? 'Ersparnis über ~12.000 km' : 'Savings over ~12,000 km'}
-                            </p>
-                            <p className="text-xs" style={{ color: 'var(--txm)' }}>
-                              {de
-                                ? 'Weniger Kettenverschleiß, seltener Kassettenwechsel — nicht eingerechnet.'
-                                : 'Reduced chain and cassette wear not included.'}
-                            </p>
-                          </div>
-                          <span className="font-display text-[26px] font-bold flex-shrink-0 tabular-nums" style={{ color: accentColor }}>
-                            {rc.savings}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* 300g nudge */}
-              {isWax && product.weight === '300g' && (
-                <div className="mt-8 rounded-xl p-4 flex items-start gap-3" style={{ background: 'var(--sf3)', border: '1px solid var(--bd2)' }}>
-                  <Lightbulb className="h-4 w-4 flex-shrink-0 mt-0.5" style={{ color: accentColor }} />
-                  <div>
-                    <p className="text-sm" style={{ color: 'var(--txm)' }}>
-                      {de
-                        ? 'Fährst du mehr als einmal pro Woche? Der 500g-Block ist günstiger pro Anwendung.'
-                        : 'Riding more than once a week? The 500g block works out cheaper per application.'}
-                    </p>
-                    <Link
-                      to={`/produkt/${product.variant === 'pro' ? 'wax-500-mos2' : 'wax-500'}`}
-                      className="inline-flex items-center gap-1 mt-1.5 text-xs hover:underline"
-                      style={{ color: accentColor }}
-                    >
-                      {de ? '500g ansehen' : 'View 500g'} <ChevronRight className="h-3 w-3" />
-                    </Link>
-                  </div>
-                </div>
-              )}
-
-              {/* Chain V9 */}
-              {isChain && rc.processSteps && rc.v9Bullets && (
-                <div className="mt-8 rounded-xl overflow-hidden" style={{ border: '1px solid var(--bd2)' }}>
-                  <button
-                    onClick={() => setV9Expanded(v => !v)}
-                    className="w-full flex items-center justify-between px-5 py-4 text-left"
-                  >
-                    <div>
-                      <span className="text-sm font-medium text-wx-tx1">
-                        {de ? 'Wachsprozess & V9 MoS₂ Formulierung' : 'Wax process & V9 MoS₂ formula'}
-                      </span>
-                      {!v9Expanded && (
-                        <p className="text-xs text-wx-txff mt-0.5">
-                          {de ? 'Ultraschall-Entfettung · MoS₂-Transferfilm · V9-Entwicklung' : 'Ultrasonic degreasing · MoS₂ transfer film · V9 development'}
-                        </p>
-                      )}
-                    </div>
-                    <ChevronDown
-                      className="h-4 w-4 flex-shrink-0 transition-transform duration-200"
-                      style={{ color: 'var(--txff)', transform: v9Expanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
-                    />
-                  </button>
-                  <div
-                    className="grid transition-[grid-template-rows] duration-[250ms] ease-in-out"
-                    style={{ gridTemplateRows: v9Expanded ? '1fr' : '0fr' }}
-                  >
-                    <div className="overflow-hidden">
-                      <div className="px-5 pb-5 space-y-6" style={{ borderTop: '1px solid var(--bd2)' }}>
-                        <div className="pt-5">
-                          <p className="text-xs font-semibold uppercase tracking-widest text-wx-txff mb-3">
-                            {de ? 'Unser Wachsprozess' : 'Our waxing process'}
-                          </p>
-                          <div style={{ borderTop: '1px solid var(--bd2)' }}>
-                            {rc.processSteps.map(step => (
-                              <div key={step.n} className="flex gap-4 py-4" style={{ borderBottom: '1px solid var(--bd2)' }}>
-                                <span className="flex-shrink-0 w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center"
-                                  style={{ background: accentBg, color: accentColor }}>{step.n}</span>
-                                <div>
-                                  <div className="text-sm font-semibold text-wx-tx1 mb-1">{step.title}</div>
-                                  <div className="text-sm leading-relaxed" style={{ color: 'var(--txm)' }}>{step.body}</div>
+                      </AccordionItem>
+                    )}
+                    {hasKosten && rc.oilItems && rc.waxItems && (
+                      <AccordionItem title={de ? 'Kostenvergleich' : 'Cost comparison'}
+                        subtitle={rc.savings ? `${de ? 'Ersparnis' : 'Savings'}: ${rc.savings}` : ''}
+                        open={openAccordion === 'kosten'} onToggle={() => toggleAccordion('kosten')}>
+                        <div className="space-y-3">
+                          {rc.costExample && <p className="text-[12px] leading-relaxed mb-2" style={{ color: 'var(--txm)' }}>{rc.costExample}</p>}
+                          <div className="grid grid-cols-2 gap-2.5">
+                            <div className="rounded-lg p-3" style={{ background: 'var(--sf2)', border: '1px solid var(--bd)' }}>
+                              <p className="text-[9px] font-semibold uppercase tracking-[0.14em] mb-2" style={{ color: 'var(--txff)' }}>
+                                {rc.oilCount ? `${rc.oilCount} ${rc.oilLabel}` : de ? 'Kettenöl' : 'Chain oil'}
+                              </p>
+                              {rc.oilItems.map((item, i) => (
+                                <div key={i} className="flex justify-between text-[11px] py-1" style={{ borderBottom: '1px solid var(--bd)' }}>
+                                  <span style={{ color: 'var(--txm)' }}>{item.label}</span>
+                                  <span className="font-mono text-[10px]" style={{ color: 'var(--tx2)' }}>{item.cost}</span>
                                 </div>
+                              ))}
+                              <div className="flex justify-between items-baseline pt-2 mt-1">
+                                <span className="text-[9px] font-semibold uppercase" style={{ color: 'var(--txff)' }}>{de ? 'Gesamt' : 'Total'}</span>
+                                <span className="num text-[16px] font-bold" style={{ color: 'var(--txm)' }}>{rc.oilTotal}</span>
                               </div>
-                            ))}
-                          </div>
-                          {rc.processNote && (
-                            <p className="text-xs text-wx-txff mt-3 leading-relaxed">{rc.processNote}</p>
-                          )}
-                        </div>
-                        {rc.v9Intro && (
-                          <div className="pl-4" style={{ borderLeft: `2px solid ${accentColor}` }}>
-                            <div className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: accentColor }}>
-                              Waxcelerate V9 MoS₂
                             </div>
-                            <p className="text-sm leading-relaxed" style={{ color: 'var(--txm)' }}>{rc.v9Intro}</p>
-                          </div>
-                        )}
-                        <div>
-                          <p className="text-xs font-semibold uppercase tracking-widest text-wx-txff mb-3">
-                            {de ? 'Warum V9 MoS₂?' : 'Why V9 MoS₂?'}
-                          </p>
-                          <div style={{ borderTop: '1px solid var(--bd2)' }}>
-                            {rc.v9Bullets.map((b, i) => (
-                              <div key={i} className="flex gap-4 py-4" style={{ borderBottom: '1px solid var(--bd2)' }}>
-                                <Check className="h-4 w-4 flex-shrink-0 mt-0.5" style={{ color: accentColor }} />
-                                <div>
-                                  <div className="text-sm font-semibold text-wx-tx1 mb-1">{b.title}</div>
-                                  <div className="text-sm leading-relaxed" style={{ color: 'var(--txm)' }}>{b.body}</div>
+                            <div className="rounded-lg p-3" style={{ background: accentBg, border: `1px solid ${cardAccent}18` }}>
+                              <p className="text-[9px] font-semibold uppercase tracking-[0.14em] mb-2" style={{ color: cardAccent }}>
+                                {rc.waxCount ? `${rc.waxCount} ${rc.waxLabel}` : 'Waxcelerate'}
+                              </p>
+                              {rc.waxItems.map((item, i) => (
+                                <div key={i} className="flex justify-between text-[11px] py-1" style={{ borderBottom: `1px solid ${cardAccent}12` }}>
+                                  <span style={{ color: 'var(--txm)' }}>{item.label}</span>
+                                  <span className="font-mono text-[10px]" style={{ color: 'var(--tx2)' }}>{item.cost}</span>
                                 </div>
+                              ))}
+                              <div className="flex justify-between items-baseline pt-2 mt-1">
+                                <span className="text-[9px] font-semibold uppercase" style={{ color: cardAccent }}>{de ? 'Gesamt' : 'Total'}</span>
+                                <span className="num text-[16px] font-bold" style={{ color: 'var(--tx1)' }}>{rc.waxTotal}</span>
                               </div>
-                            ))}
+                            </div>
                           </div>
-                          {rc.v9Note && (
-                            <p className="mt-5 pl-4 text-sm leading-relaxed"
-                              style={{ borderLeft: `2px solid ${accentColor}`, color: 'var(--txm)' }}>
-                              {rc.v9Note}
-                            </p>
+                          {rc.savings && (
+                            <div className="rounded-lg p-3 flex items-center justify-between gap-3" style={{ background: accentBg }}>
+                              <p className="text-[11px]" style={{ color: 'var(--txm)' }}>{de ? 'Ersparnis ~12.000 km' : 'Savings ~12,000 km'}</p>
+                              <span className="num text-[20px] font-bold flex-shrink-0" style={{ color: accentColor }}>{rc.savings}</span>
+                            </div>
                           )}
                         </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Chain comparison */}
-              {isChain && rc.chainCompRows && (
-                <div className="mt-8">
-                  <SectionHeading>{de ? 'Vorgewachst vs. Kettenöl' : 'Pre-waxed vs. chain oil'}</SectionHeading>
-                  <div>
-                    <div className="grid grid-cols-3 text-[11px] font-semibold uppercase tracking-wider text-wx-txf py-3"
-                      style={{ borderBottom: '1px solid var(--bd2)' }}>
-                      <span />
-                      <span className="text-center" style={{ color: accentColor }}>{de ? 'Vorgewachst' : 'Pre-waxed'}</span>
-                      <span className="text-center text-wx-txff">{de ? 'Kettenöl' : 'Chain oil'}</span>
-                    </div>
-                    {rc.chainCompRows.map((row, ri) => (
-                      <div key={ri} className="grid grid-cols-3 py-3" style={{ borderBottom: '1px solid var(--bd2)' }}>
-                        <span className="text-wx-txf text-xs">{row.label}</span>
-                        <span className="text-center text-xs font-medium" style={{ color: accentColor }}>{row.good}</span>
-                        <span className="text-center text-xs text-wx-txff">{row.bad}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {isChain && rc.proTip && (
-                <div className="mt-8 pl-4" style={{ borderLeft: `2px solid ${accentColor}` }}>
-                  <div className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: accentColor }}>
-                    {de ? 'Pro-Tipp' : 'Pro tip'}
-                  </div>
-                  <p className="text-sm leading-relaxed" style={{ color: 'var(--txm)' }}>{rc.proTip}</p>
-                </div>
-              )}
-
-              {/* Compat tags */}
-              {rc.compatTags && rc.compatTags.length > 0 && (
-                <div className="mt-8">
-                  <SectionHeading>{de ? 'Kompatibilität' : 'Compatibility'}</SectionHeading>
-                  <div className="space-y-2">
-                    <div className="flex flex-wrap gap-1.5">
-                      {rc.compatTags[0].map(tag => (
-                        <span key={tag} className="text-xs px-2.5 py-1 rounded-full text-wx-tx2"
-                          style={{ background: 'var(--sf3)', border: '1px solid var(--bd2)' }}>
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                    {rc.compatTags.length > 1 && (
+                      </AccordionItem>
+                    )}
+                    {rc && isChain && (
                       <>
-                        {compatExpanded && rc.compatTags.slice(1).map((group, gi) => (
-                          <div key={gi} className="flex flex-wrap gap-1.5">
-                            {group.map(tag => (
-                              <span key={tag} className="text-xs px-2.5 py-1 rounded-full text-wx-txm"
-                                style={{ border: '1px solid var(--bd2)', background: 'var(--sf3)' }}>
-                                {tag}
-                              </span>
-                            ))}
+                        {rc.chainSpec && (
+                          <AccordionItem title={de ? 'Technische Daten' : 'Technical specs'} subtitle="" open={openAccordion === 'chainspec'} onToggle={() => toggleAccordion('chainspec')}>
+                            <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--bd)' }}>
+                              {Object.entries(rc.chainSpec).map(([key, val], i, arr) => (
+                                <div key={key} className="flex gap-4 px-3 py-2.5 text-[11px]"
+                                  style={{ borderBottom: i < arr.length - 1 ? '1px solid var(--bd)' : 'none', background: i % 2 === 0 ? 'var(--sf2)' : 'var(--pg)' }}>
+                                  <span className="w-28 flex-shrink-0" style={{ color: 'var(--txff)' }}>{key}</span>
+                                  <span style={{ color: 'var(--txm)' }}>{val}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </AccordionItem>
+                        )}
+                        {rc.processSteps && rc.v9Bullets && (
+                          <AccordionItem title={de ? 'Wachsprozess & V9 MoS₂' : 'Wax process & V9 MoS₂'} subtitle={de ? 'Ultraschall · MoS₂-Transferfilm' : 'Ultrasonic · MoS₂ transfer film'} open={openAccordion === 'v9'} onToggle={() => toggleAccordion('v9')}>
+                            <div className="space-y-4">
+                              {rc.processSteps.map(step => (
+                                <div key={step.n} className="flex gap-3">
+                                  <span className="flex-shrink-0 w-6 h-6 rounded-full text-[10px] font-bold flex items-center justify-center" style={{ background: accentBg, color: accentColor }}>{step.n}</span>
+                                  <div>
+                                    <p className="text-[12px] font-semibold mb-0.5" style={{ color: 'var(--tx1)' }}>{step.title}</p>
+                                    <p className="text-[11px] leading-relaxed" style={{ color: 'var(--txm)' }}>{step.body}</p>
+                                  </div>
+                                </div>
+                              ))}
+                              {rc.v9Bullets.map((b, i) => (
+                                <div key={i} className="flex gap-2.5">
+                                  <Check className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" style={{ color: accentColor }} />
+                                  <div>
+                                    <p className="text-[12px] font-semibold mb-0.5" style={{ color: 'var(--tx1)' }}>{b.title}</p>
+                                    <p className="text-[11px] leading-relaxed" style={{ color: 'var(--txm)' }}>{b.body}</p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </AccordionItem>
+                        )}
+                        {rc.chainCompRows && (
+                          <AccordionItem title={de ? 'Vorgewachst vs. Kettenöl' : 'Pre-waxed vs. chain oil'} subtitle="" open={openAccordion === 'chaincomp'} onToggle={() => toggleAccordion('chaincomp')}>
+                            <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--bd)' }}>
+                              <div className="grid grid-cols-3 text-[9px] font-semibold uppercase tracking-wider px-3 py-2" style={{ borderBottom: '1px solid var(--bd)', background: 'var(--sf2)' }}>
+                                <span /><span className="text-center" style={{ color: accentColor }}>{de ? 'Vorgewachst' : 'Pre-waxed'}</span><span className="text-center" style={{ color: 'var(--txff)' }}>{de ? 'Kettenöl' : 'Chain oil'}</span>
+                              </div>
+                              {rc.chainCompRows.map((row, ri) => (
+                                <div key={ri} className="grid grid-cols-3 px-3 py-2 text-[11px]" style={{ borderBottom: '1px solid var(--bd)' }}>
+                                  <span style={{ color: 'var(--txm)' }}>{row.label}</span>
+                                  <span className="text-center font-medium" style={{ color: accentColor }}>{row.good}</span>
+                                  <span className="text-center" style={{ color: 'var(--txff)' }}>{row.bad}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </AccordionItem>
+                        )}
+                        {rc.proTip && (
+                          <div className="pl-3 mt-3" style={{ borderLeft: `2px solid ${accentColor}` }}>
+                            <p className="text-[9px] font-semibold uppercase tracking-[0.16em] mb-1" style={{ color: accentColor }}>{de ? 'Pro-Tipp' : 'Pro tip'}</p>
+                            <p className="text-[12px] leading-relaxed" style={{ color: 'var(--txm)' }}>{rc.proTip}</p>
                           </div>
-                        ))}
-                        <button onClick={() => setCompatExpanded(v => !v)}
-                          className="text-xs mt-1" style={{ color: accentColor }}>
-                          {compatExpanded ? (de ? 'Weniger anzeigen' : 'Show less') : (de ? '+ alle anzeigen' : '+ show all')}
-                        </button>
+                        )}
                       </>
                     )}
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+        </section>
 
-              {/* Reviews */}
-              {rc.reviewCount > 0 && (
-                <div className="mt-8 py-4" style={{ borderTop: '1px solid var(--bd2)', borderBottom: '1px solid var(--bd2)' }}>
-                  <div className="flex items-center justify-between gap-3 mb-1.5">
-                    <div className="flex items-center gap-1.5">
-                      <div className="flex items-center gap-0.5">
-                        {[0, 1, 2, 3, 4].map(i => (
-                          <Star key={i} className="h-3.5 w-3.5 fill-current" style={{ color: 'var(--accent-soft)' }} />
-                        ))}
-                      </div>
-                      <span className="text-sm font-semibold text-wx-tx1">
-                        {rc.reviewCount}+ {de ? 'Bewertungen' : 'reviews'}
-                      </span>
+        {/* ── Trust ── */}
+        {rc && (
+          <section style={{ background: 'var(--sf2)' }}>
+            <div className="max-w-6xl mx-auto px-5 sm:px-8 py-14 sm:py-20">
+              <div className="grid lg:grid-cols-2 gap-10 lg:gap-16">
+                {rc.reviewCount > 0 && (
+                  <div>
+                    <div className="flex items-center gap-0.5 mb-1.5">
+                      {[0, 1, 2, 3, 4].map(i => <Star key={i} className="h-4 w-4 fill-current" style={{ color: '#F5A623' }} />)}
                     </div>
-                    <a href={product.ebayUrl} target="_blank" rel="noopener noreferrer"
-                      className="text-xs flex items-center gap-1 flex-shrink-0" style={{ color: accentColor }}>
-                      {de ? 'Alle' : 'All'} <ExternalLink className="h-3 w-3" />
+                    <p className="font-display text-[28px] font-bold leading-none tracking-[-0.02em] mb-1" style={{ color: 'var(--tx1)' }}>{rc.reviewCount}+</p>
+                    <p className="text-[13px] mb-0.5" style={{ color: 'var(--txm)' }}>{de ? 'verifizierte Bewertungen' : 'verified reviews'}</p>
+                    {rc.reviewCats && <p className="text-[11px] mb-3" style={{ color: 'var(--txff)' }}>{rc.reviewCats}</p>}
+                    <a href={product.ebayUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[12px] font-medium hover:underline" style={{ color: accentColor }}>
+                      {de ? 'Alle Bewertungen ansehen' : 'See all reviews'} <ExternalLink className="h-3 w-3" />
                     </a>
                   </div>
-                  {rc.reviewCats && <p className="text-[11px] text-wx-txff">{rc.reviewCats}</p>}
-                </div>
-              )}
-
-              {rc.footerNote && (
-                <p className="mt-8 text-xs text-wx-txff leading-relaxed pt-6" style={{ borderTop: '1px solid var(--bd2)' }}>
-                  {rc.footerNote}
-                </p>
-              )}
-
-              {/* Final CTA */}
-              <a
-                href={product.ebayUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-8 flex items-center justify-center gap-2 w-full py-4 rounded-full text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.99]"
-                style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
-              >
-                {de ? 'Jetzt bei eBay kaufen' : 'Buy now on eBay'} — {formatPrice(product.price)}
-                <ExternalLink className="h-3.5 w-3.5" />
-              </a>
+                )}
+                {rc.compatTags && rc.compatTags.length > 0 && (
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.22em] mb-2" style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>{de ? 'Kompatibilität' : 'Compatibility'}</p>
+                    <h3 className="font-display text-[17px] font-bold tracking-[-0.02em] mb-4" style={{ color: 'var(--tx1)' }}>
+                      {de ? 'Funktioniert mit allen großen Marken' : 'Works with all major brands'}
+                    </h3>
+                    <div className="flex flex-wrap gap-1.5">
+                      {rc.compatTags[0].map(tag => (
+                        <span key={tag} className="text-[11px] px-2.5 py-1 rounded-full font-medium" style={{ color: 'var(--tx2)', background: 'var(--pg)', border: '1px solid var(--bd)' }}>{tag}</span>
+                      ))}
+                    </div>
+                    {rc.compatTags.length > 1 && (
+                      <>
+                        {compatExpanded && rc.compatTags.slice(1).map((group, gi) => (
+                          <div key={gi} className="flex flex-wrap gap-1.5 mt-1.5">
+                            {group.map(tag => <span key={tag} className="text-[10px] px-2 py-0.5 rounded-full" style={{ color: 'var(--txm)', background: 'var(--pg)', border: '1px solid var(--bd)' }}>{tag}</span>)}
+                          </div>
+                        ))}
+                        <button onClick={() => setCompatExpanded(v => !v)} className="text-[11px] mt-2 font-medium" style={{ color: accentColor }}>
+                          {compatExpanded ? (de ? 'Weniger' : 'Less') : (de ? '+ alle anzeigen' : '+ show all')}
+                        </button>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+              {rc.footerNote && <p className="mt-12 text-[11px] leading-relaxed pt-5" style={{ borderTop: '1px solid var(--bd)', color: 'var(--txff)' }}>{rc.footerNote}</p>}
             </div>
-          )}
-          {/* ── RELATED PRODUCTS ── */}
-          {related.length > 0 && (
-            <section className="mt-16 pt-10" style={{ borderTop: '1px solid var(--bd)' }}>
-              <h2 className="font-display text-2xl sm:text-[1.7rem] text-wx-tx1 mb-6">
-                {de ? 'Passend dazu' : 'You might also like'}
-              </h2>
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5">
+          </section>
+        )}
+
+        {/* ── CTA ── */}
+        <section style={{ background: 'var(--pg)' }}>
+          <div className="max-w-5xl mx-auto px-5 sm:px-8 py-12 sm:py-16 text-center">
+            {isWax && product.weight === '300g' && (
+              <div className="rounded-xl p-4 flex items-start gap-3 text-left mb-8 max-w-xl mx-auto" style={{ background: 'var(--sf2)', border: '1px solid var(--bd)' }}>
+                <Lightbulb className="h-4 w-4 flex-shrink-0 mt-0.5" style={{ color: accentColor }} />
+                <div>
+                  <p className="text-[13px]" style={{ color: 'var(--txm)' }}>{de ? 'Fährst du mehr als einmal pro Woche? Der 500g-Block ist günstiger pro Anwendung.' : 'Riding more than once a week? The 500g block works out cheaper per application.'}</p>
+                  <Link to={`/produkt/${product.variant === 'pro' ? 'wax-500-mos2' : 'wax-500'}`} className="inline-flex items-center gap-1 mt-1.5 text-[12px] font-medium hover:underline" style={{ color: accentColor }}>
+                    {de ? '500g ansehen' : 'View 500g'} <ChevronRight className="h-3 w-3" />
+                  </Link>
+                </div>
+              </div>
+            )}
+            <h2 className="font-display text-[22px] sm:text-[28px] font-bold mb-5 tracking-[-0.025em]" style={{ color: 'var(--tx1)' }}>{titleText}</h2>
+            <a href={product.ebayUrl} target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-9 py-3.5 rounded-full text-[14px] font-semibold transition-all duration-300 hover:scale-[1.03] active:scale-[0.97]"
+              style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}>
+              {de ? 'Jetzt kaufen' : 'Buy now'} — {formatPrice(product.price)} <ExternalLink className="h-4 w-4" />
+            </a>
+          </div>
+        </section>
+
+        {/* ── Related ── */}
+        {related.length > 0 && (
+          <section style={{ background: 'var(--sf2)', borderTop: '1px solid var(--bd)' }}>
+            <div className="max-w-6xl mx-auto px-5 sm:px-8 py-14 sm:py-20">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] mb-2" style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>{de ? 'Weitere Produkte' : 'More products'}</p>
+              <h2 className="font-display text-[18px] sm:text-[22px] font-bold tracking-[-0.02em] mb-8" style={{ color: 'var(--tx1)' }}>{de ? 'Passend dazu' : 'You might also like'}</h2>
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
                 {related.map(p => <RelatedCard key={p.id} product={p} de={de} formatPrice={formatPrice} />)}
               </div>
-            </section>
-          )}
-
-        </div>
+            </div>
+          </section>
+        )}
       </div>
 
-      {/* Sticky buy-bar — slides up once the hero purchase block is out of view */}
-      <div
-        className={`fixed bottom-0 inset-x-0 z-50 ${showBuyBar ? 'translate-y-0' : 'translate-y-full'}`}
-        style={{
-          background: 'var(--nav-bg)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
-          borderTop: '1px solid var(--bd)', boxShadow: '0 -8px 30px rgba(0,0,0,0.10)',
-          transition: 'transform 320ms cubic-bezier(0.22,1,0.36,1)',
-        }}
-        aria-hidden={!showBuyBar}
-      >
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-2.5 flex items-center gap-3 sm:gap-4">
-          <img
-            src={gallery[0]} alt=""
-            className="w-11 h-11 rounded-xl object-cover flex-shrink-0 hidden sm:block"
-            style={{ border: '1px solid var(--bd2)' }}
-            onError={e => { (e.target as HTMLImageElement).src = '/images/products/wax-block-spin.png'; }}
-          />
+      {/* Sticky buy-bar */}
+      <div className={`fixed bottom-0 inset-x-0 z-50 ${showBuyBar ? 'translate-y-0' : 'translate-y-full'}`}
+        style={{ background: 'var(--nav-bg)', backdropFilter: 'blur(12px)', borderTop: '1px solid var(--bd)', boxShadow: '0 -4px 20px rgba(0,0,0,0.06)', transition: 'transform 320ms cubic-bezier(0.22,1,0.36,1)' }}
+        aria-hidden={!showBuyBar}>
+        <div className="max-w-5xl mx-auto px-5 sm:px-8 py-2.5 flex items-center gap-4">
+          <img src={gallery[0]} alt="" className="w-10 h-10 rounded-xl object-cover flex-shrink-0 hidden sm:block" style={{ border: '1px solid var(--bd)' }}
+            onError={e => { (e.target as HTMLImageElement).src = '/images/products/wax-block-spin.png'; }} />
           <div className="min-w-0 flex-1">
-            <p className="text-[13px] font-semibold text-wx-tx1 leading-tight truncate">{titleText}</p>
-            <p className="num text-[15px] font-bold text-wx-tx1 leading-none mt-0.5">{formatPrice(product.price)}</p>
+            <p className="text-[13px] font-semibold leading-tight truncate" style={{ color: 'var(--tx1)' }}>{titleText}</p>
+            <p className="num text-[15px] font-bold leading-none mt-0.5" style={{ color: 'var(--tx1)' }}>{formatPrice(product.price)}</p>
           </div>
-          {canCheckout(product) ? (
-            <div className="flex-shrink-0"><AddToCartButton product={product} size="sm" /></div>
-          ) : (
-            <a
-              href={product.ebayUrl} target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-5 py-2.5 rounded-full text-[13px] font-semibold flex-shrink-0 transition-all hover:opacity-90 active:scale-[0.97]"
-              style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
-            >
-              {de ? 'Bei eBay kaufen' : 'Buy on eBay'}
-              <ExternalLink className="h-3.5 w-3.5" />
+          {canCheckout(product) ? <div className="flex-shrink-0"><AddToCartButton product={product} size="sm" /></div> : (
+            <a href={product.ebayUrl} target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-5 py-2.5 rounded-full text-[13px] font-semibold flex-shrink-0 active:scale-[0.97]"
+              style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}>
+              {de ? 'Kaufen' : 'Buy'} <ExternalLink className="h-3.5 w-3.5" />
             </a>
           )}
         </div>
       </div>
 
-      {lightboxOpen && (
-        <ImageLightbox
-          images={gallery}
-          activeIndex={activeImage}
-          onClose={() => setLightboxOpen(false)}
-          onChange={(i) => setActiveImage(i)}
-        />
-      )}
+      {lightboxOpen && <ImageLightbox images={gallery} activeIndex={activeImage} onClose={() => setLightboxOpen(false)} onChange={(i) => setActiveImage(i)} />}
+
+      <style>{`
+        @keyframes pdp-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+        @keyframes pdp-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
+        .pdp-bounce { animation: pdp-float 2.5s ease-in-out infinite; }
+        .pdp-card-scroll { scrollbar-width: thin; scrollbar-color: rgba(0,0,0,0.06) transparent; }
+        .pdp-card-scroll::-webkit-scrollbar { width: 3px; }
+        .pdp-card-scroll::-webkit-scrollbar-track { background: transparent; }
+        .pdp-card-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.08); border-radius: 3px; }
+      `}</style>
     </>
   );
 }
 
-// ── Sub-components ──────────────────────────────────────────────────────────
+/* ── Recommendation strip (desktop hero, inside card column) ── */
+function FlipCard({ items, de, formatPrice }: { items: Product[]; de: boolean; formatPrice: (n: number) => string }) {
+  const [active, setActive] = useState(0);
+  const count = items.length;
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-function AccordionItem({
-  title, preview, open, onToggle, children,
-}: {
-  title: string;
-  preview?: string;
-  open: boolean;
-  onToggle: () => void;
-  children: React.ReactNode;
+  const go = useCallback((dir: number) => {
+    setActive(p => (p + dir + count) % count);
+  }, [count]);
+
+  const startCycle = useCallback(() => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => go(1), 3000);
+  }, [go]);
+
+  const stopCycle = useCallback(() => {
+    if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
+  }, []);
+
+  useEffect(() => () => stopCycle(), [stopCycle]);
+
+  if (count === 0) return null;
+
+  const p = items[active];
+  const title = de ? p.title : p.titleEn;
+  const short = title.replace('Kettenwachs ', '').replace('Chain Wax ', '');
+  const isChainItem = p.category === 'chain';
+  const label = isChainItem
+    ? (de ? 'Passende Kette' : 'Matching chain')
+    : (de ? 'Auch erhältlich' : 'Also available');
+
+  const linkContent = (
+    <div className="flex items-center gap-3 flex-1 min-w-0 py-2.5 px-1 transition-opacity hover:opacity-90">
+      <img src={p.image} alt={title}
+        className="w-14 h-14 rounded-xl object-cover flex-shrink-0"
+        style={{ objectPosition: p.imagePosition ?? 'center', boxShadow: '0 2px 8px -2px rgba(0,0,0,0.3)' }} />
+      <div className="min-w-0 flex-1">
+        <p className="text-[8px] uppercase tracking-[0.14em] font-semibold mb-0.5"
+          style={{ color: 'rgba(255,255,255,0.3)' }}>
+          {label}
+        </p>
+        <p className="text-[13px] font-semibold truncate leading-tight"
+          style={{ color: 'rgba(255,255,255,0.85)' }}>
+          {short}
+        </p>
+        <p className="num text-[13px] font-bold mt-0.5"
+          style={{ color: 'rgba(255,255,255,0.5)' }}>
+          {formatPrice(p.price)}
+        </p>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="mt-2.5 rounded-2xl overflow-hidden"
+      onMouseEnter={startCycle} onMouseLeave={stopCycle}
+      style={{
+        background: 'rgba(255,255,255,0.07)',
+        backdropFilter: 'blur(24px) saturate(1.3)',
+        WebkitBackdropFilter: 'blur(24px) saturate(1.3)',
+        border: '1px solid rgba(255,255,255,0.08)',
+        boxShadow: '0 8px 32px -8px rgba(0,0,0,0.25)',
+      }}>
+      <div className="flex items-center gap-0.5 px-2">
+        <button onClick={() => go(-1)}
+          className="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-full transition-all hover:bg-white/10"
+          style={{ color: 'rgba(255,255,255,0.35)' }}
+          aria-label={de ? 'Vorheriges' : 'Previous'}>
+          <ChevronLeft className="h-3.5 w-3.5" />
+        </button>
+
+        {p.category === 'wax' ? (
+          <Link to={`/produkt/${p.id}`} className="flex-1 min-w-0">
+            {linkContent}
+          </Link>
+        ) : (
+          <a href={p.ebayUrl} target="_blank" rel="noopener noreferrer" className="flex-1 min-w-0">
+            {linkContent}
+          </a>
+        )}
+
+        <button onClick={() => go(1)}
+          className="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-full transition-all hover:bg-white/10"
+          style={{ color: 'rgba(255,255,255,0.35)' }}
+          aria-label={de ? 'Nächstes' : 'Next'}>
+          <ChevronRight className="h-3.5 w-3.5" />
+        </button>
+      </div>
+
+      {/* Progress dots */}
+      <div className="flex justify-center gap-1 pb-2">
+        {items.map((_, i) => (
+          <button key={i} onClick={() => setActive(i)}
+            className="h-[2px] rounded-full transition-all duration-300"
+            style={{
+              width: i === active ? 14 : 4,
+              background: i === active ? 'rgba(255,255,255,0.55)' : 'rgba(255,255,255,0.12)',
+            }}
+            aria-label={`Product ${i + 1}`} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ── Alternative mini-card (mobile) ── */
+function AltMiniCard({ product: p, de, formatPrice }: { product: Product; de: boolean; formatPrice: (n: number) => string }) {
+  const title = de ? p.title : p.titleEn;
+  const shortTitle = title.replace('Kettenwachs ', '').replace('Chain Wax ', '');
+  const isChainItem = p.category === 'chain';
+  const label = isChainItem ? (de ? 'Kette' : 'Chain') : '';
+
+  const inner = (
+    <div className="group w-[140px] rounded-xl overflow-hidden snap-start transition-all duration-300 active:scale-[0.97]"
+      style={{
+        background: 'var(--card-bg)',
+        border: '1px solid var(--bd)',
+        boxShadow: '0 2px 8px -2px rgba(0,0,0,0.06)',
+      }}>
+      <div className="relative aspect-[4/3] overflow-hidden" style={{ background: 'var(--sf2)' }}>
+        <img src={p.image} alt={title}
+          className="h-full w-full object-cover"
+          style={{ objectPosition: p.imagePosition ?? 'center' }} />
+        {label && (
+          <span className="absolute top-1.5 left-1.5 text-[7px] font-semibold uppercase tracking-[0.12em] px-1.5 py-0.5 rounded-md"
+            style={{ background: 'rgba(0,0,0,0.5)', color: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(6px)' }}>
+            {label}
+          </span>
+        )}
+      </div>
+      <div className="px-2.5 py-2">
+        <p className="text-[11px] font-semibold leading-tight truncate" style={{ color: 'var(--tx1)' }}>{shortTitle}</p>
+        <p className="num text-[11px] mt-0.5" style={{ color: 'var(--txff)' }}>{formatPrice(p.price)}</p>
+      </div>
+    </div>
+  );
+
+  if (p.category === 'wax') return <Link to={`/produkt/${p.id}`} className="block flex-shrink-0">{inner}</Link>;
+  return <a href={p.ebayUrl} target="_blank" rel="noopener noreferrer" className="block flex-shrink-0">{inner}</a>;
+}
+
+/* ── Accordion ── */
+function AccordionItem({ title, subtitle, open, onToggle, children }: {
+  title: string; subtitle: string; open: boolean; onToggle: () => void; children: React.ReactNode;
 }) {
   return (
-    <div style={{ borderBottom: '1px solid var(--bd2)' }}>
-      <button
-        onClick={onToggle}
-        className="w-full flex items-start justify-between py-3.5 text-left gap-3"
-      >
+    <div className="rounded-xl overflow-hidden transition-shadow duration-300"
+      style={{ border: '1px solid var(--bd)', background: 'var(--pg)', boxShadow: open ? '0 2px 8px rgba(0,0,0,0.04)' : 'none' }}>
+      <button onClick={onToggle} className="w-full flex items-center justify-between gap-3 px-4 py-3.5 text-left">
         <div className="min-w-0">
-          <span className="text-sm font-medium text-wx-tx1 block">{title}</span>
-          {preview && !open && (
-            <span className="text-[12px] mt-0.5 block truncate" style={{ color: 'var(--txff)' }}>
-              {preview}
-            </span>
-          )}
+          <p className="text-[13px] font-semibold leading-tight" style={{ color: 'var(--tx1)' }}>{title}</p>
+          {subtitle && !open && <p className="text-[11px] mt-0.5 truncate" style={{ color: 'var(--txff)' }}>{subtitle}</p>}
         </div>
-        <ChevronDown
-          className="h-4 w-4 flex-shrink-0 transition-transform duration-200 mt-0.5"
-          style={{ color: 'var(--txff)', transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
-        />
+        <ChevronDown className="h-4 w-4 flex-shrink-0 transition-transform duration-200"
+          style={{ color: 'var(--txff)', transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }} />
       </button>
-      <div
-        className="grid transition-[grid-template-rows] duration-200 ease-in-out"
-        style={{ gridTemplateRows: open ? '1fr' : '0fr' }}
-      >
+      <div className="grid transition-[grid-template-rows] duration-[280ms] ease-in-out" style={{ gridTemplateRows: open ? '1fr' : '0fr' }}>
         <div className="overflow-hidden">
-          <div className="pb-4">{children}</div>
+          <div className="px-4 pb-4" style={{ borderTop: '1px solid var(--bd)' }}>
+            <div className="pt-3">{children}</div>
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-function SectionHeading({ children }: { children: React.ReactNode }) {
-  return (
-    <h3 className="text-xs font-semibold uppercase tracking-widest text-wx-txff mb-4">{children}</h3>
-  );
-}
-
-function SpecRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex flex-col gap-0.5 py-2.5" style={{ borderTop: '1px solid var(--bd2)' }}>
-      <span className="text-[10px] uppercase tracking-wide" style={{ fontFamily: "'IBM Plex Mono', ui-monospace, monospace", color: 'var(--txff)' }}>{label}</span>
-      <span className="text-[13px] font-medium" style={{ color: 'var(--tx2)' }}>{value}</span>
-    </div>
-  );
-}
-
+/* ── Related card ── */
 function RelatedCard({ product: p, de, formatPrice }: { product: Product; de: boolean; formatPrice: (n: number) => string }) {
   const title = de ? p.title : p.titleEn;
   const desc = de ? p.description : p.descriptionEn;
   const isWax = p.category === 'wax';
-  const eyebrow = isWax
-    ? [p.variant, p.weight].filter(Boolean).join(' · ').toUpperCase()
-    : (p.chainSpeed ?? (de ? 'Kette' : 'Chain')).toUpperCase();
+  const eyebrow = isWax ? [p.variant, p.weight].filter(Boolean).join(' · ').toUpperCase() : (p.chainSpeed ?? (de ? 'Kette' : 'Chain')).toUpperCase();
 
-  const cardInner = (
-    <div
-      className="related-card group relative flex h-full flex-col overflow-hidden rounded-2xl"
-      style={{ background: 'var(--card-bg)', border: '1px solid var(--bd)', boxShadow: 'var(--card-shad)' }}
-    >
-      {/* Image */}
+  const inner = (
+    <div className="group flex h-full flex-col overflow-hidden rounded-xl transition-shadow duration-300 hover:shadow-md"
+      style={{ background: 'var(--card-bg)', border: '1px solid var(--bd)' }}>
       <div className="relative aspect-[4/3] overflow-hidden" style={{ background: 'var(--sf2)' }}>
-        <img
-          src={p.image}
-          alt={title}
-          loading="lazy"
-          className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.05]"
-          style={{ objectPosition: p.imagePosition ?? 'center' }}
-          onError={e => { (e.target as HTMLImageElement).src = '/images/products/wax-block-spin.png'; }}
-        />
+        <img src={p.image} alt={title} loading="lazy"
+          className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+          style={{ objectPosition: p.imagePosition ?? 'center' }} />
       </div>
-      {/* Body */}
-      <div className="flex flex-1 flex-col p-3.5 sm:p-4">
-        <span className="text-[9.5px] font-semibold uppercase tracking-[0.16em]"
-          style={{ color: 'var(--accent-soft)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
-          {eyebrow}
-        </span>
-        <p className="font-display mt-1.5 text-[15px] leading-snug text-wx-tx1 sm:text-[16px]">{title}</p>
-        <p className="mt-1.5 hidden text-[12px] leading-relaxed sm:block"
-          style={{ color: 'var(--txm)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-          {desc}
-        </p>
-        <div className="mt-auto flex items-center justify-between pt-3.5">
-          <span className="num text-[15px] font-semibold text-wx-tx1">{formatPrice(p.price)}</span>
-          <span className="inline-flex h-8 w-8 items-center justify-center rounded-full transition-colors duration-300 group-hover:bg-[var(--accent-soft)] group-hover:text-white"
-            style={{ border: '1px solid var(--bd)', color: 'var(--accent-soft)' }} aria-hidden>
-            {isWax
-              ? <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5" />
-              : <ExternalLink className="h-3.5 w-3.5" />}
+      <div className="flex flex-1 flex-col p-3.5">
+        <span className="text-[9px] font-semibold uppercase tracking-[0.16em]" style={{ color: 'var(--accent-soft)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>{eyebrow}</span>
+        <p className="font-display mt-1 text-[14px] leading-snug" style={{ color: 'var(--tx1)' }}>{title}</p>
+        <p className="mt-1 text-[11px] leading-relaxed line-clamp-2 hidden sm:block" style={{ color: 'var(--txm)' }}>{desc}</p>
+        <div className="mt-auto flex items-center justify-between pt-3">
+          <span className="num text-[14px] font-semibold" style={{ color: 'var(--tx1)' }}>{formatPrice(p.price)}</span>
+          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full transition-colors group-hover:bg-[var(--accent-soft)] group-hover:text-white"
+            style={{ border: '1px solid var(--bd)', color: 'var(--accent-soft)' }}>
+            {isWax ? <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" /> : <ExternalLink className="h-3 w-3" />}
           </span>
         </div>
       </div>
     </div>
   );
 
-  if (isWax) return <Link to={`/produkt/${p.id}`} className="block h-full">{cardInner}</Link>;
-  return <a href={p.ebayUrl} target="_blank" rel="noopener noreferrer" className="block h-full">{cardInner}</a>;
+  if (isWax) return <Link to={`/produkt/${p.id}`} className="block h-full">{inner}</Link>;
+  return <a href={p.ebayUrl} target="_blank" rel="noopener noreferrer" className="block h-full">{inner}</a>;
 }
