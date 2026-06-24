@@ -217,11 +217,11 @@ export function Hero() {
               style={{
                 fontFamily: '"Libre Franklin", ui-sans-serif, system-ui, sans-serif',
                 fontWeight: 800,
-                fontSize: 'clamp(2.6rem, 10.5vw, 10.5rem)',
+                fontSize: 'clamp(2.5rem, 11.5vw, 12rem)',
                 lineHeight: 0.88,
-                letterSpacing: '-0.02em',
-                color: 'rgba(255,255,255,0.88)',
-                textShadow: '0 2px 40px rgba(0,0,0,0.3)',
+                letterSpacing: '-0.025em',
+                color: 'rgba(255,255,255,0.92)',
+                textShadow: '0 4px 60px rgba(0,0,0,0.35), 0 1px 3px rgba(0,0,0,0.2)',
               }}
             >
               {BRAND.map((ch, i) => (
@@ -244,14 +244,14 @@ export function Hero() {
           <div ref={cubeAnimRef} className="relative will-change-transform">
             <div className="relative overflow-hidden"
                  style={{
-                   borderRadius: 'clamp(20px, 3vw, 36px)',
-                   boxShadow: '0 50px 80px rgba(0,0,0,0.45), 0 20px 30px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.06)',
+                   borderRadius: 'clamp(24px, 4vw, 44px)',
+                   boxShadow: '0 50px 80px rgba(0,0,0,0.50), 0 20px 30px rgba(0,0,0,0.30), 0 0 60px rgba(61,103,202,0.12), 0 0 0 1px rgba(255,255,255,0.08)',
                  }}>
               <img
                 src="/images/hero/wax-hero.jpg"
                 alt={de ? 'Waxcelerate Heißwachs-Block' : 'Waxcelerate hot wax block'}
                 className="block w-full h-auto"
-                style={{ aspectRatio: '1 / 1', objectFit: 'cover', objectPosition: 'center 40%' }}
+                style={{ aspectRatio: '12 / 13', objectFit: 'cover', objectPosition: 'center 35%' }}
                 fetchPriority="high"
               />
               {/* Subtle gloss overlay */}
@@ -293,15 +293,15 @@ export function Hero() {
               <div data-hero className="flex items-center gap-3.5 mb-5">
                 <span style={{ width: '28px', height: '2px', background: '#3D67CA' }} />
                 <p className="text-[10.5px] sm:text-[11.5px] uppercase font-semibold"
-                   style={{ letterSpacing: '0.28em', color: 'rgba(255,255,255,0.50)' }}>
+                   style={{ letterSpacing: '0.28em', color: 'rgba(255,255,255,0.58)' }}>
                   {t.hero.subtitle}
                 </p>
               </div>
 
               {/* Headline */}
               <h1 className="font-display" style={{
-                fontSize: 'clamp(2.6rem, 5.2vw, 4.8rem)', lineHeight: 0.96,
-                letterSpacing: '-0.028em', fontWeight: 600, color: '#fff',
+                fontSize: 'clamp(2.8rem, 5.5vw, 5rem)', lineHeight: 0.94,
+                letterSpacing: '-0.03em', fontWeight: 700, color: '#fff',
               }}>
                 <span className="block" style={{ paddingBottom: '0.06em' }}>
                   {t.hero.headline.split(' ').map((w, i) => (
@@ -324,7 +324,7 @@ export function Hero() {
 
               {/* Benefit line */}
               <p data-hero className="mt-5 max-w-[26rem] leading-[1.65]"
-                 style={{ fontSize: 'clamp(0.94rem, 1.35vw, 1.05rem)', color: 'rgba(255,255,255,0.58)' }}>
+                 style={{ fontSize: 'clamp(0.94rem, 1.35vw, 1.05rem)', color: 'rgba(255,255,255,0.65)' }}>
                 {t.hero.tagline}
               </p>
 
@@ -356,7 +356,7 @@ export function Hero() {
                 data-hero
                 onClick={() => setDiveOpen(true)}
                 className="group mt-5 inline-flex items-center gap-2 text-[12.5px] font-medium transition-opacity hover:opacity-80"
-                style={{ color: 'rgba(255,255,255,0.40)' }}
+                style={{ color: 'rgba(255,255,255,0.48)' }}
               >
                 <Search className="h-3.5 w-3.5" />
                 <span style={{ textDecoration: 'underline', textUnderlineOffset: '4px', textDecorationColor: 'rgba(61,103,202,0.5)' }}>
@@ -375,11 +375,11 @@ export function Hero() {
               <div className="flex items-center gap-3 order-2 sm:order-1">
                 <span style={{ color: '#4A7AE8', letterSpacing: '0.06em', fontSize: '12px' }}>★★★★★</span>
                 <span className="text-[8.5px] sm:text-[10.5px] uppercase"
-                      style={{ fontFamily: MONO, letterSpacing: '0.08em', color: 'rgba(255,255,255,0.38)' }}>
+                      style={{ fontFamily: MONO, letterSpacing: '0.08em', color: 'rgba(255,255,255,0.45)' }}>
                   200+ · {de ? '100 % positiv' : '100% positive'} · {de ? 'eBay-Käuferschutz' : 'eBay buyer protection'}
                 </span>
               </div>
-              <div className="flex items-stretch gap-1 order-1 sm:order-2">
+              <div className="flex items-stretch gap-0 order-1 sm:order-2">
                 {stats.map((s, i) => (
                   <div key={i} className="px-2.5 sm:px-7 first:pl-0 last:pr-0"
                        style={{ borderLeft: i > 0 ? '1px solid rgba(255,255,255,0.10)' : 'none' }}>
@@ -388,7 +388,7 @@ export function Hero() {
                       {s.v}
                     </p>
                     <p className="text-[8px] sm:text-[9.5px] uppercase mt-1.5 sm:mt-2 leading-tight max-w-[10ch] sm:max-w-none sm:whitespace-nowrap"
-                       style={{ fontFamily: MONO, letterSpacing: '0.06em', color: 'rgba(255,255,255,0.35)' }}>
+                       style={{ fontFamily: MONO, letterSpacing: '0.06em', color: 'rgba(255,255,255,0.42)' }}>
                       {s.l}
                     </p>
                   </div>
