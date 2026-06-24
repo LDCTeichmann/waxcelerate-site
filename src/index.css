@@ -258,11 +258,7 @@
    (1,1,1) beats the #home rule above (1,0,1). */
 #home.hero-editorial h1, #home.hero-editorial h2,
 #home.hero-editorial h3, #home.hero-editorial h4 {
-  color: var(--tx1) !important;
-}
-.noir #home.hero-editorial h1, .noir #home.hero-editorial h2,
-.noir #home.hero-editorial h3, .noir #home.hero-editorial h4 {
-  color: #FAFAFA !important;
+  color: #fff !important;
 }
 
 /* Editorial hero — feines Film-Grain über der Bühne (Material/Wärme, high-end). */
@@ -276,26 +272,26 @@
 /* Editorial hero — Bühnen-Hintergrund. Light: warmes Off-White-Radial.
    Noir: dunkle Bühne, damit Wortmarke/Headline (in Noir hell) lesbar bleiben. */
 .hero-stage {
-  background: linear-gradient(177deg, #FCFCFD 0%, #F4F4F6 100%);
+  background: #0a0c12;
 }
 .noir .hero-stage {
-  background: linear-gradient(177deg, #161619 0%, #0E0E11 100%);
+  background: #0a0c12;
 }
 /* Top-Fade — hält die transparente Nav über dem full-bleed Hero lesbar
    (hellt die Kette unter der Leiste auf; über der hellen Zone unsichtbar). */
 .hero-topfade {
-  background: linear-gradient(to bottom, rgba(245,245,246,0.85) 0%, rgba(245,245,246,0.50) 30%, rgba(245,245,246,0) 100%);
+  background: linear-gradient(to bottom, rgba(10,12,18,0.50) 0%, rgba(10,12,18,0.25) 40%, transparent 100%);
 }
 .noir .hero-topfade {
-  background: linear-gradient(to bottom, #0B0B0E 0%, rgba(11,11,14,0.62) 42%, rgba(11,11,14,0) 100%);
+  background: linear-gradient(to bottom, rgba(10,12,18,0.50) 0%, rgba(10,12,18,0.25) 40%, transparent 100%);
 }
 
 /* Frosted-Footer — Kette verläuft am Fuß in die Bühnenfarbe (lesbares Band) */
 .hero-footer-fade {
-  background: linear-gradient(to top, #F2F2F4 4%, rgba(242,242,244,0.92) 34%, rgba(242,242,244,0) 100%);
+  background: linear-gradient(to top, rgba(10,12,18,0.60) 4%, rgba(10,12,18,0.30) 34%, transparent 100%);
 }
 .noir .hero-footer-fade {
-  background: linear-gradient(to top, #0B0B0E 4%, rgba(11,11,14,0.92) 34%, rgba(11,11,14,0) 100%);
+  background: linear-gradient(to top, rgba(10,12,18,0.60) 4%, rgba(10,12,18,0.30) 34%, transparent 100%);
 }
 
 /* Editorial light hero — responsive Ketten-Panel-Clip.
