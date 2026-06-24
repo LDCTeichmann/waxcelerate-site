@@ -256,18 +256,12 @@ interface CardProps {
 
 // ── Wax Card ───────────────────────────────────────────────────────────────
 
-const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deliveryDate, multiDiscount }: CardProps) {
+const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deliveryDate }: CardProps) {
   const isPro = product.variant === 'pro';
   const title = de ? product.title : product.titleEn;
   const badge = de ? product.badge : product.badgeEn;
   const desc = de ? product.description : product.descriptionEn;
   const featured = product.badge === 'Empfohlen' || product.badgeEn === 'Recommended';
-
-  // Mono "instrument" specs — the same readout language as the detail page.
-  const specs = [
-    { l: de ? 'Reichweite' : 'Range', v: product.intervalDry },
-    { l: de ? 'Anwendungen' : 'Applications', v: product.applications },
-  ].filter(s => s.v);
 
   const grams = product.weight ? parseInt(product.weight) : 0;
   const per100 = grams > 0 ? `${(product.price / (grams / 100)).toFixed(2).replace('.', ',')} €/100g` : null;
@@ -284,7 +278,7 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deli
         }}
       >
         {/* Image */}
-        <div className="relative overflow-hidden rounded-t-2xl aspect-[3/2] flex-shrink-0">
+        <div className="relative overflow-hidden rounded-t-2xl aspect-[16/9] flex-shrink-0">
           <img
             src={product.image}
             alt={title}
@@ -293,16 +287,15 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deli
             style={{ objectPosition: product.imagePosition ?? 'center 55%' }}
             onError={e => { (e.target as HTMLImageElement).src = '/images/products/wax-block-spin.png'; }}
           />
-          {/* Badges */}
-          <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2">
+          <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between gap-2">
             <span className="wx-badge"
-              style={{ background: 'rgba(8,11,18,0.50)', color: 'rgba(224,234,255,0.95)', border: '1px solid rgba(255,255,255,0.16)', backdropFilter: 'blur(6px)' }}>
-              {isPro ? 'Pro' : 'Classic'} · {product.weight}
+              style={{ background: 'rgba(8,11,18,0.55)', color: 'rgba(224,234,255,0.95)', border: '1px solid rgba(255,255,255,0.16)', backdropFilter: 'blur(6px)' }}>
+              {isPro ? 'PRO' : 'CLASSIC'} · {product.weight}
             </span>
             {badge && (
               <span className="wx-badge" style={featured
                 ? { background: 'var(--brand-blue)', color: '#fff', border: '1px solid var(--brand-blue)', boxShadow: '0 3px 12px rgba(46,120,200,0.40)' }
-                : { background: 'rgba(8,11,18,0.50)', color: 'rgba(255,255,255,0.92)', border: '1px solid rgba(255,255,255,0.18)', backdropFilter: 'blur(6px)' }}>
+                : { background: 'rgba(8,11,18,0.55)', color: 'rgba(255,255,255,0.92)', border: '1px solid rgba(255,255,255,0.18)', backdropFilter: 'blur(6px)' }}>
                 {badge}
               </span>
             )}
@@ -310,35 +303,36 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deli
         </div>
 
         {/* Content */}
-        <div className="px-5 pt-4 pb-5 flex flex-col flex-1">
-          <h3 className="font-display text-[19px] font-bold text-wx-tx1 leading-tight tracking-[-0.02em] mb-1.5">
+        <div className="px-4 pt-3.5 pb-4 flex flex-col flex-1">
+          <h3 className="font-display text-[17px] font-bold text-wx-tx1 leading-tight tracking-[-0.02em]">
             {title}
           </h3>
-          <p className="text-[13px] leading-relaxed line-clamp-2 flex-1" style={{ color: 'var(--txm)' }}>
+          <p className="text-[12px] leading-relaxed line-clamp-1 mt-1" style={{ color: 'var(--txm)' }}>
             {desc}
           </p>
 
-          {/* Instrument spec strip — mono readout, like the detail page */}
-          {specs.length > 0 && (
-            <div className="grid grid-cols-2 mt-4 mb-4">
-              {specs.map((s, i) => (
-                <div key={s.l} className={i > 0 ? 'pl-4' : 'pr-4'}
-                  style={i > 0 ? { borderLeft: '1px solid var(--bd2)' } : undefined}>
-                  <p className="text-[9px] uppercase" style={{ fontFamily: MONO, letterSpacing: '0.14em', color: 'var(--txf)' }}>{s.l}</p>
-                  <p className="text-[13px] mt-1 tabular-nums" style={{ fontFamily: MONO, color: 'var(--tx1)' }}>{s.v}</p>
-                </div>
-              ))}
-            </div>
-          )}
+          {/* Specs — inline pills */}
+          <div className="flex items-center gap-2 mt-3 flex-wrap">
+            {product.intervalDry && (
+              <span className="text-[10.5px] px-2 py-0.5 rounded-md tabular-nums" style={{ fontFamily: MONO, background: 'var(--sf2)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
+                {product.intervalDry}
+              </span>
+            )}
+            {product.applications && (
+              <span className="text-[10.5px] px-2 py-0.5 rounded-md tabular-nums" style={{ fontFamily: MONO, background: 'var(--sf2)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
+                {product.applications} {de ? 'Anw.' : 'uses'}
+              </span>
+            )}
+          </div>
 
           {/* Price + CTA */}
-          <div className="flex items-end justify-between gap-3 pt-4" style={{ borderTop: '1px solid var(--bd2)' }}>
+          <div className="flex items-center justify-between gap-3 mt-auto pt-3">
             <div>
               <span className="num text-[22px] font-bold leading-none tracking-[-0.02em]" style={{ color: 'var(--tx1)' }}>
                 {formatPrice(product.price)}
               </span>
               {per100 && (
-                <p className="text-[10.5px] mt-1.5 tabular-nums" style={{ fontFamily: MONO, color: 'var(--txf)' }}>{per100}</p>
+                <p className="text-[10px] mt-1 tabular-nums" style={{ fontFamily: MONO, color: 'var(--txf)' }}>{per100}</p>
               )}
             </div>
             {canCheckout(product) ? (
@@ -364,33 +358,26 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deli
             )}
           </div>
 
-          {/* Trust signals */}
-          <div className="mt-3 space-y-1.5">
+          {/* Trust signals — compact row */}
+          <div className="flex items-center flex-wrap gap-x-3 gap-y-1 mt-2.5 pt-2.5" style={{ borderTop: '1px solid var(--bd2)' }}>
             {product.unitsSold != null && product.unitsSold > 0 && (
-              <div className="flex items-center gap-1.5">
-                <TrendingUp className="h-3 w-3 flex-shrink-0" style={{ color: 'var(--accent-soft)' }} />
-                <span className="text-[11px] font-medium" style={{ color: 'var(--tx2)' }}>
-                  {product.unitsSold}+ {de ? 'verkauft' : 'sold'}
-                </span>
-              </div>
+              <span className="flex items-center gap-1 text-[10.5px] font-medium" style={{ color: 'var(--tx2)' }}>
+                <TrendingUp className="h-3 w-3" style={{ color: 'var(--accent-soft)' }} />
+                {product.unitsSold}+ {de ? 'verkauft' : 'sold'}
+              </span>
             )}
             {deliveryDate && (
-              <div className="flex items-center gap-1.5">
-                <Truck className="h-3 w-3 flex-shrink-0" style={{ color: 'var(--txf)' }} />
-                <span className="text-[11px] tabular-nums" style={{ fontFamily: MONO, color: 'var(--txm)' }}>
-                  <span style={{ color: '#16a34a', fontFamily: 'inherit' }}>{de ? 'Gratis' : 'Free'}</span>
-                  {' '}{de ? 'Lieferung' : 'delivery'} · {deliveryDate}
-                </span>
-              </div>
+              <span className="flex items-center gap-1 text-[10.5px]" style={{ color: 'var(--txm)' }}>
+                <Truck className="h-3 w-3" style={{ color: 'var(--txf)' }} />
+                <span style={{ color: '#16a34a' }}>{de ? 'Gratis' : 'Free'}</span>
+                {' '}{de ? 'Lieferung' : 'delivery'} · {deliveryDate}
+              </span>
             )}
-            {multiDiscount && (
-              <div className="flex items-center gap-1.5">
-                <Package className="h-3 w-3 flex-shrink-0" style={{ color: 'var(--txf)' }} />
-                <span className="text-[11px]" style={{ color: 'var(--txm)' }}>
-                  {de ? 'Bis 15% sparen bei Mehrkauf' : 'Up to 15% off on multi-buy'}
-                </span>
-              </div>
-            )}</div>
+            <span className="flex items-center gap-1 text-[10.5px]" style={{ color: 'var(--txm)' }}>
+              <Package className="h-3 w-3" style={{ color: 'var(--txf)' }} />
+              {de ? 'Bis 15% sparen bei Mehrkauf' : 'Up to 15% off on multi-buy'}
+            </span>
+          </div>
         </div>
       </Link>
     </div>
@@ -400,9 +387,7 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deli
 // ── Chain Card ─────────────────────────────────────────────────────────────
 
 const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }: CardProps) {
-  const accent = 'var(--accent-soft)'; // used for badge border/text only
   const badge = de ? product.badge : product.badgeEn;
-
   const brand = product.chainBrand ?? '';
   const model = product.chainModel ?? '';
   const speed = product.chainSpeed ?? '';
@@ -421,7 +406,7 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
         }}
       >
         {/* Image */}
-        <div className="relative overflow-hidden rounded-t-2xl aspect-[16/9] flex-shrink-0">
+        <div className="relative overflow-hidden rounded-t-2xl aspect-[2/1] flex-shrink-0">
           <img
             src={product.image}
             alt={title}
@@ -429,19 +414,14 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
             onError={e => { (e.target as HTMLImageElement).src = '/images/products/wax-block-spin.png'; }}
           />
-          <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to top, var(--card-img-fade) 0%, transparent 55%)' }} />
           <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between gap-2">
-            <span
-              className="wx-badge"
-              style={{ background: 'rgba(0,0,0,0.60)', color: 'rgba(160,200,255,0.95)', border: '1px solid rgba(100,160,255,0.35)', backdropFilter: 'blur(4px)' }}
-            >
+            <span className="wx-badge"
+              style={{ background: 'rgba(0,0,0,0.60)', color: 'rgba(160,200,255,0.95)', border: '1px solid rgba(100,160,255,0.35)', backdropFilter: 'blur(4px)' }}>
               {speed}
             </span>
             {badge && (
-              <span
-                className="wx-badge"
-                style={{ background: 'rgba(0,0,0,0.60)', color: 'rgba(255,255,255,0.92)', border: '1px solid rgba(255,255,255,0.20)', backdropFilter: 'blur(4px)' }}
-              >
+              <span className="wx-badge"
+                style={{ background: 'rgba(0,0,0,0.60)', color: 'rgba(255,255,255,0.92)', border: '1px solid rgba(255,255,255,0.20)', backdropFilter: 'blur(4px)' }}>
                 {badge}
               </span>
             )}
@@ -449,31 +429,28 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
         </div>
 
         {/* Content */}
-        <div className="px-4 pt-3 pb-3 flex flex-col flex-1">
-          {/* Brand + model */}
-          <div className="mb-3 flex-1">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] mb-0.5" style={{ color: accent }}>{brand}</p>
-            <h3 className="text-[15px] font-bold text-wx-tx1 leading-snug tracking-[-0.02em]">{model}</h3>
-          </div>
+        <div className="px-4 pt-3 pb-3.5 flex flex-col flex-1">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: 'var(--accent-soft)' }}>{brand}</p>
+          <h3 className="text-[15px] font-bold text-wx-tx1 leading-snug tracking-[-0.02em] mt-0.5">{model}</h3>
 
-          {/* Instrument spec readout — per-card-varying info in the mono "panel" voice */}
+          {/* Specs as pills */}
           {(chainLinks || speed) && (
-            <div className="grid grid-cols-2 mt-1 mb-4">
-              {[
-                { l: de ? 'Schaltung' : 'Speeds', v: speed },
-                { l: de ? 'Glieder' : 'Links', v: chainLinks },
-              ].filter(s => s.v).map((s, i) => (
-                <div key={s.l} className={i > 0 ? 'pl-4' : 'pr-4'}
-                  style={i > 0 ? { borderLeft: '1px solid var(--bd2)' } : undefined}>
-                  <p className="text-[9px] uppercase" style={{ fontFamily: MONO, letterSpacing: '0.14em', color: 'var(--txf)' }}>{s.l}</p>
-                  <p className="text-[12.5px] mt-1 tabular-nums" style={{ fontFamily: MONO, color: 'var(--tx1)' }}>{s.v}</p>
-                </div>
-              ))}
+            <div className="flex items-center gap-2 mt-2 flex-wrap">
+              {speed && (
+                <span className="text-[10.5px] px-2 py-0.5 rounded-md tabular-nums" style={{ fontFamily: MONO, background: 'var(--sf2)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
+                  {speed}
+                </span>
+              )}
+              {chainLinks && (
+                <span className="text-[10.5px] px-2 py-0.5 rounded-md tabular-nums" style={{ fontFamily: MONO, background: 'var(--sf2)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
+                  {chainLinks} {de ? 'Glieder' : 'links'}
+                </span>
+              )}
             </div>
           )}
 
           {/* Price + CTA */}
-          <div className="flex items-center justify-between gap-3 pt-3" style={{ borderTop: '1px solid var(--bd2)' }}>
+          <div className="flex items-center justify-between gap-3 mt-auto pt-3">
             <span className="num text-[20px] font-bold text-wx-tx1 tracking-[-0.02em]">{formatPrice(product.price)}</span>
             {canCheckout(product) ? (
               <div className="flex flex-col items-end gap-1">

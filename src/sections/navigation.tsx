@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Menu, X, Moon, Sun } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -29,7 +29,6 @@ const mobileNavItems = [
 export function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const progressRef = useRef<HTMLSpanElement>(null);
   const { t, lang, toggleLang } = useLanguage();
   const { theme, setTheme } = useTheme();
 
@@ -38,15 +37,7 @@ export function Navigation() {
   const activeSection = useActiveSection(navItems.filter(i => !i.route).map(i => i.href));
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-      // Scroll-Progress direkt am DOM — kein Re-Render pro Scroll-Frame.
-      const doc = document.documentElement;
-      const max = doc.scrollHeight - doc.clientHeight;
-      if (progressRef.current) {
-        progressRef.current.style.transform = `scaleX(${max > 0 ? window.scrollY / max : 0})`;
-      }
-    };
+    const handleScroll = () => setIsScrolled(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
@@ -101,13 +92,6 @@ export function Navigation() {
           WebkitBackdropFilter: 'blur(10px)',
         }}
       >
-        {/* Scroll-Progress — eine Accent-Hairline an der Unterkante */}
-        <span
-          ref={progressRef}
-          aria-hidden
-          className="absolute bottom-0 left-0 right-0 h-[2px] origin-left pointer-events-none"
-          style={{ background: 'var(--accent)', transform: 'scaleX(0)' }}
-        />
         <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
           <div className="flex items-center justify-between h-16 lg:h-20">
 

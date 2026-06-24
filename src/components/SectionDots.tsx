@@ -3,13 +3,14 @@ import { useActiveSection } from '@/hooks/useActiveSection';
 import { useLanguage } from '@/hooks/useLanguage';
 
 const NAV_ITEMS = [
-  { href: '#home',        labelDe: 'Start',       labelEn: 'Home'     },
-  { href: '#produkte',    labelDe: 'Produkte',     labelEn: 'Products' },
-  { href: '#anleitungen', labelDe: 'Anleitungen',  labelEn: 'Guides'   },
-  { href: '#tools',       labelDe: 'Tools',        labelEn: 'Tools'    },
-  { href: '#faq',         labelDe: 'FAQ',          labelEn: 'FAQ'      },
-  { href: '#ueber-mich',  labelDe: 'Über mich',    labelEn: 'About'    },
-  { href: '#kontakt',     labelDe: 'Kontakt',      labelEn: 'Contact'  },
+  { href: '#home',        labelDe: 'Start',        labelEn: 'Home'      },
+  { href: '#warum-wachs', labelDe: 'Warum Wachs?', labelEn: 'Why Wax?' },
+  { href: '#produkte',    labelDe: 'Produkte',      labelEn: 'Products' },
+  { href: '#ueber-mich',  labelDe: 'Über mich',     labelEn: 'About'    },
+  { href: '#tools',       labelDe: 'Tools',         labelEn: 'Tools'    },
+  { href: '#anleitungen', labelDe: 'Anleitungen',   labelEn: 'Guides'   },
+  { href: '#faq',         labelDe: 'FAQ',           labelEn: 'FAQ'      },
+  { href: '#kontakt',     labelDe: 'Kontakt',       labelEn: 'Contact'  },
 ];
 
 export function SectionDots() {
