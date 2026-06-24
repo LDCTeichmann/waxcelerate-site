@@ -6,76 +6,6 @@ import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
 import { waxVsOil } from '@/lib/data';
 
-// ─── CleanChain — refined editorial line-art of a waxed chain ────────────────
-// Replaces the old blocky rect+grime illustration. A calm steel chain with a
-// soft blue field behind it and a thin "dry film" sheen — premium, not techy.
-// Pure SVG, theme-driven, no hooks (safe anywhere).
-function CleanChain({ className = '', de }: { className?: string; de: boolean }) {
-  const cy = 84;
-  const r = 11;
-  const rollers = [44, 92, 140, 188, 236, 284, 332, 380];
-
-  return (
-    <svg
-      viewBox="0 0 424 168"
-      className={`w-full h-auto ${className}`}
-      role="img"
-      aria-label={de ? 'Saubere, gewachste Fahrradkette' : 'Clean wax-coated bicycle chain'}
-      style={{ overflow: 'visible' }}
-    >
-      <defs>
-        <linearGradient id="wxPlate" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="var(--sf)" />
-          <stop offset="100%" stopColor="var(--sf2)" />
-        </linearGradient>
-        <radialGradient id="wxField" cx="50%" cy="50%" r="60%">
-          <stop offset="0%" stopColor="rgba(var(--brand-blue-rgb),0.20)" />
-          <stop offset="55%" stopColor="rgba(var(--brand-blue-rgb),0.07)" />
-          <stop offset="100%" stopColor="rgba(var(--brand-blue-rgb),0)" />
-        </radialGradient>
-        <filter id="wxSoft" x="-40%" y="-40%" width="180%" height="180%">
-          <feGaussianBlur stdDeviation="7" />
-        </filter>
-      </defs>
-
-      {/* soft luminous field — premium ground */}
-      <ellipse cx="212" cy={cy} rx="206" ry="52" fill="url(#wxField)" />
-      {/* contact shadow */}
-      <ellipse cx="212" cy={cy + 34} rx="172" ry="9" fill="rgba(16,16,19,0.12)" filter="url(#wxSoft)" />
-
-      {/* chain body — refined thin steel linework */}
-      <g stroke="var(--txf)" strokeWidth="1.4">
-        {/* link plates as overlapping stadiums (the classic chain read) */}
-        {rollers.slice(0, -1).map((x, i) => {
-          const next = rollers[i + 1];
-          return (
-            <rect key={`plate-${i}`} x={x - r - 1} y={cy - (r + 1)}
-              width={next - x + (r + 1) * 2} height={(r + 1) * 2} rx={r + 1}
-              fill="url(#wxPlate)" />
-          );
-        })}
-        {/* rollers + pin holes */}
-        {rollers.map((x, i) => (
-          <g key={`roller-${i}`}>
-            <circle cx={x} cy={cy} r={r} fill="url(#wxPlate)" />
-            <circle cx={x} cy={cy} r={3.6} fill="none" stroke="var(--txf)" strokeWidth="1.2" />
-          </g>
-        ))}
-      </g>
-
-      {/* dry-wax sheen — a thin luminous film along the top + clean pin dots */}
-      <path
-        d={`M${rollers[0] - r} ${cy - r - 4} L${rollers[rollers.length - 1] + r} ${cy - r - 4}`}
-        stroke="var(--accent-soft)" strokeWidth="1.4" strokeLinecap="round"
-        strokeDasharray="1 8" opacity="0.5"
-      />
-      {rollers.map((x, i) => (
-        <circle key={`sheen-${i}`} cx={x} cy={cy} r="2.1" fill="var(--accent-soft)" opacity="0.75" />
-      ))}
-    </svg>
-  );
-}
-
 // Derived comparison rows — values come from data.ts, never hardcoded twice.
 // waxShare ∈ [0,1] = how much of the advantage wax owns (drives the dominance bar).
 function buildMetrics(de: boolean) {
@@ -177,18 +107,28 @@ export function WhyWax() {
             </p>
           </div>
 
-          {/* ── Editorial comparison — illustration | scoreboard ── */}
+          {/* ── Editorial comparison — photo | scoreboard ── */}
           <div className="grid lg:grid-cols-[0.92fr_1fr] gap-12 lg:gap-16 items-center">
 
-            {/* Illustration */}
+            {/* Chain photo */}
             <div className="order-2 lg:order-1">
-              <CleanChain de={de} className="max-w-[440px] mx-auto" />
-              <p className="text-center text-[12.5px] mt-6 leading-relaxed mx-auto max-w-[340px]"
-                style={{ color: 'var(--txm)' }}>
-                {de
-                  ? 'Trockener Wachsfilm — Schmutz findet keinen Halt. Öl dagegen bindet Staub zur Schleifpaste.'
-                  : 'A dry wax film gives dirt nothing to cling to. Oil instead binds dust into grinding paste.'}
-              </p>
+              <div className="relative rounded-2xl overflow-hidden aspect-[4/3]"
+                style={{ border: '1px solid var(--bd)' }}>
+                <img
+                  src="/images/hero/chain.jpg"
+                  alt={de ? 'Saubere, gewachste Fahrradketten auf Schieferplatte' : 'Clean wax-coated bicycle chains on slate'}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0"
+                  style={{ background: 'linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.55) 100%)' }} />
+                <p className="absolute bottom-0 left-0 right-0 px-5 pb-4 text-[12.5px] leading-relaxed"
+                  style={{ color: 'rgba(255,255,255,0.82)' }}>
+                  {de
+                    ? 'Trockener Wachsfilm — Schmutz findet keinen Halt.'
+                    : 'A dry wax film gives dirt nothing to cling to.'}
+                </p>
+              </div>
             </div>
 
             {/* Scoreboard */}
@@ -268,22 +208,21 @@ export function WhyWax() {
               </span>
             </Link>
 
-            {/* Formula — provenance line */}
-            <div data-foot className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-5"
+            {/* Science CTA */}
+            <Link to="/wissenschaft" data-foot
+              className="group flex items-center justify-between gap-4 py-5"
               style={{ borderTop: '1px solid var(--bd)' }}>
-              <p className="text-[13px]" style={{ color: 'var(--txm)' }}>
-                <span className="font-semibold" style={{ color: 'var(--tx2)' }}>
-                  {de ? 'Welche Formel?' : 'Which formula?'}
+              <p className="text-[14px]" style={{ color: 'var(--tx2)' }}>
+                <span className="font-semibold" style={{ color: 'var(--tx1)' }}>
+                  {de ? 'Die Wissenschaft dahinter' : 'The science behind it'}
                 </span>
-                {' '}Classic (PTFE) — {de ? 'Frühjahr–Herbst' : 'spring–autumn'}
-                {'  ·  '}Pro (MoS₂) — {de ? 'Ganzjahr, Winter & E-Bike' : 'year-round, winter & e-bike'}
+                <span style={{ color: 'var(--txm)' }}>
+                  {de ? ' — Kontaktzonen, Reibkurven, Mikroskopie' : ' — contact zones, friction curves, microscopy'}
+                </span>
               </p>
-              <Link to="/#produkte"
-                className="text-[12px] font-medium flex-shrink-0 transition-opacity hover:opacity-70"
-                style={{ color: 'var(--accent-soft)' }}>
-                {de ? 'Zu den Produkten →' : 'See products →'}
-              </Link>
-            </div>
+              <span className="text-[14px] font-medium shrink-0 transition-transform duration-300 group-hover:translate-x-1"
+                style={{ color: 'var(--accent-soft)' }}>→</span>
+            </Link>
           </div>
 
         </div>

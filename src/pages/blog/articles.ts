@@ -130,7 +130,7 @@ export const articles: Article[] = [
       {
         type: 'ul',
         items: [
-          'Heißwachs, trockene Bedingungen: 400–600 km pro Anwendung',
+          'Heißwachs, trockene Bedingungen: 300–600 km pro Anwendung (je nach Produkt und Bedingungen)',
           'Heißwachs, nass / MTB: 200–300 km (Wasser löst Paraffin schneller heraus)',
           'Flüssigwachs, trocken: 150–250 km',
           'Flüssigwachs, nass: 80–120 km',
@@ -307,7 +307,7 @@ export const articles: Article[] = [
       {
         type: 'ul',
         items: [
-          'Trockene Straße / Rennrad / Commuter: 400–600 km pro Wachsvorgang',
+          'Trockene Straße / Rennrad / Commuter: 300–600 km pro Wachsvorgang',
           'Wechselhaftes Wetter / Gravelbike: 250–400 km',
           'Nass, MTB, Schotter mit Pfützen: 150–250 km',
           'Waxcelerate Pro mit MoS₂ (Nassbereich): ca. 15–20 % längere Intervalle als Classic',
@@ -482,7 +482,7 @@ export const articles: Article[] = [
       },
       {
         type: 'p',
-        text: 'Eine Kette, die zuvor mit Heißwachs behandelt wurde und nicht mit Öl in Berührung gekommen ist, kann direkt nachweiß werden – ohne IPA.',
+        text: 'Eine Kette, die zuvor mit Heißwachs behandelt wurde und nicht mit Öl in Berührung gekommen ist, kann direkt nachgewachst werden – ohne IPA.',
       },
       {
         type: 'ol',
@@ -779,7 +779,7 @@ export const articles: Article[] = [
     readingTime: '5 min',
     intro: 'Nicht jede Frage braucht einen ganzen Artikel. Hier sind die fünfzehn Fragen, die uns am häufigsten erreichen – jeweils in zwei, drei Sätzen. Für die tiefen Themen gibt es weiterführende Artikel, aber wer nur schnell eine Antwort sucht, findet sie hier.',
     faq: [
-      { q: 'Wie oft muss ich die Kette nachwachsen?', a: 'Bei trockenen Bedingungen alle 400–600 km, bei Nässe oder auf Schotter 150–300 km. Der zuverlässigste Indikator ist nicht die Optik, sondern das Geräusch: Sobald die Kette unter Last trockener klingt oder quietscht, ist es Zeit.' },
+      { q: 'Wie oft muss ich die Kette nachwachsen?', a: 'Bei trockenen Bedingungen alle 300–600 km, bei Nässe oder auf Schotter 150–300 km. Der zuverlässigste Indikator ist nicht die Optik, sondern das Geräusch: Sobald die Kette unter Last trockener klingt oder quietscht, ist es Zeit.' },
       { q: 'Muss ich eine neue Kette vor dem ersten Wachsen entfetten?', a: 'Ja, zwingend. Neue Ketten sind ab Werk mit Mineralöl konserviert, und Wachs haftet nicht auf Öl. Ohne Entfetten hält das Wachs nicht. Ausnahme: bereits vorgewachste Ketten.' },
       { q: 'Welche Temperatur braucht das Wachsbad?', a: '85–90 °C. Darunter ist das Wachs zu zäh und dringt nicht in die Gelenke ein, darüber oxidiert es schneller. Ein Slow Cooker auf niedrigster Stufe trifft diesen Bereich meist von allein.' },
       { q: 'Wie lange muss die Kette im Wachs bleiben?', a: '10–15 Minuten. Die Kette ist erst durchtränkt, wenn keine Luftbläschen mehr aufsteigen.' },
@@ -799,7 +799,7 @@ export const articles: Article[] = [
       { type: 'note', text: 'Die Antworten unten sind bewusst kurz gehalten. Verlinkte Begriffe und die Artikel im Blog gehen jeweils in die Tiefe.' },
       { type: 'h2', text: 'Anwendung & Intervalle' },
       { type: 'h3', text: 'Wie oft muss ich nachwachsen?' },
-      { type: 'p', text: 'Bei trockenen Bedingungen alle 400–600 km, bei Nässe oder auf Schotter 150–300 km. Der zuverlässigste Indikator ist nicht die Optik, sondern das Geräusch: Sobald die Kette unter Last trockener klingt, ist es Zeit.' },
+      { type: 'p', text: 'Bei trockenen Bedingungen alle 300–600 km, bei Nässe oder auf Schotter 150–300 km. Der zuverlässigste Indikator ist nicht die Optik, sondern das Geräusch: Sobald die Kette unter Last trockener klingt, ist es Zeit.' },
       { type: 'h3', text: 'Wie lange muss die Kette im Wachs bleiben?' },
       { type: 'p', text: '10–15 Minuten. Durchtränkt ist sie erst, wenn keine Luftbläschen mehr aufsteigen.' },
       { type: 'h3', text: 'Welche Temperatur braucht das Bad?' },
@@ -856,7 +856,7 @@ export const articles: Article[] = [
       ] },
       { type: 'h2', text: 'Und wann lohnt es sich nicht?' },
       { type: 'p', text: 'Ehrlich gesagt: Wer ohnehin regelmäßig selbst wachst und bereits Topf und Wachs besitzt, zahlt für eine vorgewachste Kette vor allem den Arbeitslohn der Erstbehandlung. Das kann es wert sein – muss es aber nicht. Wenn du eine 3-Ketten-Rotation aufbaust, kaufst du günstiger Standardketten und wachst sie in einem Rutsch selbst.' },
-      { type: 'note', text: 'Wichtig zu verstehen: Auch eine vorgewachste Kette muss irgendwann nachgewachst werden – nach 400–600 km trocken. Die Vorbehandlung spart dir den Einstieg, nicht die laufende Pflege. Spätestens dann brauchst du Wachs und einen Topf, oder du nutzt kompatibles Tropfwachs zum Auffrischen.' },
+      { type: 'note', text: 'Wichtig zu verstehen: Auch eine vorgewachste Kette muss irgendwann nachgewachst werden – nach 300–600 km trocken. Die Vorbehandlung spart dir den Einstieg, nicht die laufende Pflege. Spätestens dann brauchst du Wachs und einen Topf, oder du nutzt kompatibles Tropfwachs zum Auffrischen.' },
       { type: 'h2', text: 'Worauf du beim Kauf achten solltest' },
       { type: 'ul', items: [
         'Markenkette als Basis: Eine gewachste No-Name-Kette bleibt eine No-Name-Kette. Achte auf Shimano, SRAM oder YBN als Grundlage.',
@@ -968,7 +968,7 @@ export const articles: Article[] = [
       { type: 'h2', text: 'So funktioniert die Hybrid-Methode' },
       { type: 'ol', items: [
         'Basis legen: Kette einmal sauber entfetten und im Heißwachsbad (85–90 °C, 10–15 min) behandeln. Das ist dein Fundament.',
-        'Fahren bis zum Intervall: Die Heißwachsbasis trägt 400–600 km trocken.',
+        'Fahren bis zum Intervall: Die Heißwachsbasis trägt 300–600 km trocken.',
         'Auffrischen statt heiß wachsen: Etwa alle 200 km – oder bevor die Kette trockener klingt – ein kompatibles Tropfwachs dünn auf die saubere Kette geben, Glied für Glied, kurz einwirken lassen, Überschuss abwischen.',
         'Trocknen lassen: Tropfwachs braucht je nach Produkt mehrere Stunden, bis das Trägermittel verdunstet ist. Am besten abends auftragen, am nächsten Tag fahren.',
         'Heiß nachwachsen alle ~1.000 km: Wenn sich über die Zeit Reste und Schmutz aufbauen, einmal komplett neu heiß wachsen – das setzt die Basis zurück.',
@@ -1227,12 +1227,12 @@ export const articleImages: Record<string, { src: string; alt: string }> = {
   'vorgewachste-kette': { src: '/images/chain-clean.jpg', alt: 'Frisch gewachste Ketten im Wachsbad' },
   'kettenwachs-winter': { src: '/images/review-sunset.jpg', alt: 'Rennrad bei Sonnenuntergang am Feldweg' },
   'topf-zum-kette-wachsen': { src: '/images/process-melt.jpg', alt: 'Wachs schmilzt im Slow Cooker' },
-  'tropfwachs-hybrid-methode': { src: '/images/process-dip.jpg', alt: 'Kette wird in flüssiges Wachs getaucht' },
-  'von-oel-auf-wachs-umsteigen': { src: '/images/chain-clean.jpg', alt: 'Saubere Ketten im Wachsbad' },
-  'ebike-kette-wachsen': { src: '/images/review-gravel.jpg', alt: 'Bike mit Antrieb in Nahaufnahme' },
-  'kettenverschleiss-messen': { src: '/images/hero-chain-angle.jpg', alt: 'Fahrradkette von der Seite, Gliederabstand sichtbar' },
-  'erste-fahrt-nach-wachsen': { src: '/images/hero-chain-texture.jpg', alt: 'Gewachste Fahrradkette in Nahaufnahme' },
-  'schnellverschluss-quicklink': { src: '/images/hero-chain-angle.jpg', alt: 'Fahrradkette mit Kettenschloss' },
+  'tropfwachs-hybrid-methode': { src: '/images/reviews/ride-5.jpg', alt: 'Gravelbike mit gewachster Kette vor einem Café' },
+  'von-oel-auf-wachs-umsteigen': { src: '/images/reviews/ride-1.jpg', alt: 'Rennrad bei Sonnenuntergang auf Feldweg' },
+  'ebike-kette-wachsen': { src: '/images/reviews/ride-2.jpg', alt: 'Rennrad an einem Dorfbrunnen in den Alpen' },
+  'kettenverschleiss-messen': { src: '/images/reviews/ride-4.jpg', alt: 'Rennradfahrer auf Passstraße in den Dolomiten' },
+  'erste-fahrt-nach-wachsen': { src: '/images/reviews/ride-3.jpg', alt: 'Rennrad am Waldweg nach der ersten Fahrt' },
+  'schnellverschluss-quicklink': { src: '/images/hero/chain.jpg', alt: 'Fahrradketten mit Kettenschloss auf Schieferplatte' },
   'wachs-entsorgen-topf-pflegen': { src: '/images/process-melt.jpg', alt: 'Geschmolzenes Wachs im Topf' },
 };
 

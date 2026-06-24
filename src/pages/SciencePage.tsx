@@ -35,106 +35,117 @@ function ScrollProgress() {
   );
 }
 
-// ─── Tribology cross-section: microscope view of the contact zone ───────────
-// Two rough metal surfaces with asperity peaks, a lubricant gap between them.
-// Oil: particles trapped in the gap (grinding). Wax: particles sit outside, gap clean.
-// Uses crossfade between two particle layers (no confusing position animation).
 function ContactZone({ wax }: { wax: boolean }) {
-  // Two parallel metal surfaces with realistic asperities in sliding contact.
-  // Full-width bodies (edge-to-edge) eliminate the "converging triangles" illusion.
-  // Motion arrows co-located at right edge show relative sliding clearly.
-  const topSurf = 'M0,50 L32,50 L38,53 L44,57 L50,54 L56,50 L90,50 L96,52 L102,58 L108,61 L114,56 L120,50 L154,50 L160,53 L166,56 L172,53 L178,50 L212,50 L218,55 L224,61 L230,64 L234,58 L240,50 L274,50 L280,53 L286,58 L292,54 L298,50 L332,50 L338,54 L344,60 L350,56 L356,50 L390,50 L396,53 L402,58 L408,54 L414,50 L448,50 L454,52 L460,56 L466,53 L472,50 L500,50';
-  const topPts = topSurf.replace('M','').split(/\s*L\s*/).map(s => s.trim());
-  const topBody = `M0,0 L500,0 ${topPts.reverse().map(p => `L${p}`).join(' ')} Z`;
+  const topSurf = 'M0,52 L18,52 L30,52.5 L42,53 L54,52.5 L68,52 L78,53 L86,54.5 L92,55.5 L100,54 L110,52.5 L126,52 L138,52.5 L148,53.5 L156,54 L164,53 L178,52 L190,52.5 L200,54 L208,55.5 L216,56 L224,55 L234,53 L248,52 L262,52.5 L272,53.5 L280,54.5 L288,53.5 L300,52 L314,52.5 L324,54 L332,55.5 L340,55 L350,53.5 L364,52 L378,52.5 L388,53.5 L396,55 L404,55.5 L412,54 L422,53 L438,52 L452,52.5 L462,53.5 L472,53 L486,52 L500,52';
+  const topPts = topSurf.replace('M', '').split(/\s*L\s*/).map(s => s.trim());
+  const topBody = `M0,0 L500,0 ${[...topPts].reverse().map(p => `L${p}`).join(' ')} Z`;
 
-  const botSurf = 'M0,90 L28,90 L34,87 L40,83 L46,86 L52,90 L86,90 L92,87 L98,82 L104,79 L110,83 L116,90 L150,90 L156,87 L162,83 L168,86 L174,90 L208,90 L214,85 L220,79 L226,76 L232,81 L238,90 L272,90 L278,87 L284,83 L290,86 L296,90 L330,90 L336,86 L342,81 L348,84 L354,90 L388,90 L394,87 L400,83 L406,86 L412,90 L446,90 L452,87 L458,84 L464,87 L470,90 L500,90';
-  const botPts = botSurf.replace('M','').split(/\s*L\s*/).map(s => s.trim());
-  const botBody = `M0,140 L500,140 ${botPts.reverse().map(p => `L${p}`).join(' ')} Z`;
+  const botSurf = 'M0,88 L18,88 L30,87.5 L42,87 L54,87.5 L68,88 L78,87 L86,85.5 L92,84.5 L100,86 L110,87.5 L126,88 L138,87.5 L148,86.5 L156,86 L164,87 L178,88 L190,87.5 L200,86 L208,84.5 L216,84 L224,85 L234,87 L248,88 L262,87.5 L272,86.5 L280,85.5 L288,86.5 L300,88 L314,87.5 L324,86 L332,84.5 L340,85 L350,86.5 L364,88 L378,87.5 L388,86.5 L396,85 L404,84.5 L412,86 L422,87 L438,88 L452,87.5 L462,86.5 L472,87 L486,88 L500,88';
+  const botPts = botSurf.replace('M', '').split(/\s*L\s*/).map(s => s.trim());
+  const botBody = `M0,140 L500,140 ${[...botPts].reverse().map(p => `L${p}`).join(' ')} Z`;
 
-  const dust = [
-    { x: 75, y: 43, r: 2.5 }, { x: 155, y: 41, r: 3 }, { x: 240, y: 44, r: 2.8 },
-    { x: 325, y: 42, r: 2.5 }, { x: 405, y: 43, r: 3 }, { x: 465, y: 42, r: 2.2 },
-    { x: 115, y: 45, r: 2 }, { x: 285, y: 40, r: 2.2 },
+  const grit: { x: number; y: number; d: string }[] = [
+    { x: 60, y: 70, d: 'M-3,-1.5 L0,-3.5 L3.5,-1 L2.5,2 L-1,3 L-3.5,0.5 Z' },
+    { x: 128, y: 72, d: 'M-2.5,-3 L2,-3 L4,0 L2,3 L-2,2.5 L-3.5,-0.5 Z' },
+    { x: 200, y: 69, d: 'M-3,-2 L1,-4 L4,-1 L3,2 L-0.5,3.5 L-3.5,1 Z' },
+    { x: 268, y: 73, d: 'M-2,-3 L3,-1.5 L3,2 L0,3.5 L-3.5,1 L-2.5,-1.5 Z' },
+    { x: 335, y: 70, d: 'M-3.5,-1 L-1,-3.5 L3,-2 L4,1 L1,3 L-3,2 Z' },
+    { x: 400, y: 71, d: 'M-2,-3 L2.5,-2.5 L3.5,1 L1,3.5 L-2.5,2 L-3.5,-0.5 Z' },
+    { x: 462, y: 69, d: 'M-3,-2 L0.5,-3.5 L3.5,0 L2,3 L-2,3 L-3.5,0 Z' },
+    { x: 95, y: 74, d: 'M-2,-2 L2,-2.5 L3,1 L0,2.5 L-2.5,0.5 Z' },
+    { x: 170, y: 68, d: 'M-2.5,0 L-1,-2.5 L2.5,-1 L2,2 L-1,2.5 Z' },
+    { x: 365, y: 74, d: 'M-2,-1.5 L1,-2.5 L3,0.5 L1.5,2.5 L-2,2 Z' },
   ];
-  const trapped = [
-    { x: 48, y: 70, r: 3.2 }, { x: 106, y: 72, r: 3.8 },
-    { x: 168, y: 68, r: 3 }, { x: 228, y: 73, r: 4.2 },
-    { x: 288, y: 70, r: 3.5 }, { x: 344, y: 72, r: 3.2 },
-    { x: 402, y: 69, r: 3.5 }, { x: 460, y: 71, r: 3 },
-    { x: 78, y: 76, r: 2.5 }, { x: 140, y: 75, r: 2.8 },
-    { x: 258, y: 77, r: 2.2 }, { x: 370, y: 76, r: 2.5 },
+
+  const dust: { x: number; y: number; d: string; rot: number }[] = [
+    { x: 50, y: 42, d: 'M-2,-1.5 L1,-2.5 L3,0 L1,2 L-2,1.5 Z', rot: 15 },
+    { x: 145, y: 40, d: 'M-2.5,-1 L0,-2.5 L3,-0.5 L2,2 L-1.5,2 Z', rot: -20 },
+    { x: 235, y: 43, d: 'M-1.5,-2 L2,-2 L2.5,1 L0,2.5 L-2.5,0.5 Z', rot: 30 },
+    { x: 320, y: 41, d: 'M-2,-2 L1.5,-2.5 L3,0.5 L0.5,2.5 L-2.5,1 Z', rot: -10 },
+    { x: 420, y: 44, d: 'M-2,-1 L1,-2.5 L3,0 L1.5,2.5 L-2,1.5 Z', rot: 25 },
+    { x: 485, y: 41, d: 'M-1.5,-2 L2,-1.5 L2,1.5 L-0.5,2.5 L-2.5,0 Z', rot: -15 },
   ];
 
   return (
     <svg viewBox="0 0 500 140" className="w-full h-auto" role="img"
       aria-label={wax ? 'Dry wax film — particles cannot embed' : 'Oil traps grit into abrasive paste'}>
       <defs>
-        <pattern id="cz-ht" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-          <line x1="0" y1="0" x2="0" y2="6" stroke="var(--txm)" strokeWidth="0.4" opacity="0.07" />
+        <pattern id="cz-ht" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+          <line x1="0" y1="0" x2="0" y2="5" stroke="var(--txm)" strokeWidth="0.3" opacity="0.05" />
         </pattern>
         <linearGradient id="cz-mt" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="var(--txm)" stopOpacity="0.26" />
-          <stop offset="100%" stopColor="var(--txm)" stopOpacity="0.40" />
+          <stop offset="0%" stopColor="var(--txm)" stopOpacity="0.16" />
+          <stop offset="60%" stopColor="var(--txm)" stopOpacity="0.26" />
+          <stop offset="100%" stopColor="var(--txm)" stopOpacity="0.36" />
         </linearGradient>
         <linearGradient id="cz-mb" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="var(--txm)" stopOpacity="0.40" />
-          <stop offset="100%" stopColor="var(--txm)" stopOpacity="0.26" />
+          <stop offset="0%" stopColor="var(--txm)" stopOpacity="0.36" />
+          <stop offset="40%" stopColor="var(--txm)" stopOpacity="0.26" />
+          <stop offset="100%" stopColor="var(--txm)" stopOpacity="0.16" />
         </linearGradient>
         <linearGradient id="cz-oil" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="var(--txm)" stopOpacity="0.20" />
-          <stop offset="50%" stopColor="var(--txm)" stopOpacity="0.08" />
-          <stop offset="100%" stopColor="var(--txm)" stopOpacity="0.20" />
+          <stop offset="0%" stopColor="var(--txm)" stopOpacity="0.15" />
+          <stop offset="50%" stopColor="var(--txm)" stopOpacity="0.06" />
+          <stop offset="100%" stopColor="var(--txm)" stopOpacity="0.15" />
         </linearGradient>
-        <filter id="cz-ps"><feDropShadow dx="0" dy="0.5" stdDeviation="0.8" floodColor="#000" floodOpacity="0.22" /></filter>
+        <filter id="cz-gs"><feDropShadow dx="0" dy="0.4" stdDeviation="0.5" floodColor="#000" floodOpacity="0.16" /></filter>
       </defs>
 
-      {/* ── Dust above top surface (wax: particles can't enter gap) ── */}
+      {/* Deflected dust above top surface (wax mode) */}
       {dust.map((p, i) => (
-        <circle key={`d${i}`} cx={p.x} cy={p.y} r={p.r}
-          fill="var(--txm)" opacity={wax ? 0.4 : 0}
+        <path key={`d${i}`} d={p.d}
+          transform={`translate(${p.x},${p.y}) rotate(${p.rot})`}
+          fill="var(--txm)" opacity={wax ? 0.30 : 0}
           style={{ transition: 'opacity 0.5s ease' }} />
       ))}
 
-      {/* ── Top metal body — full width, no tapering ── */}
+      {/* Top metal body */}
       <path d={topBody} fill="url(#cz-mt)" />
       <path d={topBody} fill="url(#cz-ht)" />
-      <path d={topSurf} fill="none" stroke="var(--txm)" strokeWidth="1.2" opacity="0.50" strokeLinejoin="round" />
+      <path d={topSurf} fill="none" stroke="var(--txm)" strokeWidth="0.8" opacity="0.40" strokeLinejoin="round" />
+      <path d={topSurf} fill="none" stroke="var(--sf)" strokeWidth="0.4" opacity="0.25" strokeLinejoin="round"
+        transform="translate(0,-0.8)" />
 
-      {/* ── Gap: oil fill or wax film ── */}
-      <rect x="0" y="50" width="500" height="40" fill={wax ? 'transparent' : 'url(#cz-oil)'}
+      {/* Gap fill (oil) */}
+      <rect x="0" y="52" width="500" height="36" fill={wax ? 'transparent' : 'url(#cz-oil)'}
         style={{ transition: 'fill 0.5s ease' }} />
-      <path d={topSurf} fill="none" stroke="var(--accent)" strokeWidth="2.5"
-        opacity={wax ? 0.35 : 0} style={{ transition: 'opacity 0.5s ease' }}
-        transform="translate(0,3)" strokeLinejoin="round" />
-      <path d={botSurf} fill="none" stroke="var(--accent)" strokeWidth="2.5"
-        opacity={wax ? 0.35 : 0} style={{ transition: 'opacity 0.5s ease' }}
-        transform="translate(0,-3)" strokeLinejoin="round" />
 
-      {/* ── Trapped particles (oil: abrasive grinding paste) ── */}
-      {trapped.map((p, i) => (
-        <circle key={`t${i}`} cx={p.x} cy={p.y} r={p.r}
-          fill="var(--tx2)" opacity={wax ? 0 : 0.7} filter={wax ? undefined : 'url(#cz-ps)'}
-          style={{ transition: `opacity 0.5s ease ${wax ? 0 : 0.2 + i * 0.04}s` }} />
+      {/* Wax film — conformal solid coating */}
+      <path d={topSurf} fill="none" stroke="var(--accent)" strokeWidth="2"
+        opacity={wax ? 0.28 : 0} style={{ transition: 'opacity 0.5s ease' }}
+        transform="translate(0,2.5)" strokeLinejoin="round" />
+      <path d={botSurf} fill="none" stroke="var(--accent)" strokeWidth="2"
+        opacity={wax ? 0.28 : 0} style={{ transition: 'opacity 0.5s ease' }}
+        transform="translate(0,-2.5)" strokeLinejoin="round" />
+
+      {/* Trapped angular grit (oil mode) */}
+      {grit.map((p, i) => (
+        <path key={`g${i}`} d={p.d}
+          transform={`translate(${p.x},${p.y})`}
+          fill="var(--tx2)" opacity={wax ? 0 : 0.50} filter={wax ? undefined : 'url(#cz-gs)'}
+          style={{ transition: `opacity 0.5s ease ${wax ? 0 : 0.12 + i * 0.03}s` }} />
       ))}
 
-      {/* ── Abrasion scratches on bottom surface (oil mode) ── */}
-      {[50, 108, 170, 230, 290, 346, 404, 462].map((x, i) => (
-        <line key={`sc${i}`} x1={x - 12} y1={89 - (i % 2)} x2={x + 12} y2={88 + (i % 2)}
-          stroke="var(--accent-strong)" strokeWidth="0.6" opacity={wax ? 0 : 0.28}
+      {/* Micro-scratches on surfaces (oil mode — active abrasion) */}
+      {[58, 126, 198, 266, 333, 398, 460].map((x, i) => (
+        <line key={`sc${i}`} x1={x - 14} y1={87.5 - (i % 2) * 0.5} x2={x + 14} y2={87 + (i % 2) * 0.5}
+          stroke="var(--accent-strong)" strokeWidth="0.4" opacity={wax ? 0 : 0.20}
           style={{ transition: 'opacity 0.5s ease' }} />
       ))}
 
-      {/* ── Bottom metal body — full width, no tapering ── */}
+      {/* Bottom metal body */}
       <path d={botBody} fill="url(#cz-mb)" />
       <path d={botBody} fill="url(#cz-ht)" />
-      <path d={botSurf} fill="none" stroke="var(--txm)" strokeWidth="1.2" opacity="0.50" strokeLinejoin="round" />
+      <path d={botSurf} fill="none" stroke="var(--txm)" strokeWidth="0.8" opacity="0.40" strokeLinejoin="round" />
+      <path d={botSurf} fill="none" stroke="var(--sf)" strokeWidth="0.4" opacity="0.25" strokeLinejoin="round"
+        transform="translate(0,0.8)" />
 
-      {/* ── Motion arrows — both at right edge, showing relative sliding ── */}
-      <g opacity="0.30">
-        <line x1="480" y1="30" x2="496" y2="30" stroke="var(--txf)" strokeWidth="1" />
-        <path d="M492,27 L497,30 L492,33" fill="none" stroke="var(--txf)" strokeWidth="0.9" strokeLinecap="round" strokeLinejoin="round" />
-        <line x1="496" y1="110" x2="480" y2="110" stroke="var(--txf)" strokeWidth="1" />
-        <path d="M484,107 L479,110 L484,113" fill="none" stroke="var(--txf)" strokeWidth="0.9" strokeLinecap="round" strokeLinejoin="round" />
+      {/* Sliding direction */}
+      <g opacity="0.22">
+        <line x1="478" y1="28" x2="496" y2="28" stroke="var(--txf)" strokeWidth="0.7" />
+        <path d="M492,25.5 L497,28 L492,30.5" fill="none" stroke="var(--txf)" strokeWidth="0.6" strokeLinecap="round" strokeLinejoin="round" />
+        <line x1="496" y1="112" x2="478" y2="112" stroke="var(--txf)" strokeWidth="0.7" />
+        <path d="M482,109.5 L477,112 L482,114.5" fill="none" stroke="var(--txf)" strokeWidth="0.6" strokeLinecap="round" strokeLinejoin="round" />
       </g>
     </svg>
   );
@@ -176,16 +187,16 @@ function ProblemHero({ de }: { de: boolean }) {
   return (
     <section id="problem" className={`${W} pt-28 sm:pt-36 pb-20`}>
       <p className="eyebrow mb-4" style={{ color: 'var(--accent-soft)' }}>
-        {de ? 'Das Problem' : 'The Problem'}
+        {de ? 'Tribologie' : 'Tribology'}
       </p>
       <h1 className="font-display font-bold text-wx-tx1 leading-[1.05] mb-5"
         style={{ fontSize: 'clamp(2.4rem, 6vw, 4.2rem)', letterSpacing: '-0.02em' }}>
-        {de ? 'Öl schmiert. Und schmirgelt.' : 'Oil lubricates. And grinds.'}
+        {de ? 'Was im Schmierspalt passiert.' : 'What happens in the lubricant gap.'}
       </h1>
       <p className="text-wx-txm text-lead max-w-2xl mb-12">
         {de
-          ? 'Öl bindet jeden Staubkorn zu einer Schleifpaste, die bei jedem Tritt Metall abträgt. Wachs bleibt trocken — nichts haftet, nichts schmirgelt. Schalt um und sieh den Unterschied.'
-          : 'Oil binds every speck of grit into a grinding paste that wears metal with each pedal stroke. Wax stays dry — nothing sticks, nothing grinds. Flip the switch and see the difference.'}
+          ? 'Zwei Metallflächen gleiten aufeinander. Partikel gelangen in den Kontakt. Die Art der Schmierung entscheidet, ob sie schleifen — oder abgleiten.'
+          : 'Two metal surfaces slide against each other. Particles enter the contact zone. The type of lubrication determines whether they grind — or slide off.'}
       </p>
 
       <InstrumentFrame eyebrow={de ? 'Öl vs. Wachs' : 'Oil vs. Wax'}>

@@ -221,7 +221,7 @@ export function BlogArticlePage() {
           className="absolute inset-0"
           style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.30) 35%, rgba(0,0,0,0.88) 100%)' }}
         />
-        <div className="relative max-w-3xl mx-auto px-4 sm:px-6 pt-28 pb-10 sm:pt-36 sm:pb-12">
+        <div className="relative max-w-[740px] mx-auto px-4 sm:px-6 pt-28 pb-10 sm:pt-36 sm:pb-12">
           <p
             className="font-mono text-[11px] font-semibold uppercase tracking-[0.2em] mb-4"
             style={{ color: categoryColors[article.category] }}
@@ -245,7 +245,7 @@ export function BlogArticlePage() {
       </section>
 
       {/* Article body */}
-      <main className="max-w-[680px] mx-auto px-4 sm:px-6 py-12">
+      <main className="max-w-[740px] mx-auto px-4 sm:px-6 py-12">
         <article>
           {/* Intro lead with drop cap */}
           <p className="text-[19px] leading-[1.75] text-wx-tx1 mb-8 first-letter:font-display first-letter:text-[3.4rem] first-letter:font-bold first-letter:float-left first-letter:leading-[0.82] first-letter:mr-3 first-letter:mt-1">
