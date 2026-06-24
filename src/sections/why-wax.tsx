@@ -1,87 +1,120 @@
 import { useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Droplets, Gauge, Clock, Sparkles, HandMetal, Wrench, PiggyBank, ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useSectionReveal } from '@/hooks/useAnimation';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
 import { waxVsOil } from '@/lib/data';
 
-// Derived comparison rows — values come from data.ts, never hardcoded twice.
-// waxShare ∈ [0,1] = how much of the advantage wax owns (drives the dominance bar).
-function buildMetrics(de: boolean) {
+const MONO = "'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace";
+
+function buildCards(de: boolean) {
   const f = waxVsOil.friction, w = waxVsOil.watts, l = waxVsOil.life;
   return [
     {
+      icon: Gauge,
+      value: `μ ${f.wax.toFixed(2)}`,
       label: de ? 'Reibung' : 'Friction',
-      wax: `μ ${f.wax.toFixed(2)}`, oil: `μ ${f.oil.toFixed(2)}`, waxShare: 0.85,
+      detail: de ? `${Math.round(f.oil / f.wax)}× weniger als Öl` : `${Math.round(f.oil / f.wax)}× less than oil`,
+      share: 0.85,
     },
     {
+      icon: Droplets,
+      value: `${w.wax[0]}–${w.wax[1]} W`,
       label: de ? 'Antriebsverlust' : 'Drivetrain loss',
-      wax: `${w.wax[0]}–${w.wax[1]} W`, oil: `${w.oil[0]}–${w.oil[1]} W`, waxShare: 0.72,
+      detail: de ? `Öl: ${w.oil[0]}–${w.oil[1]} W` : `Oil: ${w.oil[0]}–${w.oil[1]} W`,
+      share: 0.72,
     },
     {
+      icon: Clock,
+      value: `${l.wax}×`,
       label: de ? 'Kettenlaufzeit' : 'Chain life',
-      wax: `${l.wax}×`, oil: `${l.oil}×`, waxShare: 0.75,
+      detail: de ? 'gegenüber Öl' : 'vs oil lubrication',
+      share: 0.75,
     },
     {
+      icon: Sparkles,
+      value: de ? 'Trocken' : 'Dry',
       label: de ? 'Sauberkeit' : 'Cleanliness',
-      wax: de ? 'Trocken' : 'Dry', oil: de ? 'Schmutz' : 'Grime', waxShare: 0.9,
+      detail: de ? 'Kein Dreck, keine Flecken' : 'No grime, no stains',
+      share: 0.9,
     },
   ];
 }
 
-const conditions = [
-  { metric: 'Nässe',  labelDe: 'Dichter Film', labelEn: 'Denser film',    anchor: '#kristallstruktur' },
-  { metric: '−8 °C',  labelDe: 'Elastisch',    labelEn: 'Stays elastic',  anchor: '#winterformel' },
-  { metric: '+75 °C', labelDe: 'Stabil',       labelEn: 'Holds position', anchor: '#matrix' },
-];
+function buildBenefits(de: boolean) {
+  return [
+    {
+      icon: HandMetal,
+      text: de ? 'Saubere Hände, saubere Hose' : 'Clean hands, clean clothes',
+      sub: de ? 'Trockener Wachsfilm statt klebriger Ölschicht' : 'Dry wax film instead of sticky oil',
+    },
+    {
+      icon: Wrench,
+      text: de ? 'Kein Nachschmieren alle 100 km' : 'No re-lubing every 100 km',
+      sub: de ? '250–550 km pro Wachsbehandlung' : '250–550 km per wax treatment',
+    },
+    {
+      icon: Clock,
+      text: de ? 'Kassette & Kettenblätter halten länger' : 'Cassette & chainrings last longer',
+      sub: de ? 'Weniger abrasiver Verschleiß am gesamten Antrieb' : 'Less abrasive wear on the entire drivetrain',
+    },
+    {
+      icon: PiggyBank,
+      text: de
+        ? `~€${waxVsOil.cost.savedEur} gespart über ${waxVsOil.cost.km.toLocaleString('de-DE')} km`
+        : `~€${waxVsOil.cost.savedEur} saved over ${waxVsOil.cost.km.toLocaleString('en-US')} km`,
+      sub: de
+        ? `Öl ~€${waxVsOil.cost.oilEur} → Wachs ~€${waxVsOil.cost.waxEur}`
+        : `Oil ~€${waxVsOil.cost.oilEur} → Wax ~€${waxVsOil.cost.waxEur}`,
+    },
+  ];
+}
 
 export function WhyWax() {
   const { lang }   = useLanguage();
   const de         = lang === 'de';
   const sectionRef = useRef<HTMLElement>(null);
   const headerRef  = useRef<HTMLDivElement>(null);
-  const compareRef = useRef<HTMLDivElement>(null);
-  const footerRef  = useRef<HTMLDivElement>(null);
+  const cardsRef   = useRef<HTMLDivElement>(null);
+  const benefitsRef = useRef<HTMLDivElement>(null);
 
   useSectionReveal(headerRef);
 
-  // Comparison rows + footer ease in on scroll; the dominance bars then sweep
-  // out to their wax-share width — one quiet, intentional beat.
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const ctx = gsap.context(() => {
-      const rows = compareRef.current?.querySelectorAll('[data-row]');
-      if (rows?.length) {
-        gsap.fromTo(rows,
-          { y: 16, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.5, ease: 'power3.out', stagger: 0.08,
-            scrollTrigger: { trigger: compareRef.current, start: 'top 85%', once: true } });
+      const cards = cardsRef.current?.querySelectorAll('[data-card]');
+      if (cards?.length) {
+        gsap.fromTo(cards,
+          { y: 24, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.6, ease: 'power3.out', stagger: 0.1,
+            scrollTrigger: { trigger: cardsRef.current, start: 'top 85%', once: true } });
       }
-      // Bars grow via scaleX (GPU transform) — no per-frame layout reflow.
-      // Their layout width is already the wax-share %; scaleX animates 0→1 from the left.
-      const bars = compareRef.current?.querySelectorAll('[data-bar]');
+      const bars = cardsRef.current?.querySelectorAll('[data-bar]');
       if (bars?.length) {
         gsap.fromTo(bars,
           { scaleX: 0 },
-          { scaleX: 1, transformOrigin: 'left center', duration: 0.9, ease: 'power3.out',
-            scrollTrigger: { trigger: compareRef.current, start: 'top 80%', once: true } });
+          { scaleX: 1, transformOrigin: 'left center', duration: 1, ease: 'power3.out',
+            scrollTrigger: { trigger: cardsRef.current, start: 'top 80%', once: true } });
       }
-      const items = footerRef.current?.querySelectorAll('[data-foot]');
+      const items = benefitsRef.current?.querySelectorAll('[data-benefit]');
       if (items?.length) {
         gsap.fromTo(items,
-          { y: 14, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.5, ease: 'power3.out', stagger: 0.07,
-            scrollTrigger: { trigger: footerRef.current, start: 'top 90%', once: true } });
+          { y: 16, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.5, ease: 'power3.out', stagger: 0.08,
+            scrollTrigger: { trigger: benefitsRef.current, start: 'top 88%', once: true } });
       }
     }, section);
     return () => { ctx.revert(); ScrollTrigger.refresh(); };
   }, []);
 
-  const metrics = buildMetrics(de);
+  const cards = buildCards(de);
+  const benefits = buildBenefits(de);
 
   return (
     <section id="warum-wachs" ref={sectionRef} className="relative py-24 sm:py-32 bg-wx-sf">
@@ -107,123 +140,81 @@ export function WhyWax() {
             </p>
           </div>
 
-          {/* ── Editorial comparison — photo | scoreboard ── */}
-          <div className="grid lg:grid-cols-[0.92fr_1fr] gap-12 lg:gap-16 items-center">
-
-            {/* Chain photo */}
-            <div className="order-2 lg:order-1">
-              <div className="relative rounded-2xl overflow-hidden aspect-[4/3]"
-                style={{ border: '1px solid var(--bd)' }}>
-                <img
-                  src="/images/hero/chain.jpg"
-                  alt={de ? 'Saubere, gewachste Fahrradketten auf Schieferplatte' : 'Clean wax-coated bicycle chains on slate'}
-                  className="absolute inset-0 w-full h-full object-cover"
-                  loading="lazy"
-                />
-                <div className="absolute inset-0"
-                  style={{ background: 'linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.55) 100%)' }} />
-                <p className="absolute bottom-0 left-0 right-0 px-5 pb-4 text-[12.5px] leading-relaxed"
-                  style={{ color: 'rgba(255,255,255,0.82)' }}>
-                  {de
-                    ? 'Trockener Wachsfilm — Schmutz findet keinen Halt.'
-                    : 'A dry wax film gives dirt nothing to cling to.'}
-                </p>
-              </div>
-            </div>
-
-            {/* Scoreboard */}
-            <div ref={compareRef} className="order-1 lg:order-2">
-              {/* column labels */}
-              <div className="flex items-end justify-end gap-8 sm:gap-10 mb-1 pb-3"
-                style={{ borderBottom: '1px solid var(--bd)' }}>
-                <span className="text-[10.5px] uppercase font-semibold tracking-[0.18em] w-[88px] text-right"
-                  style={{ color: 'var(--accent-soft)' }}>{de ? 'Wachs' : 'Wax'}</span>
-                <span className="text-[10.5px] uppercase font-semibold tracking-[0.18em] w-[100px] text-right"
-                  style={{ color: 'var(--txf)' }}>{de ? 'Öl' : 'Oil'}</span>
-              </div>
-
-              {metrics.map((m, i) => (
-                <div key={i} data-row className="py-4"
-                  style={i > 0 ? { borderTop: '1px solid var(--bd2)' } : undefined}>
-                  <div className="flex items-baseline justify-between gap-4">
-                    <span className="text-[11px] uppercase tracking-[0.16em] font-medium"
-                      style={{ color: 'var(--txm)' }}>{m.label}</span>
-                    <div className="flex items-baseline gap-8 sm:gap-10">
-                      <span className="num-data font-semibold text-[19px] leading-none w-[88px] text-right"
-                        style={{ color: 'var(--accent-soft)' }}>{m.wax}</span>
-                      <span className="num-data text-[15px] leading-tight w-[100px] text-right"
-                        style={{ color: 'var(--txf)' }}>{m.oil}</span>
-                    </div>
-                  </div>
-                  {/* dominance bar — accent = wax's share of the advantage */}
-                  <div className="mt-3 h-[3px] w-full rounded-full overflow-hidden"
+          {/* ── Stat cards — 2×2 grid ── */}
+          <div ref={cardsRef} className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            {cards.map((c, i) => {
+              const Icon = c.icon;
+              return (
+                <div key={i} data-card className="rounded-2xl px-5 py-5 sm:py-6 flex flex-col"
+                  style={{ background: 'var(--card-bg)', border: '1px solid var(--bd)', boxShadow: 'var(--card-shad)' }}>
+                  <Icon className="h-5 w-5 mb-4" style={{ color: 'var(--accent-soft)' }} />
+                  <span className="font-bold text-[26px] sm:text-[30px] leading-none tracking-[-0.03em]"
+                    style={{ fontFamily: MONO, color: 'var(--tx1)' }}>
+                    {c.value}
+                  </span>
+                  <span className="text-[11px] uppercase tracking-[0.14em] font-medium mt-2"
+                    style={{ color: 'var(--txm)' }}>
+                    {c.label}
+                  </span>
+                  <span className="text-[11px] mt-1" style={{ color: 'var(--txf)' }}>
+                    {c.detail}
+                  </span>
+                  <div className="mt-auto pt-4 h-[3px] w-full rounded-full overflow-hidden"
                     style={{ background: 'var(--bd2)' }}>
-                    <div data-bar data-to={`${Math.round(m.waxShare * 100)}%`}
-                      className="h-full rounded-full"
-                      style={{ width: `${Math.round(m.waxShare * 100)}%`, background: 'var(--accent-soft)' }} />
+                    <div data-bar className="h-full rounded-full"
+                      style={{ width: `${Math.round(c.share * 100)}%`, background: 'var(--accent-soft)' }} />
                   </div>
                 </div>
-              ))}
+              );
+            })}
+          </div>
+
+          {/* ── Real-world benefits ── */}
+          <div ref={benefitsRef} className="mt-12 sm:mt-16">
+            <p className="eyebrow mb-5" style={{ color: 'var(--txf)' }}>
+              {de ? 'Was das bedeutet' : 'What this means'}
+            </p>
+
+            <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
+              {benefits.map((b, i) => {
+                const Icon = b.icon;
+                return (
+                  <div key={i} data-benefit
+                    className="flex items-start gap-4 rounded-xl px-5 py-4"
+                    style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)' }}>
+                    <div className="flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center mt-0.5"
+                      style={{ background: 'rgba(var(--accent-rgb),0.08)' }}>
+                      <Icon className="h-4 w-4" style={{ color: 'var(--accent-soft)' }} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[14px] font-semibold leading-tight" style={{ color: 'var(--tx1)' }}>
+                        {b.text}
+                      </p>
+                      <p className="text-[12px] mt-1 leading-relaxed" style={{ color: 'var(--txm)' }}>
+                        {b.sub}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
-          {/* ── Calm editorial footer — hairlines, no boxes ── */}
-          <div ref={footerRef} className="mt-16 sm:mt-20">
-
-            {/* Conditions — three quiet inline proofs */}
-            <div data-foot className="grid grid-cols-1 sm:grid-cols-3"
-              style={{ borderTop: '1px solid var(--bd)' }}>
-              {conditions.map((c, i) => (
-                <Link key={i} to={`/wissenschaft${c.anchor}`}
-                  className="group flex items-baseline justify-between gap-3 py-5 sm:px-5 first:sm:pl-0 transition-colors"
-                  style={i > 0 ? { borderTop: '1px solid var(--bd2)' } : undefined}>
-                  <span>
-                    <span className="num-data font-semibold text-[16px] block"
-                      style={{ color: 'var(--accent-soft)' }}>{c.metric}</span>
-                    <span className="text-[12px] mt-1 block" style={{ color: 'var(--txm)' }}>
-                      {de ? c.labelDe : c.labelEn}
-                    </span>
-                  </span>
-                  <span aria-hidden className="text-[13px] transition-transform duration-300 group-hover:translate-x-0.5"
-                    style={{ color: 'var(--accent-soft)' }}>→</span>
-                </Link>
-              ))}
+          {/* ── Science CTA ── */}
+          <Link to="/wissenschaft" data-benefit
+            className="group flex items-center justify-between gap-4 mt-8 px-6 py-5 rounded-xl transition-all hover:shadow-md"
+            style={{ background: 'var(--card-bg)', border: '1px solid var(--bd)' }}>
+            <div>
+              <p className="text-[14px] font-semibold" style={{ color: 'var(--tx1)' }}>
+                {de ? 'Die Wissenschaft dahinter' : 'The science behind it'}
+              </p>
+              <p className="text-[12px] mt-0.5" style={{ color: 'var(--txm)' }}>
+                {de ? 'Kontaktzonen, Reibkurven, Mikroskopie — alles gemessen.' : 'Contact zones, friction curves, microscopy — all measured.'}
+              </p>
             </div>
-
-            {/* Cost — one quiet measured line */}
-            <Link to="/wissenschaft#reibung" data-foot
-              className="group flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 py-5"
-              style={{ borderTop: '1px solid var(--bd)' }}>
-              <p className="text-[14px]" style={{ color: 'var(--tx2)' }}>
-                <span className="num font-bold" style={{ color: 'var(--tx1)' }}>~€{waxVsOil.cost.savedEur}</span>
-                {de ? ' gespart · ' : ' saved · '}
-                <span className="font-semibold" style={{ color: 'var(--accent-soft)' }}>
-                  {waxVsOil.cost.pctLess}{de ? ' % weniger Reibverlust' : '% less drag'}
-                </span>
-                {de ? ' über ' : ' over '}
-                <span className="num">{waxVsOil.cost.km.toLocaleString(de ? 'de-DE' : 'en-US')} km</span>
-              </p>
-              <span className="text-[12.5px] num" style={{ color: 'var(--txm)' }}>
-                {de ? 'Öl ' : 'Oil '}~€{waxVsOil.cost.oilEur} → {de ? 'Wachs ' : 'Wax '}~€{waxVsOil.cost.waxEur}
-              </span>
-            </Link>
-
-            {/* Science CTA */}
-            <Link to="/wissenschaft" data-foot
-              className="group flex items-center justify-between gap-4 py-5"
-              style={{ borderTop: '1px solid var(--bd)' }}>
-              <p className="text-[14px]" style={{ color: 'var(--tx2)' }}>
-                <span className="font-semibold" style={{ color: 'var(--tx1)' }}>
-                  {de ? 'Die Wissenschaft dahinter' : 'The science behind it'}
-                </span>
-                <span style={{ color: 'var(--txm)' }}>
-                  {de ? ' — Kontaktzonen, Reibkurven, Mikroskopie' : ' — contact zones, friction curves, microscopy'}
-                </span>
-              </p>
-              <span className="text-[14px] font-medium shrink-0 transition-transform duration-300 group-hover:translate-x-1"
-                style={{ color: 'var(--accent-soft)' }}>→</span>
-            </Link>
-          </div>
+            <ArrowRight className="h-5 w-5 flex-shrink-0 transition-transform duration-300 group-hover:translate-x-1"
+              style={{ color: 'var(--accent-soft)' }} />
+          </Link>
 
         </div>
       </div>

@@ -500,7 +500,7 @@ export function Hero() {
                     className="text-[10.5px] sm:text-[11px] uppercase tabular-nums"
                     style={{ letterSpacing: '0.13em', color: 'rgba(255,255,255,0.55)' }}
                   >
-                    189 · {de ? '100 % positiv' : '100% positive'} · {de ? 'eBay-Käuferschutz' : 'eBay buyer protection'}
+                    200+ · {de ? '100 % positiv' : '100% positive'} · {de ? 'eBay-Käuferschutz' : 'eBay buyer protection'}
                   </span>
                 </div>
 

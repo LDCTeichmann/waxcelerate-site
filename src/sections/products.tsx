@@ -358,24 +358,26 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deli
             )}
           </div>
 
-          {/* Trust signals — compact row */}
-          <div className="flex items-center flex-wrap gap-x-3 gap-y-1 mt-2.5 pt-2.5" style={{ borderTop: '1px solid var(--bd2)' }}>
+          {/* Trust signals */}
+          <div className="flex items-center flex-wrap gap-2 mt-3 pt-3" style={{ borderTop: '1px solid var(--bd2)' }}>
             {product.unitsSold != null && product.unitsSold > 0 && (
-              <span className="flex items-center gap-1 text-[10.5px] font-medium" style={{ color: 'var(--tx2)' }}>
-                <TrendingUp className="h-3 w-3" style={{ color: 'var(--accent-soft)' }} />
+              <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-md"
+                style={{ background: 'rgba(var(--accent-rgb),0.08)', color: 'var(--accent-soft)' }}>
+                <TrendingUp className="h-3 w-3" />
                 {product.unitsSold}+ {de ? 'verkauft' : 'sold'}
               </span>
             )}
             {deliveryDate && (
-              <span className="flex items-center gap-1 text-[10.5px]" style={{ color: 'var(--txm)' }}>
-                <Truck className="h-3 w-3" style={{ color: 'var(--txf)' }} />
-                <span style={{ color: '#16a34a' }}>{de ? 'Gratis' : 'Free'}</span>
-                {' '}{de ? 'Lieferung' : 'delivery'} · {deliveryDate}
+              <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-md"
+                style={{ background: 'rgba(22,163,74,0.08)', color: '#16a34a' }}>
+                <Truck className="h-3 w-3" />
+                {de ? 'Gratis ab 50 €' : 'Free over €50'} · {deliveryDate}
               </span>
             )}
-            <span className="flex items-center gap-1 text-[10.5px]" style={{ color: 'var(--txm)' }}>
-              <Package className="h-3 w-3" style={{ color: 'var(--txf)' }} />
-              {de ? 'Bis 15% sparen bei Mehrkauf' : 'Up to 15% off on multi-buy'}
+            <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-md"
+              style={{ background: 'rgba(220,38,38,0.07)', color: '#dc2626' }}>
+              <Package className="h-3 w-3" />
+              {de ? 'Bis 15 % Rabatt' : 'Up to 15% off'}
             </span>
           </div>
         </div>

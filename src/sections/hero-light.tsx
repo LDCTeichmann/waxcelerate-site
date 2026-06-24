@@ -470,7 +470,7 @@ export function Hero() {
                   <span style={{ color: 'var(--brand-blue)', letterSpacing: '0.08em', fontSize: '13px' }}>★★★★★</span>
                   <span className="text-[8.5px] sm:text-[10.5px] uppercase"
                         style={{ fontFamily: '"IBM Plex Mono", ui-monospace, monospace', letterSpacing: '0.06em', color: 'var(--txm)' }}>
-                    189 · {de ? '100 % positiv' : '100% positive'} · {de ? 'eBay-Käuferschutz' : 'eBay buyer protection'}
+                    200+ · {de ? '100 % positiv' : '100% positive'} · {de ? 'eBay-Käuferschutz' : 'eBay buyer protection'}
                   </span>
                 </div>
                 <div className="flex items-stretch gap-1 order-1 sm:order-2">

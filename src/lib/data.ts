@@ -113,7 +113,7 @@ export const products: Product[] = [
       '/images/products/classic/classic-3.webp',
     ],
     ebayUrl: 'https://www.ebay.de/itm/395811183957',
-    unitsSold: 52,
+    unitsSold: 60,
     badge: 'Kompakt',
     badgeEn: 'Compact',
     formula: ['Vollraffiniertes Paraffinwachs', 'PTFE < 1 µm', 'Stearinsäurederivat'],
@@ -155,7 +155,7 @@ export const products: Product[] = [
     descriptionEn: 'For autumn, winter and wet rides. MoS₂ builds a harder transfer film — longer intervals, less rust, functional down to −8 °C.',
     price: 34.95,
     image: '/images/products/pro/pro-3.webp',
-    imagePosition: 'center 50%',
+    imagePosition: 'center 45%',
     images: [
       '/images/products/pro/pro-5.webp',
       '/images/products/pro/pro-1.webp',
@@ -164,7 +164,7 @@ export const products: Product[] = [
       '/images/products/pro/pro-6.webp',
     ],
     ebayUrl: 'https://www.ebay.de/itm/396468036330',
-    unitsSold: 89,
+    unitsSold: 23,
     badge: 'Pro',
     badgeEn: 'Pro',
     formula: [
@@ -219,7 +219,7 @@ export const products: Product[] = [
     descriptionEn: 'Pro formula compact — for riders who switch between summer and winter formulas, or as a portable winter block.',
     price: 26.95,
     image: '/images/products/pro/pro-3.webp',
-    imagePosition: 'center 50%',
+    imagePosition: 'center 45%',
     images: [
       '/images/products/pro/pro-5.webp',
       '/images/products/pro/pro-1.webp',
@@ -228,7 +228,7 @@ export const products: Product[] = [
       '/images/products/pro/pro-6.webp',
     ],
     ebayUrl: 'https://www.ebay.de/itm/397861543533',
-    unitsSold: 34,
+    unitsSold: 6,
     badge: 'Pro',
     badgeEn: 'Pro',
     formula: [
