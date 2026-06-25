@@ -181,7 +181,7 @@ export function Hero() {
         className="hero-stage relative overflow-hidden min-h-[100svh] lg:h-[100svh] lg:min-h-[640px]"
       >
 
-        {/* ── Full-bleed chain background with parallax ── */}
+        {/* ── Full-bleed chain background (replaces old diagonal chain panel) ── */}
         <div ref={bgRef} className="absolute inset-[-4%] z-[1] will-change-transform">
           <img
             src="/images/hero/chain-bg.jpg"
@@ -190,45 +190,48 @@ export function Hero() {
             style={{ objectPosition: '58% 32%' }}
             fetchPriority="high"
           />
-          {/* Cinematic grade: darken left for text, keep right lighter for wax */}
           <div className="absolute inset-0" style={{
-            background: 'linear-gradient(105deg, rgba(4,6,14,0.72) 0%, rgba(4,6,14,0.48) 35%, rgba(4,6,14,0.22) 55%, rgba(4,6,14,0.35) 100%)',
+            background: 'linear-gradient(105deg, rgba(4,6,14,0.72) 0%, rgba(4,6,14,0.50) 35%, rgba(4,6,14,0.25) 55%, rgba(4,6,14,0.38) 100%)',
           }} />
-          {/* Vertical letterbox */}
           <div className="absolute inset-0" style={{
-            background: 'linear-gradient(to bottom, rgba(4,6,14,0.30) 0%, transparent 22%, transparent 60%, rgba(4,6,14,0.55) 100%)',
+            background: 'linear-gradient(to bottom, rgba(4,6,14,0.30) 0%, transparent 22%, transparent 60%, rgba(4,6,14,0.50) 100%)',
           }} />
-          {/* Vignette */}
           <div className="absolute inset-0" style={{
-            background: 'radial-gradient(ellipse 70% 65% at 55% 48%, transparent 30%, rgba(4,6,14,0.22) 100%)',
+            background: 'radial-gradient(ellipse 70% 65% at 55% 48%, transparent 30%, rgba(4,6,14,0.25) 100%)',
           }} />
         </div>
 
-        {/* ── Brand: "Waxcelerate" — massive, spanning full width ── */}
+        {/* ── Brand: "Waxcelerate" — left-aligned on desktop, centered on mobile ── */}
         <div
           ref={wordRef}
           aria-hidden
-          className="absolute inset-x-0 z-[2] pointer-events-none select-none will-change-transform"
-          style={{ top: 'clamp(72px, 11vh, 160px)' }}
+          className="absolute left-0 right-0 top-[120px] lg:top-[15.5%] z-[6] lg:z-[2] pointer-events-none select-none px-6 sm:px-10 lg:px-14 xl:px-20 will-change-transform"
         >
-          <div className="flex justify-center px-4">
-            <div
-              className="whitespace-nowrap"
-              style={{
-                fontFamily: '"Libre Franklin", ui-sans-serif, system-ui, sans-serif',
-                fontWeight: 800,
-                fontSize: 'clamp(2.5rem, 11.5vw, 12rem)',
-                lineHeight: 0.88,
-                letterSpacing: '-0.025em',
-                color: 'rgba(255,255,255,0.92)',
-                textShadow: '0 4px 60px rgba(0,0,0,0.35), 0 1px 3px rgba(0,0,0,0.2)',
-              }}
-            >
-              {BRAND.map((ch, i) => (
-                <span key={i} className="inline-block overflow-hidden align-bottom">
-                  <span data-letter className="inline-block">{ch}</span>
-                </span>
-              ))}
+          <div className="max-w-7xl mx-auto">
+            <div className="flex justify-center lg:justify-start">
+              <div
+                className="whitespace-nowrap text-white"
+                style={{
+                  fontFamily: '"Libre Franklin", ui-sans-serif, system-ui, sans-serif',
+                  fontWeight: 700,
+                  fontSize: 'clamp(1.9rem, 6.8vw, 7rem)',
+                  lineHeight: 0.92,
+                  letterSpacing: '-0.008em',
+                }}
+              >
+                {BRAND.map((ch, i) => (
+                  <span key={i} className="inline-block overflow-hidden align-bottom">
+                    <span data-letter className="inline-block">{ch}</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+            {/* Masthead line */}
+            <div data-hero className="hidden lg:flex items-center gap-4 mt-5 w-[38%]">
+              <span className="h-px flex-1" style={{ background: 'rgba(255,255,255,0.15)' }} />
+              <span className="text-[10.5px] uppercase whitespace-nowrap" style={{ letterSpacing: '0.28em', color: 'rgba(255,255,255,0.45)' }}>
+                Made in Germany · Stuttgart
+              </span>
             </div>
           </div>
         </div>
@@ -238,12 +241,12 @@ export function Hero() {
           aria-hidden
           className="absolute z-[3] pointer-events-none hidden lg:block"
           style={{
-            left: '54%', top: '50%',
+            left: '53%', top: '54%',
             transform: 'translate(-50%, -50%)',
-            width: 'clamp(380px, 38vw, 580px)',
-            height: 'clamp(380px, 38vw, 580px)',
-            background: 'radial-gradient(ellipse 70% 70% at 50% 50%, rgba(232,238,252,0.22) 0%, transparent 70%)',
-            filter: 'blur(36px)',
+            width: 'clamp(300px, 34vw, 480px)',
+            height: 'clamp(300px, 34vw, 480px)',
+            background: 'radial-gradient(ellipse 70% 70% at 50% 50%, rgba(232,238,252,0.28) 0%, transparent 70%)',
+            filter: 'blur(32px)',
           }}
         />
 
@@ -251,12 +254,12 @@ export function Hero() {
         <div
           ref={cubeBoxRef}
           className="absolute z-[5] pointer-events-none will-change-transform
-                     left-1/2 -translate-x-1/2 top-[100px]
-                     w-[clamp(160px,46vw,220px)]
-                     lg:left-[54%] lg:top-[50%] lg:-translate-y-1/2 lg:w-[clamp(340px,32vw,500px)]"
+                     left-1/2 -translate-x-1/2 top-[244px] -translate-y-1/2
+                     w-[clamp(150px,42vw,210px)]
+                     lg:left-[53%] lg:top-[54%] lg:translate-y-[-50%] lg:w-[clamp(250px,27vw,410px)]"
         >
           <div ref={cubeAnimRef} className="relative will-change-transform"
-               style={{ filter: 'drop-shadow(0 45px 65px rgba(0,0,0,0.40)) drop-shadow(0 15px 25px rgba(0,0,0,0.22))' }}>
+               style={{ filter: 'drop-shadow(0 40px 55px rgba(18,24,40,0.30)) drop-shadow(0 12px 20px rgba(18,24,40,0.18))' }}>
             <picture>
               <source srcSet="/images/hero/wax-cutout.webp" type="image/webp" />
               <img
@@ -292,48 +295,66 @@ export function Hero() {
           onClick={() => setDiveOpen(true)}
           aria-label={de ? 'Blick ins Wachs — Inhaltsstoffe ansehen' : 'Look inside the wax — see the ingredients'}
           className="group hidden lg:block absolute z-[6]"
-          style={{ left: '54%', top: '50%', width: 'clamp(340px,32vw,500px)', height: 'clamp(340px,32vw,500px)',
+          style={{ left: '53%', top: '54%', width: 'clamp(250px,27vw,410px)', height: 'clamp(250px,27vw,410px)',
                    transform: 'translate(-50%,-50%)', cursor: lensOn && lensActive ? 'none' : 'pointer' }}
         />
 
+        {/* Footer fade */}
+        <div aria-hidden className="hero-footer-fade absolute inset-x-0 bottom-0 z-[8] pointer-events-none h-[120px]" />
+
         {/* Top fade */}
-        <div aria-hidden className="absolute top-0 inset-x-0 h-[100px] z-[7] pointer-events-none"
-             style={{ background: 'linear-gradient(to bottom, rgba(4,6,14,0.35), transparent)' }} />
+        <div aria-hidden className="hero-topfade absolute top-0 inset-x-0 h-[116px] z-[7] pointer-events-none" />
 
         {/* Film grain */}
         <div aria-hidden className="hero-grain absolute inset-0 z-[9] pointer-events-none" />
 
+        {/* Side rail — vertical index on left edge (xl only) */}
+        <div
+          data-hero
+          aria-hidden
+          className="hidden xl:flex absolute left-7 top-1/2 -translate-y-1/2 z-[7] flex-col items-center gap-5 pointer-events-none"
+        >
+          <span className="num-data text-[10px]" style={{ color: 'rgba(255,255,255,0.35)', letterSpacing: '0.12em' }}>Nº 01</span>
+          <span className="w-px h-24" style={{ background: 'linear-gradient(to bottom, transparent, rgba(255,255,255,0.12), transparent)' }} />
+          <span
+            className="text-[9.5px] uppercase font-medium"
+            style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', letterSpacing: '0.36em', color: 'rgba(255,255,255,0.35)' }}
+          >
+            {de ? 'Heißwachs-System' : 'Hot-wax system'}
+          </span>
+        </div>
+
         {/* ── Content — left, lower third ── */}
         <div className="relative z-[10] w-full lg:h-full px-6 sm:px-10 lg:px-14 xl:px-20 pointer-events-none">
-          <div className="max-w-7xl mx-auto flex flex-col pt-[290px] pb-[90px] lg:pt-0 lg:pb-[110px] lg:h-full lg:justify-end">
-            <div ref={contentRef} className="max-w-lg will-change-transform pointer-events-auto">
+          <div className="max-w-7xl mx-auto flex flex-col pt-[316px] pb-[150px] lg:pt-0 lg:pb-[104px] lg:h-full lg:justify-end">
+            <div ref={contentRef} className="max-w-xl will-change-transform pointer-events-auto">
 
               {/* Eyebrow */}
-              <div data-hero className="flex items-center gap-3.5 mb-5">
-                <span style={{ width: '28px', height: '2px', background: '#3D67CA' }} />
-                <p className="text-[10.5px] sm:text-[11.5px] uppercase font-semibold"
-                   style={{ letterSpacing: '0.28em', color: 'rgba(255,255,255,0.58)' }}>
+              <div data-hero className="flex items-center gap-3.5 mb-6">
+                <span style={{ width: '30px', height: '1.5px', background: '#3D67CA' }} />
+                <p className="text-[10px] sm:text-[11px] uppercase font-medium"
+                   style={{ letterSpacing: '0.3em', color: 'rgba(255,255,255,0.50)' }}>
                   {t.hero.subtitle}
                 </p>
               </div>
 
               {/* Headline */}
               <h1 className="font-display" style={{
-                fontSize: 'clamp(2.8rem, 5.5vw, 5rem)', lineHeight: 0.94,
-                letterSpacing: '-0.03em', fontWeight: 700, color: '#fff',
+                fontSize: 'clamp(2.4rem, 4.9vw, 4.5rem)', lineHeight: 0.98,
+                letterSpacing: '-0.025em', fontWeight: 600, color: '#fff',
               }}>
-                <span className="block" style={{ paddingBottom: '0.06em' }}>
+                <span className="block" style={{ paddingBottom: '0.05em' }}>
                   {t.hero.headline.split(' ').map((w, i) => (
-                    <span key={i} className="inline-block overflow-hidden align-bottom mr-[0.22em]">
+                    <span key={i} className="inline-block overflow-hidden align-bottom mr-[0.24em]">
                       <span data-word className="inline-block">{w}</span>
                     </span>
                   ))}
                 </span>
                 <span className="block" style={{ paddingBottom: '0.08em' }}>
                   {t.hero.headlineSub.split(' ').map((w, i) => (
-                    <span key={i} className="inline-block overflow-hidden align-bottom mr-[0.22em]">
+                    <span key={i} className="inline-block overflow-hidden align-bottom mr-[0.24em]">
                       <span data-word className="inline-block italic"
-                            style={{ fontWeight: 500, color: 'rgba(255,255,255,0.90)' }}>
+                            style={{ fontWeight: 500, color: 'rgba(255,255,255,0.88)' }}>
                         {w}
                       </span>
                     </span>
@@ -342,18 +363,18 @@ export function Hero() {
               </h1>
 
               {/* Benefit line */}
-              <p data-hero className="mt-5 max-w-[26rem] leading-[1.65]"
-                 style={{ fontSize: 'clamp(0.94rem, 1.35vw, 1.05rem)', color: 'rgba(255,255,255,0.65)' }}>
+              <p data-hero className="mt-5 max-w-md leading-relaxed"
+                 style={{ fontSize: 'clamp(0.95rem, 1.4vw, 1.0625rem)', color: 'rgba(255,255,255,0.62)' }}>
                 {t.hero.tagline}
               </p>
 
               {/* CTAs */}
-              <div data-hero className="mt-8 flex items-center gap-5 flex-wrap">
+              <div data-hero className="mt-8 flex items-center gap-6 flex-wrap">
                 <button
                   ref={ctaRef}
                   onClick={() => scrollTo('#produkte')}
-                  className="group inline-flex items-center gap-2.5 px-8 py-[15px] text-[14px] font-bold rounded-full transition-all duration-300 hover:shadow-[0_18px_44px_rgba(0,0,0,0.45)] will-change-transform"
-                  style={{ background: '#fff', color: '#0a0c12' }}
+                  className="group inline-flex items-center gap-2.5 px-8 py-4 text-[14px] font-bold rounded-full transition-shadow duration-300 hover:shadow-[0_16px_40px_rgba(0,0,0,0.40)] will-change-transform"
+                  style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
                 >
                   {t.hero.ctaBuy}
                   <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
@@ -361,9 +382,9 @@ export function Hero() {
                 <button
                   onClick={() => scrollTo('#warum-wachs')}
                   className="group inline-flex items-center gap-2 text-[13.5px] font-semibold transition-colors duration-200 hover:text-white"
-                  style={{ color: 'rgba(255,255,255,0.72)' }}
+                  style={{ color: 'rgba(255,255,255,0.70)' }}
                 >
-                  <span style={{ borderBottom: '1.5px solid rgba(255,255,255,0.20)', paddingBottom: '2px' }}>
+                  <span style={{ borderBottom: '1.5px solid rgba(255,255,255,0.18)', paddingBottom: '2px' }}>
                     {de ? 'Wie funktioniert Heißwachs?' : 'How hot wax works'}
                   </span>
                   <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
@@ -374,11 +395,11 @@ export function Hero() {
               <button
                 data-hero
                 onClick={() => setDiveOpen(true)}
-                className="group mt-5 inline-flex items-center gap-2 text-[12.5px] font-medium transition-opacity hover:opacity-80"
-                style={{ color: 'rgba(255,255,255,0.48)' }}
+                className="group mt-5 inline-flex items-center gap-2 text-[12.5px] font-medium transition-opacity hover:opacity-70"
+                style={{ color: 'rgba(255,255,255,0.42)' }}
               >
                 <Search className="h-3.5 w-3.5" />
-                <span style={{ textDecoration: 'underline', textUnderlineOffset: '4px', textDecorationColor: 'rgba(61,103,202,0.5)' }}>
+                <span style={{ textDecoration: 'underline', textUnderlineOffset: '4px', textDecorationColor: 'rgba(46,120,200,0.5)' }}>
                   {de ? 'Blick ins Wachs' : 'Look inside the wax'}
                 </span>
               </button>
@@ -392,22 +413,22 @@ export function Hero() {
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between py-4 sm:py-5"
                  style={{ borderTop: '1px solid rgba(255,255,255,0.10)' }}>
               <div className="flex items-center gap-3 order-2 sm:order-1">
-                <span style={{ color: '#4A7AE8', letterSpacing: '0.06em', fontSize: '12px' }}>★★★★★</span>
+                <span style={{ color: '#4A7AE8', letterSpacing: '0.08em', fontSize: '13px' }}>★★★★★</span>
                 <span className="text-[8.5px] sm:text-[10.5px] uppercase"
-                      style={{ fontFamily: MONO, letterSpacing: '0.08em', color: 'rgba(255,255,255,0.45)' }}>
+                      style={{ fontFamily: MONO, letterSpacing: '0.06em', color: 'rgba(255,255,255,0.42)' }}>
                   200+ · {de ? '100 % positiv' : '100% positive'} · {de ? 'eBay-Käuferschutz' : 'eBay buyer protection'}
                 </span>
               </div>
-              <div className="flex items-stretch gap-0 order-1 sm:order-2">
+              <div className="flex items-stretch gap-1 order-1 sm:order-2">
                 {stats.map((s, i) => (
                   <div key={i} className="px-2.5 sm:px-7 first:pl-0 last:pr-0"
                        style={{ borderLeft: i > 0 ? '1px solid rgba(255,255,255,0.10)' : 'none' }}>
                     <p data-stat-val className="tabular-nums leading-none"
-                       style={{ fontFamily: MONO, fontWeight: 600, fontSize: 'clamp(1.1rem, 2vw, 1.65rem)', letterSpacing: '-0.02em', color: '#fff' }}>
+                       style={{ fontFamily: MONO, fontWeight: 500, fontSize: 'clamp(1.05rem, 1.9vw, 1.6rem)', letterSpacing: '-0.02em', color: '#fff' }}>
                       {s.v}
                     </p>
                     <p className="text-[8px] sm:text-[9.5px] uppercase mt-1.5 sm:mt-2 leading-tight max-w-[10ch] sm:max-w-none sm:whitespace-nowrap"
-                       style={{ fontFamily: MONO, letterSpacing: '0.06em', color: 'rgba(255,255,255,0.42)' }}>
+                       style={{ fontFamily: MONO, letterSpacing: '0.04em', color: 'rgba(255,255,255,0.38)' }}>
                       {s.l}
                     </p>
                   </div>
