@@ -175,10 +175,15 @@ export function Hero() {
   ];
 
   return (
-    <section id="home" ref={rootRef} className="hero-editorial relative" style={{ background: '#080a10' }}>
+    <section id="home" ref={rootRef} className="hero-editorial relative" style={{ background: 'var(--pg)' }}>
       <div
         ref={stageRef}
-        className="hero-stage relative overflow-hidden min-h-[100svh] lg:h-[100svh] lg:min-h-[640px]"
+        className="hero-stage relative overflow-hidden"
+        style={{
+          margin: '0 clamp(12px, 1.5vw, 24px)',
+          borderRadius: 'clamp(16px, 2vw, 28px)',
+          minHeight: '100svh',
+        }}
       >
 
         {/* ── Full-bleed chain background (replaces old diagonal chain panel) ── */}
@@ -251,7 +256,7 @@ export function Hero() {
           }}
         />
 
-        {/* ── Wax block — cutout in white-bordered frame ── */}
+        {/* ── Wax cutout — transparent PNG floating above the background ── */}
         <div
           ref={cubeBoxRef}
           className="absolute z-[5] pointer-events-none will-change-transform
@@ -259,30 +264,30 @@ export function Hero() {
                      w-[clamp(150px,42vw,210px)]
                      lg:left-[53%] lg:top-[54%] lg:translate-y-[-50%] lg:w-[clamp(250px,27vw,410px)]"
         >
-          <div ref={cubeAnimRef} className="relative will-change-transform">
-            <div className="relative overflow-hidden"
-                 style={{
-                   borderRadius: 'clamp(18px, 3.5vw, 38px)',
-                   border: '4px solid rgba(255,255,255,0.88)',
-                   background: '#161a24',
-                   boxShadow: '0 50px 80px rgba(0,0,0,0.40), 0 20px 35px rgba(0,0,0,0.25), 0 0 60px rgba(255,255,255,0.06)',
-                 }}>
-              <picture>
-                <source srcSet="/images/hero/wax-cutout.webp" type="image/webp" />
-                <img
-                  src="/images/hero/wax-cutout.png"
-                  alt={de ? 'Waxcelerate Heißwachs-Block' : 'Waxcelerate hot wax block'}
-                  className="block w-full h-auto"
-                  style={{ padding: '4%' }}
-                  fetchPriority="high"
-                />
-              </picture>
-              {/* Subtle gloss */}
-              <div className="absolute inset-0 pointer-events-none"
-                   style={{
-                     background: 'linear-gradient(145deg, rgba(255,255,255,0.10) 0%, transparent 40%, rgba(0,0,0,0.08) 100%)',
-                   }} />
-            </div>
+          <div ref={cubeAnimRef} className="relative will-change-transform"
+               style={{ filter: 'drop-shadow(0 40px 55px rgba(18,24,40,0.30)) drop-shadow(0 12px 20px rgba(18,24,40,0.18))' }}>
+            <picture>
+              <source srcSet="/images/hero/wax-cutout.webp" type="image/webp" />
+              <img
+                src="/images/hero/wax-cutout.png"
+                alt={de ? 'Waxcelerate Heißwachs-Block' : 'Waxcelerate hot wax block'}
+                className="block w-full h-auto"
+                fetchPriority="high"
+              />
+            </picture>
+            {/* Lit-sheen — surface gloss clipped to wax silhouette */}
+            <div
+              aria-hidden
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                WebkitMaskImage: 'url(/images/hero/wax-cutout-mask.png)',
+                maskImage: 'url(/images/hero/wax-cutout-mask.png)',
+                WebkitMaskSize: '100% 100%', maskSize: '100% 100%',
+                WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat',
+                background: 'linear-gradient(132deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.12) 30%, rgba(255,255,255,0) 50%, rgba(8,14,30,0.18) 100%)',
+                mixBlendMode: 'soft-light',
+              }}
+            />
           </div>
         </div>
 
