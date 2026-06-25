@@ -192,52 +192,42 @@ export function Hero() {
             src="/images/hero/chain-bg.jpg"
             alt=""
             className="absolute inset-0 w-full h-full object-cover"
-            style={{ objectPosition: '38% 45%' }}
+            style={{ objectPosition: '38% 45%', filter: 'brightness(0.38)' }}
             fetchPriority="high"
           />
-          {/* Heavy fade on left/center — reveals mostly slate, chains only on right */}
+          {/* Overlay — dark left, chains subtly visible on right */}
           <div className="absolute inset-0" style={{
-            background: 'linear-gradient(100deg, rgba(4,6,14,0.82) 0%, rgba(4,6,14,0.68) 30%, rgba(4,6,14,0.45) 55%, rgba(4,6,14,0.20) 80%, rgba(4,6,14,0.30) 100%)',
+            background: 'linear-gradient(100deg, rgba(4,6,14,0.88) 0%, rgba(4,6,14,0.82) 30%, rgba(4,6,14,0.70) 55%, rgba(4,6,14,0.40) 80%, rgba(4,6,14,0.35) 100%)',
           }} />
           <div className="absolute inset-0" style={{
-            background: 'linear-gradient(to bottom, rgba(4,6,14,0.28) 0%, transparent 20%, transparent 62%, rgba(4,6,14,0.50) 100%)',
-          }} />
-          <div className="absolute inset-0" style={{
-            background: 'radial-gradient(ellipse 65% 60% at 50% 48%, transparent 25%, rgba(4,6,14,0.28) 100%)',
+            background: 'linear-gradient(to bottom, rgba(4,6,14,0.30) 0%, transparent 20%, transparent 65%, rgba(4,6,14,0.45) 100%)',
           }} />
         </div>
 
-        {/* ── Brand: "Waxcelerate" — left-aligned on desktop, centered on mobile ── */}
+        {/* ── Brand: "Waxcelerate" — centered, massive, spanning full width ── */}
         <div
           ref={wordRef}
           aria-hidden
-          className="absolute left-0 right-0 top-[120px] lg:top-[15.5%] z-[6] lg:z-[2] pointer-events-none select-none px-6 sm:px-10 lg:px-14 xl:px-20 will-change-transform"
+          className="absolute inset-x-0 z-[2] pointer-events-none select-none will-change-transform"
+          style={{ top: 'clamp(72px, 12vh, 170px)' }}
         >
-          <div className="max-w-7xl mx-auto">
-            <div className="flex justify-center lg:justify-start">
-              <div
-                className="whitespace-nowrap text-white"
-                style={{
-                  fontFamily: '"Libre Franklin", ui-sans-serif, system-ui, sans-serif',
-                  fontWeight: 700,
-                  fontSize: 'clamp(1.9rem, 6.8vw, 7rem)',
-                  lineHeight: 0.92,
-                  letterSpacing: '-0.008em',
-                }}
-              >
-                {BRAND.map((ch, i) => (
-                  <span key={i} className="inline-block overflow-hidden align-bottom">
-                    <span data-letter className="inline-block">{ch}</span>
-                  </span>
-                ))}
-              </div>
-            </div>
-            {/* Masthead line */}
-            <div data-hero className="hidden lg:flex items-center gap-4 mt-5 w-[38%]">
-              <span className="h-px flex-1" style={{ background: 'rgba(255,255,255,0.15)' }} />
-              <span className="text-[10.5px] uppercase whitespace-nowrap" style={{ letterSpacing: '0.28em', color: 'rgba(255,255,255,0.45)' }}>
-                Made in Germany · Stuttgart
-              </span>
+          <div className="flex justify-center px-4">
+            <div
+              className="whitespace-nowrap text-white"
+              style={{
+                fontFamily: '"Libre Franklin", ui-sans-serif, system-ui, sans-serif',
+                fontWeight: 800,
+                fontSize: 'clamp(2.5rem, 11.5vw, 12rem)',
+                lineHeight: 0.88,
+                letterSpacing: '-0.025em',
+                textShadow: '0 4px 60px rgba(0,0,0,0.30)',
+              }}
+            >
+              {BRAND.map((ch, i) => (
+                <span key={i} className="inline-block overflow-hidden align-bottom">
+                  <span data-letter className="inline-block">{ch}</span>
+                </span>
+              ))}
             </div>
           </div>
         </div>
@@ -266,15 +256,18 @@ export function Hero() {
         >
           <div ref={cubeAnimRef} className="relative will-change-transform"
                style={{ filter: 'drop-shadow(0 40px 55px rgba(18,24,40,0.30)) drop-shadow(0 12px 20px rgba(18,24,40,0.18))' }}>
-            <picture>
-              <source srcSet="/images/hero/wax-cutout.webp" type="image/webp" />
-              <img
-                src="/images/hero/wax-cutout.png"
-                alt={de ? 'Waxcelerate Heißwachs-Block' : 'Waxcelerate hot wax block'}
-                className="block w-full h-auto"
-                fetchPriority="high"
-              />
-            </picture>
+            <div className="rounded-[clamp(18px,2.2vw,32px)] overflow-hidden"
+                 style={{ border: '5px solid rgba(255,255,255,0.88)', background: 'rgba(10,14,24,0.60)' }}>
+              <picture>
+                <source srcSet="/images/hero/wax-cutout.webp" type="image/webp" />
+                <img
+                  src="/images/hero/wax-cutout.png"
+                  alt={de ? 'Waxcelerate Heißwachs-Block' : 'Waxcelerate hot wax block'}
+                  className="block w-full h-auto"
+                  fetchPriority="high"
+                />
+              </picture>
+            </div>
             {/* Lit-sheen — surface gloss clipped to wax silhouette */}
             <div
               aria-hidden
@@ -331,8 +324,8 @@ export function Hero() {
         </div>
 
         {/* ── Content — left, lower third ── */}
-        <div className="relative z-[10] w-full lg:h-full px-6 sm:px-10 lg:px-14 xl:px-20 pointer-events-none">
-          <div className="max-w-7xl mx-auto flex flex-col pt-[316px] pb-[150px] lg:pt-0 lg:pb-[104px] lg:h-full lg:justify-end">
+        <div className="relative z-[10] w-full px-6 sm:px-10 lg:px-14 xl:px-20 pointer-events-none" style={{ minHeight: '100svh' }}>
+          <div className="max-w-7xl mx-auto flex flex-col justify-end pt-[316px] pb-[150px] lg:pt-0 lg:pb-[104px]" style={{ minHeight: '100svh' }}>
             <div ref={contentRef} className="max-w-xl will-change-transform pointer-events-auto">
 
               {/* Eyebrow */}
