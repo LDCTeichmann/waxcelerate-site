@@ -209,7 +209,7 @@ export function Hero() {
           ref={wordRef}
           aria-hidden
           className="absolute inset-x-0 z-[2] pointer-events-none select-none will-change-transform"
-          style={{ top: 'clamp(90px, 13vh, 160px)' }}
+          style={{ top: 'clamp(72px, 11vh, 160px)' }}
         >
           <div className="flex justify-center px-4">
             <div
@@ -237,8 +237,8 @@ export function Hero() {
         <div
           ref={cubeBoxRef}
           className="absolute z-[5] pointer-events-none will-change-transform
-                     left-1/2 -translate-x-1/2 top-[200px]
-                     w-[clamp(180px,50vw,250px)]
+                     left-1/2 -translate-x-1/2 top-[130px]
+                     w-[clamp(200px,58vw,270px)]
                      lg:left-[56%] lg:top-[50%] lg:-translate-y-1/2 lg:w-[clamp(300px,28vw,420px)]"
         >
           <div ref={cubeAnimRef} className="relative will-change-transform">
@@ -286,7 +286,7 @@ export function Hero() {
 
         {/* ── Content — left, lower third ── */}
         <div className="relative z-[10] w-full lg:h-full px-6 sm:px-10 lg:px-14 xl:px-20 pointer-events-none">
-          <div className="max-w-7xl mx-auto flex flex-col pt-[360px] pb-[140px] lg:pt-0 lg:pb-[110px] lg:h-full lg:justify-end">
+          <div className="max-w-7xl mx-auto flex flex-col pt-[290px] pb-[90px] lg:pt-0 lg:pb-[110px] lg:h-full lg:justify-end">
             <div ref={contentRef} className="max-w-lg will-change-transform pointer-events-auto">
 
               {/* Eyebrow */}
