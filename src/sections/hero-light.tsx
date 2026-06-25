@@ -187,17 +187,18 @@ export function Hero() {
             src="/images/hero/chain-bg.jpg"
             alt=""
             className="absolute inset-0 w-full h-full object-cover"
-            style={{ objectPosition: '58% 32%' }}
+            style={{ objectPosition: '38% 45%' }}
             fetchPriority="high"
           />
+          {/* Heavy fade on left/center — reveals mostly slate, chains only on right */}
           <div className="absolute inset-0" style={{
-            background: 'linear-gradient(105deg, rgba(4,6,14,0.72) 0%, rgba(4,6,14,0.50) 35%, rgba(4,6,14,0.25) 55%, rgba(4,6,14,0.38) 100%)',
+            background: 'linear-gradient(100deg, rgba(4,6,14,0.82) 0%, rgba(4,6,14,0.68) 30%, rgba(4,6,14,0.45) 55%, rgba(4,6,14,0.20) 80%, rgba(4,6,14,0.30) 100%)',
           }} />
           <div className="absolute inset-0" style={{
-            background: 'linear-gradient(to bottom, rgba(4,6,14,0.30) 0%, transparent 22%, transparent 60%, rgba(4,6,14,0.50) 100%)',
+            background: 'linear-gradient(to bottom, rgba(4,6,14,0.28) 0%, transparent 20%, transparent 62%, rgba(4,6,14,0.50) 100%)',
           }} />
           <div className="absolute inset-0" style={{
-            background: 'radial-gradient(ellipse 70% 65% at 55% 48%, transparent 30%, rgba(4,6,14,0.25) 100%)',
+            background: 'radial-gradient(ellipse 65% 60% at 50% 48%, transparent 25%, rgba(4,6,14,0.28) 100%)',
           }} />
         </div>
 
@@ -250,7 +251,7 @@ export function Hero() {
           }}
         />
 
-        {/* ── Wax cutout — transparent PNG floating above the background ── */}
+        {/* ── Wax block — cutout in white-bordered frame ── */}
         <div
           ref={cubeBoxRef}
           className="absolute z-[5] pointer-events-none will-change-transform
@@ -258,30 +259,30 @@ export function Hero() {
                      w-[clamp(150px,42vw,210px)]
                      lg:left-[53%] lg:top-[54%] lg:translate-y-[-50%] lg:w-[clamp(250px,27vw,410px)]"
         >
-          <div ref={cubeAnimRef} className="relative will-change-transform"
-               style={{ filter: 'drop-shadow(0 40px 55px rgba(18,24,40,0.30)) drop-shadow(0 12px 20px rgba(18,24,40,0.18))' }}>
-            <picture>
-              <source srcSet="/images/hero/wax-cutout.webp" type="image/webp" />
-              <img
-                src="/images/hero/wax-cutout.png"
-                alt={de ? 'Waxcelerate Heißwachs-Block' : 'Waxcelerate hot wax block'}
-                className="block w-full h-auto"
-                fetchPriority="high"
-              />
-            </picture>
-            {/* Lit-sheen — surface gloss clipped to wax silhouette */}
-            <div
-              aria-hidden
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                WebkitMaskImage: 'url(/images/hero/wax-cutout-mask.png)',
-                maskImage: 'url(/images/hero/wax-cutout-mask.png)',
-                WebkitMaskSize: '100% 100%', maskSize: '100% 100%',
-                WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat',
-                background: 'linear-gradient(132deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.12) 30%, rgba(255,255,255,0) 50%, rgba(8,14,30,0.18) 100%)',
-                mixBlendMode: 'soft-light',
-              }}
-            />
+          <div ref={cubeAnimRef} className="relative will-change-transform">
+            <div className="relative overflow-hidden"
+                 style={{
+                   borderRadius: 'clamp(18px, 3.5vw, 38px)',
+                   border: '4px solid rgba(255,255,255,0.88)',
+                   background: '#161a24',
+                   boxShadow: '0 50px 80px rgba(0,0,0,0.40), 0 20px 35px rgba(0,0,0,0.25), 0 0 60px rgba(255,255,255,0.06)',
+                 }}>
+              <picture>
+                <source srcSet="/images/hero/wax-cutout.webp" type="image/webp" />
+                <img
+                  src="/images/hero/wax-cutout.png"
+                  alt={de ? 'Waxcelerate Heißwachs-Block' : 'Waxcelerate hot wax block'}
+                  className="block w-full h-auto"
+                  style={{ padding: '4%' }}
+                  fetchPriority="high"
+                />
+              </picture>
+              {/* Subtle gloss */}
+              <div className="absolute inset-0 pointer-events-none"
+                   style={{
+                     background: 'linear-gradient(145deg, rgba(255,255,255,0.10) 0%, transparent 40%, rgba(0,0,0,0.08) 100%)',
+                   }} />
+            </div>
           </div>
         </div>
 
