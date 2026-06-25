@@ -192,15 +192,15 @@ export function Hero() {
           />
           {/* Cinematic grade: darken left for text, keep right lighter for wax */}
           <div className="absolute inset-0" style={{
-            background: 'linear-gradient(105deg, rgba(4,6,14,0.82) 0%, rgba(4,6,14,0.55) 35%, rgba(4,6,14,0.28) 55%, rgba(4,6,14,0.42) 100%)',
+            background: 'linear-gradient(105deg, rgba(4,6,14,0.78) 0%, rgba(4,6,14,0.55) 35%, rgba(4,6,14,0.32) 55%, rgba(4,6,14,0.45) 100%)',
           }} />
           {/* Vertical letterbox */}
           <div className="absolute inset-0" style={{
-            background: 'linear-gradient(to bottom, rgba(4,6,14,0.38) 0%, transparent 25%, transparent 55%, rgba(4,6,14,0.72) 100%)',
+            background: 'linear-gradient(to bottom, rgba(4,6,14,0.35) 0%, transparent 22%, transparent 55%, rgba(4,6,14,0.65) 100%)',
           }} />
           {/* Vignette */}
           <div className="absolute inset-0" style={{
-            background: 'radial-gradient(ellipse 70% 65% at 55% 48%, transparent 30%, rgba(4,6,14,0.35) 100%)',
+            background: 'radial-gradient(ellipse 70% 65% at 55% 48%, transparent 30%, rgba(4,6,14,0.30) 100%)',
           }} />
         </div>
 
@@ -233,33 +233,25 @@ export function Hero() {
           </div>
         </div>
 
-        {/* ── Wax block — clean photo with CSS rounded clip ── */}
+        {/* ── Wax cutout — transparent PNG floating above the background ── */}
         <div
           ref={cubeBoxRef}
           className="absolute z-[5] pointer-events-none will-change-transform
-                     left-1/2 -translate-x-1/2 top-[130px]
-                     w-[clamp(200px,58vw,270px)]
-                     lg:left-[56%] lg:top-[50%] lg:-translate-y-1/2 lg:w-[clamp(300px,28vw,420px)]"
+                     left-1/2 -translate-x-1/2 top-[100px]
+                     w-[clamp(160px,46vw,220px)]
+                     lg:left-[54%] lg:top-[50%] lg:-translate-y-1/2 lg:w-[clamp(340px,32vw,500px)]"
         >
-          <div ref={cubeAnimRef} className="relative will-change-transform">
-            <div className="relative overflow-hidden"
-                 style={{
-                   borderRadius: 'clamp(24px, 4vw, 44px)',
-                   boxShadow: '0 50px 80px rgba(0,0,0,0.50), 0 20px 30px rgba(0,0,0,0.30), 0 0 60px rgba(61,103,202,0.12), 0 0 0 1px rgba(255,255,255,0.08)',
-                 }}>
+          <div ref={cubeAnimRef} className="relative will-change-transform"
+               style={{ filter: 'drop-shadow(0 45px 65px rgba(0,0,0,0.40)) drop-shadow(0 15px 25px rgba(0,0,0,0.22))' }}>
+            <picture>
+              <source srcSet="/images/hero/wax-cutout.webp" type="image/webp" />
               <img
-                src="/images/hero/wax-hero.jpg"
+                src="/images/hero/wax-cutout.png"
                 alt={de ? 'Waxcelerate Heißwachs-Block' : 'Waxcelerate hot wax block'}
                 className="block w-full h-auto"
-                style={{ aspectRatio: '12 / 13', objectFit: 'cover', objectPosition: 'center 35%' }}
                 fetchPriority="high"
               />
-              {/* Subtle gloss overlay */}
-              <div className="absolute inset-0 pointer-events-none"
-                   style={{
-                     background: 'linear-gradient(145deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.04) 35%, transparent 50%, rgba(0,0,0,0.10) 100%)',
-                   }} />
-            </div>
+            </picture>
           </div>
         </div>
 
@@ -273,13 +265,13 @@ export function Hero() {
           onClick={() => setDiveOpen(true)}
           aria-label={de ? 'Blick ins Wachs — Inhaltsstoffe ansehen' : 'Look inside the wax — see the ingredients'}
           className="group hidden lg:block absolute z-[6]"
-          style={{ left: '56%', top: '50%', width: 'clamp(300px,28vw,420px)', height: 'clamp(300px,28vw,420px)',
+          style={{ left: '54%', top: '50%', width: 'clamp(340px,32vw,500px)', height: 'clamp(340px,32vw,500px)',
                    transform: 'translate(-50%,-50%)', cursor: lensOn && lensActive ? 'none' : 'pointer' }}
         />
 
         {/* Top fade */}
         <div aria-hidden className="absolute top-0 inset-x-0 h-[100px] z-[7] pointer-events-none"
-             style={{ background: 'linear-gradient(to bottom, rgba(4,6,14,0.40), transparent)' }} />
+             style={{ background: 'linear-gradient(to bottom, rgba(4,6,14,0.35), transparent)' }} />
 
         {/* Film grain */}
         <div aria-hidden className="hero-grain absolute inset-0 z-[9] pointer-events-none" />
