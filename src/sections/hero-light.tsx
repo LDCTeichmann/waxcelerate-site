@@ -204,14 +204,14 @@ export function Hero() {
           }} />
         </div>
 
-        {/* ── Brand: "Waxcelerate" — centered, massive, spanning full width ── */}
+        {/* ── Brand: "Waxcelerate" — centered, large ── */}
         <div
           ref={wordRef}
           aria-hidden
           className="absolute inset-x-0 z-[2] pointer-events-none select-none will-change-transform"
-          style={{ top: 'clamp(72px, 12vh, 170px)' }}
+          style={{ top: 'clamp(72px, 14vh, 180px)' }}
         >
-          <div className="flex justify-center px-4">
+          <div className="flex flex-col items-center px-4">
             <div
               className="whitespace-nowrap text-white"
               style={{
@@ -228,6 +228,14 @@ export function Hero() {
                   <span data-letter className="inline-block">{ch}</span>
                 </span>
               ))}
+            </div>
+            {/* Masthead */}
+            <div data-hero className="flex items-center gap-4 mt-5">
+              <span className="hidden sm:block h-px w-12" style={{ background: 'rgba(255,255,255,0.18)' }} />
+              <span className="text-[10px] sm:text-[11px] uppercase whitespace-nowrap" style={{ letterSpacing: '0.28em', color: 'rgba(255,255,255,0.50)', fontFamily: MONO }}>
+                Made in Germany · Stuttgart
+              </span>
+              <span className="hidden sm:block h-px w-12" style={{ background: 'rgba(255,255,255,0.18)' }} />
             </div>
           </div>
         </div>
@@ -323,9 +331,9 @@ export function Hero() {
           </span>
         </div>
 
-        {/* ── Content — left, lower third ── */}
-        <div className="relative z-[10] w-full px-6 sm:px-10 lg:px-14 xl:px-20 pointer-events-none" style={{ minHeight: '100svh' }}>
-          <div className="max-w-7xl mx-auto flex flex-col justify-end pt-[316px] pb-[150px] lg:pt-0 lg:pb-[104px]" style={{ minHeight: '100svh' }}>
+        {/* ── Content — left, lower portion (absolute on desktop, flow on mobile) ── */}
+        <div className="relative lg:absolute lg:inset-x-0 lg:bottom-[80px] z-[10] w-full px-6 sm:px-10 lg:px-14 xl:px-20 pointer-events-none">
+          <div className="max-w-7xl mx-auto pt-[316px] pb-[150px] lg:pt-0 lg:pb-0">
             <div ref={contentRef} className="max-w-xl will-change-transform pointer-events-auto">
 
               {/* Eyebrow */}
