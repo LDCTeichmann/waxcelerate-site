@@ -192,15 +192,15 @@ export function Hero() {
           />
           {/* Cinematic grade: darken left for text, keep right lighter for wax */}
           <div className="absolute inset-0" style={{
-            background: 'linear-gradient(105deg, rgba(4,6,14,0.78) 0%, rgba(4,6,14,0.55) 35%, rgba(4,6,14,0.32) 55%, rgba(4,6,14,0.45) 100%)',
+            background: 'linear-gradient(105deg, rgba(4,6,14,0.72) 0%, rgba(4,6,14,0.48) 35%, rgba(4,6,14,0.22) 55%, rgba(4,6,14,0.35) 100%)',
           }} />
           {/* Vertical letterbox */}
           <div className="absolute inset-0" style={{
-            background: 'linear-gradient(to bottom, rgba(4,6,14,0.35) 0%, transparent 22%, transparent 55%, rgba(4,6,14,0.65) 100%)',
+            background: 'linear-gradient(to bottom, rgba(4,6,14,0.30) 0%, transparent 22%, transparent 60%, rgba(4,6,14,0.55) 100%)',
           }} />
           {/* Vignette */}
           <div className="absolute inset-0" style={{
-            background: 'radial-gradient(ellipse 70% 65% at 55% 48%, transparent 30%, rgba(4,6,14,0.30) 100%)',
+            background: 'radial-gradient(ellipse 70% 65% at 55% 48%, transparent 30%, rgba(4,6,14,0.22) 100%)',
           }} />
         </div>
 
@@ -233,6 +233,20 @@ export function Hero() {
           </div>
         </div>
 
+        {/* Specimen haze — soft glow behind wax cutout */}
+        <div
+          aria-hidden
+          className="absolute z-[3] pointer-events-none hidden lg:block"
+          style={{
+            left: '54%', top: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 'clamp(380px, 38vw, 580px)',
+            height: 'clamp(380px, 38vw, 580px)',
+            background: 'radial-gradient(ellipse 70% 70% at 50% 50%, rgba(232,238,252,0.22) 0%, transparent 70%)',
+            filter: 'blur(36px)',
+          }}
+        />
+
         {/* ── Wax cutout — transparent PNG floating above the background ── */}
         <div
           ref={cubeBoxRef}
@@ -252,6 +266,19 @@ export function Hero() {
                 fetchPriority="high"
               />
             </picture>
+            {/* Lit-sheen — surface gloss clipped to wax silhouette */}
+            <div
+              aria-hidden
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                WebkitMaskImage: 'url(/images/hero/wax-cutout-mask.png)',
+                maskImage: 'url(/images/hero/wax-cutout-mask.png)',
+                WebkitMaskSize: '100% 100%', maskSize: '100% 100%',
+                WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat',
+                background: 'linear-gradient(132deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.12) 30%, rgba(255,255,255,0) 50%, rgba(8,14,30,0.18) 100%)',
+                mixBlendMode: 'soft-light',
+              }}
+            />
           </div>
         </div>
 
