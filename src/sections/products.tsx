@@ -303,16 +303,16 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deli
         </div>
 
         {/* Content */}
-        <div className="px-4 pt-3.5 pb-4 flex flex-col flex-1">
-          <h3 className="font-display text-[17px] font-bold text-wx-tx1 leading-tight tracking-[-0.02em]">
+        <div className="px-3.5 sm:px-4 pt-3 sm:pt-3.5 pb-3 sm:pb-4 flex flex-col flex-1">
+          <h3 className="font-display text-[15px] sm:text-[17px] font-bold text-wx-tx1 leading-tight tracking-[-0.02em]">
             {title}
           </h3>
-          <p className="text-[12px] leading-relaxed line-clamp-1 mt-1" style={{ color: 'var(--txm)' }}>
+          <p className="hidden sm:block text-[12px] leading-relaxed line-clamp-1 mt-1" style={{ color: 'var(--txm)' }}>
             {desc}
           </p>
 
           {/* Specs — inline pills */}
-          <div className="flex items-center gap-2 mt-3 flex-wrap">
+          <div className="hidden sm:flex items-center gap-2 mt-3 flex-wrap">
             {product.intervalDry && (
               <span className="text-[10.5px] px-2 py-0.5 rounded-md tabular-nums" style={{ fontFamily: MONO, background: 'var(--sf2)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
                 {product.intervalDry}
@@ -332,7 +332,7 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deli
                 {formatPrice(product.price)}
               </span>
               {per100 && (
-                <p className="text-[10px] mt-1 tabular-nums" style={{ fontFamily: MONO, color: 'var(--txf)' }}>{per100}</p>
+                <p className="hidden sm:block text-[10px] mt-1 tabular-nums" style={{ fontFamily: MONO, color: 'var(--txf)' }}>{per100}</p>
               )}
             </div>
             {canCheckout(product) ? (
@@ -359,7 +359,7 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deli
           </div>
 
           {/* Trust signals */}
-          <div className="flex items-center flex-wrap gap-2 mt-3 pt-3" style={{ borderTop: '1px solid var(--bd2)' }}>
+          <div className="flex items-center flex-wrap gap-1.5 sm:gap-2 mt-2.5 sm:mt-3 pt-2.5 sm:pt-3" style={{ borderTop: '1px solid var(--bd2)' }}>
             {product.unitsSold != null && product.unitsSold > 0 && (
               <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-md"
                 style={{ background: 'rgba(var(--accent-rgb),0.08)', color: 'var(--accent-soft)' }}>
@@ -368,7 +368,7 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deli
               </span>
             )}
             {deliveryDate && (
-              <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-md"
+              <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-md"
                 style={{ background: 'rgba(22,163,74,0.08)', color: '#16a34a' }}>
                 <Truck className="h-3 w-3" />
                 {de ? 'Gratis ab 50 €' : 'Free over €50'} · {deliveryDate}
@@ -431,13 +431,13 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
         </div>
 
         {/* Content */}
-        <div className="px-4 pt-3 pb-3.5 flex flex-col flex-1">
+        <div className="px-3.5 sm:px-4 pt-2.5 sm:pt-3 pb-3 sm:pb-3.5 flex flex-col flex-1">
           <p className="text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: 'var(--accent-soft)' }}>{brand}</p>
-          <h3 className="text-[15px] font-bold text-wx-tx1 leading-snug tracking-[-0.02em] mt-0.5">{model}</h3>
+          <h3 className="text-[14px] sm:text-[15px] font-bold text-wx-tx1 leading-snug tracking-[-0.02em] mt-0.5">{model}</h3>
 
           {/* Specs as pills */}
           {(chainLinks || speed) && (
-            <div className="flex items-center gap-2 mt-2 flex-wrap">
+            <div className="hidden sm:flex items-center gap-2 mt-2 flex-wrap">
               {speed && (
                 <span className="text-[10.5px] px-2 py-0.5 rounded-md tabular-nums" style={{ fontFamily: MONO, background: 'var(--sf2)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
                   {speed}

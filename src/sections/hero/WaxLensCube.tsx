@@ -4,7 +4,7 @@ import { createPortal } from 'react-dom';
 import { ZoomIn } from 'lucide-react';
 import { gsap } from '@/lib/gsap';
 
-const CUBE_MASK_SRC = '/images/hero/wax-cutout-mask.png';
+const CUBE_MASK_SRC = '/images/hero/wax-cutout-new-mask.png';
 
 /**
  * WaxLensCube — die „Blick ins Wachs"-Lupe für den FREISTEHENDEN Wachs-Cutout

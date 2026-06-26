@@ -721,6 +721,14 @@ export function Tools() {
   const tabBarRef = useRef<HTMLDivElement>(null);
   const tabButtonRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const tabPillRef = useRef<HTMLDivElement>(null);
+  const touchStart = useRef<{ x: number; y: number; isSlider: boolean }>({ x: 0, y: 0, isSlider: false });
+  const [swipeHintShown, setSwipeHintShown] = useState(false);
+
+  useEffect(() => {
+    if (swipeHintShown) return;
+    const t = setTimeout(() => setSwipeHintShown(true), 3000);
+    return () => clearTimeout(t);
+  }, [swipeHintShown]);
 
   const pillX = (btnRect: DOMRect, barRect: DOMRect) =>
     btnRect.left - barRect.left - 1;
@@ -785,7 +793,7 @@ export function Tools() {
             </p>
           </div>
 
-          {/* ── Mobile / tablet: tab switcher (up to lg) ── */}
+          {/* ── Mobile / tablet: swipeable tabs (up to lg) ── */}
           <div className="lg:hidden">
             <div
               ref={tabBarRef}
@@ -817,9 +825,60 @@ export function Tools() {
                 </button>
               ))}
             </div>
-            {activeTab === 0 && <RewaxCalculator />}
-            {activeTab === 1 && <WaxStockCalculator />}
-            {activeTab === 2 && <RotationAndSavings />}
+            <div
+              className="overflow-hidden"
+              onTouchStart={e => {
+                const target = e.target as HTMLElement;
+                touchStart.current = {
+                  x: e.touches[0].clientX,
+                  y: e.touches[0].clientY,
+                  isSlider: !!target.closest('[role="slider"], [data-orientation]'),
+                };
+              }}
+              onTouchEnd={e => {
+                if (touchStart.current.isSlider) return;
+                const dx = e.changedTouches[0].clientX - touchStart.current.x;
+                const dy = e.changedTouches[0].clientY - touchStart.current.y;
+                if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+                  if (dx < 0 && activeTab < 2) setActiveTab(activeTab + 1);
+                  if (dx > 0 && activeTab > 0) setActiveTab(activeTab - 1);
+                }
+              }}
+            >
+              <div
+                className="flex transition-transform duration-300 ease-out"
+                style={{ transform: `translateX(-${activeTab * 100}%)` }}
+              >
+                <div className="min-w-full"><RewaxCalculator /></div>
+                <div className="min-w-full"><WaxStockCalculator /></div>
+                <div className="min-w-full"><RotationAndSavings /></div>
+              </div>
+            </div>
+            {/* Swipe hint + dot indicators */}
+            <div className="flex flex-col items-center gap-2 mt-4">
+              <div className="flex items-center gap-2">
+                {TAB_LABELS.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setActiveTab(i)}
+                    className="transition-all duration-300"
+                    aria-label={TAB_LABELS[i]}
+                    style={{
+                      width: i === activeTab ? '20px' : '6px',
+                      height: '6px',
+                      borderRadius: '3px',
+                      background: i === activeTab ? 'var(--accent)' : 'var(--bd)',
+                    }}
+                  />
+                ))}
+              </div>
+              <p
+                className="text-[10px] tracking-[0.08em] transition-opacity duration-700"
+                style={{ color: 'var(--txff)', opacity: swipeHintShown ? 0 : 0.7 }}
+              >
+                ← {de ? 'wischen' : 'swipe'} →
+              </p>
+            </div>
           </div>
 
           {/* ── Desktop: 3-card streaming deck (lg+) ── */}

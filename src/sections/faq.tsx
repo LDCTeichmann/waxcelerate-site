@@ -29,7 +29,7 @@ export function FAQ() {
     <section id="faq" className="relative py-20 sm:py-28 bg-wx-bg">
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-2xl mx-auto">
-          <div className="mb-16">
+          <div className="mb-10">
             <h2 className="section-title mb-4">
               <ScrollWordReveal text={t.faq.title} />
             </h2>

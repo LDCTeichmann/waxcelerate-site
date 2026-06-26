@@ -27,7 +27,7 @@ const mobileNavItems = [
 ];
 
 export function Navigation() {
-  const [isScrolled, setIsScrolled] = useState(false);
+
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { t, lang, toggleLang } = useLanguage();
   const { theme, setTheme } = useTheme();
@@ -36,12 +36,6 @@ export function Navigation() {
   const navigate = useNavigate();
   const activeSection = useActiveSection(navItems.filter(i => !i.route).map(i => i.href));
 
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 50);
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   useEffect(() => {
     document.body.style.overflow = isMobileMenuOpen ? 'hidden' : '';
@@ -86,10 +80,10 @@ export function Navigation() {
       <header
         className="fixed top-0 left-0 right-0 z-50 py-2 transition-all duration-300"
         style={{
-          background: isScrolled ? 'var(--nav-bg)' : 'transparent',
-          boxShadow: isScrolled ? 'inset 0 -1px 0 var(--bd)' : 'none',
-          backdropFilter: isScrolled ? 'blur(10px)' : 'none',
-          WebkitBackdropFilter: isScrolled ? 'blur(10px)' : 'none',
+          background: 'var(--nav-bg)',
+          boxShadow: 'inset 0 -1px 0 var(--bd)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
         }}
       >
         <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
@@ -102,14 +96,20 @@ export function Navigation() {
                 e.preventDefault();
                 scrollToSection('#home');
               }}
-              className="flex items-center shrink-0"
+              className="flex items-center gap-2.5 shrink-0"
               aria-label="Waxcelerate"
             >
               <img
                 src="/images/No BG No Sign Logo.png"
-                alt="Waxcelerate"
+                alt=""
                 className="w-auto h-14 lg:h-[4.2rem]"
               />
+              <span
+                className="hidden sm:block text-[15px] font-semibold tracking-[0.01em]"
+                style={{ color: 'var(--tx1)', fontFamily: "'Libre Franklin', ui-sans-serif, system-ui, sans-serif" }}
+              >
+                Waxcelerate
+              </span>
             </a>
 
             {/* Desktop Navigation — zentriert, ruhige Editorial-Typo */}
@@ -121,9 +121,7 @@ export function Navigation() {
                   onClick={(e) => { e.preventDefault(); handleNav(item); }}
                   className="relative group text-[13.5px] tracking-[0.01em] transition-colors duration-300"
                   style={{
-                    color: isScrolled
-                      ? (activeSection === item.href ? 'var(--tx1)' : 'var(--tx2)')
-                      : (activeSection === item.href ? '#fff' : 'rgba(255,255,255,0.7)'),
+                    color: activeSection === item.href ? 'var(--tx1)' : 'var(--tx2)',
                   }}
                 >
                   {t.nav[item.key as keyof typeof t.nav]}
@@ -131,7 +129,7 @@ export function Navigation() {
                     className={`absolute -bottom-1.5 left-0 right-0 h-px origin-left transition-transform duration-200 ${
                       activeSection === item.href ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
                     }`}
-                    style={{ background: activeSection === item.href ? 'var(--accent)' : (isScrolled ? 'var(--bd)' : 'rgba(255,255,255,0.3)') }}
+                    style={{ background: activeSection === item.href ? 'var(--accent)' : 'var(--bd)' }}
                   />
                 </a>
               ))}
@@ -143,7 +141,7 @@ export function Navigation() {
               <button
                 onClick={toggleLang}
                 className="hidden lg:block text-[12px] font-medium tracking-wide transition-colors"
-                style={{ color: isScrolled ? 'var(--tx2)' : 'rgba(255,255,255,0.7)' }}
+                style={{ color: 'var(--tx2)' }}
                 aria-label={lang === 'de' ? 'Switch to English' : 'Zu Deutsch wechseln'}
               >
                 {lang === 'de' ? 'EN' : 'DE'}
@@ -153,7 +151,7 @@ export function Navigation() {
               <button
                 onClick={() => setTheme(theme === 'light' ? 'noir' : 'light')}
                 className="hidden lg:flex items-center justify-center w-9 h-9 rounded-full transition-colors"
-                style={{ color: isScrolled ? 'var(--tx2)' : 'rgba(255,255,255,0.7)' }}
+                style={{ color: 'var(--tx2)' }}
                 aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
               >
                 {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
@@ -176,7 +174,7 @@ export function Navigation() {
                 id="mobile-menu-button"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="lg:hidden p-2 transition-colors"
-                style={{ color: isScrolled ? 'var(--tx2)' : 'rgba(255,255,255,0.85)' }}
+                style={{ color: 'var(--tx2)' }}
                 aria-label={de ? 'Menü öffnen' : 'Open menu'}
                 aria-expanded={isMobileMenuOpen}
                 aria-controls="mobile-menu"

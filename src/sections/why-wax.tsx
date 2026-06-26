@@ -131,9 +131,9 @@ export function WhyWax() {
               {de ? 'Öl vs. Wachs' : 'Oil vs. Wax'}
             </p>
             <h2 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-wx-tx1 mb-4">
-              <ScrollWordReveal text={de ? 'Wachs gewinnt. In Zahlen.' : 'Wax wins. In numbers.'} />
+              <ScrollWordReveal text={de ? 'Messbar besser.' : 'Measurably better.'} />
             </h2>
-            <p data-reveal="subtitle" className="text-wx-txm max-w-xl text-[15px] leading-relaxed">
+            <p data-reveal="subtitle" className="hidden sm:block text-wx-txm max-w-xl text-[15px] leading-relaxed">
               {de
                 ? 'Derselbe Antrieb, zwei Schmierstoffe — Seite an Seite gemessen.'
                 : 'Same drivetrain, two lubricants — measured side by side.'}
@@ -170,7 +170,7 @@ export function WhyWax() {
           </div>
 
           {/* ── Real-world benefits ── */}
-          <div ref={benefitsRef} className="mt-12 sm:mt-16">
+          <div ref={benefitsRef} className="hidden sm:block mt-12 sm:mt-16">
             <p className="eyebrow mb-5" style={{ color: 'var(--txf)' }}>
               {de ? 'Was das bedeutet' : 'What this means'}
             </p>

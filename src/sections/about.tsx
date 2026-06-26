@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ExternalLink } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useSectionReveal } from '@/hooks/useAnimation';
@@ -41,6 +41,7 @@ export function About() {
   }, []);
 
   const de = lang === 'de';
+  const [bioExpanded, setBioExpanded] = useState(false);
 
   // De-duplicated: 189/100% live in Reviews + nav badge, 3× lives in the
   // hero ribbon / why-wax. About keeps only its own, unique facts.
@@ -83,22 +84,31 @@ export function About() {
             {/* Left: bio paragraphs + links */}
             <div ref={textRef} className="space-y-4">
               <p className="text-[15px] leading-[1.8] text-wx-tx2">{t.about.bio1}</p>
-              <p className="text-[15px] leading-[1.8] text-wx-tx2">{t.about.bio2}</p>
-              <blockquote
-                className="italic my-4 pl-4"
-                style={{
-                  borderLeft: '2px solid var(--accent-soft)',
-                  color: 'var(--tx2)',
-                  fontSize: 'clamp(0.95rem, 1.1vw, 1.05rem)',
-                  lineHeight: 1.55,
-                  fontWeight: 400,
-                  letterSpacing: '0',
-                }}
+              <div className={`${bioExpanded ? 'block' : 'hidden'} sm:block space-y-4`}>
+                <p className="text-[15px] leading-[1.8] text-wx-tx2">{t.about.bio2}</p>
+                <blockquote
+                  className="italic my-4 pl-4"
+                  style={{
+                    borderLeft: '2px solid var(--accent-soft)',
+                    color: 'var(--tx2)',
+                    fontSize: 'clamp(0.95rem, 1.1vw, 1.05rem)',
+                    lineHeight: 1.55,
+                    fontWeight: 400,
+                    letterSpacing: '0',
+                  }}
+                >
+                  {de
+                    ? 'Nicht jede Charge war sofort richtig. Aber jede war näher dran.'
+                    : 'Not every batch was right straight away. But each one was closer.'}
+                </blockquote>
+              </div>
+              <button
+                onClick={() => setBioExpanded(v => !v)}
+                className="sm:hidden text-[13px] font-medium py-1"
+                style={{ color: 'var(--accent-soft)' }}
               >
-                {de
-                  ? 'Nicht jede Charge war sofort richtig. Aber jede war näher dran.'
-                  : 'Not every batch was right straight away. But each one was closer.'}
-              </blockquote>
+                {bioExpanded ? (de ? '← Weniger' : '← Less') : (de ? 'Mehr lesen →' : 'Read more →')}
+              </button>
               <p className="text-[15px] leading-[1.8] text-wx-tx2">{t.about.bio3}</p>
               <p className="text-[15px] leading-[1.8] text-wx-tx2">{t.about.bio4}</p>
 
@@ -129,12 +139,11 @@ export function About() {
             </div>
 
             {/* Right: eBay credential image + stats below */}
-            <div ref={bannerRef} className="flex flex-col gap-0">
+            <div ref={bannerRef} className="flex flex-col gap-0 order-first lg:order-none">
               {/* Image */}
               <div
-                className="relative rounded-t-2xl overflow-hidden group"
+                className="relative rounded-t-2xl overflow-hidden group h-[300px] sm:h-[420px]"
                 style={{
-                  height: '420px',
                   border: '1px solid var(--bd)',
                   borderBottom: 'none',
                   boxShadow: '0 12px 48px rgba(0,0,0,0.18)',

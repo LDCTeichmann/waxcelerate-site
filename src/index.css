@@ -214,6 +214,7 @@
     font-family: 'Libre Franklin', ui-sans-serif, system-ui, sans-serif;
     background-color: var(--pg);
     color: var(--tx1);
+    text-wrap: pretty;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -292,6 +293,13 @@
 }
 .noir .hero-footer-fade {
   background: linear-gradient(to top, rgba(10,12,18,0.60) 4%, rgba(10,12,18,0.30) 34%, transparent 100%);
+}
+
+/* Hero image — push wax block up on mobile so it doesn't overwhelm the frame */
+@media (max-width: 639px) {
+  .hero-img {
+    object-position: 68% 20% !important;
+  }
 }
 
 /* Editorial light hero — responsive Ketten-Panel-Clip.
@@ -461,8 +469,14 @@ footer ul a:hover::after {
   line-height: 1.05;
   letter-spacing: -0.02em;
   color: var(--tx1);
+  text-wrap: balance;
   /* Display drama: higher optical contrast + full character */
   font-variation-settings: "opsz" 88, "wght" 700, "SOFT" 36, "WONK" 1;
+}
+
+/* Anchor scroll offset — prevents sticky nav from overlapping section headers */
+section[id] {
+  scroll-margin-top: 80px;
 }
 
 /* ── Button system — one primary + one ghost (Workstream 3) ───────────────── */

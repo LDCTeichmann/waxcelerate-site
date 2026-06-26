@@ -63,8 +63,8 @@ const REVIEWS: Review[] = [
   },
 ];
 
-const CARD_W = 'w-[300px] sm:w-[348px]';
-const CARD = 'flex-shrink-0 mr-4 sm:mr-5 h-[212px] rounded-2xl overflow-hidden';
+const CARD_W = 'w-[260px] sm:w-[348px]';
+const CARD = 'flex-shrink-0 mr-3 sm:mr-5 h-[180px] sm:h-[212px] rounded-2xl overflow-hidden';
 
 function Stars({ rating = 5 }: { rating?: number }) {
   return (
@@ -117,9 +117,9 @@ function ReviewCard({ r, de }: { r: Review; de: boolean }) {
         <img src={r.photo} alt="" loading="lazy" onError={() => setImgOk(false)}
           className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(6,7,9,0.92) 6%, rgba(6,7,9,0.45) 46%, rgba(6,7,9,0.10) 100%)' }} />
-        <div className="absolute top-3 left-3"><Stars rating={r.rating ?? 5} /></div>
-        <figcaption className="absolute inset-x-0 bottom-0 p-4 text-white">
-          <blockquote className="text-[13px] leading-snug font-medium line-clamp-2" style={{ textShadow: '0 1px 8px rgba(0,0,0,0.5)' }}>
+        <div className="absolute top-2.5 sm:top-3 left-2.5 sm:left-3"><Stars rating={r.rating ?? 5} /></div>
+        <figcaption className="absolute inset-x-0 bottom-0 p-3 sm:p-4 text-white">
+          <blockquote className="text-[12px] sm:text-[13px] leading-snug font-medium line-clamp-2" style={{ textShadow: '0 1px 8px rgba(0,0,0,0.5)' }}>
             „{text}“
           </blockquote>
           <div className="flex items-center gap-2 mt-2.5 text-[11px]">
@@ -134,13 +134,13 @@ function ReviewCard({ r, de }: { r: Review; de: boolean }) {
 
   // ── Text card ──
   return (
-    <figure className={`${CARD} ${CARD_W} flex flex-col p-5`}
+    <figure className={`${CARD} ${CARD_W} flex flex-col p-3.5 sm:p-5`}
       style={{ background: 'var(--sf2)', border: '1px solid var(--bd)' }}>
       <div className="flex items-center justify-between">
         <Stars rating={r.rating ?? 5} />
         <span className="text-[10.5px]" style={{ color: 'var(--txf)' }}>{date}</span>
       </div>
-      <blockquote className="text-[13px] leading-relaxed mt-2.5 flex-1 line-clamp-4" style={{ color: 'var(--tx2)' }}>
+      <blockquote className="text-[12px] sm:text-[13px] leading-relaxed mt-2 sm:mt-2.5 flex-1 line-clamp-3 sm:line-clamp-4" style={{ color: 'var(--tx2)' }}>
         „{text}“
       </blockquote>
       <figcaption className="flex items-center gap-2.5 mt-3 pt-3" style={{ borderTop: '1px solid var(--bd2)' }}>
@@ -207,7 +207,8 @@ export function Reviews() {
       <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto mb-9">
           <p className="eyebrow mb-4" style={{ color: 'var(--txf)' }}>
-            {de ? 'eBay verifiziert · alle Bewertungen echt' : 'eBay verified · all reviews genuine'}
+            {de ? 'eBay verifiziert' : 'eBay verified'}
+            <span className="hidden sm:inline">{de ? ' · alle Bewertungen echt' : ' · all reviews genuine'}</span>
           </p>
           <h2 className="section-title mb-3">{de ? 'Was Fahrer berichten.' : 'What riders report.'}</h2>
           <p className="text-[15px] max-w-2xl" style={{ color: 'var(--txm)' }}>

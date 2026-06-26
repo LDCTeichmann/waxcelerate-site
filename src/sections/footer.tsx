@@ -106,15 +106,10 @@ export function Footer() {
       {/* Bottom bar */}
       <div style={{ borderTop: '1px solid var(--bd)' }}>
         <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-5">
-          <div className="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
+          <div className="max-w-6xl mx-auto flex justify-center">
             <p className="text-[11px] tabular-nums" style={{ color: 'var(--txff)' }}>
               © {currentYear} Waxcelerate · Stuttgart, DE
             </p>
-            <div className="flex items-center gap-5">
-              <span className="text-[11px]" style={{ color: 'var(--txff)' }}>
-                {de ? 'Heißwachs für Fahrradketten' : 'Hot wax for bicycle chains'}
-              </span>
-            </div>
           </div>
         </div>
       </div>

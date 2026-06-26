@@ -149,10 +149,7 @@ export function Contact() {
 
           </div>
 
-          {/* Response note */}
-          <p className="text-center text-[11px] mt-5" style={{ color: 'var(--txf)' }}>
-            {de ? 'Antwort in der Regel am selben Tag' : 'Reply usually the same day'}
-          </p>
+          {/* Response note — omitted; each card states response time */}
 
         </div>
       </div>
