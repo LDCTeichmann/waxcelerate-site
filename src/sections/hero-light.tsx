@@ -194,6 +194,14 @@ export function Hero() {
             boxShadow: '0 28px 90px rgba(10,10,16,0.22), 0 4px 18px rgba(10,10,16,0.10)',
           }}
         >
+          {/* Idle background drift (optional): a slow independent pan here would
+              compete with the GSAP-driven transform already applied to this same
+              element (entrance scale, scroll-scrub, cursor parallax) — both would
+              write to `transform` on every frame and fight each other. Doing it
+              properly means a dedicated extra layer, which isn't free performance-
+              wise (another full-bleed image paint). Skipping for now; revisit only
+              if the parallax layer gets refactored to a single GSAP timeline that
+              could own a subtle idle loop too. */}
           <div ref={imgRef} className="absolute inset-0 will-change-transform">
             {bgImg}
           </div>
@@ -250,6 +258,8 @@ export function Hero() {
             </div>
           </div>
 
+          {/* Shadow leans slightly toward the content/CTA (bottom-left) instead of
+              straight down — a soft directional cue, not a literal arrow. */}
           <div
             ref={blockRef}
             className="absolute z-[5] pointer-events-none will-change-transform
@@ -257,7 +267,7 @@ export function Hero() {
                        w-[clamp(110px,24vw,160px)]
                        sm:left-[50%] sm:top-[64%] sm:w-[clamp(200px,26vw,300px)]
                        lg:left-[46%] lg:top-[60%] lg:w-[clamp(220px,20vw,340px)]"
-            style={{ filter: 'drop-shadow(0 22px 30px rgba(5,6,8,0.55)) drop-shadow(0 6px 10px rgba(5,6,8,0.35))' }}
+            style={{ filter: 'drop-shadow(-6px 22px 30px rgba(5,6,8,0.55)) drop-shadow(-2px 6px 10px rgba(5,6,8,0.35))' }}
           >
             {waxImg}
           </div>
@@ -324,7 +334,7 @@ export function Hero() {
                   <button
                     ref={ctaRef}
                     onClick={() => scrollTo('#produkte')}
-                    className="group inline-flex items-center gap-2.5 px-8 py-3.5 text-[14px] font-bold rounded-full transition-shadow duration-300 hover:shadow-[0_14px_36px_rgba(0,0,0,0.45)] will-change-transform"
+                    className="cta-primary group inline-flex items-center gap-2.5 px-8 py-3.5 text-[14px] font-bold rounded-full transition-shadow duration-300 will-change-transform"
                     style={{ background: '#FFFFFF', color: '#0F0F12' }}
                   >
                     {t.hero.ctaBuy}

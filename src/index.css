@@ -37,6 +37,18 @@
 .edge-fade::after   { right: 0; background: linear-gradient(to left,  var(--pg), transparent); }
 @media (prefers-reduced-motion: reduce) { .marquee-track { animation: none; } }
 
+/* Hero primary CTA — barely-perceptible breathing glow. Box-shadow intensity
+   only (no scale, no color shift), long slow loop so it reads as "alive"
+   without registering as an animation. Paused (not removed) on hover so the
+   hover shadow takes over cleanly instead of fighting the loop. */
+@keyframes cta-breathe {
+  0%, 100% { box-shadow: 0 1px 2px rgba(0,0,0,0.10), 0 10px 24px rgba(0,0,0,0.16), 0 0 0 0 rgba(255,255,255,0); }
+  50%      { box-shadow: 0 1px 2px rgba(0,0,0,0.10), 0 12px 30px rgba(0,0,0,0.20), 0 0 26px 3px rgba(255,255,255,0.16); }
+}
+.cta-primary { animation: cta-breathe 3.8s ease-in-out infinite; }
+.cta-primary:hover { animation-play-state: paused; box-shadow: 0 1px 2px rgba(0,0,0,0.12), 0 14px 36px rgba(0,0,0,0.45); }
+@media (prefers-reduced-motion: reduce) { .cta-primary { animation: none; } }
+
 @layer base {
   /* ── Light mode (default) ── */
   :root {
