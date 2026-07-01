@@ -2,13 +2,14 @@ import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react'
 import { ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
-import { WaxLens } from '@/sections/hero/WaxLens';
+import { WaxLensCutout } from '@/sections/hero/WaxLensCutout';
 import { waxLensEnabled } from '@/sections/hero/constants';
 
 const WaxDive = lazy(() => import('@/sections/hero/WaxDive').then(m => ({ default: m.WaxDive })));
 
 const BRAND = 'Waxcelerate'.split('');
-const IMG_POS = '68% 50%';
+// Kette liegt in chain-bg.jpg diagonal rechts — freier Schiefer links/unten für Text.
+const BG_POS = '40% 36%';
 
 export function Hero() {
   const { t, lang } = useLanguage();
@@ -159,30 +160,24 @@ export function Hero() {
     { v: '1 Tag', l: de ? 'Versand nach Bestellung' : 'ships after order', lm: de ? 'Versand' : 'shipping' },
   ];
 
-  const imgEl = (masked: boolean) => (
+  const bgImg = (
+    <img
+      src="/images/hero/chain-bg.jpg"
+      alt={de ? 'Fahrradkette auf Schiefer' : 'Bicycle chain on slate'}
+      className="absolute inset-0 w-full h-full object-cover hero-img"
+      style={{ objectPosition: BG_POS }}
+      fetchPriority="high"
+    />
+  );
+
+  const waxImg = (
     <picture>
-      <source srcSet="/images/hero/wax-v5.webp" type="image/webp" />
+      <source srcSet="/images/hero/wax-cutout.webp" type="image/webp" />
       <img
-        src="/images/hero/wax-v5.jpg"
-        alt={masked ? '' : de ? 'Waxcelerate Heißwachs-Block auf Schiefer' : 'Waxcelerate hot wax block on slate'}
-        aria-hidden={masked || undefined}
-        className="absolute inset-0 w-full h-full object-cover hero-img"
-        style={{
-          objectPosition: IMG_POS,
-          ...(masked
-            ? {
-                WebkitMaskImage: 'url(/images/hero/wax-v5-mask.png)',
-                maskImage: 'url(/images/hero/wax-v5-mask.png)',
-                WebkitMaskSize: 'cover',
-                maskSize: 'cover',
-                WebkitMaskPosition: IMG_POS,
-                maskPosition: IMG_POS,
-                WebkitMaskRepeat: 'no-repeat',
-                maskRepeat: 'no-repeat',
-              }
-            : {}),
-        }}
-        fetchPriority={masked ? undefined : 'high'}
+        src="/images/hero/wax-cutout.png"
+        alt={de ? 'Waxcelerate Heißwachs-Block' : 'Waxcelerate hot wax block'}
+        className="block w-full h-auto"
+        fetchPriority="high"
       />
     </picture>
   );
@@ -200,14 +195,15 @@ export function Hero() {
           }}
         >
           <div ref={imgRef} className="absolute inset-0 will-change-transform">
-            {imgEl(false)}
+            {bgImg}
           </div>
 
+          {/* Lokaler Verlauf nur über der Textzone (links) — Kette rechts bleibt unangetastet sichtbar */}
           <div
             className="absolute inset-0 pointer-events-none z-[1]"
             style={{
               background:
-                'linear-gradient(90deg, rgba(7,8,10,0.72) 0%, rgba(7,8,10,0.42) 30%, rgba(7,8,10,0.08) 56%, transparent 72%)',
+                'linear-gradient(90deg, rgba(7,8,10,0.80) 0%, rgba(7,8,10,0.55) 18%, rgba(7,8,10,0.20) 38%, transparent 50%)',
             }}
           />
           <div
@@ -254,12 +250,20 @@ export function Hero() {
             </div>
           </div>
 
-          <div ref={blockRef} className="absolute inset-0 z-[3] pointer-events-none will-change-transform">
-            {imgEl(true)}
+          <div
+            ref={blockRef}
+            className="absolute z-[5] pointer-events-none will-change-transform
+                       left-[80%] top-[40%] -translate-x-1/2 -translate-y-1/2
+                       w-[clamp(110px,24vw,160px)]
+                       sm:left-[50%] sm:top-[64%] sm:w-[clamp(200px,26vw,300px)]
+                       lg:left-[46%] lg:top-[60%] lg:w-[clamp(220px,20vw,340px)]"
+            style={{ filter: 'drop-shadow(0 22px 30px rgba(5,6,8,0.55)) drop-shadow(0 6px 10px rgba(5,6,8,0.35))' }}
+          >
+            {waxImg}
           </div>
 
           {/* WaxLens — magnifying glass cursor over the wax block */}
-          <WaxLens cardRef={cardRef} enabled={lensOn} de={de}
+          <WaxLensCutout waxRef={blockRef} enabled={lensOn} de={de}
                    onOpen={openDive} onActiveChange={() => {}} />
 
           <div className="relative z-10 h-full w-full px-6 sm:px-10 lg:px-14 xl:px-20">
