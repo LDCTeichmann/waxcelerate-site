@@ -188,7 +188,7 @@ export function Hero() {
         <div
           ref={cardRef}
           className="relative overflow-hidden rounded-[20px] sm:rounded-[28px] will-change-transform
-                     h-[72dvh] sm:h-[calc(100dvh-108px)] lg:h-[calc(100dvh-134px)] min-h-[440px] sm:min-h-[540px]"
+                     h-[86dvh] sm:h-[calc(100dvh-108px)] lg:h-[calc(100dvh-134px)] min-h-[520px] sm:min-h-[540px]"
           style={{
             background: '#0B0C0E',
             boxShadow: '0 28px 90px rgba(10,10,16,0.22), 0 4px 18px rgba(10,10,16,0.10)',
@@ -263,8 +263,8 @@ export function Hero() {
           <div
             ref={blockRef}
             className="absolute z-[5] pointer-events-none will-change-transform
-                       left-[80%] top-[40%] -translate-x-1/2 -translate-y-1/2
-                       w-[clamp(110px,24vw,160px)]
+                       left-[86%] top-[33%] -translate-x-1/2 -translate-y-1/2
+                       w-[clamp(90px,24vw,105px)]
                        sm:left-[50%] sm:top-[64%] sm:w-[clamp(200px,26vw,300px)]
                        lg:left-[46%] lg:top-[60%] lg:w-[clamp(220px,20vw,340px)]"
             style={{ filter: 'drop-shadow(-6px 22px 30px rgba(5,6,8,0.55)) drop-shadow(-2px 6px 10px rgba(5,6,8,0.35))' }}
@@ -342,22 +342,7 @@ export function Hero() {
                   </button>
                   <button
                     onClick={() => scrollTo('#warum-wachs')}
-                    className="px-6 py-3.5 text-[13px] font-medium rounded-full"
-                    style={{
-                      color: 'rgba(255,255,255,0.88)',
-                      border: '1px solid rgba(255,255,255,0.30)',
-                      background: 'rgba(10,11,13,0.18)',
-                      backdropFilter: 'blur(6px)',
-                      transition: 'background 0.25s ease, border-color 0.25s ease',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'rgba(255,255,255,0.10)';
-                      e.currentTarget.style.borderColor = 'rgba(255,255,255,0.52)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'rgba(10,11,13,0.18)';
-                      e.currentTarget.style.borderColor = 'rgba(255,255,255,0.30)';
-                    }}
+                    className="hero-cta-secondary text-[13px] font-medium"
                   >
                     {t.hero.ctaSecondary}
                   </button>
