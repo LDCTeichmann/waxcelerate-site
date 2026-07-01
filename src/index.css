@@ -20,10 +20,21 @@
 @keyframes marquee-x { from { transform: translate3d(0,0,0); } to { transform: translate3d(-50%,0,0); } }
 .marquee-track { animation: marquee-x var(--dur, 64s) linear infinite; will-change: transform; }
 .marquee:hover .marquee-track, .marquee:focus-within .marquee-track { animation-play-state: paused; }
-.edge-fade-x {
-  -webkit-mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
-          mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+/* Solid page-color gradient overlay instead of an opacity mask — masking dark
+   photo cards to transparent against a light page background left a muddy
+   grey smear at the edges. Painting over with var(--pg) fades cleanly
+   regardless of what's underneath. */
+.edge-fade { position: relative; }
+.edge-fade::before, .edge-fade::after {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  z-index: 5;
+  pointer-events: none;
+  width: clamp(28px, 7vw, 80px);
 }
+.edge-fade::before { left: 0;  background: linear-gradient(to right, var(--pg), transparent); }
+.edge-fade::after   { right: 0; background: linear-gradient(to left,  var(--pg), transparent); }
 @media (prefers-reduced-motion: reduce) { .marquee-track { animation: none; } }
 
 @layer base {

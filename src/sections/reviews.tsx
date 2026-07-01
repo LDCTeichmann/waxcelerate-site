@@ -15,24 +15,25 @@ type Review = {
   source?: 'ebay' | 'web';         // verified badge label
   productDe?: string; productEn?: string;
   photo?: string;
+  photoPos?: string;                // object-position, tuned per photo so the bike stays clear of the text scrim
 };
 
 const REVIEWS: Review[] = [
   {
     textDe: 'Bin jahrelang Öl gefahren und eher skeptisch rangegangen. Erster Eindruck nach dem Wechsel: Die Kette bleibt einfach sauber — kein schwarzer Rand mehr an der Wade, Finger bleiben sauber beim Rad einladen. Dazu läuft der Antrieb spürbar leiser. Eine Wachsung hält bei mir gut 300 km. Kein Zurück mehr zum Öl.',
     textEn: 'Ran oil for years and went in pretty skeptical. First impression after switching: the chain just stays clean — no more black mark on my calf, clean fingers loading the bike. And the drivetrain runs noticeably quieter. One wax lasts me a good 300 km. No going back to oil.',
-    name: 'tom_rennrad', dateDe: 'März 2026', dateEn: 'March 2026', source: 'ebay', photo: '/images/reviews/ride-1.jpg',
+    name: 'tom_rennrad', dateDe: 'März 2026', dateEn: 'March 2026', source: 'ebay', photo: '/images/reviews/ride-1.jpg', photoPos: '50% 68%',
   },
   {
     textDe: 'Erst eine Ausfahrt, aber die Kette war leise UND kein Ketten-Tattoo an Wade oder weißen Socken. Perfekt. Hätte ich einen YouTube-Kanal für 65+ Fahrer, würde ich allen das Wachsen empfehlen.',
     textEn: 'Only one ride but the chain was quiet AND no chain tattoo on my calf or white socks. Perfect. If I had a YouTube channel for 65+ riders, I’d tell them all to wax.',
     name: 'Michael W.', dateDe: 'Okt 2025', dateEn: 'Oct 2025', source: 'web',
-    productDe: 'Original Starter-Kit', productEn: 'Original Starter Kit', photo: '/images/reviews/ride-2.jpg',
+    productDe: 'Original Starter-Kit', productEn: 'Original Starter Kit', photo: '/images/reviews/ride-2.jpg', photoPos: '50% 62%',
   },
   {
     textDe: 'Wachse meine Ketten seit Jahren selbst und hatte vorher Silca und CycloWax in der Schublade. Im Alltag merke ich ehrlich keinen Unterschied bei Laufruhe oder Standzeit — nur beim Preis. Bin komplett umgestiegen und empfehle es im Verein regelmäßig weiter. Bestes Preis-Leistungs-Verhältnis, das ich kenne.',
     textEn: "I've waxed my own chains for years and used to keep Silca and CycloWax in the drawer. Day to day I honestly notice no difference in smoothness or longevity — only in the price. Switched over completely and recommend it at my club all the time. Best value I know of.",
-    name: 'm.gerber', dateDe: 'Mai 2026', dateEn: 'May 2026', source: 'ebay', photo: '/images/reviews/ride-4.jpg',
+    name: 'm.gerber', dateDe: 'Mai 2026', dateEn: 'May 2026', source: 'ebay', photo: '/images/reviews/ride-4.jpg', photoPos: '58% 52%',
   },
   {
     textDe: 'Jetzt drei Wochen als „Cyclowaxee". Toller Service! Das Starter-Kit enthält mehr als erwartet und macht den Umstieg auf Heißwachs sehr einfach — gerade fürs Reinigen des Antriebs.',
@@ -115,8 +116,9 @@ function ReviewCard({ r, de }: { r: Review; de: boolean }) {
     return (
       <figure className={`${CARD} ${CARD_W} relative`}>
         <img src={r.photo} alt="" loading="lazy" onError={() => setImgOk(false)}
-          className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(6,7,9,0.92) 6%, rgba(6,7,9,0.45) 46%, rgba(6,7,9,0.10) 100%)' }} />
+          className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition: r.photoPos ?? '50% 50%' }} />
+        {/* Scrim only tall enough for the quote + name — leaves the bike itself untinted */}
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(6,7,9,0.90) 0%, rgba(6,7,9,0.62) 22%, rgba(6,7,9,0) 58%)' }} />
         <div className="absolute top-2.5 sm:top-3 left-2.5 sm:left-3"><Stars rating={r.rating ?? 5} /></div>
         <figcaption className="absolute inset-x-0 bottom-0 p-3 sm:p-4 text-white">
           <blockquote className="text-[12px] sm:text-[13px] leading-snug font-medium line-clamp-2" style={{ textShadow: '0 1px 8px rgba(0,0,0,0.5)' }}>
@@ -168,13 +170,13 @@ function Marquee({ items, dur, reduced, paused }: { items: Review[]; dur: number
   const de = lang === 'de';
   if (reduced) {
     return (
-      <div className="flex overflow-x-auto edge-fade-x pb-2" style={{ scrollbarWidth: 'none' }}>
+      <div className="flex overflow-x-auto edge-fade pb-2" style={{ scrollbarWidth: 'none' }}>
         {items.map((r, i) => <ReviewCard key={i} r={r} de={de} />)}
       </div>
     );
   }
   return (
-    <div className="marquee overflow-hidden edge-fade-x">
+    <div className="marquee overflow-hidden edge-fade">
       <div className="marquee-track inline-flex"
         style={{ '--dur': `${dur}s`, animationPlayState: paused ? 'paused' : 'running' } as CSSProperties}>
         {[...items, ...items].map((r, i) => <ReviewCard key={i} r={r} de={de} />)}
