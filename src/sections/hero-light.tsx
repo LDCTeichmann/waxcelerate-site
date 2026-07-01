@@ -23,6 +23,7 @@ export function Hero() {
   const cardRef    = useRef<HTMLDivElement>(null);
   const imgRef     = useRef<HTMLDivElement>(null);
   const blockRef   = useRef<HTMLDivElement>(null);
+  const waxAnimRef = useRef<HTMLDivElement>(null);
   const wordRef    = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const ctaRef     = useRef<HTMLButtonElement>(null);
@@ -101,6 +102,16 @@ export function Hero() {
     }
     scrub(gsap.to(card, { scale: 0.965, transformOrigin: '50% 100%', ease: 'none' }));
 
+    // Idle float on the wax itself — barely-there vertical bob, independent of
+    // the cursor-parallax x/y already running on blockRef (a separate inner
+    // ref avoids two tweens fighting over the same `y`).
+    let floatTween: gsap.core.Tween | undefined;
+    if (waxAnimRef.current) {
+      floatTween = gsap.to(waxAnimRef.current, {
+        y: '+=5', duration: 4.4, ease: 'sine.inOut', repeat: -1, yoyo: true, delay: 1.8,
+      });
+    }
+
     let onMove:  ((e: MouseEvent) => void) | undefined;
     let onLeave: (() => void) | undefined;
     if (finePointer) {
@@ -147,6 +158,7 @@ export function Hero() {
       if (onLeave) card.removeEventListener('mouseleave', onLeave);
       if (cta && ctaMove)  cta.removeEventListener('mousemove', ctaMove);
       if (cta && ctaLeave) cta.removeEventListener('mouseleave', ctaLeave);
+      floatTween?.kill();
       triggers.forEach((s) => s.kill());
     };
   }, []);
@@ -190,7 +202,7 @@ export function Hero() {
           className="relative overflow-hidden rounded-[20px] sm:rounded-[28px] will-change-transform
                      h-[86dvh] sm:h-[calc(100dvh-108px)] lg:h-[calc(100dvh-134px)] min-h-[520px] sm:min-h-[540px]"
           style={{
-            background: '#0B0C0E',
+            background: 'var(--hero-stage)',
             boxShadow: '0 28px 90px rgba(10,10,16,0.22), 0 4px 18px rgba(10,10,16,0.10)',
           }}
         >
@@ -241,11 +253,11 @@ export function Hero() {
               className="whitespace-nowrap"
               style={{
                 fontFamily: '"Roboto", "Libre Franklin", ui-sans-serif, system-ui, sans-serif',
-                fontWeight: 700,
+                fontWeight: 600,
                 fontSize: 'clamp(2.9rem, 10.6vw, 10.4rem)',
                 lineHeight: 1,
                 letterSpacing: '-0.035em',
-                color: 'rgba(255,255,255,0.97)',
+                color: 'rgba(255,255,255,0.58)',
               }}
             >
               {BRAND.map((ch, i) => (
@@ -267,14 +279,35 @@ export function Hero() {
                        w-[clamp(90px,24vw,105px)]
                        sm:left-[50%] sm:top-[64%] sm:w-[clamp(200px,26vw,300px)]
                        lg:left-[46%] lg:top-[60%] lg:w-[clamp(220px,20vw,340px)]"
-            style={{ filter: 'drop-shadow(-6px 22px 30px rgba(5,6,8,0.55)) drop-shadow(-2px 6px 10px rgba(5,6,8,0.35))' }}
           >
-            {waxImg}
+            <div
+              ref={waxAnimRef}
+              className="relative will-change-transform"
+              style={{ filter: 'drop-shadow(-6px 22px 30px rgba(5,6,8,0.55)) drop-shadow(-2px 6px 10px rgba(5,6,8,0.35))' }}
+            >
+              {waxImg}
+              {/* Specular sheen — a very slow light pass across the wax surface,
+                  clipped to its silhouette. Reads as "catches the light", not as
+                  a loading shimmer (7s loop, low opacity, eased). */}
+              <div
+                aria-hidden
+                className="wax-sheen absolute inset-0 pointer-events-none"
+                style={{
+                  WebkitMaskImage: 'url(/images/hero/wax-cutout-mask.png)',
+                  maskImage: 'url(/images/hero/wax-cutout-mask.png)',
+                  WebkitMaskSize: '100% 100%', maskSize: '100% 100%',
+                  WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat',
+                }}
+              />
+            </div>
           </div>
 
           {/* WaxLens — magnifying glass cursor over the wax block */}
           <WaxLensCutout waxRef={blockRef} enabled={lensOn} de={de}
                    onOpen={openDive} onActiveChange={() => {}} />
+
+          {/* Film grain — subtle material/analog texture over the whole stage */}
+          <div aria-hidden className="hero-grain absolute inset-0 z-[6] pointer-events-none" />
 
           <div className="relative z-10 h-full w-full px-6 sm:px-10 lg:px-14 xl:px-20">
             <div className="h-full max-w-7xl mx-auto flex flex-col justify-end pb-28 sm:pb-32 lg:pb-28">
@@ -284,7 +317,7 @@ export function Hero() {
                   <span style={{ width: '28px', height: '2px', background: 'var(--brand-blue)' }} />
                   <p
                     className="text-[10px] sm:text-[11px] uppercase font-semibold"
-                    style={{ letterSpacing: '0.34em', color: 'rgba(255,255,255,0.62)' }}
+                    style={{ letterSpacing: '0.34em', color: 'rgba(255,255,255,0.72)' }}
                   >
                     {t.hero.subtitle}
                   </p>

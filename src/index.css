@@ -49,6 +49,22 @@
 .cta-primary:hover { animation-play-state: paused; box-shadow: 0 1px 2px rgba(0,0,0,0.12), 0 14px 36px rgba(0,0,0,0.45); }
 @media (prefers-reduced-motion: reduce) { .cta-primary { animation: none; } }
 
+/* Hero wax block — specular sheen. A soft diagonal highlight roams across the
+   masked silhouette on a slow loop, reading as "this catches light" rather
+   than a loading shimmer. Opacity stays low; the gradient band is narrow so
+   most of the time nothing is visible at all. */
+@keyframes wax-sheen-sweep {
+  0%, 100% { background-position: -60% -60%; }
+  50%      { background-position: 160% 160%; }
+}
+.wax-sheen {
+  background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.30) 48%, transparent 66%);
+  background-size: 250% 250%;
+  background-position: -60% -60%;
+  animation: wax-sheen-sweep 7s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) { .wax-sheen { animation: none; background: none; } }
+
 /* Hero secondary CTA — plain underlined text link on mobile (one strong pill
    button + a quiet link reads calmer than two stacked pills); becomes the
    full pill from sm: up, where there's room for it. */
@@ -82,6 +98,11 @@
   /* ── Light mode (default) ── */
   :root {
     /* ── Engineered Editorial — neutralized greyscale (no blue/purple undertone) ── */
+    /* Hero stage card — deliberately its own token, not tied to --sf2. In light
+       mode the page is bright so any dark card reads as a frame; in noir mode
+       the page itself goes near-black, so the stage needs to stay visibly
+       lighter than --pg or the "card floating in a frame" effect disappears. */
+    --hero-stage: #0B0C0E;
     --pg:        #F5F5F6;
     --sf:        #FFFFFF;
     --sf2:       #EDEDEF;
@@ -177,6 +198,7 @@
   /* ── Noir mode — zinc-950 neutral blacks, 2026 dark-first ── */
   .noir {
     /* Zinc-tinted neutrals — no blue undertone */
+    --hero-stage: #1C1C1F;   /* visibly lighter than --pg below, keeps the card edge */
     --pg:        #09090B;    /* zinc-950 */
     --sf:        #111113;    /* slightly elevated, neutral */
     --sf2:       #1C1C1F;    /* card surface, Raycast-inspired */
