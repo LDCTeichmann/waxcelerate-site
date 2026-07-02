@@ -147,6 +147,7 @@ export function About() {
                   border: '1px solid var(--bd)',
                   borderBottom: 'none',
                   boxShadow: '0 12px 48px rgba(0,0,0,0.18)',
+                  transform: 'translateZ(0)',
                 }}
               >
                 <picture>

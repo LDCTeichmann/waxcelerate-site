@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
+import { Navigation } from '@/sections/navigation';
 import {
   articles,
   categoryColors,
@@ -17,10 +18,14 @@ function ArticleCard({ article }: { article: Article }) {
   return (
     <Link
       to={`/blog/${article.slug}`}
-      className="group block rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1"
+      className="group block rounded-2xl transition-all duration-300 hover:-translate-y-1"
       style={{ background: 'var(--sf)', border: '1px solid var(--bd)' }}
     >
-      <div className="relative aspect-[16/10] overflow-hidden" style={{ background: 'var(--sf2)' }}>
+      {/* overflow-hidden + rounded corners live here, not on the Link that also
+          carries the hover transform — combining both on one element risks
+          Chromium flashing the corner clip square right as hover promotes a
+          new layer (same bug as the product cards; see products.tsx). */}
+      <div className="relative aspect-[16/10] overflow-hidden rounded-t-2xl" style={{ background: 'var(--sf2)', transform: 'translateZ(0)' }}>
         <img
           src={img.src}
           alt={img.alt}
@@ -66,10 +71,12 @@ function FeaturedArticle({ article }: { article: Article }) {
   return (
     <Link
       to={`/blog/${article.slug}`}
-      className="group grid md:grid-cols-2 rounded-2xl overflow-hidden mb-12 transition-all duration-300 hover:-translate-y-1"
+      className="group grid md:grid-cols-2 rounded-2xl mb-12 transition-all duration-300 hover:-translate-y-1"
       style={{ background: 'var(--sf)', border: '1px solid var(--bd)' }}
     >
-      <div className="relative aspect-[16/11] md:aspect-auto md:min-h-[340px] overflow-hidden" style={{ background: 'var(--sf2)' }}>
+      {/* overflow-hidden + rounding live here, not on the Link with the hover
+          transform — see ArticleCard above for why. */}
+      <div className="relative aspect-[16/11] md:aspect-auto md:min-h-[340px] overflow-hidden rounded-t-2xl md:rounded-t-none md:rounded-l-2xl" style={{ background: 'var(--sf2)', transform: 'translateZ(0)' }}>
         <img
           src={img.src}
           alt={img.alt}
@@ -132,23 +139,7 @@ export function BlogIndexPage() {
         <link rel="canonical" href="https://waxcelerate.de/blog" />
       </Helmet>
 
-      {/* Sticky header */}
-      <header
-        className="sticky top-0 z-30 border-b"
-        style={{ borderColor: 'var(--bd)', background: 'var(--pg)' }}
-      >
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <Link to="/" className="font-display font-bold text-lg tracking-tight text-wx-tx1">
-            WAX<span style={{ color: 'var(--accent)' }}>CELERATE</span>
-          </Link>
-          <Link
-            to="/"
-            className="text-sm text-wx-txm hover:text-wx-tx1 transition-colors flex items-center gap-1"
-          >
-            ← Startseite
-          </Link>
-        </div>
-      </header>
+      <Navigation />
 
       {/* Full-bleed hero masthead */}
       <section

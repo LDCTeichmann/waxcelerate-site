@@ -107,14 +107,14 @@ export function WaxLensCutout({ waxRef, enabled, de, onOpen, onActiveChange }: {
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mousedown', onDown);
     window.addEventListener('mouseup', onUp);
-    wax.addEventListener('click', onClick);
+    window.addEventListener('click', onClick);
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onResize);
     return () => {
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('mousedown', onDown);
       window.removeEventListener('mouseup', onUp);
-      wax.removeEventListener('click', onClick);
+      window.removeEventListener('click', onClick);
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onResize);
       maskImg.removeEventListener('load', onMaskLoad);

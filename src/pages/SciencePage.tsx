@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ArrowLeft, ChevronDown } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ChevronDown, Gauge, Clock, Droplets, Sparkles } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
+import { Navigation } from '@/sections/navigation';
 import { ScrollTrigger } from '@/lib/gsap';
 import { prefersReducedMotion } from '@/hooks/useAnimation';
-import { InstrumentFrame, SegmentedToggle, AnimatedNumber, CountUp } from '@/components/viz';
+import { InstrumentFrame, SegmentedToggle, AnimatedNumber, CountUp, SprocketTooth } from '@/components/viz';
 import { waxVsOil, frictionRanges } from '@/lib/data';
 import { COMPONENTS, FAILURES, type ScienceComponent } from '@/lib/science';
 import { FormulaGraph } from '@/sections/science/FormulaGraph';
@@ -12,28 +13,6 @@ import { ComponentDiagram } from '@/sections/science/diagrams';
 import { HexMoS2, TransferFilm } from '@/sections/science/LabViz';
 
 const W = 'max-w-4xl mx-auto px-4 sm:px-6 lg:px-8';
-
-// ─── Top scroll-progress bar (the one consolidated nav cue) ──────────────────
-function ScrollProgress() {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const onScroll = () => {
-      const h = document.documentElement;
-      const max = h.scrollHeight - h.clientHeight;
-      el.style.transform = `scaleX(${max > 0 ? h.scrollTop / max : 0})`;
-    };
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-  return (
-    <div aria-hidden className="fixed top-0 left-0 right-0 h-0.5 z-50 origin-left"
-      ref={ref}
-      style={{ background: 'linear-gradient(90deg, var(--accent-strong), var(--accent-soft))', transform: 'scaleX(0)' }} />
-  );
-}
 
 function ContactZone({ wax }: { wax: boolean }) {
   const topSurf = 'M0,52 L18,52 L30,52.5 L42,53 L54,52.5 L68,52 L78,53 L86,54.5 L92,55.5 L100,54 L110,52.5 L126,52 L138,52.5 L148,53.5 L156,54 L164,53 L178,52 L190,52.5 L200,54 L208,55.5 L216,56 L224,55 L234,53 L248,52 L262,52.5 L272,53.5 L280,54.5 L288,53.5 L300,52 L314,52.5 L324,54 L332,55.5 L340,55 L350,53.5 L364,52 L378,52.5 L388,53.5 L396,55 L404,55.5 L412,54 L422,53 L438,52 L452,52.5 L462,53.5 L472,53 L486,52 L500,52';
@@ -151,6 +130,102 @@ function ContactZone({ wax }: { wax: boolean }) {
   );
 }
 
+// ─── Opening hero — the page's actual "hero" moment: headline stats + a large
+// cassette rendering, dark stage (matches the homepage hero's card treatment)
+// so it reads as an entrance, not another instrument panel. All numbers come
+// from the same `waxVsOil` source as the homepage's why-wax section — no
+// invented stats. ProblemHero below carries on with the sober toggle deep-dive.
+function ScienceHero({ de }: { de: boolean }) {
+  const f = waxVsOil.friction, w = waxVsOil.watts, l = waxVsOil.life;
+  const cards = [
+    {
+      icon: Gauge,
+      value: `μ ${f.wax.toFixed(2)}`,
+      label: de ? 'Reibung' : 'Friction',
+      detail: de ? `${Math.round(f.oil / f.wax)}× weniger als Öl` : `${Math.round(f.oil / f.wax)}× less than oil`,
+    },
+    {
+      icon: Droplets,
+      value: `${w.wax[0]}–${w.wax[1]} W`,
+      label: de ? 'Antriebsverlust' : 'Drivetrain loss',
+      detail: de ? `Öl: ${w.oil[0]}–${w.oil[1]} W` : `Oil: ${w.oil[0]}–${w.oil[1]} W`,
+    },
+    {
+      icon: Clock,
+      value: `${l.wax}×`,
+      label: de ? 'Kettenlaufzeit' : 'Chain life',
+      detail: de ? 'gegenüber Öl' : 'vs oil lubrication',
+    },
+    {
+      icon: Sparkles,
+      value: de ? 'Trocken' : 'Dry',
+      label: de ? 'Sauberkeit' : 'Cleanliness',
+      detail: de ? 'Kein Dreck, keine Flecken' : 'No grime, no stains',
+    },
+  ];
+
+  return (
+    <section className={`${W} pt-28 sm:pt-36 pb-10`}>
+      <div className="relative rounded-[28px] overflow-hidden" style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)' }}>
+        <div className="grid lg:grid-cols-[3fr_2fr] items-center gap-8 lg:gap-10 p-6 sm:p-10 lg:p-14">
+          {/* Text + stats */}
+          <div>
+            <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
+              {de ? 'Öl vs. Wachs' : 'Oil vs. Wax'}
+            </p>
+            <h2 className="font-display font-bold leading-[1.05] mb-4"
+              style={{ color: 'var(--tx1)', fontSize: 'clamp(2rem, 4.2vw, 3rem)', letterSpacing: '-0.02em' }}>
+              {de ? 'Ein messbarer Unterschied.' : 'One measurable difference.'}
+            </h2>
+            <p className="mb-6" style={{ color: 'var(--txm)', fontSize: 15, maxWidth: '38ch' }}>
+              {de
+                ? 'Derselbe Antrieb, zwei Schmierstoffe — Seite an Seite gemessen.'
+                : 'Same drivetrain, two lubricants — measured side by side.'}
+            </p>
+
+            {/* Full reference image — the whole figure, own annotations and all,
+                shown as-is rather than cropped down to just the product shot. */}
+            <div className="lg:hidden rounded-xl overflow-hidden mb-6" style={{ border: '1px solid var(--bd2)', transform: 'translateZ(0)' }}>
+              <img
+                src="/images/science/cassette-wear-full.jpg"
+                alt={de ? 'Verschleißprinzip: Zahnflanke einer Kassette, neu vs. abgenutzt' : 'Wear principle: cassette tooth flank, new vs. worn'}
+                className="w-full h-auto"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 mb-8">
+              {cards.map(c => (
+                <div key={c.label} className="rounded-xl px-4 py-3.5"
+                  style={{ background: 'var(--sf)', border: '1px solid var(--bd2)' }}>
+                  <c.icon className="h-3.5 w-3.5 mb-2" style={{ color: 'var(--txf)' }} aria-hidden />
+                  <p className="num-data font-bold text-[19px] sm:text-[21px] leading-none" style={{ color: 'var(--tx1)' }}>{c.value}</p>
+                  <p className="text-[9.5px] uppercase tracking-[0.1em] mt-2" style={{ color: 'var(--txf)' }}>{c.label}</p>
+                  <p className="text-[10px] mt-0.5" style={{ color: 'var(--txm)' }}>{c.detail}</p>
+                </div>
+              ))}
+            </div>
+
+            <a href="#problem" className="inline-flex items-center gap-2 text-[13px] font-semibold transition-opacity hover:opacity-75" style={{ color: 'var(--tx1)' }}>
+              {de ? 'Wie das gemessen wurde' : 'How this was measured'}
+              <ArrowRight className="h-3.5 w-3.5" />
+            </a>
+          </div>
+
+          {/* Full reference image — desktop only; mobile/tablet gets the inline
+              version above instead of squeezing this into a narrow column. */}
+          <div className="hidden lg:block rounded-xl overflow-hidden" style={{ border: '1px solid var(--bd2)', transform: 'translateZ(0)' }}>
+            <img
+              src="/images/science/cassette-wear-full.jpg"
+              alt={de ? 'Verschleißprinzip: Zahnflanke einer Kassette, neu vs. abgenutzt' : 'Wear principle: cassette tooth flank, new vs. worn'}
+              className="w-full h-auto"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ─── ACT I — Problem hero with Wax⇄Oil toggle ────────────────────────────────
 function ProblemHero({ de }: { de: boolean }) {
   const [state, setState] = useState<'wax' | 'oil'>('oil');
@@ -164,28 +239,32 @@ function ProblemHero({ de }: { de: boolean }) {
   const metrics = [
     {
       label: de ? 'Reibung' : 'Friction',
+      icon: Gauge,
       node: <AnimatedNumber value={friction} decimals={2} prefix="μ " className={numCls} style={valStyle} />,
       pct: wax ? 15 : 100,
     },
     {
       label: de ? 'Antriebsverlust' : 'Drivetrain loss',
+      icon: Droplets,
       node: <span className={numCls} style={valStyle}><AnimatedNumber value={wLo} />–<AnimatedNumber value={wHi} /><span className="text-[18px] ml-0.5">W</span></span>,
       pct: wax ? 33 : 100,
     },
     {
       label: de ? 'Kettenlaufzeit' : 'Chain life',
+      icon: Clock,
       node: <AnimatedNumber value={life} suffix="×" className={numCls} style={valStyle} />,
       pct: wax ? 100 : 33,
     },
     {
       label: de ? 'Sauberkeit' : 'Cleanliness',
+      icon: Sparkles,
       node: <span className="text-[15px] font-semibold" style={valStyle}>{wax ? (de ? 'Trocken & sauber' : 'Dry & clean') : (de ? 'Bindet Schmutz' : 'Binds dirt')}</span>,
       pct: wax ? 100 : 15,
     },
   ];
 
   return (
-    <section id="problem" className={`${W} pt-28 sm:pt-36 pb-20`}>
+    <section id="problem" className={`${W} pt-16 sm:pt-20 pb-20`}>
       <p className="eyebrow mb-4" style={{ color: 'var(--accent-soft)' }}>
         {de ? 'Tribologie' : 'Tribology'}
       </p>
@@ -195,8 +274,8 @@ function ProblemHero({ de }: { de: boolean }) {
       </h1>
       <p className="text-wx-txm text-lead max-w-2xl mb-12">
         {de
-          ? 'Zwei Metallflächen gleiten aufeinander. Partikel gelangen in den Kontakt. Die Art der Schmierung entscheidet, ob sie schleifen — oder abgleiten.'
-          : 'Two metal surfaces slide against each other. Particles enter the contact zone. The type of lubrication determines whether they grind — or slide off.'}
+          ? 'Zwei Metallflächen gleiten aufeinander. Partikel gelangen in den Kontakt. Die Art der Schmierung entscheidet, ob sie schleifen — oder abgleiten. Über Tausende Kilometer entscheidet genau das, wie lange Zahnflanke und Kette halten.'
+          : 'Two metal surfaces slide against each other. Particles enter the contact zone. The type of lubrication determines whether they grind — or slide off. Over thousands of kilometres, that single difference decides how long the tooth flank and chain survive.'}
       </p>
 
       <InstrumentFrame eyebrow={de ? 'Öl vs. Wachs' : 'Oil vs. Wax'}>
@@ -209,35 +288,69 @@ function ProblemHero({ de }: { de: boolean }) {
           ]}
         />
 
-        {/* ── Microscope viewport ── */}
-        <div className="rounded-xl overflow-hidden mb-8"
-          style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)' }}>
-          <div className="flex items-center justify-between px-4 pt-3 pb-1">
-            <span className="text-[10px] font-medium uppercase tracking-[0.16em]"
-              style={{ color: 'var(--txf)' }}>
-              {de ? 'Kontaktzone' : 'Contact zone'}
-            </span>
-            <span className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5"
-              style={{ background: 'var(--bd)', fontSize: 10 }}>
-              <svg width="10" height="10" viewBox="0 0 16 16" fill="none" aria-hidden>
-                <circle cx="7" cy="7" r="5" stroke="var(--txf)" strokeWidth="1.5" />
-                <line x1="11" y1="11" x2="14" y2="14" stroke="var(--txf)" strokeWidth="1.5" strokeLinecap="round" />
-              </svg>
-              <span className="num-data" style={{ color: 'var(--txf)' }}>×100</span>
-            </span>
+        {/* ── Twin viewports: same contact-zone physics, two vantage points ──
+            Left = what happens at the surface (µm scale). Right = what that does
+            to the part you'll actually replace (mm scale, months later). Same
+            toggle drives both, so the cause→consequence link is immediate. */}
+        <div className="grid sm:grid-cols-2 gap-3 mb-8">
+          <div className="rounded-xl overflow-hidden"
+            style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)' }}>
+            <div className="flex items-center justify-between px-4 pt-3 pb-1">
+              <span className="text-[10px] font-medium uppercase tracking-[0.16em]"
+                style={{ color: 'var(--txf)' }}>
+                {de ? 'Kontaktzone' : 'Contact zone'}
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5"
+                style={{ background: 'var(--bd)', fontSize: 10 }}>
+                <svg width="10" height="10" viewBox="0 0 16 16" fill="none" aria-hidden>
+                  <circle cx="7" cy="7" r="5" stroke="var(--txf)" strokeWidth="1.5" />
+                  <line x1="11" y1="11" x2="14" y2="14" stroke="var(--txf)" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+                <span className="num-data" style={{ color: 'var(--txf)' }}>×100</span>
+              </span>
+            </div>
+
+            <div className="px-3 sm:px-5 pb-2">
+              <ContactZone wax={wax} />
+            </div>
+
+            <div className="px-4 pb-3.5">
+              <p className="text-center text-[11px] font-semibold tracking-[0.1em] uppercase"
+                style={{ color: wax ? 'var(--accent)' : 'var(--txm)', transition: 'color 0.4s ease' }}>
+                {wax
+                  ? (de ? 'Trockener Wachsfilm — Partikel gleiten ab' : 'Dry wax film — particles slide off')
+                  : (de ? 'Schleifpaste — Partikel schleifen Metall ab' : 'Grinding paste — particles abrade metal')}
+              </p>
+            </div>
           </div>
 
-          <div className="px-3 sm:px-5 pb-2">
-            <ContactZone wax={wax} />
-          </div>
+          <div className="rounded-xl overflow-hidden"
+            style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)' }}>
+            <div className="flex items-center justify-between px-4 pt-3 pb-1">
+              <span className="text-[10px] font-medium uppercase tracking-[0.16em]"
+                style={{ color: 'var(--txf)' }}>
+                {de ? 'Zahnflanke' : 'Tooth flank'}
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5"
+                style={{ background: 'var(--bd)', fontSize: 10 }}>
+                <span className="num-data" style={{ color: 'var(--txf)' }}>
+                  {de ? 'KASSETTE' : 'CASSETTE'}
+                </span>
+              </span>
+            </div>
 
-          <div className="px-4 pb-3.5">
-            <p className="text-center text-[11px] font-semibold tracking-[0.1em] uppercase"
-              style={{ color: wax ? 'var(--accent)' : 'var(--txm)', transition: 'color 0.4s ease' }}>
-              {wax
-                ? (de ? 'Trockener Wachsfilm — Partikel gleiten ab' : 'Dry wax film — particles slide off')
-                : (de ? 'Schleifpaste — Partikel schleifen Metall ab' : 'Grinding paste — particles abrade metal')}
-            </p>
+            <div className="px-3 sm:px-5 pb-2">
+              <SprocketTooth state={state} de={de} />
+            </div>
+
+            <div className="px-4 pb-3.5">
+              <p className="text-center text-[11px] font-semibold tracking-[0.1em] uppercase"
+                style={{ color: wax ? 'var(--accent)' : 'var(--txm)', transition: 'color 0.4s ease' }}>
+                {wax
+                  ? (de ? 'Profil hält — Wechsel nach 4.000–5.000 km' : 'Profile holds — replace after 4,000–5,000 km')
+                  : (de ? 'Flanke frisst sich an — Wechsel schon ab ~2.000 km' : 'Flank grinds away — replace as early as ~2,000 km')}
+              </p>
+            </div>
           </div>
         </div>
 
@@ -246,8 +359,11 @@ function ProblemHero({ de }: { de: boolean }) {
           {metrics.map(m => (
             <div key={m.label} className="rounded-lg px-4 py-3.5"
               style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)' }}>
-              <dt className="text-[10px] uppercase tracking-[0.14em] mb-2.5"
-                style={{ color: 'var(--txf)' }}>{m.label}</dt>
+              <dt className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.14em] mb-2.5"
+                style={{ color: 'var(--txf)' }}>
+                <m.icon className="h-3 w-3" strokeWidth={2} style={{ color: 'var(--txff)' }} aria-hidden />
+                {m.label}
+              </dt>
               <dd className="mb-3">{m.node}</dd>
               <div className="h-[3px] rounded-full overflow-hidden" style={{ background: 'var(--bd)' }}>
                 <div className="h-full rounded-full"
@@ -744,7 +860,7 @@ function FormulaStory({ de }: { de: boolean }) {
 }
 
 export function SciencePage() {
-  const { lang, toggleLang } = useLanguage();
+  const { lang } = useLanguage();
   const de = lang === 'de';
   const { hash } = useLocation();
 
@@ -759,22 +875,9 @@ export function SciencePage() {
 
   return (
     <div className="min-h-screen bg-wx-bg">
-      <ScrollProgress />
+      <Navigation />
 
-      {/* Top bar */}
-      <header className="fixed top-0 left-0 right-0 z-40 backdrop-blur-md"
-        style={{ background: 'color-mix(in srgb, var(--pg) 82%, transparent)', borderBottom: '1px solid var(--bd2)' }}>
-        <div className={`${W} flex items-center justify-between h-14`}>
-          <Link to="/" className="inline-flex items-center gap-2 text-[13px] font-medium text-wx-tx2 transition-opacity hover:opacity-70">
-            <ArrowLeft className="h-4 w-4" />
-            {de ? 'Zurück' : 'Back'}
-          </Link>
-          <p className="eyebrow" style={{ color: 'var(--txf)' }}>{de ? 'Die Wissenschaft' : 'The Science'}</p>
-          <button onClick={toggleLang} className="text-[12px] font-medium text-wx-tx2 transition-opacity hover:opacity-70">
-            {de ? 'EN' : 'DE'}
-          </button>
-        </div>
-      </header>
+      <ScienceHero de={de} />
 
       {/* ── ACT I — PROBLEM ── */}
       <ProblemHero de={de} />

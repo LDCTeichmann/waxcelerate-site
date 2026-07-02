@@ -36,6 +36,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { CartDrawer } from '@/components/CartDrawer';
 import { useCartStore } from '@/store/cart';
 import { ScrollToTop } from '@/components/ScrollToTop';
+import { PendingAnchorScroll } from '@/components/PendingAnchorScroll';
 import { ScrollProgress } from '@/components/ScrollProgress';
 import { MobileStickyCTA } from '@/components/MobileStickyCTA';
 import { CartPersistenceHint } from '@/components/CartPersistenceHint';
@@ -90,6 +91,7 @@ function AppContent() {
         <Route path="*" element={
           <>
             <Navigation />
+            <PendingAnchorScroll />
             <main>
               <Suspense fallback={<div style={{ minHeight: '100svh' }} />}>
                 <HeroVariant />

@@ -1079,7 +1079,7 @@ function RelatedCard({ product: p, de, formatPrice }: { product: Product; de: bo
 
   const inner = (
     <div className="group flex h-full flex-col overflow-hidden rounded-xl transition-shadow duration-300 hover:shadow-md"
-      style={{ background: 'var(--card-bg)', border: '1px solid var(--bd)' }}>
+      style={{ background: 'var(--card-bg)', border: '1px solid var(--bd)', transform: 'translateZ(0)' }}>
       <div className="relative aspect-[4/3] overflow-hidden" style={{ background: 'var(--sf2)' }}>
         <img src={p.image} alt={title} loading="lazy"
           className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"

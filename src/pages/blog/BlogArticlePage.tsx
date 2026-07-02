@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
+import { Navigation } from '@/sections/navigation';
 import {
   getArticleBySlug,
   getArticleImage,
@@ -89,25 +90,6 @@ function renderSection(section: ArticleSection, idx: number): React.ReactNode {
     default:
       return null;
   }
-}
-
-function ReadingProgress() {
-  const [pct, setPct] = useState(0);
-  useEffect(() => {
-    const onScroll = () => {
-      const h = document.documentElement;
-      const total = h.scrollHeight - h.clientHeight;
-      setPct(total > 0 ? (h.scrollTop / total) * 100 : 0);
-    };
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-  return (
-    <div className="fixed top-0 left-0 right-0 z-50 h-[3px]" style={{ background: 'transparent' }}>
-      <div className="h-full transition-[width] duration-150" style={{ width: `${pct}%`, background: 'var(--accent)' }} />
-    </div>
-  );
 }
 
 export function BlogArticlePage() {
@@ -200,19 +182,17 @@ export function BlogArticlePage() {
         {faqSchema && <script type="application/ld+json">{faqSchema}</script>}
       </Helmet>
 
-      <ReadingProgress />
+      <Navigation />
 
-      {/* Header */}
-      <header className="sticky top-0 z-30 border-b" style={{ borderColor: 'var(--bd)', background: 'var(--pg)' }}>
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <Link to="/" className="font-display font-bold text-lg tracking-tight text-wx-tx1">
-            WAX<span style={{ color: 'var(--accent)' }}>CELERATE</span>
-          </Link>
-          <Link to="/blog" className="text-sm text-wx-txm hover:text-wx-tx1 transition-colors flex items-center gap-1">
+      {/* Back-to-index link — kept here since it's article-specific context,
+          distinct from the shared site nav above it. */}
+      <div className="border-b pt-20 lg:pt-24" style={{ borderColor: 'var(--bd)' }}>
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3">
+          <Link to="/blog" className="text-sm text-wx-txm hover:text-wx-tx1 transition-colors inline-flex items-center gap-1">
             ← Alle Artikel
           </Link>
         </div>
-      </header>
+      </div>
 
       {/* Hero */}
       <section className="relative overflow-hidden border-b" style={{ borderColor: 'var(--bd)' }}>
@@ -324,10 +304,12 @@ export function BlogArticlePage() {
                     <Link
                       key={r.slug}
                       to={`/blog/${r.slug}`}
-                      className="group block rounded-xl overflow-hidden transition-all duration-300 hover:-translate-y-1"
+                      className="group block rounded-xl transition-all duration-300 hover:-translate-y-1"
                       style={{ background: 'var(--sf)', border: '1px solid var(--bd)' }}
                     >
-                      <div className="relative aspect-[16/10] overflow-hidden" style={{ background: 'var(--sf2)' }}>
+                      {/* overflow-hidden + rounding live here, not on the Link with the
+                          hover transform — see BlogIndexPage's ArticleCard for why. */}
+                      <div className="relative aspect-[16/10] overflow-hidden rounded-t-xl" style={{ background: 'var(--sf2)', transform: 'translateZ(0)' }}>
                         <img
                           src={rImg.src}
                           alt={rImg.alt}

@@ -7,9 +7,7 @@ import { waxLensEnabled } from '@/sections/hero/constants';
 
 const WaxDive = lazy(() => import('@/sections/hero/WaxDive').then(m => ({ default: m.WaxDive })));
 
-const BRAND = 'Waxcelerate'.split('');
-// Kette liegt in chain-bg.jpg diagonal rechts — freier Schiefer links/unten für Text.
-const BG_POS = '40% 36%';
+const BG_POS = '52% 42%';
 
 export function Hero() {
   const { t, lang } = useLanguage();
@@ -19,25 +17,20 @@ export function Hero() {
 
   const openDive = useCallback(() => setDiveOpen(true), []);
 
-  const rootRef    = useRef<HTMLElement>(null);
-  const cardRef    = useRef<HTMLDivElement>(null);
+  const rootRef      = useRef<HTMLElement>(null);
+  const cardRef      = useRef<HTMLDivElement>(null);
+  const cardInnerRef = useRef<HTMLDivElement>(null);
   const imgRef     = useRef<HTMLDivElement>(null);
   const blockRef   = useRef<HTMLDivElement>(null);
-  const waxAnimRef = useRef<HTMLDivElement>(null);
-  const wordRef    = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const ctaRef     = useRef<HTMLButtonElement>(null);
-  const animated   = useRef(false);
-  const spotRef    = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (animated.current) return;
     const root = rootRef.current;
     const card = cardRef.current;
-    if (!root || !card) return;
-    animated.current = true;
+    const cardInner = cardInnerRef.current;
+    if (!root || !card || !cardInner) return;
 
-    const letters = root.querySelectorAll<HTMLElement>('[data-letter]');
     const words   = root.querySelectorAll<HTMLElement>('[data-word]');
     const items   = root.querySelectorAll<HTMLElement>('[data-hero]');
     const imgLayers = [imgRef.current, blockRef.current].filter(Boolean) as HTMLElement[];
@@ -46,23 +39,17 @@ export function Hero() {
     const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
     if (reduced) {
-      gsap.set([letters, words], { yPercent: 0 });
+      gsap.set(words, { yPercent: 0 });
       gsap.set(items, { opacity: 1, y: 0 });
-      gsap.set(card, { opacity: 1, y: 0 });
+      gsap.set(cardInner, { opacity: 1, y: 0 });
       gsap.set(imgLayers, { scale: 1 });
       return;
     }
 
     const tl = gsap.timeline({ delay: 0.05, defaults: { ease: 'power4.out' } });
 
-    tl.fromTo(card, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' }, 0);
+    tl.fromTo(cardInner, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' }, 0);
     tl.fromTo(imgLayers, { scale: 1.06 }, { scale: 1.01, duration: 2.4, ease: 'power2.out' }, 0);
-    tl.fromTo(
-      letters,
-      { yPercent: -115 },
-      { yPercent: 0, duration: 0.85, ease: 'back.out(1.4)', stagger: { each: 0.042 } },
-      0.3,
-    );
     tl.fromTo(
       words,
       { yPercent: -120 },
@@ -96,45 +83,22 @@ export function Hero() {
       );
     scrub(gsap.to(imgLayers, { yPercent: 4, ease: 'none' }));
     if (contentRef.current) scrub(gsap.to(contentRef.current, { y: -40, opacity: 0.25, ease: 'none' }));
-    if (letters.length) {
-      const mid = (letters.length - 1) / 2;
-      scrub(gsap.to(letters, { x: (i: number) => (i - mid) * 5, ease: 'none' }));
-    }
-    scrub(gsap.to(card, { scale: 0.965, transformOrigin: '50% 100%', ease: 'none' }));
+    scrub(gsap.to(cardInner, { scale: 0.965, transformOrigin: '50% 100%', ease: 'none' }));
 
-    // Idle float on the wax itself — barely-there vertical bob, independent of
-    // the cursor-parallax x/y already running on blockRef (a separate inner
-    // ref avoids two tweens fighting over the same `y`).
-    let floatTween: gsap.core.Tween | undefined;
-    if (waxAnimRef.current) {
-      floatTween = gsap.to(waxAnimRef.current, {
-        y: '+=5', duration: 4.4, ease: 'sine.inOut', repeat: -1, yoyo: true, delay: 1.8,
-      });
-    }
 
     let onMove:  ((e: MouseEvent) => void) | undefined;
-    let onLeave: (() => void) | undefined;
     if (finePointer) {
       const qImg = imgLayers.map((el) => [
         gsap.quickTo(el, 'x', { duration: 1.0, ease: 'power3.out' }),
         gsap.quickTo(el, 'y', { duration: 1.0, ease: 'power3.out' }),
       ]);
-      const qWordX = wordRef.current ? gsap.quickTo(wordRef.current, 'x', { duration: 1.2, ease: 'power3.out' }) : null;
-      const qWordY = wordRef.current ? gsap.quickTo(wordRef.current, 'y', { duration: 1.2, ease: 'power3.out' }) : null;
       onMove = (e: MouseEvent) => {
         const r = card.getBoundingClientRect();
         const nx = (e.clientX - r.left) / r.width - 0.5;
         const ny = (e.clientY - r.top) / r.height - 0.5;
         qImg.forEach(([qx, qy]) => { qx(nx * -10); qy(ny * -7); });
-        if (qWordX && qWordY) { qWordX(nx * -3); qWordY(ny * -2); }
-        if (spotRef.current) {
-          spotRef.current.style.background =
-            `radial-gradient(ellipse 520px 340px at ${e.clientX - r.left}px ${e.clientY - r.top}px, rgba(255,255,255,0.028) 0%, transparent 68%)`;
-        }
       };
-      onLeave = () => { if (spotRef.current) spotRef.current.style.background = 'none'; };
       card.addEventListener('mousemove', onMove);
-      card.addEventListener('mouseleave', onLeave);
     }
 
     let ctaMove: ((e: MouseEvent) => void) | undefined;
@@ -155,11 +119,10 @@ export function Hero() {
 
     return () => {
       if (onMove)  card.removeEventListener('mousemove', onMove);
-      if (onLeave) card.removeEventListener('mouseleave', onLeave);
       if (cta && ctaMove)  cta.removeEventListener('mousemove', ctaMove);
       if (cta && ctaLeave) cta.removeEventListener('mouseleave', ctaLeave);
-      floatTween?.kill();
       triggers.forEach((s) => s.kill());
+      tl.kill();
     };
   }, []);
 
@@ -177,7 +140,11 @@ export function Hero() {
       src="/images/hero/chain-bg.jpg"
       alt={de ? 'Fahrradkette auf Schiefer' : 'Bicycle chain on slate'}
       className="absolute inset-0 w-full h-full object-cover hero-img"
-      style={{ objectPosition: BG_POS }}
+      style={{
+        objectPosition: BG_POS,
+        transform: 'scale(1.035)',
+        filter: 'blur(2.5px) saturate(0.88) brightness(0.88)',
+      }}
       fetchPriority="high"
     />
   );
@@ -199,13 +166,19 @@ export function Hero() {
       <div className="px-3 sm:px-4 lg:px-6 pt-[84px] lg:pt-[104px] pb-3 sm:pb-4 lg:pb-6">
         <div
           ref={cardRef}
-          className="relative overflow-hidden rounded-[20px] sm:rounded-[28px] will-change-transform
-                     h-[86dvh] sm:h-[calc(100dvh-108px)] lg:h-[calc(100dvh-134px)] min-h-[520px] sm:min-h-[540px]"
+          className="relative overflow-hidden rounded-[20px] sm:rounded-[28px]
+                     h-[86dvh] sm:h-[min(calc(100dvh-108px),78vw)] lg:h-[min(calc(100dvh-134px),64vw)] min-h-[520px] sm:min-h-[540px]"
           style={{
             background: 'var(--hero-stage)',
             boxShadow: '0 28px 90px rgba(10,10,16,0.22), 0 4px 18px rgba(10,10,16,0.10)',
           }}
         >
+        {/* Transform lives on this inner layer, separate from the rounded+clipped
+            outer card — a rounded/overflow-hidden element that ALSO carries a live
+            GSAP transform is a known Chromium compositing trap: the corner clip can
+            render square for a frame right as the transform layer promotes. Keeping
+            the clip static and transforming only this inner box avoids it. */}
+        <div ref={cardInnerRef} className="absolute inset-0 will-change-transform">
           {/* Idle background drift (optional): a slow independent pan here would
               compete with the GSAP-driven transform already applied to this same
               element (entrance scale, scroll-scrub, cursor parallax) — both would
@@ -218,87 +191,64 @@ export function Hero() {
             {bgImg}
           </div>
 
-          {/* Lokaler Verlauf nur über der Textzone (links) — Kette rechts bleibt unangetastet sichtbar */}
+          {/* Blur already pushes the chain to atmospheric bokeh; this overlay only
+              needs to add a touch more depth + tame the brightest specular hits,
+              not do all the "background" work by itself. */}
           <div
             className="absolute inset-0 pointer-events-none z-[1]"
-            style={{
-              background:
-                'linear-gradient(90deg, rgba(7,8,10,0.80) 0%, rgba(7,8,10,0.55) 18%, rgba(7,8,10,0.20) 38%, transparent 50%)',
-            }}
+            style={{ background: 'rgba(7,8,10,0.32)' }}
           />
           <div
-            className="absolute top-0 inset-x-0 h-24 pointer-events-none z-[1]"
-            style={{ background: 'linear-gradient(to bottom, rgba(5,6,8,0.42), transparent)' }}
+            className="absolute inset-0 pointer-events-none z-[1]"
+            style={{ background: 'linear-gradient(90deg, rgba(7,8,10,0.30) 0%, transparent 40%)' }}
+          />
+          {/* Focused scrim directly behind the text column — the global overlay above
+              stays light enough to keep the chain recognizable, so contrast for the
+              headline/stats needs its own local boost instead of a sitewide darken. */}
+          <div
+            className="absolute inset-0 pointer-events-none z-[1]"
+            style={{ background: 'radial-gradient(ellipse 82% 105% at 0% 100%, rgba(5,6,8,0.82) 0%, rgba(5,6,8,0.48) 40%, transparent 68%)' }}
           />
           <div
-            className="absolute bottom-0 inset-x-0 h-36 pointer-events-none z-[1]"
-            style={{ background: 'linear-gradient(to top, rgba(5,6,8,0.72), transparent)' }}
+            className="absolute top-0 inset-x-0 h-20 pointer-events-none z-[1]"
+            style={{ background: 'linear-gradient(to bottom, rgba(5,6,8,0.25), transparent)' }}
+          />
+          <div
+            className="absolute bottom-0 inset-x-0 h-28 pointer-events-none z-[1]"
+            style={{ background: 'linear-gradient(to top, rgba(5,6,8,0.35), transparent)' }}
           />
           <div
             className="absolute inset-x-0 bottom-0 h-[82%] pointer-events-none z-[4] sm:hidden"
             style={{
               background:
-                'linear-gradient(to top, rgba(5,6,8,0.97) 0%, rgba(5,6,8,0.93) 30%, rgba(5,6,8,0.80) 55%, rgba(5,6,8,0.35) 78%, transparent 100%)',
+                'linear-gradient(to top, rgba(5,6,8,0.72) 0%, rgba(5,6,8,0.50) 30%, rgba(5,6,8,0.20) 55%, transparent 78%)',
             }}
           />
-
-          <div ref={spotRef} className="absolute inset-0 z-[2] pointer-events-none" />
-
-          <div
-            ref={wordRef}
-            aria-hidden
-            className="absolute left-0 right-0 top-[7%] sm:top-[9%] z-[2] flex justify-center pointer-events-none select-none px-4 will-change-transform"
-          >
-            <div
-              className="whitespace-nowrap"
-              style={{
-                fontFamily: '"Roboto", "Libre Franklin", ui-sans-serif, system-ui, sans-serif',
-                fontWeight: 600,
-                fontSize: 'clamp(2.9rem, 10.6vw, 10.4rem)',
-                lineHeight: 1,
-                letterSpacing: '-0.035em',
-                color: 'rgba(255,255,255,0.58)',
-              }}
-            >
-              {BRAND.map((ch, i) => (
-                <span key={i} className="inline-block overflow-hidden align-bottom">
-                  <span data-letter className="inline-block will-change-transform">
-                    {ch}
-                  </span>
-                </span>
-              ))}
-            </div>
-          </div>
 
           {/* Shadow leans slightly toward the content/CTA (bottom-left) instead of
               straight down — a soft directional cue, not a literal arrow. */}
           <div
             ref={blockRef}
             className="absolute z-[5] pointer-events-none will-change-transform
-                       left-[86%] top-[33%] -translate-x-1/2 -translate-y-1/2
-                       w-[clamp(90px,24vw,105px)]
-                       sm:left-[50%] sm:top-[64%] sm:w-[clamp(200px,26vw,300px)]
-                       lg:left-[46%] lg:top-[60%] lg:w-[clamp(220px,20vw,340px)]"
+                       left-[76%] top-[26%] -translate-x-1/2 -translate-y-1/2
+                       w-[clamp(130px,32%,190px)]
+                       sm:left-[64%] sm:top-[46%] sm:w-[clamp(240px,27%,390px)]
+                       lg:left-[72%] lg:top-[44%] lg:w-[clamp(300px,24%,570px)]"
           >
-            <div
-              ref={waxAnimRef}
-              className="relative will-change-transform"
-              style={{ filter: 'drop-shadow(-6px 22px 30px rgba(5,6,8,0.55)) drop-shadow(-2px 6px 10px rgba(5,6,8,0.35))' }}
-            >
-              {waxImg}
-              {/* Specular sheen — a very slow light pass across the wax surface,
-                  clipped to its silhouette. Reads as "catches the light", not as
-                  a loading shimmer (7s loop, low opacity, eased). */}
+            <div className="relative">
+              {/* Ambient glow — sells the wax as the one lit/in-focus subject in the frame */}
               <div
-                aria-hidden
-                className="wax-sheen absolute inset-0 pointer-events-none"
-                style={{
-                  WebkitMaskImage: 'url(/images/hero/wax-cutout-mask.png)',
-                  maskImage: 'url(/images/hero/wax-cutout-mask.png)',
-                  WebkitMaskSize: '100% 100%', maskSize: '100% 100%',
-                  WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat',
-                }}
+                className="absolute inset-[-24%] rounded-[40%] pointer-events-none"
+                style={{ background: 'radial-gradient(closest-side, rgba(110,165,230,0.28), transparent 72%)', filter: 'blur(20px)' }}
               />
+              {/* Contact shadow — grounds the block on a surface instead of floating in space */}
+              <div
+                className="absolute left-1/2 -translate-x-1/2 bottom-[4%] w-[76%] h-[22%] rounded-full pointer-events-none"
+                style={{ background: 'radial-gradient(ellipse, rgba(4,5,7,0.60), transparent 72%)', filter: 'blur(9px)' }}
+              />
+              <div className="relative" style={{ filter: 'drop-shadow(-3px 10px 16px rgba(5,6,8,0.40))' }}>
+                {waxImg}
+              </div>
             </div>
           </div>
 
@@ -306,8 +256,6 @@ export function Hero() {
           <WaxLensCutout waxRef={blockRef} enabled={lensOn} de={de}
                    onOpen={openDive} onActiveChange={() => {}} />
 
-          {/* Film grain — subtle material/analog texture over the whole stage */}
-          <div aria-hidden className="hero-grain absolute inset-0 z-[6] pointer-events-none" />
 
           <div className="relative z-10 h-full w-full px-6 sm:px-10 lg:px-14 xl:px-20">
             <div className="h-full max-w-7xl mx-auto flex flex-col justify-end pb-28 sm:pb-32 lg:pb-28">
@@ -326,7 +274,7 @@ export function Hero() {
                 <h1
                   className="font-display text-white"
                   style={{
-                    fontSize: 'clamp(2.3rem, 4.6vw, 4.1rem)',
+                    fontSize: 'clamp(2.5rem, 5.2vw, 4.6rem)',
                     lineHeight: 1.0,
                     letterSpacing: '-0.025em',
                     fontWeight: 600,
@@ -367,7 +315,7 @@ export function Hero() {
                   <button
                     ref={ctaRef}
                     onClick={() => scrollTo('#produkte')}
-                    className="cta-primary group inline-flex items-center gap-2.5 px-8 py-3.5 text-[14px] font-bold rounded-full transition-shadow duration-300 will-change-transform"
+                    className="cta-primary group inline-flex items-center gap-3 px-10 py-[18px] text-[16px] font-bold rounded-full transition-shadow duration-300 will-change-transform"
                     style={{ background: '#FFFFFF', color: '#0F0F12' }}
                   >
                     {t.hero.ctaBuy}
@@ -418,7 +366,7 @@ export function Hero() {
                   </span>
                   <span
                     className="text-[9px] sm:text-[11px] uppercase tabular-nums"
-                    style={{ letterSpacing: '0.08em', color: 'rgba(255,255,255,0.55)' }}
+                    style={{ letterSpacing: '0.08em', color: 'rgba(255,255,255,0.68)' }}
                   >
                     171 · {de ? '100 % positiv' : '100% positive'}
                     <span className="hidden sm:inline"> · {de ? 'eBay-Käuferschutz' : 'eBay buyer protection'}</span>
@@ -441,7 +389,7 @@ export function Hero() {
                       </p>
                       <p
                         className="text-[8px] sm:text-[10px] uppercase mt-1 sm:mt-1.5"
-                        style={{ letterSpacing: '0.06em', color: 'rgba(255,255,255,0.52)' }}
+                        style={{ letterSpacing: '0.06em', color: 'rgba(255,255,255,0.65)' }}
                       >
                         <span className="sm:hidden">{s.lm}</span>
                         <span className="hidden sm:inline">{s.l}</span>
@@ -452,6 +400,7 @@ export function Hero() {
               </div>
             </div>
           </div>
+        </div>
         </div>
       </div>
 

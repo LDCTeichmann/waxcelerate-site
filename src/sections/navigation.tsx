@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Menu, X, Moon, Sun } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
@@ -34,7 +34,11 @@ export function Navigation() {
 
   const de = lang === 'de';
   const navigate = useNavigate();
+  const location = useLocation();
+  const onHome = location.pathname === '/';
   const activeSection = useActiveSection(navItems.filter(i => !i.route).map(i => i.href));
+  const isActive = (item: { href: string; route?: boolean }) =>
+    item.route ? location.pathname === item.href : activeSection === item.href;
 
 
   useEffect(() => {
@@ -56,6 +60,14 @@ export function Navigation() {
   }, [isMobileMenuOpen]);
 
   const scrollToSection = (href: string) => {
+    // Anchor targets only exist on the homepage. From any other route, go
+    // home first and let PendingAnchorScroll (rendered there) finish the job
+    // once the (possibly lazy-loaded) section actually exists in the DOM.
+    if (!onHome) {
+      navigate('/', { state: { scrollTo: href } });
+      setIsMobileMenuOpen(false);
+      return;
+    }
     const element = document.querySelector(href);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
@@ -121,15 +133,15 @@ export function Navigation() {
                   onClick={(e) => { e.preventDefault(); handleNav(item); }}
                   className="relative group text-[13.5px] tracking-[0.01em] transition-colors duration-300"
                   style={{
-                    color: activeSection === item.href ? 'var(--tx1)' : 'var(--tx2)',
+                    color: isActive(item) ? 'var(--tx1)' : 'var(--tx2)',
                   }}
                 >
                   {t.nav[item.key as keyof typeof t.nav]}
                   <span
                     className={`absolute -bottom-1.5 left-0 right-0 h-px origin-left transition-transform duration-200 ${
-                      activeSection === item.href ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
+                      isActive(item) ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
                     }`}
-                    style={{ background: activeSection === item.href ? 'var(--accent)' : 'var(--bd)' }}
+                    style={{ background: isActive(item) ? 'var(--accent)' : 'var(--bd)' }}
                   />
                 </a>
               ))}

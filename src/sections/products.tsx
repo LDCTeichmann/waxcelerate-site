@@ -1,4 +1,4 @@
-import { ExternalLink, X, ChevronDown, Package, TrendingUp, Truck } from 'lucide-react';
+import { ExternalLink, X, ChevronDown, Truck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState, useRef, useEffect, useCallback, useMemo, memo } from 'react';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
@@ -256,11 +256,10 @@ interface CardProps {
 
 // ── Wax Card ───────────────────────────────────────────────────────────────
 
-const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deliveryDate }: CardProps) {
+const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deliveryDate, multiDiscount }: CardProps) {
   const isPro = product.variant === 'pro';
   const title = de ? product.title : product.titleEn;
   const badge = de ? product.badge : product.badgeEn;
-  const desc = de ? product.description : product.descriptionEn;
   const featured = product.badge === 'Empfohlen' || product.badgeEn === 'Recommended';
 
   const grams = product.weight ? parseInt(product.weight) : 0;
@@ -277,8 +276,11 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deli
           boxShadow: 'var(--card-shad)',
         }}
       >
-        {/* Image */}
-        <div className="relative overflow-hidden rounded-t-2xl aspect-[16/9] flex-shrink-0">
+        {/* Image — translateZ(0) pre-promotes this clipped, rounded box to its own
+            compositing layer up front. Without it, Chromium can flash the corner
+            mask square for a frame right as the hover scale below first triggers
+            a layer promotion (same bug as the hero card; see hero-light.tsx). */}
+        <div className="relative overflow-hidden rounded-t-2xl aspect-[16/9] flex-shrink-0" style={{ transform: 'translateZ(0)' }}>
           <img
             src={product.image}
             alt={title}
@@ -307,32 +309,37 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deli
           <h3 className="font-display text-[15px] sm:text-[17px] font-bold text-wx-tx1 leading-tight tracking-[-0.02em]">
             {title}
           </h3>
-          <p className="hidden sm:block text-[12px] leading-relaxed line-clamp-1 mt-1" style={{ color: 'var(--txm)' }}>
-            {desc}
-          </p>
 
-          {/* Specs — inline pills */}
-          <div className="hidden sm:flex items-center gap-2 mt-3 flex-wrap">
+          {/* Specs — inline pills. Smaller/tighter on mobile only (base, no sm:
+              prefix) so all three fit on one row instead of the third wrapping
+              to its own line at 375px; sm: and up restore the original size. */}
+          <div className="flex items-center gap-1.5 sm:gap-2 mt-2 sm:mt-2.5 flex-wrap">
             {product.intervalDry && (
-              <span className="text-[10.5px] px-2 py-0.5 rounded-md tabular-nums" style={{ fontFamily: MONO, background: 'var(--sf2)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
+              <span className="text-[9px] px-1.5 sm:text-[10.5px] sm:px-2 py-0.5 rounded-md tabular-nums" style={{ fontFamily: MONO, background: 'var(--sf2)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
                 {product.intervalDry}
               </span>
             )}
             {product.applications && (
-              <span className="text-[10.5px] px-2 py-0.5 rounded-md tabular-nums" style={{ fontFamily: MONO, background: 'var(--sf2)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
+              <span className="text-[9px] px-1.5 sm:text-[10.5px] sm:px-2 py-0.5 rounded-md tabular-nums" style={{ fontFamily: MONO, background: 'var(--sf2)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
                 {product.applications} {de ? 'Anw.' : 'uses'}
+              </span>
+            )}
+            {deliveryDate && (
+              <span className="inline-flex items-center gap-1 text-[9px] px-1.5 sm:text-[10.5px] sm:px-2 py-0.5 rounded-md tabular-nums" style={{ fontFamily: MONO, background: 'var(--sf2)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
+                <Truck className="h-2.5 w-2.5" strokeWidth={2} aria-hidden />
+                {deliveryDate}
               </span>
             )}
           </div>
 
           {/* Price + CTA */}
-          <div className="flex items-center justify-between gap-3 mt-auto pt-3">
+          <div className="flex items-center justify-between gap-3 mt-auto pt-3.5">
             <div>
               <span className="num text-[22px] font-bold leading-none tracking-[-0.02em]" style={{ color: 'var(--tx1)' }}>
                 {formatPrice(product.price)}
               </span>
               {per100 && (
-                <p className="hidden sm:block text-[10px] mt-1 tabular-nums" style={{ fontFamily: MONO, color: 'var(--txf)' }}>{per100}</p>
+                <p className="text-[10px] mt-1 tabular-nums" style={{ fontFamily: MONO, color: 'var(--txf)' }}>{per100}</p>
               )}
             </div>
             {canCheckout(product) ? (
@@ -358,28 +365,19 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deli
             )}
           </div>
 
-          {/* Trust signals */}
-          <div className="flex items-center flex-wrap gap-1.5 sm:gap-2 mt-2.5 sm:mt-3 pt-2.5 sm:pt-3" style={{ borderTop: '1px solid var(--bd2)' }}>
-            {product.unitsSold != null && product.unitsSold > 0 && (
-              <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-md"
-                style={{ background: 'rgba(var(--accent-rgb),0.08)', color: 'var(--accent-soft)' }}>
-                <TrendingUp className="h-3 w-3" />
-                {product.unitsSold}+ {de ? 'verkauft' : 'sold'}
-              </span>
-            )}
-            {deliveryDate && (
-              <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-md"
-                style={{ background: 'rgba(22,163,74,0.08)', color: '#16a34a' }}>
-                <Truck className="h-3 w-3" />
-                {de ? 'Gratis ab 50 €' : 'Free over €50'} · {deliveryDate}
-              </span>
-            )}
-            <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-md"
-              style={{ background: 'rgba(220,38,38,0.07)', color: '#dc2626' }}>
-              <Package className="h-3 w-3" />
-              {de ? 'Bis 15 % Rabatt' : 'Up to 15% off'}
-            </span>
-          </div>
+          {/* Trust signals — quiet text lines, not a row of colored badges */}
+          {((product.unitsSold != null && product.unitsSold > 0) || multiDiscount) && (
+            <div className="mt-2.5 sm:mt-3 pt-2.5 sm:pt-3 space-y-1" style={{ borderTop: '1px solid var(--bd2)' }}>
+              {product.unitsSold != null && product.unitsSold > 0 && (
+                <p className="text-[10.5px]" style={{ color: 'var(--txf)' }}>
+                  {product.unitsSold}+ {de ? 'verkauft' : 'sold'}
+                </p>
+              )}
+              {multiDiscount && (
+                <p className="text-[10.5px]" style={{ color: 'var(--txf)' }}>{multiDiscount}</p>
+              )}
+            </div>
+          )}
         </div>
       </Link>
     </div>
@@ -407,8 +405,8 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
           boxShadow: 'var(--card-shad)',
         }}
       >
-        {/* Image */}
-        <div className="relative overflow-hidden rounded-t-2xl aspect-[2/1] flex-shrink-0">
+        {/* Image — see WaxCard's image wrapper for why translateZ(0) is here. */}
+        <div className="relative overflow-hidden rounded-t-2xl aspect-[2/1] flex-shrink-0" style={{ transform: 'translateZ(0)' }}>
           <img
             src={product.image}
             alt={title}
