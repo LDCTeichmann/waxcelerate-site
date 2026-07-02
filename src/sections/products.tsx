@@ -1,4 +1,4 @@
-import { ExternalLink, X, ChevronDown, Truck } from 'lucide-react';
+import { ExternalLink, X, ChevronDown, Truck, Tag } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState, useRef, useEffect, useCallback, useMemo, memo } from 'react';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
@@ -326,14 +326,26 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deli
             )}
             {deliveryDate && (
               <span className="inline-flex items-center gap-1 text-[9px] px-1.5 sm:text-[10.5px] sm:px-2 py-0.5 rounded-md tabular-nums" style={{ fontFamily: MONO, background: 'var(--sf2)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
-                <Truck className="h-2.5 w-2.5" strokeWidth={2} aria-hidden />
+                <Truck className="h-2.5 w-2.5" strokeWidth={2.25} style={{ color: 'var(--brand-blue)' }} aria-hidden />
                 {deliveryDate}
               </span>
             )}
           </div>
 
+          {/* Discount — the one place a color accent earns its keep: this is the
+              number that actually moves a purchase decision, shown right where
+              the eye already is when it reaches the price. Short + bold, not a
+              loud badge; the full 2-for-10%/3-for-15% breakdown stays as quiet
+              fine print below with the other trust signals. */}
+          {multiDiscount && (
+            <div className="inline-flex items-center gap-1 mt-2 text-[11px] font-semibold" style={{ color: 'var(--brand-blue)' }}>
+              <Tag className="h-3 w-3" strokeWidth={2.25} aria-hidden />
+              {de ? 'Bis 15 % Rabatt' : 'Up to 15% off'}
+            </div>
+          )}
+
           {/* Price + CTA */}
-          <div className="flex items-center justify-between gap-3 mt-auto pt-3.5">
+          <div className="flex items-center justify-between gap-3 mt-auto pt-3">
             <div>
               <span className="num text-[22px] font-bold leading-none tracking-[-0.02em]" style={{ color: 'var(--tx1)' }}>
                 {formatPrice(product.price)}
