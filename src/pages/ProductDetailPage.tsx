@@ -52,6 +52,16 @@ export function ProductDetailPage() {
     setActiveImage(i);
   }, [activeImage]);
 
+  // Reset gallery position when navigating to a different product — otherwise
+  // an activeImage index left over from a longer gallery can point past the
+  // end of a shorter one, and no image matches `i === activeImage` until the
+  // auto-advance interval eventually wraps it back into range.
+  useEffect(() => {
+    setActiveImage(0);
+    setPrevImage(-1);
+    window.scrollTo(0, 0);
+  }, [id]);
+
   const next = useCallback(() => {
     if (total <= 1) return;
     goTo((activeImage + 1) % total);
@@ -239,6 +249,8 @@ export function ProductDetailPage() {
           <div ref={heroRef} className="relative h-[54vh] min-h-[300px] overflow-hidden">
             {gallery.map((src, i) => (
               <img key={i} src={lg(src)} alt={i === activeImage ? titleText : ''} aria-hidden={i !== activeImage}
+                loading={i === activeImage ? 'eager' : 'lazy'}
+                fetchPriority={i === activeImage ? 'high' : undefined}
                 className="absolute inset-0 h-full w-full object-cover"
                 style={{
                   objectPosition: product.imagePosition ?? 'center',
@@ -353,6 +365,8 @@ export function ProductDetailPage() {
         <section ref={heroRef} className="relative h-screen min-h-[680px] overflow-hidden hidden lg:block">
           {gallery.map((src, i) => (
             <img key={i} src={lg(src)} alt={i === activeImage ? titleText : ''} aria-hidden={i !== activeImage}
+              loading={i === activeImage ? 'eager' : 'lazy'}
+              fetchPriority={i === activeImage ? 'high' : undefined}
               className="absolute inset-0 h-full w-full object-cover"
               style={{
                 objectPosition: product.imagePosition ?? 'center',
@@ -373,11 +387,12 @@ export function ProductDetailPage() {
           <div ref={cardRef}
             className="absolute z-20 left-10 xl:left-14 top-1/2 -translate-y-1/2 w-[380px] xl:w-[400px]"
             onMouseEnter={pause} onMouseLeave={resume}>
+            {/* No backdrop-filter: at 96% opacity there's only a 4% sliver of
+                backdrop showing through, so a blur(40px) here cost real
+                compositing work for a practically invisible effect. */}
             <div className="pdp-hero-card rounded-[22px] overflow-hidden"
               style={{
                 background: 'rgba(255,255,255,0.96)',
-                backdropFilter: 'blur(40px) saturate(1.5)',
-                WebkitBackdropFilter: 'blur(40px) saturate(1.5)',
                 boxShadow: '0 24px 64px -16px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.15)',
               }}>
 
@@ -873,7 +888,7 @@ export function ProductDetailPage() {
         aria-hidden={!showBuyBar}>
         <div className="max-w-5xl mx-auto px-5 sm:px-8 py-2.5 flex items-center gap-4">
           <img src={gallery[0]} alt="" className="w-10 h-10 rounded-xl object-cover flex-shrink-0 hidden sm:block" style={{ border: '1px solid var(--bd)' }}
-            onError={e => { (e.target as HTMLImageElement).src = '/images/products/wax-block-spin.png'; }} />
+            onError={e => { (e.target as HTMLImageElement).src = '/images/products/wax-block-spin.webp'; }} />
           <div className="min-w-0 flex-1">
             <p className="text-[13px] font-semibold leading-tight truncate" style={{ color: 'var(--tx1)' }}>{titleText}</p>
             <p className="num text-[15px] font-bold leading-none mt-0.5" style={{ color: 'var(--tx1)' }}>{formatPrice(product.price)}</p>
@@ -936,7 +951,7 @@ function FlipCard({ items, de, formatPrice }: { items: Product[]; de: boolean; f
 
   const linkContent = (
     <div className="flex items-center gap-3 flex-1 min-w-0 py-2.5 px-1 transition-opacity hover:opacity-90">
-      <img src={p.image} alt={title}
+      <img src={p.image} alt={title} loading="lazy"
         className="w-14 h-14 rounded-xl object-cover flex-shrink-0"
         style={{ objectPosition: p.imagePosition ?? 'center', boxShadow: '0 2px 8px -2px rgba(0,0,0,0.3)' }} />
       <div className="min-w-0 flex-1">
@@ -1023,7 +1038,7 @@ function AltMiniCard({ product: p, de, formatPrice }: { product: Product; de: bo
         boxShadow: '0 2px 8px -2px rgba(0,0,0,0.06)',
       }}>
       <div className="relative aspect-[4/3] overflow-hidden" style={{ background: 'var(--sf2)' }}>
-        <img src={p.image} alt={title}
+        <img src={p.image} alt={title} loading="lazy"
           className="h-full w-full object-cover"
           style={{ objectPosition: p.imagePosition ?? 'center' }} />
         {label && (

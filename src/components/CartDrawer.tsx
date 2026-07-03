@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { useCartStore, cartItemCount, cartTotalPrice } from '@/store/cart';
 import { getEstimatedDelivery } from '@/lib/utils';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 import { toast } from 'sonner';
 
 export function CartDrawer() {
@@ -25,10 +26,7 @@ export function CartDrawer() {
   const total = cartTotalPrice(items);
 
   // Lock body scroll when cart is open
-  useEffect(() => {
-    document.body.style.overflow = isOpen ? 'hidden' : '';
-    return () => { document.body.style.overflow = ''; };
-  }, [isOpen]);
+  useBodyScrollLock(isOpen);
 
   // Close on Escape
   useEffect(() => {

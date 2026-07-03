@@ -38,6 +38,16 @@ export function ProductStagePage() {
     setActive(i);
   }, [active]);
 
+  // Reset gallery position when navigating to a different product — otherwise
+  // an active index left over from a longer gallery can point past the end
+  // of a shorter one, and no image matches `i === active` until the
+  // auto-advance interval eventually wraps it back into range.
+  useEffect(() => {
+    setActive(0);
+    setPrev(-1);
+    window.scrollTo(0, 0);
+  }, [id]);
+
   const next = useCallback(() => {
     if (total <= 1) return;
     goTo((active + 1) % total);

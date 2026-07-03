@@ -80,6 +80,10 @@ export function WaxLensCutout({ waxRef, enabled, de, onOpen, onActiveChange }: {
 
     let inside = false;
     let lastX = -1, lastY = -1;
+    // Coalesce raw mousemove (can fire far faster than the display refreshes)
+    // down to at most one mask-lookup + gsap.set per animation frame.
+    let rafId: number | null = null;
+    let pendingX = 0, pendingY = 0;
 
     const setActive = (v: boolean) => { inside = v; activeCb.current?.(v); };
     const reveal = () => {
@@ -91,12 +95,17 @@ export function WaxLensCutout({ waxRef, enabled, de, onOpen, onActiveChange }: {
       gsap.to(lens, { scale: 0.3, autoAlpha: 0, duration: 0.3, ease: 'power2.out', overwrite: 'auto' });
     };
 
-    const onMove = (e: MouseEvent) => {
-      lastX = e.clientX; lastY = e.clientY;
-      gsap.set(lens, { x: e.clientX, y: e.clientY });
-      const now = overWax(e.clientX, e.clientY, !inside);
+    const processMove = (x: number, y: number) => {
+      rafId = null;
+      lastX = x; lastY = y;
+      gsap.set(lens, { x, y });
+      const now = overWax(x, y, !inside);
       if (now && !inside) reveal();
       else if (!now && inside) dismiss();
+    };
+    const onMove = (e: MouseEvent) => {
+      pendingX = e.clientX; pendingY = e.clientY;
+      if (rafId === null) rafId = requestAnimationFrame(() => processMove(pendingX, pendingY));
     };
     const onDown = () => { if (inside) gsap.to(lens, { scale: 0.86, duration: 0.12, ease: 'power2.out', overwrite: 'auto' }); };
     const onUp   = () => { if (inside) gsap.to(lens, { scale: 1, duration: 0.4, ease: 'back.out(2.2)', overwrite: 'auto' }); };
@@ -118,6 +127,7 @@ export function WaxLensCutout({ waxRef, enabled, de, onOpen, onActiveChange }: {
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onResize);
       maskImg.removeEventListener('load', onMaskLoad);
+      if (rafId !== null) cancelAnimationFrame(rafId);
       activeCb.current?.(false);
       gsap.killTweensOf(lens);
     };

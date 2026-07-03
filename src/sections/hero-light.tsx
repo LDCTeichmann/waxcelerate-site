@@ -100,8 +100,17 @@ export function Hero() {
       ]);
       onMove = (e: MouseEvent) => {
         const r = card.getBoundingClientRect();
-        const nx = (e.clientX - r.left) / r.width - 0.5;
-        const ny = (e.clientY - r.top) / r.height - 0.5;
+        // Browsers fire a "resync" mousemove reflecting wherever the cursor is
+        // already resting the moment a page (re)loads under it — no actual
+        // movement needed. Right after a reload the card can also still be
+        // mid-layout (fonts/images not settled), so `r` itself can briefly be
+        // wrong. Either one turns nx/ny into an unbounded value, and since
+        // quickTo eases toward whatever it's given, that's what produced the
+        // "slides up on every reload" glitch. Clamping to the intended ±0.5
+        // range makes the offset safe regardless of what triggered it.
+        if (r.width < 10 || r.height < 10) return;
+        const nx = Math.max(-0.5, Math.min(0.5, (e.clientX - r.left) / r.width - 0.5));
+        const ny = Math.max(-0.5, Math.min(0.5, (e.clientY - r.top) / r.height - 0.5));
         qImg.forEach(([qx, qy]) => { qx(nx * -10); qy(ny * -7); });
       };
       card.addEventListener('mousemove', onMove);
@@ -241,9 +250,9 @@ export function Hero() {
             ref={blockRef}
             className="absolute z-[5] pointer-events-none will-change-transform
                        left-[70%] top-[27%] -translate-x-1/2 -translate-y-1/2
-                       w-[clamp(140px,33%,200px)]
-                       sm:left-[60%] sm:top-[40%] sm:w-[clamp(250px,28%,410px)]
-                       lg:left-[62%] lg:top-[35%] lg:w-[clamp(320px,25%,580px)]"
+                       w-[clamp(155px,35%,220px)]
+                       sm:left-[60%] sm:top-[47%] sm:w-[clamp(280px,30%,460px)]
+                       lg:left-[62%] lg:top-[45%] lg:w-[clamp(360px,27%,650px)]"
           >
             <div className="relative">
               {/* Ambient glow — sells the wax as the one lit/in-focus subject in the frame */}

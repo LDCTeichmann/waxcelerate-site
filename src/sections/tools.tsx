@@ -37,6 +37,10 @@ function TogButton({
 }
 
 // ─── Shared card wrapper ──────────────────────────────────────────────────────
+// No backdrop-filter here: var(--card-bg) is a fully opaque gradient (see
+// index.css), so blurring whatever sits behind an opaque card is invisible —
+// pure wasted compositing work (and, with 5 of these cards on the page, a
+// likely source of the scroll/render jank reported around this section).
 function ToolCard({ children }: { children: React.ReactNode }) {
   return (
     <div
@@ -45,8 +49,6 @@ function ToolCard({ children }: { children: React.ReactNode }) {
         background: 'var(--card-bg)',
         border: '1px solid var(--bd)',
         boxShadow: 'var(--card-shad)',
-        backdropFilter: 'blur(24px)',
-        WebkitBackdropFilter: 'blur(24px)',
       }}
     >
       {children}
@@ -383,7 +385,7 @@ function WaxStockCalculator() {
               <div
                 className="rounded-xl p-4 transition-opacity group-hover:opacity-80"
                 style={{
-                  background: 'var(--sf3)',
+                  background: 'var(--sf)',
                   border: '1px solid var(--brand)',
                 }}
               >
@@ -581,7 +583,7 @@ function RotationAndSavings() {
                   key={n}
                   className="rounded-2xl flex flex-col"
                   style={{
-                    background: isRec ? 'rgba(var(--accent-rgb),0.08)' : 'var(--sf3)',
+                    background: isRec ? 'rgba(var(--accent-rgb),0.08)' : 'var(--sf)',
                     border: isRec ? '1.5px solid var(--brand)' : '1px solid var(--bd2)',
                     padding: '12px 10px',
                   }}
@@ -909,18 +911,24 @@ export function Tools() {
                   {i === 2 && <RotationAndSavings />}
                 </div>
 
-                {/* Inactive overlay: frosted glass tint */}
+                {/* Inactive overlay — a wash of the page's own --pg instead of a dark
+                    tint. A dark, low-opacity wash still let the busy, multi-colored
+                    card content underneath show through at ~80% strength; combined
+                    with the GSAP scale-down's soft rendering, that mix of colors read
+                    as a muddy/greenish cast. Muting toward --pg instead hides the card
+                    into a clean, discrete silhouette (and stays correct in dark mode,
+                    where --pg is near-black). */}
                 {i !== activeCard && (
                   <div
                     className="absolute inset-0 rounded-3xl cursor-pointer"
                     style={{
-                      background: 'rgba(4,4,10,0.18)',
+                      background: 'color-mix(in srgb, var(--pg) 72%, transparent)',
                       zIndex: 25,
                       transition: 'background 250ms ease',
                     }}
                     onClick={() => setActiveCard(i)}
-                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(4,4,10,0.04)'; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = 'rgba(4,4,10,0.18)'; }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'color-mix(in srgb, var(--pg) 30%, transparent)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'color-mix(in srgb, var(--pg) 72%, transparent)'; }}
                   />
                 )}
               </div>

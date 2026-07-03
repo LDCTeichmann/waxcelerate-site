@@ -1,3 +1,4 @@
+@import './fonts.css';
 
 @tailwind base;
 @tailwind components;
@@ -22,8 +23,17 @@
 .marquee:hover .marquee-track, .marquee:focus-within .marquee-track { animation-play-state: paused; }
 /* Solid page-color gradient overlay instead of an opacity mask — masking dark
    photo cards to transparent against a light page background left a muddy
-   grey smear at the edges. Painting over with var(--pg) fades cleanly
-   regardless of what's underneath. */
+   grey smear at the edges (alpha-blending a dark photo down to nothing over a
+   light page physically passes through a murky mid-grey; that's not a bug in
+   the old approach, it's what alpha compositing does). Painting over with
+   var(--pg) fades cleanly regardless of what's underneath — keep that part.
+   What was too heavy was the CURVE: a flat two-stop linear ramp reads as a
+   wall that suddenly appears, not a fade. This uses the actual smoothstep
+   curve (t²(3-2t) at t=.25/.5/.75 → 84%/50%/16%) instead of a straight line —
+   eases in, does most of its work in the middle, eases back out — which is
+   what makes a fade read as gentle rather than abrupt. color-mix() computes
+   "N% of var(--pg)" directly so this still tracks the theme token, same as
+   before, just shaped differently. */
 .edge-fade { position: relative; }
 .edge-fade::before, .edge-fade::after {
   content: '';
@@ -31,10 +41,26 @@
   top: 0; bottom: 0;
   z-index: 5;
   pointer-events: none;
-  width: clamp(28px, 7vw, 80px);
+  width: clamp(30px, 7.5vw, 96px);
 }
-.edge-fade::before { left: 0;  background: linear-gradient(to right, var(--pg), transparent); }
-.edge-fade::after   { right: 0; background: linear-gradient(to left,  var(--pg), transparent); }
+.edge-fade::before {
+  left: 0;
+  background: linear-gradient(to right,
+    var(--pg) 0%,
+    color-mix(in oklab, var(--pg) 84%, transparent) 25%,
+    color-mix(in oklab, var(--pg) 50%, transparent) 50%,
+    color-mix(in oklab, var(--pg) 16%, transparent) 75%,
+    transparent 100%);
+}
+.edge-fade::after {
+  right: 0;
+  background: linear-gradient(to left,
+    var(--pg) 0%,
+    color-mix(in oklab, var(--pg) 84%, transparent) 25%,
+    color-mix(in oklab, var(--pg) 50%, transparent) 50%,
+    color-mix(in oklab, var(--pg) 16%, transparent) 75%,
+    transparent 100%);
+}
 @media (prefers-reduced-motion: reduce) { .marquee-track { animation: none; } }
 
 /* Hero primary CTA — barely-perceptible breathing glow. Box-shadow intensity
@@ -82,30 +108,38 @@
 @layer base {
   /* ── Light mode (default) ── */
   :root {
-    /* ── Engineered Editorial — neutralized greyscale (no blue/purple undertone) ── */
+    /* ── Engineered Editorial — true neutral greyscale, zero channel bias ──
+       Every token below is R=G=B exactly. A previous version carried a 1-4
+       unit blue lean on each step (e.g. #E5E5E8) meant to read as "cool
+       neutral" — in isolation it did, but boxed against the saturated blue
+       accent (--accent / --brand) that same lean triggered a simultaneous-
+       contrast illusion that read as a faint green/pistachio cast (reported
+       repeatedly on the guides accordion, tool calculator boxes, etc.).
+       Removing the bias entirely and tightening the steps closer to white
+       fixes it structurally instead of case-by-case. */
     /* Hero stage card — deliberately its own token, not tied to --sf2. In light
        mode the page is bright so any dark card reads as a frame; in noir mode
        the page itself goes near-black, so the stage needs to stay visibly
        lighter than --pg or the "card floating in a frame" effect disappears. */
     --hero-stage: #0B0C0E;
-    --pg:        #F5F5F6;
+    --pg:        #F6F6F6;
     --sf:        #FFFFFF;
-    --sf2:       #EDEDEF;
-    --sf3:       #E5E5E8;
+    --sf2:       #F1F1F1;
+    --sf3:       #EAEAEA;
     --tx1:       #101013;   /* near-black, neutral */
     --tx2:       #44444A;   /* zinc-700-ish */
     --txm:       #6B6B72;   /* zinc-500 */
     --txf:       #8A8A92;   /* zinc-450 */
     --txff:      #A8A8B0;   /* zinc-400 */
-    --bd:        #D9D9DD;
-    --bd2:       #E7E7EA;
+    --bd:        #DEDEDE;
+    --bd2:       #ECECEC;
     --card-from: #FFFFFF;
-    --card-to:   #F5F5F7;
-    --card-to-rgb: 245,245,247;
+    --card-to:   #F6F6F6;
+    --card-to-rgb: 246,246,246;
     --card-bg:   linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%);
     --card-shad: 0 2px 16px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,0.9);
-    --nav-bg:    rgba(245,245,246,0.92);
-    --tool-bg:   #EEEEF1;
+    --nav-bg:    rgba(246,246,246,0.92);
+    --tool-bg:   var(--pg);   /* was a shade darker than the page — same discrete tone now, no visible seam */
     --card-shadow-hover: 0 4px 20px rgba(0,0,0,0.10), 0 12px 40px rgba(0,0,0,0.08), 0 0 0 1px rgba(var(--accent-rgb),0.15);
     --card-img-fade: transparent;
 
@@ -323,7 +357,10 @@
 
 /* Editorial hero — feines Film-Grain über der Bühne (Material/Wärme, high-end). */
 .hero-grain {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  /* feColorMatrix desaturates the raw turbulence output — without it,
+     fractalNoise's per-channel Perlin values aren't balanced and the "grain"
+     reads as a faint green/olive tint instead of neutral gray. */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-size: 180px 180px;
   opacity: 0.05;
 }
@@ -399,7 +436,10 @@
   inset: 0;
   opacity: 0.05;
   pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  /* feColorMatrix desaturates the raw turbulence output — without it,
+     fractalNoise's per-channel Perlin values aren't balanced and the "grain"
+     reads as a faint green/olive tint instead of neutral gray. */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-repeat: repeat;
   background-size: 300px 300px;
   z-index: 2;

@@ -20,6 +20,7 @@ export function ComparisonSlider({
     const el = containerRef.current;
     if (!el) return;
     const rect = el.getBoundingClientRect();
+    if (rect.width < 1) return;
     const pct = Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100));
     el.style.setProperty('--pos', `${pct}%`);
   }, []);

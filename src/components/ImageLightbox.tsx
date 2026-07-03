@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 
 interface ImageLightboxProps {
   images: string[];
@@ -9,16 +10,9 @@ interface ImageLightboxProps {
 }
 
 export function ImageLightbox({ images, activeIndex, onClose, onChange }: ImageLightboxProps) {
-  const savedOverflow = useRef<string>('');
   const touchStartX = useRef<number>(0);
 
-  useEffect(() => {
-    savedOverflow.current = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = savedOverflow.current;
-    };
-  }, []);
+  useBodyScrollLock(true);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {

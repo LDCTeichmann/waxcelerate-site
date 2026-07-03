@@ -64,7 +64,7 @@ export function FAQ() {
           <div ref={listRef}>
             {visibleItems.map((item: {q: string; a: string}, index: number) => (
               <div
-                key={item.q.slice(0, 30)}
+                key={item.q}
                 data-card
                 className="border-b border-wx-bd/25 last:border-0 first:border-t first:border-wx-bd/25"
               >

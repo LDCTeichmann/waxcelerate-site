@@ -33,6 +33,7 @@ export interface Product {
   chainLinks?: string;
   chainSpeed?: string;
   unitsSold?: number;
+  reviewCount?: number;
   // Image display
   imagePosition?: string;
   // Gallery — additional images shown in thumbnail strip on the detail page
@@ -63,8 +64,9 @@ export const products: Product[] = [
     ],
     ebayUrl: 'https://www.ebay.de/itm/395811184583',
     unitsSold: 147,
-    badge: 'Empfohlen',
-    badgeEn: 'Recommended',
+    reviewCount: 41,
+    badge: 'Bestseller',
+    badgeEn: 'Bestseller',
     formula: ['Vollraffiniertes Paraffinwachs', 'PTFE < 1 µm', 'Stearinsäurederivat'],
     formulaEn: ['Fully refined paraffin wax', 'PTFE < 1 µm', 'Stearic acid derivative'],
     highlights: [
@@ -114,6 +116,7 @@ export const products: Product[] = [
     ],
     ebayUrl: 'https://www.ebay.de/itm/395811183957',
     unitsSold: 60,
+    reviewCount: 21,
     badge: 'Kompakt',
     badgeEn: 'Compact',
     formula: ['Vollraffiniertes Paraffinwachs', 'PTFE < 1 µm', 'Stearinsäurederivat'],
@@ -165,8 +168,9 @@ export const products: Product[] = [
     ],
     ebayUrl: 'https://www.ebay.de/itm/396468036330',
     unitsSold: 23,
-    badge: 'Pro',
-    badgeEn: 'Pro',
+    reviewCount: 5,
+    badge: 'Empfohlen',
+    badgeEn: 'Recommended',
     formula: [
       'Vollraffiniertes Paraffinwachs',
       'Synthetisches Hartwachs',
@@ -229,6 +233,7 @@ export const products: Product[] = [
     ],
     ebayUrl: 'https://www.ebay.de/itm/397861543533',
     unitsSold: 6,
+    reviewCount: 2,
     badge: 'Pro',
     badgeEn: 'Pro',
     formula: [

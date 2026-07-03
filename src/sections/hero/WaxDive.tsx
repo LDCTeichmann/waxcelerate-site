@@ -8,6 +8,7 @@ import { ComponentDiagram } from '@/sections/science/diagrams';
 import { diveFormula } from '@/lib/science';
 import { getProductById, canCheckout } from '@/lib/data';
 import { AddToCartButton } from '@/components/AddToCartButton';
+import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 
 /**
  * WaxDive — "look inside the wax" experience.
@@ -34,13 +35,14 @@ export function WaxDive({ open, onClose, de }: { open: boolean; onClose: () => v
 
   useEffect(() => { setActiveId(null); }, [variant]);
 
+  useBodyScrollLock(open);
+
   useEffect(() => {
     if (!open) return;
-    document.body.style.overflow = 'hidden';
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', onKey);
     requestAnimationFrame(() => panelRef.current?.focus());
-    return () => { document.body.style.overflow = ''; window.removeEventListener('keydown', onKey); };
+    return () => { window.removeEventListener('keydown', onKey); };
   }, [open, onClose]);
 
   useEffect(() => {

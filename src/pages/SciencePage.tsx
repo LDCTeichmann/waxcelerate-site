@@ -776,17 +776,29 @@ function FormulaStory({ de }: { de: boolean }) {
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
-    const onScroll = () => {
+    // Coalesce raw scroll events (can fire many times per frame) down to one
+    // layout read + state update per animation frame, and skip the setState
+    // entirely when the computed index hasn't actually changed.
+    let rafId: number | null = null;
+    const compute = () => {
+      rafId = null;
       const rect = section.getBoundingClientRect();
       const scrolled = Math.max(0, -rect.top);
       const maxScroll = section.offsetHeight - window.innerHeight;
       if (maxScroll <= 0) return;
       const p = Math.min(1, scrolled / maxScroll);
-      setActiveIdx(Math.min(COMPONENTS.length - 1, Math.floor(p * COMPONENTS.length)));
+      const next = Math.min(COMPONENTS.length - 1, Math.floor(p * COMPONENTS.length));
+      setActiveIdx(prev => (prev === next ? prev : next));
+    };
+    const onScroll = () => {
+      if (rafId === null) rafId = requestAnimationFrame(compute);
     };
     window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener('scroll', onScroll);
+    compute();
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (rafId !== null) cancelAnimationFrame(rafId);
+    };
   }, []);
 
   const scrollToComponent = (id: string) => {

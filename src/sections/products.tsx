@@ -5,12 +5,14 @@ import { gsap, ScrollTrigger } from '@/lib/gsap';
 import { useLanguage } from '@/hooks/useLanguage';
 import type { TranslationType } from '@/lib/i18n';
 import { useSectionReveal } from '@/hooks/useAnimation';
+import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { products, canCheckout } from '@/lib/data';
 import { richContent } from '@/lib/productContent';
 import { getEstimatedDelivery } from '@/lib/utils';
 import { ChainFinder } from '@/sections/ChainFinder';
 import { AddToCartButton } from '@/components/AddToCartButton';
+import { Stars } from '@/sections/reviews';
 
 const MONO = "'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace";
 
@@ -55,18 +57,30 @@ export function Products() {
 
   const resetFilters = useCallback(() => { setSpeedFilter('all'); setBrandFilter('all'); }, []);
 
-  // Wax card entrance — runs once, cards never change
+  // Wax card entrance — runs once, cards never change.
+  // Plain fade+rise, no 3D rotateX/perspective: the previous 3D tilt read as a
+  // "flip" and — because rotateX forces the browser to recomposite the card
+  // in a 3D rendering context — could disrupt the rounded-corner clip on the
+  // image wrapper nested inside it for a frame (the same class of Chromium
+  // compositing quirk fixed elsewhere on this site, just triggered by the
+  // parent's 3D transform instead of the child's own). A 2D transform doesn't
+  // have that problem. `data-wx-in` marks elements once animated so that if
+  // this effect ever runs twice for the same DOM nodes (React StrictMode's
+  // dev-only double-invoke, or any other re-registration), the second pass
+  // is a no-op instead of visibly replaying the animation.
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const ctx = gsap.context(() => {
       ScrollTrigger.batch('.wax-card', {
         onEnter: (els) => {
-          gsap.set(els, { transformPerspective: 700, transformOrigin: '50% 0%' });
-          gsap.from(els, {
-            y: 30, opacity: 0, rotateX: 8, duration: 0.7,
+          const fresh = els.filter(el => !(el as HTMLElement).dataset.wxIn);
+          if (!fresh.length) return;
+          fresh.forEach(el => { (el as HTMLElement).dataset.wxIn = 'true'; });
+          gsap.from(fresh, {
+            y: 24, opacity: 0, duration: 0.6,
             stagger: 0.09, ease: 'power3.out',
-            onStart: () => els.forEach(el => { (el as HTMLElement).style.willChange = 'transform, opacity'; }),
-            onComplete: () => els.forEach(el => {
+            onStart: () => fresh.forEach(el => { (el as HTMLElement).style.willChange = 'transform, opacity'; }),
+            onComplete: () => fresh.forEach(el => {
               gsap.set(el, { clearProps: 'transform,willChange' });
             }),
           });
@@ -84,12 +98,14 @@ export function Products() {
     const ctx = gsap.context(() => {
       ScrollTrigger.batch('.chain-card', {
         onEnter: (els) => {
-          gsap.set(els, { transformPerspective: 700, transformOrigin: '50% 0%' });
-          gsap.from(els, {
-            y: 30, opacity: 0, rotateX: 8, duration: 0.7,
+          const fresh = els.filter(el => !(el as HTMLElement).dataset.wxIn);
+          if (!fresh.length) return;
+          fresh.forEach(el => { (el as HTMLElement).dataset.wxIn = 'true'; });
+          gsap.from(fresh, {
+            y: 24, opacity: 0, duration: 0.6,
             stagger: 0.09, ease: 'power3.out',
-            onStart: () => els.forEach(el => { (el as HTMLElement).style.willChange = 'transform, opacity'; }),
-            onComplete: () => els.forEach(el => {
+            onStart: () => fresh.forEach(el => { (el as HTMLElement).style.willChange = 'transform, opacity'; }),
+            onComplete: () => fresh.forEach(el => {
               gsap.set(el, { clearProps: 'transform,willChange' });
             }),
           });
@@ -287,7 +303,7 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deli
             loading="lazy"
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
             style={{ objectPosition: product.imagePosition ?? 'center 55%' }}
-            onError={e => { (e.target as HTMLImageElement).src = '/images/products/wax-block-spin.png'; }}
+            onError={e => { (e.target as HTMLImageElement).src = '/images/products/wax-block-spin.webp'; }}
           />
           <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between gap-2">
             <span className="wx-badge"
@@ -309,6 +325,15 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deli
           <h3 className="font-display text-[15px] sm:text-[17px] font-bold text-wx-tx1 leading-tight tracking-[-0.02em]">
             {title}
           </h3>
+
+          {product.reviewCount != null && (
+            <div className="flex items-center gap-1.5 mt-1">
+              <Stars rating={5} />
+              <span className="text-[11px]" style={{ color: 'var(--txf)' }}>
+                {product.reviewCount} {de ? 'Bewertungen' : 'reviews'}
+              </span>
+            </div>
+          )}
 
           {/* Specs — inline pills. Smaller/tighter on mobile only (base, no sm:
               prefix) so all three fit on one row instead of the third wrapping
@@ -378,16 +403,9 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deli
           </div>
 
           {/* Trust signals — quiet text lines, not a row of colored badges */}
-          {((product.unitsSold != null && product.unitsSold > 0) || multiDiscount) && (
-            <div className="mt-2.5 sm:mt-3 pt-2.5 sm:pt-3 space-y-1" style={{ borderTop: '1px solid var(--bd2)' }}>
-              {product.unitsSold != null && product.unitsSold > 0 && (
-                <p className="text-[10.5px]" style={{ color: 'var(--txf)' }}>
-                  {product.unitsSold}+ {de ? 'verkauft' : 'sold'}
-                </p>
-              )}
-              {multiDiscount && (
-                <p className="text-[10.5px]" style={{ color: 'var(--txf)' }}>{multiDiscount}</p>
-              )}
+          {multiDiscount && (
+            <div className="mt-2 sm:mt-2.5 space-y-1">
+              <p className="text-[10.5px]" style={{ color: 'var(--txf)' }}>{multiDiscount}</p>
             </div>
           )}
         </div>
@@ -424,7 +442,7 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
             alt={title}
             loading="lazy"
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
-            onError={e => { (e.target as HTMLImageElement).src = '/images/products/wax-block-spin.png'; }}
+            onError={e => { (e.target as HTMLImageElement).src = '/images/products/wax-block-spin.webp'; }}
           />
           <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between gap-2">
             <span className="wx-badge"
@@ -513,10 +531,7 @@ function CompareModal({ open, onClose, de, t }: {
     return () => window.removeEventListener('keydown', onKey);
   }, [open, onClose]);
 
-  useEffect(() => {
-    document.body.style.overflow = open ? 'hidden' : '';
-    return () => { document.body.style.overflow = ''; };
-  }, [open]);
+  useBodyScrollLock(open);
 
   if (!open) return null;
 
@@ -673,7 +688,7 @@ function CompareModal({ open, onClose, de, t }: {
                 <div className="flex items-center gap-2">
                   <span
                     className="text-[9px] font-bold uppercase tracking-[0.12em] px-2 py-0.5 rounded-full flex-shrink-0"
-                    style={{ background: `${CLASSIC_ACCENT}15`, color: CLASSIC_ACCENT }}
+                    style={{ background: 'rgba(var(--accent-soft-rgb), 0.08)', color: CLASSIC_ACCENT }}
                   >
                     Classic
                   </span>
@@ -711,7 +726,7 @@ function CompareModal({ open, onClose, de, t }: {
                     {classicRc.techNote && (
                       <div
                         className="mx-4 mb-3 mt-1 rounded-lg p-3"
-                        style={{ background: `${CLASSIC_ACCENT}08`, border: `1px solid ${CLASSIC_ACCENT}20` }}
+                        style={{ background: 'rgba(var(--accent-soft-rgb), 0.03)', border: '1px solid rgba(var(--accent-soft-rgb), 0.13)' }}
                       >
                         <div className="text-[10px] font-semibold uppercase tracking-widest mb-1" style={{ color: CLASSIC_ACCENT }}>
                           {classicRc.techNote.title}
@@ -729,7 +744,7 @@ function CompareModal({ open, onClose, de, t }: {
             {/* Pro Formula */}
             <div
               className="rounded-xl overflow-hidden"
-              style={{ border: `1px solid ${PRO_ACCENT}30`, background: `${PRO_ACCENT}05` }}
+              style={{ border: '1px solid rgba(var(--accent-soft-rgb), 0.19)', background: 'rgba(var(--accent-soft-rgb), 0.02)' }}
             >
               <button
                 onClick={() => setProOpen(v => !v)}
@@ -738,7 +753,7 @@ function CompareModal({ open, onClose, de, t }: {
                 <div className="flex items-center gap-2">
                   <span
                     className="text-[9px] font-bold uppercase tracking-[0.12em] px-2 py-0.5 rounded-full flex-shrink-0"
-                    style={{ background: `${PRO_ACCENT}18`, color: PRO_ACCENT }}
+                    style={{ background: 'rgba(var(--accent-soft-rgb), 0.09)', color: PRO_ACCENT }}
                   >
                     Pro MoS₂
                   </span>
@@ -757,7 +772,7 @@ function CompareModal({ open, onClose, de, t }: {
                 style={{ gridTemplateRows: proOpen ? '1fr' : '0fr' }}
               >
                 <div className="overflow-hidden">
-                  <div style={{ borderTop: `1px solid ${PRO_ACCENT}20` }}>
+                  <div style={{ borderTop: '1px solid rgba(var(--accent-soft-rgb), 0.13)' }}>
                     {proRc.formulaDetails?.map((f, i, arr) => (
                       <div
                         key={i}
@@ -776,7 +791,7 @@ function CompareModal({ open, onClose, de, t }: {
                     {proRc.techNote && (
                       <div
                         className="mx-4 mb-3 mt-1 rounded-lg p-3"
-                        style={{ background: `${PRO_ACCENT}08`, border: `1px solid ${PRO_ACCENT}20` }}
+                        style={{ background: 'rgba(var(--accent-soft-rgb), 0.03)', border: '1px solid rgba(var(--accent-soft-rgb), 0.13)' }}
                       >
                         <div className="text-[10px] font-semibold uppercase tracking-widest mb-1" style={{ color: PRO_ACCENT }}>
                           {proRc.techNote.title}
@@ -811,10 +826,10 @@ function CompareModal({ open, onClose, de, t }: {
             to="/produkt/wax-500-mos2"
             onClick={onClose}
             className="flex flex-col items-center gap-0.5 py-3 rounded-xl text-center transition-all hover:opacity-80 active:scale-[0.98]"
-            style={{ background: `${PRO_ACCENT}12`, border: `1px solid ${PRO_ACCENT}40` }}
+            style={{ background: 'rgba(var(--accent-soft-rgb), 0.07)', border: '1px solid rgba(var(--accent-soft-rgb), 0.25)' }}
           >
             <span className="text-[12px] font-semibold" style={{ color: PRO_ACCENT }}>Pro MoS₂</span>
-            <span className="text-[11px]" style={{ color: `${PRO_ACCENT}99` }}>{proPrice}</span>
+            <span className="text-[11px]" style={{ color: 'rgba(var(--accent-soft-rgb), 0.6)' }}>{proPrice}</span>
           </Link>
         </div>
       </div>

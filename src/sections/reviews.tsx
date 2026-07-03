@@ -67,7 +67,7 @@ const REVIEWS: Review[] = [
 const CARD_W = 'w-[260px] sm:w-[348px]';
 const CARD = 'flex-shrink-0 mr-3 sm:mr-5 h-[180px] sm:h-[212px] rounded-2xl overflow-hidden';
 
-function Stars({ rating = 5 }: { rating?: number }) {
+export function Stars({ rating = 5 }: { rating?: number }) {
   return (
     <div className="flex items-center gap-0.5" aria-label={`${rating} / 5`}>
       {Array.from({ length: 5 }).map((_, i) => (

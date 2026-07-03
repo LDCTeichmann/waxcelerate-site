@@ -19,6 +19,12 @@
 
 ---
 
+## Arbeitsweise mit Claude Code
+
+**Niemals den Screenshot-/Preview-Browser-Tool ungefragt benutzen.** Der Nutzer arbeitet während Claude im Hintergrund arbeitet oft gleichzeitig an diesem Laptop — `preview_screenshot` (und das Ansteuern des Preview-Browsers allgemein) unterbricht/stört diese parallele Arbeit sichtbar (Fenster-Fokus, orangene Bildschirmränder). Wenn eine Änderung visuell verifiziert werden muss: zuerst über `tsc --noEmit`, `npm run build`, DOM-Geometrie-Checks (`getBoundingClientRect`, `getComputedStyle`) oder ein eigenständiges Rendering außerhalb des Browsers (z. B. SVG/HTML-Dateien via `qlmanage -t` unter macOS) verifizieren. Falls eine echte visuelle/Browser-Prüfung unumgänglich ist, den Nutzer explizit fragen, ob Claude kurz den Preview-Browser nutzen darf, statt es einfach zu tun.
+
+---
+
 ## Datei-Map
 
 ```

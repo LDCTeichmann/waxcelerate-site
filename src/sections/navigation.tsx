@@ -5,6 +5,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
 import { CartIcon } from '@/components/CartIcon';
 import { useActiveSection } from '@/hooks/useActiveSection';
+import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 
 // Reihenfolge = Scroll-Reihenfolge der Sections auf der Seite.
 // `route: true` → eigene Seite (React-Router-Navigation statt Scroll-Anchor).
@@ -41,9 +42,9 @@ export function Navigation() {
     item.route ? location.pathname === item.href : activeSection === item.href;
 
 
-  useEffect(() => {
-    document.body.style.overflow = isMobileMenuOpen ? 'hidden' : '';
+  useBodyScrollLock(isMobileMenuOpen);
 
+  useEffect(() => {
     if (isMobileMenuOpen) {
       setTimeout(() => {
         const panel = document.getElementById('mobile-menu');
@@ -55,8 +56,6 @@ export function Navigation() {
     } else {
       document.getElementById('mobile-menu-button')?.focus();
     }
-
-    return () => { document.body.style.overflow = ''; };
   }, [isMobileMenuOpen]);
 
   const scrollToSection = (href: string) => {

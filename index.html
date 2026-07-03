@@ -27,11 +27,15 @@
     <meta name="twitter:image" content="https://waxcelerate.de/images/wax-hero.jpg">
     <meta name="twitter:title" content="Waxcelerate | Heißwachs für Fahrradketten">
     <meta name="twitter:description" content="189 Bewertungen, 100% positiv. Reibungskoeffizient 0,03–0,06 — messbar effizienter als Kettenöl.">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://i.ebayimg.com" crossorigin>
     <link rel="dns-prefetch" href="//i.ebayimg.com">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,700,0..100,0..1;1,9..144,700,0..100,0..1&family=IBM+Plex+Mono:wght@400;500;600&family=Libre+Franklin:wght@400;500;600;700;900&display=swap">
+    <!-- Fonts self-hosted (src/fonts.css, files in public/fonts/) instead of
+         loaded from fonts.googleapis.com — removes a render-blocking
+         third-party round trip, and avoids sending visitor IPs to Google
+         (relevant for a German-audience site given prior GDPR rulings on
+         exactly this). Latin + Latin-Extended subsets only (DE/EN content). -->
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/6NUI8FyLNQOQZAnv9bYEvBjUVG5Ga92uVSQO8UikR_BPug.woff2" crossorigin>
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/jizDREVItHgc8qDIbSTKq4XkRiUf2zcZiVbJ.woff2" crossorigin>
     <link rel="icon" type="image/png" href="/images/logo.jpg" />
     <link rel="apple-touch-icon" href="/images/logo.jpg" />
     <link rel="manifest" href="/manifest.json" />
