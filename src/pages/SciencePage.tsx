@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, ChevronDown, Gauge, Clock, Droplets, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ChevronDown, ChevronsLeftRight, Gauge, Clock, Droplets, Sparkles } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { Navigation } from '@/sections/navigation';
 import { ScrollTrigger } from '@/lib/gsap';
@@ -14,117 +14,81 @@ import { HexMoS2, TransferFilm } from '@/sections/science/LabViz';
 
 const W = 'max-w-4xl mx-auto px-4 sm:px-6 lg:px-8';
 
-function ContactZone({ wax }: { wax: boolean }) {
-  const topSurf = 'M0,52 L18,52 L30,52.5 L42,53 L54,52.5 L68,52 L78,53 L86,54.5 L92,55.5 L100,54 L110,52.5 L126,52 L138,52.5 L148,53.5 L156,54 L164,53 L178,52 L190,52.5 L200,54 L208,55.5 L216,56 L224,55 L234,53 L248,52 L262,52.5 L272,53.5 L280,54.5 L288,53.5 L300,52 L314,52.5 L324,54 L332,55.5 L340,55 L350,53.5 L364,52 L378,52.5 L388,53.5 L396,55 L404,55.5 L412,54 L422,53 L438,52 L452,52.5 L462,53.5 L472,53 L486,52 L500,52';
-  const topPts = topSurf.replace('M', '').split(/\s*L\s*/).map(s => s.trim());
-  const topBody = `M0,0 L500,0 ${[...topPts].reverse().map(p => `L${p}`).join(' ')} Z`;
+// One rough (worn) surface in cross-section meeting a moving counter-surface,
+// same viewBox aspect as SprocketTooth (320×300) so the twin panels actually
+// match height instead of this one collapsing to a sliver with dead space
+// below it. The physical story in one frame: a rough, jagged surface (the
+// asperities that grind against a chain roller) with a hard grit particle at
+// the interface — wax's conformal film blankets every peak/valley so the
+// grit rides on top of it, clear of the metal; without it, the grit wedges
+// directly against bare metal and gets dragged through it, leaving a scratch.
+const CZ_PROFILE = 'M0,190 L28,168 L46,196 L70,150 L92,192 L118,160 L140,198 L168,155 L192,194 L216,162 L240,200 L264,158 L288,192 L320,170';
+const CZ_WAX_FILM = 'M0,145 C40,140 60,148 92,142 C120,138 150,146 180,141 C210,137 250,146 288,140 L320,138';
+const CZ_MOTION_ARROW = { x1: 230, y1: 40, x2: 270, y2: 40, arrow: 'M262,32 L276,40 L262,48' };
 
-  const botSurf = 'M0,88 L18,88 L30,87.5 L42,87 L54,87.5 L68,88 L78,87 L86,85.5 L92,84.5 L100,86 L110,87.5 L126,88 L138,87.5 L148,86.5 L156,86 L164,87 L178,88 L190,87.5 L200,86 L208,84.5 L216,84 L224,85 L234,87 L248,88 L262,87.5 L272,86.5 L280,85.5 L288,86.5 L300,88 L314,87.5 L324,86 L332,84.5 L340,85 L350,86.5 L364,88 L378,87.5 L388,86.5 L396,85 L404,84.5 L412,86 L422,87 L438,88 L452,87.5 L462,86.5 L472,87 L486,88 L500,88';
-  const botPts = botSurf.replace('M', '').split(/\s*L\s*/).map(s => s.trim());
-  const botBody = `M0,140 L500,140 ${[...botPts].reverse().map(p => `L${p}`).join(' ')} Z`;
-
-  const grit: { x: number; y: number; d: string }[] = [
-    { x: 60, y: 70, d: 'M-3,-1.5 L0,-3.5 L3.5,-1 L2.5,2 L-1,3 L-3.5,0.5 Z' },
-    { x: 128, y: 72, d: 'M-2.5,-3 L2,-3 L4,0 L2,3 L-2,2.5 L-3.5,-0.5 Z' },
-    { x: 200, y: 69, d: 'M-3,-2 L1,-4 L4,-1 L3,2 L-0.5,3.5 L-3.5,1 Z' },
-    { x: 268, y: 73, d: 'M-2,-3 L3,-1.5 L3,2 L0,3.5 L-3.5,1 L-2.5,-1.5 Z' },
-    { x: 335, y: 70, d: 'M-3.5,-1 L-1,-3.5 L3,-2 L4,1 L1,3 L-3,2 Z' },
-    { x: 400, y: 71, d: 'M-2,-3 L2.5,-2.5 L3.5,1 L1,3.5 L-2.5,2 L-3.5,-0.5 Z' },
-    { x: 462, y: 69, d: 'M-3,-2 L0.5,-3.5 L3.5,0 L2,3 L-2,3 L-3.5,0 Z' },
-    { x: 95, y: 74, d: 'M-2,-2 L2,-2.5 L3,1 L0,2.5 L-2.5,0.5 Z' },
-    { x: 170, y: 68, d: 'M-2.5,0 L-1,-2.5 L2.5,-1 L2,2 L-1,2.5 Z' },
-    { x: 365, y: 74, d: 'M-2,-1.5 L1,-2.5 L3,0.5 L1.5,2.5 L-2,2 Z' },
-  ];
-
-  const dust: { x: number; y: number; d: string; rot: number }[] = [
-    { x: 50, y: 42, d: 'M-2,-1.5 L1,-2.5 L3,0 L1,2 L-2,1.5 Z', rot: 15 },
-    { x: 145, y: 40, d: 'M-2.5,-1 L0,-2.5 L3,-0.5 L2,2 L-1.5,2 Z', rot: -20 },
-    { x: 235, y: 43, d: 'M-1.5,-2 L2,-2 L2.5,1 L0,2.5 L-2.5,0.5 Z', rot: 30 },
-    { x: 320, y: 41, d: 'M-2,-2 L1.5,-2.5 L3,0.5 L0.5,2.5 L-2.5,1 Z', rot: -10 },
-    { x: 420, y: 44, d: 'M-2,-1 L1,-2.5 L3,0 L1.5,2.5 L-2,1.5 Z', rot: 25 },
-    { x: 485, y: 41, d: 'M-1.5,-2 L2,-1.5 L2,1.5 L-0.5,2.5 L-2.5,0 Z', rot: -15 },
-  ];
-
+function ContactZone({ wax }: { wax: boolean; de?: boolean }) {
   return (
-    <svg viewBox="0 0 500 140" className="w-full h-auto" role="img"
-      aria-label={wax ? 'Dry wax film — particles cannot embed' : 'Oil traps grit into abrasive paste'}>
+    <svg viewBox="0 0 320 300" className="w-full h-auto" role="img"
+      aria-label={wax ? 'Dry wax film blankets the rough surface — grit rides clear' : 'Grit wedges against bare metal and scratches it'}>
       <defs>
-        <pattern id="cz-ht" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-          <line x1="0" y1="0" x2="0" y2="5" stroke="var(--txm)" strokeWidth="0.3" opacity="0.05" />
+        <linearGradient id="cz-top" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="var(--tx2)" stopOpacity="0.10" />
+          <stop offset="100%" stopColor="var(--tx2)" stopOpacity="0.30" />
+        </linearGradient>
+        <linearGradient id="cz-bot" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="var(--tx2)" stopOpacity="0.30" />
+          <stop offset="100%" stopColor="var(--tx2)" stopOpacity="0.10" />
+        </linearGradient>
+        <pattern id="cz-hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+          <line x1="0" y1="0" x2="0" y2="4" stroke="var(--txm)" strokeWidth="0.4" opacity="0.16" />
         </pattern>
-        <linearGradient id="cz-mt" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="var(--txm)" stopOpacity="0.16" />
-          <stop offset="60%" stopColor="var(--txm)" stopOpacity="0.26" />
-          <stop offset="100%" stopColor="var(--txm)" stopOpacity="0.36" />
-        </linearGradient>
-        <linearGradient id="cz-mb" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="var(--txm)" stopOpacity="0.36" />
-          <stop offset="40%" stopColor="var(--txm)" stopOpacity="0.26" />
-          <stop offset="100%" stopColor="var(--txm)" stopOpacity="0.16" />
-        </linearGradient>
-        <linearGradient id="cz-oil" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="var(--txm)" stopOpacity="0.15" />
-          <stop offset="50%" stopColor="var(--txm)" stopOpacity="0.06" />
-          <stop offset="100%" stopColor="var(--txm)" stopOpacity="0.15" />
-        </linearGradient>
-        <filter id="cz-gs"><feDropShadow dx="0" dy="0.4" stdDeviation="0.5" floodColor="#000" floodOpacity="0.16" /></filter>
+        <pattern id="cz-dots" width="16" height="16" patternUnits="userSpaceOnUse">
+          <circle cx="1" cy="1" r="1" fill="var(--accent)" opacity="0.09" />
+        </pattern>
+        <filter id="cz-shadow" x="-40%" y="-40%" width="180%" height="180%">
+          <feDropShadow dx="1" dy="3" stdDeviation="2.5" floodColor="#000" floodOpacity="0.24" />
+        </filter>
       </defs>
 
-      {/* Deflected dust above top surface (wax mode) */}
-      {dust.map((p, i) => (
-        <path key={`d${i}`} d={p.d}
-          transform={`translate(${p.x},${p.y}) rotate(${p.rot})`}
-          fill="var(--txm)" opacity={wax ? 0.30 : 0}
-          style={{ transition: 'opacity 0.5s ease' }} />
-      ))}
+      <rect width="320" height="300" fill="url(#cz-dots)" />
 
-      {/* Top metal body */}
-      <path d={topBody} fill="url(#cz-mt)" />
-      <path d={topBody} fill="url(#cz-ht)" />
-      <path d={topSurf} fill="none" stroke="var(--txm)" strokeWidth="0.8" opacity="0.40" strokeLinejoin="round" />
-      <path d={topSurf} fill="none" stroke="var(--sf)" strokeWidth="0.4" opacity="0.25" strokeLinejoin="round"
-        transform="translate(0,-0.8)" />
+      {/* Bottom surface — rough, jagged (the worn/asperity-covered part) */}
+      <path d={`${CZ_PROFILE} L320,300 L0,300 Z`} fill="url(#cz-bot)" />
+      <path d={`${CZ_PROFILE} L320,300 L0,300 Z`} fill="url(#cz-hatch)" />
+      <path d={CZ_PROFILE} fill="none" stroke="var(--tx2)" strokeWidth={2.5}
+        opacity={wax ? 0.4 : 0.65} strokeLinejoin="round"
+        style={{ transition: 'opacity 350ms ease' }} />
 
-      {/* Gap fill (oil) */}
-      <rect x="0" y="52" width="500" height="36" fill={wax ? 'transparent' : 'url(#cz-oil)'}
-        style={{ transition: 'fill 0.5s ease' }} />
+      {/* Wax film — conformal, blankets every peak so nothing can wedge in */}
+      <path d={CZ_WAX_FILM} fill="none" stroke="var(--accent)" strokeWidth={3.5} strokeLinecap="round"
+        style={{ opacity: wax ? 0.75 : 0, transition: 'opacity 350ms ease' }} />
+      <path d={`${CZ_WAX_FILM} L320,190 C280,196 250,186 210,190 C180,186 150,196 120,190 C90,186 60,196 30,192 L0,195 Z`}
+        fill="var(--accent)" style={{ opacity: wax ? 0.10 : 0, transition: 'opacity 350ms ease' }} />
 
-      {/* Wax film — conformal solid coating */}
-      <path d={topSurf} fill="none" stroke="var(--accent)" strokeWidth="2"
-        opacity={wax ? 0.28 : 0} style={{ transition: 'opacity 0.5s ease' }}
-        transform="translate(0,2.5)" strokeLinejoin="round" />
-      <path d={botSurf} fill="none" stroke="var(--accent)" strokeWidth="2"
-        opacity={wax ? 0.28 : 0} style={{ transition: 'opacity 0.5s ease' }}
-        transform="translate(0,-2.5)" strokeLinejoin="round" />
+      {/* Top (moving) surface */}
+      <path d="M0,0 L320,0 L320,95 L0,88 Z" fill="url(#cz-top)" />
+      <path d="M0,0 L320,0 L320,95 L0,88 Z" fill="url(#cz-hatch)" />
+      <path d="M0,88 L320,95" fill="none" stroke="var(--tx2)" strokeWidth={2.5} opacity={0.65} />
 
-      {/* Trapped angular grit (oil mode) */}
-      {grit.map((p, i) => (
-        <path key={`g${i}`} d={p.d}
-          transform={`translate(${p.x},${p.y})`}
-          fill="var(--tx2)" opacity={wax ? 0 : 0.50} filter={wax ? undefined : 'url(#cz-gs)'}
-          style={{ transition: `opacity 0.5s ease ${wax ? 0 : 0.12 + i * 0.03}s` }} />
-      ))}
+      {/* Grit — sits on top of the wax film (wax) or wedged directly on bare metal (oil) */}
+      <path
+        d={wax ? 'M155,102 L173,95 L184,106 L179,122 L162,126 L150,114 Z' : 'M140,110 L162,100 L178,112 L174,138 L150,146 L132,128 Z'}
+        fill="var(--tx2)" opacity={0.7} filter="url(#cz-shadow)"
+        style={{ transition: 'd 350ms ease' }} />
 
-      {/* Micro-scratches on surfaces (oil mode — active abrasion) */}
-      {[58, 126, 198, 266, 333, 398, 460].map((x, i) => (
-        <line key={`sc${i}`} x1={x - 14} y1={87.5 - (i % 2) * 0.5} x2={x + 14} y2={87 + (i % 2) * 0.5}
-          stroke="var(--accent-strong)" strokeWidth="0.4" opacity={wax ? 0 : 0.20}
-          style={{ transition: 'opacity 0.5s ease' }} />
-      ))}
+      {/* Wax: motion arc carrying the grit away, clear of everything */}
+      <path d="M184,106 C215,92 245,78 270,58" fill="none" stroke="var(--txf)" strokeWidth={1.5}
+        strokeDasharray="2 4" strokeLinecap="round"
+        style={{ opacity: wax ? 0.55 : 0, transition: 'opacity 350ms ease' }} />
 
-      {/* Bottom metal body */}
-      <path d={botBody} fill="url(#cz-mb)" />
-      <path d={botBody} fill="url(#cz-ht)" />
-      <path d={botSurf} fill="none" stroke="var(--txm)" strokeWidth="0.8" opacity="0.40" strokeLinejoin="round" />
-      <path d={botSurf} fill="none" stroke="var(--sf)" strokeWidth="0.4" opacity="0.25" strokeLinejoin="round"
-        transform="translate(0,0.8)" />
+      {/* Oil: fresh scratch groove cut into the top surface right above the grit */}
+      <path d="M100,92 L200,100" fill="none" stroke="var(--tx1)" strokeWidth={3.5} strokeLinecap="round"
+        style={{ opacity: wax ? 0 : 0.55, transition: 'opacity 350ms ease' }} />
 
-      {/* Sliding direction */}
-      <g opacity="0.22">
-        <line x1="478" y1="28" x2="496" y2="28" stroke="var(--txf)" strokeWidth="0.7" />
-        <path d="M492,25.5 L497,28 L492,30.5" fill="none" stroke="var(--txf)" strokeWidth="0.6" strokeLinecap="round" strokeLinejoin="round" />
-        <line x1="496" y1="112" x2="478" y2="112" stroke="var(--txf)" strokeWidth="0.7" />
-        <path d="M482,109.5 L477,112 L482,114.5" fill="none" stroke="var(--txf)" strokeWidth="0.6" strokeLinecap="round" strokeLinejoin="round" />
+      {/* Sliding-direction cue */}
+      <g stroke="var(--txf)" strokeWidth={2} opacity={0.55} strokeLinecap="round">
+        <line x1={CZ_MOTION_ARROW.x1} y1={CZ_MOTION_ARROW.y1} x2={CZ_MOTION_ARROW.x2} y2={CZ_MOTION_ARROW.y2} />
+        <path d={CZ_MOTION_ARROW.arrow} fill="none" />
       </g>
     </svg>
   );
@@ -165,61 +129,74 @@ function ScienceHero({ de }: { de: boolean }) {
   ];
 
   return (
-    <section className={`${W} pt-28 sm:pt-36 pb-10`}>
-      <div className="relative rounded-[28px] overflow-hidden" style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)' }}>
-        <div className="grid lg:grid-cols-[3fr_2fr] items-center gap-8 lg:gap-10 p-6 sm:p-10 lg:p-14">
-          {/* Text + stats */}
-          <div>
-            <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
-              {de ? 'Öl vs. Wachs' : 'Oil vs. Wax'}
-            </p>
-            <h2 className="font-display font-bold leading-[1.05] mb-4"
-              style={{ color: 'var(--tx1)', fontSize: 'clamp(2rem, 4.2vw, 3rem)', letterSpacing: '-0.02em' }}>
-              {de ? 'Ein messbarer Unterschied.' : 'One measurable difference.'}
-            </h2>
-            <p className="mb-6" style={{ color: 'var(--txm)', fontSize: 15, maxWidth: '38ch' }}>
-              {de
-                ? 'Derselbe Antrieb, zwei Schmierstoffe — Seite an Seite gemessen.'
-                : 'Same drivetrain, two lubricants — measured side by side.'}
-            </p>
+    <section className="relative overflow-hidden pt-28 sm:pt-36 pb-16 sm:pb-20" style={{ background: 'var(--pg)' }}>
+      {/* The complete reference figure — own annotations, callouts and
+          thumbnail comparisons all baked into the JPG — shown whole, not
+          cropped down to just the product shot. Its background (245,245,245)
+          is close enough to var(--pg) (#F5F5F6) that it simply merges into
+          the page instead of needing a border, card, or fade mask to hide a
+          seam; there isn't one. Desktop: sits to the right of the text at a
+          size that keeps every label in the figure legible. */}
+      <div className="hidden lg:block absolute top-1/2 right-0 -translate-y-1/2 w-[46%] xl:w-[42%]" aria-hidden>
+        <picture>
+          <source srcSet="/images/science/cassette-wear-full.webp" type="image/webp" />
+          <img
+            src="/images/science/cassette-wear-full.jpg"
+            alt=""
+            className="w-full h-auto"
+          />
+        </picture>
+      </div>
 
-            {/* Full reference image — the whole figure, own annotations and all,
-                shown as-is rather than cropped down to just the product shot. */}
-            <div className="lg:hidden rounded-xl overflow-hidden mb-6" style={{ border: '1px solid var(--bd2)', transform: 'translateZ(0)' }}>
+      <div className={`${W} relative z-10`}>
+        <div className="max-w-lg">
+          <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
+            {de ? 'Öl vs. Wachs' : 'Oil vs. Wax'}
+          </p>
+          <h2 className="font-display font-bold leading-[1.05] mb-4"
+            style={{ color: 'var(--tx1)', fontSize: 'clamp(2rem, 4.2vw, 3rem)', letterSpacing: '-0.02em' }}>
+            {de ? 'Ein messbarer Unterschied.' : 'One measurable difference.'}
+          </h2>
+          <p className="mb-6" style={{ color: 'var(--txm)', fontSize: 15, maxWidth: '38ch' }}>
+            {de
+              ? 'Derselbe Antrieb, zwei Schmierstoffe — Seite an Seite gemessen.'
+              : 'Same drivetrain, two lubricants — measured side by side.'}
+          </p>
+
+          {/* Mobile/tablet: same complete figure, just inline above the stats
+              instead of floating beside them — no room for that at this width. */}
+          <div className="lg:hidden mb-6">
+            <picture>
+              <source srcSet="/images/science/cassette-wear-full.webp" type="image/webp" />
               <img
                 src="/images/science/cassette-wear-full.jpg"
                 alt={de ? 'Verschleißprinzip: Zahnflanke einer Kassette, neu vs. abgenutzt' : 'Wear principle: cassette tooth flank, new vs. worn'}
                 className="w-full h-auto"
               />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3 mb-8">
-              {cards.map(c => (
-                <div key={c.label} className="rounded-xl px-4 py-3.5"
-                  style={{ background: 'var(--sf)', border: '1px solid var(--bd2)' }}>
-                  <c.icon className="h-3.5 w-3.5 mb-2" style={{ color: 'var(--txf)' }} aria-hidden />
-                  <p className="num-data font-bold text-[19px] sm:text-[21px] leading-none" style={{ color: 'var(--tx1)' }}>{c.value}</p>
-                  <p className="text-[9.5px] uppercase tracking-[0.1em] mt-2" style={{ color: 'var(--txf)' }}>{c.label}</p>
-                  <p className="text-[10px] mt-0.5" style={{ color: 'var(--txm)' }}>{c.detail}</p>
-                </div>
-              ))}
-            </div>
-
-            <a href="#problem" className="inline-flex items-center gap-2 text-[13px] font-semibold transition-opacity hover:opacity-75" style={{ color: 'var(--tx1)' }}>
-              {de ? 'Wie das gemessen wurde' : 'How this was measured'}
-              <ArrowRight className="h-3.5 w-3.5" />
-            </a>
+            </picture>
           </div>
 
-          {/* Full reference image — desktop only; mobile/tablet gets the inline
-              version above instead of squeezing this into a narrow column. */}
-          <div className="hidden lg:block rounded-xl overflow-hidden" style={{ border: '1px solid var(--bd2)', transform: 'translateZ(0)' }}>
-            <img
-              src="/images/science/cassette-wear-full.jpg"
-              alt={de ? 'Verschleißprinzip: Zahnflanke einer Kassette, neu vs. abgenutzt' : 'Wear principle: cassette tooth flank, new vs. worn'}
-              className="w-full h-auto"
-            />
+          {/* Stats — hairline-divided, no card fill/border, so they read as
+              numbers hovering over the page rather than four boxed tiles. */}
+          <div className="grid grid-cols-2 mb-8" style={{ border: '1px solid var(--bd2)', borderRadius: 14 }}>
+            {cards.map((c, i) => (
+              <div key={c.label} className="px-4 py-3.5"
+                style={{
+                  borderLeft: i % 2 === 1 ? '1px solid var(--bd2)' : 'none',
+                  borderTop: i >= 2 ? '1px solid var(--bd2)' : 'none',
+                }}>
+                <c.icon className="h-3.5 w-3.5 mb-2" style={{ color: 'var(--txf)' }} aria-hidden />
+                <p className="num-data font-bold text-[19px] sm:text-[21px] leading-none" style={{ color: 'var(--tx1)' }}>{c.value}</p>
+                <p className="text-[9.5px] uppercase tracking-[0.1em] mt-2" style={{ color: 'var(--txf)' }}>{c.label}</p>
+                <p className="text-[10px] mt-0.5" style={{ color: 'var(--txm)' }}>{c.detail}</p>
+              </div>
+            ))}
           </div>
+
+          <a href="#problem" className="inline-flex items-center gap-2 text-[13px] font-semibold transition-opacity hover:opacity-75" style={{ color: 'var(--tx1)' }}>
+            {de ? 'Wie das gemessen wurde' : 'How this was measured'}
+            <ArrowRight className="h-3.5 w-3.5" />
+          </a>
         </div>
       </div>
     </section>
@@ -584,6 +561,89 @@ const MICRO = [
     mos2: '/images/microscope/04-chain-link-inner-2-mos2.webp' },
 ];
 
+// Drag-to-reveal before/after — replaces a static side-by-side pair with an
+// interactive one. Pointer position controls a clip-path on the "before"
+// layer, so dragging left reveals more of the treated surface underneath.
+function BeforeAfterSlider({ beforeSrc, afterSrc, beforeAlt, afterAlt, beforeLabel, afterLabel }: {
+  beforeSrc: string; afterSrc: string; beforeAlt: string; afterAlt: string;
+  beforeLabel: string; afterLabel: string;
+}) {
+  const [pct, setPct] = useState(50);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const draggingRef = useRef(false);
+
+  const updateFromClientX = (clientX: number) => {
+    const el = containerRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const raw = ((clientX - rect.left) / rect.width) * 100;
+    setPct(Math.min(100, Math.max(0, raw)));
+  };
+
+  useEffect(() => {
+    const onMove = (e: MouseEvent | TouchEvent) => {
+      if (!draggingRef.current) return;
+      const clientX = 'touches' in e ? e.touches[0]?.clientX : e.clientX;
+      if (clientX != null) updateFromClientX(clientX);
+    };
+    const onUp = () => { draggingRef.current = false; };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+    window.addEventListener('touchmove', onMove, { passive: true });
+    window.addEventListener('touchend', onUp);
+    return () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+      window.removeEventListener('touchmove', onMove);
+      window.removeEventListener('touchend', onUp);
+    };
+  }, []);
+
+  return (
+    <div
+      ref={containerRef}
+      role="slider"
+      aria-label={`${beforeLabel} / ${afterLabel}`}
+      aria-valuenow={Math.round(pct)}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      tabIndex={0}
+      className="relative select-none rounded-xl overflow-hidden aspect-[4/3] mx-3 mb-3"
+      style={{ background: '#0a0e1a', cursor: 'ew-resize', touchAction: 'none' }}
+      onMouseDown={(e) => { draggingRef.current = true; updateFromClientX(e.clientX); }}
+      onTouchStart={(e) => { draggingRef.current = true; updateFromClientX(e.touches[0].clientX); }}
+      onKeyDown={(e) => {
+        if (e.key === 'ArrowLeft') setPct(p => Math.max(0, p - 5));
+        if (e.key === 'ArrowRight') setPct(p => Math.min(100, p + 5));
+      }}
+    >
+      <img src={afterSrc} alt={afterAlt} className="absolute inset-0 w-full h-full object-contain pointer-events-none" draggable={false} />
+      <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ clipPath: `inset(0 ${100 - pct}% 0 0)` }}>
+        <img src={beforeSrc} alt={beforeAlt} className="absolute inset-0 w-full h-full object-contain" draggable={false} />
+      </div>
+
+      {/* Handle */}
+      <div className="absolute inset-y-0 pointer-events-none" style={{ left: `${pct}%` }}>
+        <div className="absolute inset-y-0" style={{ width: 1.5, left: 0, transform: 'translateX(-50%)', background: 'rgba(255,255,255,0.9)' }} />
+        <div className="absolute top-1/2 flex items-center justify-center rounded-full"
+          style={{ left: 0, transform: 'translate(-50%,-50%)', width: 32, height: 32, background: '#fff', boxShadow: '0 2px 10px rgba(0,0,0,0.35)' }}>
+          <ChevronsLeftRight className="h-4 w-4" style={{ color: '#101013' }} strokeWidth={2.25} />
+        </div>
+      </div>
+
+      {/* Labels — fade with proximity so they don't fight the handle */}
+      <span className="absolute top-2 left-2 text-[9px] uppercase tracking-[0.14em] px-1.5 py-0.5 rounded"
+        style={{ color: 'rgba(255,255,255,0.75)', background: 'rgba(0,0,0,0.35)' }}>
+        {beforeLabel}
+      </span>
+      <span className="absolute top-2 right-2 text-[9px] uppercase tracking-[0.14em] px-1.5 py-0.5 rounded"
+        style={{ color: 'rgba(255,255,255,0.9)', background: 'rgba(0,0,0,0.35)' }}>
+        {afterLabel}
+      </span>
+    </div>
+  );
+}
+
 function Microscope({ de }: { de: boolean }) {
   return (
     <div>
@@ -631,26 +691,15 @@ function Microscope({ de }: { de: boolean }) {
                 {row.mag}
               </span>
             </div>
-            {/* Column labels — aligned to the two stage halves */}
-            <div className="grid grid-cols-2 mx-3 mb-1.5">
-              <span className="text-[9px] uppercase tracking-[0.14em] pl-0.5" style={{ color: 'var(--txf)' }}>
-                {de ? 'Referenz' : 'Reference'}
-              </span>
-              <span className="text-[9px] uppercase tracking-[0.14em] pl-2.5" style={{ color: 'var(--accent-soft)' }}>
-                Waxcelerate
-              </span>
-            </div>
-            {/* Image pair — one dark "microscope stage", hairline divider, full frame (no crop) */}
-            <div className="grid grid-cols-2 mx-3 mb-3 rounded-xl overflow-hidden" style={{ background: '#0a0e1a' }}>
-              <div className="aspect-[4/3]">
-                <img src={row.ref} alt={`${de ? row.de : row.en} – ${de ? 'Referenz' : 'Reference'}`}
-                  className="w-full h-full object-contain" loading="lazy" />
-              </div>
-              <div className="aspect-[4/3]" style={{ borderLeft: '1px solid rgba(255,255,255,0.09)' }}>
-                <img src={row.mos2} alt={`${de ? row.de : row.en} – Waxcelerate + MoS₂`}
-                  className="w-full h-full object-contain" loading="lazy" />
-              </div>
-            </div>
+            {/* Drag-to-reveal — pull the handle to compare reference vs. treated surface directly */}
+            <BeforeAfterSlider
+              beforeSrc={row.ref}
+              afterSrc={row.mos2}
+              beforeAlt={`${de ? row.de : row.en} – ${de ? 'Referenz' : 'Reference'}`}
+              afterAlt={`${de ? row.de : row.en} – Waxcelerate + MoS₂`}
+              beforeLabel={de ? 'Referenz' : 'Reference'}
+              afterLabel="Waxcelerate"
+            />
           </div>
         ))}
       </div>
@@ -753,8 +802,19 @@ function FormulaStory({ de }: { de: boolean }) {
 
   return (
     <div ref={sectionRef} className="relative" style={{ height: `${COMPONENTS.length * 60}vh` }}>
-      <div className="sticky top-0 h-screen flex items-center">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+      <div className="sticky top-0 h-screen flex items-center overflow-hidden">
+        {/* Ambient instrument-panel texture behind the whole scroll-story
+            viewport — same dot-grid language as every other diagram on this
+            page, so six long scroll-steps of mostly-empty space read as one
+            deliberate "lab" surface instead of plain white void. */}
+        <div className="absolute inset-0 pointer-events-none" aria-hidden
+          style={{
+            backgroundImage: 'radial-gradient(rgba(var(--accent-rgb),0.12) 1px, transparent 1px)',
+            backgroundSize: '18px 18px',
+            maskImage: 'radial-gradient(ellipse 70% 65% at 68% 50%, black 0%, transparent 75%)',
+            WebkitMaskImage: 'radial-gradient(ellipse 70% 65% at 68% 50%, black 0%, transparent 75%)',
+          }} />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative">
           <div className="grid lg:grid-cols-[minmax(320px,440px)_1fr] gap-10 xl:gap-14 items-center">
             {/* LEFT — component info (crossfading) */}
             <div className="relative" style={{ minHeight: 400 }}>

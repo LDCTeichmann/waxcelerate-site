@@ -1,37 +1,46 @@
-// ─── SprocketTooth — cassette/chainring tooth flank in cross-section ─────────
-// state 'wax': crisp factory hook profile, no material loss.
-// state 'oil': the drive flank is hollowed out — a dashed ghost outline of the
-// original profile stays visible so the lost material reads as the gap between
-// the two lines, plus fine abrasive debris sitting in the hollow. Metal surface
-// uses the same technique as ContactZone (this page's other diagram): a
-// theme-aware opacity gradient layered under a fine diagonal hatch, not a flat
-// fill — that layering is what actually reads as "metal" instead of "grey
-// blob". A second, smaller neighbour tooth (always healthy) establishes this
-// as one tooth on a repeating cassette cog. Pure SVG, theme-driven via CSS
-// vars, no hooks.
+// ─── SprocketTooth — cassette tooth cross-section + elongation curve ─────────
+// Two coordinated views of the same wear story:
+//   1. A tooth-flank cross-section (top) — the new, full profile vs. the
+//      "shark-fin" hooked/undercut profile a worn tooth actually develops
+//      (matches the "Neue Kassette" / "Abgenutzte Kassette" comparison
+//      already used in the reference photo elsewhere on this page).
+//   2. A chain-elongation curve (bottom) — wear isn't a single measurement,
+//      it's a rate; showing it as two diverging curves against a real
+//      distance axis is what actually earns the word "curve", and it grounds
+//      the "0,75 %" / "~2.000 km" / "4.000–5.000 km" figures already used in
+//      this panel's caption in an actual plot instead of a floating label.
+// Wax vs. oil are independent paths cross-fading on opacity, not one path
+// morphing its `d` — the two silhouettes are topologically different enough
+// (full hook vs. undercut claw) that forcing a shared segment count for a
+// smooth morph looked worse than a clean swap.
+const NEIGHBOR_D =
+  'M225,175 C226,155 230,135 240,118 C248,105 259,97 270,97 C281,97 291,106 297,120 C303,136 305,155 305,175 Z';
 
 const HEALTHY_D =
-  'M30,175 L36,138 Q42,100 62,68 Q80,42 108,30 Q120,26 132,32 Q148,40 156,62 L165,105 Q170,135 182,158 L198,175 Z';
+  'M28,175 C29,148 35,120 50,98 C64,79 82,68 103,68 C124,68 141,80 152,100 C162,119 166,146 166,175 Z';
 
 const WORN_D =
-  'M30,175 L36,138 Q42,100 62,68 Q80,42 108,30 Q120,26 132,32 Q142,52 138,76 Q134,112 148,142 Q158,160 175,168 L198,175 Z';
+  'M28,175 C29,148 35,120 50,98 C60,85 70,76 82,72 C90,69 96,72 97,80 C98,89 91,96 87,108 C82,123 85,138 96,148 C110,160 130,162 152,163 C160,163 165,168 166,175 Z';
 
-const NEIGHBOR_D =
-  'M218,175 L221,152 Q225,124 236,106 Q248,90 261,86 Q269,84 276,88 Q283,95 286,109 L291,142 Q293,159 296,175 Z';
+const HIGHLIGHT_D = 'M31,150 C33,130 38,112 50,98';
+const ACCENT_TRACE_D = 'M82,72 C90,69 96,72 97,80';
 
-// The top-left rim of the healthy silhouette — traced again as a bright bevel
-// stroke so the tooth reads as a lit, curved metal surface, not a flat cutout.
-const HIGHLIGHT_D = 'M36,138 Q42,100 62,68 Q80,42 108,30 Q118,27 128,29';
-
-// Angular grit fragments — same shape language as ContactZone's `grit`/`dust`
-// arrays, scaled up slightly since this view is more zoomed-in.
-const DEBRIS: { x: number; y: number; d: string; rot: number }[] = [
-  { x: 141, y: 84,  d: 'M-3,-1.5 L0,-3.5 L3.5,-1 L2.5,2 L-1,3 L-3.5,0.5 Z',     rot: 10 },
-  { x: 133, y: 101, d: 'M-2.5,-3 L2,-3 L4,0 L2,3 L-2,2.5 L-3.5,-0.5 Z',        rot: -15 },
-  { x: 146, y: 117, d: 'M-3,-2 L1,-4 L4,-1 L3,2 L-0.5,3.5 L-3.5,1 Z',          rot: 25 },
-  { x: 137, y: 133, d: 'M-2,-2.5 L2.5,-2 L3,1.5 L0,3 L-2.5,1.5 Z',             rot: -8 },
-  { x: 151, y: 97,  d: 'M-2,-2 L2,-2.5 L3,1 L0,2.5 L-2.5,0.5 Z',              rot: 18 },
+const DEBRIS = [
+  'M108,100 L112,97 L116,101 L114,106 L109,107 L106,103 Z',
+  'M100,118 L105,116 L108,121 L104,125 L99,123 Z',
+  'M112,135 L117,133 L120,137 L116,141 L111,139 Z',
 ];
+
+// Curve panel: x = km (0–5000), y = chain elongation % (0–1.4, plotted top-down).
+// Wax crosses the 0,75 % replacement threshold at ~4.500 km; oil crosses it at
+// ~2.000 km and keeps accelerating — matching the captions already shown
+// below this panel in SciencePage.tsx, not new/invented numbers.
+const CHART_X0 = 30, CHART_X1 = 300, CHART_Y0 = 200, CHART_Y1 = 270;
+const THRESHOLD_Y = 232.5;
+const WAX_CURVE_D = 'M30,270 C120,266 220,245 300,229';
+const OIL_CURVE_D = 'M30,270 C90,255 120,235 138,232.5 C200,227 260,215 300,202.5';
+const WAX_MARK = { x: 273, y: THRESHOLD_Y };
+const OIL_MARK = { x: 138, y: THRESHOLD_Y };
 
 export function SprocketTooth({
   state,
@@ -43,50 +52,42 @@ export function SprocketTooth({
   de?: boolean;
 }) {
   const wax = state === 'wax';
+  const mark = wax ? WAX_MARK : OIL_MARK;
 
   return (
     <svg
-      viewBox="0 0 320 200"
+      viewBox="0 0 320 300"
       className={`w-full h-auto ${className}`}
       role="img"
       aria-label={wax ? (de ? 'Unversehrte Zahnflanke' : 'Undamaged tooth flank') : (de ? 'Angefressene Zahnflanke' : 'Worn-away tooth flank')}
     >
       <defs>
-        {/* Opacity-based tone, not hard color stops — same trick as ContactZone
-            so it self-adapts between light and noir themes automatically. */}
         <linearGradient id="tooth-metal" x1="0.1" y1="0" x2="0.75" y2="1">
           <stop offset="0%"   stopColor="var(--tx2)" stopOpacity="0.09" />
           <stop offset="30%"  stopColor="var(--tx2)" stopOpacity="0.22" />
           <stop offset="65%"  stopColor="var(--tx2)" stopOpacity="0.13" />
           <stop offset="100%" stopColor="var(--tx2)" stopOpacity="0.30" />
         </linearGradient>
-        {/* Fine 45° brushed-metal hatch, layered on top of the gradient fill. */}
         <pattern id="tooth-hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-          <line x1="0" y1="0" x2="0" y2="4" stroke="var(--txm)" strokeWidth="0.35" opacity="0.07" />
+          <line x1="0" y1="0" x2="0" y2="4" stroke="var(--txm)" strokeWidth="0.35" opacity="0.10" />
         </pattern>
-        {/* Faint measurement dot-grid backdrop — same recipe as InstrumentFrame,
-            ties this panel to the site's one "instrument" register. */}
         <pattern id="tooth-dots" width="16" height="16" patternUnits="userSpaceOnUse">
           <circle cx="1" cy="1" r="1" fill="var(--accent)" opacity="0.09" />
         </pattern>
         <filter id="tooth-shadow" x="-30%" y="-30%" width="160%" height="160%">
-          <feDropShadow dx="2" dy="5" stdDeviation="4" floodColor="#000" floodOpacity="0.22" />
+          <feDropShadow dx="2" dy="4" stdDeviation="3.5" floodColor="#000" floodOpacity="0.20" />
         </filter>
       </defs>
 
-      <rect x="0" y="0" width="320" height="200" fill="url(#tooth-dots)" />
+      <rect x="0" y="0" width="320" height="300" fill="url(#tooth-dots)" />
 
-      {/* Root-diameter reference — a faint arc, not a straight line, since this
-          is a slice of a circular cog, not a linear rack. */}
+      {/* ── Tooth cross-section ── */}
       <path d="M14,178 Q160,192 306,178" fill="none" stroke="var(--bd2)" strokeWidth={1.5} />
-
-      {/* Neighbouring tooth — always healthy, muted; context only. */}
       <path d={NEIGHBOR_D} fill="var(--sf3)" stroke="var(--bd)" strokeWidth={1.5} />
       <path d={NEIGHBOR_D} fill="url(#tooth-hatch)" opacity={0.6} />
 
-      {/* Ghost outline of the original profile — only meaningful once the solid
-          shape has departed from it, so it only renders (and only needs to)
-          in the oil state. */}
+      {/* Ghost of the healthy profile — only meaningful once worn, so it only
+          draws attention in the oil state. */}
       <path
         d={HEALTHY_D}
         fill="none"
@@ -96,34 +97,28 @@ export function SprocketTooth({
         style={{ opacity: wax ? 0 : 0.85, transition: 'opacity 400ms ease' }}
       />
 
-      {/* Solid tooth silhouette — morphs between the two path definitions.
-          Gradient + hatch layered together read as brushed steel; a flat
-          single-tone fill (the old version) just reads as a grey blob. */}
-      <path
-        d={wax ? HEALTHY_D : WORN_D}
-        fill="var(--sf2)"
-        stroke="var(--tx2)"
-        strokeWidth={2}
-        filter="url(#tooth-shadow)"
-        style={{ transition: 'd 400ms ease' }}
-      />
-      <path d={wax ? HEALTHY_D : WORN_D} fill="url(#tooth-metal)" style={{ transition: 'd 400ms ease' }} />
-      <path d={wax ? HEALTHY_D : WORN_D} fill="url(#tooth-hatch)" style={{ transition: 'd 400ms ease' }} />
-
-      {/* Bevel highlight — the rim catching light, sold the surface as curved
-          metal rather than a paper cutout. */}
-      <path d={HIGHLIGHT_D} fill="none" stroke="var(--sf)" strokeWidth={1.5} strokeLinecap="round" opacity={0.55} />
-
-      {/* Wear-zone debris (oil state only) */}
-      <g style={{ opacity: wax ? 0 : 1, transition: 'opacity 400ms ease' }} aria-hidden>
-        {DEBRIS.map((d, i) => (
-          <path key={i} d={d.d} transform={`translate(${d.x},${d.y}) rotate(${d.rot})`} fill="var(--tx1)" opacity={0.5} />
-        ))}
+      {/* Healthy silhouette — full rounded hook. */}
+      <g style={{ opacity: wax ? 1 : 0, transition: 'opacity 350ms ease' }}>
+        <path d={HEALTHY_D} fill="var(--sf2)" stroke="var(--tx2)" strokeWidth={2} filter="url(#tooth-shadow)" />
+        <path d={HEALTHY_D} fill="url(#tooth-metal)" />
+        <path d={HEALTHY_D} fill="url(#tooth-hatch)" />
       </g>
 
-      {/* Clean accent trace along the healthy hook (wax state only) */}
+      {/* Worn silhouette — the drive flank has been ground into a hooked,
+          undercut "claw" profile; the gap to the dashed ghost line above IS
+          the lost material. */}
+      <g style={{ opacity: wax ? 0 : 1, transition: 'opacity 350ms ease' }}>
+        <path d={WORN_D} fill="var(--sf2)" stroke="var(--tx2)" strokeWidth={2} filter="url(#tooth-shadow)" />
+        <path d={WORN_D} fill="url(#tooth-metal)" />
+        <path d={WORN_D} fill="url(#tooth-hatch)" />
+        <g aria-hidden>
+          {DEBRIS.map((d, i) => <path key={i} d={d} fill="var(--tx1)" opacity={0.45} />)}
+        </g>
+      </g>
+
+      <path d={HIGHLIGHT_D} fill="none" stroke="var(--sf)" strokeWidth={1.5} strokeLinecap="round" opacity={0.5} />
       <path
-        d="M108,30 Q120,26 132,32"
+        d={ACCENT_TRACE_D}
         fill="none"
         stroke="var(--accent)"
         strokeWidth={1.75}
@@ -131,24 +126,36 @@ export function SprocketTooth({
         style={{ opacity: wax ? 0.85 : 0, transition: 'opacity 400ms ease' }}
       />
 
-      {/* Wear-zone callout (oil state only) — a technical-drawing style
-          dimension line (perpendicular extension ticks + inline arrowheads)
-          between the worn edge and the original ghost edge, grounded in the
-          real elongation threshold rather than an invented measurement. */}
-      <g style={{ opacity: wax ? 0 : 1, transition: 'opacity 400ms ease' }}>
-        <line x1="142" y1="100" x2="142" y2="116" stroke="var(--txf)" strokeWidth={1} />
-        <line x1="163" y1="100" x2="163" y2="116" stroke="var(--txf)" strokeWidth={1} />
-        <line x1="145" y1="108" x2="160" y2="108" stroke="var(--txf)" strokeWidth={1} />
-        <path d="M142,108 L147,105.5 L147,110.5 Z" fill="var(--txf)" />
-        <path d="M163,108 L158,105.5 L158,110.5 Z" fill="var(--txf)" />
-        <line x1="166" y1="108" x2="185" y2="108" stroke="var(--txf)" strokeWidth={1} strokeDasharray="1.5 3" />
-        <text x="188" y="106" fontSize="8" fontWeight={700} letterSpacing="0.04em" fill="var(--tx2)" style={{ textTransform: 'uppercase' }}>
-          {de ? 'Verschleiß' : 'Wear zone'}
-        </text>
-        <text x="188" y="117" fontSize="7.5" fill="var(--txf)" style={{ fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
-          {de ? 'ab 0,75 % Dehnung' : 'from 0.75% elongation'}
-        </text>
-      </g>
+      {/* ── Elongation curve: wear isn't a single measurement, it's a rate ── */}
+      <line x1={CHART_X0} y1={CHART_Y1} x2={CHART_X1} y2={CHART_Y1} stroke="var(--bd)" strokeWidth={1} />
+      <line x1={CHART_X0} y1={CHART_Y0} x2={CHART_X0} y2={CHART_Y1} stroke="var(--bd)" strokeWidth={1} />
+      <line x1={CHART_X0} y1={THRESHOLD_Y} x2={CHART_X1} y2={THRESHOLD_Y} stroke="var(--txf)" strokeWidth={1} strokeDasharray="2 3" />
+      <text x={CHART_X1 + 3} y={THRESHOLD_Y + 3} fontSize="7" fill="var(--txf)" style={{ fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
+        0,75%
+      </text>
+
+      <path d={wax ? OIL_CURVE_D : WAX_CURVE_D} fill="none" stroke="var(--txf)" strokeWidth={1.5} opacity={0.4} />
+      <path
+        d={wax ? WAX_CURVE_D : OIL_CURVE_D}
+        fill="none"
+        strokeWidth={2.25}
+        strokeLinecap="round"
+        style={{ stroke: wax ? 'var(--accent)' : 'var(--tx2)', transition: 'stroke 350ms ease' }}
+      />
+      <circle cx={mark.x} cy={mark.y} r={3} style={{ fill: wax ? 'var(--accent)' : 'var(--tx2)', transition: 'fill 350ms ease' }} />
+      <line x1={mark.x} y1={mark.y} x2={mark.x} y2={CHART_Y1} strokeWidth={1} strokeDasharray="1.5 2.5" opacity={0.5}
+        style={{ stroke: wax ? 'var(--accent)' : 'var(--tx2)', transition: 'stroke 350ms ease' }} />
+
+      <text x={CHART_X0} y={CHART_Y1 + 12} fontSize="7" fill="var(--txm)" style={{ fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>0</text>
+      <text x={(CHART_X0 + CHART_X1) / 2 - 16} y={CHART_Y1 + 12} fontSize="7" fill="var(--txm)" style={{ fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
+        2.500 km
+      </text>
+      <text x={CHART_X1 - 22} y={CHART_Y1 + 12} fontSize="7" fill="var(--txm)" style={{ fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
+        5.000
+      </text>
+      <text x={CHART_X0} y={CHART_Y0 - 6} fontSize="7" fontWeight={700} letterSpacing="0.06em" fill="var(--txf)" style={{ textTransform: 'uppercase' }}>
+        {de ? 'Kettendehnung' : 'Chain elongation'}
+      </text>
     </svg>
   );
 }

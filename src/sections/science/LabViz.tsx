@@ -12,10 +12,10 @@ const HEX_S_X  = [20, 70, 120, 170, 220, 270, 320];
 const HEX_MO_X = [45, 95, 145, 195, 245, 295];
 
 const TF_DOTS = [
-  { x: 42, y: 26 }, { x: 120, y: 24 }, { x: 205, y: 27 },
-  { x: 290, y: 25 }, { x: 370, y: 26 }, { x: 455, y: 24 },
-  { x: 78, y: 64 }, { x: 165, y: 66 }, { x: 250, y: 63 },
-  { x: 335, y: 65 }, { x: 418, y: 64 },
+  { x: 30, y: 27 }, { x: 90, y: 24 }, { x: 155, y: 27 }, { x: 220, y: 25 },
+  { x: 285, y: 26 }, { x: 350, y: 24 }, { x: 415, y: 27 }, { x: 470, y: 25 },
+  { x: 55, y: 65 }, { x: 120, y: 63 }, { x: 190, y: 66 }, { x: 260, y: 64 },
+  { x: 325, y: 63 }, { x: 390, y: 66 }, { x: 450, y: 64 },
 ] as const;
 
 // ─── MoS₂ — S–Mo–S layers shearing (hover on desktop, scroll-scrub on mobile) ─
@@ -221,22 +221,28 @@ export function TransferFilm({ de }: { de: boolean }) {
         <rect className="tf-film" x="0" y="16" width="500" height="2.5"
           fill="var(--accent)" opacity="0.32" />
 
-        {/* MoS₂ particles near top film */}
+        {/* MoS₂ particles near top film — each tied to the film with a short
+            bond line, so the "Fe–S" chemical bond in the label reads as an
+            actual connection rather than just floating dots. */}
         {TF_DOTS.filter(d => d.y < 44).map((d, i) => (
-          <circle key={`t${i}`} className="tf-p" cx={d.x} cy={d.y}
-            r={2 + (i % 3) * 0.5} fill="var(--txm)" opacity="0.30" />
+          <g key={`t${i}`} className="tf-p" opacity="0.45">
+            <line x1={d.x} y1={18.5} x2={d.x} y2={d.y - 2.5} stroke="var(--accent)" strokeWidth="0.8" opacity="0.5" />
+            <circle cx={d.x} cy={d.y} r={3 + (i % 3) * 0.7} fill="var(--tx2)" />
+          </g>
         ))}
 
         {/* Center label */}
         <text className="tf-label" x="250" y="47" textAnchor="middle"
-          fontSize="8.5" fill="var(--txf)" fontFamily="monospace" letterSpacing="1.2" opacity="0">
+          fontSize="9" fontWeight={600} fill="var(--tx2)" fontFamily="monospace" letterSpacing="1.4" opacity="0">
           Fe–S
         </text>
 
         {/* MoS₂ particles near bottom film */}
         {TF_DOTS.filter(d => d.y >= 44).map((d, i) => (
-          <circle key={`b${i}`} className="tf-p" cx={d.x} cy={d.y}
-            r={2 + (i % 3) * 0.5} fill="var(--txm)" opacity="0.30" />
+          <g key={`b${i}`} className="tf-p" opacity="0.45">
+            <line x1={d.x} y1={69.5} x2={d.x} y2={d.y + 2.5} stroke="var(--accent)" strokeWidth="0.8" opacity="0.5" />
+            <circle cx={d.x} cy={d.y} r={3 + (i % 3) * 0.7} fill="var(--tx2)" />
+          </g>
         ))}
 
         {/* Film bottom */}

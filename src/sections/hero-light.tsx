@@ -7,7 +7,13 @@ import { waxLensEnabled } from '@/sections/hero/constants';
 
 const WaxDive = lazy(() => import('@/sections/hero/WaxDive').then(m => ({ default: m.WaxDive })));
 
-const BG_POS = '52% 42%';
+// chain-bg.jpg is now a pre-cropped 1653×918 (1.8:1) slice of the source photo,
+// chosen so the calm slate surface (with the loose chain-link detail) occupies
+// the left ~60% and the woven chain pattern occupies the right ~40% — instead
+// of the old crop straddling the slate/chain boundary at roughly the frame's
+// midpoint, which put both the wax block and the text in the busiest, most
+// pattern-heavy part of the photo.
+const BG_POS = '48% 38%';
 
 export function Hero() {
   const { t, lang } = useLanguage();
@@ -143,7 +149,7 @@ export function Hero() {
       style={{
         objectPosition: BG_POS,
         transform: 'scale(1.035)',
-        filter: 'blur(2.5px) saturate(0.88) brightness(0.88)',
+        filter: 'blur(1.4px) saturate(0.95) brightness(0.92)',
       }}
       fetchPriority="high"
     />
@@ -213,9 +219,13 @@ export function Hero() {
             className="absolute top-0 inset-x-0 h-20 pointer-events-none z-[1]"
             style={{ background: 'linear-gradient(to bottom, rgba(5,6,8,0.25), transparent)' }}
           />
+          {/* Stats row spans the full card width, so it can sit over the chain-weave
+              side of the photo where the bottom-left radial scrim above doesn't
+              reach — this band gives that whole row reliable contrast on its own,
+              independent of which part of the photo is behind it. */}
           <div
-            className="absolute bottom-0 inset-x-0 h-28 pointer-events-none z-[1]"
-            style={{ background: 'linear-gradient(to top, rgba(5,6,8,0.35), transparent)' }}
+            className="absolute bottom-0 inset-x-0 h-36 pointer-events-none z-[1]"
+            style={{ background: 'linear-gradient(to top, rgba(5,6,8,0.58), transparent)' }}
           />
           <div
             className="absolute inset-x-0 bottom-0 h-[82%] pointer-events-none z-[4] sm:hidden"
@@ -230,10 +240,10 @@ export function Hero() {
           <div
             ref={blockRef}
             className="absolute z-[5] pointer-events-none will-change-transform
-                       left-[76%] top-[26%] -translate-x-1/2 -translate-y-1/2
-                       w-[clamp(130px,32%,190px)]
-                       sm:left-[64%] sm:top-[46%] sm:w-[clamp(240px,27%,390px)]
-                       lg:left-[72%] lg:top-[44%] lg:w-[clamp(300px,24%,570px)]"
+                       left-[70%] top-[27%] -translate-x-1/2 -translate-y-1/2
+                       w-[clamp(140px,33%,200px)]
+                       sm:left-[60%] sm:top-[40%] sm:w-[clamp(250px,28%,410px)]
+                       lg:left-[62%] lg:top-[35%] lg:w-[clamp(320px,25%,580px)]"
           >
             <div className="relative">
               {/* Ambient glow — sells the wax as the one lit/in-focus subject in the frame */}
