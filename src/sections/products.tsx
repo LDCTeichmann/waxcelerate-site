@@ -312,7 +312,7 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deli
             </span>
             {badge && (
               <span className="wx-badge" style={featured
-                ? { background: 'var(--brand-blue)', color: '#fff', border: '1px solid var(--brand-blue)', boxShadow: '0 3px 12px rgba(46,120,200,0.40)' }
+                ? { background: 'var(--brand-blue)', color: '#fff', border: '1px solid var(--brand-blue)', boxShadow: '0 3px 12px rgba(var(--brand-blue-rgb),0.40)' }
                 : { background: 'var(--chip-bg)', color: 'rgba(255,255,255,0.92)', border: '1px solid rgba(255,255,255,0.18)', backdropFilter: 'blur(6px)' }}>
                 {badge}
               </span>
