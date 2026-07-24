@@ -335,7 +335,7 @@ export function Hero() {
                   <button
                     ref={ctaRef}
                     onClick={() => scrollTo('#produkte')}
-                    className="cta-primary group inline-flex items-center gap-3 px-10 py-[18px] text-[16px] font-bold rounded-full transition-shadow duration-300 will-change-transform"
+                    className="cta-primary group inline-flex items-center gap-3 px-10 py-[18px] text-[16px] font-bold rounded-full transition-all duration-300 active:scale-[0.97] will-change-transform"
                     style={{ background: '#FFFFFF', color: '#0F0F12' }}
                   >
                     {t.hero.ctaBuy}
