@@ -1,5 +1,5 @@
 {
-  "rewrites": [{ "source": "/((?!api/).*)", "destination": "/index.html" }],
+  "rewrites": [{ "source": "/((?!api/|google46acc6bf86fe233d\\.html).*)", "destination": "/index.html" }],
   "headers": [
     {
       "source": "/assets/(.*)",
