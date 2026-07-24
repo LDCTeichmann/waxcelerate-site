@@ -66,7 +66,7 @@ export function FAQ() {
               <div
                 key={item.q}
                 data-card
-                className="border-b border-wx-bd/25 last:border-0 first:border-t first:border-wx-bd/25"
+                className="border-b border-wx-bd last:border-0 first:border-t first:border-wx-bd"
               >
                 <button
                   onClick={(e) => {

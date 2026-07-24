@@ -57,8 +57,9 @@ export function Guides() {
                     data-card
                     className="rounded-xl overflow-hidden"
                     style={{
-                      background: 'var(--sf)',
-                      border: `1px solid ${isOpen ? 'rgba(var(--accent-rgb),0.25)' : 'var(--bd2)'}`,
+                      background: 'var(--card-bg)',
+                      border: `1px solid ${isOpen ? 'rgba(var(--accent-rgb),0.25)' : 'var(--bd)'}`,
+                      boxShadow: 'var(--card-shad)',
                       transition: 'border-color 0.2s',
                     }}
                   >

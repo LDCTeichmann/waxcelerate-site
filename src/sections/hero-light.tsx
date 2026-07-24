@@ -352,28 +352,6 @@ export function Hero() {
             </div>
           </div>
 
-          <button
-            data-hero
-            onClick={() => scrollTo('#warum-wachs')}
-            aria-label={de ? 'Weiterscrollen' : 'Scroll down'}
-            className="hidden lg:flex absolute right-7 top-1/2 -translate-y-1/2 z-10 flex-col items-center gap-3 group cursor-pointer"
-          >
-            <span
-              className="text-[9px] uppercase font-medium transition-colors duration-300 group-hover:text-white"
-              style={{
-                writingMode: 'vertical-rl',
-                letterSpacing: '0.32em',
-                color: 'rgba(255,255,255,0.45)',
-              }}
-            >
-              Scroll
-            </span>
-            <span
-              className="w-px h-12 transition-all duration-300 group-hover:h-16"
-              style={{ background: 'linear-gradient(to bottom, rgba(255,255,255,0.55), rgba(255,255,255,0.08))' }}
-            />
-          </button>
-
           <div data-hero className="absolute bottom-0 inset-x-0 z-10">
             <div className="max-w-7xl mx-auto px-4 sm:px-10 lg:px-14 xl:px-20">
               <div
