@@ -51,7 +51,10 @@ function ScienceHero({ de }: { de: boolean }) {
 
   return (
     <section className="relative pt-28 sm:pt-36 pb-16 sm:pb-20" style={{ background: 'var(--pg)' }}>
-      <div className={`${W} relative z-10 lg:flex lg:items-center lg:gap-10 xl:gap-16`}>
+      {/* Wider than the page's usual max-w-4xl reading column — this is the
+          page's actual hero image, it needs room to be the dominant element
+          next to the text, not squeezed into what's left of a narrow column. */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 lg:flex lg:items-center lg:gap-12 xl:gap-20">
         <div className="max-w-lg lg:flex-shrink-0">
           <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
             {de ? 'Öl vs. Wachs' : 'Oil vs. Wax'}
@@ -808,34 +811,32 @@ export function SciencePage() {
           title={de ? 'Gemessen, nicht behauptet.' : 'Measured, not claimed.'}
         />
 
-        {/* The three outcome numbers used to be their own separate card row
-            below both panels — a third stacked box on top of Friction and
-            Transfer Film, for the least information-dense content on the
-            page. Folded them into the Friction panel's footer instead,
-            reusing the exact slot/style InstrumentFrame already has for this
-            (see TransferFilm's own footer below) — two panels instead of
-            three, same "measured data" language throughout. */}
-        <InstrumentFrame eyebrow={de ? 'Reibung' : 'Friction'} className="mb-4"
-          footer={
-            <div className="grid grid-cols-3 gap-3 text-center">
-              {[
-                { v: '~300 km', d: de ? 'pro Rewax-Vorgang' : 'per rewax' },
-                { v: `${waxVsOil.life.wax}×`, d: de ? 'Kettenlaufzeit' : 'chain life' },
-                { v: `~€${waxVsOil.cost.savedEur}`, d: de ? `auf ${(waxVsOil.cost.km / 1000).toLocaleString('de-DE')}.000 km` : `over ${(waxVsOil.cost.km / 1000).toLocaleString('en-US')}k km` },
-              ].map((s, i) => (
-                <div key={i}>
-                  <CountUp value={s.v} className="font-mono text-[13px] font-semibold" style={{ color: 'var(--tx1)' }} />
-                  <p className="text-[11px] mt-0.5" style={{ color: 'var(--txf)' }}>{s.d}</p>
-                </div>
-              ))}
-            </div>
-          }
-        >
-          <FrictionBars de={de} />
-        </InstrumentFrame>
+        {/* Two instrument panels side by side instead of stacked — same
+            content as before (Friction bars + folded-in outcome stats,
+            Transfer Film), just laid out in parallel so the section doesn't
+            run so tall. TransferFilm's SVG (viewBox 500×88) just renders
+            shorter at half width; still reads fine. */}
+        <div className="grid lg:grid-cols-2 gap-4 items-start mb-4">
+          <InstrumentFrame eyebrow={de ? 'Reibung' : 'Friction'}
+            footer={
+              <div className="grid grid-cols-3 gap-3 text-center">
+                {[
+                  { v: '~300 km', d: de ? 'pro Rewax-Vorgang' : 'per rewax' },
+                  { v: `${waxVsOil.life.wax}×`, d: de ? 'Kettenlaufzeit' : 'chain life' },
+                  { v: `~€${waxVsOil.cost.savedEur}`, d: de ? `auf ${(waxVsOil.cost.km / 1000).toLocaleString('de-DE')}.000 km` : `over ${(waxVsOil.cost.km / 1000).toLocaleString('en-US')}k km` },
+                ].map((s, i) => (
+                  <div key={i}>
+                    <CountUp value={s.v} className="font-mono text-[13px] font-semibold" style={{ color: 'var(--tx1)' }} />
+                    <p className="text-[11px] mt-0.5" style={{ color: 'var(--txf)' }}>{s.d}</p>
+                  </div>
+                ))}
+              </div>
+            }
+          >
+            <FrictionBars de={de} />
+          </InstrumentFrame>
 
-        {/* Signature visual — Fe–S transfer film deposition (the payoff) */}
-        <div className="mb-4">
+          {/* Signature visual — Fe–S transfer film deposition (the payoff) */}
           <TransferFilm de={de} />
         </div>
 
