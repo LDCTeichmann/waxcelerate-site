@@ -63,7 +63,7 @@ export function WaxDive({ open, onClose, de }: { open: boolean; onClose: () => v
   return createPortal(
     <div
       className="fixed inset-0 z-[80] flex items-center justify-center p-3 sm:p-6"
-      style={{ background: 'rgba(10,10,12,0.62)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)' }}
+      style={{ background: 'var(--overlay-bg)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)' }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div
@@ -117,7 +117,7 @@ export function WaxDive({ open, onClose, de }: { open: boolean; onClose: () => v
                   onClick={() => setActiveId(c.id)}
                   className="snap-start flex-shrink-0 px-3 py-2 rounded-xl text-[12px] font-medium whitespace-nowrap transition-colors"
                   style={{
-                    background: sel ? 'rgba(var(--accent-rgb),0.10)' : 'transparent',
+                    background: sel ? 'var(--accent-wash)' : 'transparent',
                     border: sel ? '1px solid rgba(var(--accent-rgb),0.30)' : '1px solid var(--bd2)',
                     color: sel ? 'var(--accent-soft)' : 'var(--txm)',
                   }}>
@@ -146,7 +146,7 @@ export function WaxDive({ open, onClose, de }: { open: boolean; onClose: () => v
                         className="group w-full flex items-baseline gap-4 py-3.5 text-left transition-colors"
                         style={{
                           boxShadow: sel ? 'inset 2px 0 0 var(--accent-soft)' : 'none',
-                          background: sel ? 'rgba(var(--accent-rgb),0.05)' : 'transparent',
+                          background: sel ? 'var(--accent-wash-sm)' : 'transparent',
                           paddingLeft: sel ? '12px' : '4px',
                         }}
                       >

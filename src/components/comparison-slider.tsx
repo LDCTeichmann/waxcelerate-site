@@ -48,7 +48,7 @@ export function ComparisonSlider({
       {/* After image (full) */}
       <div className="absolute inset-0">
         <img src={afterImage} alt="After" className="w-full h-full object-cover" draggable={false} />
-        <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 bg-black/70 backdrop-blur-sm px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg">
+        <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 bg-[var(--chip-bg)] backdrop-blur-sm px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg">
           <span className="text-white text-xs sm:text-sm font-medium">{afterLabel}</span>
         </div>
       </div>
@@ -59,7 +59,7 @@ export function ComparisonSlider({
         style={{ clipPath: 'inset(0 calc(100% - var(--pos)) 0 0)' }}
       >
         <img src={beforeImage} alt="Before" className="w-full h-full object-cover" draggable={false} />
-        <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 bg-black/70 backdrop-blur-sm px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg">
+        <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 bg-[var(--chip-bg)] backdrop-blur-sm px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg">
           <span className="text-white text-xs sm:text-sm font-medium">{beforeLabel}</span>
         </div>
       </div>
@@ -79,7 +79,7 @@ export function ComparisonSlider({
       </div>
 
       {/* Instruction label */}
-      <div className="absolute top-3 left-1/2 -translate-x-1/2 sm:top-4 bg-black/50 backdrop-blur-sm px-3 py-1.5 rounded-full pointer-events-none">
+      <div className="absolute top-3 left-1/2 -translate-x-1/2 sm:top-4 bg-[var(--chip-bg)] backdrop-blur-sm px-3 py-1.5 rounded-full pointer-events-none">
         <span className="text-white text-[11px] sm:text-xs whitespace-nowrap">Ziehen zum Vergleichen</span>
       </div>
     </div>

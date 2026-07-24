@@ -99,7 +99,7 @@ function Verified({ source, de }: { source?: Review['source']; de: boolean }) {
 function Avatar({ name }: { name: string }) {
   return (
     <span className="flex-shrink-0 grid place-items-center rounded-full text-[11px] font-bold"
-      style={{ width: 30, height: 30, background: 'rgba(var(--accent-rgb),0.12)', color: 'var(--accent)' }}>
+      style={{ width: 30, height: 30, background: 'var(--accent-wash)', color: 'var(--accent)' }}>
       {initials(name)}
     </span>
   );
@@ -118,7 +118,7 @@ function ReviewCard({ r, de }: { r: Review; de: boolean }) {
         <img src={r.photo} alt="" loading="lazy" onError={() => setImgOk(false)}
           className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition: r.photoPos ?? '50% 50%' }} />
         {/* Scrim only tall enough for the quote + name — leaves the bike itself untinted */}
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(6,7,9,0.90) 0%, rgba(6,7,9,0.62) 22%, rgba(6,7,9,0) 58%)' }} />
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(var(--scrim-rgb),0.90) 0%, rgba(var(--scrim-rgb),0.62) 22%, rgba(var(--scrim-rgb),0) 58%)' }} />
         <div className="absolute top-2.5 sm:top-3 left-2.5 sm:left-3"><Stars rating={r.rating ?? 5} /></div>
         <figcaption className="absolute inset-x-0 bottom-0 p-3 sm:p-4 text-white">
           <blockquote className="text-[12px] sm:text-[13px] leading-snug font-medium line-clamp-2" style={{ textShadow: '0 1px 8px rgba(0,0,0,0.5)' }}>
@@ -153,7 +153,7 @@ function ReviewCard({ r, de }: { r: Review; de: boolean }) {
         </div>
         {product && (
           <span className="ml-auto flex-shrink-0 rounded-full px-2 py-1 text-[10px] font-medium whitespace-nowrap"
-            style={{ background: 'rgba(var(--accent-rgb),0.08)', color: 'var(--accent)', border: '1px solid rgba(var(--accent-rgb),0.16)' }}>
+            style={{ background: 'var(--accent-wash)', color: 'var(--accent)', border: '1px solid rgba(var(--accent-rgb),0.16)' }}>
             {product}
           </span>
         )}

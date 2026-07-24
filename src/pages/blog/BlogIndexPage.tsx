@@ -34,11 +34,11 @@ function ArticleCard({ article }: { article: Article }) {
         />
         <div
           className="absolute inset-0"
-          style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(0,0,0,0.45) 100%)' }}
+          style={{ background: 'linear-gradient(180deg, rgba(var(--scrim-rgb),0) 55%, rgba(var(--scrim-rgb),0.45) 100%)' }}
         />
         <span
           className="absolute top-3 left-3 text-[10px] font-semibold uppercase tracking-[0.16em] px-2.5 py-1 rounded-full backdrop-blur"
-          style={{ background: 'rgba(0,0,0,0.55)', color: categoryColors[article.category] }}
+          style={{ background: 'var(--chip-bg)', color: categoryColors[article.category] }}
         >
           {article.category}
         </span>
@@ -155,7 +155,7 @@ export function BlogIndexPage() {
           className="absolute inset-0"
           style={{
             background:
-              'linear-gradient(0deg, rgba(0,0,0,0.97) 0%, rgba(0,0,0,0.88) 28%, rgba(0,0,0,0.62) 52%, rgba(0,0,0,0.40) 100%)',
+              'linear-gradient(0deg, rgba(var(--scrim-rgb),0.97) 0%, rgba(var(--scrim-rgb),0.88) 28%, rgba(var(--scrim-rgb),0.62) 52%, rgba(var(--scrim-rgb),0.40) 100%)',
           }}
         />
         <div className="relative max-w-5xl mx-auto w-full px-4 sm:px-6 pb-12 pt-32">

@@ -247,7 +247,7 @@ export function FormulaGraph({ de, onSelect, scrollFocus, compact }: { de: boole
                 <button type="button" onClick={onPlayPause}
                   aria-label={done ? (de ? 'Erneut abspielen' : 'Replay') : playing ? (de ? 'Pause' : 'Pause') : (de ? 'Abspielen' : 'Play')}
                   className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold transition-colors"
-                  style={{ background: 'rgba(var(--accent-rgb),0.10)', border: '1px solid rgba(var(--accent-rgb),0.22)', color: 'var(--accent)' }}>
+                  style={{ background: 'var(--accent-wash)', border: '1px solid rgba(var(--accent-rgb),0.22)', color: 'var(--accent)' }}>
                   {done ? <RotateCcw className="h-3.5 w-3.5" /> : playing ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
                   {done ? (de ? 'Wiederholen' : 'Replay') : playing ? (de ? 'Pause' : 'Pause') : (de ? 'Abspielen' : 'Play')}
                 </button>

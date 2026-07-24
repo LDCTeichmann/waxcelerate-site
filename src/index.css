@@ -92,7 +92,7 @@
 @media (min-width: 640px) {
   .hero-cta-secondary {
     border: 1px solid rgba(255,255,255,0.30);
-    background: rgba(10,11,13,0.18);
+    background: rgba(var(--scrim-rgb),0.18);
     padding: 0.875rem 1.5rem;
     border-radius: 9999px;
     text-decoration: none;
@@ -158,7 +158,21 @@
     --ext-whatsapp:      #1A7A4A;
     --ext-whatsapp-rgb:  26,122,74;
     --ok:                #22C55E;
+    --ok-rgb:            34,197,94;
     --danger:            #DC2626;
+
+    /* ── Shared overlay tokens — one value per role, reused everywhere instead
+       of each component hand-picking its own near-black. Photo scrims, modal
+       backdrops, and photo badges are about legibility over an image, not
+       page theme, so these stay constant across light/noir rather than being
+       redefined per-mode. --accent-wash-* references var(--accent-rgb), so it
+       still resolves to the correct per-theme blue without being redefined. */
+    --scrim-rgb:         0,0,0;              /* photo gradient scrims (hero/product/blog stages) */
+    --overlay-bg:        rgba(0,0,0,0.55);   /* modal/drawer backdrops */
+    --chip-bg:           rgba(0,0,0,0.55);   /* dark badge/label chip on a photo */
+    --accent-wash-sm:    rgba(var(--accent-rgb),0.06);
+    --accent-wash:       rgba(var(--accent-rgb),0.10);
+    --accent-wash-lg:    rgba(var(--accent-rgb),0.18);
 
     /* shadcn tokens */
     --background: 240 5% 96%;
@@ -369,26 +383,17 @@
 /* Editorial hero — Bühnen-Hintergrund. Light: warmes Off-White-Radial.
    Noir: dunkle Bühne, damit Wortmarke/Headline (in Noir hell) lesbar bleiben. */
 .hero-stage {
-  background: #0a0c12;
-}
-.noir .hero-stage {
-  background: #0a0c12;
+  background: var(--hero-stage);
 }
 /* Top-Fade — hält die transparente Nav über dem full-bleed Hero lesbar
    (hellt die Kette unter der Leiste auf; über der hellen Zone unsichtbar). */
 .hero-topfade {
-  background: linear-gradient(to bottom, rgba(10,12,18,0.50) 0%, rgba(10,12,18,0.25) 40%, transparent 100%);
-}
-.noir .hero-topfade {
-  background: linear-gradient(to bottom, rgba(10,12,18,0.50) 0%, rgba(10,12,18,0.25) 40%, transparent 100%);
+  background: linear-gradient(to bottom, rgba(var(--scrim-rgb),0.50) 0%, rgba(var(--scrim-rgb),0.25) 40%, transparent 100%);
 }
 
 /* Frosted-Footer — Kette verläuft am Fuß in die Bühnenfarbe (lesbares Band) */
 .hero-footer-fade {
-  background: linear-gradient(to top, rgba(10,12,18,0.60) 4%, rgba(10,12,18,0.30) 34%, transparent 100%);
-}
-.noir .hero-footer-fade {
-  background: linear-gradient(to top, rgba(10,12,18,0.60) 4%, rgba(10,12,18,0.30) 34%, transparent 100%);
+  background: linear-gradient(to top, rgba(var(--scrim-rgb),0.60) 4%, rgba(var(--scrim-rgb),0.30) 34%, transparent 100%);
 }
 
 /* Hero image — push wax block up on mobile so it doesn't overwhelm the frame */

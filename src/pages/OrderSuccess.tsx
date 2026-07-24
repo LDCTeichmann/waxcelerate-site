@@ -23,7 +23,7 @@ export function OrderSuccess() {
       {/* Icon */}
       <div
         className="w-16 h-16 rounded-full flex items-center justify-center"
-        style={{ background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.30)' }}
+        style={{ background: 'rgba(var(--ok-rgb),0.12)', border: '1px solid rgba(var(--ok-rgb),0.30)' }}
       >
         <CheckCircle className="h-8 w-8 text-green-400" />
       </div>

@@ -171,6 +171,7 @@ export function Hero() {
         src="/images/hero/wax-cutout.png"
         alt={de ? 'Waxcelerate Heißwachs-Block' : 'Waxcelerate hot wax block'}
         className="block w-full h-auto"
+        style={{ aspectRatio: '885 / 900' }}
         fetchPriority="high"
       />
     </picture>
@@ -211,22 +212,22 @@ export function Hero() {
               not do all the "background" work by itself. */}
           <div
             className="absolute inset-0 pointer-events-none z-[1]"
-            style={{ background: 'rgba(7,8,10,0.32)' }}
+            style={{ background: 'rgba(var(--scrim-rgb),0.32)' }}
           />
           <div
             className="absolute inset-0 pointer-events-none z-[1]"
-            style={{ background: 'linear-gradient(90deg, rgba(7,8,10,0.30) 0%, transparent 40%)' }}
+            style={{ background: 'linear-gradient(90deg, rgba(var(--scrim-rgb),0.30) 0%, transparent 40%)' }}
           />
           {/* Focused scrim directly behind the text column — the global overlay above
               stays light enough to keep the chain recognizable, so contrast for the
               headline/stats needs its own local boost instead of a sitewide darken. */}
           <div
             className="absolute inset-0 pointer-events-none z-[1]"
-            style={{ background: 'radial-gradient(ellipse 82% 105% at 0% 100%, rgba(5,6,8,0.82) 0%, rgba(5,6,8,0.48) 40%, transparent 68%)' }}
+            style={{ background: 'radial-gradient(ellipse 82% 105% at 0% 100%, rgba(var(--scrim-rgb),0.82) 0%, rgba(var(--scrim-rgb),0.48) 40%, transparent 68%)' }}
           />
           <div
             className="absolute top-0 inset-x-0 h-20 pointer-events-none z-[1]"
-            style={{ background: 'linear-gradient(to bottom, rgba(5,6,8,0.25), transparent)' }}
+            style={{ background: 'linear-gradient(to bottom, rgba(var(--scrim-rgb),0.25), transparent)' }}
           />
           {/* Stats row spans the full card width, so it can sit over the chain-weave
               side of the photo where the bottom-left radial scrim above doesn't
@@ -234,13 +235,13 @@ export function Hero() {
               independent of which part of the photo is behind it. */}
           <div
             className="absolute bottom-0 inset-x-0 h-36 pointer-events-none z-[1]"
-            style={{ background: 'linear-gradient(to top, rgba(5,6,8,0.58), transparent)' }}
+            style={{ background: 'linear-gradient(to top, rgba(var(--scrim-rgb),0.58), transparent)' }}
           />
           <div
             className="absolute inset-x-0 bottom-0 h-[82%] pointer-events-none z-[4] sm:hidden"
             style={{
               background:
-                'linear-gradient(to top, rgba(5,6,8,0.72) 0%, rgba(5,6,8,0.50) 30%, rgba(5,6,8,0.20) 55%, transparent 78%)',
+                'linear-gradient(to top, rgba(var(--scrim-rgb),0.72) 0%, rgba(var(--scrim-rgb),0.50) 30%, rgba(var(--scrim-rgb),0.20) 55%, transparent 78%)',
             }}
           />
 
@@ -251,8 +252,8 @@ export function Hero() {
             className="absolute z-[5] pointer-events-none will-change-transform
                        left-[70%] top-[27%] -translate-x-1/2 -translate-y-1/2
                        w-[clamp(155px,35%,220px)]
-                       sm:left-[60%] sm:top-[47%] sm:w-[clamp(280px,30%,460px)]
-                       lg:left-[62%] lg:top-[45%] lg:w-[clamp(360px,27%,650px)]"
+                       sm:left-[60%] sm:top-[50%] sm:w-[clamp(280px,30%,460px)]
+                       lg:left-[62%] lg:top-[50%] lg:w-[clamp(360px,27%,650px)]"
           >
             <div className="relative">
               {/* Ambient glow — sells the wax as the one lit/in-focus subject in the frame */}

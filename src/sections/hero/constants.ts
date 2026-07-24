@@ -35,6 +35,14 @@ export const BLOCK_HOTSPOT = {
  * fallen auf die bestehenden Affordanzen (Hotspot-Pill + „Blick ins Wachs"-Link)
  * zurück — die Lupe rendert dann gar nichts.
  */
+/**
+ * Glas-Optik der Lupe — identisch in WaxLens, WaxLensCube und WaxLensCutout,
+ * hier zentral gepflegt statt dreimal literal kopiert.
+ */
+export const LENS_GLASS_DARK = 'radial-gradient(125% 125% at 32% 26%, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.07) 40%, rgba(255,255,255,0.03) 100%)';
+export const LENS_GLASS_LIGHT = 'radial-gradient(125% 125% at 32% 26%, rgba(255,255,255,0.34) 0%, rgba(255,255,255,0.10) 42%, rgba(255,255,255,0.0) 100%)';
+export const LENS_GLINT = 'radial-gradient(closest-side, rgba(255,255,255,0.5), transparent)';
+
 export function waxLensEnabled(): boolean {
   if (typeof window === 'undefined' || !window.matchMedia) return false;
   const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;

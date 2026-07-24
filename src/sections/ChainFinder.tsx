@@ -38,7 +38,7 @@ export function ChainFinder({
         : 'text-wx-txm border-wx-bd hover:text-wx-tx2 hover:border-[var(--accent-soft)]'
     }`;
   const activeBg = (active: boolean) =>
-    active ? { background: 'rgba(var(--accent-rgb),0.10)' } : { background: 'var(--sf2)' };
+    active ? { background: 'var(--accent-wash)' } : { background: 'var(--sf2)' };
 
   const touched = brand !== 'all' || speed !== 'all';
   const reset = () => { setBrand('all'); setSpeed('all'); };

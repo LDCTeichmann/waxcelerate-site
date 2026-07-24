@@ -261,7 +261,7 @@ export function ProductDetailPage() {
                 onError={e => { const t = e.target as HTMLImageElement; if (!t.src.includes('wax-block-spin')) t.src = src; }}
               />
             ))}
-            <div className="absolute inset-0 z-[3] pointer-events-none" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.2) 0%, transparent 35%)' }} />
+            <div className="absolute inset-0 z-[3] pointer-events-none" style={{ background: 'linear-gradient(to top, rgba(var(--scrim-rgb),0.2) 0%, transparent 35%)' }} />
             {total > 1 && (
               <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex gap-1.5">
                 {gallery.map((_, i) => (
@@ -379,9 +379,9 @@ export function ProductDetailPage() {
           ))}
 
           <div className="absolute inset-0 z-[3] pointer-events-none"
-            style={{ background: 'linear-gradient(105deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.20) 28%, transparent 48%)' }} />
+            style={{ background: 'linear-gradient(105deg, rgba(var(--scrim-rgb),0.55) 0%, rgba(var(--scrim-rgb),0.20) 28%, transparent 48%)' }} />
           <div className="absolute inset-0 z-[3] pointer-events-none"
-            style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.25) 0%, transparent 30%)' }} />
+            style={{ background: 'linear-gradient(to top, rgba(var(--scrim-rgb),0.25) 0%, transparent 30%)' }} />
 
           {/* ── MAIN CARD — focused conversion funnel ── */}
           <div ref={cardRef}
@@ -1043,7 +1043,7 @@ function AltMiniCard({ product: p, de, formatPrice }: { product: Product; de: bo
           style={{ objectPosition: p.imagePosition ?? 'center' }} />
         {label && (
           <span className="absolute top-1.5 left-1.5 text-[7px] font-semibold uppercase tracking-[0.12em] px-1.5 py-0.5 rounded-md"
-            style={{ background: 'rgba(0,0,0,0.5)', color: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(6px)' }}>
+            style={{ background: 'var(--chip-bg)', color: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(6px)' }}>
             {label}
           </span>
         )}

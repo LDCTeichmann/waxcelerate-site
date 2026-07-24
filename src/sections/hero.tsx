@@ -263,16 +263,16 @@ export function Hero() {
             className="absolute inset-0 pointer-events-none z-[1]"
             style={{
               background:
-                'linear-gradient(90deg, rgba(7,8,10,0.72) 0%, rgba(7,8,10,0.42) 30%, rgba(7,8,10,0.08) 56%, transparent 72%)',
+                'linear-gradient(90deg, rgba(var(--scrim-rgb),0.72) 0%, rgba(var(--scrim-rgb),0.42) 30%, rgba(var(--scrim-rgb),0.08) 56%, transparent 72%)',
             }}
           />
           <div
             className="absolute top-0 inset-x-0 h-24 pointer-events-none z-[1]"
-            style={{ background: 'linear-gradient(to bottom, rgba(5,6,8,0.42), transparent)' }}
+            style={{ background: 'linear-gradient(to bottom, rgba(var(--scrim-rgb),0.42), transparent)' }}
           />
           <div
             className="absolute bottom-0 inset-x-0 h-36 pointer-events-none z-[1]"
-            style={{ background: 'linear-gradient(to top, rgba(5,6,8,0.72), transparent)' }}
+            style={{ background: 'linear-gradient(to top, rgba(var(--scrim-rgb),0.72), transparent)' }}
           />
           {/* Mobile: kräftigerer Boden-Scrim — Text liegt dort über dem Block.
               Über den Bildebenen (z-4), damit auch die maskierte Blockkopie
@@ -281,7 +281,7 @@ export function Hero() {
             className="absolute inset-x-0 bottom-0 h-[62%] pointer-events-none z-[4] sm:hidden"
             style={{
               background:
-                'linear-gradient(to top, rgba(5,6,8,0.92) 0%, rgba(5,6,8,0.72) 40%, rgba(5,6,8,0.30) 72%, transparent 100%)',
+                'linear-gradient(to top, rgba(var(--scrim-rgb),0.92) 0%, rgba(var(--scrim-rgb),0.72) 40%, rgba(var(--scrim-rgb),0.30) 72%, transparent 100%)',
             }}
           />
 
@@ -343,7 +343,7 @@ export function Hero() {
                   ? 'opacity-0 group-focus-visible:opacity-100'
                   : 'opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 group-focus-visible:opacity-100'
               }`}
-              style={{ background: 'rgba(8,10,14,0.62)', border: '1px solid rgba(255,255,255,0.28)', backdropFilter: 'blur(6px)', color: '#fff' }}
+              style={{ background: 'rgba(var(--scrim-rgb),0.62)', border: '1px solid rgba(255,255,255,0.28)', backdropFilter: 'blur(6px)', color: '#fff' }}
             >
               <Search className="h-4 w-4" />
               <span className="text-[12px] font-semibold">{de ? 'Blick ins Wachs' : 'Look inside'}</span>
@@ -427,7 +427,7 @@ export function Hero() {
                     style={{
                       color: 'rgba(255,255,255,0.82)',
                       border: '1px solid rgba(255,255,255,0.26)',
-                      background: 'rgba(10,11,13,0.18)',
+                      background: 'rgba(var(--scrim-rgb),0.18)',
                       backdropFilter: 'blur(6px)',
                       transition: 'background 0.28s ease, border-color 0.28s ease, color 0.28s ease',
                     }}
@@ -437,7 +437,7 @@ export function Hero() {
                       e.currentTarget.style.color = 'rgba(255,255,255,1)';
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'rgba(10,11,13,0.18)';
+                      e.currentTarget.style.background = 'rgba(var(--scrim-rgb),0.18)';
                       e.currentTarget.style.borderColor = 'rgba(255,255,255,0.26)';
                       e.currentTarget.style.color = 'rgba(255,255,255,0.82)';
                     }}

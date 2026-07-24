@@ -307,13 +307,13 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deli
           />
           <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between gap-2">
             <span className="wx-badge"
-              style={{ background: 'rgba(8,11,18,0.55)', color: 'rgba(224,234,255,0.95)', border: '1px solid rgba(255,255,255,0.16)', backdropFilter: 'blur(6px)' }}>
+              style={{ background: 'var(--chip-bg)', color: 'rgba(224,234,255,0.95)', border: '1px solid rgba(255,255,255,0.16)', backdropFilter: 'blur(6px)' }}>
               {isPro ? 'PRO' : 'CLASSIC'} · {product.weight}
             </span>
             {badge && (
               <span className="wx-badge" style={featured
                 ? { background: 'var(--brand-blue)', color: '#fff', border: '1px solid var(--brand-blue)', boxShadow: '0 3px 12px rgba(46,120,200,0.40)' }
-                : { background: 'rgba(8,11,18,0.55)', color: 'rgba(255,255,255,0.92)', border: '1px solid rgba(255,255,255,0.18)', backdropFilter: 'blur(6px)' }}>
+                : { background: 'var(--chip-bg)', color: 'rgba(255,255,255,0.92)', border: '1px solid rgba(255,255,255,0.18)', backdropFilter: 'blur(6px)' }}>
                 {badge}
               </span>
             )}
@@ -401,13 +401,6 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deli
               </button>
             )}
           </div>
-
-          {/* Trust signals — quiet text lines, not a row of colored badges */}
-          {multiDiscount && (
-            <div className="mt-2 sm:mt-2.5 space-y-1">
-              <p className="text-[10.5px]" style={{ color: 'var(--txf)' }}>{multiDiscount}</p>
-            </div>
-          )}
         </div>
       </Link>
     </div>
@@ -446,12 +439,12 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
           />
           <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between gap-2">
             <span className="wx-badge"
-              style={{ background: 'rgba(0,0,0,0.60)', color: 'rgba(160,200,255,0.95)', border: '1px solid rgba(100,160,255,0.35)', backdropFilter: 'blur(4px)' }}>
+              style={{ background: 'var(--chip-bg)', color: 'rgba(160,200,255,0.95)', border: '1px solid rgba(100,160,255,0.35)', backdropFilter: 'blur(4px)' }}>
               {speed}
             </span>
             {badge && (
               <span className="wx-badge"
-                style={{ background: 'rgba(0,0,0,0.60)', color: 'rgba(255,255,255,0.92)', border: '1px solid rgba(255,255,255,0.20)', backdropFilter: 'blur(4px)' }}>
+                style={{ background: 'var(--chip-bg)', color: 'rgba(255,255,255,0.92)', border: '1px solid rgba(255,255,255,0.20)', backdropFilter: 'blur(4px)' }}>
                 {badge}
               </span>
             )}

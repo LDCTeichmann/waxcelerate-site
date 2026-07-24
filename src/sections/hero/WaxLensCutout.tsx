@@ -3,6 +3,7 @@ import type { RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import { ZoomIn } from 'lucide-react';
 import { gsap } from '@/lib/gsap';
+import { LENS_GLASS_DARK, LENS_GLINT } from '@/sections/hero/constants';
 
 const HERO_MASK_SRC = '/images/hero/wax-cutout-mask.png';
 
@@ -145,12 +146,12 @@ export function WaxLensCutout({ waxRef, enabled, de, onOpen, onActiveChange }: {
         height: 116,
         visibility: 'hidden',
         border: '1.5px solid rgba(255,255,255,0.92)',
-        background: 'radial-gradient(125% 125% at 32% 26%, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.07) 40%, rgba(255,255,255,0.03) 100%)',
+        background: LENS_GLASS_DARK,
         boxShadow: '0 8px 22px rgba(0,0,0,0.30), inset 0 1px 0 rgba(255,255,255,0.55), inset 0 0 0 1px rgba(255,255,255,0.08)',
       }}
     >
       <span className="absolute rounded-full pointer-events-none" style={{ inset: 7, border: '1px solid rgba(255,255,255,0.16)' }} />
-      <span className="absolute rounded-full pointer-events-none" style={{ top: 14, left: 20, width: 34, height: 22, background: 'radial-gradient(closest-side, rgba(255,255,255,0.5), transparent)', filter: 'blur(2px)' }} />
+      <span className="absolute rounded-full pointer-events-none" style={{ top: 14, left: 20, width: 34, height: 22, background: LENS_GLINT, filter: 'blur(2px)' }} />
       <ZoomIn className="h-8 w-8" strokeWidth={1.75} style={{ color: '#fff' }} />
       <span
         className="absolute left-1/2 top-full -translate-x-1/2 mt-3 whitespace-nowrap text-[10px] uppercase font-semibold"

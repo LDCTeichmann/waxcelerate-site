@@ -54,7 +54,7 @@ export function Contact() {
               className="group flex flex-col rounded-2xl p-6 transition-all"
               style={{
                 background: 'var(--card-bg)',
-                border: '1px solid rgba(37,211,102,0.45)',
+                border: '1px solid rgba(var(--ext-whatsapp-rgb),0.45)',
                 boxShadow: 'var(--card-shad)',
                 textDecoration: 'none',
               }}
@@ -62,9 +62,9 @@ export function Contact() {
               <div className="flex items-center gap-3 mb-4">
                 <div
                   className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0"
-                  style={{ background: 'rgba(37,211,102,0.10)', border: '1px solid rgba(37,211,102,0.20)' }}
+                  style={{ background: 'rgba(var(--ext-whatsapp-rgb),0.10)', border: '1px solid rgba(var(--ext-whatsapp-rgb),0.20)' }}
                 >
-                  <WhatsAppIcon className="h-6 w-6" style={{ color: '#1a7a4a' }} />
+                  <WhatsAppIcon className="h-6 w-6" style={{ color: 'var(--ext-whatsapp)' }} />
                 </div>
                 <div>
                   <p className="font-bold text-wx-tx1 text-[15px] leading-tight">
@@ -72,7 +72,7 @@ export function Contact() {
                   </p>
                   <span
                     className="inline-block mt-0.5 text-[10px] font-semibold px-2 py-0.5 rounded-full tracking-wide"
-                    style={{ background: 'rgba(37,211,102,0.10)', color: '#1a7a4a' }}
+                    style={{ background: 'rgba(var(--ext-whatsapp-rgb),0.10)', color: 'var(--ext-whatsapp)' }}
                   >
                     {de ? 'meist sofort' : 'usually instant'}
                   </span>
@@ -87,7 +87,7 @@ export function Contact() {
 
               <div
                 className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl font-semibold text-[13px] transition-all group-hover:brightness-110"
-                style={{ background: 'rgba(37,211,102,0.10)', color: '#1a7a4a', border: '1px solid rgba(37,211,102,0.25)' }}
+                style={{ background: 'rgba(var(--ext-whatsapp-rgb),0.10)', color: 'var(--ext-whatsapp)', border: '1px solid rgba(var(--ext-whatsapp-rgb),0.25)' }}
               >
                 <WhatsAppIcon className="h-3.5 w-3.5" />
                 {de ? 'WhatsApp öffnen →' : 'Open WhatsApp →'}
@@ -108,7 +108,7 @@ export function Contact() {
               <div className="flex items-center gap-3 mb-4">
                 <div
                   className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0"
-                  style={{ background: 'rgba(var(--accent-rgb),0.12)', border: '1px solid rgba(var(--accent-rgb),0.22)' }}
+                  style={{ background: 'var(--accent-wash)', border: '1px solid rgba(var(--accent-rgb),0.22)' }}
                 >
                   <Mail className="h-5 w-5" style={{ color: 'var(--accent)' }} />
                 </div>
@@ -118,7 +118,7 @@ export function Contact() {
                   </p>
                   <span
                     className="inline-block mt-0.5 text-[10px] font-semibold px-2 py-0.5 rounded-full tracking-wide"
-                    style={{ background: 'rgba(var(--accent-rgb),0.12)', color: 'var(--accent)' }}
+                    style={{ background: 'var(--accent-wash)', color: 'var(--accent)' }}
                   >
                     {de ? 'am selben Tag' : 'same day'}
                   </span>

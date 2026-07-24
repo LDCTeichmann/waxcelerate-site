@@ -46,7 +46,7 @@ export function CartDrawer() {
         className={`fixed inset-0 z-50 transition-opacity duration-300 ${
           isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
-        style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)' }}
+        style={{ background: 'var(--overlay-bg)', backdropFilter: 'blur(4px)' }}
         onClick={closeCart}
         aria-hidden="true"
       />
@@ -181,7 +181,7 @@ export function CartDrawer() {
             {total < 50 && (
               <div
                 className="rounded-lg px-3 py-2.5 text-xs"
-                style={{ background: 'rgba(var(--accent-rgb),0.08)', border: '1px solid rgba(var(--accent-rgb),0.18)' }}
+                style={{ background: 'var(--accent-wash)', border: '1px solid rgba(var(--accent-rgb),0.18)' }}
               >
                 <span style={{ color: 'var(--accent)' }}>
                   {de

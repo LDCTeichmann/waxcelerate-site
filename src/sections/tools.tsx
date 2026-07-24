@@ -599,7 +599,7 @@ function RotationAndSavings() {
                     {cardDiscountPct > 0 && (
                       <span
                         className="rounded px-1 py-0.5 text-[8px] font-semibold leading-none"
-                        style={{ background: 'rgba(43,84,153,0.12)', color: 'var(--brand)' }}
+                        style={{ background: 'var(--accent-wash)', color: 'var(--brand)' }}
                       >
                         −{cardDiscountPct}%
                       </span>
@@ -911,24 +911,24 @@ export function Tools() {
                   {i === 2 && <RotationAndSavings />}
                 </div>
 
-                {/* Inactive overlay — a wash of the page's own --pg instead of a dark
-                    tint. A dark, low-opacity wash still let the busy, multi-colored
-                    card content underneath show through at ~80% strength; combined
-                    with the GSAP scale-down's soft rendering, that mix of colors read
-                    as a muddy/greenish cast. Muting toward --pg instead hides the card
-                    into a clean, discrete silhouette (and stays correct in dark mode,
-                    where --pg is near-black). */}
+                {/* Inactive overlay: frosted glass tint. (Previously swapped to a
+                    72%-opacity light wash chasing a muddy/greenish cast — that cast
+                    actually came from the `--sf3` solid fills in the recommended-box
+                    and mini-cards underneath and the biased neutral-gray tokens,
+                    both fixed at the source since. This dark, low-opacity wash was
+                    never the culprit and reverting to it restores the contrast/
+                    legibility the higher-opacity light wash had flattened away.) */}
                 {i !== activeCard && (
                   <div
                     className="absolute inset-0 rounded-3xl cursor-pointer"
                     style={{
-                      background: 'color-mix(in srgb, var(--pg) 72%, transparent)',
+                      background: 'rgba(4,4,10,0.18)',
                       zIndex: 25,
                       transition: 'background 250ms ease',
                     }}
                     onClick={() => setActiveCard(i)}
-                    onMouseEnter={e => { e.currentTarget.style.background = 'color-mix(in srgb, var(--pg) 30%, transparent)'; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = 'color-mix(in srgb, var(--pg) 72%, transparent)'; }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(4,4,10,0.04)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'rgba(4,4,10,0.18)'; }}
                   />
                 )}
               </div>

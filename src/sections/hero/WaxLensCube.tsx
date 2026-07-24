@@ -3,6 +3,7 @@ import type { RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import { ZoomIn } from 'lucide-react';
 import { gsap } from '@/lib/gsap';
+import { LENS_GLASS_DARK, LENS_GLASS_LIGHT, LENS_GLINT } from '@/sections/hero/constants';
 
 const CUBE_MASK_SRC = '/images/hero/wax-cutout-new-mask.png';
 
@@ -157,9 +158,7 @@ export function WaxLensCube({ cubeRef, enabled, light, de, onOpen, onActiveChang
 
   // Optik je nach Grund: Light-Hero → dunkler Ink-Ring auf hellem Cutout.
   const ring   = light ? 'rgba(16,16,19,0.42)' : 'rgba(255,255,255,0.92)';
-  const glass  = light
-    ? 'radial-gradient(125% 125% at 32% 26%, rgba(255,255,255,0.34) 0%, rgba(255,255,255,0.10) 42%, rgba(255,255,255,0.0) 100%)'
-    : 'radial-gradient(125% 125% at 32% 26%, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.07) 40%, rgba(255,255,255,0.03) 100%)';
+  const glass  = light ? LENS_GLASS_LIGHT : LENS_GLASS_DARK;
   const iconCol = light ? '#0E2A4A' : '#fff';
   const labelCol = light ? 'rgba(16,16,19,0.82)' : 'rgba(255,255,255,0.94)';
   const labelShadow = light ? '0 1px 8px rgba(255,255,255,0.65)' : '0 1px 10px rgba(0,0,0,0.55)';
@@ -183,7 +182,7 @@ export function WaxLensCube({ cubeRef, enabled, light, de, onOpen, onActiveChang
           }}
         >
           <span className="absolute rounded-full pointer-events-none" style={{ inset: 7, border: `1px solid ${light ? 'rgba(16,16,19,0.10)' : 'rgba(255,255,255,0.16)'}` }} />
-          <span className="absolute rounded-full pointer-events-none" style={{ top: 14, left: 20, width: 34, height: 22, background: 'radial-gradient(closest-side, rgba(255,255,255,0.5), transparent)', filter: 'blur(2px)' }} />
+          <span className="absolute rounded-full pointer-events-none" style={{ top: 14, left: 20, width: 34, height: 22, background: LENS_GLINT, filter: 'blur(2px)' }} />
           <ZoomIn className="h-8 w-8" strokeWidth={1.75} style={{ color: iconCol }} />
           <span
             className="absolute left-1/2 top-full -translate-x-1/2 mt-3 whitespace-nowrap text-[10px] uppercase font-semibold"

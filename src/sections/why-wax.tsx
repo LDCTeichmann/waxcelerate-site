@@ -183,7 +183,7 @@ export function WhyWax() {
                     className="flex items-start gap-4 rounded-xl px-5 py-4"
                     style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)' }}>
                     <div className="flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center mt-0.5"
-                      style={{ background: 'rgba(var(--accent-rgb),0.08)' }}>
+                      style={{ background: 'var(--accent-wash)' }}>
                       <Icon className="h-4 w-4" style={{ color: 'var(--accent-soft)' }} />
                     </div>
                     <div className="min-w-0">

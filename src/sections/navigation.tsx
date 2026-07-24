@@ -206,7 +206,7 @@ export function Navigation() {
         className={`lg:hidden fixed inset-0 z-[60] transition-opacity duration-[250ms] ease-in-out ${
           isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
-        style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
+        style={{ background: 'var(--overlay-bg)', backdropFilter: 'blur(4px)' }}
         onClick={() => setIsMobileMenuOpen(false)}
       />
 

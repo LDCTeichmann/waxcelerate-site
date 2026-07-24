@@ -30,7 +30,7 @@ export function ImageLightbox({ images, activeIndex, onClose, onChange }: ImageL
   return (
     <div
       className="fixed inset-0 z-[80] flex items-center justify-center"
-      style={{ background: 'rgba(0,0,0,0.92)' }}
+      style={{ background: 'rgba(var(--scrim-rgb),0.92)' }}
       onClick={onClose}
       onTouchStart={e => { touchStartX.current = e.touches[0].clientX; }}
       onTouchEnd={e => {

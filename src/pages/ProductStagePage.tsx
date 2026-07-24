@@ -131,9 +131,9 @@ export function ProductStagePage() {
         ))}
         {/* Scrim for card readability */}
         <div className="absolute inset-0 z-[3] pointer-events-none"
-          style={{ background: 'linear-gradient(105deg, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.40) 32%, transparent 58%)' }} />
+          style={{ background: 'linear-gradient(105deg, rgba(var(--scrim-rgb),0.72) 0%, rgba(var(--scrim-rgb),0.40) 32%, transparent 58%)' }} />
         <div className="absolute inset-0 z-[3] pointer-events-none"
-          style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.35) 0%, transparent 30%)' }} />
+          style={{ background: 'linear-gradient(to top, rgba(var(--scrim-rgb),0.35) 0%, transparent 30%)' }} />
       </div>
 
       {/* ── Top bar ── */}

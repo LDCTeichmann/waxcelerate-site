@@ -127,7 +127,7 @@ export function About() {
                 >
                   <span
                     className="flex items-center justify-center w-7 h-7 rounded-lg flex-shrink-0 transition-colors"
-                    style={{ background: 'rgba(var(--accent-rgb),0.12)', border: '1px solid rgba(var(--accent-rgb),0.22)' }}
+                    style={{ background: 'var(--accent-wash)', border: '1px solid rgba(var(--accent-rgb),0.22)' }}
                   >
                     <ExternalLink className="h-3 w-3 text-[var(--accent)]" />
                   </span>
@@ -163,8 +163,8 @@ export function About() {
                   className="absolute inset-0"
                   style={{
                     background:
-                      'linear-gradient(to right, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.30) 40%, transparent 65%), ' +
-                      'linear-gradient(to bottom, rgba(0,0,0,0.65) 0%, transparent 55%)',
+                      'linear-gradient(to right, rgba(var(--scrim-rgb),0.75) 0%, rgba(var(--scrim-rgb),0.30) 40%, transparent 65%), ' +
+                      'linear-gradient(to bottom, rgba(var(--scrim-rgb),0.65) 0%, transparent 55%)',
                   }}
                 />
                 <div className="absolute top-0 left-0 px-6 pt-5">

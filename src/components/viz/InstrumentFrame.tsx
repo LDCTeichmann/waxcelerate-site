@@ -51,14 +51,14 @@ export function InstrumentFrame({
       ref={ref}
       className={`relative w-full rounded-2xl overflow-hidden grain ${className}`}
       style={lab
-        ? { background: '#0E1626', border: '1px solid rgba(var(--accent-soft-rgb),0.25)' }
+        ? { background: 'var(--hero-stage)', border: '1px solid rgba(var(--accent-soft-rgb),0.25)' }
         : { background: 'var(--sf2)', border: '1px solid var(--bd)' }}
     >
       {/* Dot grid */}
       <div aria-hidden className="absolute inset-0 pointer-events-none" style={{
         backgroundImage: lab
           ? 'radial-gradient(circle, rgba(130,170,240,0.10) 1px, transparent 1px)'
-          : 'radial-gradient(circle, rgba(var(--accent-rgb),0.09) 1px, transparent 1px)',
+          : 'radial-gradient(circle, rgba(var(--accent-rgb),0.10) 1px, transparent 1px)',
         backgroundSize: '28px 28px',
       }} />
       {/* Corner registration ticks */}
@@ -86,7 +86,7 @@ export function InstrumentFrame({
             {chip && (
               <span className="text-[11px] font-mono tabular-nums px-2 py-0.5 rounded-md flex-shrink-0"
                 style={{
-                  background: lab ? 'rgba(var(--accent-soft-rgb),0.16)' : 'rgba(var(--accent-rgb),0.08)',
+                  background: lab ? 'rgba(var(--accent-soft-rgb),0.16)' : 'var(--accent-wash)',
                   border: lab ? '1px solid rgba(var(--accent-soft-rgb),0.30)' : '1px solid rgba(var(--accent-rgb),0.16)',
                   color: lab ? '#9CC2FF' : 'var(--accent)',
                 }}>

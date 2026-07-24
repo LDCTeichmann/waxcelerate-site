@@ -244,10 +244,10 @@ export function HeroAward() {
             </picture>
             {/* Seam scrim — scharfer Übergang zur Lichtfläche */}
             <div className="absolute inset-0 pointer-events-none"
-                 style={{ background: 'linear-gradient(90deg, rgba(6,8,16,0.80) 0%, rgba(6,8,16,0.32) 22%, transparent 44%)' }} />
+                 style={{ background: 'linear-gradient(90deg, rgba(var(--scrim-rgb),0.80) 0%, rgba(var(--scrim-rgb),0.32) 22%, transparent 44%)' }} />
             {/* Cinematic vignette — ovales Tiefendunkel + Top/Bottom letterbox */}
             <div className="absolute inset-0 pointer-events-none"
-                 style={{ background: 'radial-gradient(ellipse 130% 75% at 95% 50%, transparent 40%, rgba(4,6,16,0.45) 100%), linear-gradient(180deg, rgba(4,6,16,0.28) 0%, transparent 22%, transparent 68%, rgba(4,6,16,0.38) 100%)' }} />
+                 style={{ background: 'radial-gradient(ellipse 130% 75% at 95% 50%, transparent 40%, rgba(var(--scrim-rgb),0.45) 100%), linear-gradient(180deg, rgba(var(--scrim-rgb),0.28) 0%, transparent 22%, transparent 68%, rgba(var(--scrim-rgb),0.38) 100%)' }} />
           </div>
 
           {/* Feine Naht-Linie entlang der Diagonale (Akzent) — nur Desktop */}

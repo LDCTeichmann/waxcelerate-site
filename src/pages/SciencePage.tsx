@@ -5,7 +5,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { Navigation } from '@/sections/navigation';
 import { ScrollTrigger } from '@/lib/gsap';
 import { prefersReducedMotion } from '@/hooks/useAnimation';
-import { InstrumentFrame, SegmentedToggle, AnimatedNumber, CountUp, SprocketTooth } from '@/components/viz';
+import { InstrumentFrame, CountUp } from '@/components/viz';
 import { waxVsOil, frictionRanges } from '@/lib/data';
 import { COMPONENTS, FAILURES, type ScienceComponent } from '@/lib/science';
 import { FormulaGraph } from '@/sections/science/FormulaGraph';
@@ -13,86 +13,6 @@ import { ComponentDiagram } from '@/sections/science/diagrams';
 import { HexMoS2, TransferFilm } from '@/sections/science/LabViz';
 
 const W = 'max-w-4xl mx-auto px-4 sm:px-6 lg:px-8';
-
-// One rough (worn) surface in cross-section meeting a moving counter-surface,
-// same viewBox aspect as SprocketTooth (320×300) so the twin panels actually
-// match height instead of this one collapsing to a sliver with dead space
-// below it. The physical story in one frame: a rough, jagged surface (the
-// asperities that grind against a chain roller) with a hard grit particle at
-// the interface — wax's conformal film blankets every peak/valley so the
-// grit rides on top of it, clear of the metal; without it, the grit wedges
-// directly against bare metal and gets dragged through it, leaving a scratch.
-const CZ_PROFILE = 'M0,190 L28,168 L46,196 L70,150 L92,192 L118,160 L140,198 L168,155 L192,194 L216,162 L240,200 L264,158 L288,192 L320,170';
-const CZ_WAX_FILM = 'M0,145 C40,140 60,148 92,142 C120,138 150,146 180,141 C210,137 250,146 288,140 L320,138';
-const CZ_MOTION_ARROW = { x1: 230, y1: 40, x2: 270, y2: 40, arrow: 'M262,32 L276,40 L262,48' };
-
-function ContactZone({ wax }: { wax: boolean; de?: boolean }) {
-  return (
-    <svg viewBox="0 0 320 300" className="w-full h-auto" role="img"
-      aria-label={wax ? 'Dry wax film blankets the rough surface — grit rides clear' : 'Grit wedges against bare metal and scratches it'}>
-      <defs>
-        <linearGradient id="cz-top" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="var(--tx2)" stopOpacity="0.10" />
-          <stop offset="100%" stopColor="var(--tx2)" stopOpacity="0.30" />
-        </linearGradient>
-        <linearGradient id="cz-bot" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="var(--tx2)" stopOpacity="0.30" />
-          <stop offset="100%" stopColor="var(--tx2)" stopOpacity="0.10" />
-        </linearGradient>
-        <pattern id="cz-hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-          <line x1="0" y1="0" x2="0" y2="4" stroke="var(--txm)" strokeWidth="0.4" opacity="0.16" />
-        </pattern>
-        <pattern id="cz-dots" width="16" height="16" patternUnits="userSpaceOnUse">
-          <circle cx="1" cy="1" r="1" fill="var(--accent)" opacity="0.09" />
-        </pattern>
-        <filter id="cz-shadow" x="-40%" y="-40%" width="180%" height="180%">
-          <feDropShadow dx="1" dy="3" stdDeviation="2.5" floodColor="#000" floodOpacity="0.24" />
-        </filter>
-      </defs>
-
-      <rect width="320" height="300" fill="url(#cz-dots)" />
-
-      {/* Bottom surface — rough, jagged (the worn/asperity-covered part) */}
-      <path d={`${CZ_PROFILE} L320,300 L0,300 Z`} fill="url(#cz-bot)" />
-      <path d={`${CZ_PROFILE} L320,300 L0,300 Z`} fill="url(#cz-hatch)" />
-      <path d={CZ_PROFILE} fill="none" stroke="var(--tx2)" strokeWidth={2.5}
-        opacity={wax ? 0.4 : 0.65} strokeLinejoin="round"
-        style={{ transition: 'opacity 350ms ease' }} />
-
-      {/* Wax film — conformal, blankets every peak so nothing can wedge in */}
-      <path d={CZ_WAX_FILM} fill="none" stroke="var(--accent)" strokeWidth={3.5} strokeLinecap="round"
-        style={{ opacity: wax ? 0.75 : 0, transition: 'opacity 350ms ease' }} />
-      <path d={`${CZ_WAX_FILM} L320,190 C280,196 250,186 210,190 C180,186 150,196 120,190 C90,186 60,196 30,192 L0,195 Z`}
-        fill="var(--accent)" style={{ opacity: wax ? 0.10 : 0, transition: 'opacity 350ms ease' }} />
-
-      {/* Top (moving) surface */}
-      <path d="M0,0 L320,0 L320,95 L0,88 Z" fill="url(#cz-top)" />
-      <path d="M0,0 L320,0 L320,95 L0,88 Z" fill="url(#cz-hatch)" />
-      <path d="M0,88 L320,95" fill="none" stroke="var(--tx2)" strokeWidth={2.5} opacity={0.65} />
-
-      {/* Grit — sits on top of the wax film (wax) or wedged directly on bare metal (oil) */}
-      <path
-        d={wax ? 'M155,102 L173,95 L184,106 L179,122 L162,126 L150,114 Z' : 'M140,110 L162,100 L178,112 L174,138 L150,146 L132,128 Z'}
-        fill="var(--tx2)" opacity={0.7} filter="url(#cz-shadow)"
-        style={{ transition: 'd 350ms ease' }} />
-
-      {/* Wax: motion arc carrying the grit away, clear of everything */}
-      <path d="M184,106 C215,92 245,78 270,58" fill="none" stroke="var(--txf)" strokeWidth={1.5}
-        strokeDasharray="2 4" strokeLinecap="round"
-        style={{ opacity: wax ? 0.55 : 0, transition: 'opacity 350ms ease' }} />
-
-      {/* Oil: fresh scratch groove cut into the top surface right above the grit */}
-      <path d="M100,92 L200,100" fill="none" stroke="var(--tx1)" strokeWidth={3.5} strokeLinecap="round"
-        style={{ opacity: wax ? 0 : 0.55, transition: 'opacity 350ms ease' }} />
-
-      {/* Sliding-direction cue */}
-      <g stroke="var(--txf)" strokeWidth={2} opacity={0.55} strokeLinecap="round">
-        <line x1={CZ_MOTION_ARROW.x1} y1={CZ_MOTION_ARROW.y1} x2={CZ_MOTION_ARROW.x2} y2={CZ_MOTION_ARROW.y2} />
-        <path d={CZ_MOTION_ARROW.arrow} fill="none" />
-      </g>
-    </svg>
-  );
-}
 
 // ─── Opening hero — the page's actual "hero" moment: headline stats + a large
 // cassette rendering, dark stage (matches the homepage hero's card treatment)
@@ -199,163 +119,6 @@ function ScienceHero({ de }: { de: boolean }) {
           </a>
         </div>
       </div>
-    </section>
-  );
-}
-
-// ─── ACT I — Problem hero with Wax⇄Oil toggle ────────────────────────────────
-function ProblemHero({ de }: { de: boolean }) {
-  const [state, setState] = useState<'wax' | 'oil'>('oil');
-  const wax = state === 'wax';
-  const friction = waxVsOil.friction[state];
-  const [wLo, wHi] = waxVsOil.watts[state];
-  const life = waxVsOil.life[state];
-  const valStyle = { color: wax ? 'var(--accent)' : 'var(--txm)', transition: 'color 300ms ease' };
-  const numCls = 'num-data font-bold text-[28px] sm:text-[32px] leading-none tabular-nums';
-
-  const metrics = [
-    {
-      label: de ? 'Reibung' : 'Friction',
-      icon: Gauge,
-      node: <AnimatedNumber value={friction} decimals={2} prefix="μ " className={numCls} style={valStyle} />,
-      pct: wax ? 15 : 100,
-    },
-    {
-      label: de ? 'Antriebsverlust' : 'Drivetrain loss',
-      icon: Droplets,
-      node: <span className={numCls} style={valStyle}><AnimatedNumber value={wLo} />–<AnimatedNumber value={wHi} /><span className="text-[18px] ml-0.5">W</span></span>,
-      pct: wax ? 33 : 100,
-    },
-    {
-      label: de ? 'Kettenlaufzeit' : 'Chain life',
-      icon: Clock,
-      node: <AnimatedNumber value={life} suffix="×" className={numCls} style={valStyle} />,
-      pct: wax ? 100 : 33,
-    },
-    {
-      label: de ? 'Sauberkeit' : 'Cleanliness',
-      icon: Sparkles,
-      node: <span className="text-[15px] font-semibold" style={valStyle}>{wax ? (de ? 'Trocken & sauber' : 'Dry & clean') : (de ? 'Bindet Schmutz' : 'Binds dirt')}</span>,
-      pct: wax ? 100 : 15,
-    },
-  ];
-
-  return (
-    <section id="problem" className={`${W} pt-16 sm:pt-20 pb-20`}>
-      <p className="eyebrow mb-4" style={{ color: 'var(--accent-soft)' }}>
-        {de ? 'Tribologie' : 'Tribology'}
-      </p>
-      <h1 className="font-display font-bold text-wx-tx1 leading-[1.05] mb-5"
-        style={{ fontSize: 'clamp(2.4rem, 6vw, 4.2rem)', letterSpacing: '-0.02em' }}>
-        {de ? 'Was im Schmierspalt passiert.' : 'What happens in the lubricant gap.'}
-      </h1>
-      <p className="text-wx-txm text-lead max-w-2xl mb-12">
-        {de
-          ? 'Zwei Metallflächen gleiten aufeinander. Partikel gelangen in den Kontakt. Die Art der Schmierung entscheidet, ob sie schleifen — oder abgleiten. Über Tausende Kilometer entscheidet genau das, wie lange Zahnflanke und Kette halten.'
-          : 'Two metal surfaces slide against each other. Particles enter the contact zone. The type of lubrication determines whether they grind — or slide off. Over thousands of kilometres, that single difference decides how long the tooth flank and chain survive.'}
-      </p>
-
-      <InstrumentFrame eyebrow={de ? 'Öl vs. Wachs' : 'Oil vs. Wax'}>
-        <SegmentedToggle
-          ariaLabel={de ? 'Öl oder Wachs' : 'Oil or wax'}
-          value={state} onChange={setState} className="max-w-xs mb-6"
-          options={[
-            { value: 'wax', label: de ? 'Wachs' : 'Wax' },
-            { value: 'oil', label: de ? 'Öl' : 'Oil' },
-          ]}
-        />
-
-        {/* ── Twin viewports: same contact-zone physics, two vantage points ──
-            Left = what happens at the surface (µm scale). Right = what that does
-            to the part you'll actually replace (mm scale, months later). Same
-            toggle drives both, so the cause→consequence link is immediate. */}
-        <div className="grid sm:grid-cols-2 gap-3 mb-8">
-          <div className="rounded-xl overflow-hidden"
-            style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)' }}>
-            <div className="flex items-center justify-between px-4 pt-3 pb-1">
-              <span className="text-[10px] font-medium uppercase tracking-[0.16em]"
-                style={{ color: 'var(--txf)' }}>
-                {de ? 'Kontaktzone' : 'Contact zone'}
-              </span>
-              <span className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5"
-                style={{ background: 'var(--bd)', fontSize: 10 }}>
-                <svg width="10" height="10" viewBox="0 0 16 16" fill="none" aria-hidden>
-                  <circle cx="7" cy="7" r="5" stroke="var(--txf)" strokeWidth="1.5" />
-                  <line x1="11" y1="11" x2="14" y2="14" stroke="var(--txf)" strokeWidth="1.5" strokeLinecap="round" />
-                </svg>
-                <span className="num-data" style={{ color: 'var(--txf)' }}>×100</span>
-              </span>
-            </div>
-
-            <div className="px-3 sm:px-5 pb-2">
-              <ContactZone wax={wax} />
-            </div>
-
-            <div className="px-4 pb-3.5">
-              <p className="text-center text-[11px] font-semibold tracking-[0.1em] uppercase"
-                style={{ color: wax ? 'var(--accent)' : 'var(--txm)', transition: 'color 0.4s ease' }}>
-                {wax
-                  ? (de ? 'Trockener Wachsfilm — Partikel gleiten ab' : 'Dry wax film — particles slide off')
-                  : (de ? 'Schleifpaste — Partikel schleifen Metall ab' : 'Grinding paste — particles abrade metal')}
-              </p>
-            </div>
-          </div>
-
-          <div className="rounded-xl overflow-hidden"
-            style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)' }}>
-            <div className="flex items-center justify-between px-4 pt-3 pb-1">
-              <span className="text-[10px] font-medium uppercase tracking-[0.16em]"
-                style={{ color: 'var(--txf)' }}>
-                {de ? 'Zahnflanke' : 'Tooth flank'}
-              </span>
-              <span className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5"
-                style={{ background: 'var(--bd)', fontSize: 10 }}>
-                <span className="num-data" style={{ color: 'var(--txf)' }}>
-                  {de ? 'KASSETTE' : 'CASSETTE'}
-                </span>
-              </span>
-            </div>
-
-            <div className="px-3 sm:px-5 pb-2">
-              <SprocketTooth state={state} de={de} />
-            </div>
-
-            <div className="px-4 pb-3.5">
-              <p className="text-center text-[11px] font-semibold tracking-[0.1em] uppercase"
-                style={{ color: wax ? 'var(--accent)' : 'var(--txm)', transition: 'color 0.4s ease' }}>
-                {wax
-                  ? (de ? 'Profil hält — Wechsel nach 4.000–5.000 km' : 'Profile holds — replace after 4,000–5,000 km')
-                  : (de ? 'Flanke frisst sich an — Wechsel schon ab ~2.000 km' : 'Flank grinds away — replace as early as ~2,000 km')}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* ── Metric cards ── */}
-        <div className="grid grid-cols-2 gap-3">
-          {metrics.map(m => (
-            <div key={m.label} className="rounded-lg px-4 py-3.5"
-              style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)' }}>
-              <dt className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.14em] mb-2.5"
-                style={{ color: 'var(--txf)' }}>
-                <m.icon className="h-3 w-3" strokeWidth={2} style={{ color: 'var(--txff)' }} aria-hidden />
-                {m.label}
-              </dt>
-              <dd className="mb-3">{m.node}</dd>
-              <div className="h-[3px] rounded-full overflow-hidden" style={{ background: 'var(--bd)' }}>
-                <div className="h-full rounded-full"
-                  style={{
-                    width: `${m.pct}%`,
-                    background: wax
-                      ? 'linear-gradient(90deg, var(--accent), var(--accent-strong))'
-                      : 'var(--txm)',
-                    transition: 'width 0.5s cubic-bezier(0.22,1,0.36,1), background 0.3s ease',
-                  }} />
-              </div>
-            </div>
-          ))}
-        </div>
-      </InstrumentFrame>
     </section>
   );
 }
@@ -609,7 +372,7 @@ function BeforeAfterSlider({ beforeSrc, afterSrc, beforeAlt, afterAlt, beforeLab
       aria-valuemax={100}
       tabIndex={0}
       className="relative select-none rounded-xl overflow-hidden aspect-[4/3] mx-3 mb-3"
-      style={{ background: '#0a0e1a', cursor: 'ew-resize', touchAction: 'none' }}
+      style={{ background: 'var(--hero-stage)', cursor: 'ew-resize', touchAction: 'none' }}
       onMouseDown={(e) => { draggingRef.current = true; updateFromClientX(e.clientX); }}
       onTouchStart={(e) => { draggingRef.current = true; updateFromClientX(e.touches[0].clientX); }}
       onKeyDown={(e) => {
@@ -686,7 +449,7 @@ function Microscope({ de }: { de: boolean }) {
                 <span className="text-[12px]" style={{ color: 'var(--txm)' }}>{de ? row.de : row.en}</span>
               </div>
               <span className="num-data text-[10px] px-1.5 py-0.5 rounded-md"
-                style={{ background: 'rgba(var(--accent-rgb),0.06)', border: '1px solid rgba(var(--accent-rgb),0.10)',
+                style={{ background: 'var(--accent-wash-sm)', border: '1px solid rgba(var(--accent-rgb),0.10)',
                   color: 'var(--txf)' }}>
                 {row.mag}
               </span>
@@ -821,7 +584,7 @@ function FormulaStory({ de }: { de: boolean }) {
             deliberate "lab" surface instead of plain white void. */}
         <div className="absolute inset-0 pointer-events-none" aria-hidden
           style={{
-            backgroundImage: 'radial-gradient(rgba(var(--accent-rgb),0.12) 1px, transparent 1px)',
+            backgroundImage: 'radial-gradient(rgba(var(--accent-rgb),0.10) 1px, transparent 1px)',
             backgroundSize: '18px 18px',
             maskImage: 'radial-gradient(ellipse 70% 65% at 68% 50%, black 0%, transparent 75%)',
             WebkitMaskImage: 'radial-gradient(ellipse 70% 65% at 68% 50%, black 0%, transparent 75%)',
@@ -891,40 +654,47 @@ function FormulaStory({ de }: { de: boolean }) {
             <div className="relative">
               <div className="absolute inset-0 -m-8 pointer-events-none"
                 style={{
-                  background: 'radial-gradient(ellipse 70% 60% at 50% 45%, rgba(var(--accent-rgb),0.06) 0%, transparent 70%)',
+                  background: 'radial-gradient(ellipse 70% 60% at 50% 45%, var(--accent-wash-sm) 0%, transparent 70%)',
                   filter: 'blur(24px)',
                 }} />
               <FormulaGraph de={de} onSelect={scrollToComponent} scrollFocus={comp.node} compact />
             </div>
           </div>
+        </div>
 
-          {/* Bottom navigation */}
-          <div className="absolute bottom-8 left-0 right-0 flex flex-col items-center gap-3">
-            <div className="flex items-center gap-2.5">
-              {COMPONENTS.map((c, i) => (
-                <button key={c.id} onClick={() => scrollToComponent(c.id)}
-                  aria-label={de ? c.nameDe : c.nameEn}
-                  className="group flex flex-col items-center gap-1.5"
-                >
-                  <span className="rounded-full transition-all duration-300"
-                    style={{
-                      width: i === activeIdx ? 24 : 8,
-                      height: 8,
-                      background: i === activeIdx ? 'var(--accent)' : i < activeIdx ? 'rgba(var(--accent-rgb),0.35)' : 'var(--bd)',
-                    }}
-                  />
-                  <span className="text-[9px] uppercase tracking-[0.14em] transition-opacity duration-300"
-                    style={{ color: 'var(--txf)', opacity: i === activeIdx ? 1 : 0 }}>
-                    {de ? c.graphLabelDe : c.graphLabelEn}
-                  </span>
-                </button>
-              ))}
-            </div>
-            <span className="text-[10px] tracking-[0.12em] uppercase transition-opacity duration-700"
-              style={{ color: 'var(--txf)', opacity: activeIdx === 0 ? 0.7 : 0 }}>
-              {de ? 'Scrollen zum Erkunden' : 'Scroll to explore'}
-            </span>
+        {/* Bottom navigation — sibling of the max-w-7xl content wrapper (not
+            nested inside it), so "absolute bottom-8" anchors to the sticky
+            viewport's fixed h-screen height instead of the grid's own height.
+            Nested inside the grid, this nav's position tracked whichever
+            column was tallest — when FormulaGraph rendered taller than the
+            left panel's 400px minHeight, bottom-8 landed mid-graph instead
+            of below it, overlapping node labels near the bottom of the
+            viewBox (e.g. Dispersant/Antioxidant). */}
+        <div className="absolute bottom-8 left-0 right-0 flex flex-col items-center gap-3">
+          <div className="flex items-center gap-2.5">
+            {COMPONENTS.map((c, i) => (
+              <button key={c.id} onClick={() => scrollToComponent(c.id)}
+                aria-label={de ? c.nameDe : c.nameEn}
+                className="group flex flex-col items-center gap-1.5"
+              >
+                <span className="rounded-full transition-all duration-300"
+                  style={{
+                    width: i === activeIdx ? 24 : 8,
+                    height: 8,
+                    background: i === activeIdx ? 'var(--accent)' : i < activeIdx ? 'rgba(var(--accent-rgb),0.35)' : 'var(--bd)',
+                  }}
+                />
+                <span className="text-[9px] uppercase tracking-[0.14em] transition-opacity duration-300"
+                  style={{ color: 'var(--txf)', opacity: i === activeIdx ? 1 : 0 }}>
+                  {de ? c.graphLabelDe : c.graphLabelEn}
+                </span>
+              </button>
+            ))}
           </div>
+          <span className="text-[10px] tracking-[0.12em] uppercase transition-opacity duration-700"
+            style={{ color: 'var(--txf)', opacity: activeIdx === 0 ? 0.7 : 0 }}>
+            {de ? 'Scrollen zum Erkunden' : 'Scroll to explore'}
+          </span>
         </div>
       </div>
     </div>
@@ -950,9 +720,6 @@ export function SciencePage() {
       <Navigation />
 
       <ScienceHero de={de} />
-
-      {/* ── ACT I — PROBLEM ── */}
-      <ProblemHero de={de} />
 
       {/* ── ACT II — FORMULA (scroll-driven storytelling) ── */}
       <section style={{ borderTop: '1px solid var(--bd2)' }}>
@@ -1036,7 +803,7 @@ export function SciencePage() {
 
         {/* CTA */}
         <div className="mt-14 rounded-2xl px-6 py-10 sm:py-12 text-center"
-          style={{ background: 'rgba(var(--accent-rgb),0.04)', border: '1px solid rgba(var(--accent-rgb),0.12)' }}>
+          style={{ background: 'var(--accent-wash-sm)', border: '1px solid rgba(var(--accent-rgb),0.12)' }}>
           <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
             {de ? 'Nächster Schritt' : 'Next step'}
           </p>

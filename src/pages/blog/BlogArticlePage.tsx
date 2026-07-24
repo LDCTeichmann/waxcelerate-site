@@ -66,7 +66,7 @@ function renderSection(section: ArticleSection, idx: number): React.ReactNode {
         <div
           key={idx}
           className="rounded-xl px-5 py-4 mb-6 mt-2"
-          style={{ background: 'rgba(var(--accent-rgb),0.08)', borderLeft: '3px solid var(--accent)' }}
+          style={{ background: 'var(--accent-wash)', borderLeft: '3px solid var(--accent)' }}
         >
           <p className="font-mono text-[10px] uppercase tracking-[0.18em] mb-1.5" style={{ color: 'var(--accent)' }}>
             Tipp
@@ -199,7 +199,7 @@ export function BlogArticlePage() {
         <img src={hero.src} alt={hero.alt} className="absolute inset-0 w-full h-full object-cover" />
         <div
           className="absolute inset-0"
-          style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.30) 35%, rgba(0,0,0,0.88) 100%)' }}
+          style={{ background: 'linear-gradient(180deg, rgba(var(--scrim-rgb),0.45) 0%, rgba(var(--scrim-rgb),0.30) 35%, rgba(var(--scrim-rgb),0.88) 100%)' }}
         />
         <div className="relative max-w-[740px] mx-auto px-4 sm:px-6 pt-28 pb-10 sm:pt-36 sm:pb-12">
           <p
