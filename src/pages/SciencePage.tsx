@@ -51,29 +51,8 @@ function ScienceHero({ de }: { de: boolean }) {
 
   return (
     <section className="relative pt-28 sm:pt-36 pb-16 sm:pb-20" style={{ background: 'var(--pg)' }}>
-      {/* The complete reference figure — own annotations, callouts and
-          thumbnail comparisons all baked into the JPG — shown whole, not
-          cropped down to just the product shot. Its background (245,245,245)
-          is close enough to var(--pg) (#F5F5F6) that it simply merges into
-          the page instead of needing a border, card, or fade mask to hide a
-          seam; there isn't one. Desktop: sits to the right of the text.
-          Sized by object-contain against the section's own height (not a
-          fixed width) — the image is square but the text column next to it
-          usually isn't tall enough to fit it at full width, and clipping it
-          top/bottom used to cut straight through the baked-in labels. */}
-      <div className="hidden lg:block absolute inset-y-6 right-0 w-[46%] xl:w-[42%]" aria-hidden>
-        <picture>
-          <source srcSet="/images/science/cassette-wear-full.webp" type="image/webp" />
-          <img
-            src="/images/science/cassette-wear-full.jpg"
-            alt=""
-            className="h-full w-full object-contain object-right"
-          />
-        </picture>
-      </div>
-
-      <div className={`${W} relative z-10`}>
-        <div className="max-w-lg">
+      <div className={`${W} relative z-10 lg:flex lg:items-center lg:gap-10 xl:gap-16`}>
+        <div className="max-w-lg lg:flex-shrink-0">
           <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
             {de ? 'Öl vs. Wachs' : 'Oil vs. Wax'}
           </p>
@@ -121,6 +100,25 @@ function ScienceHero({ de }: { de: boolean }) {
             {de ? 'Wie das gemessen wurde' : 'How this was measured'}
             <ArrowRight className="h-3.5 w-3.5" />
           </a>
+        </div>
+
+        {/* Desktop: the complete reference figure — own annotations, callouts
+            and thumbnail comparisons all baked into the JPG, shown whole, not
+            cropped. A normal flex sibling now (not absolutely positioned) so
+            it renders at its own natural size and the section simply grows
+            to fit it — no fixed height to clip against, no letterboxing to
+            create a visible edge. Its background (245,245,245) is close
+            enough to var(--pg) that it merges into the page with no border
+            or card needed. */}
+        <div className="hidden lg:block lg:flex-1" aria-hidden>
+          <picture>
+            <source srcSet="/images/science/cassette-wear-full.webp" type="image/webp" />
+            <img
+              src="/images/science/cassette-wear-full.jpg"
+              alt=""
+              className="w-full h-auto"
+            />
+          </picture>
         </div>
       </div>
     </section>
@@ -810,33 +808,35 @@ export function SciencePage() {
           title={de ? 'Gemessen, nicht behauptet.' : 'Measured, not claimed.'}
         />
 
-        <InstrumentFrame eyebrow={de ? 'Reibung' : 'Friction'} className="mb-4">
+        {/* The three outcome numbers used to be their own separate card row
+            below both panels — a third stacked box on top of Friction and
+            Transfer Film, for the least information-dense content on the
+            page. Folded them into the Friction panel's footer instead,
+            reusing the exact slot/style InstrumentFrame already has for this
+            (see TransferFilm's own footer below) — two panels instead of
+            three, same "measured data" language throughout. */}
+        <InstrumentFrame eyebrow={de ? 'Reibung' : 'Friction'} className="mb-4"
+          footer={
+            <div className="grid grid-cols-3 gap-3 text-center">
+              {[
+                { v: '~300 km', d: de ? 'pro Rewax-Vorgang' : 'per rewax' },
+                { v: `${waxVsOil.life.wax}×`, d: de ? 'Kettenlaufzeit' : 'chain life' },
+                { v: `~€${waxVsOil.cost.savedEur}`, d: de ? `auf ${(waxVsOil.cost.km / 1000).toLocaleString('de-DE')}.000 km` : `over ${(waxVsOil.cost.km / 1000).toLocaleString('en-US')}k km` },
+              ].map((s, i) => (
+                <div key={i}>
+                  <CountUp value={s.v} className="font-mono text-[13px] font-semibold" style={{ color: 'var(--tx1)' }} />
+                  <p className="text-[11px] mt-0.5" style={{ color: 'var(--txf)' }}>{s.d}</p>
+                </div>
+              ))}
+            </div>
+          }
+        >
           <FrictionBars de={de} />
         </InstrumentFrame>
 
         {/* Signature visual — Fe–S transfer film deposition (the payoff) */}
         <div className="mb-4">
           <TransferFilm de={de} />
-        </div>
-
-        {/* Outcome stats — same measurement-card language as the two panels
-            above (and the why-wax section), scaled down: these three were
-            noticeably larger than everything around them despite being the
-            least information-dense element on the page. */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {[
-            { v: '~300 km', d: de ? 'pro Rewax-Vorgang' : 'per rewax' },
-            { v: `${waxVsOil.life.wax}×`, d: de ? 'längere Kettenlaufzeit' : 'longer chain life' },
-            { v: `~€${waxVsOil.cost.savedEur}`, d: de ? `gespart auf ${waxVsOil.cost.km.toLocaleString('de-DE')} km` : `saved over ${waxVsOil.cost.km.toLocaleString('en-US')} km` },
-          ].map((s, i) => (
-            <div key={i} className="rounded-2xl border border-wx-bd p-4 text-center"
-              style={{ background: 'var(--card-bg)', boxShadow: 'var(--card-shad)' }}>
-              <CountUp value={s.v} className="font-display font-bold text-wx-tx1 block leading-none"
-                style={{ fontSize: 'clamp(1.35rem, 2.6vw, 1.6rem)' }} />
-              <div className="h-0.5 w-6 mx-auto mt-2 mb-1.5 rounded-full" style={{ background: 'var(--accent)', opacity: 0.5 }} />
-              <p className="text-[12px] text-wx-txm">{s.d}</p>
-            </div>
-          ))}
         </div>
 
         {/* CTA */}

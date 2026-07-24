@@ -27,7 +27,13 @@ export function SectionDots() {
   };
 
   return (
-    <div className="hidden lg:flex fixed right-4 xl:right-5 top-1/2 -translate-y-1/2 z-40 flex-col gap-2.5">
+    // Frosted pill behind the whole column instead of bare dots — the hero's
+    // dark photo made the active (accent-blue) dot nearly invisible, and
+    // fixing that per-page (light dot over the hero, dark dot everywhere
+    // else) would need to know what's behind it. A backdrop-blur capsule
+    // guarantees contrast against anything without that per-page logic.
+    <div className="hidden lg:flex fixed right-4 xl:right-5 top-1/2 -translate-y-1/2 z-40 flex-col gap-2.5 py-3 px-[7px] rounded-full"
+      style={{ background: 'rgba(var(--card-to-rgb),0.55)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: '1px solid rgba(var(--accent-rgb),0.10)' }}>
       {NAV_ITEMS.map(item => {
         const isActive = activeSection === item.href;
         return (
