@@ -7,9 +7,10 @@ interface ImageLightboxProps {
   activeIndex: number;
   onClose: () => void;
   onChange: (index: number) => void;
+  alt: string;
 }
 
-export function ImageLightbox({ images, activeIndex, onClose, onChange }: ImageLightboxProps) {
+export function ImageLightbox({ images, activeIndex, onClose, onChange, alt }: ImageLightboxProps) {
   const touchStartX = useRef<number>(0);
 
   useBodyScrollLock(true);
@@ -45,7 +46,7 @@ export function ImageLightbox({ images, activeIndex, onClose, onChange }: ImageL
       >
         <img
           src={images[activeIndex]}
-          alt=""
+          alt={`${alt} — Bild ${activeIndex + 1} von ${images.length}`}
           style={{
             maxHeight: '85vh',
             maxWidth: '90vw',
@@ -60,6 +61,8 @@ export function ImageLightbox({ images, activeIndex, onClose, onChange }: ImageL
               <button
                 key={i}
                 onClick={() => onChange(i)}
+                aria-label={`${alt} — Bild ${i + 1} anzeigen`}
+                aria-current={i === activeIndex}
                 style={{
                   width: 48,
                   height: 48,
@@ -82,6 +85,7 @@ export function ImageLightbox({ images, activeIndex, onClose, onChange }: ImageL
       {/* Close */}
       <button
         onClick={onClose}
+        aria-label="Schließen"
         style={{
           position: 'fixed',
           top: 16,
@@ -106,6 +110,7 @@ export function ImageLightbox({ images, activeIndex, onClose, onChange }: ImageL
         <>
           <button
             onClick={e => { e.stopPropagation(); onPrev(); }}
+            aria-label="Vorheriges Bild"
             style={{
               position: 'fixed',
               left: 16,
@@ -127,6 +132,7 @@ export function ImageLightbox({ images, activeIndex, onClose, onChange }: ImageL
           </button>
           <button
             onClick={e => { e.stopPropagation(); onNext(); }}
+            aria-label="Nächstes Bild"
             style={{
               position: 'fixed',
               right: 16,

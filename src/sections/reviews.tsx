@@ -115,7 +115,7 @@ function ReviewCard({ r, de }: { r: Review; de: boolean }) {
   if (r.photo && imgOk) {
     return (
       <figure className={`${CARD} ${CARD_W} relative`}>
-        <img src={r.photo} alt="" loading="lazy" onError={() => setImgOk(false)}
+        <img src={r.photo} alt={de ? `Fahrrad von ${r.name}` : `${r.name}'s bike`} loading="lazy" onError={() => setImgOk(false)}
           className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition: r.photoPos ?? '50% 50%' }} />
         {/* Scrim only tall enough for the quote + name — leaves the bike itself untinted */}
         <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(var(--scrim-rgb),0.90) 0%, rgba(var(--scrim-rgb),0.62) 22%, rgba(var(--scrim-rgb),0) 58%)' }} />

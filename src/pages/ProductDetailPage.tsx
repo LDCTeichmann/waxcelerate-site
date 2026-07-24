@@ -315,6 +315,7 @@ export function ProductDetailPage() {
               <div className="flex gap-2 mb-4">
                 {gallery.slice(0, 6).map((src, i) => (
                   <button key={i} onClick={() => { goTo(i); pause(); setTimeout(resume, AUTO_INTERVAL); }}
+                    aria-label={`${titleText} — Bild ${i + 1}`} aria-current={i === activeImage}
                     className="h-11 w-11 rounded-lg overflow-hidden flex-shrink-0 transition-all duration-300"
                     style={{ opacity: i === activeImage ? 1 : 0.35, boxShadow: i === activeImage ? '0 0 0 2px var(--tx1)' : '0 0 0 1px var(--bd)' }}>
                     <img src={src} alt="" className="h-full w-full object-cover" />
@@ -531,6 +532,7 @@ export function ProductDetailPage() {
               <div className="flex gap-1 mt-2.5">
                 {gallery.slice(0, 6).map((src, i) => (
                   <button key={i} onClick={() => { goTo(i); pause(); setTimeout(resume, AUTO_INTERVAL); }}
+                    aria-label={`${titleText} — Bild ${i + 1}`} aria-current={i === activeImage}
                     className="h-[36px] flex-1 rounded-lg overflow-hidden transition-all duration-400"
                     style={{
                       opacity: i === activeImage ? 1 : 0.22,
@@ -887,7 +889,7 @@ export function ProductDetailPage() {
         style={{ background: 'var(--nav-bg)', backdropFilter: 'blur(12px)', borderTop: '1px solid var(--bd)', boxShadow: '0 -4px 20px rgba(0,0,0,0.06)', transition: 'transform 320ms cubic-bezier(0.22,1,0.36,1)' }}
         aria-hidden={!showBuyBar}>
         <div className="max-w-5xl mx-auto px-5 sm:px-8 py-2.5 flex items-center gap-4">
-          <img src={gallery[0]} alt="" className="w-10 h-10 rounded-xl object-cover flex-shrink-0 hidden sm:block" style={{ border: '1px solid var(--bd)' }}
+          <img src={gallery[0]} alt="" aria-hidden className="w-10 h-10 rounded-xl object-cover flex-shrink-0 hidden sm:block" style={{ border: '1px solid var(--bd)' }}
             onError={e => { (e.target as HTMLImageElement).src = '/images/products/wax-block-spin.webp'; }} />
           <div className="min-w-0 flex-1">
             <p className="text-[13px] font-semibold leading-tight truncate" style={{ color: 'var(--tx1)' }}>{titleText}</p>
@@ -903,7 +905,7 @@ export function ProductDetailPage() {
         </div>
       </div>
 
-      {lightboxOpen && <ImageLightbox images={gallery} activeIndex={activeImage} onClose={() => setLightboxOpen(false)} onChange={(i) => setActiveImage(i)} />}
+      {lightboxOpen && <ImageLightbox images={gallery} activeIndex={activeImage} onClose={() => setLightboxOpen(false)} onChange={(i) => setActiveImage(i)} alt={titleText} />}
 
       <style>{`
         @keyframes pdp-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
