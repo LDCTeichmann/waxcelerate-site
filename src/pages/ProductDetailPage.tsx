@@ -395,7 +395,7 @@ export function ProductDetailPage() {
             {/* No backdrop-filter: at 96% opacity there's only a 4% sliver of
                 backdrop showing through, so a blur(40px) here cost real
                 compositing work for a practically invisible effect. */}
-            <div className="pdp-hero-card rounded-[22px] overflow-hidden"
+            <div className="pdp-hero-card rounded-[28px] overflow-hidden"
               style={{
                 background: 'rgba(255,255,255,0.96)',
                 boxShadow: '0 24px 64px -16px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.15)',

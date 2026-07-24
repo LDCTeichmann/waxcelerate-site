@@ -108,7 +108,7 @@ export function WhyWax() {
   const benefits = buildBenefits(de);
 
   return (
-    <section id="warum-wachs" ref={sectionRef} className="relative py-24 sm:py-32 bg-wx-sf">
+    <section id="warum-wachs" ref={sectionRef} className="relative py-20 sm:py-28 bg-wx-sf">
 
       <div className="absolute top-0 left-0 right-0 pointer-events-none"
         style={{ height: '56px', background: 'linear-gradient(to bottom, var(--sf), transparent)', zIndex: 1 }} />
