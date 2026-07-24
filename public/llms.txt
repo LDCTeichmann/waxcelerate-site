@@ -5,41 +5,64 @@
 Waxcelerate ist ein deutsches Kleinunternehmen, gegründet von Luca Teichmann (Medizinstudent, Stuttgart).
 189 eBay-Bewertungen, 100% positives Feedback. Verkauf seit 2024.
 
-Produkte: Heißwachs in vier Varianten (Classic/Pro, 300g/500g) und acht vorgewachste Fahrradketten.
+Produkte: Heißwachs in vier Varianten (Classic/Pro, 300g/500g) und 8 vorgewachste Fahrradketten.
 Hauptvorteil gegenüber Kettenöl: trockener Film, keine Schmutzaufnahme, Kettenlaufzeit 3× länger, Reibungskoeffizient 0,03–0,06.
 
 ## Wichtigste Seiten
 
 - [Startseite](https://waxcelerate.de/): Produkte, Vergleich, Anleitungen, FAQ
-- [Blog-Übersicht](https://waxcelerate.de/blog): Ratgeber und Anleitungen
+- [Blog-Übersicht](https://waxcelerate.de/blog): 18 Ratgeber und Anleitungen
 
 ## Produkte — Wachs
 
-- [Kettenwachs 500g Classic (29,95 €)](https://waxcelerate.de/produkt/wax-500): Paraffinbasis mit PTFE, Reibungskoeffizient 0,05–0,07, 20–32 Anwendungen
-- [Kettenwachs 300g Classic (22,95 €)](https://waxcelerate.de/produkt/wax-300): Einsteigergröße, gleiche Formel, 10–15 Anwendungen
-- [Kettenwachs 500g Pro mit MoS₂ (34,95 €)](https://waxcelerate.de/produkt/wax-500-mos2): Ganzjahresvariante, Reibungskoeffizient 0,03–0,06, hydrophobe Matrix
-- [Kettenwachs 300g Pro mit MoS₂ (26,95 €)](https://waxcelerate.de/produkt/wax-300-mos2): Pro-Formel, Kompaktformat, 10–15 Anwendungen
+- [Kettenwachs 500g — Classic (29,95 €)](https://waxcelerate.de/produkt/wax-500): Der Einstieg — und für die meisten der einzige Block, den sie je brauchen. Sauberer Antrieb, kein Nachschmieren, kein Dreck. Ideal für Frühling bis Herbst.
+- [Kettenwachs 300g — Classic (22,95 €)](https://waxcelerate.de/produkt/wax-300): Gleiche Formel wie der 500g-Block — nur kleiner. Perfekt zum Ausprobieren, als Reiseblock oder wenn du selten wächst.
+- [Kettenwachs 500g — Pro (34,95 €)](https://waxcelerate.de/produkt/wax-500-mos2): Für Herbst, Winter und nasse Ausfahrten. MoS₂ bildet einen festeren Transferfilm — längere Intervalle, weniger Rost, flexibel bis −8 °C.
+- [Kettenwachs 300g — Pro (26,95 €)](https://waxcelerate.de/produkt/wax-300-mos2): Pro-Formel kompakt — für Fahrer, die zwischen Sommer und Winter die Formel wechseln, oder als Winterblock zum Mitnehmen.
 
 ## Produkte — Vorgewachste Ketten
 
-- [Shimano Ultegra HG701 11-fach (44,90 €)](https://waxcelerate.de/produkt/chain-hg701)
-- [YBN 11S 11-fach (34,95 €)](https://waxcelerate.de/produkt/chain-ybn11)
-- [SRAM Force PC-1170 11-fach (39,95 €)](https://waxcelerate.de/produkt/chain-force)
-- [Shimano Dura-Ace/XTR CN-M9100 12-fach (69,95 €)](https://waxcelerate.de/produkt/chain-m9100)
-- [Shimano XT/Ultegra CN-M8100 12-fach (54,95 €)](https://waxcelerate.de/produkt/chain-m8100)
-- [Shimano SLX/105 CN-M7100 12-fach (44,95 €)](https://waxcelerate.de/produkt/chain-m7100)
-- [SRAM NX Eagle 12-fach (44,95 €)](https://waxcelerate.de/produkt/chain-nx)
-- [YBN S12S 12-fach (39,95 €)](https://waxcelerate.de/produkt/chain-ybn12)
+- [Shimano Ultegra HG701 11-fach — vorgewachst (44,90 €)](https://waxcelerate.de/produkt/chain-hg701)
+- [YBN 11S 11-fach — vorgewachst (34,95 €)](https://waxcelerate.de/produkt/chain-ybn11)
+- [SRAM Force PC-1170 11-fach — vorgewachst (39,95 €)](https://waxcelerate.de/produkt/chain-force)
+- [Shimano Dura-Ace / XTR CN-M9100 12-fach — vorgewachst (69,95 €)](https://waxcelerate.de/produkt/chain-m9100)
+- [Shimano XT / Ultegra CN-M8100 12-fach — vorgewachst (54,95 €)](https://waxcelerate.de/produkt/chain-m8100)
+- [Shimano SLX / 105 CN-M7100 12-fach — vorgewachst (44,95 €)](https://waxcelerate.de/produkt/chain-m7100)
+- [SRAM NX Eagle 12-fach — vorgewachst (44,95 €)](https://waxcelerate.de/produkt/chain-nx)
+- [YBN S12S 12-fach — vorgewachst (39,95 €)](https://waxcelerate.de/produkt/chain-ybn12)
 
 ## Blog / Ratgeber
 
-- [Heißwachs vs. Flüssigwachs](https://waxcelerate.de/blog/heisswachs-vs-fluessigwachs): Ehrlicher Vergleich mit Reibungswerten, Intervallen, Kosten
-- [Fahrradkette entfetten](https://waxcelerate.de/blog/fahrradkette-entfetten): Isopropanol, Aceton, Ultraschall — Methoden und Fehler
-- [Kettenlaufzeit Heißwachs](https://waxcelerate.de/blog/kettenlaufzeit-heisswachs): Intervalle, Haltbarkeit, Kostenrechnung über 15.000 km
-- [Heißwachs Anleitung](https://waxcelerate.de/blog/heisswachs-anleitung): Vollständige Schritt-für-Schritt-Anleitung
-- [MoS₂ Kettenwachs](https://waxcelerate.de/blog/mos2-kettenwachs): Was Molybdändisulfid im Wachs bewirkt — Physik, Einsatzgebiete, Unterschied zu Classic
-- [Kettenwachs für Rennrad & Gravelbike](https://waxcelerate.de/blog/kettenwachs-rennrad-gravelbike): Warum Heißwachs besonders für sportliche Fahrer sinnvoll ist
+**Grundlagen:**
+- [Heißwachs vs. Flüssigwachs: Der Vergleich](https://waxcelerate.de/blog/heisswachs-vs-fluessigwachs): Heißwachs oder Flüssigwachs für die Fahrradkette? Wir vergleichen Reibungswerte, Intervalle und Kosten – ehrlich und ohne Marketing.
+- [Kettenwachs: Intervalle, Laufzeit & Kostenrechnung](https://waxcelerate.de/blog/kettenlaufzeit-heisswachs): Wie lange hält Kettenwachs wirklich? Intervalle, Kettenlaufzeit und eine ehrliche Kostenrechnung von Heißwachs vs. Öl über 15.000 km.
+- [Kettenwachs FAQ: 15 Fragen, kurz beantwortet](https://waxcelerate.de/blog/kettenwachs-faq): Die häufigsten Fragen zu Heißwachs für Fahrradketten – jeweils in zwei, drei Sätzen beantwortet. Für alle, die nur schnell eine Antwort brauchen.
+
+**Anleitung:**
+- [Fahrradkette entfetten – richtig vor dem Wachsen](https://waxcelerate.de/blog/fahrradkette-entfetten): Fahrradkette entfetten vor dem Heißwachsen: Warum es zwingend notwendig ist, welche Mittel wirklich funktionieren und häufige Fehler vermeiden.
+- [Heißwachs Anleitung: Schritt für Schritt](https://waxcelerate.de/blog/heisswachs-anleitung): Schritt-für-Schritt-Anleitung zum Wachsen einer Fahrradkette mit Heißwachs – von der Ausrüstung über die richtige Temperatur bis zum fertigen Ergebnis.
+- [Die Hybrid-Methode: Heißwachs + Tropfwachs](https://waxcelerate.de/blog/tropfwachs-hybrid-methode): Heißwachs und Tropfwachs kombinieren: Wie du mit der Hybrid-Methode seltener heiß wachsen musst, ohne die Kette abzunehmen – und worauf zu achten ist.
+- [Von Öl auf Wachs umsteigen](https://waxcelerate.de/blog/von-oel-auf-wachs-umsteigen): Du willst von Kettenöl auf Heißwachs umsteigen? Schritt für Schritt: Antrieb reinigen, Kette entfetten, erstes Wachsbad und die Einfahrphase richtig machen.
+- [Schnellverschluss: welcher & wie oft?](https://waxcelerate.de/blog/schnellverschluss-quicklink): Welcher Schnellverschluss passt zu deiner Kette, wie oft darf man einen Quick-Link wiederverwenden und wie öffnet man ihn ohne Werkzeug? Die Praxis-Antworten.
+
+**Technik:**
+- [MoS₂ Kettenwachs erklärt](https://waxcelerate.de/blog/mos2-kettenwachs): Was ist Molybdändisulfid (MoS₂) und warum ist es im Kettenwachs sinnvoll? Physik, Einsatzgebiete und wann Classic ausreicht.
+- [Kettenverschleiß messen: wann wechseln?](https://waxcelerate.de/blog/kettenverschleiss-messen): Kettenverschleiß richtig messen: Was die 0,5-%-Grenze bedeutet, wie eine Kettenlehre funktioniert und warum eine gewachste Kette deutlich länger hält.
+- [Wachs entsorgen & Topf pflegen](https://waxcelerate.de/blog/wachs-entsorgen-topf-pflegen): Wie lange hält ein Wachsbad, wie filtert man es sauber, wann muss das Wachs raus und wie entsorgt man Altwachs richtig? Plus: Wie nachhaltig ist Paraffinwachs?
+
+**Kaufberatung:**
+- [Kettenwachs für Rennrad & Gravelbike](https://waxcelerate.de/blog/kettenwachs-rennrad-gravelbike): Für Rennrad- und Gravelbike-Fahrer lohnt sich Heißwachs besonders: niedrigste Reibung, sauberer Antrieb, längere Kettenlaufzeit. Was zu beachten ist.
+- [Lohnt sich eine vorgewachste Kette?](https://waxcelerate.de/blog/vorgewachste-kette): Vorgewachste Fahrradkette kaufen: Was eine fertig gewachste Kette leistet, für wen sie sich lohnt und worauf du beim Kauf achten solltest.
+- [Welcher Topf zum Kettenwachsen?](https://waxcelerate.de/blog/topf-zum-kette-wachsen): Slow Cooker, Reiskocher oder einfacher Topf zum Kette wachsen? Was wirklich funktioniert, worauf es bei der Temperatur ankommt – und was du nicht brauchst.
+- [E-Bike-Kette wachsen](https://waxcelerate.de/blog/ebike-kette-wachsen): E-Bike-Ketten verschleißen durch das hohe Drehmoment schneller. Warum Heißwachs den Antrieb besonders schont, was zu beachten ist und welches Wachs passt.
+
+**Problemlösung:**
+- [Wachs hält nicht? Die 7 häufigsten Fehler](https://waxcelerate.de/blog/wachs-haelt-nicht-haeufige-fehler): Wachs blättert ab, die Kette quietscht nach 50 km, weißes Pulver überall? Die häufigsten Heißwachs-Fehler – und wie du sie wirklich behebst.
+- [Die erste Fahrt nach dem Wachsen](https://waxcelerate.de/blog/erste-fahrt-nach-wachsen): Weißes Pulver, eine steife Kette, leise Knackgeräusche nach dem Wachsen? Was bei den ersten Kilometern völlig normal ist – und welche Zeichen wirklich auf einen Fehler hindeuten.
+
+**Saison:**
+- [Kettenwachs im Winter: die ehrliche Wahrheit](https://waxcelerate.de/blog/kettenwachs-winter): Funktioniert Heißwachs im Winter? Was Streusalz und Dauernässe mit der Wachsschicht machen, wann Wachs überzeugt – und wann Öl die bessere Wahl ist.
 
 ## Vollständige Inhalte für KI-Agenten
 
-- [llms-full.txt](https://waxcelerate.de/llms-full.txt): Alle Produkte, FAQ, Anleitungen als vollständiger Markdown-Text
+- [llms-full.txt](https://waxcelerate.de/llms-full.txt): Alle Produkte und alle 18 Ratgeber-Artikel als vollständiger Markdown-Text
