@@ -250,8 +250,8 @@ export function Hero() {
           <div
             ref={blockRef}
             className="absolute z-[5] pointer-events-none will-change-transform
-                       left-[70%] top-[27%] -translate-x-1/2 -translate-y-1/2
-                       w-[clamp(155px,35%,220px)]
+                       left-[68%] top-[13%] -translate-x-1/2 -translate-y-1/2
+                       w-[clamp(92px,22%,132px)]
                        sm:left-[60%] sm:top-[50%] sm:w-[clamp(280px,30%,460px)]
                        lg:left-[62%] lg:top-[50%] lg:w-[clamp(360px,27%,650px)]"
           >
@@ -366,7 +366,7 @@ export function Hero() {
                     className="text-[9px] sm:text-[11px] uppercase tabular-nums"
                     style={{ letterSpacing: '0.08em', color: 'rgba(255,255,255,0.68)' }}
                   >
-                    171 · {de ? '100 % positiv' : '100% positive'}
+                    189 · {de ? '100 % positiv' : '100% positive'}
                     <span className="hidden sm:inline"> · {de ? 'eBay-Käuferschutz' : 'eBay buyer protection'}</span>
                   </span>
                 </div>
