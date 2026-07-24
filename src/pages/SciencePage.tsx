@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Link, useLocation } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, ChevronDown, ChevronsLeftRight, Gauge, Clock, Droplets, Sparkles } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -715,8 +716,32 @@ export function SciencePage() {
   const scrollToAnchor = (id: string) =>
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
+  const title = de
+    ? 'Die Wissenschaft hinter Heißwachs — MoS₂, Reibung & Formel | Waxcelerate'
+    : 'The Science Behind Hot Wax — MoS₂, Friction & Formula | Waxcelerate';
+  const description = de
+    ? 'Reibungskoeffizient, MoS₂-Additiv, Kontaktdruck, Kristallstruktur: die sechs Komponenten hinter Waxcelerate Kettenwachs, gemessen statt behauptet. Entwickelt und produziert in Stuttgart.'
+    : 'Friction coefficient, MoS₂ additive, contact pressure, crystal structure: the six components behind Waxcelerate chain wax, measured not claimed. Developed and made in Stuttgart, Germany.';
+  const pageSchema = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'TechArticle',
+    headline: title,
+    description,
+    url: 'https://waxcelerate.de/wissenschaft',
+    inLanguage: de ? 'de-DE' : 'en',
+    about: ['Molybdändisulfid', 'MoS2', 'Kettenwachs', 'Reibungskoeffizient', 'Tribologie'],
+    publisher: { '@type': 'Organization', name: 'Waxcelerate', url: 'https://waxcelerate.de' },
+  });
+
   return (
     <div className="min-h-screen bg-wx-bg">
+      <Helmet>
+        <title>{title}</title>
+        <meta name="description" content={description} />
+        <link rel="canonical" href="https://waxcelerate.de/wissenschaft" />
+        <script type="application/ld+json">{pageSchema}</script>
+      </Helmet>
+
       <Navigation />
 
       <ScienceHero de={de} />
