@@ -114,6 +114,15 @@ export function ProductDetailPage() {
     return () => ctx.revert();
   }, [id, reduce]);
 
+  // Must run unconditionally, before the `!product` early return below —
+  // React requires the same hooks in the same order on every render, and
+  // `id` can change from a valid to an invalid product between renders of
+  // this same mounted component (client-side nav between product pages).
+  const formatPrice = useCallback((price: number) =>
+    new Intl.NumberFormat(lang === 'de' ? 'de-DE' : 'en-US', {
+      style: 'currency', currency: 'EUR',
+    }).format(price), [lang]);
+
   if (!product) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4" style={{ background: 'var(--pg)' }}>
@@ -133,11 +142,6 @@ export function ProductDetailPage() {
   const accentColor = isPro ? '#4A72D4' : 'var(--accent-soft)';
   const accentBg = isPro ? 'rgba(74,114,212,0.06)' : 'rgba(43,82,176,0.06)';
   const cardAccent = isPro ? '#4A72D4' : '#2B52B0';
-
-  const formatPrice = useCallback((price: number) =>
-    new Intl.NumberFormat(lang === 'de' ? 'de-DE' : 'en-US', {
-      style: 'currency', currency: 'EUR',
-    }).format(price), [lang]);
 
   const highlights = de ? product.highlights : product.highlightsEn;
   const descriptionText = de ? product.description : product.descriptionEn;

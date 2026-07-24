@@ -78,14 +78,19 @@ function ColdFlex({ de }: { de: boolean }) {
 }
 
 // MoS₂ — S–Mo–S layers shearing (the star viz, echoing HexMoS2's glow cues)
-function Shear({ de }: { de: boolean }) {
-  const sx = [44, 76, 108, 140, 172, 204];
-  const Row = ({ y, soft, r, dx = 0 }: { y: number; soft?: boolean; r: number; dx?: number }) =>
-    <>{sx.map((x, i) => (
+const SHEAR_SX = [44, 76, 108, 140, 172, 204];
+
+function ShearRow({ y, soft, r, dx = 0 }: { y: number; soft?: boolean; r: number; dx?: number }) {
+  return (
+    <>{SHEAR_SX.map((x, i) => (
       <circle key={i} cx={x + dx} cy={y} r={r}
         fill={soft ? 'rgba(var(--accent-rgb),0.55)' : 'var(--accent-soft)'}
         style={soft ? undefined : { filter: 'drop-shadow(0 0 4px rgba(var(--accent-rgb),0.55))' }} />
-    ))}</>;
+    ))}</>
+  );
+}
+
+function Shear({ de }: { de: boolean }) {
   return (
     <Fig vb="0 0 240 150" label="MoS2 layer shear"
       cap={de ? 'Schwache Bindung zwischen S–Mo–S-Schichten → Reibung μ 0,03.' : 'Weak bonding between S–Mo–S layers → friction μ 0.03.'}>
@@ -95,16 +100,16 @@ function Shear({ de }: { de: boolean }) {
       <text className="num-data" fontSize={8} fill="var(--txf)" x={10} y={42}>Mo</text>
       <text className="num-data" fontSize={8} fill="var(--txf)" x={12} y={58}>S</text>
       {/* top sandwich, shifted right */}
-      <Row y={24} soft r={4.5} dx={10} />
-      <Row y={40} r={6.5} dx={10} />
-      <Row y={56} soft r={4.5} dx={10} />
+      <ShearRow y={24} soft r={4.5} dx={10} />
+      <ShearRow y={40} r={6.5} dx={10} />
+      <ShearRow y={56} soft r={4.5} dx={10} />
       <line x1={150} y1={12} x2={196} y2={12} stroke="var(--accent-soft)" strokeWidth={1.6} markerEnd="url(#sh-arrow)" />
       {/* van-der-Waals gap */}
       <line x1={14} y1={75} x2={226} y2={75} stroke="rgba(var(--accent-rgb),0.30)" strokeWidth={1} strokeDasharray="6 5" />
       {/* bottom sandwich, shifted left */}
-      <Row y={94} soft r={4.5} dx={-10} />
-      <Row y={110} r={6.5} dx={-10} />
-      <Row y={126} soft r={4.5} dx={-10} />
+      <ShearRow y={94} soft r={4.5} dx={-10} />
+      <ShearRow y={110} r={6.5} dx={-10} />
+      <ShearRow y={126} soft r={4.5} dx={-10} />
       <line x1={90} y1={138} x2={44} y2={138} stroke="var(--accent-soft)" strokeWidth={1.6} markerEnd="url(#sh-arrow)" />
     </Fig>
   );

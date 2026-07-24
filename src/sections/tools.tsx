@@ -712,7 +712,7 @@ export function Tools() {
         gsap.set(ref.current, props);
       }
     });
-  }, [activeCard, cardRefs]); // eslint-disable-line
+  }, [activeCard, cardRefs]);
 
   // ── Mobile tab state ──────────────────────────────────────────────────────
   const TAB_LABELS = useMemo(() =>
@@ -746,7 +746,7 @@ export function Tools() {
       gsap.set(pill, { x: pillX(btnRect, barRect), width: btnRect.width });
     });
     return () => cancelAnimationFrame(frame);
-  }, []); // eslint-disable-line
+  }, []);
 
   useEffect(() => {
     const btn = tabButtonRefs.current[activeTab];
@@ -779,7 +779,7 @@ export function Tools() {
     });
     observer.observe(bar);
     return () => observer.disconnect();
-  }, []); // eslint-disable-line
+  }, []);
 
   return (
     <section id="tools" className="relative py-20 sm:py-28" style={{ background: 'var(--tool-bg)' }}>

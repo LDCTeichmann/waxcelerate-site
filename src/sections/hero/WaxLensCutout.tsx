@@ -24,7 +24,7 @@ export function WaxLensCutout({ waxRef, enabled, de, onOpen, onActiveChange }: {
 }) {
   const lensRef = useRef<HTMLDivElement>(null);
   const activeCb = useRef(onActiveChange);
-  activeCb.current = onActiveChange;
+  useEffect(() => { activeCb.current = onActiveChange; }, [onActiveChange]);
 
   useEffect(() => {
     if (!enabled) return;

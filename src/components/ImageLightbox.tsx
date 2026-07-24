@@ -36,7 +36,9 @@ export function ImageLightbox({ images, activeIndex, onClose, onChange, alt }: I
       onTouchStart={e => { touchStartX.current = e.touches[0].clientX; }}
       onTouchEnd={e => {
         const delta = e.changedTouches[0].clientX - touchStartX.current;
-        if (Math.abs(delta) > 50) delta < 0 ? onNext() : onPrev();
+        if (Math.abs(delta) > 50) {
+          if (delta < 0) onNext(); else onPrev();
+        }
       }}
     >
       {/* Content — stop propagation so clicking image doesn't close */}

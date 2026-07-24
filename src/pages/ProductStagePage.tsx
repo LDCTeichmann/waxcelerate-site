@@ -25,6 +25,10 @@ export function ProductStagePage() {
   const [prev, setPrev] = useState(-1);
   const autoRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pausedRef = useRef(false);
+  // Mirrors pausedRef for the JSX below — refs can't be read during render
+  // (no re-render is triggered when they change), so the progress-dot
+  // animation needs actual state to reflect pause/resume correctly.
+  const [paused, setPaused] = useState(false);
   const stageRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const reduce = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -66,9 +70,10 @@ export function ProductStagePage() {
     return () => { if (autoRef.current) clearInterval(autoRef.current); };
   }, [next, reduce, total]);
 
-  const pause = useCallback(() => { pausedRef.current = true; }, []);
+  const pause = useCallback(() => { pausedRef.current = true; setPaused(true); }, []);
   const resume = useCallback(() => {
     pausedRef.current = false;
+    setPaused(false);
     if (autoRef.current) clearInterval(autoRef.current);
     autoRef.current = setInterval(() => {
       if (!pausedRef.current) next();
@@ -254,7 +259,7 @@ export function ProductStagePage() {
                 }}
                 aria-label={`Image ${i + 1}`}
               >
-                {i === active && !pausedRef.current && (
+                {i === active && !paused && (
                   <span
                     className="absolute inset-0 rounded-full origin-left"
                     style={{
