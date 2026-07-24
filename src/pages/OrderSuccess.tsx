@@ -23,7 +23,7 @@ export function OrderSuccess() {
       {/* Icon */}
       <div
         className="w-16 h-16 rounded-full flex items-center justify-center"
-        style={{ background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.30)' }}
+        style={{ background: 'rgba(var(--ok-rgb),0.12)', border: '1px solid rgba(var(--ok-rgb),0.30)' }}
       >
         <CheckCircle className="h-8 w-8 text-green-400" />
       </div>
@@ -38,7 +38,7 @@ export function OrderSuccess() {
       <Link
         to="/"
         className="flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-white text-sm transition-all hover:opacity-90"
-        style={{ background: '#1A3C6E' }}
+        style={{ background: 'var(--accent)' }}
       >
         {t.cart.backHome}
       </Link>

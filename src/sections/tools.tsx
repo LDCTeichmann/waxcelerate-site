@@ -6,55 +6,8 @@ import { useSectionReveal } from '@/hooks/useAnimation';
 import { waxIntervals } from '@/lib/data';
 import { gsap } from '@/lib/gsap';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
+import { AnimatedNumber } from '@/components/viz';
 
-
-// ─── Animated number ticker ───────────────────────────────────────────────────
-function AnimatedNumber({
-  value,
-  prefix = '',
-  suffix = '',
-  decimals = 0,
-  className,
-  style,
-}: {
-  value: number;
-  prefix?: string;
-  suffix?: string;
-  decimals?: number;
-  className?: string;
-  style?: React.CSSProperties;
-}) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const prev = useRef(value);
-  const tweenRef = useRef<gsap.core.Tween | null>(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const from = prev.current;
-    const to = value;
-    prev.current = to;
-    if (from === to) return;
-
-    tweenRef.current?.kill();
-    const counter = { val: from };
-    tweenRef.current = gsap.to(counter, {
-      val: to,
-      duration: 0.38,
-      ease: 'power2.out',
-      onUpdate: () => {
-        el.textContent = `${prefix}${counter.val.toFixed(decimals)}${suffix}`;
-      },
-    });
-  }, [value, prefix, suffix, decimals]);
-
-  const fmt = value.toFixed(decimals);
-  return (
-    <span ref={ref} className={className} style={style}>
-      {prefix}{fmt}{suffix}
-    </span>
-  );
-}
 
 // ─── Toggle button — blue accent active state ────────────────────────────────
 function TogButton({
@@ -69,12 +22,10 @@ function TogButton({
   return (
     <button
       onClick={onClick}
-      className="px-4 py-2 rounded-xl text-[13px] transition-all cursor-pointer"
+      className={`px-4 py-2 rounded-xl text-[13px] transition-all cursor-pointer${active ? ' chip-active' : ''}`}
       style={{
-        border: `1px solid ${active ? 'rgba(59,100,210,0.55)' : 'var(--tog-bd)'}`,
-        background: active
-          ? 'linear-gradient(135deg, rgba(26,60,110,0.28) 0%, rgba(26,60,110,0.12) 100%)'
-          : 'var(--tog-bg)',
+        border: active ? undefined : '1px solid var(--tog-bd)',
+        background: active ? undefined : 'var(--tog-bg)',
         color: active ? 'var(--tx1)' : 'var(--tog-fg)',
         fontWeight: active ? 500 : 400,
         boxShadow: 'none',
@@ -86,16 +37,18 @@ function TogButton({
 }
 
 // ─── Shared card wrapper ──────────────────────────────────────────────────────
+// No backdrop-filter here: var(--card-bg) is a fully opaque gradient (see
+// index.css), so blurring whatever sits behind an opaque card is invisible —
+// pure wasted compositing work (and, with 5 of these cards on the page, a
+// likely source of the scroll/render jank reported around this section).
 function ToolCard({ children }: { children: React.ReactNode }) {
   return (
     <div
       className="flex flex-col h-full rounded-3xl"
       style={{
-        background: 'linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%)',
+        background: 'var(--card-bg)',
         border: '1px solid var(--bd)',
         boxShadow: 'var(--card-shad)',
-        backdropFilter: 'blur(24px)',
-        WebkitBackdropFilter: 'blur(24px)',
       }}
     >
       {children}
@@ -111,8 +64,8 @@ function ToolHeader({ icon, title, subtitle }: { icon: React.ReactNode; title: s
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
           style={{
-            background: 'linear-gradient(135deg, rgba(26,60,110,0.22) 0%, rgba(26,60,110,0.06) 100%)',
-            border: '1px solid rgba(26,60,110,0.30)',
+            background: 'linear-gradient(135deg, rgba(var(--accent-rgb),0.22) 0%, rgba(var(--accent-rgb),0.06) 100%)',
+            border: '1px solid rgba(var(--accent-rgb),0.30)',
           }}
         >
           {icon}
@@ -345,7 +298,8 @@ function WaxStockCalculator() {
   const de = lang === 'de';
 
   type FreqKey = 'frequent' | 'regular' | 'occasional' | 'rare';
-  const [freq, setFreq] = useState<FreqKey | null>(null);
+  // Default to 'regular' so a meaningful recommendation shows immediately on load.
+  const [freq, setFreq] = useState<FreqKey>('regular');
 
   const freqOpts: { value: FreqKey; label: string; hint: string; km: string; rewaxPerMonth: number }[] = [
     { value: 'frequent',   label: de ? 'Alle 2–3 Wochen' : 'Every 2–3 weeks',  hint: de ? 'Vielfahrer · Rennsport' : 'Heavy rider · Racing',  km: de ? '~150 km/Wo.' : '~150 km/wk',  rewaxPerMonth: 1.67 },
@@ -403,12 +357,10 @@ function WaxStockCalculator() {
               <button
                 key={o.value}
                 onClick={() => setFreq(o.value)}
-                className="rounded-xl px-3 py-3 text-left transition-all cursor-pointer"
+                className={`rounded-xl px-3 py-3 text-left transition-all cursor-pointer${freq === o.value ? ' chip-active' : ''}`}
                 style={{
-                  border: `1px solid ${freq === o.value ? 'rgba(59,100,210,0.55)' : 'var(--tog-bd)'}`,
-                  background: freq === o.value
-                    ? 'linear-gradient(135deg, rgba(26,60,110,0.28) 0%, rgba(26,60,110,0.12) 100%)'
-                    : 'var(--tog-bg)',
+                  border: freq === o.value ? undefined : '1px solid var(--tog-bd)',
+                  background: freq === o.value ? undefined : 'var(--tog-bg)',
                 }}
               >
                 <p className="text-[13px] font-medium leading-snug" style={{ color: freq === o.value ? 'var(--tx1)' : 'var(--tog-fg)' }}>
@@ -433,7 +385,7 @@ function WaxStockCalculator() {
               <div
                 className="rounded-xl p-4 transition-opacity group-hover:opacity-80"
                 style={{
-                  background: 'var(--sf3)',
+                  background: 'var(--sf)',
                   border: '1px solid var(--brand)',
                 }}
               >
@@ -582,7 +534,7 @@ function RotationAndSavings() {
             <AnimatedNumber
               value={recData.annualSavings}
               prefix="~€"
-              className="font-serif-display italic text-[56px] font-bold leading-none tabular-nums"
+              className="num text-[56px] font-bold leading-none"
               style={{ color: 'var(--tx1)' }}
             />
             <div className="flex flex-col items-start gap-0.5">
@@ -631,7 +583,7 @@ function RotationAndSavings() {
                   key={n}
                   className="rounded-2xl flex flex-col"
                   style={{
-                    background: isRec ? 'rgba(26,60,110,0.08)' : 'var(--sf3)',
+                    background: isRec ? 'rgba(var(--accent-rgb),0.08)' : 'var(--sf)',
                     border: isRec ? '1.5px solid var(--brand)' : '1px solid var(--bd2)',
                     padding: '12px 10px',
                   }}
@@ -647,7 +599,7 @@ function RotationAndSavings() {
                     {cardDiscountPct > 0 && (
                       <span
                         className="rounded px-1 py-0.5 text-[8px] font-semibold leading-none"
-                        style={{ background: 'rgba(43,84,153,0.12)', color: 'var(--brand)' }}
+                        style={{ background: 'var(--accent-wash)', color: 'var(--brand)' }}
                       >
                         −{cardDiscountPct}%
                       </span>
@@ -760,7 +712,7 @@ export function Tools() {
         gsap.set(ref.current, props);
       }
     });
-  }, [activeCard, cardRefs]); // eslint-disable-line
+  }, [activeCard, cardRefs]);
 
   // ── Mobile tab state ──────────────────────────────────────────────────────
   const TAB_LABELS = useMemo(() =>
@@ -771,6 +723,14 @@ export function Tools() {
   const tabBarRef = useRef<HTMLDivElement>(null);
   const tabButtonRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const tabPillRef = useRef<HTMLDivElement>(null);
+  const touchStart = useRef<{ x: number; y: number; isSlider: boolean }>({ x: 0, y: 0, isSlider: false });
+  const [swipeHintShown, setSwipeHintShown] = useState(false);
+
+  useEffect(() => {
+    if (swipeHintShown) return;
+    const t = setTimeout(() => setSwipeHintShown(true), 3000);
+    return () => clearTimeout(t);
+  }, [swipeHintShown]);
 
   const pillX = (btnRect: DOMRect, barRect: DOMRect) =>
     btnRect.left - barRect.left - 1;
@@ -786,7 +746,7 @@ export function Tools() {
       gsap.set(pill, { x: pillX(btnRect, barRect), width: btnRect.width });
     });
     return () => cancelAnimationFrame(frame);
-  }, []); // eslint-disable-line
+  }, []);
 
   useEffect(() => {
     const btn = tabButtonRefs.current[activeTab];
@@ -819,15 +779,15 @@ export function Tools() {
     });
     observer.observe(bar);
     return () => observer.disconnect();
-  }, []); // eslint-disable-line
+  }, []);
 
   return (
-    <section id="tools" className="relative py-24" style={{ background: 'var(--tool-bg)' }}>
+    <section id="tools" className="relative py-20 sm:py-28" style={{ background: 'var(--tool-bg)' }}>
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-6xl mx-auto">
 
           <div ref={headerRef} className="mb-16">
-            <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1 mb-4">
+            <h2 className="section-title mb-4">
               <ScrollWordReveal text={t.tools.title} />
             </h2>
             <p data-reveal="subtitle" className="text-wx-tx2 max-w-xl text-[15px]">
@@ -835,7 +795,7 @@ export function Tools() {
             </p>
           </div>
 
-          {/* ── Mobile / tablet: tab switcher (up to lg) ── */}
+          {/* ── Mobile / tablet: swipeable tabs (up to lg) ── */}
           <div className="lg:hidden">
             <div
               ref={tabBarRef}
@@ -867,9 +827,60 @@ export function Tools() {
                 </button>
               ))}
             </div>
-            {activeTab === 0 && <RewaxCalculator />}
-            {activeTab === 1 && <WaxStockCalculator />}
-            {activeTab === 2 && <RotationAndSavings />}
+            <div
+              className="overflow-hidden"
+              onTouchStart={e => {
+                const target = e.target as HTMLElement;
+                touchStart.current = {
+                  x: e.touches[0].clientX,
+                  y: e.touches[0].clientY,
+                  isSlider: !!target.closest('[role="slider"], [data-orientation]'),
+                };
+              }}
+              onTouchEnd={e => {
+                if (touchStart.current.isSlider) return;
+                const dx = e.changedTouches[0].clientX - touchStart.current.x;
+                const dy = e.changedTouches[0].clientY - touchStart.current.y;
+                if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+                  if (dx < 0 && activeTab < 2) setActiveTab(activeTab + 1);
+                  if (dx > 0 && activeTab > 0) setActiveTab(activeTab - 1);
+                }
+              }}
+            >
+              <div
+                className="flex transition-transform duration-300 ease-out"
+                style={{ transform: `translateX(-${activeTab * 100}%)` }}
+              >
+                <div className="min-w-full"><RewaxCalculator /></div>
+                <div className="min-w-full"><WaxStockCalculator /></div>
+                <div className="min-w-full"><RotationAndSavings /></div>
+              </div>
+            </div>
+            {/* Swipe hint + dot indicators */}
+            <div className="flex flex-col items-center gap-2 mt-4">
+              <div className="flex items-center gap-2">
+                {TAB_LABELS.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setActiveTab(i)}
+                    className="transition-all duration-300"
+                    aria-label={TAB_LABELS[i]}
+                    style={{
+                      width: i === activeTab ? '20px' : '6px',
+                      height: '6px',
+                      borderRadius: '3px',
+                      background: i === activeTab ? 'var(--accent)' : 'var(--bd)',
+                    }}
+                  />
+                ))}
+              </div>
+              <p
+                className="text-[10px] tracking-[0.08em] transition-opacity duration-700"
+                style={{ color: 'var(--txff)', opacity: swipeHintShown ? 0 : 0.7 }}
+              >
+                ← {de ? 'wischen' : 'swipe'} →
+              </p>
+            </div>
           </div>
 
           {/* ── Desktop: 3-card streaming deck (lg+) ── */}
@@ -878,7 +889,7 @@ export function Tools() {
             style={{
               height: DECK_HEIGHT,
               overflow: 'hidden',
-              background: 'radial-gradient(ellipse 55% 60% at 50% 50%, rgba(26,60,110,0.07) 0%, transparent 70%)',
+              background: 'radial-gradient(ellipse 55% 60% at 50% 50%, rgba(var(--accent-rgb),0.07) 0%, transparent 70%)',
             }}
           >
             {([cardRef0, cardRef1, cardRef2] as const).map((ref, i) => (
@@ -900,7 +911,13 @@ export function Tools() {
                   {i === 2 && <RotationAndSavings />}
                 </div>
 
-                {/* Inactive overlay: frosted glass tint */}
+                {/* Inactive overlay: frosted glass tint. (Previously swapped to a
+                    72%-opacity light wash chasing a muddy/greenish cast — that cast
+                    actually came from the `--sf3` solid fills in the recommended-box
+                    and mini-cards underneath and the biased neutral-gray tokens,
+                    both fixed at the source since. This dark, low-opacity wash was
+                    never the culprit and reverting to it restores the contrast/
+                    legibility the higher-opacity light wash had flattened away.) */}
                 {i !== activeCard && (
                   <div
                     className="absolute inset-0 rounded-3xl cursor-pointer"

@@ -32,6 +32,8 @@ export interface Product {
   chainModel?: string;
   chainLinks?: string;
   chainSpeed?: string;
+  unitsSold?: number;
+  reviewCount?: number;
   // Image display
   imagePosition?: string;
   // Gallery — additional images shown in thumbnail strip on the detail page
@@ -51,15 +53,20 @@ export const products: Product[] = [
     description: 'Der Einstieg — und für die meisten der einzige Block, den sie je brauchen. Sauberer Antrieb, kein Nachschmieren, kein Dreck. Ideal für Frühling bis Herbst.',
     descriptionEn: 'The starting point — and for most riders, the only block they\'ll ever need. Clean drivetrain, no re-lubing, no grime. Perfect from spring through autumn.',
     price: 29.95,
-    image: '/images/wax-classic-hero.png',
-    imagePosition: 'center 60%',
+    image: '/images/products/classic/classic-4.webp',
+    imagePosition: 'center 52%',
     images: [
-      '/images/wax-classic-balcony.png',
-      '/images/wax-classic-topdown.png',
+      '/images/products/classic/classic-6.webp',
+      '/images/products/classic/classic-1.webp',
+      '/images/products/classic/classic-2.webp',
+      '/images/products/classic/classic-5.webp',
+      '/images/products/classic/classic-3.webp',
     ],
     ebayUrl: 'https://www.ebay.de/itm/395811184583',
-    badge: 'Empfohlen',
-    badgeEn: 'Recommended',
+    unitsSold: 147,
+    reviewCount: 41,
+    badge: 'Bestseller',
+    badgeEn: 'Bestseller',
     formula: ['Vollraffiniertes Paraffinwachs', 'PTFE < 1 µm', 'Stearinsäurederivat'],
     formulaEn: ['Fully refined paraffin wax', 'PTFE < 1 µm', 'Stearic acid derivative'],
     highlights: [
@@ -98,9 +105,18 @@ export const products: Product[] = [
     description: 'Gleiche Formel wie der 500g-Block — nur kleiner. Perfekt zum Ausprobieren, als Reiseblock oder wenn du selten wächst.',
     descriptionEn: 'Same formula as the 500g block — just smaller. Perfect for trying it out, travelling light, or infrequent waxers.',
     price: 22.95,
-    image: '/images/wax-classic-hero.png',
-    imagePosition: 'center 60%',
+    image: '/images/products/classic/classic-4.webp',
+    imagePosition: 'center 52%',
+    images: [
+      '/images/products/classic/classic-6.webp',
+      '/images/products/classic/classic-1.webp',
+      '/images/products/classic/classic-2.webp',
+      '/images/products/classic/classic-5.webp',
+      '/images/products/classic/classic-3.webp',
+    ],
     ebayUrl: 'https://www.ebay.de/itm/395811183957',
+    unitsSold: 60,
+    reviewCount: 21,
     badge: 'Kompakt',
     badgeEn: 'Compact',
     formula: ['Vollraffiniertes Paraffinwachs', 'PTFE < 1 µm', 'Stearinsäurederivat'],
@@ -141,11 +157,20 @@ export const products: Product[] = [
     description: 'Für Herbst, Winter und nasse Ausfahrten. MoS₂ bildet einen festeren Transferfilm — längere Intervalle, weniger Rost, flexibel bis −8 °C.',
     descriptionEn: 'For autumn, winter and wet rides. MoS₂ builds a harder transfer film — longer intervals, less rust, functional down to −8 °C.',
     price: 34.95,
-    image: '/images/wax-pro-hero.png',
-    imagePosition: 'center 42%',
+    image: '/images/products/pro/pro-3.webp',
+    imagePosition: 'center 45%',
+    images: [
+      '/images/products/pro/pro-5.webp',
+      '/images/products/pro/pro-1.webp',
+      '/images/products/pro/pro-4.webp',
+      '/images/products/pro/pro-2.webp',
+      '/images/products/pro/pro-6.webp',
+    ],
     ebayUrl: 'https://www.ebay.de/itm/396468036330',
-    badge: 'Pro',
-    badgeEn: 'Pro',
+    unitsSold: 23,
+    reviewCount: 5,
+    badge: 'Empfohlen',
+    badgeEn: 'Recommended',
     formula: [
       'Vollraffiniertes Paraffinwachs',
       'Synthetisches Hartwachs',
@@ -197,9 +222,18 @@ export const products: Product[] = [
     description: 'Pro-Formel kompakt — für Fahrer, die zwischen Sommer und Winter die Formel wechseln, oder als Winterblock zum Mitnehmen.',
     descriptionEn: 'Pro formula compact — for riders who switch between summer and winter formulas, or as a portable winter block.',
     price: 26.95,
-    image: '/images/wax-pro-hero.png',
-    imagePosition: 'center 42%',
+    image: '/images/products/pro/pro-3.webp',
+    imagePosition: 'center 45%',
+    images: [
+      '/images/products/pro/pro-5.webp',
+      '/images/products/pro/pro-1.webp',
+      '/images/products/pro/pro-4.webp',
+      '/images/products/pro/pro-2.webp',
+      '/images/products/pro/pro-6.webp',
+    ],
     ebayUrl: 'https://www.ebay.de/itm/397861543533',
+    unitsSold: 6,
+    reviewCount: 2,
     badge: 'Pro',
     badgeEn: 'Pro',
     formula: [
@@ -394,6 +428,15 @@ export function getProductById(id: string): Product | undefined {
   return products.find((p) => p.id === id);
 }
 
+/**
+ * Native Stripe checkout is only offered once a product has a real `stripePriceId`
+ * (otherwise /api/create-checkout 503s). Until the owner sets price IDs, eBay stays
+ * the primary buy path. Gating the cart CTA on this keeps the UI free of dead-ends
+ * and lets native checkout appear automatically the moment price IDs are added.
+ */
+export const canCheckout = (p: Pick<Product, 'stripePriceId'>): boolean =>
+  typeof p.stripePriceId === 'string' && p.stripePriceId.length > 0;
+
 export const waxIntervals: Record<string, Record<string, number>> = {
   trocken: { strasse: 500, gravel: 350, mtb: 250 },
   gemischt: { strasse: 350, gravel: 250, mtb: 180 },
@@ -414,3 +457,20 @@ export const compatibilityMatrix: Record<string, Record<string, string[]>> = {
     '12': ['chain-ybn12'],
   },
 };
+
+// ─── Wax vs. Oil head-to-head — single source for landing + science page ──────
+// Used by the Wax⇄Oil toggle (why-wax.tsx) and the science page problem act.
+export const waxVsOil = {
+  friction: { wax: 0.03, oil: 0.2 },        // μ — boundary friction coefficient
+  watts: { wax: [2, 4], oil: [6, 10] },     // drivetrain loss range (W)
+  life: { wax: 3, oil: 1 },                 // relative chain lifetime (× vs oil)
+  cost: { savedEur: 70, pctLess: 46, km: 12000, oilEur: 151, waxEur: 81 },
+} as const;
+
+// Friction comparison ranges (performance bars — higher bar = better, never invert).
+// pct = performance index (lower μ → higher bar). Mirrors the science FrictionBars.
+export const frictionRanges = [
+  { id: 'pro',     muLo: 0.03, muHi: 0.06, pct: 100, highlight: true  },
+  { id: 'classic', muLo: 0.05, muHi: 0.07, pct: 80,  highlight: true  },
+  { id: 'oil',     muLo: 0.18, muHi: 0.25, pct: 18,  highlight: false },
+] as const;

@@ -1,2764 +1,830 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowLeft, ChevronDown, RotateCcw } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { ArrowLeft, ArrowRight, ChevronDown, ChevronsLeftRight, Gauge, Clock, Droplets, Sparkles } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
-import { useTheme } from '@/hooks/useTheme';
-import { gsap } from '@/lib/gsap';
+import { Navigation } from '@/sections/navigation';
+import { ScrollTrigger } from '@/lib/gsap';
+import { prefersReducedMotion } from '@/hooks/useAnimation';
+import { InstrumentFrame, CountUp } from '@/components/viz';
+import { waxVsOil, frictionRanges } from '@/lib/data';
+import { COMPONENTS, FAILURES, type ScienceComponent } from '@/lib/science';
+import { FormulaGraph } from '@/sections/science/FormulaGraph';
+import { ComponentDiagram } from '@/sections/science/diagrams';
+import { HexMoS2, TransferFilm } from '@/sections/science/LabViz';
 
-// ─── Static data ──────────────────────────────────────────────────────────────
+const W = 'max-w-4xl mx-auto px-4 sm:px-6 lg:px-8';
 
-const S_X  = [10, 50, 90, 130, 170, 210, 250, 290, 330, 370];
-const MO_X = [30, 70, 110, 150, 190, 230, 270, 310, 350];
-
-const TF_PARTICLES = [
-  { x: 28,  y: 75,  r: 4.5, top: true  },
-  { x: 68,  y: 112, r: 3.5, top: false },
-  { x: 110, y: 52,  r: 4,   top: true  },
-  { x: 155, y: 130, r: 5,   top: false },
-  { x: 198, y: 88,  r: 3.5, top: true  },
-  { x: 240, y: 62,  r: 4.5, top: false },
-  { x: 285, y: 140, r: 4,   top: true  },
-  { x: 328, y: 95,  r: 3,   top: false },
-  { x: 370, y: 118, r: 5,   top: true  },
-  { x: 412, y: 70,  r: 4,   top: false },
-  { x: 50,  y: 138, r: 3.5, top: false },
-  { x: 90,  y: 65,  r: 4.5, top: true  },
-  { x: 132, y: 102, r: 3,   top: false },
-  { x: 176, y: 48,  r: 5,   top: true  },
-  { x: 218, y: 148, r: 4,   top: false },
-  { x: 262, y: 82,  r: 3.5, top: true  },
-  { x: 306, y: 42,  r: 4.5, top: false },
-  { x: 348, y: 130, r: 3,   top: true  },
-  { x: 390, y: 58,  r: 4,   top: false },
-  { x: 430, y: 108, r: 3.5, top: true  },
-] as const;
-
-const HERO_PARTICLES = [
-  { cx: 22,  cy: 300, r: 1.5, dur: 6.2, dx: 10  },
-  { cx: 68,  cy: 240, r: 2,   dur: 5.1, dx: -9  },
-  { cx: 118, cy: 330, r: 1.5, dur: 7.0, dx: 12  },
-  { cx: 172, cy: 200, r: 2.5, dur: 5.5, dx: -11 },
-  { cx: 218, cy: 280, r: 1.5, dur: 6.8, dx: 9   },
-  { cx: 268, cy: 160, r: 2,   dur: 4.9, dx: -13 },
-  { cx: 315, cy: 315, r: 1.5, dur: 6.3, dx: 11  },
-  { cx: 370, cy: 235, r: 2,   dur: 5.7, dx: -9  },
-  { cx: 425, cy: 185, r: 1.5, dur: 6.5, dx: 13  },
-  { cx: 478, cy: 320, r: 2.5, dur: 5.2, dx: -10 },
-  { cx: 155, cy: 180, r: 1.5, dur: 6.1, dx: 8   },
-  { cx: 340, cy: 290, r: 2,   dur: 5.8, dx: -11 },
-  { cx: 200, cy: 350, r: 1.5, dur: 7.2, dx: 10  },
-  { cx: 440, cy: 270, r: 2.5, dur: 5.4, dx: -8  },
-  { cx: 90,  cy: 400, r: 1.5, dur: 6.7, dx: 12  },
-  { cx: 390, cy: 130, r: 2,   dur: 5.0, dx: -10 },
-] as const;
-
-const DOT_GRID: React.CSSProperties = {
-  backgroundImage: 'radial-gradient(circle, rgba(26,60,110,0.11) 1px, transparent 1px)',
-  backgroundSize: '22px 22px',
-};
-
-const CARD: React.CSSProperties = {
-  background: 'var(--sf2)',
-  border: '1px solid var(--bd)',
-};
-
-// For components inside forced-dark sections — always dark regardless of theme
-const DARK_CARD: React.CSSProperties = {
-  background: 'rgba(255,255,255,0.04)',
-  border: '1px solid rgba(255,255,255,0.09)',
-};
-
-const DARK_DOT_GRID: React.CSSProperties = {
-  backgroundImage: 'radial-gradient(circle, rgba(100,140,220,0.12) 1px, transparent 1px)',
-  backgroundSize: '22px 22px',
-};
-
-// Always-dark card for SVG visualizations
-const VIZ_CARD: React.CSSProperties = {
-  background: '#0D1117',
-  border: '1px solid rgba(68,114,212,0.20)',
-};
-const VIZ_CARD_LIGHT: React.CSSProperties = {
-  background: '#f0f4fb',
-  border: '1px solid rgba(68,114,212,0.22)',
-  boxShadow: '0 4px 28px rgba(0,0,0,0.07)',
-};
-
-const LIGHT_DOT_GRID: React.CSSProperties = {
-  backgroundImage: 'radial-gradient(circle, rgba(68,114,212,0.10) 1px, transparent 1px)',
-  backgroundSize: '22px 22px',
-};
-
-// Shared container width
-const W = 'max-w-5xl mx-auto px-4 sm:px-6 lg:px-8';
-
-// ─── Grain overlay ────────────────────────────────────────────────────────────
-function GrainOverlay() {
-  return (
-    <div
-      aria-hidden="true"
-      style={{
-        position: 'fixed', inset: 0, zIndex: 2, pointerEvents: 'none',
-        // eslint-disable-next-line max-len
-        backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E\")",
-        backgroundRepeat: 'repeat',
-        backgroundSize: '300px 300px',
-        opacity: 0.032,
-        mixBlendMode: 'overlay',
-      }}
-    />
-  );
-}
-
-// ─── Hero floating particles ──────────────────────────────────────────────────
-function HeroParticles() {
-  const svgRef = useRef<SVGSVGElement>(null);
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      const nodes = svgRef.current?.querySelectorAll<SVGCircleElement>('.hp');
-      if (!nodes?.length) return;
-      HERO_PARTICLES.forEach((p, i) => {
-        const el = nodes[i];
-        if (!el) return;
-        gsap.fromTo(el,
-          { attr: { cy: p.cy + 50 } },
-          { attr: { cy: p.cy - 130 }, duration: p.dur, ease: 'none', repeat: -1, delay: i * 0.55 },
-        );
-        gsap.to(el, {
-          attr: { cx: p.cx + p.dx },
-          duration: 2.8 + i * 0.25,
-          repeat: -1, yoyo: true, ease: 'sine.inOut', delay: i * 0.2,
-        });
-      });
-    }, svgRef);
-    return () => ctx.revert();
-  }, []);
-  return (
-    <svg ref={svgRef} aria-hidden className="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="xMidYMid slice">
-      {HERO_PARTICLES.map((p, i) => (
-        <circle key={i} className="hp" cx={p.cx} cy={p.cy} r={p.r} fill="#4472D4" opacity="0.22" />
-      ))}
-    </svg>
-  );
-}
-
-// ─── Chapter navigation sidebar ───────────────────────────────────────────────
-function ChapterNav({ de, onActiveChange }: { de: boolean; onActiveChange?: (i: number) => void }) {
-  const [active, setActive] = useState(-1);
-  const LABELS = [
-    { de: 'Die Basis',    en: 'Foundation'  },
-    { de: 'Härtemodul',  en: 'Hardener'    },
-    { de: 'Kälteflex.',  en: 'Cold Flex.'  },
-    { de: 'MoS₂',        en: 'MoS₂'        },
-    { de: 'Dispergier.', en: 'Dispersant'  },
-    { de: 'Antioxidans', en: 'Antioxidant' },
+// ─── Opening hero — the page's actual "hero" moment: headline stats + a large
+// cassette rendering, dark stage (matches the homepage hero's card treatment)
+// so it reads as an entrance, not another instrument panel. All numbers come
+// from the same `waxVsOil` source as the homepage's why-wax section — no
+// invented stats. ProblemHero below carries on with the sober toggle deep-dive.
+function ScienceHero({ de }: { de: boolean }) {
+  const f = waxVsOil.friction, w = waxVsOil.watts, l = waxVsOil.life;
+  const cards = [
+    {
+      icon: Gauge,
+      value: `μ ${f.wax.toFixed(2)}`,
+      label: de ? 'Reibung' : 'Friction',
+      detail: de ? `${Math.round(f.oil / f.wax)}× weniger als Öl` : `${Math.round(f.oil / f.wax)}× less than oil`,
+    },
+    {
+      icon: Droplets,
+      value: `${w.wax[0]}–${w.wax[1]} W`,
+      label: de ? 'Antriebsverlust' : 'Drivetrain loss',
+      detail: de ? `Öl: ${w.oil[0]}–${w.oil[1]} W` : `Oil: ${w.oil[0]}–${w.oil[1]} W`,
+    },
+    {
+      icon: Clock,
+      value: `${l.wax}×`,
+      label: de ? 'Kettenlaufzeit' : 'Chain life',
+      detail: de ? 'gegenüber Öl' : 'vs oil lubrication',
+    },
+    {
+      icon: Sparkles,
+      value: de ? 'Trocken' : 'Dry',
+      label: de ? 'Sauberkeit' : 'Cleanliness',
+      detail: de ? 'Kein Dreck, keine Flecken' : 'No grime, no stains',
+    },
   ];
-  useEffect(() => {
-    const els = document.querySelectorAll('[data-chapter]');
-    const obs = new IntersectionObserver(
-      entries => entries.forEach(e => {
-        if (e.isIntersecting) {
-          const idx = parseInt(e.target.getAttribute('data-chapter') ?? '1', 10) - 1;
-          setActive(idx);
-          onActiveChange?.(idx);
-        }
-      }),
-      { threshold: 0.25, rootMargin: '-5% 0px -58% 0px' },
-    );
-    els.forEach(el => obs.observe(el));
-    return () => obs.disconnect();
-  }, [onActiveChange]);
-  return (
-    <div className="fixed right-5 top-1/2 -translate-y-1/2 z-30 hidden xl:flex flex-col gap-4" aria-label="Chapter navigation">
-      <div className="absolute right-[4px] top-0 bottom-0 w-px" style={{ background: 'var(--bd)' }} />
-      {LABELS.map((l, i) => {
-        const isActive = active === i;
-        const num = String(i + 1).padStart(2, '0');
-        return (
-          <button
-            key={i}
-            onClick={() => document.querySelector(`[data-chapter="${num}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-            className="relative flex items-center gap-2.5 group"
-            title={de ? l.de : l.en}
-          >
-            <span className="text-[9px] uppercase tracking-widest whitespace-nowrap text-right transition-all duration-200 opacity-0 group-hover:opacity-100"
-              style={{ color: isActive ? '#4472D4' : 'var(--txff)' }}>
-              {de ? l.de : l.en}
-            </span>
-            <div className="relative z-10 rounded-full flex-shrink-0 transition-all duration-300"
-              style={{ width: isActive ? '9px' : '5px', height: isActive ? '9px' : '5px', background: isActive ? '#4472D4' : 'var(--bd)', boxShadow: isActive ? '0 0 10px rgba(68,114,212,0.75)' : 'none' }} />
-          </button>
-        );
-      })}
-    </div>
-  );
-}
 
-// ─── Scroll progress ──────────────────────────────────────────────────────────
-function ScrollProgress() {
-  const [p, setP] = useState(0);
-  useEffect(() => {
-    const onScroll = () => {
-      const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
-      setP(scrollTop / Math.max(scrollHeight - clientHeight, 1));
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 h-[2px]" style={{ background: 'var(--bd)' }}>
-      <div className="h-full" style={{ width: `${p * 100}%`, background: 'linear-gradient(90deg,#1A3080,#6A8AE8)', transition: 'width 0.06s linear' }} />
-    </div>
-  );
-}
-
-// ─── Mini-SVG visualizations for StatCallout ─────────────────────────────────
-function TempBandViz({ isDark }: { isDark: boolean }) {
-  const trackClr  = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(26,60,110,0.10)';
-  const bandClr   = isDark ? '#3060C8'                : '#1A3C6E';
-  const wideClr   = isDark ? 'rgba(68,114,212,0.22)'  : 'rgba(68,114,212,0.15)';
-  const labelClr  = isDark ? 'rgba(255,255,255,0.32)' : 'rgba(26,60,110,0.45)';
-  const tickClr   = isDark ? 'rgba(255,255,255,0.20)' : 'rgba(26,60,110,0.30)';
-  const toX = (t: number) => ((t - 52) / 18) * 200;
-  return (
-    <svg viewBox="0 0 220 80" style={{ width: 220, height: 80 }}>
-      <rect x="10" y="28" width="200" height="6" rx="3" fill={trackClr} />
-      <rect x={10 + toX(55)} y="22" width={toX(65) - toX(55)} height="18" rx="3" fill={wideClr} />
-      <rect x={10 + toX(58)} y="20" width={toX(60) - toX(58)} height="22" rx="3" fill={bandClr}
-        style={{ filter: isDark ? 'drop-shadow(0 0 6px rgba(48,96,200,0.7))' : 'none' }} />
-      {[55, 58, 60, 65].map(t => (
-        <g key={t}>
-          <line x1={10 + toX(t)} y1="46" x2={10 + toX(t)} y2="52" stroke={tickClr} strokeWidth="0.8" />
-          <text x={10 + toX(t)} y="62" textAnchor="middle" fontSize="7" fontFamily="monospace" fill={labelClr}>{t}°</text>
-        </g>
-      ))}
-      <text x={10 + toX(59)} y="14" textAnchor="middle" fontSize="6.5" fontFamily="monospace" fill={bandClr} letterSpacing="0.05em">WAXCELERATE</text>
-    </svg>
-  );
-}
-
-function DensityViz({ isDark }: { isDark: boolean }) {
-  const parClr   = isDark ? 'rgba(68,114,212,0.25)'  : 'rgba(68,114,212,0.15)';
-  const parBd    = isDark ? 'rgba(68,114,212,0.45)'  : 'rgba(68,114,212,0.40)';
-  const mosClr   = isDark ? '#2A5499'                : '#2A5499';
-  const labelClr = isDark ? 'rgba(255,255,255,0.35)' : 'rgba(26,60,110,0.45)';
-  const valClr   = isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,30,70,0.75)';
-  const rPar = 14, rMos = 36;
-  return (
-    <svg viewBox="0 0 160 90" style={{ width: 160, height: 90 }}>
-      <circle cx="35" cy="45" r={rPar} fill={parClr} stroke={parBd} strokeWidth="1" />
-      <text x="35" y="42" textAnchor="middle" dominantBaseline="middle" fontSize="6" fontFamily="monospace" fill={labelClr}>Paraffin</text>
-      <text x="35" y="51" textAnchor="middle" dominantBaseline="middle" fontSize="7" fontFamily="monospace" fontWeight="700" fill={valClr}>0.9</text>
-      <circle cx="108" cy="45" r={rMos} fill={mosClr}
-        style={{ filter: isDark ? 'drop-shadow(0 0 10px rgba(42,84,153,0.55))' : 'drop-shadow(0 3px 8px rgba(42,84,153,0.25))' }} />
-      <text x="108" y="40" textAnchor="middle" dominantBaseline="middle" fontSize="7.5" fontFamily="monospace" fill="rgba(255,255,255,0.75)">MoS₂</text>
-      <text x="108" y="51" textAnchor="middle" dominantBaseline="middle" fontSize="8" fontFamily="monospace" fontWeight="700" fill="rgba(255,255,255,0.90)">5.06</text>
-      <text x="80" y="84" textAnchor="middle" fontSize="6.5" fontFamily="monospace" fill={labelClr}>g/cm³</text>
-    </svg>
-  );
-}
-
-function FrictionLadderViz({ isDark }: { isDark: boolean }) {
-  const labelClr = isDark ? 'rgba(255,255,255,0.35)' : 'rgba(26,60,110,0.45)';
-  const dotClr   = isDark ? '#4472D4'                : '#1A3C6E';
-  const bars = [
-    { label: 'Pro',      val: 0.03, color: isDark ? '#3060C8' : '#1A3C6E', glow: true  },
-    { label: 'Graphite', val: 0.10, color: isDark ? 'rgba(68,114,212,0.45)' : 'rgba(42,84,153,0.35)', glow: false },
-    { label: 'Oil',      val: 0.18, color: isDark ? 'rgba(68,114,212,0.22)' : 'rgba(42,84,153,0.18)', glow: false },
-  ];
-  const scale = 160 / 0.25;
-  return (
-    <svg viewBox="0 0 200 80" style={{ width: 200, height: 80 }}>
-      {bars.map((b, i) => {
-        const barW = b.val * scale;
-        const y = 12 + i * 22;
-        return (
-          <g key={i}>
-            <circle cx="8" cy={y + 5} r="3" fill={dotClr} opacity={b.glow ? 1 : 0.4}
-              style={b.glow ? { filter: `drop-shadow(0 0 4px ${b.color})` } : undefined} />
-            <rect x="14" y={y} width={barW} height="10" rx="2" fill={b.color}
-              style={b.glow ? { filter: isDark ? `drop-shadow(0 0 6px rgba(48,96,200,0.65))` : 'none' } : undefined} />
-            <text x={14 + barW + 5} y={y + 7} dominantBaseline="middle" fontSize="6.5" fontFamily="monospace" fill={labelClr}>{b.label}</text>
-          </g>
-        );
-      })}
-      <text x="14" y="75" fontSize="6.5" fontFamily="monospace" fill={labelClr}>μ →</text>
-    </svg>
-  );
-}
-
-// ─── Stat callout — full-bleed dark section ───────────────────────────────────
-function StatCallout({ stat, ctxDe, ctxEn, de, isDark, miniViz }: {
-  stat: string; ctxDe: string; ctxEn: string; de: boolean; isDark: boolean;
-  miniViz?: React.ReactNode;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.fromTo(ref.current,
-        { opacity: 0, scale: 0.97 },
-        { opacity: 1, scale: 1, duration: 0.9, ease: 'power3.out',
-          scrollTrigger: { trigger: ref.current, start: 'top 85%', once: true } },
-      );
-    }, ref);
-    return () => ctx.revert();
-  }, []);
-  return (
-    <div
-      ref={ref}
-      className="w-full py-10 sm:py-12 flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-16 px-6"
-      style={isDark ? {
-        background: '#07070A',
-        borderTop: '1px solid rgba(255,255,255,0.10)',
-        borderBottom: '1px solid rgba(255,255,255,0.10)',
-        opacity: 0,
-      } : {
-        background: 'var(--sf2)',
-        borderTop: '1px solid var(--bd)',
-        borderBottom: '1px solid var(--bd)',
-        opacity: 0,
-      }}
-    >
-      <div className="flex flex-col items-center sm:items-start">
-        <p className="font-serif-display italic font-bold leading-none select-none"
-          style={{
-            fontSize: 'clamp(2.8rem,7vw,4.5rem)',
-            color: isDark ? '#3060C8' : '#1A3C6E',
-            textShadow: isDark ? '0 0 60px rgba(43,82,176,0.55), 0 0 130px rgba(43,82,176,0.22)' : 'none',
-          }}>
-          {stat}
-        </p>
-        <p className="text-[11px] uppercase tracking-[0.3em] mt-5 max-w-[400px] leading-relaxed text-center sm:text-left"
-          style={{ color: isDark ? 'rgba(255,255,255,0.50)' : 'var(--txm)' }}>
-          {de ? ctxDe : ctxEn}
-        </p>
+    <section className="relative overflow-hidden pt-28 sm:pt-36 pb-16 sm:pb-20" style={{ background: 'var(--pg)' }}>
+      {/* The complete reference figure — own annotations, callouts and
+          thumbnail comparisons all baked into the JPG — shown whole, not
+          cropped down to just the product shot. Its background (245,245,245)
+          is close enough to var(--pg) (#F5F5F6) that it simply merges into
+          the page instead of needing a border, card, or fade mask to hide a
+          seam; there isn't one. Desktop: sits to the right of the text at a
+          size that keeps every label in the figure legible. */}
+      <div className="hidden lg:block absolute top-1/2 right-0 -translate-y-1/2 w-[46%] xl:w-[42%]" aria-hidden>
+        <picture>
+          <source srcSet="/images/science/cassette-wear-full.webp" type="image/webp" />
+          <img
+            src="/images/science/cassette-wear-full.jpg"
+            alt=""
+            className="w-full h-auto"
+          />
+        </picture>
       </div>
-      {miniViz && (
-        <div className="flex-shrink-0 hidden sm:block" aria-hidden="true">
-          {miniViz}
-        </div>
-      )}
-    </div>
-  );
-}
 
-// ─── Formula Assembly System Map ─────────────────────────────────────────────
-// Living radial diagram with persistent ambient animations after assembly:
-//   • Zone rings breathe independently (different periods/phases)
-//   • MoS₂ S–Mo–S layers shear continuously (demonstrating μ=0.03 mechanism)
-//   • Expanding pulse ring from MoS₂ every ~4 seconds
-//   • Protective edges (Dispersant, Antioxidant) have flowing dashes toward MoS₂
-//   • Carrier particle travels Paraffin→MoS₂ edge (material transport)
-//
-// Each node contains a micro-visualization of its actual physical mechanism.
-// Edges: solid = structural/physical · dashed = chemical/protective
-// Assembly animation follows scientific order: MoS₂ → Paraffin → matrix modifiers → stabilizers
+      <div className={`${W} relative z-10`}>
+        <div className="max-w-lg">
+          <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
+            {de ? 'Öl vs. Wachs' : 'Oil vs. Wax'}
+          </p>
+          <h2 className="font-display font-bold leading-[1.05] mb-4"
+            style={{ color: 'var(--tx1)', fontSize: 'clamp(2rem, 4.2vw, 3rem)', letterSpacing: '-0.02em' }}>
+            {de ? 'Ein messbarer Unterschied.' : 'One measurable difference.'}
+          </h2>
+          <p className="mb-6" style={{ color: 'var(--txm)', fontSize: 15, maxWidth: '38ch' }}>
+            {de
+              ? 'Derselbe Antrieb, zwei Schmierstoffe — Seite an Seite gemessen.'
+              : 'Same drivetrain, two lubricants — measured side by side.'}
+          </p>
 
-const GRAPH_CX = 320;
-const GRAPH_CY = 260;
-
-const ASSEMBLY_NODES = [
-  {
-    id: 1, labelDe: 'Paraffin',     labelEn: 'Paraffin',
-    subDe: 'Trägermatrix',   subEn: 'Base scaffold',
-    whyDe: 'C₂₀–C₃₆ Ketten kristallisieren zu lamellaren Domänen · enger 2°C-Bereich sichert Batch-Konsistenz',
-    whyEn: 'C₂₀–C₃₆ chains crystallize into lamellar domains · narrow 2°C window ensures batch consistency',
-    cx: 320, cy: 112, r: 32, metric: '58–60°C',
-  },
-  {
-    id: 2, labelDe: 'FT-Wachs',     labelEn: 'FT-Wax',
-    subDe: 'Härtemodul',     subEn: 'Hardener',
-    whyDe: 'Ko-kristallisiert mit Paraffin · defektärmere Domänen brauchen mehr Energie zum Schmelzen → Tropfpunkt 72–78°C',
-    whyEn: 'Co-crystallizes with paraffin · more defect-free domains need more energy to melt → drop point 72–78°C',
-    cx: 154, cy: 88, r: 28, metric: '+14°C',
-  },
-  {
-    id: 3, labelDe: 'Mikrokris.',    labelEn: 'Microcris.',
-    subDe: 'Kälteflex.',     subEn: 'Cold flex.',
-    whyDe: 'Verzweigte Moleküle füllen amorphe Zonen · Matrix bleibt bis −10°C elastisch · bettet MoS₂-Partikel ein',
-    whyEn: 'Branched molecules fill amorphous zones · matrix stays elastic to −10°C · mechanically embeds MoS₂',
-    cx: 486, cy: 88, r: 28, metric: '−10°C',
-  },
-  {
-    id: 4, labelDe: 'MoS₂',         labelEn: 'MoS₂',
-    subDe: 'Festschmierst.', subEn: 'Solid lubricant',
-    whyDe: '50–300 MPa Kontaktdruck → Fe–S Transferfilm auf Stahl · aktiv auch nachdem das Wachs abgetragen ist · hexagonales Kristallsystem (P6₃/mmc)',
-    whyEn: '50–300 MPa contact pressure → Fe–S transfer film on steel · active long after the wax is spent · hexagonal crystal system (P6₃/mmc)',
-    cx: GRAPH_CX, cy: GRAPH_CY, r: 48,  metric: 'μ 0.03',
-  },
-  {
-    id: 5, labelDe: 'Dispergierm.', labelEn: 'Dispersant',
-    subDe: 'Partikelstab.',  subEn: 'Particle stab.',
-    whyDe: 'Amphiphile Fettsäurehülle direkt um jeden MoS₂-Partikel · verhindert Sedimentation · MoS₂ ist 5,6× dichter als Paraffin',
-    whyEn: 'Amphiphilic fatty acid shell directly around each MoS₂ particle · prevents sedimentation · MoS₂ is 5.6× denser than paraffin',
-    cx: 214, cy: 358, r: 28, metric: '5.6×',
-  },
-  {
-    id: 6, labelDe: 'Antioxidans',  labelEn: 'Antioxidant',
-    subDe: 'MoO₃-Schutz',   subEn: 'MoO₃ shield',
-    whyDe: 'Phenolische OH-Gruppe bricht Autoxidationskette (ROO•) · verhindert MoS₂→MoO₃-Umwandlung · 12 Monate Lagerstab.',
-    whyEn: 'Phenolic OH group breaks autoxidation chain (ROO•) · prevents MoS₂→MoO₃ conversion · 12-month shelf life',
-    cx: 426, cy: 358, r: 28, metric: '12 Mo.',
-  },
-] as const;
-
-// dash=true: chemical/protective bond · main=true: primary delivery spine · weight: visual thickness
-const ASSEMBLY_EDGES = [
-  { from: 2, to: 1, labelDe: 'Ko-Kristallisation',   labelEn: 'co-crystallises',   dash: false, main: false, weight: 1.6 },
-  { from: 3, to: 1, labelDe: 'Plastifiziert',         labelEn: 'plasticises',       dash: false, main: false, weight: 1.4 },
-  { from: 1, to: 4, labelDe: 'Trägermatrix',           labelEn: 'carrier matrix',    dash: false, main: true,  weight: 5.0 },
-  { from: 3, to: 4, labelDe: 'Partikeleinbettung',    labelEn: 'particle embedding', dash: false, main: false, weight: 1.4 },
-  { from: 5, to: 4, labelDe: 'Sterische Hülle',       labelEn: 'steric shell',       dash: true,  main: false, weight: 1.8 },
-  { from: 6, to: 4, labelDe: 'Oxidationsschutz',      labelEn: 'oxidation guard',    dash: true,  main: false, weight: 1.8 },
-] as const;
-
-// Returns bezier path + label position + raw control points (for particle animation)
-function curvedEdge(ax: number, ay: number, bx: number, by: number, ra: number, rb: number) {
-  const dx = bx - ax, dy = by - ay;
-  const len = Math.sqrt(dx * dx + dy * dy);
-  const ux = dx / len, uy = dy / len;
-  const x1 = ax + ux * (ra + 5), y1 = ay + uy * (ra + 5);
-  const x2 = bx - ux * (rb + 6), y2 = by - uy * (rb + 6);
-  const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
-  const cpx = mx - (GRAPH_CX - mx) * 0.28;
-  const cpy = my - (GRAPH_CY - my) * 0.28;
-  const lx = 0.25 * x1 + 0.5 * cpx + 0.25 * x2;
-  const ly = 0.25 * y1 + 0.5 * cpy + 0.25 * y2;
-  const ex = x2 - x1, ey = y2 - y1, el = Math.sqrt(ex * ex + ey * ey);
-  const px = -ey / el, py = ex / el;
-  const sign = (px * (GRAPH_CX - lx) + py * (GRAPH_CY - ly)) <= 0 ? 1 : -1;
-  return { path: `M${x1},${y1} Q${cpx},${cpy} ${x2},${y2}`, lx: lx + sign * px * 15, ly: ly + sign * py * 15, len, x1, y1, x2, y2, cpx, cpy };
-}
-
-// ── Node micro-visualizations — each shows the physical/chemical mechanism ──
-function NodeMechViz({ id, cx, cy, isDark, isHot }: { id: number; cx: number; cy: number; isDark: boolean; isHot: boolean }) {
-  const base = isDark ? 'rgba(130,175,255,0.22)' : 'rgba(42,84,153,0.16)';
-  const hot  = isDark ? 'rgba(160,205,255,0.40)' : 'rgba(42,84,153,0.30)';
-  const c = isHot ? hot : base;
-
-  if (id === 1) {
-    // Paraffin: lamellar crystal structure — parallel aligned chains
-    return (
-      <g>
-        {[-7, -2, 3, 8].map((dy, i) => (
-          <line key={i}
-            x1={cx - 14 + (i % 2) * 2} y1={cy + dy}
-            x2={cx + 14 - (i % 2) * 2} y2={cy + dy}
-            stroke={c} strokeWidth={1.6} strokeLinecap="round" />
-        ))}
-      </g>
-    );
-  }
-  if (id === 2) {
-    // FT-Wachs: temperature lift — upward arrow with baseline
-    return (
-      <g>
-        <line x1={cx} y1={cy + 8} x2={cx} y2={cy - 7} stroke={c} strokeWidth={1.4} />
-        <polyline points={`${cx - 4},${cy - 4} ${cx},${cy - 10} ${cx + 4},${cy - 4}`}
-          stroke={c} strokeWidth={1.4} fill="none" strokeLinejoin="round" />
-        <line x1={cx - 6} y1={cy + 8} x2={cx + 6} y2={cy + 8} stroke={c} strokeWidth={1.2} />
-      </g>
-    );
-  }
-  if (id === 3) {
-    // Mikrokris.: amorphous structure — irregular scattered dots
-    return (
-      <g>
-        {[[-9,-4,2.2],[5,-7,2.8],[-3,2,2],[8,5,2.5],[0,-9,1.8],[-7,6,2]].map(([dx,dy,r],i) => (
-          <circle key={i} cx={cx+dx} cy={cy+dy} r={r} fill={c} />
-        ))}
-      </g>
-    );
-  }
-  if (id === 5) {
-    // Dispersant: steric coating — central particle + amphiphilic shell
-    return (
-      <g>
-        <circle cx={cx} cy={cy} r={5} fill={c} />
-        <circle cx={cx} cy={cy} r={13} fill="none" stroke={c} strokeWidth={1.2} strokeDasharray="2.5 2" />
-        <circle cx={cx} cy={cy} r={18} fill="none" stroke={c} strokeWidth={0.7} opacity={0.6} />
-      </g>
-    );
-  }
-  if (id === 6) {
-    // Antioxidant: radical chain break — shield arc + intercepted radical
-    return (
-      <g>
-        <path d={`M${cx - 10},${cy + 2} Q${cx},${cy - 12} ${cx + 10},${cy + 2}`}
-          fill="none" stroke={c} strokeWidth={1.8} strokeLinecap="round" />
-        <line x1={cx} y1={cy + 2} x2={cx} y2={cy + 9} stroke={c} strokeWidth={1.4} />
-        <circle cx={cx} cy={cy + 11} r={2.2} fill={c} opacity={0.7} />
-      </g>
-    );
-  }
-  return null;
-}
-
-// Returns SVG polygon points string for a regular hexagon (pointy-top)
-function hexPoints(cx: number, cy: number, r: number): string {
-  return Array.from({ length: 6 }, (_, i) => {
-    const angle = (Math.PI / 180) * (-90 + 60 * i); // start from top
-    return `${(cx + r * Math.cos(angle)).toFixed(2)},${(cy + r * Math.sin(angle)).toFixed(2)}`;
-  }).join(' ');
-}
-
-function FormulaAssembly({ de, mode, isDark }: { de: boolean; mode: 'overview' | 'synthesis'; isDark: boolean }) {
-  const svgRef        = useRef<SVGSVGElement>(null);
-  const edgeRefs      = useRef<(SVGPathElement | null)[]>([]);
-  const nodeRefs      = useRef<(SVGGElement | null)[]>([]);
-  const ringRefs      = useRef<(SVGCircleElement | null)[]>([]);
-  const mos2LayerRefs = useRef<(SVGRectElement | null)[]>([]);
-  const pulseRef       = useRef<SVGCircleElement | null>(null);
-  const carrierDotRef  = useRef<SVGCircleElement | null>(null);
-  const vignetteRef    = useRef<SVGGElement | null>(null);
-  const didAnimate     = useRef(false);
-  const [hoveredNode, setHoveredNode] = useState<number | null>(null);
-  const [canHover,    setCanHover]    = useState(mode === 'overview');
-  const [assembled,   setAssembled]   = useState(mode === 'overview');
-
-  const isOverview = mode === 'overview';
-  const uid = `fa-${mode}-${isDark ? 'd' : 'l'}`;
-
-  // ── Color system (uniform cobalt — clean, professional) ───────────────────
-  const nodeGradA   = isDark ? '#1c3060' : '#f0f5ff';
-  const nodeGradB   = isDark ? '#090f28' : '#d0e0f8';
-  const nodeStroke  = isDark ? 'rgba(68,120,220,0.55)' : 'rgba(42,84,153,0.70)';
-  const nodeStrokeH = isDark ? '#7ab0ff' : '#1535a0';
-
-  const metricClr   = isDark ? '#88bbff' : '#1a3c8e';
-  const subClr      = isDark ? 'rgba(140,180,240,0.42)' : 'rgba(42,84,153,0.48)';
-
-  // Zone fills — innermost = most saturated (closest functional relationship to MoS₂)
-  const z1Fill = isDark ? 'rgba(40,68,155,0.32)' : 'rgba(68,114,212,0.12)';   // Inner: protective agents
-  const z2Fill = isDark ? 'rgba(28,50,115,0.18)' : 'rgba(68,114,212,0.07)';   // Mid: carrier
-  const z3Fill = isDark ? 'rgba(18,34,80,0.10)'  : 'rgba(68,114,212,0.035)';  // Outer: matrix modifiers
-  const ringClr = isDark ? 'rgba(100,140,220,0.14)' : 'rgba(42,84,153,0.12)';
-
-  // Edge colors — structural vs protective
-  const edgeSolid  = isDark ? 'rgba(80,130,230,0.55)' : 'rgba(42,84,153,0.42)';
-  const edgeDash   = isDark ? 'rgba(80,130,230,0.38)' : 'rgba(42,84,153,0.28)';
-  const edgeHot    = isDark ? 'rgba(140,190,255,0.95)' : '#1a3c8e';
-  const edgeLblClr = isDark ? 'rgba(160,200,255,0.52)' : 'rgba(26,60,130,0.48)';
-
-  // ── Hover adjacency ───────────────────────────────────────────────────────
-  const connected: Set<number> | null = hoveredNode !== null ? (() => {
-    const s = new Set([hoveredNode]);
-    ASSEMBLY_EDGES.forEach(e => {
-      if (e.from === hoveredNode) s.add(e.to);
-      if (e.to   === hoveredNode) s.add(e.from);
-    });
-    return s;
-  })() : null;
-
-  const nodeOpacity  = (id: number) => !canHover || !connected ? 1 : connected.has(id) ? 1 : 0.15;
-  const isEdgeHot    = (f: number, t: number) => canHover && !!connected && connected.has(f) && connected.has(t);
-  const isEdgeDimmed = (f: number, t: number) => canHover && !!connected && !(connected.has(f) && connected.has(t));
-
-  // ── Scientific assembly story animation ───────────────────────────────────
-  useEffect(() => {
-    if (mode !== 'synthesis' || didAnimate.current) return;
-    const ctx = gsap.context(() => {
-      const mos2 = ASSEMBLY_NODES[3]; // idx 3
-
-      // All start hidden
-      gsap.set(nodeRefs.current[3], { opacity: 0, scale: 0, svgOrigin: `${mos2.cx} ${mos2.cy}` });
-      ASSEMBLY_NODES.forEach((node, i) => {
-        if (i === 3) return;
-        gsap.set(nodeRefs.current[i], { opacity: 0, x: mos2.cx - node.cx, y: mos2.cy - node.cy });
-      });
-      edgeRefs.current.forEach(e => { if (e) gsap.set(e, { strokeDashoffset: 1, opacity: 0 }); });
-
-      const tl = gsap.timeline({
-        scrollTrigger: { trigger: svgRef.current, start: 'top 80%', once: true },
-        onComplete: () => { didAnimate.current = true; setCanHover(true); setAssembled(true); },
-      });
-
-      // 1. MoS₂ crystallizes — the REASON for the entire formula
-      tl.to(nodeRefs.current[3], { opacity: 1, scale: 1, duration: 0.7, ease: 'back.out(2.0)', svgOrigin: `${mos2.cx} ${mos2.cy}` });
-
-      // 2. Paraffin carrier arrives from above
-      tl.to(nodeRefs.current[0], { opacity: 1, x: 0, y: 0, duration: 0.55, ease: 'power3.out' }, '>-0.15');
-
-      // 3. The carrier-to-active edge draws — the foundation of the system
-      tl.to(edgeRefs.current[2], { strokeDashoffset: 0, opacity: 1, duration: 0.6, ease: 'power2.inOut' }, '>0.05');
-
-      // 4. FT-Wachs co-crystallizes into the Paraffin lattice
-      tl.to(nodeRefs.current[1], { opacity: 1, x: 0, y: 0, duration: 0.50, ease: 'power3.out' }, '>-0.1');
-      tl.to(edgeRefs.current[0], { strokeDashoffset: 0, opacity: 1, duration: 0.40, ease: 'power2.inOut' }, '<0.1');
-
-      // 5. Mikrokris. fills the amorphous zones
-      tl.to(nodeRefs.current[2], { opacity: 1, x: 0, y: 0, duration: 0.50, ease: 'power3.out' }, '<0.0');
-      tl.to(edgeRefs.current[1], { strokeDashoffset: 0, opacity: 1, duration: 0.38, ease: 'power2.inOut' }, '<0.08');
-      tl.to(edgeRefs.current[3], { strokeDashoffset: 0, opacity: 1, duration: 0.38, ease: 'power2.inOut' }, '<0.06');
-
-      // 6. Dispersant coats each particle
-      tl.to(nodeRefs.current[4], { opacity: 1, x: 0, y: 0, duration: 0.50, ease: 'power3.out' }, '>0.05');
-      tl.to(edgeRefs.current[4], { strokeDashoffset: 0, opacity: 1, duration: 0.45, ease: 'power2.inOut' }, '<0.12');
-
-      // 7. Antioxidant shields the system
-      tl.to(nodeRefs.current[5], { opacity: 1, x: 0, y: 0, duration: 0.50, ease: 'power3.out' }, '<0.0');
-      tl.to(edgeRefs.current[5], { strokeDashoffset: 0, opacity: 1, duration: 0.45, ease: 'power2.inOut' }, '<0.12');
-
-      // 8. MoS₂ pulses — formula is complete and live
-      tl.to(nodeRefs.current[3], { scale: 1.10, duration: 0.22, ease: 'power2.out', svgOrigin: `${mos2.cx} ${mos2.cy}` }, '>0.15');
-      tl.to(nodeRefs.current[3], { scale: 1.00, duration: 0.55, ease: 'elastic.out(1, 0.55)', svgOrigin: `${mos2.cx} ${mos2.cy}` });
-
-      // 9. "So what" vignette — chain link + performance stat briefly appear
-      if (vignetteRef.current) {
-        tl.to(vignetteRef.current, { opacity: 1, duration: 0.45, ease: 'power2.out' }, '>0.2');
-        tl.to(vignetteRef.current, { opacity: 0, duration: 0.65, ease: 'power2.in' }, '>3.2');
-      }
-    }, svgRef);
-    return () => ctx.revert();
-  }, [mode]);
-
-  // ── Ambient animations — run after assembly, make the system feel alive ──────
-  useEffect(() => {
-    if (!assembled || isOverview) return;
-    const ctx = gsap.context(() => {
-
-      // 1. Zone rings breathe — independent periods create organic feel
-      ringRefs.current.forEach((ring, i) => {
-        if (!ring) return;
-        const baseR = i === 0 ? 144 : 245;
-        const amplitude = i === 0 ? 4 : 7;
-        gsap.to(ring, {
-          attr: { r: baseR + amplitude },
-          duration: 3.4 + i * 1.6,
-          yoyo: true, repeat: -1, ease: 'sine.inOut',
-          delay: i * 1.8,
-        });
-      });
-
-      // 2. MoS₂ S–Mo–S layers shear — demonstrates why μ = 0.03
-      // The van der Waals gap between layers allows near-frictionless lateral slip
-      const [topLayer,, botLayer] = mos2LayerRefs.current;
-      if (topLayer) gsap.to(topLayer, { x: 6, duration: 5.2, yoyo: true, repeat: -1, ease: 'sine.inOut', delay: 1.0 });
-      if (botLayer) gsap.to(botLayer, { x: -6, duration: 5.2, yoyo: true, repeat: -1, ease: 'sine.inOut', delay: 1.0 });
-
-      // 3. MoS₂ expanding pulse — system heartbeat every ~5 seconds
-      if (pulseRef.current) {
-        const pulseTl = gsap.timeline({ repeat: -1, delay: 1.5 });
-        pulseTl.set(pulseRef.current, { attr: { r: 50 }, opacity: 0 });
-        pulseTl.to(pulseRef.current, { opacity: 0.50, duration: 0.15, ease: 'power2.out' });
-        pulseTl.to(pulseRef.current, { attr: { r: 95 }, opacity: 0, duration: 2.2, ease: 'power2.out' });
-        pulseTl.to({}, { duration: 2.8 }); // pause between pulses
-      }
-
-      // 4. Protective edges: flowing dashes toward MoS₂ (ongoing chemical protection)
-      edgeRefs.current.forEach((edge, i) => {
-        if (!edge || !ASSEMBLY_EDGES[i].dash) return;
-        // Remove pathLength normalization → switch to real pixel units
-        edge.removeAttribute('pathLength');
-        gsap.set(edge, { strokeDasharray: '8 5', strokeDashoffset: 0, opacity: 1 });
-        // Negative offset = dashes flow toward arrowhead (toward MoS₂)
-        gsap.to(edge, { strokeDashoffset: -13, duration: 1.0, repeat: -1, ease: 'none' });
-      });
-
-      // 5. Carrier particle — visualizes wax delivering MoS₂ to chain joint
-      if (carrierDotRef.current) {
-        const parNode = ASSEMBLY_NODES[0];  // Paraffin
-        const mos2Node = ASSEMBLY_NODES[3]; // MoS₂
-        const ce = curvedEdge(parNode.cx, parNode.cy, mos2Node.cx, mos2Node.cy, parNode.r, mos2Node.r);
-        const prog = { t: 0 };
-        gsap.set(carrierDotRef.current, { opacity: 0 });
-        gsap.to(prog, {
-          t: 1, duration: 2.0, repeat: -1, ease: 'power1.inOut', delay: 0.6,
-          onUpdate() {
-            const t = prog.t, mt = 1 - t;
-            const bx = mt * mt * ce.x1 + 2 * mt * t * ce.cpx + t * t * ce.x2;
-            const by = mt * mt * ce.y1 + 2 * mt * t * ce.cpy + t * t * ce.y2;
-            // Fade in/out at endpoints
-            const opacity = t < 0.12 ? t / 0.12 : t > 0.88 ? (1 - t) / 0.12 : 1;
-            if (carrierDotRef.current) {
-              carrierDotRef.current.setAttribute('cx', String(Math.round(bx * 10) / 10));
-              carrierDotRef.current.setAttribute('cy', String(Math.round(by * 10) / 10));
-              carrierDotRef.current.setAttribute('opacity', String(opacity * 0.9));
-            }
-          },
-        });
-      }
-
-    }, svgRef);
-    return () => ctx.revert();
-  }, [assembled, isOverview]);
-
-  const hovNode = ASSEMBLY_NODES.find(n => n.id === hoveredNode) ?? null;
-
-  return (
-    <div className="w-full select-none">
-      <svg
-        ref={svgRef}
-        viewBox="0 0 640 430"
-        className="w-full block"
-        style={{ overflow: 'visible' }}
-      >
-        <defs>
-          {/* Shared satellite gradient */}
-          <radialGradient id={`${uid}-ng`} cx="34%" cy="28%" r="72%">
-            <stop offset="0%"   stopColor={nodeGradA} />
-            <stop offset="100%" stopColor={nodeGradB} />
-          </radialGradient>
-          {/* MoS₂ cobalt gradient */}
-          <radialGradient id={`${uid}-mg`} cx="30%" cy="24%" r="74%">
-            <stop offset="0%"   stopColor={isDark ? '#2456cc' : '#2c5acc'} />
-            <stop offset="100%" stopColor={isDark ? '#05102a' : '#08144a'} />
-          </radialGradient>
-          {/* Arrowheads */}
-          <marker id={`${uid}-ao`} markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto">
-            <path d="M0,0 L0,5 L5,2.5 z" fill={edgeSolid} />
-          </marker>
-          <marker id={`${uid}-ad`} markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto">
-            <path d="M0,0 L0,5 L5,2.5 z" fill={edgeDash} />
-          </marker>
-          <marker id={`${uid}-as`} markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto">
-            <path d="M0,0 L0,5 L5,2.5 z" fill={edgeSolid} />
-          </marker>
-          <marker id={`${uid}-asd`} markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto">
-            <path d="M0,0 L0,5 L5,2.5 z" fill={edgeDash} />
-          </marker>
-          <marker id={`${uid}-ah`} markerWidth="6" markerHeight="6" refX="5.5" refY="3" orient="auto">
-            <path d="M0,0.5 L0,5.5 L5.5,3 z" fill={edgeHot} />
-          </marker>
-          {/* Main carrier edge — larger arrowhead to match heavier stroke */}
-          <marker id={`${uid}-am`} markerWidth="7" markerHeight="7" refX="5.5" refY="3.5" orient="auto">
-            <path d="M0,0 L0,7 L7,3.5 z" fill={isDark ? 'rgba(80,130,230,0.70)' : 'rgba(42,84,153,0.55)'} />
-          </marker>
-          {/* Edge glow filter */}
-          <filter id={`${uid}-eg`} x="-30%" y="-30%" width="160%" height="160%">
-            <feGaussianBlur stdDeviation="2.5" result="blur"/>
-            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-          </filter>
-        </defs>
-
-        {/* ── Zone fills: inner=protective agents, mid=carrier, outer=matrix modifiers ── */}
-        <circle cx={GRAPH_CX} cy={GRAPH_CY} r={245} fill={z3Fill} />
-        <circle cx={GRAPH_CX} cy={GRAPH_CY} r={195} fill={z2Fill} />
-        <circle cx={GRAPH_CX} cy={GRAPH_CY} r={144} fill={z1Fill} />
-
-        {/* ── Zone ring borders — refs allow breathing animation ── */}
-        <circle ref={el => { ringRefs.current[0] = el; }}
-          cx={GRAPH_CX} cy={GRAPH_CY} r={144} fill="none" stroke={ringClr} strokeWidth={0.9} strokeDasharray="4 6" />
-        <circle ref={el => { ringRefs.current[1] = el; }}
-          cx={GRAPH_CX} cy={GRAPH_CY} r={245} fill="none" stroke={ringClr} strokeWidth={0.9} strokeDasharray="4 6" />
-
-        {/* ── MoS₂ expanding pulse ring (ambient heartbeat) ── */}
-        <circle ref={pulseRef}
-          cx={GRAPH_CX} cy={GRAPH_CY} r={50} fill="none"
-          stroke={isDark ? 'rgba(68,114,212,0.50)' : 'rgba(42,84,153,0.38)'}
-          strokeWidth={1.2} opacity={0} />
-
-        {/* ── Carrier edge particle (wax delivering MoS₂) ── */}
-        <circle ref={carrierDotRef}
-          cx={ASSEMBLY_NODES[0].cx} cy={ASSEMBLY_NODES[0].cy} r={3.5}
-          fill={isDark ? '#7ab8ff' : '#2a56c4'} opacity={0}
-          style={{ filter: `drop-shadow(0 0 5px ${isDark ? '#7ab8ffCC' : '#2a56c4AA'})` }} />
-
-        {/* ── "So what" vignette — friction comparison bars, appear after full assembly ── */}
-        {/* Positions: centered at GRAPH_CX, rows at GRAPH_CY+62, +76, +90 */}
-        {(() => {
-          const vx = GRAPH_CX - 72;  // bar left edge
-          const maxW = 120;           // max bar width at μ=0.18
-          const scale = maxW / 0.18;  // px per μ unit
-          const bars = [
-            { label: de ? 'Waxcelerate' : 'Waxcelerate', mu: 0.03, isThis: true  },
-            { label: de ? 'Graphit'     : 'Graphite',    mu: 0.10, isThis: false },
-            { label: de ? 'Kettenöl'    : 'Chain oil',   mu: 0.18, isThis: false },
-          ];
-          const accentFill = isDark ? 'rgba(80,130,230,0.80)' : 'rgba(42,84,153,0.65)';
-          const dimFill    = isDark ? 'rgba(80,130,230,0.22)' : 'rgba(42,84,153,0.16)';
-          const textClr    = isDark ? 'rgba(180,210,255,0.80)' : 'rgba(26,60,110,0.75)';
-          const muClr      = isDark ? 'rgba(140,180,255,0.65)' : 'rgba(42,84,153,0.55)';
-          return (
-            <g ref={vignetteRef} opacity={0} style={{ pointerEvents: 'none' }}>
-              {/* Title */}
-              <text x={GRAPH_CX} y={GRAPH_CY + 54} textAnchor="middle"
-                fontSize="6.5" fontFamily="monospace" letterSpacing="0.18em"
-                fill={isDark ? 'rgba(160,200,255,0.45)' : 'rgba(42,80,160,0.38)'}>
-                {de ? 'REIBUNGSKOEFF.' : 'FRICTION COEFF.'}
-              </text>
-              {bars.map((b, idx) => {
-                const y  = GRAPH_CY + 63 + idx * 16;
-                const bw = b.mu * scale;
-                return (
-                  <g key={idx}>
-                    {/* Track */}
-                    <rect x={vx} y={y} width={maxW} height={7} rx={2}
-                      fill={isDark ? 'rgba(255,255,255,0.04)' : 'rgba(42,84,153,0.06)'} />
-                    {/* Bar fill */}
-                    <rect x={vx} y={y} width={bw} height={7} rx={2}
-                      fill={b.isThis ? accentFill : dimFill}
-                      style={b.isThis ? { filter: isDark ? 'drop-shadow(0 0 4px rgba(80,130,230,0.6))' : 'none' } : undefined} />
-                    {/* Label */}
-                    <text x={vx + maxW + 6} y={y + 4} dominantBaseline="middle"
-                      fontSize="7" fontFamily="monospace" fill={textClr}>
-                      {b.label}
-                    </text>
-                    {/* μ value */}
-                    <text x={vx - 4} y={y + 4} textAnchor="end" dominantBaseline="middle"
-                      fontSize="6.5" fontFamily="monospace" fill={b.isThis ? accentFill : muClr}>
-                      {b.mu.toFixed(2)}
-                    </text>
-                  </g>
-                );
-              })}
-              {/* μ axis label */}
-              <text x={vx + maxW / 2} y={GRAPH_CY + 114} textAnchor="middle"
-                fontSize="6" fontFamily="monospace" letterSpacing="0.12em"
-                fill={isDark ? 'rgba(140,180,255,0.30)' : 'rgba(42,80,160,0.28)'}>
-                μ →  {de ? '(niedriger = besser)' : '(lower = better)'}
-              </text>
-            </g>
-          );
-        })()}
-
-        {/* Zone labels removed — spatial position + fill intensity encodes meaning.
-            Inner zone (darker): protective agents · Outer zone (lighter): matrix modifiers */}
-
-        {/* ── Edges ── */}
-        {ASSEMBLY_EDGES.map((edge, i) => {
-          const a      = ASSEMBLY_NODES[edge.from - 1];
-          const b      = ASSEMBLY_NODES[edge.to - 1];
-          const { path, lx, ly } = curvedEdge(a.cx, a.cy, b.cx, b.cy, a.r, b.r);
-          const label  = de ? edge.labelDe : edge.labelEn;
-          const hot    = isEdgeHot(edge.from, edge.to);
-          const dimmed = isEdgeDimmed(edge.from, edge.to);
-          const isMain = edge.main && !isOverview;
-
-          const baseStroke = edge.dash ? edgeDash : edgeSolid;
-          const mainStroke = isDark ? 'rgba(80,130,230,0.65)' : 'rgba(42,84,153,0.50)';
-          const stroke = hot ? edgeHot : isMain ? mainStroke : (isOverview ? (isDark ? 'rgba(80,130,230,0.28)' : 'rgba(42,84,153,0.18)') : baseStroke);
-          const sw     = hot ? 2.5 : isOverview ? 0.8 : edge.weight;
-          const dashArr = (!hot && edge.dash && !isOverview) ? '5 3.5' : undefined;
-          const arrow  = hot
-            ? `url(#${uid}-ah)`
-            : isMain
-              ? `url(#${uid}-am)`
-              : isOverview
-                ? (edge.dash ? `url(#${uid}-ad)` : `url(#${uid}-ao)`)
-                : (edge.dash ? `url(#${uid}-asd)` : `url(#${uid}-as)`);
-          const edgePathId = `${uid}-ep-${i}`;
-
-          return (
-            <g key={i} style={{ opacity: dimmed ? 0.08 : 1, transition: 'opacity 0.22s ease' }}>
-              {/* Ghost path for textPath reference (no stroke, not animated) */}
-              {!isOverview && !isMain && (
-                <path id={edgePathId} d={path} fill="none" stroke="none" />
-              )}
-              {/* Main edge stroke — main carrier gets glow filter */}
-              <path
-                ref={el => { edgeRefs.current[i] = el; }}
-                d={path}
-                pathLength="1"
-                stroke={stroke}
-                strokeWidth={sw}
-                strokeLinecap="round"
-                strokeDasharray={dashArr}
-                fill="none"
-                markerEnd={arrow}
-                filter={isMain && !hot ? `url(#${uid}-eg)` : undefined}
-                style={mode === 'synthesis'
-                  ? { strokeDasharray: dashArr ?? 1, strokeDashoffset: 1, opacity: 0, transition: 'stroke 0.2s, stroke-width 0.2s' }
-                  : { transition: 'stroke 0.2s, stroke-width 0.2s' }}
+          {/* Mobile/tablet: same complete figure, just inline above the stats
+              instead of floating beside them — no room for that at this width. */}
+          <div className="lg:hidden mb-6">
+            <picture>
+              <source srcSet="/images/science/cassette-wear-full.webp" type="image/webp" />
+              <img
+                src="/images/science/cassette-wear-full.jpg"
+                alt={de ? 'Verschleißprinzip: Zahnflanke einer Kassette, neu vs. abgenutzt' : 'Wear principle: cassette tooth flank, new vs. worn'}
+                className="w-full h-auto"
               />
-              {/* Inline edge label — tiny text at midpoint, no pill box */}
-              {!isOverview && !isMain && !hot && (
-                <text style={{ pointerEvents: 'none' }}>
-                  <textPath
-                    href={`#${edgePathId}`}
-                    startOffset="50%"
-                    textAnchor="middle"
-                    fontSize="7"
-                    fontFamily="monospace"
-                    letterSpacing="0.04em"
-                    fill={edgeLblClr}
-                    dy={edge.dash ? -5 : -4}
-                  >
-                    {label}
-                  </textPath>
-                </text>
-              )}
-              {/* Hot state: floating label (clearer on hover) */}
-              {!isOverview && hot && (
-                <g transform={`translate(${lx},${ly})`} style={{ pointerEvents: 'none' }}>
-                  <text x={0} y={0} textAnchor="middle" dominantBaseline="middle"
-                    fontSize="8" fontFamily="monospace" letterSpacing="0.04em"
-                    fill={edgeHot}>
-                    {label}
-                  </text>
-                </g>
-              )}
-            </g>
-          );
-        })}
+            </picture>
+          </div>
 
-        {/* ── Nodes ── */}
-        {ASSEMBLY_NODES.map((node, i) => {
-          const isMos    = node.id === 4;
-          const isHot    = canHover && hoveredNode === node.id;
-          const subAbove = node.id <= 3;
-          const scaleVal = isHot ? (isMos ? 1.07 : 1.10) : 1;
+          {/* Stats — hairline-divided, no card fill/border, so they read as
+              numbers hovering over the page rather than four boxed tiles. */}
+          <div className="grid grid-cols-2 mb-8" style={{ border: '1px solid var(--bd2)', borderRadius: 14 }}>
+            {cards.map((c, i) => (
+              <div key={c.label} className="px-4 py-3.5"
+                style={{
+                  borderLeft: i % 2 === 1 ? '1px solid var(--bd2)' : 'none',
+                  borderTop: i >= 2 ? '1px solid var(--bd2)' : 'none',
+                }}>
+                <c.icon className="h-3.5 w-3.5 mb-2" style={{ color: 'var(--txf)' }} aria-hidden />
+                <p className="num-data font-bold text-[19px] sm:text-[21px] leading-none" style={{ color: 'var(--tx1)' }}>{c.value}</p>
+                <p className="text-[9.5px] uppercase tracking-[0.1em] mt-2" style={{ color: 'var(--txf)' }}>{c.label}</p>
+                <p className="text-[10px] mt-0.5" style={{ color: 'var(--txm)' }}>{c.detail}</p>
+              </div>
+            ))}
+          </div>
 
-          return (
-            <g
-              key={node.id}
-              ref={el => { nodeRefs.current[i] = el as SVGGElement; }}
-              style={{
-                opacity: (mode === 'synthesis' && !canHover) ? 0 : nodeOpacity(node.id),
-                transition: canHover ? 'opacity 0.22s ease' : 'none',
-                cursor: canHover ? 'pointer' : 'default',
-              }}
-              onPointerEnter={() => canHover && setHoveredNode(node.id)}
-              onPointerLeave={() => canHover && setHoveredNode(null)}
-            >
-              {/* MoS₂ halo rings */}
-              {isMos && (<>
-                <polygon points={hexPoints(node.cx, node.cy, node.r + 16)} fill="none"
-                  stroke={isDark ? 'rgba(68,114,212,0.18)' : 'rgba(42,84,153,0.12)'} strokeWidth={1} />
-                <polygon points={hexPoints(node.cx, node.cy, node.r + 30)} fill="none"
-                  stroke={isDark ? 'rgba(68,114,212,0.07)' : 'rgba(42,84,153,0.05)'} strokeWidth={0.8} />
-              </>)}
-
-              {/* Main shape: hexagon for MoS₂ (actual P6₃/mmc crystal system), circle for satellites */}
-              {isMos ? (
-                <polygon
-                  points={hexPoints(node.cx, node.cy, node.r)}
-                  fill={`url(#${uid}-mg)`}
-                  stroke={isHot ? nodeStrokeH : (isDark ? '#3d6ad4' : '#2a56c4')}
-                  strokeWidth={isHot ? 2.8 : 2.2}
-                  style={{
-                    transform: `scale(${scaleVal})`,
-                    transformOrigin: `${node.cx}px ${node.cy}px`,
-                    transition: 'transform 0.24s ease, stroke 0.2s',
-                    filter: `drop-shadow(0 0 ${isHot ? 22 : 14}px rgba(55,100,215,${isHot ? 0.88 : 0.58}))`,
-                  }}
-                />
-              ) : (
-                <>
-                  {/* Chemical-agent nodes (Dispersant id=5, Antioxidant id=6) get a dashed outer ring
-                      encoding: "this is a chemical agent wrapping/protecting the core particle" */}
-                  {(node.id === 5 || node.id === 6) && (
-                    <circle
-                      cx={node.cx} cy={node.cy} r={node.r + 11}
-                      fill="none"
-                      stroke={isHot ? nodeStrokeH : (isDark ? 'rgba(100,150,230,0.38)' : 'rgba(42,84,153,0.30)')}
-                      strokeWidth={1.2}
-                      strokeDasharray="3 3"
-                      style={{
-                        transform: `scale(${scaleVal})`,
-                        transformOrigin: `${node.cx}px ${node.cy}px`,
-                        transition: 'transform 0.24s ease, stroke 0.2s',
-                      }}
-                    />
-                  )}
-                  <circle
-                    cx={node.cx} cy={node.cy} r={node.r}
-                    fill={`url(#${uid}-ng)`}
-                    stroke={isHot ? nodeStrokeH : nodeStroke}
-                    strokeWidth={isHot ? 2.2 : 1.6}
-                    style={{
-                      transform: `scale(${scaleVal})`,
-                      transformOrigin: `${node.cx}px ${node.cy}px`,
-                      transition: 'transform 0.24s ease, stroke 0.2s',
-                      filter: isHot
-                        ? (isDark ? 'drop-shadow(0 0 10px rgba(68,120,240,0.55))' : 'drop-shadow(0 2px 10px rgba(26,60,110,0.25))')
-                        : 'none',
-                    }}
-                  />
-                </>
-              )}
-
-              {/* ── Mechanism micro-visualization ── */}
-              {!isMos && !isOverview && (
-                <NodeMechViz id={node.id} cx={node.cx} cy={node.cy} isDark={isDark} isHot={isHot} />
-              )}
-
-              {/* MoS₂ content: S–Mo–S layer hint + μ 0.03 + spec */}
-              {isMos && (<>
-                {/* S-Mo-S layered crystal hint (two subtle horizontal bands) */}
-                {!isOverview && (
-                  <g opacity={0.38}>
-                    {/* Top S layer — ref[0], shears right in ambient animation */}
-                    <rect ref={el => { mos2LayerRefs.current[0] = el; }}
-                      x={node.cx - 21} y={node.cy - 11} width={42} height={5.5} rx={2.5}
-                      fill={isDark ? 'rgba(150,195,255,0.50)' : 'rgba(180,210,255,0.65)'} />
-                    {/* Mo layer — middle (fixed) */}
-                    <rect ref={el => { mos2LayerRefs.current[1] = el; }}
-                      x={node.cx - 19} y={node.cy - 3.5} width={38} height={4} rx={1.5}
-                      fill={isDark ? 'rgba(100,155,255,0.65)' : 'rgba(140,180,255,0.75)'} />
-                    {/* Bottom S layer — ref[2], shears left in ambient animation */}
-                    <rect ref={el => { mos2LayerRefs.current[2] = el; }}
-                      x={node.cx - 21} y={node.cy + 2} width={42} height={5.5} rx={2.5}
-                      fill={isDark ? 'rgba(150,195,255,0.50)' : 'rgba(180,210,255,0.65)'} />
-                    {/* vdW gap hint lines */}
-                    <line x1={node.cx - 24} y1={node.cy - 3.5} x2={node.cx - 24} y2={node.cy + 2}
-                      stroke={isDark ? 'rgba(140,180,255,0.30)' : 'rgba(100,150,255,0.30)'} strokeWidth={0.6} strokeDasharray="1.5 1.5" />
-                    <line x1={node.cx + 24} y1={node.cy - 3.5} x2={node.cx + 24} y2={node.cy + 2}
-                      stroke={isDark ? 'rgba(140,180,255,0.30)' : 'rgba(100,150,255,0.30)'} strokeWidth={0.6} strokeDasharray="1.5 1.5" />
-                    {/* S-Mo-S atom labels — left side of each layer band */}
-                    <text x={node.cx - 28} y={node.cy - 8} textAnchor="end" dominantBaseline="middle"
-                      fontSize="5.5" fontFamily="monospace" fill="rgba(200,225,255,0.45)" letterSpacing="0.05em">S</text>
-                    <text x={node.cx - 28} y={node.cy - 1.5} textAnchor="end" dominantBaseline="middle"
-                      fontSize="5.5" fontFamily="monospace" fill="rgba(200,225,255,0.55)" letterSpacing="0.05em">Mo</text>
-                    <text x={node.cx - 28} y={node.cy + 4.5} textAnchor="end" dominantBaseline="middle"
-                      fontSize="5.5" fontFamily="monospace" fill="rgba(200,225,255,0.45)" letterSpacing="0.05em">S</text>
-                  </g>
-                )}
-                <text x={node.cx} y={node.cy - 14} textAnchor="middle" dominantBaseline="middle"
-                  fontSize="12" fontWeight="800" fontFamily="system-ui, sans-serif"
-                  letterSpacing="-0.01em" fill="rgba(255,255,255,0.95)">
-                  MoS₂
-                </text>
-                <text x={node.cx} y={node.cy + 4} textAnchor="middle" dominantBaseline="middle"
-                  fontSize="19" fontWeight="800" fontFamily="system-ui, sans-serif"
-                  letterSpacing="-0.04em"
-                  fill={isDark ? '#a0ccff' : '#cce0ff'}
-                  style={{ filter: 'drop-shadow(0 0 10px rgba(80,140,255,0.55))' }}>
-                  μ 0.03
-                </text>
-                <text x={node.cx} y={node.cy + 22} textAnchor="middle" dominantBaseline="middle"
-                  fontSize="7.5" fontFamily="monospace" letterSpacing="0.04em"
-                  fill="rgba(255,255,255,0.38)">
-                  {'< 5 µm · 5.06 g/cm³'}
-                </text>
-              </>)}
-
-              {/* Satellite content: metric (primary) + name (secondary) */}
-              {!isMos && (<>
-                <text x={node.cx} y={node.cy - 5} textAnchor="middle" dominantBaseline="middle"
-                  fontSize="13" fontWeight="800" fontFamily="system-ui, sans-serif"
-                  letterSpacing="-0.03em" fill={isHot ? (isDark ? '#aad0ff' : '#1535a0') : metricClr}
-                  style={{ transition: 'fill 0.2s' }}>
-                  {node.metric}
-                </text>
-                <text x={node.cx} y={node.cy + 9} textAnchor="middle" dominantBaseline="middle"
-                  fontSize="8.5" fontWeight="600" fontFamily="system-ui, sans-serif"
-                  letterSpacing="0.01em" fill={isDark ? 'rgba(255,255,255,0.52)' : 'rgba(15,30,70,0.52)'}>
-                  {de ? node.labelDe : node.labelEn}
-                </text>
-              </>)}
-
-              {/* Sub-label outside (above for top nodes, below for lower) */}
-              {!isMos && (
-                <text
-                  x={node.cx}
-                  y={subAbove ? node.cy - node.r - 8 : node.cy + node.r + 13}
-                  textAnchor="middle" dominantBaseline={subAbove ? 'auto' : 'middle'}
-                  fontSize="7.5" fontFamily="monospace" letterSpacing="0.08em" fill={subClr}>
-                  {de ? node.subDe : node.subEn}
-                </text>
-              )}
-            </g>
-          );
-        })}
-      </svg>
-
-      {/* ── Hover info panel — shows the scientific "why" for each component ── */}
-      {!isOverview && (
-        <div
-          className="hidden sm:flex items-start gap-3 mt-4 px-5 py-3.5 rounded-xl"
-          style={{
-            minHeight: '52px',
-            background: isDark ? 'rgba(20,36,80,0.35)' : 'rgba(230,238,255,0.60)',
-            border: `1px solid ${isDark ? 'rgba(68,114,212,0.18)' : 'rgba(42,84,153,0.14)'}`,
-            opacity: (canHover && hovNode) ? 1 : 0,
-            transform: (canHover && hovNode) ? 'translateY(0)' : 'translateY(4px)',
-            transition: 'opacity 0.22s ease, transform 0.22s ease',
-          }}
-        >
-          {hovNode && (<>
-            <span className="text-[10px] font-mono font-bold flex-shrink-0 mt-0.5 px-2 py-1 rounded-md"
-              style={{ background: isDark ? 'rgba(68,114,212,0.25)' : 'rgba(68,114,212,0.12)', color: isDark ? '#7ab0ff' : '#2a56c4' }}>
-              {hovNode.metric}
-            </span>
-            <p className="text-[12px] leading-relaxed" style={{ color: isDark ? 'rgba(200,220,255,0.78)' : 'rgba(15,40,90,0.72)' }}>
-              {de ? hovNode.whyDe : hovNode.whyEn}
-            </p>
-          </>)}
+          <a href="#problem" className="inline-flex items-center gap-2 text-[13px] font-semibold transition-opacity hover:opacity-75" style={{ color: 'var(--tx1)' }}>
+            {de ? 'Wie das gemessen wurde' : 'How this was measured'}
+            <ArrowRight className="h-3.5 w-3.5" />
+          </a>
         </div>
-      )}
-
-      {/* ── Mobile relationship summary — 3 key edges, sm:hidden ── */}
-      <div
-        className="mt-4 pt-3.5 sm:hidden space-y-2"
-        style={{ borderTop: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(26,60,110,0.10)'}` }}
-      >
-        {([ASSEMBLY_EDGES[2], ASSEMBLY_EDGES[0], ASSEMBLY_EDGES[4]] as typeof ASSEMBLY_EDGES[number][]).map((edge, i) => {
-          const from = ASSEMBLY_NODES.find(n => n.id === edge.from)!;
-          const to   = ASSEMBLY_NODES.find(n => n.id === edge.to)!;
-          return (
-            <div key={i} className="flex items-center gap-2 text-left">
-              <span
-                className="text-[9px] font-semibold px-1.5 py-0.5 rounded flex-shrink-0"
-                style={{ background: isDark ? 'rgba(68,114,212,0.15)' : 'rgba(68,114,212,0.08)', color: isDark ? '#7ab0ff' : '#1a3c8e' }}
-              >
-                {de ? from.labelDe : from.labelEn}
-              </span>
-              <span className="text-[8px]" style={{ color: isDark ? 'rgba(255,255,255,0.25)' : 'rgba(26,60,110,0.35)' }}>→</span>
-              <span
-                className="text-[8px] font-mono flex-1 truncate"
-                style={{ color: isDark ? 'rgba(160,195,248,0.55)' : 'rgba(30,68,158,0.52)' }}
-              >
-                {de ? edge.labelDe : edge.labelEn}
-              </span>
-              <span
-                className="text-[9px] font-semibold px-1.5 py-0.5 rounded flex-shrink-0"
-                style={{ background: isDark ? 'rgba(68,114,212,0.25)' : 'rgba(68,114,212,0.12)', color: isDark ? '#88c0ff' : '#1535a0' }}
-              >
-                {de ? to.labelDe : to.labelEn}
-              </span>
-            </div>
-          );
-        })}
       </div>
+    </section>
+  );
+}
 
+// ─── Insight — accent-bar callout used inside the deep "Die Physik" tier ──────
+function Insight({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex gap-3 mt-4 pl-1">
+      <span className="w-0.5 flex-shrink-0 rounded-full" style={{ background: 'var(--accent)' }} />
+      <p className="text-[13px] leading-relaxed italic" style={{ color: 'var(--tx2)' }}>{children}</p>
     </div>
   );
 }
 
-// ─── Synthesis Reveal — full section after Ch06 ───────────────────────────────
-function SynthesisReveal({ de, isDark }: { de: boolean; isDark: boolean }) {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.fromTo(ref.current,
-        { opacity: 0, y: 24 },
-        { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out',
-          scrollTrigger: { trigger: ref.current, start: 'top 82%', once: true } },
-      );
-    }, ref);
-    return () => ctx.revert();
-  }, []);
-  const divClr = isDark ? 'rgba(255,255,255,0.08)' : 'var(--bd)';
+// ─── Disclosure — one collapsible tier (grid-rows 0fr→1fr) ───────────────────
+function Disclosure({ label, children }: { label: string; children: React.ReactNode }) {
+  const [open, setOpen] = useState(false);
   return (
-    <div ref={ref} className="rounded-2xl p-8 sm:p-10" style={{ background: isDark ? 'rgba(26,60,110,0.14)' : 'rgba(26,60,110,0.06)', border: `1px solid ${isDark ? 'rgba(68,114,212,0.22)' : 'rgba(26,60,110,0.18)'}`, opacity: 0 }}>
-      <div className="text-center mb-8">
-        <p className="text-[9px] uppercase tracking-[0.28em] mb-2" style={{ color: '#4472D4' }}>
-          {de ? 'Das vollständige System' : 'The complete system'}
-        </p>
-        <h2 className="font-serif-display text-[1.6rem] sm:text-[2rem] font-bold leading-tight text-wx-tx1 mb-3">
-          {de ? 'Sechs Komponenten. Ein System.' : 'Six components. One system.'}
-        </h2>
-        <p className="text-[14px] max-w-md mx-auto" style={{ color: 'var(--txm)' }}>
-          {de
-            ? 'Jede Konzentration hat die einer anderen beeinflusst. Kein Bestandteil wurde isoliert gewählt.'
-            : 'Every concentration influenced another. No component was chosen in isolation.'}
-        </p>
+    <div className="mt-3">
+      <button onClick={() => setOpen(o => !o)}
+        className="inline-flex items-center gap-1.5 text-[12px] font-medium"
+        style={{ color: 'var(--accent)' }} aria-expanded={open}>
+        {label}
+        <ChevronDown className="h-3.5 w-3.5 transition-transform duration-300"
+          style={{ transform: open ? 'rotate(180deg)' : 'none' }} />
+      </button>
+      <div style={{ display: 'grid', gridTemplateRows: open ? '1fr' : '0fr',
+        transition: 'grid-template-rows 0.4s cubic-bezier(0.22,1,0.36,1)' }}>
+        <div style={{ overflow: 'hidden' }}>{children}</div>
       </div>
-      <FormulaAssembly de={de} mode="synthesis" isDark={isDark} />
-      <div className="mt-6 pt-5 flex flex-wrap items-center justify-center gap-6" style={{ borderTop: `1px solid ${divClr}` }}>
-        {ASSEMBLY_EDGES.map((edge, i) => (
-          <div key={i} className="flex items-center gap-1.5">
-            <div className="w-4 h-px" style={{ background: '#4472D4', opacity: 0.6 }} />
-            <span className="text-[9px] font-mono" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'rgba(26,60,110,0.55)' }}>
-              {de ? edge.labelDe : edge.labelEn}
+    </div>
+  );
+}
+
+// ─── ACT II — component card: editorial split layout (inspired by numbered index) ─
+function CompCard({ c, n, de, cardRef }: { c: ScienceComponent; n: number; de: boolean; cardRef?: React.Ref<HTMLDivElement> }) {
+  return (
+    <div ref={cardRef} id={c.id} className="scroll-mt-24 rounded-2xl border border-wx-bd overflow-hidden"
+      style={{ background: 'var(--card-bg)', boxShadow: 'var(--card-shad)' }}>
+      {/* Header band */}
+      <div className="px-6 pt-5 pb-4" style={{ borderBottom: '1px solid var(--bd2)' }}>
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <span className="num-data text-[12px] flex-shrink-0" style={{ color: 'var(--txf)' }}>0{n}</span>
+            <div className="h-px flex-1 max-w-[32px]" style={{ background: 'var(--accent-soft)', opacity: 0.4 }} />
+            <span className="text-[10px] uppercase tracking-[0.18em] flex-shrink-0" style={{ color: 'var(--accent-soft)' }}>
+              {de ? c.roleDe : c.roleEn}
             </span>
           </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ─── Failure Timeline ─────────────────────────────────────────────────────────
-// Only verified facts from existing chapter text — no invented history.
-const FAILURES: { vDe: string; vEn: string; failDe: string; failEn: string; fixDe: string; fixEn: string; isCurrent?: true }[] = [
-  {
-    vDe: 'Frühe Formel',     vEn: 'Early formula',
-    failDe: 'Wachsschicht platzte bei < 5°C ab — Biegebelastung brach die spröde Matrix.',
-    failEn: 'Wax coating spalled below 5°C — flexing cracked the brittle matrix.',
-    fixDe: '→ Mikrokristallines Wachs als Plastifikator (Ch. 03)',
-    fixEn: '→ Microcrystalline wax as plasticizer (Ch. 03)',
-  },
-  {
-    vDe: 'Iteration 2',      vEn: 'Iteration 2',
-    failDe: 'Höhere FT-Wachs-Konzentration getestet — keine messbare Verbesserung beim Tropfpunkt.',
-    failEn: 'Higher FT-wax concentration tested — no measurable drop point improvement.',
-    fixDe: '→ Optimum liegt niedriger als intuitiv erwartet (Ch. 02)',
-    fixEn: '→ Optimum is lower than intuitively expected (Ch. 02)',
-  },
-  {
-    vDe: 'Iteration 3',      vEn: 'Iteration 3',
-    failDe: 'MoS₂ ohne Dispergiermittel: messbarer Konzentrationsgradient von oben nach unten im Block.',
-    failEn: 'MoS₂ without dispersant: measurable concentration gradient top-to-bottom in the block.',
-    fixDe: '→ Amphiphiler Fettsäureester stabilisiert Partikel (Ch. 05)',
-    fixEn: '→ Amphiphilic fatty acid ester stabilizes particles (Ch. 05)',
-  },
-  {
-    vDe: 'Aktuelle Formel',  vEn: 'Current formula',
-    failDe: 'Separater Korrosionsinhibitor entfernt — seine antioxidative Nebenwirkung kompensiert.',
-    failEn: 'Separate corrosion inhibitor removed — its secondary antioxidant effect compensated.',
-    fixDe: '→ Phenol-Antioxidans-Konzentration leicht erhöht (Ch. 06)',
-    fixEn: '→ Phenolic antioxidant concentration raised slightly (Ch. 06)',
-    isCurrent: true,
-  },
-];
-
-function FailureTimeline({ de, isDark }: { de: boolean; isDark: boolean }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const connectorRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      const items = ref.current?.querySelectorAll('.ft-item');
-      if (items?.length) {
-        gsap.fromTo(items,
-          { opacity: 0, x: -16 },
-          { opacity: 1, x: 0, duration: 0.5, stagger: 0.14, ease: 'power2.out',
-            scrollTrigger: { trigger: ref.current, start: 'top 82%', once: true } },
-        );
-      }
-      if (connectorRef.current) {
-        gsap.fromTo(connectorRef.current,
-          { scaleX: 0 },
-          { scaleX: 1, duration: 0.8, ease: 'power2.out', transformOrigin: 'left center',
-            scrollTrigger: { trigger: ref.current, start: 'top 82%', once: true } },
-        );
-      }
-      const lastDot = ref.current?.querySelector('.ft-item:last-child .ft-dot');
-      if (lastDot) {
-        gsap.fromTo(lastDot,
-          { scale: 1 },
-          { scale: 1.4, duration: 0.22, ease: 'back.out(3)',
-            scrollTrigger: { trigger: ref.current, start: 'top 78%', once: true },
-            yoyo: true, repeat: 1 },
-        );
-      }
-      const vLines = ref.current?.querySelectorAll('.ft-vline');
-      if (vLines?.length) {
-        gsap.fromTo(vLines,
-          { scaleY: 0 },
-          { scaleY: 1, duration: 0.5, stagger: 0.14, ease: 'power2.out', transformOrigin: 'top center',
-            scrollTrigger: { trigger: ref.current, start: 'top 82%', once: true } },
-        );
-      }
-    }, ref);
-    return () => ctx.revert();
-  }, []);
-
-  const cardBg   = isDark ? 'rgba(255,255,255,0.03)' : 'var(--sf3)';
-  const cardBd   = isDark ? 'rgba(255,255,255,0.08)' : 'var(--bd2)';
-  const failClr  = isDark ? 'rgba(255,255,255,0.50)' : 'var(--txm)';
-  const fixClr   = isDark ? 'rgba(100,140,220,0.80)' : '#2A5499';
-  const dotFail  = isDark ? 'rgba(255,255,255,0.18)' : 'rgba(26,60,110,0.25)';
-  const lineClr  = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(26,60,110,0.12)';
-
-  return (
-    <div ref={ref} className="w-full">
-      <div className="flex items-center gap-3 mb-6 pl-4 relative">
-        <div className="absolute left-0 top-0 bottom-0 w-[3px] rounded-full"
-          style={{ background: 'linear-gradient(to bottom, #2A5499, rgba(68,114,212,0.2))' }} />
-        <p className="text-[10px] uppercase tracking-[0.28em]" style={{ color: isDark ? 'rgba(255,255,255,0.35)' : 'var(--txff)' }}>
-          {de ? 'Entwicklungsiterationen — nur dokumentierte Fakten' : 'Development iterations — documented facts only'}
-        </p>
-      </div>
-      {/* Desktop: horizontal timeline */}
-      <div className="hidden sm:flex items-start gap-0 relative">
-        {/* connector line */}
-        <div ref={connectorRef} className="absolute top-[18px] left-0 right-0 h-px" style={{ background: lineClr, transform: 'scaleX(0)', transformOrigin: 'left center' }} />
-        {FAILURES.map((f, i) => (
-          <div key={i} className="ft-item flex-1 flex flex-col items-center px-2 opacity-0" style={{ minWidth: 0 }}>
-            {/* Dot */}
-            <div
-              className="ft-dot w-[18px] h-[18px] rounded-full flex-shrink-0 z-10 flex items-center justify-center mb-3"
-              style={{
-                background: f.isCurrent ? '#2A5499' : dotFail,
-                border: `2px solid ${f.isCurrent ? '#4472D4' : (isDark ? 'rgba(255,255,255,0.15)' : 'rgba(26,60,110,0.20)')}`,
-                boxShadow: f.isCurrent ? '0 0 10px rgba(68,114,212,0.5)' : 'none',
-              }}
-            />
-            {/* Card */}
-            <div className="w-full rounded-xl p-3" style={{
-              background: f.isCurrent ? (isDark ? 'rgba(26,60,110,0.20)' : 'rgba(26,60,110,0.07)') : cardBg,
-              border: `1px solid ${f.isCurrent ? 'rgba(68,114,212,0.30)' : cardBd}`,
-              boxShadow: f.isCurrent ? '0 0 0 2px rgba(68,114,212,0.35), 0 4px 20px rgba(26,60,110,0.15)' : 'none',
-            }}>
-              <p className="text-[9px] font-mono font-bold uppercase tracking-wide mb-1.5" style={{ color: f.isCurrent ? '#4472D4' : (isDark ? 'rgba(255,255,255,0.35)' : 'var(--txff)') }}>
-                {de ? f.vDe : f.vEn}
-              </p>
-              <p className="text-[10px] leading-snug mb-2" style={{ color: failClr }}>
-                {de ? f.failDe : f.failEn}
-              </p>
-              <p className="text-[10px] font-medium leading-snug" style={{ color: fixClr }}>
-                {de ? f.fixDe : f.fixEn}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
-      {/* Mobile: vertical list */}
-      <div className="flex flex-col gap-3 sm:hidden">
-        {FAILURES.map((f, i) => (
-          <div key={i} className="ft-item flex gap-3 opacity-0">
-            <div className="flex flex-col items-center flex-shrink-0 pt-1">
-              <div className="ft-dot w-3 h-3 rounded-full" style={{ background: f.isCurrent ? '#2A5499' : dotFail, border: `1.5px solid ${f.isCurrent ? '#4472D4' : (isDark ? 'rgba(255,255,255,0.15)' : 'rgba(26,60,110,0.20)')}` }} />
-              {i < FAILURES.length - 1 && <div className="ft-vline w-px flex-1 mt-1" style={{ background: lineClr, minHeight: '20px' }} />}
-            </div>
-            <div className="pb-2">
-              <p className="text-[9px] font-mono font-bold uppercase tracking-wide mb-1" style={{ color: f.isCurrent ? '#4472D4' : (isDark ? 'rgba(255,255,255,0.35)' : 'var(--txff)') }}>
-                {de ? f.vDe : f.vEn}
-              </p>
-              <p className="text-[11px] leading-snug mb-1" style={{ color: failClr }}>{de ? f.failDe : f.failEn}</p>
-              <p className="text-[11px] font-medium" style={{ color: fixClr }}>{de ? f.fixDe : f.fixEn}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ─── Hexagonal MoS₂ crystal (proper SVG) ─────────────────────────────────────
-function HexMoS2({ de }: { de: boolean }) {
-  const topRef  = useRef<SVGGElement>(null);
-  const botRef  = useRef<SVGGElement>(null);
-  const [hov, setHov] = useState(false);
-  const [isTouch, setIsTouch] = useState(false);
-  useEffect(() => {
-    setIsTouch(window.matchMedia('(hover: none)').matches);
-  }, []);
-
-  useEffect(() => {
-    if (!topRef.current || !botRef.current) return;
-    gsap.to(topRef.current, { x: hov ?  18 : 0, duration: 0.65, ease: 'power2.inOut' });
-    gsap.to(botRef.current, { x: hov ? -18 : 0, duration: 0.65, ease: 'power2.inOut' });
-  }, [hov]);
-
-  const TOP_S1 = 18, TOP_MO = 44, TOP_S2 = 70;
-  const BOT_S1 = 95, BOT_MO = 121, BOT_S2 = 147;
-  const GAP_Y  = 82;
-
-  const bonds = (moY: number, sUp: number, sDn: number) =>
-    MO_X.flatMap(mx => [
-      { x1: mx, y1: moY, x2: mx - 20, y2: sUp },
-      { x1: mx, y1: moY, x2: mx + 20, y2: sUp },
-      { x1: mx, y1: moY, x2: mx - 20, y2: sDn },
-      { x1: mx, y1: moY, x2: mx + 20, y2: sDn },
-    ]);
-
-  const { theme } = useTheme();
-  const isDark = theme === 'dark' || theme === 'noir';
-  const vizCard = isDark ? VIZ_CARD : VIZ_CARD_LIGHT;
-  const dotGrid = isDark ? DARK_DOT_GRID : LIGHT_DOT_GRID;
-
-  const txMid  = isDark ? 'rgba(255,255,255,0.38)' : 'rgba(26,60,110,0.60)';
-  const txLow  = isDark ? 'rgba(255,255,255,0.25)' : 'rgba(26,60,110,0.40)';
-  const txMono = isDark ? 'rgba(255,255,255,0.45)' : 'rgba(26,60,110,0.65)';
-  const sLabel = isDark ? 'rgba(168,192,244,0.55)'  : 'rgba(68,114,212,0.70)';
-  const moLabel= isDark ? 'rgba(130,170,240,0.80)'  : 'rgba(26,60,110,0.90)';
-  const vdwClr = isDark ? 'rgba(100,140,220,0.28)'  : 'rgba(68,114,212,0.45)';
-  const vdwTxt = isDark ? 'rgba(168,192,244,0.45)'  : 'rgba(68,114,212,0.60)';
-  const hovClr = isDark ? 'rgba(100,140,220,0.60)'  : 'rgba(26,60,110,0.65)';
-  const divClr = isDark ? 'rgba(255,255,255,0.08)'  : 'rgba(26,60,110,0.12)';
-  const txSub  = isDark ? 'rgba(255,255,255,0.35)'  : 'rgba(26,60,110,0.55)';
-
-  return (
-    <div className="w-full rounded-2xl overflow-hidden p-5 cursor-default select-none"
-      style={{ ...vizCard, ...dotGrid, transition: 'box-shadow 0.35s ease', boxShadow: hov ? '0 0 0 1px rgba(68,114,212,0.4), 0 8px 32px rgba(26,60,110,0.3)' : 'none', cursor: isTouch ? 'pointer' : undefined }}
-      onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
-      onClick={() => {
-        if (!isTouch) return;
-        const next = !hov;
-        setHov(next);
-        if (next) {
-          setTimeout(() => setHov(false), 2200);
-        }
-      }}>
-      <style>{`@keyframes pulse-gap { 0%,100% { opacity: 0.4 } 50% { opacity: 1 } }`}</style>
-      <p className="text-[10px] uppercase tracking-[0.2em] mb-3 text-center" style={{ color: txMid }}>
-        {de ? 'MoS₂ — S–Mo–S Schichtstruktur' : 'MoS₂ — S–Mo–S layer structure'}
-      </p>
-      <svg viewBox="0 0 395 155" className="w-full" style={{ overflow: 'visible' }}>
-        <g ref={topRef}>
-          {bonds(TOP_MO, TOP_S1, TOP_S2).map((b, i) => (
-            <line key={i} x1={b.x1} y1={b.y1} x2={b.x2} y2={b.y2} stroke={isDark ? 'rgba(42,84,153,0.22)' : 'rgba(42,84,153,0.35)'} strokeWidth="1.2" />
-          ))}
-          {S_X.map((x, i) => <circle key={`ts1${i}`} cx={x} cy={TOP_S1} r="5" fill="#A8C0F4" opacity="0.92" />)}
-          {MO_X.map((x, i) => <circle key={`tmo${i}`} cx={x} cy={TOP_MO} r="7.5" fill="#2A5499" style={{ filter: 'drop-shadow(0 0 5px rgba(68,114,212,0.60))' }} />)}
-          {S_X.map((x, i) => <circle key={`ts2${i}`} cx={x} cy={TOP_S2} r="5" fill="#A8C0F4" opacity="0.92" />)}
-        </g>
-        {/* Van der Waals gap */}
-        <g>
-          <line x1="8" y1={GAP_Y} x2="310" y2={GAP_Y} stroke={vdwClr} strokeWidth="1" strokeDasharray="5 4" />
-          {isTouch && !hov && (
-            <rect
-              x="8" y={GAP_Y - 4} width="302" height="8" rx="2"
-              fill={isDark ? 'rgba(68,114,212,0.12)' : 'rgba(68,114,212,0.08)'}
-              style={{ animation: 'pulse-gap 2s ease-in-out infinite' }}
-            />
-          )}
-          <text x="316" y={GAP_Y + 4} fontSize="8.5" fill={vdwTxt} fontFamily="monospace">vdW</text>
-        </g>
-        <g ref={botRef}>
-          {bonds(BOT_MO, BOT_S1, BOT_S2).map((b, i) => (
-            <line key={i} x1={b.x1} y1={b.y1} x2={b.x2} y2={b.y2} stroke={isDark ? 'rgba(42,84,153,0.22)' : 'rgba(42,84,153,0.35)'} strokeWidth="1.2" />
-          ))}
-          {S_X.map((x, i) => <circle key={`bs1${i}`} cx={x} cy={BOT_S1} r="5" fill="#A8C0F4" opacity="0.92" />)}
-          {MO_X.map((x, i) => <circle key={`bmo${i}`} cx={x} cy={BOT_MO} r="7.5" fill="#1A3C6E" style={{ filter: 'drop-shadow(0 0 5px rgba(26,60,110,0.55))' }} />)}
-          {S_X.map((x, i) => <circle key={`bs2${i}`} cx={x} cy={BOT_S2} r="5" fill="#A8C0F4" opacity="0.92" />)}
-        </g>
-        {/* Single-side labels only */}
-        <text x="10" y={TOP_S1 + 4}  fontSize="8.5" fill={sLabel}  fontFamily="monospace">S</text>
-        <text x="10" y={TOP_MO + 4}  fontSize="8.5" fill={moLabel} fontFamily="monospace">Mo</text>
-        <text x="10" y={TOP_S2 + 4}  fontSize="8.5" fill={sLabel}  fontFamily="monospace">S</text>
-        <text x="10" y={BOT_S1 + 4}  fontSize="8.5" fill={sLabel}  fontFamily="monospace">S</text>
-        <text x="10" y={BOT_MO + 4}  fontSize="8.5" fill={moLabel} fontFamily="monospace">Mo</text>
-        <text x="10" y={BOT_S2 + 4}  fontSize="8.5" fill={sLabel}  fontFamily="monospace">S</text>
-        {/* Hover arrow cue */}
-        {hov && (
-          <text x="197" y={GAP_Y - 4} textAnchor="middle" fontSize="8" fill={hovClr} fontFamily="monospace" letterSpacing="1">
-            {de ? '← Schicht gleitet →' : '← layer slides →'}
-          </text>
-        )}
-      </svg>
-      <div className="flex items-center justify-between mt-3 pt-3" style={{ borderTop: `1px solid ${divClr}` }}>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-full" style={{ background: '#A8C0F4' }} />
-            <span className="text-[9px] font-mono" style={{ color: txMono }}>S</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-4 h-4 rounded-full" style={{ background: '#2A5499', boxShadow: '0 0 4px rgba(68,114,212,0.5)' }} />
-            <span className="text-[9px] font-mono" style={{ color: txMono }}>Mo</span>
-          </div>
-          <span className="text-[9px]" style={{ color: txLow }}>
-            {isTouch
-              ? (de ? '· Tippen: Schicht gleitet' : '· Tap: layer shears')
-              : (de ? '· Hover: Schicht gleitet' : '· Hover: layer shears')}
+          <span className="num-data font-semibold text-[17px] flex-shrink-0" style={{ color: 'var(--accent-soft)' }}>
+            {c.metric}
           </span>
         </div>
-        <div className="text-right">
-          <p className="font-serif-display italic text-[20px] font-bold leading-none" style={{ color: '#6A8AE8', textShadow: '0 0 16px rgba(68,114,212,0.55)' }}>μ 0.03</p>
-          <p className="text-[9px] mt-0.5" style={{ color: txSub }}>{de ? 'Grenzschmierung' : 'Boundary lubrication'}</p>
+      </div>
+
+      {/* Body */}
+      <div className="px-6 py-5">
+        <h3 className="font-display font-bold text-wx-tx1 text-[1.35rem] leading-tight tracking-[-0.01em]">
+          {de ? c.nameDe : c.nameEn}
+        </h3>
+        <p className="text-[14px] leading-relaxed text-wx-tx2 mt-3 max-w-prose">
+          {de ? c.sumDe : c.sumEn}
+        </p>
+
+        {/* Tier 2a — short rationale */}
+        <Disclosure label={de ? 'Warum das zählt' : 'Why it matters'}>
+          <p className="text-[13px] leading-relaxed pt-3" style={{ color: 'var(--txm)' }}>
+            {de ? c.whyDe : c.whyEn}
+          </p>
+        </Disclosure>
+
+        {/* Tier 2b — deep physics + diagram + insight */}
+        <Disclosure label={de ? 'Die Physik' : 'The physics'}>
+          <div className="pt-3 space-y-3">
+            {(de ? c.physicsDe : c.physicsEn).map((p, i) => (
+              <p key={i} className="text-[13px] leading-relaxed" style={{ color: 'var(--txm)' }}>{p}</p>
+            ))}
+          </div>
+          <ComponentDiagram which={c.diagram} de={de} />
+          <Insight>{de ? c.insightDe : c.insightEn}</Insight>
+        </Disclosure>
+      </div>
+    </div>
+  );
+}
+
+// ─── ACT II — development-iteration story (compact, collapsible) ──────────────
+function FailureTimeline({ de }: { de: boolean }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="mt-12">
+      <button onClick={() => setOpen(o => !o)}
+        className="flex items-center gap-2 font-display font-bold text-wx-tx1"
+        style={{ fontSize: '1.15rem' }} aria-expanded={open}>
+        {de ? 'Wie die Formel entstand' : 'How the formula evolved'}
+        <ChevronDown className="h-4 w-4 transition-transform duration-300"
+          style={{ transform: open ? 'rotate(180deg)' : 'none', color: 'var(--accent)' }} />
+      </button>
+      <div style={{ display: 'grid', gridTemplateRows: open ? '1fr' : '0fr',
+        transition: 'grid-template-rows 0.45s cubic-bezier(0.22,1,0.36,1)' }}>
+        <div style={{ overflow: 'hidden' }}>
+          <ol className="mt-5 space-y-4 border-l" style={{ borderColor: 'var(--bd)' }}>
+            {FAILURES.map((f, i) => (
+              <li key={i} className="relative pl-5">
+                <span className="absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full"
+                  style={{ background: f.isCurrent ? 'var(--accent)' : 'var(--bd)',
+                    boxShadow: f.isCurrent ? '0 0 0 3px rgba(var(--accent-rgb),0.18)' : 'none' }} />
+                <p className="text-[12px] uppercase tracking-[0.14em]"
+                  style={{ color: f.isCurrent ? 'var(--accent)' : 'var(--txf)' }}>
+                  {de ? f.vDe : f.vEn}
+                </p>
+                <p className="text-[13px] text-wx-tx2 mt-1">{de ? f.failDe : f.failEn}</p>
+                <p className="text-[13px] mt-0.5" style={{ color: 'var(--accent)' }}>→ {de ? f.fixDe : f.fixEn}</p>
+              </li>
+            ))}
+          </ol>
         </div>
       </div>
     </div>
   );
 }
 
-// ─── Transfer film animation — chain cross-section ────────────────────────────
-function TransferFilm({ de }: { de: boolean }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [hov, setHov] = useState(false);
-  const [hasPlayed, setHasPlayed] = useState(false);
-  const tlRef = useRef<gsap.core.Timeline | null>(null);
+// ─── ACT II — ambient temperature operating range (Pro vs Classic comparison) ─
+const AMB = { min: -10, max: 45 };
+const AX = (t: number) => ((t - AMB.min) / (AMB.max - AMB.min)) * 100;
+function TempWindow({ de }: { de: boolean }) {
+  const ticks = [-5, 0, 10, 20, 30, 40];
+  const pro     = { lo: -8, hi: 45 };
+  const classic = { lo: 5,  hi: 35 };
 
-  const replay = () => {
-    if (!tlRef.current) return;
-    const container = ref.current;
-    if (!container) return;
-    const particles = Array.from(container.querySelectorAll<SVGCircleElement>('.tf-p'));
-    const films = Array.from(container.querySelectorAll<SVGRectElement>('.tf-film'));
-    const label = container.querySelector<SVGTextElement>('.tf-label');
-    particles.forEach((el, i) => {
-      const p = TF_PARTICLES[i];
-      gsap.set(el, { attr: { cy: p.y } });
-    });
-    gsap.set(films, { opacity: 0 });
-    if (label) gsap.set(label, { opacity: 0 });
-    tlRef.current.restart();
+  return (
+    <InstrumentFrame eyebrow={de ? 'Einsatzbereich' : 'Operating range'}
+      chip={de ? 'Außentemperatur' : 'Ambient temp.'} className="h-full">
+
+      <div className="space-y-5">
+        {/* Pro bar */}
+        <div>
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-[11px] font-semibold" style={{ color: 'var(--tx1)' }}>Pro</span>
+            <span className="num-data text-[10px]" style={{ color: 'var(--accent-soft)' }}>−8 … 45+ °C</span>
+          </div>
+          <div className="relative h-3 rounded-full" style={{ background: 'var(--sf2)' }}>
+            <div className="absolute inset-y-0 rounded-full"
+              style={{ left: `${AX(pro.lo)}%`, right: '0%',
+                background: 'linear-gradient(90deg, var(--accent), rgba(var(--accent-rgb),0.55))',
+              }} />
+            {/* arrow indicating >45°C */}
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-0 h-0"
+              style={{ borderTop: '5px solid transparent', borderBottom: '5px solid transparent',
+                borderLeft: '6px solid var(--accent)', marginRight: -7, opacity: 0.6 }} />
+          </div>
+        </div>
+
+        {/* Classic bar */}
+        <div>
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-[11px] font-semibold" style={{ color: 'var(--tx1)' }}>Classic</span>
+            <span className="num-data text-[10px]" style={{ color: 'var(--txf)' }}>+5 … ~35 °C</span>
+          </div>
+          <div className="relative h-3 rounded-full" style={{ background: 'var(--sf2)' }}>
+            <div className="absolute inset-y-0 rounded-full"
+              style={{ left: `${AX(classic.lo)}%`, width: `${AX(classic.hi) - AX(classic.lo)}%`,
+                background: 'var(--txf)',
+                opacity: 0.45,
+              }} />
+          </div>
+        </div>
+
+        {/* Shared axis */}
+        <div className="relative h-5">
+          <div className="absolute left-0 right-0 top-0 h-px" style={{ background: 'var(--bd)' }} />
+          {ticks.map(t => (
+            <div key={t} className="absolute top-0 -translate-x-1/2 text-center" style={{ left: `${AX(t)}%` }}>
+              <div className="w-px h-1.5 mx-auto" style={{ background: 'var(--bd)' }} />
+              <span className="num-data text-[9px] block mt-0.5" style={{ color: 'var(--txf)' }}>{t > 0 ? `+${t}` : t}°</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <p className="text-[12px] leading-relaxed mt-3" style={{ color: 'var(--txm)' }}>
+        {de
+          ? 'Pro deckt den gesamten Fahrradbereich ab — von Winterfahrten bei −8 °C bis Sommerhitze über 40 °C. Classic funktioniert zuverlässig von Frühling bis Herbst, stößt aber bei Frost und extremer Hitze an Grenzen.'
+          : 'Pro covers the full cycling range — from winter rides at −8 °C to summer heat above 40 °C. Classic works reliably from spring to autumn but hits limits in frost and extreme heat.'}
+      </p>
+    </InstrumentFrame>
+  );
+}
+
+// ─── Microscope comparison — real micrograph evidence ────────────────────────
+const MICRO = [
+  { n: '01', de: 'Kettenglied – Innenfläche', en: 'Chain link – inner surface', mag: '1 000×',
+    ref: '/images/microscope/01-chain-link-inner-ref.webp',
+    mos2: '/images/microscope/01-chain-link-inner-mos2.webp' },
+  { n: '02', de: 'Kassettenspeiche – Verschleißkante', en: 'Cassette spoke – wear edge', mag: '2 000×',
+    ref: '/images/microscope/02-sprocket-wear-edge-ref.webp',
+    mos2: '/images/microscope/02-sprocket-wear-edge-mos2.webp' },
+  { n: '03', de: 'Kassettenspeiche – Zahnflanke', en: 'Cassette spoke – tooth flank', mag: '2 500×',
+    ref: '/images/microscope/03-sprocket-tooth-flank-ref.webp',
+    mos2: '/images/microscope/03-sprocket-tooth-flank-mos2.webp' },
+  { n: '04', de: 'Kettenglied – Innenfläche', en: 'Chain link – inner surface', mag: '1 000×',
+    ref: '/images/microscope/04-chain-link-inner-2-ref.webp',
+    mos2: '/images/microscope/04-chain-link-inner-2-mos2.webp' },
+];
+
+// Drag-to-reveal before/after — replaces a static side-by-side pair with an
+// interactive one. Pointer position controls a clip-path on the "before"
+// layer, so dragging left reveals more of the treated surface underneath.
+function BeforeAfterSlider({ beforeSrc, afterSrc, beforeAlt, afterAlt, beforeLabel, afterLabel }: {
+  beforeSrc: string; afterSrc: string; beforeAlt: string; afterAlt: string;
+  beforeLabel: string; afterLabel: string;
+}) {
+  const [pct, setPct] = useState(50);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const draggingRef = useRef(false);
+
+  const updateFromClientX = (clientX: number) => {
+    const el = containerRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const raw = ((clientX - rect.left) / rect.width) * 100;
+    setPct(Math.min(100, Math.max(0, raw)));
   };
 
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      const container = ref.current;
-      if (!container) return;
-
-      const particles = Array.from(container.querySelectorAll<SVGCircleElement>('.tf-p'));
-      const films     = Array.from(container.querySelectorAll<SVGRectElement>('.tf-film'));
-      const label     = container.querySelector<SVGTextElement>('.tf-label');
-
-      const tl = gsap.timeline({
-        scrollTrigger: { trigger: container, start: 'top 88%', once: true },
-        onComplete: () => setHasPlayed(true),
-      });
-      tlRef.current = tl;
-
-      particles.forEach((el, i) => {
-        const p = TF_PARTICLES[i];
-        tl.to(el, {
-          attr: { cy: p.top ? 30 + p.r : 153 - p.r },
-          duration: 1.4,
-          ease: 'power3.inOut',
-        }, i * 0.048);
-      });
-
-      tl.to(films, { opacity: 0.88, duration: 0.7, stagger: 0.12, ease: 'power2.out' }, 0.7);
-      if (label) tl.to(label, { opacity: 1, duration: 0.5 }, 1.5);
-
-    }, ref);
-    return () => ctx.revert();
-  }, []);
-
-  const { theme } = useTheme();
-  const isDark = theme === 'dark' || theme === 'noir';
-  const vizCard = isDark ? VIZ_CARD : VIZ_CARD_LIGHT;
-  const dotGrid = isDark ? DARK_DOT_GRID : LIGHT_DOT_GRID;
-
-  const txMid   = isDark ? 'rgba(255,255,255,0.38)' : 'rgba(26,60,110,0.60)';
-  const txVal   = isDark ? 'rgba(255,255,255,0.85)' : 'rgba(15,30,70,0.85)';
-  const txSub   = isDark ? 'rgba(255,255,255,0.38)' : 'rgba(26,60,110,0.55)';
-  const divClr  = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(26,60,110,0.12)';
-  const sLabelC = isDark ? 'rgba(255,255,255,0.28)' : 'rgba(26,60,110,0.50)';
-  const steelT0 = isDark ? '#2a2a38' : '#c4cedf';
-  const steelT1 = isDark ? '#1c1c28' : '#b0bcce';
-  const steelB0 = isDark ? '#1c1c28' : '#b0bcce';
-  const steelB1 = isDark ? '#2a2a38' : '#c4cedf';
-
-  return (
-    <div ref={ref} className="w-full rounded-2xl overflow-hidden p-5"
-      style={{ ...vizCard, ...dotGrid, position: 'relative', transition: 'box-shadow 0.35s ease', boxShadow: hov ? '0 0 0 1px rgba(68,114,212,0.4), 0 8px 32px rgba(26,60,110,0.30)' : 'none' }}
-      onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}>
-      <p className="text-[10px] uppercase tracking-[0.2em] mb-3 text-center" style={{ color: txMid }}>
-        {de ? 'Transferfilm unter Kontaktdruck' : 'Transfer film under contact pressure'}
-      </p>
-      <svg viewBox="0 0 440 175" className="w-full" style={{ overflow: 'visible' }}>
-        <defs>
-          <linearGradient id="steel-grad-t" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={steelT0} />
-            <stop offset="100%" stopColor={steelT1} />
-          </linearGradient>
-          <linearGradient id="steel-grad-b" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={steelB0} />
-            <stop offset="100%" stopColor={steelB1} />
-          </linearGradient>
-        </defs>
-        {/* Steel plates — no text inside them */}
-        <rect x="0" y="0"   width="440" height="22" fill="url(#steel-grad-t)" rx="2" />
-        <rect x="0" y="153" width="440" height="22" fill="url(#steel-grad-b)" rx="2" />
-        {/* Side labels for the plates */}
-        <text x="6" y="15"  fontSize="8" fill={sLabelC} fontFamily="monospace">{de ? 'Stahl' : 'Steel'}</text>
-        <text x="6" y="167" fontSize="8" fill={sLabelC} fontFamily="monospace">{de ? 'Stahl' : 'Steel'}</text>
-        {/* Transfer film deposits */}
-        <rect className="tf-film" x="0" y="22"  width="440" height="5" fill="#1A3C6E" opacity="0" rx="1" />
-        <rect className="tf-film" x="0" y="148" width="440" height="5" fill="#1A3C6E" opacity="0" rx="1" />
-        {/* MoS₂ particles */}
-        {TF_PARTICLES.map((p, i) => (
-          <circle key={i} className="tf-p" cx={p.x} cy={p.y} r={p.r} fill="#2A5499" opacity="0.85" />
-        ))}
-        {/* Film label — appears after animation */}
-        <text className="tf-label" x="220" y="38" textAnchor="middle" fontSize="8.5" fill="rgba(106,138,232,0.9)" fontFamily="monospace" letterSpacing="1" opacity="0">
-          {de ? 'Fe-S Transferfilm' : 'Fe-S transfer film'}
-        </text>
-      </svg>
-      <div className="mt-3 pt-3 grid grid-cols-3 gap-2 text-center" style={{ borderTop: `1px solid ${divClr}` }}>
-        {[
-          { val: '50–300 MPa', sub: de ? 'Kontaktdruck' : 'Contact pressure' },
-          { val: '2–5 nm',     sub: de ? 'Filmdicke'    : 'Film thickness'   },
-          { val: 'Fe–S',       sub: de ? 'tribochem. Bindung' : 'tribochem. bond' },
-        ].map((s, i) => (
-          <div key={i}>
-            <p className="font-mono text-[12px] font-semibold" style={{ color: txVal }}>{s.val}</p>
-            <p className="text-[9px] mt-0.5" style={{ color: txSub }}>{s.sub}</p>
-          </div>
-        ))}
-      </div>
-      {hasPlayed && (
-        <button
-          onClick={replay}
-          aria-label="Replay animation"
-          className="absolute top-3 right-3 p-1.5 rounded-full transition-opacity hover:opacity-70"
-          style={{
-            background: isDark ? 'rgba(68,114,212,0.18)' : 'rgba(68,114,212,0.10)',
-            border: `1px solid ${isDark ? 'rgba(68,114,212,0.30)' : 'rgba(68,114,212,0.20)'}`,
-            color: isDark ? 'rgba(168,192,244,0.80)' : '#2a56c4',
-          }}
-        >
-          <RotateCcw className="w-3.5 h-3.5" />
-        </button>
-      )}
-    </div>
-  );
-}
-
-// ─── Crystal lattice — split-panel comparison: ordered vs disordered ──────────
-// LEFT: Waxcelerate (uniform, narrow 58–60°C) · RIGHT: Generic paraffin (wide, irregular)
-function CrystalLattice({ de }: { de: boolean }) {
-  const svgRef = useRef<SVGSVGElement>(null);
-  const { theme } = useTheme();
-  const isDark = theme === 'dark' || theme === 'noir';
-  const vizCard = isDark ? VIZ_CARD : VIZ_CARD_LIGHT;
-  const dotGrid = isDark ? DARK_DOT_GRID : LIGHT_DOT_GRID;
-
-  const txMid  = isDark ? 'rgba(255,255,255,0.38)' : 'rgba(26,60,110,0.60)';
-  const divClr = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(26,60,110,0.12)';
-  const vdwClr = isDark ? 'rgba(100,140,220,0.32)' : 'rgba(68,114,212,0.50)';
-  const vdwTxt = isDark ? 'rgba(100,140,220,0.45)' : 'rgba(68,114,212,0.65)';
-  const bktClr = isDark ? 'rgba(100,140,220,0.45)' : 'rgba(68,114,212,0.65)';
-  const bktTxt = isDark ? 'rgba(100,140,220,0.50)' : 'rgba(26,60,110,0.70)';
-  const bandA  = isDark ? 'rgba(26,60,110,0.14)'   : 'rgba(68,114,212,0.10)';
-  const bandB  = isDark ? 'rgba(26,60,110,0.07)'   : 'rgba(68,114,212,0.05)';
-
-  // LEFT panel — 3 crystal layers, 7 aligned chain rods
-  const LAYERS = [
-    { yCenter: 36,  color: '#4472D4' },
-    { yCenter: 96,  color: '#3D67CA' },
-    { yCenter: 156, color: '#4472D4' },
-  ];
-  const CHAIN_W = 46, CHAIN_H = 9, CHAIN_GAP = 7;
-  const CHAINS = 7;
-  const totalChainWidth = CHAINS * CHAIN_W + (CHAINS - 1) * CHAIN_GAP;
-  const startX = (395 - totalChainWidth) / 2;
-
-  // RIGHT panel — disordered (varied widths/gaps/heights/ycenters)
-  const RIGHT_WIDTHS = [38, 52, 42, 58, 36, 50, 44];
-  const RIGHT_GAPS   = [5, 9, 6, 11, 4, 8, 0];
-  const CHAINS_R = 7;
-  const CHAIN_H_R = [8, 10, 7, 11, 8, 9, 10];
-  const RIGHT_LAYERS_Y = [34, 98, 152];
-  const RIGHT_COLOR = 'rgba(68,114,212,0.38)';
-  const totalRightWidth = RIGHT_WIDTHS.reduce((s, w) => s + w, 0) + RIGHT_GAPS.slice(0, CHAINS_R - 1).reduce((s, g) => s + g, 0);
-  const startXR = 420 + (400 - totalRightWidth) / 2;
-
-  // Van der Waals gap positions
-  const VDW_Y = [66, 126];
-
-  useEffect(() => {
-    const rods  = svgRef.current?.querySelectorAll<SVGRectElement>('.chain-rod');
-    const rodsR = svgRef.current?.querySelectorAll<SVGRectElement>('.chain-rod-r');
-    if (rods?.length) {
-      rods.forEach((rod, i) => {
-        gsap.to(rod, {
-          x: (i % 3 === 0 ? 1.5 : i % 3 === 1 ? -1.5 : 0.8),
-          duration: 1.6 + (i % 5) * 0.28,
-          repeat: -1, yoyo: true, ease: 'sine.inOut',
-          delay: i * 0.09,
-        });
-      });
-    }
-    if (rodsR?.length) {
-      rodsR.forEach((rod, i) => {
-        gsap.to(rod, {
-          x: (i % 3 === 0 ? 3.5 : i % 3 === 1 ? -3.5 : 2.0),
-          duration: 1.2 + (i % 5) * 0.22,
-          repeat: -1, yoyo: true, ease: 'sine.inOut',
-          delay: i * 0.07,
-        });
-      });
-    }
+    const onMove = (e: MouseEvent | TouchEvent) => {
+      if (!draggingRef.current) return;
+      const clientX = 'touches' in e ? e.touches[0]?.clientX : e.clientX;
+      if (clientX != null) updateFromClientX(clientX);
+    };
+    const onUp = () => { draggingRef.current = false; };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+    window.addEventListener('touchmove', onMove, { passive: true });
+    window.addEventListener('touchend', onUp);
     return () => {
-      if (rods?.length)  gsap.killTweensOf(Array.from(rods));
-      if (rodsR?.length) gsap.killTweensOf(Array.from(rodsR));
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+      window.removeEventListener('touchmove', onMove);
+      window.removeEventListener('touchend', onUp);
     };
   }, []);
 
-  // Build right-panel rod x positions
-  const rightRodXs: number[] = [];
-  let rx = startXR;
-  for (let ci = 0; ci < CHAINS_R; ci++) {
-    rightRodXs.push(rx);
-    rx += RIGHT_WIDTHS[ci] + (ci < CHAINS_R - 1 ? RIGHT_GAPS[ci] : 0);
-  }
-
-  const dividerClr = isDark ? 'rgba(255,255,255,0.10)' : 'rgba(26,60,110,0.12)';
-
   return (
-    <div className="w-full rounded-2xl overflow-hidden p-5" style={{ ...vizCard, ...dotGrid }}>
-      <p className="text-[10px] uppercase tracking-[0.2em] mb-3 text-center" style={{ color: txMid }}>
-        {de ? 'Lamellare Kristallstruktur — C₂₀–C₃₆' : 'Lamellar crystal structure — C₂₀–C₃₆'}
-      </p>
-      <svg ref={svgRef} viewBox="0 0 820 210" className="w-full" style={{ minHeight: 100 }}>
-        {/* ── LEFT panel background bands ── */}
-        {LAYERS.map((l, li) => (
-          <rect key={li} x="0" y={l.yCenter - 22} width="400" height="44"
-            fill={li % 2 === 0 ? bandA : bandB} />
-        ))}
-        {/* ── LEFT label ── */}
-        <text x="197" y="8" fontSize="8" fontFamily="monospace" textAnchor="middle" fill={txMid}>
-          58–60°C
-        </text>
-        {/* ── LEFT VdW gap lines ── */}
-        {VDW_Y.map((y, i) => (
-          <g key={i}>
-            <line x1="12" y1={y} x2="340" y2={y} stroke={vdwClr} strokeWidth="0.8" strokeDasharray="5 4" />
-            <text x="348" y={y + 4} fontSize="8.5" fill={vdwTxt} fontFamily="monospace" textAnchor="start">vdW</text>
-          </g>
-        ))}
-        {/* ── LEFT chain rods ── */}
-        {LAYERS.map((l, li) =>
-          [...Array(CHAINS)].map((_, ci) => {
-            const x = startX + ci * (CHAIN_W + CHAIN_GAP);
-            return (
-              <rect
-                key={`L${li}-${ci}`}
-                className="chain-rod"
-                x={x} y={l.yCenter - CHAIN_H / 2} width={CHAIN_W} height={CHAIN_H}
-                rx="4.5"
-                fill={l.color}
-                opacity={0.70 + (ci % 3) * 0.09}
-                style={{ filter: isDark ? 'drop-shadow(0 0 4px rgba(68,114,212,0.55))' : 'drop-shadow(0 2px 6px rgba(68,114,212,0.30))' }}
-              />
-            );
-          })
-        )}
-        {/* ── LEFT side bracket ── */}
-        <line x1="10" y1={LAYERS[1].yCenter - 20} x2="10" y2={LAYERS[1].yCenter + 20}
-          stroke={bktClr} strokeWidth="1" />
-        <text x="14" y={LAYERS[1].yCenter + 4} fontSize="8.5" fill={bktTxt} fontFamily="monospace">
-          {de ? 'Kristallebene' : 'Crystal plane'}
-        </text>
+    <div
+      ref={containerRef}
+      role="slider"
+      aria-label={`${beforeLabel} / ${afterLabel}`}
+      aria-valuenow={Math.round(pct)}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      tabIndex={0}
+      className="relative select-none rounded-xl overflow-hidden aspect-[4/3] mx-3 mb-3"
+      style={{ background: 'var(--hero-stage)', cursor: 'ew-resize', touchAction: 'none' }}
+      onMouseDown={(e) => { draggingRef.current = true; updateFromClientX(e.clientX); }}
+      onTouchStart={(e) => { draggingRef.current = true; updateFromClientX(e.touches[0].clientX); }}
+      onKeyDown={(e) => {
+        if (e.key === 'ArrowLeft') setPct(p => Math.max(0, p - 5));
+        if (e.key === 'ArrowRight') setPct(p => Math.min(100, p + 5));
+      }}
+    >
+      <img src={afterSrc} alt={afterAlt} className="absolute inset-0 w-full h-full object-contain pointer-events-none" draggable={false} />
+      <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ clipPath: `inset(0 ${100 - pct}% 0 0)` }}>
+        <img src={beforeSrc} alt={beforeAlt} className="absolute inset-0 w-full h-full object-contain" draggable={false} />
+      </div>
 
-        {/* ── CENTER divider ── */}
-        <line x1="410" y1="0" x2="410" y2="210" stroke={dividerClr} strokeWidth="0.8" />
-        <g transform="translate(410,105) rotate(-90)">
-          <text x="0" y="0" textAnchor="middle" dominantBaseline="middle"
-            fontSize="7.5" fontFamily="monospace"
-            fill={isDark ? 'rgba(255,255,255,0.28)' : 'rgba(26,60,110,0.35)'}>
-            vs
-          </text>
-        </g>
-
-        {/* ── RIGHT panel background bands ── */}
-        {RIGHT_LAYERS_Y.map((yc, li) => (
-          <rect key={`rb${li}`} x="420" y={yc - 22} width="400" height="44"
-            fill={li % 2 === 0 ? bandA : bandB} />
-        ))}
-        {/* ── RIGHT label ── */}
-        <text x="617" y="8" fontSize="8" fontFamily="monospace" textAnchor="middle" fill={txMid}>
-          55–65°C
-        </text>
-        {/* ── RIGHT VdW gap lines ── */}
-        {VDW_Y.map((y, i) => (
-          <line key={`rvdw${i}`} x1="432" y1={y} x2="770" y2={y} stroke={vdwClr} strokeWidth="0.8" strokeDasharray="5 4" />
-        ))}
-        {/* ── RIGHT chain rods (disordered) ── */}
-        {RIGHT_LAYERS_Y.map((yc, li) =>
-          [...Array(CHAINS_R)].map((_, ci) => {
-            const h = CHAIN_H_R[ci % CHAIN_H_R.length];
-            return (
-              <rect
-                key={`R${li}-${ci}`}
-                className="chain-rod-r"
-                x={rightRodXs[ci]} y={yc - h / 2} width={RIGHT_WIDTHS[ci]} height={h}
-                rx="4.5"
-                fill={RIGHT_COLOR}
-                opacity={0.80}
-              />
-            );
-          })
-        )}
-      </svg>
-      <div className="flex items-center justify-center gap-4 mt-3 pt-3" style={{ borderTop: `1px solid ${divClr}` }}>
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-2.5 rounded-full" style={{ background: '#4472D4', opacity: 0.75 }} />
-          <span className="text-[9px] font-mono" style={{ color: txMid }}>
-            {de ? 'Waxcelerate (geordnet)' : 'Waxcelerate (ordered)'}
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-2.5 rounded-full" style={{ background: 'rgba(68,114,212,0.38)' }} />
-          <span className="text-[9px] font-mono" style={{ color: txMid }}>
-            {de ? 'Generisches Paraffin' : 'Generic paraffin'}
-          </span>
+      {/* Handle */}
+      <div className="absolute inset-y-0 pointer-events-none" style={{ left: `${pct}%` }}>
+        <div className="absolute inset-y-0" style={{ width: 1.5, left: 0, transform: 'translateX(-50%)', background: 'rgba(255,255,255,0.9)' }} />
+        <div className="absolute top-1/2 flex items-center justify-center rounded-full"
+          style={{ left: 0, transform: 'translate(-50%,-50%)', width: 32, height: 32, background: '#fff', boxShadow: '0 2px 10px rgba(0,0,0,0.35)' }}>
+          <ChevronsLeftRight className="h-4 w-4" style={{ color: '#101013' }} strokeWidth={2.25} />
         </div>
       </div>
+
+      {/* Labels — fade with proximity so they don't fight the handle */}
+      <span className="absolute top-2 left-2 text-[9px] uppercase tracking-[0.14em] px-1.5 py-0.5 rounded"
+        style={{ color: 'rgba(255,255,255,0.75)', background: 'rgba(0,0,0,0.35)' }}>
+        {beforeLabel}
+      </span>
+      <span className="absolute top-2 right-2 text-[9px] uppercase tracking-[0.14em] px-1.5 py-0.5 rounded"
+        style={{ color: 'rgba(255,255,255,0.9)', background: 'rgba(0,0,0,0.35)' }}>
+        {afterLabel}
+      </span>
     </div>
   );
 }
 
-// ─── Temperature range ────────────────────────────────────────────────────────
-function TempRange({ de }: { de: boolean }) {
-  const items = [
-    { labelDe: 'Unmodifiziertes Paraffin', labelEn: 'Unmodified paraffin', lo: 58, hi: 62, color: 'var(--bd)' },
-    { labelDe: 'Waxcelerate Classic',      labelEn: 'Waxcelerate Classic', lo: 60, hi: 76, color: '#1A3C6E' },
-    { labelDe: 'Waxcelerate Pro',          labelEn: 'Waxcelerate Pro',     lo: 60, hi: 79, color: '#2A5499' },
-  ];
-  const min = 55, max = 85;
-  const toX = (v: number) => ((v - min) / (max - min)) * 100;
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      ref.current?.querySelectorAll('.t-bar').forEach(bar => {
-        gsap.fromTo(bar, { scaleX: 0 }, { scaleX: 1, duration: 0.9, ease: 'power3.out', transformOrigin: 'left center', scrollTrigger: { trigger: ref.current, start: 'top 82%', once: true } });
-      });
-    }, ref);
-    return () => ctx.revert();
-  }, []);
+function Microscope({ de }: { de: boolean }) {
   return (
-    <div className="w-full rounded-2xl p-5" style={{ ...CARD, ...DOT_GRID }}>
-      <p className="text-[10px] uppercase tracking-[0.2em] mb-5" style={{ color: 'var(--txff)' }}>
-        {de ? 'Effektiver Tropfpunkt' : 'Effective drop point'}
+    <div>
+      <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
+        {de ? 'Oberflächenanalyse' : 'Surface analysis'}
       </p>
-      <div ref={ref} className="space-y-4">
-        {items.map((item, i) => (
-          <div key={i}>
-            <div className="flex justify-between mb-1.5">
-              <span className="text-[11px] text-wx-txm">{de ? item.labelDe : item.labelEn}</span>
-              <span className="text-[11px] font-mono font-semibold text-wx-tx1">{item.lo}–{item.hi}°C</span>
-            </div>
-            <div className="relative h-1.5 rounded-full" style={{ background: 'var(--bd2)' }}>
-              <div className="t-bar absolute top-0 h-full rounded-full" style={{ left: `${toX(item.lo)}%`, width: `${toX(item.hi) - toX(item.lo)}%`, background: item.color }} />
-            </div>
-          </div>
-        ))}
-      </div>
-      <div className="flex justify-between mt-3">
-        {[55, 60, 65, 70, 75, 80, 85].map(t => (
-          <span key={t} className="text-[9px] font-mono" style={{ color: 'var(--txff)' }}>{t}°</span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ─── Particle suspension — animated ──────────────────────────────────────────
-function ParticleSuspension({ de }: { de: boolean }) {
-  const wRef = useRef<HTMLDivElement>(null);
-  const mRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      // "Without": top floating dots drift downward (sedimentation) — longer, more dramatic
-      const floating = wRef.current?.querySelectorAll<HTMLElement>('.sp-float');
-      if (floating?.length) {
-        gsap.to(floating, {
-          y: 64, opacity: 0.18,
-          duration: 4.2, ease: 'power1.in',
-          stagger: 0.18,
-          scrollTrigger: { trigger: wRef.current, start: 'top 78%', once: true },
-        });
-      }
-      // "With": uniformly distributed dots gently breathe
-      const stable = mRef.current?.querySelectorAll<HTMLElement>('.sp-stable');
-      if (stable?.length) {
-        gsap.to(stable, {
-          scale: 0.88, opacity: 0.75,
-          duration: 1.7, repeat: -1, yoyo: true,
-          ease: 'sine.inOut',
-          stagger: { each: 0.11, from: 'random' },
-        });
-      }
-    });
-    return () => ctx.revert();
-  }, []);
-
-  return (
-    <div className="w-full rounded-2xl p-5" style={{ ...CARD, ...DOT_GRID }}>
-      <p className="text-[10px] uppercase tracking-[0.2em] mb-5" style={{ color: 'var(--txff)' }}>
-        {de ? 'Ohne vs. mit Dispergiermittel' : 'Without vs. with dispersant'}
+      <h2 className="font-display font-bold text-wx-tx1 leading-tight mb-2"
+        style={{ fontSize: 'clamp(1.9rem, 4vw, 3rem)', letterSpacing: '-0.02em' }}>
+        {de ? 'Unter dem Mikroskop.' : 'Under the microscope.'}
+      </h2>
+      <p className="text-[15px] max-w-xl mb-8" style={{ color: 'var(--txm)' }}>
+        {de
+          ? 'Originalaufnahmen von Antriebskomponenten — jede Gegenüberstellung bei identischer Vergrößerung und identischen Aufnahmebedingungen.'
+          : 'Original micrographs of drivetrain components — each pair shot at identical magnification and conditions.'}
       </p>
-      <div className="grid grid-cols-2 gap-4">
-        <div ref={wRef} className="flex flex-col items-center">
-          <div className="relative w-full rounded-xl overflow-hidden" style={{ height: '148px', background: 'var(--bd2)', border: '1px solid var(--bd)' }}>
-            {/* Center-of-mass reference line */}
-            <div className="absolute inset-x-2" style={{ top: '50%', height: '1px', background: 'rgba(26,60,110,0.08)' }} />
-            <div className="absolute inset-x-0 top-2 flex flex-wrap gap-2 px-3 justify-center">
-              {[...Array(7)].map((_, i) => (
-                <div key={i} className="sp-float w-3.5 h-3.5 rounded-full flex-shrink-0" style={{ background: '#2A5499', opacity: 0.8 }} />
-              ))}
-            </div>
-            <div className="absolute inset-x-0 bottom-0 px-2 pt-1.5 pb-1 rounded-b" style={{ background: 'rgba(26,60,110,0.30)' }}>
-              <div className="flex flex-wrap gap-1.5 justify-center">
-                {[...Array(18)].map((_, i) => <div key={i} className="w-3 h-3 rounded-full" style={{ background: '#1A3C6E' }} />)}
+
+      {/* Legend */}
+      <div className="flex items-center gap-5 mb-5">
+        <div className="flex items-center gap-2">
+          <div className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--txm)', opacity: 0.35 }} />
+          <span className="text-[11px]" style={{ color: 'var(--txm)' }}>
+            {de ? 'Referenz (ohne MoS₂)' : 'Reference (no MoS₂)'}
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--accent)' }} />
+          <span className="text-[11px]" style={{ color: 'var(--txm)' }}>Waxcelerate + MoS₂</span>
+        </div>
+      </div>
+
+      {/* Card grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+        {MICRO.map((row) => (
+          <div key={row.n} className="rounded-2xl overflow-hidden"
+            style={{ background: 'var(--card-bg)', border: '1px solid var(--bd)', boxShadow: 'var(--card-shad)' }}>
+            {/* Header */}
+            <div className="flex items-center justify-between px-4 pt-3.5 pb-2">
+              <div className="flex items-baseline gap-2">
+                <span className="num-data text-[14px] font-bold" style={{ color: 'var(--tx2)' }}>{row.n}</span>
+                <span className="text-[12px]" style={{ color: 'var(--txm)' }}>{de ? row.de : row.en}</span>
               </div>
+              <span className="num-data text-[10px] px-1.5 py-0.5 rounded-md"
+                style={{ background: 'var(--accent-wash-sm)', border: '1px solid rgba(var(--accent-rgb),0.10)',
+                  color: 'var(--txf)' }}>
+                {row.mag}
+              </span>
             </div>
+            {/* Drag-to-reveal — pull the handle to compare reference vs. treated surface directly */}
+            <BeforeAfterSlider
+              beforeSrc={row.ref}
+              afterSrc={row.mos2}
+              beforeAlt={`${de ? row.de : row.en} – ${de ? 'Referenz' : 'Reference'}`}
+              afterAlt={`${de ? row.de : row.en} – Waxcelerate + MoS₂`}
+              beforeLabel={de ? 'Referenz' : 'Reference'}
+              afterLabel="Waxcelerate"
+            />
           </div>
-          <p className="text-[11px] font-semibold text-wx-tx1 mt-2">{de ? 'Ohne' : 'Without'}</p>
-          <p className="text-[10px] text-center mt-0.5" style={{ color: 'var(--txff)' }}>{de ? 'Gradient im Block' : 'Gradient in block'}</p>
-        </div>
-        <div ref={mRef} className="flex flex-col items-center">
-          <div className="relative w-full rounded-xl overflow-hidden" style={{ height: '148px', background: 'var(--bd2)', border: '1px solid var(--bd)' }}>
-            {/* Center-of-mass reference line */}
-            <div className="absolute inset-x-2" style={{ top: '50%', height: '1px', background: 'rgba(26,60,110,0.08)' }} />
-            <div className="absolute inset-0 flex flex-wrap gap-2 p-3 items-center justify-center">
-              {[...Array(20)].map((_, i) => (
-                <div key={i} className="sp-stable w-3.5 h-3.5 rounded-full" style={{ background: '#2A5499', opacity: 0.9 }} />
-              ))}
-            </div>
-          </div>
-          <p className="text-[11px] font-semibold text-wx-tx1 mt-2">{de ? 'Mit' : 'With'}</p>
-          <p className="text-[10px] text-center mt-0.5" style={{ color: 'var(--txff)' }}>{de ? 'Gleichmäßig verteilt' : 'Uniformly distributed'}</p>
-        </div>
+        ))}
       </div>
-      <div className="mt-4 pt-3" style={{ borderTop: '1px solid var(--bd2)' }}>
-        <p className="text-[11px] text-center" style={{ color: 'var(--txff)' }}>
-          {de ? 'MoS₂ ist 5,6× dichter als Paraffin — ohne Stabilisierung sedimentiert es messbar.' : 'MoS₂ is 5.6× denser than paraffin — without stabilization it sediments measurably.'}
-        </p>
-      </div>
+
+      {/* Methodology note */}
+      <p className="text-[11px] leading-relaxed mt-5" style={{ color: 'var(--txff)' }}>
+        {de
+          ? 'Reale Oberflächenstrukturen, keine Simulationen. Referenz und Waxcelerate-Probe je Gegenüberstellung bei identischer Vergrößerung und unter identischen Bedingungen aufgenommen.'
+          : 'Real surface structures, not simulations. Reference and Waxcelerate sample shot at identical magnification and conditions within each pair.'}
+      </p>
     </div>
   );
 }
 
-// ─── Friction bars ────────────────────────────────────────────────────────────
-// Scale: 0 → SCALE_MAX; shorter bar = lower μ = better performance
-const FRICTION_SCALE = 0.26;
-const FRICTION_BARS = [
-  { label: 'Waxcelerate Pro',     tag: 'PRO' as const, muLo: 0.03, muHi: 0.06, best: true  },
-  { label: 'Waxcelerate Classic',                       muLo: 0.05, muHi: 0.07, best: true  },
-  { labelDe: 'Graphit-Heißwachs', labelEn: 'Graphite hot wax', muLo: 0.08, muHi: 0.12, best: false },
-  { labelDe: 'Kettenöl (nass)',   labelEn: 'Chain oil (wet)',   muLo: 0.10, muHi: 0.16, best: false, dim: true },
-];
-
+// ─── ACT III — friction proof bars (higher bar = better; never invert) ───────
 function FrictionBars({ de }: { de: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
-  const { theme } = useTheme();
-  const isDark = theme === 'dark' || theme === 'noir';
-
+  const [run, setRun] = useState(prefersReducedMotion());
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      ref.current?.querySelectorAll('.fb').forEach(bar => {
-        const w = parseFloat((bar as HTMLElement).dataset.w!);
-        gsap.fromTo(bar, { scaleX: 0 }, { scaleX: w / 100, duration: 1, ease: 'power3.out', transformOrigin: 'left center', scrollTrigger: { trigger: ref.current, start: 'top 80%', once: true } });
-      });
-    }, ref);
-    return () => ctx.revert();
+    const el = ref.current;
+    if (!el || prefersReducedMotion()) return;
+    const trigger = ScrollTrigger.create({ trigger: el, start: 'top 85%', once: true, onEnter: () => setRun(true) });
+    return () => trigger.kill();
   }, []);
-
-  const cardSt = isDark ? { ...DARK_CARD, ...DARK_DOT_GRID } : { ...CARD, ...DOT_GRID };
-  const hdrClr = isDark ? 'rgba(255,255,255,0.38)' : 'var(--txff)';
-  const subClr = isDark ? 'rgba(255,255,255,0.18)' : 'var(--txff)';
-  const trackClr = isDark ? 'rgba(255,255,255,0.11)' : 'var(--bd2)';
-  const tickClr = isDark ? 'rgba(255,255,255,0.20)' : 'var(--txff)';
-  const tickBorder = isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid var(--bd2)';
-
+  const labels: Record<string, string> = {
+    pro: 'Pro', classic: 'Classic', oil: de ? 'Kettenöl' : 'Chain oil',
+  };
   return (
-    <div className="w-full rounded-2xl p-5" style={cardSt}>
-      <div className="flex items-baseline justify-between mb-1">
-        <p className="text-[10px] uppercase tracking-[0.2em]" style={{ color: hdrClr }}>
-          {de ? 'Reibungskoeffizient μ' : 'Friction coefficient μ'}
-        </p>
-        <span className="text-[9px]" style={{ color: subClr }}>
-          {de ? '← kürzer = weniger Reibung' : '← shorter = less friction'}
-        </span>
-      </div>
-      <p className="text-[9px] font-mono mb-1" style={{ color: subClr }}>
-        {de ? 'Eigentest · nicht extern zertifiziert' : 'Self-tested · not third-party certified'}
-      </p>
-      <p className="text-[9px] font-mono mb-5" style={{ color: subClr }}>
-        {de
-          ? 'μ 0.03 vs. μ 0.14 (Kettenöl) ≈ 2–5 W weniger Kettenverlust bei 250 W Ausgangsleistung'
-          : 'μ 0.03 vs. μ 0.14 (chain oil) ≈ 2–5 W less drivetrain loss at 250 W output'}
-      </p>
-      <p className="text-[9px] font-mono mb-5" style={{ color: subClr }}>
-        {de ? 'Grenzschmierung · 50–300 MPa Kontaktdruck' : 'Boundary lubrication · 50–300 MPa contact pressure'}
-      </p>
-      <div ref={ref} className="space-y-3.5">
-        {FRICTION_BARS.map((b, i) => {
-          const label = 'label' in b ? b.label : (de ? b.labelDe : b.labelEn);
-          const hiPct = Math.round((b.muHi / FRICTION_SCALE) * 100);
-          const loPct = Math.round((b.muLo / FRICTION_SCALE) * 100);
-          const isDim = 'dim' in b && b.dim;
-          const labelClr = b.best
-            ? (isDark ? 'rgba(255,255,255,0.90)' : 'var(--tx1)')
-            : (isDark ? 'rgba(255,255,255,0.55)' : 'var(--txm)');
-          const muClr = b.best
-            ? (isDark ? 'rgba(255,255,255,0.72)' : 'var(--tx1)')
-            : isDim
-              ? (isDark ? 'rgba(255,255,255,0.28)' : 'var(--txff)')
-              : (isDark ? 'rgba(255,255,255,0.40)' : 'var(--txm)');
-          const solidClr = b.best
-            ? (i === 0 ? '#1A3080' : '#1A3C6E')
-            : (isDark ? (isDim ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.16)') : (isDim ? 'var(--bd2)' : 'var(--bd)'));
-          const rangeClr = b.best
-            ? (i === 0 ? 'linear-gradient(90deg,#2A5499,#6A8AE8)' : 'linear-gradient(90deg,#2A5499,#4472D4)')
-            : (isDark ? (isDim ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.28)') : (isDim ? 'var(--bd)' : 'var(--txff)'));
-          return (
-            <div key={i}>
-              <div className="flex justify-between items-center mb-1.5">
-                <span className="text-[12px] font-medium" style={{ color: labelClr }}>
-                  {label}
-                  {'tag' in b && (
-                    <span className="ml-1.5 text-[8px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded" style={{ background: 'linear-gradient(135deg,#1A3080,#2A5499)', color: 'rgba(255,255,255,0.9)' }}>
-                      {b.tag}
-                    </span>
-                  )}
-                </span>
-                <span className="text-[11px] font-mono" style={{ color: muClr }}>
-                  μ {b.muLo.toFixed(2)}–{b.muHi.toFixed(2)}
-                </span>
-              </div>
-              <div className="relative h-1.5 rounded-full overflow-hidden" style={{ background: trackClr }}>
-                <div className="absolute top-0 left-0 h-full" style={{ width: `${loPct}%`, background: solidClr }} />
-                <div className="fb absolute top-0 h-full rounded-r-full" data-w={hiPct - loPct}
-                  style={{ left: `${loPct}%`, width: `${hiPct - loPct}%`, background: rangeClr, transformOrigin: 'left center', transform: 'scaleX(0)' }} />
-              </div>
-            </div>
-          );
-        })}
-      </div>
-      <div className="flex justify-between mt-3 pt-2" style={{ borderTop: tickBorder }}>
-        {[0, 0.05, 0.10, 0.15, 0.20, 0.25].map(v => (
-          <span key={v} className="text-[8px] font-mono" style={{ color: tickClr }}>
-            {v === 0 ? '0' : v.toFixed(2)}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ─── Insight callout ──────────────────────────────────────────────────────────
-function Insight({ children }: { children: React.ReactNode }) {
-  const ref    = useRef<HTMLDivElement>(null);
-  const barRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.fromTo(barRef.current,
-        { scaleY: 0, opacity: 0 },
-        { scaleY: 1, opacity: 1, duration: 0.55, ease: 'power2.out', transformOrigin: 'top center',
-          scrollTrigger: { trigger: ref.current, start: 'top 87%', once: true } },
-      );
-      const p = ref.current?.querySelector('p');
-      if (p) {
-        gsap.fromTo(p,
-          { opacity: 0, x: 6 },
-          { opacity: 1, x: 0, duration: 0.5, ease: 'power2.out', delay: 0.18,
-            scrollTrigger: { trigger: ref.current, start: 'top 87%', once: true } },
-        );
-      }
-    }, ref);
-    return () => ctx.revert();
-  }, []);
-  return (
-    <div ref={ref} className="relative pl-5 py-1">
-      <div ref={barRef} className="absolute left-0 top-0 bottom-0 w-[3px] rounded-full" style={{ background: 'linear-gradient(to bottom,#2A5499,#7A9AEC)', opacity: 0 }} />
-      <p className="font-serif-display text-[15px] leading-[1.75] italic" style={{ color: 'var(--tx2)', opacity: 0 }}>
-        {children}
-      </p>
-    </div>
-  );
-}
-
-// ─── Chapter ──────────────────────────────────────────────────────────────────
-interface ChapterProps {
-  num: string;
-  anchorId?: string;
-  catDe: string; catEn: string;
-  titleDe: string; titleEn: string;
-  ledeDe: string; ledeEn: string;
-  teaserDe?: string; teaserEn?: string;
-  bodyDe: React.ReactNode; bodyEn: React.ReactNode;
-  insightDe: string; insightEn: string;
-  visual: React.ReactNode;
-  extraVisual?: React.ReactNode;
-  flip?: boolean;
-  featured?: boolean;
-  visualFirst?: boolean;
-  de: boolean;
-}
-
-function Chapter({ num, anchorId, catDe, catEn, titleDe, titleEn, ledeDe, ledeEn, teaserDe, teaserEn, bodyDe, bodyEn, insightDe, insightEn, visual, extraVisual, flip, featured, visualFirst = false, de }: ChapterProps) {
-  const ref     = useRef<HTMLDivElement>(null);
-  const bodyRef = useRef<HTMLDivElement>(null);
-  const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.fromTo(ref.current,
-        { opacity: 0, y: 28 },
-        { opacity: 1, y: 0, duration: 0.75, ease: 'power3.out',
-          scrollTrigger: { trigger: ref.current, start: 'top 86%', once: true } },
-      );
-    });
-    return () => ctx.revert();
-  }, []);
-
-  // Stagger paragraphs in when expanding
-  useEffect(() => {
-    if (!open) return;
-    const ps = bodyRef.current?.querySelectorAll('p');
-    if (ps?.length) {
-      gsap.fromTo(ps,
-        { opacity: 0, y: 10 },
-        { opacity: 1, y: 0, duration: 0.42, stagger: 0.1, ease: 'power2.out', delay: 0.08 },
-      );
-    }
-  }, [open]);
-
-  return (
-    <div ref={ref} id={anchorId} className="mb-24 lg:mb-32" style={{ opacity: 0 }} data-chapter={num}>
-
-      {/* Eyebrow — refined pill badge */}
-      <div className="flex items-center gap-3 mb-8">
-        <span
-          className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] px-2.5 py-1.5 rounded-md leading-none select-none flex-shrink-0"
-          style={{ background: 'rgba(26,60,110,0.1)', color: '#4472D4', border: '1px solid rgba(26,60,110,0.2)' }}
-        >
-          {num}
-        </span>
-        <div className="h-px w-8 flex-shrink-0" style={{ background: 'rgba(26,60,110,0.2)' }} />
-        <p className="text-[11px] font-medium uppercase tracking-[0.24em]" style={{ color: '#4472D4' }}>
-          {de ? catDe : catEn}
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
-        {/* Text column */}
-        <div className={`flex flex-col gap-5 ${flip ? 'lg:order-2' : 'lg:order-1'}`}>
-          <h2 className="font-serif-display text-[1.75rem] sm:text-[2.05rem] font-bold text-wx-tx1 leading-[1.12]">
-            {de ? titleDe : titleEn}
-          </h2>
-          {/* Lede — always visible */}
-          <p className="text-[16px] font-medium leading-snug" style={{ color: 'var(--tx1)' }}>
-            {de ? ledeDe : ledeEn}
-          </p>
-          {/* Teaser — first sentence hook, always visible */}
-          {(teaserDe || teaserEn) && (
-            <p className="text-[14px] leading-relaxed" style={{ color: 'var(--txm)' }}>
-              {de ? teaserDe : teaserEn}
-            </p>
-          )}
-          {/* Toggle */}
-          <button
-            onClick={() => setOpen(o => !o)}
-            className="flex items-center gap-2 w-fit text-[10px] uppercase tracking-[0.22em] font-semibold transition-all duration-200 px-3.5 py-1.5 rounded-full"
-            style={{
-              color: open ? 'var(--txm)' : '#4472D4',
-              background: open ? 'var(--sf2)' : 'rgba(26,60,110,0.08)',
-              border: '1px solid',
-              borderColor: open ? 'var(--bd)' : 'rgba(26,60,110,0.2)',
-            }}
-          >
-            <ChevronDown className="w-3 h-3 transition-transform duration-300" style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }} />
-            {de ? (open ? 'Schließen' : 'Die Physik dahinter') : (open ? 'Close' : 'The physics')}
-          </button>
-          {/* Expandable body */}
-          <div style={{ maxHeight: open ? '1800px' : '0', overflow: 'hidden', transition: 'max-height 0.55s cubic-bezier(0.4,0,0.2,1)' }}>
-            <div ref={bodyRef} className="space-y-4 text-[15px] leading-[1.88] text-wx-txm pb-2">
-              {de ? bodyDe : bodyEn}
-            </div>
-          </div>
-          <Insight>{de ? insightDe : insightEn}</Insight>
-        </div>
-        {/* Visual column — featured removes card border for immersive treatment */}
-        <div className={`flex flex-col gap-6 ${visualFirst ? 'order-first' : ''} ${flip ? 'lg:order-1' : 'lg:order-2'} ${featured ? 'lg:-mx-8' : ''}`}>
-          {visual}
-          {extraVisual}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── Main page ────────────────────────────────────────────────────────────────
-export function SciencePage() {
-  const { lang, toggleLang } = useLanguage();
-  const { theme } = useTheme();
-  const isDark = theme === 'dark' || theme === 'noir';
-  const de = lang === 'de';
-  const [activeChapter, setActiveChapter] = useState(-1);
-  const heroRef  = useRef<HTMLElement>(null);
-  const wordsRef = useRef<HTMLSpanElement[]>([]);
-
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      // Badge
-      gsap.fromTo('[data-hero-badge]',
-        { opacity: 0, y: -10 },
-        { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out', delay: 0.1 },
-      );
-      // Headline words
-      if (wordsRef.current.length) {
-        gsap.fromTo(wordsRef.current,
-          { opacity: 0, y: 28, rotateX: -16 },
-          { opacity: 1, y: 0, rotateX: 0, duration: 0.72, stagger: 0.1, ease: 'power3.out', delay: 0.35 },
-        );
-      }
-      // Subtitle
-      gsap.fromTo('[data-hero-sub]',
-        { opacity: 0, y: 16 },
-        { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out', delay: 1.0 },
-      );
-    }, heroRef);
-    return () => ctx.revert();
-  }, []);
-
-  const heroWords = de
-    ? ['Sechs', 'Stoffe.', 'Jede', 'mit', 'Geschichte.']
-    : ['Six', 'components.', 'Each', 'one', 'earned.'];
-
-  const CHAPTER_MAP = [
-    { n: '01', de: 'Die Basis',    en: 'Foundation'  },
-    { n: '02', de: 'Härtemodul',  en: 'Hardener'    },
-    { n: '03', de: 'Kälteflex.',  en: 'Cold Flex.'  },
-    { n: '04', de: 'MoS₂',        en: 'MoS₂'        },
-    { n: '05', de: 'Dispergier.', en: 'Dispersant'  },
-    { n: '06', de: 'Antioxidans', en: 'Antioxidant' },
-  ];
-
-  return (
-    <div className="min-h-screen" style={{ background: 'var(--pg)' }}>
-      <GrainOverlay />
-      <ScrollProgress />
-      <ChapterNav de={de} onActiveChange={setActiveChapter} />
-
-      {/* ── Navigation ─────────────────────────────────────────────────────── */}
-      <nav className="sticky top-0 z-40" style={{ background: 'var(--nav-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid var(--bd)' }}>
-        <div className={`${W} h-14 flex items-center justify-between`}>
-          <Link to="/" className="flex items-center gap-2 text-[13px] text-wx-txm hover:text-wx-tx1 transition-colors">
-            <ArrowLeft className="w-4 h-4" />
-            {de ? 'Zurück' : 'Back'}
-          </Link>
-          <span className="font-display text-[13px] font-semibold text-wx-tx1 tracking-wide transition-all duration-300">
-            {activeChapter >= 0 && CHAPTER_MAP[activeChapter] ? (
-              <>
-                <span className="font-mono text-[11px]" style={{ color: '#4472D4' }}>
-                  {CHAPTER_MAP[activeChapter].n}
-                </span>
-                <span style={{ color: '#4472D4' }}> · </span>
-                {de ? CHAPTER_MAP[activeChapter].de : CHAPTER_MAP[activeChapter].en}
-              </>
-            ) : (
-              <>Waxcelerate <span style={{ color: '#4472D4' }}>·</span> {de ? 'Wissenschaft' : 'Science'}</>
-            )}
-          </span>
-          <button
-            onClick={toggleLang}
-            className="text-[11px] font-medium px-2.5 py-1 rounded-md border transition-all duration-200"
-            style={{ color: 'var(--txm)', borderColor: 'var(--bd)', background: 'transparent' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#4472D4'; (e.currentTarget as HTMLButtonElement).style.color = '#4472D4'; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--bd)'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--txm)'; }}
-          >
-            {lang === 'de' ? 'EN' : 'DE'}
-          </button>
-        </div>
-      </nav>
-
-      {/* ══ HERO — compact subpage header ══════════════════════════════════════ */}
-      <section
-        ref={heroRef}
-        className="relative overflow-hidden flex flex-col items-center justify-center"
-        style={{ background: isDark ? '#07070A' : 'var(--sf)', minHeight: isDark ? '44vh' : '40vh' }}
-      >
-        <HeroParticles />
-
-        {/* Product image — very faint, grayscale, ties hero to product */}
-        <img
-          src="/images/wax-hero.jpg"
-          alt=""
-          aria-hidden
-          className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none"
-          style={{ opacity: 0.055, objectPosition: '62% 50%', filter: 'grayscale(1) blur(1px)' }}
-          loading="eager"
-        />
-
-        {/* Hexagonal grid texture */}
-        <div
-          aria-hidden
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage: isDark
-              ? "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='46'%3E%3Cpath d='M20 0 L40 11.5 L40 34.5 L20 46 L0 34.5 L0 11.5 Z' fill='none' stroke='rgba(43%2C82%2C176%2C0.07)' stroke-width='0.7'/%3E%3C/svg%3E\")"
-              : "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='46'%3E%3Cpath d='M20 0 L40 11.5 L40 34.5 L20 46 L0 34.5 L0 11.5 Z' fill='none' stroke='rgba(43%2C82%2C176%2C0.11)' stroke-width='0.7'/%3E%3C/svg%3E\")",
-            backgroundSize: '40px 46px',
-          }}
-        />
-
-        {/* Radial atmospheric glow */}
-        <div
-          aria-hidden
-          className="absolute inset-0 pointer-events-none"
-          style={{ background: isDark
-            ? 'radial-gradient(ellipse 72% 58% at 50% 42%, rgba(26,60,110,0.16) 0%, transparent 65%)'
-            : 'radial-gradient(ellipse 72% 58% at 50% 42%, rgba(26,60,110,0.05) 0%, transparent 65%)' }}
-        />
-
-        <div className="relative z-10 text-center px-4 sm:px-8 py-12 sm:py-16">
-          {/* Classification badge */}
-          <div data-hero-badge className="inline-flex items-center gap-3 mb-6" style={{ opacity: 0 }}>
-            <div className="h-px w-8" style={{ background: isDark ? 'rgba(68,114,212,0.45)' : 'rgba(26,60,110,0.25)' }} />
-            <span className="text-[9px] font-mono uppercase tracking-[0.38em]" style={{ color: isDark ? 'rgba(68,114,212,0.65)' : '#4472D4' }}>
-              {de ? 'Formulierungsgeschichte' : 'Formula Story'}
+    <div ref={ref} id="reibung" className="scroll-mt-24 space-y-4">
+      {frictionRanges.map(r => (
+        <div key={r.id}>
+          <div className="flex justify-between mb-1.5">
+            <span className={`text-[13px] font-medium ${r.highlight ? 'text-wx-tx1' : 'text-wx-txf'}`}>{labels[r.id]}</span>
+            <span className="num-data text-[12px]" style={{ color: r.highlight ? 'var(--tx2)' : 'var(--txff)' }}>
+              μ {r.muLo.toLocaleString(de ? 'de' : 'en', { minimumFractionDigits: 2 })}–{r.muHi.toLocaleString(de ? 'de' : 'en', { minimumFractionDigits: 2 })}
             </span>
-            <div className="h-px w-8" style={{ background: isDark ? 'rgba(68,114,212,0.45)' : 'rgba(26,60,110,0.25)' }} />
           </div>
-
-          {/* Headline */}
-          <h1
-            className="font-display font-bold leading-[1.05] mb-5 flex flex-wrap justify-center gap-x-4 gap-y-1"
-            style={{ fontSize: 'clamp(2rem,5.5vw,3.5rem)', color: isDark ? '#FFFFFF' : 'var(--tx1)', perspective: '600px' }}
-          >
-            {heroWords.map((w, i) => (
-              <span
-                key={i}
-                ref={el => { if (el) wordsRef.current[i] = el; }}
-                style={{ display: 'inline-block', opacity: 0 }}
-              >
-                {w}
-              </span>
-            ))}
-          </h1>
-
-          {/* Subtitle */}
-          <p
-            data-hero-sub
-            className="text-[14px] sm:text-[15px] leading-relaxed max-w-[480px] mx-auto mb-0"
-            style={{ color: isDark ? 'rgba(255,255,255,0.70)' : 'var(--tx2)', opacity: 0 }}
-          >
-            {de
-              ? 'Jede Komponente in dieser Formel existiert, weil ein Test gescheitert ist — oder weil ein Kompromiss nicht akzeptabel war.'
-              : "Every component in this formula exists because a test failed — or because a compromise was unacceptable."}
-          </p>
+          <div className="h-2.5 rounded-full overflow-hidden" style={{ background: 'var(--bd)' }}>
+            <div className="h-full rounded-full"
+              style={{
+                width: run ? `${r.pct}%` : '0%',
+                background: r.highlight
+                  ? 'linear-gradient(90deg, var(--accent-strong), var(--accent-soft))'
+                  : 'var(--txf)',
+                transition: 'width 1s cubic-bezier(0.22,1,0.36,1)',
+              }} />
+          </div>
         </div>
+      ))}
+      <p className="text-[12px] pt-1" style={{ color: 'var(--txf)' }}>
+        {de ? 'Höherer Balken = weniger Reibung (Performance-Index).' : 'Higher bar = less friction (performance index).'}
+      </p>
+    </div>
+  );
+}
 
-        {/* Bottom fade into page bg */}
-        <div
-          className="absolute bottom-0 left-0 right-0 h-24 pointer-events-none"
-          style={{ background: 'linear-gradient(to bottom, transparent, var(--pg))' }}
-        />
-      </section>
+// ─── Section heading ─────────────────────────────────────────────────────────
+function ActHead({ eyebrow, title, lede }: { eyebrow: string; title: string; lede?: string }) {
+  return (
+    <div className="mb-10">
+      <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>{eyebrow}</p>
+      <h2 className="font-display font-bold text-wx-tx1 leading-tight"
+        style={{ fontSize: 'clamp(1.9rem, 4vw, 3rem)', letterSpacing: '-0.02em' }}>{title}</h2>
+      {lede && <p className="text-wx-txm text-lead max-w-2xl mt-4">{lede}</p>}
+    </div>
+  );
+}
 
-      {/* ══ COMPOSITION OVERVIEW ══════════════════════════════════════════════ */}
-      <div className={`${W} py-14`}>
-        <div className="rounded-2xl p-8 sm:p-10" style={{ background: 'linear-gradient(160deg,var(--card-from) 0%,var(--card-to) 100%)', border: '1px solid var(--bd)', ...DOT_GRID }}>
-          <div className="grid grid-cols-1 md:grid-cols-[1fr_1.2fr] gap-10 lg:gap-16 items-start">
-            <div>
-              <p className="text-[10px] font-medium uppercase tracking-[0.25em] mb-3" style={{ color: '#4472D4' }}>
-                {de ? 'Sechs Bestandteile' : 'Six components'}
-              </p>
-              <h2 className="font-serif-display text-2xl font-bold text-wx-tx1 mb-4 leading-tight">
-                {de ? 'Die vollständige Formel' : 'The complete formula'}
-              </h2>
-              <p className="text-[14px] leading-relaxed text-wx-txm mb-6">
-                {de
-                  ? 'Ein Jahr Iteration — von ersten Schmelzversuchen bis zur stabilen Produktion. Die Mengen werden hier nicht genannt. Was zählt: warum jede Komponente überhaupt drin ist.'
-                  : 'A year of iteration — from first melt tests to stable production. Exact quantities not disclosed. What matters: why each component is in there at all.'}
-              </p>
-              <div className="space-y-3">
-                {[
-                  { catDe: 'Basismatrix',     catEn: 'Base matrix',   descDe: 'Kristallines Trägergerüst',   descEn: 'Crystalline scaffold'       },
-                  { catDe: 'Plastifikator',   catEn: 'Plasticizer',   descDe: 'Kälteflexibilität & Haftung', descEn: 'Cold flexibility & adhesion' },
-                  { catDe: 'Härtemodul',      catEn: 'Hardener',      descDe: 'Schmelzpunkterhöhung',        descEn: 'Drop point elevation'        },
-                  { catDe: 'MoS₂',            catEn: 'MoS₂',         descDe: 'Primärer Festschmierstoff',   descEn: 'Primary solid lubricant'     },
-                  { catDe: 'Dispergiermittel',catEn: 'Dispersant',    descDe: 'Partikelstabilisierung',      descEn: 'Particle stabilization'      },
-                  { catDe: 'Antioxidans',     catEn: 'Antioxidant',   descDe: 'Langzeitschutz',              descEn: 'Long-term protection'        },
-                ].map((item, i) => {
-                  const colors = ['#1A3080','#1A3C6E','#2A5499','#4472D4','#7A9AEC','#A8C0F4'];
-                  return (
-                    <div key={i} className="flex items-center gap-3">
-                      <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: colors[i] }} />
-                      <span className="text-[12px] font-semibold text-wx-tx1 w-28 flex-shrink-0">{de ? item.catDe : item.catEn}</span>
-                      <span className="text-[12px] text-wx-txf">{de ? item.descDe : item.descEn}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-            <div>
-              <p className="text-[10px] font-medium uppercase tracking-[0.2em] mb-4" style={{ color: 'var(--txff)' }}>
-                {de ? 'Abhängigkeiten zwischen Komponenten' : 'Component dependencies'}
-              </p>
-              <FormulaAssembly de={de} mode="overview" isDark={isDark} />
-            </div>
-          </div>
+// ─── Scroll-driven formula storytelling (desktop only) ──────────────────────
+function FormulaStory({ de }: { de: boolean }) {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const [activeIdx, setActiveIdx] = useState(0);
 
-          {/* Chapter quick-nav */}
-          <div className="mt-8 pt-6" style={{ borderTop: '1px solid var(--bd2)' }}>
-            <p className="text-[9px] uppercase tracking-[0.22em] mb-3" style={{ color: 'var(--txff)' }}>
-              {de ? 'Direkt zu Kapitel' : 'Jump to chapter'}
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {CHAPTER_MAP.map(ch => (
-                <button
-                  key={ch.n}
-                  onClick={() => document.querySelector(`[data-chapter="${ch.n}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] transition-all duration-200"
-                  style={{ background: 'rgba(26,60,110,0.07)', border: '1px solid rgba(26,60,110,0.15)', color: 'var(--txm)' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(68,114,212,0.35)'; (e.currentTarget as HTMLButtonElement).style.background = 'rgba(26,60,110,0.13)'; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(26,60,110,0.15)'; (e.currentTarget as HTMLButtonElement).style.background = 'rgba(26,60,110,0.07)'; }}
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+    // Coalesce raw scroll events (can fire many times per frame) down to one
+    // layout read + state update per animation frame, and skip the setState
+    // entirely when the computed index hasn't actually changed.
+    let rafId: number | null = null;
+    const compute = () => {
+      rafId = null;
+      const rect = section.getBoundingClientRect();
+      const scrolled = Math.max(0, -rect.top);
+      const maxScroll = section.offsetHeight - window.innerHeight;
+      if (maxScroll <= 0) return;
+      const p = Math.min(1, scrolled / maxScroll);
+      const next = Math.min(COMPONENTS.length - 1, Math.floor(p * COMPONENTS.length));
+      setActiveIdx(prev => (prev === next ? prev : next));
+    };
+    const onScroll = () => {
+      if (rafId === null) rafId = requestAnimationFrame(compute);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    compute();
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (rafId !== null) cancelAnimationFrame(rafId);
+    };
+  }, []);
+
+  const scrollToComponent = (id: string) => {
+    const idx = COMPONENTS.findIndex(c => c.id === id);
+    if (idx < 0 || !sectionRef.current) return;
+    const rect = sectionRef.current.getBoundingClientRect();
+    const sectionTop = window.scrollY + rect.top;
+    const maxScroll = sectionRef.current.offsetHeight - window.innerHeight;
+    window.scrollTo({ top: sectionTop + ((idx + 0.5) / COMPONENTS.length) * maxScroll, behavior: 'smooth' });
+  };
+
+  const comp = COMPONENTS[activeIdx];
+
+  return (
+    <div ref={sectionRef} className="relative" style={{ height: `${COMPONENTS.length * 60}vh` }}>
+      <div className="sticky top-0 h-screen flex items-center overflow-hidden">
+        {/* Ambient instrument-panel texture behind the whole scroll-story
+            viewport — same dot-grid language as every other diagram on this
+            page, so six long scroll-steps of mostly-empty space read as one
+            deliberate "lab" surface instead of plain white void. */}
+        <div className="absolute inset-0 pointer-events-none" aria-hidden
+          style={{
+            backgroundImage: 'radial-gradient(rgba(var(--accent-rgb),0.10) 1px, transparent 1px)',
+            backgroundSize: '18px 18px',
+            maskImage: 'radial-gradient(ellipse 70% 65% at 68% 50%, black 0%, transparent 75%)',
+            WebkitMaskImage: 'radial-gradient(ellipse 70% 65% at 68% 50%, black 0%, transparent 75%)',
+          }} />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative">
+          <div className="grid lg:grid-cols-[minmax(320px,440px)_1fr] gap-10 xl:gap-14 items-center">
+            {/* LEFT — component info (crossfading) */}
+            <div className="relative" style={{ minHeight: 400 }}>
+              {COMPONENTS.map((c, i) => (
+                <div
+                  key={c.id}
+                  className="absolute inset-0 flex flex-col justify-center"
+                  style={{
+                    opacity: i === activeIdx ? 1 : 0,
+                    transform: `translateY(${i === activeIdx ? 0 : i < activeIdx ? -20 : 20}px)`,
+                    transition: 'opacity 0.5s ease, transform 0.5s ease',
+                    pointerEvents: i === activeIdx ? 'auto' : 'none',
+                  }}
                 >
-                  <span className="font-mono text-[9px] font-bold" style={{ color: '#4472D4' }}>{ch.n}</span>
-                  <span>{de ? ch.de : ch.en}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Section divider */}
-        <div className="flex items-center gap-5 my-14">
-          <div className="flex-1 h-px" style={{ background: 'var(--bd)' }} />
-          <span className="text-[9px] uppercase tracking-[0.3em]" style={{ color: 'var(--txff)' }}>
-            {de ? 'Kapitel für Kapitel' : 'Chapter by chapter'}
-          </span>
-          <div className="flex-1 h-px" style={{ background: 'var(--bd)' }} />
-        </div>
-
-        {/* ══ FAILURE TIMELINE ══════════════════════════════════════════════ */}
-        <div className="mb-16">
-          <FailureTimeline de={de} isDark={isDark} />
-        </div>
-
-        {/* ══ CH 01 ══════════════════════════════════════════════════════════ */}
-        <Chapter num="01" de={de} anchorId="kristallstruktur"
-          catDe="Die Basis" catEn="The Foundation"
-          titleDe="Das kristalline Gerüst"
-          titleEn="The crystalline scaffold"
-          ledeDe="Welches Paraffin — und warum ein 2°C-Erstarrungsfenster über Batch-Konsistenz entscheidet."
-          ledeEn="Which paraffin — and why a 2°C solidification window determines batch consistency."
-          teaserDe="Paraffin ist keine Substanz, sondern eine Kategorie — von weichen Kerzenwachsen bis zu spröden Technikalqualitäten. Die entscheidende Variable ist der Erstarrungsbereich."
-          teaserEn="Paraffin isn't a material, it's a category — spanning soft candle waxes to brittle technical grades. The decisive variable is the solidification range."
-          bodyDe={<>
-            <p>Die erste Frage war täuschend einfach: Welches Paraffin? Paraffin ist keine Substanz, sondern eine Kategorie — sie reicht von weichen, öligen Kerzenwachsen bis zu spröden Technikalqualitäten. Die entscheidende Variable ist der Erstarrungsbereich.</p>
-            <p>Wir haben uns für ein vollraffiniertes Erdöldestillat mit einem exakt definierten 2°C-Erstarrungsfenster (58–60°C) entschieden. Diese Enge ist keine Präzision um ihrer selbst willen — sie sichert die Reproduzierbarkeit. Ein breiterer Erstarrungsbereich produziert je nach Batch leicht unterschiedliche Kristallstrukturen.</p>
-            <p>Beim Abkühlen aus der Schmelze nucleieren die linearen Kohlenwasserstoffketten (C₂₀–C₃₆) und bilden lamellare Kristalldomänen — ein dreidimensionales Gitterwerk. Alle anderen Komponenten werden in den Zwischenbereichen dieses Gitters eingeschlossen. Die Basismatrix ist das Skelett. Alles andere ist eingebettet.</p>
-          </>}
-          bodyEn={<>
-            <p>The first question was deceptively simple: which paraffin? Paraffin isn't a material, it's a category — spanning soft, oily candle waxes to brittle technical grades. The decisive variable is the solidification range.</p>
-            <p>We chose a fully refined petroleum distillate with a precisely defined 2°C solidification window (58–60°C). This narrow range isn't precision for its own sake — it ensures reproducibility. A wider solidification range produces subtly different crystal structures batch-to-batch.</p>
-            <p>On cooling from the melt, the linear hydrocarbon chains (C₂₀–C₃₆) nucleate and form lamellar crystal domains — an interlocking three-dimensional lattice. All other components are trapped in the spaces between these crystals. The base matrix is the skeleton. Everything else is embedded within it.</p>
-          </>}
-          insightDe="Das enge Erstarrungsfenster ist der Schlüssel zur Batch-Konsistenz — und damit zur gleichmäßigen Performance jedes Blocks."
-          insightEn="The narrow solidification window is the key to batch consistency — every block performing identically."
-          visual={<CrystalLattice de={de} />}
-        />
-      </div>
-
-      {/* ══ STAT 1 ══════════════════════════════════════════════════════════════ */}
-      <StatCallout de={de} isDark={isDark} stat="2°C"
-        ctxDe="Erstarrungsfenster — Basis jeder Batch-Konsistenz"
-        ctxEn="Solidification window — foundation of every batch"
-        miniViz={<TempBandViz isDark={isDark} />} />
-
-      {/* ══ CH 02 + CH 03 ════════════════════════════════════════════════════ */}
-      <div className={`${W} pt-20`}>
-        <Chapter num="02" de={de} flip anchorId="matrix"
-          catDe="Härtemodul" catEn="Hardener Module"
-          titleDe="Synthetisch reines Härtewachs"
-          titleEn="Synthetically pure hard wax"
-          ledeDe="Fischer-Tropsch-Wachs: synthetisch lineare Moleküle, die den Tropfpunkt auf 72–78°C anheben."
-          ledeEn="Fischer-Tropsch wax: synthetically linear molecules that push the drop point to 72–78°C."
-          teaserDe="An Kettenkontaktpunkten unter Last können Temperaturen 45–55°C erreichen. Reines Paraffinwachs wäre an seiner thermischen Grenze."
-          teaserEn="At chain contact points under load, temperatures can reach 45–55°C. Unmodified paraffin wax would be at its thermal limit."
-          bodyDe={<>
-            <p>Das zweite Problem war der Sommer. An Kettenkontaktpunkten unter Last können Temperaturen 45–55°C erreichen. Reines Paraffinwachs wäre an seiner thermischen Grenze — es würde erweichen, migrieren, auf dem Schaltwerk landen statt in den Gelenkstiften.</p>
-            <p>Die Lösung war ein synthetisches Wachs, hergestellt über den Fischer-Tropsch-Prozess: eine Kohlenstoff-Syntheseroute, die Kohlenwasserstoffketten von außergewöhnlicher Reinheit liefert. Kein Schwefel, keine Aromaten, keine Verzweigungen — nur vollständig lineare Moleküle.</p>
-            <p>In gezielt gewählter Konzentration erhöht dieses Additiv den effektiven Tropfpunkt der Gesamtmatrix auf ~72–78°C. Der Mechanismus: Es ko-kristallisiert mit der Basismatrix, bildet aber dichtere, defektärmere Kristalldomänen, die deutlich mehr Energie zum Schmelzen benötigen.</p>
-          </>}
-          bodyEn={<>
-            <p>The second problem was summer. At chain contact points under load, temperatures can reach 45–55°C. Unmodified paraffin wax would be at its thermal limit — it would soften, migrate, end up on the derailleur instead of the chain pins.</p>
-            <p>The solution was a synthetic wax produced via the Fischer-Tropsch process: a carbon synthesis route that yields hydrocarbon chains of exceptional purity. No sulfur, no aromatics, no branching — only perfectly linear molecules.</p>
-            <p>At a carefully chosen concentration, this additive raises the effective drop point of the matrix to ~72–78°C. The mechanism: it co-crystallizes with the base wax but forms denser, more defect-free crystal domains requiring significantly more energy to melt.</p>
-          </>}
-          insightDe="Tests mit höherer Konzentration zeigten keine messbare Verbesserung. Das Optimum liegt unter dem, was man intuitiv erwarten würde."
-          insightEn="Tests at higher concentrations showed no measurable improvement. The optimum is lower than you'd intuitively expect."
-          visual={<TempRange de={de} />}
-        />
-
-        <Chapter num="03" de={de} anchorId="winterformel"
-          catDe="Kälteflexibilität" catEn="Cold Flexibility"
-          titleDe="Mikrokristallines Wachs"
-          titleEn="Microcrystalline wax"
-          ledeDe="Verzweigte Moleküle füllen die amorphen Bereiche zwischen Kristalldomänen — Matrix bleibt bis −10°C elastisch."
-          ledeEn="Branched molecules fill the amorphous zones between crystal domains — keeping the matrix elastic to −10°C."
-          teaserDe="Eine reine Paraffinmatrix ist unterhalb von 5°C extrem spröde — spröde genug, um bei Biegebelastung zu brechen. Die Wachsschicht platzte buchstäblich ab."
-          teaserEn="A pure paraffin matrix is extremely brittle below 5°C — brittle enough to crack under bending stress. The wax coating literally spalled off."
-          bodyDe={<>
-            <p>Das entgegengesetzte Problem folgte sofort: Winter. Eine reine Paraffinmatrix mit Fischer-Tropsch-Härtemodul ist unterhalb von 5°C extrem spröde — spröde genug, um bei Biegebelastung zu brechen. Ein Kettengelenk, das sich in der Kälte bewegt, ließ die Wachsschicht buchstäblich abplatzen.</p>
-            <p>Mikrokristallines Wachs löst dieses Problem strukturell. Im Gegensatz zu den geradkettigen Paraffinen besteht es aus hochverzweigten und zyklischen Molekülen, die keine geordneten Kristallstrukturen bilden können. Sie besetzen die amorphen Bereiche zwischen den Paraffindomänen — molekulare Plastifizierung.</p>
-            <p>Diese Komponente erfüllt drei Funktionen gleichzeitig: (1) Die Matrix bleibt bis −10°C elastisch verformbar statt zu brechen. (2) Die verzweigten Moleküle haben stärkere van-der-Waals-Wechselwirkungen mit der Stahloberfläche — bessere Haftung unter Scherkraft. (3) Die amorphen Bereiche betten die MoS₂-Partikel mechanisch in die Matrix ein.</p>
-          </>}
-          bodyEn={<>
-            <p>The opposite problem arrived immediately: winter. A pure paraffin matrix with a Fischer-Tropsch hardener is extremely brittle below 5°C — brittle enough to crack under bending stress. A chain link flexing in cold weather caused the wax coating to literally spall off.</p>
-            <p>Microcrystalline wax solves this structurally. Unlike the straight-chain paraffins, it consists of highly branched and cyclic molecules that cannot form ordered crystal structures. They occupy the amorphous zones between paraffin crystal domains — molecular plasticization.</p>
-            <p>This component serves three functions simultaneously: (1) The matrix remains elastically deformable down to −10°C. (2) Branched molecules have stronger van-der-Waals interactions with the steel surface — better adhesion. (3) The amorphous regions mechanically embed the MoS₂ particles in the matrix.</p>
-          </>}
-          insightDe="Ursprünglich höher konzentriert. Die Reduzierung war möglich, weil gleichzeitig der MoS₂-Anteil überarbeitet wurde."
-          insightEn="Originally at higher concentration. The reduction was possible because MoS₂ loading was revised simultaneously."
-          visual={
-            <div className="rounded-2xl p-5 space-y-5" style={{ ...CARD, ...DOT_GRID }}>
-              <p className="text-[10px] uppercase tracking-[0.2em]" style={{ color: 'var(--txff)' }}>
-                {de ? 'Temperaturfenster — Matrix flexibel' : 'Temperature window — matrix stays flexible'}
-              </p>
-              {[
-                { labelDe: 'Kälteflexibilität bis', labelEn: 'Cold flexibility to', val: '−10°C', w: 20, color: '#4472D4' },
-                { labelDe: 'Optimale Performance',  labelEn: 'Optimal performance',  val: '−8°C → +35°C', w: 80, color: '#2A5499' },
-                { labelDe: 'Thermisch stabil bis',  labelEn: 'Thermally stable to',   val: '+78°C', w: 100, color: '#1A3080' },
-              ].map((item, i) => (
-                <div key={i}>
-                  <div className="flex justify-between mb-1.5">
-                    <span className="text-[11px] text-wx-txm">{de ? item.labelDe : item.labelEn}</span>
-                    <span className="text-[11px] font-mono font-semibold text-wx-tx1">{item.val}</span>
+                  {/* Step counter */}
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="num-data text-[28px] font-bold leading-none" style={{ color: 'rgba(var(--accent-rgb),0.18)' }}>
+                      0{i + 1}
+                    </span>
+                    <span className="text-[10px] uppercase tracking-[0.18em]" style={{ color: 'var(--accent-soft)' }}>
+                      {de ? c.roleDe : c.roleEn}
+                    </span>
                   </div>
-                  <div className="h-1.5 rounded-full" style={{ background: 'var(--bd2)' }}>
-                    <div className="h-full rounded-full" style={{ width: `${item.w}%`, background: item.color }} />
+                  {/* Title */}
+                  <h3 className="font-display font-bold text-wx-tx1 leading-[1.05] tracking-[-0.025em]"
+                    style={{ fontSize: 'clamp(1.8rem, 3.2vw, 2.6rem)' }}>
+                    {de ? c.nameDe : c.nameEn}
+                  </h3>
+                  {/* Accent line + metric */}
+                  <div className="flex items-center gap-4 mt-3 mb-5">
+                    <div className="h-[2px] w-10 rounded-full" style={{ background: 'var(--accent)' }} />
+                    <span className="num-data font-semibold text-[14px]" style={{ color: 'var(--accent-soft)' }}>
+                      {c.metric}
+                    </span>
+                  </div>
+                  {/* Summary */}
+                  <p className="text-[15px] leading-relaxed text-wx-tx2 max-w-[38ch]">
+                    {de ? c.sumDe : c.sumEn}
+                  </p>
+                  {/* Expandable details */}
+                  <div className="mt-2">
+                    <Disclosure label={de ? 'Warum das zählt' : 'Why it matters'}>
+                      <p className="text-[13px] leading-relaxed pt-3" style={{ color: 'var(--txm)' }}>
+                        {de ? c.whyDe : c.whyEn}
+                      </p>
+                    </Disclosure>
+                    <Disclosure label={de ? 'Die Physik' : 'The physics'}>
+                      <div className="pt-3 space-y-3">
+                        {(de ? c.physicsDe : c.physicsEn).map((p, j) => (
+                          <p key={j} className="text-[13px] leading-relaxed" style={{ color: 'var(--txm)' }}>{p}</p>
+                        ))}
+                      </div>
+                      <ComponentDiagram which={c.diagram} de={de} />
+                      <Insight>{de ? c.insightDe : c.insightEn}</Insight>
+                    </Disclosure>
                   </div>
                 </div>
               ))}
-              <div className="grid grid-cols-3 gap-2 pt-3" style={{ borderTop: '1px solid var(--bd2)' }}>
-                {[{ de: 'Plastifizierung', en: 'Plastification' }, { de: 'Haftung', en: 'Adhesion' }, { de: 'Partikelbindung', en: 'Particle binding' }].map((fn, i) => (
-                  <div key={i} className="text-center rounded-lg py-2 px-1" style={{ background: 'rgba(26,60,110,0.07)', border: '1px solid rgba(26,60,110,0.13)' }}>
-                    <p className="text-[10px] font-medium" style={{ color: '#4472D4' }}>{de ? fn.de : fn.en}</p>
-                  </div>
-                ))}
-              </div>
             </div>
-          }
-        />
-      </div>
 
-      {/* ══ STAT 2 ══════════════════════════════════════════════════════════════ */}
-      <StatCallout de={de} isDark={isDark} stat="5.6×"
-        ctxDe="Dichteunterschied MoS₂ zu Paraffin — deshalb ist Dispergierung unverzichtbar"
-        ctxEn="Density ratio MoS₂ to paraffin — why dispersion is non-negotiable"
-        miniViz={<DensityViz isDark={isDark} />} />
-
-      {/* ══ CH 04 ════════════════════════════════════════════════════════════ */}
-      <div className={`${W} pt-20`}>
-        <Chapter num="04" de={de} flip featured visualFirst
-          catDe="Festschmierstoff" catEn="Solid Lubricant"
-          titleDe="Molybdändisulfid — <5 µm"
-          titleEn="Molybdenum disulfide — <5 µm"
-          ledeDe="MoS₂ bildet unter Kontaktdruck einen Transferfilm auf dem Stahl — er schmiert noch, wenn das Wachs längst verbraucht ist."
-          ledeEn="MoS₂ forms a transfer film on steel under contact pressure — it lubricates long after the wax is spent."
-          teaserDe="MoS₂ ist eines der wenigen Materialien mit einem Reibungskoeffizienten unter 0,05 unter Grenzschmierbedingungen — dem Regime, das in Kettenkontaktstellen tatsächlich herrscht."
-          teaserEn="MoS₂ is one of the few materials with a friction coefficient below 0.05 under boundary lubrication — the regime that actually governs chain contact points."
-          bodyDe={<>
-            <p>MoS₂ ist eines der wenigen Materialien mit einem Reibungskoeffizienten unter 0.05 unter Grenzschmierbedingungen. Der Grund liegt in der Kristallstruktur: Mo-Atome sandwichartig zwischen zwei Schwefelschichten, die Schichten untereinander nur durch schwache van-der-Waals-Kräfte gebunden. Unter Kontaktdruck scheren diese Bindungen — die Schichten gleiten lateral fast widerstandslos.</p>
-            <p>An Kettenkontaktflächen unter Last entstehen Drücke von 50–300 MPa. Das ist das Regime der Grenzschmierung — konventionelle Öle können keinen kontinuierlichen Film aufrechterhalten. MoS₂ bildet stattdessen einen Transferfilm: Partikel werden unter Druck auf der Stahloberfläche deponiert und durch tribochemische Bindungen (Mo–S → Fe–S) verankert. Dieser Film persistiert, auch nachdem der Wachsträger längst abgetragen ist.</p>
-            <p>Die Partikelgröße ist nicht zufällig: Unter 5 µm passen die Partikel in die Kettenlagerungsspalte (typisch 5–15 µm). Eine einzige Ladung Wachs enthält Millionen von Partikeln — ausreichend für mehrfache Transferfilm-Regeneration über hunderte Kilometer. Mehr Konzentration schwächt die Wachsmatrix ohne tribologischen Mehrwert.</p>
-          </>}
-          bodyEn={<>
-            <p>MoS₂ is one of the few materials with a friction coefficient below 0.05 under boundary lubrication conditions. The crystal structure is the reason: Mo atoms sandwiched between two sulfur layers, with the layers bonded only by weak van-der-Waals forces. Under contact pressure, these bonds shear — the layers slide laterally with almost no resistance.</p>
-            <p>At chain contact surfaces under load, pressures reach 50–300 MPa. This is the boundary lubrication regime — conventional oils cannot maintain a continuous film here. MoS₂ instead forms a transfer film: particles deposited on the steel surface and anchored by tribochemical bonds (Mo–S → Fe–S). This film persists long after the wax carrier is worn away.</p>
-            <p>Particle size is deliberate: below 5 µm, particles fit within chain clearances (typically 5–15 µm). A single charge of wax contains millions of particles — sufficient for multiple transfer film regeneration cycles over hundreds of kilometers. Higher concentrations weaken the wax matrix without tribological benefit.</p>
-          </>}
-          insightDe="Der Transferfilm ist der eigentliche Schmierstoff — das Wachs ist nur das Trägervehikel. MoS₂-Schichten, nanometerdick auf dem Stahl, schmieren noch, wenn der Block längst aufgebraucht ist."
-          insightEn="The transfer film is the actual lubricant — the wax is just the delivery vehicle. Nanometer-thin MoS₂ layers on the steel continue lubricating long after the block is spent."
-          visual={<HexMoS2 de={de} />}
-          extraVisual={<TransferFilm de={de} />}
-        />
-      </div>
-
-      {/* ══ STAT 3 — concludes CH04 friction claim ══════════════════════════════ */}
-      <StatCallout de={de} isDark={isDark} stat="μ 0.03"
-        ctxDe="Reibungskoeffizient unter Grenzschmierung — einer der niedrigsten Werte im Vergleich"
-        ctxEn="Friction coefficient under boundary lubrication — among the lowest in comparison"
-        miniViz={<FrictionLadderViz isDark={isDark} />} />
-
-      {/* ══ CH 05 + CH 06 ════════════════════════════════════════════════════ */}
-      <div className={`${W} pt-20 pb-0`}>
-        <Chapter num="05" de={de} anchorId="sedimentation" visualFirst
-          catDe="Dispergiersystem" catEn="Dispersant System"
-          titleDe="Amphiphiler Fettsäureester"
-          titleEn="Amphiphilic fatty acid ester"
-          ledeDe="MoS₂ ist 5,6× dichter als Paraffin — ohne Dispergiermittel entsteht ein messbarer Konzentrationsgradient im fertigen Block."
-          ledeEn="MoS₂ is 5.6× denser than paraffin — without dispersant a measurable concentration gradient forms in the finished block."
-          teaserDe="Gibt man MoS₂ ohne Stabilisierung in geschmolzenes Wachs, sinken die Partikel messbar schnell — der erste Rewax-Vorgang wäre anders als der zwanzigste."
-          teaserEn="Add MoS₂ to molten wax without stabilization and the particles sink measurably fast — the first rewax would perform differently from the twentieth."
-          bodyDe={<>
-            <p>MoS₂ hat eine Dichte von 5.06 g/cm³. Paraffinwachs hat eine Dichte von 0.9 g/cm³. Dichteunterschied: Faktor 5,6. Gibt man MoS₂ in geschmolzenes Wachs ohne Stabilisierung, sinken die Partikel messbar schnell. In den Minuten zwischen Rührstopp und Guss bedeutet das messbare Konzentrationsgradienten im fertigen Block.</p>
-            <p>Das Dispergiermittel ist ein amphiphiler Fettsäureester: ein Molekül mit einer polaren Kopfgruppe, die über Wasserstoffbrücken an MoS₂-Partikelkanten adsorbiert, und einer langen unpolaren Fettsäurekette, die sich in die Paraffinschmelze erstreckt. Diese Hülle um jeden Partikel erzeugt eine sterische Barriere: annähernde Partikel müssen die Fettsäureketten komprimieren — dieser entropische Widerstand verhindert Agglomeration und Sedimentation.</p>
-            <p>Entscheidend für die Wahl dieses spezifischen Esters: Sein Schmelzpunkt (58–60°C) ist identisch mit der Basismatrix. Die Integration in die erstarrende Matrix verläuft thermodynamisch nahtlos — kein Auftrennen, keine Phasenseparation beim Abkühlen.</p>
-          </>}
-          bodyEn={<>
-            <p>MoS₂ has a density of 5.06 g/cm³. Paraffin wax has a density of 0.9 g/cm³. Density ratio: 5.6×. Add MoS₂ to molten wax without stabilization and the particles sink measurably fast. In the minutes between stopping agitation and casting, this creates measurable concentration gradients in the finished block.</p>
-            <p>The dispersant is an amphiphilic fatty acid ester: a molecule with a polar head group that adsorbs to MoS₂ particle edges via hydrogen bonds, and a long nonpolar fatty acid tail extending into the paraffin melt. This shell around each particle creates a steric barrier: approaching particles must compress the tails — this entropic resistance prevents agglomeration and sedimentation.</p>
-            <p>Critical to the choice of this specific ester: its melting point (58–60°C) is identical to the base matrix. Integration into the solidifying matrix is thermodynamically seamless — no phase separation on cooling.</p>
-          </>}
-          insightDe="Ohne Dispergiermittel variiert die MoS₂-Konzentration durch den Block. Der erste Rewax-Vorgang wäre anders als der zwanzigste. Das ist nicht akzeptabel."
-          insightEn="Without dispersant, MoS₂ concentration varies through the block. The first rewax would perform differently from the twentieth. Unacceptable."
-          visual={<ParticleSuspension de={de} />}
-        />
-
-        <Chapter num="06" de={de} flip
-          catDe="Langzeitstabilität" catEn="Long-term Stability"
-          titleDe="Gehindertes Phenol-Antioxidans"
-          titleEn="Hindered phenolic antioxidant"
-          ledeDe="Oxidiertes MoS₂ ist MoO₃ — abrasiv. Das Antioxidans schützt den Festschmierstoff, nicht nur das Wachs."
-          ledeEn="Oxidized MoS₂ is MoO₃ — abrasive. The antioxidant protects the solid lubricant, not just the wax."
-          teaserDe="Ein Wachsblock, der in Woche 1 performt aber in Monat 6 nachlässt, ist kein Produkt. Kohlenwasserstoffwachse sind anfällig für Autoxidation."
-          teaserEn="A wax block that performs in week 1 but degrades by month 6 isn't a product. Hydrocarbon waxes are susceptible to autoxidation."
-          bodyDe={<>
-            <p>Die letzte Frage war Zeit. Ein Wachsblock, der in Woche 1 performt aber in Monat 6 nachlässt, ist kein Produkt. Kohlenwasserstoffwachse sind anfällig für Autoxidation: Sauerstoffradikale greifen C–H-Bindungen an und initiieren eine Kettenreaktion, die Peroxide, Alkohole und Ketone produziert. Diese Oxidationsprodukte verspröden die Matrix.</p>
-            <p>Und sie können die MoS₂-Oberfläche von einem Schmierstoff (MoS₂) in ein Abrasivum verwandeln (MoO₃, gebildet durch Mo⁴⁺ → Mo⁶⁺ Oxidation). Ein gehindertes Phenol-Antioxidans wirkt als Radikalkettenabbrecher: Die phenolische OH-Gruppe doniert ein Wasserstoffatom an Peroxylradikale (ROO•) und bricht die Oxidationskaskade ab.</p>
-            <p>Die Konzentration wurde leicht erhöht, als wir einen separaten Korrosionsinhibitor aus einer früheren Formulierungsversion entfernt haben. Dieser hatte eine sekundäre antioxidative Wirkung. Ohne ihn trägt das Phenol-Antioxidans die gesamte Last — eine leichte Erhöhung kompensiert dies vollständig.</p>
-          </>}
-          bodyEn={<>
-            <p>The last question was time. A wax block that performs in week 1 but degrades by month 6 isn't a product. Hydrocarbon waxes are susceptible to autoxidation: oxygen radicals attack C–H bonds, initiating a chain reaction producing peroxides, alcohols, and ketones. These oxidation products embrittle the matrix.</p>
-            <p>And they can convert the MoS₂ surface from a lubricant (MoS₂) into an abrasive (MoO₃, formed by Mo⁴⁺ → Mo⁶⁺ oxidation). A hindered phenolic antioxidant acts as a radical chain-breaker: the phenolic OH group donates a hydrogen atom to peroxyl radicals (ROO•), breaking the oxidation cascade.</p>
-            <p>Concentration was raised slightly when we removed a separate corrosion inhibitor from an earlier formula version. That inhibitor had a secondary antioxidant effect. Without it, the phenolic antioxidant carries the full stabilization load — a slight increase covers this completely.</p>
-          </>}
-          insightDe="Das Antioxidans schützt nicht nur das Wachs, sondern auch den Festschmierstoff. Eine Komponente, die zwei Versagensmodi gleichzeitig verhindert."
-          insightEn="The antioxidant protects not just the wax, but also the solid lubricant. One component preventing two failure modes simultaneously."
-          visual={
-            <div className="rounded-2xl p-5" style={{ ...CARD, ...DOT_GRID }}>
-              <p className="text-[10px] uppercase tracking-[0.2em] mb-5" style={{ color: 'var(--txff)' }}>
-                {de ? 'Drei Schutzebenen' : 'Three protection layers'}
-              </p>
-              <div className="space-y-3">
-                {[
-                  { n: '01', titleDe: 'Wachsmatrix', titleEn: 'Wax matrix', descDe: 'Stoppt Autoxidation der Kohlenwasserstoffketten — bei Produktion und Lagerung.', descEn: 'Stops autoxidation of hydrocarbon chains — during production and storage.' },
-                  { n: '02', titleDe: 'MoS₂-Oberfläche', titleEn: 'MoS₂ surface', descDe: 'Verhindert langsame MoS₂ → MoO₃ Oxidation durch Sauerstoffspuren in der Matrix.', descEn: 'Prevents slow MoS₂ → MoO₃ surface oxidation from trace oxygen in the matrix.' },
-                  { n: '03', titleDe: 'Lagerstabilität', titleEn: 'Shelf life', descDe: 'Peroxidzahl bleibt auch nach 12–24 Monaten unter dem Leistungsgrenzwert.', descEn: 'Peroxide value stays below the performance threshold after 12–24 months.' },
-                ].map((item, i) => (
-                  <div key={i} className="flex gap-3.5 p-3.5 rounded-xl" style={{ background: 'rgba(26,60,110,0.06)', border: '1px solid rgba(26,60,110,0.13)' }}>
-                    <span className="font-display text-[22px] font-bold tabular-nums flex-shrink-0 leading-none mt-0.5" style={{ color: 'rgba(26,60,110,0.28)' }}>{item.n}</span>
-                    <div>
-                      <p className="text-[12px] font-semibold text-wx-tx1 mb-1">{de ? item.titleDe : item.titleEn}</p>
-                      <p className="text-[11px] text-wx-txm leading-relaxed">{de ? item.descDe : item.descEn}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+            {/* RIGHT — FormulaGraph */}
+            <div className="relative">
+              <div className="absolute inset-0 -m-8 pointer-events-none"
+                style={{
+                  background: 'radial-gradient(ellipse 70% 60% at 50% 45%, var(--accent-wash-sm) 0%, transparent 70%)',
+                  filter: 'blur(24px)',
+                }} />
+              <FormulaGraph de={de} onSelect={scrollToComponent} scrollFocus={comp.node} compact />
             </div>
-          }
-        />
-      </div>
+          </div>
+        </div>
 
-      {/* ══ SYNTHESIS REVEAL — standalone full section ═══════════════════════ */}
-      <section
-        style={{
-          background: isDark ? 'rgba(15,30,70,0.10)' : 'rgba(26,60,110,0.04)',
-          borderTop: isDark ? '1px solid rgba(68,114,212,0.12)' : '1px solid rgba(26,60,110,0.08)',
-          borderBottom: isDark ? '1px solid rgba(68,114,212,0.12)' : '1px solid rgba(26,60,110,0.08)',
-        }}
-      >
-        <div className={`${W} py-24`}>
-          <SynthesisReveal de={de} isDark={isDark} />
+        {/* Bottom navigation — sibling of the max-w-7xl content wrapper (not
+            nested inside it), so "absolute bottom-8" anchors to the sticky
+            viewport's fixed h-screen height instead of the grid's own height.
+            Nested inside the grid, this nav's position tracked whichever
+            column was tallest — when FormulaGraph rendered taller than the
+            left panel's 400px minHeight, bottom-8 landed mid-graph instead
+            of below it, overlapping node labels near the bottom of the
+            viewBox (e.g. Dispersant/Antioxidant). */}
+        <div className="absolute bottom-8 left-0 right-0 flex flex-col items-center gap-3">
+          <div className="flex items-center gap-2.5">
+            {COMPONENTS.map((c, i) => (
+              <button key={c.id} onClick={() => scrollToComponent(c.id)}
+                aria-label={de ? c.nameDe : c.nameEn}
+                className="group flex flex-col items-center gap-1.5"
+              >
+                <span className="rounded-full transition-all duration-300"
+                  style={{
+                    width: i === activeIdx ? 24 : 8,
+                    height: 8,
+                    background: i === activeIdx ? 'var(--accent)' : i < activeIdx ? 'rgba(var(--accent-rgb),0.35)' : 'var(--bd)',
+                  }}
+                />
+                <span className="text-[9px] uppercase tracking-[0.14em] transition-opacity duration-300"
+                  style={{ color: 'var(--txf)', opacity: i === activeIdx ? 1 : 0 }}>
+                  {de ? c.graphLabelDe : c.graphLabelEn}
+                </span>
+              </button>
+            ))}
+          </div>
+          <span className="text-[10px] tracking-[0.12em] uppercase transition-opacity duration-700"
+            style={{ color: 'var(--txf)', opacity: activeIdx === 0 ? 0.7 : 0 }}>
+            {de ? 'Scrollen zum Erkunden' : 'Scroll to explore'}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function SciencePage() {
+  const { lang } = useLanguage();
+  const de = lang === 'de';
+  const { hash } = useLocation();
+
+  useEffect(() => {
+    if (!hash) { window.scrollTo(0, 0); return; }
+    const el = document.getElementById(hash.slice(1));
+    if (el) requestAnimationFrame(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  }, [hash]);
+
+  const scrollToAnchor = (id: string) =>
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  return (
+    <div className="min-h-screen bg-wx-bg">
+      <Navigation />
+
+      <ScienceHero de={de} />
+
+      {/* ── ACT II — FORMULA (scroll-driven storytelling) ── */}
+      <section style={{ borderTop: '1px solid var(--bd2)' }}>
+        {/* Section heading */}
+        <div className={`${W} pt-20 pb-8`}>
+          <ActHead
+            eyebrow={de ? 'Die Formel' : 'The Formula'}
+            title={de ? 'Sechs Komponenten, ein System.' : 'Six components, one system.'}
+            lede={de
+              ? 'Jede Zutat löst ein konkretes Versagensszenario. Zusammen ergeben sie einen Film, der sauber bleibt, unter Last hält und im Winter nicht bricht.'
+              : "Each ingredient solves a specific failure mode. Together they make a film that stays clean, holds under load, and doesn't crack in winter."}
+          />
+        </div>
+
+        {/* Desktop: scroll-driven storytelling */}
+        <div className="hidden lg:block">
+          <FormulaStory de={de} />
+        </div>
+
+        {/* Mobile: stacked cards */}
+        <div className="lg:hidden">
+          <div className={`${W} pb-8`}>
+            <InstrumentFrame eyebrow={de ? 'Das System' : 'The system'}>
+              <FormulaGraph de={de} onSelect={scrollToAnchor} />
+            </InstrumentFrame>
+          </div>
+          <div className={`${W} space-y-5 pb-12`}>
+            {COMPONENTS.map((c, i) => <CompCard key={c.id} c={c} n={i + 1} de={de} />)}
+          </div>
+        </div>
+
+        {/* Below: full-width deep-dive sections */}
+        <div className={`${W} py-14`}>
+          <div className="grid lg:grid-cols-2 gap-6 items-stretch">
+            <HexMoS2 de={de} />
+            <div id="matrix-window" className="h-full">
+              <TempWindow de={de} />
+            </div>
+          </div>
+          <FailureTimeline de={de} />
         </div>
       </section>
 
-      {/* ══ WHAT THIS MEANS FOR YOU — outcome bridge before results ══════════ */}
-      <div className={`${W} py-14`}>
-        <div
-          className="rounded-2xl p-6 sm:p-10 grid grid-cols-1 sm:grid-cols-3 gap-8 text-center"
-          style={{
-            background: isDark ? 'rgba(26,60,110,0.12)' : 'rgba(26,60,110,0.05)',
-            border: '1px solid rgba(26,60,110,0.18)',
-          }}
-        >
-          <div>
-            <p className="font-serif-display italic font-bold text-[2.4rem] leading-none mb-1.5" style={{ color: isDark ? '#6A8AE8' : '#1A3C6E' }}>~300 km</p>
-            <p className="text-[11px] font-semibold" style={{ color: isDark ? 'rgba(255,255,255,0.70)' : 'var(--tx1)' }}>{de ? 'pro Rewax-Vorgang' : 'per rewax'}</p>
-            <p className="text-[10px] mt-0.5" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'var(--txm)' }}>{de ? 'bei trockenen Bedingungen' : 'in dry conditions'}</p>
-          </div>
-          <div>
-            <p className="font-serif-display italic font-bold text-[2.4rem] leading-none mb-1.5" style={{ color: isDark ? '#6A8AE8' : '#1A3C6E' }}>3×</p>
-            <p className="text-[11px] font-semibold" style={{ color: isDark ? 'rgba(255,255,255,0.70)' : 'var(--tx1)' }}>{de ? 'längere Kettenlaufzeit' : 'longer chain life'}</p>
-            <p className="text-[10px] mt-0.5" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'var(--txm)' }}>{de ? 'gegenüber Kettenöl' : 'vs. chain oil'}</p>
-          </div>
-          <div>
-            <p className="font-serif-display italic font-bold text-[2.4rem] leading-none mb-1.5" style={{ color: isDark ? '#6A8AE8' : '#1A3C6E' }}>~€35</p>
-            <p className="text-[11px] font-semibold" style={{ color: isDark ? 'rgba(255,255,255,0.70)' : 'var(--tx1)' }}>{de ? 'gespart pro Jahr' : 'saved per year'}</p>
-            <p className="text-[10px] mt-0.5" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'var(--txm)' }}>{de ? 'bei 5.000 km/Jahr' : 'at 5,000 km/year'}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* ══ RESULTS ═══════════════════════════════════════════════════════════ */}
-      <section
-        id="reibung"
-        style={{
-          background: isDark ? '#07070A' : 'var(--sf2)',
-          borderTop: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid var(--bd)',
-        }}
-      >
-        <div className={`${W} py-24`}>
-          <div className="text-center mb-14">
-            <p className="text-[10px] font-medium uppercase tracking-[0.25em] mb-3" style={{ color: '#4472D4' }}>
-              {de ? 'Das Ergebnis' : 'The Result'}
-            </p>
-            <h2 className="font-serif-display text-3xl sm:text-4xl font-bold leading-tight" style={{ color: isDark ? '#FAFAFA' : 'var(--tx1)' }}>
-              {de ? 'Was die Formel leistet' : 'What the formula delivers'}
-            </h2>
-            <p className="mt-4 text-[14px] max-w-md mx-auto" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'var(--txm)' }}>
-              {de
-                ? 'Sechs Entscheidungen. Kein Kompromiss in der Kette.'
-                : 'Six decisions. No compromise in the chain.'}
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <FrictionBars de={de} />
-            <div className="w-full rounded-2xl p-5" style={isDark ? { ...DARK_CARD, ...DARK_DOT_GRID } : { ...CARD, ...DOT_GRID }}>
-              <p className="text-[10px] uppercase tracking-[0.2em] mb-1" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'var(--txff)' }}>
-                {de ? 'MoS₂-Verteilung im Gussblock' : 'MoS₂ distribution in cast block'}
-              </p>
-              <p className="text-[9px] font-mono mb-4" style={{ color: isDark ? 'rgba(255,255,255,0.18)' : 'var(--txff)' }}>
-                {de ? 'Querschnitt — Oben / Mitte / Unten' : 'Cross-section — Top / Mid / Bottom'}
-              </p>
-              {/* Block cross-section: 3 slices, uniform particle grid */}
-              <div className="grid grid-cols-3 gap-2 mb-4">
-                {(de
-                  ? ['Oben', 'Mitte', 'Unten']
-                  : ['Top', 'Mid', 'Bottom']
-                ).map((label, si) => (
-                  <div key={si} className="flex flex-col items-center gap-2">
-                    <div className="w-full rounded-lg p-2.5" style={{ background: isDark ? 'rgba(255,255,255,0.03)' : 'var(--sf3)', border: isDark ? '1px solid rgba(255,255,255,0.07)' : '1px solid var(--bd2)' }}>
-                      <div className="grid grid-cols-4 gap-1.5 justify-items-center py-1">
-                        {[...Array(12)].map((_, j) => (
-                          <div key={j} className="w-2.5 h-2.5 rounded-full" style={{ background: '#2A5499', opacity: isDark ? (0.55 + (j % 4) * 0.12) : (0.45 + (j % 4) * 0.12) }} />
-                        ))}
-                      </div>
-                    </div>
-                    <span className="text-[8px] font-mono text-center" style={{ color: isDark ? 'rgba(255,255,255,0.28)' : 'var(--txff)' }}>{label}</span>
-                  </div>
-                ))}
-              </div>
-              {/* Key stats */}
-              <div className="grid grid-cols-2 gap-2 mb-4">
-                {[
-                  { de: 'kein Gradient', en: 'no gradient', sub: de ? 'von oben bis unten' : 'top to bottom' },
-                  { de: 'Block 1 = 20', en: 'Block 1 = 20', sub: de ? 'identische Performance' : 'identical performance' },
-                ].map((s, i) => (
-                  <div key={i} className="text-center p-2 rounded-lg" style={{ background: 'rgba(26,60,110,0.10)', border: '1px solid rgba(26,60,110,0.18)' }}>
-                    <p className="font-serif-display italic text-[16px] font-bold" style={{ color: isDark ? '#6A8AE8' : '#1A3C6E', textShadow: isDark ? '0 0 14px rgba(68,114,212,0.45)' : 'none' }}>
-                      {de ? s.de : s.en}
-                    </p>
-                    <p className="text-[9px] mt-0.5" style={{ color: isDark ? 'rgba(255,255,255,0.32)' : 'var(--txm)' }}>{s.sub}</p>
-                  </div>
-                ))}
-              </div>
-              <p className="text-[11px] pt-3.5 leading-relaxed" style={{ color: isDark ? 'rgba(255,255,255,0.45)' : 'var(--txm)', borderTop: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid var(--bd2)' }}>
-                {de
-                  ? 'MoS₂ ist 5,6× dichter als Paraffin. Ohne Dispergiermittel entsteht ein messbarer Konzentrationsgradient — mehr Partikel unten, weniger oben. Der Fettsäureester verhindert genau das.'
-                  : 'MoS₂ is 5.6× denser than paraffin. Without dispersant a measurable concentration gradient forms — more particles at the bottom, fewer at the top. The fatty acid ester prevents exactly this.'}
-              </p>
-            </div>
-          </div>
-        </div>
+      {/* ── MICROSCOPE — real micrograph evidence ── */}
+      <section className={`${W} pt-20 pb-16`} style={{ borderTop: '1px solid var(--bd2)' }}>
+        <Microscope de={de} />
       </section>
 
-      {/* ══ CTA ══════════════════════════════════════════════════════════════ */}
-      <section style={{
-        background: isDark ? 'linear-gradient(160deg, #07070A 0%, #0B1830 55%, #07070A 100%)' : 'var(--sf3)',
-        borderTop: isDark ? '1px solid rgba(68,114,212,0.1)' : '1px solid var(--bd)',
-      }}>
-        <div className={`${W} py-20 text-center`}>
-          <p className="text-[10px] font-medium uppercase tracking-[0.28em] mb-4" style={{ color: '#4472D4' }}>
-            {de ? 'Bereit?' : 'Ready?'}
+      {/* ── ACT III — PROOF ── */}
+      <section className={`${W} py-16`} style={{ borderTop: '1px solid var(--bd2)' }}>
+        <ActHead
+          eyebrow={de ? 'Der Beweis' : 'The Proof'}
+          title={de ? 'Gemessen, nicht behauptet.' : 'Measured, not claimed.'}
+        />
+
+        <InstrumentFrame eyebrow={de ? 'Reibung' : 'Friction'} className="mb-6">
+          <FrictionBars de={de} />
+        </InstrumentFrame>
+
+        {/* Signature visual — Fe–S transfer film deposition (the payoff) */}
+        <div className="mb-6">
+          <TransferFilm de={de} />
+        </div>
+
+        {/* Outcome stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {[
+            { v: '~300 km', d: de ? 'pro Rewax-Vorgang' : 'per rewax' },
+            { v: `${waxVsOil.life.wax}×`, d: de ? 'längere Kettenlaufzeit' : 'longer chain life' },
+            { v: `~€${waxVsOil.cost.savedEur}`, d: de ? `gespart auf ${waxVsOil.cost.km.toLocaleString('de-DE')} km` : `saved over ${waxVsOil.cost.km.toLocaleString('en-US')} km` },
+          ].map((s, i) => (
+            <div key={i} className="rounded-2xl border border-wx-bd p-6 text-center"
+              style={{ background: 'var(--card-bg)', boxShadow: 'var(--card-shad)' }}>
+              <CountUp value={s.v} className="font-display font-bold text-wx-tx1 block leading-none"
+                style={{ fontSize: 'clamp(2rem, 4.5vw, 2.6rem)' }} />
+              <div className="h-0.5 w-8 mx-auto mt-3 mb-2 rounded-full" style={{ background: 'var(--accent)', opacity: 0.5 }} />
+              <p className="text-[13px] text-wx-txm">{s.d}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* CTA */}
+        <div className="mt-14 rounded-2xl px-6 py-10 sm:py-12 text-center"
+          style={{ background: 'var(--accent-wash-sm)', border: '1px solid rgba(var(--accent-rgb),0.12)' }}>
+          <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
+            {de ? 'Nächster Schritt' : 'Next step'}
           </p>
-          <h2 className="font-serif-display text-2xl sm:text-3xl font-bold mb-4 leading-tight" style={{ color: isDark ? '#FAFAFA' : 'var(--tx1)' }}>
-            {de ? 'Die Formel auf deiner Kette.' : 'Put the formula on your chain.'}
-          </h2>
-          <p className="text-[14px] mb-10 max-w-sm mx-auto" style={{ color: isDark ? 'rgba(255,255,255,0.38)' : 'var(--txm)' }}>
-            {de
-              ? 'Direkt über eBay — mit vollem Käuferschutz.'
-              : 'Directly via eBay — with full buyer protection.'}
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <a
-              href="https://www.ebay.de/itm/396468036330"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2.5 px-8 py-4 rounded-full font-semibold text-[14px] transition-opacity hover:opacity-80"
-              style={{
-                background: isDark ? 'linear-gradient(135deg,#1A3080,#2A5499)' : 'var(--cta-bg)',
-                color: isDark ? '#fff' : 'var(--cta-fg)',
-              }}
-            >
-              {de ? 'Pro kaufen →' : 'Buy Pro →'}
-            </a>
-            <a
-              href="https://www.ebay.de/itm/395811184583"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2.5 px-8 py-4 rounded-full font-semibold text-[14px] transition-opacity hover:opacity-80"
-              style={{
-                background: 'transparent',
-                border: isDark ? '1.5px solid rgba(106,138,232,0.55)' : '1.5px solid var(--brand)',
-                color: isDark ? 'rgba(168,192,244,0.85)' : 'var(--brand)',
-              }}
-            >
-              {de ? 'Classic kaufen →' : 'Buy Classic →'}
-            </a>
-          </div>
-          <Link to="/" className="mt-6 inline-flex items-center gap-1.5 text-[12px] transition-opacity hover:opacity-70" style={{ color: isDark ? 'rgba(255,255,255,0.30)' : 'var(--txff)' }}>
-            <ArrowLeft className="w-3 h-3" />
-            {de ? 'Zurück zur Übersicht' : 'Back to overview'}
+          <h3 className="font-display font-bold text-wx-tx1 mb-5" style={{ fontSize: 'clamp(1.5rem, 3vw, 2rem)' }}>
+            {de ? 'Bereit für einen sauberen Antrieb?' : 'Ready for a clean drivetrain?'}
+          </h3>
+          <Link to="/#produkte"
+            className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-[14px] font-semibold transition-all hover:opacity-90"
+            style={{ background: 'var(--accent)', color: '#fff' }}>
+            {de ? 'Formel wählen' : 'Choose your formula'}
+            <ArrowLeft className="h-4 w-4 rotate-180" />
           </Link>
         </div>
       </section>
 
+      <footer className={`${W} py-12 text-center`} style={{ borderTop: '1px solid var(--bd2)' }}>
+        <Link to="/" className="inline-flex items-center gap-2 text-[13px] text-wx-txm transition-opacity hover:opacity-70">
+          <ArrowLeft className="h-4 w-4" />
+          {de ? 'Zurück zur Startseite' : 'Back to home'}
+        </Link>
+      </footer>
     </div>
   );
 }

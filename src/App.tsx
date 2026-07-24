@@ -1,19 +1,22 @@
 import { useEffect, lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { Navigation } from '@/sections/navigation';
-import { Hero } from '@/sections/hero';
+import { Hero as HeroEditorial } from '@/sections/hero-light';
 import { Products } from '@/sections/products';
 import { WhyWax } from '@/sections/why-wax';
-import { Tools } from '@/sections/tools';
-import { Guides } from '@/sections/guides';
-import { FAQ } from '@/sections/faq';
-import { About } from '@/sections/about';
-import { Conviction } from '@/sections/conviction';
-import { Reviews } from '@/sections/reviews';
-import { Contact } from '@/sections/contact';
 import { Footer } from '@/sections/footer';
 
+// Below-the-fold homepage sections — split into their own chunks that stream in
+// parallel after first paint. Keeps the initial bundle light; nothing removed.
+const Reviews = lazy(() => import('@/sections/reviews').then(m => ({ default: m.Reviews })));
+const About   = lazy(() => import('@/sections/about').then(m => ({ default: m.About })));
+const Tools   = lazy(() => import('@/sections/tools').then(m => ({ default: m.Tools })));
+const Guides  = lazy(() => import('@/sections/guides').then(m => ({ default: m.Guides })));
+const FAQ     = lazy(() => import('@/sections/faq').then(m => ({ default: m.FAQ })));
+const Contact = lazy(() => import('@/sections/contact').then(m => ({ default: m.Contact })));
+
 const ProductDetailPage = lazy(() => import('@/pages/ProductDetailPage').then(m => ({ default: m.ProductDetailPage })));
+const ProductStagePage = lazy(() => import('@/pages/ProductStagePage').then(m => ({ default: m.ProductStagePage })));
 const ImpressumPage = lazy(() => import('@/pages/ImpressumPage').then(m => ({ default: m.ImpressumPage })));
 const DatenschutzPage = lazy(() => import('@/pages/DatenschutzPage').then(m => ({ default: m.DatenschutzPage })));
 const AGBPage = lazy(() => import('@/pages/AGBPage').then(m => ({ default: m.AGBPage })));
@@ -28,9 +31,11 @@ import { Toaster } from '@/components/ui/sonner';
 import { CartDrawer } from '@/components/CartDrawer';
 import { useCartStore } from '@/store/cart';
 import { ScrollToTop } from '@/components/ScrollToTop';
+import { PendingAnchorScroll } from '@/components/PendingAnchorScroll';
 import { ScrollProgress } from '@/components/ScrollProgress';
 import { MobileStickyCTA } from '@/components/MobileStickyCTA';
 import { CartPersistenceHint } from '@/components/CartPersistenceHint';
+import { SectionDots } from '@/components/SectionDots';
 
 const PageLoader = () => (
   <div style={{ minHeight: '100vh', background: 'var(--pg)' }} />
@@ -46,11 +51,12 @@ function AppContent() {
       <ScrollProgress />
       <CartPersistenceHint />
       <ScrollToTop />
-      {/* SectionDots removed — signals "overwhelming page" and adds escape routes */}
+      <SectionDots />
       <MobileStickyCTA />
       <CartDrawer />
       <Routes>
         <Route path="/produkt/:id" element={<Suspense fallback={<PageLoader />}><ProductDetailPage /></Suspense>} />
+        <Route path="/produkt/:id/stage" element={<Suspense fallback={<PageLoader />}><ProductStagePage /></Suspense>} />
         <Route path="/blog" element={<Suspense fallback={<PageLoader />}><BlogIndexPage /></Suspense>} />
         <Route path="/blog/:slug" element={<Suspense fallback={<PageLoader />}><BlogArticlePage /></Suspense>} />
         <Route path="/bestellung-erfolgreich" element={<Suspense fallback={<PageLoader />}><OrderSuccess /></Suspense>} />
@@ -62,17 +68,21 @@ function AppContent() {
         <Route path="*" element={
           <>
             <Navigation />
+            <PendingAnchorScroll />
             <main>
-              <Hero />
-              <Conviction />
-              <Products />
+              <Suspense fallback={<div style={{ minHeight: '100svh' }} />}>
+                <HeroEditorial />
+              </Suspense>
               <WhyWax />
-              <Reviews />
-              <About />
-              <FAQ />
-              <Tools />
-              <Guides />
-              <Contact />
+              <Products />
+              <Suspense fallback={null}>
+                <Reviews />
+                <About />
+                <Tools />
+                <Guides />
+                <FAQ />
+                <Contact />
+              </Suspense>
             </main>
             <Footer />
           </>

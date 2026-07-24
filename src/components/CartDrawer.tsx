@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { useCartStore, cartItemCount, cartTotalPrice } from '@/store/cart';
 import { getEstimatedDelivery } from '@/lib/utils';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 import { toast } from 'sonner';
 
 export function CartDrawer() {
@@ -25,10 +26,7 @@ export function CartDrawer() {
   const total = cartTotalPrice(items);
 
   // Lock body scroll when cart is open
-  useEffect(() => {
-    document.body.style.overflow = isOpen ? 'hidden' : '';
-    return () => { document.body.style.overflow = ''; };
-  }, [isOpen]);
+  useBodyScrollLock(isOpen);
 
   // Close on Escape
   useEffect(() => {
@@ -48,7 +46,7 @@ export function CartDrawer() {
         className={`fixed inset-0 z-50 transition-opacity duration-300 ${
           isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
-        style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)' }}
+        style={{ background: 'var(--overlay-bg)', backdropFilter: 'blur(4px)' }}
         onClick={closeCart}
         aria-hidden="true"
       />
@@ -74,7 +72,7 @@ export function CartDrawer() {
             {count > 0 && (
               <span
                 className="text-[11px] font-bold text-white rounded-full flex items-center justify-center"
-                style={{ background: '#1A3C6E', minWidth: '1.25rem', height: '1.25rem', padding: '0 4px' }}
+                style={{ background: 'var(--accent)', minWidth: '1.25rem', height: '1.25rem', padding: '0 4px' }}
               >
                 {count}
               </span>
@@ -106,7 +104,7 @@ export function CartDrawer() {
               <button
                 onClick={closeCart}
                 className="text-sm font-medium transition-colors"
-                style={{ color: '#1A3C6E' }}
+                style={{ color: 'var(--accent)' }}
               >
                 {t.cart.browseCta}
               </button>
@@ -132,7 +130,7 @@ export function CartDrawer() {
                     <p className="text-sm font-medium text-wx-tx1 leading-snug mb-1 line-clamp-2">
                       {de ? item.title : item.titleEn}
                     </p>
-                    <p className="text-sm font-semibold text-wx-tx1 mb-2.5">
+                    <p className="num text-sm font-semibold text-wx-tx1 mb-2.5">
                       {formatPrice(item.price * item.quantity)}
                     </p>
                     {/* Qty controls */}
@@ -183,9 +181,9 @@ export function CartDrawer() {
             {total < 50 && (
               <div
                 className="rounded-lg px-3 py-2.5 text-xs"
-                style={{ background: 'rgba(26,60,110,0.08)', border: '1px solid rgba(26,60,110,0.18)' }}
+                style={{ background: 'var(--accent-wash)', border: '1px solid rgba(var(--accent-rgb),0.18)' }}
               >
-                <span style={{ color: '#1A3C6E' }}>
+                <span style={{ color: 'var(--accent)' }}>
                   {de
                     ? `Noch ${formatPrice(50 - total)} bis zum kostenlosen Versand`
                     : `${formatPrice(50 - total)} away from free shipping`}
@@ -211,7 +209,7 @@ export function CartDrawer() {
                 type="checkbox"
                 checked={agbAccepted}
                 onChange={(e) => setAgbAccepted(e.target.checked)}
-                className="mt-0.5 flex-shrink-0 accent-[#1A3C6E] w-3.5 h-3.5"
+                className="mt-0.5 flex-shrink-0 accent-[var(--accent)] w-3.5 h-3.5"
               />
               <span className="text-[11px] leading-relaxed" style={{ color: 'var(--txf)' }}>
                 {de ? (

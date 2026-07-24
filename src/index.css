@@ -1,36 +1,178 @@
+@import './fonts.css';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :focus-visible {
-  outline: 2px solid #1A3C6E;
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
   border-radius: 3px;
+}
+
+/* FormulaGraph — directional "flow" comet running along an active edge.
+   The path uses pathLength=100, so the dash values are percentages. */
+@keyframes graph-flow { to { stroke-dashoffset: -100; } }
+.graph-flow { animation: graph-flow 1.15s linear infinite; }
+@media (prefers-reduced-motion: reduce) { .graph-flow { animation: none; } }
+
+/* Reviews — seamless right-to-left marquee. The track holds the cards twice and
+   slides exactly one set width, so the loop is invisible. Pause on hover. */
+@keyframes marquee-x { from { transform: translate3d(0,0,0); } to { transform: translate3d(-50%,0,0); } }
+.marquee-track { animation: marquee-x var(--dur, 64s) linear infinite; will-change: transform; }
+.marquee:hover .marquee-track, .marquee:focus-within .marquee-track { animation-play-state: paused; }
+/* Solid page-color gradient overlay instead of an opacity mask — masking dark
+   photo cards to transparent against a light page background left a muddy
+   grey smear at the edges (alpha-blending a dark photo down to nothing over a
+   light page physically passes through a murky mid-grey; that's not a bug in
+   the old approach, it's what alpha compositing does). Painting over with
+   var(--pg) fades cleanly regardless of what's underneath — keep that part.
+   What was too heavy was the CURVE: a flat two-stop linear ramp reads as a
+   wall that suddenly appears, not a fade. This uses the actual smoothstep
+   curve (t²(3-2t) at t=.25/.5/.75 → 84%/50%/16%) instead of a straight line —
+   eases in, does most of its work in the middle, eases back out — which is
+   what makes a fade read as gentle rather than abrupt. color-mix() computes
+   "N% of var(--pg)" directly so this still tracks the theme token, same as
+   before, just shaped differently. */
+.edge-fade { position: relative; }
+.edge-fade::before, .edge-fade::after {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  z-index: 5;
+  pointer-events: none;
+  width: clamp(30px, 7.5vw, 96px);
+}
+.edge-fade::before {
+  left: 0;
+  background: linear-gradient(to right,
+    var(--pg) 0%,
+    color-mix(in oklab, var(--pg) 84%, transparent) 25%,
+    color-mix(in oklab, var(--pg) 50%, transparent) 50%,
+    color-mix(in oklab, var(--pg) 16%, transparent) 75%,
+    transparent 100%);
+}
+.edge-fade::after {
+  right: 0;
+  background: linear-gradient(to left,
+    var(--pg) 0%,
+    color-mix(in oklab, var(--pg) 84%, transparent) 25%,
+    color-mix(in oklab, var(--pg) 50%, transparent) 50%,
+    color-mix(in oklab, var(--pg) 16%, transparent) 75%,
+    transparent 100%);
+}
+@media (prefers-reduced-motion: reduce) { .marquee-track { animation: none; } }
+
+/* Hero primary CTA — barely-perceptible breathing glow. Box-shadow intensity
+   only (no scale, no color shift), long slow loop so it reads as "alive"
+   without registering as an animation. Paused (not removed) on hover so the
+   hover shadow takes over cleanly instead of fighting the loop. */
+@keyframes cta-breathe {
+  0%, 100% { box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 8px 20px rgba(0,0,0,0.18), 0 0 0 0 rgba(255,255,255,0); }
+  50%      { box-shadow: 0 2px 4px rgba(0,0,0,0.14), 0 14px 38px rgba(0,0,0,0.22), 0 0 44px 8px rgba(255,255,255,0.20); }
+}
+.cta-primary { animation: cta-breathe 3.2s ease-in-out infinite; }
+.cta-primary:hover { animation-play-state: paused; box-shadow: 0 2px 4px rgba(0,0,0,0.14), 0 16px 42px rgba(0,0,0,0.30), 0 0 48px 10px rgba(255,255,255,0.24); }
+@media (prefers-reduced-motion: reduce) { .cta-primary { animation: none; } }
+
+
+/* Hero secondary CTA — plain underlined text link on mobile (one strong pill
+   button + a quiet link reads calmer than two stacked pills); becomes the
+   full pill from sm: up, where there's room for it. */
+.hero-cta-secondary {
+  color: rgba(255,255,255,0.88);
+  background: transparent;
+  border: none;
+  padding: 0;
+  border-radius: 0;
+  text-underline-offset: 3px;
+  text-decoration: underline;
+  text-decoration-color: rgba(255,255,255,0.32);
+}
+@media (min-width: 640px) {
+  .hero-cta-secondary {
+    border: 1px solid rgba(255,255,255,0.30);
+    background: rgba(var(--scrim-rgb),0.18);
+    padding: 0.875rem 1.5rem;
+    border-radius: 9999px;
+    text-decoration: none;
+    backdrop-filter: blur(6px);
+    transition: background 0.25s ease, border-color 0.25s ease;
+  }
+  .hero-cta-secondary:hover {
+    background: rgba(255,255,255,0.10);
+    border-color: rgba(255,255,255,0.52);
+  }
 }
 
 @layer base {
   /* ── Light mode (default) ── */
   :root {
-    --pg:        #F5F5F7;
+    /* ── Engineered Editorial — true neutral greyscale, zero channel bias ──
+       Every token below is R=G=B exactly. A previous version carried a 1-4
+       unit blue lean on each step (e.g. #E5E5E8) meant to read as "cool
+       neutral" — in isolation it did, but boxed against the saturated blue
+       accent (--accent / --brand) that same lean triggered a simultaneous-
+       contrast illusion that read as a faint green/pistachio cast (reported
+       repeatedly on the guides accordion, tool calculator boxes, etc.).
+       Removing the bias entirely and tightening the steps closer to white
+       fixes it structurally instead of case-by-case. */
+    /* Hero stage card — deliberately its own token, not tied to --sf2. In light
+       mode the page is bright so any dark card reads as a frame; in noir mode
+       the page itself goes near-black, so the stage needs to stay visibly
+       lighter than --pg or the "card floating in a frame" effect disappears. */
+    --hero-stage: #0B0C0E;
+    --pg:        #F6F6F6;
     --sf:        #FFFFFF;
-    --sf2:       #ECECF0;
-    --sf3:       #E4E4EA;
-    --tx1:       #0A0A14;
-    --tx2:       #4A5068;
-    --txm:       #6E7288;
-    --txf:       #6C6C88;
-    --txff:      #8080A0;
-    --bd:        #D8D8E0;
-    --bd2:       #E8E8EE;
+    --sf2:       #F1F1F1;
+    --sf3:       #EAEAEA;
+    --tx1:       #101013;   /* near-black, neutral */
+    --tx2:       #44444A;   /* zinc-700-ish */
+    --txm:       #6B6B72;   /* zinc-500 */
+    --txf:       #8A8A92;   /* zinc-450 */
+    --txff:      #A8A8B0;   /* zinc-400 */
+    --bd:        #DEDEDE;
+    --bd2:       #ECECEC;
     --card-from: #FFFFFF;
-    --card-to:   #F5F5FA;
-    --card-to-rgb: 245,245,250;
+    --card-to:   #F6F6F6;
+    --card-to-rgb: 246,246,246;
+    --card-bg:   linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%);
     --card-shad: 0 2px 16px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,0.9);
-    --nav-bg:    rgba(245,245,247,0.92);
-    --tool-bg:   #EEEEF3;
-    --card-shadow-hover: 0 4px 20px rgba(0,0,0,0.10), 0 12px 40px rgba(0,0,0,0.08), 0 0 0 1px rgba(26,60,110,0.15);
+    --nav-bg:    rgba(246,246,246,0.92);
+    --tool-bg:   var(--pg);   /* was a shade darker than the page — same discrete tone now, no visible seam */
+    --card-shadow-hover: 0 4px 20px rgba(0,0,0,0.10), 0 12px 40px rgba(0,0,0,0.08), 0 0 0 1px rgba(var(--accent-rgb),0.15);
     --card-img-fade: transparent;
+
+    /* ── Single ink-blue accent ramp (light) — STRUKTUR / Vertrauen ── */
+    --accent:            #1F4A7D;
+    --accent-rgb:        31,74,125;
+    --accent-strong:     #16385F;
+    --accent-strong-rgb: 22,56,95;
+    --accent-soft:       #3A66A0;
+    --accent-soft-rgb:   58,102,160;
+    /* ── Echtes Produktblau — SELTENER Signature-Akzent (<5% Fläche) ── */
+    --brand-blue:        #2E78C8;
+    --brand-blue-rgb:    46,120,200;
+
+    /* Documented off-system exceptions (external brand / status only) */
+    --ext-whatsapp:      #1A7A4A;
+    --ext-whatsapp-rgb:  26,122,74;
+    --ok:                #22C55E;
+    --ok-rgb:            34,197,94;
+    --danger:            #DC2626;
+
+    /* ── Shared overlay tokens — one value per role, reused everywhere instead
+       of each component hand-picking its own near-black. Photo scrims, modal
+       backdrops, and photo badges are about legibility over an image, not
+       page theme, so these stay constant across light/noir rather than being
+       redefined per-mode. --accent-wash-* references var(--accent-rgb), so it
+       still resolves to the correct per-theme blue without being redefined. */
+    --scrim-rgb:         0,0,0;              /* photo gradient scrims (hero/product/blog stages) */
+    --overlay-bg:        rgba(0,0,0,0.55);   /* modal/drawer backdrops */
+    --chip-bg:           rgba(0,0,0,0.55);   /* dark badge/label chip on a photo */
+    --accent-wash-sm:    rgba(var(--accent-rgb),0.06);
+    --accent-wash:       rgba(var(--accent-rgb),0.10);
+    --accent-wash-lg:    rgba(var(--accent-rgb),0.18);
 
     /* shadcn tokens */
     --background: 240 5% 96%;
@@ -45,7 +187,10 @@
     --secondary-foreground: 240 10% 4%;
     --muted: 240 5% 93%;
     --muted-foreground: 240 4% 46%;
-    --accent: 240 5% 93%;
+    /* shadcn surface token (HSL triplet, consumed only as hsl(var(--accent-ui))
+       via Tailwind `accent`). Namespaced as --accent-ui so the site's ink-blue
+       --accent (#1F4A7D, declared above) wins for bare var(--accent) usage. */
+    --accent-ui: 240 5% 93%;
     --accent-foreground: 240 10% 4%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
@@ -53,10 +198,9 @@
     --input: 240 6% 85%;
     --ring: 220 58% 27%;
     --radius: 0.75rem;
-    --brand:       #1A3C6E;
-    --brand-hover: #264E8C;
-    --brand-warm:  #B8721A;
-    --brand-warm-hover: #C8842F;
+    /* Legacy aliases → single accent (kept so existing var(--brand) refs unify) */
+    --brand:       var(--accent);
+    --brand-hover: var(--accent-soft);
 
     /* CTA button system — dark near-black in light mode */
     --cta-bg:    #111318;
@@ -87,6 +231,7 @@
   /* ── Noir mode — zinc-950 neutral blacks, 2026 dark-first ── */
   .noir {
     /* Zinc-tinted neutrals — no blue undertone */
+    --hero-stage: #1C1C1F;   /* visibly lighter than --pg below, keeps the card edge */
     --pg:        #09090B;    /* zinc-950 */
     --sf:        #111113;    /* slightly elevated, neutral */
     --sf2:       #1C1C1F;    /* card surface, Raycast-inspired */
@@ -110,10 +255,26 @@
     --card-shadow-hover: 0 8px 28px rgba(0,0,0,0.70), 0 28px 72px rgba(0,0,0,0.75), 0 0 0 1px rgba(26,60,110,0.25);
     --card-img-fade: var(--card-to);
 
-    /* CTA button system — warm ivory in dark mode */
-    --cta-bg:    #EDE9E0;
+    /* ── Single ink-blue accent ramp (dark — brightened for contrast) ── */
+    --accent:            #5685C0;
+    --accent-rgb:        86,133,192;
+    --accent-strong:     #3A66A0;
+    --accent-strong-rgb: 58,102,160;
+    --accent-soft:       #7AA0CE;
+    --accent-soft-rgb:   122,160,206;
+    /* Echtes Produktblau — seltener Signature-Akzent (heller auf Dunkel) */
+    --brand-blue:        #3E8FE0;
+    --brand-blue-rgb:    62,143,224;
+
+    --ext-whatsapp:      #25D366;
+    --ext-whatsapp-rgb:  37,211,102;
+    --ok:                #22C55E;
+    --danger:            #F87171;
+
+    /* CTA button system — neutral off-white in dark mode */
+    --cta-bg:    #ECECEC;
     --cta-fg:    #0A0A0A;
-    --cta-hover: #E2DED5;
+    --cta-hover: #DEDEDE;
 
     /* Tab/segment switcher — dark mode: subtle groove + bright elevated pill */
     --tab-track-bg:  rgba(255,255,255,0.04);
@@ -141,7 +302,8 @@
     --secondary-foreground: 0 0% 98%;
     --muted: 240 4% 11%;
     --muted-foreground: 240 5% 45%;
-    --accent: 240 4% 13%;
+    /* shadcn surface token — see --accent-ui note in :root */
+    --accent-ui: 240 4% 13%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
@@ -156,15 +318,19 @@
   }
 
   body {
-    font-family: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+    font-family: 'Libre Franklin', ui-sans-serif, system-ui, sans-serif;
     background-color: var(--pg);
     color: var(--tx1);
+    text-wrap: pretty;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Fraunces', Georgia, serif;
+    /* Character (soft terminals + WONK alternates); moderate opsz so SMALL
+       headings stay sturdy. Large display overrides opsz below. */
+    font-variation-settings: "opsz" 36, "wght" 700, "SOFT" 28, "WONK" 1;
   }
 }
 
@@ -174,18 +340,81 @@
   }
 }
 
-/* Light mode only: force headings dark */
+/* Light mode only: force headings dark (except inside .pdp-dark sections) */
 :root:not(.noir) h1,
 :root:not(.noir) h2,
 :root:not(.noir) h3,
 :root:not(.noir) h4 {
   color: var(--tx1) !important;
 }
-
-/* Hero: dark/noir modes need white headings (overrides the global tx1 rule) */
-.dark #home h1, .dark #home h2, .dark #home h3, .dark #home h4,
-.noir #home h1, .noir #home h2, .noir #home h3, .noir #home h4 {
+:root:not(.noir) .pdp-dark h1,
+:root:not(.noir) .pdp-dark h2,
+:root:not(.noir) .pdp-dark h3,
+:root:not(.noir) .pdp-dark h4 {
   color: #FFFFFF !important;
+}
+
+/* Hero sits on a photo stage in BOTH themes — headings stay white
+   (ID selector outranks the :root:not(.noir) light-mode rule above) */
+#home h1, #home h2, #home h3, #home h4 {
+  color: #FFFFFF !important;
+}
+
+/* Editorial light hero — sits on a LIGHT stage, so headings are dark in light
+   mode and white in noir. Scoped to .hero-editorial so the legacy dark-photo
+   hero (plain #home) keeps its white headings. Specificity #home.hero-editorial
+   (1,1,1) beats the #home rule above (1,0,1). */
+#home.hero-editorial h1, #home.hero-editorial h2,
+#home.hero-editorial h3, #home.hero-editorial h4 {
+  color: #fff !important;
+}
+
+/* Editorial hero — feines Film-Grain über der Bühne (Material/Wärme, high-end). */
+.hero-grain {
+  /* feColorMatrix desaturates the raw turbulence output — without it,
+     fractalNoise's per-channel Perlin values aren't balanced and the "grain"
+     reads as a faint green/olive tint instead of neutral gray. */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  opacity: 0.05;
+}
+.noir .hero-grain { opacity: 0.08; }
+
+/* Editorial hero — Bühnen-Hintergrund. Light: warmes Off-White-Radial.
+   Noir: dunkle Bühne, damit Wortmarke/Headline (in Noir hell) lesbar bleiben. */
+.hero-stage {
+  background: var(--hero-stage);
+}
+/* Top-Fade — hält die transparente Nav über dem full-bleed Hero lesbar
+   (hellt die Kette unter der Leiste auf; über der hellen Zone unsichtbar). */
+.hero-topfade {
+  background: linear-gradient(to bottom, rgba(var(--scrim-rgb),0.50) 0%, rgba(var(--scrim-rgb),0.25) 40%, transparent 100%);
+}
+
+/* Frosted-Footer — Kette verläuft am Fuß in die Bühnenfarbe (lesbares Band) */
+.hero-footer-fade {
+  background: linear-gradient(to top, rgba(var(--scrim-rgb),0.60) 4%, rgba(var(--scrim-rgb),0.30) 34%, transparent 100%);
+}
+
+/* Hero image — push wax block up on mobile so it doesn't overwhelm the frame */
+@media (max-width: 639px) {
+  .hero-img {
+    object-position: 68% 20% !important;
+  }
+}
+
+/* Editorial light hero — responsive Ketten-Panel-Clip.
+   Mobile: Band oben mit diagonaler Unterkante. Desktop (≥1024px): rechtes
+   Panel mit diagonaler linker Kante. */
+.hero-chain-clip {
+  clip-path: polygon(0 0, 100% 0, 100% 86%, 0 100%);
+  -webkit-clip-path: polygon(0 0, 100% 0, 100% 86%, 0 100%);
+}
+@media (min-width: 1024px) {
+  .hero-chain-clip {
+    clip-path: polygon(20% 0, 100% 0, 100% 100%, 2% 100%);
+    -webkit-clip-path: polygon(20% 0, 100% 0, 100% 100%, 2% 100%);
+  }
 }
 
 /* Grid background */
@@ -201,34 +430,23 @@
   background: radial-gradient(ellipse 80% 50% at 50% 50%, rgba(11, 20, 74, 0.22) 0%, transparent 70%);
 }
 
-/* ── Animated film grain overlay ────────────────────────────────────────── */
-@keyframes grain {
-  0%, 100% { transform: translate(0, 0); }
-  10%       { transform: translate(-5%, -10%); }
-  20%       { transform: translate(-15%, 5%); }
-  30%       { transform: translate(7%, -25%); }
-  40%       { transform: translate(-5%, 25%); }
-  50%       { transform: translate(-15%, 10%); }
-  60%       { transform: translate(15%, 0%); }
-  70%       { transform: translate(0%, 15%); }
-  80%       { transform: translate(3%, 35%); }
-  90%       { transform: translate(-10%, 10%); }
-}
+/* ── Scrollbar-less horizontal rails (mobile chapter nav etc.) ─────────────── */
+.hide-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+.hide-scrollbar::-webkit-scrollbar { display: none; }
 
+/* ── Static film grain overlay (no animation loop — calm, zero idle GPU cost) ── */
 .grain::after {
   content: '';
   position: absolute;
-  inset: -50%;
-  width: 200%;
-  height: 200%;
-  opacity: 0.06;
+  inset: 0;
+  opacity: 0.05;
   pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  /* feColorMatrix desaturates the raw turbulence output — without it,
+     fractalNoise's per-channel Perlin values aren't balanced and the "grain"
+     reads as a faint green/olive tint instead of neutral gray. */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-repeat: repeat;
   background-size: 300px 300px;
-  animation: grain 8s steps(10) infinite;
-  /* Promote to own compositor layer — transforms only, no layout/paint spill */
-  will-change: transform;
   z-index: 2;
 }
 
@@ -260,19 +478,35 @@
 }
 
 /* ── Card lift on hover ────────────────────────────────────────────────────── */
-/* Applied to the Link inside .wax-card and .chain-card.
-   Composites with the JS 3D tilt on the outer wrapper. */
-.wax-card > a,
-.chain-card > a {
-  transition:
-    transform 240ms cubic-bezier(0.4, 0, 0.2, 1),
-    box-shadow 300ms ease,
-    border-color 300ms ease;
+/* The lift sits on the inner <a> (which carries NO inline transform — the wrapper
+   has translateZ(0) + a GSAP entrance, so a CSS transform there would be ignored).
+   The wrapper no longer has overflow:hidden (the image clips itself via
+   rounded-t-2xl), so lifting the <a> never clips. The card's shadow is static on
+   the <a> → only `transform` composites per frame (GPU): no paint/layout thrash,
+   no JS hover writes. Hover effects only on real hover devices → no "stuck" lift
+   after a tap on touch screens. */
+@media (hover: hover) and (pointer: fine) {
+  .wax-card > a,
+  .chain-card > a {
+    transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .wax-card:hover > a,
+  .chain-card:hover > a {
+    transform: translateY(-4px);
+  }
+  .related-card {
+    transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 280ms ease;
+  }
+  a:hover > .related-card {
+    transform: translateY(-4px);
+    box-shadow: var(--card-shadow-hover);
+  }
 }
 
-.wax-card:hover > a,
-.chain-card:hover > a {
-  transform: translateY(-3px);
+@media (prefers-reduced-motion: reduce) {
+  .wax-card:hover > a,
+  .chain-card:hover > a { transform: none !important; }
+  a:hover > .related-card { transform: none !important; }
 }
 
 /* ── Footer link hover — underline slide-in ──────────────────────────────── */
@@ -297,11 +531,108 @@ footer ul a:hover::after {
   width: 100%;
 }
 
+/* ── Accent-tinted active state (chips, filters, toggles) ─────────────────── */
+.chip-active {
+  border-color: rgba(var(--accent-rgb), 0.40);
+  background:   rgba(var(--accent-rgb), 0.10);
+}
+
+/* ── Card + badge primitives (one source of truth) ────────────────────────── */
+.wx-card {
+  background:    var(--card-bg);
+  border:        1px solid var(--bd);
+  box-shadow:    var(--card-shad);
+  border-radius: 1rem;
+}
+.wx-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.625rem;          /* 10px */
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  white-space: nowrap;
+}
+
+/* ── Typography scale — semantic, reusable (Workstream 2) ─────────────────── */
+/* One eyebrow + one section heading, used across every section for rhythm. */
+.eyebrow {
+  font-size: 0.6875rem;          /* 11px */
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+  font-weight: 600;
+  color: var(--txf);
+}
+.section-title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 700;
+  font-size: clamp(2.25rem, 5vw, 3rem);   /* == text-4xl → text-5xl */
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--tx1);
+  text-wrap: balance;
+  /* Display drama: higher optical contrast + full character */
+  font-variation-settings: "opsz" 88, "wght" 700, "SOFT" 36, "WONK" 1;
+}
+
+/* Anchor scroll offset — prevents sticky nav from overlapping section headers */
+section[id] {
+  scroll-margin-top: 80px;
+}
+
+/* ── Button system — one primary + one ghost (Workstream 3) ───────────────── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: var(--cta-bg);
+  color: var(--cta-fg);
+  border-radius: 9999px;
+  font-weight: 600;
+  transition: background .2s var(--ease-ui), opacity .2s, transform .1s;
+}
+.btn-primary:hover  { background: var(--cta-hover); }
+.btn-primary:active { transform: scale(0.98); }
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: transparent;
+  color: var(--tx2);
+  border: 1px solid var(--bd);
+  border-radius: 9999px;
+  font-weight: 500;
+  transition: color .2s, border-color .2s, background .2s;
+}
+.btn-ghost:hover { color: var(--tx1); border-color: var(--accent); }
+
 /* ── Spec data — tabular figures for numbers & measurements ──────────────── */
 .spec-data {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
   letter-spacing: 0.01em;
+}
+
+/* ── Numeral system — "three fonts, three jobs" ──────────────────────────────
+   Every number has one predictable voice:
+   .num-display → Fraunces moments (hero stats, stat callouts) — set font-display too
+   .num         → Libre Franklin functional numbers (prices, counts, durations)
+   .num-data    → IBM Plex Mono scientific/instrument data (μ, °C, chemistry, axes) */
+.num-display,
+.num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+.num-data {
+  font-family: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+  letter-spacing: -0.01em;
 }
 
 /* Reduced motion — universal kill switch */
@@ -316,4 +647,11 @@ footer ul a:hover::after {
   .cta-glow {
     animation: none;
   }
+}
+
+@keyframes scrollPulse {
+  0% { transform: translateY(-100%); opacity: 0; }
+  30% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { transform: translateY(100%); opacity: 0; }
 }

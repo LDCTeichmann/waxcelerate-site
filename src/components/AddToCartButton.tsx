@@ -60,7 +60,7 @@ export function AddToCartButton({ product, size = 'md', fullWidth = false }: Pro
             : 'px-5 py-2.5 text-sm hover:opacity-90'
         } ${fullWidth ? 'w-full justify-center' : ''}`}
         style={{
-          background: added ? '#22c55e' : 'var(--cta-bg)',
+          background: added ? 'var(--ok)' : 'var(--cta-bg)',
           color: added ? '#ffffff' : 'var(--cta-fg)',
           transition: 'background 0.2s ease, transform 0.15s ease',
         }}

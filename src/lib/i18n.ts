@@ -3,11 +3,14 @@ export const translations = {
     // Navigation
     nav: {
       start: 'Start',
+      whyWax: 'Warum Wachs?',
       products: 'Produkte',
+      science: 'Wissenschaft',
       tools: 'Tools',
       guides: 'Anleitungen',
       faq: 'FAQ',
       about: 'Über mich',
+      blog: 'Blog',
       contact: 'Kontakt',
       ebayShop: 'eBay-Shop',
     },
@@ -15,13 +18,13 @@ export const translations = {
     // Hero
     hero: {
       subtitle: 'Heißwachs für Fahrradketten',
-      headline: 'Dreimal längere Kette. Kein Dreck.',
-      headlineSub: 'Waxcelerate.',
-      tagline: 'Am Ende der Recherche.',
+      headline: 'Am Ende der',
+      headlineSub: 'Recherche.',
+      tagline: 'Heißwachs statt Kettenöl — sauberer, länger, günstiger. Ohne Kompromiss.',
       priceAnchor: 'Ab €22,95 · ~€70 gespart auf 12.000 km',
       guarantee: 'Nicht zufrieden? Schreib mir — ich sorge dafür, dass es stimmt.',
       ctaBuy: 'Jetzt bestellen',
-      ctaSecondary: 'Warum Heißwachs? →',
+      ctaSecondary: 'Wie funktioniert Heißwachs? →',
     },
 
     // Products
@@ -49,7 +52,7 @@ export const translations = {
     // Why Wax
     whyWax: {
       title: 'Warum Heißwachs?',
-      subtitle: 'Die Wissenschaft dahinter — warum Wachs Öl in jedem Punkt schlägt.',
+      subtitle: 'Vergleiche Öl und Wachs — sieh den Unterschied selbst.',
       comparisonTitle: 'Öl vs. Wachs',
       oilLabel: 'Mit Öl',
       waxLabel: 'Mit Wachs',
@@ -194,7 +197,7 @@ export const translations = {
         },
         {
           q: 'Wie viele Watt spart Heißwachs im Vergleich zu Kettenöl?',
-          a: 'In publizierten Kettenschmiermittel-Tests liegt PTFE-Heißwachs typischerweise bei ca. 2–4 Watt Reibungsverlust — Kettenöl unter Realbedingungen bei ca. 6–10 Watt. Das sind ca. 4–6 Watt Unterschied an der Kette. Die oft zitierten „bis zu 8 Watt" stammen aus Labortests bei 300–400 Watt Eingangsleistung. Im Alltag sind die Werte etwas geringer — aber kein anderes Schmiermittel kommt auch nur annähernd an Heißwachs heran.',
+          a: 'In publizierten Kettenschmiermittel-Tests liegt immersives Heißwachs typischerweise bei ca. 2–4 Watt Reibungsverlust — Kettenöl unter Realbedingungen bei ca. 6–10 Watt. Das sind ca. 4–6 Watt Unterschied an der Kette. Die oft zitierten „bis zu 8 Watt" stammen aus Labortests bei 300–400 Watt Eingangsleistung. Im Alltag sind die Werte etwas geringer — aber kein anderes Schmiermittel kommt auch nur annähernd an Heißwachs heran.',
         },
         {
           q: 'Muss ich eine neue Kette vor dem Wachsen entfetten?',
@@ -346,11 +349,14 @@ export const translations = {
     // Navigation
     nav: {
       start: 'Home',
+      whyWax: 'Why wax?',
       products: 'Products',
+      science: 'Science',
       tools: 'Tools',
       guides: 'Guides',
       faq: 'FAQ',
       about: 'About',
+      blog: 'Blog',
       contact: 'Contact',
       ebayShop: 'eBay Shop',
     },
@@ -358,13 +364,13 @@ export const translations = {
     // Hero
     hero: {
       subtitle: 'Hot Wax for Bicycle Chains',
-      headline: '3× longer chain. Zero grime.',
-      headlineSub: 'Waxcelerate.',
-      tagline: 'At the end of the research.',
+      headline: 'At the end of',
+      headlineSub: 'the research.',
+      tagline: 'Hot wax over chain oil — cleaner, longer-lasting, more affordable. No compromise.',
       priceAnchor: 'From €22.95 · ~€70 saved over 12,000 km',
       guarantee: "Not happy? Write me — I'll make it right.",
       ctaBuy: 'Buy now',
-      ctaSecondary: 'Why hot wax? →',
+      ctaSecondary: 'How does hot wax work? →',
     },
 
     // Products
@@ -392,7 +398,7 @@ export const translations = {
     // Why Wax
     whyWax: {
       title: 'Why Hot Wax?',
-      subtitle: 'The science behind it — why wax beats oil on every measure.',
+      subtitle: 'Compare oil and wax — see the difference yourself.',
       comparisonTitle: 'Oil vs. Wax',
       oilLabel: 'With Oil',
       waxLabel: 'With Wax',
@@ -537,7 +543,7 @@ export const translations = {
         },
         {
           q: 'How many watts does hot wax save compared to chain oil?',
-          a: "Published drivetrain friction tests place PTFE-based hot wax at around 2–4 watts of friction loss — chain oil under real-world conditions at around 6–10 watts. That's roughly 4–6 watts difference at the chain. The widely cited 'up to 8 watts' figures come from lab tests at 300–400 watts input power. In everyday riding the gap is slightly smaller — but no other lubricant comes close to hot wax.",
+          a: "Published drivetrain friction tests place immersive hot wax at around 2–4 watts of friction loss — chain oil under real-world conditions at around 6–10 watts. That's roughly 4–6 watts difference at the chain. The widely cited 'up to 8 watts' figures come from lab tests at 300–400 watts input power. In everyday riding the gap is slightly smaller — but no other lubricant comes close to hot wax.",
         },
         {
           q: 'Do I need to degrease a new chain before waxing?',

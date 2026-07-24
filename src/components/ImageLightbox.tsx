@@ -1,24 +1,19 @@
 import { useEffect, useRef } from 'react';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 
 interface ImageLightboxProps {
   images: string[];
   activeIndex: number;
   onClose: () => void;
   onChange: (index: number) => void;
+  alt: string;
 }
 
-export function ImageLightbox({ images, activeIndex, onClose, onChange }: ImageLightboxProps) {
-  const savedOverflow = useRef<string>('');
+export function ImageLightbox({ images, activeIndex, onClose, onChange, alt }: ImageLightboxProps) {
   const touchStartX = useRef<number>(0);
 
-  useEffect(() => {
-    savedOverflow.current = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = savedOverflow.current;
-    };
-  }, []);
+  useBodyScrollLock(true);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -36,12 +31,14 @@ export function ImageLightbox({ images, activeIndex, onClose, onChange }: ImageL
   return (
     <div
       className="fixed inset-0 z-[80] flex items-center justify-center"
-      style={{ background: 'rgba(0,0,0,0.92)' }}
+      style={{ background: 'rgba(var(--scrim-rgb),0.92)' }}
       onClick={onClose}
       onTouchStart={e => { touchStartX.current = e.touches[0].clientX; }}
       onTouchEnd={e => {
         const delta = e.changedTouches[0].clientX - touchStartX.current;
-        if (Math.abs(delta) > 50) delta < 0 ? onNext() : onPrev();
+        if (Math.abs(delta) > 50) {
+          if (delta < 0) onNext(); else onPrev();
+        }
       }}
     >
       {/* Content — stop propagation so clicking image doesn't close */}
@@ -51,7 +48,7 @@ export function ImageLightbox({ images, activeIndex, onClose, onChange }: ImageL
       >
         <img
           src={images[activeIndex]}
-          alt=""
+          alt={`${alt} — Bild ${activeIndex + 1} von ${images.length}`}
           style={{
             maxHeight: '85vh',
             maxWidth: '90vw',
@@ -66,6 +63,8 @@ export function ImageLightbox({ images, activeIndex, onClose, onChange }: ImageL
               <button
                 key={i}
                 onClick={() => onChange(i)}
+                aria-label={`${alt} — Bild ${i + 1} anzeigen`}
+                aria-current={i === activeIndex}
                 style={{
                   width: 48,
                   height: 48,
@@ -88,6 +87,7 @@ export function ImageLightbox({ images, activeIndex, onClose, onChange }: ImageL
       {/* Close */}
       <button
         onClick={onClose}
+        aria-label="Schließen"
         style={{
           position: 'fixed',
           top: 16,
@@ -112,6 +112,7 @@ export function ImageLightbox({ images, activeIndex, onClose, onChange }: ImageL
         <>
           <button
             onClick={e => { e.stopPropagation(); onPrev(); }}
+            aria-label="Vorheriges Bild"
             style={{
               position: 'fixed',
               left: 16,
@@ -133,6 +134,7 @@ export function ImageLightbox({ images, activeIndex, onClose, onChange }: ImageL
           </button>
           <button
             onClick={e => { e.stopPropagation(); onNext(); }}
+            aria-label="Nächstes Bild"
             style={{
               position: 'fixed',
               right: 16,

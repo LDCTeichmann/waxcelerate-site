@@ -6,3 +6,6 @@ dist/
 .env.*
 .vercel
 .env*.local
+
+# Local raw image working library — never deploy/commit (originals + customer photos)
+raw-image-library/

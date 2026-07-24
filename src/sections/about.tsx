@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ExternalLink } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useSectionReveal } from '@/hooks/useAnimation';
@@ -41,13 +41,11 @@ export function About() {
   }, []);
 
   const de = lang === 'de';
+  const [bioExpanded, setBioExpanded] = useState(false);
 
-  const stats: { value: string; badge?: string; label: string; sub?: string }[] = [
-    {
-      value: '171',
-      badge: '100% positiv',
-      label: de ? 'eBay-Bewertungen' : 'eBay reviews',
-    },
+  // De-duplicated: 189/100% live in Reviews + nav badge, 3× lives in the
+  // hero ribbon / why-wax. About keeps only its own, unique facts.
+  const stats: { value: string; label: string }[] = [
     {
       value: de ? '1 Tag' : '1 day',
       label: de ? 'Versand nach Bestellung' : 'Ships after order',
@@ -57,26 +55,25 @@ export function About() {
       label: de ? 'In Stuttgart gegründet' : 'Founded in Stuttgart',
     },
     {
-      value: '3×',
-      label: de ? 'Kette & Kassette halten länger' : 'Chain & cassette last longer',
-      sub: de ? 'vs. Öl-Schmiermittel' : 'vs. oil lubricant',
+      value: '189 ×',
+      label: de ? 'eBay Top-Bewertungen' : 'eBay top reviews',
     },
   ];
 
   return (
-    <section id="ueber-mich" className="relative py-20 bg-wx-sf chain-texture">
+    <section id="ueber-mich" className="relative py-20 sm:py-28 bg-wx-sf chain-texture">
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="max-w-5xl mx-auto">
 
           {/* ── Header ─────────────────────────────────────────────────── */}
           <div ref={headerRef} className="text-center mb-10">
             <p
-              className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-semibold mb-3"
+              className="eyebrow mb-3"
               style={{ color: 'var(--txf)' }}
             >
-              {de ? 'Die Geschichte' : 'Our Story'}
+              {de ? 'Gründer & Expertise' : 'Founder & Expertise'}
             </p>
-            <h2 className="font-display text-4xl sm:text-5xl font-bold text-wx-tx1">
+            <h2 className="section-title">
               <ScrollWordReveal text={t.about.title} />
             </h2>
           </div>
@@ -87,32 +84,41 @@ export function About() {
             {/* Left: bio paragraphs + links */}
             <div ref={textRef} className="space-y-4">
               <p className="text-[15px] leading-[1.8] text-wx-tx2">{t.about.bio1}</p>
-              <p className="text-[15px] leading-[1.8] text-wx-tx2">{t.about.bio2}</p>
-              <blockquote
-                className="italic text-[14px] leading-relaxed pl-4 my-1"
-                style={{ borderLeft: '2px solid rgba(43,82,176,0.4)', color: 'var(--txm)' }}
+              <div className={`${bioExpanded ? 'block' : 'hidden'} sm:block space-y-4`}>
+                <p className="text-[15px] leading-[1.8] text-wx-tx2">{t.about.bio2}</p>
+                <blockquote
+                  className="italic my-4 pl-4"
+                  style={{
+                    borderLeft: '2px solid var(--accent-soft)',
+                    color: 'var(--tx2)',
+                    fontSize: 'clamp(0.95rem, 1.1vw, 1.05rem)',
+                    lineHeight: 1.55,
+                    fontWeight: 400,
+                    letterSpacing: '0',
+                  }}
+                >
+                  {de
+                    ? 'Nicht jede Charge war sofort richtig. Aber jede war näher dran.'
+                    : 'Not every batch was right straight away. But each one was closer.'}
+                </blockquote>
+              </div>
+              <button
+                onClick={() => setBioExpanded(v => !v)}
+                className="sm:hidden text-[13px] font-medium py-1"
+                style={{ color: 'var(--accent-soft)' }}
               >
-                {de
-                  ? 'Nicht jede Charge war sofort richtig. Aber jede war näher dran.'
-                  : 'Not every batch was right straight away. But each one was closer.'}
-              </blockquote>
+                {bioExpanded ? (de ? '← Weniger' : '← Less') : (de ? 'Mehr lesen →' : 'Read more →')}
+              </button>
               <p className="text-[15px] leading-[1.8] text-wx-tx2">{t.about.bio3}</p>
               <p className="text-[15px] leading-[1.8] text-wx-tx2">{t.about.bio4}</p>
 
               <div className="pt-3 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8">
                 <div className="flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#2B52B0] animate-pulse flex-shrink-0" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)] animate-pulse flex-shrink-0" />
                   <span className="text-[11px]" style={{ color: 'var(--txm)' }}>
                     {de ? 'Aktiv auf eBay · Versand aus Stuttgart' : 'Active on eBay · Ships from Stuttgart'}
                   </span>
                 </div>
-                <button
-                  onClick={() => document.querySelector('#produkte')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[13px] font-semibold transition-opacity hover:opacity-85"
-                  style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
-                >
-                  {de ? 'Produkte ansehen →' : 'See products →'}
-                </button>
                 <a
                   href="https://www.ebay.de/usr/waxcelerate"
                   target="_blank"
@@ -121,11 +127,11 @@ export function About() {
                 >
                   <span
                     className="flex items-center justify-center w-7 h-7 rounded-lg flex-shrink-0 transition-colors"
-                    style={{ background: 'rgba(26,60,110,0.12)', border: '1px solid rgba(26,60,110,0.22)' }}
+                    style={{ background: 'var(--accent-wash)', border: '1px solid rgba(var(--accent-rgb),0.22)' }}
                   >
-                    <ExternalLink className="h-3 w-3 text-[#1A3C6E]" />
+                    <ExternalLink className="h-3 w-3 text-[var(--accent)]" />
                   </span>
-                  <span className="text-[13px] font-medium text-[#264E8C] group-hover:text-[#3A65B8] transition-colors">
+                  <span className="text-[13px] font-medium text-[var(--accent)] group-hover:text-[var(--accent)] transition-colors">
                     {t.about.ebay}
                   </span>
                 </a>
@@ -133,42 +139,45 @@ export function About() {
             </div>
 
             {/* Right: eBay credential image + stats below */}
-            <div ref={bannerRef} className="flex flex-col gap-0">
+            <div ref={bannerRef} className="flex flex-col gap-0 order-first lg:order-none">
               {/* Image */}
               <div
-                className="relative rounded-t-2xl overflow-hidden"
+                className="relative rounded-t-2xl overflow-hidden group h-[300px] sm:h-[420px]"
                 style={{
-                  height: '300px',
                   border: '1px solid var(--bd)',
                   borderBottom: 'none',
                   boxShadow: '0 12px 48px rgba(0,0,0,0.18)',
+                  transform: 'translateZ(0)',
                 }}
               >
-                <img
-                  src="/images/luca-ebay.jpg"
-                  alt="eBay Seller Leadership Week 2025, San Jose"
-                  className="absolute inset-0 w-full h-full object-cover"
-                  style={{ objectPosition: '50% 38%' }}
-                />
+                <picture>
+                  <source srcSet="/images/people/luca-stage.webp" type="image/webp" />
+                  <img
+                    src="/images/people/luca-stage.jpg"
+                    alt="eBay Seller Leadership Week 2025, San Jose"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+                    style={{ objectPosition: '50% 38%' }}
+                  />
+                </picture>
                 <div
                   className="absolute inset-0"
                   style={{
                     background:
-                      'linear-gradient(to right, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.30) 40%, transparent 65%), ' +
-                      'linear-gradient(to bottom, rgba(0,0,0,0.65) 0%, transparent 55%)',
+                      'linear-gradient(to right, rgba(var(--scrim-rgb),0.75) 0%, rgba(var(--scrim-rgb),0.30) 40%, transparent 65%), ' +
+                      'linear-gradient(to bottom, rgba(var(--scrim-rgb),0.65) 0%, transparent 55%)',
                   }}
                 />
                 <div className="absolute top-0 left-0 px-6 pt-5">
                   <p
-                    className="text-[9px] font-semibold uppercase tracking-[0.22em] mb-1"
-                    style={{ color: 'rgba(255,255,255,0.48)' }}
+                    className="text-[10px] font-semibold uppercase tracking-[0.22em] mb-1"
+                    style={{ color: '#0064D2' }}
                   >
                     eBay Seller Leadership Week
                   </p>
-                  <p className="text-[16px] font-bold text-white leading-tight mb-1">
+                  <p className="text-[20px] font-black text-white leading-tight mb-1">
                     2025 · San Jose, CA
                   </p>
-                  <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.65)' }}>
+                  <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.75)' }}>
                     {de
                       ? 'Von eBay eingeladen — als Seller Persona auf der Hauptbühne präsentiert'
                       : 'Invited by eBay — featured as a seller persona on the main stage'}
@@ -179,7 +188,7 @@ export function About() {
               {/* Stats — compact 2×2 grid below image */}
               <div
                 ref={statsRef}
-                className="grid grid-cols-2 rounded-b-2xl overflow-hidden"
+                className="grid grid-cols-3 rounded-b-2xl overflow-hidden"
                 style={{ border: '1px solid var(--bd)', borderTop: '1px solid var(--bd2)' }}
               >
                 {stats.map((s, i) => (
@@ -188,8 +197,7 @@ export function About() {
                     className="py-4 px-4 text-center"
                     style={{
                       background: 'var(--sf2)',
-                      borderRight: i % 2 === 0 ? '1px solid var(--bd2)' : 'none',
-                      borderBottom: i < 2 ? '1px solid var(--bd2)' : 'none',
+                      borderRight: i < 2 ? '1px solid var(--bd2)' : 'none',
                     }}
                   >
                     <p
@@ -198,22 +206,9 @@ export function About() {
                     >
                       {s.value}
                     </p>
-                    {s.badge && (
-                      <span
-                        className="inline-block mt-1 mb-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-semibold"
-                        style={{ background: 'rgba(26,60,110,0.10)', color: '#2A5499' }}
-                      >
-                        {s.badge}
-                      </span>
-                    )}
-                    <p className="text-[11px] leading-snug mt-1" style={{ color: 'var(--tx2)' }}>
+                    <p className="text-[11px] leading-snug mt-1.5" style={{ color: 'var(--tx2)' }}>
                       {s.label}
                     </p>
-                    {s.sub && (
-                      <p className="text-[10px] mt-0.5 leading-snug" style={{ color: 'var(--txf)' }}>
-                        {s.sub}
-                      </p>
-                    )}
                   </div>
                 ))}
               </div>

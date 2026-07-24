@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useCallback, createContext, useContext } from 'react';
 
-export type Theme = 'light' | 'dark' | 'noir';
+export type Theme = 'light' | 'noir';
 
 const THEME_CLASSES: Record<Theme, string[]> = {
   light: [],
-  dark:  ['dark'],
   noir:  ['noir'],
 };
 
@@ -17,8 +16,8 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setThemeState] = useState<Theme>(() => {
-    const saved = localStorage.getItem('wx-theme') as Theme | null;
-    if (saved && ['light', 'dark', 'noir'].includes(saved)) return saved;
+    const saved = localStorage.getItem('wx-theme');
+    if (saved === 'noir' || saved === 'dark') return 'noir'; // legacy 'dark' → noir
     return 'light'; // Always default to light — OS dark mode should not auto-enable dark
   });
 
@@ -35,7 +34,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
     const handler = (e: MediaQueryListEvent) => {
       if (!localStorage.getItem('wx-theme')) {
-        setThemeState(e.matches ? 'dark' : 'light');
+        setThemeState(e.matches ? 'noir' : 'light');
       }
     };
     mq.addEventListener('change', handler);
