@@ -12,7 +12,7 @@ import { richContent } from '@/lib/productContent';
 import { getEstimatedDelivery } from '@/lib/utils';
 import { ChainFinder } from '@/sections/ChainFinder';
 import { AddToCartButton } from '@/components/AddToCartButton';
-import { Stars } from '@/sections/reviews';
+import { Stars } from '@/components/Stars';
 
 const MONO = "'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace";
 
