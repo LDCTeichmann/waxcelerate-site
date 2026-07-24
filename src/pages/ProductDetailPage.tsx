@@ -191,8 +191,18 @@ export function ProductDetailPage() {
   const productSchema = JSON.stringify({
     '@context': 'https://schema.org', '@type': 'Product',
     name: titleText, description: descriptionText, image: product.image, sku: id,
-    brand: { '@type': 'Brand', name: 'Waxcelerate' }, url: canonicalUrl,
-    ...(isWax && { aggregateRating: { '@type': 'AggregateRating', ratingValue: '5', reviewCount: '189', bestRating: '5', worstRating: '1' } }),
+    // Pre-waxed chains are Shimano/SRAM/YBN parts we resell, not our own
+    // brand — asserting "Waxcelerate" as the manufacturer brand for a
+    // Shimano CN-M9100 was factually wrong. Wax is genuinely our own product.
+    brand: { '@type': 'Brand', name: product.category === 'chain' ? product.chainBrand! : 'Waxcelerate' },
+    url: canonicalUrl,
+    // No per-product aggregateRating: the "189 reviews, 5.0" figure is
+    // whole-account eBay seller feedback, not review data for this specific
+    // SKU — reusing it verbatim as if genuine across 4 different wax pages
+    // reads as templated/fake review markup to Google, which can strip
+    // rich-result eligibility sitewide on manual action. The real number
+    // still appears as visible on-page copy, just not asserted as
+    // structured per-product review data it isn't.
     offers: {
       '@type': 'Offer', price: product.price.toFixed(2), priceCurrency: 'EUR',
       availability: 'https://schema.org/InStock', url: canonicalUrl,

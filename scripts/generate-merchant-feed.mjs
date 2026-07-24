@@ -24,6 +24,12 @@ const BASE = 'https://waxcelerate.de';
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
+// Wax products store a relative path (/images/...); chain products store an
+// already-absolute eBay-hosted URL. Prepending BASE unconditionally produced
+// "https://waxcelerate.dehttps://i.ebayimg.com/..." for every chain — an
+// invalid image_link that would get all 8 chain listings disapproved.
+const imageUrl = (path) => path.startsWith('http') ? path : `${BASE}${path}`;
+
 // Google's taxonomy has no bicycle-lubricant leaf, so both product types
 // sit under the same bicycle-accessories branch rather than mis-filing wax
 // under automotive lubricants, which would hurt relevance matching more
@@ -33,17 +39,22 @@ const GOOGLE_CATEGORY = {
   chain: 'Sporting Goods > Outdoor Recreation > Cycling > Bicycle Accessories > Bicycle Parts > Bicycle Drivetrain Parts > Bicycle Chains',
 };
 
+// Pre-waxed chains are resold Shimano/SRAM/YBN parts, not Waxcelerate's own
+// manufactured product — the brand/mpn must identify the actual
+// manufacturer, or Google's identifier-mismatch checks (and buyers cross-
+// checking the part) will flag it. Wax is genuinely self-made, so our own
+// id doubling as brand/mpn there is correct, not a placeholder.
 const item = (p) => `    <item>
       <g:id>${esc(p.id)}</g:id>
       <title>${esc(p.title)}</title>
       <description>${esc(p.description)}</description>
       <link>${BASE}/produkt/${esc(p.id)}</link>
-      <g:image_link>${BASE}${esc(p.image)}</g:image_link>
+      <g:image_link>${esc(imageUrl(p.image))}</g:image_link>
       <g:availability>in stock</g:availability>
       <g:price>${p.price.toFixed(2)} EUR</g:price>
-      <g:brand>Waxcelerate</g:brand>
+      <g:brand>${esc(p.category === 'chain' ? p.chainBrand : 'Waxcelerate')}</g:brand>
       <g:condition>new</g:condition>
-      <g:mpn>${esc(p.id)}</g:mpn>
+      <g:mpn>${esc(p.category === 'chain' ? p.chainModel : p.id)}</g:mpn>
       <g:google_product_category>${esc(GOOGLE_CATEGORY[p.category])}</g:google_product_category>
       <g:product_type>${esc(p.category === 'wax' ? 'Kettenwachs' : 'Vorgewachste Kette')}</g:product_type>
     </item>`;
