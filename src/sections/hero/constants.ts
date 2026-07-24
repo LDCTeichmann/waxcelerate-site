@@ -1,33 +1,7 @@
 /**
- * Geteilte Hero-Konstanten — hero.tsx und die „Blick ins Wachs"-Lupe (WaxLens)
- * teilen sich Bildgeometrie und Block-Hotspot, damit Foto, Maske und Lupe in
- * jedem Viewport deckungsgleich bleiben.
+ * Geteilte Hero-Konstanten — von der „Blick ins Wachs"-Lupe (WaxLensCutout)
+ * genutzt.
  */
-
-// Identisch für object-position UND mask-position des Hero-Fotos.
-export const IMG_POS = '68% 50%';
-
-// Bruchteile aus IMG_POS ('68% 50%') — für die object-cover-Abbildung der Lupe
-// (WaxLens) auf die Maske. Muss mit IMG_POS deckungsgleich bleiben.
-export const IMG_POS_X = 0.68;
-export const IMG_POS_Y = 0.5;
-
-// Silhouette des Wachsblocks — dieselbe Maske wie die maskierte Bildebene in
-// hero.tsx. Die Lupe sampelt deren Alpha, um pixelgenau „nur auf dem Wachs" zu
-// erscheinen (statt im umgebenden Schiefer-Rechteck).
-export const HERO_MASK_SRC = '/images/hero/wax-v5-mask.png';
-
-/**
- * Der Wachsblock-Bereich als Bruchteile der Karten-Box (rechts/oben/Breite/Höhe).
- * Deckt sich mit dem Hotspot-Button in hero.tsx (right:4% top:16% w:44% h:60%).
- * Die Lupe erscheint nur, solange der Cursor innerhalb dieses Rechtecks liegt.
- */
-export const BLOCK_HOTSPOT = {
-  right: 0.04,
-  top: 0.16,
-  width: 0.44,
-  height: 0.6,
-} as const;
 
 /**
  * Lupe nur dort, wo sie Sinn ergibt und der Hotspot existiert: Desktop (≥1024px),
@@ -36,11 +10,10 @@ export const BLOCK_HOTSPOT = {
  * zurück — die Lupe rendert dann gar nichts.
  */
 /**
- * Glas-Optik der Lupe — identisch in WaxLens, WaxLensCube und WaxLensCutout,
- * hier zentral gepflegt statt dreimal literal kopiert.
+ * Glas-Optik der Lupe — geteilt mit WaxLensCutout, hier zentral gepflegt statt
+ * literal kopiert.
  */
 export const LENS_GLASS_DARK = 'radial-gradient(125% 125% at 32% 26%, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.07) 40%, rgba(255,255,255,0.03) 100%)';
-export const LENS_GLASS_LIGHT = 'radial-gradient(125% 125% at 32% 26%, rgba(255,255,255,0.34) 0%, rgba(255,255,255,0.10) 42%, rgba(255,255,255,0.0) 100%)';
 export const LENS_GLINT = 'radial-gradient(closest-side, rgba(255,255,255,0.5), transparent)';
 
 export function waxLensEnabled(): boolean {
