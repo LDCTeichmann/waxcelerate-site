@@ -195,7 +195,7 @@ export function ProductDetailPage() {
     ...(isWax && { aggregateRating: { '@type': 'AggregateRating', ratingValue: '5', reviewCount: '189', bestRating: '5', worstRating: '1' } }),
     offers: {
       '@type': 'Offer', price: product.price.toFixed(2), priceCurrency: 'EUR',
-      availability: 'https://schema.org/InStock', url: product.ebayUrl,
+      availability: 'https://schema.org/InStock', url: canonicalUrl,
       seller: { '@type': 'Organization', name: 'Waxcelerate' }, priceValidUntil: '2026-12-31',
     },
   });
