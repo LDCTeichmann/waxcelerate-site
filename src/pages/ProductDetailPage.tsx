@@ -67,6 +67,11 @@ export function ProductDetailPage() {
     goTo((activeImage + 1) % total);
   }, [activeImage, total, goTo]);
 
+  const prev = useCallback(() => {
+    if (total <= 1) return;
+    goTo((activeImage - 1 + total) % total);
+  }, [activeImage, total, goTo]);
+
   useEffect(() => {
     if (reduce || total <= 1) return;
     if (autoRef.current) clearInterval(autoRef.current);
@@ -84,6 +89,31 @@ export function ProductDetailPage() {
       if (!pausedRef.current) next();
     }, AUTO_INTERVAL);
   }, [next]);
+
+  // Swipe/drag on the gallery image itself — until now the only way to
+  // change images was clicking a dot or thumbnail; dragging the image did
+  // nothing. Direction is decided on release (not live-following the
+  // finger) to avoid fighting the existing cross-fade transition.
+  const dragStartXRef = useRef<number | null>(null);
+  const SWIPE_THRESHOLD = 40;
+
+  const onGalleryPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (total <= 1) return;
+    dragStartXRef.current = e.clientX;
+    pause();
+    e.currentTarget.setPointerCapture(e.pointerId);
+  }, [total, pause]);
+
+  const onGalleryPointerUp = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    const startX = dragStartXRef.current;
+    dragStartXRef.current = null;
+    if (startX === null) return;
+    const delta = e.clientX - startX;
+    if (Math.abs(delta) > SWIPE_THRESHOLD) {
+      if (delta < 0) next(); else prev();
+    }
+    setTimeout(resume, AUTO_INTERVAL);
+  }, [next, prev, resume]);
 
   useEffect(() => {
     const el = heroRef.current;
@@ -260,11 +290,14 @@ export function ProductDetailPage() {
             MOBILE HERO — stacked: image top, info below
            ══════════════════════════════════════════════════════════════ */}
         <section className="lg:hidden">
-          <div ref={heroRef} className="relative h-[54vh] min-h-[300px] overflow-hidden">
+          <div ref={heroRef} className="relative h-[54vh] min-h-[300px] overflow-hidden"
+            style={{ touchAction: 'pan-y' }}
+            onPointerDown={onGalleryPointerDown} onPointerUp={onGalleryPointerUp}>
             {gallery.map((src, i) => (
               <img key={i} src={lg(src)} alt={i === activeImage ? titleText : ''} aria-hidden={i !== activeImage}
                 loading={i === activeImage ? 'eager' : 'lazy'}
                 fetchPriority={i === activeImage ? 'high' : undefined}
+                draggable={false}
                 className="absolute inset-0 h-full w-full object-cover"
                 style={{
                   objectPosition: product.imagePosition ?? 'center',
@@ -276,6 +309,22 @@ export function ProductDetailPage() {
               />
             ))}
             <div className="absolute inset-0 z-[3] pointer-events-none" style={{ background: 'linear-gradient(to top, rgba(var(--scrim-rgb),0.2) 0%, transparent 35%)' }} />
+            {total > 1 && (
+              <>
+                <button onClick={() => { prev(); pause(); setTimeout(resume, AUTO_INTERVAL); }}
+                  aria-label={de ? 'Vorheriges Bild' : 'Previous image'}
+                  className="absolute left-2.5 top-1/2 -translate-y-1/2 z-10 w-8 h-8 flex items-center justify-center rounded-full transition-transform active:scale-90"
+                  style={{ background: 'rgba(0,0,0,0.28)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', color: 'rgba(255,255,255,0.92)' }}>
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+                <button onClick={() => { next(); pause(); setTimeout(resume, AUTO_INTERVAL); }}
+                  aria-label={de ? 'Nächstes Bild' : 'Next image'}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 z-10 w-8 h-8 flex items-center justify-center rounded-full transition-transform active:scale-90"
+                  style={{ background: 'rgba(0,0,0,0.28)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', color: 'rgba(255,255,255,0.92)' }}>
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              </>
+            )}
             {total > 1 && (
               <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex gap-1.5">
                 {gallery.map((_, i) => (
@@ -377,11 +426,14 @@ export function ProductDetailPage() {
         {/* ══════════════════════════════════════════════════════════════
             DESKTOP HERO — full-bleed image, focused conversion card
            ══════════════════════════════════════════════════════════════ */}
-        <section ref={heroRef} className="relative h-screen min-h-[680px] overflow-hidden hidden lg:block">
+        <section ref={heroRef} className="relative h-screen min-h-[680px] overflow-hidden hidden lg:block"
+          style={{ touchAction: 'pan-y' }}
+          onPointerDown={onGalleryPointerDown} onPointerUp={onGalleryPointerUp}>
           {gallery.map((src, i) => (
             <img key={i} src={lg(src)} alt={i === activeImage ? titleText : ''} aria-hidden={i !== activeImage}
               loading={i === activeImage ? 'eager' : 'lazy'}
               fetchPriority={i === activeImage ? 'high' : undefined}
+              draggable={false}
               className="absolute inset-0 h-full w-full object-cover"
               style={{
                 objectPosition: product.imagePosition ?? 'center',
@@ -565,9 +617,13 @@ export function ProductDetailPage() {
             )}
           </div>
 
-          {/* Number rail */}
+          {/* Number rail + prev/next arrows — the rail already let you jump to
+              a specific image; there was no way to just step forward/back
+              or drag the image itself. Arrows sit directly below the rail,
+              same right-edge alignment, clear of both the card (left) and
+              the "Mehr erfahren" hint (bottom-center). */}
           {total > 1 && (
-            <div className="absolute right-6 xl:right-10 top-1/2 -translate-y-1/2 z-20 flex flex-col gap-3">
+            <div className="absolute right-6 xl:right-10 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-3">
               {gallery.map((_, i) => (
                 <button key={i} onClick={() => { goTo(i); pause(); setTimeout(resume, AUTO_INTERVAL); }}
                   className="num text-[12px] tabular-nums transition-all duration-300"
@@ -580,6 +636,20 @@ export function ProductDetailPage() {
                   {String(i + 1).padStart(2, '0')}
                 </button>
               ))}
+              <div className="flex items-center gap-1.5 mt-1">
+                <button onClick={() => { prev(); pause(); setTimeout(resume, AUTO_INTERVAL); }}
+                  aria-label={de ? 'Vorheriges Bild' : 'Previous image'}
+                  className="w-7 h-7 flex items-center justify-center rounded-full transition-all hover:bg-white/15 active:scale-90"
+                  style={{ background: 'rgba(0,0,0,0.28)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', color: 'rgba(255,255,255,0.85)' }}>
+                  <ChevronLeft className="h-3.5 w-3.5" />
+                </button>
+                <button onClick={() => { next(); pause(); setTimeout(resume, AUTO_INTERVAL); }}
+                  aria-label={de ? 'Nächstes Bild' : 'Next image'}
+                  className="w-7 h-7 flex items-center justify-center rounded-full transition-all hover:bg-white/15 active:scale-90"
+                  style={{ background: 'rgba(0,0,0,0.28)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', color: 'rgba(255,255,255,0.85)' }}>
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </button>
+              </div>
             </div>
           )}
 
