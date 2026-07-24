@@ -1,4 +1,12 @@
 {
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "www.waxcelerate.de" }],
+      "destination": "https://waxcelerate.de/$1",
+      "permanent": true
+    }
+  ],
   "rewrites": [{ "source": "/((?!api/|google46acc6bf86fe233d\\.html).*)", "destination": "/index.html" }],
   "headers": [
     {
