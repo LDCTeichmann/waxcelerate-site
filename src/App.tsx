@@ -31,6 +31,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { CartDrawer } from '@/components/CartDrawer';
 import { useCartStore } from '@/store/cart';
 import { ScrollToTop } from '@/components/ScrollToTop';
+import { RouteScrollReset } from '@/components/RouteScrollReset';
 import { PendingAnchorScroll } from '@/components/PendingAnchorScroll';
 import { ScrollProgress } from '@/components/ScrollProgress';
 import { MobileStickyCTA } from '@/components/MobileStickyCTA';
@@ -50,6 +51,7 @@ function AppContent() {
     <div className="min-h-screen bg-wx-bg text-wx-tx1">
       <ScrollProgress />
       <CartPersistenceHint />
+      <RouteScrollReset />
       <ScrollToTop />
       <SectionDots />
       <MobileStickyCTA />
