@@ -28,6 +28,7 @@ export function Hero() {
   const cardInnerRef = useRef<HTMLDivElement>(null);
   const imgRef     = useRef<HTMLDivElement>(null);
   const blockRef   = useRef<HTMLDivElement>(null);
+  const blockInnerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const ctaRef     = useRef<HTMLButtonElement>(null);
 
@@ -39,7 +40,18 @@ export function Hero() {
 
     const words   = root.querySelectorAll<HTMLElement>('[data-word]');
     const items   = root.querySelectorAll<HTMLElement>('[data-hero]');
-    const imgLayers = [imgRef.current, blockRef.current].filter(Boolean) as HTMLElement[];
+    // blockInnerRef, not blockRef — blockRef carries the CSS
+    // -translate-x/y-1/2 that centers it on its left/top% anchor point.
+    // GSAP taking ownership of that same element's `transform` (for the
+    // entrance scale, scroll-scrub, and mouse-parallax below) established
+    // its own x/y/scale baseline and silently dropped that -50%/-50%
+    // offset, snapping the block from "centered on its anchor" to
+    // "anchored by its top-left corner" the moment any of those tweens
+    // first touched it — visually a sudden jump down-and-right by about
+    // half the block's own size, right after the entrance timeline fires
+    // on load. Animating the untransformed inner wrapper instead keeps
+    // the outer element's CSS positioning completely GSAP-untouched.
+    const imgLayers = [imgRef.current, blockInnerRef.current].filter(Boolean) as HTMLElement[];
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
@@ -255,7 +267,7 @@ export function Hero() {
                        sm:left-[60%] sm:top-[50%] sm:w-[clamp(280px,30%,460px)]
                        lg:left-[62%] lg:top-[50%] lg:w-[clamp(360px,27%,650px)]"
           >
-            <div className="relative">
+            <div ref={blockInnerRef} className="relative">
               {/* Ambient glow — sells the wax as the one lit/in-focus subject in the frame */}
               <div
                 className="absolute inset-[-24%] rounded-[40%] pointer-events-none"
