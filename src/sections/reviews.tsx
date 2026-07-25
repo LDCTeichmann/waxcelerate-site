@@ -203,8 +203,8 @@ export function Reviews() {
           <h2 className="section-title mb-3">{de ? 'Was Fahrer berichten.' : 'What riders report.'}</h2>
           <p className="text-[15px] max-w-2xl" style={{ color: 'var(--txm)' }}>
             {de
-              ? '189 Bewertungen seit dem Start 2024 — kein einziges Negatives. Eine Auswahl echter Rückmeldungen, mit Fotos aus der Community.'
-              : '189 reviews since launch in 2024 — not a single negative one. A selection of genuine feedback, with photos from the community.'}
+              ? '200+ Bewertungen seit dem Start 2024 — kein einziges Negatives. Eine Auswahl echter Rückmeldungen, mit Fotos aus der Community.'
+              : '200+ reviews since launch in 2024 — not a single negative one. A selection of genuine feedback, with photos from the community.'}
           </p>
         </div>
       </div>
@@ -220,7 +220,7 @@ export function Reviews() {
           style={{ borderTop: '1px solid var(--bd)' }}>
           <div className="flex items-stretch">
             {[
-              { v: '189', l: de ? 'Bewertungen' : 'reviews' },
+              { v: '200+', l: de ? 'Bewertungen' : 'reviews' },
               { v: '346', l: de ? 'verkauft' : 'sold' },
               { v: '0', l: de ? 'negativ' : 'negative' },
             ].map((s, i, arr) => (
@@ -234,7 +234,7 @@ export function Reviews() {
           <a href="https://www.ebay.de/usr/waxcelerate" target="_blank" rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[13px] font-medium transition-all hover:opacity-85 self-start sm:self-auto"
             style={{ border: '1px solid var(--bd)', background: 'var(--sf2)', color: 'var(--tx2)' }}>
-            {de ? 'Alle 189 Bewertungen auf eBay ansehen →' : 'See all 189 reviews on eBay →'}
+            {de ? 'Alle 200+ Bewertungen auf eBay ansehen →' : 'See all 200+ reviews on eBay →'}
           </a>
         </div>
       </div>

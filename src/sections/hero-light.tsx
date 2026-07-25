@@ -145,9 +145,9 @@ export function Hero() {
     document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
 
   const stats = [
-    { v: '3×',    l: de ? 'Kettenlaufzeit'    : 'chain life',     lm: de ? 'Laufzeit'     : 'chain life'    },
-    { v: '~€70',  l: de ? 'gespart · 12.000 km' : 'saved · 12,000 km', lm: de ? 'gespart' : 'saved' },
-    { v: '1 Tag', l: de ? 'Versand nach Bestellung' : 'ships after order', lm: de ? 'Versand' : 'shipping' },
+    { v: '3×',    l: de ? 'Kettenlaufzeit'    : 'chain life' },
+    { v: '~€70',  l: de ? 'gespart · 12.000 km' : 'saved · 12,000 km' },
+    { v: '1 Tag', l: de ? 'Versand nach Bestellung' : 'ships after order' },
   ];
 
   const bgImg = (
@@ -343,7 +343,7 @@ export function Hero() {
                   </button>
                   <button
                     onClick={() => scrollTo('#warum-wachs')}
-                    className="hero-cta-secondary text-[13px] font-medium"
+                    className="hero-cta-secondary hidden sm:inline-flex text-[13px] font-medium"
                   >
                     {t.hero.ctaSecondary}
                   </button>
@@ -354,28 +354,43 @@ export function Hero() {
 
           <div data-hero className="absolute bottom-0 inset-x-0 z-10">
             <div className="max-w-7xl mx-auto px-4 sm:px-10 lg:px-14 xl:px-20">
-              <div
-                className="flex flex-col gap-3 sm:gap-4 sm:flex-row sm:items-center sm:justify-between py-3 sm:py-5"
-                style={{ borderTop: '1px solid rgba(255,255,255,0.14)' }}
-              >
-                <div className="flex items-center gap-2 sm:gap-3 order-2 sm:order-1">
+
+              {/* Mobile — one compact trust line, no stat grid. The 3× / ~€70 /
+                  1 Tag numbers repeat almost verbatim in "Ein messbarer
+                  Unterschied" directly below the hero, so stacking a full
+                  stat row here too was just adding height without adding
+                  information — the single most-decisive proof point
+                  (rating + review count) is enough for the hero itself. */}
+              <div className="sm:hidden flex items-center gap-2 py-3"
+                style={{ borderTop: '1px solid rgba(255,255,255,0.14)' }}>
+                <span style={{ color: 'rgba(255,255,255,0.92)', letterSpacing: '0.08em', fontSize: '12px' }}>
+                  ★★★★★
+                </span>
+                <span className="text-[10px] uppercase tabular-nums"
+                  style={{ letterSpacing: '0.08em', color: 'rgba(255,255,255,0.68)' }}>
+                  200+ · {de ? '100 % positiv' : '100% positive'}
+                </span>
+              </div>
+
+              {/* Tablet/Desktop — unchanged full bar (rating + stat grid) */}
+              <div className="hidden sm:flex sm:items-center sm:justify-between py-5"
+                style={{ borderTop: '1px solid rgba(255,255,255,0.14)' }}>
+                <div className="flex items-center gap-3">
                   <span style={{ color: 'rgba(255,255,255,0.92)', letterSpacing: '0.08em', fontSize: '12px' }}>
                     ★★★★★
                   </span>
-                  <span
-                    className="text-[9px] sm:text-[11px] uppercase tabular-nums"
-                    style={{ letterSpacing: '0.08em', color: 'rgba(255,255,255,0.68)' }}
-                  >
-                    189 · {de ? '100 % positiv' : '100% positive'}
-                    <span className="hidden sm:inline"> · {de ? 'eBay-Käuferschutz' : 'eBay buyer protection'}</span>
+                  <span className="text-[11px] uppercase tabular-nums"
+                    style={{ letterSpacing: '0.08em', color: 'rgba(255,255,255,0.68)' }}>
+                    200+ · {de ? '100 % positiv' : '100% positive'}
+                    <span> · {de ? 'eBay-Käuferschutz' : 'eBay buyer protection'}</span>
                   </span>
                 </div>
 
-                <div className="flex items-stretch order-1 sm:order-2">
+                <div className="flex items-stretch">
                   {stats.map((s, i) => (
                     <div
                       key={i}
-                      className="px-2.5 sm:px-7 first:pl-0 last:pr-0"
+                      className="px-7 first:pl-0 last:pr-0"
                       style={{ borderLeft: i > 0 ? '1px solid rgba(255,255,255,0.14)' : 'none' }}
                     >
                       <p
@@ -385,12 +400,9 @@ export function Hero() {
                       >
                         {s.v}
                       </p>
-                      <p
-                        className="text-[8px] sm:text-[10px] uppercase mt-1 sm:mt-1.5"
-                        style={{ letterSpacing: '0.06em', color: 'rgba(255,255,255,0.65)' }}
-                      >
-                        <span className="sm:hidden">{s.lm}</span>
-                        <span className="hidden sm:inline">{s.l}</span>
+                      <p className="text-[10px] uppercase mt-1.5"
+                        style={{ letterSpacing: '0.06em', color: 'rgba(255,255,255,0.65)' }}>
+                        {s.l}
                       </p>
                     </div>
                   ))}
