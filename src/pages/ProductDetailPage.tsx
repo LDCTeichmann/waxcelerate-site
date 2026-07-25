@@ -226,7 +226,7 @@ export function ProductDetailPage() {
     // Shimano CN-M9100 was factually wrong. Wax is genuinely our own product.
     brand: { '@type': 'Brand', name: product.category === 'chain' ? product.chainBrand! : 'Waxcelerate' },
     url: canonicalUrl,
-    // No per-product aggregateRating: the "189 reviews, 5.0" figure is
+    // No per-product aggregateRating: the "200+ reviews, 5.0" figure is
     // whole-account eBay seller feedback, not review data for this specific
     // SKU — reusing it verbatim as if genuine across 4 different wax pages
     // reads as templated/fake review markup to Google, which can strip

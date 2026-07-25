@@ -27,7 +27,7 @@ const llmsTxt = `# Waxcelerate
 > Heißwachs für Fahrradketten aus Stuttgart — Paraffinbasiertes Kettenwachs mit PTFE, handgefertigt in kleinen Chargen seit 2024.
 
 Waxcelerate ist ein deutsches Kleinunternehmen, gegründet von Luca Teichmann (Medizinstudent, Stuttgart).
-189 eBay-Bewertungen, 100% positives Feedback. Verkauf seit 2024.
+200+ eBay-Bewertungen, 100% positives Feedback. Verkauf seit 2024.
 
 Produkte: Heißwachs in vier Varianten (Classic/Pro, 300g/500g) und ${chains.length} vorgewachste Fahrradketten.
 Hauptvorteil gegenüber Kettenöl: trockener Film, keine Schmutzaufnahme, Kettenlaufzeit 3× länger, Reibungskoeffizient 0,03–0,06.
@@ -91,7 +91,7 @@ ${a.faq ? `\n**Häufige Fragen zu diesem Artikel:**\n\n${a.faq.map(f => `**${f.q
 
 const llmsFullTxt = `# Waxcelerate — Vollständige Produktinformationen und Ratgeber
 
-**Kurzfassung:** Waxcelerate ist ein deutsches Kleinunternehmen aus Stuttgart, das Heißwachs für Fahrradketten sowie vorgewachste Ketten verkauft. Gegründet 2024 von Luca Teichmann. 189 eBay-Bewertungen, 100% positiv. Verkauf über waxcelerate.de und eBay.de.
+**Kurzfassung:** Waxcelerate ist ein deutsches Kleinunternehmen aus Stuttgart, das Heißwachs für Fahrradketten sowie vorgewachste Ketten verkauft. Gegründet 2024 von Luca Teichmann. 200+ eBay-Bewertungen, 100% positiv. Verkauf über waxcelerate.de und eBay.de.
 
 ---
 

@@ -17,7 +17,7 @@ export const translations = {
 
     // Hero
     hero: {
-      subtitle: 'Heißwachs für Fahrradketten',
+      subtitle: 'Waxcelerate · Heißwachs',
       headline: 'Am Ende der',
       headlineSub: 'Recherche.',
       tagline: 'Heißwachs statt Kettenöl — sauberer, länger, günstiger. Ohne Kompromiss.',
@@ -363,7 +363,7 @@ export const translations = {
 
     // Hero
     hero: {
-      subtitle: 'Hot Wax for Bicycle Chains',
+      subtitle: 'Waxcelerate · Hot Wax',
       headline: 'At the end of',
       headlineSub: 'the research.',
       tagline: 'Hot wax over chain oil — cleaner, longer-lasting, more affordable. No compromise.',
