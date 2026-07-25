@@ -81,7 +81,15 @@ export function Products() {
             stagger: 0.09, ease: 'power3.out',
             onStart: () => fresh.forEach(el => { (el as HTMLElement).style.willChange = 'transform, opacity'; }),
             onComplete: () => fresh.forEach(el => {
-              gsap.set(el, { clearProps: 'transform,willChange' });
+              // Only clear the transform GSAP itself animated (the entrance
+              // y-offset) — NOT willChange. This element's will-change:
+              // transform is a persistent hint set directly in its own style
+              // (see the wax-card/chain-card JSX above) precisely so the
+              // corner-radius clip survives from here through to whenever the
+              // user eventually hovers the card, however much later that is.
+              // Clearing it here would strip that hint right back off again
+              // moments after it was set, reopening the same glitch on hover.
+              gsap.set(el, { clearProps: 'transform' });
             }),
           });
         },
@@ -106,7 +114,15 @@ export function Products() {
             stagger: 0.09, ease: 'power3.out',
             onStart: () => fresh.forEach(el => { (el as HTMLElement).style.willChange = 'transform, opacity'; }),
             onComplete: () => fresh.forEach(el => {
-              gsap.set(el, { clearProps: 'transform,willChange' });
+              // Only clear the transform GSAP itself animated (the entrance
+              // y-offset) — NOT willChange. This element's will-change:
+              // transform is a persistent hint set directly in its own style
+              // (see the wax-card/chain-card JSX above) precisely so the
+              // corner-radius clip survives from here through to whenever the
+              // user eventually hovers the card, however much later that is.
+              // Clearing it here would strip that hint right back off again
+              // moments after it was set, reopening the same glitch on hover.
+              gsap.set(el, { clearProps: 'transform' });
             }),
           });
         },
@@ -282,7 +298,7 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deli
   const per100 = grams > 0 ? `${(product.price / (grams / 100)).toFixed(2).replace('.', ',')} €/100g` : null;
 
   return (
-    <div className="wax-card relative h-full rounded-2xl" style={{ transform: 'translateZ(0)' }}>
+    <div className="wax-card relative h-full rounded-2xl" style={{ willChange: 'transform' }}>
       <Link
         to={`/produkt/${product.id}`}
         className="group relative flex flex-col h-full rounded-2xl"
@@ -292,11 +308,19 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deli
           boxShadow: 'var(--card-shad)',
         }}
       >
-        {/* Image — translateZ(0) pre-promotes this clipped, rounded box to its own
-            compositing layer up front. Without it, Chromium can flash the corner
-            mask square for a frame right as the hover scale below first triggers
-            a layer promotion (same bug as the hero card; see hero-light.tsx). */}
-        <div className="relative overflow-hidden rounded-t-2xl aspect-[16/9] flex-shrink-0" style={{ transform: 'translateZ(0)' }}>
+        {/* Image — will-change: transform (not translateZ(0)) pre-promotes this
+            clipped, rounded box to its own compositing layer up front, so the
+            hover scale below doesn't trigger a fresh layer promotion — Chromium
+            can flash the corner mask square for a frame right as that happens.
+            translateZ(0) used to be the standard trick for this, but it's a
+            static, non-animating transform value with no ongoing purpose, and
+            Chromium's compositor can — and after the page has sat idle for a
+            while, reliably does — demote a layer like that back down as a memory
+            optimization, silently undoing the pre-promotion. will-change is the
+            purpose-built, persistent version of the same hint and isn't subject
+            to that demotion, which is why the old fix "worked" right after load
+            but the glitch came back on a later hover. */}
+        <div className="relative overflow-hidden rounded-t-2xl aspect-[16/9] flex-shrink-0" style={{ willChange: 'transform' }}>
           <img
             src={product.image}
             alt={title}
@@ -418,7 +442,7 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
   const title = de ? product.title : product.titleEn;
 
   return (
-    <div className="chain-card relative h-full rounded-2xl" style={{ transform: 'translateZ(0)' }}>
+    <div className="chain-card relative h-full rounded-2xl" style={{ willChange: 'transform' }}>
       <Link
         to={`/produkt/${product.id}`}
         className="group flex flex-col h-full rounded-2xl"
@@ -428,8 +452,8 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
           boxShadow: 'var(--card-shad)',
         }}
       >
-        {/* Image — see WaxCard's image wrapper for why translateZ(0) is here. */}
-        <div className="relative overflow-hidden rounded-t-2xl aspect-[2/1] flex-shrink-0" style={{ transform: 'translateZ(0)' }}>
+        {/* Image — see WaxCard's image wrapper for why will-change: transform (not translateZ(0)) is here. */}
+        <div className="relative overflow-hidden rounded-t-2xl aspect-[2/1] flex-shrink-0" style={{ willChange: 'transform' }}>
           <img
             src={product.image}
             alt={title}
