@@ -137,6 +137,23 @@ export function BlogIndexPage() {
           content="Messwerte, Anleitungen und ehrliche Antworten rund um Kettenpflege und Heißwachs – aus Stuttgart."
         />
         <link rel="canonical" href="https://waxcelerate.de/blog" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Waxcelerate" />
+        <meta property="og:locale" content="de_DE" />
+        <meta property="og:title" content="Die Werkstatt — Heißwachs Tipps &amp; Anleitungen | Waxcelerate" />
+        <meta
+          property="og:description"
+          content="Messwerte, Anleitungen und ehrliche Antworten rund um Kettenpflege und Heißwachs – aus Stuttgart."
+        />
+        <meta property="og:url" content="https://waxcelerate.de/blog" />
+        <meta property="og:image" content="https://waxcelerate.de/images/blog/ride-road-golden.jpg" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Die Werkstatt — Heißwachs Tipps &amp; Anleitungen | Waxcelerate" />
+        <meta
+          name="twitter:description"
+          content="Messwerte, Anleitungen und ehrliche Antworten rund um Kettenpflege und Heißwachs – aus Stuttgart."
+        />
+        <meta name="twitter:image" content="https://waxcelerate.de/images/blog/ride-road-golden.jpg" />
       </Helmet>
 
       <Navigation />

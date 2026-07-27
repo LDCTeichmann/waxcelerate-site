@@ -177,6 +177,16 @@ export function BlogArticlePage() {
         <title>{article.title} | Waxcelerate</title>
         <meta name="description" content={article.description} />
         <link rel="canonical" href={`https://waxcelerate.de/blog/${article.slug}`} />
+        <meta property="og:type" content="article" />
+        <meta property="og:title" content={article.title} />
+        <meta property="og:description" content={article.description} />
+        <meta property="og:url" content={`https://waxcelerate.de/blog/${article.slug}`} />
+        <meta property="og:image" content={`https://waxcelerate.de${hero.src}`} />
+        <meta property="article:published_time" content={article.publishDate} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={article.title} />
+        <meta name="twitter:description" content={article.description} />
+        <meta name="twitter:image" content={`https://waxcelerate.de${hero.src}`} />
         <script type="application/ld+json">{articleSchema}</script>
         {howToSchema && <script type="application/ld+json">{howToSchema}</script>}
         {faqSchema && <script type="application/ld+json">{faqSchema}</script>}
