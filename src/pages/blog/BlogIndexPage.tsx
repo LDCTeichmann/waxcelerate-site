@@ -241,21 +241,31 @@ export function BlogIndexPage() {
           />
         </div>
 
-        {/* Einstieg nach Absicht */}
-        <div className="flex flex-wrap gap-2 mb-4">
-          {INTENTS.map((intent) => (
-            <Link
-              key={intent.slug}
-              to={`/blog/${intent.slug}`}
-              className="text-[12px] px-3.5 py-1.5 rounded-full transition-colors"
-              style={{ border: '1px solid var(--bd)', color: 'var(--txm)' }}
-            >
-              {intent.label}
-            </Link>
-          ))}
+        {/* Einstieg nach Absicht. Bewusst anders gestaltet als die Kategorie-Pills
+            darunter: das hier sind Sprungziele in einen Artikel, keine Filter.
+            Gleiche Optik für zwei verschiedene Verhalten wäre eine Falle. */}
+        <div className="mb-8">
+          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-wx-txf mb-2.5">
+            Schnelleinstieg
+          </p>
+          <div className="flex flex-wrap gap-x-5 gap-y-2">
+            {INTENTS.map((intent) => (
+              <Link
+                key={intent.slug}
+                to={`/blog/${intent.slug}`}
+                className="group text-[13px] inline-flex items-center gap-1.5 transition-colors hover:text-wx-tx1"
+                style={{ color: 'var(--txm)' }}
+              >
+                <span style={{ color: 'var(--accent)' }}>→</span>
+                <span className="border-b border-transparent group-hover:border-current">
+                  {intent.label}
+                </span>
+              </Link>
+            ))}
+          </div>
         </div>
 
-        {/* Category filter */}
+        {/* Kategorie-Filter (filtert das Raster, verlässt die Seite nicht) */}
         <div className="flex flex-wrap gap-2 mb-10">
           {(['Alle', ...usedCategories] as Filter[]).map((cat) => {
             const active = filter === cat;

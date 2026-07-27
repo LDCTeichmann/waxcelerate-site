@@ -48,6 +48,9 @@ const esc = (s = '') =>
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
 
+/** JSON-LD-Typen aus index.html, die nur die Startseite beschreiben. */
+const PAGE_SPECIFIC_SCHEMA = new Set(['Product', 'FAQPage', 'HowTo', 'ItemList']);
+
 /** Entfernt die globalen Head-Tags aus der Hülle, die wir pro Seite ersetzen. */
 function stripHead(html) {
   return html
@@ -55,7 +58,21 @@ function stripHead(html) {
     .replace(/<meta\s+name="description"[^>]*>/gi, '')
     .replace(/<link\s+rel="canonical"[^>]*>/gi, '')
     .replace(/<meta\s+property="og:[^"]*"[^>]*>/gi, '')
-    .replace(/<meta\s+name="twitter:[^"]*"[^>]*>/gi, '');
+    .replace(/<meta\s+name="twitter:[^"]*"[^>]*>/gi, '')
+    .replace(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/gi, (full, json) => {
+      // index.html trägt die JSON-LD-Blöcke der STARTSEITE. Als Hülle würden sie
+      // sonst auf jeder Blog-URL mitlaufen, d. h. jeder Artikel behauptete, ein
+      // Product mit AggregateRating/AggregateOffer zu sein und die 23 Startseiten-
+      // FAQs zu beantworten. Das ist irreführendes Markup (Google-Spam-Policy) und
+      // überschreibt die artikeleigenen FAQPage-/HowTo-Angaben.
+      // Organization, WebSite und Person beschreiben die Site als Ganzes und bleiben.
+      try {
+        const type = JSON.parse(json)['@type'];
+        return PAGE_SPECIFIC_SCHEMA.has(type) ? '' : full;
+      } catch {
+        return full;
+      }
+    });
 }
 
 /** Baut eine vollständige Seite aus Hülle + Head-Tags + Body-Inhalt. */

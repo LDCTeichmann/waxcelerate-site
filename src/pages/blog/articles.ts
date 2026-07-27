@@ -388,7 +388,7 @@ export const articles: Article[] = [
       },
       {
         type: 'h2',
-        text: 'Die 3-Ketten-Rotation, warum sie die Rechnung verändert',
+        text: 'Warum die 3-Ketten-Rotation die Rechnung verändert',
       },
       {
         type: 'p',
@@ -415,12 +415,12 @@ export const articles: Article[] = [
     slug: 'heisswachs-anleitung',
     title: 'Fahrradkette mit Heißwachs behandeln: vollständige Anleitung',
     titleShort: 'Heißwachs Anleitung: Schritt für Schritt',
-    description: 'Schritt-für-Schritt-Anleitung zum Wachsen einer Fahrradkette mit Heißwachs. Von der Ausrüstung über die richtige Temperatur bis zum fertigen Ergebnis.',
+    description: 'Schritt-für-Schritt-Anleitung zum Wachsen einer Fahrradkette mit Heißwachs, von der Ausrüstung über die richtige Temperatur bis zum fertigen Ergebnis.',
     category: 'Anleitung',
     publishDate: '2026-05-19',
     readingTime: '8 min',
     keyStat: { value: '< 20 Min.', label: 'Aktive Zeit' },
-    intro: 'Heißwachs klingt aufwendiger als es ist. Wer den Prozess einmal gemacht hat, braucht für jeden Wachsvorgang weniger als 20 Minuten aktive Zeit. Diese Anleitung führt durch den vollständigen Prozess. Von der nötigen Ausrüstung bis zur fertig eingefahrenen Kette.',
+    intro: 'Heißwachs klingt aufwendiger als es ist. Wer den Prozess einmal gemacht hat, braucht für jeden Wachsvorgang weniger als 20 Minuten aktive Zeit. Diese Anleitung führt durch den vollständigen Prozess, von der nötigen Ausrüstung bis zur fertig eingefahrenen Kette.',
     sections: [
       {
         type: 'h2',
@@ -544,7 +544,7 @@ export const articles: Article[] = [
       },
       {
         type: 'tip',
-        text: 'Pro-Tipp für Vielfahr: Behalte denselben Topf und dasselbe Wachs für alle Ketten deiner Rotation. Das Wachs "lernt" über Zeit. Die Zusammensetzung stabilisiert sich nach den ersten paar Ketten.',
+        text: 'Pro-Tipp für Vielfahrer: Behalte denselben Topf und dasselbe Wachs für alle Ketten deiner Rotation. Das Wachs "lernt" über Zeit. Die Zusammensetzung stabilisiert sich nach den ersten paar Ketten.',
       },
     ],
     howTo: {
@@ -582,7 +582,7 @@ export const articles: Article[] = [
       },
       {
         type: 'p',
-        text: 'MoS₂-Kristalle sind in dünne Schichten aufgebaut, die durch schwache Van-der-Waals-Kräfte zusammengehalten werden. Unter mechanischem Druck gleiten diese Schichten gegeneinander ab. Ähnlich wie Blätter in einem Stapel. Der Reibungskoeffizient liegt je nach Belastung und Atmosphäre zwischen 0,03 und 0,06. Unter Vakuum und extremem Druck sogar darunter. Weshalb MoS₂ in der Raumfahrt und im Hochdruckmaschinenbau eingesetzt wird.',
+        text: 'MoS₂-Kristalle sind in dünne Schichten aufgebaut, die durch schwache Van-der-Waals-Kräfte zusammengehalten werden. Unter mechanischem Druck gleiten diese Schichten gegeneinander ab, ähnlich wie Blätter in einem Stapel. Der Reibungskoeffizient liegt je nach Belastung und Atmosphäre zwischen 0,03 und 0,06, unter Vakuum und extremem Druck sogar darunter. Deshalb wird MoS₂ in der Raumfahrt und im Hochdruckmaschinenbau eingesetzt.',
       },
       {
         type: 'h2',
@@ -590,7 +590,7 @@ export const articles: Article[] = [
       },
       {
         type: 'p',
-        text: 'In einer Fahrradkette entstehen die größten Reibungskräfte in den Rollenlagern. Dem Kontakt zwischen Kettenbolzen und Kettenhülse. Bei jedem Umlauf über das Kettenblatt und die Kassettenzähne verbiegt sich die Kette leicht, die Bolzen drehen sich in den Hülsen. Genau dort muss das Schmiermittel wirken.',
+        text: 'In einer Fahrradkette entstehen die größten Reibungskräfte in den Rollenlagern, also im Kontakt zwischen Kettenbolzen und Kettenhülse. Bei jedem Umlauf über das Kettenblatt und die Kassettenzähne verbiegt sich die Kette leicht, die Bolzen drehen sich in den Hülsen. Genau dort muss das Schmiermittel wirken.',
       },
       {
         type: 'p',
@@ -606,7 +606,7 @@ export const articles: Article[] = [
       },
       {
         type: 'p',
-        text: 'Paraffin alleine ist zwar wasserabweisend, wird aber bei längerem Regenkontakt von den Metalloberflächen abgewaschen. Besonders an exponierten Stellen wie Kettenbolzen und Nieten. MoS₂ haftet als kovalent gebundener Transferfilm direkter auf der Stahloberfläche und widersteht Wasser besser als die rein physikalische Schicht aus Paraffin.',
+        text: 'Paraffin alleine ist zwar wasserabweisend, wird aber bei längerem Regenkontakt von den Metalloberflächen abgewaschen, besonders an exponierten Stellen wie Kettenbolzen und Nieten. MoS₂ haftet als kovalent gebundener Transferfilm direkter auf der Stahloberfläche und widersteht Wasser besser als die rein physikalische Schicht aus Paraffin.',
       },
       {
         type: 'p',
@@ -639,7 +639,7 @@ export const articles: Article[] = [
       },
       {
         type: 'p',
-        text: 'MoS₂ ist von Natur aus silbergrau bis schwarz. In Waxcelerate Pro ist es in feiner Partikelgröße in das Paraffinwachs eingemischt. Daher die schwarze Farbe des Blocks und des flüssigen Wachses. Auf der Kette selbst ist nach dem Aushärten kaum Verfärbung sichtbar; der Großteil des überschüssigen Wachses bricht beim Einfahren ab (das weiße Pulver, das du an der Kette siehst). Was bleibt, ist der dünne, unsichtbare MoS₂-Transferfilm auf den Kontaktflächen.',
+        text: 'MoS₂ ist von Natur aus silbergrau bis schwarz. In Waxcelerate Pro ist es in feiner Partikelgröße in das Paraffinwachs eingemischt. Daher kommt die schwarze Farbe des Blocks und des flüssigen Wachses. Auf der Kette selbst ist nach dem Aushärten kaum Verfärbung sichtbar; der Großteil des überschüssigen Wachses bricht beim Einfahren ab (das weiße Pulver, das du an der Kette siehst). Was bleibt, ist der dünne, unsichtbare MoS₂-Transferfilm auf den Kontaktflächen.',
       },
       {
         type: 'note',
@@ -662,11 +662,11 @@ export const articles: Article[] = [
     sections: [
       {
         type: 'h2',
-        text: 'Reibung, warum Wachs auf dem Rennrad besonders wirkt',
+        text: 'Warum Wachs auf dem Rennrad besonders wirkt',
       },
       {
         type: 'p',
-        text: 'Eine Fahrradkette überträgt unter Last nie 100 % der Tretkraft. Ein Teil geht als Wärme verloren. Durch innere Reibung in den Kettengelenken. Bei Kettenöl liegt dieser Verlust je nach Produkt bei 6–10 Watt (gemessen bei 250 W Eingangsleistung). Heißwachs mit PTFE kommt auf 3–5 Watt. Das klingt wenig, macht über 3 Stunden Fahrt aber einen merklichen Unterschied, und auf dem Rennrad, wo Watts gezählt werden, ist jede Reduktion relevant.',
+        text: 'Eine Fahrradkette überträgt unter Last nie 100 % der Tretkraft. Ein Teil geht als Wärme verloren, durch innere Reibung in den Kettengelenken. Bei Kettenöl liegt dieser Verlust je nach Produkt bei 6–10 Watt (gemessen bei 250 W Eingangsleistung). Heißwachs mit PTFE kommt auf 3–5 Watt. Das klingt wenig, macht über 3 Stunden Fahrt aber einen merklichen Unterschied, und auf dem Rennrad, wo Watts gezählt werden, ist jede Reduktion relevant.',
       },
       {
         type: 'p',
@@ -747,7 +747,7 @@ export const articles: Article[] = [
     slug: 'wachs-haelt-nicht-haeufige-fehler',
     title: 'Wachs hält nicht, Kette quietscht? Die 7 häufigsten Heißwachs-Fehler',
     titleShort: 'Wachs hält nicht? Die 7 häufigsten Fehler',
-    description: 'Wachs blättert ab, die Kette quietscht nach 50 km, weißes Pulver überall? Die häufigsten Heißwachs-Fehler, und wie du sie wirklich behebst.',
+    description: 'Wachs blättert ab, die Kette quietscht nach 50 km, weißes Pulver überall? Die häufigsten Heißwachs-Fehler und wie du sie wirklich behebst.',
     category: 'Problemlösung',
     publishDate: '2026-06-16',
     readingTime: '6 min',
@@ -764,7 +764,7 @@ export const articles: Article[] = [
       { type: 'p', text: 'Die Lösung: Kette mit Isopropanol 99 % in einem verschließbaren Glas in 2–3 Durchgängen entfetten, bis das IPA kaum noch trüb wird. Danach der Weiße-Tuch-Test. Kette über ein Papiertuch ziehen, kein Abrieb sichtbar. Erst dann ins Wachsbad.' },
       { type: 'note', text: 'Kein 70-%-Isopropanol (Desinfektionsmittel) verwenden. Der Wasseranteil hinterlässt Rückstände in den Gliedern und fördert Rost. Nur 99 % oder 96 %.' },
       { type: 'h2', text: '2. Die Kette quietscht schon nach 50–100 km wieder' },
-      { type: 'p', text: 'Quietschen so kurz nach dem Wachsen heißt fast immer: Das Wachs ist nie tief in die Gelenke eingedrungen. Zwei typische Ursachen. Das Wachsbad war zu kühl (unter 80 °C, das Paraffin bleibt dann zu zäh) oder die Kette war zu kurz im Bad. 10 Minuten sind das Minimum, eher 15. Bei 85–90 °C zieht das flüssige Paraffin in jeden Bolzen und jede Hülse.' },
+      { type: 'p', text: 'Quietschen so kurz nach dem Wachsen heißt fast immer: Das Wachs ist nie tief in die Gelenke eingedrungen. Dafür gibt es zwei typische Ursachen: Das Wachsbad war zu kühl (unter 80 °C, das Paraffin bleibt dann zu zäh) oder die Kette war zu kurz im Bad. 10 Minuten sind das Minimum, eher 15. Bei 85–90 °C zieht das flüssige Paraffin in jeden Bolzen und jede Hülse.' },
       { type: 'tip', text: 'Ein Zeichen, dass die Penetration stimmt: Während die kalte Kette im heißen Bad liegt, steigen für ein paar Minuten kleine Bläschen auf. Das ist verdrängte Luft aus den Gelenken. Erst wenn keine Bläschen mehr kommen, ist die Kette komplett durchtränkt.' },
       { type: 'h2', text: '3. Die Kette ist nach dem Abkühlen steif und springt' },
       { type: 'p', text: 'Das ist normal, und kein Defekt. Frisch gewachst sind die Gelenke vom erstarrten Paraffin verklebt. Wer so direkt losfährt, bekommt eine hakelige Schaltung. Der Schritt, den die meisten überspringen: das Einfahren. Kette 10–20 Mal durch die Hände laufen lassen oder über einen Stab knicken, bis jedes Glied sauber abwinkelt. Danach läuft sie geschmeidig.' },
@@ -789,7 +789,7 @@ export const articles: Article[] = [
     publishDate: '2026-06-16',
     readingTime: '5 min',
     keyStat: { value: '15', label: 'Fragen beantwortet' },
-    intro: 'Nicht jede Frage braucht einen ganzen Artikel. Hier sind die fünfzehn Fragen, die uns am häufigsten erreichen. Jeweils in zwei, drei Sätzen. Für die tiefen Themen gibt es weiterführende Artikel, aber wer nur schnell eine Antwort sucht, findet sie hier.',
+    intro: 'Nicht jede Frage braucht einen ganzen Artikel. Hier sind die fünfzehn Fragen, die uns am häufigsten erreichen, jeweils in zwei, drei Sätzen beantwortet. Für die tiefen Themen gibt es weiterführende Artikel, aber wer nur schnell eine Antwort sucht, findet sie hier.',
     faq: [
       { q: 'Wie oft muss ich die Kette nachwachsen?', a: 'Bei trockenen Bedingungen alle 300–600 km, bei Nässe oder auf Schotter 150–300 km. Der zuverlässigste Indikator ist nicht die Optik, sondern das Geräusch: Sobald die Kette unter Last trockener klingt oder quietscht, ist es Zeit.' },
       { q: 'Muss ich eine neue Kette vor dem ersten Wachsen entfetten?', a: 'Ja, zwingend. Neue Ketten sind ab Werk mit Mineralöl konserviert, und Wachs haftet nicht auf Öl. Ohne Entfetten hält das Wachs nicht. Ausnahme: bereits vorgewachste Ketten.' },
@@ -1164,7 +1164,7 @@ export const articles: Article[] = [
       { type: 'h2', text: 'Was ist ein Schnellverschluss überhaupt?' },
       { type: 'p', text: 'Ein Schnellverschluss, je nach Hersteller Quick-Link, Missing Link oder Power Link genannt, ersetzt einen Kettenniet durch ein zweiteiliges Glied, das sich von Hand öffnen und schließen lässt. Statt die Kette mit dem Nietdrücker zu öffnen, klickst du den Link auf. Für gewachste Ketten, die regelmäßig ins Bad müssen, ist das der entscheidende Komfortgewinn.' },
       { type: 'h2', text: 'Warum er fürs Wachsen fast Pflicht ist' },
-      { type: 'p', text: 'Heißwachs entfaltet seinen vollen Komfort erst, wenn das Abnehmen der Kette schnell geht. Besonders bei einer 2- oder 3-Ketten-Rotation, bei der du häufig wechselst. Mit einem Quick-Link öffnest du die Kette in Sekunden, hängst sie ins Bad und montierst die nächste. Ohne Schnellverschluss müsstest du jedes Mal nieten, was die ganze Logik der Rotation zunichtemacht.' },
+      { type: 'p', text: 'Heißwachs entfaltet seinen vollen Komfort erst, wenn das Abnehmen der Kette schnell geht, besonders bei einer 2- oder 3-Ketten-Rotation, bei der du häufig wechselst. Mit einem Quick-Link öffnest du die Kette in Sekunden, hängst sie ins Bad und montierst die nächste. Ohne Schnellverschluss müsstest du jedes Mal nieten, was die ganze Logik der Rotation zunichtemacht.' },
       { type: 'h2', text: 'Welcher Link passt zu meiner Kette?' },
       { type: 'p', text: 'Die wichtigste Regel: Der Link muss zur Geschwindigkeit (Anzahl Ritzel) deiner Kette passen. Ein 12-fach-Link ist schmaler als ein 11-fach-Link, sie sind nicht austauschbar.' },
       { type: 'ul', items: [
@@ -1223,7 +1223,7 @@ export const articles: Article[] = [
       ] },
       { type: 'h2', text: 'Wie nachhaltig ist Paraffinwachs?' },
       { type: 'p', text: 'Ehrlich eingeordnet: Paraffin ist ein Nebenprodukt der Erdölverarbeitung, nicht "bio", aber chemisch inert und gut handhabbar. Der ökologische Vorteil liegt im System: Wachs bindet keinen Schmutz, du brauchst keine aggressiven Kettenreiniger, keine literweise Entfetter und keinen ölverschmierten Lappenberg. Es gelangt kaum Schmiermittel in die Umwelt, weil das Wachs an der Kette bleibt und nicht abtropft wie Öl. Über die Lebensdauer ist der Reinigungs- und Abfallaufwand deutlich geringer als bei Ölschmierung.' },
-      { type: 'note', text: 'Der größte Umwelt-Hebel ist ohnehin die längere Kettenlaufzeit: Eine gewachste Kette hält das Zwei- bis Dreifache und schont Kassette und Kettenblätter. Weniger Verschleißteile, die produziert und entsorgt werden müssen. Das ist nachhaltiger als jede Schmierstoff-Diskussion.' },
+      { type: 'note', text: 'Der größte Umwelt-Hebel ist ohnehin die längere Kettenlaufzeit: Eine gewachste Kette hält das Zwei- bis Dreifache und schont Kassette und Kettenblätter. Das bedeutet weniger Verschleißteile, die produziert und entsorgt werden müssen. Das ist nachhaltiger als jede Schmierstoff-Diskussion.' },
     ],
     ctaSlug: 'wax-500',
     ctaText: 'Classic Heißwachs 500 g ansehen →',
@@ -1259,7 +1259,11 @@ export const articleImages: Record<string, { src: string; card?: string; alt: st
     alt: 'Offener Versandkarton mit zwei dunklen MoS2-Wachsblöcken, Abendlicht auf Schiefer',
   },
   'kettenwachs-rennrad-gravelbike': { src: '/images/review-gravel.jpg', alt: 'Gravelbike mit Bikepacking-Taschen' },
-  'wachs-haelt-nicht-haeufige-fehler': { src: '/images/hero-chain-texture.jpg', alt: 'Fahrradketten dicht an dicht, Makroaufnahme' },
+  'wachs-haelt-nicht-haeufige-fehler': {
+    src: '/images/blog/chain-wax-kit-hills-1600.webp',
+    card: '/images/blog/chain-wax-kit-hills-800.webp',
+    alt: 'Gewachste Kette, Wachsblock und Versandkarton auf Schiefer vor den Hügeln',
+  },
   'kettenwachs-faq': { src: '/images/hero-chain-angle.jpg', alt: 'Saubere Fahrradketten von der Seite' },
   'vorgewachste-kette': {
     src: '/images/blog/box-chain-delivery-1600.webp',
@@ -1273,7 +1277,11 @@ export const articleImages: Record<string, { src: string; card?: string; alt: st
     alt: 'Fahrradkette hängt an zwei Drahthaken über einem Edelstahltopf, Hügel im Hintergrund',
   },
   'tropfwachs-hybrid-methode': { src: '/images/reviews/ride-5.jpg', alt: 'Gravelbike mit gewachster Kette vor einem Café' },
-  'von-oel-auf-wachs-umsteigen': { src: '/images/reviews/ride-1.jpg', alt: 'Rennrad bei Sonnenuntergang auf Feldweg' },
+  'von-oel-auf-wachs-umsteigen': {
+    src: '/images/blog/chain-quicklinks-detail-1600.webp',
+    card: '/images/blog/chain-quicklinks-detail-800.webp',
+    alt: 'Fahrradkette mit zwei losen Kettenschlössern in Nahaufnahme auf Schiefer',
+  },
   'ebike-kette-wachsen': { src: '/images/reviews/ride-2.jpg', alt: 'Rennrad an einem Dorfbrunnen in den Alpen' },
   'kettenverschleiss-messen': { src: '/images/reviews/ride-4.jpg', alt: 'Rennradfahrer auf Passstraße in den Dolomiten' },
   'erste-fahrt-nach-wachsen': {
@@ -1286,7 +1294,11 @@ export const articleImages: Record<string, { src: string; card?: string; alt: st
     card: '/images/blog/tools-quicklink-pliers-800.webp',
     alt: 'Kettenschloss-Zange lehnt an einem blauen Wachsblock, Kette und Draht im Vordergrund',
   },
-  'wachs-entsorgen-topf-pflegen': { src: '/images/process-melt.jpg', alt: 'Geschmolzenes Wachs im Topf' },
+  'wachs-entsorgen-topf-pflegen': {
+    src: '/images/blog/wax-block-chain-slate-1600.webp',
+    card: '/images/blog/wax-block-chain-slate-800.webp',
+    alt: 'Dunkler Wachsblock und gewachste Fahrradkette auf Schiefer vor den Hügeln',
+  },
 };
 
 export function getArticleImage(slug: string): { src: string; card: string; alt: string } {
