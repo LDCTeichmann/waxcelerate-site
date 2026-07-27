@@ -109,20 +109,23 @@ export const articles: Article[] = [
       },
       {
         type: 'p',
-        text: 'Unabhängige Prüfstände (u.a. ZeroFriction Cycling, Jason Smith) messen Kettenverluste in Watt. Hier die typischen Messbereiche unter Laborbedingungen bei 250 W Systemleistung:',
+        text: 'Unabhängige Prüfstände wie Zero Friction Cycling messen Kettenverluste in Watt. Die Zahlen hängen stark vom Prüfprotokoll ab, deshalb hier Richtwerte statt Nachkommastellen:',
       },
       {
         type: 'ul',
         items: [
-          'Heißwachs (Paraffin + PTFE): 2,5–4,5 W Verlust. Reibungskoeffizient ~0,03–0,06',
-          'Flüssigwachs (Squirt, Silca): 5–8 W. Reibungskoeffizient ~0,09–0,12',
-          'Nasses Kettenöl (Bio-based, Standard): 8–16 W. Reibungskoeffizient ~0,15–0,25',
-          'Trockenes Kettenöl: 6–10 W, besser als nasses Öl, schlechter als Wachs',
+          'Heißwachs: rund 2,6 W Verlust in unserer Laborreferenz bei 300–400 W Eingangsleistung. Zero Friction Cycling misst für ein frisches Heißwachs-Bad etwa 3,8 W bei 250 W.',
+          'Flüssigwachs: liegt dazwischen, sauber aufgetragen etwa 5 W.',
+          'Kettenöl: rund 7,5 W in derselben Laborreferenz. Unter realer Verschmutzung driftet Öl weiter nach oben, Wachs kaum.',
         ],
       },
       {
+        type: 'note',
+        text: 'Warum wir keine exakteren Zahlen nennen: Prüfstände arbeiten mit unterschiedlicher Eingangsleistung, Kettenspannung und Verschmutzungsprotokoll. Wer eine Zahl auf zwei Nachkommastellen verkauft, verschweigt das Protokoll. Uns interessiert die Größenordnung, und die ist stabil.',
+      },
+      {
         type: 'p',
-        text: 'Der Unterschied zwischen Heißwachs und gutem Flüssigwachs liegt in der Praxis bei 3–5 W. Bei einem 4-Stunden-Ride mit 250 W entspricht das ungefähr 4–7 kJ, subjektiv kaum spürbar, für Rennsportler aber relevant. Für Alltagsfahrer sind 4 W Unterschied keine Kaufentscheidung.',
+        text: 'Der Abstand zwischen Heißwachs und Öl liegt damit bei grob 4 bis 5 W. Bei 250 W Tretleistung sind das etwa 2 % deiner Leistung. Für Rennfahrer ist das relevant, für Alltagsfahrer ist es kein Kaufargument. Der eigentliche Vorteil liegt woanders: Öl verliert unter Schmutz weiter an Effizienz, Wachs bleibt über das Intervall nahezu konstant.',
       },
       {
         type: 'h2',
@@ -135,7 +138,7 @@ export const articles: Article[] = [
       {
         type: 'ul',
         items: [
-          'Heißwachs, trockene Bedingungen: 300–600 km pro Anwendung (je nach Produkt und Bedingungen)',
+          'Heißwachs, trockene Bedingungen: 400–550 km pro Anwendung',
           'Heißwachs, nass / MTB: 200–300 km (Wasser löst Paraffin schneller heraus)',
           'Flüssigwachs, trocken: 150–250 km',
           'Flüssigwachs, nass: 80–120 km',
@@ -151,7 +154,7 @@ export const articles: Article[] = [
       },
       {
         type: 'p',
-        text: 'Paraffin-basiertes Heißwachs hält die Kette sauberer als jedes Öl, weil es keinen Schmutz bindet. Weniger Abrasion bedeutet weniger Kettendehnung. ZeroFriction Cycling dokumentiert für gut gewachste Ketten Laufleistungen von 5.000–8.000 km bis zur 0,5-%-Dehngrenze, bei Öl sind es typisch 2.000–2.500 km. Das ist eine Verdreifachung der Kettenlaufzeit, und damit auch weniger Verschleiß an Kassette und Kettenblättern.',
+        text: 'Paraffin-basiertes Heißwachs hält die Kette sauberer als jedes Öl, weil es keinen Schmutz bindet. Weniger Abrasion bedeutet weniger Kettendehnung. Zero Friction Cycling misst unter Laborprotokoll mit konsequentem Nachwachsen Laufleistungen von 15.000 bis 20.000 km bis zur 0,5-%-Dehngrenze. Wer die Intervalle streckt, wie es im Alltag üblich ist, landet dort bei 8.000 bis 10.000 km. In der Praxis rechnen wir mit 6.000 bis 12.000 km gegenüber 2.000 bis 3.000 km bei Öl, also grob dem Zwei- bis Dreifachen. Das schont zugleich Kassette und Kettenblätter.',
       },
       {
         type: 'h2',
@@ -314,7 +317,7 @@ export const articles: Article[] = [
       {
         type: 'ul',
         items: [
-          'Trockene Straße / Rennrad / Commuter: 300–600 km pro Wachsvorgang',
+          'Trockene Straße / Rennrad / Commuter: 400–550 km pro Wachsvorgang',
           'Wechselhaftes Wetter / Gravelbike: 250–400 km',
           'Nass, MTB, Schotter mit Pfützen: 150–250 km',
           'Waxcelerate Pro mit MoS₂ (Nassbereich): ca. 15–20 % längere Intervalle als Classic',
@@ -339,8 +342,8 @@ export const articles: Article[] = [
       {
         type: 'ul',
         items: [
-          'Kettenöl (gut gepflegt, regelmäßig gewechselt): 2.000–2.500 km bis 0,5 % Dehnung',
-          'Heißwachs (Paraffin + PTFE, korrekt angewendet): 5.000–8.000 km',
+          'Kettenöl (gut gepflegt, regelmäßig gewechselt): 2.000–3.000 km bis 0,5 % Dehnung',
+          'Heißwachs (korrekt angewendet, Intervall eingehalten): 6.000–12.000 km',
           'Heißwachs mit MoS₂ (Pro-Variante): vereinzelte Tests zeigen bis 8.500 km unter optimalen Bedingungen',
         ],
       },
@@ -377,7 +380,7 @@ export const articles: Article[] = [
         type: 'ul',
         items: [
           'Kettenwechsel bei 7.000 km → 2–3 Ketten über 15.000 km × 35 € = 70–105 €',
-          'Wachs: 1 Block Waxcelerate Classic 500 g (29,95 €) reicht für ca. 20–25 Wachsvorgänge bei 3-Ketten-Rotation, also ca. 2 Blöcke über 15.000 km = 59,90 €',
+          'Wachs: bei 400–550 km Intervall sind das rund 32 Wachsvorgänge über 15.000 km. Ein 500-g-Block Classic (29,95 €) trägt 15–20 davon, also 2 Blöcke = 59,90 €',
           'Kassettenverschleiß deutlich geringer, kein Extra-Kassettenwechsel nötig',
           'Gesamtkosten Wachs-Szenario: ca. 130–165 €',
         ],
@@ -392,7 +395,7 @@ export const articles: Article[] = [
       },
       {
         type: 'p',
-        text: 'Mit nur einer Kette verlängert sich die Laufzeit trotzdem auf ~5.000–6.000 km. Aber mit drei rotierenden Ketten passiert etwas Zusätzliches: Jede Kette trägt weniger Gesamtkilometer als eine Einzelkette, weil der Verschleiß auf drei Exemplare verteilt wird. Das verlängert die Gesamtlaufzeit der Kassette noch weiter, weil nie eine stark gedehnte Kette auf einen "frischen" Kassettenring trifft.',
+        text: 'Auch mit nur einer Kette liegst du schon bei 6.000 bis 12.000 km. Mit drei rotierenden Ketten passiert etwas Zusätzliches: Jede Kette trägt weniger Gesamtkilometer als eine Einzelkette, weil der Verschleiß auf drei Exemplare verteilt wird. Das verlängert die Gesamtlaufzeit der Kassette noch weiter, weil nie eine stark gedehnte Kette auf einen "frischen" Kassettenring trifft.',
       },
       {
         type: 'tip',
@@ -569,7 +572,7 @@ export const articles: Article[] = [
     category: 'Technik',
     publishDate: '2026-06-01',
     readingTime: '6 min',
-    keyStat: { value: '300–550 km', label: 'Laufzeit (Pro)' },
+    keyStat: { value: '20–30 km', label: 'Bis Transferfilm steht' },
     intro: 'Waxcelerate Pro enthält neben Paraffin und PTFE auch Molybdändisulfid, abgekürzt MoS₂. Auf Produktverpackungen taucht der Begriff regelmäßig auf, eine Erklärung bleibt meist aus. Dieser Artikel erklärt, was MoS₂ auf atomarer Ebene tut, warum es bei Kettenschmierung sinnvoll ist, und wann du es wirklich brauchst.',
     sections: [
       {
@@ -606,11 +609,11 @@ export const articles: Article[] = [
       },
       {
         type: 'p',
-        text: 'Paraffin alleine ist zwar wasserabweisend, wird aber bei längerem Regenkontakt von den Metalloberflächen abgewaschen, besonders an exponierten Stellen wie Kettenbolzen und Nieten. MoS₂ haftet als kovalent gebundener Transferfilm direkter auf der Stahloberfläche und widersteht Wasser besser als die rein physikalische Schicht aus Paraffin.',
+        text: 'Paraffin alleine ist zwar wasserabweisend, wird aber bei längerem Regenkontakt von den Metalloberflächen abgewaschen, besonders an exponierten Stellen wie Kettenbolzen und Nieten. MoS₂ bildet dagegen unter Druck einen dünnen Transferfilm, der sich mechanisch in die Oberfläche einarbeitet und dort auch dann bleibt, wenn das Paraffin ringsum ausgewaschen ist. Kovalent gebunden ist dieser Film nicht, das wird oft falsch dargestellt: Die starken Bindungen sitzen innerhalb der MoS₂-Schichten, zwischen den Schichten wirken nur schwache Van-der-Waals-Kräfte. Genau deshalb gleiten sie so leicht.',
       },
       {
         type: 'p',
-        text: 'In der Praxis: Waxcelerate Classic hält bei Trockenheit 250–450 km, bei Nässe 150–250 km. Waxcelerate Pro hält trocken 300–550 km, nass 150–300 km. Der Unterschied bei Nässe ist geringer als bei Trockenheit, weil der MoS₂-Transferfilm unter Feuchtigkeit besonders schützend wirkt.',
+        text: 'In der Praxis liegen beide bei trockenen Asphaltbedingungen im selben Fenster von 400 bis 550 km. Der Unterschied zeigt sich dort, wo es unangenehm wird: bei Nässe, auf Schotter und unter hoher Dauerlast. Da rutscht Classic ans untere Ende von 200 bis 300 km, während Pro dank Transferfilm eher am oberen Ende bleibt. Wer überwiegend im Sommer auf trockener Straße fährt, merkt zwischen beiden kaum einen Unterschied.',
       },
       {
         type: 'h2',
@@ -666,7 +669,7 @@ export const articles: Article[] = [
       },
       {
         type: 'p',
-        text: 'Eine Fahrradkette überträgt unter Last nie 100 % der Tretkraft. Ein Teil geht als Wärme verloren, durch innere Reibung in den Kettengelenken. Bei Kettenöl liegt dieser Verlust je nach Produkt bei 6–10 Watt (gemessen bei 250 W Eingangsleistung). Heißwachs mit PTFE kommt auf 3–5 Watt. Das klingt wenig, macht über 3 Stunden Fahrt aber einen merklichen Unterschied, und auf dem Rennrad, wo Watts gezählt werden, ist jede Reduktion relevant.',
+        text: 'Eine Fahrradkette überträgt unter Last nie 100 % der Tretkraft. Ein Teil geht als Wärme verloren, durch innere Reibung in den Kettengelenken. In unserer Laborreferenz bei 300–400 W Eingangsleistung liegt dieser Verlust bei Kettenöl um 7,5 W, bei Heißwachs um 2,6 W. Beides sind Richtwerte, keine garantierten Werte, denn jeder Prüfstand misst etwas anders. Die Größenordnung ist aber stabil: rund 2 % der Tretleistung. Auf dem Rennrad, wo Watt gezählt werden, ist das relevant.',
       },
       {
         type: 'p',
@@ -691,8 +694,8 @@ export const articles: Article[] = [
       {
         type: 'ul',
         items: [
-          'Rennrad, Sommer, überwiegend Asphalt: Waxcelerate Classic reicht vollkommen. Reibungskoeffizient 0,05–0,07, Intervall 250–450 km trocken.',
-          'Rennrad, Ganzjahr oder häufig Regen: Waxcelerate Pro mit MoS₂. Bessere Nasswetterbeständigkeit, längere Intervalle (300–550 km trocken).',
+          'Rennrad, Sommer, überwiegend Asphalt: Waxcelerate Classic reicht vollkommen, 400–550 km trocken.',
+          'Rennrad, Ganzjahr oder häufig Regen: Waxcelerate Pro mit MoS₂. Gleiches Trockenintervall, aber deutlich stabiler, sobald Nässe und Schmutz dazukommen.',
           'Gravelbike, gemischtes Terrain: Waxcelerate Pro. Der MoS₂-Transferfilm widersteht mechanischem Druck und Feuchtigkeit besser.',
           'Cyclocross: Waxcelerate Pro. Kurze Intervalle, oft nass. Die hydrophobe Matrix macht einen Unterschied.',
         ],
@@ -703,7 +706,7 @@ export const articles: Article[] = [
       },
       {
         type: 'p',
-        text: 'Die Faustregeln aus der Praxis: Waxcelerate Classic bei trockenen Asphaltbedingungen alle 250–450 km. Bei Regen oder gemischten Bedingungen alle 150–250 km. Waxcelerate Pro trocken alle 300–550 km, bei Nässe alle 150–300 km.',
+        text: 'Die Faustregel aus der Praxis: bei trockenen Asphaltbedingungen alle 400 bis 550 km, bei Regen, Schotter oder gemischten Bedingungen alle 200 bis 300 km. Pro hält sich in der zweiten Kategorie besser, das Trockenintervall ist bei beiden gleich.',
       },
       {
         type: 'p',
@@ -791,14 +794,14 @@ export const articles: Article[] = [
     keyStat: { value: '15', label: 'Fragen beantwortet' },
     intro: 'Nicht jede Frage braucht einen ganzen Artikel. Hier sind die fünfzehn Fragen, die uns am häufigsten erreichen, jeweils in zwei, drei Sätzen beantwortet. Für die tiefen Themen gibt es weiterführende Artikel, aber wer nur schnell eine Antwort sucht, findet sie hier.',
     faq: [
-      { q: 'Wie oft muss ich die Kette nachwachsen?', a: 'Bei trockenen Bedingungen alle 300–600 km, bei Nässe oder auf Schotter 150–300 km. Der zuverlässigste Indikator ist nicht die Optik, sondern das Geräusch: Sobald die Kette unter Last trockener klingt oder quietscht, ist es Zeit.' },
+      { q: 'Wie oft muss ich die Kette nachwachsen?', a: 'Bei trockenen Bedingungen alle 400–550 km, bei Nässe, MTB oder gemischt 200–300 km. Der zuverlässigste Indikator ist nicht die Optik, sondern das Geräusch: Sobald die Kette unter Last trockener klingt oder quietscht, ist es Zeit.' },
       { q: 'Muss ich eine neue Kette vor dem ersten Wachsen entfetten?', a: 'Ja, zwingend. Neue Ketten sind ab Werk mit Mineralöl konserviert, und Wachs haftet nicht auf Öl. Ohne Entfetten hält das Wachs nicht. Ausnahme: bereits vorgewachste Ketten.' },
       { q: 'Welche Temperatur braucht das Wachsbad?', a: '85–90 °C. Darunter ist das Wachs zu zäh und dringt nicht in die Gelenke ein, darüber oxidiert es schneller. Ein Slow Cooker auf niedrigster Stufe trifft diesen Bereich meist von allein.' },
       { q: 'Wie lange muss die Kette im Wachs bleiben?', a: '10–15 Minuten. Die Kette ist erst durchtränkt, wenn keine Luftbläschen mehr aufsteigen.' },
       { q: 'Wachsen oder ölen, was ist besser?', a: 'Wachs läuft reibungsärmer, hält die Kette sauber und verlängert die Kettenlaufzeit deutlich. Öl ist bequemer und im Dauerregen robuster. Für Vielfahrer und sportliche Fahrer lohnt sich Wachs, für seltene Schlechtwetter-Pendler ist Öl legitim.' },
       { q: 'Brauche ich einen teuren Spezial-Topf?', a: 'Nein. Ein einfacher Mini-Slow-Cooker für 25–35 € reicht völlig. Wichtig ist nur, dass er die Temperatur niedrig und stabil hält.' },
       { q: 'Kann ich eine geölte Kette einfach ins Wachs tauchen?', a: 'Nein. Das Öl kontaminiert das Wachsbad und verhindert, dass das Wachs haftet. Erst gründlich entfetten.' },
-      { q: 'Wie lange hält ein Wachsblock?', a: 'Ein 500-g-Block reicht für rund 20–25 Wachsvorgänge. Bei einer 3-Ketten-Rotation also für eine ganze Saison und mehr.' },
+      { q: 'Wie lange hält ein Wachsblock?', a: 'Ein 500-g-Block trägt 15 bis 20 Wachsvorgänge einer einzelnen Kette. Bei einer 3-Ketten-Rotation sind das rund 8 bis 10 Komplettbäder, also je nach Jahresleistung eine ganze Saison und mehr.' },
       { q: 'Ist das weiße Pulver an der Kette ein Problem?', a: 'Nein, das ist überschüssiges Außenwachs, das beim Einfahren abbricht. Es verschwindet nach 20–30 km von selbst.' },
       { q: 'Funktioniert Wachs im Winter?', a: 'Bei Kälte und Trockenheit ja. Problematisch ist Streusalz und Dauernässe, die das Wachs schneller auswaschen. Dann häufiger nachwachsen oder zur MoS₂-Variante greifen.' },
       { q: 'Brauche ich einen Schnellverschluss?', a: 'Er macht das Abnehmen der Kette deutlich einfacher und ist für eine Rotation praktisch unverzichtbar. KMC- und SRAM-Quick-Links lassen sich mehrfach wiederverwenden.' },
@@ -811,7 +814,7 @@ export const articles: Article[] = [
       { type: 'note', text: 'Die Antworten unten sind bewusst kurz gehalten. Verlinkte Begriffe und die Artikel im Blog gehen jeweils in die Tiefe.' },
       { type: 'h2', text: 'Anwendung & Intervalle' },
       { type: 'h3', text: 'Wie oft muss ich nachwachsen?' },
-      { type: 'p', text: 'Bei trockenen Bedingungen alle 300–600 km, bei Nässe oder auf Schotter 150–300 km. Der zuverlässigste Indikator ist nicht die Optik, sondern das Geräusch: Sobald die Kette unter Last trockener klingt, ist es Zeit.' },
+      { type: 'p', text: 'Bei trockenen Bedingungen alle 400–550 km, bei Nässe, MTB oder gemischt 200–300 km. Der zuverlässigste Indikator ist nicht die Optik, sondern das Geräusch: Sobald die Kette unter Last trockener klingt, ist es Zeit.' },
       { type: 'h3', text: 'Wie lange muss die Kette im Wachs bleiben?' },
       { type: 'p', text: '10–15 Minuten. Durchtränkt ist sie erst, wenn keine Luftbläschen mehr aufsteigen.' },
       { type: 'h3', text: 'Welche Temperatur braucht das Bad?' },
@@ -850,7 +853,7 @@ export const articles: Article[] = [
     category: 'Kaufberatung',
     publishDate: '2026-06-16',
     readingTime: '5 min',
-    keyStat: { value: '300–600 km', label: 'Bis Nachwachsen' },
+    keyStat: { value: '400–550 km', label: 'Bis Nachwachsen' },
     intro: 'Eine vorgewachste Kette nimmt dir den aufwendigsten Teil des Heißwachsens ab: das erste Entfetten und das Einrichten des Wachsbades. Du montierst sie und fährst los. Aber lohnt sich der Aufpreis gegenüber einer Standardkette, die du selbst wachst? Die ehrliche Antwort hängt davon ab, wie oft du wachsen willst, und ob du überhaupt einsteigen möchtest.',
     takeaways: [
       'Eine vorgewachste Kette ist entfettet, im Wachsbad behandelt und einfahrbereit, einfach montieren und losfahren.',
@@ -869,7 +872,7 @@ export const articles: Article[] = [
       ] },
       { type: 'h2', text: 'Und wann lohnt es sich nicht?' },
       { type: 'p', text: 'Ehrlich gesagt: Wer ohnehin regelmäßig selbst wachst und bereits Topf und Wachs besitzt, zahlt für eine vorgewachste Kette vor allem den Arbeitslohn der Erstbehandlung. Das kann es wert sein, muss es aber nicht. Wenn du eine 3-Ketten-Rotation aufbaust, kaufst du günstiger Standardketten und wachst sie in einem Rutsch selbst.' },
-      { type: 'note', text: 'Wichtig zu verstehen: Auch eine vorgewachste Kette muss irgendwann nachgewachst werden, nach 300–600 km trocken. Die Vorbehandlung spart dir den Einstieg, nicht die laufende Pflege. Spätestens dann brauchst du Wachs und einen Topf, oder du nutzt kompatibles Tropfwachs zum Auffrischen.' },
+      { type: 'note', text: 'Wichtig zu verstehen: Auch eine vorgewachste Kette muss irgendwann nachgewachst werden, nach 400–550 km trocken. Die Vorbehandlung spart dir den Einstieg, nicht die laufende Pflege. Spätestens dann brauchst du Wachs und einen Topf, oder du nutzt kompatibles Tropfwachs zum Auffrischen.' },
       { type: 'h2', text: 'Worauf du beim Kauf achten solltest' },
       { type: 'ul', items: [
         'Markenkette als Basis: Eine gewachste No-Name-Kette bleibt eine No-Name-Kette. Achte auf Shimano, SRAM oder YBN als Grundlage.',
@@ -903,7 +906,7 @@ export const articles: Article[] = [
       { type: 'p', text: 'Drei Faktoren setzen einer Winterkette zu: Feuchtigkeit (löst Schmiermittel aus), Streusalz (fördert Korrosion) und der nasse Schmutzschlamm aus Salz, Splitt und Straßendreck (wirkt wie Schleifpaste). Entscheidend ist, wie ein Schmiermittel mit diesen drei umgeht.' },
       { type: 'h2', text: 'Wo Wachs im Winter punktet' },
       { type: 'p', text: 'Der größte Vorteil bleibt auch im Winter bestehen: Wachs bindet keinen Schmutz. Während eine geölte Kette den nassen Salzschlamm regelrecht aufsaugt und zu einer schwarzen, schmirgelnden Paste verklebt, perlt der Dreck an der trockenen Wachsschicht ab. Die Kette bleibt sauber, das Schaltwerk präziser, und der abrasive Verschleiß durch eingebundene Partikel fällt geringer aus.' },
-      { type: 'p', text: 'Bei trockener Kälte, Frost ohne Salz, klare Wintertage, ist Wachs nahezu unschlagbar. Paraffin bleibt bis weit unter den Gefrierpunkt funktionsfähig, und kein Öl verharzt bei Kälte.' },
+      { type: 'p', text: 'Bei trockener Kälte, Frost ohne Salz, klare Wintertage, spielt Wachs seine Stärken voll aus. Paraffin bleibt bis weit unter den Gefrierpunkt funktionsfähig, und kein Öl verharzt bei Kälte.' },
       { type: 'h2', text: 'Wo Wachs an seine Grenzen kommt' },
       { type: 'p', text: 'Die ehrliche Kehrseite: Paraffin wird durch Wasser ausgewaschen. Wer täglich bei Dauerregen oder durch nasse, gesalzene Straßen pendelt, verkürzt das Wachsintervall drastisch. Statt 400 km sind es dann vielleicht 100–150 km. Und an den blanken Außenlaschen kann sich nach einer Salzfahrt Flugrost bilden, weil Wachs dort keinen dauerhaften Schutzfilm hinterlässt wie kriechendes Öl.' },
       { type: 'note', text: 'Das heißt nicht, dass die Kette kaputtgeht. Solange die Gelenke innen gewachst sind, läuft sie. Aber der Pflegeaufwand steigt im nassen Salzwinter spürbar. Das sollte man wissen, bevor man enttäuscht wird.' },
@@ -984,7 +987,7 @@ export const articles: Article[] = [
       { type: 'h2', text: 'So funktioniert die Hybrid-Methode' },
       { type: 'ol', items: [
         'Basis legen: Kette einmal sauber entfetten und im Heißwachsbad (85–90 °C, 10–15 min) behandeln. Das ist dein Fundament.',
-        'Fahren bis zum Intervall: Die Heißwachsbasis trägt 300–600 km trocken.',
+        'Fahren bis zum Intervall: Die Heißwachsbasis trägt 400–550 km trocken.',
         'Auffrischen statt heiß wachsen: Etwa alle 200 km, oder bevor die Kette trockener klingt, ein kompatibles Tropfwachs dünn auf die saubere Kette geben, Glied für Glied, kurz einwirken lassen, Überschuss abwischen.',
         'Trocknen lassen: Tropfwachs braucht je nach Produkt mehrere Stunden, bis das Trägermittel verdunstet ist. Am besten abends auftragen, am nächsten Tag fahren.',
         'Heiß nachwachsen alle ~1.000 km: Wenn sich über die Zeit Reste und Schmutz aufbauen, einmal komplett neu heiß wachsen. Das setzt die Basis zurück.',
@@ -1091,7 +1094,7 @@ export const articles: Article[] = [
     keyStat: { value: '0,5 %', label: 'Wechselgrenze' },
     intro: 'Eine verschlissene Kette frisst die Kassette und die Kettenblätter mit. Wer rechtzeitig wechselt, tauscht ein 35-€-Teil, wer zu lange wartet, zahlt das Vielfache für den ganzen Antrieb. Die gute Nachricht: Kettenverschleiß lässt sich in 30 Sekunden messen. Hier, wie es geht und welche Grenzwerte gelten.',
     takeaways: [
-      'Die übliche Wechselgrenze liegt bei 0,5 % Kettendehnung (0,75 % bei einigen 11-/12-fach-Systemen).',
+      'Wechselgrenze: 0,5 % Kettendehnung bei 11- und 12-fach, 0,75 % bei 9- und 10-fach.',
       'Eine Kettenlehre für wenige Euro misst das zuverlässiger als ein Lineal.',
       'Gewachste Ketten erreichen die Grenze deutlich später, oft beim 2–3-Fachen der Kilometer einer geölten Kette.',
     ],
@@ -1099,7 +1102,7 @@ export const articles: Article[] = [
       { type: 'h2', text: 'Was „Kettenverschleiß" eigentlich ist' },
       { type: 'p', text: 'Ketten „längen" sich nicht durch gedehntes Metall, sondern durch Materialabtrag an Bolzen und Hülsen. Mit jedem Kilometer wird in den Gelenken minimal Material abgerieben, der Abstand zwischen den Gliedern wächst. Diese Längung lässt die Kette nicht mehr sauber in Kassette und Kettenblatt greifen, und beginnt, deren Zähne abzunutzen.' },
       { type: 'h2', text: 'Die Grenzwerte: 0,5 % und 0,75 %' },
-      { type: 'p', text: 'Als Faustregel gilt: Bei 0,5 % Längung sollte die Kette gewechselt werden, um Kassette und Kettenblätter zu schonen. Manche Hersteller nennen für moderne 11- und 12-fach-Ketten 0,75 %, andere bleiben bei 0,5 %. Im Zweifel ist 0,5 % die sichere Grenze. Besonders bei teuren Kassetten lohnt sich der frühe Wechsel.' },
+      { type: 'p', text: 'Die Grenze hängt an der Anzahl der Ritzel, und zwar andersherum, als viele vermuten: Je schmaler die Kette, desto früher muss sie raus. Für 9- und 10-fach-Ketten gilt 0,75 %. Für 11- und 12-fach-Ketten, also alles Moderne, liegt die Grenze bei 0,5 %. Park Tool und die Hersteller sind sich hier einig. Wer bei einer 12-fach-Kette bis 0,75 % wartet, hat die Kassette meist schon mitgenommen, und die kostet ein Vielfaches der Kette.' },
       { type: 'h2', text: 'So misst du den Verschleiß' },
       { type: 'h3', text: 'Mit einer Kettenlehre (empfohlen)' },
       { type: 'p', text: 'Eine Kettenverschleißlehre kostet wenige Euro und ist die einfachste Methode. Du legst sie auf die Kette: Fällt der Messzahn nicht in die Lücke, ist die Kette unter der Grenze. Fällt er bündig hinein, ist die markierte Verschleißgrenze (z. B. 0,5 oder 0,75 %) erreicht. Wichtig: einige günstige Lehren messen tendenziell zu früh „verschlissen". Markenlehren sind hier genauer.' },
@@ -1107,7 +1110,7 @@ export const articles: Article[] = [
       { type: 'p', text: 'Ohne Lehre geht es auch: Eine neue Kette misst über 12 Glieder exakt 12 Zoll (304,8 mm), von Bolzenmitte zu Bolzenmitte. Bei 0,5 % Längung sind es rund 306,3 mm, bei 0,75 % etwa 307,1 mm. Mit einem Stahllineal und gespannter Kette lässt sich das gut ablesen.' },
       { type: 'tip', text: 'Immer unter leichter Spannung messen, also auf dem größten Kettenblatt, am besten mit etwas Zug am Schaltwerk. Eine schlaffe Kette verfälscht das Ergebnis.' },
       { type: 'h2', text: 'Warum gewachste Ketten länger halten' },
-      { type: 'p', text: 'Da Verschleiß vor allem durch abrasive Partikel im Schmiermittel entsteht, hält eine gewachste Kette deutlich länger: Wachs bindet keinen Schmutz, der in die Gelenke wandert. Prüfstandsdaten zeigen für gut gewachste Ketten Laufleistungen von 5.000–8.000 km bis zur 0,5-%-Grenze, gegenüber 2.000–2.500 km bei Öl. Das ist näherungsweise eine Verdreifachung, und der Hauptgrund, warum sich Wachs über die Antriebskosten rechnet.' },
+      { type: 'p', text: 'Da Verschleiß vor allem durch abrasive Partikel im Schmiermittel entsteht, hält eine gewachste Kette deutlich länger: Wachs bindet keinen Schmutz, der in die Gelenke wandert. Zero Friction Cycling misst im Laborprotokoll 15.000 bis 20.000 km bis zur 0,5-%-Grenze, bei gestreckten Nachwachs-Intervallen 8.000 bis 10.000 km. Realistisch sind 6.000 bis 12.000 km gegenüber 2.000 bis 3.000 km bei Öl. Das ist der Hauptgrund, warum sich Wachs über die Antriebskosten rechnet.' },
       { type: 'note', text: 'Tipp zur Rotation: Wer mehrere Ketten im Wechsel fährt, verteilt den Verschleiß. Wichtig ist, alle Ketten der Rotation regelmäßig zu messen und gemeinsam zu tauschen, bevor eine die Grenze überschreitet. So bleibt die Kassette über die volle Lebensdauer geschont.' },
     ],
     ctaSlug: 'wax-500',
