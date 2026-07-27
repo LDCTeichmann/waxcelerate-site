@@ -35,6 +35,8 @@ export interface Article {
   featured?: boolean;
   /** Kennzahlen-Chips für den Leitartikel (nur bei featured genutzt). */
   stats?: { value: string; label: string }[];
+  /** Eine reale Kennzahl aus dem Artikel, für die Karte in der Übersicht. Nichts erfinden — leer lassen, wenn der Artikel keine belastbare Zahl hergibt. */
+  keyStat?: { value: string; label: string };
   /** Kurzfassung oben im Artikel ("Das Wichtigste in Kürze"). */
   takeaways?: string[];
   /** Frage-Antwort-Paare für FAQPage-Schema. */
@@ -74,6 +76,7 @@ export const articles: Article[] = [
     category: 'Grundlagen',
     publishDate: '2026-05-19',
     readingTime: '7 min',
+    keyStat: { value: '3–5 W', label: 'Unterschied' },
     intro: 'Kettenwachs ist nicht gleich Kettenwachs. Heißwachs (Paraffin, im Topf geschmolzen) und Flüssigwachs (Wachs-Emulsion aus der Flasche) versprechen beide saubere, reibungsarme Antriebe, aber mit sehr unterschiedlichen Kompromissen. Dieser Artikel zeigt, was die Messwerte wirklich sagen und welche Methode zu welchem Fahrertyp passt.',
     sections: [
       {
@@ -187,6 +190,7 @@ export const articles: Article[] = [
     category: 'Anleitung',
     publishDate: '2026-05-19',
     readingTime: '6 min',
+    keyStat: { value: '30–60 Sek.', label: 'IPA schütteln' },
     intro: 'Das Entfetten der Kette ist der einzige Schritt beim Heißwachsen, bei dem Anfänger am häufigsten scheitern. Wer diesen Schritt überspringt oder halbherzig erledigt, wird feststellen, dass das Wachs nicht haftet, schnell abblättert und die Kette nach 50 km wieder quietscht. Das hat nichts mit dem Wachs zu tun. Es liegt am Öl darunter.',
     sections: [
       {
@@ -296,6 +300,7 @@ export const articles: Article[] = [
     ],
     publishDate: '2026-05-19',
     readingTime: '7 min',
+    keyStat: { value: '5–8.000 km', label: 'Kettenlaufzeit' },
     intro: 'Eine der häufigsten Fragen zu Heißwachs: Wann muss ich wieder wachsen, und lohnt sich das finanziell überhaupt? Beides lässt sich konkret beantworten, mit Messdaten und einer einfachen Rechnung über einen realistischen Nutzungszeitraum.',
     sections: [
       {
@@ -414,6 +419,7 @@ export const articles: Article[] = [
     category: 'Anleitung',
     publishDate: '2026-05-19',
     readingTime: '8 min',
+    keyStat: { value: '< 20 Min.', label: 'Aktive Zeit' },
     intro: 'Heißwachs klingt aufwendiger als es ist. Wer den Prozess einmal gemacht hat, braucht für jeden Wachsvorgang weniger als 20 Minuten aktive Zeit. Diese Anleitung führt durch den vollständigen Prozess. Von der nötigen Ausrüstung bis zur fertig eingefahrenen Kette.',
     sections: [
       {
@@ -563,6 +569,7 @@ export const articles: Article[] = [
     category: 'Technik',
     publishDate: '2026-06-01',
     readingTime: '6 min',
+    keyStat: { value: '300–550 km', label: 'Laufzeit (Pro)' },
     intro: 'Waxcelerate Pro enthält neben Paraffin und PTFE auch Molybdändisulfid, abgekürzt MoS₂. Auf Produktverpackungen taucht der Begriff regelmäßig auf, eine Erklärung bleibt meist aus. Dieser Artikel erklärt, was MoS₂ auf atomarer Ebene tut, warum es bei Kettenschmierung sinnvoll ist, und wann du es wirklich brauchst.',
     sections: [
       {
@@ -650,6 +657,7 @@ export const articles: Article[] = [
     category: 'Kaufberatung',
     publishDate: '2026-06-01',
     readingTime: '7 min',
+    keyStat: { value: '60 km', label: 'Schotter sauber' },
     intro: 'Heißwachs ist für jede Fahrradkette geeignet, aber für Rennrad- und Gravelbike-Fahrer lohnt es sich besonders. Wer auf Leistung und Sauberkeit achtet, für wen jedes Watt zählt oder wer einfach nicht will, dass die Kette nach 50 km Gravelpiste eine schwarze Öllage trägt: Heißwachs ist die logische Wahl.',
     sections: [
       {
@@ -743,6 +751,7 @@ export const articles: Article[] = [
     category: 'Problemlösung',
     publishDate: '2026-06-16',
     readingTime: '6 min',
+    keyStat: { value: '>90 %', label: 'Fehlerursache' },
     intro: 'Heißwachs ist im Grunde simpel: entfetten, eintauchen, abkühlen, fahren. Trotzdem berichten Einsteiger immer wieder von denselben Problemen. Wachs, das nicht hält, eine Kette, die schon nach 50 km wieder quietscht, oder ein Antrieb, der staubt. Die gute Nachricht: Fast jedes dieser Probleme hat eine einzige, identifizierbare Ursache. Hier sind die sieben häufigsten, mit dem konkreten Schritt, der sie löst.',
     takeaways: [
       'Wachs hält nicht → in über 90 % der Fälle nicht gründlich genug entfettet.',
@@ -779,6 +788,7 @@ export const articles: Article[] = [
     category: 'Grundlagen',
     publishDate: '2026-06-16',
     readingTime: '5 min',
+    keyStat: { value: '15', label: 'Fragen beantwortet' },
     intro: 'Nicht jede Frage braucht einen ganzen Artikel. Hier sind die fünfzehn Fragen, die uns am häufigsten erreichen. Jeweils in zwei, drei Sätzen. Für die tiefen Themen gibt es weiterführende Artikel, aber wer nur schnell eine Antwort sucht, findet sie hier.',
     faq: [
       { q: 'Wie oft muss ich die Kette nachwachsen?', a: 'Bei trockenen Bedingungen alle 300–600 km, bei Nässe oder auf Schotter 150–300 km. Der zuverlässigste Indikator ist nicht die Optik, sondern das Geräusch: Sobald die Kette unter Last trockener klingt oder quietscht, ist es Zeit.' },
@@ -840,6 +850,7 @@ export const articles: Article[] = [
     category: 'Kaufberatung',
     publishDate: '2026-06-16',
     readingTime: '5 min',
+    keyStat: { value: '300–600 km', label: 'Bis Nachwachsen' },
     intro: 'Eine vorgewachste Kette nimmt dir den aufwendigsten Teil des Heißwachsens ab: das erste Entfetten und das Einrichten des Wachsbades. Du montierst sie und fährst los. Aber lohnt sich der Aufpreis gegenüber einer Standardkette, die du selbst wachst? Die ehrliche Antwort hängt davon ab, wie oft du wachsen willst, und ob du überhaupt einsteigen möchtest.',
     takeaways: [
       'Eine vorgewachste Kette ist entfettet, im Wachsbad behandelt und einfahrbereit, einfach montieren und losfahren.',
@@ -880,6 +891,7 @@ export const articles: Article[] = [
     category: 'Saison',
     publishDate: '2026-06-16',
     readingTime: '6 min',
+    keyStat: { value: '100–150 km', label: 'Intervall Streusalz' },
     intro: 'Kaum eine Frage spaltet die Wachs-Community so wie der Winter. Die einen schwören darauf, dass eine gewachste Kette im Schmuddelwetter sauber bleibt, die anderen warnen vor Streusalz und ausgewaschenem Wachs. Beide haben recht. Es kommt darauf an, wo und wie du fährst. Hier die ehrliche Einordnung, ohne das Produkt schönzureden.',
     takeaways: [
       'Bei trockener Kälte und gelegentlichem Regen ist Wachs im Winter klar im Vorteil: sauber, leise, kein verharztes Öl.',
@@ -921,6 +933,7 @@ export const articles: Article[] = [
     category: 'Kaufberatung',
     publishDate: '2026-06-16',
     readingTime: '5 min',
+    keyStat: { value: '25–35 €', label: 'Slow Cooker' },
     intro: 'Eine der ersten Fragen beim Einstieg ins Heißwachsen: Worin schmelze ich das Wachs eigentlich? Die Antwort ist erfreulich günstig. Du brauchst kein Spezialgerät. Entscheidend ist nur eines: eine niedrige, stabile Temperatur. Hier ein ehrlicher Vergleich der Optionen.',
     takeaways: [
       'Ein einfacher Mini-Slow-Cooker für 25–35 € ist die beste Allround-Lösung.',
@@ -958,6 +971,7 @@ export const articles: Article[] = [
     category: 'Anleitung',
     publishDate: '2026-06-16',
     readingTime: '5 min',
+    keyStat: { value: '200 km', label: 'Auffrischen' },
     intro: 'Heißwachs läuft am besten, ist aber gebunden an Topf, Abnehmen und Abkühlen. Tropfwachs aus der Flasche ist bequem, hält aber kürzer. Die Hybrid-Methode verbindet beides: Du baust die Wachsbasis im heißen Bad auf und frischst sie unterwegs mit Tropfwachs auf, ohne die Kette je abzunehmen. So musst du nur noch selten heiß wachsen.',
     takeaways: [
       'Basis im Heißwachsbad aufbauen, dann etwa alle 200 km mit kompatiblem Tropfwachs auffrischen.',
@@ -997,6 +1011,7 @@ export const articles: Article[] = [
     category: 'Anleitung',
     publishDate: '2026-06-16',
     readingTime: '6 min',
+    keyStat: { value: '2–3×', label: 'Entfetten' },
     intro: 'Der Umstieg von Öl auf Wachs ist einmalig etwas Arbeit. Danach ist die Pflege einfacher als zuvor. Der häufigste Fehler dabei: nur die Kette anzufassen und Kassette, Schaltwerk und Kettenblätter zu vergessen. Dort sitzt noch Öl, das die frisch gewachste Kette sofort wieder kontaminiert. Diese Anleitung führt durch den vollständigen Wechsel.',
     takeaways: [
       'Beim Umstieg den ganzen Antrieb entfetten, nicht nur die Kette. Ölreste an Kassette und Kettenblättern kontaminieren sonst sofort.',
@@ -1073,6 +1088,7 @@ export const articles: Article[] = [
     category: 'Technik',
     publishDate: '2026-06-16',
     readingTime: '6 min',
+    keyStat: { value: '0,5 %', label: 'Wechselgrenze' },
     intro: 'Eine verschlissene Kette frisst die Kassette und die Kettenblätter mit. Wer rechtzeitig wechselt, tauscht ein 35-€-Teil, wer zu lange wartet, zahlt das Vielfache für den ganzen Antrieb. Die gute Nachricht: Kettenverschleiß lässt sich in 30 Sekunden messen. Hier, wie es geht und welche Grenzwerte gelten.',
     takeaways: [
       'Die übliche Wechselgrenze liegt bei 0,5 % Kettendehnung (0,75 % bei einigen 11-/12-fach-Systemen).',
@@ -1105,6 +1121,7 @@ export const articles: Article[] = [
     category: 'Problemlösung',
     publishDate: '2026-06-16',
     readingTime: '4 min',
+    keyStat: { value: '20–30 km', label: 'Einfahrzeit' },
     intro: 'Du hast die Kette frisch gewachst, montiert, und etwas wirkt komisch. Sie ist steif, es rieselt weißes Pulver, vielleicht knackt es leise. Bevor du an einen Fehler glaubst: Das meiste davon ist völlig normal und gehört zur Einfahrphase. Hier die Einordnung, was bei den ersten Kilometern dazugehört und was nicht.',
     takeaways: [
       'Weißes Pulver und eine anfangs steife Kette sind normal und verschwinden nach 20–30 km.',
@@ -1136,6 +1153,7 @@ export const articles: Article[] = [
     category: 'Anleitung',
     publishDate: '2026-06-17',
     readingTime: '5 min',
+    keyStat: { value: '60 Sek.', label: 'Kettenwechsel' },
     intro: 'Wer seine Kette wachst, nimmt sie regelmäßig ab, und genau dafür ist der Schnellverschluss (Quick-Link) das wichtigste kleine Teil im ganzen System. Mit ihm dauert der Kettenwechsel 60 Sekunden statt einer Vernietaktion. Aber welcher passt zu deiner Kette, wie oft darf man ihn wiederverwenden, und wie geht er ohne Spezialwerkzeug auf? Hier die kompakten Antworten.',
     takeaways: [
       'Der Quick-Link muss zur Geschwindigkeit der Kette passen (11-fach-Link nur an 11-fach-Kette).',

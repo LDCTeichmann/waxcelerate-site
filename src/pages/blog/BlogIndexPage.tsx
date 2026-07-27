@@ -52,7 +52,7 @@ function ArticleCard({ article }: { article: Article }) {
         <p className="text-[13px] leading-[1.6] text-wx-txm mb-4 line-clamp-2">
           {article.description}
         </p>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-3">
           <span className="font-mono text-[11px] text-wx-txf">
             von Luca · {article.readingTime}
           </span>
@@ -63,6 +63,16 @@ function ArticleCard({ article }: { article: Article }) {
             Lesen →
           </span>
         </div>
+        {article.keyStat && (
+          <div className="flex items-baseline gap-1.5 pt-3" style={{ borderTop: '1px solid var(--bd)' }}>
+            <span className="font-mono text-[13px] font-semibold text-wx-tx1">
+              {article.keyStat.value}
+            </span>
+            <span className="font-mono text-[10px] uppercase tracking-wider text-wx-txf">
+              {article.keyStat.label}
+            </span>
+          </div>
+        )}
       </div>
     </Link>
   );
@@ -119,19 +129,37 @@ function FeaturedArticle({ article }: { article: Article }) {
   );
 }
 
+const INTENTS: { label: string; slug: string }[] = [
+  { label: 'Ich will anfangen', slug: 'von-oel-auf-wachs-umsteigen' },
+  { label: 'Es klappt nicht', slug: 'wachs-haelt-nicht-haeufige-fehler' },
+  { label: 'Ich will es genau wissen', slug: 'kettenlaufzeit-heisswachs' },
+  { label: 'Ich will kaufen', slug: 'vorgewachste-kette' },
+];
+
 export function BlogIndexPage() {
   const [filter, setFilter] = useState<Filter>('Alle');
+  const [query, setQuery] = useState('');
 
   const featured = articles.find((a) => a.featured);
   const usedCategories = categoryOrder.filter((c) =>
     articles.some((a) => a.category === c),
   );
 
-  const showLead = filter === 'Alle' && featured;
-  const grid =
+  const normalizedQuery = query.trim().toLowerCase();
+  const isSearching = normalizedQuery.length > 0;
+
+  const matchesQuery = (a: Article) =>
+    !isSearching ||
+    a.title.toLowerCase().includes(normalizedQuery) ||
+    a.description.toLowerCase().includes(normalizedQuery) ||
+    (a.takeaways ?? []).some((t) => t.toLowerCase().includes(normalizedQuery));
+
+  const showLead = filter === 'Alle' && !isSearching && featured;
+  const grid = (
     filter === 'Alle'
-      ? articles.filter((a) => !a.featured)
-      : articles.filter((a) => a.category === filter);
+      ? articles.filter((a) => !a.featured || isSearching)
+      : articles.filter((a) => a.category === filter)
+  ).filter(matchesQuery);
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--pg)' }}>
@@ -191,7 +219,7 @@ export function BlogIndexPage() {
             Wissen rund um Kette &amp; Wachs
           </h1>
           <p className="text-[16px] sm:text-[17px] leading-relaxed max-w-xl" style={{ color: '#D8D8DE', textShadow: '0 1px 12px rgba(0,0,0,0.7)' }}>
-            Messwerte, Anleitungen und ehrliche Antworten — von jemandem, der jede
+            Messwerte, Anleitungen und ehrliche Antworten, von jemandem, der jede
             Woche selbst am Wachstopf steht.
           </p>
           <p className="font-mono text-[11px] uppercase tracking-widest mt-6" style={{ color: '#B4B4BE' }}>
@@ -201,6 +229,32 @@ export function BlogIndexPage() {
       </section>
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+        {/* Suche */}
+        <div className="relative mb-6">
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder='Artikel durchsuchen, z. B. „Winter" oder „Watt"'
+            className="w-full text-[14px] px-4 py-2.5 rounded-full outline-none"
+            style={{ background: 'var(--sf)', border: '1px solid var(--bd)', color: 'var(--tx1)' }}
+          />
+        </div>
+
+        {/* Einstieg nach Absicht */}
+        <div className="flex flex-wrap gap-2 mb-4">
+          {INTENTS.map((intent) => (
+            <Link
+              key={intent.slug}
+              to={`/blog/${intent.slug}`}
+              className="text-[12px] px-3.5 py-1.5 rounded-full transition-colors"
+              style={{ border: '1px solid var(--bd)', color: 'var(--txm)' }}
+            >
+              {intent.label}
+            </Link>
+          ))}
+        </div>
+
         {/* Category filter */}
         <div className="flex flex-wrap gap-2 mb-10">
           {(['Alle', ...usedCategories] as Filter[]).map((cat) => {
@@ -228,7 +282,11 @@ export function BlogIndexPage() {
         {/* Section label */}
         <div className="flex items-baseline justify-between mb-5">
           <h2 className="font-mono text-[12px] uppercase tracking-[0.2em] text-wx-txf">
-            {filter === 'Alle' ? 'Alle Artikel' : filter}
+            {isSearching
+              ? 'Suchergebnisse'
+              : filter === 'Alle'
+                ? (showLead ? 'Weitere Artikel' : 'Alle Artikel')
+                : filter}
           </h2>
           <span className="font-mono text-[12px] text-wx-txff">{grid.length}</span>
         </div>
@@ -242,20 +300,31 @@ export function BlogIndexPage() {
 
         {/* CTA banner */}
         <div
-          className="rounded-2xl px-7 py-7 flex items-center justify-between gap-4 flex-wrap"
-          style={{ background: 'var(--sf)', border: '1px solid var(--bd)' }}
+          className="relative overflow-hidden rounded-2xl px-7 py-9 flex items-center justify-between gap-4 flex-wrap"
+          style={{ border: '1px solid var(--bd)' }}
         >
-          <div>
-            <p className="font-display text-lg font-semibold text-wx-tx1 mb-1">
+          <img
+            src="/images/blog/ride-road-golden-800.webp"
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div
+            className="absolute inset-0"
+            style={{ background: 'linear-gradient(90deg, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.6) 55%, rgba(0,0,0,0.35) 100%)' }}
+          />
+          <div className="relative">
+            <p className="font-display text-lg font-semibold mb-1" style={{ color: '#FFFFFF' }}>
               Noch eine Frage offen?
             </p>
-            <p className="text-[14px] text-wx-txm">
-              Schreib mir direkt — ich antworte selbst.
+            <p className="text-[14px]" style={{ color: '#D8D8DE' }}>
+              Schreib mir direkt, ich antworte selbst.
             </p>
           </div>
           <Link
             to="/#kontakt"
-            className="text-[14px] font-semibold px-5 py-2.5 rounded-full shrink-0 transition-colors"
+            className="relative text-[14px] font-semibold px-5 py-2.5 rounded-full shrink-0 transition-colors"
             style={{ background: 'var(--accent)', color: 'var(--pg)' }}
           >
             Zum Kontakt →
