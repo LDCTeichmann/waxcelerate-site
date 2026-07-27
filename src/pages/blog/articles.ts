@@ -1242,7 +1242,11 @@ export function getArticleBySlug(slug: string): Article | undefined {
  */
 export const articleImages: Record<string, { src: string; card?: string; alt: string }> = {
   'heisswachs-vs-fluessigwachs': { src: '/images/wax-block-spin.jpg', alt: 'Waxcelerate Wachsblock auf dunklem Schiefer' },
-  'fahrradkette-entfetten': { src: '/images/chain-dirty.jpg', alt: 'Verölte, verschmutzte Fahrradkette in Nahaufnahme' },
+  'fahrradkette-entfetten': {
+    src: '/images/blog/oil-tattoo-leg-1600.webp',
+    card: '/images/blog/oil-tattoo-leg-800.webp',
+    alt: 'Schwarze Ölspuren an Wade und weißer Socke nach einer Fahrt mit geölter Kette',
+  },
   'kettenlaufzeit-heisswachs': {
     src: '/images/blog/chains-hanging-gold-1600.webp',
     card: '/images/blog/chains-hanging-gold-800.webp',

@@ -1,13 +1,14 @@
 {
   "_comment": "Zuordnung der Blog-Fotos, Stand nach dem Ablegen durch Luca am 2026-07-27. Wird in Aufgabe 5 (BLOG_EXECUTION.md) in articleImages (src/pages/blog/articles.ts) übertragen. slot: 'hero' = Artikelbild in articleImages, 'inline' = im Fließtext, 'page' = eigene Route/Zukunft, 'reserve' = noch unvergeben.",
-  "missing": [
+  "images": [
     {
       "file": "oil-tattoo-leg.jpg",
-      "beschreibung": "Blick nach unten aufs eigene Bein: schwarze Ölspuren an der Wade, weiße Socke schwarz verschmiert, daneben Kassette und Schaltwerk",
-      "note": "Wurde im Chat gezeigt, aber nicht in den Ordner gelegt. Wäre das wertvollste Bild im ganzen Set (siehe BLOG_PLAN.md Abschnitt 5, Vergleichsblock) — falls Luca es findet, hier nachreichen und Aufgabe 6a (Vergleichsblock) nachziehen."
-    }
-  ],
-  "images": [
+      "slot": "hero",
+      "target": "fahrradkette-entfetten",
+      "alt": "Schwarze Ölspuren an Wade und weißer Socke nach einer Fahrt mit geölter Kette",
+      "also": "linke Hälfte des Vergleichsblocks auf der Blogstartseite. Quelle: IMG_2367, um 90 Grad aufgerichtet",
+      "replaces": "/images/chain-dirty.jpg"
+    },
     {
       "file": "chain-waxed-macro.jpg",
       "slot": "hero",
