@@ -154,7 +154,12 @@ function renderArticle(a) {
         name: author.name,
         url: `${BASE}/#ueber-mich`,
       },
+      // Per @id auf den Organization-Knoten aus index.html verweisen, statt einen
+      // zweiten, unverbundenen Waxcelerate-Knoten aufzumachen. So sammelt sich
+      // jede Aussage aus jedem Artikel auf EINER Marken-Entität (die auch sameAs
+      // auf den eBay-Shop trägt), statt auf 18 gleichnamige Einzelknoten.
       publisher: {
+        '@id': `${BASE}/#organization`,
         '@type': 'Organization',
         name: 'Waxcelerate',
         url: BASE,

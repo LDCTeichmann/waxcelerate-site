@@ -126,7 +126,10 @@ export function BlogArticlePage() {
     articleSection: article.category,
     inLanguage: 'de-DE',
     author: { '@type': 'Person', name: 'Luca Teichmann', url: 'https://waxcelerate.de/#ueber-mich' },
+    // @id verweist auf den Organization-Knoten aus index.html, damit alle Artikel
+    // auf dieselbe Marken-Entität einzahlen statt auf 18 gleichnamige Einzelknoten.
     publisher: {
+      '@id': 'https://waxcelerate.de/#organization',
       '@type': 'Organization',
       name: 'Waxcelerate',
       url: 'https://waxcelerate.de',
