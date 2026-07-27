@@ -77,6 +77,12 @@ export const articles: Article[] = [
     publishDate: '2026-05-19',
     dateModified: '2026-07-27',
     readingTime: '7 min',
+    takeaways: [
+      'Heißwachs dringt durch Immersion und Hitze bis in die Gelenke, Flüssigwachs bleibt eher an der Oberfläche.',
+      'Der Reibungsunterschied zu Öl liegt bei rund 4 bis 5 W, also etwa 2 % der Tretleistung. Für Rennfahrer relevant, für Alltagsfahrer kein Kaufargument.',
+      'Der eigentliche Vorteil ist die Konstanz: Öl verliert unter Schmutz weiter an Effizienz, Wachs bleibt über das Intervall nahezu gleich.',
+      'Flüssigwachs ist kein schlechter Kompromiss, sondern die bequemere Wahl, wenn du die Kette nicht abnehmen willst.',
+    ],
     keyStat: { value: '3–5 W', label: 'Unterschied' },
     intro: 'Kettenwachs ist nicht gleich Kettenwachs. Heißwachs (Paraffin, im Topf geschmolzen) und Flüssigwachs (Wachs-Emulsion aus der Flasche) versprechen beide saubere, reibungsarme Antriebe, aber mit sehr unterschiedlichen Kompromissen. Dieser Artikel zeigt, was die Messwerte wirklich sagen und welche Methode zu welchem Fahrertyp passt.',
     sections: [
@@ -195,6 +201,12 @@ export const articles: Article[] = [
     publishDate: '2026-05-19',
     dateModified: '2026-07-27',
     readingTime: '6 min',
+    takeaways: [
+      'Entfetten ist der Schritt, an dem Heißwachs steht oder fällt. In über 90 % der Fälle liegt es daran, wenn Wachs nicht hält.',
+      'Isopropanol ab 90 % im verschlossenen Glas, 2 bis 3 Durchgänge, bis die Flüssigkeit klar bleibt. Shimano-Ketten brauchen meist einen Durchgang mehr.',
+      'Kein 70-prozentiges Desinfektionsmittel: Der Wasseranteil löst Mineralöl nicht zuverlässig.',
+      'Vor dem Wachsbad vollständig trocknen lassen, mindestens 15 Minuten hängend. Restfeuchte im heißen Wachs spritzt.',
+    ],
     keyStat: { value: '30–60 Sek.', label: 'IPA schütteln' },
     intro: 'Das Entfetten der Kette ist der einzige Schritt beim Heißwachsen, bei dem Anfänger am häufigsten scheitern. Wer diesen Schritt überspringt oder halbherzig erledigt, wird feststellen, dass das Wachs nicht haftet, schnell abblättert und die Kette nach 50 km wieder quietscht. Das hat nichts mit dem Wachs zu tun. Es liegt am Öl darunter.',
     sections: [
@@ -306,6 +318,12 @@ export const articles: Article[] = [
     publishDate: '2026-05-19',
     dateModified: '2026-07-27',
     readingTime: '7 min',
+    takeaways: [
+      'Nachwachsen bei trockenen Bedingungen alle 400 bis 550 km, bei Nässe, Schotter oder MTB alle 200 bis 300 km.',
+      'Das zuverlässigste Signal ist das Geräusch, nicht die Optik: Sobald die Kette unter Last trockener klingt, ist sie fällig.',
+      'Kettenlaufzeit typisch 6.000 bis 12.000 km gegenüber 2.000 bis 3.000 km bei Öl, also grob das Zwei- bis Dreifache.',
+      'Über 15.000 km spart Wachs rund 120 bis 160 Euro. Kein dramatischer Betrag, aber die Rechnung geht auf.',
+    ],
     keyStat: { value: '5–8.000 km', label: 'Kettenlaufzeit' },
     intro: 'Eine der häufigsten Fragen zu Heißwachs: Wann muss ich wieder wachsen, und lohnt sich das finanziell überhaupt? Beides lässt sich konkret beantworten, mit Messdaten und einer einfachen Rechnung über einen realistischen Nutzungszeitraum.',
     sections: [
@@ -426,6 +444,12 @@ export const articles: Article[] = [
     publishDate: '2026-05-19',
     dateModified: '2026-07-27',
     readingTime: '8 min',
+    takeaways: [
+      'Der ganze Vorgang braucht unter 20 Minuten aktive Zeit, der Rest ist Warten.',
+      'Wachs auf 85 bis 90 °C, nie über 95 °C. Kette 10 bis 15 Minuten eintauchen, bis keine Luftbläschen mehr aufsteigen.',
+      'Die aufsteigenden Bläschen sind das Qualitätssignal: Das ist verdrängte Luft aus den Gelenken. Erst wenn sie ausbleiben, ist die Kette durchtränkt.',
+      'Erste 20 bis 30 km sind Einfahrphase. Weißes Pulver und eine anfangs steife Kette sind normal.',
+    ],
     keyStat: { value: '< 20 Min.', label: 'Aktive Zeit' },
     intro: 'Heißwachs klingt aufwendiger als es ist. Wer den Prozess einmal gemacht hat, braucht für jeden Wachsvorgang weniger als 20 Minuten aktive Zeit. Diese Anleitung führt durch den vollständigen Prozess, von der nötigen Ausrüstung bis zur fertig eingefahrenen Kette.',
     sections: [
@@ -577,6 +601,12 @@ export const articles: Article[] = [
     publishDate: '2026-06-01',
     dateModified: '2026-07-27',
     readingTime: '6 min',
+    takeaways: [
+      'MoS₂ ist ein Schichtmineral: Innerhalb der Schichten sitzen starke Bindungen, zwischen ihnen nur schwache Van-der-Waals-Kräfte. Deshalb gleiten sie so leicht.',
+      'Unter Druck bildet sich ein Transferfilm auf dem Metall, der auch dann noch schmiert, wenn das Paraffin ringsum verdrängt ist.',
+      'Der Film braucht 20 bis 30 km, danach läuft die Kette oft leiser als direkt nach der Montage.',
+      'Im festen Block ist MoS₂ vollständig eingekapselt, es besteht keine Haut- oder Inhalationsgefahr.',
+    ],
     keyStat: { value: '20–30 km', label: 'Bis Transferfilm steht' },
     intro: 'Waxcelerate Pro enthält neben Paraffin und PTFE auch Molybdändisulfid, abgekürzt MoS₂. Auf Produktverpackungen taucht der Begriff regelmäßig auf, eine Erklärung bleibt meist aus. Dieser Artikel erklärt, was MoS₂ auf atomarer Ebene tut, warum es bei Kettenschmierung sinnvoll ist, und wann du es wirklich brauchst.',
     sections: [
@@ -666,6 +696,12 @@ export const articles: Article[] = [
     publishDate: '2026-06-01',
     dateModified: '2026-07-27',
     readingTime: '7 min',
+    takeaways: [
+      'Auf dem Rennrad zählt der Reibungsvorteil von rund 2 % der Tretleistung, auf dem Gravelbike vor allem, dass Wachs keinen Schotterstaub bindet.',
+      'Eine geölte Kette macht aus Sand eine Schleifpaste. Eine gewachste Kette wirft die Partikel beim nächsten Pedaltritt wieder ab.',
+      'Nachwachsen alle 400 bis 550 km trocken, auf Schotter eher alle 200 bis 300 km.',
+      'Mit einer 3-Ketten-Rotation wachst du alle drei in einer Session und wechselst in 60 Sekunden am Rad.',
+    ],
     keyStat: { value: '60 km', label: 'Schotter sauber' },
     intro: 'Heißwachs ist für jede Fahrradkette geeignet, aber für Rennrad- und Gravelbike-Fahrer lohnt es sich besonders. Wer auf Leistung und Sauberkeit achtet, für wen jedes Watt zählt oder wer einfach nicht will, dass die Kette nach 50 km Gravelpiste eine schwarze Öllage trägt: Heißwachs ist die logische Wahl.',
     sections: [
