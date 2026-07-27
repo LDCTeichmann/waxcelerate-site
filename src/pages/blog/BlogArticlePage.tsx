@@ -115,18 +115,38 @@ export function BlogArticlePage() {
   }
 
   const hero = getArticleImage(article.slug);
+  const dateModified = article.dateModified ?? article.publishDate;
+  const articleUrl = `https://waxcelerate.de/blog/${article.slug}`;
 
   const articleSchema = JSON.stringify({
     '@context': 'https://schema.org',
-    '@type': 'Article',
+    '@type': 'BlogPosting',
     headline: article.title,
     description: article.description,
-    author: { '@type': 'Person', name: 'Luca Teichmann' },
-    publisher: { '@type': 'Organization', name: 'Waxcelerate', url: 'https://waxcelerate.de' },
+    articleSection: article.category,
+    inLanguage: 'de-DE',
+    author: { '@type': 'Person', name: 'Luca Teichmann', url: 'https://waxcelerate.de/#ueber-mich' },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Waxcelerate',
+      url: 'https://waxcelerate.de',
+      logo: { '@type': 'ImageObject', url: 'https://waxcelerate.de/images/logo.jpg' },
+    },
     datePublished: article.publishDate,
+    dateModified,
     image: `https://waxcelerate.de${hero.src}`,
-    url: `https://waxcelerate.de/blog/${article.slug}`,
-    mainEntityOfPage: { '@type': 'WebPage', '@id': `https://waxcelerate.de/blog/${article.slug}` },
+    url: articleUrl,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': articleUrl },
+  });
+
+  const breadcrumbSchema = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Startseite', item: 'https://waxcelerate.de' },
+      { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://waxcelerate.de/blog' },
+      { '@type': 'ListItem', position: 3, name: article.titleShort, item: articleUrl },
+    ],
   });
 
   const howToSchema = article.howTo
@@ -188,6 +208,7 @@ export function BlogArticlePage() {
         <meta name="twitter:description" content={article.description} />
         <meta name="twitter:image" content={`https://waxcelerate.de${hero.src}`} />
         <script type="application/ld+json">{articleSchema}</script>
+        <script type="application/ld+json">{breadcrumbSchema}</script>
         {howToSchema && <script type="application/ld+json">{howToSchema}</script>}
         {faqSchema && <script type="application/ld+json">{faqSchema}</script>}
       </Helmet>
@@ -230,6 +251,19 @@ export function BlogArticlePage() {
             <span>{article.readingTime}</span>
             <span style={{ color: '#7A7A86' }}>·</span>
             <span>{dateStr}</span>
+            {article.dateModified && article.dateModified !== article.publishDate && (
+              <>
+                <span style={{ color: '#7A7A86' }}>·</span>
+                <span>
+                  Zuletzt geprüft am{' '}
+                  {new Date(article.dateModified).toLocaleDateString('de-DE', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                  })}
+                </span>
+              </>
+            )}
           </div>
         </div>
       </section>

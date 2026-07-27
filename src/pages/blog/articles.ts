@@ -24,6 +24,8 @@ export interface Article {
   description: string;
   category: ArticleCategory;
   publishDate: string;
+  /** Datum der letzten inhaltlichen Prüfung. Bei jeder Überarbeitung mitsetzen. */
+  dateModified?: string;
   readingTime: string;
   intro: string;
   sections: ArticleSection[];
