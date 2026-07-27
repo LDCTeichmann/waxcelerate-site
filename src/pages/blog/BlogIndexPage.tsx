@@ -286,6 +286,55 @@ export function BlogIndexPage() {
           })}
         </div>
 
+        {/* Der Vergleichsblock. Beide Bilder stammen aus Lucas Alltag, keine
+            Stockfotografie: links das Bein nach einer Fahrt mit geölter Kette,
+            rechts eine frisch gewachste Kette im Makro. Das ist die These des
+            gesamten Blogs in einem Blick, und es ist das einzige Element auf der
+            Seite, das ohne einen einzigen Satz Marketing auskommt. */}
+        {showLead && (
+          <section className="mb-12">
+            <div className="grid grid-cols-2 gap-2 sm:gap-3 rounded-2xl overflow-hidden" style={{ border: '1px solid var(--bd)' }}>
+              <figure className="relative aspect-[4/5] sm:aspect-[4/3] overflow-hidden" style={{ background: 'var(--sf2)' }}>
+                <img
+                  src="/images/blog/oil-tattoo-leg-800.webp"
+                  alt="Schwarze Ölspuren an Wade und weißer Socke nach einer Fahrt mit geölter Kette"
+                  loading="lazy"
+                  width={800}
+                  height={500}
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+                <figcaption
+                  className="absolute bottom-0 left-0 right-0 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.16em]"
+                  style={{ background: 'linear-gradient(0deg, rgba(0,0,0,0.85), rgba(0,0,0,0))', color: '#F2F2F5' }}
+                >
+                  Geölt · nach 80 km
+                </figcaption>
+              </figure>
+              <figure className="relative aspect-[4/5] sm:aspect-[4/3] overflow-hidden" style={{ background: 'var(--sf2)' }}>
+                <img
+                  src="/images/blog/chain-waxed-macro-800.webp"
+                  alt="Frisch gewachste Fahrradkette in Nahaufnahme auf dunklem Schiefer"
+                  loading="lazy"
+                  width={800}
+                  height={500}
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+                <figcaption
+                  className="absolute bottom-0 left-0 right-0 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.16em]"
+                  style={{ background: 'linear-gradient(0deg, rgba(0,0,0,0.85), rgba(0,0,0,0))', color: '#F2F2F5' }}
+                >
+                  Gewachst · nach 400 km
+                </figcaption>
+              </figure>
+            </div>
+            <p className="text-[14px] leading-[1.7] text-wx-txm mt-4 max-w-2xl">
+              Der Unterschied ist kein Marketingversprechen, sondern das, was nach der Fahrt an
+              Wade und Socke hängen bleibt. Alles Weitere auf dieser Seite erklärt nur, warum
+              das so ist und wie du dahin kommst.
+            </p>
+          </section>
+        )}
+
         {/* Featured lead */}
         {showLead && featured && <FeaturedArticle article={featured} />}
 

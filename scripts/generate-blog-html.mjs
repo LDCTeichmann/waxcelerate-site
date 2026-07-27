@@ -214,9 +214,14 @@ function renderArticle(a) {
   <header>
     <p>${esc(a.category)}</p>
     <h1>${esc(a.title)}</h1>
-    <p>von ${esc(author.name)} · ${esc(a.readingTime)} · <time datetime="${a.publishDate}">${a.publishDate}</time></p>
+    <p>von ${esc(author.name)} · ${esc(a.readingTime)} · <time datetime="${a.publishDate}">${a.publishDate}</time>${
+      modified !== a.publishDate
+        ? ` · Zuletzt geprüft am <time datetime="${modified}">${modified}</time>`
+        : ''
+    }</p>
     <img src="${img.src}" alt="${esc(img.alt)}" width="1600" height="900">
   </header>
+  ${a.keyStat ? `<p><strong>${esc(a.keyStat.value)}</strong> ${esc(a.keyStat.label)}</p>` : ''}
   <p>${esc(a.intro)}</p>
   ${a.takeaways ? `<section><h2>Das Wichtigste in Kürze</h2><ul>${a.takeaways.map(t => `<li>${esc(t)}</li>`).join('')}</ul></section>` : ''}
   ${a.sections.map(renderSection).join('\n  ')}

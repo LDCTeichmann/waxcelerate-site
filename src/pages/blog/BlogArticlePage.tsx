@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Navigation } from '@/sections/navigation';
+import { products } from '@/lib/data';
 import {
   getArticleBySlug,
   getArticleImage,
@@ -115,6 +116,7 @@ export function BlogArticlePage() {
   }
 
   const hero = getArticleImage(article.slug);
+  const ctaProduct = products.find((p) => p.id === article.ctaSlug);
   const dateModified = article.dateModified ?? article.publishDate;
   const articleUrl = `https://waxcelerate.de/blog/${article.slug}`;
 
@@ -279,6 +281,24 @@ export function BlogArticlePage() {
             {article.intro}
           </p>
 
+          {/* Kennzahl-Leiste: dieselbe Mono-Behandlung wie auf den Karten und im
+              Leitartikel. Sie zieht die belastbare Zahl des Artikels nach oben,
+              wo sie sowohl ein Leser als auch ein extrahierender Crawler zuerst
+              sieht, statt sie in Absatz sieben zu vergraben. */}
+          {article.keyStat && (
+            <div
+              className="flex items-baseline gap-3 mb-10 pb-5"
+              style={{ borderBottom: '1px solid var(--bd)' }}
+            >
+              <span className="font-mono text-[26px] leading-none text-wx-tx1">
+                {article.keyStat.value}
+              </span>
+              <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-wx-txf">
+                {article.keyStat.label}
+              </span>
+            </div>
+          )}
+
           {/* Das Wichtigste in Kürze */}
           {article.takeaways && (
             <div className="rounded-2xl p-6 mb-10" style={{ background: 'var(--sf)', border: '1px solid var(--bd)' }}>
@@ -301,24 +321,56 @@ export function BlogArticlePage() {
           {/* Sections */}
           {article.sections.map((section, idx) => renderSection(section, idx))}
 
-          {/* CTA */}
-          <div
-            className="mt-14 rounded-2xl overflow-hidden flex items-center gap-5 p-6"
-            style={{ background: 'var(--sf)', border: '1px solid var(--bd)' }}
-          >
-            <div className="flex-1">
-              <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-wx-txf mb-1.5">
-                Bereit anzufangen?
-              </p>
+          {/* Produktkarte statt bloßem Textlink: wer bis hierhin gelesen hat, ist
+              die interessierteste Person auf der Seite. Bild, Preis und ein Satz
+              zum Bezug auf genau diesen Artikel, statt ihn zurück auf die
+              Startseite zu schicken und selbst suchen zu lassen. */}
+          {ctaProduct && (
+            <div
+              className="mt-14 rounded-2xl overflow-hidden grid sm:grid-cols-[190px_1fr]"
+              style={{ background: 'var(--sf)', border: '1px solid var(--bd)' }}
+            >
               <Link
-                to={`/produkt/${article.ctaSlug}`}
-                className="font-display text-[18px] font-semibold hover:underline"
-                style={{ color: 'var(--accent)' }}
+                to={`/produkt/${ctaProduct.id}`}
+                className="relative block aspect-[4/3] sm:aspect-auto sm:min-h-[190px] overflow-hidden"
+                style={{ background: 'var(--sf2)' }}
               >
-                {article.ctaText}
+                <img
+                  src={ctaProduct.image}
+                  alt={ctaProduct.title}
+                  loading="lazy"
+                  className="absolute inset-0 w-full h-full object-cover"
+                  style={{ objectPosition: ctaProduct.imagePosition ?? 'center' }}
+                />
               </Link>
+              <div className="p-6 flex flex-col justify-center">
+                <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-wx-txf mb-2">
+                  Passend zu diesem Artikel
+                </p>
+                <Link
+                  to={`/produkt/${ctaProduct.id}`}
+                  className="font-display text-[19px] font-semibold text-wx-tx1 leading-snug hover:underline"
+                >
+                  {ctaProduct.title}
+                </Link>
+                <p className="text-[13px] leading-[1.6] text-wx-txm mt-2 mb-4 line-clamp-2">
+                  {ctaProduct.description}
+                </p>
+                <div className="flex items-center gap-4 flex-wrap">
+                  <Link
+                    to={`/produkt/${ctaProduct.id}`}
+                    className="text-[14px] font-semibold px-5 py-2.5 rounded-full transition-opacity hover:opacity-90"
+                    style={{ background: 'var(--accent)', color: 'var(--pg)' }}
+                  >
+                    {ctaProduct.price.toFixed(2).replace('.', ',')} € · Ansehen
+                  </Link>
+                  <Link to="/blog" className="text-[13px] text-wx-txm hover:text-wx-tx1 transition-colors">
+                    oder weiterlesen
+                  </Link>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Author box */}
           <div
