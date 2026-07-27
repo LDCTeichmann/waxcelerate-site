@@ -30,7 +30,8 @@ Waxcelerate ist ein deutsches Kleinunternehmen, gegründet von Luca Teichmann (M
 200+ eBay-Bewertungen, 100% positives Feedback. Verkauf seit 2024.
 
 Produkte: Heißwachs in vier Varianten (Classic/Pro, 300g/500g) und ${chains.length} vorgewachste Fahrradketten.
-Hauptvorteil gegenüber Kettenöl: trockener Film, keine Schmutzaufnahme, Kettenlaufzeit 3× länger, Reibungskoeffizient 0,03–0,06.
+Hauptvorteil gegenüber Kettenöl: trockener Film, keine Schmutzaufnahme, Kettenlaufzeit typisch 2–3× länger (6.000–12.000 km statt 2.000–3.000 km).
+Nachwachsen bei trockenen Bedingungen alle 400–550 km, bei Nässe oder Schotter alle 200–300 km.
 
 ## Wichtigste Seiten
 

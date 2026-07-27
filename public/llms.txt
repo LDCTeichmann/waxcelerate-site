@@ -6,7 +6,8 @@ Waxcelerate ist ein deutsches Kleinunternehmen, gegründet von Luca Teichmann (M
 200+ eBay-Bewertungen, 100% positives Feedback. Verkauf seit 2024.
 
 Produkte: Heißwachs in vier Varianten (Classic/Pro, 300g/500g) und 8 vorgewachste Fahrradketten.
-Hauptvorteil gegenüber Kettenöl: trockener Film, keine Schmutzaufnahme, Kettenlaufzeit 3× länger, Reibungskoeffizient 0,03–0,06.
+Hauptvorteil gegenüber Kettenöl: trockener Film, keine Schmutzaufnahme, Kettenlaufzeit typisch 2–3× länger (6.000–12.000 km statt 2.000–3.000 km).
+Nachwachsen bei trockenen Bedingungen alle 400–550 km, bei Nässe oder Schotter alle 200–300 km.
 
 ## Wichtigste Seiten
 
@@ -34,14 +35,14 @@ Hauptvorteil gegenüber Kettenöl: trockener Film, keine Schmutzaufnahme, Ketten
 ## Blog / Ratgeber
 
 **Grundlagen:**
-- [Heißwachs vs. Flüssigwachs: Der Vergleich](https://waxcelerate.de/blog/heisswachs-vs-fluessigwachs): Heißwachs oder Flüssigwachs für die Fahrradkette? Wir vergleichen Reibungswerte, Intervalle und Kosten – ehrlich und ohne Marketing.
+- [Heißwachs vs. Flüssigwachs: Der Vergleich](https://waxcelerate.de/blog/heisswachs-vs-fluessigwachs): Heißwachs oder Flüssigwachs für die Fahrradkette? Wir vergleichen Reibungswerte, Intervalle und Kosten, ehrlich und ohne Marketing.
 - [Kettenwachs: Intervalle, Laufzeit & Kostenrechnung](https://waxcelerate.de/blog/kettenlaufzeit-heisswachs): Wie lange hält Kettenwachs wirklich? Intervalle, Kettenlaufzeit und eine ehrliche Kostenrechnung von Heißwachs vs. Öl über 15.000 km.
-- [Kettenwachs FAQ: 15 Fragen, kurz beantwortet](https://waxcelerate.de/blog/kettenwachs-faq): Die häufigsten Fragen zu Heißwachs für Fahrradketten – jeweils in zwei, drei Sätzen beantwortet. Für alle, die nur schnell eine Antwort brauchen.
+- [Kettenwachs FAQ: 15 Fragen, kurz beantwortet](https://waxcelerate.de/blog/kettenwachs-faq): Die häufigsten Fragen zu Heißwachs für Fahrradketten. Jeweils in zwei, drei Sätzen beantwortet. Für alle, die nur schnell eine Antwort brauchen.
 
 **Anleitung:**
-- [Fahrradkette entfetten – richtig vor dem Wachsen](https://waxcelerate.de/blog/fahrradkette-entfetten): Fahrradkette entfetten vor dem Heißwachsen: Warum es zwingend notwendig ist, welche Mittel wirklich funktionieren und häufige Fehler vermeiden.
-- [Heißwachs Anleitung: Schritt für Schritt](https://waxcelerate.de/blog/heisswachs-anleitung): Schritt-für-Schritt-Anleitung zum Wachsen einer Fahrradkette mit Heißwachs – von der Ausrüstung über die richtige Temperatur bis zum fertigen Ergebnis.
-- [Die Hybrid-Methode: Heißwachs + Tropfwachs](https://waxcelerate.de/blog/tropfwachs-hybrid-methode): Heißwachs und Tropfwachs kombinieren: Wie du mit der Hybrid-Methode seltener heiß wachsen musst, ohne die Kette abzunehmen – und worauf zu achten ist.
+- [Fahrradkette entfetten: richtig vor dem Wachsen](https://waxcelerate.de/blog/fahrradkette-entfetten): Fahrradkette entfetten vor dem Heißwachsen: Warum es zwingend notwendig ist, welche Mittel wirklich funktionieren und häufige Fehler vermeiden.
+- [Heißwachs Anleitung: Schritt für Schritt](https://waxcelerate.de/blog/heisswachs-anleitung): Schritt-für-Schritt-Anleitung zum Wachsen einer Fahrradkette mit Heißwachs, von der Ausrüstung über die richtige Temperatur bis zum fertigen Ergebnis.
+- [Die Hybrid-Methode: Heißwachs + Tropfwachs](https://waxcelerate.de/blog/tropfwachs-hybrid-methode): Heißwachs und Tropfwachs kombinieren: Wie du mit der Hybrid-Methode seltener heiß wachsen musst, ohne die Kette abzunehmen, und worauf zu achten ist.
 - [Von Öl auf Wachs umsteigen](https://waxcelerate.de/blog/von-oel-auf-wachs-umsteigen): Du willst von Kettenöl auf Heißwachs umsteigen? Schritt für Schritt: Antrieb reinigen, Kette entfetten, erstes Wachsbad und die Einfahrphase richtig machen.
 - [Schnellverschluss: welcher & wie oft?](https://waxcelerate.de/blog/schnellverschluss-quicklink): Welcher Schnellverschluss passt zu deiner Kette, wie oft darf man einen Quick-Link wiederverwenden und wie öffnet man ihn ohne Werkzeug? Die Praxis-Antworten.
 
@@ -53,15 +54,15 @@ Hauptvorteil gegenüber Kettenöl: trockener Film, keine Schmutzaufnahme, Ketten
 **Kaufberatung:**
 - [Kettenwachs für Rennrad & Gravelbike](https://waxcelerate.de/blog/kettenwachs-rennrad-gravelbike): Für Rennrad- und Gravelbike-Fahrer lohnt sich Heißwachs besonders: niedrigste Reibung, sauberer Antrieb, längere Kettenlaufzeit. Was zu beachten ist.
 - [Lohnt sich eine vorgewachste Kette?](https://waxcelerate.de/blog/vorgewachste-kette): Vorgewachste Fahrradkette kaufen: Was eine fertig gewachste Kette leistet, für wen sie sich lohnt und worauf du beim Kauf achten solltest.
-- [Welcher Topf zum Kettenwachsen?](https://waxcelerate.de/blog/topf-zum-kette-wachsen): Slow Cooker, Reiskocher oder einfacher Topf zum Kette wachsen? Was wirklich funktioniert, worauf es bei der Temperatur ankommt – und was du nicht brauchst.
+- [Welcher Topf zum Kettenwachsen?](https://waxcelerate.de/blog/topf-zum-kette-wachsen): Slow Cooker, Reiskocher oder einfacher Topf zum Kette wachsen? Was wirklich funktioniert, worauf es bei der Temperatur ankommt, und was du nicht brauchst.
 - [E-Bike-Kette wachsen](https://waxcelerate.de/blog/ebike-kette-wachsen): E-Bike-Ketten verschleißen durch das hohe Drehmoment schneller. Warum Heißwachs den Antrieb besonders schont, was zu beachten ist und welches Wachs passt.
 
 **Problemlösung:**
-- [Wachs hält nicht? Die 7 häufigsten Fehler](https://waxcelerate.de/blog/wachs-haelt-nicht-haeufige-fehler): Wachs blättert ab, die Kette quietscht nach 50 km, weißes Pulver überall? Die häufigsten Heißwachs-Fehler – und wie du sie wirklich behebst.
-- [Die erste Fahrt nach dem Wachsen](https://waxcelerate.de/blog/erste-fahrt-nach-wachsen): Weißes Pulver, eine steife Kette, leise Knackgeräusche nach dem Wachsen? Was bei den ersten Kilometern völlig normal ist – und welche Zeichen wirklich auf einen Fehler hindeuten.
+- [Wachs hält nicht? Die 7 häufigsten Fehler](https://waxcelerate.de/blog/wachs-haelt-nicht-haeufige-fehler): Wachs blättert ab, die Kette quietscht nach 50 km, weißes Pulver überall? Die häufigsten Heißwachs-Fehler und wie du sie wirklich behebst.
+- [Die erste Fahrt nach dem Wachsen](https://waxcelerate.de/blog/erste-fahrt-nach-wachsen): Weißes Pulver, eine steife Kette, leise Knackgeräusche nach dem Wachsen? Was bei den ersten Kilometern völlig normal ist, und welche Zeichen wirklich auf einen Fehler hindeuten.
 
 **Saison:**
-- [Kettenwachs im Winter: die ehrliche Wahrheit](https://waxcelerate.de/blog/kettenwachs-winter): Funktioniert Heißwachs im Winter? Was Streusalz und Dauernässe mit der Wachsschicht machen, wann Wachs überzeugt – und wann Öl die bessere Wahl ist.
+- [Kettenwachs im Winter: die ehrliche Wahrheit](https://waxcelerate.de/blog/kettenwachs-winter): Funktioniert Heißwachs im Winter? Was Streusalz und Dauernässe mit der Wachsschicht machen, wann Wachs überzeugt, und wann Öl die bessere Wahl ist.
 
 ## Vollständige Inhalte für KI-Agenten
 
