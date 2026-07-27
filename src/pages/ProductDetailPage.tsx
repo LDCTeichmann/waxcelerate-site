@@ -3,7 +3,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
   ArrowLeft, ArrowRight, ExternalLink, Check,
-  ChevronRight, ChevronLeft, ChevronDown, Star, Lightbulb,
+  ChevronRight, ChevronLeft, ChevronDown, Star, Lightbulb, Truck,
 } from 'lucide-react';
 import { getProductById, products, canCheckout } from '@/lib/data';
 import type { Product } from '@/lib/data';
@@ -13,6 +13,8 @@ import { AddToCartButton } from '@/components/AddToCartButton';
 import { CartIcon } from '@/components/CartIcon';
 import { ImageLightbox } from '@/components/ImageLightbox';
 import { gsap } from '@/lib/gsap';
+import { Footer } from '@/sections/footer';
+import { getEstimatedDelivery } from '@/lib/utils';
 
 const AUTO_INTERVAL = 5000;
 const FADE_MS = 900;
@@ -191,6 +193,13 @@ export function ProductDetailPage() {
     ? product.price / parseFloat(product.applications.split('–')[1] ?? product.applications)
     : null;
 
+  // Same figures the homepage product cards already show (getEstimatedDelivery,
+  // price-per-100g) — missing here, this was the one page where a buyer
+  // couldn't see either before deciding.
+  const deliveryDate = getEstimatedDelivery(lang);
+  const grams = isWax && product.weight ? parseInt(product.weight) : 0;
+  const per100g = grams > 0 ? `${(product.price / (grams / 100)).toFixed(2).replace('.', ',')} €/100g` : null;
+
   const cardBenefits = (highlights ?? []).filter(h => {
     const lower = h.toLowerCase();
     if (product.applications && lower.includes(product.applications.split('–')[0])) return false;
@@ -276,12 +285,37 @@ export function ProductDetailPage() {
             backdropFilter: navSolid ? 'blur(12px)' : 'none',
             borderBottom: navSolid ? '1px solid var(--bd)' : '1px solid transparent',
           }}>
-          <div className="max-w-[1440px] mx-auto px-5 sm:px-8 h-14 flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-2 text-[13px] font-medium transition-colors"
-              style={{ color: navSolid ? 'var(--txm)' : 'rgba(255,255,255,0.8)' }}>
-              <ArrowLeft className="h-4 w-4" /> {de ? 'Zurück' : 'Back'}
-            </Link>
-            {navSolid && <span className="text-sm truncate max-w-[200px] hidden sm:block" style={{ color: 'var(--txm)' }}>{titleText}</span>}
+          <div className="max-w-[1440px] mx-auto px-5 sm:px-8 h-14 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4 min-w-0">
+              <Link to="/" className="flex-shrink-0 flex items-center" aria-label="Waxcelerate — Startseite">
+                <img src="/images/No BG No Sign Logo.png" alt="" className="h-8 w-auto" />
+              </Link>
+              {/* Breadcrumb — mirrors the breadcrumbSchema in <head>, which had
+                  no visible on-page counterpart before this. */}
+              <nav aria-label={de ? 'Brotkrümelnavigation' : 'Breadcrumb'}
+                className="hidden sm:flex items-center gap-1.5 text-[13px] min-w-0">
+                <Link to="/" className="flex-shrink-0 hover:underline transition-colors"
+                  style={{ color: navSolid ? 'var(--txf)' : 'rgba(255,255,255,0.65)' }}>
+                  {de ? 'Start' : 'Home'}
+                </Link>
+                <ChevronRight className="h-3 w-3 flex-shrink-0 opacity-50"
+                  style={{ color: navSolid ? 'var(--txf)' : 'rgba(255,255,255,0.65)' }} />
+                <Link to="/#produkte" className="flex-shrink-0 hover:underline transition-colors"
+                  style={{ color: navSolid ? 'var(--txf)' : 'rgba(255,255,255,0.65)' }}>
+                  {de ? 'Produkte' : 'Products'}
+                </Link>
+                <ChevronRight className="h-3 w-3 flex-shrink-0 opacity-50"
+                  style={{ color: navSolid ? 'var(--txf)' : 'rgba(255,255,255,0.65)' }} />
+                <span className="truncate font-medium" style={{ color: navSolid ? 'var(--tx1)' : '#fff' }}>
+                  {titleText}
+                </span>
+              </nav>
+              {/* Mobile — no room for the full breadcrumb, keep the simple back link */}
+              <Link to="/" className="sm:hidden flex items-center gap-2 text-[13px] font-medium transition-colors flex-shrink-0"
+                style={{ color: navSolid ? 'var(--txm)' : 'rgba(255,255,255,0.8)' }}>
+                <ArrowLeft className="h-4 w-4" /> {de ? 'Zurück' : 'Back'}
+              </Link>
+            </div>
             <CartIcon />
           </div>
         </header>
@@ -313,13 +347,13 @@ export function ProductDetailPage() {
               <>
                 <button onClick={() => { prev(); pause(); setTimeout(resume, AUTO_INTERVAL); }}
                   aria-label={de ? 'Vorheriges Bild' : 'Previous image'}
-                  className="absolute left-2.5 top-1/2 -translate-y-1/2 z-10 w-8 h-8 flex items-center justify-center rounded-full transition-transform active:scale-90"
+                  className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-11 h-11 flex items-center justify-center rounded-full transition-transform active:scale-90"
                   style={{ background: 'rgba(0,0,0,0.28)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', color: 'rgba(255,255,255,0.92)' }}>
                   <ChevronLeft className="h-4 w-4" />
                 </button>
                 <button onClick={() => { next(); pause(); setTimeout(resume, AUTO_INTERVAL); }}
                   aria-label={de ? 'Nächstes Bild' : 'Next image'}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 z-10 w-8 h-8 flex items-center justify-center rounded-full transition-transform active:scale-90"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-11 h-11 flex items-center justify-center rounded-full transition-transform active:scale-90"
                   style={{ background: 'rgba(0,0,0,0.28)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', color: 'rgba(255,255,255,0.92)' }}>
                   <ChevronRight className="h-4 w-4" />
                 </button>
@@ -342,6 +376,11 @@ export function ProductDetailPage() {
               style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
               {product.variant ? `${product.variant} · ${product.weight ?? ''}` : (product.chainSpeed ?? '')}
             </span>
+            {/* The only <h1> in the DOM — the desktop hero below repeats this
+                same title visually in its own card, but as a <p>, not a
+                second <h1>. Both markups exist in the DOM at once (CSS
+                hidden/lg:hidden toggles which one is visible, not conditional
+                rendering), so only one may carry real heading semantics. */}
             <h1 className="font-display text-[26px] font-bold leading-[1.08] tracking-[-0.025em] mb-2" style={{ color: 'var(--tx1)' }}>{titleText}</h1>
             <p className="text-[13px] leading-[1.6] mb-4" style={{ color: 'var(--txm)' }}>{descriptionText}</p>
 
@@ -387,12 +426,15 @@ export function ProductDetailPage() {
               </div>
             )}
 
-            <div className="flex items-end justify-between gap-4 mb-5">
+            <div className="flex items-end justify-between gap-4 mb-3">
               <div>
                 <p className="num text-[28px] font-bold leading-none tracking-[-0.02em]" style={{ color: 'var(--tx1)' }}>{formatPrice(product.price)}</p>
-                {pricePerApp !== null && (
-                  <p className="text-[11px] mt-1" style={{ color: 'var(--txff)' }}>~{formatPrice(pricePerApp)} / {de ? 'Anwendung' : 'use'}</p>
-                )}
+                <div className="flex items-center gap-2 mt-1">
+                  {pricePerApp !== null && (
+                    <p className="text-[11px]" style={{ color: 'var(--txff)' }}>~{formatPrice(pricePerApp)} / {de ? 'Anwendung' : 'use'}</p>
+                  )}
+                  {per100g && <p className="text-[11px]" style={{ color: 'var(--txff)' }}>{pricePerApp !== null ? '· ' : ''}{per100g}</p>}
+                </div>
               </div>
               {canCheckout(product) ? <AddToCartButton product={product} /> : (
                 <a href={product.ebayUrl} target="_blank" rel="noopener noreferrer"
@@ -401,6 +443,13 @@ export function ProductDetailPage() {
                   {de ? 'Kaufen' : 'Buy'} <ExternalLink className="h-3.5 w-3.5" />
                 </a>
               )}
+            </div>
+
+            {/* Same delivery estimate the homepage product cards already show —
+                this page had no delivery-date signal at all before. */}
+            <div className="flex items-center gap-1.5 mb-5 text-[11px]" style={{ color: 'var(--txff)' }}>
+              <Truck className="h-3 w-3 flex-shrink-0" style={{ color: accentColor }} aria-hidden />
+              {de ? `Lieferung ${deliveryDate}` : `Delivery ${deliveryDate}`}
             </div>
 
             {(alternatives.length > 0 || related.length > 0) && (
@@ -478,11 +527,14 @@ export function ProductDetailPage() {
                   )}
                 </div>
 
-                {/* Title */}
-                <h1 className="font-display text-[26px] xl:text-[28px] font-bold leading-[1.06] tracking-[-0.03em] mb-4"
+                {/* Title — visually a duplicate of the mobile hero's <h1> above
+                    (the mobile block is display:none, not unmounted, at this
+                    viewport), so this one stays a <p> to avoid a second h1
+                    landing in the DOM alongside it. */}
+                <p className="font-display text-[26px] xl:text-[28px] font-bold leading-[1.06] tracking-[-0.03em] mb-4"
                   style={{ color: '#0a0a0a' }}>
                   {titleText}
-                </h1>
+                </p>
 
                 {/* Benefits — tight, no circles */}
                 {cardBenefits.length > 0 && (
@@ -548,6 +600,11 @@ export function ProductDetailPage() {
                         ~{formatPrice(pricePerApp)}/{de ? 'Anw.' : 'use'}
                       </span>
                     )}
+                    {per100g && (
+                      <span className="text-[10px] font-medium" style={{ color: 'rgba(0,0,0,0.3)' }}>
+                        {per100g}
+                      </span>
+                    )}
                   </div>
                   {rc?.savings && (
                     <p className="text-[10px] font-semibold mt-1" style={{ color: cardAccent }}>
@@ -569,9 +626,12 @@ export function ProductDetailPage() {
                   )}
                 </div>
 
-                {/* Trust signals */}
+                {/* Trust signals — "Made in Germany" only for wax (our own
+                    product); pre-waxed chains are resold Shimano/SRAM/YBN
+                    parts, per the AGENTS.md rule this line wasn't following. */}
                 <p className="text-[9.5px] text-center font-medium" style={{ color: 'rgba(0,0,0,0.3)' }}>
-                  Made in Germany · {de ? 'Versand 1–2 Werktage' : 'Ships 1–2 days'}
+                  {isWax ? `${de ? 'Hergestellt in Stuttgart' : 'Made in Stuttgart'} · ` : ''}
+                  {de ? `Lieferung ${deliveryDate}` : `Delivery ${deliveryDate}`}
                 </p>
               </div>
 
@@ -599,7 +659,7 @@ export function ProductDetailPage() {
                 {gallery.slice(0, 6).map((src, i) => (
                   <button key={i} onClick={() => { goTo(i); pause(); setTimeout(resume, AUTO_INTERVAL); }}
                     aria-label={`${titleText} — Bild ${i + 1}`} aria-current={i === activeImage}
-                    className="h-[36px] flex-1 rounded-lg overflow-hidden transition-all duration-400"
+                    className="h-11 flex-1 rounded-lg overflow-hidden transition-all duration-400"
                     style={{
                       opacity: i === activeImage ? 1 : 0.22,
                       boxShadow: i === activeImage ? '0 0 0 1.5px rgba(255,255,255,0.7)' : 'none',
@@ -623,31 +683,39 @@ export function ProductDetailPage() {
               same right-edge alignment, clear of both the card (left) and
               the "Mehr erfahren" hint (bottom-center). */}
           {total > 1 && (
-            <div className="absolute right-6 xl:right-10 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-3">
+            // Scrim pill behind the whole rail, not just per-number opacity tuning —
+            // a light product photo (e.g. the pale wax block) behind translucent
+            // white numbers left them barely legible regardless of how their own
+            // opacity was tuned. A dedicated dark backdrop fixes contrast against
+            // any photo, the same fix SectionDots already uses for its own dots.
+            <div className="absolute right-6 xl:right-10 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-2.5 px-2.5 py-3.5 rounded-full"
+              style={{ background: 'rgba(0,0,0,0.32)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}>
               {gallery.map((_, i) => (
                 <button key={i} onClick={() => { goTo(i); pause(); setTimeout(resume, AUTO_INTERVAL); }}
-                  className="num text-[12px] tabular-nums transition-all duration-300"
+                  className="num text-[12px] tabular-nums transition-all duration-300 flex items-center justify-center"
                   style={{
-                    color: i === activeImage ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.48)',
+                    minWidth: 24, minHeight: 24,
+                    color: i === activeImage ? 'rgba(255,255,255,0.98)' : 'rgba(255,255,255,0.62)',
                     fontWeight: i === activeImage ? 700 : 500,
-                    textShadow: '0 1px 8px rgba(0,0,0,0.7)',
                     letterSpacing: '0.05em',
                   }}>
                   {String(i + 1).padStart(2, '0')}
                 </button>
               ))}
-              <div className="flex items-center gap-1.5 mt-1">
+              <div className="flex items-center gap-1 mt-0.5">
+                {/* Visual circle stays compact; the button's own box is the full
+                    44×44px WCAG 2.5.8 hit target (padding, not just the icon). */}
                 <button onClick={() => { prev(); pause(); setTimeout(resume, AUTO_INTERVAL); }}
                   aria-label={de ? 'Vorheriges Bild' : 'Previous image'}
-                  className="w-7 h-7 flex items-center justify-center rounded-full transition-all hover:bg-white/15 active:scale-90"
-                  style={{ background: 'rgba(0,0,0,0.28)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', color: 'rgba(255,255,255,0.85)' }}>
-                  <ChevronLeft className="h-3.5 w-3.5" />
+                  className="w-11 h-11 flex items-center justify-center rounded-full transition-all hover:bg-white/15 active:scale-90"
+                  style={{ color: 'rgba(255,255,255,0.85)' }}>
+                  <ChevronLeft className="h-4 w-4" />
                 </button>
                 <button onClick={() => { next(); pause(); setTimeout(resume, AUTO_INTERVAL); }}
                   aria-label={de ? 'Nächstes Bild' : 'Next image'}
-                  className="w-7 h-7 flex items-center justify-center rounded-full transition-all hover:bg-white/15 active:scale-90"
-                  style={{ background: 'rgba(0,0,0,0.28)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', color: 'rgba(255,255,255,0.85)' }}>
-                  <ChevronRight className="h-3.5 w-3.5" />
+                  className="w-11 h-11 flex items-center justify-center rounded-full transition-all hover:bg-white/15 active:scale-90"
+                  style={{ color: 'rgba(255,255,255,0.85)' }}>
+                  <ChevronRight className="h-4 w-4" />
                 </button>
               </div>
             </div>
@@ -903,9 +971,9 @@ export function ProductDetailPage() {
                 {rc.compatTags && rc.compatTags.length > 0 && (
                   <div>
                     <p className="text-[10px] font-semibold uppercase tracking-[0.22em] mb-2" style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>{de ? 'Kompatibilität' : 'Compatibility'}</p>
-                    <h3 className="font-display text-[17px] font-bold tracking-[-0.02em] mb-4" style={{ color: 'var(--tx1)' }}>
+                    <h2 className="font-display text-[17px] font-bold tracking-[-0.02em] mb-4" style={{ color: 'var(--tx1)' }}>
                       {de ? 'Funktioniert mit allen großen Marken' : 'Works with all major brands'}
-                    </h3>
+                    </h2>
                     <div className="flex flex-wrap gap-1.5">
                       {rc.compatTags[0].map(tag => (
                         <span key={tag} className="text-[11px] px-2.5 py-1 rounded-full font-medium" style={{ color: 'var(--tx2)', background: 'var(--pg)', border: '1px solid var(--bd)' }}>{tag}</span>
@@ -966,6 +1034,8 @@ export function ProductDetailPage() {
             </div>
           </section>
         )}
+
+        <Footer />
       </div>
 
       {/* Sticky buy-bar */}
@@ -1069,7 +1139,7 @@ function FlipCard({ items, de, formatPrice }: { items: Product[]; de: boolean; f
       }}>
       <div className="flex items-center gap-0.5 px-2">
         <button onClick={() => go(-1)}
-          className="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-full transition-all hover:bg-white/10"
+          className="flex-shrink-0 w-11 h-11 flex items-center justify-center rounded-full transition-all hover:bg-white/10"
           style={{ color: 'rgba(255,255,255,0.35)' }}
           aria-label={de ? 'Vorheriges' : 'Previous'}>
           <ChevronLeft className="h-3.5 w-3.5" />
@@ -1086,7 +1156,7 @@ function FlipCard({ items, de, formatPrice }: { items: Product[]; de: boolean; f
         )}
 
         <button onClick={() => go(1)}
-          className="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-full transition-all hover:bg-white/10"
+          className="flex-shrink-0 w-11 h-11 flex items-center justify-center rounded-full transition-all hover:bg-white/10"
           style={{ color: 'rgba(255,255,255,0.35)' }}
           aria-label={de ? 'Nächstes' : 'Next'}>
           <ChevronRight className="h-3.5 w-3.5" />
