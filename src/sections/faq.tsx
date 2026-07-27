@@ -3,6 +3,7 @@ import { ChevronDown } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { use3DReveal } from '@/hooks/useAnimation';
+import { Section } from '@/components/Section';
 
 const ITEMS_DEFAULT = 5;
 
@@ -26,9 +27,8 @@ export function FAQ() {
   const visibleItems = query.trim() ? filteredItems : (showAll ? filteredItems : filteredItems.slice(0, ITEMS_DEFAULT));
 
   return (
-    <section id="faq" className="relative py-20 sm:py-28 bg-wx-bg">
-      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
-        <div className="max-w-2xl mx-auto">
+    <Section id="faq" className="bg-wx-bg">
+        <div className="max-w-2xl">
           <div className="mb-10">
             <h2 className="section-title mb-4">
               <ScrollWordReveal text={t.faq.title} />
@@ -141,12 +141,11 @@ export function FAQ() {
             </button>
           </div>
         </div>
-      </div>
       {/* Bottom gradient — bridges to Contact below */}
       <div
         className="absolute bottom-0 left-0 right-0 pointer-events-none"
         style={{ height: '64px', background: 'linear-gradient(to bottom, transparent, var(--pg))', zIndex: 1 }}
       />
-    </section>
+    </Section>
   );
 }

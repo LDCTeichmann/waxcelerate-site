@@ -3,6 +3,7 @@ import { Mail } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useSectionReveal } from '@/hooks/useAnimation';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
+import { Section } from '@/components/Section';
 
 function WhatsAppIcon({ className, style }: { className?: string; style?: React.CSSProperties }) {
   return (
@@ -29,12 +30,11 @@ export function Contact() {
   )}`;
 
   return (
-    <section id="kontakt" className="relative py-20 sm:py-28 bg-wx-bg">
-      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
-        <div className="max-w-2xl mx-auto">
+    <Section id="kontakt" className="bg-wx-bg">
+        <div className="max-w-2xl">
 
           {/* Header */}
-          <div ref={headerRef} className="text-center mb-12">
+          <div ref={headerRef} className="mb-12">
             <h2 className="section-title mb-4">
               <ScrollWordReveal text={t.contact.title} />
             </h2>
@@ -152,13 +152,12 @@ export function Contact() {
           {/* Response note — omitted; each card states response time */}
 
         </div>
-      </div>
 
       {/* Bottom gradient */}
       <div
         className="absolute bottom-0 left-0 right-0 pointer-events-none"
         style={{ height: '64px', background: 'linear-gradient(to bottom, transparent, var(--sf3))', zIndex: 1 }}
       />
-    </section>
+    </Section>
   );
 }

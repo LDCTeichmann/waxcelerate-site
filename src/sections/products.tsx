@@ -13,6 +13,7 @@ import { getEstimatedDelivery } from '@/lib/utils';
 import { ChainFinder } from '@/sections/ChainFinder';
 import { AddToCartButton } from '@/components/AddToCartButton';
 import { Stars } from '@/components/Stars';
+import { Section } from '@/components/Section';
 
 const MONO = "'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace";
 
@@ -134,10 +135,7 @@ export function Products() {
   }, [filteredChains.length]);
 
   return (
-    <section id="produkte" className="relative py-20 sm:py-28 bg-wx-bg">
-      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
-        <div className="max-w-5xl mx-auto">
-
+    <Section id="produkte" className="bg-wx-bg">
           {/* Header */}
           <div ref={headerRef} className="mb-10">
             <h2 className="section-title mb-4">
@@ -261,14 +259,12 @@ export function Products() {
               )}
             </>
           )}
-        </div>
-      </div>
       {/* Bottom gradient — bridges to About below */}
       <div
         className="absolute bottom-0 left-0 right-0 pointer-events-none"
         style={{ height: '64px', background: 'linear-gradient(to bottom, transparent, var(--sf))', zIndex: 1 }}
       />
-    </section>
+    </Section>
   );
 }
 

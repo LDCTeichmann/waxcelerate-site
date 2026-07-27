@@ -7,6 +7,7 @@ import { waxIntervals } from '@/lib/data';
 import { gsap } from '@/lib/gsap';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { AnimatedNumber } from '@/components/viz';
+import { Section } from '@/components/Section';
 
 
 // ─── Toggle button — blue accent active state ────────────────────────────────
@@ -782,10 +783,7 @@ export function Tools() {
   }, []);
 
   return (
-    <section id="tools" className="relative py-20 sm:py-28" style={{ background: 'var(--tool-bg)' }}>
-      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
-        <div className="max-w-6xl mx-auto">
-
+    <Section id="tools" style={{ background: 'var(--tool-bg)' }}>
           <div ref={headerRef} className="mb-16">
             <h2 className="section-title mb-4">
               <ScrollWordReveal text={t.tools.title} />
@@ -976,13 +974,11 @@ export function Tools() {
             ))}
           </div>
 
-        </div>
-      </div>
       {/* Bottom gradient — bridges to FAQ below */}
       <div
         className="absolute bottom-0 left-0 right-0 pointer-events-none"
         style={{ height: '64px', background: 'linear-gradient(to bottom, transparent, var(--pg))', zIndex: 1 }}
       />
-    </section>
+    </Section>
   );
 }

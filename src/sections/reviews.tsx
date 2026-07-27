@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { BadgeCheck } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { Stars } from '@/components/Stars';
+import { Section } from '@/components/Section';
 
 // ── Data ─────────────────────────────────────────────────────────────────────
 // Every entry is a REAL review (eBay feedback + verified-buyer reviews). Nothing
@@ -192,52 +193,46 @@ export function Reviews() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative py-20 sm:py-28 overflow-hidden" style={{ background: 'var(--pg)' }}>
+    <Section id="bewertungen" ref={sectionRef} className="overflow-hidden" style={{ background: 'var(--pg)' }}>
       {/* ── Header ── */}
-      <div className="w-full px-4 sm:px-6 lg:px-8">
-        <div className="max-w-5xl mx-auto mb-9">
-          <p className="eyebrow mb-4" style={{ color: 'var(--txf)' }}>
-            {de ? 'eBay verifiziert' : 'eBay verified'}
-            <span className="hidden sm:inline">{de ? ' · alle Bewertungen echt' : ' · all reviews genuine'}</span>
-          </p>
-          <h2 className="section-title mb-3">{de ? 'Was Fahrer berichten.' : 'What riders report.'}</h2>
-          <p className="text-[15px] max-w-2xl" style={{ color: 'var(--txm)' }}>
-            {de
-              ? '200+ Bewertungen seit dem Start 2024 — kein einziges Negatives. Eine Auswahl echter Rückmeldungen, mit Fotos aus der Community.'
-              : '200+ reviews since launch in 2024 — not a single negative one. A selection of genuine feedback, with photos from the community.'}
-          </p>
-        </div>
+      <div className="mb-9">
+        <p className="eyebrow mb-4" style={{ color: 'var(--txf)' }}>
+          {de ? 'eBay verifiziert' : 'eBay verified'}
+          <span className="hidden sm:inline">{de ? ' · alle Bewertungen echt' : ' · all reviews genuine'}</span>
+        </p>
+        <h2 className="section-title mb-3">{de ? 'Was Fahrer berichten.' : 'What riders report.'}</h2>
+        <p className="text-[15px] max-w-2xl" style={{ color: 'var(--txm)' }}>
+          {de
+            ? '200+ Bewertungen seit dem Start 2024 — kein einziges Negatives. Eine Auswahl echter Rückmeldungen, mit Fotos aus der Community.'
+            : '200+ reviews since launch in 2024 — not a single negative one. A selection of genuine feedback, with photos from the community.'}
+        </p>
       </div>
 
       {/* ── Single self-scrolling row, contained so cards fade in before the edge ── */}
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <Marquee items={REVIEWS} dur={64} reduced={reduced} paused={!inView} />
-      </div>
+      <Marquee items={REVIEWS} dur={64} reduced={reduced} paused={!inView} />
 
       {/* ── Proof strip + source link ── */}
-      <div className="w-full px-4 sm:px-6 lg:px-8">
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5 mt-10 pt-6"
-          style={{ borderTop: '1px solid var(--bd)' }}>
-          <div className="flex items-stretch">
-            {[
-              { v: '200+', l: de ? 'Bewertungen' : 'reviews' },
-              { v: '346', l: de ? 'verkauft' : 'sold' },
-              { v: '0', l: de ? 'negativ' : 'negative' },
-            ].map((s, i, arr) => (
-              <div key={i} className="pr-5 sm:pr-7 mr-5 sm:mr-7 last:pr-0 last:mr-0"
-                style={{ borderRight: i < arr.length - 1 ? '1px solid var(--bd)' : 'none' }}>
-                <p className="font-display font-bold tabular-nums leading-none" style={{ fontSize: '1.4rem', letterSpacing: '-0.02em', color: 'var(--tx1)' }}>{s.v}</p>
-                <p className="text-[11px] mt-1" style={{ color: 'var(--txf)' }}>{s.l}</p>
-              </div>
-            ))}
-          </div>
-          <a href="https://www.ebay.de/usr/waxcelerate" target="_blank" rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[13px] font-medium transition-all hover:opacity-85 self-start sm:self-auto"
-            style={{ border: '1px solid var(--bd)', background: 'var(--sf2)', color: 'var(--tx2)' }}>
-            {de ? 'Alle 200+ Bewertungen auf eBay ansehen →' : 'See all 200+ reviews on eBay →'}
-          </a>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5 mt-10 pt-6"
+        style={{ borderTop: '1px solid var(--bd)' }}>
+        <div className="flex items-stretch">
+          {[
+            { v: '200+', l: de ? 'Bewertungen' : 'reviews' },
+            { v: '346', l: de ? 'verkauft' : 'sold' },
+            { v: '0', l: de ? 'negativ' : 'negative' },
+          ].map((s, i, arr) => (
+            <div key={i} className="pr-5 sm:pr-7 mr-5 sm:mr-7 last:pr-0 last:mr-0"
+              style={{ borderRight: i < arr.length - 1 ? '1px solid var(--bd)' : 'none' }}>
+              <p className="font-display font-bold tabular-nums leading-none" style={{ fontSize: '1.4rem', letterSpacing: '-0.02em', color: 'var(--tx1)' }}>{s.v}</p>
+              <p className="text-[11px] mt-1" style={{ color: 'var(--txf)' }}>{s.l}</p>
+            </div>
+          ))}
         </div>
+        <a href="https://www.ebay.de/usr/waxcelerate" target="_blank" rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[13px] font-medium transition-all hover:opacity-85 self-start sm:self-auto"
+          style={{ border: '1px solid var(--bd)', background: 'var(--sf2)', color: 'var(--tx2)' }}>
+          {de ? 'Alle 200+ Bewertungen auf eBay ansehen →' : 'See all 200+ reviews on eBay →'}
+        </a>
       </div>
-    </section>
+    </Section>
   );
 }

@@ -289,8 +289,29 @@ export function Hero() {
                    onOpen={openDive} onActiveChange={() => {}} />
 
 
-          <div className="relative z-10 h-full w-full px-6 sm:px-10 lg:px-14 xl:px-20">
-            <div className="h-full max-w-7xl mx-auto flex flex-col justify-end pb-28 sm:pb-32 lg:pb-28">
+          {/* Matches the Section wrapper's left edge (px-6 sm:px-10 lg:px-14
+              xl:px-20 on max-w-7xl) at every viewport, not just one. This card
+              carries its own extra outer inset (px-3 sm:px-4 lg:px-6, "C", on
+              the wrapping card above) that other sections don't have — both
+              padding and max-w here are reduced by that same C so the two
+              effects cancel exactly:
+                - below the max-w-7xl cap (viewport < ~1280px, where Section's
+                  own div isn't centered either yet): padding here is the
+                  Section padding minus C, so card-inset(C) + this padding
+                  reduces straight back to the Section's own padding value.
+                - at/above the cap (viewport ≥ 1280px, where Section's div
+                  centers with (viewport−1280)/2 slack): max-w here is reduced
+                  by 2×C, so this div hits its own cap 2×C narrower — which,
+                  once re-centered inside the card's already-C-narrower
+                  available width, lands the content at the exact same
+                  absolute screen position as the uncapped Section formula.
+              Both terms use C's value at lg/xl (24px, the card's largest and
+              final inset — the card has no xl: override) since the max-w
+              term only ever matters at viewport ≥ 1280px, by which point the
+              card is already at its lg inset. Verified against the Section
+              wrapper's rendered left edge at 1440/1280/768px viewports. */}
+          <div className="relative z-10 h-full w-full max-w-[1232px] mx-auto px-3 sm:px-6 lg:px-8 xl:px-14">
+            <div className="h-full flex flex-col justify-end pb-28 sm:pb-32 lg:pb-28">
               <div ref={contentRef} className="max-w-xl will-change-transform">
 
                 <div data-hero className="flex items-center gap-3 mb-5">

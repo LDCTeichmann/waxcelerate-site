@@ -3,6 +3,7 @@ import { BookOpen, Droplets, RotateCcw, ChevronDown, AlertCircle } from 'lucide-
 import { useLanguage } from '@/hooks/useLanguage';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { use3DReveal } from '@/hooks/useAnimation';
+import { Section } from '@/components/Section';
 
 function StepText({ text }: { text: string }) {
   const unitPattern = /(~?\d+(?:[––]\d+)?\s*(?:°C|min|km))/g;
@@ -35,9 +36,8 @@ export function Guides() {
   ];
 
   return (
-    <section id="anleitungen" className="relative py-20 sm:py-28 bg-wx-sf">
-      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
-        <div className="max-w-4xl mx-auto">
+    <Section id="anleitungen" className="bg-wx-sf">
+        <div className="max-w-4xl">
 
           <div className="mb-12">
             <h2 className="section-title mb-4">
@@ -216,12 +216,11 @@ export function Guides() {
           </div>
 
         </div>
-      </div>
       {/* Bottom gradient — bridges to FAQ below */}
       <div
         className="absolute bottom-0 left-0 right-0 pointer-events-none"
         style={{ height: '64px', background: 'linear-gradient(to bottom, transparent, var(--pg))', zIndex: 1 }}
       />
-    </section>
+    </Section>
   );
 }

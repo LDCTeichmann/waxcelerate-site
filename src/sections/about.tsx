@@ -4,6 +4,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { useSectionReveal } from '@/hooks/useAnimation';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { gsap } from '@/lib/gsap';
+import { Section } from '@/components/Section';
 
 export function About() {
   const { t, lang } = useLanguage();
@@ -61,12 +62,9 @@ export function About() {
   ];
 
   return (
-    <section id="ueber-mich" className="relative py-20 sm:py-28 bg-wx-sf chain-texture">
-      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
-        <div className="max-w-5xl mx-auto">
-
+    <Section id="ueber-mich" className="bg-wx-sf chain-texture">
           {/* ── Header ─────────────────────────────────────────────────── */}
-          <div ref={headerRef} className="text-center mb-10">
+          <div ref={headerRef} className="mb-10">
             <p
               className="eyebrow mb-3"
               style={{ color: 'var(--txf)' }}
@@ -215,14 +213,11 @@ export function About() {
             </div>
           </div>
 
-        </div>
-      </div>
-
       {/* Bottom gradient */}
       <div
         className="absolute bottom-0 left-0 right-0 pointer-events-none"
         style={{ height: '64px', background: 'linear-gradient(to bottom, transparent, var(--sf))', zIndex: 1 }}
       />
-    </section>
+    </Section>
   );
 }

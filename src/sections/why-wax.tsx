@@ -7,6 +7,7 @@ import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { CountUp } from '@/components/viz/CountUp';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
 import { waxVsOil } from '@/lib/data';
+import { Section } from '@/components/Section';
 
 function buildCards(de: boolean) {
   const f = waxVsOil.friction, w = waxVsOil.watts, l = waxVsOil.life;
@@ -108,16 +109,13 @@ export function WhyWax() {
   const benefits = buildBenefits(de);
 
   return (
-    <section id="warum-wachs" ref={sectionRef} className="relative py-20 sm:py-28 bg-wx-sf">
+    <Section id="warum-wachs" ref={sectionRef} className="bg-wx-sf">
 
       <div className="absolute top-0 left-0 right-0 pointer-events-none"
         style={{ height: '56px', background: 'linear-gradient(to bottom, var(--sf), transparent)', zIndex: 1 }} />
 
-      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
-        <div className="max-w-5xl mx-auto">
-
-          {/* ── Header ── */}
-          <div ref={headerRef} className="mb-14 sm:mb-16">
+      {/* ── Header ── */}
+      <div ref={headerRef} className="mb-14 sm:mb-16">
             <p className="eyebrow mb-3" style={{ color: 'var(--txf)' }}>
               {de ? 'Öl vs. Wachs' : 'Oil vs. Wax'}
             </p>
@@ -202,11 +200,8 @@ export function WhyWax() {
               style={{ color: 'var(--accent-soft)' }} />
           </Link>
 
-        </div>
-      </div>
-
       <div className="absolute bottom-0 left-0 right-0 pointer-events-none"
         style={{ height: '64px', background: 'linear-gradient(to bottom, transparent, var(--pg))', zIndex: 1 }} />
-    </section>
+    </Section>
   );
 }
