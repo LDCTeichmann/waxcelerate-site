@@ -227,7 +227,7 @@ export function BlogArticlePage() {
 
       {/* Hero */}
       <section className="relative overflow-hidden border-b" style={{ borderColor: 'var(--bd)' }}>
-        <img src={hero.src} alt={hero.alt} className="absolute inset-0 w-full h-full object-cover" />
+        <img src={hero.src} alt={hero.alt} fetchPriority="high" className="absolute inset-0 w-full h-full object-cover" />
         <div
           className="absolute inset-0"
           style={{ background: 'linear-gradient(180deg, rgba(var(--scrim-rgb),0.45) 0%, rgba(var(--scrim-rgb),0.30) 35%, rgba(var(--scrim-rgb),0.88) 100%)' }}
@@ -355,9 +355,11 @@ export function BlogArticlePage() {
                           hover transform — see BlogIndexPage's ArticleCard for why. */}
                       <div className="relative aspect-[16/10] overflow-hidden rounded-t-xl" style={{ background: 'var(--sf2)', transform: 'translateZ(0)' }}>
                         <img
-                          src={rImg.src}
+                          src={rImg.card}
                           alt={rImg.alt}
                           loading="lazy"
+                          width={800}
+                          height={500}
                           className="absolute inset-0 w-full h-full object-cover transition-transform duration-[600ms] group-hover:scale-105"
                         />
                       </div>

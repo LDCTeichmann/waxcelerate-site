@@ -1216,35 +1216,67 @@ export function getArticleBySlug(slug: string): Article | undefined {
   return articles.find((a) => a.slug === slug);
 }
 
-/** Redaktionelles Hero-Bild je Artikel (Dateien liegen in /public/images). */
-export const articleImages: Record<string, { src: string; alt: string }> = {
+/**
+ * Redaktionelles Hero-Bild je Artikel (Dateien liegen in /public/images).
+ * `card` ist die 800px-Vorschauvariante für die Blog-Übersicht, fällt auf
+ * `src` zurück, falls nicht gesetzt. Erzeugt via
+ * `npx tsx scripts/optimize-blog-images.mjs`.
+ */
+export const articleImages: Record<string, { src: string; card?: string; alt: string }> = {
   'heisswachs-vs-fluessigwachs': { src: '/images/wax-block-spin.jpg', alt: 'Waxcelerate Wachsblock auf dunklem Schiefer' },
   'fahrradkette-entfetten': { src: '/images/chain-dirty.jpg', alt: 'Verölte, verschmutzte Fahrradkette in Nahaufnahme' },
-  'kettenlaufzeit-heisswachs': { src: '/images/review-dolomites.jpg', alt: 'Rennradfahrer auf einer Passstraße in den Dolomiten' },
-  'heisswachs-anleitung': { src: '/images/process-dip.jpg', alt: 'Fahrradkette wird in heißes Wachsbad getaucht' },
-  'mos2-kettenwachs': { src: '/images/wax-mos2-zoom.png', alt: 'MoS₂-Wachsblock mit vergrößertem Ausschnitt der Partikel' },
+  'kettenlaufzeit-heisswachs': {
+    src: '/images/blog/chains-hanging-gold-1600.webp',
+    card: '/images/blog/chains-hanging-gold-800.webp',
+    alt: 'Gewachste goldene Shimano-Ketten hängen vor den Hügeln bei Stuttgart im Abendlicht',
+  },
+  'heisswachs-anleitung': {
+    src: '/images/blog/wax-blue-wire-chain-1600.webp',
+    card: '/images/blog/wax-blue-wire-chain-800.webp',
+    alt: 'Blauer Wachsblock, ausgelegte Fahrradkette und aufgerollte Drahthaken zum Eintauchen',
+  },
+  'mos2-kettenwachs': {
+    src: '/images/blog/wax-pro-box-open-1600.webp',
+    card: '/images/blog/wax-pro-box-open-800.webp',
+    alt: 'Offener Versandkarton mit zwei dunklen MoS2-Wachsblöcken, Abendlicht auf Schiefer',
+  },
   'kettenwachs-rennrad-gravelbike': { src: '/images/review-gravel.jpg', alt: 'Gravelbike mit Bikepacking-Taschen' },
   'wachs-haelt-nicht-haeufige-fehler': { src: '/images/hero-chain-texture.jpg', alt: 'Fahrradketten dicht an dicht, Makroaufnahme' },
   'kettenwachs-faq': { src: '/images/hero-chain-angle.jpg', alt: 'Saubere Fahrradketten von der Seite' },
-  'vorgewachste-kette': { src: '/images/chain-clean.jpg', alt: 'Frisch gewachste Ketten im Wachsbad' },
+  'vorgewachste-kette': {
+    src: '/images/blog/box-chain-delivery-1600.webp',
+    card: '/images/blog/box-chain-delivery-800.webp',
+    alt: 'Wachsblock, Waxcelerate-Versandkarton, Kette und zwei Kettenschlösser auf Schiefer vor den Hügeln',
+  },
   'kettenwachs-winter': { src: '/images/review-sunset.jpg', alt: 'Rennrad bei Sonnenuntergang am Feldweg' },
-  'topf-zum-kette-wachsen': { src: '/images/process-melt.jpg', alt: 'Wachs schmilzt im Slow Cooker' },
+  'topf-zum-kette-wachsen': {
+    src: '/images/blog/wax-bath-hanging-1600.webp',
+    card: '/images/blog/wax-bath-hanging-800.webp',
+    alt: 'Fahrradkette hängt an zwei Drahthaken über einem Edelstahltopf, Hügel im Hintergrund',
+  },
   'tropfwachs-hybrid-methode': { src: '/images/reviews/ride-5.jpg', alt: 'Gravelbike mit gewachster Kette vor einem Café' },
   'von-oel-auf-wachs-umsteigen': { src: '/images/reviews/ride-1.jpg', alt: 'Rennrad bei Sonnenuntergang auf Feldweg' },
   'ebike-kette-wachsen': { src: '/images/reviews/ride-2.jpg', alt: 'Rennrad an einem Dorfbrunnen in den Alpen' },
   'kettenverschleiss-messen': { src: '/images/reviews/ride-4.jpg', alt: 'Rennradfahrer auf Passstraße in den Dolomiten' },
-  'erste-fahrt-nach-wachsen': { src: '/images/reviews/ride-3.jpg', alt: 'Rennrad am Waldweg nach der ersten Fahrt' },
-  'schnellverschluss-quicklink': { src: '/images/hero/chain.jpg', alt: 'Fahrradketten mit Kettenschloss auf Schieferplatte' },
+  'erste-fahrt-nach-wachsen': {
+    src: '/images/blog/chain-waxed-macro-1600.webp',
+    card: '/images/blog/chain-waxed-macro-800.webp',
+    alt: 'Gewachste Fahrradkette diagonal auf dunklem Schiefer, grünes Blatt am Rand',
+  },
+  'schnellverschluss-quicklink': {
+    src: '/images/blog/tools-quicklink-pliers-1600.webp',
+    card: '/images/blog/tools-quicklink-pliers-800.webp',
+    alt: 'Kettenschloss-Zange lehnt an einem blauen Wachsblock, Kette und Draht im Vordergrund',
+  },
   'wachs-entsorgen-topf-pflegen': { src: '/images/process-melt.jpg', alt: 'Geschmolzenes Wachs im Topf' },
 };
 
-export function getArticleImage(slug: string): { src: string; alt: string } {
-  return (
-    articleImages[slug] ?? {
-      src: '/images/hero-chain-texture.jpg',
-      alt: 'Fahrradkette in Nahaufnahme',
-    }
-  );
+export function getArticleImage(slug: string): { src: string; card: string; alt: string } {
+  const img = articleImages[slug] ?? {
+    src: '/images/hero-chain-texture.jpg',
+    alt: 'Fahrradkette in Nahaufnahme',
+  };
+  return { ...img, card: img.card ?? img.src };
 }
 
 /** Autor, für Byline und Autoren-Box. */

@@ -27,9 +27,11 @@ function ArticleCard({ article }: { article: Article }) {
           new layer (same bug as the product cards; see products.tsx). */}
       <div className="relative aspect-[16/10] overflow-hidden rounded-t-2xl" style={{ background: 'var(--sf2)', transform: 'translateZ(0)' }}>
         <img
-          src={img.src}
+          src={img.card}
           alt={img.alt}
           loading="lazy"
+          width={800}
+          height={500}
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-105"
         />
         <div
@@ -80,6 +82,9 @@ function FeaturedArticle({ article }: { article: Article }) {
         <img
           src={img.src}
           alt={img.alt}
+          width={1600}
+          height={1100}
+          fetchPriority="high"
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-105"
         />
       </div>

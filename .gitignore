@@ -9,3 +9,14 @@ dist/
 
 # Local raw image working library — never deploy/commit (originals + customer photos)
 raw-image-library/
+
+# public/images/blog: only ship the optimized derivatives the code actually
+# references (see scripts/optimize-blog-images.mjs) + manifest.json. Raw
+# camera originals (multi-MB each) and unrelated personal photos that end up
+# in this working folder must never enter git history.
+public/images/blog/*
+!public/images/blog/*-1600.webp
+!public/images/blog/*-800.webp
+!public/images/blog/*-1600.jpg
+!public/images/blog/*-800.jpg
+!public/images/blog/manifest.json

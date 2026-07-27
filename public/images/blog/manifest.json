@@ -1,0 +1,112 @@
+{
+  "_comment": "Zuordnung der Blog-Fotos, Stand nach dem Ablegen durch Luca am 2026-07-27. Wird in Aufgabe 5 (BLOG_EXECUTION.md) in articleImages (src/pages/blog/articles.ts) übertragen. slot: 'hero' = Artikelbild in articleImages, 'inline' = im Fließtext, 'page' = eigene Route/Zukunft, 'reserve' = noch unvergeben.",
+  "missing": [
+    {
+      "file": "oil-tattoo-leg.jpg",
+      "beschreibung": "Blick nach unten aufs eigene Bein: schwarze Ölspuren an der Wade, weiße Socke schwarz verschmiert, daneben Kassette und Schaltwerk",
+      "note": "Wurde im Chat gezeigt, aber nicht in den Ordner gelegt. Wäre das wertvollste Bild im ganzen Set (siehe BLOG_PLAN.md Abschnitt 5, Vergleichsblock) — falls Luca es findet, hier nachreichen und Aufgabe 6a (Vergleichsblock) nachziehen."
+    }
+  ],
+  "images": [
+    {
+      "file": "chain-waxed-macro.jpg",
+      "slot": "hero",
+      "target": "erste-fahrt-nach-wachsen",
+      "alt": "Gewachste Fahrradkette diagonal auf dunklem Schiefer, grünes Blatt am Rand",
+      "replaces": "/images/reviews/ride-3.jpg"
+    },
+    {
+      "file": "wax-bath-hanging.jpg",
+      "slot": "hero",
+      "target": "topf-zum-kette-wachsen",
+      "alt": "Fahrradkette hängt an zwei Drahthaken über einem Edelstahltopf, Hügel im Hintergrund",
+      "also": "löst die Doppelbelegung von process-melt.jpg auf (stand vorher bei topf-zum-kette-wachsen UND wachs-entsorgen-topf-pflegen)",
+      "replaces": "/images/process-melt.jpg"
+    },
+    {
+      "file": "box-chain-delivery.jpg",
+      "slot": "hero",
+      "target": "vorgewachste-kette",
+      "alt": "Wachsblock, Waxcelerate-Versandkarton, Kette und zwei Kettenschlösser auf Schiefer vor den Hügeln",
+      "replaces": "/images/chain-clean.jpg"
+    },
+    {
+      "file": "chains-hanging-gold.jpg",
+      "slot": "hero",
+      "target": "kettenlaufzeit-heisswachs",
+      "alt": "Gewachste goldene Shimano-Ketten hängen vor den Hügeln bei Stuttgart im Abendlicht, Waxcelerate-Box im Vordergrund",
+      "also": "Leitartikel, größte Bildfläche der Blogstartseite",
+      "replaces": "/images/review-dolomites.jpg"
+    },
+    {
+      "file": "tools-quicklink-pliers.jpg",
+      "slot": "hero",
+      "target": "schnellverschluss-quicklink",
+      "alt": "Kettenschloss-Zange lehnt an einem blauen Wachsblock, Kette und Draht im Vordergrund",
+      "replaces": "/images/hero/chain.jpg"
+    },
+    {
+      "file": "wax-blue-wire-chain.jpg",
+      "slot": "hero",
+      "target": "heisswachs-anleitung",
+      "alt": "Blauer Wachsblock, ausgelegte Fahrradkette und aufgerollte Drahthaken zum Eintauchen",
+      "replaces": "/images/process-dip.jpg"
+    },
+    {
+      "file": "wax-pro-box-open.jpg",
+      "slot": "hero",
+      "target": "mos2-kettenwachs",
+      "alt": "Offener Versandkarton mit zwei dunklen MoS2-Wachsblöcken, Abendlicht auf Schiefer",
+      "also": "bisheriges wax-mos2-zoom.png als Inline-Bild im Artikel weiterverwenden, es zeigt die Partikelstruktur im Zoom",
+      "replaces": "/images/wax-mos2-zoom.png"
+    },
+    {
+      "file": "ride-road-golden.jpg",
+      "slot": "page",
+      "target": "/blog",
+      "alt": "Rennradfahrer auf leerer Landstraße im Abendlicht, quadratisches Format",
+      "also": "Fläche hinter dem CTA-Banner unten auf der Blogstartseite und Standard-OG-Bild für /blog"
+    },
+    {
+      "file": "chain-ybn-mailer.jpg",
+      "slot": "page",
+      "target": "/rewax",
+      "alt": "Vorgewachste YBN-Kette flach im offenen schwarzen Versandkarton mit Kettenschloss",
+      "also": "Hero der neuen Rewax-Service-Seite (BLOG_PLAN.md Abschnitt 4, Punkt 1)"
+    },
+    {
+      "file": "packaging-boxes-hills.jpg",
+      "slot": "inline",
+      "target": "vorgewachste-kette",
+      "alt": "Zwei Waxcelerate-Versandkartons in unterschiedlichen Größen, davor eine offene Sendung mit gewachster Kette, Hügel im Hintergrund"
+    },
+    {
+      "file": "wax-pro-block-hills.jpg",
+      "slot": "page",
+      "target": "artikel-hergestellt-in-stuttgart",
+      "alt": "Einzelner dunkler Wachsblock steht auf Schiefer vor den Hügeln bei Stuttgart, Versandkarton dahinter",
+      "also": "noch zu schreibender Artikel, siehe BLOG_PLAN.md Abschnitt 4, Welle 3 Punkt 18"
+    },
+    {
+      "file": "chain-wax-kit-hills.jpg",
+      "slot": "page",
+      "target": "pillar-kettenwachs-leitfaden",
+      "alt": "Goldene Kette hängt neben dunklem Wachsblock und Waxcelerate-Kartons auf Schiefer vor den Hügeln",
+      "also": "noch zu bauende Pillar-Seite, BLOG_PLAN.md Abschnitt 4, Welle 3 Punkt 19"
+    },
+    {
+      "file": "wax-block-chain-slate.jpg",
+      "slot": "reserve",
+      "target": null,
+      "alt": "Dunkler Wachsblock und gewachste Fahrradkette nebeneinander auf Schiefer vor den Hügeln",
+      "also": "noch keinem Artikel zugeteilt, guter Kandidat für einen neuen Kaufberatungs-Artikel"
+    },
+    {
+      "file": "chain-quicklinks-detail.jpg",
+      "slot": "reserve",
+      "target": null,
+      "alt": "Fahrradkette mit zwei losen Kettenschlössern in Nahaufnahme auf Schiefer",
+      "also": "war nicht im ursprünglichen Zuordnungsplan, zusätzlich beim Ablegen gefunden. Guter Kandidat als Inline-Bild im Quicklink-Artikel, ergänzend zu tools-quicklink-pliers.jpg"
+    }
+  ]
+}
