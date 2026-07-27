@@ -250,7 +250,7 @@ export function BlogArticlePage() {
           >
             {article.title}
           </h1>
-          <div className="flex items-center gap-3 font-mono text-[12px]" style={{ color: '#C9C9D2' }}>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[12px]" style={{ color: '#C9C9D2' }}>
             <span>von {author.name}</span>
             <span style={{ color: '#7A7A86' }}>·</span>
             <span>{article.readingTime}</span>

@@ -4,6 +4,7 @@
     {
       "file": "oil-tattoo-leg.jpg",
       "slot": "hero",
+      "crop": "center",
       "target": "fahrradkette-entfetten",
       "alt": "Schwarze Ölspuren an Wade und weißer Socke nach einer Fahrt mit geölter Kette",
       "also": "linke Hälfte des Vergleichsblocks auf der Blogstartseite. Quelle: IMG_2367, um 90 Grad aufgerichtet",

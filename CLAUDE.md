@@ -21,7 +21,11 @@
 
 ## Arbeitsweise mit Claude Code
 
-**Niemals den Screenshot-/Preview-Browser-Tool ungefragt benutzen.** Der Nutzer arbeitet während Claude im Hintergrund arbeitet oft gleichzeitig an diesem Laptop — `preview_screenshot` (und das Ansteuern des Preview-Browsers allgemein) unterbricht/stört diese parallele Arbeit sichtbar (Fenster-Fokus, orangene Bildschirmränder). Wenn eine Änderung visuell verifiziert werden muss: zuerst über `tsc --noEmit`, `npm run build`, DOM-Geometrie-Checks (`getBoundingClientRect`, `getComputedStyle`) oder ein eigenständiges Rendering außerhalb des Browsers (z. B. SVG/HTML-Dateien via `qlmanage -t` unter macOS) verifizieren. Falls eine echte visuelle/Browser-Prüfung unumgänglich ist, den Nutzer explizit fragen, ob Claude kurz den Preview-Browser nutzen darf, statt es einfach zu tun.
+**Der eingebaute Browser-Pane ist erlaubt** (`preview_start`, `navigate`, `computer`, `read_page` aus dem Claude-Browser-Toolset). Er läuft in der App und stiehlt Luca nicht den Fenster-Fokus. Für visuelle Prüfungen von Layout, Bildausschnitten und Dark Mode ruhig nutzen, ohne vorher zu fragen.
+
+**Nicht erlaubt ohne Rückfrage:** das Chrome-Toolset (`mcp__claude-in-chrome__*`) und alle Desktop-Screenshot-/Computer-Use-Tools (`mcp__computer-use__*`). Die greifen auf Lucas echten Bildschirm und sein echtes Chrome zu und stören die parallele Arbeit sichtbar (Fenster-Fokus, orangene Bildschirmränder).
+
+Wo eine Prüfung ohne Browser reicht, ist sie trotzdem vorzuziehen: `npx tsc --noEmit`, `npm run build`, Prüfung des vorgerenderten HTML in `dist/`, DOM-Checks via `getBoundingClientRect` / `getComputedStyle`.
 
 ---
 

@@ -311,9 +311,9 @@ export const articles: Article[] = [
     category: 'Grundlagen',
     featured: true,
     stats: [
-      { value: '3–5 W', label: 'Reibung' },
-      { value: '5–8.000 km', label: 'Kettenlaufzeit' },
-      { value: '~140 €', label: 'Ersparnis' },
+      { value: '400–550 km', label: 'Intervall' },
+      { value: '6–12.000 km', label: 'Kettenlaufzeit' },
+      { value: '125–190 €', label: 'Ersparnis' },
     ],
     publishDate: '2026-05-19',
     dateModified: '2026-07-27',
@@ -324,7 +324,7 @@ export const articles: Article[] = [
       'Kettenlaufzeit typisch 6.000 bis 12.000 km gegenüber 2.000 bis 3.000 km bei Öl, also grob das Zwei- bis Dreifache.',
       'Über 15.000 km spart Wachs rund 120 bis 160 Euro. Kein dramatischer Betrag, aber die Rechnung geht auf.',
     ],
-    keyStat: { value: '5–8.000 km', label: 'Kettenlaufzeit' },
+    keyStat: { value: '6–12.000 km', label: 'Kettenlaufzeit' },
     intro: 'Eine der häufigsten Fragen zu Heißwachs: Wann muss ich wieder wachsen, und lohnt sich das finanziell überhaupt? Beides lässt sich konkret beantworten, mit Messdaten und einer einfachen Rechnung über einen realistischen Nutzungszeitraum.',
     sections: [
       {
@@ -401,14 +401,14 @@ export const articles: Article[] = [
         type: 'ul',
         items: [
           'Kettenwechsel bei 7.000 km → 2–3 Ketten über 15.000 km × 35 € = 70–105 €',
-          'Wachs: bei 400–550 km Intervall sind das rund 32 Wachsvorgänge über 15.000 km. Ein 500-g-Block Classic (29,95 €) trägt 15–20 davon, also 2 Blöcke = 59,90 €',
+          'Wachs: bei 400–550 km Intervall sind das rund 30 Anwendungen über 15.000 km. Ein 500-g-Block Classic (29,95 €) trägt 20–32 davon, also ein bis zwei Blöcke = 30–60 €',
           'Kassettenverschleiß deutlich geringer, kein Extra-Kassettenwechsel nötig',
-          'Gesamtkosten Wachs-Szenario: ca. 130–165 €',
+          'Gesamtkosten Wachs-Szenario: ca. 100–165 €',
         ],
       },
       {
         type: 'p',
-        text: 'Differenz: 120–160 € Ersparnis über 15.000 km. Das ist kein dramatisches Ergebnis, aber solide. Wer teure Kassetten fährt (SRAM XDR, Shimano Dura-Ace), erhöht die Ersparnis erheblich, weil die längere Kettenlaufzeit den Kassettenring schützt.',
+        text: 'Differenz: rund 125 bis 190 € Ersparnis über 15.000 km. Das ist kein dramatisches Ergebnis, aber solide. Wer teure Kassetten fährt (SRAM XDR, Shimano Dura-Ace), erhöht die Ersparnis erheblich, weil die längere Kettenlaufzeit den Kassettenring schützt.',
       },
       {
         type: 'h2',
@@ -620,7 +620,7 @@ export const articles: Article[] = [
       },
       {
         type: 'p',
-        text: 'MoS₂-Kristalle sind in dünne Schichten aufgebaut, die durch schwache Van-der-Waals-Kräfte zusammengehalten werden. Unter mechanischem Druck gleiten diese Schichten gegeneinander ab, ähnlich wie Blätter in einem Stapel. Der Reibungskoeffizient liegt je nach Belastung und Atmosphäre zwischen 0,03 und 0,06, unter Vakuum und extremem Druck sogar darunter. Deshalb wird MoS₂ in der Raumfahrt und im Hochdruckmaschinenbau eingesetzt.',
+        text: 'MoS₂-Kristalle sind in dünne Schichten aufgebaut, die durch schwache Van-der-Waals-Kräfte zusammengehalten werden. Unter mechanischem Druck gleiten diese Schichten gegeneinander ab, ähnlich wie Blätter in einem Stapel. Der Reibungskoeffizient des Feststoffs liegt in trockener Umgebung zwischen 0,03 und 0,06, im Vakuum sogar darunter. Zum Einordnen: PTFE, das im Classic steckt, liegt bei 0,05 bis 0,10. Deshalb wird MoS₂ in der Raumfahrt und im Hochdruckmaschinenbau eingesetzt.',
       },
       {
         type: 'h2',
@@ -715,7 +715,7 @@ export const articles: Article[] = [
       },
       {
         type: 'p',
-        text: 'Waxcelerate Classic erzielt einen Reibungskoeffizient von 0,05–0,07, die Pro-Variante mit MoS₂ 0,03–0,06. Zum Vergleich: handelsübliches Nassöl liegt bei 0,15–0,25, je nachdem wie viel Schmutz es bereits aufgenommen hat.',
+        text: 'Ein Wort zu den Reibungskoeffizienten, weil sie oft falsch verstanden werden: 0,05 bis 0,07 für PTFE im Classic und 0,03 bis 0,06 für MoS₂ im Pro sind Kennwerte der Festschmierstoffe selbst, gemessen unter Laborbedingungen. Sie beschreiben nicht die ganze Kette, denn dort kommen Kettenspannung, Verschmutzung und Geometrie dazu. Ehrlich bleibt: Der Festschmierstoff im Pro gleitet leichter, und unter Feuchtigkeit steigt der Wert bei MoS₂ deutlich an. Genau deshalb ist Pro bei Nässe besser als Classic, aber kein Freifahrtschein.',
       },
       {
         type: 'h2',
@@ -845,7 +845,7 @@ export const articles: Article[] = [
       { q: 'Wachsen oder ölen, was ist besser?', a: 'Wachs läuft reibungsärmer, hält die Kette sauber und verlängert die Kettenlaufzeit deutlich. Öl ist bequemer und im Dauerregen robuster. Für Vielfahrer und sportliche Fahrer lohnt sich Wachs, für seltene Schlechtwetter-Pendler ist Öl legitim.' },
       { q: 'Brauche ich einen teuren Spezial-Topf?', a: 'Nein. Ein einfacher Mini-Slow-Cooker für 25–35 € reicht völlig. Wichtig ist nur, dass er die Temperatur niedrig und stabil hält.' },
       { q: 'Kann ich eine geölte Kette einfach ins Wachs tauchen?', a: 'Nein. Das Öl kontaminiert das Wachsbad und verhindert, dass das Wachs haftet. Erst gründlich entfetten.' },
-      { q: 'Wie lange hält ein Wachsblock?', a: 'Ein 500-g-Block trägt 15 bis 20 Wachsvorgänge einer einzelnen Kette. Bei einer 3-Ketten-Rotation sind das rund 8 bis 10 Komplettbäder, also je nach Jahresleistung eine ganze Saison und mehr.' },
+      { q: 'Wie lange hält ein Wachsblock?', a: 'Ein 500-g-Block trägt 20 bis 32 Anwendungen, je nachdem wie viel Wachs beim Abtropfen an der Kette bleibt. Bei einem Intervall von 400 bis 550 km sind das grob 10.000 bis 17.000 km Fahrleistung pro Block.' },
       { q: 'Ist das weiße Pulver an der Kette ein Problem?', a: 'Nein, das ist überschüssiges Außenwachs, das beim Einfahren abbricht. Es verschwindet nach 20–30 km von selbst.' },
       { q: 'Funktioniert Wachs im Winter?', a: 'Bei Kälte und Trockenheit ja. Problematisch ist Streusalz und Dauernässe, die das Wachs schneller auswaschen. Dann häufiger nachwachsen oder zur MoS₂-Variante greifen.' },
       { q: 'Brauche ich einen Schnellverschluss?', a: 'Er macht das Abnehmen der Kette deutlich einfacher und ist für eine Rotation praktisch unverzichtbar. KMC- und SRAM-Quick-Links lassen sich mehrfach wiederverwenden.' },

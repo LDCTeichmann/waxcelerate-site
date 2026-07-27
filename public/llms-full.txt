@@ -290,11 +290,11 @@ Um die Gesamtkosten fair zu vergleichen, rechnen wir beide Szenarien über 15.00
 ### Szenario 2: Heißwachs
 
 - Kettenwechsel bei 7.000 km → 2–3 Ketten über 15.000 km × 35 € = 70–105 €
-- Wachs: bei 400–550 km Intervall sind das rund 32 Wachsvorgänge über 15.000 km. Ein 500-g-Block Classic (29,95 €) trägt 15–20 davon, also 2 Blöcke = 59,90 €
+- Wachs: bei 400–550 km Intervall sind das rund 30 Anwendungen über 15.000 km. Ein 500-g-Block Classic (29,95 €) trägt 20–32 davon, also ein bis zwei Blöcke = 30–60 €
 - Kassettenverschleiß deutlich geringer, kein Extra-Kassettenwechsel nötig
-- Gesamtkosten Wachs-Szenario: ca. 130–165 €
+- Gesamtkosten Wachs-Szenario: ca. 100–165 €
 
-Differenz: 120–160 € Ersparnis über 15.000 km. Das ist kein dramatisches Ergebnis, aber solide. Wer teure Kassetten fährt (SRAM XDR, Shimano Dura-Ace), erhöht die Ersparnis erheblich, weil die längere Kettenlaufzeit den Kassettenring schützt.
+Differenz: rund 125 bis 190 € Ersparnis über 15.000 km. Das ist kein dramatisches Ergebnis, aber solide. Wer teure Kassetten fährt (SRAM XDR, Shimano Dura-Ace), erhöht die Ersparnis erheblich, weil die längere Kettenlaufzeit den Kassettenring schützt.
 
 ## Warum die 3-Ketten-Rotation die Rechnung verändert
 
@@ -396,7 +396,7 @@ Waxcelerate Pro enthält neben Paraffin und PTFE auch Molybdändisulfid, abgekü
 
 Molybdändisulfid (MoS₂) ist ein natürlich vorkommendes Mineral aus der Gruppe der Übergangsmetall-Dichalkogenide. Chemisch besteht es aus einem Molybdänatom zwischen zwei Schwefelatomen, S–Mo–S. Diese Schichtstruktur ist der Schlüssel zu seiner Schmierwirkung.
 
-MoS₂-Kristalle sind in dünne Schichten aufgebaut, die durch schwache Van-der-Waals-Kräfte zusammengehalten werden. Unter mechanischem Druck gleiten diese Schichten gegeneinander ab, ähnlich wie Blätter in einem Stapel. Der Reibungskoeffizient liegt je nach Belastung und Atmosphäre zwischen 0,03 und 0,06, unter Vakuum und extremem Druck sogar darunter. Deshalb wird MoS₂ in der Raumfahrt und im Hochdruckmaschinenbau eingesetzt.
+MoS₂-Kristalle sind in dünne Schichten aufgebaut, die durch schwache Van-der-Waals-Kräfte zusammengehalten werden. Unter mechanischem Druck gleiten diese Schichten gegeneinander ab, ähnlich wie Blätter in einem Stapel. Der Reibungskoeffizient des Feststoffs liegt in trockener Umgebung zwischen 0,03 und 0,06, im Vakuum sogar darunter. Zum Einordnen: PTFE, das im Classic steckt, liegt bei 0,05 bis 0,10. Deshalb wird MoS₂ in der Raumfahrt und im Hochdruckmaschinenbau eingesetzt.
 
 ## Wie wirkt MoS₂ in einer Fahrradkette?
 
@@ -441,7 +441,7 @@ Heißwachs ist für jede Fahrradkette geeignet, aber für Rennrad- und Gravelbik
 
 Eine Fahrradkette überträgt unter Last nie 100 % der Tretkraft. Ein Teil geht als Wärme verloren, durch innere Reibung in den Kettengelenken. In unserer Laborreferenz bei 300–400 W Eingangsleistung liegt dieser Verlust bei Kettenöl um 7,5 W, bei Heißwachs um 2,6 W. Beides sind Richtwerte, keine garantierten Werte, denn jeder Prüfstand misst etwas anders. Die Größenordnung ist aber stabil: rund 2 % der Tretleistung. Auf dem Rennrad, wo Watt gezählt werden, ist das relevant.
 
-Waxcelerate Classic erzielt einen Reibungskoeffizient von 0,05–0,07, die Pro-Variante mit MoS₂ 0,03–0,06. Zum Vergleich: handelsübliches Nassöl liegt bei 0,15–0,25, je nachdem wie viel Schmutz es bereits aufgenommen hat.
+Ein Wort zu den Reibungskoeffizienten, weil sie oft falsch verstanden werden: 0,05 bis 0,07 für PTFE im Classic und 0,03 bis 0,06 für MoS₂ im Pro sind Kennwerte der Festschmierstoffe selbst, gemessen unter Laborbedingungen. Sie beschreiben nicht die ganze Kette, denn dort kommen Kettenspannung, Verschmutzung und Geometrie dazu. Ehrlich bleibt: Der Festschmierstoff im Pro gleitet leichter, und unter Feuchtigkeit steigt der Wert bei MoS₂ deutlich an. Genau deshalb ist Pro bei Nässe besser als Classic, aber kein Freifahrtschein.
 
 ## Sauberkeit auf dem Gravelbike
 
@@ -612,7 +612,7 @@ Nein. Ein einfacher Mini-Slow-Cooker für 25–35 € reicht völlig. Wichtig is
 Nein. Das Öl kontaminiert das Wachsbad und verhindert, dass das Wachs haftet. Erst gründlich entfetten.
 
 **Wie lange hält ein Wachsblock?**
-Ein 500-g-Block trägt 15 bis 20 Wachsvorgänge einer einzelnen Kette. Bei einer 3-Ketten-Rotation sind das rund 8 bis 10 Komplettbäder, also je nach Jahresleistung eine ganze Saison und mehr.
+Ein 500-g-Block trägt 20 bis 32 Anwendungen, je nachdem wie viel Wachs beim Abtropfen an der Kette bleibt. Bei einem Intervall von 400 bis 550 km sind das grob 10.000 bis 17.000 km Fahrleistung pro Block.
 
 **Ist das weiße Pulver an der Kette ein Problem?**
 Nein, das ist überschüssiges Außenwachs, das beim Einfahren abbricht. Es verschwindet nach 20–30 km von selbst.

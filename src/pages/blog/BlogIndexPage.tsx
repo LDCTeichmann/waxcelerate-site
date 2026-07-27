@@ -307,7 +307,7 @@ export function BlogIndexPage() {
                   className="absolute bottom-0 left-0 right-0 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.16em]"
                   style={{ background: 'linear-gradient(0deg, rgba(0,0,0,0.85), rgba(0,0,0,0))', color: '#F2F2F5' }}
                 >
-                  Geölt · nach 80 km
+                  Geölt · 80 km
                 </figcaption>
               </figure>
               <figure className="relative aspect-[4/5] sm:aspect-[4/3] overflow-hidden" style={{ background: 'var(--sf2)' }}>
@@ -323,7 +323,7 @@ export function BlogIndexPage() {
                   className="absolute bottom-0 left-0 right-0 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.16em]"
                   style={{ background: 'linear-gradient(0deg, rgba(0,0,0,0.85), rgba(0,0,0,0))', color: '#F2F2F5' }}
                 >
-                  Gewachst · nach 400 km
+                  Gewachst · 400 km
                 </figcaption>
               </figure>
             </div>

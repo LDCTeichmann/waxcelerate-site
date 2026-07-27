@@ -37,6 +37,8 @@ function isAlreadyOutput(name) {
 // Ableitungen für Bilder, die nie eine Seite sieht.
 const manifest = JSON.parse(readFileSync(join(DIR, 'manifest.json'), 'utf8'));
 const curated = new Set(manifest.images.map((i) => i.file));
+/** Optionaler Zuschnitt je Bild aus dem Manifest: 'top' | 'center' | 'bottom' | 'left' | 'right'. */
+const cropFor = new Map(manifest.images.filter((i) => i.crop).map((i) => [i.file, i.crop]));
 
 const entries = readdirSync(DIR).filter((f) => {
   if (isAlreadyOutput(f) || !curated.has(f)) return false;
@@ -65,15 +67,20 @@ for (const file of entries) {
 
     // Alle Blog-Bildflächen sind 16:10 (Karte wie Artikel-Hero). Hochformat-
     // Aufnahmen würden sonst per object-cover hart beschnitten, ohne dass wir
-    // steuern, welcher Bildteil überlebt. sharp schneidet mit "attention" auf
-    // den kontrastreichsten Bereich, das trifft bei diesen Motiven Kette bzw.
-    // Wachsblock statt Himmel oder Asphalt.
+    // steuern, welcher Bildteil überlebt.
+    //
+    // Standard ist sharp's "attention": schneidet auf den kontrastreichsten
+    // Bereich. Das trifft meistens die Kette oder den Wachsblock, kann aber
+    // danebengreifen, wenn im Hintergrund etwas Buntes liegt (beim Ölbein-Foto
+    // wählte es Wimpel und Sonnenschirm statt Wade und Socke). Deshalb lässt
+    // sich der Zuschnitt im Manifest pro Bild über "crop" überschreiben.
+    const crop = cropFor.get(file) ?? sharp.strategy.attention;
     await sharp(srcPath)
       .resize({
         width: size.width,
         height: Math.round(size.width * 0.625),
         fit: 'cover',
-        position: sharp.strategy.attention,
+        position: crop,
         withoutEnlargement: true,
       })
       .webp({ quality: size.webpQuality })
