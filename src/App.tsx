@@ -14,6 +14,7 @@ const Tools   = lazy(() => import('@/sections/tools').then(m => ({ default: m.To
 const Guides  = lazy(() => import('@/sections/guides').then(m => ({ default: m.Guides })));
 const FAQ     = lazy(() => import('@/sections/faq').then(m => ({ default: m.FAQ })));
 const Contact = lazy(() => import('@/sections/contact').then(m => ({ default: m.Contact })));
+const ClosingCTA = lazy(() => import('@/sections/closing-cta').then(m => ({ default: m.ClosingCTA })));
 
 const ProductDetailPage = lazy(() => import('@/pages/ProductDetailPage').then(m => ({ default: m.ProductDetailPage })));
 const ProductStagePage = lazy(() => import('@/pages/ProductStagePage').then(m => ({ default: m.ProductStagePage })));
@@ -25,6 +26,7 @@ const AdminPage = lazy(() => import('@/pages/AdminPage').then(m => ({ default: m
 const BlogIndexPage = lazy(() => import('@/pages/blog/BlogIndexPage').then(m => ({ default: m.BlogIndexPage })));
 const BlogArticlePage = lazy(() => import('@/pages/blog/BlogArticlePage').then(m => ({ default: m.BlogArticlePage })));
 const SciencePage = lazy(() => import('@/pages/SciencePage').then(m => ({ default: m.SciencePage })));
+const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 import { LanguageProvider } from '@/hooks/useLanguage';
 import { ThemeProvider } from '@/hooks/useTheme';
 import { Toaster } from '@/components/ui/sonner';
@@ -67,7 +69,7 @@ function AppContent() {
         <Route path="/agb" element={<Suspense fallback={<PageLoader />}><AGBPage /></Suspense>} />
         <Route path="/admin" element={<Suspense fallback={<PageLoader />}><AdminPage /></Suspense>} />
         <Route path="/wissenschaft" element={<Suspense fallback={<PageLoader />}><SciencePage /></Suspense>} />
-        <Route path="*" element={
+        <Route path="/" element={
           <>
             <Navigation />
             <PendingAnchorScroll />
@@ -84,11 +86,16 @@ function AppContent() {
                 <Guides />
                 <FAQ />
                 <Contact />
+                <ClosingCTA />
               </Suspense>
             </main>
             <Footer />
           </>
         } />
+        {/* Everything else used to fall through to the homepage above at
+            status 200 — a broken link looked like it worked, and search
+            engines indexed the same content under unlimited URLs. */}
+        <Route path="*" element={<Suspense fallback={<PageLoader />}><NotFoundPage /></Suspense>} />
       </Routes>
       <Toaster position="bottom-center" toastOptions={{
         style: {

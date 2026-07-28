@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
-import { BookOpen, Droplets, RotateCcw, ChevronDown, AlertCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { BookOpen, Droplets, RotateCcw, ChevronDown, AlertCircle, ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { use3DReveal } from '@/hooks/useAnimation';
@@ -214,6 +215,24 @@ export function Guides() {
               </div>
             </div>
           </div>
+
+          {/* The blog's 18 in-depth guides were only reachable via the footer
+              or nav — nothing linked to them from the one section whose whole
+              subject is "how to do this". */}
+          <Link to="/blog"
+            className="group flex items-center justify-between gap-4 mt-8 px-6 py-5 rounded-xl transition-all hover:shadow-md"
+            style={{ background: 'var(--card-bg)', border: '1px solid var(--bd)' }}>
+            <div>
+              <p className="text-[14px] font-semibold" style={{ color: 'var(--tx1)' }}>
+                {de ? 'Ausführliche Ratgeber' : 'In-depth guides'}
+              </p>
+              <p className="text-[12px] mt-0.5" style={{ color: 'var(--txm)' }}>
+                {de ? 'Alle Anleitungen im Detail, mit Fotos und Schritt für Schritt.' : 'Every guide in full detail, with photos, step by step.'}
+              </p>
+            </div>
+            <ArrowRight className="h-5 w-5 flex-shrink-0 transition-transform duration-300 group-hover:translate-x-1"
+              style={{ color: 'var(--accent-soft)' }} />
+          </Link>
 
         </div>
       {/* Bottom gradient — bridges to FAQ below */}

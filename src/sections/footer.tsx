@@ -1,11 +1,23 @@
 import { ExternalLink } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/hooks/useLanguage';
 export function Footer() {
   const { t, lang } = useLanguage();
   const de = lang === 'de';
+  const location = useLocation();
+  const navigate = useNavigate();
+  const onHome = location.pathname === '/';
 
+  // Anchor targets (#produkte, #faq, ...) only exist on the homepage. The
+  // Footer now also renders on the product page (previously it didn't render
+  // there at all) — from anywhere else, route home first and let
+  // PendingAnchorScroll finish the scroll once the section exists in the DOM,
+  // same pattern Navigation already uses for this exact problem.
   const scrollToSection = (href: string) => {
+    if (!onHome) {
+      navigate('/', { state: { scrollTo: href } });
+      return;
+    }
     document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
   };
 
@@ -78,6 +90,9 @@ export function Footer() {
                     <a href={item.href} onClick={(e) => { e.preventDefault(); scrollToSection(item.href); }} className={linkClass}>{item.label}</a>
                   </li>
                 ))}
+                <li>
+                  <Link to="/wissenschaft" className={linkClass}>{de ? 'Wissenschaft' : 'Science'}</Link>
+                </li>
                 <li>
                   <Link to="/blog" className={linkClass}>{de ? 'Ratgeber & Anleitungen' : 'Guides & Articles'}</Link>
                 </li>

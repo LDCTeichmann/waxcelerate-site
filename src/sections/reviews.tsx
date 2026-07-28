@@ -227,11 +227,19 @@ export function Reviews() {
             </div>
           ))}
         </div>
-        <a href="https://www.ebay.de/usr/waxcelerate" target="_blank" rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[13px] font-medium transition-all hover:opacity-85 self-start sm:self-auto"
-          style={{ border: '1px solid var(--bd)', background: 'var(--sf2)', color: 'var(--tx2)' }}>
-          {de ? 'Alle 200+ Bewertungen auf eBay ansehen →' : 'See all 200+ reviews on eBay →'}
-        </a>
+        <div className="flex flex-col sm:flex-row gap-3 self-start sm:self-auto">
+          <a href="https://www.ebay.de/usr/waxcelerate" target="_blank" rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[13px] font-medium transition-all hover:opacity-85"
+            style={{ border: '1px solid var(--bd)', background: 'var(--sf2)', color: 'var(--tx2)' }}>
+            {de ? 'Alle 200+ Bewertungen auf eBay ansehen →' : 'See all 200+ reviews on eBay →'}
+          </a>
+          <button
+            onClick={() => document.querySelector('#produkte')?.scrollIntoView({ behavior: 'smooth' })}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[13px] font-medium transition-all hover:opacity-85"
+            style={{ background: 'var(--accent)', color: '#fff' }}>
+            {de ? 'Jetzt Wachs kaufen →' : 'Buy wax now →'}
+          </button>
+        </div>
       </div>
     </Section>
   );

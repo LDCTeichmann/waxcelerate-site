@@ -374,9 +374,14 @@ export function Hero() {
                     {t.hero.ctaBuy}
                     <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                   </button>
+                  {/* .hero-cta-secondary was already styled for both cases — a
+                      plain underlined link on mobile, the full pill from sm:
+                      up (see its comment in index.css) — but `hidden sm:` here
+                      cut it off before that mobile style ever got used, leaving
+                      mobile with only the one CTA. */}
                   <button
                     onClick={() => scrollTo('#warum-wachs')}
-                    className="hero-cta-secondary hidden sm:inline-flex text-[13px] font-medium"
+                    className="hero-cta-secondary inline-flex text-[13px] font-medium"
                   >
                     {t.hero.ctaSecondary}
                   </button>

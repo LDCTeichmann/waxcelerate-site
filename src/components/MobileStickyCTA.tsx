@@ -5,7 +5,14 @@ import { useLanguage } from '@/hooks/useLanguage';
 export function MobileStickyCTA() {
   const location = useLocation();
   const { lang } = useLanguage();
-  const [visible, setVisible] = useState(false);
+  // Tracks "has the user scrolled past the hero" and "is #produkte itself on
+  // screen" separately — the bar shows whenever the first is true and the
+  // second is false. The previous version only ever set visible→false when
+  // #produkte appeared and never set it back to true on leaving, so once a
+  // visitor scrolled past the products section the bar was gone for the rest
+  // of the page (Tools, Anleitungen, FAQ, Kontakt had no buy path on mobile).
+  const [pastHero, setPastHero] = useState(false);
+  const [onProducts, setOnProducts] = useState(false);
 
   const isMain = location.pathname === '/';
 
@@ -16,16 +23,12 @@ export function MobileStickyCTA() {
     if (!home || !products) return;
 
     const homeObserver = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry.isIntersecting) setVisible(true);
-      },
+      ([entry]) => setPastHero(!entry.isIntersecting),
       { threshold: 0 }
     );
 
     const productsObserver = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setVisible(false);
-      },
+      ([entry]) => setOnProducts(entry.isIntersecting),
       { rootMargin: '0px 0px -50% 0px', threshold: 0 }
     );
 
@@ -37,6 +40,8 @@ export function MobileStickyCTA() {
       productsObserver.disconnect();
     };
   }, [isMain]);
+
+  const visible = pastHero && !onProducts;
 
   if (!isMain) return null;
 

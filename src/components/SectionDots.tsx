@@ -6,6 +6,7 @@ const NAV_ITEMS = [
   { href: '#home',        labelDe: 'Start',        labelEn: 'Home'      },
   { href: '#warum-wachs', labelDe: 'Warum Wachs?', labelEn: 'Why Wax?' },
   { href: '#produkte',    labelDe: 'Produkte',      labelEn: 'Products' },
+  { href: '#bewertungen', labelDe: 'Bewertungen',   labelEn: 'Reviews'  },
   { href: '#ueber-mich',  labelDe: 'Über mich',     labelEn: 'About'    },
   { href: '#tools',       labelDe: 'Tools',         labelEn: 'Tools'    },
   { href: '#anleitungen', labelDe: 'Anleitungen',   labelEn: 'Guides'   },
