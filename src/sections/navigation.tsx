@@ -111,7 +111,7 @@ export function Navigation() {
               aria-label="Waxcelerate"
             >
               <img
-                src="/images/No BG No Sign Logo.png"
+                src={theme === 'noir' ? '/images/logo-light.png' : '/images/logo-dark.png'}
                 alt=""
                 className="w-auto h-14 lg:h-[4.2rem]"
               />
@@ -243,7 +243,7 @@ export function Navigation() {
       >
         {/* Top bar */}
         <div className="flex items-center justify-between px-5 h-16 border-b border-wx-bd/20 flex-shrink-0">
-          <img src="/images/No BG No Sign Logo.png" alt="Waxcelerate" className="h-11 w-auto" />
+          <img src={theme === 'noir' ? '/images/logo-light.png' : '/images/logo-dark.png'} alt="Waxcelerate" className="h-11 w-auto" />
           <button
             onClick={() => setIsMobileMenuOpen(false)}
             className="p-2 text-wx-tx2 hover:text-wx-tx1 transition-colors"

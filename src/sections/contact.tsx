@@ -85,9 +85,15 @@ export function Contact() {
                   : 'Quick question, chain check, or shipping? Write directly — I reply personally.'}
               </p>
 
+              {/* Solid fill, same visual weight as the Email button below —
+                  the previous pale tinted fill read as the weaker/disabled
+                  option even though WhatsApp is the faster channel of the
+                  two. --ext-whatsapp-fg flips between light and dark text so
+                  it stays readable against both the dark (light theme) and
+                  bright (noir theme) brand green. */}
               <div
-                className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl font-semibold text-[13px] transition-all group-hover:brightness-110"
-                style={{ background: 'rgba(var(--ext-whatsapp-rgb),0.10)', color: 'var(--ext-whatsapp)', border: '1px solid rgba(var(--ext-whatsapp-rgb),0.25)' }}
+                className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl font-semibold text-[13px] transition-opacity group-hover:opacity-90"
+                style={{ background: 'var(--ext-whatsapp)', color: 'var(--ext-whatsapp-fg)' }}
               >
                 <WhatsAppIcon className="h-3.5 w-3.5" />
                 {de ? 'WhatsApp öffnen →' : 'Open WhatsApp →'}

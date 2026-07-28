@@ -154,7 +154,14 @@ export function About() {
                     src="/images/people/luca-stage.jpg"
                     alt="eBay Seller Leadership Week 2025, San Jose"
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
-                    style={{ objectPosition: '50% 38%' }}
+                    // The right eBay sign used to get cropped mid-word ("eBa").
+                    // The source photo has both signs near opposite edges and
+                    // the card is narrower than the source, so no horizontal
+                    // position shows both intact — 60% was the best trade:
+                    // the right sign (closer to the visual focal point) reads
+                    // complete, the left one loses its leading "e" but still
+                    // reads as the same wordmark rather than a stray letter.
+                    style={{ objectPosition: '60% 38%' }}
                   />
                 </picture>
                 <div

@@ -150,6 +150,7 @@
     /* Documented off-system exceptions (external brand / status only) */
     --ext-whatsapp:      #1A7A4A;
     --ext-whatsapp-rgb:  26,122,74;
+    --ext-whatsapp-fg:   #FAFAFA;   /* text/icon color for a solid-fill button on --ext-whatsapp */
     --ok:                #22C55E;
     --ok-rgb:            34,197,94;
     --danger:            #DC2626;
@@ -261,6 +262,7 @@
 
     --ext-whatsapp:      #25D366;
     --ext-whatsapp-rgb:  37,211,102;
+    --ext-whatsapp-fg:   #0A0A0A;   /* WhatsApp green is too bright for white text to clear 4.5:1 here */
     --ok:                #22C55E;
     --danger:            #F87171;
 
@@ -372,6 +374,21 @@
   opacity: 0.05;
 }
 .noir .hero-grain { opacity: 0.08; }
+
+/* Pro product photos: black wax on dark slate, shot with no alpha channel —
+   in noir theme the card background is dark too, so the product nearly
+   disappears (light theme's lighter card gives it contrast for free). A
+   screen-blend wash lifts the shadows without flattening the photo's own
+   contrast. Stopgap until there's a shot on a lighter background — see
+   products.tsx WaxCard. */
+.noir [data-pro-photo]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 40%, rgba(255,255,255,0.16) 0%, transparent 70%);
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
 
 /* Editorial hero — Bühnen-Hintergrund. Light: warmes Off-White-Radial.
    Noir: dunkle Bühne, damit Wortmarke/Headline (in Noir hell) lesbar bleiben. */

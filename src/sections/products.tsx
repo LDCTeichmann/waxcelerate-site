@@ -316,7 +316,17 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deli
             purpose-built, persistent version of the same hint and isn't subject
             to that demotion, which is why the old fix "worked" right after load
             but the glitch came back on a later hover. */}
-        <div className="relative overflow-hidden rounded-t-2xl aspect-[16/9] flex-shrink-0" style={{ willChange: 'transform' }}>
+        <div className="relative overflow-hidden rounded-t-2xl aspect-[16/9] flex-shrink-0" style={{ willChange: 'transform' }}
+          // Pro photos are black wax on dark slate; in noir theme the card
+          // background is dark too, so the product nearly disappears. The
+          // photos have no alpha to reveal anything behind them, so instead
+          // of a gradient behind the <img>, .wax-card-pro-glow (noir-only,
+          // see index.css) lays a soft screen-blend wash over the photo
+          // itself to lift it off the dark surroundings. Stopgap per the UX
+          // plan until there's a product shot on a lighter background —
+          // flagged to Luca, not a design decision made here.
+          data-pro-photo={isPro || undefined}
+        >
           <img
             src={product.image}
             alt={title}

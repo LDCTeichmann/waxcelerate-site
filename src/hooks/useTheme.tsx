@@ -29,18 +29,6 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     localStorage.setItem('wx-theme', theme);
   }, [theme]);
 
-  // Sync with OS preference changes (only if user hasn't manually overridden)
-  useEffect(() => {
-    const mq = window.matchMedia('(prefers-color-scheme: dark)');
-    const handler = (e: MediaQueryListEvent) => {
-      if (!localStorage.getItem('wx-theme')) {
-        setThemeState(e.matches ? 'noir' : 'light');
-      }
-    };
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
-  }, []);
-
   const setTheme = useCallback((t: Theme) => setThemeState(t), []);
 
   return (
