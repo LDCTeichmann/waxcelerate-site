@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useState } from 'react';
 import { BadgeCheck } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { Stars } from '@/components/Stars';
@@ -8,7 +8,7 @@ import { Section } from '@/components/Section';
 // Every entry is a REAL review (eBay feedback + verified-buyer reviews). Nothing
 // here is invented — that's the whole point of the section. `photo` cards pull a
 // user image from /images/reviews; if the file is missing the card falls back to
-// the text layout automatically.
+// the text-only layout automatically.
 type Review = {
   textDe: string; textEn: string;
   name: string;
@@ -17,7 +17,7 @@ type Review = {
   source?: 'ebay' | 'web';         // verified badge label
   productDe?: string; productEn?: string;
   photo?: string;
-  photoPos?: string;                // object-position, tuned per photo so the bike stays clear of the text scrim
+  photoPos?: string;                // object-position, tuned per photo so the bike stays clear of the frame
 };
 
 const REVIEWS: Review[] = [
@@ -66,9 +66,6 @@ const REVIEWS: Review[] = [
   },
 ];
 
-const CARD_W = 'w-[260px] sm:w-[348px]';
-const CARD = 'flex-shrink-0 mr-3 sm:mr-5 h-[180px] sm:h-[212px] rounded-2xl overflow-hidden';
-
 function initials(name: string) {
   const parts = name.split(/[^a-zA-Z0-9]+/).filter(Boolean);
   return (parts.length > 1 ? parts[0][0] + parts[1][0] : name.slice(0, 2)).toUpperCase();
@@ -94,106 +91,67 @@ function Avatar({ name }: { name: string }) {
   );
 }
 
+// Photo, when present, is now its own block above the quote rather than a
+// background behind it — the previous text-on-photo layout put white text
+// over light bike photos on two of the five photo cards, which was
+// borderline unreadable. This also unifies the photo and no-photo cards onto
+// one shared shape: same background, same footer, same quote treatment.
 function ReviewCard({ r, de }: { r: Review; de: boolean }) {
   const [imgOk, setImgOk] = useState(true);
+  const [expanded, setExpanded] = useState(false);
   const text = de ? r.textDe : r.textEn;
   const date = de ? r.dateDe : r.dateEn;
   const product = de ? r.productDe : r.productEn;
+  const isLong = text.length > 160;
+  const showPhoto = r.photo && imgOk;
 
-  // ── Photo card ──
-  if (r.photo && imgOk) {
-    return (
-      <figure className={`${CARD} ${CARD_W} relative`}>
-        <img src={r.photo} alt={de ? `Fahrrad von ${r.name}` : `${r.name}'s bike`} loading="lazy" onError={() => setImgOk(false)}
-          className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition: r.photoPos ?? '50% 50%' }} />
-        {/* Scrim only tall enough for the quote + name — leaves the bike itself untinted */}
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(var(--scrim-rgb),0.90) 0%, rgba(var(--scrim-rgb),0.62) 22%, rgba(var(--scrim-rgb),0) 58%)' }} />
-        <div className="absolute top-2.5 sm:top-3 left-2.5 sm:left-3"><Stars rating={r.rating ?? 5} /></div>
-        <figcaption className="absolute inset-x-0 bottom-0 p-3 sm:p-4 text-white">
-          <blockquote className="text-[12px] sm:text-[13px] leading-snug font-medium line-clamp-2" style={{ textShadow: '0 1px 8px rgba(0,0,0,0.5)' }}>
-            „{text}“
-          </blockquote>
-          <div className="flex items-center gap-2 mt-2.5 text-[11px]">
-            <span className="font-semibold">{r.name}</span>
-            <span className="opacity-70">·</span>
-            <span className="inline-flex items-center gap-1 opacity-90"><BadgeCheck className="h-3.5 w-3.5" />{date}</span>
-          </div>
-        </figcaption>
-      </figure>
-    );
-  }
-
-  // ── Text card ──
   return (
-    <figure className={`${CARD} ${CARD_W} flex flex-col p-3.5 sm:p-5`}
-      style={{ background: 'var(--sf2)', border: '1px solid var(--bd)' }}>
-      <div className="flex items-center justify-between">
-        <Stars rating={r.rating ?? 5} />
-        <span className="text-[10.5px]" style={{ color: 'var(--txf)' }}>{date}</span>
-      </div>
-      <blockquote className="text-[12px] sm:text-[13px] leading-relaxed mt-2 sm:mt-2.5 flex-1 line-clamp-3 sm:line-clamp-4" style={{ color: 'var(--tx2)' }}>
-        „{text}“
-      </blockquote>
-      <figcaption className="flex items-center gap-2.5 mt-3 pt-3" style={{ borderTop: '1px solid var(--bd2)' }}>
-        <Avatar name={r.name} />
-        <div className="min-w-0">
-          <p className="text-[12.5px] font-semibold truncate" style={{ color: 'var(--tx1)' }}>{r.name}</p>
-          <Verified source={r.source} de={de} />
+    <figure className="h-full flex flex-col rounded-2xl overflow-hidden" style={{ background: 'var(--sf2)', border: '1px solid var(--bd)' }}>
+      {showPhoto && (
+        <div className="h-36 sm:h-40 flex-shrink-0">
+          <img src={r.photo} alt={de ? `Fahrrad von ${r.name}` : `${r.name}'s bike`} loading="lazy" onError={() => setImgOk(false)}
+            className="w-full h-full object-cover" style={{ objectPosition: r.photoPos ?? '50% 50%' }} />
         </div>
-        {product && (
-          <span className="ml-auto flex-shrink-0 rounded-full px-2 py-1 text-[10px] font-medium whitespace-nowrap"
-            style={{ background: 'var(--accent-wash)', color: 'var(--accent)', border: '1px solid rgba(var(--accent-rgb),0.16)' }}>
-            {product}
-          </span>
+      )}
+      <div className="flex flex-col flex-1 p-4 sm:p-5">
+        <div className="flex items-center justify-between mb-2.5">
+          <Stars rating={r.rating ?? 5} />
+          <span className="text-[10.5px]" style={{ color: 'var(--txf)' }}>{date}</span>
+        </div>
+        <blockquote className={`text-[13px] leading-relaxed flex-1 ${!expanded && isLong ? 'line-clamp-4' : ''}`} style={{ color: 'var(--tx2)' }}>
+          „{text}“
+        </blockquote>
+        {isLong && (
+          <button onClick={() => setExpanded(v => !v)}
+            className="text-[11.5px] font-medium mt-1.5 self-start hover:underline"
+            style={{ color: 'var(--accent-soft)' }}>
+            {expanded ? (de ? 'Weniger anzeigen' : 'Show less') : (de ? 'Mehr lesen' : 'Read more')}
+          </button>
         )}
-      </figcaption>
+        <figcaption className="flex items-center gap-2.5 mt-3.5 pt-3.5" style={{ borderTop: '1px solid var(--bd2)' }}>
+          <Avatar name={r.name} />
+          <div className="min-w-0">
+            <p className="text-[12.5px] font-semibold truncate" style={{ color: 'var(--tx1)' }}>{r.name}</p>
+            <Verified source={r.source} de={de} />
+          </div>
+          {product && (
+            <span className="ml-auto flex-shrink-0 rounded-full px-2 py-1 text-[10px] font-medium whitespace-nowrap"
+              style={{ background: 'var(--accent-wash)', color: 'var(--accent)', border: '1px solid rgba(var(--accent-rgb),0.16)' }}>
+              {product}
+            </span>
+          )}
+        </figcaption>
+      </div>
     </figure>
-  );
-}
-
-// Seamless marquee row: cards rendered twice, the track slides one set width.
-// `paused` halts the animation when the section is off-screen so it isn't
-// compositing a wide track no one can see.
-function Marquee({ items, dur, reduced, paused }: { items: Review[]; dur: number; reduced: boolean; paused: boolean }) {
-  const { lang } = useLanguage();
-  const de = lang === 'de';
-  if (reduced) {
-    return (
-      <div className="flex overflow-x-auto edge-fade pb-2" style={{ scrollbarWidth: 'none' }}>
-        {items.map((r, i) => <ReviewCard key={i} r={r} de={de} />)}
-      </div>
-    );
-  }
-  return (
-    <div className="marquee overflow-hidden edge-fade">
-      <div className="marquee-track inline-flex"
-        style={{ '--dur': `${dur}s`, animationPlayState: paused ? 'paused' : 'running' } as CSSProperties}>
-        {[...items, ...items].map((r, i) => <ReviewCard key={i} r={r} de={de} />)}
-      </div>
-    </div>
   );
 }
 
 export function Reviews() {
   const { lang } = useLanguage();
   const de = lang === 'de';
-  const [reduced] = useState(() =>
-    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-
-  // Pause the marquee animations while the section is off-screen so it isn't
-  // compositing a wide track no one can see.
-  const sectionRef = useRef<HTMLElement>(null);
-  const [inView, setInView] = useState(true);
-  useEffect(() => {
-    const el = sectionRef.current;
-    if (!el || typeof IntersectionObserver === 'undefined') return;
-    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { rootMargin: '120px' });
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
 
   return (
-    <Section id="bewertungen" ref={sectionRef} className="overflow-hidden" style={{ background: 'var(--pg)' }}>
+    <Section id="bewertungen" style={{ background: 'var(--pg)' }}>
       {/* ── Header ── */}
       <div className="mb-9">
         <p className="eyebrow mb-4" style={{ color: 'var(--txf)' }}>
@@ -208,8 +166,19 @@ export function Reviews() {
         </p>
       </div>
 
-      {/* ── Single self-scrolling row, contained so cards fade in before the edge ── */}
-      <Marquee items={REVIEWS} dur={64} reduced={reduced} paused={!inView} />
+      {/* ── Desktop/tablet: static grid, no motion — nothing here rotates or hides itself ── */}
+      <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
+        {REVIEWS.map((r, i) => <ReviewCard key={i} r={r} de={de} />)}
+      </div>
+
+      {/* ── Mobile: swipeable, one card per screen ── */}
+      <div className="sm:hidden flex overflow-x-auto snap-x snap-mandatory gap-4 pb-1 edge-fade" style={{ scrollbarWidth: 'none' }}>
+        {REVIEWS.map((r, i) => (
+          <div key={i} className="snap-center flex-shrink-0 w-full">
+            <ReviewCard r={r} de={de} />
+          </div>
+        ))}
+      </div>
 
       {/* ── Proof strip + source link ── */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5 mt-10 pt-6"

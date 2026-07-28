@@ -26,7 +26,9 @@ function StepText({ text }: { text: string }) {
 export function Guides() {
   const { t, lang } = useLanguage();
   const de = lang === 'de';
-  const [openGuide, setOpenGuide] = useState<string | null>(null);
+  // First entry open by default — a reader shouldn't have to interact with
+  // an accordion just to see that the section has content at all.
+  const [openGuide, setOpenGuide] = useState<string | null>('neu');
   const listRef = useRef<HTMLDivElement>(null);
   use3DReveal(listRef, { stagger: 0.06, start: 'top 88%' });
 
@@ -47,7 +49,7 @@ export function Guides() {
             <p className="text-wx-tx2">{t.guides.subtitle}</p>
           </div>
 
-          <div className="grid md:grid-cols-[1fr_260px] gap-8 lg:gap-12 items-center">
+          <div className="grid md:grid-cols-[1fr_260px] gap-8 lg:gap-12 items-start">
             {/* Left: accordion */}
             <div ref={listRef} className="space-y-2">
               {guides.map((guide) => {

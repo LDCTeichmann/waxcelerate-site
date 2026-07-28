@@ -16,11 +16,6 @@
 .graph-flow { animation: graph-flow 1.15s linear infinite; }
 @media (prefers-reduced-motion: reduce) { .graph-flow { animation: none; } }
 
-/* Reviews — seamless right-to-left marquee. The track holds the cards twice and
-   slides exactly one set width, so the loop is invisible. Pause on hover. */
-@keyframes marquee-x { from { transform: translate3d(0,0,0); } to { transform: translate3d(-50%,0,0); } }
-.marquee-track { animation: marquee-x var(--dur, 64s) linear infinite; will-change: transform; }
-.marquee:hover .marquee-track, .marquee:focus-within .marquee-track { animation-play-state: paused; }
 /* Solid page-color gradient overlay instead of an opacity mask — masking dark
    photo cards to transparent against a light page background left a muddy
    grey smear at the edges (alpha-blending a dark photo down to nothing over a
@@ -61,8 +56,6 @@
     color-mix(in oklab, var(--pg) 16%, transparent) 75%,
     transparent 100%);
 }
-@media (prefers-reduced-motion: reduce) { .marquee-track { animation: none; } }
-
 /* Hero primary CTA — barely-perceptible breathing glow. Box-shadow intensity
    only (no scale, no color shift), long slow loop so it reads as "alive"
    without registering as an animation. Paused (not removed) on hover so the

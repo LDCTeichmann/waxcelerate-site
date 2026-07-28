@@ -672,49 +672,6 @@ export function Tools() {
   const headerRef = useRef<HTMLDivElement>(null);
   useSectionReveal(headerRef);
 
-  // ── Desktop deck state ────────────────────────────────────────────────────
-  const [activeCard, setActiveCard] = useState(0);
-
-  // 3 card refs (no hooks in loops)
-  const cardRef0 = useRef<HTMLDivElement>(null);
-  const cardRef1 = useRef<HTMLDivElement>(null);
-  const cardRef2 = useRef<HTMLDivElement>(null);
-  const cardRefs = useMemo(() => [cardRef0, cardRef1, cardRef2], []);
-  const deckMountedRef = useRef(false);
-
-  // Deck geometry
-  const CARD_WIDTH   = 620;
-  const DECK_HEIGHT  = 700;
-  const SIDE_OFFSET  = 560;
-  const SIDE_SCALE   = 0.85;
-  const SIDE_OPACITY = 0.58;
-
-  // GSAP: position 3 cards in a circular deck
-  useEffect(() => {
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const animate = deckMountedRef.current && !prefersReduced;
-    deckMountedRef.current = true;
-
-    cardRefs.forEach((ref, i) => {
-      if (!ref.current) return;
-      // 3-card circular: 0=active, 1=right, 2=left
-      const rawOffset = (i - activeCard + 3) % 3;
-      const isActive = rawOffset === 0;
-      const isRight  = rawOffset === 1;
-      const props = {
-        x:       isActive ? 0 : isRight ? SIDE_OFFSET : -SIDE_OFFSET,
-        scale:   isActive ? 1 : SIDE_SCALE,
-        opacity: isActive ? 1 : SIDE_OPACITY,
-        zIndex:  isActive ? 20 : 10,
-      };
-      if (animate) {
-        gsap.to(ref.current, { ...props, duration: 0.55, ease: 'power3.inOut', overwrite: 'auto' });
-      } else {
-        gsap.set(ref.current, props);
-      }
-    });
-  }, [activeCard, cardRefs]);
-
   // ── Mobile tab state ──────────────────────────────────────────────────────
   const TAB_LABELS = useMemo(() =>
     de ? ['Intervall', 'Vorrat', 'Rotation']
@@ -797,6 +754,7 @@ export function Tools() {
           <div className="lg:hidden">
             <div
               ref={tabBarRef}
+              role="tablist"
               className="relative flex p-1 rounded-2xl mb-5 overflow-x-auto"
               style={{ background: 'var(--tab-track-bg)', border: '1px solid var(--tab-track-bd)' }}
             >
@@ -815,7 +773,9 @@ export function Tools() {
                   key={i}
                   ref={el => { tabButtonRefs.current[i] = el; }}
                   onClick={() => setActiveTab(i)}
-                  className="relative z-10 flex-1 min-w-[60px] px-3 py-2 rounded-xl text-[12px] font-semibold transition-colors whitespace-nowrap"
+                  role="tab"
+                  aria-selected={activeTab === i}
+                  className="relative z-10 flex-1 min-w-[60px] px-3 py-2 rounded-xl text-[13px] font-semibold transition-colors whitespace-nowrap"
                   style={{
                     color: activeTab === i ? 'var(--tx1)' : 'var(--txf)',
                     letterSpacing: activeTab === i ? '-0.01em' : '0',
@@ -881,97 +841,16 @@ export function Tools() {
             </div>
           </div>
 
-          {/* ── Desktop: 3-card streaming deck (lg+) ── */}
-          <div
-            className="hidden lg:block relative"
-            style={{
-              height: DECK_HEIGHT,
-              overflow: 'hidden',
-              background: 'radial-gradient(ellipse 55% 60% at 50% 50%, rgba(var(--accent-rgb),0.07) 0%, transparent 70%)',
-            }}
-          >
-            {([cardRef0, cardRef1, cardRef2] as const).map((ref, i) => (
-              <div
-                key={i}
-                ref={ref}
-                className="absolute top-0"
-                style={{
-                  left: '50%',
-                  marginLeft: -CARD_WIDTH / 2,
-                  width: CARD_WIDTH,
-                  height: '100%',
-                  willChange: 'transform',
-                }}
-              >
-                <div style={{ height: '100%', pointerEvents: i === activeCard ? 'auto' : 'none' }}>
-                  {i === 0 && <RewaxCalculator />}
-                  {i === 1 && <WaxStockCalculator />}
-                  {i === 2 && <RotationAndSavings />}
-                </div>
-
-                {/* Inactive overlay: frosted glass tint. (Previously swapped to a
-                    72%-opacity light wash chasing a muddy/greenish cast — that cast
-                    actually came from the `--sf3` solid fills in the recommended-box
-                    and mini-cards underneath and the biased neutral-gray tokens,
-                    both fixed at the source since. This dark, low-opacity wash was
-                    never the culprit and reverting to it restores the contrast/
-                    legibility the higher-opacity light wash had flattened away.) */}
-                {i !== activeCard && (
-                  <div
-                    className="absolute inset-0 rounded-3xl cursor-pointer"
-                    style={{
-                      background: 'rgba(4,4,10,0.18)',
-                      zIndex: 25,
-                      transition: 'background 250ms ease',
-                    }}
-                    onClick={() => setActiveCard(i)}
-                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(4,4,10,0.04)'; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = 'rgba(4,4,10,0.18)'; }}
-                  />
-                )}
-              </div>
-            ))}
-
-            {/* Edge fades */}
-            <div
-              className="absolute inset-y-0 left-0 pointer-events-none"
-              style={{ width: 220, zIndex: 50, background: 'linear-gradient(to right, var(--tool-bg) 20%, transparent 100%)' }}
-            />
-            <div
-              className="absolute inset-y-0 right-0 pointer-events-none"
-              style={{ width: 220, zIndex: 50, background: 'linear-gradient(to left, var(--tool-bg) 20%, transparent 100%)' }}
-            />
-          </div>
-
-          {/* Dot + label indicator — desktop only */}
-          <div className="hidden lg:flex items-center justify-center gap-5 mt-6">
-            {TAB_LABELS.map((label, i) => (
-              <button
-                key={i}
-                onClick={() => setActiveCard(i)}
-                className="flex flex-col items-center gap-1.5 cursor-pointer"
-                style={{ border: 'none', background: 'transparent', padding: 0 }}
-              >
-                <div
-                  className="transition-all duration-300"
-                  style={{
-                    width: i === activeCard ? '22px' : '5px',
-                    height: '4px',
-                    borderRadius: '2px',
-                    background: i === activeCard ? 'var(--tx1)' : 'var(--bd)',
-                  }}
-                />
-                <span
-                  className="text-[10px] tracking-[0.08em] transition-all duration-300"
-                  style={{
-                    color: i === activeCard ? 'var(--txm)' : 'var(--txff)',
-                    fontWeight: i === activeCard ? 500 : 400,
-                  }}
-                >
-                  {label}
-                </span>
-              </button>
-            ))}
+          {/* ── Desktop: all three calculators side by side (lg+) ──
+              Previously a circular coverflow deck showed one card at ~60% of
+              the section's width with two scaled-down, faded neighbors either
+              side — two of the three calculators (the site's strongest sales
+              content) went unseen by most desktop visitors. A plain grid,
+              all three always visible and equal height, fixes that. */}
+          <div className="hidden lg:grid lg:grid-cols-3 gap-6 items-stretch">
+            <RewaxCalculator />
+            <WaxStockCalculator />
+            <RotationAndSavings />
           </div>
 
       {/* Bottom gradient — bridges to FAQ below */}
