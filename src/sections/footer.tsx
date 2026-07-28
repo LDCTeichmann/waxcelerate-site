@@ -1,10 +1,8 @@
 import { ExternalLink } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/hooks/useLanguage';
-import { useTheme } from '@/hooks/useTheme';
 export function Footer() {
   const { t, lang } = useLanguage();
-  const { theme } = useTheme();
   const de = lang === 'de';
   const location = useLocation();
   const navigate = useNavigate();
@@ -39,7 +37,7 @@ export function Footer() {
             {/* Brand — full width on mobile, 2/5 on desktop */}
             <div className="col-span-2 lg:col-span-1 max-w-xs">
               <div className="flex items-center gap-2.5 mb-5">
-                <img src={theme === 'noir' ? '/images/logo-light.png' : '/images/logo-dark.png'} alt="Waxcelerate" className="h-10 w-auto" />
+                <img src="/images/logo-dark.png" alt="Waxcelerate" className="h-10 w-auto" />
                 <span className="font-sans text-sm font-bold tracking-wide text-wx-tx1">
                   WAXCELERATE
                 </span>

@@ -16,6 +16,16 @@
 .graph-flow { animation: graph-flow 1.15s linear infinite; }
 @media (prefers-reduced-motion: reduce) { .graph-flow { animation: none; } }
 
+/* Reviews — one seamless right-to-left row. The track holds the card set
+   twice and slides exactly one set width (-50%), so the wrap point is
+   invisible. Pauses on hover AND on focus-within, so a reader can stop it
+   with the mouse or by tabbing into a card to finish a quote. */
+@keyframes marquee-x { from { transform: translate3d(0,0,0); } to { transform: translate3d(-50%,0,0); } }
+.marquee-track { animation: marquee-x var(--dur, 64s) linear infinite; will-change: transform; }
+.marquee:hover .marquee-track,
+.marquee:focus-within .marquee-track { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) { .marquee-track { animation: none; } }
+
 /* Solid page-color gradient overlay instead of an opacity mask — masking dark
    photo cards to transparent against a light page background left a muddy
    grey smear at the edges (alpha-blending a dark photo down to nothing over a
@@ -110,10 +120,10 @@
        repeatedly on the guides accordion, tool calculator boxes, etc.).
        Removing the bias entirely and tightening the steps closer to white
        fixes it structurally instead of case-by-case. */
-    /* Hero stage card — deliberately its own token, not tied to --sf2. In light
-       mode the page is bright so any dark card reads as a frame; in noir mode
-       the page itself goes near-black, so the stage needs to stay visibly
-       lighter than --pg or the "card floating in a frame" effect disappears. */
+    /* Hero stage card — deliberately its own token, not tied to --sf2. The
+       hero photo covers this card edge-to-edge, so this is a backdrop (pre-load
+       / fallback), not the thing that draws the card edge. Same value in noir —
+       see the note there for why it must not be lighter than the photo. */
     --hero-stage: #0B0C0E;
     --pg:        #F6F6F6;
     --sf:        #FFFFFF;
@@ -225,7 +235,16 @@
   /* ── Noir mode — zinc-950 neutral blacks, 2026 dark-first ── */
   .noir {
     /* Zinc-tinted neutrals — no blue undertone */
-    --hero-stage: #1C1C1F;   /* visibly lighter than --pg below, keeps the card edge */
+    /* Same near-black as light mode, deliberately NOT lighter than --pg. The
+       hero photo covers this card edge-to-edge, so the stage colour is never
+       the thing that draws the card edge — the photo and the card's shadow
+       do that. Its one visible moment was a bug: the scroll-scrub in
+       hero-light.tsx shrinks the inner layer to scale .965 from a bottom
+       origin, briefly uncovering ~24px of card background on the left, right
+       and top. At #1C1C1F that read as a light grey frame snapping in around
+       the hero while scrolling (invisible in light mode only because there
+       the value already matched the dark photo). Keep this dark. */
+    --hero-stage: #0B0C0E;
     --pg:        #09090B;    /* zinc-950 */
     --sf:        #111113;    /* slightly elevated, neutral */
     --sf2:       #1C1C1F;    /* card surface, Raycast-inspired */
@@ -449,12 +468,19 @@
   content: '';
   position: absolute;
   inset: 0;
-  opacity: 0.05;
+  opacity: 0.02;
   pointer-events: none;
   /* feColorMatrix desaturates the raw turbulence output — without it,
      fractalNoise's per-channel Perlin values aren't balanced and the "grain"
-     reads as a faint green/olive tint instead of neutral gray. */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+     reads as a faint green/olive tint instead of neutral gray.
+     color-interpolation-filters='sRGB' is what makes that desaturation
+     actually land: SVG filters default to linearRGB, so saturate=0 was being
+     applied in linear space and the result came back through the sRGB transfer
+     curve unbalanced again — visible as an olive/brown cast over every
+     InstrumentFrame in light mode, which also ate contrast on hairline
+     drawings. Opacity dropped from 0.05 to 0.02 for the same reason: the
+     texture is meant to be felt, not seen. */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-repeat: repeat;
   background-size: 300px 300px;
   z-index: 2;
@@ -643,6 +669,41 @@ section[id] {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
   letter-spacing: -0.01em;
+}
+
+/* Hairline slider — used by the science page's breakaway counter. Deliberately
+   thinner than a stock range input so it reads as an instrument control rather
+   than a form field. */
+.wx-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 1px;
+  background: var(--bd);
+  outline: none;
+  cursor: pointer;
+}
+.wx-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 13px;
+  height: 13px;
+  border-radius: 9999px;
+  background: var(--accent);
+  box-shadow: 0 0 0 5px var(--accent-wash);
+  cursor: grab;
+}
+.wx-range::-moz-range-thumb {
+  width: 13px;
+  height: 13px;
+  border: 0;
+  border-radius: 9999px;
+  background: var(--accent);
+  box-shadow: 0 0 0 5px var(--accent-wash);
+  cursor: grab;
+}
+.wx-range:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 8px;
 }
 
 /* Reduced motion — universal kill switch */

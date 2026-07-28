@@ -28,8 +28,13 @@ export function FAQ() {
 
   return (
     <Section id="faq" className="bg-wx-bg">
-        <div className="max-w-2xl">
-          <div className="mb-10">
+        {/* Two columns on desktop: the heading keeps the same left edge as
+            every other section, and the question list takes the remaining
+            width. Wrapping the whole section in max-w-2xl instead left 528px
+            of the 1120px column empty on the right, which read as the section
+            being misaligned rather than as a deliberate narrow measure. */}
+        <div className="grid lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)] gap-10 lg:gap-16 items-start">
+          <div className="lg:sticky lg:top-28">
             <h2 className="section-title mb-4">
               <ScrollWordReveal text={t.faq.title} />
             </h2>
@@ -38,6 +43,7 @@ export function FAQ() {
             </p>
           </div>
 
+          <div>
           {/* Search input */}
           <div className="relative mb-6">
             <input
@@ -132,13 +138,14 @@ export function FAQ() {
           )}
 
           {/* Single CTA — high-intent readers who finished the FAQ */}
-          <div className="mt-10 flex justify-center">
+          <div className="mt-10 flex justify-start">
             <button
               onClick={() => document.querySelector('#produkte')?.scrollIntoView({ behavior: 'smooth' })}
               className="btn-primary px-7 py-3.5 text-[14px]"
             >
               {de ? 'Kette jetzt sauber halten →' : 'Keep my chain clean →'}
             </button>
+          </div>
           </div>
         </div>
       {/* Bottom gradient — bridges to Contact below */}

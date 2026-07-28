@@ -31,20 +31,24 @@ export function Contact() {
 
   return (
     <Section id="kontakt" className="bg-wx-bg">
-        <div className="max-w-2xl">
+        {/* Full column width, like every other section. Wrapping the whole
+            section in max-w-2xl left 528px of the 1120px column empty on the
+            right, which read as "shifted left" rather than as a deliberate
+            narrow measure. Only the prose keeps a reading width. */}
+        <div>
 
           {/* Header */}
           <div ref={headerRef} className="mb-12">
             <h2 className="section-title mb-4">
               <ScrollWordReveal text={t.contact.title} />
             </h2>
-            <p data-reveal="subtitle" className="text-wx-tx2">
+            <p data-reveal="subtitle" className="text-wx-tx2 max-w-xl">
               {t.contact.subtitle}
             </p>
           </div>
 
           {/* Two equal contact cards */}
-          <div className="grid sm:grid-cols-2 gap-4">
+          <div className="grid sm:grid-cols-2 gap-5 lg:gap-6">
 
             {/* WhatsApp card */}
             <a

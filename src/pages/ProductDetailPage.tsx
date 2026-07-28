@@ -9,7 +9,6 @@ import { getProductById, products, canCheckout, checkoutEnabled } from '@/lib/da
 import type { Product } from '@/lib/data';
 import { richContent } from '@/lib/productContent';
 import { useLanguage } from '@/hooks/useLanguage';
-import { useTheme } from '@/hooks/useTheme';
 import { AddToCartButton } from '@/components/AddToCartButton';
 import { CartIcon } from '@/components/CartIcon';
 import { ImageLightbox } from '@/components/ImageLightbox';
@@ -28,7 +27,6 @@ const lg = (src: string) =>
 export function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { lang } = useLanguage();
-  const { theme } = useTheme();
   const product = id ? getProductById(id) : undefined;
   const de = lang === 'de';
 
@@ -290,7 +288,7 @@ export function ProductDetailPage() {
           <div className="max-w-[1440px] mx-auto px-5 sm:px-8 h-14 flex items-center justify-between gap-4">
             <div className="flex items-center gap-4 min-w-0">
               <Link to="/" className="flex-shrink-0 flex items-center" aria-label="Waxcelerate — Startseite">
-                <img src={theme === 'noir' ? '/images/logo-light.png' : '/images/logo-dark.png'} alt="" className="h-8 w-auto" />
+                <img src="/images/logo-dark.png" alt="" className="h-8 w-auto" />
               </Link>
               {/* Breadcrumb — mirrors the breadcrumbSchema in <head>, which had
                   no visible on-page counterpart before this. */}

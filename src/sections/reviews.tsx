@@ -1,14 +1,16 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { BadgeCheck } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { Stars } from '@/components/Stars';
 import { Section } from '@/components/Section';
 
 // ── Data ─────────────────────────────────────────────────────────────────────
-// Every entry is a REAL review (eBay feedback + verified-buyer reviews). Nothing
-// here is invented — that's the whole point of the section. `photo` cards pull a
-// user image from /images/reviews; if the file is missing the card falls back to
-// the text-only layout automatically.
+// Every entry is a REAL review (eBay feedback + verified-buyer reviews).
+// Nothing here is invented — that is the whole point of this section. An
+// earlier revision of this file carried extra "community" cards whose own
+// comment admitted the text was only "sinngemäß" (paraphrased); those are
+// deliberately not here. If more reviews are added, they come from actual
+// eBay feedback, not from filling the row out.
 type Review = {
   textDe: string; textEn: string;
   name: string;
@@ -16,8 +18,8 @@ type Review = {
   rating?: number;                 // default 5
   source?: 'ebay' | 'web';         // verified badge label
   productDe?: string; productEn?: string;
-  photo?: string;
-  photoPos?: string;                // object-position, tuned per photo so the bike stays clear of the frame
+  photo?: string;                  // real customer photo, shown as a small thumbnail
+  photoPos?: string;               // object-position, tuned per photo
 };
 
 const REVIEWS: Review[] = [
@@ -71,77 +73,87 @@ function initials(name: string) {
   return (parts.length > 1 ? parts[0][0] + parts[1][0] : name.slice(0, 2)).toUpperCase();
 }
 
-function Verified({ source, de }: { source?: Review['source']; de: boolean }) {
-  const label = source === 'web'
-    ? (de ? 'Verifizierter Käufer' : 'Verified buyer')
-    : (de ? 'eBay verifiziert' : 'eBay verified');
-  return (
-    <span className="inline-flex items-center gap-1 text-[10.5px] font-medium" style={{ color: 'var(--accent-soft)' }}>
-      <BadgeCheck className="h-3.5 w-3.5" /> {label}
-    </span>
-  );
+// Card width follows quote length instead of being uniform. A one-line quote
+// in a 460px card is mostly empty space; a 300-word quote in a 300px card is a
+// wall. Sizing to the text keeps every card roughly the same HEIGHT — which is
+// what actually matters in a single row — and the varied widths give the row a
+// natural rhythm rather than a metronome of identical blocks.
+function cardWidth(len: number) {
+  if (len > 240) return 460;
+  if (len > 110) return 380;
+  return 300;
 }
 
-function Avatar({ name }: { name: string }) {
+function Avatar({ name, photo, photoPos, de }: { name: string; photo?: string; photoPos?: string; de: boolean }) {
+  const [ok, setOk] = useState(true);
+  if (photo && ok) {
+    return (
+      <img
+        src={photo}
+        alt={de ? `Rad von ${name}` : `${name}'s bike`}
+        loading="lazy"
+        onError={() => setOk(false)}
+        className="flex-shrink-0 rounded-lg object-cover"
+        style={{ width: 38, height: 38, objectPosition: photoPos ?? '50% 50%' }}
+      />
+    );
+  }
   return (
-    <span className="flex-shrink-0 grid place-items-center rounded-full text-[11px] font-bold"
-      style={{ width: 30, height: 30, background: 'var(--accent-wash)', color: 'var(--accent)' }}>
+    <span className="flex-shrink-0 grid place-items-center rounded-lg text-[11px] font-bold"
+      style={{ width: 38, height: 38, background: 'var(--accent-wash)', color: 'var(--accent)' }}>
       {initials(name)}
     </span>
   );
 }
 
-// Photo, when present, is now its own block above the quote rather than a
-// background behind it — the previous text-on-photo layout put white text
-// over light bike photos on two of the five photo cards, which was
-// borderline unreadable. This also unifies the photo and no-photo cards onto
-// one shared shape: same background, same footer, same quote treatment.
+// One card shape for every review — photo or not. The previous version laid
+// white text over the customer photo, which on the brighter bike shots was
+// barely legible; the photo now sits as a small thumbnail next to the name
+// where it still reads as "a real rider's bike" without fighting the quote.
 function ReviewCard({ r, de }: { r: Review; de: boolean }) {
-  const [imgOk, setImgOk] = useState(true);
-  const [expanded, setExpanded] = useState(false);
   const text = de ? r.textDe : r.textEn;
   const date = de ? r.dateDe : r.dateEn;
   const product = de ? r.productDe : r.productEn;
-  const isLong = text.length > 160;
-  const showPhoto = r.photo && imgOk;
+  const verified = r.source === 'web'
+    ? (de ? 'Verifizierter Käufer' : 'Verified buyer')
+    : (de ? 'eBay verifiziert' : 'eBay verified');
 
   return (
-    <figure className="h-full flex flex-col rounded-2xl overflow-hidden" style={{ background: 'var(--sf2)', border: '1px solid var(--bd)' }}>
-      {showPhoto && (
-        <div className="h-36 sm:h-40 flex-shrink-0">
-          <img src={r.photo} alt={de ? `Fahrrad von ${r.name}` : `${r.name}'s bike`} loading="lazy" onError={() => setImgOk(false)}
-            className="w-full h-full object-cover" style={{ objectPosition: r.photoPos ?? '50% 50%' }} />
-        </div>
-      )}
-      <div className="flex flex-col flex-1 p-4 sm:p-5">
-        <div className="flex items-center justify-between mb-2.5">
-          <Stars rating={r.rating ?? 5} />
-          <span className="text-[10.5px]" style={{ color: 'var(--txf)' }}>{date}</span>
-        </div>
-        <blockquote className={`text-[13px] leading-relaxed flex-1 ${!expanded && isLong ? 'line-clamp-4' : ''}`} style={{ color: 'var(--tx2)' }}>
-          „{text}“
-        </blockquote>
-        {isLong && (
-          <button onClick={() => setExpanded(v => !v)}
-            className="text-[11.5px] font-medium mt-1.5 self-start hover:underline"
-            style={{ color: 'var(--accent-soft)' }}>
-            {expanded ? (de ? 'Weniger anzeigen' : 'Show less') : (de ? 'Mehr lesen' : 'Read more')}
-          </button>
-        )}
-        <figcaption className="flex items-center gap-2.5 mt-3.5 pt-3.5" style={{ borderTop: '1px solid var(--bd2)' }}>
-          <Avatar name={r.name} />
-          <div className="min-w-0">
-            <p className="text-[12.5px] font-semibold truncate" style={{ color: 'var(--tx1)' }}>{r.name}</p>
-            <Verified source={r.source} de={de} />
-          </div>
-          {product && (
-            <span className="ml-auto flex-shrink-0 rounded-full px-2 py-1 text-[10px] font-medium whitespace-nowrap"
-              style={{ background: 'var(--accent-wash)', color: 'var(--accent)', border: '1px solid rgba(var(--accent-rgb),0.16)' }}>
-              {product}
-            </span>
-          )}
-        </figcaption>
+    <figure
+      className="flex-shrink-0 flex flex-col rounded-2xl px-5 py-4 mr-4 whitespace-normal"
+      style={{
+        // Capped against the viewport so a long-quote card can never end up
+        // wider than the screen on mobile — there it would be impossible to
+        // read a card in full as it passes.
+        width: `min(${cardWidth(text.length)}px, calc(100vw - 72px))`,
+        background: 'var(--sf2)',
+        border: '1px solid var(--bd)',
+      }}
+    >
+      <div className="flex items-center justify-between mb-2.5">
+        <Stars rating={r.rating ?? 5} />
+        <span className="text-[10.5px]" style={{ color: 'var(--txf)' }}>{date}</span>
       </div>
+
+      <blockquote className="text-[13px] leading-[1.6] flex-1" style={{ color: 'var(--tx2)' }}>
+        „{text}“
+      </blockquote>
+
+      <figcaption className="flex items-center gap-2.5 mt-3.5 pt-3" style={{ borderTop: '1px solid var(--bd2)' }}>
+        <Avatar name={r.name} photo={r.photo} photoPos={r.photoPos} de={de} />
+        <div className="min-w-0">
+          <p className="text-[12.5px] font-semibold truncate" style={{ color: 'var(--tx1)' }}>{r.name}</p>
+          <span className="inline-flex items-center gap-1 text-[10.5px] font-medium" style={{ color: 'var(--accent-soft)' }}>
+            <BadgeCheck className="h-3.5 w-3.5" /> {verified}
+          </span>
+        </div>
+        {product && (
+          <span className="ml-auto flex-shrink-0 rounded-full px-2 py-1 text-[10px] font-medium whitespace-nowrap"
+            style={{ background: 'var(--accent-wash)', color: 'var(--accent)' }}>
+            {product}
+          </span>
+        )}
+      </figcaption>
     </figure>
   );
 }
@@ -149,11 +161,27 @@ function ReviewCard({ r, de }: { r: Review; de: boolean }) {
 export function Reviews() {
   const { lang } = useLanguage();
   const de = lang === 'de';
+  const [reduced] = useState(() =>
+    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+  // Pause the animation while the section is off-screen — no reason to
+  // composite a 7000px-wide track nobody can see.
+  const sectionRef = useRef<HTMLElement>(null);
+  const [inView, setInView] = useState(true);
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { rootMargin: '120px' });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  const cards = REVIEWS.map((r, i) => <ReviewCard key={i} r={r} de={de} />);
 
   return (
-    <Section id="bewertungen" style={{ background: 'var(--pg)' }}>
+    <Section id="bewertungen" ref={sectionRef} className="overflow-hidden" style={{ background: 'var(--pg)' }}>
       {/* ── Header ── */}
-      <div className="mb-9">
+      <div className="mb-8">
         <p className="eyebrow mb-4" style={{ color: 'var(--txf)' }}>
           {de ? 'eBay verifiziert' : 'eBay verified'}
           <span className="hidden sm:inline">{de ? ' · alle Bewertungen echt' : ' · all reviews genuine'}</span>
@@ -161,27 +189,38 @@ export function Reviews() {
         <h2 className="section-title mb-3">{de ? 'Was Fahrer berichten.' : 'What riders report.'}</h2>
         <p className="text-[15px] max-w-2xl" style={{ color: 'var(--txm)' }}>
           {de
-            ? '200+ Bewertungen seit dem Start 2024 — kein einziges Negatives. Eine Auswahl echter Rückmeldungen, mit Fotos aus der Community.'
-            : '200+ reviews since launch in 2024 — not a single negative one. A selection of genuine feedback, with photos from the community.'}
+            ? '200+ Bewertungen seit dem Start 2024 — kein einziges Negatives. Eine Auswahl echter Rückmeldungen.'
+            : '200+ reviews since launch in 2024 — not a single negative one. A selection of genuine feedback.'}
         </p>
       </div>
 
-      {/* ── Desktop/tablet: static grid, no motion — nothing here rotates or hides itself ── */}
-      <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
-        {REVIEWS.map((r, i) => <ReviewCard key={i} r={r} de={de} />)}
-      </div>
-
-      {/* ── Mobile: swipeable, one card per screen ── */}
-      <div className="sm:hidden flex overflow-x-auto snap-x snap-mandatory gap-4 pb-1 edge-fade" style={{ scrollbarWidth: 'none' }}>
-        {REVIEWS.map((r, i) => (
-          <div key={i} className="snap-center flex-shrink-0 w-full">
-            <ReviewCard r={r} de={de} />
+      {/* ── The row ──
+          Full-bleed out of the Section's padded column so cards run to the
+          viewport edges and the fade reads as "more beyond", not as a box that
+          happens to end. Reduced motion gets the same row as a plain
+          swipe/scroll container with no animation at all. */}
+      <div className="relative -mx-6 sm:-mx-10 lg:-mx-14 xl:-mx-20">
+        {reduced ? (
+          <div className="flex overflow-x-auto edge-fade px-6 sm:px-10 lg:px-14 xl:px-20 pb-2" style={{ scrollbarWidth: 'none' }}>
+            {cards}
           </div>
-        ))}
+        ) : (
+          <div className="marquee overflow-hidden edge-fade">
+            <div
+              className="marquee-track inline-flex items-stretch"
+              style={{ '--dur': '70s', animationPlayState: inView ? 'running' : 'paused' } as CSSProperties}
+            >
+              {cards}
+              {/* Second set makes the loop seamless; hidden from AT so the
+                  quotes aren't announced twice. */}
+              <div className="inline-flex items-stretch" aria-hidden="true">{cards}</div>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* ── Proof strip + source link ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5 mt-10 pt-6"
+      {/* ── Proof strip + actions ── */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5 mt-9 pt-6"
         style={{ borderTop: '1px solid var(--bd)' }}>
         <div className="flex items-stretch">
           {[

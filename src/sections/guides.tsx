@@ -40,16 +40,19 @@ export function Guides() {
 
   return (
     <Section id="anleitungen" className="bg-wx-sf">
-        <div className="max-w-4xl">
+        {/* Full column width, like every other section. The old max-w-4xl
+            wrapper left 304px of the 1120px column empty on the right. Prose
+            keeps its own reading width instead. */}
+        <div>
 
           <div className="mb-12">
             <h2 className="section-title mb-4">
               <ScrollWordReveal text={t.guides.title} />
             </h2>
-            <p className="text-wx-tx2">{t.guides.subtitle}</p>
+            <p className="text-wx-tx2 max-w-xl">{t.guides.subtitle}</p>
           </div>
 
-          <div className="grid md:grid-cols-[1fr_260px] gap-8 lg:gap-12 items-start">
+          <div className="grid md:grid-cols-[1fr_300px] gap-8 lg:gap-12 items-start">
             {/* Left: accordion */}
             <div ref={listRef} className="space-y-2">
               {guides.map((guide) => {
