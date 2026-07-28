@@ -50,12 +50,15 @@ export function Contact() {
           {/* Two equal contact cards */}
           <div className="grid sm:grid-cols-2 gap-5 lg:gap-6">
 
-            {/* WhatsApp card */}
+            {/* Icon + copy on the left, action on the right. Stacked vertically
+                these two cards only held ~4 short lines each, so across a
+                560px column they read as stretched and half-empty; laying them
+                out horizontally uses the width the section actually has. */}
             <a
               href={waUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex flex-col rounded-2xl p-6 transition-all"
+              className="group flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-5 rounded-2xl p-5 sm:p-6 transition-all hover:shadow-md"
               style={{
                 background: 'var(--card-bg)',
                 border: '1px solid rgba(var(--ext-whatsapp-rgb),0.45)',
@@ -63,51 +66,51 @@ export function Contact() {
                 textDecoration: 'none',
               }}
             >
-              <div className="flex items-center gap-3 mb-4">
-                <div
-                  className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0"
-                  style={{ background: 'rgba(var(--ext-whatsapp-rgb),0.10)', border: '1px solid rgba(var(--ext-whatsapp-rgb),0.20)' }}
-                >
-                  <WhatsAppIcon className="h-6 w-6" style={{ color: 'var(--ext-whatsapp)' }} />
-                </div>
-                <div>
+              <div
+                className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0"
+                style={{ background: 'rgba(var(--ext-whatsapp-rgb),0.10)', border: '1px solid rgba(var(--ext-whatsapp-rgb),0.20)' }}
+              >
+                <WhatsAppIcon className="h-6 w-6" style={{ color: 'var(--ext-whatsapp)' }} />
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
                   <p className="font-bold text-wx-tx1 text-[15px] leading-tight">
                     {de ? 'Per WhatsApp' : 'Via WhatsApp'}
                   </p>
                   <span
-                    className="inline-block mt-0.5 text-[10px] font-semibold px-2 py-0.5 rounded-full tracking-wide"
+                    className="text-[10px] font-semibold px-2 py-0.5 rounded-full tracking-wide"
                     style={{ background: 'rgba(var(--ext-whatsapp-rgb),0.10)', color: 'var(--ext-whatsapp)' }}
                   >
                     {de ? 'meist sofort' : 'usually instant'}
                   </span>
                 </div>
+                <p className="text-[13px] leading-relaxed mt-1.5 text-wx-tx2">
+                  {de
+                    ? 'Kurze Frage, Kettentyp-Check oder Lieferstatus? Schreib direkt — ich antworte persönlich.'
+                    : 'Quick question, chain check, or shipping? Write directly — I reply personally.'}
+                </p>
               </div>
 
-              <p className="text-[13px] leading-relaxed mb-5 flex-1 text-wx-tx2">
-                {de
-                  ? 'Kurze Frage, Kettentyp-Check oder Lieferstatus? Schreib direkt — ich antworte persönlich.'
-                  : 'Quick question, chain check, or shipping? Write directly — I reply personally.'}
-              </p>
-
-              {/* Solid fill, same visual weight as the Email button below —
-                  the previous pale tinted fill read as the weaker/disabled
-                  option even though WhatsApp is the faster channel of the
-                  two. --ext-whatsapp-fg flips between light and dark text so
-                  it stays readable against both the dark (light theme) and
-                  bright (noir theme) brand green. */}
+              {/* Solid fill, same visual weight as the Email button — the
+                  previous pale tinted fill read as the weaker/disabled option
+                  even though WhatsApp is the faster channel of the two.
+                  --ext-whatsapp-fg flips between light and dark text so it
+                  stays readable against both the dark (light theme) and bright
+                  (noir theme) brand green. */}
               <div
-                className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl font-semibold text-[13px] transition-opacity group-hover:opacity-90"
+                className="flex items-center justify-center gap-2 flex-shrink-0 w-full sm:w-auto px-5 py-2.5 rounded-xl font-semibold text-[13px] whitespace-nowrap transition-opacity group-hover:opacity-90"
                 style={{ background: 'var(--ext-whatsapp)', color: 'var(--ext-whatsapp-fg)' }}
               >
                 <WhatsAppIcon className="h-3.5 w-3.5" />
-                {de ? 'WhatsApp öffnen →' : 'Open WhatsApp →'}
+                {de ? 'Öffnen →' : 'Open →'}
               </div>
             </a>
 
             {/* Email card */}
             <a
               href={mailUrl}
-              className="group flex flex-col rounded-2xl p-6 transition-all"
+              className="group flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-5 rounded-2xl p-5 sm:p-6 transition-all hover:shadow-md"
               style={{
                 background: 'var(--card-bg)',
                 border: '1px solid var(--bd)',
@@ -115,45 +118,41 @@ export function Contact() {
                 textDecoration: 'none',
               }}
             >
-              <div className="flex items-center gap-3 mb-4">
-                <div
-                  className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0"
-                  style={{ background: 'var(--accent-wash)', border: '1px solid rgba(var(--accent-rgb),0.22)' }}
-                >
-                  <Mail className="h-5 w-5" style={{ color: 'var(--accent)' }} />
-                </div>
-                <div>
+              <div
+                className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0"
+                style={{ background: 'var(--accent-wash)', border: '1px solid rgba(var(--accent-rgb),0.22)' }}
+              >
+                <Mail className="h-5 w-5" style={{ color: 'var(--accent)' }} />
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
                   <p className="font-bold text-wx-tx1 text-[15px] leading-tight">
                     {de ? 'Per E-Mail' : 'Via Email'}
                   </p>
                   <span
-                    className="inline-block mt-0.5 text-[10px] font-semibold px-2 py-0.5 rounded-full tracking-wide"
+                    className="text-[10px] font-semibold px-2 py-0.5 rounded-full tracking-wide"
                     style={{ background: 'var(--accent-wash)', color: 'var(--accent)' }}
                   >
                     {de ? 'am selben Tag' : 'same day'}
                   </span>
                 </div>
+                <p className="text-[13px] leading-relaxed mt-1.5 text-wx-tx2">
+                  {de
+                    ? 'Für ausführlichere Anfragen oder wenn du lieber per E-Mail schreibst.'
+                    : 'For detailed inquiries or if you prefer email.'}
+                </p>
+                <p className="text-[12px] mt-1 font-medium truncate" style={{ color: 'var(--txf)' }}>
+                  waxcelerate@gmail.com
+                </p>
               </div>
 
-              <p className="text-[13px] leading-relaxed mb-3 flex-1 text-wx-tx2">
-                {de
-                  ? 'Für ausführlichere Anfragen oder wenn du lieber per E-Mail schreibst.'
-                  : 'For detailed inquiries or if you prefer email.'}
-              </p>
-
-              <p
-                className="text-[12px] text-center mb-4 font-medium"
-                style={{ color: 'var(--txf)' }}
-              >
-                waxcelerate@gmail.com
-              </p>
-
               <div
-                className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl font-semibold text-[13px] text-white transition-opacity group-hover:opacity-90"
+                className="flex items-center justify-center gap-2 flex-shrink-0 w-full sm:w-auto px-5 py-2.5 rounded-xl font-semibold text-[13px] text-white whitespace-nowrap transition-opacity group-hover:opacity-90"
                 style={{ background: 'var(--accent)' }}
               >
                 <Mail className="h-3.5 w-3.5" />
-                {de ? 'E-Mail schreiben' : 'Write an email'}
+                {de ? 'Schreiben' : 'Write'}
               </div>
             </a>
 

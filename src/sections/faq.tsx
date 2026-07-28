@@ -28,13 +28,16 @@ export function FAQ() {
 
   return (
     <Section id="faq" className="bg-wx-bg">
-        {/* Two columns on desktop: the heading keeps the same left edge as
-            every other section, and the question list takes the remaining
-            width. Wrapping the whole section in max-w-2xl instead left 528px
-            of the 1120px column empty on the right, which read as the section
-            being misaligned rather than as a deliberate narrow measure. */}
-        <div className="grid lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)] gap-10 lg:gap-16 items-start">
-          <div className="lg:sticky lg:top-28">
+        {/* Same shape as every other section: heading top-left, content below
+            spanning the column. Two earlier attempts both read as broken —
+            max-w-2xl left 528px of the column empty on the right, and a
+            two-column split left the heading column ~85% empty with a second
+            left edge that lined up with nothing. Full-width rows work here
+            because a question row is a list item, not prose: the question sits
+            left, the chevron right, and only the ANSWER needs a reading
+            measure (capped below). */}
+        <div>
+          <div className="mb-8 max-w-2xl">
             <h2 className="section-title mb-4">
               <ScrollWordReveal text={t.faq.title} />
             </h2>
@@ -45,7 +48,7 @@ export function FAQ() {
 
           <div>
           {/* Search input */}
-          <div className="relative mb-6">
+          <div className="relative mb-6 max-w-xl">
             <input
               type="search"
               value={query}
@@ -107,7 +110,9 @@ export function FAQ() {
                   }}
                 >
                   <div className="overflow-hidden">
-                    <div className="pb-5 pr-10 border-l-2 pl-4" style={{ borderColor: 'rgba(var(--accent-rgb),0.35)' }}>
+                    {/* Rows run the full column width, but the answer keeps a
+                        reading measure — a 1120px line of prose is unreadable. */}
+                    <div className="pb-5 border-l-2 pl-4 max-w-3xl" style={{ borderColor: 'rgba(var(--accent-rgb),0.35)' }}>
                       <div className="space-y-1.5">
                         {item.a.split(/\.\s+(?=[A-ZÜÖÄ])/).map((sentence, i, arr) => (
                           <p key={i} className="text-wx-tx2 text-[14px] leading-[1.75]">

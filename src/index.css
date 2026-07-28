@@ -26,6 +26,19 @@
 .marquee:focus-within .marquee-track { animation-play-state: paused; }
 @media (prefers-reduced-motion: reduce) { .marquee-track { animation: none; } }
 
+/* Tools deck — each card owns exactly one transform derived from its slot, so
+   the whole animation is a plain CSS transition between three declarative
+   states. Nothing to keep in sync, and an interrupted move just re-targets
+   from wherever it is instead of snapping. */
+.deck-slot {
+  transition: transform 620ms cubic-bezier(0.22, 1, 0.36, 1), opacity 380ms ease;
+  will-change: transform;
+}
+.deck-cover { transition: opacity 420ms ease; }
+@media (prefers-reduced-motion: reduce) {
+  .deck-slot, .deck-cover { transition: none; }
+}
+
 /* Solid page-color gradient overlay instead of an opacity mask — masking dark
    photo cards to transparent against a light page background left a muddy
    grey smear at the edges (alpha-blending a dark photo down to nothing over a

@@ -150,8 +150,13 @@ export function Guides() {
               })}
             </div>
 
-            {/* Right: Stats card — sticky sidebar on desktop */}
-            <div>
+            {/* Right column — reference card plus the blog link stacked. The
+                blog link used to sit under BOTH columns at full width while
+                the accordion stopped ~340px short of it, so the section had
+                two different right edges and a void under the (short)
+                reference card. Stacking them here gives one right edge and
+                fills the column. */}
+            <div className="flex flex-col gap-5">
               <div
                 className="rounded-2xl overflow-hidden"
                 style={{
@@ -218,26 +223,26 @@ export function Guides() {
                   </div>
                 ))}
               </div>
+
+              {/* The blog's in-depth guides were only reachable from the footer
+                  or nav — nothing linked to them from the one section whose
+                  whole subject is "how to do this". */}
+              <Link to="/blog"
+                className="group flex items-start justify-between gap-3 px-5 py-4 rounded-2xl transition-all hover:shadow-md"
+                style={{ background: 'var(--card-bg)', border: '1px solid var(--bd)' }}>
+                <div>
+                  <p className="text-[13.5px] font-semibold" style={{ color: 'var(--tx1)' }}>
+                    {de ? 'Ausführliche Ratgeber' : 'In-depth guides'}
+                  </p>
+                  <p className="text-[11.5px] mt-1 leading-snug" style={{ color: 'var(--txm)' }}>
+                    {de ? 'Jede Anleitung im Detail, mit Fotos und Schritt für Schritt.' : 'Every guide in full detail, with photos, step by step.'}
+                  </p>
+                </div>
+                <ArrowRight className="h-4 w-4 flex-shrink-0 mt-0.5 transition-transform duration-300 group-hover:translate-x-1"
+                  style={{ color: 'var(--accent-soft)' }} />
+              </Link>
             </div>
           </div>
-
-          {/* The blog's 18 in-depth guides were only reachable via the footer
-              or nav — nothing linked to them from the one section whose whole
-              subject is "how to do this". */}
-          <Link to="/blog"
-            className="group flex items-center justify-between gap-4 mt-8 px-6 py-5 rounded-xl transition-all hover:shadow-md"
-            style={{ background: 'var(--card-bg)', border: '1px solid var(--bd)' }}>
-            <div>
-              <p className="text-[14px] font-semibold" style={{ color: 'var(--tx1)' }}>
-                {de ? 'Ausführliche Ratgeber' : 'In-depth guides'}
-              </p>
-              <p className="text-[12px] mt-0.5" style={{ color: 'var(--txm)' }}>
-                {de ? 'Alle Anleitungen im Detail, mit Fotos und Schritt für Schritt.' : 'Every guide in full detail, with photos, step by step.'}
-              </p>
-            </div>
-            <ArrowRight className="h-5 w-5 flex-shrink-0 transition-transform duration-300 group-hover:translate-x-1"
-              style={{ color: 'var(--accent-soft)' }} />
-          </Link>
 
         </div>
       {/* Bottom gradient — bridges to FAQ below */}
