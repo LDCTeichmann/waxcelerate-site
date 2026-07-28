@@ -7,7 +7,6 @@ export function AGBPage() {
     <>
     <Helmet>
       <title>AGB | Waxcelerate</title>
-      <meta name="robots" content="noindex" />
     </Helmet>
     <div className="bg-wx-bg min-h-screen py-20">
       <div className="max-w-2xl mx-auto px-6">
@@ -21,11 +20,27 @@ export function AGBPage() {
 
         <h1 className="text-3xl font-bold text-wx-tx1 mb-8">Allgemeine Geschäftsbedingungen</h1>
 
+        {/* This page used to claim every purchase runs exclusively through eBay
+            and points to eBay's buyer protection for returns — both became false
+            the moment the site's own checkout could take an order, so they're
+            removed rather than left half-right. Full AGB content (or the decision
+            to run without any) is still Luca's to make — see RECHTSTEXTE.md. */}
+        <section
+          className="mb-8 rounded-xl p-5"
+          style={{ background: 'var(--accent-wash)', border: '1px dashed rgba(var(--accent-rgb),0.35)' }}
+        >
+          <p className="text-sm leading-relaxed" style={{ color: 'var(--tx1)' }}>
+            <strong>In Überarbeitung.</strong> AGB sind gesetzlich nicht vorgeschrieben — ohne sie gilt
+            das Gesetz. Diese Seite wird gerade auf den Verkauf über den eigenen Shop umgestellt.
+          </p>
+        </section>
+
         <section className="mb-8">
-          <h2 className="text-lg font-semibold text-wx-tx1 mb-3">Kaufabwicklung über eBay</h2>
+          <h2 className="text-lg font-semibold text-wx-tx1 mb-3">Vertriebswege</h2>
           <p className="text-wx-tx2 leading-relaxed">
-            Alle Käufe von Waxcelerate-Produkten erfolgen ausschließlich über die eBay-Plattform.
-            Für diese Transaktionen gelten die{' '}
+            Waxcelerate-Produkte werden sowohl über eBay als auch direkt über{' '}
+            <a href="https://waxcelerate.de" className="text-[var(--accent)] hover:underline">waxcelerate.de</a>{' '}
+            verkauft. Für Käufe über eBay gelten zusätzlich die{' '}
             <a
               href="https://www.ebay.de/help/policies/member-behavior-policies/allgemeine-geschaftsbedingungen?id=4076"
               target="_blank"
@@ -35,7 +50,7 @@ export function AGBPage() {
               Allgemeinen Geschäftsbedingungen von eBay
               <ExternalLink className="h-3 w-3" />
             </a>
-            . Mit dem Kauf eines Produkts über eBay erkennen Sie die eBay-AGB an.
+            .
           </p>
         </section>
 
@@ -52,16 +67,25 @@ export function AGBPage() {
           <h2 className="text-lg font-semibold text-wx-tx1 mb-3">Versand</h2>
           <p className="text-wx-tx2 leading-relaxed">
             Bestellungen werden in der Regel innerhalb von 1–2 Werktagen nach Zahlungseingang
-            versendet. Die Versandbedingungen und -kosten werden im jeweiligen eBay-Listing angegeben.
+            versendet. Versandkosten und Lieferzeit für Bestellungen über den eigenen Shop stehen
+            unter{' '}
+            <Link to="/versand-und-zahlung" className="text-[var(--accent)] hover:underline">
+              Versand &amp; Zahlung
+            </Link>
+            ; für eBay-Käufe gelten die Angaben im jeweiligen Listing.
           </p>
         </section>
 
         <section className="mb-8">
-          <h2 className="text-lg font-semibold text-wx-tx1 mb-3">Rückgabe & Gewährleistung</h2>
+          <h2 className="text-lg font-semibold text-wx-tx1 mb-3">Widerruf &amp; Gewährleistung</h2>
           <p className="text-wx-tx2 leading-relaxed">
-            Rückgaben erfolgen gemäß der eBay-Käuferschutzgarantie. Details zu Rückgabefristen und
-            -bedingungen entnehmen Sie bitte dem jeweiligen eBay-Listing. Die gesetzlichen
-            Gewährleistungsrechte bleiben unberührt.
+            Für Bestellungen über den eigenen Shop gilt das gesetzliche 14-tägige Widerrufsrecht —
+            Details in der{' '}
+            <Link to="/widerrufsbelehrung" className="text-[var(--accent)] hover:underline">
+              Widerrufsbelehrung
+            </Link>
+            . Für Käufe über eBay gilt die eBay-Käuferschutzgarantie. Die gesetzlichen
+            Gewährleistungsrechte bleiben in beiden Fällen unberührt.
           </p>
         </section>
       </div>

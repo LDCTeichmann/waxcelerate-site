@@ -7,7 +7,6 @@ export function ImpressumPage() {
     <>
     <Helmet>
       <title>Impressum | Waxcelerate</title>
-      <meta name="robots" content="noindex" />
     </Helmet>
     <div className="bg-wx-bg min-h-screen py-20">
       <div className="max-w-2xl mx-auto px-6">

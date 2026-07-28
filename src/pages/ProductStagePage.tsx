@@ -1,7 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { ArrowLeft, ExternalLink } from 'lucide-react';
-import { getProductById, canCheckout } from '@/lib/data';
+import { getProductById, canCheckout, checkoutEnabled } from '@/lib/data';
 import { useLanguage } from '@/hooks/useLanguage';
 import { AddToCartButton } from '@/components/AddToCartButton';
 import { CartIcon } from '@/components/CartIcon';
@@ -149,7 +149,7 @@ export function ProductStagePage() {
         >
           <ArrowLeft className="h-4 w-4" /> {de ? 'Zurück' : 'Back'}
         </Link>
-        <CartIcon />
+        {checkoutEnabled && <CartIcon />}
       </div>
 
       {/* ── Floating info card ── */}

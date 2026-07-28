@@ -33,10 +33,34 @@ export function DatenschutzPage() {
         <section className="mb-8">
           <h2 className="text-lg font-semibold text-wx-tx1 mb-3">Erhobene Daten</h2>
           <p className="text-wx-tx2 leading-relaxed">
-            Diese Website erhebt keine personenbezogenen Daten über Server-seitige Formulare. Das
-            Kontaktformular öffnet lediglich den E-Mail-Client des Nutzers (mailto-Link) — es findet
-            keine serverseitige Speicherung von Daten statt. Beim Besuch der Website werden keine
-            personenbezogenen Daten aktiv erfasst oder gespeichert.
+            Das Kontaktformular öffnet lediglich den E-Mail-Client des Nutzers (mailto-Link) — es
+            findet keine serverseitige Speicherung von Daten statt. Das Widerrufsformular unter{' '}
+            <Link to="/widerruf" className="text-[var(--accent)] hover:underline">/widerruf</Link>{' '}
+            sendet Bestellnummer, Bestelldatum, Produkt und die angegebene E-Mail-Adresse serverseitig
+            per E-Mail an uns, um den Widerruf zu bearbeiten und dir eine Eingangsbestätigung zu
+            schicken (Art. 6 Abs. 1 lit. b DSGVO — Vertragsabwicklung). Darüber hinaus werden beim
+            Besuch der Website keine personenbezogenen Daten aktiv erfasst oder gespeichert.
+          </p>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-lg font-semibold text-wx-tx1 mb-3">Zahlungsabwicklung (Stripe)</h2>
+          <p className="text-wx-tx2 leading-relaxed">
+            Bestellungen über den eigenen Shop werden über Stripe Payments Europe, Limited (Irland)
+            abgewickelt. Dabei übermitteln wir die für die Zahlung und den Versand nötigen Daten
+            (Name, Adresse, E-Mail, Zahlungsdaten) an Stripe. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b
+            DSGVO (Vertragserfüllung). Stripe kann Daten zur Betrugsprävention auch in die USA
+            übermitteln, abgesichert über die EU-Standardvertragsklauseln gemäß Art. 46 Abs. 2 lit. c
+            DSGVO. Details in der{' '}
+            <a
+              href="https://stripe.com/de/privacy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[var(--accent)] hover:underline"
+            >
+              Datenschutzerklärung von Stripe
+            </a>
+            .
           </p>
         </section>
 

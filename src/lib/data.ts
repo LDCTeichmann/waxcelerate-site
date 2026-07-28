@@ -1,3 +1,15 @@
+// ── Versand ──────────────────────────────────────────────────────────────
+// Deutsche-Post-Brieftarife 2026, von Luca bestätigt (27.07.2026).
+// Preise ändern? Nur diese beiden Blöcke anfassen, sonst nichts.
+export type ShippingClass = 'grossbrief' | 'maxibrief';
+
+export const shipping = {
+  grossbrief: { cents: 180, maxGrams:  500, label: 'Großbrief' },
+  maxibrief:  { cents: 290, maxGrams: 1000, label: 'Maxibrief' },
+  paket:      { cents: 490,                 label: 'Paket'     },
+  freeFromCents: 5000,   // ab 50 € versandkostenfrei
+} as const;
+
 export interface Product {
   id: string;
   category: 'wax' | 'chain';
@@ -27,6 +39,11 @@ export interface Product {
   bestForEn?: string[];
   compatibility?: string;
   specs?: Record<string, string>;
+  /** Shipped weight including packaging, in grams — determines shipping tier via shippingFor() */
+  weightGrams: number;
+  /** Deutsche-Post-Brieftarif class. A wax block can be under 500g and still need
+   *  'maxibrief' — it's thicker than the Großbrief's 2cm limit, not heavier than its 500g one. */
+  shippingClass: ShippingClass;
   // Chain-specific fields
   chainBrand?: string;
   chainModel?: string;
@@ -47,6 +64,8 @@ export const products: Product[] = [
     category: 'wax',
     variant: 'classic',
     weight: '500g',
+    weightGrams: 600, // estimate: 500g block + packaging, not measured
+    shippingClass: 'maxibrief',
     applications: '20–32',
     title: 'Kettenwachs 500g — Classic',
     titleEn: 'Chain Wax 500g — Classic',
@@ -99,6 +118,8 @@ export const products: Product[] = [
     category: 'wax',
     variant: 'classic',
     weight: '300g',
+    weightGrams: 380, // estimate: 300g block + packaging, not measured
+    shippingClass: 'maxibrief',
     applications: '10–15',
     title: 'Kettenwachs 300g — Classic',
     titleEn: 'Chain Wax 300g — Classic',
@@ -151,6 +172,8 @@ export const products: Product[] = [
     category: 'wax',
     variant: 'pro',
     weight: '500g',
+    weightGrams: 600, // estimate: 500g block + packaging, not measured
+    shippingClass: 'maxibrief',
     applications: '20–32',
     title: 'Kettenwachs 500g — Pro',
     titleEn: 'Chain Wax 500g — Pro',
@@ -216,6 +239,8 @@ export const products: Product[] = [
     category: 'wax',
     variant: 'pro',
     weight: '300g',
+    weightGrams: 380, // estimate: 300g block + packaging, not measured
+    shippingClass: 'maxibrief',
     applications: '10–15',
     title: 'Kettenwachs 300g — Pro',
     titleEn: 'Chain Wax 300g — Pro',
@@ -281,6 +306,8 @@ export const products: Product[] = [
   {
     id: 'chain-hg701',
     category: 'chain',
+    weightGrams: 300, // estimate: pre-waxed chain + packaging, not measured
+    shippingClass: 'grossbrief',
     title: 'Shimano Ultegra HG701 11-fach — vorgewachst',
     titleEn: 'Shimano Ultegra HG701 11-speed — pre-waxed',
     description: 'Shimano CN-HG701, 116 Glieder, 11-fach (Ultegra / XT / GRX / 105). Vollständig entfettet und mit MoS₂-Transferfilm vorgewachst. Kettenschloss liegt bei.',
@@ -298,6 +325,8 @@ export const products: Product[] = [
   {
     id: 'chain-ybn11',
     category: 'chain',
+    weightGrams: 300, // estimate: pre-waxed chain + packaging, not measured
+    shippingClass: 'grossbrief',
     title: 'YBN 11S 11-fach — vorgewachst',
     titleEn: 'YBN 11S 11-speed — pre-waxed',
     description: 'YBN S11 / 11S, 116 Glieder, 11-fach — universal für Shimano, SRAM, Campagnolo und KMC. Vollständig entfettet und mit MoS₂-Transferfilm vorgewachst. Kettenschloss liegt bei.',
@@ -317,6 +346,8 @@ export const products: Product[] = [
   {
     id: 'chain-force',
     category: 'chain',
+    weightGrams: 300, // estimate: pre-waxed chain (256g) + packaging, not measured
+    shippingClass: 'grossbrief',
     title: 'SRAM Force PC-1170 11-fach — vorgewachst',
     titleEn: 'SRAM Force PC-1170 11-speed — pre-waxed',
     description: 'SRAM Force PC-1170, 114 Glieder, 11-fach. Hollow-Pin-Technologie, 256 g. Vollständig entfettet und vorgewachst. PowerLock® Kettenschloss liegt bei.',
@@ -336,6 +367,8 @@ export const products: Product[] = [
   {
     id: 'chain-m9100',
     category: 'chain',
+    weightGrams: 300, // estimate: pre-waxed chain + packaging, not measured
+    shippingClass: 'grossbrief',
     title: 'Shimano Dura-Ace / XTR CN-M9100 12-fach — vorgewachst',
     titleEn: 'Shimano Dura-Ace / XTR CN-M9100 12-speed — pre-waxed',
     description: 'Shimano CN-M9100, 138 Glieder, 12-fach (Dura-Ace / XTR). Vollständig entfettet und mit MoS₂-Transferfilm vorgewachst. Kettenschloss liegt bei.',
@@ -355,6 +388,8 @@ export const products: Product[] = [
   {
     id: 'chain-m8100',
     category: 'chain',
+    weightGrams: 300, // estimate: pre-waxed chain + packaging, not measured
+    shippingClass: 'grossbrief',
     title: 'Shimano XT / Ultegra CN-M8100 12-fach — vorgewachst',
     titleEn: 'Shimano XT / Ultegra CN-M8100 12-speed — pre-waxed',
     description: 'Shimano CN-M8100, 116 Glieder, 12-fach (XT / Ultegra / GRX). Vollständig entfettet und mit MoS₂-Transferfilm vorgewachst. Kettenschloss liegt bei.',
@@ -372,6 +407,8 @@ export const products: Product[] = [
   {
     id: 'chain-m7100',
     category: 'chain',
+    weightGrams: 300, // estimate: pre-waxed chain + packaging, not measured
+    shippingClass: 'grossbrief',
     title: 'Shimano SLX / 105 CN-M7100 12-fach — vorgewachst',
     titleEn: 'Shimano SLX / 105 CN-M7100 12-speed — pre-waxed',
     description: 'Shimano CN-M7100, 116 Glieder, 12-fach (SLX / 105). Vollständig entfettet und mit MoS₂-Transferfilm vorgewachst. Kettenschloss liegt bei.',
@@ -389,6 +426,8 @@ export const products: Product[] = [
   {
     id: 'chain-nx',
     category: 'chain',
+    weightGrams: 300, // estimate: pre-waxed chain + packaging, not measured
+    shippingClass: 'grossbrief',
     title: 'SRAM NX Eagle 12-fach — vorgewachst',
     titleEn: 'SRAM NX Eagle 12-speed — pre-waxed',
     description: 'SRAM NX Eagle, 118 Glieder, 12-fach MTB. Vollständig entfettet und vorgewachst. PowerLock® Kettenschloss liegt bei.',
@@ -406,6 +445,8 @@ export const products: Product[] = [
   {
     id: 'chain-ybn12',
     category: 'chain',
+    weightGrams: 300, // estimate: pre-waxed chain (259g) + packaging, not measured
+    shippingClass: 'grossbrief',
     title: 'YBN S12S 12-fach — vorgewachst',
     titleEn: 'YBN S12S 12-speed — pre-waxed',
     description: 'YBN S12S, 116 Glieder, 12-fach, 259 g — universell für Shimano, SRAM und Campagnolo. Vollständig entfettet und vorgewachst. Quick-Link liegt bei.',
@@ -436,6 +477,33 @@ export function getProductById(id: string): Product | undefined {
  */
 export const canCheckout = (p: Pick<Product, 'stripePriceId'>): boolean =>
   typeof p.stripePriceId === 'string' && p.stripePriceId.length > 0;
+
+/**
+ * True once at least one product has a stripePriceId. Until then, the cart
+ * (icon, drawer, persistence hint) stays hidden entirely — an always-empty
+ * cart icon that opens a drawer with nothing addable to it is worse than no
+ * cart icon at all. Flips on automatically the moment the first price ID is
+ * added to a product below; nothing else needs to change.
+ */
+export const checkoutEnabled = products.some(canCheckout);
+
+// The class eskaliert nur nach oben: erst das dickste Produkt im Warenkorb,
+// dann das Gesamtgewicht. Ein Wachsblock ist auch bei 380 g ein Maxibrief,
+// weil er die 2-cm-Grenze des Großbriefs reißt. Two chains (~600g total)
+// escalate to maxibrief on weight alone even though each is a grossbrief
+// individually — this reflects what physically happens to the parcel, not
+// what's true of any single item in it.
+// Used by both the cart drawer (display, before checkout) and
+// /api/create-checkout (the actual charge) — the same import, not two
+// copies of this logic.
+export function shippingFor(items: { product: Pick<Product, 'weightGrams' | 'shippingClass'>; quantity: number }[]) {
+  const grams = items.reduce((g, i) => g + i.product.weightGrams * i.quantity, 0);
+  const needsMaxi = items.some(i => i.product.shippingClass === 'maxibrief');
+
+  if (grams > shipping.maxibrief.maxGrams)               return shipping.paket;
+  if (needsMaxi || grams > shipping.grossbrief.maxGrams) return shipping.maxibrief;
+  return shipping.grossbrief;
+}
 
 export const waxIntervals: Record<string, Record<string, number>> = {
   trocken: { strasse: 500, gravel: 350, mtb: 250 },

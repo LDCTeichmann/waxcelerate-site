@@ -4,6 +4,7 @@ import { Menu, X, Moon, Sun } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
 import { CartIcon } from '@/components/CartIcon';
+import { checkoutEnabled } from '@/lib/data';
 import { useActiveSection } from '@/hooks/useActiveSection';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 
@@ -168,7 +169,7 @@ export function Navigation() {
                 {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
               </button>
 
-              <CartIcon light={false} />
+              {checkoutEnabled && <CartIcon light={false} />}
 
               {/* Primär-CTA — immer sichtbar, ersetzt den „Produkte"-Link */}
               <a

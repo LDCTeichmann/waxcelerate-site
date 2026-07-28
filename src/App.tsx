@@ -27,11 +27,15 @@ const BlogIndexPage = lazy(() => import('@/pages/blog/BlogIndexPage').then(m => 
 const BlogArticlePage = lazy(() => import('@/pages/blog/BlogArticlePage').then(m => ({ default: m.BlogArticlePage })));
 const SciencePage = lazy(() => import('@/pages/SciencePage').then(m => ({ default: m.SciencePage })));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
+const WiderrufPage = lazy(() => import('@/pages/WiderrufPage').then(m => ({ default: m.WiderrufPage })));
+const WiderrufsbelehrungPage = lazy(() => import('@/pages/WiderrufsbelehrungPage').then(m => ({ default: m.WiderrufsbelehrungPage })));
+const VersandUndZahlungPage = lazy(() => import('@/pages/VersandUndZahlungPage').then(m => ({ default: m.VersandUndZahlungPage })));
 import { LanguageProvider } from '@/hooks/useLanguage';
 import { ThemeProvider } from '@/hooks/useTheme';
 import { Toaster } from '@/components/ui/sonner';
 import { CartDrawer } from '@/components/CartDrawer';
 import { useCartStore } from '@/store/cart';
+import { checkoutEnabled } from '@/lib/data';
 import { ScrollToTop } from '@/components/ScrollToTop';
 import { RouteScrollReset } from '@/components/RouteScrollReset';
 import { PendingAnchorScroll } from '@/components/PendingAnchorScroll';
@@ -52,12 +56,12 @@ function AppContent() {
   return (
     <div className="min-h-screen bg-wx-bg text-wx-tx1">
       <ScrollProgress />
-      <CartPersistenceHint />
+      {checkoutEnabled && <CartPersistenceHint />}
       <RouteScrollReset />
       <ScrollToTop />
       <SectionDots />
       <MobileStickyCTA />
-      <CartDrawer />
+      {checkoutEnabled && <CartDrawer />}
       <Routes>
         <Route path="/produkt/:id" element={<Suspense fallback={<PageLoader />}><ProductDetailPage /></Suspense>} />
         <Route path="/produkt/:id/stage" element={<Suspense fallback={<PageLoader />}><ProductStagePage /></Suspense>} />
@@ -67,6 +71,9 @@ function AppContent() {
         <Route path="/impressum" element={<Suspense fallback={<PageLoader />}><ImpressumPage /></Suspense>} />
         <Route path="/datenschutz" element={<Suspense fallback={<PageLoader />}><DatenschutzPage /></Suspense>} />
         <Route path="/agb" element={<Suspense fallback={<PageLoader />}><AGBPage /></Suspense>} />
+        <Route path="/widerruf" element={<Suspense fallback={<PageLoader />}><WiderrufPage /></Suspense>} />
+        <Route path="/widerrufsbelehrung" element={<Suspense fallback={<PageLoader />}><WiderrufsbelehrungPage /></Suspense>} />
+        <Route path="/versand-und-zahlung" element={<Suspense fallback={<PageLoader />}><VersandUndZahlungPage /></Suspense>} />
         <Route path="/admin" element={<Suspense fallback={<PageLoader />}><AdminPage /></Suspense>} />
         <Route path="/wissenschaft" element={<Suspense fallback={<PageLoader />}><SciencePage /></Suspense>} />
         <Route path="/" element={

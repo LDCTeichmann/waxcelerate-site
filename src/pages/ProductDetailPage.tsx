@@ -5,7 +5,7 @@ import {
   ArrowLeft, ArrowRight, ExternalLink, Check,
   ChevronRight, ChevronLeft, ChevronDown, Star, Lightbulb, Truck,
 } from 'lucide-react';
-import { getProductById, products, canCheckout } from '@/lib/data';
+import { getProductById, products, canCheckout, checkoutEnabled } from '@/lib/data';
 import type { Product } from '@/lib/data';
 import { richContent } from '@/lib/productContent';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -318,7 +318,7 @@ export function ProductDetailPage() {
                 <ArrowLeft className="h-4 w-4" /> {de ? 'Zurück' : 'Back'}
               </Link>
             </div>
-            <CartIcon />
+            {checkoutEnabled && <CartIcon />}
           </div>
         </header>
 

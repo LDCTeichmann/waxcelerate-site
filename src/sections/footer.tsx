@@ -109,6 +109,9 @@ export function Footer() {
                   { label: 'Impressum',  to: '/impressum'  },
                   { label: 'Datenschutz', to: '/datenschutz' },
                   { label: 'AGB',        to: '/agb'        },
+                  { label: de ? 'Versand & Zahlung' : 'Shipping & Payment', to: '/versand-und-zahlung' },
+                  { label: de ? 'Widerrufsbelehrung' : 'Right of withdrawal', to: '/widerrufsbelehrung' },
+                  { label: de ? 'Vertrag widerrufen' : 'Withdraw contract', to: '/widerruf' },
                 ].map((item) => (
                   <li key={item.label}>
                     <Link to={item.to} className={linkClass}>{item.label}</Link>

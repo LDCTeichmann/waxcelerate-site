@@ -3,6 +3,7 @@ import { X, ShoppingCart, Minus, Plus, Trash2, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCartStore, cartItemCount, cartTotalPrice } from '@/store/cart';
 import { getEstimatedDelivery } from '@/lib/utils';
+import { getProductById, shipping, shippingFor } from '@/lib/data';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 import { toast } from 'sonner';
@@ -24,6 +25,17 @@ export function CartDrawer() {
 
   const count = cartItemCount(items);
   const total = cartTotalPrice(items);
+
+  // Same shippingFor() the server charges from (api/create-checkout.ts) —
+  // shown here so the cost is visible before the customer ever reaches
+  // Stripe, not just on the redirect. Falls back to the plain grossbrief
+  // rate for a stale cart item whose product was removed from data.ts.
+  const shippingItems = items
+    .map((i) => ({ product: getProductById(i.productId), quantity: i.quantity }))
+    .filter((i): i is { product: NonNullable<typeof i.product>; quantity: number } => !!i.product);
+  const freeShipping = total >= shipping.freeFromCents / 100;
+  const shippingTier = shippingFor(shippingItems);
+  const shippingCost = freeShipping ? 0 : shippingTier.cents / 100;
 
   // Lock body scroll when cart is open
   useBodyScrollLock(isOpen);
@@ -194,7 +206,22 @@ export function CartDrawer() {
             {/* Subtotal row */}
             <div className="flex items-center justify-between">
               <span className="text-sm text-wx-tx2">{t.cart.subtotal}</span>
-              <span className="font-semibold text-wx-tx1 tabular-nums">{formatPrice(total)}</span>
+              <span className="text-wx-tx1 tabular-nums">{formatPrice(total)}</span>
+            </div>
+
+            {/* Shipping row — same weight-tiered rate the server charges,
+                shown before checkout rather than only at the Stripe redirect */}
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-wx-tx2">{de ? 'Versand' : 'Shipping'}</span>
+              <span className="text-wx-tx1 tabular-nums">
+                {freeShipping ? (de ? 'Kostenlos' : 'Free') : formatPrice(shippingCost)}
+              </span>
+            </div>
+
+            {/* Total row */}
+            <div className="flex items-center justify-between pt-1" style={{ borderTop: '1px solid var(--bd2)' }}>
+              <span className="text-sm font-semibold text-wx-tx1">{de ? 'Gesamt' : 'Total'}</span>
+              <span className="font-semibold text-wx-tx1 tabular-nums">{formatPrice(total + shippingCost)}</span>
             </div>
 
             <p className="text-[11px] text-wx-txf leading-relaxed">{t.cart.vatNote}</p>

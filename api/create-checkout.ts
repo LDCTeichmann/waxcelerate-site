@@ -1,10 +1,8 @@
 import Stripe from 'stripe';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { products } from '../src/lib/data.js';
+import { products, shipping, shippingFor } from '../src/lib/data.js';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-
-const FREE_SHIPPING_THRESHOLD = 50_00; // €50.00 in cents
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).end();
@@ -17,6 +15,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   // Look up Stripe price IDs from data.ts — client never sends price amounts
   const lineItems: { price: string; quantity: number }[] = [];
+  const shippingItems: { product: typeof products[number]; quantity: number }[] = [];
   let subtotalCents = 0;
 
   for (const item of items) {
@@ -30,14 +29,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
     lineItems.push({ price: product.stripePriceId, quantity: item.quantity });
+    shippingItems.push({ product, quantity: item.quantity });
     subtotalCents += Math.round(product.price * 100) * item.quantity;
   }
 
-  // Free shipping over €50, otherwise show standard rate
-  const shippingOptions: { shipping_rate: string }[] =
-    subtotalCents >= FREE_SHIPPING_THRESHOLD
-      ? [{ shipping_rate: process.env.STRIPE_SHIPPING_FREE! }]
-      : [{ shipping_rate: process.env.STRIPE_SHIPPING_STANDARD! }];
+  // Weight-tiered rate (Großbrief/Maxibrief/Paket) from the same table and
+  // function the cart drawer uses for its pre-checkout estimate — free over
+  // €50, same threshold as the free-shipping banner shown there. Built
+  // inline via shipping_rate_data so no shipping-rate objects need to exist
+  // in the Stripe Dashboard, in either test or live mode.
+  const tier = shippingFor(shippingItems);
+  const shippingCents = subtotalCents >= shipping.freeFromCents ? 0 : tier.cents;
+  const shippingLabel = subtotalCents >= shipping.freeFromCents ? 'Kostenloser Versand' : tier.label;
 
   const origin = req.headers.origin ?? process.env.SITE_URL ?? 'https://waxcelerate.de';
 
@@ -49,7 +52,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     shipping_address_collection: {
       allowed_countries: ['DE', 'AT', 'CH', 'NL', 'BE', 'FR', 'IT', 'ES', 'PL', 'DK', 'SE', 'NO', 'GB'],
     },
-    shipping_options: shippingOptions,
+    shipping_options: [{
+      shipping_rate_data: {
+        type: 'fixed_amount',
+        fixed_amount: { amount: shippingCents, currency: 'eur' },
+        display_name: shippingLabel,
+        delivery_estimate: {
+          minimum: { unit: 'business_day', value: 1 },
+          maximum: { unit: 'business_day', value: 3 },
+        },
+      },
+    }],
     payment_method_types: ['card', 'sepa_debit', 'klarna'],
     invoice_creation: {
       enabled: true,
