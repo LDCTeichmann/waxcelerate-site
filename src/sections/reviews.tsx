@@ -106,10 +106,18 @@ function Avatar({ name, photo, photoPos, de }: { name: string; photo?: string; p
   );
 }
 
-// One card shape for every review — photo or not. The previous version laid
-// white text over the customer photo, which on the brighter bike shots was
-// barely legible; the photo now sits as a small thumbnail next to the name
-// where it still reads as "a real rider's bike" without fighting the quote.
+// Das Foto sitzt jetzt als Band oben in der Karte, nicht mehr nur als 38 Pixel
+// grosses Avatar und ausdruecklich nicht als Hintergrund.
+//
+// Beides war vorher schon einmal falsch: weisser Text ueber dem Foto war auf den
+// helleren Radaufnahmen kaum lesbar, und das Daumenkino neben dem Namen war so
+// klein, dass man nicht erkennen konnte, dass es echte Kundenfotos sind. Ein
+// Band loest beides, weil der Text danach wieder auf der Kartenflaeche liegt:
+// die Lesbarkeit haengt nicht mehr davon ab, wie hell das jeweilige Motiv ist.
+//
+// Karten ohne Foto bekommen kein Platzhalterbild. Eine Reihe, in der manche
+// Karten ein Bild haben und manche nicht, liest sich als echte Sammlung.
+// Gleichmacherei mit Stockbildern waere hier genau der falsche Reflex.
 function ReviewCard({ r, de }: { r: Review; de: boolean }) {
   const text = de ? r.textDe : r.textEn;
   const date = de ? r.dateDe : r.dateEn;
@@ -130,6 +138,16 @@ function ReviewCard({ r, de }: { r: Review; de: boolean }) {
         border: '1px solid var(--bd)',
       }}
     >
+      {r.photo && (
+        <div className="rounded-xl overflow-hidden mb-3.5 -mx-1"
+          style={{ aspectRatio: '16 / 9', background: 'var(--sf3)' }}>
+          <img src={r.photo} alt={de ? `Rad von ${r.name}` : `${r.name}'s bike`}
+            loading="lazy" decoding="async"
+            className="w-full h-full object-cover"
+            style={{ objectPosition: r.photoPos ?? '50% 50%' }} />
+        </div>
+      )}
+
       <div className="flex items-center justify-between mb-2.5">
         <Stars rating={r.rating ?? 5} />
         <span className="text-[10.5px]" style={{ color: 'var(--txf)' }}>{date}</span>
@@ -140,7 +158,9 @@ function ReviewCard({ r, de }: { r: Review; de: boolean }) {
       </blockquote>
 
       <figcaption className="flex items-center gap-2.5 mt-3.5 pt-3" style={{ borderTop: '1px solid var(--bd2)' }}>
-        <Avatar name={r.name} photo={r.photo} photoPos={r.photoPos} de={de} />
+        {/* Immer die Initialen, nie das Foto: das steckt jetzt oben im Band, und
+            dasselbe Bild zweimal in einer Karte ist Redundanz, nicht Beweis. */}
+        <Avatar name={r.name} de={de} />
         <div className="min-w-0">
           <p className="text-[12.5px] font-semibold truncate" style={{ color: 'var(--tx1)' }}>{r.name}</p>
           <span className="inline-flex items-center gap-1 text-[10.5px] font-medium" style={{ color: 'var(--accent-soft)' }}>
