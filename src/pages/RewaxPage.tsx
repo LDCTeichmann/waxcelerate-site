@@ -15,7 +15,7 @@
 
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Check, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, X, Gift } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 
 import { Navigation } from '@/sections/navigation';
@@ -67,7 +67,14 @@ function StampCard({ de }: { de: boolean }) {
         <p className="text-[11px] uppercase tracking-[0.18em]" style={{ color: 'var(--accent)' }}>
           {de ? 'Zehnerkarte' : 'Ten-visit card'}
         </p>
-        <p className="num-data text-[11px]" style={{ color: 'var(--txff)' }}>10 ×</p>
+        {/* Der Geschenk-Hinweis sitzt auf der Karte selbst, nicht im Fliesstext
+            daneben. Wer eine Stempelkarte sieht, auf der "als Geschenk" steht,
+            versteht das Angebot ohne einen Satz zu lesen. */}
+        <span className="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-full"
+          style={{ background: 'var(--accent-wash-sm)', border: '1px solid rgba(var(--accent-rgb),0.16)', color: 'var(--accent)' }}>
+          <Gift className="h-3.5 w-3.5" aria-hidden />
+          {de ? 'auch als Geschenk' : 'also as a gift'}
+        </span>
       </div>
       <div className="grid grid-cols-5 gap-3">
         {Array.from({ length: TEN_CARD.count }, (_, i) => (
@@ -498,33 +505,49 @@ export function RewaxPage() {
         </div>
       </section>
 
-      {/* ── CTA ── */}
-      <section className="py-14 sm:py-20" style={{ borderTop: '1px solid var(--bd2)' }}>
-        <div className={W}>
-          <div className="rounded-2xl px-6 py-10 sm:py-12 text-center"
-            style={{ background: 'var(--accent-wash-sm)', border: '1px solid rgba(var(--accent-rgb),0.12)' }}>
-            <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
+      {/* ── CTA ──
+          Vorher ein blasser Kasten in Akzentfarbe, also derselbe Kasten, den
+          jede Sektion auf jeder Website benutzt. Jetzt ein Bildband ueber die
+          volle Breite mit dem Foto der haengenden Ketten: die Seite endet mit
+          dem Ergebnis, das man bekommt, nicht mit einer Aufforderung auf
+          hellgrauem Grund. Und ein Knopf, nicht zwei, damit es nichts zu
+          entscheiden gibt. */}
+      <section className="relative overflow-hidden" style={{ minHeight: 460, background: 'var(--hero-stage)' }}>
+        <img src="/images/rewax/hero.webp"
+          srcSet="/images/rewax/hero-800.webp 800w, /images/rewax/hero.webp 1200w"
+          sizes="100vw" alt="" aria-hidden loading="lazy" decoding="async"
+          className="absolute inset-0 w-full h-full object-cover" />
+        <div aria-hidden className="absolute inset-0"
+          style={{ background: 'linear-gradient(100deg, rgba(0,0,0,0.80) 0%, rgba(0,0,0,0.52) 46%, rgba(0,0,0,0.16) 100%)' }} />
+
+        <div className={`${W} relative py-20 sm:py-24`}>
+          <div className="max-w-[44ch]">
+            <p className="text-[11px] uppercase tracking-[0.2em] mb-4" style={{ color: 'rgba(255,255,255,0.68)' }}>
               {de ? 'Loslegen' : 'Get started'}
             </p>
-            <h2 className="font-display font-bold text-wx-tx1 mb-4" style={{ fontSize: 'clamp(1.5rem, 3vw, 2rem)' }}>
-              {de ? 'Schreib kurz, wie viele Ketten kommen.' : 'Tell us how many chains are coming.'}
+            <h2 className="font-display font-bold leading-[1.08] tracking-[-0.02em]"
+              style={{ color: '#fff', fontSize: 'clamp(1.9rem, 4vw, 2.8rem)' }}>
+              {de ? 'Schreib mir, wie viele Ketten kommen.' : 'Tell me how many chains are coming.'}
             </h2>
-            <p className="text-[14px] leading-relaxed max-w-[46ch] mx-auto mb-7" style={{ color: 'var(--txm)' }}>
+            <p className="text-[15px] leading-relaxed mt-5 max-w-[40ch]" style={{ color: 'rgba(255,255,255,0.82)' }}>
               {de
-                ? 'Du bekommst die Versandadresse und eine Einschätzung, wann die Kette zurück ist. In der Regel antworte ich am selben Tag.'
-                : 'You get the shipping address and an estimate of when the chain will be back. I usually reply the same day.'}
+                ? 'Eine Nachricht, ein Satz. Du bekommst die Versandadresse und eine Einschätzung, wann die Kette zurück ist. Meistens antworte ich am selben Tag.'
+                : 'One message, one sentence. You get the shipping address and an estimate of when the chain will be back. I usually reply the same day.'}
             </p>
-            <div className="flex flex-wrap items-center justify-center gap-4">
-              <a href={waLink(de)} target="_blank" rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-[14px] font-semibold transition-opacity hover:opacity-90"
-                style={{ background: 'var(--accent)', color: '#fff' }}>
-                {de ? 'Per WhatsApp anmelden' : 'Register via WhatsApp'}
-                <ArrowRight className="h-4 w-4" />
-              </a>
-              <a href={mailLink(de)} className="text-[13.5px] font-semibold" style={{ color: 'var(--tx1)' }}>
+
+            <a href={waLink(de)} target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 mt-8 rounded-full px-7 py-3.5 text-[15px] font-semibold transition-opacity hover:opacity-90"
+              style={{ background: '#fff', color: '#101013' }}>
+              {de ? 'Ketten anmelden' : 'Register chains'}
+              <ArrowRight className="h-4 w-4" />
+            </a>
+
+            <p className="text-[12.5px] mt-5" style={{ color: 'rgba(255,255,255,0.62)' }}>
+              {de ? 'Kein Formular. Kein Konto. ' : 'No form. No account. '}
+              <a href={mailLink(de)} className="underline underline-offset-2" style={{ color: 'rgba(255,255,255,0.86)' }}>
                 {de ? 'Lieber per E-Mail' : 'Prefer email'}
               </a>
-            </div>
+            </p>
           </div>
         </div>
       </section>

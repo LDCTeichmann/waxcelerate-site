@@ -106,3 +106,39 @@ Foto. Gehört auf die Seite.
 
 Ungenutzt und problematisch: `chain-dirty.jpg` ist ein fremdes Foto mit
 englischer Handschrift-Kritzelei. Sollte gelöscht werden.
+
+
+---
+
+## 6. Hero-Entscheidung, Stand 2026-07-29
+
+**Gewählt: Variante A, das Foto der hängenden gewachsten Ketten** („4 Chain.JPG",
+liegt als `public/images/hero-alt/hanging*.webp` in drei Größen). Noch nicht
+eingebaut, Aufgabe liegt für Mittwoch in Todoist. Vergleichsseite: `/hero-lab`,
+noindex.
+
+Warum dieses und nicht die anderen:
+
+- Es ist das einzige Motiv, bei dem **Bild und Textspalte sich nicht in die Quere
+  kommen.** Die Ketten füllen die rechte Bildhälfte mit senkrechtem Rhythmus,
+  links bleibt eine ruhige Fläche, die der Scrim abdunkeln kann, ohne dass etwas
+  Wichtiges verschwindet.
+- Der Logo-Aufsteller **liegt beiläufig mit im Bild** statt platziert zu wirken.
+  Das ist der Unterschied zwischen einer Aufnahme und einem Werbefoto.
+- Goldenes Licht plus Hügel im Bokeh **gibt der Marke einen Ort.** Cyclowax und
+  Optimize fotografieren im Studio auf Weiß. Draußen bei Abendlicht steht
+  niemand, und die Herkunft ist ohnehin ein Kernargument der Marke.
+
+Warum das alte Bild weg kann: die Kettentextur im Studio ist handwerklich sauber
+und trotzdem austauschbar. Sie zeigt das Produkt, aber nicht, wer es macht.
+
+**Rotation verworfen.** Der erste Entwurf blendete drei Aufnahmen derselben
+Session, was formal aufgeht: gleicher Schiefer, gleicher Horizont, gleiches
+Licht. Beim Rendern der Mockups wurde es trotzdem deutlich: Umschlag und
+offener Karton sind gute Produktbilder, haben aber nicht die Bildkraft der
+hängenden Ketten. Eine Blende zwischen einem starken und zwei mittleren Bildern
+macht das starke schwächer, nicht die mittleren stärker. Die beiden gehören auf
+`/starter-set` und `/rewax`, wo sie thematisch etwas beweisen.
+
+Beim Einbau: Scrim von links 0,80 nach rechts 0,16, nur das Hero-Bild lädt
+eager. Danach `/hero-lab` und `public/images/hero-alt` löschen.
