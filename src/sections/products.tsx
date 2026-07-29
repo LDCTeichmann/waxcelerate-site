@@ -1,4 +1,4 @@
-import { ExternalLink, X, ChevronDown, Truck, Tag } from 'lucide-react';
+import { ExternalLink, X, ChevronDown, Truck, Tag, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState, useRef, useEffect, useCallback, useMemo, memo } from 'react';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
@@ -11,6 +11,7 @@ import { products, canCheckout } from '@/lib/data';
 import { richContent } from '@/lib/productContent';
 import { getEstimatedDelivery } from '@/lib/utils';
 import { ChainFinder } from '@/sections/ChainFinder';
+import { ProductDoors } from '@/sections/ProductDoors';
 import { AddToCartButton } from '@/components/AddToCartButton';
 import { Stars } from '@/components/Stars';
 import { Section } from '@/components/Section';
@@ -20,6 +21,11 @@ const MONO = "'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace";
 export function Products() {
   const { t, lang } = useLanguage();
   const [activeTab, setActiveTab] = useState<'wax' | 'chain'>('wax');
+  // Doors first, list on demand. Showing both at once meant the same menu twice:
+  // three big cards that route by intent, and directly beneath them the very
+  // list those cards route to. Opening a door swaps one for the other, and the
+  // back link puts the doors back, so there is only ever one thing to decide.
+  const [listOpen, setListOpen] = useState(false);
   const [compareOpen, setCompareOpen] = useState(false);
   const [speedFilter, setSpeedFilter] = useState<'all' | '11' | '12'>('all');
   const [brandFilter, setBrandFilter] = useState<'all' | 'shimano' | 'sram' | 'campagnolo'>('all');
@@ -30,7 +36,10 @@ export function Products() {
 
   // Listen for hero pill "Vorgewachste Ketten" click → open chains tab
   useEffect(() => {
-    const handler = (e: Event) => setActiveTab((e as CustomEvent<'wax' | 'chain'>).detail);
+    const handler = (e: Event) => {
+      setActiveTab((e as CustomEvent<'wax' | 'chain'>).detail);
+      setListOpen(true);
+    };
     window.addEventListener('wax:selectTab', handler);
     return () => window.removeEventListener('wax:selectTab', handler);
   }, []);
@@ -146,9 +155,28 @@ export function Products() {
             </p>
           </div>
 
+          {/* ── Three ways in ──
+              Routes by intent before anyone sees a price or a filter. The tab
+              switcher below stays for people who already know what they want. */}
+          {!listOpen && (
+            <div className="mb-4">
+              <ProductDoors de={de} />
+            </div>
+          )}
+
+          {listOpen && (
+          <>
+          <button type="button" onClick={() => setListOpen(false)}
+            className="inline-flex items-center gap-2 mb-6 text-[13px] font-semibold transition-opacity hover:opacity-70"
+            style={{ color: 'var(--txm)' }}>
+            <ArrowRight className="h-4 w-4 rotate-180" aria-hidden />
+            {de ? 'Alle Produktbereiche' : 'All product areas'}
+          </button>
+
           {/* ── Tab switcher ── */}
           <div
-            className="relative flex p-1 rounded-xl border border-wx-bd mb-10"
+            id="produkt-liste"
+            className="relative flex p-1 rounded-xl border border-wx-bd mb-10 scroll-mt-24"
             style={{ background: 'var(--sf)' }}
           >
             {/* Sliding pill — pure CSS, no GSAP needed for 2 tabs */}
@@ -259,6 +287,40 @@ export function Products() {
               )}
             </>
           )}
+
+          </>
+          )}
+
+          {/* ── Rewax ──
+              Retention, placed where it is relevant rather than in its own
+              section: whoever just looked at chains and wax is the exact person
+              who will need this in four hundred kilometres. A band, not a card,
+              so it does not compete with the products above it. */}
+          <Link to="/rewax"
+            className="group flex flex-wrap items-center justify-between gap-4 mt-12 sm:mt-16 py-6 transition-[padding] duration-500 hover:pl-3"
+            style={{ borderTop: '1px solid var(--bd2)', borderBottom: '1px solid var(--bd2)' }}>
+            <div>
+              <p className="eyebrow" style={{ color: 'var(--txf)' }}>
+                {de ? 'Service' : 'Service'}
+              </p>
+              <p className="font-display font-bold text-wx-tx1 mt-2 leading-tight"
+                style={{ fontSize: 'clamp(1.15rem, 2.2vw, 1.5rem)' }}>
+                {de ? 'Keine Lust auf den Topf? Schick die Kette.' : 'Not keen on the pot? Send the chain in.'}
+              </p>
+              <p className="text-[13.5px] mt-1.5" style={{ color: 'var(--txm)' }}>
+                {de
+                  ? 'Rewax für bereits gewachste Ketten, ab 9,95 € je Kette.'
+                  : 'Rewax for chains that are already waxed, from 9.95 € each.'}
+              </p>
+            </div>
+            <span className="inline-flex items-center gap-2 text-[13.5px] font-semibold whitespace-nowrap"
+              style={{ color: 'var(--tx1)' }}>
+              {de ? 'Zum Rewax-Service' : 'To the rewax service'}
+              <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+                style={{ color: 'var(--accent-soft)' }} />
+            </span>
+          </Link>
+
       {/* Bottom gradient — bridges to About below */}
       <div
         className="absolute bottom-0 left-0 right-0 pointer-events-none"

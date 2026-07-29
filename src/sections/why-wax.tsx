@@ -1,16 +1,22 @@
 import { useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Clock, HandMetal, Wrench, PiggyBank, ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useSectionReveal } from '@/hooks/useAnimation';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { CountUp } from '@/components/viz/CountUp';
+import { WhatChanges } from '@/sections/WhatChanges';
+import { ScienceTeaser } from '@/sections/science/ScienceTeaser';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
 import { waxVsOil } from '@/lib/data';
 import { Section } from '@/components/Section';
 
+// Three cards, not four. Chain life used to sit here as "3×", but the hero
+// already counts that number up on arrival and the products subtitle says it a
+// third time. A figure repeated three times on one page does not get bigger, it
+// gets cheaper. The hero owns the outcome numbers; this row owns the
+// measurements that explain them, and the benefit lines below own the everyday
+// consequences. One statement per surface.
 function buildCards(de: boolean) {
-  const f = waxVsOil.friction, w = waxVsOil.watts, l = waxVsOil.life;
+  const f = waxVsOil.friction, w = waxVsOil.watts;
   return [
     {
       value: `μ ${f.wax.toFixed(2)}`,
@@ -23,43 +29,9 @@ function buildCards(de: boolean) {
       detail: de ? `Öl: ${w.oil[0]}–${w.oil[1]} W` : `Oil: ${w.oil[0]}–${w.oil[1]} W`,
     },
     {
-      value: `${l.wax}×`,
-      label: de ? 'Kettenlaufzeit' : 'Chain life',
-      detail: de ? 'gegenüber Öl' : 'vs oil lubrication',
-    },
-    {
       value: de ? 'Trocken' : 'Dry',
       label: de ? 'Sauberkeit' : 'Cleanliness',
       detail: de ? 'Kein Dreck, keine Flecken' : 'No grime, no stains',
-    },
-  ];
-}
-
-function buildBenefits(de: boolean) {
-  return [
-    {
-      icon: HandMetal,
-      text: de ? 'Saubere Hände, saubere Hose' : 'Clean hands, clean clothes',
-      sub: de ? 'Trockener Wachsfilm statt klebriger Ölschicht' : 'Dry wax film instead of sticky oil',
-    },
-    {
-      icon: Wrench,
-      text: de ? 'Kein Nachschmieren alle 100 km' : 'No re-lubing every 100 km',
-      sub: de ? '250–550 km pro Wachsbehandlung' : '250–550 km per wax treatment',
-    },
-    {
-      icon: Clock,
-      text: de ? 'Kassette & Kettenblätter halten länger' : 'Cassette & chainrings last longer',
-      sub: de ? 'Weniger abrasiver Verschleiß am gesamten Antrieb' : 'Less abrasive wear on the entire drivetrain',
-    },
-    {
-      icon: PiggyBank,
-      text: de
-        ? `~€${waxVsOil.cost.savedEur} gespart über ${waxVsOil.cost.km.toLocaleString('de-DE')} km`
-        : `~€${waxVsOil.cost.savedEur} saved over ${waxVsOil.cost.km.toLocaleString('en-US')} km`,
-      sub: de
-        ? `Öl ~€${waxVsOil.cost.oilEur} → Wachs ~€${waxVsOil.cost.waxEur}`
-        : `Oil ~€${waxVsOil.cost.oilEur} → Wax ~€${waxVsOil.cost.waxEur}`,
     },
   ];
 }
@@ -106,7 +78,6 @@ export function WhyWax() {
   }, []);
 
   const cards = buildCards(de);
-  const benefits = buildBenefits(de);
 
   return (
     <Section id="warum-wachs" ref={sectionRef} className="bg-wx-sf">
@@ -132,7 +103,7 @@ export function WhyWax() {
           {/* ── Stat cards — 2×2 grid — measurement-card language shared with
               the science page (CountUp figure, centered accent tick, no
               icons) instead of the icon+progress-bar pattern used before. ── */}
-          <div ref={cardsRef} className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div ref={cardsRef} className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
             {cards.map((c, i) => (
               <div key={i} data-card
                 className="rounded-2xl px-4 py-5 sm:py-6 flex flex-col items-center text-center"
@@ -153,52 +124,19 @@ export function WhyWax() {
             ))}
           </div>
 
-          {/* ── Real-world benefits ── */}
-          <div ref={benefitsRef} className="hidden sm:block mt-12 sm:mt-16">
-            <p className="eyebrow mb-5" style={{ color: 'var(--txf)' }}>
-              {de ? 'Was das bedeutet' : 'What this means'}
-            </p>
-
-            <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
-              {benefits.map((b, i) => {
-                const Icon = b.icon;
-                return (
-                  <div key={i} data-benefit
-                    className="flex items-start gap-4 rounded-xl px-5 py-4"
-                    style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)' }}>
-                    <div className="flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center mt-0.5"
-                      style={{ background: 'var(--accent-wash)' }}>
-                      <Icon className="h-4 w-4" style={{ color: 'var(--accent-soft)' }} />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-[14px] font-semibold leading-tight" style={{ color: 'var(--tx1)' }}>
-                        {b.text}
-                      </p>
-                      <p className="text-[12px] mt-1 leading-relaxed" style={{ color: 'var(--txm)' }}>
-                        {b.sub}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+          {/* ── What changes ──
+              Was a chart plus four benefit tiles. Both were asking a cold
+              visitor to decode something before getting anything back. Three
+              rows, one statement each, photograph where the photograph is the
+              argument. See WhatChanges.tsx for the reasoning. */}
+          <div ref={benefitsRef}>
+            <WhatChanges de={de} />
           </div>
 
-          {/* ── Science CTA ── */}
-          <Link to="/wissenschaft" data-benefit
-            className="group flex items-center justify-between gap-4 mt-8 px-6 py-5 rounded-xl transition-all hover:shadow-md"
-            style={{ background: 'var(--card-bg)', border: '1px solid var(--bd)' }}>
-            <div>
-              <p className="text-[14px] font-semibold" style={{ color: 'var(--tx1)' }}>
-                {de ? 'Die Wissenschaft dahinter' : 'The science behind it'}
-              </p>
-              <p className="text-[12px] mt-0.5" style={{ color: 'var(--txm)' }}>
-                {de ? 'Kontaktzonen, Reibkurven, Mikroskopie — alles gemessen.' : 'Contact zones, friction curves, microscopy — all measured.'}
-              </p>
-            </div>
-            <ArrowRight className="h-5 w-5 flex-shrink-0 transition-transform duration-300 group-hover:translate-x-1"
-              style={{ color: 'var(--accent-soft)' }} />
-          </Link>
+          {/* ── Door into the science page ──
+              Was a flat card describing the page. Now it starts the argument
+              and stops one line short, which is the reason to click. */}
+          <ScienceTeaser de={de} />
 
       <div className="absolute bottom-0 left-0 right-0 pointer-events-none"
         style={{ height: '64px', background: 'linear-gradient(to bottom, transparent, var(--pg))', zIndex: 1 }} />

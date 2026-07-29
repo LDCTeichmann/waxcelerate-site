@@ -15,6 +15,7 @@ import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 const navItems = [
   { href: '#warum-wachs', key: 'whyWax'   },
   { href: '/wissenschaft', key: 'science', route: true },
+  { href: '/rewax',       key: 'rewax',   route: true },
   { href: '#ueber-mich',  key: 'about'    },
   { href: '#tools',       key: 'tools'    },
   { href: '#anleitungen', key: 'guides'   },

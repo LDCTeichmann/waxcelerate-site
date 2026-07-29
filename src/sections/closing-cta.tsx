@@ -21,8 +21,8 @@ export function ClosingCTA() {
           <div>
             <p className="font-display text-[19px] sm:text-[22px] font-bold tracking-[-0.02em] mb-1.5" style={{ color: 'var(--tx1)' }}>
               {de
-                ? `${waxVsOil.life.wax}× Kettenlaufzeit · ~€${waxVsOil.cost.savedEur} gespart über ${waxVsOil.cost.km.toLocaleString('de-DE')} km`
-                : `${waxVsOil.life.wax}× chain life · ~€${waxVsOil.cost.savedEur} saved over ${waxVsOil.cost.km.toLocaleString('en-US')} km`}
+                ? `${waxVsOil.life.waxLo} bis ${waxVsOil.life.wax}× Kettenlaufzeit · ~€${waxVsOil.cost.savedEur} gespart über ${waxVsOil.cost.km.toLocaleString('de-DE')} km`
+                : `${waxVsOil.life.waxLo} to ${waxVsOil.life.wax}× chain life · ~€${waxVsOil.cost.savedEur} saved over ${waxVsOil.cost.km.toLocaleString('en-US')} km`}
             </p>
             <p className="text-[13px]" style={{ color: 'var(--txm)' }}>
               {de ? '200+ Bewertungen · Versand aus Stuttgart · eBay-Käuferschutz' : '200+ reviews · Ships from Stuttgart · eBay buyer protection'}

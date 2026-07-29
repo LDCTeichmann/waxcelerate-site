@@ -10,6 +10,7 @@ import { InstrumentFrame, CountUp } from '@/components/viz';
 import { waxVsOil, frictionRanges } from '@/lib/data';
 import { COMPONENTS, FAILURES, type ScienceComponent } from '@/lib/science';
 import { FormulaGraph } from '@/sections/science/FormulaGraph';
+import { ContactZones, LineChoice } from '@/sections/science/ContactZones';
 import { ComponentDiagram } from '@/sections/science/diagrams';
 import { HexMoS2, TransferFilm } from '@/sections/science/LabViz';
 
@@ -37,7 +38,7 @@ function ScienceHero({ de }: { de: boolean }) {
     },
     {
       icon: Clock,
-      value: `${l.wax}×`,
+      value: `${l.waxLo}–${l.wax}×`,
       label: de ? 'Kettenlaufzeit' : 'Chain life',
       detail: de ? 'gegenüber Öl' : 'vs oil lubrication',
     },
@@ -757,8 +758,17 @@ export function SciencePage() {
 
       <ScienceHero de={de} />
 
+      {/* ── ACT I — THE PROBLEM ──
+          Owns the #problem anchor that the hero's "Wie das gemessen wurde" link
+          has always pointed at. Establishes where friction physically happens
+          before ACT II explains what is in the wax, so the formula reads as an
+          answer to something rather than an ingredient list. */}
+      <section className={`${W} pt-20 pb-16`} style={{ borderTop: '1px solid var(--bd2)' }}>
+        <ContactZones de={de} onToFormula={() => scrollToAnchor('formel')} />
+      </section>
+
       {/* ── ACT II — FORMULA (scroll-driven storytelling) ── */}
-      <section style={{ borderTop: '1px solid var(--bd2)' }}>
+      <section id="formel" className="scroll-mt-24" style={{ borderTop: '1px solid var(--bd2)' }}>
         {/* Section heading */}
         <div className={`${W} pt-20 pb-8`}>
           <ActHead
@@ -822,7 +832,7 @@ export function SciencePage() {
               <div className="grid grid-cols-3 gap-3 text-center">
                 {[
                   { v: '~300 km', d: de ? 'pro Rewax-Vorgang' : 'per rewax' },
-                  { v: `${waxVsOil.life.wax}×`, d: de ? 'Kettenlaufzeit' : 'chain life' },
+                  { v: `${waxVsOil.life.waxLo}–${waxVsOil.life.wax}×`, d: de ? 'Kettenlaufzeit' : 'chain life' },
                   { v: `~€${waxVsOil.cost.savedEur}`, d: de ? `auf ${(waxVsOil.cost.km / 1000).toLocaleString('de-DE')}.000 km` : `over ${(waxVsOil.cost.km / 1000).toLocaleString('en-US')}k km` },
                 ].map((s, i) => (
                   <div key={i}>
@@ -840,8 +850,15 @@ export function SciencePage() {
           <TransferFilm de={de} />
         </div>
 
+        {/* Everything above proves zone 01 is the hardest place in the chain.
+            This is the one block where that becomes a product decision, so it
+            sits directly on top of the button and nowhere else. */}
+        <div className="mt-16">
+          <LineChoice de={de} />
+        </div>
+
         {/* CTA */}
-        <div className="mt-14 rounded-2xl px-6 py-10 sm:py-12 text-center"
+        <div className="rounded-2xl px-6 py-10 sm:py-12 text-center"
           style={{ background: 'var(--accent-wash-sm)', border: '1px solid rgba(var(--accent-rgb),0.12)' }}>
           <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
             {de ? 'Nächster Schritt' : 'Next step'}

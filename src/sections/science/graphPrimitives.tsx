@@ -60,13 +60,13 @@ export function NodeCircle({ x, y, r, big, state }: {
       </defs>
       {active && (
         <circle cx={x} cy={y} r={r + (big ? 14 : 10)} fill="none"
-          stroke="rgba(var(--accent-rgb),0.16)" strokeWidth={1}
+          stroke="rgba(var(--accent-rgb),0.16)" strokeWidth={1.3}
           style={{ transition: 'opacity 0.3s' }} />
       )}
       {big && (
         <circle cx={x} cy={y} r={r + 6} fill="none"
           stroke={active ? 'rgba(var(--accent-rgb),0.40)' : 'rgba(var(--accent-rgb),0.15)'}
-          strokeWidth={1} style={{ transition: 'stroke 0.25s' }} />
+          strokeWidth={1.3} style={{ transition: 'stroke 0.25s' }} />
       )}
       <circle cx={x} cy={y} r={r}
         fill={`url(#${id}f)`}

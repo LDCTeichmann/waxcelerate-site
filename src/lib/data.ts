@@ -531,7 +531,10 @@ export const compatibilityMatrix: Record<string, Record<string, string[]>> = {
 export const waxVsOil = {
   friction: { wax: 0.03, oil: 0.2 },        // μ — boundary friction coefficient
   watts: { wax: [2, 4], oil: [6, 10] },     // drivetrain loss range (W)
-  life: { wax: 3, oil: 1 },                 // relative chain lifetime (× vs oil)
+  // Relative chain lifetime. Rendered as the RANGE, never as the top value
+  // alone: the binding claim is "deutlich länger, oft 2 bis 3×". A bare "3×"
+  // is the kind of rounding that costs more credibility than the number buys.
+  life: { waxLo: 2, wax: 3, oil: 1 },
   cost: { savedEur: 70, pctLess: 46, km: 12000, oilEur: 151, waxEur: 81 },
 } as const;
 

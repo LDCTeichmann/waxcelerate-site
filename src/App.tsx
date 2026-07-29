@@ -16,6 +16,8 @@ const FAQ     = lazy(() => import('@/sections/faq').then(m => ({ default: m.FAQ 
 const Contact = lazy(() => import('@/sections/contact').then(m => ({ default: m.Contact })));
 const ClosingCTA = lazy(() => import('@/sections/closing-cta').then(m => ({ default: m.ClosingCTA })));
 
+const StarterSetPage = lazy(() => import('@/pages/StarterSetPage').then(m => ({ default: m.StarterSetPage })));
+const RewaxPage = lazy(() => import('@/pages/RewaxPage').then(m => ({ default: m.RewaxPage })));
 const ProductDetailPage = lazy(() => import('@/pages/ProductDetailPage').then(m => ({ default: m.ProductDetailPage })));
 const ProductStagePage = lazy(() => import('@/pages/ProductStagePage').then(m => ({ default: m.ProductStagePage })));
 const ImpressumPage = lazy(() => import('@/pages/ImpressumPage').then(m => ({ default: m.ImpressumPage })));
@@ -75,6 +77,8 @@ function AppContent() {
         <Route path="/widerrufsbelehrung" element={<Suspense fallback={<PageLoader />}><WiderrufsbelehrungPage /></Suspense>} />
         <Route path="/versand-und-zahlung" element={<Suspense fallback={<PageLoader />}><VersandUndZahlungPage /></Suspense>} />
         <Route path="/admin" element={<Suspense fallback={<PageLoader />}><AdminPage /></Suspense>} />
+        <Route path="/starter-set" element={<Suspense fallback={<PageLoader />}><StarterSetPage /></Suspense>} />
+        <Route path="/rewax" element={<Suspense fallback={<PageLoader />}><RewaxPage /></Suspense>} />
         <Route path="/wissenschaft" element={<Suspense fallback={<PageLoader />}><SciencePage /></Suspense>} />
         <Route path="/" element={
           <>

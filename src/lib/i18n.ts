@@ -6,6 +6,7 @@ export const translations = {
       whyWax: 'Warum Wachs?',
       products: 'Produkte',
       science: 'Wissenschaft',
+      rewax: 'Rewax',
       tools: 'Tools',
       guides: 'Anleitungen',
       faq: 'FAQ',
@@ -30,7 +31,7 @@ export const translations = {
     // Products
     products: {
       title: 'Produkte',
-      subtitle: 'Sauberer Antrieb. Dreifache Kettenlaufzeit. Ab morgen auf deinem Rad.',
+      subtitle: 'Sauberer Antrieb. Deutlich längere Kettenlaufzeit. Ab morgen auf deinem Rad.',
       tabs: {
         wax: 'Kettenwachs',
         chains: 'Vorgewachste Ketten',
@@ -352,6 +353,7 @@ export const translations = {
       whyWax: 'Why wax?',
       products: 'Products',
       science: 'Science',
+      rewax: 'Rewax',
       tools: 'Tools',
       guides: 'Guides',
       faq: 'FAQ',
@@ -376,7 +378,7 @@ export const translations = {
     // Products
     products: {
       title: 'Products',
-      subtitle: 'Clean drivetrain. Triple chain life. On your bike by tomorrow.',
+      subtitle: 'Clean drivetrain. Noticeably longer chain life. On your bike by tomorrow.',
       tabs: {
         wax: 'Chain Wax',
         chains: 'Pre-Waxed Chains',

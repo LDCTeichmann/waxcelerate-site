@@ -47,18 +47,32 @@ export function InstrumentFrame({
   const tick = lab ? 'rgba(130,170,240,0.32)' : 'rgba(var(--accent-rgb),0.25)';
 
   return (
+    // Panel is paper, not another shade of page.
+    //
+    // It used to sit on --sf2 (#F1F1F1) five units below the page (#F6F6F6),
+    // which is not enough separation to read as a distinct object — it read as
+    // a smudge, and against the saturated accent that smudge picked up a warm
+    // cast. On top of that came the `grain` overlay, whose noise ate contrast
+    // from exactly the hairlines these panels exist to show.
+    //
+    // A technical drawing sits on paper: lighter than its surroundings, not
+    // darker. White ground plus a hairline border plus a faint blue dot grid
+    // gives the crisp instrument feel the texture was trying to fake, and it
+    // cannot develop a colour cast because there is nothing on top of it.
+    // `grain` stays available for the dark `lab` variant, where a photographic
+    // surface benefits from it and contrast is not at risk.
     <div
       ref={ref}
-      className={`relative w-full rounded-2xl overflow-hidden grain ${className}`}
+      className={`relative w-full rounded-2xl overflow-hidden ${lab ? 'grain' : ''} ${className}`}
       style={lab
         ? { background: 'var(--hero-stage)', border: '1px solid rgba(var(--accent-soft-rgb),0.25)' }
-        : { background: 'var(--sf2)', border: '1px solid var(--bd)' }}
+        : { background: 'var(--sf)', border: '1px solid var(--bd)' }}
     >
       {/* Dot grid */}
       <div aria-hidden className="absolute inset-0 pointer-events-none" style={{
         backgroundImage: lab
           ? 'radial-gradient(circle, rgba(130,170,240,0.10) 1px, transparent 1px)'
-          : 'radial-gradient(circle, rgba(var(--accent-rgb),0.10) 1px, transparent 1px)',
+          : 'radial-gradient(circle, rgba(var(--accent-rgb),0.09) 1px, transparent 1px)',
         backgroundSize: '28px 28px',
       }} />
       {/* Corner registration ticks */}

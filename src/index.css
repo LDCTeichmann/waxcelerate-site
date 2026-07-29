@@ -684,6 +684,37 @@ section[id] {
   letter-spacing: -0.01em;
 }
 
+/* ── Technical-drawing scale ──────────────────────────────────────────────────
+   Every SVG figure on the site (science diagrams, formula graph, lab views,
+   joint section, charts) draws from these three weights and nothing else.
+   Before this existed, weights were hand-picked per figure and clustered
+   between 0.9 and 1.1 px, which reads correctly on a retina mock and
+   disappears on a normal monitor against a light panel.
+
+     --dw-hair   construction lines, hatching, grids, axes — present, not read
+     --dw-line   the actual geometry of the thing being drawn
+     --dw-bold   signal: the one interface, curve or edge the figure is about
+
+   The gap between them matters more than the absolute values: at 1.1 / 1.3 /
+   1.5 a reader cannot tell which line is the point of the drawing. Keep the
+   roughly 1 : 1.4 : 2.2 ratio if you tune these.
+
+   Text in figures never goes below 11px. Under that, IBM Plex Mono at these
+   greys falls below the perception threshold on a 1x display, which is where
+   most visitors are. */
+:root {
+  --dw-hair: 1.2px;
+  --dw-line: 1.7px;
+  --dw-bold: 2.6px;
+}
+.noir {
+  /* Thin light strokes on near-black bloom optically and read heavier than the
+     same weight does dark-on-light, so the dark theme needs slightly less. */
+  --dw-hair: 1.1px;
+  --dw-line: 1.5px;
+  --dw-bold: 2.4px;
+}
+
 /* Hairline slider — used by the science page's breakaway counter. Deliberately
    thinner than a stock range input so it reads as an instrument control rather
    than a form field. */

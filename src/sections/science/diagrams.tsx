@@ -9,7 +9,7 @@ import { ArrowMarker } from '@/sections/science/graphPrimitives';
 
 // Shared label helpers — descriptive text in sans, numeric/formula text in mono.
 function Lbl(p: React.SVGProps<SVGTextElement>) {
-  return <text fontSize={10.5} fill="var(--txm)" textAnchor="middle" {...p} />;
+  return <text fontSize={11} fill="var(--txm)" textAnchor="middle" {...p} />;
 }
 function Num(p: React.SVGProps<SVGTextElement>) {
   return <text className="num-data" fontSize={11} textAnchor="middle" {...p} />;
@@ -36,7 +36,7 @@ function Lamellar({ de }: { de: boolean }) {
       {[28, 37, 46, 55, 64, 73, 82].map(y => (
         <line key={`d${y}`} x1={26} y1={y} x2={102} y2={y} stroke="var(--accent-soft)" strokeWidth={2.4} strokeLinecap="round" />
       ))}
-      <line x1={120} y1={24} x2={120} y2={86} stroke="var(--bd)" strokeWidth={1} />
+      <line x1={120} y1={24} x2={120} y2={86} stroke="var(--bd)" strokeWidth={1.3} />
       {[28, 46, 64, 82].map(y => (
         <line key={`g${y}`} x1={138} y1={y} x2={214} y2={y} stroke="var(--tx2)" strokeWidth={2.4} opacity={0.5} strokeLinecap="round" />
       ))}
@@ -52,7 +52,7 @@ function DropLift({ de }: { de: boolean }) {
     <Fig vb="0 0 240 120" label="drop point lift"
       cap={de ? 'FT-Wachs ko-kristallisiert → höherer Tropfpunkt.' : 'FT wax co-crystallises → higher drop point.'}>
       <defs><ArrowMarker id="dl-arrow" /></defs>
-      <line x1={24} y1={98} x2={216} y2={98} stroke="var(--bd)" strokeWidth={1} />
+      <line x1={24} y1={98} x2={216} y2={98} stroke="var(--bd)" strokeWidth={1.3} />
       <rect x={36} y={72} width={68} height={12} rx={6} fill="var(--tx2)" opacity={0.35} />
       <Num x={70} y={62} fill="var(--txm)">58–60 °C</Num>
       <rect x={138} y={44} width={68} height={12} rx={6} fill="var(--accent-soft)" />
@@ -71,7 +71,7 @@ function ColdFlex({ de }: { de: boolean }) {
       <Lbl x={64} y={102} fill="var(--accent-soft)">{de ? 'Elastisch' : 'Elastic'}</Lbl>
       <path d="M140 80 Q164 48 176 54" stroke="var(--tx2)" strokeWidth={2.6} fill="none" strokeLinecap="round" opacity={0.5} />
       <path d="M182 54 Q194 48 212 80" stroke="var(--tx2)" strokeWidth={2.6} fill="none" strokeLinecap="round" opacity={0.5} />
-      <line x1={179} y1={44} x2={179} y2={64} stroke="var(--txf)" strokeWidth={1} />
+      <line x1={179} y1={44} x2={179} y2={64} stroke="var(--txf)" strokeWidth={1.3} />
       <Lbl x={176} y={102}>{de ? 'Spröde' : 'Brittle'}</Lbl>
     </Fig>
   );
@@ -96,16 +96,16 @@ function Shear({ de }: { de: boolean }) {
       cap={de ? 'Schwache Bindung zwischen S–Mo–S-Schichten → Reibung μ 0,03.' : 'Weak bonding between S–Mo–S layers → friction μ 0.03.'}>
       <defs><ArrowMarker id="sh-arrow" /></defs>
       {/* left atom labels (element symbols = data) */}
-      <text className="num-data" fontSize={8} fill="var(--txf)" x={12} y={26}>S</text>
-      <text className="num-data" fontSize={8} fill="var(--txf)" x={10} y={42}>Mo</text>
-      <text className="num-data" fontSize={8} fill="var(--txf)" x={12} y={58}>S</text>
+      <text className="num-data" fontSize={11} fill="var(--txf)" x={12} y={26}>S</text>
+      <text className="num-data" fontSize={11} fill="var(--txf)" x={10} y={42}>Mo</text>
+      <text className="num-data" fontSize={11} fill="var(--txf)" x={12} y={58}>S</text>
       {/* top sandwich, shifted right */}
       <ShearRow y={24} soft r={4.5} dx={10} />
       <ShearRow y={40} r={6.5} dx={10} />
       <ShearRow y={56} soft r={4.5} dx={10} />
       <line x1={150} y1={12} x2={196} y2={12} stroke="var(--accent-soft)" strokeWidth={1.6} markerEnd="url(#sh-arrow)" />
       {/* van-der-Waals gap */}
-      <line x1={14} y1={75} x2={226} y2={75} stroke="rgba(var(--accent-rgb),0.30)" strokeWidth={1} strokeDasharray="6 5" />
+      <line x1={14} y1={75} x2={226} y2={75} stroke="rgba(var(--accent-rgb),0.30)" strokeWidth={1.3} strokeDasharray="6 5" />
       {/* bottom sandwich, shifted left */}
       <ShearRow y={94} soft r={4.5} dx={-10} />
       <ShearRow y={110} r={6.5} dx={-10} />
@@ -141,8 +141,8 @@ function Radical({ de }: { de: boolean }) {
       <text className="num-data" fontSize={11} fill="var(--txm)" x={28} y={52}>ROO•</text>
       <line x1={56} y1={54} x2={80} y2={62} stroke="var(--txf)" strokeWidth={1.4} strokeDasharray="2 3" />
       <line x1={82} y1={50} x2={92} y2={66} stroke="var(--accent-soft)" strokeWidth={1.6} />
-      <text className="num-data" fontSize={10} fill="var(--accent-soft)" x={170} y={50}>MoS₂ ✓</text>
-      <text className="num-data" fontSize={10} fill="var(--txf)" x={170} y={68}>MoO₃ ✗</text>
+      <text className="num-data" fontSize={11} fill="var(--accent-soft)" x={170} y={50}>MoS₂ ✓</text>
+      <text className="num-data" fontSize={11} fill="var(--txf)" x={170} y={68}>MoO₃ ✗</text>
     </Fig>
   );
 }
@@ -176,7 +176,7 @@ function Stearin({ de }: { de: boolean }) {
         </g>
       ))}
       <rect x={16} y={94} width={208} height={10} rx={2} fill="var(--tx2)" opacity={0.35} />
-      <text className="num-data" fontSize={8} fill="var(--txf)" x={20} y={114}>Fe</text>
+      <text className="num-data" fontSize={11} fill="var(--txf)" x={20} y={114}>Fe</text>
     </Fig>
   );
 }

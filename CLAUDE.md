@@ -4,7 +4,11 @@
 
 **Stack:** React 19 + TypeScript (strict) · Vite 7 (Port 5174) · Tailwind CSS v3 · React Router v6 · shadcn/ui (nur Slider)
 
-**Für Details → siehe `AGENTS.md`**
+**Zuerst lesen → `PROJECT.md`.** Das ist das Inhaltsverzeichnis: wo welche Doku
+liegt, welche Entscheidungen offen sind und was zuletzt entschieden wurde. Von
+dort gezielt weiter, statt alle Markdown-Dateien im Root zu öffnen.
+
+**Für technische Details → siehe `AGENTS.md`**
 
 ---
 
