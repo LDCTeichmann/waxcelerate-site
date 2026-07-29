@@ -43,7 +43,7 @@ function WattBars({ de }: { de: boolean }) {
       {rows.map(r => {
         const [lo, hi] = r.range;
         return (
-          <div key={r.label} className="mb-7 last:mb-0">
+          <div key={r.label} className="mb-5 last:mb-0">
             <div className="flex items-baseline justify-between mb-3">
               <span className="text-[14px]" style={{ color: r.accent ? 'var(--tx1)' : 'var(--txm)' }}>
                 {r.label}
@@ -87,9 +87,13 @@ export function WhatChanges({ de }: { de: boolean }) {
       titleDe: 'Kein Öl an Händen, Waden und Hose.', titleEn: 'No oil on your hands, calves or trousers.',
       bodyDe: 'Wachs härtet zu einem trockenen Film aus. Da ist nichts Klebriges, an dem Staub hängen bleibt, und nichts, was abfärbt. Du kannst die Kette mit bloßen Fingern auflegen und danach ohne Umweg ins Café.',
       bodyEn: 'Wax cures to a dry film. There is nothing tacky for dust to cling to and nothing that rubs off. You can fit the chain with bare fingers and walk straight into a café afterwards.',
-      img: '/images/doors/ketten.webp',
-      imgAltDe: 'Gewachste Fahrradkette mit trockenem, hellem Wachsfilm',
-      imgAltEn: 'Waxed bicycle chain with a dry, pale wax film',
+      // Zeigt das Problem, nicht die Loesung. Eine saubere Kette beweist nichts,
+      // eine schwarze Wade ueber einer weissen Socke schon: das ist der Moment,
+      // den die Zielgruppe kennt und nicht mehr haben will.
+      img: '/images/blog/oil-tattoo-leg-1600.webp',
+      imgSrcSet: '/images/blog/oil-tattoo-leg-800.webp 800w, /images/blog/oil-tattoo-leg-1600.webp 1600w',
+      imgAltDe: 'Schwarze Ölspuren an Wade und weißer Socke nach einer Fahrt mit geölter Kette',
+      imgAltEn: 'Black oil marks on a calf and white sock after riding with an oiled chain',
     },
     {
       key: 'watt',
@@ -105,19 +109,20 @@ export function WhatChanges({ de }: { de: boolean }) {
       titleDe: 'Weniger Werkstatt, kein Schrubben.', titleEn: 'Less workshop, no scrubbing.',
       bodyDe: 'Es gibt keinen zähen Schmierfilm mehr, den du mit Bürste und Reiniger abbekommen musst. Heißes Wasser über die Kette löst das alte Wachs samt Dreck, trocknen, neu wachsen. Und weil kaum noch Abrieb entsteht, halten Kette, Kassette und Kettenblätter deutlich länger, der teure Teil am Antrieb kommt also seltener dran.',
       bodyEn: 'There is no stubborn film left to scrub off with a brush and degreaser. Hot water over the chain releases the old wax along with the grit, dry it, wax it again. And because almost nothing abrades, chain, cassette and chainrings last far longer, so the expensive part of the drivetrain comes up much less often.',
-      img: '/images/chain-clean.jpg',
-      imgAltDe: 'Ketten im heißen Wachsbad',
-      imgAltEn: 'Chains in the hot wax bath',
+      img: '/images/rewax/step-2.webp',
+      imgSrcSet: '/images/rewax/step-2-800.webp 800w, /images/rewax/step-2.webp 1200w',
+      imgAltDe: 'Kette am Draht über dem heißen Wachstopf',
+      imgAltEn: 'Chain on a wire above the hot wax pot',
     },
   ];
 
   return (
-    <div className="mt-12 sm:mt-16">
+    <div className="mt-10 sm:mt-14">
       <p className="eyebrow mb-8" style={{ color: 'var(--txf)' }}>
         {de ? 'Was sich ändert' : 'What changes'}
       </p>
 
-      <div className="space-y-12 sm:space-y-16">
+      <div className="space-y-10 sm:space-y-12">
         {rows.map((r, i) => (
           <div key={r.key}
             className={`grid lg:grid-cols-2 gap-6 lg:gap-12 items-center ${i % 2 === 1 ? 'lg:[&>*:first-child]:order-2' : ''}`}>
@@ -125,14 +130,16 @@ export function WhatChanges({ de }: { de: boolean }) {
             {/* Visual */}
             <div>
               {r.graphic ? (
-                <div className="rounded-2xl p-7 sm:p-9"
+                <div className="rounded-2xl p-6 sm:p-7"
                   style={{ background: 'var(--sf)', border: '1px solid var(--bd)' }}>
                   <WattBars de={de} />
                 </div>
               ) : (
                 <div className="rounded-2xl overflow-hidden"
-                  style={{ aspectRatio: '4 / 3', background: 'var(--sf2)' }}>
-                  <img src={r.img} alt={de ? r.imgAltDe : r.imgAltEn} loading="lazy" decoding="async"
+                  style={{ aspectRatio: '16 / 10', background: 'var(--sf2)' }}>
+                  <img src={r.img} srcSet={r.imgSrcSet}
+                    sizes="(max-width: 1024px) 92vw, 46vw"
+                    alt={de ? r.imgAltDe : r.imgAltEn} loading="lazy" decoding="async"
                     className="w-full h-full object-cover" />
                 </div>
               )}

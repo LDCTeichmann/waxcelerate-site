@@ -16,64 +16,38 @@
 
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { Navigation } from '@/sections/navigation';
-import { products } from '@/lib/data';
+import { products, accessories, starterSet, starterSetPrice } from '@/lib/data';
+import { StarterSetBuilder } from '@/sections/StarterSetBuilder';
 
 const W = 'mx-auto w-full max-w-5xl px-6 sm:px-10 lg:px-14';
 
-const ACCESSORY = { wire3: 5.0, pliers: 5.0, shipping: 1.8 };
-const SET_DISCOUNT = 0.10;
+const SHIPPING = 1.80;
 
 const eur = (n: number, de: boolean) =>
   n.toLocaleString(de ? 'de-DE' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
 
-// The example set is priced off the real catalogue, so it can never drift away
-// from the products it is made of.
+// Beispielpreis fuer den Hero: dieselbe Rechnung wie im Builder, nur mit einer
+// festen Kombination, damit oben schon eine Zahl steht statt eines Platzhalters.
 const priceOf = (id: string) => products.find(p => p.id === id)?.price ?? 0;
+const accPriceOf = (id: string) => accessories.find(a => a.id === id)?.price ?? 0;
 
 export function StarterSetPage() {
   const { lang } = useLanguage();
   const de = lang === 'de';
 
-  const parts = [
-    {
-      key: 'wax',
-      nameDe: 'Kettenwachs Classic, 500 g', nameEn: 'Chain wax Classic, 500 g',
-      noteDe: '15 bis 20 Wachsvorgänge aus einem Block', noteEn: '15 to 20 waxing cycles from one block',
-      price: priceOf('wax-500'),
-    },
-    {
-      key: 'chain',
-      nameDe: 'Vorgewachste Kette, 11 fach', nameEn: 'Pre-waxed chain, 11 speed',
-      noteDe: 'Fahrbereit, Quick-Link liegt bei', noteEn: 'Ready to ride, quick link included',
-      price: priceOf('chain-ybn11'),
-    },
-    {
-      key: 'pliers',
-      nameDe: 'Quick-Link-Zange', nameEn: 'Quick-link pliers',
-      noteDe: 'Öffnet und schließt den Verschluss ohne Fluchen', noteEn: 'Opens and closes the link without swearing',
-      price: ACCESSORY.pliers,
-    },
-    {
-      key: 'wire',
-      nameDe: 'Aufhängedraht, 3 Stück', nameEn: 'Hanging wire, 3 pieces',
-      noteDe: 'Zum Eintauchen und zum Abtropfen', noteEn: 'For dipping and for drip-off',
-      price: ACCESSORY.wire3,
-    },
-  ];
-
-  const sum = parts.reduce((a, p) => a + p.price, 0);
-  const setPrice = Math.round(sum * (1 - SET_DISCOUNT) * 100) / 100;
-  const saved = Math.round((sum - setPrice) * 100) / 100;
+  const sum = priceOf('wax-500') + priceOf('chain-ybn11')
+    + accPriceOf('acc-pliers') + accPriceOf('acc-wire');
+  const setPrice = starterSetPrice(sum);
 
   const title = de
     ? 'Starter-Set Kettenwachs | Waxcelerate'
     : 'Chain wax starter set | Waxcelerate';
   const description = de
-    ? `Wachs, vorgewachste Kette, Quick-Link-Zange und Aufhängedraht in einem Set, ${SET_DISCOUNT * 100} Prozent unter der Summe der Einzelteile. Alles, was für das erste Wachsen nötig ist.`
-    : `Wax, pre-waxed chain, quick-link pliers and hanging wire in one set, ${SET_DISCOUNT * 100} percent below the sum of the parts. Everything the first waxing needs.`;
+    ? `Wachs, vorgewachste Kette, Quick-Link-Zange und Aufhängedraht in einem Set, ${starterSet.discountPct} Prozent unter der Summe der Einzelteile. Alles, was für das erste Wachsen nötig ist.`
+    : `Wax, pre-waxed chain, quick-link pliers and hanging wire in one set, ${starterSet.discountPct} percent below the sum of the parts. Everything the first waxing needs.`;
 
   return (
     <div className="min-h-screen bg-wx-bg">
@@ -132,59 +106,25 @@ export function StarterSetPage() {
         </div>
       </section>
 
-      {/* ── What is in it ── */}
+      {/* ── Builder ──
+          Zwei Fragen, die der Kunde beantworten kann, und zwei Teile, an die
+          er nicht denkt. Alles auf einem Bildschirm, kein Wizard. */}
       <section className="py-14 sm:py-20" style={{ borderTop: '1px solid var(--bd2)', background: 'var(--sf)' }}>
         <div className={W}>
           <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
-            {de ? 'Was drin ist' : 'What is in it'}
+            {de ? 'Set zusammenstellen' : 'Build your set'}
           </p>
-          <h2 className="font-display font-bold text-wx-tx1 leading-tight mb-10"
+          <h2 className="font-display font-bold text-wx-tx1 leading-tight mb-3"
             style={{ fontSize: 'clamp(1.7rem, 3.4vw, 2.4rem)', letterSpacing: '-0.02em' }}>
-            {de ? 'Vier Teile, kein Zubehörkatalog.' : 'Four parts, not an accessory catalogue.'}
+            {de ? 'Wachs und Kette wählen. Fertig.' : 'Pick wax and chain. Done.'}
           </h2>
-
-          <div style={{ borderTop: '1px solid var(--bd2)' }}>
-            {parts.map(p => (
-              <div key={p.key} className="flex items-start gap-4 py-5"
-                style={{ borderBottom: '1px solid var(--bd2)' }}>
-                <Check className="h-4 w-4 flex-shrink-0 mt-1" style={{ color: 'var(--accent)' }} aria-hidden />
-                <div className="min-w-0 flex-1">
-                  <p className="text-[15px] text-wx-tx1">{de ? p.nameDe : p.nameEn}</p>
-                  <p className="text-[13px] mt-1" style={{ color: 'var(--txm)' }}>{de ? p.noteDe : p.noteEn}</p>
-                </div>
-                <p className="num-data text-[13.5px] whitespace-nowrap" style={{ color: 'var(--txf)' }}>
-                  {eur(p.price, de)}
-                </p>
-              </div>
-            ))}
-
-            <div className="flex items-baseline justify-between gap-4 py-4"
-              style={{ borderBottom: '1px solid var(--bd2)' }}>
-              <p className="text-[14px]" style={{ color: 'var(--txm)' }}>
-                {de ? 'Summe der Einzelteile' : 'Sum of the parts'}
-              </p>
-              <p className="num-data text-[14px]" style={{ color: 'var(--txm)' }}>{eur(sum, de)}</p>
-            </div>
-            <div className="flex items-baseline justify-between gap-4 py-4"
-              style={{ borderBottom: '1px solid var(--bd2)' }}>
-              <p className="text-[14px]" style={{ color: 'var(--txm)' }}>
-                {de ? 'Als Set, zehn Prozent weniger' : 'As a set, ten percent less'}
-              </p>
-              <p className="num-data text-[14px]" style={{ color: 'var(--accent)' }}>&minus; {eur(saved, de)}</p>
-            </div>
-            <div className="flex items-baseline justify-between gap-4 py-5">
-              <p className="text-[15px] text-wx-tx1">{de ? 'Set' : 'Set'}</p>
-              <p className="font-display font-bold text-wx-tx1" style={{ fontSize: '1.7rem', letterSpacing: '-0.02em' }}>
-                {eur(setPrice, de)}
-              </p>
-            </div>
-          </div>
-
-          <p className="text-[13px] leading-relaxed max-w-[58ch] mt-6" style={{ color: 'var(--txff)' }}>
+          <p className="text-wx-txm text-lead max-w-[52ch] mb-10">
             {de
-              ? 'Das Beispiel zeigt Classic 500 g mit einer 11 fach Kette. Wachslinie, Größe und Kette lassen sich frei wählen, die zehn Prozent gelten immer auf die Summe der gewählten Teile.'
-              : 'The example shows Classic 500 g with an 11 speed chain. Wax line, size and chain are free to choose, the ten percent always applies to the sum of the chosen parts.'}
+              ? 'Zange und Aufhängedraht liegen immer bei. Ohne die beiden wird der erste Wachsabend zäh, und genau daran scheitern die meisten Umstiege.'
+              : 'Pliers and hanging wire are always included. Without them the first waxing evening drags, and that is where most switches fail.'}
           </p>
+
+          <StarterSetBuilder de={de} />
         </div>
       </section>
 
@@ -209,7 +149,7 @@ export function StarterSetPage() {
               {
                 key: 'wire',
                 nameDe: 'Aufhängedraht, 3 Stück', nameEn: 'Hanging wire, 3 pieces',
-                price: ACCESSORY.wire3,
+                price: accPriceOf('acc-wire'),
                 bodyDe: 'Steif genug, dass die Kette im Bad nicht kippt, dünn genug, dass kaum Wachs daran hängen bleibt.',
                 bodyEn: 'Stiff enough that the chain does not tip in the bath, thin enough that hardly any wax stays on it.',
                 shipping: true,
@@ -217,7 +157,7 @@ export function StarterSetPage() {
               {
                 key: 'pliers',
                 nameDe: 'Quick-Link-Zange', nameEn: 'Quick-link pliers',
-                price: ACCESSORY.pliers,
+                price: accPriceOf('acc-pliers'),
                 bodyDe: 'Öffnet und schließt den Verschluss. Ohne sie wird das Abnehmen der Kette jedes Mal zur Geduldsprobe.',
                 bodyEn: 'Opens and closes the link. Without it, taking the chain off is a test of patience every single time.',
                 shipping: false,
@@ -236,7 +176,7 @@ export function StarterSetPage() {
                 </p>
                 {a.shipping && (
                   <p className="num-data text-[11px] mt-4 pt-3" style={{ color: 'var(--txff)', borderTop: '1px solid var(--bd2)' }}>
-                    {de ? `zuzüglich ${eur(ACCESSORY.shipping, de)} Versand` : `plus ${eur(ACCESSORY.shipping, de)} shipping`}
+                    {de ? `zuzüglich ${eur(SHIPPING, de)} Versand` : `plus ${eur(SHIPPING, de)} shipping`}
                   </p>
                 )}
               </div>

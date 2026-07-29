@@ -299,7 +299,83 @@ function write(relDir, html) {
   writeFileSync(join(dir, 'index.html'), html, 'utf8');
 }
 
+// ─── Feste Seiten ────────────────────────────────────────────────────────────
+// Ohne diesen Block liefern /rewax, /starter-set und /wissenschaft Crawlern die
+// Startseiten-Huelle samt Startseiten-Titel: react-helmet setzt den Titel erst
+// im Browser. Fuer zwei Verkaufsseiten ist das teuer. Der Rumpf hier ist
+// bewusst schlank — er muss nur beschreiben, worum es geht, und in die App
+// verlinken; sobald React uebernimmt, ersetzt die echte Seite ihn.
+const STATIC_PAGES = [
+  {
+    dir: 'rewax',
+    title: 'Rewax-Service für gewachste Ketten | Waxcelerate',
+    description: 'Gewachste Kette einschicken, frisch gewachst zurückbekommen. 13,95 € je Kette, 9,95 € ab drei Ketten, zuzüglich 1,80 € Rückversand. Handgewachst in Stuttgart.',
+    image: '/images/rewax/hero.webp',
+    h1: 'Rewax. Machen wir.',
+    lead: 'Wachsen ist einfach, kostet aber einen Abend, einen Topf und Platz. Wenn du das nicht selbst machen willst, schick die Kette ein. Du bekommst sie fahrbereit zurück.',
+    points: [
+      'Nur bereits gewachste Ketten, eigene oder fremde. Geölte Ketten entfetten wir nicht, weil Öl ein ganzes Wachsbad unbrauchbar macht.',
+      'Preise: 13,95 € für eine Kette, 9,95 € je Kette ab drei Ketten, jeweils zuzüglich 1,80 € Rückversand.',
+      'Zehnerkarte: zehn Vorgänge im Voraus, zehn Prozent unter dem Dreierpreis, übertragbar und ohne Ablaufdatum.',
+      'Alle gängigen 9 bis 12 fach Ketten. Handgewachst in Stuttgart.',
+    ],
+  },
+  {
+    dir: 'starter-set',
+    title: 'Starter-Set Kettenwachs | Waxcelerate',
+    description: 'Wachs, vorgewachste Kette, Quick-Link-Zange und Aufhängedraht in einem Set. Alles, was für das erste Wachsen nötig ist, zum Set-Preis.',
+    image: '/images/doors/starter-set.webp',
+    h1: 'Alles da, beim ersten Mal.',
+    lead: 'Am ersten Wachsabend scheitert es selten am Wachs. Es scheitert daran, dass die Kette nicht aufgeht oder nichts da ist, woran sie hängen kann. Im Set liegt beides bei.',
+    points: [
+      'Enthalten: ein Kettenwachs nach Wahl, eine vorgewachste Kette nach Wahl, eine Quick-Link-Zange und drei Aufhängedrähte.',
+      'Wachslinie, Größe und Kette frei kombinierbar. Der Set-Preis liegt immer unter der Summe der Einzelteile.',
+      'Zubehör auch einzeln: Aufhängedraht im Dreierpack und Quick-Link-Zange je 4,95 €.',
+      'Hergestellt in Stuttgart, Ketten handgewachst.',
+    ],
+  },
+  {
+    dir: 'wissenschaft',
+    title: 'Die Wissenschaft hinter Heißwachs | Waxcelerate',
+    description: 'Kontaktzonen, Reibung, MoS₂ und die sechs Komponenten der Formel. Gemessen statt behauptet, entwickelt und produziert in Stuttgart.',
+    image: '/images/science/cassette-wear-full.jpg',
+    h1: 'Ein messbarer Unterschied.',
+    lead: 'Derselbe Antrieb, zwei Schmierstoffe, Seite an Seite gemessen.',
+    points: [
+      'Reibung entsteht an genau drei Flächen je Kettenglied: Bolzen gegen Laschenschulter, Rolle gegen Laschenschulter, Innenlasche gegen Außenlasche.',
+      'Moderne 9 bis 12 fach Ketten sind buchsenlos, die Schulter der Innenlasche übernimmt die Funktion der früheren Buchse.',
+      'Die Formel besteht aus sechs Komponenten, weil keine einzelne Substanz in allen drei Zonen stark ist.',
+      'Originalaufnahmen unter dem Mikroskop, jede Gegenüberstellung bei identischer Vergrößerung.',
+    ],
+  },
+];
+
+function renderStatic(p) {
+  const canonical = `${BASE}/${p.dir}`;
+  const head = [
+    metaTags({ title: p.title, description: p.description, canonical, image: p.image }),
+    ld({
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      name: p.title,
+      description: p.description,
+      url: canonical,
+      inLanguage: 'de-DE',
+      publisher: { '@type': 'Organization', name: 'Waxcelerate', url: BASE },
+    }),
+  ].join('\n');
+  const body = [
+    `<h1>${esc(p.h1)}</h1>`,
+    `<p>${esc(p.lead)}</p>`,
+    `<ul>${p.points.map(t => `<li>${esc(t)}</li>`).join('')}</ul>`,
+    `<p><a href="/">Zur Startseite</a> · <a href="/wissenschaft">Wissenschaft</a> · <a href="/rewax">Rewax-Service</a> · <a href="/starter-set">Starter-Set</a> · <a href="/blog">Blog</a></p>`,
+  ].join('\n');
+  return buildPage({ head, body });
+}
+
+for (const p of STATIC_PAGES) write(p.dir, renderStatic(p));
+
 write('blog', renderIndex());
 for (const a of articles) write(join('blog', a.slug), renderArticle(a));
 
-console.log(`✓ ${articles.length + 1} Blog-Seiten vorgerendert nach dist/blog/`);
+console.log(`✓ ${articles.length + 1} Blog-Seiten und ${STATIC_PAGES.length} feste Seiten vorgerendert nach dist/`);

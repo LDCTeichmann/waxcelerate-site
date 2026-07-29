@@ -308,7 +308,149 @@ export function RewaxPage() {
         </div>
       </section>
 
-      {/* ── Scope ── */}
+      {/* ── Steps ── */}
+      <section className="py-14 sm:py-20" style={{ borderTop: '1px solid var(--bd2)', background: 'var(--sf)' }}>
+        <div className={W}>
+          <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
+            {de ? 'Ablauf' : 'How it works'}
+          </p>
+          <h2 className="font-display font-bold text-wx-tx1 leading-tight mb-10"
+            style={{ fontSize: 'clamp(1.7rem, 3.4vw, 2.4rem)', letterSpacing: '-0.02em' }}>
+            {de ? 'Drei Schritte, ein Umschlag.' : 'Three steps, one envelope.'}
+          </h2>
+          <Steps de={de} />
+        </div>
+      </section>
+
+      {/* ── Pricing ── */}
+      <section id="preise" className="scroll-mt-24 py-14 sm:py-20" style={{ borderTop: '1px solid var(--bd2)' }}>
+        <div className={W}>
+          <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
+            {de ? 'Preise' : 'Pricing'}
+          </p>
+          <h2 className="font-display font-bold text-wx-tx1 leading-tight mb-3"
+            style={{ fontSize: 'clamp(1.7rem, 3.4vw, 2.4rem)', letterSpacing: '-0.02em' }}>
+            {de ? 'Ehrlich gerechnet.' : 'Honestly costed.'}
+          </h2>
+          <p className="text-wx-txm text-lead max-w-[52ch] mb-8">
+            {de
+              ? 'Der Rückversand kommt einmal dazu, egal wie viele Ketten im Umschlag liegen. Deshalb rechnet sich die Rotation doppelt.'
+              : 'Return shipping is charged once, no matter how many chains are in the envelope. Which is why the rotation pays off twice.'}
+          </p>
+
+          <Pricing de={de} />
+
+          <p className="text-[13px] leading-relaxed max-w-[62ch] mt-6" style={{ color: 'var(--txff)' }}>
+            {de
+              ? 'Hinversand trägst du, Rückversand ist oben eingerechnet. Wir arbeiten als Kleinunternehmer nach § 19 UStG, es wird keine Umsatzsteuer ausgewiesen.'
+              : 'You cover the shipping to us, return shipping is included above. We operate under the German small business rule, so no VAT is shown.'}
+          </p>
+        </div>
+      </section>
+
+      {/* ── Why rotation ── */}
+      <section className="py-14 sm:py-20" style={{ borderTop: '1px solid var(--bd2)', background: 'var(--sf)' }}>
+        <div className={`${W} lg:flex lg:gap-14 lg:items-start`}>
+          <div className="lg:flex-1">
+            <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
+              {de ? 'Warum drei' : 'Why three'}
+            </p>
+            <h2 className="font-display font-bold text-wx-tx1 leading-tight mb-5"
+              style={{ fontSize: 'clamp(1.7rem, 3.4vw, 2.4rem)', letterSpacing: '-0.02em' }}>
+              {de ? 'Eine fährt immer.' : 'One is always on the bike.'}
+            </h2>
+            <p className="text-[15px] leading-relaxed max-w-[52ch]" style={{ color: 'var(--txm)' }}>
+              {de
+                ? 'Das ist der eigentliche Grund für zwei oder drei Ketten. Während eine bei uns im Bad liegt, fährst du die nächste. Es gibt keine Wartezeit, keinen Abend am Topf und keinen Kompromiss, weil gerade keine saubere Kette da ist.'
+                : 'This is the real reason for two or three chains. While one is in our bath, you ride the next. No waiting, no evening at the pot, and no compromise because there happens to be no clean chain around.'}
+            </p>
+            <p className="text-[15px] leading-relaxed max-w-[52ch] mt-4" style={{ color: 'var(--txm)' }}>
+              {de
+                ? 'Nebenbei verteilt sich der Verschleiß auf drei Ketten statt auf eine, und keine läuft lange im grenzwertigen Bereich. Der teure Teil am Antrieb, Kassette und Kettenblätter, hält dadurch spürbar länger.'
+                : 'Wear also spreads across three chains instead of one, and none spends long in the marginal range. The expensive part of the drivetrain, cassette and chainrings, lasts noticeably longer as a result.'}
+            </p>
+          </div>
+
+          <div className="mt-8 lg:mt-0 lg:w-[360px] lg:flex-shrink-0">
+            <InstrumentFrame eyebrow={de ? 'Intervalle' : 'Intervals'} chip={de ? 'Richtwerte' : 'guide values'}>
+              <div style={{ borderTop: '1px solid var(--bd2)' }}>
+                {[
+                  { k: de ? 'Trocken, Asphalt' : 'Dry, tarmac', v: '400–550 km' },
+                  { k: de ? 'Nässe, MTB, gemischt' : 'Wet, MTB, mixed', v: '200–300 km' },
+                  { k: de ? 'Winter, Dauerregen' : 'Winter, constant rain', v: de ? 'unter 200 km' : 'under 200 km' },
+                ].map(r => (
+                  <div key={r.k} className="flex justify-between items-baseline gap-4 py-3"
+                    style={{ borderBottom: '1px solid var(--bd2)' }}>
+                    <span className="text-[13.5px]" style={{ color: 'var(--tx2)' }}>{r.k}</span>
+                    <span className="num-data text-[13px] whitespace-nowrap" style={{ color: 'var(--accent)' }}>{r.v}</span>
+                  </div>
+                ))}
+              </div>
+              <p className="text-[12px] leading-relaxed mt-3" style={{ color: 'var(--txff)' }}>
+                {de
+                  ? 'Das zuverlässigste Signal ist das Ohr. Wird die Kette lauter und trockener, ist sie fällig.'
+                  : 'The most reliable signal is your ear. When the chain gets louder and drier, it is due.'}
+              </p>
+            </InstrumentFrame>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Ten-visit card ──
+          Lives here rather than as a fourth product door on the homepage. Four
+          doors stop being a choice and become a menu, and a gift is not an
+          entry point for a first-time visitor. Next to the price table it is
+          simply the sensible next line for someone who has just worked out
+          that they will be doing this every few hundred kilometres. */}
+      <section className="py-14 sm:py-20" style={{ borderTop: '1px solid var(--bd2)' }}>
+        <div className={`${W} lg:flex lg:gap-14 lg:items-center`}>
+          <div className="lg:flex-1">
+            <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
+              {de ? 'Zehnerkarte · auch als Geschenk' : 'Ten-visit card · also as a gift'}
+            </p>
+            <h2 className="font-display font-bold text-wx-tx1 leading-tight mb-5"
+              style={{ fontSize: 'clamp(1.7rem, 3.4vw, 2.4rem)', letterSpacing: '-0.02em' }}>
+              {de ? 'Zehn Vorgänge, einmal bezahlt.' : 'Ten treatments, paid once.'}
+            </h2>
+            <p className="text-[15px] leading-relaxed max-w-[48ch]" style={{ color: 'var(--txm)' }}>
+              {de
+                ? 'Zehn Rewax-Vorgänge im Voraus, zehn Prozent unter dem Dreierpreis. Du schickst ein, wir streichen ab. Läuft nicht ab, ist übertragbar, und lässt sich verschenken, was bei jemandem mit Rad meistens besser ankommt als das dritte Paar Socken.'
+                : 'Ten rewax treatments up front, ten percent below the three-chain price. You send chains in, we tick one off. It does not expire, it is transferable, and it works as a gift, which for anyone with a bike usually beats a third pair of socks.'}
+            </p>
+            <div className="flex items-baseline gap-4 mt-7">
+              <p className="font-display font-bold text-wx-tx1 leading-none"
+                style={{ fontSize: '2.6rem', letterSpacing: '-0.02em' }}>
+                {eur(TEN_CARD.price, de)}
+              </p>
+              <p className="num-data text-[13px]" style={{ color: 'var(--txff)' }}>
+                {de ? 'statt' : 'instead of'} {eur(TEN_CARD.list, de)}
+              </p>
+            </div>
+            <p className="text-[12.5px] mt-2" style={{ color: 'var(--txf)' }}>
+              {de
+                ? `${eur(TEN_CARD.price / TEN_CARD.count, de)} je Vorgang, Rückversand je Einsendung ${eur(PRICE.shipping, de)}`
+                : `${eur(TEN_CARD.price / TEN_CARD.count, de)} per treatment, ${eur(PRICE.shipping, de)} return shipping per submission`}
+            </p>
+            <a href={waLink(de)} target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 mt-7 rounded-full px-6 py-3 text-[14px] font-semibold transition-opacity hover:opacity-90"
+              style={{ background: 'var(--accent)', color: '#fff' }}>
+              {de ? 'Zehnerkarte anfragen' : 'Ask for the ten-visit card'}
+              <ArrowRight className="h-4 w-4" />
+            </a>
+          </div>
+
+          <div className="mt-10 lg:mt-0 lg:w-[380px] lg:flex-shrink-0">
+            <StampCard de={de} />
+          </div>
+        </div>
+      </section>
+
+      {/* ── Umfang ──
+          Stand frueher direkt nach dem Hero und war damit das Erste nach der
+          Ueberschrift: eine Wand aus "machen wir nicht", bevor ueberhaupt klar
+          war, was es kostet und wie es laeuft. Ehrlichkeit muss nicht an den
+          Anfang, sie muss vor die Entscheidung. Hier, kurz vor dem Knopf,
+          qualifiziert sie statt zu bremsen. */}
       <section className="py-14 sm:py-20" style={{ borderTop: '1px solid var(--bd2)' }}>
         <div className={W}>
           <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
@@ -353,138 +495,6 @@ export function RewaxPage() {
             {de ? 'Zur Anleitung für den Umstieg' : 'To the switching guide'}
             <ArrowRight className="h-4 w-4" style={{ color: 'var(--accent)' }} />
           </Link>
-        </div>
-      </section>
-
-      {/* ── Steps ── */}
-      <section className="py-14 sm:py-20" style={{ borderTop: '1px solid var(--bd2)', background: 'var(--sf)' }}>
-        <div className={W}>
-          <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
-            {de ? 'Ablauf' : 'How it works'}
-          </p>
-          <h2 className="font-display font-bold text-wx-tx1 leading-tight mb-10"
-            style={{ fontSize: 'clamp(1.7rem, 3.4vw, 2.4rem)', letterSpacing: '-0.02em' }}>
-            {de ? 'Drei Schritte, ein Umschlag.' : 'Three steps, one envelope.'}
-          </h2>
-          <Steps de={de} />
-        </div>
-      </section>
-
-      {/* ── Pricing ── */}
-      <section id="preise" className="scroll-mt-24 py-14 sm:py-20" style={{ borderTop: '1px solid var(--bd2)' }}>
-        <div className={W}>
-          <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
-            {de ? 'Preise' : 'Pricing'}
-          </p>
-          <h2 className="font-display font-bold text-wx-tx1 leading-tight mb-3"
-            style={{ fontSize: 'clamp(1.7rem, 3.4vw, 2.4rem)', letterSpacing: '-0.02em' }}>
-            {de ? 'Ehrlich gerechnet.' : 'Honestly costed.'}
-          </h2>
-          <p className="text-wx-txm text-lead max-w-[52ch] mb-8">
-            {de
-              ? 'Der Rückversand kommt einmal dazu, egal wie viele Ketten im Umschlag liegen. Deshalb rechnet sich die Rotation doppelt.'
-              : 'Return shipping is charged once, no matter how many chains are in the envelope. Which is why the rotation pays off twice.'}
-          </p>
-
-          <Pricing de={de} />
-
-          <p className="text-[13px] leading-relaxed max-w-[62ch] mt-6" style={{ color: 'var(--txff)' }}>
-            {de
-              ? 'Hinversand trägst du, Rückversand ist oben eingerechnet. Wir arbeiten als Kleinunternehmer nach § 19 UStG, es wird keine Umsatzsteuer ausgewiesen.'
-              : 'You cover the shipping to us, return shipping is included above. We operate under the German small business rule, so no VAT is shown.'}
-          </p>
-        </div>
-      </section>
-
-      {/* ── Ten-visit card ──
-          Lives here rather than as a fourth product door on the homepage. Four
-          doors stop being a choice and become a menu, and a gift is not an
-          entry point for a first-time visitor. Next to the price table it is
-          simply the sensible next line for someone who has just worked out
-          that they will be doing this every few hundred kilometres. */}
-      <section className="py-14 sm:py-20" style={{ borderTop: '1px solid var(--bd2)' }}>
-        <div className={`${W} lg:flex lg:gap-14 lg:items-center`}>
-          <div className="lg:flex-1">
-            <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
-              {de ? 'Zehnerkarte' : 'Ten-visit card'}
-            </p>
-            <h2 className="font-display font-bold text-wx-tx1 leading-tight mb-5"
-              style={{ fontSize: 'clamp(1.7rem, 3.4vw, 2.4rem)', letterSpacing: '-0.02em' }}>
-              {de ? 'Zehn Vorgänge, einmal bezahlt.' : 'Ten treatments, paid once.'}
-            </h2>
-            <p className="text-[15px] leading-relaxed max-w-[48ch]" style={{ color: 'var(--txm)' }}>
-              {de
-                ? 'Zehn Rewax-Vorgänge im Voraus, zehn Prozent unter dem Dreierpreis. Du schickst ein, wir streichen ab. Läuft nicht ab, ist übertragbar, und lässt sich verschenken, was bei jemandem mit Rad meistens besser ankommt als das dritte Paar Socken.'
-                : 'Ten rewax treatments up front, ten percent below the three-chain price. You send chains in, we tick one off. It does not expire, it is transferable, and it works as a gift, which for anyone with a bike usually beats a third pair of socks.'}
-            </p>
-            <div className="flex items-baseline gap-4 mt-7">
-              <p className="font-display font-bold text-wx-tx1 leading-none"
-                style={{ fontSize: '2.6rem', letterSpacing: '-0.02em' }}>
-                {eur(TEN_CARD.price, de)}
-              </p>
-              <p className="num-data text-[13px]" style={{ color: 'var(--txff)' }}>
-                {de ? 'statt' : 'instead of'} {eur(TEN_CARD.list, de)}
-              </p>
-            </div>
-            <p className="text-[12.5px] mt-2" style={{ color: 'var(--txf)' }}>
-              {de
-                ? `${eur(TEN_CARD.price / TEN_CARD.count, de)} je Vorgang, Rückversand je Einsendung ${eur(PRICE.shipping, de)}`
-                : `${eur(TEN_CARD.price / TEN_CARD.count, de)} per treatment, ${eur(PRICE.shipping, de)} return shipping per submission`}
-            </p>
-            <a href={waLink(de)} target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 mt-7 rounded-full px-6 py-3 text-[14px] font-semibold transition-opacity hover:opacity-90"
-              style={{ background: 'var(--accent)', color: '#fff' }}>
-              {de ? 'Zehnerkarte anfragen' : 'Ask for the ten-visit card'}
-              <ArrowRight className="h-4 w-4" />
-            </a>
-          </div>
-
-          <div className="mt-10 lg:mt-0 lg:w-[380px] lg:flex-shrink-0">
-            <StampCard de={de} />
-          </div>
-        </div>
-      </section>
-
-      {/* ── Why rotation ── */}
-      <section className="py-14 sm:py-20" style={{ borderTop: '1px solid var(--bd2)', background: 'var(--sf)' }}>
-        <div className={`${W} lg:flex lg:gap-14 lg:items-start`}>
-          <div className="lg:flex-1">
-            <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
-              {de ? 'Warum drei' : 'Why three'}
-            </p>
-            <h2 className="font-display font-bold text-wx-tx1 leading-tight mb-5"
-              style={{ fontSize: 'clamp(1.7rem, 3.4vw, 2.4rem)', letterSpacing: '-0.02em' }}>
-              {de ? 'Eine fährt immer.' : 'One is always on the bike.'}
-            </h2>
-            <p className="text-[15px] leading-relaxed max-w-[52ch]" style={{ color: 'var(--txm)' }}>
-              {de
-                ? 'Mit drei Ketten im Wechsel steht das Rad nie still, während eine unterwegs ist. Der Verschleiß verteilt sich auf drei Ketten statt auf eine, und der Antrieb hält länger, weil keine Kette lange im grenzwertigen Bereich läuft.'
-                : 'With three chains in rotation the bike never waits while one is away. Wear spreads across three chains instead of one, and the drivetrain lasts longer because no chain spends long in the marginal range.'}
-            </p>
-          </div>
-
-          <div className="mt-8 lg:mt-0 lg:w-[360px] lg:flex-shrink-0">
-            <InstrumentFrame eyebrow={de ? 'Intervalle' : 'Intervals'} chip={de ? 'Richtwerte' : 'guide values'}>
-              <div style={{ borderTop: '1px solid var(--bd2)' }}>
-                {[
-                  { k: de ? 'Trocken, Asphalt' : 'Dry, tarmac', v: '400–550 km' },
-                  { k: de ? 'Nässe, MTB, gemischt' : 'Wet, MTB, mixed', v: '200–300 km' },
-                  { k: de ? 'Winter, Dauerregen' : 'Winter, constant rain', v: de ? 'unter 200 km' : 'under 200 km' },
-                ].map(r => (
-                  <div key={r.k} className="flex justify-between items-baseline gap-4 py-3"
-                    style={{ borderBottom: '1px solid var(--bd2)' }}>
-                    <span className="text-[13.5px]" style={{ color: 'var(--tx2)' }}>{r.k}</span>
-                    <span className="num-data text-[13px] whitespace-nowrap" style={{ color: 'var(--accent)' }}>{r.v}</span>
-                  </div>
-                ))}
-              </div>
-              <p className="text-[12px] leading-relaxed mt-3" style={{ color: 'var(--txff)' }}>
-                {de
-                  ? 'Das zuverlässigste Signal ist das Ohr. Wird die Kette lauter und trockener, ist sie fällig.'
-                  : 'The most reliable signal is your ear. When the chain gets louder and drier, it is due.'}
-              </p>
-            </InstrumentFrame>
-          </div>
         </div>
       </section>
 

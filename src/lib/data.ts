@@ -528,9 +528,89 @@ export const compatibilityMatrix: Record<string, Record<string, string[]>> = {
 
 // ─── Wax vs. Oil head-to-head — single source for landing + science page ──────
 // Used by the Wax⇄Oil toggle (why-wax.tsx) and the science page problem act.
+// ─── Zubehoer ────────────────────────────────────────────────────────────────
+// Bewusst kein `Product`: Zubehoer hat keine Wachsintervalle, keine
+// Kompatibilitaetsliste und keine Bewertungen, und es soll auch nicht in den
+// Produktfiltern auftauchen. Ein eigener, schlanker Typ ist ehrlicher als ein
+// Product mit einem Dutzend leerer Felder.
+export interface Accessory {
+  id: string;
+  title: string;
+  titleEn: string;
+  price: number;
+  description: string;
+  descriptionEn: string;
+  /** Stripe Price ID — nach Anlegen im Dashboard eintragen */
+  stripePriceId?: string;
+  weightGrams: number;
+  shippingClass: ShippingClass;
+}
+
+export const accessories: Accessory[] = [
+  {
+    id: 'acc-wire',
+    title: 'Aufhängedraht, 3 Stück',
+    titleEn: 'Hanging wire, 3 pieces',
+    price: 4.95,
+    description: 'Steif genug, dass die Kette im Bad nicht kippt, dünn genug, dass kaum Wachs daran hängen bleibt.',
+    descriptionEn: 'Stiff enough that the chain does not tip in the bath, thin enough that hardly any wax stays on it.',
+    weightGrams: 40,
+    shippingClass: 'grossbrief',
+  },
+  {
+    id: 'acc-pliers',
+    title: 'Quick-Link-Zange',
+    titleEn: 'Quick-link pliers',
+    price: 4.95,
+    description: 'Öffnet und schließt den Verschluss. Ohne sie wird das Abnehmen der Kette jedes Mal zur Geduldsprobe.',
+    descriptionEn: 'Opens and closes the link. Without it, taking the chain off is a test of patience every time.',
+    weightGrams: 90,
+    shippingClass: 'maxibrief',
+  },
+];
+
+// ─── Starter-Set ─────────────────────────────────────────────────────────────
+// Kein eigener Artikel, sondern eine Regel: ein Wachs plus eine Kette, dazu
+// gehoeren Zange und Draht immer mit dazu. Deshalb steht hier nur der
+// Rabattsatz und die Liste der Beilagen — die Preise kommen aus dem echten
+// Katalog und koennen dadurch nie auseinanderlaufen.
+//
+// Angezeigt wird der Set-Preis und die Ersparnis in Euro, nicht der Prozentsatz.
+// "Du sparst 11,80 EUR" ist eine Tatsache, "15 % Rabatt" ist eine Behauptung
+// ueber den Normalpreis, und die will diese Marke nicht dauerhaft fuehren.
+export const starterSet = {
+  discountPct: 15,
+  includedAccessoryIds: ['acc-pliers', 'acc-wire'] as const,
+};
+
+/** Set-Preis aus den gewaehlten Teilen. Immer hierueber rechnen, nie von Hand. */
+export const starterSetPrice = (partsSum: number) =>
+  Math.round(partsSum * (1 - starterSet.discountPct / 100) * 100) / 100;
+
+// Mengenstaffel. Gilt ausschliesslich auf Kettenwachs, nie auf Ketten: eine
+// Kette kauft man einmal pro Rad, ein Rabatt darauf verschenkt Marge ohne die
+// Menge zu bewegen. Wachs dagegen ist Verbrauchsmaterial, und wer drei Bloecke
+// nimmt, kauft ein Jahr im Voraus.
+//
+// Die 15 Prozent stehen bewusst weit hinten. Ein Rabatt, den fast jeder sofort
+// bekommt, ist kein Rabatt mehr, sondern ein Preis mit schlechtem Gewissen.
+export const waxTiers = [
+  { qty: 2, pct: 5 },
+  { qty: 3, pct: 10 },
+  { qty: 5, pct: 15 },
+] as const;
+
 export const waxVsOil = {
-  friction: { wax: 0.03, oil: 0.2 },        // μ — boundary friction coefficient
-  watts: { wax: [2, 4], oil: [6, 10] },     // drivetrain loss range (W)
+  // Grenzreibungszahlen. `wax` ist der beste Wert der Pro-Spanne und stammt vom
+  // MoS2-Feststofffilm, nicht vom fertigen Film jeder Linie — deshalb wird er
+  // nie als nackte Einzelzahl fuer die Marke ausgegeben, sondern immer der
+  // Spanne aus `frictionRanges` gegenuebergestellt. Oel liegt je nach
+  // Additivierung zwischen 0,18 und 0,25.
+  friction: { wax: 0.03, waxHi: 0.06, oil: 0.2 },
+  // Antriebsverlust. Eine Version fuer die ganze Seite. Der untere Wert ist
+  // frisch behandelt, der obere am Ende des Intervalls. `inputW` gehoert an
+  // jede Nennung: eine Wattzahl ohne Eingangsleistung ist technisch bedeutungslos.
+  watts: { wax: [2, 4], oil: [6, 10], inputW: [300, 400] },
   // Relative chain lifetime. Rendered as the RANGE, never as the top value
   // alone: the binding claim is "deutlich länger, oft 2 bis 3×". A bare "3×"
   // is the kind of rounding that costs more credibility than the number buys.

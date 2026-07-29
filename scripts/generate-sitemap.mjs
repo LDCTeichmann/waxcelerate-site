@@ -25,6 +25,11 @@ const staticPages = [
       caption: 'Heißwachs-Kettenpflege aus Stuttgart — paraffinbasiert mit PTFE',
     } },
   { loc: '/wissenschaft', changefreq: 'monthly', priority: '0.8' },
+  // Verkaufsseiten: hoehere Prioritaet als die Wissenschaftsseite, weil hier
+  // gekauft und gebucht wird. Beide werden von generate-blog-html.mjs
+  // vorgerendert, sonst saehen Crawler nur die Startseiten-Huelle.
+  { loc: '/rewax', changefreq: 'monthly', priority: '0.9' },
+  { loc: '/starter-set', changefreq: 'monthly', priority: '0.9' },
   { loc: '/blog', changefreq: 'weekly', priority: '0.8' },
 ];
 

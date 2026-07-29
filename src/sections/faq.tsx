@@ -36,6 +36,14 @@ export function FAQ() {
             because a question row is a list item, not prose: the question sits
             left, the chevron right, and only the ANSWER needs a reading
             measure (capped below). */}
+        {/* Dritter Anlauf, bewusst anders als die beiden vorherigen.
+            Gescheitert war: die ganze Sektion in max-w-2xl (Ueberschrift wandert
+            mit, liest sich als nach links verschoben) und ein Zweispalter (zweite
+            linke Kante, die auf nichts trifft).
+            Hier bleibt die Ueberschrift an der Spaltenkante wie in jeder anderen
+            Sektion, und nur der Inhaltsblock bekommt ein Lesemass von 880px.
+            Damit gibt es weiter genau eine linke Kante, die Zeilen werden aber
+            nicht mehr ueber 1120px gezogen. */}
         <div>
           <div className="mb-8 max-w-2xl">
             <h2 className="section-title mb-4">
@@ -46,7 +54,7 @@ export function FAQ() {
             </p>
           </div>
 
-          <div>
+          <div className="max-w-[880px]">
           {/* Search input */}
           <div className="relative mb-6 max-w-xl">
             <input

@@ -47,8 +47,10 @@ export function Contact() {
             </p>
           </div>
 
-          {/* Two equal contact cards */}
-          <div className="grid sm:grid-cols-2 gap-5 lg:gap-6">
+          {/* Lesemass 880px, Ueberschrift bleibt an der Spaltenkante.
+              Siehe faq.tsx fuer die Begruendung, warum das nicht dasselbe ist
+              wie die beiden frueheren Versuche. */}
+          <div className="grid sm:grid-cols-2 gap-5 lg:gap-6 max-w-[880px]">
 
             {/* Icon + copy on the left, action on the right. Stacked vertically
                 these two cards only held ~4 short lines each, so across a

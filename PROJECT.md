@@ -57,26 +57,41 @@ Kurz halten. Erledigtes wandert nach unten in den Log.
 
 ---
 
+## Neu gefunden nach dem Deploy 2026-07-29
+
+**`/rewax` und `/starter-set` sind fuer Crawler unsichtbar.**
+Beide Routen liefern den Startseiten-Titel aus `index.html`, weil das
+Vorrendern in `scripts/generate-blog-html.mjs` nur Blogartikel abdeckt. Das ist
+kein neuer Fehler, `/wissenschaft` verhaelt sich seit jeher genauso. Fuer zwei
+neue Verkaufsseiten ist es trotzdem teuer. Dazu kennt
+`scripts/generate-sitemap.mjs` beide Routen nicht.
+
+Loesung: die statischen Routen im Sitemap-Generator ergaenzen und das
+Vorrender-Skript um eine kleine Liste fester Seiten erweitern. Der Mechanismus
+existiert bereits, er muss nur zwei Eintraege mehr kennen.
+
+---
+
 ## Beauftragt, noch nicht gebaut
 
-Von Luca am 2026-07-28 vorgegeben. Spezifikation hier festhalten, damit sie
-nicht im Chatverlauf verloren geht.
+**Rewax-Seite: Reihenfolge und CTA neu denken**
+Inhalt steht, aber der Aufbau erzeugt noch Reibung. Gewuenscht: Rotationsargument
+sichtbarer (bei zwei oder drei Ketten faehrt immer eine, waehrend die andere bei
+uns ist), Zehnerkarte als Geschenkidee inszenieren, Bilder staerker einsetzen.
 
-**Starter-Sets als Produkte in `data.ts`**
-`/starter-set` steht, rechnet aber mit einem Beispielset aus vorhandenen
-Katalogpreisen. Damit man es kaufen kann, braucht es echte SKUs, entweder als
-neue Kategorie oder als konfigurierbares Bundle. Zubehoer ebenso: Aufhaengedraht
-3 Stueck 5 EUR zuzueglich 1,80 EUR Versand, Quick-Link-Zange 5 EUR.
+**Bewertungen: Fotos in die Karten**
+Marquee bleibt, das gefaellt. Offen ist, wie das Foto in die Karte kommt, ohne
+dass der Text unlesbar wird. Vorschlag: kleines quadratisches Foto links neben
+dem Zitat statt Hintergrundbild, damit der Kontrast nicht vom Motiv abhaengt.
 
-**FAQ und Kontakt wirken zu breit**
-Nicht angefasst. Im Code steht bei beiden Sektionen ein Kommentar des anderen
-Agenten, dass zwei Versuche mit max-w-2xl als "nach links verschoben" gelesen
-wurden. Vorschlag als dritter Weg: Ueberschrift bleibt an der linken
-Spaltenkante wie in allen anderen Sektionen, nur der Lesetext wird auf etwa
-880 px begrenzt. Vorher abstimmen, das ist fremdes Terrain.
+**Dunkler Block Herkunft und Produktion**
+Konzept siehe Antwort im Chat vom 2026-07-29.
 
-**chain-dirty.jpg loeschen**
-Fremdes Foto mit englischer Kritzelei, unbenutzt.
+**Skill `waxcelerate` nachziehen**
+`references/20_products_pricing.md` fuehrt noch 9,99 / 24,99 fuer Rewax. Richtig
+sind 13,95 einzeln und 9,95 ab drei Ketten, plus 1,80 Rueckversand. Dazu neu:
+Zubehoer 4,95 je Position, Starter-Set 15 Prozent unter der Teilesumme,
+Wachs-Staffel 2/3/5 Stueck = 5/10/15 Prozent, nur auf Wachs.
 
 ---
 
@@ -85,6 +100,12 @@ Fremdes Foto mit englischer Kritzelei, unbenutzt.
 Eine Zeile pro Entscheidung, neueste oben. Begründungen stehen im Code-Kommentar
 an der Stelle, an der die Entscheidung wirkt.
 
+- 2026-07-29 · Wachs-Staffel 2/3/5 Stueck = 5/10/15 Prozent, ausschliesslich auf Wachs. Prozent-Badge von den Produktkarten entfernt, Staffel steht einmal ruhig ueber der Liste.
+- 2026-07-29 · Starter-Set als Konfigurator: zwei Fragen, Zange und Draht liegen automatisch bei. 15 Prozent unter der Teilesumme, angezeigt als Euro-Ersparnis statt als Prozentzahl.
+- 2026-07-29 · Zubehoer als eigener Typ `Accessory` statt als `Product`, weil Zubehoer keine Intervalle, Kompatibilitaeten oder Bewertungen hat und nicht in die Produktfilter gehoert.
+- 2026-07-29 · `/rewax`, `/starter-set` und `/wissenschaft` werden vorgerendert und stehen in der Sitemap.
+- 2026-07-29 · `chain-dirty.jpg` und vier tote Zwischenstaende geloescht.
+- 2026-07-29 · FAQ und Kontakt: Lesemass 880px nur auf dem Inhaltsblock, Ueberschrift bleibt an der Spaltenkante.
 - 2026-07-29 · /starter-set gebaut. Rabatt als Rechnung gezeigt, nie als Prozent-Badge.
 - 2026-07-29 · Produktliste erscheint erst nach Klick auf eine Tuer, mit Rueckweg.
 - 2026-07-29 · Zehnerkarte auf /rewax statt als vierte Produkttuer.

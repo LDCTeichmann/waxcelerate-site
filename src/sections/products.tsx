@@ -449,15 +449,16 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deli
             )}
           </div>
 
-          {/* Discount — the one place a color accent earns its keep: this is the
-              number that actually moves a purchase decision, shown right where
-              the eye already is when it reaches the price. Short + bold, not a
-              loud badge; the full 2-for-10%/3-for-15% breakdown stays as quiet
-              fine print below with the other trust signals. */}
+          {/* Kein "Bis 15 % Rabatt" mehr auf der Karte. Ein Prozentzeichen, das
+              dauerhaft an jedem Produkt klebt, liest sich nicht als Angebot
+              sondern als Preis mit schlechtem Gewissen, und das widerspricht
+              einer Marke, die ueber Urteil statt Hype verkauft. Die Staffel
+              steht einmal ruhig ueber der Liste, wo sie hingehoert: als
+              Rechenhilfe fuer den, der ohnehin mehrere nimmt. */}
           {multiDiscount && (
-            <div className="inline-flex items-center gap-1 mt-2 text-[11px] font-semibold" style={{ color: 'var(--brand-blue)' }}>
-              <Tag className="h-3 w-3" strokeWidth={2.25} aria-hidden />
-              {de ? 'Bis 15 % Rabatt' : 'Up to 15% off'}
+            <div className="inline-flex items-center gap-1.5 mt-2 text-[11px]" style={{ color: 'var(--txf)' }}>
+              <Tag className="h-3 w-3" strokeWidth={2} aria-hidden />
+              {de ? 'Mengenstaffel ab 2 Blöcken' : 'Volume tiers from 2 blocks'}
             </div>
           )}
 
