@@ -23,93 +23,23 @@
 //   npx tsx scripts/generate-blog-html.mjs
 // (in package.json: "build": "tsc -b && vite build && npx tsx scripts/generate-blog-html.mjs")
 
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve, join } from 'node:path';
 import { articles, getArticleImage, author, categoryOrder } from '../src/pages/blog/articles.ts';
+// Die Bausteine liegen seit August 2026 in scripts/lib/prerender.mjs, weil sie
+// sich Blog-, Produkt- und Rechtstextseiten teilen. Verhalten unveraendert.
+import {
+  BASE, esc, ld, metaTags, loadShell, buildPage as buildPageWithShell, write as writeToDist,
+} from './lib/prerender.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DIST = resolve(__dirname, '../dist');
-const BASE = 'https://waxcelerate.de';
 
-const SHELL_PATH = join(DIST, 'index.html');
-if (!existsSync(SHELL_PATH)) {
-  console.error('✗ dist/index.html fehlt. Erst "vite build" laufen lassen.');
-  process.exit(1);
-}
-const shell = readFileSync(SHELL_PATH, 'utf8');
+const shell = loadShell(DIST);
 
-// ─── Helpers ──────────────────────────────────────────────────────────────
-
-const esc = (s = '') =>
-  String(s)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-
-/** JSON-LD-Typen aus index.html, die nur die Startseite beschreiben. */
-const PAGE_SPECIFIC_SCHEMA = new Set(['Product', 'FAQPage', 'HowTo', 'ItemList']);
-
-/** Entfernt die globalen Head-Tags aus der Hülle, die wir pro Seite ersetzen. */
-function stripHead(html) {
-  return html
-    .replace(/<title>[\s\S]*?<\/title>/i, '')
-    .replace(/<meta\s+name="description"[^>]*>/gi, '')
-    .replace(/<link\s+rel="canonical"[^>]*>/gi, '')
-    .replace(/<meta\s+property="og:[^"]*"[^>]*>/gi, '')
-    .replace(/<meta\s+name="twitter:[^"]*"[^>]*>/gi, '')
-    .replace(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/gi, (full, json) => {
-      // index.html trägt die JSON-LD-Blöcke der STARTSEITE. Als Hülle würden sie
-      // sonst auf jeder Blog-URL mitlaufen, d. h. jeder Artikel behauptete, ein
-      // Product mit AggregateRating/AggregateOffer zu sein und die 23 Startseiten-
-      // FAQs zu beantworten. Das ist irreführendes Markup (Google-Spam-Policy) und
-      // überschreibt die artikeleigenen FAQPage-/HowTo-Angaben.
-      // Organization, WebSite und Person beschreiben die Site als Ganzes und bleiben.
-      try {
-        const type = JSON.parse(json)['@type'];
-        return PAGE_SPECIFIC_SCHEMA.has(type) ? '' : full;
-      } catch {
-        return full;
-      }
-    });
-}
-
-/** Baut eine vollständige Seite aus Hülle + Head-Tags + Body-Inhalt. */
-function buildPage({ head, body }) {
-  let html = stripHead(shell);
-  html = html.replace('</head>', `${head}\n</head>`);
-  html = html.replace(
-    /<div id="root"><\/div>/,
-    `<div id="root">${body}</div>`,
-  );
-  return html;
-}
-
-function metaTags({ title, description, canonical, image, type = 'website', published, modified }) {
-  const abs = image?.startsWith('http') ? image : `${BASE}${image ?? '/images/hero-chain-texture.jpg'}`;
-  return [
-    `<title>${esc(title)}</title>`,
-    `<meta name="description" content="${esc(description)}">`,
-    `<link rel="canonical" href="${canonical}">`,
-    `<meta property="og:type" content="${type}">`,
-    `<meta property="og:site_name" content="Waxcelerate">`,
-    `<meta property="og:locale" content="de_DE">`,
-    `<meta property="og:title" content="${esc(title)}">`,
-    `<meta property="og:description" content="${esc(description)}">`,
-    `<meta property="og:url" content="${canonical}">`,
-    `<meta property="og:image" content="${abs}">`,
-    published ? `<meta property="article:published_time" content="${published}">` : '',
-    modified ? `<meta property="article:modified_time" content="${modified}">` : '',
-    `<meta name="twitter:card" content="summary_large_image">`,
-    `<meta name="twitter:title" content="${esc(title)}">`,
-    `<meta name="twitter:description" content="${esc(description)}">`,
-    `<meta name="twitter:image" content="${abs}">`,
-  ].filter(Boolean).join('\n  ');
-}
-
-const ld = (obj) =>
-  `<script type="application/ld+json">${JSON.stringify(obj)}</script>`;
+// Duenne Adapter, damit die Aufrufstellen weiter unten unveraendert bleiben.
+const buildPage = (parts) => buildPageWithShell(shell, parts);
+const write = (relDir, html) => writeToDist(DIST, relDir, html);
 
 // ─── Sections rendern ─────────────────────────────────────────────────────
 
@@ -291,14 +221,6 @@ ${byCat}`.trim();
   return buildPage({ head, body });
 }
 
-// ─── Schreiben ────────────────────────────────────────────────────────────
-
-function write(relDir, html) {
-  const dir = join(DIST, relDir);
-  mkdirSync(dir, { recursive: true });
-  writeFileSync(join(dir, 'index.html'), html, 'utf8');
-}
-
 // ─── Feste Seiten ────────────────────────────────────────────────────────────
 // Ohne diesen Block liefern /rewax, /starter-set und /wissenschaft Crawlern die
 // Startseiten-Huelle samt Startseiten-Titel: react-helmet setzt den Titel erst
@@ -373,9 +295,45 @@ function renderStatic(p) {
   return buildPage({ head, body });
 }
 
+// ─── Rechtstexte ─────────────────────────────────────────────────────────────
+// Auch diese Seiten lieferten Crawlern bisher den Startseiten-Titel und das
+// Startseiten-Canonical. Bei Pflichtseiten ist das doppelt unschoen: Sie muessen
+// auffindbar sein, und ein falsches Canonical zeigt Google, dass es sie gar
+// nicht als eigene Seiten gibt.
+//
+// Bewusst ohne Schema und ohne Inhaltsdopplung. Der eigentliche Rechtstext lebt
+// in der React-Seite und ist dort rechtsverbindlich gepflegt; hier steht nur so
+// viel, dass die Seite eindeutig identifizierbar ist. Doppelt gepflegte
+// Rechtstexte waeren ein Haftungsrisiko, sobald die beiden Fassungen
+// auseinanderlaufen.
+const LEGAL_PAGES = [
+  { dir: 'impressum', title: 'Impressum', description: 'Anbieterkennzeichnung nach § 5 TMG für Waxcelerate, Luca Teichmann, Stuttgart.' },
+  { dir: 'datenschutz', title: 'Datenschutzerklärung', description: 'Wie Waxcelerate personenbezogene Daten verarbeitet, welche Rechte du hast und an wen du dich wenden kannst.' },
+  { dir: 'agb', title: 'Allgemeine Geschäftsbedingungen', description: 'Vertragsbedingungen für Bestellungen bei Waxcelerate: Vertragsschluss, Preise, Lieferung und Zahlung.' },
+  { dir: 'widerruf', title: 'Vertrag widerrufen', description: 'Formular und Ablauf, um eine Bestellung bei Waxcelerate innerhalb der Frist zu widerrufen.' },
+  { dir: 'widerrufsbelehrung', title: 'Widerrufsbelehrung', description: 'Widerrufsrecht, Fristen und Folgen des Widerrufs für Bestellungen bei Waxcelerate.' },
+  { dir: 'versand-und-zahlung', title: 'Versand und Zahlung', description: 'Versandkosten, Lieferzeiten und Zahlungsarten bei Waxcelerate. Versandkostenfrei ab 50 €.' },
+];
+
+function renderLegal(p) {
+  const canonical = `${BASE}/${p.dir}`;
+  const head = metaTags({
+    title: `${p.title} | Waxcelerate`,
+    description: p.description,
+    canonical,
+  });
+  const body = [
+    `<h1>${esc(p.title)}</h1>`,
+    `<p>${esc(p.description)}</p>`,
+    `<p><a href="/">Zur Startseite</a> · <a href="/impressum">Impressum</a> · <a href="/datenschutz">Datenschutz</a> · <a href="/agb">AGB</a> · <a href="/widerrufsbelehrung">Widerrufsbelehrung</a> · <a href="/versand-und-zahlung">Versand und Zahlung</a></p>`,
+  ].join('\n');
+  return buildPage({ head, body });
+}
+
 for (const p of STATIC_PAGES) write(p.dir, renderStatic(p));
+for (const p of LEGAL_PAGES) write(p.dir, renderLegal(p));
 
 write('blog', renderIndex());
 for (const a of articles) write(join('blog', a.slug), renderArticle(a));
 
-console.log(`✓ ${articles.length + 1} Blog-Seiten und ${STATIC_PAGES.length} feste Seiten vorgerendert nach dist/`);
+console.log(`✓ ${articles.length + 1} Blog-Seiten, ${STATIC_PAGES.length} feste Seiten und ${LEGAL_PAGES.length} Rechtstextseiten vorgerendert nach dist/`);
