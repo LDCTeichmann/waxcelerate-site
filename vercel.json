@@ -10,17 +10,20 @@
   "rewrites": [{ "source": "/((?!api/|google46acc6bf86fe233d\\.html).*)", "destination": "/index.html" }],
   "headers": [
     {
-      "//": "Interne und transaktionale Routen aus dem Index halten. Sie liefern die SPA-Huelle aus und trugen dadurch das globale 'index, follow' aus index.html: /admin ist die Lagerverwaltung, /hero-lab ein Entwurfsvergleich, /bestellung-erfolgreich existiert nur nach einem Kauf und /produkt/*/stage ist eine Darstellungsvariante ohne eigenen Inhalt. Als HTTP-Header statt Meta-Tag, weil react-helmet erst nach dem Start von React greift und Crawler ohne JavaScript nie so weit kommen.",
-      "source": "/(admin|hero-lab|bestellung-erfolgreich)",
-      "headers": [
-        { "key": "X-Robots-Tag", "value": "noindex, nofollow" }
-      ]
+      "source": "/admin",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
     },
     {
-      "source": "/produkt/(.*)/stage",
-      "headers": [
-        { "key": "X-Robots-Tag", "value": "noindex, nofollow" }
-      ]
+      "source": "/hero-lab",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+    },
+    {
+      "source": "/bestellung-erfolgreich",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+    },
+    {
+      "source": "/produkt/:id/stage",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
     },
     {
       "source": "/assets/(.*)",

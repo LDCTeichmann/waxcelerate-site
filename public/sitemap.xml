@@ -45,7 +45,7 @@
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <image:image>
-      <image:loc>/images/products/classic/classic-4.webp</image:loc>
+      <image:loc>https://waxcelerate.de/images/products/classic/classic-4.webp</image:loc>
       <image:title>Kettenwachs 500g — Classic | Waxcelerate</image:title>
       <image:caption>Der Einstieg — und für die meisten der einzige Block, den sie je brauchen. Sauberer Antrieb, kein Nachschmieren, kein Dreck. Ideal für Frühling bis Herbst.</image:caption>
     </image:image>
@@ -56,7 +56,7 @@
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <image:image>
-      <image:loc>/images/products/classic/classic-4.webp</image:loc>
+      <image:loc>https://waxcelerate.de/images/products/classic/classic-4.webp</image:loc>
       <image:title>Kettenwachs 300g — Classic | Waxcelerate</image:title>
       <image:caption>Gleiche Formel wie der 500g-Block — nur kleiner. Perfekt zum Ausprobieren, als Reiseblock oder wenn du selten wächst.</image:caption>
     </image:image>
@@ -67,7 +67,7 @@
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <image:image>
-      <image:loc>/images/products/pro/pro-3.webp</image:loc>
+      <image:loc>https://waxcelerate.de/images/products/pro/pro-3.webp</image:loc>
       <image:title>Kettenwachs 500g — Pro | Waxcelerate</image:title>
       <image:caption>Für Herbst, Winter und nasse Ausfahrten. MoS₂ bildet einen festeren Transferfilm — längere Intervalle, weniger Rost, flexibel bis −8 °C.</image:caption>
     </image:image>
@@ -78,7 +78,7 @@
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <image:image>
-      <image:loc>/images/products/pro/pro-3.webp</image:loc>
+      <image:loc>https://waxcelerate.de/images/products/pro/pro-3.webp</image:loc>
       <image:title>Kettenwachs 300g — Pro | Waxcelerate</image:title>
       <image:caption>Pro-Formel kompakt — für Fahrer, die zwischen Sommer und Winter die Formel wechseln, oder als Winterblock zum Mitnehmen.</image:caption>
     </image:image>
@@ -173,109 +173,109 @@
   </url>
   <url>
     <loc>https://waxcelerate.de/blog/heisswachs-vs-fluessigwachs</loc>
-    <lastmod>2026-05-19</lastmod>
+    <lastmod>2026-07-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://waxcelerate.de/blog/fahrradkette-entfetten</loc>
-    <lastmod>2026-05-19</lastmod>
+    <lastmod>2026-07-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://waxcelerate.de/blog/kettenlaufzeit-heisswachs</loc>
-    <lastmod>2026-05-19</lastmod>
+    <lastmod>2026-07-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://waxcelerate.de/blog/heisswachs-anleitung</loc>
-    <lastmod>2026-05-19</lastmod>
+    <lastmod>2026-07-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://waxcelerate.de/blog/mos2-kettenwachs</loc>
-    <lastmod>2026-06-01</lastmod>
+    <lastmod>2026-07-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://waxcelerate.de/blog/kettenwachs-rennrad-gravelbike</loc>
-    <lastmod>2026-06-01</lastmod>
+    <lastmod>2026-07-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://waxcelerate.de/blog/wachs-haelt-nicht-haeufige-fehler</loc>
-    <lastmod>2026-06-16</lastmod>
+    <lastmod>2026-07-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://waxcelerate.de/blog/kettenwachs-faq</loc>
-    <lastmod>2026-06-16</lastmod>
+    <lastmod>2026-07-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://waxcelerate.de/blog/vorgewachste-kette</loc>
-    <lastmod>2026-06-16</lastmod>
+    <lastmod>2026-07-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://waxcelerate.de/blog/kettenwachs-winter</loc>
-    <lastmod>2026-06-16</lastmod>
+    <lastmod>2026-07-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://waxcelerate.de/blog/topf-zum-kette-wachsen</loc>
-    <lastmod>2026-06-16</lastmod>
+    <lastmod>2026-07-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://waxcelerate.de/blog/tropfwachs-hybrid-methode</loc>
-    <lastmod>2026-06-16</lastmod>
+    <lastmod>2026-07-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://waxcelerate.de/blog/von-oel-auf-wachs-umsteigen</loc>
-    <lastmod>2026-06-16</lastmod>
+    <lastmod>2026-07-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://waxcelerate.de/blog/ebike-kette-wachsen</loc>
-    <lastmod>2026-06-16</lastmod>
+    <lastmod>2026-07-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://waxcelerate.de/blog/kettenverschleiss-messen</loc>
-    <lastmod>2026-06-16</lastmod>
+    <lastmod>2026-07-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://waxcelerate.de/blog/erste-fahrt-nach-wachsen</loc>
-    <lastmod>2026-06-16</lastmod>
+    <lastmod>2026-07-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://waxcelerate.de/blog/schnellverschluss-quicklink</loc>
-    <lastmod>2026-06-17</lastmod>
+    <lastmod>2026-07-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://waxcelerate.de/blog/wachs-entsorgen-topf-pflegen</loc>
-    <lastmod>2026-06-17</lastmod>
+    <lastmod>2026-07-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>

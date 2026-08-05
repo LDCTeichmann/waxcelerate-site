@@ -26,7 +26,8 @@
 // Manuell nach Produkt- oder Artikeländerung:
 //   npx tsx scripts/generate-sitemap.mjs
 
-import { writeFileSync } from 'node:fs';
+import { writeFileSync, readFileSync, existsSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { products } from '../src/lib/data.ts';
@@ -61,20 +62,60 @@ const staticPages = [
 // + "https://i.ebayimg.com/...").
 const imageUrl = (path) => (path?.startsWith('http') ? path : `${BASE}${path}`);
 
+// ─── Ehrliche lastmod-Daten ─────────────────────────────────────────────────
+// Vorher stand hier `lastmod: today`. Damit behauptete die Sitemap bei JEDEM
+// Build, dass sich alle Produktseiten heute geaendert haetten. Google wertet
+// dauerhaft unzutreffende lastmod-Angaben als Rauschen und hoert dann auf, sie
+// fuer die ganze Domain zu beruecksichtigen. Genau die Crawl-Priorisierung, auf
+// die eine kleine, noch nicht indexierte Seite angewiesen ist, geht dabei
+// verloren.
+//
+// Loesung: Pro URL wird ein Hash des tatsaechlich ausgelieferten Inhalts
+// gebildet und mit dem letzten bekannten Hash verglichen. Nur wenn er sich
+// unterscheidet, wandert das Datum auf heute. Der Stand liegt in
+// scripts/sitemap-lastmod.json und gehoert ins Repository, damit er Builds
+// ueberdauert. Ist ein Hash unbekannt (neues Produkt), ist "heute" korrekt.
+const STAMP_FILE = resolve(__dirname, 'sitemap-lastmod.json');
+const stamps = existsSync(STAMP_FILE) ? JSON.parse(readFileSync(STAMP_FILE, 'utf8')) : {};
+
+function lastmodFor(key, content) {
+  const hash = createHash('sha1').update(JSON.stringify(content)).digest('hex').slice(0, 12);
+  const prev = stamps[key];
+  if (!prev || prev.hash !== hash) {
+    stamps[key] = { hash, date: today };
+  }
+  return stamps[key].date;
+}
+
 const productPages = products.map(p => ({
   loc: `/produkt/${p.id}`,
   changefreq: 'monthly',
   priority: '0.9',
-  lastmod: today,
+  // Alles, was auf der Produktseite und im Product-Schema landet. Aendert sich
+  // davon nichts, bleibt das Datum stehen.
+  lastmod: lastmodFor(`/produkt/${p.id}`, {
+    t: p.title, d: p.description, pr: p.price, i: p.image,
+    c: p.compatibility, s: p.specs,
+  }),
   image: { loc: imageUrl(p.image), title: `${p.title} | Waxcelerate`, caption: p.description },
 }));
 
+// Artikel tragen ihr echtes Datum in den Daten. dateModified schlaegt
+// publishDate, weil ein ueberarbeiteter Artikel tatsaechlich neuer ist.
 const articlePages = articles.map(a => ({
   loc: `/blog/${a.slug}`,
   changefreq: 'monthly',
   priority: '0.7',
-  lastmod: a.publishDate,
+  lastmod: a.dateModified ?? a.publishDate,
 }));
+
+// Die festen Seiten bekommen dieselbe Hash-Logik. Ihr Inhalt steht in
+// generate-blog-html.mjs (STATIC_PAGES) und aendert sich selten; die Prioritaet
+// und der Pfad reichen als Signatur, weil eine inhaltliche Aenderung dort ohne
+// Codeaenderung gar nicht moeglich ist.
+for (const p of staticPages) {
+  p.lastmod = lastmodFor(p.loc, { loc: p.loc, priority: p.priority, image: p.image ?? null });
+}
 
 const urlXml = ({ loc, changefreq, priority, lastmod, image }) => `  <url>
     <loc>${BASE}${loc}</loc>
@@ -101,4 +142,16 @@ ${all.map(urlXml).join('\n')}
 `;
 
 writeFileSync(OUT, xml);
-console.log(`sitemap.xml written with ${all.length} URLs (${productPages.length} products, ${articlePages.length} articles).`);
+
+// Stand der Hashes fortschreiben. Sortiert schreiben, damit der Diff im
+// Repository lesbar bleibt und nicht bei jedem Lauf durcheinanderwirbelt.
+writeFileSync(
+  STAMP_FILE,
+  JSON.stringify(Object.fromEntries(Object.entries(stamps).sort()), null, 2) + '\n',
+);
+
+const changedToday = Object.values(stamps).filter(s => s.date === today).length;
+console.log(
+  `sitemap.xml written with ${all.length} URLs (${productPages.length} products, ${articlePages.length} articles).`,
+);
+console.log(`  lastmod: ${changedToday} von ${Object.keys(stamps).length} verfolgten Seiten heute geaendert.`);

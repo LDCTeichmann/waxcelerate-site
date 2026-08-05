@@ -8,7 +8,49 @@
 
 # TEIL A — Das Eine, das alles blockiert
 
-## A1. Die kaputte Git-Sperre lösen und den Fix live bringen
+## A0. STATUS 4. August, spät — ein Fehler von mir, eine Zeile zum Beheben
+
+**Dein Push hat funktioniert** (`3471d6d..d83c8fd → main`). **Das Deployment nicht.**
+
+Ursache, und die liegt bei mir: Ich hatte in `vercel.json` einen Kommentar als `"//"`-Schlüssel eingebaut. JSON kennt keine Kommentare, und Vercel prüft die Datei gegen ein striktes Schema **bevor** der Build startet. Unbekannte Felder brechen das Deployment sofort ab. Deshalb ist nichts live gegangen, auch nicht die Arbeit aus dem ersten Commit.
+
+Nachgewiesen: Die IndexNow-Schlüsseldatei ist unter ihrer URL nicht erreichbar, obwohl sie im Commit liegt. Ein Deployment hat es also nie gegeben.
+
+**Behoben.** Ich habe den Kommentar entfernt und die vier noindex-Regeln zusätzlich in einzelne, simple Einträge zerlegt, damit auch bei den Pfadmustern nichts schiefgehen kann. Die Datei ist gegen Vercels Schema geprüft.
+
+### Und der Grund, warum deine Git-Befehle immer wieder scheitern: ich war es
+
+Die Sperrdatei kommt nicht von einem abgestürzten Prozess auf deinem Mac. **Meine eigenen Git-Versuche aus der Cowork-Umgebung erzeugen sie.** Sie schlagen dort fehl, hinterlassen `.git/index.lock` und `.git/HEAD.lock`, und ich kann beide anschließend nicht löschen, weil mir die Rechte auf dem eingebundenen Ordner fehlen. Danach ist dein Git blockiert.
+
+Deshalb sagte dein letzter Push „Everything up-to-date": Der Commit davor war an der Sperre gescheitert, es gab schlicht nichts zu schieben.
+
+**Ich fasse Git ab sofort nicht mehr an.** Dieser Block räumt beide Sperren weg und macht alles in einem Zug:
+
+```
+cd ~/"Claude Playground"/waxcelerate-site
+rm -f .git/index.lock .git/HEAD.lock .git/objects/maintenance.lock
+git add vercel.json LUCA_TODO.md scripts/generate-sitemap.mjs scripts/sitemap-lastmod.json public/sitemap.xml
+git commit -m "Fix vercel.json schema, honest sitemap lastmod dates"
+git push origin fix/asset-base-path:main
+```
+
+**Falls es wieder klemmt:** Der Befehl `git status` muss ohne Fehlermeldung durchlaufen. Tut er das nicht, ist noch eine Sperre da. Dann nochmal die `rm`-Zeile, danach weiter.
+
+### Wenn es diesmal wieder nicht deployt
+
+Dann liegt es nicht an `vercel.json`, und ich rate nicht weiter herum. Öffne `vercel.com`, geh in das Projekt, Reiter **Deployments**. Der oberste Eintrag zeigt entweder „Ready" oder „Error". Bei „Error" draufklicken, das Build-Log zeigt die exakte Zeile. **Schick mir davon einen Screenshot**, dann ist es in fünf Minuten erledigt statt in drei Runden Raten.
+
+**Danach prüfen, ob es diesmal geklappt hat.** Diese URL muss den Schlüssel als reinen Text zeigen, nicht die Website:
+
+```
+waxcelerate.de/74ee22c75cc92464f6fc7d87ee40a1848108c9411d03f5173e05ba74a23fe01f.txt
+```
+
+Klappt das, ist das Deployment durch, und `waxcelerate.de/produkt/wax-500` zeigt eine echte Produktseite. Sag mir kurz Bescheid, dann verifiziere ich alle 41 Seiten live.
+
+---
+
+## A1. ~~Die kaputte Git-Sperre lösen~~ · erledigt
 
 **Warum:** Eine hängengebliebene Datei (`index.lock`) blockiert jeden Git-Befehl in deinem Projekt. Dadurch ist eine seit Tagen fertige Korrektur nie live gegangen. Solange die fehlt, laden 22 fertige Seiten weder Design noch Funktion, und Google sieht auf den Verkaufsseiten nichts.
 
@@ -226,6 +268,31 @@ Im Thread `radforum.de/threads/3164256-kettenwachs` wirst du bereits von anderen
 ## F1. Fremde Kopie deiner Marke abschalten (5 Minuten)
 
 `https://bffweqay3hca2.kimi.page/` trägt öffentlich den Titel „Waxcelerate" und ist vermutlich ein übrig gebliebener Vorschau-Build aus einer früheren Bau-Session. Er taucht bei der Markensuche auf, deine echte Seite nicht. Im Kimi-Konto löschen oder auf privat stellen.
+
+---
+
+# TEIL F2 — Nach dem Push, auf deinem Mac (5 Minuten)
+
+## F2.1 Kettenbilder auf die eigene Domain holen
+
+Acht Produktbilder liegen aktuell auf eBays Servern. Das kostet Bildranking, und wenn ein Listing endet, ist das Bild weg — auf der Produktseite, in der Sitemap und im Merchant-Feed. Ich konnte das nicht selbst erledigen, weil die Sandbox eBay nicht erreichen darf und `sharp` dort nicht läuft. Auf deinem Mac geht beides.
+
+Erst schauen, was passieren würde:
+
+```
+cd ~/"Claude Playground"/waxcelerate-site
+npx tsx scripts/migrate-chain-images.mjs
+```
+
+Sieht die Liste gut aus, dann echt ausführen:
+
+```
+npx tsx scripts/migrate-chain-images.mjs --apply
+npx tsc --noEmit
+npm run build
+```
+
+Das Skript holt automatisch die größere `s-l1600`-Fassung von eBay (Google will für Produkt-Rich-Results mindestens 1200 px, bisher waren es 500), legt sie unter sprechenden Namen ab und stellt `data.ts` um. Eine Sicherungskopie landet als `src/lib/data.ts.bak`.
 
 ---
 
