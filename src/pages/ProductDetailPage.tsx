@@ -1087,10 +1087,15 @@ export function ProductDetailPage() {
         <Footer />
       </div>
 
-      {/* Sticky buy-bar */}
+      {/* Sticky buy-bar. Mobile-Plan B2/A-Stufe: im eingefahrenen Zustand trug
+          dieser Container nur aria-hidden="true", der eBay-Link (oder
+          AddToCartButton) blieb per Tab erreichbar — ein unsichtbares
+          Element, das trotzdem den Fokus bekommt. inert deckt beide
+          moeglichen Kind-Buttons ab (eBay-Link ohne Checkout, AddToCartButton
+          mit), ohne dass jedes einzeln ein tabIndex bräuchte. */}
       <div className={`fixed bottom-0 inset-x-0 z-50 ${showBuyBar ? 'translate-y-0' : 'translate-y-full'}`}
         style={{ background: 'var(--nav-bg)', backdropFilter: 'blur(12px)', borderTop: '1px solid var(--bd)', boxShadow: '0 -4px 20px rgba(0,0,0,0.06)', transition: 'transform 320ms cubic-bezier(0.22,1,0.36,1)' }}
-        aria-hidden={!showBuyBar}>
+        aria-hidden={!showBuyBar} inert={!showBuyBar}>
         <div className="max-w-5xl mx-auto px-5 sm:px-8 py-2.5 flex items-center gap-4">
           <img src={gallery[0]} alt="" aria-hidden className="w-10 h-10 rounded-xl object-cover flex-shrink-0 hidden sm:block" style={{ border: '1px solid var(--bd)' }}
             onError={e => { (e.target as HTMLImageElement).src = '/images/products/wax-block-spin.webp'; }} />

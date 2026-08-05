@@ -5,47 +5,55 @@ import { useLanguage } from '@/hooks/useLanguage';
 export function MobileStickyCTA() {
   const location = useLocation();
   const { lang } = useLanguage();
-  // Tracks "has the user scrolled past the hero" and "is #produkte itself on
+  // Tracks "has the user scrolled past the hero" and "is the footer on
   // screen" separately — the bar shows whenever the first is true and the
-  // second is false. The previous version only ever set visible→false when
-  // #produkte appeared and never set it back to true on leaving, so once a
-  // visitor scrolled past the products section the bar was gone for the rest
-  // of the page (Tools, Anleitungen, FAQ, Kontakt had no buy path on mobile).
+  // second is false. Mobile-Plan B2: vorher wurde die Leiste ausgeblendet,
+  // solange #produkte im Bild war. Seit B1 (Produkte nach vorn) sitzt die
+  // Produktsektion bei Bildschirm ~1,1 statt ~4,0 — mit der alten Logik
+  // waere die Leiste fast nie sichtbar, weil "past hero" und "on products"
+  // fast denselben Scrollbereich abdecken. Jetzt bleibt sie durchgehend
+  // sichtbar, sobald der Hero durch ist, und blendet sich nur im
+  // Footer-Bereich aus (dort gibt es eigene Kontakt-/Rechtslinks statt
+  // eines Kauf-CTAs, siehe MOBILE_PLAN.md B2).
   const [pastHero, setPastHero] = useState(false);
-  const [onProducts, setOnProducts] = useState(false);
+  const [inFooter, setInFooter] = useState(false);
 
   const isMain = location.pathname === '/';
 
   useEffect(() => {
     if (!isMain) return;
     const home = document.getElementById('home');
-    const products = document.getElementById('produkte');
-    if (!home || !products) return;
+    const footer = document.querySelector('footer');
+    if (!home || !footer) return;
 
     const homeObserver = new IntersectionObserver(
       ([entry]) => setPastHero(!entry.isIntersecting),
       { threshold: 0 }
     );
 
-    const productsObserver = new IntersectionObserver(
-      ([entry]) => setOnProducts(entry.isIntersecting),
+    const footerObserver = new IntersectionObserver(
+      ([entry]) => setInFooter(entry.isIntersecting),
       { rootMargin: '0px 0px -50% 0px', threshold: 0 }
     );
 
     homeObserver.observe(home);
-    productsObserver.observe(products);
+    footerObserver.observe(footer);
 
     return () => {
       homeObserver.disconnect();
-      productsObserver.disconnect();
+      footerObserver.disconnect();
     };
   }, [isMain]);
 
-  const visible = pastHero && !onProducts;
+  const visible = pastHero && !inFooter;
 
   if (!isMain) return null;
 
-  const label = lang === 'de' ? 'Jetzt bestellen →' : 'Buy now →';
+  // Solange der Klick nur scrollt, muss die Beschriftung das auch sagen —
+  // "Jetzt bestellen" suggeriert einen abgeschlossenen Kauf, den es (noch)
+  // nicht gibt. Sobald C1 einen echten Checkout anbindet, darf hier wieder
+  // "Jetzt bestellen" stehen (siehe MOBILE_PLAN.md B2, Frage 1).
+  const label = lang === 'de' ? 'Zu den Produkten →' : 'To the products →';
 
   const handleClick = () => {
     document.getElementById('produkte')?.scrollIntoView({ behavior: 'smooth' });
