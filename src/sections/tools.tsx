@@ -964,7 +964,13 @@ export function Tools() {
               </div>
               <p
                 className="text-[11px] tracking-[0.08em] transition-opacity duration-700"
-                style={{ color: 'var(--txff)', opacity: swipeHintShown ? 0 : 0.7 }}
+                // Mobile-Plan B4: opacity: 0.7 auf --txff (bereits der hellste
+                // Text-Token) verwaesserte den Kontrast zusaetzlich unter 4.5:1
+                // (axe-core: 2.84:1 effektiv gegen --pg). --txff traegt die
+                // Zurueckhaltung schon, eine zweite Abschwaechung per Opacity
+                // ist nicht noetig — nur noch zwischen sichtbar (1) und
+                // ausgeblendet (0) fuer den Fade-out selbst.
+                style={{ color: 'var(--txff)', opacity: swipeHintShown ? 0 : 1 }}
               >
                 ← {de ? 'wischen' : 'swipe'} →
               </p>

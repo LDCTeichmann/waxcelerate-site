@@ -144,9 +144,21 @@
     --sf3:       #EAEAEA;
     --tx1:       #101013;   /* near-black, neutral */
     --tx2:       #44444A;   /* zinc-700-ish */
-    --txm:       #6B6B72;   /* zinc-500 */
-    --txf:       #8A8A92;   /* zinc-450 */
-    --txff:      #A8A8B0;   /* zinc-400 */
+    /* --txm/--txf/--txff (Mobile-Plan B4, 05.08.2026): waren #6B6B72 /
+       #8A8A92 / #A8A8B0. Der Mobile-Plan hatte urspruenglich nur --txf und
+       --txff als durchgefallen gelistet; ein axe-core-Lauf gegen die
+       tatsaechlich gebauten Seiten fand danach auch --txm auf echten
+       Elementen bei nur 4.39:1–4.45:1 (Footer, ClosingCTA, /kette-wachsen-
+       lassen) — unter den WCAG-2.1-Schwellwert von 4.5:1 fuer Normaltext.
+       Alle drei neu berechnet gegen ALLE VIER Flaechenfarben (--pg/--sf/
+       --sf2/--sf3), kleinstmoeglicher Schritt statt maximaler Kontrast, und
+       so, dass die Reihenfolge txm (dunkelstes/praesentestes) > txf > txff
+       (hellstes/leisestes) erhalten bleibt. Nachrechnen mit der WCAG-
+       Relativluminanz-Formel (siehe /tmp-Skript aus Audit 05.08.2026), falls
+       diese Werte je wieder aufgehellt werden sollen. */
+    --txm:       #5C5C5C;   /* worst-case 5.56:1 gegen --sf3 */
+    --txf:       #626262;   /* worst-case 5.07:1 gegen --sf3 */
+    --txff:      #696969;   /* worst-case 4.56:1 gegen --sf3 */
     --bd:        #DEDEDE;
     --bd2:       #ECECEC;
     --card-from: #FFFFFF;
@@ -264,9 +276,17 @@
     --sf3:       #050507;    /* deeper layer for tool bg */
     --tx1:       #FAFAFA;    /* off-white — easier on eyes than pure white */
     --tx2:       #A1A1AA;    /* zinc-400 — 7.2:1 contrast */
-    --txm:       #71717A;    /* zinc-500 — 4.6:1 contrast */
-    --txf:       #72727E;
-    --txff:      #5A5A66;
+    /* --txm/--txf/--txff (Mobile-Plan B4, 05.08.2026): der vorherige
+       Kommentar "4.6:1 contrast" bei --txm war falsch (tatsaechlich 3.52:1
+       gegen die hellste genutzte Flaeche --sf2) und hat vermutlich dazu
+       gefuehrt, dass das Token fuer Fliesstext freigegeben wurde. Alle drei
+       waren durchgefallen: --txm 3.52:1, --txf 3.58:1, --txff 2.50:1 — WCAG
+       2.1 verlangt 4.5:1. Neu berechnet gegen ALLE VIER Flaechenfarben
+       (--pg/--sf/--sf2/--sf3), kleinstmoeglicher Schritt statt maximaler
+       Kontrast. */
+    --txm:       #8C8C8C;    /* worst-case 5.06:1 gegen --sf2 */
+    --txf:       #8C8C8C;    /* worst-case 5.06:1 gegen --sf2 */
+    --txff:      #858585;    /* worst-case 4.61:1 gegen --sf2 */
     --bd:        #27272A;    /* zinc-800 — subtle neutral border */
     --bd2:       #18181B;    /* zinc-900 — deeper border */
     --card-from: #17171A;    /* card top — neutral, no blue */
