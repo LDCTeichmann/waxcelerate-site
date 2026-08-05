@@ -79,7 +79,14 @@ export const useCartStore = create<CartStore>()(
         })),
 
       clear: () => set({ items: [] }),
-      openCart: () => set({ isOpen: true }),
+      // Bestand beim Oeffnen zusaetzlich zur routengebundenen Ladung in
+      // App.tsx auffrischen (siehe fetchStock unten): CartIcon/CartDrawer
+      // sind aktuell hinter checkoutEnabled versteckt und ueberall dort nur
+      // auf "/" und "/produkt/*" erreichbar, wo der Bestand ohnehin schon
+      // laeuft — heute also ein Nullop. Sobald C1 den Warenkorb global
+      // sichtbar macht (auch auf /impressum, /blog etc.), greift dieser Pfad
+      // dann korrekt, ohne dass A5 ein zweites Mal angefasst werden muss.
+      openCart: () => { set({ isOpen: true }); void get().fetchStock(); },
       closeCart: () => set({ isOpen: false }),
 
       checkout: async () => {

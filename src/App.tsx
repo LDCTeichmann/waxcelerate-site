@@ -1,5 +1,5 @@
 import { useEffect, lazy, Suspense } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import { Navigation } from '@/sections/navigation';
 import { Hero as HeroEditorial } from '@/sections/hero-light';
 import { Products } from '@/sections/products';
@@ -53,8 +53,22 @@ const PageLoader = () => (
 
 function AppContent() {
   const fetchStock = useCartStore((s) => s.fetchStock);
+  const location = useLocation();
 
-  useEffect(() => { void fetchStock(); }, [fetchStock]);
+  // /api/stock nur laden, wenn die aktuelle Route ueberhaupt eine
+  // Bestandsanzeige zeigen kann (AddToCartButton sitzt nur auf "/",
+  // "/produkt/:id" und "/produkt/:id/stage"). Vorher lief der Call auf jeder
+  // Route mit — ein Blogartikel, /impressum oder /wissenschaft zeigen nie
+  // eine Bestandsanzeige, loesten aber trotzdem bei jedem Erstaufruf einen
+  // zusaetzlichen API-Roundtrip aus (Audit vom 05.08.2026). Die Bedingung
+  // haengt in den Effect-Deps, damit sie beim ersten Wechsel AUF eine
+  // passende Route (z. B. Einstieg ueber einen Blogartikel, dann Klick zur
+  // Startseite) erneut feuert, aber nicht bei jedem Produktwechsel innerhalb
+  // von "/produkt/*" neu laedt.
+  const needsStock = location.pathname === '/' || location.pathname.startsWith('/produkt/');
+  useEffect(() => {
+    if (needsStock) void fetchStock();
+  }, [fetchStock, needsStock]);
 
   return (
     <div className="min-h-screen bg-wx-bg text-wx-tx1">
