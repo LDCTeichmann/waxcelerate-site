@@ -122,13 +122,24 @@ export const ld = (obj) =>
  * `type` ist optional, hilft dem Browser aber bei der Formatentscheidung
  * (z. B. AVIF/WebP-Unterstuetzung) ohne zusaetzliche Anfrage.
  */
-export function imagePreload(href, type) {
+export function imagePreload(href, type, { srcset, sizes } = {}) {
   // href bleibt wie uebergeben (site-relativ wie "/images/..." oder absolut
   // wie eine externe eBay-URL) — beides loest der Browser im <head> korrekt
   // auf, eine Umwandlung in eine absolute URL ist hier anders als bei
   // metaTags()/og:image nicht noetig.
+  //
+  // srcset/sizes sind optional (nur Produktseiten uebergeben sie, siehe
+  // generate-product-html.mjs): Ohne sie wuerde der Preload-Scanner auf einem
+  // Handy immer die -lg-Variante reservieren, obwohl das <img> dank seines
+  // eigenen srcSet auf dem gleichen Geraet die kleinere Basisdatei waehlt —
+  // zwei unterschiedliche Entscheidungen fuer dasselbe Bild. imagesrcset/
+  // imagesizes sind der Standardweg, damit Preload und <img> dieselbe Wahl
+  // treffen (Browser-Support: alle aktuellen Chromium- und Safari-Versionen;
+  // dort ohne Unterstuetzung faellt der Preload auf href zurueck, kein Fehler).
   const typeAttr = type ? ` type="${type}"` : '';
-  return `<link rel="preload" as="image" href="${href}"${typeAttr} fetchpriority="high">`;
+  const srcsetAttr = srcset ? ` imagesrcset="${srcset}"` : '';
+  const sizesAttr = sizes ? ` imagesizes="${sizes}"` : '';
+  return `<link rel="preload" as="image" href="${href}"${typeAttr}${srcsetAttr}${sizesAttr} fetchpriority="high">`;
 }
 
 /** Leitet den MIME-Type aus der Dateiendung ab, fuer imagePreload(). */

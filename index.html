@@ -36,8 +36,16 @@
          exactly this). Latin + Latin-Extended subsets only (DE/EN content). -->
     <link rel="preload" as="font" type="font/woff2" href="/fonts/6NUI8FyLNQOQZAnv9bYEvBjUVG5Ga92uVSQO8UikR_BPug.woff2" crossorigin>
     <link rel="preload" as="font" type="font/woff2" href="/fonts/jizDREVItHgc8qDIbSTKq4XkRiUf2zcZiVbJ.woff2" crossorigin>
-    <link rel="icon" type="image/png" href="/images/logo.jpg" />
-    <link rel="apple-touch-icon" href="/images/logo.jpg" />
+    <!-- Vorher: favicon zeigte auf /images/logo.jpg (998x998, 120 KB, JPEG faelschlich
+         als image/png deklariert) — jeder Tab-Favicon-Request lud ein Bild, das rund
+         30x groesser war als noetig. favicon.ico (16/32/48px, ICO) und
+         apple-touch-icon.png (180px, quantisiert, 8,4 KB) sind aus derselben Bildvorlage
+         erzeugt, siehe Kommentar in scripts/generate-*.mjs Historie / Audit 05.08.2026,
+         Problem 3b. Neu erzeugen mit:
+         python3 -c "from PIL import Image; im=Image.open('public/images/logo.jpg').convert('RGB');
+         im.resize((180,180), Image.LANCZOS).quantize(colors=128).save('public/apple-touch-icon.png')" -->
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.json" />
     <link rel="alternate" type="text/plain" title="LLMs.txt" href="/llms.txt" />
     <meta name="theme-color" content="#090909" />

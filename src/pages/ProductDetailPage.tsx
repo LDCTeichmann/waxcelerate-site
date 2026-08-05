@@ -24,6 +24,40 @@ const lg = (src: string) =>
     ? src.replace('.webp', '-lg.webp')
     : src;
 
+// Deckt sich exakt mit IMG_WIDTHS/srcSetFor in scripts/generate-product-html.mjs:
+// tatsaechlich gemessene Pixelbreiten von Basis- und -lg-Datei je Bild
+// (public/images/products/{classic,pro}/*.webp, vermessen am 05.08.2026 mit
+// PIL). Ohne diese Tabelle wuerde JEDES Galeriebild — Mobile wie Desktop —
+// immer die 2000px-lg-Variante laden, auch auf einem 390px-Handy (Audit vom
+// 05.08.2026, Problem 3: bis zu 202 KB statt 107 KB pro Bild). Manche
+// -lg-Dateien sind trotz Namens nicht groesser als die Basis (pro-3, pro-5,
+// pro-6) — dort liefert srcSet zwei identische Kandidaten, kein Gewinn, aber
+// auch kein Schaden. Neu vermessen, falls Dateien ausgetauscht werden:
+//   python3 -c "from PIL import Image; import glob
+//   [print(f, Image.open(f).size) for f in sorted(glob.glob('public/images/products/*/*.webp'))]"
+const IMG_WIDTHS: Record<string, { base: number; lg: number }> = {
+  'classic-1': { base: 1400, lg: 2000 },
+  'classic-2': { base: 1400, lg: 2000 },
+  'classic-3': { base: 1400, lg: 2000 },
+  'classic-4': { base: 1400, lg: 2000 },
+  'classic-5': { base: 1400, lg: 2000 },
+  'classic-6': { base: 1400, lg: 2000 },
+  'pro-1': { base: 1400, lg: 2000 },
+  'pro-2': { base: 1400, lg: 2000 },
+  'pro-3': { base: 1254, lg: 1254 },
+  'pro-4': { base: 1400, lg: 1600 },
+  'pro-5': { base: 1086, lg: 1086 },
+  'pro-6': { base: 360, lg: 480 },
+};
+
+/** srcSet-Kandidatenliste, oder undefined fuer externe eBay-Kettenbilder (unbekannte Breiten). */
+const srcSetFor = (src: string) => {
+  const m = src.match(/(classic|pro)-\d(?=\.webp$)/);
+  const w = m && IMG_WIDTHS[m[0]];
+  if (!w) return undefined;
+  return `${src} ${w.base}w, ${lg(src)} ${w.lg}w`;
+};
+
 export function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { lang } = useLanguage();
@@ -328,7 +362,8 @@ export function ProductDetailPage() {
             style={{ touchAction: 'pan-y' }}
             onPointerDown={onGalleryPointerDown} onPointerUp={onGalleryPointerUp}>
             {gallery.map((src, i) => (
-              <img key={i} src={lg(src)} alt={i === activeImage ? titleText : ''} aria-hidden={i !== activeImage}
+              <img key={i} src={lg(src)} srcSet={srcSetFor(src)} sizes={srcSetFor(src) ? '100vw' : undefined}
+                alt={i === activeImage ? titleText : ''} aria-hidden={i !== activeImage}
                 loading={i === activeImage ? 'eager' : 'lazy'}
                 fetchPriority={i === activeImage ? 'high' : undefined}
                 draggable={false}
@@ -339,7 +374,13 @@ export function ProductDetailPage() {
                   transition: reduce ? 'none' : `opacity ${FADE_MS}ms ease, scale ${FADE_MS * 2}ms ease`,
                   zIndex: i === activeImage ? 2 : (i === prevImage ? 1 : 0),
                 }}
-                onError={e => { const t = e.target as HTMLImageElement; if (!t.src.includes('wax-block-spin')) t.src = src; }}
+                onError={e => {
+                  // Faellt auf die Basisdatei zurueck, falls die -lg-Variante fehlt.
+                  // srcSet muss mit geleert werden: ist es gesetzt, waehlt der Browser
+                  // beim naechsten Ladeversuch wieder daraus, egal was src sagt.
+                  const t = e.target as HTMLImageElement;
+                  if (!t.src.includes('wax-block-spin')) { t.removeAttribute('srcset'); t.src = src; }
+                }}
               />
             ))}
             <div className="absolute inset-0 z-[3] pointer-events-none" style={{ background: 'linear-gradient(to top, rgba(var(--scrim-rgb),0.2) 0%, transparent 35%)' }} />
@@ -479,7 +520,8 @@ export function ProductDetailPage() {
           style={{ touchAction: 'pan-y' }}
           onPointerDown={onGalleryPointerDown} onPointerUp={onGalleryPointerUp}>
           {gallery.map((src, i) => (
-            <img key={i} src={lg(src)} alt={i === activeImage ? titleText : ''} aria-hidden={i !== activeImage}
+            <img key={i} src={lg(src)} srcSet={srcSetFor(src)} sizes={srcSetFor(src) ? '100vw' : undefined}
+              alt={i === activeImage ? titleText : ''} aria-hidden={i !== activeImage}
               loading={i === activeImage ? 'eager' : 'lazy'}
               fetchPriority={i === activeImage ? 'high' : undefined}
               draggable={false}
@@ -490,7 +532,13 @@ export function ProductDetailPage() {
                 transition: reduce ? 'none' : `opacity ${FADE_MS}ms cubic-bezier(0.4,0,0.2,1), scale ${FADE_MS * 2}ms cubic-bezier(0.4,0,0.2,1)`,
                 zIndex: i === activeImage ? 2 : (i === prevImage ? 1 : 0),
               }}
-              onError={e => { const t = e.target as HTMLImageElement; if (!t.src.includes('wax-block-spin')) t.src = src; }}
+              onError={e => {
+                // Faellt auf die Basisdatei zurueck, falls die -lg-Variante fehlt.
+                // srcSet muss mit geleert werden: ist es gesetzt, waehlt der Browser
+                // beim naechsten Ladeversuch wieder daraus, egal was src sagt.
+                const t = e.target as HTMLImageElement;
+                if (!t.src.includes('wax-block-spin')) { t.removeAttribute('srcset'); t.src = src; }
+              }}
             />
           ))}
 

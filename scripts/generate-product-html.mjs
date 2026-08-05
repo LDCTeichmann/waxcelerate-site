@@ -82,6 +82,38 @@ const lg = (src) =>
     ? src.replace('.webp', '-lg.webp')
     : src;
 
+// Deckt sich exakt mit IMG_WIDTHS/srcSetFor in ProductDetailPage.tsx: die
+// tatsaechlich gemessenen Pixelbreiten von Basis- und -lg-Datei je Bild
+// (public/images/products/{classic,pro}/*.webp, vermessen am 05.08.2026 mit
+// PIL). Manche -lg-Dateien sind trotz Namens nicht groesser als die Basis
+// (pro-3, pro-5, pro-6) — dort liefert srcSet zwei identische Kandidaten,
+// kein Gewinn, aber auch kein Schaden. Neu vermessen, falls Dateien
+// ausgetauscht werden:
+//   python3 -c "from PIL import Image; import glob
+//   [print(f, Image.open(f).size) for f in sorted(glob.glob('public/images/products/*/*.webp'))]"
+const IMG_WIDTHS = {
+  'classic-1': { base: 1400, lg: 2000 },
+  'classic-2': { base: 1400, lg: 2000 },
+  'classic-3': { base: 1400, lg: 2000 },
+  'classic-4': { base: 1400, lg: 2000 },
+  'classic-5': { base: 1400, lg: 2000 },
+  'classic-6': { base: 1400, lg: 2000 },
+  'pro-1': { base: 1400, lg: 2000 },
+  'pro-2': { base: 1400, lg: 2000 },
+  'pro-3': { base: 1254, lg: 1254 },
+  'pro-4': { base: 1400, lg: 1600 },
+  'pro-5': { base: 1086, lg: 1086 },
+  'pro-6': { base: 360, lg: 480 },
+};
+
+/** srcset-Kandidatenliste fuers Preload-Tag, oder undefined fuer externe eBay-Bilder. */
+function srcSetFor(src) {
+  const m = src.match(/(classic|pro)-\d(?=\.webp$)/);
+  const w = m && IMG_WIDTHS[m[0]];
+  if (!w) return undefined;
+  return `${src} ${w.base}w, ${lg(src)} ${w.lg}w`;
+}
+
 function titleOf(p) {
   return `${p.title} kaufen | Waxcelerate`;
 }
@@ -211,7 +243,7 @@ function renderProduct(p) {
       image: p.image,
       type: 'product',
     }),
-    imagePreload(heroImg, mimeOf(heroImg)),
+    imagePreload(heroImg, mimeOf(heroImg), srcSetFor(p.image) ? { srcset: srcSetFor(p.image), sizes: '100vw' } : {}),
     ld(productSchema(p)),
     ld(breadcrumbSchema(p)),
   ].join('\n  ');
