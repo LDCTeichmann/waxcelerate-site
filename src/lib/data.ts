@@ -10,6 +10,21 @@ export const shipping = {
   freeFromCents: 5000,   // ab 50 € versandkostenfrei
 } as const;
 
+// ── Social Proof ─────────────────────────────────────────────────────────
+// Manuell von Luca gepflegt, wenn eBay-Bewertungen/Verkäufe wachsen. Keine
+// Herleitung aus dem unitsSold-Feld der einzelnen Produkte möglich: das Feld
+// ist nur für 4 von 12 Produkten gepflegt und deckt nicht den Gesamtverkauf
+// ab. Einzige Quelle für Zahlen, die an mehreren Stellen der Seite auftauchen
+// (Reviews-Sektion, Trust-Strip) — sonst laufen zwei von Hand gepflegte
+// Kopien irgendwann auseinander. "Über 500 verkaufte Einheiten" aus
+// 30_claims_language.md ist ein Formulierungsmuster, keine feste Zahl —
+// diese Datei führt den tatsächlichen aktuellen Stand.
+export const trustStats = {
+  reviews: '200+',
+  sold: 346,
+  negative: 0,
+} as const;
+
 export interface Product {
   id: string;
   category: 'wax' | 'chain';

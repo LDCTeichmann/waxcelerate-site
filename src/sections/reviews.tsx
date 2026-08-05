@@ -3,6 +3,7 @@ import { BadgeCheck } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { Stars } from '@/components/Stars';
 import { Section } from '@/components/Section';
+import { trustStats } from '@/lib/data';
 
 // ── Data ─────────────────────────────────────────────────────────────────────
 // Every entry is a REAL review (eBay feedback + verified-buyer reviews).
@@ -254,9 +255,9 @@ export function Reviews() {
         style={{ borderTop: '1px solid var(--bd)' }}>
         <div className="flex items-stretch">
           {[
-            { v: '200+', l: de ? 'Bewertungen' : 'reviews' },
-            { v: '346', l: de ? 'verkauft' : 'sold' },
-            { v: '0', l: de ? 'negativ' : 'negative' },
+            { v: trustStats.reviews, l: de ? 'Bewertungen' : 'reviews' },
+            { v: String(trustStats.sold), l: de ? 'verkauft' : 'sold' },
+            { v: String(trustStats.negative), l: de ? 'negativ' : 'negative' },
           ].map((s, i, arr) => (
             <div key={i} className="pr-5 sm:pr-7 mr-5 sm:mr-7 last:pr-0 last:mr-0"
               style={{ borderRight: i < arr.length - 1 ? '1px solid var(--bd)' : 'none' }}>

@@ -3,7 +3,6 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { useSectionReveal } from '@/hooks/useAnimation';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { CountUp } from '@/components/viz/CountUp';
-import { WhatChanges } from '@/sections/WhatChanges';
 import { ScienceTeaser } from '@/sections/science/ScienceTeaser';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
 import { waxVsOil, frictionRanges } from '@/lib/data';
@@ -52,7 +51,6 @@ export function WhyWax() {
   const sectionRef = useRef<HTMLElement>(null);
   const headerRef  = useRef<HTMLDivElement>(null);
   const cardsRef   = useRef<HTMLDivElement>(null);
-  const benefitsRef = useRef<HTMLDivElement>(null);
 
   useSectionReveal(headerRef);
 
@@ -75,13 +73,6 @@ export function WhyWax() {
           { scaleX: 0 },
           { scaleX: 1, transformOrigin: 'center center', duration: 0.6, ease: 'power3.out',
             scrollTrigger: { trigger: cardsRef.current, start: 'top 80%', once: true } });
-      }
-      const items = benefitsRef.current?.querySelectorAll('[data-benefit]');
-      if (items?.length) {
-        gsap.fromTo(items,
-          { y: 16, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.5, ease: 'power3.out', stagger: 0.08,
-            scrollTrigger: { trigger: benefitsRef.current, start: 'top 88%', once: true } });
       }
     }, section);
     return () => { ctx.revert(); ScrollTrigger.refresh(); };
@@ -183,18 +174,20 @@ export function WhyWax() {
             </p>
           </div>
 
-          {/* ── What changes ──
-              Was a chart plus four benefit tiles. Both were asking a cold
-              visitor to decode something before getting anything back. Three
-              rows, one statement each, photograph where the photograph is the
-              argument. See WhatChanges.tsx for the reasoning. */}
-          <div ref={benefitsRef}>
-            <WhatChanges de={de} />
-          </div>
-
           {/* ── Door into the science page ──
-              Was a flat card describing the page. Now it starts the argument
-              and stops one line short, which is the reason to click. */}
+              Mobile-Plan B1: WhatChanges (drei Zeilen, Foto + Text je
+              Zeile — siehe WhatChanges.tsx) stand bis 08/2026 hier und zog
+              diesen Abschnitt auf rund 3,0 Bildschirme. Die Startseite soll
+              beweisen, nicht erklaeren; die ausfuehrliche Erklaerung lebt
+              bereits auf /wissenschaft, tiefer als hier moeglich (u. a.
+              Mikroskopaufnahmen zum Verschleiss, siehe SciencePage.tsx). Die
+              "Sauberkeit"-Aussage aus WhatChanges bleibt trotzdem sichtbar:
+              die Stat-Karte oben ("Trocken") sagt dasselbe. Nichts geloescht
+              — WhatChanges.tsx bleibt im Code, falls die Zeilen woanders
+              gebraucht werden, nur hier nicht mehr gerendert.
+              War vorher eine flache Karte, die die Seite beschreibt. Jetzt
+              beginnt sie das Argument und hoert eine Zeile zu frueh auf,
+              das ist der Grund zu klicken. */}
           <ScienceTeaser de={de} />
 
       <div className="absolute bottom-0 left-0 right-0 pointer-events-none"

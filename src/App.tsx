@@ -4,6 +4,7 @@ import { Navigation } from '@/sections/navigation';
 import { Hero as HeroEditorial } from '@/sections/hero-light';
 import { Products } from '@/sections/products';
 import { WhyWax } from '@/sections/why-wax';
+import { TrustStrip } from '@/sections/TrustStrip';
 import { Footer } from '@/sections/footer';
 
 // Below-the-fold homepage sections — split into their own chunks that stream in
@@ -110,12 +111,23 @@ function AppContent() {
               <Suspense fallback={<div style={{ minHeight: '100svh' }} />}>
                 <HeroEditorial />
               </Suspense>
-              <WhyWax />
+              {/* Mobile-Plan B1: Produkte nach vorn. Vorher lag WhyWax (rund
+                  drei Bildschirme Erklaerung) vor Products, sodass das erste
+                  Produkt erst nach vier Bildschirmen sichtbar war. TrustStrip
+                  ersetzt hier keinen Inhalt, sondern zieht drei bereits an
+                  anderer Stelle stehende Fakten nach oben. WhyWax folgt jetzt
+                  NACH Products, gekuerzt (siehe why-wax.tsx). Tools steht vor
+                  About: Rechner beantworten Kauffragen, die Gruendergeschichte
+                  nicht. Anker-IDs (#produkte, #warum-wachs, #bewertungen, …)
+                  unveraendert — Navigation, MobileStickyCTA und
+                  PendingAnchorScroll haengen daran. */}
+              <TrustStrip />
               <Products />
+              <WhyWax />
               <Suspense fallback={null}>
                 <Reviews />
-                <About />
                 <Tools />
+                <About />
                 <Guides />
                 <FAQ />
                 <Contact />
