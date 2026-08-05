@@ -355,6 +355,11 @@ export function ProductDetailPage() {
           </div>
         </header>
 
+        {/* Mobile-Plan B7d: ohne <main> hatte diese Seite keinen Landmark,
+            den Screenreader-Nutzer per "zum Inhalt springen" ansteuern
+            koennen — sie mussten sich durch Header und Navigation tabben,
+            bevor der eigentliche Produktinhalt beginnt. */}
+        <main>
         {/* ══════════════════════════════════════════════════════════════
             MOBILE HERO — stacked: image top, info below
            ══════════════════════════════════════════════════════════════ */}
@@ -812,8 +817,15 @@ export function ProductDetailPage() {
                 {isClassic && (
                   <p className="text-[12px] mt-4" style={{ color: 'var(--txff)' }}>
                     {de ? 'Regen / Winter? ' : 'Rain / winter? '}
+                    {/* Mobile-Plan B7e: axe-core misst hier nur 1.06:1 Kontrast
+                        gegen den umgebenden Fliesstext (Linkfarbe accentColor
+                        gegen --txff) — bei hover:underline war der Link ohne
+                        Maus/Hover nur an der Farbe erkennbar, die dafuer nicht
+                        reicht. underline statt hover:underline macht ihn
+                        permanent auch ohne Farbkontrast als Link erkennbar,
+                        gerade fuer Touch, wo hover nie greift. */}
                     <Link to={`/produkt/${product.weight === '500g' ? 'wax-500-mos2' : 'wax-300-mos2'}`}
-                      className="hover:underline" style={{ color: accentColor }}>
+                      className="underline underline-offset-2" style={{ color: accentColor }}>
                       Pro MoS₂ →
                     </Link>
                   </p>
@@ -1083,6 +1095,7 @@ export function ProductDetailPage() {
             </div>
           </section>
         )}
+        </main>
 
         <Footer />
       </div>

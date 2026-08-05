@@ -823,6 +823,9 @@ export function SciencePage() {
 
       <Navigation />
 
+      {/* Mobile-Plan B7d: kein <main>-Landmark auf dieser Seite — "zum
+          Inhalt springen" hatte nichts zum Ansteuern. */}
+      <main>
       <ScienceHero de={de} />
 
       {/* ── ACT I — THE PROBLEM ──
@@ -854,7 +857,18 @@ export function SciencePage() {
 
         {/* Mobile: stacked cards */}
         <div className="lg:hidden">
-          <div className={`${W} pb-8`}>
+          {/* Mobile-Plan B7f: InstrumentFrame startet vor dem Scroll-Trigger
+              per gsap.set() in einem rotateX(9deg)/perspective(700px)-Zustand
+              (siehe InstrumentFrame.tsx) — der Karte selbst hilft ihr eigenes
+              overflow-hidden dabei nichts, weil sie ihre eigene
+              Rendering-Kante nicht gegen sich selbst clippen kann. Das
+              erzeugt schon vor jedem Scrollen ~4px echten Dokument-Overflow
+              (bestaetigt: 4px vor dem Scrollen zu #formel, 0px danach,
+              sobald der Trigger feuert und transform zurueckgesetzt wird)
+              und damit das iOS-Rubber-Band-Wippen beim seitlichen Wischen.
+              overflow-x-hidden auf dem Wrapper eine Ebene hoeher faengt das
+              ab, ohne die Animation selbst anzufassen. */}
+          <div className={`${W} pb-8 overflow-x-hidden`}>
             <InstrumentFrame eyebrow={de ? 'Das System' : 'The system'}>
               <FormulaGraph de={de} onSelect={scrollToAnchor} />
             </InstrumentFrame>
@@ -941,6 +955,7 @@ export function SciencePage() {
           </Link>
         </div>
       </section>
+      </main>
 
       <footer className={`${W} py-12 text-center`} style={{ borderTop: '1px solid var(--bd2)' }}>
         <Link to="/" className="inline-flex items-center gap-2 text-[13px] text-wx-txm transition-opacity hover:opacity-70">

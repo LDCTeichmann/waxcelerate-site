@@ -53,8 +53,20 @@ export function Guides() {
           </div>
 
           <div className="grid md:grid-cols-[1fr_300px] gap-8 lg:gap-12 items-start">
-            {/* Left: accordion */}
-            <div ref={listRef} className="space-y-2">
+            {/* Left: accordion. overflow-x-hidden ist eine gezielte Absicherung
+                gegen einen GSAP-Artefakt, nicht Geschmackssache: use3DReveal
+                setzt jede [data-card] vor dem Scroll-Trigger per gsap.set()
+                auf rotateX(9deg) mit perspective(700px) (siehe useAnimation.ts).
+                Dieser Zustand liegt schon beim ersten Rendern im DOM, bevor
+                irgendwer scrollt, und erzeugt dabei ~2px echten
+                Dokument-Overflow (bestaetigt: 2px vor dem Scrollen zu
+                #anleitungen, 0px danach, sobald der Trigger feuert und
+                transform auf identity zurueckgesetzt wird) — Mobile-Plan B7f,
+                das iOS-Rubber-Band-Wippen beim seitlichen Wischen. Die Karte
+                selbst hat zwar eigenes overflow-hidden, kann damit aber nicht
+                die eigene Rendering-Kante gegen sich selbst clippen; eine
+                Ebene hoeher reicht das. Animation bleibt unveraendert. */}
+            <div ref={listRef} className="space-y-2 overflow-x-hidden">
               {guides.map((guide) => {
                 const isOpen = openGuide === guide.id;
                 return (

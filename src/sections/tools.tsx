@@ -273,6 +273,7 @@ function RewaxCalculator() {
               onValueChange={v => setKmPerWeek(v[0])}
               min={20} max={400} step={10}
               className="py-1"
+              aria-label={t.tools.rewax.kmPerWeek}
             />
           </div>
         </div>
@@ -568,6 +569,7 @@ function RotationAndSavings() {
             onValueChange={v => setKmPerYear(v[0])}
             min={1000} max={10000} step={500}
             className="py-1"
+            aria-label={de ? 'km pro Jahr' : 'km per year'}
           />
         </div>
 

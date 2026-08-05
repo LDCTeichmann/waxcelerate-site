@@ -271,6 +271,9 @@ export function RewaxPage() {
 
       <Navigation />
 
+      {/* Mobile-Plan B7d: kein <main>-Landmark auf dieser Seite — "zum
+          Inhalt springen" hatte nichts zum Ansteuern. */}
+      <main>
       {/* ── Hero ── */}
       <section className="relative pt-28 sm:pt-36 pb-14 sm:pb-20" style={{ background: 'var(--pg)' }}>
         <div className={W}>
@@ -555,6 +558,7 @@ export function RewaxPage() {
           </div>
         </div>
       </section>
+      </main>
 
       <footer className={`${W} py-12 text-center`} style={{ borderTop: '1px solid var(--bd2)' }}>
         <Link to="/" className="inline-flex items-center gap-2 text-[13px] text-wx-txm transition-opacity hover:opacity-70">

@@ -226,12 +226,21 @@ export function Reviews() {
             motion that reads as chaos rather than proof on a small screen,
             and unlike desktop there is no way to pause and actually read a
             card mid-scroll. */}
-        <div className="sm:hidden flex overflow-x-auto edge-fade px-6 pb-2" style={{ scrollbarWidth: 'none' }}>
+        {/* Mobile-Plan B7g: eine overflow-x-auto <div> ohne tabIndex ist per
+            Maus/Touch wischbar, aber ohne implizites tabindex nie ein
+            Tab-Stopp — Tastaturnutzer sprangen direkt von der Ueberschrift
+            zum "Alle Bewertungen"-Link darunter und konnten die Karten nie
+            per Pfeiltasten durchscrollen. tabIndex={0} macht den Container
+            fokussierbar, role="region" + aria-label geben ihm einen Namen,
+            den ein Screenreader beim Betreten ansagt. */}
+        <div className="sm:hidden flex overflow-x-auto edge-fade px-6 pb-2" style={{ scrollbarWidth: 'none' }}
+          tabIndex={0} role="region" aria-label={de ? 'Kundenbewertungen' : 'Customer reviews'}>
           {cards}
         </div>
         <div className="hidden sm:block">
           {reduced ? (
-            <div className="flex overflow-x-auto edge-fade px-10 lg:px-14 xl:px-20 pb-2" style={{ scrollbarWidth: 'none' }}>
+            <div className="flex overflow-x-auto edge-fade px-10 lg:px-14 xl:px-20 pb-2" style={{ scrollbarWidth: 'none' }}
+              tabIndex={0} role="region" aria-label={de ? 'Kundenbewertungen' : 'Customer reviews'}>
               {cards}
             </div>
           ) : (

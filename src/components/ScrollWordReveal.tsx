@@ -66,8 +66,17 @@ export function ScrollWordReveal({
 
   const words = text.split(' ');
 
+  // role="text": ohne explizite Rolle gilt fuer <span> die implizite Rolle
+  // "generic", die laut ARIA-in-HTML keinen Namen von aria-label akzeptiert
+  // — der Screenreader wuerde stattdessen versuchen, die einzelnen
+  // aria-hidden Wort-Spans zusammenzusetzen, und nichts vorlesen. role="text"
+  // ist zwar kein Teil der ARIA-Spec, wird aber u. a. von VoiceOver genau
+  // fuer diesen Fall (ein zusammengesetzter, animierter Text mit eigenem
+  // Namen) erkannt; andere Screenreader ignorieren die unbekannte Rolle und
+  // lesen aria-label trotzdem korrekt, weil damit implizit keine
+  // role="generic" mehr greift.
   return (
-    <span ref={ref} aria-label={text}>
+    <span ref={ref} role="text" aria-label={text}>
       {words.map((word, i) => (
         <span
           key={i}

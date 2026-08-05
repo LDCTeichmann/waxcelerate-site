@@ -1,6 +1,6 @@
 export function Stars({ rating = 5 }: { rating?: number }) {
   return (
-    <div className="flex items-center gap-0.5" aria-label={`${rating} / 5`}>
+    <div className="flex items-center gap-0.5" role="img" aria-label={`${rating} / 5`}>
       {Array.from({ length: 5 }).map((_, i) => (
         <svg key={i} className="h-3.5 w-3.5" viewBox="0 0 20 20" aria-hidden
           style={{ fill: i < rating ? 'var(--accent-soft)' : 'var(--bd)' }}>
