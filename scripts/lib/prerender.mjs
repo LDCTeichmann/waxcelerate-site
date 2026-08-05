@@ -40,6 +40,17 @@ export function loadShell(dist) {
   return readFileSync(shellPath, 'utf8');
 }
 
+/**
+ * Die beiden Hero-Bild-Preloads aus index.html (chain-bg.jpg, wax-cutout.webp).
+ * Nur auf der Startseite korrekt — dort ist chain-bg.jpg das echte LCP-Bild.
+ * stripHead() entfernt sie fuer jede Unterseite, jedes Prerender-Skript setzt
+ * per imagePreload() sein eigenes, seitenrichtiges Paar. Ohne diese Trennung
+ * laed jede der ~40 Unterseiten zwei Bilder mit hoechster Prioritaet vor, die
+ * dort nie erscheinen, und nimmt dem tatsaechlichen LCP-Bild auf gedrosseltem
+ * Mobilfunk rund 394 KB Bandbreite weg (Audit vom 05.08.2026, Problem 1).
+ */
+const HOME_ONLY_PRELOADS = /<link\s+rel="preload"\s+as="image"\s+href="\/images\/hero\/(?:chain-bg\.jpg|wax-cutout\.webp)"[^>]*>\s*/gi;
+
 /** Entfernt die globalen Head-Tags aus der Huelle, die wir pro Seite ersetzen. */
 export function stripHead(html) {
   return html
@@ -48,6 +59,7 @@ export function stripHead(html) {
     .replace(/<link\s+rel="canonical"[^>]*>/gi, '')
     .replace(/<meta\s+property="og:[^"]*"[^>]*>/gi, '')
     .replace(/<meta\s+name="twitter:[^"]*"[^>]*>/gi, '')
+    .replace(HOME_ONLY_PRELOADS, '')
     .replace(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/gi, (full, json) => {
       // index.html traegt die JSON-LD-Bloecke der STARTSEITE. Als Huelle wuerden sie
       // sonst auf jeder Unterseite mitlaufen, d. h. jeder Artikel und jede
@@ -100,6 +112,33 @@ export function metaTags({ title, description, canonical, image, type = 'website
 
 export const ld = (obj) =>
   `<script type="application/ld+json">${JSON.stringify(obj)}</script>`;
+
+/**
+ * Seitenrichtiger Ersatz fuer die entfernten Home-Preloads. fetchpriority
+ * "high" zusaetzlich zu rel="preload", weil Lighthouses lcp-discovery-insight
+ * beides getrennt prueft: ohne Preload-Tag ist die Anfrage im initialen
+ * Dokument nicht auffindbar (der Preload-Scanner sieht sie erst nach dem
+ * JS-Start), ohne fetchpriority="high" konkurriert sie mit CSS und Fonts.
+ * `type` ist optional, hilft dem Browser aber bei der Formatentscheidung
+ * (z. B. AVIF/WebP-Unterstuetzung) ohne zusaetzliche Anfrage.
+ */
+export function imagePreload(href, type) {
+  // href bleibt wie uebergeben (site-relativ wie "/images/..." oder absolut
+  // wie eine externe eBay-URL) — beides loest der Browser im <head> korrekt
+  // auf, eine Umwandlung in eine absolute URL ist hier anders als bei
+  // metaTags()/og:image nicht noetig.
+  const typeAttr = type ? ` type="${type}"` : '';
+  return `<link rel="preload" as="image" href="${href}"${typeAttr} fetchpriority="high">`;
+}
+
+/** Leitet den MIME-Type aus der Dateiendung ab, fuer imagePreload(). */
+export function mimeOf(src) {
+  if (src.endsWith('.webp')) return 'image/webp';
+  if (src.endsWith('.avif')) return 'image/avif';
+  if (src.endsWith('.png')) return 'image/png';
+  if (src.endsWith('.jpg') || src.endsWith('.jpeg')) return 'image/jpeg';
+  return undefined;
+}
 
 /** Schreibt nach dist/<relDir>/index.html. */
 export function write(dist, relDir, html) {

@@ -25,7 +25,7 @@ import { dirname, resolve, join } from 'node:path';
 import { products, shipping } from '../src/lib/data.ts';
 import { articles } from '../src/pages/blog/articles.ts';
 import {
-  BASE, esc, ld, metaTags, loadShell, buildPage, write,
+  BASE, esc, ld, metaTags, loadShell, buildPage, write, imagePreload, mimeOf,
 } from './lib/prerender.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -71,6 +71,16 @@ const mpnOf = (p) => (p.category === 'chain' ? p.chainModel : p.id);
 const absImg = (src) => (src?.startsWith('http') ? src : `${BASE}${src}`);
 
 const isPro = (p) => p.variant === 'pro';
+
+// Deckt sich exakt mit lg() in src/pages/ProductDetailPage.tsx Zeile 22-25:
+// die Galerie zeigt bei activeImage=0 (Erstladung) [product.image, ...images][0]
+// = product.image, und fuer eigene Produktfotos (/products/...) die -lg.webp-
+// Variante statt der Kartenansicht. Chain-Produkte fuehren ihr image als
+// externe eBay-URL, die bleibt unveraendert (kein /products/-Pfad, kein Match).
+const lg = (src) =>
+  src.includes('/products/') && src.endsWith('.webp') && !src.endsWith('-lg.webp')
+    ? src.replace('.webp', '-lg.webp')
+    : src;
 
 function titleOf(p) {
   return `${p.title} kaufen | Waxcelerate`;
@@ -184,6 +194,15 @@ function renderProduct(p) {
   const url = `${BASE}/produkt/${p.id}`;
   const price = p.price.toFixed(2).replace('.', ',');
 
+  // Das erste Galeriebild ist auf jeder Produktseite das LCP-Element (siehe
+  // ProductDetailPage.tsx: gallery[0] = product.image, activeImage startet
+  // bei 0). Ohne dieses Preload-Tag ist es fuer den Browser erst nach dem
+  // Laden und Ausfuehren von JS auffindbar — auf gedrosseltem Mobilfunk der
+  // Unterschied zwischen LCP 10,5 s und deutlich darunter (Audit vom
+  // 05.08.2026, Problem 2). fetchPriority="high" traegt die React-Komponente
+  // bereits selbst; das Preload-Tag macht die Anfrage zusaetzlich im
+  // initialen Dokument auffindbar, bevor React ueberhaupt startet.
+  const heroImg = lg(p.image);
   const head = [
     metaTags({
       title: titleOf(p),
@@ -192,6 +211,7 @@ function renderProduct(p) {
       image: p.image,
       type: 'product',
     }),
+    imagePreload(heroImg, mimeOf(heroImg)),
     ld(productSchema(p)),
     ld(breadcrumbSchema(p)),
   ].join('\n  ');

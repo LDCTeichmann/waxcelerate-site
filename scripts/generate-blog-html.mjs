@@ -25,11 +25,12 @@
 
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve, join } from 'node:path';
-import { articles, getArticleImage, author, categoryOrder } from '../src/pages/blog/articles.ts';
+import { articles, getArticleImage, author, categoryOrder, blogHero } from '../src/pages/blog/articles.ts';
 // Die Bausteine liegen seit August 2026 in scripts/lib/prerender.mjs, weil sie
 // sich Blog-, Produkt- und Rechtstextseiten teilen. Verhalten unveraendert.
 import {
   BASE, esc, ld, metaTags, loadShell, buildPage as buildPageWithShell, write as writeToDist,
+  imagePreload, mimeOf,
 } from './lib/prerender.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -73,6 +74,7 @@ function renderArticle(a) {
       published: a.publishDate,
       modified,
     }),
+    imagePreload(img.src, mimeOf(img.src)),
     ld({
       '@context': 'https://schema.org',
       '@type': 'BlogPosting',
@@ -180,6 +182,10 @@ function renderIndex() {
       canonical: url,
       image: '/images/blog/ride-road-golden.jpg',
     }),
+    // blogHero, nicht ride-road-golden: Das ist das og:image (soziale
+    // Vorschau), aber BlogIndexPage.tsx rendert tatsaechlich blogHero.src als
+    // Full-Bleed-Masthead-Bild — das ist das echte LCP-Element dieser Seite.
+    imagePreload(blogHero.src, mimeOf(blogHero.src)),
     ld({
       '@context': 'https://schema.org',
       '@type': 'Blog',
@@ -236,7 +242,7 @@ const STATIC_PAGES = [
     dir: 'kette-wachsen-lassen',
     title: 'Kette wachsen lassen — Heißwachs-Service ab 9,95 € | Waxcelerate',
     description: 'Fahrradkette einschicken, frisch heißgewachst zurückbekommen. 13,95 € je Kette, 9,95 € ab drei Ketten, zuzüglich 1,80 € Rückversand. Handgewachst in Stuttgart.',
-    image: '/images/rewax/hero.webp',
+    image: '/images/rewax/hero.webp', // deckt sich mit RewaxPage.tsx Zeile 309
     h1: 'Kette wachsen lassen',
     lead: 'Wachsen ist einfach, kostet aber einen Abend, einen Topf und Platz. Wenn du das nicht selbst machen willst, schick die Kette ein. Du bekommst sie fahrbereit zurück.',
     points: [
@@ -250,7 +256,7 @@ const STATIC_PAGES = [
     dir: 'starter-set',
     title: 'Starter-Set Kettenwachs | Waxcelerate',
     description: 'Wachs, vorgewachste Kette, Quick-Link-Zange und Aufhängedraht in einem Set. Alles, was für das erste Wachsen nötig ist, zum Set-Preis.',
-    image: '/images/doors/starter-set.webp',
+    image: '/images/doors/starter-set.webp', // deckt sich mit StarterSetPage.tsx Zeile 103
     h1: 'Alles da, beim ersten Mal.',
     lead: 'Am ersten Wachsabend scheitert es selten am Wachs. Es scheitert daran, dass die Kette nicht aufgeht oder nichts da ist, woran sie hängen kann. Im Set liegt beides bei.',
     points: [
@@ -264,7 +270,11 @@ const STATIC_PAGES = [
     dir: 'wissenschaft',
     title: 'Die Wissenschaft hinter Heißwachs | Waxcelerate',
     description: 'Kontaktzonen, Reibung, MoS₂ und die sechs Komponenten der Formel. Gemessen statt behauptet, entwickelt und produziert in Stuttgart.',
-    image: '/images/science/cassette-wear-full.jpg',
+    image: '/images/science/cassette-wear-full.jpg', // og:image — Social-Vorschauen bevorzugen JPEG
+    // SciencePage.tsx rendert eine <picture> mit <source type="webp"> zuerst
+    // (Zeile 86); das WebP ist die Datei, die der Preload-Scanner tatsaechlich
+    // fuer moderne Browser abgleichen muss, nicht das og:image-JPEG.
+    preloadImage: '/images/science/cassette-wear-full.webp',
     h1: 'Ein messbarer Unterschied.',
     lead: 'Derselbe Antrieb, zwei Schmierstoffe, Seite an Seite gemessen.',
     points: [
@@ -278,8 +288,10 @@ const STATIC_PAGES = [
 
 function renderStatic(p) {
   const canonical = `${BASE}/${p.dir}`;
+  const preloadSrc = p.preloadImage ?? p.image;
   const head = [
     metaTags({ title: p.title, description: p.description, canonical, image: p.image }),
+    imagePreload(preloadSrc, mimeOf(preloadSrc)),
     ld({
       '@context': 'https://schema.org',
       '@type': 'WebPage',

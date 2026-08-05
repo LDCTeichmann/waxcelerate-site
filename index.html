@@ -41,8 +41,18 @@
     <link rel="manifest" href="/manifest.json" />
     <link rel="alternate" type="text/plain" title="LLMs.txt" href="/llms.txt" />
     <meta name="theme-color" content="#090909" />
-    <link rel="preload" as="image" href="/images/hero/chain-bg.jpg" type="image/jpeg" />
-    <link rel="preload" as="image" href="/images/hero/wax-cutout.webp" type="image/webp" />
+    <!-- Nur fuer die Startseite korrekt: chain-bg.jpg und wax-cutout.webp sind
+         das LCP-Bildpaar des Hero. Diese Datei ist die Huelle fuer JEDE
+         Unterseite (scripts/lib/prerender.mjs), stripHead() entfernt die
+         beiden Zeilen dort deshalb wieder und jedes Prerender-Skript setzt
+         sein eigenes, seitenspezifisches Preload-Paar. Vorher liefen diese
+         zwei Zeilen unveraendert auf allen ~40 Routen mit und zogen dem
+         jeweils echten LCP-Bild auf gedrosseltem Mobilfunk rund 394 KB
+         Bandbreite ab (Audit vom 05.08.2026, performance-audit/AUDIT_REPORT.md
+         Problem 1). fetchpriority="high" zusaetzlich zu rel="preload", weil
+         Lighthouses lcp-discovery-insight beides einzeln prueft. -->
+    <link rel="preload" as="image" href="/images/hero/chain-bg.jpg" type="image/jpeg" fetchpriority="high" />
+    <link rel="preload" as="image" href="/images/hero/wax-cutout.webp" type="image/webp" fetchpriority="high" />
     <!-- Prevent theme flash: apply saved class before React mounts -->
     <script>
       (function(){
