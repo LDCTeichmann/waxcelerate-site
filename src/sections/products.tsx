@@ -341,9 +341,14 @@ export function Products() {
                   {de ? 'Keine Lust auf den Topf? Schick die Kette.' : 'Not keen on the pot? Send the chain in.'}
                 </p>
                 <p className="text-[13.5px] mt-1.5" style={{ color: 'rgba(255,255,255,0.9)' }}>
+                  {/* Mobile-Plan B8, Punkt 6: "ab 9,95 €" suggerierte einen
+                      Einstiegspreis, den es fuer eine einzelne Kette gar
+                      nicht gibt — 9,95 € gilt erst ab drei Ketten, eine
+                      einzelne kostet 13,95 € (siehe PRICE in
+                      pages/RewaxPage.tsx, Preise per Luca 2026-07-28). */}
                   {de
-                    ? 'Rewax für bereits gewachste Ketten, ab 9,95 € je Kette.'
-                    : 'Rewax for chains that are already waxed, from 9.95 € each.'}
+                    ? 'Rewax für bereits gewachste Ketten, 13,95 € je Kette, ab drei Ketten 9,95 €.'
+                    : 'Rewax for chains that are already waxed, 13.95 € per chain, 9.95 € from three chains.'}
                 </p>
               </div>
               <span className="inline-flex items-center gap-2 text-[13.5px] font-semibold whitespace-nowrap rounded-full px-5 py-2.5 transition-transform duration-300 group-hover:-translate-y-0.5"

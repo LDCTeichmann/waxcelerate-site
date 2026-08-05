@@ -7,7 +7,10 @@ export const translations = {
       products: 'Produkte',
       productsServices: 'Produkte & Services',
       science: 'Wissenschaft',
-      rewax: 'Rewax',
+      // Mobile-Plan B8: "Rewax" ist ein Anglizismus, nach dem im deutschen
+      // Markt praktisch niemand sucht — gesucht wird "Kette wachsen lassen".
+      // EN-Label bleibt "Rewax" (dortige Zielgruppe kennt den Begriff).
+      rewax: 'Kette wachsen lassen',
       tools: 'Tools',
       guides: 'Anleitungen',
       faq: 'FAQ',

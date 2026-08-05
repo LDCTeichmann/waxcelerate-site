@@ -15,7 +15,7 @@
 
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Check, X, Gift } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, X, Gift, ChevronDown } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 
 import { Navigation } from '@/sections/navigation';
@@ -229,8 +229,14 @@ export function RewaxPage() {
   const { lang } = useLanguage();
   const de = lang === 'de';
 
+  // Mobile-Plan B8: die URL (/kette-wachsen-lassen, seit 08/2026) war schon
+  // auf den deutschen Suchbegriff umgestellt, aber Title, H1 und Nav-Label
+  // sagten weiter "Rewax" — der Anglizismus, nach dem im deutschen Markt
+  // praktisch niemand sucht. "Rewax" bleibt als Marken-/Szenebegriff in der
+  // Unterzeile und im Schema (alternateName) erhalten, fuehrt aber nicht
+  // mehr die staerksten Ranking-Signale an.
   const title = de
-    ? 'Rewax-Service für gewachste Ketten | Waxcelerate'
+    ? 'Fahrradkette wachsen lassen — Kettenwachs-Service aus Stuttgart | Waxcelerate'
     : 'Rewax service for waxed chains | Waxcelerate';
   const description = de
     ? 'Gewachste Kette einschicken, frisch gewachst zurückbekommen. 13,95 € je Kette, 9,95 € ab drei Ketten, zuzüglich 1,80 € Rückversand. Handgewachst in Stuttgart.'
@@ -240,6 +246,9 @@ export function RewaxPage() {
     '@context': 'https://schema.org',
     '@type': 'Service',
     name: de ? 'Rewax-Service' : 'Rewax service',
+    alternateName: de
+      ? ['Rewax-Service', 'Kettenwachs-Service', 'Wachsservice für Fahrradketten']
+      : ['Rewax service', 'Chain wax service', 'Bicycle chain waxing service'],
     serviceType: de ? 'Kettenwachs-Service' : 'Chain waxing service',
     provider: { '@type': 'Organization', name: 'Waxcelerate', url: 'https://waxcelerate.de' },
     areaServed: 'DE',
@@ -260,6 +269,52 @@ export function RewaxPage() {
     de ? 'Ketten mit Flüssigwachs-Resten aus dem Ölbetrieb' : 'Chains carrying drip-wax residue from oil use',
   ];
 
+  // Mobile-Plan B8, Punkt 4: vier FAQ-Fragen entlang der im Plan gelisteten
+  // Suchbegriffe ("was kostet kette wachsen lassen", "fahrradkette wachsen
+  // lassen kosten", "wo kann ich meine fahrradkette wachsen lassen", "kette
+  // wachsen lassen oder selber machen"). Frage 1+2 decken die beiden
+  // Kosten-Begriffe ab, aber mit echtem inhaltlichem Unterschied (Einzelpreis
+  // vs. Mengenrabatt) statt einer reinen Wiederholung. Preise kommen aus
+  // PRICE/eur() oben in dieser Datei, nicht neu getippt, damit hier nichts
+  // von den echten Preisen abweichen kann. Leipzig bewusst nicht erwaehnt —
+  // das laut Plan noch offene D-M2-Thema braucht erst Luca's Bestaetigung,
+  // ob der Standort noch aktiv ist.
+  const faqItems = [
+    {
+      q: de ? 'Was kostet es, eine Fahrradkette wachsen zu lassen?' : 'How much does it cost to get a chain rewaxed?',
+      a: de
+        ? `${eur(PRICE.single, de)} für eine einzelne Kette, zuzüglich ${eur(PRICE.shipping, de)} Rückversand.`
+        : `${eur(PRICE.single, de)} for a single chain, plus ${eur(PRICE.shipping, de)} return shipping.`,
+    },
+    {
+      q: de ? 'Was kostet es, mehrere Fahrradketten wachsen zu lassen?' : 'How much does it cost to get several chains rewaxed?',
+      a: de
+        ? `Ab drei Ketten sinkt der Preis auf ${eur(PRICE.bundle, de)} pro Kette. Der Rückversand (${eur(PRICE.shipping, de)}) fällt dabei nur einmal an, egal wie viele Ketten im selben Umschlag sind.`
+        : `From three chains the price drops to ${eur(PRICE.bundle, de)} per chain. Return shipping (${eur(PRICE.shipping, de)}) is charged only once, no matter how many chains are in the same envelope.`,
+    },
+    {
+      q: de ? 'Wo kann ich meine Fahrradkette wachsen lassen?' : 'Where can I get my bicycle chain waxed?',
+      a: de
+        ? 'Bei uns in Stuttgart — du musst aber nicht vor Ort sein. Du schickst die Kette per Post ein, wir wachsen sie von Hand und schicken sie zurück. Das funktioniert deutschlandweit.'
+        : "With us in Stuttgart — but you don't need to be local. You send the chain by mail, we hand-wax it and send it back. This works nationwide within Germany.",
+    },
+    {
+      q: de ? 'Kette wachsen lassen oder selbst wachsen — was lohnt sich?' : 'Send it in or wax it myself — which is worth it?',
+      a: de
+        ? 'Selbst wachsen ist einfach, kostet aber einen Abend, einen Topf und Platz für die Ausrüstung — die Anleitung dafür steht kostenlos auf dieser Seite. Der Service lohnt sich, wenn du das nicht selbst machen willst oder der Platz dafür fehlt. Ab der zweiten oder dritten Kette in Rotation rechnet er sich zusätzlich, weil der Rückversand nur einmal anfällt.'
+        : "Waxing it yourself is simple, but costs an evening, a pot and space for the gear — the guide for that is free on this page. The service is worth it if you'd rather not do that yourself or don't have the space for it. From a second or third chain in rotation it pays off further, since return shipping is only charged once.",
+    },
+  ];
+  const faqSchema = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqItems.map((item) => ({
+      '@type': 'Question',
+      name: item.q,
+      acceptedAnswer: { '@type': 'Answer', text: item.a },
+    })),
+  });
+
   return (
     <div className="min-h-screen bg-wx-bg">
       <Helmet>
@@ -267,6 +322,7 @@ export function RewaxPage() {
         <meta name="description" content={description} />
         <link rel="canonical" href="https://waxcelerate.de/kette-wachsen-lassen" />
         <script type="application/ld+json">{schema}</script>
+        <script type="application/ld+json">{faqSchema}</script>
       </Helmet>
 
       <Navigation />
@@ -284,10 +340,13 @@ export function RewaxPage() {
             <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
               {de ? 'Service' : 'Service'}
             </p>
-            <h1 className="font-display font-bold leading-[1.05] mb-5"
+            <h1 className="font-display font-bold leading-[1.05] mb-2"
               style={{ color: 'var(--tx1)', fontSize: 'clamp(2.2rem, 5vw, 3.4rem)', letterSpacing: '-0.02em' }}>
-              {de ? 'Rewax. Machen wir.' : 'Rewax. We handle it.'}
+              {de ? 'Fahrradkette wachsen lassen.' : 'Get your chain rewaxed.'}
             </h1>
+            <p className="text-[15px] font-semibold mb-5" style={{ color: 'var(--accent-soft)' }}>
+              {de ? 'Rewax. Machen wir.' : 'Rewax. We handle it.'}
+            </p>
             <p className="text-lead max-w-[46ch]" style={{ color: 'var(--txm)' }}>
               {de
                 ? 'Wachsen ist einfach, aber es kostet einen Abend, einen Topf und Platz. Wenn du das nicht selbst machen willst, schick die Kette. Du bekommst sie fahrbereit zurück.'
@@ -509,6 +568,40 @@ export function RewaxPage() {
             {de ? 'Zur Anleitung für den Umstieg' : 'To the switching guide'}
             <ArrowRight className="h-4 w-4" style={{ color: 'var(--accent)' }} />
           </Link>
+        </div>
+      </section>
+
+      {/* ── FAQ ──
+          Mobile-Plan B8, Punkt 4. Bewusst als natives <details>/<summary>
+          statt der Akkordeon-Komponente von der Startseite (sections/faq.tsx)
+          — kein eigener JS-Zustand noetig, funktioniert per Tastatur und
+          Screenreader ohne Zusatzcode, und fuer vier Fragen auf einer
+          Service-Seite ist die Suchleiste/"Alle anzeigen"-Logik der
+          Startseiten-Variante ohnehin ueberdimensioniert. */}
+      <section className="py-14 sm:py-20" style={{ borderTop: '1px solid var(--bd2)', background: 'var(--sf)' }}>
+        <div className={W}>
+          <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
+            {de ? 'Fragen' : 'Questions'}
+          </p>
+          <h2 className="font-display font-bold text-wx-tx1 leading-tight mb-8"
+            style={{ fontSize: 'clamp(1.7rem, 3.4vw, 2.4rem)', letterSpacing: '-0.02em' }}>
+            {de ? 'Kurz beantwortet.' : 'Answered briefly.'}
+          </h2>
+          <div className="max-w-[720px]">
+            {faqItems.map((item, i) => (
+              <details key={item.q} className="group py-5"
+                style={{ borderBottom: i < faqItems.length - 1 ? '1px solid var(--bd2)' : 'none' }}>
+                <summary className="flex items-center justify-between gap-5 cursor-pointer list-none">
+                  <h3 className="text-[15px] font-medium" style={{ color: 'var(--tx1)' }}>{item.q}</h3>
+                  <ChevronDown className="h-4 w-4 flex-shrink-0 transition-transform duration-300 group-open:rotate-180"
+                    style={{ color: 'var(--txf)' }} aria-hidden />
+                </summary>
+                <p className="text-[14px] leading-relaxed mt-3 max-w-[62ch]" style={{ color: 'var(--txm)' }}>
+                  {item.a}
+                </p>
+              </details>
+            ))}
+          </div>
         </div>
       </section>
 

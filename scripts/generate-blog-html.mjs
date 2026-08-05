@@ -239,11 +239,18 @@ const STATIC_PAGES = [
     // Anglizismus, der in deutschen Suchergebnissen praktisch nicht vorkommt;
     // Wettbewerber ranken mit "Kette wachsen lassen". /rewax leitet per 301
     // hierher (vercel.json).
+    // Mobile-Plan B8: Titel hier musste mit dem client-seitigen <title> in
+    // RewaxPage.tsx uebereinstimmen (Zeile ~232) — sonst sehen Crawler, die
+    // nur die vorgerenderte Huelle lesen, einen anderen Titel als der, der
+    // nach der Hydration im Browser steht. Der alte Titel hatte ausserdem
+    // dieselbe "ab 9,95 €"-Ungenauigkeit wie die Preiskarte auf der
+    // Startseite (products.tsx) — 9,95 € gilt erst ab drei Ketten, eine
+    // einzelne kostet 13,95 €.
     dir: 'kette-wachsen-lassen',
-    title: 'Kette wachsen lassen — Heißwachs-Service ab 9,95 € | Waxcelerate',
+    title: 'Fahrradkette wachsen lassen — Kettenwachs-Service aus Stuttgart | Waxcelerate',
     description: 'Fahrradkette einschicken, frisch heißgewachst zurückbekommen. 13,95 € je Kette, 9,95 € ab drei Ketten, zuzüglich 1,80 € Rückversand. Handgewachst in Stuttgart.',
     image: '/images/rewax/hero.webp', // deckt sich mit RewaxPage.tsx Zeile 309
-    h1: 'Kette wachsen lassen',
+    h1: 'Fahrradkette wachsen lassen',
     lead: 'Wachsen ist einfach, kostet aber einen Abend, einen Topf und Platz. Wenn du das nicht selbst machen willst, schick die Kette ein. Du bekommst sie fahrbereit zurück.',
     points: [
       'Nur bereits gewachste Ketten, eigene oder fremde. Geölte Ketten entfetten wir nicht, weil Öl ein ganzes Wachsbad unbrauchbar macht.',
