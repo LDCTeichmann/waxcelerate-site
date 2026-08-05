@@ -270,11 +270,14 @@ const STATIC_PAGES = [
     dir: 'wissenschaft',
     title: 'Die Wissenschaft hinter Heißwachs | Waxcelerate',
     description: 'Kontaktzonen, Reibung, MoS₂ und die sechs Komponenten der Formel. Gemessen statt behauptet, entwickelt und produziert in Stuttgart.',
-    image: '/images/science/cassette-wear-full.jpg', // og:image — Social-Vorschauen bevorzugen JPEG
-    // SciencePage.tsx rendert eine <picture> mit <source type="webp"> zuerst
-    // (Zeile 86); das WebP ist die Datei, die der Preload-Scanner tatsaechlich
-    // fuer moderne Browser abgleichen muss, nicht das og:image-JPEG.
-    preloadImage: '/images/science/cassette-wear-full.webp',
+    // Mobile-Plan B6 (05.08.2026): cassette-wear-full.* enthielt Ueberschrift,
+    // Fliesstext und beide Kassetten-Labels als Pixel im Bild — ersetzt durch
+    // cassette-wear-diagram.* (gleiches Foto, Text-/Label-Bereich mit der
+    // Hintergrundfarbe uebermalt) plus echtes HTML in SciencePage.tsx
+    // (WearDiagramFigure). Muss mit deren erstem <source> uebereinstimmen,
+    // sonst laedt der Preload ein anderes Bild als tatsaechlich gerendert wird.
+    image: '/images/science/cassette-wear-diagram.jpg', // og:image — Social-Vorschauen bevorzugen JPEG
+    preloadImage: '/images/science/cassette-wear-diagram.webp',
     h1: 'Ein messbarer Unterschied.',
     lead: 'Derselbe Antrieb, zwei Schmierstoffe, Seite an Seite gemessen.',
     points: [

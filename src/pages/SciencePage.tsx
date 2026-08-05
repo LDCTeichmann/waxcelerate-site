@@ -17,6 +17,64 @@ import { HexMoS2, TransferFilm } from '@/sections/science/LabViz';
 
 const W = 'max-w-4xl mx-auto px-4 sm:px-6 lg:px-8';
 
+// ─── WearDiagramFigure — cassette photo + explanation, shared by the mobile
+// and desktop hero layouts below. Mobile-Plan B6: the source photo
+// (cassette-wear-full.jpg) used to have a heading, a five-line paragraph and
+// both "Neue/Abgenutzte Kassette" labels baked into the pixels — at the
+// ~358px mobile display width that text rendered around 6px tall: not
+// selectable, not resizable with the system font size, invisible to screen
+// readers (the desktop image was even marked aria-hidden, so that reader
+// audience never got the explanation at all), and not indexable by Google on
+// a page built specifically to rank for chain-wax search terms. The three
+// photos below (cassette-wear-diagram / cassette-new / cassette-worn) are
+// crops of the exact same source with the text-and-label regions painted
+// over in the flat page-background colour — nothing about the photography
+// changed. The words are real HTML now.
+function WearDiagramFigure({ de }: { de: boolean }) {
+  return (
+    <figure className="m-0">
+      <picture>
+        <source srcSet="/images/science/cassette-wear-diagram.webp" type="image/webp" />
+        <img
+          src="/images/science/cassette-wear-diagram.jpg"
+          alt={de ? 'Kassette mit Nahaufnahme der Zahnflanke' : 'Cassette with close-up of the tooth flank'}
+          className="w-full h-auto"
+        />
+      </picture>
+      <figcaption className="mt-4">
+        <p className="text-[15px] font-bold mb-1.5" style={{ color: 'var(--tx1)' }}>
+          {de ? 'Verschleißprinzip' : 'Wear principle'}
+        </p>
+        <p className="text-[13.5px] leading-relaxed mb-5" style={{ color: 'var(--txm)', maxWidth: '36ch' }}>
+          {de
+            ? 'Durch die Reibung der Kette nutzt sich die Zahnflanke an der Kassettenspeiche ab. Die Speiche wird dünner, die Kette greift schlechter und verschleißt schneller.'
+            : 'Chain friction wears down the tooth flank on the cassette sprocket. The tooth gets thinner, the chain grips worse, and it wears out faster.'}
+        </p>
+        <div className="grid grid-cols-2 gap-3" style={{ maxWidth: 360 }}>
+          <div>
+            <p className="text-[12px] font-semibold mb-1.5" style={{ color: 'var(--tx1)' }}>
+              {de ? 'Neue Kassette' : 'New cassette'}
+            </p>
+            <picture>
+              <source srcSet="/images/science/cassette-new.webp" type="image/webp" />
+              <img src="/images/science/cassette-new.jpg" alt="" className="w-full h-auto" />
+            </picture>
+          </div>
+          <div>
+            <p className="text-[12px] font-semibold mb-1.5" style={{ color: 'var(--tx1)' }}>
+              {de ? 'Abgenutzte Kassette' : 'Worn cassette'}
+            </p>
+            <picture>
+              <source srcSet="/images/science/cassette-worn.webp" type="image/webp" />
+              <img src="/images/science/cassette-worn.jpg" alt="" className="w-full h-auto" />
+            </picture>
+          </div>
+        </div>
+      </figcaption>
+    </figure>
+  );
+}
+
 // ─── Opening hero — the page's actual "hero" moment: headline stats + a large
 // cassette rendering, dark stage (matches the homepage hero's card treatment)
 // so it reads as an entrance, not another instrument panel. All numbers come
@@ -79,17 +137,10 @@ function ScienceHero({ de }: { de: boolean }) {
               : 'Same drivetrain, two lubricants — measured side by side.'}
           </p>
 
-          {/* Mobile/tablet: same complete figure, just inline above the stats
-              instead of floating beside them — no room for that at this width. */}
+          {/* Mobile/tablet: same figure, just inline above the stats instead
+              of floating beside them — no room for that at this width. */}
           <div className="lg:hidden mb-6">
-            <picture>
-              <source srcSet="/images/science/cassette-wear-full.webp" type="image/webp" />
-              <img
-                src="/images/science/cassette-wear-full.jpg"
-                alt={de ? 'Verschleißprinzip: Zahnflanke einer Kassette, neu vs. abgenutzt' : 'Wear principle: cassette tooth flank, new vs. worn'}
-                className="w-full h-auto"
-              />
-            </picture>
+            <WearDiagramFigure de={de} />
           </div>
 
           {/* Stats — a hairline-divided list, one row per measurement, instead
@@ -126,23 +177,19 @@ function ScienceHero({ de }: { de: boolean }) {
           </a>
         </div>
 
-        {/* Desktop: the complete reference figure — own annotations, callouts
-            and thumbnail comparisons all baked into the JPG, shown whole, not
-            cropped. A normal flex sibling now (not absolutely positioned) so
-            it renders at its own natural size and the section simply grows
-            to fit it — no fixed height to clip against, no letterboxing to
-            create a visible edge. Its background (245,245,245) is close
-            enough to var(--pg) that it merges into the page with no border
-            or card needed. */}
-        <div className="hidden lg:block lg:flex-1" aria-hidden>
-          <picture>
-            <source srcSet="/images/science/cassette-wear-full.webp" type="image/webp" />
-            <img
-              src="/images/science/cassette-wear-full.jpg"
-              alt=""
-              className="w-full h-auto"
-            />
-          </picture>
+        {/* Desktop: the same figure as a normal flex sibling (not absolutely
+            positioned) so it renders at its own natural size and the section
+            simply grows to fit it — no fixed height to clip against, no
+            letterboxing to create a visible edge. Its background
+            (245,245,245) is close enough to var(--pg) that it merges into
+            the page with no border or card needed. Previously this whole
+            block was aria-hidden because the baked-in text made it
+            meaningless to a screen reader anyway — now that the words are
+            real HTML (see WearDiagramFigure above), that hid the page's only
+            explanation of the wear principle from every screen reader user
+            on desktop. Not hidden anymore. */}
+        <div className="hidden lg:block lg:flex-1">
+          <WearDiagramFigure de={de} />
         </div>
       </div>
     </section>
