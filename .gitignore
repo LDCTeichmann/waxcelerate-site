@@ -1,6 +1,13 @@
 node_modules/
 dist/
 .DS_Store
+
+# Claude-Code-Arbeitskopien. Das sind eigenstaendige Git-Repositories; ohne
+# diese Zeile landen sie beim "git add -A" als Submodul-Verweise im Commit
+# (Modus 160000). Sie zeigen dann auf Objekte, die es auf GitHub nicht gibt,
+# und ein frischer Klon bricht beim Auschecken ab.
+.claude/worktrees/
+.claude/settings.local.json
 *.local
 .env
 .env.*
