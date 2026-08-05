@@ -174,7 +174,7 @@ export function About() {
                 />
                 <div className="absolute top-0 left-0 px-6 pt-5">
                   <p
-                    className="text-[10px] font-semibold uppercase tracking-[0.22em] mb-1"
+                    className="text-[11px] font-semibold uppercase tracking-[0.22em] mb-1"
                     style={{ color: '#0064D2' }}
                   >
                     eBay Seller Leadership Week

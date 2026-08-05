@@ -232,7 +232,7 @@ function renderProduct(p) {
 </article>
 ${relatedHtml}
 <nav aria-label="Weitere Seiten">
-  <p><a href="/">Zur Startseite</a> · <a href="/rewax">Rewax-Service</a> · <a href="/starter-set">Starter-Set</a> · <a href="/wissenschaft">Wissenschaft</a> · <a href="/blog">Blog</a></p>
+  <p><a href="/">Zur Startseite</a> · <a href="/kette-wachsen-lassen">Kette wachsen lassen</a> · <a href="/starter-set">Starter-Set</a> · <a href="/wissenschaft">Wissenschaft</a> · <a href="/blog">Blog</a></p>
 </nav>`.trim();
 
   return buildPage(shell, { head, body });

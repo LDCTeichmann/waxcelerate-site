@@ -50,7 +50,7 @@ const staticPages = [
   // Verkaufsseiten: hoehere Prioritaet als die Wissenschaftsseite, weil hier
   // gekauft und gebucht wird. Beide werden von generate-blog-html.mjs
   // vorgerendert, sonst saehen Crawler nur die Startseiten-Huelle.
-  { loc: '/rewax', changefreq: 'monthly', priority: '0.9' },
+  { loc: '/kette-wachsen-lassen', changefreq: 'monthly', priority: '0.9' },
   { loc: '/starter-set', changefreq: 'monthly', priority: '0.9' },
   { loc: '/blog', changefreq: 'weekly', priority: '0.8' },
 ];

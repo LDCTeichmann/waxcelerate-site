@@ -80,7 +80,11 @@ function AppContent() {
         <Route path="/admin" element={<Suspense fallback={<PageLoader />}><AdminPage /></Suspense>} />
         <Route path="/hero-lab" element={<Suspense fallback={<PageLoader />}><HeroLabPage /></Suspense>} />
         <Route path="/starter-set" element={<Suspense fallback={<PageLoader />}><StarterSetPage /></Suspense>} />
-        <Route path="/rewax" element={<Suspense fallback={<PageLoader />}><RewaxPage /></Suspense>} />
+        {/* Die Seite lag bis 08/2026 unter /rewax. "Rewax" ist ein Anglizismus,
+            nach dem im deutschen Markt praktisch niemand sucht; gesucht wird
+            "Kette wachsen lassen". Alte Adresse leitet per 301 hierher
+            (vercel.json), damit geteilte Links und QR-Codes weiter greifen. */}
+        <Route path="/kette-wachsen-lassen" element={<Suspense fallback={<PageLoader />}><RewaxPage /></Suspense>} />
         <Route path="/wissenschaft" element={<Suspense fallback={<PageLoader />}><SciencePage /></Suspense>} />
         <Route path="/" element={
           <>

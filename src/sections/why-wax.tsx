@@ -6,7 +6,10 @@ import { CountUp } from '@/components/viz/CountUp';
 import { WhatChanges } from '@/sections/WhatChanges';
 import { ScienceTeaser } from '@/sections/science/ScienceTeaser';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
-import { waxVsOil } from '@/lib/data';
+import { waxVsOil, frictionRanges } from '@/lib/data';
+
+const eur = (n: number, de: boolean) =>
+  n.toLocaleString(de ? 'de-DE' : 'en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' €';
 import { Section } from '@/components/Section';
 
 // Three cards, not four. Chain life used to sit here as "3×", but the hero
@@ -16,22 +19,29 @@ import { Section } from '@/components/Section';
 // measurements that explain them, and the benefit lines below own the everyday
 // consequences. One statement per surface.
 function buildCards(de: boolean) {
-  const f = waxVsOil.friction, w = waxVsOil.watts;
+  const w = waxVsOil.watts;
+  const pro = frictionRanges.find(r => r.id === 'pro')!;
+  const oil = frictionRanges.find(r => r.id === 'oil')!;
+  // One number, one plain-language sentence — not number + tiny caps label +
+  // a second, even fainter line. That three-way split was the actual
+  // complaint: several small sizes fighting for attention and none of them
+  // easy to read. Down to two sizes per card now, and the sentence says what
+  // the number means instead of just naming it.
   return [
     {
-      value: `μ ${f.wax.toFixed(2)}`,
-      label: de ? 'Reibung' : 'Friction',
-      detail: de ? `${Math.round(f.oil / f.wax)}× weniger als Öl` : `${Math.round(f.oil / f.wax)}× less than oil`,
+      value: `μ ${pro.muLo.toFixed(2)}–${pro.muHi.toFixed(2)}`,
+      sentenceDe: `Reibung im Antrieb — Öl liegt bei μ ${oil.muLo.toFixed(2)}–${oil.muHi.toFixed(2)}.`,
+      sentenceEn: `Drivetrain friction — oil sits at μ ${oil.muLo.toFixed(2)}–${oil.muHi.toFixed(2)}.`,
     },
     {
       value: `${w.wax[0]}–${w.wax[1]} W`,
-      label: de ? 'Antriebsverlust' : 'Drivetrain loss',
-      detail: de ? `Öl: ${w.oil[0]}–${w.oil[1]} W` : `Oil: ${w.oil[0]}–${w.oil[1]} W`,
+      sentenceDe: `Antriebsverlust — Öl braucht ${w.oil[0]}–${w.oil[1]} W bei gleicher Leistung.`,
+      sentenceEn: `Drivetrain loss — oil needs ${w.oil[0]}–${w.oil[1]} W at the same power.`,
     },
     {
       value: de ? 'Trocken' : 'Dry',
-      label: de ? 'Sauberkeit' : 'Cleanliness',
-      detail: de ? 'Kein Dreck, keine Flecken' : 'No grime, no stains',
+      sentenceDe: 'Kein Dreck, keine Flecken an Kleidung oder Fingern.',
+      sentenceEn: 'No grime, no stains on clothes or fingers.',
     },
   ];
 }
@@ -78,6 +88,7 @@ export function WhyWax() {
   }, []);
 
   const cards = buildCards(de);
+  const cost = waxVsOil.cost;
 
   return (
     <Section id="warum-wachs" ref={sectionRef} className="bg-wx-sf">
@@ -103,25 +114,73 @@ export function WhyWax() {
           {/* ── Stat cards — 2×2 grid — measurement-card language shared with
               the science page (CountUp figure, centered accent tick, no
               icons) instead of the icon+progress-bar pattern used before. ── */}
-          <div ref={cardsRef} className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-            {cards.map((c, i) => (
-              <div key={i} data-card
-                className="rounded-2xl px-4 py-5 sm:py-6 flex flex-col items-center text-center"
-                style={{ background: 'var(--card-bg)', border: '1px solid var(--bd)', boxShadow: 'var(--card-shad)' }}>
-                <CountUp value={c.value}
-                  className="font-display font-bold leading-none tracking-[-0.02em] block"
-                  style={{ fontSize: 'clamp(1.5rem, 4.2vw, 1.875rem)', color: 'var(--tx1)' }} />
-                <div data-bar className="h-0.5 w-8 mt-3.5 mb-2.5 rounded-full"
-                  style={{ background: 'var(--accent)', opacity: 0.5, transformOrigin: 'center' }} />
-                <span className="text-[11px] uppercase tracking-[0.14em] font-medium"
-                  style={{ color: 'var(--txm)' }}>
-                  {c.label}
-                </span>
-                <span className="text-[11px] mt-1" style={{ color: 'var(--txf)' }}>
-                  {c.detail}
-                </span>
-              </div>
-            ))}
+          {/* Mobile — hairline rows, not three stacked boxes. As centered
+              cards these took roughly 450px of a 844px screen to deliver
+              three short facts, and a boxed tile per fact is exactly the
+              "Baukasten" pattern docs/DESIGN.md §3 rules out anyway. Number
+              left, sentence right, one rule between: same information in
+              about a third of the height, and the three numbers line up in
+              a column the eye can compare down. */}
+          <div ref={cardsRef}>
+            <div className="sm:hidden" style={{ borderTop: '1px solid var(--bd2)' }}>
+              {cards.map((c, i) => (
+                <div key={i} data-card className="flex items-baseline gap-4 py-4"
+                  style={{ borderBottom: '1px solid var(--bd2)' }}>
+                  <CountUp value={c.value}
+                    className="font-display font-bold leading-none tracking-[-0.02em] flex-shrink-0"
+                    style={{ fontSize: '1.35rem', color: 'var(--tx1)', minWidth: '6.4rem' }} />
+                  <span className="text-[13.5px] leading-snug" style={{ color: 'var(--tx2)' }}>
+                    {de ? c.sentenceDe : c.sentenceEn}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <div className="hidden sm:grid sm:grid-cols-3 gap-4">
+              {cards.map((c, i) => (
+                <div key={i} data-card
+                  className="rounded-2xl px-5 py-6 flex flex-col items-center text-center"
+                  style={{ background: 'var(--card-bg)', border: '1px solid var(--bd)', boxShadow: 'var(--card-shad)' }}>
+                  <CountUp value={c.value}
+                    className="font-display font-bold leading-none tracking-[-0.02em] block"
+                    style={{ fontSize: 'clamp(1.6rem, 4.4vw, 2rem)', color: 'var(--tx1)' }} />
+                  <div data-bar className="h-0.5 w-8 mt-4 mb-3 rounded-full"
+                    style={{ background: 'var(--accent)', opacity: 0.5, transformOrigin: 'center' }} />
+                  <span className="text-[14px] leading-snug" style={{ color: 'var(--tx2)' }}>
+                    {de ? c.sentenceDe : c.sentenceEn}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Shared footnote instead of repeating it in every tile — a watt
+              figure without its input power is not a number, and this way it
+              is said once, not three times at 10px. */}
+          <p className="text-[12px] sm:text-center mt-4" style={{ color: 'var(--txf)' }}>
+            {de
+              ? `Gemessen bei ${waxVsOil.watts.inputW[0]}–${waxVsOil.watts.inputW[1]} W Tretleistung, Laborwerte.`
+              : `Measured at ${waxVsOil.watts.inputW[0]}–${waxVsOil.watts.inputW[1]} W pedalling power, lab values.`}
+          </p>
+
+          {/* ── Cost callout ──
+              The one number worth making big: not "70 €" on its own (that
+              was the actual complaint — the figure stood with no derivation
+              anywhere near it), but the euro figure paired, in the same
+              breath, with the two real costs and the distance it is measured
+              over. One statement, one place, everything it needs to be
+              self-explanatory right next to it. */}
+          <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-8 py-6 sm:py-7"
+            style={{ borderTop: '1px solid var(--bd2)', borderBottom: '1px solid var(--bd2)' }}>
+            <p className="font-display font-bold leading-none tracking-[-0.02em] flex-shrink-0"
+              style={{ fontSize: 'clamp(2.4rem, 6vw, 3.2rem)', color: 'var(--accent)' }}>
+              {eur(cost.savedEur, de)}
+            </p>
+            <p className="text-[14.5px] leading-relaxed max-w-[52ch]" style={{ color: 'var(--txm)' }}>
+              {de
+                ? `gespart auf ${cost.km.toLocaleString('de-DE')} km. Wachs kostet über diese Strecke rund ${eur(cost.waxEur, de)}, Öl rund ${eur(cost.oilEur, de)} — ${cost.pctLess} % weniger, durch weniger Reibung im Antrieb und seltener fällige Kettenwechsel.`
+                : `saved over ${cost.km.toLocaleString('en-US')} km. Wax costs around ${eur(cost.waxEur, de)} over that distance, oil around ${eur(cost.oilEur, de)} — ${cost.pctLess}% less, from lower drivetrain friction and less frequent chain replacements.`}
+            </p>
           </div>
 
           {/* ── What changes ──

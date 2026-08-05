@@ -19,6 +19,7 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { Navigation } from '@/sections/navigation';
+import { BackLink } from '@/components/BackLink';
 import { products, accessories, starterSet, starterSetPrice } from '@/lib/data';
 import { StarterSetBuilder } from '@/sections/StarterSetBuilder';
 
@@ -61,6 +62,9 @@ export function StarterSetPage() {
 
       {/* ── Hero ── */}
       <section className="relative pt-28 sm:pt-36 pb-14 sm:pb-20" style={{ background: 'var(--pg)' }}>
+        <div className={W}>
+          <BackLink de={de} className="mb-6 sm:mb-8" />
+        </div>
         <div className={`${W} lg:flex lg:items-center lg:gap-14`}>
           <div className="lg:flex-1">
             <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>

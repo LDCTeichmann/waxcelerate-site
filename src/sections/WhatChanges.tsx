@@ -87,13 +87,13 @@ export function WhatChanges({ de }: { de: boolean }) {
       titleDe: 'Kein Öl an Händen, Waden und Hose.', titleEn: 'No oil on your hands, calves or trousers.',
       bodyDe: 'Wachs härtet zu einem trockenen Film aus. Da ist nichts Klebriges, an dem Staub hängen bleibt, und nichts, was abfärbt. Du kannst die Kette mit bloßen Fingern auflegen und danach ohne Umweg ins Café.',
       bodyEn: 'Wax cures to a dry film. There is nothing tacky for dust to cling to and nothing that rubs off. You can fit the chain with bare fingers and walk straight into a café afterwards.',
-      // Zeigt das Problem, nicht die Loesung. Eine saubere Kette beweist nichts,
-      // eine schwarze Wade ueber einer weissen Socke schon: das ist der Moment,
-      // den die Zielgruppe kennt und nicht mehr haben will.
-      img: '/images/blog/oil-tattoo-leg-1600.webp',
-      imgSrcSet: '/images/blog/oil-tattoo-leg-800.webp 800w, /images/blog/oil-tattoo-leg-1600.webp 1600w',
-      imgAltDe: 'Schwarze Ölspuren an Wade und weißer Socke nach einer Fahrt mit geölter Kette',
-      imgAltEn: 'Black oil marks on a calf and white sock after riding with an oiled chain',
+      // Zeigt das Problem, nicht die Loesung. Eigenes Foto statt Stockbild:
+      // eine sichtbar oelig glaenzende, ungewachste Kette auf dem Kettenblatt,
+      // genau das, was Haende, Waden und Hosenbein abbekommen.
+      img: '/images/blog/chain-drivetrain-closeup-1600.webp',
+      imgSrcSet: '/images/blog/chain-drivetrain-closeup-800.webp 800w, /images/blog/chain-drivetrain-closeup-1600.webp 1600w',
+      imgAltDe: 'Ölig glänzende, ungewachste Fahrradkette auf dem Kettenblatt',
+      imgAltEn: 'Oily, unwaxed bicycle chain on the chainring',
     },
     {
       key: 'watt',

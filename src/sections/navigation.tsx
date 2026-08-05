@@ -14,8 +14,9 @@ import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 // übernimmt diese Rolle, ohne sich zu doppeln. Mobil bleibt Produkte erhalten.
 const navItems = [
   { href: '#warum-wachs', key: 'whyWax'   },
+  { href: '#produkte',    key: 'productsServices' },
   { href: '/wissenschaft', key: 'science', route: true },
-  { href: '/rewax',       key: 'rewax',   route: true },
+  { href: '/kette-wachsen-lassen', key: 'rewax',   route: true },
   { href: '#ueber-mich',  key: 'about'    },
   { href: '#tools',       key: 'tools'    },
   { href: '#anleitungen', key: 'guides'   },
@@ -24,10 +25,10 @@ const navItems = [
   { href: '#kontakt',     key: 'contact'  },
 ];
 
-const mobileNavItems = [
-  { href: '#produkte', key: 'products' },
-  ...navItems,
-];
+// navItems already carries #produkte (key: productsServices) now that it is
+// a real bar entry, not just the desktop CTA's target — no need to prepend
+// a separate mobile-only "products" duplicate of the same anchor any more.
+const mobileNavItems = navItems;
 
 export function Navigation() {
 

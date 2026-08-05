@@ -88,10 +88,8 @@ dem Zitat statt Hintergrundbild, damit der Kontrast nicht vom Motiv abhaengt.
 Konzept siehe Antwort im Chat vom 2026-07-29.
 
 **Skill `waxcelerate` nachziehen**
-`references/20_products_pricing.md` fuehrt noch 9,99 / 24,99 fuer Rewax. Richtig
-sind 13,95 einzeln und 9,95 ab drei Ketten, plus 1,80 Rueckversand. Dazu neu:
-Zubehoer 4,95 je Position, Starter-Set 15 Prozent unter der Teilesumme,
-Wachs-Staffel 2/3/5 Stueck = 5/10/15 Prozent, nur auf Wachs.
+Fertiger Copy-Paste-Block liegt in `docs/SKILL_PREISE_UPDATE.md`. Das Skill ist
+aus der Session heraus nur lesbar, deshalb muss der Block von Hand hinein.
 
 ---
 
@@ -100,6 +98,9 @@ Wachs-Staffel 2/3/5 Stueck = 5/10/15 Prozent, nur auf Wachs.
 Eine Zeile pro Entscheidung, neueste oben. Begründungen stehen im Code-Kommentar
 an der Stelle, an der die Entscheidung wirkt.
 
+- 2026-07-29 · Hero-Bild entschieden: Variante A, hängende Ketten. Rotation verworfen. Begründung in `docs/DESIGN.md` §6, Einbau liegt in Todoist auf Mittwoch.
+- 2026-07-29 · Rewax-CTA ist ein Bildband über die volle Breite statt eines blassen Kastens, ein Knopf statt zwei. Geschenk-Hinweis sitzt auf der Stempelkarte selbst.
+- 2026-07-29 · Bewertungskarten zeigen das Kundenfoto als 16:9-Band oben, Text bleibt auf der Kartenfläche. Laufschrift bleibt.
 - 2026-07-29 · Wachs-Staffel 2/3/5 Stueck = 5/10/15 Prozent, ausschliesslich auf Wachs. Prozent-Badge von den Produktkarten entfernt, Staffel steht einmal ruhig ueber der Liste.
 - 2026-07-29 · Starter-Set als Konfigurator: zwei Fragen, Zange und Draht liegen automatisch bei. 15 Prozent unter der Teilesumme, angezeigt als Euro-Ersparnis statt als Prozentzahl.
 - 2026-07-29 · Zubehoer als eigener Typ `Accessory` statt als `Product`, weil Zubehoer keine Intervalle, Kompatibilitaeten oder Bewertungen hat und nicht in die Produktfilter gehoert.

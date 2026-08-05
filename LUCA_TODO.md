@@ -6,6 +6,82 @@
 
 ---
 
+# TEIL Z — STAND 5. AUGUST, das Aktuelle zuerst
+
+## Z1. Warum Google die Sitemap ablehnt („Invalid sitemap address")
+
+Deine Property ist eine **Domain-Property**, per DNS bei GoDaddy verifiziert. Dort verlangt Google die **vollständige URL**. Der Kurzform-Eintrag `sitemap.xml` funktioniert nur bei URL-Prefix-Properties.
+
+In das Feld gehört also:
+
+```
+https://waxcelerate.de/sitemap.xml
+```
+
+Bing hat es akzeptiert, weil Bing beide Formen erlaubt. Deshalb hat es dort funktioniert und bei Google nicht.
+
+## Z2. Push für die URL-Umstellung
+
+Ich habe `/rewax` auf `/kette-wachsen-lassen` umgestellt, samt 301-Weiterleitung. Begründung unten in Z4.
+
+```
+cd ~/"Claude Playground"/waxcelerate-site
+rm -f .git/index.lock .git/HEAD.lock
+git add -A
+git commit -m "Rename rewax route to kette-wachsen-lassen, 301 from old path"
+git push origin fix/asset-base-path:main
+```
+
+Danach zwei Minuten warten und prüfen: `waxcelerate.de/rewax` muss auf `waxcelerate.de/kette-wachsen-lassen` weiterleiten.
+
+## Z3. Diese URLs bei Google zur Indexierung anmelden
+
+„URL prüfen" oben in der Search Console, dann „Indexierung beantragen". Google nimmt etwa zehn pro Tag. **In dieser Reihenfolge**, die wichtigsten zuerst:
+
+**Heute:**
+```
+https://waxcelerate.de/
+https://waxcelerate.de/kette-wachsen-lassen
+https://waxcelerate.de/produkt/wax-500
+https://waxcelerate.de/produkt/wax-500-mos2
+https://waxcelerate.de/starter-set
+https://waxcelerate.de/blog
+https://waxcelerate.de/wissenschaft
+https://waxcelerate.de/produkt/wax-300
+https://waxcelerate.de/produkt/wax-300-mos2
+https://waxcelerate.de/produkt/chain-m8100
+```
+
+**Morgen:**
+```
+https://waxcelerate.de/produkt/chain-nx
+https://waxcelerate.de/produkt/chain-force
+https://waxcelerate.de/produkt/chain-m9100
+https://waxcelerate.de/produkt/chain-m7100
+https://waxcelerate.de/produkt/chain-hg701
+https://waxcelerate.de/produkt/chain-ybn11
+https://waxcelerate.de/produkt/chain-ybn12
+https://waxcelerate.de/blog/kettenwachs-faq
+https://waxcelerate.de/blog/heisswachs-anleitung
+https://waxcelerate.de/blog/mos2-kettenwachs
+```
+
+**Übermorgen:** die restlichen Blogartikel. Die Rechtstexte brauchst du nicht anzumelden, die findet Google über die Sitemap.
+
+## Z4. Warum /rewax weg ist, und warum genau jetzt
+
+Ich habe geprüft, wie im deutschen Markt tatsächlich gesucht wird. **„Rewax" kommt in deutschen Suchergebnissen praktisch nicht vor.** Es ist ein Anglizismus aus der Szene. Deine Wettbewerber ranken alle mit derselben Formulierung: Kettenhelden mit „Jetzt Kette wachsen lassen", bikeoptimierung mit „Kette wachsen lassen und reinigen".
+
+**Zu deinem Vorschlag „nachwachsen": Bitte nicht.** Im Deutschen heißt „nachwachsen" in erster Linie, dass etwas wieder wächst, Haare oder ein Wald. Google würde die Seite gegen eine völlig andere Suchabsicht antreten lassen. Das wäre schlechter als „rewax".
+
+**Und warum jetzt der richtige Moment ist:** Google hat noch keine einzige deiner Seiten indexiert. Eine URL-Änderung kostet aktuell **nichts**. In zwei Monaten, wenn `/rewax` Rankings gesammelt hat, wäre derselbe Schritt teuer. Die 301-Weiterleitung ist trotzdem drin, damit geteilte Links, QR-Codes und Beilegzettel weiter funktionieren.
+
+## Z5. eBay „Mich"-Seite
+
+Fertiger Text liegt in **`EBAY_MICH_SEITE.md`**, inklusive Begründung und einer Alternativfassung. Kopieren, einfügen, speichern. Der Website-Link ist eingebaut.
+
+---
+
 # TEIL A — Das Eine, das alles blockiert
 
 ## A0. STATUS 4. August, spät — ein Fehler von mir, eine Zeile zum Beheben

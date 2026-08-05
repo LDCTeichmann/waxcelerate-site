@@ -293,32 +293,47 @@ export function Products() {
 
           {/* ── Rewax ──
               Retention, placed where it is relevant rather than in its own
-              section: whoever just looked at chains and wax is the exact person
-              who will need this in four hundred kilometres. A band, not a card,
-              so it does not compete with the products above it. */}
-          <Link to="/rewax"
-            className="group flex flex-wrap items-center justify-between gap-4 mt-12 sm:mt-16 py-6 transition-[padding] duration-500 hover:pl-3"
-            style={{ borderTop: '1px solid var(--bd2)', borderBottom: '1px solid var(--bd2)' }}>
-            <div>
-              <p className="eyebrow" style={{ color: 'var(--txf)' }}>
-                {de ? 'Service' : 'Service'}
-              </p>
-              <p className="font-display font-bold text-wx-tx1 mt-2 leading-tight"
-                style={{ fontSize: 'clamp(1.15rem, 2.2vw, 1.5rem)' }}>
-                {de ? 'Keine Lust auf den Topf? Schick die Kette.' : 'Not keen on the pot? Send the chain in.'}
-              </p>
-              <p className="text-[13.5px] mt-1.5" style={{ color: 'var(--txm)' }}>
-                {de
-                  ? 'Rewax für bereits gewachste Ketten, ab 9,95 € je Kette.'
-                  : 'Rewax for chains that are already waxed, from 9.95 € each.'}
-              </p>
+              section: whoever just looked at chains and wax is the exact
+              person who will need this in four hundred kilometres. Used to be
+              a plain text band, which read as easy to scroll past — now a
+              photo card, same visual language as RewaxPage's own closing CTA
+              (full image, gradient scrim, white text), so it reads as an
+              actual clickable field, not a footnote. */}
+          <Link to="/kette-wachsen-lassen"
+            className="group relative block overflow-hidden rounded-2xl mt-12 sm:mt-16"
+            style={{ minHeight: 220 }}>
+            <picture>
+              <source srcSet="/images/blog/chains-hanging-gold-800.webp 800w, /images/blog/chains-hanging-gold-1600.webp 1600w"
+                sizes="100vw" type="image/webp" />
+              <img src="/images/blog/chains-hanging-gold-1600.webp"
+                alt={de ? 'Frisch gewachste Ketten hängen zum Aushärten' : 'Freshly waxed chains hanging to cure'}
+                loading="lazy" decoding="async"
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.03]" />
+            </picture>
+            <span aria-hidden className="absolute inset-0"
+              style={{ background: 'linear-gradient(100deg, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.72) 40%, rgba(0,0,0,0.42) 72%, rgba(0,0,0,0.24) 100%)' }} />
+
+            <div className="relative flex flex-wrap items-end justify-between gap-4 h-full px-6 py-7 sm:px-8 sm:py-8">
+              <div>
+                <p className="eyebrow" style={{ color: 'rgba(255,255,255,0.68)' }}>
+                  {de ? 'Service' : 'Service'}
+                </p>
+                <p className="font-display font-bold leading-tight mt-2"
+                  style={{ fontSize: 'clamp(1.3rem, 2.6vw, 1.7rem)', color: '#fff' }}>
+                  {de ? 'Keine Lust auf den Topf? Schick die Kette.' : 'Not keen on the pot? Send the chain in.'}
+                </p>
+                <p className="text-[13.5px] mt-1.5" style={{ color: 'rgba(255,255,255,0.9)' }}>
+                  {de
+                    ? 'Rewax für bereits gewachste Ketten, ab 9,95 € je Kette.'
+                    : 'Rewax for chains that are already waxed, from 9.95 € each.'}
+                </p>
+              </div>
+              <span className="inline-flex items-center gap-2 text-[13.5px] font-semibold whitespace-nowrap rounded-full px-5 py-2.5 transition-transform duration-300 group-hover:-translate-y-0.5"
+                style={{ background: '#fff', color: '#101013' }}>
+                {de ? 'Zum Rewax-Service' : 'To the rewax service'}
+                <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" aria-hidden />
+              </span>
             </div>
-            <span className="inline-flex items-center gap-2 text-[13.5px] font-semibold whitespace-nowrap"
-              style={{ color: 'var(--tx1)' }}>
-              {de ? 'Zum Rewax-Service' : 'To the rewax service'}
-              <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
-                style={{ color: 'var(--accent-soft)' }} />
-            </span>
           </Link>
 
       {/* Bottom gradient — bridges to About below */}
@@ -427,23 +442,27 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deli
             </div>
           )}
 
-          {/* Specs — inline pills. Smaller/tighter on mobile only (base, no sm:
-              prefix) so all three fit on one row instead of the third wrapping
-              to its own line at 375px; sm: and up restore the original size. */}
+          {/* Specs — inline pills. These used to be squeezed to 9px on mobile
+              so all three would fit one row; 9px monospace on a phone is not
+              a readable size, it is just a shape. Legibility wins over the
+              single row: 11px on mobile, and the least decisive of the three
+              (application count) drops out below sm entirely rather than
+              wrapping a third pill onto its own line. Interval and delivery
+              date are the two anyone actually reads. */}
           <div className="flex items-center gap-1.5 sm:gap-2 mt-2 sm:mt-2.5 flex-wrap">
             {product.intervalDry && (
-              <span className="text-[9px] px-1.5 sm:text-[10.5px] sm:px-2 py-0.5 rounded-md tabular-nums" style={{ fontFamily: MONO, background: 'var(--sf2)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
+              <span className="text-[11px] px-2 sm:text-[10.5px] py-0.5 rounded-md tabular-nums" style={{ fontFamily: MONO, background: 'var(--sf2)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
                 {product.intervalDry}
               </span>
             )}
             {product.applications && (
-              <span className="text-[9px] px-1.5 sm:text-[10.5px] sm:px-2 py-0.5 rounded-md tabular-nums" style={{ fontFamily: MONO, background: 'var(--sf2)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
+              <span className="hidden sm:inline text-[10.5px] px-2 py-0.5 rounded-md tabular-nums" style={{ fontFamily: MONO, background: 'var(--sf2)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
                 {product.applications} {de ? 'Anw.' : 'uses'}
               </span>
             )}
             {deliveryDate && (
-              <span className="inline-flex items-center gap-1 text-[9px] px-1.5 sm:text-[10.5px] sm:px-2 py-0.5 rounded-md tabular-nums" style={{ fontFamily: MONO, background: 'var(--sf2)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
-                <Truck className="h-2.5 w-2.5" strokeWidth={2.25} style={{ color: 'var(--brand-blue)' }} aria-hidden />
+              <span className="inline-flex items-center gap-1 text-[11px] px-2 sm:text-[10.5px] py-0.5 rounded-md tabular-nums" style={{ fontFamily: MONO, background: 'var(--sf2)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
+                <Truck className="h-3 w-3 sm:h-2.5 sm:w-2.5" strokeWidth={2.25} style={{ color: 'var(--brand-blue)' }} aria-hidden />
                 {deliveryDate}
               </span>
             )}
@@ -469,7 +488,7 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deli
                 {formatPrice(product.price)}
               </span>
               {per100 && (
-                <p className="text-[10px] mt-1 tabular-nums" style={{ fontFamily: MONO, color: 'var(--txf)' }}>{per100}</p>
+                <p className="text-[11px] mt-1 tabular-nums" style={{ fontFamily: MONO, color: 'var(--txf)' }}>{per100}</p>
               )}
             </div>
             {canCheckout(product) ? (
@@ -546,7 +565,7 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
 
         {/* Content */}
         <div className="px-3.5 sm:px-4 pt-2.5 sm:pt-3 pb-3 sm:pb-3.5 flex flex-col flex-1">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: 'var(--accent-soft)' }}>{brand}</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ color: 'var(--accent-soft)' }}>{brand}</p>
           <h3 className="text-[14px] sm:text-[15px] font-bold text-wx-tx1 leading-snug tracking-[-0.02em] mt-0.5">{model}</h3>
 
           {/* Specs as pills */}

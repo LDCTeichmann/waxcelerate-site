@@ -20,6 +20,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 
 import { Navigation } from '@/sections/navigation';
 import { InstrumentFrame } from '@/components/viz';
+import { BackLink } from '@/components/BackLink';
 
 // One tap, no form, no scrolling to a contact section that may or may not be
 // reachable from a route. The previous CTA pointed at /#kontakt and did not
@@ -242,7 +243,7 @@ export function RewaxPage() {
     serviceType: de ? 'Kettenwachs-Service' : 'Chain waxing service',
     provider: { '@type': 'Organization', name: 'Waxcelerate', url: 'https://waxcelerate.de' },
     areaServed: 'DE',
-    url: 'https://waxcelerate.de/rewax',
+    url: 'https://waxcelerate.de/kette-wachsen-lassen',
     offers: [
       { '@type': 'Offer', name: de ? 'Einzelne Kette' : 'Single chain', price: PRICE.single.toFixed(2), priceCurrency: 'EUR' },
       { '@type': 'Offer', name: de ? 'Drei Ketten' : 'Three chains', price: (PRICE.bundle * PRICE.bundleCount).toFixed(2), priceCurrency: 'EUR' },
@@ -264,7 +265,7 @@ export function RewaxPage() {
       <Helmet>
         <title>{title}</title>
         <meta name="description" content={description} />
-        <link rel="canonical" href="https://waxcelerate.de/rewax" />
+        <link rel="canonical" href="https://waxcelerate.de/kette-wachsen-lassen" />
         <script type="application/ld+json">{schema}</script>
       </Helmet>
 
@@ -272,6 +273,9 @@ export function RewaxPage() {
 
       {/* ── Hero ── */}
       <section className="relative pt-28 sm:pt-36 pb-14 sm:pb-20" style={{ background: 'var(--pg)' }}>
+        <div className={W}>
+          <BackLink de={de} className="mb-6 sm:mb-8" />
+        </div>
         <div className={`${W} lg:flex lg:items-center lg:gap-14`}>
           <div className="lg:flex-1">
             <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>

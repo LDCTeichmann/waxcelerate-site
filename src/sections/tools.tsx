@@ -391,7 +391,7 @@ function WaxStockCalculator() {
                 }}
               >
                 <div className="flex items-center justify-between mb-2">
-                  <p className="text-[10px] uppercase tracking-[0.14em]" style={{ color: 'var(--brand)' }}>
+                  <p className="text-[11px] uppercase tracking-[0.14em]" style={{ color: 'var(--brand)' }}>
                     {de ? 'Empfohlen' : 'Recommended'}
                   </p>
                   <div className="flex items-center gap-2">
@@ -599,7 +599,7 @@ function RotationAndSavings() {
                     </p>
                     {cardDiscountPct > 0 && (
                       <span
-                        className="rounded px-1 py-0.5 text-[8px] font-semibold leading-none"
+                        className="rounded px-1 py-0.5 text-[11px] font-semibold leading-none"
                         style={{ background: 'var(--accent-wash)', color: 'var(--brand)' }}
                       >
                         −{cardDiscountPct}%
@@ -614,7 +614,7 @@ function RotationAndSavings() {
                   >
                     {annualSavings > 0 ? `~€${annualSavings}` : '—'}
                   </p>
-                  <p className="text-[9px] mt-0.5 mb-3" style={{ color: 'var(--txff)' }}>
+                  <p className="text-[11px] mt-0.5 mb-3" style={{ color: 'var(--txff)' }}>
                     {savingsPct > 0
                       ? (de ? `/Jahr · −${savingsPct}%` : `/yr · −${savingsPct}%`)
                       : (de ? '/Jahr vs. Öl' : '/yr vs. oil')}
@@ -626,16 +626,16 @@ function RotationAndSavings() {
                       {sessionsPerYear}×
                     </p>
                     {sessionsSavedPct > 0 && (
-                      <p className="text-[9px] font-semibold" style={{ color: 'var(--brand)' }}>−{sessionsSavedPct}%</p>
+                      <p className="text-[11px] font-semibold" style={{ color: 'var(--brand)' }}>−{sessionsSavedPct}%</p>
                     )}
                   </div>
-                  <p className="text-[9px]" style={{ color: 'var(--txff)' }}>
+                  <p className="text-[11px]" style={{ color: 'var(--txff)' }}>
                     {de ? 'Waxen/Jahr' : 'wax/yr'}
                   </p>
 
                   {/* Next wax date — always at bottom */}
                   <div className="mt-auto pt-3">
-                    <p className="text-[9px]" style={{ color: 'var(--txff)' }}>
+                    <p className="text-[11px]" style={{ color: 'var(--txff)' }}>
                       {de ? 'Nächstes Waxen' : 'Next wax'}
                     </p>
                     <p className="text-[11px] font-medium mt-0.5" style={{ color: isRec ? 'var(--brand)' : 'var(--txm)' }}>
@@ -963,7 +963,7 @@ export function Tools() {
                 ))}
               </div>
               <p
-                className="text-[10px] tracking-[0.08em] transition-opacity duration-700"
+                className="text-[11px] tracking-[0.08em] transition-opacity duration-700"
                 style={{ color: 'var(--txff)', opacity: swipeHintShown ? 0 : 0.7 }}
               >
                 ← {de ? 'wischen' : 'swipe'} →

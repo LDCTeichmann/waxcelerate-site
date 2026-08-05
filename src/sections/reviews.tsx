@@ -150,7 +150,7 @@ function ReviewCard({ r, de }: { r: Review; de: boolean }) {
 
       <div className="flex items-center justify-between mb-2.5">
         <Stars rating={r.rating ?? 5} />
-        <span className="text-[10.5px]" style={{ color: 'var(--txf)' }}>{date}</span>
+        <span className="text-[11.5px]" style={{ color: 'var(--txf)' }}>{date}</span>
       </div>
 
       <blockquote className="text-[13px] leading-[1.6] flex-1" style={{ color: 'var(--tx2)' }}>
@@ -163,12 +163,12 @@ function ReviewCard({ r, de }: { r: Review; de: boolean }) {
         <Avatar name={r.name} de={de} />
         <div className="min-w-0">
           <p className="text-[12.5px] font-semibold truncate" style={{ color: 'var(--tx1)' }}>{r.name}</p>
-          <span className="inline-flex items-center gap-1 text-[10.5px] font-medium" style={{ color: 'var(--accent-soft)' }}>
+          <span className="inline-flex items-center gap-1 text-[11.5px] font-medium" style={{ color: 'var(--accent-soft)' }}>
             <BadgeCheck className="h-3.5 w-3.5" /> {verified}
           </span>
         </div>
         {product && (
-          <span className="ml-auto flex-shrink-0 rounded-full px-2 py-1 text-[10px] font-medium whitespace-nowrap"
+          <span className="ml-auto flex-shrink-0 rounded-full px-2 py-1 text-[11px] font-medium whitespace-nowrap"
             style={{ background: 'var(--accent-wash)', color: 'var(--accent)' }}>
             {product}
           </span>
@@ -220,23 +220,33 @@ export function Reviews() {
           happens to end. Reduced motion gets the same row as a plain
           swipe/scroll container with no animation at all. */}
       <div className="relative -mx-6 sm:-mx-10 lg:-mx-14 xl:-mx-20">
-        {reduced ? (
-          <div className="flex overflow-x-auto edge-fade px-6 sm:px-10 lg:px-14 xl:px-20 pb-2" style={{ scrollbarWidth: 'none' }}>
-            {cards}
-          </div>
-        ) : (
-          <div className="marquee overflow-hidden edge-fade">
-            <div
-              className="marquee-track inline-flex items-stretch"
-              style={{ '--dur': '70s', animationPlayState: inView ? 'running' : 'paused' } as CSSProperties}
-            >
+        {/* Mobile — static, swipeable row, same as prefers-reduced-motion.
+            A moving marquee fighting the visitor's own scroll is the kind of
+            motion that reads as chaos rather than proof on a small screen,
+            and unlike desktop there is no way to pause and actually read a
+            card mid-scroll. */}
+        <div className="sm:hidden flex overflow-x-auto edge-fade px-6 pb-2" style={{ scrollbarWidth: 'none' }}>
+          {cards}
+        </div>
+        <div className="hidden sm:block">
+          {reduced ? (
+            <div className="flex overflow-x-auto edge-fade px-10 lg:px-14 xl:px-20 pb-2" style={{ scrollbarWidth: 'none' }}>
               {cards}
-              {/* Second set makes the loop seamless; hidden from AT so the
-                  quotes aren't announced twice. */}
-              <div className="inline-flex items-stretch" aria-hidden="true">{cards}</div>
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="marquee overflow-hidden edge-fade">
+              <div
+                className="marquee-track inline-flex items-stretch"
+                style={{ '--dur': '70s', animationPlayState: inView ? 'running' : 'paused' } as CSSProperties}
+              >
+                {cards}
+                {/* Second set makes the loop seamless; hidden from AT so the
+                    quotes aren't announced twice. */}
+                <div className="inline-flex items-stretch" aria-hidden="true">{cards}</div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* ── Proof strip + actions ── */}

@@ -16,8 +16,12 @@ interface SectionProps {
 // start of their parent.
 export const Section = forwardRef<HTMLElement, SectionProps>(
   function Section({ id, className = '', style, children }, ref) {
+    // py-14 on mobile, not py-20: 80px of padding top and bottom is a desktop
+    // rhythm value. Across ~10 homepage sections it adds up to roughly 1600px
+    // of empty scrolling on a phone. 56px still reads as a clear section break
+    // at that width.
     return (
-      <section id={id} ref={ref} className={`relative py-20 sm:py-28 ${className}`} style={style}>
+      <section id={id} ref={ref} className={`relative py-14 sm:py-28 ${className}`} style={style}>
         <div className="mx-auto w-full max-w-7xl px-6 sm:px-10 lg:px-14 xl:px-20">
           {children}
         </div>

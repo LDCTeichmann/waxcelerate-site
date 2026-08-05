@@ -81,7 +81,7 @@ export function Contact() {
                     {de ? 'Per WhatsApp' : 'Via WhatsApp'}
                   </p>
                   <span
-                    className="text-[10px] font-semibold px-2 py-0.5 rounded-full tracking-wide"
+                    className="text-[11px] font-semibold px-2 py-0.5 rounded-full tracking-wide"
                     style={{ background: 'rgba(var(--ext-whatsapp-rgb),0.10)', color: 'var(--ext-whatsapp)' }}
                   >
                     {de ? 'meist sofort' : 'usually instant'}
@@ -133,7 +133,7 @@ export function Contact() {
                     {de ? 'Per E-Mail' : 'Via Email'}
                   </p>
                   <span
-                    className="text-[10px] font-semibold px-2 py-0.5 rounded-full tracking-wide"
+                    className="text-[11px] font-semibold px-2 py-0.5 rounded-full tracking-wide"
                     style={{ background: 'var(--accent-wash)', color: 'var(--accent)' }}
                   >
                     {de ? 'am selben Tag' : 'same day'}

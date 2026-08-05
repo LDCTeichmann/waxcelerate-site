@@ -66,7 +66,7 @@ const body = `
 <section>
   <h2>Mehr</h2>
   <ul>
-    <li><a href="/rewax">Rewax-Service</a> — gewachste Kette einschicken, fahrbereit zurückbekommen</li>
+    <li><a href="/kette-wachsen-lassen">Kette wachsen lassen</a> — gewachste Kette einschicken, fahrbereit zurückbekommen</li>
     <li><a href="/starter-set">Starter-Set</a> — Wachs, Kette, Zange und Draht in einem</li>
     <li><a href="/wissenschaft">Die Wissenschaft dahinter</a> — Kontaktzonen, Reibung, Messwerte</li>
     <li><a href="/blog">Ratgeber</a> — Anleitungen, Intervalle und ehrliche Antworten</li>

@@ -13,8 +13,21 @@
 
 import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
+import { products, accessories, starterSetPrice } from '@/lib/data';
 
 const SETS_LIVE = true;
+
+const eur = (n: number, de: boolean) =>
+  n.toLocaleString(de ? 'de-DE' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+
+const minPrice = (category: 'wax' | 'chain') =>
+  Math.min(...products.filter(p => p.category === category).map(p => p.price));
+
+// Cheapest real combination, run through the same starterSetPrice() the
+// configurator uses — never a hand-typed number that could drift from it.
+const minSetPrice = starterSetPrice(
+  minPrice('wax') + minPrice('chain') + accessories.reduce((sum, a) => sum + a.price, 0)
+);
 
 type Door = {
   slug: string;
@@ -22,6 +35,7 @@ type Door = {
   href?: string;
   chipDe: string; chipEn: string;
   titleDe: string; titleEn: string;
+  priceFromDe: string; priceFromEn: string;
   altDe: string; altEn: string;
 };
 
@@ -30,6 +44,7 @@ const DOORS: Door[] = [
     slug: 'starter-set', href: '/starter-set',
     chipDe: 'Alles für den Anfang', chipEn: 'Everything to start',
     titleDe: 'Starter-Sets', titleEn: 'Starter sets',
+    priceFromDe: `ab ${eur(minSetPrice, true)}`, priceFromEn: `from ${eur(minSetPrice, false)}`,
     altDe: 'Waxcelerate Starter-Set mit Wachsblock, Quick-Link-Zange und Kette',
     altEn: 'Waxcelerate starter set with wax block, quick-link pliers and chain',
   } as Door] : []),
@@ -37,6 +52,7 @@ const DOORS: Door[] = [
     slug: 'kettenwachs', tab: 'wax',
     chipDe: 'Hergestellt in Stuttgart', chipEn: 'Made in Stuttgart',
     titleDe: 'Kettenwachs', titleEn: 'Chain wax',
+    priceFromDe: `ab ${eur(minPrice('wax'), true)}`, priceFromEn: `from ${eur(minPrice('wax'), false)}`,
     altDe: 'Block Waxcelerate Kettenwachs auf Schiefer',
     altEn: 'Block of Waxcelerate chain wax on slate',
   },
@@ -44,6 +60,7 @@ const DOORS: Door[] = [
     slug: 'ketten', tab: 'chain',
     chipDe: 'Ab morgen fahrbereit', chipEn: 'Ready to ride tomorrow',
     titleDe: 'Vorgewachste Ketten', titleEn: 'Pre-waxed chains',
+    priceFromDe: `ab ${eur(minPrice('chain'), true)}`, priceFromEn: `from ${eur(minPrice('chain'), false)}`,
     altDe: 'Handgewachste Fahrradkette mit trockenem Wachsfilm',
     altEn: 'Hand-waxed bicycle chain with a dry wax film',
   },
@@ -76,7 +93,7 @@ export function ProductDoors({ de }: { de: boolean }) {
               sits on a photo, so it is about reading white text on an image,
               not about theme. */}
           <span aria-hidden className="absolute inset-0"
-            style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.18) 42%, rgba(0,0,0,0.06) 70%, rgba(0,0,0,0.22) 100%)' }} />
+            style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.55) 26%, rgba(0,0,0,0.18) 55%, rgba(0,0,0,0.06) 78%, rgba(0,0,0,0.24) 100%)' }} />
 
           <span className="absolute left-4 right-4 top-4 flex justify-center">
             <span className="text-[11px] uppercase tracking-[0.16em] px-3 py-1.5 rounded-full backdrop-blur-sm"
@@ -86,9 +103,14 @@ export function ProductDoors({ de }: { de: boolean }) {
           </span>
 
           <span className="absolute left-5 right-5 bottom-5 flex items-end justify-between gap-4">
-            <span className="font-display font-bold leading-[1.08] tracking-[-0.02em]"
-              style={{ color: '#fff', fontSize: 'clamp(1.35rem, 2.6vw, 1.9rem)', textShadow: '0 1px 18px rgba(0,0,0,0.35)' }}>
-              {de ? d.titleDe : d.titleEn}
+            <span className="flex flex-col gap-1">
+              <span className="font-display font-bold leading-[1.08] tracking-[-0.02em]"
+                style={{ color: '#fff', fontSize: 'clamp(1.35rem, 2.6vw, 1.9rem)', textShadow: '0 1px 18px rgba(0,0,0,0.35)' }}>
+                {de ? d.titleDe : d.titleEn}
+              </span>
+              <span className="num-data text-[12.5px]" style={{ color: 'rgba(255,255,255,0.95)', textShadow: '0 1px 8px rgba(0,0,0,0.6)' }}>
+                {de ? d.priceFromDe : d.priceFromEn}
+              </span>
             </span>
             <ArrowUpRight aria-hidden
               className="h-6 w-6 flex-shrink-0 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
@@ -97,8 +119,12 @@ export function ProductDoors({ de }: { de: boolean }) {
     </>
   );
 
-  const CARD_CLASS = 'group relative block w-full overflow-hidden rounded-2xl text-left';
-  const CARD_STYLE = { aspectRatio: '4 / 5', background: 'var(--hero-stage)' } as const;
+  // 4:5 is a desktop shape. On a 390px phone it makes each door ~420px tall,
+  // so three stacked doors cost ~1260px of scrolling to present three choices
+  // that should be graspable in one screen. 16:10 on mobile puts all three
+  // within about one viewport; sm: and up keep the original portrait crop.
+  const CARD_CLASS = 'group relative block w-full overflow-hidden rounded-2xl text-left aspect-[16/10] sm:aspect-[4/5]';
+  const CARD_STYLE = { background: 'var(--hero-stage)' } as const;
 
   return (
     <div className={`grid gap-3 sm:gap-4 ${DOORS.length === 3 ? 'sm:grid-cols-3' : 'sm:grid-cols-2'}`}>

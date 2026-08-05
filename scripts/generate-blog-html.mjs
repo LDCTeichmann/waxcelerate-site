@@ -229,11 +229,15 @@ ${byCat}`.trim();
 // verlinken; sobald React uebernimmt, ersetzt die echte Seite ihn.
 const STATIC_PAGES = [
   {
-    dir: 'rewax',
-    title: 'Rewax-Service für gewachste Ketten | Waxcelerate',
-    description: 'Gewachste Kette einschicken, frisch gewachst zurückbekommen. 13,95 € je Kette, 9,95 € ab drei Ketten, zuzüglich 1,80 € Rückversand. Handgewachst in Stuttgart.',
+    // Adresse und Titel folgen der tatsaechlichen Suchsprache. "Rewax" ist ein
+    // Anglizismus, der in deutschen Suchergebnissen praktisch nicht vorkommt;
+    // Wettbewerber ranken mit "Kette wachsen lassen". /rewax leitet per 301
+    // hierher (vercel.json).
+    dir: 'kette-wachsen-lassen',
+    title: 'Kette wachsen lassen — Heißwachs-Service ab 9,95 € | Waxcelerate',
+    description: 'Fahrradkette einschicken, frisch heißgewachst zurückbekommen. 13,95 € je Kette, 9,95 € ab drei Ketten, zuzüglich 1,80 € Rückversand. Handgewachst in Stuttgart.',
     image: '/images/rewax/hero.webp',
-    h1: 'Rewax. Machen wir.',
+    h1: 'Kette wachsen lassen',
     lead: 'Wachsen ist einfach, kostet aber einen Abend, einen Topf und Platz. Wenn du das nicht selbst machen willst, schick die Kette ein. Du bekommst sie fahrbereit zurück.',
     points: [
       'Nur bereits gewachste Ketten, eigene oder fremde. Geölte Ketten entfetten wir nicht, weil Öl ein ganzes Wachsbad unbrauchbar macht.',
@@ -290,7 +294,7 @@ function renderStatic(p) {
     `<h1>${esc(p.h1)}</h1>`,
     `<p>${esc(p.lead)}</p>`,
     `<ul>${p.points.map(t => `<li>${esc(t)}</li>`).join('')}</ul>`,
-    `<p><a href="/">Zur Startseite</a> · <a href="/wissenschaft">Wissenschaft</a> · <a href="/rewax">Rewax-Service</a> · <a href="/starter-set">Starter-Set</a> · <a href="/blog">Blog</a></p>`,
+    `<p><a href="/">Zur Startseite</a> · <a href="/wissenschaft">Wissenschaft</a> · <a href="/kette-wachsen-lassen">Kette wachsen lassen</a> · <a href="/starter-set">Starter-Set</a> · <a href="/blog">Blog</a></p>`,
   ].join('\n');
   return buildPage({ head, body });
 }

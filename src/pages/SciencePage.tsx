@@ -7,6 +7,7 @@ import { Navigation } from '@/sections/navigation';
 import { ScrollTrigger } from '@/lib/gsap';
 import { prefersReducedMotion } from '@/hooks/useAnimation';
 import { InstrumentFrame, CountUp } from '@/components/viz';
+import { BackLink } from '@/components/BackLink';
 import { waxVsOil, frictionRanges } from '@/lib/data';
 import { COMPONENTS, FAILURES, type ScienceComponent } from '@/lib/science';
 import { FormulaGraph } from '@/sections/science/FormulaGraph';
@@ -22,31 +23,38 @@ const W = 'max-w-4xl mx-auto px-4 sm:px-6 lg:px-8';
 // from the same `waxVsOil` source as the homepage's why-wax section — no
 // invented stats. ProblemHero below carries on with the sober toggle deep-dive.
 function ScienceHero({ de }: { de: boolean }) {
-  const f = waxVsOil.friction, w = waxVsOil.watts, l = waxVsOil.life;
+  const w = waxVsOil.watts, l = waxVsOil.life;
+  const pro = frictionRanges.find(r => r.id === 'pro')!;
+  const oil = frictionRanges.find(r => r.id === 'oil')!;
+  // Number + one plain-language sentence, same fix as the homepage's
+  // "Messbar besser" cards — a number, a tiny caps label and an even fainter
+  // detail line was three sizes fighting for attention in a tile barely
+  // 220px wide. Down to two per card, and the sentence says what the number
+  // means instead of just filing it under a category word.
   const cards = [
     {
       icon: Gauge,
-      value: `μ ${f.wax.toFixed(2)}`,
-      label: de ? 'Reibung' : 'Friction',
-      detail: de ? `${Math.round(f.oil / f.wax)}× weniger als Öl` : `${Math.round(f.oil / f.wax)}× less than oil`,
+      value: `μ ${pro.muLo.toFixed(2)}–${pro.muHi.toFixed(2)}`,
+      sentenceDe: `Reibung im Antrieb — Öl liegt bei μ ${oil.muLo.toFixed(2)}–${oil.muHi.toFixed(2)}.`,
+      sentenceEn: `Drivetrain friction — oil sits at μ ${oil.muLo.toFixed(2)}–${oil.muHi.toFixed(2)}.`,
     },
     {
       icon: Droplets,
       value: `${w.wax[0]}–${w.wax[1]} W`,
-      label: de ? 'Antriebsverlust' : 'Drivetrain loss',
-      detail: de ? `Öl: ${w.oil[0]}–${w.oil[1]} W` : `Oil: ${w.oil[0]}–${w.oil[1]} W`,
+      sentenceDe: `Antriebsverlust — Öl braucht ${w.oil[0]}–${w.oil[1]} W bei gleicher Leistung.`,
+      sentenceEn: `Drivetrain loss — oil needs ${w.oil[0]}–${w.oil[1]} W at the same power.`,
     },
     {
       icon: Clock,
       value: `${l.waxLo}–${l.wax}×`,
-      label: de ? 'Kettenlaufzeit' : 'Chain life',
-      detail: de ? 'gegenüber Öl' : 'vs oil lubrication',
+      sentenceDe: 'Typische Kettenlebensdauer gegenüber Öl.',
+      sentenceEn: 'Typical chain lifespan versus oil.',
     },
     {
       icon: Sparkles,
       value: de ? 'Trocken' : 'Dry',
-      label: de ? 'Sauberkeit' : 'Cleanliness',
-      detail: de ? 'Kein Dreck, keine Flecken' : 'No grime, no stains',
+      sentenceDe: 'Kein Dreck, keine Flecken an Kleidung oder Fingern.',
+      sentenceEn: 'No grime, no stains on clothes or fingers.',
     },
   ];
 
@@ -57,6 +65,7 @@ function ScienceHero({ de }: { de: boolean }) {
           next to the text, not squeezed into what's left of a narrow column. */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 lg:flex lg:items-center lg:gap-12 xl:gap-20">
         <div className="max-w-lg lg:flex-shrink-0">
+          <BackLink de={de} className="mb-5" />
           <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
             {de ? 'Öl vs. Wachs' : 'Oil vs. Wax'}
           </p>
@@ -83,22 +92,33 @@ function ScienceHero({ de }: { de: boolean }) {
             </picture>
           </div>
 
-          {/* Stats — hairline-divided, no card fill/border, so they read as
-              numbers hovering over the page rather than four boxed tiles. */}
-          <div className="grid grid-cols-2 mb-8" style={{ border: '1px solid var(--bd2)', borderRadius: 14 }}>
+          {/* Stats — a hairline-divided list, one row per measurement, instead
+              of a 2×2 grid: at column width (~500px desktop, ~92vw mobile) a
+              row gets roughly double the horizontal room a grid tile did,
+              which is what actually lets the sentence sit on one or two
+              lines instead of wrapping into a fourth tiny fragment. */}
+          <div className="mb-8" style={{ borderTop: '1px solid var(--bd2)' }}>
             {cards.map((c, i) => (
-              <div key={c.label} className="px-4 py-3.5"
-                style={{
-                  borderLeft: i % 2 === 1 ? '1px solid var(--bd2)' : 'none',
-                  borderTop: i >= 2 ? '1px solid var(--bd2)' : 'none',
-                }}>
-                <c.icon className="h-3.5 w-3.5 mb-2" style={{ color: 'var(--txf)' }} aria-hidden />
-                <p className="num-data font-bold text-[19px] sm:text-[21px] leading-none" style={{ color: 'var(--tx1)' }}>{c.value}</p>
-                <p className="text-[9.5px] uppercase tracking-[0.1em] mt-2" style={{ color: 'var(--txf)' }}>{c.label}</p>
-                <p className="text-[10px] mt-0.5" style={{ color: 'var(--txm)' }}>{c.detail}</p>
+              <div key={i} className="flex items-start gap-3 py-3.5"
+                style={{ borderBottom: '1px solid var(--bd2)' }}>
+                <c.icon className="h-4 w-4 mt-0.5 flex-shrink-0" style={{ color: 'var(--txf)' }} aria-hidden />
+                <div className="min-w-0">
+                  <p className="num-data font-bold text-[18px] leading-none" style={{ color: 'var(--tx1)' }}>
+                    {c.value}
+                  </p>
+                  <p className="text-[13.5px] leading-snug mt-1.5" style={{ color: 'var(--tx2)' }}>
+                    {de ? c.sentenceDe : c.sentenceEn}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
+
+          <p className="text-[11px] mb-4" style={{ color: 'var(--txff)' }}>
+            {de
+              ? `Reibung und Watt gemessen bei ${w.inputW[0]}–${w.inputW[1]} W Tretleistung, Laborwerte.`
+              : `Friction and watts measured at ${w.inputW[0]}–${w.inputW[1]} W pedalling power, lab values.`}
+          </p>
 
           <a href="#problem" className="inline-flex items-center gap-2 text-[13px] font-semibold transition-opacity hover:opacity-75" style={{ color: 'var(--tx1)' }}>
             {de ? 'Wie das gemessen wurde' : 'How this was measured'}

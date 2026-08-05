@@ -317,7 +317,7 @@ export function Hero() {
                 <div data-hero className="flex items-center gap-3 mb-5">
                   <span style={{ width: '28px', height: '2px', background: 'var(--brand-blue)' }} />
                   <p
-                    className="text-[10px] sm:text-[11px] uppercase font-semibold"
+                    className="text-[11px] sm:text-[11px] uppercase font-semibold"
                     style={{ letterSpacing: '0.34em', color: 'rgba(255,255,255,0.72)' }}
                   >
                     {t.hero.subtitle}
@@ -404,7 +404,7 @@ export function Hero() {
                 <span style={{ color: 'rgba(255,255,255,0.92)', letterSpacing: '0.08em', fontSize: '12px' }}>
                   ★★★★★
                 </span>
-                <span className="text-[10px] uppercase tabular-nums"
+                <span className="text-[11px] uppercase tabular-nums"
                   style={{ letterSpacing: '0.08em', color: 'rgba(255,255,255,0.68)' }}>
                   200+ · {de ? '100 % positiv' : '100% positive'}
                 </span>
@@ -438,7 +438,7 @@ export function Hero() {
                       >
                         {s.v}
                       </p>
-                      <p className="text-[10px] uppercase mt-1.5"
+                      <p className="text-[11px] uppercase mt-1.5"
                         style={{ letterSpacing: '0.06em', color: 'rgba(255,255,255,0.65)' }}>
                         {s.l}
                       </p>

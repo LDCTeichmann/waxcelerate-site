@@ -608,12 +608,21 @@ footer ul a:hover::after {
 /* ── Typography scale — semantic, reusable (Workstream 2) ─────────────────── */
 /* One eyebrow + one section heading, used across every section for rhythm. */
 .eyebrow {
-  font-size: 0.6875rem;          /* 11px */
-  line-height: 1;
+  font-size: 0.75rem;            /* 12px on mobile — 11px uppercase at 0.24em
+                                    tracking is the site's most repeated
+                                    hard-to-read element on a phone */
+  line-height: 1.2;
   text-transform: uppercase;
-  letter-spacing: 0.24em;
+  letter-spacing: 0.16em;
   font-weight: 600;
   color: var(--txf);
+}
+@media (min-width: 640px) {
+  .eyebrow {
+    font-size: 0.6875rem;        /* 11px — original editorial setting */
+    line-height: 1;
+    letter-spacing: 0.24em;
+  }
 }
 .section-title {
   font-family: 'Fraunces', Georgia, serif;
@@ -630,6 +639,22 @@ footer ul a:hover::after {
 /* Anchor scroll offset — prevents sticky nav from overlapping section headers */
 section[id] {
   scroll-margin-top: 80px;
+}
+
+/* MobileStickyCTA is position:fixed at the bottom edge on < lg, and nothing
+   reserved space for it — so the footer's last line and the closing CTA sat
+   underneath it. Reserve its height (plus the home-indicator inset) at the
+   end of the document instead of per-section. */
+@media (max-width: 1023px) {
+  footer:last-of-type {
+    padding-bottom: calc(3.5rem + env(safe-area-inset-bottom));
+  }
+  /* The bar floats over section content too, so a section whose final CTA
+     sits flush at its bottom edge gets that button covered. Give every
+     section a little extra bottom room on mobile. */
+  section[id] {
+    padding-bottom: calc(3.5rem + 1rem);
+  }
 }
 
 /* ── Button system — one primary + one ghost (Workstream 3) ───────────────── */
