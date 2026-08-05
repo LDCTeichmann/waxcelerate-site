@@ -10,6 +10,7 @@ import type { Product } from '@/lib/data';
 import { richContent } from '@/lib/productContent';
 import { useLanguage } from '@/hooks/useLanguage';
 import { AddToCartButton } from '@/components/AddToCartButton';
+import { trackEbayClick } from '@/lib/analytics';
 import { CartIcon } from '@/components/CartIcon';
 import { ImageLightbox } from '@/components/ImageLightbox';
 import { gsap } from '@/lib/gsap';
@@ -478,7 +479,7 @@ export function ProductDetailPage() {
                 </div>
               </div>
               {canCheckout(product) ? <AddToCartButton product={product} /> : (
-                <a href={product.ebayUrl} target="_blank" rel="noopener noreferrer"
+                <a href={product.ebayUrl} target="_blank" rel="noopener noreferrer" onClick={() => trackEbayClick(product.id)}
                   className="flex items-center gap-2 px-7 py-3 rounded-full text-[13px] font-semibold active:scale-[0.97]"
                   style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}>
                   {de ? 'Kaufen' : 'Buy'} <ExternalLink className="h-3.5 w-3.5" />
@@ -666,7 +667,7 @@ export function ProductDetailPage() {
                   {canCheckout(product) ? (
                     <div className="w-full"><AddToCartButton product={product} /></div>
                   ) : (
-                    <a href={product.ebayUrl} target="_blank" rel="noopener noreferrer"
+                    <a href={product.ebayUrl} target="_blank" rel="noopener noreferrer" onClick={() => trackEbayClick(product.id)}
                       className="flex items-center justify-center gap-2 w-full py-3.5 rounded-full text-[14px] font-semibold tracking-wide transition-all duration-300 hover:scale-[1.01] active:scale-[0.97]"
                       style={{ background: '#0a0a0a', color: '#fff', boxShadow: '0 6px 24px -6px rgba(0,0,0,0.4)' }}>
                       {de ? 'Jetzt bestellen' : 'Order now'} <ExternalLink className="h-3.5 w-3.5 opacity-60" />
@@ -1011,7 +1012,7 @@ export function ProductDetailPage() {
                     <p className="font-display text-[28px] font-bold leading-none tracking-[-0.02em] mb-1" style={{ color: 'var(--tx1)' }}>{rc.reviewCount}+</p>
                     <p className="text-[13px] mb-0.5" style={{ color: 'var(--txm)' }}>{de ? 'verifizierte Bewertungen' : 'verified reviews'}</p>
                     {rc.reviewCats && <p className="text-[11px] mb-3" style={{ color: 'var(--txff)' }}>{rc.reviewCats}</p>}
-                    <a href={product.ebayUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[12px] font-medium hover:underline" style={{ color: accentColor }}>
+                    <a href={product.ebayUrl} target="_blank" rel="noopener noreferrer" onClick={() => trackEbayClick(product.id)} className="inline-flex items-center gap-1 text-[12px] font-medium hover:underline" style={{ color: accentColor }}>
                       {de ? 'Alle Bewertungen ansehen' : 'See all reviews'} <ExternalLink className="h-3 w-3" />
                     </a>
                   </div>
@@ -1062,7 +1063,7 @@ export function ProductDetailPage() {
               </div>
             )}
             <h2 className="font-display text-[22px] sm:text-[28px] font-bold mb-5 tracking-[-0.025em]" style={{ color: 'var(--tx1)' }}>{titleText}</h2>
-            <a href={product.ebayUrl} target="_blank" rel="noopener noreferrer"
+            <a href={product.ebayUrl} target="_blank" rel="noopener noreferrer" onClick={() => trackEbayClick(product.id)}
               className="inline-flex items-center gap-2 px-9 py-3.5 rounded-full text-[14px] font-semibold transition-all duration-300 hover:scale-[1.03] active:scale-[0.97]"
               style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}>
               {de ? 'Jetzt kaufen' : 'Buy now'} — {formatPrice(product.price)} <ExternalLink className="h-4 w-4" />
@@ -1098,7 +1099,7 @@ export function ProductDetailPage() {
             <p className="num text-[15px] font-bold leading-none mt-0.5" style={{ color: 'var(--tx1)' }}>{formatPrice(product.price)}</p>
           </div>
           {canCheckout(product) ? <div className="flex-shrink-0"><AddToCartButton product={product} size="sm" /></div> : (
-            <a href={product.ebayUrl} target="_blank" rel="noopener noreferrer"
+            <a href={product.ebayUrl} target="_blank" rel="noopener noreferrer" onClick={() => trackEbayClick(product.id)}
               className="flex items-center gap-1.5 px-5 py-2.5 rounded-full text-[13px] font-semibold flex-shrink-0 active:scale-[0.97]"
               style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}>
               {de ? 'Kaufen' : 'Buy'} <ExternalLink className="h-3.5 w-3.5" />
@@ -1198,7 +1199,7 @@ function FlipCard({ items, de, formatPrice }: { items: Product[]; de: boolean; f
             {linkContent}
           </Link>
         ) : (
-          <a href={p.ebayUrl} target="_blank" rel="noopener noreferrer" className="flex-1 min-w-0">
+          <a href={p.ebayUrl} target="_blank" rel="noopener noreferrer" onClick={() => trackEbayClick(p.id)} className="flex-1 min-w-0">
             {linkContent}
           </a>
         )}
@@ -1260,7 +1261,7 @@ function AltMiniCard({ product: p, de, formatPrice }: { product: Product; de: bo
   );
 
   if (p.category === 'wax') return <Link to={`/produkt/${p.id}`} className="block flex-shrink-0">{inner}</Link>;
-  return <a href={p.ebayUrl} target="_blank" rel="noopener noreferrer" className="block flex-shrink-0">{inner}</a>;
+  return <a href={p.ebayUrl} target="_blank" rel="noopener noreferrer" onClick={() => trackEbayClick(p.id)} className="block flex-shrink-0">{inner}</a>;
 }
 
 /* ── Accordion ── */
@@ -1320,5 +1321,5 @@ function RelatedCard({ product: p, de, formatPrice }: { product: Product; de: bo
   );
 
   if (isWax) return <Link to={`/produkt/${p.id}`} className="block h-full">{inner}</Link>;
-  return <a href={p.ebayUrl} target="_blank" rel="noopener noreferrer" className="block h-full">{inner}</a>;
+  return <a href={p.ebayUrl} target="_blank" rel="noopener noreferrer" onClick={() => trackEbayClick(p.id)} className="block h-full">{inner}</a>;
 }

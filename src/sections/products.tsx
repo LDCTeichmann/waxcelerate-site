@@ -8,6 +8,7 @@ import { useSectionReveal } from '@/hooks/useAnimation';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { products, canCheckout } from '@/lib/data';
+import { trackProductsSeen, trackEbayClick } from '@/lib/analytics';
 import { richContent } from '@/lib/productContent';
 import { getEstimatedDelivery } from '@/lib/utils';
 import { ChainFinder } from '@/sections/ChainFinder';
@@ -33,6 +34,23 @@ export function Products() {
 
   const headerRef = useRef<HTMLDivElement>(null);
   useSectionReveal(headerRef);
+
+  // scroll_products (Mobile-Plan A6): feuert einmal, sobald die Produktsektion
+  // sichtbar wird — misst, wie viele Besucher ueberhaupt so weit scrollen.
+  // Schwelle 10%: die Sektion ist auf Mobile deutlich hoeher als der
+  // Viewport, bei einer hohen Schwelle wuerde "sichtbar" erst ausloesen, wenn
+  // fast die ganze Sektion durchgescrollt ist.
+  const sectionRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { trackProductsSeen(); observer.disconnect(); } },
+      { threshold: 0.1 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   // Listen for hero pill "Vorgewachste Ketten" click → open chains tab
   useEffect(() => {
@@ -144,7 +162,7 @@ export function Products() {
   }, [filteredChains.length]);
 
   return (
-    <Section id="produkte" className="bg-wx-bg">
+    <Section id="produkte" ref={sectionRef} className="bg-wx-bg">
           {/* Header */}
           <div ref={headerRef} className="mb-10">
             <h2 className="section-title mb-4">
@@ -495,7 +513,7 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deli
               <div className="flex flex-col items-end gap-1">
                 <AddToCartButton product={product} size="sm" />
                 <button
-                  onClick={e => { e.preventDefault(); e.stopPropagation(); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
+                  onClick={e => { e.preventDefault(); e.stopPropagation(); trackEbayClick(product.id); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
                   className="text-[11px] transition-opacity hover:opacity-70"
                   style={{ color: 'var(--txm)' }}
                 >
@@ -504,7 +522,7 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deli
               </div>
             ) : (
               <button
-                onClick={e => { e.preventDefault(); e.stopPropagation(); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
+                onClick={e => { e.preventDefault(); e.stopPropagation(); trackEbayClick(product.id); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
                 className="flex items-center gap-1.5 px-5 py-2.5 text-[13px] font-semibold rounded-full transition-all duration-150 hover:opacity-90 active:scale-[0.97]"
                 style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
               >
@@ -591,7 +609,7 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
               <div className="flex flex-col items-end gap-1">
                 <AddToCartButton product={product} size="sm" />
                 <button
-                  onClick={e => { e.preventDefault(); e.stopPropagation(); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
+                  onClick={e => { e.preventDefault(); e.stopPropagation(); trackEbayClick(product.id); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
                   className="text-[11px] transition-opacity hover:opacity-70"
                   style={{ color: 'var(--txm)' }}
                 >
@@ -600,7 +618,7 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
               </div>
             ) : (
               <button
-                onClick={e => { e.preventDefault(); e.stopPropagation(); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
+                onClick={e => { e.preventDefault(); e.stopPropagation(); trackEbayClick(product.id); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
                 className="flex items-center gap-1.5 px-5 py-2.5 rounded-full text-[13px] font-semibold transition-all duration-150 hover:opacity-90 active:scale-[0.97]"
                 style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
               >

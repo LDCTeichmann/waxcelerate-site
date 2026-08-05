@@ -4,6 +4,7 @@ import { ArrowLeft, ExternalLink } from 'lucide-react';
 import { getProductById, canCheckout, checkoutEnabled } from '@/lib/data';
 import { useLanguage } from '@/hooks/useLanguage';
 import { AddToCartButton } from '@/components/AddToCartButton';
+import { trackEbayClick } from '@/lib/analytics';
 import { CartIcon } from '@/components/CartIcon';
 import { gsap } from '@/lib/gsap';
 
@@ -235,6 +236,7 @@ export function ProductStagePage() {
                   href={product.ebayUrl}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => trackEbayClick(product.id)}
                   className="flex items-center gap-2 px-6 py-3 rounded-full text-[13px] font-semibold transition-all hover:scale-[1.02] active:scale-[0.98]"
                   style={{ background: 'rgba(255,255,255,0.95)', color: '#0a0a0b' }}
                 >

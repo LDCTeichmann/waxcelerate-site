@@ -46,6 +46,7 @@ import { ScrollProgress } from '@/components/ScrollProgress';
 import { MobileStickyCTA } from '@/components/MobileStickyCTA';
 import { CartPersistenceHint } from '@/components/CartPersistenceHint';
 import { SectionDots } from '@/components/SectionDots';
+import { Analytics } from '@vercel/analytics/react';
 
 const PageLoader = () => (
   <div style={{ minHeight: '100vh', background: 'var(--pg)' }} />
@@ -72,6 +73,7 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-wx-bg text-wx-tx1">
+      <Analytics />
       <ScrollProgress />
       {checkoutEnabled && <CartPersistenceHint />}
       <RouteScrollReset />

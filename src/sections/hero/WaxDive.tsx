@@ -8,6 +8,7 @@ import { ComponentDiagram } from '@/sections/science/diagrams';
 import { diveFormula } from '@/lib/science';
 import { getProductById, canCheckout } from '@/lib/data';
 import { AddToCartButton } from '@/components/AddToCartButton';
+import { trackEbayClick } from '@/lib/analytics';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 
 /**
@@ -243,7 +244,7 @@ export function WaxDive({ open, onClose, de }: { open: boolean; onClose: () => v
               href={product.ebayUrl}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e) => { e.stopPropagation(); trackEbayClick(product.id); }}
               className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-[13px] font-semibold flex-shrink-0 transition-transform active:scale-[0.97]"
               style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
             >

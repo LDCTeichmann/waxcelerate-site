@@ -4,6 +4,7 @@ import { useCartStore, isInStock, isLowStock } from '@/store/cart';
 import { useLanguage } from '@/hooks/useLanguage';
 import { toast } from 'sonner';
 import type { Product } from '@/lib/data';
+import { trackBuyClick } from '@/lib/analytics';
 
 interface Props {
   product: Product;
@@ -27,6 +28,7 @@ export function AddToCartButton({ product, size = 'md', fullWidth = false }: Pro
     e.stopPropagation();
     if (added || !inStock) return;
     addItem(product);
+    trackBuyClick(product.id);
     setAdded(true);
     toast.success(t.cart.addedToast, { duration: 2000 });
     setTimeout(() => setAdded(false), 1500);
