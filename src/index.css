@@ -762,14 +762,27 @@ section[id] {
 
 /* Hairline slider — used by the science page's breakaway counter. Deliberately
    thinner than a stock range input so it reads as an instrument control rather
-   than a form field. */
+   than a form field. Mobile-Plan B5: the element box itself is 44px tall so the
+   whole input carries a finger-sized tap/drag target, but the visible track
+   stays a 1px hairline via ::-webkit-slider-runnable-track / ::-moz-range-track
+   — "sieht dünn aus, trifft breit". */
 .wx-range {
   -webkit-appearance: none;
   appearance: none;
-  height: 1px;
-  background: var(--bd);
+  height: 44px;
+  background: transparent;
   outline: none;
   cursor: pointer;
+}
+.wx-range::-webkit-slider-runnable-track {
+  height: 1px;
+  background: var(--bd);
+  border-radius: 9999px;
+}
+.wx-range::-moz-range-track {
+  height: 1px;
+  background: var(--bd);
+  border-radius: 9999px;
 }
 .wx-range::-webkit-slider-thumb {
   -webkit-appearance: none;
@@ -780,6 +793,10 @@ section[id] {
   background: var(--accent);
   box-shadow: 0 0 0 5px var(--accent-wash);
   cursor: grab;
+  /* WebKit centers the thumb on the runnable-track by offsetting from its own
+     top via margin-top: (trackHeight - thumbHeight) / 2. Firefox centers
+     ::-moz-range-thumb on ::-moz-range-track automatically, no offset needed. */
+  margin-top: -6px;
 }
 .wx-range::-moz-range-thumb {
   width: 13px;
@@ -792,7 +809,7 @@ section[id] {
 }
 .wx-range:focus-visible {
   outline: 2px solid var(--accent);
-  outline-offset: 8px;
+  outline-offset: 4px;
 }
 
 /* Reduced motion — universal kill switch */

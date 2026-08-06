@@ -953,7 +953,7 @@ export function Tools() {
                   <button
                     key={i}
                     onClick={() => setActiveTab(i)}
-                    className="transition-all duration-300"
+                    className="relative transition-all duration-300 after:content-[''] after:absolute after:top-1/2 after:left-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:w-11 after:h-11"
                     aria-label={TAB_LABELS[i]}
                     style={{
                       width: i === activeTab ? '20px' : '6px',

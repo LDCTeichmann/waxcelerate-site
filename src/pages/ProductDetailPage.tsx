@@ -410,7 +410,7 @@ export function ProductDetailPage() {
               <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex gap-1.5">
                 {gallery.map((_, i) => (
                   <button key={i} onClick={() => { goTo(i); pause(); setTimeout(resume, AUTO_INTERVAL); }}
-                    className="h-[2.5px] rounded-full transition-all duration-500"
+                    className="relative h-[2.5px] rounded-full transition-all duration-500 after:content-[''] after:absolute after:top-1/2 after:left-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:w-11 after:h-11"
                     style={{ width: i === activeImage ? 22 : 7, background: i === activeImage ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.3)' }}
                     aria-label={`Image ${i + 1}`} />
                 ))}

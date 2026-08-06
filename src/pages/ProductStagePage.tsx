@@ -254,7 +254,7 @@ export function ProductStagePage() {
               <button
                 key={i}
                 onClick={() => { goTo(i); pause(); setTimeout(resume, AUTO_INTERVAL); }}
-                className="relative h-1 rounded-full overflow-hidden transition-all duration-300"
+                className="relative h-1 rounded-full transition-all duration-300 after:content-[''] after:absolute after:top-1/2 after:left-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:w-11 after:h-11"
                 style={{
                   width: i === active ? 28 : 8,
                   background: i === active ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.25)',

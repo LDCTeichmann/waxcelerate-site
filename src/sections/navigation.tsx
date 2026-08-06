@@ -187,7 +187,7 @@ export function Navigation() {
               <button
                 id="mobile-menu-button"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="lg:hidden p-2 transition-colors"
+                className="lg:hidden p-3 -m-1 transition-colors"
                 style={{ color: 'var(--tx2)' }}
                 aria-label={de ? 'Menü öffnen' : 'Open menu'}
                 aria-expanded={isMobileMenuOpen}
