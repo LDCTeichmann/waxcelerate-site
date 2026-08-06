@@ -23,7 +23,12 @@ export function Footer() {
 
   const currentYear = new Date().getFullYear();
 
-  const linkClass = 'text-wx-txf hover:text-wx-tx1 text-[13px] transition-colors duration-150 leading-relaxed';
+  // Mobile-Plan B5/Stage-B-Ziel "keine Touch-Ziele unter 24x24px": die reinen
+  // Textlinks waren nur 16px hoch (Zeilenhöhe ohne Puffer). inline-block + py-1
+  // bringt sie auf ~24px Trefferhöhe, ohne dass Schriftgröße oder Optik sich
+  // sichtbar aendern; das Padding frisst einen Teil des vorherigen space-y der
+  // umgebenden <ul>, siehe dort.
+  const linkClass = 'inline-block py-1 text-wx-txf hover:text-wx-tx1 text-[13px] transition-colors duration-150 leading-relaxed';
   const headingClass = 'text-small font-semibold uppercase tracking-[0.18em] text-wx-txf mb-4 block';
 
   return (
@@ -49,7 +54,7 @@ export function Footer() {
                 href="https://www.ebay.de/usr/waxcelerate"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-[12px] font-medium text-wx-tx2 hover:text-wx-tx1 transition-colors duration-150"
+                className="inline-flex items-center gap-1.5 py-1 text-[12px] font-medium text-wx-tx2 hover:text-wx-tx1 transition-colors duration-150"
               >
                 {de ? 'Zum eBay Shop' : 'Visit eBay Shop'}
                 <ExternalLink className="h-3 w-3" />
@@ -59,7 +64,7 @@ export function Footer() {
             {/* Shop */}
             <div>
               <span className={headingClass}>{t.footer.shop}</span>
-              <ul className="space-y-2.5">
+              <ul className="space-y-0.5">
                 {[
                   { href: '#produkte', label: t.nav.products },
                   { href: '#tools',    label: t.nav.tools },
@@ -79,7 +84,7 @@ export function Footer() {
             {/* Info */}
             <div>
               <span className={headingClass}>{t.footer.info}</span>
-              <ul className="space-y-2.5">
+              <ul className="space-y-0.5">
                 {[
                   { href: '#anleitungen', label: t.nav.guides },
                   { href: '#faq',        label: t.nav.faq    },
@@ -102,7 +107,7 @@ export function Footer() {
             {/* Legal */}
             <div>
               <span className={headingClass}>{t.footer.legal}</span>
-              <ul className="space-y-2.5">
+              <ul className="space-y-0.5">
                 {[
                   { label: 'Impressum',  to: '/impressum'  },
                   { label: 'Datenschutz', to: '/datenschutz' },

@@ -229,7 +229,7 @@ export function FormulaGraph({ de, onSelect, scrollFocus, compact }: { de: boole
                 return (
                   <button key={i} type="button" onClick={() => jumpTo(i)}
                     aria-label={(de ? 'Schritt ' : 'Step ') + (i + 1)}
-                    className="rounded-full transition-all"
+                    className="relative rounded-full transition-all after:content-[''] after:absolute after:top-1/2 after:left-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:w-11 after:h-11"
                     style={{
                       width: reached ? 22 : 8, height: 8,
                       background: reached ? 'var(--accent)' : past ? 'rgba(var(--accent-rgb),0.45)' : 'var(--bd)',

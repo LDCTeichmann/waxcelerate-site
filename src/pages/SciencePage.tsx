@@ -212,7 +212,7 @@ function Disclosure({ label, children }: { label: string; children: React.ReactN
   return (
     <div className="mt-3">
       <button onClick={() => setOpen(o => !o)}
-        className="inline-flex items-center gap-1.5 text-[12px] font-medium"
+        className="inline-flex items-center gap-1.5 text-[12px] font-medium py-1.5 -my-1.5"
         style={{ color: 'var(--accent)' }} aria-expanded={open}>
         {label}
         <ChevronDown className="h-3.5 w-3.5 transition-transform duration-300"
@@ -717,7 +717,8 @@ function FormulaStory({ de }: { de: boolean }) {
                           than the space left in that viewport, and were getting
                           silently clipped at the bottom instead of shown. Scoped
                           scroll on just this panel instead of fighting the pin. */}
-                      <div className="pt-3 pr-2 space-y-3 overflow-y-auto" style={{ maxHeight: '38vh' }}>
+                      <div className="pt-3 pr-2 space-y-3 overflow-y-auto" style={{ maxHeight: '38vh' }}
+                        tabIndex={0} role="region" aria-label={de ? 'Physik-Details' : 'Physics details'}>
                         {(de ? c.physicsDe : c.physicsEn).map((p, j) => (
                           <p key={j} className="text-[13px] leading-relaxed" style={{ color: 'var(--txm)' }}>{p}</p>
                         ))}

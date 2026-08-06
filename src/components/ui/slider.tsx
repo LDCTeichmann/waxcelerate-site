@@ -61,7 +61,10 @@ function Slider({
           data-slot="slider-thumb"
           key={index}
           aria-label={ariaLabel}
-          className="border-primary ring-ring/50 block size-4 shrink-0 rounded-full border bg-white shadow-sm transition-[color,box-shadow] hover:ring-2 focus-visible:ring-2 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50"
+          // Mobile-Plan B5: sichtbarer Thumb bleibt 16px (size-4), die
+          // Trefferflaeche waechst per ::after auf 44x44px, gleiches Muster
+          // wie bei den .wx-range-Slidern und den Punkt-Navigationen.
+          className="border-primary ring-ring/50 relative block size-4 shrink-0 rounded-full border bg-white shadow-sm transition-[color,box-shadow] hover:ring-2 focus-visible:ring-2 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50 after:content-[''] after:absolute after:top-1/2 after:left-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:w-11 after:h-11"
         />
       ))}
     </SliderPrimitive.Root>
