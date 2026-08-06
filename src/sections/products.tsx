@@ -263,7 +263,7 @@ export function Products() {
               </p>
 
               {/* Shared info — shown once instead of repeating identical pills on every card */}
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 mb-4 px-1 text-[11px]" style={{ color: 'var(--txf)' }}>
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 mb-4 px-1 text-meta" style={{ color: 'var(--txf)' }}>
                 <span className="font-medium" style={{ color: 'var(--tx2)' }}>
                   {de ? 'Alle Ketten: vorgewachst · Quick-Link inklusive' : 'All chains: pre-waxed · Quick-Link included'}
                 </span>
@@ -459,7 +459,7 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deli
           {product.reviewCount != null && (
             <div className="flex items-center gap-1.5 mt-1">
               <Stars rating={5} />
-              <span className="text-[11px]" style={{ color: 'var(--txf)' }}>
+              <span className="text-meta" style={{ color: 'var(--txf)' }}>
                 {product.reviewCount} {de ? 'Bewertungen' : 'reviews'}
               </span>
             </div>
@@ -474,7 +474,7 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deli
               date are the two anyone actually reads. */}
           <div className="flex items-center gap-1.5 sm:gap-2 mt-2 sm:mt-2.5 flex-wrap">
             {product.intervalDry && (
-              <span className="text-[11px] px-2 sm:text-[10.5px] py-0.5 rounded-md tabular-nums" style={{ fontFamily: MONO, background: 'var(--sf2)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
+              <span className="text-meta px-2 sm:text-[10.5px] py-0.5 rounded-md tabular-nums" style={{ fontFamily: MONO, background: 'var(--sf2)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
                 {product.intervalDry}
               </span>
             )}
@@ -484,7 +484,7 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deli
               </span>
             )}
             {deliveryDate && (
-              <span className="inline-flex items-center gap-1 text-[11px] px-2 sm:text-[10.5px] py-0.5 rounded-md tabular-nums" style={{ fontFamily: MONO, background: 'var(--sf2)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
+              <span className="inline-flex items-center gap-1 text-meta px-2 sm:text-[10.5px] py-0.5 rounded-md tabular-nums" style={{ fontFamily: MONO, background: 'var(--sf2)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
                 <Truck className="h-3 w-3 sm:h-2.5 sm:w-2.5" strokeWidth={2.25} style={{ color: 'var(--brand-blue)' }} aria-hidden />
                 {deliveryDate}
               </span>
@@ -498,7 +498,7 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deli
               steht einmal ruhig ueber der Liste, wo sie hingehoert: als
               Rechenhilfe fuer den, der ohnehin mehrere nimmt. */}
           {multiDiscount && (
-            <div className="inline-flex items-center gap-1.5 mt-2 text-[11px]" style={{ color: 'var(--txf)' }}>
+            <div className="inline-flex items-center gap-1.5 mt-2 text-meta" style={{ color: 'var(--txf)' }}>
               <Tag className="h-3 w-3" strokeWidth={2} aria-hidden />
               {de ? 'Mengenstaffel ab 2 Blöcken' : 'Volume tiers from 2 blocks'}
             </div>
@@ -511,7 +511,7 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deli
                 {formatPrice(product.price)}
               </span>
               {per100 && (
-                <p className="text-[11px] mt-1 tabular-nums" style={{ fontFamily: MONO, color: 'var(--txf)' }}>{per100}</p>
+                <p className="text-meta mt-1 tabular-nums" style={{ fontFamily: MONO, color: 'var(--txf)' }}>{per100}</p>
               )}
             </div>
             {canCheckout(product) ? (
@@ -519,7 +519,7 @@ const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deli
                 <AddToCartButton product={product} size="sm" />
                 <button
                   onClick={e => { e.preventDefault(); e.stopPropagation(); trackEbayClick(product.id); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
-                  className="text-[11px] transition-opacity hover:opacity-70"
+                  className="text-meta transition-opacity hover:opacity-70"
                   style={{ color: 'var(--txm)' }}
                 >
                   {de ? 'oder bei eBay →' : 'or on eBay →'}
@@ -588,7 +588,7 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
 
         {/* Content */}
         <div className="px-3.5 sm:px-4 pt-2.5 sm:pt-3 pb-3 sm:pb-3.5 flex flex-col flex-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ color: 'var(--accent-soft)' }}>{brand}</p>
+          <p className="text-meta font-semibold uppercase tracking-[0.14em]" style={{ color: 'var(--accent-soft)' }}>{brand}</p>
           <h3 className="text-[14px] sm:text-[15px] font-bold text-wx-tx1 leading-snug tracking-[-0.02em] mt-0.5">{model}</h3>
 
           {/* Specs as pills */}
@@ -615,7 +615,7 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
                 <AddToCartButton product={product} size="sm" />
                 <button
                   onClick={e => { e.preventDefault(); e.stopPropagation(); trackEbayClick(product.id); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
-                  className="text-[11px] transition-opacity hover:opacity-70"
+                  className="text-meta transition-opacity hover:opacity-70"
                   style={{ color: 'var(--txm)' }}
                 >
                   {de ? 'oder bei eBay →' : 'or on eBay →'}
@@ -729,7 +729,7 @@ function CompareModal({ open, onClose, de, t }: {
         >
           <div>
             <h3 className="text-[15px] font-semibold text-wx-tx1 tracking-[-0.01em]">{pt.compareTitle}</h3>
-            <p className="text-[11px] mt-0.5" style={{ color: 'var(--txff)' }}>
+            <p className="text-meta mt-0.5" style={{ color: 'var(--txff)' }}>
               {de ? 'Alle Angaben für 500g Blöcke' : 'All figures for 500g blocks'}
             </p>
           </div>
@@ -756,15 +756,15 @@ function CompareModal({ open, onClose, de, t }: {
                 <div className="px-3 py-3" />
                 {/* Classic header */}
                 <div className="px-3 py-3 flex flex-col gap-0.5" style={{ borderLeft: '1px solid var(--bd2)' }}>
-                  <span className="text-[10px] font-bold uppercase tracking-[0.12em]" style={{ color: CLASSIC_ACCENT }}>Classic</span>
-                  <span className="text-[10px] leading-snug" style={{ color: 'var(--txff)' }}>
+                  <span className="text-meta font-bold uppercase tracking-[0.12em]" style={{ color: CLASSIC_ACCENT }}>Classic</span>
+                  <span className="text-meta leading-snug" style={{ color: 'var(--txff)' }}>
                     {de ? 'Sommer & Einsteiger' : 'Summer & Beginners'}
                   </span>
                 </div>
                 {/* Pro header */}
                 <div className="px-3 py-3 flex flex-col gap-0.5" style={{ borderLeft: '1px solid var(--bd2)' }}>
-                  <span className="text-[10px] font-bold uppercase tracking-[0.12em]" style={{ color: PRO_ACCENT }}>Pro MoS₂</span>
-                  <span className="text-[10px] leading-snug" style={{ color: 'var(--txff)' }}>
+                  <span className="text-meta font-bold uppercase tracking-[0.12em]" style={{ color: PRO_ACCENT }}>Pro MoS₂</span>
+                  <span className="text-meta leading-snug" style={{ color: 'var(--txff)' }}>
                     {de ? 'Ganzjahr & E-Bike' : 'Year-round & E-Bike'}
                   </span>
                 </div>
@@ -779,7 +779,7 @@ function CompareModal({ open, onClose, de, t }: {
                 >
                   {/* Label */}
                   <div className="px-3 py-3 flex items-center">
-                    <span className="text-[11px]" style={{ color: 'var(--txm)' }}>{row.label}</span>
+                    <span className="text-meta" style={{ color: 'var(--txm)' }}>{row.label}</span>
                   </div>
                   {/* Classic value */}
                   <div className="px-3 py-3 flex items-center justify-center" style={{ borderLeft: '1px solid var(--bd2)' }}>
@@ -815,13 +815,13 @@ function CompareModal({ open, onClose, de, t }: {
               >
                 <div className="flex items-center gap-2">
                   <span
-                    className="text-[9px] font-bold uppercase tracking-[0.12em] px-2 py-0.5 rounded-full flex-shrink-0"
+                    className="text-meta font-bold uppercase tracking-[0.12em] px-2 py-0.5 rounded-full flex-shrink-0"
                     style={{ background: 'rgba(var(--accent-soft-rgb), 0.08)', color: CLASSIC_ACCENT }}
                   >
                     Classic
                   </span>
                   <span className="text-[12px] font-medium text-wx-tx1">{pt.compareFormulaClassic}</span>
-                  <span className="text-[11px]" style={{ color: 'var(--txff)' }}>
+                  <span className="text-meta" style={{ color: 'var(--txff)' }}>
                     · {classicRc.formulaDetails?.length} {pt.compareComponents}
                   </span>
                 </div>
@@ -842,12 +842,12 @@ function CompareModal({ open, onClose, de, t }: {
                         className="flex gap-3.5 px-4 py-3"
                         style={{ borderBottom: i < arr.length - 1 ? '1px solid var(--bd2)' : 'none' }}
                       >
-                        <span className="text-[11px] font-bold tabular-nums flex-shrink-0 mt-0.5 w-5 text-right" style={{ color: CLASSIC_ACCENT }}>
+                        <span className="text-meta font-bold tabular-nums flex-shrink-0 mt-0.5 w-5 text-right" style={{ color: CLASSIC_ACCENT }}>
                           {String(i + 1).padStart(2, '0')}
                         </span>
                         <div>
                           <div className="text-[12px] font-semibold text-wx-tx1 mb-0.5">{f.name}</div>
-                          <div className="text-[11px] leading-relaxed" style={{ color: 'var(--txm)' }}>{f.detail}</div>
+                          <div className="text-meta leading-relaxed" style={{ color: 'var(--txm)' }}>{f.detail}</div>
                         </div>
                       </div>
                     ))}
@@ -856,10 +856,10 @@ function CompareModal({ open, onClose, de, t }: {
                         className="mx-4 mb-3 mt-1 rounded-lg p-3"
                         style={{ background: 'rgba(var(--accent-soft-rgb), 0.03)', border: '1px solid rgba(var(--accent-soft-rgb), 0.13)' }}
                       >
-                        <div className="text-[10px] font-semibold uppercase tracking-widest mb-1" style={{ color: CLASSIC_ACCENT }}>
+                        <div className="text-meta font-semibold uppercase tracking-widest mb-1" style={{ color: CLASSIC_ACCENT }}>
                           {classicRc.techNote.title}
                         </div>
-                        <p className="text-[11px] leading-relaxed" style={{ color: 'var(--txm)' }}>
+                        <p className="text-meta leading-relaxed" style={{ color: 'var(--txm)' }}>
                           {classicRc.techNote.body}
                         </p>
                       </div>
@@ -880,13 +880,13 @@ function CompareModal({ open, onClose, de, t }: {
               >
                 <div className="flex items-center gap-2">
                   <span
-                    className="text-[9px] font-bold uppercase tracking-[0.12em] px-2 py-0.5 rounded-full flex-shrink-0"
+                    className="text-meta font-bold uppercase tracking-[0.12em] px-2 py-0.5 rounded-full flex-shrink-0"
                     style={{ background: 'rgba(var(--accent-soft-rgb), 0.09)', color: PRO_ACCENT }}
                   >
                     Pro MoS₂
                   </span>
                   <span className="text-[12px] font-medium text-wx-tx1">{pt.compareFormulaPro}</span>
-                  <span className="text-[11px]" style={{ color: 'var(--txff)' }}>
+                  <span className="text-meta" style={{ color: 'var(--txff)' }}>
                     · {proRc.formulaDetails?.length} {pt.compareComponents}
                   </span>
                 </div>
@@ -907,12 +907,12 @@ function CompareModal({ open, onClose, de, t }: {
                         className="flex gap-3.5 px-4 py-3"
                         style={{ borderBottom: i < arr.length - 1 ? '1px solid var(--bd2)' : 'none' }}
                       >
-                        <span className="text-[11px] font-bold tabular-nums flex-shrink-0 mt-0.5 w-5 text-right" style={{ color: PRO_ACCENT }}>
+                        <span className="text-meta font-bold tabular-nums flex-shrink-0 mt-0.5 w-5 text-right" style={{ color: PRO_ACCENT }}>
                           {String(i + 1).padStart(2, '0')}
                         </span>
                         <div>
                           <div className="text-[12px] font-semibold text-wx-tx1 mb-0.5">{f.name}</div>
-                          <div className="text-[11px] leading-relaxed" style={{ color: 'var(--txm)' }}>{f.detail}</div>
+                          <div className="text-meta leading-relaxed" style={{ color: 'var(--txm)' }}>{f.detail}</div>
                         </div>
                       </div>
                     ))}
@@ -921,10 +921,10 @@ function CompareModal({ open, onClose, de, t }: {
                         className="mx-4 mb-3 mt-1 rounded-lg p-3"
                         style={{ background: 'rgba(var(--accent-soft-rgb), 0.03)', border: '1px solid rgba(var(--accent-soft-rgb), 0.13)' }}
                       >
-                        <div className="text-[10px] font-semibold uppercase tracking-widest mb-1" style={{ color: PRO_ACCENT }}>
+                        <div className="text-meta font-semibold uppercase tracking-widest mb-1" style={{ color: PRO_ACCENT }}>
                           {proRc.techNote.title}
                         </div>
-                        <p className="text-[11px] leading-relaxed" style={{ color: 'var(--txm)' }}>
+                        <p className="text-meta leading-relaxed" style={{ color: 'var(--txm)' }}>
                           {proRc.techNote.body}
                         </p>
                       </div>
@@ -948,7 +948,7 @@ function CompareModal({ open, onClose, de, t }: {
             style={{ background: 'var(--sf)', border: '1px solid var(--bd)' }}
           >
             <span className="text-[12px] font-semibold" style={{ color: 'var(--tx1)' }}>Classic</span>
-            <span className="text-[11px]" style={{ color: 'var(--txff)' }}>{classicPrice}</span>
+            <span className="text-meta" style={{ color: 'var(--txff)' }}>{classicPrice}</span>
           </Link>
           <Link
             to="/produkt/wax-500-mos2"
@@ -957,7 +957,7 @@ function CompareModal({ open, onClose, de, t }: {
             style={{ background: 'rgba(var(--accent-soft-rgb), 0.07)', border: '1px solid rgba(var(--accent-soft-rgb), 0.25)' }}
           >
             <span className="text-[12px] font-semibold" style={{ color: PRO_ACCENT }}>Pro MoS₂</span>
-            <span className="text-[11px]" style={{ color: 'rgba(var(--accent-soft-rgb), 0.6)' }}>{proPrice}</span>
+            <span className="text-meta" style={{ color: 'rgba(var(--accent-soft-rgb), 0.6)' }}>{proPrice}</span>
           </Link>
         </div>
       </div>

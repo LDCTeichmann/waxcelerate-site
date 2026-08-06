@@ -90,7 +90,7 @@ function FieldLabel({ label, value }: { label: string; value?: string }) {
   return (
     <div className="flex items-baseline justify-between mb-2.5">
       <span
-        className="text-[11px] uppercase tracking-[0.1em] font-medium"
+        className="text-meta uppercase tracking-[0.1em] font-medium"
         style={{ color: 'var(--txf)' }}
       >
         {label}
@@ -368,10 +368,10 @@ function WaxStockCalculator() {
                 <p className="text-[13px] font-medium leading-snug" style={{ color: freq === o.value ? 'var(--tx1)' : 'var(--tog-fg)' }}>
                   {o.label}
                 </p>
-                <p className="text-[11px] mt-0.5 leading-snug" style={{ color: freq === o.value ? 'var(--tx2)' : 'var(--txff)' }}>
+                <p className="text-meta mt-0.5 leading-snug" style={{ color: freq === o.value ? 'var(--tx2)' : 'var(--txff)' }}>
                   {o.hint}
                 </p>
-                <p className="text-[11px] mt-0.5 tabular-nums" style={{ color: freq === o.value ? 'var(--txm)' : 'var(--txff)' }}>
+                <p className="text-meta mt-0.5 tabular-nums" style={{ color: freq === o.value ? 'var(--txm)' : 'var(--txff)' }}>
                   {o.km}
                 </p>
               </button>
@@ -392,20 +392,20 @@ function WaxStockCalculator() {
                 }}
               >
                 <div className="flex items-center justify-between mb-2">
-                  <p className="text-[11px] uppercase tracking-[0.14em]" style={{ color: 'var(--brand)' }}>
+                  <p className="text-small uppercase tracking-[0.14em]" style={{ color: 'var(--brand)' }}>
                     {de ? 'Empfohlen' : 'Recommended'}
                   </p>
                   <div className="flex items-center gap-2">
                     <p className="text-[12px]" style={{ color: 'var(--txf)' }}>
                       {rec}g — {recPrice} €
                     </p>
-                    <span className="text-[11px]" style={{ color: 'var(--brand)' }}>eBay →</span>
+                    <span className="text-meta" style={{ color: 'var(--brand)' }}>eBay →</span>
                   </div>
                 </div>
                 <p className="text-[42px] font-bold leading-none mb-2" style={{ color: 'var(--tx1)' }}>
                   {fmtDuration(recMonths, de)}
                 </p>
-                <p className="text-[11px] leading-snug" style={{ color: 'var(--txf)' }}>
+                <p className="text-meta leading-snug" style={{ color: 'var(--txf)' }}>
                   {recReason}
                 </p>
               </div>
@@ -427,7 +427,7 @@ function WaxStockCalculator() {
                   <p className="text-[12px] tabular-nums" style={{ color: 'var(--txff)' }}>
                     {fmtDuration(altMonths, de)}
                   </p>
-                  <span className="text-[11px]" style={{ color: 'var(--txff)' }}>eBay →</span>
+                  <span className="text-meta" style={{ color: 'var(--txff)' }}>eBay →</span>
                 </div>
               </div>
             </a>
@@ -543,7 +543,7 @@ function RotationAndSavings() {
               <span className="text-[14px] font-semibold leading-tight" style={{ color: 'var(--brand)' }}>
                 {de ? 'gespart' : 'saved'}
               </span>
-              <span className="text-[11px]" style={{ color: 'var(--txf)' }}>
+              <span className="text-meta" style={{ color: 'var(--txf)' }}>
                 {de ? '/Jahr' : '/year'}
               </span>
             </div>
@@ -594,14 +594,14 @@ function RotationAndSavings() {
                   {/* Top: label row */}
                   <div className="flex items-center justify-between mb-2">
                     <p
-                      className="text-[11px] font-semibold leading-none"
+                      className="text-meta font-semibold leading-none"
                       style={{ color: isRec ? 'var(--brand)' : 'var(--tx2)' }}
                     >
                       {n} {de ? (n === 1 ? 'Kette' : 'Ketten') : (n === 1 ? 'chain' : 'chains')}
                     </p>
                     {cardDiscountPct > 0 && (
                       <span
-                        className="rounded px-1 py-0.5 text-[11px] font-semibold leading-none"
+                        className="rounded px-1 py-0.5 text-meta font-semibold leading-none"
                         style={{ background: 'var(--accent-wash)', color: 'var(--brand)' }}
                       >
                         −{cardDiscountPct}%
@@ -616,7 +616,7 @@ function RotationAndSavings() {
                   >
                     {annualSavings > 0 ? `~€${annualSavings}` : '—'}
                   </p>
-                  <p className="text-[11px] mt-0.5 mb-3" style={{ color: 'var(--txff)' }}>
+                  <p className="text-meta mt-0.5 mb-3" style={{ color: 'var(--txff)' }}>
                     {savingsPct > 0
                       ? (de ? `/Jahr · −${savingsPct}%` : `/yr · −${savingsPct}%`)
                       : (de ? '/Jahr vs. Öl' : '/yr vs. oil')}
@@ -628,19 +628,19 @@ function RotationAndSavings() {
                       {sessionsPerYear}×
                     </p>
                     {sessionsSavedPct > 0 && (
-                      <p className="text-[11px] font-semibold" style={{ color: 'var(--brand)' }}>−{sessionsSavedPct}%</p>
+                      <p className="text-meta font-semibold" style={{ color: 'var(--brand)' }}>−{sessionsSavedPct}%</p>
                     )}
                   </div>
-                  <p className="text-[11px]" style={{ color: 'var(--txff)' }}>
+                  <p className="text-meta" style={{ color: 'var(--txff)' }}>
                     {de ? 'Waxen/Jahr' : 'wax/yr'}
                   </p>
 
                   {/* Next wax date — always at bottom */}
                   <div className="mt-auto pt-3">
-                    <p className="text-[11px]" style={{ color: 'var(--txff)' }}>
+                    <p className="text-meta" style={{ color: 'var(--txff)' }}>
                       {de ? 'Nächstes Waxen' : 'Next wax'}
                     </p>
-                    <p className="text-[11px] font-medium mt-0.5" style={{ color: isRec ? 'var(--brand)' : 'var(--txm)' }}>
+                    <p className="text-meta font-medium mt-0.5" style={{ color: isRec ? 'var(--brand)' : 'var(--txm)' }}>
                       {dateStr}
                     </p>
                   </div>
@@ -965,7 +965,7 @@ export function Tools() {
                 ))}
               </div>
               <p
-                className="text-[11px] tracking-[0.08em] transition-opacity duration-700"
+                className="text-meta tracking-[0.08em] transition-opacity duration-700"
                 // Mobile-Plan B4: opacity: 0.7 auf --txff (bereits der hellste
                 // Text-Token) verwaesserte den Kontrast zusaetzlich unter 4.5:1
                 // (axe-core: 2.84:1 effektiv gegen --pg). --txff traegt die

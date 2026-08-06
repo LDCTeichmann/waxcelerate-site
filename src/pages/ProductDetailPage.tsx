@@ -419,7 +419,7 @@ export function ProductDetailPage() {
           </div>
 
           <div className="px-5 sm:px-8 py-6" style={{ background: 'var(--pg)' }}>
-            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] block mb-2"
+            <span className="text-small font-semibold uppercase tracking-[0.2em] block mb-2"
               style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
               {product.variant ? `${product.variant} · ${product.weight ?? ''}` : (product.chainSpeed ?? '')}
             </span>
@@ -446,14 +446,14 @@ export function ProductDetailPage() {
               <div className="flex items-center gap-6 mb-4 pb-4" style={{ borderBottom: '1px solid var(--bd)' }}>
                 {product.intervalDry && (
                   <div>
-                    <p className="text-[9px] uppercase tracking-[0.16em] mb-0.5" style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>{de ? 'Trocken' : 'Dry'}</p>
+                    <p className="text-small uppercase tracking-[0.16em] mb-0.5" style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>{de ? 'Trocken' : 'Dry'}</p>
                     <p className="num text-[20px] font-bold leading-none" style={{ color: 'var(--tx1)' }}>{product.intervalDry}</p>
                   </div>
                 )}
                 {product.intervalDry && product.intervalWet && <div className="w-px h-8" style={{ background: 'var(--bd)' }} />}
                 {product.intervalWet && (
                   <div>
-                    <p className="text-[9px] uppercase tracking-[0.16em] mb-0.5" style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>{de ? 'Nass' : 'Wet'}</p>
+                    <p className="text-small uppercase tracking-[0.16em] mb-0.5" style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>{de ? 'Nass' : 'Wet'}</p>
                     <p className="num text-[20px] font-bold leading-none" style={{ color: 'var(--tx1)' }}>{product.intervalWet}</p>
                   </div>
                 )}
@@ -478,9 +478,9 @@ export function ProductDetailPage() {
                 <p className="num text-[28px] font-bold leading-none tracking-[-0.02em]" style={{ color: 'var(--tx1)' }}>{formatPrice(product.price)}</p>
                 <div className="flex items-center gap-2 mt-1">
                   {pricePerApp !== null && (
-                    <p className="text-[11px]" style={{ color: 'var(--txff)' }}>~{formatPrice(pricePerApp)} / {de ? 'Anwendung' : 'use'}</p>
+                    <p className="text-meta" style={{ color: 'var(--txff)' }}>~{formatPrice(pricePerApp)} / {de ? 'Anwendung' : 'use'}</p>
                   )}
-                  {per100g && <p className="text-[11px]" style={{ color: 'var(--txff)' }}>{pricePerApp !== null ? '· ' : ''}{per100g}</p>}
+                  {per100g && <p className="text-meta" style={{ color: 'var(--txff)' }}>{pricePerApp !== null ? '· ' : ''}{per100g}</p>}
                 </div>
               </div>
               {canCheckout(product) ? <AddToCartButton product={product} /> : (
@@ -494,7 +494,7 @@ export function ProductDetailPage() {
 
             {/* Same delivery estimate the homepage product cards already show —
                 this page had no delivery-date signal at all before. */}
-            <div className="flex items-center gap-1.5 mb-5 text-[11px]" style={{ color: 'var(--txff)' }}>
+            <div className="flex items-center gap-1.5 mb-5 text-meta" style={{ color: 'var(--txff)' }}>
               <Truck className="h-3 w-3 flex-shrink-0" style={{ color: accentColor }} aria-hidden />
               {de ? `Lieferung ${deliveryDate}` : `Delivery ${deliveryDate}`}
             </div>
@@ -502,11 +502,11 @@ export function ProductDetailPage() {
             {(alternatives.length > 0 || related.length > 0) && (
               <div className="pt-4" style={{ borderTop: '1px solid var(--bd)' }}>
                 <div className="flex items-center justify-between mb-3">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em]"
+                  <p className="text-small font-semibold uppercase tracking-[0.18em]"
                     style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
                     {de ? 'Auch erhältlich' : 'Also available'}
                   </p>
-                  <span className="text-[9px]" style={{ color: 'var(--txff)' }}>
+                  <span className="text-meta" style={{ color: 'var(--txff)' }}>
                     ← {de ? 'wischen' : 'swipe'} →
                   </span>
                 </div>
@@ -569,12 +569,12 @@ export function ProductDetailPage() {
               <div className="px-6 xl:px-7 pt-6 pb-5">
                 {/* Eyebrow + bestseller badge */}
                 <div className="flex items-center gap-2.5 mb-2.5">
-                  <span className="text-[9px] font-semibold uppercase tracking-[0.2em]"
+                  <span className="text-small font-semibold uppercase tracking-[0.2em]"
                     style={{ color: 'rgba(0,0,0,0.35)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
                     {product.variant ? `${product.variant} · ${product.weight ?? ''}` : (product.chainSpeed ?? '')}
                   </span>
                   {isWax && product.weight === '500g' && (
-                    <span className="text-[8px] font-bold uppercase tracking-[0.1em] px-1.5 py-[1px] rounded"
+                    <span className="text-meta font-bold uppercase tracking-[0.1em] px-1.5 py-[1px] rounded"
                       style={{ background: `${cardAccent}12`, color: cardAccent }}>
                       {de ? 'Bestseller' : 'Bestseller'}
                     </span>
@@ -607,7 +607,7 @@ export function ProductDetailPage() {
                   <div className="flex items-stretch gap-0 mb-4 rounded-xl overflow-hidden" style={{ border: '1px solid rgba(0,0,0,0.06)' }}>
                     {product.intervalDry && (
                       <div className="flex-1 px-4 py-2" style={{ background: 'rgba(0,0,0,0.015)' }}>
-                        <p className="text-[7.5px] uppercase tracking-[0.18em] mb-0.5 font-semibold"
+                        <p className="text-small uppercase tracking-[0.18em] mb-0.5 font-semibold"
                           style={{ color: 'rgba(0,0,0,0.28)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
                           {de ? 'Trocken' : 'Dry'}
                         </p>
@@ -619,7 +619,7 @@ export function ProductDetailPage() {
                     {product.intervalDry && product.intervalWet && <div className="w-px" style={{ background: 'rgba(0,0,0,0.06)' }} />}
                     {product.intervalWet && (
                       <div className="flex-1 px-4 py-2" style={{ background: 'rgba(0,0,0,0.015)' }}>
-                        <p className="text-[7.5px] uppercase tracking-[0.18em] mb-0.5 font-semibold"
+                        <p className="text-small uppercase tracking-[0.18em] mb-0.5 font-semibold"
                           style={{ color: 'rgba(0,0,0,0.28)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
                           {de ? 'Nass' : 'Wet'}
                         </p>
@@ -637,7 +637,7 @@ export function ProductDetailPage() {
                     <div className="flex gap-px">
                       {[0, 1, 2, 3, 4].map(i => <Star key={i} className="h-3 w-3 fill-current" style={{ color: '#F5A623' }} />)}
                     </div>
-                    <span className="text-[10px] font-medium" style={{ color: 'rgba(0,0,0,0.32)' }}>
+                    <span className="text-meta font-medium" style={{ color: 'rgba(0,0,0,0.32)' }}>
                       {rc.reviewCount}+ {de ? 'zufriedene Kunden' : 'happy customers'}
                     </span>
                   </div>
@@ -650,18 +650,18 @@ export function ProductDetailPage() {
                       {formatPrice(product.price)}
                     </p>
                     {pricePerApp !== null && (
-                      <span className="text-[10px] font-medium" style={{ color: 'rgba(0,0,0,0.3)' }}>
+                      <span className="text-meta font-medium" style={{ color: 'rgba(0,0,0,0.3)' }}>
                         ~{formatPrice(pricePerApp)}/{de ? 'Anw.' : 'use'}
                       </span>
                     )}
                     {per100g && (
-                      <span className="text-[10px] font-medium" style={{ color: 'rgba(0,0,0,0.3)' }}>
+                      <span className="text-meta font-medium" style={{ color: 'rgba(0,0,0,0.3)' }}>
                         {per100g}
                       </span>
                     )}
                   </div>
                   {rc?.savings && (
-                    <p className="text-[10px] font-semibold mt-1" style={{ color: cardAccent }}>
+                    <p className="text-meta font-semibold mt-1" style={{ color: cardAccent }}>
                       {de ? `Spart ${rc.savings} vs. Kettenöl` : `Saves ${rc.savings} vs. chain oil`}
                     </p>
                   )}
@@ -683,7 +683,7 @@ export function ProductDetailPage() {
                 {/* Trust signals — "Made in Germany" only for wax (our own
                     product); pre-waxed chains are resold Shimano/SRAM/YBN
                     parts, per the AGENTS.md rule this line wasn't following. */}
-                <p className="text-[9.5px] text-center font-medium" style={{ color: 'rgba(0,0,0,0.3)' }}>
+                <p className="text-meta text-center font-medium" style={{ color: 'rgba(0,0,0,0.3)' }}>
                   {isWax ? `${de ? 'Hergestellt in Stuttgart' : 'Made in Stuttgart'} · ` : ''}
                   {de ? `Lieferung ${deliveryDate}` : `Delivery ${deliveryDate}`}
                 </p>
@@ -693,14 +693,14 @@ export function ProductDetailPage() {
               <div className="flex items-center justify-between px-6 xl:px-7 py-2.5" style={{ borderTop: '1px solid rgba(0,0,0,0.05)', background: 'rgba(0,0,0,0.015)' }}>
                 <div className="flex flex-wrap gap-1.5">
                   {specsData.slice(0, 4).map((spec, i) => (
-                    <span key={i} className="text-[8.5px] font-medium px-2 py-0.5 rounded-full"
+                    <span key={i} className="text-meta font-medium px-2 py-0.5 rounded-full"
                       style={{ background: 'rgba(0,0,0,0.04)', color: 'rgba(0,0,0,0.35)' }}>
                       {spec.v}
                     </span>
                   ))}
                 </div>
                 <button onClick={scrollToDetails}
-                  className="flex items-center gap-0.5 text-[10px] font-semibold flex-shrink-0 transition-colors hover:opacity-70"
+                  className="flex items-center gap-0.5 text-meta font-semibold flex-shrink-0 transition-colors hover:opacity-70"
                   style={{ color: cardAccent }}>
                   Details <ChevronDown className="h-3 w-3" />
                 </button>
@@ -779,7 +779,7 @@ export function ProductDetailPage() {
           <button onClick={scrollToDetails}
             className="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-1 transition-opacity hover:opacity-80"
             aria-label={de ? 'Mehr erfahren' : 'Learn more'}>
-            <span className="text-[8px] uppercase tracking-[0.25em] font-semibold" style={{ color: 'rgba(255,255,255,0.5)', textShadow: '0 1px 6px rgba(0,0,0,0.4)' }}>
+            <span className="text-small uppercase tracking-[0.14em] font-semibold" style={{ color: 'rgba(255,255,255,0.5)', textShadow: '0 1px 6px rgba(0,0,0,0.4)' }}>
               {de ? 'Mehr erfahren' : 'Learn more'}
             </span>
             <ChevronDown className="h-3.5 w-3.5 pdp-bounce" style={{ color: 'rgba(255,255,255,0.4)', filter: 'drop-shadow(0 1px 4px rgba(0,0,0,0.3))' }} />
@@ -796,7 +796,7 @@ export function ProductDetailPage() {
           <div className="max-w-6xl mx-auto px-5 sm:px-8 py-14 sm:py-20">
             <div className="grid lg:grid-cols-[1fr_1.15fr] gap-8 lg:gap-12">
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.22em] mb-3"
+                <p className="text-small font-semibold uppercase tracking-[0.14em] mb-3"
                   style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
                   {de ? 'Spezifikationen' : 'Specifications'}
                 </p>
@@ -804,7 +804,7 @@ export function ProductDetailPage() {
                   {specsData.map((spec, i, arr) => (
                     <div key={i} className="flex items-baseline justify-between px-4 py-3"
                       style={{ borderBottom: i < arr.length - 1 ? '1px solid var(--bd)' : 'none', background: i % 2 === 0 ? 'var(--sf2)' : 'var(--pg)' }}>
-                      <span className="text-[10px] uppercase tracking-[0.14em]"
+                      <span className="text-meta uppercase tracking-[0.14em]"
                         style={{ fontFamily: "'IBM Plex Mono', ui-monospace, monospace", color: 'var(--txff)' }}>
                         {spec.l}
                       </span>
@@ -834,7 +834,7 @@ export function ProductDetailPage() {
 
               {rc && (isWax ? (hasFormula || hasVergleich || hasKosten) : true) && (
                 <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.22em] mb-3"
+                  <p className="text-small font-semibold uppercase tracking-[0.14em] mb-3"
                     style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
                     {de ? 'Im Detail' : 'Deep dive'}
                   </p>
@@ -858,8 +858,8 @@ export function ProductDetailPage() {
                           ))}
                           {rc.techNote && (
                             <div className="rounded-lg p-3 mt-2" style={{ background: accentBg }}>
-                              <p className="text-[9px] font-semibold uppercase tracking-[0.16em] mb-1" style={{ color: accentColor }}>{rc.techNote.title}</p>
-                              <p className="text-[11px] leading-[1.65]" style={{ color: 'var(--txm)' }}>{rc.techNote.body}</p>
+                              <p className="text-small font-semibold uppercase tracking-[0.16em] mb-1" style={{ color: accentColor }}>{rc.techNote.title}</p>
+                              <p className="text-meta leading-[1.65]" style={{ color: 'var(--txm)' }}>{rc.techNote.body}</p>
                             </div>
                           )}
                         </div>
@@ -870,17 +870,17 @@ export function ProductDetailPage() {
                         subtitle={rc.compHeaders.join(' vs. ')}
                         open={openAccordion === 'vergleich'} onToggle={() => toggleAccordion('vergleich')}>
                         <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--bd)' }}>
-                          <div className="grid text-[9px] font-semibold uppercase tracking-wider px-3 py-2.5"
+                          <div className="grid text-meta font-semibold uppercase tracking-wider px-3 py-2.5"
                             style={{ gridTemplateColumns: `1.4fr repeat(${rc.compHeaders.length}, 1fr)`, background: 'var(--sf2)', borderBottom: '1px solid var(--bd)', color: 'var(--txff)' }}>
                             <span />
                             {rc.compHeaders.map((h, i) => (
-                              <span key={i} className="text-center leading-tight text-[8.5px]">
+                              <span key={i} className="text-center leading-tight text-meta">
                                 {h.replace('Waxcelerate ', '').replace('-Heißwachs', '')}
                               </span>
                             ))}
                           </div>
                           {rc.compRows.map((row, ri) => (
-                            <div key={ri} className="grid px-3 py-2.5 text-[11px]"
+                            <div key={ri} className="grid px-3 py-2.5 text-meta"
                               style={{ gridTemplateColumns: `1.4fr repeat(${rc.compHeaders!.length}, 1fr)`, borderBottom: ri < rc.compRows!.length - 1 ? '1px solid var(--bd)' : 'none' }}>
                               <span style={{ color: 'var(--txm)' }}>{row.label}</span>
                               {row.cols.map((col, ci) => (
@@ -902,39 +902,39 @@ export function ProductDetailPage() {
                           {rc.costExample && <p className="text-[12px] leading-relaxed mb-2" style={{ color: 'var(--txm)' }}>{rc.costExample}</p>}
                           <div className="grid grid-cols-2 gap-2.5">
                             <div className="rounded-lg p-3" style={{ background: 'var(--sf2)', border: '1px solid var(--bd)' }}>
-                              <p className="text-[9px] font-semibold uppercase tracking-[0.14em] mb-2" style={{ color: 'var(--txff)' }}>
+                              <p className="text-meta font-semibold uppercase tracking-[0.14em] mb-2" style={{ color: 'var(--txff)' }}>
                                 {rc.oilCount ? `${rc.oilCount} ${rc.oilLabel}` : de ? 'Kettenöl' : 'Chain oil'}
                               </p>
                               {rc.oilItems.map((item, i) => (
-                                <div key={i} className="flex justify-between text-[11px] py-1" style={{ borderBottom: '1px solid var(--bd)' }}>
+                                <div key={i} className="flex justify-between text-meta py-1" style={{ borderBottom: '1px solid var(--bd)' }}>
                                   <span style={{ color: 'var(--txm)' }}>{item.label}</span>
-                                  <span className="font-mono text-[10px]" style={{ color: 'var(--tx2)' }}>{item.cost}</span>
+                                  <span className="font-mono text-meta" style={{ color: 'var(--tx2)' }}>{item.cost}</span>
                                 </div>
                               ))}
                               <div className="flex justify-between items-baseline pt-2 mt-1">
-                                <span className="text-[9px] font-semibold uppercase" style={{ color: 'var(--txff)' }}>{de ? 'Gesamt' : 'Total'}</span>
+                                <span className="text-meta font-semibold uppercase" style={{ color: 'var(--txff)' }}>{de ? 'Gesamt' : 'Total'}</span>
                                 <span className="num text-[16px] font-bold" style={{ color: 'var(--txm)' }}>{rc.oilTotal}</span>
                               </div>
                             </div>
                             <div className="rounded-lg p-3" style={{ background: accentBg, border: `1px solid ${cardAccent}18` }}>
-                              <p className="text-[9px] font-semibold uppercase tracking-[0.14em] mb-2" style={{ color: cardAccent }}>
+                              <p className="text-meta font-semibold uppercase tracking-[0.14em] mb-2" style={{ color: cardAccent }}>
                                 {rc.waxCount ? `${rc.waxCount} ${rc.waxLabel}` : 'Waxcelerate'}
                               </p>
                               {rc.waxItems.map((item, i) => (
-                                <div key={i} className="flex justify-between text-[11px] py-1" style={{ borderBottom: `1px solid ${cardAccent}12` }}>
+                                <div key={i} className="flex justify-between text-meta py-1" style={{ borderBottom: `1px solid ${cardAccent}12` }}>
                                   <span style={{ color: 'var(--txm)' }}>{item.label}</span>
-                                  <span className="font-mono text-[10px]" style={{ color: 'var(--tx2)' }}>{item.cost}</span>
+                                  <span className="font-mono text-meta" style={{ color: 'var(--tx2)' }}>{item.cost}</span>
                                 </div>
                               ))}
                               <div className="flex justify-between items-baseline pt-2 mt-1">
-                                <span className="text-[9px] font-semibold uppercase" style={{ color: cardAccent }}>{de ? 'Gesamt' : 'Total'}</span>
+                                <span className="text-meta font-semibold uppercase" style={{ color: cardAccent }}>{de ? 'Gesamt' : 'Total'}</span>
                                 <span className="num text-[16px] font-bold" style={{ color: 'var(--tx1)' }}>{rc.waxTotal}</span>
                               </div>
                             </div>
                           </div>
                           {rc.savings && (
                             <div className="rounded-lg p-3 flex items-center justify-between gap-3" style={{ background: accentBg }}>
-                              <p className="text-[11px]" style={{ color: 'var(--txm)' }}>{de ? 'Ersparnis ~12.000 km' : 'Savings ~12,000 km'}</p>
+                              <p className="text-meta" style={{ color: 'var(--txm)' }}>{de ? 'Ersparnis ~12.000 km' : 'Savings ~12,000 km'}</p>
                               <span className="num text-[20px] font-bold flex-shrink-0" style={{ color: accentColor }}>{rc.savings}</span>
                             </div>
                           )}
@@ -947,7 +947,7 @@ export function ProductDetailPage() {
                           <AccordionItem title={de ? 'Technische Daten' : 'Technical specs'} subtitle="" open={openAccordion === 'chainspec'} onToggle={() => toggleAccordion('chainspec')}>
                             <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--bd)' }}>
                               {Object.entries(rc.chainSpec).map(([key, val], i, arr) => (
-                                <div key={key} className="flex gap-4 px-3 py-2.5 text-[11px]"
+                                <div key={key} className="flex gap-4 px-3 py-2.5 text-meta"
                                   style={{ borderBottom: i < arr.length - 1 ? '1px solid var(--bd)' : 'none', background: i % 2 === 0 ? 'var(--sf2)' : 'var(--pg)' }}>
                                   <span className="w-28 flex-shrink-0" style={{ color: 'var(--txff)' }}>{key}</span>
                                   <span style={{ color: 'var(--txm)' }}>{val}</span>
@@ -961,10 +961,10 @@ export function ProductDetailPage() {
                             <div className="space-y-4">
                               {rc.processSteps.map(step => (
                                 <div key={step.n} className="flex gap-3">
-                                  <span className="flex-shrink-0 w-6 h-6 rounded-full text-[10px] font-bold flex items-center justify-center" style={{ background: accentBg, color: accentColor }}>{step.n}</span>
+                                  <span className="flex-shrink-0 w-6 h-6 rounded-full text-meta font-bold flex items-center justify-center" style={{ background: accentBg, color: accentColor }}>{step.n}</span>
                                   <div>
                                     <p className="text-[12px] font-semibold mb-0.5" style={{ color: 'var(--tx1)' }}>{step.title}</p>
-                                    <p className="text-[11px] leading-relaxed" style={{ color: 'var(--txm)' }}>{step.body}</p>
+                                    <p className="text-meta leading-relaxed" style={{ color: 'var(--txm)' }}>{step.body}</p>
                                   </div>
                                 </div>
                               ))}
@@ -973,7 +973,7 @@ export function ProductDetailPage() {
                                   <Check className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" style={{ color: accentColor }} />
                                   <div>
                                     <p className="text-[12px] font-semibold mb-0.5" style={{ color: 'var(--tx1)' }}>{b.title}</p>
-                                    <p className="text-[11px] leading-relaxed" style={{ color: 'var(--txm)' }}>{b.body}</p>
+                                    <p className="text-meta leading-relaxed" style={{ color: 'var(--txm)' }}>{b.body}</p>
                                   </div>
                                 </div>
                               ))}
@@ -983,11 +983,11 @@ export function ProductDetailPage() {
                         {rc.chainCompRows && (
                           <AccordionItem title={de ? 'Vorgewachst vs. Kettenöl' : 'Pre-waxed vs. chain oil'} subtitle="" open={openAccordion === 'chaincomp'} onToggle={() => toggleAccordion('chaincomp')}>
                             <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--bd)' }}>
-                              <div className="grid grid-cols-3 text-[9px] font-semibold uppercase tracking-wider px-3 py-2" style={{ borderBottom: '1px solid var(--bd)', background: 'var(--sf2)' }}>
+                              <div className="grid grid-cols-3 text-meta font-semibold uppercase tracking-wider px-3 py-2" style={{ borderBottom: '1px solid var(--bd)', background: 'var(--sf2)' }}>
                                 <span /><span className="text-center" style={{ color: accentColor }}>{de ? 'Vorgewachst' : 'Pre-waxed'}</span><span className="text-center" style={{ color: 'var(--txff)' }}>{de ? 'Kettenöl' : 'Chain oil'}</span>
                               </div>
                               {rc.chainCompRows.map((row, ri) => (
-                                <div key={ri} className="grid grid-cols-3 px-3 py-2 text-[11px]" style={{ borderBottom: '1px solid var(--bd)' }}>
+                                <div key={ri} className="grid grid-cols-3 px-3 py-2 text-meta" style={{ borderBottom: '1px solid var(--bd)' }}>
                                   <span style={{ color: 'var(--txm)' }}>{row.label}</span>
                                   <span className="text-center font-medium" style={{ color: accentColor }}>{row.good}</span>
                                   <span className="text-center" style={{ color: 'var(--txff)' }}>{row.bad}</span>
@@ -998,7 +998,7 @@ export function ProductDetailPage() {
                         )}
                         {rc.proTip && (
                           <div className="pl-3 mt-3" style={{ borderLeft: `2px solid ${accentColor}` }}>
-                            <p className="text-[9px] font-semibold uppercase tracking-[0.16em] mb-1" style={{ color: accentColor }}>{de ? 'Pro-Tipp' : 'Pro tip'}</p>
+                            <p className="text-small font-semibold uppercase tracking-[0.16em] mb-1" style={{ color: accentColor }}>{de ? 'Pro-Tipp' : 'Pro tip'}</p>
                             <p className="text-[12px] leading-relaxed" style={{ color: 'var(--txm)' }}>{rc.proTip}</p>
                           </div>
                         )}
@@ -1023,7 +1023,7 @@ export function ProductDetailPage() {
                     </div>
                     <p className="font-display text-[28px] font-bold leading-none tracking-[-0.02em] mb-1" style={{ color: 'var(--tx1)' }}>{rc.reviewCount}+</p>
                     <p className="text-[13px] mb-0.5" style={{ color: 'var(--txm)' }}>{de ? 'verifizierte Bewertungen' : 'verified reviews'}</p>
-                    {rc.reviewCats && <p className="text-[11px] mb-3" style={{ color: 'var(--txff)' }}>{rc.reviewCats}</p>}
+                    {rc.reviewCats && <p className="text-meta mb-3" style={{ color: 'var(--txff)' }}>{rc.reviewCats}</p>}
                     <a href={product.ebayUrl} target="_blank" rel="noopener noreferrer" onClick={() => trackEbayClick(product.id)} className="inline-flex items-center gap-1 text-[12px] font-medium hover:underline" style={{ color: accentColor }}>
                       {de ? 'Alle Bewertungen ansehen' : 'See all reviews'} <ExternalLink className="h-3 w-3" />
                     </a>
@@ -1031,23 +1031,23 @@ export function ProductDetailPage() {
                 )}
                 {rc.compatTags && rc.compatTags.length > 0 && (
                   <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.22em] mb-2" style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>{de ? 'Kompatibilität' : 'Compatibility'}</p>
+                    <p className="text-small font-semibold uppercase tracking-[0.14em] mb-2" style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>{de ? 'Kompatibilität' : 'Compatibility'}</p>
                     <h2 className="font-display text-[17px] font-bold tracking-[-0.02em] mb-4" style={{ color: 'var(--tx1)' }}>
                       {de ? 'Funktioniert mit allen großen Marken' : 'Works with all major brands'}
                     </h2>
                     <div className="flex flex-wrap gap-1.5">
                       {rc.compatTags[0].map(tag => (
-                        <span key={tag} className="text-[11px] px-2.5 py-1 rounded-full font-medium" style={{ color: 'var(--tx2)', background: 'var(--pg)', border: '1px solid var(--bd)' }}>{tag}</span>
+                        <span key={tag} className="text-meta px-2.5 py-1 rounded-full font-medium" style={{ color: 'var(--tx2)', background: 'var(--pg)', border: '1px solid var(--bd)' }}>{tag}</span>
                       ))}
                     </div>
                     {rc.compatTags.length > 1 && (
                       <>
                         {compatExpanded && rc.compatTags.slice(1).map((group, gi) => (
                           <div key={gi} className="flex flex-wrap gap-1.5 mt-1.5">
-                            {group.map(tag => <span key={tag} className="text-[10px] px-2 py-0.5 rounded-full" style={{ color: 'var(--txm)', background: 'var(--pg)', border: '1px solid var(--bd)' }}>{tag}</span>)}
+                            {group.map(tag => <span key={tag} className="text-meta px-2 py-0.5 rounded-full" style={{ color: 'var(--txm)', background: 'var(--pg)', border: '1px solid var(--bd)' }}>{tag}</span>)}
                           </div>
                         ))}
-                        <button onClick={() => setCompatExpanded(v => !v)} className="text-[11px] mt-2 font-medium" style={{ color: accentColor }}>
+                        <button onClick={() => setCompatExpanded(v => !v)} className="text-meta mt-2 font-medium" style={{ color: accentColor }}>
                           {compatExpanded ? (de ? 'Weniger' : 'Less') : (de ? '+ alle anzeigen' : '+ show all')}
                         </button>
                       </>
@@ -1055,7 +1055,7 @@ export function ProductDetailPage() {
                   </div>
                 )}
               </div>
-              {rc.footerNote && <p className="mt-12 text-[11px] leading-relaxed pt-5" style={{ borderTop: '1px solid var(--bd)', color: 'var(--txff)' }}>{rc.footerNote}</p>}
+              {rc.footerNote && <p className="mt-12 text-meta leading-relaxed pt-5" style={{ borderTop: '1px solid var(--bd)', color: 'var(--txff)' }}>{rc.footerNote}</p>}
             </div>
           </section>
         )}
@@ -1087,7 +1087,7 @@ export function ProductDetailPage() {
         {related.length > 0 && (
           <section style={{ background: 'var(--sf2)', borderTop: '1px solid var(--bd)' }}>
             <div className="max-w-6xl mx-auto px-5 sm:px-8 py-14 sm:py-20">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] mb-2" style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>{de ? 'Weitere Produkte' : 'More products'}</p>
+              <p className="text-small font-semibold uppercase tracking-[0.14em] mb-2" style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>{de ? 'Weitere Produkte' : 'More products'}</p>
               <h2 className="font-display text-[18px] sm:text-[22px] font-bold tracking-[-0.02em] mb-8" style={{ color: 'var(--tx1)' }}>{de ? 'Passend dazu' : 'You might also like'}</h2>
               <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
                 {related.map(p => <RelatedCard key={p.id} product={p} de={de} formatPrice={formatPrice} />)}
@@ -1178,7 +1178,7 @@ function FlipCard({ items, de, formatPrice }: { items: Product[]; de: boolean; f
         className="w-14 h-14 rounded-xl object-cover flex-shrink-0"
         style={{ objectPosition: p.imagePosition ?? 'center', boxShadow: '0 2px 8px -2px rgba(0,0,0,0.3)' }} />
       <div className="min-w-0 flex-1">
-        <p className="text-[8px] uppercase tracking-[0.14em] font-semibold mb-0.5"
+        <p className="text-meta uppercase tracking-[0.14em] font-semibold mb-0.5"
           style={{ color: 'rgba(255,255,255,0.3)' }}>
           {label}
         </p>
@@ -1265,15 +1265,15 @@ function AltMiniCard({ product: p, de, formatPrice }: { product: Product; de: bo
           className="h-full w-full object-cover"
           style={{ objectPosition: p.imagePosition ?? 'center' }} />
         {label && (
-          <span className="absolute top-1.5 left-1.5 text-[7px] font-semibold uppercase tracking-[0.12em] px-1.5 py-0.5 rounded-md"
+          <span className="absolute top-1.5 left-1.5 text-meta font-semibold uppercase tracking-[0.12em] px-1.5 py-0.5 rounded-md"
             style={{ background: 'var(--chip-bg)', color: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(6px)' }}>
             {label}
           </span>
         )}
       </div>
       <div className="px-2.5 py-2">
-        <p className="text-[11px] font-semibold leading-tight truncate" style={{ color: 'var(--tx1)' }}>{shortTitle}</p>
-        <p className="num text-[11px] mt-0.5" style={{ color: 'var(--txff)' }}>{formatPrice(p.price)}</p>
+        <p className="text-meta font-semibold leading-tight truncate" style={{ color: 'var(--tx1)' }}>{shortTitle}</p>
+        <p className="num text-meta mt-0.5" style={{ color: 'var(--txff)' }}>{formatPrice(p.price)}</p>
       </div>
     </div>
   );
@@ -1292,7 +1292,7 @@ function AccordionItem({ title, subtitle, open, onToggle, children }: {
       <button onClick={onToggle} className="w-full flex items-center justify-between gap-3 px-4 py-3.5 text-left">
         <div className="min-w-0">
           <p className="text-[13px] font-semibold leading-tight" style={{ color: 'var(--tx1)' }}>{title}</p>
-          {subtitle && !open && <p className="text-[11px] mt-0.5 truncate" style={{ color: 'var(--txff)' }}>{subtitle}</p>}
+          {subtitle && !open && <p className="text-meta mt-0.5 truncate" style={{ color: 'var(--txff)' }}>{subtitle}</p>}
         </div>
         <ChevronDown className="h-4 w-4 flex-shrink-0 transition-transform duration-200"
           style={{ color: 'var(--txff)', transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }} />
@@ -1324,9 +1324,9 @@ function RelatedCard({ product: p, de, formatPrice }: { product: Product; de: bo
           style={{ objectPosition: p.imagePosition ?? 'center' }} />
       </div>
       <div className="flex flex-1 flex-col p-3.5">
-        <span className="text-[9px] font-semibold uppercase tracking-[0.16em]" style={{ color: 'var(--accent-soft)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>{eyebrow}</span>
+        <span className="text-small font-semibold uppercase tracking-[0.16em]" style={{ color: 'var(--accent-soft)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>{eyebrow}</span>
         <p className="font-display mt-1 text-[14px] leading-snug" style={{ color: 'var(--tx1)' }}>{title}</p>
-        <p className="mt-1 text-[11px] leading-relaxed line-clamp-2 hidden sm:block" style={{ color: 'var(--txm)' }}>{desc}</p>
+        <p className="mt-1 text-meta leading-relaxed line-clamp-2 hidden sm:block" style={{ color: 'var(--txm)' }}>{desc}</p>
         <div className="mt-auto flex items-center justify-between pt-3">
           <span className="num text-[14px] font-semibold" style={{ color: 'var(--tx1)' }}>{formatPrice(p.price)}</span>
           <span className="inline-flex h-7 w-7 items-center justify-center rounded-full transition-colors group-hover:bg-[var(--accent-soft)] group-hover:text-white"

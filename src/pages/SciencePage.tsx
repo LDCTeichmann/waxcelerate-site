@@ -165,7 +165,7 @@ function ScienceHero({ de }: { de: boolean }) {
             ))}
           </div>
 
-          <p className="text-[11px] mb-4" style={{ color: 'var(--txff)' }}>
+          <p className="text-meta mb-4" style={{ color: 'var(--txff)' }}>
             {de
               ? `Reibung und Watt gemessen bei ${w.inputW[0]}–${w.inputW[1]} W Tretleistung, Laborwerte.`
               : `Friction and watts measured at ${w.inputW[0]}–${w.inputW[1]} W pedalling power, lab values.`}
@@ -237,7 +237,7 @@ function CompCard({ c, n, de, cardRef }: { c: ScienceComponent; n: number; de: b
           <div className="flex items-center gap-3 min-w-0">
             <span className="num-data text-[12px] flex-shrink-0" style={{ color: 'var(--txf)' }}>0{n}</span>
             <div className="h-px flex-1 max-w-[32px]" style={{ background: 'var(--accent-soft)', opacity: 0.4 }} />
-            <span className="text-[10px] uppercase tracking-[0.18em] flex-shrink-0" style={{ color: 'var(--accent-soft)' }}>
+            <span className="text-small uppercase tracking-[0.18em] flex-shrink-0" style={{ color: 'var(--accent-soft)' }}>
               {de ? c.roleDe : c.roleEn}
             </span>
           </div>
@@ -330,8 +330,8 @@ function TempWindow({ de }: { de: boolean }) {
         {/* Pro bar */}
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[11px] font-semibold" style={{ color: 'var(--tx1)' }}>Pro</span>
-            <span className="num-data text-[10px]" style={{ color: 'var(--accent-soft)' }}>−8 … 45+ °C</span>
+            <span className="text-meta font-semibold" style={{ color: 'var(--tx1)' }}>Pro</span>
+            <span className="num-data text-meta" style={{ color: 'var(--accent-soft)' }}>−8 … 45+ °C</span>
           </div>
           <div className="relative h-3 rounded-full" style={{ background: 'var(--sf2)' }}>
             <div className="absolute inset-y-0 rounded-full"
@@ -348,8 +348,8 @@ function TempWindow({ de }: { de: boolean }) {
         {/* Classic bar */}
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[11px] font-semibold" style={{ color: 'var(--tx1)' }}>Classic</span>
-            <span className="num-data text-[10px]" style={{ color: 'var(--txf)' }}>+5 … ~35 °C</span>
+            <span className="text-meta font-semibold" style={{ color: 'var(--tx1)' }}>Classic</span>
+            <span className="num-data text-meta" style={{ color: 'var(--txf)' }}>+5 … ~35 °C</span>
           </div>
           <div className="relative h-3 rounded-full" style={{ background: 'var(--sf2)' }}>
             <div className="absolute inset-y-0 rounded-full"
@@ -366,7 +366,7 @@ function TempWindow({ de }: { de: boolean }) {
           {ticks.map(t => (
             <div key={t} className="absolute top-0 -translate-x-1/2 text-center" style={{ left: `${AX(t)}%` }}>
               <div className="w-px h-1.5 mx-auto" style={{ background: 'var(--bd)' }} />
-              <span className="num-data text-[9px] block mt-0.5" style={{ color: 'var(--txf)' }}>{t > 0 ? `+${t}` : t}°</span>
+              <span className="num-data text-meta block mt-0.5" style={{ color: 'var(--txf)' }}>{t > 0 ? `+${t}` : t}°</span>
             </div>
           ))}
         </div>
@@ -468,11 +468,11 @@ function BeforeAfterSlider({ beforeSrc, afterSrc, beforeAlt, afterAlt, beforeLab
       </div>
 
       {/* Labels — fade with proximity so they don't fight the handle */}
-      <span className="absolute top-2 left-2 text-[9px] uppercase tracking-[0.14em] px-1.5 py-0.5 rounded"
+      <span className="absolute top-2 left-2 text-meta uppercase tracking-[0.14em] px-1.5 py-0.5 rounded"
         style={{ color: 'rgba(255,255,255,0.75)', background: 'rgba(0,0,0,0.35)' }}>
         {beforeLabel}
       </span>
-      <span className="absolute top-2 right-2 text-[9px] uppercase tracking-[0.14em] px-1.5 py-0.5 rounded"
+      <span className="absolute top-2 right-2 text-meta uppercase tracking-[0.14em] px-1.5 py-0.5 rounded"
         style={{ color: 'rgba(255,255,255,0.9)', background: 'rgba(0,0,0,0.35)' }}>
         {afterLabel}
       </span>
@@ -500,13 +500,13 @@ function Microscope({ de }: { de: boolean }) {
       <div className="flex items-center gap-5 mb-5">
         <div className="flex items-center gap-2">
           <div className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--txm)', opacity: 0.35 }} />
-          <span className="text-[11px]" style={{ color: 'var(--txm)' }}>
+          <span className="text-meta" style={{ color: 'var(--txm)' }}>
             {de ? 'Referenz (ohne MoS₂)' : 'Reference (no MoS₂)'}
           </span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--accent)' }} />
-          <span className="text-[11px]" style={{ color: 'var(--txm)' }}>Waxcelerate + MoS₂</span>
+          <span className="text-meta" style={{ color: 'var(--txm)' }}>Waxcelerate + MoS₂</span>
         </div>
       </div>
 
@@ -521,7 +521,7 @@ function Microscope({ de }: { de: boolean }) {
                 <span className="num-data text-[14px] font-bold" style={{ color: 'var(--tx2)' }}>{row.n}</span>
                 <span className="text-[12px]" style={{ color: 'var(--txm)' }}>{de ? row.de : row.en}</span>
               </div>
-              <span className="num-data text-[10px] px-1.5 py-0.5 rounded-md"
+              <span className="num-data text-meta px-1.5 py-0.5 rounded-md"
                 style={{ background: 'var(--accent-wash-sm)', border: '1px solid rgba(var(--accent-rgb),0.10)',
                   color: 'var(--txf)' }}>
                 {row.mag}
@@ -541,7 +541,7 @@ function Microscope({ de }: { de: boolean }) {
       </div>
 
       {/* Methodology note */}
-      <p className="text-[11px] leading-relaxed mt-5" style={{ color: 'var(--txff)' }}>
+      <p className="text-meta leading-relaxed mt-5" style={{ color: 'var(--txff)' }}>
         {de
           ? 'Reale Oberflächenstrukturen, keine Simulationen. Referenz und Waxcelerate-Probe je Gegenüberstellung bei identischer Vergrößerung und unter identischen Bedingungen aufgenommen.'
           : 'Real surface structures, not simulations. Reference and Waxcelerate sample shot at identical magnification and conditions within each pair.'}
@@ -682,7 +682,7 @@ function FormulaStory({ de }: { de: boolean }) {
                     <span className="num-data text-[28px] font-bold leading-none" style={{ color: 'rgba(var(--accent-rgb),0.18)' }}>
                       0{i + 1}
                     </span>
-                    <span className="text-[10px] uppercase tracking-[0.18em]" style={{ color: 'var(--accent-soft)' }}>
+                    <span className="text-small uppercase tracking-[0.18em]" style={{ color: 'var(--accent-soft)' }}>
                       {de ? c.roleDe : c.roleEn}
                     </span>
                   </div>
@@ -764,14 +764,14 @@ function FormulaStory({ de }: { de: boolean }) {
                     background: i === activeIdx ? 'var(--accent)' : i < activeIdx ? 'rgba(var(--accent-rgb),0.35)' : 'var(--bd)',
                   }}
                 />
-                <span className="text-[9px] uppercase tracking-[0.14em] transition-opacity duration-300"
+                <span className="text-meta uppercase tracking-[0.14em] transition-opacity duration-300"
                   style={{ color: 'var(--txf)', opacity: i === activeIdx ? 1 : 0 }}>
                   {de ? c.graphLabelDe : c.graphLabelEn}
                 </span>
               </button>
             ))}
           </div>
-          <span className="text-[10px] tracking-[0.12em] uppercase transition-opacity duration-700"
+          <span className="text-meta tracking-[0.12em] uppercase transition-opacity duration-700"
             style={{ color: 'var(--txf)', opacity: activeIdx === 0 ? 0.7 : 0 }}>
             {de ? 'Scrollen zum Erkunden' : 'Scroll to explore'}
           </span>
@@ -918,7 +918,7 @@ export function SciencePage() {
                 ].map((s, i) => (
                   <div key={i}>
                     <CountUp value={s.v} className="font-mono text-[13px] font-semibold" style={{ color: 'var(--tx1)' }} />
-                    <p className="text-[11px] mt-0.5" style={{ color: 'var(--txf)' }}>{s.d}</p>
+                    <p className="text-meta mt-0.5" style={{ color: 'var(--txf)' }}>{s.d}</p>
                   </div>
                 ))}
               </div>
