@@ -154,8 +154,8 @@ export function WaxLensCutout({ waxRef, enabled, de, onOpen, onActiveChange }: {
       <span className="absolute rounded-full pointer-events-none" style={{ top: 14, left: 20, width: 34, height: 22, background: LENS_GLINT, filter: 'blur(2px)' }} />
       <ZoomIn className="h-8 w-8" strokeWidth={1.75} style={{ color: '#fff' }} />
       <span
-        className="absolute left-1/2 top-full -translate-x-1/2 mt-3 whitespace-nowrap text-[10px] uppercase font-semibold"
-        style={{ letterSpacing: '0.24em', color: 'rgba(255,255,255,0.94)', textShadow: '0 1px 10px rgba(0,0,0,0.55)' }}
+        className="absolute left-1/2 top-full -translate-x-1/2 mt-3 whitespace-nowrap text-small uppercase font-semibold"
+        style={{ letterSpacing: '0.14em', color: 'rgba(255,255,255,0.94)', textShadow: '0 1px 10px rgba(0,0,0,0.55)' }}
       >
         {de ? 'Blick ins Wachs' : 'Look inside'}
       </span>

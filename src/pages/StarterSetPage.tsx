@@ -179,7 +179,7 @@ export function StarterSetPage() {
                   {de ? a.bodyDe : a.bodyEn}
                 </p>
                 {a.shipping && (
-                  <p className="num-data text-[11px] mt-4 pt-3" style={{ color: 'var(--txff)', borderTop: '1px solid var(--bd2)' }}>
+                  <p className="num-data text-meta mt-4 pt-3" style={{ color: 'var(--txff)', borderTop: '1px solid var(--bd2)' }}>
                     {de ? `zuzüglich ${eur(SHIPPING, de)} Versand` : `plus ${eur(SHIPPING, de)} shipping`}
                   </p>
                 )}

@@ -62,7 +62,7 @@ function HeroCopy({ de, onLight }: { de: boolean; onLight?: boolean }) {
   const sub = onLight ? 'var(--txm)' : 'rgba(255,255,255,0.82)';
   return (
     <div className="relative z-10 max-w-[46ch]">
-      <p className="text-[11px] uppercase tracking-[0.22em] mb-4"
+      <p className="text-small uppercase tracking-[0.14em] mb-4"
         style={{ color: onLight ? 'var(--accent)' : 'rgba(255,255,255,0.72)' }}>
         Waxcelerate · {de ? 'Heißwachs aus Stuttgart' : 'Hot wax from Stuttgart'}
       </p>

@@ -96,7 +96,7 @@ export function ProductDoors({ de }: { de: boolean }) {
             style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.55) 26%, rgba(0,0,0,0.18) 55%, rgba(0,0,0,0.06) 78%, rgba(0,0,0,0.24) 100%)' }} />
 
           <span className="absolute left-4 right-4 top-4 flex justify-center">
-            <span className="text-[11px] uppercase tracking-[0.16em] px-3 py-1.5 rounded-full backdrop-blur-sm"
+            <span className="text-small uppercase tracking-[0.16em] px-3 py-1.5 rounded-full backdrop-blur-sm"
               style={{ color: 'rgba(255,255,255,0.94)', border: '1px solid rgba(255,255,255,0.34)', background: 'rgba(0,0,0,0.20)' }}>
               {de ? d.chipDe : d.chipEn}
             </span>

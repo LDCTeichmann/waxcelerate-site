@@ -39,7 +39,7 @@ function ArticleCard({ article }: { article: Article }) {
           style={{ background: 'linear-gradient(180deg, rgba(var(--scrim-rgb),0) 55%, rgba(var(--scrim-rgb),0.45) 100%)' }}
         />
         <span
-          className="absolute top-3 left-3 text-[10px] font-semibold uppercase tracking-[0.16em] px-2.5 py-1 rounded-full backdrop-blur"
+          className="absolute top-3 left-3 text-small font-semibold uppercase tracking-[0.16em] px-2.5 py-1 rounded-full backdrop-blur"
           style={{ background: 'var(--chip-bg)', color: categoryColors[article.category] }}
         >
           {article.category}
@@ -53,7 +53,7 @@ function ArticleCard({ article }: { article: Article }) {
           {article.description}
         </p>
         <div className="flex items-center justify-between mb-3">
-          <span className="font-mono text-[11px] text-wx-txf">
+          <span className="font-mono text-meta text-wx-txf">
             von Luca · {article.readingTime}
           </span>
           <span
@@ -68,7 +68,7 @@ function ArticleCard({ article }: { article: Article }) {
             <span className="font-mono text-[13px] font-semibold text-wx-tx1">
               {article.keyStat.value}
             </span>
-            <span className="font-mono text-[10px] uppercase tracking-wider text-wx-txf">
+            <span className="font-mono text-meta uppercase tracking-wider text-wx-txf">
               {article.keyStat.label}
             </span>
           </div>
@@ -99,7 +99,7 @@ function FeaturedArticle({ article }: { article: Article }) {
         />
       </div>
       <div className="p-7 sm:p-9 flex flex-col justify-center">
-        <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-wx-txf mb-3">
+        <p className="font-mono text-small uppercase tracking-[0.18em] text-wx-txf mb-3">
           Empfohlen · {article.category}
         </p>
         <h2 className="font-display text-2xl sm:text-[28px] font-bold text-wx-tx1 leading-[1.15] mb-3 group-hover:text-white transition-colors">
@@ -113,7 +113,7 @@ function FeaturedArticle({ article }: { article: Article }) {
             {article.stats.map((s) => (
               <div key={s.label}>
                 <div className="font-mono text-lg text-wx-tx1">{s.value}</div>
-                <div className="font-mono text-[10px] uppercase tracking-wider text-wx-txf">
+                <div className="font-mono text-meta uppercase tracking-wider text-wx-txf">
                   {s.label}
                 </div>
               </div>
@@ -209,7 +209,7 @@ export function BlogIndexPage() {
           }}
         />
         <div className="relative max-w-5xl mx-auto w-full px-4 sm:px-6 pb-12 pt-32">
-          <p className="font-mono text-[12px] uppercase tracking-[0.28em] mb-4" style={{ color: '#E6E6EA' }}>
+          <p className="font-mono text-small uppercase tracking-[0.14em] mb-4" style={{ color: '#E6E6EA' }}>
             Die Werkstatt
           </p>
           <h1
@@ -222,7 +222,7 @@ export function BlogIndexPage() {
             Messwerte, Anleitungen und ehrliche Antworten, von jemandem, der jede
             Woche selbst am Wachstopf steht.
           </p>
-          <p className="font-mono text-[11px] uppercase tracking-widest mt-6" style={{ color: '#B4B4BE' }}>
+          <p className="font-mono text-small uppercase tracking-widest mt-6" style={{ color: '#B4B4BE' }}>
             {articles.length} Artikel · Stuttgart
           </p>
         </div>
@@ -245,7 +245,7 @@ export function BlogIndexPage() {
             darunter: das hier sind Sprungziele in einen Artikel, keine Filter.
             Gleiche Optik für zwei verschiedene Verhalten wäre eine Falle. */}
         <div className="mb-8">
-          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-wx-txf mb-2.5">
+          <p className="font-mono text-small uppercase tracking-[0.2em] text-wx-txf mb-2.5">
             Schnelleinstieg
           </p>
           <div className="flex flex-wrap gap-x-5 gap-y-2">
@@ -304,7 +304,7 @@ export function BlogIndexPage() {
                   className="absolute inset-0 w-full h-full object-cover"
                 />
                 <figcaption
-                  className="absolute bottom-0 left-0 right-0 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.16em]"
+                  className="absolute bottom-0 left-0 right-0 px-3 py-2 font-mono text-small uppercase tracking-[0.16em]"
                   style={{ background: 'linear-gradient(0deg, rgba(0,0,0,0.85), rgba(0,0,0,0))', color: '#F2F2F5' }}
                 >
                   Geölt · 80 km
@@ -320,7 +320,7 @@ export function BlogIndexPage() {
                   className="absolute inset-0 w-full h-full object-cover"
                 />
                 <figcaption
-                  className="absolute bottom-0 left-0 right-0 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.16em]"
+                  className="absolute bottom-0 left-0 right-0 px-3 py-2 font-mono text-small uppercase tracking-[0.16em]"
                   style={{ background: 'linear-gradient(0deg, rgba(0,0,0,0.85), rgba(0,0,0,0))', color: '#F2F2F5' }}
                 >
                   Gewachst · 400 km

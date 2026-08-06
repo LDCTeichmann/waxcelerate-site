@@ -96,7 +96,7 @@ export function EdgeLabel({ x, y, vbW, vbH, on, children }: {
       }}
     >
       <span
-        className="inline-block whitespace-nowrap rounded-full px-2 py-[3px] text-[10.5px] font-medium leading-none"
+        className="inline-block whitespace-nowrap rounded-full px-2 py-[3px] text-meta font-medium leading-none"
         style={{
           background: 'var(--card-bg)', border: '1px solid var(--bd)',
           color: 'var(--accent)', boxShadow: '0 1px 5px rgba(0,0,0,0.10)',

@@ -15,7 +15,7 @@ function Num(p: React.SVGProps<SVGTextElement>) {
   return <text className="num-data" fontSize={11} textAnchor="middle" {...p} />;
 }
 function Cap({ children }: { children: React.ReactNode }) {
-  return <figcaption className="text-[11px] mt-2.5 text-center leading-snug" style={{ color: 'var(--txf)' }}>{children}</figcaption>;
+  return <figcaption className="text-meta mt-2.5 text-center leading-snug" style={{ color: 'var(--txf)' }}>{children}</figcaption>;
 }
 function Fig({ vb, label, children, cap }: {
   vb: string; label: string; children: React.ReactNode; cap: React.ReactNode;

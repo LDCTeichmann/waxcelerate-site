@@ -57,7 +57,7 @@ export function ScienceTeaser({ de }: { de: boolean }) {
             style={{ fontSize: 'clamp(1.7rem, 3.6vw, 2.3rem)', letterSpacing: '-0.04em', color: 'var(--tx1)' }}>
             {count.toLocaleString(de ? 'de-DE' : 'en-US')}
           </p>
-          <p className="text-[11px] uppercase tracking-[0.13em] leading-relaxed pb-1" style={{ color: 'var(--txff)' }}>
+          <p className="text-small uppercase tracking-[0.13em] leading-relaxed pb-1" style={{ color: 'var(--txff)' }}>
             {de ? 'Losbrech-Vorgänge' : 'Breakaway events'}<br />
             {de ? 'pro Minute' : 'per minute'}
           </p>

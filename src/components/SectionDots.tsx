@@ -41,7 +41,7 @@ export function SectionDots() {
           <div key={item.href} className="relative group flex items-center justify-end">
             {/* Label tooltip — appears to the left on hover */}
             <span
-              className="absolute right-full mr-2.5 px-2 py-1 rounded-md text-[11px] font-medium whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+              className="absolute right-full mr-2.5 px-2 py-1 rounded-md text-meta font-medium whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150"
               style={{ background: 'var(--sf2)', color: 'var(--tx2)', border: '1px solid var(--bd)' }}
             >
               {de ? item.labelDe : item.labelEn}

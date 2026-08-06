@@ -225,7 +225,7 @@ export function AdminPage() {
                     <button
                       key={v}
                       onClick={() => setDrafts((d) => ({ ...d, [item.id]: String(v) }))}
-                      className="px-2 py-0.5 rounded text-[11px] text-wx-txf hover:text-wx-tx1 transition-colors"
+                      className="px-2 py-0.5 rounded text-meta text-wx-txf hover:text-wx-tx1 transition-colors"
                       style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)' }}
                     >
                       {v === -1 ? '∞' : v}

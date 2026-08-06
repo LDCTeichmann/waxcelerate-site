@@ -17,7 +17,7 @@ export function CartIcon({ light = false }: { light?: boolean }) {
       <ShoppingCart className="h-5 w-5" />
       {count > 0 && (
         <span
-          className="absolute -top-0.5 -right-0.5 text-[10px] font-bold text-white rounded-full flex items-center justify-center pointer-events-none"
+          className="absolute -top-0.5 -right-0.5 text-meta font-bold text-white rounded-full flex items-center justify-center pointer-events-none"
           style={{
             background: 'var(--accent)',
             minWidth: '1rem',

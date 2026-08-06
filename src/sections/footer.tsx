@@ -24,7 +24,7 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
 
   const linkClass = 'text-wx-txf hover:text-wx-tx1 text-[13px] transition-colors duration-150 leading-relaxed';
-  const headingClass = 'text-[11px] font-semibold uppercase tracking-[0.18em] text-wx-txf mb-4 block';
+  const headingClass = 'text-small font-semibold uppercase tracking-[0.18em] text-wx-txf mb-4 block';
 
   return (
     <footer style={{ background: 'var(--sf3)', borderTop: '1px solid var(--bd)' }}>
@@ -125,7 +125,7 @@ export function Footer() {
       <div style={{ borderTop: '1px solid var(--bd)' }}>
         <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-5">
           <div className="max-w-6xl mx-auto flex justify-center">
-            <p className="text-[11px] tabular-nums" style={{ color: 'var(--txff)' }}>
+            <p className="text-meta tabular-nums" style={{ color: 'var(--txff)' }}>
               © {currentYear} Waxcelerate · Stuttgart, DE
             </p>
           </div>

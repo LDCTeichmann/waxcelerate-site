@@ -69,7 +69,7 @@ function renderSection(section: ArticleSection, idx: number): React.ReactNode {
           className="rounded-xl px-5 py-4 mb-6 mt-2"
           style={{ background: 'var(--accent-wash)', borderLeft: '3px solid var(--accent)' }}
         >
-          <p className="font-mono text-[10px] uppercase tracking-[0.18em] mb-1.5" style={{ color: 'var(--accent)' }}>
+          <p className="font-mono text-small uppercase tracking-[0.18em] mb-1.5" style={{ color: 'var(--accent)' }}>
             Tipp
           </p>
           <p className="text-[15px] leading-[1.7] text-wx-tx2">{section.text}</p>
@@ -82,7 +82,7 @@ function renderSection(section: ArticleSection, idx: number): React.ReactNode {
           className="rounded-xl px-5 py-4 mb-6 mt-2"
           style={{ background: 'var(--sf2)', border: '1px solid var(--bd)' }}
         >
-          <p className="font-mono text-[10px] uppercase tracking-[0.18em] mb-1.5 text-wx-txf">
+          <p className="font-mono text-small uppercase tracking-[0.18em] mb-1.5 text-wx-txf">
             Hinweis
           </p>
           <p className="text-[15px] leading-[1.7] text-wx-tx2">{section.text}</p>
@@ -239,7 +239,7 @@ export function BlogArticlePage() {
         />
         <div className="relative max-w-[740px] mx-auto px-4 sm:px-6 pt-28 pb-10 sm:pt-36 sm:pb-12">
           <p
-            className="font-mono text-[11px] font-semibold uppercase tracking-[0.2em] mb-4"
+            className="font-mono text-small font-semibold uppercase tracking-[0.2em] mb-4"
             style={{ color: categoryColors[article.category] }}
           >
             {article.category}
@@ -293,7 +293,7 @@ export function BlogArticlePage() {
               <span className="font-mono text-[26px] leading-none text-wx-tx1">
                 {article.keyStat.value}
               </span>
-              <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-wx-txf">
+              <span className="font-mono text-small uppercase tracking-[0.18em] text-wx-txf">
                 {article.keyStat.label}
               </span>
             </div>
@@ -302,7 +302,7 @@ export function BlogArticlePage() {
           {/* Das Wichtigste in Kürze */}
           {article.takeaways && (
             <div className="rounded-2xl p-6 mb-10" style={{ background: 'var(--sf)', border: '1px solid var(--bd)' }}>
-              <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-wx-txf mb-4">
+              <p className="font-mono text-small font-semibold uppercase tracking-[0.18em] text-wx-txf mb-4">
                 Das Wichtigste in Kürze
               </p>
               <ul className="space-y-3">
@@ -344,7 +344,7 @@ export function BlogArticlePage() {
                 />
               </Link>
               <div className="p-6 flex flex-col justify-center">
-                <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-wx-txf mb-2">
+                <p className="font-mono text-small font-semibold uppercase tracking-[0.18em] text-wx-txf mb-2">
                   Passend zu diesem Artikel
                 </p>
                 <Link
@@ -385,7 +385,7 @@ export function BlogArticlePage() {
             />
             <div>
               <p className="font-display text-[16px] font-semibold text-wx-tx1">{author.name}</p>
-              <p className="font-mono text-[11px] uppercase tracking-wider text-wx-txf mb-2">{author.role}</p>
+              <p className="font-mono text-meta uppercase tracking-wider text-wx-txf mb-2">{author.role}</p>
               <p className="text-[14px] leading-[1.65] text-wx-txm">{author.bio}</p>
             </div>
           </div>
@@ -420,7 +420,7 @@ export function BlogArticlePage() {
                       </div>
                       <div className="p-4">
                         <p
-                          className="font-mono text-[9px] font-semibold uppercase tracking-[0.16em] mb-1.5"
+                          className="font-mono text-small font-semibold uppercase tracking-[0.16em] mb-1.5"
                           style={{ color: categoryColors[r.category] }}
                         >
                           {r.category}

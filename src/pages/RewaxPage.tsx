@@ -65,13 +65,13 @@ function StampCard({ de }: { de: boolean }) {
     <div className="rounded-2xl p-7"
       style={{ background: 'var(--sf)', border: '1px solid var(--bd)', boxShadow: 'var(--card-shad)' }}>
       <div className="flex items-baseline justify-between mb-6">
-        <p className="text-[11px] uppercase tracking-[0.18em]" style={{ color: 'var(--accent)' }}>
+        <p className="text-small uppercase tracking-[0.18em]" style={{ color: 'var(--accent)' }}>
           {de ? 'Zehnerkarte' : 'Ten-visit card'}
         </p>
         {/* Der Geschenk-Hinweis sitzt auf der Karte selbst, nicht im Fliesstext
             daneben. Wer eine Stempelkarte sieht, auf der "als Geschenk" steht,
             versteht das Angebot ohne einen Satz zu lesen. */}
-        <span className="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-full"
+        <span className="inline-flex items-center gap-1.5 text-meta px-2.5 py-1 rounded-full"
           style={{ background: 'var(--accent-wash-sm)', border: '1px solid rgba(var(--accent-rgb),0.16)', color: 'var(--accent)' }}>
           <Gift className="h-3.5 w-3.5" aria-hidden />
           {de ? 'auch als Geschenk' : 'also as a gift'}
@@ -92,7 +92,7 @@ function StampCard({ de }: { de: boolean }) {
           </div>
         ))}
       </div>
-      <p className="text-[11.5px] leading-relaxed mt-6 pt-4" style={{ color: 'var(--txff)', borderTop: '1px solid var(--bd2)' }}>
+      <p className="text-meta leading-relaxed mt-6 pt-4" style={{ color: 'var(--txff)', borderTop: '1px solid var(--bd2)' }}>
         {de
           ? 'Kein Ablaufdatum, übertragbar. Wir führen die Karte, du musst nichts aufbewahren.'
           : 'No expiry, transferable. We keep the tally, you do not have to keep anything.'}
@@ -137,7 +137,7 @@ function Steps({ de }: { de: boolean }) {
               alt="" aria-hidden loading="lazy" decoding="async"
               className="w-full h-full object-cover" />
           </div>
-          <p className="num-data text-[11px]" style={{ color: 'var(--accent)' }}>{s.n}</p>
+          <p className="num-data text-meta" style={{ color: 'var(--accent)' }}>{s.n}</p>
           <h3 className="font-display font-bold text-wx-tx1 mt-2 leading-tight" style={{ fontSize: '1.25rem' }}>
             {de ? s.de : s.en}
           </h3>
@@ -184,12 +184,12 @@ function Pricing({ de }: { de: boolean }) {
             border: p.accent ? '1px solid rgba(var(--accent-rgb),0.22)' : '1px solid var(--bd)',
           }}>
           <div className="flex items-baseline justify-between gap-3">
-            <p className="text-[11px] uppercase tracking-[0.16em]"
+            <p className="text-small uppercase tracking-[0.16em]"
               style={{ color: p.accent ? 'var(--accent)' : 'var(--txf)' }}>
               {de ? p.titleDe : p.titleEn}
             </p>
             {p.accent && (
-              <span className="num-data text-[11px] px-2 py-1 rounded-full"
+              <span className="num-data text-meta px-2 py-1 rounded-full"
                 style={{ background: 'var(--sf)', border: '1px solid rgba(var(--accent-rgb),0.20)', color: 'var(--accent)' }}>
                 {de ? 'empfohlen' : 'recommended'}
               </span>
@@ -374,7 +374,7 @@ export function RewaxPage() {
                 alt={de ? 'Frisch gewachste Ketten hängen zum Aushärten' : 'Freshly waxed chains hanging to cure'}
                 className="w-full h-full object-cover" />
             </div>
-            <p className="num-data text-[11px] mt-3" style={{ color: 'var(--txff)' }}>
+            <p className="num-data text-meta mt-3" style={{ color: 'var(--txff)' }}>
               {de ? 'AUSGEHÄRTET, STUTTGART' : 'CURED, STUTTGART'}
             </p>
           </div>
@@ -622,7 +622,7 @@ export function RewaxPage() {
 
         <div className={`${W} relative py-20 sm:py-24`}>
           <div className="max-w-[44ch]">
-            <p className="text-[11px] uppercase tracking-[0.2em] mb-4" style={{ color: 'rgba(255,255,255,0.68)' }}>
+            <p className="text-small uppercase tracking-[0.2em] mb-4" style={{ color: 'rgba(255,255,255,0.68)' }}>
               {de ? 'Loslegen' : 'Get started'}
             </p>
             <h2 className="font-display font-bold leading-[1.08] tracking-[-0.02em]"

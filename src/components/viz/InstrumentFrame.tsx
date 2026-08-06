@@ -92,13 +92,13 @@ export function InstrumentFrame({
         {(eyebrow || chip) && (
           <div className="flex items-center justify-between gap-3 mb-4">
             {eyebrow && (
-              <p className="text-[11px] uppercase tracking-[0.24em] font-medium"
+              <p className="text-small uppercase tracking-[0.14em] font-medium"
                 style={{ color: lab ? 'rgba(150,185,245,0.78)' : 'var(--accent-soft)' }}>
                 {eyebrow}
               </p>
             )}
             {chip && (
-              <span className="text-[11px] font-mono tabular-nums px-2 py-0.5 rounded-md flex-shrink-0"
+              <span className="text-meta font-mono tabular-nums px-2 py-0.5 rounded-md flex-shrink-0"
                 style={{
                   background: lab ? 'rgba(var(--accent-soft-rgb),0.16)' : 'var(--accent-wash)',
                   border: lab ? '1px solid rgba(var(--accent-soft-rgb),0.30)' : '1px solid rgba(var(--accent-rgb),0.16)',

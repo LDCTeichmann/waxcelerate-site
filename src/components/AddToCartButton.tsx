@@ -77,7 +77,7 @@ export function AddToCartButton({ product, size = 'md', fullWidth = false }: Pro
 
       {/* Low stock warning */}
       {lowStock && stock > 0 && (
-        <span className="text-[11px] font-medium" style={{ color: '#f59e0b' }}>
+        <span className="text-meta font-medium" style={{ color: '#f59e0b' }}>
           {de ? `Nur noch ${stock} verfügbar` : `Only ${stock} left`}
         </span>
       )}

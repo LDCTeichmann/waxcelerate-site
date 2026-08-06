@@ -172,7 +172,7 @@ export function ProductStagePage() {
         >
           {/* Variant chip */}
           <span
-            className="inline-block text-[10px] font-semibold uppercase tracking-[0.18em] mb-2"
+            className="inline-block text-small font-semibold uppercase tracking-[0.18em] mb-2"
             style={{ color: 'rgba(255,255,255,0.55)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}
           >
             {product.variant ? `${product.variant} · ${product.weight ?? ''}` : (product.chainSpeed ?? '')}
@@ -190,13 +190,13 @@ export function ProductStagePage() {
               <div className="flex items-center gap-5">
                 {product.intervalDry && (
                   <div>
-                    <p className="text-[8.5px] uppercase tracking-[0.16em] mb-0.5 text-white/30">{de ? 'Trocken' : 'Dry'}</p>
+                    <p className="text-small uppercase tracking-[0.16em] mb-0.5 text-white/30">{de ? 'Trocken' : 'Dry'}</p>
                     <p className="num text-[15px] font-bold leading-none text-white">{product.intervalDry}</p>
                   </div>
                 )}
                 {product.intervalWet && (
                   <div>
-                    <p className="text-[8.5px] uppercase tracking-[0.16em] mb-0.5 text-white/30">{de ? 'Nass' : 'Wet'}</p>
+                    <p className="text-small uppercase tracking-[0.16em] mb-0.5 text-white/30">{de ? 'Nass' : 'Wet'}</p>
                     <p className="num text-[15px] font-bold leading-none text-white">{product.intervalWet}</p>
                   </div>
                 )}

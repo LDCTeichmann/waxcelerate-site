@@ -80,7 +80,7 @@ export function ComparisonSlider({
 
       {/* Instruction label */}
       <div className="absolute top-3 left-1/2 -translate-x-1/2 sm:top-4 bg-[var(--chip-bg)] backdrop-blur-sm px-3 py-1.5 rounded-full pointer-events-none">
-        <span className="text-white text-[11px] sm:text-xs whitespace-nowrap">Ziehen zum Vergleichen</span>
+        <span className="text-white text-meta sm:text-xs whitespace-nowrap">Ziehen zum Vergleichen</span>
       </div>
     </div>
   );
