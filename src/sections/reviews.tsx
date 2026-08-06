@@ -100,7 +100,7 @@ function Avatar({ name, photo, photoPos, de }: { name: string; photo?: string; p
     );
   }
   return (
-    <span className="flex-shrink-0 grid place-items-center rounded-lg text-[11px] font-bold"
+    <span className="flex-shrink-0 grid place-items-center rounded-lg text-meta font-bold"
       style={{ width: 38, height: 38, background: 'var(--accent-wash)', color: 'var(--accent)' }}>
       {initials(name)}
     </span>
@@ -151,7 +151,7 @@ function ReviewCard({ r, de }: { r: Review; de: boolean }) {
 
       <div className="flex items-center justify-between mb-2.5">
         <Stars rating={r.rating ?? 5} />
-        <span className="text-[11.5px]" style={{ color: 'var(--txf)' }}>{date}</span>
+        <span className="text-meta" style={{ color: 'var(--txf)' }}>{date}</span>
       </div>
 
       <blockquote className="text-[13px] leading-[1.6] flex-1" style={{ color: 'var(--tx2)' }}>
@@ -164,12 +164,12 @@ function ReviewCard({ r, de }: { r: Review; de: boolean }) {
         <Avatar name={r.name} de={de} />
         <div className="min-w-0">
           <p className="text-[12.5px] font-semibold truncate" style={{ color: 'var(--tx1)' }}>{r.name}</p>
-          <span className="inline-flex items-center gap-1 text-[11.5px] font-medium" style={{ color: 'var(--accent-soft)' }}>
+          <span className="inline-flex items-center gap-1 text-meta font-medium" style={{ color: 'var(--accent-soft)' }}>
             <BadgeCheck className="h-3.5 w-3.5" /> {verified}
           </span>
         </div>
         {product && (
-          <span className="ml-auto flex-shrink-0 rounded-full px-2 py-1 text-[11px] font-medium whitespace-nowrap"
+          <span className="ml-auto flex-shrink-0 rounded-full px-2 py-1 text-meta font-medium whitespace-nowrap"
             style={{ background: 'var(--accent-wash)', color: 'var(--accent)' }}>
             {product}
           </span>
@@ -271,7 +271,7 @@ export function Reviews() {
             <div key={i} className="pr-5 sm:pr-7 mr-5 sm:mr-7 last:pr-0 last:mr-0"
               style={{ borderRight: i < arr.length - 1 ? '1px solid var(--bd)' : 'none' }}>
               <p className="font-display font-bold tabular-nums leading-none" style={{ fontSize: '1.4rem', letterSpacing: '-0.02em', color: 'var(--tx1)' }}>{s.v}</p>
-              <p className="text-[11px] mt-1" style={{ color: 'var(--txf)' }}>{s.l}</p>
+              <p className="text-meta mt-1" style={{ color: 'var(--txf)' }}>{s.l}</p>
             </div>
           ))}
         </div>

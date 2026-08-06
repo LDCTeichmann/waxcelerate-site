@@ -90,16 +90,16 @@ export function HexMoS2({ de }: { de: boolean }) {
           <div className="flex items-center gap-5">
             <div className="flex items-center gap-1.5">
               <div className="w-[14px] h-[14px] rounded-full" style={{ background: 'rgba(var(--accent-rgb),0.45)' }} />
-              <span className="text-[10px] font-mono" style={{ color: 'var(--txf)' }}>S</span>
+              <span className="text-meta font-mono" style={{ color: 'var(--txf)' }}>S</span>
             </div>
             <div className="flex items-center gap-1.5">
               <div className="w-[20px] h-[20px] rounded-full" style={{ background: 'var(--accent)', boxShadow: '0 0 6px rgba(var(--accent-rgb),0.35)' }} />
-              <span className="text-[10px] font-mono" style={{ color: 'var(--txf)' }}>Mo</span>
+              <span className="text-meta font-mono" style={{ color: 'var(--txf)' }}>Mo</span>
             </div>
           </div>
           <div className="text-right">
             <CountUp value="μ 0.03" className="font-display italic text-[22px] font-bold leading-none" style={{ color: 'var(--accent)' }} />
-            <p className="text-[11px] mt-0.5" style={{ color: 'var(--txf)' }}>{de ? 'Grenzschmierung' : 'Boundary lubrication'}</p>
+            <p className="text-meta mt-0.5" style={{ color: 'var(--txf)' }}>{de ? 'Grenzschmierung' : 'Boundary lubrication'}</p>
           </div>
         </div>
       }
@@ -133,7 +133,7 @@ export function HexMoS2({ de }: { de: boolean }) {
           <text x="5" y={BOT_S2 + 3} fontSize="10" fill="var(--txf)" fontFamily="monospace">S</text>
         </svg>
         <div ref={labelRef} className="absolute left-1/2 -translate-x-1/2 pointer-events-none" style={{ top: '46%', opacity: 0 }}>
-          <span className="text-[11px] font-mono tracking-wider px-2.5 py-1 rounded-md"
+          <span className="text-meta font-mono tracking-wider px-2.5 py-1 rounded-md"
             style={{ background: 'var(--sf)', border: '1px solid var(--bd)', color: 'var(--accent)' }}>
             {de ? '← Schicht gleitet →' : '← layer slides →'}
           </span>
@@ -190,7 +190,7 @@ export function TransferFilm({ de }: { de: boolean }) {
           ].map((s, i) => (
             <div key={i}>
               <CountUp value={s.val} className="font-mono text-[13px] font-semibold" style={{ color: 'var(--tx1)' }} />
-              <p className="text-[11px] mt-0.5" style={{ color: 'var(--txf)' }}>{s.sub}</p>
+              <p className="text-meta mt-0.5" style={{ color: 'var(--txf)' }}>{s.sub}</p>
             </div>
           ))}
         </div>

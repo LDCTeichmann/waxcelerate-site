@@ -74,7 +74,7 @@ export function StarterSetBuilder({ de }: { de: boolean }) {
       {/* ── Choices ── */}
       <div className="space-y-8">
         <div>
-          <p className="num-data text-[11px] mb-3" style={{ color: 'var(--accent)' }}>
+          <p className="num-data text-meta mb-3" style={{ color: 'var(--accent)' }}>
             01 · {de ? 'Wachs wählen' : 'Choose the wax'}
           </p>
           <div className="grid sm:grid-cols-2 gap-2.5">
@@ -90,7 +90,7 @@ export function StarterSetBuilder({ de }: { de: boolean }) {
         </div>
 
         <div>
-          <p className="num-data text-[11px] mb-3" style={{ color: 'var(--accent)' }}>
+          <p className="num-data text-meta mb-3" style={{ color: 'var(--accent)' }}>
             02 · {de ? 'Kette wählen' : 'Choose the chain'}
           </p>
           <div className="grid sm:grid-cols-2 gap-2.5">
@@ -104,7 +104,7 @@ export function StarterSetBuilder({ de }: { de: boolean }) {
         </div>
 
         <div>
-          <p className="num-data text-[11px] mb-3" style={{ color: 'var(--txf)' }}>
+          <p className="num-data text-meta mb-3" style={{ color: 'var(--txf)' }}>
             03 · {de ? 'Liegt automatisch bei' : 'Included automatically'}
           </p>
           <div className="grid sm:grid-cols-2 gap-2.5">
@@ -134,7 +134,7 @@ export function StarterSetBuilder({ de }: { de: boolean }) {
       {/* ── Running total ── */}
       <div className="lg:sticky lg:top-24 rounded-2xl p-6 sm:p-7"
         style={{ background: 'var(--sf)', border: '1px solid var(--bd)', boxShadow: 'var(--card-shad)' }}>
-        <p className="text-[11px] uppercase tracking-[0.16em] mb-5" style={{ color: 'var(--accent)' }}>
+        <p className="text-small uppercase tracking-[0.16em] mb-5" style={{ color: 'var(--accent)' }}>
           {de ? 'Dein Set' : 'Your set'}
         </p>
 
@@ -176,7 +176,7 @@ export function StarterSetBuilder({ de }: { de: boolean }) {
             style={{ fontSize: '2.4rem', letterSpacing: '-0.02em' }}>
             {fmt(setPrice, de)}
           </p>
-          <p className="text-[11px] uppercase tracking-[0.14em] pb-1.5" style={{ color: 'var(--txf)' }}>
+          <p className="text-small uppercase tracking-[0.14em] pb-1.5" style={{ color: 'var(--txf)' }}>
             {de ? 'Set-Preis' : 'Set price'}
           </p>
         </div>
@@ -189,7 +189,7 @@ export function StarterSetBuilder({ de }: { de: boolean }) {
           <ExternalLink className="h-4 w-4" />
         </a>
 
-        <p className="text-[11.5px] leading-relaxed mt-4" style={{ color: 'var(--txff)' }}>
+        <p className="text-meta leading-relaxed mt-4" style={{ color: 'var(--txff)' }}>
           {de
             ? `Solange der eigene Checkout im Aufbau ist, läuft die Bestellung über eBay oder direkt per Nachricht. Schreib dazu, welche Kombination du willst, dann geht das Set als ein Paket raus. Der Set-Preis liegt ${starterSet.discountPct} Prozent unter der Summe der Einzelteile.`
             : `While the own checkout is being built, orders go through eBay or a direct message. Tell me which combination you want and the set ships as one parcel. The set price is ${starterSet.discountPct} percent below the sum of the parts.`}

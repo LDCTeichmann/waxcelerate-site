@@ -113,7 +113,7 @@ export function About() {
               <div className="pt-3 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8">
                 <div className="flex items-center gap-2">
                   <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)] animate-pulse flex-shrink-0" />
-                  <span className="text-[11px]" style={{ color: 'var(--txm)' }}>
+                  <span className="text-meta" style={{ color: 'var(--txm)' }}>
                     {de ? 'Aktiv auf eBay · Versand aus Stuttgart' : 'Active on eBay · Ships from Stuttgart'}
                   </span>
                 </div>
@@ -174,7 +174,7 @@ export function About() {
                 />
                 <div className="absolute top-0 left-0 px-6 pt-5">
                   <p
-                    className="text-[11px] font-semibold uppercase tracking-[0.22em] mb-1"
+                    className="text-small font-semibold uppercase tracking-[0.14em] mb-1"
                     style={{ color: '#0064D2' }}
                   >
                     eBay Seller Leadership Week
@@ -211,7 +211,7 @@ export function About() {
                     >
                       {s.value}
                     </p>
-                    <p className="text-[11px] leading-snug mt-1.5" style={{ color: 'var(--tx2)' }}>
+                    <p className="text-meta leading-snug mt-1.5" style={{ color: 'var(--tx2)' }}>
                       {s.label}
                     </p>
                   </div>

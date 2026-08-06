@@ -64,8 +64,8 @@ export function ChainFinder({
       {/* Step 1 — brand */}
       <div className="mb-3">
         <div className="flex items-center gap-2 mb-2">
-          <span className="num-data text-[11px]" style={{ color: 'var(--accent-soft)' }}>01</span>
-          <span className="text-[11px] uppercase tracking-[0.14em]" style={{ color: 'var(--txf)' }}>
+          <span className="num-data text-meta" style={{ color: 'var(--accent-soft)' }}>01</span>
+          <span className="text-small uppercase tracking-[0.14em]" style={{ color: 'var(--txf)' }}>
             {de ? 'Marke' : 'Brand'}
           </span>
         </div>
@@ -81,8 +81,8 @@ export function ChainFinder({
       {/* Step 2 — speed */}
       <div className="mb-4">
         <div className="flex items-center gap-2 mb-2">
-          <span className="num-data text-[11px]" style={{ color: 'var(--accent-soft)' }}>02</span>
-          <span className="text-[11px] uppercase tracking-[0.14em]" style={{ color: 'var(--txf)' }}>
+          <span className="num-data text-meta" style={{ color: 'var(--accent-soft)' }}>02</span>
+          <span className="text-small uppercase tracking-[0.14em]" style={{ color: 'var(--txf)' }}>
             {de ? 'Schaltung' : 'Speed'}
           </span>
         </div>

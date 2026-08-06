@@ -165,11 +165,11 @@ export function FormulaGraph({ de, onSelect, scrollFocus, compact }: { de: boole
                   opacity: !built ? 0 : dimmed ? 0.42 : 1,
                   transition: reduced ? 'none' : 'opacity 0.3s ease',
                 }}>
-                <span className={`block font-semibold ${c.node === 4 ? 'text-[13px]' : 'text-[11px]'}`}
+                <span className={`block font-semibold ${c.node === 4 ? 'text-[13px]' : 'text-meta'}`}
                   style={{ color: focused ? '#fff' : 'var(--tx1)', lineHeight: 1.2 }}>
                   {de ? c.graphLabelDe : c.graphLabelEn}
                 </span>
-                <span className={`block num-data ${c.node === 4 ? 'text-[11px]' : 'text-[9.5px]'}`}
+                <span className="block num-data text-meta"
                   style={{ color: focused ? 'rgba(255,255,255,0.85)' : 'var(--accent-soft)' }}>
                   {c.metric}
                 </span>
@@ -246,7 +246,7 @@ export function FormulaGraph({ de, onSelect, scrollFocus, compact }: { de: boole
               {!reduced && (
                 <button type="button" onClick={onPlayPause}
                   aria-label={done ? (de ? 'Erneut abspielen' : 'Replay') : playing ? (de ? 'Pause' : 'Pause') : (de ? 'Abspielen' : 'Play')}
-                  className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-meta font-semibold transition-colors"
                   style={{ background: 'var(--accent-wash)', border: '1px solid rgba(var(--accent-rgb),0.22)', color: 'var(--accent)' }}>
                   {done ? <RotateCcw className="h-3.5 w-3.5" /> : playing ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
                   {done ? (de ? 'Wiederholen' : 'Replay') : playing ? (de ? 'Pause' : 'Pause') : (de ? 'Abspielen' : 'Play')}

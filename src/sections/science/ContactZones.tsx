@@ -48,7 +48,7 @@ const ZONES = [
 
 function Pill({ children }: { children: React.ReactNode }) {
   return (
-    <span className="num-data text-[11px] px-2 py-[3px] rounded-full whitespace-nowrap"
+    <span className="num-data text-meta px-2 py-[3px] rounded-full whitespace-nowrap"
       style={{ background: 'var(--accent-wash-sm)', border: '1px solid rgba(var(--accent-rgb),0.14)', color: 'var(--accent)' }}>
       {children}
     </span>
@@ -99,7 +99,7 @@ function Breakaway({ de }: { de: boolean }) {
         eyebrow={de ? 'Haftreibung' : 'Breakaway friction'}
         chip={`${teeth}T · ${rpm} rpm`}
         footer={
-          <p className="text-[11px] leading-relaxed" style={{ color: 'var(--txff)' }}>
+          <p className="text-meta leading-relaxed" style={{ color: 'var(--txff)' }}>
             {de
               ? 'Zähne × Trittfrequenz × 8 Umlenkpunkte. Reine Geometrie, kein Messwert.'
               : 'Teeth × cadence × 8 articulation points. Pure geometry, not a measurement.'}
@@ -111,7 +111,7 @@ function Breakaway({ de }: { de: boolean }) {
             style={{ fontSize: 'clamp(2.6rem, 7vw, 4.4rem)', letterSpacing: '-0.045em', color: 'var(--tx1)' }}>
             {(teeth * rpm * ARTICULATION_POINTS).toLocaleString(locale)}
           </p>
-          <p className="text-[11px] uppercase tracking-[0.16em] mt-4" style={{ color: 'var(--txf)' }}>
+          <p className="text-small uppercase tracking-[0.16em] mt-4" style={{ color: 'var(--txf)' }}>
             {de ? 'Losbrech-Vorgänge pro Minute' : 'Breakaway events per minute'}
           </p>
         </div>
@@ -145,7 +145,7 @@ export function ContactZones({ de, onToFormula }: { de: boolean; onToFormula?: (
         eyebrow={de ? 'Schnitt durch ein Gelenk' : 'Section through one joint'}
         chip={de ? 'schematisch' : 'schematic'}
         footer={
-          <p className="text-[11px] leading-relaxed" style={{ color: 'var(--txff)' }}>
+          <p className="text-meta leading-relaxed" style={{ color: 'var(--txff)' }}>
             {de
               ? 'Moderne 9 bis 12 fach Ketten sind buchsenlos, die Schulter der Innenlasche übernimmt deren Funktion. Gilt für alle Ketten, die wir wachsen.'
               : 'Modern 9 to 12 speed chains are bushingless, the inner plate shoulder does that job. Applies to every chain we wax.'}
@@ -171,10 +171,10 @@ export function ContactZones({ de, onToFormula }: { de: boolean; onToFormula?: (
                   className="w-full text-left py-3.5 transition-[padding] duration-500"
                   style={{ borderTop: i === 0 ? 'none' : '1px solid var(--bd2)', paddingLeft: on ? 10 : 0 }}>
                   <span className="flex items-baseline gap-3">
-                    <span className="num-data text-[11px] flex-shrink-0"
+                    <span className="num-data text-meta flex-shrink-0"
                       style={{ color: on ? 'var(--accent)' : 'var(--txf)', transition: 'color .3s' }}>{z.n}</span>
                     <span className="text-[14px] text-wx-tx1 leading-snug">{de ? z.de : z.en}</span>
-                    <span className="ml-auto text-[11px] uppercase tracking-[0.13em] whitespace-nowrap flex-shrink-0"
+                    <span className="ml-auto text-small uppercase tracking-[0.13em] whitespace-nowrap flex-shrink-0"
                       style={{ color: 'var(--txf)' }}>{de ? z.loadDe : z.loadEn}</span>
                   </span>
                   <span style={{ display: 'grid', gridTemplateRows: on ? '1fr' : '0fr', transition: 'grid-template-rows .45s cubic-bezier(0.22,1,0.36,1)' }}>
@@ -249,7 +249,7 @@ export function LineChoice({ de }: { de: boolean }) {
         {lines.map((l, i) => (
           <div key={l.tag} className="py-7 sm:pr-9"
             style={{ borderLeft: i === 1 ? '1px solid var(--bd2)' : undefined, paddingLeft: i === 1 ? 36 : 0 }}>
-            <p className="num-data text-[11px] uppercase tracking-[0.14em]"
+            <p className="num-data text-small uppercase tracking-[0.14em]"
               style={{ color: l.accent ? 'var(--accent)' : 'var(--txf)' }}>{l.tag}</p>
             <p className="font-display font-bold text-wx-tx1 mt-2" style={{ fontSize: '1.6rem', letterSpacing: '-0.015em' }}>
               {l.name}
@@ -257,7 +257,7 @@ export function LineChoice({ de }: { de: boolean }) {
             <p className="text-[13.5px] leading-relaxed mt-3 max-w-[38ch]" style={{ color: 'var(--txm)' }}>
               {de ? l.de : l.en}
             </p>
-            <p className="text-[11px] uppercase tracking-[0.13em] mt-4" style={{ color: 'var(--txf)' }}>
+            <p className="text-small uppercase tracking-[0.13em] mt-4" style={{ color: 'var(--txf)' }}>
               {de ? l.forDe : l.forEn}
             </p>
           </div>

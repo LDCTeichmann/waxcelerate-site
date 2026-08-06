@@ -151,7 +151,7 @@ export function WaxDive({ open, onClose, de }: { open: boolean; onClose: () => v
                           paddingLeft: sel ? '12px' : '4px',
                         }}
                       >
-                        <span className="num-data text-[11px] pt-1 flex-shrink-0 w-5"
+                        <span className="num-data text-meta pt-1 flex-shrink-0 w-5"
                           style={{ color: sel ? 'var(--accent-soft)' : 'var(--txff)' }}>
                           {String(i + 1).padStart(2, '0')}
                         </span>
@@ -160,7 +160,7 @@ export function WaxDive({ open, onClose, de }: { open: boolean; onClose: () => v
                             style={{ color: sel ? 'var(--accent-strong)' : 'var(--tx1)' }}>
                             {de ? c.nameDe : c.nameEn}
                           </span>
-                          <span className="block text-[11px] uppercase tracking-[0.14em] mt-1"
+                          <span className="block text-small uppercase tracking-[0.14em] mt-1"
                             style={{ color: 'var(--txm)' }}>
                             {de ? c.roleDe : c.roleEn}
                           </span>

@@ -83,7 +83,7 @@ export function CartDrawer() {
             <span className="font-semibold text-wx-tx1 text-sm">{t.cart.title}</span>
             {count > 0 && (
               <span
-                className="text-[11px] font-bold text-white rounded-full flex items-center justify-center"
+                className="text-meta font-bold text-white rounded-full flex items-center justify-center"
                 style={{ background: 'var(--accent)', minWidth: '1.25rem', height: '1.25rem', padding: '0 4px' }}
               >
                 {count}
@@ -224,8 +224,8 @@ export function CartDrawer() {
               <span className="font-semibold text-wx-tx1 tabular-nums">{formatPrice(total + shippingCost)}</span>
             </div>
 
-            <p className="text-[11px] text-wx-txf leading-relaxed">{t.cart.vatNote}</p>
-            <p className="text-[11px]" style={{ color: 'var(--txf)' }}>
+            <p className="text-meta text-wx-txf leading-relaxed">{t.cart.vatNote}</p>
+            <p className="text-meta" style={{ color: 'var(--txf)' }}>
               📦 {de ? 'Lieferung voraussichtlich' : 'Est. delivery'}{' '}
               <span style={{ color: 'var(--tx2)' }}>{getEstimatedDelivery(lang)}</span>
             </p>
@@ -238,7 +238,7 @@ export function CartDrawer() {
                 onChange={(e) => setAgbAccepted(e.target.checked)}
                 className="mt-0.5 flex-shrink-0 accent-[var(--accent)] w-3.5 h-3.5"
               />
-              <span className="text-[11px] leading-relaxed" style={{ color: 'var(--txf)' }}>
+              <span className="text-meta leading-relaxed" style={{ color: 'var(--txf)' }}>
                 {de ? (
                   <>Ich habe die{' '}
                     <Link to="/agb" onClick={closeCart} className="underline hover:text-white transition-colors">AGB</Link>
@@ -280,7 +280,7 @@ export function CartDrawer() {
                 href="https://www.ebay.de/usr/waxcelerate"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[11px] transition-colors hover:text-white"
+                className="text-meta transition-colors hover:text-white"
                 style={{ color: 'var(--txf)' }}
               >
                 {de ? 'Lieber bei eBay kaufen →' : 'Buy on eBay instead →'}

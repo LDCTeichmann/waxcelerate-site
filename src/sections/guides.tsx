@@ -180,7 +180,7 @@ export function Guides() {
                 {/* Temperature bar */}
                 <div className="px-5 pt-5 pb-4" style={{ borderBottom: '1px solid var(--bd2)' }}>
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-[11px] tracking-widest uppercase" style={{ color: 'var(--txm)', letterSpacing: '0.1em' }}>
+                    <span className="text-small tracking-widest uppercase" style={{ color: 'var(--txm)', letterSpacing: '0.1em' }}>
                       {de ? 'Wachstemperatur' : 'Wax temperature'}
                     </span>
                     <span className="font-display font-bold text-[14px]" style={{ color: 'var(--tx1)' }}>
@@ -229,8 +229,8 @@ export function Guides() {
                     </span>
                     <div className="w-px self-stretch shrink-0" style={{ background: 'var(--bd2)' }} />
                     <div className="flex flex-col gap-[3px]">
-                      <span className="text-[11.5px] font-semibold leading-none" style={{ color: 'var(--tx1)' }}>{label}</span>
-                      <span className="text-[11px] leading-none" style={{ color: 'var(--txm)' }}>{note}</span>
+                      <span className="text-meta font-semibold leading-none" style={{ color: 'var(--tx1)' }}>{label}</span>
+                      <span className="text-meta leading-none" style={{ color: 'var(--txm)' }}>{note}</span>
                     </div>
                   </div>
                 ))}
@@ -246,7 +246,7 @@ export function Guides() {
                   <p className="text-[13.5px] font-semibold" style={{ color: 'var(--tx1)' }}>
                     {de ? 'Ausführliche Ratgeber' : 'In-depth guides'}
                   </p>
-                  <p className="text-[11.5px] mt-1 leading-snug" style={{ color: 'var(--txm)' }}>
+                  <p className="text-meta mt-1 leading-snug" style={{ color: 'var(--txm)' }}>
                     {de ? 'Jede Anleitung im Detail, mit Fotos und Schritt für Schritt.' : 'Every guide in full detail, with photos, step by step.'}
                   </p>
                 </div>
