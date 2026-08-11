@@ -32,6 +32,7 @@ Push auf `main`, Vercel baut automatisch.
 | Blog, Stand und Konzept | `BLOG_PLAN.md` | bei Blogarbeit |
 | Blog, abgearbeitete Aufgaben | `BLOG_EXECUTION.md` | als Muster |
 | Rechtstexte, Stripe, UX-Plan | `RECHTSTEXTE.md`, `STRIPE_SETUP.md`, `UX_UPGRADE_PLAN.md` | themenbezogen |
+| Mobile-Optimierung (Stufe A/B abgeschlossen, C wartet auf Stripe-IDs), Deploy-Status | `MOBILE_PLAN.md`, `DEPLOY_HANDOFF.md` | vor jedem Deploy des `mobile-optimization`-Branchs oder bei Arbeit an Mobile-Performance/A11y |
 
 Inhaltliche Wahrheit über Produkt, Preise, Intervalle und erlaubte Claims steht
 **nicht im Repo**, sondern im Anthropic-Skill `waxcelerate`. Ist es nicht
