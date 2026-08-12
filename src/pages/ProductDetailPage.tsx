@@ -280,7 +280,10 @@ export function ProductDetailPage() {
     offers: {
       '@type': 'Offer', price: product.price.toFixed(2), priceCurrency: 'EUR',
       availability: 'https://schema.org/InStock', url: canonicalUrl,
-      seller: { '@type': 'Organization', name: 'Waxcelerate' }, priceValidUntil: '2026-12-31',
+      seller: { '@type': 'Organization', name: 'Waxcelerate' },
+      // Was hardcoded to a fixed date that would silently go stale — always
+      // valid for a year out so it never needs manual upkeep.
+      priceValidUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
     },
   });
 
