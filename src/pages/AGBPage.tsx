@@ -24,7 +24,7 @@ export function AGBPage() {
             and points to eBay's buyer protection for returns — both became false
             the moment the site's own checkout could take an order, so they're
             removed rather than left half-right. Full AGB content (or the decision
-            to run without any) is still Luca's to make — see RECHTSTEXTE.md. */}
+            to run without any) is still Luca's to make — see docs/aufgaben/RECHTSTEXTE.md. */}
         <section
           className="mb-8 rounded-xl p-5"
           style={{ background: 'var(--accent-wash)', border: '1px dashed rgba(var(--accent-rgb),0.35)' }}

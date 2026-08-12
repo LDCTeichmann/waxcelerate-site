@@ -132,7 +132,7 @@ Anbieter: IT-Recht Kanzlei, Händlerbund, eRecht24 — alle im selben Rahmen.
 
 ### 6. Stripe-Konto — 45 Min
 
-Komplette Klick-für-Klick-Anleitung: **`STRIPE_SETUP.md`**
+Komplette Klick-für-Klick-Anleitung: **`docs/aufgaben/STRIPE_SETUP.md`**
 
 Kurz: Konto anlegen → **Stripe Tax ausschalten** (du bist Kleinunternehmer!) →
 12 Produkte anlegen → die 12 `price_`-IDs an Sonnet → Schlüssel selbst in Vercel
@@ -192,7 +192,7 @@ Versandtabelle bleibt wie besprochen:
 - [ ] Maxibrief-Tracking in der Post-&-DHL-App nachschauen
 
 **Wenn du Zeit hast:**
-- [ ] Stripe-Konto anlegen, 12 Produkte, IDs an Sonnet (`STRIPE_SETUP.md`)
+- [ ] Stripe-Konto anlegen, 12 Produkte, IDs an Sonnet (`docs/aufgaben/STRIPE_SETUP.md`)
 - [ ] Entscheiden: AGB selbst, IHK oder Dienst (Punkt 5)
 - [ ] Widerrufsbelehrung vom BMJ ausfüllen (Punkt 3)
 
@@ -218,7 +218,7 @@ Versandtabelle bleibt wie besprochen:
 - Letzter Button vor Stripe: „Zahlungspflichtig bestellen"
 - Footer-Links auf alle Rechtsseiten
 - `noindex` von Impressum und AGB nehmen
-- Die komplette UX-Überarbeitung aus `UX_UPGRADE_PLAN.md`
+- Die komplette UX-Überarbeitung aus `docs/plaene/UX_UPGRADE_PLAN.md`
 
 ---
 

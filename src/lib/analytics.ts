@@ -7,7 +7,7 @@
 //
 // @vercel/analytics ist cookiefrei und speichert keine personenbezogenen
 // Daten, daher ohne Consent-Banner betreibbar (Grund fuer die Wahl, siehe
-// MOBILE_PLAN.md A6 — nicht bloss Bequemlichkeit).
+// docs/plaene/MOBILE_PLAN.md A6 — nicht bloss Bequemlichkeit).
 
 import { track } from '@vercel/analytics/react';
 

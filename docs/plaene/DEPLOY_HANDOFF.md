@@ -7,7 +7,7 @@ weiterzumachen.
 
 **Für die Orientierung im Projekt allgemein: `PROJECT.md` zuerst lesen** —
 das ist der bestehende Einstiegspunkt des Repos (Inhaltsverzeichnis, verweist
-weiter auf `AGENTS.md`, `CLAUDE.md`, `WEBSITE_HANDOFF.md`, `docs/DESIGN.md`,
+weiter auf `AGENTS.md`, `CLAUDE.md`, `docs/REPO_KARTE.md`, `docs/DESIGN.md`,
 `docs/AUDIT.md`). Diese Datei hier dupliziert das absichtlich nicht — sie
 deckt ausschließlich den Mobile-Optimization-Branch und den anstehenden
 Deploy ab.
@@ -63,7 +63,7 @@ Rückfragen — auch für eine künftige Claude-Code-Session in diesem Repo.
 
 ## 1. Was fertig ist
 
-Alle Pakete aus `MOBILE_PLAN.md` Stufe A und B sind implementiert, verifiziert
+Alle Pakete aus `docs/plaene/MOBILE_PLAN.md` Stufe A und B sind implementiert, verifiziert
 und auf dem Branch `mobile-optimization` committet (16 Commits über
 `origin/main` hinaus, siehe Liste unten). Nur Stufe C (nativer Checkout)
 fehlt — bewusst, siehe Abschnitt 3.
@@ -174,7 +174,7 @@ git push origin backup/pre-mobile-optimization-20260806:main --force
 Bewusst nicht begonnen, wie vereinbart. Voraussetzung: die zwölf
 `stripePriceId`-Werte von Luca. Sobald die da sind:
 
-1. `STRIPE_SETUP.md` im Repo-Root folgen (Luca-Anteil: ca. 45 Min, davon
+1. `docs/aufgaben/STRIPE_SETUP.md` folgen (Luca-Anteil: ca. 45 Min, davon
    20 Min Wartezeit auf Stripes Prüfung).
 2. Die zwölf `stripePriceId`-Werte in `src/lib/data.ts` eintragen — das ist
    der einzige Code-Eingriff. `checkoutEnabled` kippt automatisch von
@@ -185,7 +185,7 @@ Bewusst nicht begonnen, wie vereinbart. Voraussetzung: die zwölf
    zwei Ketten muss auf Paket-Versand eskalieren, siehe `shippingFor()`
    in `src/lib/data.ts`).
 4. Das ist C1. C2 (Kaufpfad von 5 auf 2 Schritte) ist der nächste Schritt
-   danach, siehe `MOBILE_PLAN.md` ab Zeile 508.
+   danach, siehe `docs/plaene/MOBILE_PLAN.md` ab Zeile 508.
 
 ### 4.2 Kleiner Rest aus B5 (dokumentiert, nicht verfolgt)
 
@@ -219,10 +219,10 @@ Im Arbeitsverzeichnis liegen unabhängig von dieser ganzen Arbeit noch
 Änderungen, die nicht von mir stammen und nicht committet sind:
 
 ```
-M  EBAY_MICH_SEITE.md
-M  GOOGLE_UNTERNEHMENSPROFIL.md
-M  LUCA_TODO.md
-?? MOBILE_PLAN.md          (der Plan selbst, bewusst nicht Teil des Repos)
+M  docs/aufgaben/EBAY_MICH_SEITE.md
+M  docs/aufgaben/GOOGLE_UNTERNEHMENSPROFIL.md
+M  docs/aufgaben/LUCA_TODO.md
+?? docs/plaene/MOBILE_PLAN.md          (der Plan selbst, bewusst nicht Teil des Repos)
 ?? performance-audit/      (Audit-Rohdaten aus der Baseline-Messung)
 ```
 

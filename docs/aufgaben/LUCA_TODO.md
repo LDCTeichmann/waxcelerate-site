@@ -1,366 +1,194 @@
-# Deine Liste — stur von oben nach unten abarbeiten
+# Deine Liste — stur von oben nach unten
 
-**Stand:** 4. August 2026
-**Regel:** Nichts hier verlangt Nachdenken. Kopieren, einfügen, fertig. Wenn etwas nicht klappt, steht direkt darunter, was dann zu tun ist.
-**Hintergrund und Begründungen:** alles in `SICHTBARKEIT_PLAN.md`. Musst du nicht lesen, um diese Liste abzuarbeiten.
+**Stand:** 5. August 2026
+**Regel:** Nichts hier verlangt Nachdenken. Kopieren, einfügen, fertig.
+**Hintergründe:** `docs/plaene/SICHTBARKEIT_PLAN.md`, `docs/plaene/PFAS_STRATEGIE.md`, `docs/plaene/REICHWEITE_STRATEGIE.md`. Musst du nicht lesen.
 
 ---
 
-# TEIL Z — STAND 5. AUGUST, das Aktuelle zuerst
+## ✅ Erledigt
 
-## Z1. Warum Google die Sitemap ablehnt („Invalid sitemap address")
+- Asset-Fehler behoben, alle 41 Seiten liefern echtes HTML
+- Produktseiten live und geprüft (`waxcelerate.de/produkt/wax-500` zeigt eine echte Seite)
+- `/rewax` → `/kette-wachsen-lassen` umgestellt, mit 301
+- Google Search Console verifiziert, **Sitemap eingereicht, 35 URLs erkannt**
+- Bing Webmaster Tools verbunden, Sitemap eingereicht
+- IndexNow scharf: 35 URLs gemeldet (HTTP 202)
+- 10 URLs bei Google zur Indexierung angemeldet
 
-Deine Property ist eine **Domain-Property**, per DNS bei GoDaddy verifiziert. Dort verlangt Google die **vollständige URL**. Der Kurzform-Eintrag `sitemap.xml` funktioniert nur bei URL-Prefix-Properties.
+---
 
-In das Feld gehört also:
+# ⚠️ ZUERST: ein Fehler im letzten Commit
 
-```
-https://waxcelerate.de/sitemap.xml
-```
+In deinen Commit sind drei Git-Repositories geraten, die dort nicht hingehören: `.claude/worktrees/agent-*`. Git hat sie als Submodul-Verweise eingetragen (die Warnung „adding embedded git repository" im Terminal). Sie zeigen auf Objekte, die auf GitHub nicht existieren. Ein frischer Klon deines Repos würde daran scheitern.
 
-Bing hat es akzeptiert, weil Bing beide Formen erlaubt. Deshalb hat es dort funktioniert und bei Google nicht.
-
-## Z2. Push für die URL-Umstellung
-
-Ich habe `/rewax` auf `/kette-wachsen-lassen` umgestellt, samt 301-Weiterleitung. Begründung unten in Z4.
+Ich habe `.gitignore` ergänzt. Das hier räumt es auf:
 
 ```
 cd ~/"Claude Playground"/waxcelerate-site
 rm -f .git/index.lock .git/HEAD.lock
-git add -A
-git commit -m "Rename rewax route to kette-wachsen-lassen, 301 from old path"
+git rm -r --cached .claude/worktrees .claude/settings.local.json
+git add .gitignore docs/aufgaben/EBAY_MICH_SEITE.md docs/aufgaben/LUCA_TODO.md
+git commit -m "Remove embedded worktree repos from index, ignore .claude internals"
 git push origin fix/asset-base-path:main
 ```
 
-Danach zwei Minuten warten und prüfen: `waxcelerate.de/rewax` muss auf `waxcelerate.de/kette-wachsen-lassen` weiterleiten.
-
-## Z3. Diese URLs bei Google zur Indexierung anmelden
-
-„URL prüfen" oben in der Search Console, dann „Indexierung beantragen". Google nimmt etwa zehn pro Tag. **In dieser Reihenfolge**, die wichtigsten zuerst:
-
-**Heute:**
-```
-https://waxcelerate.de/
-https://waxcelerate.de/kette-wachsen-lassen
-https://waxcelerate.de/produkt/wax-500
-https://waxcelerate.de/produkt/wax-500-mos2
-https://waxcelerate.de/starter-set
-https://waxcelerate.de/blog
-https://waxcelerate.de/wissenschaft
-https://waxcelerate.de/produkt/wax-300
-https://waxcelerate.de/produkt/wax-300-mos2
-https://waxcelerate.de/produkt/chain-m8100
-```
-
-**Morgen:**
-```
-https://waxcelerate.de/produkt/chain-nx
-https://waxcelerate.de/produkt/chain-force
-https://waxcelerate.de/produkt/chain-m9100
-https://waxcelerate.de/produkt/chain-m7100
-https://waxcelerate.de/produkt/chain-hg701
-https://waxcelerate.de/produkt/chain-ybn11
-https://waxcelerate.de/produkt/chain-ybn12
-https://waxcelerate.de/blog/kettenwachs-faq
-https://waxcelerate.de/blog/heisswachs-anleitung
-https://waxcelerate.de/blog/mos2-kettenwachs
-```
-
-**Übermorgen:** die restlichen Blogartikel. Die Rechtstexte brauchst du nicht anzumelden, die findet Google über die Sitemap.
-
-## Z4. Warum /rewax weg ist, und warum genau jetzt
-
-Ich habe geprüft, wie im deutschen Markt tatsächlich gesucht wird. **„Rewax" kommt in deutschen Suchergebnissen praktisch nicht vor.** Es ist ein Anglizismus aus der Szene. Deine Wettbewerber ranken alle mit derselben Formulierung: Kettenhelden mit „Jetzt Kette wachsen lassen", bikeoptimierung mit „Kette wachsen lassen und reinigen".
-
-**Zu deinem Vorschlag „nachwachsen": Bitte nicht.** Im Deutschen heißt „nachwachsen" in erster Linie, dass etwas wieder wächst, Haare oder ein Wald. Google würde die Seite gegen eine völlig andere Suchabsicht antreten lassen. Das wäre schlechter als „rewax".
-
-**Und warum jetzt der richtige Moment ist:** Google hat noch keine einzige deiner Seiten indexiert. Eine URL-Änderung kostet aktuell **nichts**. In zwei Monaten, wenn `/rewax` Rankings gesammelt hat, wäre derselbe Schritt teuer. Die 301-Weiterleitung ist trotzdem drin, damit geteilte Links, QR-Codes und Beilegzettel weiter funktionieren.
-
-## Z5. eBay „Mich"-Seite
-
-Fertiger Text liegt in **`EBAY_MICH_SEITE.md`**, inklusive Begründung und einer Alternativfassung. Kopieren, einfügen, speichern. Der Website-Link ist eingebaut.
+Deine Dateien auf der Platte bleiben unangetastet, nur Git vergisst sie.
 
 ---
 
-# TEIL A — Das Eine, das alles blockiert
+# TEIL B — Bing, DuckDuckGo, ChatGPT · ✅ erledigt
 
-## A0. STATUS 4. August, spät — ein Fehler von mir, eine Zeile zum Beheben
-
-**Dein Push hat funktioniert** (`3471d6d..d83c8fd → main`). **Das Deployment nicht.**
-
-Ursache, und die liegt bei mir: Ich hatte in `vercel.json` einen Kommentar als `"//"`-Schlüssel eingebaut. JSON kennt keine Kommentare, und Vercel prüft die Datei gegen ein striktes Schema **bevor** der Build startet. Unbekannte Felder brechen das Deployment sofort ab. Deshalb ist nichts live gegangen, auch nicht die Arbeit aus dem ersten Commit.
-
-Nachgewiesen: Die IndexNow-Schlüsseldatei ist unter ihrer URL nicht erreichbar, obwohl sie im Commit liegt. Ein Deployment hat es also nie gegeben.
-
-**Behoben.** Ich habe den Kommentar entfernt und die vier noindex-Regeln zusätzlich in einzelne, simple Einträge zerlegt, damit auch bei den Pfadmustern nichts schiefgehen kann. Die Datei ist gegen Vercels Schema geprüft.
-
-### Und der Grund, warum deine Git-Befehle immer wieder scheitern: ich war es
-
-Die Sperrdatei kommt nicht von einem abgestürzten Prozess auf deinem Mac. **Meine eigenen Git-Versuche aus der Cowork-Umgebung erzeugen sie.** Sie schlagen dort fehl, hinterlassen `.git/index.lock` und `.git/HEAD.lock`, und ich kann beide anschließend nicht löschen, weil mir die Rechte auf dem eingebundenen Ordner fehlen. Danach ist dein Git blockiert.
-
-Deshalb sagte dein letzter Push „Everything up-to-date": Der Commit davor war an der Sperre gescheitert, es gab schlicht nichts zu schieben.
-
-**Ich fasse Git ab sofort nicht mehr an.** Dieser Block räumt beide Sperren weg und macht alles in einem Zug:
-
-```
-cd ~/"Claude Playground"/waxcelerate-site
-rm -f .git/index.lock .git/HEAD.lock .git/objects/maintenance.lock
-git add vercel.json LUCA_TODO.md scripts/generate-sitemap.mjs scripts/sitemap-lastmod.json public/sitemap.xml
-git commit -m "Fix vercel.json schema, honest sitemap lastmod dates"
-git push origin fix/asset-base-path:main
-```
-
-**Falls es wieder klemmt:** Der Befehl `git status` muss ohne Fehlermeldung durchlaufen. Tut er das nicht, ist noch eine Sperre da. Dann nochmal die `rm`-Zeile, danach weiter.
-
-### Wenn es diesmal wieder nicht deployt
-
-Dann liegt es nicht an `vercel.json`, und ich rate nicht weiter herum. Öffne `vercel.com`, geh in das Projekt, Reiter **Deployments**. Der oberste Eintrag zeigt entweder „Ready" oder „Error". Bei „Error" draufklicken, das Build-Log zeigt die exakte Zeile. **Schick mir davon einen Screenshot**, dann ist es in fünf Minuten erledigt statt in drei Runden Raten.
-
-**Danach prüfen, ob es diesmal geklappt hat.** Diese URL muss den Schlüssel als reinen Text zeigen, nicht die Website:
-
-```
-waxcelerate.de/74ee22c75cc92464f6fc7d87ee40a1848108c9411d03f5173e05ba74a23fe01f.txt
-```
-
-Klappt das, ist das Deployment durch, und `waxcelerate.de/produkt/wax-500` zeigt eine echte Produktseite. Sag mir kurz Bescheid, dann verifiziere ich alle 41 Seiten live.
-
----
-
-## A1. ~~Die kaputte Git-Sperre lösen~~ · erledigt
-
-**Warum:** Eine hängengebliebene Datei (`index.lock`) blockiert jeden Git-Befehl in deinem Projekt. Dadurch ist eine seit Tagen fertige Korrektur nie live gegangen. Solange die fehlt, laden 22 fertige Seiten weder Design noch Funktion, und Google sieht auf den Verkaufsseiten nichts.
-
-**Vorher:** Schließe alle Claude-Code-Fenster und alle Editoren, die das Projekt geöffnet haben. Terminal darf offen bleiben.
-
-**Wichtig:** In deinem Projekt liegen aktuell mehrere unfertige Änderungen aus parallelen Sessions (Design-Arbeit an Rewax- und Wissenschaftsseite, dazu die Arbeit aus meiner Sonnet-Session). Der Block unten committet **gezielt nur die Dateien, die zu diesem Fix gehören**, und lässt alles andere unangetastet liegen.
-
-**Dann das hier komplett kopieren und im Terminal einfügen:**
-
-```
-cd ~/"Claude Playground"/waxcelerate-site
-rm -f .git/index.lock .git/objects/maintenance.lock
-git add vite.config.ts public/74ee22c75cc92464f6fc7d87ee40a1848108c9411d03f5173e05ba74a23fe01f.txt scripts/ping-indexnow.mjs public/sitemap.xml
-git commit -m "Fix asset base path, add IndexNow key and ping script"
-git checkout main
-git merge --ff-only fix/asset-base-path
-git push origin main
-```
-
-**Falls die Sonnet-Session vor A1 fertig geworden ist**, kommen zusätzlich `scripts/generate-product-html.mjs` und `package.json` dazu. Den genauen, fertigen Befehl dafür liefert die Session am Ende in ihrem Bericht. Nimm dann den, nicht diesen.
-
-**So sieht Erfolg aus:** Die letzte Zeile endet mit etwas wie `main -> main`. Kein `rejected`, kein `fatal`.
-
-**Falls `merge --ff-only` fehlschlägt** (Meldung „Not possible to fast-forward"), stattdessen:
-
-```
-git merge fix/asset-base-path --no-edit
-git push origin main
-```
-
-**Falls der Push abgelehnt wird** („non-fast-forward"):
-
-```
-git pull --rebase origin main
-git push origin main
-```
-
----
-
-## A2. Prüfen, ob es gewirkt hat
-
-Warte zwei Minuten, bis Vercel gebaut hat. Dann **neues privates Fenster** öffnen und diese Adresse **direkt eintippen**, nicht von der Startseite klicken:
-
-```
-waxcelerate.de/produkt/wax-500
-```
-
-**Gut:** Die Seite sieht normal aus, mit Menü, Bildern, Preis, Button.
-**Schlecht:** Weiß, oder nackter Text ohne Gestaltung.
-
-Schreib mir kurz, welches von beidem. Bei „schlecht" mache ich weiter, bevor irgendetwas anderes passiert.
-
----
-
-# TEIL B — Sofortige Sichtbarkeit, unabhängig von Google
-
-> Google entscheidet selbst, wann es eine neue Domain ernst nimmt. Bing nicht. Über Bing bist du zusätzlich in DuckDuckGo und in ChatGPT-Suche sichtbar, weil beide den Bing-Index nutzen. Das ist der schnellste Weg zu „man findet mich".
-
-## B1. Bing Webmaster Tools einrichten (10 Minuten)
-
-1. Öffne `bing.com/webmasters`
-2. Mit Google-Konto anmelden (Knopf „Import from Google Search Console") — das überträgt die Bestätigung deiner Domain automatisch, du musst nichts verifizieren
-3. Falls der Import nicht geht: „Add site manually" → `https://waxcelerate.de` → Bestätigung über die HTML-Datei wählen und mir kurz Bescheid geben, den Rest mache ich
-4. Danach links unter „Sitemaps" eintragen: `https://waxcelerate.de/sitemap.xml`
-
-## B2. IndexNow scharf schalten (2 Minuten, nach A1)
-
-Ich habe Schlüssel und Skript schon ins Projekt gelegt. Du musst es nur einmal auslösen:
+Nach jedem Deploy einmal wiederholen, dann kennt Bing neue Seiten binnen Minuten:
 
 ```
 cd ~/"Claude Playground"/waxcelerate-site
 npx tsx scripts/ping-indexnow.mjs
 ```
 
-**So sieht Erfolg aus:** `✓ 33 URLs an IndexNow gemeldet`
-
-**Falls „Schluesseldatei nicht erreichbar" kommt:** Vercel war noch nicht fertig. Fünf Minuten warten, Befehl wiederholen.
-
-Ab jetzt nach jedem Deploy einmal denselben Befehl, dann kennt Bing neue Seiten binnen Minuten.
-
 ---
 
-# TEIL C — Google richtig anstoßen
+# TEIL C — Google-Indexierung
 
-## C1. Search Console kontrollieren (10 Minuten)
+## C1. Sitemap · ✅ erledigt
 
-1. `search.google.com/search-console` öffnen, Property `waxcelerate.de` wählen
-2. Links **Sitemaps** → falls `sitemap.xml` nicht gelistet ist, eintragen: `sitemap.xml` → Senden
-3. Links **Indexierung → Seiten** → **Screenshot machen und mir schicken**. Ich brauche die Zahlen bei „Nicht indexiert" und die Gründe darunter. Das ist meine Messgrundlage, ohne die kann ich nicht beurteilen, ob es wirkt.
+## C2. URLs anmelden — MORGEN diese zehn
 
-## C2. Wichtigste Seiten einzeln anmelden (10 Minuten, erst nach A2)
-
-Oben in der Search Console ist eine Suchleiste („URL prüfen"). Dort nacheinander diese sechs Adressen einfügen, jeweils auf **„Indexierung beantragen"** klicken, warten bis bestätigt, nächste:
+Search Console → Suchleiste oben („URL prüfen") → URL einfügen → **„Indexierung beantragen"** → warten bis bestätigt → nächste. Google nimmt etwa zehn pro Tag.
 
 ```
-https://waxcelerate.de/
-https://waxcelerate.de/rewax
-https://waxcelerate.de/starter-set
-https://waxcelerate.de/produkt/wax-500
-https://waxcelerate.de/produkt/wax-500-mos2
-https://waxcelerate.de/blog
+https://waxcelerate.de/blog/heisswachs-vs-fluessigwachs
+https://waxcelerate.de/blog/fahrradkette-entfetten
+https://waxcelerate.de/blog/kettenlaufzeit-heisswachs
+https://waxcelerate.de/blog/kettenwachs-rennrad-gravelbike
+https://waxcelerate.de/blog/wachs-haelt-nicht-haeufige-fehler
+https://waxcelerate.de/blog/vorgewachste-kette
+https://waxcelerate.de/blog/kettenwachs-winter
+https://waxcelerate.de/blog/topf-zum-kette-wachsen
+https://waxcelerate.de/blog/tropfwachs-hybrid-methode
+https://waxcelerate.de/blog/von-oel-auf-wachs-umsteigen
 ```
 
-Mehr als etwa zehn pro Tag nimmt Google nicht an, das reicht aber.
+## C3. ÜBERMORGEN die letzten fünf
+
+```
+https://waxcelerate.de/blog/ebike-kette-wachsen
+https://waxcelerate.de/blog/kettenverschleiss-messen
+https://waxcelerate.de/blog/erste-fahrt-nach-wachsen
+https://waxcelerate.de/blog/schnellverschluss-quicklink
+https://waxcelerate.de/blog/wachs-entsorgen-topf-pflegen
+```
+
+Danach sind alle 18 Artikel plus die zehn wichtigsten Seiten angemeldet. Die Rechtstexte brauchst du nicht, die findet Google über die Sitemap.
+
+## C4. In einer Woche: Kontrolle
+
+Search Console → **Indexierung → Seiten**. Dann sollten dort Zahlen stehen statt „Processing data". Mach einen Screenshot und schick ihn mir, das ist meine Messgrundlage.
 
 ---
 
-# TEIL D — Verlinkungen, damit Google die Domain überhaupt ernst nimmt
+# TEIL D — Verlinkungen, für die du niemanden fragen musst
 
-> Ohne Links von anderen Seiten bleibt eine neue Domain für Google unwichtig, egal wie gut sie technisch ist. Das ist der Punkt, an dem aktuell am meisten liegen bleibt.
+> Das sind die einzigen Linkquellen, die komplett in deiner Hand liegen. Zusammen etwa 20 Minuten.
 
-## D1. Kleinanzeigen-Impressum (5 Minuten, rechtlich ohnehin Pflicht)
+## D1. Kleinanzeigen-Impressum (5 Min)
 
-Kleinanzeigen → Unternehmensseite → Rechtliche Angaben → Impressum ausfüllen, **inklusive Feld für die Website**: `https://waxcelerate.de`
+**Warum:** Erscheint danach automatisch unter **jeder** deiner Anzeigen. Als gewerblicher Anbieter ohnehin Pflicht.
 
-Das erscheint danach automatisch unter **jeder** deiner Anzeigen.
+**Wo:** kleinanzeigen.de → oben rechts auf deinen Namen → **Unternehmensseite** → **Rechtliche Angaben**
 
-## D2. eBay „Mich"-Seite (5 Minuten)
+**Was rein muss:**
 
-eBay → Mein eBay → Verkäufer-Cockpit → Shop → „Über mich"-Seite bearbeiten. Dort `https://waxcelerate.de` als Link einbauen.
+```
+Waxcelerate
+Luca Teichmann
+Florentinerstraße 17
+70619 Stuttgart
 
-**Wichtig:** Links in Artikelbeschreibungen bleiben verboten. Nur auf dieser Seite ist es erlaubt. In den Artikeln reicht das Wort „Waxcelerate" ohne Link.
+Telefon: +49 157 51957470
+E-Mail: waxcelerate@gmail.com
+Website: https://waxcelerate.de
 
-## D3. bikeoptimierung.de anschreiben (3 Minuten)
+Kleinunternehmer gemäß § 19 UStG, daher wird keine Umsatzsteuer ausgewiesen.
+```
 
-Die verkaufen dein Wachs und ranken bei Google für deinen eigenen Markennamen besser als du, verlinken dich aber nirgends. Über Instagram-Direktnachricht oder WhatsApp (beides steht in deren Fußzeile).
+Falls es kein eigenes Feld „Website" gibt: URL ans Ende des Impressumstexts. Wirkt genauso.
 
-**Text zum Kopieren:**
+## D2. eBay „Mich"-Seite (5 Min)
 
-> Hallo, hier ist Luca von Waxcelerate. Schön zu sehen, wie ihr das Wachs einsetzt, der Kettenservice ist sauber aufgebaut.
->
-> Eine kleine Bitte: Würdet ihr „Waxcelerate" bei euch einmal auf waxcelerate.de verlinken, zum Beispiel auf der Über-uns-Seite als Herstellerangabe? Das hilft mir gerade sehr, weil die Marke online noch schwer zu finden ist, und für eure Kunden ist es praktisch, wenn sie technische Angaben direkt finden.
->
-> Falls ihr Produktfotos oder Datenblätter in guter Auflösung braucht, schick ich euch die gern.
->
-> Beste Grüße, Luca (waxcelerate)
+Text liegt fertig in **`docs/aufgaben/EBAY_MICH_SEITE.md`**. Kopieren, einfügen, speichern.
 
-## D4. Deine B2B-Partner (10 Minuten, verteilt)
+**Merksatz:** Auf der Profilseite sind Links erlaubt. **In Artikelbeschreibungen nicht** — dort nur das Wort „Waxcelerate" ohne Link. Google wertet auch unverlinkte Nennungen, du riskierst also nichts.
 
-An alle Partnershops dieselbe Bitte, per Mail oder WhatsApp:
+## D3. Zwei Profile, in denen du schon stehst (5 Min)
 
-> Hallo [Name], kurze Bitte: Könntet ihr Waxcelerate auf eurer Website einmal als geführte Marke mit Link auf waxcelerate.de nennen? Hilft mir gerade sehr bei der Auffindbarkeit. Fotos und Texte liefere ich gern zu.
->
-> Beste Grüße, Luca
+Beide haben ein Website-Feld, das vermutlich leer ist:
 
-**Nimm das ab sofort fest ins Onboarding neuer Partner auf**, dann passiert es künftig von allein.
+- **velomarkt.de** → dein Inserat
+- **buycycle.com** → dein Verkäuferprofil
 
-## D5. Google Unternehmensprofil (15 Minuten)
+## D4. Google Unternehmensprofil · angelegt, wartet auf Verifizierung
 
-`business.google.com` → Profil anlegen.
+Status laut deinem Screenshot: **„Google verarbeitet derzeit Ihre Angaben zur Verifizierung. Das kann bis zu fünf Tage dauern."** Solange steht dort „Nicht öffentlich sichtbar". Das ist normal, nichts zu tun außer warten.
 
-- Name: `Waxcelerate`
-- Kategorie: `Fahrradgeschäft`
-- Kein Ladengeschäft, aber Liefergebiet angeben: Stuttgart und Umgebung
-- Website: `https://waxcelerate.de`
-- Fotos hochladen: Wachsblock, Wachsbad, gewachste Kette
+Bereits richtig eingestellt: Kein Ladengeschäft, Einzugsgebiete gesetzt, Telefon und Website eingetragen, Kategorie Fahrradgeschäft.
 
-Das ist der stärkste einzelne Hebel für „Kettenwachs Stuttgart" und hilft Google, dich vom gleichnamigen Skiwachs zu unterscheiden.
+**Ein Hinweis zu den Einzugsgebieten:** Du hast Stuttgart, Hamburg, Berlin, München, Leipzig, Deutschland und Österreich eingetragen. „Deutschland" schließt Hamburg, Berlin, München und Leipzig bereits ein, die vier sind also überflüssig. Das schadet nicht, aber ein sehr breites Einzugsgebiet schwächt tendenziell das lokale Signal für Stuttgart. Wenn du magst, lass später nur **Stuttgart, Deutschland und Österreich** stehen.
+
+**Was du übersprungen hast und nachtragen solltest:** die Unternehmensbeschreibung. Der richtlinienkonforme Text ohne URL liegt in `docs/aufgaben/GOOGLE_UNTERNEHMENSPROFIL.md`. Nachtragen unter „Profil bearbeiten".
 
 ---
 
-# TEIL E — Große Chancen, je eine Mail
+## D5. NACH der Freigabe: das Profil füllen
 
-## E1. Stiftung Warentest (10 Minuten)
+> **Erst wenn der Status von „Nicht öffentlich sichtbar" auf sichtbar wechselt.** Vorher verpufft die Arbeit oder wird nicht übernommen.
 
-Sie haben 2025 Hersteller zur PFAS-Frage befragt und schreiben ausdrücklich, dass einige nicht geantwortet haben. Du warst nicht dabei. Über `test.de/kontakt`.
+Alle Punkte im Dashboard oder direkt in der Google-Suche über die Verwaltungsleiste.
 
-> Betreff: Ergänzung zu „Schmiermittel für Fahrradketten – auch ohne PFAS"
->
-> Sehr geehrte Redaktion,
->
-> in Ihrem Beitrag vom 26.05.2025 haben Sie Anbieter von Heißwachsen zur PFAS-Frage befragt. Wir waren damals nicht dabei und möchten die Angabe gern nachreichen.
->
-> Waxcelerate ist ein Kleinunternehmen aus Stuttgart, das Heißwachs für Fahrradketten in eigenen Chargen herstellt. Wir führen zwei Formeln und unterscheiden dabei bewusst:
->
-> Die MoS₂ Pro Edition ist PFAS- und PTFE-frei. Basis ist Paraffin, geschmiert wird mit Molybdändisulfid, einem metallischen Festschmierstoff.
->
-> Die Classic-Linie enthält derzeit noch PTFE. Wir weisen das auf der Produktseite offen aus, statt es zu umschreiben, und stellen die Rezeptur derzeit auf ein fluorfreies Additiv um.
->
-> Für Rückfragen zu Zusammensetzung oder Herstellung stehe ich gern zur Verfügung, ebenso für Muster.
->
-> Beste Grüße
-> Luca Teichmann, Waxcelerate, Stuttgart
+- [ ] **Beschreibung** nachtragen, Text aus `docs/aufgaben/GOOGLE_UNTERNEHMENSPROFIL.md`
+- [ ] **Produkte eintragen** (Reiter „Produkte bearbeiten"). Die vier Wachse mit Preis, Beschreibung und Link auf die jeweilige Produktseite:
+  - Kettenwachs 500g Classic · 29,95 € · `waxcelerate.de/produkt/wax-500`
+  - Kettenwachs 300g Classic · 22,95 € · `waxcelerate.de/produkt/wax-300`
+  - Kettenwachs 500g Pro · 34,95 € · `waxcelerate.de/produkt/wax-500-mos2`
+  - Kettenwachs 300g Pro · 26,95 € · `waxcelerate.de/produkt/wax-300-mos2`
+- [ ] **Leistung eintragen:** „Kette wachsen lassen", 13,95 €, Link auf `waxcelerate.de/kette-wachsen-lassen`
+- [ ] **Fotos hochladen**, in dieser Reihenfolge: Logo, Wachsblock, Wachsbad mit Ketten, fertige Kette in Nahaufnahme, Verpackung. **Nur eigene Fotos**, keine KI-Bilder.
+- [ ] **Erste Bewertungen.** Ein Profil ohne Bewertungen wirkt tot. Frag zwei oder drei Stammkunden, die du persönlich kennst. **Nichts dafür geben und nichts kaufen** — Google erkennt das, und die Strafe trifft das ganze Profil. Zwei echte Sätze sind mehr wert als zehn generische.
+- [ ] **Öffnungszeiten weiterhin leer lassen.** Bei einem Versandbetrieb ohne Laden ist das normal und besser als eine unglaubwürdige Angabe.
 
-## E2. speed-ville.de (10 Minuten)
-
-Deutscher Rennrad-Blog. Deren Kettenwachs-Vergleich hat 48.100 Aufrufe und rankt für dein wichtigstes Suchwort. Du kommst darin nicht vor, ein Wettbewerber hat dort schon einen Gastbeitrag. An `info@speed-ville.de`.
-
-> Betreff: Kettenwachs-Vergleich, Ergänzung aus Stuttgart
->
-> Hallo Daniel,
->
-> euer Vergleich „Welches Kettenwachs fürs Rennrad ist das beste" ist der Artikel, auf den ich Kunden am häufigsten verweise, wenn sie erst mal verstehen wollen, worum es geht.
->
-> Ich stelle in Stuttgart selbst Heißwachs her, in kleinen Chargen, seit 2024. Zwei Formeln, eine für Frühjahr bis Herbst, eine mit MoS₂ für Winter und Nässe. 500 g liegen bei 29,95 €, also rund 6 € je 100 g. In eurem Vergleich liegen die Heißwachse zwischen 10 und 11 € je 100 g.
->
-> Zwei Dinge, die ich anbieten kann:
->
-> Erstens Testmuster, beide Formeln, kostenlos und ohne Bedingungen. Wenn es euch nicht überzeugt, schreibt das gern genauso.
->
-> Zweitens, falls es euch inhaltlich reizt: Seit dem PFAS-Beitrag der Stiftung Warentest fragen mich Kunden ständig, was davon für Kettenwachs gilt. Ich könnte einen Gastbeitrag schreiben, der das sauber auseinandersortiert, inklusive offener Deklaration für unsere eigenen Linien. Ohne Wettbewerber zu nennen, es geht um die Sache.
->
-> Sag Bescheid, wohin ich die Muster schicken darf.
->
-> Beste Grüße, Luca (waxcelerate)
-
-## E3. Radforum (10 Minuten)
-
-Im Thread `radforum.de/threads/3164256-kettenwachs` wirst du bereits von anderen empfohlen. Account anlegen, Website ins Profil eintragen, **einmal** offen als Hersteller antworten. Vorher die Forenregeln zu Herstellerbeiträgen lesen. Nicht in mehreren Threads posten, das fliegt auf und schadet.
+**Das 400-€-Werbeguthaben:** Kannst du ignorieren. Google Ads lohnt sich erst, wenn du weißt, welche Suchbegriffe konvertieren, und dafür brauchst du erst organische Daten aus der Search Console. Das Guthaben verfällt nicht sofort, und Geld auszugeben, bevor du weißt wofür, ist der teuerste Weg zu dieser Erkenntnis.
 
 ---
 
-# TEIL F — Aufräumen
+# TEIL E — Presse
 
-## F1. Fremde Kopie deiner Marke abschalten (5 Minuten)
+> **Nicht jetzt verschicken.** Erst wenn die neue Classic ohne PTFE läuft. Dann heißt die Nachricht „unser komplettes Sortiment ist fluorfrei" statt „eine von zwei Linien", und das ist eine völlig andere Mail. Begründung in `docs/plaene/PFAS_STRATEGIE.md`.
 
-`https://bffweqay3hca2.kimi.page/` trägt öffentlich den Titel „Waxcelerate" und ist vermutlich ein übrig gebliebener Vorschau-Build aus einer früheren Bau-Session. Er taucht bei der Markensuche auf, deine echte Seite nicht. Im Kimi-Konto löschen oder auf privat stellen.
+Alle Texte liegen fertig in **`docs/aufgaben/OUTREACH_TEXTE.md`**:
+
+- **E1 Stiftung Warentest** — sie schreiben selbst, dass nicht alle Anbieter geantwortet haben. Die Liste ist offen.
+- **E2 speed-ville.de** — 48.100 Aufrufe auf dem Kettenwachs-Vergleich, du fehlst darin, ein Wettbewerber hat dort schon einen Gastbeitrag.
+- **E3** weitere Blogs, zwei bis drei pro Monat
+- **E4 Radforum** — du wirst dort schon empfohlen, einmal offen als Hersteller antworten
+
+**Vorbereitung, die du schon jetzt machen kannst:** Lieferantenerklärungen zur PFAS-Freiheit einholen. Eine Mail je Rohstofflieferant, Vorlage in `docs/plaene/PFAS_STRATEGIE.md` §4. Ohne die kannst du „komplett fluorfrei" nicht belastbar behaupten.
 
 ---
 
-# TEIL F2 — Nach dem Push, auf deinem Mac (5 Minuten)
+# TEIL F — Auf deinem Mac, wenn du Zeit hast
 
-## F2.1 Kettenbilder auf die eigene Domain holen
+## F1. Kettenbilder auf die eigene Domain (10 Min)
 
-Acht Produktbilder liegen aktuell auf eBays Servern. Das kostet Bildranking, und wenn ein Listing endet, ist das Bild weg — auf der Produktseite, in der Sitemap und im Merchant-Feed. Ich konnte das nicht selbst erledigen, weil die Sandbox eBay nicht erreichen darf und `sharp` dort nicht läuft. Auf deinem Mac geht beides.
+Acht Produktbilder liegen auf eBays Servern. Endet ein Listing, ist das Bild weg — auf der Produktseite, in der Sitemap und im Merchant-Feed.
 
-Erst schauen, was passieren würde:
+Erst schauen:
 
 ```
 cd ~/"Claude Playground"/waxcelerate-site
 npx tsx scripts/migrate-chain-images.mjs
 ```
 
-Sieht die Liste gut aus, dann echt ausführen:
+Sieht gut aus, dann echt:
 
 ```
 npx tsx scripts/migrate-chain-images.mjs --apply
@@ -368,30 +196,41 @@ npx tsc --noEmit
 npm run build
 ```
 
-Das Skript holt automatisch die größere `s-l1600`-Fassung von eBay (Google will für Produkt-Rich-Results mindestens 1200 px, bisher waren es 500), legt sie unter sprechenden Namen ab und stellt `data.ts` um. Eine Sicherungskopie landet als `src/lib/data.ts.bak`.
+Holt automatisch die größere Fassung von eBay (Google will mindestens 1200 px für Produkt-Rich-Results, bisher waren es 500) und legt eine Sicherungskopie von `data.ts` an.
+
+## F2. Merchant Center (20 Min)
+
+**Erst jetzt sinnvoll**, vorher wäre der Feed abgelehnt worden.
+
+1. `merchants.google.com` → Konto für `waxcelerate.de` anlegen und verifizieren
+2. Produkte → Feeds → „Geplanter Abruf" auf `https://waxcelerate.de/google-merchant-feed.xml`
+3. **EU-Besonderheit, wird oft übersehen:** Für kostenlose Einträge muss das Konto unter Wachstum → Programme verwalten mit einem Preisvergleichsdienst verknüpft sein, zum Beispiel idealo
+
+## F3. Fremde Kopie deiner Marke abschalten (5 Min)
+
+`https://bffweqay3hca2.kimi.page/` trägt öffentlich den Titel „Waxcelerate", vermutlich ein übrig gebliebener Vorschau-Build. Im Kimi-Konto löschen oder auf privat stellen.
 
 ---
 
 # TEIL G — Was ich von dir brauche
 
-Kurze Antworten reichen, keine Recherche nötig.
+Kurze Antworten reichen. Nichts davon blockiert etwas.
 
-1. **Anwendungen pro 500-g-Block:** Im Code stehen 20–32, im Skill 15–20. Welche stimmt?
-2. **Kettenlaufzeit:** Du sagtest 16.000–20.000 km. Worauf beruht das? Eigene Messung mit Kettenlehre, Kundenrückmeldungen, oder Erfahrungsschätzung? Bei einer echten Messung baue ich daraus einen eigenen Artikel, das wäre stark.
-3. **Bewertungszahl:** Auf der Seite stehen drei verschiedene: 200+, 164, und „über 500 verkaufte Einheiten". Was ist die richtige Zahl, und ist das Bewertungen oder Verkäufe?
-4. **Classic ohne PTFE:** Ist die neue Rezeptur schon getestet, oder noch in Entwicklung? Danach richtet sich, ob wir es jetzt schon kommunizieren.
-5. **Profil-Adressen** für die Markenverknüpfung: eBay-Shop, Kleinanzeigen-Profil, Instagram.
+1. **Anwendungen pro 500-g-Block:** `data.ts` sagt 20–32, das Skill sagt 15–20. Welche stimmt?
+2. **Kettenlaufzeit:** Du sagtest 16.000–20.000 km. Eigene Messung mit Kettenlehre, Kundenrückmeldungen, oder Schätzung? Bei einer echten Messung baue ich daraus einen eigenen Artikel, und der wäre stark.
+3. **Bewertungszahl:** Auf der Seite stehen drei verschiedene — 200+, 164 und „über 500 verkaufte Einheiten". Was ist die richtige Zahl, und ist das Bewertungen oder Verkäufe?
+4. **Rücksendekosten:** Wer trägt sie? Solange das offen ist, fehlt im Produkt-Schema ein Feld und Google zeigt die Rückgabezeile unvollständig.
+5. **Profil-Adressen:** eBay-Shop, Kleinanzeigen-Profil, Instagram. Damit verknüpfe ich alles zu einer Marken-Entität, was gegen die Verwechslung mit dem Skiwachs hilft.
+6. **Classic-Umstellung:** Rezeptur validiert oder noch in Arbeit? Davon hängt der Zeitpunkt für Teil E ab.
 
 ---
 
 # Reihenfolge, falls du wenig Zeit hast
 
-| Zeit | Mach das | Wirkung |
-|---|---|---|
-| 5 Min | **A1 + A2** | schaltet 22 fertige Seiten scharf |
-| 15 Min | **B1 + B2** | binnen Stunden in Bing, DuckDuckGo, ChatGPT auffindbar |
-| 10 Min | **C1** | ich bekomme die Messgrundlage |
-| 10 Min | **D1 + D2** | erste echte Verlinkungen, eine davon Pflicht |
-| Rest | D3–D5, E, F, G | mittelfristige Autorität |
-
-**A1 blockiert alles andere.** Wenn du heute nur fünf Minuten hast, mach A1 und A2.
+| Zeit | Mach das |
+|---|---|
+| 2 Min | Der Aufräum-Commit oben |
+| 10 Min | C2, die zehn Blog-URLs |
+| 15 Min | D1 + D2, deine einzigen eigenen Linkquellen |
+| 15 Min | D4, Google Unternehmensprofil |
+| später | E, F, G |

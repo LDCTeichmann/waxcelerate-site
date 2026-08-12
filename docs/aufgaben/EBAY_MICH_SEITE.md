@@ -1,69 +1,94 @@
-# eBay „Mich"-Seite — Text zum Einfügen
+# eBay „Mich"-Seite — Fassung 3
 
-**Wo:** eBay → Profil → Info → bearbeiten (dort, wo aktuell „Willkommen bei Waxcelerate – hochwertige Kettenpflege mit Know-how" steht)
-**Limit:** 1000 Zeichen. Die Fassung unten liegt bei ca. 940.
-
----
-
-## Der Text
-
-```
-Ich bin Luca, ich studiere Medizin und stelle in Stuttgart Kettenwachs her.
-
-Angefangen hat das, weil mich der Ölfilm an meinem eigenen Antrieb genervt hat. Also habe ich angefangen zu wachsen, dann selbst zu mischen, und irgendwann wollten Freunde welches haben.
-
-Heute gibt es zwei Formeln. Classic für Frühjahr bis Herbst. MoS₂ Pro für Winter und Nässe, PFAS- und PTFE-frei. Beide entstehen hier in kleinen Chargen, jede wird protokolliert und gefahren, bevor sie in den Verkauf geht.
-
-Was ich nicht mache: Wattzahlen versprechen, die ich nicht gemessen habe. Wenn du mir schreibst, welches Rad du fährst und bei welchem Wetter, sage ich dir auch, wenn die günstigere Variante für dich die richtige ist.
-
-Über 500 verkaufte Einheiten, 100 % positives Feedback. 2025 hat eBay mich zum Seller-Event nach San José eingeladen.
-
-Datenblätter, Anleitungen und der Wachs-Service für eingeschickte Ketten:
-https://waxcelerate.de
-```
+**Wo:** eBay → Profil → Info → bearbeiten
+**Länge:** Variante A 984 Zeichen, Variante B 986. Beide passen in 1000.
 
 ---
 
-## Warum der Text so gebaut ist
+## Warum die letzten Fassungen nach DIY klangen
 
-**Er fängt mit einer Person an, nicht mit der Marke.** „Ich bin Luca" schlägt „Willkommen bei Waxcelerate" um Längen, weil eBay-Käufer wissen wollen, wem sie Geld überweisen. Die Kombination Medizinstudent plus eigene Fertigung ist ungewöhnlich genug, dass sie hängen bleibt.
+Du hattest recht, und die Ursache war struktureller Natur, nicht sprachlicher.
 
-**Die Entstehungsgeschichte ist kurz und unspektakulär.** Genau das macht sie glaubwürdig. „Mich hat der Ölfilm genervt" ist ein Satz, den jeder Radfahrer sofort versteht, und er erklärt ohne Werbesprache, warum es die Marke gibt.
+**Die alten Fassungen erzählten eine Gründungsgeschichte.** „Angefangen hat es mit Unzufriedenheit… also habe ich selbst entwickelt… zwei Jahre, Dutzende Chargen." Das ist eine Herkunftserzählung, und Herkunftserzählungen sind das Erkennungsmerkmal von Manufaktur-Marketing. Silca, Optimize und SILCA erzählen nicht, wie sie angefangen haben. Sie sagen, was sie tun und wie sie es kontrollieren.
 
-**Der stärkste Absatz ist der, in dem du etwas ablehnst.** „Was ich nicht mache: Wattzahlen versprechen, die ich nicht gemessen habe" und das Angebot, auch mal zur günstigeren Variante zu raten, wirken stärker als jedes Qualitätsversprechen. Wer bereit ist, weniger zu verkaufen, wirkt vertrauenswürdig. Das ist der Absatz, der aus einem Verkäufer einen Ansprechpartner macht.
+Dazu kam die Ich-Form. „Ich bin Luca, Medizinstudent" macht aus einem Unternehmen eine Einzelperson mit Hobby. Der Medizinstudent war als Kompetenzsignal gemeint, wirkt an dieser Stelle aber als Einschränkung: Er erklärt, dass Wachs nicht der Hauptberuf ist.
 
-**PFAS- und PTFE-frei steht drin, aber beiläufig.** Stiftung Warentest hat im Mai 2025 ausdrücklich empfohlen, auf genau diese Kennzeichnung zu achten. Wer danach sucht, findet es. Wer nicht, stolpert nicht darüber.
+**Die neue Fassung dreht das um.** Sie beginnt mit der Tätigkeit („entwickelt und produziert"), nennt Prozessschritte statt Lebensstationen, und spricht als Unternehmen. Das Wort „ich" kommt nicht mehr vor. Es fehlt niemandem, weil an seiner Stelle etwas Härteres steht: nachprüfbare Fertigungspraxis.
 
-**San José steht am Ende, in einem Satz, ohne Ausrufezeichen.** Das ist dein stärkstes Signal und es trägt sich von selbst. Ein Satz wirkt souverän, drei Sätze wirken bedürftig.
+---
 
-**Der Link steht ganz unten und hat einen Grund.** Nicht „besuchen Sie unsere Website", sondern „Datenblätter, Anleitungen und der Wachs-Service". Das ist ein Nutzenversprechen, kein Aufruf, und es rechtfertigt den Klick.
+## Variante A — nur mit dem, was sicher belegt ist
+
+Verwende diese, wenn auf deinen Verpackungen **keine** Chargennummer steht.
+
+```
+Waxcelerate entwickelt und produziert Heißwachs für Fahrradketten. Entwicklung, Fertigung und Freigabe in Stuttgart.
+
+Zwei Formeln, chargenweise gefertigt:
+
+Classic, Paraffinbasis, für Frühjahr bis Herbst.
+MoS₂ Pro, Molybdändisulfid statt Fluorchemie, für Winter, Nässe und Ganzjahresbetrieb.
+
+Zu jeder Charge existiert ein Protokoll mit Zusammensetzung, Schmelzführung und Freigabe. Gefahren wird vor der Freigabe, nicht danach.
+
+500 g liegen bei 29,95 €, rund 6 € je 100 g. Vergleichbare Heißwachse kosten 10 bis 11 € je 100 g. Der Unterschied ist keine andere Rezeptur, sondern eine fehlende Handelsstufe.
+
+Wir nennen keine Wattzahlen, die wir nicht selbst gemessen haben, und keine Laufleistungen ohne Bedingungen. Schreiben Sie uns, welches Rad Sie fahren und bei welchem Wetter. Reicht die günstigere Formel, sagen wir das.
+
+Über 500 verkaufte Einheiten, 100 % positives Feedback. 2025 von eBay ins Silicon Valley eingeladen.
+
+Datenblätter und Anwendungshinweise: waxcelerate.de
+```
+
+---
+
+## Variante B — stärker, falls Chargennummern auf der Verpackung stehen
+
+Unterschied ist genau ein Satz. **Nimm diese nur, wenn es stimmt.**
+
+```
+Waxcelerate entwickelt und produziert Heißwachs für Fahrradketten. Entwicklung, Fertigung und Freigabe in Stuttgart.
+
+Zwei Formeln, chargenweise gefertigt:
+
+Classic, Paraffinbasis, für Frühjahr bis Herbst.
+MoS₂ Pro, Molybdändisulfid statt Fluorchemie, für Winter, Nässe und Ganzjahresbetrieb.
+
+Jede Charge trägt eine Nummer und ein Protokoll: Zusammensetzung, Schmelzführung, Freigabe. Gefahren wird vor der Freigabe, nicht danach.
+
+500 g liegen bei 29,95 €, rund 6 € je 100 g. Vergleichbare Heißwachse kosten 10 bis 11 € je 100 g. Der Unterschied ist keine andere Rezeptur, sondern eine fehlende Handelsstufe.
+
+Wir nennen keine Wattzahlen, die wir nicht selbst gemessen haben, und keine Laufleistungen ohne Bedingungen. Schreiben Sie uns, welches Rad Sie fahren und bei welchem Wetter. Reicht die günstigere Formel, sagen wir das.
+
+Über 500 verkaufte Einheiten, 100 % positives Feedback. 2025 von eBay ins Silicon Valley eingeladen.
+
+Datenblätter und Anwendungshinweise: waxcelerate.de
+```
+
+**Eine Chargennummer auf der Verpackung ist das stärkste Profi-Signal, das es in dieser Kategorie gibt.** Sie schließt Hobbyfertigung praktisch aus, weil niemand chargiert, der gelegentlich einen Topf ansetzt. Falls du das noch nicht machst: Es kostet einen Stempel und fünf Sekunden pro Packung und ist die billigste Aufwertung, die dein Produkt bekommen kann.
+
+---
+
+## Die vier Sätze, die die Arbeit machen
+
+**„Entwicklung, Fertigung und Freigabe in Stuttgart."** Drei Prozessschritte statt eines Ortes. „Hergestellt in Stuttgart" sagt jeder, der abfüllt. Wer „Entwicklung" und „Freigabe" dazusagt, behauptet einen Prozess mit Anfang und kontrolliertem Ende.
+
+**„Gefahren wird vor der Freigabe, nicht danach."** Der stärkste Satz im Text. Er sagt, dass Qualität geprüft und nicht gehofft wird, und er impliziert, dass es Chargen gab, die es nicht in den Verkauf geschafft haben — ohne dass du es aussprechen musst. Das ersetzt das alte „viel verworfen" und wirkt dabei wie eine Verfahrensbeschreibung statt wie eine Anekdote.
+
+**„Der Unterschied ist keine andere Rezeptur, sondern eine fehlende Handelsstufe."** Beantwortet die naheliegendste Sorge beim günstigeren Preis, bevor sie entsteht, und zwar mit einer betriebswirtschaftlichen Erklärung. Das ist der Unterschied zwischen billig und günstig, und er wird hier begründet.
+
+**„Wir nennen keine Wattzahlen, die wir nicht selbst gemessen haben."** Der Verzicht als Kompetenzbeweis. In einer Kategorie, in der alle mit Watt und Kilometern werben, ist das die auffälligste Aussage überhaupt. Jetzt zusätzlich mit „keine Laufleistungen ohne Bedingungen", was direkt gegen die „bis zu 25.000 km"-Werbung der großen Marken zielt, ohne sie zu nennen.
 
 ---
 
 ## Regelkonform, geprüft
 
-- Links auf der Profil- und Shop-Info-Seite sind bei eBay ausdrücklich erlaubt. **In Artikelbeschreibungen bleiben sie verboten** — dort nur die Textnennung „Waxcelerate" ohne Link.
-- „Über 500 verkaufte Einheiten, 100 % positives Feedback" ist die im Skill festgelegte, kanalneutrale Formulierung.
-- Keine Superlative, keine erfundenen Testimonials, keine künstliche Verknappung.
-- Keine Wattzahlen und keine Laufleistungs-Heldenzahlen, weil sie ohne Kontext nicht verwendet werden dürfen.
-- „Hergestellt in Stuttgart" nur fürs Wachs. Über die zugekauften Ketten steht bewusst nichts, was nach eigener Fertigung klingt.
-- Gedankenstriche werden nicht als Satzzeichen verwendet.
+- Links auf der Profilseite sind bei eBay erlaubt. **In Artikelbeschreibungen bleiben sie verboten** — dort nur das Wort „Waxcelerate".
+- „Über 500 verkaufte Einheiten, 100 % positives Feedback" ist die kanalneutrale Formulierung aus dem Skill.
+- Keine Superlative, keine erfundenen Testimonials, keine künstliche Verknappung, keine Wattzahlen, keine Laufleistungs-Heldenzahlen.
+- „In Stuttgart" gilt nur fürs Wachs. Über die zugekauften Ketten steht nichts, was nach eigener Fertigung klingt.
+- Keine Gedankenstriche als Satzzeichen.
+- Preisvergleich aus dem öffentlichen Test auf speed-ville.de (SILCA 49,95 € / 500 g, Optimize 39,99 € / 375 g). Kein Wettbewerber wird genannt.
+- **Zu prüfen vor dem Einsetzen:** Trifft „Schmelzführung" auf deine Protokolle zu? Falls deine Batch-Sheets etwas anderes festhalten, sag mir was, dann passe ich das Wort an. Es soll beschreiben, was du wirklich dokumentierst.
 
----
-
-## Eine Variante, falls dir die Ich-Form zu persönlich ist
-
-```
-Waxcelerate ist eine Ein-Mann-Manufaktur in Stuttgart. Gegründet aus Eigenbedarf: Mich hat der Ölfilm am eigenen Antrieb gestört, also habe ich angefangen zu wachsen und irgendwann selbst zu mischen.
-
-Zwei Formeln, beide in kleinen Chargen hier hergestellt. Classic für Frühjahr bis Herbst. MoS₂ Pro für Winter und Nässe, PFAS- und PTFE-frei. Jede Charge wird protokolliert und gefahren, bevor sie in den Verkauf geht.
-
-Beratung vor Verkauf: Schreib mir, welches Rad du fährst und bei welchem Wetter. Wenn die günstigere Variante für dich reicht, sage ich das auch.
-
-Über 500 verkaufte Einheiten, 100 % positives Feedback. 2025 Einladung zum eBay-Seller-Event nach San José.
-
-Datenblätter, Anleitungen und der Wachs-Service für eingeschickte Ketten:
-https://waxcelerate.de
-```
-
-Ich würde die erste Fassung nehmen. Die zweite ist sauber, aber die Ich-Form ist bei einer Ein-Mann-Manufaktur der eigentliche Wettbewerbsvorteil gegenüber Silca und Optimize.
+> **Nach der Classic-Umstellung** wird aus „MoS₂ Pro, Molybdändisulfid statt Fluorchemie" ein Satz über beide Linien: „Beide Formeln ohne PTFE und PFAS." Sag Bescheid, dann liefere ich die Fassung.

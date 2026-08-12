@@ -81,7 +81,7 @@ kostenpflichtigen Dienste gerade nachgelegt haben — siehe unten.
 ### 2. Widerrufsbutton — **baut Sonnet, kostet nichts**
 
 Das ist Code, kein Rechtstext. Die Anforderungen aus § 356a BGB sind klar
-umrissen und stehen ausformuliert in `UX_UPGRADE_PLAN.md`, Abschnitt 6.4:
+umrissen und stehen ausformuliert in `docs/plaene/UX_UPGRADE_PLAN.md`, Abschnitt 6.4:
 
 - Schaltfläche **„Vertrag widerrufen"**, gut lesbar, direkt erreichbar
   (Footer + eigene Route `/widerruf`)

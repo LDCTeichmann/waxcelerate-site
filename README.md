@@ -1,45 +1,58 @@
 # Waxcelerate Website
 
-Marketing website for Waxcelerate — hot-wax bicycle chain lubrication sold on eBay.
+Marketing- und Verkaufsseite für Waxcelerate — Heißwachs für Fahrradketten,
+kleine Marke aus Stuttgart (Luca Teichmann). Live auf
+[waxcelerate.de](https://waxcelerate.de).
 
-**Not an e-commerce store.** This site drives traffic to eBay listings. No backend, no database, no API calls.
+Verkauft wird über eBay **und** einen eigenen Stripe-Checkout. Der Checkout ist
+fertig gebaut, aber inaktiv: solange kein Produkt eine `stripePriceId` trägt,
+fällt jeder Kauf-Button auf eBay zurück (`checkoutEnabled` in `src/lib/data.ts`).
 
-## Quick start
+## Schnellstart
 
 ```bash
 npm install
 npm run dev -- --port 5174
-# → http://localhost:5174
 ```
-
-Or double-click `/Applications/Waxcelerate.app` — starts the server + opens the browser + opens Cursor.
 
 ## Stack
 
-- **React 19 + TypeScript** — Strict mode
-- **Vite 7** — Dev server + build
-- **Tailwind CSS v3** — Dark theme only
-- **React Router DOM v6** — `/` and `/produkt/:id`
-- **shadcn/ui** — Radix-based UI primitives (Slider used in tools)
-
-## For AI agents
-
-Read **`AGENTS.md`** — full architecture, design system, data model, routing, and common pitfalls. Start there before touching any file.
-
-## Key files
-
-| File | What it does |
-|---|---|
-| `src/lib/data.ts` | All product data — single source of truth |
-| `src/lib/i18n.ts` | German/English translations |
-| `src/sections/products.tsx` | Product cards with tilt + scroll-reveal |
-| `src/sections/tools.tsx` | Five live-updating calculators |
-| `src/sections/why-wax.tsx` | Animated comparison charts |
-| `src/pages/ProductDetailPage.tsx` | Product detail route |
+- **React 19 + TypeScript**, strict
+- **Vite 7** — Dev-Server auf Port 5174, Build nach `dist/`
+- **Tailwind CSS v3** — hell, dunkel und ein `.noir`-Modus
+- **React Router v7** — 18 Routen, u. a. `/produkt/:id`, `/blog/:slug`,
+  `/wissenschaft`, `/kette-wachsen-lassen`, `/starter-set`
+- **Vercel Serverless Functions** in `api/` — Stripe-Checkout, Bestand (Upstash
+  Redis), Widerruf, Bestandsverwaltung
+- **shadcn/ui** — nur der Slider
+- **GSAP** — Scroll-Animationen
 
 ## Build
 
 ```bash
-npm run build      # → dist/
-npx tsc --noEmit   # type-check only
+npm run build      # tsc -b, Generatoren, vite build, Vorrendern → dist/
+npx tsc --noEmit   # nur Typprüfung
 ```
+
+`npm run build` erzeugt zusätzlich `sitemap.xml`, `llms.txt`, den
+Merchant-Feed und rendert Blog-, Produkt- und Startseiten statisch vor. Ohne
+diesen Schritt sehen Crawler nur ein leeres `<div id="root">`. Details in
+`AGENTS.md`.
+
+## Für Agenten und neue Sessions
+
+**Erst `PROJECT.md` lesen.** Das ist das Inhaltsverzeichnis: es sagt, welche
+Datei in `docs/` zur jeweiligen Aufgabe gehört, welche Entscheidungen offen sind
+und was zuletzt entschieden wurde. Danach `CLAUDE.md` für die Kurzregeln und
+`AGENTS.md` für Deploy und die bekannten Fallen.
+
+## Wichtige Dateien
+
+| Datei | Zweck |
+|---|---|
+| `src/lib/data.ts` | Produktdaten, Preise, Intervalle — einzige Quelle |
+| `src/lib/i18n.ts` | Alle deutschen und englischen Strings |
+| `src/App.tsx` | Routen und Reihenfolge der Startseiten-Abschnitte |
+| `src/sections/` | Ein Abschnitt je Datei |
+| `api/` | Serverless Functions (Vercel) |
+| `scripts/` | Sitemap, llms.txt, Merchant-Feed, Vorrendern |

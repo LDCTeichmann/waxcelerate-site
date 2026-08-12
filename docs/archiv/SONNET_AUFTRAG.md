@@ -1,7 +1,7 @@
 # Auftrag für die Sonnet-Session
 
 **Erstellt:** 4. August 2026 von Opus 5, nach Verifikation aller unten genannten Fähigkeiten
-**Ziel:** Phase 2 aus `SICHTBARKEIT_PLAN.md` so weit wie möglich fertigstellen, ohne Git und ohne Luca
+**Ziel:** Phase 2 aus `docs/plaene/SICHTBARKEIT_PLAN.md` so weit wie möglich fertigstellen, ohne Git und ohne Luca
 **Danach:** Opus 5 prüft das Ergebnis, Luca committet und deployt
 
 ---
@@ -9,7 +9,7 @@
 ## 1. Lies das zuerst
 
 1. Dieses Dokument vollständig.
-2. `SICHTBARKEIT_PLAN.md`, besonders §0 (Ist-Zustand), §8 (Arbeitsregeln), §9 Phase 2.
+2. `docs/plaene/SICHTBARKEIT_PLAN.md`, besonders §0 (Ist-Zustand), §8 (Arbeitsregeln), §9 Phase 2.
 3. `PROJECT.md`, dann gezielt `AGENTS.md`.
 4. Skill `waxcelerate` laden, daraus `70_playbooks.md`, `30_claims_language.md`, `20_products_pricing.md`, `90_decision_log.md`.
 5. `docs/SKILL_PREISE_UPDATE.md` im Repo — enthält die aktuellsten Preise und Entscheidungen, die im Skill selbst noch fehlen. **Bei Widerspruch gewinnt diese Datei.**
@@ -110,7 +110,7 @@ Pro Seite:
 **Zwei Sonderfälle:**
 
 1. **Ketten sind zugekauft.** `brand` muss bei `chain-*`-Produkten der Originalhersteller sein (Shimano, SRAM, YBN), nicht Waxcelerate. `generate-merchant-feed.mjs` löst das bereits korrekt, lies dort nach und übernimm die Logik. Niemals „Made in Germany" für Ketten, erlaubt ist „Handgewachst in Stuttgart".
-2. **Die beiden Pro-Produkte** (`wax-500-mos2`, `wax-300-mos2`) bekommen zusätzlich `additionalProperty` mit `PFAS-frei` und `PTFE-frei` sowie einen eigenen kurzen Absatz im Body. Begründung und erlaubte Formulierung in `SICHTBARKEIT_PLAN.md` §3.5. **Für Classic gilt das nicht**, dort steht PTFE offen und ruhig erklärt, siehe `docs/SKILL_PREISE_UPDATE.md`.
+2. **Die beiden Pro-Produkte** (`wax-500-mos2`, `wax-300-mos2`) bekommen zusätzlich `additionalProperty` mit `PFAS-frei` und `PTFE-frei` sowie einen eigenen kurzen Absatz im Body. Begründung und erlaubte Formulierung in `docs/plaene/SICHTBARKEIT_PLAN.md` §3.5. **Für Classic gilt das nicht**, dort steht PTFE offen und ruhig erklärt, siehe `docs/SKILL_PREISE_UPDATE.md`.
 
 ### 5.2 Startseite mit Inhalt füllen
 
@@ -182,13 +182,13 @@ Damit du nicht abdriftest:
 - Keine Claims-Bereinigung an bestehenden Texten (`index.html`, `llms.txt`, `manifest.json`). Das ist Phase 4 und braucht Lucas Entscheidungen zu drei offenen Zahlen.
 - Keine neuen Blogartikel.
 - Keine Bilder herunterladen oder konvertieren (`sharp` läuft hier nicht, das ist Phase 3 und läuft auf Lucas Mac).
-- Kein Merchant Center, keine Search Console, keine Backlinks. Das steht in `LUCA_TODO.md` und gehört Luca.
+- Kein Merchant Center, keine Search Console, keine Backlinks. Das steht in `docs/aufgaben/LUCA_TODO.md` und gehört Luca.
 
 ---
 
 ## 10. Startsatz für die Session
 
-> Lies `SONNET_AUFTRAG.md` vollständig, danach `SICHTBARKEIT_PLAN.md` §0, §8 und §9 Phase 2, danach `PROJECT.md` und `docs/SKILL_PREISE_UPDATE.md`. Lade das Skill `waxcelerate`.
+> Lies `docs/archiv/SONNET_AUFTRAG.md` vollständig, danach `docs/plaene/SICHTBARKEIT_PLAN.md` §0, §8 und §9 Phase 2, danach `PROJECT.md` und `docs/SKILL_PREISE_UPDATE.md`. Lade das Skill `waxcelerate`.
 >
 > Arbeite §5 des Auftrags ab, prüfe nach §6, halte §7 strikt ein. Kein Git, kein `npm install` im Projektordner, nichts unter `src/pages`, `src/sections`, `src/components` anfassen.
 >

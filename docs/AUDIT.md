@@ -87,7 +87,7 @@ tatsächlich vor dem Kauf gestellt werden.
 
 Der Rewax-Service ist der einzige wiederkehrende Umsatz im ganzen Modell und
 hat auf der Website null Fläche. Kein Menüpunkt, keine Route, keine Landingpage.
-Das steht schon als größte Lücke in `BLOG_PLAN.md` und ist immer noch offen.
+Das steht schon als größte Lücke in `docs/plaene/BLOG_PLAN.md` und ist immer noch offen.
 
 Aus Sicht des Geschäfts war das der teuerste Punkt in diesem Dokument.
 

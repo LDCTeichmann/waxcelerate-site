@@ -19,23 +19,29 @@ Falls das Feld später doch gefüllt werden soll, weil du Abholung in Stuttgart 
 
 ---
 
-## Beschreibung (750 Zeichen)
+## ⚠️ „Ungültiger Wert" — die Ursache und die Lösung
 
-Diese Fassung liegt bei ca. 720 Zeichen und ist auf die drei Suchbegriffe gebaut, die du realistisch gewinnen kannst: **Kettenwachs Stuttgart**, **Kette wachsen lassen**, **PFAS-frei**.
+Google lehnt die Beschreibung ab, weil **`waxcelerate.de` am Ende steht**. In der Unternehmensbeschreibung sind **URLs verboten**, ebenso Telefonnummern, Preisangaben, Sonderangebote und Werbeformulierungen. Google will dort eine Beschreibung des Unternehmens, keinen Werbetext.
+
+**Das ist kein Verlust:** Die Website hat im Profil ein eigenes Feld, und der Link von dort zählt genauso. Doppelt nennen bringt nichts.
+
+---
+
+## Beschreibung (631 Zeichen, ohne URL, richtlinienkonform)
 
 ```
-Waxcelerate stellt Heißwachs für Fahrradketten in Stuttgart her. Zwei Formeln, beide in kleinen Chargen: Classic für Frühjahr bis Herbst, MoS₂ Pro für Winter und Nässe. Beide PFAS- und PTFE-frei.
+Waxcelerate entwickelt und produziert Heißwachs für Fahrradketten in Stuttgart. Zwei Formeln in eigenen Chargen: Classic für Frühjahr bis Herbst, MoS₂ Pro für Winter und Nässe. Beide ohne PTFE und PFAS.
 
-Wer nicht selbst wachsen will, schickt seine Kette ein und bekommt sie fahrbereit zurück. Dazu gibt es vorgewachste Ketten von Shimano, SRAM und YBN, die sofort montiert werden können.
+Wer nicht selbst wachsen möchte, schickt seine Kette ein und bekommt sie fahrbereit zurück. Dazu vorgewachste Ketten von Shimano, SRAM und YBN, die sofort montiert werden können.
 
-Gegründet aus Eigenbedarf: Der Ölfilm am eigenen Antrieb hat gestört, also wurde selbst gemischt. Jede Charge wird protokolliert und gefahren, bevor sie in den Verkauf geht.
-
-Beratung vor Verkauf. Wer schreibt, welches Rad er fährt und bei welchem Wetter, bekommt eine ehrliche Empfehlung, auch wenn die günstigere Variante reicht.
-
-waxcelerate.de
+Jede Charge wird protokolliert und gefahren, bevor sie in den Verkauf geht. Beratung vor Verkauf gehört dazu: Wer schreibt, welches Rad er fährt und bei welchem Wetter, bekommt eine ehrliche Empfehlung, auch wenn die günstigere Variante ausreicht.
 ```
 
-**Warum sie so gebaut ist:** Der erste Satz enthält „Heißwachs für Fahrradketten" und „Stuttgart", weil Google die ersten Wörter am stärksten gewichtet. „PFAS- und PTFE-frei" steht im ersten Absatz, weil das dein einziges echtes Alleinstellungsmerkmal gegenüber den großen Marken ist. Der Rewax-Service ist mit den Worten beschrieben, nach denen tatsächlich gesucht wird, nicht mit dem Fachbegriff.
+**Falls Google immer noch meckert**, entferne testweise das „₂" aus „MoS₂". Manche Google-Formulare stolpern über Sonderzeichen. Dann steht dort „MoS2 Pro", das ist inhaltlich identisch.
+
+**Warum sie so gebaut ist:** Der erste Satz enthält „Heißwachs für Fahrradketten" und „Stuttgart", weil Google die ersten Wörter am stärksten gewichtet. „Ohne PTFE und PFAS" steht im ersten Absatz, weil das dein einziges echtes Alleinstellungsmerkmal gegenüber den großen Marken ist. Der Wachs-Service ist mit den Worten beschrieben, nach denen tatsächlich gesucht wird, nicht mit dem Fachbegriff „Rewax".
+
+> **Hinweis:** Der Satz „Beide ohne PTFE und PFAS" gilt erst, wenn die neue Classic läuft. Solange die alte Rezeptur im Verkauf ist, ersetze ihn durch: „MoS₂ Pro ohne PTFE und PFAS."
 
 ---
 

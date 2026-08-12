@@ -1,6 +1,6 @@
 # Blog-Umbau — Ausführungsplan
 
-Arbeitsanweisung für die Umsetzung. Die Begründungen stehen in `BLOG_PLAN.md`,
+Arbeitsanweisung für die Umsetzung. Die Begründungen stehen in `docs/plaene/BLOG_PLAN.md`,
 **das brauchst du erst ab Aufgabe 7.** Aufgaben 1 bis 6 sind hier vollständig beschrieben.
 
 ---
@@ -27,7 +27,7 @@ Der Checkout stand zuletzt auf `audit/award-winning` mit uncommitteten Änderung
 git stash -u && git checkout -b feat/blog-aeo origin/main && git stash pop
 ```
 
-Die drei neuen Dateien (`scripts/generate-blog-html.mjs`, `BLOG_EXECUTION.md`, `public/images/blog/`) sind untracked
+Die drei neuen Dateien (`scripts/generate-blog-html.mjs`, `docs/archiv/BLOG_EXECUTION.md`, `public/images/blog/`) sind untracked
 und wandern beim Wechsel mit.
 
 ---
@@ -230,7 +230,7 @@ Autorenbox. Funktioniert alles.
 
 ## Aufgabe 7 und weiter — Inhalt
 
-Ab hier `BLOG_PLAN.md` lesen, Abschnitte 3 und 4.
+Ab hier `docs/plaene/BLOG_PLAN.md` lesen, Abschnitte 3 und 4.
 
 | # | Aufgabe | Quelle |
 |---|---|---|
@@ -256,6 +256,6 @@ Antwortmaschinen übernehmen keine Aussage ohne Zahl.
 Fertig und getestet:
 - `scripts/generate-blog-html.mjs` (Aufgabe 1, nur noch einhängen)
 - `public/images/blog/manifest.json` und `BILDER-HIERHER.md`
-- `BLOG_PLAN.md` (Analyse und Begründungen)
+- `docs/plaene/BLOG_PLAN.md` (Analyse und Begründungen)
 
 Offen: Aufgaben 1 (Einhängen) bis 11.

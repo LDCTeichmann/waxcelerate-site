@@ -1,7 +1,7 @@
 # Teil D bis G — präzise, mit fertigen Texten
 
-**Ersetzt** die kürzeren Fassungen in `LUCA_TODO.md`.
-**Wichtig zur Reihenfolge:** Alles unter „Presse" wartet, bis die Classic-Umstellung steht. Warum, steht in `PFAS_STRATEGIE.md` §3.
+**Ersetzt** die kürzeren Fassungen in `docs/aufgaben/LUCA_TODO.md`.
+**Wichtig zur Reihenfolge:** Alles unter „Presse" wartet, bis die Classic-Umstellung steht. Warum, steht in `docs/plaene/PFAS_STRATEGIE.md` §3.
 
 ---
 
@@ -33,7 +33,7 @@ Kleinunternehmer gemäß § 19 UStG, daher wird keine Umsatzsteuer ausgewiesen.
 
 ## D2. eBay „Mich"-Seite
 
-Fertiger Text liegt in **`EBAY_MICH_SEITE.md`**. Kopieren, einfügen, speichern.
+Fertiger Text liegt in **`docs/aufgaben/EBAY_MICH_SEITE.md`**. Kopieren, einfügen, speichern.
 
 **Die Regel dazu, weil sie oft verwechselt wird:** Links auf der Profil- und Shop-Info-Seite sind bei eBay erlaubt. **In Artikelbeschreibungen sind sie verboten** und können zur Löschung des Angebots führen. Dort schreibst du nur das Wort „Waxcelerate" ohne Link. Google wertet auch unverlinkte Markennennungen, du riskierst also nichts und gewinnst trotzdem.
 
@@ -52,7 +52,7 @@ Zwei Minuten, zwei Links.
 
 # E — Presse und Redaktionen
 
-> **Erst nach der Classic-Umstellung verschicken.** Mit „unser komplettes Sortiment ist fluorfrei" ist jede dieser Mails eine deutlich stärkere Nachricht. Begründung in `PFAS_STRATEGIE.md`.
+> **Erst nach der Classic-Umstellung verschicken.** Mit „unser komplettes Sortiment ist fluorfrei" ist jede dieser Mails eine deutlich stärkere Nachricht. Begründung in `docs/plaene/PFAS_STRATEGIE.md`.
 
 ## E1. Stiftung Warentest
 

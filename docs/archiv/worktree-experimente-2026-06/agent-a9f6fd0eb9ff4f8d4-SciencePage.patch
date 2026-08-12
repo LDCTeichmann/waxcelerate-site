@@ -1,0 +1,139 @@
+--- a/src/pages/SciencePage.tsx	(Stand Branch agent-a9f6fd0eb9ff4f8d4, 2026-06-02)
++++ b/src/pages/SciencePage.tsx	(ungespeicherte Arbeitskopie, 2026-06-02)
+@@ -1,6 +1,6 @@
+ import { useEffect, useRef, useState } from 'react';
+ import { Link } from 'react-router-dom';
+-import { ArrowLeft, ChevronDown } from 'lucide-react';
++import { ArrowLeft, ChevronDown, RotateCcw } from 'lucide-react';
+ import { useLanguage } from '@/hooks/useLanguage';
+ import { useTheme } from '@/hooks/useTheme';
+ import { gsap } from '@/lib/gsap';
+@@ -1039,6 +1039,10 @@
+   const topRef  = useRef<SVGGElement>(null);
+   const botRef  = useRef<SVGGElement>(null);
+   const [hov, setHov] = useState(false);
++  const [isTouch, setIsTouch] = useState(false);
++  useEffect(() => {
++    setIsTouch(window.matchMedia('(hover: none)').matches);
++  }, []);
+ 
+   useEffect(() => {
+     if (!topRef.current || !botRef.current) return;
+@@ -1076,8 +1080,17 @@
+ 
+   return (
+     <div className="w-full rounded-2xl overflow-hidden p-5 cursor-default select-none"
+-      style={{ ...vizCard, ...dotGrid, transition: 'box-shadow 0.35s ease', boxShadow: hov ? '0 0 0 1px rgba(68,114,212,0.4), 0 8px 32px rgba(26,60,110,0.3)' : 'none' }}
+-      onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}>
++      style={{ ...vizCard, ...dotGrid, transition: 'box-shadow 0.35s ease', boxShadow: hov ? '0 0 0 1px rgba(68,114,212,0.4), 0 8px 32px rgba(26,60,110,0.3)' : 'none', cursor: isTouch ? 'pointer' : undefined }}
++      onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
++      onClick={() => {
++        if (!isTouch) return;
++        const next = !hov;
++        setHov(next);
++        if (next) {
++          setTimeout(() => setHov(false), 2200);
++        }
++      }}>
++      <style>{`@keyframes pulse-gap { 0%,100% { opacity: 0.4 } 50% { opacity: 1 } }`}</style>
+       <p className="text-[10px] uppercase tracking-[0.2em] mb-3 text-center" style={{ color: txMid }}>
+         {de ? 'MoS₂ — S–Mo–S Schichtstruktur' : 'MoS₂ — S–Mo–S layer structure'}
+       </p>
+@@ -1091,8 +1104,17 @@
+           {S_X.map((x, i) => <circle key={`ts2${i}`} cx={x} cy={TOP_S2} r="5" fill="#A8C0F4" opacity="0.92" />)}
+         </g>
+         {/* Van der Waals gap */}
+-        <line x1="8" y1={GAP_Y} x2="310" y2={GAP_Y} stroke={vdwClr} strokeWidth="1" strokeDasharray="5 4" />
+-        <text x="316" y={GAP_Y + 4} fontSize="8.5" fill={vdwTxt} fontFamily="monospace">vdW</text>
++        <g>
++          <line x1="8" y1={GAP_Y} x2="310" y2={GAP_Y} stroke={vdwClr} strokeWidth="1" strokeDasharray="5 4" />
++          {isTouch && !hov && (
++            <rect
++              x="8" y={GAP_Y - 4} width="302" height="8" rx="2"
++              fill={isDark ? 'rgba(68,114,212,0.12)' : 'rgba(68,114,212,0.08)'}
++              style={{ animation: 'pulse-gap 2s ease-in-out infinite' }}
++            />
++          )}
++          <text x="316" y={GAP_Y + 4} fontSize="8.5" fill={vdwTxt} fontFamily="monospace">vdW</text>
++        </g>
+         <g ref={botRef}>
+           {bonds(BOT_MO, BOT_S1, BOT_S2).map((b, i) => (
+             <line key={i} x1={b.x1} y1={b.y1} x2={b.x2} y2={b.y2} stroke={isDark ? 'rgba(42,84,153,0.22)' : 'rgba(42,84,153,0.35)'} strokeWidth="1.2" />
+@@ -1126,7 +1148,9 @@
+             <span className="text-[9px] font-mono" style={{ color: txMono }}>Mo</span>
+           </div>
+           <span className="text-[9px]" style={{ color: txLow }}>
+-            {de ? '· Hover: Schicht gleitet' : '· Hover: layer shears'}
++            {isTouch
++              ? (de ? '· Tippen: Schicht gleitet' : '· Tap: layer shears')
++              : (de ? '· Hover: Schicht gleitet' : '· Hover: layer shears')}
+           </span>
+         </div>
+         <div className="text-right">
+@@ -1142,6 +1166,24 @@
+ function TransferFilm({ de }: { de: boolean }) {
+   const ref = useRef<HTMLDivElement>(null);
+   const [hov, setHov] = useState(false);
++  const [hasPlayed, setHasPlayed] = useState(false);
++  const tlRef = useRef<gsap.core.Timeline | null>(null);
++
++  const replay = () => {
++    if (!tlRef.current) return;
++    const container = ref.current;
++    if (!container) return;
++    const particles = Array.from(container.querySelectorAll<SVGCircleElement>('.tf-p'));
++    const films = Array.from(container.querySelectorAll<SVGRectElement>('.tf-film'));
++    const label = container.querySelector<SVGTextElement>('.tf-label');
++    particles.forEach((el, i) => {
++      const p = TF_PARTICLES[i];
++      gsap.set(el, { attr: { cy: p.y } });
++    });
++    gsap.set(films, { opacity: 0 });
++    if (label) gsap.set(label, { opacity: 0 });
++    tlRef.current.restart();
++  };
+ 
+   useEffect(() => {
+     const ctx = gsap.context(() => {
+@@ -1153,8 +1195,10 @@
+       const label     = container.querySelector<SVGTextElement>('.tf-label');
+ 
+       const tl = gsap.timeline({
+-        scrollTrigger: { trigger: container, start: 'top 74%', once: true },
++        scrollTrigger: { trigger: container, start: 'top 88%', once: true },
++        onComplete: () => setHasPlayed(true),
+       });
++      tlRef.current = tl;
+ 
+       particles.forEach((el, i) => {
+         const p = TF_PARTICLES[i];
+@@ -1189,7 +1233,7 @@
+ 
+   return (
+     <div ref={ref} className="w-full rounded-2xl overflow-hidden p-5"
+-      style={{ ...vizCard, ...dotGrid, transition: 'box-shadow 0.35s ease', boxShadow: hov ? '0 0 0 1px rgba(68,114,212,0.4), 0 8px 32px rgba(26,60,110,0.30)' : 'none' }}
++      style={{ ...vizCard, ...dotGrid, position: 'relative', transition: 'box-shadow 0.35s ease', boxShadow: hov ? '0 0 0 1px rgba(68,114,212,0.4), 0 8px 32px rgba(26,60,110,0.30)' : 'none' }}
+       onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}>
+       <p className="text-[10px] uppercase tracking-[0.2em] mb-3 text-center" style={{ color: txMid }}>
+         {de ? 'Transferfilm unter Kontaktdruck' : 'Transfer film under contact pressure'}
+@@ -1235,6 +1279,20 @@
+           </div>
+         ))}
+       </div>
++      {hasPlayed && (
++        <button
++          onClick={replay}
++          aria-label="Replay animation"
++          className="absolute top-3 right-3 p-1.5 rounded-full transition-opacity hover:opacity-70"
++          style={{
++            background: isDark ? 'rgba(68,114,212,0.18)' : 'rgba(68,114,212,0.10)',
++            border: `1px solid ${isDark ? 'rgba(68,114,212,0.30)' : 'rgba(68,114,212,0.20)'}`,
++            color: isDark ? 'rgba(168,192,244,0.80)' : '#2a56c4',
++          }}
++        >
++          <RotateCcw className="w-3.5 h-3.5" />
++        </button>
++      )}
+     </div>
+   );
+ }

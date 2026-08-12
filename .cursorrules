@@ -1,10 +1,12 @@
 # Waxcelerate — Cursor Rules
 
-Marketing-Website für Waxcelerate (Hot-wax Fahrradketten, eBay-Business von Luca Teichmann).
-Kein Backend. Kein E-Commerce. Leitet zu eBay-Listings weiter.
-Stack: React 19 + TypeScript strict · Vite 7 · Tailwind CSS v3 · React Router v6
+Marketing- und Verkaufsseite für Waxcelerate (Hot-wax Fahrradketten, Luca Teichmann).
+Verkauf über eBay und einen eigenen Stripe-Checkout, der gebaut, aber inaktiv ist
+(kein Produkt hat eine `stripePriceId`, deshalb fällt jeder Kauf-Button auf eBay zurück).
+Serverless Functions liegen in `api/` (Vercel).
+Stack: React 19 + TypeScript strict · Vite 7 · Tailwind CSS v3 · React Router v7
 
-Ausführliche Architektur → AGENTS.md
+Einstieg → PROJECT.md · Ausführliche Architektur → AGENTS.md
 
 ## Absolute Regeln
 

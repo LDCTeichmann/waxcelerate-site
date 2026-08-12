@@ -25,7 +25,7 @@ Daraus kaskadierte alles Weitere: `git add` und `git commit` scheiterten an der 
 
 Es waren also nie zwei Probleme, sondern eines mit vier Folgefehlern.
 
-**Lösung, in `LUCA_TODO.md` Schritt A1 als fertiger Copy-Paste-Block hinterlegt.** Kern: vorher Editoren und Claude-Code-Fenster schließen, dann
+**Lösung, in `docs/aufgaben/LUCA_TODO.md` Schritt A1 als fertiger Copy-Paste-Block hinterlegt.** Kern: vorher Editoren und Claude-Code-Fenster schließen, dann
 
 ```
 rm -f .git/index.lock .git/objects/maintenance.lock
@@ -77,7 +77,7 @@ Der Nutzen geht weit über Bing hinaus: DuckDuckGo bezieht seinen Index von Bing
 
 Bewusst **nicht** in `npm run build` eingehängt, weil der Build auch für Preview-Deployments läuft und Preview-URLs nicht an Suchmaschinen gemeldet werden dürfen. Aufruf nach jedem Produktions-Deploy: `npx tsx scripts/ping-indexnow.mjs`.
 
-Für Luca bleibt nur: Bing Webmaster Tools einmalig verbinden (Import aus der Search Console, keine erneute Domain-Bestätigung nötig) und den Befehl einmal auslösen. Beides in `LUCA_TODO.md` Teil B.
+Für Luca bleibt nur: Bing Webmaster Tools einmalig verbinden (Import aus der Search Console, keine erneute Domain-Bestätigung nötig) und den Befehl einmal auslösen. Beides in `docs/aufgaben/LUCA_TODO.md` Teil B.
 
 ### 0a.2 „Gecrawlt, zurzeit nicht indexiert" ist ein Qualitätsurteil, kein Technikfehler
 
@@ -499,7 +499,7 @@ Branch `feat/artikel-pfas-preis`. Erst nach Freigabe der Positionierung aus Phas
 1. „Kettenwachs ohne PFAS: was hinter dem Label steckt" (§3.5)
 2. „Was kostet Kettenwachs wirklich? Preis pro Gramm und pro 1.000 km" (§4)
 
-Beide über die vorhandene `articles.ts`-Struktur, damit Prerendering, Sitemap und `llms.txt` automatisch mitziehen. Regeln aus `BLOG_PLAN.md` beachten: nur eigene Fotos, keine erfundenen Quellen, keine Zahl ohne belegbare Herkunft.
+Beide über die vorhandene `articles.ts`-Struktur, damit Prerendering, Sitemap und `llms.txt` automatisch mitziehen. Regeln aus `docs/plaene/BLOG_PLAN.md` beachten: nur eigene Fotos, keine erfundenen Quellen, keine Zahl ohne belegbare Herkunft.
 
 ---
 

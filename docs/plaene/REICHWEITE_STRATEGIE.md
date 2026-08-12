@@ -2,7 +2,7 @@
 
 **Stand:** 4. August 2026, nach dem erfolgreichen Deployment `b5cef7e`
 **Frage, die dieses Dokument beantwortet:** Was tun, wenn bikeoptimierung.de und die B2B-Shops als Linkquelle ausfallen, und wie ranke ich für Begriffe wie „günstiges Kettenwachs", „Kettenwachs Stuttgart", „umweltfreundliches Wachs"?
-**Ergänzt:** `SICHTBARKEIT_PLAN.md` (Technik) und `LUCA_TODO.md` (Reihenfolge)
+**Ergänzt:** `docs/plaene/SICHTBARKEIT_PLAN.md` (Technik) und `docs/aufgaben/LUCA_TODO.md` (Reihenfolge)
 
 ---
 
@@ -54,9 +54,9 @@ Das verbindet sich direkt mit deinen Wunschbegriffen „Eco Wachs" und „umwelt
 
 **Was daraus folgt, in dieser Reihenfolge:**
 
-1. Der geplante Artikel „Kettenwachs ohne PFAS: was hinter dem Label steckt" ist der wertvollste Text, den du schreiben kannst. Er beantwortet eine Frage, die Stiftung Warentest gestellt und ausdrücklich nicht abschließend beantwortet hat. Ich kann ihn schreiben, sobald du §3 von `SICHTBARKEIT_PLAN.md` freigibst.
+1. Der geplante Artikel „Kettenwachs ohne PFAS: was hinter dem Label steckt" ist der wertvollste Text, den du schreiben kannst. Er beantwortet eine Frage, die Stiftung Warentest gestellt und ausdrücklich nicht abschließend beantwortet hat. Ich kann ihn schreiben, sobald du §3 von `docs/plaene/SICHTBARKEIT_PLAN.md` freigibst.
 2. Die beiden Pro-Produktseiten tragen die Auszeichnung bereits im Schema. Im sichtbaren Text sollte sie prominenter werden.
-3. Die Anfrage an Stiftung Warentest (Vorlage in `LUCA_TODO.md` E1) ist **kein Backlink-Trick, sondern eine sachliche Nachmeldung**. Sie kostet dich zehn Minuten und kann dazu führen, dass deine Marke auf test.de steht.
+3. Die Anfrage an Stiftung Warentest (Vorlage in `docs/aufgaben/LUCA_TODO.md` E1) ist **kein Backlink-Trick, sondern eine sachliche Nachmeldung**. Sie kostet dich zehn Minuten und kann dazu führen, dass deine Marke auf test.de steht.
 
 ---
 
@@ -109,7 +109,7 @@ Der richtige Umgang damit: Account anlegen, Website ins Profil eintragen, **einm
 
 Konkret liegt eine Chance offen: `speed-ville.de` hat einen Artikel „Welches Kettenwachs fürs Rennrad ist das beste, 6 Anbieter im Vergleich" mit **48.100 Aufrufen**, der genau für dein Hauptthema rankt. Du kommst nicht vor. Entscheidend: **Optimize hat dort bereits einen Gastbeitrag platziert.** Der Kanal ist nachweislich für Hersteller offen, und der Blog arbeitet transparent mit Affiliate-Links.
 
-Dein Angebot dorthin ist stark und kostet dich fast nichts: kostenlose Testmuster beider Formeln, ohne Bedingungen, plus das Angebot eines Gastbeitrags zur PFAS-Frage. Vorlage liegt in `LUCA_TODO.md` E2.
+Dein Angebot dorthin ist stark und kostet dich fast nichts: kostenlose Testmuster beider Formeln, ohne Bedingungen, plus das Angebot eines Gastbeitrags zur PFAS-Frage. Vorlage liegt in `docs/aufgaben/LUCA_TODO.md` E2.
 
 Dieselbe Ansprache funktioniert bei `rennrad-news.de`, `bike-x.de`, `bavarian-bike.de`, `ride-with-love.bike`, `raddeluxe.com` und `fitfortrails.ch`. Zwei bis drei Anschreiben im Monat, mehr nicht.
 
@@ -134,7 +134,7 @@ cd ~/"Claude Playground"/waxcelerate-site
 npx tsx scripts/ping-indexnow.mjs
 ```
 
-Dazu Bing Webmaster Tools einmalig verbinden, per Import aus der Search Console, ohne erneute Domain-Bestätigung. Details in `LUCA_TODO.md` Teil B.
+Dazu Bing Webmaster Tools einmalig verbinden, per Import aus der Search Console, ohne erneute Domain-Bestätigung. Details in `docs/aufgaben/LUCA_TODO.md` Teil B.
 
 ---
 

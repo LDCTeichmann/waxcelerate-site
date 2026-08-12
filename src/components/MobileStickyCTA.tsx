@@ -14,7 +14,7 @@ export function MobileStickyCTA() {
   // fast denselben Scrollbereich abdecken. Jetzt bleibt sie durchgehend
   // sichtbar, sobald der Hero durch ist, und blendet sich nur im
   // Footer-Bereich aus (dort gibt es eigene Kontakt-/Rechtslinks statt
-  // eines Kauf-CTAs, siehe MOBILE_PLAN.md B2).
+  // eines Kauf-CTAs, siehe docs/plaene/MOBILE_PLAN.md B2).
   const [pastHero, setPastHero] = useState(false);
   const [inFooter, setInFooter] = useState(false);
 
@@ -52,7 +52,7 @@ export function MobileStickyCTA() {
   // Solange der Klick nur scrollt, muss die Beschriftung das auch sagen —
   // "Jetzt bestellen" suggeriert einen abgeschlossenen Kauf, den es (noch)
   // nicht gibt. Sobald C1 einen echten Checkout anbindet, darf hier wieder
-  // "Jetzt bestellen" stehen (siehe MOBILE_PLAN.md B2, Frage 1).
+  // "Jetzt bestellen" stehen (siehe docs/plaene/MOBILE_PLAN.md B2, Frage 1).
   const label = lang === 'de' ? 'Zu den Produkten →' : 'To the products →';
 
   const handleClick = () => {

@@ -26,7 +26,7 @@ eine sehr schöne Zutatenliste.
 | `src/sections/science/ChainJointSection.tsx` | Schnitt A–A durch ein Gelenk. Jedes Bauteil ein eigener Block, jede Gleitfläche eine eindeutige Linie, aktive Fläche bekommt ein ↔ Zeichen. |
 | `src/sections/science/ContactZones.tsx` | ACT I plus `LineChoice` (Classic gegen Pro). Trägt `id="problem"`. |
 | `src/sections/science/ScienceTeaser.tsx` | Tür von der Startseite in die Wissenschaftsseite. |
-| `src/components/viz/MaintenanceTimeline.tsx` | 12.000 km als Ereignisse, nicht als Balken. |
+| ~~`src/components/viz/MaintenanceTimeline.tsx`~~ | 12.000 km als Ereignisse, nicht als Balken. **Existiert nicht (mehr)** — geplant, aber nicht im Baum. |
 
 ## Geänderte Dateien
 
@@ -35,9 +35,10 @@ eine sehr schöne Zutatenliste.
 - `src/components/viz/index.ts` — Timeline exportiert.
 - `src/index.css` — `.wx-range`, ein Haarlinien-Slider. Es gab vorher keine Range-Styles im Projekt.
 
-**Verwaist, kann gelöscht werden:** `src/sections/science/ZoneRing.tsx` und
-`src/components/viz/DrivetrainLedger.tsx`. Beide werden von nichts mehr
-importiert, beide waren Zwischenstände. Sie stören nichts, sind aber toter Code.
+**Erledigt.** `src/sections/science/ZoneRing.tsx` und
+`src/components/viz/DrivetrainLedger.tsx` waren verwaiste Zwischenstände und
+sind am 29.07.2026 gelöscht worden. Beide Pfade oben stehen nur noch als
+Historie da, es gibt sie nicht mehr — nicht danach suchen.
 
 ---
 
@@ -105,7 +106,7 @@ Argument auf der Startseite zu Ende lesen und hatte keinen Grund zu klicken.
 ## Bildmaterial: ein Fund und eine Lücke
 
 `public/images/chain-dirty.jpg` ist das fremde Foto mit der englischen
-Handschrift-Kritzelei „filth", vor dem `WEBSITE_HANDOFF.md` unter Fallen Punkt 5
+Handschrift-Kritzelei „filth", vor dem `docs/REPO_KARTE.md` unter Fallen Punkt 5
 warnt. Es liegt noch im Repo und wird von keiner Komponente benutzt. Sollte weg.
 
 `public/images/chain-clean.jpg` ist dagegen ein echtes eigenes Foto von Ketten im

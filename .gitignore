@@ -17,6 +17,20 @@ dist/
 # Local raw image working library — never deploy/commit (originals + customer photos)
 raw-image-library/
 
+# Rohbild-Archiv. Lag bis 08/2026 als assets-archiv/ im Repo und hat 172 MB in
+# die Historie geschrieben. Liegt jetzt daneben unter
+# ../waxcelerate-assets-archiv/. Diese Zeile verhindert, dass es zurueckwandert.
+assets-archiv/
+
+# Messartefakte des Performance-Audits: Screenshots und Lighthouse-Laeufe, rund
+# 84 MB, jederzeit mit run-audit.sh neu erzeugbar. Bericht und Skript bleiben
+# dagegen versioniert — docs/plaene/MOBILE_PLAN.md steht komplett auf diesem
+# Bericht, und index.html verweist darauf. Gleiches Muster wie bei den
+# Blogbildern weiter oben: Ordner ignorieren, das Wenige davon ausnehmen.
+performance-audit/*
+!performance-audit/AUDIT_REPORT.md
+!performance-audit/run-audit.sh
+
 # public/images/blog: only ship the optimized derivatives the code actually
 # references (see scripts/optimize-blog-images.mjs) + manifest.json. Raw
 # camera originals (multi-MB each) and unrelated personal photos that end up
