@@ -27,7 +27,10 @@ export const trustStats = {
 
 export interface Product {
   id: string;
-  category: 'wax' | 'chain';
+  // 'bundle' is for starterSetBundleProducts below only — never added to the
+  // `products` array itself, so it never appears in the sitemap, merchant
+  // feed, or llms.txt generators (all iterate `products` directly).
+  category: 'wax' | 'chain' | 'bundle';
   title: string;
   titleEn: string;
   description: string;
@@ -328,7 +331,10 @@ export const products: Product[] = [
     description: 'Shimano CN-HG701, 116 Glieder, 11-fach (Ultegra / XT / GRX / 105). Vollständig entfettet und mit MoS₂-Transferfilm vorgewachst. Kettenschloss liegt bei.',
     descriptionEn: 'Shimano CN-HG701, 116 links, 11-speed (Ultegra / XT / GRX / 105). Fully degreased and pre-waxed with MoS₂ transfer film. Quick-link included.',
     price: 44.90,
-    image: 'https://i.ebayimg.com/images/g/gWAAAeSwAaFp9na4/s-l500.webp',
+    // Local photo (own shoot, CN-HG701 stamp verified legible on the plate)
+    // — was hotlinked to i.ebayimg.com, which breaks the moment that listing
+    // ends. See raw-image-library/products/chains/11 Chain.jpeg for the source.
+    image: '/images/products/chains/hg701.webp',
     ebayUrl: 'https://www.ebay.de/itm/395811182346',
     compatibility: 'Shimano 11-fach · Ultegra R8000 · XT M8000 · GRX RX810 · 105 R7000',
     specs: { Gänge: '11-fach', Kompatibilität: 'Shimano (Ultegra / XT / GRX / 105)', 'Verbinder': 'Quick-Link (dabei)' },
@@ -347,7 +353,10 @@ export const products: Product[] = [
     description: 'YBN S11 / 11S, 116 Glieder, 11-fach — universal für Shimano, SRAM, Campagnolo und KMC. Vollständig entfettet und mit MoS₂-Transferfilm vorgewachst. Kettenschloss liegt bei.',
     descriptionEn: 'YBN S11 / 11S, 116 links, 11-speed — universal for Shimano, SRAM, Campagnolo and KMC. Fully degreased and pre-waxed with MoS₂ transfer film. Quick-link included.',
     price: 34.95,
-    image: 'https://i.ebayimg.com/images/g/ryYAAeSwxC5o08UA/s-l500.webp',
+    // Local photo (own shoot, "YBN" + "11-SPEED" stamps verified legible) —
+    // was hotlinked to i.ebayimg.com. See
+    // raw-image-library/products/chains/12 Chain.JPG for the source.
+    image: '/images/products/chains/ybn11.webp',
     ebayUrl: 'https://www.ebay.de/itm/395811182725',
     compatibility: 'Shimano 11-fach · SRAM 11-fach · Campagnolo 11-fach',
     specs: { Gänge: '11-fach', Kompatibilität: 'Shimano / SRAM / Campa', 'Verbinder': 'Quick-Link (dabei)' },
@@ -481,7 +490,8 @@ export const products: Product[] = [
 ];
 
 export function getProductById(id: string): Product | undefined {
-  return products.find((p) => p.id === id);
+  return products.find((p) => p.id === id)
+    ?? starterSetBundleProducts.find((p) => p.id === id);
 }
 
 /**
@@ -601,6 +611,67 @@ export const starterSet = {
 /** Set-Preis aus den gewaehlten Teilen. Immer hierueber rechnen, nie von Hand. */
 export const starterSetPrice = (partsSum: number) =>
   Math.round(partsSum * (1 - starterSet.discountPct / 100) * 100) / 100;
+
+// Zwei feste Kombinationen fuer alle, die nicht selbst konfigurieren wollen —
+// die freie Konfiguration (StarterSetBuilder) bleibt daneben bestehen. Bewusst
+// KEINE eigenen `products`-Eintraege (siehe Accessory-Kommentar oben, gleicher
+// Grund): landen sonst unfiltriert in Sitemap, Merchant-Feed und llms.txt, wo
+// jeweils ueber `products` iteriert wird, als eigenstaendig kaufbare Artikel,
+// obwohl es nur Zusammenstellungen bestehender Produkte sind.
+export interface StarterSetOption {
+  id: string;
+  waxId: string;
+  chainId: string;
+  taglineDe: string;
+  taglineEn: string;
+}
+
+export const starterSetOptions: StarterSetOption[] = [
+  {
+    id: 'starter-classic',
+    waxId: 'wax-500',
+    chainId: 'chain-ybn11',
+    taglineDe: 'Frühjahr bis Herbst · 11-fach universal',
+    taglineEn: 'Spring to autumn · 11-speed universal',
+  },
+  {
+    id: 'starter-pro',
+    waxId: 'wax-500-mos2',
+    chainId: 'chain-m8100',
+    taglineDe: 'Ganzjahr, Winter, E-Bike · 12-fach',
+    taglineEn: 'All year, winter, e-bike · 12-speed',
+  },
+];
+
+// Product-shaped view of the two fixed bundles above, for the cart only:
+// AddToCartButton/useCartStore work against the `Product` shape, and the
+// shipping estimate in CartDrawer looks products up by id via
+// getProductById() — both need something to find. Never spread into the
+// `products` array itself (see the comment on StarterSetOption above).
+export const starterSetBundleProducts: Product[] = starterSetOptions.map((opt) => {
+  const wax = products.find((p) => p.id === opt.waxId)!;
+  const chain = products.find((p) => p.id === opt.chainId)!;
+  const extras = accessories.filter((a) =>
+    (starterSet.includedAccessoryIds as readonly string[]).includes(a.id));
+  const partsSum = wax.price + chain.price + extras.reduce((s, a) => s + a.price, 0);
+  return {
+    id: opt.id,
+    category: 'bundle',
+    title: `Starter-Set — ${wax.title} + ${chain.title}`,
+    titleEn: `Starter set — ${wax.titleEn} + ${chain.titleEn}`,
+    description: opt.taglineDe,
+    descriptionEn: opt.taglineEn,
+    price: starterSetPrice(partsSum),
+    image: wax.image,
+    ebayUrl: wax.ebayUrl,
+    weightGrams: wax.weightGrams + chain.weightGrams + extras.reduce((s, a) => s + a.weightGrams, 0),
+    // 'maxibrief' is the heaviest declared class a single Product can carry;
+    // shippingFor() escalates to an actual 'paket' on its own once the real
+    // combined weight demands it (see shippingFor below), same as it would
+    // for any other heavy combination of real products in the same cart.
+    shippingClass: 'maxibrief',
+  };
+});
 
 // Mengenstaffel. Gilt ausschliesslich auf Kettenwachs, nie auf Ketten: eine
 // Kette kauft man einmal pro Rad, ein Rabatt darauf verschenkt Marge ohne die

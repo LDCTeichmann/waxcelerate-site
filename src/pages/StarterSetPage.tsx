@@ -16,12 +16,12 @@
 
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { Navigation } from '@/sections/navigation';
 import { BackLink } from '@/components/BackLink';
-import { products, accessories, starterSet, starterSetPrice } from '@/lib/data';
-import { StarterSetBuilder } from '@/sections/StarterSetBuilder';
+import { accessories, starterSet } from '@/lib/data';
+import { StarterSetOptions } from '@/sections/StarterSetOptions';
 
 const W = 'mx-auto w-full max-w-5xl px-6 sm:px-10 lg:px-14';
 
@@ -30,18 +30,11 @@ const SHIPPING = 1.80;
 const eur = (n: number, de: boolean) =>
   n.toLocaleString(de ? 'de-DE' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
 
-// Beispielpreis fuer den Hero: dieselbe Rechnung wie im Builder, nur mit einer
-// festen Kombination, damit oben schon eine Zahl steht statt eines Platzhalters.
-const priceOf = (id: string) => products.find(p => p.id === id)?.price ?? 0;
 const accPriceOf = (id: string) => accessories.find(a => a.id === id)?.price ?? 0;
 
 export function StarterSetPage() {
   const { lang } = useLanguage();
   const de = lang === 'de';
-
-  const sum = priceOf('wax-500') + priceOf('chain-ybn11')
-    + accPriceOf('acc-pliers') + accPriceOf('acc-wire');
-  const setPrice = starterSetPrice(sum);
 
   const title = de
     ? 'Starter-Set Kettenwachs | Waxcelerate'
@@ -60,75 +53,33 @@ export function StarterSetPage() {
 
       <Navigation />
 
-      {/* ── Hero ── */}
-      <section className="relative pt-28 sm:pt-36 pb-14 sm:pb-20" style={{ background: 'var(--pg)' }}>
+      {/* ── Hero — the kit image, nothing else. The old version repeated the
+          exact same "pick wax + chain, rest included" message three times
+          (hero copy, section intro, closing CTA) before you ever saw a
+          price. The image already says "here's the kit"; the cards below
+          say the rest. */}
+      <section className="relative pt-28 sm:pt-36 pb-10" style={{ background: 'var(--pg)' }}>
         <div className={W}>
           <BackLink de={de} className="mb-6 sm:mb-8" />
-        </div>
-        <div className={`${W} lg:flex lg:items-center lg:gap-14`}>
-          <div className="lg:flex-1">
-            <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
-              {de ? 'Starter-Set' : 'Starter set'}
-            </p>
-            <h1 className="font-display font-bold leading-[1.05] mb-5"
-              style={{ color: 'var(--tx1)', fontSize: 'clamp(2.2rem, 5vw, 3.4rem)', letterSpacing: '-0.02em' }}>
-              {de ? 'Alles da, beim ersten Mal.' : 'Everything there, first time.'}
-            </h1>
-            <p className="text-lead max-w-[46ch]" style={{ color: 'var(--txm)' }}>
-              {de
-                ? 'Am ersten Wachsabend scheitert es selten am Wachs. Es scheitert daran, dass die Kette nicht aufgeht oder nichts da ist, woran sie hängen kann. Im Set liegt beides dabei.'
-                : 'The first waxing evening rarely fails because of the wax. It fails because the chain will not open, or because there is nothing to hang it on. Both are in the set.'}
-            </p>
-
-            <div className="flex flex-wrap items-baseline gap-4 mt-8">
-              <p className="font-display font-bold text-wx-tx1 leading-none"
-                style={{ fontSize: '2.8rem', letterSpacing: '-0.02em' }}>
-                {eur(setPrice, de)}
-              </p>
-              <p className="num-data text-[13px]" style={{ color: 'var(--txff)' }}>
-                {de ? 'einzeln' : 'separately'} {eur(sum, de)}
-              </p>
-            </div>
-
-            <Link to="/#produkte"
-              className="inline-flex items-center gap-2 mt-7 rounded-full px-6 py-3 text-[14px] font-semibold transition-opacity hover:opacity-90"
-              style={{ background: 'var(--accent)', color: '#fff' }}>
-              {de ? 'Set zusammenstellen' : 'Configure the set'}
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-
-          <div className="mt-10 lg:mt-0 lg:flex-1">
-            <div className="rounded-2xl overflow-hidden" style={{ aspectRatio: '4 / 5', background: 'var(--hero-stage)' }}>
-              <img src="/images/doors/starter-set.webp"
-                srcSet="/images/doors/starter-set-800.webp 800w, /images/doors/starter-set.webp 1200w"
-                sizes="(max-width: 1024px) 92vw, 46vw"
-                alt={de ? 'Wachsblock mit Quick-Link-Zange und Kette' : 'Wax block with quick-link pliers and chain'}
-                className="w-full h-full object-cover" />
-            </div>
+          <h1 className="font-display font-bold leading-[1.05] mb-6"
+            style={{ color: 'var(--tx1)', fontSize: 'clamp(2rem, 4.5vw, 3rem)', letterSpacing: '-0.02em' }}>
+            {de ? 'Alles da, beim ersten Mal.' : 'Everything there, first time.'}
+          </h1>
+          <div className="rounded-2xl overflow-hidden mx-auto" style={{ aspectRatio: '16 / 9', maxWidth: 720, background: 'var(--hero-stage)' }}>
+            <img src="/images/doors/starter-set.webp"
+              srcSet="/images/doors/starter-set-800.webp 800w, /images/doors/starter-set.webp 1200w"
+              sizes="(max-width: 1024px) 92vw, 720px"
+              alt={de ? 'Wachsblock mit Quick-Link-Zange und Kette' : 'Wax block with quick-link pliers and chain'}
+              className="w-full h-full object-cover" />
           </div>
         </div>
       </section>
 
-      {/* ── Builder ──
-          Zwei Fragen, die der Kunde beantworten kann, und zwei Teile, an die
-          er nicht denkt. Alles auf einem Bildschirm, kein Wizard. */}
-      <section className="py-14 sm:py-20" style={{ borderTop: '1px solid var(--bd2)', background: 'var(--sf)' }}>
+      {/* ── Cards — wax + chain + tools, one click. Everything the page
+          needs to say is on the cards themselves now. */}
+      <section id="sets" className="pt-6 pb-14 sm:pb-20" style={{ borderTop: '1px solid var(--bd2)' }}>
         <div className={W}>
-          <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
-            {de ? 'Set zusammenstellen' : 'Build your set'}
-          </p>
-          <h2 className="font-display font-bold text-wx-tx1 leading-tight mb-3"
-            style={{ fontSize: 'clamp(1.7rem, 3.4vw, 2.4rem)', letterSpacing: '-0.02em' }}>
-            {de ? 'Wachs und Kette wählen. Fertig.' : 'Pick wax and chain. Done.'}
-          </h2>
-          <p className="text-wx-txm text-lead max-w-[52ch] mb-10">
-            {de
-              ? 'Zange und Aufhängedraht liegen immer bei. Ohne die beiden wird der erste Wachsabend zäh, und genau daran scheitern die meisten Umstiege.'
-              : 'Pliers and hanging wire are always included. Without them the first waxing evening drags, and that is where most switches fail.'}
-          </p>
-
-          <StarterSetBuilder de={de} />
+          <StarterSetOptions de={de} />
         </div>
       </section>
 
@@ -185,29 +136,6 @@ export function StarterSetPage() {
                 )}
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── CTA ── */}
-      <section className="py-14 sm:py-20" style={{ borderTop: '1px solid var(--bd2)' }}>
-        <div className={W}>
-          <div className="rounded-2xl px-6 py-10 sm:py-12 text-center"
-            style={{ background: 'var(--accent-wash-sm)', border: '1px solid rgba(var(--accent-rgb),0.12)' }}>
-            <h2 className="font-display font-bold text-wx-tx1 mb-4" style={{ fontSize: 'clamp(1.5rem, 3vw, 2rem)' }}>
-              {de ? 'Wachs und Kette wählen, Rest liegt bei.' : 'Pick wax and chain, the rest is included.'}
-            </h2>
-            <p className="text-[14px] leading-relaxed max-w-[44ch] mx-auto mb-7" style={{ color: 'var(--txm)' }}>
-              {de
-                ? 'Schreib kurz, welche Schaltung du fährst. Dann stelle ich das Set passend zusammen.'
-                : 'Tell me which drivetrain you ride and I will put the right set together.'}
-            </p>
-            <Link to="/#produkte"
-              className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-[14px] font-semibold transition-opacity hover:opacity-90"
-              style={{ background: 'var(--accent)', color: '#fff' }}>
-              {de ? 'Zu den Produkten' : 'To the products'}
-              <ArrowRight className="h-4 w-4" />
-            </Link>
           </div>
         </div>
       </section>

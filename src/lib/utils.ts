@@ -6,6 +6,23 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
+ * Prerendered product/blog-article pages ship their own JSON-LD in the
+ * static HTML (marked `data-prerendered-ld`, see ldClientManaged() in
+ * scripts/lib/prerender.mjs), and the page component then adds the exact
+ * same schema again via Helmet on mount — Helmet has no way to know the
+ * static one already says the same thing (it only tracks tags it created
+ * itself), so both stay in the DOM. Removing by a marker WE set, rather than
+ * trying to detect "not Helmet's", is what makes this reliable: Helmet's own
+ * DOM writes turned out not to carry any detectable signature in practice.
+ * Call this once on mount of a page that is guaranteed to re-inject the same
+ * schema itself — never on a page whose static schema has no client-side
+ * replacement, or the schema just disappears for JS-rendering crawlers.
+ */
+export function removeStaticJsonLd() {
+  document.querySelectorAll('script[data-prerendered-ld]').forEach((el) => el.remove());
+}
+
+/**
  * Returns estimated delivery date string.
  * Logic: orders before 14:00 CET ship same day, otherwise next business day.
  * Add 1 business day for DHL delivery within Germany.

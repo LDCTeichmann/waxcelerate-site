@@ -162,18 +162,35 @@ export function Hero() {
     { v: '1 Tag', l: de ? 'Versand nach Bestellung' : 'ships after order' },
   ];
 
+  // LCP-Bild der Startseite. Als WebP 46 statt 262 KB — verlustbehaftet, aber
+  // ohne sichtbaren Unterschied, weil das Bild ohnehin weichgezeichnet
+  // dargestellt wird (siehe filter unten). Die JPEG bleibt als Fallback im
+  // <picture> UND als og:image/twitter:image in index.html: nicht jeder
+  // Social-Crawler verarbeitet WebP zuverlaessig.
+  //
+  // Unter 640px eigenes Bild statt des Ketten-Fotos: die Kette liest auf
+  // einem Hochkant-Crop kaum noch als Kette, nur als dunkle Flaeche (Lucas
+  // Feedback — "sieht komisch aus auf Mobile"). Der Wachsblock ist bereits im
+  // richtigen 9:16-Seitenverhaeltnis fotografiert (kein Crop noetig) und
+  // steht als eigenstaendiges Motiv fuer sich, ohne auf die Kette angewiesen
+  // zu sein.
   const bgImg = (
-    <img
-      src="/images/hero/chain-bg.jpg"
-      alt={de ? 'Fahrradkette auf Schiefer' : 'Bicycle chain on slate'}
-      className="absolute inset-0 w-full h-full object-cover hero-img"
-      style={{
-        objectPosition: BG_POS,
-        transform: 'scale(1.035)',
-        filter: 'blur(1.4px) saturate(0.95) brightness(0.92)',
-      }}
-      fetchPriority="high"
-    />
+    <picture>
+      <source media="(max-width: 639px)" srcSet="/images/hero/chain-bg-mobile.webp" type="image/webp" />
+      <source media="(max-width: 639px)" srcSet="/images/hero/chain-bg-mobile.jpg" type="image/jpeg" />
+      <source srcSet="/images/hero/chain-bg.webp" type="image/webp" />
+      <img
+        src="/images/hero/chain-bg.jpg"
+        alt={de ? 'Fahrradkette auf Schiefer' : 'Bicycle chain on slate'}
+        className="absolute inset-0 w-full h-full object-cover hero-img"
+        style={{
+          objectPosition: BG_POS,
+          transform: 'scale(1.035)',
+          filter: 'blur(1.4px) saturate(0.95) brightness(0.92)',
+        }}
+        fetchPriority="high"
+      />
+    </picture>
   );
 
   const waxImg = (
@@ -258,13 +275,24 @@ export function Hero() {
           />
 
           {/* Shadow leans slightly toward the content/CTA (bottom-left) instead of
-              straight down — a soft directional cue, not a literal arrow. */}
+              straight down — a soft directional cue, not a literal arrow.
+              Mobile-only: smaller + faded. The background photo is now also a
+              wax block (see chain-bg-mobile.jpg above — no chain photo in the
+              raw shoot survives this section's heavy bottom scrim with enough
+              contrast to read as anything but noise, tested and reverted), so
+              this floating cutout duplicating the same product right next to
+              it read as "two wax blocks" on a small screen. It also carries
+              zero interactive function on mobile — the "Blick ins Wachs" lens
+              (WaxLensCutout below) is gated to `wide` (min-width:1024px) —
+              so fading it here costs no functionality, only echo. sm:/lg:
+              untouched. */}
           <div
             ref={blockRef}
             className="absolute z-[5] pointer-events-none will-change-transform
                        left-[68%] top-[13%] -translate-x-1/2 -translate-y-1/2
-                       w-[clamp(92px,22%,132px)]
-                       sm:left-[60%] sm:top-[50%] sm:w-[clamp(280px,30%,460px)]
+                       w-[clamp(70px,16%,96px)] opacity-60
+                       sm:w-[clamp(280px,30%,460px)] sm:opacity-100
+                       sm:left-[60%] sm:top-[50%]
                        lg:left-[62%] lg:top-[50%] lg:w-[clamp(360px,27%,650px)]"
           >
             <div ref={blockInnerRef} className="relative">

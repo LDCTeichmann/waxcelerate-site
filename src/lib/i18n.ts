@@ -6,6 +6,7 @@ export const translations = {
       whyWax: 'Warum Wachs?',
       products: 'Produkte',
       productsServices: 'Produkte & Services',
+      more: 'Mehr',
       science: 'Wissenschaft',
       // Mobile-Plan B8: "Rewax" ist ein Anglizismus, nach dem im deutschen
       // Markt praktisch niemand sucht — gesucht wird "Kette wachsen lassen".
@@ -63,6 +64,21 @@ export const translations = {
       waxLabel: 'Mit Wachs',
       dragHint: 'Ziehen zum Vergleichen',
       tableTitle: 'Öl vs. Wachs im Vergleich',
+    },
+
+    // Origin — dark full-bleed break between Reviews and Tools (DESIGN.md §6
+    // "dark moment" brief). Scoped to the wax only, never the resold chains:
+    // "gegossen in Stuttgart" is true for the wax we make, not for a Shimano/
+    // SRAM/YBN chain we only wax-treat here (see v9ChainFooterNote in
+    // productContent.ts for why that distinction matters).
+    origin: {
+      eyebrow: 'Herkunft',
+      title1: 'In Stuttgart gegossen.',
+      title2: 'Nicht zugekauft.',
+      body: 'Kleine Chargen, von Hand. Was auf der Verpackung steht, ist auch drin — jede Zutat mit Namen, nicht nur „Wachsmischung".',
+      stat1: 'Verarbeitung',
+      stat2v: 'Handgefertigt',
+      stat2: 'Kleine Chargen',
     },
 
     // Tools
@@ -357,6 +373,7 @@ export const translations = {
       whyWax: 'Why wax?',
       products: 'Products',
       productsServices: 'Products & services',
+      more: 'More',
       science: 'Science',
       rewax: 'Rewax',
       tools: 'Tools',
@@ -411,6 +428,17 @@ export const translations = {
       waxLabel: 'With Wax',
       dragHint: 'Drag to compare',
       tableTitle: 'Oil vs. Wax Comparison',
+    },
+
+    // Origin
+    origin: {
+      eyebrow: 'Origin',
+      title1: 'Poured in Stuttgart.',
+      title2: 'Not bought in.',
+      body: 'Small batches, by hand. What’s on the label is what’s inside — every ingredient named, not just "wax blend."',
+      stat1: 'Processing',
+      stat2v: 'Handmade',
+      stat2: 'Small batches',
     },
 
     // Tools

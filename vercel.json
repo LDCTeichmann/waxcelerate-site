@@ -19,10 +19,6 @@
       "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
     },
     {
-      "source": "/hero-lab",
-      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
-    },
-    {
       "source": "/bestellung-erfolgreich",
       "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
     },

@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Navigation } from '@/sections/navigation';
 import { products } from '@/lib/data';
+import { removeStaticJsonLd } from '@/lib/utils';
 import {
   getArticleBySlug,
   getArticleImage,
@@ -99,6 +100,13 @@ export function BlogArticlePage() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+  }, [slug]);
+
+  // Prerendered HTML for this route already ships this same schema; without
+  // this, Helmet's copy below just piles on top of it (see removeStaticJsonLd
+  // in src/lib/utils.ts).
+  useEffect(() => {
+    removeStaticJsonLd();
   }, [slug]);
 
   if (!article) {

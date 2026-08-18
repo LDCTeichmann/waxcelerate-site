@@ -25,7 +25,7 @@ import { dirname, resolve, join } from 'node:path';
 import { products, shipping } from '../src/lib/data.ts';
 import { articles } from '../src/pages/blog/articles.ts';
 import {
-  BASE, esc, ld, metaTags, loadShell, buildPage, write, imagePreload, mimeOf,
+  BASE, esc, ld, ldClientManaged, metaTags, loadShell, buildPage, write, imagePreload, mimeOf,
 } from './lib/prerender.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -151,6 +151,13 @@ function productSchema(p) {
       url,
       price: p.price.toFixed(2),
       priceCurrency: 'EUR',
+      // Muss hier stehen, nicht nur in ProductDetailPage.tsx: Google liest
+      // dieses vorgerenderte HTML, nicht das nachtraeglich per Helmet
+      // eingehaengte Schema. Ohne diese Zeile hatte der Fix vom 11.08.2026
+      // keinerlei Wirkung nach aussen. Immer ein Jahr voraus, damit das Datum
+      // nicht still veraltet — dieselbe Regel wie in der React-Fassung.
+      priceValidUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
+        .toISOString().slice(0, 10),
       availability: 'https://schema.org/InStock',
       itemCondition: 'https://schema.org/NewCondition',
       // Per @id auf den Organization-Knoten aus index.html verweisen, statt
@@ -244,8 +251,8 @@ function renderProduct(p) {
       type: 'product',
     }),
     imagePreload(heroImg, mimeOf(heroImg), srcSetFor(p.image) ? { srcset: srcSetFor(p.image), sizes: '100vw' } : {}),
-    ld(productSchema(p)),
-    ld(breadcrumbSchema(p)),
+    ldClientManaged(productSchema(p)),
+    ldClientManaged(breadcrumbSchema(p)),
   ].join('\n  ');
 
   const specs = p.specs

@@ -29,7 +29,7 @@ import { articles, getArticleImage, author, categoryOrder, blogHero } from '../s
 // Die Bausteine liegen seit August 2026 in scripts/lib/prerender.mjs, weil sie
 // sich Blog-, Produkt- und Rechtstextseiten teilen. Verhalten unveraendert.
 import {
-  BASE, esc, ld, metaTags, loadShell, buildPage as buildPageWithShell, write as writeToDist,
+  BASE, esc, ld, ldClientManaged, metaTags, loadShell, buildPage as buildPageWithShell, write as writeToDist,
   imagePreload, mimeOf,
 } from './lib/prerender.mjs';
 
@@ -75,7 +75,7 @@ function renderArticle(a) {
       modified,
     }),
     imagePreload(img.src, mimeOf(img.src)),
-    ld({
+    ldClientManaged({
       '@context': 'https://schema.org',
       '@type': 'BlogPosting',
       headline: a.title,
@@ -104,7 +104,7 @@ function renderArticle(a) {
       inLanguage: 'de-DE',
       mainEntityOfPage: { '@type': 'WebPage', '@id': url },
     }),
-    ld({
+    ldClientManaged({
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',
       itemListElement: [
@@ -113,7 +113,7 @@ function renderArticle(a) {
         { '@type': 'ListItem', position: 3, name: a.titleShort, item: url },
       ],
     }),
-    a.howTo && ld({
+    a.howTo && ldClientManaged({
       '@context': 'https://schema.org',
       '@type': 'HowTo',
       name: a.howTo.name,
@@ -123,7 +123,7 @@ function renderArticle(a) {
         '@type': 'HowToStep', position: i + 1, name: s.name, text: s.text,
       })),
     }),
-    a.faq && ld({
+    a.faq && ldClientManaged({
       '@context': 'https://schema.org',
       '@type': 'FAQPage',
       mainEntity: a.faq.map(f => ({

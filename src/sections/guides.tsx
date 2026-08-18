@@ -26,9 +26,16 @@ function StepText({ text }: { text: string }) {
 export function Guides() {
   const { t, lang } = useLanguage();
   const de = lang === 'de';
-  // First entry open by default — a reader shouldn't have to interact with
-  // an accordion just to see that the section has content at all.
-  const [openGuide, setOpenGuide] = useState<string | null>('neu');
+  // First entry open by default on tablet/desktop — a reader shouldn't have
+  // to interact with an accordion just to see that the section has content
+  // at all. On mobile this section already stacks a 3-item accordion under a
+  // full reference table (single column below `md`, see the grid below), so
+  // forcing 5 steps + a warning callout open by default just to reach the
+  // rest of the homepage was the single biggest contributor to the page
+  // feeling overwhelming on a phone. Closed-by-default there costs one tap.
+  const [openGuide, setOpenGuide] = useState<string | null>(
+    () => (typeof window !== 'undefined' && window.innerWidth < 768 ? null : 'neu'),
+  );
   const listRef = useRef<HTMLDivElement>(null);
   use3DReveal(listRef, { stagger: 0.06, start: 'top 88%' });
 

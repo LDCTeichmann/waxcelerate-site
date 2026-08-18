@@ -13,9 +13,10 @@
 // three, plus 1,80 € return shipping either way. These supersede the older
 // figures in the business context (9,99 / 24,99).
 
+import { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Check, X, Gift, ChevronDown } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, X, Gift, User, ChevronDown } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 
 import { Navigation } from '@/sections/navigation';
@@ -54,31 +55,57 @@ const TEN_CARD = {
   get price() { return Math.round(this.list * 0.9 * 100) / 100; },
 };
 
+// Five treatments, half the ten-card's discount — a smaller commitment for
+// anyone not ready to prepay ten. Discount rate is a judgment call (not
+// something Luca specified), same derivation pattern as TEN_CARD: flag for
+// his sign-off before treating it as final.
+const FIVE_CARD = {
+  count: 5,
+  get list() { return PRICE.bundle * this.count; },
+  get price() { return Math.round(this.list * 0.95 * 100) / 100; },
+};
+
 const eur = (n: number, de: boolean) =>
   n.toLocaleString(de ? 'de-DE' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
 
 // ─── Stamp card ──────────────────────────────────────────────────────────────
-// Ten chain-link glyphs in two rows. Not a real punch card, just the shape of
-// one, so the offer explains itself before the price is read.
-function StampCard({ de }: { de: boolean }) {
+// Chain-link glyphs, one row of five or two of five. Not a real punch card,
+// just the shape of one, so the offer explains itself before the price is
+// read. Parameterized over count/price/list so the same card serves both the
+// five- and ten-visit tiers instead of two near-duplicate components.
+function StampCard({ de, count, price, list, gift, recommended }: {
+  de: boolean; count: number; price: number; list: number; gift: boolean; recommended?: boolean;
+}) {
+  const label = de ? `${count}er-Karte` : `${count}-visit card`;
+  const waMsg = gift
+    ? (de
+      ? `Hi Luca, ich möchte die ${label} als Geschenk bestellen. Name der beschenkten Person: `
+      : `Hi Luca, I would like to order the ${label} as a gift. Recipient's name: `)
+    : (de
+      ? `Hi Luca, ich möchte die ${label} bestellen.`
+      : `Hi Luca, I would like to order the ${label}.`);
+
   return (
-    <div className="rounded-2xl p-7"
-      style={{ background: 'var(--sf)', border: '1px solid var(--bd)', boxShadow: 'var(--card-shad)' }}>
-      <div className="flex items-baseline justify-between mb-6">
-        <p className="text-small uppercase tracking-[0.18em]" style={{ color: 'var(--accent)' }}>
-          {de ? 'Zehnerkarte' : 'Ten-visit card'}
+    <div className="rounded-2xl p-6 sm:p-7 flex flex-col h-full"
+      style={{
+        background: recommended ? 'var(--accent-wash-sm)' : 'var(--sf)',
+        border: recommended ? '1px solid rgba(var(--accent-rgb),0.22)' : '1px solid var(--bd)',
+        boxShadow: 'var(--card-shad)',
+      }}>
+      <div className="flex items-baseline justify-between mb-5">
+        <p className="text-small uppercase tracking-[0.18em]" style={{ color: recommended ? 'var(--accent)' : 'var(--txf)' }}>
+          {label}
         </p>
-        {/* Der Geschenk-Hinweis sitzt auf der Karte selbst, nicht im Fliesstext
-            daneben. Wer eine Stempelkarte sieht, auf der "als Geschenk" steht,
-            versteht das Angebot ohne einen Satz zu lesen. */}
-        <span className="inline-flex items-center gap-1.5 text-meta px-2.5 py-1 rounded-full"
-          style={{ background: 'var(--accent-wash-sm)', border: '1px solid rgba(var(--accent-rgb),0.16)', color: 'var(--accent)' }}>
-          <Gift className="h-3.5 w-3.5" aria-hidden />
-          {de ? 'auch als Geschenk' : 'also as a gift'}
-        </span>
+        {recommended && (
+          <span className="num-data text-meta px-2 py-1 rounded-full"
+            style={{ background: 'var(--sf)', border: '1px solid rgba(var(--accent-rgb),0.20)', color: 'var(--accent)' }}>
+            {de ? 'bester Preis' : 'best price'}
+          </span>
+        )}
       </div>
-      <div className="grid grid-cols-5 gap-3">
-        {Array.from({ length: TEN_CARD.count }, (_, i) => (
+
+      <div className="grid grid-cols-5 gap-2.5">
+        {Array.from({ length: count }, (_, i) => (
           <div key={i} className="relative rounded-lg flex items-center justify-center"
             style={{ aspectRatio: '1 / 1', border: '1px dashed var(--bd)', background: 'var(--sf2)' }}>
             <svg viewBox="0 0 40 20" className="w-[68%]" aria-hidden>
@@ -92,11 +119,30 @@ function StampCard({ de }: { de: boolean }) {
           </div>
         ))}
       </div>
-      <p className="text-meta leading-relaxed mt-6 pt-4" style={{ color: 'var(--txff)', borderTop: '1px solid var(--bd2)' }}>
+
+      <div className="flex items-baseline gap-3 mt-6">
+        <p className="font-display font-bold text-wx-tx1 leading-none" style={{ fontSize: '2rem', letterSpacing: '-0.02em' }}>
+          {eur(price, de)}
+        </p>
+        <p className="num-data text-[12.5px] line-through" style={{ color: 'var(--txff)' }}>
+          {eur(list, de)}
+        </p>
+      </div>
+      <p className="text-[12.5px] mt-1.5 mb-5" style={{ color: 'var(--txf)' }}>
         {de
-          ? 'Kein Ablaufdatum, übertragbar. Wir führen die Karte, du musst nichts aufbewahren.'
-          : 'No expiry, transferable. We keep the tally, you do not have to keep anything.'}
+          ? `${eur(price / count, de)} je Vorgang · kein Ablaufdatum, übertragbar`
+          : `${eur(price / count, de)} per treatment · no expiry, transferable`}
       </p>
+
+      <div className="flex-1" />
+
+      <a href={`https://wa.me/4915751957470?text=${encodeURIComponent(waMsg)}`}
+        target="_blank" rel="noopener noreferrer"
+        className="inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-[14px] font-semibold transition-opacity hover:opacity-90"
+        style={{ background: 'var(--accent)', color: '#fff' }}>
+        {gift ? (de ? 'Als Geschenk anfragen' : 'Request as a gift') : (de ? 'Karte anfragen' : 'Request this card')}
+        {gift ? <Gift className="h-4 w-4" /> : <ArrowRight className="h-4 w-4" />}
+      </a>
     </div>
   );
 }
@@ -228,6 +274,7 @@ function Pricing({ de }: { de: boolean }) {
 export function RewaxPage() {
   const { lang } = useLanguage();
   const de = lang === 'de';
+  const [isGift, setIsGift] = useState(false);
 
   // Mobile-Plan B8: die URL (/kette-wachsen-lassen, seit 08/2026) war schon
   // auf den deutschen Suchbegriff umgestellt, aber Title, H1 und Nav-Label
@@ -434,13 +481,8 @@ export function RewaxPage() {
             </h2>
             <p className="text-[15px] leading-relaxed max-w-[52ch]" style={{ color: 'var(--txm)' }}>
               {de
-                ? 'Das ist der eigentliche Grund für zwei oder drei Ketten. Während eine bei uns im Bad liegt, fährst du die nächste. Es gibt keine Wartezeit, keinen Abend am Topf und keinen Kompromiss, weil gerade keine saubere Kette da ist.'
-                : 'This is the real reason for two or three chains. While one is in our bath, you ride the next. No waiting, no evening at the pot, and no compromise because there happens to be no clean chain around.'}
-            </p>
-            <p className="text-[15px] leading-relaxed max-w-[52ch] mt-4" style={{ color: 'var(--txm)' }}>
-              {de
-                ? 'Nebenbei verteilt sich der Verschleiß auf drei Ketten statt auf eine, und keine läuft lange im grenzwertigen Bereich. Der teure Teil am Antrieb, Kassette und Kettenblätter, hält dadurch spürbar länger.'
-                : 'Wear also spreads across three chains instead of one, and none spends long in the marginal range. The expensive part of the drivetrain, cassette and chainrings, lasts noticeably longer as a result.'}
+                ? 'Während eine Kette bei uns im Bad liegt, fährst du die nächste — keine Wartezeit, kein Abend am Topf. Nebeneffekt: Der Verschleiß verteilt sich auf drei Ketten statt auf eine, also hält die teure Kassette spürbar länger.'
+                : 'While one chain is in our bath, you ride the next — no waiting, no evening at the pot. Side effect: wear spreads across three chains instead of one, so the expensive cassette lasts noticeably longer.'}
             </p>
           </div>
 
@@ -469,51 +511,48 @@ export function RewaxPage() {
         </div>
       </section>
 
-      {/* ── Ten-visit card ──
+      {/* ── Prepaid cards ──
           Lives here rather than as a fourth product door on the homepage. Four
           doors stop being a choice and become a menu, and a gift is not an
           entry point for a first-time visitor. Next to the price table it is
           simply the sensible next line for someone who has just worked out
-          that they will be doing this every few hundred kilometres. */}
+          that they will be doing this every few hundred kilometres.
+          Two sizes (five/ten) instead of one, plus an explicit for-me/gift
+          toggle: previously "also as a gift" was a badge on the card, which
+          only tells the giver it's *possible* — it didn't change the actual
+          order message, so Luca still had to ask who it was for every time. */}
       <section className="py-14 sm:py-20" style={{ borderTop: '1px solid var(--bd2)' }}>
-        <div className={`${W} lg:flex lg:gap-14 lg:items-center`}>
-          <div className="lg:flex-1">
-            <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
-              {de ? 'Zehnerkarte · auch als Geschenk' : 'Ten-visit card · also as a gift'}
-            </p>
-            <h2 className="font-display font-bold text-wx-tx1 leading-tight mb-5"
-              style={{ fontSize: 'clamp(1.7rem, 3.4vw, 2.4rem)', letterSpacing: '-0.02em' }}>
-              {de ? 'Zehn Vorgänge, einmal bezahlt.' : 'Ten treatments, paid once.'}
-            </h2>
-            <p className="text-[15px] leading-relaxed max-w-[48ch]" style={{ color: 'var(--txm)' }}>
-              {de
-                ? 'Zehn Rewax-Vorgänge im Voraus, zehn Prozent unter dem Dreierpreis. Du schickst ein, wir streichen ab. Läuft nicht ab, ist übertragbar, und lässt sich verschenken, was bei jemandem mit Rad meistens besser ankommt als das dritte Paar Socken.'
-                : 'Ten rewax treatments up front, ten percent below the three-chain price. You send chains in, we tick one off. It does not expire, it is transferable, and it works as a gift, which for anyone with a bike usually beats a third pair of socks.'}
-            </p>
-            <div className="flex items-baseline gap-4 mt-7">
-              <p className="font-display font-bold text-wx-tx1 leading-none"
-                style={{ fontSize: '2.6rem', letterSpacing: '-0.02em' }}>
-                {eur(TEN_CARD.price, de)}
-              </p>
-              <p className="num-data text-[13px]" style={{ color: 'var(--txff)' }}>
-                {de ? 'statt' : 'instead of'} {eur(TEN_CARD.list, de)}
-              </p>
-            </div>
-            <p className="text-[12.5px] mt-2" style={{ color: 'var(--txf)' }}>
-              {de
-                ? `${eur(TEN_CARD.price / TEN_CARD.count, de)} je Vorgang, Rückversand je Einsendung ${eur(PRICE.shipping, de)}`
-                : `${eur(TEN_CARD.price / TEN_CARD.count, de)} per treatment, ${eur(PRICE.shipping, de)} return shipping per submission`}
-            </p>
-            <a href={waLink(de)} target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 mt-7 rounded-full px-6 py-3 text-[14px] font-semibold transition-opacity hover:opacity-90"
-              style={{ background: 'var(--accent)', color: '#fff' }}>
-              {de ? 'Zehnerkarte anfragen' : 'Ask for the ten-visit card'}
-              <ArrowRight className="h-4 w-4" />
-            </a>
+        <div className={W}>
+          <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
+            {de ? 'Vorausbezahlt' : 'Prepaid'}
+          </p>
+          <h2 className="font-display font-bold text-wx-tx1 leading-tight mb-5"
+            style={{ fontSize: 'clamp(1.7rem, 3.4vw, 2.4rem)', letterSpacing: '-0.02em' }}>
+            {de ? 'Mehrere Vorgänge, einmal bezahlt.' : 'Several treatments, paid once.'}
+          </h2>
+
+          {/* For-me / gift toggle — shared by both cards below, changes only
+              the WhatsApp message each card's button sends. */}
+          <div className="inline-flex rounded-full p-1 mb-8" style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)' }}>
+            {([
+              { key: false, labelDe: 'Für mich', labelEn: 'For me', Icon: User },
+              { key: true, labelDe: 'Als Geschenk', labelEn: 'As a gift', Icon: Gift },
+            ] as const).map(({ key, labelDe, labelEn, Icon }) => (
+              <button key={String(key)} type="button" onClick={() => setIsGift(key)}
+                className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-semibold transition-colors"
+                style={{
+                  background: isGift === key ? 'var(--accent)' : 'transparent',
+                  color: isGift === key ? '#fff' : 'var(--txm)',
+                }}>
+                <Icon className="h-3.5 w-3.5" aria-hidden />
+                {de ? labelDe : labelEn}
+              </button>
+            ))}
           </div>
 
-          <div className="mt-10 lg:mt-0 lg:w-[380px] lg:flex-shrink-0">
-            <StampCard de={de} />
+          <div className="grid sm:grid-cols-2 gap-4 max-w-2xl">
+            <StampCard de={de} count={FIVE_CARD.count} price={FIVE_CARD.price} list={FIVE_CARD.list} gift={isGift} />
+            <StampCard de={de} count={TEN_CARD.count} price={TEN_CARD.price} list={TEN_CARD.list} gift={isGift} recommended />
           </div>
         </div>
       </section>

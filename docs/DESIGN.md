@@ -110,7 +110,19 @@ englischer Handschrift-Kritzelei. Sollte gelöscht werden.
 
 ---
 
-## 6. Hero-Entscheidung, Stand 2026-07-29
+## 6. Hero-Entscheidung — abgeschlossen 2026-08-18
+
+> **Ergebnis: Variante A wurde NICHT gebaut, der bestehende Hero bleibt.**
+> Nachgetragen am 13.08.2026 (Doku hinkte hinterher). Belegt durch den Zustand
+> des Repos: `/hero-lab` ist als Route entfernt, `public/images/hero-alt/`
+> geloescht, und der aktuelle Hero (`chain-bg` plus freigestellter Wachsblock)
+> wurde weiter ausgebaut — WebP-Fassung und eigene Mobile-Varianten. In diese
+> Richtung investiert niemand, der das Motiv tauschen will.
+>
+> Der Text unten bleibt als Begruendungsprotokoll stehen. Die darin genannten
+> Dateien existieren nicht mehr — **nicht danach suchen**.
+
+### Die urspruengliche Abwaegung vom 2026-07-29
 
 **Gewählt: Variante A, das Foto der hängenden gewachsten Ketten** („4 Chain.JPG",
 liegt als `public/images/hero-alt/hanging*.webp` in drei Größen). Noch nicht

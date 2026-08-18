@@ -416,6 +416,14 @@
   color: #fff !important;
 }
 
+/* Origin section (src/sections/Origin.tsx) — the one deliberate dark
+   full-bleed break on an otherwise light homepage. Same fix as #home above:
+   the light-mode `h2 { color: var(--tx1) !important }` rule would otherwise
+   force near-black text onto its dark background. */
+#herkunft h1, #herkunft h2, #herkunft h3, #herkunft h4 {
+  color: #fff !important;
+}
+
 /* Editorial hero — feines Film-Grain über der Bühne (Material/Wärme, high-end). */
 .hero-grain {
   /* feColorMatrix desaturates the raw turbulence output — without it,
@@ -831,4 +839,16 @@ section[id] {
   30% { opacity: 1; }
   70% { opacity: 1; }
   100% { transform: translateY(100%); opacity: 0; }
+}
+
+/* Before/after microscope slider handle (SciencePage.tsx) — idle affordance
+   so the handle reads as grabbable before the first drag, not decorative.
+   Stops for good the moment someone actually interacts (see hasInteracted
+   in BeforeAfterSlider). translate(-50%,-50%) is baked in here since the
+   element's own centering also uses transform (Tailwind's -translate-x/y-1/2
+   utilities) — keyframing scale alone, without repeating the translate,
+   would replace it and re-center the handle on itself at 1.08x. */
+@keyframes wx-slider-pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.08); }
 }

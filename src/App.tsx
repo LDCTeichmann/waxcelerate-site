@@ -10,6 +10,7 @@ import { Footer } from '@/sections/footer';
 // Below-the-fold homepage sections — split into their own chunks that stream in
 // parallel after first paint. Keeps the initial bundle light; nothing removed.
 const Reviews = lazy(() => import('@/sections/reviews').then(m => ({ default: m.Reviews })));
+const Origin  = lazy(() => import('@/sections/Origin').then(m => ({ default: m.Origin })));
 const About   = lazy(() => import('@/sections/about').then(m => ({ default: m.About })));
 const Tools   = lazy(() => import('@/sections/tools').then(m => ({ default: m.Tools })));
 const Guides  = lazy(() => import('@/sections/guides').then(m => ({ default: m.Guides })));
@@ -17,7 +18,6 @@ const FAQ     = lazy(() => import('@/sections/faq').then(m => ({ default: m.FAQ 
 const Contact = lazy(() => import('@/sections/contact').then(m => ({ default: m.Contact })));
 const ClosingCTA = lazy(() => import('@/sections/closing-cta').then(m => ({ default: m.ClosingCTA })));
 
-const HeroLabPage = lazy(() => import('@/pages/HeroLabPage').then(m => ({ default: m.HeroLabPage })));
 const StarterSetPage = lazy(() => import('@/pages/StarterSetPage').then(m => ({ default: m.StarterSetPage })));
 const RewaxPage = lazy(() => import('@/pages/RewaxPage').then(m => ({ default: m.RewaxPage })));
 const ProductDetailPage = lazy(() => import('@/pages/ProductDetailPage').then(m => ({ default: m.ProductDetailPage })));
@@ -95,7 +95,6 @@ function AppContent() {
         <Route path="/widerrufsbelehrung" element={<Suspense fallback={<PageLoader />}><WiderrufsbelehrungPage /></Suspense>} />
         <Route path="/versand-und-zahlung" element={<Suspense fallback={<PageLoader />}><VersandUndZahlungPage /></Suspense>} />
         <Route path="/admin" element={<Suspense fallback={<PageLoader />}><AdminPage /></Suspense>} />
-        <Route path="/hero-lab" element={<Suspense fallback={<PageLoader />}><HeroLabPage /></Suspense>} />
         <Route path="/starter-set" element={<Suspense fallback={<PageLoader />}><StarterSetPage /></Suspense>} />
         {/* Die Seite lag bis 08/2026 unter /rewax. "Rewax" ist ein Anglizismus,
             nach dem im deutschen Markt praktisch niemand sucht; gesucht wird
@@ -126,6 +125,7 @@ function AppContent() {
               <WhyWax />
               <Suspense fallback={null}>
                 <Reviews />
+                <Origin />
                 <Tools />
                 <About />
                 <Guides />

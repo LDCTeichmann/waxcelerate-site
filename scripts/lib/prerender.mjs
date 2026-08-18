@@ -41,15 +41,15 @@ export function loadShell(dist) {
 }
 
 /**
- * Die beiden Hero-Bild-Preloads aus index.html (chain-bg.jpg, wax-cutout.webp).
- * Nur auf der Startseite korrekt — dort ist chain-bg.jpg das echte LCP-Bild.
+ * Die beiden Hero-Bild-Preloads aus index.html (chain-bg.webp, wax-cutout.webp).
+ * Nur auf der Startseite korrekt — dort ist chain-bg.webp das echte LCP-Bild.
  * stripHead() entfernt sie fuer jede Unterseite, jedes Prerender-Skript setzt
  * per imagePreload() sein eigenes, seitenrichtiges Paar. Ohne diese Trennung
  * laed jede der ~40 Unterseiten zwei Bilder mit hoechster Prioritaet vor, die
  * dort nie erscheinen, und nimmt dem tatsaechlichen LCP-Bild auf gedrosseltem
  * Mobilfunk rund 394 KB Bandbreite weg (Audit vom 05.08.2026, Problem 1).
  */
-const HOME_ONLY_PRELOADS = /<link\s+rel="preload"\s+as="image"\s+href="\/images\/hero\/(?:chain-bg\.jpg|wax-cutout\.webp)"[^>]*>\s*/gi;
+const HOME_ONLY_PRELOADS = /<link\s+rel="preload"\s+as="image"\s+href="\/images\/hero\/(?:chain-bg-mobile\.webp|chain-bg\.webp|wax-cutout\.webp)"[^>]*>\s*/gi;
 
 /** Entfernt die globalen Head-Tags aus der Huelle, die wir pro Seite ersetzen. */
 export function stripHead(html) {
@@ -112,6 +112,21 @@ export function metaTags({ title, description, canonical, image, type = 'website
 
 export const ld = (obj) =>
   `<script type="application/ld+json">${JSON.stringify(obj)}</script>`;
+
+/**
+ * Wie ld(), aber fuer Schema, das die zugehoerige React-Seite beim Hydrieren
+ * per Helmet ERNEUT injiziert (Product/BreadcrumbList auf Produktseiten,
+ * BlogPosting/BreadcrumbList/HowTo/FAQPage auf Artikelseiten) — ohne die
+ * data-prerendered-ld-Markierung haeufen sich zwei identische Bloecke im
+ * Live-DOM, weil Helmet nur seine eigenen, bereits von IHM gesetzten Tags
+ * kennt und die von uns vorgerenderten nie anfasst. removeStaticJsonLd() in
+ * src/lib/utils.ts entfernt beim Mounten alles mit dieser Markierung, bevor
+ * Helmets eigene Version steht. NUR fuer Schema verwenden, das die Seite
+ * garantiert selbst client-seitig nachliefert — sonst fehlt es JS-rendernden
+ * Crawlern ersatzlos.
+ */
+export const ldClientManaged = (obj) =>
+  `<script type="application/ld+json" data-prerendered-ld="true">${JSON.stringify(obj)}</script>`;
 
 /**
  * Seitenrichtiger Ersatz fuer die entfernten Home-Preloads. fetchpriority

@@ -17,8 +17,10 @@
 
 import { useMemo, useState } from 'react';
 import { Check, ArrowRight, ExternalLink } from 'lucide-react';
-import { products, accessories, starterSet, starterSetPrice } from '@/lib/data';
+import { products, accessories, starterSet, starterSetPrice, canCheckout } from '@/lib/data';
+import type { Product } from '@/lib/data';
 import { trackEbayClick } from '@/lib/analytics';
+import { AddToCartButton } from '@/components/AddToCartButton';
 
 const fmt = (n: number, de: boolean) =>
   n.toLocaleString(de ? 'de-DE' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
@@ -38,6 +40,26 @@ export function StarterSetBuilder({ de }: { de: boolean }) {
   const partsSum = (wax?.price ?? 0) + (chain?.price ?? 0) + extras.reduce((a, x) => a + x.price, 0);
   const setPrice = starterSetPrice(partsSum);
   const saved = Math.round((partsSum - setPrice) * 100) / 100;
+
+  // Same Product-shaped bundle trick as starterSetBundleProducts in data.ts,
+  // built live from whatever the customer just picked instead of from a
+  // fixed pair — same reason: AddToCartButton needs a Product, and the
+  // combination itself isn't one of the two fixed sets so it can't reuse
+  // those. Falls back to canCheckout() === false (no stripePriceId) exactly
+  // like everything else on the site until Luca sets one up.
+  const customBundle: Product | null = wax && chain ? {
+    id: `custom-${wax.id}-${chain.id}`,
+    category: 'bundle',
+    title: `Starter-Set — ${wax.title} + ${chain.title}`,
+    titleEn: `Starter set — ${wax.titleEn} + ${chain.titleEn}`,
+    description: de ? 'Individuell zusammengestelltes Starter-Set' : 'Custom-built starter set',
+    descriptionEn: 'Custom-built starter set',
+    price: setPrice,
+    image: wax.image,
+    ebayUrl: wax.ebayUrl,
+    weightGrams: wax.weightGrams + chain.weightGrams + extras.reduce((a, x) => a + x.weightGrams, 0),
+    shippingClass: 'maxibrief',
+  } : null;
 
   const Choice = ({
     active, onClick, title, sub, price,
@@ -181,13 +203,23 @@ export function StarterSetBuilder({ de }: { de: boolean }) {
           </p>
         </div>
 
-        <a href={wax?.ebayUrl ?? '#'} target="_blank" rel="noopener noreferrer"
-          onClick={() => { if (wax) trackEbayClick(wax.id); }}
-          className="inline-flex w-full items-center justify-center gap-2 mt-6 rounded-full px-6 py-3 text-[14px] font-semibold transition-opacity hover:opacity-90"
-          style={{ background: 'var(--accent)', color: '#fff' }}>
-          {de ? 'Set anfragen' : 'Request the set'}
-          <ExternalLink className="h-4 w-4" />
-        </a>
+        {customBundle && canCheckout(customBundle) ? (
+          <div className="mt-6"><AddToCartButton product={customBundle} fullWidth /></div>
+        ) : (
+          <a
+            href={`https://wa.me/4915751957470?text=${encodeURIComponent(
+              de
+                ? `Hi Luca, ich möchte dieses Set bestellen: ${wax ? (de ? wax.title : wax.titleEn) : ''} + ${chain ? (de ? chain.title : chain.titleEn) : ''}.`
+                : `Hi Luca, I would like to order this set: ${wax?.titleEn ?? ''} + ${chain?.titleEn ?? ''}.`,
+            )}`}
+            target="_blank" rel="noopener noreferrer"
+            onClick={() => { if (wax) trackEbayClick(wax.id); }}
+            className="inline-flex w-full items-center justify-center gap-2 mt-6 rounded-full px-6 py-3 text-[14px] font-semibold transition-opacity hover:opacity-90"
+            style={{ background: 'var(--accent)', color: '#fff' }}>
+            {de ? 'Set anfragen' : 'Request the set'}
+            <ExternalLink className="h-4 w-4" />
+          </a>
+        )}
 
         <p className="text-meta leading-relaxed mt-4" style={{ color: 'var(--txff)' }}>
           {de

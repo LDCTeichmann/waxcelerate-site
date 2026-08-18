@@ -3,7 +3,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
   ArrowLeft, ArrowRight, ExternalLink, Check,
-  ChevronRight, ChevronLeft, ChevronDown, Star, Lightbulb, Truck,
+  ChevronRight, ChevronLeft, ChevronDown, Star, Lightbulb, Truck, RotateCcw,
 } from 'lucide-react';
 import { getProductById, products, canCheckout, checkoutEnabled } from '@/lib/data';
 import type { Product } from '@/lib/data';
@@ -15,7 +15,7 @@ import { CartIcon } from '@/components/CartIcon';
 import { ImageLightbox } from '@/components/ImageLightbox';
 import { gsap } from '@/lib/gsap';
 import { Footer } from '@/sections/footer';
-import { getEstimatedDelivery } from '@/lib/utils';
+import { getEstimatedDelivery, removeStaticJsonLd } from '@/lib/utils';
 
 const AUTO_INTERVAL = 5000;
 const FADE_MS = 900;
@@ -36,19 +36,23 @@ const lg = (src: string) =>
 // auch kein Schaden. Neu vermessen, falls Dateien ausgetauscht werden:
 //   python3 -c "from PIL import Image; import glob
 //   [print(f, Image.open(f).size) for f in sorted(glob.glob('public/images/products/*/*.webp'))]"
+// Re-measured 2026-08-18 after all 12 source photos were replaced (see
+// raw-image-library/products/ for the originals). Several new sources are
+// themselves under 2000px, so base and lg collapse to the same width for
+// those — not a bug, just what the actual file is.
 const IMG_WIDTHS: Record<string, { base: number; lg: number }> = {
   'classic-1': { base: 1400, lg: 2000 },
-  'classic-2': { base: 1400, lg: 2000 },
-  'classic-3': { base: 1400, lg: 2000 },
+  'classic-2': { base: 1400, lg: 1600 },
+  'classic-3': { base: 1400, lg: 1600 },
   'classic-4': { base: 1400, lg: 2000 },
-  'classic-5': { base: 1400, lg: 2000 },
+  'classic-5': { base: 1387, lg: 1387 },
   'classic-6': { base: 1400, lg: 2000 },
   'pro-1': { base: 1400, lg: 2000 },
   'pro-2': { base: 1400, lg: 2000 },
-  'pro-3': { base: 1254, lg: 1254 },
-  'pro-4': { base: 1400, lg: 1600 },
-  'pro-5': { base: 1086, lg: 1086 },
-  'pro-6': { base: 360, lg: 480 },
+  'pro-3': { base: 1400, lg: 2000 },
+  'pro-4': { base: 1400, lg: 2000 },
+  'pro-5': { base: 1254, lg: 1254 },
+  'pro-6': { base: 1400, lg: 2000 },
 };
 
 /** srcSet-Kandidatenliste, oder undefined fuer externe eBay-Kettenbilder (unbekannte Breiten). */
@@ -287,6 +291,11 @@ export function ProductDetailPage() {
     },
   });
 
+  // Prerendered HTML for this route already ships this same Product +
+  // BreadcrumbList JSON-LD; without this, Helmet's copy below just piles on
+  // top of it (see removeStaticJsonLd in src/lib/utils.ts).
+  useEffect(() => { removeStaticJsonLd(); }, [id]);
+
   const hasFormula = !!(isWax && rc?.formulaDetails);
   const hasVergleich = !!(rc?.compHeaders && rc?.compRows);
   const hasKosten = !!(rc?.oilItems && rc?.waxItems);
@@ -497,9 +506,25 @@ export function ProductDetailPage() {
 
             {/* Same delivery estimate the homepage product cards already show —
                 this page had no delivery-date signal at all before. */}
-            <div className="flex items-center gap-1.5 mb-5 text-meta" style={{ color: 'var(--txff)' }}>
+            <div className="flex items-center gap-1.5 mb-2 text-meta" style={{ color: 'var(--txff)' }}>
               <Truck className="h-3 w-3 flex-shrink-0" style={{ color: accentColor }} aria-hidden />
               {de ? `Lieferung ${deliveryDate}` : `Delivery ${deliveryDate}`}
+            </div>
+
+            {/* Risikoabbau am Kaufpunkt (docs/AUDIT.md §11): das Widerrufsrecht
+                stand bisher nur im Warenkorb, also im abgeschalteten Checkout —
+                an der Stelle, an der jemand tatsaechlich zoegert, stand nichts.
+                Bei einem Produkt, das eine Verhaltensaenderung verlangt, ist die
+                stille Frage nicht "ist es gut", sondern "was, wenn ich damit
+                nicht klarkomme". Bewusst zwei Saetze: der erste ist die
+                Rechtslage, der zweite der Ton der Marke. */}
+            <div className="flex items-start gap-1.5 mb-5 text-meta" style={{ color: 'var(--txff)' }}>
+              <RotateCcw className="h-3 w-3 flex-shrink-0 mt-[3px]" style={{ color: accentColor }} aria-hidden />
+              <span>
+                {de
+                  ? '14 Tage Rückgaberecht. Wenn das Wachsen nichts für dich ist, schreib mir — ich nehme es zurück.'
+                  : '14-day right of return. If waxing turns out not to be for you, write to me — I will take it back.'}
+              </span>
             </div>
 
             {(alternatives.length > 0 || related.length > 0) && (
@@ -739,45 +764,6 @@ export function ProductDetailPage() {
               or drag the image itself. Arrows sit directly below the rail,
               same right-edge alignment, clear of both the card (left) and
               the "Mehr erfahren" hint (bottom-center). */}
-          {total > 1 && (
-            // Scrim pill behind the whole rail, not just per-number opacity tuning —
-            // a light product photo (e.g. the pale wax block) behind translucent
-            // white numbers left them barely legible regardless of how their own
-            // opacity was tuned. A dedicated dark backdrop fixes contrast against
-            // any photo, the same fix SectionDots already uses for its own dots.
-            <div className="absolute right-6 xl:right-10 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-2.5 px-2.5 py-3.5 rounded-full"
-              style={{ background: 'rgba(0,0,0,0.32)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}>
-              {gallery.map((_, i) => (
-                <button key={i} onClick={() => { goTo(i); pause(); setTimeout(resume, AUTO_INTERVAL); }}
-                  className="num text-[12px] tabular-nums transition-all duration-300 flex items-center justify-center"
-                  style={{
-                    minWidth: 24, minHeight: 24,
-                    color: i === activeImage ? 'rgba(255,255,255,0.98)' : 'rgba(255,255,255,0.62)',
-                    fontWeight: i === activeImage ? 700 : 500,
-                    letterSpacing: '0.05em',
-                  }}>
-                  {String(i + 1).padStart(2, '0')}
-                </button>
-              ))}
-              <div className="flex items-center gap-1 mt-0.5">
-                {/* Visual circle stays compact; the button's own box is the full
-                    44×44px WCAG 2.5.8 hit target (padding, not just the icon). */}
-                <button onClick={() => { prev(); pause(); setTimeout(resume, AUTO_INTERVAL); }}
-                  aria-label={de ? 'Vorheriges Bild' : 'Previous image'}
-                  className="w-11 h-11 flex items-center justify-center rounded-full transition-all hover:bg-white/15 active:scale-90"
-                  style={{ color: 'rgba(255,255,255,0.85)' }}>
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
-                <button onClick={() => { next(); pause(); setTimeout(resume, AUTO_INTERVAL); }}
-                  aria-label={de ? 'Nächstes Bild' : 'Next image'}
-                  className="w-11 h-11 flex items-center justify-center rounded-full transition-all hover:bg-white/15 active:scale-90"
-                  style={{ color: 'rgba(255,255,255,0.85)' }}>
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-          )}
-
           {/* Scroll hint */}
           <button onClick={scrollToDetails}
             className="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-1 transition-opacity hover:opacity-80"

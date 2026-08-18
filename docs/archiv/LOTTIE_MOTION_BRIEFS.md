@@ -1,5 +1,15 @@
 # Waxcelerate — Lottie/Rive Motion Briefs
 
+> **Verworfen am 13.08.2026.** Nie gebaut, keine Animationsbibliothek im
+> Projekt. Grund: die drei Briefs ersetzen drei SVG-Diagramme, die heute
+> funktionieren — sie kosten eine zusaetzliche Abhaengigkeit, Ladezeit und
+> Pflege, und keiner der offenen Punkte aus `docs/plaene/DESIGN_ROADMAP.md`
+> wird dadurch besser. Bewusst geschlossen statt weiter zu schweben.
+>
+> **Reversibel:** die Briefs sind vollstaendig und bleiben hier liegen. Wenn
+> Motion spaeter Thema wird, ist das hier der Startpunkt — dann aber nach
+> Stripe, nicht davor.
+
 Three animations for the "Was Waxcelerate anders macht" section.
 Each replaces its corresponding inline SVG diagram.
 

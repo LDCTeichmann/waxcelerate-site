@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Menu, X, Moon, Sun } from 'lucide-react';
+import { Menu, X, Moon, Sun, ChevronDown } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
 import { CartIcon } from '@/components/CartIcon';
@@ -25,14 +25,40 @@ const navItems = [
   { href: '#kontakt',     key: 'contact'  },
 ];
 
-// navItems already carries #produkte (key: productsServices) now that it is
-// a real bar entry, not just the desktop CTA's target — no need to prepend
-// a separate mobile-only "products" duplicate of the same anchor any more.
+// Mobile keeps the full flat list — a vertical scroll list has room for ten
+// items; a single-row desktop bar does not.
 const mobileNavItems = navItems;
+
+// Desktop bar: ten items in one row wrapped onto two lines at normal desktop
+// widths — the actual "cramped" complaint, not a matter of taste. Standard
+// fix (not a guess — this is the common pattern for >6-item bars: Nielsen
+// Norman's guidance on primary vs. secondary nav, and what most sites with
+// this many sections converge on) is to keep the items people navigate by
+// most of the time in the bar, and fold the rest under one "More" menu.
+// Split chosen by what's a destination in its own right (why wax, products,
+// science, the paid service, about, contact) vs. what's already reachable
+// from within the homepage itself one scroll away (tools/guides/faq) or a
+// secondary content channel (blog).
+const primaryNavItems = [
+  { href: '#warum-wachs', key: 'whyWax'   },
+  { href: '#produkte',    key: 'products' },
+  { href: '/wissenschaft', key: 'science', route: true },
+  { href: '/kette-wachsen-lassen', key: 'rewax',   route: true },
+  { href: '#ueber-mich',  key: 'about'    },
+  { href: '#kontakt',     key: 'contact'  },
+] as const;
+const moreNavItems = [
+  { href: '#tools',       key: 'tools'    },
+  { href: '#anleitungen', key: 'guides'   },
+  { href: '#faq',         key: 'faq'      },
+  { href: '/blog',        key: 'blog',    route: true },
+] as const;
 
 export function Navigation() {
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMoreOpen, setIsMoreOpen] = useState(false);
+  const moreRef = useRef<HTMLDivElement>(null);
   const { t, lang, toggleLang } = useLanguage();
   const { theme, setTheme } = useTheme();
 
@@ -43,6 +69,23 @@ export function Navigation() {
   const activeSection = useActiveSection(navItems.filter(i => !i.route).map(i => i.href));
   const isActive = (item: { href: string; route?: boolean }) =>
     item.route ? location.pathname === item.href : activeSection === item.href;
+  const moreActive = moreNavItems.some(isActive);
+
+  // Close the "More" dropdown on an outside click or Escape — the same
+  // pattern the cart drawer and mobile menu already use elsewhere.
+  useEffect(() => {
+    if (!isMoreOpen) return;
+    const onClick = (e: MouseEvent) => {
+      if (moreRef.current && !moreRef.current.contains(e.target as Node)) setIsMoreOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setIsMoreOpen(false); };
+    document.addEventListener('mousedown', onClick);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onClick);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [isMoreOpen]);
 
 
   useBodyScrollLock(isMobileMenuOpen);
@@ -126,14 +169,20 @@ export function Navigation() {
               </span>
             </a>
 
-            {/* Desktop Navigation — zentriert, ruhige Editorial-Typo */}
-            <nav className="hidden lg:flex flex-1 items-center justify-center gap-7">
-              {navItems.map((item) => (
+            {/* Desktop Navigation — zentriert, ruhige Editorial-Typo.
+                Six primary items + one "Mehr" dropdown, not all ten items
+                flat: at normal desktop widths ten items in one row wrapped
+                onto two lines (the actual cramped complaint), because there
+                simply isn't room. This is the standard fix for a >6-item bar
+                — keep the items people navigate by most of the time in the
+                row, fold the rest under one grouped menu. */}
+            <nav className="hidden lg:flex flex-1 items-center justify-center gap-6">
+              {primaryNavItems.map((item) => (
                 <a
                   key={item.href}
                   href={item.href}
                   onClick={(e) => { e.preventDefault(); handleNav(item); }}
-                  className="relative group text-[13.5px] tracking-[0.01em] transition-colors duration-300"
+                  className="relative group text-[13.5px] tracking-[0.01em] transition-colors duration-300 whitespace-nowrap"
                   style={{
                     color: isActive(item) ? 'var(--tx1)' : 'var(--tx2)',
                   }}
@@ -147,6 +196,41 @@ export function Navigation() {
                   />
                 </a>
               ))}
+
+              <div ref={moreRef} className="relative">
+                <button
+                  type="button"
+                  onClick={() => setIsMoreOpen(v => !v)}
+                  aria-expanded={isMoreOpen}
+                  aria-haspopup="true"
+                  className="relative flex items-center gap-1 text-[13.5px] tracking-[0.01em] transition-colors duration-300 whitespace-nowrap"
+                  style={{ color: moreActive || isMoreOpen ? 'var(--tx1)' : 'var(--tx2)' }}
+                >
+                  {t.nav.more}
+                  <ChevronDown className="h-3.5 w-3.5 transition-transform duration-200" style={{ transform: isMoreOpen ? 'rotate(180deg)' : 'none' }} />
+                </button>
+
+                {isMoreOpen && (
+                  <div
+                    role="menu"
+                    className="absolute top-full left-1/2 -translate-x-1/2 mt-3 py-2 rounded-xl min-w-[180px]"
+                    style={{ background: 'var(--sf)', border: '1px solid var(--bd)', boxShadow: 'var(--card-shad)' }}
+                  >
+                    {moreNavItems.map((item) => (
+                      <a
+                        key={item.href}
+                        href={item.href}
+                        role="menuitem"
+                        onClick={(e) => { e.preventDefault(); setIsMoreOpen(false); handleNav(item); }}
+                        className="block px-4 py-2.5 text-[13.5px] whitespace-nowrap transition-colors"
+                        style={{ color: isActive(item) ? 'var(--accent)' : 'var(--tx2)' }}
+                      >
+                        {t.nav[item.key as keyof typeof t.nav]}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
             </nav>
 
             {/* Actions */}
