@@ -104,6 +104,16 @@ export function Navigation() {
     }
   }, [isMobileMenuOpen]);
 
+  // Anker-Ziele existieren nur auf der Startseite. Auf einer Unterseite muss
+  // das href deshalb "/#anker" lauten und nicht "#anker": Der onClick-Handler
+  // unten faengt den gewoehnlichen Klick ohnehin ab und navigiert korrekt,
+  // aber alles, was am Handler vorbeigeht, benutzt das rohe href — Cmd-/
+  // Mittelklick ("in neuem Tab oeffnen"), "Link kopieren", die Vorschau in
+  // der Statuszeile und Bots. Die landeten von /wissenschaft aus bisher alle
+  // auf /wissenschaft#produkte, einer Adresse, die es nicht gibt.
+  const hrefFor = (item: { href: string; route?: boolean }) =>
+    item.route || onHome ? item.href : `/${item.href}`;
+
   const scrollToSection = (href: string) => {
     // Anchor targets only exist on the homepage. From any other route, go
     // home first and let PendingAnchorScroll (rendered there) finish the job
@@ -147,8 +157,11 @@ export function Navigation() {
           <div className="flex items-center justify-between h-16 lg:h-20">
 
             {/* Logo — Wortmarke steht groß im Hero, daher hier nur das Zeichen */}
+            {/* Auf der Startseite ein Anker nach oben, auf jeder Unterseite
+                die Startseite selbst — sonst zeigt das Logo dort auf
+                "/wissenschaft#home". Gleiche Begruendung wie bei hrefFor(). */}
             <a
-              href="#home"
+              href={onHome ? '#home' : '/'}
               onClick={(e) => {
                 e.preventDefault();
                 scrollToSection('#home');
@@ -180,7 +193,7 @@ export function Navigation() {
               {primaryNavItems.map((item) => (
                 <a
                   key={item.href}
-                  href={item.href}
+                  href={hrefFor(item)}
                   onClick={(e) => { e.preventDefault(); handleNav(item); }}
                   className="relative group text-[13.5px] tracking-[0.01em] transition-colors duration-300 whitespace-nowrap"
                   style={{
@@ -219,7 +232,7 @@ export function Navigation() {
                     {moreNavItems.map((item) => (
                       <a
                         key={item.href}
-                        href={item.href}
+                        href={hrefFor(item)}
                         role="menuitem"
                         onClick={(e) => { e.preventDefault(); setIsMoreOpen(false); handleNav(item); }}
                         className="block px-4 py-2.5 text-[13.5px] whitespace-nowrap transition-colors"
@@ -257,9 +270,13 @@ export function Navigation() {
 
               {checkoutEnabled && <CartIcon light={false} />}
 
-              {/* Primär-CTA — immer sichtbar, ersetzt den „Produkte"-Link */}
+              {/* Primär-CTA — immer sichtbar, ersetzt den „Produkte"-Link.
+                  hrefFor() auch hier: Das ist der wichtigste Link im Header,
+                  und auf einer Unterseite zeigte er auf
+                  "/wissenschaft#produkte" — also ins Leere fuer jeden, der ihn
+                  im neuen Tab oeffnet oder die Adresse kopiert. */}
               <a
-                href="#produkte"
+                href={hrefFor({ href: '#produkte' })}
                 onClick={(e) => { e.preventDefault(); scrollToSection('#produkte'); }}
                 className="hidden lg:inline-flex items-center px-5 py-2.5 text-[13px] font-semibold rounded-full transition-transform duration-300 hover:-translate-y-0.5"
                 style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
@@ -345,7 +362,7 @@ export function Navigation() {
           {mobileNavItems.map((item, index) => (
             <a
               key={item.href}
-              href={item.href}
+              href={hrefFor(item)}
               onClick={(e) => { e.preventDefault(); handleNav(item); }}
               className="py-4 text-[17px] font-medium text-wx-tx2 hover:text-wx-tx1 border-b border-wx-bd/15 transition-colors last:border-0"
               style={{

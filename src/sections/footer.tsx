@@ -21,6 +21,14 @@ export function Footer() {
     document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // Wie in navigation.tsx: Der onClick-Handler oben navigiert korrekt, aber
+  // das rohe href gilt fuer alles, was nicht durch ihn laeuft — Cmd-/
+  // Mittelklick, "Link kopieren", Statuszeile, Crawler. Auf einer Unterseite
+  // zeigte "#produkte" dort auf z. B. /produkt/wax-500#produkte, eine Adresse
+  // ohne Ziel. Der Footer steht unter JEDER Seite, also traf das jede
+  // Unterseite der Site.
+  const hrefFor = (href: string) => (onHome ? href : `/${href}`);
+
   const currentYear = new Date().getFullYear();
 
   // Mobile-Plan B5/Stage-B-Ziel "keine Touch-Ziele unter 24x24px": die reinen
@@ -74,7 +82,7 @@ export function Footer() {
                     {item.external ? (
                       <a href={item.href} target="_blank" rel="noopener noreferrer" className={linkClass}>{item.label}</a>
                     ) : (
-                      <a href={item.href} onClick={(e) => { e.preventDefault(); scrollToSection(item.href); }} className={linkClass}>{item.label}</a>
+                      <a href={hrefFor(item.href)} onClick={(e) => { e.preventDefault(); scrollToSection(item.href); }} className={linkClass}>{item.label}</a>
                     )}
                   </li>
                 ))}
@@ -92,7 +100,7 @@ export function Footer() {
                   { href: '#kontakt',    label: t.nav.contact },
                 ].map((item, i) => (
                   <li key={i}>
-                    <a href={item.href} onClick={(e) => { e.preventDefault(); scrollToSection(item.href); }} className={linkClass}>{item.label}</a>
+                    <a href={hrefFor(item.href)} onClick={(e) => { e.preventDefault(); scrollToSection(item.href); }} className={linkClass}>{item.label}</a>
                   </li>
                 ))}
                 <li>

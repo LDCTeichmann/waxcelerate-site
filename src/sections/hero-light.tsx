@@ -276,22 +276,23 @@ export function Hero() {
 
           {/* Shadow leans slightly toward the content/CTA (bottom-left) instead of
               straight down — a soft directional cue, not a literal arrow.
-              Mobile-only: smaller + faded. The background photo is now also a
-              wax block (see chain-bg-mobile.jpg above — no chain photo in the
-              raw shoot survives this section's heavy bottom scrim with enough
-              contrast to read as anything but noise, tested and reverted), so
-              this floating cutout duplicating the same product right next to
-              it read as "two wax blocks" on a small screen. It also carries
-              zero interactive function on mobile — the "Blick ins Wachs" lens
-              (WaxLensCutout below) is gated to `wide` (min-width:1024px) —
-              so fading it here costs no functionality, only echo. sm:/lg:
-              untouched. */}
+              Auf Mobil gar nicht mehr gerendert. Das Hintergrundfoto IST dort
+              inzwischen selbst ein Wachsblock (chain-bg-mobile.jpg, siehe oben
+              — keine Kettenaufnahme aus dem Rohmaterial uebersteht den schweren
+              Bottom-Scrim dieser Sektion mit genug Kontrast, getestet und
+              zurueckgenommen), also stand hier ein zweiter Wachsblock direkt
+              neben dem ersten. Ein Versuch, das durch Verkleinern und
+              Abdunkeln (16 % Breite, opacity-60) zu entschaerfen, hat den
+              Doppel-Eindruck nicht beseitigt, sondern nur verkleinert — Lucas
+              Rueckmeldung dazu: sieht weiterhin nach zwei Wachsbloecken aus.
+              Interaktive Funktion hat das Element auf Mobil ohnehin keine: die
+              "Blick ins Wachs"-Lupe (WaxLensCutout unten) ist auf min-width
+              1024px gegated. sm:/lg: unveraendert. */}
           <div
             ref={blockRef}
-            className="absolute z-[5] pointer-events-none will-change-transform
-                       left-[68%] top-[13%] -translate-x-1/2 -translate-y-1/2
-                       w-[clamp(70px,16%,96px)] opacity-60
-                       sm:w-[clamp(280px,30%,460px)] sm:opacity-100
+            className="hidden sm:block absolute z-[5] pointer-events-none will-change-transform
+                       -translate-x-1/2 -translate-y-1/2
+                       sm:w-[clamp(280px,30%,460px)]
                        sm:left-[60%] sm:top-[50%]
                        lg:left-[62%] lg:top-[50%] lg:w-[clamp(360px,27%,650px)]"
           >
@@ -339,7 +340,13 @@ export function Hero() {
               card is already at its lg inset. Verified against the Section
               wrapper's rendered left edge at 1440/1280/768px viewports. */}
           <div className="relative z-10 h-full w-full max-w-[1232px] mx-auto px-3 sm:px-6 lg:px-8 xl:px-14">
-            <div className="h-full flex flex-col justify-end pb-28 sm:pb-32 lg:pb-28">
+            {/* pb auf Mobil deutlich kleiner: dort steht am Kartenfuss keine
+                Leiste mehr, fuer die Platz freigehalten werden muesste. Die
+                112px Bodenabstand waren genau die leere Flaeche zwischen CTA
+                und Bewertungszeile, die den Hero unten auseinandergezogen hat.
+                Ab sm: unveraendert, dort traegt die Leiste weiter das
+                Zahlenraster. */}
+            <div className="h-full flex flex-col justify-end pb-10 sm:pb-32 lg:pb-28">
               <div ref={contentRef} className="max-w-xl will-change-transform">
 
                 <div data-hero className="flex items-center gap-3 mb-5">
@@ -392,11 +399,19 @@ export function Hero() {
                   {t.hero.tagline}
                 </p>
 
-                <div data-hero className="mt-7 flex items-center gap-4 flex-wrap">
+                {/* Mobil: ein Knopf ueber die volle Breite, der zweite als
+                    ruhiger Link darunter. Nebeneinander in einer umbrechenden
+                    Reihe standen auf einem 390px-Schirm zwei gleich wichtig
+                    wirkende Ziele direkt nebeneinander — genau das
+                    "ueberfordert"-Gefuehl. Volle Breite ist ausserdem das
+                    groesste erreichbare Daumenziel und macht unmissverstaendlich,
+                    welcher der beiden der Hauptweg ist. Ab sm: unveraendert
+                    nebeneinander. */}
+                <div data-hero className="mt-7 flex flex-col sm:flex-row sm:items-center gap-4">
                   <button
                     ref={ctaRef}
                     onClick={() => scrollTo('#produkte')}
-                    className="cta-primary group inline-flex items-center gap-3 px-10 py-[18px] text-[16px] font-bold rounded-full transition-all duration-300 active:scale-[0.97] will-change-transform"
+                    className="cta-primary group inline-flex w-full sm:w-auto items-center justify-center gap-3 px-10 py-[18px] text-[16px] font-bold rounded-full transition-all duration-300 active:scale-[0.97] will-change-transform"
                     style={{ background: '#FFFFFF', color: '#0F0F12' }}
                   >
                     {t.hero.ctaBuy}
@@ -409,10 +424,26 @@ export function Hero() {
                       mobile with only the one CTA. */}
                   <button
                     onClick={() => scrollTo('#warum-wachs')}
-                    className="hero-cta-secondary inline-flex text-[13px] font-medium"
+                    className="hero-cta-secondary inline-flex self-start sm:self-auto text-[13px] font-medium"
                   >
                     {t.hero.ctaSecondary}
                   </button>
+                </div>
+
+                {/* Beleg direkt unter dem Knopf, nur auf Mobil. Dieselbe Zeile
+                    klebte vorher am unteren Kartenrand, rund 110px unter dem
+                    CTA und durch leere Flaeche von ihm getrennt — also genau
+                    dort, wo sie die Kaufentscheidung nicht mehr stuetzt. Ab
+                    sm: steht sie weiterhin in der Leiste am Kartenfuss,
+                    zusammen mit dem Zahlenraster. */}
+                <div data-hero className="sm:hidden flex items-center gap-2 mt-5">
+                  <span style={{ color: 'rgba(255,255,255,0.92)', letterSpacing: '0.08em', fontSize: '12px' }}>
+                    ★★★★★
+                  </span>
+                  <span className="text-meta uppercase tabular-nums"
+                    style={{ letterSpacing: '0.08em', color: 'rgba(255,255,255,0.72)' }}>
+                    200+ · {de ? '100 % positiv' : '100% positive'}
+                  </span>
                 </div>
               </div>
             </div>
@@ -421,22 +452,9 @@ export function Hero() {
           <div data-hero className="absolute bottom-0 inset-x-0 z-10">
             <div className="max-w-7xl mx-auto px-4 sm:px-10 lg:px-14 xl:px-20">
 
-              {/* Mobile — one compact trust line, no stat grid. The 3× / ~€70 /
-                  1 Tag numbers repeat almost verbatim in "Ein messbarer
-                  Unterschied" directly below the hero, so stacking a full
-                  stat row here too was just adding height without adding
-                  information — the single most-decisive proof point
-                  (rating + review count) is enough for the hero itself. */}
-              <div className="sm:hidden flex items-center gap-2 py-3"
-                style={{ borderTop: '1px solid rgba(255,255,255,0.14)' }}>
-                <span style={{ color: 'rgba(255,255,255,0.92)', letterSpacing: '0.08em', fontSize: '12px' }}>
-                  ★★★★★
-                </span>
-                <span className="text-meta uppercase tabular-nums"
-                  style={{ letterSpacing: '0.08em', color: 'rgba(255,255,255,0.68)' }}>
-                  200+ · {de ? '100 % positiv' : '100% positive'}
-                </span>
-              </div>
+              {/* Mobil steht hier nichts mehr — die Bewertungszeile ist zum
+                  CTA hochgezogen (siehe oben). Die 3× / ~€70 / 1-Tag-Zahlen
+                  wiederholen sich ohnehin direkt unter dem Hero. */}
 
               {/* Tablet/Desktop — unchanged full bar (rating + stat grid) */}
               <div className="hidden sm:flex sm:items-center sm:justify-between py-5"

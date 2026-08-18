@@ -69,56 +69,36 @@ const REVIEWS: Review[] = [
   },
 ];
 
-function initials(name: string) {
-  const parts = name.split(/[^a-zA-Z0-9]+/).filter(Boolean);
-  return (parts.length > 1 ? parts[0][0] + parts[1][0] : name.slice(0, 2)).toUpperCase();
+// Textspaltenbreite folgt der Zitatlaenge. Ein Einzeiler in einer 460er Karte
+// ist ueberwiegend Leerflaeche, ein langes Zitat in einer 300er Karte eine
+// Wand. Nach der Textlaenge zu bemessen haelt alle Karten auf ungefaehr
+// derselben HOEHE — das ist in einer einzelnen Reihe das, was zaehlt — und die
+// unterschiedlichen Breiten geben der Reihe Rhythmus statt Metronom.
+function textColWidth(len: number) {
+  if (len > 240) return 380;
+  if (len > 110) return 320;
+  return 250;
 }
 
-// Card width follows quote length instead of being uniform. A one-line quote
-// in a 460px card is mostly empty space; a 300-word quote in a 300px card is a
-// wall. Sizing to the text keeps every card roughly the same HEIGHT — which is
-// what actually matters in a single row — and the varied widths give the row a
-// natural rhythm rather than a metronome of identical blocks.
-function cardWidth(len: number) {
-  if (len > 240) return 460;
-  if (len > 110) return 380;
-  return 300;
-}
-
-function Avatar({ name, photo, photoPos, de }: { name: string; photo?: string; photoPos?: string; de: boolean }) {
-  const [ok, setOk] = useState(true);
-  if (photo && ok) {
-    return (
-      <img
-        src={photo}
-        alt={de ? `Rad von ${name}` : `${name}'s bike`}
-        loading="lazy"
-        onError={() => setOk(false)}
-        className="flex-shrink-0 rounded-lg object-cover"
-        style={{ width: 38, height: 38, objectPosition: photoPos ?? '50% 50%' }}
-      />
-    );
-  }
-  return (
-    <span className="flex-shrink-0 grid place-items-center rounded-lg text-meta font-bold"
-      style={{ width: 38, height: 38, background: 'var(--accent-wash)', color: 'var(--accent)' }}>
-      {initials(name)}
-    </span>
-  );
-}
-
-// Das Foto sitzt jetzt als Band oben in der Karte, nicht mehr nur als 38 Pixel
-// grosses Avatar und ausdruecklich nicht als Hintergrund.
+// Das Foto steht als schmaler Streifen an der linken Kante der Karte, ueber die
+// volle Kartenhoehe.
 //
-// Beides war vorher schon einmal falsch: weisser Text ueber dem Foto war auf den
-// helleren Radaufnahmen kaum lesbar, und das Daumenkino neben dem Namen war so
-// klein, dass man nicht erkennen konnte, dass es echte Kundenfotos sind. Ein
-// Band loest beides, weil der Text danach wieder auf der Kartenflaeche liegt:
-// die Lesbarkeit haengt nicht mehr davon ab, wie hell das jeweilige Motiv ist.
+// Zwei Vorgaengerversionen sind an derselben Stelle gescheitert. Als 38-Pixel-
+// Avatar neben dem Namen war nicht zu erkennen, dass es echte Kundenfotos sind;
+// als 16:9-Band oben in der Karte war es zwar gross genug, machte aber genau
+// die Karten mit Foto rund 120 Pixel hoeher als die ohne. In einer Reihe, in
+// der nur fuenf von acht Karten ein Foto haben, ergibt das den ausgefransten,
+// unruhigen Eindruck, den Luca beschrieben hat — und zieht die ganze Sektion
+// unnoetig in die Hoehe.
+//
+// Als linker Streifen traegt das Foto die volle Hoehe der Karte, egal wie hoch
+// die ist: Karten mit und ohne Foto sind gleich hoch, das Bild ist gross genug,
+// um als echtes Rad lesbar zu sein, und der Text liegt weiter auf der
+// Kartenflaeche statt auf dem Bild — die Lesbarkeit haengt also nicht davon ab,
+// wie hell das jeweilige Motiv ist.
 //
 // Karten ohne Foto bekommen kein Platzhalterbild. Eine Reihe, in der manche
 // Karten ein Bild haben und manche nicht, liest sich als echte Sammlung.
-// Gleichmacherei mit Stockbildern waere hier genau der falsche Reflex.
 function ReviewCard({ r, de }: { r: Review; de: boolean }) {
   const text = de ? r.textDe : r.textEn;
   const date = de ? r.dateDe : r.dateEn;
@@ -126,55 +106,59 @@ function ReviewCard({ r, de }: { r: Review; de: boolean }) {
   const verified = r.source === 'web'
     ? (de ? 'Verifizierter Käufer' : 'Verified buyer')
     : (de ? 'eBay verifiziert' : 'eBay verified');
+  const [photoOk, setPhotoOk] = useState(true);
+  const showPhoto = Boolean(r.photo) && photoOk;
+  // 100 statt 84: bei einer Kartenhöhe von rund 215px ergaben 84px einen
+  // Streifen von etwa 1:2,5 — als Band noch lesbar, aber für ein Querformat
+  // (Rad vor Landschaft) ein sehr schmaler Ausschnitt. 100px bringt das
+  // Verhältnis auf etwa 1:2, ohne der Textspalte spürbar Breite zu nehmen.
+  const PHOTO_W = 100;
 
   return (
     <figure
-      className="flex-shrink-0 flex flex-col rounded-2xl px-5 py-4 mr-4 whitespace-normal"
+      className="flex-shrink-0 flex items-stretch rounded-2xl overflow-hidden mr-4 whitespace-normal"
       style={{
-        // Capped against the viewport so a long-quote card can never end up
-        // wider than the screen on mobile — there it would be impossible to
-        // read a card in full as it passes.
-        width: `min(${cardWidth(text.length)}px, calc(100vw - 72px))`,
+        // Gegen den Viewport gedeckelt, damit eine Karte mit langem Zitat auf
+        // dem Handy nie breiter als der Bildschirm wird — dort waere sie im
+        // Vorbeilaufen nicht vollstaendig lesbar.
+        width: `min(${textColWidth(text.length) + (showPhoto ? PHOTO_W : 0)}px, calc(100vw - 72px))`,
         background: 'var(--sf2)',
         border: '1px solid var(--bd)',
       }}
     >
-      {r.photo && (
-        <div className="rounded-xl overflow-hidden mb-3.5 -mx-1"
-          style={{ aspectRatio: '16 / 9', background: 'var(--sf3)' }}>
-          <img src={r.photo} alt={de ? `Rad von ${r.name}` : `${r.name}'s bike`}
-            loading="lazy" decoding="async"
-            className="w-full h-full object-cover"
-            style={{ objectPosition: r.photoPos ?? '50% 50%' }} />
-        </div>
+      {showPhoto && (
+        <img src={r.photo} alt={de ? `Rad von ${r.name}` : `${r.name}'s bike`}
+          loading="lazy" decoding="async"
+          onError={() => setPhotoOk(false)}
+          className="flex-shrink-0 object-cover self-stretch"
+          style={{ width: PHOTO_W, background: 'var(--sf3)', objectPosition: r.photoPos ?? '50% 50%' }} />
       )}
 
-      <div className="flex items-center justify-between mb-2.5">
-        <Stars rating={r.rating ?? 5} />
-        <span className="text-meta" style={{ color: 'var(--txf)' }}>{date}</span>
-      </div>
+      <div className="flex flex-col flex-1 min-w-0 px-4 py-3.5">
+        <div className="flex items-center justify-between gap-3 mb-2">
+          <Stars rating={r.rating ?? 5} />
+          <span className="text-meta" style={{ color: 'var(--txf)' }}>{date}</span>
+        </div>
 
-      <blockquote className="text-[13px] leading-[1.6] flex-1" style={{ color: 'var(--tx2)' }}>
-        „{text}“
-      </blockquote>
+        <blockquote className="text-[13px] leading-[1.6] flex-1" style={{ color: 'var(--tx2)' }}>
+          „{text}“
+        </blockquote>
 
-      <figcaption className="flex items-center gap-2.5 mt-3.5 pt-3" style={{ borderTop: '1px solid var(--bd2)' }}>
-        {/* Immer die Initialen, nie das Foto: das steckt jetzt oben im Band, und
-            dasselbe Bild zweimal in einer Karte ist Redundanz, nicht Beweis. */}
-        <Avatar name={r.name} de={de} />
-        <div className="min-w-0">
-          <p className="text-[12.5px] font-semibold truncate" style={{ color: 'var(--tx1)' }}>{r.name}</p>
+        {/* Name, Verifizierung und Produkt in einer Zeile statt in einem
+            eigenen Block mit Trennlinie darueber — spart pro Karte rund
+            30 Pixel und liest sich als Signatur, nicht als zweite Sektion. */}
+        <figcaption className="flex items-center gap-2 mt-3 flex-wrap">
+          <span className="text-[12.5px] font-semibold" style={{ color: 'var(--tx1)' }}>{r.name}</span>
           <span className="inline-flex items-center gap-1 text-meta font-medium" style={{ color: 'var(--accent-soft)' }}>
             <BadgeCheck className="h-3.5 w-3.5" /> {verified}
           </span>
-        </div>
-        {product && (
-          <span className="ml-auto flex-shrink-0 rounded-full px-2 py-1 text-meta font-medium whitespace-nowrap"
-            style={{ background: 'var(--accent-wash)', color: 'var(--accent)' }}>
-            {product}
-          </span>
-        )}
-      </figcaption>
+          {product && (
+            <span className="text-meta font-medium" style={{ color: 'var(--txf)' }}>
+              · {product}
+            </span>
+          )}
+        </figcaption>
+      </div>
     </figure>
   );
 }
@@ -201,18 +185,34 @@ export function Reviews() {
 
   return (
     <Section id="bewertungen" ref={sectionRef} className="overflow-hidden" style={{ background: 'var(--pg)' }}>
-      {/* ── Header ── */}
-      <div className="mb-8">
+      {/* ── Header ──
+          Die drei Zahlen standen frueher in einem eigenen Band UNTER der
+          Kartenreihe, zusammen mit den beiden Knoepfen. Das war ein zweiter
+          horizontaler Streifen fuer eine Aussage, die in die Kopfzeile gehoert:
+          Wie viele Bewertungen es gibt, entscheidet, ob man die Zitate
+          ueberhaupt ernst nimmt — das muss man VOR den Karten wissen, nicht
+          danach. Hier oben ersetzen sie ausserdem den Fliesstext, der genau
+          dieselben Zahlen noch einmal ausgeschrieben hat. Unter der Reihe
+          bleiben nur die beiden Knoepfe stehen. */}
+      <div className="mb-7">
         <p className="eyebrow mb-4" style={{ color: 'var(--txf)' }}>
           {de ? 'eBay verifiziert' : 'eBay verified'}
           <span className="hidden sm:inline">{de ? ' · alle Bewertungen echt' : ' · all reviews genuine'}</span>
         </p>
-        <h2 className="section-title mb-3">{de ? 'Was Fahrer berichten.' : 'What riders report.'}</h2>
-        <p className="text-[15px] max-w-2xl" style={{ color: 'var(--txm)' }}>
-          {de
-            ? '200+ Bewertungen seit dem Start 2024 — kein einziges Negatives. Eine Auswahl echter Rückmeldungen.'
-            : '200+ reviews since launch in 2024 — not a single negative one. A selection of genuine feedback.'}
-        </p>
+        <h2 className="section-title mb-4">{de ? 'Was Fahrer berichten.' : 'What riders report.'}</h2>
+        <div className="flex flex-wrap items-baseline gap-x-6 sm:gap-x-8 gap-y-2">
+          {[
+            { v: trustStats.reviews, l: de ? 'Bewertungen seit 2024' : 'reviews since 2024' },
+            { v: String(trustStats.sold), l: de ? 'verkauft' : 'sold' },
+            { v: String(trustStats.negative), l: de ? 'negativ' : 'negative' },
+          ].map((s, i) => (
+            <span key={i} className="inline-flex items-baseline gap-2">
+              <span className="font-display font-bold tabular-nums leading-none"
+                style={{ fontSize: '1.35rem', letterSpacing: '-0.02em', color: 'var(--tx1)' }}>{s.v}</span>
+              <span className="text-[13px]" style={{ color: 'var(--txm)' }}>{s.l}</span>
+            </span>
+          ))}
+        </div>
       </div>
 
       {/* ── The row ──
@@ -259,35 +259,19 @@ export function Reviews() {
         </div>
       </div>
 
-      {/* ── Proof strip + actions ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5 mt-9 pt-6"
-        style={{ borderTop: '1px solid var(--bd)' }}>
-        <div className="flex items-stretch">
-          {[
-            { v: trustStats.reviews, l: de ? 'Bewertungen' : 'reviews' },
-            { v: String(trustStats.sold), l: de ? 'verkauft' : 'sold' },
-            { v: String(trustStats.negative), l: de ? 'negativ' : 'negative' },
-          ].map((s, i, arr) => (
-            <div key={i} className="pr-5 sm:pr-7 mr-5 sm:mr-7 last:pr-0 last:mr-0"
-              style={{ borderRight: i < arr.length - 1 ? '1px solid var(--bd)' : 'none' }}>
-              <p className="font-display font-bold tabular-nums leading-none" style={{ fontSize: '1.4rem', letterSpacing: '-0.02em', color: 'var(--tx1)' }}>{s.v}</p>
-              <p className="text-meta mt-1" style={{ color: 'var(--txf)' }}>{s.l}</p>
-            </div>
-          ))}
-        </div>
-        <div className="flex flex-col sm:flex-row gap-3 self-start sm:self-auto">
-          <a href="https://www.ebay.de/usr/waxcelerate" target="_blank" rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[13px] font-medium transition-all hover:opacity-85"
-            style={{ border: '1px solid var(--bd)', background: 'var(--sf2)', color: 'var(--tx2)' }}>
-            {de ? 'Alle 200+ Bewertungen auf eBay ansehen →' : 'See all 200+ reviews on eBay →'}
-          </a>
-          <button
-            onClick={() => document.querySelector('#produkte')?.scrollIntoView({ behavior: 'smooth' })}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[13px] font-medium transition-all hover:opacity-85"
-            style={{ background: 'var(--accent)', color: '#fff' }}>
-            {de ? 'Jetzt Wachs kaufen →' : 'Buy wax now →'}
-          </button>
-        </div>
+      {/* ── Actions ── */}
+      <div className="flex flex-col sm:flex-row gap-3 mt-7">
+        <a href="https://www.ebay.de/usr/waxcelerate" target="_blank" rel="noopener noreferrer"
+          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-[13px] font-medium transition-all hover:opacity-85"
+          style={{ border: '1px solid var(--bd)', background: 'var(--sf2)', color: 'var(--tx2)' }}>
+          {de ? 'Alle 200+ Bewertungen auf eBay ansehen →' : 'See all 200+ reviews on eBay →'}
+        </a>
+        <button
+          onClick={() => document.querySelector('#produkte')?.scrollIntoView({ behavior: 'smooth' })}
+          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-[13px] font-medium transition-all hover:opacity-85"
+          style={{ background: 'var(--accent)', color: '#fff' }}>
+          {de ? 'Jetzt Wachs kaufen →' : 'Buy wax now →'}
+        </button>
       </div>
     </Section>
   );

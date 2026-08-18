@@ -18,6 +18,14 @@ function GraphNode({ c, de, built, focused, dimmed, reduced, onActivate, onSelec
 }) {
   const state: NodeState = focused ? 'active' : 'dim';
   const opacity = !built ? 0 : focused ? 1 : dimmed ? 0.42 : 1;
+  // Der fokussierte Knoten waechst leicht mit. Vorher unterschied sich aktiv
+  // von inaktiv nur durch Fuellfarbe und Deckkraft, beides Eigenschaften, die
+  // hart umschalten — der Wechsel von Knoten zu Knoten sah dadurch aus wie ein
+  // Sprung, nicht wie eine Bewegung. Eine mitlaufende Skalierung gibt dem
+  // Uebergang eine Richtung. Die Dauern sind laenger und alle auf dieselbe
+  // weiche Kurve gelegt (kein Overshoot mehr beim Aufbau: der 1.56er-Rueckwurf
+  // wirkte bei sechs schnell nacheinander aufpoppenden Knoten unruhig).
+  const scale = !built ? 0.4 : focused ? 1.06 : 1;
   return (
     <g
       data-node
@@ -25,9 +33,9 @@ function GraphNode({ c, de, built, focused, dimmed, reduced, onActivate, onSelec
       aria-label={de ? c.nameDe : c.nameEn}
       style={{
         cursor: 'pointer', outline: 'none',
-        opacity, transform: built ? 'scale(1)' : 'scale(0.4)',
+        opacity, transform: `scale(${scale})`,
         transformBox: 'fill-box', transformOrigin: 'center',
-        transition: reduced ? 'none' : 'opacity 0.3s ease, transform 0.45s cubic-bezier(0.34,1.56,0.64,1)',
+        transition: reduced ? 'none' : 'opacity 0.5s cubic-bezier(0.22,1,0.36,1), transform 0.6s cubic-bezier(0.22,1,0.36,1)',
         pointerEvents: built ? 'auto' : 'none',
       }}
       onMouseEnter={() => onActivate(c.node)}
@@ -165,13 +173,20 @@ export function FormulaGraph({ de, onSelect, scrollFocus, compact }: { de: boole
                   opacity: !built ? 0 : dimmed ? 0.42 : 1,
                   transition: reduced ? 'none' : 'opacity 0.3s ease',
                 }}>
+                {/* Nur noch der Name, keine Messzahl mehr.
+                    Die Messzahl stand hier UND direkt darunter in der
+                    Detailkarte (mobil) beziehungsweise daneben in der linken
+                    Spalte (Desktop) — dieselbe Angabe zweimal auf einem
+                    Bildschirm. Auf dem Knoten war sie ausserdem die zweite von
+                    zwei Textzeilen in einem Kreis von 30 bis 40 Pixeln
+                    Durchmesser: Sechs solche Knoten mit je zwei Zeilen sind
+                    genau das, was den Graphen gedraengt aussehen liess. Eine
+                    Zeile pro Knoten halbiert die Textmenge in der Figur, und
+                    die Zahl steht unveraendert dort, wo man sie liest, sobald
+                    man einen Knoten antippt. */}
                 <span className={`block font-semibold ${c.node === 4 ? 'text-[13px]' : 'text-meta'}`}
                   style={{ color: focused ? '#fff' : 'var(--tx1)', lineHeight: 1.2 }}>
                   {de ? c.graphLabelDe : c.graphLabelEn}
-                </span>
-                <span className="block num-data text-meta"
-                  style={{ color: focused ? 'rgba(255,255,255,0.85)' : 'var(--accent-soft)' }}>
-                  {c.metric}
                 </span>
               </div>
             );

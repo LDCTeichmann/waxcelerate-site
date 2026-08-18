@@ -50,25 +50,36 @@ function WearDiagramFigure({ de }: { de: boolean }) {
             ? 'Durch die Reibung der Kette nutzt sich die Zahnflanke an der Kassettenspeiche ab. Die Speiche wird dünner, die Kette greift schlechter und verschleißt schneller.'
             : 'Chain friction wears down the tooth flank on the cassette sprocket. The tooth gets thinner, the chain grips worse, and it wears out faster.'}
         </p>
+        {/* Beide Ausschnitte trugen bis 18.08.2026 noch die Rahmenlinie des
+            Panels, aus dem sie geschnitten waren — oben eine waagerechte, rechts
+            eine senkrechte Linie, die sich oben rechts zu einer abgerundeten
+            Ecke trafen. Das war der "graue Uebergang" und der "Cutoff": kein
+            Bildinhalt, sondern ein Rest der Quellgrafik. Die Linien sind
+            weggeschnitten (Ausschnitt 326x170 aus dem alten 340x182).
+            Zusaetzlich sitzt jedes Bild jetzt in einer gerundeten Platte in
+            genau der Hintergrundfarbe des Fotos (gemessen: rgb(245,245,245)
+            bzw. rgb(242,242,242)). Dadurch faellt die Bildkante mit einer
+            gewollten Kante zusammen, statt als abgeschnittenes Foto zu wirken —
+            und das funktioniert unabhaengig davon, wie hell oder dunkel die
+            Seite dahinter gerade ist. */}
         <div className="grid grid-cols-2 gap-3" style={{ maxWidth: 360 }}>
-          <div>
-            <p className="text-[12px] font-semibold mb-1.5" style={{ color: 'var(--tx1)' }}>
-              {de ? 'Neue Kassette' : 'New cassette'}
-            </p>
-            <picture>
-              <source srcSet="/images/science/cassette-new.webp" type="image/webp" />
-              <img src="/images/science/cassette-new.jpg" alt="" className="w-full h-auto" />
-            </picture>
-          </div>
-          <div>
-            <p className="text-[12px] font-semibold mb-1.5" style={{ color: 'var(--tx1)' }}>
-              {de ? 'Abgenutzte Kassette' : 'Worn cassette'}
-            </p>
-            <picture>
-              <source srcSet="/images/science/cassette-worn.webp" type="image/webp" />
-              <img src="/images/science/cassette-worn.jpg" alt="" className="w-full h-auto" />
-            </picture>
-          </div>
+          {([
+            { src: 'cassette-new', labelDe: 'Neue Kassette', labelEn: 'New cassette' },
+            { src: 'cassette-worn', labelDe: 'Abgenutzte Kassette', labelEn: 'Worn cassette' },
+          ] as const).map(({ src, labelDe, labelEn }) => (
+            <div key={src}>
+              <p className="text-[12px] font-semibold mb-1.5" style={{ color: 'var(--tx1)' }}>
+                {de ? labelDe : labelEn}
+              </p>
+              <div className="rounded-lg overflow-hidden"
+                style={{ background: '#f4f4f4', border: '1px solid var(--bd2)' }}>
+                <picture>
+                  <source srcSet={`/images/science/${src}.webp`} type="image/webp" />
+                  <img src={`/images/science/${src}.jpg`} alt="" className="w-full h-auto block" />
+                </picture>
+              </div>
+            </div>
+          ))}
         </div>
       </figcaption>
     </figure>
@@ -979,14 +990,26 @@ export function SciencePage() {
               und damit das iOS-Rubber-Band-Wippen beim seitlichen Wischen.
               overflow-x-hidden auf dem Wrapper eine Ebene hoeher faengt das
               ab, ohne die Animation selbst anzufassen. */}
-          <div className={`${W} pb-5 overflow-x-hidden`}>
-            <InstrumentFrame eyebrow={de ? 'Antippen für Details' : 'Tap for details'}>
-              {/* compact: no inline readout/transport panel here — that info
-                  now lives in exactly one place, the CompCard below, instead
-                  of twice. Freed-up height goes to the graph itself, which is
-                  the whole point of this section. */}
-              <FormulaGraph de={de} onSelect={setMobileCompId} compact />
-            </InstrumentFrame>
+          {/* Der Graph laeuft auf Mobil bis an die Bildschirmkanten statt in
+              der Textspalte zu stehen. Die Figur ist 700x480 breit angelegt
+              und wurde vorher auf die Spaltenbreite minus 2x16px Innenabstand
+              der Seite minus den Innenabstand des InstrumentFrame
+              heruntergerechnet — auf einem 390px-Geraet blieben davon rund
+              310px, auf denen sechs beschriftete Knoten und ihre Kanten
+              unterzubringen waren. Das ist die Ursache des gedraengten
+              Eindrucks, nicht die Figur selbst. Der negative Aussenabstand
+              hebt die Seitenpolsterung genau auf und gibt der Figur die volle
+              Bildschirmbreite; ab sm: steht wieder alles wie vorher. */}
+          <div className="pb-5 overflow-x-hidden">
+            <div className="-mx-4 sm:mx-auto sm:max-w-4xl sm:px-6 lg:px-8">
+              <InstrumentFrame eyebrow={de ? 'Antippen für Details' : 'Tap for details'}>
+                {/* compact: no inline readout/transport panel here — that info
+                    now lives in exactly one place, the CompCard below, instead
+                    of twice. Freed-up height goes to the graph itself, which is
+                    the whole point of this section. */}
+                <FormulaGraph de={de} onSelect={setMobileCompId} compact />
+              </InstrumentFrame>
+            </div>
           </div>
           {mobileComp && (
             <div className={`${W} pb-12`}>
