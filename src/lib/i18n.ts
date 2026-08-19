@@ -6,7 +6,6 @@ export const translations = {
       whyWax: 'Warum Wachs?',
       products: 'Produkte',
       productsServices: 'Produkte & Services',
-      more: 'Mehr',
       science: 'Wissenschaft',
       // Mobile-Plan B8: "Rewax" ist ein Anglizismus, nach dem im deutschen
       // Markt praktisch niemand sucht — gesucht wird "Kette wachsen lassen".
@@ -373,7 +372,6 @@ export const translations = {
       whyWax: 'Why wax?',
       products: 'Products',
       productsServices: 'Products & services',
-      more: 'More',
       science: 'Science',
       rewax: 'Rewax',
       tools: 'Tools',

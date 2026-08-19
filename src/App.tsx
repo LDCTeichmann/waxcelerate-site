@@ -46,7 +46,6 @@ import { PendingAnchorScroll } from '@/components/PendingAnchorScroll';
 import { ScrollProgress } from '@/components/ScrollProgress';
 import { MobileStickyCTA } from '@/components/MobileStickyCTA';
 import { CartPersistenceHint } from '@/components/CartPersistenceHint';
-import { SectionDots } from '@/components/SectionDots';
 import { Analytics } from '@vercel/analytics/react';
 
 const PageLoader = () => (
@@ -79,7 +78,6 @@ function AppContent() {
       {checkoutEnabled && <CartPersistenceHint />}
       <RouteScrollReset />
       <ScrollToTop />
-      <SectionDots />
       <MobileStickyCTA />
       {checkoutEnabled && <CartDrawer />}
       <Routes>
