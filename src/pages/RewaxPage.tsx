@@ -13,13 +13,14 @@
 // three, plus 1,80 € return shipping either way. These supersede the older
 // figures in the business context (9,99 / 24,99).
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Check, X, Gift, User, ChevronDown } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 
 import { Navigation } from '@/sections/navigation';
+import { Footer } from '@/sections/footer';
 import { BackLink } from '@/components/BackLink';
 
 // One tap, no form, no scrolling to a contact section that may or may not be
@@ -27,15 +28,53 @@ import { BackLink } from '@/components/BackLink';
 // land, which for the only recurring-revenue page on the site is the worst
 // possible place for a dead button.
 const WA_NUMBER = '4915751957470';
-const waLink = (de: boolean) =>
-  `https://wa.me/${WA_NUMBER}?text=` + encodeURIComponent(de
-    ? 'Hi Luca, ich möchte Ketten zum Rewaxen einschicken. Anzahl: '
-    : 'Hi Luca, I would like to send in chains for rewaxing. Number of chains: ');
+const waLink = (de: boolean, waxedLabel?: string | null) =>
+  `https://wa.me/${WA_NUMBER}?text=` + encodeURIComponent(
+    de
+      ? ('Hi Luca, ich möchte Ketten zum Rewaxen einschicken.'
+        + (waxedLabel ? ` Die Karte sagt gewachst am ${waxedLabel}.` : '')
+        + ' Anzahl: ')
+      : ('Hi Luca, I would like to send in chains for rewaxing.'
+        + (waxedLabel ? ` The card says waxed ${waxedLabel}.` : '')
+        + ' Number of chains: '),
+  );
 const mailLink = (de: boolean) =>
   'mailto:waxcelerate@gmail.com?subject=' + encodeURIComponent(de ? 'Rewax-Service' : 'Rewax service')
   + '&body=' + encodeURIComponent(de
     ? 'Hallo Luca,\n\nich möchte folgende Anzahl Ketten zum Rewaxen einschicken: \n\nViele Grüße\n'
     : 'Hi Luca,\n\nI would like to send in the following number of chains for rewaxing: \n\nBest regards\n');
+
+function parseWaxedStamp(raw: string | null): Date | null {
+  const s = (raw || '').trim();
+  if (!s) return null;
+  let y = 0, mo = 0, day = 0;
+  if (/^\d{8}$/.test(s)) {
+    y = Number(s.slice(0, 4));
+    mo = Number(s.slice(4, 6));
+    day = Number(s.slice(6, 8));
+  } else {
+    const m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (!m) return null;
+    y = Number(m[1]); mo = Number(m[2]); day = Number(m[3]);
+  }
+  const dt = new Date(y, mo - 1, day);
+  if (dt.getFullYear() !== y || dt.getMonth() !== mo - 1 || dt.getDate() !== day) return null;
+  const earliest = new Date(2020, 0, 1);
+  const today = new Date();
+  today.setHours(23, 59, 59, 999);
+  if (dt < earliest || dt > today) return null;
+  return dt;
+}
+
+function waxedFromLocation(): Date | null {
+  if (typeof window === 'undefined') return null;
+  const q = new URLSearchParams(window.location.search);
+  const fromQ = parseWaxedStamp(q.get('w') || q.get('waxed'));
+  if (fromQ) return fromQ;
+  const h = (window.location.hash || '').replace(/^#/, '');
+  const m = h.match(/(?:^|[?&])w=(\d{8}|\d{4}-\d{2}-\d{2})/) || h.match(/^(\d{8})$/);
+  return parseWaxedStamp(m ? m[1] : null);
+}
 
 const W = 'mx-auto w-full max-w-5xl px-6 sm:px-10 lg:px-14';
 
@@ -284,7 +323,15 @@ function Pricing({ de }: { de: boolean }) {
 export function RewaxPage() {
   const { lang } = useLanguage();
   const de = lang === 'de';
+  const location = useLocation();
   const [isGift, setIsGift] = useState(false);
+  const waxedOn = useMemo(
+    () => waxedFromLocation(),
+    [location.search, location.hash],
+  );
+  const waxedLabel = waxedOn
+    ? waxedOn.toLocaleDateString(de ? 'de-DE' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+    : null;
 
   // Mobile-Plan B8: die URL (/kette-wachsen-lassen, seit 08/2026) war schon
   // auf den deutschen Suchbegriff umgestellt, aber Title, H1 und Nav-Label
@@ -419,9 +466,16 @@ export function RewaxPage() {
                 ? 'Wachsen ist einfach, aber es kostet einen Abend, einen Topf und Platz. Wenn du das nicht selbst machen willst, schick die Kette. Du bekommst sie fahrbereit zurück.'
                 : 'Waxing is simple, but it costs an evening, a pot and space. If you would rather not do it yourself, send the chain in. You get it back ready to ride.'}
             </p>
+            {waxedLabel && (
+              <p className="text-[14px] font-semibold mt-5" style={{ color: 'var(--accent-soft)' }}>
+                {de
+                  ? `Deine Karte: gewachst am ${waxedLabel}. Trocken klingt → jetzt einschicken.`
+                  : `Your card: waxed ${waxedLabel}. Sounds dry → send it in.`}
+              </p>
+            )}
 
             <div className="flex flex-wrap items-center gap-4 mt-8">
-              <a href={waLink(de)} target="_blank" rel="noopener noreferrer"
+              <a href={waLink(de, waxedLabel)} target="_blank" rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-[14px] font-semibold transition-opacity hover:opacity-90"
                 style={{ background: 'var(--accent)', color: '#fff' }}>
                 {de ? 'Per WhatsApp anmelden' : 'Register via WhatsApp'}
@@ -665,7 +719,7 @@ export function RewaxPage() {
                 : 'One message, one sentence. You get the shipping address and an estimate of when the chain will be back. I usually reply the same day.'}
             </p>
 
-            <a href={waLink(de)} target="_blank" rel="noopener noreferrer"
+            <a href={waLink(de, waxedLabel)} target="_blank" rel="noopener noreferrer"
               className="inline-flex items-center gap-2 mt-8 rounded-full px-7 py-3.5 text-[15px] font-semibold transition-opacity hover:opacity-90"
               style={{ background: '#fff', color: '#101013' }}>
               {de ? 'Ketten anmelden' : 'Register chains'}
@@ -689,6 +743,8 @@ export function RewaxPage() {
           {de ? 'Zurück zur Startseite' : 'Back to home'}
         </Link>
       </footer>
+
+      <Footer />
     </div>
   );
 }

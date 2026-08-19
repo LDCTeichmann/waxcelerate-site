@@ -165,6 +165,44 @@ function ToolCTA({ onClick, href, children }: {
   );
 }
 
+function parseWaxedStamp(raw: string | null): Date | null {
+  const s = (raw || '').trim();
+  if (!s) return null;
+  let y = 0, mo = 0, day = 0;
+  if (/^\d{8}$/.test(s)) {
+    y = Number(s.slice(0, 4));
+    mo = Number(s.slice(4, 6));
+    day = Number(s.slice(6, 8));
+  } else {
+    const m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (!m) return null;
+    y = Number(m[1]); mo = Number(m[2]); day = Number(m[3]);
+  }
+  const dt = new Date(y, mo - 1, day);
+  if (dt.getFullYear() !== y || dt.getMonth() !== mo - 1 || dt.getDate() !== day) return null;
+  const earliest = new Date(2020, 0, 1);
+  const today = new Date();
+  today.setHours(23, 59, 59, 999);
+  if (dt < earliest || dt > today) return null;
+  return dt;
+}
+
+function waxedStampFromLocation(): Date | null {
+  if (typeof window === 'undefined') return null;
+  const q = new URLSearchParams(window.location.search);
+  const fromQ = parseWaxedStamp(q.get('w') || q.get('waxed'));
+  if (fromQ) return fromQ;
+  const h = (window.location.hash || '').replace(/^#/, '');
+  const m = h.match(/(?:^|[?&])w=(\d{8}|\d{4}-\d{2}-\d{2})/) || h.match(/^(\d{8})$/);
+  return parseWaxedStamp(m ? m[1] : null);
+}
+
+function addWeeks(base: Date, weeks: number): Date {
+  const x = new Date(base.getTime());
+  x.setDate(x.getDate() + weeks * 7);
+  return x;
+}
+
 // ─── Tool 1: Rewax Interval Calculator ───────────────────────────────────────
 function RewaxCalculator() {
   const { t, lang } = useLanguage();
@@ -172,6 +210,7 @@ function RewaxCalculator() {
   const [weather, setWeather] = useState<'trocken' | 'gemischt' | 'nass'>('trocken');
   const [terrain, setTerrain] = useState<'strasse' | 'gravel' | 'mtb'>('strasse');
   const [kmPerWeek, setKmPerWeek] = useState(100);
+  const waxedOn = useMemo(() => waxedStampFromLocation(), []);
 
   const MAX_REWAX_WEEKS = 26;
   const interval = waxIntervals[weather][terrain];
@@ -196,10 +235,14 @@ function RewaxCalculator() {
   };
 
   const rewaxDate = useMemo(() => {
-    const d = new Date();
-    d.setDate(d.getDate() + weeks * 7);
-    return d.toLocaleDateString(de ? 'de-DE' : 'en-GB', { day: 'numeric', month: 'long' });
-  }, [weeks, de]);
+    const origin = waxedOn ?? new Date();
+    return addWeeks(origin, weeks).toLocaleDateString(de ? 'de-DE' : 'en-GB', {
+      day: 'numeric', month: 'long',
+    });
+  }, [weeks, de, waxedOn]);
+  const waxedLabel = waxedOn
+    ? waxedOn.toLocaleDateString(de ? 'de-DE' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+    : null;
 
   const SEP = <div style={{ borderTop: '1px solid var(--inset-bd)' }} />;
 
@@ -226,7 +269,9 @@ function RewaxCalculator() {
             </span>
           </div>
           <p className="text-[12px] mb-3" style={{ color: 'var(--txf)' }}>
-            {de ? 'bis zum nächsten Rewaxen' : 'until next rewax'}
+            {waxedLabel
+              ? (de ? `gewachst am ${waxedLabel}` : `waxed ${waxedLabel}`)
+              : (de ? 'bis zum nächsten Rewaxen' : 'until next rewax')}
           </p>
           {/* Compact meta: date · range per wax */}
           <div className="flex items-center gap-2.5">
@@ -822,6 +867,25 @@ export function Tools() {
     return () => clearTimeout(t);
   }, [swipeHintShown]);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const stamp = waxedStampFromLocation();
+    if (!stamp) return;
+    let attempts = 0;
+    let cancelled = false;
+    const go = () => {
+      if (cancelled) return;
+      const el = document.getElementById('tools');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+      else if (attempts < 20) {
+        attempts += 1;
+        setTimeout(go, 120);
+      }
+    };
+    go();
+    return () => { cancelled = true; };
+  }, []);
+
   const pillX = (btnRect: DOMRect, barRect: DOMRect) =>
     btnRect.left - barRect.left - 1;
 
@@ -1065,7 +1129,7 @@ export function Tools() {
       {/* Bottom gradient — bridges to FAQ below */}
       <div
         className="absolute bottom-0 left-0 right-0 pointer-events-none"
-        style={{ height: '64px', background: 'linear-gradient(to bottom, transparent, var(--pg))', zIndex: 1 }}
+        style={{ height: '64px', background: 'linear-gradient(to bottom, color-mix(in srgb, var(--pg), transparent 100%), var(--pg))', zIndex: 1 }}
       />
     </Section>
   );
