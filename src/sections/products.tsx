@@ -1,4 +1,4 @@
-import { ExternalLink, X, ChevronDown, Truck, Tag, ArrowRight } from 'lucide-react';
+import { ExternalLink, X, ChevronDown, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState, useRef, useEffect, useCallback, useMemo, memo } from 'react';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
@@ -10,22 +10,17 @@ import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { products, canCheckout } from '@/lib/data';
 import { trackProductsSeen, trackEbayClick } from '@/lib/analytics';
 import { richContent } from '@/lib/productContent';
-import { getEstimatedDelivery } from '@/lib/utils';
 import { ChainFinder } from '@/sections/ChainFinder';
-import { ProductDoors } from '@/sections/ProductDoors';
+import { ProductShelf, SecondaryTile } from '@/sections/ProductShelf';
 import { AddToCartButton } from '@/components/AddToCartButton';
-import { Stars } from '@/components/Stars';
 import { Section } from '@/components/Section';
 
 const MONO = "'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace";
 
 export function Products() {
   const { t, lang } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'wax' | 'chain'>('wax');
-  // Doors first, list on demand. Showing both at once meant the same menu twice:
-  // three big cards that route by intent, and directly beneath them the very
-  // list those cards route to. Opening a door swaps one for the other, and the
-  // back link puts the doors back, so there is only ever one thing to decide.
+  // Nur noch die Kettenliste klappt auf. Das Wachs steht im Regal selbst — es
+  // sind vier SKUs, die brauchen keine eigene Liste hinter einem Klick.
   const [listOpen, setListOpen] = useState(false);
   const [compareOpen, setCompareOpen] = useState(false);
   const [speedFilter, setSpeedFilter] = useState<'all' | '11' | '12'>('all');
@@ -52,17 +47,17 @@ export function Products() {
     return () => observer.disconnect();
   }, []);
 
-  // Listen for hero pill "Vorgewachste Ketten" click → open chains tab
+  // Rechner und Hero schicken weiter 'wax' | 'chain'. Das Wachs steht seit dem
+  // Regal-Umbau ohne Klick da, also muss nur noch 'chain' etwas aufklappen —
+  // das Scrollen zu #produkte erledigt der Absender selbst.
   useEffect(() => {
     const handler = (e: Event) => {
-      setActiveTab((e as CustomEvent<'wax' | 'chain'>).detail);
-      setListOpen(true);
+      if ((e as CustomEvent<'wax' | 'chain'>).detail === 'chain') setListOpen(true);
     };
     window.addEventListener('wax:selectTab', handler);
     return () => window.removeEventListener('wax:selectTab', handler);
   }, []);
 
-  const waxProducts = useMemo(() => products.filter(p => p.category === 'wax'), []);
   const chainProducts = useMemo(() => products.filter(p => p.category === 'chain'), []);
 
   const filteredChains = useMemo(() => chainProducts.filter(p => {
@@ -84,6 +79,17 @@ export function Products() {
   const formatPrice = useCallback((price: number) => formatter.format(price), [formatter]);
 
   const resetFilters = useCallback(() => { setSpeedFilter('all'); setBrandFilter('all'); }, []);
+
+  // Ein Klick vom Regal in die gefilterte Liste. Vorher: Tuer, Tab, Finder.
+  const openChains = useCallback((speed: 'all' | '11' | '12') => {
+    setSpeedFilter(speed);
+    setBrandFilter('all');
+    setListOpen(true);
+    // Erst nach dem Rendern der Liste scrollen — vorher gibt es das Ziel nicht.
+    requestAnimationFrame(() => {
+      document.getElementById('produkt-liste')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }, []);
 
   // Wax card entrance — runs once, cards never change.
   // Plain fade+rise, no 3D rotateX/perspective: the previous 3D tilt read as a
@@ -173,14 +179,21 @@ export function Products() {
             </p>
           </div>
 
-          {/* ── Three ways in ──
-              Routes by intent before anyone sees a price or a filter. The tab
-              switcher below stays for people who already know what they want. */}
+          {/* ── Regal ──
+              Zeigt die Ware sofort statt drei Tueren davor. Nur die
+              Kettenliste klappt darunter noch auf, weil acht SKUs mit
+              Kompatibilitaetsfilter nicht auf den Schirm passen. */}
           {!listOpen && (
-            <div className="mb-4">
-              <ProductDoors de={de} />
-            </div>
+            <ProductShelf
+              de={de}
+              t={t}
+              onOpenChains={openChains}
+              onCompare={() => setCompareOpen(true)}
+            />
           )}
+
+          {/* Der Vergleich haengt am Regal, nicht mehr an einem Tab. */}
+          <CompareModal open={compareOpen} onClose={() => setCompareOpen(false)} de={de} t={t} />
 
           {listOpen && (
           <>
@@ -188,76 +201,17 @@ export function Products() {
             className="inline-flex items-center gap-2 mb-6 text-[13px] font-semibold transition-opacity hover:opacity-70"
             style={{ color: 'var(--txm)' }}>
             <ArrowRight className="h-4 w-4 rotate-180" aria-hidden />
-            {de ? 'Alle Produktbereiche' : 'All product areas'}
+            {de ? 'Zurück zur Übersicht' : 'Back to overview'}
           </button>
 
-          {/* ── Tab switcher ── */}
-          <div
-            id="produkt-liste"
-            className="relative flex p-1 rounded-xl border border-wx-bd mb-10 scroll-mt-24"
-            style={{ background: 'var(--sf)' }}
-          >
-            {/* Sliding pill — pure CSS, no GSAP needed for 2 tabs */}
-            <div
-              className="absolute top-1 bottom-1 rounded-lg transition-all duration-300 ease-out pointer-events-none"
-              style={{
-                left: activeTab === 'wax' ? '4px' : 'calc(50% + 2px)',
-                width: 'calc(50% - 6px)',
-                background: 'var(--sf2)',
-                border: '1px solid var(--bd)',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
-              }}
-            />
-            <button
-              onClick={() => setActiveTab('wax')}
-              className={`relative z-10 flex-1 py-2.5 text-[13px] font-medium rounded-lg transition-colors duration-200 ${
-                activeTab === 'wax' ? 'text-wx-tx1' : 'text-wx-txf hover:text-wx-tx2'
-              }`}
-            >
-              {de ? 'Kettenwachs' : 'Chain Wax'}
-            </button>
-            <button
-              onClick={() => setActiveTab('chain')}
-              className={`relative z-10 flex-1 py-2.5 text-[13px] font-medium rounded-lg transition-colors duration-200 ${
-                activeTab === 'chain' ? 'text-wx-tx1' : 'text-wx-txf hover:text-wx-tx2'
-              }`}
-            >
-              {de ? 'Vorgewachste Ketten' : 'Pre-Waxed Chains'}
-            </button>
+          <div id="produkt-liste" className="scroll-mt-24">
+            <h3 className="font-display font-bold leading-tight mb-2"
+              style={{ fontSize: 'clamp(1.35rem, 2.6vw, 1.85rem)', color: 'var(--tx1)' }}>
+              {t.products.shelf.chainsTitle}
+            </h3>
           </div>
 
-          {/* ── Wax tab ── */}
-          {activeTab === 'wax' && (
-            <>
-              <CompareModal open={compareOpen} onClose={() => setCompareOpen(false)} de={de} t={t} />
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 items-stretch">
-                {waxProducts.map((product) => (
-                  <WaxCard
-                    key={product.id}
-                    product={product}
-                    de={de}
-                    formatPrice={formatPrice}
-                    buyLabel={t.products.buyOnEbay}
-                    deliveryDate={getEstimatedDelivery(lang)}
-                    multiDiscount={t.products.multiDiscount}
-                  />
-                ))}
-              </div>
-              {/* Comparison link — clear, accessible */}
-              <button
-                onClick={() => setCompareOpen(true)}
-                className="flex items-center justify-center gap-2 w-full mt-5 py-3 rounded-xl text-[13px] font-medium transition-all hover:opacity-80"
-                style={{ background: 'var(--sf2)', border: '1px solid var(--bd)', color: 'var(--tx2)' }}
-              >
-                {t.products.decisionAid}{' '}
-                <span style={{ color: 'var(--accent-soft)' }}>{t.products.compareBtn} →</span>
-              </button>
-            </>
-          )}
-
-          {/* ── Chains tab ── */}
-          {activeTab === 'chain' && (
-            <>
+          {/* ── Kettenliste ── */}
               <p className="text-[13px] mb-6 px-1" style={{ color: 'var(--txm)' }}>
                 {t.products.preWaxedHint}
               </p>
@@ -303,61 +257,28 @@ export function Products() {
                   ))}
                 </div>
               )}
-            </>
-          )}
+
+              {/* Rewax-Karte steht normalerweise im Regal (ProductShelf,
+                  neben Set und Ketten) — aber das Regal ist hier ausgeblendet,
+                  solange die Liste offen ist. Ohne diese Kopie waere die
+                  Rewax-Retention ausgerechnet fuer die Person unsichtbar, die
+                  sich gerade am tiefsten mit Ketten beschaeftigt. Eine
+                  einzelne Kachel, schmaler als die volle Dreierreihe, damit
+                  sie nicht wie eine vierte Kettenkarte aussieht. */}
+              <div className="max-w-sm mt-10">
+                <SecondaryTile
+                  to="/kette-wachsen-lassen"
+                  image="/images/blog/chains-hanging-gold" imageW={1600}
+                  eyebrow={t.products.shelf.rewaxEyebrow} title={t.products.shelf.rewaxTitle}
+                  body={t.products.shelf.rewaxBody}
+                  cta={t.products.shelf.rewaxCta}
+                  alt={de ? 'Frisch gewachste Ketten hängen zum Aushärten' : 'Freshly waxed chains hanging to cure'}
+                  dark
+                />
+              </div>
 
           </>
           )}
-
-          {/* ── Rewax ──
-              Retention, placed where it is relevant rather than in its own
-              section: whoever just looked at chains and wax is the exact
-              person who will need this in four hundred kilometres. Used to be
-              a plain text band, which read as easy to scroll past — now a
-              photo card, same visual language as RewaxPage's own closing CTA
-              (full image, gradient scrim, white text), so it reads as an
-              actual clickable field, not a footnote. */}
-          <Link to="/kette-wachsen-lassen"
-            className="group relative block overflow-hidden rounded-2xl mt-12 sm:mt-16"
-            style={{ minHeight: 220 }}>
-            <picture>
-              <source srcSet="/images/blog/chains-hanging-gold-800.webp 800w, /images/blog/chains-hanging-gold-1600.webp 1600w"
-                sizes="100vw" type="image/webp" />
-              <img src="/images/blog/chains-hanging-gold-1600.webp"
-                alt={de ? 'Frisch gewachste Ketten hängen zum Aushärten' : 'Freshly waxed chains hanging to cure'}
-                loading="lazy" decoding="async"
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.03]" />
-            </picture>
-            <span aria-hidden className="absolute inset-0"
-              style={{ background: 'linear-gradient(100deg, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.72) 40%, rgba(0,0,0,0.42) 72%, rgba(0,0,0,0.24) 100%)' }} />
-
-            <div className="relative flex flex-wrap items-end justify-between gap-4 h-full px-6 py-7 sm:px-8 sm:py-8">
-              <div>
-                <p className="eyebrow" style={{ color: 'rgba(255,255,255,0.68)' }}>
-                  {de ? 'Service' : 'Service'}
-                </p>
-                <p className="font-display font-bold leading-tight mt-2"
-                  style={{ fontSize: 'clamp(1.3rem, 2.6vw, 1.7rem)', color: '#fff' }}>
-                  {de ? 'Keine Lust auf den Topf? Schick die Kette.' : 'Not keen on the pot? Send the chain in.'}
-                </p>
-                <p className="text-[13.5px] mt-1.5" style={{ color: 'rgba(255,255,255,0.9)' }}>
-                  {/* Mobile-Plan B8, Punkt 6: "ab 9,95 €" suggerierte einen
-                      Einstiegspreis, den es fuer eine einzelne Kette gar
-                      nicht gibt — 9,95 € gilt erst ab drei Ketten, eine
-                      einzelne kostet 13,95 € (siehe PRICE in
-                      pages/RewaxPage.tsx, Preise per Luca 2026-07-28). */}
-                  {de
-                    ? 'Rewax für bereits gewachste Ketten, 13,95 € je Kette, ab drei Ketten 9,95 €.'
-                    : 'Rewax for chains that are already waxed, 13.95 € per chain, 9.95 € from three chains.'}
-                </p>
-              </div>
-              <span className="inline-flex items-center gap-2 text-[13.5px] font-semibold whitespace-nowrap rounded-full px-5 py-2.5 transition-transform duration-300 group-hover:-translate-y-0.5"
-                style={{ background: '#fff', color: '#101013' }}>
-                {de ? 'Zum Rewax-Service' : 'To the rewax service'}
-                <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" aria-hidden />
-              </span>
-            </div>
-          </Link>
 
       {/* Bottom gradient — bridges to About below */}
       <div
@@ -382,165 +303,6 @@ interface CardProps {
 }
 
 
-// ── Wax Card ───────────────────────────────────────────────────────────────
-
-const WaxCard = memo(function WaxCard({ product, de, formatPrice, buyLabel, deliveryDate, multiDiscount }: CardProps) {
-  const isPro = product.variant === 'pro';
-  const title = de ? product.title : product.titleEn;
-  const badge = de ? product.badge : product.badgeEn;
-  const featured = product.badge === 'Empfohlen' || product.badgeEn === 'Recommended';
-
-  const grams = product.weight ? parseInt(product.weight) : 0;
-  const per100 = grams > 0 ? `${(product.price / (grams / 100)).toFixed(2).replace('.', ',')} €/100g` : null;
-
-  return (
-    <div className="wax-card relative h-full rounded-2xl" style={{ willChange: 'transform' }}>
-      <Link
-        to={`/produkt/${product.id}`}
-        className="group relative flex flex-col h-full rounded-2xl"
-        style={{
-          background: 'var(--card-bg)',
-          border: '1px solid var(--bd)',
-          boxShadow: 'var(--card-shad)',
-        }}
-      >
-        {/* Image — will-change: transform (not translateZ(0)) pre-promotes this
-            clipped, rounded box to its own compositing layer up front, so the
-            hover scale below doesn't trigger a fresh layer promotion — Chromium
-            can flash the corner mask square for a frame right as that happens.
-            translateZ(0) used to be the standard trick for this, but it's a
-            static, non-animating transform value with no ongoing purpose, and
-            Chromium's compositor can — and after the page has sat idle for a
-            while, reliably does — demote a layer like that back down as a memory
-            optimization, silently undoing the pre-promotion. will-change is the
-            purpose-built, persistent version of the same hint and isn't subject
-            to that demotion, which is why the old fix "worked" right after load
-            but the glitch came back on a later hover. */}
-        <div className="relative overflow-hidden rounded-t-2xl aspect-[16/9] flex-shrink-0" style={{ willChange: 'transform' }}
-          // Pro photos are black wax on dark slate; in noir theme the card
-          // background is dark too, so the product nearly disappears. The
-          // photos have no alpha to reveal anything behind them, so instead
-          // of a gradient behind the <img>, .wax-card-pro-glow (noir-only,
-          // see index.css) lays a soft screen-blend wash over the photo
-          // itself to lift it off the dark surroundings. Stopgap per the UX
-          // plan until there's a product shot on a lighter background —
-          // flagged to Luca, not a design decision made here.
-          data-pro-photo={isPro || undefined}
-        >
-          <img
-            src={product.image}
-            alt={title}
-            loading="lazy"
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
-            style={{ objectPosition: product.imagePosition ?? 'center 55%' }}
-            onError={e => { (e.target as HTMLImageElement).src = '/images/products/wax-block-spin.webp'; }}
-          />
-          <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between gap-2">
-            <span className="wx-badge"
-              style={{ background: 'var(--chip-bg)', color: 'rgba(224,234,255,0.95)', border: '1px solid rgba(255,255,255,0.16)', backdropFilter: 'blur(6px)' }}>
-              {isPro ? 'PRO' : 'CLASSIC'} · {product.weight}
-            </span>
-            {badge && (
-              <span className="wx-badge" style={featured
-                ? { background: 'var(--brand-blue)', color: '#fff', border: '1px solid var(--brand-blue)', boxShadow: '0 3px 12px rgba(var(--brand-blue-rgb),0.40)' }
-                : { background: 'var(--chip-bg)', color: 'rgba(255,255,255,0.92)', border: '1px solid rgba(255,255,255,0.18)', backdropFilter: 'blur(6px)' }}>
-                {badge}
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="px-3.5 sm:px-4 pt-3 sm:pt-3.5 pb-3 sm:pb-4 flex flex-col flex-1">
-          <h3 className="font-display text-[15px] sm:text-[17px] font-bold text-wx-tx1 leading-tight tracking-[-0.02em]">
-            {title}
-          </h3>
-
-          {product.reviewCount != null && (
-            <div className="flex items-center gap-1.5 mt-1">
-              <Stars rating={5} />
-              <span className="text-meta" style={{ color: 'var(--txf)' }}>
-                {product.reviewCount} {de ? 'Bewertungen' : 'reviews'}
-              </span>
-            </div>
-          )}
-
-          {/* Specs — inline pills. These used to be squeezed to 9px on mobile
-              so all three would fit one row; 9px monospace on a phone is not
-              a readable size, it is just a shape. Legibility wins over the
-              single row: 11px on mobile, and the least decisive of the three
-              (application count) drops out below sm entirely rather than
-              wrapping a third pill onto its own line. Interval and delivery
-              date are the two anyone actually reads. */}
-          <div className="flex items-center gap-1.5 sm:gap-2 mt-2 sm:mt-2.5 flex-wrap">
-            {product.intervalDry && (
-              <span className="text-meta px-2 sm:text-[10.5px] py-0.5 rounded-md tabular-nums" style={{ fontFamily: MONO, background: 'var(--sf2)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
-                {product.intervalDry}
-              </span>
-            )}
-            {product.applications && (
-              <span className="hidden sm:inline text-[10.5px] px-2 py-0.5 rounded-md tabular-nums" style={{ fontFamily: MONO, background: 'var(--sf2)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
-                {product.applications} {de ? 'Anw.' : 'uses'}
-              </span>
-            )}
-            {deliveryDate && (
-              <span className="inline-flex items-center gap-1 text-meta px-2 sm:text-[10.5px] py-0.5 rounded-md tabular-nums" style={{ fontFamily: MONO, background: 'var(--sf2)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
-                <Truck className="h-3 w-3 sm:h-2.5 sm:w-2.5" strokeWidth={2.25} style={{ color: 'var(--brand-blue)' }} aria-hidden />
-                {deliveryDate}
-              </span>
-            )}
-          </div>
-
-          {/* Kein "Bis 15 % Rabatt" mehr auf der Karte. Ein Prozentzeichen, das
-              dauerhaft an jedem Produkt klebt, liest sich nicht als Angebot
-              sondern als Preis mit schlechtem Gewissen, und das widerspricht
-              einer Marke, die ueber Urteil statt Hype verkauft. Die Staffel
-              steht einmal ruhig ueber der Liste, wo sie hingehoert: als
-              Rechenhilfe fuer den, der ohnehin mehrere nimmt. */}
-          {multiDiscount && (
-            <div className="inline-flex items-center gap-1.5 mt-2 text-meta" style={{ color: 'var(--txf)' }}>
-              <Tag className="h-3 w-3" strokeWidth={2} aria-hidden />
-              {de ? 'Mengenstaffel ab 2 Blöcken' : 'Volume tiers from 2 blocks'}
-            </div>
-          )}
-
-          {/* Price + CTA */}
-          <div className="flex items-center justify-between gap-3 mt-auto pt-3">
-            <div>
-              <span className="num text-[22px] font-bold leading-none tracking-[-0.02em]" style={{ color: 'var(--tx1)' }}>
-                {formatPrice(product.price)}
-              </span>
-              {per100 && (
-                <p className="text-meta mt-1 tabular-nums" style={{ fontFamily: MONO, color: 'var(--txf)' }}>{per100}</p>
-              )}
-            </div>
-            {canCheckout(product) ? (
-              <div className="flex flex-col items-end gap-1">
-                <AddToCartButton product={product} size="sm" />
-                <button
-                  onClick={e => { e.preventDefault(); e.stopPropagation(); trackEbayClick(product.id); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
-                  className="text-meta transition-opacity hover:opacity-70"
-                  style={{ color: 'var(--txm)' }}
-                >
-                  {de ? 'oder bei eBay →' : 'or on eBay →'}
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={e => { e.preventDefault(); e.stopPropagation(); trackEbayClick(product.id); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
-                className="flex items-center gap-1.5 px-5 py-2.5 text-[13px] font-semibold rounded-full transition-all duration-150 hover:opacity-90 active:scale-[0.97]"
-                style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
-              >
-                {buyLabel}
-                <ExternalLink className="h-3.5 w-3.5" />
-              </button>
-            )}
-          </div>
-        </div>
-      </Link>
-    </div>
-  );
-});
 
 // ── Chain Card ─────────────────────────────────────────────────────────────
 

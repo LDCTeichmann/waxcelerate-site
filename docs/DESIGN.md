@@ -83,7 +83,15 @@ Erstes Messtechnik sieht.
 
 1. Hero
 2. Warum Wachs: was sich für dich ändert, dann der Antriebsverlust-Sägezahn, dann die Messkacheln
-3. Produkte: drei Türen nach Absicht, danach erst Tabs und Liste
+3. Produkte: das Regal — zwei Wachs-Tafeln (Classic/Pro, Größe als Schalter,
+   4:5 Hochformat), darunter eine Reihe aus drei gleich großen Kacheln (Set,
+   Ketten, Rewax) in einer gemeinsamen Sprache (`SecondaryTile` in
+   `ProductShelf.tsx`, 4:3 Querformat, Foto mit Scrim-Titel, ein Fließtext,
+   ein CTA). Erst vier verschiedene Layouts für vier Elemente auf einem
+   Bildschirm, dann korrigiert auf zwei Kartensprachen nach genau zwei
+   Rollen (Kaufentscheidung vs. nächster Schritt) — ein A/B-Test mit 25.000
+   Besuchern belegt 17,1 % mehr Umsatz pro Besucher allein durch einheitliche
+   statt gemischte Kartengrößen in einem Produktraster.
 4. Tür in die Wissenschaft
 
 Der Sägezahn trägt zwei Argumente gleichzeitig: wie viele Watt ein Schmierstoff
@@ -93,13 +101,20 @@ kostet und wie oft man ihn zurücksetzen muss. Deshalb ersetzt eine Figur zwei.
 
 ## 5. Bilder
 
-`public/images/doors/` enthält 4:5-Zuschnitte für die Produkttüren, erzeugt aus
-dem Ordner `Product section possible images` außerhalb des Repos. Je Motiv eine
-1200er und eine 800er WebP.
+`public/images/shelf/` enthält die Zuschnitte der Produktsektion, erzeugt von
+`scripts/build-shelf-images.mjs` aus `raw-image-library/`. Je Motiv eine große
+und eine 800er WebP.
 
-Auswahllogik: ein Motiv pro Tür, klar unterscheidbares Subjekt. Blockschrägbild
-für Wachs, Einzelkette für Ketten, Karton mit Block und Kette für das Set.
-Landschaftsbokeh nur dort, wo Text nicht darüber liegt.
+Auswahllogik: **Classic und Pro müssen aus derselben Session stammen** —
+DSC05242 (blauer Block) und DSC04096 (schwarzer Block), beide hochkant auf
+Schiefer vor grünem Bokeh. Stehen zwei Produkte nebeneinander und unterscheiden
+sich Winkel oder Licht, vergleicht der Betrachter die Fotografie statt das
+Wachs. Der grüne Hintergrund löst nebenbei das alte Pro-Problem: schwarzes
+Wachs auf dunklem Schiefer war im Noir-Theme praktisch unsichtbar und musste
+mit `.wax-card-pro-glow` übermalt werden.
+
+`public/images/doors/` ist bis auf `starter-set*.webp` (noch von
+`StarterSetPage.tsx` genutzt) seit dem Regal-Umbau ungenutzt.
 
 Ungenutzt und gut: `chain-clean.jpg` zeigt Ketten im Wachsbad, echtes eigenes
 Foto. Gehört auf die Seite.
