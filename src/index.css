@@ -138,10 +138,34 @@
        / fallback), not the thing that draws the card edge. Same value in noir —
        see the note there for why it must not be lighter than the photo. */
     --hero-stage: #0B0C0E;
-    --pg:        #F6F6F6;
+    /* ── Helle Flaechen: angehoben statt entfaerbt ────────────────────────
+       Dritter Anlauf gegen den "ockrig/oliven" Eindruck. Die ersten beiden
+       Male war es tatsaechlich Farbe (Blaustich in den Grautoenen, dann der
+       Kornfilter in linearRGB) — beides ist behoben und bleibt es. Diesmal
+       ist es KEINE Farbe: nachgemessen sind alle Tokens exakt R=G=B und kein
+       grossflaechiges Element im DOM hat einen Stich ueber 3 Einheiten.
+
+       Es ist ein Helligkeitsproblem. Die vier hellen Flaechen lagen mit
+       #EAEAEA / #F1F1F1 / #F6F6F6 / #FFFFFF in einer 21 Einheiten schmalen
+       Spanne dicht unter Weiss. Grosse Felder in diesem Bereich lesen sich
+       nicht als "weiss" und nicht als "grau", sondern als schmutziges Weiss
+       — und schmutziges Weiss benennt das Auge als beige/ocker, besonders
+       neben warmen Fotos und auf jedem Display mit minimalem Warmstich.
+
+       Also nach oben gezogen, damit die Flaechen sauber weiss wirken, und
+       die Trennung stattdessen aus den Kanten geholt (--bd dunkler). Das ist
+       genau Lucas Vorgabe: "durch Weiss, Schwarz und Grau Tiefe geben bzw.
+       Kontrast und sich abhebende Elemente". Alle Werte bleiben exakt R=G=B
+       — es wird ausdruecklich KEIN kuehler Gegenstich eingebaut, siehe
+       DESIGN.md §1.
+
+       Textkontrast: --txm/--txf/--txff waren gegen die dunkelste Flaeche
+       (--sf3) berechnet. Die wird hier heller, die Verhaeltnisse werden also
+       besser, nicht schlechter. */
+    --pg:        #F8F8F8;
     --sf:        #FFFFFF;
-    --sf2:       #F1F1F1;
-    --sf3:       #EAEAEA;
+    --sf2:       #F4F4F4;
+    --sf3:       #EDEDED;
     --tx1:       #101013;   /* near-black, neutral */
     --tx2:       #44444A;   /* zinc-700-ish */
     /* --txm/--txf/--txff (Mobile-Plan B4, 05.08.2026): waren #6B6B72 /
@@ -159,14 +183,18 @@
     --txm:       #5C5C5C;   /* worst-case 5.56:1 gegen --sf3 */
     --txf:       #626262;   /* worst-case 5.07:1 gegen --sf3 */
     --txff:      #696969;   /* worst-case 4.56:1 gegen --sf3 */
-    --bd:        #DEDEDE;
-    --bd2:       #ECECEC;
+    /* Kanten etwas kraeftiger. Die Flaechen liegen jetzt dichter beieinander
+       (siehe oben), also muss die Trennung von der Linie kommen statt vom
+       Farbunterschied der Fuellung — das ist ohnehin die sauberere Loesung
+       und passt zum Haarlinien-Prinzip aus DESIGN.md §3. */
+    --bd:        #D9D9D9;
+    --bd2:       #E9E9E9;
     --card-from: #FFFFFF;
-    --card-to:   #F6F6F6;
-    --card-to-rgb: 246,246,246;
+    --card-to:   #F8F8F8;
+    --card-to-rgb: 248,248,248;
     --card-bg:   linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%);
     --card-shad: 0 2px 16px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,0.9);
-    --nav-bg:    rgba(246,246,246,0.92);
+    --nav-bg:    rgba(248,248,248,0.92);
     --tool-bg:   var(--pg);   /* was a shade darker than the page — same discrete tone now, no visible seam */
     --card-shadow-hover: 0 4px 20px rgba(0,0,0,0.10), 0 12px 40px rgba(0,0,0,0.08), 0 0 0 1px rgba(var(--accent-rgb),0.15);
     --card-img-fade: transparent;
