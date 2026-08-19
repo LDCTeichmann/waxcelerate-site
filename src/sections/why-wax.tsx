@@ -147,88 +147,90 @@ export function WhyWax() {
         </p>
       </div>
 
-      {/* ── Die vier Momente ──
-          Zahl links, Aussage groß, Beleg klein rechts. Eine Zeile pro Sache,
-          Haarlinie dazwischen. Auf Mobil wandert der Beleg unter die Aussage,
-          damit die Überschrift nicht auf zwei Zeichen Breite gequetscht wird. */}
-      <div ref={rowsRef} style={{ borderTop: '1px solid var(--bd2)' }}>
-        {moments.map(m => (
-          <div key={m.n} data-row className="flex items-start gap-4 sm:gap-7 py-5 sm:py-6"
-            style={{ borderBottom: '1px solid var(--bd2)' }}>
-            <span className="num-data text-[12px] flex-shrink-0 pt-[0.4rem]"
-              style={{ color: 'var(--accent)', minWidth: '1.5rem' }}>
-              {m.n}
-            </span>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-baseline justify-between gap-5">
-                <h3 className="font-display font-bold text-wx-tx1 leading-[1.15] tracking-[-0.02em]"
-                  style={{ fontSize: 'clamp(1.15rem, 2.6vw, 1.6rem)' }}>
-                  {de ? m.titleDe : m.titleEn}
-                </h3>
-                <span className="num-data text-[12px] whitespace-nowrap hidden sm:block flex-shrink-0"
-                  style={{ color: 'var(--txf)' }}>
-                  {m.chip}
+      {/* ── Argumente links, Beleg rechts ──
+          Vorher lagen beide Bloecke ueber die volle Breite untereinander: vier
+          Zeilen, dann die Messwerte, dann der Mikroskop-Beleg. Das ergab rund
+          zwei Bildschirme fuer eine Sektion, deren Text zusammen keine halbe
+          Seite fuellt — die Flaeche entstand nicht durch Inhalt, sondern
+          dadurch, dass eine Textspalte von 60 Zeichen ueber 1000 Pixel Breite
+          gezogen wurde und rechts daneben nichts stand.
+          Nebeneinander macht beides gleichzeitig sichtbar: waehrend man die
+          Argumente liest, liegt der Beleg schon im Blick, statt zwei
+          Bildschirme spaeter zu kommen. Unter lg wieder untereinander — dort
+          gibt es keine zweite Spalte. */}
+      <div className="grid lg:grid-cols-[1.05fr_0.95fr] gap-8 lg:gap-14 items-start">
+
+        {/* Die vier Momente */}
+        <div>
+          <div ref={rowsRef} style={{ borderTop: '1px solid var(--bd2)' }}>
+            {moments.map(m => (
+              <div key={m.n} data-row className="flex items-start gap-4 sm:gap-5 py-4 sm:py-5"
+                style={{ borderBottom: '1px solid var(--bd2)' }}>
+                <span className="num-data text-[12px] flex-shrink-0 pt-[0.35rem]"
+                  style={{ color: 'var(--accent)', minWidth: '1.4rem' }}>
+                  {m.n}
                 </span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-baseline justify-between gap-4">
+                    <h3 className="font-display font-bold text-wx-tx1 leading-[1.15] tracking-[-0.02em]"
+                      style={{ fontSize: 'clamp(1.1rem, 2.2vw, 1.4rem)' }}>
+                      {de ? m.titleDe : m.titleEn}
+                    </h3>
+                    <span className="num-data text-[11.5px] whitespace-nowrap hidden sm:block flex-shrink-0"
+                      style={{ color: 'var(--txf)' }}>
+                      {m.chip}
+                    </span>
+                  </div>
+                  <p className="text-[13.5px] sm:text-[14px] leading-relaxed mt-1.5"
+                    style={{ color: 'var(--txm)' }}>
+                    {de ? m.bodyDe : m.bodyEn}
+                  </p>
+                </div>
               </div>
-              <p className="text-[14px] sm:text-[14.5px] leading-relaxed mt-2 max-w-[58ch]"
-                style={{ color: 'var(--txm)' }}>
-                {de ? m.bodyDe : m.bodyEn}
-              </p>
-            </div>
+            ))}
           </div>
-        ))}
-      </div>
 
-      {/* Sämtliche Laborwerte in einer Zeile. Vorher waren dieselben Zahlen
-          drei Kacheln plus eine Fußnote — viel Fläche für Angaben, die niemand
-          liest, bevor er überzeugt ist, und die auf /wissenschaft ohnehin
-          ausführlich stehen. Die Eingangsleistung gehört an jede Wattnennung. */}
-      <p className="text-[12px] leading-relaxed mt-4 max-w-[70ch]" style={{ color: 'var(--txff)' }}>
-        {de
-          ? `Gemessen: ${w.wax[0]}–${w.wax[1]} W Antriebsverlust statt ${w.oil[0]}–${w.oil[1]} W bei ${w.inputW[0]}–${w.inputW[1]} W Tretleistung, Reibungszahl μ ${pro.muLo.toFixed(2)}–${pro.muHi.toFixed(2)} statt μ ${oil.muLo.toFixed(2)}–${oil.muHi.toFixed(2)}. Laborwerte.`
-          : `Measured: ${w.wax[0]}–${w.wax[1]} W drivetrain loss instead of ${w.oil[0]}–${w.oil[1]} W at ${w.inputW[0]}–${w.inputW[1]} W pedalling power, friction coefficient μ ${pro.muLo.toFixed(2)}–${pro.muHi.toFixed(2)} instead of μ ${oil.muLo.toFixed(2)}–${oil.muHi.toFixed(2)}. Lab values.`}
-      </p>
-
-      {/* ── Der Beleg ──
-          Zeile 03 behauptet, dass der Verschleiss im Gelenk entsteht und dass
-          Wachs ihn dort verhindert. Das ist die Stelle, an der eine
-          Marketingseite normalerweise ein Symbolbild zeigt. Waxcelerate hat
-          dafuer etwas Besseres: eigene Mikroskopaufnahmen derselben Stelle
-          mit und ohne MoS2, gleiche Vergroesserung, gleiche Bedingungen.
-          Die lagen bisher ausschliesslich auf /wissenschaft — also hinter
-          einem Klick, den die meisten Besucher der Startseite nie machen.
-          Der staerkste Eigenbeleg der Marke gehoert dorthin, wo das
-          Argument gemacht wird, nicht zwei Seiten weiter. */}
-      <div className="mt-10 sm:mt-12 grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-6 lg:gap-10 items-center">
-        <div className="rounded-2xl overflow-hidden"
-          style={{ border: '1px solid var(--bd)', background: 'var(--card-bg)', boxShadow: 'var(--card-shad)' }}>
-          <BeforeAfterSlider
-            beforeSrc="/images/microscope/01-chain-link-inner-ref.webp"
-            afterSrc="/images/microscope/01-chain-link-inner-mos2.webp"
-            beforeAlt={de ? 'Kettenglied-Innenfläche, Referenz ohne MoS₂' : 'Chain link inner surface, reference without MoS₂'}
-            afterAlt={de ? 'Kettenglied-Innenfläche mit Waxcelerate und MoS₂' : 'Chain link inner surface with Waxcelerate and MoS₂'}
-            beforeLabel={de ? 'Referenz' : 'Reference'}
-            afterLabel="Waxcelerate"
-          />
+          {/* Sämtliche Laborwerte in einer Zeile — die Zahlen stehen
+              ausfuehrlich auf /wissenschaft, hier reicht der Nachweis, dass es
+              sie gibt. Die Eingangsleistung gehört an jede Wattnennung. */}
+          <p className="text-[11.5px] leading-relaxed mt-4" style={{ color: 'var(--txff)' }}>
+            {de
+              ? `Gemessen: ${w.wax[0]}–${w.wax[1]} W Antriebsverlust statt ${w.oil[0]}–${w.oil[1]} W bei ${w.inputW[0]}–${w.inputW[1]} W Tretleistung, Reibungszahl μ ${pro.muLo.toFixed(2)}–${pro.muHi.toFixed(2)} statt μ ${oil.muLo.toFixed(2)}–${oil.muHi.toFixed(2)}. Laborwerte.`
+              : `Measured: ${w.wax[0]}–${w.wax[1]} W drivetrain loss instead of ${w.oil[0]}–${w.oil[1]} W at ${w.inputW[0]}–${w.inputW[1]} W pedalling power, friction coefficient μ ${pro.muLo.toFixed(2)}–${pro.muHi.toFixed(2)} instead of μ ${oil.muLo.toFixed(2)}–${oil.muHi.toFixed(2)}. Lab values.`}
+          </p>
         </div>
 
+        {/* ── Der Beleg ──
+            Zeile 03 behauptet, dass der Verschleiss im Gelenk entsteht und
+            dass Wachs ihn dort verhindert. Genau daneben steht jetzt die
+            eigene Mikroskopaufnahme derselben Flaeche mit und ohne MoS2 —
+            gleiche Vergroesserung, gleiche Bedingungen. Sie lag bisher nur
+            auf /wissenschaft, also hinter einem Klick, den die meisten
+            Besucher der Startseite nie machen. */}
         <div>
-          <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
-            {de ? 'Eigene Aufnahme' : 'Our own micrograph'}
+          <div className="rounded-2xl overflow-hidden"
+            style={{ border: '1px solid var(--bd)', background: 'var(--card-bg)', boxShadow: 'var(--card-shad)' }}>
+            <BeforeAfterSlider
+              beforeSrc="/images/microscope/01-chain-link-inner-ref.webp"
+              afterSrc="/images/microscope/01-chain-link-inner-mos2.webp"
+              beforeAlt={de ? 'Kettenglied-Innenfläche, Referenz ohne MoS₂' : 'Chain link inner surface, reference without MoS₂'}
+              afterAlt={de ? 'Kettenglied-Innenfläche mit Waxcelerate und MoS₂' : 'Chain link inner surface with Waxcelerate and MoS₂'}
+              beforeLabel={de ? 'Referenz' : 'Reference'}
+              afterLabel="Waxcelerate"
+            />
+          </div>
+
+          <p className="eyebrow mt-5 mb-2" style={{ color: 'var(--accent-soft)' }}>
+            {de ? 'Eigene Aufnahme · 1000×' : 'Our own micrograph · 1000×'}
           </p>
-          <h3 className="font-display font-bold text-wx-tx1 leading-[1.15] tracking-[-0.02em] mb-3"
-            style={{ fontSize: 'clamp(1.25rem, 2.8vw, 1.75rem)' }}>
+          <h3 className="font-display font-bold text-wx-tx1 leading-[1.15] tracking-[-0.02em] mb-2"
+            style={{ fontSize: 'clamp(1.15rem, 2.2vw, 1.45rem)' }}>
             {de ? 'Dieselbe Stelle, zwei Schmierstoffe.' : 'Same spot, two lubricants.'}
           </h3>
-          <p className="text-[14.5px] leading-relaxed max-w-[46ch]" style={{ color: 'var(--txm)' }}>
+          <p className="text-[13.5px] leading-relaxed" style={{ color: 'var(--txm)' }}>
             {de
-              ? 'Innenfläche eines Kettenglieds bei 1000-facher Vergrößerung — genau die Fläche, auf der der Bolzen läuft. Zieh den Regler: links die Referenz, rechts dieselbe Stelle mit Waxcelerate.'
-              : 'Inner surface of a chain link at 1000× — exactly the face the pin runs on. Drag the handle: reference on the left, the same spot with Waxcelerate on the right.'}
-          </p>
-          <p className="text-[12px] leading-relaxed mt-3" style={{ color: 'var(--txff)' }}>
-            {de
-              ? 'Identische Vergrößerung, identische Aufnahmebedingungen. Keine Simulation.'
-              : 'Identical magnification and shooting conditions. Not a simulation.'}
+              ? 'Innenfläche eines Kettenglieds — genau die Fläche, auf der der Bolzen läuft. Zieh den Regler. Identische Aufnahmebedingungen, keine Simulation.'
+              : 'Inner surface of a chain link — exactly the face the pin runs on. Drag the handle. Identical shooting conditions, not a simulation.'}
           </p>
         </div>
       </div>

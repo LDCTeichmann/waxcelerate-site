@@ -39,9 +39,34 @@ export function ScienceTeaser({ de }: { de: boolean }) {
   }, []);
 
   return (
+    // Als Karte, nicht als Zeile zwischen zwei Haarlinien.
+    // Vorher war das hier ein Link, dessen einzige Auszeichnung zwei
+    // Trennlinien und ein leichtes Einruecken beim Hovern waren — auf einer
+    // Seite, die ohnehin ueberall mit Haarlinien arbeitet, ist das kein
+    // Klickhinweis, sondern sieht aus wie der naechste Absatz. Lucas
+    // Rueckmeldung: man versteht nicht, dass das eine Karte ist, die man
+    // anklicken soll. Jetzt eigene Flaeche, Rahmen, Radius und ein sichtbarer
+    // Hover-Zustand (Rahmen faerbt sich, Karte hebt sich leicht) — also die
+    // gleichen Signale, die die Produktkarten auf derselben Seite benutzen.
     <Link ref={ref} to="/wissenschaft"
-      className="group grid sm:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] gap-6 sm:gap-10 items-center mt-6 sm:mt-8 py-7 transition-[padding] duration-500 hover:pl-3"
-      style={{ borderTop: '1px solid var(--bd2)', borderBottom: '1px solid var(--bd2)' }}>
+      aria-label={de ? 'Zur Wissenschaftsseite: Kontaktzonen, Formel, Mikroskopie' : 'To the science page: contact zones, formula, microscopy'}
+      className="group grid sm:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] gap-6 sm:gap-10 items-center
+                 mt-8 sm:mt-10 p-6 sm:p-8 rounded-2xl
+                 transition-[transform,border-color,box-shadow] duration-300
+                 hover:-translate-y-0.5"
+      // --sf2 statt --card-bg: --card-bg ist ein Verlauf, der bei Weiss
+      // beginnt, und diese Sektion steht selbst auf Weiss (bg-wx-sf) — die
+      // Karte haette also oben exakt die Farbe des Untergrunds gehabt und
+      // haenge allein an Rahmen und Schatten. --sf2 (#F1F1F1) gibt ihr eine
+      // eigene Flaeche, die man auch ohne Rahmen als Karte liest.
+      style={{
+        background: 'var(--sf2)',
+        border: '1px solid var(--bd)',
+        boxShadow: 'var(--card-shad)',
+      }}
+      onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(var(--accent-rgb),0.45)'; }}
+      onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--bd)'; }}
+    >
 
       <div>
         <p className="eyebrow" style={{ color: 'var(--txf)' }}>

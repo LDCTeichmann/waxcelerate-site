@@ -1,39 +1,53 @@
-// ─── ChainJointSection — section A–A through one chain joint ─────────────────
-// Replaces an earlier concentric-ring drawing. Rings were geometrically correct
-// and unreadable: three nested circles look like three circles, not like a
-// roller sitting on a shoulder sitting on a pin, and the leader labels collided.
+// ─── ChainJointSection — Kette waagerecht, Schnitt darunter ──────────────────
 //
-// Cut along the pin axis instead and every part becomes a distinct block, so
-// the three sliding interfaces are unmistakable lines between two blocks:
+// Dritte Fassung. Was die beiden vorherigen falsch gemacht haben:
 //
-//   ══════ outer plate ══════
-//   ══════ inner plate ══════   ← zone 3 slides here (vertical line)
-//        ╞═ roller ═╡           ← zone 2 slides here
-//        ╞ shoulder ╡           ← zone 1 slides here
-//   ─────── pin (hatched) ──────
+//  v1: drei konzentrische Ringe. Geometrisch richtig und unlesbar — drei
+//      ineinanderliegende Kreise sehen aus wie drei Kreise, nicht wie eine
+//      Rolle auf einem Kragen auf einem Bolzen.
+//  v2: Schnitt entlang der Bolzenachse (die Geometrie unten ist daraus
+//      uebernommen und stimmt), aber die Referenzkette daneben stand um 90°
+//      gedreht hochkant. Der Gedanke war, die Schnittebene waagerecht
+//      auszurichten. Das Ergebnis war das Gegenteil: eine hochkant stehende
+//      Kette erkennt niemand als Kette, weil man Ketten immer liegend sieht.
+//      Lucas Rueckmeldung dazu — "die Kette liegt schraeg und ist zu schwer
+//      zu begreifen" — trifft genau das.
 //
-// The active interface gets an accent line and a small ↔ token. The arrow does
-// the explaining, which is why the drawing carries only three words of its own.
+// Jetzt nach dem Vorbild echter Kettenzeichnungen (Lucas Referenzbilder:
+// Seitenansicht oben, Schnitt darunter, nummerierte Positionen mit Legende):
 //
-// The key drawing of actual chain above it is not decoration. Without it the
-// cutaway is a stack of rectangles and nobody reads "chain link", so it renders
-// in the compact variant too — that one sits on the homepage in front of the
-// coldest audience on the site, where recognition matters most.
+//      ○──○──◎──○──○     ← die Kette, waagerecht, wie man sie kennt
+//            ┊           ← Schnittmarke faellt senkrecht in den Schnitt
+//   ══════ Lasche ══════
+//        ╞═ Rolle ═╡     ← 2
+//        ╞ Kragen  ╡     ← 1
+//   ───── Bolzen ──────
 //
-// Modern 9–12 speed chains are bushingless: the inner plate shoulder replaced
-// the bushing. Drawing a bushing would be wrong for every chain we sell.
+// Oben Wiedererkennung, unten der Mechanismus, dazwischen eine senkrechte
+// Schnittmarke — von oben nach unten gelesen, so wie ein Detailausschnitt auf
+// einem Zeichnungsblatt gelesen wird.
+//
+// Moderne 9–12-fach-Ketten sind buchsenlos: der Kragen der Innenlasche hat die
+// Buchse ersetzt. Eine Buchse zu zeichnen waere fuer jede Kette, die wir
+// verkaufen, schlicht falsch.
 
-const A = { x0: 60, x1: 560 };          // pin extent
-const CY = 150;                          // centreline
-const PIN = 15;                          // pin half-height
-const SHO = 31;                          // shoulder outer half-height
-const ROL = 52;                          // roller outer half-height
-const SHO_X = [148, 296] as const;       // left shoulder run (mirrored right)
+const A = { x0: 60, x1: 560 };          // Bolzen-Ausdehnung
+const CY = 196;                          // Mittellinie des Schnitts
+const PIN = 15;
+const SHO = 31;
+const ROL = 52;
+const SHO_X = [148, 296] as const;
 const ROL_X = [186, 434] as const;
-const IP_X = [130, 150] as const;        // inner plate (mirrored)
-const OP_X = [102, 126] as const;        // outer plate (mirrored)
-const KEY_P = [222, 266, 310, 354, 398]; // key chain pivots, 44 px pitch
-const KEY_Y = 4;
+const IP_X = [130, 150] as const;
+const OP_X = [102, 126] as const;
+
+// Referenzkette oben: waagerecht, mittig ueber dem Schnitt.
+const KEY_CY = 58;
+const KEY_PITCH = 44;
+const KEY_X0 = 222;                      // erster Bolzen
+const KEY_N = 5;                         // Bolzen insgesamt
+const KEY_P = Array.from({ length: KEY_N }, (_, i) => KEY_X0 + i * KEY_PITCH);
+const CUT_X = KEY_P[2];                  // markiertes Gelenk = Mitte
 
 const mirror = (x: number) => 620 - x;
 
@@ -52,10 +66,8 @@ export function ChainJointSection({
   const on = (i: number) => active === i;
   const stroke = (i: number) => (on(i) ? 'var(--accent)' : 'var(--txf)');
   const iw = (i: number) => ({ strokeWidth: on(i) ? 'var(--dw-bold)' : 'var(--dw-line)' });
-  // Only a light hold-back. At 0.32 two thirds of the drawing looked broken
-  // rather than out of focus, which is not what a construction drawing does.
   const fade = (i: number) => (active === null || on(i) ? 1 : 0.62);
-  const fs = 14;
+  const fs = 13;
 
   const hit = (i: number) =>
     onZone ? { onMouseEnter: () => onZone(i), style: { cursor: 'pointer' } } : {};
@@ -68,59 +80,68 @@ export function ChainJointSection({
     </g>
   );
 
-  return (
-    <svg viewBox={compact ? '18 40 512 232' : '2 20 600 262'} className="w-full h-auto"
-      role="img" aria-label="Schnitt A–A durch ein Kettengelenk, die drei Gleitflächen sind markiert">
+  // Nummernmarke an einer Gleitflaeche. Ersetzt die frueheren Fliesstext-
+  // Beschriftungen: Lucas Referenzzeichnungen arbeiten alle mit Ziffern in
+  // der Figur und einer Legende darunter, weil Woerter in einer Zeichnung
+  // entweder kollidieren oder zu klein werden.
+  const Tag = ({ x, y, n }: { x: number; y: number; n: number }) => (
+    <g transform={`translate(${x},${y})`} style={{ pointerEvents: 'none' }}>
+      <circle r={11} fill={on(n - 1) ? 'var(--accent)' : 'var(--sf)'}
+        stroke={on(n - 1) ? 'var(--accent)' : 'var(--txf)'} style={HAIR}
+        opacity={fade(n - 1)} />
+      <text className="num-data" fontSize={12} textAnchor="middle" dy={4}
+        fill={on(n - 1) ? '#fff' : 'var(--tx2)'} opacity={fade(n - 1)}>{n}</text>
+    </g>
+  );
 
-      {/* Key: a piece of chain, turned upright so its cut plane runs the same
-          way the section is drawn.
-          Earlier the chain lay horizontally with a vertical A–A line, and the
-          section next to it was horizontal. Both were geometrically right and
-          the eye still could not connect them, because a vertical cut mark does
-          not lead anywhere near a horizontal drawing. Standing the chain up
-          turns the cut plane horizontal, so the dashed line now runs straight
-          out of the marked joint and into the section: left to right, cause and
-          consequence, the way a drawing sheet is read. */}
-      <g opacity={0.95} transform="translate(52,150) rotate(-90) translate(-310,-4)">
+  return (
+    <svg viewBox="20 14 600 300" className="w-full h-auto"
+      role="img" aria-label="Fahrradkette in Seitenansicht mit Schnitt durch ein Gelenk, die drei Gleitflächen sind nummeriert">
+
+      {/* ── Referenzkette, waagerecht ──
+          Aussen- und Innenlaschen wechseln sich ab, Rollen an jedem Bolzen.
+          Bewusst schlicht: sie muss nur eines leisten, naemlich dass man
+          binnen einer Sekunde "das ist eine Fahrradkette" denkt. */}
+      <g>
         {KEY_P.slice(0, -1).map((x, i) => {
-          const h = i % 2 === 0 ? 11 : 8.5;   // outer plates sit proud of inner
+          const h = i % 2 === 0 ? 11 : 8.5;   // Aussenlaschen stehen ueber
           return (
-            <rect key={x} x={x - 13} y={KEY_Y - h} width={KEY_P[i + 1] - x + 26} height={h * 2} rx={h}
+            <rect key={x} x={x - 13} y={KEY_CY - h} width={KEY_PITCH + 26} height={h * 2} rx={h}
               fill="none" stroke="var(--bd)" style={HAIR} />
           );
         })}
-        {[266, 354].map(x => (
-          <circle key={`r${x}`} cx={x} cy={KEY_Y} r={7.5} fill="none" stroke="var(--bd)" style={HAIR} />
+        {KEY_P.map(x => (
+          <circle key={`r${x}`} cx={x} cy={KEY_CY} r={7.5} fill="none" stroke="var(--bd)" style={HAIR} />
         ))}
-        {KEY_P.map(x => <circle key={`p${x}`} cx={x} cy={KEY_Y} r={3} fill="var(--bd)" />)}
-        <line x1={310} y1={KEY_Y - 28} x2={310} y2={KEY_Y + 28} stroke="var(--accent)"
-          strokeDasharray="5 3" style={HAIR} />
+        {KEY_P.map(x => <circle key={`p${x}`} cx={x} cy={KEY_CY} r={3} fill="var(--bd)" />)}
+
+        {/* markiertes Gelenk */}
+        <circle cx={CUT_X} cy={KEY_CY} r={20} fill="none" stroke="var(--accent)"
+          strokeDasharray="4 3" style={HAIR} opacity={0.9} />
       </g>
 
-      {/* Cut plane, continuing horizontally into the section */}
-      <line x1={80} y1={CY} x2={OP_X[0] - 10} y2={CY} stroke="var(--accent)"
-        strokeDasharray="5 3" opacity={0.4} style={HAIR} />
+      {/* Schnittmarke: senkrecht vom markierten Gelenk in den Schnitt */}
+      <line x1={CUT_X} y1={KEY_CY + 24} x2={CUT_X} y2={CY - ROL - 26}
+        stroke="var(--accent)" strokeDasharray="5 4" style={HAIR} opacity={0.45} />
+
       {!compact && (
-        <g className="num-data" fontSize={fs} fill="var(--accent)">
-          <text x={16} y={CY + 4}>A</text>
-          <text x={86} y={CY + 4}>A</text>
-          <text x={52} y={44} textAnchor="middle" fill="var(--txff)">KETTE</text>
-        </g>
+        <text className="num-data" fontSize={fs} fill="var(--txff)" x={KEY_P[0] - 34} y={KEY_CY + 4}
+          textAnchor="end">KETTE</text>
       )}
 
-      {/* ── Outer plates ── */}
+      {/* ── Aussenlaschen ── */}
       {[OP_X[0], mirror(OP_X[1])].map((x, i) => (
         <rect key={`op${i}`} x={x} y={CY - 78} width={OP_X[1] - OP_X[0]} height={156} rx={5}
           fill="var(--sf2)" stroke="var(--txf)" style={LINE} opacity={fade(2)} />
       ))}
 
-      {/* ── Inner plates ── */}
+      {/* ── Innenlaschen ── */}
       {[IP_X[0], mirror(IP_X[1])].map((x, i) => (
         <rect key={`ip${i}`} x={x} y={CY - 66} width={IP_X[1] - IP_X[0]} height={132} rx={4}
           fill="var(--sf2)" stroke="var(--txf)" style={LINE} opacity={fade(2)} />
       ))}
 
-      {/* ── Shoulders — the bushing's job, formed from the inner plate ── */}
+      {/* ── Kragen — übernimmt die Aufgabe der Buchse, aus der Innenlasche gezogen ── */}
       {[[SHO_X[0], SHO_X[1]], [mirror(SHO_X[1]), mirror(SHO_X[0])]].map(([x0, x1], i) => (
         <g key={`sh${i}`} opacity={Math.max(fade(0), fade(1))}>
           <rect x={x0} y={CY - SHO} width={x1 - x0} height={SHO - PIN}
@@ -130,7 +151,7 @@ export function ChainJointSection({
         </g>
       ))}
 
-      {/* ── Roller ── */}
+      {/* ── Rolle ── */}
       <g opacity={fade(1)}>
         <rect x={ROL_X[0]} y={CY - ROL} width={ROL_X[1] - ROL_X[0]} height={ROL - SHO} rx={3}
           fill="var(--sf2)" stroke="var(--txf)" style={LINE} />
@@ -138,7 +159,7 @@ export function ChainJointSection({
           fill="var(--sf2)" stroke="var(--txf)" style={LINE} />
       </g>
 
-      {/* ── Pin ── */}
+      {/* ── Bolzen ── */}
       <g opacity={fade(0)}>
         <rect x={A.x0} y={CY - PIN} width={A.x1 - A.x0} height={PIN * 2} rx={7}
           fill="var(--sf)" stroke="var(--tx2)" style={LINE} />
@@ -148,7 +169,7 @@ export function ChainJointSection({
         ))}
       </g>
 
-      {/* ── Zone 1 · pin against shoulder ── */}
+      {/* ── Fläche 1 · Bolzen gegen Kragen ── */}
       <g {...hit(0)}>
         <rect x={SHO_X[0]} y={CY - PIN - 8} width={mirror(SHO_X[0]) - SHO_X[0]} height={16} fill="transparent" />
         {[CY - PIN, CY + PIN].map(y => (
@@ -156,9 +177,10 @@ export function ChainJointSection({
             stroke={stroke(0)} style={{ ...iw(0), transition: 'stroke .35s, stroke-width .35s' }} />
         ))}
         {on(0) && <Slide x={310} y={CY - PIN} />}
+        <Tag x={SHO_X[0] + 26} y={CY + PIN + 20} n={1} />
       </g>
 
-      {/* ── Zone 2 · roller against shoulder ── */}
+      {/* ── Fläche 2 · Rolle gegen Kragen ── */}
       <g {...hit(1)}>
         <rect x={ROL_X[0]} y={CY - SHO - 8} width={ROL_X[1] - ROL_X[0]} height={16} fill="transparent" />
         {[CY - SHO, CY + SHO].map(y => (
@@ -166,25 +188,43 @@ export function ChainJointSection({
             stroke={stroke(1)} style={{ ...iw(1), transition: 'stroke .35s, stroke-width .35s' }} />
         ))}
         {on(1) && <Slide x={ROL_X[1] - 36} y={CY - SHO} />}
+        <Tag x={ROL_X[1] - 20} y={CY - SHO - 20} n={2} />
       </g>
 
-      {/* ── Zone 3 · inner plate against outer plate ── */}
+      {/* ── Fläche 3 · Innen- gegen Aussenlasche ── */}
       <g {...hit(2)}>
         {[IP_X[0], mirror(IP_X[0])].map((x, i) => (
           <line key={i} x1={x} y1={CY - 66} x2={x} y2={CY + 66}
             stroke={stroke(2)} style={{ ...iw(2), transition: 'stroke .35s, stroke-width .35s' }} />
         ))}
         {on(2) && <Slide x={IP_X[0]} y={CY - 46} vertical />}
+        {/* 14px ueber die Laschenoberkante gesetzt — auf der Kante selbst
+            (CY-78) haette die Marke die Lasche ueberdeckt statt sie zu
+            bezeichnen. */}
+        <Tag x={IP_X[0]} y={CY - 92} n={3} />
       </g>
 
-      {!compact && (
-        <g className="num-data" fontSize={fs} fill="var(--txf)">
-          <text x={310} y={CY + 5} textAnchor="middle">BOLZEN</text>
-          <text x={310} y={CY - ROL - 10} textAnchor="middle">ROLLE</text>
-          <text x={OP_X[0] - 10} y={CY - 84} textAnchor="start">LASCHEN</text>
-          <text x={340} y={CY + 112} textAnchor="middle" fill="var(--txff)">SCHNITT A–A</text>
-        </g>
-      )}
+      {/* ── Legende ──
+          Ziffern in der Figur, Woerter darunter — genau die Aufteilung, die
+          Lucas Referenzzeichnungen benutzen. Auch in der kompakten Fassung
+          sichtbar: ohne sie ist der Schnitt ein Stapel Rechtecke, und die
+          kompakte Fassung steht auf der Startseite vor dem kaeltesten
+          Publikum der Seite, wo Benennung am meisten zaehlt. */}
+      <g className="num-data" fontSize={fs} fill="var(--txf)">
+        {[
+          { n: 1, x: 96, de: 'Bolzen / Kragen' },
+          { n: 2, x: 268, de: 'Rolle / Kragen' },
+          { n: 3, x: 432, de: 'Laschen' },
+        ].map(({ n, x, de: label }) => (
+          <g key={n} transform={`translate(${x},${CY + 104})`}>
+            <circle r={9} cx={0} cy={-4} fill={on(n - 1) ? 'var(--accent)' : 'none'}
+              stroke={on(n - 1) ? 'var(--accent)' : 'var(--bd)'} style={HAIR} />
+            <text x={0} y={0} textAnchor="middle" fontSize={11}
+              fill={on(n - 1) ? '#fff' : 'var(--txf)'}>{n}</text>
+            <text x={16} y={0} fontSize={fs} fill={on(n - 1) ? 'var(--tx1)' : 'var(--txf)'}>{label}</text>
+          </g>
+        ))}
+      </g>
     </svg>
   );
 }
