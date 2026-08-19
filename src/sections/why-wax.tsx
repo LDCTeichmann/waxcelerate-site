@@ -3,6 +3,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { useSectionReveal } from '@/hooks/useAnimation';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { ScienceTeaser } from '@/sections/science/ScienceTeaser';
+import { BeforeAfterSlider } from '@/components/BeforeAfterSlider';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
 import { waxVsOil, frictionRanges } from '@/lib/data';
 
@@ -24,6 +25,31 @@ import { Section } from '@/components/Section';
 // Laborwerte zusammen belegen jetzt eine einzige kleine Zeile unter der Liste
 // statt drei Kacheln. Haarlinien-Zeilen statt Kacheln ist außerdem der von
 // DESIGN.md §3 vorgesehene Standardbehälter.
+// Vier Zeilen, vier VERSCHIEDENE Achsen.
+//
+// Vorher lasen sich Zeile 01 ("Saubere Haende, saubere Wade") und Zeile 03
+// ("Dreck findet keinen Halt") wie dieselbe Aussage — Lucas Rueckmeldung, und
+// sie stimmt: beide begannen mit derselben Praemisse ("Wachs ist trocken,
+// deshalb bleibt nichts haften") und unterschieden sich erst im Nebensatz.
+// Zwei von vier Argumenten fuer denselben Gedanken zu verbrauchen, macht die
+// Liste laenger, aber nicht ueberzeugender.
+//
+// Die Praemisse steht jetzt genau einmal, als Vorspann ueber der Liste
+// ("Wachs haertet trocken aus. Alles Weitere folgt daraus."). Darunter liegt
+// jede Zeile auf einer eigenen Ebene, und keine wiederholt den Grund:
+//   01  was DU merkst          (Haende, Wade, Socken)
+//   02  was du HOERST          (Fahrerurteil)
+//   03  was im GELENK passiert (Mechanismus)
+//   04  was es KOSTET          (Standzeit, Geld)
+//
+// Zu 02 bewusst "Fahrerurteil" als Beleg und keine Dezibelzahl: veroeffent-
+// lichte Messungen zeigen zwischen frischem Oel und frischem Wachs praktisch
+// keinen Unterschied (rund 40 zu 41 dB), und eine erschoepfte Wachsschicht
+// kann sogar lauter werden als Oel. Die Wahrnehmung "leiser" ist echt und
+// steht so in den eigenen Bewertungen — als Messwert ausgegeben waere sie
+// eine Behauptung, die der erste kundige Leser widerlegt. Auf einer Seite,
+// die mit "gemessen statt behauptet" wirbt, waere das der teuerste
+// vorstellbare Fehler.
 function buildMoments(de: boolean) {
   const pro = frictionRanges.find(r => r.id === 'pro')!;
   const oil = frictionRanges.find(r => r.id === 'oil')!;
@@ -32,34 +58,34 @@ function buildMoments(de: boolean) {
   return [
     {
       n: '01',
-      titleDe: 'Saubere Hände, saubere Wade.',
-      titleEn: 'Clean hands, clean calf.',
-      bodyDe: 'Wachs härtet zu einem trockenen Film aus. Da ist nichts, was abfärbt — kein Ketten-Tattoo an der Wade, keine schwarzen Finger beim Rad einladen.',
-      bodyEn: 'Wax cures to a dry film. There is nothing left to rub off — no chain tattoo on your calf, no black fingers when you load the bike.',
-      chip: de ? 'trocken' : 'dry',
+      titleDe: 'Du bleibst sauber.',
+      titleEn: 'You stay clean.',
+      bodyDe: 'Kein Ketten-Tattoo an der Wade, keine schwarzen Finger beim Rad einladen, keine Streifen auf hellen Socken. Du kannst die Kette mit bloßen Händen auflegen.',
+      bodyEn: 'No chain tattoo on your calf, no black fingers when you load the bike, no streaks on light socks. You can fit the chain with bare hands.',
+      chip: de ? 'färbt nicht ab' : 'no rub-off',
     },
     {
       n: '02',
-      titleDe: 'Der Antrieb wird leise.',
-      titleEn: 'The drivetrain goes quiet.',
+      titleDe: 'Es wird leise.',
+      titleEn: 'It goes quiet.',
       bodyDe: 'Kein trockenes Sirren im Leerlauf, kein Knirschen unter Last. Es ist der Satz, der in unseren Bewertungen am häufigsten von selbst vorkommt.',
       bodyEn: 'No dry whirr when freewheeling, no grinding under load. It is the line that comes up unprompted most often in our reviews.',
-      chip: de ? 'hörbar' : 'audible',
+      chip: de ? 'Fahrerurteil' : 'rider reports',
     },
     {
       n: '03',
-      titleDe: 'Dreck findet keinen Halt.',
-      titleEn: 'Grit finds nothing to hold on to.',
-      bodyDe: 'Öl bleibt klebrig und bindet Staub zu einer Schleifpaste, die im Gelenk mitläuft. Wachs ist trocken, der Dreck fällt einfach ab.',
-      bodyEn: 'Oil stays tacky and binds dust into a grinding paste that runs inside the joints. Wax is dry, so the grit simply falls off.',
+      titleDe: 'Im Gelenk mahlt nichts mehr.',
+      titleEn: 'Nothing grinds inside the joint.',
+      bodyDe: 'Öl bindet Staub zu einer Schleifpaste, die bei jeder Umdrehung zwischen Bolzen und Hülse mitläuft. Genau dort entsteht Verschleiß — nicht außen an der Kette.',
+      bodyEn: 'Oil binds dust into a grinding paste that runs between pin and bushing on every rotation. That is where wear happens — not on the outside of the chain.',
       chip: `μ ${pro.muLo.toFixed(2)} ${de ? 'statt' : 'vs'} ${oil.muLo.toFixed(2)}`,
     },
     {
       n: '04',
       titleDe: 'Der ganze Antrieb hält länger.',
       titleEn: 'The whole drivetrain lasts longer.',
-      bodyDe: `Ohne Schleifpaste im Gelenk hält die Kette ${life.waxLo} bis ${life.wax} mal so lange — und die teure Kassette kommt viel seltener dran.`,
-      bodyEn: `Without grinding paste in the joints a chain lasts ${life.waxLo} to ${life.wax} times as long — and the expensive cassette comes up far less often.`,
+      bodyDe: `Die Kette hält ${life.waxLo} bis ${life.wax} mal so lange — und weil sie sich nicht längt, fressen sich Kassette und Kettenblätter nicht mit ab.`,
+      bodyEn: `The chain lasts ${life.waxLo} to ${life.wax} times as long — and because it does not elongate, cassette and chainrings do not get eaten along with it.`,
       chip: `${life.waxLo}–${life.wax}×`,
     },
   ];
@@ -111,10 +137,13 @@ export function WhyWax() {
         <h2 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-wx-tx1 mb-4">
           <ScrollWordReveal text={de ? 'Du merkst es sofort.' : 'You notice it straight away.'} />
         </h2>
-        <p data-reveal="subtitle" className="hidden sm:block text-wx-txm max-w-xl text-[15px] leading-relaxed">
+        {/* Die Praemisse. Steht hier genau einmal, damit keine der vier
+            Zeilen darunter sie noch einmal erklaeren muss — das war der
+            Grund, warum 01 und 03 vorher wie dasselbe Argument klangen. */}
+        <p data-reveal="subtitle" className="text-wx-txm max-w-xl text-[15px] leading-relaxed">
           {de
-            ? 'Vier Dinge ändern sich auf der ersten Ausfahrt. Die Messwerte erklären sie hinterher.'
-            : 'Four things change on the very first ride. The measurements explain them afterwards.'}
+            ? 'Wachs härtet trocken aus. Alles Weitere folgt daraus — und vier davon merkst du schon auf der ersten Ausfahrt.'
+            : 'Wax cures dry. Everything else follows from that — and four of those you notice on the very first ride.'}
         </p>
       </div>
 
@@ -159,6 +188,50 @@ export function WhyWax() {
           ? `Gemessen: ${w.wax[0]}–${w.wax[1]} W Antriebsverlust statt ${w.oil[0]}–${w.oil[1]} W bei ${w.inputW[0]}–${w.inputW[1]} W Tretleistung, Reibungszahl μ ${pro.muLo.toFixed(2)}–${pro.muHi.toFixed(2)} statt μ ${oil.muLo.toFixed(2)}–${oil.muHi.toFixed(2)}. Laborwerte.`
           : `Measured: ${w.wax[0]}–${w.wax[1]} W drivetrain loss instead of ${w.oil[0]}–${w.oil[1]} W at ${w.inputW[0]}–${w.inputW[1]} W pedalling power, friction coefficient μ ${pro.muLo.toFixed(2)}–${pro.muHi.toFixed(2)} instead of μ ${oil.muLo.toFixed(2)}–${oil.muHi.toFixed(2)}. Lab values.`}
       </p>
+
+      {/* ── Der Beleg ──
+          Zeile 03 behauptet, dass der Verschleiss im Gelenk entsteht und dass
+          Wachs ihn dort verhindert. Das ist die Stelle, an der eine
+          Marketingseite normalerweise ein Symbolbild zeigt. Waxcelerate hat
+          dafuer etwas Besseres: eigene Mikroskopaufnahmen derselben Stelle
+          mit und ohne MoS2, gleiche Vergroesserung, gleiche Bedingungen.
+          Die lagen bisher ausschliesslich auf /wissenschaft — also hinter
+          einem Klick, den die meisten Besucher der Startseite nie machen.
+          Der staerkste Eigenbeleg der Marke gehoert dorthin, wo das
+          Argument gemacht wird, nicht zwei Seiten weiter. */}
+      <div className="mt-10 sm:mt-12 grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-6 lg:gap-10 items-center">
+        <div className="rounded-2xl overflow-hidden"
+          style={{ border: '1px solid var(--bd)', background: 'var(--card-bg)', boxShadow: 'var(--card-shad)' }}>
+          <BeforeAfterSlider
+            beforeSrc="/images/microscope/01-chain-link-inner-ref.webp"
+            afterSrc="/images/microscope/01-chain-link-inner-mos2.webp"
+            beforeAlt={de ? 'Kettenglied-Innenfläche, Referenz ohne MoS₂' : 'Chain link inner surface, reference without MoS₂'}
+            afterAlt={de ? 'Kettenglied-Innenfläche mit Waxcelerate und MoS₂' : 'Chain link inner surface with Waxcelerate and MoS₂'}
+            beforeLabel={de ? 'Referenz' : 'Reference'}
+            afterLabel="Waxcelerate"
+          />
+        </div>
+
+        <div>
+          <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
+            {de ? 'Eigene Aufnahme' : 'Our own micrograph'}
+          </p>
+          <h3 className="font-display font-bold text-wx-tx1 leading-[1.15] tracking-[-0.02em] mb-3"
+            style={{ fontSize: 'clamp(1.25rem, 2.8vw, 1.75rem)' }}>
+            {de ? 'Dieselbe Stelle, zwei Schmierstoffe.' : 'Same spot, two lubricants.'}
+          </h3>
+          <p className="text-[14.5px] leading-relaxed max-w-[46ch]" style={{ color: 'var(--txm)' }}>
+            {de
+              ? 'Innenfläche eines Kettenglieds bei 1000-facher Vergrößerung — genau die Fläche, auf der der Bolzen läuft. Zieh den Regler: links die Referenz, rechts dieselbe Stelle mit Waxcelerate.'
+              : 'Inner surface of a chain link at 1000× — exactly the face the pin runs on. Drag the handle: reference on the left, the same spot with Waxcelerate on the right.'}
+          </p>
+          <p className="text-[12px] leading-relaxed mt-3" style={{ color: 'var(--txff)' }}>
+            {de
+              ? 'Identische Vergrößerung, identische Aufnahmebedingungen. Keine Simulation.'
+              : 'Identical magnification and shooting conditions. Not a simulation.'}
+          </p>
+        </div>
+      </div>
 
       {/* ── Cost callout ──
           Die eine Zahl, die groß sein darf: nicht "70 €" allein, sondern die

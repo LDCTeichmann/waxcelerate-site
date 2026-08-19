@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Menu, X, Moon, Sun } from 'lucide-react';
+import { Menu, X, Moon, Sun, ChevronDown } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
 import { CartIcon } from '@/components/CartIcon';
@@ -29,23 +29,25 @@ const navItems = [
 // items; a single-row desktop bar does not.
 const mobileNavItems = navItems;
 
-// Desktop bar: six items, no "More" menu.
+// Desktop-Leiste: sechs Punkte, davon einer eine benannte Gruppe.
 //
-// Erster Versuch war ein "Mehr"-Dropdown fuer die restlichen vier Punkte
-// (Tools/Anleitungen/FAQ/Blog). Das loeste das Platzproblem, sah aber genau
-// so unfertig aus wie befuerchtet: eine reine Liste aus vier duennen
-// Textzeilen in einer leeren weissen Box, die man erst aufklappen musste, um
-// zu sehen, dass da nichts weiter drin ist. Ein "More"-Menu lohnt sich, wenn
-// die verborgenen Punkte etwas Eigenes sind, das man sonst nirgends findet —
-// hier ist das nicht der Fall: Tools, Anleitungen, FAQ und Blog stehen
-// bereits vollstaendig im Footer (siehe footer.tsx, Spalten "Shop"/"Info").
-// Die eigentliche Regel fuer eine Kopfzeile in einer Reihe ist ohnehin
-// hoechstens 5 bis 7 Punkte (Nielsen Norman, gilt uebergreifend fuer
-// Editorial-/Marketing-Seiten dieser Groesse) — nicht "so viele wie passen,
-// plus ein Abwurfmenue fuer den Rest". Sechs echte Ziele bleiben oben, vier
-// Inhalts-Sprungmarken wandern dahin, wo sie ohnehin schon lagen. Mobil
-// bleibt bei der vollen flachen Liste (mobileNavItems), das ist dort schon
-// eine vertikale Liste ohne Platzdruck.
+// Dritter Anlauf, die beiden vorherigen sind aus gegenteiligen Gruenden
+// gescheitert und beide Gruende sind derselbe Fehler:
+//   1. Zehn Punkte flach in einer Reihe -> Umbruch auf zwei Zeilen.
+//   2. Sechs Punkte + "Mehr"-Klappe -> sah aus wie ein leeres Abwurfmenue:
+//      vier duenne Textzeilen in einer sonst leeren weissen Box.
+//   3. Sechs Punkte, Rest nur im Footer -> nicht mehr auffindbar; man stiess
+//      nur zufaellig beim Scrollen darauf (Lucas Rueckmeldung).
+// Der Fehler in 2 und 3 war nicht die Klappe an sich, sondern das Label:
+// "Mehr" ist ein Sammelbegriff ohne Bedeutung — er koennte alles enthalten
+// und gibt keinen Hinweis, was dahinter liegt. Nielsen Norman zu genau
+// diesem Fall: benennende Labels schlagen generische Sammelbegriffe, und die
+// Unterpunkte brauchen eigenen Kontext, statt sich auf den Elternpunkt zu
+// verlassen (auch fuer Screenreader, die nur den Linktext vorlesen).
+// Deshalb jetzt "Ratgeber" statt "Mehr", und jeder Eintrag mit einer Zeile,
+// die sagt, was er ist. Das ist ein Ziel mit Inhaltsversprechen, kein
+// Restehaufen — und Tools/Anleitungen/FAQ/Blog sind wieder ueber die
+// Navigation erreichbar, ohne die Leiste zu sprengen.
 const primaryNavItems = [
   { href: '#warum-wachs', key: 'whyWax'   },
   { href: '#produkte',    key: 'products' },
@@ -55,9 +57,20 @@ const primaryNavItems = [
   { href: '#kontakt',     key: 'contact'  },
 ] as const;
 
+// Inhalt der "Ratgeber"-Gruppe. `desc` ist Pflicht, nicht Deko — ohne die
+// Zeile ist die Klappe wieder die Liste aus Anlauf 2.
+const resourceNavItems = [
+  { href: '#tools',       key: 'tools',  desc: 'toolsDesc'  },
+  { href: '#anleitungen', key: 'guides', desc: 'guidesDesc' },
+  { href: '#faq',         key: 'faq',    desc: 'faqDesc'    },
+  { href: '/blog',        key: 'blog',   desc: 'blogDesc', route: true },
+] as const;
+
 export function Navigation() {
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isResourcesOpen, setIsResourcesOpen] = useState(false);
+  const resourcesRef = useRef<HTMLDivElement>(null);
   const { t, lang, toggleLang } = useLanguage();
   const { theme, setTheme } = useTheme();
 
@@ -68,6 +81,27 @@ export function Navigation() {
   const activeSection = useActiveSection(navItems.filter(i => !i.route).map(i => i.href));
   const isActive = (item: { href: string; route?: boolean }) =>
     item.route ? location.pathname === item.href : activeSection === item.href;
+  const resourcesActive = resourceNavItems.some(isActive);
+
+  // Klappe schliesst bei Klick nach aussen oder Escape — dasselbe Muster,
+  // das Cart-Drawer und Mobilmenue hier ohnehin schon verwenden.
+  useEffect(() => {
+    if (!isResourcesOpen) return;
+    const onClick = (e: MouseEvent) => {
+      if (resourcesRef.current && !resourcesRef.current.contains(e.target as Node)) setIsResourcesOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setIsResourcesOpen(false); };
+    document.addEventListener('mousedown', onClick);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onClick);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [isResourcesOpen]);
+
+  // Routenwechsel schliesst die Klappe. Ohne das bleibt sie beim Sprung auf
+  // /blog offen ueber der neuen Seite stehen.
+  useEffect(() => { setIsResourcesOpen(false); }, [location.pathname]);
 
   useBodyScrollLock(isMobileMenuOpen);
 
@@ -186,6 +220,65 @@ export function Navigation() {
                   />
                 </a>
               ))}
+
+              {/* Ratgeber-Gruppe. Panel statt Liste: Titel plus je eine Zeile
+                  Kontext, damit man vor dem Klick weiss, was einen erwartet.
+                  Genau das fehlte der "Mehr"-Fassung. */}
+              <div ref={resourcesRef} className="relative">
+                <button
+                  type="button"
+                  onClick={() => setIsResourcesOpen(v => !v)}
+                  aria-expanded={isResourcesOpen}
+                  aria-haspopup="true"
+                  className="relative group flex items-center gap-1 text-[13.5px] tracking-[0.01em] transition-colors duration-300 whitespace-nowrap"
+                  style={{ color: resourcesActive || isResourcesOpen ? 'var(--tx1)' : 'var(--tx2)' }}
+                >
+                  {t.nav.resources}
+                  <ChevronDown
+                    className="h-3.5 w-3.5 transition-transform duration-200"
+                    style={{ transform: isResourcesOpen ? 'rotate(180deg)' : 'none' }}
+                    aria-hidden
+                  />
+                  <span
+                    className={`absolute -bottom-1.5 left-0 right-0 h-px origin-left transition-transform duration-200 ${
+                      resourcesActive ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
+                    }`}
+                    style={{ background: resourcesActive ? 'var(--accent)' : 'var(--bd)' }}
+                  />
+                </button>
+
+                {isResourcesOpen && (
+                  <div
+                    role="menu"
+                    className="absolute top-full left-1/2 -translate-x-1/2 mt-4 p-2 rounded-2xl w-[330px]"
+                    style={{
+                      background: 'var(--sf)',
+                      border: '1px solid var(--bd)',
+                      boxShadow: '0 18px 50px rgba(10,10,16,0.16), 0 3px 12px rgba(10,10,16,0.08)',
+                    }}
+                  >
+                    {resourceNavItems.map((item) => (
+                      <a
+                        key={item.href}
+                        href={hrefFor(item)}
+                        role="menuitem"
+                        onClick={(e) => { e.preventDefault(); setIsResourcesOpen(false); handleNav(item); }}
+                        className="block rounded-xl px-3 py-2.5 transition-colors hover:bg-[var(--sf2)]"
+                      >
+                        <span
+                          className="block text-[13.5px] font-semibold"
+                          style={{ color: isActive(item) ? 'var(--accent)' : 'var(--tx1)' }}
+                        >
+                          {t.nav[item.key as keyof typeof t.nav]}
+                        </span>
+                        <span className="block text-[12px] leading-snug mt-0.5" style={{ color: 'var(--txm)' }}>
+                          {t.nav[item.desc as keyof typeof t.nav]}
+                        </span>
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
             </nav>
 
             {/* Actions */}

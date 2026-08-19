@@ -7,21 +7,30 @@ import { useSectionReveal } from '@/hooks/useAnimation';
 // Stuttgart" is true for what we make here, not for a Shimano/SRAM/YBN chain
 // we only wax-treat (see v9ChainFooterNote in productContent.ts).
 //
-// Rebuilt from a boxed-thumbnail-beside-text layout with fade bands at the
-// top/bottom edges after direct feedback that both read as cheap: the fades
-// as a flat gradient band, the image as "just a rounded thing next to it".
-// This version follows the pattern the homepage hero already uses for a dark
-// photo section instead of inventing a new one — one continuous full-bleed
-// photo with a directional scrim for text legibility, no separate framed
-// image, no transition band at the section edges (a clean hard cut, the same
-// way the hero itself simply starts).
+// Dritter Aufbau. Die beiden vorherigen und warum sie nicht getragen haben:
 //
-// Deliberately NOT wrapped in the shared <Section> component: that component
-// constrains everything to the max-w-7xl padded column, which is exactly
-// right for text-only sections but is what forced the photo into a small
-// boxed card here. This rebuilds the same outer padding/spacing by hand so
-// the image can bleed edge to edge while the text stays in the same column
-// every other section uses.
+//  v1: gerahmtes Bild neben Text, Verlaufsbaender an Ober- und Unterkante.
+//      Rueckmeldung: die Baender wirkten billig, das Bild wie "nur ein
+//      rundes Ding daneben".
+//  v2: ein Foto ueber die volle Breite, darueber ein Scrim, der links 95 %
+//      deckte. Zwei Fehler auf einmal. Erstens war das Bild damit faktisch
+//      schon eine rechte Spalte — nur eine, die man durch Uebermalen der
+//      linken zwei Drittel erzeugt hat, statt sie zu bauen. Zweitens, und
+//      das war der sichtbare Mangel: die Vorlage ist ein HOCHFORMAT
+//      (2224x3953). Ueber die volle Breite gezogen musste daraus ein
+//      extremer Querausschnitt werden, und die ausgelieferte Datei war dabei
+//      nur 1200px breit — auf einem 2560px-Bildschirm also mehr als doppelt
+//      hochskaliert. Daher "unscharf": kein Motiv-, sondern ein
+//      Aufloesungsproblem.
+//
+// v3 arbeitet mit dem Hochformat statt dagegen. Das Foto ist eine echte
+// Spalte am rechten Rand ueber die volle Sektionshoehe, im Verhaeltnis nahe
+// am Original (0,92 statt Querband), und wird bei ~46 % Spaltenbreite aus
+// einer 1400px-Datei gespeist — auf einem 1600px-Viewport sind das rund
+// 730 CSS-Pixel, also fast 2x-Dichte statt 0,5x. Die linke Kante loest sich
+// per Verlauf in den dunklen Grund auf, damit die Spalte nicht als
+// aufgeklebtes Rechteck endet ("smoother"), aber ohne die Baender an den
+// Sektionskanten, die an v1 kritisiert wurden.
 export function Origin() {
   const { t, lang } = useLanguage();
   const de = lang === 'de';
@@ -30,40 +39,65 @@ export function Origin() {
 
   // Only two stats, deliberately: "2024 · In Stuttgart gegründet" already
   // lives in the About section's own stat row (src/sections/about.tsx) — an
-  // Origin section repeating it back is filler, not new information. These
-  // two are the ones About doesn't already own.
+  // Origin section repeating it back is filler, not new information.
   const stats = [
     { v: '80–90 °C', l: t.origin.stat1 },
     { v: t.origin.stat2v, l: t.origin.stat2 },
   ];
 
-  return (
-    <section id="herkunft" className="relative py-20 sm:py-32 overflow-hidden" style={{ background: '#0a0a0a' }}>
-      <picture>
-        <source
-          srcSet="/images/origin/origin-stuttgart-800.webp 800w, /images/origin/origin-stuttgart.webp 1200w"
-          sizes="100vw"
-          type="image/webp"
-        />
-        <img
-          src="/images/origin/origin-stuttgart.jpg"
-          alt={de ? 'Waxcelerate Ketten und Verpackung mit Blick über Stuttgart' : 'Waxcelerate chains and packaging overlooking Stuttgart'}
-          className="absolute inset-0 w-full h-full object-cover"
-          style={{ objectPosition: '75% 38%' }}
-          loading="lazy"
-          decoding="async"
-        />
-      </picture>
+  const img = (
+    <picture>
+      <source
+        srcSet="/images/origin/origin-stuttgart-800.webp 800w, /images/origin/origin-stuttgart.webp 1400w"
+        sizes="(max-width: 1023px) 100vw, 46vw"
+        type="image/webp"
+      />
+      <img
+        src="/images/origin/origin-stuttgart.jpg"
+        alt={de
+          ? 'Frisch gegossene Waxcelerate-Wachsblöcke mit Blick über das Stuttgarter Tal'
+          : 'Freshly cast Waxcelerate wax blocks overlooking the Stuttgart valley'}
+        className="w-full h-full object-cover"
+        style={{ objectPosition: '50% 50%' }}
+        loading="lazy"
+        decoding="async"
+      />
+    </picture>
+  );
 
-      {/* Directional scrim — heaviest under the text (left), easing off
-          toward the photo's own detail (right), same technique as the hero's
-          own scrim rather than a flat panel dropped over the whole image. */}
-      <div aria-hidden className="absolute inset-0 pointer-events-none"
-        style={{ background: 'linear-gradient(100deg, rgba(5,6,8,0.95) 0%, rgba(5,6,8,0.86) 30%, rgba(5,6,8,0.45) 58%, rgba(5,6,8,0.12) 100%)' }} />
+  return (
+    // Mindesthoehe ab lg, damit die Bildspalte hochkant bleibt. Ohne sie
+    // bestimmt allein der Text die Sektionshoehe (gemessen: 577px), und die
+    // Spalte wird mit 662x577 breiter als hoch — dann schneidet object-cover
+    // aus dem Hochformat-Ausschnitt wieder ein Querband heraus, also genau
+    // das Problem, das dieser Umbau beheben soll.
+    <section id="herkunft" className="relative overflow-hidden lg:min-h-[680px] lg:flex lg:items-center"
+      style={{ background: '#0a0a0a' }}>
+
+      {/* ── Bildspalte, ab lg als echte Spalte rechts ──
+          absolut positioniert, damit sie die volle Sektionshoehe traegt,
+          egal wie hoch der Text daneben baut. */}
+      <div aria-hidden className="hidden lg:block absolute inset-y-0 right-0 w-[46%]">
+        {img}
+        {/* Linke Kante loest sich in den Grund auf. Nur ueber dem linken
+            Drittel der Spalte, damit das Motiv selbst unangetastet bleibt. */}
+        <div className="absolute inset-y-0 left-0 w-1/2 pointer-events-none"
+          style={{ background: 'linear-gradient(90deg, #0a0a0a 0%, rgba(10,10,10,0.82) 34%, rgba(10,10,10,0) 100%)' }} />
+      </div>
+
+      {/* Mobil: Bild als Band oben. Eine Seitenspalte gibt es auf 390px
+          nicht sinnvoll, und das Motiv unter den Text zu schieben wuerde die
+          Sektion mit einer Textwand beginnen lassen. */}
+      <div className="lg:hidden relative w-full" style={{ aspectRatio: '4 / 3' }}>
+        {img}
+        <div aria-hidden className="absolute inset-x-0 bottom-0 h-1/3 pointer-events-none"
+          style={{ background: 'linear-gradient(to top, #0a0a0a 0%, rgba(10,10,10,0) 100%)' }} />
+      </div>
+
       <div aria-hidden className="absolute inset-0 pointer-events-none hero-grain" />
 
-      <div className="relative mx-auto w-full max-w-7xl px-6 sm:px-10 lg:px-14 xl:px-20">
-        <div ref={headerRef} className="max-w-lg">
+      <div className="relative mx-auto w-full max-w-7xl px-6 sm:px-10 lg:px-14 xl:px-20 pb-20 pt-10 sm:pt-14 lg:py-32">
+        <div ref={headerRef} className="max-w-lg lg:max-w-[30rem]">
           <p data-reveal="eyebrow" className="eyebrow mb-3" style={{ color: 'var(--brand-blue)' }}>
             {t.origin.eyebrow}
           </p>

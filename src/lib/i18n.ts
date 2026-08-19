@@ -18,6 +18,22 @@ export const translations = {
       blog: 'Blog',
       contact: 'Kontakt',
       ebayShop: 'eBay-Shop',
+      // Sammelpunkt fuer Tools/Anleitungen/FAQ/Blog. Bewusst NICHT "Mehr":
+      // ein Sammellabel ohne eigene Bedeutung koennte alles enthalten und
+      // gibt keinen Hinweis darauf, was dahinter liegt (Nielsen Norman zu
+      // Navigationslabels: generische Sammelbegriffe wie "Mehr"/"Ressourcen"
+      // schneiden schlechter ab als benennende Labels, und die Unterpunkte
+      // brauchen eigenen Kontext statt sich auf den Elternpunkt zu verlassen).
+      // "Ratgeber" sagt, was drin ist, und ist zusaetzlich der Begriff, unter
+      // dem im deutschen Markt danach gesucht wird.
+      resources: 'Ratgeber',
+      // Je ein Satz Kontext pro Eintrag — ohne den ist die Klappe nur eine
+      // Liste aus vier duennen Textzeilen, und genau daran ist die erste
+      // Fassung gescheitert.
+      toolsDesc: 'Rechner für Kosten, Intervalle und Verschleiß',
+      guidesDesc: 'Schritt für Schritt vom Öl zum Wachs',
+      faqDesc: 'Die 20 häufigsten Fragen, kurz beantwortet',
+      blogDesc: 'Die Werkstatt — Technik-Artikel und Tests',
     },
 
     // Hero
@@ -381,6 +397,11 @@ export const translations = {
       blog: 'Blog',
       contact: 'Contact',
       ebayShop: 'eBay Shop',
+      resources: 'Guides & tools',
+      toolsDesc: 'Calculators for cost, intervals and wear',
+      guidesDesc: 'Step by step from oil to wax',
+      faqDesc: 'The 20 most common questions, answered briefly',
+      blogDesc: 'The Workshop — technical articles and tests',
     },
 
     // Hero
