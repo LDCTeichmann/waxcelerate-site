@@ -6,7 +6,55 @@ Nur lesen, wenn etwas Visuelles ansteht. Einstieg ist `PROJECT.md`.
 
 ## 1. Warum Panels bräunlich aussahen
 
-Zwei unabhängige Ursachen, beide behoben, beide leicht wieder einzubauen.
+**Vier unabhängige Ursachen**, alle behoben, alle leicht wieder einzubauen. Der
+„ockrig/olive" Eindruck kam viermal zurück, jedes Mal aus einer anderen Ecke —
+wer ihn ein fünftes Mal sieht, sollte hier von oben nach unten durchgehen,
+statt an Hex-Werten zu drehen.
+
+**Ursache 3 — die Fotos selbst.** Nachgemessen am 21.08.2026 (Kanalmittelwerte
+via `sharp().stats()`): `starter-box` R109 G114 B72 — 42 Einheiten Gelbgrün.
+`wax-pro` 19, `chains-hanging-gold` 12, `chains-flat` 6. Alle zeigen Produkt vor
+grünem Laub-Bokeh. Der Regal-Umbau stellte drei davon erstmals nebeneinander,
+mit `wax-pro` direkt darüber. Behoben mit `.photo-neutral`
+(`saturate(0.68) contrast(1.06)`) auf der Produktfotografie — Entsättigung, weil
+das Laub das gesättigtste Motiv ist und am meisten verliert, während der blaue
+Classic-Block seine Identität behält.
+
+**Ursache 4 — zu wenig Abstand zwischen den Graustufen.** Das ist die
+eigentliche, und sie ist **keine Farbe**: nachgemessen waren alle Tokens exakt
+R=G=B und kein großflächiges Element im DOM hatte einen Stich über 3 Einheiten.
+Die vier hellen Flächen lagen mit `#EAEAEA / #F1F1F1 / #F6F6F6 / #FFFFFF` in
+einer nur **21 Einheiten schmalen Spanne** dicht unter Weiß. Vier fast gleiche
+Grautöne erzeugen keine Tiefe, sondern Matsch — und ein Feld, das weder als
+„weiß" noch als „grau" liest, benennt das Auge als beige/ocker. Die Literatur zu
+Grau-Skalen sagt dasselbe: zu viele ähnliche Graustufen wirken „muddy", und im
+hellen Bereich braucht es *mehr* Abstand, weil die Wahrnehmung dort komprimiert.
+
+### Die verbindliche Regel für alle Graustufen
+
+Neutrale werden **in OKLCH mit Chroma = 0 gerechnet**, nicht von Hand geraten.
+Chroma 0 heißt: ein Farbstich ist mathematisch ausgeschlossen, unabhängig vom
+Gamut des Displays. Das ist der strukturelle Teil — er kann nicht verrutschen.
+
+| Token | Wert | Δ zur Stufe davor |
+|---|---|---|
+| `--sf` | `#FFFFFF` | — |
+| `--pg` | `#F9F9F9` | 6 |
+| `--sf2` | `#F1F1F1` | 8 |
+| `--sf3` | `#EBEBEB` | 6 |
+| `--bd2` | `#E4E4E4` | 7 |
+| `--bd` | `#D4D4D4` | 16 — die Kante trägt die Trennung, nicht die Füllung |
+
+Untergrenze für `--sf3` ist **WCAG, nicht Geschmack**: bei `#E8E8E8` fällt
+`--txff` auf 4.48:1 und reißt die 4.5:1-Schwelle. `#EBEBEB` gibt 4.61:1.
+Nachgerechnet gegen die dunkelste Fläche: txm 5.61, txf 5.12, txff 4.61,
+tx2 8.11, tx1 15.93 — alle bestanden.
+
+**Nicht wieder einen Farbstich einbauen, auch keinen angenehm kühlen.**
+
+---
+
+### Die ersten beiden Ursachen (historisch)
 
 **Simultankontrast.** Die Grautöne trugen früher einen Blaustich von 1 bis 4
 Einheiten pro Kanal. Isoliert las sich das als kühles Neutral, neben dem

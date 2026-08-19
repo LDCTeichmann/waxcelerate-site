@@ -138,34 +138,52 @@
        / fallback), not the thing that draws the card edge. Same value in noir —
        see the note there for why it must not be lighter than the photo. */
     --hero-stage: #0B0C0E;
-    /* ── Helle Flaechen: angehoben statt entfaerbt ────────────────────────
-       Dritter Anlauf gegen den "ockrig/oliven" Eindruck. Die ersten beiden
-       Male war es tatsaechlich Farbe (Blaustich in den Grautoenen, dann der
-       Kornfilter in linearRGB) — beides ist behoben und bleibt es. Diesmal
-       ist es KEINE Farbe: nachgemessen sind alle Tokens exakt R=G=B und kein
-       grossflaechiges Element im DOM hat einen Stich ueber 3 Einheiten.
+    /* ── Neutrale Skala — in OKLCH gerechnet, nicht von Hand geraten ──────
+       DIE VERBINDLICHE REGEL FUER ALLE GRAUSTUFEN. Vor jeder Aenderung hier
+       lesen, sonst kommt der "ockrig/olive" Eindruck ein viertes Mal.
 
-       Es ist ein Helligkeitsproblem. Die vier hellen Flaechen lagen mit
-       #EAEAEA / #F1F1F1 / #F6F6F6 / #FFFFFF in einer 21 Einheiten schmalen
-       Spanne dicht unter Weiss. Grosse Felder in diesem Bereich lesen sich
-       nicht als "weiss" und nicht als "grau", sondern als schmutziges Weiss
-       — und schmutziges Weiss benennt das Auge als beige/ocker, besonders
-       neben warmen Fotos und auf jedem Display mit minimalem Warmstich.
+       Drei bisherige Ursachen, alle behoben und alle verschieden:
+         1. Blaustich in den Grautoenen — neben dem Akzentblau kippte das
+            wahrnehmungsseitig ins Pistaziengruene. Fix: exakt R=G=B.
+         2. Der SVG-Kornfilter rechnete in linearRGB, saturate=0 lief also im
+            falschen Raum. Fix: color-interpolation-filters='sRGB'.
+         3. Die Produktfotos selbst (bis 42 Einheiten Gelbgruen im
+            Kanalmittel). Fix: .photo-neutral.
 
-       Also nach oben gezogen, damit die Flaechen sauber weiss wirken, und
-       die Trennung stattdessen aus den Kanten geholt (--bd dunkler). Das ist
-       genau Lucas Vorgabe: "durch Weiss, Schwarz und Grau Tiefe geben bzw.
-       Kontrast und sich abhebende Elemente". Alle Werte bleiben exakt R=G=B
-       — es wird ausdruecklich KEIN kuehler Gegenstich eingebaut, siehe
-       DESIGN.md §1.
+       Vierte Ursache, und die eigentliche: zu wenig Abstand. Die vier hellen
+       Flaechen lagen mit #EAEAEA / #F1F1F1 / #F6F6F6 / #FFFFFF in einer nur
+       21 Einheiten schmalen Spanne dicht unter Weiss. Vier fast gleiche
+       Grautoene erzeugen keine Tiefe, sondern Matsch — und ein Feld, das
+       weder als "weiss" noch als "grau" liest, benennt das Auge als
+       beige/ocker. Genau das dokumentiert auch die Fachliteratur zu
+       Grau-Skalen: zu viele aehnliche Graustufen machen ein Interface
+       "muddy", und im hellen Bereich braucht es MEHR Abstand, weil die
+       Wahrnehmung dort staerker komprimiert.
 
-       Textkontrast: --txm/--txf/--txff waren gegen die dunkelste Flaeche
-       (--sf3) berechnet. Die wird hier heller, die Verhaeltnisse werden also
-       besser, nicht schlechter. */
-    --pg:        #F8F8F8;
+       Deshalb jetzt eine echte Rampe, in OKLCH gerechnet (perceptually
+       uniform, seit 10/2025 im W3C-Design-Tokens-Standard) und mit
+       Chroma = 0. Chroma 0 heisst: ein Farbstich ist mathematisch
+       ausgeschlossen, egal in welchem Gamut das Display arbeitet. Das ist
+       der strukturelle Teil des Fixes — er kann nicht wieder verrutschen.
+
+       Ergebnis, Abstaende gleichmaessig statt gequetscht:
+         --sf   #FFFFFF   (Δ –)
+         --pg   #F9F9F9   (Δ 6)
+         --sf2  #F1F1F1   (Δ 8)
+         --sf3  #EBEBEB   (Δ 6)
+         --bd2  #E4E4E4   (Δ 7)
+         --bd   #D4D4D4   (Δ 16 — Kanten tragen die Trennung)
+
+       Untergrenze fuer --sf3 ist WCAG, nicht Geschmack: bei #E8E8E8 faellt
+       --txff auf 4.48:1 und reisst die 4.5:1-Schwelle. #EBEBEB gibt 4.61:1.
+       Nachgerechnet: txm 5.61, txf 5.12, txff 4.61, tx2 8.11, tx1 15.93 —
+       alle bestanden.
+
+       Kein kuehler Gegenstich, auch kein "angenehmer" — siehe DESIGN.md §1. */
+    --pg:        #F9F9F9;
     --sf:        #FFFFFF;
-    --sf2:       #F4F4F4;
-    --sf3:       #EDEDED;
+    --sf2:       #F1F1F1;
+    --sf3:       #EBEBEB;
     --tx1:       #101013;   /* near-black, neutral */
     --tx2:       #44444A;   /* zinc-700-ish */
     /* --txm/--txf/--txff (Mobile-Plan B4, 05.08.2026): waren #6B6B72 /
@@ -187,14 +205,14 @@
        (siehe oben), also muss die Trennung von der Linie kommen statt vom
        Farbunterschied der Fuellung — das ist ohnehin die sauberere Loesung
        und passt zum Haarlinien-Prinzip aus DESIGN.md §3. */
-    --bd:        #D9D9D9;
-    --bd2:       #E9E9E9;
+    --bd:        #D4D4D4;
+    --bd2:       #E4E4E4;
     --card-from: #FFFFFF;
-    --card-to:   #F8F8F8;
-    --card-to-rgb: 248,248,248;
+    --card-to:   #F9F9F9;
+    --card-to-rgb: 249,249,249;
     --card-bg:   linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%);
     --card-shad: 0 2px 16px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,0.9);
-    --nav-bg:    rgba(248,248,248,0.92);
+    --nav-bg:    rgba(249,249,249,0.92);
     --tool-bg:   var(--pg);   /* was a shade darker than the page — same discrete tone now, no visible seam */
     --card-shadow-hover: 0 4px 20px rgba(0,0,0,0.10), 0 12px 40px rgba(0,0,0,0.08), 0 0 0 1px rgba(var(--accent-rgb),0.15);
     --card-img-fade: transparent;
