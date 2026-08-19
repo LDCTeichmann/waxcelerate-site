@@ -131,6 +131,29 @@ function WaxPanel({ variant, de, t, image, alt }: {
           className="absolute inset-0"
           style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.76) 0%, rgba(0,0,0,0.42) 24%, rgba(0,0,0,0.06) 52%, rgba(0,0,0,0) 72%)' }}
         />
+
+        {/* Auszeichnung oben links.
+            Classic und Pro standen bisher als zwei voellig gleichwertige
+            Tafeln nebeneinander — gleiche Groesse, gleiche Gestaltung, kein
+            Hinweis, welche die uebliche Wahl ist. Die eigenen Verkaufszahlen
+            sagen etwas anderes: von 236 verkauften Wachsbloecken sind 207
+            Classic (87 %). Wer zwei gleich grosse Tafeln sieht, muss eine
+            Entscheidung treffen, die 87 % der Kaeufer gar nicht haben.
+            Wichtig: Die Auszeichnungen sagen NICHT "diese ist besser" — das
+            waere bei zwei Produkten im selben Regal ein Widerspruch. Classic
+            traegt eine Tatsache (meistgekauft), Pro einen Anwendungsfall
+            (Winter & E-Bike). So beantwortet die Karte "welche bin ich?"
+            statt "welche ist besser?". */}
+        <span className="absolute top-4 left-4 rounded-full px-2.5 py-1 text-meta font-semibold"
+          style={{
+            background: variant === 'classic' ? 'rgba(255,255,255,0.94)' : 'rgba(10,10,12,0.62)',
+            color: variant === 'classic' ? '#101013' : 'rgba(255,255,255,0.94)',
+            backdropFilter: 'blur(6px)',
+            border: variant === 'classic' ? 'none' : '1px solid rgba(255,255,255,0.22)',
+          }}>
+          {variant === 'classic' ? s.classicBadge : s.proBadge}
+        </span>
+
         <div className="absolute left-5 right-5 bottom-5">
           <h3
             className="font-display font-bold leading-[1.05] tracking-[-0.02em]"
@@ -160,6 +183,22 @@ function WaxPanel({ variant, de, t, image, alt }: {
       <p className="num-data text-meta mt-3 pt-3" style={{ ...HAIR, color: 'var(--txm)' }}>
         {product.intervalDry} {s.dryInterval} · {product.applications} {s.uses} · {variant === 'classic' ? s.classicFormula : s.proFormula}
       </p>
+
+      {/* Verkaufszahl und Bewertungen direkt an der Kaufentscheidung.
+          Beides steht seit jeher in data.ts (unitsSold, reviewCount) und
+          wurde nirgends im Regal ausgegeben — die Zahlen lagen ungenutzt
+          herum, waehrend der Beleg dafuer zwei Sektionen weiter unten in
+          den Bewertungen stand. Sozialer Beweis wirkt dort, wo entschieden
+          wird, nicht dort, wo er thematisch hingehoert.
+          Nur anzeigen, wenn es etwas zu zeigen gibt: Pro 300 g hat 6 Stueck
+          und 2 Bewertungen — das ist als "Beleg" schwaecher als gar keine
+          Angabe, deshalb erst ab 20 Stueck. */}
+      {(product.unitsSold ?? 0) >= 20 && (
+        <p className="num-data text-meta mt-2" style={{ color: 'var(--txf)' }}>
+          {product.unitsSold}{s.soldUnits}
+          {(product.reviewCount ?? 0) > 0 && ` · ${product.reviewCount} ${s.reviewsShort}`}
+        </p>
+      )}
 
       <div className="mt-4 flex items-center gap-4">
         {canCheckout(product) ? (
@@ -288,8 +327,24 @@ export function ProductShelf({ de, t, onOpenChains, onCompare }: {
         </button>
       </div>
 
-      {/* ── Set / Ketten / Rewax — eine Kachelsprache, eine Reihe ── */}
-      <div className="grid gap-8 sm:gap-6 sm:grid-cols-3">
+      {/* ── Set / Ketten / Rewax ──
+          Eine Kachelsprache, eine Reihe — und seit dieser Fassung mit einer
+          eigenen Ueberschrift. Ohne sie las sich die Sektion als flache Liste
+          aus fuenf gleichrangigen Bloecken (zwei Tafeln, drei Kacheln); alles
+          gleich laut ist dasselbe wie nichts laut. Die drei Kacheln sind aber
+          keine drei weiteren Produkte, sondern drei Antworten auf denselben
+          Einwand — "ich will kein Wachs schmelzen". Genau so benannt, wird
+          aus der Liste ein Argument. */}
+      <div>
+        <div className="mb-6">
+          <h3 className="font-display font-bold leading-tight"
+            style={{ fontSize: 'clamp(1.25rem, 2.4vw, 1.65rem)', color: 'var(--tx1)' }}>
+            {s.altTitle}
+          </h3>
+          <p className="text-[13.5px] mt-1.5" style={{ color: 'var(--txm)' }}>{s.altBody}</p>
+        </div>
+
+        <div className="grid gap-8 sm:gap-6 sm:grid-cols-3">
         <SecondaryTile
           to="/starter-set"
           image="/images/shelf/starter-box" imageW={1200}
@@ -315,6 +370,7 @@ export function ProductShelf({ de, t, onOpenChains, onCompare }: {
           alt={de ? 'Frisch gewachste Ketten hängen zum Aushärten' : 'Freshly waxed chains hanging to cure'}
           dark
         />
+        </div>
       </div>
     </div>
   );

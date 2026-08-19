@@ -76,6 +76,13 @@ export const translations = {
         proName: 'Pro',
         classicFor: 'Frühling bis Herbst',
         proFor: 'Ganzjahr & E-Bike',
+        // Classic: eine Tatsache aus den eigenen Verkaufszahlen.
+        // Pro: der Wirkstoff, der den Aufpreis erklaert — bewusst KEIN
+        // "empfohlen"/"beste Wahl", denn zwei Produkte im selben Regal
+        // koennen nicht beide die beste Wahl sein, und genau dieser
+        // Widerspruch erzeugt die Entscheidungslaehmung, die hier weg soll.
+        classicBadge: 'Meistgekauft',
+        proBadge: 'mit MoS₂',
         classicFormula: 'Paraffin + PTFE',
         proFormula: 'Paraffin + MoS₂',
         size: 'Größe',
@@ -94,9 +101,16 @@ export const translations = {
         chainsAll: 'Alle Ketten ansehen',
         chainsCount: '{n} Ketten',
         rewaxEyebrow: 'Service',
-        rewaxTitle: 'Keine Lust auf den Topf? Schick die Kette.',
-        rewaxBody: 'Rewax für bereits gewachste Ketten, 13,95 € je Kette, ab drei 9,95 €.',
+        rewaxTitle: 'Schick die Kette ein.',
+        rewaxBody: 'Wir wachsen sie und schicken sie fahrbereit zurück. 13,95 € je Kette, ab drei 9,95 €.',
         rewaxCta: 'Zum Rewax-Service',
+        // Ueberschrift ueber Set/Ketten/Rewax. Ohne sie stehen dort drei
+        // Kacheln ohne erkennbaren Zusammenhang; mit ihr sind es drei
+        // Antworten auf denselben Einwand — den mit Abstand haeufigsten.
+        altTitle: 'Kein Topf? Kein Problem.',
+        altBody: 'Drei Wege, wie du gewachst fährst, ohne selbst Wachs zu schmelzen.',
+        soldUnits: '× verkauft',
+        reviewsShort: 'Bewertungen',
       },
     },
 
@@ -472,6 +486,8 @@ export const translations = {
         proName: 'Pro',
         classicFor: 'Spring through autumn',
         proFor: 'All year & e-bike',
+        classicBadge: 'Most bought',
+        proBadge: 'with MoS₂',
         classicFormula: 'Paraffin + PTFE',
         proFormula: 'Paraffin + MoS₂',
         size: 'Size',
@@ -490,9 +506,13 @@ export const translations = {
         chainsAll: 'See all chains',
         chainsCount: '{n} chains',
         rewaxEyebrow: 'Service',
-        rewaxTitle: 'Not keen on the pot? Send the chain in.',
-        rewaxBody: 'Rewax for chains that are already waxed, 13.95 € per chain, 9.95 € from three chains.',
+        rewaxTitle: 'Send the chain in.',
+        rewaxBody: 'We wax it and send it back ready to ride. 13.95 € per chain, 9.95 € from three.',
         rewaxCta: 'To the rewax service',
+        altTitle: 'No pot? No problem.',
+        altBody: 'Three ways to ride waxed without melting wax yourself.',
+        soldUnits: '× sold',
+        reviewsShort: 'reviews',
       },
     },
 
