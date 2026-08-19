@@ -123,7 +123,7 @@ function WaxPanel({ variant, de, t, image, alt }: {
             alt={alt}
             loading="lazy"
             decoding="async"
-            className="absolute inset-0 h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.04]"
+            className="photo-neutral absolute inset-0 h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.04]"
           />
         </picture>
         <span
@@ -249,7 +249,7 @@ export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, d
             alt={alt}
             loading="lazy"
             decoding="async"
-            className="absolute inset-0 h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.04]"
+            className="photo-neutral absolute inset-0 h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.04]"
           />
         </picture>
         <span aria-hidden className="absolute inset-0"

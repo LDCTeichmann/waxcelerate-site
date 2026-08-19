@@ -426,14 +426,58 @@
 
 /* Editorial hero — feines Film-Grain über der Bühne (Material/Wärme, high-end). */
 .hero-grain {
-  /* feColorMatrix desaturates the raw turbulence output — without it,
-     fractalNoise's per-channel Perlin values aren't balanced and the "grain"
-     reads as a faint green/olive tint instead of neutral gray. */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  /* feColorMatrix entsättigt die rohe Turbulenz — ohne das sind die
+     per-Kanal-Perlin-Werte von fractalNoise unbalanciert und das "Korn" liest
+     sich als grünlich-oliver Schleier statt als neutrales Grau.
+     color-interpolation-filters='sRGB' ist das, was diese Entsättigung
+     überhaupt greifen lässt: SVG-Filter rechnen per Voreinstellung in
+     linearRGB, saturate=0 lief also im linearen Raum und kam durch die
+     sRGB-Kennlinie unbalanciert zurück. Exakt derselbe Fehler war in `.grain`
+     weiter unten schon behoben — hier fehlte das Attribut weiterhin, obwohl
+     der Kommentar darüber behauptete, feColorMatrix allein genüge. Siehe
+     DESIGN.md §1, dort ist der Mechanismus ausführlich dokumentiert.
+     Deckkraft von 0.05 auf 0.03 (hell) bzw. 0.08 auf 0.05 (noir): eine Textur
+     soll gefühlt und nicht gesehen werden. */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-size: 180px 180px;
-  opacity: 0.05;
+  opacity: 0.03;
 }
-.noir .hero-grain { opacity: 0.08; }
+.noir .hero-grain { opacity: 0.05; }
+
+/* ── Produktfotografie entgrünen ─────────────────────────────────────────────
+   Dritter Auftritt des "olivgrünen Schleiers", diesmal mit einer anderen
+   Ursache als die beiden vorherigen. Zur Erinnerung (DESIGN.md §1):
+     1. Auftritt — Grautöne trugen einen Blaustich, neben dem Akzentblau kippte
+        das wahrnehmungsseitig ins Pistaziengrüne. Behoben: alle Grautöne R=G=B.
+     2. Auftritt — der SVG-Kornfilter rechnete in linearRGB. Behoben:
+        color-interpolation-filters='sRGB'.
+   Beide Ursachen sind weiterhin behoben. Nachgemessen am 21.08.2026: sämtliche
+   Flächen-Tokens sind exakt neutral (#F6F6F6, #F1F1F1, #EAEAEA, #DEDEDE), und
+   kein einziges großflächiges Element im gerenderten DOM hat einen Farbstich
+   über 3 Einheiten.
+
+   Der Stich kommt diesmal aus den FOTOS. Kanalmittelwerte, gemessen:
+     starter-box            R109 G114 B72   → 42 Einheiten Gelbgrün
+     wax-pro                R95  G100 B81   → 19 Einheiten Grün
+     chains-hanging-gold    R116 G117 B105  → 12 Einheiten Grün
+     chains-flat            R106 G109 B103  →  6 Einheiten Grün
+   Alle vier zeigen Produkt vor grünem Laub-Bokeh. Der Regal-Umbau hat drei
+   davon erstmals nebeneinander in eine Reihe gestellt, mit wax-pro direkt
+   darüber — vier olivstichige Großflächen auf einem Bildschirm. Genau deshalb
+   wirkt es "wieder da" und schlimmer als vorher, obwohl am CSS nichts kaputt
+   ist: die neutralen Grautöne der Seite nehmen im Simultankontrast den
+   Gegenton zum dominierenden Laubgrün an.
+
+   Korrektur hier statt in den Bilddateien, weil Luca die Fotos ohnehin gerade
+   austauscht (raw-image-library/BILDER/) — als CSS-Filter ist sie in einer
+   Zeile abschaltbar und lässt die Originale unangetastet. Entsättigung, nicht
+   Farbdrehung: das Laub ist das mit Abstand gesättigtste Motiv im Bild, es
+   verliert also am meisten, während der blaue Classic-Block seine Identität
+   behält — er wird gegen das gedämpfte Umfeld sogar deutlicher. Leichte
+   Kontraktanhebung, damit die Bilder dabei nicht flau werden. */
+.photo-neutral {
+  filter: saturate(0.68) contrast(1.06);
+}
 
 /* Pro product photos: black wax on dark slate, shot with no alpha channel —
    in noir theme the card background is dark too, so the product nearly

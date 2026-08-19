@@ -90,19 +90,28 @@ export const translations = {
         dryInterval: 'trocken',
         uses: 'Anwendungen',
         details: 'Details',
+        // Titel sagen, was der Kunde DAVON hat, nicht wie das Produkt heisst.
+        // Vorher: "Starter-Set — Wachs, Kette, Zange, Draht.", "Vorgewachste
+        // Ketten", "Keine Lust auf den Topf?" — drei Etiketten, die den
+        // Packungsinhalt aufzaehlen. Lucas Beobachtung: klingt generisch.
+        // CeramicSpeed verkauft dieselbe Ware mit "we waxed it for you" —
+        // dieselbe Tatsache, aber als Entlastung formuliert statt als
+        // Produktbezeichnung. Genau das ist hier uebernommen: die Arbeit, die
+        // wir dem Kunden abnehmen, steht im Titel; was drin ist, in der Zeile
+        // darunter.
         setEyebrow: 'Zum ersten Mal?',
-        setTitle: 'Starter-Set — Wachs, Kette, Zange, Draht.',
-        setBody: 'Alles, was du zum Anfangen brauchst, in einer Sendung.',
+        setTitle: 'Alles dabei, beim ersten Mal.',
+        setBody: 'Wachs, Kette, Zange, Draht — eine Sendung, kein Fehlkauf.',
         setCta: 'Set zusammenstellen',
         chainsEyebrow: 'Kein Topf nötig',
-        chainsTitle: 'Vorgewachste Ketten',
-        chainsBody: 'Ultraschall-entfettet, von Hand gewachst, Quick-Link dabei. Aufziehen und fahren.',
+        chainsTitle: 'Schon gewachst. Von Hand.',
+        chainsBody: 'Ultraschall-entfettet, gewachst, Quick-Link dabei. Aufziehen und losfahren.',
         chainsPick: 'Welche Schaltung fährst du?',
         chainsAll: 'Alle Ketten ansehen',
         chainsCount: '{n} Ketten',
         rewaxEyebrow: 'Service',
-        rewaxTitle: 'Schick die Kette ein.',
-        rewaxBody: 'Wir wachsen sie und schicken sie fahrbereit zurück. 13,95 € je Kette, ab drei 9,95 €.',
+        rewaxTitle: 'Wir wachsen sie für dich.',
+        rewaxBody: 'Kette einschicken, fahrbereit zurückbekommen. 13,95 € je Kette, ab drei 9,95 €.',
         rewaxCta: 'Zum Rewax-Service',
         // Ueberschrift ueber Set/Ketten/Rewax. Ohne sie stehen dort drei
         // Kacheln ohne erkennbaren Zusammenhang; mit ihr sind es drei
@@ -496,18 +505,18 @@ export const translations = {
         uses: 'applications',
         details: 'Details',
         setEyebrow: 'First time?',
-        setTitle: 'Starter set — wax, chain, pliers, wire.',
-        setBody: 'Everything you need to begin, in one parcel.',
+        setTitle: 'Everything there, first time.',
+        setBody: 'Wax, chain, pliers, wire — one parcel, nothing missing.',
         setCta: 'Build your set',
         chainsEyebrow: 'No pot required',
-        chainsTitle: 'Pre-waxed chains',
-        chainsBody: 'Ultrasonically degreased, waxed by hand, quick-link included. Fit it and ride.',
+        chainsTitle: 'Already waxed. By hand.',
+        chainsBody: 'Ultrasonically degreased, waxed, quick-link included. Fit it and ride.',
         chainsPick: 'Which drivetrain do you ride?',
         chainsAll: 'See all chains',
         chainsCount: '{n} chains',
         rewaxEyebrow: 'Service',
-        rewaxTitle: 'Send the chain in.',
-        rewaxBody: 'We wax it and send it back ready to ride. 13.95 € per chain, 9.95 € from three.',
+        rewaxTitle: 'We wax it for you.',
+        rewaxBody: 'Send the chain in, get it back ready to ride. 13.95 € per chain, 9.95 € from three.',
         rewaxCta: 'To the rewax service',
         altTitle: 'No pot? No problem.',
         altBody: 'Three ways to ride waxed without melting wax yourself.',
