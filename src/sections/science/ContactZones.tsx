@@ -15,7 +15,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { InstrumentFrame } from '@/components/viz';
-import { ChainJointSection } from '@/sections/science/ChainJointSection';
+import { ChainWaxMap } from '@/sections/science/ChainWaxMap';
 
 const ARTICULATION_POINTS = 8; // chainring, cog, both pulleys — in and out
 
@@ -141,25 +141,44 @@ export function ContactZones({ de, onToFormula }: { de: boolean; onToFormula?: (
         </p>
       </div>
 
-      <InstrumentFrame
-        eyebrow={de ? 'Schnitt durch ein Gelenk' : 'Section through one joint'}
-        chip={de ? 'schematisch' : 'schematic'}
-        footer={
-          <p className="text-meta leading-relaxed" style={{ color: 'var(--txff)' }}>
-            {de
-              ? 'Moderne 9 bis 12 fach Ketten sind buchsenlos, die Schulter der Innenlasche übernimmt deren Funktion. Gilt für alle Ketten, die wir wachsen.'
-              : 'Modern 9 to 12 speed chains are bushingless, the inner plate shoulder does that job. Applies to every chain we wax.'}
-          </p>
-        }
-      >
-        {/* Full width, not half.
-            The drawing was previously beside the zone list inside this panel,
-            which left a 580-unit viewBox about 300px to render in. At that
-            scale its 14-unit labels land near seven real pixels and the whole
-            figure floats in a field of dot grid. A section drawing needs the
-            width; the list reads fine underneath. */}
-        <ChainJointSection active={active} onZone={setActive} />
-      </InstrumentFrame>
+      {/* -mx-4 sm:mx-0: this panel sits inside the page's own px-4 column
+          padding (`${W}` in SciencePage.tsx), so on a 390px phone the whole
+          InstrumentFrame — and therefore the SVG inside its own p-5 — had
+          only ~316px to render a 700-unit viewBox into. Scale 0.45 put every
+          label under 6 real px, well under the "never below 11px in a
+          figure" rule in DESIGN.md §2. Cancelling just that one layer of
+          padding (the same fix already used for FormulaGraph further down
+          this page) lets the card itself run edge-to-edge on mobile and
+          buys back the 32px the page column was costing it; sm:mx-0 hands
+          the padding straight back for tablet and up, where there is width
+          to spare. overflow-x-hidden on the outer wrapper guards against the
+          same transient reveal-animation overflow documented in
+          SciencePage.tsx for FormulaGraph: InstrumentFrame enters via a
+          rotateX(9deg) transform, which can round its box a few px wider
+          than the viewport for the ~700ms of the animation. */}
+      <div className="overflow-x-hidden">
+      <div className="-mx-4 sm:mx-0">
+        <InstrumentFrame
+          eyebrow={de ? 'Draufsicht, Seitenansicht, Lupe' : 'Plan, side view, close-up'}
+          chip={de ? 'schematisch' : 'schematic'}
+          footer={
+            <p className="text-meta leading-relaxed" style={{ color: 'var(--txff)' }}>
+              {de
+                ? 'Moderne 9 bis 12 fach Ketten sind buchsenlos, die Schulter der Innenlasche übernimmt deren Funktion. Gilt für alle Ketten, die wir wachsen.'
+                : 'Modern 9 to 12 speed chains are bushingless, the inner plate shoulder does that job. Applies to every chain we wax.'}
+            </p>
+          }
+        >
+          {/* Full width, not half.
+              The drawing was previously beside the zone list inside this panel,
+              which left a 580-unit viewBox about 300px to render in. At that
+              scale its 14-unit labels land near seven real pixels and the whole
+              figure floats in a field of dot grid. A section drawing needs the
+              width; the list reads fine underneath. */}
+          <ChainWaxMap de={de} active={active} onZone={setActive} />
+        </InstrumentFrame>
+      </div>
+      </div>
 
       <div className="mt-6 sm:mt-8">
             {ZONES.map((z, i) => {

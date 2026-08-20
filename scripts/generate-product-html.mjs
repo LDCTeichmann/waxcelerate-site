@@ -22,7 +22,7 @@
 
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve, join } from 'node:path';
-import { products, shipping } from '../src/lib/data.ts';
+import { products, shipping, schemaAvailability } from '../src/lib/data.ts';
 import { articles } from '../src/pages/blog/articles.ts';
 import {
   BASE, esc, ld, ldClientManaged, metaTags, loadShell, buildPage, write, imagePreload, mimeOf,
@@ -158,7 +158,7 @@ function productSchema(p) {
       // nicht still veraltet — dieselbe Regel wie in der React-Fassung.
       priceValidUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
         .toISOString().slice(0, 10),
-      availability: 'https://schema.org/InStock',
+      availability: schemaAvailability(p),
       itemCondition: 'https://schema.org/NewCondition',
       // Per @id auf den Organization-Knoten aus index.html verweisen, statt
       // einen zweiten, unverbundenen Waxcelerate-Knoten aufzumachen. So

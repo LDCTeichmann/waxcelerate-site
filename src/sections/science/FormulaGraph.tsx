@@ -5,7 +5,15 @@ import { ScrollTrigger } from '@/lib/gsap';
 import { prefersReducedMotion } from '@/hooks/useAnimation';
 import { curvedEdge, quadPoint, NodeCircle, EdgeLabel, LegendSwatch, type NodeState } from '@/sections/science/graphPrimitives';
 
-const VB_W = 700, VB_H = 480;
+// Viewbox is cropped tight around the node layout (COMPONENTS' cx/cy/r span
+// x:[120,580] y:[45,435] in the original 700x480 space) instead of centering
+// it in a much larger box. Mobile renders this at full device width, so the
+// old margins (120px horizontal, 45px vertical) were pure dead space eaten
+// out of the only budget mobile has — cropping to a 55/35px margin (still
+// comfortably beyond the +18px active-glow and +14px hub-halo reach) makes
+// every node and label render ~23% larger on the same screen, at zero cost
+// on desktop where there was room to spare anyway.
+const VB_X = 65, VB_Y = 10, VB_W = 570, VB_H = 460;
 const STEPS = FORMULA_STORY.length;            // 6 component steps; index === STEPS means "done"
 const byNode = (n: number) => COMPONENTS.find(c => c.node === n)!;
 
@@ -51,12 +59,21 @@ function GraphNode({ c, de, built, focused, dimmed, reduced, onActivate, onSelec
   );
 }
 
-export function FormulaGraph({ de, onSelect, scrollFocus, compact }: { de: boolean; onSelect: (id: string) => void; scrollFocus?: number | null; compact?: boolean }) {
+export function FormulaGraph({ de, onSelect, scrollFocus, compact, mobile }: { de: boolean; onSelect: (id: string) => void; scrollFocus?: number | null; compact?: boolean; mobile?: boolean }) {
   const [reduced] = useState(() => prefersReducedMotion());
   // step ∈ [0 … STEPS]; STEPS === fully assembled, resting state (no active node).
   const [step, setStep] = useState(STEPS);
   const [playing, setPlaying] = useState(false);
   const [hover, setHover] = useState<number | null>(null);
+  // Last-tapped node, kept highlighted once the build finishes. Only matters
+  // when the caller doesn't drive focus itself via `scrollFocus` (i.e. the
+  // mobile stacked view): without this, focus dropped to nothing the moment
+  // the intro autoplay ended and hover/story-step both went idle, so the
+  // whole diagram went flat and pale — exactly when a user is expected to
+  // start tapping around it. Defaults to the first component so the graph
+  // reads as "alive" even before the first tap, matching the detail card
+  // mobile shows underneath (SciencePage defaults mobileCompId the same way).
+  const [picked, setPicked] = useState<number | null>(COMPONENTS[0]?.node ?? null);
   const rootRef = useRef<HTMLDivElement>(null);
   const resumeRef = useRef<number | undefined>(undefined);
 
@@ -73,8 +90,8 @@ export function FormulaGraph({ de, onSelect, scrollFocus, compact }: { de: boole
   const builtEdges = new Set(builtSteps.flatMap(s => s.edges));
   const done = step >= STEPS;
 
-  // Focus = hover > scroll-linked > current step's node > none.
-  const focusNode = hover != null ? hover : (!done ? FORMULA_STORY[step].node : (scrollFocus ?? null));
+  // Focus = hover > scroll-linked > current step's node > last tapped.
+  const focusNode = hover != null ? hover : (!done ? FORMULA_STORY[step].node : (scrollFocus ?? picked));
   // Highlighted edges: when hovering, every built edge touching the focus node;
   // during the build, exactly the current step's edges (one relationship at a time).
   const activeEdges = new Set<number>();
@@ -111,7 +128,12 @@ export function FormulaGraph({ de, onSelect, scrollFocus, compact }: { de: boole
     if (n != null) { setHover(n); setPlaying(false); }
     else { setHover(null); if (!reduced && step < STEPS) resumeRef.current = window.setTimeout(() => setPlaying(true), 900); }
   };
-  const onPick = (id: string) => { setPlaying(false); onSelect(id); };
+  const onPick = (id: string) => {
+    setPlaying(false);
+    const c = COMPONENTS.find(c => c.id === id);
+    if (c) setPicked(c.node);
+    onSelect(id);
+  };
 
   const jumpTo = (i: number) => { setHover(null); setPlaying(false); setStep(i); };
   const onPlayPause = () => {
@@ -124,7 +146,7 @@ export function FormulaGraph({ de, onSelect, scrollFocus, compact }: { de: boole
   return (
     <div ref={rootRef}>
       <div className="relative">
-        <svg viewBox={`0 0 ${VB_W} ${VB_H}`} className="w-full h-auto" style={{ overflow: 'visible' }}
+        <svg viewBox={`${VB_X} ${VB_Y} ${VB_W} ${VB_H}`} className="w-full h-auto" style={{ overflow: 'visible' }}
           role="group" aria-label={de ? 'Aufbau der Formel' : 'Formula assembly'}>
           <g data-edges>
             {edgeGeo.map(({ e, d }, i) => {
@@ -168,7 +190,7 @@ export function FormulaGraph({ de, onSelect, scrollFocus, compact }: { de: boole
             return (
               <div key={c.node} className="absolute text-center leading-tight"
                 style={{
-                  left: `${(c.cx / VB_W) * 100}%`, top: `${(c.cy / VB_H) * 100}%`,
+                  left: `${((c.cx - VB_X) / VB_W) * 100}%`, top: `${((c.cy - VB_Y) / VB_H) * 100}%`,
                   transform: 'translate(-50%, -50%)',
                   opacity: !built ? 0 : dimmed ? 0.42 : 1,
                   transition: reduced ? 'none' : 'opacity 0.3s ease',
@@ -193,10 +215,23 @@ export function FormulaGraph({ de, onSelect, scrollFocus, compact }: { de: boole
           })}
           {edgeGeo.map(({ e, a, b, c }, i) => {
             if (!activeEdges.has(i)) return null;
+            // On mobile the resting/tapped state (see `picked` above) keeps a
+            // hub node focused permanently, which can highlight 3-5 edges at
+            // once (e.g. MoS₂). At mobile width there isn't room for that
+            // many relationship pills without them colliding with the
+            // neighbouring node's own label — confirmed by measuring actual
+            // rendered rects, e.g. "Plastifiziert" landed directly on top of
+            // "Mikrokris.". Gating this on `hover` alone isn't enough: a real
+            // tap fires a browser-compat "mouseenter" too, so hover ends up
+            // set right after every tap, not just on genuine desktop hover.
+            // The full relationship is already spelled out in the CompCard
+            // below once tapped, so mobile skips the pill outright and keeps
+            // just the coloured line.
+            if (mobile) return null;
             const t = focusNode === e.to ? 0.35 : 0.65;
             const p = quadPoint(a.cx, a.cy, c.x, c.y, b.cx, b.cy, t);
             return (
-              <EdgeLabel key={`e-${i}`} x={p.x} y={p.y} vbW={VB_W} vbH={VB_H} on>
+              <EdgeLabel key={`e-${i}`} x={p.x - VB_X} y={p.y - VB_Y} vbW={VB_W} vbH={VB_H} on>
                 {de ? e.labelDe : e.labelEn}
               </EdgeLabel>
             );

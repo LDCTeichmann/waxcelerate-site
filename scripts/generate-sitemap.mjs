@@ -23,6 +23,10 @@
 //   dort ein leeres <div id="root"></div>. Sobald die Startseite gefuellt ist,
 //   wuerde ihr Inhalt sonst in jede Unterseite kopiert.
 //
+//   vercel.json: Catch-all SPA-Rewrite darf sitemap.xml, google-merchant-feed.xml,
+//   robots.txt und llms*.txt NICHT auf index.html schicken. Sonst bekommen
+//   Crawler HTML (oder 500), und die Indexierung bricht.
+//
 // Manuell nach Produkt- oder Artikeländerung:
 //   npx tsx scripts/generate-sitemap.mjs
 
@@ -32,6 +36,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { products } from '../src/lib/data.ts';
 import { articles } from '../src/pages/blog/articles.ts';
+import { assertXml } from './assert-xml.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUT = resolve(__dirname, '../public/sitemap.xml');
@@ -141,6 +146,10 @@ ${all.map(urlXml).join('\n')}
 </urlset>
 `;
 
+assertXml(xml, 'sitemap.xml');
+if (!xml.includes('<urlset') || !xml.includes('</urlset>')) {
+  throw new Error('sitemap.xml: missing urlset — file would 500/fail for Google');
+}
 writeFileSync(OUT, xml);
 
 // Stand der Hashes fortschreiben. Sortiert schreiben, damit der Diff im

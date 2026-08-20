@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Navigation } from '@/sections/navigation';
+import { Footer } from '@/sections/footer';
 import { products } from '@/lib/data';
 import { removeStaticJsonLd } from '@/lib/utils';
 import {
@@ -445,6 +446,8 @@ export function BlogArticlePage() {
           )}
         </article>
       </main>
+
+      <Footer />
     </div>
   );
 }

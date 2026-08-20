@@ -75,12 +75,16 @@ export function Footer() {
               <ul className="space-y-0.5">
                 {[
                   { href: '#produkte', label: t.nav.products },
+                  { href: '/kette-wachsen-lassen', label: t.nav.rewax, route: true },
+                  { href: '/starter-set', label: de ? 'Starter-Set' : 'Starter Set', route: true },
                   { href: '#tools',    label: t.nav.tools },
                   { href: 'https://www.ebay.de/usr/waxcelerate', label: 'eBay', external: true },
                 ].map((item, i) => (
                   <li key={i}>
                     {item.external ? (
                       <a href={item.href} target="_blank" rel="noopener noreferrer" className={linkClass}>{item.label}</a>
+                    ) : item.route ? (
+                      <Link to={item.href} className={linkClass}>{item.label}</Link>
                     ) : (
                       <a href={hrefFor(item.href)} onClick={(e) => { e.preventDefault(); scrollToSection(item.href); }} className={linkClass}>{item.label}</a>
                     )}

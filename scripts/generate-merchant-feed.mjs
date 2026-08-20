@@ -17,6 +17,7 @@ import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { products } from '../src/lib/data.ts';
+import { assertXml } from './assert-xml.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUT = resolve(__dirname, '../public/google-merchant-feed.xml');
@@ -50,11 +51,11 @@ const item = (p) => `    <item>
       <description>${esc(p.description)}</description>
       <link>${BASE}/produkt/${esc(p.id)}</link>
       <g:image_link>${esc(imageUrl(p.image))}</g:image_link>
-      <g:availability>in stock</g:availability>
+      <g:availability>${p.soldOut ? 'out of stock' : 'in stock'}</g:availability>
       <g:price>${p.price.toFixed(2)} EUR</g:price>
-      <g:brand>${esc(p.category === 'chain' ? p.chainBrand : 'Waxcelerate')}</g:brand>
+      <g:brand>${esc(p.category === 'chain' ? (p.chainBrand || p.chainModel || 'Waxcelerate') : 'Waxcelerate')}</g:brand>
       <g:condition>new</g:condition>
-      <g:mpn>${esc(p.category === 'chain' ? p.chainModel : p.id)}</g:mpn>
+      <g:mpn>${esc(p.category === 'chain' ? (p.chainModel || p.id) : p.id)}</g:mpn>
       <g:google_product_category>${esc(GOOGLE_CATEGORY[p.category])}</g:google_product_category>
       <g:product_type>${esc(p.category === 'wax' ? 'Kettenwachs' : 'Vorgewachste Kette')}</g:product_type>
     </item>`;
@@ -70,5 +71,10 @@ ${products.map(item).join('\n')}
 </rss>
 `;
 
+assertXml(xml, 'google-merchant-feed.xml');
+const nItems = (xml.match(/<item>/g) || []).length;
+if (nItems !== products.length) {
+  throw new Error(`google-merchant-feed.xml: ${nItems} items vs ${products.length} products`);
+}
 writeFileSync(OUT, xml);
 console.log(`google-merchant-feed.xml written with ${products.length} products.`);

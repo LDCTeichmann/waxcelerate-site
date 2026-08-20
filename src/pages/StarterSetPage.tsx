@@ -19,6 +19,7 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { Navigation } from '@/sections/navigation';
+import { Footer } from '@/sections/footer';
 import { BackLink } from '@/components/BackLink';
 import { accessories, starterSet } from '@/lib/data';
 import { StarterSetOptions } from '@/sections/StarterSetOptions';
@@ -163,6 +164,8 @@ export function StarterSetPage() {
           {de ? 'Zurück zur Startseite' : 'Back to home'}
         </Link>
       </footer>
+
+      <Footer />
     </div>
   );
 }

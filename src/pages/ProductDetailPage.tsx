@@ -5,7 +5,7 @@ import {
   ArrowLeft, ArrowRight, ExternalLink, Check,
   ChevronRight, ChevronLeft, ChevronDown, Star, Lightbulb, Truck, RotateCcw,
 } from 'lucide-react';
-import { getProductById, products, canCheckout, checkoutEnabled } from '@/lib/data';
+import { getProductById, products, canCheckout, checkoutEnabled, isSoldOut, schemaAvailability } from '@/lib/data';
 import type { Product } from '@/lib/data';
 import { richContent } from '@/lib/productContent';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -283,7 +283,7 @@ export function ProductDetailPage() {
     // structured per-product review data it isn't.
     offers: {
       '@type': 'Offer', price: product.price.toFixed(2), priceCurrency: 'EUR',
-      availability: 'https://schema.org/InStock', url: canonicalUrl,
+      availability: schemaAvailability(product), url: canonicalUrl,
       seller: { '@type': 'Organization', name: 'Waxcelerate' },
       // Was hardcoded to a fixed date that would silently go stale — always
       // valid for a year out so it never needs manual upkeep.
@@ -495,7 +495,11 @@ export function ProductDetailPage() {
                   {per100g && <p className="text-meta" style={{ color: 'var(--txff)' }}>{pricePerApp !== null ? '· ' : ''}{per100g}</p>}
                 </div>
               </div>
-              {canCheckout(product) ? <AddToCartButton product={product} /> : (
+              {isSoldOut(product) ? (
+                <span className="text-[13px] font-semibold px-4 py-3" style={{ color: 'var(--txf)' }}>
+                  {de ? 'Ausverkauft' : 'Sold out'}
+                </span>
+              ) : canCheckout(product) ? <AddToCartButton product={product} /> : (
                 <a href={product.ebayUrl} target="_blank" rel="noopener noreferrer" onClick={() => trackEbayClick(product.id)}
                   className="flex items-center gap-2 px-7 py-3 rounded-full text-[13px] font-semibold active:scale-[0.97]"
                   style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}>
@@ -665,7 +669,12 @@ export function ProductDetailPage() {
                     <div className="flex gap-px">
                       {[0, 1, 2, 3, 4].map(i => <Star key={i} className="h-3 w-3 fill-current" style={{ color: '#F5A623' }} />)}
                     </div>
-                    <span className="text-meta font-medium" style={{ color: 'rgba(0,0,0,0.32)' }}>
+                    {/* rgba(0,0,0,0.32) auf --sf (weiss) faellt auf ~2,2:1 Kontrast,
+                        WCAG AA braucht 4,5:1 fuer Normaltext. --txm ist die
+                        bereits gegen alle Flaechenfarben nachgerechnete Skala
+                        (siehe index.css) — dieselbe Stelle im "Trust"-Block
+                        weiter unten auf derselben Seite nutzt sie schon. */}
+                    <span className="text-meta font-medium" style={{ color: 'var(--txm)' }}>
                       {rc.reviewCount}+ {de ? 'zufriedene Kunden' : 'happy customers'}
                     </span>
                   </div>
@@ -697,7 +706,11 @@ export function ProductDetailPage() {
 
                 {/* CTA — full width for maximum conversion */}
                 <div className="mb-3">
-                  {canCheckout(product) ? (
+                  {isSoldOut(product) ? (
+                    <p className="text-center text-[14px] font-semibold py-3.5" style={{ color: 'rgba(0,0,0,0.45)' }}>
+                      {de ? 'Ausverkauft' : 'Sold out'}
+                    </p>
+                  ) : canCheckout(product) ? (
                     <div className="w-full"><AddToCartButton product={product} /></div>
                   ) : (
                     <a href={product.ebayUrl} target="_blank" rel="noopener noreferrer" onClick={() => trackEbayClick(product.id)}
@@ -1105,7 +1118,11 @@ export function ProductDetailPage() {
             <p className="text-[13px] font-semibold leading-tight truncate" style={{ color: 'var(--tx1)' }}>{titleText}</p>
             <p className="num text-[15px] font-bold leading-none mt-0.5" style={{ color: 'var(--tx1)' }}>{formatPrice(product.price)}</p>
           </div>
-          {canCheckout(product) ? <div className="flex-shrink-0"><AddToCartButton product={product} size="sm" /></div> : (
+          {isSoldOut(product) ? (
+            <span className="text-[13px] font-semibold flex-shrink-0" style={{ color: 'var(--txf)' }}>
+              {de ? 'Ausverkauft' : 'Sold out'}
+            </span>
+          ) : canCheckout(product) ? <div className="flex-shrink-0"><AddToCartButton product={product} size="sm" /></div> : (
             <a href={product.ebayUrl} target="_blank" rel="noopener noreferrer" onClick={() => trackEbayClick(product.id)}
               className="flex items-center gap-1.5 px-5 py-2.5 rounded-full text-[13px] font-semibold flex-shrink-0 active:scale-[0.97]"
               style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}>
@@ -1201,7 +1218,7 @@ function FlipCard({ items, de, formatPrice }: { items: Product[]; de: boolean; f
           <ChevronLeft className="h-3.5 w-3.5" />
         </button>
 
-        {p.category === 'wax' ? (
+        {p.category === 'wax' || isSoldOut(p) ? (
           <Link to={`/produkt/${p.id}`} className="flex-1 min-w-0">
             {linkContent}
           </Link>
@@ -1267,7 +1284,7 @@ function AltMiniCard({ product: p, de, formatPrice }: { product: Product; de: bo
     </div>
   );
 
-  if (p.category === 'wax') return <Link to={`/produkt/${p.id}`} className="block flex-shrink-0">{inner}</Link>;
+  if (p.category === 'wax' || isSoldOut(p)) return <Link to={`/produkt/${p.id}`} className="block flex-shrink-0">{inner}</Link>;
   return <a href={p.ebayUrl} target="_blank" rel="noopener noreferrer" onClick={() => trackEbayClick(p.id)} className="block flex-shrink-0">{inner}</a>;
 }
 
@@ -1327,6 +1344,6 @@ function RelatedCard({ product: p, de, formatPrice }: { product: Product; de: bo
     </div>
   );
 
-  if (isWax) return <Link to={`/produkt/${p.id}`} className="block h-full">{inner}</Link>;
+  if (isWax || isSoldOut(p)) return <Link to={`/produkt/${p.id}`} className="block h-full">{inner}</Link>;
   return <a href={p.ebayUrl} target="_blank" rel="noopener noreferrer" onClick={() => trackEbayClick(p.id)} className="block h-full">{inner}</a>;
 }

@@ -7,7 +7,7 @@ import type { TranslationType } from '@/lib/i18n';
 import { useSectionReveal } from '@/hooks/useAnimation';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
-import { products, canCheckout } from '@/lib/data';
+import { products, canCheckout, isSoldOut } from '@/lib/data';
 import { trackProductsSeen, trackEbayClick } from '@/lib/analytics';
 import { richContent } from '@/lib/productContent';
 import { ChainFinder } from '@/sections/ChainFinder';
@@ -283,7 +283,7 @@ export function Products() {
       {/* Bottom gradient — bridges to About below */}
       <div
         className="absolute bottom-0 left-0 right-0 pointer-events-none"
-        style={{ height: '64px', background: 'linear-gradient(to bottom, transparent, var(--sf))', zIndex: 1 }}
+        style={{ height: '64px', background: 'linear-gradient(to bottom, color-mix(in srgb, var(--sf), transparent 100%), var(--sf))', zIndex: 1 }}
       />
     </Section>
   );
@@ -372,7 +372,11 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
           {/* Price + CTA */}
           <div className="flex items-center justify-between gap-3 mt-auto pt-3">
             <span className="num text-[20px] font-bold text-wx-tx1 tracking-[-0.02em]">{formatPrice(product.price)}</span>
-            {canCheckout(product) ? (
+            {isSoldOut(product) ? (
+              <span className="text-[13px] font-semibold" style={{ color: 'var(--txf)' }}>
+                {de ? 'Ausverkauft' : 'Sold out'}
+              </span>
+            ) : canCheckout(product) ? (
               <div className="flex flex-col items-end gap-1">
                 <AddToCartButton product={product} size="sm" />
                 <button

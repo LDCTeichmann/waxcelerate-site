@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { ScrollTrigger } from '@/lib/gsap';
 import { prefersReducedMotion } from '@/hooks/useAnimation';
-import { ChainJointSection } from '@/sections/science/ChainJointSection';
+import { ChainWaxMap } from '@/sections/science/ChainWaxMap';
 
 const TARGET = 53 * 95 * 8; // 40 280 — derivation lives in ContactZones
 
@@ -97,7 +97,7 @@ export function ScienceTeaser({ de }: { de: boolean }) {
       </div>
 
       <div className="hidden sm:block" aria-hidden>
-        <ChainJointSection active={active} compact />
+        <ChainWaxMap de={de} active={active} compact />
       </div>
     </Link>
   );

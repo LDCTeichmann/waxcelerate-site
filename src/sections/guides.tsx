@@ -267,7 +267,7 @@ export function Guides() {
       {/* Bottom gradient — bridges to FAQ below */}
       <div
         className="absolute bottom-0 left-0 right-0 pointer-events-none"
-        style={{ height: '64px', background: 'linear-gradient(to bottom, transparent, var(--pg))', zIndex: 1 }}
+        style={{ height: '64px', background: 'linear-gradient(to bottom, color-mix(in srgb, var(--pg), transparent 100%), var(--pg))', zIndex: 1 }}
       />
     </Section>
   );

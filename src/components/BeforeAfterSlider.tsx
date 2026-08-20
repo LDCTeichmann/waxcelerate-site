@@ -13,9 +13,13 @@ import { ChevronsLeftRight, Hand } from 'lucide-react';
 // Drag-to-reveal before/after — replaces a static side-by-side pair with an
 // interactive one. Pointer position controls a clip-path on the "before"
 // layer, so dragging left reveals more of the treated surface underneath.
-export function BeforeAfterSlider({ beforeSrc, afterSrc, beforeAlt, afterAlt, beforeLabel, afterLabel }: {
+export function BeforeAfterSlider({ beforeSrc, afterSrc, beforeAlt, afterAlt, beforeLabel, afterLabel, aspect = '4/3' }: {
   beforeSrc: string; afterSrc: string; beforeAlt: string; afterAlt: string;
   beforeLabel: string; afterLabel: string;
+  // Optional, defaults to the science-page ratio. why-wax.tsx passes a
+  // tighter value tuned to the 01-Bildpaar, das die dort letterboxten
+  // schwarzen Balken oben/unten fast auf null bringt.
+  aspect?: string;
 }) {
   const [pct, setPct] = useState(50);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -61,10 +65,12 @@ export function BeforeAfterSlider({ beforeSrc, afterSrc, beforeAlt, afterAlt, be
     const runSweep = () => {
       if (cancelled || draggingRef.current || hasInteracted) return;
       setSweeping(true);
+      // Each leg runs 1.8s (was 1s) — the original pace read as a twitch
+      // rather than a drag (real feedback: "aktuell etwas schnell").
       sweepTimersRef.current.push(setTimeout(() => { if (!draggingRef.current && !hasInteracted) setPct(28); }, 50));
-      sweepTimersRef.current.push(setTimeout(() => { if (!draggingRef.current && !hasInteracted) setPct(72); }, 1050));
-      sweepTimersRef.current.push(setTimeout(() => { if (!draggingRef.current && !hasInteracted) setPct(50); }, 2050));
-      sweepTimersRef.current.push(setTimeout(() => setSweeping(false), 3050));
+      sweepTimersRef.current.push(setTimeout(() => { if (!draggingRef.current && !hasInteracted) setPct(72); }, 1850));
+      sweepTimersRef.current.push(setTimeout(() => { if (!draggingRef.current && !hasInteracted) setPct(50); }, 3650));
+      sweepTimersRef.current.push(setTimeout(() => setSweeping(false), 5450));
     };
     const initialDelay = setTimeout(runSweep, 800);
     // 20s, not 6s — "shouldn't move all the time" (real feedback). Frequent
@@ -116,8 +122,8 @@ export function BeforeAfterSlider({ beforeSrc, afterSrc, beforeAlt, afterAlt, be
       aria-valuemin={0}
       aria-valuemax={100}
       tabIndex={0}
-      className="relative select-none rounded-xl overflow-hidden aspect-[4/3] mx-3 mb-3"
-      style={{ background: 'var(--hero-stage)', cursor: 'ew-resize', touchAction: 'none' }}
+      className="relative select-none rounded-xl overflow-hidden mx-3 mb-3"
+      style={{ aspectRatio: aspect, background: 'var(--hero-stage)', cursor: 'ew-resize', touchAction: 'none' }}
       onMouseDown={(e) => { draggingRef.current = true; markInteracted(); updateFromClientX(e.clientX); }}
       onTouchStart={(e) => { draggingRef.current = true; markInteracted(); updateFromClientX(e.touches[0].clientX); }}
       onKeyDown={(e) => {
@@ -130,7 +136,7 @@ export function BeforeAfterSlider({ beforeSrc, afterSrc, beforeAlt, afterAlt, be
       <img src={afterSrc} alt={afterAlt} className="absolute inset-0 w-full h-full object-contain pointer-events-none" draggable={false} />
       <div
         className="absolute inset-0 overflow-hidden pointer-events-none"
-        style={{ clipPath: `inset(0 ${100 - pct}% 0 0)`, transition: sweeping ? 'clip-path 1s ease-in-out' : 'none' }}
+        style={{ clipPath: `inset(0 ${100 - pct}% 0 0)`, transition: sweeping ? 'clip-path 1.8s ease-in-out' : 'none' }}
       >
         <img src={beforeSrc} alt={beforeAlt} className="absolute inset-0 w-full h-full object-contain" draggable={false} />
       </div>
@@ -147,7 +153,7 @@ export function BeforeAfterSlider({ beforeSrc, afterSrc, beforeAlt, afterAlt, be
           left: `${pct}%`,
           transform: 'translate(-30%, -20%)',
           opacity: sweeping ? 1 : 0,
-          transition: sweeping ? 'left 1.15s ease-in-out, opacity 0.3s ease' : 'opacity 0.3s ease',
+          transition: sweeping ? 'left 2.1s ease-in-out, opacity 0.3s ease' : 'opacity 0.3s ease',
         }}
       >
         {/* Dark backdrop circle, not just a drop-shadow on the icon — a white
@@ -166,17 +172,22 @@ export function BeforeAfterSlider({ beforeSrc, afterSrc, beforeAlt, afterAlt, be
           then it stops for good; see the comment on hasInteracted above. */}
       <div
         className="absolute inset-y-0 pointer-events-none"
-        style={{ left: `${pct}%`, transition: sweeping ? 'left 1s ease-in-out' : 'none' }}
+        style={{ left: `${pct}%`, transition: sweeping ? 'left 1.8s ease-in-out' : 'none', zIndex: 10 }}
       >
-        <div className="absolute inset-y-0" style={{ width: 1.5, left: 0, transform: 'translateX(-50%)', background: 'rgba(255,255,255,0.9)' }} />
+        <div className="absolute inset-y-0" style={{ width: 2, left: 0, transform: 'translateX(-50%)', background: '#fff', boxShadow: '0 0 0 1px rgba(0,0,0,0.25)' }} />
+        {/* Bigger + a visible accent ring on top of the dark backdrop shadow —
+            the plain white disc used to read as barely-there against the
+            brighter half of some micrographs (real feedback: "cursor besser
+            erkenntlich machen und in den Vordergrund packen"). */}
         <div
           className="absolute top-1/2 left-0 flex items-center justify-center rounded-full -translate-x-1/2 -translate-y-1/2 transition-transform duration-200 hover:scale-[1.15]"
           style={{
-            width: 32, height: 32, background: '#fff', pointerEvents: 'auto',
-            boxShadow: '0 2px 10px rgba(0,0,0,0.35)',
+            width: 40, height: 40, background: '#fff', pointerEvents: 'auto',
+            border: '2px solid var(--accent, #2B52B0)',
+            boxShadow: '0 3px 14px rgba(0,0,0,0.45), 0 0 0 4px rgba(255,255,255,0.55)',
             animation: hasInteracted ? 'none' : 'wx-slider-pulse 1.8s ease-in-out infinite',
           }}>
-          <ChevronsLeftRight className="h-4 w-4" style={{ color: '#101013' }} strokeWidth={2.25} />
+          <ChevronsLeftRight className="h-[18px] w-[18px]" style={{ color: '#101013' }} strokeWidth={2.5} />
         </div>
       </div>
 

@@ -74,7 +74,7 @@ export function NodeCircle({ x, y, r, big, state }: {
         style={{
           filter: active
             ? 'drop-shadow(0 0 18px rgba(var(--accent-rgb),0.45)) drop-shadow(0 4px 12px rgba(var(--accent-rgb),0.28))'
-            : 'drop-shadow(0 2px 6px rgba(0,0,0,0.08))',
+            : 'drop-shadow(0 2px 8px rgba(0,0,0,0.13))',
           transition: 'fill 0.3s, stroke 0.3s, filter 0.3s',
         }} />
     </g>

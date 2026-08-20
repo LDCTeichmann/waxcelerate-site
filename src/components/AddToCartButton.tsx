@@ -75,9 +75,14 @@ export function AddToCartButton({ product, size = 'md', fullWidth = false }: Pro
         {added ? t.cart.added : t.cart.addToCart}
       </button>
 
-      {/* Low stock warning */}
+      {/* Low stock warning. #f59e0b (amber-500) hatte gegen Weiss nur ~2,1:1
+          Kontrast — WCAG AA braucht 4,5:1 fuer Normaltext. amber-700
+          (#B45309) liegt bei ~5,0:1, bleibt aber erkennbar als Warnfarbe.
+          Rendert aktuell nirgends live (kein Produkt hat eine
+          stripePriceId), der Fehler waere sonst erst beim Stripe-Go-Live
+          sichtbar geworden. */}
       {lowStock && stock > 0 && (
-        <span className="text-meta font-medium" style={{ color: '#f59e0b' }}>
+        <span className="text-meta font-medium" style={{ color: '#B45309' }}>
           {de ? `Nur noch ${stock} verfügbar` : `Only ${stock} left`}
         </span>
       )}

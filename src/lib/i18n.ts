@@ -118,8 +118,9 @@ export const translations = {
         // Antworten auf denselben Einwand — den mit Abstand haeufigsten.
         altTitle: 'Kein Topf? Kein Problem.',
         altBody: 'Drei Wege, wie du gewachst fährst, ohne selbst Wachs zu schmelzen.',
-        soldUnits: '× verkauft',
+        soldUnits: 'verkauft',
         reviewsShort: 'Bewertungen',
+        delivery: 'Lieferung',
       },
     },
 
@@ -520,8 +521,9 @@ export const translations = {
         rewaxCta: 'To the rewax service',
         altTitle: 'No pot? No problem.',
         altBody: 'Three ways to ride waxed without melting wax yourself.',
-        soldUnits: '× sold',
+        soldUnits: 'sold',
         reviewsShort: 'reviews',
+        delivery: 'Delivery',
       },
     },
 

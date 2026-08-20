@@ -61,6 +61,7 @@ export function FAQ() {
               type="search"
               value={query}
               onChange={e => setQuery(e.target.value)}
+              aria-label={t.faq.searchPlaceholder}
               placeholder={t.faq.searchPlaceholder}
               className="w-full px-4 py-2.5 rounded-xl text-[14px] outline-none transition-colors"
               style={{
@@ -164,7 +165,7 @@ export function FAQ() {
       {/* Bottom gradient — bridges to Contact below */}
       <div
         className="absolute bottom-0 left-0 right-0 pointer-events-none"
-        style={{ height: '64px', background: 'linear-gradient(to bottom, transparent, var(--pg))', zIndex: 1 }}
+        style={{ height: '64px', background: 'linear-gradient(to bottom, color-mix(in srgb, var(--pg), transparent 100%), var(--pg))', zIndex: 1 }}
       />
     </Section>
   );

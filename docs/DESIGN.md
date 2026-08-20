@@ -132,14 +132,32 @@ Erstes Messtechnik sieht.
 1. Hero
 2. Warum Wachs: was sich für dich ändert, dann der Antriebsverlust-Sägezahn, dann die Messkacheln
 3. Produkte: das Regal — zwei Wachs-Tafeln (Classic/Pro, Größe als Schalter,
-   4:5 Hochformat), darunter eine Reihe aus drei gleich großen Kacheln (Set,
+   4:3.3 Querformat), darunter eine Reihe aus drei gleich großen Kacheln (Set,
    Ketten, Rewax) in einer gemeinsamen Sprache (`SecondaryTile` in
-   `ProductShelf.tsx`, 4:3 Querformat, Foto mit Scrim-Titel, ein Fließtext,
+   `ProductShelf.tsx`, ebenfalls 4:3.3, Foto mit Scrim-Titel, ein Fließtext,
    ein CTA). Erst vier verschiedene Layouts für vier Elemente auf einem
    Bildschirm, dann korrigiert auf zwei Kartensprachen nach genau zwei
    Rollen (Kaufentscheidung vs. nächster Schritt) — ein A/B-Test mit 25.000
    Besuchern belegt 17,1 % mehr Umsatz pro Besucher allein durch einheitliche
    statt gemischte Kartengrößen in einem Produktraster.
+   Zwei Anläufe, bis das griff. Erster Anlauf (4:5 vs. 4:3, ~2,6× Höhen-
+   verhältnis, dann ein max-w-[880px]-Deckel auf die Wachs-Reihe): löste
+   Lucas Beobachtung ("Wax-Tafeln wirken viel größer") nur zur Hälfte und
+   erzeugte einen neuen Fehler — der Deckel schnitt die Wachs-Reihe bei
+   880px ab, während die Dreierreihe darunter die volle Sektionsbreite
+   (1120px bei 1400px Viewport) nutzt. 240px Leerraum rechts neben den
+   Tafeln plus ein eigenes Seitenverhältnis ergab genau "zu groß, nicht
+   zentral, nicht aus einem Guss" — Lucas Screenshot vom 21.08. zeigte es.
+   Zweiter Anlauf: kein Deckel mehr (Wachs-Reihe trägt jetzt dieselbe volle
+   Breite wie die Reihe darunter), und dasselbe Seitenverhältnis 4:3.3 für
+   beide Ebenen (vorher 4:4.6 für die Wachs-Tafeln). Bei zwei statt drei
+   Spalten sind die Wax-Tafeln dadurch automatisch breiter und bei gleichem
+   Verhältnis auch etwas höher (bei 1400px rund 544×449px statt vorher
+   424×488px) — aber dieselbe Bildsprache wie die Kacheln darunter statt
+   eines eigenen Seitenverhältnisses, und der Größenunterschied liest sich
+   jetzt als Spaltenzahl, nicht als Formfaktor-Bruch. Dieselbe Hover-Sprache
+   auf beiden Ebenen (Lift + Pfeil-Chip) trägt den Rest der Hierarchie
+   (Kaufentscheidung vs. nächster Schritt).
 4. Tür in die Wissenschaft
 
 Der Sägezahn trägt zwei Argumente gleichzeitig: wie viele Watt ein Schmierstoff

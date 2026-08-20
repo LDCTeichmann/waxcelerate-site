@@ -4,6 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, ChevronDown, Gauge, Clock, Droplets, Sparkles } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { Navigation } from '@/sections/navigation';
+import { Footer } from '@/sections/footer';
 import { ScrollTrigger } from '@/lib/gsap';
 import { prefersReducedMotion } from '@/hooks/useAnimation';
 import { InstrumentFrame, CountUp } from '@/components/viz';
@@ -442,34 +443,41 @@ function Microscope({ de }: { de: boolean }) {
         </div>
       </div>
 
-      {/* Card grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-        {MICRO.map((row) => (
-          <div key={row.n} className="rounded-2xl overflow-hidden"
-            style={{ background: 'var(--card-bg)', border: '1px solid var(--bd)', boxShadow: 'var(--card-shad)' }}>
-            {/* Header */}
-            <div className="flex items-center justify-between px-4 pt-3.5 pb-2">
-              <div className="flex items-baseline gap-2">
-                <span className="num-data text-[14px] font-bold" style={{ color: 'var(--tx2)' }}>{row.n}</span>
-                <span className="text-[12px]" style={{ color: 'var(--txm)' }}>{de ? row.de : row.en}</span>
+      {/* Card grid — mobile keeps only 01 + 03 (chain link + tooth flank, the
+          two subjects with the clearest before/after contrast); 02 + 04 stay
+          hidden below sm: and appear at the tablet/desktop 2-column layout.
+          Real feedback: four full-width cards was too much scrolling for too
+          little new information on a narrow screen. */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-5">
+        {MICRO.map((row) => {
+          const mobileVisible = row.n === '01' || row.n === '03';
+          return (
+            <div key={row.n} className={`${mobileVisible ? '' : 'hidden sm:block'} rounded-2xl overflow-hidden`}
+              style={{ background: 'var(--card-bg)', border: '1px solid var(--bd)', boxShadow: 'var(--card-shad)' }}>
+              {/* Header */}
+              <div className="flex items-center justify-between px-4 pt-3.5 pb-2">
+                <div className="flex items-baseline gap-2">
+                  <span className="num-data text-[14px] font-bold" style={{ color: 'var(--tx2)' }}>{row.n}</span>
+                  <span className="text-[12px]" style={{ color: 'var(--txm)' }}>{de ? row.de : row.en}</span>
+                </div>
+                <span className="num-data text-meta px-1.5 py-0.5 rounded-md"
+                  style={{ background: 'var(--accent-wash-sm)', border: '1px solid rgba(var(--accent-rgb),0.10)',
+                    color: 'var(--txf)' }}>
+                  {row.mag}
+                </span>
               </div>
-              <span className="num-data text-meta px-1.5 py-0.5 rounded-md"
-                style={{ background: 'var(--accent-wash-sm)', border: '1px solid rgba(var(--accent-rgb),0.10)',
-                  color: 'var(--txf)' }}>
-                {row.mag}
-              </span>
+              {/* Drag-to-reveal — pull the handle to compare reference vs. treated surface directly */}
+              <BeforeAfterSlider
+                beforeSrc={row.ref}
+                afterSrc={row.mos2}
+                beforeAlt={`${de ? row.de : row.en} – ${de ? 'Referenz' : 'Reference'}`}
+                afterAlt={`${de ? row.de : row.en} – Waxcelerate + MoS₂`}
+                beforeLabel={de ? 'Referenz' : 'Reference'}
+                afterLabel="Waxcelerate"
+              />
             </div>
-            {/* Drag-to-reveal — pull the handle to compare reference vs. treated surface directly */}
-            <BeforeAfterSlider
-              beforeSrc={row.ref}
-              afterSrc={row.mos2}
-              beforeAlt={`${de ? row.de : row.en} – ${de ? 'Referenz' : 'Reference'}`}
-              afterAlt={`${de ? row.de : row.en} – Waxcelerate + MoS₂`}
-              beforeLabel={de ? 'Referenz' : 'Reference'}
-              afterLabel="Waxcelerate"
-            />
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Methodology note */}
@@ -684,25 +692,60 @@ function FormulaStory({ de }: { de: boolean }) {
             of below it, overlapping node labels near the bottom of the
             viewBox (e.g. Dispersant/Antioxidant). */}
         <div className="absolute bottom-8 left-0 right-0 flex flex-col items-center gap-3">
-          <div className="flex items-center gap-2.5">
-            {COMPONENTS.map((c, i) => (
-              <button key={c.id} onClick={() => scrollToComponent(c.id)}
-                aria-label={de ? c.nameDe : c.nameEn}
-                className="group flex flex-col items-center gap-1.5"
-              >
-                <span className="rounded-full transition-all duration-300"
-                  style={{
-                    width: i === activeIdx ? 24 : 8,
-                    height: 8,
-                    background: i === activeIdx ? 'var(--accent)' : i < activeIdx ? 'rgba(var(--accent-rgb),0.35)' : 'var(--bd)',
-                  }}
-                />
-                <span className="text-meta uppercase tracking-[0.14em] transition-opacity duration-300"
-                  style={{ color: 'var(--txf)', opacity: i === activeIdx ? 1 : 0 }}>
-                  {de ? c.graphLabelDe : c.graphLabelEn}
-                </span>
-              </button>
-            ))}
+          {/* Prev/next arrows flanking the dots — the dots alone read as a
+              progress indicator, not something to click, and "Scrollen zum
+              Erkunden" only ever shows on step 1 (see below), so from step 2
+              on there was no visible cue that this section keeps going.
+              Arrows reuse the same scrollToComponent() the dots and graph
+              nodes already call — no new navigation mechanism, just another
+              visible entry point into it. */}
+          <div className="flex items-center gap-4">
+            <button type="button"
+              onClick={() => activeIdx > 0 && scrollToComponent(COMPONENTS[activeIdx - 1].id)}
+              disabled={activeIdx === 0}
+              aria-label={de ? 'Vorherige Komponente' : 'Previous component'}
+              className="flex items-center justify-center w-8 h-8 rounded-full transition-opacity disabled:pointer-events-none"
+              style={{
+                color: 'var(--accent)', background: 'var(--accent-wash)',
+                border: '1px solid rgba(var(--accent-rgb),0.22)',
+                opacity: activeIdx === 0 ? 0.3 : 1,
+              }}>
+              <ArrowLeft className="h-4 w-4" />
+            </button>
+
+            <div className="flex items-center gap-2.5">
+              {COMPONENTS.map((c, i) => (
+                <button key={c.id} onClick={() => scrollToComponent(c.id)}
+                  aria-label={de ? c.nameDe : c.nameEn}
+                  className="group flex flex-col items-center gap-1.5"
+                >
+                  <span className="rounded-full transition-all duration-300"
+                    style={{
+                      width: i === activeIdx ? 24 : 8,
+                      height: 8,
+                      background: i === activeIdx ? 'var(--accent)' : i < activeIdx ? 'rgba(var(--accent-rgb),0.35)' : 'var(--bd)',
+                    }}
+                  />
+                  <span className="text-meta uppercase tracking-[0.14em] transition-opacity duration-300"
+                    style={{ color: 'var(--txf)', opacity: i === activeIdx ? 1 : 0 }}>
+                    {de ? c.graphLabelDe : c.graphLabelEn}
+                  </span>
+                </button>
+              ))}
+            </div>
+
+            <button type="button"
+              onClick={() => activeIdx < COMPONENTS.length - 1 && scrollToComponent(COMPONENTS[activeIdx + 1].id)}
+              disabled={activeIdx === COMPONENTS.length - 1}
+              aria-label={de ? 'Nächste Komponente' : 'Next component'}
+              className="flex items-center justify-center w-8 h-8 rounded-full transition-opacity disabled:pointer-events-none"
+              style={{
+                color: 'var(--accent)', background: 'var(--accent-wash)',
+                border: '1px solid rgba(var(--accent-rgb),0.22)',
+                opacity: activeIdx === COMPONENTS.length - 1 ? 0.3 : 1,
+              }}>
+              <ArrowRight className="h-4 w-4" />
+            </button>
           </div>
           <span className="text-meta tracking-[0.12em] uppercase transition-opacity duration-700"
             style={{ color: 'var(--txf)', opacity: activeIdx === 0 ? 0.7 : 0 }}>
@@ -828,7 +871,7 @@ export function SciencePage() {
                     now lives in exactly one place, the CompCard below, instead
                     of twice. Freed-up height goes to the graph itself, which is
                     the whole point of this section. */}
-                <FormulaGraph de={de} onSelect={setMobileCompId} compact />
+                <FormulaGraph de={de} onSelect={setMobileCompId} compact mobile />
               </InstrumentFrame>
             </div>
           </div>
@@ -844,15 +887,25 @@ export function SciencePage() {
           )}
         </div>
 
-        {/* Below: full-width deep-dive sections */}
+        {/* Below: full-width deep-dive sections. Mobile-Plan (real feedback,
+            2026-08-19): "weniger der anderen Bilder ... eher beieinander" —
+            MoS₂-Diagramm + Temperaturfenster rücken auf Mobil enger
+            zusammen (gap-4 statt gap-6, MoS₂-Grafik zusätzlich schmaler
+            gerahmt) statt als zwei lose Kacheln mit viel Luft dazwischen zu
+            wirken; die Entwicklungs-Zeitleiste (reine Text-Historie, kein
+            Beleg) entfällt auf Mobil ganz. */}
         <div className={`${W} py-14`}>
-          <div className="grid lg:grid-cols-2 gap-6 items-stretch">
-            <HexMoS2 de={de} />
+          <div className="grid lg:grid-cols-2 gap-4 lg:gap-6 items-stretch">
+            <div className="max-w-[320px] mx-auto w-full sm:max-w-none">
+              <HexMoS2 de={de} />
+            </div>
             <div id="matrix-window" className="h-full">
               <TempWindow de={de} />
             </div>
           </div>
-          <FailureTimeline de={de} />
+          <div className="hidden lg:block">
+            <FailureTimeline de={de} />
+          </div>
         </div>
       </section>
 
@@ -873,21 +926,37 @@ export function SciencePage() {
             Transfer Film), just laid out in parallel so the section doesn't
             run so tall. TransferFilm's SVG (viewBox 500×88) just renders
             shorter at half width; still reads fine. */}
-        <div className="grid lg:grid-cols-2 gap-4 items-start mb-4">
+        {/* items-stretch (default): FrictionBars' own chart runs taller than
+            TransferFilm's thin banner SVG, so items-start left a bare ~90px
+            gap under the right panel — two "matched" instrument panels that
+            visibly weren't. Stretching both to the row's height reads as a
+            pair of same-size devices instead. */}
+        <div className="grid lg:grid-cols-2 gap-4 mb-4">
           <InstrumentFrame eyebrow={de ? 'Reibung' : 'Friction'}
             footer={
-              <div className="grid grid-cols-3 gap-3 text-center">
-                {[
-                  { v: '~300 km', d: de ? 'pro Rewax-Vorgang' : 'per rewax' },
-                  { v: `${waxVsOil.life.waxLo}–${waxVsOil.life.wax}×`, d: de ? 'Kettenlaufzeit' : 'chain life' },
-                  { v: `~€${waxVsOil.cost.savedEur}`, d: de ? `auf ${(waxVsOil.cost.km / 1000).toLocaleString('de-DE')}.000 km` : `over ${(waxVsOil.cost.km / 1000).toLocaleString('en-US')}k km` },
-                ].map((s, i) => (
-                  <div key={i}>
-                    <CountUp value={s.v} className="font-mono text-[13px] font-semibold" style={{ color: 'var(--tx1)' }} />
-                    <p className="text-meta mt-0.5" style={{ color: 'var(--txf)' }}>{s.d}</p>
-                  </div>
-                ))}
-              </div>
+              <>
+                {/* Mobile: one line instead of three tiles — the cost figure
+                    alone carries the point without crowding the bars above
+                    it. Desktop keeps all three (grid, sm+). */}
+                <p className="sm:hidden text-center">
+                  <CountUp value={`~€${waxVsOil.cost.savedEur}`} className="font-mono text-[13px] font-semibold" style={{ color: 'var(--tx1)' }} />
+                  <span className="text-meta ml-1.5" style={{ color: 'var(--txf)' }}>
+                    {de ? `gespart auf ${(waxVsOil.cost.km / 1000).toLocaleString('de-DE')}.000 km` : `saved over ${(waxVsOil.cost.km / 1000).toLocaleString('en-US')}k km`}
+                  </span>
+                </p>
+                <div className="hidden sm:grid sm:grid-cols-3 gap-3 text-center">
+                  {[
+                    { v: '~300 km', d: de ? 'pro Rewax-Vorgang' : 'per rewax' },
+                    { v: `${waxVsOil.life.waxLo}–${waxVsOil.life.wax}×`, d: de ? 'Kettenlaufzeit' : 'chain life' },
+                    { v: `~€${waxVsOil.cost.savedEur}`, d: de ? `auf ${(waxVsOil.cost.km / 1000).toLocaleString('de-DE')}.000 km` : `over ${(waxVsOil.cost.km / 1000).toLocaleString('en-US')}k km` },
+                  ].map((s, i) => (
+                    <div key={i}>
+                      <CountUp value={s.v} className="font-mono text-[13px] font-semibold" style={{ color: 'var(--tx1)' }} />
+                      <p className="text-meta mt-0.5" style={{ color: 'var(--txf)' }}>{s.d}</p>
+                    </div>
+                  ))}
+                </div>
+              </>
             }
           >
             <FrictionBars de={de} />
@@ -929,6 +998,8 @@ export function SciencePage() {
           {de ? 'Zurück zur Startseite' : 'Back to home'}
         </Link>
       </footer>
+
+      <Footer />
     </div>
   );
 }

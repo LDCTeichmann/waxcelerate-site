@@ -18,6 +18,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev", "--", "--port", "5176"],
       "port": 5176
+    },
+    {
+      "name": "waxcelerate-site-preview",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--", "--port", "5188"],
+      "port": 5188
     }
   ]
 }

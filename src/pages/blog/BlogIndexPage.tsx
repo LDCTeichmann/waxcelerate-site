@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { Navigation } from '@/sections/navigation';
+import { Footer } from '@/sections/footer';
 import {
   articles,
   categoryColors,
@@ -235,6 +237,7 @@ export function BlogIndexPage() {
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            aria-label="Artikel durchsuchen"
             placeholder='Artikel durchsuchen, z. B. „Winter" oder „Watt"'
             className="w-full text-[14px] px-4 py-2.5 rounded-full outline-none"
             style={{ background: 'var(--sf)', border: '1px solid var(--bd)', color: 'var(--tx1)' }}
@@ -390,6 +393,15 @@ export function BlogIndexPage() {
           </Link>
         </div>
       </main>
+
+      <footer className="max-w-5xl mx-auto px-4 sm:px-6 py-12 text-center" style={{ borderTop: '1px solid var(--bd2)' }}>
+        <Link to="/" className="inline-flex items-center gap-2 text-[13px] text-wx-txm transition-opacity hover:opacity-70">
+          <ArrowLeft className="h-4 w-4" />
+          Zurück zur Startseite
+        </Link>
+      </footer>
+
+      <Footer />
     </div>
   );
 }

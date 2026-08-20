@@ -16,8 +16,9 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
   res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
 
   if (!redis) {
-    // No Redis configured — return -1 (unlimited) for all products
-    const fallback = Object.fromEntries(products.map((p) => [p.id, -1]));
+    const fallback = Object.fromEntries(
+      products.map((p) => [p.id, p.soldOut ? 0 : -1]),
+    );
     return res.json(fallback);
   }
 
@@ -26,13 +27,15 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
     const values = await redis.mget<(number | null)[]>(...keys);
 
     const stockMap = Object.fromEntries(
-      products.map((p, i) => [p.id, values[i] ?? -1])
+      products.map((p, i) => [p.id, values[i] ?? (p.soldOut ? 0 : -1)])
     );
 
     return res.json(stockMap);
   } catch {
     // Redis error — fail open (return unlimited) so checkout still works
-    const fallback = Object.fromEntries(products.map((p) => [p.id, -1]));
+    const fallback = Object.fromEntries(
+      products.map((p) => [p.id, p.soldOut ? 0 : -1]),
+    );
     return res.json(fallback);
   }
 }

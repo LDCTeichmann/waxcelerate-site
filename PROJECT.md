@@ -50,6 +50,8 @@ Tabelle unten. Keine neuen Markdown-Dateien in die Wurzel.
 | Blog, Stand und Konzept | `docs/plaene/BLOG_PLAN.md` | bei Blogarbeit |
 | Blog, abgearbeitete Aufgaben | `docs/archiv/BLOG_EXECUTION.md` | als Muster |
 | Rechtstexte, Stripe, UX-Plan | `docs/aufgaben/RECHTSTEXTE.md`, `docs/aufgaben/STRIPE_SETUP.md`, `docs/plaene/UX_UPGRADE_PLAN.md` | themenbezogen |
+| Navigation, Usability, Conversion — Recherche und Plan | `docs/plaene/NAVIGATION_UX_PLAN.md`, `docs/plaene/CONVERSION_UX_PLAN.md`, `docs/plaene/DISCOVERY_UX_PLAN.md` | bei Navigations-/Bedienbarkeits-/Conversion-Arbeit |
+| **Gesamtübersicht: was aussteht, über alle Pläne** | **`docs/plaene/GESAMTUEBERSICHT.md`** | **immer zuerst, bevor du in Einzeldokumente gehst** |
 | Mobile-Optimierung (Stufe A/B abgeschlossen, C wartet auf Stripe-IDs), Deploy-Status | `docs/plaene/MOBILE_PLAN.md`, `docs/plaene/DEPLOY_HANDOFF.md` | vor jedem Deploy des `mobile-optimization`-Branchs oder bei Arbeit an Mobile-Performance/A11y |
 
 Inhaltliche Wahrheit über Produkt, Preise, Intervalle und erlaubte Claims steht

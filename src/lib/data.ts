@@ -21,7 +21,10 @@ export const shipping = {
 // diese Datei führt den tatsächlichen aktuellen Stand.
 export const trustStats = {
   reviews: '200+',
-  sold: 346,
+  // Hub Notion „All Sales", 19.08.2026: GET /inventory → Summe units_sold.
+  // 416 erfüllte Stück. 3 stornierte und 2 offene nicht mitgezählt.
+  // Nicht die Bestellzahl (385) — die Trust-Zeile sagt „Einheiten".
+  sold: 416,
   negative: 0,
 } as const;
 
@@ -38,6 +41,12 @@ export interface Product {
   price: number;
   image: string;
   ebayUrl: string;
+  /**
+   * Manual out-of-stock. Keep in sync with Hub `inventory.json` current_stock
+   * for that SKU (YBN S12S → chain-ybn12). No live Hub sync — flip this and
+   * rerun `npx tsx scripts/generate-merchant-feed.mjs` when stock returns.
+   */
+  soldOut?: boolean;
   /** Stripe Price ID — set after creating products in Stripe Dashboard → Products → copy price_xxx */
   stripePriceId?: string;
   badge?: string;
@@ -100,8 +109,8 @@ export const products: Product[] = [
       '/images/products/classic/classic-3.webp',
     ],
     ebayUrl: 'https://www.ebay.de/itm/395811184583',
-    unitsSold: 147,
-    reviewCount: 41,
+    unitsSold: 188,
+    reviewCount: 52,
     badge: 'Bestseller',
     badgeEn: 'Bestseller',
     formula: ['Vollraffiniertes Paraffinwachs', 'PTFE < 1 µm', 'Stearinsäurederivat'],
@@ -154,8 +163,8 @@ export const products: Product[] = [
       '/images/products/classic/classic-3.webp',
     ],
     ebayUrl: 'https://www.ebay.de/itm/395811183957',
-    unitsSold: 60,
-    reviewCount: 21,
+    unitsSold: 65,
+    reviewCount: 26,
     badge: 'Kompakt',
     badgeEn: 'Compact',
     formula: ['Vollraffiniertes Paraffinwachs', 'PTFE < 1 µm', 'Stearinsäurederivat'],
@@ -208,8 +217,8 @@ export const products: Product[] = [
       '/images/products/pro/pro-6.webp',
     ],
     ebayUrl: 'https://www.ebay.de/itm/396468036330',
-    unitsSold: 23,
-    reviewCount: 5,
+    unitsSold: 64,
+    reviewCount: 14,
     badge: 'Empfohlen',
     badgeEn: 'Recommended',
     formula: [
@@ -275,8 +284,8 @@ export const products: Product[] = [
       '/images/products/pro/pro-6.webp',
     ],
     ebayUrl: 'https://www.ebay.de/itm/397861543533',
-    unitsSold: 6,
-    reviewCount: 2,
+    unitsSold: 17,
+    reviewCount: 6,
     badge: 'Pro',
     badgeEn: 'Pro',
     formula: [
@@ -486,12 +495,22 @@ export const products: Product[] = [
     chainModel: 'S12S',
     chainLinks: '116 Glieder',
     chainSpeed: '12-fach',
+    soldOut: true,
   },
 ];
 
 export function getProductById(id: string): Product | undefined {
   return products.find((p) => p.id === id)
     ?? starterSetBundleProducts.find((p) => p.id === id);
+}
+
+export const isSoldOut = (p: Pick<Product, 'soldOut'> | undefined): boolean =>
+  !!p?.soldOut;
+
+export function schemaAvailability(p: Pick<Product, 'soldOut'>): string {
+  return isSoldOut(p)
+    ? 'https://schema.org/OutOfStock'
+    : 'https://schema.org/InStock';
 }
 
 /**

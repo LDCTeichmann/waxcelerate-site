@@ -167,7 +167,7 @@ export function Contact() {
       {/* Bottom gradient */}
       <div
         className="absolute bottom-0 left-0 right-0 pointer-events-none"
-        style={{ height: '64px', background: 'linear-gradient(to bottom, transparent, var(--sf3))', zIndex: 1 }}
+        style={{ height: '64px', background: 'linear-gradient(to bottom, color-mix(in srgb, var(--sf3), transparent 100%), var(--sf3))', zIndex: 1 }}
       />
     </Section>
   );

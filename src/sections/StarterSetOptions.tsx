@@ -44,7 +44,7 @@ function FixedCard({ optionId, de, icon: Icon, badgeDe, badgeEn }: {
     <div className="rounded-2xl overflow-hidden flex flex-col h-full"
       style={{ background: 'var(--sf)', border: '1px solid var(--bd)', boxShadow: 'var(--card-shad)' }}>
       <div className="aspect-[4/3] relative">
-        <img src={wax.image} alt="" className="w-full h-full object-cover" loading="lazy" />
+        <img src={wax.image} alt={de ? wax.title : wax.titleEn} className="w-full h-full object-cover" loading="lazy" />
         <span className="absolute top-3 left-3 inline-flex items-center gap-1.5 text-meta font-semibold px-2.5 py-1 rounded-full"
           style={{ background: 'rgba(10,10,10,0.72)', color: '#fff', backdropFilter: 'blur(4px)' }}>
           <Icon className="h-3 w-3" aria-hidden />
