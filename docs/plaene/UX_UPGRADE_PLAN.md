@@ -261,11 +261,30 @@ Fragen, die vor einem Kauf im Weg stehen. Sie gehören nach vorn.
 - Die Punkt-Indikatoren werden zu echten Tabs mit `role="tab"` und lesbarer
   Schriftgröße (≥ 13px).
 
-**Achtung — kritische Regel aus CLAUDE.md:** keine Hooks in `.map()`. Wenn du
-die drei Rechner in einer Schleife renderst, brauchst du eine
-Wrapper-Komponente dazwischen (Vorbild: `RevealSlot` in derselben Datei).
+**Umgesetzt (2026-08-22):** drei benannte JSX-Elemente nebeneinander
+(`grid-cols-3`), keine `.map()`-Schleife — die "keine Hooks in `.map()`"-Regel
+aus CLAUDE.md greift hier also gar nicht, eine Wrapper-Komponente war nicht
+nötig. Der alte 3D-Deck/Coverflow (`DeckSlot`, `DECK_POS`, `DECK_HEIGHT`) ist
+komplett entfernt. Möglich wurde das dadurch, dass Tab 2 (Vorrat) seine eigene
+Häufigkeits-Frage und Tab 3 (Rotation) seinen eigenen km/Jahr-Slider verloren
+haben — beide lesen jetzt aus einem geteilten Fahrprofil (Wetter/Gelände/
+km pro Woche, siehe `useToolsProfile` in `tools.tsx`) statt eigener,
+widersprüchlicher Annahmen. Dadurch sind die Karten kürzer als beim ersten,
+zurückgenommenen Grid-Versuch.
 
-**Verifikation:** Bei 1440px sind alle drei Rechner gleichzeitig lesbar und
+**Zurückgenommen (2026-08-23):** Luca hat das Grid live gesehen und wollte den
+Flip-Mechanismus des alten Decks ausdrücklich zurück ("fand das sehr, sehr,
+sehr schön") — nicht das ursprüngliche Geisterkarten-Problem, sondern genau
+die Coverflow-Interaktion selbst. `DeckSlot`/`DECK_POS`/`DECK_HEIGHT` sind
+wiederhergestellt (`git show HEAD` vor dem 2026-08-22-Umbau enthielt den
+exakten Code), `lg:` statt `xl:` als Breakpoint — neu durchgerechnet fürs
+Deck-Sizing (42%-Karte bei 1024px ≈383px, 33% breiter als die damalige
+Grid-Spalte), nicht einfach übernommen. Diese Sektion 2.1 bleibt als
+historischer Kontext stehen, ihre Grid-Empfehlung ist nicht mehr aktueller
+Stand — siehe stattdessen `tools.tsx`s eigene Kommentare am Deck-Code.
+
+**Verifikation (2026-08-22, Grid-Stand — inzwischen zurückgenommen, siehe
+oben):** Bei 1440px sind alle drei Rechner gleichzeitig lesbar und
 gleich hoch. Bei 390px ist der zweite Rechner mit einem Wisch erreichbar, und
 die Tabs sagen, wie viele es gibt. `npx tsc --noEmit` sauber.
 
@@ -881,7 +900,7 @@ Checkliste:
 - [ ] Linke Textkante aller Section-Köpfe identisch (Skript aus 1.4)
 - [ ] Kein horizontales Scrollen: `document.documentElement.scrollWidth === window.innerWidth`
 - [ ] Logo in beiden Themes sichtbar (Nav, Footer, Mobile-Menü)
-- [ ] Alle drei Rechner auf Desktop gleichzeitig sichtbar
+- [ ] Alle drei Rechner auf Desktop gleichzeitig sichtbar (zurückgenommen 2026-08-23, siehe §2.1 — Nutzer wollte den Flip-Mechanismus des Decks explizit zurück)
 - [ ] Bewertungszitate vollständig lesbar
 - [ ] Produktseite hat Navigation, Footer, genau **ein** `<h1>`
 - [ ] Mobile-Sticky-CTA über die ganze Seite außer Hero und `#produkte`

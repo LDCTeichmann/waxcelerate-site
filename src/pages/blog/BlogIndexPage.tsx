@@ -10,6 +10,7 @@ import {
   categoryOrder,
   getArticleImage,
   blogHero,
+  blogFeature,
 } from './articles';
 import type { Article, ArticleCategory } from './articles';
 
@@ -80,27 +81,70 @@ function ArticleCard({ article }: { article: Article }) {
   );
 }
 
-function FeaturedArticle({ article }: { article: Article }) {
-  const img = getArticleImage(article.slug);
+/**
+ * Ersetzt die frühere Kombination aus separatem Vergleichsblock + eigener
+ * FeaturedArticle-Kachel (zwei gleich große Blöcke übereinander) durch eine
+ * einzige asymmetrische Kachel: ein großes Hauptbild plus ein kleineres,
+ * überlappendes Kontrastbild, das die "geölt vs. gewachst"-These weiterträgt
+ * statt sie als eigenen Block zu wiederholen.
+ */
+function FeatureTile({ article }: { article: Article }) {
   return (
     <Link
       to={`/blog/${article.slug}`}
-      className="group grid md:grid-cols-2 rounded-2xl mb-12 transition-all duration-300 hover:-translate-y-1"
+      className="group grid md:grid-cols-[3fr_2fr] rounded-2xl mb-12 transition-all duration-300 hover:-translate-y-1"
       style={{ background: 'var(--sf)', border: '1px solid var(--bd)' }}
     >
-      {/* overflow-hidden + rounding live here, not on the Link with the hover
-          transform — see ArticleCard above for why. */}
-      <div className="relative aspect-[16/11] md:aspect-auto md:min-h-[340px] overflow-hidden rounded-t-2xl md:rounded-t-none md:rounded-l-2xl" style={{ background: 'var(--sf2)', transform: 'translateZ(0)' }}>
-        <img
-          src={img.src}
-          alt={img.alt}
-          width={1600}
-          height={1100}
-          fetchPriority="high"
-          className="absolute inset-0 w-full h-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-105"
-        />
+      {/* Bildspalte: Hauptbild + überlappendes Insetbild. `self-start` ist
+          hier absichtlich: ohne das würde die Spalte sich in der Desktop-Grid
+          auf die Höhe der Textspalte strecken (die je nach Titellänge stark
+          variiert), und dann würde das Inset-Bild — das relativ zu dieser
+          Spalte positioniert ist — bei einem langen Titel weit unter die
+          Kachel hinausragen. Mit `self-start` behält die Bildspalte immer
+          ihre eigene, bildbasierte Höhe, unabhängig vom Text daneben. Das
+          Inset sitzt bewusst außerhalb des Hauptbild-Containers (der sein
+          eigenes overflow-hidden trägt), damit es über die Kante hinausragen
+          kann, ohne vom äußeren rounded-2xl beschnitten zu werden. */}
+      <div className="relative self-start mb-12 sm:mb-14 md:mb-16 md:pr-10">
+        <div
+          className="relative aspect-[16/11] sm:aspect-[4/3] md:aspect-[5/4] overflow-hidden rounded-t-2xl md:rounded-t-none md:rounded-l-2xl"
+          style={{ background: 'var(--sf2)', transform: 'translateZ(0)' }}
+        >
+          <img
+            src={blogFeature.main.src}
+            alt={blogFeature.main.alt}
+            fetchPriority="high"
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-105"
+          />
+          <span
+            className="absolute top-3 left-3 text-small font-semibold uppercase tracking-[0.16em] px-2.5 py-1 rounded-full backdrop-blur"
+            style={{ background: 'var(--chip-bg)', color: '#F2F2F5' }}
+          >
+            {blogFeature.main.caption}
+          </span>
+        </div>
+        <figure
+          className="absolute left-5 -bottom-10 sm:-bottom-12 md:-bottom-14 w-[46%] sm:w-[38%] md:w-[52%] md:left-6 aspect-[4/5] rounded-xl overflow-hidden shadow-2xl"
+          style={{ border: '3px solid var(--pg)', background: 'var(--sf2)' }}
+        >
+          <img
+            src={blogFeature.inset.src}
+            alt={blogFeature.inset.alt}
+            loading="lazy"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <figcaption
+            className="absolute bottom-0 left-0 right-0 px-2 py-1.5 font-mono text-[10px] uppercase tracking-[0.14em]"
+            style={{ background: 'linear-gradient(0deg, rgba(0,0,0,0.85), rgba(0,0,0,0))', color: '#F2F2F5' }}
+          >
+            {blogFeature.inset.caption}
+          </figcaption>
+        </figure>
       </div>
-      <div className="p-7 sm:p-9 flex flex-col justify-center">
+
+      {/* Textspalte: bewusst oben ausgerichtet statt vertikal zentriert, damit
+          die Kachel nicht als gespiegeltes 50/50-Layout wirkt. */}
+      <div className="p-7 sm:p-9 md:pt-9 flex flex-col justify-start">
         <p className="font-mono text-small uppercase tracking-[0.18em] text-wx-txf mb-3">
           Empfohlen · {article.category}
         </p>
@@ -122,6 +166,10 @@ function FeaturedArticle({ article }: { article: Article }) {
             ))}
           </div>
         )}
+        <p className="text-[13px] leading-[1.6] text-wx-txf mb-6">
+          Der Unterschied ist kein Marketingversprechen, sondern das, was nach
+          der Fahrt an Wade und Socke hängen bleibt.
+        </p>
         <div className="flex items-center gap-2 text-[13px] font-semibold" style={{ color: 'var(--accent)' }}>
           Artikel lesen
           <span className="transition-transform group-hover:translate-x-1">→</span>
@@ -215,8 +263,8 @@ export function BlogIndexPage() {
             Die Werkstatt
           </p>
           <h1
-            className="font-display font-bold leading-[1.05] mb-5 max-w-2xl"
-            style={{ color: '#FFFFFF', WebkitTextFillColor: '#FFFFFF', fontSize: 'clamp(2.25rem, 5vw, 3.5rem)', textShadow: '0 2px 30px rgba(0,0,0,0.85)' }}
+            className="font-sans font-black leading-[1.02] tracking-tight mb-5 max-w-2xl"
+            style={{ color: '#FFFFFF', WebkitTextFillColor: '#FFFFFF', fontSize: 'clamp(2.5rem, 5.5vw, 4rem)', textShadow: '0 2px 30px rgba(0,0,0,0.85)' }}
           >
             Wissen rund um Kette &amp; Wachs
           </h1>
@@ -289,57 +337,9 @@ export function BlogIndexPage() {
           })}
         </div>
 
-        {/* Der Vergleichsblock. Beide Bilder stammen aus Lucas Alltag, keine
-            Stockfotografie: links das Bein nach einer Fahrt mit geölter Kette,
-            rechts eine frisch gewachste Kette im Makro. Das ist die These des
-            gesamten Blogs in einem Blick, und es ist das einzige Element auf der
-            Seite, das ohne einen einzigen Satz Marketing auskommt. */}
-        {showLead && (
-          <section className="mb-12">
-            <div className="grid grid-cols-2 gap-2 sm:gap-3 rounded-2xl overflow-hidden" style={{ border: '1px solid var(--bd)' }}>
-              <figure className="relative aspect-[4/5] sm:aspect-[4/3] overflow-hidden" style={{ background: 'var(--sf2)' }}>
-                <img
-                  src="/images/blog/oil-tattoo-leg-800.webp"
-                  alt="Schwarze Ölspuren an Wade und weißer Socke nach einer Fahrt mit geölter Kette"
-                  loading="lazy"
-                  width={800}
-                  height={500}
-                  className="absolute inset-0 w-full h-full object-cover"
-                />
-                <figcaption
-                  className="absolute bottom-0 left-0 right-0 px-3 py-2 font-mono text-small uppercase tracking-[0.16em]"
-                  style={{ background: 'linear-gradient(0deg, rgba(0,0,0,0.85), rgba(0,0,0,0))', color: '#F2F2F5' }}
-                >
-                  Geölt · 80 km
-                </figcaption>
-              </figure>
-              <figure className="relative aspect-[4/5] sm:aspect-[4/3] overflow-hidden" style={{ background: 'var(--sf2)' }}>
-                <img
-                  src="/images/blog/chain-waxed-macro-800.webp"
-                  alt="Frisch gewachste Fahrradkette in Nahaufnahme auf dunklem Schiefer"
-                  loading="lazy"
-                  width={800}
-                  height={500}
-                  className="absolute inset-0 w-full h-full object-cover"
-                />
-                <figcaption
-                  className="absolute bottom-0 left-0 right-0 px-3 py-2 font-mono text-small uppercase tracking-[0.16em]"
-                  style={{ background: 'linear-gradient(0deg, rgba(0,0,0,0.85), rgba(0,0,0,0))', color: '#F2F2F5' }}
-                >
-                  Gewachst · 400 km
-                </figcaption>
-              </figure>
-            </div>
-            <p className="text-[14px] leading-[1.7] text-wx-txm mt-4 max-w-2xl">
-              Der Unterschied ist kein Marketingversprechen, sondern das, was nach der Fahrt an
-              Wade und Socke hängen bleibt. Alles Weitere auf dieser Seite erklärt nur, warum
-              das so ist und wie du dahin kommst.
-            </p>
-          </section>
-        )}
-
-        {/* Featured lead */}
-        {showLead && featured && <FeaturedArticle article={featured} />}
+        {/* Featured lead — eine asymmetrische Kachel statt zwei gleich
+            großer Blöcke übereinander, siehe FeatureTile oben. */}
+        {showLead && featured && <FeatureTile article={featured} />}
 
         {/* Section label */}
         <div className="flex items-baseline justify-between mb-5">

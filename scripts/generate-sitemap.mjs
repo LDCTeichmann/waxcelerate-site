@@ -34,7 +34,7 @@ import { writeFileSync, readFileSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
-import { products } from '../src/lib/data.ts';
+import { products, accessories } from '../src/lib/data.ts';
 import { articles } from '../src/pages/blog/articles.ts';
 import { assertXml } from './assert-xml.mjs';
 
@@ -105,6 +105,16 @@ const productPages = products.map(p => ({
   image: { loc: imageUrl(p.image), title: `${p.title} | Waxcelerate`, caption: p.description },
 }));
 
+const accessoryPages = accessories.map(a => ({
+  loc: `/zubehoer/${a.slug}`,
+  changefreq: 'monthly',
+  priority: '0.6',
+  lastmod: lastmodFor(`/zubehoer/${a.slug}`, {
+    t: a.title, d: a.description, pr: a.price, i: a.image, s: a.specs,
+  }),
+  image: { loc: imageUrl(a.image), title: `${a.title} | Waxcelerate`, caption: a.description },
+}));
+
 // Artikel tragen ihr echtes Datum in den Daten. dateModified schlaegt
 // publishDate, weil ein ueberarbeiteter Artikel tatsaechlich neuer ist.
 const articlePages = articles.map(a => ({
@@ -136,7 +146,7 @@ ${image ? `    <image:image>
     </image:image>
 ` : ''}  </url>`;
 
-const all = [...staticPages, ...productPages, ...articlePages];
+const all = [...staticPages, ...productPages, ...accessoryPages, ...articlePages];
 
 const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -161,6 +171,6 @@ writeFileSync(
 
 const changedToday = Object.values(stamps).filter(s => s.date === today).length;
 console.log(
-  `sitemap.xml written with ${all.length} URLs (${productPages.length} products, ${articlePages.length} articles).`,
+  `sitemap.xml written with ${all.length} URLs (${productPages.length} products, ${accessoryPages.length} accessories, ${articlePages.length} articles).`,
 );
 console.log(`  lastmod: ${changedToday} von ${Object.keys(stamps).length} verfolgten Seiten heute geaendert.`);

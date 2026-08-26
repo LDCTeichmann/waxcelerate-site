@@ -4,6 +4,7 @@ import { Menu, X, Moon, Sun, ChevronDown } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
 import { CartIcon } from '@/components/CartIcon';
+import { WaxcelerateMark } from '@/components/WaxcelerateMark';
 import { checkoutEnabled } from '@/lib/data';
 import { useActiveSection } from '@/hooks/useActiveSection';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
@@ -181,19 +182,23 @@ export function Navigation() {
                 e.preventDefault();
                 scrollToSection('#home');
               }}
-              className="flex items-center gap-2.5 shrink-0"
-              aria-label="Waxcelerate"
+              className="wx-logo-link group flex items-center gap-2.5 shrink-0"
+              aria-label={de ? 'Waxcelerate — zur Startseite' : 'Waxcelerate — back to homepage'}
             >
-              <img
-                src="/images/logo-dark.png"
-                alt=""
-                className="w-auto h-14 lg:h-[4.2rem]"
-              />
+              <WaxcelerateMark className="w-auto h-14 lg:h-[4.2rem]" />
               <span
-                className="hidden sm:block text-[15px] font-semibold tracking-[0.01em]"
+                className="hidden sm:block relative text-[17px] font-semibold tracking-[0.01em] transition-colors duration-300"
                 style={{ color: 'var(--tx1)', fontFamily: "'Libre Franklin', ui-sans-serif, system-ui, sans-serif" }}
               >
                 Waxcelerate
+                {/* Gleiche Unterstrich-Sprache wie die Nav-Links rechts daneben —
+                    das Logo verhält sich sichtbar wie ein Nav-Item, nicht wie ein
+                    unklickbares Bild. Kein neues visuelles Vokabular nötig. */}
+                <span
+                  className="absolute -bottom-1 left-0 right-0 h-px origin-left scale-x-0 transition-transform duration-300 ease-out motion-safe:group-hover:scale-x-100"
+                  style={{ background: 'var(--accent)' }}
+                  aria-hidden
+                />
               </span>
             </a>
 
@@ -313,7 +318,7 @@ export function Navigation() {
               <a
                 href={hrefFor({ href: '#produkte' })}
                 onClick={(e) => { e.preventDefault(); scrollToSection('#produkte'); }}
-                className="hidden lg:inline-flex items-center px-5 py-2.5 text-[13px] font-semibold rounded-full transition-transform duration-300 hover:-translate-y-0.5"
+                className="cta-brand-pulse hidden lg:inline-flex items-center px-5 py-2.5 text-[13px] font-semibold rounded-full transition-transform duration-300 hover:-translate-y-0.5"
                 style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
               >
                 {de ? 'Jetzt bestellen' : 'Buy now'}
@@ -382,7 +387,7 @@ export function Navigation() {
       >
         {/* Top bar */}
         <div className="flex items-center justify-between px-5 h-16 border-b border-wx-bd/20 flex-shrink-0">
-          <img src="/images/logo-dark.png" alt="Waxcelerate" className="h-11 w-auto" />
+          <WaxcelerateMark className="h-11 w-auto" ariaLabel="Waxcelerate" />
           <button
             onClick={() => setIsMobileMenuOpen(false)}
             className="p-2 text-wx-tx2 hover:text-wx-tx1 transition-colors"

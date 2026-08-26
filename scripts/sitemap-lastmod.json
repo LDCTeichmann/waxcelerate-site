@@ -70,5 +70,13 @@
   "/wissenschaft": {
     "hash": "242c5cc7cd86",
     "date": "2026-08-04"
+  },
+  "/zubehoer/aufhaengedraht": {
+    "hash": "abf4a2e0cbc5",
+    "date": "2026-08-25"
+  },
+  "/zubehoer/quick-link-zange": {
+    "hash": "dcd228a9b04b",
+    "date": "2026-08-25"
   }
 }

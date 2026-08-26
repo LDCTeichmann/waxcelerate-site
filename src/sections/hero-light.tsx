@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ZoomIn } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
 import { WaxLensCutout } from '@/sections/hero/WaxLensCutout';
 import { waxLensEnabled } from '@/sections/hero/constants';
+import { waxVsOil } from '@/lib/data';
 
 const WaxDive = lazy(() => import('@/sections/hero/WaxDive').then(m => ({ default: m.WaxDive })));
 
@@ -29,8 +30,20 @@ export function Hero() {
   const imgRef     = useRef<HTMLDivElement>(null);
   const blockRef   = useRef<HTMLDivElement>(null);
   const blockInnerRef = useRef<HTMLDivElement>(null);
+  const glowRef    = useRef<HTMLDivElement>(null);
+  const hintRef    = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const ctaRef     = useRef<HTMLButtonElement>(null);
+  // Holds the repeating "look, click here" nudge so the lens's own
+  // onActiveChange can kill it the moment someone finds the real hotspot —
+  // no point still nudging once they already have.
+  const nudgeTlRef = useRef<gsap.core.Timeline | null>(null);
+
+  const onLensActiveChange = useCallback((active: boolean) => {
+    if (!active) return;
+    nudgeTlRef.current?.kill();
+    if (hintRef.current) gsap.to(hintRef.current, { autoAlpha: 0, duration: 0.25, overwrite: 'auto' });
+  }, []);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -76,15 +89,11 @@ export function Hero() {
     );
     tl.fromTo(items, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', stagger: 0.09 }, 1.0);
 
+    // statEls[0] ("Kettenlaufzeit") used to count up to a bare "3×" here,
+    // independently of the React-rendered value — a plain number tween can't
+    // land on the "2–3×" range the copy now uses, so that stat keeps only
+    // its normal fade-in (via the [data-hero] stagger above) and no counter.
     const statEls = root.querySelectorAll<HTMLElement>('[data-stat-val]');
-    if (statEls[0]) {
-      const el0 = statEls[0];
-      const c0 = { val: 0 };
-      gsap.to(c0, { val: 3, duration: 0.9, delay: 1.2, ease: 'power2.out', snap: { val: 1 },
-        onStart() { el0.textContent = '0×'; },
-        onUpdate() { el0.textContent = c0.val + '×'; },
-      });
-    }
     if (statEls[1]) {
       const el1 = statEls[1];
       const c1 = { val: 0 };
@@ -103,6 +112,71 @@ export function Hero() {
     if (contentRef.current) scrub(gsap.to(contentRef.current, { y: -40, opacity: 0.25, ease: 'none' }));
     scrub(gsap.to(cardInner, { scale: 0.965, transformOrigin: '50% 100%', ease: 'none' }));
 
+    // Idle "lebendig" wobble — reine Rotation, weil x/y/scale/yPercent auf
+    // blockInnerRef schon von Entrance, Scroll-Scrub und Maus-Parallax belegt
+    // sind (siehe imgLayers oben). Rotation ist eine eigene, von GSAP separat
+    // getrackte Transform-Komponente, komponiert also konfliktfrei dazu.
+    // blockRef (nicht blockInnerRef) ist, was WaxLensCutout fuer die
+    // Treffererkennung misst, also hat dieser Wobble keinen Einfluss darauf.
+    const idleWobble = blockInnerRef.current
+      ? gsap.to(blockInnerRef.current, {
+          rotation: 1.2,
+          duration: 3.6,
+          ease: 'sine.inOut',
+          yoyo: true,
+          repeat: -1,
+        })
+      : undefined;
+
+    // Ambient glow — persistent breathing so the block reads as "alive"
+    // before the cursor ever finds it, not only once hovered like the lens
+    // itself. Own element/property (the glow div's opacity+scale), so it
+    // can't conflict with blockInnerRef's rotation/parallax/scroll tweens.
+    // Amplitude deliberately larger than a first pass at this (0.85→1.08) —
+    // that read as no different from doing nothing. Motion detection is a
+    // pre-attentive, low-level visual system (superior colliculus/thalamus,
+    // active before conscious scene parsing) that responds to a real change
+    // in luminance/size over time, not a few-percent wobble; too subtle to
+    // register just doesn't recruit it.
+    const glowPulse = glowRef.current
+      ? gsap.to(glowRef.current, {
+          opacity: 1, scale: 1.22, transformOrigin: '50% 50%',
+          duration: 1.9, ease: 'sine.inOut', yoyo: true, repeat: -1,
+        })
+      : undefined;
+
+    // The block itself breathes too — literally "becomes bigger and
+    // smaller," not just its glow. Starts after the one-time entrance
+    // tween has finished writing to this same element's scale (it settles
+    // at 1.01 by ~2.4s in), so this picks up cleanly from there instead of
+    // fighting it. Independent of the rotation wobble above — GSAP tracks
+    // scale and rotation as separate transform components on the same
+    // element, so both compose without overwriting each other.
+    const breathe = blockInnerRef.current
+      ? gsap.to(blockInnerRef.current, {
+          scale: 1.045, duration: 1.9, ease: 'sine.inOut', yoyo: true, repeat: -1, delay: 2.5,
+        })
+      : undefined;
+
+    // Repeating "you can click this" nudge. Two things changed from a first
+    // pass that turned out too subtle to notice: it now starts almost
+    // immediately (a first-glance visitor should see it within ~1.5s, not
+    // wait 15s+ to maybe catch a 2.5s window) and repeats roughly every 7s
+    // instead of every 15+, so a few seconds of looking at the hero is
+    // enough to catch it. Von Restorff effect: an isolated, moving element
+    // against an otherwise static hero is what actually pulls the eye,
+    // which is also why this stays a small badge rather than something
+    // louder — one clear signal beats several competing ones. Stops for
+    // good on first real hover/click (see onLensActiveChange below).
+    let nudgeTl: gsap.core.Timeline | undefined;
+    if (hintRef.current && lensOn) {
+      gsap.set(hintRef.current, { autoAlpha: 0, scale: 0.85 });
+      nudgeTl = gsap.timeline({ delay: 1.5, repeat: -1, repeatDelay: 5.5 });
+      nudgeTl
+        .to(hintRef.current, { autoAlpha: 1, scale: 1, duration: 0.4, ease: 'back.out(1.8)' })
+        .to(hintRef.current, { autoAlpha: 0, scale: 0.92, duration: 0.35, ease: 'power2.in' }, '+=1.6');
+      nudgeTlRef.current = nudgeTl;
+    }
 
     let onMove:  ((e: MouseEvent) => void) | undefined;
     if (finePointer) {
@@ -149,6 +223,11 @@ export function Hero() {
       if (cta && ctaMove)  cta.removeEventListener('mousemove', ctaMove);
       if (cta && ctaLeave) cta.removeEventListener('mouseleave', ctaLeave);
       triggers.forEach((s) => s.kill());
+      idleWobble?.kill();
+      glowPulse?.kill();
+      breathe?.kill();
+      nudgeTl?.kill();
+      nudgeTlRef.current = null;
       tl.kill();
     };
   }, []);
@@ -157,7 +236,7 @@ export function Hero() {
     document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
 
   const stats = [
-    { v: '3×',    l: de ? 'Kettenlaufzeit'    : 'chain life' },
+    { v: `${waxVsOil.life.waxLo}–${waxVsOil.life.wax}×`, l: de ? 'Kettenlaufzeit'    : 'chain life' },
     { v: '~€70',  l: de ? 'gespart · 12.000 km' : 'saved · 12,000 km' },
     { v: '1 Tag', l: de ? 'Versand nach Bestellung' : 'ships after order' },
   ];
@@ -234,45 +313,51 @@ export function Hero() {
               could own a subtle idle loop too. */}
           <div ref={imgRef} className="absolute inset-0 will-change-transform">
             {bgImg}
-          </div>
 
-          {/* Blur already pushes the chain to atmospheric bokeh; this overlay only
-              needs to add a touch more depth + tame the brightest specular hits,
-              not do all the "background" work by itself. */}
-          <div
-            className="absolute inset-0 pointer-events-none z-[1]"
-            style={{ background: 'rgba(var(--scrim-rgb),0.32)' }}
-          />
-          <div
-            className="absolute inset-0 pointer-events-none z-[1]"
-            style={{ background: 'linear-gradient(90deg, rgba(var(--scrim-rgb),0.30) 0%, transparent 40%)' }}
-          />
-          {/* Focused scrim directly behind the text column — the global overlay above
-              stays light enough to keep the chain recognizable, so contrast for the
-              headline/stats needs its own local boost instead of a sitewide darken. */}
-          <div
-            className="absolute inset-0 pointer-events-none z-[1]"
-            style={{ background: 'radial-gradient(ellipse 82% 105% at 0% 100%, rgba(var(--scrim-rgb),0.82) 0%, rgba(var(--scrim-rgb),0.48) 40%, transparent 68%)' }}
-          />
-          <div
-            className="absolute top-0 inset-x-0 h-20 pointer-events-none z-[1]"
-            style={{ background: 'linear-gradient(to bottom, rgba(var(--scrim-rgb),0.25), transparent)' }}
-          />
-          {/* Stats row spans the full card width, so it can sit over the chain-weave
-              side of the photo where the bottom-left radial scrim above doesn't
-              reach — this band gives that whole row reliable contrast on its own,
-              independent of which part of the photo is behind it. */}
-          <div
-            className="absolute bottom-0 inset-x-0 h-36 pointer-events-none z-[1]"
-            style={{ background: 'linear-gradient(to top, rgba(var(--scrim-rgb),0.58), transparent)' }}
-          />
-          <div
-            className="absolute inset-x-0 bottom-0 h-[82%] pointer-events-none z-[4] sm:hidden"
-            style={{
-              background:
-                'linear-gradient(to top, rgba(var(--scrim-rgb),0.72) 0%, rgba(var(--scrim-rgb),0.50) 30%, rgba(var(--scrim-rgb),0.20) 55%, transparent 78%)',
-            }}
-          />
+            {/* Blur already pushes the chain to atmospheric bokeh; this overlay only
+                needs to add a touch more depth + tame the brightest specular hits,
+                not do all the "background" work by itself.
+                These scrims live inside imgRef (not as siblings under cardInner) so
+                they inherit the exact same transform as the photo — entrance scale,
+                scroll-scrub yPercent, mouse parallax. As siblings they had no
+                overscan margin of their own, so cardInner's scroll-scrub shrink
+                pulled their edges in ahead of the image, exposing an untinted sliver
+                of the photo at the left/right edges while scrolling. */}
+            <div
+              className="absolute inset-0 pointer-events-none z-[1]"
+              style={{ background: 'rgba(var(--scrim-rgb),0.32)' }}
+            />
+            <div
+              className="absolute inset-0 pointer-events-none z-[1]"
+              style={{ background: 'linear-gradient(90deg, rgba(var(--scrim-rgb),0.30) 0%, transparent 40%)' }}
+            />
+            {/* Focused scrim directly behind the text column — the global overlay above
+                stays light enough to keep the chain recognizable, so contrast for the
+                headline/stats needs its own local boost instead of a sitewide darken. */}
+            <div
+              className="absolute inset-0 pointer-events-none z-[1]"
+              style={{ background: 'radial-gradient(ellipse 82% 105% at 0% 100%, rgba(var(--scrim-rgb),0.82) 0%, rgba(var(--scrim-rgb),0.48) 40%, transparent 68%)' }}
+            />
+            <div
+              className="absolute top-0 inset-x-0 h-20 pointer-events-none z-[1]"
+              style={{ background: 'linear-gradient(to bottom, rgba(var(--scrim-rgb),0.25), transparent)' }}
+            />
+            {/* Stats row spans the full card width, so it can sit over the chain-weave
+                side of the photo where the bottom-left radial scrim above doesn't
+                reach — this band gives that whole row reliable contrast on its own,
+                independent of which part of the photo is behind it. */}
+            <div
+              className="absolute bottom-0 inset-x-0 h-36 pointer-events-none z-[1]"
+              style={{ background: 'linear-gradient(to top, rgba(var(--scrim-rgb),0.58), transparent)' }}
+            />
+            <div
+              className="absolute inset-x-0 bottom-0 h-[82%] pointer-events-none z-[4] sm:hidden"
+              style={{
+                background:
+                  'linear-gradient(to top, rgba(var(--scrim-rgb),0.72) 0%, rgba(var(--scrim-rgb),0.50) 30%, rgba(var(--scrim-rgb),0.20) 55%, transparent 78%)',
+              }}
+            />
+          </div>
 
           {/* Shadow leans slightly toward the content/CTA (bottom-left) instead of
               straight down — a soft directional cue, not a literal arrow.
@@ -297,8 +382,11 @@ export function Hero() {
                        lg:left-[62%] lg:top-[50%] lg:w-[clamp(360px,27%,650px)]"
           >
             <div ref={blockInnerRef} className="relative">
-              {/* Ambient glow — sells the wax as the one lit/in-focus subject in the frame */}
+              {/* Ambient glow — sells the wax as the one lit/in-focus subject in the frame.
+                  Also carries the slow persistent pulse (see glowPulse above) so the
+                  block reads as "alive" before anyone hovers it, not only after. */}
               <div
+                ref={glowRef}
                 className="absolute inset-[-24%] rounded-[40%] pointer-events-none"
                 style={{ background: 'radial-gradient(closest-side, rgba(110,165,230,0.28), transparent 72%)', filter: 'blur(20px)' }}
               />
@@ -310,12 +398,36 @@ export function Hero() {
               <div className="relative" style={{ filter: 'drop-shadow(-3px 10px 16px rgba(5,6,8,0.40))' }}>
                 {waxImg}
               </div>
+
+              {/* Repeating discoverability nudge (see nudgeTl above) — the only
+                  prior cue was the cursor-lens itself, invisible until the mouse
+                  already happened to land on the block. Stops for good once
+                  onLensActiveChange reports a real hover. */}
+              <div
+                ref={hintRef}
+                aria-hidden
+                className="absolute -bottom-3 -right-2 sm:-bottom-4 sm:-right-3 flex items-center gap-1.5 px-3 py-1.5 rounded-full pointer-events-none"
+                style={{
+                  background: 'rgba(10,12,18,0.72)',
+                  backdropFilter: 'blur(6px)',
+                  border: '1px solid rgba(255,255,255,0.16)',
+                  boxShadow: '0 6px 18px rgba(0,0,0,0.30)',
+                }}
+              >
+                <ZoomIn className="h-3.5 w-3.5" style={{ color: '#fff' }} strokeWidth={2} />
+                <span
+                  className="whitespace-nowrap text-small uppercase font-semibold"
+                  style={{ letterSpacing: '0.1em', color: 'rgba(255,255,255,0.94)' }}
+                >
+                  {de ? 'Blick ins Wachs' : 'Look inside'}
+                </span>
+              </div>
             </div>
           </div>
 
           {/* WaxLens — magnifying glass cursor over the wax block */}
           <WaxLensCutout waxRef={blockRef} enabled={lensOn} de={de}
-                   onOpen={openDive} onActiveChange={() => {}} />
+                   onOpen={openDive} onActiveChange={onLensActiveChange} />
 
 
           {/* Matches the Section wrapper's left edge (px-6 sm:px-10 lg:px-14
@@ -428,6 +540,19 @@ export function Hero() {
                   >
                     {t.hero.ctaSecondary}
                   </button>
+                  {/* Wherever the desktop cursor-lens doesn't render (touch,
+                      <1024px, or prefers-reduced-motion — exactly !lensOn,
+                      see waxLensEnabled()), there was previously no way at all
+                      to open WaxDive. Plain tap link, same treatment as the
+                      link above, no new hit-testing/gesture code needed. */}
+                  {!lensOn && (
+                    <button
+                      onClick={openDive}
+                      className="hero-cta-secondary inline-flex self-start sm:self-auto text-[13px] font-medium"
+                    >
+                      {de ? 'Blick ins Wachs' : 'Look inside the wax'}
+                    </button>
+                  )}
                 </div>
 
                 {/* Beleg direkt unter dem Knopf, nur auf Mobil. Dieselbe Zeile

@@ -1,4 +1,4 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
@@ -66,6 +66,7 @@ const srcSetFor = (src: string) => {
 export function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { lang } = useLanguage();
+  const navigate = useNavigate();
   const product = id ? getProductById(id) : undefined;
   const de = lang === 'de';
 
@@ -194,6 +195,11 @@ export function ProductDetailPage() {
       style: 'currency', currency: 'EUR',
     }).format(price), [lang]);
 
+  // Prerendered HTML for this route already ships this same Product +
+  // BreadcrumbList JSON-LD; without this, Helmet's copy below just piles on
+  // top of it (see removeStaticJsonLd in src/lib/utils.ts).
+  useEffect(() => { removeStaticJsonLd(); }, [id]);
+
   if (!product) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4" style={{ background: 'var(--pg)' }}>
@@ -291,18 +297,39 @@ export function ProductDetailPage() {
     },
   });
 
-  // Prerendered HTML for this route already ships this same Product +
-  // BreadcrumbList JSON-LD; without this, Helmet's copy below just piles on
-  // top of it (see removeStaticJsonLd in src/lib/utils.ts).
-  useEffect(() => { removeStaticJsonLd(); }, [id]);
-
   const hasFormula = !!(isWax && rc?.formulaDetails);
   const hasVergleich = !!(rc?.compHeaders && rc?.compRows);
   const hasKosten = !!(rc?.oilItems && rc?.waxItems);
   const toggleAccordion = (key: string) => setOpenAccordion(prev => prev === key ? null : key);
 
+  // Manual offset scroll instead of scrollIntoView({block:'start'}) for two
+  // reasons: (1) block:'start' would land the section flush against the
+  // viewport top, right behind the fixed 56px (h-14) header above — the
+  // first ~56px of "Spezifikationen" would render hidden underneath it;
+  // (2) scrollIntoView's smooth animation was observed to silently no-op in
+  // some environments (e.g. a backgrounded/inactive tab throttling the
+  // scroll-behavior:smooth animation), whereas a plain scrollTo is the same
+  // API surface every other scroll-to-position call in this file already
+  // uses successfully.
+  const HEADER_OFFSET = 56;
   const scrollToDetails = () => {
-    detailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const el = detailRef.current;
+    if (!el) return;
+    const top = el.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET;
+    window.scrollTo({ top, behavior: 'smooth' });
+  };
+
+  // "Zurück" used to always land on the homepage, even for a visitor who
+  // arrived here from the blog, a search result, or a shared link — a real
+  // back button should return them to wherever they actually came from.
+  // history.state.idx (set by the browser's History API under
+  // BrowserRouter) is >0 only when there's a prior entry in this tab's own
+  // session history; falling back to "/" keeps the link correct for a fresh
+  // tab or a direct/external arrival, where there is nothing to go back to.
+  const handleBack = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if ((window.history.state as { idx?: number } | null)?.idx) navigate(-1);
+    else navigate('/');
   };
 
   return (
@@ -358,7 +385,7 @@ export function ProductDetailPage() {
                 </span>
               </nav>
               {/* Mobile — no room for the full breadcrumb, keep the simple back link */}
-              <Link to="/" className="sm:hidden flex items-center gap-2 text-[13px] font-medium transition-colors flex-shrink-0"
+              <Link to="/" onClick={handleBack} className="sm:hidden flex items-center gap-2 text-[13px] font-medium transition-colors flex-shrink-0"
                 style={{ color: navSolid ? 'var(--txm)' : 'rgba(255,255,255,0.8)' }}>
                 <ArrowLeft className="h-4 w-4" /> {de ? 'Zurück' : 'Back'}
               </Link>
@@ -424,7 +451,7 @@ export function ProductDetailPage() {
                   <button key={i} onClick={() => { goTo(i); pause(); setTimeout(resume, AUTO_INTERVAL); }}
                     className="relative h-[2.5px] rounded-full transition-all duration-500 after:content-[''] after:absolute after:top-1/2 after:left-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:w-11 after:h-11"
                     style={{ width: i === activeImage ? 22 : 7, background: i === activeImage ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.3)' }}
-                    aria-label={`Image ${i + 1}`} />
+                    aria-label={de ? `Bild ${i + 1}` : `Image ${i + 1}`} />
                 ))}
               </div>
             )}
@@ -488,11 +515,11 @@ export function ProductDetailPage() {
             <div className="flex items-end justify-between gap-4 mb-3">
               <div>
                 <p className="num text-[28px] font-bold leading-none tracking-[-0.02em]" style={{ color: 'var(--tx1)' }}>{formatPrice(product.price)}</p>
-                <div className="flex items-center gap-2 mt-1">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1">
                   {pricePerApp !== null && (
-                    <p className="text-meta" style={{ color: 'var(--txff)' }}>~{formatPrice(pricePerApp)} / {de ? 'Anwendung' : 'use'}</p>
+                    <p className="text-meta whitespace-nowrap" style={{ color: 'var(--txff)' }}>~{formatPrice(pricePerApp)} / {de ? 'Anwendung' : 'use'}</p>
                   )}
-                  {per100g && <p className="text-meta" style={{ color: 'var(--txff)' }}>{pricePerApp !== null ? '· ' : ''}{per100g}</p>}
+                  {per100g && <p className="text-meta whitespace-nowrap" style={{ color: 'var(--txff)' }}>{pricePerApp !== null ? '· ' : ''}{per100g}</p>}
                 </div>
               </div>
               {isSoldOut(product) ? (
@@ -586,13 +613,26 @@ export function ProductDetailPage() {
             style={{ background: 'linear-gradient(to top, rgba(var(--scrim-rgb),0.25) 0%, transparent 30%)' }} />
 
           {/* ── MAIN CARD — focused conversion funnel ── */}
-          <div ref={cardRef}
+          {/* cardRef/GSAP lives on the INNER .pdp-hero-card div, not this
+              wrapper. GSAP's `.from()` writes its own `transform` and resets
+              the standalone `translate`/`scale`/`rotate` CSS properties to
+              `none` on whatever element it targets — but this wrapper's
+              vertical centering (`top-1/2 -translate-y-1/2`) is implemented
+              via that same `translate` property. Animating this div directly
+              silently killed the -50% centering the moment the reveal ran,
+              leaving the card either off-screen or overlapping the header
+              (worst on the two Starter-Set bundles, whose shorter card
+              content made the miscalculated offset most visible). Same class
+              of bug already solved this way for the slider handle in
+              BeforeAfterSlider — see the wx-slider-pulse comment in
+              index.css. */}
+          <div
             className="absolute z-20 left-10 xl:left-14 top-1/2 -translate-y-1/2 w-[380px] xl:w-[400px]"
             onMouseEnter={pause} onMouseLeave={resume}>
             {/* No backdrop-filter: at 96% opacity there's only a 4% sliver of
                 backdrop showing through, so a blur(40px) here cost real
                 compositing work for a practically invisible effect. */}
-            <div className="pdp-hero-card rounded-[28px] overflow-hidden"
+            <div ref={cardRef} className="pdp-hero-card rounded-[28px] overflow-hidden"
               style={{
                 background: 'rgba(255,255,255,0.96)',
                 boxShadow: '0 24px 64px -16px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.15)',
@@ -740,7 +780,8 @@ export function ProductDetailPage() {
                     </span>
                   ))}
                 </div>
-                <button onClick={scrollToDetails}
+                <button onClick={(e) => { e.stopPropagation(); scrollToDetails(); }}
+                  onPointerDown={(e) => e.stopPropagation()} onPointerUp={(e) => e.stopPropagation()}
                   className="flex items-center gap-0.5 text-meta font-semibold flex-shrink-0 transition-colors hover:opacity-70"
                   style={{ color: cardAccent }}>
                   Details <ChevronDown className="h-3 w-3" />
@@ -772,19 +813,22 @@ export function ProductDetailPage() {
             )}
           </div>
 
-          {/* Number rail + prev/next arrows — the rail already let you jump to
-              a specific image; there was no way to just step forward/back
-              or drag the image itself. Arrows sit directly below the rail,
-              same right-edge alignment, clear of both the card (left) and
-              the "Mehr erfahren" hint (bottom-center). */}
-          {/* Scroll hint */}
-          <button onClick={scrollToDetails}
-            className="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-1 transition-opacity hover:opacity-80"
+          {/* Scroll hint — the card's own "Details ⌄" link (above) does the
+              same scrollToDetails() call, but it's small text tucked in the
+              card's corner and easy to miss on first glance; without any
+              cue here the hero can read as a self-contained unit with
+              nothing below. Icon-only and glassy (same treatment as the
+              mobile hero's prev/next arrows) instead of the old solid black
+              pill with an all-caps label — a quiet "there's more" nudge,
+              not a second CTA competing with the card. Reuses the existing
+              .pdp-bounce keyframe defined below (it does work and already
+              handles prefers-reduced-motion on its own). */}
+          <button onClick={(e) => { e.stopPropagation(); scrollToDetails(); }}
+            onPointerDown={(e) => e.stopPropagation()} onPointerUp={(e) => e.stopPropagation()}
+            className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 w-11 h-11 flex items-center justify-center rounded-full transition-transform hover:scale-105 active:scale-90"
+            style={{ background: 'rgba(0,0,0,0.28)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)' }}
             aria-label={de ? 'Mehr erfahren' : 'Learn more'}>
-            <span className="text-small uppercase tracking-[0.14em] font-semibold" style={{ color: 'rgba(255,255,255,0.5)', textShadow: '0 1px 6px rgba(0,0,0,0.4)' }}>
-              {de ? 'Mehr erfahren' : 'Learn more'}
-            </span>
-            <ChevronDown className="h-3.5 w-3.5 pdp-bounce" style={{ color: 'rgba(255,255,255,0.4)', filter: 'drop-shadow(0 1px 4px rgba(0,0,0,0.3))' }} />
+            <ChevronDown className="h-4 w-4 pdp-bounce" style={{ color: 'rgba(255,255,255,0.92)' }} />
           </button>
         </section>
 
@@ -797,45 +841,53 @@ export function ProductDetailPage() {
         <section ref={detailRef} style={{ background: 'var(--pg)' }}>
           <div className="max-w-6xl mx-auto px-5 sm:px-8 py-14 sm:py-20">
             <div className="grid lg:grid-cols-[1fr_1.15fr] gap-8 lg:gap-12">
-              <div>
-                <p className="text-small font-semibold uppercase tracking-[0.14em] mb-3"
-                  style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
-                  {de ? 'Spezifikationen' : 'Specifications'}
-                </p>
-                <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--bd)' }}>
-                  {specsData.map((spec, i, arr) => (
-                    <div key={i} className="flex items-baseline justify-between px-4 py-3"
-                      style={{ borderBottom: i < arr.length - 1 ? '1px solid var(--bd)' : 'none', background: i % 2 === 0 ? 'var(--sf2)' : 'var(--pg)' }}>
-                      <span className="text-meta uppercase tracking-[0.14em]"
-                        style={{ fontFamily: "'IBM Plex Mono', ui-monospace, monospace", color: 'var(--txff)' }}>
-                        {spec.l}
-                      </span>
-                      <span className="text-[13px] font-medium" style={{ color: 'var(--tx1)' }}>
-                        {spec.v}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-                {isClassic && (
-                  <p className="text-[12px] mt-4" style={{ color: 'var(--txff)' }}>
-                    {de ? 'Regen / Winter? ' : 'Rain / winter? '}
-                    {/* Mobile-Plan B7e: axe-core misst hier nur 1.06:1 Kontrast
-                        gegen den umgebenden Fliesstext (Linkfarbe accentColor
-                        gegen --txff) — bei hover:underline war der Link ohne
-                        Maus/Hover nur an der Farbe erkennbar, die dafuer nicht
-                        reicht. underline statt hover:underline macht ihn
-                        permanent auch ohne Farbkontrast als Link erkennbar,
-                        gerade fuer Touch, wo hover nie greift. */}
-                    <Link to={`/produkt/${product.weight === '500g' ? 'wax-500-mos2' : 'wax-300-mos2'}`}
-                      className="underline underline-offset-2" style={{ color: accentColor }}>
-                      Pro MoS₂ →
-                    </Link>
+              {/* Bundle products (Starter-Set) carry none of the fields
+                  specsData reads from — compatibility/weight/applications/
+                  chainLinks/chainSpeed are all real-product-only fields — so
+                  specsData is always empty here. Rendering the heading with
+                  an empty bordered box under it looked like missing content,
+                  not intentionally absent content. */}
+              {specsData.length > 0 && (
+                <div className="min-w-0">
+                  <p className="text-small font-semibold uppercase tracking-[0.14em] mb-3"
+                    style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
+                    {de ? 'Spezifikationen' : 'Specifications'}
                   </p>
-                )}
-              </div>
+                  <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--bd)' }}>
+                    {specsData.map((spec, i, arr) => (
+                      <div key={i} className="flex items-baseline justify-between px-4 py-3"
+                        style={{ borderBottom: i < arr.length - 1 ? '1px solid var(--bd)' : 'none', background: i % 2 === 0 ? 'var(--sf2)' : 'var(--pg)' }}>
+                        <span className="text-meta uppercase tracking-[0.14em]"
+                          style={{ fontFamily: "'IBM Plex Mono', ui-monospace, monospace", color: 'var(--txff)' }}>
+                          {spec.l}
+                        </span>
+                        <span className="text-[13px] font-medium" style={{ color: 'var(--tx1)' }}>
+                          {spec.v}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  {isClassic && (
+                    <p className="text-[12px] mt-4" style={{ color: 'var(--txff)' }}>
+                      {de ? 'Regen / Winter? ' : 'Rain / winter? '}
+                      {/* Mobile-Plan B7e: axe-core misst hier nur 1.06:1 Kontrast
+                          gegen den umgebenden Fliesstext (Linkfarbe accentColor
+                          gegen --txff) — bei hover:underline war der Link ohne
+                          Maus/Hover nur an der Farbe erkennbar, die dafuer nicht
+                          reicht. underline statt hover:underline macht ihn
+                          permanent auch ohne Farbkontrast als Link erkennbar,
+                          gerade fuer Touch, wo hover nie greift. */}
+                      <Link to={`/produkt/${product.weight === '500g' ? 'wax-500-mos2' : 'wax-300-mos2'}`}
+                        className="underline underline-offset-2" style={{ color: accentColor }}>
+                        Pro MoS₂ →
+                      </Link>
+                    </p>
+                  )}
+                </div>
+              )}
 
               {rc && (isWax ? (hasFormula || hasVergleich || hasKosten) : true) && (
-                <div>
+                <div className="min-w-0">
                   <p className="text-small font-semibold uppercase tracking-[0.14em] mb-3"
                     style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
                     {de ? 'Im Detail' : 'Deep dive'}
@@ -872,17 +924,17 @@ export function ProductDetailPage() {
                         subtitle={rc.compHeaders.join(' vs. ')}
                         open={openAccordion === 'vergleich'} onToggle={() => toggleAccordion('vergleich')}>
                         <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--bd)' }}>
-                          <div className="grid text-meta font-semibold uppercase tracking-wider px-3 py-2.5"
+                          <div className="grid gap-x-1.5 text-meta font-semibold uppercase tracking-wider px-3 py-2.5"
                             style={{ gridTemplateColumns: `1.4fr repeat(${rc.compHeaders.length}, 1fr)`, background: 'var(--sf2)', borderBottom: '1px solid var(--bd)', color: 'var(--txff)' }}>
                             <span />
                             {rc.compHeaders.map((h, i) => (
-                              <span key={i} className="text-center leading-tight text-meta">
+                              <span key={i} className="text-center leading-tight text-meta break-words">
                                 {h.replace('Waxcelerate ', '').replace('-Heißwachs', '')}
                               </span>
                             ))}
                           </div>
                           {rc.compRows.map((row, ri) => (
-                            <div key={ri} className="grid px-3 py-2.5 text-meta"
+                            <div key={ri} className="grid gap-x-1.5 px-3 py-2.5 text-meta"
                               style={{ gridTemplateColumns: `1.4fr repeat(${rc.compHeaders!.length}, 1fr)`, borderBottom: ri < rc.compRows!.length - 1 ? '1px solid var(--bd)' : 'none' }}>
                               <span style={{ color: 'var(--txm)' }}>{row.label}</span>
                               {row.cols.map((col, ci) => (
@@ -985,11 +1037,11 @@ export function ProductDetailPage() {
                         {rc.chainCompRows && (
                           <AccordionItem title={de ? 'Vorgewachst vs. Kettenöl' : 'Pre-waxed vs. chain oil'} subtitle="" open={openAccordion === 'chaincomp'} onToggle={() => toggleAccordion('chaincomp')}>
                             <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--bd)' }}>
-                              <div className="grid grid-cols-3 text-meta font-semibold uppercase tracking-wider px-3 py-2" style={{ borderBottom: '1px solid var(--bd)', background: 'var(--sf2)' }}>
-                                <span /><span className="text-center" style={{ color: accentColor }}>{de ? 'Vorgewachst' : 'Pre-waxed'}</span><span className="text-center" style={{ color: 'var(--txff)' }}>{de ? 'Kettenöl' : 'Chain oil'}</span>
+                              <div className="grid grid-cols-3 gap-x-1.5 text-meta font-semibold uppercase tracking-wider px-3 py-2" style={{ borderBottom: '1px solid var(--bd)', background: 'var(--sf2)' }}>
+                                <span /><span className="text-center break-words" style={{ color: accentColor }}>{de ? 'Vorgewachst' : 'Pre-waxed'}</span><span className="text-center break-words" style={{ color: 'var(--txff)' }}>{de ? 'Kettenöl' : 'Chain oil'}</span>
                               </div>
                               {rc.chainCompRows.map((row, ri) => (
-                                <div key={ri} className="grid grid-cols-3 px-3 py-2 text-meta" style={{ borderBottom: '1px solid var(--bd)' }}>
+                                <div key={ri} className="grid grid-cols-3 gap-x-1.5 px-3 py-2 text-meta" style={{ borderBottom: '1px solid var(--bd)' }}>
                                   <span style={{ color: 'var(--txm)' }}>{row.label}</span>
                                   <span className="text-center font-medium" style={{ color: accentColor }}>{row.good}</span>
                                   <span className="text-center" style={{ color: 'var(--txff)' }}>{row.bad}</span>
@@ -1138,6 +1190,7 @@ export function ProductDetailPage() {
         @keyframes pdp-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
         @keyframes pdp-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
         .pdp-bounce { animation: pdp-float 2.5s ease-in-out infinite; }
+        @media (prefers-reduced-motion: reduce) { .pdp-bounce { animation: none; } }
         .pdp-card-scroll { scrollbar-width: thin; scrollbar-color: rgba(0,0,0,0.06) transparent; }
         .pdp-card-scroll::-webkit-scrollbar { width: 3px; }
         .pdp-card-scroll::-webkit-scrollbar-track { background: transparent; }
@@ -1295,7 +1348,7 @@ function AccordionItem({ title, subtitle, open, onToggle, children }: {
   return (
     <div className="rounded-xl overflow-hidden transition-shadow duration-300"
       style={{ border: '1px solid var(--bd)', background: 'var(--pg)', boxShadow: open ? '0 2px 8px rgba(0,0,0,0.04)' : 'none' }}>
-      <button onClick={onToggle} className="w-full flex items-center justify-between gap-3 px-4 py-3.5 text-left">
+      <button onClick={onToggle} aria-expanded={open} className="w-full flex items-center justify-between gap-3 px-4 py-3.5 text-left">
         <div className="min-w-0">
           <p className="text-[13px] font-semibold leading-tight" style={{ color: 'var(--tx1)' }}>{title}</p>
           {subtitle && !open && <p className="text-meta mt-0.5 truncate" style={{ color: 'var(--txff)' }}>{subtitle}</p>}

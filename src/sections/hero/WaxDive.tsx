@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { X, ExternalLink } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { X, ExternalLink, ArrowRight } from 'lucide-react';
 import { gsap } from '@/lib/gsap';
 import { prefersReducedMotion } from '@/hooks/useAnimation';
 import { SegmentedToggle } from '@/components/viz';
 import { ComponentDiagram } from '@/sections/science/diagrams';
-import { diveFormula } from '@/lib/science';
+import { diveFormula, COMPONENTS } from '@/lib/science';
 import { getProductById, canCheckout } from '@/lib/data';
 import { AddToCartButton } from '@/components/AddToCartButton';
 import { trackEbayClick } from '@/lib/analytics';
@@ -29,7 +30,13 @@ export function WaxDive({ open, onClose, de }: { open: boolean; onClose: () => v
   const diagramRef = useRef<HTMLDivElement>(null);
 
   const components = diveFormula(variant);
-  const active = components.find(c => c.id === activeId) ?? components[0];
+  // Default to the variant's headline lubricant (the actual differentiator),
+  // not components[0] (Paraffin, the base matrix every wax needs) — most
+  // people who open this modal never click past the first thing they see.
+  const defaultId = variant === 'pro' ? 'mos2' : 'ptfe';
+  const active = components.find(c => c.id === activeId)
+    ?? components.find(c => c.id === defaultId)
+    ?? components[0];
 
   const productId = variant === 'pro' ? 'wax-500-mos2' : 'wax-500';
   const product = getProductById(productId)!;
@@ -192,20 +199,49 @@ export function WaxDive({ open, onClose, de }: { open: boolean; onClose: () => v
                 {de ? active.roleDe : active.roleEn}
               </p>
 
-              {/* Summary — fixed height, clamped */}
+              {/* Why it matters (lead, plain-language) + the chemistry (secondary,
+                  muted) — same two-tier order SciencePage.tsx already uses for
+                  this exact data, just without the "Physik" tier the full page
+                  goes on to add. Fixed height, both clamped, to keep the
+                  no-layout-shift property between ingredients. */}
               <div ref={summaryRef}
-                className="mt-4 min-h-[120px] max-h-[140px] lg:min-h-[140px] lg:max-h-[140px] overflow-hidden">
+                className="mt-4 min-h-[150px] max-h-[170px] lg:min-h-[170px] lg:max-h-[170px] overflow-hidden">
                 <p className="text-[14px] lg:text-[14.5px] leading-relaxed"
                   style={{
                     color: 'var(--tx2)',
                     display: '-webkit-box',
-                    WebkitLineClamp: 5,
+                    WebkitLineClamp: 3,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                  }}>
+                  {de ? active.whyDe : active.whyEn}
+                </p>
+                <p className="mt-2.5 text-[12.5px] leading-relaxed"
+                  style={{
+                    color: 'var(--txm)',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 3,
                     WebkitBoxOrient: 'vertical',
                     overflow: 'hidden',
                   }}>
                   {de ? active.sumDe : active.sumEn}
                 </p>
               </div>
+
+              <Link
+                // /wissenschaft only ever renders COMPONENTS (the shared Pro
+                // six) — Classic-only extras (ptfe, haftung) have no card/id
+                // there at all, so a hash link to them would silently scroll
+                // to nothing. Link to the exact ingredient where that target
+                // genuinely exists, otherwise to the page itself.
+                to={COMPONENTS.some(c => c.id === active.id) ? `/wissenschaft#${active.id}` : '/wissenschaft'}
+                onClick={onClose}
+                className="inline-flex items-center gap-1.5 self-start text-[12.5px] font-semibold group"
+                style={{ color: 'var(--accent-soft)' }}
+              >
+                {de ? 'Mehr zur Wissenschaft' : 'More science'}
+                <ArrowRight className="h-3 w-3 transition-transform duration-200 group-hover:translate-x-0.5" />
+              </Link>
 
               {/* Diagram — fixed height container */}
               <div ref={diagramRef}

@@ -117,13 +117,13 @@ export const products: Product[] = [
     formulaEn: ['Fully refined paraffin wax', 'PTFE < 1 µm', 'Stearic acid derivative'],
     highlights: [
       'Trocken & sauber — kein Ölfilm, kein Dreck an Schaltwerk und Kassette',
-      '3× längere Kettenlaufzeit gegenüber Öl',
+      '2–3× längere Kettenlaufzeit gegenüber Öl',
       '20–32 Anwendungen pro 500g Block',
       'Sofort einsatzbereit — keine Einfahrzeit',
     ],
     highlightsEn: [
       'Dry & clean — no oil film, no grime on derailleur or cassette',
-      '3× longer chain life vs. oil',
+      '2–3× longer chain life vs. oil',
       '20–32 applications per 500g block',
       'Ready to ride instantly — no break-in needed',
     ],
@@ -579,6 +579,8 @@ export const compatibilityMatrix: Record<string, Record<string, string[]>> = {
 // Product mit einem Dutzend leerer Felder.
 export interface Accessory {
   id: string;
+  /** URL-Slug für /zubehoer/:slug — lesbarer als die interne id. */
+  slug: string;
   title: string;
   titleEn: string;
   price: number;
@@ -586,13 +588,32 @@ export interface Accessory {
   descriptionEn: string;
   /** Stripe Price ID — nach Anlegen im Dashboard eintragen */
   stripePriceId?: string;
+  /** eBay-Listing-URL für den Einzelkauf — bis Luca das Listing anlegt, bleibt
+   *  das Feld leer und die Detailseite zeigt "Demnächst auf eBay" statt eines
+   *  toten Kaufen-Buttons. Genau das gleiche Aktivierungsmuster wie
+   *  stripePriceId/canCheckout oben: sobald der echte Wert eingetragen wird,
+   *  erscheint der Kaufen-Button automatisch, ohne dass hier sonst etwas
+   *  geändert werden muss. */
+  ebayUrl?: string;
   weightGrams: number;
   shippingClass: ShippingClass;
+  image: string;
+  images?: string[];
+  /** Erste zwei Einträge aus `specs` werden auf der Detailseite als große
+   *  Kennzahlen-Chips direkt unter dem Preis gezeigt — deshalb müssen
+   *  Gewicht/Maße/Menge in `specs` vorne stehen, nicht Material zuerst. */
+  highlights?: string[];
+  highlightsEn?: string[];
+  specs?: Record<string, string>;
+  /** Kurzer Absatz "So funktioniert's" auf der Detailseite. */
+  howTo?: string;
+  howToEn?: string;
 }
 
 export const accessories: Accessory[] = [
   {
     id: 'acc-wire',
+    slug: 'aufhaengedraht',
     title: 'Aufhängedraht, 3 Stück',
     titleEn: 'Hanging wire, 3 pieces',
     price: 4.95,
@@ -600,18 +621,58 @@ export const accessories: Accessory[] = [
     descriptionEn: 'Stiff enough that the chain does not tip in the bath, thin enough that hardly any wax stays on it.',
     weightGrams: 40,
     shippingClass: 'grossbrief',
+    image: '/images/products/tools/aufhaengedraht.webp',
+    images: ['/images/products/tools/aufhaengedraht-2.webp'],
+    highlights: [
+      'Edelstahl — rostet nicht im Wachsbad',
+      'Schraubverschluss statt Haken: die Kette hängt sicher, auch beim Umrühren',
+    ],
+    highlightsEn: [
+      'Stainless steel — will not rust in the wax bath',
+      'Screw clasp instead of a hook: the chain hangs securely, even while stirring',
+    ],
+    specs: {
+      Menge: '3 Stück',
+      Länge: 'ca. 55 cm je Draht',
+      Material: 'Edelstahl',
+      Verschluss: 'Schraubverschluss',
+    },
+    howTo: 'Kette einfädeln, Schraubverschluss zudrehen, Draht über den Rand des Wachstopfs hängen — fertig.',
+    howToEn: 'Thread the chain on, screw the clasp shut, hang the wire over the edge of the wax pot — done.',
   },
   {
     id: 'acc-pliers',
+    slug: 'quick-link-zange',
     title: 'Quick-Link-Zange',
     titleEn: 'Quick-link pliers',
     price: 4.95,
     description: 'Öffnet und schließt den Verschluss. Ohne sie wird das Abnehmen der Kette jedes Mal zur Geduldsprobe.',
     descriptionEn: 'Opens and closes the link. Without it, taking the chain off is a test of patience every time.',
-    weightGrams: 90,
+    weightGrams: 40,
     shippingClass: 'maxibrief',
+    image: '/images/products/tools/quick-link-zange.webp',
+    images: ['/images/products/tools/quick-link-zange-2.webp'],
+    highlights: [
+      'Gehärteter Stahl, verformt sich nicht bei häufigem Gebrauch',
+      'Rückholfeder — kein manuelles Nachstellen zwischen zwei Griffen',
+    ],
+    highlightsEn: [
+      'Hardened steel, will not deform with frequent use',
+      'Return spring — no manual resetting between squeezes',
+    ],
+    specs: {
+      Gewicht: '40 g',
+      Maße: '10 × 8 × 1 cm',
+      Material: 'Gehärteter Stahl',
+      Einsatz: 'Shimano · SRAM · KMC · YBN Quick-Links',
+    },
+    howTo: 'Zangenmaul auf beide Seiten des Quick-Links setzen und zusammendrücken, bis die Platten übereinandergleiten — die Rückholfeder öffnet die Zange danach von selbst wieder.',
+    howToEn: 'Place the jaws on both sides of the quick-link and squeeze until the plates slide over each other — the return spring reopens the pliers on its own afterward.',
   },
 ];
+
+export const getAccessoryBySlug = (slug: string): Accessory | undefined =>
+  accessories.find((a) => a.slug === slug);
 
 // ─── Starter-Set ─────────────────────────────────────────────────────────────
 // Kein eigener Artikel, sondern eine Regel: ein Wachs plus eine Kette, dazu

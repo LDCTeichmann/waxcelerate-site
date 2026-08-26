@@ -22,6 +22,7 @@ const StarterSetPage = lazy(() => import('@/pages/StarterSetPage').then(m => ({ 
 const RewaxPage = lazy(() => import('@/pages/RewaxPage').then(m => ({ default: m.RewaxPage })));
 const ProductDetailPage = lazy(() => import('@/pages/ProductDetailPage').then(m => ({ default: m.ProductDetailPage })));
 const ProductStagePage = lazy(() => import('@/pages/ProductStagePage').then(m => ({ default: m.ProductStagePage })));
+const AccessoryDetailPage = lazy(() => import('@/pages/AccessoryDetailPage').then(m => ({ default: m.AccessoryDetailPage })));
 const ImpressumPage = lazy(() => import('@/pages/ImpressumPage').then(m => ({ default: m.ImpressumPage })));
 const DatenschutzPage = lazy(() => import('@/pages/DatenschutzPage').then(m => ({ default: m.DatenschutzPage })));
 const AGBPage = lazy(() => import('@/pages/AGBPage').then(m => ({ default: m.AGBPage })));
@@ -83,6 +84,7 @@ function AppContent() {
       <Routes>
         <Route path="/produkt/:id" element={<Suspense fallback={<PageLoader />}><ProductDetailPage /></Suspense>} />
         <Route path="/produkt/:id/stage" element={<Suspense fallback={<PageLoader />}><ProductStagePage /></Suspense>} />
+        <Route path="/zubehoer/:slug" element={<Suspense fallback={<PageLoader />}><AccessoryDetailPage /></Suspense>} />
         <Route path="/blog" element={<Suspense fallback={<PageLoader />}><BlogIndexPage /></Suspense>} />
         <Route path="/blog/:slug" element={<Suspense fallback={<PageLoader />}><BlogArticlePage /></Suspense>} />
         <Route path="/bestellung-erfolgreich" element={<Suspense fallback={<PageLoader />}><OrderSuccess /></Suspense>} />

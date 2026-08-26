@@ -204,52 +204,76 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
         </div>
       </Link>
 
-      {/* Zahlen — Haarlinien statt Kartenfond. Wahl links, Folge rechts. */}
-      <div className="mt-3 pt-2.5 flex items-end justify-between gap-4" style={HAIR}>
-        <div className="flex gap-1.5">{(['300', '500'] as Size[]).map(sizeBtn)}</div>
-        <div className="text-right">
-          <span className="num text-[21px] font-bold leading-none tracking-[-0.02em]" style={{ color: 'var(--tx1)' }}>
-            {eur(product.price, de)}
-          </span>
-          <p className="num-data text-meta mt-1" style={{ color: 'var(--txf)' }}>
-            {per100} {s.per100}
-          </p>
-        </div>
-      </div>
-
-      <p className="num-data text-meta mt-2 pt-2" style={{ ...HAIR, color: 'var(--txm)' }}>
-        {product.intervalDry} {s.dryInterval} · {product.applications} {s.uses} · {variant === 'classic' ? s.classicFormula : s.proFormula}
-      </p>
-
-      {/* Verkaufszahl, Bewertungen und Lieferdatum in einer Zeile statt
-          zweier — dieselben Werte wie zuvor, aber eine Kartenreihe kuerzer.
-          Sterne (#F5A623) in derselben Sprache wie die Produktseite fuer ihr
-          "N+ zufriedene Kunden" (siehe ProductDetailPage.tsx), Truck-Icon
-          fuer das Lieferdatum ebenso von dort uebernommen. Bezieht sich auf
-          die Formel (Classic/Pro) statt die Groesse, siehe variantStats()
-          oben — sonst springt die Zahl beim Groessenwechsel. */}
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-2">
-        {reviews > 0 && (
-          <>
-            <div className="flex gap-px">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star key={i} className="h-3 w-3 fill-current" style={{ color: '#F5A623' }} aria-hidden />
-              ))}
-            </div>
-            <span className="num-data text-meta font-medium" style={{ color: 'var(--txm)' }}>
-              {reviews} {s.reviewsShort}
+      {/* Ein Datenblock, eine Haarlinie — vorher lag hier eine zweite
+          Haarlinie direkt unter der ersten (Preiszeile, dann Spezifikationen),
+          und darunter eine dritte, "·"-verkettete Zeile aus Bewertung,
+          Verkaufszahl und Lieferdatum. Drei Fliesstexte plus zwei Linien auf
+          engstem Raum war genau die Unruhe, die als "chaotisch" empfunden
+          wurde. Jetzt: eine Haarlinie fasst den ganzen Datenblock ein, die
+          Fakten darunter stehen als Chips statt als Satz. */}
+      <div className="mt-3 pt-2.5" style={HAIR}>
+        <div className="flex items-end justify-between gap-4">
+          <div className="flex gap-1.5">{(['300', '500'] as Size[]).map(sizeBtn)}</div>
+          <div className="text-right">
+            <span className="num text-[21px] font-bold leading-none tracking-[-0.02em]" style={{ color: 'var(--tx1)' }}>
+              {eur(product.price, de)}
             </span>
-          </>
-        )}
-        {soldRounded >= 20 && (
-          <span className="num-data text-meta" style={{ color: 'var(--txf)' }}>
-            {reviews > 0 && '· '}{soldRounded}+ {s.soldUnits}
+            <p className="num-data text-meta mt-1" style={{ color: 'var(--txf)' }}>
+              {per100} {s.per100}
+            </p>
+          </div>
+        </div>
+
+        {/* Spezifikationen als Chips — dieselbe Kartensprache wie ChainCards
+            Speed/Glieder-Chips weiter unten in dieser Datei, statt eines
+            eigenen, mit "·" verketteten Mono-Satzes. Drei getrennte Fakten
+            statt ein Satz, den man erst parsen muss. */}
+        <div className="flex flex-wrap gap-1.5 mt-3">
+          {[
+            `${product.intervalDry} ${s.dryInterval}`,
+            `${product.applications} ${s.uses}`,
+            variant === 'classic' ? s.classicFormula : s.proFormula,
+          ].map((label) => (
+            <span key={label} className="num-data text-[10.5px] px-2 py-1 rounded-md"
+              style={{ background: 'var(--sf2)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
+              {label}
+            </span>
+          ))}
+        </div>
+
+        {/* Sozialer Beweis links, Lieferung rechts — zwei getrennte Aussagen
+            statt einer langen Kette. `flex-wrap` + `whitespace-nowrap` auf
+            beiden Seiten: jede Aussage bleibt am Stueck (kein Umbruch mitten
+            im Wort wie "78 / Bewertungen"), und bei wenig Platz faellt die
+            Lieferung als Ganzes in die naechste Zeile statt am Kartenrand
+            abgeschnitten zu werden. Bezieht sich auf die Formel (Classic/Pro)
+            statt die Groesse, siehe variantStats() oben — sonst springt die
+            Zahl beim Groessenwechsel. */}
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 mt-2.5">
+          <div className="flex items-center gap-1.5 whitespace-nowrap">
+            {reviews > 0 && (
+              <>
+                <div className="flex gap-px flex-shrink-0">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star key={i} className="h-3 w-3 fill-current" style={{ color: '#F5A623' }} aria-hidden />
+                  ))}
+                </div>
+                <span className="num-data text-meta font-medium" style={{ color: 'var(--txm)' }}>
+                  {reviews} {s.reviewsShort}
+                </span>
+              </>
+            )}
+            {soldRounded >= 20 && (
+              <span className="num-data text-meta" style={{ color: 'var(--txf)' }}>
+                {reviews > 0 && '· '}{soldRounded}+ {s.soldUnits}
+              </span>
+            )}
+          </div>
+          <span className="flex items-center gap-1.5 num-data text-meta whitespace-nowrap" style={{ color: 'var(--txff)' }}>
+            <Truck className="h-3 w-3 flex-shrink-0" style={{ color: accentColor }} aria-hidden />
+            {s.delivery} {delivery}
           </span>
-        )}
-        <span className="flex items-center gap-1.5 num-data text-meta" style={{ color: 'var(--txff)' }}>
-          <Truck className="h-3 w-3 flex-shrink-0" style={{ color: accentColor }} aria-hidden />
-          {s.delivery} {delivery}
-        </span>
+        </div>
       </div>
 
       <div className="mt-3 flex items-center gap-4">

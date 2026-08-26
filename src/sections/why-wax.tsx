@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
+import { ArrowLeftRight } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useSectionReveal } from '@/hooks/useAnimation';
 import { prefersReducedMotion } from '@/hooks/useAnimation';
@@ -180,6 +181,16 @@ export function WhyWax() {
   const headerRef  = useRef<HTMLDivElement>(null);
   const rowsRef    = useRef<HTMLDivElement>(null);
   const proofRef   = useRef<HTMLDivElement>(null);
+  // Zwei Belege, eine Kartenhöhe: "Foto" (Öl/Wachs-Fotopaar) und
+  // "Mikroskop" (bestehendes 1000×-Paar) teilen sich denselben Slot statt
+  // eine zweite Karte anzuhängen — die Sektion ist bewusst auf eine
+  // Bildschirmhöhe getrimmt (siehe Kommentare unten), dafür war kein Platz
+  // übrig. Default "macro": das unmittelbar Sichtbare passt besser zur
+  // Überschrift "Du merkst es sofort" als eine Aufnahme, die man eben nur
+  // unterm Mikroskop sieht. ("Sichtbar" als Label verworfen — Luca-Feedback:
+  // unklar, was damit gemeint ist. "Foto" vs. "Mikroskop" ist der
+  // eindeutigere Kontrast.)
+  const [proofTab, setProofTab] = useState<'macro' | 'micro'>('macro');
 
   useSectionReveal(headerRef);
 
@@ -211,6 +222,38 @@ export function WhyWax() {
   const w = waxVsOil.watts;
   const pro = frictionRanges.find(r => r.id === 'pro')!;
   const oil = frictionRanges.find(r => r.id === 'oil')!;
+
+  // Ein Objekt statt zweier paralleler Ternaries — einzige Quelle für
+  // welches Bildpaar gerade aktiv ist. Beide Paare sind exakt auf 6/5
+  // vorzugeschnitten (siehe public/images/compare/, Originale in
+  // raw-image-library/compare/ bzw. unverändert in public/images/microscope/
+  // für die Wissenschaftsseite, die ihr eigenes Seitenverhältnis nutzt) —
+  // object-contain zeigt beide Paare dadurch randlos, ohne Balken oben/unten.
+  // `aspect` ist deshalb fix 6/5 für beide Tabs: gleiche Kartenhöhe UND
+  // gleiches Bildformat, kein Sprung beim Umschalten.
+  const proof = proofTab === 'macro'
+    ? {
+        aspect: '6/5',
+        beforeSrc: '/images/compare/chain-oel.webp',
+        afterSrc: '/images/compare/chain-wachs.webp',
+        beforeAlt: de ? 'Kette mit Kettenöl, ungewachst' : 'Chain with chain oil, unwaxed',
+        afterAlt: de ? 'Dieselbe Kette, gewachst mit Waxcelerate' : 'Same chain, waxed with Waxcelerate',
+        beforeLabel: de ? 'Öl' : 'Oil',
+        caption: de
+          ? 'Kein Dreck, keine Flecken — der Unterschied ist sofort sichtbar.'
+          : 'No grime, no stains — the difference is visible immediately.',
+      }
+    : {
+        aspect: '6/5',
+        beforeSrc: '/images/compare/micro-ref.webp',
+        afterSrc: '/images/compare/micro-mos2.webp',
+        beforeAlt: de ? 'Kettenglied-Innenfläche, Referenz ohne MoS₂' : 'Chain link inner surface, reference without MoS₂',
+        afterAlt: de ? 'Kettenglied-Innenfläche mit Waxcelerate und MoS₂' : 'Chain link inner surface with Waxcelerate and MoS₂',
+        beforeLabel: de ? 'Referenz' : 'Reference',
+        caption: de
+          ? 'Innenfläche eines Kettenglieds, dort wo der Bolzen läuft.'
+          : 'Inner surface of a chain link, exactly where the pin runs.',
+      };
 
   return (
     // `style` überschreibt hier bewusst Sections eigenes `py-14 sm:py-28`
@@ -317,23 +360,53 @@ export function WhyWax() {
             style={{ border: '1px solid var(--bd)', background: 'var(--card-bg)', boxShadow: 'var(--card-shad)' }}>
             <div className="pt-2">
               <BeforeAfterSlider
-                aspect="6/5"
-                beforeSrc="/images/microscope/01-chain-link-inner-ref.webp"
-                afterSrc="/images/microscope/01-chain-link-inner-mos2.webp"
-                beforeAlt={de ? 'Kettenglied-Innenfläche, Referenz ohne MoS₂' : 'Chain link inner surface, reference without MoS₂'}
-                afterAlt={de ? 'Kettenglied-Innenfläche mit Waxcelerate und MoS₂' : 'Chain link inner surface with Waxcelerate and MoS₂'}
-                beforeLabel={de ? 'Referenz' : 'Reference'}
+                key={proofTab}
+                aspect={proof.aspect}
+                beforeSrc={proof.beforeSrc}
+                afterSrc={proof.afterSrc}
+                beforeAlt={proof.beforeAlt}
+                afterAlt={proof.afterAlt}
+                beforeLabel={proof.beforeLabel}
                 afterLabel="Waxcelerate"
               />
             </div>
             <div className="px-4 pb-3.5 pt-3">
-              <p className="eyebrow mb-1.5" style={{ color: 'var(--accent-soft)' }}>
-                {de ? 'Eigene Aufnahme · 1000×' : 'Our own micrograph · 1000×'}
-              </p>
+              {/* Segmented Control statt reiner Farbänderung an Fließtext —
+                  Luca-Feedback: der alte, rein textbasierte Umschalter (nur
+                  Akzentfarbe auf sonst unauffälligem Eyebrow-Text) wurde
+                  nicht als klickbar erkannt bzw. beim Klicken verfehlt. Jetzt
+                  eigene Fläche pro Option (Radius, Rahmen, Hintergrund bei
+                  aktivem Zustand) — deutlich größere Trefferfläche, sofort
+                  als Steuerelement erkennbar. Das Pfeil-Icon davor (gleiches
+                  Icon wie "Classic oder Pro? Vergleich ansehen" in
+                  ProductShelf.tsx) markiert die Gruppe zusätzlich als
+                  Umschalter, nicht nur als zwei Labels. */}
+              <div className="flex items-center gap-1.5 mb-2">
+                <ArrowLeftRight className="h-3 w-3 flex-shrink-0" style={{ color: 'var(--txff)' }} aria-hidden />
+                <div className="inline-flex items-center gap-1 p-0.5 rounded-full"
+                  style={{ background: 'var(--sf2)', border: '1px solid var(--bd)' }}>
+                  <button type="button" aria-pressed={proofTab === 'macro'}
+                    onClick={() => setProofTab('macro')}
+                    className="text-meta font-semibold uppercase tracking-wide px-2.5 py-1 rounded-full transition-colors cursor-pointer"
+                    style={{
+                      color: proofTab === 'macro' ? '#fff' : 'var(--txm)',
+                      background: proofTab === 'macro' ? 'var(--accent)' : 'transparent',
+                    }}>
+                    {de ? 'Foto' : 'Photo'}
+                  </button>
+                  <button type="button" aria-pressed={proofTab === 'micro'}
+                    onClick={() => setProofTab('micro')}
+                    className="text-meta font-semibold uppercase tracking-wide px-2.5 py-1 rounded-full transition-colors cursor-pointer"
+                    style={{
+                      color: proofTab === 'micro' ? '#fff' : 'var(--txm)',
+                      background: proofTab === 'micro' ? 'var(--accent)' : 'transparent',
+                    }}>
+                    {de ? 'Mikroskop · 1000×' : 'Microscope · 1000×'}
+                  </button>
+                </div>
+              </div>
               <p className="text-small leading-relaxed" style={{ color: 'var(--txm)' }}>
-                {de
-                  ? 'Innenfläche eines Kettenglieds, dort wo der Bolzen läuft.'
-                  : 'Inner surface of a chain link, exactly where the pin runs.'}
+                {proof.caption}
               </p>
             </div>
           </div>

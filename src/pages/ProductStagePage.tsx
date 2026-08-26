@@ -259,7 +259,7 @@ export function ProductStagePage() {
                   width: i === active ? 28 : 8,
                   background: i === active ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.25)',
                 }}
-                aria-label={`Image ${i + 1}`}
+                aria-label={de ? `Bild ${i + 1}` : `Image ${i + 1}`}
               >
                 {i === active && !paused && (
                   <span

@@ -91,6 +91,63 @@
 .cta-primary:hover { animation-play-state: paused; box-shadow: 0 2px 4px rgba(0,0,0,0.14), 0 16px 42px rgba(0,0,0,0.30), 0 0 48px 10px rgba(255,255,255,0.24); }
 @media (prefers-reduced-motion: reduce) { .cta-primary { animation: none; } }
 
+/* Nav CTA — same "barely-perceptible breathing" philosophy as .cta-primary,
+   but built from --accent-soft-rgb instead of a literal white glow: this
+   button's --cta-bg/--cta-fg invert between themes (dark pill in light mode,
+   light pill in noir), so a white shadow would be correct in one theme and
+   nearly invisible in the other. --accent-soft-rgb is already tuned to read
+   against both. */
+@keyframes cta-breathe-brand {
+  0%, 100% { box-shadow: 0 1px 3px rgba(0,0,0,0.10), 0 0 0 0 rgba(var(--accent-soft-rgb), 0); }
+  50%      { box-shadow: 0 2px 6px rgba(0,0,0,0.14), 0 0 26px 6px rgba(var(--accent-soft-rgb), 0.35); }
+}
+.cta-brand-pulse { animation: cta-breathe-brand 3.2s ease-in-out infinite; }
+.cta-brand-pulse:hover { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) { .cta-brand-pulse { animation: none; } }
+
+/* Header logo mark.
+
+   1) Drop shadow instead of relying on the white rim stroke alone: the
+   header background is near-white in light mode (--nav-bg above), where a
+   white stroke has almost no contrast and reads as "missing". A shadow
+   gives edge separation regardless of what's behind it — light or dark
+   theme — the same way the reference sticker mockup reads as cut-out on
+   any background. The rim stroke in WaxcelerateMark.tsx stays; it's what
+   makes dark-theme (near-black --nav-bg) look crisp, the shadow is what
+   makes light-theme look crisp.
+
+   2) Hover motion — each of the three links drifts out and gently springs
+   back, staggered so it reads left-to-right like a chain being drawn taut.
+   Two earlier cuts (640ms/90ms stagger, then 980ms with animation-delay
+   "backwards") both still read as a twitch: "backwards" fill-mode made
+   every link INSTANTLY teleport to its fully-displaced position the
+   moment you hover (before its own delay even elapsed), then fly back —
+   that instant jump was the twitch, not the return flight. This version
+   starts every link at its true rest transform (no fill-mode, no jump)
+   and only *drifts* out partway before returning, small amplitude, ~1.3s,
+   so the whole thing reads as a slow breath, not a snap. */
+.wx-mark-svg {
+  transition: transform 480ms cubic-bezier(0.22, 1, 0.36, 1);
+  transform-origin: center;
+  filter: drop-shadow(0 1px 2px rgba(16, 16, 19, 0.3)) drop-shadow(0 4px 10px rgba(16, 16, 19, 0.16));
+}
+.wx-logo-link:hover .wx-mark-svg { transform: scale(1.07); }
+
+@keyframes wx-link-assemble {
+  0%   { transform: translate(0, 0) rotate(0deg) scale(1); }
+  40%  { transform: translate(var(--wx-fly-x, 0px), var(--wx-fly-y, 0px)) rotate(var(--wx-fly-rot, 0deg)) scale(0.98); }
+  75%  { transform: translate(calc(var(--wx-fly-x, 0px) * -0.12), calc(var(--wx-fly-y, 0px) * -0.12)) rotate(calc(var(--wx-fly-rot, 0deg) * -0.12)) scale(1.01); }
+  100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+}
+.wx-logo-link:hover .wx-mark-link { animation: wx-link-assemble 1300ms cubic-bezier(0.45, 0, 0.2, 1); }
+.wx-mark-link-1 { --wx-fly-x: -9px;  --wx-fly-y: 4px;  --wx-fly-rot: -4deg; animation-delay: 0ms; }
+.wx-mark-link-2 { --wx-fly-x: 0px;   --wx-fly-y: -10px; --wx-fly-rot: 3deg; animation-delay: 150ms; }
+.wx-mark-link-3 { --wx-fly-x: 9px;   --wx-fly-y: 4px;  --wx-fly-rot: 4deg;  animation-delay: 300ms; }
+@media (prefers-reduced-motion: reduce) {
+  .wx-logo-link:hover .wx-mark-svg { transform: none; }
+  .wx-logo-link:hover .wx-mark-link { animation: none; }
+}
+
 
 /* Hero secondary CTA — plain underlined text link on mobile (one strong pill
    button + a quiet link reads calmer than two stacked pills); becomes the
@@ -408,8 +465,18 @@
   html {
     background-color: var(--pg);
     scroll-behavior: smooth;
+    overflow-x: hidden;
   }
 
+  /* The mobile nav panel (Navigation.tsx) is `fixed inset-0` translated
+     fully off-screen via `translate-x-full` when closed. A `transform` on a
+     `position:fixed` element doesn't remove it from the page's horizontal
+     scrollable area the way `left`/`right` positioning would — so on any
+     page rendering <Navigation/>, the closed panel silently doubled the
+     page's scroll width, letting a swipe/rubber-band scroll it into view as
+     a blank/shifted-content strip. ProductDetailPage.tsx worked around this
+     locally with its own overflow-x-hidden wrapper; this is the same fix
+     applied once, globally, so no other page can hit it. */
   body {
     font-family: 'Libre Franklin', ui-sans-serif, system-ui, sans-serif;
     background-color: var(--pg);
@@ -417,6 +484,7 @@
     text-wrap: pretty;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
   }
 
   h1, h2, h3, h4, h5, h6 {

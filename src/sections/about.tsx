@@ -190,7 +190,7 @@ export function About() {
                 </div>
               </div>
 
-              {/* Stats — compact 2×2 grid below image */}
+              {/* Stats — compact 3-column row below image */}
               <div
                 ref={statsRef}
                 className="grid grid-cols-3 rounded-b-2xl overflow-hidden"

@@ -172,6 +172,28 @@
     </image:image>
   </url>
   <url>
+    <loc>https://waxcelerate.de/zubehoer/aufhaengedraht</loc>
+    <lastmod>2026-08-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <image:image>
+      <image:loc>https://waxcelerate.de/images/products/tools/aufhaengedraht.webp</image:loc>
+      <image:title>Aufhängedraht, 3 Stück | Waxcelerate</image:title>
+      <image:caption>Steif genug, dass die Kette im Bad nicht kippt, dünn genug, dass kaum Wachs daran hängen bleibt.</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://waxcelerate.de/zubehoer/quick-link-zange</loc>
+    <lastmod>2026-08-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <image:image>
+      <image:loc>https://waxcelerate.de/images/products/tools/quick-link-zange.webp</image:loc>
+      <image:title>Quick-Link-Zange | Waxcelerate</image:title>
+      <image:caption>Öffnet und schließt den Verschluss. Ohne sie wird das Abnehmen der Kette jedes Mal zur Geduldsprobe.</image:caption>
+    </image:image>
+  </url>
+  <url>
     <loc>https://waxcelerate.de/blog/heisswachs-vs-fluessigwachs</loc>
     <lastmod>2026-07-27</lastmod>
     <changefreq>monthly</changefreq>

@@ -73,7 +73,7 @@ Nutzenzeilen = Alltag, Diagramm = Aufwand.
 
 ### 3. Die Seite ist zu lang für ihr Produkt
 
-Nach dem Kaufangebot kommen noch drei schwere Blöcke: fünf Rechner, drei
+Nach dem Kaufangebot kommen noch drei schwere Blöcke: drei Rechner, drei
 Anleitungen, die FAQ. Das sind hervorragende Inhalte, aber sie sind
 Retention- und Suchmaschinen-Assets, keine Conversion-Assets. Sie stehen dort,
 wo jemand entweder kauft oder geht.

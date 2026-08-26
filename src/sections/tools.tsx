@@ -2,8 +2,9 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { Calculator, Package, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useTheme } from '@/hooks/useTheme';
 import { useSectionReveal } from '@/hooks/useAnimation';
-import { waxIntervals } from '@/lib/data';
+import { waxIntervals, products } from '@/lib/data';
 import { gsap } from '@/lib/gsap';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { AnimatedNumber } from '@/components/viz';
@@ -23,7 +24,11 @@ function TogButton({
   return (
     <button
       onClick={onClick}
-      className={`px-4 py-2 rounded-xl text-[13px] transition-all cursor-pointer${active ? ' chip-active' : ''}`}
+      // Visible pill stays compact (that's the point of the chip look), but
+      // the tappable area is padded out to the project's own 44px minimum
+      // (Mobile-Plan B5) via an invisible after: pseudo-element — the same
+      // technique already used for the swipe-dot indicators below.
+      className={`relative px-4 py-2 rounded-xl text-[13px] transition-all cursor-pointer after:content-[''] after:absolute after:top-1/2 after:left-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:min-w-11 after:h-11${active ? ' chip-active' : ''}`}
       style={{
         border: active ? undefined : '1px solid var(--tog-bd)',
         background: active ? undefined : 'var(--tog-bg)',
@@ -60,8 +65,8 @@ function ToolCard({ children }: { children: React.ReactNode }) {
 // ─── Tool header ─────────────────────────────────────────────────────────────
 function ToolHeader({ icon, title, subtitle }: { icon: React.ReactNode; title: string; subtitle: string }) {
   return (
-    <div className="px-6 pt-6 pb-5">
-      <div className="flex items-start gap-3 mb-5">
+    <div className="px-6 pt-3 pb-2.5 sm:pt-5 sm:pb-4">
+      <div className="flex items-start gap-3 mb-2.5 sm:mb-4">
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
           style={{
@@ -75,7 +80,11 @@ function ToolHeader({ icon, title, subtitle }: { icon: React.ReactNode; title: s
           <h3 className="text-[15px] font-semibold leading-snug" style={{ color: 'var(--tx1)' }}>
             {title}
           </h3>
-          <p className="text-[12px] leading-snug mt-0.5" style={{ color: 'var(--txf)' }}>
+          {/* Hidden below sm: on a swipeable mobile tab, the tab label plus
+              this title already say what the card is — the subtitle is
+              context that desktop's roomier deck can afford but a
+              one-screen mobile card can't, per the fit-in-one-screen ask. */}
+          <p className="hidden sm:block text-[12px] leading-snug mt-0.5" style={{ color: 'var(--txf)' }}>
             {subtitle}
           </p>
         </div>
@@ -88,7 +97,7 @@ function ToolHeader({ icon, title, subtitle }: { icon: React.ReactNode; title: s
 // ─── Field label ─────────────────────────────────────────────────────────────
 function FieldLabel({ label, value }: { label: string; value?: string }) {
   return (
-    <div className="flex items-baseline justify-between mb-2.5">
+    <div className="flex items-baseline justify-between mb-1.5 sm:mb-2.5">
       <span
         className="text-meta uppercase tracking-[0.1em] font-medium"
         style={{ color: 'var(--txf)' }}
@@ -104,33 +113,28 @@ function FieldLabel({ label, value }: { label: string; value?: string }) {
   );
 }
 
-// ─── Result inset box ────────────────────────────────────────────────────────
-function ResultBox({ children }: { children: React.ReactNode }) {
+// ─── Distance slider — FieldLabel + Slider pairing, shared so Tab 1's
+// km/week and Tab 3's km/year stay visually identical by construction ───────
+function DistanceSlider({ label, valueLabel, value, onValueChange, min, max, step, ariaLabel }: {
+  label: string;
+  valueLabel: string;
+  value: number;
+  onValueChange: (v: number) => void;
+  min: number;
+  max: number;
+  step: number;
+  ariaLabel: string;
+}) {
   return (
-    <div
-      className="rounded-2xl p-5"
-      style={{
-        background: 'var(--inset-bg)',
-        border: '1px solid var(--inset-bd)',
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
-// ─── Step reveal wrapper — dims inactive inputs ───────────────────────────────
-function StepSection({ active, children }: { active: boolean; children: React.ReactNode }) {
-  return (
-    <div
-      style={{
-        opacity: active ? 1 : 0.2,
-        transform: active ? 'translateY(0)' : 'translateY(6px)',
-        transition: 'opacity 500ms cubic-bezier(0.16,1,0.3,1), transform 500ms cubic-bezier(0.16,1,0.3,1)',
-        pointerEvents: active ? 'auto' : 'none',
-      }}
-    >
-      {children}
+    <div>
+      <FieldLabel label={label} value={valueLabel} />
+      <Slider
+        value={[value]}
+        onValueChange={v => onValueChange(v[0])}
+        min={min} max={max} step={step}
+        className="py-1"
+        aria-label={ariaLabel}
+      />
     </div>
   );
 }
@@ -203,31 +207,110 @@ function addWeeks(base: Date, weeks: number): Date {
   return x;
 }
 
-// ─── Tool 1: Rewax Interval Calculator ───────────────────────────────────────
-function RewaxCalculator() {
-  const { t, lang } = useLanguage();
-  const de = lang === 'de';
-  const [weather, setWeather] = useState<'trocken' | 'gemischt' | 'nass'>('trocken');
-  const [terrain, setTerrain] = useState<'strasse' | 'gravel' | 'mtb'>('strasse');
-  const [kmPerWeek, setKmPerWeek] = useState(100);
-  const waxedOn = useMemo(() => waxedStampFromLocation(), []);
+function isoDate(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
 
-  const MAX_REWAX_WEEKS = 26;
+const MAX_REWAX_WEEKS = 26;
+
+// ─── Shared riding profile — one source of truth for all three calculators ──
+// Weather, terrain, weekly distance and last-waxed date used to disagree
+// across tabs (Tab 2 had its own implied km/week, Tab 3 hardcoded a fixed
+// 300km interval) — this hook is the single place that now owns them, passed
+// down as one `profile` prop instead of three independent useState calls.
+type Weather = 'trocken' | 'gemischt' | 'nass';
+type Terrain = 'strasse' | 'gravel' | 'mtb';
+
+function useToolsProfile() {
+  const [weather, setWeather] = useState<Weather>('trocken');
+  const [terrain, setTerrain] = useState<Terrain>('strasse');
+  const [kmPerWeek, setKmPerWeek] = useState(100);
+  const [lastWaxedDate, setLastWaxedDate] = useState<Date | null>(() => waxedStampFromLocation());
+
   const interval = waxIntervals[weather][terrain];
   const rawWeeks = kmPerWeek > 0 ? Math.round(interval / kmPerWeek) : MAX_REWAX_WEEKS;
   const weeks = Math.min(rawWeeks, MAX_REWAX_WEEKS);
   const weeksCapped = rawWeeks > MAX_REWAX_WEEKS;
 
-  const weatherOpts: { value: 'trocken' | 'gemischt' | 'nass'; label: string }[] = [
+  return {
+    weather, setWeather, terrain, setTerrain, kmPerWeek, setKmPerWeek,
+    lastWaxedDate, setLastWaxedDate, interval, weeks, weeksCapped,
+  };
+}
+type ToolsProfile = ReturnType<typeof useToolsProfile>;
+
+// Compact read-only readout of the shared profile, shown inside Tab 2/3 on
+// both mobile (swipe) and the desktop deck — either way, only one card is
+// visible at a time, so a visitor on Tab 2/3 hasn't necessarily seen Tab 1's
+// controls. Surfaces what's driving their result plus a way to jump back.
+function ProfileReadout({ profile, onJump }: { profile: ToolsProfile; onJump: () => void }) {
+  const { t } = useLanguage();
+  const weatherLabel = { trocken: t.tools.rewax.dry, gemischt: t.tools.rewax.mixed, nass: t.tools.rewax.wet }[profile.weather];
+  const terrainLabel = { strasse: t.tools.rewax.road, gravel: t.tools.rewax.gravel, mtb: t.tools.rewax.mtb }[profile.terrain];
+  return (
+    <button
+      onClick={onJump}
+      className="w-full flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl text-left transition-opacity hover:opacity-80 cursor-pointer"
+      style={{ background: 'var(--inset-bg)', border: '1px solid var(--inset-bd)' }}
+    >
+      <span className="text-[12px] truncate" style={{ color: 'var(--txf)' }}>
+        {weatherLabel} · {terrainLabel} · {profile.kmPerWeek} {t.tools.profile.kmSuffix}
+      </span>
+      <span className="text-[12px] font-medium flex-shrink-0" style={{ color: 'var(--brand)' }}>
+        {t.tools.profile.jumpToInterval}
+      </span>
+    </button>
+  );
+}
+
+// ─── Tool 1: Rewax Interval Calculator ───────────────────────────────────────
+function RewaxCalculator({ profile }: { profile: ToolsProfile }) {
+  const { t, lang } = useLanguage();
+  const { theme } = useTheme();
+  const de = lang === 'de';
+  const { weather, setWeather, terrain, setTerrain, kmPerWeek, setKmPerWeek,
+          lastWaxedDate, setLastWaxedDate, interval, weeks, weeksCapped } = profile;
+
+  const weatherOpts: { value: Weather; label: string }[] = [
     { value: 'trocken', label: t.tools.rewax.dry },
     { value: 'gemischt', label: t.tools.rewax.mixed },
     { value: 'nass', label: t.tools.rewax.wet },
   ];
-  const terrainOpts: { value: 'strasse' | 'gravel' | 'mtb'; label: string }[] = [
+  const terrainOpts: { value: Terrain; label: string }[] = [
     { value: 'strasse', label: t.tools.rewax.road },
     { value: 'gravel', label: t.tools.rewax.gravel },
     { value: 'mtb', label: t.tools.rewax.mtb },
   ];
+
+  // Quick-pick presets instead of forcing the native calendar picker open by
+  // default — that popup's own chrome can't be restyled in any browser, so
+  // most visitors never need to see it. "Heute" maps to `null`, preserving
+  // the existing `lastWaxedDate ?? new Date()` semantics used everywhere else.
+  // Exactly 3, matching the weather/terrain rows above it — one consistent
+  // rhythm down the card instead of an odd 4th chip wrapping to its own row.
+  // Anything further back than 2 weeks goes through "Genaues Datum" instead.
+  const today = new Date();
+  const datePresets: { key: string; date: Date | null; label: string }[] = [
+    { key: 'today', date: null, label: t.tools.rewax.lastWaxedToday },
+    { key: '1w', date: addWeeks(today, -1), label: t.tools.rewax.lastWaxed1Week },
+    { key: '2w', date: addWeeks(today, -2), label: t.tools.rewax.lastWaxed2Weeks },
+  ];
+  const isPresetActive = (presetDate: Date | null) =>
+    presetDate === null
+      ? lastWaxedDate === null
+      : lastWaxedDate !== null && isoDate(lastWaxedDate) === isoDate(presetDate);
+
+  // Lazy init (not an effect): only decide once, at mount, whether the
+  // current date already matches a preset. An effect keyed on lastWaxedDate
+  // would re-run on every change and fight a user who manually collapses
+  // this panel after picking their own exact date — this still auto-expands
+  // correctly for a QR-seeded date that doesn't match any preset.
+  const [customDateOpen, setCustomDateOpen] = useState(() =>
+    lastWaxedDate !== null && !datePresets.some(p => p.date !== null && isoDate(p.date) === isoDate(lastWaxedDate))
+  );
 
   const goToWax = () => {
     document.querySelector('#produkte')?.scrollIntoView({ behavior: 'smooth' });
@@ -235,13 +318,13 @@ function RewaxCalculator() {
   };
 
   const rewaxDate = useMemo(() => {
-    const origin = waxedOn ?? new Date();
+    const origin = lastWaxedDate ?? new Date();
     return addWeeks(origin, weeks).toLocaleDateString(de ? 'de-DE' : 'en-GB', {
       day: 'numeric', month: 'long',
     });
-  }, [weeks, de, waxedOn]);
-  const waxedLabel = waxedOn
-    ? waxedOn.toLocaleDateString(de ? 'de-DE' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+  }, [weeks, de, lastWaxedDate]);
+  const waxedLabel = lastWaxedDate
+    ? lastWaxedDate.toLocaleDateString(de ? 'de-DE' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
     : null;
 
   const SEP = <div style={{ borderTop: '1px solid var(--inset-bd)' }} />;
@@ -258,17 +341,19 @@ function RewaxCalculator() {
       <div className="flex flex-col flex-1">
 
         {/* Hero result — always visible, updates live as parameters change below */}
-        <div className="px-6 pt-5 pb-5 text-center flex flex-col items-center">
-          <div className="flex items-baseline justify-center gap-2 mb-2">
-            <span className="text-[56px] font-bold leading-none tabular-nums" style={{ color: 'var(--tx1)' }}>
+        <div className="px-6 pt-2.5 pb-2 sm:pt-4 sm:pb-4 text-center flex flex-col items-center">
+          <div className="flex items-baseline justify-center gap-2 mb-1 sm:mb-2">
+            <span className="text-[40px] sm:text-[56px] font-bold leading-none tabular-nums" style={{ color: 'var(--tx1)' }}>
               <AnimatedNumber value={weeks} />
             </span>
-            <span className="text-[22px] font-semibold leading-none" style={{ color: 'var(--tx2)' }}>
+            <span className="text-[18px] sm:text-[22px] font-semibold leading-none" style={{ color: 'var(--tx2)' }}>
               {weeks === 1 ? (de ? 'Woche' : 'week') : (de ? 'Wochen' : 'weeks')}
               {weeksCapped && <span className="text-[14px]" style={{ color: 'var(--txm)' }}> max.</span>}
             </span>
           </div>
-          <p className="text-[12px] mb-3" style={{ color: 'var(--txf)' }}>
+          {/* Hidden below sm: implied by the card title right above it, and
+              cut for the fit-in-one-screen mobile requirement. */}
+          <p className="hidden sm:block text-[12px] mb-3" style={{ color: 'var(--txf)' }}>
             {waxedLabel
               ? (de ? `gewachst am ${waxedLabel}` : `waxed ${waxedLabel}`)
               : (de ? 'bis zum nächsten Rewaxen' : 'until next rewax')}
@@ -280,15 +365,16 @@ function RewaxCalculator() {
             </span>
             <span style={{ color: 'var(--bd2)' }}>·</span>
             <span className="text-[12px] tabular-nums" style={{ color: 'var(--txff)' }}>
-              <AnimatedNumber value={interval} suffix=" km" />
+              <AnimatedNumber value={interval} suffix={de ? ' km/Wachsung' : ' km/wax'} />
             </span>
           </div>
         </div>
 
         {SEP}
 
-        {/* Parameters — evenly distributed vertically to fill the card height */}
-        <div className="px-6 pt-4 pb-4 flex flex-col flex-1 justify-evenly">
+        {/* Parameters — fixed top-anchored stack, not position-coupled to the
+            last-waxed panel's expand/collapse height below it */}
+        <div className="px-6 pt-2 pb-3 sm:pt-4 sm:pb-4 flex flex-col flex-1 gap-2 sm:gap-4">
           <div>
             <FieldLabel label={t.tools.rewax.weather} />
             <div className="flex flex-wrap gap-2">
@@ -311,20 +397,72 @@ function RewaxCalculator() {
             </div>
           </div>
 
+          <DistanceSlider
+            label={t.tools.rewax.kmPerWeek}
+            valueLabel={`${kmPerWeek} km`}
+            value={kmPerWeek}
+            onValueChange={setKmPerWeek}
+            min={20} max={400} step={10}
+            ariaLabel={t.tools.rewax.kmPerWeek}
+          />
+
           <div>
-            <FieldLabel label={t.tools.rewax.kmPerWeek} value={`${kmPerWeek} km`} />
-            <Slider
-              value={[kmPerWeek]}
-              onValueChange={v => setKmPerWeek(v[0])}
-              min={20} max={400} step={10}
-              className="py-1"
-              aria-label={t.tools.rewax.kmPerWeek}
-            />
+            <FieldLabel label={t.tools.rewax.lastWaxed} />
+            {/* Chips and the exact-date field are alternatives, not additions —
+                showing both at once is what pushed this card past the deck's
+                fixed height. Toggling to "Genaues Datum" swaps the chip row
+                out instead of appending the date field below it. */}
+            {!customDateOpen && (
+              <div className="flex flex-wrap gap-2">
+                {datePresets.map(p => (
+                  <TogButton key={p.key} active={isPresetActive(p.date)} onClick={() => setLastWaxedDate(p.date)}>
+                    {p.label}
+                  </TogButton>
+                ))}
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={() => setCustomDateOpen(v => !v)}
+              // Same 44px-minimum-tap-area technique as TogButton above —
+              // the visible text link stays small, only the hit area grows.
+              className="relative mt-1 sm:mt-2 text-[12px] font-medium transition-opacity hover:opacity-70 cursor-pointer after:content-[''] after:absolute after:inset-x-0 after:top-1/2 after:-translate-y-1/2 after:h-11"
+              style={{ color: 'var(--brand)' }}
+            >
+              {customDateOpen ? t.tools.rewax.lastWaxedHideExact : t.tools.rewax.lastWaxedExact}
+            </button>
+            {customDateOpen && (
+              <div className="mt-2 flex items-center gap-2">
+                <input
+                  type="date"
+                  value={lastWaxedDate ? isoDate(lastWaxedDate) : ''}
+                  min="2020-01-01"
+                  max={isoDate(new Date())}
+                  onChange={e => setLastWaxedDate(e.target.value ? new Date(e.target.value + 'T00:00:00') : null)}
+                  className="w-full px-4 py-3 rounded-xl text-[14px]"
+                  style={{
+                    background: 'var(--sf2)', border: '1px solid var(--bd2)', color: 'var(--tx1)',
+                    colorScheme: theme === 'noir' ? 'dark' : 'light',
+                  }}
+                />
+                {lastWaxedDate && (
+                  <button
+                    type="button"
+                    onClick={() => setLastWaxedDate(null)}
+                    aria-label={t.tools.rewax.lastWaxedClear}
+                    className="flex-shrink-0 w-11 h-11 rounded-xl grid place-items-center transition-colors hover:opacity-80 cursor-pointer"
+                    style={{ border: '1px solid var(--bd2)', background: 'var(--tog-bg)', color: 'var(--txf)' }}
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
         {/* CTA — prompt to buy wax after seeing the interval */}
-        <div className="px-6 pb-5 pt-2">
+        <div className="px-6 pb-3 pt-1 sm:pb-5 sm:pt-2">
           <ToolCTA onClick={goToWax}>
             {de ? 'Wachs kaufen →' : 'Buy wax →'}
           </ToolCTA>
@@ -340,51 +478,75 @@ function fmtDuration(months: number, de: boolean): string {
   return de ? `~${months} Monate` : `~${months} months`;
 }
 
-function WaxStockCalculator() {
+// Split value/unit so the hero can render it in the same "big number + small
+// unit" typography as Tab 1's weeks and Tab 3's savings, instead of one plain
+// string — one shared hero pattern across all three cards.
+function durationParts(months: number, de: boolean): { value: number; unit: string } {
+  if (months > 24) {
+    const years = Math.round(months / 12);
+    return { value: years, unit: de ? (years === 1 ? 'Jahr' : 'Jahre') : (years === 1 ? 'yr' : 'yrs') };
+  }
+  return { value: months, unit: de ? 'Monate' : 'months' };
+}
+
+const wax500 = products.find(p => p.id === 'wax-500')!;
+const wax300 = products.find(p => p.id === 'wax-300')!;
+
+function formatEUR(price: number, de: boolean): string {
+  return new Intl.NumberFormat(de ? 'de-DE' : 'en-US', { style: 'currency', currency: 'EUR' }).format(price);
+}
+
+function WaxStockCalculator({ profile, showProfilePill, onJumpToProfile }: {
+  profile: ToolsProfile;
+  showProfilePill?: boolean;
+  onJumpToProfile?: () => void;
+}) {
   const { lang } = useLanguage();
   const de = lang === 'de';
-
-  type FreqKey = 'frequent' | 'regular' | 'occasional' | 'rare';
-  // Default to 'regular' so a meaningful recommendation shows immediately on load.
-  const [freq, setFreq] = useState<FreqKey>('regular');
-
-  const freqOpts: { value: FreqKey; label: string; hint: string; km: string; rewaxPerMonth: number }[] = [
-    { value: 'frequent',   label: de ? 'Alle 2–3 Wochen' : 'Every 2–3 weeks',  hint: de ? 'Vielfahrer · Rennsport' : 'Heavy rider · Racing',  km: de ? '~150 km/Wo.' : '~150 km/wk',  rewaxPerMonth: 1.67 },
-    { value: 'regular',    label: de ? 'Einmal im Monat'  : 'Once a month',     hint: de ? 'Wochenend­fahrer'       : 'Weekend rider',         km: de ? '~100 km/Wo.' : '~100 km/wk',  rewaxPerMonth: 1 },
-    { value: 'occasional', label: de ? 'Alle 2–3 Monate'  : 'Every 2–3 months', hint: de ? 'Gelegenheits­fahrer'   : 'Occasional rider',      km: de ? '~40 km/Wo.'  : '~40 km/wk',   rewaxPerMonth: 0.4 },
-    { value: 'rare',       label: de ? 'Noch seltener'    : 'Less often',       hint: de ? 'Selten unterwegs'      : 'Infrequent rider',      km: de ? '< 20 km/Wo.' : '< 20 km/wk',  rewaxPerMonth: 0.18 },
-  ];
 
   const WAX_PER_REWAX = 20; // grams per wax session (300g ÷ 20 = 15 sessions, aligns with "20–25 apps/300g")
   const SHELF_LIFE_MONTHS = 30;
 
-  const selected = freqOpts.find(f => f.value === freq);
-  const waxPerMonth = selected ? selected.rewaxPerMonth * WAX_PER_REWAX : 0;
-  const hasResult = selected !== undefined;
+  // Derived from the shared riding profile instead of its own frequency
+  // question — Tab 1 already establishes how often this rider rewaxes, so
+  // asking again here (as a separate, disconnected bucket) is what caused the
+  // two tabs to imply different rewax cadences for the same visitor.
+  // Deliberately the *uncapped* interval/kmPerWeek, not profile.weeks: Tab 1's
+  // 26-week display cap exists only so its own hero number never shows an
+  // absurd figure — applying it here would make a low-mileage rider's stock
+  // duration look artificially short.
+  const preciseWeeksPerRewax = profile.kmPerWeek > 0 ? profile.interval / profile.kmPerWeek : Infinity;
+  const rewaxPerMonth = Number.isFinite(preciseWeeksPerRewax) && preciseWeeksPerRewax > 0 ? 4.345 / preciseWeeksPerRewax : 0;
+  const waxPerMonth = rewaxPerMonth * WAX_PER_REWAX;
 
-  const months300 = hasResult && waxPerMonth > 0 ? Math.max(1, Math.round(300 / waxPerMonth)) : 0;
-  const months500 = hasResult && waxPerMonth > 0 ? Math.max(1, Math.round(500 / waxPerMonth)) : 0;
+  const months300 = waxPerMonth > 0 ? Math.max(1, Math.round(300 / waxPerMonth)) : 0;
+  const months500 = waxPerMonth > 0 ? Math.max(1, Math.round(500 / waxPerMonth)) : 0;
 
   // Recommend 300g only when 300g already outlasts shelf life
   const rec: '300' | '500' = months300 > SHELF_LIFE_MONTHS ? '300' : '500';
 
   const recMonths  = rec === '500' ? months500 : months300;
   const altMonths  = rec === '500' ? months300 : months500;
-  const recPrice   = rec === '500' ? (de ? '29,95' : '29.95') : (de ? '22,95' : '22.95');
-  const altPrice   = rec === '500' ? (de ? '22,95' : '22.95') : (de ? '29,95' : '29.95');
+  const recProduct = rec === '500' ? wax500 : wax300;
+  const altProduct = rec === '500' ? wax300 : wax500;
   const altSize    = rec === '500' ? '300' : '500';
-  const recUrl     = rec === '500' ? 'https://www.ebay.de/itm/395811184583' : 'https://www.ebay.de/itm/395811183957';
-  const altUrl     = altSize === '500' ? 'https://www.ebay.de/itm/395811184583' : 'https://www.ebay.de/itm/395811183957';
 
   // Concrete reason based on actual session count
-  const rewaxPerYear = hasResult ? Math.round(selected!.rewaxPerMonth * 12) : 0;
-  const recReason = !hasResult ? '' : rec === '500'
+  const rewaxPerYear = Math.round(rewaxPerMonth * 12);
+  const recReason = rec === '500'
     ? (de
       ? `Du wachst ~${rewaxPerYear}× im Jahr — 500g ist günstiger pro Anwendung.`
       : `You wax ~${rewaxPerYear}× per year — 500g is cheaper per session.`)
     : (de
       ? `Bei ~${rewaxPerYear}× im Jahr reicht 300g über die gesamte Saison.`
       : `At ~${rewaxPerYear}× per year, 300g lasts the whole season.`);
+
+  const recParts = durationParts(recMonths, de);
+  const goToWax = () => {
+    document.querySelector('#produkte')?.scrollIntoView({ behavior: 'smooth' });
+    window.dispatchEvent(new CustomEvent('wax:selectTab', { detail: 'wax' }));
+  };
+  const SEP = <div style={{ borderTop: '1px solid var(--inset-bd)' }} />;
 
   return (
     <ToolCard>
@@ -395,102 +557,114 @@ function WaxStockCalculator() {
           ? 'Bestell genau das richtige Paket — keine Verschwendung, kein Engpass.'
           : 'Order exactly the right amount — no waste, no shortfall.'}
       />
-      <div className="px-6 flex flex-col flex-1 gap-5 pb-6">
-        {/* Single question: rewax frequency */}
-        <div className="flex-1">
-          <FieldLabel label={de ? 'Wie oft rewaxst du?' : 'How often do you re-wax?'} />
-          <div className="grid grid-cols-2 gap-2">
-            {freqOpts.map(o => (
-              <button
-                key={o.value}
-                onClick={() => setFreq(o.value)}
-                className={`rounded-xl px-3 py-3 text-left transition-all cursor-pointer${freq === o.value ? ' chip-active' : ''}`}
+      <div className="flex flex-col flex-1">
+        {showProfilePill && onJumpToProfile && (
+          <div className="px-6 pt-5">
+            <ProfileReadout profile={profile} onJump={onJumpToProfile} />
+          </div>
+        )}
+
+        {/* Hero — same pattern as Tab 1/3 but with more room: this tab has
+            genuinely less content than its siblings (no inputs left to ask,
+            everything comes from the shared profile), so what IS here — the
+            actual purchase decision — gets more prominence instead of being
+            padded out with unrelated filler. */}
+        <div className="px-6 pt-3 pb-3 sm:pt-6 sm:pb-6 text-center flex flex-col items-center">
+          <div className="flex items-baseline justify-center gap-2 mb-1 sm:mb-3">
+            <span className="text-[40px] sm:text-[72px] font-bold leading-none tabular-nums" style={{ color: 'var(--tx1)' }}>
+              <AnimatedNumber value={recParts.value} />
+            </span>
+            <span className="text-[18px] sm:text-[26px] font-semibold leading-none" style={{ color: 'var(--tx2)' }}>
+              {recParts.unit}
+            </span>
+          </div>
+          <p className="text-[12px] sm:text-[13px] mb-2 sm:mb-4 max-w-[36ch]" style={{ color: 'var(--txf)' }}>
+            {recReason}
+          </p>
+          <div className="flex items-center gap-2.5">
+            <span className="text-[12px] font-medium" style={{ color: 'var(--txm)' }}>
+              {de ? 'Empfohlen' : 'Recommended'}
+            </span>
+            <span style={{ color: 'var(--bd2)' }}>·</span>
+            <span className="text-[12px] tabular-nums" style={{ color: 'var(--txff)' }}>
+              {rec}g — {formatEUR(recProduct.price, de)}
+            </span>
+          </div>
+        </div>
+
+        {SEP}
+
+        {/* 2-option comparison — same visual language as Tab 3's chain-count
+            cards (bordered box, recommended tinted in brand colour). Sized
+            generously on desktop (this is the actual decision the tab exists
+            to answer, and Tab 2 has room to spare there) but compact on
+            mobile, where every screen's worth of scroll is at a premium. */}
+        <div className="px-4 py-3 sm:px-5 sm:py-5">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3">
+            {[
+              { size: rec, product: recProduct, months: recMonths, isRec: true },
+              { size: altSize, product: altProduct, months: altMonths, isRec: false },
+            ].map(opt => (
+              <a
+                key={opt.size}
+                href={opt.product.ebayUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-2xl flex flex-col transition-opacity hover:opacity-85 p-3 sm:px-4 sm:py-[18px]"
                 style={{
-                  border: freq === o.value ? undefined : '1px solid var(--tog-bd)',
-                  background: freq === o.value ? undefined : 'var(--tog-bg)',
+                  background: opt.isRec ? 'rgba(var(--accent-rgb),0.08)' : 'var(--sf)',
+                  border: opt.isRec ? '1.5px solid var(--brand)' : '1px solid var(--bd2)',
                 }}
               >
-                <p className="text-[13px] font-medium leading-snug" style={{ color: freq === o.value ? 'var(--tx1)' : 'var(--tog-fg)' }}>
-                  {o.label}
+                <div className="flex items-center justify-between mb-1.5 sm:mb-3">
+                  <p className="text-[13px] font-semibold leading-none" style={{ color: opt.isRec ? 'var(--brand)' : 'var(--tx2)' }}>
+                    {opt.size}g
+                  </p>
+                  <span className="text-meta" style={{ color: opt.isRec ? 'var(--brand)' : 'var(--txff)' }}>eBay →</span>
+                </div>
+                <p className="text-[20px] sm:text-[28px] font-bold tabular-nums leading-none mb-1 sm:mb-1.5" style={{ color: opt.isRec ? 'var(--brand)' : 'var(--tx2)' }}>
+                  {fmtDuration(opt.months, de)}
                 </p>
-                <p className="text-meta mt-0.5 leading-snug" style={{ color: freq === o.value ? 'var(--tx2)' : 'var(--txff)' }}>
-                  {o.hint}
+                <p className="text-[13px]" style={{ color: 'var(--txff)' }}>
+                  {formatEUR(opt.product.price, de)}
                 </p>
-                <p className="text-meta mt-0.5 tabular-nums" style={{ color: freq === o.value ? 'var(--txm)' : 'var(--txff)' }}>
-                  {o.km}
-                </p>
-              </button>
+              </a>
             ))}
           </div>
         </div>
 
-        {/* Result — fades in after selection */}
-        <StepSection active={hasResult}>
-          <ResultBox>
-            {/* Primary recommendation — links to eBay */}
-            <a href={recUrl} target="_blank" rel="noopener noreferrer" className="block group">
-              <div
-                className="rounded-xl p-4 transition-opacity group-hover:opacity-80"
-                style={{
-                  background: 'var(--sf)',
-                  border: '1px solid var(--brand)',
-                }}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-small uppercase tracking-[0.14em]" style={{ color: 'var(--brand)' }}>
-                    {de ? 'Empfohlen' : 'Recommended'}
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <p className="text-[12px]" style={{ color: 'var(--txf)' }}>
-                      {rec}g — {recPrice} €
-                    </p>
-                    <span className="text-meta" style={{ color: 'var(--brand)' }}>eBay →</span>
-                  </div>
-                </div>
-                <p className="text-[42px] font-bold leading-none mb-2" style={{ color: 'var(--tx1)' }}>
-                  {fmtDuration(recMonths, de)}
-                </p>
-                <p className="text-meta leading-snug" style={{ color: 'var(--txf)' }}>
-                  {recReason}
-                </p>
-              </div>
-            </a>
-
-            {/* Alt option — secondary button style */}
-            <a href={altUrl} target="_blank" rel="noopener noreferrer" className="block mt-3 group">
-              <div
-                className="rounded-xl px-4 py-3 flex items-center justify-between transition-opacity group-hover:opacity-70"
-                style={{
-                  background: 'var(--tog-bg)',
-                  border: '1px solid var(--tog-bd)',
-                }}
-              >
-                <p className="text-[12px]" style={{ color: 'var(--txff)' }}>
-                  {altSize}g — {altPrice} €
-                </p>
-                <div className="flex items-center gap-2">
-                  <p className="text-[12px] tabular-nums" style={{ color: 'var(--txff)' }}>
-                    {fmtDuration(altMonths, de)}
-                  </p>
-                  <span className="text-meta" style={{ color: 'var(--txff)' }}>eBay →</span>
-                </div>
-              </div>
-            </a>
-          </ResultBox>
-        </StepSection>
+        {/* CTA — same closing pattern as Tab 1 & Tab 3 */}
+        <div className="px-6 pb-3 pt-1 sm:pb-5 sm:pt-2">
+          <ToolCTA onClick={goToWax}>
+            {de ? 'Wachs kaufen →' : 'Buy wax →'}
+          </ToolCTA>
+        </div>
       </div>
     </ToolCard>
   );
 }
 
 // ─── Tool 3: Rotation & Savings (merged) ─────────────────────────────────────
-function RotationAndSavings() {
-  const { lang } = useLanguage();
+function RotationAndSavings({ profile, showProfilePill, onJumpToProfile }: {
+  profile: ToolsProfile;
+  showProfilePill?: boolean;
+  onJumpToProfile?: () => void;
+}) {
+  const { t, lang } = useLanguage();
   const de = lang === 'de';
-  const [kmPerYear, setKmPerYear] = useState(5000);
+
+  // kmPerYear is a derived, two-way-synced view of the shared kmPerWeek —
+  // editing either tab's slider updates both, instead of Tab 3 keeping its
+  // own independent default (previously 5000, vs. kmPerWeek's 100×52=5200).
+  const kmPerYear = Math.round(profile.kmPerWeek * 52);
+  const setKmPerYear = (y: number) => profile.setKmPerWeek(Math.round(y / 52));
 
   // Financial constants — Shimano M8100 12s reference
-  const REWAX_KM        = 300;
+  // REWAX_KM now comes from the shared profile (weather × terrain) instead of
+  // a fixed 300km for everyone — previously a wet/MTB rider whom Tab 1 says
+  // needs rewaxing every 120km still got a savings/frequency projection built
+  // as if they only needed it every 300km.
+  const REWAX_KM        = profile.interval;
   const CHAIN_PRICE     = 45;
   const CASSETTE_PRICE  = 85.70;
   const WAX_BLOCK_PRICE = 35;
@@ -519,7 +693,7 @@ function RotationAndSavings() {
   };
 
   const data: CalcResult = useMemo(() => {
-    const today = new Date();
+    const origin = profile.lastWaxedDate ?? new Date();
     const kmPerWeek = kmPerYear / 52;
     const WAX_LUBE_PER_KM = WAX_BLOCK_PRICE / (APPS_PER_BLOCK * REWAX_KM);
     const OIL_LUBE_PER_KM = OIL_PRICE_PER_APP / OIL_APP_INTERVAL_KM;
@@ -530,7 +704,7 @@ function RotationAndSavings() {
     const singleChainSessionsPerYear = Math.ceil(kmPerYear / REWAX_KM);
 
     const chains: ChainOption[] = [1, 2, 3].map(n => {
-      const weeksRaw = (n * REWAX_KM) / kmPerWeek;
+      const weeksRaw = Math.min((n * REWAX_KM) / kmPerWeek, MAX_REWAX_WEEKS);
       const sessionsPerYear = Math.ceil(kmPerYear / (n * REWAX_KM));
       const waxCassettePerKm = CASSETTE_PRICE / CASSETTE_KM[n - 1];
       const costPerKm = CHAIN_PRICE / CHAIN_KM[n - 1] + waxCassettePerKm + WAX_LUBE_PER_KM;
@@ -539,18 +713,17 @@ function RotationAndSavings() {
       const savingsPct = oilAnnual > 0 ? Math.round((annualSavings / oilAnnual) * 100) : 0;
       const cassetteSavingsVsOil = Math.max(0, Math.round(kmPerYear * (oilCassettePerKm - waxCassettePerKm)));
       const sessionsSavedPct = n > 1 ? Math.round((1 - sessionsPerYear / singleChainSessionsPerYear) * 100) : 0;
-      const nextDate = new Date(today);
-      nextDate.setDate(nextDate.getDate() + Math.round(weeksRaw * 7));
+      const nextDate = addWeeks(origin, Math.round(weeksRaw));
       const opts: Intl.DateTimeFormatOptions = {
         day: 'numeric', month: 'short',
-        ...(nextDate.getFullYear() !== today.getFullYear() ? { year: 'numeric' } : {}),
+        ...(nextDate.getFullYear() !== origin.getFullYear() ? { year: 'numeric' } : {}),
       };
       const dateStr = nextDate.toLocaleDateString(de ? 'de-DE' : 'en-GB', opts);
       return { n, sessionsPerYear, annualCost, annualSavings, savingsPct, cassetteSavingsVsOil, sessionsSavedPct, dateStr };
     });
 
     return { oilAnnual, chains };
-  }, [kmPerYear, de]); // eslint-disable-line
+  }, [kmPerYear, de, REWAX_KM, profile.lastWaxedDate]); // eslint-disable-line
 
   // Dynamic recommendation — adapts to actual km/year
   const rec = kmPerYear < 2500 ? 1 : kmPerYear >= 8000 ? 3 : 2;
@@ -575,13 +748,19 @@ function RotationAndSavings() {
       />
       <div className="flex flex-col flex-1">
 
+        {showProfilePill && onJumpToProfile && (
+          <div className="px-6 pt-5">
+            <ProfileReadout profile={profile} onJump={onJumpToProfile} />
+          </div>
+        )}
+
         {/* Hero — savings + recommendation + oil baseline context in one block */}
-        <div className="px-6 pt-5 pb-5 text-center flex flex-col items-center">
-          <div className="flex items-baseline justify-center gap-3 mb-2">
+        <div className="px-6 pt-3 pb-3 sm:pt-4 sm:pb-4 text-center flex flex-col items-center">
+          <div className="flex items-baseline justify-center gap-3 mb-1 sm:mb-2">
             <AnimatedNumber
               value={recData.annualSavings}
               prefix="~€"
-              className="num text-[56px] font-bold leading-none"
+              className="num text-[40px] sm:text-[56px] font-bold leading-none"
               style={{ color: 'var(--tx1)' }}
             />
             <div className="flex flex-col items-start gap-0.5">
@@ -604,44 +783,73 @@ function RotationAndSavings() {
         {SEP}
 
         {/* Slider — adjust km/year to tune results */}
-        <div className="px-6 pt-4 pb-3">
-          <FieldLabel
-            label={de ? 'km pro Jahr' : 'km per year'}
-            value={`${kmPerYear.toLocaleString(de ? 'de-DE' : 'en-US')} km`}
-          />
-          <Slider
-            value={[kmPerYear]}
-            onValueChange={v => setKmPerYear(v[0])}
+        <div className="px-6 pt-3 pb-2 sm:pt-4 sm:pb-3">
+          <DistanceSlider
+            label={t.tools.rotation.kmPerYear}
+            valueLabel={`${kmPerYear.toLocaleString(de ? 'de-DE' : 'en-US')} km`}
+            value={kmPerYear}
+            onValueChange={setKmPerYear}
             min={1000} max={10000} step={500}
-            className="py-1"
-            aria-label={de ? 'km pro Jahr' : 'km per year'}
+            ariaLabel={t.tools.rotation.kmPerYear}
           />
         </div>
 
         {SEP}
 
         {/* 3 comparison cards — the single source of truth */}
-        <div className="px-4 py-4 flex-1">
-          <div className="grid grid-cols-3 gap-2 h-full">
-            {data.chains.map(({ n, sessionsPerYear, annualSavings, savingsPct, sessionsSavedPct, dateStr }) => {
+        <div className="px-4 py-2.5 sm:py-4 flex-1">
+          {/* items-start, not h-full: CSS Grid's default stretch was forcing
+              the two non-recommended cards to match the recommended card's
+              much taller content, leaving visible empty space inside them —
+              the same "empty box" problem already fixed once in Tab 2's
+              comparison, just not caught here until a real screenshot showed
+              it (DOM-only measurements don't reveal internal dead space). */}
+          <div className="grid grid-cols-3 gap-2 items-start">
+            {data.chains.map(({ n, sessionsPerYear, annualSavings, savingsPct, dateStr }) => {
               const isRec = n === rec;
               const cardDiscountPct = n === 2 ? 5 : n === 3 ? 10 : 0;
+
+              // Non-recommended options: only the one number that matters for
+              // comparison (savings) — no session count, no discount badge, no
+              // next-wax date. Full detail stays on the recommended option only,
+              // cutting simultaneous numbers here from ~15 to ~7 (user feedback:
+              // too many numbers at once, unclear what each one means).
+              if (!isRec) {
+                return (
+                  <div
+                    key={n}
+                    className="rounded-2xl flex flex-col items-center justify-center text-center"
+                    style={{ background: 'var(--sf)', border: '1px solid var(--bd2)', padding: '12px 10px' }}
+                  >
+                    <p className="text-meta font-semibold leading-none mb-2" style={{ color: 'var(--tx2)' }}>
+                      {n} {de ? (n === 1 ? 'Kette' : 'Ketten') : (n === 1 ? 'chain' : 'chains')}
+                    </p>
+                    <p
+                      className="text-[18px] font-bold tabular-nums leading-none"
+                      style={{ color: annualSavings > 0 ? 'var(--txm)' : 'var(--txff)' }}
+                    >
+                      {annualSavings > 0 ? `~€${annualSavings}` : '—'}
+                    </p>
+                    <p className="text-meta mt-0.5" style={{ color: 'var(--txff)' }}>
+                      {de ? '/Jahr' : '/yr'}
+                    </p>
+                  </div>
+                );
+              }
+
               return (
                 <div
                   key={n}
                   className="rounded-2xl flex flex-col"
                   style={{
-                    background: isRec ? 'rgba(var(--accent-rgb),0.08)' : 'var(--sf)',
-                    border: isRec ? '1.5px solid var(--brand)' : '1px solid var(--bd2)',
+                    background: 'rgba(var(--accent-rgb),0.08)',
+                    border: '1.5px solid var(--brand)',
                     padding: '12px 10px',
                   }}
                 >
                   {/* Top: label row */}
                   <div className="flex items-center justify-between mb-2">
-                    <p
-                      className="text-meta font-semibold leading-none"
-                      style={{ color: isRec ? 'var(--brand)' : 'var(--tx2)' }}
-                    >
+                    <p className="text-meta font-semibold leading-none" style={{ color: 'var(--brand)' }}>
                       {n} {de ? (n === 1 ? 'Kette' : 'Ketten') : (n === 1 ? 'chain' : 'chains')}
                     </p>
                     {cardDiscountPct > 0 && (
@@ -655,10 +863,7 @@ function RotationAndSavings() {
                   </div>
 
                   {/* Savings — primary metric */}
-                  <p
-                    className="text-[22px] font-bold tabular-nums leading-none"
-                    style={{ color: isRec ? 'var(--brand)' : annualSavings > 0 ? 'var(--tx2)' : 'var(--txff)' }}
-                  >
+                  <p className="text-[22px] font-bold tabular-nums leading-none" style={{ color: 'var(--brand)' }}>
                     {annualSavings > 0 ? `~€${annualSavings}` : '—'}
                   </p>
                   <p className="text-meta mt-0.5 mb-3" style={{ color: 'var(--txff)' }}>
@@ -668,14 +873,9 @@ function RotationAndSavings() {
                   </p>
 
                   {/* Sessions */}
-                  <div className="flex items-baseline gap-1 mb-0.5">
-                    <p className="text-[16px] font-bold tabular-nums leading-none" style={{ color: 'var(--txm)' }}>
-                      {sessionsPerYear}×
-                    </p>
-                    {sessionsSavedPct > 0 && (
-                      <p className="text-meta font-semibold" style={{ color: 'var(--brand)' }}>−{sessionsSavedPct}%</p>
-                    )}
-                  </div>
+                  <p className="text-[16px] font-bold tabular-nums leading-none mb-0.5" style={{ color: 'var(--txm)' }}>
+                    {sessionsPerYear}×
+                  </p>
                   <p className="text-meta" style={{ color: 'var(--txff)' }}>
                     {de ? 'Waxen/Jahr' : 'wax/yr'}
                   </p>
@@ -685,7 +885,7 @@ function RotationAndSavings() {
                     <p className="text-meta" style={{ color: 'var(--txff)' }}>
                       {de ? 'Nächstes Waxen' : 'Next wax'}
                     </p>
-                    <p className="text-meta font-medium mt-0.5" style={{ color: isRec ? 'var(--brand)' : 'var(--txm)' }}>
+                    <p className="text-meta font-medium mt-0.5" style={{ color: 'var(--brand)' }}>
                       {dateStr}
                     </p>
                   </div>
@@ -696,7 +896,7 @@ function RotationAndSavings() {
         </div>
 
         {/* CTA */}
-        <div className="px-6 pb-5 pt-2">
+        <div className="px-6 pb-3 pt-1 sm:pb-5 sm:pt-2">
           <ToolCTA onClick={goToChains}>
             {de
               ? rec === 1
@@ -711,6 +911,11 @@ function RotationAndSavings() {
     </ToolCard>
   );
 }
+
+// ─── Tab labels ───────────────────────────────────────────────────────────────
+// Feeds both the mobile tablist and the desktop deck's tablist/cover labels.
+const TOOL_TAB_LABELS_DE = ['Intervall', 'Vorrat', 'Rotation'];
+const TOOL_TAB_LABELS_EN = ['Interval', 'Stock', 'Rotation'];
 
 // ─── Desktop deck ─────────────────────────────────────────────────────────────
 // The 3D deck, without the flaw that had it replaced by a flat grid: the old
@@ -746,9 +951,20 @@ const DECK_POS = [
 
 // Tall enough for the tallest calculator at deck width so no card's content is
 // clipped — they are absolutely positioned and therefore all share this height.
-const DECK_HEIGHT = 620;
+// Measured live (not guessed): Rewax ≈679px is the tallest after trimming the
+// last-waxed presets to 3 and tightening shared paddings; Rotation ≈650px;
+// Stock ≈519px once it had a real hero+comparison+CTA instead of one small
+// centred box (which is what made it look broken/empty at the old height).
+// 700 gives every card ~20px of margin without reopening the old overflow.
+const DECK_HEIGHT = 700;
 
-const DECK = [
+type DeckToolComp = (props: {
+  profile: ToolsProfile;
+  showProfilePill?: boolean;
+  onJumpToProfile?: () => void;
+}) => React.ReactElement;
+
+const DECK: { key: string; Comp: DeckToolComp; Icon: typeof Calculator; coverDe: string; coverEn: string; hintDe: string; hintEn: string }[] = [
   { key: 'rewax', Comp: RewaxCalculator, Icon: Calculator,
     coverDe: 'Wann muss ich rewaxen?',      coverEn: 'When do I re-wax?',
     hintDe: 'Dein Intervall in Wochen — nach Wetter, Gelände und Kilometern.',
@@ -761,10 +977,7 @@ const DECK = [
     coverDe: 'Rotation & Ersparnis',        coverEn: 'Rotation & savings',
     hintDe: 'Was zwei oder drei Ketten im Wechsel pro Jahr sparen.',
     hintEn: 'What rotating two or three chains saves you per year.' },
-] as const;
-
-const DECK_LABELS_DE = ['Intervall', 'Vorrat', 'Rotation'];
-const DECK_LABELS_EN = ['Interval', 'Stock', 'Rotation'];
+];
 
 function DeckSlot({ rel, label, cover, hint, Icon, onActivate, de, children }: {
   rel: number;
@@ -837,8 +1050,11 @@ export function Tools() {
   const headerRef = useRef<HTMLDivElement>(null);
   useSectionReveal(headerRef);
 
+  // Shared by all three calculators, desktop and mobile alike.
+  const profile = useToolsProfile();
+
   // Shared by the mobile tab bar and the desktop deck's tablist.
-  const TAB_LABELS = useMemo(() => (de ? DECK_LABELS_DE : DECK_LABELS_EN), [de]);
+  const TAB_LABELS = useMemo(() => (de ? TOOL_TAB_LABELS_DE : TOOL_TAB_LABELS_EN), [de]);
 
   // ── Desktop deck state ────────────────────────────────────────────────────
   const [activeCard, setActiveCard] = useState(0);
@@ -859,13 +1075,6 @@ export function Tools() {
   const tabButtonRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const tabPillRef = useRef<HTMLDivElement>(null);
   const touchStart = useRef<{ x: number; y: number; isSlider: boolean }>({ x: 0, y: 0, isSlider: false });
-  const [swipeHintShown, setSwipeHintShown] = useState(false);
-
-  useEffect(() => {
-    if (swipeHintShown) return;
-    const t = setTimeout(() => setSwipeHintShown(true), 3000);
-    return () => clearTimeout(t);
-  }, [swipeHintShown]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -1005,45 +1214,48 @@ export function Tools() {
                 className="flex transition-transform duration-300 ease-out"
                 style={{ transform: `translateX(-${activeTab * 100}%)` }}
               >
-                <div className="min-w-full"><RewaxCalculator /></div>
-                <div className="min-w-full"><WaxStockCalculator /></div>
-                <div className="min-w-full"><RotationAndSavings /></div>
+                <div className="min-w-full"><RewaxCalculator profile={profile} /></div>
+                <div className="min-w-full">
+                  <WaxStockCalculator profile={profile} showProfilePill onJumpToProfile={() => setActiveTab(0)} />
+                </div>
+                <div className="min-w-full">
+                  <RotationAndSavings profile={profile} showProfilePill onJumpToProfile={() => setActiveTab(0)} />
+                </div>
               </div>
             </div>
-            {/* Swipe hint + dot indicators */}
-            <div className="flex flex-col items-center gap-2 mt-4">
-              <div className="flex items-center gap-2">
-                {TAB_LABELS.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setActiveTab(i)}
-                    className="relative transition-all duration-300 after:content-[''] after:absolute after:top-1/2 after:left-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:w-11 after:h-11"
-                    aria-label={TAB_LABELS[i]}
-                    style={{
-                      width: i === activeTab ? '20px' : '6px',
-                      height: '6px',
-                      borderRadius: '3px',
-                      background: i === activeTab ? 'var(--accent)' : 'var(--bd)',
-                    }}
-                  />
-                ))}
-              </div>
-              <p
-                className="text-meta tracking-[0.08em] transition-opacity duration-700"
-                // Mobile-Plan B4: opacity: 0.7 auf --txff (bereits der hellste
-                // Text-Token) verwaesserte den Kontrast zusaetzlich unter 4.5:1
-                // (axe-core: 2.84:1 effektiv gegen --pg). --txff traegt die
-                // Zurueckhaltung schon, eine zweite Abschwaechung per Opacity
-                // ist nicht noetig — nur noch zwischen sichtbar (1) und
-                // ausgeblendet (0) fuer den Fade-out selbst.
-                style={{ color: 'var(--txff)', opacity: swipeHintShown ? 0 : 1 }}
-              >
-                ← {de ? 'wischen' : 'swipe'} →
-              </p>
+            {/* Dot indicators — the labelled tab bar above already teaches
+                swipeability, so the separate "← swipe →" hint (and the
+                vertical space it always reserved, even faded out) was cut
+                for the one-screen-per-tab mobile requirement. */}
+            <div className="flex items-center justify-center gap-2 mt-2">
+              {TAB_LABELS.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setActiveTab(i)}
+                  className="relative transition-all duration-300 after:content-[''] after:absolute after:top-1/2 after:left-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:w-11 after:h-11"
+                  aria-label={TAB_LABELS[i]}
+                  style={{
+                    width: i === activeTab ? '20px' : '6px',
+                    height: '6px',
+                    borderRadius: '3px',
+                    background: i === activeTab ? 'var(--accent)' : 'var(--bd)',
+                  }}
+                />
+              ))}
             </div>
           </div>
 
-          {/* ── Desktop: 3D deck (lg+) ── */}
+          {/* ── Desktop: 3D deck (lg+) ──
+              Restored per explicit user request after seeing the flat grid
+              live — they wanted the flip mechanism back (side cards showing
+              only a label, click to bring one to front), not a redesign.
+              Back at `lg:` rather than the grid's `xl:`: at 1024px the deck's
+              cards are 42% of the 912px column ≈383px — 33% wider than the
+              grid's 288px column that caused the original overflow — so
+              Rotation & Ersparnis's inner mini-grid gets ~112px per sub-card
+              here, clear of the ~80px break point, before even counting the
+              content reduction below. Side-card edges still clear the column
+              at 1024px as originally measured. */}
           <div className="hidden lg:block">
             <div
               className="relative"
@@ -1053,14 +1265,14 @@ export function Tools() {
                 <DeckSlot
                   key={tool.key}
                   rel={(i - activeCard + 3) % 3}
-                  label={de ? `${DECK_LABELS_DE[i]} anzeigen` : `Show ${DECK_LABELS_EN[i]}`}
+                  label={de ? `${TOOL_TAB_LABELS_DE[i]} anzeigen` : `Show ${TOOL_TAB_LABELS_EN[i]}`}
                   cover={de ? tool.coverDe : tool.coverEn}
                   hint={de ? tool.hintDe : tool.hintEn}
                   Icon={tool.Icon}
                   onActivate={() => setActiveCard(i)}
                   de={de}
                 >
-                  <tool.Comp />
+                  <tool.Comp profile={profile} showProfilePill onJumpToProfile={() => setActiveCard(0)} />
                 </DeckSlot>
               ))}
             </div>

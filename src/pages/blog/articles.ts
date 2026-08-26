@@ -85,6 +85,13 @@ export const articles: Article[] = [
     ],
     keyStat: { value: '3–5 W', label: 'Unterschied' },
     intro: 'Kettenwachs ist nicht gleich Kettenwachs. Heißwachs (Paraffin, im Topf geschmolzen) und Flüssigwachs (Wachs-Emulsion aus der Flasche) versprechen beide saubere, reibungsarme Antriebe, aber mit sehr unterschiedlichen Kompromissen. Dieser Artikel zeigt, was die Messwerte wirklich sagen und welche Methode zu welchem Fahrertyp passt.',
+    faq: [
+      { q: 'Was ist der Unterschied zwischen Heißwachs und Flüssigwachs?', a: 'Heißwachs wird im heißen Bad bei 85 bis 90 Grad angewendet und dringt durch Hitze und Immersion tief in die Kettengelenke ein. Flüssigwachs ist eine Wachs-Emulsion aus der Flasche, die du direkt auftropfst. Sie bleibt eher an der Oberfläche, weil die thermische Unterstützung fehlt.' },
+      { q: 'Wie viel Watt spart Heißwachs gegenüber Kettenöl?', a: 'In unserer Laborreferenz liegt der Unterschied bei rund 4 bis 5 Watt, also etwa 2 Prozent der Tretleistung bei 250 Watt Eingangsleistung. Für Rennfahrer ist das relevant, für Alltagsfahrer eher kein Kaufargument.' },
+      { q: 'Wie oft muss ich bei Flüssigwachs im Vergleich zu Heißwachs nachwachsen?', a: 'Flüssigwachs hält trocken etwa 150 bis 250 km und bei Nässe nur 80 bis 120 km. Heißwachs kommt trocken auf 400 bis 550 km und bei Nässe oder MTB auf 200 bis 300 km, also deutlich länger.' },
+      { q: 'Ist Heißwachsen zu aufwendig für den Alltag?', a: 'Für eine einzelne Kette schon etwas Aufwand, für eine 3-Ketten-Rotation nicht. Du wachst alle drei Ketten gesammelt in einer Session, der Wechsel am Rad dauert mit Schnellverschluss etwa 60 Sekunden.' },
+      { q: 'Kann ich Flüssigwachs auf eine bereits geölte Kette auftragen?', a: 'Nicht direkt. Öl verdrängt die Wachsemulsion und das Flüssigwachs hält dann schlecht. Wer von Öl umsteigt, muss die Kette zuerst entfetten, genau wie beim Heißwachsen.' },
+    ],
     sections: [
       {
         type: 'h2',
@@ -209,6 +216,13 @@ export const articles: Article[] = [
     ],
     keyStat: { value: '30–60 Sek.', label: 'IPA schütteln' },
     intro: 'Das Entfetten der Kette ist der einzige Schritt beim Heißwachsen, bei dem Anfänger am häufigsten scheitern. Wer diesen Schritt überspringt oder halbherzig erledigt, wird feststellen, dass das Wachs nicht haftet, schnell abblättert und die Kette nach 50 km wieder quietscht. Das hat nichts mit dem Wachs zu tun. Es liegt am Öl darunter.',
+    faq: [
+      { q: 'Warum hält Kettenwachs auf meiner Kette nicht?', a: 'In den allermeisten Fällen liegt es am Entfetten. Festes Paraffin verbindet sich nicht mit einer ölbenetzten Oberfläche, das Wachs legt sich nur außen darüber und blättert schnell wieder ab.' },
+      { q: 'Welches Isopropanol brauche ich zum Entfetten?', a: 'Isopropanol mit mindestens 90 Prozent, besser 99 Prozent. Kein 70-prozentiges Desinfektionsmittel, der Wasseranteil hinterlässt Rückstände und fördert Rost.' },
+      { q: 'Wie oft muss ich die Kette in Isopropanol schütteln?', a: '2 bis 3 Durchgänge à 30 bis 60 Sekunden im verschlossenen Glas, bis das Isopropanol beim Schütteln kaum noch trüb wird. Shimano-Ketten brauchen wegen des zäheren Werksfetts oft einen Durchgang mehr.' },
+      { q: 'Kann ich WD-40 zum Entfetten der Kette verwenden?', a: 'Nein. WD-40 ist selbst ein Ölprodukt und hinterlässt einen Film, der die Wachsaufnahme verhindert. Nie als Vorbereitung für Heißwachs nutzen.' },
+      { q: 'Wie lange muss die Kette nach dem Entfetten trocknen, bevor sie ins Wachsbad kann?', a: 'Mindestens 10 bis 15 Minuten hängend bei Raumtemperatur. Danach den Weißen-Tuch-Test machen: Kette über ein weißes Papiertuch ziehen, kein Abrieb sichtbar heißt bereit fürs Wachsbad.' },
+    ],
     sections: [
       {
         type: 'h2',
@@ -326,6 +340,13 @@ export const articles: Article[] = [
     ],
     keyStat: { value: '6–12.000 km', label: 'Kettenlaufzeit' },
     intro: 'Eine der häufigsten Fragen zu Heißwachs: Wann muss ich wieder wachsen, und lohnt sich das finanziell überhaupt? Beides lässt sich konkret beantworten, mit Messdaten und einer einfachen Rechnung über einen realistischen Nutzungszeitraum.',
+    faq: [
+      { q: 'Wie oft muss ich die Kette bei Heißwachs nachwachsen?', a: 'Bei trockenen Bedingungen alle 400 bis 550 km, bei Nässe, Schotter oder MTB alle 200 bis 300 km. Das zuverlässigste Signal ist das Geräusch: Sobald die Kette unter Last trockener klingt, ist sie fällig.' },
+      { q: 'Wie lange hält eine gewachste Kette im Vergleich zu einer geölten?', a: 'Typisch 6.000 bis 12.000 km gegenüber 2.000 bis 3.000 km bei Öl, also grob das Zwei- bis Dreifache. Grund ist, dass Wachs keinen Schmutz bindet, der sonst als Schleifpaste wirkt.' },
+      { q: 'Lohnt sich Heißwachs finanziell?', a: 'Über 15.000 km spart Heißwachs gegenüber Öl rund 125 bis 190 Euro, vor allem weil seltener Ketten und Kassetten gewechselt werden müssen. Kein dramatischer Betrag, aber die Rechnung geht auf.' },
+      { q: 'Woran erkenne ich, dass die Kette nachgewachst werden muss?', a: 'Am Geräusch, nicht an der Optik. Eine saubere gewachste Kette sieht auch dann noch trocken und ordentlich aus, wenn das Wachs in den Gelenken schon aufgebraucht ist. Knirschen oder Quietschen unter Last ist das verlässliche Signal.' },
+      { q: 'Verlängert eine 3-Ketten-Rotation die Lebensdauer der Kassette?', a: 'Ja. Der Verschleiß verteilt sich auf drei Ketten statt einer, sodass nie eine stark gedehnte Kette auf einen frischen Kassettenring trifft. Das schont die Kassette zusätzlich zum ohnehin geringeren Verschleiß durch Wachs.' },
+    ],
     sections: [
       {
         type: 'h2',
@@ -452,6 +473,13 @@ export const articles: Article[] = [
     ],
     keyStat: { value: '< 20 Min.', label: 'Aktive Zeit' },
     intro: 'Heißwachs klingt aufwendiger als es ist. Wer den Prozess einmal gemacht hat, braucht für jeden Wachsvorgang weniger als 20 Minuten aktive Zeit. Diese Anleitung führt durch den vollständigen Prozess, von der nötigen Ausrüstung bis zur fertig eingefahrenen Kette.',
+    faq: [
+      { q: 'Welche Temperatur muss das Wachsbad beim Heißwachsen haben?', a: '85 bis 90 Grad Celsius. Darunter ist das Wachs zu zäh und dringt nicht tief genug ein, über 95 Grad oxidiert es schneller und die Additive verteilen sich ungleichmäßig.' },
+      { q: 'Wie lange muss die Kette im Wachsbad bleiben?', a: '10 bis 15 Minuten. Bei geschlossenem Topfdeckel geht es etwas schneller. Die Kette ist erst durchtränkt, wenn keine Luftbläschen mehr aus den Gelenken aufsteigen.' },
+      { q: 'Muss ich eine neue Kette vor dem ersten Wachsen entfetten?', a: 'Ja, zwingend. Neue Ketten sind ab Werk mit zähem Mineralöl konserviert, das nicht mit Paraffin kompatibel ist. 2 bis 3 Durchgänge Isopropanol 99 Prozent im verschlossenen Glas lösen es zuverlässig.' },
+      { q: 'Was ist der Unterschied zwischen Classic und Pro beim Wachsen?', a: 'Waxcelerate Classic enthält Paraffin und PTFE für trockene Bedingungen. Pro enthält zusätzlich Molybdändisulfid, das vor allem bei Nässe und hohem Druck in den Gelenken die Reibung weiter senkt. Für überwiegend trockene Touren reicht Classic.' },
+      { q: 'Wie pflege ich das Wachsbad, damit es lange hält?', a: 'Das Wachs komplett schmelzen und durch einen Kaffeefilter oder ein feines Sieb gießen, der Schmutz bleibt zurück. Danach das gefilterte Wachs zurück in den Topf geben und bei Bedarf mit neuem Block auffüllen.' },
+    ],
     sections: [
       {
         type: 'h2',
@@ -609,6 +637,13 @@ export const articles: Article[] = [
     ],
     keyStat: { value: '20–30 km', label: 'Bis Transferfilm steht' },
     intro: 'Waxcelerate Pro enthält neben Paraffin und PTFE auch Molybdändisulfid, abgekürzt MoS₂. Auf Produktverpackungen taucht der Begriff regelmäßig auf, eine Erklärung bleibt meist aus. Dieser Artikel erklärt, was MoS₂ auf atomarer Ebene tut, warum es bei Kettenschmierung sinnvoll ist, und wann du es wirklich brauchst.',
+    faq: [
+      { q: 'Was ist MoS₂ und wie wirkt es im Kettenwachs?', a: 'Molybdändisulfid ist ein Schichtmineral, dessen Schichten unter Druck leicht gegeneinander abgleiten. In der Kette lagert es sich als Transferfilm direkt auf den Metallflächen ab und schmiert auch dann noch, wenn der Paraffinfilm ringsum komprimiert oder verdrängt ist.' },
+      { q: 'Ist MoS₂-Kettenwachs gesundheitlich bedenklich?', a: 'Nein. MoS₂ ist chemisch inert, nicht wasserlöslich und wird nicht über die Haut aufgenommen. Im festen Wachsblock ist es zudem vollständig eingekapselt, es besteht keine Haut- oder Inhalationsgefahr.' },
+      { q: 'Wann sollte ich Pro statt Classic verwenden?', a: 'Bei Ganzjahresbetrieb, häufigen Regenfahrten, Gravel oder Cyclocross sowie bei Temperaturen unter 5 Grad ist Pro die bessere Wahl. Für überwiegend trockene Sommerfahrten reicht Classic vollkommen.' },
+      { q: 'Wie lange dauert es, bis sich der MoS₂-Transferfilm bildet?', a: 'Etwa 20 bis 30 km. Danach läuft eine frisch mit Pro gewachste Kette oft sogar noch etwas geschmeidiger als direkt nach der Montage.' },
+      { q: 'Warum ist Waxcelerate Pro schwarz?', a: 'Die Farbe kommt von den feinen MoS₂-Partikeln, die dem Paraffin beigemischt sind. Auf der Kette selbst ist nach dem Aushärten und Einfahren kaum Verfärbung sichtbar, der Großteil des überschüssigen Wachses bricht als weißes Pulver ab.' },
+    ],
     sections: [
       {
         type: 'h2',
@@ -704,6 +739,13 @@ export const articles: Article[] = [
     ],
     keyStat: { value: '60 km', label: 'Schotter sauber' },
     intro: 'Heißwachs ist für jede Fahrradkette geeignet, aber für Rennrad- und Gravelbike-Fahrer lohnt es sich besonders. Wer auf Leistung und Sauberkeit achtet, für wen jedes Watt zählt oder wer einfach nicht will, dass die Kette nach 50 km Gravelpiste eine schwarze Öllage trägt: Heißwachs ist die logische Wahl.',
+    faq: [
+      { q: 'Welches Kettenwachs eignet sich für Rennrad, welches für Gravel?', a: 'Für Rennrad im Sommer und überwiegend Asphalt reicht Waxcelerate Classic. Für Ganzjahresbetrieb, häufigen Regen oder Gravelbike auf Schotter ist Waxcelerate Pro mit MoS₂ die stabilere Wahl, weil der Transferfilm Feuchtigkeit und Druck besser widersteht.' },
+      { q: 'Wie oft muss ich beim Rennrad nachwachsen?', a: 'Bei trockenen Asphaltbedingungen alle 400 bis 550 km, bei Regen, Schotter oder gemischten Bedingungen alle 200 bis 300 km. Erkennbar am Klang: Der Antrieb wird trockener und manchmal leicht quietschend.' },
+      { q: 'Ist Heißwachs auch für moderne 12-fach-Ketten geeignet?', a: 'Ja, sogar besonders gut. 12-fach-Ketten sind enger gefertigt und empfindlicher gegenüber Abrasion, und Wachs bindet keinen Schmutz, der die engen Toleranzen angreift. Waxcelerate ist mit allen gängigen 12-fach-Systemen getestet.' },
+      { q: 'Was muss ich beim Umstieg von Öl auf Wachs am Rennrad beachten?', a: 'Alte Kette vollständig entfetten oder ersetzen, Kassette und Kettenblätter von Ölresten befreien, dann 10 bis 15 Minuten im Wachsbad behandeln. Die ersten 20 bis 30 km sind Einfahrphase, danach läuft der Antrieb leise und sauber.' },
+      { q: 'Lohnt sich Heißwachs auf dem Gravelbike bei viel Schotter?', a: 'Ja. Eine geölte Kette macht aus Schotterstaub und Sand eine Schleifpaste, eine gewachste Kette bleibt trocken und wirft die Partikel beim nächsten Pedaltritt wieder ab. Auch nach 60 km Schotter bleibt sie deutlich sauberer als eine geölte.' },
+    ],
     sections: [
       {
         type: 'h2',
@@ -803,6 +845,13 @@ export const articles: Article[] = [
       'Wachs hält nicht → in über 90 % der Fälle nicht gründlich genug entfettet.',
       'Quietschen nach kurzer Zeit → Wachsbad zu kühl oder Kette zu kurz eingetaucht.',
       'Steife Kette und weißes Pulver → völlig normal, das Einfahren löst es.',
+    ],
+    faq: [
+      { q: 'Warum hält mein Kettenwachs nicht und blättert ab?', a: 'In über 90 Prozent der Fälle liegt es am Entfetten. Wachs haftet nicht auf Öl, deshalb bricht es beim ersten Pedalieren wieder ab, wenn noch Fabrik- oder Restöl in den Gelenken sitzt.' },
+      { q: 'Warum quietscht die Kette schon nach 50 km wieder?', a: 'Meist weil das Wachs nie tief eingedrungen ist, entweder war das Bad unter 80 Grad zu kühl oder die Kette zu kurz eingetaucht. 10 bis 15 Minuten bei 85 bis 90 Grad sind das Minimum für vollständige Penetration.' },
+      { q: 'Ist weißes Pulver an der frisch gewachsten Kette ein Problem?', a: 'Nein, das ist überschüssiges Außenwachs, das beim Einfahren und auf den ersten Kilometern abbricht. Das wirksame Wachs sitzt geschützt in den Gelenken und ist davon nicht betroffen. Nach 20 bis 30 km verschwindet das Pulver von selbst.' },
+      { q: 'Warum rostet meine gewachste Kette an den Außenlaschen?', a: 'Weil Wachs, anders als Öl, keinen dauerhaften Feuchtigkeitsfilm außen hinterlässt. Das ist funktional harmlos, solange die Gelenke innen gewachst sind. Nach Nässe die Kette kurz trockenreiben beugt vor.' },
+      { q: 'Warum spritzt das Wachs, wenn ich die Kette eintauche?', a: 'Weil Wasser oder Lösungsmittelreste auf der Kette auf das 85 bis 90 Grad heiße Wachs treffen. Die Kette muss vor dem Bad vollständig trocken sein, nach dem Entfetten mindestens 10 bis 15 Minuten, nach dem Abspülen mit Wasser eher 20 Minuten.' },
     ],
     sections: [
       { type: 'h2', text: '1. Das Wachs blättert ab oder hält nicht, woran liegt das?' },
@@ -905,6 +954,12 @@ export const articles: Article[] = [
       'Sinnvoll als Einstieg ohne eigene Ausrüstung und für alle, die den Aufwand der Erstbehandlung scheuen.',
       'Wer langfristig wachst, braucht trotzdem irgendwann Wachs und einen Topf zum Nachwachsen.',
     ],
+    faq: [
+      { q: 'Was ist eine vorgewachste Kette genau?', a: 'Eine fabrikneue Markenkette, bei der das Werks-Konservierungsöl bereits vollständig entfernt und durch Heißwachs ersetzt wurde. Sie kommt entfettet, im Wachsbad behandelt und einfahrbereit, du montierst sie und fährst los.' },
+      { q: 'Für wen lohnt sich eine vorgewachste Kette?', a: 'Für Einsteiger ohne eigene Ausrüstung, für zeitknappe Vielfahrer, die sich die Erstbehandlung sparen wollen, und für alle, die Heißwachs erst einmal ausprobieren möchten, ohne sich gleich fürs ganze System zu entscheiden.' },
+      { q: 'Muss ich eine vorgewachste Kette trotzdem irgendwann nachwachsen?', a: 'Ja. Auch eine vorgewachste Kette hält nur 400 bis 550 km trocken, danach ist Nachwachsen fällig. Die Vorbehandlung erspart dir den Einstieg, nicht die laufende Pflege.' },
+      { q: 'Worauf sollte ich beim Kauf einer vorgewachsten Kette achten?', a: 'Auf eine Markenkette als Basis wie Shimano, SRAM oder YBN, eine mehrstufige Entfettung statt nur oberflächlicher Reinigung, die passende Geschwindigkeit für deine Schaltgruppe und im besten Fall einen mitgelieferten Schnellverschluss.' },
+    ],
     sections: [
       { type: 'h2', text: 'Was ist eine vorgewachste Kette genau?' },
       { type: 'p', text: 'Eine vorgewachste Kette ist eine fabrikneue Markenkette (Shimano, SRAM, YBN), bei der das Werks-Konservierungsöl bereits vollständig entfernt und durch Heißwachs ersetzt wurde. Der Ablauf entspricht dem, was du sonst selbst machen würdest: mehrstufig entfetten, im 85–90 °C heißen Wachsbad behandeln, abkühlen, einfahren. Das Ergebnis ist eine trockene, saubere Kette, die du direkt montieren kannst.' },
@@ -925,6 +980,10 @@ export const articles: Article[] = [
         'Passende Geschwindigkeit: 11-fach und 12-fach sind nicht austauschbar. Prüfe die Kompatibilität mit deiner Schaltgruppe.',
         'Schnellverschluss dabei: Praktisch, wenn ein passender Quick-Link mitgeliefert wird. Den brauchst du fürs Nachwachsen ohnehin.',
       ] },
+      { type: 'h2', text: 'Wie pflege ich eine vorgewachste Kette danach weiter?' },
+      { type: 'p', text: 'Genau wie jede andere gewachste Kette, die noch nie mit Öl in Kontakt kam: einfach unter heißem Wasser abspülen, trocknen lassen und direkt ins Wachsbad hängen. Das aufwendige Entfetten mit Isopropanol brauchst du dafür nicht, das war nur für die erste Behandlung beim Hersteller nötig.' },
+      { type: 'h2', text: 'Passt eine vorgewachste Kette in meine 3-Ketten-Rotation?' },
+      { type: 'p', text: 'Ja, gut sogar. Wer mehrere vorgewachste Ketten kauft, startet direkt mit einer fertigen Rotation, ohne die Erstbehandlung für jede einzelne Kette selbst zu machen. Ab dem ersten Nachwachsen läufst du dann genauso wie mit selbst gewachsten Ketten.' },
       { type: 'h2', text: 'Fazit' },
       { type: 'p', text: 'Eine vorgewachste Kette ist kein Wundermittel, sondern eine bequeme Abkürzung. Sie nimmt dir die schwierigste Hürde ab und liefert ab Kilometer null die volle Wachsleistung. Für den Einstieg und für zeitknappe Fahrer ist das Geld gut investiert. Wer langfristig dabei bleibt, wechselt früher oder später trotzdem zum Selbermachen, und das ist auch völlig in Ordnung.' },
     ],
@@ -947,6 +1006,12 @@ export const articles: Article[] = [
       'Bei täglichem Streusalz und Dauernässe wäscht sich Wachs schneller aus, dann häufiger nachwachsen oder zu Öl greifen.',
       'Der größte Winter-Vorteil von Wachs: Es bindet keinen Salzschlamm, der sonst als Schleifpaste wirkt.',
     ],
+    faq: [
+      { q: 'Funktioniert Kettenwachs im Winter?', a: 'Bei trockener Kälte und gelegentlichem Regen ja, sogar mit klarem Vorteil: Wachs bindet keinen Schmutz, während eine geölte Kette Salzschlamm regelrecht aufsaugt. Bei täglichem Streusalz und Dauernässe wäscht sich Wachs dagegen schneller aus.' },
+      { q: 'Was macht Streusalz mit einer gewachsten Kette?', a: 'Streusalz fördert Korrosion, und Feuchtigkeit löst das Paraffin schneller aus den Gelenken. Wachs hinterlässt außen keinen dauerhaften Schutzfilm wie Öl, deshalb kann sich nach einer Salzfahrt Flugrost an den Außenlaschen bilden. Innen bleibt die Kette trotzdem geschmiert.' },
+      { q: 'Wie oft muss ich im Winter nachwachsen?', a: 'Bei täglichem Streusalz und Dauernässe verkürzt sich das Intervall auf etwa 100 bis 150 km statt der üblichen 400 bis 550 km im Trockenen. Nach Salzfahrten hilft es zusätzlich, die Kette kurz mit heißem Wasser abzuspülen und trockenzureiben.' },
+      { q: 'Ist Öl im Winter die bessere Wahl?', a: 'Für tägliche Ganzjahres-Pendler durch Salz und Matsch ist ein gutes Nassöl oft die pragmatischere Wahl. Für sportliche Ausfahrten bei trockener Kälte oder wechselhaftem Wetter ohne Dauernässe bleibt Wachs, am besten die MoS₂-Variante, klar im Vorteil.' },
+    ],
     sections: [
       { type: 'h2', text: 'Was im Winter wirklich gegen die Kette arbeitet' },
       { type: 'p', text: 'Drei Faktoren setzen einer Winterkette zu: Feuchtigkeit (löst Schmiermittel aus), Streusalz (fördert Korrosion) und der nasse Schmutzschlamm aus Salz, Splitt und Straßendreck (wirkt wie Schleifpaste). Entscheidend ist, wie ein Schmiermittel mit diesen drei umgeht.' },
@@ -956,6 +1021,10 @@ export const articles: Article[] = [
       { type: 'h2', text: 'Wo Wachs an seine Grenzen kommt' },
       { type: 'p', text: 'Die ehrliche Kehrseite: Paraffin wird durch Wasser ausgewaschen. Wer täglich bei Dauerregen oder durch nasse, gesalzene Straßen pendelt, verkürzt das Wachsintervall drastisch. Statt 400 km sind es dann vielleicht 100–150 km. Und an den blanken Außenlaschen kann sich nach einer Salzfahrt Flugrost bilden, weil Wachs dort keinen dauerhaften Schutzfilm hinterlässt wie kriechendes Öl.' },
       { type: 'note', text: 'Das heißt nicht, dass die Kette kaputtgeht. Solange die Gelenke innen gewachst sind, läuft sie. Aber der Pflegeaufwand steigt im nassen Salzwinter spürbar. Das sollte man wissen, bevor man enttäuscht wird.' },
+      { type: 'h2', text: 'Bei welcher Temperatur funktioniert Kettenwachs noch?' },
+      { type: 'p', text: 'Paraffin bleibt bis weit unter den Gefrierpunkt funktionsfähig, ganz anders als Öl, das bei Kälte eher zäh und harzig wird. Die MoS₂-Variante Pro behält ihre Schmierwirkung sogar bis etwa minus 8 Grad, was sie für Wintertouren zur robusteren Wahl macht.' },
+      { type: 'h2', text: 'Woran erkenne ich im Winter, dass ich zu spät dran bin?' },
+      { type: 'p', text: 'Am gleichen Signal wie im Sommer: Sobald die Kette unter Last trockener klingt oder quietscht, ist Nachwachsen fällig. Im Winter lohnt es sich, danach genauer hinzuhören, weil Streusalz und Dauernässe das Intervall stark verkürzen und ein zu spätes Nachwachsen dann schneller zu Flugrost führt.' },
       { type: 'h2', text: 'Die praktische Empfehlung nach Fahrertyp' },
       { type: 'ul', items: [
         'Trockene Winterregion, sportliche Ausfahrten: Wachs, am besten die MoS₂-Variante. Sauber, leise, schützt vor Kältereibung.',
@@ -990,6 +1059,13 @@ export const articles: Article[] = [
       'Wichtig ist nicht das Gerät, sondern dass es die Temperatur stabil bei 85–90 °C hält.',
       'Reserviere den Topf dauerhaft fürs Wachs. Er wird nicht wieder für Lebensmittel genutzt.',
     ],
+    faq: [
+      { q: 'Welcher Topf eignet sich zum Kettenwachsen?', a: 'Entscheidend ist nicht das Gerät, sondern dass es die Temperatur stabil bei 85 bis 90 Grad hält. Ein einfacher Mini-Slow-Cooker für 25 bis 35 Euro ist für die meisten die beste Lösung.' },
+      { q: 'Brauche ich einen teuren Slow Cooker oder ein Spezialgerät?', a: 'Nein. Ein gebrauchter Mini-Crockpot vom Flohmarkt für ein paar Euro reicht völlig. Teure Chain-Waxing-Systeme für dreistellige Beträge leisten technisch dasselbe wie ein einfacher Slow Cooker.' },
+      { q: 'Welche Temperatur muss der Topf für Kettenwachs halten?', a: '85 bis 90 Grad Celsius. Auf der niedrigsten Stufe pendelt sich ein Mini-Slow-Cooker oft von allein in diesem Bereich ein, kontrollieren lässt sich das beim ersten Mal einfach mit einem Küchenthermometer.' },
+      { q: 'Kann ich einen Reiskocher zum Kettenwachsen benutzen?', a: 'Nur eingeschränkt. Viele Reiskocher kennen nur „Kochen" und „Warmhalten", wobei Warmhalten mit 65 bis 75 Grad oft zu kühl ist und Kochen zu heiß. Nur bei einstellbarer Temperatur oder guter Warmhaltefunktion geeignet.' },
+      { q: 'Kann ich den Topf danach noch für Lebensmittel verwenden?', a: 'Nein. Wachs lässt sich nicht restlos aus dem Topf entfernen, deshalb wird er zum dauerhaften Wachstopf. Am besten von Anfang an ein gebrauchtes, günstiges Gerät dafür reservieren.' },
+    ],
     sections: [
       { type: 'h2', text: 'Worauf es wirklich ankommt' },
       { type: 'p', text: 'Der optimale Temperaturbereich für Heißwachs liegt bei 85–90 °C. Darunter ist das Paraffin zu zäh und dringt nicht in die Gelenke ein, deutlich darüber oxidiert es schneller und kann qualmen. Jedes Gerät, das diesen Bereich stabil und ohne Überhitzung hält, ist geeignet. Alles andere, Marke, Optik, Zusatzfunktionen, ist zweitrangig.' },
@@ -1003,6 +1079,10 @@ export const articles: Article[] = [
       { type: 'h2', text: 'Option 4: Sous-vide-Beutel-Methode' },
       { type: 'p', text: 'Manche Wachsblöcke kommen in einem hitzebeständigen Beutel, den man einfach in einen Topf mit heißem Wasser legt. Praktisch für unterwegs oder als platzsparende Lösung, weil kein eigenes Gerät nötig ist. Für eine regelmäßige Rotation ist ein fester Slow-Cooker-Aufbau aber bequemer.' },
       { type: 'note', text: 'Ganz wichtig: Der Topf wird zum Wachstopf und bleibt es. Wachs lässt sich nicht restlos entfernen, und du willst kein Schmiermittel-Additiv im Essen. Ein gebrauchtes Gerät vom Flohmarkt für ein paar Euro reicht völlig.' },
+      { type: 'h2', text: 'Wie groß muss der Topf für eine 3-Ketten-Rotation sein?' },
+      { type: 'p', text: 'Reicht, um alle drei Ketten gleichzeitig zu bedecken, mehr nicht. Ein 0,5- bis 1,5-Liter-Slow-Cooker fasst in der Regel drei Ketten problemlos, weil sie sich beim Eintauchen ineinanderhängen lassen. Ein größeres Gefäß bedeutet vor allem längere Aufheizzeit, keinen Vorteil beim Wachsen selbst.' },
+      { type: 'h2', text: 'Wie oft muss ich Wachs nachfüllen?' },
+      { type: 'p', text: 'Ein 500-Gramm-Block trägt 15 bis 20 Wachsvorgänge für eine Kette. Wer eine 3-Ketten-Rotation fährt und alle drei gemeinsam wachst, kommt mit dem Topf oft 1.200 bis 1.800 km ohne Nachfüllen aus. Einfach nachlegen, sobald der Pegel im Topf sichtbar sinkt.' },
       { type: 'h2', text: 'Was du nicht brauchst' },
       { type: 'ul', items: [
         'Teure „Chain-Waxing-Systeme" für dreistellige Beträge. Ein Mini-Cooker leistet dasselbe.',
@@ -1029,6 +1109,12 @@ export const articles: Article[] = [
       'Heiß nachwachsen nur noch rund alle 1.000 km nötig. Die Kette muss dafür nicht jedes Mal ab.',
       'Funktioniert nur Wachs auf Wachs: niemals Öl dazwischen, das zerstört die Basis.',
     ],
+    faq: [
+      { q: 'Was ist die Hybrid-Methode beim Kettenwachsen?', a: 'Du baust die Wachsbasis einmal im heißen Bad auf und frischst sie danach etwa alle 200 km mit kompatiblem Tropfwachs auf, ohne die Kette abzunehmen. Heiß nachgewachst wird dann nur noch etwa alle 1.000 km.' },
+      { q: 'Wie oft muss ich bei der Hybrid-Methode heiß nachwachsen?', a: 'Etwa alle 1.000 km, wenn sich über die Zeit Reste und Schmutz aufbauen. Das setzt die Wachsbasis komplett zurück, dazwischen reicht das Auffrischen mit Tropfwachs.' },
+      { q: 'Kann ich Tropfwachs und Kettenöl kombinieren?', a: 'Nein. Wachs verträgt sich nicht mit Öl. Wer zwischendurch zu einem Öl-Schmiermittel greift, zerstört die Wachsbasis und muss die Kette wieder komplett entfetten und neu wachsen.' },
+      { q: 'Für wen lohnt sich die Hybrid-Methode?', a: 'Für Vielfahrer, die den Heißwachs-Aufwand reduzieren wollen, für Fahrer ohne 3-Ketten-Rotation, die ungern ständig die Kette abnehmen, und für Reisende und Bikepacker, für die eine kleine Flasche Tropfwachs praktischer ist als ein Wachstopf.' },
+    ],
     sections: [
       { type: 'h2', text: 'Warum überhaupt kombinieren?' },
       { type: 'p', text: 'Heißwachs liefert die tiefste Penetration und die niedrigste Reibung, weil das flüssige Paraffin bis in jeden Bolzen zieht. Der Nachteil: Kette abnehmen, Bad erhitzen, abkühlen, einfahren. Tropfwachs spart diesen Aufwand, dringt aber weniger tief ein und hält kürzer. Die Hybrid-Methode nutzt die Stärken beider: die tiefe, langlebige Basis vom Heißwachs, die schnelle Auffrischung vom Tropfwachs.' },
@@ -1049,6 +1135,10 @@ export const articles: Article[] = [
         'Fahrer ohne 3-Ketten-Rotation, die ungern ständig die Kette abnehmen.',
         'Reisende und Bikepacker: Eine kleine Flasche Tropfwachs passt ins Gepäck, ein Wachstopf nicht.',
       ] },
+      { type: 'h2', text: 'Woran erkenne ich, dass Auffrischen nicht mehr reicht?' },
+      { type: 'p', text: 'Am selben Signal wie beim reinen Heißwachsen: Sobald die Kette unter Last trockener klingt oder leicht quietscht, obwohl du gerade erst mit Tropfwachs aufgefrischt hast, ist die Wachsbasis aufgebraucht. Dann hilft nur noch ein komplettes Heißwachsbad, kein weiteres Tropfwachs.' },
+      { type: 'h2', text: 'Woran erkenne ich echtes Tropfwachs?' },
+      { type: 'p', text: 'Ein echtes Tropfwachs ist eine Wachs-Emulsion, bei der das Trägermittel verdunstet und reines Wachs zurückbleibt. Manche als „Wax-Lube" verkaufte Produkte sind dagegen im Kern ein Öl mit Wachszusatz. Wer damit auffrischt, mischt Öl in die Wachsbasis und zerstört genau das, was die Hybrid-Methode ausmacht. Im Zweifel die Inhaltsstoffe prüfen oder beim Hersteller nachfragen, ob es sich um eine reine Wachs-Emulsion handelt.' },
       { type: 'note', text: 'Reine Heißwachs-Puristen erreichen minimal bessere Reibungswerte, weil jede Behandlung von Grund auf frisch ist. Der Unterschied ist klein, für die allermeisten überwiegt der Komfortgewinn der Hybrid-Methode deutlich.' },
     ],
     ctaSlug: 'wax-500',
@@ -1070,6 +1160,12 @@ export const articles: Article[] = [
       'Eine stark geölte Altkette lässt sich oft schwer komplett entfetten; manchmal ist eine neue Kette der sauberere Start.',
       'Die ersten 20–30 km sind Einfahrphase. Erst danach läuft der Antrieb auf vollem Wachs-Niveau.',
     ],
+    faq: [
+      { q: 'Wie steige ich von Kettenöl auf Heißwachs um?', a: 'Antrieb komplett von Ölresten befreien, Kette in 2 bis 3 Durchgängen mit Isopropanol 99 Prozent entfetten, dann 10 bis 15 Minuten im 85 bis 90 Grad heißen Wachsbad behandeln und vor der ersten Fahrt einfahren.' },
+      { q: 'Muss ich beim Umstieg auch die Kassette reinigen?', a: 'Ja, das wird oft unterschätzt. Kassette, Kettenblätter und Schaltröllchen sind voller Altöl. Läuft die neue Wachskette darüber, nimmt sie das Öl sofort wieder auf und das Wachs hält nicht mehr.' },
+      { q: 'Sollte ich meine alte Kette behalten oder eine neue kaufen?', a: 'Eine lange geölte Kette hat Öl tief in den Gelenken, das selbst gründliches Entfetten nicht immer restlos löst. Ist die Kette schon älter, ist eine neue oder vorgewachste Kette oft der sauberere Start. Eine junge Kette lohnt sich zu entfetten, am besten im Ultraschallbad.' },
+      { q: 'Wie lange dauert die Einfahrphase nach dem Umstieg?', a: '20 bis 30 km. In dieser Zeit bricht überschüssiges Außenwachs als weißes Pulver ab, das ist normal. Erst danach läuft der Antrieb auf seinem finalen, leisen Niveau und lässt sich fair beurteilen.' },
+    ],
     sections: [
       { type: 'h2', text: 'Schritt 1: Entscheiden. Altkette entfetten oder neu starten?' },
       { type: 'p', text: 'Eine lange mit Öl gefahrene Kette hat Öl tief in den Gelenken, das selbst gründliches Entfetten nicht immer restlos löst. Wenn die Kette ohnehin schon Kilometer auf dem Buckel hat, ist eine neue (oder vorgewachste) Kette oft der saubere Neuanfang. Ist die Kette noch jung, lohnt das Entfetten, am besten im Ultraschallbad.' },
@@ -1088,6 +1184,10 @@ export const articles: Article[] = [
       { type: 'h2', text: 'Schritt 5: Einfahren und die ersten Kilometer' },
       { type: 'p', text: 'Die abgekühlte Kette ist steif, das ist normal. Sie 10–20 Mal durch die Hände laufen lassen, bis jedes Glied geschmeidig abwinkelt. Dann montieren. Die ersten 20–30 km sind die Einfahrphase: Überschüssiges Außenwachs bricht ab (das weiße Pulver ist normal), und der Antrieb findet sein finales, leises Niveau. Erst danach beurteilst du die Wachsleistung fair.' },
       { type: 'tip', text: 'Jetzt ist der ideale Moment, eine 3-Ketten-Rotation aufzubauen: Gleich zwei oder drei Ketten zusammen entfetten und wachsen. Dann wechselst du künftig in 60 Sekunden und wachst alle Ketten gesammelt. Das macht den Wachs-Alltag fast aufwandsfrei.' },
+      { type: 'h2', text: 'Wie oft muss ich nach dem Umstieg auf Wachs nachwachsen?' },
+      { type: 'p', text: 'Bei trockenen Bedingungen alle 400 bis 550 km, bei Nässe, Schotter oder MTB alle 200 bis 300 km. Das ist deutlich seltener als beim Ölen, wo je nach Wetter oft alle 100 bis 200 km nachgeschmiert werden muss.' },
+      { type: 'h2', text: 'Woran erkenne ich, dass der Umstieg gut gelaufen ist?' },
+      { type: 'p', text: 'Nach der Einfahrphase von 20 bis 30 km sollte der Antrieb leise und ohne Quietschen unter Last laufen. Hält das Quietschen darüber hinaus an, sitzen meist noch Ölreste an Kassette oder Kettenblättern, dann hilft nur eine gründlichere Reinigung des ganzen Antriebs.' },
       { type: 'h2', text: 'Was sich nach dem Umstieg ändert' },
       { type: 'ul', items: [
         'Der Antrieb bleibt sauber, keine schwarzen Hosenbeine, keine ölige Kette mehr.',
@@ -1113,6 +1213,12 @@ export const articles: Article[] = [
       'Wachs bindet keinen Schmutz, der sonst unter hoher Last als Schleifpaste wirkt.',
       'Bei hoher Dauerlast und Nässe ist die MoS₂-Variante die sicherere Wahl.',
     ],
+    faq: [
+      { q: 'Warum verschleißen E-Bike-Ketten schneller?', a: 'Ein Mittelmotor addiert sein Drehmoment direkt auf die Kette, bevor die Kraft ans Hinterrad geht. Das führt zu deutlich höherer Flächenpressung in den Kettengelenken, also genau dort, wo Verschleiß entsteht.' },
+      { q: 'Lohnt sich Heißwachs beim E-Bike?', a: 'Ja, gerade hier. Wachs bindet keinen Schmutz, der unter der hohen E-Bike-Last besonders stark als Schleifpaste wirkt, und die geringere Lagerreibung bedeutet weniger Wärme und Verschleiß über die Lebensdauer der teuren Antriebskomponenten.' },
+      { q: 'Sollte ich beim E-Bike Classic oder Pro Wachs nehmen?', a: 'Bei hoher Dauerlast und Nässe ist die MoS₂-Variante Pro die sicherere Wahl, weil der Transferfilm auch dann noch schmiert, wenn der Paraffinfilm unter Druck dünner wird. Für überwiegend trockene, moderate Fahrten reicht Classic.' },
+      { q: 'Muss ich beim E-Bike öfter nachwachsen als bei einem normalen Rad?', a: 'Durch die höhere Last und oft mehr Jahreskilometer eher ja, die Intervalle liegen sinnvollerweise am unteren Ende der üblichen Spanne von 400 bis 550 km trocken beziehungsweise 200 bis 300 km bei Nässe.' },
+    ],
     sections: [
       { type: 'h2', text: 'Warum E-Bike-Ketten schneller verschleißen' },
       { type: 'p', text: 'Ein Mittelmotor addiert sein Drehmoment direkt auf die Kette, bevor die Kraft ans Hinterrad geht. Die Folge: deutlich höhere Flächenpressung in den Kettengelenken, also genau dort, wo Verschleiß entsteht. Eine E-Bike-Kette, die mit demselben Öl wie ein normales Rad gefahren wird, ist oft schon nach der Hälfte der Kilometer am Verschleißlimit.' },
@@ -1127,6 +1233,10 @@ export const articles: Article[] = [
         'MoS₂ bei hoher Dauerlast: Der Festschmierstoff bleibt wirksam, wenn unter Druck der Paraffinfilm dünner wird.',
       ] },
       { type: 'note', text: 'Hinweis: Bei E-Bikes mit Riemenantrieb (Gates Carbon Drive) entfällt das Thema. Riemen werden nicht gewachst und brauchen keine Schmierung. Dieser Artikel betrifft Kettenantriebe.' },
+      { type: 'h2', text: 'Wie oft muss ich die E-Bike-Kette nachwachsen?' },
+      { type: 'p', text: 'Genau wie bei einem unmotorisierten Rad gilt: trocken alle 400 bis 550 km, bei Nässe oder Schotter alle 200 bis 300 km. Wegen der höheren Last durch den Motor und meist mehr Jahreskilometern lohnt es sich, eher am unteren Ende dieser Spannen zu bleiben, statt das Intervall auszureizen.' },
+      { type: 'h2', text: 'Wann muss die E-Bike-Kette gewechselt werden?' },
+      { type: 'p', text: 'Wie bei jeder Kette gilt die 0,5-Prozent-Grenze bei modernen 11- und 12-fach-Antrieben, gemessen mit einer Kettenlehre. Wegen der hohen Last lohnt es sich beim E-Bike, öfter zu messen als beim normalen Rad, damit die teure Kassette nicht mitverschleißt.' },
       { type: 'h2', text: 'Lohnt sich der Aufwand beim E-Bike?' },
       { type: 'p', text: 'Gerade beim E-Bike, ja. Die Antriebskomponenten sind teuer, und eine verschlissene Kette zieht bei zu langem Fahren Kassette und Kettenblatt mit in den Verschleiß. Wachs verlängert die Kettenlaufzeit deutlich und schont damit die ganze, oft hochpreisige Antriebseinheit. Wer viel und unter Last fährt, holt den Aufwand schnell wieder rein.' },
     ],
@@ -1149,6 +1259,12 @@ export const articles: Article[] = [
       'Eine Kettenlehre für wenige Euro misst das zuverlässiger als ein Lineal.',
       'Gewachste Ketten erreichen die Grenze deutlich später, oft beim 2–3-Fachen der Kilometer einer geölten Kette.',
     ],
+    faq: [
+      { q: 'Wie messe ich Kettenverschleiß?', a: 'Am einfachsten mit einer Kettenverschleißlehre für wenige Euro: Fällt der Messzahn bündig in die Lücke, ist die markierte Verschleißgrenze erreicht. Alternativ mit einem Stahllineal über 12 Glieder unter leichter Kettenspannung.' },
+      { q: 'Ab welcher Dehnung muss ich die Kette wechseln?', a: '0,5 Prozent bei 11- und 12-fach-Ketten, 0,75 Prozent bei 9- und 10-fach. Je schmaler die Kette, desto früher muss sie raus, sonst nimmt sie beim Warten die Kassette mit in den Verschleiß.' },
+      { q: 'Wie funktioniert eine Kettenlehre genau?', a: 'Du legst die Lehre auf die gespannte Kette. Fällt der Messzahn nicht in die Lücke, liegt die Kette unter der Grenze. Fällt er bündig hinein, ist die markierte Grenze, meist 0,5 oder 0,75 Prozent, erreicht. Markenlehren messen dabei genauer als sehr günstige.' },
+      { q: 'Warum halten gewachste Ketten länger, bevor sie die Verschleißgrenze erreichen?', a: 'Weil Wachs keinen Schmutz bindet, der sonst in die Gelenke wandert und dort wie Schleifpapier wirkt. Realistisch sind 6.000 bis 12.000 km bis zur 0,5-Prozent-Grenze, gegenüber 2.000 bis 3.000 km bei Öl.' },
+    ],
     sections: [
       { type: 'h2', text: 'Was „Kettenverschleiß" eigentlich ist' },
       { type: 'p', text: 'Ketten „längen" sich nicht durch gedehntes Metall, sondern durch Materialabtrag an Bolzen und Hülsen. Mit jedem Kilometer wird in den Gelenken minimal Material abgerieben, der Abstand zwischen den Gliedern wächst. Diese Längung lässt die Kette nicht mehr sauber in Kassette und Kettenblatt greifen, und beginnt, deren Zähne abzunutzen.' },
@@ -1162,6 +1278,10 @@ export const articles: Article[] = [
       { type: 'tip', text: 'Immer unter leichter Spannung messen, also auf dem größten Kettenblatt, am besten mit etwas Zug am Schaltwerk. Eine schlaffe Kette verfälscht das Ergebnis.' },
       { type: 'h2', text: 'Warum gewachste Ketten länger halten' },
       { type: 'p', text: 'Da Verschleiß vor allem durch abrasive Partikel im Schmiermittel entsteht, hält eine gewachste Kette deutlich länger: Wachs bindet keinen Schmutz, der in die Gelenke wandert. Zero Friction Cycling misst im Laborprotokoll 15.000 bis 20.000 km bis zur 0,5-%-Grenze, bei gestreckten Nachwachs-Intervallen 8.000 bis 10.000 km. Realistisch sind 6.000 bis 12.000 km gegenüber 2.000 bis 3.000 km bei Öl. Das ist der Hauptgrund, warum sich Wachs über die Antriebskosten rechnet.' },
+      { type: 'h2', text: 'Ab wie vielen Kilometern sollte ich anfangen zu messen?' },
+      { type: 'p', text: 'Bei gewachsten Ketten reicht es, ab etwa 4.000 bis 5.000 km regelmäßig zu prüfen, weil der Verschleiß so viel langsamer voranschreitet. Bei geölten Ketten sollte die Kontrolle schon ab etwa 2.000 km beginnen.' },
+      { type: 'h2', text: 'Muss ich bei starkem Verschleiß auch die Kassette prüfen?' },
+      { type: 'p', text: 'Ja, ab etwa 1,0 Prozent Dehnung sollte die Kassette mitgeprüft werden. Eine Kette, die die Wechselgrenze deutlich überschritten hat, hat die Kassettenzähne meist schon angegriffen. Eine neue Kette springt dann trotzdem, weil sie nicht mehr sauber in die verschlissenen Zähne greift.' },
       { type: 'note', text: 'Tipp zur Rotation: Wer mehrere Ketten im Wechsel fährt, verteilt den Verschleiß. Wichtig ist, alle Ketten der Rotation regelmäßig zu messen und gemeinsam zu tauschen, bevor eine die Grenze überschreitet. So bleibt die Kassette über die volle Lebensdauer geschont.' },
     ],
     ctaSlug: 'wax-500',
@@ -1183,6 +1303,12 @@ export const articles: Article[] = [
       'Erst nach der Einfahrphase läuft der Antrieb auf seinem finalen, leisen Niveau.',
       'Anhaltendes Quietschen unter Last deutet dagegen auf einen echten Fehler beim Entfetten oder Wachsen hin.',
     ],
+    faq: [
+      { q: 'Ist es normal, dass die Kette nach dem Wachsen steif ist?', a: 'Ja. Frisch gewachst sind die Gelenke vom erstarrten Paraffin leicht verklebt. Die Steifigkeit löst sich nach den ersten Kilometern von selbst, schneller geht es, wenn du die Kette vorher 10 bis 20 Mal durch die Hände laufen lässt.' },
+      { q: 'Warum rieselt weißes Pulver von der frisch gewachsten Kette?', a: 'Das ist überschüssiges Außenwachs, das beim Fahren aufbricht und abfällt. Es bedeutet keinen Verlust an Schmierung, das wirksame Wachs sitzt geschützt in den Gelenken. Nach 20 bis 30 km ist der Überschuss weg.' },
+      { q: 'Wie lange dauert die Einfahrphase nach dem Wachsen?', a: 'Etwa 20 bis 30 km. In dieser Zeit setzt sich das Wachs, und bei der MoS₂-Variante bildet sich der Transferfilm auf den Kontaktflächen. Erst danach läuft der Antrieb auf seinem finalen Niveau.' },
+      { q: 'Wann sollte ich mir nach dem Wachsen Sorgen machen?', a: 'Wenn die Kette nach der Einfahrphase weiter quietscht, besonders unter Last, oder wenn dicke Wachsklumpen das Schalten stören. Beides deutet auf zu kurzes Eintauchen, ein zu kühles Bad oder unzureichendes Entfetten hin und braucht ein erneutes, gründliches Wachsen.' },
+    ],
     sections: [
       { type: 'h2', text: 'Normal: Die Kette ist anfangs steif' },
       { type: 'p', text: 'Frisch gewachst sind die Gelenke vom erstarrten Paraffin leicht verklebt. Wenn du das Einfahren übersprungen hast, merkst du das als hakelige Schaltung auf den ersten Metern. Lösung: vor der Montage die Kette 10–20 Mal durch die Hände laufen lassen. Aber auch ohne löst sich die Steifigkeit nach den ersten Kilometern von selbst.' },
@@ -1195,6 +1321,10 @@ export const articles: Article[] = [
       { type: 'p', text: 'Wenn die Kette nach der Einfahrphase weiter quietscht, besonders beim kräftigen Treten, stimmt etwas nicht. Die häufigste Ursache: Das Wachs ist nie tief eingedrungen. Entweder war das Bad zu kühl oder die Kette zu kurz drin. Zweithäufigste Ursache: unzureichend entfettet, das Wachs sitzt nur außen auf. In beiden Fällen hilft nur erneutes (gründliches) Entfetten und Wachsen.' },
       { type: 'h2', text: 'Nicht normal: Wachsklumpen, die das Schalten stören' },
       { type: 'p', text: 'Dicke Wachsbrocken zwischen den Gliedern, die die Schaltung blockieren, deuten auf zu dick aufgetragenes Wachs oder fehlendes Einfahren hin. Kette abnehmen, kurz durch die Hände arbeiten, gröbere Klumpen vorsichtig entfernen. Wenn das Bad zu kühl war, beim nächsten Mal heißer (85–90 °C) arbeiten, dann läuft das Wachs dünner ab.' },
+      { type: 'h2', text: 'Wie fahre ich die frisch gewachste Kette am besten ein?' },
+      { type: 'p', text: 'Am effektivsten von Hand, noch vor der Montage: Kette 10 bis 20 Mal durch die Hände laufen lassen oder über einen Stab knicken, bis jedes Glied sauber abwinkelt. Danach die erste Ausfahrt bewusst als kurze Einfahrrunde planen, nicht als Wertungsfahrt, und erst nach etwa 30 km ein Urteil über die Wachsleistung fällen.' },
+      { type: 'h2', text: 'Sollte ich die Kette nach der ersten Fahrt reinigen?' },
+      { type: 'p', text: 'Ein trockenes Abwischen reicht. Das lose, weiße Pulver, das sich in der Einfahrphase löst, lässt sich einfach mit einem Tuch entfernen. Eine feuchte Reinigung oder gar erneutes Entfetten ist nicht nötig, das würde der frischen Wachsschicht in den Gelenken eher schaden als nutzen.' },
       { type: 'note', text: 'Kurz gesagt: Steifigkeit, weißes Pulver und ein kurzes Einpendeln gehören dazu. Anhaltendes Quietschen oder störende Klumpen sind Hinweise auf einen Schritt, der nachgebessert werden muss, meist das Entfetten oder die Badtemperatur.' },
     ],
     ctaSlug: 'wax-300',
@@ -1216,6 +1346,12 @@ export const articles: Article[] = [
       'Wiederverwendbarkeit ist herstellerabhängig: KMC nennt mehrfach, SRAM offiziell einmalig. In der Wachs-Praxis hält ein guter Link aber viele Zyklen.',
       'Für eine Kettenrotation ist ein wiederverwendbarer Link praktisch unverzichtbar.',
     ],
+    faq: [
+      { q: 'Welcher Schnellverschluss passt zu meiner Kette?', a: 'Der Quick-Link muss zur Geschwindigkeit der Kette passen, ein 12-fach-Link ist schmaler als ein 11-fach-Link und nicht austauschbar. Die passende Breite steht auf der Verpackung, im Zweifel beim Kettenhersteller bleiben.' },
+      { q: 'Wie oft darf man einen Quick-Link wiederverwenden?', a: 'Herstellerabhängig: SRAM gibt seine Power Locks offiziell als einmalig an, KMC erlaubt mehrfaches Öffnen explizit. In der Wachs-Praxis hält ein hochwertiger, wiederverwendbarer Link viele Zyklen, solange er noch satt und ohne Spiel einrastet.' },
+      { q: 'Wie öffne ich einen Quick-Link ohne Spezialwerkzeug?', a: 'Den Link auf die obere, spannungsfreie Kettenstrecke bringen, beide Glieder mit den Daumen zueinander drücken und gleichzeitig auseinanderschieben. Eine Quick-Link-Zange erleichtert das, ist aber kein Muss.' },
+      { q: 'Brauche ich einen Schnellverschluss zum Kettenwachsen?', a: 'Praktisch unverzichtbar, vor allem bei einer 2- oder 3-Ketten-Rotation. Mit Quick-Link öffnest du die Kette in Sekunden, ohne müsstest du jedes Mal nieten, was die Rotation deutlich aufwendiger macht.' },
+    ],
     sections: [
       { type: 'h2', text: 'Was ist ein Schnellverschluss überhaupt?' },
       { type: 'p', text: 'Ein Schnellverschluss, je nach Hersteller Quick-Link, Missing Link oder Power Link genannt, ersetzt einen Kettenniet durch ein zweiteiliges Glied, das sich von Hand öffnen und schließen lässt. Statt die Kette mit dem Nietdrücker zu öffnen, klickst du den Link auf. Für gewachste Ketten, die regelmäßig ins Bad müssen, ist das der entscheidende Komfortgewinn.' },
@@ -1231,6 +1367,10 @@ export const articles: Article[] = [
       { type: 'h2', text: 'Wie oft darf man einen Quick-Link wiederverwenden?' },
       { type: 'p', text: 'Hier gehen Herstellerangabe und Praxis auseinander. SRAM gibt seine Power Locks offiziell als einmalig an, KMC erlaubt das mehrfache Öffnen explizit. In der Wachs-Praxis hält ein hochwertiger, wiederverwendbarer Link viele Zyklen. Das eigentliche Verschleißteil ist nicht der Link, sondern ob er noch satt und ohne Spiel einrastet.' },
       { type: 'note', text: 'Sicherheit geht vor: Wenn ein Link sich zu leicht öffnen lässt, sichtbares Spiel hat oder beim Schließen nicht hörbar/spürbar einrastet, gehört er ersetzt. Ein paar Euro für einen neuen Link sind günstiger als eine reißende Kette unter Last. Ein gewachster Link bleibt übrigens sauber. Das erleichtert die Sichtprüfung.' },
+      { type: 'h2', text: 'Muss ich den Quick-Link beim Wachsen mit ins Wachsbad hängen?' },
+      { type: 'p', text: 'Nein, besser nicht. Beim Wachsen lässt du den Quick-Link ausgespart und tauchst nur die geschlossene Kette ohne den Verschluss ein. Er würde sonst unnötig mit Wachs überzogen und ist danach schwerer zu öffnen und zu schließen. Nach dem Abkühlen lassen sich die Kettenglieder ohnehin über eine Flasche oder Sattelstütze freibrechen, an dieser Stelle bleibt der Link am besten wachsfrei.' },
+      { type: 'h2', text: 'Welcher Quick-Link gilt in der Wachs-Praxis als robustester?' },
+      { type: 'p', text: 'Connex-Links gelten unter Wachsern als Standard, weil sie als unbegrenzt wiederverwendbar angesehen werden. Shimano- und SRAM-Links halten in der Praxis oft 3 bis 5 Wiederverwendungen, auch wenn SRAM seine Power Locks offiziell nur für eine einzige Nutzung freigibt.' },
       { type: 'h2', text: 'Öffnen und schließen ohne Spezialwerkzeug' },
       { type: 'ol', items: [
         'Öffnen: Den Link an die obere, gerade Kettenstrecke bringen (zwischen Kettenblatt und Schaltwerk, ohne Spannung). Die beiden Glieder mit den Daumen zueinander drücken und gleichzeitig auseinanderschieben, er klickt auf. Eine Quick-Link-Zange macht es noch leichter, ist aber kein Muss.',
@@ -1256,6 +1396,12 @@ export const articles: Article[] = [
       'Ein Wachsbad muss man selten ganz austauschen, meist reicht regelmäßiges Filtern.',
       'Altwachs gehört erstarrt in den Restmüll, niemals flüssig in den Abfluss.',
       'Paraffin ist gut filterbar und bindet keinen Schmutz. Ökologisch oft günstiger als der Reinigungs- und Abwasseraufwand bei Öl.',
+    ],
+    faq: [
+      { q: 'Wie entsorge ich altes Kettenwachs richtig?', a: 'Erstarren lassen und in den Restmüll geben, niemals flüssig in den Abfluss, das Wachs erstarrt im Rohr und verstopft die Leitung. Filterreste wie ein Kaffeefilter mit Schmutz und Wachs gehören ebenfalls in den Restmüll.' },
+      { q: 'Wie lange hält ein Wachsbad, bevor es ausgetauscht werden muss?', a: 'Sehr lange, oft eine ganze Saison und länger. Anders als Öl bleibt Paraffin im Topf grundsätzlich erhalten, solange du regelmäßig filterst und bei sinkendem Pegel neues Wachs nachfüllst.' },
+      { q: 'Wie filtere ich schmutziges Wachs?', a: 'Wachs vollständig schmelzen, durch einen Kaffeefilter oder ein feines Metallsieb in ein zweites hitzebeständiges Gefäß gießen. Der Schmutz bleibt im Filter zurück, das gefilterte Wachs kommt zurück in den gereinigten Topf.' },
+      { q: 'Ist Paraffinwachs umweltfreundlich?', a: 'Paraffin ist ein Nebenprodukt der Erdölverarbeitung, also nicht bio, aber chemisch inert und gut handhabbar. Der ökologische Vorteil liegt im System: keine aggressiven Kettenreiniger, kein Entfetter, kaum Schmiermittel, das in die Umwelt gelangt, weil es an der Kette bleibt statt abzutropfen.' },
     ],
     sections: [
       { type: 'h2', text: 'Wie lange hält ein Wachsbad?' },
@@ -1381,4 +1527,23 @@ export const author = {
 export const blogHero = {
   src: '/images/hero-chain-texture.jpg',
   alt: 'Fahrradketten in Makroaufnahme',
+};
+
+/**
+ * Bildpaar für die Feature-Kachel oben auf dem Blog-Index (großes Hauptbild +
+ * kleineres überlappendes Kontrastbild). Beide Fotos stammen aus Lucas
+ * Alltag, keine Stockfotografie — das ist die These des gesamten Blogs in
+ * einem Blick.
+ */
+export const blogFeature = {
+  main: {
+    src: '/images/blog/chain-waxed-macro-1600.webp',
+    alt: 'Frisch gewachste Fahrradkette in Nahaufnahme auf dunklem Schiefer',
+    caption: 'Gewachst · 400 km',
+  },
+  inset: {
+    src: '/images/blog/oil-tattoo-leg-800.webp',
+    alt: 'Schwarze Ölspuren an Wade und weißer Socke nach einer Fahrt mit geölter Kette',
+    caption: 'Geölt · 80 km',
+  },
 };

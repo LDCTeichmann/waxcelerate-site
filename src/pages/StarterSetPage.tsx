@@ -121,6 +121,7 @@ export function StarterSetPage() {
             {[
               {
                 key: 'wire',
+                slug: 'aufhaengedraht',
                 nameDe: 'Aufhängedraht, 3 Stück', nameEn: 'Hanging wire, 3 pieces',
                 price: accPriceOf('acc-wire'),
                 bodyDe: 'Steif genug, dass die Kette im Bad nicht kippt.',
@@ -129,6 +130,7 @@ export function StarterSetPage() {
               },
               {
                 key: 'pliers',
+                slug: 'quick-link-zange',
                 nameDe: 'Quick-Link-Zange', nameEn: 'Quick-link pliers',
                 price: accPriceOf('acc-pliers'),
                 bodyDe: 'Öffnet und schließt den Verschluss.',
@@ -136,10 +138,11 @@ export function StarterSetPage() {
                 shipping: false,
               },
             ].map(a => (
-              <div key={a.key} className="flex items-baseline justify-between gap-5 py-4"
+              <Link key={a.key} to={`/zubehoer/${a.slug}`}
+                className="flex items-baseline justify-between gap-5 py-4 transition-opacity hover:opacity-80"
                 style={{ borderBottom: '1px solid var(--bd2)' }}>
                 <div className="min-w-0">
-                  <p className="text-[15px] text-wx-tx1">{de ? a.nameDe : a.nameEn}</p>
+                  <p className="text-[15px] text-wx-tx1 underline decoration-transparent hover:decoration-inherit">{de ? a.nameDe : a.nameEn}</p>
                   <p className="text-[13px] mt-1" style={{ color: 'var(--txm)' }}>
                     {de ? a.bodyDe : a.bodyEn}
                     {a.shipping && (
@@ -152,7 +155,7 @@ export function StarterSetPage() {
                 <p className="font-display font-bold text-wx-tx1 flex-shrink-0" style={{ fontSize: '1.3rem' }}>
                   {eur(a.price, de)}
                 </p>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
