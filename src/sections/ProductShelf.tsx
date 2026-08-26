@@ -514,7 +514,7 @@ export function ProductShelf({ de, t, onOpenChains, onCompare }: {
         <SecondaryTile
           index={3}
           to="/kette-wachsen-lassen"
-          image="/images/blog/chains-hanging-gold" imageW={1600}
+          image="/images/blog/chains-hanging-gold-1600" imageW={1600}
           eyebrow={s.rewaxEyebrow} title={s.rewaxTitle}
           body={s.rewaxBody}
           cta={s.rewaxCta}

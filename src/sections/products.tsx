@@ -268,7 +268,7 @@ export function Products() {
               <div className="max-w-sm mt-10">
                 <SecondaryTile
                   to="/kette-wachsen-lassen"
-                  image="/images/blog/chains-hanging-gold" imageW={1600}
+                  image="/images/blog/chains-hanging-gold-1600" imageW={1600}
                   eyebrow={t.products.shelf.rewaxEyebrow} title={t.products.shelf.rewaxTitle}
                   body={t.products.shelf.rewaxBody}
                   cta={t.products.shelf.rewaxCta}
