@@ -5,6 +5,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
 import { useSectionReveal } from '@/hooks/useAnimation';
 import { waxIntervals, products } from '@/lib/data';
+import { type Weather, type Terrain, loadRidingProfile, saveRidingProfile } from '@/lib/ridingProfile';
 import { gsap } from '@/lib/gsap';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { AnimatedNumber } from '@/components/viz';
@@ -221,14 +222,21 @@ const MAX_REWAX_WEEKS = 26;
 // across tabs (Tab 2 had its own implied km/week, Tab 3 hardcoded a fixed
 // 300km interval) — this hook is the single place that now owns them, passed
 // down as one `profile` prop instead of three independent useState calls.
-type Weather = 'trocken' | 'gemischt' | 'nass';
-type Terrain = 'strasse' | 'gravel' | 'mtb';
-
 function useToolsProfile() {
-  const [weather, setWeather] = useState<Weather>('trocken');
-  const [terrain, setTerrain] = useState<Terrain>('strasse');
-  const [kmPerWeek, setKmPerWeek] = useState(100);
+  // Seeded from localStorage (if a returning visitor already used this
+  // calculator before) so the product detail page can read the same values
+  // read-only and show a personalized estimate — see src/lib/ridingProfile.ts.
+  // lastWaxedDate is deliberately NOT persisted: it already has its own
+  // one-way URL-seeding (?w=YYYYMMDD, below) for a specific QR-link flow, and
+  // persisting it would mean a stale date silently reappearing weeks later.
+  const [weather, setWeather] = useState<Weather>(() => loadRidingProfile()?.weather ?? 'trocken');
+  const [terrain, setTerrain] = useState<Terrain>(() => loadRidingProfile()?.terrain ?? 'strasse');
+  const [kmPerWeek, setKmPerWeek] = useState(() => loadRidingProfile()?.kmPerWeek ?? 100);
   const [lastWaxedDate, setLastWaxedDate] = useState<Date | null>(() => waxedStampFromLocation());
+
+  useEffect(() => {
+    saveRidingProfile({ weather, terrain, kmPerWeek });
+  }, [weather, terrain, kmPerWeek]);
 
   const interval = waxIntervals[weather][terrain];
   const rawWeeks = kmPerWeek > 0 ? Math.round(interval / kmPerWeek) : MAX_REWAX_WEEKS;

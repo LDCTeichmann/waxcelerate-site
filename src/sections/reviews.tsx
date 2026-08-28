@@ -12,13 +12,14 @@ import { trustStats } from '@/lib/data';
 // comment admitted the text was only "sinngemäß" (paraphrased); those are
 // deliberately not here. If more reviews are added, they come from actual
 // eBay feedback, not from filling the row out.
-type Review = {
+export type Review = {
   textDe: string; textEn: string;
   name: string;
   dateDe: string; dateEn: string;
   rating?: number;                 // default 5
   source?: 'ebay' | 'web';         // verified badge label
   productDe?: string; productEn?: string;
+  productIds?: string[];           // real product/bundle ids this review is genuinely about
   photo?: string;                  // real customer photo, shown as a small thumbnail
   photoPos?: string;               // object-position, tuned per photo
 };
@@ -33,7 +34,9 @@ const REVIEWS: Review[] = [
     textDe: 'Erst eine Ausfahrt, aber die Kette war leise UND kein Ketten-Tattoo an Wade oder weißen Socken. Perfekt. Hätte ich einen YouTube-Kanal für 65+ Fahrer, würde ich allen das Wachsen empfehlen.',
     textEn: 'Only one ride but the chain was quiet AND no chain tattoo on my calf or white socks. Perfect. If I had a YouTube channel for 65+ riders, I’d tell them all to wax.',
     name: 'Michael W.', dateDe: 'Okt 2025', dateEn: 'Oct 2025', source: 'web',
-    productDe: 'Original Starter-Kit', productEn: 'Original Starter Kit', photo: '/images/reviews/ride-2.jpg', photoPos: '50% 62%',
+    productDe: 'Original Starter-Kit', productEn: 'Original Starter Kit',
+    productIds: ['starter-classic', 'starter-pro'],
+    photo: '/images/reviews/ride-2.jpg', photoPos: '50% 62%',
   },
   {
     textDe: 'Wachse meine Ketten seit Jahren selbst und hatte vorher Silca und CycloWax in der Schublade. Im Alltag merke ich ehrlich keinen Unterschied bei Laufruhe oder Standzeit — nur beim Preis. Bin komplett umgestiegen und empfehle es im Verein regelmäßig weiter. Bestes Preis-Leistungs-Verhältnis, das ich kenne.',
@@ -44,13 +47,16 @@ const REVIEWS: Review[] = [
     textDe: 'Jetzt drei Wochen als „Cyclowaxee". Toller Service! Das Starter-Kit enthält mehr als erwartet und macht den Umstieg auf Heißwachs sehr einfach — gerade fürs Reinigen des Antriebs.',
     textEn: 'Now three weeks in as a “Cyclowaxee”. Great service! The starter kit contains more than expected and makes converting to hot wax very easy — especially for cleaning the drivetrain.',
     name: 'Philippe V.', dateDe: 'Okt 2025', dateEn: 'Oct 2025', source: 'web',
-    productDe: 'Original Starter-Kit', productEn: 'Original Starter Kit', photo: '/images/reviews/ride-3.jpg',
+    productDe: 'Original Starter-Kit', productEn: 'Original Starter Kit',
+    productIds: ['starter-classic', 'starter-pro'],
+    photo: '/images/reviews/ride-3.jpg',
   },
   {
     textDe: 'Als kompletter Neuling bei der Fahrradpflege hat mir das Starter-Kit den Einstieg super leicht gemacht. Ich konnte den Antrieb wunderbar und schnell reinigen.',
     textEn: 'As a total newbie to maintaining my bike, the starter kit made it so easy to dive in. I was able to clean the drivetrain beautifully and quickly.',
     name: 'Maximilian M.', dateDe: 'Dez 2025', dateEn: 'Dec 2025', source: 'web',
     productDe: 'Original Starter-Kit', productEn: 'Original Starter Kit',
+    productIds: ['starter-classic', 'starter-pro'],
   },
   {
     textDe: 'Schnelle Lieferung, einwandfrei gewachste Kette die sehr gut läuft, gerne wieder.',
@@ -68,6 +74,22 @@ const REVIEWS: Review[] = [
     name: 'maienbuehl', dateDe: 'Feb 2026', dateEn: 'Feb 2026', source: 'ebay',
   },
 ];
+
+// Picks 1-2 real reviews for a product detail page. Only the Starter-Kit
+// reviews are genuinely tied to a specific product (both bundles, since the
+// reviewer's exact wax/chain combo isn't identifiable from the text) — for
+// every other product there's no reliable per-SKU tagging in this data, so
+// the fallback is a small, hand-picked, honestly-generic set (order above is
+// deliberate: tom_rennrad + m.gerber are the two most substantive untagged
+// reviews). Never claim a fallback quote is "about" the exact product it's
+// shown on — see the neutral heading used wherever this is called.
+const GENERIC_FALLBACK_COUNT = 2;
+const genericReviews = REVIEWS.filter(r => !r.productIds);
+
+export function reviewsForProduct(productId: string): Review[] {
+  const tagged = REVIEWS.filter(r => r.productIds?.includes(productId));
+  return tagged.length > 0 ? tagged : genericReviews.slice(0, GENERIC_FALLBACK_COUNT);
+}
 
 // Textspaltenbreite folgt der Zitatlaenge. Ein Einzeiler in einer 460er Karte
 // ist ueberwiegend Leerflaeche, ein langes Zitat in einer 300er Karte eine

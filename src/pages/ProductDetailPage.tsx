@@ -3,10 +3,11 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
   ArrowLeft, ArrowRight, ExternalLink, Check,
-  ChevronRight, ChevronLeft, ChevronDown, Star, Lightbulb, Truck, RotateCcw,
+  ChevronRight, ChevronLeft, ChevronDown, Star, Lightbulb, Truck, RotateCcw, BadgeCheck,
 } from 'lucide-react';
-import { getProductById, products, canCheckout, checkoutEnabled, isSoldOut, schemaAvailability } from '@/lib/data';
+import { getProductById, products, canCheckout, checkoutEnabled, isSoldOut, schemaAvailability, waxIntervals } from '@/lib/data';
 import type { Product } from '@/lib/data';
+import { loadRidingProfile, weeksRemainingForProduct } from '@/lib/ridingProfile';
 import { richContent } from '@/lib/productContent';
 import { useLanguage } from '@/hooks/useLanguage';
 import { AddToCartButton } from '@/components/AddToCartButton';
@@ -16,6 +17,8 @@ import { ImageLightbox } from '@/components/ImageLightbox';
 import { gsap } from '@/lib/gsap';
 import { Footer } from '@/sections/footer';
 import { getEstimatedDelivery, removeStaticJsonLd } from '@/lib/utils';
+import { reviewsForProduct, type Review } from '@/sections/reviews';
+import { Stars } from '@/components/Stars';
 
 const AUTO_INTERVAL = 5000;
 const FADE_MS = 900;
@@ -63,6 +66,35 @@ const srcSetFor = (src: string) => {
   return `${src} ${w.base}w, ${lg(src)} ${w.lg}w`;
 };
 
+/** One optional video gallery slide (dip-wax process clip). No product sets
+    this yet — this component only ever runs once one does. Play/pause is
+    imperative (not the `autoPlay` attribute) because every slide stays
+    mounted for the crossfade, so a slide becoming active later needs an
+    explicit .play() rather than relying on a mount-time-only attribute.
+    A dedicated component (not an inline branch in the .map() below) is what
+    lets this hook live outside the .map() callback itself, per this repo's
+    own "no hooks in .map()" rule. */
+function VideoGallerySlide({ src, poster, active, inView, reduce, style }: {
+  src: string; poster: string; active: boolean; inView: boolean; reduce: boolean; style: React.CSSProperties;
+}) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v || reduce) return;
+    if (active && inView) v.play().catch(() => {}); else v.pause();
+  }, [active, inView, reduce]);
+
+  if (reduce) {
+    return <img src={poster} alt="" aria-hidden={!active} draggable={false}
+      className="absolute inset-0 h-full w-full object-cover" style={style} />;
+  }
+  return (
+    <video ref={videoRef} src={src} poster={poster} muted playsInline loop aria-hidden={!active}
+      className="absolute inset-0 h-full w-full object-cover" style={style} />
+  );
+}
+
 export function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { lang } = useLanguage();
@@ -88,6 +120,20 @@ export function ProductDetailPage() {
   const gallery = product ? [product.image, ...(product.images ?? [])] : [];
   const total = gallery.length;
 
+  // `slides` extends `gallery` with an optional trailing video slide, used
+  // only by the two hero crossfade stages and their nav (dots/arrows/swipe/
+  // autoplay) below — thumbnail strips deliberately keep using `gallery`/
+  // `total` directly and stay image-only (a video thumbnail would need its
+  // own poster-crop treatment, not built here). No product sets `videoSlide`
+  // today, so `slides`/`slideCount` are identical to `gallery`/`total` for
+  // every real product right now — this is inert until one does.
+  type Slide = { type: 'image'; src: string } | { type: 'video'; src: string; poster: string };
+  const slides: Slide[] = [
+    ...gallery.map((src): Slide => ({ type: 'image', src })),
+    ...(product?.videoSlide ? [{ type: 'video', ...product.videoSlide } as Slide] : []),
+  ];
+  const slideCount = slides.length;
+
   const goTo = useCallback((i: number) => {
     if (i === activeImage) return;
     setPrevImage(activeImage);
@@ -105,23 +151,23 @@ export function ProductDetailPage() {
   }, [id]);
 
   const next = useCallback(() => {
-    if (total <= 1) return;
-    goTo((activeImage + 1) % total);
-  }, [activeImage, total, goTo]);
+    if (slideCount <= 1) return;
+    goTo((activeImage + 1) % slideCount);
+  }, [activeImage, slideCount, goTo]);
 
   const prev = useCallback(() => {
-    if (total <= 1) return;
-    goTo((activeImage - 1 + total) % total);
-  }, [activeImage, total, goTo]);
+    if (slideCount <= 1) return;
+    goTo((activeImage - 1 + slideCount) % slideCount);
+  }, [activeImage, slideCount, goTo]);
 
   useEffect(() => {
-    if (reduce || total <= 1) return;
+    if (reduce || slideCount <= 1) return;
     if (autoRef.current) clearInterval(autoRef.current);
     autoRef.current = setInterval(() => {
       if (!pausedRef.current) next();
     }, AUTO_INTERVAL);
     return () => { if (autoRef.current) clearInterval(autoRef.current); };
-  }, [next, reduce, total]);
+  }, [next, reduce, slideCount]);
 
   const pause = useCallback(() => { pausedRef.current = true; }, []);
   const resume = useCallback(() => {
@@ -140,11 +186,11 @@ export function ProductDetailPage() {
   const SWIPE_THRESHOLD = 40;
 
   const onGalleryPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
-    if (total <= 1) return;
+    if (slideCount <= 1) return;
     dragStartXRef.current = e.clientX;
     pause();
     e.currentTarget.setPointerCapture(e.pointerId);
-  }, [total, pause]);
+  }, [slideCount, pause]);
 
   const onGalleryPointerUp = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     const startX = dragStartXRef.current;
@@ -216,6 +262,16 @@ export function ProductDetailPage() {
   const isClassic = product.variant === 'classic';
   const isWax = product.category === 'wax';
   const isChain = product.category === 'chain';
+  const productReviews = reviewsForProduct(product.id);
+  // Only ever reads a profile — never writes one, so this can't desync
+  // whatever the calculator (tools.tsx) itself relies on. Never shown for
+  // chains, and never fabricated for a first-time visitor: if nothing was
+  // ever persisted, ridingProfile is null and the line below simply doesn't
+  // render, exactly like every other optional block on this page.
+  const ridingProfile = isWax ? loadRidingProfile() : null;
+  const personalizedWeeks = ridingProfile
+    ? weeksRemainingForProduct(product.applications, waxIntervals, ridingProfile)
+    : null;
   const accentColor = isPro ? '#4A72D4' : 'var(--accent-soft)';
   const accentBg = isPro ? 'rgba(74,114,212,0.06)' : 'rgba(43,82,176,0.06)';
   const cardAccent = isPro ? '#4A72D4' : '#2B52B0';
@@ -406,8 +462,18 @@ export function ProductDetailPage() {
           <div ref={heroRef} className="relative h-[54vh] min-h-[300px] overflow-hidden"
             style={{ touchAction: 'pan-y' }}
             onPointerDown={onGalleryPointerDown} onPointerUp={onGalleryPointerUp}>
-            {gallery.map((src, i) => (
-              <img key={i} src={lg(src)} srcSet={srcSetFor(src)} sizes={srcSetFor(src) ? '100vw' : undefined}
+            {slides.map((slide, i) => (
+              slide.type === 'video' ? (
+                <VideoGallerySlide key={i} src={slide.src} poster={slide.poster}
+                  active={i === activeImage} inView={!navSolid} reduce={reduce}
+                  style={{
+                    objectPosition: product.imagePosition ?? 'center',
+                    opacity: i === activeImage ? 1 : 0,
+                    transition: reduce ? 'none' : `opacity ${FADE_MS}ms ease`,
+                    zIndex: i === activeImage ? 2 : (i === prevImage ? 1 : 0),
+                  } as React.CSSProperties} />
+              ) : (
+              <img key={i} src={lg(slide.src)} srcSet={srcSetFor(slide.src)} sizes={srcSetFor(slide.src) ? '100vw' : undefined}
                 alt={i === activeImage ? titleText : ''} aria-hidden={i !== activeImage}
                 loading={i === activeImage ? 'eager' : 'lazy'}
                 fetchPriority={i === activeImage ? 'high' : undefined}
@@ -424,12 +490,13 @@ export function ProductDetailPage() {
                   // srcSet muss mit geleert werden: ist es gesetzt, waehlt der Browser
                   // beim naechsten Ladeversuch wieder daraus, egal was src sagt.
                   const t = e.target as HTMLImageElement;
-                  if (!t.src.includes('wax-block-spin')) { t.removeAttribute('srcset'); t.src = src; }
+                  if (!t.src.includes('wax-block-spin')) { t.removeAttribute('srcset'); t.src = slide.src; }
                 }}
               />
+              )
             ))}
             <div className="absolute inset-0 z-[3] pointer-events-none" style={{ background: 'linear-gradient(to top, rgba(var(--scrim-rgb),0.2) 0%, transparent 35%)' }} />
-            {total > 1 && (
+            {slideCount > 1 && (
               <>
                 <button onClick={() => { prev(); pause(); setTimeout(resume, AUTO_INTERVAL); }}
                   aria-label={de ? 'Vorheriges Bild' : 'Previous image'}
@@ -445,9 +512,9 @@ export function ProductDetailPage() {
                 </button>
               </>
             )}
-            {total > 1 && (
+            {slideCount > 1 && (
               <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex gap-1.5">
-                {gallery.map((_, i) => (
+                {slides.map((_, i) => (
                   <button key={i} onClick={() => { goTo(i); pause(); setTimeout(resume, AUTO_INTERVAL); }}
                     className="relative h-[2.5px] rounded-full transition-all duration-500 after:content-[''] after:absolute after:top-1/2 after:left-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:w-11 after:h-11"
                     style={{ width: i === activeImage ? 22 : 7, background: i === activeImage ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.3)' }}
@@ -542,6 +609,12 @@ export function ProductDetailPage() {
               {de ? `Lieferung ${deliveryDate}` : `Delivery ${deliveryDate}`}
             </div>
 
+            {personalizedWeeks !== null && (
+              <p className="text-meta font-semibold mb-2" style={{ color: accentColor }}>
+                {de ? `Basierend auf deinem Fahrprofil: reicht dir noch ~${personalizedWeeks} Wochen` : `Based on your riding profile: lasts you ~${personalizedWeeks} more weeks`}
+              </p>
+            )}
+
             {/* Risikoabbau am Kaufpunkt (docs/AUDIT.md §11): das Widerrufsrecht
                 stand bisher nur im Warenkorb, also im abgeschalteten Checkout —
                 an der Stelle, an der jemand tatsaechlich zoegert, stand nichts.
@@ -584,8 +657,18 @@ export function ProductDetailPage() {
         <section ref={heroRef} className="relative h-screen min-h-[680px] overflow-hidden hidden lg:block"
           style={{ touchAction: 'pan-y' }}
           onPointerDown={onGalleryPointerDown} onPointerUp={onGalleryPointerUp}>
-          {gallery.map((src, i) => (
-            <img key={i} src={lg(src)} srcSet={srcSetFor(src)} sizes={srcSetFor(src) ? '100vw' : undefined}
+          {slides.map((slide, i) => (
+            slide.type === 'video' ? (
+              <VideoGallerySlide key={i} src={slide.src} poster={slide.poster}
+                active={i === activeImage} inView={!navSolid} reduce={reduce}
+                style={{
+                  objectPosition: product.imagePosition ?? 'center',
+                  opacity: i === activeImage ? 1 : 0,
+                  transition: reduce ? 'none' : `opacity ${FADE_MS}ms cubic-bezier(0.4,0,0.2,1)`,
+                  zIndex: i === activeImage ? 2 : (i === prevImage ? 1 : 0),
+                } as React.CSSProperties} />
+            ) : (
+            <img key={i} src={lg(slide.src)} srcSet={srcSetFor(slide.src)} sizes={srcSetFor(slide.src) ? '100vw' : undefined}
               alt={i === activeImage ? titleText : ''} aria-hidden={i !== activeImage}
               loading={i === activeImage ? 'eager' : 'lazy'}
               fetchPriority={i === activeImage ? 'high' : undefined}
@@ -602,9 +685,10 @@ export function ProductDetailPage() {
                 // srcSet muss mit geleert werden: ist es gesetzt, waehlt der Browser
                 // beim naechsten Ladeversuch wieder daraus, egal was src sagt.
                 const t = e.target as HTMLImageElement;
-                if (!t.src.includes('wax-block-spin')) { t.removeAttribute('srcset'); t.src = src; }
+                if (!t.src.includes('wax-block-spin')) { t.removeAttribute('srcset'); t.src = slide.src; }
               }}
             />
+            )
           ))}
 
           <div className="absolute inset-0 z-[3] pointer-events-none"
@@ -740,6 +824,11 @@ export function ProductDetailPage() {
                   {rc?.savings && (
                     <p className="text-meta font-semibold mt-1" style={{ color: cardAccent }}>
                       {de ? `Spart ${rc.savings} vs. Kettenöl` : `Saves ${rc.savings} vs. chain oil`}
+                    </p>
+                  )}
+                  {personalizedWeeks !== null && (
+                    <p className="text-meta font-semibold mt-1" style={{ color: cardAccent }}>
+                      {de ? `Basierend auf deinem Fahrprofil: reicht dir noch ~${personalizedWeeks} Wochen` : `Based on your riding profile: lasts you ~${personalizedWeeks} more weeks`}
                     </p>
                   )}
                 </div>
@@ -1114,6 +1203,30 @@ export function ProductDetailPage() {
           </section>
         )}
 
+        {/* ── Reviews ── deliberately its own section, not nested inside the
+            `{rc && ...}` Trust block above: bundle products (starter-classic,
+            starter-pro) have no richContent entry at all, so `rc` is always
+            undefined for them — exactly the one case where reviewsForProduct()
+            returns a genuinely-matched result (the Starter-Kit reviews), so
+            this must render independently of whether `rc` exists. */}
+        {productReviews.length > 0 && (
+          <section style={{ background: 'var(--sf2)', borderTop: rc ? 'none' : '1px solid var(--bd)' }}>
+            {/* Less top padding when the Trust section (same background)
+                already ran directly above — otherwise the two same-colored
+                sections stack into one oversized gap before "Was Fahrer
+                sagen" even starts. Full padding when this is the first thing
+                here (bundle pages, which have no richContent/Trust section). */}
+            <div className={`max-w-6xl mx-auto px-5 sm:px-8 pb-14 sm:pb-20 ${rc ? 'pt-0' : 'pt-14 sm:pt-20'}`}>
+              <p className="text-small font-semibold uppercase tracking-[0.14em] mb-4" style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
+                {de ? 'Was Fahrer sagen' : 'What riders say'}
+              </p>
+              <div className="grid sm:grid-cols-2 gap-6">
+                {productReviews.map((review, i) => <ReviewSnippet key={i} review={review} de={de} />)}
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* ── CTA ── */}
         <section style={{ background: 'var(--pg)' }}>
           <div className="max-w-5xl mx-auto px-5 sm:px-8 py-12 sm:py-16 text-center">
@@ -1339,6 +1452,46 @@ function AltMiniCard({ product: p, de, formatPrice }: { product: Product; de: bo
 
   if (p.category === 'wax' || isSoldOut(p)) return <Link to={`/produkt/${p.id}`} className="block flex-shrink-0">{inner}</Link>;
   return <a href={p.ebayUrl} target="_blank" rel="noopener noreferrer" onClick={() => trackEbayClick(p.id)} className="block flex-shrink-0">{inner}</a>;
+}
+
+/* ── Review snippet — real quotes from reviews.tsx's curated REVIEWS list,
+    picked via reviewsForProduct(). Deliberately simpler than reviews.tsx's
+    own ReviewCard (no fixed pixel width, no marquee sizing) since this runs
+    full-width in a static grid, not a scrolling row. */
+function ReviewSnippet({ review, de }: { review: Review; de: boolean }) {
+  const text = de ? review.textDe : review.textEn;
+  const date = de ? review.dateDe : review.dateEn;
+  const product = de ? review.productDe : review.productEn;
+  const verified = review.source === 'web'
+    ? (de ? 'Verifizierter Käufer' : 'Verified buyer')
+    : (de ? 'eBay verifiziert' : 'eBay verified');
+  const [photoOk, setPhotoOk] = useState(true);
+  const showPhoto = Boolean(review.photo) && photoOk;
+
+  return (
+    <figure className="rounded-2xl p-5" style={{ background: 'var(--pg)', border: '1px solid var(--bd)' }}>
+      <div className="flex items-center justify-between gap-3 mb-2">
+        <Stars rating={review.rating ?? 5} />
+        <span className="text-meta" style={{ color: 'var(--txf)' }}>{date}</span>
+      </div>
+      <blockquote className="text-[13px] leading-[1.6] mb-3" style={{ color: 'var(--tx2)' }}>
+        „{text}“
+      </blockquote>
+      <figcaption className="flex items-center gap-2 flex-wrap">
+        {showPhoto && (
+          <img src={review.photo} alt="" loading="lazy" decoding="async" onError={() => setPhotoOk(false)}
+            className="w-6 h-6 rounded-full object-cover flex-shrink-0" style={{ objectPosition: review.photoPos ?? '50% 50%' }} />
+        )}
+        <span className="text-[12.5px] font-semibold" style={{ color: 'var(--tx1)' }}>{review.name}</span>
+        <span className="inline-flex items-center gap-1 text-meta font-medium" style={{ color: 'var(--accent-soft)' }}>
+          <BadgeCheck className="h-3.5 w-3.5" /> {verified}
+        </span>
+        {product && (
+          <span className="text-meta font-medium" style={{ color: 'var(--txf)' }}>· {product}</span>
+        )}
+      </figcaption>
+    </figure>
+  );
 }
 
 /* ── Accordion ── */

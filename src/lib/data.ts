@@ -82,6 +82,14 @@ export interface Product {
   imagePosition?: string;
   // Gallery — additional images shown in thumbnail strip on the detail page
   images?: string[];
+  // Optional extra gallery slide (product detail page only) showing the
+  // actual dip-wax process as a short muted/looping clip. Deliberately a
+  // separate field from `images` rather than folding it in there — `images`
+  // is consumed as plain image URLs by 9+ components and by the build-time
+  // schema.org/sitemap/Merchant-feed scripts, none of which know what to do
+  // with a video URL. No product sets this yet; it's schema-only until a
+  // real clip exists.
+  videoSlide?: { src: string; poster: string };
 }
 
 export const products: Product[] = [
