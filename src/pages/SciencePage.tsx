@@ -16,6 +16,7 @@ import { FormulaGraph } from '@/sections/science/FormulaGraph';
 import { ContactZones, LineChoice } from '@/sections/science/ContactZones';
 import { ComponentDiagram } from '@/sections/science/diagrams';
 import { HexMoS2, TransferFilm } from '@/sections/science/LabViz';
+import { ReadMoreLink } from '@/sections/science/ReadMoreLink';
 
 const W = 'max-w-4xl mx-auto px-4 sm:px-6 lg:px-8';
 
@@ -286,6 +287,12 @@ function CompCard({ c, n, de, cardRef }: { c: ScienceComponent; n: number; de: b
           <ComponentDiagram which={c.diagram} de={de} />
           <Insight>{de ? c.insightDe : c.insightEn}</Insight>
         </Disclosure>
+
+        {c.id === 'mos2' && de && (
+          <ReadMoreLink to="/blog/mos2-kettenwachs">
+            Mehr im Ratgeber: MoS₂ im Kettenwachs
+          </ReadMoreLink>
+        )}
       </div>
     </div>
   );
@@ -390,6 +397,11 @@ function TempWindow({ de }: { de: boolean }) {
           ? 'Pro deckt den gesamten Fahrradbereich ab — von Winterfahrten bei −8 °C bis Sommerhitze über 40 °C. Classic funktioniert zuverlässig von Frühling bis Herbst, stößt aber bei Frost und extremer Hitze an Grenzen.'
           : 'Pro covers the full cycling range — from winter rides at −8 °C to summer heat above 40 °C. Classic works reliably from spring to autumn but hits limits in frost and extreme heat.'}
       </p>
+      {de && (
+        <ReadMoreLink to="/blog/kettenwachs-winter">
+          Kettenwachs im Winter, im Ratgeber
+        </ReadMoreLink>
+      )}
     </InstrumentFrame>
   );
 }
@@ -666,6 +678,11 @@ function FormulaStory({ de }: { de: boolean }) {
                         <Insight>{de ? c.insightDe : c.insightEn}</Insight>
                       </div>
                     </Disclosure>
+                    {c.id === 'mos2' && de && (
+                      <ReadMoreLink to="/blog/mos2-kettenwachs">
+                        Mehr im Ratgeber: MoS₂ im Kettenwachs
+                      </ReadMoreLink>
+                    )}
                   </div>
                 </div>
               ))}
@@ -899,7 +916,7 @@ export function SciencePage() {
             <div className="max-w-[320px] mx-auto w-full sm:max-w-none">
               <HexMoS2 de={de} />
             </div>
-            <div id="matrix-window" className="h-full">
+            <div id="matrix-window" className="h-full scroll-mt-24">
               <TempWindow de={de} />
             </div>
           </div>
@@ -966,6 +983,12 @@ export function SciencePage() {
           <TransferFilm de={de} />
         </div>
 
+        {de && (
+          <ReadMoreLink to="/blog/kettenlaufzeit-heisswachs">
+            Vollständige Intervall- und Kostenrechnung im Ratgeber
+          </ReadMoreLink>
+        )}
+
         {/* Everything above proves zone 01 is the hardest place in the chain.
             This is the one block where that becomes a product decision, so it
             sits directly on top of the button and nowhere else. */}
@@ -988,11 +1011,24 @@ export function SciencePage() {
             {de ? 'Formel wählen' : 'Choose your formula'}
             <ArrowLeft className="h-4 w-4 rotate-180" />
           </Link>
+          {de && (
+            <p className="text-meta mt-5">
+              <Link to="/blog/von-oel-auf-wachs-umsteigen" className="underline underline-offset-2"
+                style={{ color: 'var(--accent-soft)' }}>
+                Oder zuerst: Anleitung zum Umstieg von Öl auf Wachs
+              </Link>
+            </p>
+          )}
         </div>
       </section>
       </main>
 
       <footer className={`${W} py-12 text-center`} style={{ borderTop: '1px solid var(--bd2)' }}>
+        <p className="text-meta mb-6" style={{ color: 'var(--txff)' }}>
+          {de
+            ? 'Quelle: Friction Facts / Zero Friction Cycling, „Friction-Producing Mechanisms of a Bicycle Chain“.'
+            : 'Source: Friction Facts / Zero Friction Cycling, "Friction-Producing Mechanisms of a Bicycle Chain."'}
+        </p>
         <Link to="/" className="inline-flex items-center gap-2 text-[13px] text-wx-txm transition-opacity hover:opacity-70">
           <ArrowLeft className="h-4 w-4" />
           {de ? 'Zurück zur Startseite' : 'Back to home'}
