@@ -303,7 +303,14 @@ function renderStatic(p) {
   const head = [
     metaTags({ title: p.title, description: p.description, canonical, image: p.image }),
     imagePreload(preloadSrc, mimeOf(preloadSrc)),
-    ld({
+    // ldClientManaged (not ld): /wissenschaft supplies its own, more specific
+    // TechArticle schema client-side (SciencePage.tsx) once React mounts, and
+    // calls removeStaticJsonLd() to retire this one — same pattern as the
+    // product/blog prerenders, so the live DOM never carries two schemas for
+    // one URL. /kette-wachsen-lassen and /starter-set have no client-side
+    // schema of their own, so ldClientManaged() has nothing to remove for
+    // them either way — harmless, keeps this loop uniform.
+    ldClientManaged({
       '@context': 'https://schema.org',
       '@type': 'WebPage',
       name: p.title,

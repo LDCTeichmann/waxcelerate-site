@@ -153,7 +153,12 @@ export function FormulaGraph({ de, onSelect, scrollFocus, compact, mobile }: { d
               const built = builtEdges.has(i);
               const act = activeEdges.has(i);
               const op = !built ? 0 : focusNode == null ? (e.main ? 0.5 : 0.34) : act ? 1 : 0.1;
-              const w = e.main ? (act ? 3 : 2.4) : (act ? 2.4 : 1.7);
+              // DESIGN.md §2's dw-hair/line/bold scale is theme-aware (noir
+              // strokes run thinner so they don't optically bloom on black);
+              // act (the one highlighted edge) is the figure's "signal" tier,
+              // everything else is plain geometry — matches ChainWaxMap.tsx's
+              // token usage instead of the theme-fixed pixel values this used.
+              const w = act ? 'var(--dw-bold)' : 'var(--dw-line)';
               return (
                 <g key={i}>
                   <path d={d} fill="none"
@@ -163,7 +168,7 @@ export function FormulaGraph({ de, onSelect, scrollFocus, compact, mobile }: { d
                   {/* directional flow comet on the highlighted edge(s) */}
                   {act && !reduced && (
                     <path d={d} fill="none" pathLength={100} className="graph-flow"
-                      stroke="var(--accent)" strokeWidth={e.main ? 3 : 2.4}
+                      stroke="var(--accent)" strokeWidth="var(--dw-bold)"
                       strokeDasharray="14 86" strokeLinecap="round" style={{ opacity: 0.9 }} />
                   )}
                 </g>
