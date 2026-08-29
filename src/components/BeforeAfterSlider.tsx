@@ -133,12 +133,12 @@ export function BeforeAfterSlider({ beforeSrc, afterSrc, beforeAlt, afterAlt, be
         if (e.key === 'ArrowRight') setPct(p => Math.min(100, p + 5));
       }}
     >
-      <img src={afterSrc} alt={afterAlt} className="absolute inset-0 w-full h-full object-contain pointer-events-none" draggable={false} />
+      <img src={afterSrc} alt={afterAlt} loading="lazy" className="absolute inset-0 w-full h-full object-contain pointer-events-none" draggable={false} />
       <div
         className="absolute inset-0 overflow-hidden pointer-events-none"
         style={{ clipPath: `inset(0 ${100 - pct}% 0 0)`, transition: sweeping ? 'clip-path 1.8s ease-in-out' : 'none' }}
       >
-        <img src={beforeSrc} alt={beforeAlt} className="absolute inset-0 w-full h-full object-contain" draggable={false} />
+        <img src={beforeSrc} alt={beforeAlt} loading="lazy" className="absolute inset-0 w-full h-full object-contain" draggable={false} />
       </div>
 
       {/* Hand cursor — rides along with the handle only during the automatic

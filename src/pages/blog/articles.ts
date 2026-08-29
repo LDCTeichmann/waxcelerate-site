@@ -41,6 +41,8 @@ export interface Article {
   takeaways?: string[];
   /** Frage-Antwort-Paare für FAQPage-Schema. */
   faq?: { q: string; a: string }[];
+  /** Cross-Link auf die passende Sektion der Wissenschaftsseite, sofern der Artikel eine Entsprechung dort hat. */
+  scienceLink?: { anchor?: string; label: string };
   howTo?: {
     name: string;
     totalTime: string;
@@ -323,6 +325,7 @@ export const articles: Article[] = [
     titleShort: 'Kettenwachs: Intervalle, Laufzeit & Kostenrechnung',
     description: 'Wie lange hält Kettenwachs wirklich? Intervalle, Kettenlaufzeit und eine ehrliche Kostenrechnung von Heißwachs vs. Öl über 15.000 km.',
     category: 'Grundlagen',
+    scienceLink: { anchor: 'reibung', label: 'Reibung, Kettenlaufzeit und Kosten im Messvergleich' },
     featured: true,
     stats: [
       { value: '400–550 km', label: 'Intervall' },
@@ -626,6 +629,7 @@ export const articles: Article[] = [
     titleShort: 'MoS₂ Kettenwachs erklärt',
     description: 'Was ist Molybdändisulfid (MoS₂) und warum ist es im Kettenwachs sinnvoll? Physik, Einsatzgebiete und wann Classic ausreicht.',
     category: 'Technik',
+    scienceLink: { anchor: 'formel', label: 'Die Physik hinter MoS₂, mit Formel-Grafik und Mikroskopaufnahmen' },
     publishDate: '2026-06-01',
     dateModified: '2026-07-27',
     readingTime: '6 min',
@@ -996,6 +1000,7 @@ export const articles: Article[] = [
     titleShort: 'Kettenwachs im Winter: die ehrliche Wahrheit',
     description: 'Funktioniert Heißwachs im Winter? Was Streusalz und Dauernässe mit der Wachsschicht machen, wann Wachs überzeugt, und wann Öl die bessere Wahl ist.',
     category: 'Saison',
+    scienceLink: { anchor: 'matrix-window', label: 'Das Temperaturfenster von Classic und Pro im Vergleich' },
     publishDate: '2026-06-16',
     dateModified: '2026-07-27',
     readingTime: '6 min',
@@ -1150,6 +1155,7 @@ export const articles: Article[] = [
     titleShort: 'Von Öl auf Wachs umsteigen',
     description: 'Du willst von Kettenöl auf Heißwachs umsteigen? Schritt für Schritt: Antrieb reinigen, Kette entfetten, erstes Wachsbad und die Einfahrphase richtig machen.',
     category: 'Anleitung',
+    scienceLink: { label: 'Die Physik hinter dem Umstieg, gemessen statt behauptet' },
     publishDate: '2026-06-16',
     dateModified: '2026-07-27',
     readingTime: '6 min',
@@ -1204,6 +1210,7 @@ export const articles: Article[] = [
     titleShort: 'E-Bike-Kette wachsen',
     description: 'E-Bike-Ketten verschleißen durch das hohe Drehmoment schneller. Warum Heißwachs den Antrieb besonders schont, was zu beachten ist und welches Wachs passt.',
     category: 'Kaufberatung',
+    scienceLink: { anchor: 'linie', label: 'Warum MoS₂ Pro Edition gerade bei E-Bikes vorne liegt' },
     publishDate: '2026-06-16',
     dateModified: '2026-07-27',
     readingTime: '5 min',

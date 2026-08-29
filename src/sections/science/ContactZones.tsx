@@ -16,6 +16,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { InstrumentFrame } from '@/components/viz';
 import { ChainWaxMap } from '@/sections/science/ChainWaxMap';
+import { ReadMoreLink } from '@/sections/science/ReadMoreLink';
 
 const ARTICULATION_POINTS = 8; // chainring, cog, both pulleys — in and out
 
@@ -255,7 +256,7 @@ export function LineChoice({ de }: { de: boolean }) {
   ];
 
   return (
-    <div className="mb-14">
+    <div id="linie" className="mb-14 scroll-mt-24">
       <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
         {de ? 'Zone 01 entscheidet die Linie' : 'Zone 01 decides the line'}
       </p>
@@ -292,6 +293,12 @@ export function LineChoice({ de }: { de: boolean }) {
           {de ? 'Zu den Produkten' : 'See the products'}
         </Link>
       </p>
+
+      {de && (
+        <ReadMoreLink to="/blog/ebike-kette-wachsen">
+          Mehr zum E-Bike-Fall im Ratgeber
+        </ReadMoreLink>
+      )}
     </div>
   );
 }

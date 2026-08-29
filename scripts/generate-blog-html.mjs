@@ -156,6 +156,7 @@ function renderArticle(a) {
   ${a.keyStat ? `<p><strong>${esc(a.keyStat.value)}</strong> ${esc(a.keyStat.label)}</p>` : ''}
   <p>${esc(a.intro)}</p>
   ${a.takeaways ? `<section><h2>Das Wichtigste in Kürze</h2><ul>${a.takeaways.map(t => `<li>${esc(t)}</li>`).join('')}</ul></section>` : ''}
+  ${a.scienceLink ? `<p><a href="/wissenschaft${a.scienceLink.anchor ? `#${a.scienceLink.anchor}` : ''}">${esc(a.scienceLink.label)}</a></p>` : ''}
   ${a.sections.map(renderSection).join('\n  ')}
   ${a.faq ? `<section><h2>Häufige Fragen</h2>${a.faq.map(f => `<h3>${esc(f.q)}</h3><p>${esc(f.a)}</p>`).join('')}</section>` : ''}
   <p><a href="/produkt/${a.ctaSlug}">${esc(a.ctaText)}</a></p>
@@ -302,7 +303,14 @@ function renderStatic(p) {
   const head = [
     metaTags({ title: p.title, description: p.description, canonical, image: p.image }),
     imagePreload(preloadSrc, mimeOf(preloadSrc)),
-    ld({
+    // ldClientManaged (not ld): /wissenschaft supplies its own, more specific
+    // TechArticle schema client-side (SciencePage.tsx) once React mounts, and
+    // calls removeStaticJsonLd() to retire this one — same pattern as the
+    // product/blog prerenders, so the live DOM never carries two schemas for
+    // one URL. /kette-wachsen-lassen and /starter-set have no client-side
+    // schema of their own, so ldClientManaged() has nothing to remove for
+    // them either way — harmless, keeps this loop uniform.
+    ldClientManaged({
       '@context': 'https://schema.org',
       '@type': 'WebPage',
       name: p.title,

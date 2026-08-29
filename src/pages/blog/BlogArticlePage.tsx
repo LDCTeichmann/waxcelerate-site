@@ -327,6 +327,24 @@ export function BlogArticlePage() {
             </div>
           )}
 
+          {/* Wissenschaftsseite: nur bei Artikeln mit echter fachlicher
+              Entsprechung dort (siehe scienceLink auf dem jeweiligen Artikel),
+              kein pauschaler Link auf jedem Artikel. */}
+          {article.scienceLink && (
+            <div className="flex items-baseline gap-3 mb-10 pb-5" style={{ borderBottom: '1px solid var(--bd)' }}>
+              <span className="font-mono text-small uppercase tracking-[0.18em] shrink-0" style={{ color: 'var(--accent)' }}>
+                Wissenschaft
+              </span>
+              <Link
+                to={`/wissenschaft${article.scienceLink.anchor ? `#${article.scienceLink.anchor}` : ''}`}
+                className="text-[14px] leading-[1.5] hover:underline"
+                style={{ color: 'var(--tx2)' }}
+              >
+                {article.scienceLink.label} →
+              </Link>
+            </div>
+          )}
+
           {/* Sections */}
           {article.sections.map((section, idx) => renderSection(section, idx))}
 

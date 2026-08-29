@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { Link, useLocation } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, ChevronDown, Gauge, Clock, Droplets, Sparkles } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
+import { removeStaticJsonLd } from '@/lib/utils';
 import { Navigation } from '@/sections/navigation';
 import { Footer } from '@/sections/footer';
 import { ScrollTrigger } from '@/lib/gsap';
@@ -16,6 +17,7 @@ import { FormulaGraph } from '@/sections/science/FormulaGraph';
 import { ContactZones, LineChoice } from '@/sections/science/ContactZones';
 import { ComponentDiagram } from '@/sections/science/diagrams';
 import { HexMoS2, TransferFilm } from '@/sections/science/LabViz';
+import { ReadMoreLink } from '@/sections/science/ReadMoreLink';
 
 const W = 'max-w-4xl mx-auto px-4 sm:px-6 lg:px-8';
 
@@ -77,7 +79,7 @@ function WearDiagramFigure({ de }: { de: boolean }) {
                 style={{ background: '#f4f4f4', border: '1px solid var(--bd2)' }}>
                 <picture>
                   <source srcSet={`/images/science/${src}.webp`} type="image/webp" />
-                  <img src={`/images/science/${src}.jpg`} alt="" className="w-full h-auto block" />
+                  <img src={`/images/science/${src}.jpg`} alt={de ? labelDe : labelEn} className="w-full h-auto block" />
                 </picture>
               </div>
             </div>
@@ -89,9 +91,12 @@ function WearDiagramFigure({ de }: { de: boolean }) {
 }
 
 // ─── Opening hero — the page's actual "hero" moment: headline stats + a large
-// cassette rendering, dark stage (matches the homepage hero's card treatment)
-// so it reads as an entrance, not another instrument panel. All numbers come
-// from the same `waxVsOil` source as the homepage's why-wax section — no
+// cassette rendering. Deliberately sober, not a dark photo stage — the page's
+// whole pitch is "gemessen, nicht behauptet," so a loud hero would undercut
+// its own argument. The one accent is a soft radial glow behind the cassette
+// image (same technique as FormulaStory's glow further down), just enough to
+// read as an entrance rather than another plain instrument panel. All numbers
+// come from the same `waxVsOil` source as the homepage's why-wax section — no
 // invented stats. ProblemHero below carries on with the sober toggle deep-dive.
 function ScienceHero({ de }: { de: boolean }) {
   const w = waxVsOil.watts, l = waxVsOil.life;
@@ -130,7 +135,18 @@ function ScienceHero({ de }: { de: boolean }) {
   ];
 
   return (
-    <section className="relative pt-28 sm:pt-36 pb-16 sm:pb-20" style={{ background: 'var(--pg)' }}>
+    <section className="relative overflow-hidden pt-28 sm:pt-36 pb-16 sm:pb-20" style={{ background: 'var(--pg)' }}>
+      {/* Soft entrance glow behind the cassette image, right side of the
+          section on desktop where the photo actually sits — same radial-wash
+          + blur technique as FormulaStory's glow (below), just wider and
+          fainter since this sits behind a photo, not a line diagram.
+          overflow-hidden on the section contains the blur so it can't bleed
+          across the hairline border into ACT I below it. */}
+      <div className="absolute inset-0 pointer-events-none" aria-hidden
+        style={{
+          background: 'radial-gradient(ellipse 55% 60% at 78% 45%, var(--accent-wash-sm) 0%, transparent 70%)',
+          filter: 'blur(32px)',
+        }} />
       {/* Wider than the page's usual max-w-4xl reading column — this is the
           page's actual hero image, it needs room to be the dominant element
           next to the text, not squeezed into what's left of a narrow column. */}
@@ -140,10 +156,10 @@ function ScienceHero({ de }: { de: boolean }) {
           <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
             {de ? 'Öl vs. Wachs' : 'Oil vs. Wax'}
           </p>
-          <h2 className="font-display font-bold leading-[1.05] mb-4"
+          <h1 className="font-display font-bold leading-[1.05] mb-4"
             style={{ color: 'var(--tx1)', fontSize: 'clamp(2rem, 4.2vw, 3rem)', letterSpacing: '-0.02em' }}>
             {de ? 'Ein messbarer Unterschied.' : 'One measurable difference.'}
-          </h2>
+          </h1>
           <p className="mb-6" style={{ color: 'var(--txm)', fontSize: 15, maxWidth: '38ch' }}>
             {de
               ? 'Derselbe Antrieb, zwei Schmierstoffe — Seite an Seite gemessen.'
@@ -286,6 +302,12 @@ function CompCard({ c, n, de, cardRef }: { c: ScienceComponent; n: number; de: b
           <ComponentDiagram which={c.diagram} de={de} />
           <Insight>{de ? c.insightDe : c.insightEn}</Insight>
         </Disclosure>
+
+        {c.id === 'mos2' && de && (
+          <ReadMoreLink to="/blog/mos2-kettenwachs">
+            Mehr im Ratgeber: MoS₂ im Kettenwachs
+          </ReadMoreLink>
+        )}
       </div>
     </div>
   );
@@ -390,6 +412,11 @@ function TempWindow({ de }: { de: boolean }) {
           ? 'Pro deckt den gesamten Fahrradbereich ab — von Winterfahrten bei −8 °C bis Sommerhitze über 40 °C. Classic funktioniert zuverlässig von Frühling bis Herbst, stößt aber bei Frost und extremer Hitze an Grenzen.'
           : 'Pro covers the full cycling range — from winter rides at −8 °C to summer heat above 40 °C. Classic works reliably from spring to autumn but hits limits in frost and extreme heat.'}
       </p>
+      {de && (
+        <ReadMoreLink to="/blog/kettenwachs-winter">
+          Kettenwachs im Winter, im Ratgeber
+        </ReadMoreLink>
+      )}
     </InstrumentFrame>
   );
 }
@@ -666,6 +693,11 @@ function FormulaStory({ de }: { de: boolean }) {
                         <Insight>{de ? c.insightDe : c.insightEn}</Insight>
                       </div>
                     </Disclosure>
+                    {c.id === 'mos2' && de && (
+                      <ReadMoreLink to="/blog/mos2-kettenwachs">
+                        Mehr im Ratgeber: MoS₂ im Kettenwachs
+                      </ReadMoreLink>
+                    )}
                   </div>
                 </div>
               ))}
@@ -704,7 +736,7 @@ function FormulaStory({ de }: { de: boolean }) {
               onClick={() => activeIdx > 0 && scrollToComponent(COMPONENTS[activeIdx - 1].id)}
               disabled={activeIdx === 0}
               aria-label={de ? 'Vorherige Komponente' : 'Previous component'}
-              className="flex items-center justify-center w-8 h-8 rounded-full transition-opacity disabled:pointer-events-none"
+              className="flex items-center justify-center w-8 h-8 rounded-full transition-opacity disabled:pointer-events-none active:scale-[0.97]"
               style={{
                 color: 'var(--accent)', background: 'var(--accent-wash)',
                 border: '1px solid rgba(var(--accent-rgb),0.22)',
@@ -738,7 +770,7 @@ function FormulaStory({ de }: { de: boolean }) {
               onClick={() => activeIdx < COMPONENTS.length - 1 && scrollToComponent(COMPONENTS[activeIdx + 1].id)}
               disabled={activeIdx === COMPONENTS.length - 1}
               aria-label={de ? 'Nächste Komponente' : 'Next component'}
-              className="flex items-center justify-center w-8 h-8 rounded-full transition-opacity disabled:pointer-events-none"
+              className="flex items-center justify-center w-8 h-8 rounded-full transition-opacity disabled:pointer-events-none active:scale-[0.97]"
               style={{
                 color: 'var(--accent)', background: 'var(--accent-wash)',
                 border: '1px solid rgba(var(--accent-rgb),0.22)',
@@ -797,6 +829,24 @@ export function SciencePage() {
     about: ['Molybdändisulfid', 'MoS2', 'Kettenwachs', 'Reibungskoeffizient', 'Tribologie'],
     publisher: { '@type': 'Organization', name: 'Waxcelerate', url: 'https://waxcelerate.de' },
   });
+  const breadcrumbSchema = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: de ? 'Startseite' : 'Home', item: 'https://waxcelerate.de' },
+      { '@type': 'ListItem', position: 2, name: de ? 'Wissenschaft' : 'Science', item: 'https://waxcelerate.de/wissenschaft' },
+    ],
+  });
+  // Selbe og:image wie die vorgerenderte /wissenschaft-Huelle
+  // (scripts/generate-blog-html.mjs, STATIC_PAGES), damit Social-Vorschauen
+  // vor und nach der Hydration dasselbe Bild zeigen.
+  const ogImage = 'https://waxcelerate.de/images/science/cassette-wear-diagram.jpg';
+
+  // Die vorgerenderte Huelle liefert dasselbe WebPage-Schema client-seitig
+  // noch einmal ueber das TechArticle-Schema unten drunter — ohne diesen
+  // Aufruf stehen nach der Hydration zwei getrennte JSON-LD-Bloecke fuer
+  // dieselbe URL im DOM (siehe removeStaticJsonLd in src/lib/utils.ts).
+  useEffect(() => { removeStaticJsonLd(); }, []);
 
   return (
     <div className="min-h-screen bg-wx-bg">
@@ -804,7 +854,17 @@ export function SciencePage() {
         <title>{title}</title>
         <meta name="description" content={description} />
         <link rel="canonical" href="https://waxcelerate.de/wissenschaft" />
+        <meta property="og:type" content="article" />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content="https://waxcelerate.de/wissenschaft" />
+        <meta property="og:image" content={ogImage} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
+        <meta name="twitter:image" content={ogImage} />
         <script type="application/ld+json">{pageSchema}</script>
+        <script type="application/ld+json">{breadcrumbSchema}</script>
       </Helmet>
 
       <Navigation />
@@ -899,7 +959,7 @@ export function SciencePage() {
             <div className="max-w-[320px] mx-auto w-full sm:max-w-none">
               <HexMoS2 de={de} />
             </div>
-            <div id="matrix-window" className="h-full">
+            <div id="matrix-window" className="h-full scroll-mt-24">
               <TempWindow de={de} />
             </div>
           </div>
@@ -966,6 +1026,12 @@ export function SciencePage() {
           <TransferFilm de={de} />
         </div>
 
+        {de && (
+          <ReadMoreLink to="/blog/kettenlaufzeit-heisswachs">
+            Vollständige Intervall- und Kostenrechnung im Ratgeber
+          </ReadMoreLink>
+        )}
+
         {/* Everything above proves zone 01 is the hardest place in the chain.
             This is the one block where that becomes a product decision, so it
             sits directly on top of the button and nowhere else. */}
@@ -973,9 +1039,20 @@ export function SciencePage() {
           <LineChoice de={de} />
         </div>
 
-        {/* CTA */}
+        {/* CTA — everything above this box is proof; the box itself was just
+            marketing copy (eyebrow, heading, button), a visible step down
+            right after the page's strongest paired instrument panels. This
+            punchline stat gives the close a number to land on instead —
+            same waxVsOil source and CountUp component the rest of ACT III
+            already uses, no new claim. */}
         <div className="rounded-2xl px-6 py-10 sm:py-12 text-center"
           style={{ background: 'var(--accent-wash-sm)', border: '1px solid rgba(var(--accent-rgb),0.12)' }}>
+          <CountUp value={`${waxVsOil.life.waxLo}–${waxVsOil.life.wax}×`}
+            className="num-display font-display font-bold leading-none block mb-4"
+            style={{ fontSize: 'clamp(2.4rem, 6vw, 3.6rem)', color: 'var(--tx1)' }} />
+          <p className="text-[13px] mb-7" style={{ color: 'var(--txm)' }}>
+            {de ? 'Kettenlaufzeit gegenüber Öl, gemessen in Zone 01.' : 'Chain life versus oil, measured in zone 01.'}
+          </p>
           <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
             {de ? 'Nächster Schritt' : 'Next step'}
           </p>
@@ -983,16 +1060,29 @@ export function SciencePage() {
             {de ? 'Bereit für einen sauberen Antrieb?' : 'Ready for a clean drivetrain?'}
           </h3>
           <Link to="/#produkte"
-            className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-[14px] font-semibold transition-all hover:opacity-90"
+            className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-[14px] font-semibold transition-all hover:opacity-90 active:scale-[0.97]"
             style={{ background: 'var(--accent)', color: '#fff' }}>
             {de ? 'Formel wählen' : 'Choose your formula'}
             <ArrowLeft className="h-4 w-4 rotate-180" />
           </Link>
+          {de && (
+            <p className="text-meta mt-5">
+              <Link to="/blog/von-oel-auf-wachs-umsteigen" className="underline underline-offset-2"
+                style={{ color: 'var(--accent-soft)' }}>
+                Oder zuerst: Anleitung zum Umstieg von Öl auf Wachs
+              </Link>
+            </p>
+          )}
         </div>
       </section>
       </main>
 
       <footer className={`${W} py-12 text-center`} style={{ borderTop: '1px solid var(--bd2)' }}>
+        <p className="text-meta mb-6" style={{ color: 'var(--txff)' }}>
+          {de
+            ? 'Quelle: Friction Facts / Zero Friction Cycling, „Friction-Producing Mechanisms of a Bicycle Chain“.'
+            : 'Source: Friction Facts / Zero Friction Cycling, "Friction-Producing Mechanisms of a Bicycle Chain."'}
+        </p>
         <Link to="/" className="inline-flex items-center gap-2 text-[13px] text-wx-txm transition-opacity hover:opacity-70">
           <ArrowLeft className="h-4 w-4" />
           {de ? 'Zurück zur Startseite' : 'Back to home'}
