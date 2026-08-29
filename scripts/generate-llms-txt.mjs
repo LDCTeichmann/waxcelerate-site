@@ -61,15 +61,22 @@ ${categoryOrder.map(cat => {
 
 // ─── llms-full.txt — full content dump ────────────────────────────────────
 
+// Article body text can carry [[Link-Text|/pfad]] inline-link markers (see
+// renderInlineText() in BlogArticlePage.tsx) — converts them to standard
+// Markdown links here, consistent with every other link in this file.
+const mdInlineLinks = (text = '') =>
+  text.replace(/\[\[([^|\]]+)\|([^\]]+)\]\]/g, (_, label, href) => `[${label}](${BASE}${href})`);
+
 const sectionToMd = (s) => {
   switch (s.type) {
     case 'h2': return `## ${s.text}`;
     case 'h3': return `### ${s.text}`;
-    case 'p': return s.text;
-    case 'ul': return (s.items ?? []).map(i => `- ${i}`).join('\n');
-    case 'ol': return (s.items ?? []).map((i, idx) => `${idx + 1}. ${i}`).join('\n');
-    case 'tip': return `> Tipp: ${s.text}`;
-    case 'note': return `> Hinweis: ${s.text}`;
+    case 'p': return mdInlineLinks(s.text);
+    case 'image': return `![${s.alt ?? ''}](${BASE}${s.src})${s.caption ? `\n*${s.caption}*` : ''}`;
+    case 'ul': return (s.items ?? []).map(i => `- ${mdInlineLinks(i)}`).join('\n');
+    case 'ol': return (s.items ?? []).map((i, idx) => `${idx + 1}. ${mdInlineLinks(i)}`).join('\n');
+    case 'tip': return `> Tipp: ${mdInlineLinks(s.text)}`;
+    case 'note': return `> Hinweis: ${mdInlineLinks(s.text)}`;
     default: return s.text ?? '';
   }
 };

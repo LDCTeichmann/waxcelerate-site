@@ -44,15 +44,35 @@ const write = (relDir, html) => writeToDist(DIST, relDir, html);
 
 // ─── Sections rendern ─────────────────────────────────────────────────────
 
+// Server-side mirror of renderInlineText() in BlogArticlePage.tsx: [[Text|/pfad]]
+// becomes a real <a href>, everything else is HTML-escaped as normal. Without
+// this, crawlers would see the literal "[[...]]" marker syntax as plain text —
+// worse than not having the feature at all.
+const INLINE_LINK = /\[\[([^|\]]+)\|([^\]]+)\]\]/g;
+function escWithLinks(text = '') {
+  let out = '';
+  let lastIndex = 0;
+  let match;
+  INLINE_LINK.lastIndex = 0;
+  while ((match = INLINE_LINK.exec(text))) {
+    out += esc(text.slice(lastIndex, match.index));
+    out += `<a href="${esc(match[2])}">${esc(match[1])}</a>`;
+    lastIndex = match.index + match[0].length;
+  }
+  out += esc(text.slice(lastIndex));
+  return out;
+}
+
 function renderSection(s) {
   switch (s.type) {
     case 'h2': return `<h2>${esc(s.text)}</h2>`;
     case 'h3': return `<h3>${esc(s.text)}</h3>`;
-    case 'p': return `<p>${esc(s.text)}</p>`;
-    case 'ul': return `<ul>${(s.items ?? []).map(i => `<li>${esc(i)}</li>`).join('')}</ul>`;
-    case 'ol': return `<ol>${(s.items ?? []).map(i => `<li>${esc(i)}</li>`).join('')}</ol>`;
-    case 'tip': return `<aside><strong>Tipp:</strong> ${esc(s.text)}</aside>`;
-    case 'note': return `<aside><strong>Hinweis:</strong> ${esc(s.text)}</aside>`;
+    case 'p': return `<p>${escWithLinks(s.text)}</p>`;
+    case 'image': return `<figure><img src="${esc(s.src)}" alt="${esc(s.alt ?? '')}" loading="lazy">${s.caption ? `<figcaption>${esc(s.caption)}</figcaption>` : ''}</figure>`;
+    case 'ul': return `<ul>${(s.items ?? []).map(i => `<li>${escWithLinks(i)}</li>`).join('')}</ul>`;
+    case 'ol': return `<ol>${(s.items ?? []).map(i => `<li>${escWithLinks(i)}</li>`).join('')}</ol>`;
+    case 'tip': return `<aside><strong>Tipp:</strong> ${escWithLinks(s.text)}</aside>`;
+    case 'note': return `<aside><strong>Hinweis:</strong> ${escWithLinks(s.text)}</aside>`;
     default: return '';
   }
 }
@@ -156,6 +176,7 @@ function renderArticle(a) {
   ${a.keyStat ? `<p><strong>${esc(a.keyStat.value)}</strong> ${esc(a.keyStat.label)}</p>` : ''}
   <p>${esc(a.intro)}</p>
   ${a.takeaways ? `<section><h2>Das Wichtigste in Kürze</h2><ul>${a.takeaways.map(t => `<li>${esc(t)}</li>`).join('')}</ul></section>` : ''}
+  ${a.linksToCalculator ? `<p><a href="/#tools">Willst du dein eigenes Intervall wissen? Rechner öffnen →</a></p>` : ''}
   ${a.scienceLink ? `<p><a href="/wissenschaft${a.scienceLink.anchor ? `#${a.scienceLink.anchor}` : ''}">${esc(a.scienceLink.label)}</a></p>` : ''}
   ${a.sections.map(renderSection).join('\n  ')}
   ${a.faq ? `<section><h2>Häufige Fragen</h2>${a.faq.map(f => `<h3>${esc(f.q)}</h3><p>${esc(f.a)}</p>`).join('')}</section>` : ''}

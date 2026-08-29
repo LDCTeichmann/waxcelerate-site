@@ -300,7 +300,10 @@ Der zuverlässigste Indikator für einen fälligen Nachwachsvorgang ist das Knir
 
 Kettenverschleiß entsteht fast ausschließlich durch abrasive Partikel, die sich im Schmiermittel ansammeln. Öl zieht Straßenstaub, Sand und Metallabrieb an. Die Kette wird zur Schleifpaste. Wachs dagegen bindet keinen Schmutz: Schmutz setzt sich auf der äußeren Wachsschicht ab und bröselt ab, ohne in die Gelenke einzudringen.
 
-Das hat messbare Folgen für die Kettenlaufzeit. Als Verschleißgrenze gilt 0,5 % Kettendehnung (gemessen mit Kettenlehre), ab der ein Kettenwechsel nötig ist, um Kassette und Kettenblätter zu schonen. Messwerte aus ZeroFriction Cycling-Tests:
+![Fahrradkette hängt zum Abkühlen nach dem Heißwachsbad](https://waxcelerate.de/images/blog/wax-bath-hanging-1600.webp)
+*Nach dem Bad abtropfen und abkühlen lassen, bevor die Kette wieder ans Rad kommt.*
+
+Das hat messbare Folgen für die Kettenlaufzeit. Als Verschleißgrenze gilt 0,5 % Kettendehnung ([wie du das mit einer Kettenlehre selbst misst](https://waxcelerate.de/blog/kettenverschleiss-messen)), ab der ein Kettenwechsel nötig ist, um Kassette und Kettenblätter zu schonen. Messwerte aus ZeroFriction Cycling-Tests:
 
 - Kettenöl (gut gepflegt, regelmäßig gewechselt): 2.000–3.000 km bis 0,5 % Dehnung
 - Heißwachs (korrekt angewendet, Intervall eingehalten): 6.000–12.000 km
@@ -824,7 +827,10 @@ Bei trockener Kälte, Frost ohne Salz, klare Wintertage, spielt Wachs seine Stä
 
 ## Wo Wachs an seine Grenzen kommt
 
-Die ehrliche Kehrseite: Paraffin wird durch Wasser ausgewaschen. Wer täglich bei Dauerregen oder durch nasse, gesalzene Straßen pendelt, verkürzt das Wachsintervall drastisch. Statt 400 km sind es dann vielleicht 100–150 km. Und an den blanken Außenlaschen kann sich nach einer Salzfahrt Flugrost bilden, weil Wachs dort keinen dauerhaften Schutzfilm hinterlässt wie kriechendes Öl.
+Die ehrliche Kehrseite: Paraffin wird durch Wasser ausgewaschen. Wer täglich bei Dauerregen oder durch nasse, gesalzene Straßen pendelt, verkürzt das Wachsintervall drastisch. Statt 400 km sind es dann vielleicht 100–150 km — wie sich dieses Intervall im Trockenen überhaupt zusammensetzt, steht in [Wie lange hält Kettenwachs? Intervalle, Kettenlaufzeit und Kostenrechnung](https://waxcelerate.de/blog/kettenlaufzeit-heisswachs). Und an den blanken Außenlaschen kann sich nach einer Salzfahrt Flugrost bilden, weil Wachs dort keinen dauerhaften Schutzfilm hinterlässt wie kriechendes Öl.
+
+![Nahaufnahme einer frisch gewachsten Fahrradkette](https://waxcelerate.de/images/blog/chain-waxed-macro-1600.webp)
+*Trocken gewachst bleibt der Antrieb auch nach einer schmutzigen Ausfahrt sichtbar sauber.*
 
 > Hinweis: Das heißt nicht, dass die Kette kaputtgeht. Solange die Gelenke innen gewachst sind, läuft sie. Aber der Pflegeaufwand steigt im nassen Salzwinter spürbar. Das sollte man wissen, bevor man enttäuscht wird.
 
@@ -1075,9 +1081,12 @@ Dazu kommt die geringere Reibung im Lager. Beim E-Bike spürst du die zwar nicht
 
 Genau wie bei einem unmotorisierten Rad gilt: trocken alle 400 bis 550 km, bei Nässe oder Schotter alle 200 bis 300 km. Wegen der höheren Last durch den Motor und meist mehr Jahreskilometern lohnt es sich, eher am unteren Ende dieser Spannen zu bleiben, statt das Intervall auszureizen.
 
+![Nahaufnahme eines Fahrrad-Antriebs mit Kassette und Schaltwerk](https://waxcelerate.de/images/blog/chain-drivetrain-closeup-1600.webp)
+*Bei hoher Motorlast verschleißt nicht nur die Kette — auch Kassette und Kettenblatt leiden mit, wenn zu spät gewechselt wird.*
+
 ## Wann muss die E-Bike-Kette gewechselt werden?
 
-Wie bei jeder Kette gilt die 0,5-Prozent-Grenze bei modernen 11- und 12-fach-Antrieben, gemessen mit einer Kettenlehre. Wegen der hohen Last lohnt es sich beim E-Bike, öfter zu messen als beim normalen Rad, damit die teure Kassette nicht mitverschleißt.
+Wie bei jeder Kette gilt die 0,5-Prozent-Grenze bei modernen 11- und 12-fach-Antrieben, [gemessen mit einer Kettenlehre](https://waxcelerate.de/blog/kettenverschleiss-messen). Wegen der hohen Last lohnt es sich beim E-Bike, öfter zu messen als beim normalen Rad, damit die teure Kassette nicht mitverschleißt.
 
 ## Lohnt sich der Aufwand beim E-Bike?
 

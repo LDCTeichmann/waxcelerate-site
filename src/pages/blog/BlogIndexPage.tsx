@@ -1,18 +1,23 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { Navigation } from '@/sections/navigation';
 import { Footer } from '@/sections/footer';
+import { getProductById } from '@/lib/data';
 import {
   articles,
   categoryColors,
   categoryOrder,
+  categoryProductSlug,
   getArticleImage,
   blogHero,
   blogFeature,
 } from './articles';
 import type { Article, ArticleCategory } from './articles';
+
+const formatPrice = (price: number) =>
+  new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(price);
 
 type Filter = 'Alle' | ArticleCategory;
 
@@ -187,10 +192,45 @@ const INTENTS: { label: string; slug: string }[] = [
 ];
 
 export function BlogIndexPage() {
-  const [filter, setFilter] = useState<Filter>('Alle');
-  const [query, setQuery] = useState('');
+  // Filter/search sync to the URL (?kategorie=, ?q=) so a filtered view can
+  // be bookmarked, shared, or survive a refresh — it used to be plain
+  // useState and was lost the moment the page reloaded.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const categoryParam = searchParams.get('kategorie');
+  const initialFilter: Filter =
+    categoryParam && (categoryOrder as string[]).includes(categoryParam) ? (categoryParam as ArticleCategory) : 'Alle';
 
-  const featured = articles.find((a) => a.featured);
+  const [filter, setFilterState] = useState<Filter>(initialFilter);
+  const [query, setQueryState] = useState(searchParams.get('q') ?? '');
+
+  const setFilter = (next: Filter) => {
+    setFilterState(next);
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+      if (next === 'Alle') params.delete('kategorie');
+      else params.set('kategorie', next);
+      return params;
+    }, { replace: true });
+  };
+
+  const setQuery = (next: string) => {
+    setQueryState(next);
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+      if (next.trim() === '') params.delete('q');
+      else params.set('q', next);
+      return params;
+    }, { replace: true });
+  };
+
+  // Seasonally prefer the winter article as the lead in Nov–Feb, otherwise
+  // fall back to the explicit `featured` flag (only ever set on one article
+  // today — this doesn't fix that on its own, it just stops the same lead
+  // from showing year-round when a seasonally-relevant one exists).
+  const month = new Date().getMonth();
+  const isWinterSeason = month === 10 || month === 11 || month === 0 || month === 1;
+  const seasonalArticle = isWinterSeason ? articles.find((a) => a.category === 'Saison') : undefined;
+  const featured = seasonalArticle ?? articles.find((a) => a.featured);
   const usedCategories = categoryOrder.filter((c) =>
     articles.some((a) => a.category === c),
   );
@@ -207,9 +247,17 @@ export function BlogIndexPage() {
   const showLead = filter === 'Alle' && !isSearching && featured;
   const grid = (
     filter === 'Alle'
-      ? articles.filter((a) => !a.featured || isSearching)
+      // Excludes whichever article is actually shown as the lead right now —
+      // compares against `featured`'s slug, not the raw `.featured` flag,
+      // since the seasonal override above can promote an article to lead
+      // that doesn't have that flag set at all.
+      ? articles.filter((a) => a.slug !== featured?.slug || isSearching)
       : articles.filter((a) => a.category === filter)
   ).filter(matchesQuery);
+
+  const recommendedProduct = getProductById(
+    filter === 'Alle' ? 'wax-500' : categoryProductSlug[filter],
+  );
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--pg)' }}>
@@ -360,37 +408,69 @@ export function BlogIndexPage() {
           ))}
         </div>
 
-        {/* CTA banner */}
-        <div
-          className="relative overflow-hidden rounded-2xl px-7 py-9 flex items-center justify-between gap-4 flex-wrap"
-          style={{ border: '1px solid var(--bd)' }}
-        >
-          <img
-            src="/images/blog/ride-road-golden-800.webp"
-            alt=""
-            aria-hidden="true"
-            loading="lazy"
-            className="absolute inset-0 w-full h-full object-cover"
-          />
+        {/* CTA banner + product cross-sell — the blog previously had zero
+            product links anywhere except each article's own bottom CTA card.
+            Product follows the active category (categoryProductSlug,
+            articles.ts); falls back to the flagship wax-500 for 'Alle'. */}
+        <div className="grid sm:grid-cols-2 gap-5">
           <div
-            className="absolute inset-0"
-            style={{ background: 'linear-gradient(90deg, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.6) 55%, rgba(0,0,0,0.35) 100%)' }}
-          />
-          <div className="relative">
-            <p className="font-display text-lg font-semibold mb-1" style={{ color: '#FFFFFF' }}>
-              Noch eine Frage offen?
-            </p>
-            <p className="text-[14px]" style={{ color: '#D8D8DE' }}>
-              Schreib mir direkt, ich antworte selbst.
-            </p>
-          </div>
-          <Link
-            to="/#kontakt"
-            className="relative text-[14px] font-semibold px-5 py-2.5 rounded-full shrink-0 transition-colors"
-            style={{ background: 'var(--accent)', color: 'var(--pg)' }}
+            className="relative overflow-hidden rounded-2xl px-7 py-9 flex items-center justify-between gap-4 flex-wrap"
+            style={{ border: '1px solid var(--bd)' }}
           >
-            Zum Kontakt →
-          </Link>
+            <img
+              src="/images/blog/ride-road-golden-800.webp"
+              alt=""
+              aria-hidden="true"
+              loading="lazy"
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            <div
+              className="absolute inset-0"
+              style={{ background: 'linear-gradient(90deg, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.6) 55%, rgba(0,0,0,0.35) 100%)' }}
+            />
+            <div className="relative">
+              <p className="font-display text-lg font-semibold mb-1" style={{ color: '#FFFFFF' }}>
+                Noch eine Frage offen?
+              </p>
+              <p className="text-[14px]" style={{ color: '#D8D8DE' }}>
+                Schreib mir direkt, ich antworte selbst.
+              </p>
+            </div>
+            <Link
+              to="/#kontakt"
+              className="relative text-[14px] font-semibold px-5 py-2.5 rounded-full shrink-0 transition-colors"
+              style={{ background: 'var(--accent)', color: 'var(--pg)' }}
+            >
+              Zum Kontakt →
+            </Link>
+          </div>
+
+          {recommendedProduct && (
+            <Link
+              to={`/produkt/${recommendedProduct.id}`}
+              className="flex items-center gap-4 rounded-2xl p-6 transition-colors hover:opacity-90"
+              style={{ border: '1px solid var(--bd)', background: 'var(--sf)' }}
+            >
+              <img
+                src={recommendedProduct.image}
+                alt=""
+                loading="lazy"
+                className="w-16 h-16 rounded-xl object-cover flex-shrink-0"
+                style={{ objectPosition: recommendedProduct.imagePosition ?? 'center' }}
+              />
+              <div className="min-w-0 flex-1">
+                <p className="font-mono text-small uppercase tracking-[0.18em] mb-1" style={{ color: 'var(--txff)' }}>
+                  Passend dazu
+                </p>
+                <p className="text-[14px] font-semibold truncate" style={{ color: 'var(--tx1)' }}>
+                  {recommendedProduct.title}
+                </p>
+                <p className="text-[13px] font-semibold mt-0.5" style={{ color: 'var(--accent)' }}>
+                  {formatPrice(recommendedProduct.price)}
+                </p>
+              </div>
+            </Link>
+          )}
         </div>
       </main>
 

@@ -14,6 +14,40 @@ import {
 } from './articles';
 import type { ArticleSection } from './articles';
 
+// Minimal inline-link syntax for body text: [[Link-Text|/ziel-pfad]]. Kept as
+// a marker syntax rather than a new section field so it can sit inline
+// mid-sentence in 'p'/list items/'tip'/'note' without restructuring how
+// those are authored. Internal paths only — this renders react-router
+// <Link>s, not <a href>, so an external URL would silently become a broken
+// client-side route. Mirrored server-side in scripts/generate-blog-html.mjs
+// for the prerendered/crawler-facing HTML (which must emit real <a> tags,
+// not leave the literal [[...]] markers in escaped text).
+const INLINE_LINK = /\[\[([^|\]]+)\|([^\]]+)\]\]/g;
+
+function renderInlineText(text: string): React.ReactNode {
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+  let key = 0;
+  INLINE_LINK.lastIndex = 0;
+  while ((match = INLINE_LINK.exec(text))) {
+    if (match.index > lastIndex) parts.push(text.slice(lastIndex, match.index));
+    parts.push(
+      <Link
+        key={key++}
+        to={match[2]}
+        className="underline underline-offset-2 hover:opacity-80"
+        style={{ color: 'var(--accent)' }}
+      >
+        {match[1]}
+      </Link>,
+    );
+    lastIndex = match.index + match[0].length;
+  }
+  if (lastIndex < text.length) parts.push(text.slice(lastIndex));
+  return parts;
+}
+
 function renderSection(section: ArticleSection, idx: number): React.ReactNode {
   switch (section.type) {
     case 'h2':
@@ -31,8 +65,23 @@ function renderSection(section: ArticleSection, idx: number): React.ReactNode {
     case 'p':
       return (
         <p key={idx} className="text-[17px] leading-[1.85] text-wx-tx2 mb-5">
-          {section.text}
+          {renderInlineText(section.text ?? '')}
         </p>
+      );
+    case 'image':
+      return (
+        <figure key={idx} className="mb-6 mt-2">
+          <img
+            src={section.src}
+            alt={section.alt ?? ''}
+            loading="lazy"
+            className="w-full rounded-2xl object-cover"
+            style={{ border: '1px solid var(--bd)' }}
+          />
+          {section.caption && (
+            <figcaption className="text-[13px] mt-2 text-wx-txf">{section.caption}</figcaption>
+          )}
+        </figure>
       );
     case 'ul':
       return (
@@ -43,7 +92,7 @@ function renderSection(section: ArticleSection, idx: number): React.ReactNode {
                 className="select-none mt-[9px] shrink-0 h-[5px] w-[5px] rounded-full"
                 style={{ background: 'var(--accent)' }}
               />
-              <span>{item}</span>
+              <span>{renderInlineText(item)}</span>
             </li>
           ))}
         </ul>
@@ -59,7 +108,7 @@ function renderSection(section: ArticleSection, idx: number): React.ReactNode {
               >
                 {i + 1}
               </span>
-              <span className="pt-0.5">{item}</span>
+              <span className="pt-0.5">{renderInlineText(item)}</span>
             </li>
           ))}
         </ol>
@@ -74,7 +123,7 @@ function renderSection(section: ArticleSection, idx: number): React.ReactNode {
           <p className="font-mono text-small uppercase tracking-[0.18em] mb-1.5" style={{ color: 'var(--accent)' }}>
             Tipp
           </p>
-          <p className="text-[15px] leading-[1.7] text-wx-tx2">{section.text}</p>
+          <p className="text-[15px] leading-[1.7] text-wx-tx2">{renderInlineText(section.text ?? '')}</p>
         </div>
       );
     case 'note':
@@ -87,7 +136,7 @@ function renderSection(section: ArticleSection, idx: number): React.ReactNode {
           <p className="font-mono text-small uppercase tracking-[0.18em] mb-1.5 text-wx-txf">
             Hinweis
           </p>
-          <p className="text-[15px] leading-[1.7] text-wx-tx2">{section.text}</p>
+          <p className="text-[15px] leading-[1.7] text-wx-tx2">{renderInlineText(section.text ?? '')}</p>
         </div>
       );
     default:
@@ -325,6 +374,22 @@ export function BlogArticlePage() {
                 ))}
               </ul>
             </div>
+          )}
+
+          {/* Rechner-Verweis — nur bei Artikeln, bei denen das eigene Intervall
+              inhaltlich relevant ist (article.linksToCalculator, articles.ts).
+              Eigene Farbgebung (voller Akzent-Hintergrund) statt tip/note-Optik,
+              damit er als Link zu einem anderen Tool erkennbar bleibt und nicht
+              mit einem Inhalts-Tipp verwechselt wird. */}
+          {article.linksToCalculator && (
+            <a
+              href="/#tools"
+              className="flex flex-wrap items-center justify-between gap-3 rounded-2xl px-6 py-4 mb-10 transition-opacity hover:opacity-90"
+              style={{ background: 'var(--accent)', color: 'var(--pg)' }}
+            >
+              <span className="font-semibold text-[15px]">Willst du dein eigenes Intervall wissen?</span>
+              <span className="font-mono text-[13px] font-semibold whitespace-nowrap">Rechner öffnen →</span>
+            </a>
           )}
 
           {/* Wissenschaftsseite: nur bei Artikeln mit echter fachlicher

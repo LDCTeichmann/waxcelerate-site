@@ -1,7 +1,15 @@
 export interface ArticleSection {
-  type: 'h2' | 'h3' | 'p' | 'ul' | 'ol' | 'tip' | 'note';
+  type: 'h2' | 'h3' | 'p' | 'ul' | 'ol' | 'tip' | 'note' | 'image';
+  /** For 'p'/'ul'/'ol' items/'tip'/'note': supports inline links via
+   * [[Link-Text|/ziel-pfad]] — parsed by renderInlineText() in
+   * BlogArticlePage.tsx and its server-side equivalent in
+   * scripts/generate-blog-html.mjs. Internal paths only (/blog/..., /produkt/...). */
   text?: string;
   items?: string[];
+  /** 'image' only. */
+  src?: string;
+  alt?: string;
+  caption?: string;
 }
 
 export interface HowToStep {
@@ -43,6 +51,8 @@ export interface Article {
   faq?: { q: string; a: string }[];
   /** Cross-Link auf die passende Sektion der Wissenschaftsseite, sofern der Artikel eine Entsprechung dort hat. */
   scienceLink?: { anchor?: string; label: string };
+  /** Zeigt einen Verweis auf den Rewax-Rechner (/#tools) — nur bei Artikeln setzen, bei denen das eigene Intervall inhaltlich relevant ist. */
+  linksToCalculator?: boolean;
   howTo?: {
     name: string;
     totalTime: string;
@@ -68,6 +78,19 @@ export const categoryOrder: ArticleCategory[] = [
   'Problemlösung',
   'Saison',
 ];
+
+/** Ein passendes Produkt je Kategorie, für den Cross-Sell auf der Blog-Startseite.
+ * Eine redaktionelle Einschätzung, was jemand, der diese Kategorie liest, am
+ * ehesten sucht — Luca sollte diese Zuordnung gegenlesen. IDs sind reale
+ * Product.id-Werte aus src/lib/data.ts. */
+export const categoryProductSlug: Record<ArticleCategory, string> = {
+  Grundlagen: 'wax-500',
+  Anleitung: 'starter-classic',
+  Technik: 'wax-500-mos2',
+  Kaufberatung: 'wax-500-mos2',
+  'Problemlösung': 'wax-500',
+  Saison: 'wax-500-mos2',
+};
 
 export const articles: Article[] = [
   {
@@ -315,6 +338,19 @@ export const articles: Article[] = [
         text: 'Wer eine 3-Ketten-Rotation betreibt, kann alle drei Ketten gleichzeitig entfetten, dasselbe IPA im Glas. Spart Zeit und Lösungsmittel. Danach alle drei direkt ins Wachsbad hängen.',
       },
     ],
+    howTo: {
+      name: 'Fahrradkette mit Isopropanol entfetten',
+      totalTime: 'PT20M',
+      steps: [
+        { name: 'Kette abnehmen', text: 'Kette vom Rad abnehmen (Schnellverschluss oder Kettennieter).' },
+        { name: 'In Isopropanol einlegen', text: 'Kette in ein verschließbares Gefäß (z. B. Einmachglas) legen, so viel Isopropanol 99 % dazugeben, dass die Kette bedeckt ist.' },
+        { name: 'Schütteln (1. Durchgang)', text: 'Deckel zu, 30–60 Sekunden kräftig schütteln. Das Isopropanol wird trüb — das ist das gelöste Öl.' },
+        { name: 'Schütteln (2. Durchgang)', text: 'Isopropanol abgießen, frisches Isopropanol einfüllen, erneut 30–60 Sekunden schütteln.' },
+        { name: 'Bei Bedarf 3. Durchgang', text: 'Bei stark verschmutzten oder neuen Ketten (v. a. Shimano) einen dritten Durchgang mit frischem Isopropanol wiederholen.' },
+        { name: 'Vollständig trocknen lassen', text: 'Kette auf einem sauberen Tuch auslegen und vollständig trocknen lassen — 10–15 Minuten bei Raumtemperatur, 5 Minuten bei leichter Wärme.' },
+        { name: 'Weißen-Tuch-Test', text: 'Kette über ein weißes Papiertuch ziehen. Kein Abrieb sichtbar heißt: bereit fürs Wachsbad.' },
+      ],
+    },
     ctaSlug: 'wax-500',
     ctaText: 'Classic Heißwachs 500 g ansehen →',
   },
@@ -326,6 +362,7 @@ export const articles: Article[] = [
     description: 'Wie lange hält Kettenwachs wirklich? Intervalle, Kettenlaufzeit und eine ehrliche Kostenrechnung von Heißwachs vs. Öl über 15.000 km.',
     category: 'Grundlagen',
     scienceLink: { anchor: 'reibung', label: 'Reibung, Kettenlaufzeit und Kosten im Messvergleich' },
+    linksToCalculator: true,
     featured: true,
     stats: [
       { value: '400–550 km', label: 'Intervall' },
@@ -381,8 +418,14 @@ export const articles: Article[] = [
         text: 'Kettenverschleiß entsteht fast ausschließlich durch abrasive Partikel, die sich im Schmiermittel ansammeln. Öl zieht Straßenstaub, Sand und Metallabrieb an. Die Kette wird zur Schleifpaste. Wachs dagegen bindet keinen Schmutz: Schmutz setzt sich auf der äußeren Wachsschicht ab und bröselt ab, ohne in die Gelenke einzudringen.',
       },
       {
+        type: 'image',
+        src: '/images/blog/wax-bath-hanging-1600.webp',
+        alt: 'Fahrradkette hängt zum Abkühlen nach dem Heißwachsbad',
+        caption: 'Nach dem Bad abtropfen und abkühlen lassen, bevor die Kette wieder ans Rad kommt.',
+      },
+      {
         type: 'p',
-        text: 'Das hat messbare Folgen für die Kettenlaufzeit. Als Verschleißgrenze gilt 0,5 % Kettendehnung (gemessen mit Kettenlehre), ab der ein Kettenwechsel nötig ist, um Kassette und Kettenblätter zu schonen. Messwerte aus ZeroFriction Cycling-Tests:',
+        text: 'Das hat messbare Folgen für die Kettenlaufzeit. Als Verschleißgrenze gilt 0,5 % Kettendehnung ([[wie du das mit einer Kettenlehre selbst misst|/blog/kettenverschleiss-messen]]), ab der ein Kettenwechsel nötig ist, um Kassette und Kettenblätter zu schonen. Messwerte aus ZeroFriction Cycling-Tests:',
       },
       {
         type: 'ul',
@@ -732,6 +775,7 @@ export const articles: Article[] = [
     titleShort: 'Kettenwachs für Rennrad & Gravelbike',
     description: 'Für Rennrad- und Gravelbike-Fahrer lohnt sich Heißwachs besonders: niedrigste Reibung, sauberer Antrieb, längere Kettenlaufzeit. Was zu beachten ist.',
     category: 'Kaufberatung',
+    linksToCalculator: true,
     publishDate: '2026-06-01',
     dateModified: '2026-07-27',
     readingTime: '7 min',
@@ -840,6 +884,7 @@ export const articles: Article[] = [
     titleShort: 'Wachs hält nicht? Die 7 häufigsten Fehler',
     description: 'Wachs blättert ab, die Kette quietscht nach 50 km, weißes Pulver überall? Die häufigsten Heißwachs-Fehler und wie du sie wirklich behebst.',
     category: 'Problemlösung',
+    linksToCalculator: true,
     publishDate: '2026-06-16',
     dateModified: '2026-07-27',
     readingTime: '6 min',
@@ -1001,6 +1046,7 @@ export const articles: Article[] = [
     description: 'Funktioniert Heißwachs im Winter? Was Streusalz und Dauernässe mit der Wachsschicht machen, wann Wachs überzeugt, und wann Öl die bessere Wahl ist.',
     category: 'Saison',
     scienceLink: { anchor: 'matrix-window', label: 'Das Temperaturfenster von Classic und Pro im Vergleich' },
+    linksToCalculator: true,
     publishDate: '2026-06-16',
     dateModified: '2026-07-27',
     readingTime: '6 min',
@@ -1024,7 +1070,13 @@ export const articles: Article[] = [
       { type: 'p', text: 'Der größte Vorteil bleibt auch im Winter bestehen: Wachs bindet keinen Schmutz. Während eine geölte Kette den nassen Salzschlamm regelrecht aufsaugt und zu einer schwarzen, schmirgelnden Paste verklebt, perlt der Dreck an der trockenen Wachsschicht ab. Die Kette bleibt sauber, das Schaltwerk präziser, und der abrasive Verschleiß durch eingebundene Partikel fällt geringer aus.' },
       { type: 'p', text: 'Bei trockener Kälte, Frost ohne Salz, klare Wintertage, spielt Wachs seine Stärken voll aus. Paraffin bleibt bis weit unter den Gefrierpunkt funktionsfähig, und kein Öl verharzt bei Kälte.' },
       { type: 'h2', text: 'Wo Wachs an seine Grenzen kommt' },
-      { type: 'p', text: 'Die ehrliche Kehrseite: Paraffin wird durch Wasser ausgewaschen. Wer täglich bei Dauerregen oder durch nasse, gesalzene Straßen pendelt, verkürzt das Wachsintervall drastisch. Statt 400 km sind es dann vielleicht 100–150 km. Und an den blanken Außenlaschen kann sich nach einer Salzfahrt Flugrost bilden, weil Wachs dort keinen dauerhaften Schutzfilm hinterlässt wie kriechendes Öl.' },
+      { type: 'p', text: 'Die ehrliche Kehrseite: Paraffin wird durch Wasser ausgewaschen. Wer täglich bei Dauerregen oder durch nasse, gesalzene Straßen pendelt, verkürzt das Wachsintervall drastisch. Statt 400 km sind es dann vielleicht 100–150 km — wie sich dieses Intervall im Trockenen überhaupt zusammensetzt, steht in [[Wie lange hält Kettenwachs? Intervalle, Kettenlaufzeit und Kostenrechnung|/blog/kettenlaufzeit-heisswachs]]. Und an den blanken Außenlaschen kann sich nach einer Salzfahrt Flugrost bilden, weil Wachs dort keinen dauerhaften Schutzfilm hinterlässt wie kriechendes Öl.' },
+      {
+        type: 'image',
+        src: '/images/blog/chain-waxed-macro-1600.webp',
+        alt: 'Nahaufnahme einer frisch gewachsten Fahrradkette',
+        caption: 'Trocken gewachst bleibt der Antrieb auch nach einer schmutzigen Ausfahrt sichtbar sauber.',
+      },
       { type: 'note', text: 'Das heißt nicht, dass die Kette kaputtgeht. Solange die Gelenke innen gewachst sind, läuft sie. Aber der Pflegeaufwand steigt im nassen Salzwinter spürbar. Das sollte man wissen, bevor man enttäuscht wird.' },
       { type: 'h2', text: 'Bei welcher Temperatur funktioniert Kettenwachs noch?' },
       { type: 'p', text: 'Paraffin bleibt bis weit unter den Gefrierpunkt funktionsfähig, ganz anders als Öl, das bei Kälte eher zäh und harzig wird. Die MoS₂-Variante Pro behält ihre Schmierwirkung sogar bis etwa minus 8 Grad, was sie für Wintertouren zur robusteren Wahl macht.' },
@@ -1146,6 +1198,17 @@ export const articles: Article[] = [
       { type: 'p', text: 'Ein echtes Tropfwachs ist eine Wachs-Emulsion, bei der das Trägermittel verdunstet und reines Wachs zurückbleibt. Manche als „Wax-Lube" verkaufte Produkte sind dagegen im Kern ein Öl mit Wachszusatz. Wer damit auffrischt, mischt Öl in die Wachsbasis und zerstört genau das, was die Hybrid-Methode ausmacht. Im Zweifel die Inhaltsstoffe prüfen oder beim Hersteller nachfragen, ob es sich um eine reine Wachs-Emulsion handelt.' },
       { type: 'note', text: 'Reine Heißwachs-Puristen erreichen minimal bessere Reibungswerte, weil jede Behandlung von Grund auf frisch ist. Der Unterschied ist klein, für die allermeisten überwiegt der Komfortgewinn der Hybrid-Methode deutlich.' },
     ],
+    howTo: {
+      name: 'Hybrid-Methode: Heißwachs-Basis mit Tropfwachs auffrischen',
+      totalTime: 'PT15M',
+      steps: [
+        { name: 'Basis legen', text: 'Kette einmal sauber entfetten und im Heißwachsbad (85–90 °C, 10–15 min) behandeln. Das ist dein Fundament.' },
+        { name: 'Fahren bis zum Intervall', text: 'Die Heißwachsbasis trägt 400–550 km trocken.' },
+        { name: 'Auffrischen statt heiß wachsen', text: 'Etwa alle 200 km, oder bevor die Kette trockener klingt, ein kompatibles Tropfwachs dünn auf die saubere Kette geben, Glied für Glied, kurz einwirken lassen, Überschuss abwischen.' },
+        { name: 'Trocknen lassen', text: 'Tropfwachs braucht je nach Produkt mehrere Stunden, bis das Trägermittel verdunstet ist. Am besten abends auftragen, am nächsten Tag fahren.' },
+        { name: 'Heiß nachwachsen alle ~1.000 km', text: 'Wenn sich über die Zeit Reste und Schmutz aufbauen, einmal komplett neu heiß wachsen. Das setzt die Basis zurück.' },
+      ],
+    },
     ctaSlug: 'wax-500',
     ctaText: 'Classic Heißwachs als Basis ansehen →',
   },
@@ -1201,6 +1264,17 @@ export const articles: Article[] = [
         'Die Pflege verschiebt sich: kein Öl mehr unterwegs auftragen, dafür gelegentlich gesammelt wachsen.',
       ] },
     ],
+    howTo: {
+      name: 'Von Kettenöl auf Heißwachs umsteigen',
+      totalTime: 'PT30M',
+      steps: [
+        { name: 'Entscheiden: Altkette entfetten oder neu starten?', text: 'Eine lange mit Öl gefahrene Kette hat Öl tief in den Gelenken, das selbst gründliches Entfetten nicht immer restlos löst. Bei einer älteren Kette ist eine neue oder vorgewachste Kette oft der saubere Neuanfang, eine junge Kette lohnt sich zu entfetten.' },
+        { name: 'Den ganzen Antrieb reinigen', text: 'Kassette abnehmen (oder gründlich zwischen den Ritzeln reinigen), Kettenblätter und Schaltröllchen mit Entfetter säubern und alles vollständig trocknen lassen, bevor die gewachste Kette montiert wird — sonst kontaminiert Restöl an Kassette und Kettenblättern die frisch gewachste Kette sofort wieder.' },
+        { name: 'Kette entfetten', text: 'Kette abnehmen und in 2–3 Durchgängen mit Isopropanol 99 % im verschlossenen Glas entfetten, bis das Isopropanol kaum noch trüb wird. Danach vollständig trocknen lassen und den Weiße-Tuch-Test machen.' },
+        { name: 'Erstes Wachsbad', text: 'Wachs auf 85–90 °C erhitzen, die trockene Kette einhängen und 10–15 Minuten baden, bis keine Luftbläschen mehr aufsteigen. Herausheben, abtropfen lassen und auf Raumtemperatur abkühlen lassen.' },
+        { name: 'Einfahren', text: 'Die abgekühlte Kette 10–20 Mal durch die Hände laufen lassen, bis jedes Glied geschmeidig abwinkelt, dann montieren. Die ersten 20–30 km sind Einfahrphase — überschüssiges Außenwachs bricht als normales weißes Pulver ab.' },
+      ],
+    },
     ctaSlug: 'wax-500',
     ctaText: 'Classic Heißwachs 500 g ansehen →',
   },
@@ -1211,6 +1285,7 @@ export const articles: Article[] = [
     description: 'E-Bike-Ketten verschleißen durch das hohe Drehmoment schneller. Warum Heißwachs den Antrieb besonders schont, was zu beachten ist und welches Wachs passt.',
     category: 'Kaufberatung',
     scienceLink: { anchor: 'linie', label: 'Warum MoS₂ Pro Edition gerade bei E-Bikes vorne liegt' },
+    linksToCalculator: true,
     publishDate: '2026-06-16',
     dateModified: '2026-07-27',
     readingTime: '5 min',
@@ -1242,8 +1317,14 @@ export const articles: Article[] = [
       { type: 'note', text: 'Hinweis: Bei E-Bikes mit Riemenantrieb (Gates Carbon Drive) entfällt das Thema. Riemen werden nicht gewachst und brauchen keine Schmierung. Dieser Artikel betrifft Kettenantriebe.' },
       { type: 'h2', text: 'Wie oft muss ich die E-Bike-Kette nachwachsen?' },
       { type: 'p', text: 'Genau wie bei einem unmotorisierten Rad gilt: trocken alle 400 bis 550 km, bei Nässe oder Schotter alle 200 bis 300 km. Wegen der höheren Last durch den Motor und meist mehr Jahreskilometern lohnt es sich, eher am unteren Ende dieser Spannen zu bleiben, statt das Intervall auszureizen.' },
+      {
+        type: 'image',
+        src: '/images/blog/chain-drivetrain-closeup-1600.webp',
+        alt: 'Nahaufnahme eines Fahrrad-Antriebs mit Kassette und Schaltwerk',
+        caption: 'Bei hoher Motorlast verschleißt nicht nur die Kette — auch Kassette und Kettenblatt leiden mit, wenn zu spät gewechselt wird.',
+      },
       { type: 'h2', text: 'Wann muss die E-Bike-Kette gewechselt werden?' },
-      { type: 'p', text: 'Wie bei jeder Kette gilt die 0,5-Prozent-Grenze bei modernen 11- und 12-fach-Antrieben, gemessen mit einer Kettenlehre. Wegen der hohen Last lohnt es sich beim E-Bike, öfter zu messen als beim normalen Rad, damit die teure Kassette nicht mitverschleißt.' },
+      { type: 'p', text: 'Wie bei jeder Kette gilt die 0,5-Prozent-Grenze bei modernen 11- und 12-fach-Antrieben, [[gemessen mit einer Kettenlehre|/blog/kettenverschleiss-messen]]. Wegen der hohen Last lohnt es sich beim E-Bike, öfter zu messen als beim normalen Rad, damit die teure Kassette nicht mitverschleißt.' },
       { type: 'h2', text: 'Lohnt sich der Aufwand beim E-Bike?' },
       { type: 'p', text: 'Gerade beim E-Bike, ja. Die Antriebskomponenten sind teuer, und eine verschlissene Kette zieht bei zu langem Fahren Kassette und Kettenblatt mit in den Verschleiß. Wachs verlängert die Kettenlaufzeit deutlich und schont damit die ganze, oft hochpreisige Antriebseinheit. Wer viel und unter Last fährt, holt den Aufwand schnell wieder rein.' },
     ],
@@ -1256,6 +1337,7 @@ export const articles: Article[] = [
     titleShort: 'Kettenverschleiß messen: wann wechseln?',
     description: 'Kettenverschleiß richtig messen: Was die 0,5-%-Grenze bedeutet, wie eine Kettenlehre funktioniert und warum eine gewachste Kette deutlich länger hält.',
     category: 'Technik',
+    linksToCalculator: true,
     publishDate: '2026-06-16',
     dateModified: '2026-07-27',
     readingTime: '6 min',
@@ -1386,6 +1468,15 @@ export const articles: Article[] = [
       ] },
       { type: 'tip', text: 'Halte immer einen passenden Ersatz-Link in der Satteltasche. Er wiegt nichts, kostet wenig und rettet jede Tour, falls die Kette unterwegs reißt, ganz unabhängig vom Wachsen.' },
     ],
+    howTo: {
+      name: 'Quick-Link ohne Spezialwerkzeug öffnen und schließen',
+      totalTime: 'PT1M',
+      steps: [
+        { name: 'Öffnen', text: 'Den Link an die obere, gerade Kettenstrecke bringen (zwischen Kettenblatt und Schaltwerk, ohne Spannung). Die beiden Glieder mit den Daumen zueinander drücken und gleichzeitig auseinanderschieben, er klickt auf. Eine Quick-Link-Zange macht es noch leichter, ist aber kein Muss.' },
+        { name: 'Schließen', text: 'Beide Hälften in die Kettenenden einfädeln, zusammenstecken, dann unter Zug bringen. Am einfachsten, indem du das Pedal mit der Bremse blockierst und kräftig trittst, bis der Link hörbar einrastet.' },
+        { name: 'Kontrolle', text: 'Der geschlossene Link muss sich sauber durchbiegen lassen und darf kein seitliches Spiel haben.' },
+      ],
+    },
     ctaSlug: 'wax-500',
     ctaText: 'Classic Heißwachs 500 g ansehen →',
   },
