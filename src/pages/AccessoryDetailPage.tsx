@@ -10,6 +10,7 @@
 // applies here.
 
 import { useParams, Link } from 'react-router-dom';
+import { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Check, ExternalLink } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -18,6 +19,7 @@ import { Footer } from '@/sections/footer';
 import { BackLink } from '@/components/BackLink';
 import { getAccessoryBySlug } from '@/lib/data';
 import { trackEbayClick } from '@/lib/analytics';
+import { removeStaticJsonLd } from '@/lib/utils';
 
 const W = 'mx-auto w-full max-w-3xl px-6 sm:px-10 lg:px-14';
 
@@ -26,6 +28,12 @@ export function AccessoryDetailPage() {
   const { lang } = useLanguage();
   const de = lang === 'de';
   const acc = slug ? getAccessoryBySlug(slug) : undefined;
+
+  // Prerenderte HTML fuer diese Route liefert bereits dasselbe Product +
+  // BreadcrumbList JSON-LD (data-prerendered-ld, siehe generate-accessory-html.mjs)
+  // — ohne das hier haeuften sich zwei Product-Bloecke im Live-DOM nach dem
+  // Hydrieren, derselbe Fix wie auf ProductDetailPage.tsx/BlogArticlePage.tsx.
+  useEffect(() => { removeStaticJsonLd(); }, [slug]);
 
   if (!acc) {
     return (
@@ -60,7 +68,10 @@ export function AccessoryDetailPage() {
     offers: acc.ebayUrl ? {
       '@type': 'Offer', price: acc.price.toFixed(2), priceCurrency: 'EUR',
       availability: 'https://schema.org/InStock', url: acc.ebayUrl,
-      seller: { '@type': 'Organization', name: 'Waxcelerate' },
+      // Per @id auf den Organization-Knoten aus index.html verweisen statt
+      // einen zweiten, unverbundenen Waxcelerate-Knoten aufzumachen — deckt
+      // sich mit generate-accessory-html.mjs/ProductDetailPage.tsx.
+      seller: { '@id': 'https://waxcelerate.de/#organization' },
     } : undefined,
   });
 
@@ -87,7 +98,7 @@ export function AccessoryDetailPage() {
             style={{ aspectRatio: '21 / 9', minHeight: 210, background: 'var(--hero-stage)' }}>
             <img src={acc.image} alt={titleText} className="absolute inset-0 w-full h-full object-cover" />
             <div aria-hidden className="absolute inset-0"
-              style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.80) 0%, rgba(0,0,0,0.34) 46%, rgba(0,0,0,0.04) 100%)' }} />
+              style={{ background: 'linear-gradient(to top, rgba(var(--scrim-rgb),0.80) 0%, rgba(var(--scrim-rgb),0.34) 46%, rgba(var(--scrim-rgb),0.04) 100%)' }} />
             <div className="absolute inset-x-0 bottom-0 p-5 sm:p-8">
               <h1 className="font-display font-bold leading-[1.05]"
                 style={{ color: '#fff', fontSize: 'clamp(1.5rem, 3.6vw, 2.3rem)', letterSpacing: '-0.02em' }}>

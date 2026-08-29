@@ -1,10 +1,17 @@
 import { ShoppingCart } from 'lucide-react';
 import { useCartStore, cartItemCount } from '@/store/cart';
+import { useLanguage } from '@/hooks/useLanguage';
 
 export function CartIcon({ light = false }: { light?: boolean }) {
   const items = useCartStore((s) => s.items);
   const openCart = useCartStore((s) => s.openCart);
   const count = cartItemCount(items);
+  // War hardcoded Deutsch — jede andere Cart-Komponente (AddToCartButton,
+  // CartDrawer) haengt an useLanguage(), diese hier nicht. Unreachable
+  // solange checkoutEnabled false ist, aber ein echter Bug, der sich beim
+  // Aktivieren nicht von selbst loest.
+  const { lang } = useLanguage();
+  const de = lang === 'de';
 
   return (
     <button
@@ -12,7 +19,7 @@ export function CartIcon({ light = false }: { light?: boolean }) {
       className={`relative p-2 transition-colors rounded-lg ${
         light ? 'text-white/85 hover:text-white' : 'text-wx-tx2 hover:text-wx-tx1'
       }`}
-      aria-label={`Warenkorb (${count} Artikel)`}
+      aria-label={de ? `Warenkorb (${count} Artikel)` : `Cart (${count} items)`}
     >
       <ShoppingCart className="h-5 w-5" />
       {count > 0 && (

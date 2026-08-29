@@ -19,6 +19,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   let subtotalCents = 0;
 
   for (const item of items) {
+    // Client-controlled input — a zero/negative/fractional quantity would
+    // otherwise reach Stripe's own line_items untouched, either erroring
+    // there in a way the client can't parse, or (for non-integers) silently
+    // mispricing the subtotal used for the free-shipping threshold below.
+    if (!Number.isInteger(item.quantity) || item.quantity < 1) {
+      return res.status(400).json({ error: `Invalid quantity for ${item.productId}` });
+    }
     const product = products.find((p) => p.id === item.productId);
     if (!product) {
       return res.status(400).json({ error: `Unknown product: ${item.productId}` });
@@ -44,36 +51,46 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const origin = req.headers.origin ?? process.env.SITE_URL ?? 'https://waxcelerate.de';
 
-  const session = await stripe.checkout.sessions.create({
-    mode: 'payment',
-    currency: 'eur',
-    line_items: lineItems,
-    allow_promotion_codes: true,
-    shipping_address_collection: {
-      allowed_countries: ['DE', 'AT', 'CH', 'NL', 'BE', 'FR', 'IT', 'ES', 'PL', 'DK', 'SE', 'NO', 'GB'],
-    },
-    shipping_options: [{
-      shipping_rate_data: {
-        type: 'fixed_amount',
-        fixed_amount: { amount: shippingCents, currency: 'eur' },
-        display_name: shippingLabel,
-        delivery_estimate: {
-          minimum: { unit: 'business_day', value: 1 },
-          maximum: { unit: 'business_day', value: 3 },
+  // src/store/cart.ts:104 expects a JSON {error} body on any non-2xx
+  // response. An unhandled throw from the Stripe call (bad price ID for the
+  // active mode, a Stripe outage) previously crashed with a non-JSON body,
+  // which then failed a second time inside the client's own res.json()
+  // parsing — the customer saw a raw parse error instead of a real message.
+  try {
+    const session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      currency: 'eur',
+      line_items: lineItems,
+      allow_promotion_codes: true,
+      shipping_address_collection: {
+        allowed_countries: ['DE', 'AT', 'CH', 'NL', 'BE', 'FR', 'IT', 'ES', 'PL', 'DK', 'SE', 'NO', 'GB'],
+      },
+      shipping_options: [{
+        shipping_rate_data: {
+          type: 'fixed_amount',
+          fixed_amount: { amount: shippingCents, currency: 'eur' },
+          display_name: shippingLabel,
+          delivery_estimate: {
+            minimum: { unit: 'business_day', value: 1 },
+            maximum: { unit: 'business_day', value: 3 },
+          },
+        },
+      }],
+      payment_method_types: ['card', 'sepa_debit', 'klarna'],
+      invoice_creation: {
+        enabled: true,
+        invoice_data: {
+          footer: 'Gemäß §19 UStG wird keine Umsatzsteuer erhoben. | Waxcelerate, Stuttgart',
         },
       },
-    }],
-    payment_method_types: ['card', 'sepa_debit', 'klarna'],
-    invoice_creation: {
-      enabled: true,
-      invoice_data: {
-        footer: 'Gemäß §19 UStG wird keine Umsatzsteuer erhoben. | Waxcelerate, Stuttgart',
-      },
-    },
-    success_url: `${origin}/bestellung-erfolgreich?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${origin}/#produkte`,
-    metadata: { source: 'website' },
-  });
+      success_url: `${origin}/bestellung-erfolgreich?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/#produkte`,
+      metadata: { source: 'website' },
+    });
 
-  return res.json({ url: session.url });
+    return res.json({ url: session.url });
+  } catch (err) {
+    console.error('create-checkout: Stripe session creation failed', err);
+    return res.status(500).json({ error: 'Checkout could not be started. Please try again.' });
+  }
 }
