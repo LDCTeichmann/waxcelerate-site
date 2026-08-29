@@ -74,15 +74,25 @@ export function StarterSetPage() {
               ergibt das eine praktisch unlesbare Ueberschrift. `.pdp-dark` ist
               die dafuer vorgesehene Ausnahme (direkt darunter in derselben
               Datei definiert) und faerbt Ueberschriften darin wieder weiss. */}
-          <div className="pdp-dark relative rounded-2xl overflow-hidden"
-            style={{ aspectRatio: '21 / 9', minHeight: 210, background: 'var(--hero-stage)' }}>
+          {/* aspect-[4/3] sm:aspect-[21/9]: previously a fixed style aspectRatio
+              21/9 plus minHeight:210 fought each other on narrow phones — at
+              ~360px width, 21:9 computes to ~154px, so minHeight silently won
+              and produced an unplanned ~360x210 (1.71) box that matched
+              neither ratio, with object-cover then cropping the tall
+              (1200x1500) source photo unpredictably depending on exact
+              viewport width. A deliberate 4:3 mobile ratio gives the
+              block/pliers/wire enough height to read clearly; the wide 21:9
+              banner returns at sm: where there is width to spare. No
+              minHeight needed once the ratio itself is viewport-aware. */}
+          <div className="pdp-dark relative rounded-2xl overflow-hidden aspect-[4/3] sm:aspect-[21/9]"
+            style={{ background: 'var(--hero-stage)' }}>
             <img src="/images/doors/starter-set.webp"
               srcSet="/images/doors/starter-set-800.webp 800w, /images/doors/starter-set.webp 1200w"
               sizes="(max-width: 1024px) 92vw, 1000px"
               alt={de ? 'Wachsblock mit Quick-Link-Zange und Kette' : 'Wax block with quick-link pliers and chain'}
               className="absolute inset-0 w-full h-full object-cover" />
             <div aria-hidden className="absolute inset-0"
-              style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.80) 0%, rgba(0,0,0,0.34) 46%, rgba(0,0,0,0.04) 100%)' }} />
+              style={{ background: 'linear-gradient(to top, rgba(var(--scrim-rgb),0.80) 0%, rgba(var(--scrim-rgb),0.34) 46%, rgba(var(--scrim-rgb),0.04) 100%)' }} />
             <div className="absolute inset-x-0 bottom-0 p-5 sm:p-8">
               <h1 className="font-display font-bold leading-[1.05]"
                 style={{ color: '#fff', fontSize: 'clamp(1.6rem, 4vw, 2.6rem)', letterSpacing: '-0.02em' }}>
