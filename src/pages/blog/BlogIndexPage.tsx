@@ -140,7 +140,7 @@ function FeatureTile({ article }: { article: Article }) {
           />
           <figcaption
             className="absolute bottom-0 left-0 right-0 px-2 py-1.5 font-mono text-[10px] uppercase tracking-[0.14em]"
-            style={{ background: 'linear-gradient(0deg, rgba(0,0,0,0.85), rgba(0,0,0,0))', color: '#F2F2F5' }}
+            style={{ background: 'linear-gradient(0deg, rgba(var(--scrim-rgb),0.85), rgba(var(--scrim-rgb),0))', color: '#F2F2F5' }}
           >
             {blogFeature.inset.caption}
           </figcaption>
@@ -265,7 +265,7 @@ export function BlogIndexPage() {
         <title>Die Werkstatt — Heißwachs Tipps &amp; Anleitungen | Waxcelerate</title>
         <meta
           name="description"
-          content="Messwerte, Anleitungen und ehrliche Antworten rund um Kettenpflege und Heißwachs – aus Stuttgart."
+          content={`Messwerte, Anleitungen und ehrliche Antworten rund um Kettenpflege und Heißwachs aus Stuttgart. ${articles.length} Artikel.`}
         />
         <link rel="canonical" href="https://waxcelerate.de/blog" />
         <meta property="og:type" content="website" />
@@ -274,7 +274,7 @@ export function BlogIndexPage() {
         <meta property="og:title" content="Die Werkstatt — Heißwachs Tipps &amp; Anleitungen | Waxcelerate" />
         <meta
           property="og:description"
-          content="Messwerte, Anleitungen und ehrliche Antworten rund um Kettenpflege und Heißwachs – aus Stuttgart."
+          content={`Messwerte, Anleitungen und ehrliche Antworten rund um Kettenpflege und Heißwachs aus Stuttgart. ${articles.length} Artikel.`}
         />
         <meta property="og:url" content="https://waxcelerate.de/blog" />
         <meta property="og:image" content="https://waxcelerate.de/images/blog/ride-road-golden.jpg" />
@@ -282,7 +282,7 @@ export function BlogIndexPage() {
         <meta name="twitter:title" content="Die Werkstatt — Heißwachs Tipps &amp; Anleitungen | Waxcelerate" />
         <meta
           name="twitter:description"
-          content="Messwerte, Anleitungen und ehrliche Antworten rund um Kettenpflege und Heißwachs – aus Stuttgart."
+          content={`Messwerte, Anleitungen und ehrliche Antworten rund um Kettenpflege und Heißwachs aus Stuttgart. ${articles.length} Artikel.`}
         />
         <meta name="twitter:image" content="https://waxcelerate.de/images/blog/ride-road-golden.jpg" />
       </Helmet>
@@ -426,7 +426,7 @@ export function BlogIndexPage() {
             />
             <div
               className="absolute inset-0"
-              style={{ background: 'linear-gradient(90deg, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.6) 55%, rgba(0,0,0,0.35) 100%)' }}
+              style={{ background: 'linear-gradient(90deg, rgba(var(--scrim-rgb),0.82) 0%, rgba(var(--scrim-rgb),0.6) 55%, rgba(var(--scrim-rgb),0.35) 100%)' }}
             />
             <div className="relative">
               <p className="font-display text-lg font-semibold mb-1" style={{ color: '#FFFFFF' }}>
