@@ -675,7 +675,12 @@ function RotationAndSavings({ profile, showProfilePill, onJumpToProfile }: {
   const REWAX_KM        = profile.interval;
   const CHAIN_PRICE     = 45;
   const CASSETTE_PRICE  = 85.70;
-  const WAX_BLOCK_PRICE = 35;
+  // War hier als literale 35 hardcodiert (CLAUDE.md: "Nur src/lib/data.ts
+  // fuer Produktdaten"), 5 EUR ueber dem echten Preis von wax-500 (29,95 EUR)
+  // — der Rechner zeigte Besuchern damit einen Wachs-Kostenvorteil, der
+  // kleiner ausfiel als er tatsaechlich ist. wax500 ist bereits als
+  // Modul-Konstante oben in dieser Datei definiert (fuer WaxStockCalculator).
+  const WAX_BLOCK_PRICE = wax500.price;
   const APPS_PER_BLOCK  = 33;
   const OIL_CHAIN_KM    = 4000;
   const OIL_CASSETTE_KM = 15000;

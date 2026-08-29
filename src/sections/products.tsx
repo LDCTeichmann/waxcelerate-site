@@ -409,6 +409,12 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
 const CLASSIC_ACCENT = 'var(--accent-soft)';
 const PRO_ACCENT = 'var(--accent-soft)';
 
+// Gleiches Muster wie eur() in ProductShelf.tsx — CompareModal bekommt keine
+// lang-basierte Intl.NumberFormat-Instanz durchgereicht (die des Elternteils
+// ist an dessen eigenen `formatter`/`formatPrice` gebunden), daher lokal.
+const eur = (n: number, de: boolean) =>
+  n.toLocaleString(de ? 'de-DE' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+
 function CompareModal({ open, onClose, de, t }: {
   open: boolean;
   onClose: () => void;
@@ -433,8 +439,12 @@ function CompareModal({ open, onClose, de, t }: {
   const proRc = richContent['wax-500-mos2'];
   const pt = t.products;
 
-  const classicPrice = '29,95 €';
-  const proPrice = '34,95 €';
+  // War als literaler, nur-deutscher String hardcodiert (CLAUDE.md: "Nur
+  // src/lib/data.ts fuer Produktdaten") — desynct bei jeder Preisaenderung
+  // und zeigte im englischen UI trotzdem "29,95 €" statt "€29.95". Gleiches
+  // Muster wie eur() in ProductShelf.tsx.
+  const classicPrice = eur(products.find(p => p.id === 'wax-500')!.price, de);
+  const proPrice = eur(products.find(p => p.id === 'wax-500-mos2')!.price, de);
 
   const rows = [
     {

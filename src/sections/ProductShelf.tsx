@@ -144,7 +144,7 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
         <span
           aria-hidden
           className="absolute inset-0"
-          style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.76) 0%, rgba(0,0,0,0.42) 24%, rgba(0,0,0,0.06) 52%, rgba(0,0,0,0) 72%)' }}
+          style={{ background: 'linear-gradient(to top, rgba(var(--scrim-rgb),0.76) 0%, rgba(var(--scrim-rgb),0.42) 24%, rgba(var(--scrim-rgb),0.06) 52%, rgba(var(--scrim-rgb),0) 72%)' }}
         />
 
         {/* Hover-Pfeil oben rechts — spiegelt die Auszeichnung oben links und
@@ -350,8 +350,8 @@ export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, d
         </picture>
         <span aria-hidden className="absolute inset-0"
           style={{ background: dark
-            ? 'linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,0.1) 62%, rgba(0,0,0,0) 78%)'
-            : 'linear-gradient(to top, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.28) 32%, rgba(0,0,0,0) 62%)' }} />
+            ? 'linear-gradient(to top, rgba(var(--scrim-rgb),0.82) 0%, rgba(var(--scrim-rgb),0.5) 30%, rgba(var(--scrim-rgb),0.1) 62%, rgba(var(--scrim-rgb),0) 78%)'
+            : 'linear-gradient(to top, rgba(var(--scrim-rgb),0.62) 0%, rgba(var(--scrim-rgb),0.28) 32%, rgba(var(--scrim-rgb),0) 62%)' }} />
         <div className="absolute left-4 right-4 bottom-4">
           <p className="flex items-center gap-2 text-meta font-semibold uppercase tracking-[0.1em]" style={{ color: 'rgba(255,255,255,0.78)' }}>
             {index && (
