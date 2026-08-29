@@ -621,13 +621,23 @@ export function ProductDetailPage() {
                 Bei einem Produkt, das eine Verhaltensaenderung verlangt, ist die
                 stille Frage nicht "ist es gut", sondern "was, wenn ich damit
                 nicht klarkomme". Bewusst zwei Saetze: der erste ist die
-                Rechtslage, der zweite der Ton der Marke. */}
+                Rechtslage, der zweite der Ton der Marke.
+                Vorherige Fassung ("wenn das Wachsen nichts fuer dich ist")
+                versprach implizit eine Ruecknahme, nachdem der Block schon
+                angeschmolzen bzw. die Kette schon montiert war — genau das
+                nimmt Luca nicht zurueck (unverkaeuflich, kein Streitfall).
+                Jetzt an die tatsaechliche Bedingung geknuepft, ohne die
+                Einladung zu streichen, sich bei Problemen trotzdem zu melden. */}
             <div className="flex items-start gap-1.5 mb-5 text-meta" style={{ color: 'var(--txff)' }}>
               <RotateCcw className="h-3 w-3 flex-shrink-0 mt-[3px]" style={{ color: accentColor }} aria-hidden />
               <span>
                 {de
-                  ? '14 Tage Rückgaberecht. Wenn das Wachsen nichts für dich ist, schreib mir — ich nehme es zurück.'
-                  : '14-day right of return. If waxing turns out not to be for you, write to me — I will take it back.'}
+                  ? (isWax
+                    ? '14 Tage Rückgaberecht, solange der Block original verpackt ist. Schreib mir gerne trotzdem, wenn etwas nicht passt.'
+                    : '14 Tage Rückgaberecht, solange die Kette nicht montiert wurde. Schreib mir gerne, wenn etwas nicht passt.')
+                  : (isWax
+                    ? '14-day right of return, as long as the block is still sealed. Feel free to write to me anyway if something is not right.'
+                    : '14-day right of return, as long as the chain has not been installed. Feel free to write to me if something is not right.')}
               </span>
             </div>
 
