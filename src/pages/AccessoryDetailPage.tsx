@@ -19,7 +19,7 @@ import { Footer } from '@/sections/footer';
 import { BackLink } from '@/components/BackLink';
 import { getAccessoryBySlug } from '@/lib/data';
 import { trackEbayClick } from '@/lib/analytics';
-import { removeStaticJsonLd } from '@/lib/utils';
+import { removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
 
 const W = 'mx-auto w-full max-w-3xl px-6 sm:px-10 lg:px-14';
 
@@ -33,7 +33,9 @@ export function AccessoryDetailPage() {
   // BreadcrumbList JSON-LD (data-prerendered-ld, siehe generate-accessory-html.mjs)
   // — ohne das hier haeuften sich zwei Product-Bloecke im Live-DOM nach dem
   // Hydrieren, derselbe Fix wie auf ProductDetailPage.tsx/BlogArticlePage.tsx.
-  useEffect(() => { removeStaticJsonLd(); }, [slug]);
+  // Gleiches gilt fuer die title-/description-/canonical-/og-/twitter-Tags,
+  // die das <Helmet> unten erneut setzt (siehe removeStaticHeadMeta).
+  useEffect(() => { removeStaticJsonLd(); removeStaticHeadMeta(); }, [slug]);
 
   if (!acc) {
     return (
