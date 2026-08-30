@@ -18,7 +18,7 @@ import { Helmet } from 'react-helmet-async';
 import { Link, useLocation } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Check, X, Gift, User, ChevronDown } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
-import { removeStaticJsonLd } from '@/lib/utils';
+import { removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
 
 import { Navigation } from '@/sections/navigation';
 import { Footer } from '@/sections/footer';
@@ -340,8 +340,10 @@ export function RewaxPage() {
   // werden kann, sobald diese Seite ihre eigenen, spezifischeren Service- und
   // FAQPage-Schemas unten via Helmet nachliefert. Ohne diesen Aufruf blieben
   // nach der Hydration drei JSON-LD-Bloecke gleichzeitig im DOM stehen
-  // (dieselbe Klasse Bug wie vorher auf der Wissenschaftsseite).
-  useEffect(() => { removeStaticJsonLd(); }, []);
+  // (dieselbe Klasse Bug wie vorher auf der Wissenschaftsseite). Gleiches
+  // gilt fuer die title-/description-/canonical-Tags, die das <Helmet>
+  // unten erneut setzt (siehe removeStaticHeadMeta).
+  useEffect(() => { removeStaticJsonLd(); removeStaticHeadMeta(); }, []);
 
   // Mobile-Plan B8: die URL (/kette-wachsen-lassen, seit 08/2026) war schon
   // auf den deutschen Suchbegriff umgestellt, aber Title, H1 und Nav-Label

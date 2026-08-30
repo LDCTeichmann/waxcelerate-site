@@ -14,6 +14,7 @@
 // Accessories sold separately: three hanging wires 5 € plus 1,80 € shipping,
 // quick-link pliers 5 €.
 
+import { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
@@ -23,6 +24,7 @@ import { Footer } from '@/sections/footer';
 import { BackLink } from '@/components/BackLink';
 import { accessories, starterSet } from '@/lib/data';
 import { StarterSetOptions } from '@/sections/StarterSetOptions';
+import { removeStaticHeadMeta } from '@/lib/utils';
 
 const W = 'mx-auto w-full max-w-5xl px-6 sm:px-10 lg:px-14';
 
@@ -43,6 +45,12 @@ export function StarterSetPage() {
   const description = de
     ? `Wachs, vorgewachste Kette, Quick-Link-Zange und Aufhängedraht in einem Set, ${starterSet.discountPct} Prozent unter der Summe der Einzelteile. Alles, was für das erste Wachsen nötig ist.`
     : `Wax, pre-waxed chain, quick-link pliers and hanging wire in one set, ${starterSet.discountPct} percent below the sum of the parts. Everything the first waxing needs.`;
+
+  // Die vorgerenderte Huelle (scripts/generate-blog-html.mjs, STATIC_PAGES)
+  // setzt title/description/canonical bereits statisch, markiert mit
+  // data-prerendered — ohne diesen Aufruf bleiben nach der Hydration zwei
+  // Versionen jedes Tags im DOM (siehe removeStaticHeadMeta in src/lib/utils.ts).
+  useEffect(() => { removeStaticHeadMeta(); }, []);
 
   return (
     <div className="min-h-screen bg-wx-bg">
