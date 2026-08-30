@@ -454,7 +454,7 @@ export function ProductDetailPage() {
             den Screenreader-Nutzer per "zum Inhalt springen" ansteuern
             koennen — sie mussten sich durch Header und Navigation tabben,
             bevor der eigentliche Produktinhalt beginnt. */}
-        <main>
+        <main id="main-content">
         {/* ══════════════════════════════════════════════════════════════
             MOBILE HERO — stacked: image top, info below
            ══════════════════════════════════════════════════════════════ */}

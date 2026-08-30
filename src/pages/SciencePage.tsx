@@ -871,7 +871,7 @@ export function SciencePage() {
 
       {/* Mobile-Plan B7d: kein <main>-Landmark auf dieser Seite — "zum
           Inhalt springen" hatte nichts zum Ansteuern. */}
-      <main>
+      <main id="main-content">
       <ScienceHero de={de} />
 
       {/* ── ACT I — THE PROBLEM ──

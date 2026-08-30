@@ -443,7 +443,7 @@ export function RewaxPage() {
 
       {/* Mobile-Plan B7d: kein <main>-Landmark auf dieser Seite — "zum
           Inhalt springen" hatte nichts zum Ansteuern. */}
-      <main>
+      <main id="main-content">
       {/* ── Hero ── */}
       <section className="relative pt-28 sm:pt-36 pb-14 sm:pb-20" style={{ background: 'var(--pg)' }}>
         <div className={W}>

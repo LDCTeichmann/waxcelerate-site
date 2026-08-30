@@ -18,6 +18,8 @@ export function ScrollToTop() {
     <button
       onClick={handleClick}
       aria-label="Nach oben"
+      aria-hidden={!visible}
+      tabIndex={visible ? 0 : -1}
       className={`fixed bottom-20 right-4 lg:bottom-6 lg:right-6 z-40 w-10 h-10 rounded-full flex items-center justify-center transition-opacity duration-300 ${visible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
       style={{
         background: 'var(--sf2)',

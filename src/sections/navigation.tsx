@@ -106,7 +106,17 @@ export function Navigation() {
 
   useBodyScrollLock(isMobileMenuOpen);
 
+  // Ohne den mountedRef-Wächter lief der else-Zweig auch beim allerersten
+  // Render (isMobileMenuOpen startet als false), also bei JEDEM Seitenaufruf
+  // unter dem lg-Breakpoint — der Hamburger-Button bekam den Fokus, bevor
+  // die Seite ueberhaupt etwas getan hatte. Jetzt nur noch bei einem echten
+  // true→false-Uebergang (Menue wurde tatsaechlich geschlossen).
+  const mountedRef = useRef(false);
   useEffect(() => {
+    if (!mountedRef.current) {
+      mountedRef.current = true;
+      return;
+    }
     if (isMobileMenuOpen) {
       setTimeout(() => {
         const panel = document.getElementById('mobile-menu');
@@ -159,6 +169,19 @@ export function Navigation() {
 
   return (
     <>
+      {/* Skip-Link: bisher gab es sitewide keine Moeglichkeit, per Tastatur
+          direkt zum Seiteninhalt zu springen — jede Seite mit Tab starten
+          hiess, sich erst durch Logo, sechs Nav-Punkte, Sprach-/Theme-Toggle
+          und CTA zu tabben. Nur sichtbar bei Fokus (die uebliche
+          Skip-Link-Konvention), zeigt auf `#main-content`, das jetzt jede
+          Seite mit einem echten `<main>`-Landmark traegt. */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:px-4 focus:py-2.5 focus:rounded-full focus:text-[13px] focus:font-semibold"
+        style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
+      >
+        {de ? 'Zum Inhalt springen' : 'Skip to content'}
+      </a>
       {/* ── Header bar ── */}
       <header
         className="fixed top-0 left-0 right-0 z-50 py-2 transition-all duration-300"
@@ -235,6 +258,7 @@ export function Navigation() {
                   onClick={() => setIsResourcesOpen(v => !v)}
                   aria-expanded={isResourcesOpen}
                   aria-haspopup="true"
+                  aria-controls="resources-menu"
                   className="relative group flex items-center gap-1 text-[13.5px] tracking-[0.01em] transition-colors duration-300 whitespace-nowrap"
                   style={{ color: resourcesActive || isResourcesOpen ? 'var(--tx1)' : 'var(--tx2)' }}
                 >
@@ -254,6 +278,7 @@ export function Navigation() {
 
                 {isResourcesOpen && (
                   <div
+                    id="resources-menu"
                     role="menu"
                     className="absolute top-full left-1/2 -translate-x-1/2 mt-4 p-2 rounded-2xl w-[330px]"
                     style={{
@@ -303,7 +328,7 @@ export function Navigation() {
                 onClick={() => setTheme(theme === 'light' ? 'noir' : 'light')}
                 className="hidden lg:flex items-center justify-center w-9 h-9 rounded-full transition-colors"
                 style={{ color: 'var(--tx2)' }}
-                aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+                aria-label={de ? (theme === 'light' ? 'Zum Dark Mode wechseln' : 'Zum Light Mode wechseln') : (theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode')}
               >
                 {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
               </button>
@@ -354,12 +379,18 @@ export function Navigation() {
         onClick={() => setIsMobileMenuOpen(false)}
       />
 
-      {/* Panel */}
+      {/* Panel — translate-x-full moves it off-screen but does NOT remove it
+          from the accessibility tree or tab order (CSS transforms never do).
+          Without aria-hidden/inert, a keyboard user tabbing through the page
+          lands in ~10 invisible links + two toggles before reaching any real
+          content. Same fix as the sticky buy-bar in ProductDetailPage.tsx. */}
       <div
         id="mobile-menu"
         role="dialog"
         aria-modal="true"
         aria-label={de ? 'Navigation' : 'Navigation'}
+        aria-hidden={!isMobileMenuOpen}
+        inert={!isMobileMenuOpen}
         className={`lg:hidden fixed inset-0 sm:inset-y-0 sm:left-auto sm:w-80 z-[70] flex flex-col transition-transform duration-[350ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
           isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
@@ -422,7 +453,7 @@ export function Navigation() {
           <button
             onClick={() => setTheme(theme === 'light' ? 'noir' : 'light')}
             className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-wx-tx2 hover:text-wx-tx1 border border-wx-bd/50 hover:border-[var(--accent)] rounded transition-colors"
-            aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+            aria-label={de ? (theme === 'light' ? 'Zum Dark Mode wechseln' : 'Zum Light Mode wechseln') : (theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode')}
           >
             {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
             {theme === 'light' ? (de ? 'Dark Mode' : 'Dark mode') : (de ? 'Light Mode' : 'Light mode')}

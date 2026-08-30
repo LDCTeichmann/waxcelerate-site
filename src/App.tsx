@@ -106,7 +106,7 @@ function AppContent() {
           <>
             <Navigation />
             <PendingAnchorScroll />
-            <main>
+            <main id="main-content">
               <Suspense fallback={<div style={{ minHeight: '100svh' }} />}>
                 <HeroEditorial />
               </Suspense>
