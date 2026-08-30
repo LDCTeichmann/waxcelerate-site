@@ -23,6 +23,22 @@ export function removeStaticJsonLd() {
 }
 
 /**
+ * Same problem as removeStaticJsonLd() above, for ordinary title/meta/link
+ * tags instead of JSON-LD: a prerendered page's static title, description,
+ * canonical and og:* / twitter:* tags (marked data-prerendered="true", see
+ * metaTags() in scripts/lib/prerender.mjs) stay in the DOM after a page's own
+ * <Helmet> renders the same tags again on mount — Helmet only ever manages
+ * tags it created itself. document.title still reads correctly either way
+ * (browsers use the first <title> in document order, which is Helmet's), so
+ * this bug is invisible unless you inspect document.head directly. Call this
+ * once on mount of any page that has both a static prerender and a client
+ * Helmet covering the same tags.
+ */
+export function removeStaticHeadMeta() {
+  document.querySelectorAll('[data-prerendered="true"]').forEach((el) => el.remove());
+}
+
+/**
  * Returns estimated delivery date string.
  * Logic: orders before 14:00 CET ship same day, otherwise next business day.
  * Add 1 business day for DHL delivery within Germany.
