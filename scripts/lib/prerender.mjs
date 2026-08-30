@@ -88,25 +88,33 @@ export function buildPage(shell, { head, body }) {
   return html;
 }
 
+// Jede Seite, die diese Tags per Helmet beim Hydrieren erneut setzt, muss sie
+// hier mit data-prerendered markieren und removeStaticHeadMeta() (src/lib/utils.ts)
+// beim Mounten aufrufen — sonst bleiben nach der Hydration zwei title-/
+// description-/canonical-/og-/twitter-Tags im DOM, denn Helmet entfernt nur
+// Tags, die es selbst gesetzt hat, nie die vorgerenderten. Gleiches Prinzip
+// wie ldClientManaged()/removeStaticJsonLd() oben, nur fuer normale Meta-Tags
+// statt JSON-LD.
 export function metaTags({ title, description, canonical, image, type = 'website', published, modified }) {
   const abs = image?.startsWith('http') ? image : `${BASE}${image ?? '/images/hero-chain-texture.jpg'}`;
+  const p = ' data-prerendered="true"';
   return [
-    `<title>${esc(title)}</title>`,
-    `<meta name="description" content="${esc(description)}">`,
-    `<link rel="canonical" href="${canonical}">`,
-    `<meta property="og:type" content="${type}">`,
-    `<meta property="og:site_name" content="Waxcelerate">`,
-    `<meta property="og:locale" content="de_DE">`,
-    `<meta property="og:title" content="${esc(title)}">`,
-    `<meta property="og:description" content="${esc(description)}">`,
-    `<meta property="og:url" content="${canonical}">`,
-    `<meta property="og:image" content="${abs}">`,
-    published ? `<meta property="article:published_time" content="${published}">` : '',
-    modified ? `<meta property="article:modified_time" content="${modified}">` : '',
-    `<meta name="twitter:card" content="summary_large_image">`,
-    `<meta name="twitter:title" content="${esc(title)}">`,
-    `<meta name="twitter:description" content="${esc(description)}">`,
-    `<meta name="twitter:image" content="${abs}">`,
+    `<title${p}>${esc(title)}</title>`,
+    `<meta name="description" content="${esc(description)}"${p}>`,
+    `<link rel="canonical" href="${canonical}"${p}>`,
+    `<meta property="og:type" content="${type}"${p}>`,
+    `<meta property="og:site_name" content="Waxcelerate"${p}>`,
+    `<meta property="og:locale" content="de_DE"${p}>`,
+    `<meta property="og:title" content="${esc(title)}"${p}>`,
+    `<meta property="og:description" content="${esc(description)}"${p}>`,
+    `<meta property="og:url" content="${canonical}"${p}>`,
+    `<meta property="og:image" content="${abs}"${p}>`,
+    published ? `<meta property="article:published_time" content="${published}"${p}>` : '',
+    modified ? `<meta property="article:modified_time" content="${modified}"${p}>` : '',
+    `<meta name="twitter:card" content="summary_large_image"${p}>`,
+    `<meta name="twitter:title" content="${esc(title)}"${p}>`,
+    `<meta name="twitter:description" content="${esc(description)}"${p}>`,
+    `<meta name="twitter:image" content="${abs}"${p}>`,
   ].filter(Boolean).join('\n  ');
 }
 

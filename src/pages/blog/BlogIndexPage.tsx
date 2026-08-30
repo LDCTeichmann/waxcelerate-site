@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { Navigation } from '@/sections/navigation';
 import { Footer } from '@/sections/footer';
 import { getProductById } from '@/lib/data';
+import { removeStaticHeadMeta } from '@/lib/utils';
 import {
   articles,
   categoryColors,
@@ -258,6 +259,12 @@ export function BlogIndexPage() {
   const recommendedProduct = getProductById(
     filter === 'Alle' ? 'wax-500' : categoryProductSlug[filter],
   );
+
+  // Die vorgerenderte Huelle setzt title/description/canonical/og/twitter
+  // bereits statisch, markiert mit data-prerendered — ohne diesen Aufruf
+  // bleiben nach der Hydration zwei Versionen jedes Tags im DOM (siehe
+  // removeStaticHeadMeta in src/lib/utils.ts).
+  useEffect(() => { removeStaticHeadMeta(); }, []);
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--pg)' }}>
