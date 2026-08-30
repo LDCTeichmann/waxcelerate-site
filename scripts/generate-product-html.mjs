@@ -84,26 +84,29 @@ const lg = (src) =>
 
 // Deckt sich exakt mit IMG_WIDTHS/srcSetFor in ProductDetailPage.tsx: die
 // tatsaechlich gemessenen Pixelbreiten von Basis- und -lg-Datei je Bild
-// (public/images/products/{classic,pro}/*.webp, vermessen am 05.08.2026 mit
-// PIL). Manche -lg-Dateien sind trotz Namens nicht groesser als die Basis
-// (pro-3, pro-5, pro-6) — dort liefert srcSet zwei identische Kandidaten,
-// kein Gewinn, aber auch kein Schaden. Neu vermessen, falls Dateien
-// ausgetauscht werden:
-//   python3 -c "from PIL import Image; import glob
-//   [print(f, Image.open(f).size) for f in sorted(glob.glob('public/images/products/*/*.webp'))]"
+// (public/images/products/{classic,pro}/*.webp). Manche -lg-Dateien sind
+// trotz Namens nicht groesser als die Basis (classic-5, pro-5) — dort
+// liefert srcSet zwei identische Kandidaten, kein Gewinn, aber auch kein
+// Schaden. Re-measured 2026-08-18 nach dem Austausch aller 12 Produktfotos
+// (siehe raw-image-library/products/) — vorher wich diese Tabelle von der
+// Client-Tabelle in ProductDetailPage.tsx ab (Audit ProductDetailPage.tsx,
+// Problem 1: das Preload-Tag versprach andere Breiten als das echte <img
+// srcSet>, der Browser lud die falsche Datei vor und musste danach die
+// tatsaechlich gewaehlte zusaetzlich nachladen). Neu vermessen, falls
+// Dateien ausgetauscht werden — Kommando in ProductDetailPage.tsx Zeile 40-41.
 const IMG_WIDTHS = {
   'classic-1': { base: 1400, lg: 2000 },
-  'classic-2': { base: 1400, lg: 2000 },
-  'classic-3': { base: 1400, lg: 2000 },
+  'classic-2': { base: 1400, lg: 1600 },
+  'classic-3': { base: 1400, lg: 1600 },
   'classic-4': { base: 1400, lg: 2000 },
-  'classic-5': { base: 1400, lg: 2000 },
+  'classic-5': { base: 1387, lg: 1387 },
   'classic-6': { base: 1400, lg: 2000 },
   'pro-1': { base: 1400, lg: 2000 },
   'pro-2': { base: 1400, lg: 2000 },
-  'pro-3': { base: 1254, lg: 1254 },
-  'pro-4': { base: 1400, lg: 1600 },
-  'pro-5': { base: 1086, lg: 1086 },
-  'pro-6': { base: 360, lg: 480 },
+  'pro-3': { base: 1400, lg: 2000 },
+  'pro-4': { base: 1400, lg: 2000 },
+  'pro-5': { base: 1254, lg: 1254 },
+  'pro-6': { base: 1400, lg: 2000 },
 };
 
 /** srcset-Kandidatenliste fuers Preload-Tag, oder undefined fuer externe eBay-Bilder. */
