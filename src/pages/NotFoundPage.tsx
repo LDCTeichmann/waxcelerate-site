@@ -29,7 +29,7 @@ export function NotFoundPage() {
         <meta name="robots" content="noindex" />
       </Helmet>
       <Navigation />
-      <main className="min-h-[70vh] flex items-center" style={{ background: 'var(--pg)' }}>
+      <main id="main-content" className="min-h-[70vh] flex items-center" style={{ background: 'var(--pg)' }}>
         <div className="w-full px-6 sm:px-10 lg:px-14 xl:px-20 py-28">
           <div className="max-w-xl">
             <p className="eyebrow mb-3">404</p>

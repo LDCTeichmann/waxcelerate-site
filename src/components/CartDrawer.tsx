@@ -63,11 +63,15 @@ export function CartDrawer() {
         aria-hidden="true"
       />
 
-      {/* Drawer Panel */}
+      {/* Drawer Panel — translate-x-full moves it off-screen but doesn't
+          remove it from the tab order; same aria-hidden/inert fix as the
+          mobile nav panel in navigation.tsx (same root cause). */}
       <div
         role="dialog"
         aria-modal="true"
         aria-label={t.cart.title}
+        aria-hidden={!isOpen}
+        inert={!isOpen}
         className={`fixed right-0 top-0 bottom-0 z-50 w-full sm:w-96 flex flex-col transition-transform duration-[350ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
