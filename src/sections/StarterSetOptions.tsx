@@ -9,7 +9,7 @@
 // "I know exactly what I want" option for the rest.
 
 import { useState } from 'react';
-import { Check, ChevronRight } from 'lucide-react';
+import { Check, ChevronRight, RotateCcw } from 'lucide-react';
 import { Sparkles, Snowflake, SlidersHorizontal } from 'lucide-react';
 import {
   products, accessories, starterSet,
@@ -77,7 +77,26 @@ function FixedCard({ optionId, de, icon: Icon, badgeDe, badgeEn }: {
         </p>
 
         {canCheckout(bundleProduct) ? (
-          <AddToCartButton product={bundleProduct} fullWidth />
+          <>
+            <AddToCartButton product={bundleProduct} fullWidth />
+            {/* Risikoabbau am Kaufpunkt (docs/AUDIT.md §11), an die
+                tatsaechliche Bedingung geknuepft statt implizit auch
+                benutztes Wachs/montierte Kette einzuschliessen — siehe
+                ProductDetailPage.tsx fuer die ausfuehrliche Begruendung.
+                Set bundelt Wachs UND Kette, deshalb ein gemeinsamer Begriff
+                ("unbenutzt") statt der dortigen Wachs/Ketten-Fallunterscheidung.
+                Nur im canCheckout-Zweig: die WhatsApp-Anfrage im else-Zweig
+                ist kein Fernabsatz-Kauf mit Widerrufsrecht, sondern eine
+                individuelle Anfrage. */}
+            <div className="flex items-start gap-1.5 mt-3 text-meta" style={{ color: 'var(--txff)' }}>
+              <RotateCcw className="h-3 w-3 flex-shrink-0 mt-[3px]" style={{ color: 'var(--accent)' }} aria-hidden />
+              <span>
+                {de
+                  ? '14 Tage Rückgaberecht, solange Wachs und Kette unbenutzt sind. Schreib mir gerne trotzdem, wenn etwas nicht passt.'
+                  : '14-day right of return, as long as the wax and chain are unused. Feel free to write to me anyway if something is not right.'}
+              </span>
+            </div>
+          </>
         ) : (
           <a
             href={`https://wa.me/4915751957470?text=${encodeURIComponent(
