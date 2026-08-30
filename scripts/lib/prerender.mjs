@@ -88,22 +88,13 @@ export function buildPage(shell, { head, body }) {
   return html;
 }
 
-// data-prerendered="true" auf jedem Tag hier: react-helmet-async ersetzt
-// beim Mounten NUR Tags, die es selbst schon einmal gerendert hat — ein
-// bereits im rohen HTML vorhandenes <title>/<meta>/<link> lässt es
-// unangetastet stehen und haengt seine eigene Version einfach ZUSAETZLICH
-// ans Ende von <head>. Ohne Markierung + gezielte Entfernung (siehe
-// removeStaticHeadMeta() in src/lib/utils.ts) hat damit jede Seite mit
-// eigenem Helmet nach der Hydration ZWEI <title>, zwei description, zwei
-// canonical, ein doppeltes Set og:*/twitter:* — verifiziert auf allen
-// bisher stichprobenartig geprueften Routen. document.title zeigt zufaellig
-// noch den richtigen Wert (Browser nehmen dafuer das erste <title> in
-// Dokumentreihenfolge, und Helmets eigenes landet dort zufaellig vor dem
-// alten), aber ein simples querySelector (und vermutlich diverse Crawler)
-// liest bei den uebrigen Tags das FALSCHE, veraltete Duplikat. Gleiche
-// Fehlerklasse wie die bereits bekannte JSON-LD-Dopplung
-// (data-prerendered-ld / removeStaticJsonLd()), hier nur nie auf normale
-// Meta-Tags uebertragen worden.
+// Jede Seite, die diese Tags per Helmet beim Hydrieren erneut setzt, muss sie
+// hier mit data-prerendered markieren und removeStaticHeadMeta() (src/lib/utils.ts)
+// beim Mounten aufrufen — sonst bleiben nach der Hydration zwei title-/
+// description-/canonical-/og-/twitter-Tags im DOM, denn Helmet entfernt nur
+// Tags, die es selbst gesetzt hat, nie die vorgerenderten. Gleiches Prinzip
+// wie ldClientManaged()/removeStaticJsonLd() oben, nur fuer normale Meta-Tags
+// statt JSON-LD.
 export function metaTags({ title, description, canonical, image, type = 'website', published, modified }) {
   const abs = image?.startsWith('http') ? image : `${BASE}${image ?? '/images/hero-chain-texture.jpg'}`;
   const p = ' data-prerendered="true"';

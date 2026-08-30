@@ -23,23 +23,16 @@ export function removeStaticJsonLd() {
 }
 
 /**
- * Same problem as removeStaticJsonLd(), one tier up: every prerendered page
- * (scripts/generate-*.mjs, via metaTags()) ships its own <title>, description,
- * canonical, and og:* / twitter:* tags directly in the static HTML, marked
- * `data-prerendered="true"`. react-helmet-async only manages tags it has
- * rendered itself — a tag already present in the raw HTML before it mounts is
- * left alone, and Helmet just appends its own version after it. Without this,
- * every one of these pages ends up with two <title>, two canonical, two of
- * every og:* / twitter:* tag: document.title happens to still show the right
- * value (browsers use the first <title> in document order, and Helmet's
- * happens to land there), but a plain querySelector — and very plausibly some
- * crawlers/scrapers reading canonical or og:* tags — picks up the stale static one
- * instead, since those tags are appended in the opposite order.
- * Call this once on mount of any page that renders its own <Helmet> AND has a
- * static prerendered counterpart (i.e. is listed in one of the
- * scripts/generate-*.mjs generators) — never on a page with no prerendered
- * HTML (nothing to remove, harmless no-op) or a page whose Helmet doesn't
- * actually replace every tag the prerender set (would leave real gaps).
+ * Same problem as removeStaticJsonLd() above, for ordinary title/meta/link
+ * tags instead of JSON-LD: a prerendered page's static title, description,
+ * canonical and og:* / twitter:* tags (marked data-prerendered="true", see
+ * metaTags() in scripts/lib/prerender.mjs) stay in the DOM after a page's own
+ * <Helmet> renders the same tags again on mount — Helmet only ever manages
+ * tags it created itself. document.title still reads correctly either way
+ * (browsers use the first <title> in document order, which is Helmet's), so
+ * this bug is invisible unless you inspect document.head directly. Call this
+ * once on mount of any page that has both a static prerender and a client
+ * Helmet covering the same tags.
  */
 export function removeStaticHeadMeta() {
   document.querySelectorAll('[data-prerendered="true"]').forEach((el) => el.remove());

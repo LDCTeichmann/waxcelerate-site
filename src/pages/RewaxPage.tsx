@@ -13,11 +13,12 @@
 // three, plus 1,80 € return shipping either way. These supersede the older
 // figures in the business context (9,99 / 24,99).
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useLocation } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Check, X, Gift, User, ChevronDown } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
+import { removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
 
 import { Navigation } from '@/sections/navigation';
 import { Footer } from '@/sections/footer';
@@ -226,7 +227,7 @@ function Steps({ de }: { de: boolean }) {
               alt="" aria-hidden loading="lazy" decoding="async"
               className="absolute inset-0 w-full h-full object-cover" />
             <div aria-hidden className="absolute inset-0"
-              style={{ background: 'linear-gradient(135deg, rgba(0,0,0,0.55) 0%, transparent 52%)' }} />
+              style={{ background: 'linear-gradient(135deg, rgba(var(--scrim-rgb),0.55) 0%, transparent 52%)' }} />
             <span aria-hidden
               className="absolute left-4 top-2 font-display font-bold leading-none"
               style={{ fontSize: 'clamp(2.6rem, 5vw, 3.4rem)', color: 'rgba(255,255,255,0.94)', letterSpacing: '-0.03em' }}>
@@ -332,6 +333,17 @@ export function RewaxPage() {
   const waxedLabel = waxedOn
     ? waxedOn.toLocaleDateString(de ? 'de-DE' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
     : null;
+
+  // Die vorgerenderte Huelle (scripts/generate-blog-html.mjs, STATIC_PAGES)
+  // liefert fuer /kette-wachsen-lassen bereits ein WebPage-Schema,
+  // client-managed markiert (ldClientManaged) — genau damit es hier entfernt
+  // werden kann, sobald diese Seite ihre eigenen, spezifischeren Service- und
+  // FAQPage-Schemas unten via Helmet nachliefert. Ohne diesen Aufruf blieben
+  // nach der Hydration drei JSON-LD-Bloecke gleichzeitig im DOM stehen
+  // (dieselbe Klasse Bug wie vorher auf der Wissenschaftsseite). Gleiches
+  // gilt fuer die title-/description-/canonical-Tags, die das <Helmet>
+  // unten erneut setzt (siehe removeStaticHeadMeta).
+  useEffect(() => { removeStaticJsonLd(); removeStaticHeadMeta(); }, []);
 
   // Mobile-Plan B8: die URL (/kette-wachsen-lassen, seit 08/2026) war schon
   // auf den deutschen Suchbegriff umgestellt, aber Title, H1 und Nav-Label
@@ -443,7 +455,7 @@ export function RewaxPage() {
 
       {/* Mobile-Plan B7d: kein <main>-Landmark auf dieser Seite — "zum
           Inhalt springen" hatte nichts zum Ansteuern. */}
-      <main>
+      <main id="main-content">
       {/* ── Hero ── */}
       <section className="relative pt-28 sm:pt-36 pb-14 sm:pb-20" style={{ background: 'var(--pg)' }}>
         <div className={W}>
@@ -702,7 +714,7 @@ export function RewaxPage() {
           sizes="100vw" alt="" aria-hidden loading="lazy" decoding="async"
           className="absolute inset-0 w-full h-full object-cover" />
         <div aria-hidden className="absolute inset-0"
-          style={{ background: 'linear-gradient(100deg, rgba(0,0,0,0.80) 0%, rgba(0,0,0,0.52) 46%, rgba(0,0,0,0.16) 100%)' }} />
+          style={{ background: 'linear-gradient(100deg, rgba(var(--scrim-rgb),0.80) 0%, rgba(var(--scrim-rgb),0.52) 46%, rgba(var(--scrim-rgb),0.16) 100%)' }} />
 
         <div className={`${W} relative py-20 sm:py-24`}>
           <div className="max-w-[44ch]">

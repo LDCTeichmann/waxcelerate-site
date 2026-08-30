@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { Link, useLocation } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, ChevronDown, Gauge, Clock, Droplets, Sparkles } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
-import { removeStaticJsonLd } from '@/lib/utils';
+import { removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
 import { Navigation } from '@/sections/navigation';
 import { Footer } from '@/sections/footer';
 import { ScrollTrigger } from '@/lib/gsap';
@@ -846,7 +846,9 @@ export function SciencePage() {
   // noch einmal ueber das TechArticle-Schema unten drunter — ohne diesen
   // Aufruf stehen nach der Hydration zwei getrennte JSON-LD-Bloecke fuer
   // dieselbe URL im DOM (siehe removeStaticJsonLd in src/lib/utils.ts).
-  useEffect(() => { removeStaticJsonLd(); }, []);
+  // Gleiches gilt fuer die title-/description-/canonical-/og-/twitter-Tags,
+  // die das <Helmet> unten erneut setzt (siehe removeStaticHeadMeta).
+  useEffect(() => { removeStaticJsonLd(); removeStaticHeadMeta(); }, []);
 
   return (
     <div className="min-h-screen bg-wx-bg">
@@ -871,7 +873,7 @@ export function SciencePage() {
 
       {/* Mobile-Plan B7d: kein <main>-Landmark auf dieser Seite — "zum
           Inhalt springen" hatte nichts zum Ansteuern. */}
-      <main>
+      <main id="main-content">
       <ScienceHero de={de} />
 
       {/* ── ACT I — THE PROBLEM ──

@@ -61,6 +61,13 @@ export function MobileStickyCTA() {
 
   return (
     <div
+      // translate-y-full moves this off-screen but doesn't remove it from
+      // the tab order — rendered before <Navigation/> in App.tsx, so before
+      // this fix a keyboard user's very first Tab press on page load landed
+      // on this invisible button instead of the header's new skip link.
+      // Same root-cause fix as the mobile nav panel / CartDrawer.
+      aria-hidden={!visible}
+      inert={!visible}
       className={`fixed bottom-0 left-0 right-0 z-40 lg:hidden transition-transform duration-300 ${visible ? 'translate-y-0' : 'translate-y-full'}`}
     >
       <button

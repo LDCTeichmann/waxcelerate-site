@@ -26,6 +26,7 @@
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve, join } from 'node:path';
 import { articles, getArticleImage, author, categoryOrder, blogHero } from '../src/pages/blog/articles.ts';
+import { starterSet } from '../src/lib/data.ts';
 // Die Bausteine liegen seit August 2026 in scripts/lib/prerender.mjs, weil sie
 // sich Blog-, Produkt- und Rechtstextseiten teilen. Verhalten unveraendert.
 import {
@@ -270,9 +271,14 @@ const STATIC_PAGES = [
     // einzelne kostet 13,95 €.
     dir: 'kette-wachsen-lassen',
     title: 'Fahrradkette wachsen lassen — Kettenwachs-Service aus Stuttgart | Waxcelerate',
-    description: 'Fahrradkette einschicken, frisch heißgewachst zurückbekommen. 13,95 € je Kette, 9,95 € ab drei Ketten, zuzüglich 1,80 € Rückversand. Handgewachst in Stuttgart.',
+    // Wortlaut deckungsgleich mit dem client-seitigen description in
+    // RewaxPage.tsx (dort direkt neben title definiert) — vorher leicht
+    // abweichend ("Fahrradkette" statt "Gewachste Kette"), was Crawlern, die
+    // nur die Huelle lesen, eine andere Beschreibung zeigte als die nach der
+    // Hydration im DOM stehende.
+    description: 'Gewachste Kette einschicken, frisch gewachst zurückbekommen. 13,95 € je Kette, 9,95 € ab drei Ketten, zuzüglich 1,80 € Rückversand. Handgewachst in Stuttgart.',
     image: '/images/rewax/hero.webp', // deckt sich mit RewaxPage.tsx Zeile 309
-    h1: 'Fahrradkette wachsen lassen',
+    h1: 'Fahrradkette wachsen lassen.',
     lead: 'Wachsen ist einfach, kostet aber einen Abend, einen Topf und Platz. Wenn du das nicht selbst machen willst, schick die Kette ein. Du bekommst sie fahrbereit zurück.',
     points: [
       'Nur bereits gewachste Ketten, eigene oder fremde. Geölte Ketten entfetten wir nicht, weil Öl ein ganzes Wachsbad unbrauchbar macht.',
@@ -284,7 +290,10 @@ const STATIC_PAGES = [
   {
     dir: 'starter-set',
     title: 'Starter-Set Kettenwachs | Waxcelerate',
-    description: 'Wachs, vorgewachste Kette, Quick-Link-Zange und Aufhängedraht in einem Set. Alles, was für das erste Wachsen nötig ist, zum Set-Preis.',
+    // Prozentzahl aus src/lib/data.ts (starterSet.discountPct) statt hier neu
+    // eingetippt, damit sie nie von der clientseitigen Beschreibung in
+    // StarterSetPage.tsx abweicht (dieselbe Zahl, dieselbe Quelle).
+    description: `Wachs, vorgewachste Kette, Quick-Link-Zange und Aufhängedraht in einem Set, ${starterSet.discountPct} Prozent unter der Summe der Einzelteile. Alles, was für das erste Wachsen nötig ist.`,
     image: '/images/doors/starter-set.webp', // deckt sich mit StarterSetPage.tsx Zeile 103
     h1: 'Alles da, beim ersten Mal.',
     lead: 'Am ersten Wachsabend scheitert es selten am Wachs. Es scheitert daran, dass die Kette nicht aufgeht oder nichts da ist, woran sie hängen kann. Im Set liegt beides bei.',

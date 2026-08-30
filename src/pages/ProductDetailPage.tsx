@@ -5,7 +5,7 @@ import {
   ArrowLeft, ArrowRight, ExternalLink, Check,
   ChevronRight, ChevronLeft, ChevronDown, Star, Lightbulb, Truck, RotateCcw, BadgeCheck,
 } from 'lucide-react';
-import { getProductById, products, canCheckout, checkoutEnabled, isSoldOut, schemaAvailability, waxIntervals } from '@/lib/data';
+import { getProductById, products, canCheckout, checkoutEnabled, isSoldOut, schemaAvailability, waxIntervals, shipping } from '@/lib/data';
 import type { Product } from '@/lib/data';
 import { loadRidingProfile, weeksRemainingForProduct } from '@/lib/ridingProfile';
 import { richContent } from '@/lib/productContent';
@@ -16,7 +16,7 @@ import { CartIcon } from '@/components/CartIcon';
 import { ImageLightbox } from '@/components/ImageLightbox';
 import { gsap } from '@/lib/gsap';
 import { Footer } from '@/sections/footer';
-import { getEstimatedDelivery, removeStaticJsonLd } from '@/lib/utils';
+import { getEstimatedDelivery, removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
 import { reviewsForProduct, type Review } from '@/sections/reviews';
 import { Stars } from '@/components/Stars';
 
@@ -183,22 +183,50 @@ export function ProductDetailPage() {
   // nothing. Direction is decided on release (not live-following the
   // finger) to avoid fighting the existing cross-fade transition.
   const dragStartXRef = useRef<number | null>(null);
+  const dragTargetImgRef = useRef(false);
   const SWIPE_THRESHOLD = 40;
 
   const onGalleryPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
-    if (slideCount <= 1) return;
+    // Captured here, before setPointerCapture below retargets every later
+    // pointer/mouse/click event on this container to the container itself —
+    // a plain onClick on the <img> never fires once the pointer is captured
+    // (verified: Chromium redirects the compatibility click event to the
+    // capturing element), which is why the lightbox trigger had no working
+    // way to attach directly to the image. This is the only point in the
+    // gesture where the real target (image vs. a thumbnail/dot button) is
+    // still observable.
+    const target = e.target as HTMLElement;
+    const isButton = !!target.closest('button');
+    // Thumbnails/dots/arrows are <button> elements nested inside this same
+    // pointer-handled container — capturing the pointer here would silently
+    // break their own onClick (verified: once captured, Chromium retargets
+    // the compatibility click event to the capturing element, so the
+    // button's onClick never fires). Bailing out before capture for any
+    // button-descendant target lets those buttons keep handling their own
+    // clicks natively, exactly as before this gallery had any pointer
+    // handling at all.
+    dragTargetImgRef.current = target.tagName === 'IMG' && !isButton;
+    if (isButton || slideCount <= 1) return;
     dragStartXRef.current = e.clientX;
     pause();
     e.currentTarget.setPointerCapture(e.pointerId);
   }, [slideCount, pause]);
 
   const onGalleryPointerUp = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    const wasImgTap = dragTargetImgRef.current;
     const startX = dragStartXRef.current;
     dragStartXRef.current = null;
-    if (startX === null) return;
+    if (startX === null) {
+      // slideCount <= 1: no swipe/autoplay wiring ran on pointerdown above,
+      // but a single-image product should still open the lightbox on tap.
+      if (wasImgTap) setLightboxOpen(true);
+      return;
+    }
     const delta = e.clientX - startX;
     if (Math.abs(delta) > SWIPE_THRESHOLD) {
       if (delta < 0) next(); else prev();
+    } else if (wasImgTap) {
+      setLightboxOpen(true);
     }
     setTimeout(resume, AUTO_INTERVAL);
   }, [next, prev, resume]);
@@ -243,8 +271,10 @@ export function ProductDetailPage() {
 
   // Prerendered HTML for this route already ships this same Product +
   // BreadcrumbList JSON-LD; without this, Helmet's copy below just piles on
-  // top of it (see removeStaticJsonLd in src/lib/utils.ts).
-  useEffect(() => { removeStaticJsonLd(); }, [id]);
+  // top of it (see removeStaticJsonLd in src/lib/utils.ts). Same story for
+  // the title/description/canonical/og/twitter tags Helmet sets further
+  // down (see removeStaticHeadMeta).
+  useEffect(() => { removeStaticJsonLd(); removeStaticHeadMeta(); }, [id]);
 
   if (!product) {
     return (
@@ -316,9 +346,22 @@ export function ProductDetailPage() {
     product.chainSpeed && { l: de ? 'Schaltung' : 'Speed', v: product.chainSpeed },
   ].filter(Boolean) as { l: string; v: string }[];
 
-  const metaTitle = `${titleText} | Waxcelerate`;
-  const metaDescription = descriptionText ?? '';
+  // Deckt sich mit titleOf()/descriptionOf() in generate-product-html.mjs —
+  // vorher wich sowohl Titel ("kaufen" fehlte hier) als auch Beschreibung
+  // (kein Preis-/Versand-Zusatz, keine 160-Zeichen-Kuerzung) zwischen dem
+  // vorgerenderten HTML und der von Helmet nachtraeglich gesetzten Version
+  // ab — zwei verschiedene Snippets fuer dieselbe URL, je nachdem, ob ein
+  // Crawler JS ausfuehrt (Audit ProductDetailPage.tsx, Problem 6).
+  const metaTitle = `${titleText} kaufen | Waxcelerate`;
+  const priceStr = product.price.toFixed(2).replace('.', ',');
+  const descBase = (descriptionText ?? '').replace(/\s+/g, ' ').trim();
+  const descSuffix = de ? ` ${priceStr} €, versandkostenfrei ab 50 €.` : ` €${priceStr}, free shipping from €50.`;
+  const descRoom = 160 - descSuffix.length;
+  const descHead = descBase.length > descRoom ? `${descBase.slice(0, descRoom - 1).trimEnd()}…` : descBase;
+  const metaDescription = descHead + descSuffix;
   const canonicalUrl = `https://waxcelerate.de/produkt/${id}`;
+  const absImg = (src: string) => (src?.startsWith('http') ? src : `https://waxcelerate.de${src}`);
+  const absImage = absImg(product.image);
 
   const breadcrumbSchema = JSON.stringify({
     '@context': 'https://schema.org', '@type': 'BreadcrumbList',
@@ -328,9 +371,19 @@ export function ProductDetailPage() {
     ],
   });
 
+  // Deckt sich mit productSchema() in generate-product-html.mjs. Vorher war
+  // diese Fassung deutlich duenner (kein mpn/category/shippingDetails/
+  // hasMerchantReturnPolicy/itemCondition/Pro-additionalProperty) — und weil
+  // removeStaticJsonLd() das reichere vorgerenderte Schema beim Mounten
+  // entfernt, war genau diese duennere Version am Ende das, was ein
+  // JS-ausfuehrender Crawler tatsaechlich indexiert (Audit ProductDetailPage.tsx,
+  // Problem 5). AggregateRating bleibt bewusst weg (siehe Kommentar unten),
+  // Offer.availability war bereits ueber schemaAvailability() korrekt geteilt.
   const productSchema = JSON.stringify({
     '@context': 'https://schema.org', '@type': 'Product',
-    name: titleText, description: descriptionText, image: product.image, sku: id,
+    name: titleText, description: descriptionText, image: [product.image, ...(product.images ?? [])].map(absImg),
+    sku: id, mpn: product.category === 'chain' ? product.chainModel : id,
+    category: product.category === 'wax' ? 'Kettenwachs' : 'Vorgewachste Fahrradkette',
     // Pre-waxed chains are Shimano/SRAM/YBN parts we resell, not our own
     // brand — asserting "Waxcelerate" as the manufacturer brand for a
     // Shimano CN-M9100 was factually wrong. Wax is genuinely our own product.
@@ -346,11 +399,32 @@ export function ProductDetailPage() {
     offers: {
       '@type': 'Offer', price: product.price.toFixed(2), priceCurrency: 'EUR',
       availability: schemaAvailability(product), url: canonicalUrl,
+      itemCondition: 'https://schema.org/NewCondition',
       seller: { '@type': 'Organization', name: 'Waxcelerate' },
       // Was hardcoded to a fixed date that would silently go stale — always
       // valid for a year out so it never needs manual upkeep.
       priceValidUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
+      shippingDetails: {
+        '@type': 'OfferShippingDetails',
+        shippingRate: { '@type': 'MonetaryAmount', value: (shipping[product.shippingClass].cents / 100).toFixed(2), currency: 'EUR' },
+        shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'DE' },
+        freeShippingThreshold: {
+          '@type': 'DeliveryChargeSpecification',
+          eligibleTransactionVolume: { '@type': 'PriceSpecification', minPrice: (shipping.freeFromCents / 100).toFixed(2), priceCurrency: 'EUR' },
+        },
+      },
+      hasMerchantReturnPolicy: {
+        '@type': 'MerchantReturnPolicy', applicableCountry: 'DE',
+        returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+        merchantReturnDays: 14, returnMethod: 'https://schema.org/ReturnByMail',
+      },
     },
+    // Pro-Linie ist PFAS-/PTFE-frei (siehe generate-product-html.mjs fuer die
+    // volle Begruendung) — nur fuer Pro, Classic enthaelt noch PTFE.
+    ...(isPro ? { additionalProperty: [
+      { '@type': 'PropertyValue', name: 'PFAS-frei', value: 'ja' },
+      { '@type': 'PropertyValue', name: 'PTFE-frei', value: 'ja' },
+    ] } : {}),
   });
 
   const hasFormula = !!(isWax && rc?.formulaDetails);
@@ -401,7 +475,11 @@ export function ProductDetailPage() {
         <meta property="og:type" content="product" />
         <meta property="og:site_name" content="Waxcelerate" />
         <meta property="og:locale" content={de ? 'de_DE' : 'en_US'} />
-        {product.image && <meta property="og:image" content={product.image} />}
+        {product.image && <meta property="og:image" content={absImage} />}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={metaTitle} />
+        <meta name="twitter:description" content={metaDescription} />
+        {product.image && <meta name="twitter:image" content={absImage} />}
         <script type="application/ld+json">{breadcrumbSchema}</script>
         <script type="application/ld+json">{productSchema}</script>
       </Helmet>
@@ -454,7 +532,7 @@ export function ProductDetailPage() {
             den Screenreader-Nutzer per "zum Inhalt springen" ansteuern
             koennen — sie mussten sich durch Header und Navigation tabben,
             bevor der eigentliche Produktinhalt beginnt. */}
-        <main>
+        <main id="main-content">
         {/* ══════════════════════════════════════════════════════════════
             MOBILE HERO — stacked: image top, info below
            ══════════════════════════════════════════════════════════════ */}
@@ -484,6 +562,7 @@ export function ProductDetailPage() {
                   opacity: i === activeImage ? 1 : 0, scale: i === activeImage ? '1' : '1.04',
                   transition: reduce ? 'none' : `opacity ${FADE_MS}ms ease, scale ${FADE_MS * 2}ms ease`,
                   zIndex: i === activeImage ? 2 : (i === prevImage ? 1 : 0),
+                  cursor: i === activeImage ? 'zoom-in' : undefined,
                 }}
                 onError={e => {
                   // Faellt auf die Basisdatei zurueck, falls die -lg-Variante fehlt.
@@ -501,13 +580,13 @@ export function ProductDetailPage() {
                 <button onClick={() => { prev(); pause(); setTimeout(resume, AUTO_INTERVAL); }}
                   aria-label={de ? 'Vorheriges Bild' : 'Previous image'}
                   className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-11 h-11 flex items-center justify-center rounded-full transition-transform active:scale-90"
-                  style={{ background: 'rgba(0,0,0,0.28)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', color: 'rgba(255,255,255,0.92)' }}>
+                  style={{ background: 'rgba(var(--scrim-rgb),0.28)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', color: 'rgba(255,255,255,0.92)' }}>
                   <ChevronLeft className="h-4 w-4" />
                 </button>
                 <button onClick={() => { next(); pause(); setTimeout(resume, AUTO_INTERVAL); }}
                   aria-label={de ? 'Nächstes Bild' : 'Next image'}
                   className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-11 h-11 flex items-center justify-center rounded-full transition-transform active:scale-90"
-                  style={{ background: 'rgba(0,0,0,0.28)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', color: 'rgba(255,255,255,0.92)' }}>
+                  style={{ background: 'rgba(var(--scrim-rgb),0.28)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', color: 'rgba(255,255,255,0.92)' }}>
                   <ChevronRight className="h-4 w-4" />
                 </button>
               </>
@@ -621,13 +700,23 @@ export function ProductDetailPage() {
                 Bei einem Produkt, das eine Verhaltensaenderung verlangt, ist die
                 stille Frage nicht "ist es gut", sondern "was, wenn ich damit
                 nicht klarkomme". Bewusst zwei Saetze: der erste ist die
-                Rechtslage, der zweite der Ton der Marke. */}
+                Rechtslage, der zweite der Ton der Marke.
+                Vorherige Fassung ("wenn das Wachsen nichts fuer dich ist")
+                versprach implizit eine Ruecknahme, nachdem der Block schon
+                angeschmolzen bzw. die Kette schon montiert war — genau das
+                nimmt Luca nicht zurueck (unverkaeuflich, kein Streitfall).
+                Jetzt an die tatsaechliche Bedingung geknuepft, ohne die
+                Einladung zu streichen, sich bei Problemen trotzdem zu melden. */}
             <div className="flex items-start gap-1.5 mb-5 text-meta" style={{ color: 'var(--txff)' }}>
               <RotateCcw className="h-3 w-3 flex-shrink-0 mt-[3px]" style={{ color: accentColor }} aria-hidden />
               <span>
                 {de
-                  ? '14 Tage Rückgaberecht. Wenn das Wachsen nichts für dich ist, schreib mir — ich nehme es zurück.'
-                  : '14-day right of return. If waxing turns out not to be for you, write to me — I will take it back.'}
+                  ? (isWax
+                    ? '14 Tage Rückgaberecht, solange der Block original verpackt ist. Schreib mir gerne trotzdem, wenn etwas nicht passt.'
+                    : '14 Tage Rückgaberecht, solange die Kette nicht montiert wurde. Schreib mir gerne, wenn etwas nicht passt.')
+                  : (isWax
+                    ? '14-day right of return, as long as the block is still sealed. Feel free to write to me anyway if something is not right.'
+                    : '14-day right of return, as long as the chain has not been installed. Feel free to write to me if something is not right.')}
               </span>
             </div>
 
@@ -679,6 +768,7 @@ export function ProductDetailPage() {
                 opacity: i === activeImage ? 1 : 0, scale: i === activeImage ? '1' : '1.04',
                 transition: reduce ? 'none' : `opacity ${FADE_MS}ms cubic-bezier(0.4,0,0.2,1), scale ${FADE_MS * 2}ms cubic-bezier(0.4,0,0.2,1)`,
                 zIndex: i === activeImage ? 2 : (i === prevImage ? 1 : 0),
+                cursor: i === activeImage ? 'zoom-in' : undefined,
               }}
               onError={e => {
                 // Faellt auf die Basisdatei zurueck, falls die -lg-Variante fehlt.
@@ -725,14 +815,23 @@ export function ProductDetailPage() {
               <div className="px-6 xl:px-7 pt-6 pb-5">
                 {/* Eyebrow + bestseller badge */}
                 <div className="flex items-center gap-2.5 mb-2.5">
+                  {/* .pdp-hero-card ist bewusst theme-unabhaengig weiss (Glaskarte
+                      ueber dem Foto, siehe style oben) — die CSS-Variablen
+                      --txm/--txf/--txff sind dagegen PRO THEME neu berechnet
+                      (in noir hell, fuer dunkle Flaechen kalibriert) und wuerden
+                      auf dieser immer-weissen Karte im noir-Theme umkippen: zu
+                      hell fuer AA-Kontrast. Deshalb hier feste rgba(0,0,0,X)-
+                      Werte statt Tokens — 0.62/0.58/0.55 sind auf >=4.5:1 gegen
+                      #fff nachgerechnet (WCAG-Relativluminanz-Formel), die alten
+                      Werte (0.35/0.52/0.28/0.3/0.45) lagen bei 2.0-4.3:1. */}
                   <span className="text-small font-semibold uppercase tracking-[0.2em]"
-                    style={{ color: 'rgba(0,0,0,0.35)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
+                    style={{ color: 'rgba(0,0,0,0.62)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
                     {product.variant ? `${product.variant} · ${product.weight ?? ''}` : (product.chainSpeed ?? '')}
                   </span>
-                  {isWax && product.weight === '500g' && (
+                  {(de ? product.badge : product.badgeEn) && (
                     <span className="text-meta font-bold uppercase tracking-[0.1em] px-1.5 py-[1px] rounded"
                       style={{ background: `${cardAccent}12`, color: cardAccent }}>
-                      {de ? 'Bestseller' : 'Bestseller'}
+                      {de ? product.badge : product.badgeEn}
                     </span>
                   )}
                 </div>
@@ -752,7 +851,7 @@ export function ProductDetailPage() {
                     {cardBenefits.map((b, i) => (
                       <div key={i} className="flex gap-2 items-start">
                         <Check className="h-3.5 w-3.5 flex-shrink-0 mt-px" style={{ color: cardAccent }} />
-                        <p className="text-[12px] leading-[1.45]" style={{ color: 'rgba(0,0,0,0.52)' }}>{b}</p>
+                        <p className="text-[12px] leading-[1.45]" style={{ color: 'rgba(0,0,0,0.58)' }}>{b}</p>
                       </div>
                     ))}
                   </div>
@@ -764,7 +863,7 @@ export function ProductDetailPage() {
                     {product.intervalDry && (
                       <div className="flex-1 px-4 py-2" style={{ background: 'rgba(0,0,0,0.015)' }}>
                         <p className="text-small uppercase tracking-[0.18em] mb-0.5 font-semibold"
-                          style={{ color: 'rgba(0,0,0,0.28)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
+                          style={{ color: 'rgba(0,0,0,0.62)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
                           {de ? 'Trocken' : 'Dry'}
                         </p>
                         <p className="num text-[18px] font-bold leading-none tracking-[-0.02em]" style={{ color: '#0a0a0a' }}>
@@ -776,7 +875,7 @@ export function ProductDetailPage() {
                     {product.intervalWet && (
                       <div className="flex-1 px-4 py-2" style={{ background: 'rgba(0,0,0,0.015)' }}>
                         <p className="text-small uppercase tracking-[0.18em] mb-0.5 font-semibold"
-                          style={{ color: 'rgba(0,0,0,0.28)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
+                          style={{ color: 'rgba(0,0,0,0.62)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
                           {de ? 'Nass' : 'Wet'}
                         </p>
                         <p className="num text-[18px] font-bold leading-none tracking-[-0.02em]" style={{ color: '#0a0a0a' }}>
@@ -793,12 +892,13 @@ export function ProductDetailPage() {
                     <div className="flex gap-px">
                       {[0, 1, 2, 3, 4].map(i => <Star key={i} className="h-3 w-3 fill-current" style={{ color: '#F5A623' }} />)}
                     </div>
-                    {/* rgba(0,0,0,0.32) auf --sf (weiss) faellt auf ~2,2:1 Kontrast,
-                        WCAG AA braucht 4,5:1 fuer Normaltext. --txm ist die
-                        bereits gegen alle Flaechenfarben nachgerechnete Skala
-                        (siehe index.css) — dieselbe Stelle im "Trust"-Block
-                        weiter unten auf derselben Seite nutzt sie schon. */}
-                    <span className="text-meta font-medium" style={{ color: 'var(--txm)' }}>
+                    {/* rgba(0,0,0,0.32) auf weiss faellt auf ~2,2:1 Kontrast, WCAG AA
+                        braucht 4,5:1 fuer Normaltext. Fest statt --txm: die Karte
+                        ist bewusst theme-unabhaengig weiss (siehe Kommentar oben
+                        an der ersten Stelle dieses Fixes), --txm faellt im
+                        noir-Theme dagegen hell und wuerde hier wieder unter AA
+                        rutschen. */}
+                    <span className="text-meta font-medium" style={{ color: 'rgba(0,0,0,0.58)' }}>
                       {rc.reviewCount}+ {de ? 'zufriedene Kunden' : 'happy customers'}
                     </span>
                   </div>
@@ -811,12 +911,12 @@ export function ProductDetailPage() {
                       {formatPrice(product.price)}
                     </p>
                     {pricePerApp !== null && (
-                      <span className="text-meta font-medium" style={{ color: 'rgba(0,0,0,0.3)' }}>
+                      <span className="text-meta font-medium" style={{ color: 'rgba(0,0,0,0.58)' }}>
                         ~{formatPrice(pricePerApp)}/{de ? 'Anw.' : 'use'}
                       </span>
                     )}
                     {per100g && (
-                      <span className="text-meta font-medium" style={{ color: 'rgba(0,0,0,0.3)' }}>
+                      <span className="text-meta font-medium" style={{ color: 'rgba(0,0,0,0.58)' }}>
                         {per100g}
                       </span>
                     )}
@@ -836,7 +936,7 @@ export function ProductDetailPage() {
                 {/* CTA — full width for maximum conversion */}
                 <div className="mb-3">
                   {isSoldOut(product) ? (
-                    <p className="text-center text-[14px] font-semibold py-3.5" style={{ color: 'rgba(0,0,0,0.45)' }}>
+                    <p className="text-center text-[14px] font-semibold py-3.5" style={{ color: 'rgba(0,0,0,0.58)' }}>
                       {de ? 'Ausverkauft' : 'Sold out'}
                     </p>
                   ) : canCheckout(product) ? (
@@ -853,7 +953,7 @@ export function ProductDetailPage() {
                 {/* Trust signals — "Made in Germany" only for wax (our own
                     product); pre-waxed chains are resold Shimano/SRAM/YBN
                     parts, per the AGENTS.md rule this line wasn't following. */}
-                <p className="text-meta text-center font-medium" style={{ color: 'rgba(0,0,0,0.3)' }}>
+                <p className="text-meta text-center font-medium" style={{ color: 'rgba(0,0,0,0.58)' }}>
                   {isWax ? `${de ? 'Hergestellt in Stuttgart' : 'Made in Stuttgart'} · ` : ''}
                   {de ? `Lieferung ${deliveryDate}` : `Delivery ${deliveryDate}`}
                 </p>
@@ -864,7 +964,7 @@ export function ProductDetailPage() {
                 <div className="flex flex-wrap gap-1.5">
                   {specsData.slice(0, 4).map((spec, i) => (
                     <span key={i} className="text-meta font-medium px-2 py-0.5 rounded-full"
-                      style={{ background: 'rgba(0,0,0,0.04)', color: 'rgba(0,0,0,0.35)' }}>
+                      style={{ background: 'rgba(0,0,0,0.04)', color: 'rgba(0,0,0,0.62)' }}>
                       {spec.v}
                     </span>
                   ))}
@@ -915,7 +1015,7 @@ export function ProductDetailPage() {
           <button onClick={(e) => { e.stopPropagation(); scrollToDetails(); }}
             onPointerDown={(e) => e.stopPropagation()} onPointerUp={(e) => e.stopPropagation()}
             className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 w-11 h-11 flex items-center justify-center rounded-full transition-transform hover:scale-105 active:scale-90"
-            style={{ background: 'rgba(0,0,0,0.28)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)' }}
+            style={{ background: 'rgba(var(--scrim-rgb),0.28)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)' }}
             aria-label={de ? 'Mehr erfahren' : 'Learn more'}>
             <ChevronDown className="h-4 w-4 pdp-bounce" style={{ color: 'rgba(255,255,255,0.92)' }} />
           </button>
@@ -1167,7 +1267,14 @@ export function ProductDetailPage() {
                     <p className="font-display text-[28px] font-bold leading-none tracking-[-0.02em] mb-1" style={{ color: 'var(--tx1)' }}>{rc.reviewCount}+</p>
                     <p className="text-[13px] mb-0.5" style={{ color: 'var(--txm)' }}>{de ? 'verifizierte Bewertungen' : 'verified reviews'}</p>
                     {rc.reviewCats && <p className="text-meta mb-3" style={{ color: 'var(--txff)' }}>{rc.reviewCats}</p>}
-                    <a href={product.ebayUrl} target="_blank" rel="noopener noreferrer" onClick={() => trackEbayClick(product.id)} className="inline-flex items-center gap-1 text-[12px] font-medium hover:underline" style={{ color: accentColor }}>
+                    {/* Kein trackEbayClick hier: das ist ein Link zur eBay-
+                        Feedback-Seite, kein Kauf-CTA. analytics.ts definiert
+                        click_ebay ausdruecklich als "Kauf-CTA, nicht der
+                        allgemeine Shop-Link" — dieses Event sonst mit
+                        Nicht-Kaufklicks zu verwaessern, verzerrt genau die
+                        Kennzahl, die ueber nativen Checkout vs. eBay
+                        entscheiden soll. */}
+                    <a href={product.ebayUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[12px] font-medium hover:underline" style={{ color: accentColor }}>
                       {de ? 'Alle Bewertungen ansehen' : 'See all reviews'} <ExternalLink className="h-3 w-3" />
                     </a>
                   </div>
