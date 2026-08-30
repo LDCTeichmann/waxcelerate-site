@@ -16,7 +16,7 @@ import { CartIcon } from '@/components/CartIcon';
 import { ImageLightbox } from '@/components/ImageLightbox';
 import { gsap } from '@/lib/gsap';
 import { Footer } from '@/sections/footer';
-import { getEstimatedDelivery, removeStaticJsonLd } from '@/lib/utils';
+import { getEstimatedDelivery, removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
 import { reviewsForProduct, type Review } from '@/sections/reviews';
 import { Stars } from '@/components/Stars';
 
@@ -271,8 +271,10 @@ export function ProductDetailPage() {
 
   // Prerendered HTML for this route already ships this same Product +
   // BreadcrumbList JSON-LD; without this, Helmet's copy below just piles on
-  // top of it (see removeStaticJsonLd in src/lib/utils.ts).
-  useEffect(() => { removeStaticJsonLd(); }, [id]);
+  // top of it (see removeStaticJsonLd in src/lib/utils.ts). Same story for
+  // the title/description/canonical/og/twitter tags Helmet sets further
+  // down (see removeStaticHeadMeta).
+  useEffect(() => { removeStaticJsonLd(); removeStaticHeadMeta(); }, [id]);
 
   if (!product) {
     return (
