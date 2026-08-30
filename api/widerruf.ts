@@ -24,11 +24,17 @@ function escapeHtml(s: string): string {
   return s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
 }
 
-async function sendEmail(to: string, subject: string, html: string) {
+// Returns whether the email actually sent. The caller uses this to log a
+// loud, distinguishable alert when the notice to Luca specifically fails —
+// previously this only console.error'd and the handler still returned
+// {success:true} unconditionally, so a missing/misconfigured
+// RESEND_API_KEY meant a legally-sensitive withdrawal notice could vanish
+// with no operational signal that anything went wrong.
+async function sendEmail(to: string, subject: string, html: string): Promise<boolean> {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
     console.error('[widerruf] RESEND_API_KEY not set — email not sent', { to, subject });
-    return;
+    return false;
   }
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
@@ -45,7 +51,9 @@ async function sendEmail(to: string, subject: string, html: string) {
   });
   if (!res.ok) {
     console.error('[widerruf] Resend API error', await res.text());
+    return false;
   }
+  return true;
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -66,7 +74,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const safeProduct = escapeHtml(product);
   const safeEmail = escapeHtml(email);
 
-  await Promise.all([
+  const [ownerNotified] = await Promise.all([
     sendEmail(
       OWNER_EMAIL,
       `Widerruf eingegangen — Bestellung ${safeOrderNumber}`,
@@ -87,6 +95,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
        <p>Viele Grüße<br />Luca, Waxcelerate</p>`
     ),
   ]);
+
+  // The withdrawal itself is legally valid the moment it's submitted,
+  // independent of whether either email actually sent — blocking the
+  // customer's confirmation on an email-provider hiccup would be worse
+  // than a silent send failure. But if the notice to Luca specifically
+  // didn't go out, nobody knows to act on it, so that failure gets a loud,
+  // greppable log line distinct from the generic per-email error above.
+  if (!ownerNotified) {
+    console.error('[widerruf] ALERT: owner notification failed to send — withdrawal may go unprocessed', {
+      orderNumber: safeOrderNumber, orderDate: safeOrderDate, product: safeProduct, email: safeEmail, receivedAt,
+    });
+  }
 
   return res.json({ success: true });
 }

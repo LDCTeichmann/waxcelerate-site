@@ -88,25 +88,42 @@ export function buildPage(shell, { head, body }) {
   return html;
 }
 
+// data-prerendered="true" auf jedem Tag hier: react-helmet-async ersetzt
+// beim Mounten NUR Tags, die es selbst schon einmal gerendert hat — ein
+// bereits im rohen HTML vorhandenes <title>/<meta>/<link> lässt es
+// unangetastet stehen und haengt seine eigene Version einfach ZUSAETZLICH
+// ans Ende von <head>. Ohne Markierung + gezielte Entfernung (siehe
+// removeStaticHeadMeta() in src/lib/utils.ts) hat damit jede Seite mit
+// eigenem Helmet nach der Hydration ZWEI <title>, zwei description, zwei
+// canonical, ein doppeltes Set og:*/twitter:* — verifiziert auf allen
+// bisher stichprobenartig geprueften Routen. document.title zeigt zufaellig
+// noch den richtigen Wert (Browser nehmen dafuer das erste <title> in
+// Dokumentreihenfolge, und Helmets eigenes landet dort zufaellig vor dem
+// alten), aber ein simples querySelector (und vermutlich diverse Crawler)
+// liest bei den uebrigen Tags das FALSCHE, veraltete Duplikat. Gleiche
+// Fehlerklasse wie die bereits bekannte JSON-LD-Dopplung
+// (data-prerendered-ld / removeStaticJsonLd()), hier nur nie auf normale
+// Meta-Tags uebertragen worden.
 export function metaTags({ title, description, canonical, image, type = 'website', published, modified }) {
   const abs = image?.startsWith('http') ? image : `${BASE}${image ?? '/images/hero-chain-texture.jpg'}`;
+  const p = ' data-prerendered="true"';
   return [
-    `<title>${esc(title)}</title>`,
-    `<meta name="description" content="${esc(description)}">`,
-    `<link rel="canonical" href="${canonical}">`,
-    `<meta property="og:type" content="${type}">`,
-    `<meta property="og:site_name" content="Waxcelerate">`,
-    `<meta property="og:locale" content="de_DE">`,
-    `<meta property="og:title" content="${esc(title)}">`,
-    `<meta property="og:description" content="${esc(description)}">`,
-    `<meta property="og:url" content="${canonical}">`,
-    `<meta property="og:image" content="${abs}">`,
-    published ? `<meta property="article:published_time" content="${published}">` : '',
-    modified ? `<meta property="article:modified_time" content="${modified}">` : '',
-    `<meta name="twitter:card" content="summary_large_image">`,
-    `<meta name="twitter:title" content="${esc(title)}">`,
-    `<meta name="twitter:description" content="${esc(description)}">`,
-    `<meta name="twitter:image" content="${abs}">`,
+    `<title${p}>${esc(title)}</title>`,
+    `<meta name="description" content="${esc(description)}"${p}>`,
+    `<link rel="canonical" href="${canonical}"${p}>`,
+    `<meta property="og:type" content="${type}"${p}>`,
+    `<meta property="og:site_name" content="Waxcelerate"${p}>`,
+    `<meta property="og:locale" content="de_DE"${p}>`,
+    `<meta property="og:title" content="${esc(title)}"${p}>`,
+    `<meta property="og:description" content="${esc(description)}"${p}>`,
+    `<meta property="og:url" content="${canonical}"${p}>`,
+    `<meta property="og:image" content="${abs}"${p}>`,
+    published ? `<meta property="article:published_time" content="${published}"${p}>` : '',
+    modified ? `<meta property="article:modified_time" content="${modified}"${p}>` : '',
+    `<meta name="twitter:card" content="summary_large_image"${p}>`,
+    `<meta name="twitter:title" content="${esc(title)}"${p}>`,
+    `<meta name="twitter:description" content="${esc(description)}"${p}>`,
+    `<meta name="twitter:image" content="${abs}"${p}>`,
   ].filter(Boolean).join('\n  ');
 }
 
