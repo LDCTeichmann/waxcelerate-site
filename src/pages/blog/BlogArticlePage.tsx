@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { Navigation } from '@/sections/navigation';
 import { Footer } from '@/sections/footer';
 import { products } from '@/lib/data';
-import { removeStaticJsonLd } from '@/lib/utils';
+import { removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
 import {
   getArticleBySlug,
   getArticleImage,
@@ -154,9 +154,11 @@ export function BlogArticlePage() {
 
   // Prerendered HTML for this route already ships this same schema; without
   // this, Helmet's copy below just piles on top of it (see removeStaticJsonLd
-  // in src/lib/utils.ts).
+  // in src/lib/utils.ts). Same story for the title/description/canonical/og/
+  // twitter tags Helmet sets further down (see removeStaticHeadMeta).
   useEffect(() => {
     removeStaticJsonLd();
+    removeStaticHeadMeta();
   }, [slug]);
 
   if (!article) {

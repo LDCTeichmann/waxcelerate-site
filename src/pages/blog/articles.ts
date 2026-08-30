@@ -1284,7 +1284,14 @@ export const articles: Article[] = [
     titleShort: 'E-Bike-Kette wachsen',
     description: 'E-Bike-Ketten verschleißen durch das hohe Drehmoment schneller. Warum Heißwachs den Antrieb besonders schont, was zu beachten ist und welches Wachs passt.',
     category: 'Kaufberatung',
-    scienceLink: { anchor: 'linie', label: 'Warum MoS₂ Pro Edition gerade bei E-Bikes vorne liegt' },
+    // War 'linie' — dieser Anchor existiert nirgends in SciencePage.tsx
+    // (verifiziert: nur reibung/formel/matrix-window existieren als echte
+    // id's), der Link landete also immer oben auf der Seite statt am
+    // versprochenen Abschnitt. /wissenschaft hat keinen E-Bike-spezifischen
+    // Abschnitt — 'formel' erklaert die MoS₂-Formel selbst ("haelt unter
+    // Last"), was dem Linktext inhaltlich am naechsten kommt, ohne einen
+    // Abschnitt vorzutaeuschen, den es nicht gibt.
+    scienceLink: { anchor: 'formel', label: 'Warum MoS₂ Pro Edition gerade bei E-Bikes vorne liegt' },
     linksToCalculator: true,
     publishDate: '2026-06-16',
     dateModified: '2026-07-27',
@@ -1542,7 +1549,11 @@ export function getArticleBySlug(slug: string): Article | undefined {
  * `npx tsx scripts/optimize-blog-images.mjs`.
  */
 export const articleImages: Record<string, { src: string; card?: string; alt: string }> = {
-  'heisswachs-vs-fluessigwachs': { src: '/images/wax-block-spin.jpg', alt: 'Waxcelerate Wachsblock auf dunklem Schiefer' },
+  // card ergaenzt: src war bisher auch die Kartenvorschau (204-322 KB
+  // Originalfoto statt 25-90 KB) — ausgeliefert auf der Blog-Uebersicht UND
+  // im "Weiterlesen"-Widget jedes anderen Artikels. src bleibt bewusst das
+  // Originalfoto (bleibt die Artikel-eigene Hero-Datei, nicht Teil dieses Fixes).
+  'heisswachs-vs-fluessigwachs': { src: '/images/wax-block-spin.jpg', card: '/images/blog/wax-block-spin-800.webp', alt: 'Waxcelerate Wachsblock auf dunklem Schiefer' },
   'fahrradkette-entfetten': {
     src: '/images/blog/oil-tattoo-leg-1600.webp',
     card: '/images/blog/oil-tattoo-leg-800.webp',
@@ -1563,32 +1574,32 @@ export const articleImages: Record<string, { src: string; card?: string; alt: st
     card: '/images/blog/wax-pro-box-open-800.webp',
     alt: 'Offener Versandkarton mit zwei dunklen MoS2-Wachsblöcken, Abendlicht auf Schiefer',
   },
-  'kettenwachs-rennrad-gravelbike': { src: '/images/review-gravel.jpg', alt: 'Gravelbike mit Bikepacking-Taschen' },
+  'kettenwachs-rennrad-gravelbike': { src: '/images/review-gravel.jpg', card: '/images/blog/gravel-bikepacking-800.webp', alt: 'Gravelbike mit Bikepacking-Taschen' },
   'wachs-haelt-nicht-haeufige-fehler': {
     src: '/images/blog/chain-wax-kit-hills-1600.webp',
     card: '/images/blog/chain-wax-kit-hills-800.webp',
     alt: 'Gewachste Kette, Wachsblock und Versandkarton auf Schiefer vor den Hügeln',
   },
-  'kettenwachs-faq': { src: '/images/hero-chain-angle.jpg', alt: 'Saubere Fahrradketten von der Seite' },
+  'kettenwachs-faq': { src: '/images/hero-chain-angle.jpg', card: '/images/blog/chain-links-macro-800.webp', alt: 'Saubere Fahrradketten von der Seite' },
   'vorgewachste-kette': {
     src: '/images/blog/box-chain-delivery-1600.webp',
     card: '/images/blog/box-chain-delivery-800.webp',
     alt: 'Wachsblock, Waxcelerate-Versandkarton, Kette und zwei Kettenschlösser auf Schiefer vor den Hügeln',
   },
-  'kettenwachs-winter': { src: '/images/review-sunset.jpg', alt: 'Rennrad bei Sonnenuntergang am Feldweg' },
+  'kettenwachs-winter': { src: '/images/review-sunset.jpg', card: '/images/blog/sworks-sunset-field-800.webp', alt: 'Rennrad bei Sonnenuntergang am Feldweg' },
   'topf-zum-kette-wachsen': {
     src: '/images/blog/wax-bath-hanging-1600.webp',
     card: '/images/blog/wax-bath-hanging-800.webp',
     alt: 'Fahrradkette hängt an zwei Drahthaken über einem Edelstahltopf, Hügel im Hintergrund',
   },
-  'tropfwachs-hybrid-methode': { src: '/images/reviews/ride-5.jpg', alt: 'Gravelbike mit gewachster Kette vor einem Café' },
+  'tropfwachs-hybrid-methode': { src: '/images/reviews/ride-5.jpg', card: '/images/blog/gravel-bikepacking-2-800.webp', alt: 'Gravelbike mit gewachster Kette vor einem Café' },
   'von-oel-auf-wachs-umsteigen': {
     src: '/images/blog/chain-quicklinks-detail-1600.webp',
     card: '/images/blog/chain-quicklinks-detail-800.webp',
     alt: 'Fahrradkette mit zwei losen Kettenschlössern in Nahaufnahme auf Schiefer',
   },
-  'ebike-kette-wachsen': { src: '/images/reviews/ride-2.jpg', alt: 'Rennrad an einem Dorfbrunnen in den Alpen' },
-  'kettenverschleiss-messen': { src: '/images/reviews/ride-4.jpg', alt: 'Rennradfahrer auf Passstraße in den Dolomiten' },
+  'ebike-kette-wachsen': { src: '/images/reviews/ride-2.jpg', card: '/images/blog/alpine-fountain-bike-800.webp', alt: 'Rennrad an einem Dorfbrunnen in den Alpen' },
+  'kettenverschleiss-messen': { src: '/images/reviews/ride-4.jpg', card: '/images/blog/dolomites-climb-800.webp', alt: 'Rennradfahrer auf Passstraße in den Dolomiten' },
   'erste-fahrt-nach-wachsen': {
     src: '/images/blog/chain-waxed-macro-1600.webp',
     card: '/images/blog/chain-waxed-macro-800.webp',
