@@ -624,10 +624,14 @@
   background: linear-gradient(to top, rgba(var(--scrim-rgb),0.60) 4%, rgba(var(--scrim-rgb),0.30) 34%, transparent 100%);
 }
 
-/* Hero image — push wax block up on mobile so it doesn't overwhelm the frame */
+/* Hero image, mobile only — was tuned to push the old wax-block photo
+   (chain-bg-mobile.jpg) up/right so it didn't overwhelm the frame. Mobile
+   hero redesign (2026-08) swapped in mobile-chains-hills.jpg (box + hanging
+   chain + hillside, see hero-light.tsx); this value now frames that photo
+   instead — verified visually via a real screenshot, not guessed. */
 @media (max-width: 639px) {
   .hero-img {
-    object-position: 68% 20% !important;
+    object-position: 34% 18% !important;
   }
 }
 

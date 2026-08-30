@@ -8,13 +8,14 @@ import { waxVsOil } from '@/lib/data';
 
 const WaxDive = lazy(() => import('@/sections/hero/WaxDive').then(m => ({ default: m.WaxDive })));
 
-// chain-bg.jpg is now a pre-cropped 1653×918 (1.8:1) slice of the source photo,
-// chosen so the calm slate surface (with the loose chain-link detail) occupies
-// the left ~60% and the woven chain pattern occupies the right ~40% — instead
-// of the old crop straddling the slate/chain boundary at roughly the frame's
-// midpoint, which put both the wax block and the text in the busiest, most
-// pattern-heavy part of the photo.
-const BG_POS = '48% 38%';
+// chain-bg.jpg (desktop/tablet background, sm: and up) is a pre-cropped
+// 1653×918 (1.8:1) slice of the source photo, chosen so the calm slate
+// surface (with the loose chain-link detail) occupies the left ~60% and the
+// woven chain pattern occupies the right ~40% — instead of the old crop
+// straddling the slate/chain boundary at roughly the frame's midpoint, which
+// put both the wax block and the text in the busiest, most pattern-heavy
+// part of the photo. Position applied via the sm:object-[48%_38%] class on
+// the <img> below (see bgImg for why it's a class, not the style object).
 
 export function Hero() {
   const { t, lang } = useLanguage();
@@ -247,23 +248,33 @@ export function Hero() {
   // <picture> UND als og:image/twitter:image in index.html: nicht jeder
   // Social-Crawler verarbeitet WebP zuverlaessig.
   //
-  // Unter 640px eigenes Bild statt des Ketten-Fotos: die Kette liest auf
-  // einem Hochkant-Crop kaum noch als Kette, nur als dunkle Flaeche (Lucas
-  // Feedback — "sieht komisch aus auf Mobile"). Der Wachsblock ist bereits im
-  // richtigen 9:16-Seitenverhaeltnis fotografiert (kein Crop noetig) und
-  // steht als eigenstaendiges Motiv fuer sich, ohne auf die Kette angewiesen
-  // zu sein.
+  // Mobile-Hero-Redesign (2026-08): unter 640px zeigt der Hintergrund jetzt
+  // einen Ausschnitt aus chains-hanging-gold — Waxcelerate-Karton + frisch
+  // gewachste, goldfarbene Kette vor echter Stuttgarter Huegelkulisse,
+  // goldene Stunde (dasselbe Foto, das schon als Blog-Hero und im
+  // Produkt-Regal laeuft). Ersetzt das vorherige chain-bg-mobile.jpg
+  // (Wachsblock auf Schiefer) — nicht weil das schlecht war, sondern weil
+  // dieses Foto das tatsaechliche ERGEBNIS zeigt (eine saubere, gewachste
+  // Kette) statt nur des Rohstoffs, und weil der Text jetzt in einem eigenen
+  // Sockel unter dem Foto steht statt darueber, das Foto also endlich ohne
+  // schweren Scrim lesbar bleiben darf (siehe die Scrim-Layer weiter unten,
+  // jetzt sm:-only). Bild selbst ist 1050x1000px (Ausschnitt aus 1600x1000,
+  // verlustfrei, ohne Hochskalieren — siehe Crop-Herleitung im
+  // Redesign-Plan). object-Position fuer Mobil steht in index.css (.hero-img
+  // media(max-width:639px), !important) — dort schon vorhanden fuer die
+  // vorherige Mobil-Aufnahme, jetzt auf den neuen Ausschnitt umgestellt statt
+  // hier per Klasse dupliziert, sonst kollidieren zwei Positionsangaben.
+  // Desktop-Position bleibt die sm:-Klasse unten (BG_POS-Wert), unveraendert.
   const bgImg = (
     <picture>
-      <source media="(max-width: 639px)" srcSet="/images/hero/chain-bg-mobile.webp" type="image/webp" />
-      <source media="(max-width: 639px)" srcSet="/images/hero/chain-bg-mobile.jpg" type="image/jpeg" />
+      <source media="(max-width: 639px)" srcSet="/images/hero/mobile-chains-hills.webp" type="image/webp" />
+      <source media="(max-width: 639px)" srcSet="/images/hero/mobile-chains-hills.jpg" type="image/jpeg" />
       <source srcSet="/images/hero/chain-bg.webp" type="image/webp" />
       <img
         src="/images/hero/chain-bg.jpg"
-        alt={de ? 'Fahrradkette auf Schiefer' : 'Bicycle chain on slate'}
-        className="absolute inset-0 w-full h-full object-cover hero-img"
+        alt={de ? 'Frisch gewachste Kette vor Stuttgarter Huegeln' : 'Freshly waxed chain in front of the Stuttgart hills'}
+        className="absolute inset-0 w-full h-full object-cover hero-img sm:object-[48%_38%]"
         style={{
-          objectPosition: BG_POS,
           transform: 'scale(1.035)',
           filter: 'blur(1.4px) saturate(0.95) brightness(0.92)',
         }}
@@ -290,8 +301,8 @@ export function Hero() {
       <div className="px-3 sm:px-4 lg:px-6 pt-[84px] lg:pt-[104px] pb-3 sm:pb-4 lg:pb-6">
         <div
           ref={cardRef}
-          className="relative overflow-hidden rounded-[20px] sm:rounded-[28px]
-                     h-[86dvh] sm:h-[min(calc(100dvh-108px),78vw)] lg:h-[min(calc(100dvh-134px),64vw)] min-h-[520px] sm:min-h-[540px]"
+          className="relative flex flex-col sm:block overflow-hidden rounded-[20px] sm:rounded-[28px]
+                     sm:h-[min(calc(100dvh-108px),78vw)] lg:h-[min(calc(100dvh-134px),64vw)] sm:min-h-[540px]"
           style={{
             background: 'var(--hero-stage)',
             boxShadow: '0 28px 90px rgba(10,10,16,0.22), 0 4px 18px rgba(10,10,16,0.10)',
@@ -301,8 +312,14 @@ export function Hero() {
             outer card — a rounded/overflow-hidden element that ALSO carries a live
             GSAP transform is a known Chromium compositing trap: the corner clip can
             render square for a frame right as the transform layer promotes. Keeping
-            the clip static and transforming only this inner box avoids it. */}
-        <div ref={cardInnerRef} className="absolute inset-0 will-change-transform">
+            the clip static and transforming only this inner box avoids it.
+            Mobile-Redesign: below sm:, this is no longer an absolute full-card
+            overlay — cardRef is now a flex-col of [photo band, content pedestal]
+            in normal flow (see the two children below), so cardInner just needs
+            to be a normal, non-absolute wrapper here. It regains the exact prior
+            absolute-inset-0-over-the-whole-card behavior at sm: and up, where the
+            original single-card overlay design is unchanged. */}
+        <div ref={cardInnerRef} className="relative sm:absolute sm:inset-0 will-change-transform">
           {/* Idle background drift (optional): a slow independent pan here would
               compete with the GSAP-driven transform already applied to this same
               element (entrance scale, scroll-scrub, cursor parallax) — both would
@@ -310,8 +327,15 @@ export function Hero() {
               properly means a dedicated extra layer, which isn't free performance-
               wise (another full-bleed image paint). Skipping for now; revisit only
               if the parallax layer gets refactored to a single GSAP timeline that
-              could own a subtle idle loop too. */}
-          <div ref={imgRef} className="absolute inset-0 will-change-transform">
+              could own a subtle idle loop too.
+              Mobile-Redesign: imgRef is now a normal-flow, fixed-height band
+              (not absolute-inset-0-of-cardInner) below sm:, so the photo shows at
+              its own aspect instead of being force-cropped to fill an 86dvh-tall
+              card — the whole point of the new crop (see bgImg above) is a
+              recognizable box+chain+hillside composition, which an extreme
+              vertical object-cover crop would have destroyed. Reverts to the
+              original absolute-inset-0 behavior at sm: and up. */}
+          <div ref={imgRef} className="relative h-[44dvh] min-h-[300px] overflow-hidden sm:h-auto sm:min-h-0 sm:absolute sm:inset-0 will-change-transform">
             {bgImg}
 
             {/* Blur already pushes the chain to atmospheric bokeh; this overlay only
@@ -322,24 +346,30 @@ export function Hero() {
                 scroll-scrub yPercent, mouse parallax. As siblings they had no
                 overscan margin of their own, so cardInner's scroll-scrub shrink
                 pulled their edges in ahead of the image, exposing an untinted sliver
-                of the photo at the left/right edges while scrolling. */}
+                of the photo at the left/right edges while scrolling.
+                Mobile-Redesign: all five of these are now sm:-only. They exist
+                purely to keep white text legible when it sits ON TOP of the photo
+                — on mobile the text has moved into its own solid pedestal below
+                the photo band (see the content wrapper further down), so the photo
+                no longer needs to be darkened for legibility and can finally just
+                be seen. Desktop/tablet keep the exact original treatment. */}
             <div
-              className="absolute inset-0 pointer-events-none z-[1]"
+              className="hidden sm:block absolute inset-0 pointer-events-none z-[1]"
               style={{ background: 'rgba(var(--scrim-rgb),0.32)' }}
             />
             <div
-              className="absolute inset-0 pointer-events-none z-[1]"
+              className="hidden sm:block absolute inset-0 pointer-events-none z-[1]"
               style={{ background: 'linear-gradient(90deg, rgba(var(--scrim-rgb),0.30) 0%, transparent 40%)' }}
             />
             {/* Focused scrim directly behind the text column — the global overlay above
                 stays light enough to keep the chain recognizable, so contrast for the
                 headline/stats needs its own local boost instead of a sitewide darken. */}
             <div
-              className="absolute inset-0 pointer-events-none z-[1]"
+              className="hidden sm:block absolute inset-0 pointer-events-none z-[1]"
               style={{ background: 'radial-gradient(ellipse 82% 105% at 0% 100%, rgba(var(--scrim-rgb),0.82) 0%, rgba(var(--scrim-rgb),0.48) 40%, transparent 68%)' }}
             />
             <div
-              className="absolute top-0 inset-x-0 h-20 pointer-events-none z-[1]"
+              className="hidden sm:block absolute top-0 inset-x-0 h-20 pointer-events-none z-[1]"
               style={{ background: 'linear-gradient(to bottom, rgba(var(--scrim-rgb),0.25), transparent)' }}
             />
             {/* Stats row spans the full card width, so it can sit over the chain-weave
@@ -347,32 +377,35 @@ export function Hero() {
                 reach — this band gives that whole row reliable contrast on its own,
                 independent of which part of the photo is behind it. */}
             <div
-              className="absolute bottom-0 inset-x-0 h-36 pointer-events-none z-[1]"
+              className="hidden sm:block absolute bottom-0 inset-x-0 h-36 pointer-events-none z-[1]"
               style={{ background: 'linear-gradient(to top, rgba(var(--scrim-rgb),0.58), transparent)' }}
             />
+            {/* Mobile only: a light seam fade into the pedestal's solid
+                background right below, purely a visual transition — not doing
+                legibility work like the old heavy 0.72 mobile scrim it
+                replaces, since no text sits over the photo anymore. */}
             <div
-              className="absolute inset-x-0 bottom-0 h-[82%] pointer-events-none z-[4] sm:hidden"
-              style={{
-                background:
-                  'linear-gradient(to top, rgba(var(--scrim-rgb),0.72) 0%, rgba(var(--scrim-rgb),0.50) 30%, rgba(var(--scrim-rgb),0.20) 55%, transparent 78%)',
-              }}
+              className="sm:hidden absolute inset-x-0 bottom-0 h-14 pointer-events-none z-[1]"
+              style={{ background: 'linear-gradient(to top, var(--hero-stage), transparent)' }}
             />
           </div>
 
           {/* Shadow leans slightly toward the content/CTA (bottom-left) instead of
               straight down — a soft directional cue, not a literal arrow.
-              Auf Mobil gar nicht mehr gerendert. Das Hintergrundfoto IST dort
-              inzwischen selbst ein Wachsblock (chain-bg-mobile.jpg, siehe oben
-              — keine Kettenaufnahme aus dem Rohmaterial uebersteht den schweren
-              Bottom-Scrim dieser Sektion mit genug Kontrast, getestet und
-              zurueckgenommen), also stand hier ein zweiter Wachsblock direkt
-              neben dem ersten. Ein Versuch, das durch Verkleinern und
-              Abdunkeln (16 % Breite, opacity-60) zu entschaerfen, hat den
-              Doppel-Eindruck nicht beseitigt, sondern nur verkleinert — Lucas
-              Rueckmeldung dazu: sieht weiterhin nach zwei Wachsbloecken aus.
-              Interaktive Funktion hat das Element auf Mobil ohnehin keine: die
-              "Blick ins Wachs"-Lupe (WaxLensCutout unten) ist auf min-width
-              1024px gegated. sm:/lg: unveraendert. */}
+              Auf Mobil gar nicht mehr gerendert. Urspruenglich (vor dem
+              Mobile-Hero-Redesign 2026-08), weil das damalige
+              Mobil-Hintergrundfoto (chain-bg-mobile.jpg) selbst ein
+              Wachsblock war und ein zweiter, kleinerer daneben nur wie ein
+              Doppel-Eindruck wirkte (Lucas Rueckmeldung: "sieht weiterhin
+              nach zwei Wachsbloecken aus", auch nach Verkleinern/Abdunkeln).
+              Das aktuelle Mobilfoto zeigt jetzt eine fertig gewachste Kette
+              statt eines Wachsblocks, das urspruengliche Doppel-Problem
+              besteht also nicht mehr direkt — bleibt trotzdem ausgeblendet,
+              weil das Element auf Mobil ohnehin keine interaktive Funktion
+              hat: die "Blick ins Wachs"-Lupe (WaxLensCutout unten) ist auf
+              min-width 1024px gegated, und der Text/CTA-Sockel liegt jetzt
+              unter dem Foto statt darueber, wo ein schwebender Wachsblock
+              keinen offensichtlichen Platz mehr haette. sm:/lg: unveraendert. */}
           <div
             ref={blockRef}
             className="hidden sm:block absolute z-[5] pointer-events-none will-change-transform
@@ -451,14 +484,26 @@ export function Hero() {
               term only ever matters at viewport ≥ 1280px, by which point the
               card is already at its lg inset. Verified against the Section
               wrapper's rendered left edge at 1440/1280/768px viewports. */}
-          <div className="relative z-10 h-full w-full max-w-[1232px] mx-auto px-3 sm:px-6 lg:px-8 xl:px-14">
+          {/* Mobile-Redesign: below sm:, this is the new solid content pedestal —
+              normal flow, opaque var(--hero-stage) background, sitting right
+              below the now-clear photo band instead of overlaying it. Every one
+              of the existing white/near-white text colors used inside (h1,
+              tagline, star row, etc.) was already tuned for var(--hero-stage) —
+              they were designed for the equivalent dark backing the old scrims
+              approximated with a photo underneath; a flat var(--hero-stage) here
+              gives the exact same contrast, guaranteed, independent of what part
+              of a photo used to sit behind it. Reverts to the original
+              transparent absolute-overlay treatment at sm: and up. */}
+          <div className="relative z-10 w-full max-w-[1232px] mx-auto px-5 sm:px-6 lg:px-8 xl:px-14
+                           bg-[var(--hero-stage)] pt-7 pb-8 rounded-b-[20px]
+                           sm:bg-transparent sm:rounded-none sm:h-full sm:pt-0 sm:pb-0">
             {/* pb auf Mobil deutlich kleiner: dort steht am Kartenfuss keine
                 Leiste mehr, fuer die Platz freigehalten werden muesste. Die
                 112px Bodenabstand waren genau die leere Flaeche zwischen CTA
                 und Bewertungszeile, die den Hero unten auseinandergezogen hat.
                 Ab sm: unveraendert, dort traegt die Leiste weiter das
                 Zahlenraster. */}
-            <div className="h-full flex flex-col justify-end pb-10 sm:pb-32 lg:pb-28">
+            <div className="sm:h-full flex flex-col sm:justify-end sm:pb-32 lg:pb-28">
               <div ref={contentRef} className="max-w-xl will-change-transform">
 
                 <div data-hero className="flex items-center gap-3 mb-5">
@@ -560,16 +605,36 @@ export function Hero() {
                     CTA und durch leere Flaeche von ihm getrennt — also genau
                     dort, wo sie die Kaufentscheidung nicht mehr stuetzt. Ab
                     sm: steht sie weiterhin in der Leiste am Kartenfuss,
-                    zusammen mit dem Zahlenraster. */}
+                    zusammen mit dem Zahlenraster.
+                    Mobile-Redesign: enthaelt jetzt zusaetzlich "Hergestellt in
+                    Stuttgart" — bisher stand das nur in TrustStrip.tsx direkt
+                    unter dem Hero, zusammen mit genau den beiden Fakten
+                    (Verkaufszahl, 100% positiv), die hier eine Zeile darueber
+                    schon standen. TrustStrip ist auf Mobil jetzt ausgeblendet
+                    (siehe TrustStrip.tsx), dieser eine nicht-doppelte Fakt zieht
+                    stattdessen hierher. */}
                 <div data-hero className="sm:hidden flex items-center gap-2 mt-5">
                   <span style={{ color: 'rgba(255,255,255,0.92)', letterSpacing: '0.08em', fontSize: '12px' }}>
                     ★★★★★
                   </span>
                   <span className="text-meta uppercase tabular-nums"
                     style={{ letterSpacing: '0.08em', color: 'rgba(255,255,255,0.72)' }}>
-                    200+ · {de ? '100 % positiv' : '100% positive'}
+                    200+ · {de ? '100 % positiv · Hergestellt in Stuttgart' : '100% positive · Made in Stuttgart'}
                   </span>
                 </div>
+
+                {/* Bisher unbenutzte, aber laengst freigegebene Copy aus
+                    i18n.ts (hero.guarantee) — eine persoenlich von Luca
+                    unterschriebene Garantie direkt am Punkt der Kaufzoegerung,
+                    dieselbe Risikoumkehr-Logik wie die Ruecksende-Zeile auf
+                    ProductDetailPage.tsx direkt unter deren CTA. Nur auf
+                    Mobil, wo der Knopf jetzt der letzte Schritt vor dem Ende
+                    des Sockels ist; auf dem Desktop-Grid wuerde die Zeile
+                    gegen das Zahlenraster in der Kartenleiste konkurrieren. */}
+                <p data-hero className="sm:hidden mt-3 text-[12.5px] leading-snug"
+                  style={{ color: 'rgba(255,255,255,0.58)' }}>
+                  {t.hero.guarantee}
+                </p>
               </div>
             </div>
           </div>

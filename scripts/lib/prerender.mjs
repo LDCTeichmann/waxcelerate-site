@@ -41,15 +41,20 @@ export function loadShell(dist) {
 }
 
 /**
- * Die beiden Hero-Bild-Preloads aus index.html (chain-bg.webp, wax-cutout.webp).
- * Nur auf der Startseite korrekt — dort ist chain-bg.webp das echte LCP-Bild.
+ * Die Hero-Bild-Preloads aus index.html (mobile-chains-hills.webp,
+ * chain-bg.webp, wax-cutout.webp). Nur auf der Startseite korrekt — dort ist
+ * eines der beiden Foto-Preloads das echte LCP-Bild, je nach Breakpoint.
  * stripHead() entfernt sie fuer jede Unterseite, jedes Prerender-Skript setzt
  * per imagePreload() sein eigenes, seitenrichtiges Paar. Ohne diese Trennung
  * laed jede der ~40 Unterseiten zwei Bilder mit hoechster Prioritaet vor, die
  * dort nie erscheinen, und nimmt dem tatsaechlichen LCP-Bild auf gedrosseltem
  * Mobilfunk rund 394 KB Bandbreite weg (Audit vom 05.08.2026, Problem 1).
+ * mobile-chains-hills.webp loeste chain-bg-mobile.webp im Mobile-Hero-Redesign
+ * (2026-08) ab — dieselbe Stripping-Regel muss dem neuen Dateinamen folgen,
+ * sonst bleibt der veraltete Preload-Name hier stehen und der neue Preload
+ * verbleibt faelschlich auf jeder Unterseite.
  */
-const HOME_ONLY_PRELOADS = /<link\s+rel="preload"\s+as="image"\s+href="\/images\/hero\/(?:chain-bg-mobile\.webp|chain-bg\.webp|wax-cutout\.webp)"[^>]*>\s*/gi;
+const HOME_ONLY_PRELOADS = /<link\s+rel="preload"\s+as="image"\s+href="\/images\/hero\/(?:mobile-chains-hills\.webp|chain-bg\.webp|wax-cutout\.webp)"[^>]*>\s*/gi;
 
 /** Entfernt die globalen Head-Tags aus der Huelle, die wir pro Seite ersetzen. */
 export function stripHead(html) {
