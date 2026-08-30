@@ -372,7 +372,12 @@ function renderStatic(p) {
 // auseinanderlaufen.
 const LEGAL_PAGES = [
   { dir: 'impressum', title: 'Impressum', description: 'Anbieterkennzeichnung nach § 5 TMG für Waxcelerate, Luca Teichmann, Stuttgart.' },
-  { dir: 'datenschutz', title: 'Datenschutzerklärung', description: 'Wie Waxcelerate personenbezogene Daten verarbeitet, welche Rechte du hast und an wen du dich wenden kannst.' },
+  // noindex: true — die React-Seite setzt per Helmet client-seitig noindex
+  // (DatenschutzPage.tsx), aber die Huelle (index.html) traegt sitewide
+  // robots "index, follow" und stripHead() entfernt robots-Meta nicht, also
+  // stand die vorgerenderte Fassung bisher trotzdem auf "index, follow" —
+  // fuer jeden Crawler, der kein JS ausfuehrt, war sie indexierbar.
+  { dir: 'datenschutz', title: 'Datenschutzerklärung', description: 'Wie Waxcelerate personenbezogene Daten verarbeitet, welche Rechte du hast und an wen du dich wenden kannst.', noindex: true },
   { dir: 'agb', title: 'Allgemeine Geschäftsbedingungen', description: 'Vertragsbedingungen für Bestellungen bei Waxcelerate: Vertragsschluss, Preise, Lieferung und Zahlung.' },
   { dir: 'widerruf', title: 'Vertrag widerrufen', description: 'Formular und Ablauf, um eine Bestellung bei Waxcelerate innerhalb der Frist zu widerrufen.' },
   { dir: 'widerrufsbelehrung', title: 'Widerrufsbelehrung', description: 'Widerrufsrecht, Fristen und Folgen des Widerrufs für Bestellungen bei Waxcelerate.' },
@@ -391,7 +396,9 @@ function renderLegal(p) {
     `<p>${esc(p.description)}</p>`,
     `<p><a href="/">Zur Startseite</a> · <a href="/impressum">Impressum</a> · <a href="/datenschutz">Datenschutz</a> · <a href="/agb">AGB</a> · <a href="/widerrufsbelehrung">Widerrufsbelehrung</a> · <a href="/versand-und-zahlung">Versand und Zahlung</a></p>`,
   ].join('\n');
-  return buildPage({ head, body });
+  let html = buildPage({ head, body });
+  if (p.noindex) html = html.replace(/<meta name="robots"[^>]*>/i, '<meta name="robots" content="noindex">');
+  return html;
 }
 
 for (const p of STATIC_PAGES) write(p.dir, renderStatic(p));

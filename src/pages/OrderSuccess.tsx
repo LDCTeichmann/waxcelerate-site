@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { CheckCircle } from 'lucide-react';
 import { useCartStore } from '@/store/cart';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -20,12 +21,22 @@ export function OrderSuccess() {
       className="min-h-screen flex flex-col items-center justify-center gap-6 px-4 text-center"
       style={{ background: 'var(--pg)' }}
     >
+      {/* War ohne eigenes Helmet — die Seite erbte stillschweigend, was die
+          zuvor besuchte Route (oder beim Direktaufruf: index.html) an
+          Titel/Meta hinterlassen hatte. Nicht in sitemap.xml/Prerender
+          (korrekt), aber ohne noindex waere sie trotzdem indexierbar, falls
+          eine ?session_id=-URL je oeffentlich verlinkt wird — gleiche
+          Vorsichtsmassnahme wie auf DatenschutzPage.tsx. */}
+      <Helmet>
+        <title>{t.cart.orderSuccess} | Waxcelerate</title>
+        <meta name="robots" content="noindex" />
+      </Helmet>
       {/* Icon */}
       <div
         className="w-16 h-16 rounded-full flex items-center justify-center"
         style={{ background: 'rgba(var(--ok-rgb),0.12)', border: '1px solid rgba(var(--ok-rgb),0.30)' }}
       >
-        <CheckCircle className="h-8 w-8 text-green-400" />
+        <CheckCircle className="h-8 w-8" style={{ color: 'var(--ok)' }} />
       </div>
 
       {/* Text */}

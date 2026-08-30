@@ -1,15 +1,37 @@
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { shipping } from '@/lib/data';
+import { removeStaticHeadMeta } from '@/lib/utils';
 
 const fmt = (cents: number) => (cents / 100).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
 
 export function VersandUndZahlungPage() {
+  // Vorgerenderte Fassung dieser Route liefert bereits eigene title/
+  // description/canonical/og-Tags (data-prerendered="true", siehe metaTags()
+  // in scripts/lib/prerender.mjs) — ohne Entfernung haeuften sich zwei
+  // Instanzen jedes Tags im Live-DOM nach dem Hydrieren, derselbe Fix wie
+  // removeStaticJsonLd() fuer JSON-LD.
+  useEffect(() => { removeStaticHeadMeta(); }, []);
+
   return (
     <>
       <Helmet>
         <title>Versand &amp; Zahlung | Waxcelerate</title>
+        <meta name="description" content="Versandkosten, Lieferzeiten und Zahlungsarten bei Waxcelerate. Versandkostenfrei ab 50 €." />
+        <link rel="canonical" href="https://waxcelerate.de/versand-und-zahlung" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Waxcelerate" />
+        <meta property="og:locale" content="de_DE" />
+        <meta property="og:title" content="Versand &amp; Zahlung | Waxcelerate" />
+        <meta property="og:description" content="Versandkosten, Lieferzeiten und Zahlungsarten bei Waxcelerate. Versandkostenfrei ab 50 €." />
+        <meta property="og:url" content="https://waxcelerate.de/versand-und-zahlung" />
+        <meta property="og:image" content="https://waxcelerate.de/images/hero-chain-texture.jpg" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Versand &amp; Zahlung | Waxcelerate" />
+        <meta name="twitter:description" content="Versandkosten, Lieferzeiten und Zahlungsarten bei Waxcelerate. Versandkostenfrei ab 50 €." />
+        <meta name="twitter:image" content="https://waxcelerate.de/images/hero-chain-texture.jpg" />
       </Helmet>
       <div className="bg-wx-bg min-h-screen py-20">
         <div className="max-w-2xl mx-auto px-6">
