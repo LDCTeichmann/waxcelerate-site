@@ -19,7 +19,12 @@ export function AddToCartButton({ product, size = 'md', fullWidth = false }: Pro
   const { t, lang } = useLanguage();
   const de = lang === 'de';
 
-  const inStock = isInStock(stockMap, product.id);
+  // isInStock() falls open on an empty/failed stockMap fetch (see
+  // store/cart.ts) — fine for a genuinely available product, but it also
+  // means a product this component already knows is soldOut (product.soldOut,
+  // synchronous, no network round trip) would render as buyable for however
+  // long /api/stock takes to resolve, or forever if that request fails.
+  const inStock = isInStock(stockMap, product.id) && !product.soldOut;
   const lowStock = isLowStock(stockMap, product.id);
   const stock = stockMap[product.id] ?? -1;
 
