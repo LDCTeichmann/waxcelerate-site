@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && npm run gen:public && vite build && npm run gen:html",
+    "build": "tsc -b && npm run gen:public && vite build && npx tsx scripts/fix-head-order.mjs && npm run gen:html",
     "gen:public": "npx tsx scripts/generate-sitemap.mjs && npx tsx scripts/generate-llms-txt.mjs && npx tsx scripts/generate-merchant-feed.mjs",
     "gen:html": "npx tsx scripts/generate-blog-html.mjs && npx tsx scripts/generate-product-html.mjs && npx tsx scripts/generate-accessory-html.mjs && npx tsx scripts/generate-home-html.mjs",
     "lint": "eslint .",
