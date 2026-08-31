@@ -1,6 +1,8 @@
 # Rechts-Compliance-Checkliste — Waxcelerate
 
-**Für:** Luca. **Stand:** 31. August 2026.
+**Für:** Luca. **Stand:** 31. August 2026 (aktualisiert nach Phase 2:
+Gmail-Recherche zu Rohstofflieferanten, Produkthaftpflicht-Vergleich,
+Website-Umsetzung).
 
 > Ich bin kein Anwalt, das hier ist keine Rechtsberatung. Es ist eine
 > recherchierte, quellenbelegte Übersicht über alle rechtlichen Baustellen
@@ -25,13 +27,17 @@ nur du*. Ganz unten steht die priorisierte Gesamttabelle.
 
 ## 0. Sofort wichtig — die 5 dringendsten Punkte
 
+**Update Phase 2:** Punkte 3–5 aus der ursprünglichen Liste sind erledigt
+(Website-Code gebaut bzw. Gewerbeanmeldung bestätigt) — hier die aktuell
+dringendsten:
+
 | # | Was | Warum dringend | Risiko |
 |---|---|---|---|
-| 1 | **LUCID-Registrierung + duales System** | Ohne Bagatellgrenze Pflicht seit 1.7.2022, sobald du verpackte Ware in DE in Verkehr bringst — du tust das seit 2024 | Bußgeld bis 200.000 € **+ sofortiges Vertriebsverbot** |
-| 2 | **Produkthaftpflichtversicherung** | Deckt dich, falls eine Kette reißt oder Wachs einen Schaden verursacht | Ohne Versicherung haftest du privat und unbegrenzt |
-| 3 | **Widerrufsbutton § 356a BGB — Code-Stand prüfen** | Pflicht seit 19.06.2026, Code existiert schon (`/widerruf`), aber das amtliche BMJ-Muster fehlt noch als Text auf `/widerrufsbelehrung` | Bußgelder bis 50.000 € + Abmahnungen |
-| 4 | **GPSR-Kennzeichnung auf Produktseiten** | Seit 13.12.2024 EU-weit Pflicht: Herstellername + Postanschrift + E-Mail müssen bei **jedem Angebot** sichtbar sein — auf waxcelerate.de bislang nirgends geprüft | Marktplätze (v. a. Amazon später) blockieren sonst das Listing; Abmahnrisiko |
-| 5 | **Gewerbeanmeldung-Status klären** | In keinem Dokument explizit bestätigt — Grundvoraussetzung für alles andere | Ohne Anmeldung ist der ganze restliche Compliance-Aufbau hinfällig |
+| 1 | **LUCID-Registrierung + duales System** | Ohne Bagatellgrenze Pflicht seit 1.7.2022, sobald du verpackte Ware in DE in Verkehr bringst — du tust das seit 2024. Verpackung ist jetzt bekannt (Karton, selten Luftpolsterfolie) | Bußgeld bis 200.000 € **+ sofortiges Vertriebsverbot** |
+| 2 | **Produkthaftpflichtversicherung abschließen** | Vergleich liegt jetzt vor (Abschnitt 3) — nur noch deine Entscheidung + Abschluss | Ohne Versicherung haftest du privat und unbegrenzt |
+| 3 | **PTFE-/GMS-/BHT-Lieferanten benennen** | Gmail-Suche hat MoS₂ (Werth-Metall) und Paraffinwachs (DistrEbution) gefunden, aber nicht die anderen Formel-Bestandteile — ohne sie ist die CLP-Einschätzung für Classic nur teilweise möglich | SDB-/Kennzeichnungspflicht bleibt für einen Teil der Formel ungeklärt |
+| 4 | **AGB-Entscheidung treffen** | Seite ist seit Phase 1 als "in Überarbeitung" markiert; Website-Code ist jetzt sonst fertig — AGB sind der letzte offene Website-Baustein | Falsche/halbfertige AGB sind schlechter als gar keine (siehe RECHTSTEXTE.md) |
+| 5 | **Kleinanzeigen-Impressum korrigieren** | Du hast selbst gesagt, es sei "nicht vollständig" — widerspricht dem bisherigen Stand in LUCA_TODO.md D1 | Abmahnrisiko wie jedes fehlende Marktplatz-Impressum |
 
 ---
 
@@ -39,8 +45,8 @@ nur du*. Ganz unten steht die priorisierte Gesamttabelle.
 
 ### Status-Check
 - Rechtsform laut Business Core: Einzelunternehmen, Kleinunternehmer
-  §19 UStG. **Nicht bestätigt:** ob die Gewerbeanmeldung beim
-  Gewerbeamt Stuttgart formal erfolgt ist.
+  §19 UStG. **Bestätigt (Phase 2):** Gewerbeanmeldung ist beim Gewerbeamt
+  Stuttgart erfolgt.
 - Impressum (`ImpressumPage.tsx`) verweist korrekt auf §19 UStG,
   keine USt-IdNr. angegeben — konsistent mit Kleinunternehmerstatus.
 
@@ -74,30 +80,29 @@ nur du*. Ganz unten steht die priorisierte Gesamttabelle.
   Anbahnung).
 
 ### Nächste Schritte — nur von dir
-- **Bestätigen:** Ist die Gewerbeanmeldung beim Amt Stuttgart formal
-  erfolgt? (Offene Frage aus `95_open_questions.md` Punkt 5.)
 - Aktuellen Jahresumsatz (2026 laufend) grob nennen, damit die
   25.000-/100.000-€-Grenze im Blick bleibt.
 
-**Status:** ❔ Gewerbeanmeldung unbestätigt · ✅ Kleinunternehmerstatus im
+**Status:** ✅ Gewerbeanmeldung bestätigt · ✅ Kleinunternehmerstatus im
 Impressum korrekt ausgewiesen
 
 ---
 
 ## 2. Website-Pflichtangaben (E-Commerce-Recht)
 
-### Status-Check (Code gegengelesen)
+### Status-Check (Code gegengelesen — Phase 2: alles unten außer AGB jetzt umgesetzt)
 | Pflicht | Ist-Zustand im Repo |
 |---|---|
 | Impressum §5 TMG | ✅ `ImpressumPage.tsx` — vollständig (Name, Anschrift, E-Mail, USt-Hinweis) |
-| Datenschutzerklärung | ⚠️ `DatenschutzPage.tsx` behandelt Stripe, Vercel-Hosting und DSGVO-Rechte bereits — **aber `src/lib/analytics.ts` nutzt Vercel Analytics (cookiefrei), das in der Datenschutzerklärung nirgends erwähnt wird.** Die Aussage "verwendet keine Tracking-Cookies oder Analyse-Tools" ist dadurch faktisch falsch, auch wenn Vercel Analytics ohne Cookie/Consent auskommt — DSGVO Art. 13 verlangt trotzdem Transparenz über *jede* Verarbeitung, nicht nur Cookie-basierte. |
-| Widerrufsbelehrung | ⚠️ `WiderrufsbelehrungPage.tsx` ist bewusst ein **Platzhalter** — Kommentar im Code bestätigt: das amtliche BMJ-Muster fehlt noch als eingefügter Text. Absichtlich so gelassen (rechtlich korrekt begründet in `RECHTSTEXTE.md`), aber **noch nicht ausgefüllt**. |
-| Muster-Widerrufsformular | ❌ noch nicht als Text vorhanden (Teil des BMJ-Musters oben) |
+| Datenschutzerklärung | ✅ `DatenschutzPage.tsx` behandelt Stripe, Vercel-Hosting, DSGVO-Rechte **und jetzt einen eigenen Absatz zu Vercel Analytics** (cookiefrei, drei anonyme Events, keine IP-Speicherung, Rechtsgrundlage Art. 6 Abs. 1 lit. f DSGVO) |
+| Widerrufsbelehrung | ✅ `WiderrufsbelehrungPage.tsx` enthält jetzt den vollständigen Text von Anlage 1 EGBGB (Widerrufsrecht, Fristbeginn bei Warenkauf, Folgen des Widerrufs), ausgefüllt mit Waxcelerates Daten |
+| Muster-Widerrufsformular | ✅ vollständiger Text von Anlage 2 EGBGB jetzt auf derselben Seite, mit Waxcelerates Kontaktdaten in der "An"-Zeile |
+| Hinweis auf elektronische Widerrufsfunktion (§356a BGB) | ✅ eigener Abschnitt "Widerruf über die Website", der die Funktion und den Weg über `/widerruf` beschreibt. **Einschränkung:** die exakte amtliche Formulierung der 2026er-Ergänzung zum Muster konnte nicht wortgetreu von der Primärquelle (bmj.de/gesetze-im-internet.de) verifiziert werden — diese Domains waren über die verfügbaren Web-Tools nicht erreichbar. Die inhaltliche Pflicht ist erfüllt (Verbraucher wird informiert), eine spätere Gegenprüfung des exakten Wortlauts gegen die Originalquelle schadet trotzdem nicht. |
 | Widerrufsbutton § 356a BGB | ✅ **Code ist fertig:** `/widerruf`-Route + `api/widerruf.ts` fragen korrekt nur Bestellnummer/Datum/Produkt/E-Mail ab, **kein Grund**-Feld — genau die gesetzliche Vorgabe. Eingangsbestätigung per E-Mail (Resend) ist implementiert. |
-| AGB | ⚠️ `AGBPage.tsx` ist als "in Überarbeitung" markiert, referenziert korrekt sowohl eBay- als auch eigenen Shop, aber ist noch kein fertiger Text — Platzhalter-Charakter |
+| AGB | ⚠️ weiterhin offen — `AGBPage.tsx` ist als "in Überarbeitung" markiert. Einzig verbleibender Website-Baustein; wartet auf deine 0-€-vs.-Dienst-Entscheidung (siehe `RECHTSTEXTE.md`) |
 | Versandkosten/Lieferzeit vor Kaufabschluss | ✅ `VersandUndZahlungPage.tsx` vollständig mit Tabelle |
-| Grundpreisangabe (PAngV) | ❌ nicht geprüft — Wachsblöcke (300g/500g) fallen unter die Grundpreispflicht (siehe unten) |
-| GPSR-Herstellerkennzeichnung auf Produktseiten | ❌ nicht vorhanden |
+| Grundpreisangabe (PAngV) | ✅ **Korrektur zu Phase 1:** war bereits implementiert, meine erste Einschätzung war falsch. `ProductShelf.tsx` (Homepage-Regal) und `ProductDetailPage.tsx` (inkl. mobiler Sticky-Bar) zeigen den Preis pro 100g bereits korrekt an |
+| GPSR-Herstellerkennzeichnung auf Produktseiten | ✅ neue gemeinsame Komponente `GpsrInfo.tsx`, eingebunden auf `ProductDetailPage.tsx`, `ProductStagePage.tsx` und `AccessoryDetailPage.tsx` — Name, Anschrift, E-Mail direkt auf jeder Kauf-Seite sichtbar, nicht nur verlinkt |
 
 ### Rechtliche Anforderung
 - **Widerrufsbelehrung/-formular:** Das amtliche BMJ-Muster ist rechtlich
@@ -140,25 +145,21 @@ Impressum korrekt ausgewiesen
   Abmahnrisiko geringer, aber formal ein DSGVO-Verstoß.
 
 ### Nächste Schritte — von Claude erledigbar
-- BMJ-Musterlink erneut heraussuchen und den auszufüllenden Text mit
-  Lucas Daten (Name, Anschrift, E-Mail, 14-Tage-Frist, Hinweis auf
-  elektronische Widerrufsfunktion) als fertigen Textbaustein liefern —
-  **Einfügen selbst ist Code-Arbeit, kein Rechtstext-Neuschreiben.**
-- Grundpreis-Berechnung + Anzeige auf Produktseiten technisch umsetzen
-  (Folgeauftrag, sobald gewünscht).
-- GPSR-Pflichtangaben-Baustein für Produktseiten vorbereiten.
-- Datenschutzerklärung um einen Absatz zu Vercel Analytics ergänzen
-  (Textvorschlag, keine neue Rechtsberatung nötig, da Tatsachenbeschreibung).
+- Sobald du dich für "keine AGB" entscheidest: `AGBPage.tsx` auf einen
+  kurzen erklärenden Hinweis kürzen statt Platzhalter stehen zu lassen.
+- Optional: exakten Wortlaut der 2026er-Muster-Ergänzung zur elektronischen
+  Widerrufsfunktion nachträglich gegen die Primärquelle verifizieren,
+  sobald bmj.de/gesetze-im-internet.de erreichbar sind.
 
 ### Nächste Schritte — nur von dir
-- Entscheiden: Rechtstext-Dienst (~15 €/Monat, Abmahnschutz) oder
-  kostenlose Variante mit IHK-Gegencheck — offene Empfehlung aus
-  `RECHTSTEXTE.md`.
-- Telefonnummer fürs Widerrufsmuster festlegen (optional, aber im BMJ-
-  Muster vorgesehen).
+- **AGB-Entscheidung treffen:** Rechtstext-Dienst (~15 €/Monat,
+  Abmahnschutz) oder kostenlose Variante mit IHK-Gegencheck — letzter
+  offener Punkt aus `RECHTSTEXTE.md`.
+- Telefonnummer fürs Widerrufsmuster festlegen, falls gewünscht (optional).
 
-**Status:** ⚠️ Größtenteils vorbereitet, aber mehrere Platzhalter noch
-nicht final ausgefüllt — höchste Website-Priorität
+**Status:** ✅ alles bis auf AGB umgesetzt und live auf
+`claude/legal-compliance-checklist-lk34t5` (PR #17) — AGB wartet auf
+deine Entscheidung
 
 ---
 
@@ -170,10 +171,24 @@ nicht final ausgefüllt — höchste Website-Priorität
   *Kunden*information, ersetzt aber kein Sicherheitsdatenblatt oder eine
   CLP-Einstufung.
 - Business Core listet SDB-Pflicht als "Status offen".
-- Rohstoff-Rechnungen/Downloads von Luca stehen noch aus (laut Zusage,
-  werden im Chat nachgereicht) — **sobald sie da sind, kann ich direkt**
-  die Hersteller identifizieren und deren öffentlich verfügbare
-  Sicherheitsdatenblätter/Einstufungen dazu heraussuchen.
+- **Phase 2 — per Gmail-Recherche (waxcelerate@gmail.com,
+  teichmannldc@gmail.com) gefundene Rohstoff-Lieferanten:**
+  - **Werth-Metall** (Inh. Fabian Werth, Grammetal, USt-Id DE282703646):
+    MoS₂-Pulver min. 98,5 %, 4–5 µm, **CAS-Nr. 1317-33-5**, 1 kg
+    bezogen Anfang Januar 2026 (Rechnung 19819).
+  - **DistrEbution GmbH** (Hamburg): Paraffinwachs Vollraffinat 58/60
+    Tafeln (Art.-Nr. D10022.4, Rechnung RG-324773/RG-337225) sowie
+    Hartparaffin T19 im selben Themenstrang.
+  - `src/lib/data.ts` bestätigt zusätzlich, dass PTFE (< 1 µm) tatsächlich
+    Teil der Classic-Formel ist (`formula: ['Vollraffiniertes
+    Paraffinwachs', 'PTFE < 1 µm', 'Stearinsäurederivat']`) — der
+    PTFE-Lieferant selbst sowie GMS/BHT (Pro-Linie) waren per Gmail-
+    Volltextsuche **nicht auffindbar** (weder als eigene Bestellung noch
+    als Anhang in der Sammel-Mail "Waxcelerate Rechnungen/Invoice").
+    Möglich: anderer Suchbegriff, älterer Kauf außerhalb der durchsuchten
+    Postfächer, oder Teil einer bereits fertigen Vormischung.
+  - Zusätzlich in derselben Sammel-Mail gefunden, relevant für Block 4:
+    eine **Alibaba-Rechnung über 200 Einheiten Verpackung (2025)**.
 
 ### Rechtliche Anforderung
 - **CLP-Kennzeichnung:** Nur *als gefährlich eingestufte* Gemische
@@ -182,9 +197,30 @@ nicht final ausgefüllt — höchste Website-Priorität
   eingestuft ist, braucht keine Gefahrkennzeichnung. [ECHA CLP-Kennzeichnung](https://echa.europa.eu/de/regulations/clp/labelling), [BAuA-Leitfaden](https://www.baua.de/DE/Themen/Chemikalien-Biostoffe/Gefahrstoffe/Einstufung-und-Kennzeichnung/Kennzeichnungselemente/Beispiel-Kennzeichnungsetikett)
   → **Aber:** die Einstufung selbst muss trotzdem einmal geprüft/dokumentiert
   werden — das entscheidet, ob überhaupt Kennzeichnungspflicht besteht.
-  PTFE ist als Feststoff/im Wachs gebunden praktisch immer unproblematisch;
-  MoS₂ als Feinstpulver wäre reizend (steht schon so in der Technical KB) —
-  im fertigen, festen Wachsblock aber gebunden.
+- **Konkrete Einstufungs-Recherche zu den jetzt bekannten Rohstoffen (Phase 2):**
+  - **Paraffinwachs Vollraffinat 58/60** (DistrEbution, Art. D10022.4):
+    öffentliche Sicherheitsdatenblätter zu diesem Wachstyp stufen ihn
+    **nicht als gefährlich nach CLP** ein — kein PBT/vPvB, alle
+    Bestandteile REACH-registriert und unauffällig. Keine SDB-Pflicht
+    für diesen Rohstoff allein.
+  - **MoS₂-Pulver, CAS 1317-33-5** (Werth-Metall): öffentliche
+    Herstellerangaben zu diesem CAS weisen die **rohe Pulverform** mit
+    H319 (schwere Augenreizung) und H332 (gesundheitsschädlich beim
+    Einatmen) aus — als *Rohstoff* also durchaus CLP-relevant. Das
+    bestätigt die bestehende Produktionsvorsicht in `40_technical_kb.md`
+    (FFP2 bei losem Feinpulver). **Wichtig:** Diese Einstufung gilt für
+    das lose Pulver; ob sie auf das fertige, feste MoS₂-Wachsgemisch
+    "durchschlägt" (CLP-Mischungsregeln, Konzentrationsgrenzwerte,
+    Aggregatzustand-Bridging), ist eine fachliche Einzelfallprüfung, die
+    ein Fachdienstleister/Labor machen sollte, keine Excel-Faustregel.
+  - PTFE- und GMS/BHT-Rohware bislang nicht identifizierbar (s.o.) —
+    für eine vollständige Einstufung der Classic- und Pro-Rezeptur fehlen
+    diese Bausteine noch.
+  - **Praktische Konsequenz:** Für die **Pro-Linie (MoS₂)** ist eine echte
+    CLP-Einstufungsprüfung des fertigen Gemischs empfehlenswert, sobald du
+    entscheidest ob/wie B2B-Verkauf skaliert — für die **Classic-Linie**
+    (Paraffin unauffällig, PTFE-Quelle unbekannt) kann das noch nicht
+    abschließend beurteilt werden.
 - **Sicherheitsdatenblatt (REACH Art. 31):** Pflicht nur, wenn das Gemisch
   (a) als gefährlich nach CLP eingestuft ist, oder (b) PBT/vPvB-Kriterien
   erfüllt, oder (c) auf der REACH-Kandidatenliste steht. **Wenn keiner
@@ -210,33 +246,46 @@ nicht final ausgefüllt — höchste Website-Priorität
 - Keine Produkthaftpflicht: unbegrenzte private Haftung bei Personenschaden
   (z. B. Kette reißt, Sturz) — das teuerste Einzelrisiko der ganzen Liste.
 
+### Produkthaftpflicht-Vergleich (Phase 2, grünes Licht erteilt)
+
+| Anbieter | Deckungssumme | Selbstbeteiligung | Einstiegspreis/Hinweis |
+|---|---|---|---|
+| **andsafe** | bis 10 Mio. € (Sonderbranchen bis 25 Mio. €) | k. A. in Recherche | Produkthaftpflicht bereits **in der Betriebshaftpflicht enthalten**, "erweiterte Produkthaftpflicht" als Zusatzmodul; Beitrag richtet sich nach Jahresumsatz, komplett online abschließbar |
+| **exali** | k. A. in Recherche | k. A. in Recherche | Ab **450 €/Jahr netto** branchenübergreifend — teurer als andsafe, dafür auf Kleinunternehmer/Dienstleister spezialisiert |
+| **Hiscox** | ab 10 Mio. € | bis 1.000 € | Spezialisiert auf Online-Händler/E-Commerce-Risiken |
+| **Gothaer** | ab 3 Mio. € | ab 250 € | Klassischer Vollversicherer, oft im Paket mit Betriebshaftpflicht |
+| **AXA** | ab 3 Mio. € | k. A. in Recherche | Klassischer Vollversicherer |
+| **HDI** | k. A. in Recherche | bis 1.000 € | Klassischer Vollversicherer, häufig für Produkthaftpflicht als Baustein empfohlen |
+
+**Einschätzung:** Für ein Einzelunternehmen mit Kleinstumsatz ist
+**andsafe** preislich am ehesten passend (umsatzabhängiger Beitrag,
+Produkthaftpflicht schon in der Basis-Betriebshaftpflicht enthalten,
+online in Minuten abschließbar) — exali ist eher für höhere
+Beratungs-/Dienstleistungsrisiken kalkuliert und mit 450 €/Jahr spürbar
+teurer. Endgültige Zahl nur über die jeweiligen Online-Rechner (Umsatz,
+Sortiment "Kosmetik/Chemie/Wachs" eingeben) zu bekommen — das ist der
+nächste, von dir auszuführende Schritt.
+
 ### Nächste Schritte — von Claude erledigbar
-- **Sobald du die Rechnungen/Downloads hochlädst:** Rohstoff-Hersteller
-  und Produktnamen daraus extrahieren, öffentlich verfügbare
-  Herstellerangaben/SDS zu PTFE-Rohware, MoS₂-Pulver, GMS und BHT
-  zusammentragen, daraus ableiten, ob eine CLP-Einstufung als gefährlich
-  überhaupt in Betracht kommt. **Was ich dafür aus den Dokumenten
-  brauche:** Herstellername, Produktbezeichnung/Artikelnummer,
-  Liefermenge — die Formel selbst (Mengenverhältnisse) bleibt vertraulich
-  und wird nicht gebraucht.
-- Angebote für Produkthaftpflicht (exali/andsafe/Hiscox/Gothaer)
-  vergleichend recherchieren, sobald du grünes Licht gibst — Preisrahmen
-  laut Business Core 100–300 €/Jahr.
-- Vorschlag für ein einfaches Chargennummern-System (z. B.
-  Produktionsdatum + laufende Nummer) ausarbeiten.
+- Chargennummern-System-Vorschlag (z. B. Produktionsdatum + laufende
+  Nummer) ausarbeiten, sobald gewünscht.
+- Weitersuchen nach PTFE-/GMS-/BHT-Lieferanten, falls du weitere
+  Postfächer, Zeiträume oder Lieferantennamen nennen kannst.
 
 ### Nächste Schritte — nur von dir
-- **Rechnungen/Downloads der Rohstofflieferanten schicken** (im Chat,
-  wie besprochen) — das ist der Startschuss für die SDS-Recherche.
-- Produkthaftpflicht-Versicherung abschließen (Vertrag/Unterschrift).
-- Entscheiden, ob ein Fachdienstleister ein rechtsgültiges SDB erstellen
-  soll, falls sich aus der Recherche ein tatsächlicher Bedarf ergibt
-  (das kann Claude nicht ersetzen — ein SDB ist ein amtlich relevantes
-  Dokument mit Haftungsfolgen für den Ersteller).
+- Bei andsafe (und optional 1-2 weiteren) den Online-Rechner mit realen
+  Umsatzzahlen durchgehen und abschließen.
+- PTFE- und GMS/BHT-Lieferanten benennen, falls per Gmail nicht
+  auffindbar — dann kann die CLP-Einschätzung für die Classic-Formel
+  vervollständigt werden.
+- Entscheiden, ob für die Pro-Linie (MoS₂) eine professionelle
+  CLP-Einstufung des fertigen Gemischs beauftragt werden soll.
 
-**Status:** ❌ SDB-Frage offen, wartet auf Unterlagen · ❌ Produkthaftpflicht
-laut Business Core noch nicht bestätigt abgeschlossen · ⚠️ GPSR-
-Produktkennzeichnung fehlt
+**Status:** ⚠️ CLP-Teilbild vorhanden (Paraffin unbedenklich, MoS₂-Rohstoff
+mit H319/H332, PTFE/GMS/BHT offen) · ⚠️ Produkthaftpflicht-Vergleich
+fertig, Abschluss steht noch aus · ✅ GPSR-Produktkennzeichnung auf der
+Website umgesetzt (Block 2) — Kennzeichnung auf der physischen
+Verpackung selbst weiterhin zu prüfen
 
 ---
 
@@ -244,6 +293,15 @@ Produktkennzeichnung fehlt
 
 ### Status-Check
 - Business Core listet LUCID als P0, Status "Erledigung unbestätigt".
+- **Bestätigt (Phase 2):** Verpackungsmaterial ist fast ausschließlich
+  **Karton** (Kartonboxen), selten Luftpolsterfolie. Damit ist die
+  Materialfrage für die Systembeteiligung geklärt — im Wesentlichen eine
+  einzige Materialart.
+- Gmail-Fund: eine Alibaba-Rechnung über 200 Einheiten Verpackung (2025) —
+  spricht für Karton-/Verpackungsimport aus China; für die
+  LUCID-Meldung zählt trotzdem nur, welches Material **in Deutschland
+  beim Endkunden landet** (Herkunft der Verpackung ist irrelevant für
+  die Meldepflicht, nur die Marktbringung in DE zählt).
 
 ### Rechtliche Anforderung
 - **LUCID-Registrierung:** Seit 1.7.2022 ausnahmslos Pflicht für jeden,
@@ -277,14 +335,14 @@ Produktkennzeichnung fehlt
   verpackten Stückzahlen/Materialien bestätigst.
 
 ### Nächste Schritte — nur von dir
-- Materialarten der aktuellen Verpackung konkret benennen (Dose:
-  Kunststoff oder Metall? Karton-Typ? Füllmaterial?).
 - LUCID-Registrierung selbst durchführen (Login mit eigenen
   Unternehmensdaten, nicht durch Claude ausführbar) und danach den
-  Systembeteiligungsvertrag abschließen.
+  Systembeteiligungsvertrag abschließen (bei überwiegend Karton meist
+  günstigste Materialkategorie).
 
-**Status:** ❔ nicht bestätigt erledigt — zweitschärfstes Bußgeldrisiko
-nach Produkthaftung, sollte parallel zu Block 1 zuerst angegangen werden
+**Status:** ⚠️ Materialarten jetzt bekannt (Karton, selten
+Luftpolsterfolie), Registrierung selbst weiterhin unbestätigt — nach
+Produkthaftung das schärfste Bußgeldrisiko dieser Liste
 
 ---
 
@@ -292,9 +350,26 @@ nach Produkthaftung, sollte parallel zu Block 1 zuerst angegangen werden
 
 ### Status-Check
 - **eBay:** "Mich"-Seite laut `LUCA_TODO.md` D2 mit fertigem Text erledigt.
-- **Kleinanzeigen:** Impressum auf Unternehmensseite laut `LUCA_TODO.md`
-  D1 mit Anleitung erledigt — **nicht durch Claude einsehbar, ob wirklich
-  live gespeichert.**
+- **Kleinanzeigen:** ⚠️ **Korrektur (Phase 2):** Du hast selbst bestätigt,
+  dass das Impressum "nicht vollständig" ist — im Widerspruch zum bisher
+  in `LUCA_TODO.md` D1 als erledigt geführten Stand. Da Claude dein
+  privates Kleinanzeigen-Konto nicht einsehen kann, hier der Soll-Text
+  zum Abgleich (identisch mit `LUCA_TODO.md` D1):
+  ```
+  Waxcelerate
+  Luca Teichmann
+  Florentinerstraße 17
+  70619 Stuttgart
+
+  Telefon: +49 157 51957470
+  E-Mail: waxcelerate@gmail.com
+  Website: https://waxcelerate.de
+
+  Kleinunternehmer gemäß § 19 UStG, daher wird keine Umsatzsteuer ausgewiesen.
+  ```
+  Bitte mit dem aktuellen Stand auf Kleinanzeigen abgleichen und sagen,
+  was konkret fehlt (z. B. Telefonnummer, Website-Feld) — dann liefere
+  ich einen zielgenauen Korrekturtext.
 - **Amazon:** laut Business Core "geplant — erst nach LUCID + GTIN-
   Befreiung", also noch nicht spruchreif.
 
@@ -331,14 +406,14 @@ nach Produkthaftung, sollte parallel zu Block 1 zuerst angegangen werden
   Start vorbereiten, sobald Block 2/3/4 abgeschlossen sind.
 
 ### Nächste Schritte — nur von dir
-- Kurz bestätigen, ob das Kleinanzeigen-Impressum wirklich gespeichert
-  und sichtbar ist (Screenshot reicht).
+- Kleinanzeigen-Impressum mit dem Soll-Text oben abgleichen und sagen,
+  was fehlt (Screenshot hilft).
 - Amazon-Timing final entscheiden (offene Frage aus `95_open_questions.md`
   Punkt 10).
 
-**Status:** ✅ eBay/Kleinanzeigen wahrscheinlich erledigt (Bestätigung
-ausstehend) · ❔ Amazon noch nicht spruchreif, aber Voraussetzungen jetzt
-bekannt
+**Status:** ✅ eBay erledigt · ⚠️ Kleinanzeigen laut dir unvollständig,
+Korrektur wartet auf Detailangabe · ❔ Amazon noch nicht spruchreif, aber
+Voraussetzungen jetzt bekannt
 
 ---
 
@@ -386,32 +461,38 @@ Risiko einer Kollision"
 
 | Prio | Thema | Status | Geschätzte Kosten | Nächster konkreter Schritt |
 |---|---|---|---|---|
-| **P0** | Produkthaftpflichtversicherung | ❌ offen | 100–300 €/Jahr | Angebot einholen (exali/andsafe) |
-| **P0** | LUCID-Registrierung + duales System | ❔ unbestätigt | Registrierung kostenlos, System nach Menge | Materialarten bestätigen → Anleitung von mir |
-| **P0** | Widerrufsbelehrung: BMJ-Muster einfügen | ⚠️ Platzhalter im Code | 0 € | Textbaustein von mir, dann einfügen |
-| **P0** | GPSR-Herstellerangaben auf Produktseiten | ❌ fehlt | 0 € (Textänderung) | Baustein von mir vorbereiten lassen |
-| **P0** | Gewerbeanmeldung-Status bestätigen | ❔ unbekannt | ggf. 20–65 € einmalig | Kurz bestätigen |
-| **P1** | Grundpreisangabe auf Produktseiten | ❌ fehlt | 0 € | In Produktseiten-Code einbauen |
-| **P1** | SDS-/CLP-Einstufungs-Check für Rohstoffe | ❌ wartet auf Unterlagen | ggf. 0 € (keine Pflicht, falls unbedenklich) | Rechnungen/Downloads schicken |
+| **P0** | Produkthaftpflichtversicherung abschließen | ⚠️ Vergleich fertig | vermutlich am günstigsten bei andsafe | Online-Rechner mit echten Zahlen durchgehen, abschließen |
+| **P0** | LUCID-Registrierung + duales System | ⚠️ Materialarten bekannt | Registrierung kostenlos, System nach Menge | Registrierung selbst durchführen |
+| **P0** | PTFE-/GMS-/BHT-Lieferanten benennen | ❌ per Gmail nicht auffindbar | 0 € | Lieferantennamen nennen |
+| **P0** | AGB-Entscheidung treffen | ⚠️ letzter offener Website-Punkt | 0–20 €/Monat | Rechtstext-Dienst ja/nein entscheiden |
+| **P0** | Kleinanzeigen-Impressum korrigieren | ⚠️ laut dir unvollständig | 0 € | Sagen, was genau fehlt |
+| **P1** | CLP-Einstufung Pro-Linie (MoS₂-Gemisch) professionell prüfen lassen | ⚠️ Rohstoff-Einstufung bekannt (H319/H332), Gemisch offen | Fachdienstleister-Kosten variabel | Entscheiden ob/wann beauftragt wird |
 | **P1** | Chargennummern-System (GPSR-Rückverfolgbarkeit) | ❌ fehlt | 0 € | Konzept von mir, Umsetzung in Produktion |
-| **P1** | Datenschutzerklärung um Vercel Analytics ergänzen | ⚠️ Lücke | 0 € | Textvorschlag von mir |
-| **P1** | AGB fertigstellen oder bewusst weglassen | ⚠️ Platzhalter | 0–20 €/Monat | Entscheidung treffen (siehe RECHTSTEXTE.md) |
 | **P2** | DPMA-Markenanmeldung | ❌ offen | 290 € (ggf. -75 % Förderung) | Registerrecherche zuerst |
 | **P2** | EU-Kleinunternehmer-IdNr. für Österreich | ❌ offen | 0 € | Erst relevant bei Wien-Launch |
-| **P2** | Amazon-Vorbereitung (GTIN, GPSR-Feld) | ❔ noch nicht spruchreif | 0 € | Erst nach P0-Block 1/3/4 |
+| **P2** | Amazon-Vorbereitung (GTIN, GPSR-Feld) | ❔ noch nicht spruchreif | 0 € | Erst nach LUCID |
+
+**Bereits erledigt (aus dieser Tabelle entfernt):** Gewerbeanmeldung ✅,
+Widerrufsbelehrung + Muster-Widerrufsformular ✅, GPSR-Herstellerangaben
+auf Produktseiten ✅, Grundpreisangabe ✅ (war schon vorhanden),
+Datenschutzerklärung/Vercel-Analytics-Absatz ✅ — alles auf
+`claude/legal-compliance-checklist-lk34t5` (PR #17) umgesetzt.
 
 ---
 
 ## Was ich von dir brauche, um weiterzumachen
 
-1. **Rechnungen/Downloads der Rohstofflieferanten** (PTFE-Rohware,
-   MoS₂-Pulver, GMS, BHT) — schick sie im Chat, dann starte ich die
-   SDS-/CLP-Recherche direkt.
-2. Bestätigung: Gewerbeanmeldung formal erfolgt — ja/nein?
-3. Materialarten der aktuellen Verpackung (Dose-Material, Karton, Füllstoff).
-4. Kurze Bestätigung, ob das Kleinanzeigen-Impressum wirklich live ist.
-5. Grünes Licht, ob ich Angebote für Produkthaftpflicht vergleichend
-   recherchieren soll.
+1. **PTFE- und GMS-/BHT-Lieferanten benennen** — per Gmail-Suche nicht
+   auffindbar; mit Namen kann ich die CLP-Einstufung für die
+   Classic-Formel vervollständigen.
+2. **AGB-Entscheidung:** Rechtstext-Dienst oder "keine AGB" (letzter
+   offene Website-Baustein, Code für alles andere ist bereits live).
+3. **Kleinanzeigen-Impressum:** sagen, was konkret fehlt, dann liefere
+   ich einen zielgenauen Korrekturtext.
+4. Produkthaftpflicht bei einem der verglichenen Anbieter (am ehesten
+   andsafe) tatsächlich abschließen.
+5. Entscheiden, ob für die Pro-Linie (MoS₂) eine professionelle
+   CLP-Einstufung des fertigen Gemischs beauftragt werden soll.
 
-Alles andere in dieser Liste ist bereits vorbereitet oder wartet nur auf
-deine Entscheidung, nicht auf weitere Informationen von dir.
+Alles andere in dieser Liste ist bereits vorbereitet, umgesetzt oder
+wartet nur auf deine Entscheidung, nicht auf weitere Informationen von dir.
