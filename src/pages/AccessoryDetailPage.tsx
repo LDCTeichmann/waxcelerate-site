@@ -17,6 +17,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { Navigation } from '@/sections/navigation';
 import { Footer } from '@/sections/footer';
 import { BackLink } from '@/components/BackLink';
+import { GpsrInfo } from '@/components/GpsrInfo';
 import { getAccessoryBySlug } from '@/lib/data';
 import { trackEbayClick } from '@/lib/analytics';
 import { removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
@@ -149,6 +150,8 @@ export function AccessoryDetailPage() {
               </span>
             )}
           </div>
+
+          <GpsrInfo de={de} />
 
           {/* ── Highlights ── */}
           {highlights && highlights.length > 0 && (

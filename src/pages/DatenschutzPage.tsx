@@ -118,8 +118,28 @@ export function DatenschutzPage() {
         <section className="mb-8">
           <h2 className="text-lg font-semibold text-wx-tx1 mb-3">Cookies</h2>
           <p className="text-wx-tx2 leading-relaxed">
-            Diese Website verwendet keine Tracking-Cookies oder Analyse-Tools. Es werden ausschließlich
-            technisch notwendige Funktionen eingesetzt, die für den Betrieb der Website erforderlich sind.
+            Diese Website verwendet keine Tracking-Cookies. Es werden ausschließlich technisch
+            notwendige Funktionen eingesetzt, die für den Betrieb der Website erforderlich sind.
+          </p>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-lg font-semibold text-wx-tx1 mb-3">Reichweitenmessung (Vercel Analytics)</h2>
+          <p className="text-wx-tx2 leading-relaxed">
+            Wir nutzen Vercel Analytics zur Reichweitenmessung. Der Dienst arbeitet ohne Cookies und
+            ohne die Erhebung personenbezogener Daten oder individueller Nutzerprofile; es werden
+            keine IP-Adressen gespeichert. Erfasst werden ausschließlich drei anonyme,
+            seitenbezogene Ereignisse (Aufruf der Produktsektion, Klick auf einen eBay-Link, Klick auf
+            einen Kauf-Button), jeweils ohne Personenbezug. Rechtsgrundlage ist unser berechtigtes
+            Interesse an der statistischen Auswertung der Websitenutzung (Art. 6 Abs. 1 lit. f DSGVO).
+            Weitere Informationen: <a
+              href="https://vercel.com/legal/privacy-policy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[var(--accent)] hover:underline"
+            >
+              Datenschutzerklärung von Vercel
+            </a>.
           </p>
         </section>
       </div>

@@ -3,6 +3,18 @@
 // all three zones and explained them, which meant a reader could finish the
 // argument on the homepage and had no reason to click. This one shows the joint
 // cycling through its three sliding surfaces without naming them.
+//
+// 08/2026: the drawing (ChainWaxMap in `compact` mode) and the number ("40.280
+// Losbrech-Vorgänge pro Minute", from the separate Breakaway-Rechner in
+// ContactZones.tsx) told two unrelated stories side by side — Lucas Feedback:
+// weder war das Bild ueberzeugend genug, um zum Klicken zu animieren, noch
+// passte die Zahl zu dem, was das Bild zeigt. Jetzt zeigt die grosse Zahl statt
+// eines Hochzaehlers das Kuerzel der gerade hervorgehobenen Zone (01/02/03,
+// exakt synchron zu `active`, das ChainWaxMap bereits zyklisch faerbt), mit dem
+// Zonennamen darunter — Bild und Zahl erzaehlen jetzt dieselbe Geschichte. Die
+// neue `teaser`-Prop auf ChainWaxMap blendet Seitenansicht/Beschriftungen aus
+// und verstaerkt den Kontrast beim Umschalten deutlich (kraeftigeres Blau,
+// Glow), damit der Wechsel nicht mehr uebersehen werden kann.
 
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -11,32 +23,34 @@ import { ScrollTrigger } from '@/lib/gsap';
 import { prefersReducedMotion } from '@/hooks/useAnimation';
 import { ChainWaxMap } from '@/sections/science/ChainWaxMap';
 
-const TARGET = 53 * 95 * 8; // 40 280 — derivation lives in ContactZones
+// Reihenfolge deckt sich mit ChainWaxMap's `active`-Index (0 = Bolzen/Kragen ·
+// 1 = Rolle/Kragen · 2 = Laschen) und inhaltlich mit `ZONES` in ContactZones.tsx
+// — hier bewusst dupliziert statt importiert, um die beiden Komponenten
+// entkoppelt zu halten (nur drei kurze Strings).
+const ZONE_LABELS = [
+  { n: '01', de: 'Bolzen ↔ Kragen', en: 'Pin ↔ collar' },
+  { n: '02', de: 'Rolle ↔ Kragen', en: 'Roller ↔ collar' },
+  { n: '03', de: 'Lasche ↔ Lasche', en: 'Plate ↔ plate' },
+];
 
 export function ScienceTeaser({ de }: { de: boolean }) {
   const ref = useRef<HTMLAnchorElement>(null);
   const [active, setActive] = useState(0);
-  const [count, setCount] = useState(prefersReducedMotion() ? TARGET : 0);
 
   useEffect(() => {
     const el = ref.current;
     if (!el || prefersReducedMotion()) return;
-    let raf = 0, interval = 0;
+    let interval = 0;
     const t = ScrollTrigger.create({
       trigger: el, start: 'top 88%', once: true,
       onEnter: () => {
-        const t0 = performance.now();
-        const step = (now: number) => {
-          const p = Math.min((now - t0) / 1300, 1);
-          setCount(Math.round(TARGET * (1 - Math.pow(1 - p, 3))));
-          if (p < 1) raf = requestAnimationFrame(step);
-        };
-        raf = requestAnimationFrame(step);
-        interval = window.setInterval(() => setActive(a => (a + 1) % 3), 2400);
+        interval = window.setInterval(() => setActive(a => (a + 1) % 3), 2800);
       },
     });
-    return () => { t.kill(); cancelAnimationFrame(raf); clearInterval(interval); };
+    return () => { t.kill(); clearInterval(interval); };
   }, []);
+
+  const zone = ZONE_LABELS[active];
 
   return (
     // Als Karte, nicht als Zeile zwischen zwei Haarlinien.
@@ -79,12 +93,12 @@ export function ScienceTeaser({ de }: { de: boolean }) {
 
         <div className="flex items-end gap-5 mt-6">
           <p className="num-data font-bold leading-none tabular-nums"
-            style={{ fontSize: 'clamp(1.7rem, 3.6vw, 2.3rem)', letterSpacing: '-0.04em', color: 'var(--tx1)' }}>
-            {count.toLocaleString(de ? 'de-DE' : 'en-US')}
+            style={{ fontSize: 'clamp(1.7rem, 3.6vw, 2.3rem)', letterSpacing: '-0.04em', color: 'var(--accent)', transition: 'color .3s' }}>
+            {zone.n}
           </p>
           <p className="text-small uppercase tracking-[0.13em] leading-relaxed pb-1" style={{ color: 'var(--txff)' }}>
-            {de ? 'Losbrech-Vorgänge' : 'Breakaway events'}<br />
-            {de ? 'pro Minute' : 'per minute'}
+            {de ? zone.de : zone.en}<br />
+            {de ? 'gerade im Fokus' : 'in focus now'}
           </p>
         </div>
 
@@ -97,7 +111,7 @@ export function ScienceTeaser({ de }: { de: boolean }) {
       </div>
 
       <div className="hidden sm:block" aria-hidden>
-        <ChainWaxMap de={de} active={active} compact />
+        <ChainWaxMap de={de} active={active} teaser />
       </div>
     </Link>
   );

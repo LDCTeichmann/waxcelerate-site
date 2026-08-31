@@ -6,6 +6,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { AddToCartButton } from '@/components/AddToCartButton';
 import { trackEbayClick } from '@/lib/analytics';
 import { CartIcon } from '@/components/CartIcon';
+import { GpsrInfo } from '@/components/GpsrInfo';
 import { gsap } from '@/lib/gsap';
 
 const lg = (src: string) =>
@@ -245,6 +246,8 @@ export function ProductStagePage() {
               )}
             </div>
           </div>
+
+          <GpsrInfo de={de} dark />
         </div>
 
         {/* Auto-play progress dots */}

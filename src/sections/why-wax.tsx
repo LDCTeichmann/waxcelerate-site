@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState } from 'react';
-import { ArrowLeftRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ArrowLeftRight, ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useSectionReveal } from '@/hooks/useAnimation';
 import { prefersReducedMotion } from '@/hooks/useAnimation';
@@ -270,7 +271,7 @@ export function WhyWax() {
         style={{ height: '56px', background: 'linear-gradient(to bottom, var(--sf), transparent)', zIndex: 1 }} />
 
       {/* ── Header ── */}
-      <div ref={headerRef} className="mb-5 sm:mb-6">
+      <div ref={headerRef} className="mb-4 sm:mb-6">
         <p className="eyebrow mb-2" style={{ color: 'var(--txf)' }}>
           {de ? 'Öl vs. Wachs' : 'Oil vs. Wax'}
         </p>
@@ -325,18 +326,18 @@ export function WhyWax() {
 
         <div ref={rowsRef} style={{ borderTop: '1px solid var(--bd2)' }}>
           {moments.map(m => (
-            <div key={m.n} data-row className="flex items-start gap-5 sm:gap-7 py-7 sm:py-9"
+            <div key={m.n} data-row className="flex items-start gap-4 sm:gap-7 py-4 sm:py-9"
               style={{ borderBottom: '1px solid var(--bd2)' }}>
               <span className="font-display font-bold leading-none flex-shrink-0 select-none"
-                style={{ fontSize: 'clamp(2.5rem, 5vw, 3.25rem)', color: 'var(--accent-soft)', minWidth: '2.4ch' }}>
+                style={{ fontSize: 'clamp(1.75rem, 7vw, 3.25rem)', color: 'var(--accent-soft)', minWidth: '2ch' }}>
                 {m.n}
               </span>
               <div className="flex-1 min-w-0 pt-1" style={{ maxWidth: '32rem' }}>
                 <h3 className="font-display font-bold text-wx-tx1 leading-[1.15] tracking-[-0.02em]"
-                  style={{ fontSize: 'clamp(1.2rem, 2.2vw, 1.5rem)' }}>
+                  style={{ fontSize: 'clamp(1.05rem, 2.2vw, 1.5rem)' }}>
                   {de ? m.titleDe : m.titleEn}
                 </h3>
-                <p className="text-body leading-relaxed mt-2"
+                <p className="text-small sm:text-body leading-snug sm:leading-relaxed mt-1.5 sm:mt-2"
                   style={{ color: 'var(--txm)' }}>
                   {de ? m.bodyDe : m.bodyEn}
                   {'  '}
@@ -411,49 +412,67 @@ export function WhyWax() {
             </div>
           </div>
 
-          <InstrumentFrame
-            noReveal
-            eyebrow={de ? 'Gemessen · Antriebsverlust' : 'Measured · drivetrain loss'}
-            footer={
-              <div className="flex items-baseline justify-between gap-3">
-                <div>
-                  <span className="font-display font-bold" style={{ fontSize: '1.6rem', color: 'var(--accent)' }}>
-                    {eur(cost.savedEur, de)}
-                  </span>
-                  <span className="text-meta ml-1.5" style={{ color: 'var(--txf)' }}>
-                    {de ? `/ ${cost.km.toLocaleString('de-DE')} km` : `/ ${cost.km.toLocaleString('en-US')} km`}
+          {/* Karte ist klickbar — Luca-Feedback: die Ersparniszahl steht ohne
+              Beleg da, dabei gibt es auf der wax-500-Produktseite bereits eine
+              Posten-fuer-Posten-Herleitung genau dieser Zahlen (Kostenvergleich-
+              Akkordeon in ProductDetailPage.tsx). Der Hinweis-Satz + Pfeil unten
+              im Footer macht die Klickbarkeit sichtbar, denselben Fehler, den
+              die alte ScienceTeaser-Karte hatte (siehe deren Kommentar),
+              wiederholt sich hier sonst. `group` auf dem Link steuert den
+              Pfeil-Hover, InstrumentFrames eigener Rahmen bleibt unangetastet. */}
+          <Link to="/produkt/wax-500#kostenvergleich" className="group block rounded-2xl"
+            aria-label={de ? 'Woher die Ersparnis kommt: Kostenaufschlüsselung ansehen' : 'Where the savings come from: see the cost breakdown'}>
+            <InstrumentFrame
+              noReveal
+              eyebrow={de ? 'Gemessen · Antriebsverlust' : 'Measured · drivetrain loss'}
+              footer={
+                <div className="flex flex-col gap-2.5">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <div>
+                      <span className="font-display font-bold" style={{ fontSize: '1.6rem', color: 'var(--accent)' }}>
+                        {eur(cost.savedEur, de)}
+                      </span>
+                      <span className="text-meta ml-1.5" style={{ color: 'var(--txf)' }}>
+                        {de ? `/ ${cost.km.toLocaleString('de-DE')} km` : `/ ${cost.km.toLocaleString('en-US')} km`}
+                      </span>
+                    </div>
+                    <div className="flex items-baseline gap-1.5 num-data text-small">
+                      <span style={{ color: 'var(--txf)', textDecoration: 'line-through', textDecorationColor: 'var(--bd)' }}>
+                        {eur(cost.oilEur, de)}
+                      </span>
+                      <span aria-hidden style={{ color: 'var(--txff)' }}>→</span>
+                      <span style={{ color: 'var(--tx1)', fontWeight: 600 }}>
+                        {eur(cost.waxEur, de)}
+                      </span>
+                    </div>
+                  </div>
+                  <span className="inline-flex items-center gap-1.5 text-meta font-semibold" style={{ color: 'var(--tx1)' }}>
+                    {de ? 'Woher kommt die Zahl?' : 'Where does this number come from?'}
+                    <ArrowRight className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-1"
+                      style={{ color: 'var(--accent-soft)' }} />
                   </span>
                 </div>
-                <div className="flex items-baseline gap-1.5 num-data text-small">
-                  <span style={{ color: 'var(--txf)', textDecoration: 'line-through', textDecorationColor: 'var(--bd)' }}>
-                    {eur(cost.oilEur, de)}
-                  </span>
-                  <span aria-hidden style={{ color: 'var(--txff)' }}>→</span>
-                  <span style={{ color: 'var(--tx1)', fontWeight: 600 }}>
-                    {eur(cost.waxEur, de)}
-                  </span>
-                </div>
+              }
+            >
+              {/* Balken nur ab sm — auf Mobile reicht eine Zeile, siehe
+                  Kommentar oben (Punkt 4): einzige der drei Beleg-Stuecke, die
+                  sich mit der Liste (Zeile 03/04) wiederholt. */}
+              <div className="hidden sm:block">
+                <DriveLossBars de={de} />
+                <p className="text-meta leading-relaxed mt-3" style={{ color: 'var(--txff)' }}>
+                  {de
+                    ? `Bei ${w.inputW[0]}–${w.inputW[1]} W, μ ${pro.muLo.toFixed(2)}–${pro.muHi.toFixed(2)} statt ${oil.muLo.toFixed(2)}–${oil.muHi.toFixed(2)}. Laborwerte.`
+                    : `At ${w.inputW[0]}–${w.inputW[1]} W, μ ${pro.muLo.toFixed(2)}–${pro.muHi.toFixed(2)} instead of ${oil.muLo.toFixed(2)}–${oil.muHi.toFixed(2)}. Lab values.`}
+                </p>
               </div>
-            }
-          >
-            {/* Balken nur ab sm — auf Mobile reicht eine Zeile, siehe
-                Kommentar oben (Punkt 4): einzige der drei Beleg-Stuecke, die
-                sich mit der Liste (Zeile 03/04) wiederholt. */}
-            <div className="hidden sm:block">
-              <DriveLossBars de={de} />
-              <p className="text-meta leading-relaxed mt-3" style={{ color: 'var(--txff)' }}>
-                {de
-                  ? `Bei ${w.inputW[0]}–${w.inputW[1]} W, μ ${pro.muLo.toFixed(2)}–${pro.muHi.toFixed(2)} statt ${oil.muLo.toFixed(2)}–${oil.muHi.toFixed(2)}. Laborwerte.`
-                  : `At ${w.inputW[0]}–${w.inputW[1]} W, μ ${pro.muLo.toFixed(2)}–${pro.muHi.toFixed(2)} instead of ${oil.muLo.toFixed(2)}–${oil.muHi.toFixed(2)}. Lab values.`}
+              <p className="sm:hidden text-small leading-relaxed" style={{ color: 'var(--txm)' }}>
+                <span className="num-data font-medium" style={{ color: 'var(--accent)' }}>{w.wax[0]}–{w.wax[1]} W</span>
+                {de ? ' statt ' : ' instead of '}
+                <span className="num-data" style={{ color: 'var(--txf)' }}>{w.oil[0]}–{w.oil[1]} W</span>
+                {de ? ' Reibungsverlust im Antrieb.' : ' drivetrain friction loss.'}
               </p>
-            </div>
-            <p className="sm:hidden text-small leading-relaxed" style={{ color: 'var(--txm)' }}>
-              <span className="num-data font-medium" style={{ color: 'var(--accent)' }}>{w.wax[0]}–{w.wax[1]} W</span>
-              {de ? ' statt ' : ' instead of '}
-              <span className="num-data" style={{ color: 'var(--txf)' }}>{w.oil[0]}–{w.oil[1]} W</span>
-              {de ? ' Reibungsverlust im Antrieb.' : ' drivetrain friction loss.'}
-            </p>
-          </InstrumentFrame>
+            </InstrumentFrame>
+          </Link>
         </div>
       </div>
 
