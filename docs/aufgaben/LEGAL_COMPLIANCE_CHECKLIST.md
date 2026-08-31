@@ -177,18 +177,36 @@ deine Entscheidung
     MoS₂-Pulver min. 98,5 %, 4–5 µm, **CAS-Nr. 1317-33-5**, 1 kg
     bezogen Anfang Januar 2026 (Rechnung 19819).
   - **DistrEbution GmbH** (Hamburg): Paraffinwachs Vollraffinat 58/60
-    Tafeln (Art.-Nr. D10022.4, Rechnung RG-324773/RG-337225) sowie
-    Hartparaffin T19 im selben Themenstrang.
+    Tafeln (Art.-Nr. D10022.4, Rechnung RG-324773/RG-337225).
+  - **Korrektur (Phase 3):** Ein Produkt namens "Hartparaffin T19" taucht
+    in der gesamten E-Mail-Historie mit DistrEbution **nicht** auf. Was
+    tatsächlich im selben Auftrag mitbestellt wurde, ist **75 kg Paraffin
+    58/60 + 4,54 kg "multikristallines Wachs" (Multiwachs W-445)** —
+    vermutlich das, woran sich Luca als "T19" erinnert hat. Bitte
+    gegenprüfen, ob Multiwachs W-445 tatsächlich der gemeinte
+    Rohstoff ist.
   - `src/lib/data.ts` bestätigt zusätzlich, dass PTFE (< 1 µm) tatsächlich
     Teil der Classic-Formel ist (`formula: ['Vollraffiniertes
     Paraffinwachs', 'PTFE < 1 µm', 'Stearinsäurederivat']`) — der
-    PTFE-Lieferant selbst sowie GMS/BHT (Pro-Linie) waren per Gmail-
-    Volltextsuche **nicht auffindbar** (weder als eigene Bestellung noch
-    als Anhang in der Sammel-Mail "Waxcelerate Rechnungen/Invoice").
-    Möglich: anderer Suchbegriff, älterer Kauf außerhalb der durchsuchten
-    Postfächer, oder Teil einer bereits fertigen Vormischung.
-  - Zusätzlich in derselben Sammel-Mail gefunden, relevant für Block 4:
-    eine **Alibaba-Rechnung über 200 Einheiten Verpackung (2025)**.
+    PTFE-Lieferant selbst war per Gmail-Volltextsuche **nicht auffindbar**
+    (weder als eigene Bestellung noch als Anhang in der Sammel-Mail
+    "Waxcelerate Rechnungen/Invoice").
+  - **GMS/BHT (Phase 3):** Laut Luca bei Amazon gekauft, über das Konto
+    teichmannldc@gmail.com. In diesem Postfach existiert **keine
+    Bestellbestätigung/Rechnung mehr** dazu — nur zwei
+    Bewertungsanfrage-Mails von Amazon-Marktplatzverkäufern aus einem
+    plausiblen Zeitfenster: **"Materialix"** (Bewertungsanfrage vom
+    29.12.2024) und **"LIT-Shop"** (Bewertungsanfrage vom 30.3.2025).
+    Der Produktname selbst ist in beiden Mails nicht mehr enthalten (nur
+    eine technisch unlesbare ASIN-Kennung), und ein direkter Blick auf
+    die Amazon-Produktseite ist aus dieser Session heraus nicht möglich
+    (Web-Zugriff auf amazon.de ist blockiert). **Schnellster Weg:** Luca
+    schaut selbst unter amazon.de → Konto → Bestellungen im Zeitraum
+    Ende 2024/Anfang 2025 nach einer Bestellung von "Materialix" oder
+    "LIT-Shop" — dort steht Produktname und Menge unmittelbar.
+  - Zusätzlich in der Sammel-Mail "Waxcelerate Rechnungen/Invoice"
+    gefunden, relevant für Block 4: eine **Alibaba-Rechnung über 200
+    Einheiten Verpackung (2025)**.
 
 ### Rechtliche Anforderung
 - **CLP-Kennzeichnung:** Nur *als gefährlich eingestufte* Gemische
@@ -203,6 +221,13 @@ deine Entscheidung
     **nicht als gefährlich nach CLP** ein — kein PBT/vPvB, alle
     Bestandteile REACH-registriert und unauffällig. Keine SDB-Pflicht
     für diesen Rohstoff allein.
+  - **Multiwachs W-445 / mikrokristallines Wachs** (DistrEbution):
+    mikrokristalline Wachse aus der Mineralölraffination sind in der Regel
+    ebenfalls **nicht als gefährlich eingestuft** (dieselbe REACH-Logik wie
+    Paraffin) — allerdings ist die Einstufung je nach genauem Produkt und
+    Zusatzstoffen unterschiedlich, ein produktspezifisches SDB von
+    DistrEbution wäre hier die verlässliche Quelle statt einer
+    Allgemeinaussage.
   - **MoS₂-Pulver, CAS 1317-33-5** (Werth-Metall): öffentliche
     Herstellerangaben zu diesem CAS weisen die **rohe Pulverform** mit
     H319 (schwere Augenreizung) und H332 (gesundheitsschädlich beim
@@ -246,25 +271,26 @@ deine Entscheidung
 - Keine Produkthaftpflicht: unbegrenzte private Haftung bei Personenschaden
   (z. B. Kette reißt, Sturz) — das teuerste Einzelrisiko der ganzen Liste.
 
-### Produkthaftpflicht-Vergleich (Phase 2, grünes Licht erteilt)
+### Produkthaftpflicht-Vergleich (Phase 3: konkrete, günstigere Zahlen)
 
-| Anbieter | Deckungssumme | Selbstbeteiligung | Einstiegspreis/Hinweis |
+**Luca-Feedback:** exali (ab 450 €/Jahr) ist zu teuer fürs aktuelle
+Budget — hier die deutlich günstigeren Alternativen mit Betriebshaftpflicht
+inkl. Produkthaftpflicht, statt einer separaten teuren Produkthaftpflicht:
+
+| Anbieter | Deckungssumme | Konkreter Preis | Hinweis |
 |---|---|---|---|
-| **andsafe** | bis 10 Mio. € (Sonderbranchen bis 25 Mio. €) | k. A. in Recherche | Produkthaftpflicht bereits **in der Betriebshaftpflicht enthalten**, "erweiterte Produkthaftpflicht" als Zusatzmodul; Beitrag richtet sich nach Jahresumsatz, komplett online abschließbar |
-| **exali** | k. A. in Recherche | k. A. in Recherche | Ab **450 €/Jahr netto** branchenübergreifend — teurer als andsafe, dafür auf Kleinunternehmer/Dienstleister spezialisiert |
-| **Hiscox** | ab 10 Mio. € | bis 1.000 € | Spezialisiert auf Online-Händler/E-Commerce-Risiken |
-| **Gothaer** | ab 3 Mio. € | ab 250 € | Klassischer Vollversicherer, oft im Paket mit Betriebshaftpflicht |
-| **AXA** | ab 3 Mio. € | k. A. in Recherche | Klassischer Vollversicherer |
-| **HDI** | k. A. in Recherche | bis 1.000 € | Klassischer Vollversicherer, häufig für Produkthaftpflicht als Baustein empfohlen |
+| **andsafe** | bis 10 Mio. € | **Existenzgründer/Kleinstbetrieb bis 30.000 € Umsatz: ab ca. 77 €/Jahr.** Beispielrechnung (10.000 € Umsatz, 1 Person, 10 Mio. € Deckung): **ab 8,01 €/Monat** (~96 €/Jahr). Bis 100.000 € Umsatz meist unter 300 €/Jahr | Produkthaftpflicht **in der Basis-Betriebshaftpflicht enthalten**, kein Zusatzmodul nötig für den Grundschutz; online in Minuten abschließbar — **günstigste geprüfte Option** |
+| **sicherheitsanker.de / bernhard-assekuranz.de** (Vermittler) | branchenabhängig | Tarife **ab 5,40 €/Monat** (~65 €/Jahr) für Kleingewerbe allgemein — Wachs/Chemie ist aber eine "höhere" Risikoklasse als Standard-Dienstleistung, daher realistisch eher im gleichen Bereich wie andsafe | Vergleichsportale, kein eigener Versicherer — zeigen mehrere Anbieter gleichzeitig |
+| **exali** | — | ab 450 €/Jahr netto | Für dein Budget zu teuer — nicht mehr erste Wahl |
+| **Hiscox / Gothaer / AXA / HDI** | 3–10 Mio. € | keine kleinstunternehmerspezifischen Tarife gefunden | Eher für etablierte Betriebe mit höherem Umsatz kalkuliert |
 
-**Einschätzung:** Für ein Einzelunternehmen mit Kleinstumsatz ist
-**andsafe** preislich am ehesten passend (umsatzabhängiger Beitrag,
-Produkthaftpflicht schon in der Basis-Betriebshaftpflicht enthalten,
-online in Minuten abschließbar) — exali ist eher für höhere
-Beratungs-/Dienstleistungsrisiken kalkuliert und mit 450 €/Jahr spürbar
-teurer. Endgültige Zahl nur über die jeweiligen Online-Rechner (Umsatz,
-Sortiment "Kosmetik/Chemie/Wachs" eingeben) zu bekommen — das ist der
-nächste, von dir auszuführende Schritt.
+**Neue Einschätzung:** **andsafe ist die klar günstigste geprüfte Option**
+und deckt das Wichtigste ab (Personen-/Sachschäden durch ein fehlerhaftes
+Produkt, im Rahmen der normalen Betriebshaftpflicht) — für ~8 €/Monat bei
+deinem aktuellen Umsatz. Das ist kein Kompromiss bei der Deckungssumme
+(10 Mio. €), sondern ein günstigerer Anbieter für dieselbe Grundabsicherung.
+Empfehlung: andsafe-Rechner mit deinen echten Zahlen durchgehen — die
+Beispielrechnung oben ist nah an deiner Situation.
 
 ### Nächste Schritte — von Claude erledigbar
 - Chargennummern-System-Vorschlag (z. B. Produktionsdatum + laufende
@@ -461,7 +487,7 @@ Risiko einer Kollision"
 
 | Prio | Thema | Status | Geschätzte Kosten | Nächster konkreter Schritt |
 |---|---|---|---|---|
-| **P0** | Produkthaftpflichtversicherung abschließen | ⚠️ Vergleich fertig | vermutlich am günstigsten bei andsafe | Online-Rechner mit echten Zahlen durchgehen, abschließen |
+| **P0** | Produkthaftpflichtversicherung abschließen | ⚠️ Vergleich fertig | **andsafe ~8 €/Monat** bei deinem Umsatz | Online-Rechner mit echten Zahlen durchgehen, abschließen |
 | **P0** | LUCID-Registrierung + duales System | ⚠️ Materialarten bekannt | Registrierung kostenlos, System nach Menge | Registrierung selbst durchführen |
 | **P0** | PTFE-/GMS-/BHT-Lieferanten benennen | ❌ per Gmail nicht auffindbar | 0 € | Lieferantennamen nennen |
 | **P0** | AGB-Entscheidung treffen | ⚠️ letzter offener Website-Punkt | 0–20 €/Monat | Rechtstext-Dienst ja/nein entscheiden |
@@ -480,19 +506,20 @@ Datenschutzerklärung/Vercel-Analytics-Absatz ✅ — alles auf
 
 ---
 
-## Was ich von dir brauche, um weiterzumachen
+## Was ich von dir brauche, um weiterzumachen (Stand Phase 3 — bewusst kurz gehalten)
 
-1. **PTFE- und GMS-/BHT-Lieferanten benennen** — per Gmail-Suche nicht
-   auffindbar; mit Namen kann ich die CLP-Einstufung für die
-   Classic-Formel vervollständigen.
-2. **AGB-Entscheidung:** Rechtstext-Dienst oder "keine AGB" (letzter
-   offene Website-Baustein, Code für alles andere ist bereits live).
-3. **Kleinanzeigen-Impressum:** sagen, was konkret fehlt, dann liefere
-   ich einen zielgenauen Korrekturtext.
-4. Produkthaftpflicht bei einem der verglichenen Anbieter (am ehesten
-   andsafe) tatsächlich abschließen.
-5. Entscheiden, ob für die Pro-Linie (MoS₂) eine professionelle
-   CLP-Einstufung des fertigen Gemischs beauftragt werden soll.
+1. **Amazon-Bestellungen Ende 2024/Anfang 2025 nachschauen** (unter
+   amazon.de → Konto → Bestellungen) nach "Materialix" oder "LIT-Shop" —
+   das ist der GMS-/BHT-Kauf. Produktname + Menge reicht mir.
+2. **Bestätigen: Ist "Multiwachs W-445" von DistrEbution das, was du als
+   "T19 Fischer Wachs" meintest?** (Ja/Nein reicht — ein Produkt namens
+   T19 taucht in der Mail-Historie nicht auf.)
+3. **PTFE-Lieferant benennen** — per Gmail-Suche nicht auffindbar.
+4. **AGB-Entscheidung:** Rechtstext-Dienst oder "keine AGB"?
+5. **Kleinanzeigen-Impressum:** was genau fehlt?
+6. **andsafe-Angebot abschließen** — günstigste Option, ~8 €/Monat bei
+   deinem Umsatz, Produkthaftpflicht inklusive (Rechner mit echten
+   Zahlen durchgehen, siehe Block 3).
 
 Alles andere in dieser Liste ist bereits vorbereitet, umgesetzt oder
 wartet nur auf deine Entscheidung, nicht auf weitere Informationen von dir.
