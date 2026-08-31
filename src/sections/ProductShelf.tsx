@@ -325,8 +325,12 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
 // Versprechen, das die Seite nicht haelt).
 // Exportiert: products.tsx braucht dieselbe Kachel fuer die Rewax-Karte am
 // Ende der aufgeklappten Kettenliste — siehe dortiger Kommentar.
-export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, dark, index, ...action }: {
+export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, price, dark, index, ...action }: {
   image: string; imageW: number; eyebrow: string; title: string; body: string; cta: string; alt: string;
+  /** Fertig formatierter Preis-String ("ab 57,63 €"). Macht aus der Kachel
+      sichtbar ein Kaufangebot statt eines reinen Editorial-Links — ohne
+      Preis war auf Mobile nicht erkennbar, dass hier etwas verkauft wird. */
+  price?: string;
   dark?: boolean;
   /** 1-3: rahmt die Kachel als einen von drei parallelen Wegen (Ziffer vor
       dem Eyebrow, dieselbe Zahlentypo wie im Formel-Vergleich). Weggelassen
@@ -337,9 +341,9 @@ export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, d
 } & ({ to: string } | { onClick: () => void })) {
   const inner = (
     <>
-      <div className="relative overflow-hidden rounded-2xl aspect-[4/3.3]" style={{ background: 'var(--hero-stage)' }}>
+      <div className="relative overflow-hidden rounded-2xl aspect-square sm:aspect-[4/3.3]" style={{ background: 'var(--hero-stage)' }}>
         <picture>
-          <source srcSet={`${image}-800.webp 800w, ${image}.webp ${imageW}w`} sizes="(max-width: 640px) 92vw, 30vw" type="image/webp" />
+          <source srcSet={`${image}-800.webp 800w, ${image}.webp ${imageW}w`} sizes="(max-width: 640px) 46vw, 30vw" type="image/webp" />
           <img
             src={`${image}.webp`}
             alt={alt}
@@ -352,29 +356,33 @@ export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, d
           style={{ background: dark
             ? 'linear-gradient(to top, rgba(var(--scrim-rgb),0.82) 0%, rgba(var(--scrim-rgb),0.5) 30%, rgba(var(--scrim-rgb),0.1) 62%, rgba(var(--scrim-rgb),0) 78%)'
             : 'linear-gradient(to top, rgba(var(--scrim-rgb),0.62) 0%, rgba(var(--scrim-rgb),0.28) 32%, rgba(var(--scrim-rgb),0) 62%)' }} />
-        <div className="absolute left-4 right-4 bottom-4">
-          <p className="flex items-center gap-2 text-meta font-semibold uppercase tracking-[0.1em]" style={{ color: 'rgba(255,255,255,0.78)' }}>
+        <div className="absolute left-3 right-3 bottom-3 sm:left-4 sm:right-4 sm:bottom-4">
+          <p className="flex items-center gap-1.5 sm:gap-2 text-meta font-semibold uppercase tracking-[0.1em]" style={{ color: 'rgba(255,255,255,0.78)' }}>
             {index && (
               <span className="num-data" style={{ color: 'rgba(255,255,255,0.5)' }}>0{index}</span>
             )}
             {eyebrow}
           </p>
           <p className="font-display font-bold leading-[1.12] mt-1"
-            style={{ color: '#fff', fontSize: 'clamp(1.15rem, 2vw, 1.4rem)', textShadow: '0 1px 14px rgba(0,0,0,0.35)' }}>
+            style={{ color: '#fff', fontSize: 'clamp(1rem, 3.4vw, 1.4rem)', textShadow: '0 1px 14px rgba(0,0,0,0.35)' }}>
             {title}
           </p>
         </div>
       </div>
-      <p className="text-[13.5px] leading-relaxed mt-3" style={{ color: 'var(--txm)' }}>{body}</p>
-      {/* Ruhender Zustand fast identisch zum reinen Textlink von vorher (kein
-          Rahmen, kein Fond) — erst beim Hover waechst ein Chip dahinter, in
-          derselben Farbsprache wie der Groessenschalter oben im Regal
-          (--accent-wash/--accent-soft). Macht aus der Bildunterschrift einen
-          Button, ohne im Ruhezustand die "keine gefuellten Kacheln"-Regel zu
+      {price && (
+        <p className="num text-[14px] sm:text-[15px] font-bold mt-2 sm:mt-3" style={{ color: 'var(--tx1)' }}>{price}</p>
+      )}
+      <p className={`text-[12px] sm:text-[13.5px] leading-snug sm:leading-relaxed line-clamp-2 sm:line-clamp-none ${price ? 'mt-1' : 'mt-2 sm:mt-3'}`} style={{ color: 'var(--txm)' }}>{body}</p>
+      {/* Immer sichtbarer Rahmen-Button statt reinem Hover-Chip — der
+          vorherige Zustand (kein Rahmen, kein Fond, erst beim Hover ein Chip)
+          war auf Touch-Geraeten unsichtbar, weil es dort keinen Hover gibt.
+          Rahmenfarbe wie der Groessenschalter oben im Regal
+          (--accent-wash/--accent-soft), Hover fuegt nur zusaetzlich Flaeche
+          hinzu, ohne die "keine gefuellten Kacheln"-Regel im Ruhezustand zu
           brechen (DESIGN.md §3). */}
       <span
-        className="inline-flex items-center gap-1.5 mt-2.5 -ml-3 pl-3 pr-3 py-1.5 rounded-full text-[13px] font-semibold border border-transparent transition-all duration-300 ease-out group-hover:bg-[var(--accent-wash)] group-hover:border-[var(--accent-soft)]"
-        style={{ color: 'var(--accent-soft)' }}
+        className="inline-flex items-center gap-1.5 mt-2 sm:mt-2.5 px-3 py-1.5 rounded-full text-[12px] sm:text-[13px] font-semibold border transition-all duration-300 ease-out group-hover:bg-[var(--accent-wash)]"
+        style={{ borderColor: 'var(--accent-soft)', color: 'var(--accent-soft)' }}
       >
         {cta}
         <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" aria-hidden />
@@ -484,7 +492,7 @@ export function ProductShelf({ de, t, onOpenChains, onCompare }: {
           Einwand — "ich will kein Wachs schmelzen". Genau so benannt, wird
           aus der Liste ein Argument. */}
       <div>
-        <div className="mb-6">
+        <div className="mb-4 sm:mb-6">
           <h3 className="font-display font-bold leading-tight"
             style={{ fontSize: 'clamp(1.25rem, 2.4vw, 1.65rem)', color: 'var(--tx1)' }}>
             {s.altTitle}
@@ -492,13 +500,14 @@ export function ProductShelf({ de, t, onOpenChains, onCompare }: {
           <p className="text-[13.5px] mt-1.5" style={{ color: 'var(--txm)' }}>{s.altBody}</p>
         </div>
 
-        <div className="grid gap-8 sm:gap-6 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-3 sm:gap-6 sm:grid-cols-3">
         <SecondaryTile
           index={1}
           to="/starter-set"
           image="/images/shelf/starter-box" imageW={1200}
           eyebrow={s.setEyebrow} title={s.setTitle}
-          body={`${s.setBody} ${de ? 'Ab' : 'From'} ${eur(minSetPrice, de)}.`}
+          body={s.setBody}
+          price={`${de ? 'Ab' : 'From'} ${eur(minSetPrice, de)}`}
           cta={s.setCta}
           alt={de ? 'Offener Versandkarton mit Waxcelerate Wachsblöcken' : 'Open shipping box with Waxcelerate wax blocks'}
         />
@@ -508,6 +517,7 @@ export function ProductShelf({ de, t, onOpenChains, onCompare }: {
           image="/images/shelf/chains-flat" imageW={1400}
           eyebrow={s.chainsEyebrow} title={s.chainsTitle}
           body={s.chainsBody}
+          price={`${de ? 'Ab' : 'From'} ${eur(minPrice('chain'), de)}`}
           cta={s.chainsAll}
           alt={de ? 'Vorgewachste Fahrradketten mit Quick-Link auf Schiefer' : 'Pre-waxed bicycle chains with quick link on slate'}
         />
@@ -517,6 +527,7 @@ export function ProductShelf({ de, t, onOpenChains, onCompare }: {
           image="/images/blog/chains-hanging-gold-1600" imageW={1600}
           eyebrow={s.rewaxEyebrow} title={s.rewaxTitle}
           body={s.rewaxBody}
+          price={s.rewaxFrom}
           cta={s.rewaxCta}
           alt={de ? 'Frisch gewachste Ketten hängen zum Aushärten' : 'Freshly waxed chains hanging to cure'}
           dark
