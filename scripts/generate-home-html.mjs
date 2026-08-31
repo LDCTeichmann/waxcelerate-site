@@ -75,6 +75,10 @@ const body = `
 
 <p>Versandkostenfrei ab 50 €. Hergestellt in Stuttgart, Ketten handgewachst.</p>`.trim();
 
-writeFileSync(INDEX, html.replace('<div id="root"></div>', `<div id="root">${body}</div>`), 'utf8');
+// In <noscript>, nicht direkt in #root: siehe buildPage() in
+// scripts/lib/prerender.mjs fuer die volle Begruendung (Flash-of-unstyled-
+// content-Fix — Browser mit JS rendern <noscript>-Inhalt nie, Crawler ohne
+// JS lesen ihn weiterhin im Roh-HTML).
+writeFileSync(INDEX, html.replace('<div id="root"></div>', `<div id="root"><noscript>${body}</noscript></div>`), 'utf8');
 
 console.log('✓ Startseite mit Inhalt gefuellt (dist/index.html)');
