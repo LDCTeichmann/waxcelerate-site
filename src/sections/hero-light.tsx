@@ -385,6 +385,39 @@ export function Hero() {
               className="sm:hidden absolute inset-x-0 bottom-0 h-14 pointer-events-none z-[1]"
               style={{ background: 'linear-gradient(to top, var(--hero-stage), transparent)' }}
             />
+
+            {/* Mobile equivalent of the desktop hintRef pill (same styling,
+                copied rather than shared since the desktop one lives inside
+                blockRef/WaxLensCutout's hit-testing tree and is driven by
+                nudgeTl/onLensActiveChange, neither of which applies here).
+                Previously "Blick ins Wachs" was a third stacked text link in
+                the CTA row below, competing with the primary CTA and the
+                "Wie funktioniert Heißwachs?" link for the same visual
+                weight — exactly the "ueberfordert"-problem the CTA row's own
+                comment already flags for two side-by-side buttons, just
+                recreated vertically. Moving it onto the photo (where desktop
+                already puts the same affordance, on the wax block) keeps it
+                reachable without adding a fourth line of text to read. */}
+            <button
+              data-hero
+              onClick={openDive}
+              aria-label={de ? 'Blick ins Wachs' : 'Look inside the wax'}
+              className="sm:hidden absolute bottom-3 right-3 z-[2] flex items-center gap-1.5 px-3 py-1.5 rounded-full active:scale-95 transition-transform"
+              style={{
+                background: 'rgba(10,12,18,0.72)',
+                backdropFilter: 'blur(6px)',
+                border: '1px solid rgba(255,255,255,0.16)',
+                boxShadow: '0 6px 18px rgba(0,0,0,0.30)',
+              }}
+            >
+              <ZoomIn className="h-3.5 w-3.5" style={{ color: '#fff' }} strokeWidth={2} />
+              <span
+                className="whitespace-nowrap text-small uppercase font-semibold"
+                style={{ letterSpacing: '0.1em', color: 'rgba(255,255,255,0.94)' }}
+              >
+                {de ? 'Blick ins Wachs' : 'Look inside'}
+              </span>
+            </button>
           </div>
 
           {/* Shadow leans slightly toward the content/CTA (bottom-left) instead of
@@ -492,7 +525,7 @@ export function Hero() {
               of a photo used to sit behind it. Reverts to the original
               transparent absolute-overlay treatment at sm: and up. */}
           <div className="relative z-10 w-full max-w-[1232px] mx-auto px-5 sm:px-6 lg:px-8 xl:px-14
-                           bg-[var(--hero-stage)] pt-5 pb-5 rounded-b-[20px]
+                           bg-[var(--hero-stage)] pt-6 pb-7 rounded-b-[20px]
                            sm:bg-transparent sm:rounded-none sm:h-full sm:pt-0 sm:pb-0">
             {/* pb auf Mobil deutlich kleiner: dort steht am Kartenfuss keine
                 Leiste mehr, fuer die Platz freigehalten werden muesste. Die
@@ -503,7 +536,7 @@ export function Hero() {
             <div className="sm:h-full flex flex-col sm:justify-end sm:pb-32 lg:pb-28">
               <div ref={contentRef} className="max-w-xl will-change-transform">
 
-                <div data-hero className="flex items-center gap-3 mb-3 sm:mb-5">
+                <div data-hero className="flex items-center gap-3 mb-4 sm:mb-5">
                   <span style={{ width: '28px', height: '2px', background: 'var(--brand-blue)' }} />
                   <p
                     className="text-small uppercase font-semibold"
@@ -585,12 +618,16 @@ export function Hero() {
                   {/* Wherever the desktop cursor-lens doesn't render (touch,
                       <1024px, or prefers-reduced-motion — exactly !lensOn,
                       see waxLensEnabled()), there was previously no way at all
-                      to open WaxDive. Plain tap link, same treatment as the
-                      link above, no new hit-testing/gesture code needed. */}
+                      to open WaxDive. On mobile that's now the chip overlaid
+                      on the photo band above (see imgRef) instead of a third
+                      stacked text link here; this one covers the remaining
+                      case — !lensOn but sm: and up (tablet, or reduced
+                      motion on a wide screen), which has no photo-band chip
+                      of its own. */}
                   {!lensOn && (
                     <button
                       onClick={openDive}
-                      className="hero-cta-secondary inline-flex self-start sm:self-auto text-[13px] font-medium"
+                      className="hero-cta-secondary hidden sm:inline-flex self-start sm:self-auto text-[13px] font-medium"
                     >
                       {de ? 'Blick ins Wachs' : 'Look inside the wax'}
                     </button>
@@ -603,35 +640,21 @@ export function Hero() {
                     dort, wo sie die Kaufentscheidung nicht mehr stuetzt. Ab
                     sm: steht sie weiterhin in der Leiste am Kartenfuss,
                     zusammen mit dem Zahlenraster.
-                    Mobile-Redesign: enthaelt jetzt zusaetzlich "Hergestellt in
-                    Stuttgart" — bisher stand das nur in TrustStrip.tsx direkt
-                    unter dem Hero, zusammen mit genau den beiden Fakten
-                    (Verkaufszahl, 100% positiv), die hier eine Zeile darueber
-                    schon standen. TrustStrip ist auf Mobil jetzt ausgeblendet
-                    (siehe TrustStrip.tsx), dieser eine nicht-doppelte Fakt zieht
-                    stattdessen hierher. */}
-                <div data-hero className="sm:hidden flex items-center gap-2 mt-4">
+                    Kein "Hergestellt in Stuttgart" mehr hier (Redesign
+                    08/2026 hatte es ergaenzt) — die Eyebrow am Kartenkopf
+                    sagt "STUTTGART" bereits, und die Desktop-Leiste weiter
+                    unten in dieser Datei zeigt an der aequivalenten Stelle
+                    ebenfalls nur "200+ · 100 % positiv" ohne den Herkunftsort
+                    zu wiederholen — Mobil war hier die einzige Abweichung. */}
+                <div data-hero className="sm:hidden flex items-center gap-2 mt-5">
                   <span style={{ color: 'rgba(255,255,255,0.92)', letterSpacing: '0.08em', fontSize: '12px' }}>
                     ★★★★★
                   </span>
                   <span className="text-meta uppercase tabular-nums"
                     style={{ letterSpacing: '0.08em', color: 'rgba(255,255,255,0.72)' }}>
-                    200+ · {de ? '100 % positiv · Hergestellt in Stuttgart' : '100% positive · Made in Stuttgart'}
+                    200+ · {de ? '100 % positiv' : '100% positive'}
                   </span>
                 </div>
-
-                {/* Bisher unbenutzte, aber laengst freigegebene Copy aus
-                    i18n.ts (hero.guarantee) — eine persoenlich von Luca
-                    unterschriebene Garantie direkt am Punkt der Kaufzoegerung,
-                    dieselbe Risikoumkehr-Logik wie die Ruecksende-Zeile auf
-                    ProductDetailPage.tsx direkt unter deren CTA. Nur auf
-                    Mobil, wo der Knopf jetzt der letzte Schritt vor dem Ende
-                    des Sockels ist; auf dem Desktop-Grid wuerde die Zeile
-                    gegen das Zahlenraster in der Kartenleiste konkurrieren. */}
-                <p data-hero className="sm:hidden mt-2 text-[12.5px] leading-snug"
-                  style={{ color: 'rgba(255,255,255,0.58)' }}>
-                  {t.hero.guarantee}
-                </p>
               </div>
             </div>
           </div>
