@@ -78,8 +78,6 @@ const minSetPrice = starterSetPrice(
   minPrice('wax') + minPrice('chain') + accessories.reduce((sum, a) => sum + a.price, 0),
 );
 
-const HAIR = { borderTop: '1px solid var(--bd)' } as const;
-
 // ── Eine Wachs-Tafel ────────────────────────────────────────────────────────
 // Foto traegt den Namen, die Haarlinien darunter tragen die Zahlen. Der
 // Groessenschalter tauscht das ganze Produkt aus (Preis, Grundpreis,
@@ -123,13 +121,15 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
   };
 
   return (
-    <div className="flex flex-col">
+    <div className="group flex flex-col transition-transform duration-300 ease-out hover:-translate-y-1" style={{ willChange: 'transform' }}>
       {/* Foto — ganzflaechig, kein Rahmen. Der Name liegt im Bild, damit er
-          nicht darunter ein zweites Mal als Ueberschrift auftaucht. */}
+          nicht darunter ein zweites Mal als Ueberschrift auftaucht. Rundet
+          nur oben — unten geht es nahtlos in den Infoblock ueber, siehe
+          dessen Kommentar weiter unten. */}
       <Link
         to={`/produkt/${product.id}`}
-        className="group relative block overflow-hidden rounded-2xl aspect-[16/10] transition-transform duration-300 ease-out hover:-translate-y-1"
-        style={{ background: 'var(--hero-stage)', willChange: 'transform' }}
+        className="relative block overflow-hidden rounded-t-2xl aspect-[16/10]"
+        style={{ background: 'var(--hero-stage)' }}
       >
         <picture>
           <source srcSet={`${image}-800.webp 800w, ${image}.webp 1000w`} sizes="(max-width: 640px) 92vw, 46vw" type="image/webp" />
@@ -204,14 +204,20 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
         </div>
       </Link>
 
-      {/* Ein Datenblock, eine Haarlinie — vorher lag hier eine zweite
-          Haarlinie direkt unter der ersten (Preiszeile, dann Spezifikationen),
-          und darunter eine dritte, "·"-verkettete Zeile aus Bewertung,
-          Verkaufszahl und Lieferdatum. Drei Fliesstexte plus zwei Linien auf
-          engstem Raum war genau die Unruhe, die als "chaotisch" empfunden
-          wurde. Jetzt: eine Haarlinie fasst den ganzen Datenblock ein, die
-          Fakten darunter stehen als Chips statt als Satz. */}
-      <div className="mt-3 pt-2.5" style={HAIR}>
+      {/* Infoblock — vorher lose auf dem Seiten-Hintergrund, nur mit einer
+          oberen Haarlinie vom Foto getrennt. Auf Mobile mit sechs bis acht
+          Einzelelementen darunter (Groessenschalter, Preis, drei Chips,
+          Social-Proof-Zeile, zwei Buttons) reicht eine einzelne obere Linie
+          als Gruppierungssignal nicht — das Gestalt-Prinzip "Common Region"
+          (NN/g) sagt: eine Flaeche bindet lose Elemente zu einer Einheit
+          zusammen, eine Linie an nur einer Kante schwaecher. Deshalb jetzt
+          ein durchgehender, leicht getoenter Block direkt unter dem Foto
+          (kein Abstand, gerundete Unterkanten passend zur oberen Fotorundung
+          — Foto und Infoblock wirken als eine Form). Bewusst kein Rahmen,
+          kein Schatten — nur der Flaechenton selbst traegt die Grenze, wie
+          es DESIGN.md §3 vorsieht ("duenne Trennlinien statt Kartenboxen"),
+          hier nur um eine Flaeche statt einer Linie erweitert. */}
+      <div className="rounded-b-2xl px-4 pt-3 pb-4" style={{ background: 'var(--sf2)' }}>
         <div className="flex items-end justify-between gap-4">
           <div className="flex gap-1.5">{(['300', '500'] as Size[]).map(sizeBtn)}</div>
           <div className="text-right">
@@ -235,7 +241,7 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
             variant === 'classic' ? s.classicFormula : s.proFormula,
           ].map((label) => (
             <span key={label} className="num-data text-[10.5px] px-2 py-1 rounded-md"
-              style={{ background: 'var(--sf2)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
+              style={{ background: 'var(--sf3)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
               {label}
             </span>
           ))}
@@ -274,9 +280,8 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
             {s.delivery} {delivery}
           </span>
         </div>
-      </div>
 
-      <div className="mt-3 flex items-center gap-4">
+        <div className="flex items-center gap-4 mt-3">
         {product.soldOut ? (
           <span className="inline-flex items-center min-h-11 text-[13px] font-semibold" style={{ color: 'var(--txf)' }}>
             {de ? 'Ausverkauft' : 'Sold out'}
@@ -305,6 +310,7 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
           style={{ borderColor: 'var(--bd)', color: 'var(--tx2)' }}>
           {s.details} <ArrowRight className="h-3.5 w-3.5" aria-hidden />
         </Link>
+        </div>
       </div>
     </div>
   );
