@@ -627,11 +627,15 @@
 /* Hero image, mobile only — was tuned to push the old wax-block photo
    (chain-bg-mobile.jpg) up/right so it didn't overwhelm the frame. Mobile
    hero redesign (2026-08) swapped in mobile-chains-hills.jpg (box + hanging
-   chain + hillside, see hero-light.tsx); this value now frames that photo
-   instead — verified visually via a real screenshot, not guessed. */
+   chain + hillside, see hero-light.tsx). The first value framed mostly sky
+   and free-floating chain links, cutting off the box that anchors the shot
+   — reads as chaotic because the one element that explains what's in frame
+   is gone. Shifted right and down so the box (left third of the source
+   photo, roughly its lower half) stays in frame alongside the chain instead
+   of only the chain surviving the crop. */
 @media (max-width: 639px) {
   .hero-img {
-    object-position: 34% 18% !important;
+    object-position: 42% 38% !important;
   }
 }
 
