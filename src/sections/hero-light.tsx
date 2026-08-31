@@ -273,11 +273,8 @@ export function Hero() {
       <img
         src="/images/hero/chain-bg.jpg"
         alt={de ? 'Frisch gewachste Kette vor Stuttgarter Huegeln' : 'Freshly waxed chain in front of the Stuttgart hills'}
-        className="absolute inset-0 w-full h-full object-cover hero-img sm:object-[48%_38%]"
-        style={{
-          transform: 'scale(1.035)',
-          filter: 'blur(1.4px) saturate(0.95) brightness(0.92)',
-        }}
+        className="absolute inset-0 w-full h-full object-cover hero-img sm:object-[48%_38%] sm:blur-[1.4px] saturate-[0.95] brightness-[0.92]"
+        style={{ transform: 'scale(1.035)' }}
         fetchPriority="high"
       />
     </picture>
@@ -335,7 +332,7 @@ export function Hero() {
               recognizable box+chain+hillside composition, which an extreme
               vertical object-cover crop would have destroyed. Reverts to the
               original absolute-inset-0 behavior at sm: and up. */}
-          <div ref={imgRef} className="relative h-[44dvh] min-h-[300px] overflow-hidden sm:h-auto sm:min-h-0 sm:absolute sm:inset-0 will-change-transform">
+          <div ref={imgRef} className="relative h-[30dvh] min-h-[220px] max-h-[280px] overflow-hidden sm:h-auto sm:min-h-0 sm:max-h-none sm:absolute sm:inset-0 will-change-transform">
             {bgImg}
 
             {/* Blur already pushes the chain to atmospheric bokeh; this overlay only
@@ -495,7 +492,7 @@ export function Hero() {
               of a photo used to sit behind it. Reverts to the original
               transparent absolute-overlay treatment at sm: and up. */}
           <div className="relative z-10 w-full max-w-[1232px] mx-auto px-5 sm:px-6 lg:px-8 xl:px-14
-                           bg-[var(--hero-stage)] pt-7 pb-8 rounded-b-[20px]
+                           bg-[var(--hero-stage)] pt-5 pb-5 rounded-b-[20px]
                            sm:bg-transparent sm:rounded-none sm:h-full sm:pt-0 sm:pb-0">
             {/* pb auf Mobil deutlich kleiner: dort steht am Kartenfuss keine
                 Leiste mehr, fuer die Platz freigehalten werden muesste. Die
@@ -506,7 +503,7 @@ export function Hero() {
             <div className="sm:h-full flex flex-col sm:justify-end sm:pb-32 lg:pb-28">
               <div ref={contentRef} className="max-w-xl will-change-transform">
 
-                <div data-hero className="flex items-center gap-3 mb-5">
+                <div data-hero className="flex items-center gap-3 mb-3 sm:mb-5">
                   <span style={{ width: '28px', height: '2px', background: 'var(--brand-blue)' }} />
                   <p
                     className="text-small uppercase font-semibold"
@@ -519,7 +516,7 @@ export function Hero() {
                 <h1
                   className="font-display text-white"
                   style={{
-                    fontSize: 'clamp(2.5rem, 5.2vw, 4.6rem)',
+                    fontSize: 'clamp(2.15rem, 5.2vw, 4.6rem)',
                     lineHeight: 1.0,
                     letterSpacing: '-0.025em',
                     fontWeight: 600,
@@ -550,7 +547,7 @@ export function Hero() {
 
                 <p
                   data-hero
-                  className="mt-5 max-w-md leading-relaxed"
+                  className="mt-3 sm:mt-5 max-w-md leading-relaxed"
                   style={{ fontSize: 'clamp(0.95rem, 1.4vw, 1.0625rem)', color: 'rgba(255,255,255,0.78)' }}
                 >
                   {t.hero.tagline}
@@ -564,11 +561,11 @@ export function Hero() {
                     groesste erreichbare Daumenziel und macht unmissverstaendlich,
                     welcher der beiden der Hauptweg ist. Ab sm: unveraendert
                     nebeneinander. */}
-                <div data-hero className="mt-7 flex flex-col sm:flex-row sm:items-center gap-4">
+                <div data-hero className="mt-5 sm:mt-7 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
                   <button
                     ref={ctaRef}
                     onClick={() => scrollTo('#produkte')}
-                    className="cta-primary group inline-flex w-full sm:w-auto items-center justify-center gap-3 px-10 py-[18px] text-[16px] font-bold rounded-full transition-all duration-300 active:scale-[0.97] will-change-transform"
+                    className="cta-primary group inline-flex w-full sm:w-auto items-center justify-center gap-3 px-10 py-[14px] sm:py-[18px] text-[16px] font-bold rounded-full transition-all duration-300 active:scale-[0.97] will-change-transform"
                     style={{ background: '#FFFFFF', color: '#0F0F12' }}
                   >
                     {t.hero.ctaBuy}
@@ -613,7 +610,7 @@ export function Hero() {
                     schon standen. TrustStrip ist auf Mobil jetzt ausgeblendet
                     (siehe TrustStrip.tsx), dieser eine nicht-doppelte Fakt zieht
                     stattdessen hierher. */}
-                <div data-hero className="sm:hidden flex items-center gap-2 mt-5">
+                <div data-hero className="sm:hidden flex items-center gap-2 mt-4">
                   <span style={{ color: 'rgba(255,255,255,0.92)', letterSpacing: '0.08em', fontSize: '12px' }}>
                     ★★★★★
                   </span>
@@ -631,7 +628,7 @@ export function Hero() {
                     Mobil, wo der Knopf jetzt der letzte Schritt vor dem Ende
                     des Sockels ist; auf dem Desktop-Grid wuerde die Zeile
                     gegen das Zahlenraster in der Kartenleiste konkurrieren. */}
-                <p data-hero className="sm:hidden mt-3 text-[12.5px] leading-snug"
+                <p data-hero className="sm:hidden mt-2 text-[12.5px] leading-snug"
                   style={{ color: 'rgba(255,255,255,0.58)' }}>
                   {t.hero.guarantee}
                 </p>
