@@ -113,6 +113,7 @@ export const translations = {
         rewaxTitle: 'Wir wachsen sie für dich.',
         rewaxBody: 'Kette einschicken, fahrbereit zurückbekommen. 13,95 € je Kette, ab drei 9,95 €.',
         rewaxCta: 'Zum Rewax-Service',
+        rewaxFrom: 'Ab 9,95 €',
         // Ueberschrift ueber Set/Ketten/Rewax. Ohne sie stehen dort drei
         // Kacheln ohne erkennbaren Zusammenhang; mit ihr sind es drei
         // Antworten auf denselben Einwand — den mit Abstand haeufigsten.
@@ -477,6 +478,7 @@ export const translations = {
         rewaxTitle: 'We wax it for you.',
         rewaxBody: 'Send the chain in, get it back ready to ride. 13.95 € per chain, 9.95 € from three.',
         rewaxCta: 'To the rewax service',
+        rewaxFrom: 'From €9.95',
         altTitle: 'No pot? No problem.',
         altBody: 'Three ways to ride waxed without melting wax yourself.',
         soldUnits: 'sold',
