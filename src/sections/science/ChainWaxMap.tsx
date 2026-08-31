@@ -113,22 +113,31 @@ const topLabels = (de: boolean) => [
 export function ChainWaxMap({
   de,
   active,
-  compact = false,
+  teaser = false,
   onZone,
 }: {
   de: boolean;
   /** 0 = Bolzen/Kragen · 1 = Rolle/Kragen · 2 = Laschen. null zeigt alles gleich. */
   active: number | null;
-  compact?: boolean;
+  /** ScienceTeaser.tsx: blendet Seitenansicht, Beschriftungen und die
+      Bildunterschrift aus (bei Teaser-Groesse nur Ballast, siehe dort), engt
+      die viewBox auf Draufsicht+Lupe ein (zoomt beides sichtbar groesser),
+      und macht den Zonenwechsel deutlich auffaelliger — kraeftigeres Blau auf
+      der aktiven Flaeche statt der leichten Abdunklung im Vollmodus. Luca-
+      Feedback: der Wechsel zwischen den Zonen war in der Startseiten-Karte zu
+      subtil, um als "hier passiert gerade etwas" gelesen zu werden. */
+  teaser?: boolean;
   onZone?: (i: number) => void;
 }) {
-  const dim = (i: number) => (active === null || active === i ? 1 : 0.45);
+  const dim = (i: number) => (active === null || active === i ? 1 : (teaser ? 0.1 : 0.45));
+  const glow = (i: number) => (teaser && active === i
+    ? { filter: 'drop-shadow(0 0 7px rgba(var(--accent-rgb),0.85))' } : undefined);
   const hit = (i: number) =>
     onZone ? { onMouseEnter: () => onZone(i), style: { cursor: 'pointer' } } : {};
   const TOP_LABELS = topLabels(de);
 
   return (
-    <svg viewBox="0 0 700 300" className="w-full h-auto" role="img"
+    <svg viewBox={teaser ? '40 6 640 294' : '0 0 700 300'} className="w-full h-auto" role="img"
       aria-label={de
         ? 'Fahrradkette in Draufsicht und Seitenansicht, dazu ein Gelenk vergrößert; blau markiert sind die Wachsfilme zwischen Laschen, Bolzen, Kragen und Rolle'
         : 'Bicycle chain in plan and side view, with one joint enlarged; blue marks the wax films between plates, pin, collar and roller'}>
@@ -149,9 +158,9 @@ export function ChainWaxMap({
             return (
               <g key={`to${a}`}>
                 <rect x={x0} y={yWax[0]} width={x1 - x0} height={yWax[1] - yWax[0]}
-                  fill="var(--accent)" opacity={0.9 * dim(2)} style={{ transition: 'opacity .35s' }} />
+                  fill="var(--accent)" opacity={0.9 * dim(2)} style={{ transition: 'opacity .35s', ...glow(2) }} />
                 <rect x={x0} y={mir(yWax[1])} width={x1 - x0} height={yWax[1] - yWax[0]}
-                  fill="var(--accent)" opacity={0.9 * dim(2)} style={{ transition: 'opacity .35s' }} />
+                  fill="var(--accent)" opacity={0.9 * dim(2)} style={{ transition: 'opacity .35s', ...glow(2) }} />
                 <Pair x0={x0} x1={x1} ys={yOut} fill={METAL.light} stroke="var(--tx2)" />
               </g>
             );
@@ -171,60 +180,69 @@ export function ChainWaxMap({
           strokeDasharray="16 4 3 4" style={HAIR} />
       </g>
 
-      {/* Benennung — Fuehrungslinien steigen dort auf, wo darueber nichts liegt */}
-      {TOP_LABELS.map(({ x, y, lx, t }) => (
+      {/* Benennung — Fuehrungslinien steigen dort auf, wo darueber nichts liegt.
+          Im Teaser ausgeblendet: bei Teaser-Groesse nur Ballast, nicht lesbar. */}
+      {!teaser && TOP_LABELS.map(({ x, y, lx, t }) => (
         <g key={t}>
           <line x1={x} y1={y} x2={lx} y2={34} stroke="var(--bd)" style={HAIR} />
           <text className="num-data" fontSize={16} fill="var(--txf)" textAnchor="middle" x={lx} y={26}>{t}</text>
         </g>
       ))}
 
-      {/* Konstruktionslinien: dieselbe Kette, dieselben Bolzen */}
-      {pins.map(x => (
-        <line key={`c${x}`} x1={x} y1={mir(yOut[0]) + 10} x2={x} y2={CHY - 32}
-          stroke="var(--bd)" strokeDasharray="3 4" style={HAIR} />
-      ))}
+      {/* Konstruktionslinien + Seitenansicht + ihre Lupe-Leitlinien: nur im
+          Vollmodus. Der Teaser zeigt nur Draufsicht (Zone 03) und Lupe (Zonen
+          01/02) — die Seitenansicht ist laut Kommentar oben ohnehin nur ein
+          Erkennungsanker ohne eigene Aussage, ihr Wegfall gibt Draufsicht und
+          Lupe mehr Platz in der engeren Teaser-viewBox. */}
+      {!teaser && (
+        <>
+          {pins.map(x => (
+            <line key={`c${x}`} x1={x} y1={mir(yOut[0]) + 10} x2={x} y2={CHY - 32}
+              stroke="var(--bd)" strokeDasharray="3 4" style={HAIR} />
+          ))}
 
-      {/* ── Seitenansicht: der Erkennungsanker, bewusst unbeschriftet ── */}
-      <g>
-        {INNER.map(([a, b]) => (
-          <path key={`si${a}`} d={plate(pins[a], pins[b], CHY, LOBE - 5, WAIST - 4)}
-            fill={METAL.mid} stroke="var(--txf)" style={LINE} />
-        ))}
-        {OUTER.map(([a, b]) => (
-          <path key={`so${a}`} d={plate(pins[a], pins[b], CHY, LOBE, WAIST)}
-            fill={METAL.light} stroke="var(--tx2)" style={LINE} />
-        ))}
-        {pins.map(x => (
-          <g key={`sp${x}`}>
-            <circle cx={x} cy={CHY} r={R_ROL} fill="none" stroke="var(--txf)" style={HAIR} />
-            <circle cx={x} cy={CHY} r={R_COL} fill="none" stroke="var(--txf)" style={HAIR} />
-            <circle cx={x} cy={CHY} r={(R_COL + R_PIN) / 2} fill="none"
-              stroke="var(--accent)" strokeWidth={3} opacity={0.75} />
-            <circle cx={x} cy={CHY} r={R_PIN} fill={METAL.strong} stroke="var(--tx2)" style={HAIR} />
+          <g>
+            {INNER.map(([a, b]) => (
+              <path key={`si${a}`} d={plate(pins[a], pins[b], CHY, LOBE - 5, WAIST - 4)}
+                fill={METAL.mid} stroke="var(--txf)" style={LINE} />
+            ))}
+            {OUTER.map(([a, b]) => (
+              <path key={`so${a}`} d={plate(pins[a], pins[b], CHY, LOBE, WAIST)}
+                fill={METAL.light} stroke="var(--tx2)" style={LINE} />
+            ))}
+            {pins.map(x => (
+              <g key={`sp${x}`}>
+                <circle cx={x} cy={CHY} r={R_ROL} fill="none" stroke="var(--txf)" style={HAIR} />
+                <circle cx={x} cy={CHY} r={R_COL} fill="none" stroke="var(--txf)" style={HAIR} />
+                <circle cx={x} cy={CHY} r={(R_COL + R_PIN) / 2} fill="none"
+                  stroke="var(--accent)" strokeWidth={3} opacity={0.75} />
+                <circle cx={x} cy={CHY} r={R_PIN} fill={METAL.strong} stroke="var(--tx2)" style={HAIR} />
+              </g>
+            ))}
+            <circle cx={MARK} cy={CHY} r={R_ROL + 5} fill="none" stroke="var(--accent)"
+              strokeDasharray="4 3" style={HAIR} />
           </g>
-        ))}
-        <circle cx={MARK} cy={CHY} r={R_ROL + 5} fill="none" stroke="var(--accent)"
-          strokeDasharray="4 3" style={HAIR} />
-      </g>
+
+          <line x1={MARK + R_ROL} y1={CHY - 14} x2={LX - LR * 0.78} y2={LY + LR * 0.66}
+            stroke="var(--accent)" strokeDasharray="5 4" style={HAIR} opacity={0.45} />
+          <line x1={MARK + R_ROL} y1={CHY + 10} x2={LX - LR * 0.28} y2={LY + LR * 0.97}
+            stroke="var(--accent)" strokeDasharray="5 4" style={HAIR} opacity={0.45} />
+        </>
+      )}
 
       {/* ── Lupe auf das markierte Gelenk ── */}
-      <line x1={MARK + R_ROL} y1={CHY - 14} x2={LX - LR * 0.78} y2={LY + LR * 0.66}
-        stroke="var(--accent)" strokeDasharray="5 4" style={HAIR} opacity={0.45} />
-      <line x1={MARK + R_ROL} y1={CHY + 10} x2={LX - LR * 0.28} y2={LY + LR * 0.97}
-        stroke="var(--accent)" strokeDasharray="5 4" style={HAIR} opacity={0.45} />
       <circle cx={LX} cy={LY} r={LR} fill="var(--sf)" stroke="var(--txf)" style={LINE} />
       <g {...hit(1)}>
         <path d={ring(LX, LY, rRol, rW2)} fillRule="evenodd" fill={METAL.strong}
           stroke="var(--txf)" style={LINE} />
         <path d={ring(LX, LY, rW2, rCol)} fillRule="evenodd" fill="var(--accent)"
-          opacity={dim(1)} style={{ transition: 'opacity .35s' }} />
+          opacity={dim(1)} style={{ transition: 'opacity .35s', ...glow(1) }} />
       </g>
       <g {...hit(0)}>
         <path d={ring(LX, LY, rCol, rW1)} fillRule="evenodd" fill={METAL.mid}
           stroke="var(--txf)" style={LINE} />
         <path d={ring(LX, LY, rW1, rPin)} fillRule="evenodd" fill="var(--accent)"
-          opacity={dim(0)} style={{ transition: 'opacity .35s' }} />
+          opacity={dim(0)} style={{ transition: 'opacity .35s', ...glow(0) }} />
       </g>
       <circle cx={LX} cy={LY} r={rPin} fill={METAL.strong} stroke="var(--tx2)" style={LINE} />
       <line x1={LX + 6} y1={LY - (rW1 + rPin) / 2 - 2} x2={LX + 26} y2={LY - LR - 14}
@@ -232,13 +250,15 @@ export function ChainWaxMap({
       <text className="num-data" fontSize={16} fill="var(--accent)" textAnchor="middle"
         x={LX + 28} y={LY - LR - 18}>{de ? 'Wachsfilm' : 'Wax film'}</text>
 
-      {/* Die Pointe: es gibt zwei Sorten Spalt, deshalb zwei Ansichten. */}
-      <text className="num-data" fontSize={14} fill="var(--txf)" x={54} y={292}>
-        {de
-          ? (compact ? 'Draufsicht: flache Spalte · Seitenansicht: runde · ' : 'Draufsicht: die flachen Spalte · Seitenansicht: die runden · ')
-          : (compact ? 'Plan: flat gaps · Side view: round · ' : 'Plan view: the flat gaps · Side view: the round ones · ')}
-        <tspan fill="var(--accent)">{de ? 'blau = Wachs' : 'blue = wax'}</tspan>
-      </text>
+      {/* Die Pointe: es gibt zwei Sorten Spalt, deshalb zwei Ansichten. Nur im
+          Vollmodus — im Teaser uebernimmt das synchron mitlaufende Zonenlabel
+          in ScienceTeaser.tsx diese Rolle. */}
+      {!teaser && (
+        <text className="num-data" fontSize={14} fill="var(--txf)" x={54} y={292}>
+          {de ? 'Draufsicht: die flachen Spalte · Seitenansicht: die runden · ' : 'Plan view: the flat gaps · Side view: the round ones · '}
+          <tspan fill="var(--accent)">{de ? 'blau = Wachs' : 'blue = wax'}</tspan>
+        </text>
+      )}
     </svg>
   );
 }

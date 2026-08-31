@@ -151,6 +151,19 @@ export function ProductDetailPage() {
     window.scrollTo(0, 0);
   }, [id]);
 
+  // Deep link from why-wax.tsx's Ersparnis-Karte (`/produkt/wax-500#kostenvergleich`):
+  // open the Kostenvergleich accordion and scroll to it once it has rendered.
+  // The timeout lets the scrollTo(0,0) above and the accordion's own layout
+  // settle first — scrolling immediately would race the top-scroll reset.
+  useEffect(() => {
+    if (window.location.hash !== '#kostenvergleich') return;
+    setOpenAccordion('kosten');
+    const t = setTimeout(() => {
+      document.getElementById('kostenvergleich')?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+    }, 350);
+    return () => clearTimeout(t);
+  }, [id, reduce]);
+
   const next = useCallback(() => {
     if (slideCount <= 1) return;
     goTo((activeImage + 1) % slideCount);
@@ -1165,7 +1178,7 @@ export function ProductDetailPage() {
                       </AccordionItem>
                     )}
                     {hasKosten && rc.oilItems && rc.waxItems && (
-                      <AccordionItem title={de ? 'Kostenvergleich' : 'Cost comparison'}
+                      <AccordionItem id="kostenvergleich" title={de ? 'Kostenvergleich' : 'Cost comparison'}
                         subtitle={rc.savings ? `${de ? 'Ersparnis' : 'Savings'}: ${rc.savings}` : ''}
                         open={openAccordion === 'kosten'} onToggle={() => toggleAccordion('kosten')}>
                         <div className="space-y-3">
@@ -1629,11 +1642,11 @@ function ReviewSnippet({ review, de }: { review: Review; de: boolean }) {
 }
 
 /* ── Accordion ── */
-function AccordionItem({ title, subtitle, open, onToggle, children }: {
-  title: string; subtitle: string; open: boolean; onToggle: () => void; children: React.ReactNode;
+function AccordionItem({ id, title, subtitle, open, onToggle, children }: {
+  id?: string; title: string; subtitle: string; open: boolean; onToggle: () => void; children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-xl overflow-hidden transition-shadow duration-300"
+    <div id={id} className="rounded-xl overflow-hidden transition-shadow duration-300"
       style={{ border: '1px solid var(--bd)', background: 'var(--pg)', boxShadow: open ? '0 2px 8px rgba(0,0,0,0.04)' : 'none' }}>
       <button onClick={onToggle} aria-expanded={open} className="w-full flex items-center justify-between gap-3 px-4 py-3.5 text-left">
         <div className="min-w-0">
