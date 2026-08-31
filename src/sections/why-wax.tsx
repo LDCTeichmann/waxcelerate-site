@@ -270,7 +270,7 @@ export function WhyWax() {
         style={{ height: '56px', background: 'linear-gradient(to bottom, var(--sf), transparent)', zIndex: 1 }} />
 
       {/* ── Header ── */}
-      <div ref={headerRef} className="mb-5 sm:mb-6">
+      <div ref={headerRef} className="mb-4 sm:mb-6">
         <p className="eyebrow mb-2" style={{ color: 'var(--txf)' }}>
           {de ? 'Öl vs. Wachs' : 'Oil vs. Wax'}
         </p>
@@ -325,18 +325,18 @@ export function WhyWax() {
 
         <div ref={rowsRef} style={{ borderTop: '1px solid var(--bd2)' }}>
           {moments.map(m => (
-            <div key={m.n} data-row className="flex items-start gap-5 sm:gap-7 py-7 sm:py-9"
+            <div key={m.n} data-row className="flex items-start gap-4 sm:gap-7 py-4 sm:py-9"
               style={{ borderBottom: '1px solid var(--bd2)' }}>
               <span className="font-display font-bold leading-none flex-shrink-0 select-none"
-                style={{ fontSize: 'clamp(2.5rem, 5vw, 3.25rem)', color: 'var(--accent-soft)', minWidth: '2.4ch' }}>
+                style={{ fontSize: 'clamp(1.75rem, 7vw, 3.25rem)', color: 'var(--accent-soft)', minWidth: '2ch' }}>
                 {m.n}
               </span>
               <div className="flex-1 min-w-0 pt-1" style={{ maxWidth: '32rem' }}>
                 <h3 className="font-display font-bold text-wx-tx1 leading-[1.15] tracking-[-0.02em]"
-                  style={{ fontSize: 'clamp(1.2rem, 2.2vw, 1.5rem)' }}>
+                  style={{ fontSize: 'clamp(1.05rem, 2.2vw, 1.5rem)' }}>
                   {de ? m.titleDe : m.titleEn}
                 </h3>
-                <p className="text-body leading-relaxed mt-2"
+                <p className="text-small sm:text-body leading-snug sm:leading-relaxed mt-1.5 sm:mt-2"
                   style={{ color: 'var(--txm)' }}>
                   {de ? m.bodyDe : m.bodyEn}
                   {'  '}
