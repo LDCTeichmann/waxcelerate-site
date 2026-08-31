@@ -13,6 +13,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { AddToCartButton } from '@/components/AddToCartButton';
 import { trackEbayClick } from '@/lib/analytics';
 import { CartIcon } from '@/components/CartIcon';
+import { GpsrInfo } from '@/components/GpsrInfo';
 import { ImageLightbox } from '@/components/ImageLightbox';
 import { gsap } from '@/lib/gsap';
 import { Footer } from '@/sections/footer';
@@ -743,6 +744,8 @@ export function ProductDetailPage() {
                 </span>
               </div>
             </div>
+
+            <GpsrInfo de={de} />
 
             {(alternatives.length > 0 || related.length > 0) && (
               <div className="pt-4" style={{ borderTop: '1px solid var(--bd)' }}>
