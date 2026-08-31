@@ -78,8 +78,6 @@ const minSetPrice = starterSetPrice(
   minPrice('wax') + minPrice('chain') + accessories.reduce((sum, a) => sum + a.price, 0),
 );
 
-const HAIR = { borderTop: '1px solid var(--bd)' } as const;
-
 // ── Eine Wachs-Tafel ────────────────────────────────────────────────────────
 // Foto traegt den Namen, die Haarlinien darunter tragen die Zahlen. Der
 // Groessenschalter tauscht das ganze Produkt aus (Preis, Grundpreis,
@@ -123,13 +121,15 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
   };
 
   return (
-    <div className="flex flex-col">
+    <div className="group flex flex-col transition-transform duration-300 ease-out hover:-translate-y-1" style={{ willChange: 'transform' }}>
       {/* Foto — ganzflaechig, kein Rahmen. Der Name liegt im Bild, damit er
-          nicht darunter ein zweites Mal als Ueberschrift auftaucht. */}
+          nicht darunter ein zweites Mal als Ueberschrift auftaucht. Rundet
+          nur oben — unten geht es nahtlos in den Infoblock ueber, siehe
+          dessen Kommentar weiter unten. */}
       <Link
         to={`/produkt/${product.id}`}
-        className="group relative block overflow-hidden rounded-2xl aspect-[16/10] transition-transform duration-300 ease-out hover:-translate-y-1"
-        style={{ background: 'var(--hero-stage)', willChange: 'transform' }}
+        className="relative block overflow-hidden rounded-t-2xl aspect-[16/10]"
+        style={{ background: 'var(--hero-stage)' }}
       >
         <picture>
           <source srcSet={`${image}-800.webp 800w, ${image}.webp 1000w`} sizes="(max-width: 640px) 92vw, 46vw" type="image/webp" />
@@ -204,14 +204,20 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
         </div>
       </Link>
 
-      {/* Ein Datenblock, eine Haarlinie — vorher lag hier eine zweite
-          Haarlinie direkt unter der ersten (Preiszeile, dann Spezifikationen),
-          und darunter eine dritte, "·"-verkettete Zeile aus Bewertung,
-          Verkaufszahl und Lieferdatum. Drei Fliesstexte plus zwei Linien auf
-          engstem Raum war genau die Unruhe, die als "chaotisch" empfunden
-          wurde. Jetzt: eine Haarlinie fasst den ganzen Datenblock ein, die
-          Fakten darunter stehen als Chips statt als Satz. */}
-      <div className="mt-3 pt-2.5" style={HAIR}>
+      {/* Infoblock — vorher lose auf dem Seiten-Hintergrund, nur mit einer
+          oberen Haarlinie vom Foto getrennt. Auf Mobile mit sechs bis acht
+          Einzelelementen darunter (Groessenschalter, Preis, drei Chips,
+          Social-Proof-Zeile, zwei Buttons) reicht eine einzelne obere Linie
+          als Gruppierungssignal nicht — das Gestalt-Prinzip "Common Region"
+          (NN/g) sagt: eine Flaeche bindet lose Elemente zu einer Einheit
+          zusammen, eine Linie an nur einer Kante schwaecher. Deshalb jetzt
+          ein durchgehender, leicht getoenter Block direkt unter dem Foto
+          (kein Abstand, gerundete Unterkanten passend zur oberen Fotorundung
+          — Foto und Infoblock wirken als eine Form). Bewusst kein Rahmen,
+          kein Schatten — nur der Flaechenton selbst traegt die Grenze, wie
+          es DESIGN.md §3 vorsieht ("duenne Trennlinien statt Kartenboxen"),
+          hier nur um eine Flaeche statt einer Linie erweitert. */}
+      <div className="rounded-b-2xl px-4 pt-3 pb-4" style={{ background: 'var(--sf2)' }}>
         <div className="flex items-end justify-between gap-4">
           <div className="flex gap-1.5">{(['300', '500'] as Size[]).map(sizeBtn)}</div>
           <div className="text-right">
@@ -235,7 +241,7 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
             variant === 'classic' ? s.classicFormula : s.proFormula,
           ].map((label) => (
             <span key={label} className="num-data text-[10.5px] px-2 py-1 rounded-md"
-              style={{ background: 'var(--sf2)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
+              style={{ background: 'var(--sf3)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
               {label}
             </span>
           ))}
@@ -274,9 +280,8 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
             {s.delivery} {delivery}
           </span>
         </div>
-      </div>
 
-      <div className="mt-3 flex items-center gap-4">
+        <div className="flex items-center gap-4 mt-3">
         {product.soldOut ? (
           <span className="inline-flex items-center min-h-11 text-[13px] font-semibold" style={{ color: 'var(--txf)' }}>
             {de ? 'Ausverkauft' : 'Sold out'}
@@ -305,6 +310,7 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
           style={{ borderColor: 'var(--bd)', color: 'var(--tx2)' }}>
           {s.details} <ArrowRight className="h-3.5 w-3.5" aria-hidden />
         </Link>
+        </div>
       </div>
     </div>
   );
@@ -312,12 +318,32 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
 
 // ── Eine Sekundaer-Kachel ────────────────────────────────────────────────────
 // Set, Ketten und Rewax teilen sich diese eine Komponente statt je eines
-// eigenen Layouts. Gleiche Bildgrammatik wie WaxPanel (Foto traegt Kicker +
-// Titel im Scrim), aber 4:3.3 statt 4:4.6 — die drei Quellfotos sind
-// Querformate, und drei Kacheln nebeneinander brauchen ohnehin weniger Hoehe
-// als zwei Kaufentscheidungen mit Groessenschalter und Preis darunter. Die
-// beiden Seitenverhaeltnisse liegen bewusst naeher beieinander als frueher
-// (4:5 / 4:3) — siehe DESIGN.md §4.
+// eigenen Layouts.
+//
+// 09/2026, dritter Anlauf: Die vorherige Fassung legte den kompletten Text
+// (Ziffer, Eyebrow, zweizeiliger Titel — vier Zeilen) als Scrim-Overlay auf
+// ein auf halbe Breite verkleinertes Foto (2-spaltig auf Mobile, ~165px
+// Kachelbreite). Bei der Breite brach die Eyebrow-Zeile um, die Ziffer stand
+// verwaist vor der ersten Zeile statt vor dem ganzen Block, und der CTA blieb
+// auf Touch-Geraeten nach dem ersten Tap sichtbar "haengen" (:hover-Fond ohne
+// :hover) — Lucas Screenshots zeigten genau das: uneinheitlich gefuellte
+// Chips, harter Kontrastwechsel zwischen hellen und dunklen Fotos, insgesamt
+// "hässlich" und "chaotisch". Das Foto-Scrim-Muster traegt eben nur einen
+// ganzen Fliesstextblock, wenn die Kachel die volle Spaltenbreite hat.
+//
+// WaxPanel im selben Regal loeste dasselbe Problem (Foto plus vollstaendiger
+// Kaufblock: Groessenschalter, Preis, Chips, Social Proof, zwei Buttons)
+// bereits so: Foto rundet nur oben, geht ohne Abstand in einen durchgehend
+// getoenten Block ueber (`var(--sf2)`, `rounded-b-2xl`) — Foto und Textblock
+// wirken als eine Form, aber der Text steht auf Flaeche statt auf Foto, also
+// immer mit garantiertem Kontrast unabhaengig vom Bildinhalt. Diese Kachel
+// hier folgt jetzt derselben, bereits bewaehrten Grammatik statt einer
+// eigenen: Foto traegt nur noch einen kleinen Ziffern-Chip (wie WaxPanels
+// Auszeichnungs-Chip oben links — kann nicht mehr umbrechen, weil er nicht
+// Teil eines Fliesstexts ist), Titel/Eyebrow/Preis/CTA wandern in den
+// getoenten Block darunter. CTA ist jetzt dauerhaft gefuellt statt per
+// :hover ein-/ausgeblendet — auf Touch-Geraeten gibt es kein "vorher", also
+// keine zwei Zustaende, die je nach Geraet auseinanderlaufen koennen.
 //
 // `as`: Link fuer Set (echte Route) und Rewax (echte Route), button fuer
 // Ketten (oeffnet nur einen Zustand auf derselben Seite — kein Seitenwechsel,
@@ -325,21 +351,28 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
 // Versprechen, das die Seite nicht haelt).
 // Exportiert: products.tsx braucht dieselbe Kachel fuer die Rewax-Karte am
 // Ende der aufgeklappten Kettenliste — siehe dortiger Kommentar.
-export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, dark, index, ...action }: {
+export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, price, dark, index, ...action }: {
   image: string; imageW: number; eyebrow: string; title: string; body: string; cta: string; alt: string;
+  /** Fertig formatierter Preis-String ("ab 57,63 €"). Macht aus der Kachel
+      sichtbar ein Kaufangebot statt eines reinen Editorial-Links — ohne
+      Preis war auf Mobile nicht erkennbar, dass hier etwas verkauft wird. */
+  price?: string;
+  /** Dunklerer Foto-Rand fuer die Rewax-Kachel (moodigeres Motiv) — rein
+      atmosphaerisch, seit der Text nicht mehr auf dem Foto steht keine
+      Kontrastfrage mehr. */
   dark?: boolean;
-  /** 1-3: rahmt die Kachel als einen von drei parallelen Wegen (Ziffer vor
-      dem Eyebrow, dieselbe Zahlentypo wie im Formel-Vergleich). Weggelassen
-      bei der Rewax-Kachel, die products.tsx einzeln unter der Kettenliste
-      wiederverwendet — dort ausserhalb der Dreiergruppe ergibt eine Ziffer
-      keinen Sinn. */
+  /** 1-3: eigenstaendiger Ziffern-Chip oben links auf dem Foto (siehe
+      WaxPanels Auszeichnungs-Chip), rahmt die Kachel als einen von drei
+      parallelen Wegen. Weggelassen bei der Rewax-Kachel, die products.tsx
+      einzeln unter der Kettenliste wiederverwendet — dort ausserhalb der
+      Dreiergruppe ergibt eine Ziffer keinen Sinn. */
   index?: 1 | 2 | 3;
 } & ({ to: string } | { onClick: () => void })) {
   const inner = (
     <>
-      <div className="relative overflow-hidden rounded-2xl aspect-[4/3.3]" style={{ background: 'var(--hero-stage)' }}>
+      <div className="relative overflow-hidden rounded-t-2xl aspect-[4/3]" style={{ background: 'var(--hero-stage)' }}>
         <picture>
-          <source srcSet={`${image}-800.webp 800w, ${image}.webp ${imageW}w`} sizes="(max-width: 640px) 92vw, 30vw" type="image/webp" />
+          <source srcSet={`${image}-800.webp 800w, ${image}.webp ${imageW}w`} sizes="(max-width: 640px) 46vw, 30vw" type="image/webp" />
           <img
             src={`${image}.webp`}
             alt={alt}
@@ -350,39 +383,45 @@ export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, d
         </picture>
         <span aria-hidden className="absolute inset-0"
           style={{ background: dark
-            ? 'linear-gradient(to top, rgba(var(--scrim-rgb),0.82) 0%, rgba(var(--scrim-rgb),0.5) 30%, rgba(var(--scrim-rgb),0.1) 62%, rgba(var(--scrim-rgb),0) 78%)'
-            : 'linear-gradient(to top, rgba(var(--scrim-rgb),0.62) 0%, rgba(var(--scrim-rgb),0.28) 32%, rgba(var(--scrim-rgb),0) 62%)' }} />
-        <div className="absolute left-4 right-4 bottom-4">
-          <p className="flex items-center gap-2 text-meta font-semibold uppercase tracking-[0.1em]" style={{ color: 'rgba(255,255,255,0.78)' }}>
-            {index && (
-              <span className="num-data" style={{ color: 'rgba(255,255,255,0.5)' }}>0{index}</span>
-            )}
-            {eyebrow}
-          </p>
-          <p className="font-display font-bold leading-[1.12] mt-1"
-            style={{ color: '#fff', fontSize: 'clamp(1.15rem, 2vw, 1.4rem)', textShadow: '0 1px 14px rgba(0,0,0,0.35)' }}>
-            {title}
-          </p>
+            ? 'linear-gradient(to top, rgba(var(--scrim-rgb),0.38) 0%, rgba(var(--scrim-rgb),0) 40%)'
+            : 'linear-gradient(to top, rgba(var(--scrim-rgb),0.22) 0%, rgba(var(--scrim-rgb),0) 34%)' }} />
+        {index && (
+          <span className="absolute top-3 left-3 flex items-center justify-center h-6 w-6 rounded-full num-data text-[11px] font-semibold"
+            style={{
+              background: 'rgba(255,255,255,0.94)',
+              color: '#101013',
+              backdropFilter: 'blur(6px)',
+            }}>
+            {index}
+          </span>
+        )}
+      </div>
+
+      <div className="rounded-b-2xl px-3.5 pt-2.5 pb-3 sm:px-4 sm:pt-3 sm:pb-3.5 flex flex-col flex-1" style={{ background: 'var(--sf2)' }}>
+        <p className="eyebrow">{eyebrow}</p>
+        <h3 className="font-display font-bold text-[14px] sm:text-[16px] leading-snug tracking-[-0.01em] mt-0.5" style={{ color: 'var(--tx1)' }}>{title}</h3>
+        <p className="text-[12px] sm:text-[13px] leading-snug mt-1 line-clamp-2" style={{ color: 'var(--txm)' }}>{body}</p>
+
+        {/* Preis und CTA nebeneinander brachen bei ~165px Kachelbreite
+            (2-spaltig mobil) das CTA-Wort um und ueberlappte mit dem Preis
+            darunter — deshalb hier gestapelt auf Mobile (Preis, dann
+            volle-Breite-Button), erst ab sm wieder nebeneinander wo die
+            3-spaltige Reihe genug Platz gibt. */}
+        <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between sm:gap-2 mt-auto pt-2.5">
+          {price && <span className="num text-[14px] sm:text-[15px] font-bold" style={{ color: 'var(--tx1)' }}>{price}</span>}
+          <span
+            className="inline-flex items-center justify-center gap-1 w-full sm:w-auto pl-3 pr-3 py-1.5 rounded-full text-[12px] sm:text-[12.5px] font-semibold"
+            style={{ background: 'var(--accent-wash)', color: 'var(--accent-soft)' }}
+          >
+            {cta}
+            <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" aria-hidden />
+          </span>
         </div>
       </div>
-      <p className="text-[13.5px] leading-relaxed mt-3" style={{ color: 'var(--txm)' }}>{body}</p>
-      {/* Ruhender Zustand fast identisch zum reinen Textlink von vorher (kein
-          Rahmen, kein Fond) — erst beim Hover waechst ein Chip dahinter, in
-          derselben Farbsprache wie der Groessenschalter oben im Regal
-          (--accent-wash/--accent-soft). Macht aus der Bildunterschrift einen
-          Button, ohne im Ruhezustand die "keine gefuellten Kacheln"-Regel zu
-          brechen (DESIGN.md §3). */}
-      <span
-        className="inline-flex items-center gap-1.5 mt-2.5 -ml-3 pl-3 pr-3 py-1.5 rounded-full text-[13px] font-semibold border border-transparent transition-all duration-300 ease-out group-hover:bg-[var(--accent-wash)] group-hover:border-[var(--accent-soft)]"
-        style={{ color: 'var(--accent-soft)' }}
-      >
-        {cta}
-        <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" aria-hidden />
-      </span>
     </>
   );
 
-  const wrapperClass = 'group flex flex-col transition-transform duration-300 ease-out hover:-translate-y-1';
+  const wrapperClass = 'group flex flex-col h-full transition-transform duration-300 ease-out hover:-translate-y-1';
 
   return 'to' in action ? (
     <Link to={action.to} className={wrapperClass}>{inner}</Link>
@@ -484,7 +523,7 @@ export function ProductShelf({ de, t, onOpenChains, onCompare }: {
           Einwand — "ich will kein Wachs schmelzen". Genau so benannt, wird
           aus der Liste ein Argument. */}
       <div>
-        <div className="mb-6">
+        <div className="mb-4 sm:mb-6">
           <h3 className="font-display font-bold leading-tight"
             style={{ fontSize: 'clamp(1.25rem, 2.4vw, 1.65rem)', color: 'var(--tx1)' }}>
             {s.altTitle}
@@ -492,13 +531,14 @@ export function ProductShelf({ de, t, onOpenChains, onCompare }: {
           <p className="text-[13.5px] mt-1.5" style={{ color: 'var(--txm)' }}>{s.altBody}</p>
         </div>
 
-        <div className="grid gap-8 sm:gap-6 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-3 sm:gap-6 sm:grid-cols-3 items-stretch">
         <SecondaryTile
           index={1}
           to="/starter-set"
           image="/images/shelf/starter-box" imageW={1200}
           eyebrow={s.setEyebrow} title={s.setTitle}
-          body={`${s.setBody} ${de ? 'Ab' : 'From'} ${eur(minSetPrice, de)}.`}
+          body={s.setBody}
+          price={`${de ? 'Ab' : 'From'} ${eur(minSetPrice, de)}`}
           cta={s.setCta}
           alt={de ? 'Offener Versandkarton mit Waxcelerate Wachsblöcken' : 'Open shipping box with Waxcelerate wax blocks'}
         />
@@ -508,6 +548,7 @@ export function ProductShelf({ de, t, onOpenChains, onCompare }: {
           image="/images/shelf/chains-flat" imageW={1400}
           eyebrow={s.chainsEyebrow} title={s.chainsTitle}
           body={s.chainsBody}
+          price={`${de ? 'Ab' : 'From'} ${eur(minPrice('chain'), de)}`}
           cta={s.chainsAll}
           alt={de ? 'Vorgewachste Fahrradketten mit Quick-Link auf Schiefer' : 'Pre-waxed bicycle chains with quick link on slate'}
         />
@@ -517,6 +558,7 @@ export function ProductShelf({ de, t, onOpenChains, onCompare }: {
           image="/images/blog/chains-hanging-gold-1600" imageW={1600}
           eyebrow={s.rewaxEyebrow} title={s.rewaxTitle}
           body={s.rewaxBody}
+          price={s.rewaxFrom}
           cta={s.rewaxCta}
           alt={de ? 'Frisch gewachste Ketten hängen zum Aushärten' : 'Freshly waxed chains hanging to cure'}
           dark

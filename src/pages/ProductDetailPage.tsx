@@ -3,7 +3,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
   ArrowLeft, ArrowRight, ExternalLink, Check,
-  ChevronRight, ChevronLeft, ChevronDown, Star, Lightbulb, Truck, RotateCcw, BadgeCheck,
+  ChevronRight, ChevronLeft, ChevronDown, Star, Lightbulb, Truck, RotateCcw, BadgeCheck, Gauge,
 } from 'lucide-react';
 import { getProductById, products, canCheckout, checkoutEnabled, isSoldOut, schemaAvailability, waxIntervals, shipping } from '@/lib/data';
 import type { Product } from '@/lib/data';
@@ -13,6 +13,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { AddToCartButton } from '@/components/AddToCartButton';
 import { trackEbayClick } from '@/lib/analytics';
 import { CartIcon } from '@/components/CartIcon';
+import { GpsrInfo } from '@/components/GpsrInfo';
 import { ImageLightbox } from '@/components/ImageLightbox';
 import { gsap } from '@/lib/gsap';
 import { Footer } from '@/sections/footer';
@@ -627,39 +628,50 @@ export function ProductDetailPage() {
                 hidden/lg:hidden toggles which one is visible, not conditional
                 rendering), so only one may carry real heading semantics. */}
             <h1 className="font-display text-[26px] font-bold leading-[1.08] tracking-[-0.025em] mb-2" style={{ color: 'var(--tx1)' }}>{titleText}</h1>
-            <p className="text-[13px] leading-[1.6] mb-4" style={{ color: 'var(--txm)' }}>{descriptionText}</p>
+            <p className="text-[13px] leading-[1.6] mb-5" style={{ color: 'var(--txm)' }}>{descriptionText}</p>
 
-            {cardBenefits.length > 0 && (
-              <div className="space-y-1.5 mb-4">
-                {cardBenefits.map((b, i) => (
-                  <div key={i} className="flex gap-2 items-start">
-                    <Check className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" style={{ color: accentColor }} />
-                    <p className="text-[12px] leading-[1.5]" style={{ color: 'var(--txm)' }}>{b}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {(product.intervalDry || product.intervalWet) && (
-              <div className="flex items-center gap-6 mb-4 pb-4" style={{ borderBottom: '1px solid var(--bd)' }}>
-                {product.intervalDry && (
-                  <div>
-                    <p className="text-small uppercase tracking-[0.16em] mb-0.5" style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>{de ? 'Trocken' : 'Dry'}</p>
-                    <p className="num text-[20px] font-bold leading-none" style={{ color: 'var(--tx1)' }}>{product.intervalDry}</p>
+            {/* Fakten-Panel — bindet Benefits und Trocken/Nass-Intervall in
+                eine Flaeche statt sie als zwei unverbundene Bloecke
+                (Checkliste ohne Behaelter, dann eine per Trennlinie
+                abgegrenzte Statzeile) hintereinanderzustellen. Gleiches
+                Common-Region-Muster wie WaxPanel im Regal
+                (ProductShelf.tsx): ein var(--sf2)-Ton gruppiert, Fakten
+                stehen als Chips (var(--sf3)) statt als durch eine
+                Trennlinie separierte Werte. */}
+            {(cardBenefits.length > 0 || product.intervalDry || product.intervalWet) && (
+              <div className="rounded-2xl p-4 mb-5" style={{ background: 'var(--sf2)' }}>
+                {cardBenefits.length > 0 && (
+                  <div className="space-y-1.5">
+                    {cardBenefits.map((b, i) => (
+                      <div key={i} className="flex gap-2 items-start">
+                        <Check className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" style={{ color: accentColor }} />
+                        <p className="text-[12px] leading-[1.5]" style={{ color: 'var(--txm)' }}>{b}</p>
+                      </div>
+                    ))}
                   </div>
                 )}
-                {product.intervalDry && product.intervalWet && <div className="w-px h-8" style={{ background: 'var(--bd)' }} />}
-                {product.intervalWet && (
-                  <div>
-                    <p className="text-small uppercase tracking-[0.16em] mb-0.5" style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>{de ? 'Nass' : 'Wet'}</p>
-                    <p className="num text-[20px] font-bold leading-none" style={{ color: 'var(--tx1)' }}>{product.intervalWet}</p>
+
+                {(product.intervalDry || product.intervalWet) && (
+                  <div className={`flex items-center gap-2 ${cardBenefits.length > 0 ? 'mt-3' : ''}`}>
+                    {product.intervalDry && (
+                      <div className="rounded-lg px-3 py-2" style={{ background: 'var(--sf3)', border: '1px solid var(--bd2)' }}>
+                        <p className="text-small uppercase tracking-[0.16em] mb-0.5" style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>{de ? 'Trocken' : 'Dry'}</p>
+                        <p className="num text-[16px] font-bold leading-none" style={{ color: 'var(--tx1)' }}>{product.intervalDry}</p>
+                      </div>
+                    )}
+                    {product.intervalWet && (
+                      <div className="rounded-lg px-3 py-2" style={{ background: 'var(--sf3)', border: '1px solid var(--bd2)' }}>
+                        <p className="text-small uppercase tracking-[0.16em] mb-0.5" style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>{de ? 'Nass' : 'Wet'}</p>
+                        <p className="num text-[16px] font-bold leading-none" style={{ color: 'var(--tx1)' }}>{product.intervalWet}</p>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
             )}
 
             {total > 1 && (
-              <div className="flex gap-2 mb-4">
+              <div className="flex gap-2 mb-5">
                 {gallery.slice(0, 6).map((src, i) => (
                   <button key={i} onClick={() => { goTo(i); pause(); setTimeout(resume, AUTO_INTERVAL); }}
                     aria-label={`${titleText} — Bild ${i + 1}`} aria-current={i === activeImage}
@@ -671,7 +683,7 @@ export function ProductDetailPage() {
               </div>
             )}
 
-            <div className="flex items-end justify-between gap-4 mb-3">
+            <div className="flex items-end justify-between gap-4 mb-4">
               <div>
                 <p className="num text-[28px] font-bold leading-none tracking-[-0.02em]" style={{ color: 'var(--tx1)' }}>{formatPrice(product.price)}</p>
                 <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1">
@@ -694,44 +706,59 @@ export function ProductDetailPage() {
               )}
             </div>
 
-            {/* Same delivery estimate the homepage product cards already show —
-                this page had no delivery-date signal at all before. */}
-            <div className="flex items-center gap-1.5 mb-2 text-meta" style={{ color: 'var(--txff)' }}>
-              <Truck className="h-3 w-3 flex-shrink-0" style={{ color: accentColor }} aria-hidden />
-              {de ? `Lieferung ${deliveryDate}` : `Delivery ${deliveryDate}`}
+            {/* Trust-Streifen — Lieferung, Fahrprofil-Hinweis und
+                Rueckgabe-Hinweis standen vorher als drei separat gestylte
+                Zeilen hintereinander (u. a. die Fahrprofil-Zeile in
+                accentColor + font-semibold, dadurch optisch lauter als die
+                beiden Nachbarzeilen, obwohl sie inhaltlich gleichrangig
+                sind). Jetzt eine Liste mit einheitlicher Zeilengestaltung
+                (Icon in accentColor, Text in txff/txm) unter einer
+                Haarlinie — nach DESIGN.md §3 der Standardbehaelter fuer
+                Listen, hier fuer genau drei kurze Fakten passend (kein
+                Kaufentscheidungs-Panel wie oben, sondern Nebeninfo). */}
+            <div className="space-y-2 pt-4 mb-5" style={{ borderTop: '1px solid var(--bd)' }}>
+              {/* Same delivery estimate the homepage product cards already show —
+                  this page had no delivery-date signal at all before. */}
+              <div className="flex items-center gap-1.5 text-meta" style={{ color: 'var(--txff)' }}>
+                <Truck className="h-3 w-3 flex-shrink-0" style={{ color: accentColor }} aria-hidden />
+                {de ? `Lieferung ${deliveryDate}` : `Delivery ${deliveryDate}`}
+              </div>
+
+              {personalizedWeeks !== null && (
+                <div className="flex items-center gap-1.5 text-meta" style={{ color: 'var(--txm)' }}>
+                  <Gauge className="h-3 w-3 flex-shrink-0" style={{ color: accentColor }} aria-hidden />
+                  {de ? `Basierend auf deinem Fahrprofil: reicht dir noch ~${personalizedWeeks} Wochen` : `Based on your riding profile: lasts you ~${personalizedWeeks} more weeks`}
+                </div>
+              )}
+
+              {/* Risikoabbau am Kaufpunkt (docs/AUDIT.md §11): das Widerrufsrecht
+                  stand bisher nur im Warenkorb, also im abgeschalteten Checkout —
+                  an der Stelle, an der jemand tatsaechlich zoegert, stand nichts.
+                  Bei einem Produkt, das eine Verhaltensaenderung verlangt, ist die
+                  stille Frage nicht "ist es gut", sondern "was, wenn ich damit
+                  nicht klarkomme". Bewusst zwei Saetze: der erste ist die
+                  Rechtslage, der zweite der Ton der Marke.
+                  Vorherige Fassung ("wenn das Wachsen nichts fuer dich ist")
+                  versprach implizit eine Ruecknahme, nachdem der Block schon
+                  angeschmolzen bzw. die Kette schon montiert war — genau das
+                  nimmt Luca nicht zurueck (unverkaeuflich, kein Streitfall).
+                  Jetzt an die tatsaechliche Bedingung geknuepft, ohne die
+                  Einladung zu streichen, sich bei Problemen trotzdem zu melden. */}
+              <div className="flex items-start gap-1.5 text-meta" style={{ color: 'var(--txff)' }}>
+                <RotateCcw className="h-3 w-3 flex-shrink-0 mt-[3px]" style={{ color: accentColor }} aria-hidden />
+                <span>
+                  {de
+                    ? (isWax
+                      ? '14 Tage Rückgaberecht, solange der Block original verpackt ist. Schreib mir gerne trotzdem, wenn etwas nicht passt.'
+                      : '14 Tage Rückgaberecht, solange die Kette nicht montiert wurde. Schreib mir gerne, wenn etwas nicht passt.')
+                    : (isWax
+                      ? '14-day right of return, as long as the block is still sealed. Feel free to write to me anyway if something is not right.'
+                      : '14-day right of return, as long as the chain has not been installed. Feel free to write to me if something is not right.')}
+                </span>
+              </div>
             </div>
 
-            {personalizedWeeks !== null && (
-              <p className="text-meta font-semibold mb-2" style={{ color: accentColor }}>
-                {de ? `Basierend auf deinem Fahrprofil: reicht dir noch ~${personalizedWeeks} Wochen` : `Based on your riding profile: lasts you ~${personalizedWeeks} more weeks`}
-              </p>
-            )}
-
-            {/* Risikoabbau am Kaufpunkt (docs/AUDIT.md §11): das Widerrufsrecht
-                stand bisher nur im Warenkorb, also im abgeschalteten Checkout —
-                an der Stelle, an der jemand tatsaechlich zoegert, stand nichts.
-                Bei einem Produkt, das eine Verhaltensaenderung verlangt, ist die
-                stille Frage nicht "ist es gut", sondern "was, wenn ich damit
-                nicht klarkomme". Bewusst zwei Saetze: der erste ist die
-                Rechtslage, der zweite der Ton der Marke.
-                Vorherige Fassung ("wenn das Wachsen nichts fuer dich ist")
-                versprach implizit eine Ruecknahme, nachdem der Block schon
-                angeschmolzen bzw. die Kette schon montiert war — genau das
-                nimmt Luca nicht zurueck (unverkaeuflich, kein Streitfall).
-                Jetzt an die tatsaechliche Bedingung geknuepft, ohne die
-                Einladung zu streichen, sich bei Problemen trotzdem zu melden. */}
-            <div className="flex items-start gap-1.5 mb-5 text-meta" style={{ color: 'var(--txff)' }}>
-              <RotateCcw className="h-3 w-3 flex-shrink-0 mt-[3px]" style={{ color: accentColor }} aria-hidden />
-              <span>
-                {de
-                  ? (isWax
-                    ? '14 Tage Rückgaberecht, solange der Block original verpackt ist. Schreib mir gerne trotzdem, wenn etwas nicht passt.'
-                    : '14 Tage Rückgaberecht, solange die Kette nicht montiert wurde. Schreib mir gerne, wenn etwas nicht passt.')
-                  : (isWax
-                    ? '14-day right of return, as long as the block is still sealed. Feel free to write to me anyway if something is not right.'
-                    : '14-day right of return, as long as the chain has not been installed. Feel free to write to me if something is not right.')}
-              </span>
-            </div>
+            <GpsrInfo de={de} />
 
             {(alternatives.length > 0 || related.length > 0) && (
               <div className="pt-4" style={{ borderTop: '1px solid var(--bd)' }}>
