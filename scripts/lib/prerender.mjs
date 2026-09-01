@@ -86,9 +86,16 @@ export function stripHead(html) {
 export function buildPage(shell, { head, body }) {
   let html = stripHead(shell);
   html = html.replace('</head>', `${head}\n</head>`);
+  // In <noscript>, nicht direkt in #root: Browser mit aktiviertem JS rendern
+  // <noscript>-Inhalt grundsaetzlich nicht (kein CSS-Timing-Fenster, kein
+  // Paint) — reine Text-Crawler und Nutzer ohne JS sehen ihn weiterhin im
+  // Roh-HTML. Vorher lag der SEO-Fallback ungeschuetzt direkt in #root, und
+  // da createRoot() (src/main.tsx) ihn erst beim ersten React-Commit ersetzt
+  // statt synchron beim Seitenaufbau, blitzte er auf echten Geraeten/Mobilfunk
+  // sichtbar auf, bevor die gestylte App erschien.
   html = html.replace(
     /<div id="root"><\/div>/,
-    `<div id="root">${body}</div>`,
+    `<div id="root"><noscript>${body}</noscript></div>`,
   );
   return html;
 }
