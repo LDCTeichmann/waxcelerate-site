@@ -4,17 +4,26 @@
 // argument on the homepage and had no reason to click. This one shows the joint
 // cycling through its three sliding surfaces without naming them.
 //
-// 08/2026: the drawing (ChainWaxMap in `compact` mode) and the number ("40.280
-// Losbrech-Vorgänge pro Minute", from the separate Breakaway-Rechner in
-// ContactZones.tsx) told two unrelated stories side by side — Lucas Feedback:
-// weder war das Bild ueberzeugend genug, um zum Klicken zu animieren, noch
-// passte die Zahl zu dem, was das Bild zeigt. Jetzt zeigt die grosse Zahl statt
-// eines Hochzaehlers das Kuerzel der gerade hervorgehobenen Zone (01/02/03,
-// exakt synchron zu `active`, das ChainWaxMap bereits zyklisch faerbt), mit dem
-// Zonennamen darunter — Bild und Zahl erzaehlen jetzt dieselbe Geschichte. Die
-// neue `teaser`-Prop auf ChainWaxMap blendet Seitenansicht/Beschriftungen aus
-// und verstaerkt den Kontrast beim Umschalten deutlich (kraeftigeres Blau,
-// Glow), damit der Wechsel nicht mehr uebersehen werden kann.
+// 08/2026: die Zeichnung (ChainWaxMap in `compact` mode) und die Zahl ("40.280
+// Losbrech-Vorgänge pro Minute", aus dem separaten Breakaway-Rechner in
+// ContactZones.tsx) erzaehlten zwei unabhaengige Geschichten nebeneinander —
+// Lucas Feedback: weder war das Bild ueberzeugend genug, um zum Klicken zu
+// animieren, noch passte die Zahl zu dem, was das Bild zeigt.
+//
+// 08/2026, zweiter Durchgang: der erste Fix ersetzte die Zahl durch das
+// Zonenkuerzel, liess das Bild dabei aber auf `hidden sm:block` stehen — auf
+// dem Handy (Lucas eigentliches Testgeraet) blieb dadurch nur ein Textblock
+// ohne jedes Bild uebrig, plus ein zweizeiliges Label ("… / gerade im Fokus"),
+// das er zu Recht als seltsam formatiert zurueckmeldete. Beides behoben:
+// das Bild ist jetzt auf JEDER Breite sichtbar (kein `hidden` mehr — im
+// eher einspaltigen `grid` unterhalb `sm:` faellt es einfach unter den Text),
+// und statt eines separaten Zahlenblocks in der Textspalte traegt das Bild
+// jetzt seine eigene, einzeilige Live-Bildunterschrift ("Zone 01 · Bolzen ↔
+// Kragen", ein pulsierender Punkt statt zweier gestapelter Zeilen) direkt
+// darunter — Bild und Beschriftung liegen jetzt auch raeumlich beieinander,
+// nicht mehr auseinandergerissen in zwei Spalten. Die `teaser`-Prop auf
+// ChainWaxMap (Seitenansicht/Beschriftungen ausgeblendet, kraeftigeres Blau +
+// Glow auf der aktiven Flaeche) bleibt unveraendert.
 
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -91,17 +100,6 @@ export function ScienceTeaser({ de }: { de: boolean }) {
           {de ? 'Reibung entsteht an genau drei Flächen.' : 'Friction happens at exactly three surfaces.'}
         </h3>
 
-        <div className="flex items-end gap-5 mt-6">
-          <p className="num-data font-bold leading-none tabular-nums"
-            style={{ fontSize: 'clamp(1.7rem, 3.6vw, 2.3rem)', letterSpacing: '-0.04em', color: 'var(--accent)', transition: 'color .3s' }}>
-            {zone.n}
-          </p>
-          <p className="text-small uppercase tracking-[0.13em] leading-relaxed pb-1" style={{ color: 'var(--txff)' }}>
-            {de ? zone.de : zone.en}<br />
-            {de ? 'gerade im Fokus' : 'in focus now'}
-          </p>
-        </div>
-
         <span className="inline-flex items-center gap-2 text-[13.5px] font-semibold mt-6"
           style={{ color: 'var(--tx1)' }}>
           {de ? 'Kontaktzonen, Formel, Mikroskopie' : 'Contact zones, formula, microscopy'}
@@ -110,8 +108,21 @@ export function ScienceTeaser({ de }: { de: boolean }) {
         </span>
       </div>
 
-      <div className="hidden sm:block" aria-hidden>
-        <ChainWaxMap de={de} active={active} teaser />
+      {/* Bild + Live-Beschriftung als eine Einheit: die Zeile darunter nennt
+          exakt die Flaeche, die im Bild gerade glueht — kein separater
+          Zahlenblock mehr in der Textspalte, der auf Mobile ohnehin ohne Bild
+          danebenstand. */}
+      <div>
+        <div aria-hidden>
+          <ChainWaxMap de={de} active={active} teaser />
+        </div>
+        <p className="flex items-center gap-2 mt-3 text-small" style={{ color: 'var(--txm)' }}>
+          <span aria-hidden className="inline-block rounded-full flex-shrink-0"
+            style={{ width: 6, height: 6, background: 'var(--accent)', boxShadow: '0 0 6px rgba(var(--accent-rgb),0.8)' }} />
+          <span className="num-data font-semibold" style={{ color: 'var(--tx1)' }}>{zone.n}</span>
+          <span style={{ color: 'var(--txff)' }}>·</span>
+          {de ? zone.de : zone.en}
+        </p>
       </div>
     </Link>
   );
