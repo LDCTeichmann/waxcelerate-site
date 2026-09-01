@@ -259,13 +259,14 @@ export function Products() {
               )}
 
               {/* Rewax-Karte steht normalerweise im Regal (ProductShelf,
-                  neben Set und Ketten) — aber das Regal ist hier ausgeblendet,
-                  solange die Liste offen ist. Ohne diese Kopie waere die
-                  Rewax-Retention ausgerechnet fuer die Person unsichtbar, die
-                  sich gerade am tiefsten mit Ketten beschaeftigt. Eine
-                  einzelne Kachel, schmaler als die volle Dreierreihe, damit
-                  sie nicht wie eine vierte Kettenkarte aussieht. */}
-              <div className="max-w-sm mt-10">
+                  unter Set und Ketten) — aber das Regal ist hier
+                  ausgeblendet, solange die Liste offen ist. Ohne diese Kopie
+                  waere die Rewax-Retention ausgerechnet fuer die Person
+                  unsichtbar, die sich gerade am tiefsten mit Ketten
+                  beschaeftigt. Eine einzelne Kachel, schmaler als die volle
+                  Sektionsbreite, damit sie nicht wie eine vierte Kettenkarte
+                  aussieht. */}
+              <div className="max-w-xl mt-10">
                 <SecondaryTile
                   to="/kette-wachsen-lassen"
                   image="/images/blog/chains-hanging-gold-1600" imageW={1600}

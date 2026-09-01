@@ -370,9 +370,14 @@ export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, p
 } & ({ to: string } | { onClick: () => void })) {
   const inner = (
     <>
-      <div className="relative overflow-hidden rounded-t-2xl aspect-[4/3]" style={{ background: 'var(--hero-stage)' }}>
+      {/* Bild links, feste Breite statt voller Kachelbreite — dadurch liegt
+          der Text daneben statt darunter und die Karte wird breit statt
+          hochformatig-lang (Lucas Wunsch: "nicht länglich, sondern
+          breiter"). Nur linke Ecken gerundet, geht nahtlos in den
+          Textblock rechts über. */}
+      <div className="relative overflow-hidden rounded-l-2xl w-28 sm:w-40 md:w-48 flex-shrink-0 aspect-square" style={{ background: 'var(--hero-stage)' }}>
         <picture>
-          <source srcSet={`${image}-800.webp 800w, ${image}.webp ${imageW}w`} sizes="(max-width: 640px) 46vw, 30vw" type="image/webp" />
+          <source srcSet={`${image}-800.webp 800w, ${image}.webp ${imageW}w`} sizes="(max-width: 640px) 30vw, 15vw" type="image/webp" />
           <img
             src={`${image}.webp`}
             alt={alt}
@@ -386,7 +391,7 @@ export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, p
             ? 'linear-gradient(to top, rgba(var(--scrim-rgb),0.38) 0%, rgba(var(--scrim-rgb),0) 40%)'
             : 'linear-gradient(to top, rgba(var(--scrim-rgb),0.22) 0%, rgba(var(--scrim-rgb),0) 34%)' }} />
         {index && (
-          <span className="absolute top-3 left-3 flex items-center justify-center h-6 w-6 rounded-full num-data text-[11px] font-semibold"
+          <span className="absolute top-2.5 left-2.5 flex items-center justify-center h-6 w-6 rounded-full num-data text-[11px] font-semibold"
             style={{
               background: 'rgba(255,255,255,0.94)',
               color: '#101013',
@@ -397,21 +402,24 @@ export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, p
         )}
       </div>
 
-      <div className="rounded-b-2xl px-3.5 pt-2.5 pb-3 sm:px-4 sm:pt-3 sm:pb-3.5 flex flex-col flex-1" style={{ background: 'var(--sf2)' }}>
+      <div className="rounded-r-2xl px-4 py-3 sm:px-5 sm:py-4 flex flex-col justify-center flex-1 min-w-0" style={{ background: 'var(--sf2)' }}>
         <p className="eyebrow">{eyebrow}</p>
-        <h3 className="font-display font-bold text-[14px] sm:text-[16px] leading-snug tracking-[-0.01em] mt-0.5" style={{ color: 'var(--tx1)' }}>{title}</h3>
-        <p className="text-[12px] sm:text-[13px] leading-snug mt-1 line-clamp-2" style={{ color: 'var(--txm)' }}>{body}</p>
+        <h3 className="font-display font-bold text-[15px] sm:text-[17px] leading-snug tracking-[-0.01em] mt-0.5" style={{ color: 'var(--tx1)' }}>{title}</h3>
+        <p className="text-[12.5px] sm:text-[13.5px] leading-snug mt-1 line-clamp-2 sm:line-clamp-none" style={{ color: 'var(--txm)' }}>{body}</p>
 
-        {/* Preis und CTA nebeneinander brachen bei ~165px Kachelbreite
-            (2-spaltig mobil) das CTA-Wort um und ueberlappte mit dem Preis
-            darunter — deshalb hier gestapelt auf Mobile (Preis, dann
-            volle-Breite-Button), erst ab sm wieder nebeneinander wo die
-            3-spaltige Reihe genug Platz gibt. */}
-        <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between sm:gap-2 mt-auto pt-2.5">
-          {price && <span className="num text-[14px] sm:text-[15px] font-bold" style={{ color: 'var(--tx1)' }}>{price}</span>}
+        {/* Der schmale Textbereich neben dem Bild reicht auf Mobile nicht
+            fuer Preis und den vollen CTA-Text nebeneinander — das schnitt
+            z.B. "Set zusammenstellen" hart am Kartenrand ab. Deshalb
+            gestapelt (Preis, dann volle-Breite-Button) bis sm, erst ab da
+            genug Breite fuer eine Zeile. CTA als eigenstaendiger,
+            gefuellter Button statt einer leicht getoenten Pille im
+            Fliesstext-Stil — dieselbe Buy-Button-Grammatik wie die anderen
+            Kauf-CTAs in dieser Datei (var(--cta-bg)/var(--cta-fg)). */}
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3 mt-2.5 sm:mt-3">
+          {price && <span className="num text-[14px] sm:text-[16px] font-bold flex-shrink-0" style={{ color: 'var(--tx1)' }}>{price}</span>}
           <span
-            className="inline-flex items-center justify-center gap-1 w-full sm:w-auto pl-3 pr-3 py-1.5 rounded-full text-[12px] sm:text-[12.5px] font-semibold"
-            style={{ background: 'var(--accent-wash)', color: 'var(--accent-soft)' }}
+            className="inline-flex items-center justify-center gap-1.5 min-h-9 sm:min-h-10 px-4 rounded-full text-[12px] sm:text-[13px] font-semibold w-full sm:w-auto flex-shrink-0 transition-all duration-200 group-hover:opacity-90"
+            style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
           >
             {cta}
             <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" aria-hidden />
@@ -421,12 +429,13 @@ export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, p
     </>
   );
 
-  const wrapperClass = 'group flex flex-col h-full transition-transform duration-300 ease-out hover:-translate-y-1';
+  const wrapperClass = 'group flex flex-row items-stretch rounded-2xl overflow-hidden transition-all duration-200 ease-out hover:border-[var(--accent-soft)]';
+  const wrapperStyle = { border: '1px solid var(--bd)' };
 
   return 'to' in action ? (
-    <Link to={action.to} className={wrapperClass}>{inner}</Link>
+    <Link to={action.to} className={wrapperClass} style={wrapperStyle}>{inner}</Link>
   ) : (
-    <button type="button" onClick={action.onClick} className={`${wrapperClass} text-left`}>{inner}</button>
+    <button type="button" onClick={action.onClick} className={`${wrapperClass} text-left`} style={wrapperStyle}>{inner}</button>
   );
 }
 
@@ -531,7 +540,7 @@ export function ProductShelf({ de, t, onOpenChains, onCompare }: {
           <p className="text-[13.5px] mt-1.5" style={{ color: 'var(--txm)' }}>{s.altBody}</p>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:gap-6 sm:grid-cols-3 items-stretch">
+        <div className="flex flex-col gap-3 sm:gap-4">
         <SecondaryTile
           index={1}
           to="/starter-set"
