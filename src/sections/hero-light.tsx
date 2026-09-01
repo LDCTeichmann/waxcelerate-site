@@ -236,6 +236,8 @@ export function Hero() {
   const scrollTo = (href: string) =>
     document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
 
+  const subtitleParts = t.hero.subtitle.split(' · ');
+
   const stats = [
     { v: `${waxVsOil.life.waxLo}–${waxVsOil.life.wax}×`, l: de ? 'Kettenlaufzeit'    : 'chain life' },
     { v: '~€70',  l: de ? 'gespart · 12.000 km' : 'saved · 12,000 km' },
@@ -332,7 +334,7 @@ export function Hero() {
               recognizable box+chain+hillside composition, which an extreme
               vertical object-cover crop would have destroyed. Reverts to the
               original absolute-inset-0 behavior at sm: and up. */}
-          <div ref={imgRef} className="relative h-[30dvh] min-h-[220px] max-h-[280px] overflow-hidden sm:h-auto sm:min-h-0 sm:max-h-none sm:absolute sm:inset-0 will-change-transform">
+          <div ref={imgRef} className="relative h-[34dvh] min-h-[240px] max-h-[320px] overflow-hidden sm:h-auto sm:min-h-0 sm:max-h-none sm:absolute sm:inset-0 will-change-transform">
             {bgImg}
 
             {/* Blur already pushes the chain to atmospheric bokeh; this overlay only
@@ -397,7 +399,13 @@ export function Hero() {
                 comment already flags for two side-by-side buttons, just
                 recreated vertically. Moving it onto the photo (where desktop
                 already puts the same affordance, on the wax block) keeps it
-                reachable without adding a fourth line of text to read. */}
+                reachable without adding a fourth line of text to read.
+                Stays bottom-right (re-verified against the re-cropped photo,
+                see the object-position note in index.css): that corner now
+                shows calm stone ledge, not the dense mid-chain texture the
+                old, tighter crop put there — a top placement was tried and
+                discarded, it competed with the headline for first-glance
+                attention instead of reading as a quiet secondary hint. */}
             <button
               data-hero
               onClick={openDive}
@@ -542,7 +550,23 @@ export function Hero() {
                     className="text-small uppercase font-semibold"
                     style={{ letterSpacing: '0.14em', color: 'rgba(255,255,255,0.72)' }}
                   >
-                    {t.hero.subtitle}
+                    {/* "Waxcelerate · Heißwachs · Stuttgart" (and its EN
+                        equivalent) don't fit the ~310px column left after the
+                        rule+gap at 390px width — the browser wrapped mid-
+                        phrase, orphaning "· Stuttgart" alone on its own line.
+                        Splitting on the brand's own " · " (present in both
+                        locales) turns that accidental break into a
+                        deliberate two-line stack on mobile; sm: and up keeps
+                        the original single line, unchanged. */}
+                    {subtitleParts.length > 1 ? (
+                      <>
+                        <span className="block sm:inline">{subtitleParts[0]}</span>
+                        <span className="hidden sm:inline"> · </span>
+                        <span className="block sm:inline">{subtitleParts.slice(1).join(' · ')}</span>
+                      </>
+                    ) : (
+                      t.hero.subtitle
+                    )}
                   </p>
                 </div>
 
