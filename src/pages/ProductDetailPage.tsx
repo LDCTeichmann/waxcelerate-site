@@ -1112,6 +1112,15 @@ export function ProductDetailPage() {
                       </Link>
                     </p>
                   )}
+                  {isChain && (
+                    <p className="text-[12px] mt-4" style={{ color: 'var(--txff)' }}>
+                      {de ? 'Kette schon durch? ' : 'Chain due for a refresh? '}
+                      <Link to="/kette-wachsen-lassen"
+                        className="underline underline-offset-2" style={{ color: accentColor }}>
+                        {de ? 'Rewax-Service anfragen →' : 'Request the rewax service →'}
+                      </Link>
+                    </p>
+                  )}
                 </div>
               )}
 

@@ -202,7 +202,7 @@ export const translations = {
       },
       rewax: {
         title: 'Re-Waxen',
-        note: '',
+        note: 'Lieber nicht selbst wachsen? Wir übernehmen das, ab 9,95 € pro Kette.',
         steps: [
           'Kette abnehmen (Kettenschloss öffnen) — frisch gewaxte Kette montieren und weiterfahren',
           'Abgezogene Kette mit kochendem Wasser übergießen — altes Wachs löst sich und läuft ab',
@@ -560,7 +560,7 @@ export const translations = {
       },
       rewax: {
         title: 'Re-waxing',
-        note: '',
+        note: 'Would rather not do it yourself? We take care of it, from 9.95 € per chain.',
         steps: [
           'Remove chain (open quick link) — install freshly waxed chain and keep riding',
           'Pour boiling water over the removed chain — old wax dissolves and runs off',

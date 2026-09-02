@@ -155,8 +155,17 @@ export function StarterSetPage() {
                 bodyEn: 'Opens and closes the link.',
                 shipping: false,
               },
+              {
+                key: 'rewax',
+                href: '/kette-wachsen-lassen',
+                nameDe: 'Kette wachsen lassen', nameEn: 'Get your chain rewaxed',
+                price: 13.95,
+                bodyDe: 'Kein Bock aufs Selberwachsen? Wir übernehmen das, ab 9,95 € pro Kette.',
+                bodyEn: 'Would rather not do it yourself? We take care of it, from 9.95 € per chain.',
+                shipping: false,
+              },
             ].map(a => (
-              <Link key={a.key} to={`/zubehoer/${a.slug}`}
+              <Link key={a.key} to={a.href ?? `/zubehoer/${a.slug}`}
                 className="flex items-baseline justify-between gap-5 py-4 transition-opacity hover:opacity-80"
                 style={{ borderBottom: '1px solid var(--bd2)' }}>
                 <div className="min-w-0">

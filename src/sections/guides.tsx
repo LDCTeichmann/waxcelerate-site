@@ -161,6 +161,19 @@ export function Guides() {
                               </li>
                             ))}
                           </ol>
+                          {/* Nur beim Rewax-Item, nicht im generischen
+                              note-Renderer oben (der gilt fuer alle drei
+                              Guides) — sonst muesste der note-Text durch
+                              einen Link-Parser laufen, nur damit dieses eine
+                              Item einen echten Link bekommt. */}
+                          {guide.id === 'rewax' && (
+                            <Link to="/kette-wachsen-lassen"
+                              className="inline-flex items-center gap-1.5 mt-4 text-xs font-semibold"
+                              style={{ color: 'var(--accent)' }}>
+                              {de ? 'Lieber einschicken? Service ansehen' : 'Prefer to send it in? See the service'}
+                              <ArrowRight className="h-3 w-3" aria-hidden />
+                            </Link>
+                          )}
                         </div>
                       </div>
                     </div>
