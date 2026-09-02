@@ -16,13 +16,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useLocation } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Check, X, Gift, User, ChevronDown } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Gift, User, ChevronDown } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
 
 import { Navigation } from '@/sections/navigation';
 import { Footer } from '@/sections/footer';
 import { BackLink } from '@/components/BackLink';
+import { SegmentedToggle, Chain } from '@/components/viz';
 
 // One tap, no form, no scrolling to a contact section that may or may not be
 // reachable from a route. The previous CTA pointed at /#kontakt and did not
@@ -104,15 +105,21 @@ const FIVE_CARD = {
 const eur = (n: number, de: boolean) =>
   n.toLocaleString(de ? 'de-DE' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
 
-// ─── Stamp card ──────────────────────────────────────────────────────────────
-// Chain-link glyphs, one row of five or two of five. Not a real punch card,
-// just the shape of one, so the offer explains itself before the price is
-// read. Parameterized over count/price/list so the same card serves both the
-// five- and ten-visit tiers instead of two near-duplicate components.
-function StampCard({ de, count, price, list, gift, recommended }: {
-  de: boolean; count: number; price: number; list: number; gift: boolean; recommended?: boolean;
-}) {
-  const label = de ? `${count}er-Karte` : `${count}-visit card`;
+// ─── Prepaid card ────────────────────────────────────────────────────────────
+// One card, not two near-identical ones. A 5x/10x segmented toggle switches
+// the tier; price, savings and the WhatsApp message all follow. The chain
+// illustration (shared with the science page) replaces the old grid of
+// dashed placeholder squares — a single calm graphic instead of a checkbox
+// wall, with the count carried by a text line instead of by repeating icons.
+function PrepaidCard({ de }: { de: boolean }) {
+  const [tier, setTier] = useState<'five' | 'ten'>('ten');
+  const [gift, setGift] = useState(false);
+  const card = tier === 'ten' ? TEN_CARD : FIVE_CARD;
+  const recommended = tier === 'ten';
+  const savings = card.list - card.price;
+  const pct = Math.round((1 - card.price / card.list) * 100);
+  const label = de ? `${card.count}er-Karte` : `${card.count}-visit card`;
+
   const waMsg = gift
     ? (de
       ? `Hi Luca, ich möchte die ${label} als Geschenk bestellen. Name der beschenkten Person: `
@@ -122,14 +129,14 @@ function StampCard({ de, count, price, list, gift, recommended }: {
       : `Hi Luca, I would like to order the ${label}.`);
 
   return (
-    <div className="rounded-2xl p-6 sm:p-7 flex flex-col h-full"
+    <div className="rounded-2xl p-6 sm:p-8 max-w-md"
       style={{
-        background: recommended ? 'var(--accent-wash-sm)' : 'var(--sf)',
-        border: recommended ? '1px solid rgba(var(--accent-rgb),0.22)' : '1px solid var(--bd)',
+        background: 'var(--accent-wash-sm)',
+        border: '1px solid rgba(var(--accent-rgb),0.22)',
         boxShadow: 'var(--card-shad)',
       }}>
       <div className="flex items-baseline justify-between mb-5">
-        <p className="text-small uppercase tracking-[0.18em]" style={{ color: recommended ? 'var(--accent)' : 'var(--txf)' }}>
+        <p className="text-small uppercase tracking-[0.18em]" style={{ color: 'var(--accent)' }}>
           {label}
         </p>
         {recommended && (
@@ -140,108 +147,64 @@ function StampCard({ de, count, price, list, gift, recommended }: {
         )}
       </div>
 
-      <div className="grid grid-cols-5 gap-2.5">
-        {Array.from({ length: count }, (_, i) => (
-          <div key={i} className="relative rounded-lg flex items-center justify-center"
-            style={{ aspectRatio: '1 / 1', border: '1px dashed var(--bd)', background: 'var(--sf2)' }}>
-            <svg viewBox="0 0 40 20" className="w-[68%]" aria-hidden>
-              <rect x="2" y="4" width="22" height="12" rx="6" fill="none" stroke="var(--bd)"
-                style={{ strokeWidth: 'var(--dw-hair)' }} />
-              <rect x="16" y="4" width="22" height="12" rx="6" fill="none" stroke="var(--bd)"
-                style={{ strokeWidth: 'var(--dw-hair)' }} />
-              <circle cx="8" cy="10" r="2.4" fill="var(--bd)" />
-              <circle cx="32" cy="10" r="2.4" fill="var(--bd)" />
-            </svg>
-          </div>
-        ))}
+      <SegmentedToggle
+        ariaLabel={de ? 'Kartengröße wählen' : 'Choose card size'}
+        options={[
+          { value: 'five', label: '5×' },
+          { value: 'ten', label: '10×' },
+        ]}
+        value={tier}
+        onChange={setTier}
+      />
+
+      <div className="mt-6 rounded-xl p-4" style={{ background: 'var(--sf)', border: '1px solid var(--bd2)' }}>
+        <Chain state="wax" className="h-9 sm:h-10" />
+        <p className="num-data text-meta mt-2" style={{ color: 'var(--txf)' }}>
+          {de ? `${card.count}× Waschen & Wachsen` : `${card.count}× wash & wax`}
+        </p>
       </div>
 
       <div className="flex items-baseline gap-3 mt-6">
-        <p className="font-display font-bold text-wx-tx1 leading-none" style={{ fontSize: '2rem', letterSpacing: '-0.02em' }}>
-          {eur(price, de)}
+        <p className="font-display font-bold text-wx-tx1 leading-none" style={{ fontSize: '2.2rem', letterSpacing: '-0.02em' }}>
+          {eur(card.price, de)}
         </p>
         <p className="num-data text-[12.5px] line-through" style={{ color: 'var(--txff)' }}>
-          {eur(list, de)}
+          {eur(card.list, de)}
         </p>
       </div>
-      <p className="text-[12.5px] mt-1.5 mb-5" style={{ color: 'var(--txf)' }}>
+      <p className="text-[13px] mt-1.5" style={{ color: 'var(--accent)' }}>
+        {de ? `Du sparst ${eur(savings, de)} (${pct}%)` : `You save ${eur(savings, de)} (${pct}%)`}
+      </p>
+      <p className="text-[12.5px] mt-1" style={{ color: 'var(--txf)' }}>
         {de
-          ? `${eur(price / count, de)} je Vorgang · kein Ablaufdatum, übertragbar`
-          : `${eur(price / count, de)} per treatment · no expiry, transferable`}
+          ? `${eur(card.price / card.count, de)} je Vorgang · kein Ablaufdatum, übertragbar`
+          : `${eur(card.price / card.count, de)} per treatment · no expiry, transferable`}
       </p>
 
-      <div className="flex-1" />
+      <div className="inline-flex rounded-full p-1 mt-6" style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)' }}>
+        {([
+          { key: false, labelDe: 'Für mich', labelEn: 'For me', Icon: User },
+          { key: true, labelDe: 'Als Geschenk', labelEn: 'As a gift', Icon: Gift },
+        ] as const).map(({ key, labelDe, labelEn, Icon }) => (
+          <button key={String(key)} type="button" onClick={() => setGift(key)}
+            className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-semibold transition-colors"
+            style={{
+              background: gift === key ? 'var(--accent)' : 'transparent',
+              color: gift === key ? '#fff' : 'var(--txm)',
+            }}>
+            <Icon className="h-3.5 w-3.5" aria-hidden />
+            {de ? labelDe : labelEn}
+          </button>
+        ))}
+      </div>
 
       <a href={`https://wa.me/4915751957470?text=${encodeURIComponent(waMsg)}`}
         target="_blank" rel="noopener noreferrer"
-        className="inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-[14px] font-semibold transition-opacity hover:opacity-90"
+        className="inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 mt-4 text-[14px] font-semibold transition-opacity hover:opacity-90"
         style={{ background: 'var(--accent)', color: '#fff' }}>
         {gift ? (de ? 'Als Geschenk anfragen' : 'Request as a gift') : (de ? 'Karte anfragen' : 'Request this card')}
         {gift ? <Gift className="h-4 w-4" /> : <ArrowRight className="h-4 w-4" />}
       </a>
-    </div>
-  );
-}
-
-// ─── Steps ───────────────────────────────────────────────────────────────────
-// Der Ablauf ist das eigentliche Verkaufsargument dieser Seite: Es ist ein
-// Umschlag, sonst nichts. Vorher stand die Ziffer klein und grau UNTER dem
-// Bild, zwischen Foto und Ueberschrift — an der Stelle liest sie niemand als
-// Reihenfolge, sie sah aus wie eine Bildunterschrift. Jetzt sitzt sie gross im
-// Foto, sodass die Drei-Schritt-Folge schon beim Ueberfliegen erkennbar ist,
-// und die Texte sind auf je einen Satz gekuerzt: Ein Ablauf, der mit drei
-// Absaetzen erklaert werden muss, wirkt nicht mehr einfach.
-function Steps({ de }: { de: boolean }) {
-  const steps = [
-    {
-      n: '1',
-      de: 'Du schickst die Kette', en: 'You send the chain',
-      bodyDe: 'Am Quick-Link öffnen, in einen Umschlag, fertig. Reinigen musst du nichts.',
-      bodyEn: 'Open it at the quick link, into an envelope, done. No cleaning needed.',
-      img: '/images/rewax/step-1',
-    },
-    {
-      n: '2',
-      de: 'Wir waschen und wachsen', en: 'We wash and wax',
-      bodyDe: 'Kochendes Wasser löst altes Wachs samt Dreck, ganz ohne Lösemittel. Danach ins frische Bad.',
-      bodyEn: 'Boiling water releases the old wax along with the grit, no solvents. Then into a fresh bath.',
-      img: '/images/rewax/step-2',
-    },
-    {
-      n: '3',
-      de: 'Du bekommst sie zurück', en: 'You get it back',
-      bodyDe: 'Ausgehärtet, Glieder freigebrochen, trocken verpackt. Anbauen, kurz kurbeln, los.',
-      bodyEn: 'Cured, links broken free, packed dry. Fit it, turn the cranks once, ride.',
-      img: '/images/rewax/step-3',
-    },
-  ];
-
-  return (
-    <div className="grid sm:grid-cols-3 gap-6 sm:gap-8">
-      {steps.map(s => (
-        <div key={s.n}>
-          <div className="relative rounded-xl overflow-hidden mb-4"
-            style={{ aspectRatio: '4 / 3', background: 'var(--sf2)' }}>
-            <img src={`${s.img}.webp`} srcSet={`${s.img}-800.webp 800w, ${s.img}.webp 1200w`}
-              sizes="(max-width: 640px) 92vw, 33vw"
-              alt="" aria-hidden loading="lazy" decoding="async"
-              className="absolute inset-0 w-full h-full object-cover" />
-            <div aria-hidden className="absolute inset-0"
-              style={{ background: 'linear-gradient(135deg, rgba(var(--scrim-rgb),0.55) 0%, transparent 52%)' }} />
-            <span aria-hidden
-              className="absolute left-4 top-2 font-display font-bold leading-none"
-              style={{ fontSize: 'clamp(2.6rem, 5vw, 3.4rem)', color: 'rgba(255,255,255,0.94)', letterSpacing: '-0.03em' }}>
-              {s.n}
-            </span>
-          </div>
-          <h3 className="font-display font-bold text-wx-tx1 leading-tight" style={{ fontSize: '1.2rem' }}>
-            {de ? s.de : s.en}
-          </h3>
-          <p className="text-[14px] leading-relaxed mt-2" style={{ color: 'var(--txm)' }}>
-            {de ? s.bodyDe : s.bodyEn}
-          </p>
-        </div>
-      ))}
     </div>
   );
 }
@@ -325,7 +288,6 @@ export function RewaxPage() {
   const { lang } = useLanguage();
   const de = lang === 'de';
   const location = useLocation();
-  const [isGift, setIsGift] = useState(false);
   const waxedOn = useMemo(
     () => waxedFromLocation(),
     [location.search, location.hash],
@@ -375,16 +337,6 @@ export function RewaxPage() {
     ],
   });
 
-  const yes = [
-    de ? 'Ketten, die schon gewachst sind, egal von wem' : 'Chains that are already waxed, whoever waxed them',
-    de ? 'Unsere vorgewachsten Ketten' : 'Our own pre-waxed chains',
-    de ? 'Alle gängigen 9 bis 12 fach Ketten' : 'All common 9 to 12 speed chains',
-  ];
-  const no = [
-    de ? 'Geölte Ketten entfetten und erstmalig wachsen' : 'Degreasing an oiled chain and waxing it for the first time',
-    de ? 'Ketten mit Flüssigwachs-Resten aus dem Ölbetrieb' : 'Chains carrying drip-wax residue from oil use',
-  ];
-
   // Mobile-Plan B8, Punkt 4: vier FAQ-Fragen entlang der im Plan gelisteten
   // Suchbegriffe ("was kostet kette wachsen lassen", "fahrradkette wachsen
   // lassen kosten", "wo kann ich meine fahrradkette wachsen lassen", "kette
@@ -395,7 +347,9 @@ export function RewaxPage() {
   // von den echten Preisen abweichen kann. Leipzig bewusst nicht erwaehnt —
   // das laut Plan noch offene D-M2-Thema braucht erst Luca's Bestaetigung,
   // ob der Standort noch aktiv ist.
-  const faqItems = [
+  const faqItems: {
+    q: string; a: string; link?: { to: string; labelDe: string; labelEn: string };
+  }[] = [
     {
       q: de ? 'Was kostet es, eine Fahrradkette wachsen zu lassen?' : 'How much does it cost to get a chain rewaxed?',
       a: de
@@ -409,10 +363,27 @@ export function RewaxPage() {
         : `From three chains the price drops to ${eur(PRICE.bundle, de)} per chain. Return shipping (${eur(PRICE.shipping, de)}) is charged only once, no matter how many chains are in the same envelope.`,
     },
     {
+      // Absorbiert den frueheren eigenen "Ablauf"-Sektionskopf mit den drei
+      // Foto-Schritten — die Kurzfassung steht jetzt im Hero, die Details hier.
+      q: de ? 'Wie läuft das Rewaxen ab?' : 'How does the rewaxing process work?',
+      a: de
+        ? 'Kette am Quick-Link öffnen, in den Umschlag, einschicken — reinigen musst du vorher nichts. Wir lösen das alte Wachs mit kochendem Wasser, ganz ohne Lösemittel, und wachsen sie danach in einem frischen Bad neu. Zurück kommt sie ausgehärtet, Glieder freigebrochen, trocken verpackt — anbauen, kurz kurbeln, fertig.'
+        : 'Open the chain at the quick link, put it in an envelope, send it in — no cleaning needed beforehand. We release the old wax with boiling water, no solvents, then wax it fresh in a clean bath. It comes back cured, links broken free, packed dry — fit it, turn the cranks, ride.',
+    },
+    {
       q: de ? 'Wo kann ich meine Fahrradkette wachsen lassen?' : 'Where can I get my bicycle chain waxed?',
       a: de
         ? 'Bei uns in Stuttgart — du musst aber nicht vor Ort sein. Du schickst die Kette per Post ein, wir wachsen sie von Hand und schicken sie zurück. Das funktioniert deutschlandweit.'
         : "With us in Stuttgart — but you don't need to be local. You send the chain by mail, we hand-wax it and send it back. This works nationwide within Germany.",
+    },
+    {
+      // Absorbiert die frühere eigene "Umfang"-Sektion (Ja/Nein-Liste + der
+      // Grund, warum eine ölige Kette nicht geht).
+      q: de ? 'Welche Ketten nehmt ihr an?' : 'Which chains do you accept?',
+      a: de
+        ? 'Jede Kette, die schon gewachst ist — unsere oder fremde, alle gängigen 9- bis 12-fach-Ketten. Was wir nicht machen: eine geölte Kette entfetten und erstmals wachsen. Eine einzige ölige Kette macht ein ganzes Wachsbad unbrauchbar, weil das Öl oben schwimmt und das Wachs nicht mehr in die Gelenke kommt.'
+        : "Any chain that's already waxed — ours or someone else's, all common 9 to 12 speed chains. What we don't do: degrease an oiled chain and wax it for the first time. A single oily chain ruins an entire wax bath, because the oil floats on top and blocks the wax from reaching the joints.",
+      link: { to: '/#anleitungen', labelDe: 'Zur Anleitung für den Umstieg', labelEn: 'To the switching guide' },
     },
     {
       // Absorbiert die Intervall-Tabelle, die frueher als eigenes
@@ -512,19 +483,28 @@ export function RewaxPage() {
             </p>
           </div>
         </div>
-      </section>
 
-      {/* ── Steps ── */}
-      <section className="py-14 sm:py-20" style={{ borderTop: '1px solid var(--bd2)', background: 'var(--sf)' }}>
-        <div className={W}>
-          <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
-            {de ? 'Ablauf' : 'How it works'}
-          </p>
-          <h2 className="font-display font-bold text-wx-tx1 leading-tight mb-10"
-            style={{ fontSize: 'clamp(1.7rem, 3.4vw, 2.4rem)', letterSpacing: '-0.02em' }}>
-            {de ? 'Drei Schritte, ein Umschlag.' : 'Three steps, one envelope.'}
-          </h2>
-          <Steps de={de} />
+        {/* Kompakter Ablauf-Streifen, kein eigener Sektionskopf: das
+            "ist nur ein Umschlag"-Argument soll sofort sichtbar sein, nicht
+            erst im eingeklappten FAQ. Details stehen dort trotzdem, für wer
+            sie will. */}
+        <div className={`${W} mt-12 pt-10 grid sm:grid-cols-3 gap-6`} style={{ borderTop: '1px solid var(--bd2)' }}>
+          {([
+            { n: '1', de: 'Einschicken', en: 'Send it', bodyDe: 'Am Quick-Link raus, in den Umschlag.', bodyEn: 'Off at the quick link, into an envelope.' },
+            { n: '2', de: 'Waschen & Wachsen', en: 'Wash & wax', bodyDe: 'Kochendes Wasser statt Lösemittel, frisches Bad.', bodyEn: 'Boiling water, no solvents, fresh bath.' },
+            { n: '3', de: 'Zurück aufs Rad', en: 'Back on the bike', bodyDe: 'Ausgehärtet, anbauen, kurbeln, los.', bodyEn: 'Cured, fit it, turn the cranks, ride.' },
+          ] as const).map(s => (
+            <div key={s.n} className="flex gap-3">
+              <span className="num-data flex-shrink-0 rounded-full flex items-center justify-center"
+                style={{ width: 22, height: 22, border: '1px solid rgba(var(--accent-rgb),0.4)', color: 'var(--accent)', fontSize: 11 }}>
+                {s.n}
+              </span>
+              <p className="text-[14px] leading-snug" style={{ color: 'var(--txm)' }}>
+                <span className="font-semibold" style={{ color: 'var(--tx1)' }}>{de ? s.de : s.en}</span>
+                {' — '}{de ? s.bodyDe : s.bodyEn}
+              </p>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -564,99 +544,15 @@ export function RewaxPage() {
               Türen sind keine Wahl mehr, sondern ein Menü, und ein Geschenk
               ist kein Einstieg für einen Erstbesucher.
 
-              Zwei Größen (fünf/zehn) plus ein Für-mich/Geschenk-Umschalter:
-              vorher war "auch als Geschenk" ein Abzeichen auf der Karte, das
-              dem Schenkenden nur sagt, dass es *möglich* ist — es änderte die
-              Bestellnachricht nicht, also musste Luca jedes Mal nachfragen. */}
+              Eine einzige Karte mit 5x/10x-Umschalter statt zwei fast
+              identischen Karten nebeneinander: weniger Wiederholung, Preis
+              und Ersparnis wechseln live statt zweimal dazustehen. */}
           <div className="mt-12 pt-10" style={{ borderTop: '1px solid var(--bd2)' }}>
-            <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-              <h3 className="font-display font-bold text-wx-tx1 leading-tight"
-                style={{ fontSize: 'clamp(1.3rem, 2.6vw, 1.7rem)', letterSpacing: '-0.02em' }}>
-                {de ? 'Mehrere Vorgänge, einmal bezahlt.' : 'Several treatments, paid once.'}
-              </h3>
-
-              {/* For-me / gift toggle — shared by both cards below, changes only
-                  the WhatsApp message each card's button sends. */}
-              <div className="inline-flex rounded-full p-1" style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)' }}>
-                {([
-                  { key: false, labelDe: 'Für mich', labelEn: 'For me', Icon: User },
-                  { key: true, labelDe: 'Als Geschenk', labelEn: 'As a gift', Icon: Gift },
-                ] as const).map(({ key, labelDe, labelEn, Icon }) => (
-                  <button key={String(key)} type="button" onClick={() => setIsGift(key)}
-                    className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-semibold transition-colors"
-                    style={{
-                      background: isGift === key ? 'var(--accent)' : 'transparent',
-                      color: isGift === key ? '#fff' : 'var(--txm)',
-                    }}>
-                    <Icon className="h-3.5 w-3.5" aria-hidden />
-                    {de ? labelDe : labelEn}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="grid sm:grid-cols-2 gap-4 max-w-2xl">
-              <StampCard de={de} count={FIVE_CARD.count} price={FIVE_CARD.price} list={FIVE_CARD.list} gift={isGift} />
-              <StampCard de={de} count={TEN_CARD.count} price={TEN_CARD.price} list={TEN_CARD.list} gift={isGift} recommended />
-            </div>
+            <p className="text-small uppercase tracking-[0.16em] mb-6" style={{ color: 'var(--txf)' }}>
+              {de ? 'Mehrere Vorgänge, einmal bezahlt.' : 'Several treatments, paid once.'}
+            </p>
+            <PrepaidCard de={de} />
           </div>
-        </div>
-      </section>
-
-      {/* ── Umfang ──
-          Stand frueher direkt nach dem Hero und war damit das Erste nach der
-          Ueberschrift: eine Wand aus "machen wir nicht", bevor ueberhaupt klar
-          war, was es kostet und wie es laeuft. Ehrlichkeit muss nicht an den
-          Anfang, sie muss vor die Entscheidung. Hier, kurz vor dem Knopf,
-          qualifiziert sie statt zu bremsen. */}
-      <section className="py-14 sm:py-20" style={{ borderTop: '1px solid var(--bd2)' }}>
-        <div className={W}>
-          <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
-            {de ? 'Was wir machen und was nicht' : 'What we do and what we do not'}
-          </p>
-          <h2 className="font-display font-bold text-wx-tx1 leading-tight mb-8"
-            style={{ fontSize: 'clamp(1.7rem, 3.4vw, 2.4rem)', letterSpacing: '-0.02em' }}>
-            {de ? 'Nur schon gewachste Ketten.' : 'Already waxed chains only.'}
-          </h2>
-
-          {/* Zwei Haarlinien-Listen statt zweier InstrumentFrames. Ein
-              InstrumentFrame ist laut DESIGN.md §3 fuer Messtechnik da —
-              Diagramme, Rechner, Datenpanels —, eine Ja/Nein-Liste ist keins
-              davon, und die Rahmen plus Punktraster machten aus zwei kurzen
-              Aufzaehlungen zwei schwere Bloecke. */}
-          <div className="grid sm:grid-cols-2 gap-x-10 gap-y-8">
-            {([
-              { key: 'yes', items: yes, Icon: Check, color: 'var(--accent)', labelDe: 'Machen wir', labelEn: 'We do' },
-              { key: 'no', items: no, Icon: X, color: 'var(--txf)', labelDe: 'Machen wir nicht', labelEn: 'We do not' },
-            ] as const).map(({ key, items, Icon, color, labelDe, labelEn }) => (
-              <div key={key}>
-                <p className="eyebrow mb-4" style={{ color: 'var(--txf)' }}>{de ? labelDe : labelEn}</p>
-                <ul style={{ borderTop: '1px solid var(--bd2)' }}>
-                  {items.map(t => (
-                    <li key={t} className="flex gap-3 text-[14px] leading-relaxed py-3"
-                      style={{ color: 'var(--tx2)', borderBottom: '1px solid var(--bd2)' }}>
-                      <Icon className="h-4 w-4 flex-shrink-0 mt-0.5" style={{ color }} aria-hidden />
-                      {t}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-
-          {/* Von fuenf Zeilen auf zwei. Der Grund muss stehen — er ist der
-              Punkt, an dem die Marke glaubwuerdig wird —, aber er braucht
-              keine Absatzlaenge: Oel schwimmt oben, ein Bad ist hin. Fertig. */}
-          <p className="text-[14px] leading-relaxed max-w-[62ch] mt-8" style={{ color: 'var(--txm)' }}>
-            {de
-              ? 'Der Grund ist nicht Bequemlichkeit: Öl schwimmt im Wachsbad oben auf und blockiert, dass das Wachs überhaupt in die Gelenke kommt. Eine einzige ölige Kette macht ein ganzes Bad unbrauchbar — und damit jede Kette dieser Charge.'
-              : 'The reason is not convenience: oil floats on top of a wax bath and blocks the wax from reaching the joints at all. A single oily chain ruins an entire batch — and with it every chain in it.'}
-          </p>
-          <Link to="/#anleitungen" className="inline-flex items-center gap-2 mt-4 text-[13.5px] font-semibold"
-            style={{ color: 'var(--tx1)' }}>
-            {de ? 'Zur Anleitung für den Umstieg' : 'To the switching guide'}
-            <ArrowRight className="h-4 w-4" style={{ color: 'var(--accent)' }} />
-          </Link>
         </div>
       </section>
 
@@ -688,6 +584,13 @@ export function RewaxPage() {
                 <p className="text-[14px] leading-relaxed mt-3 max-w-[62ch]" style={{ color: 'var(--txm)' }}>
                   {item.a}
                 </p>
+                {item.link && (
+                  <Link to={item.link.to} className="inline-flex items-center gap-2 mt-3 text-[13.5px] font-semibold"
+                    style={{ color: 'var(--tx1)' }}>
+                    {de ? item.link.labelDe : item.link.labelEn}
+                    <ArrowRight className="h-4 w-4" style={{ color: 'var(--accent)' }} />
+                  </Link>
+                )}
               </details>
             ))}
           </div>
