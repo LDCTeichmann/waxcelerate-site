@@ -13,12 +13,13 @@
 // three, plus 1,80 € return shipping either way. These supersede the older
 // figures in the business context (9,99 / 24,99).
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useLocation } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Gift, User, ChevronDown, Send, Droplets, Bike } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Gift, User, ChevronDown } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
+import { prefersReducedMotion } from '@/hooks/useAnimation';
 
 import { Navigation } from '@/sections/navigation';
 import { Footer } from '@/sections/footer';
@@ -84,7 +85,10 @@ const PRICE = {
   single: 13.95,
   bundle: 9.95,
   bundleCount: 3,
-  shipping: 1.80,
+  // Eine Kette passt in den Großbrief (1,80 €). Drei Ketten brauchen den
+  // Maxibrief (2,90 €) — deshalb zwei Versandpreise statt einem.
+  shippingSingle: 1.80,
+  shippingBundle: 2.90,
 };
 
 // Prepaid tiers at the three-chain rate, less the discount Luca set on
@@ -117,6 +121,28 @@ function StampCard({ de, count, price, list, gift, recommended }: {
   const label = de ? `${count}er-Karte` : `${count}-visit card`;
   const savings = list - price;
   const pct = Math.round((1 - price / list) * 100);
+
+  // Stamps start pale/gray — a wall of full-color logos read as "too much" —
+  // then color in one after another, staggered, once the card scrolls into
+  // view. Just a self-observing IntersectionObserver (the pattern already
+  // used for simple in-view flags elsewhere on the site, e.g.
+  // products.tsx/reviews.tsx), not the GSAP-based use3DReveal hook: that one
+  // tweens opacity/y/rotateX, not filter, and pulling in ScrollTrigger for a
+  // one-property grayscale fade would be more machinery than the effect
+  // needs.
+  const gridRef = useRef<HTMLDivElement>(null);
+  const [stamped, setStamped] = useState(false);
+  useEffect(() => {
+    if (prefersReducedMotion()) { setStamped(true); return; }
+    const el = gridRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { setStamped(true); observer.disconnect(); }
+    }, { threshold: 0.4 });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   const waMsg = gift
     ? (de
       ? `Hi Luca, ich möchte die ${label} als Geschenk bestellen. Name der beschenkten Person: `
@@ -143,11 +169,18 @@ function StampCard({ de, count, price, list, gift, recommended }: {
         )}
       </div>
 
-      <div className="grid grid-cols-5 gap-1.5">
+      <div ref={gridRef} className="grid grid-cols-5 gap-1.5">
         {Array.from({ length: count }, (_, i) => (
           <div key={i} className="relative rounded-md flex items-center justify-center"
             style={{ aspectRatio: '1 / 1', border: '1px dashed rgba(var(--accent-rgb),0.35)', background: 'var(--sf)' }}>
-            <WaxcelerateMark className="w-[62%] h-[62%]" />
+            <div className="w-[62%] h-[62%]"
+              style={{
+                filter: stamped ? 'grayscale(0) opacity(1)' : 'grayscale(1) opacity(0.4)',
+                transition: 'filter 450ms ease-out',
+                transitionDelay: `${i * 90}ms`,
+              }}>
+              <WaxcelerateMark className="w-full h-full" />
+            </div>
           </div>
         ))}
       </div>
@@ -192,6 +225,7 @@ function Pricing({ de }: { de: boolean }) {
       titleDe: 'Einzelne Kette', titleEn: 'Single chain',
       per: PRICE.single,
       total: PRICE.single,
+      shipping: PRICE.shippingSingle,
       accent: false,
     },
     {
@@ -199,6 +233,7 @@ function Pricing({ de }: { de: boolean }) {
       titleDe: 'Drei Ketten', titleEn: 'Three chains',
       per: PRICE.bundle,
       total: bundleTotal,
+      shipping: PRICE.shippingBundle,
       accent: true,
     },
   ];
@@ -235,10 +270,10 @@ function Pricing({ de }: { de: boolean }) {
               {de ? 'Wachsen' : 'Waxing'} <span style={{ color: 'var(--tx1)' }}>{eur(p.total, de)}</span>
             </p>
             <p className="num-data text-[11.5px]" style={{ color: 'var(--txm)' }}>
-              {de ? 'Rückversand' : 'Return shipping'} <span style={{ color: 'var(--tx1)' }}>{eur(PRICE.shipping, de)}</span>
+              {de ? 'Rückversand' : 'Return shipping'} <span style={{ color: 'var(--tx1)' }}>{eur(p.shipping, de)}</span>
             </p>
             <p className="num-data text-[13px] pt-1.5" style={{ color: 'var(--tx1)' }}>
-              {de ? 'Gesamt' : 'Total'} <span style={{ color: 'var(--accent)' }}>{eur(p.total + PRICE.shipping, de)}</span>
+              {de ? 'Gesamt' : 'Total'} <span style={{ color: 'var(--accent)' }}>{eur(p.total + p.shipping, de)}</span>
             </p>
           </div>
         </div>
@@ -282,8 +317,8 @@ export function RewaxPage() {
     ? 'Fahrradkette wachsen lassen — Kettenwachs-Service aus Stuttgart | Waxcelerate'
     : 'Rewax service for waxed chains | Waxcelerate';
   const description = de
-    ? 'Gewachste Kette einschicken, frisch gewachst zurückbekommen. 13,95 € je Kette, 9,95 € ab drei Ketten, zuzüglich 1,80 € Rückversand. Handgewachst in Stuttgart.'
-    : 'Send in your waxed chain, get it back freshly waxed. 13.95 € per chain, 9.95 € from three chains, plus 1.80 € return shipping. Hand-waxed in Stuttgart.';
+    ? 'Gewachste Kette einschicken, frisch gewachst zurückbekommen. 13,95 € je Kette, 9,95 € ab drei Ketten, zzgl. Rückversand. Handgewachst in Stuttgart.'
+    : 'Send in your waxed chain, get it back freshly waxed. 13.95 € per chain, 9.95 € from three chains, plus return shipping. Hand-waxed in Stuttgart.';
 
   const schema = JSON.stringify({
     '@context': 'https://schema.org',
@@ -318,22 +353,22 @@ export function RewaxPage() {
     {
       q: de ? 'Was kostet es, eine Fahrradkette wachsen zu lassen?' : 'How much does it cost to get a chain rewaxed?',
       a: de
-        ? `${eur(PRICE.single, de)} für eine einzelne Kette, zuzüglich ${eur(PRICE.shipping, de)} Rückversand.`
-        : `${eur(PRICE.single, de)} for a single chain, plus ${eur(PRICE.shipping, de)} return shipping.`,
+        ? `${eur(PRICE.single, de)} für eine einzelne Kette, zuzüglich ${eur(PRICE.shippingSingle, de)} Rückversand.`
+        : `${eur(PRICE.single, de)} for a single chain, plus ${eur(PRICE.shippingSingle, de)} return shipping.`,
     },
     {
       q: de ? 'Was kostet es, mehrere Fahrradketten wachsen zu lassen?' : 'How much does it cost to get several chains rewaxed?',
       a: de
-        ? `Ab drei Ketten sinkt der Preis auf ${eur(PRICE.bundle, de)} pro Kette. Der Rückversand (${eur(PRICE.shipping, de)}) fällt dabei nur einmal an, egal wie viele Ketten im selben Umschlag sind.`
-        : `From three chains the price drops to ${eur(PRICE.bundle, de)} per chain. Return shipping (${eur(PRICE.shipping, de)}) is charged only once, no matter how many chains are in the same envelope.`,
+        ? `Ab drei Ketten sinkt der Preis auf ${eur(PRICE.bundle, de)} pro Kette. Der Rückversand (${eur(PRICE.shippingBundle, de)}) fällt dabei nur einmal an, egal wie viele Ketten im selben Umschlag sind.`
+        : `From three chains the price drops to ${eur(PRICE.bundle, de)} per chain. Return shipping (${eur(PRICE.shippingBundle, de)}) is charged only once, no matter how many chains are in the same envelope.`,
     },
     {
       // Absorbiert den frueheren eigenen "Ablauf"-Sektionskopf mit den drei
       // Foto-Schritten — die Kurzfassung steht jetzt im Hero, die Details hier.
       q: de ? 'Wie läuft das Rewaxen ab?' : 'How does the rewaxing process work?',
       a: de
-        ? 'Kette am Quick-Link öffnen, in den Umschlag, einschicken — reinigen musst du vorher nichts. Wir lösen das alte Wachs mit kochendem Wasser, ganz ohne Lösemittel, und wachsen sie danach in einem frischen Bad neu. Zurück kommt sie ausgehärtet, Glieder freigebrochen, trocken verpackt — anbauen, kurz kurbeln, fertig.'
-        : 'Open the chain at the quick link, put it in an envelope, send it in — no cleaning needed beforehand. We release the old wax with boiling water, no solvents, then wax it fresh in a clean bath. It comes back cured, links broken free, packed dry — fit it, turn the cranks, ride.',
+        ? 'Kette am Quick-Link öffnen, in den Umschlag, einschicken — reinigen musst du vorher nichts. Wir reinigen sie professionell im Ultraschallbad und lösen das alte Wachs mit kochendem Wasser, ganz ohne Lösemittel, bevor sie in einem frischen Bad neu gewachst wird. Zurück kommt sie ausgehärtet, Glieder freigebrochen, trocken verpackt — anbauen, kurz kurbeln, fertig.'
+        : 'Open the chain at the quick link, put it in an envelope, send it in — no cleaning needed beforehand. We clean it professionally in an ultrasonic bath and release the old wax with boiling water, no solvents, before it gets waxed fresh in a clean bath. It comes back cured, links broken free, packed dry — fit it, turn the cranks, ride.',
     },
     {
       q: de ? 'Wo kann ich meine Fahrradkette wachsen lassen?' : 'Where can I get my bicycle chain waxed?',
@@ -402,15 +437,10 @@ export function RewaxPage() {
             <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
               {de ? 'Service' : 'Service'}
             </p>
-            <h1 className="font-display font-bold leading-[1.05] mb-4"
+            <h1 className="font-display font-bold leading-[1.05] mb-2"
               style={{ color: 'var(--tx1)', fontSize: 'clamp(2.2rem, 5vw, 3.4rem)', letterSpacing: '-0.02em' }}>
               {de ? 'Fahrradkette wachsen lassen.' : 'Get your chain rewaxed.'}
             </h1>
-            <p className="text-lead max-w-[46ch]" style={{ color: 'var(--txm)' }}>
-              {de
-                ? 'Wachsen kostet einen Abend, einen Topf und Platz. Schick uns die Kette — du bekommst sie fahrbereit zurück.'
-                : 'Waxing costs an evening, a pot and space. Send us the chain — you get it back ready to ride.'}
-            </p>
             {waxedLabel && (
               <p className="text-[14px] font-semibold mt-5" style={{ color: 'var(--accent-soft)' }}>
                 {de
@@ -449,22 +479,32 @@ export function RewaxPage() {
         {/* Kompakter Ablauf-Streifen, kein eigener Sektionskopf: das
             "ist nur ein Umschlag"-Argument soll sofort sichtbar sein, nicht
             erst im eingeklappten FAQ. Details stehen dort trotzdem, für wer
-            sie will. */}
-        <div className={`${W} mt-12 pt-10 grid sm:grid-cols-3 gap-6`} style={{ borderTop: '1px solid var(--bd2)' }}>
+            sie will. Untereinander statt nebeneinander, mit Nummer und einem
+            kleinen scharfen Foto pro Schritt statt nur einem Icon — die
+            Fotos gab es schon (bisher fürs 3-Spalten-Layout mit riesiger
+            Ziffer im Bild), jetzt kompakt und ruhig als Miniatur. */}
+        <div className={`${W} mt-12 pt-10`} style={{ borderTop: '1px solid var(--bd2)' }}>
           {([
-            { n: '1', Icon: Send, de: 'Einschicken', en: 'Send it', bodyDe: 'Am Quick-Link raus, in den Umschlag.', bodyEn: 'Off at the quick link, into an envelope.' },
-            { n: '2', Icon: Droplets, de: 'Waschen & Wachsen', en: 'Wash & wax', bodyDe: 'Kochendes Wasser statt Lösemittel, frisches Bad.', bodyEn: 'Boiling water, no solvents, fresh bath.' },
-            { n: '3', Icon: Bike, de: 'Zurück aufs Rad', en: 'Back on the bike', bodyDe: 'Ausgehärtet, anbauen, kurbeln, los.', bodyEn: 'Cured, fit it, turn the cranks, ride.' },
-          ] as const).map(s => (
-            <div key={s.n}>
-              <span className="flex-shrink-0 rounded-full flex items-center justify-center mb-3"
-                style={{ width: 36, height: 36, background: 'var(--accent-wash-sm)', border: '1px solid rgba(var(--accent-rgb),0.25)' }}>
-                <s.Icon className="h-4 w-4" style={{ color: 'var(--accent)' }} aria-hidden />
+            { n: 1, de: 'Einschicken', en: 'Send it', bodyDe: 'Am Quick-Link raus, in den Umschlag.', bodyEn: 'Off at the quick link, into an envelope.', img: '/images/rewax/step-1' },
+            { n: 2, de: 'Waschen & Wachsen', en: 'Wash & wax', bodyDe: 'Ultraschallgereinigt, dann frisch im Wachsbad.', bodyEn: 'Ultrasonically cleaned, then fresh in the wax bath.', img: '/images/rewax/step-2' },
+            { n: 3, de: 'Zurück aufs Rad', en: 'Back on the bike', bodyDe: 'Ausgehärtet, anbauen, kurbeln, los.', bodyEn: 'Cured, fit it, turn the cranks, ride.', img: '/images/rewax/step-3' },
+          ] as const).map((s, i) => (
+            <div key={s.n} className="flex items-center gap-4 py-4"
+              style={{ borderBottom: i < 2 ? '1px solid var(--bd2)' : 'none' }}>
+              <span className="num-data flex-shrink-0 rounded-full flex items-center justify-center font-bold"
+                style={{ width: 24, height: 24, background: 'var(--accent-wash-sm)', color: 'var(--accent)', fontSize: 12 }}>
+                {s.n}
               </span>
-              <p className="font-semibold text-[14px]" style={{ color: 'var(--tx1)' }}>{de ? s.de : s.en}</p>
-              <p className="text-[13.5px] leading-snug mt-1" style={{ color: 'var(--txm)' }}>
-                {de ? s.bodyDe : s.bodyEn}
-              </p>
+              <div className="flex-shrink-0 rounded-xl overflow-hidden" style={{ width: 80, height: 64, background: 'var(--sf2)' }}>
+                <img src={`${s.img}-800.webp`} alt="" aria-hidden loading="lazy" decoding="async"
+                  className="w-full h-full object-cover" />
+              </div>
+              <div>
+                <p className="font-semibold text-[14px]" style={{ color: 'var(--tx1)' }}>{de ? s.de : s.en}</p>
+                <p className="text-[13.5px] leading-snug mt-0.5" style={{ color: 'var(--txm)' }}>
+                  {de ? s.bodyDe : s.bodyEn}
+                </p>
+              </div>
             </div>
           ))}
         </div>
@@ -473,18 +513,10 @@ export function RewaxPage() {
       {/* ── Pricing ── */}
       <section id="preise" className="scroll-mt-24 py-14 sm:py-20" style={{ borderTop: '1px solid var(--bd2)' }}>
         <div className={W}>
-          <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
-            {de ? 'Preise' : 'Pricing'}
-          </p>
-          <h2 className="font-display font-bold text-wx-tx1 leading-tight mb-3"
+          <h2 className="font-display font-bold text-wx-tx1 leading-tight mb-8"
             style={{ fontSize: 'clamp(1.7rem, 3.4vw, 2.4rem)', letterSpacing: '-0.02em' }}>
-            {de ? 'Ehrlich gerechnet.' : 'Honestly costed.'}
+            {de ? 'Preise' : 'Pricing'}
           </h2>
-          <p className="text-wx-txm text-lead max-w-[52ch] mb-8">
-            {de
-              ? 'Der Rückversand kommt einmal dazu, egal wie viele Ketten im Umschlag liegen. Deshalb rechnet sich die Rotation doppelt.'
-              : 'Return shipping is charged once, no matter how many chains are in the envelope. Which is why the rotation pays off twice.'}
-          </p>
 
           <Pricing de={de} />
 
@@ -510,7 +542,7 @@ export function RewaxPage() {
               "auch als Geschenk" ist kein Abzeichen auf der Karte, sondern
               ändert die Bestellnachricht direkt mit. */}
           <div className="mt-12 pt-10" style={{ borderTop: '1px solid var(--bd2)' }}>
-            <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
               <p className="text-small uppercase tracking-[0.16em]" style={{ color: 'var(--txf)' }}>
                 {de ? 'Mehrere Vorgänge, einmal bezahlt.' : 'Several treatments, paid once.'}
               </p>
@@ -533,7 +565,7 @@ export function RewaxPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 sm:gap-4 max-w-2xl">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 max-w-2xl">
               <StampCard de={de} count={FIVE_CARD.count} price={FIVE_CARD.price} list={FIVE_CARD.list} gift={isGift} />
               <StampCard de={de} count={TEN_CARD.count} price={TEN_CARD.price} list={TEN_CARD.list} gift={isGift} recommended />
             </div>
