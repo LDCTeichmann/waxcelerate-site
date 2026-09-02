@@ -1,5 +1,4 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { escapeHtml, sendEmail as sendEmailShared } from './_lib/email';
 
 /**
  * POST /api/widerruf — § 356a BGB withdrawal notice.
@@ -19,13 +18,52 @@ interface WithdrawalRequest {
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const OWNER_EMAIL = 'waxcelerate@gmail.com';
 
+// Fields below come straight from the public form — escape before interpolating
+// into email HTML so a submitted "product" or "orderNumber" can't inject markup.
+function escapeHtml(s: string): string {
+  return s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
+}
+
 // Returns whether the email actually sent. The caller uses this to log a
 // loud, distinguishable alert when the notice to Luca specifically fails —
 // previously this only console.error'd and the handler still returned
 // {success:true} unconditionally, so a missing/misconfigured
 // RESEND_API_KEY meant a legally-sensitive withdrawal notice could vanish
 // with no operational signal that anything went wrong.
-const sendEmail = (to: string, subject: string, html: string) => sendEmailShared(to, subject, html, 'widerruf');
+//
+// 2026-09-03: this used to import a shared sendEmail() from ./_lib/email —
+// reverted after that broke this endpoint in production (FUNCTION_INVOCATION_
+// FAILED on every request once the shared module existed). Root cause not
+// fully confirmed, but this file touches a legally-required withdrawal
+// function, so it goes back to being fully self-contained rather than
+// depending on an unverified cross-function import while the real cause of
+// the bundling failure is unresolved. See api/rewax-request.ts for the same
+// call, duplicated rather than shared.
+async function sendEmail(to: string, subject: string, html: string): Promise<boolean> {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.error('[widerruf] RESEND_API_KEY not set — email not sent', { to, subject });
+    return false;
+  }
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: 'Waxcelerate <widerruf@waxcelerate.de>',
+      to: [to],
+      subject,
+      html,
+    }),
+  });
+  if (!res.ok) {
+    console.error('[widerruf] Resend API error', await res.text());
+    return false;
+  }
+  return true;
+}
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).end();

@@ -1,5 +1,4 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { escapeHtml, sendEmail as sendEmailShared } from './_lib/email';
 
 /**
  * POST /api/rewax-request — the form alternative to the WhatsApp/mailto
@@ -40,7 +39,40 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_RE = /^[+\d][\d\s()/-]{5,}$/;
 const OWNER_EMAIL = 'waxcelerate@gmail.com';
 
-const sendEmail = (to: string, subject: string, html: string) => sendEmailShared(to, subject, html, 'rewax-request');
+// Fields below come straight from the public form — escape before interpolating
+// into email HTML so a submitted name/message can't inject markup.
+function escapeHtml(s: string): string {
+  return s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
+}
+
+// Duplicated from api/widerruf.ts rather than shared via a common module —
+// see the note in that file for why (a shared api/_lib/email.ts broke both
+// endpoints in production on 2026-09-03).
+async function sendEmail(to: string, subject: string, html: string): Promise<boolean> {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.error('[rewax-request] RESEND_API_KEY not set — email not sent', { to, subject });
+    return false;
+  }
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: 'Waxcelerate <widerruf@waxcelerate.de>',
+      to: [to],
+      subject,
+      html,
+    }),
+  });
+  if (!res.ok) {
+    console.error('[rewax-request] Resend API error', await res.text());
+    return false;
+  }
+  return true;
+}
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).end();
