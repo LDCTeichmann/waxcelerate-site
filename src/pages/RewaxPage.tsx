@@ -217,10 +217,25 @@ function StampCard({ de, count, price, list, gift, recommended }: {
       <p className="text-[11.5px] mt-1" style={{ color: 'var(--accent)' }}>
         {de ? `Du sparst ${eur(savings, de)} (${pct}%)` : `You save ${eur(savings, de)} (${pct}%)`}
       </p>
-      <p className="text-[11px] mt-1 mb-4" style={{ color: 'var(--txf)' }}>
+      <p className="text-[11px] mt-1" style={{ color: 'var(--txf)' }}>
         {de
           ? `${eur(price / count, de)} je Vorgang · kein Ablaufdatum, übertragbar`
           : `${eur(price / count, de)} per treatment · no expiry, transferable`}
+      </p>
+      {/* Ohne diesen Satz stand nirgends, wie man eine gekaufte Karte
+          spaeter tatsaechlich einloest — kein Objekt wandert hin und her
+          (verlustanfaellig bei einem reinen Versand-Service), nur ein Code,
+          den Luca in der bestehenden Kundenliste mitfuehrt. Beim Geschenk
+          bekommt der Schenkende zusaetzlich eine gedruckte Karte, weil ein
+          reiner Code sich nicht wie ein Geschenk anfuehlt. */}
+      <p className="text-[11px] mt-1 mb-4" style={{ color: 'var(--txf)' }}>
+        {de
+          ? (gift
+            ? 'Du bekommst eine gedruckte Geschenkkarte mit Code zum Überreichen.'
+            : 'Nach dem Kauf bekommst du einen Code für deine Karte. Den schickst du bei jeder Sendung einfach mit.')
+          : (gift
+            ? 'You get a printed gift card with the code to hand over.'
+            : 'After purchase you get a code for your card. Just include it with every shipment.')}
       </p>
 
       <div className="flex-1" />
