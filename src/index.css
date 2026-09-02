@@ -864,6 +864,19 @@ section[id] {
   section[id] {
     padding-bottom: calc(3.5rem + 1rem);
   }
+  /* #preise (/kette-wachsen-lassen) doesn't need that reservation —
+     MobileStickyCTA renders only on the homepage (`if (!isMain) return
+     null`) — so the extra room here was just an unexplained ~70px void
+     before the FAQ heading. ID selector beats the attribute selector above
+     on specificity, so this restores the section's normal py-14/py-20. */
+  #preise {
+    padding-bottom: 3.5rem;
+  }
+}
+@media (min-width: 640px) and (max-width: 1023px) {
+  #preise {
+    padding-bottom: 5rem;
+  }
 }
 
 /* ── Button system — one primary + one ghost (Workstream 3) ───────────────── */
