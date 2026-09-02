@@ -16,7 +16,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useLocation } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Gift, User, ChevronDown } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Gift, User, ChevronDown, CheckCircle2 } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
 import { prefersReducedMotion } from '@/hooks/useAnimation';
@@ -108,6 +108,179 @@ const FIVE_CARD = {
 
 const eur = (n: number, de: boolean) =>
   n.toLocaleString(de ? 'de-DE' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+
+// ─── Request form ────────────────────────────────────────────────────────────
+// The second Bestellweg next to WhatsApp/mailto — additive, not a
+// replacement (WhatsApp stays the primary CTA). Posts to api/rewax-request.ts,
+// which only sends an email today; `tierId` deliberately mirrors what would
+// become `productId` in a future api/create-checkout.ts call (see that file's
+// { items: [{ productId, quantity }] } shape) so activating real Stripe
+// payment later means swapping the submit target, not redesigning this form.
+// Input/label/error/success conventions mirror the site's one other real
+// form, WiderrufPage.tsx — same input styling, same --danger/CheckCircle2
+// pattern — so this doesn't invent a second "how forms look" on the site.
+type TierId = 'single' | 'bundle3' | 'five' | 'ten';
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_RE = /^[+\d][\d\s()/-]{5,}$/;
+
+function RewaxRequestForm({ de }: { de: boolean }) {
+  const tiers: { id: TierId; labelDe: string; labelEn: string; price: string; hasQuantity: boolean; quantityMin: number }[] = [
+    { id: 'single', labelDe: 'Einzelne Kette', labelEn: 'Single chain', price: eur(PRICE.single, de), hasQuantity: true, quantityMin: 1 },
+    { id: 'bundle3', labelDe: 'Drei Ketten', labelEn: 'Three chains', price: `${eur(PRICE.bundle, de)}/${de ? 'Kette' : 'chain'}`, hasQuantity: true, quantityMin: 3 },
+    { id: 'five', labelDe: '5er-Karte', labelEn: '5-visit card', price: eur(FIVE_CARD.price, de), hasQuantity: false, quantityMin: 1 },
+    { id: 'ten', labelDe: '10er-Karte', labelEn: '10-visit card', price: eur(TEN_CARD.price, de), hasQuantity: false, quantityMin: 1 },
+  ];
+
+  const [tierId, setTierId] = useState<TierId>('single');
+  const [quantity, setQuantity] = useState(1);
+  const [isGift, setIsGift] = useState(false);
+  const [name, setName] = useState('');
+  const [contact, setContact] = useState('');
+  const [message, setMessage] = useState('');
+  const [honeypot, setHoneypot] = useState('');
+  const [status, setStatus] = useState<'idle' | 'sending' | 'done' | 'error'>('idle');
+  const [error, setError] = useState('');
+
+  const activeTier = tiers.find(t => t.id === tierId)!;
+  const inputClass = 'w-full px-4 py-2.5 rounded-xl text-sm outline-none';
+  const inputStyle = { background: 'var(--sf2)', border: '1px solid var(--bd2)', color: 'var(--tx1)' };
+
+  const contactLooksValid = EMAIL_RE.test(contact) || PHONE_RE.test(contact);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!contactLooksValid) {
+      setError(de ? 'Bitte eine gültige E-Mail-Adresse oder Telefonnummer angeben.' : 'Please enter a valid email address or phone number.');
+      setStatus('error');
+      return;
+    }
+    setStatus('sending');
+    setError('');
+    try {
+      const res = await fetch('/api/rewax-request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tierId, quantity: activeTier.hasQuantity ? quantity : undefined, isGift, name, contact, message, honeypot,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json() as { error?: string };
+        throw new Error(data.error ?? (de ? 'Die Anfrage konnte nicht übermittelt werden.' : 'The request could not be submitted.'));
+      }
+      setStatus('done');
+    } catch (err) {
+      setStatus('error');
+      setError(err instanceof Error ? err.message : (de ? 'Die Anfrage konnte nicht übermittelt werden.' : 'The request could not be submitted.'));
+    }
+  };
+
+  if (status === 'done') {
+    return (
+      <div className="flex items-start gap-3 rounded-xl p-5 mt-4 max-w-md"
+        style={{ background: 'var(--accent-wash)', border: '1px solid rgba(var(--accent-rgb),0.25)' }}>
+        <CheckCircle2 className="h-5 w-5 flex-shrink-0 mt-0.5" style={{ color: 'var(--accent)' }} />
+        <p className="text-sm leading-relaxed" style={{ color: 'var(--tx1)' }}>
+          {de
+            ? 'Danke, deine Anfrage ist angekommen. Wir melden uns in Kürze mit der Versandadresse.'
+            : "Thanks, your request has arrived. We'll get back to you shortly with the shipping address."}
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-3 mt-4 max-w-md rounded-2xl p-5 sm:p-6"
+      style={{ background: 'var(--sf)', border: '1px solid var(--bd)' }}>
+      {/* Honeypot — real users never see or fill this. Bots that fill every
+          field get a normal-looking success response with nothing sent. */}
+      <input type="text" name="website" value={honeypot} onChange={(e) => setHoneypot(e.target.value)}
+        tabIndex={-1} autoComplete="off" aria-hidden="true"
+        style={{ position: 'absolute', left: -9999, width: 1, height: 1, opacity: 0 }} />
+
+      <div>
+        <p className="block text-sm font-medium mb-1.5" style={{ color: 'var(--txm)' }}>
+          {de ? 'Karte wählen' : 'Choose tier'}
+        </p>
+        <div className="grid grid-cols-2 gap-2">
+          {tiers.map((t) => (
+            <button key={t.id} type="button"
+              onClick={() => { setTierId(t.id); setQuantity(t.quantityMin); }}
+              className="rounded-xl px-3 py-2.5 text-left text-[13px] font-semibold transition-colors"
+              style={{
+                background: tierId === t.id ? 'var(--accent)' : 'var(--sf2)',
+                color: tierId === t.id ? '#fff' : 'var(--tx1)',
+                border: `1px solid ${tierId === t.id ? 'var(--accent)' : 'var(--bd2)'}`,
+              }}>
+              {de ? t.labelDe : t.labelEn}
+              <span className="block text-[11px] font-normal mt-0.5" style={{ opacity: 0.85 }}>{t.price}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {activeTier.hasQuantity && (
+        <div>
+          <label htmlFor="rewax-quantity" className="block text-sm font-medium mb-1.5" style={{ color: 'var(--txm)' }}>
+            {de ? 'Anzahl Ketten' : 'Number of chains'}
+          </label>
+          <input id="rewax-quantity" type="number" min={activeTier.quantityMin} max={20} value={quantity}
+            onChange={(e) => setQuantity(Math.max(activeTier.quantityMin, parseInt(e.target.value, 10) || activeTier.quantityMin))}
+            className={inputClass} style={inputStyle} />
+        </div>
+      )}
+
+      <div className="inline-flex rounded-full p-1" style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)' }}>
+        {([
+          { key: false, labelDe: 'Für mich', labelEn: 'For me', Icon: User },
+          { key: true, labelDe: 'Als Geschenk', labelEn: 'As a gift', Icon: Gift },
+        ] as const).map(({ key, labelDe, labelEn, Icon }) => (
+          <button key={String(key)} type="button" onClick={() => setIsGift(key)}
+            className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-semibold transition-colors"
+            style={{ background: isGift === key ? 'var(--accent)' : 'transparent', color: isGift === key ? '#fff' : 'var(--txm)' }}>
+            <Icon className="h-3.5 w-3.5" aria-hidden />
+            {de ? labelDe : labelEn}
+          </button>
+        ))}
+      </div>
+
+      <div>
+        <label htmlFor="rewax-name" className="block text-sm font-medium mb-1.5" style={{ color: 'var(--txm)' }}>
+          {de ? 'Name' : 'Name'}
+        </label>
+        <input id="rewax-name" type="text" required value={name} onChange={(e) => setName(e.target.value)}
+          className={inputClass} style={inputStyle} />
+      </div>
+
+      <div>
+        <label htmlFor="rewax-contact" className="block text-sm font-medium mb-1.5" style={{ color: 'var(--txm)' }}>
+          {de ? 'E-Mail oder Telefon' : 'Email or phone'}
+        </label>
+        <input id="rewax-contact" type="text" required value={contact} onChange={(e) => setContact(e.target.value)}
+          className={inputClass} style={inputStyle} />
+      </div>
+
+      <div>
+        <label htmlFor="rewax-message" className="block text-sm font-medium mb-1.5" style={{ color: 'var(--txm)' }}>
+          {de ? 'Nachricht (optional)' : 'Message (optional)'}
+        </label>
+        <textarea id="rewax-message" rows={2} value={message} onChange={(e) => setMessage(e.target.value)}
+          className={inputClass} style={inputStyle} />
+      </div>
+
+      {status === 'error' && (
+        <p className="text-sm" style={{ color: 'var(--danger)' }}>{error}</p>
+      )}
+
+      <button type="submit" disabled={status === 'sending'}
+        className="inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-[14px] font-semibold transition-opacity hover:opacity-90 disabled:opacity-40"
+        style={{ background: 'var(--accent)', color: '#fff' }}>
+        {status === 'sending' ? (de ? 'Wird gesendet …' : 'Sending …') : (de ? 'Anfrage senden' : 'Send request')}
+      </button>
+    </form>
+  );
+}
 
 // ─── Stamp card ──────────────────────────────────────────────────────────────
 // A real punch-card look: a grid of stamp fields, each holding our own logo
@@ -323,6 +496,7 @@ export function RewaxPage() {
   const { lang } = useLanguage();
   const de = lang === 'de';
   const [isGift, setIsGift] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
   const location = useLocation();
   const waxedOn = useMemo(
     () => waxedFromLocation(),
@@ -496,6 +670,15 @@ export function RewaxPage() {
                 {de ? 'Was kostet das?' : 'What does it cost?'}
               </a>
             </div>
+            {/* Zweiter Bestellweg, kein Ersatz fuer WhatsApp — klappt inline
+                auf, kein Seitenwechsel, kein Verlassen des Kontexts. */}
+            <button type="button" onClick={() => setFormOpen((v) => !v)}
+              className="block text-[13px] font-semibold mt-3" style={{ color: 'var(--txf)' }}>
+              {formOpen
+                ? (de ? 'Formular ausblenden' : 'Hide form')
+                : (de ? 'Oder per Formular anfragen' : 'Or request via form')}
+            </button>
+            {formOpen && <RewaxRequestForm de={de} />}
           </div>
 
           <div className="order-first lg:order-none mb-8 lg:mb-0 lg:mt-0 lg:flex-1">
