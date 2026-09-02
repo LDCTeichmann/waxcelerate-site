@@ -465,7 +465,7 @@
   html {
     background-color: var(--pg);
     scroll-behavior: smooth;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 
   /* The mobile nav panel (Navigation.tsx) is `fixed inset-0` translated
@@ -476,7 +476,12 @@
      page's scroll width, letting a swipe/rubber-band scroll it into view as
      a blank/shifted-content strip. ProductDetailPage.tsx worked around this
      locally with its own overflow-x-hidden wrapper; this is the same fix
-     applied once, globally, so no other page can hit it. */
+     applied once, globally, so no other page can hit it. `clip` instead of
+     `hidden`: `overflow-x: hidden` on html/body computes `overflow-y: auto`
+     on both per spec, turning them into scroll containers and silently
+     breaking `position: sticky` everywhere on the site (e.g. the formula
+     scroll-story on SciencePage.tsx) — `clip` suppresses the horizontal
+     overflow the same way without creating a scroll container. */
   body {
     font-family: 'Libre Franklin', ui-sans-serif, system-ui, sans-serif;
     background-color: var(--pg);
@@ -484,7 +489,7 @@
     text-wrap: pretty;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 
   h1, h2, h3, h4, h5, h6 {
