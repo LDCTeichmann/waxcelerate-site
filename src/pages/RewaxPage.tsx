@@ -132,7 +132,7 @@ function StampCard({ de, count, price, list, gift, recommended }: {
         border: '1px solid rgba(var(--accent-rgb),0.22)',
         boxShadow: 'var(--card-shad)',
       }}>
-      <div className="flex items-baseline justify-between mb-3">
+      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 mb-3">
         <p className="text-small uppercase tracking-[0.14em]" style={{ color: 'var(--accent)' }}>
           {label}
         </p>
@@ -211,7 +211,7 @@ function Pricing({ de }: { de: boolean }) {
             background: p.accent ? 'var(--accent-wash-sm)' : 'var(--sf)',
             border: p.accent ? '1px solid rgba(var(--accent-rgb),0.22)' : '1px solid var(--bd)',
           }}>
-          <div className="flex items-baseline justify-between gap-2">
+          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
             <p className="text-small uppercase tracking-[0.12em]"
               style={{ color: p.accent ? 'var(--accent)' : 'var(--txf)' }}>
               {de ? p.titleDe : p.titleEn}
