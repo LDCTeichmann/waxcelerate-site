@@ -16,14 +16,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useLocation } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Gift, User, ChevronDown } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Gift, User, ChevronDown, Send, Droplets, Bike } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
 
 import { Navigation } from '@/sections/navigation';
 import { Footer } from '@/sections/footer';
 import { BackLink } from '@/components/BackLink';
-import { SegmentedToggle, Chain } from '@/components/viz';
+import { WaxcelerateMark } from '@/components/WaxcelerateMark';
 
 // One tap, no form, no scrolling to a contact section that may or may not be
 // reachable from a route. The previous CTA pointed at /#kontakt and did not
@@ -105,21 +105,18 @@ const FIVE_CARD = {
 const eur = (n: number, de: boolean) =>
   n.toLocaleString(de ? 'de-DE' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
 
-// ─── Prepaid card ────────────────────────────────────────────────────────────
-// One card, not two near-identical ones. A 5x/10x segmented toggle switches
-// the tier; price, savings and the WhatsApp message all follow. The chain
-// illustration (shared with the science page) replaces the old grid of
-// dashed placeholder squares — a single calm graphic instead of a checkbox
-// wall, with the count carried by a text line instead of by repeating icons.
-function PrepaidCard({ de }: { de: boolean }) {
-  const [tier, setTier] = useState<'five' | 'ten'>('ten');
-  const [gift, setGift] = useState(false);
-  const card = tier === 'ten' ? TEN_CARD : FIVE_CARD;
-  const recommended = tier === 'ten';
-  const savings = card.list - card.price;
-  const pct = Math.round((1 - card.price / card.list) * 100);
-  const label = de ? `${card.count}er-Karte` : `${card.count}-visit card`;
-
+// ─── Stamp card ──────────────────────────────────────────────────────────────
+// A real punch-card look: a grid of stamp fields, each holding our own logo
+// in its actual brand colors instead of a generic chain-link glyph. Both
+// cards share the accent wash background now, not just the recommended one
+// — the point is two cards that both read as "proper branded stamp cards"
+// sitting side by side for comparison, not one plain + one highlighted.
+function StampCard({ de, count, price, list, gift, recommended }: {
+  de: boolean; count: number; price: number; list: number; gift: boolean; recommended?: boolean;
+}) {
+  const label = de ? `${count}er-Karte` : `${count}-visit card`;
+  const savings = list - price;
+  const pct = Math.round((1 - price / list) * 100);
   const waMsg = gift
     ? (de
       ? `Hi Luca, ich möchte die ${label} als Geschenk bestellen. Name der beschenkten Person: `
@@ -129,81 +126,57 @@ function PrepaidCard({ de }: { de: boolean }) {
       : `Hi Luca, I would like to order the ${label}.`);
 
   return (
-    <div className="rounded-2xl p-6 sm:p-8 max-w-md"
+    <div className="rounded-2xl p-4 sm:p-5 flex flex-col h-full"
       style={{
         background: 'var(--accent-wash-sm)',
         border: '1px solid rgba(var(--accent-rgb),0.22)',
         boxShadow: 'var(--card-shad)',
       }}>
-      <div className="flex items-baseline justify-between mb-5">
-        <p className="text-small uppercase tracking-[0.18em]" style={{ color: 'var(--accent)' }}>
+      <div className="flex items-baseline justify-between mb-3">
+        <p className="text-small uppercase tracking-[0.14em]" style={{ color: 'var(--accent)' }}>
           {label}
         </p>
         {recommended && (
-          <span className="num-data text-meta px-2 py-1 rounded-full"
-            style={{ background: 'var(--sf)', border: '1px solid rgba(var(--accent-rgb),0.20)', color: 'var(--accent)' }}>
+          <span className="num-data px-1.5 py-0.5 rounded-full" style={{ fontSize: 9.5, background: 'var(--sf)', border: '1px solid rgba(var(--accent-rgb),0.20)', color: 'var(--accent)' }}>
             {de ? 'bester Preis' : 'best price'}
           </span>
         )}
       </div>
 
-      <SegmentedToggle
-        ariaLabel={de ? 'Kartengröße wählen' : 'Choose card size'}
-        options={[
-          { value: 'five', label: '5×' },
-          { value: 'ten', label: '10×' },
-        ]}
-        value={tier}
-        onChange={setTier}
-      />
-
-      <div className="mt-6 rounded-xl p-4" style={{ background: 'var(--sf)', border: '1px solid var(--bd2)' }}>
-        <Chain state="wax" className="h-9 sm:h-10" />
-        <p className="num-data text-meta mt-2" style={{ color: 'var(--txf)' }}>
-          {de ? `${card.count}× Waschen & Wachsen` : `${card.count}× wash & wax`}
-        </p>
-      </div>
-
-      <div className="flex items-baseline gap-3 mt-6">
-        <p className="font-display font-bold text-wx-tx1 leading-none" style={{ fontSize: '2.2rem', letterSpacing: '-0.02em' }}>
-          {eur(card.price, de)}
-        </p>
-        <p className="num-data text-[12.5px] line-through" style={{ color: 'var(--txff)' }}>
-          {eur(card.list, de)}
-        </p>
-      </div>
-      <p className="text-[13px] mt-1.5" style={{ color: 'var(--accent)' }}>
-        {de ? `Du sparst ${eur(savings, de)} (${pct}%)` : `You save ${eur(savings, de)} (${pct}%)`}
-      </p>
-      <p className="text-[12.5px] mt-1" style={{ color: 'var(--txf)' }}>
-        {de
-          ? `${eur(card.price / card.count, de)} je Vorgang · kein Ablaufdatum, übertragbar`
-          : `${eur(card.price / card.count, de)} per treatment · no expiry, transferable`}
-      </p>
-
-      <div className="inline-flex rounded-full p-1 mt-6" style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)' }}>
-        {([
-          { key: false, labelDe: 'Für mich', labelEn: 'For me', Icon: User },
-          { key: true, labelDe: 'Als Geschenk', labelEn: 'As a gift', Icon: Gift },
-        ] as const).map(({ key, labelDe, labelEn, Icon }) => (
-          <button key={String(key)} type="button" onClick={() => setGift(key)}
-            className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-semibold transition-colors"
-            style={{
-              background: gift === key ? 'var(--accent)' : 'transparent',
-              color: gift === key ? '#fff' : 'var(--txm)',
-            }}>
-            <Icon className="h-3.5 w-3.5" aria-hidden />
-            {de ? labelDe : labelEn}
-          </button>
+      <div className="grid grid-cols-5 gap-1.5">
+        {Array.from({ length: count }, (_, i) => (
+          <div key={i} className="relative rounded-md flex items-center justify-center"
+            style={{ aspectRatio: '1 / 1', border: '1px dashed rgba(var(--accent-rgb),0.35)', background: 'var(--sf)' }}>
+            <WaxcelerateMark className="w-[62%] h-[62%]" />
+          </div>
         ))}
       </div>
 
+      <div className="flex items-baseline gap-2 mt-4">
+        <p className="font-display font-bold text-wx-tx1 leading-none" style={{ fontSize: '1.6rem', letterSpacing: '-0.02em' }}>
+          {eur(price, de)}
+        </p>
+        <p className="num-data text-[11px] line-through" style={{ color: 'var(--txff)' }}>
+          {eur(list, de)}
+        </p>
+      </div>
+      <p className="text-[11.5px] mt-1" style={{ color: 'var(--accent)' }}>
+        {de ? `Du sparst ${eur(savings, de)} (${pct}%)` : `You save ${eur(savings, de)} (${pct}%)`}
+      </p>
+      <p className="text-[11px] mt-1 mb-4" style={{ color: 'var(--txf)' }}>
+        {de
+          ? `${eur(price / count, de)} je Vorgang · kein Ablaufdatum, übertragbar`
+          : `${eur(price / count, de)} per treatment · no expiry, transferable`}
+      </p>
+
+      <div className="flex-1" />
+
       <a href={`https://wa.me/4915751957470?text=${encodeURIComponent(waMsg)}`}
         target="_blank" rel="noopener noreferrer"
-        className="inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 mt-4 text-[14px] font-semibold transition-opacity hover:opacity-90"
+        className="inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-[13px] font-semibold transition-opacity hover:opacity-90"
         style={{ background: 'var(--accent)', color: '#fff' }}>
         {gift ? (de ? 'Als Geschenk anfragen' : 'Request as a gift') : (de ? 'Karte anfragen' : 'Request this card')}
-        {gift ? <Gift className="h-4 w-4" /> : <ArrowRight className="h-4 w-4" />}
+        {gift ? <Gift className="h-3.5 w-3.5" /> : <ArrowRight className="h-3.5 w-3.5" />}
       </a>
     </div>
   );
@@ -219,8 +192,6 @@ function Pricing({ de }: { de: boolean }) {
       titleDe: 'Einzelne Kette', titleEn: 'Single chain',
       per: PRICE.single,
       total: PRICE.single,
-      noteDe: 'Für ein Rad, ein Termin.',
-      noteEn: 'One bike, one appointment.',
       accent: false,
     },
     {
@@ -228,55 +199,48 @@ function Pricing({ de }: { de: boolean }) {
       titleDe: 'Drei Ketten', titleEn: 'Three chains',
       per: PRICE.bundle,
       total: bundleTotal,
-      noteDe: 'Die Rotation. Eine fährt, eine ist Reserve, eine ist bei uns.',
-      noteEn: 'The rotation. One rides, one is spare, one is with us.',
       accent: true,
     },
   ];
 
   return (
-    <div className="grid sm:grid-cols-2 gap-4">
+    <div className="grid grid-cols-2 gap-3 sm:gap-4">
       {plans.map(p => (
-        <div key={p.key} className="rounded-2xl p-6 sm:p-7"
+        <div key={p.key} className="rounded-2xl p-4 sm:p-6"
           style={{
             background: p.accent ? 'var(--accent-wash-sm)' : 'var(--sf)',
             border: p.accent ? '1px solid rgba(var(--accent-rgb),0.22)' : '1px solid var(--bd)',
           }}>
-          <div className="flex items-baseline justify-between gap-3">
-            <p className="text-small uppercase tracking-[0.16em]"
+          <div className="flex items-baseline justify-between gap-2">
+            <p className="text-small uppercase tracking-[0.12em]"
               style={{ color: p.accent ? 'var(--accent)' : 'var(--txf)' }}>
               {de ? p.titleDe : p.titleEn}
             </p>
             {p.accent && (
-              <span className="num-data text-meta px-2 py-1 rounded-full"
-                style={{ background: 'var(--sf)', border: '1px solid rgba(var(--accent-rgb),0.20)', color: 'var(--accent)' }}>
+              <span className="num-data px-1.5 py-0.5 rounded-full" style={{ fontSize: 9.5, background: 'var(--sf)', border: '1px solid rgba(var(--accent-rgb),0.20)', color: 'var(--accent)' }}>
                 {de ? 'empfohlen' : 'recommended'}
               </span>
             )}
           </div>
 
-          <p className="font-display font-bold text-wx-tx1 mt-4 leading-none" style={{ fontSize: '2.4rem', letterSpacing: '-0.02em' }}>
+          <p className="font-display font-bold text-wx-tx1 mt-3 leading-none" style={{ fontSize: '1.9rem', letterSpacing: '-0.02em' }}>
             {eur(p.per, de)}
           </p>
-          <p className="text-[13px] mt-2" style={{ color: 'var(--txm)' }}>
+          <p className="text-[12px] mt-1.5" style={{ color: 'var(--txm)' }}>
             {de ? 'pro Kette' : 'per chain'}
           </p>
 
-          <div className="mt-5 pt-4 space-y-1.5" style={{ borderTop: '1px solid var(--bd2)' }}>
-            <p className="num-data text-[12.5px]" style={{ color: 'var(--txm)' }}>
+          <div className="mt-4 pt-3 space-y-1.5" style={{ borderTop: '1px solid var(--bd2)' }}>
+            <p className="num-data text-[11.5px]" style={{ color: 'var(--txm)' }}>
               {de ? 'Wachsen' : 'Waxing'} <span style={{ color: 'var(--tx1)' }}>{eur(p.total, de)}</span>
             </p>
-            <p className="num-data text-[12.5px]" style={{ color: 'var(--txm)' }}>
+            <p className="num-data text-[11.5px]" style={{ color: 'var(--txm)' }}>
               {de ? 'Rückversand' : 'Return shipping'} <span style={{ color: 'var(--tx1)' }}>{eur(PRICE.shipping, de)}</span>
             </p>
-            <p className="num-data text-[13.5px] pt-1.5" style={{ color: 'var(--tx1)' }}>
+            <p className="num-data text-[13px] pt-1.5" style={{ color: 'var(--tx1)' }}>
               {de ? 'Gesamt' : 'Total'} <span style={{ color: 'var(--accent)' }}>{eur(p.total + PRICE.shipping, de)}</span>
             </p>
           </div>
-
-          <p className="text-[13px] leading-relaxed mt-4" style={{ color: 'var(--txm)' }}>
-            {de ? p.noteDe : p.noteEn}
-          </p>
         </div>
       ))}
     </div>
@@ -287,6 +251,7 @@ function Pricing({ de }: { de: boolean }) {
 export function RewaxPage() {
   const { lang } = useLanguage();
   const de = lang === 'de';
+  const [isGift, setIsGift] = useState(false);
   const location = useLocation();
   const waxedOn = useMemo(
     () => waxedFromLocation(),
@@ -437,17 +402,14 @@ export function RewaxPage() {
             <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
               {de ? 'Service' : 'Service'}
             </p>
-            <h1 className="font-display font-bold leading-[1.05] mb-2"
+            <h1 className="font-display font-bold leading-[1.05] mb-4"
               style={{ color: 'var(--tx1)', fontSize: 'clamp(2.2rem, 5vw, 3.4rem)', letterSpacing: '-0.02em' }}>
               {de ? 'Fahrradkette wachsen lassen.' : 'Get your chain rewaxed.'}
             </h1>
-            <p className="text-[15px] font-semibold mb-5" style={{ color: 'var(--accent-soft)' }}>
-              {de ? 'Rewax. Machen wir.' : 'Rewax. We handle it.'}
-            </p>
             <p className="text-lead max-w-[46ch]" style={{ color: 'var(--txm)' }}>
               {de
-                ? 'Wachsen ist einfach, aber es kostet einen Abend, einen Topf und Platz. Wenn du das nicht selbst machen willst, schick die Kette. Du bekommst sie fahrbereit zurück.'
-                : 'Waxing is simple, but it costs an evening, a pot and space. If you would rather not do it yourself, send the chain in. You get it back ready to ride.'}
+                ? 'Wachsen kostet einen Abend, einen Topf und Platz. Schick uns die Kette — du bekommst sie fahrbereit zurück.'
+                : 'Waxing costs an evening, a pot and space. Send us the chain — you get it back ready to ride.'}
             </p>
             {waxedLabel && (
               <p className="text-[14px] font-semibold mt-5" style={{ color: 'var(--accent-soft)' }}>
@@ -470,7 +432,7 @@ export function RewaxPage() {
             </div>
           </div>
 
-          <div className="mt-10 lg:mt-0 lg:flex-1">
+          <div className="order-first lg:order-none mb-8 lg:mb-0 lg:mt-0 lg:flex-1">
             <div className="rounded-2xl overflow-hidden" style={{ aspectRatio: '3 / 2', background: 'var(--hero-stage)' }}>
               <img src="/images/rewax/hero.webp"
                 srcSet="/images/rewax/hero-800.webp 800w, /images/rewax/hero.webp 1200w"
@@ -490,18 +452,18 @@ export function RewaxPage() {
             sie will. */}
         <div className={`${W} mt-12 pt-10 grid sm:grid-cols-3 gap-6`} style={{ borderTop: '1px solid var(--bd2)' }}>
           {([
-            { n: '1', de: 'Einschicken', en: 'Send it', bodyDe: 'Am Quick-Link raus, in den Umschlag.', bodyEn: 'Off at the quick link, into an envelope.' },
-            { n: '2', de: 'Waschen & Wachsen', en: 'Wash & wax', bodyDe: 'Kochendes Wasser statt Lösemittel, frisches Bad.', bodyEn: 'Boiling water, no solvents, fresh bath.' },
-            { n: '3', de: 'Zurück aufs Rad', en: 'Back on the bike', bodyDe: 'Ausgehärtet, anbauen, kurbeln, los.', bodyEn: 'Cured, fit it, turn the cranks, ride.' },
+            { n: '1', Icon: Send, de: 'Einschicken', en: 'Send it', bodyDe: 'Am Quick-Link raus, in den Umschlag.', bodyEn: 'Off at the quick link, into an envelope.' },
+            { n: '2', Icon: Droplets, de: 'Waschen & Wachsen', en: 'Wash & wax', bodyDe: 'Kochendes Wasser statt Lösemittel, frisches Bad.', bodyEn: 'Boiling water, no solvents, fresh bath.' },
+            { n: '3', Icon: Bike, de: 'Zurück aufs Rad', en: 'Back on the bike', bodyDe: 'Ausgehärtet, anbauen, kurbeln, los.', bodyEn: 'Cured, fit it, turn the cranks, ride.' },
           ] as const).map(s => (
-            <div key={s.n} className="flex gap-3">
-              <span className="num-data flex-shrink-0 rounded-full flex items-center justify-center"
-                style={{ width: 22, height: 22, border: '1px solid rgba(var(--accent-rgb),0.4)', color: 'var(--accent)', fontSize: 11 }}>
-                {s.n}
+            <div key={s.n}>
+              <span className="flex-shrink-0 rounded-full flex items-center justify-center mb-3"
+                style={{ width: 36, height: 36, background: 'var(--accent-wash-sm)', border: '1px solid rgba(var(--accent-rgb),0.25)' }}>
+                <s.Icon className="h-4 w-4" style={{ color: 'var(--accent)' }} aria-hidden />
               </span>
-              <p className="text-[14px] leading-snug" style={{ color: 'var(--txm)' }}>
-                <span className="font-semibold" style={{ color: 'var(--tx1)' }}>{de ? s.de : s.en}</span>
-                {' — '}{de ? s.bodyDe : s.bodyEn}
+              <p className="font-semibold text-[14px]" style={{ color: 'var(--tx1)' }}>{de ? s.de : s.en}</p>
+              <p className="text-[13.5px] leading-snug mt-1" style={{ color: 'var(--txm)' }}>
+                {de ? s.bodyDe : s.bodyEn}
               </p>
             </div>
           ))}
@@ -544,14 +506,37 @@ export function RewaxPage() {
               Türen sind keine Wahl mehr, sondern ein Menü, und ein Geschenk
               ist kein Einstieg für einen Erstbesucher.
 
-              Eine einzige Karte mit 5x/10x-Umschalter statt zwei fast
-              identischen Karten nebeneinander: weniger Wiederholung, Preis
-              und Ersparnis wechseln live statt zweimal dazustehen. */}
+              Zwei Größen (fünf/zehn) plus ein Für-mich/Geschenk-Umschalter:
+              "auch als Geschenk" ist kein Abzeichen auf der Karte, sondern
+              ändert die Bestellnachricht direkt mit. */}
           <div className="mt-12 pt-10" style={{ borderTop: '1px solid var(--bd2)' }}>
-            <p className="text-small uppercase tracking-[0.16em] mb-6" style={{ color: 'var(--txf)' }}>
-              {de ? 'Mehrere Vorgänge, einmal bezahlt.' : 'Several treatments, paid once.'}
-            </p>
-            <PrepaidCard de={de} />
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+              <p className="text-small uppercase tracking-[0.16em]" style={{ color: 'var(--txf)' }}>
+                {de ? 'Mehrere Vorgänge, einmal bezahlt.' : 'Several treatments, paid once.'}
+              </p>
+
+              <div className="inline-flex rounded-full p-1" style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)' }}>
+                {([
+                  { key: false, labelDe: 'Für mich', labelEn: 'For me', Icon: User },
+                  { key: true, labelDe: 'Als Geschenk', labelEn: 'As a gift', Icon: Gift },
+                ] as const).map(({ key, labelDe, labelEn, Icon }) => (
+                  <button key={String(key)} type="button" onClick={() => setIsGift(key)}
+                    className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-semibold transition-colors"
+                    style={{
+                      background: isGift === key ? 'var(--accent)' : 'transparent',
+                      color: isGift === key ? '#fff' : 'var(--txm)',
+                    }}>
+                    <Icon className="h-3.5 w-3.5" aria-hidden />
+                    {de ? labelDe : labelEn}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 max-w-2xl">
+              <StampCard de={de} count={FIVE_CARD.count} price={FIVE_CARD.price} list={FIVE_CARD.list} gift={isGift} />
+              <StampCard de={de} count={TEN_CARD.count} price={TEN_CARD.price} list={TEN_CARD.list} gift={isGift} recommended />
+            </div>
           </div>
         </div>
       </section>
