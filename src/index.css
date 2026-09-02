@@ -148,6 +148,16 @@
   .wx-logo-link:hover .wx-mark-link { animation: none; }
 }
 
+/* Rewax stamp cards (RewaxPage.tsx StampCard): each logo "stamps" in with a
+   scale overshoot instead of a plain color fade, so it reads as a discrete
+   impact rather than a wash. End state (100%) is intentionally muted, not
+   full brand saturation — a wall of 10 full-color logos read as too loud. */
+@keyframes wx-stamp-pop {
+  0%   { transform: scale(0.85); filter: grayscale(1) opacity(0.4); }
+  55%  { transform: scale(1.18); filter: grayscale(0.15) saturate(0.75) brightness(1.05) opacity(0.95); }
+  100% { transform: scale(1);    filter: grayscale(0.35) saturate(0.6) brightness(1.05) opacity(0.9); }
+}
+
 
 /* Hero secondary CTA — plain underlined text link on mobile (one strong pill
    button + a quiet link reads calmer than two stacked pills); becomes the

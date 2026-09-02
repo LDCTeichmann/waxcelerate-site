@@ -123,17 +123,22 @@ function StampCard({ de, count, price, list, gift, recommended }: {
   const pct = Math.round((1 - price / list) * 100);
 
   // Stamps start pale/gray — a wall of full-color logos read as "too much" —
-  // then color in one after another, staggered, once the card scrolls into
+  // then stamp in one after another, staggered, once the card scrolls into
   // view. Just a self-observing IntersectionObserver (the pattern already
   // used for simple in-view flags elsewhere on the site, e.g.
   // products.tsx/reviews.tsx), not the GSAP-based use3DReveal hook: that one
   // tweens opacity/y/rotateX, not filter, and pulling in ScrollTrigger for a
   // one-property grayscale fade would be more machinery than the effect
-  // needs.
+  // needs. The stamp-in itself is a real CSS keyframe (wx-stamp-pop in
+  // index.css) with a scale overshoot, not a plain filter transition — it
+  // needs to read as a discrete impact per field, not a smooth wash. The end
+  // state is deliberately muted (grayscale/saturate/opacity), not full brand
+  // color — a wall of 10 vivid logos was too loud even once "stamped".
   const gridRef = useRef<HTMLDivElement>(null);
   const [stamped, setStamped] = useState(false);
+  const [reduced] = useState(() => prefersReducedMotion());
   useEffect(() => {
-    if (prefersReducedMotion()) { setStamped(true); return; }
+    if (reduced) { setStamped(true); return; }
     const el = gridRef.current;
     if (!el) return;
     const observer = new IntersectionObserver(([entry]) => {
@@ -141,7 +146,7 @@ function StampCard({ de, count, price, list, gift, recommended }: {
     }, { threshold: 0.1 });
     observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [reduced]);
 
   const waMsg = gift
     ? (de
@@ -182,11 +187,19 @@ function StampCard({ de, count, price, list, gift, recommended }: {
             }}
             aria-hidden={i >= count}>
             <div className="w-[62%] h-[62%]"
-              style={{
-                filter: stamped ? 'grayscale(0) opacity(1)' : 'grayscale(1) opacity(0.4)',
-                transition: 'filter 600ms ease-out',
-                transitionDelay: `${i * 150}ms`,
-              }}>
+              style={
+                reduced
+                  ? { filter: 'grayscale(0.35) saturate(0.6) brightness(1.05) opacity(0.9)' }
+                  : stamped
+                  ? {
+                      animationName: 'wx-stamp-pop',
+                      animationDuration: '650ms',
+                      animationTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+                      animationDelay: `${i * 260}ms`,
+                      animationFillMode: 'both',
+                    }
+                  : { filter: 'grayscale(1) opacity(0.4)' }
+              }>
               <WaxcelerateMark className="w-full h-full" />
             </div>
           </div>
@@ -550,11 +563,14 @@ export function RewaxPage() {
               "auch als Geschenk" ist kein Abzeichen auf der Karte, sondern
               ändert die Bestellnachricht direkt mit. */}
           <div className="mt-12 pt-10" style={{ borderTop: '1px solid var(--bd2)' }}>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-              <p className="text-small uppercase tracking-[0.16em]" style={{ color: 'var(--txf)' }}>
-                {de ? 'Mehrere Vorgänge, einmal bezahlt.' : 'Several treatments, paid once.'}
-              </p>
+            <p className="text-small uppercase tracking-[0.16em] mb-6" style={{ color: 'var(--txf)' }}>
+              {de ? 'Mehrere Vorgänge, einmal bezahlt.' : 'Several treatments, paid once.'}
+            </p>
 
+            {/* Eigene, zentrierte Zeile statt in der Kopfzeile rechts — der
+                Umschalter gilt fuer die Karten direkt darunter, nicht fuer
+                das Sub-Label daneben, und sollte optisch auch so wirken. */}
+            <div className="flex justify-center mb-6">
               <div className="inline-flex rounded-full p-1" style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)' }}>
                 {([
                   { key: false, labelDe: 'Für mich', labelEn: 'For me', Icon: User },
