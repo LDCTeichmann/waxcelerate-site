@@ -138,7 +138,7 @@ function StampCard({ de, count, price, list, gift, recommended }: {
     if (!el) return;
     const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) { setStamped(true); observer.disconnect(); }
-    }, { threshold: 0.4 });
+    }, { threshold: 0.1 });
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
@@ -169,15 +169,23 @@ function StampCard({ de, count, price, list, gift, recommended }: {
         )}
       </div>
 
+      {/* Immer 10 Felder rendern (zwei Reihen), auch auf der 5er-Karte —
+          die ueberzaehligen bleiben unsichtbar, aber layout-wirksam, damit
+          Preis/Ersparnis auf beiden Karten an derselben Y-Position beginnen,
+          egal ob die Karte eine oder zwei Stempelreihen zeigt. */}
       <div ref={gridRef} className="grid grid-cols-5 gap-1.5">
-        {Array.from({ length: count }, (_, i) => (
+        {Array.from({ length: 10 }, (_, i) => (
           <div key={i} className="relative rounded-md flex items-center justify-center"
-            style={{ aspectRatio: '1 / 1', border: '1px dashed rgba(var(--accent-rgb),0.35)', background: 'var(--sf)' }}>
+            style={{
+              aspectRatio: '1 / 1', border: '1px dashed rgba(var(--accent-rgb),0.35)', background: 'var(--sf)',
+              visibility: i < count ? 'visible' : 'hidden',
+            }}
+            aria-hidden={i >= count}>
             <div className="w-[62%] h-[62%]"
               style={{
                 filter: stamped ? 'grayscale(0) opacity(1)' : 'grayscale(1) opacity(0.4)',
-                transition: 'filter 450ms ease-out',
-                transitionDelay: `${i * 90}ms`,
+                transition: 'filter 600ms ease-out',
+                transitionDelay: `${i * 150}ms`,
               }}>
               <WaxcelerateMark className="w-full h-full" />
             </div>
@@ -185,7 +193,7 @@ function StampCard({ de, count, price, list, gift, recommended }: {
         ))}
       </div>
 
-      <div className="flex items-baseline gap-2 mt-4">
+      <div className="flex items-baseline gap-2 mt-6">
         <p className="font-display font-bold text-wx-tx1 leading-none" style={{ fontSize: '1.6rem', letterSpacing: '-0.02em' }}>
           {eur(price, de)}
         </p>
