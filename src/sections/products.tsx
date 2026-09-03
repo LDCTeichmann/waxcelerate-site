@@ -266,7 +266,7 @@ export function Products() {
                   beschaeftigt. Eine einzelne Kachel, schmaler als die volle
                   Sektionsbreite, damit sie nicht wie eine vierte Kettenkarte
                   aussieht. */}
-              <div className="max-w-xl mt-10">
+              <div className="max-w-sm mt-10">
                 <SecondaryTile
                   to="/kette-wachsen-lassen"
                   image="/images/blog/chains-hanging-gold-1600" imageW={1600}

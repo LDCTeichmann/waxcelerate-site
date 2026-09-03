@@ -29,17 +29,19 @@ const JOBS = [
   {
     src: 'products/classic/DSC05242.png',
     out: 'wax-classic',
-    ratio: 4 / 5,
-    focusX: 0.59,
-    focusY: 0.5,
+    ratio: 16 / 10,
+    focusX: 0.588,
+    focusY: 0.47,
+    zoom: 0.85,
     widths: [1000, 800],
   },
   {
     src: 'products/pro/DSC04096.JPG',
     out: 'wax-pro',
-    ratio: 4 / 5,
-    focusX: 0.5,
-    focusY: 0.56,
+    ratio: 16 / 10,
+    focusX: 0.518,
+    focusY: 0.63,
+    zoom: 0.66,
     widths: [1000, 800],
   },
   {
@@ -66,8 +68,11 @@ for (const job of JOBS) {
   const { width, height } = await img.metadata();
 
   // Groesstmoegliches Rechteck im Zielverhaeltnis, an focusY aufgehaengt.
-  let cw = width;
-  let ch = Math.round(width / job.ratio);
+  // `zoom` < 1 schneidet enger: der Block soll die Karte fuellen, nicht als
+  // Briefmarke in der Bildmitte stehen. Beide Wachsmotive teilen denselben
+  // Wert, damit Classic und Pro exakt gleich gross im Bild stehen.
+  let cw = Math.round(width * (job.zoom ?? 1));
+  let ch = Math.round(cw / job.ratio);
   if (ch > height) {
     ch = height;
     cw = Math.round(height * job.ratio);

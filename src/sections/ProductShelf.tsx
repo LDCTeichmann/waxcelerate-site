@@ -121,15 +121,23 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
   };
 
   return (
-    <div className="group flex flex-col transition-transform duration-300 ease-out hover:-translate-y-1" style={{ willChange: 'transform' }}>
-      {/* Foto — ganzflaechig, kein Rahmen. Der Name liegt im Bild, damit er
-          nicht darunter ein zweites Mal als Ueberschrift auftaucht. Rundet
-          nur oben — unten geht es nahtlos in den Infoblock ueber, siehe
-          dessen Kommentar weiter unten. */}
+    <div className="shelf-card group flex flex-col rounded-2xl overflow-hidden">
+      {/* Foto — ganzflaechig, ohne Scrim und ohne Text darauf.
+          09/2026: Der Name lag vorher IM Bild und brauchte dafuer einen
+          Verlauf, der die untere Bildhaelfte zu 76 % schwarz uebermalte —
+          bei einem Motiv, das seine Wirkung aus Farbe zieht (blauer Block vor
+          gruenem Bokeh), kostet das genau die Farbe. Lucas Urteil dazu:
+          "die Wachsbilder sind irgendwie so duester und nicht farbenfroh".
+          Jetzt traegt das Foto nur noch die Auszeichnung und den Hover-Pfeil,
+          beide mit eigenem Fond; Name und Einsatzzeitraum stehen im Block
+          darunter, wo sie ohnehin neben dem Preis hingehoeren. Nebeneffekt:
+          eine Zeile weniger Gesamthoehe, weil Titel und Preis sich jetzt eine
+          Zeile teilen statt uebereinander zu stehen. */}
       <Link
         to={`/produkt/${product.id}`}
-        className="relative block overflow-hidden rounded-t-2xl aspect-[16/10]"
+        className="relative block overflow-hidden aspect-[16/10]"
         style={{ background: 'var(--hero-stage)' }}
+        aria-label={variant === 'classic' ? s.classicName : s.proName}
       >
         <picture>
           <source srcSet={`${image}-800.webp 800w, ${image}.webp 1000w`} sizes="(max-width: 640px) 92vw, 46vw" type="image/webp" />
@@ -138,14 +146,9 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
             alt={alt}
             loading="lazy"
             decoding="async"
-            className="photo-neutral absolute inset-0 h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.04]"
+            className="photo-wax absolute inset-0 h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.04]"
           />
         </picture>
-        <span
-          aria-hidden
-          className="absolute inset-0"
-          style={{ background: 'linear-gradient(to top, rgba(var(--scrim-rgb),0.76) 0%, rgba(var(--scrim-rgb),0.42) 24%, rgba(var(--scrim-rgb),0.06) 52%, rgba(var(--scrim-rgb),0) 72%)' }}
-        />
 
         {/* Hover-Pfeil oben rechts — spiegelt die Auszeichnung oben links und
             gibt WaxPanel dieselbe Klick-Signatur wie SecondaryTile darunter.
@@ -173,35 +176,13 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
             statt "welche ist besser?". */}
         <span className="absolute top-4 left-4 rounded-full px-2.5 py-1 text-meta font-semibold"
           style={{
-            background: variant === 'classic' ? 'rgba(255,255,255,0.94)' : 'rgba(10,10,12,0.62)',
+            background: variant === 'classic' ? 'rgba(255,255,255,0.94)' : 'rgba(10,10,12,0.72)',
             color: variant === 'classic' ? '#101013' : 'rgba(255,255,255,0.94)',
             backdropFilter: 'blur(6px)',
             border: variant === 'classic' ? 'none' : '1px solid rgba(255,255,255,0.22)',
           }}>
           {variant === 'classic' ? s.classicBadge : s.proBadge}
         </span>
-
-        <div className="absolute left-5 right-5 bottom-5">
-          {/* <p>, nicht <h3>: index.css erzwingt im Hellmodus global
-              `h1,h2,h3,h4 { color: var(--tx1) !important }`, mit expliziten
-              Ausnahmen nur fuer #home/.pdp-dark/.hero-editorial/#herkunft.
-              Diese Karte stand in keiner der Ausnahmen, darum lief der Titel
-              trotz `color:#fff` inline fast schwarz (rgb(16,16,19) statt
-              weiss — !important auf der Klassenregel schlaegt eine nicht-
-              !important Inline-Deklaration). SecondaryTile direkt darunter
-              hat exakt dasselbe Problem, indem es von Anfang an ein <p> statt
-              <h3> war — hier jetzt angeglichen, statt eine weitere Ausnahme
-              in index.css zu sammeln. */}
-          <p
-            className="font-display font-bold leading-[1.05] tracking-[-0.02em]"
-            style={{ color: '#fff', fontSize: 'clamp(1.3rem, 2.6vw, 1.85rem)', textShadow: '0 1px 18px rgba(0,0,0,0.4)' }}
-          >
-            {variant === 'classic' ? s.classicName : s.proName}
-          </p>
-          <p className="num-data text-[12px] mt-1" style={{ color: 'rgba(255,255,255,0.86)', textShadow: '0 1px 8px rgba(0,0,0,0.6)' }}>
-            {variant === 'classic' ? s.classicFor : s.proFor}
-          </p>
-        </div>
       </Link>
 
       {/* Infoblock — vorher lose auf dem Seiten-Hintergrund, nur mit einer
@@ -210,17 +191,29 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
           Social-Proof-Zeile, zwei Buttons) reicht eine einzelne obere Linie
           als Gruppierungssignal nicht — das Gestalt-Prinzip "Common Region"
           (NN/g) sagt: eine Flaeche bindet lose Elemente zu einer Einheit
-          zusammen, eine Linie an nur einer Kante schwaecher. Deshalb jetzt
-          ein durchgehender, leicht getoenter Block direkt unter dem Foto
-          (kein Abstand, gerundete Unterkanten passend zur oberen Fotorundung
-          — Foto und Infoblock wirken als eine Form). Bewusst kein Rahmen,
-          kein Schatten — nur der Flaechenton selbst traegt die Grenze, wie
-          es DESIGN.md §3 vorsieht ("duenne Trennlinien statt Kartenboxen"),
-          hier nur um eine Flaeche statt einer Linie erweitert. */}
-      <div className="rounded-b-2xl px-4 pt-3 pb-4" style={{ background: 'var(--sf2)' }}>
-        <div className="flex items-end justify-between gap-4">
-          <div className="flex gap-1.5">{(['300', '500'] as Size[]).map(sizeBtn)}</div>
-          <div className="text-right">
+          zusammen, eine Linie an nur einer Kante schwaecher. Flaeche und
+          Rahmen liegen jetzt auf .shelf-card (index.css), damit Foto und
+          Block als eine Karte lesen und dieselbe blaue Hover-Kante tragen
+          wie die Kacheln darunter. */}
+      <div className="px-4 pt-3.5 pb-4">
+        {/* Zeile 1: Name links, Preis rechts. Beide Enden der Zeile belegt —
+            vorher stand rechts der Preis und links der Groessenschalter,
+            waehrend der Name eine eigene Zeile im Foto hatte. */}
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            {/* <p>, nicht <h3>: index.css erzwingt im Hellmodus global
+                `h1,h2,h3,h4 { color: var(--tx1) !important }` — hier zwar
+                dieselbe Farbe, aber SecondaryTile und WaxPanel bleiben so in
+                derselben Auszeichnung. */}
+            <p className="font-display font-bold leading-[1.1] tracking-[-0.02em]"
+              style={{ color: 'var(--tx1)', fontSize: 'clamp(1.15rem, 1.9vw, 1.4rem)' }}>
+              {variant === 'classic' ? s.classicName : s.proName}
+            </p>
+            <p className="num-data text-[12px] mt-0.5 truncate" style={{ color: 'var(--txm)' }}>
+              {variant === 'classic' ? s.classicFor : s.proFor}
+            </p>
+          </div>
+          <div className="text-right flex-shrink-0">
             <span className="num text-[21px] font-bold leading-none tracking-[-0.02em]" style={{ color: 'var(--tx1)' }}>
               {eur(product.price, de)}
             </span>
@@ -247,15 +240,15 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
           ))}
         </div>
 
-        {/* Sozialer Beweis links, Lieferung rechts — zwei getrennte Aussagen
-            statt einer langen Kette. `flex-wrap` + `whitespace-nowrap` auf
-            beiden Seiten: jede Aussage bleibt am Stueck (kein Umbruch mitten
-            im Wort wie "78 / Bewertungen"), und bei wenig Platz faellt die
-            Lieferung als Ganzes in die naechste Zeile statt am Kartenrand
-            abgeschnitten zu werden. Bezieht sich auf die Formel (Classic/Pro)
-            statt die Groesse, siehe variantStats() oben — sonst springt die
-            Zahl beim Groessenwechsel. */}
-        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 mt-2.5">
+        {/* Zeile 3: Groessenschalter links, sozialer Beweis rechts. Vorher
+            standen Bewertung/Verkaufszahl und Lieferdatum zusammen in einer
+            eigenen Zeile und der Schalter in der Preiszeile — drei Zeilen fuer
+            drei Aussagen, jede nur halb belegt. Jetzt zwei Zeilen, beide an
+            beiden Enden belegt (Lucas "viel Deadspace"). Bezieht sich auf die
+            Formel (Classic/Pro) statt die Groesse, siehe variantStats() oben —
+            sonst springt die Zahl beim Groessenwechsel. */}
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 mt-3">
+          <div className="flex gap-1.5">{(['300', '500'] as Size[]).map(sizeBtn)}</div>
           <div className="flex items-center gap-1.5 whitespace-nowrap">
             {reviews > 0 && (
               <>
@@ -275,41 +268,46 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
               </span>
             )}
           </div>
+        </div>
+
+        {/* Zeile 4: Kaufzeile links, Lieferdatum rechts — das Datum fuellt den
+            Platz, der rechts neben zwei Buttons ohnehin frei bleibt, statt
+            eine eigene Zeile zu belegen. */}
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 mt-3.5">
+          <div className="flex items-center gap-2.5">
+          {product.soldOut ? (
+            <span className="inline-flex items-center min-h-11 text-[13px] font-semibold" style={{ color: 'var(--txf)' }}>
+              {de ? 'Ausverkauft' : 'Sold out'}
+            </span>
+          ) : canCheckout(product) ? (
+            <AddToCartButton product={product} />
+          ) : (
+            <button
+              type="button"
+              onClick={() => { trackEbayClick(product.id); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
+              className="inline-flex items-center gap-1.5 min-h-11 px-5 rounded-full text-[13px] font-semibold transition-all duration-150 hover:opacity-90 active:scale-[0.97]"
+              style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
+            >
+              {t.products.buyOnEbay}
+              <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+            </button>
+          )}
+          {/* War ein reiner Textlink neben einem gefuellten Button — daneben
+              praktisch unsichtbar, obwohl er zur Produktseite mit allen
+              Details, Bewertungen und FAQ fuehrt. Jetzt als Rahmen-Button auf
+              Augenhoehe mit dem eBay-Button (gleiche Groesse, ohne dessen
+              Flaeche zu kopieren), damit die Seite nicht nur "eBay oder
+              nichts" signalisiert. */}
+          <Link to={`/produkt/${product.id}`}
+            className="inline-flex items-center gap-1 min-h-11 px-4 rounded-full text-[13px] font-semibold border transition-colors duration-150 hover:bg-[var(--accent-wash)]"
+            style={{ borderColor: 'var(--bd)', color: 'var(--tx2)' }}>
+            {s.details} <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+          </Link>
+          </div>
           <span className="flex items-center gap-1.5 num-data text-meta whitespace-nowrap" style={{ color: 'var(--txff)' }}>
             <Truck className="h-3 w-3 flex-shrink-0" style={{ color: accentColor }} aria-hidden />
             {s.delivery} {delivery}
           </span>
-        </div>
-
-        <div className="flex items-center gap-4 mt-3">
-        {product.soldOut ? (
-          <span className="inline-flex items-center min-h-11 text-[13px] font-semibold" style={{ color: 'var(--txf)' }}>
-            {de ? 'Ausverkauft' : 'Sold out'}
-          </span>
-        ) : canCheckout(product) ? (
-          <AddToCartButton product={product} />
-        ) : (
-          <button
-            type="button"
-            onClick={() => { trackEbayClick(product.id); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
-            className="inline-flex items-center gap-1.5 min-h-11 px-5 rounded-full text-[13px] font-semibold transition-all duration-150 hover:opacity-90 active:scale-[0.97]"
-            style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
-          >
-            {t.products.buyOnEbay}
-            <ExternalLink className="h-3.5 w-3.5" aria-hidden />
-          </button>
-        )}
-        {/* War ein reiner Textlink neben einem gefuellten Button — daneben
-            praktisch unsichtbar, obwohl er zur Produktseite mit allen
-            Details, Bewertungen und FAQ fuehrt. Jetzt als Rahmen-Button auf
-            Augenhoehe mit dem eBay-Button (gleiche Groesse, ohne dessen
-            Flaeche zu kopieren), damit die Seite nicht nur "eBay oder
-            nichts" signalisiert. */}
-        <Link to={`/produkt/${product.id}`}
-          className="inline-flex items-center gap-1 min-h-11 px-4 rounded-full text-[13px] font-semibold border transition-colors duration-150 hover:bg-[var(--accent-wash)]"
-          style={{ borderColor: 'var(--bd)', color: 'var(--tx2)' }}>
-          {s.details} <ArrowRight className="h-3.5 w-3.5" aria-hidden />
-        </Link>
         </div>
       </div>
     </div>
@@ -370,14 +368,22 @@ export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, p
 } & ({ to: string } | { onClick: () => void })) {
   const inner = (
     <>
-      {/* Bild links, feste Breite statt voller Kachelbreite — dadurch liegt
-          der Text daneben statt darunter und die Karte wird breit statt
-          hochformatig-lang (Lucas Wunsch: "nicht länglich, sondern
-          breiter"). Nur linke Ecken gerundet, geht nahtlos in den
-          Textblock rechts über. */}
-      <div className="relative overflow-hidden rounded-l-2xl w-28 sm:w-40 md:w-48 flex-shrink-0 aspect-square" style={{ background: 'var(--hero-stage)' }}>
+      {/* 09/2026, vierter Anlauf — zurueck zur Karte, aber mit der Grammatik
+          von WaxPanel statt der alten Scrim-Kachel.
+          Der dritte Anlauf (Foto links, Text rechts, drei Zeilen untereinander)
+          loeste zwar das Textproblem, erzeugte aber auf dem Desktop das
+          naechste: eine Zeile ueber die volle Sektionsbreite hat neben einem
+          quadratischen Bild und drei Zeilen Text rund 400 px, die nichts
+          tragen — Lucas Befund "viel Deadspace". Drei solcher Zeilen
+          untereinander sind ausserdem dreimal so hoch wie eine Reihe.
+          Jetzt: dieselbe Karte wie die Wachs-Tafeln — Foto 16:10 oben, Text
+          im getoenten Block darunter, drei Karten nebeneinander. Der Text
+          steht weiterhin auf Flaeche statt auf Foto (das war der Fehler des
+          zweiten Anlaufs), aber die Kachel hat jetzt volle Spaltenbreite
+          statt halber, also bricht keine Eyebrow-Zeile mehr um. */}
+      <div className="relative overflow-hidden aspect-[16/10]" style={{ background: 'var(--hero-stage)' }}>
         <picture>
-          <source srcSet={`${image}-800.webp 800w, ${image}.webp ${imageW}w`} sizes="(max-width: 640px) 30vw, 15vw" type="image/webp" />
+          <source srcSet={`${image}-800.webp 800w, ${image}.webp ${imageW}w`} sizes="(max-width: 640px) 92vw, 30vw" type="image/webp" />
           <img
             src={`${image}.webp`}
             alt={alt}
@@ -388,10 +394,10 @@ export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, p
         </picture>
         <span aria-hidden className="absolute inset-0"
           style={{ background: dark
-            ? 'linear-gradient(to top, rgba(var(--scrim-rgb),0.38) 0%, rgba(var(--scrim-rgb),0) 40%)'
-            : 'linear-gradient(to top, rgba(var(--scrim-rgb),0.22) 0%, rgba(var(--scrim-rgb),0) 34%)' }} />
+            ? 'linear-gradient(to top, rgba(var(--scrim-rgb),0.34) 0%, rgba(var(--scrim-rgb),0) 42%)'
+            : 'linear-gradient(to top, rgba(var(--scrim-rgb),0.18) 0%, rgba(var(--scrim-rgb),0) 36%)' }} />
         {index && (
-          <span className="absolute top-2.5 left-2.5 flex items-center justify-center h-6 w-6 rounded-full num-data text-[11px] font-semibold"
+          <span className="absolute top-3.5 left-3.5 flex items-center justify-center h-6 w-6 rounded-full num-data text-[11px] font-semibold"
             style={{
               background: 'rgba(255,255,255,0.94)',
               color: '#101013',
@@ -402,23 +408,22 @@ export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, p
         )}
       </div>
 
-      <div className="rounded-r-2xl px-4 py-3 sm:px-5 sm:py-4 flex flex-col justify-center flex-1 min-w-0" style={{ background: 'var(--sf2)' }}>
+      {/* flex-1 + mt-auto auf der Preiszeile: drei Kacheln nebeneinander haben
+          unterschiedlich lange Fliesstexte, die CTA-Zeilen sollen trotzdem auf
+          einer Linie liegen (der Grid streckt alle Karten auf gleiche Hoehe). */}
+      <div className="flex flex-1 flex-col px-4 pt-3.5 pb-4">
         <p className="eyebrow">{eyebrow}</p>
-        <h3 className="font-display font-bold text-[15px] sm:text-[17px] leading-snug tracking-[-0.01em] mt-0.5" style={{ color: 'var(--tx1)' }}>{title}</h3>
-        <p className="text-[12.5px] sm:text-[13.5px] leading-snug mt-1 line-clamp-2 sm:line-clamp-none" style={{ color: 'var(--txm)' }}>{body}</p>
+        <h3 className="font-display font-bold text-[16px] sm:text-[17px] leading-snug tracking-[-0.01em] mt-0.5" style={{ color: 'var(--tx1)' }}>{title}</h3>
+        <p className="text-[13px] leading-snug mt-1.5" style={{ color: 'var(--txm)' }}>{body}</p>
 
-        {/* Der schmale Textbereich neben dem Bild reicht auf Mobile nicht
-            fuer Preis und den vollen CTA-Text nebeneinander — das schnitt
-            z.B. "Set zusammenstellen" hart am Kartenrand ab. Deshalb
-            gestapelt (Preis, dann volle-Breite-Button) bis sm, erst ab da
-            genug Breite fuer eine Zeile. CTA als eigenstaendiger,
-            gefuellter Button statt einer leicht getoenten Pille im
-            Fliesstext-Stil — dieselbe Buy-Button-Grammatik wie die anderen
-            Kauf-CTAs in dieser Datei (var(--cta-bg)/var(--cta-fg)). */}
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3 mt-2.5 sm:mt-3">
-          {price && <span className="num text-[14px] sm:text-[16px] font-bold flex-shrink-0" style={{ color: 'var(--tx1)' }}>{price}</span>}
+        {/* CTA als eigenstaendiger, gefuellter Button statt einer leicht
+            getoenten Pille im Fliesstext-Stil — dieselbe Buy-Button-Grammatik
+            wie die Kauf-CTAs oben in dieser Datei. Dauerhaft gefuellt, nicht
+            per :hover ein-/ausgeblendet: auf Touch gibt es kein "vorher". */}
+        <div className="flex flex-wrap items-center justify-between gap-2 mt-auto pt-3.5">
+          {price && <span className="num text-[15px] font-bold flex-shrink-0" style={{ color: 'var(--tx1)' }}>{price}</span>}
           <span
-            className="inline-flex items-center justify-center gap-1.5 min-h-9 sm:min-h-10 px-4 rounded-full text-[12px] sm:text-[13px] font-semibold w-full sm:w-auto flex-shrink-0 transition-all duration-200 group-hover:opacity-90"
+            className="inline-flex items-center justify-center gap-1.5 min-h-10 px-4 rounded-full text-[13px] font-semibold flex-shrink-0 transition-all duration-200 group-hover:opacity-90"
             style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
           >
             {cta}
@@ -429,13 +434,15 @@ export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, p
     </>
   );
 
-  const wrapperClass = 'group flex flex-row items-stretch rounded-2xl overflow-hidden transition-all duration-200 ease-out hover:border-[var(--accent-soft)]';
-  const wrapperStyle = { border: '1px solid var(--bd)' };
+  // Rahmen, Flaeche und die blaue Hover-Kante kommen aus .shelf-card
+  // (index.css) — als Inline-Style konnte die Hover-Klasse den Rahmen nie
+  // ueberschreiben, die blaue Kante war damit tot.
+  const wrapperClass = 'shelf-card group flex flex-col rounded-2xl overflow-hidden';
 
   return 'to' in action ? (
-    <Link to={action.to} className={wrapperClass} style={wrapperStyle}>{inner}</Link>
+    <Link to={action.to} className={wrapperClass}>{inner}</Link>
   ) : (
-    <button type="button" onClick={action.onClick} className={`${wrapperClass} text-left`} style={wrapperStyle}>{inner}</button>
+    <button type="button" onClick={action.onClick} className={`${wrapperClass} text-left w-full`}>{inner}</button>
   );
 }
 
@@ -540,7 +547,7 @@ export function ProductShelf({ de, t, onOpenChains, onCompare }: {
           <p className="text-[13.5px] mt-1.5" style={{ color: 'var(--txm)' }}>{s.altBody}</p>
         </div>
 
-        <div className="flex flex-col gap-3 sm:gap-4">
+        <div className="grid gap-6 sm:grid-cols-3 sm:gap-6">
         <SecondaryTile
           index={1}
           to="/starter-set"

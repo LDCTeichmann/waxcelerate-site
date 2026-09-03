@@ -131,33 +131,32 @@ Erstes Messtechnik sieht.
 
 1. Hero
 2. Warum Wachs: was sich für dich ändert, dann der Antriebsverlust-Sägezahn, dann die Messkacheln
-3. Produkte: das Regal — zwei Wachs-Tafeln (Classic/Pro, Größe als Schalter,
-   4:3.3 Querformat), darunter eine Reihe aus drei gleich großen Kacheln (Set,
-   Ketten, Rewax) in einer gemeinsamen Sprache (`SecondaryTile` in
-   `ProductShelf.tsx`, ebenfalls 4:3.3, Foto mit Scrim-Titel, ein Fließtext,
-   ein CTA). Erst vier verschiedene Layouts für vier Elemente auf einem
-   Bildschirm, dann korrigiert auf zwei Kartensprachen nach genau zwei
-   Rollen (Kaufentscheidung vs. nächster Schritt) — ein A/B-Test mit 25.000
-   Besuchern belegt 17,1 % mehr Umsatz pro Besucher allein durch einheitliche
-   statt gemischte Kartengrößen in einem Produktraster.
-   Zwei Anläufe, bis das griff. Erster Anlauf (4:5 vs. 4:3, ~2,6× Höhen-
-   verhältnis, dann ein max-w-[880px]-Deckel auf die Wachs-Reihe): löste
-   Lucas Beobachtung ("Wax-Tafeln wirken viel größer") nur zur Hälfte und
-   erzeugte einen neuen Fehler — der Deckel schnitt die Wachs-Reihe bei
-   880px ab, während die Dreierreihe darunter die volle Sektionsbreite
-   (1120px bei 1400px Viewport) nutzt. 240px Leerraum rechts neben den
-   Tafeln plus ein eigenes Seitenverhältnis ergab genau "zu groß, nicht
-   zentral, nicht aus einem Guss" — Lucas Screenshot vom 21.08. zeigte es.
-   Zweiter Anlauf: kein Deckel mehr (Wachs-Reihe trägt jetzt dieselbe volle
-   Breite wie die Reihe darunter), und dasselbe Seitenverhältnis 4:3.3 für
-   beide Ebenen (vorher 4:4.6 für die Wachs-Tafeln). Bei zwei statt drei
-   Spalten sind die Wax-Tafeln dadurch automatisch breiter und bei gleichem
-   Verhältnis auch etwas höher (bei 1400px rund 544×449px statt vorher
-   424×488px) — aber dieselbe Bildsprache wie die Kacheln darunter statt
-   eines eigenen Seitenverhältnisses, und der Größenunterschied liest sich
-   jetzt als Spaltenzahl, nicht als Formfaktor-Bruch. Dieselbe Hover-Sprache
-   auf beiden Ebenen (Lift + Pfeil-Chip) trägt den Rest der Hierarchie
-   (Kaufentscheidung vs. nächster Schritt).
+3. Produkte: das Regal — zwei Wachs-Tafeln (Classic/Pro, Größe als Schalter)
+   oben, darunter eine Reihe aus drei gleich großen Kacheln (Set, Ketten,
+   Rewax). Beide Ebenen tragen seit 09/2026 **dieselbe Karte**: Foto 16:10
+   oben, getönter Textblock darunter, Haarlinien-Rahmen, beim Hover eine blaue
+   Kante (`.shelf-card` in `index.css`, `ProductShelf.tsx`). Zwei Rollen —
+   Kaufentscheidung vs. nächster Schritt — bleiben an Spaltenzahl (2 vs. 3)
+   und Inhaltstiefe unterschieden, nicht an der Kartenform; ein A/B-Test mit
+   25.000 Besuchern belegt 17,1 % mehr Umsatz pro Besucher allein durch
+   einheitliche statt gemischte Kartengrößen in einem Produktraster.
+   Vier Anläufe bis dahin, jeder mit einem eigenen Fehler:
+   1. Vier Layouts für vier Elemente ("all over the place").
+   2. Zwei Kartensprachen, aber ein `max-w-[880px]`-Deckel auf der Wachs-Reihe
+      → 240 px Leerraum rechts daneben.
+   3. Sekundär-Kacheln als schmale Foto-Scrim-Kacheln → auf Mobile brach der
+      Text auf dem Foto um ("hässlich", "chaotisch").
+   4. Sekundär-Kacheln als volle Breite Zeilen (Foto links, Text rechts) →
+      auf dem Desktop rund 400 px tote Fläche je Zeile, und drei Zeilen
+      untereinander dreimal so hoch wie eine Reihe.
+   Der jetzige Stand nimmt aus (3) die Lehre mit (Text steht nie auf dem Foto)
+   und aus (4) die Preise (jede Kachel zeigt "ab X €"), aber wieder in einer
+   Dreierreihe. Zusätzlich getilgt: die Wachs-Titel lagen im Foto und
+   brauchten dafür einen Scrim, der die untere Bildhälfte zu 76 % schwarz
+   übermalte — bei Motiven, deren Wirkung aus Farbe kommt, kostet das genau
+   die Farbe ("düster und nicht farbenfroh"). Titel und Untertitel stehen
+   jetzt im Textblock neben dem Preis, das Foto trägt nur noch den
+   Auszeichnungs-Chip.
 4. Tür in die Wissenschaft
 
 Der Sägezahn trägt zwei Argumente gleichzeitig: wie viele Watt ein Schmierstoff
@@ -173,7 +172,17 @@ und eine 800er WebP.
 
 Auswahllogik: **Classic und Pro müssen aus derselben Session stammen** —
 DSC05242 (blauer Block) und DSC04096 (schwarzer Block), beide hochkant auf
-Schiefer vor grünem Bokeh. Stehen zwei Produkte nebeneinander und unterscheiden
+Schiefer vor grünem Bokeh. Die Regel war zwischenzeitlich gebrochen: das
+`wax-classic`-Motiv wurde am 26.08.2026 gegen eine Aufsicht auf dunklem
+Schiefer getauscht — anderes Licht, anderer Winkel, kein Bokeh — und genau
+dieses Bild las sich neben dem Pro als düster. Seit 09/2026 wieder das Paar
+aus dem Skript, beide mit identischem Zuschnitt (16:10 wie die Karte, `zoom`
+so gewählt, dass beide Blöcke gleich groß im Bild stehen).
+Die beiden Wachsfotos tragen `.photo-wax` (Sättigung 0,9) statt
+`.photo-neutral` (0,68): die Entsättigung war gegen den Olivstich der
+Bokeh-Fotos gerechnet, kostet aber beim blauen Block genau das Merkmal, das
+ihn vom Pro unterscheidet. Die drei Sekundär-Kacheln bleiben bei
+`.photo-neutral`. Stehen zwei Produkte nebeneinander und unterscheiden
 sich Winkel oder Licht, vergleicht der Betrachter die Fotografie statt das
 Wachs. Der grüne Hintergrund löst nebenbei das alte Pro-Problem: schwarzes
 Wachs auf dunklem Schiefer war im Noir-Theme praktisch unsichtbar und musste
