@@ -623,16 +623,23 @@
   filter: saturate(0.68) contrast(1.06);
 }
 
-/* Die zwei Wachsfotos im Regal tragen weniger Entsaettigung als der Rest.
-   Grund: .photo-neutral (0.68) war gegen den Olivstich der vier Bokeh-Fotos
-   gerechnet, die nebeneinander in der Sektion standen. Der blaue Classic-Block
-   ist aber das einzige gesaettigte Nicht-Gruen im Regal — er verliert bei 0.68
-   genau das, was ihn vom Pro unterscheidet, und Luca beschrieb das Ergebnis
-   als "duester und nicht farbenfroh". Die drei Sekundaer-Kacheln behalten
-   .photo-neutral (dort ist Laubgruen die dominierende Flaeche), die beiden
-   Produkt-Tafeln bekommen nur noch eine leichte Daempfung. */
+/* Die zwei Wachsfotos im Regal tragen keine Entsaettigung mehr, sondern eine
+   leichte Anhebung. Grund: .photo-neutral (0.68) war gegen den Olivstich der
+   vier Bokeh-Fotos gerechnet, die nebeneinander in der Sektion standen. Der
+   blaue Classic-Block ist aber das einzige gesaettigte Nicht-Gruen im Regal —
+   er verliert bei Entsaettigung genau das, was ihn vom Pro unterscheidet.
+   Erster Versuch (Runde 1) reduzierte die Entsaettigung nur auf saturate(0.9)
+   — Lucas Urteil danach weiterhin "die Farben noch schoener". Jetzt eine
+   Anhebung ueber den Bildoriginalwert hinaus (>1), nicht nur ein schwaecherer
+   Abzug: saturate(1.12) macht Laubgruen und Classic-Blau spuerbar satter,
+   contrast(1.05)/brightness(1.015) verhindern, dass die zusaetzliche Saettigung
+   die Fotos flau oder milchig wirken laesst. Per Screenshot-Vergleich gegen
+   1.1/1.25 geprueft — 1.25 kippt den Hintergrund bereits ins unnatuerlich
+   Knallgruene, 1.12 bleibt glaubwuerdig fotografisch. Die drei
+   Sekundaer-Kacheln behalten .photo-neutral (dort ist Laubgruen die
+   dominierende Flaeche, nicht ein einzelnes farbiges Produkt). */
 .photo-wax {
-  filter: saturate(0.9) contrast(1.04);
+  filter: saturate(1.12) contrast(1.05) brightness(1.015);
 }
 
 /* ── Regal-Karte: ruhende Haarlinie, blaue Kante beim Hover ────────────────

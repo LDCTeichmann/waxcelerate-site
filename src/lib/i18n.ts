@@ -101,28 +101,40 @@ export const translations = {
         dryInterval: 'trocken',
         uses: 'Anwendungen',
         details: 'Details',
-        // Titel sagen, was der Kunde DAVON hat, nicht wie das Produkt heisst.
-        // Vorher: "Starter-Set — Wachs, Kette, Zange, Draht.", "Vorgewachste
-        // Ketten", "Keine Lust auf den Topf?" — drei Etiketten, die den
-        // Packungsinhalt aufzaehlen. Lucas Beobachtung: klingt generisch.
-        // CeramicSpeed verkauft dieselbe Ware mit "we waxed it for you" —
-        // dieselbe Tatsache, aber als Entlastung formuliert statt als
-        // Produktbezeichnung. Genau das ist hier uebernommen: die Arbeit, die
-        // wir dem Kunden abnehmen, steht im Titel; was drin ist, in der Zeile
-        // darunter.
+        // Runde 2 (09/2026): zurueck zu direkten Produktnamen als Titel,
+        // Lucas ausdruecklicher Wunsch nach "was Direkterem, Smartem" statt
+        // der Benefit-Umschreibung unten (Runde 1, CeramicSpeed-Ansatz —
+        // Begruendung als Kommentarhistorie stehen gelassen, siehe Doku
+        // hierueber). Titel sind jetzt die offiziellen Namen aus der
+        // Produkt-/Preisliste ("Starter-Set", "Vorgewachste Ketten", der
+        // etablierte Such-/Routenbegriff "Kette wachsen lassen" statt des im
+        // Deutschen ungebraeuchlichen Anglizismus "Rewax" als Titel, siehe
+        // Kommentar bei rewax weiter unten in dieser Datei). Die Eyebrows
+        // behalten die Einwand-Framing-Funktion (Aufhaenger), die Titel
+        // uebernehmen jetzt die Wiedererkennung. setBody verliert dabei den
+        // Gedankenstrich (Skill-Regel: keine Gedankenstriche als
+        // Satzzeichen in Kundentexten) und die Wertung "kein Fehlkauf" —
+        // die reine Inhaltsangabe bleibt, das ist die nuetzliche Information.
         setEyebrow: 'Zum ersten Mal?',
-        setTitle: 'Alles dabei, beim ersten Mal.',
-        setBody: 'Wachs, Kette, Zange, Draht — eine Sendung, kein Fehlkauf.',
+        setTitle: 'Starter-Set',
+        setBody: 'Wachs, Kette, Zange und Draht in einer Sendung.',
         setCta: 'Set zusammenstellen',
         chainsEyebrow: 'Kein Topf nötig',
-        chainsTitle: 'Schon gewachst. Von Hand.',
+        chainsTitle: 'Vorgewachste Ketten',
         chainsBody: 'Ultraschall-entfettet, gewachst, Quick-Link dabei. Aufziehen und losfahren.',
         chainsPick: 'Welche Schaltung fährst du?',
         chainsAll: 'Alle Ketten ansehen',
         chainsCount: '{n} Ketten',
-        rewaxEyebrow: 'Service',
-        rewaxTitle: 'Wir wachsen sie für dich.',
-        rewaxBody: 'Kette einschicken, fahrbereit zurückbekommen. 13,95 € je Kette, ab drei 9,95 €.',
+        // "Rewax" bleibt als kurzes Fachlabel im Eyebrow (steht ohnehin schon
+        // in der CTA "Zum Rewax-Service"), aber nicht als Titel: laut
+        // i18n-Kommentar beim Nav-Label rewax (oben in dieser Datei) sucht im
+        // Deutschen niemand "Rewax" — der etablierte Begriff ist "Kette
+        // wachsen lassen" (= Nav-Label und Routenname). rewaxBody verliert
+        // den Preissatz, der stand schon einmal als eigenes price-Badge auf
+        // derselben Kachel (rewaxFrom) — doppelte Information.
+        rewaxEyebrow: 'Rewax',
+        rewaxTitle: 'Kette wachsen lassen',
+        rewaxBody: 'Kette einschicken, fahrbereit zurückbekommen.',
         rewaxCta: 'Zum Rewax-Service',
         rewaxFrom: 'Ab 9,95 €',
         // Ueberschrift ueber Set/Ketten/Rewax. Ohne sie stehen dort drei
@@ -598,18 +610,18 @@ export const translations = {
         uses: 'applications',
         details: 'Details',
         setEyebrow: 'First time?',
-        setTitle: 'Everything there, first time.',
-        setBody: 'Wax, chain, pliers, wire — one parcel, nothing missing.',
+        setTitle: 'Starter Set',
+        setBody: 'Wax, chain, pliers and wire in one parcel.',
         setCta: 'Build your set',
         chainsEyebrow: 'No pot required',
-        chainsTitle: 'Already waxed. By hand.',
+        chainsTitle: 'Pre-Waxed Chains',
         chainsBody: 'Ultrasonically degreased, waxed, quick-link included. Fit it and ride.',
         chainsPick: 'Which drivetrain do you ride?',
         chainsAll: 'See all chains',
         chainsCount: '{n} chains',
-        rewaxEyebrow: 'Service',
-        rewaxTitle: 'We wax it for you.',
-        rewaxBody: 'Send the chain in, get it back ready to ride. 13.95 € per chain, 9.95 € from three.',
+        rewaxEyebrow: 'Rewax',
+        rewaxTitle: 'Rewax Service',
+        rewaxBody: 'Send the chain in, get it back ready to ride.',
         rewaxCta: 'To the rewax service',
         rewaxFrom: 'From €9.95',
         altTitle: 'No pot? No problem.',

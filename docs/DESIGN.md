@@ -157,6 +157,38 @@ Erstes Messtechnik sieht.
    die Farbe ("düster und nicht farbenfroh"). Titel und Untertitel stehen
    jetzt im Textblock neben dem Preis, das Foto trägt nur noch den
    Auszeichnungs-Chip.
+
+   09/2026, Runde 2: Lucas Folge-Feedback ("Farben schöner", "Titel
+   direkter, Karten schlauer/smoother, nur nützliche Infos") führte zu drei
+   gezielten Nachjustierungen statt eines weiteren Layout-Umbaus:
+   - **Titel wieder Produktnamen** statt Benefit-Sätzen ("Starter-Set" /
+     "Vorgewachste Ketten" / "Kette wachsen lassen" statt "Alles dabei, beim
+     ersten Mal." / "Schon gewachst. Von Hand." / "Wir wachsen sie für
+     dich."). Kehrt die Runde-1-Begründung in `i18n.ts` (CeramicSpeed-Ansatz,
+     "Titel sagen was der Kunde davon hat") teilweise um — auf Lucas
+     ausdrücklichen Wunsch, dort ausführlich kommentiert stehen gelassen.
+     Die Eyebrows behalten die Einwand-Framing-Rolle, nur die Titel wechseln
+     zu direkten Namen. "Rewax" bleibt bewusst nur Eyebrow/CTA-Wort, nicht
+     Titel — siehe die dokumentierte SEO-Entscheidung in `i18n.ts:10-13`,
+     dass im Deutschen niemand "Rewax" sucht.
+   - **Redundante Info raus:** `rewaxBody` nannte den Preis ein zweites Mal,
+     obwohl dieselbe Kachel schon ein eigenes `price`-Badge zeigt — gestrichen.
+     `setBody` verlor den Gedankenstrich und die Wertung "kein Fehlkauf"
+     (Skill-Regel: keine Gedankenstriche in Kundentexten; die reine
+     Inhaltsangabe ist die nützliche Information, die Wertung nicht).
+   - **Wachsfotos farbiger, nicht getauscht:** `.photo-wax` ging von
+     `saturate(0.9)` (Runde 1, gegen den alten Olivstich gerechnet) auf
+     `saturate(1.12) contrast(1.05) brightness(1.015)` — eine echte Anhebung
+     über den Bildoriginalwert, keine schwächere Abschwächung. Per
+     Screenshot-Vergleich gegen 1.1/1.25 geprüft, 1.25 kippte den
+     Hintergrund bereits unnatürlich knallgrün.
+   - Eckenradius beider Kartenebenen von 16px auf 20px angehoben
+     (`rounded-[20px]` statt `rounded-2xl`), Sekundär-Kachel-Titel von
+     16-17px auf 17-18.5px, näher an WaxPanels Produktnamen-Größe — die
+     Titel sind jetzt kurze Namen statt Sätze und brauchen mehr Gewicht, um
+     als Überschrift zu lesen statt als Fließtext-Zeile.
+   - Set-, Ketten- und Rewax-Foto folgen als separater Schritt (Lucas eigene
+     Bildauswahl über `image-drop/`, siehe §5).
 4. Tür in die Wissenschaft
 
 Der Sägezahn trägt zwei Argumente gleichzeitig: wie viele Watt ein Schmierstoff

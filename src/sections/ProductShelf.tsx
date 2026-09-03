@@ -121,7 +121,7 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
   };
 
   return (
-    <div className="shelf-card group flex flex-col rounded-2xl overflow-hidden">
+    <div className="shelf-card group flex flex-col rounded-[20px] overflow-hidden">
       {/* Foto — ganzflaechig, ohne Scrim und ohne Text darauf.
           09/2026: Der Name lag vorher IM Bild und brauchte dafuer einen
           Verlauf, der die untere Bildhaelfte zu 76 % schwarz uebermalte —
@@ -413,7 +413,12 @@ export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, p
           einer Linie liegen (der Grid streckt alle Karten auf gleiche Hoehe). */}
       <div className="flex flex-1 flex-col px-4 pt-3.5 pb-4">
         <p className="eyebrow">{eyebrow}</p>
-        <h3 className="font-display font-bold text-[16px] sm:text-[17px] leading-snug tracking-[-0.01em] mt-0.5" style={{ color: 'var(--tx1)' }}>{title}</h3>
+        {/* Runde 2: Titel sind jetzt kurze Produktnamen statt ganzer Saetze
+            ("Starter-Set", "Vorgewachste Ketten", "Kette wachsen lassen") —
+            eine Groessenstufe groesser als vorher, naeher an WaxPanels
+            Produktnamen-Groesse (clamp 1.15-1.4rem), damit sie als
+            Ueberschrift statt als Fliesstext-Zeile lesen. */}
+        <h3 className="font-display font-bold text-[17px] sm:text-[18.5px] leading-snug tracking-[-0.015em] mt-0.5" style={{ color: 'var(--tx1)' }}>{title}</h3>
         <p className="text-[13px] leading-snug mt-1.5" style={{ color: 'var(--txm)' }}>{body}</p>
 
         {/* CTA als eigenstaendiger, gefuellter Button statt einer leicht
@@ -437,7 +442,7 @@ export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, p
   // Rahmen, Flaeche und die blaue Hover-Kante kommen aus .shelf-card
   // (index.css) — als Inline-Style konnte die Hover-Klasse den Rahmen nie
   // ueberschreiben, die blaue Kante war damit tot.
-  const wrapperClass = 'shelf-card group flex flex-col rounded-2xl overflow-hidden';
+  const wrapperClass = 'shelf-card group flex flex-col rounded-[20px] overflow-hidden';
 
   return 'to' in action ? (
     <Link to={action.to} className={wrapperClass}>{inner}</Link>
