@@ -16,7 +16,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useLocation } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Gift, User, ChevronDown, CheckCircle2, FileText } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Gift, User, ChevronDown, CheckCircle2 } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
 import { prefersReducedMotion } from '@/hooks/useAnimation';
@@ -125,11 +125,18 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_RE = /^[+\d][\d\s()/-]{5,}$/;
 
 function RewaxRequestForm({ de }: { de: boolean }) {
+  // Preis-Label je Kachel ist IMMER ein Pro-Vorgang-Preis, nie ein
+  // Gesamtpreis — vorher zeigte die 5er/10er-Karte ihren bereits
+  // rabattierten GESAMTpreis (z.B. 44,78 €) direkt neben Kacheln, die einen
+  // Pro-Kette-Preis zeigen (13,95 €, 9,95 €/Kette), ohne das kenntlich zu
+  // machen. Las sich wie ein viel teurerer Pro-Kette-Preis. Der tatsaechliche
+  // Gesamtbetrag steht jetzt separat in der Gesamt-Zeile unter der Auswahl,
+  // die live mitrechnet (siehe totalPrice unten).
   const tiers: { id: TierId; labelDe: string; labelEn: string; price: string; hasQuantity: boolean; quantityMin: number }[] = [
     { id: 'single', labelDe: 'Einzelne Kette', labelEn: 'Single chain', price: eur(PRICE.single, de), hasQuantity: true, quantityMin: 1 },
     { id: 'bundle3', labelDe: 'Drei Ketten', labelEn: 'Three chains', price: `${eur(PRICE.bundle, de)}/${de ? 'Kette' : 'chain'}`, hasQuantity: true, quantityMin: 3 },
-    { id: 'five', labelDe: '5er-Karte', labelEn: '5-visit card', price: eur(FIVE_CARD.price, de), hasQuantity: false, quantityMin: 1 },
-    { id: 'ten', labelDe: '10er-Karte', labelEn: '10-visit card', price: eur(TEN_CARD.price, de), hasQuantity: false, quantityMin: 1 },
+    { id: 'five', labelDe: '5er-Karte', labelEn: '5-visit card', price: `${eur(FIVE_CARD.price / FIVE_CARD.count, de)}/${de ? 'Kette' : 'chain'}`, hasQuantity: false, quantityMin: 1 },
+    { id: 'ten', labelDe: '10er-Karte', labelEn: '10-visit card', price: `${eur(TEN_CARD.price / TEN_CARD.count, de)}/${de ? 'Kette' : 'chain'}`, hasQuantity: false, quantityMin: 1 },
   ];
 
   const [tierId, setTierId] = useState<TierId>('single');
@@ -230,6 +237,30 @@ function RewaxRequestForm({ de }: { de: boolean }) {
             className={inputClass} style={inputStyle} />
         </div>
       )}
+
+      {/* Gesamtsumme, live nachgerechnet. Die Kachel oben zeigt bewusst nur
+          den Pro-Vorgang-Preis (siehe Kommentar bei tiers) — ohne diese Zeile
+          stuende nirgends im Formular, was am Ende wirklich fällig wird. */}
+      <div className="rounded-xl px-4 py-3 flex items-center justify-between"
+        style={{ background: 'var(--accent-wash-sm)', border: '1px solid rgba(var(--accent-rgb),0.18)' }}>
+        <span className="text-[12.5px]" style={{ color: 'var(--txm)' }}>
+          {de ? 'Gesamt' : 'Total'}
+          {!activeTier.hasQuantity && (
+            <span style={{ color: 'var(--txf)' }}>
+              {' · '}{activeTier.id === 'five' ? FIVE_CARD.count : TEN_CARD.count} {de ? 'Vorgänge' : 'treatments'}
+            </span>
+          )}
+        </span>
+        <span className="font-display font-bold" style={{ fontSize: '1.15rem', color: 'var(--tx1)' }}>
+          {eur(
+            activeTier.id === 'single' ? PRICE.single * quantity
+              : activeTier.id === 'bundle3' ? PRICE.bundle * quantity
+              : activeTier.id === 'five' ? FIVE_CARD.price
+              : TEN_CARD.price,
+            de,
+          )}
+        </span>
+      </div>
 
       <div className="inline-flex rounded-full p-1" style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)' }}>
         {([
@@ -544,7 +575,6 @@ export function RewaxPage() {
   const { lang } = useLanguage();
   const de = lang === 'de';
   const [isGift, setIsGift] = useState(false);
-  const [formOpen, setFormOpen] = useState(false);
   const location = useLocation();
   const waxedOn = useMemo(
     () => waxedFromLocation(),
@@ -707,34 +737,32 @@ export function RewaxPage() {
               </p>
             )}
 
-            <div className="flex flex-wrap items-center gap-4 mt-8">
-              <a href={waLink(de, waxedLabel)} target="_blank" rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-[14px] font-semibold transition-opacity hover:opacity-90"
-                style={{ background: 'var(--accent)', color: '#fff' }}>
-                {de ? 'Per WhatsApp anmelden' : 'Register via WhatsApp'}
-                <ArrowRight className="h-4 w-4" />
-              </a>
-              <a href="#preise" className="text-[13.5px] font-semibold" style={{ color: 'var(--tx1)' }}>
-                {de ? 'Was kostet das?' : 'What does it cost?'}
-              </a>
+            {/* Formular ist der primaere Bestellweg, nicht mehr WhatsApp:
+                es deckt die Auswahl (Karte, Anzahl, Geschenk) praezise ab,
+                statt sie in einen Chat-Text zu quetschen, und braucht keine
+                installierte/verknuepfte WhatsApp-Nummer — wichtig, weil das
+                hier der einzige wiederkehrende Umsatz im ganzen Modell ist,
+                also jede zusaetzliche Huerde real kostet. Lief vorher
+                eingeklappt hinter einem zweiten Klick, dahinter ein Formular,
+                das inhaltlich laengst der genauere Weg war. WhatsApp bleibt
+                trotzdem bestehen, nur als leiser Zweitlink darunter: es passt
+                zur persoenlichen Marke ("meistens antworte ich am selben
+                Tag") und manche wollen einfach chatten statt tippen — aber es
+                ist ein ANDERER Kanal als das Formular (E-Mail via
+                api/rewax-request.ts), keine Weiterleitung dorthin. */}
+            <div className="mt-8">
+              <RewaxRequestForm de={de} />
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-4">
+                <a href={waLink(de, waxedLabel)} target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-[13.5px] font-semibold" style={{ color: 'var(--tx1)' }}>
+                  {de ? 'Lieber direkt per WhatsApp' : 'Prefer WhatsApp instead'}
+                  <ArrowRight className="h-3.5 w-3.5" style={{ color: 'var(--accent)' }} />
+                </a>
+                <a href="#preise" className="text-[13.5px] font-semibold" style={{ color: 'var(--txm)' }}>
+                  {de ? 'Was kostet das?' : 'What does it cost?'}
+                </a>
+              </div>
             </div>
-            {/* Zweiter Bestellweg, kein Ersatz fuer WhatsApp — klappt inline
-                auf, kein Seitenwechsel, kein Verlassen des Kontexts. War ein
-                blasser Text-Link (var(--txf), keine Kontur) direkt unter
-                einem satten blauen Button — visuell las sich das als
-                Fussnote, nicht als zweite Option, die man tatsaechlich
-                anklicken wuerde. Jetzt eine echte umrandete Pille mit Icon:
-                sichtbar als eigener Klickbereich, aber ohne Fuellfarbe, also
-                erkennbar sekundaer zu WhatsApp. */}
-            <button type="button" onClick={() => setFormOpen((v) => !v)}
-              className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-[13.5px] font-semibold mt-4 transition-colors hover:opacity-80"
-              style={{ background: formOpen ? 'var(--accent-wash-sm)' : 'var(--sf)', border: '1px solid var(--bd2)', color: 'var(--tx1)' }}>
-              <FileText className="h-4 w-4" style={{ color: 'var(--accent)' }} aria-hidden />
-              {formOpen
-                ? (de ? 'Formular ausblenden' : 'Hide form')
-                : (de ? 'Oder per Formular anfragen' : 'Or request via form')}
-            </button>
-            {formOpen && <RewaxRequestForm de={de} />}
           </div>
 
           <div className="order-first lg:order-none mb-8 lg:mb-0 lg:mt-0 lg:flex-1">
@@ -771,7 +799,14 @@ export function RewaxPage() {
                 "Mehrere Vorgaenge, einmal bezahlt."-Muster rechts, jetzt wo
                 es als eigene Spalte neben statt unter der Preis-Ueberschrift
                 steht. */}
-            <div className="mb-10 lg:mb-0 lg:sticky lg:top-28">
+            {/* max-w-md: unterhalb lg: (dieser Container hat sonst keine
+                eigene Breitenbeschraenkung) zog eine kurze Nummer+Thumbnail-
+                Zeile eine Trennlinie ueber die volle Containerbreite bis 1024px
+                — bei mittleren Bildschirmbreiten (etwa 640-1024px) blieb dann
+                sichtbar leerer Raum rechts neben Text und Linie. Ab lg: setzt
+                ohnehin die 300px-Grid-Spalte die eigentliche Breite, max-w-md
+                (448px) greift dort also gar nicht mehr ein. */}
+            <div className="mb-10 max-w-md lg:mb-0 lg:sticky lg:top-28">
               <p className="text-small uppercase tracking-[0.16em] mb-5" style={{ color: 'var(--txf)' }}>
                 {de ? 'So läuft’s ab' : 'How it works'}
               </p>
