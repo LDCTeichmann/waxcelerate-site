@@ -31,6 +31,8 @@ const AdminPage = lazy(() => import('@/pages/AdminPage').then(m => ({ default: m
 const BlogIndexPage = lazy(() => import('@/pages/blog/BlogIndexPage').then(m => ({ default: m.BlogIndexPage })));
 const BlogArticlePage = lazy(() => import('@/pages/blog/BlogArticlePage').then(m => ({ default: m.BlogArticlePage })));
 const SciencePage = lazy(() => import('@/pages/SciencePage').then(m => ({ default: m.SciencePage })));
+const RechnerHubPage = lazy(() => import('@/pages/RechnerPage').then(m => ({ default: m.RechnerHubPage })));
+const RechnerToolPage = lazy(() => import('@/pages/RechnerPage').then(m => ({ default: m.RechnerToolPage })));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 const WiderrufPage = lazy(() => import('@/pages/WiderrufPage').then(m => ({ default: m.WiderrufPage })));
 const WiderrufsbelehrungPage = lazy(() => import('@/pages/WiderrufsbelehrungPage').then(m => ({ default: m.WiderrufsbelehrungPage })));
@@ -102,6 +104,8 @@ function AppContent() {
             (vercel.json), damit geteilte Links und QR-Codes weiter greifen. */}
         <Route path="/kette-wachsen-lassen" element={<Suspense fallback={<PageLoader />}><RewaxPage /></Suspense>} />
         <Route path="/wissenschaft" element={<Suspense fallback={<PageLoader />}><SciencePage /></Suspense>} />
+        <Route path="/rechner" element={<Suspense fallback={<PageLoader />}><RechnerHubPage /></Suspense>} />
+        <Route path="/rechner/:slug" element={<Suspense fallback={<PageLoader />}><RechnerToolPage /></Suspense>} />
         <Route path="/" element={
           <>
             <Navigation />

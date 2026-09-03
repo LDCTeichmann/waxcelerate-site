@@ -51,8 +51,12 @@ export interface Article {
   faq?: { q: string; a: string }[];
   /** Cross-Link auf die passende Sektion der Wissenschaftsseite, sofern der Artikel eine Entsprechung dort hat. */
   scienceLink?: { anchor?: string; label: string };
-  /** Zeigt einen Verweis auf den Rewax-Rechner (/#tools) — nur bei Artikeln setzen, bei denen das eigene Intervall inhaltlich relevant ist. */
-  linksToCalculator?: boolean;
+  /** Slug eines Rechners aus lib/toolRegistry.ts, auf den dieser Artikel verweist.
+   *  War bis September 2026 ein boolean `linksToCalculator`, der alle Artikel
+   *  pauschal auf den Intervall-Rechner unter /#tools schickte — auch den über
+   *  Kettenverschleiß, für den es inzwischen einen eigenen Rechner gibt.
+   *  Nur setzen, wo der Rechner den Artikel inhaltlich wirklich fortsetzt. */
+  toolSlug?: string;
   howTo?: {
     name: string;
     totalTime: string;
@@ -362,7 +366,7 @@ export const articles: Article[] = [
     description: 'Wie lange hält Kettenwachs wirklich? Intervalle, Kettenlaufzeit und eine ehrliche Kostenrechnung von Heißwachs vs. Öl über 15.000 km.',
     category: 'Grundlagen',
     scienceLink: { anchor: 'reibung', label: 'Reibung, Kettenlaufzeit und Kosten im Messvergleich' },
-    linksToCalculator: true,
+    toolSlug: 'intervall',
     featured: true,
     stats: [
       { value: '400–550 km', label: 'Intervall' },
@@ -775,7 +779,7 @@ export const articles: Article[] = [
     titleShort: 'Kettenwachs für Rennrad & Gravelbike',
     description: 'Für Rennrad- und Gravelbike-Fahrer lohnt sich Heißwachs besonders: niedrigste Reibung, sauberer Antrieb, längere Kettenlaufzeit. Was zu beachten ist.',
     category: 'Kaufberatung',
-    linksToCalculator: true,
+    toolSlug: 'intervall',
     publishDate: '2026-06-01',
     dateModified: '2026-07-27',
     readingTime: '7 min',
@@ -884,7 +888,7 @@ export const articles: Article[] = [
     titleShort: 'Wachs hält nicht? Die 7 häufigsten Fehler',
     description: 'Wachs blättert ab, die Kette quietscht nach 50 km, weißes Pulver überall? Die häufigsten Heißwachs-Fehler und wie du sie wirklich behebst.',
     category: 'Problemlösung',
-    linksToCalculator: true,
+    toolSlug: 'intervall',
     publishDate: '2026-06-16',
     dateModified: '2026-07-27',
     readingTime: '6 min',
@@ -990,6 +994,7 @@ export const articles: Article[] = [
   },
   {
     slug: 'vorgewachste-kette',
+    toolSlug: 'passende-kette',
     title: 'Lohnt sich eine vorgewachste Kette? Was du beim Kauf wirklich bekommst',
     titleShort: 'Lohnt sich eine vorgewachste Kette?',
     description: 'Vorgewachste Fahrradkette kaufen: Was eine fertig gewachste Kette leistet, für wen sie sich lohnt und worauf du beim Kauf achten solltest.',
@@ -1047,7 +1052,7 @@ export const articles: Article[] = [
     description: 'Funktioniert Heißwachs im Winter? Was Streusalz und Dauernässe mit der Wachsschicht machen, wann Wachs überzeugt, und wann Öl die bessere Wahl ist.',
     category: 'Saison',
     scienceLink: { anchor: 'matrix-window', label: 'Das Temperaturfenster von Classic und Pro im Vergleich' },
-    linksToCalculator: true,
+    toolSlug: 'intervall',
     publishDate: '2026-06-16',
     dateModified: '2026-07-27',
     readingTime: '6 min',
@@ -1216,6 +1221,7 @@ export const articles: Article[] = [
   },
   {
     slug: 'von-oel-auf-wachs-umsteigen',
+    toolSlug: 'umstieg',
     title: 'Von Öl auf Wachs umsteigen: Die Komplett-Anleitung für den Wechsel',
     titleShort: 'Von Öl auf Wachs umsteigen',
     description: 'Du willst von Kettenöl auf Heißwachs umsteigen? Schritt für Schritt: Antrieb reinigen, Kette entfetten, erstes Wachsbad und die Einfahrphase richtig machen.',
@@ -1294,7 +1300,7 @@ export const articles: Article[] = [
     // Last"), was dem Linktext inhaltlich am naechsten kommt, ohne einen
     // Abschnitt vorzutaeuschen, den es nicht gibt.
     scienceLink: { anchor: 'formel', label: 'Warum MoS₂ Pro Edition gerade bei E-Bikes vorne liegt' },
-    linksToCalculator: true,
+    toolSlug: 'intervall',
     publishDate: '2026-06-16',
     dateModified: '2026-07-27',
     readingTime: '5 min',
@@ -1346,7 +1352,7 @@ export const articles: Article[] = [
     titleShort: 'Kettenverschleiß messen: wann wechseln?',
     description: 'Kettenverschleiß richtig messen: Was die 0,5-%-Grenze bedeutet, wie eine Kettenlehre funktioniert und warum eine gewachste Kette deutlich länger hält.',
     category: 'Technik',
-    linksToCalculator: true,
+    toolSlug: 'verschleiss',
     publishDate: '2026-06-16',
     dateModified: '2026-07-27',
     readingTime: '6 min',

@@ -13,6 +13,7 @@ import {
   author,
 } from './articles';
 import type { ArticleSection } from './articles';
+import { getToolBySlug } from '@/lib/toolRegistry';
 
 // Minimal inline-link syntax for body text: [[Link-Text|/ziel-pfad]]. Kept as
 // a marker syntax rather than a new section field so it can sit inline
@@ -147,6 +148,7 @@ function renderSection(section: ArticleSection, idx: number): React.ReactNode {
 export function BlogArticlePage() {
   const { slug } = useParams<{ slug: string }>();
   const article = slug ? getArticleBySlug(slug) : undefined;
+  const tool = article?.toolSlug ? getToolBySlug(article.toolSlug) : undefined;
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -378,20 +380,24 @@ export function BlogArticlePage() {
             </div>
           )}
 
-          {/* Rechner-Verweis — nur bei Artikeln, bei denen das eigene Intervall
-              inhaltlich relevant ist (article.linksToCalculator, articles.ts).
-              Eigene Farbgebung (voller Akzent-Hintergrund) statt tip/note-Optik,
-              damit er als Link zu einem anderen Tool erkennbar bleibt und nicht
-              mit einem Inhalts-Tipp verwechselt wird. */}
-          {article.linksToCalculator && (
-            <a
-              href="/#tools"
+          {/* Rechner-Verweis — nur bei Artikeln, deren Frage ein Rechner
+              tatsaechlich fortsetzt (article.toolSlug, articles.ts). Zeigte
+              bis September 2026 pauschal auf /#tools und fragte immer nach dem
+              Intervall, auch im Artikel ueber Kettenverschleiss. Jetzt fuehrt
+              er auf die eigene Seite des passenden Rechners und uebernimmt
+              dessen Frage als Ueberschrift. Eigene Farbgebung (voller
+              Akzent-Hintergrund) statt tip/note-Optik, damit er als Link zu
+              einem Werkzeug erkennbar bleibt und nicht mit einem Inhalts-Tipp
+              verwechselt wird. */}
+          {tool && (
+            <Link
+              to={`/rechner/${tool.slug}`}
               className="flex flex-wrap items-center justify-between gap-3 rounded-2xl px-6 py-4 mb-10 transition-opacity hover:opacity-90"
               style={{ background: 'var(--accent)', color: 'var(--pg)' }}
             >
-              <span className="font-semibold text-[15px]">Willst du dein eigenes Intervall wissen?</span>
+              <span className="font-semibold text-[15px]">{tool.cover}</span>
               <span className="font-mono text-[13px] font-semibold whitespace-nowrap">Rechner öffnen →</span>
-            </a>
+            </Link>
           )}
 
           {/* Wissenschaftsseite: nur bei Artikeln mit echter fachlicher

@@ -131,6 +131,126 @@ Alle Ketten wurden vor dem Versand vollständig entfettet (Ultraschallbad) und m
 
 ---
 
+## Rechner — 6 Werkzeuge
+
+Sechs Werkzeuge für die Fragen, die beim Schrauben wirklich aufkommen. Kostenlos, ohne Anmeldung, und die Annahmen hinter jeder Zahl stehen offen da.
+
+### Wann muss ich meine Kette neu wachsen?
+
+URL: https://waxcelerate.de/rechner/intervall
+Beantwortet: Wann muss ich rewaxen?
+Eingaben: Dein Intervall in Wochen — nach Wetter, Gelände und Kilometern.
+
+Das Intervall hängt an drei Dingen: wie nass es ist, worauf du fährst und wie viel du fährst. Der Rechner setzt sie zusammen und gibt dir ein Datum, das du direkt in den Kalender legen kannst.
+
+Als Faustwerte für eine Wachsung gelten: trocken auf der Straße rund 500 km, gemischt rund 350 km, bei Nässe rund 250 km. Auf Gravel liegen die Werte bei 350, 250 und 180 km, im MTB-Einsatz bei 250, 180 und 120 km.
+
+Diese Kilometer teilst du durch deine Wochenleistung — das Ergebnis ist dein Intervall in Wochen. Bei 100 km pro Woche auf trockener Straße sind das rund fünf Wochen.
+
+Über etwa ein halbes Jahr hinaus ist das Intervall keine sinnvolle Angabe mehr: Wachs altert auch ohne Kilometer, und Standzeit im Regen zählt mit.
+
+Ein sicheres Zeichen, unabhängig vom Rechner: sobald die Kette anfängt, hörbar trocken zu laufen, ist sie überfällig. Ein leichtes Klappern der Rollen dagegen ist bei Wachs normal.
+
+---
+
+### Kettenverschleiß berechnen
+
+URL: https://waxcelerate.de/rechner/verschleiss
+Beantwortet: Muss meine Kette raus?
+Eingaben: Messwert eingeben — Urteil, Kassettenrisiko und Kostenfolge.
+
+Eine gelängte Kette frisst die Kassette mit. Ob dich der Wechsel 45 € oder 130 € kostet, entscheidet sich an einem halben Prozent — deshalb lohnt das Messen.
+
+Gemessen wird über 12 Glieder, von Bolzenmitte zu Bolzenmitte. Neu sind das exakt 152,4 mm, weil eine Fahrradkette eine Teilung von einem halben Zoll (12,7 mm) hat. Jede Abweichung nach oben ist die Längung.
+
+Die Tauschgrenze hängt an der Gangzahl: bei 11- und 12-fach-Antrieben ab 0,5 % Längung, bei 9- und 10-fach ab 0,75 %, bei älteren 5- bis 8-fach-Antrieben ab 1,0 %. Je schmaler die Kette, desto früher.
+
+Bis 0,5 % bei 12-fach reicht in aller Regel der Kettentausch, die Kassette darf bleiben. Ab etwa 1,0 % Längung ist die Kassette mit hoher Wahrscheinlichkeit mitgelaufen und muss mit — das ist der teure Fall.
+
+Eine einfache Kettenlehre kostet rund 8 € und amortisiert sich beim ersten vermiedenen Kassettentausch. Wichtig: viele Lehren mit zwei Enden messen 0,75 % und 1,0 % — für 12-fach brauchst du eine, die 0,5 % anzeigt.
+
+Gewachste Ketten längen sich langsamer als geölte, weil trockenes Wachs deutlich weniger Schleifpaste aus Staub und Abrieb bindet. Das verschiebt den Zeitpunkt, es ersetzt das Messen nicht.
+
+---
+
+### Kettenlänge berechnen
+
+URL: https://waxcelerate.de/rechner/kettenlaenge
+Beantwortet: Wie viele Glieder?
+Eingaben: Kettenstrebe, größtes Kettenblatt, größtes Ritzel — fertig.
+
+Eine neue Kette kommt zu lang. Wie viele Glieder du herausnimmst, sagt dir diese Formel — sie braucht drei Zahlen, die du am Rad ablesen oder nachschlagen kannst.
+
+Die Formel lautet: Glieder = 0,157 × Kettenstrebe in mm + Zähne des größten Kettenblatts ÷ 2 + Zähne des größten Ritzels ÷ 2 + 2. Der Faktor 0,157 ist 2 ÷ 12,7 — zwei Glieder je Zoll Kettenstrebe.
+
+Das Ergebnis wird immer auf eine gerade Zahl aufgerundet. Eine Kette besteht abwechselnd aus Innen- und Außenlaschenpaaren, eine ungerade Gliederzahl lässt sich nicht schließen.
+
+Die Kettenstrebe misst du von der Mitte des Tretlagers zur Mitte der Hinterachse. Typisch sind 405 bis 425 mm am Rennrad und 425 bis 445 mm am Mountainbike.
+
+Gegenprobe ohne Formel: Kette auf das größte Kettenblatt und das größte Ritzel legen, ohne sie durch das Schaltwerk zu führen, beide Enden straff zusammenziehen und zwei Glieder zugeben. Bei langem Schaltwerkskäfig oder Vollfederung ist diese Probe der Formel überlegen.
+
+Unsere vorgewachsten Ketten kommen mit 114 bis 138 Gliedern, je nach Modell. Kürzen kannst du sie ohne das Wachs zu beschädigen — der Wachsfilm sitzt in der Kette, nicht nur außen darauf.
+
+---
+
+### Welche Kette passt zu meinem Rad?
+
+URL: https://waxcelerate.de/rechner/passende-kette
+Beantwortet: Welche Kette passt?
+Eingaben: Antrieb und Gangzahl wählen — wir zeigen, was passt.
+
+Bis 11-fach ist fast alles mit allem kombinierbar. Ab 12-fach wird es eng — hier siehst du direkt, was zu deinem Antrieb passt.
+
+Entscheidend sind zwei Angaben: die Gangzahl hinten und der Hersteller deiner Schaltung. Die Gangzahl bestimmt die Kettenbreite, der Hersteller ab 12-fach das Profil.
+
+Bis einschließlich 11-fach lassen sich Ketten von Shimano, SRAM, Campagnolo und Drittanbietern wie YBN weitgehend untereinander tauschen. Die Innenmaße sind gleich, nur die Laschendicke unterscheidet sich.
+
+Ab 12-fach haben die Hersteller ihre Systeme auseinanderentwickelt. Hier bleibst du entweder beim Hersteller deiner Schaltung oder nimmst gezielt eine Kette, die ausdrücklich als systemübergreifend ausgewiesen ist.
+
+Die Gangzahl liest du an der Kassette ab, indem du die Ritzel zählst. Steht auf dem Schaltwerk eine Modellnummer, hilft auch die: M8100 und M7100 sind 12-fach, HG701 ist 11-fach.
+
+Vorgewachste Ketten sind ab Werk entfettet und heißgewachst. Du kürzt sie auf deine Länge und montierst sie — das erste Entfetten, das bei einer neuen Kette sonst Pflicht ist, entfällt.
+
+---
+
+### Was kostet der Umstieg auf Heißwachs?
+
+URL: https://waxcelerate.de/rechner/umstieg
+Beantwortet: Was kostet der Umstieg?
+Eingaben: Erstausstattung, laufende Kosten und ab wann es sich rechnet.
+
+Der Einstieg kostet einmalig mehr als eine Flasche Öl. Danach dreht es sich um — hier siehst du, ab wann.
+
+Einmalig brauchst du einen Wachsblock, eine Quick-Link-Zange und einen Draht zum Aufhängen. Einen Topf musst du meist nicht kaufen: ein alter Reiskocher oder Slow Cooker reicht völlig.
+
+Ein 500-g-Block hält 20 bis 32 Wachsungen. Bei 100 km pro Woche auf trockener Straße reicht das über eine ganze Saison hinaus.
+
+Laufend ist Wachs je Anwendung teurer als ein Tropfen Öl, aber du wachst deutlich seltener als du ölst — und der eigentliche Unterschied liegt ohnehin nicht beim Schmierstoff, sondern bei Kette und Kassette.
+
+Der Umstieg lohnt sich rechnerisch über den Verschleiß: eine gewachste Kette hält länger, und die Kassette hält deutlich länger, weil trockenes Wachs keinen Schleifschlamm aus Staub und Abrieb bildet.
+
+Wichtig beim ersten Mal: eine neue Kette muss vor dem Wachsen vollständig entfettet werden. Fabrikfett blockiert das Wachs komplett. Wer sich das sparen will, nimmt eine bereits vorgewachste Kette.
+
+---
+
+### Rotation und Ersparnis
+
+URL: https://waxcelerate.de/rechner/ersparnis
+Beantwortet: Rotation & Ersparnis
+Eingaben: Was zwei oder drei Ketten im Wechsel pro Jahr sparen.
+
+Mehrere Ketten im Wechsel bedeuten seltener wachsen und gleichmäßigeren Verschleiß. Was das im Jahr ausmacht, hängt an deinen Kilometern.
+
+Beim Rotieren fährst du zwei oder drei Ketten abwechselnd und wachst sie gemeinsam. Jede einzelne läuft dadurch weniger Kilometer zwischen zwei Wachsungen, und die Kassette sieht nie eine stark gelängte Kette.
+
+Der Effekt ist doppelt: du wachst seltener, weil du zwischendurch nur die Kette tauschst, und Kette wie Kassette halten länger, weil keine von beiden über ihre Verschleißgrenze hinaus läuft.
+
+Ab welcher Laufleistung sich das lohnt, ist eine reine Rechenfrage. Unter etwa 2.500 km im Jahr trägt eine zweite Kette sich nicht; ab rund 8.000 km rechnen sich drei.
+
+Alle Zahlen im Rechner beruhen auf marktüblichen Annahmen zu Preisen und Laufleistungen, nicht auf eigenen Messungen. Sie stehen auf der Seite unter „Womit gerechnet wird" vollständig offen.
+
+---
+
 ## Ratgeber — alle 18 Artikel
 
 ## Heißwachs vs. Flüssigwachs für Fahrradketten: Ein ehrlicher Vergleich

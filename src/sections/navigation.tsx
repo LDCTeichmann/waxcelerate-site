@@ -19,7 +19,10 @@ const navItems = [
   { href: '/wissenschaft', key: 'science', route: true },
   { href: '/kette-wachsen-lassen', key: 'rewax',   route: true },
   { href: '#ueber-mich',  key: 'about'    },
-  { href: '#tools',       key: 'tools'    },
+  // Seit September 2026 eine eigene Seite statt des Startseiten-Ankers:
+  // /rechner fuehrt zu allen sechs Rechnern, jeder mit eigener Adresse. Der
+  // Anker haette nur von der Startseite aus funktioniert.
+  { href: '/rechner',     key: 'tools',   route: true },
   { href: '#anleitungen', key: 'guides'   },
   { href: '#faq',         key: 'faq'      },
   { href: '/blog',        key: 'blog',    route: true },
@@ -61,7 +64,7 @@ const primaryNavItems = [
 // Inhalt der "Ratgeber"-Gruppe. `desc` ist Pflicht, nicht Deko — ohne die
 // Zeile ist die Klappe wieder die Liste aus Anlauf 2.
 const resourceNavItems = [
-  { href: '#tools',       key: 'tools',  desc: 'toolsDesc'  },
+  { href: '/rechner',     key: 'tools',  desc: 'toolsDesc', route: true },
   { href: '#anleitungen', key: 'guides', desc: 'guidesDesc' },
   { href: '#faq',         key: 'faq',    desc: 'faqDesc'    },
   { href: '/blog',        key: 'blog',   desc: 'blogDesc', route: true },

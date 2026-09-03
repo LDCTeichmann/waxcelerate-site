@@ -27,6 +27,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve, join } from 'node:path';
 import { articles, getArticleImage, author, categoryOrder, blogHero } from '../src/pages/blog/articles.ts';
 import { starterSet } from '../src/lib/data.ts';
+import { TOOLS, TOOLS_HUB } from '../src/lib/toolRegistry.ts';
 // Die Bausteine liegen seit August 2026 in scripts/lib/prerender.mjs, weil sie
 // sich Blog-, Produkt- und Rechtstextseiten teilen. Verhalten unveraendert.
 import {
@@ -401,10 +402,103 @@ function renderLegal(p) {
   return html;
 }
 
+
+// ─── Rechnerseiten ───────────────────────────────────────────────────────────
+// /rechner und /rechner/<slug>. Bis September 2026 lagen die Rechner nur in der
+// Startseiten-Sektion #tools und hatten damit gar keine Adresse — nichts zu
+// indexieren, nichts zu zitieren, nichts zu verlinken.
+//
+// Entscheidend ist, dass hier der ANTWORTTEXT steht, nicht nur eine Huelle mit
+// Widget. Ein Rechner ist fuer einen Crawler ein leeres <div>; was rankt und was
+// eine KI zitieren kann, ist der Fliesstext aus toolRegistry.ts.
+//
+// SoftwareApplication statt Article: die Seite ist ein Werkzeug, kein Aufsatz.
+// Bewusst KEIN FAQPage-Markup als Google-Hebel — Google hat FAQ-Rich-Results am
+// 07.05.2026 abgeschaltet.
+
+function renderToolsHub() {
+  const canonical = `${BASE}/rechner`;
+  const head = [
+    metaTags({ title: TOOLS_HUB.title, description: TOOLS_HUB.description, canonical }),
+    ldClientManaged({
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: TOOLS_HUB.h1,
+      description: TOOLS_HUB.description,
+      url: canonical,
+      inLanguage: 'de-DE',
+      hasPart: TOOLS.map(t => ({
+        '@type': 'SoftwareApplication',
+        name: t.cover,
+        url: `${BASE}/rechner/${t.slug}`,
+        applicationCategory: 'UtilityApplication',
+        operatingSystem: 'Web',
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
+      })),
+    }),
+  ].join('\n');
+  const body = [
+    `<h1>${esc(TOOLS_HUB.h1)}</h1>`,
+    `<p>${esc(TOOLS_HUB.lead)}</p>`,
+    `<ul>${TOOLS.map(t => `<li><a href="/rechner/${t.slug}">${esc(t.cover)}</a> — ${esc(t.hint)}</li>`).join('')}</ul>`,
+    `<p><a href="/">Zur Startseite</a> · <a href="/blog">Blog</a> · <a href="/wissenschaft">Wissenschaft</a></p>`,
+  ].join('\n');
+  return buildPage({ head, body });
+}
+
+function renderTool(t) {
+  const canonical = `${BASE}/rechner/${t.slug}`;
+  const head = [
+    metaTags({ title: t.title, description: t.description, canonical }),
+    ldClientManaged({
+      '@context': 'https://schema.org',
+      '@graph': [
+        {
+          '@type': 'SoftwareApplication',
+          name: t.cover,
+          description: t.description,
+          url: canonical,
+          applicationCategory: 'UtilityApplication',
+          operatingSystem: 'Web',
+          inLanguage: 'de-DE',
+          isAccessibleForFree: true,
+          offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
+          publisher: { '@type': 'Organization', name: 'Waxcelerate', url: BASE },
+        },
+        {
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Startseite', item: BASE },
+            { '@type': 'ListItem', position: 2, name: 'Rechner', item: `${BASE}/rechner` },
+            { '@type': 'ListItem', position: 3, name: t.h1, item: canonical },
+          ],
+        },
+      ],
+    }),
+  ].join('\n');
+  const links = [
+    '<a href="/rechner">Alle Rechner</a>',
+    ...(t.next ? [`<a href="${t.next.href}">${esc(t.next.label)}</a>`] : []),
+    ...(t.article ? [`<a href="/blog/${t.article}">Ausf\u00fchrlicher Artikel</a>`] : []),
+    '<a href="/">Zur Startseite</a>',
+  ].join(' · ');
+  const body = [
+    `<nav aria-label="Brotkrumen"><a href="/">Startseite</a> \u203a <a href="/rechner">Rechner</a> \u203a <span>${esc(t.h1)}</span></nav>`,
+    `<h1>${esc(t.h1)}</h1>`,
+    `<p>${esc(t.lead)}</p>`,
+    t.answer.map(a => `<p>${esc(a)}</p>`).join('\n'),
+    `<p>${links}</p>`,
+  ].join('\n');
+  return buildPage({ head, body });
+}
+
 for (const p of STATIC_PAGES) write(p.dir, renderStatic(p));
 for (const p of LEGAL_PAGES) write(p.dir, renderLegal(p));
+
+write('rechner', renderToolsHub());
+for (const t of TOOLS) write(join('rechner', t.slug), renderTool(t));
 
 write('blog', renderIndex());
 for (const a of articles) write(join('blog', a.slug), renderArticle(a));
 
-console.log(`✓ ${articles.length + 1} Blog-Seiten, ${STATIC_PAGES.length} feste Seiten und ${LEGAL_PAGES.length} Rechtstextseiten vorgerendert nach dist/`);
+console.log(`✓ ${articles.length + 1} Blog-Seiten, ${TOOLS.length + 1} Rechnerseiten, ${STATIC_PAGES.length} feste Seiten und ${LEGAL_PAGES.length} Rechtstextseiten vorgerendert nach dist/`);

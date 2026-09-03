@@ -30,6 +30,7 @@
 // Manuell nach Produkt- oder Artikeländerung:
 //   npx tsx scripts/generate-sitemap.mjs
 
+import { TOOLS } from '../src/lib/toolRegistry.ts';
 import { writeFileSync, readFileSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
@@ -58,6 +59,11 @@ const staticPages = [
   { loc: '/kette-wachsen-lassen', changefreq: 'monthly', priority: '0.9' },
   { loc: '/starter-set', changefreq: 'monthly', priority: '0.9' },
   { loc: '/blog', changefreq: 'weekly', priority: '0.8' },
+  // Rechner: eigene Adressen seit September 2026. Der Hub etwas hoeher als die
+  // Einzelseiten, weil er auf alle sechs verweist; monatlich, weil sich der
+  // Antworttext nur aendert, wenn sich die Sachlage aendert.
+  { loc: '/rechner', changefreq: 'monthly', priority: '0.8' },
+  ...TOOLS.map(t => ({ loc: `/rechner/${t.slug}`, changefreq: 'monthly', priority: '0.7' })),
 ];
 
 // Image-Sitemaps verlangen absolute URLs. Die Wachsprodukte speichern einen

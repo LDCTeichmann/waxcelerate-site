@@ -30,18 +30,30 @@ const W = 'max-w-4xl mx-auto px-4 sm:px-6 lg:px-8';
 // readers (the desktop image was even marked aria-hidden, so that reader
 // audience never got the explanation at all), and not indexable by Google on
 // a page built specifically to rank for chain-wax search terms. The three
-// photos below (cassette-wear-diagram / cassette-new / cassette-worn) are
-// crops of the exact same source with the text-and-label regions painted
-// over in the flat page-background colour — nothing about the photography
-// changed. The words are real HTML now.
+// photos below (cassette-new / cassette-worn) are crops of the exact same
+// source with the text-and-label regions painted over in the flat
+// page-background colour — nothing about the photography changed. The words
+// are real HTML now. cassette-wear-diagram is a separate, newer asset (see
+// below) and isn't part of that crop family.
 function WearDiagramFigure({ de }: { de: boolean }) {
   return (
     <figure className="m-0">
+      {/* True alpha-transparent cutout (2026-09-02), not a photo on a
+          matched background colour — the previous version relied on its
+          rgb(245,245,245) backdrop happening to be close to the light-mode
+          page background (`var(--pg)`) to "disappear"; that broke in dark
+          mode, where the same rectangle read as a stark light box with a
+          hard edge. A real cutout has no background to mismatch, so it sits
+          cleanly on either theme without any colour-matching trick. PNG
+          fallback (not JPG) because JPG has no alpha channel — a flattened
+          `cassette-wear-diagram.jpg` still exists separately for OG/social
+          meta, which needs an opaque image and doesn't render on a page
+          background at all. */}
       <picture>
         <source srcSet="/images/science/cassette-wear-diagram.webp" type="image/webp" />
         <img
-          src="/images/science/cassette-wear-diagram.jpg"
-          alt={de ? 'Kassette mit Nahaufnahme der Zahnflanke' : 'Cassette with close-up of the tooth flank'}
+          src="/images/science/cassette-wear-diagram.png"
+          alt={de ? 'Shimano Ultegra Kassette' : 'Shimano Ultegra cassette'}
           className="w-full h-auto"
         />
       </picture>

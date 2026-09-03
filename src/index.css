@@ -639,18 +639,45 @@
   background: linear-gradient(to top, rgba(var(--scrim-rgb),0.60) 4%, rgba(var(--scrim-rgb),0.30) 34%, transparent 100%);
 }
 
-/* Hero image, mobile only — was tuned to push the old wax-block photo
-   (chain-bg-mobile.jpg) up/right so it didn't overwhelm the frame. Mobile
-   hero redesign (2026-08) swapped in mobile-chains-hills.jpg (box + hanging
-   chain + hillside, see hero-light.tsx). The first value framed mostly sky
-   and free-floating chain links, cutting off the box that anchors the shot
-   — reads as chaotic because the one element that explains what's in frame
-   is gone. Shifted right and down so the box (left third of the source
-   photo, roughly its lower half) stays in frame alongside the chain instead
-   of only the chain surviving the crop. */
+/* Hero-Foto auf Mobil (< 640px) — "Buehne" statt Tapete.
+   Ausgeliefert wird hier hero-b-bg (siehe TAUSCHPUNKT in hero-light.tsx): ein
+   Zuschnitt ohne den hellen Dunsthimmel, damit der Bildkopf bei Helligkeit
+   rund 63 liegt und die Headline OHNE Scrim darauf lesbar ist (ueber 10:1).
+   Frueher stand hier `object-position: 68% 20%` plus Blur plus vier Scrims:
+   der Text lag mitten im Motiv, also musste die Abdunklung so schwer sein,
+   dass sie genau das erschlug, was sie zeigen sollte.
+
+   `transform: none` ist NICHT kosmetisch. Das Bild traegt inline
+   `scale(1.035)` als Overscan fuer die Maus-Parallax, die es auf Mobil gar
+   nicht gibt (finePointer-gated). Der freigestellte Wachsblock wird aber in
+   Prozent seines Containers positioniert und muss deckungsgleich auf dem
+   Schattenloch der Hintergrundplatte sitzen. Waere das Foto darunter um 3,5 %
+   groesser skaliert, liefe der Block sichtbar aus seinem eigenen Schatten. */
 @media (max-width: 639px) {
   .hero-img {
-    object-position: 42% 38% !important;
+    object-position: 50% 50% !important;
+    filter: none !important;
+    transform: none !important;
+  }
+}
+
+@media (max-width: 639px) {
+  .hero-h1 { font-size: 3.05rem !important; }
+  /* "Waxcelerate · Heisswachs · Stuttgart" brach bei 13px und 0.14em Laufweite
+     auf 390px in eine zweite Zeile um und zog eine unruhige Treppe ueber die
+     Headline. Gemessen: die Zeile braucht in der Ausgangsgroesse mehr als die
+     303px, die im Flexcontainer neben dem Strich uebrig bleiben. 11.5px bei
+     0.06em ergeben rund 281px, passen also mit Reserve auch auf 360px, und
+     die Eyebrow bleibt als Eyebrow erkennbar. Die eingesparte Zeile haelt
+     ausserdem die Sternzeile darunter in der dunklen Zone des
+     Naht-Verlaufs (siehe hero-light.tsx). */
+  .hero-eyebrow {
+    /* Gemessen statt geschaetzt: bei 390px bleiben neben dem Strich 303px,
+       bei 360px nur noch 272px. Eine feste Groesse, die auf 390 passt, bricht
+       auf 360 wieder um, deshalb skaliert die Zeile mit der Viewportbreite
+       und ist nach oben auf 11.5px gedeckelt. */
+    font-size: clamp(10.5px, 2.95vw, 11.5px) !important;
+    letter-spacing: 0.05em !important;
   }
 }
 

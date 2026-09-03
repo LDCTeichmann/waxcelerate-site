@@ -30,7 +30,7 @@ export const translations = {
       // Je ein Satz Kontext pro Eintrag — ohne den ist die Klappe nur eine
       // Liste aus vier duennen Textzeilen, und genau daran ist die erste
       // Fassung gescheitert.
-      toolsDesc: 'Rechner für Kosten, Intervalle und Verschleiß',
+      toolsDesc: 'Verschleiß, Kettenlänge, Intervall und Kosten berechnen',
       guidesDesc: 'Schritt für Schritt vom Öl zum Wachs',
       faqDesc: 'Die 20 häufigsten Fragen, kurz beantwortet',
       blogDesc: 'Die Werkstatt — Technik-Artikel und Tests',
@@ -38,14 +38,25 @@ export const translations = {
 
     // Hero
     hero: {
-      subtitle: 'Waxcelerate · Heißwachs · Stuttgart',
+      // "Kettenwachs" statt "Heisswachs": Das Mobil-Hero-Foto zeigt drei
+      // blaue Bloecke ohne Kette. Ohne Kontext liest das fuer einen kalten
+      // Besucher wie Seife, also muss die Kategorie der Text aufloesen und
+      // nicht das Bild. "Kettenwachs" enthaelt "Kette" und erledigt das in
+      // einem Wort, ohne eine zusaetzliche Zeile zu kosten. Zweite Stelle im
+      // Lesepfad ist blockLabel direkt am Wachsblock.
+      subtitle: 'Waxcelerate · Kettenwachs · Stuttgart',
       headline: 'Am Ende der',
       headlineSub: 'Recherche.',
-      tagline: 'Heißwachs statt Kettenöl — sauberer, länger, günstiger. Ohne Kompromiss.',
+      tagline: 'Heißwachs statt Kettenöl. Sauberer, länger, günstiger, ohne Kompromiss.',
       priceAnchor: 'Ab €22,95 · ~€70 gespart auf 12.000 km',
       guarantee: 'Nicht zufrieden? Schreib mir — ich sorge dafür, dass es stimmt.',
       ctaBuy: 'Jetzt bestellen',
       ctaSecondary: 'Wie funktioniert Heißwachs? →',
+      // Label am schwebenden Wachsblock (nur Mobil). Preis geprueft gegen
+      // references/20_products_pricing.md: Classic 300 g = 22,95 EUR. Der
+      // blaue Block auf dem Foto IST Classic, Pro ist der dunkle MoS2-Block.
+      blockLabel: 'Kettenwachs Classic',
+      blockPrice: 'ab 22,95 €',
     },
 
     // Products
@@ -175,11 +186,94 @@ export const translations = {
         lastWaxedHideExact: 'Ausblenden',
       },
       profile: {
-        kmSuffix: 'km/Woche',
-        jumpToInterval: 'Fahrprofil ändern →',
+        barTitle: 'Dein Fahrprofil — gilt für alle Rechner',
+        // Fehlten beide, obwohl ProfileReadout in tools.tsx sie liest — der
+        // Build (tsc -b) lief deshalb auf HEAD rot. Wortlaut an die schon
+        // vorhandene Beschriftung rotation.kmPerWeek angeglichen.
+        kmSuffix: 'km pro Woche',
+        jumpToInterval: 'Anpassen →',
       },
       rotation: {
         kmPerYear: 'km pro Jahr',
+      },
+
+      // Bausteine, die in mehreren Rechnern vorkommen
+      shared: {
+        openCalc: 'Rechner öffnen →',
+        allTools: 'Alle Rechner ansehen →',
+        assumptions: 'Womit gerechnet wird',
+        assumptionsNote: 'Marktübliche Annahmen, keine Messwerte von uns. Wer andere Preise zahlt, rechnet anders.',
+        addGoogle: 'In Google Kalender',
+        addIcs: 'Als .ics laden',
+        copyLink: 'Link kopieren',
+        copied: 'Kopiert',
+        buyWax: 'Wachs kaufen →',
+        recommended: 'Empfohlen',
+        perYear: '/Jahr',
+      },
+
+      // Verschleiß
+      wear: {
+        title: 'Muss meine Kette raus?',
+        subtitle: 'Messwert eingeben — Urteil, Kassettenrisiko und Kostenfolge.',
+        method: 'Messmethode',
+        methodRuler: 'Lineal, 12 Glieder',
+        methodGauge: 'Kettenlehre',
+        speed: 'Gangzahl',
+        measured: 'Gemessen über 12 Glieder',
+        gaugeValue: 'Lehre zeigt',
+        elongation: 'Längung',
+        limit: 'Grenzwert',
+        statusOk: 'Alles gut — weiterfahren.',
+        statusSoon: 'Bald fällig. Im Blick behalten.',
+        statusReplace: 'Kette tauschen. Die Kassette darf meist bleiben.',
+        statusCassette: 'Kette raus — und die Kassette ist mit hoher Wahrscheinlichkeit mitgelaufen.',
+        costHint: 'Weiterfahren kostet:',
+        chainOnly: 'nur Kette',
+        chainAndCassette: 'Kette + Kassette',
+        howTo: 'So misst du: Kette straff ziehen, Mitte Bolzen bis Mitte Bolzen über 12 Glieder messen. Neu sind das exakt 152,4 mm.',
+        cta: 'Passende Kette finden →',
+      },
+
+      // Kettenlänge
+      length: {
+        title: 'Wie viele Glieder braucht meine Kette?',
+        subtitle: 'Kettenstrebe, größtes Kettenblatt, größtes Ritzel — fertig.',
+        chainstay: 'Kettenstrebe',
+        bigChainring: 'Größtes Kettenblatt',
+        bigSprocket: 'Größtes Ritzel',
+        links: 'Glieder',
+        teeth: 'Zähne',
+        note: 'Startwert nach der Standardformel, immer auf eine gerade Zahl aufgerundet. Bei langem Schaltwerkskäfig oder Vollfederung vor dem Kürzen mit der Groß-Groß-Methode gegenprüfen.',
+        formula: 'Formel: 0,157 × Kettenstrebe (mm) + Kettenblatt ÷ 2 + Ritzel ÷ 2 + 2',
+        cta: 'Vorgewachste Ketten ansehen →',
+      },
+
+      // Kompatibilität
+      match: {
+        title: 'Welche Kette passt zu meinem Rad?',
+        subtitle: 'Antrieb und Gangzahl wählen — wir zeigen, was passt.',
+        system: 'Antrieb',
+        speed: 'Gangzahl',
+        results: 'Passende Ketten',
+        none: 'Für diese Kombination haben wir gerade nichts vorgewachst da. Schreib uns — oft lässt sich etwas machen.',
+        soldOut: 'Ausverkauft',
+        note: 'Bis 11-fach sind die Systeme untereinander weitgehend austauschbar. Ab 12-fach solltest du beim Hersteller deiner Schaltung bleiben oder eine ausdrücklich universelle Kette nehmen.',
+      },
+
+      // Umstieg
+      switch: {
+        title: 'Was kostet der Umstieg auf Wachs?',
+        subtitle: 'Erstausstattung, laufende Kosten und der Punkt, ab dem es sich rechnet.',
+        firstTime: 'Einmalig zum Start',
+        perYearRunning: 'Laufend pro Jahr',
+        breakEven: 'Rechnet sich nach',
+        months: 'Monaten',
+        neverNote: 'Bei deiner Laufleistung geht es nicht ums Geld, sondern um den sauberen Antrieb.',
+        needList: 'Was du beim ersten Mal brauchst',
+        blockLasts: 'Ein Block reicht dir',
+        applications: 'Anwendungen',
+        cta: 'Starter-Set ansehen →',
       },
     },
 
@@ -411,7 +505,7 @@ export const translations = {
       contact: 'Contact',
       ebayShop: 'eBay Shop',
       resources: 'Guides & tools',
-      toolsDesc: 'Calculators for cost, intervals and wear',
+      toolsDesc: 'Wear, chain length, interval and cost calculators',
       guidesDesc: 'Step by step from oil to wax',
       faqDesc: 'The 20 most common questions, answered briefly',
       blogDesc: 'The Workshop — technical articles and tests',
@@ -419,14 +513,16 @@ export const translations = {
 
     // Hero
     hero: {
-      subtitle: 'Waxcelerate · Hot Wax · Stuttgart',
+      subtitle: 'Waxcelerate · Chain Wax · Stuttgart',
       headline: 'At the end of',
       headlineSub: 'the research.',
-      tagline: 'Hot wax over chain oil — cleaner, longer-lasting, more affordable. No compromise.',
+      tagline: 'Hot wax over chain oil. Cleaner, longer-lasting, more affordable, with no compromise.',
       priceAnchor: 'From €22.95 · ~€70 saved over 12,000 km',
       guarantee: "Not happy? Write me — I'll make it right.",
       ctaBuy: 'Buy now',
       ctaSecondary: 'How does hot wax work? →',
+      blockLabel: 'Chain Wax Classic',
+      blockPrice: 'from €22.95',
     },
 
     // Products
@@ -533,11 +629,86 @@ export const translations = {
         lastWaxedHideExact: 'Hide',
       },
       profile: {
-        kmSuffix: 'km/week',
-        jumpToInterval: 'Change riding profile →',
+        barTitle: 'Your riding profile — used by every calculator',
+        kmSuffix: 'km per week',
+        jumpToInterval: 'Adjust →',
       },
       rotation: {
         kmPerYear: 'km per year',
+      },
+
+      shared: {
+        openCalc: 'Open calculator →',
+        allTools: 'See all calculators →',
+        assumptions: 'What we calculate with',
+        assumptionsNote: 'Typical market assumptions, not our own measurements. Different prices, different result.',
+        addGoogle: 'Add to Google Calendar',
+        addIcs: 'Download .ics',
+        copyLink: 'Copy link',
+        copied: 'Copied',
+        buyWax: 'Buy wax →',
+        recommended: 'Recommended',
+        perYear: '/yr',
+      },
+
+      wear: {
+        title: 'Does my chain need replacing?',
+        subtitle: 'Enter your measurement — verdict, cassette risk and cost impact.',
+        method: 'Measuring method',
+        methodRuler: 'Ruler, 12 links',
+        methodGauge: 'Chain gauge',
+        speed: 'Speeds',
+        measured: 'Measured over 12 links',
+        gaugeValue: 'Gauge reads',
+        elongation: 'Elongation',
+        limit: 'Limit',
+        statusOk: 'All good — keep riding.',
+        statusSoon: 'Due soon. Keep an eye on it.',
+        statusReplace: 'Replace the chain. The cassette can usually stay.',
+        statusCassette: 'Chain is done — and the cassette has most likely worn with it.',
+        costHint: 'Riding on costs you:',
+        chainOnly: 'chain only',
+        chainAndCassette: 'chain + cassette',
+        howTo: 'How to measure: pull the chain taut, measure pin centre to pin centre across 12 links. New, that is exactly 152.4 mm.',
+        cta: 'Find a matching chain →',
+      },
+
+      length: {
+        title: 'How many links does my chain need?',
+        subtitle: 'Chainstay, biggest chainring, biggest sprocket — done.',
+        chainstay: 'Chainstay',
+        bigChainring: 'Biggest chainring',
+        bigSprocket: 'Biggest sprocket',
+        links: 'links',
+        teeth: 'teeth',
+        note: 'Starting value from the standard formula, always rounded up to an even number. With a long derailleur cage or full suspension, double-check with the big-big method before shortening.',
+        formula: 'Formula: 0.157 × chainstay (mm) + chainring ÷ 2 + sprocket ÷ 2 + 2',
+        cta: 'See pre-waxed chains →',
+      },
+
+      match: {
+        title: 'Which chain fits my bike?',
+        subtitle: 'Pick drivetrain and speeds — we show what fits.',
+        system: 'Drivetrain',
+        speed: 'Speeds',
+        results: 'Matching chains',
+        none: 'We have nothing pre-waxed for this combination right now. Write to us — we can often help.',
+        soldOut: 'Sold out',
+        note: 'Up to 11-speed the systems are largely interchangeable. From 12-speed on, stay with your drivetrain brand or pick a chain explicitly sold as universal.',
+      },
+
+      switch: {
+        title: 'What does switching to wax cost?',
+        subtitle: 'Starting kit, running cost, and the point where it pays off.',
+        firstTime: 'One-off to start',
+        perYearRunning: 'Running per year',
+        breakEven: 'Pays off after',
+        months: 'months',
+        neverNote: 'At your mileage this is not about money — it is about a clean drivetrain.',
+        needList: 'What you need the first time',
+        blockLasts: 'One block lasts you',
+        applications: 'applications',
+        cta: 'See the starter set →',
       },
     },
 

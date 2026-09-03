@@ -59,6 +59,34 @@
     "hash": "dbe073d9fadf",
     "date": "2026-08-04"
   },
+  "/rechner": {
+    "hash": "989975090097",
+    "date": "2026-09-03"
+  },
+  "/rechner/ersparnis": {
+    "hash": "0f2b24e34b44",
+    "date": "2026-09-03"
+  },
+  "/rechner/intervall": {
+    "hash": "148c8d0aad2c",
+    "date": "2026-09-03"
+  },
+  "/rechner/kettenlaenge": {
+    "hash": "a042bf839136",
+    "date": "2026-09-03"
+  },
+  "/rechner/passende-kette": {
+    "hash": "763f587ffc2e",
+    "date": "2026-09-03"
+  },
+  "/rechner/umstieg": {
+    "hash": "d61bba8d2d31",
+    "date": "2026-09-03"
+  },
+  "/rechner/verschleiss": {
+    "hash": "606c98d2bf9f",
+    "date": "2026-09-03"
+  },
   "/rewax": {
     "hash": "4daadf11cf56",
     "date": "2026-08-04"

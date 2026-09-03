@@ -6,6 +6,9 @@
 // bare strings) — the parse/shape guard below is deliberately conservative:
 // anything unexpected is treated as "no profile", never as a guess.
 
+import type { Product } from '@/lib/data';
+import { applicationsPerBlock, waxIntervals, type ChainSpeed } from '@/lib/waxMath';
+
 export type Weather = 'trocken' | 'gemischt' | 'nass';
 export type Terrain = 'strasse' | 'gravel' | 'mtb';
 
@@ -13,6 +16,20 @@ export interface PersistedRidingProfile {
   weather: Weather;
   terrain: Terrain;
   kmPerWeek: number;
+  /** Antriebshersteller — erst mit den Rechnern /rechner hinzugekommen. */
+  system?: DriveSystem;
+  /** Gangzahl hinten. Optional aus demselben Grund. */
+  speed?: ChainSpeed;
+}
+
+export type DriveSystem = 'shimano' | 'sram' | 'campagnolo';
+
+function isSystem(v: unknown): v is DriveSystem {
+  return v === 'shimano' || v === 'sram' || v === 'campagnolo';
+}
+
+function isSpeed(v: unknown): v is ChainSpeed {
+  return v === 8 || v === 9 || v === 10 || v === 11 || v === 12;
 }
 
 const STORAGE_KEY = 'wx-riding-profile';
@@ -31,7 +48,16 @@ export function loadRidingProfile(): PersistedRidingProfile | null {
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     if (typeof parsed?.kmPerWeek === 'number' && isWeather(parsed.weather) && isTerrain(parsed.terrain)) {
-      return { weather: parsed.weather, terrain: parsed.terrain, kmPerWeek: parsed.kmPerWeek };
+      return {
+        weather: parsed.weather,
+        terrain: parsed.terrain,
+        kmPerWeek: parsed.kmPerWeek,
+        // Bewusst nicht Teil der Gueltigkeitspruefung: Profile, die vor den
+        // Rechnern gespeichert wurden, haben diese Felder nicht und muessen
+        // trotzdem weiter geladen werden.
+        ...(isSystem(parsed.system) ? { system: parsed.system } : {}),
+        ...(isSpeed(parsed.speed) ? { speed: parsed.speed } : {}),
+      };
     }
     return null; // malformed/outdated shape — never guess
   } catch {
@@ -43,24 +69,21 @@ export function saveRidingProfile(profile: PersistedRidingProfile): void {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(profile)); } catch { /* best-effort only */ }
 }
 
-// Independent of tools.tsx's own two calculators (WaxStockCalculator's
-// WAX_PER_REWAX, RotationAndSavings' APPS_PER_BLOCK) by design — those are
-// mutually inconsistent hardcoded constants that don't read real per-product
-// data. This uses each product's actual `applications` range (data.ts, e.g.
-// '20–32') directly instead, so the result may not exactly match either
-// calculator's own numbers for the same inputs — an accepted tradeoff of
-// keeping this independent rather than reconciling three calculations at
-// once.
+// Wie lange ein Block bei diesem Fahrprofil reicht, in Wochen.
+//
+// Rechnet seit der Rechner-Vereinheitlichung ueber waxMath.applicationsPerBlock
+// statt ueber eine eigene Parse-Logik. Vorher stand hier ausdruecklich, dass das
+// Ergebnis von den Rechnern in tools.tsx abweichen darf, weil dort zwei weitere,
+// untereinander widerspruechliche Konstanten lagen (WAX_PER_REWAX, APPS_PER_BLOCK).
+// Diese Konstanten gibt es nicht mehr; alle Stellen rechnen jetzt gleich.
 export function weeksRemainingForProduct(
-  applications: string | undefined,
-  waxIntervals: Record<string, Record<string, number>>,
+  product: Product,
   profile: PersistedRidingProfile,
 ): number | null {
-  if (!applications || profile.kmPerWeek <= 0) return null;
-  const [lo, hi] = applications.split(/[–-]/).map(n => parseInt(n.trim(), 10));
-  if (!Number.isFinite(lo) || !Number.isFinite(hi)) return null;
-  const totalApplications = (lo + hi) / 2;
+  if (profile.kmPerWeek <= 0) return null;
+  const apps = applicationsPerBlock(product);
+  if (!apps) return null;
   const kmPerRewax = waxIntervals[profile.weather][profile.terrain];
-  const weeks = Math.round((totalApplications * kmPerRewax) / profile.kmPerWeek);
+  const weeks = Math.round((apps * kmPerRewax) / profile.kmPerWeek);
   return Number.isFinite(weeks) && weeks > 0 ? weeks : null;
 }

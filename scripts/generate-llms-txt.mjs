@@ -13,6 +13,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { products, trustStats } from '../src/lib/data.ts';
 import { articles, categoryOrder } from '../src/pages/blog/articles.ts';
+import { TOOLS, TOOLS_HUB } from '../src/lib/toolRegistry.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const BASE = 'https://waxcelerate.de';
@@ -37,6 +38,11 @@ Nachwachsen bei trockenen Bedingungen alle 400–550 km, bei Nässe oder Schotte
 
 - [Startseite](${BASE}/): Produkte, Vergleich, Anleitungen, FAQ
 - [Blog-Übersicht](${BASE}/blog): ${articles.length} Ratgeber und Anleitungen
+- [Rechner](${BASE}/rechner): ${TOOLS.length} kostenlose Rechner rund um Kette und Kettenpflege
+
+## Rechner — kostenlos, ohne Anmeldung
+
+${TOOLS.map(t => `- [${t.cover}](${BASE}/rechner/${t.slug}): ${t.hint}`).join('\n')}
 
 ## Produkte — Wachs
 
@@ -126,6 +132,22 @@ ${chains.map(chainBlock).join('\n\n')}
 
 ---
 
+## Rechner — ${TOOLS.length} Werkzeuge
+
+${TOOLS_HUB.lead}
+
+${TOOLS.map(t => `### ${t.h1}
+
+URL: ${BASE}/rechner/${t.slug}
+Beantwortet: ${t.cover}
+Eingaben: ${t.hint}
+
+${t.lead}
+
+${t.answer.join('\n\n')}`).join('\n\n---\n\n')}
+
+---
+
 ## Ratgeber — alle ${articles.length} Artikel
 
 ${articles.map(articleBlock).join('\n\n---\n\n')}
@@ -133,4 +155,4 @@ ${articles.map(articleBlock).join('\n\n---\n\n')}
 
 writeFileSync(resolve(__dirname, '../public/llms.txt'), llmsTxt);
 writeFileSync(resolve(__dirname, '../public/llms-full.txt'), llmsFullTxt);
-console.log(`llms.txt + llms-full.txt written — ${wax.length + chains.length} products, ${articles.length} articles (was 6 / 2 before).`);
+console.log(`llms.txt + llms-full.txt written — ${wax.length + chains.length} products, ${articles.length} articles, ${TOOLS.length} calculators.`);

@@ -24,6 +24,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev", "--", "--port", "5188"],
       "port": 5188
+    },
+    {
+      "name": "rewax-review",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--", "--port", "5199"],
+      "port": 5199
     }
   ]
 }

@@ -1,0 +1,162 @@
+// ── Wann muss ich rewaxen? ──────────────────────────────────────────────────
+//
+// Der bisherige Rewax-Rechner, um zwei Dinge veraendert:
+//  1. Wetter, Gelaende und Wochenkilometer fragt jetzt die ProfileBar ueber dem
+//     Stapel, nicht mehr diese Karte allein. Hier bleibt nur, was wirklich nur
+//     hierher gehoert: wann zuletzt gewachst wurde.
+//  2. Das Ergebnis endet nicht mehr in einer Zahl, sondern in einem Termin.
+
+import { useMemo, useState } from 'react';
+import { Calculator } from 'lucide-react';
+import { useLanguage } from '@/hooks/useLanguage';
+import { useTheme } from '@/hooks/useTheme';
+import type { ToolProfileState } from '@/hooks/useToolProfile';
+import { addWeeks, isoDate, shareUrl, dueDate } from '@/lib/toolState';
+import { AnimatedNumber } from '@/components/viz';
+import { ToolCard, ToolHeader, FieldLabel, TogButton, ToolCTA, ToolSeparator } from '@/components/tools/primitives';
+import { ToolResult, ResultMeta, ResultDot } from '@/components/tools/ToolResult';
+import { ResultActions } from '@/components/tools/ResultActions';
+
+export function IntervalCalculator({ profile }: { profile: ToolProfileState }) {
+  const { t, lang } = useLanguage();
+  const { theme } = useTheme();
+  const de = lang === 'de';
+  const { lastWaxedDate, setLastWaxedDate, interval, weeks, weeksCapped } = profile;
+
+  // Genau drei Schnellwahl-Chips, im selben Rhythmus wie Wetter und Gelaende in
+  // der Profilleiste. Alles weiter Zurueckliegende laeuft ueber „Genaues Datum",
+  // damit der nicht restylebare native Kalender-Dialog nicht im Weg steht.
+  const today = new Date();
+  const datePresets: { key: string; date: Date | null; label: string }[] = [
+    { key: 'today', date: null, label: t.tools.rewax.lastWaxedToday },
+    { key: '1w', date: addWeeks(today, -1), label: t.tools.rewax.lastWaxed1Week },
+    { key: '2w', date: addWeeks(today, -2), label: t.tools.rewax.lastWaxed2Weeks },
+  ];
+  const isPresetActive = (presetDate: Date | null) =>
+    presetDate === null
+      ? lastWaxedDate === null
+      : lastWaxedDate !== null && isoDate(lastWaxedDate) === isoDate(presetDate);
+
+  // Lazy init statt Effekt: einmal beim Mount entscheiden, ob das aktuelle
+  // Datum ueberhaupt einem Preset entspricht. Ein Effekt auf lastWaxedDate
+  // wuerde bei jeder Aenderung neu laufen und gegen jemanden arbeiten, der das
+  // Feld nach eigener Datumswahl wieder zuklappt — ein per QR gesetztes Datum
+  // klappt so trotzdem korrekt auf.
+  const [customDateOpen, setCustomDateOpen] = useState(() =>
+    lastWaxedDate !== null && !datePresets.some(p => p.date !== null && isoDate(p.date) === isoDate(lastWaxedDate)),
+  );
+
+  const { date: nextDate, overdue } = useMemo(() => dueDate(lastWaxedDate, weeks), [weeks, lastWaxedDate]);
+  const nextDateLabel = overdue
+    ? (de ? 'überfällig' : 'overdue')
+    : nextDate.toLocaleDateString(de ? 'de-DE' : 'en-GB', { day: 'numeric', month: 'long' });
+  // Eine Erinnerung in der Vergangenheit ist keine Erinnerung: bei einem
+  // ueberfaelligen Termin traegt der Kalender heute ein.
+  const reminderDate = overdue ? new Date() : nextDate;
+  const waxedLabel = lastWaxedDate
+    ? lastWaxedDate.toLocaleDateString(de ? 'de-DE' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+    : null;
+
+  const goToWax = () => {
+    document.querySelector('#produkte')?.scrollIntoView({ behavior: 'smooth' });
+    window.dispatchEvent(new CustomEvent('wax:selectTab', { detail: 'wax' }));
+  };
+
+  const url = shareUrl('/rechner/intervall', profile.snapshot);
+
+  return (
+    <ToolCard>
+      <ToolHeader
+        icon={<Calculator className="h-4 w-4" style={{ color: 'var(--txm)' }} />}
+        title={t.tools.rewax.title}
+        subtitle={de
+          ? 'Nie wieder zu früh oder zu spät — dein Intervall aus Wetter, Gelände und Kilometern.'
+          : 'Never too early or too late — your interval from weather, terrain and distance.'}
+      />
+      <div className="flex flex-col flex-1">
+        <ToolResult
+          compact
+          value={<AnimatedNumber value={weeks} />}
+          unit={`${weeks === 1 ? (de ? 'Woche' : 'week') : (de ? 'Wochen' : 'weeks')}${weeksCapped ? ' max.' : ''}`}
+          reason={waxedLabel
+            ? (de ? `gewachst am ${waxedLabel}` : `waxed ${waxedLabel}`)
+            : (de ? 'bis zum nächsten Rewaxen' : 'until your next re-wax')}
+          meta={<>
+            <ResultMeta>{overdue ? nextDateLabel : (de ? `ca. ${nextDateLabel}` : `~${nextDateLabel}`)}</ResultMeta>
+            <ResultDot />
+            <ResultMeta><AnimatedNumber value={interval} suffix={de ? ' km/Wachsung' : ' km/wax'} /></ResultMeta>
+          </>}
+          actions={<ResultActions
+            shareUrl={url}
+            event={{
+              date: reminderDate,
+              title: de ? 'Kette rewaxen' : 'Re-wax chain',
+              description: de
+                ? `Waxcelerate: Intervall ${weeks} Wochen (${interval} km je Wachsung).`
+                : `Waxcelerate: interval ${weeks} weeks (${interval} km per wax).`,
+              repeatWeeks: weeks,
+              url,
+            }}
+          />}
+        />
+
+        <ToolSeparator />
+
+        <div className="px-6 pt-3 pb-3 sm:pt-4 sm:pb-4 flex flex-col flex-1">
+          <FieldLabel label={t.tools.rewax.lastWaxed} />
+          {/* Chips und Datumsfeld sind Alternativen, keine Ergaenzung — beides
+              gleichzeitig zu zeigen hat die Karte frueher ueber die Deckhoehe
+              geschoben. */}
+          {!customDateOpen && (
+            <div className="flex flex-wrap gap-2">
+              {datePresets.map(p => (
+                <TogButton key={p.key} active={isPresetActive(p.date)} onClick={() => setLastWaxedDate(p.date)}>
+                  {p.label}
+                </TogButton>
+              ))}
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={() => setCustomDateOpen(v => !v)}
+            className="relative mt-1 sm:mt-2 self-start text-[12px] font-medium transition-opacity hover:opacity-70 cursor-pointer after:content-[''] after:absolute after:inset-x-0 after:top-1/2 after:-translate-y-1/2 after:h-11"
+            style={{ color: 'var(--brand)' }}
+          >
+            {customDateOpen ? t.tools.rewax.lastWaxedHideExact : t.tools.rewax.lastWaxedExact}
+          </button>
+          {customDateOpen && (
+            <div className="mt-2 flex items-center gap-2">
+              <input
+                type="date"
+                value={lastWaxedDate ? isoDate(lastWaxedDate) : ''}
+                min="2020-01-01"
+                max={isoDate(new Date())}
+                onChange={e => setLastWaxedDate(e.target.value ? new Date(e.target.value + 'T00:00:00') : null)}
+                className="w-full px-4 py-3 rounded-xl text-[14px]"
+                style={{
+                  background: 'var(--sf2)', border: '1px solid var(--bd2)', color: 'var(--tx1)',
+                  colorScheme: theme === 'noir' ? 'dark' : 'light',
+                }}
+              />
+              {lastWaxedDate && (
+                <button
+                  type="button"
+                  onClick={() => setLastWaxedDate(null)}
+                  aria-label={t.tools.rewax.lastWaxedClear}
+                  className="flex-shrink-0 w-11 h-11 rounded-xl grid place-items-center transition-colors hover:opacity-80 cursor-pointer"
+                  style={{ border: '1px solid var(--bd2)', background: 'var(--tog-bg)', color: 'var(--txf)' }}
+                >
+                  ×
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="px-6 pb-3 pt-1 sm:pb-5 sm:pt-2">
+          <ToolCTA onClick={goToWax}>{t.tools.shared.buyWax}</ToolCTA>
+        </div>
+      </div>
+    </ToolCard>
+  );
+}

@@ -18,8 +18,6 @@ import { InstrumentFrame } from '@/components/viz';
 import { ChainWaxMap } from '@/sections/science/ChainWaxMap';
 import { ReadMoreLink } from '@/sections/science/ReadMoreLink';
 
-const ARTICULATION_POINTS = 8; // chainring, cog, both pulleys — in and out
-
 const ZONES = [
   {
     n: '01',
@@ -53,71 +51,6 @@ function Pill({ children }: { children: React.ReactNode }) {
       style={{ background: 'var(--accent-wash-sm)', border: '1px solid rgba(var(--accent-rgb),0.14)', color: 'var(--accent)' }}>
       {children}
     </span>
-  );
-}
-
-// ─── The breakaway counter ───────────────────────────────────────────────────
-function Breakaway({ de }: { de: boolean }) {
-  const [teeth, setTeeth] = useState(53);
-  const [rpm, setRpm] = useState(95);
-  const locale = de ? 'de-DE' : 'en-US';
-
-  return (
-    <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-8 lg:gap-14 items-center">
-      <div>
-        <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
-          {de ? 'Und dazwischen: Stillstand' : 'And in between: standstill'}
-        </p>
-        <h3 className="font-display font-bold text-wx-tx1 leading-tight tracking-[-0.02em]"
-          style={{ fontSize: 'clamp(1.5rem, 3vw, 2.1rem)' }}>
-          {de ? 'Ein Glied dreht sich nie durch.' : 'A link never turns all the way round.'}
-        </h3>
-        <p className="text-[15px] leading-relaxed text-wx-tx2 mt-4 max-w-[44ch]">
-          {de
-            ? 'Es kippt auf und wieder zurück. Jede Bewegung beginnt bei null und muss zuerst die Haftreibung überwinden. Ein fester Film sitzt in der Oberflächenrauheit, statt zwei Flächen aneinander zu kleben.'
-            : 'It articulates open and back again. Every movement starts from zero and has to break static friction first. A solid film sits in the surface roughness instead of sticking two faces together.'}
-        </p>
-
-        <div className="mt-7 space-y-4 max-w-xs">
-          {[
-            { id: 'wx-teeth', l: de ? 'Kettenblatt' : 'Chainring', v: teeth, set: setTeeth, min: 34, max: 56, u: de ? 'Z' : 'T' },
-            { id: 'wx-rpm', l: de ? 'Trittfrequenz' : 'Cadence', v: rpm, set: setRpm, min: 60, max: 110, u: 'rpm' },
-          ].map(c => (
-            <div key={c.id}>
-              <label htmlFor={c.id} className="flex justify-between items-baseline text-[12.5px]"
-                style={{ color: 'var(--txm)' }}>
-                <span>{c.l}</span>
-                <span className="num-data" style={{ color: 'var(--tx1)' }}>{c.v} {c.u}</span>
-              </label>
-              <input id={c.id} type="range" min={c.min} max={c.max} step={1} value={c.v}
-                onChange={e => c.set(Number(e.target.value))} className="wx-range w-full mt-2.5" />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <InstrumentFrame
-        eyebrow={de ? 'Haftreibung' : 'Breakaway friction'}
-        chip={`${teeth}T · ${rpm} rpm`}
-        footer={
-          <p className="text-meta leading-relaxed" style={{ color: 'var(--txff)' }}>
-            {de
-              ? 'Zähne × Trittfrequenz × 8 Umlenkpunkte. Reine Geometrie, kein Messwert.'
-              : 'Teeth × cadence × 8 articulation points. Pure geometry, not a measurement.'}
-          </p>
-        }
-      >
-        <div className="py-7 text-center">
-          <p className="num-data font-bold leading-none tabular-nums"
-            style={{ fontSize: 'clamp(2.6rem, 7vw, 4.4rem)', letterSpacing: '-0.045em', color: 'var(--tx1)' }}>
-            {(teeth * rpm * ARTICULATION_POINTS).toLocaleString(locale)}
-          </p>
-          <p className="text-small uppercase tracking-[0.16em] mt-4" style={{ color: 'var(--txf)' }}>
-            {de ? 'Losbrech-Vorgänge pro Minute' : 'Breakaway events per minute'}
-          </p>
-        </div>
-      </InstrumentFrame>
-    </div>
   );
 }
 
@@ -226,8 +159,19 @@ export function ContactZones({ de, onToFormula }: { de: boolean; onToFormula?: (
         </button>
       )}
 
-      <div className="mt-20 sm:mt-24">
-        <Breakaway de={de} />
+      <div className="mt-10 sm:mt-12 max-w-2xl">
+        <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
+          {de ? 'Und dazwischen: Stillstand' : 'And in between: standstill'}
+        </p>
+        <h3 className="font-display font-bold text-wx-tx1 leading-tight tracking-[-0.02em]"
+          style={{ fontSize: 'clamp(1.5rem, 3vw, 2.1rem)' }}>
+          {de ? 'Ein Glied dreht sich nie durch.' : 'A link never turns all the way round.'}
+        </h3>
+        <p className="text-[15px] leading-relaxed text-wx-tx2 mt-4 max-w-[44ch]">
+          {de
+            ? 'Es kippt auf und wieder zurück. Jede Bewegung beginnt bei null und muss zuerst die Haftreibung überwinden. Ein fester Film sitzt in der Oberflächenrauheit, statt zwei Flächen aneinander zu kleben.'
+            : 'It articulates open and back again. Every movement starts from zero and has to break static friction first. A solid film sits in the surface roughness instead of sticking two faces together.'}
+        </p>
       </div>
     </section>
   );

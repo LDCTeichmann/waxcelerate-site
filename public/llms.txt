@@ -13,6 +13,16 @@ Nachwachsen bei trockenen Bedingungen alle 400–550 km, bei Nässe oder Schotte
 
 - [Startseite](https://waxcelerate.de/): Produkte, Vergleich, Anleitungen, FAQ
 - [Blog-Übersicht](https://waxcelerate.de/blog): 18 Ratgeber und Anleitungen
+- [Rechner](https://waxcelerate.de/rechner): 6 kostenlose Rechner rund um Kette und Kettenpflege
+
+## Rechner — kostenlos, ohne Anmeldung
+
+- [Wann muss ich rewaxen?](https://waxcelerate.de/rechner/intervall): Dein Intervall in Wochen — nach Wetter, Gelände und Kilometern.
+- [Muss meine Kette raus?](https://waxcelerate.de/rechner/verschleiss): Messwert eingeben — Urteil, Kassettenrisiko und Kostenfolge.
+- [Wie viele Glieder?](https://waxcelerate.de/rechner/kettenlaenge): Kettenstrebe, größtes Kettenblatt, größtes Ritzel — fertig.
+- [Welche Kette passt?](https://waxcelerate.de/rechner/passende-kette): Antrieb und Gangzahl wählen — wir zeigen, was passt.
+- [Was kostet der Umstieg?](https://waxcelerate.de/rechner/umstieg): Erstausstattung, laufende Kosten und ab wann es sich rechnet.
+- [Rotation & Ersparnis](https://waxcelerate.de/rechner/ersparnis): Was zwei oder drei Ketten im Wechsel pro Jahr sparen.
 
 ## Produkte — Wachs
 

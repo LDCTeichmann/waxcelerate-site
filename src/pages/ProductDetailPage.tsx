@@ -5,7 +5,7 @@ import {
   ArrowLeft, ArrowRight, ExternalLink, Check,
   ChevronRight, ChevronLeft, ChevronDown, Star, Lightbulb, Truck, RotateCcw, BadgeCheck, Gauge,
 } from 'lucide-react';
-import { getProductById, products, canCheckout, checkoutEnabled, isSoldOut, schemaAvailability, waxIntervals, shipping } from '@/lib/data';
+import { getProductById, products, canCheckout, checkoutEnabled, isSoldOut, schemaAvailability, shipping } from '@/lib/data';
 import type { Product } from '@/lib/data';
 import { loadRidingProfile, weeksRemainingForProduct } from '@/lib/ridingProfile';
 import { richContent } from '@/lib/productContent';
@@ -314,7 +314,7 @@ export function ProductDetailPage() {
   // render, exactly like every other optional block on this page.
   const ridingProfile = isWax ? loadRidingProfile() : null;
   const personalizedWeeks = ridingProfile
-    ? weeksRemainingForProduct(product.applications, waxIntervals, ridingProfile)
+    ? weeksRemainingForProduct(product, ridingProfile)
     : null;
   const accentColor = isPro ? '#4A72D4' : 'var(--accent-soft)';
   const accentBg = isPro ? 'rgba(74,114,212,0.06)' : 'rgba(43,82,176,0.06)';
