@@ -16,7 +16,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useLocation } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Gift, User, ChevronDown, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Gift, User, ChevronDown, CheckCircle2, FileText } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
 import { prefersReducedMotion } from '@/hooks/useAnimation';
@@ -297,29 +297,72 @@ function StampCard({ de, count, price, list, gift, recommended }: {
 
   // Stamps start pale/gray — a wall of full-color logos read as "too much" —
   // then stamp in one after another, staggered, once the card scrolls into
-  // view. Just a self-observing IntersectionObserver (the pattern already
-  // used for simple in-view flags elsewhere on the site, e.g.
-  // products.tsx/reviews.tsx), not the GSAP-based use3DReveal hook: that one
-  // tweens opacity/y/rotateX, not filter, and pulling in ScrollTrigger for a
+  // view, and keep looping (fill → hold, fully stamped → wipe → pause, empty
+  // → fill again) for as long as the card stays mounted: this is a demo of
+  // what using the card looks like, not a one-shot reveal, so it shouldn't
+  // exhaust itself after a single pass. Just a self-observing
+  // IntersectionObserver to start the loop (the pattern already used for
+  // simple in-view flags elsewhere on the site, e.g. products.tsx/
+  // reviews.tsx), not the GSAP-based use3DReveal hook: that one tweens
+  // opacity/y/rotateX, not filter, and pulling in ScrollTrigger for a
   // one-property grayscale fade would be more machinery than the effect
   // needs. The stamp-in itself is a real CSS keyframe (wx-stamp-pop in
   // index.css) with a scale overshoot, not a plain filter transition — it
-  // needs to read as a discrete impact per field, not a smooth wash. The end
-  // state is deliberately muted (grayscale/saturate/opacity), not full brand
-  // color — a wall of 10 vivid logos was too loud even once "stamped".
+  // needs to read as a discrete impact per field, not a smooth wash, paired
+  // with a box-shadow ring pulse (wx-stamp-ring) on the field itself so the
+  // "something just landed here" moment doesn't rely on a 24px glyph alone
+  // to be noticed. The end state is deliberately muted (grayscale/
+  // saturate/opacity), not full brand color — a wall of 10 vivid logos was
+  // too loud even once "stamped".
+  //
+  // Timing lives in JS (a chained setTimeout, not a single CSS animation per
+  // field) because the reset has to be a synchronized, all-at-once wipe —
+  // independent per-field CSS delays would keep each field's own phase
+  // offset forever, so they'd wipe staggered too instead of together.
+  // stampedCount is how many fields (left to right) are currently "on";
+  // each field's own style flips from dim to the pop animation the instant
+  // its index enters that range, so only the field that just turned on ever
+  // visibly restarts wx-stamp-pop — the ones already on keep re-applying an
+  // unchanged style and just sit at the animation's held end frame.
+  const STAMP_STAGGER_MS = 550;
+  const STAMP_HOLD_MS = 2400;
+  const STAMP_EMPTY_PAUSE_MS = 900;
   const gridRef = useRef<HTMLDivElement>(null);
-  const [stamped, setStamped] = useState(false);
+  const [stampedCount, setStampedCount] = useState(0);
+  const [inView, setInView] = useState(false);
   const [reduced] = useState(() => prefersReducedMotion());
+
   useEffect(() => {
-    if (reduced) { setStamped(true); return; }
+    if (reduced) { setStampedCount(count); return; }
     const el = gridRef.current;
     if (!el) return;
     const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) { setStamped(true); observer.disconnect(); }
+      if (entry.isIntersecting) { setInView(true); observer.disconnect(); }
     }, { threshold: 0.1 });
     observer.observe(el);
     return () => observer.disconnect();
   }, [reduced]);
+
+  useEffect(() => {
+    if (reduced || !inView) return;
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout>;
+    const runCycle = (i: number) => {
+      if (cancelled) return;
+      if (i <= count) {
+        setStampedCount(i);
+        timer = setTimeout(() => runCycle(i + 1), STAMP_STAGGER_MS);
+      } else {
+        timer = setTimeout(() => {
+          if (cancelled) return;
+          setStampedCount(0);
+          timer = setTimeout(() => runCycle(1), STAMP_EMPTY_PAUSE_MS);
+        }, STAMP_HOLD_MS);
+      }
+    };
+    timer = setTimeout(() => runCycle(1), STAMP_STAGGER_MS);
+    return () => { cancelled = true; clearTimeout(timer); };
+  }, [inView, reduced, count]);
 
   const waMsg = gift
     ? (de
@@ -352,31 +395,36 @@ function StampCard({ de, count, price, list, gift, recommended }: {
           Preis/Ersparnis auf beiden Karten an derselben Y-Position beginnen,
           egal ob die Karte eine oder zwei Stempelreihen zeigt. */}
       <div ref={gridRef} className="grid grid-cols-5 gap-1.5">
-        {Array.from({ length: 10 }, (_, i) => (
+        {Array.from({ length: 10 }, (_, i) => {
+          const isOn = reduced ? i < count : i < stampedCount;
+          return (
           <div key={i} className="relative rounded-md flex items-center justify-center"
             style={{
               aspectRatio: '1 / 1', border: '1px dashed rgba(var(--accent-rgb),0.35)', background: 'var(--sf)',
               visibility: i < count ? 'visible' : 'hidden',
+              ...(isOn && !reduced
+                ? { animationName: 'wx-stamp-ring', animationDuration: '900ms', animationTimingFunction: 'ease-out', animationFillMode: 'forwards' }
+                : null),
             }}
             aria-hidden={i >= count}>
             <div className="w-[62%] h-[62%]"
               style={
                 reduced
                   ? { filter: 'grayscale(0.35) saturate(0.6) brightness(1.05) opacity(0.9)' }
-                  : stamped
+                  : isOn
                   ? {
                       animationName: 'wx-stamp-pop',
-                      animationDuration: '650ms',
+                      animationDuration: '900ms',
                       animationTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
-                      animationDelay: `${i * 260}ms`,
-                      animationFillMode: 'both',
+                      animationFillMode: 'forwards',
                     }
                   : { filter: 'grayscale(1) opacity(0.4)' }
               }>
               <WaxcelerateMark className="w-full h-full" />
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="flex items-baseline gap-2 mt-6">
@@ -671,9 +719,17 @@ export function RewaxPage() {
               </a>
             </div>
             {/* Zweiter Bestellweg, kein Ersatz fuer WhatsApp — klappt inline
-                auf, kein Seitenwechsel, kein Verlassen des Kontexts. */}
+                auf, kein Seitenwechsel, kein Verlassen des Kontexts. War ein
+                blasser Text-Link (var(--txf), keine Kontur) direkt unter
+                einem satten blauen Button — visuell las sich das als
+                Fussnote, nicht als zweite Option, die man tatsaechlich
+                anklicken wuerde. Jetzt eine echte umrandete Pille mit Icon:
+                sichtbar als eigener Klickbereich, aber ohne Fuellfarbe, also
+                erkennbar sekundaer zu WhatsApp. */}
             <button type="button" onClick={() => setFormOpen((v) => !v)}
-              className="block text-[13px] font-semibold mt-3" style={{ color: 'var(--txf)' }}>
+              className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-[13.5px] font-semibold mt-4 transition-colors hover:opacity-80"
+              style={{ background: formOpen ? 'var(--accent-wash-sm)' : 'var(--sf)', border: '1px solid var(--bd2)', color: 'var(--tx1)' }}>
+              <FileText className="h-4 w-4" style={{ color: 'var(--accent)' }} aria-hidden />
               {formOpen
                 ? (de ? 'Formular ausblenden' : 'Hide form')
                 : (de ? 'Oder per Formular anfragen' : 'Or request via form')}
@@ -695,101 +751,121 @@ export function RewaxPage() {
           </div>
         </div>
 
-        {/* Kompakter Ablauf-Streifen, kein eigener Sektionskopf: das
-            "ist nur ein Umschlag"-Argument soll sofort sichtbar sein, nicht
-            erst im eingeklappten FAQ. Details stehen dort trotzdem, für wer
-            sie will. Untereinander statt nebeneinander, mit Nummer und einem
-            kleinen scharfen Foto pro Schritt statt nur einem Icon — die
-            Fotos gab es schon (bisher fürs 3-Spalten-Layout mit riesiger
-            Ziffer im Bild), jetzt kompakt und ruhig als Miniatur. */}
-        <div className={`${W} mt-12 pt-10`} style={{ borderTop: '1px solid var(--bd2)' }}>
-          {([
-            { n: 1, de: 'Einschicken', en: 'Send it', bodyDe: 'Am Quick-Link raus, in den Umschlag.', bodyEn: 'Off at the quick link, into an envelope.', img: '/images/rewax/step-1' },
-            { n: 2, de: 'Waschen & Wachsen', en: 'Wash & wax', bodyDe: 'Ultraschallgereinigt, dann frisch im Wachsbad.', bodyEn: 'Ultrasonically cleaned, then fresh in the wax bath.', img: '/images/rewax/step-2' },
-            { n: 3, de: 'Zurück aufs Rad', en: 'Back on the bike', bodyDe: 'Ausgehärtet, anbauen, kurbeln, los.', bodyEn: 'Cured, fit it, turn the cranks, ride.', img: '/images/rewax/step-3' },
-          ] as const).map((s, i) => (
-            <div key={s.n} className="flex items-center gap-4 py-4"
-              style={{ borderBottom: i < 2 ? '1px solid var(--bd2)' : 'none' }}>
-              <span className="num-data flex-shrink-0 rounded-full flex items-center justify-center font-bold"
-                style={{ width: 24, height: 24, background: 'var(--accent-wash-sm)', color: 'var(--accent)', fontSize: 12 }}>
-                {s.n}
-              </span>
-              <div className="flex-shrink-0 rounded-xl overflow-hidden" style={{ width: 80, height: 64, background: 'var(--sf2)' }}>
-                <img src={`${s.img}-800.webp`} alt="" aria-hidden loading="lazy" decoding="async"
-                  className="w-full h-full object-cover" />
-              </div>
-              <div>
-                <p className="font-semibold text-[14px]" style={{ color: 'var(--tx1)' }}>{de ? s.de : s.en}</p>
-                <p className="text-[13.5px] leading-snug mt-0.5" style={{ color: 'var(--txm)' }}>
-                  {de ? s.bodyDe : s.bodyEn}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
       </section>
 
-      {/* ── Pricing ── */}
+      {/* ── Ablauf + Preise ──
+          Der Ablauf-Streifen (1-2-3) stand vorher als eigener voller
+          Abschnitt UEBER der Preis-Sektion — er braucht aber kaum Hoehe,
+          waehrend Preise+Stempelkarten deutlich laenger sind. Das zog die
+          Seite unnoetig in die Laenge, bevor der eigentliche Kaufteil
+          ueberhaupt anfing. Ab lg: jetzt nebeneinander: eine schmale linke
+          Spalte fuer den Ablauf (sticky, bleibt sichtbar waehrend rechts
+          durch Preise und Karten gescrollt wird), rechts alles Bisherige
+          unveraendert. Unter lg: bleibt es block/gestapelt in derselben
+          Reihenfolge wie vorher. */}
       <section id="preise" className="scroll-mt-24 py-14 sm:py-20" style={{ borderTop: '1px solid var(--bd2)' }}>
         <div className={W}>
-          <h2 className="font-display font-bold text-wx-tx1 leading-tight mb-8"
-            style={{ fontSize: 'clamp(1.7rem, 3.4vw, 2.4rem)', letterSpacing: '-0.02em' }}>
-            {de ? 'Preise' : 'Pricing'}
-          </h2>
+          <div className="lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-14 lg:items-start">
 
-          <Pricing de={de} />
-
-          <p className="text-[13px] leading-relaxed max-w-[62ch] mt-6" style={{ color: 'var(--txff)' }}>
-            {de
-              ? 'Hinversand trägst du, Rückversand ist oben eingerechnet. Wir arbeiten als Kleinunternehmer nach § 19 UStG, es wird keine Umsatzsteuer ausgewiesen.'
-              : 'You cover the shipping to us, return shipping is included above. We operate under the German small business rule, so no VAT is shown.'}
-          </p>
-
-          {/* ── Vorausbezahlte Karten ──
-              Steht jetzt IN der Preis-Sektion statt in einer eigenen darunter.
-              Es ist dieselbe Frage ("was kostet das") in einer zweiten
-              Variante, und zwei eigene Sektionsköpfe für eine Frage sind genau
-              die Zerstückelung, die die Seite lang und unübersichtlich
-              gemacht hat. Als Untertitel hinter einer Haarlinie liest es sich
-              als das, was es ist: eine Option, kein neues Thema.
-
-              Lebt hier statt als vierte Produkttür auf der Startseite — vier
-              Türen sind keine Wahl mehr, sondern ein Menü, und ein Geschenk
-              ist kein Einstieg für einen Erstbesucher.
-
-              Zwei Größen (fünf/zehn) plus ein Für-mich/Geschenk-Umschalter:
-              "auch als Geschenk" ist kein Abzeichen auf der Karte, sondern
-              ändert die Bestellnachricht direkt mit. */}
-          <div className="mt-12 pt-10" style={{ borderTop: '1px solid var(--bd2)' }}>
-            <p className="text-small uppercase tracking-[0.16em] mb-6" style={{ color: 'var(--txf)' }}>
-              {de ? 'Mehrere Vorgänge, einmal bezahlt.' : 'Several treatments, paid once.'}
-            </p>
-
-            {/* Eigene, zentrierte Zeile statt in der Kopfzeile rechts — der
-                Umschalter gilt fuer die Karten direkt darunter, nicht fuer
-                das Sub-Label daneben, und sollte optisch auch so wirken. */}
-            <div className="flex justify-center mb-6">
-              <div className="inline-flex rounded-full p-1" style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)' }}>
-                {([
-                  { key: false, labelDe: 'Für mich', labelEn: 'For me', Icon: User },
-                  { key: true, labelDe: 'Als Geschenk', labelEn: 'As a gift', Icon: Gift },
-                ] as const).map(({ key, labelDe, labelEn, Icon }) => (
-                  <button key={String(key)} type="button" onClick={() => setIsGift(key)}
-                    className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-semibold transition-colors"
-                    style={{
-                      background: isGift === key ? 'var(--accent)' : 'transparent',
-                      color: isGift === key ? '#fff' : 'var(--txm)',
-                    }}>
-                    <Icon className="h-3.5 w-3.5" aria-hidden />
-                    {de ? labelDe : labelEn}
-                  </button>
-                ))}
-              </div>
+            {/* Ablauf — kein h2, aber ein kleines Label passend zum
+                "Mehrere Vorgaenge, einmal bezahlt."-Muster rechts, jetzt wo
+                es als eigene Spalte neben statt unter der Preis-Ueberschrift
+                steht. */}
+            <div className="mb-10 lg:mb-0 lg:sticky lg:top-28">
+              <p className="text-small uppercase tracking-[0.16em] mb-5" style={{ color: 'var(--txf)' }}>
+                {de ? 'So läuft’s ab' : 'How it works'}
+              </p>
+              {([
+                { n: 1, de: 'Einschicken', en: 'Send it', bodyDe: 'Am Quick-Link raus, in den Umschlag.', bodyEn: 'Off at the quick link, into an envelope.', img: '/images/rewax/step-1' },
+                { n: 2, de: 'Waschen & Wachsen', en: 'Wash & wax', bodyDe: 'Ultraschallgereinigt, dann frisch im Wachsbad.', bodyEn: 'Ultrasonically cleaned, then fresh in the wax bath.', img: '/images/rewax/step-2' },
+                { n: 3, de: 'Zurück aufs Rad', en: 'Back on the bike', bodyDe: 'Ausgehärtet, anbauen, kurbeln, los.', bodyEn: 'Cured, fit it, turn the cranks, ride.', img: '/images/rewax/step-3' },
+              ] as const).map((s, i) => (
+                <div key={s.n} className="flex items-center gap-3 py-3.5"
+                  style={{ borderBottom: i < 2 ? '1px solid var(--bd2)' : 'none' }}>
+                  <span className="num-data flex-shrink-0 rounded-full flex items-center justify-center font-bold"
+                    style={{ width: 22, height: 22, background: 'var(--accent-wash-sm)', color: 'var(--accent)', fontSize: 11.5 }}>
+                    {s.n}
+                  </span>
+                  <div className="flex-shrink-0 rounded-xl overflow-hidden" style={{ width: 60, height: 48, background: 'var(--sf2)' }}>
+                    <img src={`${s.img}-800.webp`} alt="" aria-hidden loading="lazy" decoding="async"
+                      className="w-full h-full object-cover" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-[13.5px]" style={{ color: 'var(--tx1)' }}>{de ? s.de : s.en}</p>
+                    <p className="text-[12.5px] leading-snug mt-0.5" style={{ color: 'var(--txm)' }}>
+                      {de ? s.bodyDe : s.bodyEn}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 max-w-2xl">
-              <StampCard de={de} count={FIVE_CARD.count} price={FIVE_CARD.price} list={FIVE_CARD.list} gift={isGift} />
-              <StampCard de={de} count={TEN_CARD.count} price={TEN_CARD.price} list={TEN_CARD.list} gift={isGift} recommended />
+            {/* Preise + vorausbezahlte Karten — inhaltlich unveraendert
+                gegenueber vorher, nur jetzt rechte Spalte statt alleinig im
+                Container. */}
+            <div>
+              <h2 className="font-display font-bold text-wx-tx1 leading-tight mb-8"
+                style={{ fontSize: 'clamp(1.7rem, 3.4vw, 2.4rem)', letterSpacing: '-0.02em' }}>
+                {de ? 'Preise' : 'Pricing'}
+              </h2>
+
+              <Pricing de={de} />
+
+              <p className="text-[13px] leading-relaxed max-w-[62ch] mt-6" style={{ color: 'var(--txff)' }}>
+                {de
+                  ? 'Hinversand trägst du, Rückversand ist oben eingerechnet. Wir arbeiten als Kleinunternehmer nach § 19 UStG, es wird keine Umsatzsteuer ausgewiesen.'
+                  : 'You cover the shipping to us, return shipping is included above. We operate under the German small business rule, so no VAT is shown.'}
+              </p>
+
+              {/* ── Vorausbezahlte Karten ──
+                  Steht jetzt IN der Preis-Sektion statt in einer eigenen
+                  darunter. Es ist dieselbe Frage ("was kostet das") in einer
+                  zweiten Variante, und zwei eigene Sektionsköpfe für eine
+                  Frage sind genau die Zerstückelung, die die Seite lang und
+                  unübersichtlich gemacht hat. Als Untertitel hinter einer
+                  Haarlinie liest es sich als das, was es ist: eine Option,
+                  kein neues Thema.
+
+                  Lebt hier statt als vierte Produkttür auf der Startseite —
+                  vier Türen sind keine Wahl mehr, sondern ein Menü, und ein
+                  Geschenk ist kein Einstieg für einen Erstbesucher.
+
+                  Zwei Größen (fünf/zehn) plus ein Für-mich/Geschenk-
+                  Umschalter: "auch als Geschenk" ist kein Abzeichen auf der
+                  Karte, sondern ändert die Bestellnachricht direkt mit. */}
+              <div className="mt-12 pt-10" style={{ borderTop: '1px solid var(--bd2)' }}>
+                <p className="text-small uppercase tracking-[0.16em] mb-6" style={{ color: 'var(--txf)' }}>
+                  {de ? 'Mehrere Vorgänge, einmal bezahlt.' : 'Several treatments, paid once.'}
+                </p>
+
+                {/* Eigene, zentrierte Zeile statt in der Kopfzeile rechts —
+                    der Umschalter gilt fuer die Karten direkt darunter,
+                    nicht fuer das Sub-Label daneben, und sollte optisch
+                    auch so wirken. */}
+                <div className="flex justify-center mb-6">
+                  <div className="inline-flex rounded-full p-1" style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)' }}>
+                    {([
+                      { key: false, labelDe: 'Für mich', labelEn: 'For me', Icon: User },
+                      { key: true, labelDe: 'Als Geschenk', labelEn: 'As a gift', Icon: Gift },
+                    ] as const).map(({ key, labelDe, labelEn, Icon }) => (
+                      <button key={String(key)} type="button" onClick={() => setIsGift(key)}
+                        className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-semibold transition-colors"
+                        style={{
+                          background: isGift === key ? 'var(--accent)' : 'transparent',
+                          color: isGift === key ? '#fff' : 'var(--txm)',
+                        }}>
+                        <Icon className="h-3.5 w-3.5" aria-hidden />
+                        {de ? labelDe : labelEn}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  <StampCard de={de} count={FIVE_CARD.count} price={FIVE_CARD.price} list={FIVE_CARD.list} gift={isGift} />
+                  <StampCard de={de} count={TEN_CARD.count} price={TEN_CARD.price} list={TEN_CARD.list} gift={isGift} recommended />
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -881,7 +957,7 @@ export function RewaxPage() {
             </a>
 
             <p className="text-[12.5px] mt-5" style={{ color: 'rgba(255,255,255,0.62)' }}>
-              {de ? 'Kein Formular. Kein Konto. ' : 'No form. No account. '}
+              {de ? 'Kein Konto nötig. ' : 'No account needed. '}
               <a href={mailLink(de)} className="underline underline-offset-2" style={{ color: 'rgba(255,255,255,0.86)' }}>
                 {de ? 'Lieber per E-Mail' : 'Prefer email'}
               </a>
