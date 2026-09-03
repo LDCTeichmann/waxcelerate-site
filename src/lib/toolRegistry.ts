@@ -32,11 +32,21 @@ export interface ToolEntry {
   article?: string;
   /** Weiterfuehrender Link auf der Seite. */
   next?: { href: string; label: string };
+  /** Rechner, deren Ergebnis auf Marktannahmen beruht — nur die zeigen die
+   *  Annahmen-Liste unter der Karte. Bei den reinen Sachrechnern (Laenge,
+   *  Kompatibilitaet) gaebe es nichts offenzulegen. */
+  showsAssumptions?: boolean;
+  /** Haengt das Ergebnis an Wetter, Gelaende und Wochenkilometern?
+   *  Nur dann gehoert die Profilleiste ueber den Rechner. Sie ueber einem
+   *  Rechner zu zeigen, den sie nicht beeinflusst, ist schlimmer als sie
+   *  wegzulassen: man stellt etwas ein und es passiert nichts. */
+  usesProfile?: boolean;
 }
 
 export const TOOLS: ToolEntry[] = [
   {
     slug: 'intervall',
+    usesProfile: true,
     label: 'Intervall', labelEn: 'Interval',
     cover: 'Wann muss ich rewaxen?', coverEn: 'When do I re-wax?',
     hint: 'Dein Intervall in Wochen — nach Wetter, Gelände und Kilometern.',
@@ -65,10 +75,10 @@ export const TOOLS: ToolEntry[] = [
     h1: 'Kettenverschleiß berechnen',
     lead: 'Eine gelängte Kette frisst die Kassette mit. Ob dich der Wechsel 45 € oder 130 € kostet, entscheidet sich an einem halben Prozent — deshalb lohnt das Messen.',
     answer: [
-      'Gemessen wird über 12 Glieder, von Bolzenmitte zu Bolzenmitte. Neu sind das exakt 152,4 mm, weil eine Fahrradkette eine Teilung von einem halben Zoll (12,7 mm) hat. Jede Abweichung nach oben ist die Längung.',
+      'Gemessen wird über 12 volle Glieder, von Bolzenmitte zu Bolzenmitte. Neu sind das exakt 12 Zoll, also 304,8 mm. Jede Abweichung nach oben ist die Längung. Wichtig ist die lange Strecke: über 12 Zoll entsprechen 0,5 % Längung rund 1,5 mm, über eine kürzere Strecke wäre der Unterschied mit einem Lineal nicht mehr ablesbar.',
       'Die Tauschgrenze hängt an der Gangzahl: bei 11- und 12-fach-Antrieben ab 0,5 % Längung, bei 9- und 10-fach ab 0,75 %, bei älteren 5- bis 8-fach-Antrieben ab 1,0 %. Je schmaler die Kette, desto früher.',
       'Bis 0,5 % bei 12-fach reicht in aller Regel der Kettentausch, die Kassette darf bleiben. Ab etwa 1,0 % Längung ist die Kassette mit hoher Wahrscheinlichkeit mitgelaufen und muss mit — das ist der teure Fall.',
-      'Eine einfache Kettenlehre kostet rund 8 € und amortisiert sich beim ersten vermiedenen Kassettentausch. Wichtig: viele Lehren mit zwei Enden messen 0,75 % und 1,0 % — für 12-fach brauchst du eine, die 0,5 % anzeigt.',
+      'Eine einfache Kettenlehre kostet rund 8 € und amortisiert sich beim ersten vermiedenen Kassettentausch. Zwei Dinge sind wichtig: Für 11- und 12-fach brauchst du eine Lehre mit 0,5-Prozent-Marke, viele billige messen nur 0,75 % und 1,0 %. Und Lehren, die einfach zwischen zwei Rollen greifen, messen das Spiel der Rollen mit und zeigen dadurch zu viel Verschleiß an.',
       'Gewachste Ketten längen sich langsamer als geölte, weil trockenes Wachs deutlich weniger Schleifpaste aus Staub und Abrieb bindet. Das verschiebt den Zeitpunkt, es ersetzt das Messen nicht.',
     ],
     article: 'kettenverschleiss-messen',
@@ -115,6 +125,8 @@ export const TOOLS: ToolEntry[] = [
   },
   {
     slug: 'umstieg',
+    usesProfile: true,
+    showsAssumptions: true,
     label: 'Umstieg', labelEn: 'Switching',
     cover: 'Was kostet der Umstieg?', coverEn: 'What does switching cost?',
     hint: 'Erstausstattung, laufende Kosten und ab wann es sich rechnet.',
@@ -135,6 +147,8 @@ export const TOOLS: ToolEntry[] = [
   },
   {
     slug: 'ersparnis',
+    usesProfile: true,
+    showsAssumptions: true,
     label: 'Ersparnis', labelEn: 'Savings',
     cover: 'Rotation & Ersparnis', coverEn: 'Rotation & savings',
     hint: 'Was zwei oder drei Ketten im Wechsel pro Jahr sparen.',

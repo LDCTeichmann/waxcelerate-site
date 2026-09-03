@@ -16,7 +16,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 function ActionButton({ onClick, href, icon, children }: {
   onClick?: () => void; href?: string; icon: React.ReactNode; children: React.ReactNode;
 }) {
-  const className = 'flex items-center justify-center gap-1.5 rounded-xl py-2 px-3 text-[12px] font-medium transition-opacity hover:opacity-70 active:opacity-50 cursor-pointer';
+  const className = 'flex items-center justify-center gap-1.5 rounded-xl py-2 px-3 text-[12px] font-medium transition-opacity hover:opacity-70 active:opacity-50 cursor-pointer flex-1 min-w-[7.5rem]';
   const style: React.CSSProperties = { background: 'var(--inset-bg)', border: '1px solid var(--inset-bd)', color: 'var(--tx2)' };
   const inner = <>{icon}<span className="whitespace-nowrap">{children}</span></>;
   if (href) {
@@ -43,7 +43,7 @@ export function ResultActions({ event, shareUrl: url }: { event?: ReminderEvent;
   };
 
   return (
-    <div className="grid grid-cols-3 gap-2">
+    <div className="flex flex-wrap gap-2">
       {event && (
         <ActionButton href={googleCalendarUrl(event)} icon={<CalendarPlus className="h-3.5 w-3.5 flex-shrink-0" />}>
           {t.tools.shared.addGoogle}

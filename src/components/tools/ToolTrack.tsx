@@ -52,18 +52,57 @@ function slotTransform(rel: number, count: number): React.CSSProperties {
   return { transform: 'translate(-50%) scale(0.86)', zIndex: 10, opacity: 0, pointerEvents: 'none' };
 }
 
-export const DECK_HEIGHT = 700;
+/**
+ * Startwert, bis gemessen ist. Die tatsaechliche Hoehe folgt danach der jeweils
+ * aktiven Karte (siehe useDeckHeight): die sechs Rechner sind unterschiedlich
+ * umfangreich, von rund 480 px bis ueber 800 px. Eine feste Hoehe fuer alle
+ * hiess entweder, die vollste Karte abzuschneiden, oder unter der kuerzesten
+ * dreihundert Pixel Leere stehen zu lassen.
+ */
+const DECK_FALLBACK_HEIGHT = 640;
+
+/** Misst die aktive Karte und gibt die Hoehe zurueck, die der Stapel braucht. */
+function useDeckHeight(active: number, count: number) {
+  const deckRef = useRef<HTMLDivElement>(null);
+  const [height, setHeight] = useState(DECK_FALLBACK_HEIGHT);
+
+  useEffect(() => {
+    const deck = deckRef.current;
+    if (!deck) return;
+    const cards = deck.querySelectorAll<HTMLElement>('.deck-slot > div');
+    const card = cards[active];
+    if (!card) return;
+    const measure = () => {
+      // scrollHeight statt getBoundingClientRect: die Slots sind skaliert, und
+      // die Randkarten stehen auf scale(0.9) — gemessen werden soll die
+      // ungeskalierte Inhaltshoehe der aktiven Karte.
+      const h = card.scrollHeight;
+      if (h > 0) setHeight(h);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(card);
+    return () => ro.disconnect();
+  }, [active, count]);
+
+  return { deckRef, height };
+}
 
 function DeckSlot({ item, rel, count, active, onActivate, de }: {
   item: TrackItem; rel: number; count: number; active: boolean; onActivate: () => void; de: boolean;
 }) {
   const { Icon } = item;
+  // items-center: die Karten sind unterschiedlich hoch, seit sie ihre
+  // natuerliche Hoehe behalten. Vertikal zentriert stehen sie damit auf einer
+  // gemeinsamen Mittelachse, statt oben zu kleben und unten Luft zu lassen.
   return (
-    <div className="deck-slot absolute inset-y-0 left-1/2 w-[42%]" style={slotTransform(rel, count)}>
-      {/* `inert` nimmt die ganze inaktive Karte in einem Zug aus Tab-Reihenfolge
-          und Accessibility-Baum — eine Karte im Hintergrund darf weder per Tab
-          erreichbar sein noch vorgelesen werden, als stuende sie vorne. */}
-      <div className="h-full" inert={!active}>{item.node}</div>
+    <div className="deck-slot absolute inset-y-0 left-1/2 w-[42%] flex items-center" style={slotTransform(rel, count)}>
+      <div className="relative w-full">
+        {/* `inert` nimmt die ganze inaktive Karte in einem Zug aus
+            Tab-Reihenfolge und Accessibility-Baum — eine Karte im Hintergrund
+            darf weder per Tab erreichbar sein noch vorgelesen werden, als
+            stuende sie vorne. */}
+        <div inert={!active}>{item.node}</div>
 
       {/* Deckel fuer alle Karten ausser der vorderen. Sechs offene Rechner
           nebeneinander sind Laerm; der Deckel reduziert jede Karte auf die
@@ -99,18 +138,30 @@ function DeckSlot({ item, rel, count, active, onActivate, de }: {
         <span className="text-[12px] font-medium mt-1" style={{ color: 'var(--brand)' }}>
           {de ? 'Rechner öffnen →' : 'Open calculator →'}
         </span>
-      </button>
+        </button>
+      </div>
     </div>
   );
 }
 
-export function ToolTrack({ items, height = DECK_HEIGHT }: { items: TrackItem[]; height?: number }) {
+export function ToolTrack({ items, onActiveChange }: {
+  items: TrackItem[];
+  /** Meldet den Schluessel der aktiven Karte — die Sektion braucht ihn, um die
+   *  Profilleiste zu deaktivieren, wenn der Rechner davorne sie nicht nutzt. */
+  onActiveChange?: (key: string) => void;
+}) {
   const { lang } = useLanguage();
   const de = lang === 'de';
   const count = items.length;
 
   const [active, setActive] = useState(0);
   const labels = useMemo(() => items.map(i => i.label), [items]);
+  const { deckRef, height: deckHeight } = useDeckHeight(active, count);
+
+  const activeKey = items[active]?.key;
+  useEffect(() => {
+    if (activeKey) onActiveChange?.(activeKey);
+  }, [activeKey, onActiveChange]);
 
   // ── Mobiler Reiter-Balken ────────────────────────────────────────────────
   const tabBarRef = useRef<HTMLDivElement>(null);
@@ -144,7 +195,21 @@ export function ToolTrack({ items, height = DECK_HEIGHT }: { items: TrackItem[];
     // nicht mehr auf einen Handy-Bildschirm, der aktive muss also sichtbar
     // gescrollt werden — sonst wischt man zu einer Karte, deren Reiter im
     // abgeschnittenen Teil der Leiste liegt.
-    btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    //
+    // Bewusst NICHT scrollIntoView: das scrollt JEDEN scrollbaren Vorfahren,
+    // also auch das Dokument. Dieser Effekt laeuft schon beim Mount, und da
+    // liegt die Reiterleiste mehrere Bildschirme unterhalb des Viewports —
+    // die Startseite sprang dadurch beim Laden von allein nach unten
+    // (gemessen: scrollY 0 -> 6579 innerhalb von 1,6 s). `block: 'nearest'`
+    // verhindert das nicht, es bestimmt nur, welche Kante angefahren wird.
+    // Gewollt ist ausschliesslich das horizontale Zentrieren INNERHALB der
+    // Leiste, deshalb wird hier direkt deren scrollLeft gesetzt.
+    const barRect = bar.getBoundingClientRect();
+    const btnRect = btn.getBoundingClientRect();
+    bar.scrollTo({
+      left: bar.scrollLeft + (btnRect.left - barRect.left) - (barRect.width - btnRect.width) / 2,
+      behavior: 'smooth',
+    });
   }, [active, labels]);
 
   const activeRef = useRef(active);
@@ -219,7 +284,7 @@ export function ToolTrack({ items, height = DECK_HEIGHT }: { items: TrackItem[];
           }}
         >
           <div
-            className="flex transition-transform duration-300 ease-out"
+            className="flex items-start transition-transform duration-300 ease-out"
             style={{ transform: `translateX(-${active * 100}%)` }}
           >
             {items.map((item, i) => (
@@ -245,7 +310,13 @@ export function ToolTrack({ items, height = DECK_HEIGHT }: { items: TrackItem[];
 
       {/* ── Ab lg: dasselbe als 3D-Deck ── */}
       <div className="hidden lg:block">
-        <div className="relative" style={{ perspective: '1900px', height }}>
+        {/* Hoehe folgt der aktiven Karte, mit Uebergang — der Wechsel liest
+            sich dadurch als Bewegung und nicht als Sprung. */}
+        <div
+          ref={deckRef}
+          className="relative transition-[height] duration-500 ease-out"
+          style={{ perspective: '1900px', height: deckHeight }}
+        >
           {items.map((item, i) => (
             <DeckSlot
               key={item.key}

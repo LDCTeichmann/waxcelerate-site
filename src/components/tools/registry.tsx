@@ -48,7 +48,10 @@ export function ToolCalculator({ slug, profile }: { slug: string; profile: ToolP
 }
 
 /** Alle Rechner als Stapel — fuer die Sektion auf der Startseite. */
-export function ToolDeck({ profile }: { profile: ToolProfileState }) {
+export function ToolDeck({ profile, onActiveChange }: {
+  profile: ToolProfileState;
+  onActiveChange?: (key: string) => void;
+}) {
   const { lang } = useLanguage();
   const de = lang === 'de';
   const items = TOOLS.flatMap(entry => {
@@ -63,5 +66,5 @@ export function ToolDeck({ profile }: { profile: ToolProfileState }) {
       node: <impl.Comp profile={profile} />,
     }];
   });
-  return <ToolTrack items={items} />;
+  return <ToolTrack items={items} onActiveChange={onActiveChange} />;
 }

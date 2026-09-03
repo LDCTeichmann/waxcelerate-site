@@ -459,7 +459,11 @@
     --inset-bd:    rgba(255,255,255,0.07);
     --tog-bg:      rgba(255,255,255,0.03);
     --tog-bd:      rgba(255,255,255,0.07);
-    --tog-fg:      rgba(255,255,255,0.28);
+    /* 0.28 ergab auf dem eigenen Chip-Hintergrund nur 2,53:1 gemessen — die
+       Beschriftung inaktiver Chips war im Dunkelmodus kaum lesbar. 0.52 bringt
+       sie auf rund 4,7:1 und damit ueber die WCAG-AA-Schwelle fuer Fliesstext.
+       Betrifft ausser den Rechnern auch SegmentedToggle (Wissenschaftsseite). */
+    --tog-fg:      rgba(255,255,255,0.52);
 
     --background: 240 10% 4%;
     --foreground: 0 0% 98%;
@@ -674,6 +678,29 @@
 
 @media (max-width: 639px) {
   .hero-h1 { font-size: 3.05rem !important; }
+/* Kurze Geraete. Der Wachsblock ist deckungsgleich mit seinem Zwilling im Foto
+   verankert und kann deshalb NICHT mitschrumpfen — sonst waere er wieder
+   doppelt zu sehen. Platz muss also aus dem Text kommen. Gemessen ohne diese
+   Regeln: beim iPhone SE lief der Block 22px in den CTA, bei 344x600 zusaetzlich
+   26px in die Headline. */
+@media (max-width: 639px) and (max-height: 740px) {
+  .hero-h1 { font-size: 2.55rem !important; }
+  .hero-zone1 { padding-top: 0.75rem !important; }
+  /* Label einzeilig: die Preiszeile ruecht neben den Namen statt darunter. */
+  .hero-block-label { margin-top: 0.4rem !important; }
+  .hero-block-label > span { display: inline; }
+  .hero-block-label > span + span { margin-left: 0.5em; margin-top: 0 !important; }
+  /* Zone 3 kompakter: der Knopf bleibt mit 48px Hoehe deutlich ueber der
+     44px-Mindesttrefferflaeche (WCAG 2.5.5), gibt aber 12px zurueck. */
+  .hero-zone3 .cta-primary { padding-top: 14px !important; padding-bottom: 14px !important; }
+  .hero-zone3 .hero-proof { margin-top: 0.6rem !important; }
+}
+/* Noch kuerzer: das Label weicht ganz. Der Preisanker steht dann weiterhin
+   direkt unter dem Hero im Vertrauensstreifen und in der Produktsektion. */
+@media (max-width: 639px) and (max-height: 660px) {
+  .hero-block-label { display: none !important; }
+}
+
   /* "Waxcelerate · Heisswachs · Stuttgart" brach bei 13px und 0.14em Laufweite
      auf 390px in eine zweite Zeile um und zog eine unruhige Treppe ueber die
      Headline. Gemessen: die Zeile braucht in der Ausgangsgroesse mehr als die

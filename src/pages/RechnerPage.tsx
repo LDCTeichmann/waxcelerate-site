@@ -22,6 +22,7 @@ import { Footer } from '@/sections/footer';
 import { BackLink } from '@/components/BackLink';
 import { ProfileBar } from '@/components/tools/ProfileBar';
 import { ToolCalculator, ToolIcon } from '@/components/tools/registry';
+import { AssumptionsDisclosure } from '@/components/tools/AssumptionsDisclosure';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 
 const W = 'mx-auto w-full max-w-5xl px-6 sm:px-10 lg:px-14';
@@ -29,9 +30,9 @@ const BASE = 'https://waxcelerate.de';
 
 function Answer({ points }: { points: string[] }) {
   return (
-    <div className="flex flex-col gap-3 max-w-2xl">
+    <div className="flex flex-col gap-3 max-w-[65ch]">
       {points.map(p => (
-        <p key={p} className="text-[15px] leading-relaxed" style={{ color: 'var(--tx2)' }}>{p}</p>
+        <p key={p} className="text-[14px] leading-relaxed" style={{ color: 'var(--tx2)' }}>{p}</p>
       ))}
     </div>
   );
@@ -162,27 +163,40 @@ export function RechnerToolPage() {
 
       <Navigation />
 
-      <main className={`${W} pt-28 pb-24`}>
-        <BackLink de={de} className="mb-5 sm:mb-6" />
-        <h1 className="section-title mb-4">{entry.h1}</h1>
-        <p className="text-[15px] leading-relaxed max-w-2xl mb-8" style={{ color: 'var(--tx2)' }}>
+      <main className={`${W} pt-24 pb-20`}>
+        <BackLink de={de} className="mb-4" />
+        <h1 className="text-[26px] sm:text-[32px] font-semibold leading-tight mb-2" style={{ color: 'var(--tx1)' }}>
+          {entry.h1}
+        </h1>
+        <p className="text-[14px] leading-relaxed max-w-[60ch] mb-6" style={{ color: 'var(--tx2)' }}>
           {entry.lead}
         </p>
 
-        <div className="max-w-2xl">
-          <ProfileBar profile={profile} />
-          <ToolCalculator slug={entry.slug} profile={profile} />
-        </div>
+        {/* Zweispaltig ab lg: vorher stand der Rechner in einer schmalen Spalte
+            und rechts daneben eine halbe Bildschirmbreite Leerraum, waehrend der
+            Erklaertext weit darunter lag und beim Bedienen nicht sichtbar war.
+            Jetzt steht die Erklaerung neben dem Rechner — auf einer Seite, ohne
+            Scrollen, und genau dort lesbar, wo die Frage aufkommt. */}
+        {entry.usesProfile && <ProfileBar profile={profile} />}
 
-        {/* Der Antworttext steht bewusst auch dann da, wenn der Rechner
-            alles beantwortet — er ist das, was ohne JavaScript ausgeliefert
-            wird, und das, was eine KI zitieren kann. */}
-        <section className="mt-12">
-          <h2 className="text-[20px] font-semibold mb-4" style={{ color: 'var(--tx1)' }}>
-            {de ? 'Kurz erklärt' : 'In short'}
-          </h2>
-          <Answer points={entry.answer} />
-        </section>
+        <div className="grid gap-8 lg:gap-10 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:items-start">
+          <ToolCalculator slug={entry.slug} profile={profile} />
+
+          {/* Der Antworttext steht bewusst auch dann da, wenn der Rechner alles
+              beantwortet — er ist das, was ohne JavaScript ausgeliefert wird,
+              und das, was eine KI zitieren kann. */}
+          <section className="lg:pt-1">
+            <h2 className="text-[17px] font-semibold mb-3" style={{ color: 'var(--tx1)' }}>
+              {de ? 'Kurz erklärt' : 'In short'}
+            </h2>
+            <Answer points={entry.answer} />
+            {entry.showsAssumptions && (
+              <div className="mt-6 pt-5" style={{ borderTop: '1px solid var(--bd)' }}>
+                <AssumptionsDisclosure />
+              </div>
+            )}
+          </section>
+        </div>
 
         <nav className="mt-10 flex flex-wrap gap-x-5 gap-y-2 text-[13px]">
           <Link to="/rechner" style={{ color: 'var(--brand)' }}>{t.tools.shared.allTools}</Link>

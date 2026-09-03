@@ -67,13 +67,18 @@ export const medianChainPrice = (() => {
 export type ChainSpeed = 8 | 9 | 10 | 11 | 12;
 
 export interface WearVerdict {
-  /** Längung in Prozent. */
+  /** Laengung in Prozent. */
   percent: number;
-  /** Grenzwert für diese Gangzahl. */
+  /** Grenzwert fuer diese Gangzahl. */
   limit: number;
-  status: 'ok' | 'soon' | 'replace' | 'cassette';
-  /** Ab hier ist die Kassette mit hoher Wahrscheinlichkeit mitgelaufen. */
-  cassetteAtRisk: boolean;
+  /**
+   * ok        — unter dem Grenzwert, nichts zu tun
+   * soon      — kurz davor, im Blick behalten
+   * replace   — Kette tauschen, Kassette darf in aller Regel bleiben
+   * checkCass — Kette raus; die Kassette kann mitgelaufen sein, pruefen
+   * cassette  — Kette raus, Kassette ist praktisch sicher mitgelaufen
+   */
+  status: 'ok' | 'soon' | 'replace' | 'checkCass' | 'cassette';
 }
 
 export function wearLimit(speed: ChainSpeed): number {
@@ -83,11 +88,20 @@ export function wearLimit(speed: ChainSpeed): number {
 }
 
 /**
- * Längung aus einer Messung über 12 Glieder. 12 neue Glieder messen exakt
- * 12 × 12,7 mm = 152,4 mm (halbzöllige Teilung); die Abweichung davon ist die
- * Längung. Alternativ kann direkt ein Lehrenwert in Prozent übergeben werden.
+ * Laengung aus einer Messung ueber 12 Glieder.
+ *
+ * ACHTUNG, hier lag bis zur Korrektur ein echter Fachfehler: der Wert stand auf
+ * 152,4 mm, also 12 × 12,7 mm. 12,7 mm ist aber die Teilung von Bolzen zu
+ * Bolzen (ein halbes Zoll), und ein *Glied* im Sprachgebrauch der Messung ist
+ * ein volles Glied aus Innen- und Aussenlaschenpaar, also 25,4 mm. Die
+ * Werkstattregel lautet deshalb: 12 Glieder = 12 Zoll = 304,8 mm.
+ *
+ * Der Unterschied ist nicht bloss kosmetisch. Ueber 152,4 mm entspraechen
+ * 0,5 % Laengung 0,76 mm — das liest niemand von einem Lineal ab. Ueber die
+ * volle Zoll-Strecke sind es 1,52 mm, und genau darauf ist die Methode
+ * ausgelegt.
  */
-export const NOMINAL_12_LINKS_MM = 152.4;
+export const NOMINAL_12_LINKS_MM = 304.8;
 
 export function elongationFrom12Links(measuredMm: number): number {
   return ((measuredMm - NOMINAL_12_LINKS_MM) / NOMINAL_12_LINKS_MM) * 100;
@@ -95,16 +109,21 @@ export function elongationFrom12Links(measuredMm: number): number {
 
 export function wearVerdict(percent: number, speed: ChainSpeed): WearVerdict {
   const limit = wearLimit(speed);
-  // 1,0 % gilt antriebsübergreifend als die Schwelle, ab der die Kassette
-  // praktisch immer mitgelaufen ist — unabhängig davon, wie früh die
-  // Tauschgrenze der jeweiligen Gangzahl liegt.
-  const cassetteAtRisk = percent >= 1.0 || percent >= limit + 0.25;
+  // Vier Stufen statt der frueheren Ja/Nein-Antwort auf die Kassettenfrage.
+  // Die Quellenlage ist abgestuft, nicht binaer: ab dem Grenzwert reicht in
+  // aller Regel der Kettentausch, ab etwa einem Viertelprozent darueber kann
+  // die Kassette mitgelaufen sein, und ab 1,0 % ist sie es praktisch immer —
+  // unabhaengig davon, wie frueh die Tauschgrenze der Gangzahl liegt.
+  // „Kann mitgelaufen sein" als eigene Stufe auszuweisen ist ehrlicher, als
+  // jemandem bei 0,75 % eine neue Kassette zu verkaufen, die er vielleicht
+  // nicht braucht.
   const status: WearVerdict['status'] =
-    cassetteAtRisk ? 'cassette'
+    percent >= 1.0 ? 'cassette'
+    : percent >= limit + 0.25 ? 'checkCass'
     : percent >= limit ? 'replace'
     : percent >= limit * 0.8 ? 'soon'
     : 'ok';
-  return { percent, limit, status, cassetteAtRisk };
+  return { percent, limit, status };
 }
 
 // ── Kettenlänge ─────────────────────────────────────────────────────────────
@@ -149,6 +168,35 @@ export interface DrivetrainCosts {
  * Jahreskosten des Antriebs, Wachs gegen Öl, bei gegebener Laufleistung,
  * Wachsintervall und Anzahl rotierter Ketten.
  */
+/**
+ * Wie hart die Bedingungen sind, abgeleitet aus dem Wachsintervall: trockene
+ * Strasse (500 km) = 1,0, nasser MTB-Einsatz (120 km) = rund 4,2.
+ *
+ * Warum das noetig wurde: vorher waren die Laufleistungen von Kette und
+ * Kassette feste Zahlen, unabhaengig von Wetter und Gelaende, waehrend die
+ * Wachskosten mit kuerzerem Intervall stiegen. Das Modell kam damit zu dem
+ * Schluss, Wachs lohne sich bei Naesse nicht — also genau das Gegenteil
+ * dessen, was die Vergleichstests zeigen: unter Schmutz und Naesse bindet
+ * trockenes Wachs kaum Schleifpaste, waehrend geoelte Ketten dort am
+ * schnellsten verschleissen.
+ *
+ * Beide Schmierarten leiden also unter harten Bedingungen, Oel aber deutlich
+ * staerker. Der Exponent unten haelt den Wachsnachteil bewusst konservativ
+ * klein statt den in Tests gemessenen grossen Abstand voll anzusetzen.
+ */
+function severityFactor(rewaxKm: number): number {
+  // Muss der trockenen Strasse aus waxIntervals entsprechen, sonst verschiebt
+  // sich die ganze Skala. Nicht importiert, weil hier ein Bezugspunkt gemeint
+  // ist und keine Nachschlagetabelle — der Kommentar haelt beide zusammen.
+  const DRY_ROAD_REFERENCE_KM = 300;
+  return rewaxKm > 0 ? Math.max(1, DRY_ROAD_REFERENCE_KM / rewaxKm) : 1;
+}
+
+/** Oel verschleisst unter Schmutz voll mit. */
+const OIL_SEVERITY_EXPONENT = 1;
+/** Wachs deutlich weniger — bewusst vorsichtig angesetzt. */
+const WAX_SEVERITY_EXPONENT = 0.35;
+
 export function drivetrainCosts(input: {
   kmPerYear: number;
   rewaxKm: number;
@@ -157,14 +205,18 @@ export function drivetrainCosts(input: {
   const { kmPerYear, rewaxKm, chains } = input;
   const waxPerApp = costPerApplication(referenceWax) ?? 0;
 
+  const sev = severityFactor(rewaxKm);
+  const oilWear = Math.pow(sev, OIL_SEVERITY_EXPONENT);
+  const waxWear = Math.pow(sev, WAX_SEVERITY_EXPONENT);
+
   const oilPerKm =
-    medianChainPrice / OIL_CHAIN_KM +
-    CASSETTE_PRICE / OIL_CASSETTE_KM +
+    (medianChainPrice / OIL_CHAIN_KM) * oilWear +
+    (CASSETTE_PRICE / OIL_CASSETTE_KM) * oilWear +
     OIL_PRICE_PER_APP / OIL_APP_INTERVAL_KM;
 
   const waxPerKm =
-    medianChainPrice / WAX_CHAIN_KM[chains - 1] +
-    CASSETTE_PRICE / WAX_CASSETTE_KM[chains - 1] +
+    (medianChainPrice / WAX_CHAIN_KM[chains - 1]) * waxWear +
+    (CASSETTE_PRICE / WAX_CASSETTE_KM[chains - 1]) * waxWear +
     waxPerApp / rewaxKm;
 
   const oilPerYear = Math.round(kmPerYear * oilPerKm);
@@ -205,14 +257,14 @@ export const ASSUMPTIONS: Assumption[] = [
     valueEn: `€${(costPerApplication(referenceWax) ?? 0).toFixed(2)} (${referenceWax.weight} block, ${referenceWax.applications} applications)`,
   },
   {
-    label: 'Kettenlaufleistung mit Öl',
-    labelEn: 'Chain life with oil',
+    label: 'Kettenlaufleistung mit Öl (trockene Straße)',
+    labelEn: 'Chain life with oil (dry road)',
     value: `${OIL_CHAIN_KM.toLocaleString('de-DE')} km`,
     valueEn: `${OIL_CHAIN_KM.toLocaleString('en-US')} km`,
   },
   {
-    label: 'Kettenlaufleistung mit Wachs (1 / 2 / 3 Ketten im Wechsel)',
-    labelEn: 'Chain life with wax (1 / 2 / 3 chains rotated)',
+    label: 'Kettenlaufleistung mit Wachs, trockene Straße (1 / 2 / 3 Ketten)',
+    labelEn: 'Chain life with wax, dry road (1 / 2 / 3 chains)',
     value: WAX_CHAIN_KM.map(k => `${k.toLocaleString('de-DE')} km`).join(' / '),
     valueEn: WAX_CHAIN_KM.map(k => `${k.toLocaleString('en-US')} km`).join(' / '),
   },
@@ -223,9 +275,73 @@ export const ASSUMPTIONS: Assumption[] = [
     valueEn: `${OIL_CASSETTE_KM.toLocaleString('en-US')} km / ${WAX_CASSETTE_KM.map(k => k.toLocaleString('en-US')).join(' – ')} km`,
   },
   {
+    label: 'Härtere Bedingungen',
+    labelEn: 'Harsher conditions',
+    value: 'Nässe und Gelände verkürzen die Laufleistung beider Schmierarten — bei Öl voll, bei Wachs deutlich weniger. Konservativ angesetzt.',
+    valueEn: 'Wet and off-road shorten component life for both lubricants — fully for oil, far less for wax. Set conservatively.',
+  },
+  {
     label: 'Öl: Kosten und Intervall',
     labelEn: 'Oil: cost and interval',
     value: `${OIL_PRICE_PER_APP.toFixed(2).replace('.', ',')} € alle ${OIL_APP_INTERVAL_KM.toLocaleString('de-DE')} km`,
     valueEn: `€${OIL_PRICE_PER_APP.toFixed(2)} every ${OIL_APP_INTERVAL_KM.toLocaleString('en-US')} km`,
   },
 ];
+
+
+// ── Umstieg: was kostet er wirklich, und ab wann traegt er sich ─────────────
+//
+// Die erste Fassung hatte hier einen Rechenfehler, der das Ergebnis um den
+// Faktor vier verzerrte: der erste Wachsblock stand sowohl in den einmaligen
+// Startkosten als auch, anteilig, in den laufenden Wachskosten. Damit wurde er
+// doppelt bezahlt, und die Amortisation sprang von realistischen drei auf
+// achtzehn Monate.
+//
+// Richtig ist die Frage: was kostet der Umstieg MEHR als weiterzuoelen?
+// Schmierstoff kauft man in beiden Welten, Wachs wie Oel — der einzige echte
+// Mehraufwand am Anfang ist das Werkzeug, das man beim Oelen nicht braucht.
+// Alles Weitere ist ein laufender Kostenvergleich, und den liefert bereits
+// drivetrainCosts().
+export interface SwitchEconomics {
+  /** Einmaliger Mehraufwand gegenueber Weiteroelen: nur das Werkzeug. */
+  toolingCost: number;
+  /** Wachsverbrauch pro Jahr in Euro. */
+  waxPerYear: number;
+  /** Oelverbrauch pro Jahr in Euro. */
+  oilPerYear: number;
+  /** Gesamtersparnis pro Jahr inkl. Kette und Kassette. */
+  savingsPerYear: number;
+  /** Monate bis das Werkzeug wieder drin ist. null = rechnet sich nicht. */
+  breakEvenMonths: number | null;
+  /** Wachsungen pro Jahr bei diesem Fahrprofil. */
+  applicationsPerYear: number;
+  /** Wie lange ein Block reicht, in Monaten. */
+  monthsPerBlock: number;
+}
+
+export function switchEconomics(input: {
+  kmPerYear: number;
+  rewaxKm: number;
+  toolingCost: number;
+}): SwitchEconomics {
+  const { kmPerYear, rewaxKm, toolingCost } = input;
+  const perApp = costPerApplication(referenceWax) ?? 0;
+  const apps = applicationsPerBlock(referenceWax) ?? 0;
+
+  const applicationsPerYear = rewaxKm > 0 ? kmPerYear / rewaxKm : 0;
+  const waxPerYear = applicationsPerYear * perApp;
+  const oilPerYear = (kmPerYear / OIL_APP_INTERVAL_KM) * OIL_PRICE_PER_APP;
+
+  // Eine Kette, nicht rotiert: der ehrliche Einstiegsfall.
+  const { savingsPerYear } = drivetrainCosts({ kmPerYear, rewaxKm, chains: 1 });
+
+  return {
+    toolingCost,
+    waxPerYear: Math.round(waxPerYear),
+    oilPerYear: Math.round(oilPerYear),
+    savingsPerYear,
+    breakEvenMonths: savingsPerYear > 0 ? Math.max(1, Math.ceil((toolingCost / savingsPerYear) * 12)) : null,
+    applicationsPerYear,
+    monthsPerBlock: applicationsPerYear > 0 ? Math.round((apps / applicationsPerYear) * 12) : 0,
+  };
+}

@@ -9,7 +9,7 @@
 // Hier bleibt nur die Sektion selbst: Ueberschrift, das gemeinsame Fahrprofil
 // und der Track mit allen sechs Rechnern.
 
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useSectionReveal } from '@/hooks/useAnimation';
 import { useToolProfile } from '@/hooks/useToolProfile';
@@ -18,6 +18,7 @@ import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { Section } from '@/components/Section';
 import { ProfileBar } from '@/components/tools/ProfileBar';
 import { ToolDeck } from '@/components/tools/registry';
+import { getToolBySlug } from '@/lib/toolRegistry';
 
 export function Tools() {
   const { t } = useLanguage();
@@ -25,6 +26,13 @@ export function Tools() {
   useSectionReveal(headerRef);
 
   const profile = useToolProfile();
+
+  // Die Profilleiste bedient drei der sechs Rechner. Bei den anderen bleibt sie
+  // stehen — sie auszublenden liesse bei jedem Kartenwechsel das Layout
+  // springen —, wird aber zurueckgenommen und erklaert sich.
+  const [activeKey, setActiveKey] = useState('intervall');
+  const handleActive = useCallback((key: string) => setActiveKey(key), []);
+  const activeUsesProfile = getToolBySlug(activeKey)?.usesProfile ?? false;
 
   // Der QR-Code im Paket zeigt inzwischen auf /rechner/intervall?w=JJJJMMTT.
   // Aeltere Beileger und geteilte Links zeigen aber weiterhin auf die
@@ -57,8 +65,11 @@ export function Tools() {
         </p>
       </div>
 
-      <ProfileBar profile={profile} />
-      <ToolDeck profile={profile} />
+      <ProfileBar
+        profile={profile}
+        inactiveNote={activeUsesProfile ? undefined : t.tools.profile.barInactive}
+      />
+      <ToolDeck profile={profile} onActiveChange={handleActive} />
 
       <div className="flex justify-center mt-6">
         <a

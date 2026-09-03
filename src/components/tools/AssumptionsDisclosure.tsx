@@ -12,7 +12,7 @@ import { ASSUMPTIONS } from '@/lib/waxMath';
 import { useLanguage } from '@/hooks/useLanguage';
 
 export function AssumptionsDisclosure() {
-  const { lang } = useLanguage();
+  const { t, lang } = useLanguage();
   const de = lang === 'de';
   const [open, setOpen] = useState(false);
 
@@ -25,11 +25,11 @@ export function AssumptionsDisclosure() {
         className="relative flex items-center gap-1.5 text-[12px] font-medium transition-opacity hover:opacity-70 cursor-pointer after:content-[''] after:absolute after:inset-x-0 after:top-1/2 after:-translate-y-1/2 after:h-11"
         style={{ color: 'var(--brand)' }}
       >
-        {de ? 'Womit gerechnet wird' : 'What we calculate with'}
+        {t.tools.shared.assumptions}
         <ChevronDown className="h-3.5 w-3.5 transition-transform" style={{ transform: open ? 'rotate(180deg)' : undefined }} />
       </button>
       {open && (
-        <dl className="mt-2 space-y-1.5">
+        <dl className="mt-2 space-y-1.5 max-w-xl">
           {ASSUMPTIONS.map(a => (
             <div key={a.label} className="flex items-baseline justify-between gap-3">
               <dt className="text-[12px] leading-snug" style={{ color: 'var(--txf)' }}>
@@ -41,9 +41,7 @@ export function AssumptionsDisclosure() {
             </div>
           ))}
           <p className="text-[11px] leading-snug pt-1" style={{ color: 'var(--txff)' }}>
-            {de
-              ? 'Marktuebliche Annahmen, keine Messwerte von uns. Wer andere Preise zahlt, rechnet anders.'
-              : 'Typical market assumptions, not our own measurements. Different prices, different result.'}
+            {t.tools.shared.assumptionsNote}
           </p>
         </dl>
       )}
