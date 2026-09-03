@@ -200,6 +200,9 @@ export const translations = {
       },
       rotation: {
         kmPerYear: 'km pro Jahr',
+        upfront: 'Vorab',
+        upfrontNote: '{n} Ketten mehr im Regal kosten {sum} auf einmal. Über die Laufzeit zahlst du dafür nicht mehr — die Ketten verschleißen langsamer und halten entsprechend länger. Du legst früher aus, nicht mehr.',
+        upfrontNoteKit: '{n} Ketten mehr im Regal kosten {sum} auf einmal, im Kit mit {pct} % Rabatt. Über die Laufzeit zahlst du dafür nicht mehr — du legst früher aus, nicht mehr.',
       },
 
       // Bausteine, die in mehreren Rechnern vorkommen
@@ -226,7 +229,10 @@ export const translations = {
         methodGauge: 'Kettenlehre',
         speed: 'Gangzahl',
         measured: 'Deine Messung',
-        gaugeValue: 'Lehre zeigt',
+        gaugeValue: 'Welche Marke fällt in die Kette?',
+        gaugeNone: 'keine',
+        gaugeNoneNote: 'Keine Marke greift — die Kette ist unterhalb der ersten Messschwelle.',
+        gaugeAtLeast: 'mindestens',
         elongation: 'Längung',
         limit: 'Grenzwert',
         statusOk: 'Alles gut — weiterfahren.',
@@ -260,6 +266,10 @@ export const translations = {
         helpSprocket: 'Das größte, innerste Ritzel hinten am Laufrad. Steht oft auf der Kassettenverpackung, zum Beispiel als „11-34" — die 34 ist der Wert.',
         crossCheck: 'Groß-Groß-Probe: Kette ums größte Kettenblatt und größte Ritzel legen, aber nicht durchs Schaltwerk führen, straff ziehen, überlappende Stelle markieren und zwei Glieder zugeben. Bei langem Schaltwerkskäfig oder Vollfederung ist diese Probe verlässlicher als jede Formel.',
         onlyDerailleur: 'Gilt für Kettenschaltungen. Für Nabenschaltung oder Singlespeed gelten andere Regeln.',
+        shorten: 'Zu kürzen',
+        shortenValue: '{n} Glieder von einer {from}er-Kette',
+        shortenNote: 'Unsere vorgewachsten Ketten kommen mit {lengths} Gliedern. Kürzen schadet dem Wachs nicht — der Film sitzt in der Kette, nicht außen darauf.',
+        tooShort: 'Deine Rechnung liegt über unserer längsten Kette. Prüf die Eingaben, oder schreib uns.',
         cta: 'Vorgewachste Ketten ansehen →',
       },
 
@@ -275,6 +285,8 @@ export const translations = {
         note: 'Bis 11-fach sind die Systeme untereinander weitgehend austauschbar. Ab 12-fach solltest du beim Hersteller deiner Schaltung bleiben oder eine ausdrücklich universelle Kette nehmen.',
         helpSystem: 'Steht auf dem Schaltwerk hinten, also dem beweglichen Teil mit den zwei kleinen Rädchen. Dort ist der Herstellername aufgedruckt.',
         helpSpeed: 'Zähl die Ritzel hinten am Hinterrad — nur die Zahnkränze am Laufrad, nicht die Kettenblätter vorne und nicht die Gänge am Schalthebel.',
+        otherSpeed: 'Vorgewachst führen wir nur 11- und 12-fach. Für {speed}-fach schreib uns kurz — Ketten dafür bekommen wir, und wachsen können wir sie auch.',
+        otherSpeedShort: '{speed}-fach führen wir nicht vorgewachst',
       },
 
       // Umstieg
@@ -292,7 +304,12 @@ export const translations = {
         blockLasts: 'Ein Block reicht',
         applications: 'Anwendungen',
         savesPerYear: 'Ersparnis',
-        potNote: 'Keinen Topf eingerechnet: ein alter Reiskocher oder Slow Cooker reicht, und den haben die meisten schon.',
+        shelfLifeHint: 'So lange hält ein angebrochener Block nicht durch. Nimm die 300-g-Packung — sie ist aufgebraucht, bevor das Wachs altert.',
+        hybridHint: 'So oft den Topf anzuwerfen macht in der Praxis niemand. Üblich ist die Hybrid-Methode: Heißwachs als Basis, dazwischen Tropfwachs zum Auffrischen.',
+        hybridLink: 'Hybrid-Methode nachlesen →',
+        potNote: 'Ein Topf ist nicht eingerechnet: ein alter Reiskocher oder Slow Cooker reicht, und den haben die meisten schon.',
+        degreaseNote: 'Nicht eingerechnet, aber der eigentliche Knackpunkt: deine bisherige Kette muss vollständig entfettet werden, sonst nimmt sie kein Wachs an. Das kostet einen Abend und etwas Isopropanol.',
+        degreaseAlt: 'Vorgewachste Kette ansehen — spart den Schritt →',
         cta: 'Starter-Set ansehen →',
       },
     },
@@ -660,6 +677,9 @@ export const translations = {
       },
       rotation: {
         kmPerYear: 'km per year',
+        upfront: 'Up front',
+        upfrontNote: '{n} extra chains cost {sum} at once. Over their life you do not pay more — they wear more slowly and last correspondingly longer. You pay earlier, not more.',
+        upfrontNoteKit: '{n} extra chains cost {sum} at once, {pct} % off in the kit. Over their life you do not pay more — you pay earlier, not more.',
       },
 
       shared: {
@@ -684,7 +704,10 @@ export const translations = {
         methodGauge: 'Chain gauge',
         speed: 'Speeds',
         measured: 'Your measurement',
-        gaugeValue: 'Gauge reads',
+        gaugeValue: 'Which mark drops into the chain?',
+        gaugeNone: 'none',
+        gaugeNoneNote: 'No mark engages — the chain is below the first measuring threshold.',
+        gaugeAtLeast: 'at least',
         elongation: 'Elongation',
         limit: 'Limit',
         statusOk: 'All good — keep riding.',
@@ -717,6 +740,10 @@ export const translations = {
         helpSprocket: 'The largest, innermost sprocket at the rear wheel. Often printed on the cassette packaging, e.g. "11-34" — the 34 is the value.',
         crossCheck: 'Big-big check: wrap the chain around the largest chainring and largest sprocket without routing it through the derailleur, pull it taut, mark the overlap and add two links. With a long derailleur cage or full suspension this beats any formula.',
         onlyDerailleur: 'Applies to derailleur drivetrains. Hub gears and singlespeed follow different rules.',
+        shorten: 'To shorten',
+        shortenValue: '{n} links off a {from}-link chain',
+        shortenNote: 'Our pre-waxed chains ship with {lengths} links. Shortening does not harm the wax — the film sits inside the chain, not on the outside.',
+        tooShort: 'Your result is longer than our longest chain. Check the inputs, or write to us.',
         cta: 'See pre-waxed chains →',
       },
 
@@ -731,6 +758,8 @@ export const translations = {
         note: 'Up to 11-speed the systems are largely interchangeable. From 12-speed on, stay with your drivetrain brand or pick a chain explicitly sold as universal.',
         helpSystem: 'Printed on the rear derailleur, the moving part with the two little wheels. The brand name is on it.',
         helpSpeed: 'Count the sprockets on the rear wheel — only the cogs at the wheel, not the chainrings at the front and not the clicks on the shifter.',
+        otherSpeed: 'We only stock 11- and 12-speed pre-waxed. For {speed}-speed just write to us — we can source and wax those too.',
+        otherSpeedShort: 'We do not stock {speed}-speed pre-waxed',
       },
 
       switch: {
@@ -747,7 +776,12 @@ export const translations = {
         blockLasts: 'One block lasts',
         applications: 'applications',
         savesPerYear: 'Saves',
-        potNote: 'No pot included: an old rice cooker or slow cooker does the job, and most people already own one.',
+        shelfLifeHint: 'An opened block will not keep that long. Take the 300 g pack — it is used up before the wax ages.',
+        hybridHint: 'Nobody actually fires up the pot that often. The usual answer is the hybrid method: hot wax as the base, drip wax to top up in between.',
+        hybridLink: 'Read up on the hybrid method →',
+        potNote: 'A pot is not costed in: an old rice cooker or slow cooker does the job, and most people already own one.',
+        degreaseNote: 'Not costed in, but the real sticking point: your existing chain has to be fully degreased or it will not take wax. That costs an evening and some isopropanol.',
+        degreaseAlt: 'See pre-waxed chains — skips that step →',
         cta: 'See the starter set →',
       },
     },

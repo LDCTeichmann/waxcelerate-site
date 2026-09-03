@@ -557,10 +557,30 @@ export function shippingFor(items: { product: Pick<Product, 'weightGrams' | 'shi
   return shipping.grossbrief;
 }
 
+/**
+ * Kilometer je Wachsung, nach Wetter und Gelaende. Grundlage der Rechner unter
+ * /rechner.
+ *
+ * Stand September 2026 auf die Empfehlungen von Zero Friction Cycling
+ * umgestellt, der ausfuehrlichsten unabhaengigen Testreihe zu Kettenschmierung.
+ * Vorher lagen die Werte deutlich hoeher (500 / 350 / 250 fuer Strasse).
+ *
+ * Die Herleitung:
+ *  - Trockene Strasse 300 km ist der ZFC-Kernwert.
+ *  - Nass und gemischt liegen laut ZFC bei 150 bis 200 km.
+ *  - Fuer Gelaende nennt ZFC keine Kilometerzahl, sondern die Faustregel, dass
+ *    man je Wachsung etwa die halbe Strecke schafft wie auf der Strasse.
+ *    Gravel liegt entsprechend dazwischen.
+ *
+ * Bewusst konservativ: zu frueh gewachst kostet eine Stunde, zu spaet gefahren
+ * kostet Kette und Kassette. Die Produktangaben in den Produktdaten
+ * (intervalDry/intervalWet) nennen weiterhin Spannen, deren unteres Ende diese
+ * Werte enthaelt — hier steht die Empfehlung, dort das Moegliche.
+ */
 export const waxIntervals: Record<string, Record<string, number>> = {
-  trocken: { strasse: 500, gravel: 350, mtb: 250 },
-  gemischt: { strasse: 350, gravel: 250, mtb: 180 },
-  nass: { strasse: 250, gravel: 180, mtb: 120 },
+  trocken:  { strasse: 300, gravel: 200, mtb: 150 },
+  gemischt: { strasse: 200, gravel: 150, mtb: 120 },
+  nass:     { strasse: 150, gravel: 110, mtb:  80 },
 };
 
 export const compatibilityMatrix: Record<string, Record<string, string[]>> = {

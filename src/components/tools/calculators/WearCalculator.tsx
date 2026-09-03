@@ -19,11 +19,18 @@ import {
   ToolCard, ToolHeader, StepList, ToolFooter, ToolCTA, TogButton, ChipRow, NumberInput, StepNote,
 } from '@/components/tools/primitives';
 import { StepField } from '@/components/tools/StepField';
+import { ChainMeasureDiagram, SprocketCountDiagram } from '@/components/tools/diagrams';
 import { ResultPanel } from '@/components/tools/ResultPanel';
 import { ResultActions } from '@/components/tools/ResultActions';
 
 const SPEEDS: ChainSpeed[] = [8, 9, 10, 11, 12];
-const GAUGE_MARKS = [0.5, 0.75, 1.0] as const;
+// „keine" ist eine eigene Antwort, nicht das Fehlen einer. Vorher gab es nur
+// die drei Marken: wer mit einer gesunden Kette misst, bei der keine Marke
+// greift, musste 0,5 % anklicken — und bekam „Kette tauschen" fuer eine Kette,
+// die noch lange laeuft. Der haeufigste Messausgang war der einzige, den das
+// Werkzeug nicht darstellen konnte.
+const GAUGE_MARKS = ['none', 0.5, 0.75, 1.0] as const;
+type GaugeMark = (typeof GAUGE_MARKS)[number];
 /** Die drei Lehrenmarken als feste Beschriftung — keine Format-Akrobatik. */
 const MARK_LABEL: Record<number, { de: string; en: string }> = {
   0.5: { de: '0,5', en: '0.5' },
@@ -42,11 +49,18 @@ export function WearCalculator({ profile }: { profile: ToolProfileState }) {
   const speed = profile.speed ?? 12;
   const [method, setMethod] = useState<'ruler' | 'gauge'>('ruler');
   const [measuredMm, setMeasuredMm] = useState(String(NOMINAL_12_LINKS_MM));
-  const [gaugePct, setGaugePct] = useState<0.5 | 0.75 | 1.0>(0.5);
+  const [gauge, setGauge] = useState<GaugeMark>('none');
 
   const parsedMm = Number(measuredMm.replace(',', '.'));
   const mmValid = Number.isFinite(parsedMm) && parsedMm >= 300 && parsedMm <= 315;
-  const percent = method === 'gauge' ? gaugePct : mmValid ? elongationFrom12Links(parsedMm) : 0;
+  // Eine Lehre misst keinen Wert, sie beantwortet eine Ja/Nein-Frage je Marke.
+  // „Die 0,5er faellt rein" heisst mindestens 0,5 %, nicht genau 0,5 %. Fuer
+  // das Urteil genuegt die Untergrenze; die Anzeige sagt „mindestens" dazu,
+  // damit die Zahl nicht als Messwert missverstanden wird.
+  const percent = method === 'gauge'
+    ? (gauge === 'none' ? 0 : gauge)
+    : mmValid ? elongationFrom12Links(parsedMm) : 0;
+  const isLowerBound = method === 'gauge' && gauge !== 'none';
   const verdict = wearVerdict(percent, speed);
 
   const statusText = {
@@ -78,7 +92,7 @@ export function WearCalculator({ profile }: { profile: ToolProfileState }) {
       />
 
       <StepList>
-        <StepField step={1} label={t.tools.wear.speed} help={t.tools.wear.helpSpeed}>
+        <StepField step={1} label={t.tools.wear.speed} help={t.tools.wear.helpSpeed} figure={<SprocketCountDiagram />}>
           <ChipRow>
             {SPEEDS.map(s => (
               <TogButton key={s} active={speed === s} onClick={() => profile.setSpeed(s)}>
@@ -101,6 +115,7 @@ export function WearCalculator({ profile }: { profile: ToolProfileState }) {
             label={t.tools.wear.measured}
             value={`${de ? 'neu' : 'new'}: ${dec(NOMINAL_12_LINKS_MM, 1)} mm`}
             help={t.tools.wear.helpMeasured}
+            figure={<ChainMeasureDiagram />}
           >
             <NumberInput
               value={measuredMm} onChange={setMeasuredMm}
@@ -113,18 +128,22 @@ export function WearCalculator({ profile }: { profile: ToolProfileState }) {
           <StepField step={3} label={t.tools.wear.gaugeValue}>
             <ChipRow>
               {GAUGE_MARKS.map(v => (
-                <TogButton key={v} active={gaugePct === v} onClick={() => setGaugePct(v)}>
-                  {de ? MARK_LABEL[v].de : MARK_LABEL[v].en} %
+                <TogButton key={String(v)} active={gauge === v} onClick={() => setGauge(v)}>
+                  {v === 'none'
+                    ? t.tools.wear.gaugeNone
+                    : `${de ? MARK_LABEL[v].de : MARK_LABEL[v].en} %`}
                 </TogButton>
               ))}
             </ChipRow>
-            <StepNote>{t.tools.wear.gaugeWarning}</StepNote>
+            <StepNote>
+              {gauge === 'none' ? t.tools.wear.gaugeNoneNote : t.tools.wear.gaugeWarning}
+            </StepNote>
           </StepField>
         )}
       </StepList>
 
       <ResultPanel
-        value={dec(percent)}
+        value={isLowerBound ? `≥ ${dec(percent)}` : dec(percent)}
         unit="%"
         verdict={statusText}
         tone={needsAction ? 'good' : 'neutral'}

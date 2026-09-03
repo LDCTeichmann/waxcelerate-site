@@ -302,6 +302,20 @@ export const ASSUMPTIONS: Assumption[] = [
 // Mehraufwand am Anfang ist das Werkzeug, das man beim Oelen nicht braucht.
 // Alles Weitere ist ein laufender Kostenvergleich, und den liefert bereits
 // drivetrainCosts().
+/**
+ * Wie lange ein Wachsblock lagerfaehig ist. Stand im alten Vorrat-Rechner als
+ * SHELF_LIFE_MONTHS und ging beim Umbau verloren — ohne diese Grenze empfiehlt
+ * der Rechner einem Wenigfahrer einen Vorrat fuer drei Jahre.
+ */
+export const WAX_SHELF_LIFE_MONTHS = 30;
+
+/**
+ * Ab wie vielen Wachsungen im Jahr die Heisswachs-Methode allein unpraktisch
+ * wird. Oefter als woechentlich den Topf anzuwerfen macht in der Praxis
+ * niemand — dort ist Tropfwachs zwischen den Heisswachs-Gaengen der Weg.
+ */
+export const HYBRID_THRESHOLD_PER_YEAR = 52;
+
 export interface SwitchEconomics {
   /** Einmaliger Mehraufwand gegenueber Weiteroelen: nur das Werkzeug. */
   toolingCost: number;
@@ -317,6 +331,10 @@ export interface SwitchEconomics {
   applicationsPerYear: number;
   /** Wie lange ein Block reicht, in Monaten. */
   monthsPerBlock: number;
+  /** Der Block waere vor dem Aufbrauchen ueberlagert — kleinere Packung sinnvoll. */
+  outlastsShelfLife: boolean;
+  /** So oft wachsen macht praktisch niemand — Hybrid-Methode sinnvoller. */
+  needsHybridHint: boolean;
 }
 
 export function switchEconomics(input: {
@@ -334,6 +352,7 @@ export function switchEconomics(input: {
 
   // Eine Kette, nicht rotiert: der ehrliche Einstiegsfall.
   const { savingsPerYear } = drivetrainCosts({ kmPerYear, rewaxKm, chains: 1 });
+  const monthsPerBlock = applicationsPerYear > 0 ? Math.round((apps / applicationsPerYear) * 12) : 0;
 
   return {
     toolingCost,
@@ -342,6 +361,8 @@ export function switchEconomics(input: {
     savingsPerYear,
     breakEvenMonths: savingsPerYear > 0 ? Math.max(1, Math.ceil((toolingCost / savingsPerYear) * 12)) : null,
     applicationsPerYear,
-    monthsPerBlock: applicationsPerYear > 0 ? Math.round((apps / applicationsPerYear) * 12) : 0,
+    monthsPerBlock,
+    outlastsShelfLife: monthsPerBlock > WAX_SHELF_LIFE_MONTHS,
+    needsHybridHint: applicationsPerYear > HYBRID_THRESHOLD_PER_YEAR,
   };
 }

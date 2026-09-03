@@ -135,24 +135,6 @@ Alle Ketten wurden vor dem Versand vollständig entfettet (Ultraschallbad) und m
 
 Sechs Werkzeuge für die Fragen, die beim Schrauben wirklich aufkommen. Kostenlos, ohne Anmeldung, und die Annahmen hinter jeder Zahl stehen offen da.
 
-### Wann muss ich meine Kette neu wachsen?
-
-URL: https://waxcelerate.de/rechner/intervall
-Beantwortet: Wann muss ich rewaxen?
-Eingaben: Dein Intervall in Wochen — nach Wetter, Gelände und Kilometern.
-
-Das Intervall hängt an drei Dingen: wie nass es ist, worauf du fährst und wie viel du fährst. Der Rechner setzt sie zusammen und gibt dir ein Datum, das du direkt in den Kalender legen kannst.
-
-Als Faustwerte für eine Wachsung gelten: trocken auf der Straße rund 500 km, gemischt rund 350 km, bei Nässe rund 250 km. Auf Gravel liegen die Werte bei 350, 250 und 180 km, im MTB-Einsatz bei 250, 180 und 120 km.
-
-Diese Kilometer teilst du durch deine Wochenleistung — das Ergebnis ist dein Intervall in Wochen. Bei 100 km pro Woche auf trockener Straße sind das rund fünf Wochen.
-
-Über etwa ein halbes Jahr hinaus ist das Intervall keine sinnvolle Angabe mehr: Wachs altert auch ohne Kilometer, und Standzeit im Regen zählt mit.
-
-Ein sicheres Zeichen, unabhängig vom Rechner: sobald die Kette anfängt, hörbar trocken zu laufen, ist sie überfällig. Ein leichtes Klappern der Rollen dagegen ist bei Wachs normal.
-
----
-
 ### Kettenverschleiß berechnen
 
 URL: https://waxcelerate.de/rechner/verschleiss
@@ -170,26 +152,6 @@ Bis 0,5 % bei 12-fach reicht in aller Regel der Kettentausch, die Kassette darf 
 Eine einfache Kettenlehre kostet rund 8 € und amortisiert sich beim ersten vermiedenen Kassettentausch. Zwei Dinge sind wichtig: Für 11- und 12-fach brauchst du eine Lehre mit 0,5-Prozent-Marke, viele billige messen nur 0,75 % und 1,0 %. Und Lehren, die einfach zwischen zwei Rollen greifen, messen das Spiel der Rollen mit und zeigen dadurch zu viel Verschleiß an.
 
 Gewachste Ketten längen sich langsamer als geölte, weil trockenes Wachs deutlich weniger Schleifpaste aus Staub und Abrieb bindet. Das verschiebt den Zeitpunkt, es ersetzt das Messen nicht.
-
----
-
-### Kettenlänge berechnen
-
-URL: https://waxcelerate.de/rechner/kettenlaenge
-Beantwortet: Wie viele Glieder?
-Eingaben: Kettenstrebe, größtes Kettenblatt, größtes Ritzel — fertig.
-
-Eine neue Kette kommt zu lang. Wie viele Glieder du herausnimmst, sagt dir diese Formel — sie braucht drei Zahlen, die du am Rad ablesen oder nachschlagen kannst.
-
-Die Formel lautet: Glieder = 0,157 × Kettenstrebe in mm + Zähne des größten Kettenblatts ÷ 2 + Zähne des größten Ritzels ÷ 2 + 2. Der Faktor 0,157 ist 2 ÷ 12,7 — zwei Glieder je Zoll Kettenstrebe.
-
-Das Ergebnis wird immer auf eine gerade Zahl aufgerundet. Eine Kette besteht abwechselnd aus Innen- und Außenlaschenpaaren, eine ungerade Gliederzahl lässt sich nicht schließen.
-
-Die Kettenstrebe misst du von der Mitte des Tretlagers zur Mitte der Hinterachse. Typisch sind 405 bis 425 mm am Rennrad und 425 bis 445 mm am Mountainbike.
-
-Gegenprobe ohne Formel: Kette auf das größte Kettenblatt und das größte Ritzel legen, ohne sie durch das Schaltwerk zu führen, beide Enden straff zusammenziehen und zwei Glieder zugeben. Bei langem Schaltwerkskäfig oder Vollfederung ist diese Probe der Formel überlegen.
-
-Unsere vorgewachsten Ketten kommen mit 114 bis 138 Gliedern, je nach Modell. Kürzen kannst du sie ohne das Wachs zu beschädigen — der Wachsfilm sitzt in der Kette, nicht nur außen darauf.
 
 ---
 
@@ -213,6 +175,26 @@ Vorgewachste Ketten sind ab Werk entfettet und heißgewachst. Du kürzt sie auf 
 
 ---
 
+### Kettenlänge berechnen
+
+URL: https://waxcelerate.de/rechner/kettenlaenge
+Beantwortet: Wie viele Glieder?
+Eingaben: Kettenstrebe, größtes Kettenblatt, größtes Ritzel — fertig.
+
+Eine neue Kette kommt zu lang. Wie viele Glieder du herausnimmst, sagt dir diese Formel — sie braucht drei Zahlen, die du am Rad ablesen oder nachschlagen kannst.
+
+Die Formel lautet: Glieder = 0,157 × Kettenstrebe in mm + Zähne des größten Kettenblatts ÷ 2 + Zähne des größten Ritzels ÷ 2 + 2. Der Faktor 0,157 ist 2 ÷ 12,7 — zwei Glieder je Zoll Kettenstrebe.
+
+Das Ergebnis wird immer auf eine gerade Zahl aufgerundet. Eine Kette besteht abwechselnd aus Innen- und Außenlaschenpaaren, eine ungerade Gliederzahl lässt sich nicht schließen.
+
+Die Kettenstrebe misst du von der Mitte des Tretlagers zur Mitte der Hinterachse. Typisch sind 405 bis 425 mm am Rennrad und 425 bis 445 mm am Mountainbike.
+
+Gegenprobe ohne Formel: Kette auf das größte Kettenblatt und das größte Ritzel legen, ohne sie durch das Schaltwerk zu führen, beide Enden straff zusammenziehen und zwei Glieder zugeben. Bei langem Schaltwerkskäfig oder Vollfederung ist diese Probe der Formel überlegen.
+
+Unsere vorgewachsten Ketten kommen mit 114 bis 138 Gliedern, je nach Modell. Kürzen kannst du sie ohne das Wachs zu beschädigen — der Wachsfilm sitzt in der Kette, nicht nur außen darauf.
+
+---
+
 ### Was kostet der Umstieg auf Heißwachs?
 
 URL: https://waxcelerate.de/rechner/umstieg
@@ -223,13 +205,35 @@ Der Einstieg kostet einmalig mehr als eine Flasche Öl. Danach dreht es sich um 
 
 Einmalig brauchst du einen Wachsblock, eine Quick-Link-Zange und einen Draht zum Aufhängen. Einen Topf musst du meist nicht kaufen: ein alter Reiskocher oder Slow Cooker reicht völlig.
 
-Ein 500-g-Block hält 20 bis 32 Wachsungen. Bei 100 km pro Woche auf trockener Straße reicht das über eine ganze Saison hinaus.
+Ein 500-g-Block hält 20 bis 32 Wachsungen. Bei 100 km pro Woche auf trockener Straße sind das rund anderthalb Jahre. Wer deutlich weniger fährt, nimmt besser die 300-g-Packung — angebrochenes Wachs sollte nicht jahrelang stehen.
 
 Laufend ist Wachs je Anwendung teurer als ein Tropfen Öl, aber du wachst deutlich seltener als du ölst — und der eigentliche Unterschied liegt ohnehin nicht beim Schmierstoff, sondern bei Kette und Kassette.
 
 Der Umstieg lohnt sich rechnerisch über den Verschleiß: eine gewachste Kette hält länger, und die Kassette hält deutlich länger, weil trockenes Wachs keinen Schleifschlamm aus Staub und Abrieb bildet.
 
 Wichtig beim ersten Mal: eine neue Kette muss vor dem Wachsen vollständig entfettet werden. Fabrikfett blockiert das Wachs komplett. Wer sich das sparen will, nimmt eine bereits vorgewachste Kette.
+
+---
+
+### Wann muss ich meine Kette neu wachsen?
+
+URL: https://waxcelerate.de/rechner/intervall
+Beantwortet: Wann muss ich rewaxen?
+Eingaben: Dein Intervall in Wochen — nach Wetter, Gelände und Kilometern.
+
+Das Intervall hängt an drei Dingen: wie nass es ist, worauf du fährst und wie viel du fährst. Der Rechner setzt sie zusammen und gibt dir ein Datum, das du direkt in den Kalender legen kannst.
+
+Wir rechnen mit den Empfehlungen von Zero Friction Cycling, der ausführlichsten unabhängigen Testreihe zu Kettenschmierung: trocken auf der Straße rund 300 km je Wachsung, bei Nässe oder gemischt 150 bis 200 km. Im Gelände schafft man je Wachsung etwa die halbe Strecke wie auf der Straße.
+
+Daraus ergibt sich die Tabelle im Rechner: trockene Straße 300 km, Gravel 200, MTB 150. Gemischt 200 / 150 / 120. Nass 150 / 110 / 80.
+
+Das sind bewusst vorsichtige Werte. Unter guten Bedingungen trägt eine Wachsschicht auch länger — aber zu früh gewachst kostet dich eine Stunde, zu spät gefahren kostet Kette und Kassette. Wer nahe am Intervall bleibt, holt aus einer Kette die längste Laufzeit heraus.
+
+Diese Kilometer teilst du durch deine Wochenleistung — das Ergebnis ist dein Intervall in Wochen. Bei 100 km pro Woche auf trockener Straße sind das rund drei Wochen.
+
+Über etwa ein halbes Jahr hinaus ist das Intervall keine sinnvolle Angabe mehr: Wachs altert auch ohne Kilometer, und Standzeit im Regen zählt mit.
+
+Ein sicheres Zeichen, unabhängig vom Rechner: sobald die Kette anfängt, hörbar trocken zu laufen, ist sie überfällig. Ein leichtes Klappern der Rollen dagegen ist bei Wachs normal.
 
 ---
 

@@ -62,11 +62,20 @@ export function parseWaxedStamp(raw: string | null): Date | null {
  * seelenruhig ein Datum in der Vergangenheit an — die Antwort lautet dann aber
  * nicht „am 22. August", sondern „ueberfaellig".
  */
-export function dueDate(lastWaxed: Date | null, weeks: number): { date: Date; overdue: boolean } {
+export function dueDate(lastWaxed: Date | null, weeks: number): {
+  date: Date;
+  overdue: boolean;
+  /** Volle Wochen bis zum Termin. Negativ, wenn er verstrichen ist. */
+  weeksLeft: number;
+  /** Tage bis zum Termin, fuer die Feinausgabe unter einer Woche. */
+  daysLeft: number;
+} {
   const date = addWeeks(lastWaxed ?? new Date(), weeks);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  return { date, overdue: date < today };
+  const start = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const daysLeft = Math.round((start.getTime() - today.getTime()) / 86400000);
+  return { date, overdue: daysLeft < 0, weeksLeft: Math.floor(daysLeft / 7), daysLeft };
 }
 
 // ── URL-Schicht ─────────────────────────────────────────────────────────────

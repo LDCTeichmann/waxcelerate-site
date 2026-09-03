@@ -15,6 +15,7 @@ import {
   ToolCard, ToolHeader, StepList, ToolFooter, ToolCTA, TogButton, ChipRow, StepNote,
 } from '@/components/tools/primitives';
 import { StepField } from '@/components/tools/StepField';
+import { SprocketCountDiagram } from '@/components/tools/diagrams';
 import { ResultPanel } from '@/components/tools/ResultPanel';
 import { ResultActions } from '@/components/tools/ResultActions';
 
@@ -22,9 +23,7 @@ const SYSTEM_LABELS: Record<DriveSystem, string> = {
   shimano: 'Shimano', sram: 'SRAM', campagnolo: 'Campagnolo',
 };
 
-// Nur die Gangzahlen anbieten, fuer die es Eintraege gibt. Eine
-// 10-fach-Auswahl, die immer „nichts gefunden" sagt, ist kein Rechner,
-// sondern eine Sackgasse.
+// Vorgewachst gibt es nur 11- und 12-fach.
 const SPEED_OPTIONS = ['11', '12'] as const;
 
 export function ChainMatchCalculator({ profile }: { profile: ToolProfileState }) {
@@ -33,9 +32,18 @@ export function ChainMatchCalculator({ profile }: { profile: ToolProfileState })
   const eur = (n: number) => new Intl.NumberFormat(de ? 'de-DE' : 'en-US', { style: 'currency', currency: 'EUR' }).format(n);
 
   const system = profile.system ?? 'shimano';
-  const speedKey: '11' | '12' = profile.speed === 11 ? '11' : '12';
 
-  const matches = (compatibilityMatrix[system]?.[speedKey] ?? [])
+  // Das Profil teilt die Gangzahl mit dem Verschleiss-Rechner, der 8 bis 12
+  // zulaesst. Hier gibt es nur 11 und 12 im Sortiment. Vorher wurde alles
+  // andere still auf 12 abgebildet — wer im Verschleiss-Rechner „9" gewaehlt
+  // hatte, bekam hier kommentarlos 12-fach-Ketten empfohlen. Das ist falsche
+  // Beratung, und zwar eine, die man erst beim Einbau merkt. Jetzt bleibt die
+  // Gangzahl stehen und der Rechner sagt, dass er sie nicht fuehrt.
+  const speed = profile.speed ?? 12;
+  const stocked = speed === 11 || speed === 12;
+  const speedKey: '11' | '12' = speed === 11 ? '11' : '12';
+
+  const matches = (stocked ? compatibilityMatrix[system]?.[speedKey] ?? [] : [])
     .map(getProductById)
     .filter((p): p is NonNullable<ReturnType<typeof getProductById>> => Boolean(p));
   const available = matches.filter(p => !isSoldOut(p));
@@ -60,15 +68,23 @@ export function ChainMatchCalculator({ profile }: { profile: ToolProfileState })
           </ChipRow>
         </StepField>
 
-        <StepField step={2} label={t.tools.match.speed} help={t.tools.match.helpSpeed}>
+        <StepField step={2} label={t.tools.match.speed} help={t.tools.match.helpSpeed} figure={<SprocketCountDiagram />}>
           <ChipRow>
             {SPEED_OPTIONS.map(s => (
-              <TogButton key={s} active={speedKey === s} onClick={() => profile.setSpeed(Number(s) as 11 | 12)}>
+              <TogButton key={s} active={stocked && speedKey === s} onClick={() => profile.setSpeed(Number(s) as 11 | 12)}>
                 {s}{de ? '-fach' : 'sp'}
               </TogButton>
             ))}
+            {!stocked && (
+              <span
+                className="px-3.5 py-2 rounded-xl text-[13px]"
+                style={{ border: '1px dashed var(--bd2)', color: 'var(--txm)' }}
+              >
+                {t.tools.match.otherSpeedShort.replace('{speed}', String(speed))}
+              </span>
+            )}
           </ChipRow>
-          <StepNote>{t.tools.match.note}</StepNote>
+          <StepNote>{stocked ? t.tools.match.note : t.tools.match.otherSpeed.replace('{speed}', String(speed))}</StepNote>
         </StepField>
 
       </StepList>
@@ -76,11 +92,13 @@ export function ChainMatchCalculator({ profile }: { profile: ToolProfileState })
       <ResultPanel
         value={matches.length}
         unit={matches.length === 1 ? (de ? 'Kette passt' : 'chain fits') : (de ? 'Ketten passen' : 'chains fit')}
-        verdict={matches.length
-          ? (de
-            ? `Für ${SYSTEM_LABELS[system]} mit ${speedKey} Ritzeln. Alle sind vorgewachst und sofort fahrbereit.`
-            : `For ${SYSTEM_LABELS[system]} with ${speedKey} sprockets. All pre-waxed and ready to ride.`)
-          : t.tools.match.none}
+        verdict={!stocked
+          ? t.tools.match.otherSpeed.replace('{speed}', String(speed))
+          : matches.length
+            ? (de
+              ? `Für ${SYSTEM_LABELS[system]} mit ${speedKey} Ritzeln. Alle sind vorgewachst und sofort fahrbereit.`
+              : `For ${SYSTEM_LABELS[system]} with ${speedKey} sprockets. All pre-waxed and ready to ride.`)
+            : t.tools.match.none}
         tone={available.length ? 'good' : 'neutral'}
         facts={cheapest !== null
           ? [{ label: de ? 'Lieferbar ab' : 'In stock from', value: eur(cheapest) }]

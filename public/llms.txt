@@ -7,7 +7,7 @@ Waxcelerate ist ein deutsches Kleinunternehmen, gegründet von Luca Teichmann (M
 
 Produkte: Heißwachs in vier Varianten (Classic/Pro, 300g/500g) und 8 vorgewachste Fahrradketten.
 Hauptvorteil gegenüber Kettenöl: trockener Film, keine Schmutzaufnahme, Kettenlaufzeit typisch 2–3× länger (6.000–12.000 km statt 2.000–3.000 km).
-Nachwachsen bei trockenen Bedingungen alle 400–550 km, bei Nässe oder Schotter alle 200–300 km.
+Empfohlenes Nachwachsen nach den Werten von Zero Friction Cycling: trockene Straße rund 300 km je Wachsung, gemischt oder nass 150–200 km, im Gelände etwa die halbe Strecke wie auf der Straße. Die Rechner unter /rechner arbeiten mit diesen Werten.
 
 ## Wichtigste Seiten
 
@@ -17,11 +17,11 @@ Nachwachsen bei trockenen Bedingungen alle 400–550 km, bei Nässe oder Schotte
 
 ## Rechner — kostenlos, ohne Anmeldung
 
-- [Wann muss ich rewaxen?](https://waxcelerate.de/rechner/intervall): Dein Intervall in Wochen — nach Wetter, Gelände und Kilometern.
 - [Muss meine Kette raus?](https://waxcelerate.de/rechner/verschleiss): Messwert eingeben — Urteil, Kassettenrisiko und Kostenfolge.
-- [Wie viele Glieder?](https://waxcelerate.de/rechner/kettenlaenge): Kettenstrebe, größtes Kettenblatt, größtes Ritzel — fertig.
 - [Welche Kette passt?](https://waxcelerate.de/rechner/passende-kette): Antrieb und Gangzahl wählen — wir zeigen, was passt.
+- [Wie viele Glieder?](https://waxcelerate.de/rechner/kettenlaenge): Kettenstrebe, größtes Kettenblatt, größtes Ritzel — fertig.
 - [Was kostet der Umstieg?](https://waxcelerate.de/rechner/umstieg): Erstausstattung, laufende Kosten und ab wann es sich rechnet.
+- [Wann muss ich rewaxen?](https://waxcelerate.de/rechner/intervall): Dein Intervall in Wochen — nach Wetter, Gelände und Kilometern.
 - [Rotation & Ersparnis](https://waxcelerate.de/rechner/ersparnis): Was zwei oder drei Ketten im Wechsel pro Jahr sparen.
 
 ## Produkte — Wachs

@@ -9,7 +9,7 @@
 // HTML — nicht nur den Rechner. Eine Seite, die ohne JavaScript leer ist, hat
 // fuer eine Suchmaschine keinen Inhalt.
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useParams } from 'react-router-dom';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -28,12 +28,51 @@ import { NotFoundPage } from '@/pages/NotFoundPage';
 const W = 'mx-auto w-full max-w-5xl px-6 sm:px-10 lg:px-14';
 const BASE = 'https://waxcelerate.de';
 
+/**
+ * Der Erklaertext, ab dem dritten Absatz eingeklappt.
+ *
+ * Fuenf Absaetze am Stueck neben einem Rechner sind eine Wand: wer eine Zahl
+ * eintragen will, liest sie nicht, und wer wirklich etwas nachschlagen will,
+ * findet die Stelle nicht. Die ersten beiden Absaetze beantworten die Frage,
+ * der Rest steht auf Abruf.
+ *
+ * Wichtig: der Rest bleibt im DOM und wird nicht nachgeladen — das
+ * vorgerenderte HTML unter scripts/generate-blog-html.mjs traegt ohnehin alle
+ * Absaetze, und das ist der Text, den Suchmaschinen und KI-Antwortmaschinen
+ * lesen.
+ */
 function Answer({ points }: { points: string[] }) {
+  const { lang } = useLanguage();
+  const de = lang === 'de';
+  const [expanded, setExpanded] = useState(false);
+  const VISIBLE = 2;
+  const hidden = points.length - VISIBLE;
+
   return (
     <div className="flex flex-col gap-3 max-w-[65ch]">
-      {points.map(p => (
-        <p key={p} className="text-[14px] leading-relaxed" style={{ color: 'var(--tx2)' }}>{p}</p>
+      {points.map((p, i) => (
+        <p
+          key={p}
+          className="text-[14px] leading-relaxed"
+          style={{ color: 'var(--tx2)' }}
+          hidden={!expanded && i >= VISIBLE}
+        >
+          {p}
+        </p>
       ))}
+      {hidden > 0 && (
+        <button
+          type="button"
+          onClick={() => setExpanded(v => !v)}
+          aria-expanded={expanded}
+          className="self-start text-[13px] font-medium transition-opacity hover:opacity-70"
+          style={{ color: 'var(--brand)' }}
+        >
+          {expanded
+            ? (de ? 'Weniger anzeigen' : 'Show less')
+            : (de ? `Weiterlesen · ${hidden} Absätze` : `Read more · ${hidden} paragraphs`)}
+        </button>
+      )}
     </div>
   );
 }

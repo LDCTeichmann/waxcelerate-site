@@ -32,7 +32,7 @@ ${trustStats.sold} verkaufte Einheiten, ${trustStats.reviews} Bewertungen, 100% 
 
 Produkte: Heißwachs in vier Varianten (Classic/Pro, 300g/500g) und ${chains.length} vorgewachste Fahrradketten.
 Hauptvorteil gegenüber Kettenöl: trockener Film, keine Schmutzaufnahme, Kettenlaufzeit typisch 2–3× länger (6.000–12.000 km statt 2.000–3.000 km).
-Nachwachsen bei trockenen Bedingungen alle 400–550 km, bei Nässe oder Schotter alle 200–300 km.
+Empfohlenes Nachwachsen nach den Werten von Zero Friction Cycling: trockene Straße rund 300 km je Wachsung, gemischt oder nass 150–200 km, im Gelände etwa die halbe Strecke wie auf der Straße. Die Rechner unter /rechner arbeiten mit diesen Werten.
 
 ## Wichtigste Seiten
 

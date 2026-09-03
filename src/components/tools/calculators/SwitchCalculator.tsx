@@ -19,6 +19,7 @@ import { ArrowRightLeft } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import type { ToolProfileState } from '@/hooks/useToolProfile';
 import { switchEconomics, applicationsPerBlock, referenceWax } from '@/lib/waxMath';
+import { products } from '@/lib/data';
 import { accessories } from '@/lib/data';
 import { shareUrl } from '@/lib/toolState';
 import { AnimatedNumber } from '@/components/viz';
@@ -50,6 +51,7 @@ export function SwitchCalculator({ profile }: { profile: ToolProfileState }) {
   const kmPerYear = profile.kmPerWeek * 52;
   const e = switchEconomics({ kmPerYear, rewaxKm: profile.interval, toolingCost });
   const apps = applicationsPerBlock(referenceWax) ?? 0;
+  const smallWax = products.find(p => p.id === 'wax-300');
 
   const startItems = [
     { label: `${referenceWax.weight} ${de ? 'Kettenwachs' : 'chain wax'}`, price: referenceWax.price, extra: false },
@@ -70,9 +72,9 @@ export function SwitchCalculator({ profile }: { profile: ToolProfileState }) {
           step={1}
           label={t.tools.switch.needList}
           value={eur(startTotal)}
-          help={de
+          help={`${de
             ? 'Der Wachsblock ist Schmierstoff — den kaufst du beim Ölen genauso, nur in anderer Form. Als echten Mehraufwand rechnen wir deshalb nur Zange und Draht.'
-            : 'The wax block is lubricant — you buy that either way, just in a different form. So only the pliers and wire count as a real extra.'}
+            : 'The wax block is lubricant — you buy that either way, just in a different form. So only the pliers and wire count as a real extra.'} ${t.tools.switch.potNote}`}
         >
           <ul className="flex flex-col gap-1.5">
             {startItems.map(i => (
@@ -91,7 +93,15 @@ export function SwitchCalculator({ profile }: { profile: ToolProfileState }) {
               </li>
             ))}
           </ul>
-          <StepNote>{t.tools.switch.potNote}</StepNote>
+          {/* Die haeufigste Stolperfalle beim Umstieg, und die einzige, die
+              nicht in Euro steht: Fabrikfett und Altoel blockieren das Wachs
+              vollstaendig. Wer das erst am Wachsabend merkt, hoert wieder auf. */}
+          <StepNote>
+            {t.tools.switch.degreaseNote}{' '}
+            <a href="/rechner/passende-kette" className="font-medium" style={{ color: 'var(--brand)' }}>
+              {t.tools.switch.degreaseAlt}
+            </a>
+          </StepNote>
         </StepField>
 
         <StepField
@@ -121,6 +131,23 @@ export function SwitchCalculator({ profile }: { profile: ToolProfileState }) {
               ? 'Schmierstoff allein ist beim Wachsen teurer. Der Vorteil steckt in Kette und Kassette — die halten deutlich länger.'
               : 'Lubricant alone costs more with wax. The advantage is in the chain and cassette, which last far longer.'}
           </StepNote>
+          {/* Zwei Grenzfaelle, die eine reine Hochrechnung sonst verschweigt:
+              ein Vorrat, der aelter wird als er haelt, und ein Intervall, das
+              oefter als woechentlich waxen bedeuten wuerde. Beides waere eine
+              Empfehlung, der in der Praxis niemand folgt. */}
+          {e.outlastsShelfLife && smallWax && (
+            <StepNote>
+              {t.tools.switch.shelfLifeHint}
+            </StepNote>
+          )}
+          {e.needsHybridHint && (
+            <StepNote>
+              {t.tools.switch.hybridHint}{' '}
+              <a href="/blog/tropfwachs-hybrid-methode" className="font-medium" style={{ color: 'var(--brand)' }}>
+                {t.tools.switch.hybridLink}
+              </a>
+            </StepNote>
+          )}
         </StepField>
       </StepList>
 

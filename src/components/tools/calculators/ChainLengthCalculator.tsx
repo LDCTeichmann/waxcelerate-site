@@ -11,11 +11,13 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
 import type { ToolProfileState } from '@/hooks/useToolProfile';
 import { chainLengthLinks } from '@/lib/waxMath';
+import { products } from '@/lib/data';
 import { shareUrl } from '@/lib/toolState';
 import {
   ToolCard, ToolHeader, StepList, ToolFooter, ToolCTA, NumberInput, StepNote,
 } from '@/components/tools/primitives';
 import { StepField } from '@/components/tools/StepField';
+import { ChainstayDiagram } from '@/components/tools/diagrams';
 import { ResultPanel } from '@/components/tools/ResultPanel';
 import { ResultActions } from '@/components/tools/ResultActions';
 
@@ -41,6 +43,19 @@ export function ChainLengthCalculator({ profile }: { profile: ToolProfileState }
     n.bigSprocket >= 9 && n.bigSprocket <= 60;
   const links = valid ? chainLengthLinks(n) : null;
 
+  // Eine Gliederzahl allein ist noch keine Handlung. Der Schritt, der
+  // tatsaechlich ansteht, ist das Kuerzen — und dafuer braucht es die
+  // Auslieferungslaenge. Aus den Produktdaten abgeleitet, nicht fest verdrahtet.
+  const stockLengths = [...new Set(
+    products
+      .filter(p => p.category === 'chain')
+      .map(p => parseInt(String(p.chainLinks), 10))
+      .filter(Number.isFinite),
+  )].sort((a, b) => a - b);
+  // Die kuerzeste Kette, die noch lang genug ist — von der nimmt man am wenigsten ab.
+  const fitting = links ? stockLengths.find(l => l >= links) : undefined;
+  const toRemove = links && fitting ? fitting - links : null;
+
   return (
     <ToolCard>
       <ToolHeader
@@ -50,7 +65,7 @@ export function ChainLengthCalculator({ profile }: { profile: ToolProfileState }
       />
 
       <StepList>
-        <StepField step={1} label={t.tools.length.chainstay} help={t.tools.length.helpChainstay}>
+        <StepField step={1} label={t.tools.length.chainstay} help={t.tools.length.helpChainstay} figure={<ChainstayDiagram />}>
           <NumberInput
             value={chainstay} onChange={setChainstay} min={350} max={550}
             ariaLabel={t.tools.length.chainstay} theme={theme} suffix="mm"
@@ -79,6 +94,11 @@ export function ChainLengthCalculator({ profile }: { profile: ToolProfileState }
           </StepNote>
         )}
         <StepNote>{t.tools.length.onlyDerailleur}</StepNote>
+        <StepNote>
+          {links && !fitting
+            ? t.tools.length.tooShort
+            : t.tools.length.shortenNote.replace('{lengths}', stockLengths.join(', '))}
+        </StepNote>
       </StepList>
 
       <ResultPanel
@@ -86,6 +106,14 @@ export function ChainLengthCalculator({ profile }: { profile: ToolProfileState }
         unit={t.tools.length.links}
         verdict={t.tools.length.note}
         tone={links ? 'good' : 'neutral'}
+        facts={toRemove !== null && fitting
+          ? [{
+              label: t.tools.length.shorten,
+              value: t.tools.length.shortenValue
+                .replace('{n}', String(toRemove))
+                .replace('{from}', String(fitting)),
+            }]
+          : []}
         actions={<ResultActions shareUrl={shareUrl('/rechner/kettenlaenge', profile.snapshot)} />}
       />
 

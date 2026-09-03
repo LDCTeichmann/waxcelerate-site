@@ -16,7 +16,7 @@ import { useState } from 'react';
 import { RotateCcw } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import type { ToolProfileState } from '@/hooks/useToolProfile';
-import { drivetrainCosts } from '@/lib/waxMath';
+import { drivetrainCosts, medianChainPrice } from '@/lib/waxMath';
 import { dueDate, shareUrl } from '@/lib/toolState';
 import { MAX_REWAX_WEEKS } from '@/hooks/useToolProfile';
 import { AnimatedNumber } from '@/components/viz';
@@ -48,6 +48,15 @@ export function SavingsCalculator({ profile }: { profile: ToolProfileState }) {
     : next.toLocaleDateString(de ? 'de-DE' : 'en-GB', { day: 'numeric', month: 'short' });
 
   const eur = (n: number) => `€${n.toLocaleString(de ? 'de-DE' : 'en-US')}`;
+
+  // Die laufenden Kosten je Kilometer enthalten die Ketten bereits korrekt.
+  // Was bisher fehlte, war die Ansage, dass zwei Zusatzketten erst einmal
+  // bezahlt werden wollen. Beim Umstiegsrechner steht der Einmalbetrag da, hier
+  // fehlte er — und „du sparst 85 € im Jahr" liest sich sonst, als koste die
+  // Rotation nichts. Ehrlich ist: es ist kein Mehraufwand, sondern eine
+  // vorgezogene Ausgabe, denn Ketten braucht man ohnehin.
+  const extraChains = chains - 1;
+  const upfront = Math.round(extraChains * medianChainPrice * (1 - KIT_DISCOUNT[chains] / 100));
 
   const goToChains = () => {
     document.querySelector('#produkte')?.scrollIntoView({ behavior: 'smooth' });
@@ -111,6 +120,14 @@ export function SavingsCalculator({ profile }: { profile: ToolProfileState }) {
               ? 'Kette, Kassette und Schmierstoff zusammen, auf ein Jahr gerechnet.'
               : 'Chain, cassette and lubricant together, over one year.'}
           </StepNote>
+          {extraChains > 0 && (
+            <StepNote>
+              {(KIT_DISCOUNT[chains] > 0 ? t.tools.rotation.upfrontNoteKit : t.tools.rotation.upfrontNote)
+                .replace('{n}', String(extraChains))
+                .replace('{sum}', eur(upfront))
+                .replace('{pct}', String(KIT_DISCOUNT[chains]))}
+            </StepNote>
+          )}
         </StepField>
       </StepList>
 
@@ -123,6 +140,7 @@ export function SavingsCalculator({ profile }: { profile: ToolProfileState }) {
         tone="good"
         facts={[
           { label: de ? 'Waxen' : 'Waxing', value: `${costs.waxSessionsPerYear}× ${de ? 'im Jahr' : 'a year'}` },
+          ...(extraChains > 0 ? [{ label: t.tools.rotation.upfront, value: eur(upfront) }] : []),
           { label: de ? 'Nächstes Mal' : 'Next time', value: nextLabel },
         ]}
         actions={<ResultActions shareUrl={shareUrl('/rechner/ersparnis', profile.snapshot)} />}

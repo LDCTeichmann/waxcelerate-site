@@ -18,7 +18,7 @@ import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { Section } from '@/components/Section';
 import { ProfileBar } from '@/components/tools/ProfileBar';
 import { ToolDeck } from '@/components/tools/registry';
-import { getToolBySlug } from '@/lib/toolRegistry';
+import { getToolBySlug, TOOLS } from '@/lib/toolRegistry';
 
 export function Tools() {
   const { t } = useLanguage();
@@ -30,7 +30,7 @@ export function Tools() {
   // Die Profilleiste bedient drei der sechs Rechner. Bei den anderen bleibt sie
   // stehen — sie auszublenden liesse bei jedem Kartenwechsel das Layout
   // springen —, wird aber zurueckgenommen und erklaert sich.
-  const [activeKey, setActiveKey] = useState('intervall');
+  const [activeKey, setActiveKey] = useState(TOOLS[0].slug);
   const handleActive = useCallback((key: string) => setActiveKey(key), []);
   const activeUsesProfile = getToolBySlug(activeKey)?.usesProfile ?? false;
 

@@ -42,7 +42,21 @@ export function IntervalCalculator({ profile }: { profile: ToolProfileState }) {
     lastWaxedDate !== null && !datePresets.some(p => p.date !== null && isoDate(p.date) === isoDate(lastWaxedDate)),
   );
 
-  const { date: nextDate, overdue } = useMemo(() => dueDate(lastWaxedDate, weeks), [weeks, lastWaxedDate]);
+  const { date: nextDate, overdue, weeksLeft, daysLeft } = useMemo(
+    () => dueDate(lastWaxedDate, weeks), [weeks, lastWaxedDate],
+  );
+
+  // Die grosse Zahl beantwortet jetzt die Frage der Karte — „wann muss ich
+  // rewaxen" — und nicht mehr die Nebenfrage „wie lang ist mein Intervall".
+  // Vorher zeigte sie das Intervall, das sich durch den einzigen Schritt dieser
+  // Karte gar nicht aendern kann: wer „vor zwei Wochen" waehlte, sah weiter
+  // dieselben drei Wochen stehen. Das Intervall steht jetzt als Kennzahl
+  // daneben, wo es hingehoert.
+  const remaining: { value: React.ReactNode; unit: string } =
+    overdue ? { value: '!', unit: de ? 'überfällig' : 'overdue' }
+    : daysLeft < 7
+      ? { value: daysLeft, unit: daysLeft === 1 ? (de ? 'Tag' : 'day') : (de ? 'Tage' : 'days') }
+      : { value: weeksLeft, unit: weeksLeft === 1 ? (de ? 'Woche' : 'week') : (de ? 'Wochen' : 'weeks') };
   const dateLabel = nextDate.toLocaleDateString(de ? 'de-DE' : 'en-GB', { day: 'numeric', month: 'long' });
   // Eine Erinnerung in der Vergangenheit ist keine Erinnerung.
   const reminderDate = overdue ? new Date() : nextDate;
@@ -119,18 +133,23 @@ export function IntervalCalculator({ profile }: { profile: ToolProfileState }) {
       </StepList>
 
       <ResultPanel
-        value={<AnimatedNumber value={weeks} />}
-        unit={`${weeks === 1 ? (de ? 'Woche' : 'week') : (de ? 'Wochen' : 'weeks')}${weeksCapped ? ' max.' : ''}`}
+        value={typeof remaining.value === 'number'
+          ? <AnimatedNumber value={remaining.value} />
+          : remaining.value}
+        unit={remaining.unit}
         verdict={overdue
           ? (de
-            ? 'Überfällig — die Kette war rechnerisch schon dran. Der Kalendereintrag setzt deshalb auf heute.'
-            : 'Overdue — by this calculation the chain was already due. The calendar entry is set to today.')
+            ? 'Die Kette war rechnerisch schon dran. Der Kalendereintrag setzt deshalb auf heute.'
+            : 'By this calculation the chain was already due. The calendar entry is set to today.')
           : (de
-            ? `Nächstes Waxen etwa am ${dateLabel}.`
-            : `Next wax around ${dateLabel}.`)}
+            ? `Bis dahin noch fahren — nächstes Waxen etwa am ${dateLabel}.`
+            : `Ride until then — next wax around ${dateLabel}.`)}
         tone="good"
         facts={[
-          { label: de ? 'je Wachsung' : 'per wax', value: `${interval} km` },
+          {
+            label: de ? 'Dein Intervall' : 'Your interval',
+            value: `${weeks} ${weeks === 1 ? (de ? 'Woche' : 'week') : (de ? 'Wochen' : 'weeks')}${weeksCapped ? ' max.' : ''} · ${interval} km`,
+          },
           { label: de ? 'Termin' : 'Date', value: overdue ? (de ? 'jetzt' : 'now') : dateLabel },
         ]}
         actions={<ResultActions
