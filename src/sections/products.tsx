@@ -269,12 +269,12 @@ export function Products() {
               <div className="max-w-sm mt-10">
                 <SecondaryTile
                   to="/kette-wachsen-lassen"
-                  image="/images/blog/chains-hanging-gold-1600" imageW={1600}
+                  image="/images/shelf/shelf-rewax" imageW={1000}
                   eyebrow={t.products.shelf.rewaxEyebrow} title={t.products.shelf.rewaxTitle}
                   body={t.products.shelf.rewaxBody}
+                  price={t.products.shelf.rewaxFrom}
                   cta={t.products.shelf.rewaxCta}
-                  alt={de ? 'Frisch gewachste Ketten hängen zum Aushärten' : 'Freshly waxed chains hanging to cure'}
-                  dark
+                  alt={de ? 'Waxcelerate Versandkarton mit gewachster Kette vor Stuttgarter Landschaft' : 'Waxcelerate shipping box with a waxed chain in front of the Stuttgart hills'}
                 />
               </div>
 

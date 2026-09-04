@@ -146,7 +146,7 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
             alt={alt}
             loading="lazy"
             decoding="async"
-            className="photo-wax absolute inset-0 h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.04]"
+            className="photo-shelf absolute inset-0 h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.04]"
           />
         </picture>
 
@@ -349,12 +349,18 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
 // Versprechen, das die Seite nicht haelt).
 // Exportiert: products.tsx braucht dieselbe Kachel fuer die Rewax-Karte am
 // Ende der aufgeklappten Kettenliste — siehe dortiger Kommentar.
-export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, price, dark, index, ...action }: {
+export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, price, delivery, dark, index, ...action }: {
   image: string; imageW: number; eyebrow: string; title: string; body: string; cta: string; alt: string;
   /** Fertig formatierter Preis-String ("ab 57,63 €"). Macht aus der Kachel
       sichtbar ein Kaufangebot statt eines reinen Editorial-Links — ohne
       Preis war auf Mobile nicht erkennbar, dass hier etwas verkauft wird. */
   price?: string;
+  /** Fertig formatierter Lieferzeile-String ("Lieferung Mo., 7. Sept."),
+      dieselbe Grammatik wie WaxPanels Lieferzeile. Optional statt fuer alle
+      drei Kacheln, weil Set und Rewax keine Lieferzeit im klassischen Sinn
+      haben (Set = eigene Konfiguratorseite mit eigenen Angaben, Rewax = ein
+      Turnaround, keine Zustellung) — nur die Ketten-Kachel bekommt sie. */
+  delivery?: string;
   /** Dunklerer Foto-Rand fuer die Rewax-Kachel (moodigeres Motiv) — rein
       atmosphaerisch, seit der Text nicht mehr auf dem Foto steht keine
       Kontrastfrage mehr. */
@@ -389,7 +395,7 @@ export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, p
             alt={alt}
             loading="lazy"
             decoding="async"
-            className="photo-neutral absolute inset-0 h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.04]"
+            className="photo-shelf absolute inset-0 h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.04]"
           />
         </picture>
         <span aria-hidden className="absolute inset-0"
@@ -421,14 +427,26 @@ export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, p
         <h3 className="font-display font-bold text-[17px] sm:text-[18.5px] leading-snug tracking-[-0.015em] mt-0.5" style={{ color: 'var(--tx1)' }}>{title}</h3>
         <p className="text-[13px] leading-snug mt-1.5" style={{ color: 'var(--txm)' }}>{body}</p>
 
+        {/* Lieferzeile — nur wenn uebergeben (aktuell nur Ketten, siehe
+            Prop-Kommentar). Gleiche Truck-Icon-Grammatik wie WaxPanel. */}
+        {delivery && (
+          <span className="flex items-center gap-1.5 num-data text-meta mt-1.5" style={{ color: 'var(--txff)' }}>
+            <Truck className="h-3 w-3 flex-shrink-0" style={{ color: 'var(--accent-soft)' }} aria-hidden />
+            {delivery}
+          </span>
+        )}
+
         {/* CTA als eigenstaendiger, gefuellter Button statt einer leicht
             getoenten Pille im Fliesstext-Stil — dieselbe Buy-Button-Grammatik
             wie die Kauf-CTAs oben in dieser Datei. Dauerhaft gefuellt, nicht
-            per :hover ein-/ausgeblendet: auf Touch gibt es kein "vorher". */}
+            per :hover ein-/ausgeblendet: auf Touch gibt es kein "vorher".
+            group-hover:scale hebt den Button beim Card-Hover minimal an —
+            dieselbe Mikro-Interaktion wie active:scale bei den eBay-Buttons
+            oben, hier auf hover statt press gemuenzt. */}
         <div className="flex flex-wrap items-center justify-between gap-2 mt-auto pt-3.5">
           {price && <span className="num text-[15px] font-bold flex-shrink-0" style={{ color: 'var(--tx1)' }}>{price}</span>}
           <span
-            className="inline-flex items-center justify-center gap-1.5 min-h-10 px-4 rounded-full text-[13px] font-semibold flex-shrink-0 transition-all duration-200 group-hover:opacity-90"
+            className="inline-flex items-center justify-center gap-1.5 min-h-10 px-4 rounded-full text-[13px] font-semibold flex-shrink-0 transition-all duration-200 group-hover:opacity-90 group-hover:scale-[1.035]"
             style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
           >
             {cta}
@@ -556,33 +574,33 @@ export function ProductShelf({ de, t, onOpenChains, onCompare }: {
         <SecondaryTile
           index={1}
           to="/starter-set"
-          image="/images/shelf/starter-box" imageW={1200}
+          image="/images/shelf/shelf-set" imageW={1000}
           eyebrow={s.setEyebrow} title={s.setTitle}
           body={s.setBody}
           price={`${de ? 'Ab' : 'From'} ${eur(minSetPrice, de)}`}
           cta={s.setCta}
-          alt={de ? 'Offener Versandkarton mit Waxcelerate Wachsblöcken' : 'Open shipping box with Waxcelerate wax blocks'}
+          alt={de ? 'Waxcelerate Wachsblock mit Kettenzange, Kette und Schaltauge-Zubehör des Starter-Sets' : 'Waxcelerate wax block with chain pliers, chain and quick-link tools from the starter set'}
         />
         <SecondaryTile
           index={2}
           onClick={() => onOpenChains('all')}
-          image="/images/shelf/chains-flat" imageW={1400}
+          image="/images/shelf/shelf-ketten" imageW={1000}
           eyebrow={s.chainsEyebrow} title={s.chainsTitle}
           body={s.chainsBody}
           price={`${de ? 'Ab' : 'From'} ${eur(minPrice('chain'), de)}`}
+          delivery={`${s.delivery} ${delivery}`}
           cta={s.chainsAll}
-          alt={de ? 'Vorgewachste Fahrradketten mit Quick-Link auf Schiefer' : 'Pre-waxed bicycle chains with quick link on slate'}
+          alt={de ? 'Vorgewachste Fahrradkette mit Quick-Link auf Schiefer' : 'Pre-waxed bicycle chain with quick link on slate'}
         />
         <SecondaryTile
           index={3}
           to="/kette-wachsen-lassen"
-          image="/images/blog/chains-hanging-gold-1600" imageW={1600}
+          image="/images/shelf/shelf-rewax" imageW={1000}
           eyebrow={s.rewaxEyebrow} title={s.rewaxTitle}
           body={s.rewaxBody}
           price={s.rewaxFrom}
           cta={s.rewaxCta}
-          alt={de ? 'Frisch gewachste Ketten hängen zum Aushärten' : 'Freshly waxed chains hanging to cure'}
-          dark
+          alt={de ? 'Waxcelerate Versandkarton mit gewachster Kette vor Stuttgarter Landschaft' : 'Waxcelerate shipping box with a waxed chain in front of the Stuttgart hills'}
         />
         </div>
       </div>

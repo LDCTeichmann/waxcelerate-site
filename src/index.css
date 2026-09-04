@@ -619,26 +619,25 @@
    verliert also am meisten, während der blaue Classic-Block seine Identität
    behält — er wird gegen das gedämpfte Umfeld sogar deutlicher. Leichte
    Kontraktanhebung, damit die Bilder dabei nicht flau werden. */
-.photo-neutral {
-  filter: saturate(0.68) contrast(1.06);
-}
+/* .photo-neutral (saturate(0.68) contrast(1.06)) ist mit Runde 2 (09/2026)
+   fuer das Regal ausgemustert: Set/Ketten/Rewax zeigen seither Lucas eigene,
+   neu ausgewaehlte Fotos statt der vier alten Bokeh-Aufnahmen, gegen deren
+   Olivstich die Regel oben gerechnet war (Kanalmittelwerte siehe Historie
+   darueber) — die neuen Fotos haben dieses Problem nicht. Alle fuenf
+   Regal-Fotos (2 Wachs-Tafeln + 3 Sekundaer-Kacheln) teilen sich jetzt
+   .photo-shelf statt zwei verschiedene Filterregeln zu tragen — Lucas Wunsch
+   nach "farbenfroh, aber stimmig" ist mit einer gemeinsamen Farbbehandlung
+   fuer die ganze Sektion direkter erfuellt als mit zweien.
 
-/* Die zwei Wachsfotos im Regal tragen keine Entsaettigung mehr, sondern eine
-   leichte Anhebung. Grund: .photo-neutral (0.68) war gegen den Olivstich der
-   vier Bokeh-Fotos gerechnet, die nebeneinander in der Sektion standen. Der
-   blaue Classic-Block ist aber das einzige gesaettigte Nicht-Gruen im Regal —
-   er verliert bei Entsaettigung genau das, was ihn vom Pro unterscheidet.
-   Erster Versuch (Runde 1) reduzierte die Entsaettigung nur auf saturate(0.9)
-   — Lucas Urteil danach weiterhin "die Farben noch schoener". Jetzt eine
-   Anhebung ueber den Bildoriginalwert hinaus (>1), nicht nur ein schwaecherer
-   Abzug: saturate(1.12) macht Laubgruen und Classic-Blau spuerbar satter,
-   contrast(1.05)/brightness(1.015) verhindern, dass die zusaetzliche Saettigung
-   die Fotos flau oder milchig wirken laesst. Per Screenshot-Vergleich gegen
-   1.1/1.25 geprueft — 1.25 kippt den Hintergrund bereits ins unnatuerlich
-   Knallgruene, 1.12 bleibt glaubwuerdig fotografisch. Die drei
-   Sekundaer-Kacheln behalten .photo-neutral (dort ist Laubgruen die
-   dominierende Flaeche, nicht ein einzelnes farbiges Produkt). */
-.photo-wax {
+   Die zwei Wachsfotos trugen bis Runde 1 noch eine Entsaettigung. Runde 2
+   dreht das um: keine Abschwaechung mehr, sondern eine echte Anhebung ueber
+   den Bildoriginalwert (>1) — saturate(1.12) macht Laubgruen und
+   Classic-Blau spuerbar satter, contrast(1.05)/brightness(1.015) verhindern,
+   dass die zusaetzliche Saettigung die Fotos flau oder milchig wirken
+   laesst. Per Screenshot-Vergleich gegen 1.1/1.25 geprueft — 1.25 kippt den
+   Hintergrund bereits ins unnatuerlich Knallgruene, 1.12 bleibt
+   glaubwuerdig fotografisch. */
+.photo-shelf {
   filter: saturate(1.12) contrast(1.05) brightness(1.015);
 }
 
@@ -654,6 +653,23 @@
   border: 1px solid var(--bd2);
   background: var(--sf2);
 }
+/* Runde 3 (09/2026): Lucas Referenz war ein Cyclus2-Screenshot mit einer
+   satten blauen Umrandung beim Hover ueber eine Produktkachel — hier schon
+   als statische border-color + --card-shadow-hover vorhanden (siehe unten),
+   aber Lucas Rueckmeldung wollte es zusaetzlich "auffaellig, aber sehr
+   dezent" und "in den Blautoenen der Website". Ein sanfter Puls (dieselbe
+   --accent-soft-rgb-Glow-Technik wie .cta-brand-pulse oben in dieser Datei,
+   dort fuer den Nav-CTA im Ruhezustand) macht die Kante beim Hover "lebendig"
+   statt starr, ohne die Website-Blautoene zu verlassen. Bewusst NUR waehrend
+   :hover aktiv (nicht dauerhaft wie .cta-brand-pulse) — fuenf Kacheln, die
+   permanent pulsieren, waeren Dauerreiz statt Feedback. Amplitude klein
+   gehalten (0.22 Alpha, 22px Blur, 2px Spread) statt der staerkeren
+   Nav-CTA-Werte (0.35/26px/6px), damit es als Reaktion auf die eigene
+   Cursor-Bewegung liest, nicht als eigenstaendige Animation, die ablenkt. */
+@keyframes shelf-card-glow {
+  0%, 100% { box-shadow: var(--card-shadow-hover); }
+  50%      { box-shadow: var(--card-shadow-hover), 0 0 22px 2px rgba(var(--accent-soft-rgb), 0.22); }
+}
 @media (hover: hover) and (pointer: fine) {
   .shelf-card {
     transition: border-color 200ms ease, box-shadow 200ms ease,
@@ -663,10 +679,11 @@
     border-color: var(--accent-soft);
     box-shadow: var(--card-shadow-hover);
     transform: translateY(-4px);
+    animation: shelf-card-glow 2.6s ease-in-out infinite;
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .shelf-card:hover { transform: none !important; }
+  .shelf-card:hover { transform: none !important; animation: none !important; }
 }
 
 /* Pro product photos: black wax on dark slate, shot with no alpha channel —

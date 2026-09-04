@@ -189,6 +189,34 @@ Erstes Messtechnik sieht.
      als Überschrift zu lesen statt als Fließtext-Zeile.
    - Set-, Ketten- und Rewax-Foto folgen als separater Schritt (Lucas eigene
      Bildauswahl über `image-drop/`, siehe §5).
+
+   09/2026, Runde 3: Set/Ketten/Rewax-Fotos sind da (siehe §5 fuer die
+   Bildauswahl selbst), dazu drei weitere Nachjustierungen auf Lucas
+   Rueckmeldung ("Calls brillanter", "Karten schlauer und smoother",
+   "nuetzliche Infos ergaenzen"):
+   - **Hover-Glow.** Lucas Referenz war ein Cyclus2-Screenshot mit blauer
+     Kante beim Hover — die gab es seit Runde 1 schon als statische
+     `border-color` + `--card-shadow-hover`, aber Rueckmeldung wollte sie
+     zusaetzlich "auffaellig, aber sehr dezent" und "in den Blautoenen der
+     Website". `.shelf-card:hover` bekommt jetzt einen sanften Puls
+     (`shelf-card-glow`-Keyframe, 2.6s, `ease-in-out`), der `--accent-soft-rgb`
+     als zusaetzliche Box-Shadow-Ebene ein- und ausblendet — dieselbe
+     Technik wie `.cta-brand-pulse` weiter oben in `index.css`, dort aber
+     bewusst schwaecher dosiert (0.22 Alpha/22px Blur/2px Spread statt
+     0.35/26px/6px) und NUR waehrend `:hover` aktiv statt dauerhaft: fuenf
+     Kacheln, die permanent pulsieren, waeren Dauerreiz statt Feedback.
+   - **Lieferzeit bei den Ketten.** Neuer optionaler `delivery`-Prop auf
+     `SecondaryTile`, nur bei "Vorgewachste Ketten" gesetzt (dieselbe
+     Truck-Icon-Grammatik wie WaxPanel) — Set und Rewax haben keine
+     klassische Lieferzeit (Set fuehrt zu einer eigenen Konfiguratorseite,
+     Rewax ist ein Turnaround statt einer Zustellung), nur bei den Ketten
+     war es eine echte Luecke.
+   - **CTA-Pille reagiert jetzt auf den Card-Hover** (`group-hover:scale-[1.035]`
+     zusaetzlich zum bestehenden `opacity-90`) — dieselbe Mikro-Interaktion
+     wie `active:scale` bei den eBay-Buttons oben, hier auf Hover statt
+     Press gemuenzt, damit der Button "antwortet" statt nur die Karte.
+   - **Bewusst NICHT umgesetzt:** Text/Preis in die Fotos einbetten — siehe
+     Begruendung in §5.
 4. Tür in die Wissenschaft
 
 Der Sägezahn trägt zwei Argumente gleichzeitig: wie viele Watt ein Schmierstoff
@@ -210,15 +238,39 @@ Schiefer getauscht — anderes Licht, anderer Winkel, kein Bokeh — und genau
 dieses Bild las sich neben dem Pro als düster. Seit 09/2026 wieder das Paar
 aus dem Skript, beide mit identischem Zuschnitt (16:10 wie die Karte, `zoom`
 so gewählt, dass beide Blöcke gleich groß im Bild stehen).
-Die beiden Wachsfotos tragen `.photo-wax` (Sättigung 0,9) statt
-`.photo-neutral` (0,68): die Entsättigung war gegen den Olivstich der
-Bokeh-Fotos gerechnet, kostet aber beim blauen Block genau das Merkmal, das
-ihn vom Pro unterscheidet. Die drei Sekundär-Kacheln bleiben bei
-`.photo-neutral`. Stehen zwei Produkte nebeneinander und unterscheiden
-sich Winkel oder Licht, vergleicht der Betrachter die Fotografie statt das
-Wachs. Der grüne Hintergrund löst nebenbei das alte Pro-Problem: schwarzes
-Wachs auf dunklem Schiefer war im Noir-Theme praktisch unsichtbar und musste
-mit `.wax-card-pro-glow` übermalt werden.
+Stehen zwei Produkte nebeneinander und unterscheiden sich Winkel oder Licht,
+vergleicht der Betrachter die Fotografie statt das Wachs. Der grüne
+Hintergrund löst nebenbei das alte Pro-Problem: schwarzes Wachs auf dunklem
+Schiefer war im Noir-Theme praktisch unsichtbar und musste mit
+`.wax-card-pro-glow` übermalt werden.
+
+**Runde 3 (09/2026): Set/Ketten/Rewax haben jetzt eigene Fotos, Lucas eigene
+Auswahl statt Archivmaterial.** Workflow: drei leere Ordner unter
+`image-drop/` (gitignored), Luca legt je ein Foto rein, `sharp` schneidet
+via drei neue Jobs in `build-shelf-images.mjs` auf 16:10 zu (`shelf-set`,
+`shelf-ketten`, `shelf-rewax`). Ergebnis: Set zeigt Wachsblock + Kettenzange
++ Kette + Schaltauge (dieselbe Utensilien-Aufnahme, die auch den Karteninhalt
+beschreibt — Foto und Textzeile sagen dasselbe, statt dass das Foto nur
+Stimmung liefert), Ketten einen Kette-Makro-Ausschnitt mit Quick-Link,
+Rewax den Waxcelerate-Versandkarton samt gewachster Kette vor Stuttgarter
+Landschaft. Alle drei farbig und im selben Blau-Grün-Gold-Spektrum wie die
+Wachsfotos — "farbenfroh, aber stimmig" war Lucas Vorgabe für diese Runde.
+
+Damit tragen jetzt **alle fünf Regal-Fotos dieselbe Filterregel**,
+`.photo-shelf` (Sättigung 1,12, vorher `.photo-wax` nur für die zwei
+Wachsfotos) — `.photo-neutral` (0,68 Entsättigung) ist damit fürs Regal
+ausgemustert (siehe Kommentar in `index.css`): die alte Regel war gegen den
+Olivstich der VIER alten Bokeh-Fotos gerechnet, die jetzt ersetzt sind,
+und eine gemeinsame Filterregel für die ganze Sektion trägt "stimmig"
+direkter als zwei verschiedene.
+
+Bewusste Entscheidung gegen eingebetteten Text in den Fotos: Titel, Preis und
+Lieferzeit bleiben im Textblock unter dem Foto, nicht als Overlay auf dem
+Bild selbst. Grund derselbe wie beim WaxPanel-Umbau in Runde 2 (Text auf
+Foto braucht einen Scrim, der genau die Farbe kostet, die die neuen Fotos
+tragen sollen) — zusätzlich macht ein reiner Fotoausschnitt ohne Text die
+Bilder unabhängig von Sprache (DE/EN) und von künftigen Copy-Änderungen,
+ohne dass ein Zuschnitt neu gerechnet werden muss.
 
 `public/images/doors/` ist bis auf `starter-set*.webp` (noch von
 `StarterSetPage.tsx` genutzt) seit dem Regal-Umbau ungenutzt.

@@ -44,21 +44,39 @@ const JOBS = [
     zoom: 0.66,
     widths: [1000, 800],
   },
+  // Runde 2 (09/2026): Set/Ketten/Rewax nicht mehr aus raw-image-library,
+  // sondern aus Lucas eigener Auswahl in image-drop/ (siehe dortige
+  // LIESMICH.txt) — der Ordner liegt neben raw-image-library, `../` reicht.
+  // Alle drei jetzt im Kartenformat 16:10 zugeschnitten (vorher 3:2 bzw.
+  // 16:9), damit object-cover in SecondaryTile den Ausschnitt nicht ein
+  // zweites Mal beschneidet — dieselbe Lehre wie bei den Wachsfotos in
+  // Runde 1.
   {
-    src: 'products/chains/11 Chain.jpeg',
-    out: 'chains-flat',
-    ratio: 3 / 2,
-    focusX: 0.5,
+    src: '../image-drop/starter-set/DSC04465.JPG',
+    out: 'shelf-set',
+    ratio: 16 / 10,
+    focusX: 0.52,
     focusY: 0.5,
-    widths: [1400, 800],
+    zoom: 0.85,
+    widths: [1000, 800],
   },
   {
-    src: 'products/pro/DSC03845.JPG',
-    out: 'starter-box',
-    ratio: 16 / 9,
+    src: '../image-drop/ketten/0D504821-7271-43E5-B211-88B94AB38019_1_201_a.jpeg',
+    out: 'shelf-ketten',
+    ratio: 16 / 10,
     focusX: 0.5,
     focusY: 0.52,
-    widths: [1200, 800],
+    zoom: 0.92,
+    widths: [1000, 800],
+  },
+  {
+    src: '../image-drop/rewax/F7DE469F-8134-421C-8375-A80001552464_1_201_a.jpeg',
+    out: 'shelf-rewax',
+    ratio: 16 / 10,
+    focusX: 0.56,
+    focusY: 0.56,
+    zoom: 0.92,
+    widths: [1000, 800],
   },
 ];
 
