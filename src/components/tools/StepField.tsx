@@ -10,11 +10,14 @@
 //
 // Zweitens die Verstaendlichkeit: „Gangzahl" oder „groesstes Ritzel" sind fuer
 // jemanden ohne Schrauber-Vokabular keine selbsterklaerenden Begriffe. Der
-// Fragezeichen-Knopf klappt eine Zeile auf, die sagt, wo man das am Rad
-// abliest — ohne die Karte im Normalfall zu verlaengern.
+// Fragezeichen-Knopf oeffnet ein Popover, das sagt, wo man das am Rad
+// abliest — ohne die Karte im Normalfall zu verlaengern. Frueher klappte das
+// inline auf und schob den Rest der Karte nach unten; mit einer festen
+// Kartenhoehe (ToolTrack.tsx) darf kein Klick mehr das Layout veraendern,
+// daher das Popover statt Inline-Aufklappen (siehe InfoPopover in primitives.tsx).
 
-import { useState } from 'react';
 import { HelpCircle } from 'lucide-react';
+import { InfoPopover } from '@/components/tools/primitives';
 
 export function StepField({ step, label, value, help, figure, children }: {
   /** Schrittnummer ab 1. Weglassen (oder 0) bei Feldern ausserhalb einer
@@ -30,7 +33,6 @@ export function StepField({ step, label, value, help, figure, children }: {
   figure?: React.ReactNode;
   children: React.ReactNode;
 }) {
-  const [open, setOpen] = useState(false);
   return (
     <div>
       <div className="flex items-baseline justify-between gap-3 mb-2">
@@ -49,17 +51,16 @@ export function StepField({ step, label, value, help, figure, children }: {
           >
             {label}
           </span>
-          {help && (
-            <button
-              type="button"
-              onClick={() => setOpen(v => !v)}
-              aria-expanded={open}
-              aria-label={`${label}: Erklärung`}
-              title={`${label}: Erklärung`}
-              className="relative flex-shrink-0 transition-opacity hover:opacity-70 cursor-pointer after:content-[''] after:absolute after:top-1/2 after:left-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:w-11 after:h-11"
+          {(help || figure) && (
+            <InfoPopover
+              ariaLabel={`${label}: Erklärung`}
+              trigger={open => <HelpCircle className="h-3.5 w-3.5" style={{ color: open ? 'var(--brand)' : 'var(--txff)' }} />}
             >
-              <HelpCircle className="h-3.5 w-3.5" style={{ color: open ? 'var(--brand)' : 'var(--txff)' }} />
-            </button>
+              {help && (
+                <p className="text-[12px] leading-snug" style={{ color: 'var(--txm)' }}>{help}</p>
+              )}
+              {figure && <div className={help ? 'mt-1' : ''}>{figure}</div>}
+            </InfoPopover>
           )}
         </span>
         {value && (
@@ -68,17 +69,6 @@ export function StepField({ step, label, value, help, figure, children }: {
           </span>
         )}
       </div>
-      {open && (help || figure) && (
-        <div
-          className="mb-2.5 rounded-xl px-3 py-2.5"
-          style={{ background: 'var(--inset-bg)', border: '1px solid var(--inset-bd)' }}
-        >
-          {help && (
-            <p className="text-[12px] leading-snug" style={{ color: 'var(--txm)' }}>{help}</p>
-          )}
-          {figure && <div className={help ? 'mt-2.5' : ''}>{figure}</div>}
-        </div>
-      )}
       <div className="flex flex-col gap-2">{children}</div>
     </div>
   );

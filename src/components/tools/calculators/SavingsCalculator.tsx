@@ -21,7 +21,7 @@ import { dueDate, shareUrl } from '@/lib/toolState';
 import { MAX_REWAX_WEEKS } from '@/hooks/useToolProfile';
 import { AnimatedNumber } from '@/components/viz';
 import {
-  ToolCard, ToolHeader, StepList, ToolFooter, ToolCTA, TogButton, ChipRow, StepNote,
+  ToolCard, ToolHeader, StepList, ToolFooter, ToolCTA, TogButton, ChipRow, StepNote, InfoPopover,
 } from '@/components/tools/primitives';
 import { StepField } from '@/components/tools/StepField';
 import { ResultPanel } from '@/components/tools/ResultPanel';
@@ -90,11 +90,6 @@ export function SavingsCalculator({ profile }: { profile: ToolProfileState }) {
               </TogButton>
             ))}
           </ChipRow>
-          <StepNote>
-            {de
-              ? `Bei ${kmPerYear.toLocaleString('de-DE')} km im Jahr empfehlen wir ${recommended} ${recommended === 1 ? 'Kette' : 'Ketten'}.`
-              : `At ${kmPerYear.toLocaleString('en-US')} km a year we suggest ${recommended} ${recommended === 1 ? 'chain' : 'chains'}.`}
-          </StepNote>
         </StepField>
 
         <StepField
@@ -115,10 +110,32 @@ export function SavingsCalculator({ profile }: { profile: ToolProfileState }) {
               <span className="text-[13px] font-medium tabular-nums" style={{ color: 'var(--tx2)' }}>{eur(costs.oilPerYear)}</span>
             </div>
           </div>
+        </StepField>
+
+        {/* Empfehlungs-Begruendung, Kostenerklaerung und der (nur bei mehr als
+            einer Kette anfallende) Aufpreis-Hinweis an einer Stelle statt drei
+            — als Popover, damit die Karte nicht je nach gewaehlter Kettenzahl
+            unterschiedlich hoch wird. */}
+        <InfoPopover
+          ariaLabel={de ? 'Details zur Rotation' : 'Details on rotation'}
+          trigger={() => (
+            <span className="text-[12px] font-medium" style={{ color: 'var(--brand)' }}>
+              {de ? 'Details zur Rotation' : 'Details on rotation'}
+            </span>
+          )}
+        >
+          <StepNote>
+            {de
+              ? `Bei ${kmPerYear.toLocaleString('de-DE')} km im Jahr empfehlen wir ${recommended} ${recommended === 1 ? 'Kette' : 'Ketten'}.`
+              : `At ${kmPerYear.toLocaleString('en-US')} km a year we suggest ${recommended} ${recommended === 1 ? 'chain' : 'chains'}.`}
+          </StepNote>
           <StepNote>
             {de
               ? 'Kette, Kassette und Schmierstoff zusammen, auf ein Jahr gerechnet.'
               : 'Chain, cassette and lubricant together, over one year.'}
+          </StepNote>
+          <StepNote>
+            {de ? `Nächstes Waxen: ${nextLabel}.` : `Next wax: ${nextLabel}.`}
           </StepNote>
           {extraChains > 0 && (
             <StepNote>
@@ -128,7 +145,7 @@ export function SavingsCalculator({ profile }: { profile: ToolProfileState }) {
                 .replace('{pct}', String(KIT_DISCOUNT[chains]))}
             </StepNote>
           )}
-        </StepField>
+        </InfoPopover>
       </StepList>
 
       <ResultPanel
@@ -140,8 +157,6 @@ export function SavingsCalculator({ profile }: { profile: ToolProfileState }) {
         tone="good"
         facts={[
           { label: de ? 'Waxen' : 'Waxing', value: `${costs.waxSessionsPerYear}× ${de ? 'im Jahr' : 'a year'}` },
-          ...(extraChains > 0 ? [{ label: t.tools.rotation.upfront, value: eur(upfront) }] : []),
-          { label: de ? 'Nächstes Mal' : 'Next time', value: nextLabel },
         ]}
         actions={<ResultActions shareUrl={shareUrl('/rechner/ersparnis', profile.snapshot)} />}
       />

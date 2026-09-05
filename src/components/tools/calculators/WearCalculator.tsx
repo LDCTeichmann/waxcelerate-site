@@ -16,7 +16,7 @@ import {
 } from '@/lib/waxMath';
 import { shareUrl } from '@/lib/toolState';
 import {
-  ToolCard, ToolHeader, StepList, ToolFooter, ToolCTA, TogButton, ChipRow, NumberInput, StepNote,
+  ToolCard, ToolHeader, StepList, ToolFooter, ToolCTA, TogButton, ChipRow, NumberInput, StepNote, InfoPopover,
 } from '@/components/tools/primitives';
 import { StepField } from '@/components/tools/StepField';
 import { ChainMeasureDiagram, SprocketCountDiagram } from '@/components/tools/diagrams';
@@ -135,11 +135,27 @@ export function WearCalculator({ profile }: { profile: ToolProfileState }) {
                 </TogButton>
               ))}
             </ChipRow>
+          </StepField>
+        )}
+
+        {/* Lehre-Hinweis + Kostenfolge an einer Stelle statt bedingt inline —
+            sonst aendert allein das Umschalten zwischen Lineal und Lehre, oder
+            ob schon gehandelt werden muss, die Kartenhoehe. */}
+        <InfoPopover
+          ariaLabel={de ? 'Details zum Verschleiß' : 'Details on wear'}
+          trigger={() => (
+            <span className="text-[12px] font-medium" style={{ color: 'var(--brand)' }}>
+              {de ? 'Details zum Verschleiß' : 'Details on wear'}
+            </span>
+          )}
+        >
+          {method === 'gauge' && (
             <StepNote>
               {gauge === 'none' ? t.tools.wear.gaugeNoneNote : t.tools.wear.gaugeWarning}
             </StepNote>
-          </StepField>
-        )}
+          )}
+          {needsAction && <StepNote>{t.tools.wear.costNow}: {dueText}.</StepNote>}
+        </InfoPopover>
       </StepList>
 
       <ResultPanel
@@ -149,7 +165,6 @@ export function WearCalculator({ profile }: { profile: ToolProfileState }) {
         tone={needsAction ? 'good' : 'neutral'}
         facts={[
           { label: t.tools.wear.limit, value: `${de ? MARK_LABEL[wearLimit(speed)].de : MARK_LABEL[wearLimit(speed)].en} % · ${speed}${de ? '-fach' : 'sp'}` },
-          ...(needsAction ? [{ label: t.tools.wear.costNow, value: dueText }] : []),
         ]}
         actions={<ResultActions shareUrl={shareUrl('/rechner/verschleiss', profile.snapshot)} />}
       />

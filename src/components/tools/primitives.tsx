@@ -13,7 +13,8 @@
 // ihre eigenen Schriftgroessen — daher die ungleichmaessigen Abstaende und der
 // Eindruck, mal sei es zu eng, mal stehe zu viel leer.
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Slider } from '@/components/ui/slider';
 
 // Ein Wert, den mehrere Karten brauchen: der horizontale Innenabstand. An
@@ -51,14 +52,16 @@ export function ChipRow({ children }: { children: React.ReactNode }) {
 // Kein backdrop-filter: var(--card-bg) ist ein vollstaendig deckender Verlauf
 // (index.css). Hinter einer deckenden Karte zu blurren ist unsichtbar und reine
 // Compositing-Arbeit.
-// Bewusst OHNE h-full: im Deck hatten alle Karten die feste Deckhoehe und
-// streckten ihren Inhalt darauf — eine Karte mit drei Zahlenfeldern bekam so
-// dieselbe Hoehe wie die vollste und stand entsprechend leer. Jetzt ist jede
-// Karte so hoch wie ihr Inhalt, und der Deck-Slot zentriert sie vertikal.
+// Mit h-full + flex-col: im Deck (ToolTrack.tsx) hat jeder Kartenslot jetzt
+// eine feste Hoehe, unabhaengig davon, welcher der sechs Rechner gerade drin
+// steckt — die Karte selbst darf sich also nicht mehr an ihrem Inhalt
+// ausrichten, sondern muss diese feste Hoehe exakt ausfuellen. ToolFooter
+// bekommt dafuer `mt-auto`: Kopf und CTA kleben oben/unten, der Rest verteilt
+// sich dazwischen, egal wie viel oder wenig Platz Eingaben+Ergebnis brauchen.
 export function ToolCard({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="flex flex-col rounded-3xl overflow-hidden"
+      className="h-full flex flex-col rounded-3xl overflow-hidden"
       style={{ background: 'var(--card-bg)', border: '1px solid var(--bd)', boxShadow: 'var(--card-shad)' }}
     >
       {children}
@@ -81,14 +84,18 @@ export function ToolHeader({ icon, title, subtitle }: { icon: React.ReactNode; t
         </span>
         <span className="min-w-0">
           <h3 className="text-[15px] font-semibold leading-snug" style={{ color: 'var(--tx1)' }}>{title}</h3>
-          <p className="text-[12px] leading-snug mt-0.5" style={{ color: 'var(--txf)' }}>{subtitle}</p>
+          {/* line-clamp-1: die Kopfzeile darf nie in der Hoehe variieren, egal
+              wie lang der Untertitel eines einzelnen Rechners ausfaellt —
+              das ist Teil davon, dass alle sechs Karten sich exakt gleich
+              gross anfuehlen. */}
+          <p className="text-[12px] leading-snug mt-0.5 line-clamp-1" style={{ color: 'var(--txf)' }}>{subtitle}</p>
         </span>
       </div>
     </div>
   );
 }
 
-/** Der Eingabebereich. Waechst mit seinem Inhalt, streckt sich nicht. */
+/** Der Eingabebereich. */
 export function StepList({ children }: { children: React.ReactNode }) {
   return (
     <div className={`${PAD} pt-4 pb-4 flex flex-col gap-4`}>
@@ -98,7 +105,7 @@ export function StepList({ children }: { children: React.ReactNode }) {
 }
 
 export function ToolFooter({ children }: { children: React.ReactNode }) {
-  return <div className={`${PAD} pb-4 sm:pb-5`}>{children}</div>;
+  return <div className={`${PAD} pb-4 sm:pb-5 mt-auto`}>{children}</div>;
 }
 
 export function ToolSlider({ value, onValueChange, min, max, step, ariaLabel }: {
@@ -175,28 +182,85 @@ export function StepNote({ children }: { children: React.ReactNode }) {
 }
 
 /**
- * Zusatzhinweise, die nicht zu einem einzelnen Schritt gehoeren und niemanden
- * beim ersten Blick auf die Karte interessieren — anders als eine
- * Validierungswarnung, die sichtbar bleiben muss. Eingeklappt gestartet,
- * gleiches Text-Button-Muster wie das "Weiterlesen" im Erklaertext auf den
- * eigenen Rechnerseiten (RechnerPage.tsx).
+ * Zusatzinfos, ohne die Karte wachsen zu lassen.
+ *
+ * Der Vorgaenger (`NoteDisclosure`, inzwischen entfernt) klappte Text inline
+ * auf und schob den Rest der Karte nach unten — mit einer festen Kartenhoehe
+ * (ToolTrack.tsx) darf kein Klick in der Karte mehr deren Layout veraendern.
+ * Der Inhalt steht deshalb in einem Portal direkt unter <body>: das entkommt
+ * jedem `overflow-hidden` auf Karten- oder Deck-Ebene und positioniert sich
+ * per `getBoundingClientRect` relativ zum Ausloeser, nicht relativ zur Karte.
  */
-export function NoteDisclosure({ label, hideLabel, children }: {
-  label: string; hideLabel: string; children: React.ReactNode;
+export function InfoPopover({ trigger, ariaLabel, align = 'left', children }: {
+  /** Sichtbarer Inhalt des Ausloese-Buttons; bekommt den offen/zu-Zustand fuer z. B. Akzentfarbe. */
+  trigger: (open: boolean) => React.ReactNode;
+  ariaLabel: string;
+  /** Popover-Kante, an der es am Trigger ausgerichtet wird — 'right' fuer Ausloeser nahe am rechten Kartenrand. */
+  align?: 'left' | 'right';
+  children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const popRef = useRef<HTMLDivElement>(null);
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
+  const width = 256;
+
+  useEffect(() => {
+    if (!open) return;
+    const update = () => {
+      const r = btnRef.current?.getBoundingClientRect();
+      if (!r) return;
+      let left = align === 'right' ? r.right - width : r.left;
+      left = Math.max(8, Math.min(left, window.innerWidth - width - 8));
+      setPos({ top: r.bottom + 8, left });
+    };
+    update();
+    window.addEventListener('scroll', update, true);
+    window.addEventListener('resize', update);
+    const onDocPointer = (e: PointerEvent) => {
+      const target = e.target as Node;
+      if (btnRef.current?.contains(target) || popRef.current?.contains(target)) return;
+      setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
+    document.addEventListener('pointerdown', onDocPointer);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      window.removeEventListener('scroll', update, true);
+      window.removeEventListener('resize', update);
+      document.removeEventListener('pointerdown', onDocPointer);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open, align]);
+
   return (
-    <div>
+    <>
       <button
+        ref={btnRef}
         type="button"
         onClick={() => setOpen(v => !v)}
         aria-expanded={open}
-        className="relative self-start text-[12px] font-medium transition-opacity hover:opacity-70 cursor-pointer after:content-[''] after:absolute after:inset-x-0 after:top-1/2 after:-translate-y-1/2 after:h-11"
-        style={{ color: 'var(--brand)' }}
+        aria-label={ariaLabel}
+        title={ariaLabel}
+        className="relative flex-shrink-0 transition-opacity hover:opacity-70 cursor-pointer after:content-[''] after:absolute after:top-1/2 after:left-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:min-w-11 after:h-11"
       >
-        {open ? hideLabel : label}
+        {trigger(open)}
       </button>
-      {open && <div className="mt-1.5 flex flex-col gap-1.5">{children}</div>}
-    </div>
+      {open && pos && createPortal(
+        <div
+          ref={popRef}
+          role="tooltip"
+          className="fixed flex flex-col gap-2.5 rounded-xl px-3.5 py-3 text-[12px] leading-snug"
+          style={{
+            top: pos.top, left: pos.left, width, zIndex: 999,
+            background: 'var(--card-bg)', border: '1px solid var(--bd)', boxShadow: 'var(--card-shad)',
+            color: 'var(--txm)',
+          }}
+        >
+          {children}
+        </div>,
+        document.body,
+      )}
+    </>
   );
 }

@@ -12,6 +12,7 @@ import { useState } from 'react';
 import { CalendarPlus, Download, Link2, Check } from 'lucide-react';
 import { googleCalendarUrl, downloadIcs, type ReminderEvent } from '@/lib/calendarLinks';
 import { useLanguage } from '@/hooks/useLanguage';
+import { InfoPopover } from '@/components/tools/primitives';
 
 function ActionButton({ onClick, href, icon, children }: {
   onClick?: () => void; href?: string; icon: React.ReactNode; children: React.ReactNode;
@@ -42,17 +43,47 @@ export function ResultActions({ event, shareUrl: url }: { event?: ReminderEvent;
     }
   };
 
+  // Nur Intervall hat ein echtes Kalender-Ereignis. Zwei eigene Buttons dafuer
+  // liessen genau diese eine Karte (sonst die kuerzeste) auf schmalen
+  // Breiten in eine zweite Zeile umbrechen — mit fester Kartenhoehe darf kein
+  // Rechner mehr eine andere Aktionszeilen-Hoehe haben als die anderen fuenf.
+  // Beide Optionen stecken deshalb hinter einem einzelnen, gleich grossen
+  // Popover-Button.
   return (
     <div className="flex flex-wrap gap-2">
       {event && (
-        <ActionButton href={googleCalendarUrl(event)} icon={<CalendarPlus className="h-3.5 w-3.5 flex-shrink-0" />}>
-          {t.tools.shared.addGoogle}
-        </ActionButton>
-      )}
-      {event && (
-        <ActionButton onClick={() => downloadIcs(event)} icon={<Download className="h-3.5 w-3.5 flex-shrink-0" />}>
-          {t.tools.shared.addIcs}
-        </ActionButton>
+        <InfoPopover
+          ariaLabel={t.tools.shared.remind}
+          trigger={() => (
+            <span
+              className="flex items-center justify-center gap-1.5 rounded-xl py-2 px-3 text-[12px] font-medium flex-1 min-w-[7.5rem]"
+              style={{ background: 'var(--inset-bg)', border: '1px solid var(--inset-bd)', color: 'var(--tx2)' }}
+            >
+              <CalendarPlus className="h-3.5 w-3.5 flex-shrink-0" />
+              <span className="whitespace-nowrap">{t.tools.shared.remind}</span>
+            </span>
+          )}
+        >
+          <div className="flex flex-col gap-1.5">
+            <a
+              href={googleCalendarUrl(event)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-[12px] font-medium transition-opacity hover:opacity-70"
+              style={{ color: 'var(--tx2)' }}
+            >
+              <CalendarPlus className="h-3.5 w-3.5 flex-shrink-0" />{t.tools.shared.addGoogle}
+            </a>
+            <button
+              type="button"
+              onClick={() => downloadIcs(event)}
+              className="flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-[12px] font-medium transition-opacity hover:opacity-70 cursor-pointer"
+              style={{ color: 'var(--tx2)' }}
+            >
+              <Download className="h-3.5 w-3.5 flex-shrink-0" />{t.tools.shared.addIcs}
+            </button>
+          </div>
+        </InfoPopover>
       )}
       {url && (
         <ActionButton

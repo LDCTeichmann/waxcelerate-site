@@ -24,7 +24,7 @@ import { accessories } from '@/lib/data';
 import { shareUrl } from '@/lib/toolState';
 import { AnimatedNumber } from '@/components/viz';
 import {
-  ToolCard, ToolHeader, StepList, ToolFooter, ToolCTA, StepNote, NoteDisclosure,
+  ToolCard, ToolHeader, StepList, ToolFooter, ToolCTA, StepNote, InfoPopover,
 } from '@/components/tools/primitives';
 import { StepField } from '@/components/tools/StepField';
 import { ResultPanel } from '@/components/tools/ResultPanel';
@@ -93,20 +93,6 @@ export function SwitchCalculator({ profile }: { profile: ToolProfileState }) {
               </li>
             ))}
           </ul>
-          {/* Die haeufigste Stolperfalle beim Umstieg, und die einzige, die
-              nicht in Euro steht: Fabrikfett und Altoel blockieren das Wachs
-              vollstaendig. Wer das erst am Wachsabend merkt, hoert wieder auf. */}
-          <NoteDisclosure
-            label={de ? 'Wichtiger Hinweis vor dem Umstieg' : 'Important note before switching'}
-            hideLabel={de ? 'Hinweis ausblenden' : 'Hide note'}
-          >
-            <StepNote>
-              {t.tools.switch.degreaseNote}{' '}
-              <a href="/rechner/passende-kette" className="font-medium" style={{ color: 'var(--brand)' }}>
-                {t.tools.switch.degreaseAlt}
-              </a>
-            </StepNote>
-          </NoteDisclosure>
         </StepField>
 
         <StepField
@@ -131,19 +117,35 @@ export function SwitchCalculator({ profile }: { profile: ToolProfileState }) {
               <span className="text-[13px] font-medium tabular-nums" style={{ color: 'var(--tx2)' }}>{eur(e.oilPerYear)}</span>
             </div>
           </div>
+        </StepField>
+
+        {/* Alle Zusatzhinweise an einer Stelle statt an drei — die haeufigste
+            Stolperfalle beim Umstieg (Fabrikfett/Altoel blockiert das Wachs),
+            die Kette-und-Kassette-Erklaerung, und zwei seltene Grenzfaelle
+            (Vorrat aelter als Haltbarkeit, Intervall unter einer Woche).
+            Als Popover statt bedingt inline, weil sonst genau in diesen
+            seltenen Faellen die Karte hoeher wuerde als die anderen fuenf. */}
+        <InfoPopover
+          ariaLabel={de ? 'Wichtige Hinweise zum Umstieg' : 'Important notes on switching'}
+          trigger={() => (
+            <span className="text-[12px] font-medium" style={{ color: 'var(--brand)' }}>
+              {de ? 'Wichtige Hinweise' : 'Important notes'}
+            </span>
+          )}
+        >
+          <StepNote>
+            {t.tools.switch.degreaseNote}{' '}
+            <a href="/rechner/passende-kette" className="font-medium" style={{ color: 'var(--brand)' }}>
+              {t.tools.switch.degreaseAlt}
+            </a>
+          </StepNote>
           <StepNote>
             {de
               ? 'Schmierstoff allein ist beim Wachsen teurer. Der Vorteil steckt in Kette und Kassette — die halten deutlich länger.'
               : 'Lubricant alone costs more with wax. The advantage is in the chain and cassette, which last far longer.'}
           </StepNote>
-          {/* Zwei Grenzfaelle, die eine reine Hochrechnung sonst verschweigt:
-              ein Vorrat, der aelter wird als er haelt, und ein Intervall, das
-              oefter als woechentlich waxen bedeuten wuerde. Beides waere eine
-              Empfehlung, der in der Praxis niemand folgt. */}
           {e.outlastsShelfLife && smallWax && (
-            <StepNote>
-              {t.tools.switch.shelfLifeHint}
-            </StepNote>
+            <StepNote>{t.tools.switch.shelfLifeHint}</StepNote>
           )}
           {e.needsHybridHint && (
             <StepNote>
@@ -153,7 +155,7 @@ export function SwitchCalculator({ profile }: { profile: ToolProfileState }) {
               </a>
             </StepNote>
           )}
-        </StepField>
+        </InfoPopover>
       </StepList>
 
       <ResultPanel

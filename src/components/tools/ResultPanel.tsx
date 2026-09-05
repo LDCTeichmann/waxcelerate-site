@@ -12,31 +12,33 @@
 // sichtbar „was ich eingebe" von „was dabei herauskommt".
 //
 // Weniger Zahlen gleichzeitig: genau eine grosse Zahl, ein Satz Klartext dazu,
-// darunter hoechstens zwei Zusatzangaben. Alles Weitere gehoert nicht ins
-// Ergebnis, sondern in die Erklaerung unter der Karte.
+// hoechstens eine Zusatzangabe. Alles Weitere gehoert nicht ins Ergebnis,
+// sondern in ein Popover oder auf die Rechner-Einzelseite. Frueher waren bis
+// zu zwei Fakten erlaubt und `children` stand offen fuer beliebig lange
+// Listen (siehe ChainMatchCalculator) — beides liess die Karte je nach
+// Datenlage unterschiedlich hoch werden, was der festen Kartenhoehe im Deck
+// (ToolTrack.tsx) widerspricht.
 
 export type ResultTone = 'neutral' | 'good' | 'warn';
 
 export function ResultPanel({
-  value, unit, verdict, facts, tone = 'neutral', actions, children,
+  value, unit, verdict, facts, tone = 'neutral', actions,
 }: {
   /** Die eine grosse Zahl. Node, damit AnimatedNumber hineinpasst. */
   value: React.ReactNode;
   unit?: string;
   /** Ein Satz Klartext: was die Zahl bedeutet und was zu tun ist. */
   verdict?: React.ReactNode;
-  /** Hoechstens zwei Kurzangaben, je Label und Wert. */
+  /** Nur der erste Eintrag wird angezeigt — die wichtigste Zusatzangabe zuerst. */
   facts?: { label: string; value: string }[];
   tone?: ResultTone;
   actions?: React.ReactNode;
-  /** Wenn die Antwort keine Zahl ist, sondern eine Liste — etwa die Ketten,
-   *  die passen. Steht zwischen Urteil und Kennzahlen. */
-  children?: React.ReactNode;
 }) {
+  const fact = facts?.[0];
   const accent = tone === 'neutral' ? 'var(--tx1)' : 'var(--brand)';
   return (
     <div
-      className="mx-4 mb-4 sm:mx-5 sm:mb-5 rounded-2xl px-4 py-5 sm:px-5 sm:py-6"
+      className="mx-4 mb-4 sm:mx-5 sm:mb-5 rounded-2xl px-4 py-4 sm:px-5 sm:py-5"
       style={{
         background: tone === 'neutral' ? 'var(--inset-bg)' : 'rgba(var(--accent-rgb),0.07)',
         border: tone === 'neutral' ? '1px solid var(--inset-bd)' : '1px solid rgba(var(--accent-rgb),0.28)',
@@ -59,16 +61,10 @@ export function ResultPanel({
         </p>
       )}
 
-      {children && <div className="mt-3">{children}</div>}
-
-      {facts && facts.length > 0 && (
-        <dl className="flex flex-wrap gap-x-5 gap-y-1 mt-3 pt-3" style={{ borderTop: '1px solid var(--inset-bd)' }}>
-          {facts.map(f => (
-            <div key={f.label} className="flex items-baseline gap-1.5">
-              <dt className="text-meta" style={{ color: 'var(--txff)' }}>{f.label}</dt>
-              <dd className="text-[12px] font-medium tabular-nums" style={{ color: 'var(--tx2)' }}>{f.value}</dd>
-            </div>
-          ))}
+      {fact && (
+        <dl className="flex items-baseline gap-1.5 mt-3 pt-3" style={{ borderTop: '1px solid var(--inset-bd)' }}>
+          <dt className="text-meta" style={{ color: 'var(--txff)' }}>{fact.label}</dt>
+          <dd className="text-[12px] font-medium tabular-nums" style={{ color: 'var(--tx2)' }}>{fact.value}</dd>
         </dl>
       )}
 

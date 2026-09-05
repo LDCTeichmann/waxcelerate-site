@@ -52,69 +52,37 @@ function slotTransform(rel: number, count: number): React.CSSProperties {
   return { transform: 'translate(-50%) scale(0.86)', zIndex: 10, opacity: 0, pointerEvents: 'none' };
 }
 
-/**
- * Startwert, bis gemessen ist. Die tatsaechliche Hoehe folgt danach der jeweils
- * aktiven Karte (siehe useMeasuredHeight) — die sechs Rechner liegen inzwischen
- * in einem engen Band, eine feste Hoehe fuer alle wuerde aber je nach Rechner
- * trotzdem entweder etwas abschneiden oder unnoetig Leere stehen lassen.
- */
-const DECK_FALLBACK_HEIGHT = 640;
-
-/**
- * Misst die aktive Karte und gibt die Hoehe zurueck, die ihr Container
- * braucht — fuer das Desktop-Deck (Kinder unter `.deck-slot > div`) genauso
- * wie fuer den mobilen Swipe-Track (Kinder direkt im Container): eine
- * Flex-Row ohne eigene Hoehenangabe zieht sich sonst immer auf die hoechste
- * aller Karten hoch, egal welche gerade sichtbar ist — hier bekommt jede
- * Ansicht die Hoehe der jeweils aktiven Karte.
- */
-function useMeasuredHeight(active: number, childSelector: string) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [height, setHeight] = useState(DECK_FALLBACK_HEIGHT);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-    const cards = container.querySelectorAll<HTMLElement>(childSelector);
-    const card = cards[active];
-    if (!card) return;
-    const measure = () => {
-      // scrollHeight statt getBoundingClientRect: die Slots sind skaliert, und
-      // die Randkarten stehen auf scale(0.9) — gemessen werden soll die
-      // ungeskalierte Inhaltshoehe der aktiven Karte.
-      const h = card.scrollHeight;
-      if (h > 0) setHeight(h);
-    };
-    measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(card);
-    return () => ro.disconnect();
-  }, [active, childSelector]);
-
-  return { containerRef, height };
-}
+// Feste Hoehe statt gemessener: jede Karte bekommt (per ToolCard: h-full +
+// flex-col + ToolFooter mt-auto) exakt diese Box, egal welcher der sechs
+// Rechner gerade drinsteckt — Kopf und CTA kleben oben/unten, der Rest
+// verteilt sich dazwischen. Genau das macht auch die Deckel der Nachbar-
+// karten identisch gross: die Box, in der ein Deckel steckt, war vorher so
+// hoch wie der jeweils dahinter verdeckte, unterschiedlich lange Rechner —
+// jetzt ist sie fuer alle sechs exakt dieselbe. Der Wert selbst kommt aus der
+// tatsaechlichen Hoehe des kompaktesten/vollsten entschlackten Inhalts
+// (siehe Karten-Umbau in den calculators/*.tsx) plus etwas Luft.
+const DECK_HEIGHT = 680;
+const TRACK_HEIGHT = 690;
 
 function DeckSlot({ item, rel, count, active, onActivate, de }: {
   item: TrackItem; rel: number; count: number; active: boolean; onActivate: () => void; de: boolean;
 }) {
   const { Icon } = item;
-  // items-center: die Karten sind unterschiedlich hoch, seit sie ihre
-  // natuerliche Hoehe behalten. Vertikal zentriert stehen sie damit auf einer
-  // gemeinsamen Mittelachse, statt oben zu kleben und unten Luft zu lassen.
   return (
-    <div className="deck-slot absolute inset-y-0 left-1/2 w-[42%] flex items-center" style={slotTransform(rel, count)}>
-      <div className="relative w-full">
+    <div className="deck-slot absolute inset-y-0 left-1/2 w-[42%]" style={slotTransform(rel, count)}>
+      <div className="relative w-full h-full">
         {/* `inert` nimmt die ganze inaktive Karte in einem Zug aus
             Tab-Reihenfolge und Accessibility-Baum — eine Karte im Hintergrund
             darf weder per Tab erreichbar sein noch vorgelesen werden, als
             stuende sie vorne. */}
-        <div inert={!active}>{item.node}</div>
+        <div className="h-full" inert={!active}>{item.node}</div>
 
       {/* Deckel fuer alle Karten ausser der vorderen. Sechs offene Rechner
           nebeneinander sind Laerm; der Deckel reduziert jede Karte auf die
           Frage, die sie beantwortet, und blendet sich beim Nachvornedrehen aus —
           das liest sich als Aufklappen. Bleibt montiert, damit die Blende in
-          beide Richtungen etwas zu animieren hat. */}
+          beide Richtungen etwas zu animieren hat. Da die Box jetzt fuer alle
+          sechs Rechner exakt gleich hoch ist, ist es auch der Deckel. */}
       <button
         type="button"
         onClick={onActivate}
@@ -162,8 +130,6 @@ export function ToolTrack({ items, onActiveChange }: {
 
   const [active, setActive] = useState(0);
   const labels = useMemo(() => items.map(i => i.label), [items]);
-  const { containerRef: deckRef, height: deckHeight } = useMeasuredHeight(active, '.deck-slot > div');
-  const { containerRef: trackRef, height: trackHeight } = useMeasuredHeight(active, ':scope > div');
 
   const activeKey = items[active]?.key;
   useEffect(() => {
@@ -270,8 +236,8 @@ export function ToolTrack({ items, onActiveChange }: {
           ))}
         </div>
         <div
-          className="overflow-hidden transition-[height] duration-500 ease-out"
-          style={{ height: trackHeight }}
+          className="overflow-hidden"
+          style={{ height: TRACK_HEIGHT }}
           onTouchStart={e => {
             const target = e.target as HTMLElement;
             touchStart.current = {
@@ -292,12 +258,11 @@ export function ToolTrack({ items, onActiveChange }: {
           }}
         >
           <div
-            ref={trackRef}
-            className="flex items-start transition-transform duration-300 ease-out"
+            className="flex items-start h-full transition-transform duration-300 ease-out"
             style={{ transform: `translateX(-${active * 100}%)` }}
           >
             {items.map((item, i) => (
-              <div key={item.key} className="min-w-full" inert={active !== i}>{item.node}</div>
+              <div key={item.key} className="min-w-full h-full" inert={active !== i}>{item.node}</div>
             ))}
           </div>
         </div>
@@ -319,16 +284,12 @@ export function ToolTrack({ items, onActiveChange }: {
 
       {/* ── Ab lg: dasselbe als 3D-Deck ── */}
       <div className="hidden lg:block">
-        {/* Hoehe folgt der aktiven Karte, mit Uebergang — der Wechsel liest
-            sich dadurch als Bewegung und nicht als Sprung. overflow-hidden
-            faengt den Rest ab: die Nachbarkarten stehen zentriert in dieser
-            Hoehe, und bei sechs unterschiedlich hohen Rechnern ist eine
-            Nachbarkarte gelegentlich hoeher als die aktive — ohne Deckel
-            ragte sie sichtbar oben aus dem Stapel heraus. */}
+        {/* Feste Hoehe fuer alle sechs Rechner (DECK_HEIGHT) statt gemessener
+            — overflow-hidden bleibt als Sicherheitsnetz, falls eine Uebersetzung
+            oder ein Sonderfall den knappen Rahmen doch einmal sprengt. */}
         <div
-          ref={deckRef}
-          className="relative overflow-hidden transition-[height] duration-500 ease-out"
-          style={{ perspective: '1900px', height: deckHeight }}
+          className="relative overflow-hidden"
+          style={{ perspective: '1900px', height: DECK_HEIGHT }}
         >
           {items.map((item, i) => (
             <DeckSlot

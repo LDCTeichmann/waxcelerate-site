@@ -4,8 +4,13 @@
 // nirgends ausgespielt. Der kuerzeste Weg vom Problem zum Produkt — und der
 // einzige Rechner hier, dessen Antwort ausschliesslich aus gepflegten
 // Produktdaten kommt und nie aus einer Annahme.
+//
+// `compact`: im Kartenstapel auf der Startseite (ToolDeck) haben alle sechs
+// Rechner exakt dieselbe feste Hoehe (ToolTrack.tsx) — eine 0 bis 4 Eintraege
+// lange Trefferliste wuerde das sofort sprengen. Dort bleibt es bei Zahl,
+// Urteil und einem Link auf die eigene Einzelseite, wo (compact=false) die
+// volle Liste steht, weil dort kein Nachbarkarten-Vergleich existiert.
 
-import { useState } from 'react';
 import { Link2 } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import type { ToolProfileState } from '@/hooks/useToolProfile';
@@ -26,12 +31,8 @@ const SYSTEM_LABELS: Record<DriveSystem, string> = {
 
 // Vorgewachst gibt es nur 11- und 12-fach.
 const SPEED_OPTIONS = ['11', '12'] as const;
-// Bis zu vier Ketten passen (Shimano 12-fach) — ungekuerzt sprengte die Liste
-// die Karte deutlich ueber die Hoehe der anderen fuenf Rechner. Zwei Zeilen
-// reichen, um zu zeigen, dass etwas passt; der Rest steht einen Klick entfernt.
-const VISIBLE_MATCHES = 2;
 
-export function ChainMatchCalculator({ profile }: { profile: ToolProfileState }) {
+export function ChainMatchCalculator({ profile, compact }: { profile: ToolProfileState; compact?: boolean }) {
   const { t, lang } = useLanguage();
   const de = lang === 'de';
   const eur = (n: number) => new Intl.NumberFormat(de ? 'de-DE' : 'en-US', { style: 'currency', currency: 'EUR' }).format(n);
@@ -53,15 +54,12 @@ export function ChainMatchCalculator({ profile }: { profile: ToolProfileState })
     .filter((p): p is NonNullable<ReturnType<typeof getProductById>> => Boolean(p));
   const available = matches.filter(p => !isSoldOut(p));
   const cheapest = available.length ? Math.min(...available.map(p => p.price)) : null;
-  // Verfuegbare zuerst, dann guenstigste zuerst — genau die Ketten, die am
-  // ehesten gekauft werden, stehen in den zwei standardmaessig sichtbaren Zeilen.
+  // Verfuegbare zuerst, dann guenstigste zuerst.
   const sortedMatches = [...matches].sort((a, b) => {
     const aSoldOut = isSoldOut(a), bSoldOut = isSoldOut(b);
     if (aSoldOut !== bSoldOut) return aSoldOut ? 1 : -1;
     return a.price - b.price;
   });
-  const [expanded, setExpanded] = useState(false);
-  const hiddenCount = sortedMatches.length - VISIBLE_MATCHES;
 
   return (
     <ToolCard>
@@ -98,9 +96,8 @@ export function ChainMatchCalculator({ profile }: { profile: ToolProfileState })
               </span>
             )}
           </ChipRow>
-          <StepNote>{stocked ? t.tools.match.note : t.tools.match.otherSpeed.replace('{speed}', String(speed))}</StepNote>
+          {!stocked && <StepNote>{t.tools.match.otherSpeed.replace('{speed}', String(speed))}</StepNote>}
         </StepField>
-
       </StepList>
 
       <ResultPanel
@@ -110,58 +107,54 @@ export function ChainMatchCalculator({ profile }: { profile: ToolProfileState })
           ? t.tools.match.otherSpeed.replace('{speed}', String(speed))
           : matches.length
             ? (de
-              ? `Für ${SYSTEM_LABELS[system]} mit ${speedKey} Ritzeln. Alle sind vorgewachst und sofort fahrbereit.`
-              : `For ${SYSTEM_LABELS[system]} with ${speedKey} sprockets. All pre-waxed and ready to ride.`)
+              ? `Für ${SYSTEM_LABELS[system]} mit ${speedKey} Ritzeln — vorgewachst, sofort fahrbereit.`
+              : `For ${SYSTEM_LABELS[system]} with ${speedKey} sprockets — pre-waxed, ready to ride.`)
             : t.tools.match.none}
         tone={available.length ? 'good' : 'neutral'}
         facts={cheapest !== null
           ? [{ label: de ? 'Lieferbar ab' : 'In stock from', value: eur(cheapest) }]
           : []}
         actions={<ResultActions shareUrl={shareUrl('/rechner/passende-kette', profile.snapshot)} />}
-      >
-        {sortedMatches.length > 0 && (
-          <div className="flex flex-col gap-1.5">
-            {(expanded ? sortedMatches : sortedMatches.slice(0, VISIBLE_MATCHES)).map(p => (
-              <a
-                key={p.id}
-                href={`/produkt/${p.id}`}
-                className="flex items-center justify-between gap-3 rounded-xl px-3.5 py-2.5 transition-opacity hover:opacity-85"
-                style={{ background: 'var(--card-bg)', border: '1px solid var(--bd2)' }}
-              >
-                <span className="min-w-0">
-                  <span className="block text-[13px] font-medium truncate" style={{ color: 'var(--tx2)' }}>
-                    {p.chainModel ?? (de ? p.title : p.titleEn)}
-                  </span>
-                  <span className="block text-meta mt-0.5" style={{ color: 'var(--txff)' }}>
-                    {p.chainBrand} · {p.chainLinks}{isSoldOut(p) ? ` · ${t.tools.match.soldOut}` : ''}
-                  </span>
+      />
+
+      {/* Die volle Trefferliste steht nur auf der Einzelseite (compact=false)
+          — im Deck wuerde eine 0 bis 4 Zeilen lange Liste die feste
+          Kartenhoehe sprengen, siehe Kommentar oben. */}
+      {!compact && sortedMatches.length > 0 && (
+        <div className={`${'px-4 sm:px-5'} pb-4 flex flex-col gap-1.5`}>
+          {sortedMatches.map(p => (
+            <a
+              key={p.id}
+              href={`/produkt/${p.id}`}
+              className="flex items-center justify-between gap-3 rounded-xl px-3.5 py-2.5 transition-opacity hover:opacity-85"
+              style={{ background: 'var(--card-bg)', border: '1px solid var(--bd2)' }}
+            >
+              <span className="min-w-0">
+                <span className="block text-[13px] font-medium truncate" style={{ color: 'var(--tx2)' }}>
+                  {p.chainModel ?? (de ? p.title : p.titleEn)}
                 </span>
-                <span className="text-[13px] font-semibold tabular-nums flex-shrink-0" style={{ color: 'var(--brand)' }}>
-                  {eur(p.price)}
+                <span className="block text-meta mt-0.5" style={{ color: 'var(--txff)' }}>
+                  {p.chainBrand} · {p.chainLinks}{isSoldOut(p) ? ` · ${t.tools.match.soldOut}` : ''}
                 </span>
-              </a>
-            ))}
-            {hiddenCount > 0 && (
-              <button
-                type="button"
-                onClick={() => setExpanded(v => !v)}
-                aria-expanded={expanded}
-                className="relative self-start text-[12px] font-medium transition-opacity hover:opacity-70 cursor-pointer after:content-[''] after:absolute after:inset-x-0 after:top-1/2 after:-translate-y-1/2 after:h-11"
-                style={{ color: 'var(--brand)' }}
-              >
-                {expanded
-                  ? (de ? 'Weniger anzeigen' : 'Show less')
-                  : (de ? `${hiddenCount} weitere ${hiddenCount === 1 ? 'Kette' : 'Ketten'} anzeigen →` : `Show ${hiddenCount} more ${hiddenCount === 1 ? 'chain' : 'chains'} →`)}
-              </button>
-            )}
-          </div>
-        )}
-      </ResultPanel>
+              </span>
+              <span className="text-[13px] font-semibold tabular-nums flex-shrink-0" style={{ color: 'var(--brand)' }}>
+                {eur(p.price)}
+              </span>
+            </a>
+          ))}
+        </div>
+      )}
 
       <ToolFooter>
-        <ToolCTA href="/rechner/kettenlaenge">
-          {de ? 'Passende Länge berechnen →' : 'Work out the right length →'}
-        </ToolCTA>
+        {compact ? (
+          <ToolCTA href="/rechner/passende-kette">
+            {de ? 'Alle passenden Ketten ansehen →' : 'See all matching chains →'}
+          </ToolCTA>
+        ) : (
+          <ToolCTA href="/rechner/kettenlaenge">
+            {de ? 'Passende Länge berechnen →' : 'Work out the right length →'}
+          </ToolCTA>
+        )}
       </ToolFooter>
     </ToolCard>
   );

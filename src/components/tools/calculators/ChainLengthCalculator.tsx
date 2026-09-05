@@ -1,12 +1,17 @@
 // ── Wie viele Glieder braucht meine Kette? ──────────────────────────────────
 //
-// Die drei abgefragten Masse sind genau die Stelle, an der ein Rechner jemanden
-// verliert, der kein Schrauber-Vokabular hat: „Kettenstrebe", „groesstes
-// Kettenblatt", „groesstes Ritzel" sagen ohne Erklaerung nichts. Jeder Schritt
-// traegt deshalb eine aufklappbare Zeile, die sagt, wo man das am Rad abliest.
+// Drei echte Pflichteingaben — nicht weiter kuerzbar, ohne die Rechnung falsch
+// zu machen. Kompakt als eine Reihe statt drei gestapelter Schritte: das ist
+// der Rechner mit den meisten Eingaben im Deck, und im Deck haben alle sechs
+// Karten dieselbe feste Hoehe (ToolTrack.tsx) — drei volle StepFields
+// untereinander sprengten sie zuverlaessig.
+//
+// „Kettenstrebe", „groesstes Kettenblatt", „groesstes Ritzel" sagen ohne
+// Erklaerung nichts — der Fragezeichen-Knopf pro Feld oeffnet ein Popover mit
+// Skizze, ohne die Karte zu verlaengern (InfoPopover, primitives.tsx).
 
 import { useState } from 'react';
-import { Ruler } from 'lucide-react';
+import { Ruler, HelpCircle } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
 import type { ToolProfileState } from '@/hooks/useToolProfile';
@@ -14,12 +19,36 @@ import { chainLengthLinks } from '@/lib/waxMath';
 import { products } from '@/lib/data';
 import { shareUrl } from '@/lib/toolState';
 import {
-  ToolCard, ToolHeader, StepList, ToolFooter, ToolCTA, NumberInput, StepNote, NoteDisclosure,
+  ToolCard, ToolHeader, StepList, ToolFooter, ToolCTA, NumberInput, StepNote, InfoPopover,
 } from '@/components/tools/primitives';
-import { StepField } from '@/components/tools/StepField';
 import { ChainstayDiagram } from '@/components/tools/diagrams';
 import { ResultPanel } from '@/components/tools/ResultPanel';
 import { ResultActions } from '@/components/tools/ResultActions';
+
+/** Eine schmale Spalte der Eingabe-Reihe: kurzes Label + Popover + Zahl. */
+function CompactField({ label, ariaLabel, help, figure, children }: {
+  label: string; ariaLabel: string; help?: string; figure?: React.ReactNode; children: React.ReactNode;
+}) {
+  return (
+    <div className="min-w-0">
+      <div className="flex items-center gap-1 mb-1.5">
+        <span className="text-meta uppercase tracking-[0.06em] font-medium truncate" style={{ color: 'var(--txf)' }}>
+          {label}
+        </span>
+        {(help || figure) && (
+          <InfoPopover
+            ariaLabel={`${ariaLabel}: Erklärung`}
+            trigger={open => <HelpCircle className="h-3 w-3" style={{ color: open ? 'var(--brand)' : 'var(--txff)' }} />}
+          >
+            {help && <p className="text-[12px] leading-snug" style={{ color: 'var(--txm)' }}>{help}</p>}
+            {figure && <div className={help ? 'mt-1' : ''}>{figure}</div>}
+          </InfoPopover>
+        )}
+      </div>
+      {children}
+    </div>
+  );
+}
 
 export function ChainLengthCalculator({ profile }: { profile: ToolProfileState }) {
   const { t, lang } = useLanguage();
@@ -65,26 +94,41 @@ export function ChainLengthCalculator({ profile }: { profile: ToolProfileState }
       />
 
       <StepList>
-        <StepField step={1} label={t.tools.length.chainstay} help={t.tools.length.helpChainstay} figure={<ChainstayDiagram />}>
-          <NumberInput
-            value={chainstay} onChange={setChainstay} min={350} max={550}
-            ariaLabel={t.tools.length.chainstay} theme={theme} suffix="mm"
-          />
-        </StepField>
+        <div className="grid grid-cols-3 gap-2.5">
+          <CompactField
+            label={de ? 'Strebe' : 'Stay'}
+            ariaLabel={t.tools.length.chainstay}
+            help={t.tools.length.helpChainstay}
+            figure={<ChainstayDiagram />}
+          >
+            <NumberInput
+              value={chainstay} onChange={setChainstay} min={350} max={550}
+              ariaLabel={t.tools.length.chainstay} theme={theme} suffix="mm"
+            />
+          </CompactField>
 
-        <StepField step={2} label={t.tools.length.bigChainring} help={t.tools.length.helpChainring}>
-          <NumberInput
-            value={chainring} onChange={setChainring} min={20} max={60}
-            ariaLabel={t.tools.length.bigChainring} theme={theme} suffix={t.tools.length.teeth}
-          />
-        </StepField>
+          <CompactField
+            label={de ? 'Kettenblatt' : 'Chainring'}
+            ariaLabel={t.tools.length.bigChainring}
+            help={t.tools.length.helpChainring}
+          >
+            <NumberInput
+              value={chainring} onChange={setChainring} min={20} max={60}
+              ariaLabel={t.tools.length.bigChainring} theme={theme}
+            />
+          </CompactField>
 
-        <StepField step={3} label={t.tools.length.bigSprocket} help={t.tools.length.helpSprocket}>
-          <NumberInput
-            value={sprocket} onChange={setSprocket} min={9} max={60}
-            ariaLabel={t.tools.length.bigSprocket} theme={theme} suffix={t.tools.length.teeth}
-          />
-        </StepField>
+          <CompactField
+            label={de ? 'Ritzel' : 'Sprocket'}
+            ariaLabel={t.tools.length.bigSprocket}
+            help={t.tools.length.helpSprocket}
+          >
+            <NumberInput
+              value={sprocket} onChange={setSprocket} min={9} max={60}
+              ariaLabel={t.tools.length.bigSprocket} theme={theme}
+            />
+          </CompactField>
+        </div>
 
         {!valid && (
           <StepNote>
@@ -93,9 +137,14 @@ export function ChainLengthCalculator({ profile }: { profile: ToolProfileState }
               : 'Chainstay 350–550 mm, chainring 20–60 teeth, sprocket 9–60 teeth.'}
           </StepNote>
         )}
-        <NoteDisclosure
-          label={de ? 'Details zur Kettenlänge' : 'Details on chain length'}
-          hideLabel={de ? 'Details ausblenden' : 'Hide details'}
+
+        <InfoPopover
+          ariaLabel={de ? 'Details zur Kettenlänge' : 'Details on chain length'}
+          trigger={() => (
+            <span className="text-[12px] font-medium" style={{ color: 'var(--brand)' }}>
+              {de ? 'Details zur Kettenlänge' : 'Details on chain length'}
+            </span>
+          )}
         >
           <StepNote>{t.tools.length.onlyDerailleur}</StepNote>
           <StepNote>
@@ -103,13 +152,16 @@ export function ChainLengthCalculator({ profile }: { profile: ToolProfileState }
               ? t.tools.length.tooShort
               : t.tools.length.shortenNote.replace('{lengths}', stockLengths.join(', '))}
           </StepNote>
-        </NoteDisclosure>
+          <StepNote>{t.tools.length.crossCheck}</StepNote>
+        </InfoPopover>
       </StepList>
 
       <ResultPanel
         value={links ?? '—'}
         unit={t.tools.length.links}
-        verdict={t.tools.length.note}
+        verdict={de
+          ? 'Startwert nach der Park-Tool-Formel — immer auf eine gerade Zahl aufgerundet.'
+          : 'Starting figure from the Park Tool formula — always rounded up to an even number.'}
         tone={links ? 'good' : 'neutral'}
         facts={toRemove !== null && fitting
           ? [{

@@ -22,7 +22,12 @@ import { SwitchCalculator } from '@/components/tools/calculators/SwitchCalculato
 import { SavingsCalculator } from '@/components/tools/calculators/SavingsCalculator';
 import { ToolTrack } from '@/components/tools/ToolTrack';
 
-type CalcComponent = (props: { profile: ToolProfileState }) => React.ReactElement;
+// `compact`: gesetzt, wenn der Rechner im Kartenstapel der Startseite steckt
+// (ToolDeck) statt auf seiner eigenen /rechner/:slug-Seite (ToolCalculator).
+// Die meisten Rechner ignorieren das Flag — nur ChainMatchCalculator nutzt es,
+// um seine variable Trefferliste im Stapel wegzulassen (die feste Kartenhoehe
+// in ToolTrack.tsx vertraegt keinen Inhalt, der je nach Daten wechselt).
+type CalcComponent = (props: { profile: ToolProfileState; compact?: boolean }) => React.ReactElement;
 type IconComponent = React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
 
 const IMPLEMENTATIONS: Record<string, { Comp: CalcComponent; Icon: IconComponent }> = {
@@ -63,7 +68,7 @@ export function ToolDeck({ profile, onActiveChange }: {
       cover: de ? entry.cover : entry.coverEn,
       hint: de ? entry.hint : entry.hintEn,
       Icon: impl.Icon,
-      node: <impl.Comp profile={profile} />,
+      node: <impl.Comp profile={profile} compact />,
     }];
   });
   return <ToolTrack items={items} onActiveChange={onActiveChange} />;
