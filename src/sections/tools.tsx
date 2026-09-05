@@ -56,7 +56,7 @@ export function Tools() {
 
   return (
     <Section id="tools" style={{ background: 'var(--tool-bg)' }}>
-      <div ref={headerRef} className="mb-10">
+      <div ref={headerRef} className="mb-6">
         <h2 className="section-title mb-4">
           <ScrollWordReveal text={t.tools.title} />
         </h2>

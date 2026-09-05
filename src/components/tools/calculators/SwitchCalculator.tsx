@@ -24,7 +24,7 @@ import { accessories } from '@/lib/data';
 import { shareUrl } from '@/lib/toolState';
 import { AnimatedNumber } from '@/components/viz';
 import {
-  ToolCard, ToolHeader, StepList, ToolFooter, ToolCTA, StepNote,
+  ToolCard, ToolHeader, StepList, ToolFooter, ToolCTA, StepNote, NoteDisclosure,
 } from '@/components/tools/primitives';
 import { StepField } from '@/components/tools/StepField';
 import { ResultPanel } from '@/components/tools/ResultPanel';
@@ -96,12 +96,17 @@ export function SwitchCalculator({ profile }: { profile: ToolProfileState }) {
           {/* Die haeufigste Stolperfalle beim Umstieg, und die einzige, die
               nicht in Euro steht: Fabrikfett und Altoel blockieren das Wachs
               vollstaendig. Wer das erst am Wachsabend merkt, hoert wieder auf. */}
-          <StepNote>
-            {t.tools.switch.degreaseNote}{' '}
-            <a href="/rechner/passende-kette" className="font-medium" style={{ color: 'var(--brand)' }}>
-              {t.tools.switch.degreaseAlt}
-            </a>
-          </StepNote>
+          <NoteDisclosure
+            label={de ? 'Wichtiger Hinweis vor dem Umstieg' : 'Important note before switching'}
+            hideLabel={de ? 'Hinweis ausblenden' : 'Hide note'}
+          >
+            <StepNote>
+              {t.tools.switch.degreaseNote}{' '}
+              <a href="/rechner/passende-kette" className="font-medium" style={{ color: 'var(--brand)' }}>
+                {t.tools.switch.degreaseAlt}
+              </a>
+            </StepNote>
+          </NoteDisclosure>
         </StepField>
 
         <StepField

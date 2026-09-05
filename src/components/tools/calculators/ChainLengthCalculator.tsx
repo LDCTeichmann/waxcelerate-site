@@ -14,7 +14,7 @@ import { chainLengthLinks } from '@/lib/waxMath';
 import { products } from '@/lib/data';
 import { shareUrl } from '@/lib/toolState';
 import {
-  ToolCard, ToolHeader, StepList, ToolFooter, ToolCTA, NumberInput, StepNote,
+  ToolCard, ToolHeader, StepList, ToolFooter, ToolCTA, NumberInput, StepNote, NoteDisclosure,
 } from '@/components/tools/primitives';
 import { StepField } from '@/components/tools/StepField';
 import { ChainstayDiagram } from '@/components/tools/diagrams';
@@ -93,12 +93,17 @@ export function ChainLengthCalculator({ profile }: { profile: ToolProfileState }
               : 'Chainstay 350–550 mm, chainring 20–60 teeth, sprocket 9–60 teeth.'}
           </StepNote>
         )}
-        <StepNote>{t.tools.length.onlyDerailleur}</StepNote>
-        <StepNote>
-          {links && !fitting
-            ? t.tools.length.tooShort
-            : t.tools.length.shortenNote.replace('{lengths}', stockLengths.join(', '))}
-        </StepNote>
+        <NoteDisclosure
+          label={de ? 'Details zur Kettenlänge' : 'Details on chain length'}
+          hideLabel={de ? 'Details ausblenden' : 'Hide details'}
+        >
+          <StepNote>{t.tools.length.onlyDerailleur}</StepNote>
+          <StepNote>
+            {links && !fitting
+              ? t.tools.length.tooShort
+              : t.tools.length.shortenNote.replace('{lengths}', stockLengths.join(', '))}
+          </StepNote>
+        </NoteDisclosure>
       </StepList>
 
       <ResultPanel

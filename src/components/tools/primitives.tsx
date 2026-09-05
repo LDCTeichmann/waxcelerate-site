@@ -13,6 +13,7 @@
 // ihre eigenen Schriftgroessen — daher die ungleichmaessigen Abstaende und der
 // Eindruck, mal sei es zu eng, mal stehe zu viel leer.
 
+import { useState } from 'react';
 import { Slider } from '@/components/ui/slider';
 
 // Ein Wert, den mehrere Karten brauchen: der horizontale Innenabstand. An
@@ -170,5 +171,32 @@ export function ToolCTA({ onClick, href, children }: {
 export function StepNote({ children }: { children: React.ReactNode }) {
   return (
     <p className="text-[11.5px] leading-snug" style={{ color: 'var(--txff)' }}>{children}</p>
+  );
+}
+
+/**
+ * Zusatzhinweise, die nicht zu einem einzelnen Schritt gehoeren und niemanden
+ * beim ersten Blick auf die Karte interessieren — anders als eine
+ * Validierungswarnung, die sichtbar bleiben muss. Eingeklappt gestartet,
+ * gleiches Text-Button-Muster wie das "Weiterlesen" im Erklaertext auf den
+ * eigenen Rechnerseiten (RechnerPage.tsx).
+ */
+export function NoteDisclosure({ label, hideLabel, children }: {
+  label: string; hideLabel: string; children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => setOpen(v => !v)}
+        aria-expanded={open}
+        className="relative self-start text-[12px] font-medium transition-opacity hover:opacity-70 cursor-pointer after:content-[''] after:absolute after:inset-x-0 after:top-1/2 after:-translate-y-1/2 after:h-11"
+        style={{ color: 'var(--brand)' }}
+      >
+        {open ? hideLabel : label}
+      </button>
+      {open && <div className="mt-1.5 flex flex-col gap-1.5">{children}</div>}
+    </div>
   );
 }

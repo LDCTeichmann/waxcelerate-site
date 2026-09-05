@@ -5,6 +5,7 @@
 // einzige Rechner hier, dessen Antwort ausschliesslich aus gepflegten
 // Produktdaten kommt und nie aus einer Annahme.
 
+import { useState } from 'react';
 import { Link2 } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import type { ToolProfileState } from '@/hooks/useToolProfile';
@@ -25,6 +26,10 @@ const SYSTEM_LABELS: Record<DriveSystem, string> = {
 
 // Vorgewachst gibt es nur 11- und 12-fach.
 const SPEED_OPTIONS = ['11', '12'] as const;
+// Bis zu vier Ketten passen (Shimano 12-fach) — ungekuerzt sprengte die Liste
+// die Karte deutlich ueber die Hoehe der anderen fuenf Rechner. Zwei Zeilen
+// reichen, um zu zeigen, dass etwas passt; der Rest steht einen Klick entfernt.
+const VISIBLE_MATCHES = 2;
 
 export function ChainMatchCalculator({ profile }: { profile: ToolProfileState }) {
   const { t, lang } = useLanguage();
@@ -48,6 +53,15 @@ export function ChainMatchCalculator({ profile }: { profile: ToolProfileState })
     .filter((p): p is NonNullable<ReturnType<typeof getProductById>> => Boolean(p));
   const available = matches.filter(p => !isSoldOut(p));
   const cheapest = available.length ? Math.min(...available.map(p => p.price)) : null;
+  // Verfuegbare zuerst, dann guenstigste zuerst — genau die Ketten, die am
+  // ehesten gekauft werden, stehen in den zwei standardmaessig sichtbaren Zeilen.
+  const sortedMatches = [...matches].sort((a, b) => {
+    const aSoldOut = isSoldOut(a), bSoldOut = isSoldOut(b);
+    if (aSoldOut !== bSoldOut) return aSoldOut ? 1 : -1;
+    return a.price - b.price;
+  });
+  const [expanded, setExpanded] = useState(false);
+  const hiddenCount = sortedMatches.length - VISIBLE_MATCHES;
 
   return (
     <ToolCard>
@@ -105,9 +119,9 @@ export function ChainMatchCalculator({ profile }: { profile: ToolProfileState })
           : []}
         actions={<ResultActions shareUrl={shareUrl('/rechner/passende-kette', profile.snapshot)} />}
       >
-        {matches.length > 0 && (
+        {sortedMatches.length > 0 && (
           <div className="flex flex-col gap-1.5">
-            {matches.map(p => (
+            {(expanded ? sortedMatches : sortedMatches.slice(0, VISIBLE_MATCHES)).map(p => (
               <a
                 key={p.id}
                 href={`/produkt/${p.id}`}
@@ -127,6 +141,19 @@ export function ChainMatchCalculator({ profile }: { profile: ToolProfileState })
                 </span>
               </a>
             ))}
+            {hiddenCount > 0 && (
+              <button
+                type="button"
+                onClick={() => setExpanded(v => !v)}
+                aria-expanded={expanded}
+                className="relative self-start text-[12px] font-medium transition-opacity hover:opacity-70 cursor-pointer after:content-[''] after:absolute after:inset-x-0 after:top-1/2 after:-translate-y-1/2 after:h-11"
+                style={{ color: 'var(--brand)' }}
+              >
+                {expanded
+                  ? (de ? 'Weniger anzeigen' : 'Show less')
+                  : (de ? `${hiddenCount} weitere ${hiddenCount === 1 ? 'Kette' : 'Ketten'} anzeigen →` : `Show ${hiddenCount} more ${hiddenCount === 1 ? 'chain' : 'chains'} →`)}
+              </button>
+            )}
           </div>
         )}
       </ResultPanel>

@@ -36,7 +36,7 @@ export function ResultPanel({
   const accent = tone === 'neutral' ? 'var(--tx1)' : 'var(--brand)';
   return (
     <div
-      className="mx-4 mb-4 sm:mx-5 sm:mb-5 rounded-2xl px-4 py-4 sm:px-5 sm:py-5"
+      className="mx-4 mb-4 sm:mx-5 sm:mb-5 rounded-2xl px-4 py-5 sm:px-5 sm:py-6"
       style={{
         background: tone === 'neutral' ? 'var(--inset-bg)' : 'rgba(var(--accent-rgb),0.07)',
         border: tone === 'neutral' ? '1px solid var(--inset-bd)' : '1px solid rgba(var(--accent-rgb),0.28)',
