@@ -44,8 +44,8 @@ export function StarterSetPage() {
     ? 'Starter-Set Kettenwachs | Waxcelerate'
     : 'Chain wax starter set | Waxcelerate';
   const description = de
-    ? `Wachs, vorgewachste Kette, Quick-Link-Zange und Aufhängedraht in einem Set, ${starterSet.discountPct} Prozent unter der Summe der Einzelteile. Alles, was für das erste Wachsen nötig ist.`
-    : `Wax, pre-waxed chain, quick-link pliers and hanging wire in one set, ${starterSet.discountPct} percent below the sum of the parts. Everything the first waxing needs.`;
+    ? `Wachs, Quick-Link-Zange und Aufhängedraht in einem Set, vorgewachste Kette optional dazu, ${starterSet.discountPct} Prozent unter der Summe der Einzelteile. Alles, was für das erste Wachsen nötig ist.`
+    : `Wax, quick-link pliers and hanging wire in one set, pre-waxed chain optional, ${starterSet.discountPct} percent below the sum of the parts. Everything the first waxing needs.`;
 
   // Die vorgerenderte Huelle (scripts/generate-blog-html.mjs, STATIC_PAGES)
   // setzt title/description/canonical bereits statisch, markiert mit

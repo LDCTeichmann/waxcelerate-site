@@ -10,7 +10,7 @@
 
 import { useState } from 'react';
 import { Check, ChevronRight, RotateCcw } from 'lucide-react';
-import { Sparkles, Snowflake, SlidersHorizontal, Bike } from 'lucide-react';
+import { Sparkles, Snowflake, SlidersHorizontal, Bike, Wrench } from 'lucide-react';
 import {
   products, accessories, starterSet,
   starterSetOptions, starterSetBundleProducts, canCheckout,
@@ -27,21 +27,23 @@ function FixedCard({ optionId, de, icon: Icon, badgeDe, badgeEn }: {
 }) {
   const opt = starterSetOptions.find((o) => o.id === optionId)!;
   const wax = products.find((p) => p.id === opt.waxId)!;
-  const chain = products.find((p) => p.id === opt.chainId)!;
+  const chain = opt.chainId ? products.find((p) => p.id === opt.chainId)! : null;
   const extras = accessories.filter((a) =>
     (starterSet.includedAccessoryIds as readonly string[]).includes(a.id));
   const bundleProduct = starterSetBundleProducts.find((p) => p.id === optionId)!;
-  const partsSum = wax.price + chain.price + extras.reduce((s, a) => s + a.price, 0);
+  const partsSum = wax.price + (chain?.price ?? 0) + extras.reduce((s, a) => s + a.price, 0);
   const saved = Math.round((partsSum - bundleProduct.price) * 100) / 100;
-  const setName = optionId === 'starter-classic'
-    ? (de ? 'Starter-Set Classic' : 'Classic starter set')
-    : optionId === 'starter-hg701'
-      ? (de ? 'Starter-Set HG701' : 'HG701 starter set')
-      : (de ? 'Starter-Set Pro' : 'Pro starter set');
+  const setName = optionId === 'starter-nochain'
+    ? (de ? 'Starter-Set ohne Kette' : 'Starter set without chain')
+    : optionId === 'starter-classic'
+      ? (de ? 'Starter-Set Classic' : 'Classic starter set')
+      : optionId === 'starter-hg701'
+        ? (de ? 'Starter-Set HG701' : 'HG701 starter set')
+        : (de ? 'Starter-Set Pro' : 'Pro starter set');
 
   const contents = [
     de ? wax.title : wax.titleEn,
-    de ? chain.title : chain.titleEn,
+    ...(chain ? [de ? chain.title : chain.titleEn] : []),
     ...extras.map((a) => (de ? a.title : a.titleEn)),
   ];
 
@@ -126,7 +128,12 @@ export function StarterSetOptions({ de }: { de: boolean }) {
 
   return (
     <div>
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 items-stretch">
+      {/* Vier feste Kombinationen, guenstigste zuerst: "ohne Kette" ist der
+          niedrigste Einstieg (nur Wachs + Werkzeug), dann die drei
+          Wachs-plus-Kette-Sets nach Einsatzbereich. */}
+      <div className="grid sm:grid-cols-2 gap-5 items-stretch">
+        <FixedCard optionId="starter-nochain" de={de} icon={Wrench}
+          badgeDe="Ohne Kette" badgeEn="No chain" />
         <FixedCard optionId="starter-classic" de={de} icon={Sparkles}
           badgeDe="Für die meisten Räder" badgeEn="For most bikes" />
         <FixedCard optionId="starter-hg701" de={de} icon={Bike}

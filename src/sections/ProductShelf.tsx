@@ -73,9 +73,12 @@ const minPrice = (category: 'wax' | 'chain') =>
   Math.min(...products.filter(p => p.category === category).map(p => p.price));
 
 // Billigste echte Kombination durch dieselbe starterSetPrice(), die auch der
-// Konfigurator nutzt — nie eine getippte Zahl, die davon abdriften kann.
-const minSetPrice = starterSetPrice(
-  minPrice('wax') + minPrice('chain') + accessories.reduce((sum, a) => sum + a.price, 0),
+// Konfigurator nutzt — nie eine getippte Zahl, die davon abdriften kann. Der
+// niedrigste Einstieg ist das Set ohne Kette (nur Wachs + Zange + Draht).
+const accSum = accessories.reduce((sum, a) => sum + a.price, 0);
+const minSetPrice = Math.min(
+  starterSetPrice(minPrice('wax') + minPrice('chain') + accSum),
+  starterSetPrice(minPrice('wax') + accSum),
 );
 
 // ── Eine Wachs-Tafel ────────────────────────────────────────────────────────

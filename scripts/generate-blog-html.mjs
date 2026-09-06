@@ -294,7 +294,7 @@ const STATIC_PAGES = [
     // Prozentzahl aus src/lib/data.ts (starterSet.discountPct) statt hier neu
     // eingetippt, damit sie nie von der clientseitigen Beschreibung in
     // StarterSetPage.tsx abweicht (dieselbe Zahl, dieselbe Quelle).
-    description: `Wachs, vorgewachste Kette, Quick-Link-Zange und Aufhängedraht in einem Set, ${starterSet.discountPct} Prozent unter der Summe der Einzelteile. Alles, was für das erste Wachsen nötig ist.`,
+    description: `Wachs, Quick-Link-Zange und Aufhängedraht in einem Set, vorgewachste Kette optional dazu, ${starterSet.discountPct} Prozent unter der Summe der Einzelteile. Alles, was für das erste Wachsen nötig ist.`,
     image: '/images/doors/starter-set.webp', // deckt sich mit StarterSetPage.tsx Zeile 103
     h1: 'Alles da, beim ersten Mal.',
     lead: 'Am ersten Wachsabend scheitert es selten am Wachs. Es scheitert daran, dass die Kette nicht aufgeht oder nichts da ist, woran sie hängen kann. Im Set liegt beides bei.',

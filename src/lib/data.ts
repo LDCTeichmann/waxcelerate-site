@@ -729,12 +729,26 @@ export const starterSetPrice = (partsSum: number) =>
 export interface StarterSetOption {
   id: string;
   waxId: string;
-  chainId: string;
+  /** Fehlt beim "ohne Kette"-Set — wer schon eine wachsbare Kette hat, braucht
+   *  nur Wachs plus die beiden Werkzeuge. Das ist die guenstigste Kombination. */
+  chainId?: string;
   taglineDe: string;
   taglineEn: string;
 }
 
 export const starterSetOptions: StarterSetOption[] = [
+  {
+    id: 'starter-nochain',
+    // Guenstigster Einstieg ueberhaupt: 300g Classic + Draht + Zange, keine
+    // Kette. Fuer alle, die schon eine wachsbare Kette (oder einen Quick-Link)
+    // am Rad haben und nur die Ausruestung zum ersten Wachsen brauchen. 300g,
+    // weil hier der Preis das Argument ist und der kleine Block mit 10-15
+    // Anwendungen eine Saison auf einer Kette traegt — nachgekauft wird dann
+    // nur noch Wachs, ohne die (einmaligen) Werkzeuge.
+    waxId: 'wax-300',
+    taglineDe: 'Kette schon da · nur Wachs, Zange, Draht',
+    taglineEn: 'Chain already sorted · just wax, pliers, wire',
+  },
   {
     id: 'starter-classic',
     // 300g statt 500g: das Set ist der Einstieg fuer Erstwachser (hoechste
@@ -762,28 +776,32 @@ export const starterSetOptions: StarterSetOption[] = [
   },
 ];
 
-// Product-shaped view of the two fixed bundles above, for the cart only:
+// Product-shaped view of the fixed bundles above, for the cart only:
 // AddToCartButton/useCartStore work against the `Product` shape, and the
 // shipping estimate in CartDrawer looks products up by id via
 // getProductById() — both need something to find. Never spread into the
 // `products` array itself (see the comment on StarterSetOption above).
 export const starterSetBundleProducts: Product[] = starterSetOptions.map((opt) => {
   const wax = products.find((p) => p.id === opt.waxId)!;
-  const chain = products.find((p) => p.id === opt.chainId)!;
+  const chain = opt.chainId ? products.find((p) => p.id === opt.chainId)! : null;
   const extras = accessories.filter((a) =>
     (starterSet.includedAccessoryIds as readonly string[]).includes(a.id));
-  const partsSum = wax.price + chain.price + extras.reduce((s, a) => s + a.price, 0);
+  const partsSum = wax.price + (chain?.price ?? 0) + extras.reduce((s, a) => s + a.price, 0);
   return {
     id: opt.id,
     category: 'bundle',
-    title: `Starter-Set — ${wax.title} + ${chain.title}`,
-    titleEn: `Starter set — ${wax.titleEn} + ${chain.titleEn}`,
+    title: chain
+      ? `Starter-Set — ${wax.title} + ${chain.title}`
+      : `Starter-Set ohne Kette — ${wax.title}`,
+    titleEn: chain
+      ? `Starter set — ${wax.titleEn} + ${chain.titleEn}`
+      : `Starter set without chain — ${wax.titleEn}`,
     description: opt.taglineDe,
     descriptionEn: opt.taglineEn,
     price: starterSetPrice(partsSum),
     image: wax.image,
     ebayUrl: wax.ebayUrl,
-    weightGrams: wax.weightGrams + chain.weightGrams + extras.reduce((s, a) => s + a.weightGrams, 0),
+    weightGrams: wax.weightGrams + (chain?.weightGrams ?? 0) + extras.reduce((s, a) => s + a.weightGrams, 0),
     // 'maxibrief' is the heaviest declared class a single Product can carry;
     // shippingFor() escalates to an actual 'paket' on its own once the real
     // combined weight demands it (see shippingFor below), same as it would

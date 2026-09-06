@@ -38,14 +38,18 @@ Preise ziehen.
 - **Starter-Set:** ein Wachs plus eine vorgewachste Kette, Zange und Draht
   liegen immer bei. Preis **15 Prozent unter der Summe der Einzelteile**.
   Nach außen wird die **Ersparnis in Euro** genannt, nicht der Prozentsatz.
-  Drei feste Kombinationen (Stand 2026-09-06):
+  Vier feste Kombinationen (Stand 2026-09-06):
+  - **Ohne Kette** — Kettenwachs 300 g Classic + Zange + Draht, **keine Kette** →
+    **27,92 €** (Ersparnis 4,93 €). Günstigster Einstieg, für alle mit schon
+    vorhandener wachsbarer Kette. Draht + Zange sind der einmalige Fixkostenteil,
+    nachgekauft wird nur Wachs.
   - **Classic** — Kettenwachs 300 g Classic + YBN 11S 11-fach → **57,63 €**
-    (Ersparnis 10,17 €). Bewusst der kleine 300-g-Block: günstigster Einstieg.
+    (Ersparnis 10,17 €). Bewusst der kleine 300-g-Block: günstiger Einstieg.
   - **HG701** — Kettenwachs 500 g Classic + Shimano Ultegra HG701 11-fach →
     **72,04 €** (Ersparnis 12,71 €).
   - **Pro** — Kettenwachs 500 g Pro + Shimano XT/Ultegra M8100 12-fach →
     **84,83 €** (Ersparnis 14,97 €).
-  Daneben ein freier Konfigurator (jedes Wachs × jede Kette).
+  Daneben ein freier Konfigurator (jedes Wachs × jede Kette, immer mit Kette).
 - **Mengenstaffel Wachs:** 2 Stück 5 %, 3 Stück 10 %, ab 5 Stück 15 %.
   **Gilt ausschließlich auf Kettenwachs, nie auf Ketten.** Begründung: eine
   Kette kauft man einmal pro Rad, Rabatt darauf verschenkt Marge ohne Menge zu

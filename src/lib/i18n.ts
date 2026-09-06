@@ -117,7 +117,7 @@ export const translations = {
         // die reine Inhaltsangabe bleibt, das ist die nuetzliche Information.
         setEyebrow: 'Zum ersten Mal?',
         setTitle: 'Starter-Set',
-        setBody: 'Wachs, Kette, Zange und Draht in einer Sendung.',
+        setBody: 'Wachs, Zange und Draht in einer Sendung, Kette optional dazu.',
         setCta: 'Set zusammenstellen',
         chainsEyebrow: 'Kein Topf nötig',
         chainsTitle: 'Vorgewachste Ketten',
@@ -616,7 +616,7 @@ export const translations = {
         details: 'Details',
         setEyebrow: 'First time?',
         setTitle: 'Starter Set',
-        setBody: 'Wax, chain, pliers and wire in one parcel.',
+        setBody: 'Wax, pliers and wire in one parcel, chain optional.',
         setCta: 'Build your set',
         chainsEyebrow: 'No pot required',
         chainsTitle: 'Pre-Waxed Chains',
