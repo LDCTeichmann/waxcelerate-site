@@ -1,8 +1,7 @@
 # Wissenschaftsteil und Startseite: Stand der Arbeit
 
-Stand 2026-07-28. Nicht committet, liegt im Working Tree.
-`npx tsc --noEmit` läuft sauber. `npm run build` bitte lokal prüfen, im
-Linux-Sandbox scheitert das rollup-Binary an macOS.
+Stand 2026-07-28. Der beschriebene Umbau ist committet und live; diese Datei
+bleibt als Arbeitsnotiz zum damaligen Vorgehen.
 
 ---
 

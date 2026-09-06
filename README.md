@@ -20,7 +20,7 @@ npm run dev -- --port 5174
 - **React 19 + TypeScript**, strict
 - **Vite 7** — Dev-Server auf Port 5174, Build nach `dist/`
 - **Tailwind CSS v3** — hell, dunkel und ein `.noir`-Modus
-- **React Router v7** — 18 Routen, u. a. `/produkt/:id`, `/blog/:slug`,
+- **React Router v7** — rund 20 Routen, u. a. `/produkt/:id`, `/blog/:slug`,
   `/wissenschaft`, `/kette-wachsen-lassen`, `/starter-set`
 - **Vercel Serverless Functions** in `api/` — Stripe-Checkout, Bestand (Upstash
   Redis), Widerruf, Bestandsverwaltung

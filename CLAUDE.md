@@ -2,7 +2,7 @@
 
 **Was:** Marketing-Website für Waxcelerate (Luca Teichmann) — verkauft Heißwachs-Fahrradkettenprodukte auf eBay. Ein eigener Stripe-Checkout (`api/create-checkout.ts`, Cart-Store) ist bereits fertig gebaut, aber inaktiv: kein Produkt hat eine `stripePriceId` gesetzt, also fällt jeder Kauf-Button auf den eBay-Link zurück (`checkoutEnabled` in `src/lib/data.ts`). Siehe `docs/plaene/UX_UPGRADE_PLAN.md` Phase 6 und `docs/aufgaben/STRIPE_SETUP.md`.
 
-**Stack:** React 19 + TypeScript (strict) · Vite 7 (Port 5174) · Tailwind CSS v3 · React Router v6 · shadcn/ui (nur Slider)
+**Stack:** React 19 + TypeScript (strict) · Vite 7 (Port 5174) · Tailwind CSS v3 · React Router v7 · shadcn/ui (nur Slider)
 
 **Zuerst lesen → `PROJECT.md`.** Das ist das Inhaltsverzeichnis: wo welche Doku
 liegt, welche Entscheidungen offen sind und was zuletzt entschieden wurde. Von

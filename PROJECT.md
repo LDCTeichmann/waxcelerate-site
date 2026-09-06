@@ -52,7 +52,10 @@ Tabelle unten. Keine neuen Markdown-Dateien in die Wurzel.
 | Rechtstexte, Stripe, UX-Plan | `docs/aufgaben/RECHTSTEXTE.md`, `docs/aufgaben/STRIPE_SETUP.md`, `docs/plaene/UX_UPGRADE_PLAN.md` | themenbezogen |
 | Navigation, Usability, Conversion — Recherche und Plan | `docs/plaene/NAVIGATION_UX_PLAN.md`, `docs/plaene/CONVERSION_UX_PLAN.md`, `docs/plaene/DISCOVERY_UX_PLAN.md` | bei Navigations-/Bedienbarkeits-/Conversion-Arbeit |
 | **Gesamtübersicht: was aussteht, über alle Pläne** | **`docs/plaene/GESAMTUEBERSICHT.md`** | **immer zuerst, bevor du in Einzeldokumente gehst** |
-| Mobile-Optimierung (Stufe A/B abgeschlossen, C wartet auf Stripe-IDs), Deploy-Status | `docs/plaene/MOBILE_PLAN.md`, `docs/plaene/DEPLOY_HANDOFF.md` | vor jedem Deploy des `mobile-optimization`-Branchs oder bei Arbeit an Mobile-Performance/A11y |
+| Mobile-Optimierung (Stufe A/B abgeschlossen, C wartet auf Stripe-IDs) | `docs/plaene/MOBILE_PLAN.md` | bei Arbeit an Mobile-Performance/A11y |
+| SEO-Gesamtplan, Reichweite, PFAS-Positionierung | `docs/plaene/SICHTBARKEIT_PLAN.md`, `docs/plaene/REICHWEITE_STRATEGIE.md`, `docs/plaene/PFAS_STRATEGIE.md` | bei SEO-/Reichweiten-Arbeit oder der PFAS-Entscheidung |
+| Design-/Struktur-Roadmap (konsolidiert aus AUDIT/DESIGN/MOBILE/UX) | `docs/plaene/DESIGN_ROADMAP.md` | bei größeren Struktur-/Designvorhaben |
+| Rechtliche Compliance, aktuelle Checkliste | `docs/aufgaben/LEGAL_COMPLIANCE_CHECKLIST.md` | bei Rechtstext-/Checkout-Arbeit (neuer als `RECHTSTEXTE.md`) |
 
 Inhaltliche Wahrheit über Produkt, Preise, Intervalle und erlaubte Claims steht
 **nicht im Repo**, sondern im Anthropic-Skill `waxcelerate`. Ist es nicht
@@ -96,7 +99,7 @@ dem Zitat statt Hintergrundbild, damit der Kontrast nicht vom Motiv abhaengt.
 Konzept siehe Antwort im Chat vom 2026-07-29.
 
 **Skill `waxcelerate` nachziehen**
-Fertiger Copy-Paste-Block liegt in `docs/SKILL_PREISE_UPDATE.md`. Das Skill ist
+Fertiger Copy-Paste-Block liegt in `docs/aufgaben/SKILL_PREISE_UPDATE.md`. Das Skill ist
 aus der Session heraus nur lesbar, deshalb muss der Block von Hand hinein.
 
 ---

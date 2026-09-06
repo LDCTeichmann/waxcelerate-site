@@ -1,5 +1,9 @@
 # Handoff: Mobile-Optimization Branch — Deploy & offene Punkte
 
+> Archiviert am 2026-09-06: Der `mobile-optimization`-Branch ist längst in `main`
+> gemergt, `docs/plaene/GESAMTUEBERSICHT.md` führt diesen Handoff als komplett.
+> Nur noch als Beleg lesen, nicht als Auftrag.
+
 Stand: 2026-08-07, geschrieben von Claude (Cowork-Session, kein Shell-Push-Zugriff).
 Zweck: falls Luca dies in einem neuen Chat (Claude Code o. ä.) mit echtem
 Git-Zugriff weitergeben will, steht hier alles Nötige, um ohne Rückfragen

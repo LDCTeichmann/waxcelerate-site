@@ -2,7 +2,7 @@
 
 Wo was liegt, was daneben liegt, und was man anfassen darf. Für eine neue
 Session, die weder Speicher noch Skills der vorherigen hat.
-Stand: 2026-08-11, alles darin frisch nachgeprüft.
+Stand: 2026-09-06 (Repo-Schlankheits-Lauf), Kern seit 2026-08-11 unverändert.
 
 Einstieg ins Projekt ist `PROJECT.md`, nicht diese Datei.
 
@@ -34,14 +34,15 @@ fällt jeder Kauf-Button auf eBay zurück. Serverless-Endpunkte liegen in `api/`
 
 **Nicht dein Arbeitsbereich, außer der Nutzer nennt sie ausdrücklich.**
 
-- `wx-hero-light/` und `wx-hr6jkh/` — sehen aus wie Git-Worktrees, sind aber
-  **keine gültigen mehr**: ihre `.git`-Datei zeigt auf
-  `.git/worktrees/<name>`, und diese Registry-Einträge existieren nicht.
-  Jedes `git`-Kommando **in** diesen Ordnern bricht mit „not a git repository"
-  ab. Am 11.08.2026 geprüft: beide enthalten **keine ungespeicherte Arbeit**,
-  ihr Inhalt entspricht exakt den Branches `feat/hero-light` bzw.
-  `work/reviews-on-hr6jkh`. Es geht dort also nichts verloren. Wer wieder darin
-  arbeiten will, legt den Worktree neu an, statt die Ordner zu reparieren.
+- Mehrere `wx-*`-Ordner (`wx-hero-light`, `wx-hr6jkh`, `wx-round4` … `wx-round8`,
+  `wx-shelf`). **Nur `wx-shelf` ist ein gültiger Git-Worktree**
+  (`feat/shelf-polish`, per `git worktree list` verifiziert). Alle anderen sind
+  stale: ihre `.git`-Datei zeigt auf einen `.git/worktrees/<name>`-Registry-Eintrag,
+  den es nicht mehr gibt, jedes `git`-Kommando darin bricht ab. Am 11.08.2026
+  geprüft: `wx-hero-light` / `wx-hr6jkh` enthalten keine ungespeicherte Arbeit
+  (Inhalt = Branches `feat/hero-light` bzw. `work/reviews-on-hr6jkh`). Die
+  `wx-round*`-Ordner sind spätere Experimentierkopien. Wer wieder darin arbeiten
+  will, legt den Worktree neu an, statt die Ordner zu reparieren.
 - `waxcelerate-store/` — separates, nicht genutztes Projekt. Ignorieren.
 - `DESIGN/`, `New Product selection june 2026/`, `Waxcelerate website images/` —
   Rohfotos und Design-Ablage, kein Code.

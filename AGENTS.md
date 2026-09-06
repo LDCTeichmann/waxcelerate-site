@@ -10,8 +10,10 @@
 **Projekt:** `/Users/lucateichmann/Claude Playground/waxcelerate-site`
 **GitHub:** `github.com/LDCTeichmann/waxcelerate-site` · **Live:** `waxcelerate.de`
 
-Daneben liegen Worktrees (`wx-hero-light`, `wx-hr6jkh`) aus früheren Umbauten.
-Dort **nicht** arbeiten, außer es geht ausdrücklich um die.
+Daneben in `Claude Playground/` liegen mehrere `wx-*`-Ordner aus früheren
+Sessions. Nur `../wx-shelf` ist aktuell ein gültiger Git-Worktree
+(`feat/shelf-polish`); der Rest ist stale. Dort **nicht** arbeiten, außer es geht
+ausdrücklich darum. Details in `docs/REPO_KARTE.md`.
 
 ```bash
 cd ~/"Claude Playground"/waxcelerate-site
