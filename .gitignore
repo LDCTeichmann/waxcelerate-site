@@ -1,6 +1,7 @@
 node_modules/
 dist/
 .DS_Store
+**/.DS_Store
 
 # Claude-Code-Arbeitskopien. Das sind eigenstaendige Git-Repositories; ohne
 # diese Zeile landen sie beim "git add -A" als Submodul-Verweise im Commit
