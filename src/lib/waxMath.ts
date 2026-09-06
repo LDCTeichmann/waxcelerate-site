@@ -31,14 +31,6 @@ export function applicationsPerBlock(product: Product): number | null {
   return (lo + hi) / 2;
 }
 
-/** Gramm je Wachsung, aus Blockgewicht und deklarierter Anwendungsspanne. */
-export function gramsPerApplication(product: Product): number | null {
-  const apps = applicationsPerBlock(product);
-  const grams = parseInt(product.weight ?? '', 10);
-  if (!apps || !Number.isFinite(grams)) return null;
-  return grams / apps;
-}
-
 /** Kosten je Wachsung in Euro. */
 export function costPerApplication(product: Product): number | null {
   const apps = applicationsPerBlock(product);

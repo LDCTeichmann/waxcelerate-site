@@ -62,39 +62,6 @@ export function useSectionReveal(containerRef: React.RefObject<HTMLElement | nul
   }, [containerRef]);
 }
 
-// ── Scroll reveal for individual elements ───────────────────────────────────
-export function useScrollReveal(
-  ref: React.RefObject<HTMLElement | null>,
-  opts: { y?: number; delay?: number; once?: boolean } = {}
-) {
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    if (prefersReducedMotion()) { gsap.set(el, { opacity: 1, y: 0 }); return; }
-
-    gsap.set(el, { opacity: 0, y: opts.y ?? 24 });
-
-    const trigger = ScrollTrigger.create({
-      trigger: el,
-      start: 'top 88%',
-      once: opts.once ?? true,
-      onEnter: () => {
-        gsap.to(el, {
-          opacity: 1, y: 0,
-          duration: DUR.standard,
-          ease: EASE.enter,
-          delay: opts.delay ?? 0,
-          onStart: () => { el.style.willChange = 'transform, opacity'; },
-          onComplete: () => { el.style.willChange = 'auto'; },
-        });
-      },
-    });
-
-    return () => { trigger.kill(); };
-  }, [ref, opts.y, opts.delay, opts.once]);
-}
-
 // ── 3D perspective reveal — staggered cards ──────────────────────────────────
 // Apply to a container ref; all direct children with [data-card] get staggered
 // rotateX entrance. Also works when passed a single element ref.

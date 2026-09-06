@@ -781,19 +781,6 @@ export const starterSetBundleProducts: Product[] = starterSetOptions.map((opt) =
   };
 });
 
-// Mengenstaffel. Gilt ausschliesslich auf Kettenwachs, nie auf Ketten: eine
-// Kette kauft man einmal pro Rad, ein Rabatt darauf verschenkt Marge ohne die
-// Menge zu bewegen. Wachs dagegen ist Verbrauchsmaterial, und wer drei Bloecke
-// nimmt, kauft ein Jahr im Voraus.
-//
-// Die 15 Prozent stehen bewusst weit hinten. Ein Rabatt, den fast jeder sofort
-// bekommt, ist kein Rabatt mehr, sondern ein Preis mit schlechtem Gewissen.
-export const waxTiers = [
-  { qty: 2, pct: 5 },
-  { qty: 3, pct: 10 },
-  { qty: 5, pct: 15 },
-] as const;
-
 export const waxVsOil = {
   // Grenzreibungszahlen. `wax` ist der beste Wert der Pro-Spanne und stammt vom
   // MoS2-Feststofffilm, nicht vom fertigen Film jeder Linie — deshalb wird er

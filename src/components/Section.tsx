@@ -29,23 +29,3 @@ export const Section = forwardRef<HTMLElement, SectionProps>(
     );
   },
 );
-
-interface SectionHeaderProps {
-  eyebrow?: ReactNode;
-  title: ReactNode;
-  lead?: ReactNode;
-  className?: string;
-}
-
-// Eyebrow + h2 + optional lead paragraph, always left-aligned — the same
-// header shape everywhere so scrolling past a section boundary doesn't also
-// shift where the reader's eye has to land.
-export function SectionHeader({ eyebrow, title, lead, className = '' }: SectionHeaderProps) {
-  return (
-    <div className={className}>
-      {eyebrow && <p className="eyebrow mb-3">{eyebrow}</p>}
-      <h2 className="section-title mb-4">{title}</h2>
-      {lead && <p className="text-wx-txm max-w-xl text-[15px] leading-relaxed">{lead}</p>}
-    </div>
-  );
-}
