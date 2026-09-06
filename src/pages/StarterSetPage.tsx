@@ -7,12 +7,13 @@
 // So the page is built around completeness rather than saving. The discount is
 // shown as a derivation from real single prices, never as a headline number.
 // A permanent percentage badge on a premium product reads as a price with a
-// guilty conscience; the same ten percent, shown as arithmetic, reads as
+// guilty conscience; the same discount, shown as arithmetic, reads as
 // sensible bundling.
 //
-// Prices per Luca 2026-07-28: set is ten percent below the sum of its parts.
-// Accessories sold separately: three hanging wires 5 € plus 1,80 € shipping,
-// quick-link pliers 5 €.
+// Prices per Luca: set is fifteen percent below the sum of its parts (see
+// `starterSet.discountPct` in data.ts — the source of truth). Accessories sold
+// separately: three hanging wires 4,95 € plus 1,80 € shipping, quick-link
+// pliers 4,95 €.
 
 import { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';

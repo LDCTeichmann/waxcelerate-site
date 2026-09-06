@@ -23,14 +23,16 @@ import { useSectionReveal } from '@/hooks/useAnimation';
 //      hochskaliert. Daher "unscharf": kein Motiv-, sondern ein
 //      Aufloesungsproblem.
 //
-// v3 arbeitet mit dem Hochformat statt dagegen. Das Foto ist eine echte
-// Spalte am rechten Rand ueber die volle Sektionshoehe, im Verhaeltnis nahe
-// am Original (0,92 statt Querband), und wird bei ~46 % Spaltenbreite aus
-// einer 1400px-Datei gespeist — auf einem 1600px-Viewport sind das rund
-// 730 CSS-Pixel, also fast 2x-Dichte statt 0,5x. Die linke Kante loest sich
-// per Verlauf in den dunklen Grund auf, damit die Spalte nicht als
-// aufgeklebtes Rechteck endet ("smoother"), aber ohne die Baender an den
-// Sektionskanten, die an v1 kritisiert wurden.
+// v3 ist eine echte Bildspalte am rechten Rand ueber die volle
+// Sektionshoehe. Die Vorlage ist jetzt quadratisch (2367x2367) — das
+// deckt sich fast mit dem Seitenverhaeltnis der Spalte auf ueblichen
+// Laptop-Breiten (~46 %, ~1:1), also kaum Beschnitt und kein Reinzoomen
+// auf den Wachsblock. Gespeist aus einer 1400px-Datei, bei ~46 %
+// Spaltenbreite auf 1600px-Viewport rund 730 CSS-Pixel, also fast
+// 2x-Dichte. Die linke Kante loest sich per Verlauf in den dunklen Grund
+// auf, damit die Spalte nicht als aufgeklebtes Rechteck endet — bewusst
+// schmal und weich, damit das Motiv Strahlkraft behaelt, aber ohne die
+// Baender an den Sektionskanten, die an v1 kritisiert wurden.
 export function Origin() {
   const { t, lang } = useLanguage();
   const de = lang === 'de';
@@ -79,10 +81,11 @@ export function Origin() {
           egal wie hoch der Text daneben baut. */}
       <div aria-hidden className="hidden lg:block absolute inset-y-0 right-0 w-[46%]">
         {img}
-        {/* Linke Kante loest sich in den Grund auf. Nur ueber dem linken
-            Drittel der Spalte, damit das Motiv selbst unangetastet bleibt. */}
-        <div className="absolute inset-y-0 left-0 w-1/2 pointer-events-none"
-          style={{ background: 'linear-gradient(90deg, #0a0a0a 0%, rgba(10,10,10,0.82) 34%, rgba(10,10,10,0) 100%)' }} />
+        {/* Linke Kante loest sich in den Grund auf. Bewusst schmal und weich
+            gehalten, damit der Verlauf die Kante nur kaschiert, statt in das
+            Motiv hineinzufressen — das Foto soll Strahlkraft behalten. */}
+        <div className="absolute inset-y-0 left-0 w-2/5 pointer-events-none"
+          style={{ background: 'linear-gradient(90deg, #0a0a0a 0%, rgba(10,10,10,0.38) 24%, rgba(10,10,10,0) 62%)' }} />
       </div>
 
       {/* Mobil: Bild als Band oben. Eine Seitenspalte gibt es auf 390px
@@ -90,7 +93,7 @@ export function Origin() {
           Sektion mit einer Textwand beginnen lassen. */}
       <div className="lg:hidden relative w-full" style={{ aspectRatio: '4 / 3' }}>
         {img}
-        <div aria-hidden className="absolute inset-x-0 bottom-0 h-1/3 pointer-events-none"
+        <div aria-hidden className="absolute inset-x-0 bottom-0 h-1/4 pointer-events-none"
           style={{ background: 'linear-gradient(to top, #0a0a0a 0%, rgba(10,10,10,0) 100%)' }} />
       </div>
 

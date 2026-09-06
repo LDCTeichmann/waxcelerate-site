@@ -176,7 +176,7 @@ export const translations = {
 
     // Tools
     tools: {
-      title: 'Rechner & Planer',
+      title: 'Kettenwachs-Rechner & Planer',
       subtitle: 'Wie oft, wie viel, wie lange — konkrete Antworten für dein Setup.',
       rewax: {
         title: 'Wann muss ich rewaxen?',
@@ -224,9 +224,11 @@ export const translations = {
         assumptions: 'Womit gerechnet wird',
         assumptionsNote: 'Marktübliche Annahmen, keine Messwerte von uns. Wer andere Preise zahlt, rechnet anders.',
         addGoogle: 'In Google Kalender',
-        addIcs: 'Als .ics laden',
+        addIcs: 'Als .ics laden (Apple)',
+        addOutlook: 'In Outlook',
         remind: 'Erinnerung',
         copyLink: 'Link kopieren',
+        share: 'Teilen',
         copied: 'Kopiert',
         buyWax: 'Wachs kaufen →',
         recommended: 'Empfohlen',
@@ -257,9 +259,11 @@ export const translations = {
         chainOnly: 'nur Kette',
         chainAndCassette: 'Kette + Kassette',
         helpSpeed: 'Zähl die Ritzel hinten am Hinterrad — nur die Zahnkränze am Laufrad, nicht die Kettenblätter vorne und nicht die Gänge am Schalthebel.',
-        helpMethod: 'Ohne Werkzeug reicht ein Stahllineal. Eine Kettenlehre ist schneller und für 11- und 12-fach genauer.',
-        helpMeasured: 'Kette straff ziehen und über 12 volle Glieder messen, von Bolzenmitte zu Bolzenmitte. Neu sind das genau 12 Zoll, also 304,8 mm. Alles darüber ist Längung.',
-        gaugeWarning: 'Achtung bei billigen Lehren: Modelle, die nur zwischen zwei Rollen greifen, messen das Spiel der Rollen mit und zeigen deshalb zu viel Verschleiß an. Für 11- und 12-fach brauchst du eine Lehre mit 0,5-Prozent-Marke.',
+        helpMethod: 'Ohne Werkzeug reicht ein Stahllineal: Kette straff ziehen, einen Bolzen auf die Null legen und schauen, wie weit der 12. Bolzen über der 12-Zoll-Marke (304,8 mm) steht. Eine Kettenlehre gibt schneller ein Ja/Nein und ist für 11- und 12-fach die verlässlichere Wahl, weil man 1,5 mm über 30 cm von Hand kaum genau abliest.',
+        helpMeasured: 'Kette straff ziehen und über 12 volle Glieder messen, von Bolzenmitte zu Bolzenmitte. Neu sind das genau 12 Zoll, also 304,8 mm. Alles darüber ist Längung: 1/16 Zoll (rund 1,5 mm) darüber sind 0,5 %, 1/8 Zoll (rund 3 mm) sind 1,0 %.',
+        enterValue: 'Miss über 12 Glieder und trag den Wert ein.',
+        overshoot: '{mm} mm über der Neulänge von 304,8 mm.',
+        gaugeWarning: 'Achtung bei billigen Lehren: Modelle, die nur zwischen zwei Rollen greifen, messen das Spiel der Rollen mit und zeigen deshalb zu viel Verschleiß an. Nimm eine Drei-Punkt-Lehre, und für 11- und 12-fach eine mit 0,5-Prozent-Marke — viele billige messen nur 0,75 % und 1,0 %.',
         cta: 'Passende Kette finden →',
       },
 
@@ -657,7 +661,7 @@ export const translations = {
 
     // Tools
     tools: {
-      title: 'Calculators & Planners',
+      title: 'Chain Wax Calculators & Planners',
       subtitle: 'How often, how much, how long — concrete answers for your setup.',
       rewax: {
         title: 'When should I re-wax?',
@@ -701,9 +705,11 @@ export const translations = {
         assumptions: 'What we calculate with',
         assumptionsNote: 'Typical market assumptions, not our own measurements. Different prices, different result.',
         addGoogle: 'Add to Google Calendar',
-        addIcs: 'Download .ics',
+        addIcs: 'Download .ics (Apple)',
+        addOutlook: 'Add to Outlook',
         remind: 'Reminder',
         copyLink: 'Copy link',
+        share: 'Share',
         copied: 'Copied',
         buyWax: 'Buy wax →',
         recommended: 'Recommended',
@@ -733,9 +739,11 @@ export const translations = {
         chainOnly: 'chain only',
         chainAndCassette: 'chain + cassette',
         helpSpeed: 'Count the sprockets on the rear wheel — only the cogs at the wheel, not the chainrings at the front and not the clicks on the shifter.',
-        helpMethod: 'A steel ruler is enough. A chain gauge is quicker and more accurate for 11- and 12-speed.',
-        helpMeasured: 'Pull the chain taut and measure across 12 full links, pin centre to pin centre. New, that is exactly 12 inches, or 304.8 mm. Anything above that is elongation.',
-        gaugeWarning: 'Careful with cheap gauges: models that rest between two rollers measure roller play as well and therefore over-report wear. For 11- and 12-speed you need a gauge with a 0.5 percent mark.',
+        helpMethod: 'A steel ruler works: pull the chain taut, line up one pin with zero and see how far the 12th pin sits past the 12-inch mark (304.8 mm). A chain gauge gives a faster yes/no and is the safer choice for 11- and 12-speed, since 1.5 mm over 30 cm is hard to read by hand.',
+        helpMeasured: 'Pull the chain taut and measure across 12 full links, pin centre to pin centre. New, that is exactly 12 inches, or 304.8 mm. Anything above that is elongation: 1/16 inch (about 1.5 mm) over is 0.5 %, 1/8 inch (about 3 mm) is 1.0 %.',
+        enterValue: 'Measure across 12 links and enter the value.',
+        overshoot: '{mm} mm over the new length of 304.8 mm.',
+        gaugeWarning: 'Careful with cheap gauges: models that rest between two rollers measure roller play as well and therefore over-report wear. Use a three-point gauge, and for 11- and 12-speed one with a 0.5 percent mark — many cheap ones only read 0.75 % and 1.0 %.',
         cta: 'Find a matching chain →',
       },
 

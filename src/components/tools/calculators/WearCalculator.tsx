@@ -19,7 +19,7 @@ import {
   ToolCard, ToolHeader, StepList, ToolFooter, ToolCTA, TogButton, ChipRow, NumberInput, StepNote, InfoPopover,
 } from '@/components/tools/primitives';
 import { StepField } from '@/components/tools/StepField';
-import { ChainMeasureDiagram, SprocketCountDiagram } from '@/components/tools/diagrams';
+import { ChainMeasureDiagram, ChainGaugeDiagram, SprocketCountDiagram } from '@/components/tools/diagrams';
 import { ResultPanel } from '@/components/tools/ResultPanel';
 import { ResultActions } from '@/components/tools/ResultActions';
 
@@ -48,11 +48,17 @@ export function WearCalculator({ profile }: { profile: ToolProfileState }) {
 
   const speed = profile.speed ?? 12;
   const [method, setMethod] = useState<'ruler' | 'gauge'>('ruler');
-  const [measuredMm, setMeasuredMm] = useState(String(NOMINAL_12_LINKS_MM));
+  // Leer statt 304,8 vorbelegt: eine unangetastete Karte zeigte sonst „0,00 % —
+  // Alles gut", also ein Urteil auf einer Messung, die niemand gemacht hat.
+  const [measuredMm, setMeasuredMm] = useState('');
   const [gauge, setGauge] = useState<GaugeMark>('none');
 
   const parsedMm = Number(measuredMm.replace(',', '.'));
   const mmValid = Number.isFinite(parsedMm) && parsedMm >= 300 && parsedMm <= 315;
+  // Lineal-Methode ohne gueltige Eingabe: kein Urteil, sondern die Aufforderung
+  // zu messen.
+  const awaitingInput = method === 'ruler' && !mmValid;
+  const overshootMm = mmValid ? parsedMm - NOMINAL_12_LINKS_MM : 0;
   // Eine Lehre misst keinen Wert, sie beantwortet eine Ja/Nein-Frage je Marke.
   // „Die 0,5er faellt rein" heisst mindestens 0,5 %, nicht genau 0,5 %. Fuer
   // das Urteil genuegt die Untergrenze; die Anzeige sagt „mindestens" dazu,
@@ -102,7 +108,12 @@ export function WearCalculator({ profile }: { profile: ToolProfileState }) {
           </ChipRow>
         </StepField>
 
-        <StepField step={2} label={t.tools.wear.method} help={t.tools.wear.helpMethod}>
+        <StepField
+          step={2}
+          label={t.tools.wear.method}
+          help={t.tools.wear.helpMethod}
+          figure={method === 'gauge' ? <ChainGaugeDiagram /> : undefined}
+        >
           <ChipRow>
             <TogButton active={method === 'ruler'} onClick={() => setMethod('ruler')}>{t.tools.wear.methodRuler}</TogButton>
             <TogButton active={method === 'gauge'} onClick={() => setMethod('gauge')}>{t.tools.wear.methodGauge}</TogButton>
@@ -121,8 +132,14 @@ export function WearCalculator({ profile }: { profile: ToolProfileState }) {
               value={measuredMm} onChange={setMeasuredMm}
               min={300} max={315} step={0.1}
               ariaLabel={t.tools.wear.measured} theme={theme} suffix="mm"
+              placeholder={de ? 'z. B. 305,3' : 'e.g. 305.3'}
             />
-            {!mmValid && <StepNote>{de ? '300 bis 315 mm.' : '300 to 315 mm.'}</StepNote>}
+            {measuredMm.trim() !== '' && !mmValid && (
+              <StepNote>{de ? '300 bis 315 mm.' : '300 to 315 mm.'}</StepNote>
+            )}
+            {mmValid && overshootMm > 0.05 && (
+              <StepNote>{t.tools.wear.overshoot.replace('{mm}', dec(overshootMm, 1))}</StepNote>
+            )}
           </StepField>
         ) : (
           <StepField step={3} label={t.tools.wear.gaugeValue}>
@@ -159,10 +176,10 @@ export function WearCalculator({ profile }: { profile: ToolProfileState }) {
       </StepList>
 
       <ResultPanel
-        value={isLowerBound ? `≥ ${dec(percent)}` : dec(percent)}
-        unit="%"
-        verdict={statusText}
-        tone={needsAction ? 'good' : 'neutral'}
+        value={awaitingInput ? '—' : isLowerBound ? `≥ ${dec(percent)}` : dec(percent)}
+        unit={awaitingInput ? undefined : '%'}
+        verdict={awaitingInput ? t.tools.wear.enterValue : statusText}
+        tone={!awaitingInput && needsAction ? 'good' : 'neutral'}
         facts={[
           { label: t.tools.wear.limit, value: `${de ? MARK_LABEL[wearLimit(speed)].de : MARK_LABEL[wearLimit(speed)].en} % · ${speed}${de ? '-fach' : 'sp'}` },
         ]}

@@ -46,8 +46,8 @@ export function StepField({ step, label, value, help, figure, children }: {
             </span>
           )}
           <span
-            className="text-meta uppercase tracking-[0.1em] font-medium truncate"
-            style={{ color: 'var(--txf)' }}
+            className="text-meta uppercase tracking-[0.1em] font-semibold truncate"
+            style={{ color: 'var(--tx2)' }}
           >
             {label}
           </span>

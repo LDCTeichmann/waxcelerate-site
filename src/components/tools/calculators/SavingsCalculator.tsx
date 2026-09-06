@@ -63,6 +63,18 @@ export function SavingsCalculator({ profile }: { profile: ToolProfileState }) {
     window.dispatchEvent(new CustomEvent('wax:selectTab', { detail: 'chain' }));
   };
 
+  const rotationWeeks = Math.max(1, Math.round(weeksBetween));
+  const shareLink = shareUrl('/rechner/ersparnis', profile.snapshot);
+  const reminder = {
+    date: overdue ? new Date() : next,
+    title: de ? 'Ketten-Set rewaxen' : 'Re-wax chain set',
+    description: de
+      ? `Waxcelerate: ${chains} Ketten im Wechsel, alle ${rotationWeeks} Wochen gemeinsam wachsen.`
+      : `Waxcelerate: ${chains} chains in rotation, wax them together every ${rotationWeeks} weeks.`,
+    repeatWeeks: rotationWeeks,
+    url: shareLink,
+  };
+
   return (
     <ToolCard>
       <ToolHeader
@@ -158,7 +170,7 @@ export function SavingsCalculator({ profile }: { profile: ToolProfileState }) {
         facts={[
           { label: de ? 'Waxen' : 'Waxing', value: `${costs.waxSessionsPerYear}× ${de ? 'im Jahr' : 'a year'}` },
         ]}
-        actions={<ResultActions shareUrl={shareUrl('/rechner/ersparnis', profile.snapshot)} />}
+        actions={<ResultActions shareUrl={shareLink} event={reminder} />}
       />
 
       <ToolFooter>

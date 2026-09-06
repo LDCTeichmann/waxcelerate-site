@@ -92,8 +92,8 @@ function DeckSlot({ item, rel, count, active, onActivate, de }: {
         className="deck-cover absolute inset-0 z-10 rounded-3xl flex flex-col items-center justify-center gap-4 px-8 text-center"
         style={{
           background: 'var(--card-bg)',
-          border: '1px solid var(--bd)',
-          boxShadow: 'var(--card-shad)',
+          border: '1px solid var(--tool-card-bd)',
+          boxShadow: 'var(--tool-card-shad)',
           opacity: active ? 0 : 1,
           pointerEvents: active ? 'none' : 'auto',
         }}
@@ -229,7 +229,7 @@ export function ToolTrack({ items, onActiveChange }: {
               role="tab"
               aria-selected={active === i}
               className="relative z-10 flex-1 min-w-[76px] px-3 py-2 rounded-xl text-[13px] font-semibold transition-colors whitespace-nowrap"
-              style={{ color: active === i ? 'var(--tx1)' : 'var(--txf)', letterSpacing: active === i ? '-0.01em' : '0' }}
+              style={{ color: active === i ? 'var(--tx1)' : 'var(--tx2)', letterSpacing: active === i ? '-0.01em' : '0' }}
             >
               {item.label}
             </button>
@@ -341,7 +341,7 @@ export function ToolTrack({ items, onActiveChange }: {
                   background: active === i ? 'var(--tab-pill-bg)' : 'transparent',
                   border: active === i ? '1px solid var(--tab-pill-bd)' : '1px solid transparent',
                   boxShadow: active === i ? 'var(--tab-pill-shadow)' : 'none',
-                  color: active === i ? 'var(--tx1)' : 'var(--txf)',
+                  color: active === i ? 'var(--tx1)' : 'var(--tx2)',
                 }}
               >
                 {item.label}

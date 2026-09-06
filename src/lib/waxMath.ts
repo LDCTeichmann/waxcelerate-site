@@ -120,10 +120,12 @@ export function wearVerdict(percent: number, speed: ChainSpeed): WearVerdict {
 
 // ── Kettenlänge ─────────────────────────────────────────────────────────────
 //
-// Standardformel: Glieder = 0,157 × Kettenstrebe(mm) + Zähne(Kettenblatt)/2
-// + Zähne(größtes Ritzel)/2 + 2. Der Faktor 0,157 ist 2/12,7 — zwei Glieder je
-// Zoll Kettenstrebe. Das Ergebnis wird auf die nächste gerade Zahl aufgerundet,
-// weil eine Kette immer aus Innen- und Außenlaschenpaaren besteht.
+// Standardformel (Park Tool, in Glieder umgerechnet): Glieder =
+// 0,157 × Kettenstrebe(mm) + Zähne(Kettenblatt)/2 + Zähne(größtes Ritzel)/2 + 2.
+// Park rechnet in Zoll: L = 2·Strebe + Blatt/4 + Ritzel/4 + 1; ein Glied ist ein
+// halber Zoll, also ×2 → der Strebenanteil wird 4 Glieder je Zoll = 4/25,4 =
+// 0,157 je mm. Das Ergebnis wird auf die nächste gerade Zahl aufgerundet, weil
+// eine Kette immer aus Innen- und Außenlaschenpaaren besteht.
 export function chainLengthLinks(input: {
   chainstayMm: number;
   bigChainring: number;

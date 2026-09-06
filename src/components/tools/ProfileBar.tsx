@@ -46,8 +46,13 @@ export function ProfileBar({ profile, inactiveNote }: {
       className="rounded-2xl px-4 py-3 sm:px-5 sm:py-4 mb-4 transition-opacity duration-300"
       style={{
         background: 'var(--inset-bg)',
-        border: '1px solid var(--inset-bd)',
-        opacity: inactiveNote ? 0.5 : 1,
+        // Kraeftigere Kante (--bd statt --bd2) + leiser Tiefen-Hint: die Leiste
+        // liegt nur 8 Einheiten unter der Sektion, die Trennung muss von der
+        // Linie kommen (DESIGN.md §1). Die erhaben wirkenden Chips brauchen
+        // ausserdem einen erkennbar recessten Grund darunter.
+        border: '1px solid var(--bd)',
+        boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.04)',
+        opacity: inactiveNote ? 0.6 : 1,
       }}
     >
       {/* Handy: Zusammenfassung statt Bedienelemente, solange eingeklappt. */}
@@ -58,7 +63,7 @@ export function ProfileBar({ profile, inactiveNote }: {
         className="sm:hidden w-full flex items-center justify-between gap-3 text-left"
       >
         <span className="min-w-0">
-          <span className="block text-meta uppercase tracking-[0.1em] font-medium" style={{ color: 'var(--txm)' }}>
+          <span className="block text-meta uppercase tracking-[0.1em] font-semibold" style={{ color: 'var(--tx2)' }}>
             {t.tools.profile.barTitle}
           </span>
           <span className="block text-[13px] truncate mt-0.5" style={{ color: 'var(--tx2)' }}>{summary}</span>
@@ -70,7 +75,7 @@ export function ProfileBar({ profile, inactiveNote }: {
       </button>
 
       <div className="hidden sm:flex items-baseline gap-2 mb-3">
-        <span className="text-meta uppercase tracking-[0.1em] font-medium" style={{ color: 'var(--txm)' }}>
+        <span className="text-meta uppercase tracking-[0.1em] font-semibold" style={{ color: 'var(--tx2)' }}>
           {t.tools.profile.barTitle}
         </span>
         <span className="text-meta" style={{ color: 'var(--txff)' }}>

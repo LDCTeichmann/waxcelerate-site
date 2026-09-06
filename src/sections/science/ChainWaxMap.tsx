@@ -130,22 +130,29 @@ export function ChainWaxMap({
   onZone?: (i: number) => void;
 }) {
   const dim = (i: number) => (active === null || active === i ? 1 : (teaser ? 0.1 : 0.45));
-  const glow = (i: number) => (teaser && active === i
-    ? { filter: 'drop-shadow(0 0 7px rgba(var(--accent-rgb),0.85))' } : undefined);
+  // Teaser: die aktive Flaeche bekommt einen helleren, kraeftigeren Blauton
+  // (--accent-soft statt --accent) und einen atmenden Glow ueber die Klasse
+  // `waxmap-active-pulse` (index.css, respektiert prefers-reduced-motion) —
+  // "hier wird die Reibung gerade reduziert" soll sofort ins Auge fallen.
+  // Der Vollmodus auf /wissenschaft bleibt unangetastet.
+  const waxFill = (i: number) => (teaser && active === i ? 'var(--accent-soft)' : 'var(--accent)');
+  const pulse = (i: number) => (teaser && active === i ? 'waxmap-active-pulse' : undefined);
   const hit = (i: number) =>
     onZone ? { onMouseEnter: () => onZone(i), style: { cursor: 'pointer' } } : {};
   const TOP_LABELS = topLabels(de);
 
   return (
-    <svg viewBox={teaser ? '40 6 640 294' : '0 0 700 300'} className="w-full h-auto" role="img"
+    <svg viewBox={teaser ? '46 82 640 210' : '0 0 700 300'} className="w-full h-auto" role="img"
       aria-label={de
         ? 'Fahrradkette in Draufsicht und Seitenansicht, dazu ein Gelenk vergrößert; blau markiert sind die Wachsfilme zwischen Laschen, Bolzen, Kragen und Rolle'
         : 'Bicycle chain in plan and side view, with one joint enlarged; blue marks the wax films between plates, pin, collar and roller'}>
 
       {/* ── Draufsicht: hier liegen die Teile nebeneinander, also werden sie
              hier benannt — und nur hier ist die Lasche-gegen-Lasche-Fläche zu
-             sehen, die seitlich liegt. ── */}
-      <g>
+             sehen, die seitlich liegt. ──
+             Teaser: nach unten geschoben, damit die Kette auf einer Höhe neben
+             der Lupe steht statt darüber versetzt (ruhigeres Layout). */}
+      <g transform={teaser ? 'translate(0 92)' : undefined}>
         {INNER.map(([a, b]) => (
           <Pair key={`ti${a}`} x0={pins[a] - 14} x1={pins[b] + 14} ys={yIn} fill={METAL.mid} />
         ))}
@@ -157,10 +164,10 @@ export function ChainWaxMap({
             const x0 = pins[a] - 16, x1 = pins[b] + 16;
             return (
               <g key={`to${a}`}>
-                <rect x={x0} y={yWax[0]} width={x1 - x0} height={yWax[1] - yWax[0]}
-                  fill="var(--accent)" opacity={0.9 * dim(2)} style={{ transition: 'opacity .35s', ...glow(2) }} />
-                <rect x={x0} y={mir(yWax[1])} width={x1 - x0} height={yWax[1] - yWax[0]}
-                  fill="var(--accent)" opacity={0.9 * dim(2)} style={{ transition: 'opacity .35s', ...glow(2) }} />
+                <rect x={x0} y={yWax[0]} width={x1 - x0} height={yWax[1] - yWax[0]} className={pulse(2)}
+                  fill={waxFill(2)} opacity={0.9 * dim(2)} style={{ transition: 'opacity .35s' }} />
+                <rect x={x0} y={mir(yWax[1])} width={x1 - x0} height={yWax[1] - yWax[0]} className={pulse(2)}
+                  fill={waxFill(2)} opacity={0.9 * dim(2)} style={{ transition: 'opacity .35s' }} />
                 <Pair x0={x0} x1={x1} ys={yOut} fill={METAL.light} stroke="var(--tx2)" />
               </g>
             );
@@ -235,14 +242,14 @@ export function ChainWaxMap({
       <g {...hit(1)}>
         <path d={ring(LX, LY, rRol, rW2)} fillRule="evenodd" fill={METAL.strong}
           stroke="var(--txf)" style={LINE} />
-        <path d={ring(LX, LY, rW2, rCol)} fillRule="evenodd" fill="var(--accent)"
-          opacity={dim(1)} style={{ transition: 'opacity .35s', ...glow(1) }} />
+        <path d={ring(LX, LY, rW2, rCol)} fillRule="evenodd" fill={waxFill(1)} className={pulse(1)}
+          opacity={dim(1)} style={{ transition: 'opacity .35s' }} />
       </g>
       <g {...hit(0)}>
         <path d={ring(LX, LY, rCol, rW1)} fillRule="evenodd" fill={METAL.mid}
           stroke="var(--txf)" style={LINE} />
-        <path d={ring(LX, LY, rW1, rPin)} fillRule="evenodd" fill="var(--accent)"
-          opacity={dim(0)} style={{ transition: 'opacity .35s', ...glow(0) }} />
+        <path d={ring(LX, LY, rW1, rPin)} fillRule="evenodd" fill={waxFill(0)} className={pulse(0)}
+          opacity={dim(0)} style={{ transition: 'opacity .35s' }} />
       </g>
       <circle cx={LX} cy={LY} r={rPin} fill={METAL.strong} stroke="var(--tx2)" style={LINE} />
       <line x1={LX + 6} y1={LY - (rW1 + rPin) / 2 - 2} x2={LX + 26} y2={LY - LR - 14}

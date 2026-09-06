@@ -25,6 +25,7 @@ import { Navigation } from '@/sections/navigation';
 import { Footer } from '@/sections/footer';
 import { BackLink } from '@/components/BackLink';
 import { WaxcelerateMark } from '@/components/WaxcelerateMark';
+import { GiftPreviewModal } from '@/components/GiftPreviewModal';
 
 // One tap, no form, no scrolling to a contact section that may or may not be
 // reachable from a route. The previous CTA pointed at /#kontakt and did not
@@ -41,11 +42,14 @@ const waLink = (de: boolean, waxedLabel?: string | null) =>
         + (waxedLabel ? ` The card says waxed ${waxedLabel}.` : '')
         + ' Number of chains: '),
   );
-const mailLink = (de: boolean) =>
-  'mailto:waxcelerate@gmail.com?subject=' + encodeURIComponent(de ? 'Rewax-Service' : 'Rewax service')
-  + '&body=' + encodeURIComponent(de
-    ? 'Hallo Luca,\n\nich möchte folgende Anzahl Ketten zum Rewaxen einschicken: \n\nViele Grüße\n'
-    : 'Hi Luca,\n\nI would like to send in the following number of chains for rewaxing: \n\nBest regards\n');
+// Ablauf-Schritte: eine Quelle, zwei Darstellungen — kompakte Textliste im
+// Hero (ab lg, füllt den Raum neben dem Formular), Foto-Schritte in der
+// Preis-Sektion (unter lg, wo im Hero kein Platz ist).
+const STEPS = [
+  { n: 1, de: 'Einschicken', en: 'Send it', bodyDe: 'Am Quick-Link raus, in den Umschlag.', bodyEn: 'Off at the quick link, into an envelope.', img: '/images/rewax/step-1' },
+  { n: 2, de: 'Waschen & Wachsen', en: 'Wash & wax', bodyDe: 'Ultraschallgereinigt, dann frisch im Wachsbad.', bodyEn: 'Ultrasonically cleaned, then fresh in the wax bath.', img: '/images/rewax/step-2' },
+  { n: 3, de: 'Zurück aufs Rad', en: 'Back on the bike', bodyDe: 'Ausgehärtet, anbauen, kurbeln, los.', bodyEn: 'Cured, fit it, turn the cranks, ride.', img: '/images/rewax/step-3' },
+] as const;
 
 function parseWaxedStamp(raw: string | null): Date | null {
   const s = (raw || '').trim();
@@ -91,19 +95,26 @@ const PRICE = {
   shippingBundle: 2.90,
 };
 
-// Prepaid tiers at the three-chain rate, less the discount Luca set on
-// 2026-08-18: ten percent on five treatments, fifteen on ten. Written as a
-// derivation rather than typed-in numbers so price and list can never drift.
+// Prepaid cards (Luca, 2026-09-06). Two changes from the earlier model:
+//
+// 1. Anker ist der EINZELPREIS (13,95 €), nicht mehr der Dreierpreis. Wer eine
+//    Karte kauft, hat ein bis zwei Ketten — drei plus in Rotation schickt man
+//    ohnehin zusammen für 9,95 €. Gegen 9,95 € sah die Karte nach 10/15 %
+//    aus, gegen den Preis, den der Kartenkäufer real zahlt, spart sie ~30 %.
+// 2. All-in: der Kartenpreis deckt Wachsen UND Rückversand. Deshalb ein fest
+//    gesetzter Preis statt einer Formel — er ist eine Geschäftsentscheidung
+//    (Porto-Deckung bei ~2-3 Ketten je Sendung, Selbstkosten 3-5 €/Vorgang),
+//    keine Ableitung. `list` bleibt abgeleitet, damit der Anker nie driftet.
 const TEN_CARD = {
   count: 10,
-  get list() { return PRICE.bundle * this.count; },
-  get price() { return Math.round(this.list * 0.85 * 100) / 100; },
+  get list() { return PRICE.single * this.count; }, // 139,50 €
+  price: 94.50,                                      // 9,45 €/Vorgang, Rückversand inklusive
 };
 
 const FIVE_CARD = {
   count: 5,
-  get list() { return PRICE.bundle * this.count; },
-  get price() { return Math.round(this.list * 0.90 * 100) / 100; },
+  get list() { return PRICE.single * this.count; }, // 69,75 €
+  price: 49.75,                                      // 9,95 €/Vorgang, Rückversand inklusive
 };
 
 const eur = (n: number, de: boolean) =>
@@ -319,8 +330,9 @@ function RewaxRequestForm({ de }: { de: boolean }) {
 // cards share the accent wash background now, not just the recommended one
 // — the point is two cards that both read as "proper branded stamp cards"
 // sitting side by side for comparison, not one plain + one highlighted.
-function StampCard({ de, count, price, list, gift, recommended }: {
+function StampCard({ de, count, price, list, gift, recommended, onPreview }: {
   de: boolean; count: number; price: number; list: number; gift: boolean; recommended?: boolean;
+  onPreview?: () => void;
 }) {
   const label = de ? `${count}er-Karte` : `${count}-visit card`;
   const savings = list - price;
@@ -355,9 +367,9 @@ function StampCard({ de, count, price, list, gift, recommended }: {
   // its index enters that range, so only the field that just turned on ever
   // visibly restarts wx-stamp-pop — the ones already on keep re-applying an
   // unchanged style and just sit at the animation's held end frame.
-  const STAMP_STAGGER_MS = 550;
-  const STAMP_HOLD_MS = 2400;
-  const STAMP_EMPTY_PAUSE_MS = 900;
+  const STAMP_STAGGER_MS = 950;
+  const STAMP_HOLD_MS = 3400;
+  const STAMP_EMPTY_PAUSE_MS = 1300;
   const gridRef = useRef<HTMLDivElement>(null);
   const [stampedCount, setStampedCount] = useState(0);
   const [inView, setInView] = useState(false);
@@ -434,7 +446,7 @@ function StampCard({ de, count, price, list, gift, recommended }: {
               aspectRatio: '1 / 1', border: '1px dashed rgba(var(--accent-rgb),0.35)', background: 'var(--sf)',
               visibility: i < count ? 'visible' : 'hidden',
               ...(isOn && !reduced
-                ? { animationName: 'wx-stamp-ring', animationDuration: '900ms', animationTimingFunction: 'ease-out', animationFillMode: 'forwards' }
+                ? { animationName: 'wx-stamp-ring', animationDuration: '1150ms', animationTimingFunction: 'ease-out', animationFillMode: 'forwards' }
                 : null),
             }}
             aria-hidden={i >= count}>
@@ -445,8 +457,8 @@ function StampCard({ de, count, price, list, gift, recommended }: {
                   : isOn
                   ? {
                       animationName: 'wx-stamp-pop',
-                      animationDuration: '900ms',
-                      animationTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+                      animationDuration: '1150ms',
+                      animationTimingFunction: 'cubic-bezier(0.34, 1.42, 0.64, 1)',
                       animationFillMode: 'forwards',
                     }
                   : { filter: 'grayscale(1) opacity(0.4)' }
@@ -466,29 +478,28 @@ function StampCard({ de, count, price, list, gift, recommended }: {
           {eur(list, de)}
         </p>
       </div>
+      {/* Zwei Zeilen statt vorher vier: die Ersparnis (jetzt gegen den
+          Einzelpreis gerechnet, also eine echte Zahl) und eine
+          Merkmals-Zeile. Wie man die Karte spaeter einloest, stand vorher auf
+          JEDER Karte — das steht jetzt einmal unter beiden Karten und in der
+          FAQ, damit die Karte selbst nicht wieder zur Textwand wird. */}
       <p className="text-[11.5px] mt-1" style={{ color: 'var(--accent)' }}>
-        {de ? `Du sparst ${eur(savings, de)} (${pct}%)` : `You save ${eur(savings, de)} (${pct}%)`}
+        {de ? `Du sparst ${eur(savings, de)} (${pct} %)` : `You save ${eur(savings, de)} (${pct}%)`}
       </p>
-      <p className="text-[11px] mt-1" style={{ color: 'var(--txf)' }}>
-        {de
-          ? `${eur(price / count, de)} je Vorgang · kein Ablaufdatum, übertragbar`
-          : `${eur(price / count, de)} per treatment · no expiry, transferable`}
-      </p>
-      {/* Ohne diesen Satz stand nirgends, wie man eine gekaufte Karte
-          spaeter tatsaechlich einloest — kein Objekt wandert hin und her
-          (verlustanfaellig bei einem reinen Versand-Service), nur ein Code,
-          den Luca in der bestehenden Kundenliste mitfuehrt. Beim Geschenk
-          bekommt der Schenkende zusaetzlich eine gedruckte Karte, weil ein
-          reiner Code sich nicht wie ein Geschenk anfuehlt. */}
       <p className="text-[11px] mt-1 mb-4" style={{ color: 'var(--txf)' }}>
         {de
-          ? (gift
-            ? 'Du bekommst eine gedruckte Geschenkkarte mit Code zum Überreichen.'
-            : 'Nach dem Kauf bekommst du einen Code für deine Karte. Den schickst du bei jeder Sendung einfach mit.')
-          : (gift
-            ? 'You get a printed gift card with the code to hand over.'
-            : 'After purchase you get a code for your card. Just include it with every shipment.')}
+          ? `${eur(price / count, de)} je Vorgang · Rückversand inklusive · übertragbar`
+          : `${eur(price / count, de)} per treatment · return shipping included · transferable`}
       </p>
+
+      {gift && onPreview && (
+        <button type="button" onClick={onPreview}
+          className="inline-flex items-center gap-1.5 text-[12px] font-semibold mb-3 transition-opacity hover:opacity-70"
+          style={{ color: 'var(--accent)' }}>
+          {de ? 'Geschenk-Vorschau ansehen' : 'See gift preview'}
+          <ArrowRight className="h-3 w-3" />
+        </button>
+      )}
 
       <div className="flex-1" />
 
@@ -575,6 +586,7 @@ export function RewaxPage() {
   const { lang } = useLanguage();
   const de = lang === 'de';
   const [isGift, setIsGift] = useState(false);
+  const [giftPreview, setGiftPreview] = useState<{ count: number; price: number; list: number } | null>(null);
   const location = useLocation();
   const waxedOn = useMemo(
     () => waxedFromLocation(),
@@ -651,6 +663,12 @@ export function RewaxPage() {
         : `From three chains the price drops to ${eur(PRICE.bundle, de)} per chain. Return shipping (${eur(PRICE.shippingBundle, de)}) is charged only once, no matter how many chains are in the same envelope.`,
     },
     {
+      q: de ? 'Wie funktioniert die 5er- oder 10er-Karte?' : 'How do the 5- and 10-visit cards work?',
+      a: de
+        ? `Du zahlst fünf oder zehn Wachsgänge im Voraus, der Rückversand ist im Kartenpreis schon drin. Nach dem Kauf bekommst du einen Code, den schickst du bei jeder Sendung mit — wir führen die Karte für dich. Kein Ablaufdatum, übertragbar. Gegen den Einzelpreis von ${eur(PRICE.single, de)} sparst du auf der 5er-Karte ${eur(FIVE_CARD.list - FIVE_CARD.price, de)}, auf der 10er ${eur(TEN_CARD.list - TEN_CARD.price, de)}.`
+        : `You pay for five or ten waxings up front, return shipping is already included in the card price. After purchase you get a code to include with every shipment — we keep the card for you. No expiry, transferable. Against the single price of ${eur(PRICE.single, de)} you save ${eur(FIVE_CARD.list - FIVE_CARD.price, de)} on the 5-visit card and ${eur(TEN_CARD.list - TEN_CARD.price, de)} on the 10-visit one.`,
+    },
+    {
       // Absorbiert den frueheren eigenen "Ablauf"-Sektionskopf mit den drei
       // Foto-Schritten — die Kurzfassung steht jetzt im Hero, die Details hier.
       q: de ? 'Wie läuft das Rewaxen ab?' : 'How does the rewaxing process work?',
@@ -717,51 +735,46 @@ export function RewaxPage() {
       <main id="main-content">
       {/* ── Hero ── */}
       <section className="relative pt-28 sm:pt-36 pb-14 sm:pb-20" style={{ background: 'var(--pg)' }}>
+        {/* Kopf ueber die volle Breite, damit darunter die Bild-Oberkante mit
+            der Formular-Oberkante fluchtet (vorher zentrierte lg:items-center
+            das Bild gegen die hoehere Formularspalte). */}
         <div className={W}>
           <BackLink de={de} className="mb-6 sm:mb-8" />
-        </div>
-        <div className={`${W} lg:flex lg:items-center lg:gap-14`}>
-          <div className="lg:flex-1">
-            <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
-              {de ? 'Service' : 'Service'}
+          <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
+            {de ? 'Service' : 'Service'}
+          </p>
+          <h1 className="font-display font-bold leading-[1.05] max-w-[16ch]"
+            style={{ color: 'var(--tx1)', fontSize: 'clamp(2.2rem, 5vw, 3.4rem)', letterSpacing: '-0.02em' }}>
+            {de ? 'Fahrradkette wachsen lassen.' : 'Get your chain rewaxed.'}
+          </h1>
+          {waxedLabel && (
+            <p className="text-[14px] font-semibold mt-5" style={{ color: 'var(--accent-soft)' }}>
+              {de
+                ? `Deine Karte: gewachst am ${waxedLabel}. Trocken klingt → jetzt einschicken.`
+                : `Your card: waxed ${waxedLabel}. Sounds dry → send it in.`}
             </p>
-            <h1 className="font-display font-bold leading-[1.05] mb-2"
-              style={{ color: 'var(--tx1)', fontSize: 'clamp(2.2rem, 5vw, 3.4rem)', letterSpacing: '-0.02em' }}>
-              {de ? 'Fahrradkette wachsen lassen.' : 'Get your chain rewaxed.'}
-            </h1>
-            {waxedLabel && (
-              <p className="text-[14px] font-semibold mt-5" style={{ color: 'var(--accent-soft)' }}>
-                {de
-                  ? `Deine Karte: gewachst am ${waxedLabel}. Trocken klingt → jetzt einschicken.`
-                  : `Your card: waxed ${waxedLabel}. Sounds dry → send it in.`}
-              </p>
-            )}
+          )}
+        </div>
 
-            {/* Formular ist der primaere Bestellweg, nicht mehr WhatsApp:
-                es deckt die Auswahl (Karte, Anzahl, Geschenk) praezise ab,
-                statt sie in einen Chat-Text zu quetschen, und braucht keine
-                installierte/verknuepfte WhatsApp-Nummer — wichtig, weil das
-                hier der einzige wiederkehrende Umsatz im ganzen Modell ist,
-                also jede zusaetzliche Huerde real kostet. Lief vorher
-                eingeklappt hinter einem zweiten Klick, dahinter ein Formular,
-                das inhaltlich laengst der genauere Weg war. WhatsApp bleibt
-                trotzdem bestehen, nur als leiser Zweitlink darunter: es passt
-                zur persoenlichen Marke ("meistens antworte ich am selben
-                Tag") und manche wollen einfach chatten statt tippen — aber es
-                ist ein ANDERER Kanal als das Formular (E-Mail via
-                api/rewax-request.ts), keine Weiterleitung dorthin. */}
-            <div className="mt-8">
-              <RewaxRequestForm de={de} />
-              <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-4">
-                <a href={waLink(de, waxedLabel)} target="_blank" rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-[13.5px] font-semibold" style={{ color: 'var(--tx1)' }}>
-                  {de ? 'Lieber direkt per WhatsApp' : 'Prefer WhatsApp instead'}
-                  <ArrowRight className="h-3.5 w-3.5" style={{ color: 'var(--accent)' }} />
-                </a>
-                <a href="#preise" className="text-[13.5px] font-semibold" style={{ color: 'var(--txm)' }}>
-                  {de ? 'Was kostet das?' : 'What does it cost?'}
-                </a>
-              </div>
+        <div className={`${W} mt-8 flex flex-col lg:flex-row lg:items-start lg:gap-14`}>
+          {/* Formular ist der primaere Bestellweg, nicht mehr WhatsApp:
+              es deckt die Auswahl (Karte, Anzahl, Geschenk) praezise ab,
+              statt sie in einen Chat-Text zu quetschen, und braucht keine
+              installierte/verknuepfte WhatsApp-Nummer — wichtig, weil das
+              hier der einzige wiederkehrende Umsatz im ganzen Modell ist,
+              also jede zusaetzliche Huerde real kostet. WhatsApp bleibt als
+              leiser Zweitlink darunter (anderer Kanal, keine Weiterleitung). */}
+          <div className="lg:flex-1">
+            <RewaxRequestForm de={de} />
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-4">
+              <a href={waLink(de, waxedLabel)} target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-[13.5px] font-semibold" style={{ color: 'var(--tx1)' }}>
+                {de ? 'Lieber direkt per WhatsApp' : 'Prefer WhatsApp instead'}
+                <ArrowRight className="h-3.5 w-3.5" style={{ color: 'var(--accent)' }} />
+              </a>
+              <a href="#preise" className="text-[13.5px] font-semibold" style={{ color: 'var(--txm)' }}>
+                {de ? 'Was kostet das?' : 'What does it cost?'}
+              </a>
             </div>
           </div>
 
@@ -776,131 +789,137 @@ export function RewaxPage() {
             <p className="num-data text-meta mt-3" style={{ color: 'var(--txff)' }}>
               {de ? 'AUSGEHÄRTET, STUTTGART' : 'CURED, STUTTGART'}
             </p>
+
+            {/* Ab lg: kompakter Ablauf + Preis-Kurzfassung fuellen den Raum,
+                den lg:items-start neben dem hoeheren Formular sonst leer
+                laesst — so zeigt der erste Bildschirm Bild, Formular, Ablauf
+                und Preis auf einmal. Unter lg ausgeblendet (Formular bleibt
+                oben); der volle Ablauf mit Fotos steht dann in der
+                Preis-Sektion. */}
+            <div className="hidden lg:block mt-7 pt-6" style={{ borderTop: '1px solid var(--bd2)' }}>
+              <p className="text-small uppercase tracking-[0.16em] mb-3" style={{ color: 'var(--txf)' }}>
+                {de ? 'So läuft’s ab' : 'How it works'}
+              </p>
+              <ol className="space-y-2">
+                {STEPS.map((s) => (
+                  <li key={s.n} className="flex gap-2.5 text-[13px] leading-snug">
+                    <span className="num-data flex-shrink-0 font-bold" style={{ color: 'var(--accent)' }}>{s.n}</span>
+                    <span style={{ color: 'var(--txm)' }}>
+                      <span className="font-semibold" style={{ color: 'var(--tx1)' }}>{de ? s.de : s.en}</span>
+                      {' — '}{de ? s.bodyDe : s.bodyEn}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+              <p className="text-[12.5px] leading-relaxed mt-4" style={{ color: 'var(--txm)' }}>
+                {de
+                  ? `Einzeln ${eur(PRICE.single, de)} · ab 3 Ketten ${eur(PRICE.bundle, de)}/Kette · Karten ab ${eur(TEN_CARD.price / TEN_CARD.count, de)} je Vorgang, Rückversand inklusive`
+                  : `Single ${eur(PRICE.single, de)} · from 3 chains ${eur(PRICE.bundle, de)}/chain · cards from ${eur(TEN_CARD.price / TEN_CARD.count, de)} per treatment, return shipping included`}
+              </p>
+              <a href="#preise" className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold mt-2" style={{ color: 'var(--accent)' }}>
+                {de ? 'Alle Preise' : 'All prices'}
+                <ArrowRight className="h-3 w-3" />
+              </a>
+            </div>
           </div>
         </div>
 
       </section>
 
-      {/* ── Ablauf + Preise ──
-          Der Ablauf-Streifen (1-2-3) stand vorher als eigener voller
-          Abschnitt UEBER der Preis-Sektion — er braucht aber kaum Hoehe,
-          waehrend Preise+Stempelkarten deutlich laenger sind. Das zog die
-          Seite unnoetig in die Laenge, bevor der eigentliche Kaufteil
-          ueberhaupt anfing. Ab lg: jetzt nebeneinander: eine schmale linke
-          Spalte fuer den Ablauf (sticky, bleibt sichtbar waehrend rechts
-          durch Preise und Karten gescrollt wird), rechts alles Bisherige
-          unveraendert. Unter lg: bleibt es block/gestapelt in derselben
-          Reihenfolge wie vorher. */}
+      {/* ── Preise ──
+          Der Ablauf (1-2-3) stand hier vorher als eigene sticky-Spalte. Ab lg
+          steht die Kurzfassung jetzt im Hero neben dem Formular (ein Blick,
+          alles da) — hier waere sie doppelt. Unter lg, wo im Hero kein Platz
+          ist, bleiben die Foto-Schritte an dieser Stelle. */}
       <section id="preise" className="scroll-mt-24 py-14 sm:py-20" style={{ borderTop: '1px solid var(--bd2)' }}>
         <div className={W}>
-          <div className="lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-14 lg:items-start">
 
-            {/* Ablauf — kein h2, aber ein kleines Label passend zum
-                "Mehrere Vorgaenge, einmal bezahlt."-Muster rechts, jetzt wo
-                es als eigene Spalte neben statt unter der Preis-Ueberschrift
-                steht. */}
-            {/* max-w-md: unterhalb lg: (dieser Container hat sonst keine
-                eigene Breitenbeschraenkung) zog eine kurze Nummer+Thumbnail-
-                Zeile eine Trennlinie ueber die volle Containerbreite bis 1024px
-                — bei mittleren Bildschirmbreiten (etwa 640-1024px) blieb dann
-                sichtbar leerer Raum rechts neben Text und Linie. Ab lg: setzt
-                ohnehin die 300px-Grid-Spalte die eigentliche Breite, max-w-md
-                (448px) greift dort also gar nicht mehr ein. */}
-            <div className="mb-10 max-w-md lg:mb-0 lg:sticky lg:top-28">
-              <p className="text-small uppercase tracking-[0.16em] mb-5" style={{ color: 'var(--txf)' }}>
-                {de ? 'So läuft’s ab' : 'How it works'}
-              </p>
-              {([
-                { n: 1, de: 'Einschicken', en: 'Send it', bodyDe: 'Am Quick-Link raus, in den Umschlag.', bodyEn: 'Off at the quick link, into an envelope.', img: '/images/rewax/step-1' },
-                { n: 2, de: 'Waschen & Wachsen', en: 'Wash & wax', bodyDe: 'Ultraschallgereinigt, dann frisch im Wachsbad.', bodyEn: 'Ultrasonically cleaned, then fresh in the wax bath.', img: '/images/rewax/step-2' },
-                { n: 3, de: 'Zurück aufs Rad', en: 'Back on the bike', bodyDe: 'Ausgehärtet, anbauen, kurbeln, los.', bodyEn: 'Cured, fit it, turn the cranks, ride.', img: '/images/rewax/step-3' },
-              ] as const).map((s, i) => (
-                <div key={s.n} className="flex items-center gap-3 py-3.5"
-                  style={{ borderBottom: i < 2 ? '1px solid var(--bd2)' : 'none' }}>
-                  <span className="num-data flex-shrink-0 rounded-full flex items-center justify-center font-bold"
-                    style={{ width: 22, height: 22, background: 'var(--accent-wash-sm)', color: 'var(--accent)', fontSize: 11.5 }}>
-                    {s.n}
-                  </span>
-                  <div className="flex-shrink-0 rounded-xl overflow-hidden" style={{ width: 60, height: 48, background: 'var(--sf2)' }}>
-                    <img src={`${s.img}-800.webp`} alt="" aria-hidden loading="lazy" decoding="async"
-                      className="w-full h-full object-cover" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-[13.5px]" style={{ color: 'var(--tx1)' }}>{de ? s.de : s.en}</p>
-                    <p className="text-[12.5px] leading-snug mt-0.5" style={{ color: 'var(--txm)' }}>
-                      {de ? s.bodyDe : s.bodyEn}
-                    </p>
-                  </div>
+          <div className="lg:hidden mb-12 max-w-md">
+            <p className="text-small uppercase tracking-[0.16em] mb-5" style={{ color: 'var(--txf)' }}>
+              {de ? 'So läuft’s ab' : 'How it works'}
+            </p>
+            {STEPS.map((s, i) => (
+              <div key={s.n} className="flex items-center gap-3 py-3.5"
+                style={{ borderBottom: i < 2 ? '1px solid var(--bd2)' : 'none' }}>
+                <span className="num-data flex-shrink-0 rounded-full flex items-center justify-center font-bold"
+                  style={{ width: 22, height: 22, background: 'var(--accent-wash-sm)', color: 'var(--accent)', fontSize: 11.5 }}>
+                  {s.n}
+                </span>
+                <div className="flex-shrink-0 rounded-xl overflow-hidden" style={{ width: 60, height: 48, background: 'var(--sf2)' }}>
+                  <img src={`${s.img}-800.webp`} alt="" aria-hidden loading="lazy" decoding="async"
+                    className="w-full h-full object-cover" />
                 </div>
-              ))}
-            </div>
-
-            {/* Preise + vorausbezahlte Karten — inhaltlich unveraendert
-                gegenueber vorher, nur jetzt rechte Spalte statt alleinig im
-                Container. */}
-            <div>
-              <h2 className="font-display font-bold text-wx-tx1 leading-tight mb-8"
-                style={{ fontSize: 'clamp(1.7rem, 3.4vw, 2.4rem)', letterSpacing: '-0.02em' }}>
-                {de ? 'Preise' : 'Pricing'}
-              </h2>
-
-              <Pricing de={de} />
-
-              <p className="text-[13px] leading-relaxed max-w-[62ch] mt-6" style={{ color: 'var(--txff)' }}>
-                {de
-                  ? 'Hinversand trägst du, Rückversand ist oben eingerechnet. Wir arbeiten als Kleinunternehmer nach § 19 UStG, es wird keine Umsatzsteuer ausgewiesen.'
-                  : 'You cover the shipping to us, return shipping is included above. We operate under the German small business rule, so no VAT is shown.'}
-              </p>
-
-              {/* ── Vorausbezahlte Karten ──
-                  Steht jetzt IN der Preis-Sektion statt in einer eigenen
-                  darunter. Es ist dieselbe Frage ("was kostet das") in einer
-                  zweiten Variante, und zwei eigene Sektionsköpfe für eine
-                  Frage sind genau die Zerstückelung, die die Seite lang und
-                  unübersichtlich gemacht hat. Als Untertitel hinter einer
-                  Haarlinie liest es sich als das, was es ist: eine Option,
-                  kein neues Thema.
-
-                  Lebt hier statt als vierte Produkttür auf der Startseite —
-                  vier Türen sind keine Wahl mehr, sondern ein Menü, und ein
-                  Geschenk ist kein Einstieg für einen Erstbesucher.
-
-                  Zwei Größen (fünf/zehn) plus ein Für-mich/Geschenk-
-                  Umschalter: "auch als Geschenk" ist kein Abzeichen auf der
-                  Karte, sondern ändert die Bestellnachricht direkt mit. */}
-              <div className="mt-12 pt-10" style={{ borderTop: '1px solid var(--bd2)' }}>
-                <p className="text-small uppercase tracking-[0.16em] mb-6" style={{ color: 'var(--txf)' }}>
-                  {de ? 'Mehrere Vorgänge, einmal bezahlt.' : 'Several treatments, paid once.'}
-                </p>
-
-                {/* Eigene, zentrierte Zeile statt in der Kopfzeile rechts —
-                    der Umschalter gilt fuer die Karten direkt darunter,
-                    nicht fuer das Sub-Label daneben, und sollte optisch
-                    auch so wirken. */}
-                <div className="flex justify-center mb-6">
-                  <div className="inline-flex rounded-full p-1" style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)' }}>
-                    {([
-                      { key: false, labelDe: 'Für mich', labelEn: 'For me', Icon: User },
-                      { key: true, labelDe: 'Als Geschenk', labelEn: 'As a gift', Icon: Gift },
-                    ] as const).map(({ key, labelDe, labelEn, Icon }) => (
-                      <button key={String(key)} type="button" onClick={() => setIsGift(key)}
-                        className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-semibold transition-colors"
-                        style={{
-                          background: isGift === key ? 'var(--accent)' : 'transparent',
-                          color: isGift === key ? '#fff' : 'var(--txm)',
-                        }}>
-                        <Icon className="h-3.5 w-3.5" aria-hidden />
-                        {de ? labelDe : labelEn}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                  <StampCard de={de} count={FIVE_CARD.count} price={FIVE_CARD.price} list={FIVE_CARD.list} gift={isGift} />
-                  <StampCard de={de} count={TEN_CARD.count} price={TEN_CARD.price} list={TEN_CARD.list} gift={isGift} recommended />
+                <div>
+                  <p className="font-semibold text-[13.5px]" style={{ color: 'var(--tx1)' }}>{de ? s.de : s.en}</p>
+                  <p className="text-[12.5px] leading-snug mt-0.5" style={{ color: 'var(--txm)' }}>
+                    {de ? s.bodyDe : s.bodyEn}
+                  </p>
                 </div>
               </div>
+            ))}
+          </div>
+
+          <div className="max-w-[760px]">
+            <h2 className="font-display font-bold text-wx-tx1 leading-tight mb-8"
+              style={{ fontSize: 'clamp(1.7rem, 3.4vw, 2.4rem)', letterSpacing: '-0.02em' }}>
+              {de ? 'Preise' : 'Pricing'}
+            </h2>
+
+            <Pricing de={de} />
+
+            <p className="text-[13px] leading-relaxed max-w-[62ch] mt-6" style={{ color: 'var(--txff)' }}>
+              {de
+                ? 'Hinversand trägst du. Bei Einzelbestellung ist der Rückversand oben eingerechnet, bei den Karten steckt er im Kartenpreis. Wir arbeiten als Kleinunternehmer nach § 19 UStG, es wird keine Umsatzsteuer ausgewiesen.'
+                : 'You cover the shipping to us. For single orders return shipping is included above, for the cards it is part of the card price. We operate under the German small business rule, so no VAT is shown.'}
+            </p>
+
+            {/* ── Vorausbezahlte Karten ──
+                Dieselbe Frage ("was kostet das") in einer zweiten Variante —
+                als Untertitel hinter einer Haarlinie, kein neues Thema. Zwei
+                Größen plus ein Für-mich/Geschenk-Umschalter: "als Geschenk"
+                ändert die Bestellnachricht und öffnet die Geschenk-Vorschau. */}
+            <div className="mt-12 pt-10" style={{ borderTop: '1px solid var(--bd2)' }}>
+              <p className="text-small uppercase tracking-[0.16em] mb-6" style={{ color: 'var(--txf)' }}>
+                {de ? 'Mehrere Vorgänge, einmal bezahlt.' : 'Several treatments, paid once.'}
+              </p>
+
+              <div className="flex justify-center mb-6">
+                <div className="inline-flex rounded-full p-1" style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)' }}>
+                  {([
+                    { key: false, labelDe: 'Für mich', labelEn: 'For me', Icon: User },
+                    { key: true, labelDe: 'Als Geschenk', labelEn: 'As a gift', Icon: Gift },
+                  ] as const).map(({ key, labelDe, labelEn, Icon }) => (
+                    <button key={String(key)} type="button" onClick={() => setIsGift(key)}
+                      className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-semibold transition-colors"
+                      style={{
+                        background: isGift === key ? 'var(--accent)' : 'transparent',
+                        color: isGift === key ? '#fff' : 'var(--txm)',
+                      }}>
+                      <Icon className="h-3.5 w-3.5" aria-hidden />
+                      {de ? labelDe : labelEn}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <StampCard de={de} count={FIVE_CARD.count} price={FIVE_CARD.price} list={FIVE_CARD.list} gift={isGift}
+                  onPreview={() => setGiftPreview({ count: FIVE_CARD.count, price: FIVE_CARD.price, list: FIVE_CARD.list })} />
+                <StampCard de={de} count={TEN_CARD.count} price={TEN_CARD.price} list={TEN_CARD.list} gift={isGift} recommended
+                  onPreview={() => setGiftPreview({ count: TEN_CARD.count, price: TEN_CARD.price, list: TEN_CARD.list })} />
+              </div>
+
+              {/* Wie man die Karte einloest: einmal unter beiden Karten statt
+                  auf jeder — die Karte selbst soll keine Textwand sein. */}
+              <p className="text-[12px] leading-relaxed mt-4 max-w-[64ch]" style={{ color: 'var(--txf)' }}>
+                {de
+                  ? (isGift
+                    ? 'Beim Geschenk bekommst du eine gedruckte Karte mit Code zum Überreichen. Kein Ablaufdatum, übertragbar.'
+                    : 'Nach dem Kauf bekommst du einen Code für deine Karte — den schickst du bei jeder Sendung einfach mit. Kein Ablaufdatum, übertragbar.')
+                  : (isGift
+                    ? 'With a gift you get a printed card with a code to hand over. No expiry, transferable.'
+                    : 'After purchase you get a code for your card — just include it with every shipment. No expiry, transferable.')}
+              </p>
             </div>
           </div>
         </div>
@@ -947,60 +966,13 @@ export function RewaxPage() {
         </div>
       </section>
 
-      {/* ── CTA ──
-          Vorher ein blasser Kasten in Akzentfarbe, also derselbe Kasten, den
-          jede Sektion auf jeder Website benutzt. Jetzt ein Bildband ueber die
-          volle Breite mit dem Foto der haengenden Ketten: die Seite endet mit
-          dem Ergebnis, das man bekommt, nicht mit einer Aufforderung auf
-          hellgrauem Grund. Und ein Knopf, nicht zwei, damit es nichts zu
-          entscheiden gibt. */}
-      {/* pdp-dark: Ohne diese Klasse faerbt die globale Hellmodus-Regel in
-          index.css (`:root:not(.noir) h2 { color: var(--tx1) !important }`)
-          die Ueberschrift auf Fast-Schwarz — mit !important, also gewinnt sie
-          auch gegen das inline gesetzte color:#fff weiter unten. Auf dem
-          dunklen Kettenfoto war der Abschluss-CTA dieser Seite dadurch
-          praktisch unsichtbar. `.pdp-dark` ist die dafuer vorgesehene
-          Ausnahme und stellt Weiss wieder her. */}
-      <section className="pdp-dark relative overflow-hidden" style={{ minHeight: 460, background: 'var(--hero-stage)' }}>
-        <img src="/images/rewax/hero.webp"
-          srcSet="/images/rewax/hero-800.webp 800w, /images/rewax/hero.webp 1200w"
-          sizes="100vw" alt="" aria-hidden loading="lazy" decoding="async"
-          className="absolute inset-0 w-full h-full object-cover" />
-        <div aria-hidden className="absolute inset-0"
-          style={{ background: 'linear-gradient(100deg, rgba(var(--scrim-rgb),0.80) 0%, rgba(var(--scrim-rgb),0.52) 46%, rgba(var(--scrim-rgb),0.16) 100%)' }} />
-
-        <div className={`${W} relative py-20 sm:py-24`}>
-          <div className="max-w-[44ch]">
-            <p className="text-small uppercase tracking-[0.2em] mb-4" style={{ color: 'rgba(255,255,255,0.68)' }}>
-              {de ? 'Loslegen' : 'Get started'}
-            </p>
-            <h2 className="font-display font-bold leading-[1.08] tracking-[-0.02em]"
-              style={{ color: '#fff', fontSize: 'clamp(1.9rem, 4vw, 2.8rem)' }}>
-              {de ? 'Schreib mir, wie viele Ketten kommen.' : 'Tell me how many chains are coming.'}
-            </h2>
-            <p className="text-[15px] leading-relaxed mt-5 max-w-[40ch]" style={{ color: 'rgba(255,255,255,0.82)' }}>
-              {de
-                ? 'Eine Nachricht, ein Satz. Du bekommst die Versandadresse und eine Einschätzung, wann die Kette zurück ist. Meistens antworte ich am selben Tag.'
-                : 'One message, one sentence. You get the shipping address and an estimate of when the chain will be back. I usually reply the same day.'}
-            </p>
-
-            <a href={waLink(de, waxedLabel)} target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 mt-8 rounded-full px-7 py-3.5 text-[15px] font-semibold transition-opacity hover:opacity-90"
-              style={{ background: '#fff', color: '#101013' }}>
-              {de ? 'Ketten anmelden' : 'Register chains'}
-              <ArrowRight className="h-4 w-4" />
-            </a>
-
-            <p className="text-[12.5px] mt-5" style={{ color: 'rgba(255,255,255,0.62)' }}>
-              {de ? 'Kein Konto nötig. ' : 'No account needed. '}
-              <a href={mailLink(de)} className="underline underline-offset-2" style={{ color: 'rgba(255,255,255,0.86)' }}>
-                {de ? 'Lieber per E-Mail' : 'Prefer email'}
-              </a>
-            </p>
-          </div>
-        </div>
-      </section>
+      {/* Der fruehere Bild-Band-CTA am Seitenende ist raus: dasselbe hero.webp
+          ein zweites Mal, weisse Schrift aufs dunkle Foto, und inhaltlich
+          nichts, was der Hero (Formular, WhatsApp, "Was kostet das?") nicht
+          schon traegt. Weniger Seite, weniger Friction. */}
       </main>
+
+      <GiftPreviewModal open={!!giftPreview} onClose={() => setGiftPreview(null)} de={de} data={giftPreview} />
 
       <footer className={`${W} py-12 text-center`} style={{ borderTop: '1px solid var(--bd2)' }}>
         <Link to="/" className="inline-flex items-center gap-2 text-[13px] text-wx-txm transition-opacity hover:opacity-70">

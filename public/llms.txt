@@ -24,6 +24,16 @@ Empfohlenes Nachwachsen nach den Werten von Zero Friction Cycling: trockene Stra
 - [Wann muss ich rewaxen?](https://waxcelerate.de/rechner/intervall): Dein Intervall in Wochen — nach Wetter, Gelände und Kilometern.
 - [Rotation & Ersparnis](https://waxcelerate.de/rechner/ersparnis): Was zwei oder drei Ketten im Wechsel pro Jahr sparen.
 
+Kernzahlen, mit denen die Rechner arbeiten:
+
+- Rewax-Intervall (km je Wachsung), nach Wetter × Gelände:
+  - Trocken: Straße 300, Gravel 200, MTB 150
+  - Gemischt: Straße 200, Gravel 150, MTB 120
+  - Nass: Straße 150, Gravel 110, MTB 80
+  - Wochen-Intervall = km je Wachsung ÷ Wochenkilometer.
+- Kettenverschleiß, Tauschgrenze der Längung über 12 Glieder (Neulänge 304,8 mm = 12 Zoll): 0,5 % bei 11-/12-fach, 0,75 % bei 9-/10-fach, 1,0 % bei 5- bis 8-fach.
+- Kettenlänge in Gliedern = 0,157 × Kettenstrebe(mm) + größtes Kettenblatt ÷ 2 + größtes Ritzel ÷ 2 + 2, aufgerundet auf eine gerade Zahl (Park-Tool-Formel).
+
 ## Produkte — Wachs
 
 - [Kettenwachs 500g — Classic (29,95 €)](https://waxcelerate.de/produkt/wax-500): Der Einstieg — und für die meisten der einzige Block, den sie je brauchen. Sauberer Antrieb, kein Nachschmieren, kein Dreck. Ideal für Frühling bis Herbst.

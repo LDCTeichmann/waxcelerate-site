@@ -20,6 +20,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve, join } from 'node:path';
 import { products } from '../src/lib/data.ts';
+import { TOOLS } from '../src/lib/toolRegistry.ts';
 import { esc } from './lib/prerender.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -61,6 +62,15 @@ const body = `
 <section>
   <h2>Vorgewachste Ketten</h2>
   ${list(chains)}
+</section>
+
+<section>
+  <h2>Kettenwachs-Rechner</h2>
+  <p>Sechs kostenlose Rechner rund um Kette und Kettenwachs — Verschleiß, Länge, passende Kette, Rewax-Intervall und Kosten.</p>
+  <ul>
+    <li><a href="/rechner">Alle Rechner</a></li>
+    ${TOOLS.map(t => `<li><a href="/rechner/${t.slug}">${esc(t.cover)}</a> — ${esc(t.hint)}</li>`).join('\n    ')}
+  </ul>
 </section>
 
 <section>

@@ -85,11 +85,6 @@ Am 11.08.2026 aus dieser Liste entfernt, weil beim Nachprüfen längst erledigt:
 
 ## Beauftragt, noch nicht gebaut
 
-**Rewax-Seite: Reihenfolge und CTA neu denken**
-Inhalt steht, aber der Aufbau erzeugt noch Reibung. Gewuenscht: Rotationsargument
-sichtbarer (bei zwei oder drei Ketten faehrt immer eine, waehrend die andere bei
-uns ist), Zehnerkarte als Geschenkidee inszenieren, Bilder staerker einsetzen.
-
 **Bewertungen: Fotos in die Karten**
 Marquee bleibt, das gefaellt. Offen ist, wie das Foto in die Karte kommt, ohne
 dass der Text unlesbar wird. Vorschlag: kleines quadratisches Foto links neben
@@ -108,6 +103,9 @@ aus der Session heraus nur lesbar, deshalb muss der Block von Hand hinein.
 
 Eine Zeile pro Entscheidung, neueste oben. Begründungen stehen im Code-Kommentar
 an der Stelle, an der die Entscheidung wirkt.
+
+- 2026-09-06 · **Rewax-Seite überarbeitet (`RewaxPage.tsx`).** (1) Layout: Kopf über die volle Breite, darunter Formular + Bild nebeneinander mit fluchtender Oberkante (`lg:items-start` statt `-center`), kompakter Ablauf + Preis-Kurzfassung neben dem Formular — erster Viewport zeigt Bild, Formular, Ablauf, Preis auf einmal. Foto-Ablauf nur noch unter `lg` in der Preis-Sektion (sonst doppelt). (2) Stempelkarten sind **All-in**: Preis deckt Wachsen + Rückversand. Rabatt misst sich am **Einzelpreis 13,95 €** statt am Dreierpreis. **5er 49,75 € (spart 20 €), 10er 94,50 € (spart 45 €)**; ersetzt 44,78 € / 84,58 €. Selbstkosten-Annahme je Vorgang 3–5 € ohne Porto. (3) Karten-Text von vier auf zwei Zeilen; Einlöse-Erklärung einmal unter beiden Karten + als FAQ. (4) Stempel-Animation langsamer (`STAMP_STAGGER_MS` 550 → 950), Overshoot weicher. (5) Geschenk-Vorschau-Popup (`GiftPreviewModal.tsx`, Muster wie `CompareModal`) mit Karten-Mockup + Starter-Set als Beigabe. (6) Bild-Band-CTA am Seitenende **entfernt** — redundant zum Hero. (7) `mailLink` mit entfernt (nur dort benutzt).
+- 2026-09-06 · **Starter-Set: drittes festes Bundle + Classic auf 300 g.** Neu `starter-hg701` (500 g Classic + Shimano Ultegra HG701) → 72,04 €. `starter-classic` von 500 g auf **300 g Classic** (22,95 € statt 29,95 €) → Set 57,63 € statt 63,58 €: das Set ist der Einstieg für Erstwachser, niedrigerer Einstiegspreis konvertiert besser, 300 g reichen fürs erste Jahr, und 300 g Classic / 500 g Pro trägt die Saison- vs. Ganzjahres-Positionierung. `discountPct` bleibt 15. Konfigurator-Umschalter aus dem Kachelraster in eine volle Zeile darunter. Draht bleibt 4,95 € (die genannten „4,59 €" waren eine Verwechslung).
 
 - 2026-08-13 · **Englischer Zweig eingefroren, nicht ausgebaut.** Die Sprachumschaltung laeuft ueber `localStorage` ohne eigene URL, es gibt kein `hreflang`, `index.html` steht fest auf `lang="de"`. Damit ist die gesamte englische Textarbeit (`titleEn`, `descriptionEn`, der englische Teil von `i18n.ts`) fuer Google und jeden KI-Crawler unsichtbar. Entscheidung: **so lassen**. Die realistischen Ranking-Chancen liegen alle im Deutschen, und ein zweiter Markt kostet doppelte Pflege, bevor der erste laeuft. Der Umschalter bleibt als Bedienkomfort. **Wieder aufmachen, wenn:** der eigene Checkout laeuft und messbar Auslandsbestellungen kommen — dann `/en/`-Routen mit `hreflang` in beide Richtungen.
 - 2026-09-06 · **Repo verschlankt, Runde 2.** `git gc` (`.git` 360 → 274 MB, loser Objekt-Müll gepackt). Toter Code raus: `src/components/viz/illustrations/` (Chain/SprocketTooth/CassetteHero, nie konsumiert), tote Exports `SectionHeader`, `useScrollReveal`, `waxTiers`, `DIVE_GRAPH`, `gramsPerApplication`, die fertige `scripts/migrate-chain-images.mjs`. Verwaiste Bilder: `waxcelerate-mark.svg`, `doors/{ketten,kettenwachs}*`, `shelf/{chains-flat,starter-box}*`, ein Blog-Doppelsuffix-Artefakt (dist-Bildreferenzen vorher/nachher identisch). `.cursorrules` gelöscht (dupliziert CLAUDE.md, kein Cursor im Einsatz), `kimi-plugin-inspect-react` aus `devDependencies` (−108 transitive Pakete). Erledigte Handoffs (`LOGO_MARK_SVG_HANDOFF`, `DEPLOY_HANDOFF`) nach `docs/archiv/`, `SKILL_PREISE_UPDATE.md` nach `docs/aufgaben/`, `docs/archiv/info.md` gelöscht, `PROJECT.md`-Index geschlossen, Fakten-Drift korrigiert. **Bewusst geparkt gelassen:** `comparison-slider.tsx`, `WhatChanges.tsx` (AGENTS.md Falle #7). **Branches unangetastet.**

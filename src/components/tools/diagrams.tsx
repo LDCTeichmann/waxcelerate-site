@@ -67,6 +67,55 @@ export function ChainMeasureDiagram() {
 }
 
 /**
+ * Wie eine Kettenlehre greift: fester Fuß am einen Ende, Prüfspitze am anderen.
+ * Fällt die Spitze zwischen die Rollen, ist die genannte Grenze erreicht.
+ * (Beschriftung deutschsprachig wie die übrigen Skizzen dieser Datei — eine
+ * zweisprachige SVG-Beschriftung wäre ein eigener Umbau über alle vier.)
+ */
+export function ChainGaugeDiagram() {
+  const R = 7;
+  const PITCH = 26;
+  const CY = 64;
+  const xs = [0, 1, 2, 3, 4, 5, 6].map(i => 26 + i * PITCH); // 26 … 182
+  const plate = xs.slice(0, -1).map((x, i) => (
+    <rect key={x} x={x - R - 1} y={CY - (R + 1)} width={xs[i + 1] - x + (R + 1) * 2}
+      height={(R + 1) * 2} rx={R + 1} />
+  ));
+  const footX = (xs[0] + xs[1]) / 2;      // fester Fuß: Lücke Rolle 1–2
+  const tipX = (xs[5] + xs[6]) / 2;       // Prüfspitze: Lücke Rolle 6–7
+
+  return (
+    <svg viewBox="0 0 310 104" className="w-full h-auto" role="img"
+      aria-label="Kettenlehre: fester Fuß am einen Ende, Prüfspitze am anderen">
+      {/* Kette */}
+      <g stroke={STROKE} strokeWidth={1.4} fill="var(--sf2)">
+        {plate}
+        {xs.map(x => <circle key={`r${x}`} cx={x} cy={CY} r={R} />)}
+      </g>
+      {xs.map(x => <circle key={`p${x}`} cx={x} cy={CY} r={1.8} fill={STROKE} />)}
+
+      {/* Lehrenkörper */}
+      <rect x={footX - 6} y={26} width={tipX - footX + 12} height={13} rx={4}
+        fill="var(--sf2)" stroke={STROKE} strokeWidth={1.4} />
+
+      {/* Fester Fuß — sitzt in einer Rollenlücke, das ist der Bezugspunkt */}
+      <path d={`M${footX},39 V${CY - 2}`} stroke={STROKE} strokeWidth={1.7} />
+      <circle cx={footX} cy={CY - 1} r={3} fill="none" stroke={STROKE} strokeWidth={1.4} />
+      <text x={footX} y={20} textAnchor="middle" fontSize="9" fill={LABEL}>fester Fuß</text>
+
+      {/* Prüfspitze — hier abgebildet: fällt in die Lücke = Grenze erreicht */}
+      <path d={`M${tipX},39 V${CY + 1}`} stroke={ACCENT} strokeWidth={1.9} />
+      <circle cx={tipX} cy={CY} r={3.4} fill="none" stroke={ACCENT} strokeWidth={1.6} />
+      <path d={`M${tipX + 12},44 l-7,4 l3,-6 z`} fill={ACCENT} />
+      <text x={tipX + 6} y={20} textAnchor="middle" fontSize="9" fill={ACCENT}>0,5 %</text>
+      <text x="155" y={92} textAnchor="middle" fontSize="10" fill={LABEL}>
+        Spitze fällt hinein = Kette raus
+      </text>
+    </svg>
+  );
+}
+
+/**
  * Wo die Kettenstrebe sitzt: Tretlagermitte bis Hinterachsmitte.
  *
  * Blickrichtung nach rechts, wie bei Fahrradzeichnungen ueblich: Hinterrad

@@ -11,7 +11,7 @@
 import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
-import { products, trustStats } from '../src/lib/data.ts';
+import { products, trustStats, waxIntervals } from '../src/lib/data.ts';
 import { articles, categoryOrder } from '../src/pages/blog/articles.ts';
 import { TOOLS, TOOLS_HUB } from '../src/lib/toolRegistry.ts';
 
@@ -43,6 +43,16 @@ Empfohlenes Nachwachsen nach den Werten von Zero Friction Cycling: trockene Stra
 ## Rechner — kostenlos, ohne Anmeldung
 
 ${TOOLS.map(t => `- [${t.cover}](${BASE}/rechner/${t.slug}): ${t.hint}`).join('\n')}
+
+Kernzahlen, mit denen die Rechner arbeiten:
+
+- Rewax-Intervall (km je Wachsung), nach Wetter × Gelände:
+  - Trocken: Straße ${waxIntervals.trocken.strasse}, Gravel ${waxIntervals.trocken.gravel}, MTB ${waxIntervals.trocken.mtb}
+  - Gemischt: Straße ${waxIntervals.gemischt.strasse}, Gravel ${waxIntervals.gemischt.gravel}, MTB ${waxIntervals.gemischt.mtb}
+  - Nass: Straße ${waxIntervals.nass.strasse}, Gravel ${waxIntervals.nass.gravel}, MTB ${waxIntervals.nass.mtb}
+  - Wochen-Intervall = km je Wachsung ÷ Wochenkilometer.
+- Kettenverschleiß, Tauschgrenze der Längung über 12 Glieder (Neulänge 304,8 mm = 12 Zoll): 0,5 % bei 11-/12-fach, 0,75 % bei 9-/10-fach, 1,0 % bei 5- bis 8-fach.
+- Kettenlänge in Gliedern = 0,157 × Kettenstrebe(mm) + größtes Kettenblatt ÷ 2 + größtes Ritzel ÷ 2 + 2, aufgerundet auf eine gerade Zahl (Park-Tool-Formel).
 
 ## Produkte — Wachs
 

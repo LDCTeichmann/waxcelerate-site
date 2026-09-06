@@ -10,7 +10,7 @@
 
 import { useState } from 'react';
 import { Check, ChevronRight, RotateCcw } from 'lucide-react';
-import { Sparkles, Snowflake, SlidersHorizontal } from 'lucide-react';
+import { Sparkles, Snowflake, SlidersHorizontal, Bike } from 'lucide-react';
 import {
   products, accessories, starterSet,
   starterSetOptions, starterSetBundleProducts, canCheckout,
@@ -33,6 +33,11 @@ function FixedCard({ optionId, de, icon: Icon, badgeDe, badgeEn }: {
   const bundleProduct = starterSetBundleProducts.find((p) => p.id === optionId)!;
   const partsSum = wax.price + chain.price + extras.reduce((s, a) => s + a.price, 0);
   const saved = Math.round((partsSum - bundleProduct.price) * 100) / 100;
+  const setName = optionId === 'starter-classic'
+    ? (de ? 'Starter-Set Classic' : 'Classic starter set')
+    : optionId === 'starter-hg701'
+      ? (de ? 'Starter-Set HG701' : 'HG701 starter set')
+      : (de ? 'Starter-Set Pro' : 'Pro starter set');
 
   const contents = [
     de ? wax.title : wax.titleEn,
@@ -101,8 +106,8 @@ function FixedCard({ optionId, de, icon: Icon, badgeDe, badgeEn }: {
           <a
             href={`https://wa.me/4915751957470?text=${encodeURIComponent(
               de
-                ? `Hi Luca, ich möchte das ${de ? (optionId === 'starter-classic' ? 'Starter Classic' : 'Starter Pro') : ''}-Set bestellen.`
-                : `Hi Luca, I would like to order the ${optionId === 'starter-classic' ? 'Starter Classic' : 'Starter Pro'} set.`,
+                ? `Hi Luca, ich möchte das ${setName} bestellen.`
+                : `Hi Luca, I would like to order the ${setName}.`,
             )}`}
             target="_blank" rel="noopener noreferrer"
             className="inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-[14px] font-semibold transition-opacity hover:opacity-90"
@@ -124,38 +129,38 @@ export function StarterSetOptions({ de }: { de: boolean }) {
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 items-stretch">
         <FixedCard optionId="starter-classic" de={de} icon={Sparkles}
           badgeDe="Für die meisten Räder" badgeEn="For most bikes" />
+        <FixedCard optionId="starter-hg701" de={de} icon={Bike}
+          badgeDe="Fürs Rennrad" badgeEn="For road bikes" />
         <FixedCard optionId="starter-pro" de={de} icon={Snowflake}
           badgeDe="Winter & E-Bike" badgeEn="Winter & e-bike" />
-
-        {/* Third card is a toggle, not a product — clicking it reveals the
-            original free configurator below instead of a card of its own
-            contents, since "custom" has none until you choose. */}
-        <button
-          type="button"
-          onClick={() => setCustomOpen((v) => !v)}
-          aria-expanded={customOpen}
-          className="rounded-2xl flex flex-col items-center justify-center text-center p-8 min-h-[280px] transition-colors"
-          style={{
-            background: customOpen ? 'var(--accent-wash-sm)' : 'var(--sf)',
-            border: customOpen ? '1px solid rgba(var(--accent-rgb),0.35)' : '1px dashed var(--bd)',
-          }}
-        >
-          <span className="flex items-center justify-center rounded-full mb-4"
-            style={{ width: 44, height: 44, background: 'var(--sf2)', border: '1px solid var(--bd2)' }}>
-            <SlidersHorizontal className="h-5 w-5" style={{ color: 'var(--accent)' }} aria-hidden />
-          </span>
-          <p className="text-[15px] font-semibold mb-1.5" style={{ color: 'var(--tx1)' }}>
-            {de ? 'Ich weiß genau, was ich will' : 'I know exactly what I want'}
-          </p>
-          <p className="text-[13px] max-w-[26ch]" style={{ color: 'var(--txm)' }}>
-            {de ? 'Eigene Wachs- und Kettenkombination zusammenstellen' : 'Build your own wax and chain combination'}
-          </p>
-          <span className="inline-flex items-center gap-1 mt-4 text-[13px] font-semibold" style={{ color: 'var(--accent)' }}>
-            {customOpen ? (de ? 'Ausblenden' : 'Hide') : (de ? 'Konfigurieren' : 'Configure')}
-            <ChevronRight className="h-3.5 w-3.5 transition-transform" style={{ transform: customOpen ? 'rotate(90deg)' : 'none' }} />
-          </span>
-        </button>
       </div>
+
+      {/* Kein Produkt, sondern ein Umschalter: blendet den freien
+          Konfigurator darunter ein. Steht als volle Zeile unter dem Raster,
+          nicht als vierte Kachel — "custom" hat bis zur Auswahl keinen Inhalt,
+          den eine Kachel zeigen koennte. */}
+      <button
+        type="button"
+        onClick={() => setCustomOpen((v) => !v)}
+        aria-expanded={customOpen}
+        className="mt-5 w-full rounded-2xl flex items-center justify-center gap-3 text-center px-6 py-4 transition-colors"
+        style={{
+          background: customOpen ? 'var(--accent-wash-sm)' : 'var(--sf)',
+          border: customOpen ? '1px solid rgba(var(--accent-rgb),0.35)' : '1px dashed var(--bd)',
+        }}
+      >
+        <SlidersHorizontal className="h-4 w-4 flex-shrink-0" style={{ color: 'var(--accent)' }} aria-hidden />
+        <span className="text-[14px] font-semibold" style={{ color: 'var(--tx1)' }}>
+          {de ? 'Ich weiß genau, was ich will' : 'I know exactly what I want'}
+        </span>
+        <span className="hidden sm:inline text-[13px]" style={{ color: 'var(--txm)' }}>
+          {de ? '— eigene Wachs- und Kettenkombination' : '— build your own wax and chain combination'}
+        </span>
+        <span className="inline-flex items-center gap-1 text-[13px] font-semibold" style={{ color: 'var(--accent)' }}>
+          {customOpen ? (de ? 'Ausblenden' : 'Hide') : (de ? 'Konfigurieren' : 'Configure')}
+          <ChevronRight className="h-3.5 w-3.5 transition-transform" style={{ transform: customOpen ? 'rotate(90deg)' : 'none' }} />
+        </span>
+      </button>
 
       {customOpen && (
         <div className="mt-8 pt-8" style={{ borderTop: '1px solid var(--bd2)' }}>

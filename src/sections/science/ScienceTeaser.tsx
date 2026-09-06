@@ -76,32 +76,47 @@ export function ScienceTeaser({ de }: { de: boolean }) {
       className="group grid sm:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] gap-6 sm:gap-10 items-center
                  mt-8 sm:mt-10 p-6 sm:p-8 rounded-2xl
                  transition-[transform,border-color,box-shadow] duration-300
-                 hover:-translate-y-0.5"
-      // --sf2 statt --card-bg: --card-bg ist ein Verlauf, der bei Weiss
-      // beginnt, und diese Sektion steht selbst auf Weiss (bg-wx-sf) — die
-      // Karte haette also oben exakt die Farbe des Untergrunds gehabt und
-      // haenge allein an Rahmen und Schatten. --sf2 (#F1F1F1) gibt ihr eine
-      // eigene Flaeche, die man auch ohne Rahmen als Karte liest.
+                 hover:-translate-y-1 focus-visible:outline-offset-4"
+      // --card-bg (nahezu weiss) statt --sf2 (#F1F1F1): ein Mittelgrau-Feld
+      // hinter der duennen Strichzeichnung benennt das Auge als beige/ocker
+      // (DESIGN.md §1, Ursache 4). Weiss liest eindeutig als weiss, und die
+      // Karte traegt sich wie die Geschwister-Karten in why-wax ueber Kante +
+      // Schatten. Klick-Signatur wie die Produktkacheln: Rahmen faerbt sich,
+      // Schatten hebt ab, Karte steigt.
       style={{
-        background: 'var(--sf2)',
+        background: 'var(--card-bg)',
         border: '1px solid var(--bd)',
         boxShadow: 'var(--card-shad)',
       }}
-      onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(var(--accent-rgb),0.45)'; }}
-      onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--bd)'; }}
+      onMouseEnter={e => {
+        e.currentTarget.style.borderColor = 'var(--accent-soft)';
+        e.currentTarget.style.boxShadow = 'var(--card-shadow-hover)';
+      }}
+      onMouseLeave={e => {
+        e.currentTarget.style.borderColor = 'var(--bd)';
+        e.currentTarget.style.boxShadow = 'var(--card-shad)';
+      }}
     >
 
       <div>
         <p className="eyebrow" style={{ color: 'var(--txf)' }}>
           {de ? 'Die Wissenschaft dahinter' : 'The science behind it'}
         </p>
-        <h3 className="font-display font-bold text-wx-tx1 mt-2.5 leading-[1.12] tracking-[-0.02em]"
-          style={{ fontSize: 'clamp(1.35rem, 2.7vw, 1.9rem)' }}>
+        <h3 className="font-display font-bold text-wx-tx1 mt-2.5 leading-[1.12] tracking-[-0.02em]
+                       decoration-1 underline-offset-4 group-hover:underline"
+          style={{ fontSize: 'clamp(1.35rem, 2.7vw, 1.9rem)', textDecorationColor: 'var(--accent-soft)' }}>
           {de ? 'Reibung entsteht an genau drei Flächen.' : 'Friction happens at exactly three surfaces.'}
         </h3>
 
-        <span className="inline-flex items-center gap-2 text-[13.5px] font-semibold mt-6"
-          style={{ color: 'var(--tx1)' }}>
+        {/* Als sichtbares Button-Element statt als blosse Textzeile mit Pfeil —
+            die Karte fuehrt woanders hin, das darf man sehen. */}
+        <span className="inline-flex items-center gap-2 text-[12.5px] font-semibold mt-6 px-3.5 py-2 rounded-full
+                         transition-colors duration-300"
+          style={{
+            color: 'var(--accent)',
+            border: '1px solid rgba(var(--accent-rgb),0.30)',
+            background: 'var(--accent-wash)',
+          }}>
           {de ? 'Kontaktzonen, Formel, Mikroskopie' : 'Contact zones, formula, microscopy'}
           <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
             style={{ color: 'var(--accent-soft)' }} />

@@ -737,10 +737,21 @@ export interface StarterSetOption {
 export const starterSetOptions: StarterSetOption[] = [
   {
     id: 'starter-classic',
-    waxId: 'wax-500',
+    // 300g statt 500g: das Set ist der Einstieg fuer Erstwachser (hoechste
+    // Preissensibilitaet), der kleinere Block senkt den Set-Preis um ~6 EUR
+    // und reicht mit 10-15 Anwendungen fuers erste Jahr auf einer Kette. Die
+    // Ganzjahres-Reichweite traegt das Pro-Set mit 500g.
+    waxId: 'wax-300',
     chainId: 'chain-ybn11',
     taglineDe: 'Frühjahr bis Herbst · 11-fach universal',
     taglineEn: 'Spring to autumn · 11-speed universal',
+  },
+  {
+    id: 'starter-hg701',
+    waxId: 'wax-500',
+    chainId: 'chain-hg701',
+    taglineDe: 'Rennrad & schnelle Tourer · 11-fach Shimano',
+    taglineEn: 'Road & fast touring · 11-speed Shimano',
   },
   {
     id: 'starter-pro',

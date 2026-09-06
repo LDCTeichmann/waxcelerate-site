@@ -41,21 +41,21 @@ export function loadShell(dist) {
 }
 
 /**
- * Die Hero-Bild-Preloads aus index.html (hero-b-bg.webp, chain-bg.webp,
- * wax-cutout.webp). Nur auf der Startseite korrekt — dort ist eines der
- * beiden Foto-Preloads das echte LCP-Bild, je nach Breakpoint.
+ * Die Hero-Bild-Preloads aus index.html (hero-mobile.webp, chain-bg.webp,
+ * wax-cutout.webp). Nur auf der Startseite korrekt — dort ist je nach
+ * Breakpoint hero-mobile.webp bzw. chain-bg.webp das echte LCP-Bild.
  * stripHead() entfernt sie fuer jede Unterseite, jedes Prerender-Skript setzt
  * per imagePreload() sein eigenes, seitenrichtiges Paar. Ohne diese Trennung
- * laed jede der ~40 Unterseiten zwei Bilder mit hoechster Prioritaet vor, die
+ * laed jede der ~40 Unterseiten Bilder mit hoechster Prioritaet vor, die
  * dort nie erscheinen, und nimmt dem tatsaechlichen LCP-Bild auf gedrosseltem
  * Mobilfunk rund 394 KB Bandbreite weg (Audit vom 05.08.2026, Problem 1).
- * hero-b-bg.webp loeste mobile-chains-hills.webp im "Drei Zonen"-Mobile-Hero
- * (2026-09) ab, das seinerseits chain-bg-mobile.webp abgeloest hatte (2026-08)
- * — dieselbe Stripping-Regel muss jedem neuen Dateinamen folgen, sonst bleibt
- * der veraltete Preload-Name hier stehen und der neue Preload verbleibt
- * faelschlich auf jeder Unterseite.
+ * hero-mobile.webp loeste hero-b-bg.webp mit dem "Editorial Object Card"-
+ * Mobile-Hero ab (2026-09); hero-b-bg.webp hatte mobile-chains-hills.webp
+ * abgeloest, das chain-bg-mobile.webp (2026-08) — dieselbe Stripping-Regel
+ * muss jedem neuen Dateinamen folgen, sonst bleibt der veraltete Preload-Name
+ * hier stehen und der neue Preload verbleibt faelschlich auf jeder Unterseite.
  */
-const HOME_ONLY_PRELOADS = /<link\s+rel="preload"\s+as="image"\s+href="\/images\/hero\/(?:hero-b-bg\.webp|chain-bg\.webp|wax-cutout\.webp)"[^>]*>\s*/gi;
+const HOME_ONLY_PRELOADS = /<link\s+rel="preload"\s+as="image"\s+href="\/images\/hero\/(?:hero-mobile\.webp|chain-bg\.webp|wax-cutout\.webp)"[^>]*>\s*/gi;
 
 /** Entfernt die globalen Head-Tags aus der Huelle, die wir pro Seite ersetzen. */
 export function stripHead(html) {

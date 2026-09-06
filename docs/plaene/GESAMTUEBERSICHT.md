@@ -129,6 +129,12 @@ die IDs da sind (`data.ts` befüllen), aber kann nur von dir kommen
 
 ## 🙋 Nur du — SEO/Content/Business-intern, keine Website-UX
 
+> **Neu 06.09.2026:** `docs/plaene/RECHNER_SICHTBARKEIT.md` — warum die
+> `/rechner`-Seiten nicht gefunden werden, Konzept + Red-Team. On-Site-Teil 1
+> (interne Links, Titel, `llms.txt`, `<noscript>`) ist umgesetzt; Schema + FAQ
+> und die Off-Site-Schritte (Search Console, Backlink, Community-Antworten)
+> stehen dort.
+
 Kurz gebündelt, Volltext steht in den Einzeldokumenten:
 
 - [ ] Widersprüchliche Bewertungszahl vereinheitlichen (200+ vs. 164, an drei

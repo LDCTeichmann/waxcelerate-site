@@ -150,26 +150,30 @@ function DriveLossBars({ de }: { de: boolean }) {
 
   return (
     <div ref={ref}>
+      {/* Skala ueber der Spur statt darunter — die Achse zuerst lesen, dann die
+          Balken dagegen. */}
+      <div className="flex justify-between mb-2">
+        {[0, 6, 12].map(v => (
+          <span key={v} className="num-data text-eyebrow" style={{ color: 'var(--txff)', letterSpacing: 'normal' }}>{v}{v === 12 ? ' W' : ''}</span>
+        ))}
+      </div>
       <div className="relative h-2.5 rounded-full" style={{ background: 'var(--bd2)' }}>
         <div className="absolute inset-y-0 rounded-full" style={seg(w.oil[0], w.oil[1], false)} />
         <div className="absolute inset-y-0 rounded-full" style={seg(w.wax[0], w.wax[1], true)} />
       </div>
+      {/* Reihenfolge folgt der Balkenlage: Wachs (2–4 W) sitzt links auf der
+          Skala, Oel (6–10 W) rechts — also steht Heisswachs auch links. */}
       <div className="flex items-center justify-between mt-2.5 text-small">
-        <span className="flex items-center gap-1.5" style={{ color: 'var(--txm)' }}>
-          <span aria-hidden className="inline-block rounded-full flex-shrink-0" style={{ width: 6, height: 6, background: 'var(--txf)', opacity: 0.5 }} />
-          {de ? 'Kettenöl' : 'Chain oil'}
-          <span className="num-data" style={{ color: 'var(--txf)' }}>{w.oil[0]}–{w.oil[1]} W</span>
-        </span>
         <span className="flex items-center gap-1.5" style={{ color: 'var(--tx1)' }}>
           <span aria-hidden className="inline-block rounded-full flex-shrink-0" style={{ width: 6, height: 6, background: 'var(--accent)' }} />
           {de ? 'Heißwachs' : 'Hot wax'}
           <span className="num-data font-medium" style={{ color: 'var(--accent)' }}>{w.wax[0]}–{w.wax[1]} W</span>
         </span>
-      </div>
-      <div className="flex justify-between mt-2.5 pt-2" style={{ borderTop: '1px solid var(--bd2)' }}>
-        {[0, 6, 12].map(v => (
-          <span key={v} className="num-data text-eyebrow" style={{ color: 'var(--txff)', letterSpacing: 'normal' }}>{v}{v === 12 ? ' W' : ''}</span>
-        ))}
+        <span className="flex items-center gap-1.5" style={{ color: 'var(--txm)' }}>
+          <span aria-hidden className="inline-block rounded-full flex-shrink-0" style={{ width: 6, height: 6, background: 'var(--txf)', opacity: 0.5 }} />
+          {de ? 'Kettenöl' : 'Chain oil'}
+          <span className="num-data" style={{ color: 'var(--txf)' }}>{w.oil[0]}–{w.oil[1]} W</span>
+        </span>
       </div>
     </div>
   );
@@ -322,11 +326,16 @@ export function WhyWax() {
              am leichtesten verstaendliche Vorteil. Die Balken sind der
              abstrakteste der drei (μ-Werte, Watt) UND schon anderswo in der
              Liste vertreten — die naheliegende Streichung fuer Mobile. */}
-      <div className="grid lg:grid-cols-[1fr_370px] gap-10 lg:gap-16 items-start">
+      <div className="grid lg:grid-cols-[1fr_370px] gap-10 lg:gap-16 items-start lg:items-stretch">
 
-        <div ref={rowsRef} style={{ borderTop: '1px solid var(--bd2)' }}>
+        {/* lg: die vier Zeilen wachsen gleich (flex-1) auf die volle
+            Spaltenhoehe, die die (hoehere) Beleg-Spalte rechts vorgibt — die
+            Trennlinien sitzen dann in gleichem Rhythmus und die letzte fluchtet
+            exakt mit der Unterkante der Kosten-Karte. Oben fluchtet die
+            Startlinie ohnehin mit der Mikroskop-Karte. */}
+        <div ref={rowsRef} className="lg:h-full lg:flex lg:flex-col" style={{ borderTop: '1px solid var(--bd2)' }}>
           {moments.map(m => (
-            <div key={m.n} data-row className="flex items-start gap-4 sm:gap-7 py-4 sm:py-9"
+            <div key={m.n} data-row className="flex items-start gap-4 sm:gap-7 py-4 sm:py-9 lg:flex-1"
               style={{ borderBottom: '1px solid var(--bd2)' }}>
               <span className="font-display font-bold leading-none flex-shrink-0 select-none"
                 style={{ fontSize: 'clamp(1.75rem, 7vw, 3.25rem)', color: 'var(--accent-soft)', minWidth: '2ch' }}>
@@ -341,7 +350,13 @@ export function WhyWax() {
                   style={{ color: 'var(--txm)' }}>
                   {de ? m.bodyDe : m.bodyEn}
                   {'  '}
-                  <span className="num-data text-eyebrow whitespace-nowrap" style={{ color: 'var(--txf)', letterSpacing: 'normal', textTransform: 'none' }}>
+                  {/* Beleg-Notiz am Satzende: bewusst dieselbe Schrift wie der
+                      Satz, nur eine Stufe kleiner und in der leisesten
+                      Textfarbe. Der Chip-Inhalt ist gemischt (Wortbelege wie
+                      "Fahrerurteil" neben Zahlen wie "μ 0.03"), eine Mono-Type
+                      passte nur zur Haelfte und las sich als Fehlformatierung.
+                      `.num` nur fuer buendige Ziffern, ohne Mono-Optik. */}
+                  <span className="num text-small whitespace-nowrap" style={{ color: 'var(--txff)' }}>
                     · {m.chip}
                   </span>
                 </p>
@@ -356,21 +371,19 @@ export function WhyWax() {
             horizontales Scrollen — nachgemessen per scrollWidth/clientWidth.
             max-w-[370px] deckelt sie trotzdem, falls sm: (bis lg:) mal breiter
             als 370px content-Platz hat. */}
-        <div ref={proofRef} className="flex flex-col gap-2.5 mx-auto lg:mx-0 w-full max-w-[370px] lg:w-[370px]">
+        <div ref={proofRef} className="flex flex-col gap-2.5 lg:justify-between lg:h-full mx-auto lg:mx-0 w-full max-w-[370px] lg:w-[370px]">
           <div className="rounded-2xl overflow-hidden"
             style={{ border: '1px solid var(--bd)', background: 'var(--card-bg)', boxShadow: 'var(--card-shad)' }}>
-            <div className="pt-2">
-              <BeforeAfterSlider
-                key={proofTab}
-                aspect={proof.aspect}
-                beforeSrc={proof.beforeSrc}
-                afterSrc={proof.afterSrc}
-                beforeAlt={proof.beforeAlt}
-                afterAlt={proof.afterAlt}
-                beforeLabel={proof.beforeLabel}
-                afterLabel="Waxcelerate"
-              />
-            </div>
+            <BeforeAfterSlider
+              key={proofTab}
+              aspect={proof.aspect}
+              beforeSrc={proof.beforeSrc}
+              afterSrc={proof.afterSrc}
+              beforeAlt={proof.beforeAlt}
+              afterAlt={proof.afterAlt}
+              beforeLabel={proof.beforeLabel}
+              afterLabel="Waxcelerate"
+            />
             <div className="px-4 pb-3.5 pt-3">
               {/* Segmented Control statt reiner Farbänderung an Fließtext —
                   Luca-Feedback: der alte, rein textbasierte Umschalter (nur
@@ -426,23 +439,29 @@ export function WhyWax() {
               noReveal
               eyebrow={de ? 'Gemessen · Antriebsverlust' : 'Measured · drivetrain loss'}
               footer={
+                /* Die Ersparnis als offene Rechnung statt als eine grosse Zahl
+                   plus danebenstehendem "151 → 81" (das sagte dasselbe zweimal:
+                   70 = 151 − 81). Zwei Posten, eine Summenzeile. */
                 <div className="flex flex-col gap-2.5">
-                  <div className="flex items-baseline justify-between gap-3">
-                    <div>
-                      <span className="font-display font-bold" style={{ fontSize: '1.6rem', color: 'var(--accent)' }}>
-                        {eur(cost.savedEur, de)}
-                      </span>
-                      <span className="text-meta ml-1.5" style={{ color: 'var(--txf)' }}>
-                        {de ? `/ ${cost.km.toLocaleString('de-DE')} km` : `/ ${cost.km.toLocaleString('en-US')} km`}
-                      </span>
+                  <div className="flex flex-col gap-1.5">
+                    <div className="flex items-baseline justify-between gap-3 text-small">
+                      <span style={{ color: 'var(--txm)' }}>{de ? 'Kettenöl' : 'Chain oil'}</span>
+                      <span className="num" style={{ color: 'var(--tx1)' }}>{eur(cost.oilEur, de)}</span>
                     </div>
-                    <div className="flex items-baseline gap-1.5 num-data text-small">
-                      <span style={{ color: 'var(--txf)', textDecoration: 'line-through', textDecorationColor: 'var(--bd)' }}>
-                        {eur(cost.oilEur, de)}
+                    <div className="flex items-baseline justify-between gap-3 text-small">
+                      <span style={{ color: 'var(--txm)' }}>{de ? 'Heißwachs' : 'Hot wax'}</span>
+                      <span className="num" style={{ color: 'var(--tx1)' }}>{eur(cost.waxEur, de)}</span>
+                    </div>
+                    <div className="flex items-baseline justify-between gap-3 pt-2 mt-0.5"
+                      style={{ borderTop: '1px solid var(--bd2)' }}>
+                      <span className="text-small font-semibold" style={{ color: 'var(--tx1)' }}>
+                        {de ? 'Gespart' : 'Saved'}
+                        <span className="text-meta font-normal ml-1.5" style={{ color: 'var(--txf)' }}>
+                          {de ? `auf ${cost.km.toLocaleString('de-DE')} km` : `over ${cost.km.toLocaleString('en-US')} km`}
+                        </span>
                       </span>
-                      <span aria-hidden style={{ color: 'var(--txff)' }}>→</span>
-                      <span style={{ color: 'var(--tx1)', fontWeight: 600 }}>
-                        {eur(cost.waxEur, de)}
+                      <span className="font-display font-bold" style={{ fontSize: '1.4rem', color: 'var(--accent)' }}>
+                        {eur(cost.savedEur, de)}
                       </span>
                     </div>
                   </div>

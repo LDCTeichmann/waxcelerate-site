@@ -36,7 +36,9 @@ export function TogButton({
         background: active ? undefined : 'var(--tog-bg)',
         color: active ? 'var(--tx1)' : 'var(--tog-fg)',
         fontWeight: active ? 500 : 400,
-        boxShadow: 'none',
+        // Inaktiver Chip liegt erhaben auf der recessten Leiste — ein
+        // Mikroschatten macht ihn als Knopf lesbar. Aktiv: flach (Wash trägt).
+        boxShadow: active ? 'none' : '0 1px 2px rgba(0,0,0,0.05)',
       }}
     >
       {children}
@@ -62,7 +64,7 @@ export function ToolCard({ children }: { children: React.ReactNode }) {
   return (
     <div
       className="h-full flex flex-col rounded-3xl overflow-hidden"
-      style={{ background: 'var(--card-bg)', border: '1px solid var(--bd)', boxShadow: 'var(--card-shad)' }}
+      style={{ background: 'var(--card-bg)', border: '1px solid var(--tool-card-bd)', boxShadow: 'var(--tool-card-shad)' }}
     >
       {children}
     </div>
@@ -117,16 +119,19 @@ export function ToolSlider({ value, onValueChange, min, max, step, ariaLabel }: 
       value={[value]}
       onValueChange={v => onValueChange(v[0])}
       min={min} max={max} step={step}
-      className="py-1"
+      // Range/Thumb auf --accent statt shadcn --primary: die Profilleiste soll
+      // genau EIN Blau zeigen (wie die aktiven Chips), nicht zwei fast gleiche
+      // nebeneinander — das ist der Simultankontrast-Ausloeser aus DESIGN.md §1.
+      className="py-1 [&_[data-slot=slider-range]]:bg-[var(--accent)] [&_[data-slot=slider-thumb]]:border-[var(--accent)]"
       aria-label={ariaLabel}
     />
   );
 }
 
 /** Zahleneingabe im Kartenstil. */
-export function NumberInput({ value, onChange, min, max, step, ariaLabel, theme, suffix }: {
+export function NumberInput({ value, onChange, min, max, step, ariaLabel, theme, suffix, placeholder }: {
   value: string; onChange: (v: string) => void;
-  min: number; max: number; step?: number; ariaLabel: string; theme: string; suffix?: string;
+  min: number; max: number; step?: number; ariaLabel: string; theme: string; suffix?: string; placeholder?: string;
 }) {
   return (
     <div className="relative">
@@ -135,6 +140,7 @@ export function NumberInput({ value, onChange, min, max, step, ariaLabel, theme,
         inputMode="decimal"
         min={min} max={max} step={step}
         value={value}
+        placeholder={placeholder}
         onChange={e => onChange(e.target.value)}
         aria-label={ariaLabel}
         className={`w-full px-3.5 py-2.5 rounded-xl text-[14px] tabular-nums ${suffix ? 'pr-12' : ''}`}

@@ -188,8 +188,8 @@ export function getToolBySlug(slug: string): ToolEntry | undefined {
 }
 
 export const TOOLS_HUB = {
-  title: 'Fahrrad-Rechner: Verschleiß, Kettenlänge, Intervall und Kosten | Waxcelerate',
-  description: 'Sechs kostenlose Rechner rund um Fahrradkette und Kettenpflege: Verschleiß messen, Kettenlänge bestimmen, passende Kette finden, Rewax-Intervall und Kosten berechnen.',
-  h1: 'Rechner rund um die Fahrradkette',
+  title: 'Kettenwachs-Rechner & Kettenpflege-Planer: Verschleiß, Länge, Intervall, Kosten | Waxcelerate',
+  description: 'Sechs kostenlose Rechner rund um Fahrradkette und Kettenwachs: Verschleiß messen, Kettenlänge bestimmen, passende Kette finden, Rewax-Intervall und Kosten berechnen.',
+  h1: 'Kettenwachs-Rechner & Planer für die Fahrradkette',
   lead: 'Sechs Werkzeuge für die Fragen, die beim Schrauben wirklich aufkommen. Kostenlos, ohne Anmeldung, und die Annahmen hinter jeder Zahl stehen offen da.',
 };

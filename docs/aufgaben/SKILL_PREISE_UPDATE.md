@@ -8,20 +8,28 @@ Preise ziehen.
 
 ---
 
-## 5. Rewax-Service (B2C) · Stand 2026-07-29
+## 5. Rewax-Service (B2C) · Stand 2026-09-06
 
-- **13,95 € je Kette** einzeln
-- **9,95 € je Kette ab drei Ketten** (drei Ketten = 29,85 €)
-- **1,80 € Rückversand** je Einsendung, unabhängig von der Anzahl
-- Gesamtbeispiele: eine Kette 15,75 € · drei Ketten 31,65 €
-- **Zehnerkarte:** zehn Vorgänge im Voraus zum Dreierpreis minus zehn Prozent,
-  also **89,55 € statt 99,50 €**. Übertragbar, kein Ablaufdatum, wir führen die
-  Karte. Wird als Geschenkidee positioniert.
+- **13,95 € je Kette** einzeln, zzgl. **1,80 € Rückversand** (Großbrief)
+- **9,95 € je Kette ab drei Ketten** (drei Ketten = 29,85 €), zzgl. **2,90 €
+  Rückversand** (Maxibrief, fällt nur einmal je Sendung an)
+- Gesamtbeispiele: eine Kette 15,75 € · drei Ketten 32,75 €
+- **Stempelkarten (5er / 10er):** All-in — der Kartenpreis deckt Wachsen **und
+  Rückversand**. Der ausgewiesene Rabatt misst sich am **Einzelpreis 13,95 €**
+  (nicht am Dreierpreis), weil ein Kartenkäufer ein bis zwei Ketten hat.
+  - **5er-Karte: 49,75 €** (9,95 €/Vorgang) → Ersparnis 20,00 € gegen 5 × 13,95 €
+  - **10er-Karte: 94,50 €** (9,45 €/Vorgang) → Ersparnis 45,00 € gegen 10 × 13,95 €
+  - Übertragbar, kein Ablaufdatum, wir führen die Karte. Geschenk: zusätzlich
+    eine gedruckte Karte mit Code. Als Geschenkidee positioniert.
+  - Selbstkosten-Annahme je Vorgang 3–5 € (ohne Porto); bei ~2–3 Ketten je
+    Sendung trägt der All-in-Preis komfortabel, im Worst Case (jede Kette
+    einzeln) bleibt ein dünner, aber positiver Deckungsbeitrag.
 - **Umfang:** ausschließlich Rewax bereits gewachster Ketten, eigene oder
   fremde. **Kein Entfetten und Erstwachsen geölter Ketten.** Begründung nach
   außen: Öl schwimmt im Wachsbad oben auf und blockiert die Penetration, eine
   einzige ölige Kette macht die ganze Charge unbrauchbar.
-- Diese Zahlen **ersetzen** die früheren 9,99 € / 24,99 €.
+- Diese Zahlen **ersetzen** die früheren 9,99 € / 24,99 € und die alte
+  10er-Karte zu 89,55 € (−10 % auf den Dreierpreis).
 
 ## 8. Zubehör und Sets (neu, B2C)
 
@@ -30,6 +38,14 @@ Preise ziehen.
 - **Starter-Set:** ein Wachs plus eine vorgewachste Kette, Zange und Draht
   liegen immer bei. Preis **15 Prozent unter der Summe der Einzelteile**.
   Nach außen wird die **Ersparnis in Euro** genannt, nicht der Prozentsatz.
+  Drei feste Kombinationen (Stand 2026-09-06):
+  - **Classic** — Kettenwachs 300 g Classic + YBN 11S 11-fach → **57,63 €**
+    (Ersparnis 10,17 €). Bewusst der kleine 300-g-Block: günstigster Einstieg.
+  - **HG701** — Kettenwachs 500 g Classic + Shimano Ultegra HG701 11-fach →
+    **72,04 €** (Ersparnis 12,71 €).
+  - **Pro** — Kettenwachs 500 g Pro + Shimano XT/Ultegra M8100 12-fach →
+    **84,83 €** (Ersparnis 14,97 €).
+  Daneben ein freier Konfigurator (jedes Wachs × jede Kette).
 - **Mengenstaffel Wachs:** 2 Stück 5 %, 3 Stück 10 %, ab 5 Stück 15 %.
   **Gilt ausschließlich auf Kettenwachs, nie auf Ketten.** Begründung: eine
   Kette kauft man einmal pro Rad, Rabatt darauf verschenkt Marge ohne Menge zu

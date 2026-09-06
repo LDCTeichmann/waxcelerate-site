@@ -20,36 +20,29 @@ export type Review = {
   source?: 'ebay' | 'web';         // verified badge label
   productDe?: string; productEn?: string;
   productIds?: string[];           // real product/bundle ids this review is genuinely about
-  photo?: string;                  // real customer photo, shown as a small thumbnail
-  photoPos?: string;               // object-position, tuned per photo
+  fallback?: boolean;              // may stand in on a product page with no tagged review
+  photo?: string;                  // real customer photo (.jpg path; .webp sibling served first)
+  photoPos?: string;               // object-position, only if the pre-crop still needs a nudge
 };
 
+// Reihenfolge bewusst gesetzt: die Fotos ride-1 und ride-2 zeigen DASSELBE
+// maroon S-Works — sie dürfen nicht nebeneinander stehen (fällt auf). Ebenso
+// die zwei dunklen Räder ride-3/ride-4. Foto-Karten liegen daher auf Position
+// 1 / 4 / 6 / 9 / 11 mit je mindestens einer Textkarte dazwischen; die zwei
+// S-Works trennt ride-3, die zwei dunklen Räder trennt ride-2, und die letzte
+// Foto-Karte (ride-5, türkis) grenzt beim Marquee-Loop an die erste (ride-1).
 const REVIEWS: Review[] = [
   {
     textDe: 'Bin jahrelang Öl gefahren und eher skeptisch rangegangen. Erster Eindruck nach dem Wechsel: Die Kette bleibt einfach sauber — kein schwarzer Rand mehr an der Wade, Finger bleiben sauber beim Rad einladen. Dazu läuft der Antrieb spürbar leiser. Eine Wachsung hält bei mir gut 300 km. Kein Zurück mehr zum Öl.',
     textEn: 'Ran oil for years and went in pretty skeptical. First impression after switching: the chain just stays clean — no more black mark on my calf, clean fingers loading the bike. And the drivetrain runs noticeably quieter. One wax lasts me a good 300 km. No going back to oil.',
-    name: 'tom_rennrad', dateDe: 'März 2026', dateEn: 'March 2026', source: 'ebay', photo: '/images/reviews/ride-1.jpg', photoPos: '50% 68%',
+    name: 'tom_rennrad', dateDe: 'März 2026', dateEn: 'March 2026', source: 'ebay', fallback: true, photo: '/images/reviews/ride-1-card.jpg',
   },
   {
-    textDe: 'Erst eine Ausfahrt, aber die Kette war leise UND kein Ketten-Tattoo an Wade oder weißen Socken. Perfekt. Hätte ich einen YouTube-Kanal für 65+ Fahrer, würde ich allen das Wachsen empfehlen.',
-    textEn: 'Only one ride but the chain was quiet AND no chain tattoo on my calf or white socks. Perfect. If I had a YouTube channel for 65+ riders, I’d tell them all to wax.',
-    name: 'Michael W.', dateDe: 'Okt 2025', dateEn: 'Oct 2025', source: 'web',
-    productDe: 'Original Starter-Kit', productEn: 'Original Starter Kit',
-    productIds: ['starter-classic', 'starter-pro'],
-    photo: '/images/reviews/ride-2.jpg', photoPos: '50% 62%',
-  },
-  {
-    textDe: 'Wachse meine Ketten seit Jahren selbst und hatte vorher Silca und CycloWax in der Schublade. Im Alltag merke ich ehrlich keinen Unterschied bei Laufruhe oder Standzeit — nur beim Preis. Bin komplett umgestiegen und empfehle es im Verein regelmäßig weiter. Bestes Preis-Leistungs-Verhältnis, das ich kenne.',
-    textEn: "I've waxed my own chains for years and used to keep Silca and CycloWax in the drawer. Day to day I honestly notice no difference in smoothness or longevity — only in the price. Switched over completely and recommend it at my club all the time. Best value I know of.",
-    name: 'm.gerber', dateDe: 'Mai 2026', dateEn: 'May 2026', source: 'ebay', photo: '/images/reviews/ride-4.jpg', photoPos: '58% 52%',
-  },
-  {
-    textDe: 'Jetzt drei Wochen als „Cyclowaxee". Toller Service! Das Starter-Kit enthält mehr als erwartet und macht den Umstieg auf Heißwachs sehr einfach — gerade fürs Reinigen des Antriebs.',
-    textEn: 'Now three weeks in as a “Cyclowaxee”. Great service! The starter kit contains more than expected and makes converting to hot wax very easy — especially for cleaning the drivetrain.',
-    name: 'Philippe V.', dateDe: 'Okt 2025', dateEn: 'Oct 2025', source: 'web',
-    productDe: 'Original Starter-Kit', productEn: 'Original Starter Kit',
-    productIds: ['starter-classic', 'starter-pro'],
-    photo: '/images/reviews/ride-3.jpg',
+    textDe: 'Großes Lob an den Verkäufer, die Kette wurde schnell und ordnungsgemäß geliefert. Die Kette ist einwandfrei gewachst und ich werde die nächste Kette wieder bei ihm bestellen. Ich fahre schon viele Jahre jetzt mit gewachster Kette, seither hab ich das Wachsen immer selbst gemacht. Ich wollte mir einfach die Arbeit sparen, da das mit dem Ölfrei-Machen der Kette ziemlich zeitaufwändig ist. Ich bin sehr zufrieden, kann den Verkäufer nur weiterempfehlen.',
+    textEn: "Big praise for the seller — the chain arrived quickly and properly. It's impeccably waxed and I'll be ordering my next chain from him again. I've ridden waxed chains for many years now and always did the waxing myself; I just wanted to save the effort, since getting the chain oil-free is quite time-consuming. Very satisfied, can only recommend the seller.",
+    name: 'diemojakob', dateDe: 'Aug 2026', dateEn: 'Aug 2026', source: 'ebay',
+    productDe: 'Gewachste Kette · Shimano XT/Ultegra', productEn: 'Waxed chain · Shimano XT/Ultegra',
+    productIds: ['chain-m8100'],
   },
   {
     textDe: 'Als kompletter Neuling bei der Fahrradpflege hat mir das Starter-Kit den Einstieg super leicht gemacht. Ich konnte den Antrieb wunderbar und schnell reinigen.',
@@ -59,14 +52,56 @@ const REVIEWS: Review[] = [
     productIds: ['starter-classic', 'starter-pro'],
   },
   {
-    textDe: 'Schnelle Lieferung, einwandfrei gewachste Kette die sehr gut läuft, gerne wieder.',
-    textEn: 'Fast delivery, impeccably waxed chain that runs very well — will order again.',
-    name: 'seyrane', dateDe: 'März 2026', dateEn: 'March 2026', source: 'ebay', photo: '/images/reviews/ride-5.jpg',
+    textDe: 'Jetzt drei Wochen als „Cyclowaxee". Toller Service! Das Starter-Kit enthält mehr als erwartet und macht den Umstieg auf Heißwachs sehr einfach — gerade fürs Reinigen des Antriebs.',
+    textEn: 'Now three weeks in as a “Cyclowaxee”. Great service! The starter kit contains more than expected and makes converting to hot wax very easy — especially for cleaning the drivetrain.',
+    name: 'Philippe V.', dateDe: 'Okt 2025', dateEn: 'Oct 2025', source: 'web',
+    productDe: 'Original Starter-Kit', productEn: 'Original Starter Kit',
+    productIds: ['starter-classic', 'starter-pro'],
+    photo: '/images/reviews/ride-3-card.jpg',
+  },
+  {
+    textDe: 'Top Ware, einfach und gut portioniert. Lieferzeit sehr schnell vom Verkäufer — es wurde am gleichen Tag noch versendet, aber leider hat die Post einfach länger gebraucht (Verkäufer trifft keine Schuld). Habe dann mal den Verkäufer angeschrieben und auch sehr schnell eine freundliche Antwort bekommen. Als Entschuldigung gab’s einen großzügigen Gutschein, obwohl die Schuld nicht beim Verkäufer lag — das fand ich sehr aufmerksam. Werde auf jeden Fall wieder bestellen bzw. kann es weiterempfehlen.',
+    textEn: "Great product, simple and well portioned. Very fast dispatch from the seller — sent the same day, though the post just took longer (not the seller's fault). I messaged the seller and got a quick, friendly reply. As an apology there was even a generous voucher, even though it wasn't the seller's fault — I thought that was very considerate. Will definitely order again and can recommend it.",
+    name: 'than_889', dateDe: '2025', dateEn: '2025', source: 'ebay',
+    productDe: 'Kettenwachs 500 g', productEn: 'Chain wax 500 g',
+    productIds: ['wax-500'],
+  },
+  {
+    textDe: 'Erst eine Ausfahrt, aber die Kette war leise UND kein Ketten-Tattoo an Wade oder weißen Socken. Perfekt. Hätte ich einen YouTube-Kanal für 65+ Fahrer, würde ich allen das Wachsen empfehlen.',
+    textEn: 'Only one ride but the chain was quiet AND no chain tattoo on my calf or white socks. Perfect. If I had a YouTube channel for 65+ riders, I’d tell them all to wax.',
+    name: 'Michael W.', dateDe: 'Okt 2025', dateEn: 'Oct 2025', source: 'web',
+    productDe: 'Original Starter-Kit', productEn: 'Original Starter Kit',
+    productIds: ['starter-classic', 'starter-pro'],
+    photo: '/images/reviews/ride-2-card.jpg',
   },
   {
     textDe: 'Positiver als positiv kann leider niemand bewerten – wäre hier aber angebracht, 1+ mit ★.',
     textEn: "Can't rate higher than positive — but this would deserve a 1+ with ★.",
     name: 'volvo210b', dateDe: 'Jan 2026', dateEn: 'Jan 2026', source: 'ebay',
+  },
+  {
+    textDe: 'Ich habe schon mehrere unterschiedliche vorgewachste Ketten von verschiedenen Anbietern ausprobiert. Luca bietet hier mit Waxcelerate meiner Meinung nach die besten Ketten an, die man so kriegen kann. Der Preis stimmt auch. 👍',
+    textEn: "I've already tried several different pre-waxed chains from various sellers. In my opinion Luca and Waxcelerate offer the best chains you can get. The price is right, too. 👍",
+    name: 'thewuschi', dateDe: 'Aug 2026', dateEn: 'Aug 2026', source: 'ebay',
+    productDe: 'Gewachste Kette · Shimano Dura-Ace/XTR', productEn: 'Waxed chain · Shimano Dura-Ace/XTR',
+    productIds: ['chain-m9100'],
+  },
+  {
+    textDe: 'Wachse meine Ketten seit Jahren selbst und hatte vorher verschiedene fertige Wachse ausprobiert. Für mich im Alltag läuft die Kette genauso ruhig und lange wie gewohnt — den Unterschied merke ich vor allem beim Preis. Bin komplett umgestiegen und empfehle es im Verein regelmäßig weiter. Bestes Preis-Leistungs-Verhältnis, das ich kenne.',
+    textEn: "I've waxed my own chains for years and had tried various off-the-shelf waxes before. For me, day to day, the chain runs just as smoothly and lasts just as long as I'm used to — the difference I notice is mainly the price. Switched over completely and recommend it at my club regularly. Best value for money I know of.",
+    name: 'm.gerber', dateDe: 'Mai 2026', dateEn: 'May 2026', source: 'ebay', fallback: true, photo: '/images/reviews/ride-4-card.jpg',
+  },
+  {
+    textDe: 'Alles bestens, 1a. Sehr netter Kontakt, sehr ausführliche Beratung bei Fragen. Immer wieder gern.',
+    textEn: 'All perfect, top marks. Very friendly contact, thorough advice when I had questions. Happy to order again anytime.',
+    name: 'daliduc848', dateDe: 'Frühjahr 2026', dateEn: 'Spring 2026', source: 'ebay',
+    productDe: 'Gewachste Kette · Shimano SLX/105', productEn: 'Waxed chain · Shimano SLX/105',
+    productIds: ['chain-m7100'],
+  },
+  {
+    textDe: 'Schnelle Lieferung, einwandfrei gewachste Kette die sehr gut läuft, gerne wieder.',
+    textEn: 'Fast delivery, impeccably waxed chain that runs very well — will order again.',
+    name: 'seyrane', dateDe: 'März 2026', dateEn: 'March 2026', source: 'ebay', photo: '/images/reviews/ride-5-card.jpg',
   },
   {
     textDe: 'Alles bestens, läuft wie gewachst !!',
@@ -75,16 +110,17 @@ const REVIEWS: Review[] = [
   },
 ];
 
-// Picks 1-2 real reviews for a product detail page. Only the Starter-Kit
-// reviews are genuinely tied to a specific product (both bundles, since the
-// reviewer's exact wax/chain combo isn't identifiable from the text) — for
-// every other product there's no reliable per-SKU tagging in this data, so
-// the fallback is a small, hand-picked, honestly-generic set (order above is
-// deliberate: tom_rennrad + m.gerber are the two most substantive untagged
-// reviews). Never claim a fallback quote is "about" the exact product it's
-// shown on — see the neutral heading used wherever this is called.
+// Picks 1-2 real reviews for a product detail page. Tagged reviews win: the
+// Starter-Kit bundles and, since 08/2026, the Shimano chains (chain-m7100/
+// m8100/m9100) and the 500 g wax each carry a genuine eBay review. Everything
+// else has no reliable per-SKU review, so it falls back to the entries
+// explicitly marked `fallback: true` — tom_rennrad and m.gerber, the two most
+// substantive untagged quotes. Decoupled from array order on purpose: the row
+// order above is tuned for photo variety, not for which review leads.
+// Never claim a fallback quote is "about" the exact product it's shown on —
+// see the neutral heading used wherever this is called.
 const GENERIC_FALLBACK_COUNT = 2;
-const genericReviews = REVIEWS.filter(r => !r.productIds);
+const genericReviews = REVIEWS.filter(r => r.fallback);
 
 export function reviewsForProduct(productId: string): Review[] {
   const tagged = REVIEWS.filter(r => r.productIds?.includes(productId));
@@ -109,7 +145,7 @@ function textColWidth(len: number) {
 // Avatar neben dem Namen war nicht zu erkennen, dass es echte Kundenfotos sind;
 // als 16:9-Band oben in der Karte war es zwar gross genug, machte aber genau
 // die Karten mit Foto rund 120 Pixel hoeher als die ohne. In einer Reihe, in
-// der nur fuenf von acht Karten ein Foto haben, ergibt das den ausgefransten,
+// der nur ein Teil der Karten ein Foto hat, ergibt das den ausgefransten,
 // unruhigen Eindruck, den Luca beschrieben hat — und zieht die ganze Sektion
 // unnoetig in die Hoehe.
 //
@@ -118,6 +154,12 @@ function textColWidth(len: number) {
 // um als echtes Rad lesbar zu sein, und der Text liegt weiter auf der
 // Kartenflaeche statt auf dem Bild — die Lesbarkeit haengt also nicht davon ab,
 // wie hell das jeweilige Motiv ist.
+//
+// Die Bilder werden von scripts/build-review-images.mjs einmal bikezentriert
+// auf 4:5 Hochformat geschnitten und klein gerechnet (ride-*-card.webp/.jpg).
+// Deshalb reicht der Streifen schmal und object-position bleibt fast immer in
+// der Mitte — object-cover greift nur noch minimal in ein bereits passendes
+// Bild ein, statt gegen ein 1400er Querformat zu kaempfen.
 //
 // Karten ohne Foto bekommen kein Platzhalterbild. Eine Reihe, in der manche
 // Karten ein Bild haben und manche nicht, liest sich als echte Sammlung.
@@ -130,11 +172,12 @@ function ReviewCard({ r, de }: { r: Review; de: boolean }) {
     : (de ? 'eBay verifiziert' : 'eBay verified');
   const [photoOk, setPhotoOk] = useState(true);
   const showPhoto = Boolean(r.photo) && photoOk;
-  // 100 statt 84: bei einer Kartenhöhe von rund 215px ergaben 84px einen
-  // Streifen von etwa 1:2,5 — als Band noch lesbar, aber für ein Querformat
-  // (Rad vor Landschaft) ein sehr schmaler Ausschnitt. 100px bringt das
-  // Verhältnis auf etwa 1:2, ohne der Textspalte spürbar Breite zu nehmen.
-  const PHOTO_W = 100;
+  // 116 statt 100: die Bilder sind jetzt vorgeschnittenes 4:5-Hochformat, ein
+  // paar Pixel mehr Streifenbreite zeigen Rahmen und Antrieb klarer, ohne der
+  // Textspalte auf dem Handy (Karte gegen calc(100vw - 72px) gedeckelt)
+  // spürbar Platz zu nehmen.
+  const PHOTO_W = 116;
+  const photoWebp = r.photo?.replace(/\.jpg$/, '.webp');
 
   return (
     <figure
@@ -149,11 +192,14 @@ function ReviewCard({ r, de }: { r: Review; de: boolean }) {
       }}
     >
       {showPhoto && (
-        <img src={r.photo} alt={de ? `Rad von ${r.name}` : `${r.name}'s bike`}
-          loading="lazy" decoding="async"
-          onError={() => setPhotoOk(false)}
-          className="flex-shrink-0 object-cover self-stretch"
-          style={{ width: PHOTO_W, background: 'var(--sf3)', objectPosition: r.photoPos ?? '50% 50%' }} />
+        <picture className="flex-shrink-0 self-stretch flex" style={{ width: PHOTO_W, background: 'var(--sf3)' }}>
+          <source srcSet={photoWebp} type="image/webp" />
+          <img src={r.photo} alt={de ? `Rad von ${r.name}` : `${r.name}'s bike`}
+            loading="lazy" decoding="async"
+            onError={() => setPhotoOk(false)}
+            className="w-full object-cover"
+            style={{ objectPosition: r.photoPos ?? '50% 50%' }} />
+        </picture>
       )}
 
       <div className="flex flex-col flex-1 min-w-0 px-4 py-3.5">
@@ -247,7 +293,11 @@ export function Reviews() {
             A moving marquee fighting the visitor's own scroll is the kind of
             motion that reads as chaos rather than proof on a small screen,
             and unlike desktop there is no way to pause and actually read a
-            card mid-scroll. */}
+            card mid-scroll.
+            Kein edge-fade hier: die statische Reihe braucht kein "da ist noch
+            mehr"-Signal (die halb sichtbare Nachbarkarte macht das schon), und
+            der voll deckende Rand des Overlays malte auf dem Handy einen
+            weißen Streifen über das erste — dunkle — Foto. */}
         {/* Mobile-Plan B7g: eine overflow-x-auto <div> ohne tabIndex ist per
             Maus/Touch wischbar, aber ohne implizites tabindex nie ein
             Tab-Stopp — Tastaturnutzer sprangen direkt von der Ueberschrift
@@ -255,7 +305,7 @@ export function Reviews() {
             per Pfeiltasten durchscrollen. tabIndex={0} macht den Container
             fokussierbar, role="region" + aria-label geben ihm einen Namen,
             den ein Screenreader beim Betreten ansagt. */}
-        <div className="sm:hidden flex overflow-x-auto edge-fade px-6 pb-2" style={{ scrollbarWidth: 'none' }}
+        <div className="sm:hidden flex overflow-x-auto px-6 pb-2" style={{ scrollbarWidth: 'none' }}
           tabIndex={0} role="region" aria-label={de ? 'Kundenbewertungen' : 'Customer reviews'}>
           {cards}
         </div>
@@ -295,6 +345,14 @@ export function Reviews() {
           {de ? 'Jetzt Wachs kaufen →' : 'Buy wax now →'}
         </button>
       </div>
+
+      {/* Herkunfts-Hinweis — § 5b Abs. 3 UWG: bei Werbung mit Bewertungen ist
+          anzugeben, ob und wie ihre Echtheit sichergestellt wird. */}
+      <p className="text-meta mt-5 max-w-2xl leading-relaxed" style={{ color: 'var(--txff)' }}>
+        {de
+          ? 'eBay-Bewertungen stammen aus bestätigten Käufen und sind dort öffentlich einsehbar. Weitere Rückmeldungen stammen aus direktem Kundenkontakt nach dem Kauf.'
+          : 'eBay reviews come from confirmed purchases and are publicly visible there. Further feedback comes from direct customer contact after purchase.'}
+      </p>
     </Section>
   );
 }

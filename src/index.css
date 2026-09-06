@@ -45,13 +45,17 @@
    light page physically passes through a murky mid-grey; that's not a bug in
    the old approach, it's what alpha compositing does). Painting over with
    var(--pg) fades cleanly regardless of what's underneath — keep that part.
-   What was too heavy was the CURVE: a flat two-stop linear ramp reads as a
-   wall that suddenly appears, not a fade. This uses the actual smoothstep
-   curve (t²(3-2t) at t=.25/.5/.75 → 84%/50%/16%) instead of a straight line —
-   eases in, does most of its work in the middle, eases back out — which is
-   what makes a fade read as gentle rather than abrupt. color-mix() computes
-   "N% of var(--pg)" directly so this still tracks the theme token, same as
-   before, just shaped differently. */
+   The CURVE follows the smoothstep t²(3-2t) so it eases in, does most of its
+   work in the middle, eases back out — a gentle fade, not a wall.
+
+   Two deliberate limits after Luca reported a "white stripe" on mobile:
+   1) The edge never reaches 100% var(--pg) — it tops out at 90%. Fully opaque
+      at x=0 reads as a painted bar sitting on the first card, not a fade. The
+      marquee loop is already seamless (card set rendered twice), so the fade
+      only has to soften the edge, not hide a seam.
+   2) Only the desktop rows carry .edge-fade. The mobile row is a static swipe
+      list where the half-visible next card already signals "more", and that
+      is exactly where the opaque edge landed on a dark photo. */
 .edge-fade { position: relative; }
 .edge-fade::before, .edge-fade::after {
   content: '';
@@ -59,24 +63,24 @@
   top: 0; bottom: 0;
   z-index: 5;
   pointer-events: none;
-  width: clamp(30px, 7.5vw, 96px);
+  width: clamp(24px, 5vw, 72px);
 }
 .edge-fade::before {
   left: 0;
   background: linear-gradient(to right,
-    var(--pg) 0%,
-    color-mix(in oklab, var(--pg) 84%, transparent) 25%,
-    color-mix(in oklab, var(--pg) 50%, transparent) 50%,
-    color-mix(in oklab, var(--pg) 16%, transparent) 75%,
+    color-mix(in oklab, var(--pg) 90%, transparent) 0%,
+    color-mix(in oklab, var(--pg) 76%, transparent) 25%,
+    color-mix(in oklab, var(--pg) 45%, transparent) 50%,
+    color-mix(in oklab, var(--pg) 14%, transparent) 75%,
     transparent 100%);
 }
 .edge-fade::after {
   right: 0;
   background: linear-gradient(to left,
-    var(--pg) 0%,
-    color-mix(in oklab, var(--pg) 84%, transparent) 25%,
-    color-mix(in oklab, var(--pg) 50%, transparent) 50%,
-    color-mix(in oklab, var(--pg) 16%, transparent) 75%,
+    color-mix(in oklab, var(--pg) 90%, transparent) 0%,
+    color-mix(in oklab, var(--pg) 76%, transparent) 25%,
+    color-mix(in oklab, var(--pg) 45%, transparent) 50%,
+    color-mix(in oklab, var(--pg) 14%, transparent) 75%,
     transparent 100%);
 }
 /* Hero primary CTA — barely-perceptible breathing glow. Box-shadow intensity
@@ -153,9 +157,9 @@
    impact rather than a wash. End state (100%) is intentionally muted, not
    full brand saturation — a wall of 10 full-color logos read as too loud. */
 @keyframes wx-stamp-pop {
-  0%   { transform: scale(0.5) rotate(-12deg); filter: grayscale(1) opacity(0.35); }
-  50%  { transform: scale(1.3) rotate(4deg);   filter: grayscale(0.1) saturate(1.15) brightness(1.1) opacity(1); }
-  72%  { transform: scale(0.92) rotate(-1deg); filter: grayscale(0.2) saturate(0.9) brightness(1.06) opacity(0.95); }
+  0%   { transform: scale(0.5) rotate(-8deg);  filter: grayscale(1) opacity(0.35); }
+  50%  { transform: scale(1.16) rotate(3deg);  filter: grayscale(0.1) saturate(1.15) brightness(1.1) opacity(1); }
+  72%  { transform: scale(0.95) rotate(-1deg); filter: grayscale(0.2) saturate(0.9) brightness(1.06) opacity(0.95); }
   100% { transform: scale(1) rotate(0deg);     filter: grayscale(0.35) saturate(0.6) brightness(1.05) opacity(0.9); }
 }
 
@@ -262,8 +266,8 @@
     --sf:        #FFFFFF;
     --sf2:       #F1F1F1;
     --sf3:       #EBEBEB;
-    --tx1:       #101013;   /* near-black, neutral */
-    --tx2:       #44444A;   /* zinc-700-ish */
+    --tx1:       #101010;   /* near-black, neutral — R=G=B, kein Blau-Lean (siehe DESIGN.md §1) */
+    --tx2:       #454545;   /* dunkelgrau — R=G=B, gleiche Helligkeit wie das alte #44444A */
     /* --txm/--txf/--txff (Mobile-Plan B4, 05.08.2026): waren #6B6B72 /
        #8A8A92 / #A8A8B0. Der Mobile-Plan hatte urspruenglich nur --txf und
        --txff als durchgefallen gelistet; ein axe-core-Lauf gegen die
@@ -290,6 +294,11 @@
     --card-to-rgb: 249,249,249;
     --card-bg:   linear-gradient(160deg, var(--card-from) 0%, var(--card-to) 100%);
     --card-shad: 0 2px 16px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,0.9);
+    /* Rechner-Karten (tools.tsx) — eine Spur praesenter als die uebrigen Karten
+       der Seite, ohne die globalen --card-*-Tokens anzufassen: kraeftigere Kante
+       plus eine zweite, engere Schattenebene fuer die Objektkontur. */
+    --tool-card-bd:   #C9C9C9;
+    --tool-card-shad: 0 2px 16px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.9);
     --nav-bg:    rgba(249,249,249,0.92);
     --tool-bg:   var(--pg);   /* was a shade darker than the page — same discrete tone now, no visible seam */
     --card-shadow-hover: 0 4px 20px rgba(0,0,0,0.10), 0 12px 40px rgba(0,0,0,0.08), 0 0 0 1px rgba(var(--accent-rgb),0.15);
@@ -327,28 +336,35 @@
     --accent-wash:       rgba(var(--accent-rgb),0.10);
     --accent-wash-lg:    rgba(var(--accent-rgb),0.18);
 
-    /* shadcn tokens */
-    --background: 240 5% 96%;
-    --foreground: 240 10% 4%;
+    /* shadcn tokens — Graustufen auf Hue-frei (0 0% L%) gesetzt. Die frueheren
+       Hue-240-Werte (4-6 % Saettigung) lasen sich isoliert als "kuehles
+       Neutral", kippten aber neben dem gesaettigten --accent-Blau
+       wahrnehmungsseitig ins Oliv/Ocker — dieselbe Simultankontrast-Ursache,
+       die DESIGN.md §1 fuer die Flaechen-/Textrampe schon behoben hat. Nur die
+       Saettigung faellt weg, die Helligkeit bleibt exakt gleich, also aendert
+       sich kein WCAG-Kontrast. --primary/--ring/--destructive behalten ihren
+       Farbton (echtes Blau bzw. Rot, gewollt). */
+    --background: 0 0% 96%;
+    --foreground: 0 0% 4%;
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 4%;
+    --card-foreground: 0 0% 4%;
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 4%;
+    --popover-foreground: 0 0% 4%;
     --primary: 220 58% 27%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 240 5% 93%;
-    --secondary-foreground: 240 10% 4%;
-    --muted: 240 5% 93%;
-    --muted-foreground: 240 4% 46%;
+    --secondary: 0 0% 93%;
+    --secondary-foreground: 0 0% 4%;
+    --muted: 0 0% 93%;
+    --muted-foreground: 0 0% 46%;
     /* shadcn surface token (HSL triplet, consumed only as hsl(var(--accent-ui))
        via Tailwind `accent`). Namespaced as --accent-ui so the site's ink-blue
        --accent (#1F4A7D, declared above) wins for bare var(--accent) usage. */
-    --accent-ui: 240 5% 93%;
-    --accent-foreground: 240 10% 4%;
+    --accent-ui: 0 0% 93%;
+    --accent-foreground: 0 0% 4%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 240 6% 85%;
-    --input: 240 6% 85%;
+    --border: 0 0% 84%;
+    --input: 0 0% 84%;
     --ring: 220 58% 27%;
     --radius: 0.75rem;
     /* Legacy aliases → single accent (kept so existing var(--brand) refs unify) */
@@ -362,7 +378,7 @@
 
     /* Tab/segment switcher */
     --tab-track-bg:  var(--sf2);
-    --tab-track-bd:  var(--bd2);
+    --tab-track-bd:  var(--bd);           /* war --bd2: die Kante trug die Leiste nicht (DESIGN.md §1) */
     --tab-pill-bg:   var(--sf);
     --tab-pill-bd:   var(--bd);
     --tab-pill-shadow: 0 1px 3px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.55);
@@ -370,9 +386,12 @@
     /* Inset / nested surface tokens — replace hardcoded rgba in dark-first components */
     --inset-bg:    var(--sf2);           /* subtle inset inside cards */
     --inset-bd:    var(--bd2);           /* border of inset areas */
-    --tog-bg:      var(--sf2);           /* toggle button — inactive bg */
+    /* Inaktive Umschalt-Chips: erhaben (weiss + Mikroschatten in TogButton) auf
+       recesstem Grau statt gleicher Fond wie der Container — sonst trennt nur die
+       Haarlinie und die Chips verschwinden. */
+    --tog-bg:      var(--sf);            /* toggle button — inactive bg (erhaben) */
     --tog-bd:      var(--bd);            /* toggle button — inactive border */
-    --tog-fg:      var(--txm);           /* toggle button — inactive text */
+    --tog-fg:      var(--tx2);           /* toggle button — inactive text (praesenter als --txm) */
 
     /* Motion tokens */
     --ease-ui:     cubic-bezier(0.4, 0, 0.2, 1);
@@ -399,7 +418,7 @@
     --sf2:       #1C1C1F;    /* card surface, Raycast-inspired */
     --sf3:       #050507;    /* deeper layer for tool bg */
     --tx1:       #FAFAFA;    /* off-white — easier on eyes than pure white */
-    --tx2:       #A1A1AA;    /* zinc-400 — 7.2:1 contrast */
+    --tx2:       #A1A1A1;    /* zinc-400, Hue-frei — ~7:1 contrast */
     /* --txm/--txf/--txff (Mobile-Plan B4, 05.08.2026): der vorherige
        Kommentar "4.6:1 contrast" bei --txm war falsch (tatsaechlich 3.52:1
        gegen die hellste genutzte Flaeche --sf2) und hat vermutlich dazu
@@ -420,6 +439,13 @@
     --card-shad: 0 1px 0 rgba(255,255,255,0.06) inset,
                  0 12px 40px rgba(0,0,0,0.85),
                  0 0 0 1px rgba(255,255,255,0.04);
+    /* Rechner-Karten — siehe :root. Im Noir traegt die Kontur der hellere
+       1px-Ring, deshalb dort verstaerkt statt einer zweiten Schlagschatten-Ebene.
+       Kante R=G=B (kein Zink-Blaustich), eine Stufe heller als --bd #27272A. */
+    --tool-card-bd:   #363636;
+    --tool-card-shad: 0 1px 0 rgba(255,255,255,0.06) inset,
+                      0 12px 40px rgba(0,0,0,0.85),
+                      0 0 0 1px rgba(255,255,255,0.07);
     --nav-bg:    rgba(9,9,11,0.94);
     --tool-bg:   #050507;
     --card-shadow-hover: 0 8px 28px rgba(0,0,0,0.70), 0 28px 72px rgba(0,0,0,0.75), 0 0 0 1px rgba(26,60,110,0.25);
@@ -449,7 +475,7 @@
 
     /* Tab/segment switcher — dark mode: subtle groove + bright elevated pill */
     --tab-track-bg:  rgba(255,255,255,0.04);
-    --tab-track-bd:  rgba(255,255,255,0.08);
+    --tab-track-bd:  rgba(255,255,255,0.12);   /* war 0.08 — Kante trug die Leiste nicht */
     --tab-pill-bg:   rgba(255,255,255,0.10);
     --tab-pill-bd:   rgba(255,255,255,0.14);
     --tab-pill-shadow: 0 1px 4px rgba(0,0,0,0.40), 0 0 0 0.5px rgba(255,255,255,0.06);
@@ -457,33 +483,35 @@
     /* Inset tokens — dark-mode values */
     --inset-bg:    rgba(255,255,255,0.04);
     --inset-bd:    rgba(255,255,255,0.07);
-    --tog-bg:      rgba(255,255,255,0.03);
-    --tog-bd:      rgba(255,255,255,0.07);
-    /* 0.28 ergab auf dem eigenen Chip-Hintergrund nur 2,53:1 gemessen — die
-       Beschriftung inaktiver Chips war im Dunkelmodus kaum lesbar. 0.52 bringt
-       sie auf rund 4,7:1 und damit ueber die WCAG-AA-Schwelle fuer Fliesstext.
-       Betrifft ausser den Rechnern auch SegmentedToggle (Wissenschaftsseite). */
-    --tog-fg:      rgba(255,255,255,0.52);
+    /* Inaktive Chips erhaben statt gleicher Fond wie der Container (0.03 auf 0.04
+       war unsichtbar). */
+    --tog-bg:      rgba(255,255,255,0.07);
+    --tog-bd:      rgba(255,255,255,0.10);
+    /* --tog-fg auf --tx2 (zinc-400, ~7:1) statt 52 % Weiss (~4,7:1) — inaktive
+       Chip-Beschriftung war zu leise. Gilt auch fuer SegmentedToggle
+       (Wissenschaftsseite); dort mehr Kontrast, also unkritisch. */
+    --tog-fg:      var(--tx2);
 
-    --background: 240 10% 4%;
+    /* Graustufen Hue-frei — siehe Kommentar im :root-Block. Helligkeit unverändert. */
+    --background: 0 0% 4%;
     --foreground: 0 0% 98%;
-    --card: 240 5% 8%;
+    --card: 0 0% 8%;
     --card-foreground: 0 0% 98%;
-    --popover: 240 5% 8%;
+    --popover: 0 0% 8%;
     --popover-foreground: 0 0% 98%;
     --primary: 220 58% 27%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 240 4% 11%;
+    --secondary: 0 0% 11%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 240 4% 11%;
-    --muted-foreground: 240 5% 45%;
+    --muted: 0 0% 11%;
+    --muted-foreground: 0 0% 45%;
     /* shadcn surface token — see --accent-ui note in :root */
-    --accent-ui: 240 4% 13%;
+    --accent-ui: 0 0% 13%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 240 4% 16%;
-    --input: 240 4% 16%;
+    --border: 0 0% 16%;
+    --input: 0 0% 16%;
     --ring: 220 58% 27%;
   }
 
@@ -559,6 +587,11 @@
 #home.hero-editorial h3, #home.hero-editorial h4 {
   color: #fff !important;
 }
+/* Ausnahme: die Mobile-Hero-Headline sitzt unter dem Bildpanel auf der hellen
+   Seitenflaeche (var(--pg)), nicht auf dem Foto — in Light also dunkel. Der
+   "Waxcelerate"-Schriftzug IM Panel bleibt weiss (ist ein <span>, keine
+   Ueberschrift, also von den Regeln oben ohnehin nicht erfasst). */
+:root:not(.noir) #home.hero-editorial .hero-content-m h1 { color: var(--tx1) !important; }
 
 /* Origin section (src/sections/Origin.tsx) — the one deliberate dark
    full-bleed break on an otherwise light homepage. Same fix as #home above:
@@ -686,6 +719,23 @@
   .shelf-card:hover { transform: none !important; animation: none !important; }
 }
 
+/* ChainWaxMap-Teaser (Startseite): die gerade aktive Wachsflaeche atmet einen
+   Glow, damit "hier wird die Reibung reduziert" ins Auge faellt. Nur der
+   Teaser vergibt diese Klasse (Vollmodus auf /wissenschaft bleibt ruhig). */
+@keyframes waxmap-active-pulse {
+  0%, 100% { filter: drop-shadow(0 0 5px rgba(var(--accent-soft-rgb), 0.5)); }
+  50%      { filter: drop-shadow(0 0 12px rgba(var(--accent-soft-rgb), 0.95)); }
+}
+.waxmap-active-pulse {
+  animation: waxmap-active-pulse 2.6s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .waxmap-active-pulse {
+    animation: none;
+    filter: drop-shadow(0 0 8px rgba(var(--accent-soft-rgb), 0.7));
+  }
+}
+
 /* Pro product photos: black wax on dark slate, shot with no alpha channel —
    in noir theme the card background is dark too, so the product nearly
    disappears (light theme's lighter card gives it contrast for free). A
@@ -717,77 +767,67 @@
   background: linear-gradient(to top, rgba(var(--scrim-rgb),0.60) 4%, rgba(var(--scrim-rgb),0.30) 34%, transparent 100%);
 }
 
-/* Hero-Foto auf Mobil (< 640px) — "Buehne" statt Tapete.
-   Ausgeliefert wird hier hero-b-bg (siehe TAUSCHPUNKT in hero-light.tsx): ein
-   Zuschnitt ohne den hellen Dunsthimmel, damit der Bildkopf bei Helligkeit
-   rund 63 liegt und die Headline OHNE Scrim darauf lesbar ist (ueber 10:1).
-   Frueher stand hier `object-position: 68% 20%` plus Blur plus vier Scrims:
-   der Text lag mitten im Motiv, also musste die Abdunklung so schwer sein,
-   dass sie genau das erschlug, was sie zeigen sollte.
-
-   `transform: none` ist NICHT kosmetisch. Das Bild traegt inline
-   `scale(1.035)` als Overscan fuer die Maus-Parallax, die es auf Mobil gar
-   nicht gibt (finePointer-gated). Der freigestellte Wachsblock wird aber in
-   Prozent seines Containers positioniert und muss deckungsgleich auf dem
-   Schattenloch der Hintergrundplatte sitzen. Waere das Foto darunter um 3,5 %
-   groesser skaliert, liefe der Block sichtbar aus seinem eigenen Schatten. */
+/* ===== MOBILE-HERO (< 640px) — Editorial Object Card, ein Screen =====
+   Querformat-Bildpanel mit diagonaler Unterkante, Wachsblock schwebt zentriert
+   auf der dunklen Flaeche, darunter knappe Textzone auf var(--pg). Der ganze
+   Hero passt in eine Bildschirmhoehe. Markup: .sm:hidden-Zweig in hero-light.tsx. */
 @media (max-width: 639px) {
-  .hero-img {
-    object-position: 50% 50% !important;
-    filter: none !important;
-    transform: none !important;
-  }
-}
+  /* Panel skaliert mit der Viewporthoehe, damit unten immer Platz fuer Text +
+     Bewertungen bleibt (Ein-Screen). Untergrenze haelt das Motiv lesbar. */
+  .hero-panel-m { height: clamp(216px, 40svh, 340px); }
 
-@media (max-width: 639px) {
-  .hero-h1 { font-size: 3.05rem !important; }
-/* Kurze Geraete. Der Wachsblock ist deckungsgleich mit seinem Zwilling im Foto
-   verankert und kann deshalb NICHT mitschrumpfen — sonst waere er wieder
-   doppelt zu sehen. Platz muss also aus dem Text kommen. Gemessen ohne diese
-   Regeln: beim iPhone SE lief der Block 22px in den CTA, bei 344x600 zusaetzlich
-   26px in die Headline. */
-@media (max-width: 639px) and (max-height: 740px) {
-  .hero-h1 { font-size: 2.55rem !important; }
-  .hero-zone1 { padding-top: 0.75rem !important; }
-  /* Label einzeilig: die Preiszeile ruecht neben den Namen statt darunter. */
-  .hero-block-label { margin-top: 0.4rem !important; }
-  .hero-block-label > span { display: inline; }
-  .hero-block-label > span + span { margin-left: 0.5em; margin-top: 0 !important; }
-  /* Zone 3 kompakter: der Knopf bleibt mit 48px Hoehe deutlich ueber der
-     44px-Mindesttrefferflaeche (WCAG 2.5.5), gibt aber 12px zurueck. */
-  .hero-zone3 .cta-primary { padding-top: 14px !important; padding-bottom: 14px !important; }
-  .hero-zone3 .hero-proof { margin-top: 0.6rem !important; }
-}
-/* Noch kuerzer: das Label weicht ganz. Der Preisanker steht dann weiterhin
-   direkt unter dem Hero im Vertrauensstreifen und in der Produktsektion. */
-@media (max-width: 639px) and (max-height: 660px) {
-  .hero-block-label { display: none !important; }
-}
+  /* Zentraler Schriftzug auf dem Bild — Groesse an der Referenz kalibriert. */
+  .hero-wordmark-m { font-size: clamp(2rem, 9.6vw, 2.9rem); }
 
-  /* "Waxcelerate · Heisswachs · Stuttgart" brach bei 13px und 0.14em Laufweite
-     auf 390px in eine zweite Zeile um und zog eine unruhige Treppe ueber die
-     Headline. Gemessen: die Zeile braucht in der Ausgangsgroesse mehr als die
-     303px, die im Flexcontainer neben dem Strich uebrig bleiben. 11.5px bei
-     0.06em ergeben rund 281px, passen also mit Reserve auch auf 360px, und
-     die Eyebrow bleibt als Eyebrow erkennbar. Die eingesparte Zeile haelt
-     ausserdem die Sternzeile darunter in der dunklen Zone des
-     Naht-Verlaufs (siehe hero-light.tsx). */
+  /* Wachsblock: exakt horizontal zentriert (der <button> traegt selbst nur
+     left:50% + -translate-x-1/2). Breite in svh, damit er mit der (ebenfalls
+     svh-basierten) Panelhoehe skaliert und IMMER vollstaendig auf der
+     Bildflaeche bleibt (nie ueber die Diagonale auf Weiss — dort waere seine
+     dunkle Unterkante als "schwarze Ecke" sichtbar). ~64 % der Panelhoehe. */
+  .hero-block-m { width: clamp(122px, 24svh, 202px); top: 22%; }
+
+  /* Headline auf eigener Buehne unter dem Panel — darf gross sein. */
+  .hero-h1-m { font-size: clamp(2.3rem, 10.5vw, 2.95rem); }
+
+  /* Textzone: gleichmaessiger vertikaler Rhythmus ueber row-gap (eine Zahl,
+     leicht per Media-Query zu stauchen), plus ein groesserer Abstand vor dem
+     CTA als bewusste Zaesur. */
+  .hero-content-m { row-gap: 0.95rem; }
+  .hero-cta-m { margin-top: 0.5rem; }
+
+  /* "Waxcelerate · Kettenwachs · Stuttgart" bricht bei 13px/0.14em auf 390px
+     um. 11.5px bei 0.05em passen mit Reserve auch auf 360px. */
   .hero-eyebrow {
-    /* Gemessen statt geschaetzt: bei 390px bleiben neben dem Strich 303px,
-       bei 360px nur noch 272px. Eine feste Groesse, die auf 390 passt, bricht
-       auf 360 wieder um, deshalb skaliert die Zeile mit der Viewportbreite
-       und ist nach oben auf 11.5px gedeckelt. */
     font-size: clamp(10.5px, 2.95vw, 11.5px) !important;
     letter-spacing: 0.05em !important;
   }
+
+  /* Fakten-Zeile: Haarlinien-Trenner zwischen den drei Werten. */
+  .hero-facts-sep {
+    display: inline-block;
+    width: 1px; height: 0.75em;
+    margin: 0 0.6em;
+    vertical-align: -0.05em;
+    background: var(--bd);
+  }
+}
+/* Kurze Geraete (< ~740px hoch): Panel + Block + Headline schrumpfen, die
+   Fakten-Zeile weicht ganz — die Zahlen stehen ohnehin direkt unter dem Hero. */
+@media (max-width: 639px) and (max-height: 740px) {
+  .hero-panel-m { height: clamp(184px, 33svh, 244px); }
+  .hero-block-m { width: clamp(112px, 21svh, 152px); top: 19%; }
+  .hero-h1-m { font-size: 1.9rem; }
+  .hero-facts-m { display: none; }
+  .hero-content-m { row-gap: 0.55rem; }
+  .hero-cta-m { margin-top: 0.25rem; padding-top: 12px; padding-bottom: 12px; }
 }
 
 /* Editorial light hero — responsive Ketten-Panel-Clip.
-   Mobile: Band oben mit diagonaler Unterkante. Desktop (≥1024px): rechtes
-   Panel mit diagonaler linker Kante. */
+   Mobile: Band mit diagonaler Unterkante. Desktop (≥1024px): rechtes Panel mit
+   diagonaler linker Kante (aktuell nicht genutzt, stoert aber nicht). */
 .hero-chain-clip {
-  clip-path: polygon(0 0, 100% 0, 100% 86%, 0 100%);
-  -webkit-clip-path: polygon(0 0, 100% 0, 100% 86%, 0 100%);
+  clip-path: polygon(0 0, 100% 0, 100% 90%, 0 100%);
+  -webkit-clip-path: polygon(0 0, 100% 0, 100% 90%, 0 100%);
 }
 @media (min-width: 1024px) {
   .hero-chain-clip {
