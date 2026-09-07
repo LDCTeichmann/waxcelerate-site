@@ -118,19 +118,34 @@ export function RechnerHubPage() {
         <link rel="canonical" href={`${BASE}/rechner`} />
         <script type="application/ld+json">{JSON.stringify({
           '@context': 'https://schema.org',
-          '@type': 'CollectionPage',
-          name: TOOLS_HUB.h1,
-          description: TOOLS_HUB.description,
-          url: `${BASE}/rechner`,
-          inLanguage: 'de-DE',
-          hasPart: TOOLS.map(t => ({
-            '@type': 'SoftwareApplication',
-            name: t.cover,
-            url: `${BASE}/rechner/${t.slug}`,
-            applicationCategory: 'UtilityApplication',
-            operatingSystem: 'Web',
-            offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
-          })),
+          '@graph': [
+            {
+              '@type': 'CollectionPage',
+              name: TOOLS_HUB.h1,
+              description: TOOLS_HUB.description,
+              url: `${BASE}/rechner`,
+              inLanguage: 'de-DE',
+              hasPart: TOOLS.map(t => ({
+                '@type': ['SoftwareApplication', 'WebApplication'],
+                name: t.cover,
+                url: `${BASE}/rechner/${t.slug}`,
+                applicationCategory: 'UtilityApplication',
+                operatingSystem: 'Web',
+                isAccessibleForFree: true,
+                offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
+              })),
+            },
+            {
+              '@type': 'ItemList',
+              itemListElement: TOOLS.map((t, i) => ({
+                '@type': 'ListItem',
+                position: i + 1,
+                url: `${BASE}/rechner/${t.slug}`,
+                name: t.cover,
+                description: t.hint,
+              })),
+            },
+          ],
         })}</script>
       </Helmet>
 
@@ -177,17 +192,26 @@ export function RechnerToolPage() {
           '@context': 'https://schema.org',
           '@graph': [
             {
-              '@type': 'SoftwareApplication',
+              '@type': ['SoftwareApplication', 'WebApplication'],
               name: entry.cover,
               description: entry.description,
               url: canonical,
               applicationCategory: 'UtilityApplication',
               operatingSystem: 'Web',
+              browserRequirements: 'Requires JavaScript. Requires HTML5.',
               inLanguage: 'de-DE',
               isAccessibleForFree: true,
               offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
               publisher: { '@type': 'Organization', name: 'Waxcelerate', url: BASE },
             },
+            ...(entry.faq ? [{
+              '@type': 'FAQPage',
+              mainEntity: entry.faq.map(f => ({
+                '@type': 'Question',
+                name: f.q,
+                acceptedAnswer: { '@type': 'Answer', text: f.a },
+              })),
+            }] : []),
             {
               '@type': 'BreadcrumbList',
               itemListElement: [
@@ -236,6 +260,22 @@ export function RechnerToolPage() {
             )}
           </section>
         </div>
+
+        {entry.faq && (
+          <section className="mt-10">
+            <h2 className="text-[17px] font-semibold mb-4" style={{ color: 'var(--tx1)' }}>
+              {de ? 'Häufige Fragen' : 'Common questions'}
+            </h2>
+            <dl className="flex flex-col gap-4 max-w-[65ch]">
+              {entry.faq.map(f => (
+                <div key={f.q}>
+                  <dt className="text-[14px] font-semibold mb-1" style={{ color: 'var(--tx1)' }}>{f.q}</dt>
+                  <dd className="text-[14px] leading-relaxed" style={{ color: 'var(--tx2)' }}>{f.a}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        )}
 
         <nav className="mt-10 flex flex-wrap gap-x-5 gap-y-2 text-[13px]">
           <Link to="/rechner" style={{ color: 'var(--brand)' }}>{t.tools.shared.allTools}</Link>

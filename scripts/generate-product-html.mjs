@@ -291,6 +291,9 @@ function renderProduct(p) {
   ${p.compatibility ? `<p>Kompatibilität: ${esc(p.compatibility)}</p>` : ''}
   ${specs}
   <p>${origin}</p>
+  ${p.category === 'chain'
+    ? `<p><a href="/rechner/passende-kette">Passt diese Kette zu deinem Antrieb? Kompatibilität prüfen →</a></p>`
+    : `<p><a href="/rechner/intervall">Wie oft nachwachsen? Rewax-Intervall berechnen →</a></p>`}
 </article>
 ${relatedHtml}
 <nav aria-label="Weitere Seiten">

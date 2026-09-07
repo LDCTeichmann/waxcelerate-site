@@ -68,10 +68,19 @@ for (const job of JOBS) {
   const base = job.src.replace(/\.jpe?g$/i, '-card');
   const region = { left, top, width: cw, height: ch };
 
-  await sharp(input).rotate().extract(region).resize({ width: OUT_W })
-    .webp({ quality: 68 }).toFile(resolve(DIR, `${base}.webp`));
-  await sharp(input).rotate().extract(region).resize({ width: OUT_W })
-    .jpeg({ quality: 74, mozjpeg: true }).toFile(resolve(DIR, `${base}.jpg`));
+  // Leichte, einheitliche Bildabstimmung. Die fünf Fotos kommen aus fünf
+  // verschiedenen Lichtsituationen (Sonnenuntergang, greller Mittag, bedeckt,
+  // flaches Grau) — nebeneinander in einer Reihe sieht das nach fünf zufällig
+  // zusammengewürfelten Handy-Schnappschüssen aus. Eine dezente Absenkung der
+  // Sättigung und ein Hauch mehr Kontrast zieht sie optisch zu einem Set
+  // zusammen, ohne dass sie gefiltert wirken. Kein Farbstich, kein Vignette —
+  // die Bilder bleiben glaubwürdig echte Kundenfotos.
+  const grade = (p) => p.rotate().extract(region).resize({ width: OUT_W })
+    .modulate({ saturation: 0.9 })
+    .linear(1.06, -8);
+
+  await grade(sharp(input)).webp({ quality: 70 }).toFile(resolve(DIR, `${base}.webp`));
+  await grade(sharp(input)).jpeg({ quality: 76, mozjpeg: true }).toFile(resolve(DIR, `${base}.jpg`));
 
   console.log(`${base}.{webp,jpg}  ${OUT_W}x${Math.round(OUT_W / RATIO)}  (crop ${cw}x${ch} @ ${left},${top})`);
 }

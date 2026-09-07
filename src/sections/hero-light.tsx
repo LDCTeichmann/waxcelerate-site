@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react';
-import { ArrowRight, ZoomIn } from 'lucide-react';
+import { ArrowRight, ZoomIn, Search } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
 import { WaxLensCutout } from '@/sections/hero/WaxLensCutout';
@@ -40,6 +40,15 @@ export function Hero() {
 
   const openDive = useCallback(() => setDiveOpen(true), []);
 
+  // Mobil: Tap auf den Block oeffnet WaxDive UND stoppt den Klick-Hinweis
+  // dauerhaft — er hat seinen Zweck erfuellt, sobald jemand einmal getippt hat.
+  const openDiveFromBlock = useCallback(() => {
+    mHintTlRef.current?.kill();
+    if (mRippleRef.current) gsap.set(mRippleRef.current, { autoAlpha: 0 });
+    if (mMagRef.current) gsap.set(mMagRef.current, { autoAlpha: 0 });
+    setDiveOpen(true);
+  }, []);
+
   const rootRef      = useRef<HTMLElement>(null);
   const cardRef      = useRef<HTMLDivElement>(null);
   const cardInnerRef = useRef<HTMLDivElement>(null);
@@ -50,13 +59,17 @@ export function Hero() {
   const hintRef    = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const ctaRef     = useRef<HTMLButtonElement>(null);
-  // Mobiler Wachsblock. Motion-Wrapper (Wobble + Breathe), Glow-Layer und der
-  // pingende Reticle-Ring — getrennt vom positionierten <button>, dessen
-  // CSS-Zentrierung (-translate-x-1/2) GSAP sonst ueberschreibt. Bewegung und
-  // Werte 1:1 wie der Desktop-Block (idleWobble / breathe / glowPulse).
+  // Mobiler Wachsblock. Motion-Wrapper (Wobble + Breathe) und Glow-Layer —
+  // getrennt vom positionierten <button>, dessen CSS-Zentrierung
+  // (-translate-x-1/2) GSAP sonst ueberschreibt. Bewegung und Werte 1:1 wie der
+  // Desktop-Block (idleWobble / breathe / glowPulse). mRippleRef/mMagRef tragen
+  // den intermittierenden Klick-Hinweis (Tap-Ripple + kurz aufblitzende Lupe),
+  // mHintTlRef haelt dessen Timeline, damit der erste echte Tap sie killt.
   const mBlockInnerRef = useRef<HTMLSpanElement>(null);
   const mGlowRef       = useRef<HTMLSpanElement>(null);
-  const mRingRef       = useRef<SVGCircleElement>(null);
+  const mRippleRef     = useRef<HTMLSpanElement>(null);
+  const mMagRef        = useRef<HTMLSpanElement>(null);
+  const mHintTlRef     = useRef<gsap.core.Timeline | null>(null);
   // Holds the repeating "look, click here" nudge so the lens's own
   // onActiveChange can kill it the moment someone finds the real hotspot —
   // no point still nudging once they already have.
@@ -257,32 +270,48 @@ export function Hero() {
 
   // Mobiler Wachsblock (< 640px): dieselbe "lebendige" Bewegung wie der
   // Desktop-Block — Rotation-Wobble + Scale-Breathe auf dem Motion-Wrapper,
-  // Opacity/Scale-Puls auf dem Glow-Layer — plus ein langsamer Radar-Ping auf
-  // dem Reticle-Ring als Klick-Hinweis. Rotation und Scale sind getrennte
+  // Opacity/Scale-Puls auf dem Glow-Layer. Rotation und Scale sind getrennte
   // GSAP-Transformkomponenten, komponieren also konfliktfrei auf demselben
   // Element. matchMedia-gated, damit die Tweens auf Desktop gar nicht erst
   // laufen. prefers-reduced-motion -> alles statisch.
+  //
+  // Zusaetzlich der Klick-Hinweis: ein intermittierender Cue, sonst NICHTS auf
+  // dem Block. Alle ~6 s dehnt sich einmal ein weicher Tap-Ripple und eine
+  // kleine Lupe blitzt ~1,4 s an derselben Stelle auf — genau wie auf Desktop
+  // (nudgeTl) das Verhalten "kurz zeigen, dann weg". Der erste echte Tap killt
+  // die Timeline dauerhaft (siehe openDiveFromBlock).
   useEffect(() => {
-    const inner = mBlockInnerRef.current;
-    const glow  = mGlowRef.current;
-    const ring  = mRingRef.current;
+    const inner  = mBlockInnerRef.current;
+    const glow   = mGlowRef.current;
+    const ripple = mRippleRef.current;
+    const mag    = mMagRef.current;
     if (!inner) return;
     if (!window.matchMedia('(max-width: 639px)').matches) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      if (ring) gsap.set(ring, { opacity: 0.55 });
-      return;
-    }
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
     const wobble = gsap.to(inner, { rotation: 1.2, duration: 3.6, ease: 'sine.inOut', yoyo: true, repeat: -1 });
     const breathe = gsap.to(inner, { scale: 1.045, duration: 1.9, ease: 'sine.inOut', yoyo: true, repeat: -1, delay: 2.5 });
     const glowPulse = glow
       ? gsap.to(glow, { opacity: 1, scale: 1.22, transformOrigin: '50% 50%', duration: 1.9, ease: 'sine.inOut', yoyo: true, repeat: -1 })
       : undefined;
-    const ping = ring
-      ? gsap.fromTo(ring,
-          { scale: 1, opacity: 0.55, transformOrigin: '50% 50%' },
-          { scale: 1.9, opacity: 0, duration: 2.6, ease: 'sine.out', repeat: -1, repeatDelay: 0.4 })
-      : undefined;
-    return () => { wobble.kill(); breathe.kill(); glowPulse?.kill(); ping?.kill(); };
+
+    let hintTl: gsap.core.Timeline | undefined;
+    if (ripple && mag) {
+      gsap.set(ripple, { autoAlpha: 0, scale: 0.35, transformOrigin: '50% 50%' });
+      gsap.set(mag, { autoAlpha: 0, scale: 0.8, y: 4 });
+      hintTl = gsap.timeline({ repeat: -1, repeatDelay: 4.6, delay: 2.2 });
+      hintTl
+        .to(ripple, { autoAlpha: 1, scale: 0.5, duration: 0.01 })
+        .to(ripple, { scale: 2.1, autoAlpha: 0, duration: 1.5, ease: 'sine.out' }, 0)
+        .to(mag, { autoAlpha: 1, scale: 1, y: 0, duration: 0.4, ease: 'back.out(1.7)' }, 0.05)
+        .to(mag, { autoAlpha: 0, scale: 0.85, y: 3, duration: 0.35, ease: 'power2.in' }, '+=1.0');
+      mHintTlRef.current = hintTl;
+    }
+
+    return () => {
+      wobble.kill(); breathe.kill(); glowPulse?.kill();
+      hintTl?.kill(); mHintTlRef.current = null;
+    };
   }, []);
 
   const scrollTo = (href: string) =>
@@ -341,9 +370,11 @@ export function Hero() {
         <div
           className="sm:hidden flex flex-col h-[calc(100svh-84px-0.75rem)] max-h-[900px] min-h-[560px]"
         >
-          {/* Bildpanel */}
+          {/* Bildpanel — runde Ecken bleiben ECHT; die diagonale Unterkante
+              entsteht ueber ein Dreieck in Seitenfarbe (.hero-panel-cut), NICHT
+              ueber clip-path aufs Bild (das machte auch die oberen Ecken scharf). */}
           <div className="hero-panel-m relative shrink-0">
-            <div className="hero-chain-clip absolute inset-0 overflow-hidden rounded-[18px]">
+            <div className="absolute inset-0 rounded-[20px] overflow-hidden">
               <picture>
                 <source srcSet={MOBILE_HERO_BG} type="image/webp" />
                 <img
@@ -361,62 +392,85 @@ export function Hero() {
                 style={{ background: 'linear-gradient(to bottom, rgba(var(--scrim-rgb),0.42) 0%, rgba(var(--scrim-rgb),0.10) 55%, transparent 100%)' }}
               />
             </div>
+            {/* Diagonale in Seitenfarbe — schneidet die Bildunterkante schraeg
+                an. clip-path nur hier, also bleiben die Panel-Ecken rund. */}
+            <div
+              className="hero-panel-cut absolute inset-0 z-[1] pointer-events-none"
+              style={{ background: 'var(--pg)' }}
+            />
 
             <span
               aria-hidden
-              className="hero-wordmark-m absolute left-1/2 -translate-x-1/2 top-[7%] font-display text-white text-center whitespace-nowrap"
+              className="hero-wordmark-m absolute left-1/2 -translate-x-1/2 top-[8%] z-[2] text-white text-center whitespace-nowrap"
               style={{
-                letterSpacing: '-0.015em',
+                fontFamily: "'Libre Franklin', ui-sans-serif, system-ui, sans-serif",
+                fontWeight: 700,
+                letterSpacing: '-0.005em',
                 lineHeight: 1,
-                fontVariationSettings: '"opsz" 110, "wght" 600, "SOFT" 0, "WONK" 0',
-                textShadow: '0 2px 18px rgba(0,0,0,0.42)',
+                textShadow: '0 2px 18px rgba(0,0,0,0.45)',
               }}
             >
               Waxcelerate
             </span>
 
             {/* ===== SCHWEBENDER WACHSBLOCK (nur < 640px) =====
-                Derselbe Freisteller wie auf Desktop (wax-cutout), horizontal
-                exakt zentriert, vollstaendig auf der dunklen Bildflaeche (die
-                dunkle Blockunterkante blendet dort, auf Weiss nicht). Tippen
+                wax-cutout-soft (Unterkante weich ausgefadet, damit die dunkle
+                Fotokante auf Weiss nicht als "schwarze Ecke" poppt), exakt
+                horizontal zentriert, ragt ~35 % unter die diagonale Panelkante
+                und schwebt mit weichem Kontaktschatten im Vordergrund. Tippen
                 oeffnet "Blick ins Wachs" (WaxDive). */}
             <button
               type="button"
-              onClick={openDive}
+              onClick={openDiveFromBlock}
               aria-label={de ? 'Blick ins Wachs — was im Wachs steckt' : 'Look inside the wax'}
-              className="hero-block-m absolute left-1/2 -translate-x-1/2 z-[2]"
+              className="hero-block-m absolute left-1/2 -translate-x-1/2 z-[3]"
             >
               <span ref={mBlockInnerRef} className="relative block origin-center will-change-transform">
                 <span
                   ref={mGlowRef}
                   aria-hidden
                   className="absolute inset-[-24%] rounded-[40%] pointer-events-none block"
-                  style={{ background: 'radial-gradient(closest-side, rgba(110,165,230,0.26), transparent 72%)', filter: 'blur(20px)', opacity: 0.85 }}
+                  style={{ background: 'radial-gradient(closest-side, rgba(110,165,230,0.24), transparent 72%)', filter: 'blur(20px)', opacity: 0.8 }}
                 />
+                {/* breiter, weicher Kontaktschatten auf der Seitenflaeche */}
                 <span
                   aria-hidden
-                  className="absolute left-1/2 -translate-x-1/2 bottom-[3%] w-[74%] h-[20%] rounded-full pointer-events-none block"
-                  style={{ background: 'radial-gradient(ellipse, rgba(4,5,7,0.55), transparent 72%)', filter: 'blur(9px)' }}
+                  className="absolute left-1/2 -translate-x-1/2 bottom-[1%] w-[126%] h-[26%] rounded-full pointer-events-none block"
+                  style={{ background: 'radial-gradient(ellipse, rgba(6,8,12,0.40), transparent 70%)', filter: 'blur(13px)' }}
                 />
-                <span className="relative block" style={{ filter: 'drop-shadow(-3px 10px 16px rgba(5,6,8,0.42))' }}>
-                  {waxImg}
+                <span className="relative block" style={{ filter: 'drop-shadow(0 14px 22px rgba(6,8,12,0.32))' }}>
+                  <picture>
+                    <source srcSet="/images/hero/wax-cutout-soft.webp" type="image/webp" />
+                    <img
+                      src="/images/hero/wax-cutout-soft.png"
+                      alt={de ? 'Waxcelerate Kettenwachs-Block' : 'Waxcelerate chain wax block'}
+                      className="block w-full h-auto"
+                      style={{ aspectRatio: '837 / 852' }}
+                      fetchPriority="high"
+                    />
+                  </picture>
                 </span>
 
-                {/* Reticle-Hotspot — wortloser, geometrischer Klick-Hinweis in
-                    der Haarlinien-Strichstaerke der Seite. Der aeussere Ring
-                    (mRingRef) pingt langsam nach aussen. */}
+                {/* Klick-Hinweis: Tap-Ripple + kurz aufblitzende Lupe, sonst
+                    nichts auf dem Block. GSAP im mobilen useEffect (alle ~6 s),
+                    stoppt dauerhaft nach dem ersten Tap (openDiveFromBlock). */}
                 <span
                   aria-hidden
-                  className="absolute left-1/2 top-[52%] -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-                  style={{ width: '17%', filter: 'drop-shadow(0 0 3px rgba(0,0,0,0.35))' }}
+                  className="absolute left-1/2 top-[47%] -translate-x-1/2 -translate-y-1/2 pointer-events-none aspect-square"
+                  style={{ width: '32%' }}
                 >
-                  <svg viewBox="0 0 48 48" className="block w-full h-auto" fill="none"
-                    stroke="rgba(255,255,255,0.9)" strokeWidth="var(--dw-hair)">
-                    <circle ref={mRingRef} cx="24" cy="24" r="15" opacity="0" />
-                    <circle cx="24" cy="24" r="13" />
-                    <path d="M24 2.5v6M24 39.5v6M2.5 24h6M39.5 24h6" strokeLinecap="round" />
-                    <circle cx="24" cy="24" r="1.4" fill="rgba(255,255,255,0.95)" stroke="none" />
-                  </svg>
+                  <span
+                    ref={mRippleRef}
+                    className="absolute inset-0 rounded-full"
+                    style={{ border: '1.5px solid rgba(255,255,255,0.72)', background: 'rgba(255,255,255,0.10)' }}
+                  />
+                  <span
+                    ref={mMagRef}
+                    className="absolute inset-[22%] rounded-full flex items-center justify-center"
+                    style={{ background: 'rgba(12,15,22,0.58)', backdropFilter: 'blur(3px)', border: '1px solid rgba(255,255,255,0.30)', boxShadow: '0 4px 14px rgba(0,0,0,0.28)' }}
+                  >
+                    <Search className="h-[48%] w-[48%]" style={{ color: '#fff' }} strokeWidth={2.2} />
+                  </span>
                 </span>
               </span>
             </button>
@@ -467,6 +521,11 @@ export function Hero() {
               </span>
             </h1>
 
+            {/* Eine knappe Value-Zeile (Outcome, kein Feature-Katalog). */}
+            <p data-hero className="hero-value-m" style={{ color: 'var(--txm)' }}>
+              {t.hero.valueLine}
+            </p>
+
             <button
               data-hero
               onClick={() => scrollTo('#produkte')}
@@ -476,27 +535,19 @@ export function Hero() {
               <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
             </button>
 
-            <div data-hero className="flex items-center gap-2.5">
-              <Stars rating={5} />
-              <span
-                className="text-[11px] uppercase tabular-nums"
-                style={{ letterSpacing: '0.07em', color: 'var(--txm)' }}
-              >
-                {trustStats.reviews} {de ? 'Bewertungen' : 'reviews'} · {de ? '100 % positiv' : '100% positive'}
+            {/* Meta-Zeile: Social Proof links, Preisanker rechts — beide klein
+                und ruhig, damit sie den CTA nicht ueberstrahlen. */}
+            <div data-hero className="hero-meta-m flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <Stars rating={5} />
+                <span className="text-[11px] tabular-nums" style={{ color: 'var(--txm)' }}>
+                  {trustStats.reviews} {de ? 'Bewertungen' : 'reviews'}
+                </span>
+              </span>
+              <span className="text-[11px] font-semibold tabular-nums" style={{ color: 'var(--tx2)' }}>
+                {t.hero.blockPrice}
               </span>
             </div>
-
-            <p
-              data-hero
-              className="hero-facts-m text-[11px] tabular-nums"
-              style={{ letterSpacing: '0.02em', color: 'var(--txf)' }}
-            >
-              {`${stats[0].v} ${de ? 'Laufzeit' : 'life'}`}
-              <span className="hero-facts-sep" />
-              {de ? '~€70 gespart' : '~€70 saved'}
-              <span className="hero-facts-sep" />
-              {de ? '1 Tag Versand' : 'ships in 1 day'}
-            </p>
           </div>
         </div>
 

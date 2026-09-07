@@ -287,6 +287,7 @@ const STATIC_PAGES = [
       'Zehnerkarte: zehn Vorgänge im Voraus, zehn Prozent unter dem Dreierpreis, übertragbar und ohne Ablaufdatum.',
       'Alle gängigen 9 bis 12 fach Ketten. Handgewachst in Stuttgart.',
     ],
+    calc: { href: '/rechner/intervall', label: 'Wie oft nachwachsen? Intervall berechnen' },
   },
   {
     dir: 'starter-set',
@@ -304,6 +305,7 @@ const STATIC_PAGES = [
       'Zubehör auch einzeln: Aufhängedraht im Dreierpack und Quick-Link-Zange je 4,95 €.',
       'Hergestellt in Stuttgart, Ketten handgewachst.',
     ],
+    calc: { href: '/rechner/umstieg', label: 'Was kostet der Umstieg auf Heißwachs? Rechner' },
   },
   {
     dir: 'wissenschaft',
@@ -325,6 +327,7 @@ const STATIC_PAGES = [
       'Die Formel besteht aus sechs Komponenten, weil keine einzelne Substanz in allen drei Zonen stark ist.',
       'Originalaufnahmen unter dem Mikroskop, jede Gegenüberstellung bei identischer Vergrößerung.',
     ],
+    calc: { href: '/rechner/verschleiss', label: 'Kettenverschleiß für deinen Antrieb berechnen' },
   },
 ];
 
@@ -355,7 +358,8 @@ function renderStatic(p) {
     `<h1>${esc(p.h1)}</h1>`,
     `<p>${esc(p.lead)}</p>`,
     `<ul>${p.points.map(t => `<li>${esc(t)}</li>`).join('')}</ul>`,
-    `<p><a href="/">Zur Startseite</a> · <a href="/wissenschaft">Wissenschaft</a> · <a href="/kette-wachsen-lassen">Kette wachsen lassen</a> · <a href="/starter-set">Starter-Set</a> · <a href="/blog">Blog</a></p>`,
+    p.calc ? `<p><a href="${p.calc.href}">${esc(p.calc.label)} →</a></p>` : '',
+    `<p><a href="/">Zur Startseite</a> · <a href="/wissenschaft">Wissenschaft</a> · <a href="/kette-wachsen-lassen">Kette wachsen lassen</a> · <a href="/starter-set">Starter-Set</a> · <a href="/rechner">Rechner</a> · <a href="/blog">Blog</a></p>`,
   ].join('\n');
   return buildPage({ head, body });
 }
@@ -412,9 +416,15 @@ function renderLegal(p) {
 // Widget. Ein Rechner ist fuer einen Crawler ein leeres <div>; was rankt und was
 // eine KI zitieren kann, ist der Fliesstext aus toolRegistry.ts.
 //
-// SoftwareApplication statt Article: die Seite ist ein Werkzeug, kein Aufsatz.
-// Bewusst KEIN FAQPage-Markup als Google-Hebel — Google hat FAQ-Rich-Results am
-// 07.05.2026 abgeschaltet.
+// SoftwareApplication/WebApplication statt Article: die Seite ist ein Werkzeug,
+// kein Aufsatz.
+//
+// FAQPage IST jetzt drin, obwohl Google dafuer seit 07.05.2026 keine
+// Rich-Results mehr zeigt: ChatGPT, Perplexity, Claude und die AI-Overviews
+// lesen FAQPage weiterhin zur Antwort-Extraktion. Die Q&A stehen zusaetzlich
+// sichtbar im Body — Schema und Text aus einer Quelle (toolRegistry.ts `faq`),
+// und die Antworten sind aus dem bereits geprueften `answer`-Text abgeleitet,
+// kein neuer Claim.
 
 function renderToolsHub() {
   const canonical = `${BASE}/rechner`;
@@ -422,19 +432,34 @@ function renderToolsHub() {
     metaTags({ title: TOOLS_HUB.title, description: TOOLS_HUB.description, canonical }),
     ldClientManaged({
       '@context': 'https://schema.org',
-      '@type': 'CollectionPage',
-      name: TOOLS_HUB.h1,
-      description: TOOLS_HUB.description,
-      url: canonical,
-      inLanguage: 'de-DE',
-      hasPart: TOOLS.map(t => ({
-        '@type': 'SoftwareApplication',
-        name: t.cover,
-        url: `${BASE}/rechner/${t.slug}`,
-        applicationCategory: 'UtilityApplication',
-        operatingSystem: 'Web',
-        offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
-      })),
+      '@graph': [
+        {
+          '@type': 'CollectionPage',
+          name: TOOLS_HUB.h1,
+          description: TOOLS_HUB.description,
+          url: canonical,
+          inLanguage: 'de-DE',
+          hasPart: TOOLS.map(t => ({
+            '@type': ['SoftwareApplication', 'WebApplication'],
+            name: t.cover,
+            url: `${BASE}/rechner/${t.slug}`,
+            applicationCategory: 'UtilityApplication',
+            operatingSystem: 'Web',
+            isAccessibleForFree: true,
+            offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
+          })),
+        },
+        {
+          '@type': 'ItemList',
+          itemListElement: TOOLS.map((t, i) => ({
+            '@type': 'ListItem',
+            position: i + 1,
+            url: `${BASE}/rechner/${t.slug}`,
+            name: t.cover,
+            description: t.hint,
+          })),
+        },
+      ],
     }),
   ].join('\n');
   const body = [
@@ -454,17 +479,26 @@ function renderTool(t) {
       '@context': 'https://schema.org',
       '@graph': [
         {
-          '@type': 'SoftwareApplication',
+          '@type': ['SoftwareApplication', 'WebApplication'],
           name: t.cover,
           description: t.description,
           url: canonical,
           applicationCategory: 'UtilityApplication',
           operatingSystem: 'Web',
+          browserRequirements: 'Requires JavaScript. Requires HTML5.',
           inLanguage: 'de-DE',
           isAccessibleForFree: true,
           offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
           publisher: { '@type': 'Organization', name: 'Waxcelerate', url: BASE },
         },
+        ...(t.faq ? [{
+          '@type': 'FAQPage',
+          mainEntity: t.faq.map(f => ({
+            '@type': 'Question',
+            name: f.q,
+            acceptedAnswer: { '@type': 'Answer', text: f.a },
+          })),
+        }] : []),
         {
           '@type': 'BreadcrumbList',
           itemListElement: [
@@ -482,11 +516,17 @@ function renderTool(t) {
     ...(t.article ? [`<a href="/blog/${t.article}">Ausf\u00fchrlicher Artikel</a>`] : []),
     '<a href="/">Zur Startseite</a>',
   ].join(' · ');
+  const faqBlock = t.faq
+    ? `<section><h2>H\u00e4ufige Fragen</h2>${t.faq
+        .map(f => `<h3>${esc(f.q)}</h3><p>${esc(f.a)}</p>`)
+        .join('')}</section>`
+    : '';
   const body = [
     `<nav aria-label="Brotkrumen"><a href="/">Startseite</a> \u203a <a href="/rechner">Rechner</a> \u203a <span>${esc(t.h1)}</span></nav>`,
     `<h1>${esc(t.h1)}</h1>`,
     `<p>${esc(t.lead)}</p>`,
     t.answer.map(a => `<p>${esc(a)}</p>`).join('\n'),
+    faqBlock,
     `<p>${links}</p>`,
   ].join('\n');
   return buildPage({ head, body });

@@ -47,6 +47,8 @@ export const translations = {
       subtitle: 'Waxcelerate · Kettenwachs · Stuttgart',
       headline: 'Am Ende der',
       headlineSub: 'Recherche.',
+      // Eine knappe Outcome-Zeile im Mobile-Hero unter der Headline.
+      valueLine: 'Dreimal längere Kettenlaufzeit — ohne Nachschmieren.',
       tagline: 'Heißwachs statt Kettenöl. Sauberer, länger, günstiger, ohne Kompromiss.',
       priceAnchor: 'Ab €22,95 · ~€70 gespart auf 12.000 km',
       guarantee: 'Nicht zufrieden? Schreib mir — ich sorge dafür, dass es stimmt.',
@@ -570,6 +572,7 @@ export const translations = {
       subtitle: 'Waxcelerate · Chain Wax · Stuttgart',
       headline: 'At the end of',
       headlineSub: 'the research.',
+      valueLine: 'Three times the chain life — with no re-lubing.',
       tagline: 'Hot wax over chain oil. Cleaner, longer-lasting, more affordable, with no compromise.',
       priceAnchor: 'From €22.95 · ~€70 saved over 12,000 km',
       guarantee: "Not happy? Write me — I'll make it right.",

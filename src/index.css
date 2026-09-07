@@ -26,6 +26,14 @@
 .marquee:focus-within .marquee-track { animation-play-state: paused; }
 @media (prefers-reduced-motion: reduce) { .marquee-track { animation: none; } }
 
+/* Review card — a barely-there lift on the card the pointer rests on. The
+   marquee already pauses on :hover of the whole track, so this only marks
+   which card you've stopped at. Pointer + non-reduced-motion only. */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .review-card { transition: transform 240ms var(--ease-ui), box-shadow 240ms var(--ease-ui); }
+  .review-card:hover { transform: translateY(-3px); box-shadow: var(--card-shadow-hover); }
+}
+
 /* Tools deck — each card owns exactly one transform derived from its slot, so
    the whole animation is a plain CSS transition between three declarative
    states. Nothing to keep in sync, and an interrupted move just re-targets
@@ -768,32 +776,47 @@
 }
 
 /* ===== MOBILE-HERO (< 640px) — Editorial Object Card, ein Screen =====
-   Querformat-Bildpanel mit diagonaler Unterkante, Wachsblock schwebt zentriert
-   auf der dunklen Flaeche, darunter knappe Textzone auf var(--pg). Der ganze
-   Hero passt in eine Bildschirmhoehe. Markup: .sm:hidden-Zweig in hero-light.tsx. */
+   Querformat-Bildpanel (runde Ecken echt, Unterkante diagonal via
+   Seitenfarben-Dreieck), Wachsblock schwebt zentriert und ragt unten frei
+   ueber die Kante, darunter knappe Textzone auf var(--pg). Alles in einer
+   Bildschirmhoehe. Markup: .sm:hidden-Zweig in hero-light.tsx. */
 @media (max-width: 639px) {
-  /* Panel skaliert mit der Viewporthoehe, damit unten immer Platz fuer Text +
-     Bewertungen bleibt (Ein-Screen). Untergrenze haelt das Motiv lesbar. */
-  .hero-panel-m { height: clamp(216px, 40svh, 340px); }
+  /* Panel skaliert mit der Viewporthoehe (Ein-Screen). Der Block ragt darunter
+     heraus, deshalb darf das Panel selbst kompakter sein. */
+  .hero-panel-m {
+    height: clamp(200px, 34svh, 300px);
+    overflow: visible;
+  }
 
-  /* Zentraler Schriftzug auf dem Bild — Groesse an der Referenz kalibriert. */
-  .hero-wordmark-m { font-size: clamp(2rem, 9.6vw, 2.9rem); }
+  /* Diagonale in Seitenfarbe: fuellt das untere Dreieck des Panels, schneidet
+     die Bildunterkante schraeg an. Nur auf DIESEM Overlay ein clip-path -> die
+     Panel-Ecken bleiben rund. Winkel gering (rechts ~12 % hoch). */
+  .hero-panel-cut {
+    clip-path: polygon(0 100%, 100% 100%, 100% 88%, 0 100%);
+    -webkit-clip-path: polygon(0 100%, 100% 100%, 100% 88%, 0 100%);
+  }
+
+  /* Zentraler Schriftzug — Libre Franklin 700, fest. Groesse an der Referenz. */
+  .hero-wordmark-m { font-size: clamp(1.85rem, 8.6vw, 2.5rem); }
 
   /* Wachsblock: exakt horizontal zentriert (der <button> traegt selbst nur
-     left:50% + -translate-x-1/2). Breite in svh, damit er mit der (ebenfalls
-     svh-basierten) Panelhoehe skaliert und IMMER vollstaendig auf der
-     Bildflaeche bleibt (nie ueber die Diagonale auf Weiss — dort waere seine
-     dunkle Unterkante als "schwarze Ecke" sichtbar). ~64 % der Panelhoehe. */
-  .hero-block-m { width: clamp(122px, 24svh, 202px); top: 22%; }
+     left:50% + -translate-x-1/2). Breite in svh -> skaliert mit der Panelhoehe.
+     top so, dass ~34 % der Blockhoehe unter die Panelkante ragen. */
+  .hero-block-m { width: clamp(150px, 27svh, 230px); top: 48%; }
 
   /* Headline auf eigener Buehne unter dem Panel — darf gross sein. */
-  .hero-h1-m { font-size: clamp(2.3rem, 10.5vw, 2.95rem); }
+  .hero-h1-m { font-size: clamp(2.2rem, 10vw, 2.85rem); }
 
-  /* Textzone: gleichmaessiger vertikaler Rhythmus ueber row-gap (eine Zahl,
-     leicht per Media-Query zu stauchen), plus ein groesserer Abstand vor dem
-     CTA als bewusste Zaesur. */
-  .hero-content-m { row-gap: 0.95rem; }
-  .hero-cta-m { margin-top: 0.5rem; }
+  /* Value-Zeile: ruhig, kein Feature-Katalog. */
+  .hero-value-m { font-size: clamp(0.82rem, 3.5vw, 0.95rem); line-height: 1.5; max-width: 30ch; }
+
+  /* Textzone: gleichmaessiger vertikaler Rhythmus ueber row-gap; padding-top
+     haelt die vertikal zentrierten Inhalte frei vom Blockueberstand. */
+  .hero-content-m {
+    row-gap: 0.85rem;
+    padding-top: clamp(3rem, 8svh, 4.5rem);
+  }
+  .hero-cta-m { margin-top: 0.4rem; }
 
   /* "Waxcelerate · Kettenwachs · Stuttgart" bricht bei 13px/0.14em auf 390px
      um. 11.5px bei 0.05em passen mit Reserve auch auf 360px. */
@@ -801,30 +824,20 @@
     font-size: clamp(10.5px, 2.95vw, 11.5px) !important;
     letter-spacing: 0.05em !important;
   }
-
-  /* Fakten-Zeile: Haarlinien-Trenner zwischen den drei Werten. */
-  .hero-facts-sep {
-    display: inline-block;
-    width: 1px; height: 0.75em;
-    margin: 0 0.6em;
-    vertical-align: -0.05em;
-    background: var(--bd);
-  }
 }
-/* Kurze Geraete (< ~740px hoch): Panel + Block + Headline schrumpfen, die
-   Fakten-Zeile weicht ganz — die Zahlen stehen ohnehin direkt unter dem Hero. */
+/* Kurze Geraete (< ~740px hoch): Panel, Block, Headline und Rhythmus stauchen. */
 @media (max-width: 639px) and (max-height: 740px) {
-  .hero-panel-m { height: clamp(184px, 33svh, 244px); }
-  .hero-block-m { width: clamp(112px, 21svh, 152px); top: 19%; }
-  .hero-h1-m { font-size: 1.9rem; }
-  .hero-facts-m { display: none; }
-  .hero-content-m { row-gap: 0.55rem; }
-  .hero-cta-m { margin-top: 0.25rem; padding-top: 12px; padding-bottom: 12px; }
+  .hero-panel-m { height: clamp(172px, 29svh, 224px); }
+  .hero-block-m { width: clamp(134px, 23svh, 178px); top: 44%; }
+  .hero-h1-m { font-size: 1.85rem; }
+  .hero-value-m { font-size: 0.82rem; }
+  .hero-content-m { row-gap: 0.5rem; padding-top: clamp(2.25rem, 6svh, 3.25rem); }
+  .hero-cta-m { margin-top: 0.15rem; padding-top: 12px; padding-bottom: 12px; }
 }
 
-/* Editorial light hero — responsive Ketten-Panel-Clip.
-   Mobile: Band mit diagonaler Unterkante. Desktop (≥1024px): rechtes Panel mit
-   diagonaler linker Kante (aktuell nicht genutzt, stoert aber nicht). */
+/* .hero-chain-clip: bis v2 fuer die Mobile-Diagonale genutzt, jetzt ersetzt
+   durch .hero-panel-cut (saubere runde Ecken). Bleibt hier stehen, wird aber
+   nirgends mehr referenziert. */
 .hero-chain-clip {
   clip-path: polygon(0 0, 100% 0, 100% 90%, 0 100%);
   -webkit-clip-path: polygon(0 0, 100% 0, 100% 90%, 0 100%);

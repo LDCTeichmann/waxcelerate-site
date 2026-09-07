@@ -1041,9 +1041,14 @@ export function SciencePage() {
         </div>
 
         {de && (
-          <ReadMoreLink to="/blog/kettenlaufzeit-heisswachs">
-            Vollständige Intervall- und Kostenrechnung im Ratgeber
-          </ReadMoreLink>
+          <div className="flex flex-col gap-1">
+            <ReadMoreLink to="/blog/kettenlaufzeit-heisswachs">
+              Vollständige Intervall- und Kostenrechnung im Ratgeber
+            </ReadMoreLink>
+            <ReadMoreLink to="/rechner/verschleiss">
+              Oder direkt: Kettenverschleiß für deinen Antrieb berechnen
+            </ReadMoreLink>
+          </div>
         )}
 
         {/* Everything above proves zone 01 is the hardest place in the chain.

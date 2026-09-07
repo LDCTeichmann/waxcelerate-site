@@ -28,6 +28,14 @@ export interface ToolEntry {
   lead: string;
   /** Die Antwort im Klartext — Rumpf der vorgerenderten Seite. */
   answer: string[];
+  /**
+   * Frage/Antwort-Paare fuer den sichtbaren FAQ-Block und das FAQPage-Schema.
+   * Fragen = reale Suchphrasen, Antworten kurz und AUS `answer` abgeleitet —
+   * kein neuer Claim, keine neue Zahl (Copy dort ist bereits geprueft).
+   * Google zeigt dafuer keine Rich-Results mehr, aber ChatGPT/Perplexity/Claude
+   * und die AI-Overviews lesen FAQPage weiterhin zur Antwort-Extraktion.
+   */
+  faq?: { q: string; a: string }[];
   /** Passender Blogartikel, fuer die gegenseitige Verlinkung. */
   article?: string;
   /** Weiterfuehrender Link auf der Seite. */
@@ -74,6 +82,24 @@ export const TOOLS: ToolEntry[] = [
       'Eine einfache Kettenlehre kostet rund 8 € und amortisiert sich beim ersten vermiedenen Kassettentausch. Zwei Dinge sind wichtig: Für 11- und 12-fach brauchst du eine Lehre mit 0,5-Prozent-Marke, viele billige messen nur 0,75 % und 1,0 %. Und Lehren, die einfach zwischen zwei Rollen greifen, messen das Spiel der Rollen mit und zeigen dadurch zu viel Verschleiß an.',
       'Gewachste Ketten längen sich langsamer als geölte, weil trockenes Wachs deutlich weniger Schleifpaste aus Staub und Abrieb bindet. Das verschiebt den Zeitpunkt, es ersetzt das Messen nicht.',
     ],
+    faq: [
+      {
+        q: 'Wie messe ich Kettenverschleiß mit dem Lineal?',
+        a: 'Über 12 volle Glieder messen, von Bolzenmitte zu Bolzenmitte. Neu sind das exakt 304,8 mm (12 Zoll). Jede Abweichung nach oben ist die Längung; 0,5 % entsprechen rund 1,5 mm.',
+      },
+      {
+        q: 'Ab wie viel Prozent Längung muss die Kette raus?',
+        a: 'Bei 11- und 12-fach-Antrieben ab 0,5 % Längung, bei 9- und 10-fach ab 0,75 %, bei älteren 5- bis 8-fach-Antrieben ab 1,0 %. Je schmaler die Kette, desto früher.',
+      },
+      {
+        q: 'Muss bei einer verschlissenen Kette auch die Kassette getauscht werden?',
+        a: 'Bis 0,5 % bei 12-fach reicht in aller Regel der Kettentausch, die Kassette darf bleiben. Ab etwa 1,0 % Längung ist die Kassette mit hoher Wahrscheinlichkeit mitgelaufen und muss mit.',
+      },
+      {
+        q: 'Welche Kettenlehre brauche ich für 11- und 12-fach?',
+        a: 'Eine mit 0,5-Prozent-Marke — viele billige messen nur 0,75 % und 1,0 %. Und keine, die einfach zwischen zwei Rollen greift: die misst das Spiel der Rollen mit und zeigt zu viel Verschleiß an.',
+      },
+    ],
     article: 'kettenverschleiss-messen',
     next: { href: '/rechner/passende-kette', label: 'Passende Kette finden' },
   },
@@ -93,6 +119,20 @@ export const TOOLS: ToolEntry[] = [
       'Ab 12-fach haben die Hersteller ihre Systeme auseinanderentwickelt. Hier bleibst du entweder beim Hersteller deiner Schaltung oder nimmst gezielt eine Kette, die ausdrücklich als systemübergreifend ausgewiesen ist.',
       'Die Gangzahl liest du an der Kassette ab, indem du die Ritzel zählst. Steht auf dem Schaltwerk eine Modellnummer, hilft auch die: M8100 und M7100 sind 12-fach, HG701 ist 11-fach.',
       'Vorgewachste Ketten sind ab Werk entfettet und heißgewachst. Du kürzt sie auf deine Länge und montierst sie — das erste Entfetten, das bei einer neuen Kette sonst Pflicht ist, entfällt.',
+    ],
+    faq: [
+      {
+        q: 'Welche Kette passt zu meinem Antrieb?',
+        a: 'Entscheidend sind die Gangzahl hinten und der Hersteller deiner Schaltung. Die Gangzahl bestimmt die Kettenbreite, der Hersteller ab 12-fach das Profil.',
+      },
+      {
+        q: 'Sind 11-fach-Ketten von Shimano, SRAM und Campagnolo untereinander tauschbar?',
+        a: 'Bis einschließlich 11-fach weitgehend ja — die Innenmaße sind gleich, nur die Laschendicke unterscheidet sich. Ab 12-fach bleibst du besser beim Hersteller deiner Schaltung oder nimmst eine ausdrücklich systemübergreifende Kette.',
+      },
+      {
+        q: 'Wie erkenne ich, ob mein Antrieb 11- oder 12-fach ist?',
+        a: 'An der Kassette die Ritzel zählen. Eine Modellnummer am Schaltwerk hilft auch: M8100 und M7100 sind 12-fach, HG701 ist 11-fach.',
+      },
     ],
     article: 'vorgewachste-kette',
     next: { href: '/rechner/kettenlaenge', label: 'Kettenlänge berechnen' },
@@ -114,6 +154,20 @@ export const TOOLS: ToolEntry[] = [
       'Gegenprobe ohne Formel: Kette auf das größte Kettenblatt und das größte Ritzel legen, ohne sie durch das Schaltwerk zu führen, beide Enden straff zusammenziehen und zwei Glieder zugeben. Bei langem Schaltwerkskäfig oder Vollfederung ist diese Probe der Formel überlegen.',
       'Unsere vorgewachsten Ketten kommen mit 114 bis 138 Gliedern, je nach Modell. Kürzen kannst du sie ohne das Wachs zu beschädigen — der Wachsfilm sitzt in der Kette, nicht nur außen darauf.',
     ],
+    faq: [
+      {
+        q: 'Wie berechne ich die Kettenlänge für mein Fahrrad?',
+        a: 'Glieder = 0,157 × Kettenstrebe in mm + Zähne des größten Kettenblatts ÷ 2 + Zähne des größten Ritzels ÷ 2 + 2. Das Ergebnis wird auf die nächste gerade Zahl aufgerundet.',
+      },
+      {
+        q: 'Wo messe ich die Kettenstrebe?',
+        a: 'Von der Mitte des Tretlagers zur Mitte der Hinterachse. Typisch sind 405 bis 425 mm am Rennrad und 425 bis 445 mm am Mountainbike.',
+      },
+      {
+        q: 'Wie prüfe ich die Kettenlänge ohne Formel?',
+        a: 'Kette auf das größte Kettenblatt und das größte Ritzel legen, ohne sie durch das Schaltwerk zu führen, beide Enden straff zusammenziehen und zwei Glieder zugeben. Bei langem Schaltwerkskäfig oder Vollfederung ist diese Probe der Formel überlegen.',
+      },
+    ],
     next: { href: '/rechner/passende-kette', label: 'Passende Kette finden' },
   },
   {
@@ -134,6 +188,20 @@ export const TOOLS: ToolEntry[] = [
       'Laufend ist Wachs je Anwendung teurer als ein Tropfen Öl, aber du wachst deutlich seltener als du ölst — und der eigentliche Unterschied liegt ohnehin nicht beim Schmierstoff, sondern bei Kette und Kassette.',
       'Der Umstieg lohnt sich rechnerisch über den Verschleiß: eine gewachste Kette hält länger, und die Kassette hält deutlich länger, weil trockenes Wachs keinen Schleifschlamm aus Staub und Abrieb bildet.',
       'Wichtig beim ersten Mal: eine neue Kette muss vor dem Wachsen vollständig entfettet werden. Fabrikfett blockiert das Wachs komplett. Wer sich das sparen will, nimmt eine bereits vorgewachste Kette.',
+    ],
+    faq: [
+      {
+        q: 'Was brauche ich für den Umstieg auf Heißwachs?',
+        a: 'Einmalig einen Wachsblock, eine Quick-Link-Zange und einen Draht zum Aufhängen. Einen Topf musst du meist nicht kaufen: ein alter Reiskocher oder Slow Cooker reicht völlig.',
+      },
+      {
+        q: 'Wie lange reicht ein 500-g-Wachsblock?',
+        a: '20 bis 32 Wachsungen. Bei 100 km pro Woche auf trockener Straße sind das rund anderthalb Jahre. Wer deutlich weniger fährt, nimmt besser die 300-g-Packung.',
+      },
+      {
+        q: 'Lohnt sich Heißwachs gegenüber Kettenöl?',
+        a: 'Rechnerisch über den Verschleiß: eine gewachste Kette hält länger, und die Kassette hält deutlich länger, weil trockenes Wachs keinen Schleifschlamm aus Staub und Abrieb bildet.',
+      },
     ],
     article: 'von-oel-auf-wachs-umsteigen',
     next: { href: '/starter-set', label: 'Starter-Set ansehen' },
@@ -157,6 +225,20 @@ export const TOOLS: ToolEntry[] = [
       'Über etwa ein halbes Jahr hinaus ist das Intervall keine sinnvolle Angabe mehr: Wachs altert auch ohne Kilometer, und Standzeit im Regen zählt mit.',
       'Ein sicheres Zeichen, unabhängig vom Rechner: sobald die Kette anfängt, hörbar trocken zu laufen, ist sie überfällig. Ein leichtes Klappern der Rollen dagegen ist bei Wachs normal.',
     ],
+    faq: [
+      {
+        q: 'Wann muss ich meine Fahrradkette neu wachsen?',
+        a: 'Das Intervall hängt an Wetter, Gelände und Kilometern. Trocken auf der Straße rund 300 km je Wachsung, bei Nässe oder gemischt 150 bis 200 km, im Gelände etwa die halbe Strecke wie auf der Straße.',
+      },
+      {
+        q: 'Wie oft muss ich rewaxen?',
+        a: 'Die Kilometer je Wachsung durch deine Wochenleistung teilen — das Ergebnis ist dein Intervall in Wochen. Bei 100 km pro Woche auf trockener Straße sind das rund drei Wochen.',
+      },
+      {
+        q: 'Woran merke ich, dass die Kette rewaxen muss?',
+        a: 'Sobald die Kette anfängt, hörbar trocken zu laufen, ist sie überfällig. Ein leichtes Klappern der Rollen dagegen ist bei Wachs normal.',
+      },
+    ],
     article: 'kettenlaufzeit-heisswachs',
     next: { href: '/rechner/ersparnis', label: 'Was Ketten im Wechsel sparen' },
   },
@@ -177,6 +259,16 @@ export const TOOLS: ToolEntry[] = [
       'Der Effekt ist doppelt: du wachst seltener, weil du zwischendurch nur die Kette tauschst, und Kette wie Kassette halten länger, weil keine von beiden über ihre Verschleißgrenze hinaus läuft.',
       'Ab welcher Laufleistung sich das lohnt, ist eine reine Rechenfrage. Unter etwa 2.500 km im Jahr trägt eine zweite Kette sich nicht; ab rund 8.000 km rechnen sich drei.',
       'Alle Zahlen im Rechner beruhen auf marktüblichen Annahmen zu Preisen und Laufleistungen, nicht auf eigenen Messungen. Sie stehen auf der Seite unter „Womit gerechnet wird" vollständig offen.',
+    ],
+    faq: [
+      {
+        q: 'Lohnt es sich, mehrere Ketten im Wechsel zu fahren?',
+        a: 'Unter etwa 2.500 km im Jahr trägt sich eine zweite Kette nicht; ab rund 8.000 km rechnen sich drei. Dazwischen sind zwei sinnvoll.',
+      },
+      {
+        q: 'Was bringt Kettenrotation?',
+        a: 'Du wachst seltener, weil du zwischendurch nur die Kette tauschst, und Kette wie Kassette halten länger, weil keine von beiden über ihre Verschleißgrenze hinaus läuft.',
+      },
     ],
     article: 'kettenlaufzeit-heisswachs',
     next: { href: '/rechner/intervall', label: 'Rewax-Intervall berechnen' },

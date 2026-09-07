@@ -62,7 +62,7 @@ const REVIEWS: Review[] = [
   {
     textDe: 'Top Ware, einfach und gut portioniert. Lieferzeit sehr schnell vom Verkäufer — es wurde am gleichen Tag noch versendet, aber leider hat die Post einfach länger gebraucht (Verkäufer trifft keine Schuld). Habe dann mal den Verkäufer angeschrieben und auch sehr schnell eine freundliche Antwort bekommen. Als Entschuldigung gab’s einen großzügigen Gutschein, obwohl die Schuld nicht beim Verkäufer lag — das fand ich sehr aufmerksam. Werde auf jeden Fall wieder bestellen bzw. kann es weiterempfehlen.',
     textEn: "Great product, simple and well portioned. Very fast dispatch from the seller — sent the same day, though the post just took longer (not the seller's fault). I messaged the seller and got a quick, friendly reply. As an apology there was even a generous voucher, even though it wasn't the seller's fault — I thought that was very considerate. Will definitely order again and can recommend it.",
-    name: 'than_889', dateDe: '2025', dateEn: '2025', source: 'ebay',
+    name: 'than_889', dateDe: 'Mai 2025', dateEn: 'May 2025', source: 'ebay',
     productDe: 'Kettenwachs 500 g', productEn: 'Chain wax 500 g',
     productIds: ['wax-500'],
   },
@@ -94,7 +94,7 @@ const REVIEWS: Review[] = [
   {
     textDe: 'Alles bestens, 1a. Sehr netter Kontakt, sehr ausführliche Beratung bei Fragen. Immer wieder gern.',
     textEn: 'All perfect, top marks. Very friendly contact, thorough advice when I had questions. Happy to order again anytime.',
-    name: 'daliduc848', dateDe: 'Frühjahr 2026', dateEn: 'Spring 2026', source: 'ebay',
+    name: 'daliduc848', dateDe: 'Apr 2026', dateEn: 'Apr 2026', source: 'ebay',
     productDe: 'Gewachste Kette · Shimano SLX/105', productEn: 'Waxed chain · Shimano SLX/105',
     productIds: ['chain-m7100'],
   },
@@ -176,23 +176,37 @@ function ReviewCard({ r, de }: { r: Review; de: boolean }) {
   // paar Pixel mehr Streifenbreite zeigen Rahmen und Antrieb klarer, ohne der
   // Textspalte auf dem Handy (Karte gegen calc(100vw - 72px) gedeckelt)
   // spürbar Platz zu nehmen.
-  const PHOTO_W = 116;
+  const PHOTO_W = 112;
   const photoWebp = r.photo?.replace(/\.jpg$/, '.webp');
 
   return (
     <figure
-      className="flex-shrink-0 flex items-stretch rounded-2xl overflow-hidden mr-4 whitespace-normal"
+      className="review-card flex-shrink-0 flex items-stretch rounded-2xl overflow-hidden mr-4 whitespace-normal"
       style={{
         // Gegen den Viewport gedeckelt, damit eine Karte mit langem Zitat auf
         // dem Handy nie breiter als der Bildschirm wird — dort waere sie im
         // Vorbeilaufen nicht vollstaendig lesbar.
         width: `min(${textColWidth(text.length) + (showPhoto ? PHOTO_W : 0)}px, calc(100vw - 72px))`,
-        background: 'var(--sf2)',
-        border: '1px solid var(--bd)',
+        // Kartensprache der Seite (--card-*), nicht mehr die flache --sf2-
+        // Fläche: leichter Verlauf, weiche Kante, ein Hauch Schatten. Die Reihe
+        // liest sich damit als Sammlung erhabener Karten statt als Tabelle.
+        background: 'var(--card-bg)',
+        border: '1px solid var(--bd2)',
+        boxShadow: 'var(--card-shad)',
       }}
     >
       {showPhoto && (
-        <picture className="flex-shrink-0 self-stretch flex" style={{ width: PHOTO_W, background: 'var(--sf3)' }}>
+        <picture
+          className="flex-shrink-0 self-stretch flex"
+          style={{
+            width: PHOTO_W,
+            background: 'var(--sf3)',
+            // Foto sitzt in der Karte, nicht davor: Haarlinie plus ein nach
+            // innen auslaufender Schatten an der rechten Kante.
+            borderRight: '1px solid var(--bd2)',
+            boxShadow: 'inset -12px 0 16px -12px rgba(0,0,0,0.28)',
+          }}
+        >
           <source srcSet={photoWebp} type="image/webp" />
           <img src={r.photo} alt={de ? `Rad von ${r.name}` : `${r.name}'s bike`}
             loading="lazy" decoding="async"
@@ -202,29 +216,35 @@ function ReviewCard({ r, de }: { r: Review; de: boolean }) {
         </picture>
       )}
 
-      <div className="flex flex-col flex-1 min-w-0 px-4 py-3.5">
-        <div className="flex items-center justify-between gap-3 mb-2">
+      <div className="relative flex flex-col flex-1 min-w-0 px-4 py-4">
+        {/* Redaktionelles Anführungszeichen — faint, oben links als Eckzier,
+            gibt der Karte den Zeitschriften-Charakter ohne Platz zu kosten. */}
+        <span aria-hidden="true" className="absolute font-display leading-none select-none pointer-events-none"
+          style={{ top: 4, left: 8, fontSize: 46, color: 'color-mix(in oklab, var(--tx1) 10%, transparent)' }}>
+          &ldquo;
+        </span>
+
+        <div className="relative flex items-center justify-between gap-2 mb-2">
           <Stars rating={r.rating ?? 5} />
-          <span className="text-meta" style={{ color: 'var(--txf)' }}>{date}</span>
+          <span className="text-meta whitespace-nowrap" style={{ color: 'var(--txf)' }}>{date}</span>
         </div>
 
-        <blockquote className="text-[13px] leading-[1.6] flex-1" style={{ color: 'var(--tx2)' }}>
+        <blockquote className="relative text-[13px] leading-[1.62] flex-1" style={{ color: 'var(--tx2)' }}>
           „{text}“
         </blockquote>
 
-        {/* Name, Verifizierung und Produkt in einer Zeile statt in einem
-            eigenen Block mit Trennlinie darueber — spart pro Karte rund
-            30 Pixel und liest sich als Signatur, nicht als zweite Sektion. */}
-        <figcaption className="flex items-center gap-2 mt-3 flex-wrap">
-          <span className="text-[12.5px] font-semibold" style={{ color: 'var(--tx1)' }}>{r.name}</span>
-          <span className="inline-flex items-center gap-1 text-meta font-medium" style={{ color: 'var(--accent-soft)' }}>
-            <BadgeCheck className="h-3.5 w-3.5" /> {verified}
-          </span>
-          {product && (
-            <span className="text-meta font-medium" style={{ color: 'var(--txf)' }}>
-              · {product}
+        {/* Signatur zweizeilig: Name kräftig, darunter leise Verifizierung +
+            Produkt. Liest sich als Unterschrift, nicht als umbrechende Zeile. */}
+        <figcaption className="relative mt-3.5">
+          <div className="text-[12.5px] font-semibold" style={{ color: 'var(--tx1)' }}>{r.name}</div>
+          <div className="flex items-center gap-x-1.5 gap-y-0.5 mt-1 flex-wrap text-meta">
+            <span className="inline-flex items-center gap-1 font-medium" style={{ color: 'var(--accent-soft)' }}>
+              <BadgeCheck className="h-3.5 w-3.5" /> {verified}
             </span>
-          )}
+            {product && (
+              <span className="font-medium" style={{ color: 'var(--txf)' }}>· {product}</span>
+            )}
+          </div>
         </figcaption>
       </div>
     </figure>
@@ -274,7 +294,9 @@ export function Reviews() {
             { v: String(trustStats.sold), l: de ? 'verkauft' : 'sold' },
             { v: String(trustStats.negative), l: de ? 'negativ' : 'negative' },
           ].map((s, i) => (
-            <span key={i} className="inline-flex items-baseline gap-2">
+            <span key={i}
+              className={`inline-flex items-baseline gap-2 ${i > 0 ? 'sm:border-l sm:pl-6 lg:pl-8' : ''}`}
+              style={i > 0 ? { borderColor: 'var(--bd)' } : undefined}>
               <span className="font-display font-bold tabular-nums leading-none"
                 style={{ fontSize: '1.35rem', letterSpacing: '-0.02em', color: 'var(--tx1)' }}>{s.v}</span>
               <span className="text-[13px]" style={{ color: 'var(--txm)' }}>{s.l}</span>
@@ -319,7 +341,7 @@ export function Reviews() {
             <div className="marquee overflow-hidden edge-fade">
               <div
                 className="marquee-track inline-flex items-stretch"
-                style={{ '--dur': '70s', animationPlayState: inView ? 'running' : 'paused' } as CSSProperties}
+                style={{ '--dur': '96s', animationPlayState: inView ? 'running' : 'paused' } as CSSProperties}
               >
                 {cards}
                 {/* Second set makes the loop seamless; hidden from AT so the

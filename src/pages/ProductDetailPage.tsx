@@ -1121,6 +1121,24 @@ export function ProductDetailPage() {
                       </Link>
                     </p>
                   )}
+                  {isChain && (
+                    <p className="text-[12px] mt-2" style={{ color: 'var(--txff)' }}>
+                      {de ? 'Passt die zu meinem Antrieb? ' : 'Will it fit my drivetrain? '}
+                      <Link to="/rechner/passende-kette"
+                        className="underline underline-offset-2" style={{ color: accentColor }}>
+                        {de ? 'Kompatibilität prüfen →' : 'Check compatibility →'}
+                      </Link>
+                    </p>
+                  )}
+                  {isWax && (
+                    <p className="text-[12px] mt-4" style={{ color: 'var(--txff)' }}>
+                      {de ? 'Wie oft nachwachsen? ' : 'How often to re-wax? '}
+                      <Link to="/rechner/intervall"
+                        className="underline underline-offset-2" style={{ color: accentColor }}>
+                        {de ? 'Intervall berechnen →' : 'Work out your interval →'}
+                      </Link>
+                    </p>
+                  )}
                 </div>
               )}
 

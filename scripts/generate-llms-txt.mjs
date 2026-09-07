@@ -154,7 +154,8 @@ Eingaben: ${t.hint}
 
 ${t.lead}
 
-${t.answer.join('\n\n')}`).join('\n\n---\n\n')}
+${t.answer.join('\n\n')}
+${t.faq ? `\n**Häufige Fragen:**\n\n${t.faq.map(f => `**${f.q}**\n${f.a}`).join('\n\n')}` : ''}`).join('\n\n---\n\n')}
 
 ---
 
