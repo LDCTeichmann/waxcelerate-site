@@ -11,7 +11,7 @@ import { prefersReducedMotion } from '@/hooks/useAnimation';
 import { InstrumentFrame, CountUp } from '@/components/viz';
 import { BackLink } from '@/components/BackLink';
 import { BeforeAfterSlider } from '@/components/BeforeAfterSlider';
-import { waxVsOil, frictionRanges } from '@/lib/data';
+import { waxVsOil, frictionRanges, products, type Product } from '@/lib/data';
 import { COMPONENTS, FAILURES, type ScienceComponent } from '@/lib/science';
 import { FormulaGraph } from '@/sections/science/FormulaGraph';
 import { ContactZones, LineChoice } from '@/sections/science/ContactZones';
@@ -656,6 +656,58 @@ function FrictionBars({ de }: { de: boolean }) {
   );
 }
 
+// ─── CTA product card — the close, made of an actual product instead of a
+// bare button ────────────────────────────────────────────────────────────────
+// The page just walked the reader through "Zwei Feststoffe, ein Unterschied"
+// (LineChoice, right above this) — Classic vs. Pro, by criteria. The closing
+// card used to be a wash-box with a number, a headline and one generic button
+// to "/#produkte", disconnected from the choice the reader had just made. This
+// picks both options back up as real, buyable cards: photo, price, badge —
+// everything from data.ts (CLAUDE.md rule: no product info hardcoded outside
+// it), nothing invented for this page.
+function CtaProductCard({ product, de, featured }: { product: Product; de: boolean; featured?: boolean }) {
+  const price = new Intl.NumberFormat(de ? 'de-DE' : 'en-US', { style: 'currency', currency: 'EUR' }).format(product.price);
+  return (
+    <Link to={`/produkt/${product.id}`}
+      className="group relative flex gap-4 rounded-2xl p-4 sm:p-5 transition-transform active:scale-[0.98]"
+      style={{
+        background: 'var(--card-bg)', boxShadow: 'var(--card-shad)',
+        border: featured ? '1.5px solid var(--accent)' : '1px solid var(--bd)',
+      }}>
+      {product.badge && (
+        <span className="absolute -top-2.5 left-4 num-data text-meta px-2 py-0.5 rounded-full"
+          style={{
+            background: featured ? 'var(--accent)' : 'var(--sf2)',
+            color: featured ? '#fff' : 'var(--txm)',
+            border: featured ? 'none' : '1px solid var(--bd2)',
+          }}>
+          {de ? product.badge : product.badgeEn}
+        </span>
+      )}
+      <div className="flex-shrink-0 rounded-xl overflow-hidden" style={{ width: 84, height: 84, background: '#f4f4f4' }}>
+        <img src={product.image} alt={de ? product.title : product.titleEn}
+          className="w-full h-full object-cover" style={{ objectPosition: product.imagePosition ?? 'center' }} loading="lazy" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="font-display font-bold text-wx-tx1 leading-tight" style={{ fontSize: '1.05rem' }}>
+          {de ? product.title : product.titleEn}
+        </p>
+        <p className="text-[12.5px] leading-snug mt-1 line-clamp-2" style={{ color: 'var(--txm)' }}>
+          {de ? product.description : product.descriptionEn}
+        </p>
+        <div className="flex items-center justify-between mt-2.5">
+          <span className="num-data font-semibold text-[15px]" style={{ color: 'var(--tx1)' }}>{price}</span>
+          <span className="inline-flex items-center gap-1 text-[12.5px] font-semibold transition-opacity group-hover:opacity-70"
+            style={{ color: featured ? 'var(--accent)' : 'var(--tx1)' }}>
+            {de ? 'Ansehen' : 'View'}
+            <ArrowRight className="h-3.5 w-3.5" />
+          </span>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
 // ─── Section heading ─────────────────────────────────────────────────────────
 function ActHead({ eyebrow, title, lede }: { eyebrow: string; title: string; lede?: string }) {
   return (
@@ -1219,41 +1271,44 @@ export function SciencePage() {
           <LineChoice de={de} />
         </div>
 
-        {/* CTA — everything above this box is proof; the box itself was just
-            marketing copy (eyebrow, heading, button), a visible step down
-            right after the page's strongest paired instrument panels. This
-            punchline stat gives the close a number to land on instead —
-            same waxVsOil source and CountUp component the rest of ACT III
-            already uses, no new claim. */}
-        <div className="rounded-2xl px-6 py-10 sm:py-12 text-center"
-          style={{ background: 'var(--accent-wash-sm)', border: '1px solid rgba(var(--accent-rgb),0.12)' }}>
+        {/* CTA — 2026-09: LineChoice directly above just sorted the reader
+            between Classic and Pro by criteria; the old close was a wash-box
+            with a number, a headline and one generic button to "/#produkte",
+            disconnected from that choice and from what's actually being sold
+            — no photo, no price. Both options now come back as real product
+            cards (CtaProductCard, defined above) built entirely from
+            data.ts, so the close picks up exactly where LineChoice left off
+            instead of resetting to a generic pitch. */}
+        <div className="text-center mb-8">
           <CountUp value={`${waxVsOil.life.waxLo}–${waxVsOil.life.wax}×`}
-            className="num-display font-display font-bold leading-none block mb-4"
-            style={{ fontSize: 'clamp(2.4rem, 6vw, 3.6rem)', color: 'var(--tx1)' }} />
-          <p className="text-[13px] mb-7" style={{ color: 'var(--txm)' }}>
+            className="num-display font-display font-bold leading-none inline-block mr-2 align-middle"
+            style={{ fontSize: 'clamp(1.8rem, 4vw, 2.4rem)', color: 'var(--accent)' }} />
+          <span className="text-[13px] align-middle" style={{ color: 'var(--txm)' }}>
             {de ? 'Kettenlaufzeit gegenüber Öl, gemessen in Zone 01.' : 'Chain life versus oil, measured in zone 01.'}
-          </p>
-          <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
+          </span>
+          <p className="eyebrow mt-6 mb-3" style={{ color: 'var(--accent-soft)' }}>
             {de ? 'Nächster Schritt' : 'Next step'}
           </p>
-          <h3 className="font-display font-bold text-wx-tx1 mb-5" style={{ fontSize: 'clamp(1.5rem, 3vw, 2rem)' }}>
+          <h3 className="font-display font-bold text-wx-tx1" style={{ fontSize: 'clamp(1.5rem, 3vw, 2rem)' }}>
             {de ? 'Bereit für einen sauberen Antrieb?' : 'Ready for a clean drivetrain?'}
           </h3>
-          <Link to="/#produkte"
-            className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-[14px] font-semibold transition-all hover:opacity-90 active:scale-[0.97]"
-            style={{ background: 'var(--accent)', color: '#fff' }}>
-            {de ? 'Formel wählen' : 'Choose your formula'}
-            <ArrowLeft className="h-4 w-4 rotate-180" />
-          </Link>
-          {de && (
-            <p className="text-meta mt-5">
-              <Link to="/blog/von-oel-auf-wachs-umsteigen" className="underline underline-offset-2"
-                style={{ color: 'var(--accent-soft)' }}>
-                Oder zuerst: Anleitung zum Umstieg von Öl auf Wachs
-              </Link>
-            </p>
-          )}
         </div>
+
+        <div className="grid sm:grid-cols-2 gap-4 sm:gap-5">
+          {(['wax-500', 'wax-500-mos2'] as const).map(id => {
+            const product = products.find(p => p.id === id)!;
+            return <CtaProductCard key={id} product={product} de={de} featured={product.variant === 'pro'} />;
+          })}
+        </div>
+
+        {de && (
+          <p className="text-meta text-center mt-6">
+            <Link to="/blog/von-oel-auf-wachs-umsteigen" className="underline underline-offset-2"
+              style={{ color: 'var(--accent-soft)' }}>
+              Oder zuerst: Anleitung zum Umstieg von Öl auf Wachs
+            </Link>
+          </p>
+        )}
       </section>
       </main>
 
