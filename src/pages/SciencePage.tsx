@@ -462,23 +462,28 @@ function Microscope({ de }: { de: boolean }) {
         style={{ fontSize: 'clamp(1.9rem, 4vw, 3rem)', letterSpacing: '-0.02em' }}>
         {de ? 'Unter dem Mikroskop.' : 'Under the microscope.'}
       </h2>
-      <p className="text-[15px] max-w-xl mb-8" style={{ color: 'var(--txm)' }}>
-        {de
-          ? 'Originalaufnahmen von Antriebskomponenten — jede Gegenüberstellung bei identischer Vergrößerung und identischen Aufnahmebedingungen.'
-          : 'Original micrographs of drivetrain components — each pair shot at identical magnification and conditions.'}
-      </p>
+      {/* Bis 2026-09: hier stand eine Lede-Zeile ("Originalaufnahmen von
+          Antriebskomponenten ... identischer Vergroesserung und identischen
+          Aufnahmebedingungen"), die eine Herkunfts- und Vergleichsbehauptung
+          traf, die fuer diese Bilder nicht zutrifft — sie sind echte
+          Mikroskopieaufnahmen, aber nicht von Waxcelerate-eigenen Proben
+          gemacht. Ersatzlos gestrichen statt umformuliert: die Ueberschrift
+          traegt den Abschnitt allein, die Bildunterschriften sind bereits
+          sachlich (siehe unten). */}
 
       {/* Legend */}
       <div className="flex items-center gap-5 mb-5">
         <div className="flex items-center gap-2">
           <div className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--txm)', opacity: 0.35 }} />
           <span className="text-meta" style={{ color: 'var(--txm)' }}>
-            {de ? 'Referenz (ohne MoS₂)' : 'Reference (no MoS₂)'}
+            {de ? 'Ohne Festschmierstoff' : 'Without solid lubricant'}
           </span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--accent)' }} />
-          <span className="text-meta" style={{ color: 'var(--txm)' }}>Waxcelerate + MoS₂</span>
+          <span className="text-meta" style={{ color: 'var(--txm)' }}>
+            {de ? 'Mit MoS₂-Festschmierstoff' : 'With MoS₂ solid lubricant'}
+          </span>
         </div>
       </div>
 
@@ -509,21 +514,22 @@ function Microscope({ de }: { de: boolean }) {
               <BeforeAfterSlider
                 beforeSrc={row.ref}
                 afterSrc={row.mos2}
-                beforeAlt={`${de ? row.de : row.en} – ${de ? 'Referenz' : 'Reference'}`}
-                afterAlt={`${de ? row.de : row.en} – Waxcelerate + MoS₂`}
+                beforeAlt={`${de ? row.de : row.en} – ${de ? 'ohne Festschmierstoff' : 'without solid lubricant'}`}
+                afterAlt={`${de ? row.de : row.en} – ${de ? 'mit MoS₂-Festschmierstoff' : 'with MoS₂ solid lubricant'}`}
                 beforeLabel={de ? 'Referenz' : 'Reference'}
-                afterLabel="Waxcelerate"
+                afterLabel="MoS₂"
               />
             </div>
           );
         })}
       </div>
 
-      {/* Methodology note */}
+      {/* Bildquelle statt Methodik-Behauptung — dieselbe Korrektur wie oben:
+          "identische Vergroesserung/Bedingungen je Paar" war nicht belegbar. */}
       <p className="text-meta leading-relaxed mt-5" style={{ color: 'var(--txff)' }}>
         {de
-          ? 'Reale Oberflächenstrukturen, keine Simulationen. Referenz und Waxcelerate-Probe je Gegenüberstellung bei identischer Vergrößerung und unter identischen Bedingungen aufgenommen.'
-          : 'Real surface structures, not simulations. Reference and Waxcelerate sample shot at identical magnification and conditions within each pair.'}
+          ? 'Mikroskopaufnahmen zur Veranschaulichung des Wirkprinzips — keine Aufnahmen der hier verkauften Chargen.'
+          : 'Micrographs illustrating the mechanism — not photographs of the batches sold here.'}
       </p>
     </div>
   );
