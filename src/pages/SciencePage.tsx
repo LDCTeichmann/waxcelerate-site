@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useLocation } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, ChevronDown, Gauge, Clock, Droplets, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ChevronDown } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
 import { Navigation } from '@/sections/navigation';
@@ -21,6 +21,35 @@ import { ReadMoreLink } from '@/sections/science/ReadMoreLink';
 
 const W = 'max-w-4xl mx-auto px-4 sm:px-6 lg:px-8';
 
+// ─── ToothProfileDiagram — ideal vs. worn tooth flank, schematic ─────────────
+// The two cassette photos (new/worn) show that wear happens; they can't show
+// WHAT wears — a photo of two similar-looking teeth doesn't read as "material
+// is gone" the way a drawn contour with a shaded difference does. This is a
+// simplified, single-tooth cross-section, not a measured profile: a sprocket
+// tooth pointing up, ideal contour solid, worn contour dashed with the loaded
+// flank (left, where chain tension pulls under load) drawn hooked/thinned —
+// the textbook "shark-fin" wear pattern — and the area between the two lines
+// on that flank shaded as the material loss the text above describes.
+function ToothProfileDiagram({ de }: { de: boolean }) {
+  const idealD = 'M14,86 L29,42 L47,10 L73,10 L91,42 L106,86';
+  // Worn: right flank + tip unchanged, left (loaded) flank recedes inward
+  // from mid-height down to the base — the classic hooked wear silhouette.
+  const wornD = 'M22,86 L33,52 L47,10 L73,10 L91,42 L106,86';
+  const lossD = 'M14,86 L29,42 L47,10 L33,52 L22,86 Z';
+  return (
+    <svg viewBox="0 0 120 96" className="w-full h-auto" style={{ maxWidth: 108 }} aria-hidden>
+      <path d={lossD} fill="var(--accent)" opacity="0.16" />
+      <path d={idealD} fill="none" stroke="var(--txf)" strokeWidth="1.6" strokeLinejoin="round" />
+      <path d={wornD} fill="none" stroke="var(--accent)" strokeWidth="1.6" strokeDasharray="3 2.5" strokeLinejoin="round" />
+      <line x1="106" y1="86" x2="14" y2="86" stroke="var(--bd)" strokeWidth="1" />
+      <line x1="6" y1="70" x2="18" y2="66" stroke="var(--accent)" strokeWidth="0.8" opacity="0.7" />
+      <text x="2" y="80" fontSize="7.5" fill="var(--accent)" fontFamily="monospace">
+        {de ? 'Abtrag' : 'loss'}
+      </text>
+    </svg>
+  );
+}
+
 // ─── WearDiagramFigure — cassette photo + explanation, shared by the mobile
 // and desktop hero layouts below. Mobile-Plan B6: the source photo
 // (cassette-wear-full.jpg) used to have a heading, a five-line paragraph and
@@ -35,6 +64,19 @@ const W = 'max-w-4xl mx-auto px-4 sm:px-6 lg:px-8';
 // page-background colour — nothing about the photography changed. The words
 // are real HTML now. cassette-wear-diagram is a separate, newer asset (see
 // below) and isn't part of that crop family.
+//
+// 2026-09 revision: previously the photo and the two comparison thumbnails
+// below it had no visible relationship — a reader had to work out on their
+// own that the small crops were "a tooth from that cassette". Now a single
+// magnifier ring sits directly on one real, visible tooth of the outer
+// (largest) sprocket — the sprocket that actually carries the most load —
+// with a leader line down to exactly what the ring is circling: the
+// new/worn crops, reused unchanged, now framed as one split lens instead of
+// two separate thumbnails, next to a drawn tooth-profile schematic that
+// shows what a photo alone can't: where the material actually goes.
+// Coordinates are percentages of the image box, valid because the source
+// (cassette-wear-diagram) is a 1:1 square asset — see naturalWidth/Height.
+const LUPE_X = 9, LUPE_Y = 45;
 function WearDiagramFigure({ de }: { de: boolean }) {
   return (
     <figure className="m-0">
@@ -49,53 +91,70 @@ function WearDiagramFigure({ de }: { de: boolean }) {
           `cassette-wear-diagram.jpg` still exists separately for OG/social
           meta, which needs an opaque image and doesn't render on a page
           background at all. */}
-      <picture>
-        <source srcSet="/images/science/cassette-wear-diagram.webp" type="image/webp" />
-        <img
-          src="/images/science/cassette-wear-diagram.png"
-          alt={de ? 'Shimano Ultegra Kassette' : 'Shimano Ultegra cassette'}
-          className="w-full h-auto"
-        />
-      </picture>
+      <div className="relative">
+        <picture>
+          <source srcSet="/images/science/cassette-wear-diagram.webp" type="image/webp" />
+          <img
+            src="/images/science/cassette-wear-diagram.png"
+            alt={de ? 'Shimano Ultegra Kassette' : 'Shimano Ultegra cassette'}
+            className="w-full h-auto"
+          />
+        </picture>
+        {/* Magnifier ring on one real tooth of the outer sprocket + leader
+            line down to the split lens below. Percent-positioned so it tracks
+            the same tooth at every viewport width. */}
+        <div aria-hidden className="absolute rounded-full pointer-events-none"
+          style={{
+            left: `${LUPE_X}%`, top: `${LUPE_Y}%`, width: '12%', aspectRatio: '1',
+            transform: 'translate(-50%,-50%)',
+            border: '1.5px solid var(--accent)',
+            boxShadow: '0 0 0 3px var(--pg), 0 0 10px rgba(var(--accent-rgb),0.35)',
+          }} />
+        <svg aria-hidden className="absolute inset-0 pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
+          <line x1={LUPE_X} y1={LUPE_Y + 6} x2={LUPE_X} y2="99" stroke="var(--accent)"
+            strokeWidth="0.35" strokeDasharray="1.6 1.6" opacity="0.55" vectorEffect="non-scaling-stroke" />
+        </svg>
+      </div>
       <figcaption className="mt-4">
         <p className="text-[15px] font-bold mb-1.5" style={{ color: 'var(--tx1)' }}>
           {de ? 'Verschleißprinzip' : 'Wear principle'}
         </p>
-        <p className="text-[13.5px] leading-relaxed mb-5" style={{ color: 'var(--txm)', maxWidth: '36ch' }}>
+        <p className="text-[13.5px] leading-relaxed mb-4" style={{ color: 'var(--txm)', maxWidth: '36ch' }}>
           {de
-            ? 'Durch die Reibung der Kette nutzt sich die Zahnflanke an der Kassettenspeiche ab. Die Speiche wird dünner, die Kette greift schlechter und verschleißt schneller.'
-            : 'Chain friction wears down the tooth flank on the cassette sprocket. The tooth gets thinner, the chain grips worse, and it wears out faster.'}
+            ? 'Reibung trägt die Zahnflanke der Kassette ab — die Kette greift schlechter und verschleißt schneller.'
+            : 'Friction wears down the tooth flank on the cassette — the chain grips worse and wears out faster.'}
         </p>
-        {/* Beide Ausschnitte trugen bis 18.08.2026 noch die Rahmenlinie des
-            Panels, aus dem sie geschnitten waren — oben eine waagerechte, rechts
-            eine senkrechte Linie, die sich oben rechts zu einer abgerundeten
-            Ecke trafen. Das war der "graue Uebergang" und der "Cutoff": kein
-            Bildinhalt, sondern ein Rest der Quellgrafik. Die Linien sind
-            weggeschnitten (Ausschnitt 326x170 aus dem alten 340x182).
-            Zusaetzlich sitzt jedes Bild jetzt in einer gerundeten Platte in
-            genau der Hintergrundfarbe des Fotos (gemessen: rgb(245,245,245)
-            bzw. rgb(242,242,242)). Dadurch faellt die Bildkante mit einer
-            gewollten Kante zusammen, statt als abgeschnittenes Foto zu wirken —
-            und das funktioniert unabhaengig davon, wie hell oder dunkel die
-            Seite dahinter gerade ist. */}
-        <div className="grid grid-cols-2 gap-3" style={{ maxWidth: 360 }}>
-          {([
-            { src: 'cassette-new', labelDe: 'Neue Kassette', labelEn: 'New cassette' },
-            { src: 'cassette-worn', labelDe: 'Abgenutzte Kassette', labelEn: 'Worn cassette' },
-          ] as const).map(({ src, labelDe, labelEn }) => (
-            <div key={src}>
-              <p className="text-[12px] font-semibold mb-1.5" style={{ color: 'var(--tx1)' }}>
-                {de ? labelDe : labelEn}
-              </p>
-              <div className="rounded-lg overflow-hidden"
-                style={{ background: '#f4f4f4', border: '1px solid var(--bd2)' }}>
-                <picture>
-                  <source srcSet={`/images/science/${src}.webp`} type="image/webp" />
-                  <img src={`/images/science/${src}.jpg`} alt={de ? labelDe : labelEn} className="w-full h-auto block" />
-                </picture>
-              </div>
-            </div>
-          ))}
+
+        {/* Split lens — same tooth the ring above is circling, new/worn side
+            by side inside one circular frame instead of two square
+            thumbnails. Both images are the exact crops used before
+            (cassette-new / cassette-worn); the framing changed, not the
+            photography. */}
+        <div className="flex items-center gap-4">
+          <div className="relative flex-shrink-0 rounded-full overflow-hidden"
+            style={{ width: 92, height: 92, border: '1.5px solid var(--accent)', background: '#f4f4f4' }}>
+            <picture>
+              <source srcSet="/images/science/cassette-new.webp" type="image/webp" />
+              <img src="/images/science/cassette-new.jpg" alt={de ? 'Neue Kassette' : 'New cassette'}
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{ clipPath: 'inset(0 50% 0 0)' }} />
+            </picture>
+            <picture>
+              <source srcSet="/images/science/cassette-worn.webp" type="image/webp" />
+              <img src="/images/science/cassette-worn.jpg" alt={de ? 'Abgenutzte Kassette' : 'Worn cassette'}
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{ clipPath: 'inset(0 0 0 50%)' }} />
+            </picture>
+            <div className="absolute inset-y-0 left-1/2 -translate-x-1/2" style={{ width: 1, background: 'var(--accent)', opacity: 0.6 }} />
+          </div>
+          <ToothProfileDiagram de={de} />
+        </div>
+        <div className="flex items-center gap-4 mt-2" style={{ maxWidth: 300 }}>
+          <div className="flex-shrink-0 flex justify-between" style={{ width: 92 }}>
+            <span className="text-[11px] font-semibold" style={{ color: 'var(--tx1)' }}>{de ? 'Neu' : 'New'}</span>
+            <span className="text-[11px] font-semibold" style={{ color: 'var(--accent)' }}>{de ? 'Abgenutzt' : 'Worn'}</span>
+          </div>
+          <span className="text-[11px]" style={{ color: 'var(--txf)' }}>{de ? 'Zahnprofil' : 'Tooth profile'}</span>
         </div>
       </figcaption>
     </figure>
@@ -114,35 +173,29 @@ function ScienceHero({ de }: { de: boolean }) {
   const w = waxVsOil.watts, l = waxVsOil.life;
   const pro = frictionRanges.find(r => r.id === 'pro')!;
   const oil = frictionRanges.find(r => r.id === 'oil')!;
-  // Number + one plain-language sentence, same fix as the homepage's
-  // "Messbar besser" cards — a number, a tiny caps label and an even fainter
-  // detail line was three sizes fighting for attention in a tile barely
-  // 220px wide. Down to two per card, and the sentence says what the number
-  // means instead of just filing it under a category word.
+  // Three measurements, not four — "Trocken" isn't a measurement (no unit,
+  // no comparison value), it was padding out a 2x2 grid. It now lives as a
+  // half-sentence in the lede below instead of posing as a fourth data
+  // point. Icons dropped too: they were purely decorative next to a mono
+  // numeral that already reads as data on its own, and every other
+  // instrument panel on this page (FrictionBars, TempWindow, HexMoS2) makes
+  // its case with numbers and labels alone, no iconography — these three
+  // cards now match that language instead of being the one exception.
   const cards = [
     {
-      icon: Gauge,
       value: `μ ${pro.muLo.toFixed(2)}–${pro.muHi.toFixed(2)}`,
       sentenceDe: `Reibung im Antrieb — Öl liegt bei μ ${oil.muLo.toFixed(2)}–${oil.muHi.toFixed(2)}.`,
       sentenceEn: `Drivetrain friction — oil sits at μ ${oil.muLo.toFixed(2)}–${oil.muHi.toFixed(2)}.`,
     },
     {
-      icon: Droplets,
       value: `${w.wax[0]}–${w.wax[1]} W`,
       sentenceDe: `Antriebsverlust — Öl braucht ${w.oil[0]}–${w.oil[1]} W bei gleicher Leistung.`,
       sentenceEn: `Drivetrain loss — oil needs ${w.oil[0]}–${w.oil[1]} W at the same power.`,
     },
     {
-      icon: Clock,
       value: `${l.waxLo}–${l.wax}×`,
       sentenceDe: 'Typische Kettenlebensdauer gegenüber Öl.',
       sentenceEn: 'Typical chain lifespan versus oil.',
-    },
-    {
-      icon: Sparkles,
-      value: de ? 'Trocken' : 'Dry',
-      sentenceDe: 'Kein Dreck, keine Flecken an Kleidung oder Fingern.',
-      sentenceEn: 'No grime, no stains on clothes or fingers.',
     },
   ];
 
@@ -166,16 +219,16 @@ function ScienceHero({ de }: { de: boolean }) {
         <div className="max-w-lg lg:flex-shrink-0">
           <BackLink de={de} className="mb-5" />
           <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
-            {de ? 'Öl vs. Wachs' : 'Oil vs. Wax'}
+            {de ? 'Direktvergleich' : 'Direct comparison'}
           </p>
-          <h1 className="font-display font-bold leading-[1.05] mb-4"
-            style={{ color: 'var(--tx1)', fontSize: 'clamp(2rem, 4.2vw, 3rem)', letterSpacing: '-0.02em' }}>
+          <h1 className="font-display font-bold leading-[1.02] mb-4"
+            style={{ color: 'var(--tx1)', fontSize: 'clamp(2.4rem, 5.2vw, 4rem)', letterSpacing: '-0.02em' }}>
             {de ? 'Ein messbarer Unterschied.' : 'One measurable difference.'}
           </h1>
-          <p className="mb-6" style={{ color: 'var(--txm)', fontSize: 15, maxWidth: '38ch' }}>
+          <p className="text-lead mb-6" style={{ color: 'var(--txm)', maxWidth: '40ch' }}>
             {de
-              ? 'Derselbe Antrieb, zwei Schmierstoffe — Seite an Seite gemessen.'
-              : 'Same drivetrain, two lubricants — measured side by side.'}
+              ? 'Derselbe Antrieb, zwei Schmierstoffe — Seite an Seite gemessen. Trocken, ohne Flecken an Kleidung oder Fingern.'
+              : 'Same drivetrain, two lubricants — measured side by side. Dry, no stains on clothes or fingers.'}
           </p>
 
           {/* Mobile/tablet: same figure, just inline above the stats instead
@@ -184,24 +237,22 @@ function ScienceHero({ de }: { de: boolean }) {
             <WearDiagramFigure de={de} />
           </div>
 
-          {/* Stats — a hairline-divided list, one row per measurement, instead
-              of a 2×2 grid: at column width (~500px desktop, ~92vw mobile) a
-              row gets roughly double the horizontal room a grid tile did,
-              which is what actually lets the sentence sit on one or two
-              lines instead of wrapping into a fourth tiny fragment. */}
-          <div className="mb-8" style={{ borderTop: '1px solid var(--bd2)' }}>
+          {/* Stats — three measurements in one accent-topped row instead of a
+              hairline-divided list: the row reads as one instrument readout
+              (like FrictionBars/TempWindow below it) rather than a stack of
+              separate facts, and num-data at almost double the previous size
+              actually looks like the page's central claim instead of a list
+              caption. */}
+          <div className="grid grid-cols-3 mb-8" style={{ borderTop: '1px solid var(--accent-soft)' }}>
             {cards.map((c, i) => (
-              <div key={i} className="flex items-start gap-3 py-3.5"
-                style={{ borderBottom: '1px solid var(--bd2)' }}>
-                <c.icon className="h-4 w-4 mt-0.5 flex-shrink-0" style={{ color: 'var(--txf)' }} aria-hidden />
-                <div className="min-w-0">
-                  <p className="num-data font-bold text-[18px] leading-none" style={{ color: 'var(--tx1)' }}>
-                    {c.value}
-                  </p>
-                  <p className="text-[13.5px] leading-snug mt-1.5" style={{ color: 'var(--tx2)' }}>
-                    {de ? c.sentenceDe : c.sentenceEn}
-                  </p>
-                </div>
+              <div key={i} className="pt-3.5 pr-3"
+                style={{ borderLeft: i > 0 ? '1px solid var(--bd2)' : undefined, paddingLeft: i > 0 ? 14 : 0 }}>
+                <p className="num-data font-bold leading-none" style={{ color: 'var(--tx1)', fontSize: 'clamp(20px, 2.6vw, 26px)' }}>
+                  {c.value}
+                </p>
+                <p className="text-[12.5px] leading-snug mt-2" style={{ color: 'var(--tx2)' }}>
+                  {de ? c.sentenceDe : c.sentenceEn}
+                </p>
               </div>
             ))}
           </div>
