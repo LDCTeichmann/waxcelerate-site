@@ -7,7 +7,7 @@ import type { TranslationType } from '@/lib/i18n';
 import { useSectionReveal } from '@/hooks/useAnimation';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
-import { products, canCheckout, isSoldOut } from '@/lib/data';
+import { products, canCheckout, isSoldOut, compatibilityMatrix } from '@/lib/data';
 import { trackProductsSeen, trackEbayClick } from '@/lib/analytics';
 import { richContent } from '@/lib/productContent';
 import { ChainFinder } from '@/sections/ChainFinder';
@@ -60,18 +60,24 @@ export function Products() {
 
   const chainProducts = useMemo(() => products.filter(p => p.category === 'chain'), []);
 
+  // Welche Ketten zu einer Marke passen, kommt jetzt aus derselben
+  // `compatibilityMatrix` wie der „Welche Kette passt?"-Rechner
+  // (waxMath/ChainMatchCalculator) — vorher hatten Rechner und Produktliste
+  // zwei unabhaengige Antworten auf dieselbe Frage (String-Vergleiche hier,
+  // Matrix dort), und ein Deep-Link vom Rechner haette hier etwas anderes
+  // gezeigt als der Rechner gerade errechnet hatte.
+  const brandChainIds = useMemo(() => {
+    if (brandFilter === 'all') return null;
+    const bySpeed = compatibilityMatrix[brandFilter] ?? {};
+    const speeds = speedFilter === 'all' ? ['11', '12'] : [speedFilter];
+    return new Set(speeds.flatMap(s => bySpeed[s] ?? []));
+  }, [brandFilter, speedFilter]);
+
   const filteredChains = useMemo(() => chainProducts.filter(p => {
     if (speedFilter !== 'all' && p.chainSpeed !== `${speedFilter}-fach`) return false;
-    if (brandFilter !== 'all') {
-      const isYBN = p.chainBrand === 'YBN';
-      if (brandFilter === 'campagnolo') {
-        if (!p.compatibility?.includes('Campagnolo')) return false;
-      } else {
-        if (!isYBN && p.chainBrand?.toLowerCase() !== brandFilter) return false;
-      }
-    }
+    if (brandChainIds && !brandChainIds.has(p.id)) return false;
     return true;
-  }), [chainProducts, speedFilter, brandFilter]);
+  }), [chainProducts, speedFilter, brandChainIds]);
 
   const formatter = useMemo(() =>
     new Intl.NumberFormat(lang === 'de' ? 'de-DE' : 'en-US', { style: 'currency', currency: 'EUR' }),
@@ -80,15 +86,36 @@ export function Products() {
 
   const resetFilters = useCallback(() => { setSpeedFilter('all'); setBrandFilter('all'); }, []);
 
-  // Ein Klick vom Regal in die gefilterte Liste. Vorher: Tuer, Tab, Finder.
-  const openChains = useCallback((speed: 'all' | '11' | '12') => {
+  // Ein Klick vom Regal oder vom „Passende Kette"-Rechner in die gefilterte
+  // Liste. `brand` optional, damit der einzige bisherige Aufrufer
+  // (ProductShelf, immer 'all') unveraendert bleibt.
+  const openChains = useCallback((
+    speed: 'all' | '11' | '12',
+    brand: 'all' | 'shimano' | 'sram' | 'campagnolo' = 'all',
+  ) => {
     setSpeedFilter(speed);
-    setBrandFilter('all');
+    setBrandFilter(brand);
     setListOpen(true);
     // Erst nach dem Rendern der Liste scrollen — vorher gibt es das Ziel nicht.
     requestAnimationFrame(() => {
       document.getElementById('produkt-liste')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
+  }, []);
+
+  // Deep-Link vom „Passende Kette"-Rechner: /?ketten=shimano-12. Ungueltige
+  // oder fehlende Werte werden still ignoriert — dieselbe Haltung wie beim
+  // QR-Parameter ?w= des Intervall-Rechners (toolState.ts).
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const raw = params.get('ketten');
+    if (!raw) return;
+    const [brand, speed] = raw.split('-');
+    const brands = ['shimano', 'sram', 'campagnolo'] as const;
+    const matchedBrand = brands.find(b => b === brand);
+    if (matchedBrand && (speed === '11' || speed === '12')) {
+      openChains(speed, matchedBrand);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Wax card entrance — runs once, cards never change.

@@ -53,16 +53,25 @@ function slotTransform(rel: number, count: number): React.CSSProperties {
 }
 
 // Feste Hoehe statt gemessener: jede Karte bekommt (per ToolCard: h-full +
-// flex-col + ToolFooter mt-auto) exakt diese Box, egal welcher der sechs
+// flex-col + ResultPanel mt-auto) exakt diese Box, egal welcher der sechs
 // Rechner gerade drinsteckt — Kopf und CTA kleben oben/unten, der Rest
 // verteilt sich dazwischen. Genau das macht auch die Deckel der Nachbar-
 // karten identisch gross: die Box, in der ein Deckel steckt, war vorher so
 // hoch wie der jeweils dahinter verdeckte, unterschiedlich lange Rechner —
-// jetzt ist sie fuer alle sechs exakt dieselbe. Der Wert selbst kommt aus der
-// tatsaechlichen Hoehe des kompaktesten/vollsten entschlackten Inhalts
-// (siehe Karten-Umbau in den calculators/*.tsx) plus etwas Luft.
-const DECK_HEIGHT = 680;
-const TRACK_HEIGHT = 690;
+// jetzt ist sie fuer alle sechs exakt dieselbe.
+//
+// 680/690 war auf den alten Karteninhalt geeicht. Der Karten-Umbau (siehe
+// calculators/*.tsx) haengt an vier der sechs Karten neue, aber echte
+// Antwort-Bestandteile: die Lehren-Skizze bei Verschleiss, die
+// Kettenstreben-Skizze bei Kettenlaenge, die Antriebs-Aufschluesselung bei
+// Umstieg, die Kassetten-Skizze plus Zeitvergleich bei Ersparnis. Bei 680 px
+// riss das den Fuss der vier Karten aus der Box (bis zu 137 px, gemessen per
+// getBoundingClientRect ueber alle sechs Karten). Diagramme wurden dafuer
+// bereits auf eine kompakte Breite begrenzt (siehe die einzelnen
+// calculators/*.tsx) — der Rest ist echter zusaetzlicher Platzbedarf, kein
+// Aufblaehen, und wird hier ausgeglichen.
+const DECK_HEIGHT = 840;
+const TRACK_HEIGHT = 850;
 
 function DeckSlot({ item, rel, count, active, onActivate, de }: {
   item: TrackItem; rel: number; count: number; active: boolean; onActivate: () => void; de: boolean;

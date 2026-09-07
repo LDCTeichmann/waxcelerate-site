@@ -4,6 +4,12 @@
 // jemand stellt, der Waxcelerate nicht kennt. Sie beantwortet sich nicht mit
 // einer Zahl allein: entscheidend ist, ob die Kassette schon mitgelaufen ist,
 // denn das ist der Unterschied zwischen einem 45- und einem 130-Euro-Problem.
+//
+// Standardmethode ist jetzt die Lehre, nicht das Lineal: eine Kettenlehre
+// haben die meisten oder koennen sie sich fuer wenig Geld besorgen, waehrend
+// das Lineal ein Stahlmass und Ablesen auf 0,5 mm verlangt. Die Skizze der
+// Lehre steht dafuer direkt auf der Karte statt hinter einem Fragezeichen,
+// das ohnehin niemand drueckt.
 
 import { useState } from 'react';
 import { Gauge } from 'lucide-react';
@@ -47,7 +53,7 @@ export function WearCalculator({ profile }: { profile: ToolProfileState }) {
     new Intl.NumberFormat(de ? 'de-DE' : 'en-US', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n);
 
   const speed = profile.speed ?? 12;
-  const [method, setMethod] = useState<'ruler' | 'gauge'>('ruler');
+  const [method, setMethod] = useState<'ruler' | 'gauge'>('gauge');
   // Leer statt 304,8 vorbelegt: eine unangetastete Karte zeigte sonst „0,00 % —
   // Alles gut", also ein Urteil auf einer Messung, die niemand gemacht hat.
   const [measuredMm, setMeasuredMm] = useState('');
@@ -112,11 +118,10 @@ export function WearCalculator({ profile }: { profile: ToolProfileState }) {
           step={2}
           label={t.tools.wear.method}
           help={t.tools.wear.helpMethod}
-          figure={method === 'gauge' ? <ChainGaugeDiagram /> : undefined}
         >
           <ChipRow>
-            <TogButton active={method === 'ruler'} onClick={() => setMethod('ruler')}>{t.tools.wear.methodRuler}</TogButton>
             <TogButton active={method === 'gauge'} onClick={() => setMethod('gauge')}>{t.tools.wear.methodGauge}</TogButton>
+            <TogButton active={method === 'ruler'} onClick={() => setMethod('ruler')}>{t.tools.wear.methodRuler}</TogButton>
           </ChipRow>
         </StepField>
 
@@ -155,24 +160,34 @@ export function WearCalculator({ profile }: { profile: ToolProfileState }) {
           </StepField>
         )}
 
-        {/* Lehre-Hinweis + Kostenfolge an einer Stelle statt bedingt inline —
-            sonst aendert allein das Umschalten zwischen Lineal und Lehre, oder
-            ob schon gehandelt werden muss, die Kartenhoehe. */}
-        <InfoPopover
-          ariaLabel={de ? 'Details zum Verschleiß' : 'Details on wear'}
-          trigger={() => (
-            <span className="text-[12px] font-medium" style={{ color: 'var(--brand)' }}>
-              {de ? 'Details zum Verschleiß' : 'Details on wear'}
-            </span>
-          )}
-        >
-          {method === 'gauge' && (
+        {/* Die Lehren-Skizze steht jetzt direkt auf der Karte statt hinter
+            einem Fragezeichen — sie zeigt den Zustand, den die Wahl gerade
+            ergibt, nicht mehr immer nur „Kette raus". */}
+        {method === 'gauge' && (
+          <div className="max-w-[260px] mx-auto w-full">
+            <ChainGaugeDiagram state={needsAction ? 'worn' : 'ok'} />
+          </div>
+        )}
+
+        {/* Lehre-Hinweis an einer Stelle statt bedingt inline — sonst aendert
+            allein das Umschalten zwischen Lineal und Lehre die Kartenhoehe.
+            Die Kostenfolge steht jetzt als Kennzahl im Ergebnis, nicht mehr
+            hier — sie ist der Grund, warum die Frage ueberhaupt gestellt
+            wird, und gehoert deshalb sichtbar dorthin. */}
+        {method === 'gauge' && (
+          <InfoPopover
+            ariaLabel={de ? 'Details zum Verschleiß' : 'Details on wear'}
+            trigger={() => (
+              <span className="text-[12px] font-medium" style={{ color: 'var(--brand)' }}>
+                {de ? 'Details zum Verschleiß' : 'Details on wear'}
+              </span>
+            )}
+          >
             <StepNote>
               {gauge === 'none' ? t.tools.wear.gaugeNoneNote : t.tools.wear.gaugeWarning}
             </StepNote>
-          )}
-          {needsAction && <StepNote>{t.tools.wear.costNow}: {dueText}.</StepNote>}
-        </InfoPopover>
+          </InfoPopover>
+        )}
       </StepList>
 
       <ResultPanel
@@ -182,6 +197,7 @@ export function WearCalculator({ profile }: { profile: ToolProfileState }) {
         tone={!awaitingInput && needsAction ? 'good' : 'neutral'}
         facts={[
           { label: t.tools.wear.limit, value: `${de ? MARK_LABEL[wearLimit(speed)].de : MARK_LABEL[wearLimit(speed)].en} % · ${speed}${de ? '-fach' : 'sp'}` },
+          ...(needsAction ? [{ label: t.tools.wear.costNow, value: dueText }] : []),
         ]}
         actions={<ResultActions shareUrl={shareUrl('/rechner/verschleiss', profile.snapshot)} />}
       />

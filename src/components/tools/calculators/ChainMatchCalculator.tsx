@@ -5,11 +5,17 @@
 // einzige Rechner hier, dessen Antwort ausschliesslich aus gepflegten
 // Produktdaten kommt und nie aus einer Annahme.
 //
-// `compact`: im Kartenstapel auf der Startseite (ToolDeck) haben alle sechs
-// Rechner exakt dieselbe feste Hoehe (ToolTrack.tsx) — eine 0 bis 4 Eintraege
-// lange Trefferliste wuerde das sofort sprengen. Dort bleibt es bei Zahl,
-// Urteil und einem Link auf die eigene Einzelseite, wo (compact=false) die
-// volle Liste steht, weil dort kein Nachbarkarten-Vergleich existiert.
+// Die Trefferliste steht jetzt auch im Kartenstapel (ToolDeck) selbst: seit
+// ResultPanel `mt-auto` traegt (Phase 0), sammelt sich der freie Raum ueber
+// dem Ergebnis, nicht mehr dahinter — bei nur zwei Eingabeschritten reicht er
+// fuer bis zu vier Kacheln, mehr liefert die Matrix nicht. Vorher blendete
+// `compact` die Liste aus, weil sie die feste Kartenhoehe gesprengt haette;
+// das war die Sackgasse „4 Ketten passen" ohne zu zeigen, welche.
+//
+// `compact` steuert nur noch, wohin der Fussknopf fuehrt: im Deck auf die
+// gefilterte Produktliste (derselbe `compatibilityMatrix`, damit dort
+// garantiert dieselben Ketten stehen wie hier), auf der Einzelseite weiter
+// zum naechsten Rechner.
 
 import { Link2 } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -31,6 +37,15 @@ const SYSTEM_LABELS: Record<DriveSystem, string> = {
 
 // Vorgewachst gibt es nur 11- und 12-fach.
 const SPEED_OPTIONS = ['11', '12'] as const;
+
+/** „Shimano, SRAM und YBN" / „Shimano, SRAM and YBN" — ohne Bibliothek, weil
+    nur zwei Sprachen und maximal vier Eintraege vorkommen. */
+function joinList(items: string[], de: boolean): string {
+  if (items.length === 0) return '';
+  if (items.length === 1) return items[0];
+  const head = items.slice(0, -1).join(', ');
+  return `${head} ${de ? 'und' : 'and'} ${items[items.length - 1]}`;
+}
 
 export function ChainMatchCalculator({ profile, compact }: { profile: ToolProfileState; compact?: boolean }) {
   const { t, lang } = useLanguage();
@@ -60,6 +75,9 @@ export function ChainMatchCalculator({ profile, compact }: { profile: ToolProfil
     if (aSoldOut !== bSoldOut) return aSoldOut ? 1 : -1;
     return a.price - b.price;
   });
+  const brandNames = [...new Set(matches.map(p => p.chainBrand).filter((b): b is string => Boolean(b)))];
+
+  const deepLink = `/?ketten=${system}-${speedKey}#produkt-liste`;
 
   return (
     <ToolCard>
@@ -100,6 +118,47 @@ export function ChainMatchCalculator({ profile, compact }: { profile: ToolProfil
         </StepField>
       </StepList>
 
+      {/* Die Trefferliste steht jetzt in beiden Ansichten — der freie Raum
+          ueber dem Ergebnis (ResultPanel.tsx, `mt-auto`) traegt sie, ohne die
+          feste Kartenhoehe im Deck zu sprengen. Maximal vier Eintraege, das
+          Maximum der Matrix.
+          Sehr kleine Kacheln im Zweispalten-Raster statt einer Zeile pro
+          Treffer: eine volle Zeile je Kette (Bild + zwei Textzeilen + Preis)
+          brauchte bei vier Treffern rund 270 px und sprengte die feste
+          680-px-Kartenhoehe — genau der Shimano-12-fach-Fall, mit dem die
+          Karte startet. Zwei Spalten aus kleinen Bild+Preis-Kacheln passen
+          selbst bei vier Treffern in gut 90 px; Modell und Ausverkauft-Status
+          bleiben einen Klick entfernt auf der Produktseite. */}
+      {sortedMatches.length > 0 && (
+        <div className="px-4 sm:px-5 pb-3 grid grid-cols-2 gap-1.5">
+          {sortedMatches.map(p => {
+            const soldOut = isSoldOut(p);
+            return (
+              <a
+                key={p.id}
+                href={`/produkt/${p.id}`}
+                className="flex items-center gap-1.5 rounded-lg px-1.5 py-1.5 transition-opacity hover:opacity-85"
+                style={{ background: 'var(--card-bg)', border: '1px solid var(--bd2)', opacity: soldOut ? 0.6 : 1 }}
+              >
+                <img
+                  src={p.image}
+                  alt=""
+                  loading="lazy"
+                  className="w-7 h-7 rounded-md object-cover flex-shrink-0"
+                  style={{ background: 'var(--sf2)' }}
+                />
+                <span className="min-w-0 flex-1">
+                  <span className="block text-meta truncate" style={{ color: 'var(--txff)' }}>{p.chainBrand}</span>
+                  <span className="block text-meta font-semibold tabular-nums truncate" style={{ color: soldOut ? 'var(--txff)' : 'var(--brand)' }}>
+                    {soldOut ? t.tools.match.soldOut : eur(p.price)}
+                  </span>
+                </span>
+              </a>
+            );
+          })}
+        </div>
+      )}
+
       <ResultPanel
         value={matches.length}
         unit={matches.length === 1 ? (de ? 'Kette passt' : 'chain fits') : (de ? 'Ketten passen' : 'chains fit')}
@@ -107,8 +166,8 @@ export function ChainMatchCalculator({ profile, compact }: { profile: ToolProfil
           ? t.tools.match.otherSpeed.replace('{speed}', String(speed))
           : matches.length
             ? (de
-              ? `Für ${SYSTEM_LABELS[system]} mit ${speedKey} Ritzeln — vorgewachst, sofort fahrbereit.`
-              : `For ${SYSTEM_LABELS[system]} with ${speedKey} sprockets — pre-waxed, ready to ride.`)
+              ? `${joinList(brandNames, true)} passen für ${SYSTEM_LABELS[system]} mit ${speedKey} Ritzeln — alle vorgewachst und sofort fahrbereit.`
+              : `${joinList(brandNames, false)} fit ${SYSTEM_LABELS[system]} with ${speedKey} sprockets — all pre-waxed, ready to ride.`)
             : t.tools.match.none}
         tone={available.length ? 'good' : 'neutral'}
         facts={cheapest !== null
@@ -117,39 +176,17 @@ export function ChainMatchCalculator({ profile, compact }: { profile: ToolProfil
         actions={<ResultActions shareUrl={shareUrl('/rechner/passende-kette', profile.snapshot)} />}
       />
 
-      {/* Die volle Trefferliste steht nur auf der Einzelseite (compact=false)
-          — im Deck wuerde eine 0 bis 4 Zeilen lange Liste die feste
-          Kartenhoehe sprengen, siehe Kommentar oben. */}
-      {!compact && sortedMatches.length > 0 && (
-        <div className={`${'px-4 sm:px-5'} pb-4 flex flex-col gap-1.5`}>
-          {sortedMatches.map(p => (
-            <a
-              key={p.id}
-              href={`/produkt/${p.id}`}
-              className="flex items-center justify-between gap-3 rounded-xl px-3.5 py-2.5 transition-opacity hover:opacity-85"
-              style={{ background: 'var(--card-bg)', border: '1px solid var(--bd2)' }}
-            >
-              <span className="min-w-0">
-                <span className="block text-[13px] font-medium truncate" style={{ color: 'var(--tx2)' }}>
-                  {p.chainModel ?? (de ? p.title : p.titleEn)}
-                </span>
-                <span className="block text-meta mt-0.5" style={{ color: 'var(--txff)' }}>
-                  {p.chainBrand} · {p.chainLinks}{isSoldOut(p) ? ` · ${t.tools.match.soldOut}` : ''}
-                </span>
-              </span>
-              <span className="text-[13px] font-semibold tabular-nums flex-shrink-0" style={{ color: 'var(--brand)' }}>
-                {eur(p.price)}
-              </span>
-            </a>
-          ))}
-        </div>
-      )}
-
       <ToolFooter>
         {compact ? (
-          <ToolCTA href="/rechner/passende-kette">
-            {de ? 'Alle passenden Ketten ansehen →' : 'See all matching chains →'}
-          </ToolCTA>
+          matches.length > 0 ? (
+            <ToolCTA href={deepLink}>
+              {de ? 'Passende Ketten ansehen →' : 'View matching chains →'}
+            </ToolCTA>
+          ) : (
+            <ToolCTA href="/rechner/passende-kette">
+              {de ? 'Mehr erfahren →' : 'Find out more →'}
+            </ToolCTA>
+          )
         ) : (
           <ToolCTA href="/rechner/kettenlaenge">
             {de ? 'Passende Länge berechnen →' : 'Work out the right length →'}
