@@ -14,6 +14,7 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ChevronDown } from 'lucide-react';
 import { InstrumentFrame } from '@/components/viz';
 import { ChainWaxMap } from '@/sections/science/ChainWaxMap';
 import { ReadMoreLink } from '@/sections/science/ReadMoreLink';
@@ -51,6 +52,33 @@ function Pill({ children }: { children: React.ReactNode }) {
       style={{ background: 'var(--accent-wash-sm)', border: '1px solid rgba(var(--accent-rgb),0.14)', color: 'var(--accent)' }}>
       {children}
     </span>
+  );
+}
+
+// ─── ChainWaxMap footer note — collapsed by default on mobile ────────────────
+// Mobile height budget: at 375x667 (iPhone SE class) the grafik frame + zone
+// list together need to fit comfortably under one screen (see Mobile-Plan
+// measurements). This footnote is three lines of bushingless-chain trivia
+// that matters to almost no one reading the page — permanently showing it ate
+// ~50px of that budget on every device. sm+ has room to spare, so it stays
+// inline there; only <sm collapses it behind a tap.
+function FootnoteToggle({ children }: { children: React.ReactNode }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <button type="button" onClick={() => setOpen(o => !o)} aria-expanded={open}
+        className="sm:hidden inline-flex items-center gap-1 text-meta font-medium"
+        style={{ color: 'var(--txf)' }}>
+        {'Hinweis zu Kettentypen'}
+        <ChevronDown className="h-3 w-3 transition-transform duration-300"
+          style={{ transform: open ? 'rotate(180deg)' : 'none' }} />
+      </button>
+      <div className="sm:hidden overflow-hidden transition-[grid-template-rows]"
+        style={{ display: 'grid', gridTemplateRows: open ? '1fr' : '0fr', transition: 'grid-template-rows .35s cubic-bezier(0.22,1,0.36,1)' }}>
+        <div style={{ overflow: 'hidden' }} className="pt-2">{children}</div>
+      </div>
+      <div className="hidden sm:block">{children}</div>
+    </>
   );
 }
 
@@ -102,11 +130,13 @@ export function ContactZones({ de, onToFormula }: { de: boolean; onToFormula?: (
           eyebrow={de ? 'Draufsicht, Seitenansicht, Lupe' : 'Plan, side view, close-up'}
           chip={de ? 'schematisch' : 'schematic'}
           footer={
-            <p className="text-meta leading-relaxed" style={{ color: 'var(--txff)' }}>
-              {de
-                ? 'Moderne 9 bis 12 fach Ketten sind buchsenlos, die Schulter der Innenlasche übernimmt deren Funktion. Gilt für alle Ketten, die wir wachsen.'
-                : 'Modern 9 to 12 speed chains are bushingless, the inner plate shoulder does that job. Applies to every chain we wax.'}
-            </p>
+            <FootnoteToggle>
+              <p className="text-meta leading-relaxed" style={{ color: 'var(--txff)' }}>
+                {de
+                  ? 'Moderne 9 bis 12 fach Ketten sind buchsenlos, die Schulter der Innenlasche übernimmt deren Funktion. Gilt für alle Ketten, die wir wachsen.'
+                  : 'Modern 9 to 12 speed chains are bushingless, the inner plate shoulder does that job. Applies to every chain we wax.'}
+              </p>
+            </FootnoteToggle>
           }
         >
           {/* Full width, not half.
@@ -127,7 +157,7 @@ export function ContactZones({ de, onToFormula }: { de: boolean; onToFormula?: (
                 <button key={z.n} type="button"
                   onMouseEnter={() => setActive(i)} onFocus={() => setActive(i)} onClick={() => setActive(i)}
                   aria-expanded={on}
-                  className="w-full text-left py-3.5 transition-[padding] duration-500"
+                  className="w-full text-left py-2.5 sm:py-3.5 transition-[padding] duration-500"
                   style={{ borderTop: i === 0 ? 'none' : '1px solid var(--bd2)', paddingLeft: on ? 10 : 0 }}>
                   <span className="flex items-baseline gap-3">
                     <span className="num-data text-meta flex-shrink-0"
@@ -138,10 +168,10 @@ export function ContactZones({ de, onToFormula }: { de: boolean; onToFormula?: (
                   </span>
                   <span style={{ display: 'grid', gridTemplateRows: on ? '1fr' : '0fr', transition: 'grid-template-rows .45s cubic-bezier(0.22,1,0.36,1)' }}>
                     <span style={{ overflow: 'hidden' }}>
-                      <span className="block text-[13px] leading-relaxed pt-2.5" style={{ color: 'var(--txm)' }}>
+                      <span className="block text-[13px] leading-relaxed pt-2" style={{ color: 'var(--txm)' }}>
                         {de ? z.bodyDe : z.bodyEn}
                       </span>
-                      <span className="flex flex-wrap gap-1.5 mt-3">
+                      <span className="flex flex-wrap gap-1.5 mt-2">
                         {z.parts.map(p => <Pill key={p}>{p}</Pill>)}
                       </span>
                     </span>
@@ -151,34 +181,33 @@ export function ContactZones({ de, onToFormula }: { de: boolean; onToFormula?: (
             })}
       </div>
 
-      <p className="text-wx-txm text-[14.5px] leading-relaxed max-w-2xl mt-8">
-        {de
-          ? 'Paraffin allein ist unter hohem Druck übrigens nur durchschnittlich. Sein Vorteil entsteht bei niedriger Last und beim Losbrechen. Genau deshalb besteht die Formel aus sechs Komponenten und nicht aus einer.'
-          : 'Paraffin on its own is merely average under high pressure. Its advantage appears at low load and on breakaway. That is exactly why the formula has six components and not one.'}
-      </p>
+      {/* Zwei ehemals getrennte Absaetze zu einer Pointe zusammengezogen:
+          "Ein Glied dreht sich nie durch" stand bis 2026-09 als eigener
+          Abschnitt mit Eyebrow und H3 da, ein Rest aus der Zeit, als hier
+          noch eine eigene Animation und ein Rechner sassen (beide entfernt).
+          Als reiner Textabsatz in H2-Rahmung war das zu schwer fuer eine
+          einzelne Beobachtung, die ausserdem keine vierte Kontaktzone ist,
+          sondern eine Eigenschaft, die in allen drei Zonen gilt (staerkste
+          Auspraegung in Zone 03, siehe deren Beschreibung oben). Beide
+          Gedanken — Paraffin ist bei hohem Druck nur durchschnittlich,
+          und jede Bewegung startet bei null gegen die Haftreibung — sind
+          jetzt eine Pointe mit Akzentlinie statt zwei Bloecke mit eigener
+          Typo-Hierarchie. */}
+      <div className="mt-8 pl-4 max-w-2xl" style={{ borderLeft: '2px solid var(--accent)' }}>
+        <p className="text-[14.5px] leading-relaxed text-wx-tx2">
+          {de
+            ? 'Paraffin allein ist unter hohem Druck übrigens nur durchschnittlich. Sein Vorteil entsteht bei niedriger Last und beim Losbrechen — und bei jedem Stillstand: Ein Kettenglied dreht sich nie durch, es kippt auf und wieder zurück. Jede Bewegung beginnt bei null und muss zuerst die Haftreibung überwinden, bevor ein Flüssigfilm überhaupt schert. Ein fester Film sitzt schon in der Oberflächenrauheit, statt erst geschert werden zu müssen. Genau deshalb besteht die Formel aus sechs Komponenten und nicht aus einer.'
+            : 'Paraffin on its own is merely average under high pressure. Its advantage appears at low load and on breakaway — and at every standstill: a chain link never turns all the way round, it articulates open and back again. Every movement starts from zero and has to break static friction before a liquid film even shears. A solid film already sits in the surface roughness instead of needing to be sheared first. That is exactly why the formula has six components and not one.'}
+        </p>
+      </div>
       {onToFormula && (
         <button type="button" onClick={onToFormula}
-          className="inline-flex items-center gap-2 mt-4 text-[13px] font-semibold transition-opacity hover:opacity-75"
+          className="inline-flex items-center gap-2 mt-5 text-[13px] font-semibold transition-opacity hover:opacity-75"
           style={{ color: 'var(--tx1)' }}>
           {de ? 'Zur Formel' : 'To the formula'}
           <span aria-hidden style={{ color: 'var(--accent)' }}>→</span>
         </button>
       )}
-
-      <div className="mt-10 sm:mt-12 max-w-2xl">
-        <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
-          {de ? 'Und dazwischen: Stillstand' : 'And in between: standstill'}
-        </p>
-        <h3 className="font-display font-bold text-wx-tx1 leading-tight tracking-[-0.02em]"
-          style={{ fontSize: 'clamp(1.5rem, 3vw, 2.1rem)' }}>
-          {de ? 'Ein Glied dreht sich nie durch.' : 'A link never turns all the way round.'}
-        </h3>
-        <p className="text-[15px] leading-relaxed text-wx-tx2 mt-4 max-w-[44ch]">
-          {de
-            ? 'Es kippt auf und wieder zurück. Jede Bewegung beginnt bei null und muss zuerst die Haftreibung überwinden. Ein fester Film sitzt in der Oberflächenrauheit, statt zwei Flächen aneinander zu kleben.'
-            : 'It articulates open and back again. Every movement starts from zero and has to break static friction first. A solid film sits in the surface roughness instead of sticking two faces together.'}
-        </p>
-      </div>
     </section>
   );
 }
