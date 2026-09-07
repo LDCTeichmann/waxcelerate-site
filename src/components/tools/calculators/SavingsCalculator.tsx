@@ -1,22 +1,26 @@
 // ── Rotation & Ersparnis ────────────────────────────────────────────────────
 //
-// Drei Korrekturen gegenueber der ersten Fassung:
+// Vier Korrekturen gegenueber frueheren Fassungen:
 //  1. Der eigene km/Jahr-Slider ist weg. Er schrieb dieselbe Zahl wie der
 //     km/Woche-Slider, nur in anderer Einheit — zwei Regler fuer dieselbe
 //     Groesse an zwei Stellen. Die Kilometer kommen jetzt einmal aus der
 //     Profilleiste.
 //  2. Die Annahmen liegen in waxMath und stehen unter der Karte offen. Ein
 //     Spar-Rechner auf der Seite des Verkaeufers ist sonst nur eine Behauptung.
-//  3. Statt drei Karten mit bis zu fuenfzehn Zahlen gleichzeitig gibt es eine
-//     Auswahl aus drei Knoepfen und darunter EIN Ergebnis. Man vergleicht durch
-//     Umschalten, nicht durch Danebenlegen — das war die Beanstandung „zu viele
-//     Zahlen, unklar was welche bedeutet".
+//  3. Der Kassettenschutz stand bisher nur als ein Satz im Popover — jetzt
+//     zeigt eine Skizze den Unterschied (CassetteWearDiagram), und der
+//     Vergleich in Schritt 2 stellt drei Groessen gegen die Ein-Ketten-Basis:
+//     Kosten, Sessions, Zeit.
+//  4. Der staerkste Rotationsgrund fehlte komplett: eine Wachs-Session dauert
+//     rund 20 Minuten, egal ob eine Kette oder drei gleichzeitig im Topf sind
+//     (waxMath.WAX_SESSION_MINUTES). Der Zeitgewinn steht jetzt als Balken im
+//     Ergebnis — er ist unmittelbarer als jeder Eurobetrag.
 
 import { useState } from 'react';
 import { RotateCcw } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import type { ToolProfileState } from '@/hooks/useToolProfile';
-import { drivetrainCosts, medianChainPrice } from '@/lib/waxMath';
+import { drivetrainCosts, medianChainPrice, waxHoursPerYear } from '@/lib/waxMath';
 import { dueDate, shareUrl } from '@/lib/toolState';
 import { MAX_REWAX_WEEKS } from '@/hooks/useToolProfile';
 import { AnimatedNumber } from '@/components/viz';
@@ -24,6 +28,7 @@ import {
   ToolCard, ToolHeader, StepList, ToolFooter, ToolCTA, TogButton, ChipRow, StepNote, InfoPopover,
 } from '@/components/tools/primitives';
 import { StepField } from '@/components/tools/StepField';
+import { CassetteWearDiagram } from '@/components/tools/diagrams';
 import { ResultPanel } from '@/components/tools/ResultPanel';
 import { ResultActions } from '@/components/tools/ResultActions';
 
@@ -41,6 +46,10 @@ export function SavingsCalculator({ profile }: { profile: ToolProfileState }) {
   const [chains, setChains] = useState<1 | 2 | 3>(recommended);
 
   const costs = drivetrainCosts({ kmPerYear, rewaxKm: profile.interval, chains });
+  const base = drivetrainCosts({ kmPerYear, rewaxKm: profile.interval, chains: 1 });
+  const hoursN = waxHoursPerYear(costs.waxSessionsPerYear, chains);
+  const hours1 = waxHoursPerYear(base.waxSessionsPerYear, 1);
+
   const weeksBetween = Math.min((chains * profile.interval) / profile.kmPerWeek, MAX_REWAX_WEEKS);
   const { date: next, overdue } = dueDate(profile.lastWaxedDate, Math.round(weeksBetween));
   const nextLabel = overdue
@@ -48,6 +57,7 @@ export function SavingsCalculator({ profile }: { profile: ToolProfileState }) {
     : next.toLocaleDateString(de ? 'de-DE' : 'en-GB', { day: 'numeric', month: 'short' });
 
   const eur = (n: number) => `€${n.toLocaleString(de ? 'de-DE' : 'en-US')}`;
+  const chainWord = (n: number) => de ? (n === 1 ? 'Kette' : 'Ketten') : (n === 1 ? 'chain' : 'chains');
 
   // Die laufenden Kosten je Kilometer enthalten die Ketten bereits korrekt.
   // Was bisher fehlte, war die Ansage, dass zwei Zusatzketten erst einmal
@@ -58,10 +68,13 @@ export function SavingsCalculator({ profile }: { profile: ToolProfileState }) {
   const extraChains = chains - 1;
   const upfront = Math.round(extraChains * medianChainPrice * (1 - KIT_DISCOUNT[chains] / 100));
 
-  const goToChains = () => {
-    document.querySelector('#produkte')?.scrollIntoView({ behavior: 'smooth' });
-    window.dispatchEvent(new CustomEvent('wax:selectTab', { detail: 'chain' }));
-  };
+  // Deep-Link auf die zum Fahrprofil passenden Ketten — dieselbe Matrix wie
+  // der „Welche Kette passt?"-Rechner (ChainMatchCalculator), statt des
+  // frueheren Events ohne Nutzlast.
+  const system = profile.system ?? 'shimano';
+  const speed = profile.speed ?? 12;
+  const speedKey: '11' | '12' = speed === 11 ? '11' : '12';
+  const deepLink = `/?ketten=${system}-${speedKey}#produkt-liste`;
 
   const rotationWeeks = Math.max(1, Math.round(weeksBetween));
   const shareLink = shareUrl('/rechner/ersparnis', profile.snapshot);
@@ -74,6 +87,18 @@ export function SavingsCalculator({ profile }: { profile: ToolProfileState }) {
     repeatWeeks: rotationWeeks,
     url: shareLink,
   };
+
+  const maxHours = Math.max(hours1, hoursN, 0.1);
+  const hourFmt = (h: number) => h.toLocaleString(de ? 'de-DE' : 'en-US', { maximumFractionDigits: 1, minimumFractionDigits: h < 10 ? 1 : 0 });
+  const hourBar = (label: string, hours: number, color: string) => (
+    <div className="flex items-center gap-2">
+      <span className="text-meta w-14 flex-shrink-0" style={{ color: 'var(--txff)' }}>{label}</span>
+      <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: 'var(--inset-bd)' }}>
+        <div className="h-full rounded-full" style={{ width: `${(hours / maxHours) * 100}%`, background: color }} />
+      </div>
+      <span className="text-[12px] font-medium tabular-nums flex-shrink-0" style={{ color: 'var(--tx2)' }}>{hourFmt(hours)} h</span>
+    </div>
+  );
 
   return (
     <ToolCard>
@@ -97,37 +122,52 @@ export function SavingsCalculator({ profile }: { profile: ToolProfileState }) {
           <ChipRow>
             {CHAIN_COUNTS.map(n => (
               <TogButton key={n} active={chains === n} onClick={() => setChains(n)}>
-                {n} {de ? (n === 1 ? 'Kette' : 'Ketten') : (n === 1 ? 'chain' : 'chains')}
+                {n} {chainWord(n)}
                 {KIT_DISCOUNT[n] > 0 && ` · −${KIT_DISCOUNT[n]}%`}
               </TogButton>
             ))}
           </ChipRow>
         </StepField>
 
+        {/* Der Kassettenschutz stand bisher nur als Satz im Popover — die
+            Skizze macht in einem Blick klar, warum eine Kassette laenger
+            haelt, wenn keine Kette lange stark gelaengt bleibt. */}
+        <div className="max-w-[280px] mx-auto w-full">
+          <CassetteWearDiagram de={de} />
+        </div>
+
         <StepField
           step={2}
-          label={de ? 'Was es dich im Jahr kostet' : 'What it costs you per year'}
+          label={de ? 'Gegenüber einer Kette' : 'Versus a single chain'}
         >
-          <div className="flex flex-col gap-1.5">
-            <div className="flex items-baseline justify-between gap-3">
-              <span className="text-[13px]" style={{ color: 'var(--txf)' }}>
-                {de ? 'Mit Wachs' : 'With wax'}
-              </span>
-              <span className="text-[13px] font-medium tabular-nums" style={{ color: 'var(--brand)' }}>{eur(costs.waxPerYear)}</span>
+          {chains === 1 ? (
+            <StepNote>{t.tools.rotation.basisNote}</StepNote>
+          ) : (
+            <div className="flex flex-col gap-1.5">
+              <div className="flex items-baseline justify-between gap-3">
+                <span className="text-[13px]" style={{ color: 'var(--txf)' }}>{t.tools.rotation.costPerYear}</span>
+                <span className="text-[13px] tabular-nums" style={{ color: 'var(--tx2)' }}>
+                  {eur(base.waxPerYear)} → <span className="font-medium" style={{ color: 'var(--brand)' }}>{eur(costs.waxPerYear)}</span>
+                </span>
+              </div>
+              <div className="flex items-baseline justify-between gap-3">
+                <span className="text-[13px]" style={{ color: 'var(--txf)' }}>{t.tools.rotation.sessionsLabel}</span>
+                <span className="text-[13px] tabular-nums" style={{ color: 'var(--tx2)' }}>
+                  {base.waxSessionsPerYear}× → <span className="font-medium" style={{ color: 'var(--brand)' }}>{costs.waxSessionsPerYear}×</span>
+                </span>
+              </div>
+              <div className="flex items-baseline justify-between gap-3">
+                <span className="text-[13px]" style={{ color: 'var(--txf)' }}>{t.tools.rotation.timeLabel}</span>
+                <span className="text-[13px] tabular-nums" style={{ color: 'var(--tx2)' }}>
+                  {hourFmt(hours1)} h → <span className="font-medium" style={{ color: 'var(--brand)' }}>{hourFmt(hoursN)} h</span>
+                </span>
+              </div>
             </div>
-            <div className="flex items-baseline justify-between gap-3">
-              <span className="text-[13px]" style={{ color: 'var(--txf)' }}>
-                {de ? 'Mit Kettenöl' : 'With chain oil'}
-              </span>
-              <span className="text-[13px] font-medium tabular-nums" style={{ color: 'var(--tx2)' }}>{eur(costs.oilPerYear)}</span>
-            </div>
-          </div>
+          )}
         </StepField>
 
-        {/* Empfehlungs-Begruendung, Kostenerklaerung und der (nur bei mehr als
-            einer Kette anfallende) Aufpreis-Hinweis an einer Stelle statt drei
-            — als Popover, damit die Karte nicht je nach gewaehlter Kettenzahl
-            unterschiedlich hoch wird. */}
+        {/* Empfehlungs-Begruendung und Termin an einer Stelle — der
+            Aufpreis-Hinweis steht jetzt als Kennzahl im Ergebnis (Vorab). */}
         <InfoPopover
           ariaLabel={de ? 'Details zur Rotation' : 'Details on rotation'}
           trigger={() => (
@@ -138,8 +178,8 @@ export function SavingsCalculator({ profile }: { profile: ToolProfileState }) {
         >
           <StepNote>
             {de
-              ? `Bei ${kmPerYear.toLocaleString('de-DE')} km im Jahr empfehlen wir ${recommended} ${recommended === 1 ? 'Kette' : 'Ketten'}.`
-              : `At ${kmPerYear.toLocaleString('en-US')} km a year we suggest ${recommended} ${recommended === 1 ? 'chain' : 'chains'}.`}
+              ? `Bei ${kmPerYear.toLocaleString('de-DE')} km im Jahr empfehlen wir ${recommended} ${chainWord(recommended)}.`
+              : `At ${kmPerYear.toLocaleString('en-US')} km a year we suggest ${recommended} ${chainWord(recommended)}.`}
           </StepNote>
           <StepNote>
             {de
@@ -149,32 +189,36 @@ export function SavingsCalculator({ profile }: { profile: ToolProfileState }) {
           <StepNote>
             {de ? `Nächstes Waxen: ${nextLabel}.` : `Next wax: ${nextLabel}.`}
           </StepNote>
-          {extraChains > 0 && (
-            <StepNote>
-              {(KIT_DISCOUNT[chains] > 0 ? t.tools.rotation.upfrontNoteKit : t.tools.rotation.upfrontNote)
-                .replace('{n}', String(extraChains))
-                .replace('{sum}', eur(upfront))
-                .replace('{pct}', String(KIT_DISCOUNT[chains]))}
-            </StepNote>
-          )}
         </InfoPopover>
       </StepList>
 
       <ResultPanel
         value={<AnimatedNumber value={costs.savingsPerYear} prefix="€" />}
         unit={de ? 'gespart/Jahr' : 'saved/yr'}
-        verdict={de
-          ? `Mit ${chains} ${chains === 1 ? 'Kette' : 'Ketten'} bei ${kmPerYear.toLocaleString('de-DE')} km im Jahr — ${costs.savingsPct} % weniger als mit Kettenöl.`
-          : `With ${chains} ${chains === 1 ? 'chain' : 'chains'} at ${kmPerYear.toLocaleString('en-US')} km a year — ${costs.savingsPct} % less than chain oil.`}
+        hero={chains > 1 ? (
+          <div className="flex flex-col gap-1">
+            {hourBar('1 ' + (de ? 'Kette' : 'chain'), hours1, 'var(--txf)')}
+            {hourBar(`${chains} ${chainWord(chains)}`, hoursN, 'var(--brand)')}
+          </div>
+        ) : undefined}
+        verdict={chains > 1
+          ? t.tools.rotation.resultVerdict
+            .replace('{chains}', `${chains} ${chainWord(chains)}`)
+            .replace('{sessionsN}', String(costs.waxSessionsPerYear))
+            .replace('{sessions1}', String(base.waxSessionsPerYear))
+          : (de
+            ? `Mit 1 Kette bei ${kmPerYear.toLocaleString('de-DE')} km im Jahr — ${costs.savingsPct} % weniger als mit Kettenöl.`
+            : `With 1 chain at ${kmPerYear.toLocaleString('en-US')} km a year — ${costs.savingsPct} % less than chain oil.`)}
         tone="good"
         facts={[
-          { label: de ? 'Waxen' : 'Waxing', value: `${costs.waxSessionsPerYear}× ${de ? 'im Jahr' : 'a year'}` },
+          ...(chains > 1 ? [{ label: t.tools.rotation.upfront, value: eur(upfront) }] : []),
+          { label: t.tools.rotation.vsOil, value: `−${costs.savingsPct}%` },
         ]}
         actions={<ResultActions shareUrl={shareLink} event={reminder} />}
       />
 
       <ToolFooter>
-        <ToolCTA onClick={goToChains}>
+        <ToolCTA href={deepLink}>
           {de
             ? chains === 1 ? 'Einzelkette ansehen →' : `${chains}-Ketten-Kit ansehen · ${KIT_DISCOUNT[chains]}% Rabatt →`
             : chains === 1 ? 'View single chain →' : `View ${chains}-chain kit · ${KIT_DISCOUNT[chains]}% off →`}

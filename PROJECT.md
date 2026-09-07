@@ -76,6 +76,8 @@ Kurz halten. Erledigtes wandert nach unten in den Log.
 - **Kaufweg:** eBay bis der Stripe-Checkout steht, geplant Sonntag oder Montag.
 - **Startseitenlänge:** Rechner, Anleitungen und FAQ stehen nach dem Kaufangebot. Vorschlag in `docs/AUDIT.md`, bewusst noch nicht umgesetzt.
 - **66 Gedankenstriche** als Satzzeichen in `src/lib/data.ts` sind noch nicht bereinigt. (Stand 11.08.2026 nachgezählt, vorher stand hier 57.)
+- **`WAX_CHAIN_KM` im Ersparnis-Rechner** (`src/lib/waxMath.ts`, `[6000, 8500, 10500]` für 1/2/3 rotierte Ketten) unterstellt, dass eine einzelne Kette allein durchs Rotieren 75 % mehr Kilometer schafft. Physikalisch schont Rotation vor allem die Kassette und verlängert die Kalenderzeit bis zum Tausch — wie viele Kilometer eine Kette bis zur Verschleißgrenze schafft, ändert sich dadurch kaum. Bei der Rechner-Überarbeitung (Kettenwachs-Rechner, 07.09.2026) bewusst nicht angetastet, weil eine Korrektur jeden Sparbetrag der Seite nach unten verschieben würde — Luca muss das separat entscheiden.
+- **Trockenintervall-FAQ vs. Rotations-FAQ:** die „Wann muss ich rewaxen"-FAQ nennt jetzt 300 km als Empfehlung (400–500 km als das, was auch noch hält), die Rotations-FAQ („Warum lohnen sich mehrere Ketten") rechnet ihr Beispiel weiterhin mit 400–500 km als Einzelketten-Basis (1.200–1.800 km bei drei Ketten). Nur die erste wurde bei der Rechner-Überarbeitung angeglichen; die zweite absichtlich nicht, um nicht in einer Session zwei verschiedene Zahlenkorrekturen an FAQ-Texten vorzunehmen.
 
 Am 11.08.2026 aus dieser Liste entfernt, weil beim Nachprüfen längst erledigt:
 `chain-dirty.jpg` existiert nicht mehr, und die Starter-Sets sind live —

@@ -11,34 +11,43 @@
 // Leerflaeche zwischen Bedienelementen und Knopf stand, und trennt zugleich
 // sichtbar „was ich eingebe" von „was dabei herauskommt".
 //
+// Feste Geometrie statt nur fester Reihenfolge: `mt-auto` sitzt jetzt an
+// diesem Block, nicht mehr nur an ToolFooter — der freie Raum sammelt sich
+// dadurch IMMER ueber dem Ergebnis, nie darunter, und die Oberkante des
+// Ergebnisblocks liegt in allen sechs Karten auf derselben Hoehe, egal wie
+// viele Eingabeschritte darueber stehen. Der Urteilssatz bekommt dafuer eine
+// feste Zwei-Zeilen-Hoehe (`min-h` + `line-clamp-2`) und die Kennzahl-Zeile
+// wird immer gerendert (bis zu zwei Eintraege nebeneinander) — sonst aendert
+// sich die Blockhoehe selbst noch von Rechner zu Rechner.
+//
 // Weniger Zahlen gleichzeitig: genau eine grosse Zahl, ein Satz Klartext dazu,
-// hoechstens eine Zusatzangabe. Alles Weitere gehoert nicht ins Ergebnis,
-// sondern in ein Popover oder auf die Rechner-Einzelseite. Frueher waren bis
-// zu zwei Fakten erlaubt und `children` stand offen fuer beliebig lange
-// Listen (siehe ChainMatchCalculator) — beides liess die Karte je nach
-// Datenlage unterschiedlich hoch werden, was der festen Kartenhoehe im Deck
-// (ToolTrack.tsx) widerspricht.
+// hoechstens zwei Zusatzangaben. Alles Weitere gehoert nicht ins Ergebnis,
+// sondern in ein Popover oder auf die Rechner-Einzelseite.
 
 export type ResultTone = 'neutral' | 'good' | 'warn';
 
 export function ResultPanel({
-  value, unit, verdict, facts, tone = 'neutral', actions,
+  value, unit, verdict, facts, tone = 'neutral', actions, hero,
 }: {
   /** Die eine grosse Zahl. Node, damit AnimatedNumber hineinpasst. */
   value: React.ReactNode;
   unit?: string;
-  /** Ein Satz Klartext: was die Zahl bedeutet und was zu tun ist. */
+  /** Ein bis zwei Saetze Klartext: was die Zahl bedeutet und was zu tun ist. */
   verdict?: React.ReactNode;
-  /** Nur der erste Eintrag wird angezeigt — die wichtigste Zusatzangabe zuerst. */
+  /** Bis zu zwei Eintraege, nebeneinander. */
   facts?: { label: string; value: string }[];
   tone?: ResultTone;
   actions?: React.ReactNode;
+  /** Schmaler Streifen zwischen der grossen Zahl und dem Urteil, z. B. ein
+      Balkenvergleich. Optional — nur zwei Karten (Umstieg, Ersparnis)
+      nutzen ihn, und verzichten dafuer auf die zweite Kennzahl. */
+  hero?: React.ReactNode;
 }) {
-  const fact = facts?.[0];
+  const shownFacts = (facts ?? []).slice(0, 2);
   const accent = tone === 'neutral' ? 'var(--tx1)' : 'var(--brand)';
   return (
     <div
-      className="mx-4 mb-4 sm:mx-5 sm:mb-5 rounded-2xl px-4 py-4 sm:px-5 sm:py-5"
+      className="mt-auto mx-4 mb-4 sm:mx-5 sm:mb-5 rounded-2xl px-4 py-4 sm:px-5 sm:py-5"
       style={{
         background: tone === 'neutral' ? 'var(--inset-bg)' : 'rgba(var(--accent-rgb),0.07)',
         border: tone === 'neutral' ? '1px solid var(--inset-bd)' : '1px solid rgba(var(--accent-rgb),0.28)',
@@ -55,16 +64,23 @@ export function ResultPanel({
         )}
       </div>
 
-      {verdict && (
-        <p className="text-[13px] leading-snug mt-2" style={{ color: 'var(--tx2)' }}>
-          {verdict}
-        </p>
-      )}
+      {hero && <div className="mt-3">{hero}</div>}
 
-      {fact && (
-        <dl className="flex items-baseline gap-1.5 mt-3 pt-3" style={{ borderTop: '1px solid var(--inset-bd)' }}>
-          <dt className="text-meta" style={{ color: 'var(--txff)' }}>{fact.label}</dt>
-          <dd className="text-[12px] font-medium tabular-nums" style={{ color: 'var(--tx2)' }}>{fact.value}</dd>
+      <p className="text-[13px] leading-snug mt-2 line-clamp-2 min-h-[2.6em]" style={{ color: 'var(--tx2)' }}>
+        {verdict}
+      </p>
+
+      {shownFacts.length > 0 && (
+        <dl
+          className="grid gap-x-3 gap-y-2 mt-3 pt-3"
+          style={{ borderTop: '1px solid var(--inset-bd)', gridTemplateColumns: `repeat(${shownFacts.length}, minmax(0,1fr))` }}
+        >
+          {shownFacts.map(f => (
+            <div key={f.label} className="min-w-0">
+              <dt className="text-meta truncate" style={{ color: 'var(--txff)' }}>{f.label}</dt>
+              <dd className="text-[12px] font-medium tabular-nums truncate" style={{ color: 'var(--tx2)' }}>{f.value}</dd>
+            </div>
+          ))}
         </dl>
       )}
 

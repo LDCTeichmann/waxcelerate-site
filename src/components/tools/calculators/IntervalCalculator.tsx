@@ -3,6 +3,12 @@
 // Wetter, Gelaende und Wochenkilometer fragt die Profilleiste ueber dem Stapel;
 // hier bleibt nur, was wirklich nur hierher gehoert: wann zuletzt gewachst
 // wurde. Und das Ergebnis endet nicht in einer Zahl, sondern in einem Termin.
+//
+// „3 Wochen" allein ist zweideutig — alle drei Wochen, oder in drei Wochen?
+// Die Einheit sagt es jetzt dazu („Wochen bis zum Waxen"), der Urteilssatz
+// nennt zuerst das Datum und danach den Rhythmus, und beide Lesarten stehen
+// zusaetzlich als eigene Kennzahl da (vorher verwarf ResultPanel den zweiten
+// von zwei Fakten stillschweigend, siehe ResultPanel.tsx).
 
 import { useMemo, useState } from 'react';
 import { Calculator } from 'lucide-react';
@@ -12,7 +18,7 @@ import type { ToolProfileState } from '@/hooks/useToolProfile';
 import { addWeeks, isoDate, shareUrl, dueDate } from '@/lib/toolState';
 import { AnimatedNumber } from '@/components/viz';
 import {
-  ToolCard, ToolHeader, StepList, ToolFooter, ToolCTA, TogButton, ChipRow,
+  ToolCard, ToolHeader, StepList, ToolFooter, ToolCTA, TogButton, ChipRow, StepNote, InfoPopover,
 } from '@/components/tools/primitives';
 import { StepField } from '@/components/tools/StepField';
 import { ResultPanel } from '@/components/tools/ResultPanel';
@@ -46,17 +52,14 @@ export function IntervalCalculator({ profile }: { profile: ToolProfileState }) {
     () => dueDate(lastWaxedDate, weeks), [weeks, lastWaxedDate],
   );
 
-  // Die grosse Zahl beantwortet jetzt die Frage der Karte — „wann muss ich
-  // rewaxen" — und nicht mehr die Nebenfrage „wie lang ist mein Intervall".
-  // Vorher zeigte sie das Intervall, das sich durch den einzigen Schritt dieser
-  // Karte gar nicht aendern kann: wer „vor zwei Wochen" waehlte, sah weiter
-  // dieselben drei Wochen stehen. Das Intervall steht jetzt als Kennzahl
-  // daneben, wo es hingehoert.
+  // Die grosse Zahl beantwortet die Frage der Karte — „wann muss ich
+  // rewaxen" —, aber „3 Wochen" allein ist zweideutig: alle drei Wochen,
+  // oder erst in drei Wochen wieder? Die Einheit sagt es jetzt dazu.
   const remaining: { value: React.ReactNode; unit: string } =
     overdue ? { value: '!', unit: de ? 'überfällig' : 'overdue' }
     : daysLeft < 7
-      ? { value: daysLeft, unit: daysLeft === 1 ? (de ? 'Tag' : 'day') : (de ? 'Tage' : 'days') }
-      : { value: weeksLeft, unit: weeksLeft === 1 ? (de ? 'Woche' : 'week') : (de ? 'Wochen' : 'weeks') };
+      ? { value: daysLeft, unit: daysLeft === 1 ? (de ? 'Tag bis zum Waxen' : 'day to go') : (de ? 'Tage bis zum Waxen' : 'days to go') }
+      : { value: weeksLeft, unit: weeksLeft === 1 ? (de ? 'Woche bis zum Waxen' : 'week to go') : (de ? 'Wochen bis zum Waxen' : 'weeks to go') };
   const dateLabel = nextDate.toLocaleDateString(de ? 'de-DE' : 'en-GB', { day: 'numeric', month: 'long' });
   // Eine Erinnerung in der Vergangenheit ist keine Erinnerung.
   const reminderDate = overdue ? new Date() : nextDate;
@@ -130,6 +133,23 @@ export function IntervalCalculator({ profile }: { profile: ToolProfileState }) {
             </div>
           )}
         </StepField>
+
+        {/* Warum 300 km: die Empfehlung ist ein Optimum, keine harte Grenze —
+            sonst liest sich „nach 3 Wochen" wie eine Verschleissgrenze. */}
+        <InfoPopover
+          ariaLabel={de ? 'Warum 300 km' : 'Why 300 km'}
+          trigger={() => (
+            <span className="text-[12px] font-medium" style={{ color: 'var(--brand)' }}>
+              {de ? 'Warum 300 km bei trockener Straße?' : 'Why 300 km on dry roads?'}
+            </span>
+          )}
+        >
+          <StepNote>
+            {de
+              ? '300 km bei trockener Straße ist die Empfehlung fürs Optimum, keine Verschleißgrenze. Eine Kette läuft auch mal 400 bis 500 km — nur eben nicht mehr im besten Zustand. Nach Regenfahrten deutlich früher.'
+              : '300 km on dry roads is the recommendation for the best result, not a wear limit. A chain will also run 400 to 500 km — just no longer in peak condition. After riding in rain, much sooner.'}
+          </StepNote>
+        </InfoPopover>
       </StepList>
 
       <ResultPanel
@@ -142,15 +162,15 @@ export function IntervalCalculator({ profile }: { profile: ToolProfileState }) {
             ? 'Die Kette war rechnerisch schon dran. Der Kalendereintrag setzt deshalb auf heute.'
             : 'By this calculation the chain was already due. The calendar entry is set to today.')
           : (de
-            ? `Bis dahin noch fahren — nächstes Waxen etwa am ${dateLabel}.`
-            : `Ride until then — next wax around ${dateLabel}.`)}
+            ? `Nächstes Waxen etwa am ${dateLabel}. Danach alle ${weeks} ${weeks === 1 ? 'Woche' : 'Wochen'} wieder — das sind ${interval} km bei deinem Profil.`
+            : `Next wax around ${dateLabel}. After that, every ${weeks} ${weeks === 1 ? 'week' : 'weeks'} again — that is ${interval} km on your profile.`)}
         tone="good"
         facts={[
-          {
-            label: de ? 'Dein Intervall' : 'Your interval',
-            value: `${weeks} ${weeks === 1 ? (de ? 'Woche' : 'week') : (de ? 'Wochen' : 'weeks')}${weeksCapped ? ' max.' : ''} · ${interval} km`,
-          },
           { label: de ? 'Termin' : 'Date', value: overdue ? (de ? 'jetzt' : 'now') : dateLabel },
+          {
+            label: de ? 'Rhythmus' : 'Rhythm',
+            value: `${de ? 'alle' : 'every'} ${weeks} ${weeks === 1 ? (de ? 'Woche' : 'week') : (de ? 'Wochen' : 'weeks')}${weeksCapped ? ' max.' : ''}`,
+          },
         ]}
         actions={<ResultActions
           shareUrl={url}

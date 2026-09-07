@@ -220,6 +220,13 @@ export const translations = {
         upfront: 'Vorab',
         upfrontNote: '{n} Ketten mehr im Regal kosten {sum} auf einmal. Über die Laufzeit zahlst du dafür nicht mehr — die Ketten verschleißen langsamer und halten entsprechend länger. Du legst früher aus, nicht mehr.',
         upfrontNoteKit: '{n} Ketten mehr im Regal kosten {sum} auf einmal, im Kit mit {pct} % Rabatt. Über die Laufzeit zahlst du dafür nicht mehr — du legst früher aus, nicht mehr.',
+        costPerYear: 'Kosten im Jahr',
+        sessionsLabel: 'Wachs-Sessions',
+        timeLabel: 'Zeit im Jahr',
+        basisNote: 'Basis — schalte auf 2 oder 3 Ketten um, um den Unterschied zu sehen.',
+        heroUnit: 'Schrauberzeit im Jahr',
+        resultVerdict: '{chains} im Wechsel: {sessionsN} statt {sessions1} Wachs-Sessions im Jahr, und die Kassette sieht nie eine stark gelängte Kette.',
+        vsOil: 'Gegenüber Öl',
       },
 
       // Bausteine, die in mehreren Rechnern vorkommen
@@ -268,7 +275,7 @@ export const translations = {
         helpMeasured: 'Kette straff ziehen und über 12 volle Glieder messen, von Bolzenmitte zu Bolzenmitte. Neu sind das genau 12 Zoll, also 304,8 mm. Alles darüber ist Längung: 1/16 Zoll (rund 1,5 mm) darüber sind 0,5 %, 1/8 Zoll (rund 3 mm) sind 1,0 %.',
         enterValue: 'Miss über 12 Glieder und trag den Wert ein.',
         overshoot: '{mm} mm über der Neulänge von 304,8 mm.',
-        gaugeWarning: 'Achtung bei billigen Lehren: Modelle, die nur zwischen zwei Rollen greifen, messen das Spiel der Rollen mit und zeigen deshalb zu viel Verschleiß an. Nimm eine Drei-Punkt-Lehre, und für 11- und 12-fach eine mit 0,5-Prozent-Marke — viele billige messen nur 0,75 % und 1,0 %.',
+        gaugeWarning: 'Achtung bei billigen Lehren: Modelle, die nur zwischen zwei Rollen greifen, messen das Spiel der Rollen mit und zeigen so schon an einer neuen Kette rund 0,25 % an. Lehren, die die Rollen in eine Richtung drücken, zeigen nur die Längung der Bolzen — das ist der Wert, auf den es ankommt. Nimm eine Drei-Punkt-Lehre, und für 11- und 12-fach eine mit 0,5-Prozent-Marke — viele billige messen nur 0,75 % und 1,0 %.',
         cta: 'Passende Kette finden →',
       },
 
@@ -288,10 +295,13 @@ export const translations = {
         helpSprocket: 'Das größte, innerste Ritzel hinten am Laufrad. Steht oft auf der Kassettenverpackung, zum Beispiel als „11-34" — die 34 ist der Wert.',
         crossCheck: 'Groß-Groß-Probe: Kette ums größte Kettenblatt und größte Ritzel legen, aber nicht durchs Schaltwerk führen, straff ziehen, überlappende Stelle markieren und zwei Glieder zugeben. Bei langem Schaltwerkskäfig oder Vollfederung ist diese Probe verlässlicher als jede Formel.',
         onlyDerailleur: 'Gilt für Kettenschaltungen. Für Nabenschaltung oder Singlespeed gelten andere Regeln.',
-        shorten: 'Zu kürzen',
-        shortenValue: '{n} Glieder von einer {from}er-Kette',
         shortenNote: 'Unsere vorgewachsten Ketten kommen mit {lengths} Gliedern. Kürzen schadet dem Wachs nicht — der Film sitzt in der Kette, nicht außen darauf.',
         tooShort: 'Deine Rechnung liegt über unserer längsten Kette. Prüf die Eingaben, oder schreib uns.',
+        buyLinks: 'Glieder kaufen',
+        resultVerdict: 'Deine Rechnung ergibt {links} Glieder. Von einer {from}er-Kette nimmst du {n} Glieder ab — Kettenschloss inklusive.',
+        factCalculated: 'Rechnerisch',
+        factRemove: 'Abnehmen',
+        countOldChain: 'Kein Maßband? Zähl die Glieder deiner alten Kette — das ist der genauere Weg.',
         cta: 'Vorgewachste Ketten ansehen →',
       },
 
@@ -332,6 +342,13 @@ export const translations = {
         potNote: 'Ein Topf ist nicht eingerechnet: ein alter Reiskocher oder Slow Cooker reicht, und den haben die meisten schon.',
         degreaseNote: 'Nicht eingerechnet, aber der eigentliche Knackpunkt: deine bisherige Kette muss vollständig entfettet werden, sonst nimmt sie kein Wachs an. Das kostet einen Abend und etwas Isopropanol.',
         degreaseAlt: 'Vorgewachste Kette ansehen — spart den Schritt →',
+        waxSizeNote: 'Der 300er ist im Einstieg günstiger, kostet dich je Wachsung aber mehr.',
+        perYearLess: 'weniger im Jahr',
+        resultVerdict: 'Kette und Kassette halten mit Wachs deutlich länger. Das Wachs selbst kostet mehr als Öl — unterm Strich zahlst du {savings} weniger im Jahr.',
+        toolingPaidOff: 'Werkzeug drin nach',
+        breakdownChain: 'Kette',
+        breakdownCassette: 'Kassette',
+        breakdownLube: 'Schmierstoff',
         cta: 'Starter-Set ansehen →',
       },
     },
@@ -395,7 +412,7 @@ export const translations = {
         },
         {
           q: 'Wie viele Kilometer hält eine gewachste Kette — und woran merke ich, wann ich rewaxen muss?',
-          a: 'Bei trockenen Bedingungen alle 400–500 km rewaxen, bei Nässe oder MTB alle 200–300 km. Das zuverlässigste Signal: der Antrieb klingt trockener oder die Kette läuft weniger geschmeidig als gewohnt — manchmal ein leises Kratzen oder Quietschen. Hör einfach hin, du wirst es merken. Das Gesamtleben der Kette ist eine andere Zahl: eine gut gepflegte gewachste Kette hält 6.000–12.000 km oder mehr — geölte Ketten oft nur 2.000–3.000 km, weil Schmutz den Antrieb von innen abschleift.',
+          a: 'Bei trockenen Bedingungen empfehlen wir alle 300 km zu rewaxen, das ist das Optimum — die Kette läuft auch mal 400–500 km weiter, dann aber nicht mehr im besten Zustand. Bei Nässe oder MTB alle 200–300 km. Das zuverlässigste Signal: der Antrieb klingt trockener oder die Kette läuft weniger geschmeidig als gewohnt — manchmal ein leises Kratzen oder Quietschen. Hör einfach hin, du wirst es merken. Das Gesamtleben der Kette ist eine andere Zahl: eine gut gepflegte gewachste Kette hält 6.000–12.000 km oder mehr — geölte Ketten oft nur 2.000–3.000 km, weil Schmutz den Antrieb von innen abschleift.',
         },
         {
           q: 'Wie viele Watt spart Heißwachs im Vergleich zu Kettenöl?',
@@ -419,7 +436,7 @@ export const translations = {
         },
         {
           q: 'Was ist eine Ketten-Rotation — und warum drei Ketten?',
-          a: 'Mit einer einzigen Kette wartest du jedes Mal auf das Aushärten. Mit drei Ketten im Wechsel läuft immer eine frisch gewachste auf dem Rad, eine wartet bereit, eine wird gerade gewachst — alle drei auf einmal dauert ca. 15–20 Minuten. Du rewaxst damit nur noch alle 1.200–1.800 km statt alle 400–500 km. Außerdem verteilt sich der Verschleiß gleichmäßig auf drei Ketten, was Kassette und Kettenblätter deutlich schont.',
+          a: 'Mit einer einzigen Kette wartest du jedes Mal auf das Aushärten. Mit drei Ketten im Wechsel läuft immer eine frisch gewachste auf dem Rad, eine wartet bereit, eine wird gerade gewachst — und der Aufwand pro Session bleibt fast gleich: eine Kette dauert rund 20 Minuten, drei gleichzeitig im Topf kaum länger. Du rewaxst damit nur noch alle 1.200–1.800 km statt alle 400–500 km. Außerdem verteilt sich der Verschleiß gleichmäßig auf drei Ketten, was Kassette und Kettenblätter deutlich schont.',
         },
         {
           q: 'Ist PTFE im Kettenwachs gesundheitlich bedenklich?',
@@ -704,6 +721,13 @@ export const translations = {
         upfront: 'Up front',
         upfrontNote: '{n} extra chains cost {sum} at once. Over their life you do not pay more — they wear more slowly and last correspondingly longer. You pay earlier, not more.',
         upfrontNoteKit: '{n} extra chains cost {sum} at once, {pct} % off in the kit. Over their life you do not pay more — you pay earlier, not more.',
+        costPerYear: 'Cost per year',
+        sessionsLabel: 'Waxing sessions',
+        timeLabel: 'Time per year',
+        basisNote: 'Baseline — switch to 2 or 3 chains to see the difference.',
+        heroUnit: 'wrenching time per year',
+        resultVerdict: '{chains} in rotation: {sessionsN} instead of {sessions1} waxing sessions a year, and the cassette never sees a badly worn chain.',
+        vsOil: 'Versus oil',
       },
 
       shared: {
@@ -750,7 +774,7 @@ export const translations = {
         helpMeasured: 'Pull the chain taut and measure across 12 full links, pin centre to pin centre. New, that is exactly 12 inches, or 304.8 mm. Anything above that is elongation: 1/16 inch (about 1.5 mm) over is 0.5 %, 1/8 inch (about 3 mm) is 1.0 %.',
         enterValue: 'Measure across 12 links and enter the value.',
         overshoot: '{mm} mm over the new length of 304.8 mm.',
-        gaugeWarning: 'Careful with cheap gauges: models that rest between two rollers measure roller play as well and therefore over-report wear. Use a three-point gauge, and for 11- and 12-speed one with a 0.5 percent mark — many cheap ones only read 0.75 % and 1.0 %.',
+        gaugeWarning: 'Careful with cheap gauges: models that just drop between two rollers measure roller play too and can already read around 0.25 % on a brand-new chain. Gauges that push the rollers in one direction only measure pin elongation — that is the value that actually matters. Use a three-point gauge, and for 11- and 12-speed one with a 0.5 percent mark — many cheap ones only read 0.75 % and 1.0 %.',
         cta: 'Find a matching chain →',
       },
 
@@ -769,10 +793,13 @@ export const translations = {
         helpSprocket: 'The largest, innermost sprocket at the rear wheel. Often printed on the cassette packaging, e.g. "11-34" — the 34 is the value.',
         crossCheck: 'Big-big check: wrap the chain around the largest chainring and largest sprocket without routing it through the derailleur, pull it taut, mark the overlap and add two links. With a long derailleur cage or full suspension this beats any formula.',
         onlyDerailleur: 'Applies to derailleur drivetrains. Hub gears and singlespeed follow different rules.',
-        shorten: 'To shorten',
-        shortenValue: '{n} links off a {from}-link chain',
         shortenNote: 'Our pre-waxed chains ship with {lengths} links. Shortening does not harm the wax — the film sits inside the chain, not on the outside.',
         tooShort: 'Your result is longer than our longest chain. Check the inputs, or write to us.',
+        buyLinks: 'links to buy',
+        resultVerdict: 'Your result is {links} links. Off a {from}-link chain you remove {n} — quick link included.',
+        factCalculated: 'Calculated',
+        factRemove: 'Remove',
+        countOldChain: 'No tape measure? Count the links on your old chain — that is the more accurate way.',
         cta: 'See pre-waxed chains →',
       },
 
@@ -811,6 +838,13 @@ export const translations = {
         potNote: 'A pot is not costed in: an old rice cooker or slow cooker does the job, and most people already own one.',
         degreaseNote: 'Not costed in, but the real sticking point: your existing chain has to be fully degreased or it will not take wax. That costs an evening and some isopropanol.',
         degreaseAlt: 'See pre-waxed chains — skips that step →',
+        waxSizeNote: 'The 300 g pack is cheaper to start with, but costs more per application.',
+        perYearLess: 'less a year',
+        resultVerdict: 'Chain and cassette last far longer with wax. The wax itself costs more than oil — overall you pay {savings} less a year.',
+        toolingPaidOff: 'Tooling paid off in',
+        breakdownChain: 'Chain',
+        breakdownCassette: 'Cassette',
+        breakdownLube: 'Lubricant',
         cta: 'See the starter set →',
       },
     },
@@ -874,7 +908,7 @@ export const translations = {
         },
         {
           q: 'How many kilometres does a waxed chain last — and how do I know when to re-wax?',
-          a: 'In dry conditions re-wax every 400–500 km, in wet or MTB every 200–300 km. The most reliable signal: the drivetrain sounds drier or the chain runs less smoothly than usual — sometimes a faint scratch or squeak. Just listen, you\'ll notice. Total chain life is a different number: a well-maintained waxed chain reaches 6,000–12,000 km or more — oiled chains often only 2,000–3,000 km, because dirt abrades the drivetrain from the inside.',
+          a: 'In dry conditions we recommend re-waxing every 300 km — that is the optimum. The chain will also run 400–500 km, just no longer in peak condition. In wet or MTB conditions, every 200–300 km. The most reliable signal: the drivetrain sounds drier or the chain runs less smoothly than usual — sometimes a faint scratch or squeak. Just listen, you\'ll notice. Total chain life is a different number: a well-maintained waxed chain reaches 6,000–12,000 km or more — oiled chains often only 2,000–3,000 km, because dirt abrades the drivetrain from the inside.',
         },
         {
           q: 'How many watts does hot wax save compared to chain oil?',
@@ -898,7 +932,7 @@ export const translations = {
         },
         {
           q: 'What is a chain rotation system — and why three chains?',
-          a: "With a single chain, you wait every time while the waxed chain hardens. With three chains in rotation, one freshly waxed chain is always on the bike, one is ready to swap, and one is being waxed — all three at once takes around 15–20 minutes. You then only re-wax every 1,200–1,800 km instead of every 400–500 km. Wear is also distributed evenly across three chains, which significantly protects cassette and chainrings.",
+          a: "With a single chain, you wait every time while the waxed chain hardens. With three chains in rotation, one freshly waxed chain is always on the bike, one is ready to swap, and one is being waxed — and the effort per session stays almost the same: one chain takes about 20 minutes, three at once barely longer. You then only re-wax every 1,200–1,800 km instead of every 400–500 km. Wear is also distributed evenly across three chains, which significantly protects cassette and chainrings.",
         },
         {
           q: 'Is PTFE in chain wax harmful to health?',
