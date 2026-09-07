@@ -139,9 +139,9 @@ export const translations = {
         // derselben Kachel (rewaxFrom) — doppelte Information.
         rewaxEyebrow: 'Rewax',
         rewaxTitle: 'Kette wachsen lassen',
-        rewaxBody: 'Kette einschicken, fahrbereit zurückbekommen.',
+        rewaxBody: 'Kette einschicken, fahrbereit zurückbekommen. Auffrischung oder Umstieg von Öl.',
         rewaxCta: 'Zum Rewax-Service',
-        rewaxFrom: 'Ab 9,95 €',
+        rewaxFrom: 'Ab 15,95 €',
         // Ueberschrift ueber Set/Ketten/Rewax. Ohne sie stehen dort drei
         // Kacheln ohne erkennbaren Zusammenhang; mit ihr sind es drei
         // Antworten auf denselben Einwand — den mit Abstand haeufigsten.
@@ -355,7 +355,7 @@ export const translations = {
       },
       rewax: {
         title: 'Re-Waxen',
-        note: 'Lieber nicht selbst wachsen? Wir übernehmen das, ab 9,95 € pro Kette.',
+        note: 'Lieber nicht selbst wachsen? Wir übernehmen das — Auffrischung ab 15,95 €, ab 3 Ketten 11,95 € pro Kette.',
         steps: [
           'Kette abnehmen (Kettenschloss öffnen) — frisch gewaxte Kette montieren und weiterfahren',
           'Abgezogene Kette mit kochendem Wasser übergießen — altes Wachs löst sich und läuft ab',
@@ -633,9 +633,9 @@ export const translations = {
         chainsCount: '{n} chains',
         rewaxEyebrow: 'Rewax',
         rewaxTitle: 'Rewax Service',
-        rewaxBody: 'Send the chain in, get it back ready to ride.',
+        rewaxBody: 'Send the chain in, get it back ready to ride. Rewax or oil-to-wax switch.',
         rewaxCta: 'To the rewax service',
-        rewaxFrom: 'From €9.95',
+        rewaxFrom: 'From €15.95',
         altTitle: 'No pot? No problem.',
         altBody: 'Three ways to ride waxed without melting wax yourself.',
         soldUnits: 'sold',
@@ -834,7 +834,7 @@ export const translations = {
       },
       rewax: {
         title: 'Re-waxing',
-        note: 'Would rather not do it yourself? We take care of it, from 9.95 € per chain.',
+        note: 'Would rather not do it yourself? We take care of it — rewax from 15.95 €, from 3 chains 11.95 € per chain.',
         steps: [
           'Remove chain (open quick link) — install freshly waxed chain and keep riding',
           'Pour boiling water over the removed chain — old wax dissolves and runs off',

@@ -56,7 +56,9 @@ const staticPages = [
   // Verkaufsseiten: hoehere Prioritaet als die Wissenschaftsseite, weil hier
   // gekauft und gebucht wird. Beide werden von generate-blog-html.mjs
   // vorgerendert, sonst saehen Crawler nur die Startseiten-Huelle.
-  { loc: '/kette-wachsen-lassen', changefreq: 'monthly', priority: '0.9' },
+  // /kette-wachsen-lassen ist der einzige wiederkehrende Umsatz — gleichrangig
+  // mit der Startseite, woechentlich (Preise/Leistungen aendern sich hier).
+  { loc: '/kette-wachsen-lassen', changefreq: 'weekly', priority: '1.0' },
   { loc: '/starter-set', changefreq: 'monthly', priority: '0.9' },
   { loc: '/blog', changefreq: 'weekly', priority: '0.8' },
   // Rechner: eigene Adressen seit September 2026. Der Hub etwas hoeher als die

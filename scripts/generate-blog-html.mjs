@@ -28,6 +28,13 @@ import { dirname, resolve, join } from 'node:path';
 import { articles, getArticleImage, author, categoryOrder, blogHero } from '../src/pages/blog/articles.ts';
 import { starterSet } from '../src/lib/data.ts';
 import { TOOLS, TOOLS_HUB } from '../src/lib/toolRegistry.ts';
+// Preise, Meta, FAQ und Schema von /kette-wachsen-lassen — dieselbe Quelle wie
+// RewaxPage.tsx, damit Prerender und hydrierte Seite wortgleich sind.
+import {
+  rewaxMeta, rewaxFaqItems, rewaxServiceSchema, rewaxFaqSchema,
+  PRICE as REWAX_PRICE, eur as rewaxEur, TURNAROUND as REWAX_TURNAROUND,
+  CITIES as REWAX_CITIES, UMSTIEG_LIVE as REWAX_UMSTIEG_LIVE,
+} from '../src/pages/rewax/content.ts';
 // Die Bausteine liegen seit August 2026 in scripts/lib/prerender.mjs, weil sie
 // sich Blog-, Produkt- und Rechtstextseiten teilen. Verhalten unveraendert.
 import {
@@ -259,34 +266,31 @@ ${byCat}`.trim();
 // verlinken; sobald React uebernimmt, ersetzt die echte Seite ihn.
 const STATIC_PAGES = [
   {
-    // Adresse und Titel folgen der tatsaechlichen Suchsprache. "Rewax" ist ein
-    // Anglizismus, der in deutschen Suchergebnissen praktisch nicht vorkommt;
-    // Wettbewerber ranken mit "Kette wachsen lassen". /rewax leitet per 301
-    // hierher (vercel.json).
-    // Mobile-Plan B8: Titel hier musste mit dem client-seitigen <title> in
-    // RewaxPage.tsx uebereinstimmen (Zeile ~232) — sonst sehen Crawler, die
-    // nur die vorgerenderte Huelle lesen, einen anderen Titel als der, der
-    // nach der Hydration im Browser steht. Der alte Titel hatte ausserdem
-    // dieselbe "ab 9,95 €"-Ungenauigkeit wie die Preiskarte auf der
-    // Startseite (products.tsx) — 9,95 € gilt erst ab drei Ketten, eine
-    // einzelne kostet 13,95 €.
+    // Titel, Description, FAQ, Preise und Schema kommen aus
+    // src/pages/rewax/content.ts — dieselbe Quelle wie RewaxPage.tsx. Damit
+    // sind Prerender und hydrierte Seite garantiert wortgleich (das war der
+    // Grund für die bisherigen "Wortlaut deckungsgleich"-Kommentare).
+    // "Rewax" ist ein Anglizismus, der in deutschen Suchergebnissen praktisch
+    // nicht vorkommt; /rewax leitet per 301 hierher (vercel.json).
     dir: 'kette-wachsen-lassen',
-    title: 'Fahrradkette wachsen lassen — Kettenwachs-Service aus Stuttgart | Waxcelerate',
-    // Wortlaut deckungsgleich mit dem client-seitigen description in
-    // RewaxPage.tsx (dort direkt neben title definiert) — vorher leicht
-    // abweichend ("Fahrradkette" statt "Gewachste Kette"), was Crawlern, die
-    // nur die Huelle lesen, eine andere Beschreibung zeigte als die nach der
-    // Hydration im DOM stehende.
-    description: 'Gewachste Kette einschicken, frisch gewachst zurückbekommen. 13,95 € je Kette, 9,95 € ab drei Ketten, zuzüglich 1,80 € Rückversand. Handgewachst in Stuttgart.',
-    image: '/images/rewax/hero.webp', // deckt sich mit RewaxPage.tsx Zeile 309
+    title: rewaxMeta(true).title,
+    description: rewaxMeta(true).description,
+    image: '/images/rewax/hero.webp',
     h1: 'Fahrradkette wachsen lassen.',
-    lead: 'Wachsen ist einfach, kostet aber einen Abend, einen Topf und Platz. Wenn du das nicht selbst machen willst, schick die Kette ein. Du bekommst sie fahrbereit zurück.',
+    lead: `Kette einschicken, frisch gewachst und fahrbereit zurückbekommen — handgewachst in Stuttgart, deutschlandweit per Post, Umlauf meist ${REWAX_TURNAROUND.de}.`,
     points: [
-      'Nur bereits gewachste Ketten, eigene oder fremde. Geölte Ketten entfetten wir nicht, weil Öl ein ganzes Wachsbad unbrauchbar macht.',
-      'Preise: 13,95 € für eine Kette, 9,95 € je Kette ab drei Ketten, jeweils zuzüglich 1,80 € Rückversand.',
-      'Zehnerkarte: zehn Vorgänge im Voraus, zehn Prozent unter dem Dreierpreis, übertragbar und ohne Ablaufdatum.',
-      'Alle gängigen 9 bis 12 fach Ketten. Handgewachst in Stuttgart.',
+      `Auffrischung einer bereits gewachsten Kette: ${rewaxEur(REWAX_PRICE.rewax.single)} je Kette, ${rewaxEur(REWAX_PRICE.rewax.bundle)} ab drei Ketten, jeweils zuzüglich ${rewaxEur(REWAX_PRICE.shippingSingle)} Rückversand.`,
+      ...(REWAX_UMSTIEG_LIVE ? [
+        `Umstieg einer geölten oder neuen Kette auf Wachs: ${rewaxEur(REWAX_PRICE.umstieg.single)} je Kette (ab drei ${rewaxEur(REWAX_PRICE.umstieg.bundle)}). Die Kette kommt zuerst in ein separates Lösemittelbad, wird gründlich entfettet und getrocknet — unser Wachsbad sieht nie eine ölige Kette.`,
+      ] : [
+        'Geölte Ketten entfetten wir aktuell nicht, weil eine einzige ölige Kette ein ganzes Wachsbad unbrauchbar macht.',
+      ]),
+      `Deutschlandweit per Post: ${REWAX_CITIES.join(', ')} oder das Dorf dazwischen. Kette am Quick-Link öffnen, im Großbrief einschicken, Umlauf meist ${REWAX_TURNAROUND.de}.`,
+      'Prepaid-Karten (5er, 10er) für die Auffrischung: Vorgänge im Voraus, Rückversand inklusive, übertragbar, ohne Ablaufdatum.',
+      'Alle gängigen 9- bis 12-fach-Ketten. Handgewachst in Stuttgart.',
     ],
+    extraSchema: [rewaxServiceSchema(true), rewaxFaqSchema(true)],
+    faq: rewaxFaqItems(true),
     calc: { href: '/rechner/intervall', label: 'Wie oft nachwachsen? Intervall berechnen' },
   },
   {
@@ -353,11 +357,20 @@ function renderStatic(p) {
       inLanguage: 'de-DE',
       publisher: { '@type': 'Organization', name: 'Waxcelerate', url: BASE },
     }),
+    // Seiten mit eigenem, spezifischerem Client-Schema (Service, FAQPage etc.)
+    // liefern es auch hier aus, damit JS-lose Crawler es sehen. Client ersetzt
+    // beim Hydrieren via removeStaticJsonLd().
+    ...(p.extraSchema ?? []).map(ldClientManaged),
   ].join('\n');
+  // FAQ auch als sichtbarer Text, damit der <noscript>-Body zur FAQPage passt.
+  const faq = p.faq
+    ? `<h2>Kurz beantwortet</h2><dl>${p.faq.map(f => `<dt>${esc(f.q)}</dt><dd>${esc(f.a)}</dd>`).join('')}</dl>`
+    : '';
   const body = [
     `<h1>${esc(p.h1)}</h1>`,
     `<p>${esc(p.lead)}</p>`,
     `<ul>${p.points.map(t => `<li>${esc(t)}</li>`).join('')}</ul>`,
+    faq,
     p.calc ? `<p><a href="${p.calc.href}">${esc(p.calc.label)} →</a></p>` : '',
     `<p><a href="/">Zur Startseite</a> · <a href="/wissenschaft">Wissenschaft</a> · <a href="/kette-wachsen-lassen">Kette wachsen lassen</a> · <a href="/starter-set">Starter-Set</a> · <a href="/rechner">Rechner</a> · <a href="/blog">Blog</a></p>`,
   ].join('\n');

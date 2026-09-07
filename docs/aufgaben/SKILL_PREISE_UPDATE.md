@@ -8,28 +8,38 @@ Preise ziehen.
 
 ---
 
-## 5. Rewax-Service (B2C) · Stand 2026-09-06
+## 5. Kettenwachs-Service (B2C) · Stand 2026-09-07
 
-- **13,95 € je Kette** einzeln, zzgl. **1,80 € Rückversand** (Großbrief)
-- **9,95 € je Kette ab drei Ketten** (drei Ketten = 29,85 €), zzgl. **2,90 €
-  Rückversand** (Maxibrief, fällt nur einmal je Sendung an)
-- Gesamtbeispiele: eine Kette 15,75 € · drei Ketten 32,75 €
-- **Stempelkarten (5er / 10er):** All-in — der Kartenpreis deckt Wachsen **und
-  Rückversand**. Der ausgewiesene Rabatt misst sich am **Einzelpreis 13,95 €**
-  (nicht am Dreierpreis), weil ein Kartenkäufer ein bis zwei Ketten hat.
-  - **5er-Karte: 49,75 €** (9,95 €/Vorgang) → Ersparnis 20,00 € gegen 5 × 13,95 €
-  - **10er-Karte: 94,50 €** (9,45 €/Vorgang) → Ersparnis 45,00 € gegen 10 × 13,95 €
-  - Übertragbar, kein Ablaufdatum, wir führen die Karte. Geschenk: zusätzlich
-    eine gedruckte Karte mit Code. Als Geschenkidee positioniert.
-  - Selbstkosten-Annahme je Vorgang 3–5 € (ohne Porto); bei ~2–3 Ketten je
-    Sendung trägt der All-in-Preis komfortabel, im Worst Case (jede Kette
-    einzeln) bleibt ein dünner, aber positiver Deckungsbeitrag.
-- **Umfang:** ausschließlich Rewax bereits gewachster Ketten, eigene oder
-  fremde. **Kein Entfetten und Erstwachsen geölter Ketten.** Begründung nach
-  außen: Öl schwimmt im Wachsbad oben auf und blockiert die Penetration, eine
-  einzige ölige Kette macht die ganze Charge unbrauchbar.
-- Diese Zahlen **ersetzen** die früheren 9,99 € / 24,99 € und die alte
-  10er-Karte zu 89,55 € (−10 % auf den Dreierpreis).
+**Zwei Leistungen**, beide reiner Postversand deutschlandweit (Stuttgart, kein
+Leipzig-Standort mehr), Umlauf hin und zurück meist 3–5 Werktage.
+
+### Auffrischung — bereits gewachste Kette neu wachsen
+- **15,95 € je Kette** einzeln, zzgl. **1,80 € Rückversand** (Großbrief)
+- **11,95 € je Kette ab drei Ketten**, zzgl. **2,90 € Rückversand** (Maxibrief,
+  einmal je Sendung)
+- Altes Wachs löst kochendes Wasser, ganz ohne Lösemittel; dann frisches Bad.
+
+### Umstieg — geölte oder fabrikneue Kette entfetten und erstmals wachsen
+- **24,95 € je Kette** einzeln, **21,95 €** ab drei Ketten, zzgl. Rückversand
+- Wie das volle Programm des Wettbewerbs (Kettenhelden 39,95 €, bikeoptimierung
+  34,90 €), ~10 € günstiger.
+- Ablauf: die Kette kommt zuerst in ein **separates Lösemittelbad**, wird
+  gründlich entfettet und getrocknet, **bevor** sie das erste Mal ins Wachs
+  geht. Das Wachsbad sieht nie eine ölige Kette (Öl schwimmt oben, blockiert
+  die Penetration, macht eine ganze Charge unbrauchbar).
+- **Ersetzt** die frühere Aussage "kein Entfetten geölter Ketten". Setzt
+  voraus, dass der Betrieb den separaten Entfetter-Prozess leistet
+  (Code-Flag `UMSTIEG_LIVE` in `src/pages/rewax/content.ts`).
+
+### Prepaid-Karten (5er / 10er) — nur für die Auffrischung
+- All-in: Kartenpreis deckt Wachsen **und** Rückversand. Übertragbar, kein
+  Ablaufdatum, wir führen die Karte.
+- **5er-Karte: 49,75 €** (9,95 €/Vorgang) → Ersparnis 30,00 € gegen 5 × 15,95 €
+- **10er-Karte: 94,50 €** (9,45 €/Vorgang) → Ersparnis 65,00 € gegen 10 × 15,95 €
+- Nach außen nur die Euro-Ersparnis, kein Prozentsatz.
+
+Diese Zahlen **ersetzen** 13,95 / 9,95 und alles davor (9,99 / 24,99, die alte
+10er-Karte zu 89,55 €).
 
 ## 8. Zubehör und Sets (neu, B2C)
 

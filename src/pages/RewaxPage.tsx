@@ -1,25 +1,38 @@
-// ─── /rewax — the service page ───────────────────────────────────────────────
-// The rewax service is the only recurring revenue in the whole model and had no
-// address on the website: no route, no menu entry, no page. This is that page.
+// ─── /kette-wachsen-lassen — die Service-Seite ───────────────────────────────
+// Der einzige wiederkehrende Umsatz im ganzen Modell (docs/AUDIT.md). Zwei
+// Leistungen, beide reiner Postversand aus ganz Deutschland:
 //
-// Its hardest job is not selling. It is saying no clearly: we rewax chains that
-// are already waxed, ours or anyone's, and we do not strip and first-wax an
-// oiled chain. That limit is not a policy, it is physics — a single oiled chain
-// contaminates the bath and the oil floats on top and blocks penetration, so the
-// batch has to be thrown away. Saying that plainly costs a few orders and buys
-// the trust the rest of the brand runs on.
+//   Auffrischung  — eine bereits gewachste Kette neu wachsen. Altes Wachs löst
+//                   kochendes Wasser, ganz ohne Lösemittel; dann frisches Bad.
+//   Umstieg       — eine geölte oder fabrikneue Kette auf Wachs umstellen. Sie
+//                   kommt zuerst in ein SEPARATES Lösemittelbad, wird gründlich
+//                   entfettet und getrocknet, bevor sie das erste Mal ins Wachs
+//                   geht. So sieht das Wachsbad nie eine ölige Kette — die würde
+//                   eine ganze Charge unbrauchbar machen (Öl schwimmt oben,
+//                   blockiert die Penetration). Früher der Grund, geölte Ketten
+//                   abzulehnen; jetzt der Grund für den eigenen Ablauf und Preis.
 //
-// Prices per Luca, 2026-07-28: 13,95 € for one chain, 9,95 € per chain from
-// three, plus 1,80 € return shipping either way. These supersede the older
-// figures in the business context (9,99 / 24,99).
+// Preise, FAQ, Meta und der Umstieg-Flag liegen in src/pages/rewax/content.ts —
+// geteilt mit dem Prerender (scripts/generate-blog-html.mjs), damit die
+// vorgerenderte Seite und die hydrierte Seite wortgleich sind.
+//
+// Formular ist der primäre Bestellweg (POST /api/rewax-request, E-Mail an Luca,
+// keine Zahlung). WhatsApp bleibt leiser Zweitlink.
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useLocation } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Gift, User, ChevronDown, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Gift, User, ChevronDown, CheckCircle2, Sparkles, Droplet } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
 import { prefersReducedMotion } from '@/hooks/useAnimation';
+import { trustStats } from '@/lib/data';
+import { REVIEWS } from '@/sections/reviews';
+import {
+  PRICE, FIVE_CARD, TEN_CARD, eur, UMSTIEG_LIVE, TURNAROUND, CITIES,
+  COMPETITOR_FULL_SERVICE, rewaxMeta, rewaxFaqItems, rewaxServiceSchema, rewaxFaqSchema,
+  type ServiceId,
+} from '@/pages/rewax/content';
 
 import { Navigation } from '@/sections/navigation';
 import { Footer } from '@/sections/footer';
@@ -27,10 +40,6 @@ import { BackLink } from '@/components/BackLink';
 import { WaxcelerateMark } from '@/components/WaxcelerateMark';
 import { GiftPreviewModal } from '@/components/GiftPreviewModal';
 
-// One tap, no form, no scrolling to a contact section that may or may not be
-// reachable from a route. The previous CTA pointed at /#kontakt and did not
-// land, which for the only recurring-revenue page on the site is the worst
-// possible place for a dead button.
 const WA_NUMBER = '4915751957470';
 const waLink = (de: boolean, waxedLabel?: string | null) =>
   `https://wa.me/${WA_NUMBER}?text=` + encodeURIComponent(
@@ -42,12 +51,12 @@ const waLink = (de: boolean, waxedLabel?: string | null) =>
         + (waxedLabel ? ` The card says waxed ${waxedLabel}.` : '')
         + ' Number of chains: '),
   );
+
 // Ablauf-Schritte: eine Quelle, zwei Darstellungen — kompakte Textliste im
-// Hero (ab lg, füllt den Raum neben dem Formular), Foto-Schritte in der
-// Preis-Sektion (unter lg, wo im Hero kein Platz ist).
+// Hero (ab lg) und im Mobile-Block, Foto-Schritte in der Preis-Sektion (unter lg).
 const STEPS = [
   { n: 1, de: 'Einschicken', en: 'Send it', bodyDe: 'Am Quick-Link raus, in den Umschlag.', bodyEn: 'Off at the quick link, into an envelope.', img: '/images/rewax/step-1' },
-  { n: 2, de: 'Waschen & Wachsen', en: 'Wash & wax', bodyDe: 'Ultraschallgereinigt, dann frisch im Wachsbad.', bodyEn: 'Ultrasonically cleaned, then fresh in the wax bath.', img: '/images/rewax/step-2' },
+  { n: 2, de: 'Waschen & Wachsen', en: 'Wash & wax', bodyDe: 'Gereinigt (Umstieg: entfettet), dann frisch im Wachsbad.', bodyEn: 'Cleaned (switch: degreased), then fresh in the wax bath.', img: '/images/rewax/step-2' },
   { n: 3, de: 'Zurück aufs Rad', en: 'Back on the bike', bodyDe: 'Ausgehärtet, anbauen, kurbeln, los.', bodyEn: 'Cured, fit it, turn the cranks, ride.', img: '/images/rewax/step-3' },
 ] as const;
 
@@ -85,69 +94,70 @@ function waxedFromLocation(): Date | null {
 
 const W = 'mx-auto w-full max-w-5xl px-6 sm:px-10 lg:px-14';
 
-const PRICE = {
-  single: 13.95,
-  bundle: 9.95,
-  bundleCount: 3,
-  // Eine Kette passt in den Großbrief (1,80 €). Drei Ketten brauchen den
-  // Maxibrief (2,90 €) — deshalb zwei Versandpreise statt einem.
-  shippingSingle: 1.80,
-  shippingBundle: 2.90,
-};
-
-// Prepaid cards (Luca, 2026-09-06). Two changes from the earlier model:
-//
-// 1. Anker ist der EINZELPREIS (13,95 €), nicht mehr der Dreierpreis. Wer eine
-//    Karte kauft, hat ein bis zwei Ketten — drei plus in Rotation schickt man
-//    ohnehin zusammen für 9,95 €. Gegen 9,95 € sah die Karte nach 10/15 %
-//    aus, gegen den Preis, den der Kartenkäufer real zahlt, spart sie ~30 %.
-// 2. All-in: der Kartenpreis deckt Wachsen UND Rückversand. Deshalb ein fest
-//    gesetzter Preis statt einer Formel — er ist eine Geschäftsentscheidung
-//    (Porto-Deckung bei ~2-3 Ketten je Sendung, Selbstkosten 3-5 €/Vorgang),
-//    keine Ableitung. `list` bleibt abgeleitet, damit der Anker nie driftet.
-const TEN_CARD = {
-  count: 10,
-  get list() { return PRICE.single * this.count; }, // 139,50 €
-  price: 94.50,                                      // 9,45 €/Vorgang, Rückversand inklusive
-};
-
-const FIVE_CARD = {
-  count: 5,
-  get list() { return PRICE.single * this.count; }, // 69,75 €
-  price: 49.75,                                      // 9,95 €/Vorgang, Rückversand inklusive
-};
-
-const eur = (n: number, de: boolean) =>
-  n.toLocaleString(de ? 'de-DE' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
-
-// ─── Request form ────────────────────────────────────────────────────────────
-// The second Bestellweg next to WhatsApp/mailto — additive, not a
-// replacement (WhatsApp stays the primary CTA). Posts to api/rewax-request.ts,
-// which only sends an email today; `tierId` deliberately mirrors what would
-// become `productId` in a future api/create-checkout.ts call (see that file's
-// { items: [{ productId, quantity }] } shape) so activating real Stripe
-// payment later means swapping the submit target, not redesigning this form.
-// Input/label/error/success conventions mirror the site's one other real
-// form, WiderrufPage.tsx — same input styling, same --danger/CheckCircle2
-// pattern — so this doesn't invent a second "how forms look" on the site.
-type TierId = 'single' | 'bundle3' | 'five' | 'ten';
-
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_RE = /^[+\d][\d\s()/-]{5,}$/;
 
-function RewaxRequestForm({ de }: { de: boolean }) {
-  // Preis-Label je Kachel ist IMMER ein Pro-Vorgang-Preis, nie ein
-  // Gesamtpreis — vorher zeigte die 5er/10er-Karte ihren bereits
-  // rabattierten GESAMTpreis (z.B. 44,78 €) direkt neben Kacheln, die einen
-  // Pro-Kette-Preis zeigen (13,95 €, 9,95 €/Kette), ohne das kenntlich zu
-  // machen. Las sich wie ein viel teurerer Pro-Kette-Preis. Der tatsaechliche
-  // Gesamtbetrag steht jetzt separat in der Gesamt-Zeile unter der Auswahl,
-  // die live mitrechnet (siehe totalPrice unten).
+type TierId = 'single' | 'bundle3' | 'five' | 'ten';
+
+// ─── Leistungswahl ──────────────────────────────────────────────────────────
+// Die Frage, die der Besucher schon im Kopf hat: ist deine Kette schon
+// gewachst, oder geölt/neu? Eigene Auswahl, nicht in die Tarif-Kacheln des
+// Formulars gemischt (Tarif = Menge, orthogonal). Nur sichtbar wenn der
+// Umstieg-Service live ist.
+function ServiceChooser({ service, onChange, de }: {
+  service: ServiceId; onChange: (s: ServiceId) => void; de: boolean;
+}) {
+  const options = [
+    {
+      id: 'rewax' as const, Icon: Sparkles,
+      titleDe: 'Schon gewachst', titleEn: 'Already waxed',
+      bodyDe: 'Auffrischen, sie klingt trocken', bodyEn: 'Refresh, it sounds dry',
+      price: `${de ? 'ab' : 'from'} ${eur(PRICE.rewax.single, de)}`,
+    },
+    {
+      id: 'umstieg' as const, Icon: Droplet,
+      titleDe: 'Geölt oder neu', titleEn: 'Oiled or new',
+      bodyDe: 'Entfetten und erstmals wachsen', bodyEn: 'Degrease and first wax',
+      price: `${de ? 'ab' : 'from'} ${eur(PRICE.umstieg.single, de)}`,
+    },
+  ];
+  return (
+    <div role="radiogroup" aria-label={de ? 'Zustand deiner Kette' : 'State of your chain'}
+      className="grid grid-cols-2 gap-2.5 sm:gap-3 max-w-md">
+      {options.map(({ id, Icon, titleDe, titleEn, bodyDe, bodyEn, price }) => {
+        const active = service === id;
+        return (
+          <button key={id} type="button" role="radio" aria-checked={active}
+            onClick={() => onChange(id)}
+            className="rounded-2xl p-3.5 text-left transition-colors"
+            style={{
+              background: active ? 'var(--accent)' : 'var(--sf)',
+              color: active ? '#fff' : 'var(--tx1)',
+              border: `1px solid ${active ? 'var(--accent)' : 'var(--bd)'}`,
+            }}>
+            <Icon className="h-4 w-4 mb-1.5" style={{ color: active ? '#fff' : 'var(--accent)' }} aria-hidden />
+            <span className="block text-[13.5px] font-semibold leading-tight">{de ? titleDe : titleEn}</span>
+            <span className="block text-[11.5px] leading-snug mt-0.5" style={{ opacity: 0.85 }}>{de ? bodyDe : bodyEn}</span>
+            <span className="block text-[12px] font-semibold mt-1.5" style={{ opacity: active ? 1 : 0.9, color: active ? '#fff' : 'var(--accent)' }}>{price}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── Bestellformular ────────────────────────────────────────────────────────
+function RewaxRequestForm({ de, service }: { de: boolean; service: ServiceId }) {
+  const p = PRICE[service];
+  // Tarife hängen an der Leistung: die Prepaid-Karten gibt es nur für die
+  // Auffrischung (der Umstieg ist ein Einmalvorgang pro Kette).
   const tiers: { id: TierId; labelDe: string; labelEn: string; price: string; hasQuantity: boolean; quantityMin: number }[] = [
-    { id: 'single', labelDe: 'Einzelne Kette', labelEn: 'Single chain', price: eur(PRICE.single, de), hasQuantity: true, quantityMin: 1 },
-    { id: 'bundle3', labelDe: 'Drei Ketten', labelEn: 'Three chains', price: `${eur(PRICE.bundle, de)}/${de ? 'Kette' : 'chain'}`, hasQuantity: true, quantityMin: 3 },
-    { id: 'five', labelDe: '5er-Karte', labelEn: '5-visit card', price: `${eur(FIVE_CARD.price / FIVE_CARD.count, de)}/${de ? 'Kette' : 'chain'}`, hasQuantity: false, quantityMin: 1 },
-    { id: 'ten', labelDe: '10er-Karte', labelEn: '10-visit card', price: `${eur(TEN_CARD.price / TEN_CARD.count, de)}/${de ? 'Kette' : 'chain'}`, hasQuantity: false, quantityMin: 1 },
+    { id: 'single', labelDe: 'Einzelne Kette', labelEn: 'Single chain', price: eur(p.single, de), hasQuantity: true, quantityMin: 1 },
+    { id: 'bundle3', labelDe: 'Drei Ketten', labelEn: 'Three chains', price: `${eur(p.bundle, de)}/${de ? 'Kette' : 'chain'}`, hasQuantity: true, quantityMin: 3 },
+    ...(service === 'rewax' ? [
+      { id: 'five' as TierId, labelDe: '5er-Karte', labelEn: '5-visit card', price: `${eur(FIVE_CARD.price / FIVE_CARD.count, de)}/${de ? 'Kette' : 'chain'}`, hasQuantity: false, quantityMin: 1 },
+      { id: 'ten' as TierId, labelDe: '10er-Karte', labelEn: '10-visit card', price: `${eur(TEN_CARD.price / TEN_CARD.count, de)}/${de ? 'Kette' : 'chain'}`, hasQuantity: false, quantityMin: 1 },
+    ] : []),
   ];
 
   const [tierId, setTierId] = useState<TierId>('single');
@@ -160,11 +170,24 @@ function RewaxRequestForm({ de }: { de: boolean }) {
   const [status, setStatus] = useState<'idle' | 'sending' | 'done' | 'error'>('idle');
   const [error, setError] = useState('');
 
-  const activeTier = tiers.find(t => t.id === tierId)!;
+  // Beim Wechsel auf den Umstieg ist eine evtl. gewählte Karte weg.
+  useEffect(() => {
+    if (service === 'umstieg' && (tierId === 'five' || tierId === 'ten')) {
+      setTierId('single');
+      setQuantity(1);
+    }
+  }, [service, tierId]);
+
+  const activeTier = tiers.find(t => t.id === tierId) ?? tiers[0];
   const inputClass = 'w-full px-4 py-2.5 rounded-xl text-sm outline-none';
   const inputStyle = { background: 'var(--sf2)', border: '1px solid var(--bd2)', color: 'var(--tx1)' };
 
   const contactLooksValid = EMAIL_RE.test(contact) || PHONE_RE.test(contact);
+
+  const total = activeTier.id === 'single' ? p.single * quantity
+    : activeTier.id === 'bundle3' ? p.bundle * quantity
+    : activeTier.id === 'five' ? FIVE_CARD.price
+    : TEN_CARD.price;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -180,7 +203,7 @@ function RewaxRequestForm({ de }: { de: boolean }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          tierId, quantity: activeTier.hasQuantity ? quantity : undefined, isGift, name, contact, message, honeypot,
+          service, tierId, quantity: activeTier.hasQuantity ? quantity : undefined, isGift, name, contact, message, honeypot,
         }),
       });
       if (!res.ok) {
@@ -201,8 +224,8 @@ function RewaxRequestForm({ de }: { de: boolean }) {
         <CheckCircle2 className="h-5 w-5 flex-shrink-0 mt-0.5" style={{ color: 'var(--accent)' }} />
         <p className="text-sm leading-relaxed" style={{ color: 'var(--tx1)' }}>
           {de
-            ? 'Danke, deine Anfrage ist angekommen. Wir melden uns in Kürze mit der Versandadresse.'
-            : "Thanks, your request has arrived. We'll get back to you shortly with the shipping address."}
+            ? 'Danke, deine Anfrage ist angekommen. Du bekommst die Versandadresse und die nächsten Schritte per E-Mail, meist innerhalb eines Werktags. Keine Zahlung jetzt.'
+            : "Thanks, your request has arrived. You'll get the shipping address and next steps by email, usually within a working day. No payment now."}
         </p>
       </div>
     );
@@ -211,15 +234,13 @@ function RewaxRequestForm({ de }: { de: boolean }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-3 mt-4 max-w-md rounded-2xl p-5 sm:p-6"
       style={{ background: 'var(--sf)', border: '1px solid var(--bd)' }}>
-      {/* Honeypot — real users never see or fill this. Bots that fill every
-          field get a normal-looking success response with nothing sent. */}
       <input type="text" name="website" value={honeypot} onChange={(e) => setHoneypot(e.target.value)}
         tabIndex={-1} autoComplete="off" aria-hidden="true"
         style={{ position: 'absolute', left: -9999, width: 1, height: 1, opacity: 0 }} />
 
       <div>
         <p className="block text-sm font-medium mb-1.5" style={{ color: 'var(--txm)' }}>
-          {de ? 'Karte wählen' : 'Choose tier'}
+          {de ? 'Menge wählen' : 'Choose amount'}
         </p>
         <div className="grid grid-cols-2 gap-2">
           {tiers.map((t) => (
@@ -249,9 +270,6 @@ function RewaxRequestForm({ de }: { de: boolean }) {
         </div>
       )}
 
-      {/* Gesamtsumme, live nachgerechnet. Die Kachel oben zeigt bewusst nur
-          den Pro-Vorgang-Preis (siehe Kommentar bei tiers) — ohne diese Zeile
-          stuende nirgends im Formular, was am Ende wirklich fällig wird. */}
       <div className="rounded-xl px-4 py-3 flex items-center justify-between"
         style={{ background: 'var(--accent-wash-sm)', border: '1px solid rgba(var(--accent-rgb),0.18)' }}>
         <span className="text-[12.5px]" style={{ color: 'var(--txm)' }}>
@@ -263,13 +281,7 @@ function RewaxRequestForm({ de }: { de: boolean }) {
           )}
         </span>
         <span className="font-display font-bold" style={{ fontSize: '1.15rem', color: 'var(--tx1)' }}>
-          {eur(
-            activeTier.id === 'single' ? PRICE.single * quantity
-              : activeTier.id === 'bundle3' ? PRICE.bundle * quantity
-              : activeTier.id === 'five' ? FIVE_CARD.price
-              : TEN_CARD.price,
-            de,
-          )}
+          {eur(total, de)}
         </span>
       </div>
 
@@ -320,53 +332,23 @@ function RewaxRequestForm({ de }: { de: boolean }) {
         style={{ background: 'var(--accent)', color: '#fff' }}>
         {status === 'sending' ? (de ? 'Wird gesendet …' : 'Sending …') : (de ? 'Anfrage senden' : 'Send request')}
       </button>
+      <p className="text-[11.5px] leading-relaxed" style={{ color: 'var(--txf)' }}>
+        {de
+          ? 'Keine Zahlung jetzt. Du bekommst Versandadresse und nächste Schritte per E-Mail, meist innerhalb eines Werktags.'
+          : 'No payment now. You get the shipping address and next steps by email, usually within a working day.'}
+      </p>
     </form>
   );
 }
 
-// ─── Stamp card ──────────────────────────────────────────────────────────────
-// A real punch-card look: a grid of stamp fields, each holding our own logo
-// in its actual brand colors instead of a generic chain-link glyph. Both
-// cards share the accent wash background now, not just the recommended one
-// — the point is two cards that both read as "proper branded stamp cards"
-// sitting side by side for comparison, not one plain + one highlighted.
+// ─── Stempelkarte ───────────────────────────────────────────────────────────
 function StampCard({ de, count, price, list, gift, recommended, onPreview }: {
   de: boolean; count: number; price: number; list: number; gift: boolean; recommended?: boolean;
   onPreview?: () => void;
 }) {
   const label = de ? `${count}er-Karte` : `${count}-visit card`;
   const savings = list - price;
-  const pct = Math.round((1 - price / list) * 100);
 
-  // Stamps start pale/gray — a wall of full-color logos read as "too much" —
-  // then stamp in one after another, staggered, once the card scrolls into
-  // view, and keep looping (fill → hold, fully stamped → wipe → pause, empty
-  // → fill again) for as long as the card stays mounted: this is a demo of
-  // what using the card looks like, not a one-shot reveal, so it shouldn't
-  // exhaust itself after a single pass. Just a self-observing
-  // IntersectionObserver to start the loop (the pattern already used for
-  // simple in-view flags elsewhere on the site, e.g. products.tsx/
-  // reviews.tsx), not the GSAP-based use3DReveal hook: that one tweens
-  // opacity/y/rotateX, not filter, and pulling in ScrollTrigger for a
-  // one-property grayscale fade would be more machinery than the effect
-  // needs. The stamp-in itself is a real CSS keyframe (wx-stamp-pop in
-  // index.css) with a scale overshoot, not a plain filter transition — it
-  // needs to read as a discrete impact per field, not a smooth wash, paired
-  // with a box-shadow ring pulse (wx-stamp-ring) on the field itself so the
-  // "something just landed here" moment doesn't rely on a 24px glyph alone
-  // to be noticed. The end state is deliberately muted (grayscale/
-  // saturate/opacity), not full brand color — a wall of 10 vivid logos was
-  // too loud even once "stamped".
-  //
-  // Timing lives in JS (a chained setTimeout, not a single CSS animation per
-  // field) because the reset has to be a synchronized, all-at-once wipe —
-  // independent per-field CSS delays would keep each field's own phase
-  // offset forever, so they'd wipe staggered too instead of together.
-  // stampedCount is how many fields (left to right) are currently "on";
-  // each field's own style flips from dim to the pop animation the instant
-  // its index enters that range, so only the field that just turned on ever
-  // visibly restarts wx-stamp-pop — the ones already on keep re-applying an
-  // unchanged style and just sit at the animation's held end frame.
   const STAMP_STAGGER_MS = 950;
   const STAMP_HOLD_MS = 3400;
   const STAMP_EMPTY_PAUSE_MS = 1300;
@@ -433,10 +415,6 @@ function StampCard({ de, count, price, list, gift, recommended, onPreview }: {
         )}
       </div>
 
-      {/* Immer 10 Felder rendern (zwei Reihen), auch auf der 5er-Karte —
-          die ueberzaehligen bleiben unsichtbar, aber layout-wirksam, damit
-          Preis/Ersparnis auf beiden Karten an derselben Y-Position beginnen,
-          egal ob die Karte eine oder zwei Stempelreihen zeigt. */}
       <div ref={gridRef} className="grid grid-cols-5 gap-1.5">
         {Array.from({ length: 10 }, (_, i) => {
           const isOn = reduced ? i < count : i < stampedCount;
@@ -478,13 +456,10 @@ function StampCard({ de, count, price, list, gift, recommended, onPreview }: {
           {eur(list, de)}
         </p>
       </div>
-      {/* Zwei Zeilen statt vorher vier: die Ersparnis (jetzt gegen den
-          Einzelpreis gerechnet, also eine echte Zahl) und eine
-          Merkmals-Zeile. Wie man die Karte spaeter einloest, stand vorher auf
-          JEDER Karte — das steht jetzt einmal unter beiden Karten und in der
-          FAQ, damit die Karte selbst nicht wieder zur Textwand wird. */}
+      {/* Nur die Euro-Ersparnis, kein Prozentsatz — "Du sparst 30 €" ist eine
+          Tatsache, ein Prozent­satz eine Behauptung über den Normalpreis. */}
       <p className="text-[11.5px] mt-1" style={{ color: 'var(--accent)' }}>
-        {de ? `Du sparst ${eur(savings, de)} (${pct} %)` : `You save ${eur(savings, de)} (${pct}%)`}
+        {de ? `Du sparst ${eur(savings, de)}` : `You save ${eur(savings, de)}`}
       </p>
       <p className="text-[11px] mt-1 mb-4" style={{ color: 'var(--txf)' }}>
         {de
@@ -514,242 +489,271 @@ function StampCard({ de, count, price, list, gift, recommended, onPreview }: {
   );
 }
 
-// ─── Pricing ─────────────────────────────────────────────────────────────────
-function Pricing({ de }: { de: boolean }) {
-  const bundleTotal = PRICE.bundle * PRICE.bundleCount;
+// ─── Preise je Leistung ─────────────────────────────────────────────────────
+function ServicePricing({ de, service }: { de: boolean; service: ServiceId }) {
+  const p = PRICE[service];
+  const bundleTotal = p.bundle * PRICE.bundleCount;
+  const titleDe = service === 'rewax' ? 'Auffrischung' : 'Umstieg';
+  const subDe = service === 'rewax'
+    ? 'Eine bereits gewachste Kette neu wachsen'
+    : 'Geölte oder neue Kette entfetten und erstmals wachsen';
+  const subEn = service === 'rewax'
+    ? 'Rewax an already-waxed chain'
+    : 'Degrease an oiled or new chain and wax it for the first time';
 
   const plans = [
-    {
-      key: 'single',
-      titleDe: 'Einzelne Kette', titleEn: 'Single chain',
-      per: PRICE.single,
-      total: PRICE.single,
-      shipping: PRICE.shippingSingle,
-      accent: false,
-    },
-    {
-      key: 'bundle',
-      titleDe: 'Drei Ketten', titleEn: 'Three chains',
-      per: PRICE.bundle,
-      total: bundleTotal,
-      shipping: PRICE.shippingBundle,
-      accent: true,
-    },
+    { key: 'single', titleDe: 'Einzelne Kette', titleEn: 'Single chain', per: p.single, total: p.single, shipping: PRICE.shippingSingle, accent: false },
+    { key: 'bundle', titleDe: 'Drei Ketten', titleEn: 'Three chains', per: p.bundle, total: bundleTotal, shipping: PRICE.shippingBundle, accent: true },
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:gap-4">
-      {plans.map(p => (
-        <div key={p.key} className="rounded-2xl p-4 sm:p-6"
-          style={{
-            background: p.accent ? 'var(--accent-wash-sm)' : 'var(--sf)',
-            border: p.accent ? '1px solid rgba(var(--accent-rgb),0.22)' : '1px solid var(--bd)',
-          }}>
-          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-            <p className="text-small uppercase tracking-[0.12em]"
-              style={{ color: p.accent ? 'var(--accent)' : 'var(--txf)' }}>
-              {de ? p.titleDe : p.titleEn}
-            </p>
-            {p.accent && (
-              <span className="num-data px-1.5 py-0.5 rounded-full" style={{ fontSize: 9.5, background: 'var(--sf)', border: '1px solid rgba(var(--accent-rgb),0.20)', color: 'var(--accent)' }}>
-                {de ? 'empfohlen' : 'recommended'}
-              </span>
-            )}
-          </div>
+    <div>
+      <h2 className="font-display font-bold text-wx-tx1 leading-tight"
+        style={{ fontSize: 'clamp(1.4rem, 2.8vw, 1.9rem)', letterSpacing: '-0.02em' }}>
+        {de ? titleDe : (service === 'rewax' ? 'Rewax' : 'Oil-to-wax switch')}
+      </h2>
+      <p className="text-[13px] mt-1 mb-5" style={{ color: 'var(--txm)' }}>{de ? subDe : subEn}</p>
 
-          <p className="font-display font-bold text-wx-tx1 mt-3 leading-none" style={{ fontSize: '1.9rem', letterSpacing: '-0.02em' }}>
-            {eur(p.per, de)}
-          </p>
-          <p className="text-[12px] mt-1.5" style={{ color: 'var(--txm)' }}>
-            {de ? 'pro Kette' : 'per chain'}
-          </p>
+      <div className="grid grid-cols-2 gap-3 sm:gap-4">
+        {plans.map(plan => (
+          <div key={plan.key} className="rounded-2xl p-4 sm:p-6"
+            style={{
+              background: plan.accent ? 'var(--accent-wash-sm)' : 'var(--sf)',
+              border: plan.accent ? '1px solid rgba(var(--accent-rgb),0.22)' : '1px solid var(--bd)',
+            }}>
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+              <p className="text-small uppercase tracking-[0.12em]"
+                style={{ color: plan.accent ? 'var(--accent)' : 'var(--txf)' }}>
+                {de ? plan.titleDe : plan.titleEn}
+              </p>
+              {plan.accent && (
+                <span className="num-data px-1.5 py-0.5 rounded-full" style={{ fontSize: 9.5, background: 'var(--sf)', border: '1px solid rgba(var(--accent-rgb),0.20)', color: 'var(--accent)' }}>
+                  {de ? 'empfohlen' : 'recommended'}
+                </span>
+              )}
+            </div>
 
-          <div className="mt-4 pt-3 space-y-1.5" style={{ borderTop: '1px solid var(--bd2)' }}>
-            <p className="num-data text-[11.5px]" style={{ color: 'var(--txm)' }}>
-              {de ? 'Wachsen' : 'Waxing'} <span style={{ color: 'var(--tx1)' }}>{eur(p.total, de)}</span>
+            <p className="font-display font-bold text-wx-tx1 mt-3 leading-none" style={{ fontSize: '1.9rem', letterSpacing: '-0.02em' }}>
+              {eur(plan.per, de)}
             </p>
-            <p className="num-data text-[11.5px]" style={{ color: 'var(--txm)' }}>
-              {de ? 'Rückversand' : 'Return shipping'} <span style={{ color: 'var(--tx1)' }}>{eur(p.shipping, de)}</span>
+            <p className="text-[12px] mt-1.5" style={{ color: 'var(--txm)' }}>
+              {de ? 'pro Kette' : 'per chain'}
             </p>
-            <p className="num-data text-[13px] pt-1.5" style={{ color: 'var(--tx1)' }}>
-              {de ? 'Gesamt' : 'Total'} <span style={{ color: 'var(--accent)' }}>{eur(p.total + p.shipping, de)}</span>
-            </p>
+
+            <div className="mt-4 pt-3 space-y-1.5" style={{ borderTop: '1px solid var(--bd2)' }}>
+              <p className="num-data text-[11.5px]" style={{ color: 'var(--txm)' }}>
+                {de ? 'Wachsen' : 'Waxing'} <span style={{ color: 'var(--tx1)' }}>{eur(plan.total, de)}</span>
+              </p>
+              <p className="num-data text-[11.5px]" style={{ color: 'var(--txm)' }}>
+                {de ? 'Rückversand' : 'Return shipping'} <span style={{ color: 'var(--tx1)' }}>{eur(plan.shipping, de)}</span>
+              </p>
+              <p className="num-data text-[13px] pt-1.5" style={{ color: 'var(--tx1)' }}>
+                {de ? 'Gesamt' : 'Total'} <span style={{ color: 'var(--accent)' }}>{eur(plan.total + plan.shipping, de)}</span>
+              </p>
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
+
+      {service === 'umstieg' && (
+        <p className="text-[12.5px] leading-relaxed mt-4 max-w-[64ch]" style={{ color: 'var(--txf)' }}>
+          {de
+            ? `Der Aufpreis gegenüber der Auffrischung ist der echte Mehraufwand: separates Lösemittelbad, gründlich entfetten, vollständig trocknen, dann erst ins Wachs. Zum Vergleich das volle Programm anderswo: ${COMPETITOR_FULL_SERVICE.map(c => `${c.name} ${eur(c.price, de)}`).join(', ')}.`
+            : `The premium over a rewax is real extra work: a separate solvent bath, thorough degreasing, full drying, then into the wax. For comparison, the full service elsewhere: ${COMPETITOR_FULL_SERVICE.map(c => `${c.name} ${eur(c.price, de)}`).join(', ')}.`}
+        </p>
+      )}
     </div>
   );
 }
 
-// ─── Page ────────────────────────────────────────────────────────────────────
+// ─── Vertrauen ──────────────────────────────────────────────────────────────
+function RewaxTrust({ de }: { de: boolean }) {
+  // Zwei echte, attribuierte eBay-Servicerezensionen. diemojakob nennt genau
+  // das Umstieg-Argument ("Ölfrei-Machen ist zeitaufwändig"); seyrane die
+  // Geschwindigkeit. Keine erfundenen Zitate.
+  const quotes = REVIEWS.filter(r => r.name === 'diemojakob' || r.name === 'seyrane');
+
+  return (
+    <section className="py-14 sm:py-20" style={{ borderTop: '1px solid var(--bd2)' }}>
+      <div className={W}>
+        <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
+          {de ? 'Vertrauen' : 'Trust'}
+        </p>
+        <h2 className="font-display font-bold text-wx-tx1 leading-tight mb-8"
+          style={{ fontSize: 'clamp(1.7rem, 3.4vw, 2.4rem)', letterSpacing: '-0.02em' }}>
+          {de ? 'Warum Leute uns ihre Kette schicken.' : 'Why people mail us their chain.'}
+        </h2>
+
+        <div className="lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-14 lg:items-start">
+          {/* Luca + Kennzahlen */}
+          <div className="mb-10 lg:mb-0">
+            <div className="flex items-center gap-3.5">
+              <img src="/images/people/luca-stage.webp" alt={de ? 'Luca von Waxcelerate' : 'Luca of Waxcelerate'}
+                className="rounded-full object-cover flex-shrink-0" style={{ width: 56, height: 56 }} loading="lazy" />
+              <div>
+                <p className="font-semibold text-[14px]" style={{ color: 'var(--tx1)' }}>Luca Teichmann</p>
+                <p className="text-[12.5px]" style={{ color: 'var(--txm)' }}>
+                  {de ? 'wächst jede Kette selbst · Stuttgart' : 'waxes every chain himself · Stuttgart'}
+                </p>
+              </div>
+            </div>
+            <dl className="mt-6 space-y-3">
+              {[
+                { v: `${trustStats.sold}+`, l: de ? 'Ketten gewachst, seit 2024' : 'chains waxed, since 2024' },
+                { v: `${trustStats.reviews}`, l: de ? 'Bewertungen · 100 % positiv' : 'reviews · 100% positive' },
+                { v: TURNAROUND[de ? 'de' : 'en'], l: de ? 'Umlauf hin und zurück' : 'round trip' },
+              ].map(({ v, l }) => (
+                <div key={l}>
+                  <p className="font-display font-bold leading-none" style={{ fontSize: '1.35rem', color: 'var(--tx1)' }}>{v}</p>
+                  <p className="text-[12px] mt-0.5" style={{ color: 'var(--txm)' }}>{l}</p>
+                </div>
+              ))}
+            </dl>
+          </div>
+
+          {/* Zitate */}
+          <div className="space-y-4">
+            {quotes.map(r => (
+              <figure key={r.name} className="rounded-2xl p-5"
+                style={{ background: 'var(--sf)', border: '1px solid var(--bd)' }}>
+                <blockquote className="text-[13.5px] leading-relaxed" style={{ color: 'var(--tx2)' }}>
+                  „{de ? r.textDe : r.textEn}"
+                </blockquote>
+                <figcaption className="text-[12px] mt-3" style={{ color: 'var(--txf)' }}>
+                  {r.name} · {de ? r.dateDe : r.dateEn} · {de ? 'eBay verifiziert' : 'eBay verified'}
+                </figcaption>
+              </figure>
+            ))}
+            <p className="text-[11.5px] leading-relaxed" style={{ color: 'var(--txff)' }}>
+              {de
+                ? 'Bewertungen aus unserem eBay-Shop, unverändert übernommen. „100 % positiv" heißt: keine negative Bewertung.'
+                : 'Reviews from our eBay shop, quoted verbatim. "100% positive" means: no negative rating.'}
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Mobile-Sticky-CTA ──────────────────────────────────────────────────────
+// Seiten-lokal, weil MobileStickyCTA auf Nicht-Home-Routen abbricht und Ziel
+// hart verdrahtet hat. Erscheint nach dem Hero, verschwindet über der Fußzeile.
+function RewaxStickyCTA({ de }: { de: boolean }) {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const form = document.querySelector('#rewax-form');
+    const foot = document.querySelector('#rewax-footer');
+    if (!form || !foot) return;
+    // Sichtbar, sobald das Formular oben aus dem Blick gescrollt ist, wieder
+    // weg, sobald die Fußzeile auftaucht.
+    let formPast = false, footIn = false;
+    const sync = () => setVisible(formPast && !footIn);
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.target === form) formPast = !e.isIntersecting && e.boundingClientRect.bottom < 0;
+        if (e.target === foot) footIn = e.isIntersecting;
+      }
+      sync();
+    }, { threshold: 0 });
+    io.observe(form); io.observe(foot);
+    return () => io.disconnect();
+  }, []);
+
+  return (
+    <div
+      className="fixed inset-x-0 bottom-0 z-40 lg:hidden transition-transform duration-300"
+      style={{
+        transform: visible ? 'translateY(0)' : 'translateY(100%)',
+        background: 'var(--pg)', borderTop: '1px solid var(--bd)',
+        paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))',
+      }}
+      aria-hidden={!visible}
+      inert={!visible}
+    >
+      <div className={`${W} pt-3`}>
+        <button type="button"
+          onClick={() => document.querySelector('#rewax-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+          className="inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-[14px] font-semibold"
+          style={{ background: 'var(--accent)', color: '#fff' }}>
+          {de ? 'Kette einschicken' : 'Send in your chain'}
+          <ArrowRight className="h-4 w-4" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Seite ──────────────────────────────────────────────────────────────────
 export function RewaxPage() {
   const { lang } = useLanguage();
   const de = lang === 'de';
+  const [service, setService] = useState<ServiceId>('rewax');
   const [isGift, setIsGift] = useState(false);
   const [giftPreview, setGiftPreview] = useState<{ count: number; price: number; list: number } | null>(null);
   const location = useLocation();
-  const waxedOn = useMemo(
-    () => waxedFromLocation(),
-    [location.search, location.hash],
-  );
+  const waxedOn = useMemo(() => waxedFromLocation(), [location.search, location.hash]);
   const waxedLabel = waxedOn
     ? waxedOn.toLocaleDateString(de ? 'de-DE' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
     : null;
 
-  // Die vorgerenderte Huelle (scripts/generate-blog-html.mjs, STATIC_PAGES)
-  // liefert fuer /kette-wachsen-lassen bereits ein WebPage-Schema,
-  // client-managed markiert (ldClientManaged) — genau damit es hier entfernt
-  // werden kann, sobald diese Seite ihre eigenen, spezifischeren Service- und
-  // FAQPage-Schemas unten via Helmet nachliefert. Ohne diesen Aufruf blieben
-  // nach der Hydration drei JSON-LD-Bloecke gleichzeitig im DOM stehen
-  // (dieselbe Klasse Bug wie vorher auf der Wissenschaftsseite). Gleiches
-  // gilt fuer die title-/description-/canonical-Tags, die das <Helmet>
-  // unten erneut setzt (siehe removeStaticHeadMeta).
   useEffect(() => { removeStaticJsonLd(); removeStaticHeadMeta(); }, []);
 
-  // Mobile-Plan B8: die URL (/kette-wachsen-lassen, seit 08/2026) war schon
-  // auf den deutschen Suchbegriff umgestellt, aber Title, H1 und Nav-Label
-  // sagten weiter "Rewax" — der Anglizismus, nach dem im deutschen Markt
-  // praktisch niemand sucht. "Rewax" bleibt als Marken-/Szenebegriff in der
-  // Unterzeile und im Schema (alternateName) erhalten, fuehrt aber nicht
-  // mehr die staerksten Ranking-Signale an.
-  const title = de
-    ? 'Fahrradkette wachsen lassen — Kettenwachs-Service aus Stuttgart | Waxcelerate'
-    : 'Rewax service for waxed chains | Waxcelerate';
-  const description = de
-    ? 'Gewachste Kette einschicken, frisch gewachst zurückbekommen. 13,95 € je Kette, 9,95 € ab drei Ketten, zzgl. Rückversand. Handgewachst in Stuttgart.'
-    : 'Send in your waxed chain, get it back freshly waxed. 13.95 € per chain, 9.95 € from three chains, plus return shipping. Hand-waxed in Stuttgart.';
+  const { title, description } = rewaxMeta(de);
+  const canonical = 'https://waxcelerate.de/kette-wachsen-lassen';
+  const ogImage = 'https://waxcelerate.de/images/rewax/hero.webp';
 
-  const schema = JSON.stringify({
-    '@context': 'https://schema.org',
-    '@type': 'Service',
-    name: de ? 'Rewax-Service' : 'Rewax service',
-    alternateName: de
-      ? ['Rewax-Service', 'Kettenwachs-Service', 'Wachsservice für Fahrradketten']
-      : ['Rewax service', 'Chain wax service', 'Bicycle chain waxing service'],
-    serviceType: de ? 'Kettenwachs-Service' : 'Chain waxing service',
-    provider: { '@type': 'Organization', name: 'Waxcelerate', url: 'https://waxcelerate.de' },
-    areaServed: 'DE',
-    url: 'https://waxcelerate.de/kette-wachsen-lassen',
-    offers: [
-      { '@type': 'Offer', name: de ? 'Einzelne Kette' : 'Single chain', price: PRICE.single.toFixed(2), priceCurrency: 'EUR' },
-      { '@type': 'Offer', name: de ? 'Drei Ketten' : 'Three chains', price: (PRICE.bundle * PRICE.bundleCount).toFixed(2), priceCurrency: 'EUR' },
-    ],
-  });
+  // Service- + FAQ-Schema aus dem geteilten Modul (identisch mit dem Prerender).
+  const schema = JSON.stringify(rewaxServiceSchema(de));
+  const faqItems = rewaxFaqItems(de);
+  const faqSchema = JSON.stringify(rewaxFaqSchema(de));
 
-  // Mobile-Plan B8, Punkt 4: vier FAQ-Fragen entlang der im Plan gelisteten
-  // Suchbegriffe ("was kostet kette wachsen lassen", "fahrradkette wachsen
-  // lassen kosten", "wo kann ich meine fahrradkette wachsen lassen", "kette
-  // wachsen lassen oder selber machen"). Frage 1+2 decken die beiden
-  // Kosten-Begriffe ab, aber mit echtem inhaltlichem Unterschied (Einzelpreis
-  // vs. Mengenrabatt) statt einer reinen Wiederholung. Preise kommen aus
-  // PRICE/eur() oben in dieser Datei, nicht neu getippt, damit hier nichts
-  // von den echten Preisen abweichen kann. Leipzig bewusst nicht erwaehnt —
-  // das laut Plan noch offene D-M2-Thema braucht erst Luca's Bestaetigung,
-  // ob der Standort noch aktiv ist.
-  const faqItems: {
-    q: string; a: string; link?: { to: string; labelDe: string; labelEn: string };
-  }[] = [
-    {
-      q: de ? 'Was kostet es, eine Fahrradkette wachsen zu lassen?' : 'How much does it cost to get a chain rewaxed?',
-      a: de
-        ? `${eur(PRICE.single, de)} für eine einzelne Kette, zuzüglich ${eur(PRICE.shippingSingle, de)} Rückversand.`
-        : `${eur(PRICE.single, de)} for a single chain, plus ${eur(PRICE.shippingSingle, de)} return shipping.`,
-    },
-    {
-      q: de ? 'Was kostet es, mehrere Fahrradketten wachsen zu lassen?' : 'How much does it cost to get several chains rewaxed?',
-      a: de
-        ? `Ab drei Ketten sinkt der Preis auf ${eur(PRICE.bundle, de)} pro Kette. Der Rückversand (${eur(PRICE.shippingBundle, de)}) fällt dabei nur einmal an, egal wie viele Ketten im selben Umschlag sind.`
-        : `From three chains the price drops to ${eur(PRICE.bundle, de)} per chain. Return shipping (${eur(PRICE.shippingBundle, de)}) is charged only once, no matter how many chains are in the same envelope.`,
-    },
-    {
-      q: de ? 'Wie funktioniert die 5er- oder 10er-Karte?' : 'How do the 5- and 10-visit cards work?',
-      a: de
-        ? `Du zahlst fünf oder zehn Wachsgänge im Voraus, der Rückversand ist im Kartenpreis schon drin. Nach dem Kauf bekommst du einen Code, den schickst du bei jeder Sendung mit — wir führen die Karte für dich. Kein Ablaufdatum, übertragbar. Gegen den Einzelpreis von ${eur(PRICE.single, de)} sparst du auf der 5er-Karte ${eur(FIVE_CARD.list - FIVE_CARD.price, de)}, auf der 10er ${eur(TEN_CARD.list - TEN_CARD.price, de)}.`
-        : `You pay for five or ten waxings up front, return shipping is already included in the card price. After purchase you get a code to include with every shipment — we keep the card for you. No expiry, transferable. Against the single price of ${eur(PRICE.single, de)} you save ${eur(FIVE_CARD.list - FIVE_CARD.price, de)} on the 5-visit card and ${eur(TEN_CARD.list - TEN_CARD.price, de)} on the 10-visit one.`,
-    },
-    {
-      // Absorbiert den frueheren eigenen "Ablauf"-Sektionskopf mit den drei
-      // Foto-Schritten — die Kurzfassung steht jetzt im Hero, die Details hier.
-      q: de ? 'Wie läuft das Rewaxen ab?' : 'How does the rewaxing process work?',
-      a: de
-        ? 'Kette am Quick-Link öffnen, in den Umschlag, einschicken — reinigen musst du vorher nichts. Wir reinigen sie professionell im Ultraschallbad und lösen das alte Wachs mit kochendem Wasser, ganz ohne Lösemittel, bevor sie in einem frischen Bad neu gewachst wird. Zurück kommt sie ausgehärtet, Glieder freigebrochen, trocken verpackt — anbauen, kurz kurbeln, fertig.'
-        : 'Open the chain at the quick link, put it in an envelope, send it in — no cleaning needed beforehand. We clean it professionally in an ultrasonic bath and release the old wax with boiling water, no solvents, before it gets waxed fresh in a clean bath. It comes back cured, links broken free, packed dry — fit it, turn the cranks, ride.',
-    },
-    {
-      q: de ? 'Wo kann ich meine Fahrradkette wachsen lassen?' : 'Where can I get my bicycle chain waxed?',
-      a: de
-        ? 'Bei uns in Stuttgart — du musst aber nicht vor Ort sein. Du schickst die Kette per Post ein, wir wachsen sie von Hand und schicken sie zurück. Das funktioniert deutschlandweit.'
-        : "With us in Stuttgart — but you don't need to be local. You send the chain by mail, we hand-wax it and send it back. This works nationwide within Germany.",
-    },
-    {
-      // Absorbiert die frühere eigene "Umfang"-Sektion (Ja/Nein-Liste + der
-      // Grund, warum eine ölige Kette nicht geht).
-      q: de ? 'Welche Ketten nehmt ihr an?' : 'Which chains do you accept?',
-      a: de
-        ? 'Jede Kette, die schon gewachst ist — unsere oder fremde, alle gängigen 9- bis 12-fach-Ketten. Was wir nicht machen: eine geölte Kette entfetten und erstmals wachsen. Eine einzige ölige Kette macht ein ganzes Wachsbad unbrauchbar, weil das Öl oben schwimmt und das Wachs nicht mehr in die Gelenke kommt.'
-        : "Any chain that's already waxed — ours or someone else's, all common 9 to 12 speed chains. What we don't do: degrease an oiled chain and wax it for the first time. A single oily chain ruins an entire wax bath, because the oil floats on top and blocks the wax from reaching the joints.",
-      link: { to: '/#anleitungen', labelDe: 'Zur Anleitung für den Umstieg', labelEn: 'To the switching guide' },
-    },
-    {
-      // Absorbiert die Intervall-Tabelle, die frueher als eigenes
-      // InstrumentFrame-Panel in einer eigenen Sektion ("Warum drei") stand.
-      // Als Frage beantwortet sie dasselbe, kostet aber keine eigene Sektion
-      // — und "wie oft muss man nachwachsen" ist ohnehin eine echte Suchfrage.
-      q: de ? 'Wie oft muss eine gewachste Kette neu gewachst werden?' : 'How often does a waxed chain need rewaxing?',
-      a: de
-        ? 'Trocken auf Asphalt 400–550 km, bei Nässe, MTB oder gemischt 200–300 km, im Winter bei Dauerregen unter 200 km. Das zuverlässigste Signal ist aber das Ohr: Wird die Kette lauter und trockener, ist sie fällig.'
-        : 'Dry on tarmac 400–550 km, in the wet, on MTB or mixed 200–300 km, in winter with constant rain under 200 km. The most reliable signal is your ear though: when the chain gets louder and drier, it is due.',
-      link: { to: '/rechner/intervall', labelDe: 'Dein Intervall in Wochen berechnen', labelEn: 'Work out your interval in weeks' },
-    },
-    {
-      q: de ? 'Kette wachsen lassen oder selbst wachsen — was lohnt sich?' : 'Send it in or wax it myself — which is worth it?',
-      a: de
-        ? 'Selbst wachsen ist einfach, kostet aber einen Abend, einen Topf und Platz für die Ausrüstung — die Anleitung dafür steht kostenlos auf dieser Seite. Der Service lohnt sich, wenn du das nicht selbst machen willst oder der Platz dafür fehlt. Ab der zweiten oder dritten Kette in Rotation rechnet er sich zusätzlich, weil der Rückversand nur einmal anfällt.'
-        : "Waxing it yourself is simple, but costs an evening, a pot and space for the gear — the guide for that is free on this page. The service is worth it if you'd rather not do that yourself or don't have the space for it. From a second or third chain in rotation it pays off further, since return shipping is only charged once.",
-    },
-  ];
-  const faqSchema = JSON.stringify({
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: faqItems.map((item) => ({
-      '@type': 'Question',
-      name: item.q,
-      acceptedAnswer: { '@type': 'Answer', text: item.a },
-    })),
-  });
+  const heroPrice = service === 'rewax'
+    ? `${de ? 'Auffrischung ab' : 'Rewax from'} ${eur(PRICE.rewax.single, de)} · ${de ? 'ab 3 Ketten' : 'from 3 chains'} ${eur(PRICE.rewax.bundle, de)}`
+    : `${de ? 'Umstieg ab' : 'Switch from'} ${eur(PRICE.umstieg.single, de)} · ${de ? 'ab 3 Ketten' : 'from 3 chains'} ${eur(PRICE.umstieg.bundle, de)}`;
+
+  const valueProp = de
+    ? `Kette einschicken, frisch gewachst zurück. Ab ${eur(PRICE.rewax.single, de)}, handgewachst in Stuttgart, zurück ${TURNAROUND.deIn}, deutschlandweit per Post.`
+    : `Send in your chain, get it back freshly waxed. From ${eur(PRICE.rewax.single, de)}, hand-waxed in Stuttgart, back within ${TURNAROUND.en}, nationwide by mail.`;
 
   return (
     <div className="min-h-screen bg-wx-bg">
       <Helmet>
         <title>{title}</title>
         <meta name="description" content={description} />
-        <link rel="canonical" href="https://waxcelerate.de/kette-wachsen-lassen" />
+        <link rel="canonical" href={canonical} />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Waxcelerate" />
+        <meta property="og:locale" content={de ? 'de_DE' : 'en_US'} />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={canonical} />
+        <meta property="og:image" content={ogImage} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
+        <meta name="twitter:image" content={ogImage} />
         <script type="application/ld+json">{schema}</script>
         <script type="application/ld+json">{faqSchema}</script>
       </Helmet>
 
       <Navigation />
 
-      {/* Mobile-Plan B7d: kein <main>-Landmark auf dieser Seite — "zum
-          Inhalt springen" hatte nichts zum Ansteuern. */}
       <main id="main-content">
       {/* ── Hero ── */}
-      <section className="relative pt-28 sm:pt-36 pb-14 sm:pb-20" style={{ background: 'var(--pg)' }}>
-        {/* Kopf ueber die volle Breite, damit darunter die Bild-Oberkante mit
-            der Formular-Oberkante fluchtet (vorher zentrierte lg:items-center
-            das Bild gegen die hoehere Formularspalte). */}
+      <section id="rewax-hero" className="relative pt-28 sm:pt-36 pb-14 sm:pb-20" style={{ background: 'var(--pg)' }}>
         <div className={W}>
           <BackLink de={de} className="mb-6 sm:mb-8" />
-          <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
-            {de ? 'Service' : 'Service'}
-          </p>
+          <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>Service</p>
           <h1 className="font-display font-bold leading-[1.05] max-w-[16ch]"
             style={{ color: 'var(--tx1)', fontSize: 'clamp(2.2rem, 5vw, 3.4rem)', letterSpacing: '-0.02em' }}>
             {de ? 'Fahrradkette wachsen lassen.' : 'Get your chain rewaxed.'}
           </h1>
+          <p className="text-[15px] leading-relaxed mt-4 max-w-[52ch]" style={{ color: 'var(--txm)' }}>
+            {valueProp}
+          </p>
           {waxedLabel && (
-            <p className="text-[14px] font-semibold mt-5" style={{ color: 'var(--accent-soft)' }}>
+            <p className="text-[14px] font-semibold mt-4" style={{ color: 'var(--accent-soft)' }}>
               {de
                 ? `Deine Karte: gewachst am ${waxedLabel}. Trocken klingt → jetzt einschicken.`
                 : `Your card: waxed ${waxedLabel}. Sounds dry → send it in.`}
@@ -758,15 +762,21 @@ export function RewaxPage() {
         </div>
 
         <div className={`${W} mt-8 flex flex-col lg:flex-row lg:items-start lg:gap-14`}>
-          {/* Formular ist der primaere Bestellweg, nicht mehr WhatsApp:
-              es deckt die Auswahl (Karte, Anzahl, Geschenk) praezise ab,
-              statt sie in einen Chat-Text zu quetschen, und braucht keine
-              installierte/verknuepfte WhatsApp-Nummer — wichtig, weil das
-              hier der einzige wiederkehrende Umsatz im ganzen Modell ist,
-              also jede zusaetzliche Huerde real kostet. WhatsApp bleibt als
-              leiser Zweitlink darunter (anderer Kanal, keine Weiterleitung). */}
-          <div className="lg:flex-1">
-            <RewaxRequestForm de={de} />
+          <div id="rewax-form" className="lg:flex-1 scroll-mt-24">
+            {UMSTIEG_LIVE && (
+              <div className="mb-4">
+                <p className="block text-sm font-medium mb-2" style={{ color: 'var(--txm)' }}>
+                  {de ? 'Wie ist deine Kette jetzt?' : 'What state is your chain in?'}
+                </p>
+                <ServiceChooser service={service} onChange={setService} de={de} />
+              </div>
+            )}
+            <RewaxRequestForm de={de} service={service} />
+            <p className="text-[12px] mt-3" style={{ color: 'var(--txm)' }}>
+              {de
+                ? `★ ${trustStats.reviews} Bewertungen · 100 % positiv · Antwort meist am selben Tag`
+                : `★ ${trustStats.reviews} reviews · 100% positive · usually a same-day reply`}
+            </p>
             <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-4">
               <a href={waLink(de, waxedLabel)} target="_blank" rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 text-[13.5px] font-semibold" style={{ color: 'var(--tx1)' }}>
@@ -791,13 +801,7 @@ export function RewaxPage() {
               {de ? 'AUSGEHÄRTET, STUTTGART' : 'CURED, STUTTGART'}
             </p>
 
-            {/* Ab lg: kompakter Ablauf + Preis-Kurzfassung fuellen den Raum,
-                den lg:items-start neben dem hoeheren Formular sonst leer
-                laesst — so zeigt der erste Bildschirm Bild, Formular, Ablauf
-                und Preis auf einmal. Unter lg ausgeblendet (Formular bleibt
-                oben); der volle Ablauf mit Fotos steht dann in der
-                Preis-Sektion. */}
-            <div className="hidden lg:block mt-7 pt-6" style={{ borderTop: '1px solid var(--bd2)' }}>
+            <div className="mt-7 pt-6" style={{ borderTop: '1px solid var(--bd2)' }}>
               <p className="text-small uppercase tracking-[0.16em] mb-3" style={{ color: 'var(--txf)' }}>
                 {de ? 'So läuft’s ab' : 'How it works'}
               </p>
@@ -813,9 +817,7 @@ export function RewaxPage() {
                 ))}
               </ol>
               <p className="text-[12.5px] leading-relaxed mt-4" style={{ color: 'var(--txm)' }}>
-                {de
-                  ? `Einzeln ${eur(PRICE.single, de)} · ab 3 Ketten ${eur(PRICE.bundle, de)}/Kette · Karten ab ${eur(TEN_CARD.price / TEN_CARD.count, de)} je Vorgang, Rückversand inklusive`
-                  : `Single ${eur(PRICE.single, de)} · from 3 chains ${eur(PRICE.bundle, de)}/chain · cards from ${eur(TEN_CARD.price / TEN_CARD.count, de)} per treatment, return shipping included`}
+                {heroPrice} · {de ? 'Karten ab' : 'cards from'} {eur(TEN_CARD.price / TEN_CARD.count, de)} {de ? 'je Vorgang, Rückversand inklusive' : 'per treatment, return shipping included'}
               </p>
               <a href="#preise" className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold mt-2" style={{ color: 'var(--accent)' }}>
                 {de ? 'Alle Preise' : 'All prices'}
@@ -824,14 +826,9 @@ export function RewaxPage() {
             </div>
           </div>
         </div>
-
       </section>
 
-      {/* ── Preise ──
-          Der Ablauf (1-2-3) stand hier vorher als eigene sticky-Spalte. Ab lg
-          steht die Kurzfassung jetzt im Hero neben dem Formular (ein Blick,
-          alles da) — hier waere sie doppelt. Unter lg, wo im Hero kein Platz
-          ist, bleiben die Foto-Schritte an dieser Stelle. */}
+      {/* ── Preise ── */}
       <section id="preise" className="scroll-mt-24 py-14 sm:py-20" style={{ borderTop: '1px solid var(--bd2)' }}>
         <div className={W}>
 
@@ -860,28 +857,41 @@ export function RewaxPage() {
             ))}
           </div>
 
-          <div className="max-w-[760px]">
-            <h2 className="font-display font-bold text-wx-tx1 leading-tight mb-8"
-              style={{ fontSize: 'clamp(1.7rem, 3.4vw, 2.4rem)', letterSpacing: '-0.02em' }}>
-              {de ? 'Preise' : 'Pricing'}
-            </h2>
+          <div className="max-w-[760px] space-y-12">
+            <ServicePricing de={de} service="rewax" />
+            {UMSTIEG_LIVE && (
+              <div className="pt-12" style={{ borderTop: '1px solid var(--bd2)' }}>
+                <ServicePricing de={de} service="umstieg" />
+              </div>
+            )}
 
-            <Pricing de={de} />
-
-            <p className="text-[13px] leading-relaxed max-w-[62ch] mt-6" style={{ color: 'var(--txff)' }}>
+            <p className="text-[13px] leading-relaxed max-w-[62ch]" style={{ color: 'var(--txff)' }}>
               {de
                 ? 'Hinversand trägst du. Bei Einzelbestellung ist der Rückversand oben eingerechnet, bei den Karten steckt er im Kartenpreis. Wir arbeiten als Kleinunternehmer nach § 19 UStG, es wird keine Umsatzsteuer ausgewiesen.'
                 : 'You cover the shipping to us. For single orders return shipping is included above, for the cards it is part of the card price. We operate under the German small business rule, so no VAT is shown.'}
             </p>
 
-            {/* ── Vorausbezahlte Karten ──
-                Dieselbe Frage ("was kostet das") in einer zweiten Variante —
-                als Untertitel hinter einer Haarlinie, kein neues Thema. Zwei
-                Größen plus ein Für-mich/Geschenk-Umschalter: "als Geschenk"
-                ändert die Bestellnachricht und öffnet die Geschenk-Vorschau. */}
-            <div className="mt-12 pt-10" style={{ borderTop: '1px solid var(--bd2)' }}>
-              <p className="text-small uppercase tracking-[0.16em] mb-6" style={{ color: 'var(--txf)' }}>
-                {de ? 'Mehrere Vorgänge, einmal bezahlt.' : 'Several treatments, paid once.'}
+            {/* ── Aus ganz Deutschland ── */}
+            <div className="pt-12" style={{ borderTop: '1px solid var(--bd2)' }}>
+              <h2 className="font-display font-bold text-wx-tx1 leading-tight mb-4"
+                style={{ fontSize: 'clamp(1.4rem, 2.8vw, 1.9rem)', letterSpacing: '-0.02em' }}>
+                {de ? 'Aus ganz Deutschland einschicken.' : 'Send it from anywhere in Germany.'}
+              </h2>
+              <p className="text-[14px] leading-relaxed max-w-[62ch]" style={{ color: 'var(--txm)' }}>
+                {de
+                  ? `Der Service ist reiner Postversand. Egal ob ${CITIES.join(', ')} oder das Dorf dazwischen — die Kette geht im Großbrief (${eur(PRICE.shippingSingle, de)}) zu uns nach Stuttgart, wird am Eingangstag oder tags darauf gewachst und kommt im Maxibrief zurück. Hin und zurück bist du meist ${TURNAROUND.deIn} wieder auf dem Rad.`
+                  : `The service is purely by mail. Whether ${CITIES.join(', ')} or the village in between — the chain travels to us in Stuttgart as a letter (${eur(PRICE.shippingSingle, de)}), gets waxed the day it arrives or the next, and comes back. Round trip you're usually riding again within ${TURNAROUND.en}.`}
+              </p>
+            </div>
+
+            {/* ── Prepaid-Karten ── */}
+            <div className="pt-12" style={{ borderTop: '1px solid var(--bd2)' }}>
+              <h2 className="font-display font-bold text-wx-tx1 leading-tight"
+                style={{ fontSize: 'clamp(1.4rem, 2.8vw, 1.9rem)', letterSpacing: '-0.02em' }}>
+                {de ? 'Prepaid-Karten für die Auffrischung.' : 'Prepaid cards for rewaxing.'}
+              </h2>
+              <p className="text-[13px] mt-1 mb-6" style={{ color: 'var(--txm)' }}>
+                {de ? 'Mehrere Vorgänge im Voraus, einmal bezahlt. Nicht für den Umstieg.' : 'Several treatments up front, paid once. Not for the oil-to-wax switch.'}
               </p>
 
               <div className="flex justify-center mb-6">
@@ -910,8 +920,6 @@ export function RewaxPage() {
                   onPreview={() => setGiftPreview({ count: TEN_CARD.count, price: TEN_CARD.price, list: TEN_CARD.list })} />
               </div>
 
-              {/* Wie man die Karte einloest: einmal unter beiden Karten statt
-                  auf jeder — die Karte selbst soll keine Textwand sein. */}
               <p className="text-[12px] leading-relaxed mt-4 max-w-[64ch]" style={{ color: 'var(--txf)' }}>
                 {de
                   ? (isGift
@@ -926,13 +934,9 @@ export function RewaxPage() {
         </div>
       </section>
 
-      {/* ── FAQ ──
-          Mobile-Plan B8, Punkt 4. Bewusst als natives <details>/<summary>
-          statt der Akkordeon-Komponente von der Startseite (sections/faq.tsx)
-          — kein eigener JS-Zustand noetig, funktioniert per Tastatur und
-          Screenreader ohne Zusatzcode, und fuer vier Fragen auf einer
-          Service-Seite ist die Suchleiste/"Alle anzeigen"-Logik der
-          Startseiten-Variante ohnehin ueberdimensioniert. */}
+      <RewaxTrust de={de} />
+
+      {/* ── FAQ ── */}
       <section className="py-14 sm:py-20" style={{ borderTop: '1px solid var(--bd2)', background: 'var(--sf)' }}>
         <div className={W}>
           <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
@@ -964,18 +968,34 @@ export function RewaxPage() {
               </details>
             ))}
           </div>
+
+          {/* Interne Links raus — SEO + Verweildauer */}
+          <div className="mt-10 pt-8 max-w-[720px]" style={{ borderTop: '1px solid var(--bd2)' }}>
+            <p className="text-small uppercase tracking-[0.16em] mb-4" style={{ color: 'var(--txf)' }}>
+              {de ? 'Mehr zum Thema' : 'More on this'}
+            </p>
+            <div className="flex flex-wrap gap-x-5 gap-y-2 text-[13.5px] font-semibold">
+              {[
+                { to: '/blog/von-oel-auf-wachs-umsteigen', de: 'Von Öl auf Wachs umsteigen', en: 'Switching from oil to wax' },
+                { to: '/rechner/intervall', de: 'Wachs-Intervall berechnen', en: 'Work out your wax interval' },
+                { to: '/wissenschaft', de: 'Die Wissenschaft dahinter', en: 'The science behind it' },
+                { to: '/starter-set', de: 'Selbst wachsen: Starter-Set', en: 'Wax it yourself: starter set' },
+              ].map(l => (
+                <Link key={l.to} to={l.to} className="inline-flex items-center gap-1.5" style={{ color: 'var(--tx1)' }}>
+                  {de ? l.de : l.en}
+                  <ArrowRight className="h-3.5 w-3.5" style={{ color: 'var(--accent)' }} />
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
-
-      {/* Der fruehere Bild-Band-CTA am Seitenende ist raus: dasselbe hero.webp
-          ein zweites Mal, weisse Schrift aufs dunkle Foto, und inhaltlich
-          nichts, was der Hero (Formular, WhatsApp, "Was kostet das?") nicht
-          schon traegt. Weniger Seite, weniger Friction. */}
       </main>
 
       <GiftPreviewModal open={!!giftPreview} onClose={() => setGiftPreview(null)} de={de} data={giftPreview} />
+      <RewaxStickyCTA de={de} />
 
-      <footer className={`${W} py-12 text-center`} style={{ borderTop: '1px solid var(--bd2)' }}>
+      <footer id="rewax-footer" className={`${W} py-12 text-center`} style={{ borderTop: '1px solid var(--bd2)' }}>
         <Link to="/" className="inline-flex items-center gap-2 text-[13px] text-wx-txm transition-opacity hover:opacity-70">
           <ArrowLeft className="h-4 w-4" />
           {de ? 'Zurück zur Startseite' : 'Back to home'}

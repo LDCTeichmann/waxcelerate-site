@@ -31,7 +31,7 @@ export type Review = {
 // 1 / 4 / 6 / 9 / 11 mit je mindestens einer Textkarte dazwischen; die zwei
 // S-Works trennt ride-3, die zwei dunklen Räder trennt ride-2, und die letzte
 // Foto-Karte (ride-5, türkis) grenzt beim Marquee-Loop an die erste (ride-1).
-const REVIEWS: Review[] = [
+export const REVIEWS: Review[] = [
   {
     textDe: 'Bin jahrelang Öl gefahren und eher skeptisch rangegangen. Erster Eindruck nach dem Wechsel: Die Kette bleibt einfach sauber — kein schwarzer Rand mehr an der Wade, Finger bleiben sauber beim Rad einladen. Dazu läuft der Antrieb spürbar leiser. Eine Wachsung hält bei mir gut 300 km. Kein Zurück mehr zum Öl.',
     textEn: 'Ran oil for years and went in pretty skeptical. First impression after switching: the chain just stays clean — no more black mark on my calf, clean fingers loading the bike. And the drivetrain runs noticeably quieter. One wax lasts me a good 300 km. No going back to oil.',

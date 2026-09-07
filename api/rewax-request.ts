@@ -14,8 +14,13 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
  * submit target, not redesigning the form.
  */
 type TierId = 'single' | 'bundle3' | 'five' | 'ten';
+// Mirrors ServiceId in src/pages/rewax/content.ts. Kept inline rather than
+// imported — api/ sits outside the src/ tsconfig and the Vercel function
+// bundle, and a two-value union isn't worth crossing that boundary for.
+type ServiceId = 'rewax' | 'umstieg';
 
 interface RewaxRequestBody {
+  service: ServiceId;
   tierId: TierId;
   quantity?: number;
   isGift: boolean;
@@ -30,6 +35,11 @@ const TIER_LABELS: Record<TierId, string> = {
   bundle3: 'Drei Ketten',
   five: '5er-Karte',
   ten: '10er-Karte',
+};
+
+const SERVICE_LABELS: Record<ServiceId, string> = {
+  rewax: 'Auffrischung (gewachste Kette)',
+  umstieg: 'Umstieg (geölte/neue Kette, Entfetten + Erstwachsen)',
 };
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -77,14 +87,21 @@ async function sendEmail(to: string, subject: string, html: string): Promise<boo
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).end();
 
-  const { tierId, quantity, isGift, name, contact, message, honeypot } = req.body as Partial<RewaxRequestBody>;
+  const { service, tierId, quantity, isGift, name, contact, message, honeypot } = req.body as Partial<RewaxRequestBody>;
 
   // Bots fill every field, including ones real users never see. Report
   // success without sending anything, so the bot has no signal to retry.
   if (honeypot) return res.json({ success: true });
 
+  // `service` optional for backward compatibility with any cached client that
+  // still posts the old shape — default to a rewax so nothing 400s.
+  const safeService: ServiceId = service && service in SERVICE_LABELS ? service : 'rewax';
   if (!tierId || !(tierId in TIER_LABELS)) {
     return res.status(400).json({ error: 'Bitte eine Kartengröße auswählen.' });
+  }
+  // Prepaid cards are rewax-only — the switch is a one-off per chain.
+  if (safeService === 'umstieg' && (tierId === 'five' || tierId === 'ten')) {
+    return res.status(400).json({ error: 'Die 5er- und 10er-Karte gelten nur für die Auffrischung.' });
   }
   if (!name?.trim() || !contact?.trim()) {
     return res.status(400).json({ error: 'Bitte Name und Kontakt angeben.' });
@@ -94,6 +111,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const safeTierLabel = TIER_LABELS[tierId];
+  const safeServiceLabel = SERVICE_LABELS[safeService];
   const safeName = escapeHtml(name.trim());
   const safeContact = escapeHtml(contact.trim());
   const safeMessage = message?.trim() ? escapeHtml(message.trim()) : '';
@@ -103,9 +121,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const [ownerNotified] = await Promise.all([
     sendEmail(
       OWNER_EMAIL,
-      `Rewax-Anfrage: ${safeTierLabel}${isGift ? ' (Geschenk)' : ''}`,
+      `Rewax-Anfrage: ${safeServiceLabel} · ${safeTierLabel}${isGift ? ' (Geschenk)' : ''}`,
       `<p>Neue Rewax-Anfrage über das Formular (${receivedAt}):</p>
        <ul>
+         <li><strong>Leistung:</strong> ${safeServiceLabel}</li>
          <li><strong>Karte:</strong> ${safeTierLabel}${isGift ? ' — als Geschenk' : ''}</li>
          ${safeQuantity ? `<li><strong>Anzahl Ketten:</strong> ${safeQuantity}</li>` : ''}
          <li><strong>Name:</strong> ${safeName}</li>
@@ -120,7 +139,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           contact.trim(),
           'Deine Anfrage bei Waxcelerate ist angekommen',
           `<p>Hallo ${safeName},</p>
-           <p>deine Anfrage (${safeTierLabel}${isGift ? ', als Geschenk' : ''}) ist bei uns eingegangen.
+           <p>deine Anfrage (${safeServiceLabel} — ${safeTierLabel}${isGift ? ', als Geschenk' : ''}) ist bei uns eingegangen.
            Wir melden uns in Kürze mit der Versandadresse und den nächsten Schritten.</p>
            <p>Viele Grüße<br />Luca, Waxcelerate</p>`
         )
@@ -129,7 +148,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (!ownerNotified) {
     console.error('[rewax-request] ALERT: owner notification failed to send', {
-      tierId, safeQuantity, safeName, safeContact, receivedAt,
+      safeService, tierId, safeQuantity, safeName, safeContact, receivedAt,
     });
   }
 
