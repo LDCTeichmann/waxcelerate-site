@@ -5,7 +5,7 @@
 //   Auffrischung  — eine bereits gewachste Kette neu wachsen. Altes Wachs löst
 //                   kochendes Wasser, ganz ohne Lösemittel; dann frisches Bad.
 //   Umstieg       — eine geölte oder fabrikneue Kette auf Wachs umstellen. Sie
-//                   kommt zuerst in ein SEPARATES Lösemittelbad, wird gründlich
+//                   kommt zuerst in ein SEPARATES Ultraschallbad, wird gründlich
 //                   entfettet und getrocknet, bevor sie das erste Mal ins Wachs
 //                   geht. So sieht das Wachsbad nie eine ölige Kette — die würde
 //                   eine ganze Charge unbrauchbar machen (Öl schwimmt oben,
@@ -52,12 +52,36 @@ const waLink = (de: boolean, waxedLabel?: string | null) =>
         + ' Number of chains: '),
   );
 
-// Ablauf-Schritte: eine Quelle, zwei Darstellungen — kompakte Textliste im
-// Hero (ab lg) und im Mobile-Block, Foto-Schritte in der Preis-Sektion (unter lg).
+// Ablauf-Schritte — echte Fotos (public/images/rewax/step-*), kleines Bild +
+// beschreibender Text daneben. Eigene Sektion, auf allen Breakpoints sichtbar.
 const STEPS = [
-  { n: 1, de: 'Einschicken', en: 'Send it', bodyDe: 'Am Quick-Link raus, in den Umschlag.', bodyEn: 'Off at the quick link, into an envelope.', img: '/images/rewax/step-1' },
-  { n: 2, de: 'Waschen & Wachsen', en: 'Wash & wax', bodyDe: 'Gereinigt (Umstieg: entfettet), dann frisch im Wachsbad.', bodyEn: 'Cleaned (switch: degreased), then fresh in the wax bath.', img: '/images/rewax/step-2' },
-  { n: 3, de: 'Zurück aufs Rad', en: 'Back on the bike', bodyDe: 'Ausgehärtet, anbauen, kurbeln, los.', bodyEn: 'Cured, fit it, turn the cranks, ride.', img: '/images/rewax/step-3' },
+  {
+    n: 1,
+    de: 'Einschicken', en: 'Send it in',
+    bodyDe: 'Kette am Quick-Link öffnen, in einen gepolsterten Umschlag, als Großbrief (1,80 €) an unsere Adresse in Stuttgart. Vorher reinigen musst du nichts — den Quick-Link einfach mit dazulegen. Aus ganz Deutschland, meist 1 bis 2 Werktage zu uns.',
+    bodyEn: 'Open the chain at the quick link, into a padded envelope, as a letter (1.80 €) to our address in Stuttgart. No cleaning needed beforehand — just drop the quick link in with it. From anywhere in Germany, usually 1 to 2 working days to us.',
+    img: '/images/rewax/step-1',
+    altDe: 'Fahrradkette und Quick-Link neben einem Waxcelerate-Versandumschlag',
+    altEn: 'Bike chain and quick link next to a Waxcelerate mailing envelope',
+  },
+  {
+    n: 2,
+    de: 'Reinigen & Wachsen', en: 'Clean & wax',
+    bodyDe: 'Eine bereits gewachste Kette lösen wir mit kochendem Wasser vom alten Wachs, ganz ohne Lösemittel. Eine geölte oder fabrikneue Kette kommt zuerst in ein separates Ultraschallbad und wird gründlich entfettet und getrocknet. Dann geht sie ins frische Wachsbad, härtet aus, und wir brechen die Glieder frei.',
+    bodyEn: "An already-waxed chain we release from the old wax with boiling water, no solvents at all. An oiled or factory-new chain first goes into a separate ultrasonic bath and is thoroughly degreased and dried. Then into a fresh wax bath, it cures, and we break the links free.",
+    img: '/images/rewax/step-2',
+    altDe: 'Kette hängt an einem Draht über einem Edelstahl-Wachsbad',
+    altEn: 'Chain hanging on a wire above a stainless-steel wax bath',
+  },
+  {
+    n: 3,
+    de: 'Zurück & anbauen', en: 'Back & refit',
+    bodyDe: 'Trocken verpackt zurück im Maxibrief, in der Regel 3 bis 5 Werktage ab Ankunft bei uns. Quick-Link schließen, kurz einkurbeln, fertig — der Antrieb läuft leiser und bleibt sauber.',
+    bodyEn: 'Packed dry and sent back as a large letter, usually 3 to 5 working days after it reaches us. Close the quick link, turn the cranks a few times, done — the drivetrain runs quieter and stays clean.',
+    img: '/images/rewax/step-3',
+    altDe: 'Frisch gewachste Kette und versiegelte Verpackung auf Schiefer',
+    altEn: 'Freshly waxed chain and sealed packaging on slate',
+  },
 ] as const;
 
 function parseWaxedStamp(raw: string | null): Date | null {
@@ -558,11 +582,59 @@ function ServicePricing({ de, service }: { de: boolean; service: ServiceId }) {
       {service === 'umstieg' && (
         <p className="text-[12.5px] leading-relaxed mt-4 max-w-[64ch]" style={{ color: 'var(--txf)' }}>
           {de
-            ? `Der Aufpreis gegenüber der Auffrischung ist der echte Mehraufwand: separates Lösemittelbad, gründlich entfetten, vollständig trocknen, dann erst ins Wachs. Zum Vergleich das volle Programm anderswo: ${COMPETITOR_FULL_SERVICE.map(c => `${c.name} ${eur(c.price, de)}`).join(', ')}.`
-            : `The premium over a rewax is real extra work: a separate solvent bath, thorough degreasing, full drying, then into the wax. For comparison, the full service elsewhere: ${COMPETITOR_FULL_SERVICE.map(c => `${c.name} ${eur(c.price, de)}`).join(', ')}.`}
+            ? `Der Aufpreis gegenüber der Auffrischung ist der echte Mehraufwand: separates Ultraschallbad, gründlich entfetten, vollständig trocknen, dann erst ins Wachs. Zum Vergleich das volle Programm anderswo: ${COMPETITOR_FULL_SERVICE.map(c => `${c.name} ${eur(c.price, de)}`).join(', ')}.`
+            : `The premium over a rewax is real extra work: a separate ultrasonic bath, thorough degreasing, full drying, then into the wax. For comparison, the full service elsewhere: ${COMPETITOR_FULL_SERVICE.map(c => `${c.name} ${eur(c.price, de)}`).join(', ')}.`}
         </p>
       )}
     </div>
+  );
+}
+
+// ─── So läuft's ab ──────────────────────────────────────────────────────────
+// Echte Fotos (public/images/rewax/step-*), kleines Bild + beschreibender Text
+// daneben. Eigene Sektion, auf allen Breakpoints sichtbar — die frühere
+// text-only-Liste im Hero und der Mobile-only-Fotostreifen sind dafür raus.
+function RewaxSteps({ de }: { de: boolean }) {
+  return (
+    <section id="ablauf" className="scroll-mt-24 py-14 sm:py-20" style={{ borderTop: '1px solid var(--bd2)' }}>
+      <div className={W}>
+        <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
+          {de ? 'Ablauf' : 'How it works'}
+        </p>
+        <h2 className="font-display font-bold text-wx-tx1 leading-tight mb-10"
+          style={{ fontSize: 'clamp(1.7rem, 3.4vw, 2.4rem)', letterSpacing: '-0.02em' }}>
+          {de ? 'So läuft’s ab.' : 'How it works.'}
+        </h2>
+        <div className="max-w-[760px]">
+          {STEPS.map((s, i) => (
+            <div key={s.n}
+              className="flex gap-4 sm:gap-6 py-6"
+              style={{ borderBottom: i < STEPS.length - 1 ? '1px solid var(--bd2)' : 'none' }}>
+              <div className="flex-shrink-0 w-24 sm:w-36 lg:w-44 rounded-xl overflow-hidden self-start"
+                style={{ aspectRatio: '4 / 3', background: 'var(--sf2)' }}>
+                <img src={`${s.img}.webp`}
+                  srcSet={`${s.img}-800.webp 800w, ${s.img}.webp 1200w`}
+                  sizes="(max-width: 640px) 96px, (max-width: 1024px) 144px, 176px"
+                  alt={de ? s.altDe : s.altEn}
+                  loading="lazy" decoding="async"
+                  className="w-full h-full object-cover" />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-baseline gap-2">
+                  <span className="num-data font-bold" style={{ color: 'var(--accent)', fontSize: 13 }}>{s.n}</span>
+                  <h3 className="font-semibold text-[15px] sm:text-[16px]" style={{ color: 'var(--tx1)' }}>
+                    {de ? s.de : s.en}
+                  </h3>
+                </div>
+                <p className="text-[13.5px] sm:text-[14px] leading-relaxed mt-1.5" style={{ color: 'var(--txm)' }}>
+                  {de ? s.bodyDe : s.bodyEn}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -601,7 +673,7 @@ function RewaxTrust({ de }: { de: boolean }) {
               {[
                 { v: `${trustStats.sold}+`, l: de ? 'Ketten gewachst, seit 2024' : 'chains waxed, since 2024' },
                 { v: `${trustStats.reviews}`, l: de ? 'Bewertungen · 100 % positiv' : 'reviews · 100% positive' },
-                { v: TURNAROUND[de ? 'de' : 'en'], l: de ? 'Umlauf hin und zurück' : 'round trip' },
+                { v: de ? TURNAROUND.short : TURNAROUND.shortEn, l: de ? 'Bearbeitung ab Ankunft' : 'processing after arrival' },
               ].map(({ v, l }) => (
                 <div key={l}>
                   <p className="font-display font-bold leading-none" style={{ fontSize: '1.35rem', color: 'var(--tx1)' }}>{v}</p>
@@ -713,8 +785,8 @@ export function RewaxPage() {
     : `${de ? 'Umstieg ab' : 'Switch from'} ${eur(PRICE.umstieg.single, de)} · ${de ? 'ab 3 Ketten' : 'from 3 chains'} ${eur(PRICE.umstieg.bundle, de)}`;
 
   const valueProp = de
-    ? `Kette einschicken, frisch gewachst zurück. Ab ${eur(PRICE.rewax.single, de)}, handgewachst in Stuttgart, zurück ${TURNAROUND.deIn}, deutschlandweit per Post.`
-    : `Send in your chain, get it back freshly waxed. From ${eur(PRICE.rewax.single, de)}, hand-waxed in Stuttgart, back within ${TURNAROUND.en}, nationwide by mail.`;
+    ? `Kette einschicken, frisch gewachst zurück. Ab ${eur(PRICE.rewax.single, de)}, handgewachst in Stuttgart, deutschlandweit per Post. Bearbeitung ${TURNAROUND.full}.`
+    : `Send in your chain, get it back freshly waxed. From ${eur(PRICE.rewax.single, de)}, hand-waxed in Stuttgart, nationwide by mail. Processing ${TURNAROUND.fullEn}.`;
 
   return (
     <div className="min-h-screen bg-wx-bg">
@@ -803,59 +875,36 @@ export function RewaxPage() {
 
             <div className="mt-7 pt-6" style={{ borderTop: '1px solid var(--bd2)' }}>
               <p className="text-small uppercase tracking-[0.16em] mb-3" style={{ color: 'var(--txf)' }}>
-                {de ? 'So läuft’s ab' : 'How it works'}
+                {de ? 'Ablauf' : 'How it works'}
               </p>
-              <ol className="space-y-2">
-                {STEPS.map((s) => (
-                  <li key={s.n} className="flex gap-2.5 text-[13px] leading-snug">
-                    <span className="num-data flex-shrink-0 font-bold" style={{ color: 'var(--accent)' }}>{s.n}</span>
-                    <span style={{ color: 'var(--txm)' }}>
-                      <span className="font-semibold" style={{ color: 'var(--tx1)' }}>{de ? s.de : s.en}</span>
-                      {' — '}{de ? s.bodyDe : s.bodyEn}
-                    </span>
-                  </li>
-                ))}
-              </ol>
+              <p className="text-[13px] leading-relaxed" style={{ color: 'var(--tx1)' }}>
+                {de
+                  ? '1. Einschicken → 2. Reinigen & Wachsen → 3. Zurück & anbauen.'
+                  : '1. Send it in → 2. Clean & wax → 3. Back & refit.'}
+              </p>
               <p className="text-[12.5px] leading-relaxed mt-4" style={{ color: 'var(--txm)' }}>
                 {heroPrice} · {de ? 'Karten ab' : 'cards from'} {eur(TEN_CARD.price / TEN_CARD.count, de)} {de ? 'je Vorgang, Rückversand inklusive' : 'per treatment, return shipping included'}
               </p>
-              <a href="#preise" className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold mt-2" style={{ color: 'var(--accent)' }}>
-                {de ? 'Alle Preise' : 'All prices'}
-                <ArrowRight className="h-3 w-3" />
-              </a>
+              <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
+                <a href="#ablauf" className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold" style={{ color: 'var(--accent)' }}>
+                  {de ? 'Ablauf im Detail' : 'The process in detail'}
+                  <ArrowRight className="h-3 w-3" />
+                </a>
+                <a href="#preise" className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold" style={{ color: 'var(--accent)' }}>
+                  {de ? 'Alle Preise' : 'All prices'}
+                  <ArrowRight className="h-3 w-3" />
+                </a>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
+      <RewaxSteps de={de} />
+
       {/* ── Preise ── */}
       <section id="preise" className="scroll-mt-24 py-14 sm:py-20" style={{ borderTop: '1px solid var(--bd2)' }}>
         <div className={W}>
-
-          <div className="lg:hidden mb-12 max-w-md">
-            <p className="text-small uppercase tracking-[0.16em] mb-5" style={{ color: 'var(--txf)' }}>
-              {de ? 'So läuft’s ab' : 'How it works'}
-            </p>
-            {STEPS.map((s, i) => (
-              <div key={s.n} className="flex items-center gap-3 py-3.5"
-                style={{ borderBottom: i < 2 ? '1px solid var(--bd2)' : 'none' }}>
-                <span className="num-data flex-shrink-0 rounded-full flex items-center justify-center font-bold"
-                  style={{ width: 22, height: 22, background: 'var(--accent-wash-sm)', color: 'var(--accent)', fontSize: 11.5 }}>
-                  {s.n}
-                </span>
-                <div className="flex-shrink-0 rounded-xl overflow-hidden" style={{ width: 60, height: 48, background: 'var(--sf2)' }}>
-                  <img src={`${s.img}-800.webp`} alt="" aria-hidden loading="lazy" decoding="async"
-                    className="w-full h-full object-cover" />
-                </div>
-                <div>
-                  <p className="font-semibold text-[13.5px]" style={{ color: 'var(--tx1)' }}>{de ? s.de : s.en}</p>
-                  <p className="text-[12.5px] leading-snug mt-0.5" style={{ color: 'var(--txm)' }}>
-                    {de ? s.bodyDe : s.bodyEn}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
 
           <div className="max-w-[760px] space-y-12">
             <ServicePricing de={de} service="rewax" />
@@ -879,8 +928,8 @@ export function RewaxPage() {
               </h2>
               <p className="text-[14px] leading-relaxed max-w-[62ch]" style={{ color: 'var(--txm)' }}>
                 {de
-                  ? `Der Service ist reiner Postversand. Egal ob ${CITIES.join(', ')} oder das Dorf dazwischen — die Kette geht im Großbrief (${eur(PRICE.shippingSingle, de)}) zu uns nach Stuttgart, wird am Eingangstag oder tags darauf gewachst und kommt im Maxibrief zurück. Hin und zurück bist du meist ${TURNAROUND.deIn} wieder auf dem Rad.`
-                  : `The service is purely by mail. Whether ${CITIES.join(', ')} or the village in between — the chain travels to us in Stuttgart as a letter (${eur(PRICE.shippingSingle, de)}), gets waxed the day it arrives or the next, and comes back. Round trip you're usually riding again within ${TURNAROUND.en}.`}
+                  ? `Der Service ist reiner Postversand. Egal ob ${CITIES.join(', ')} oder das Dorf dazwischen — die Kette geht im Großbrief (${eur(PRICE.shippingSingle, de)}) zu uns nach Stuttgart, wird handgewachst und kommt im Maxibrief zurück. Die Bearbeitung dauert in der Regel ${TURNAROUND.full}, dazu je 1 bis 2 Werktage Post hin und zurück.`
+                  : `The service is purely by mail. Whether ${CITIES.join(', ')} or the village in between — the chain travels to us in Stuttgart as a letter (${eur(PRICE.shippingSingle, de)}), gets hand-waxed and comes back as a large letter. Processing usually takes ${TURNAROUND.fullEn}, plus 1 to 2 working days of post each way.`}
               </p>
             </div>
 

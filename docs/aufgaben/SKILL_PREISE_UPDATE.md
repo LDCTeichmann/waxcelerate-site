@@ -23,7 +23,7 @@ Leipzig-Standort mehr), Umlauf hin und zurück meist 3–5 Werktage.
 - **24,95 € je Kette** einzeln, **21,95 €** ab drei Ketten, zzgl. Rückversand
 - Wie das volle Programm des Wettbewerbs (Kettenhelden 39,95 €, bikeoptimierung
   34,90 €), ~10 € günstiger.
-- Ablauf: die Kette kommt zuerst in ein **separates Lösemittelbad**, wird
+- Ablauf: die Kette kommt zuerst in ein **separates Ultraschallbad**, wird
   gründlich entfettet und getrocknet, **bevor** sie das erste Mal ins Wachs
   geht. Das Wachsbad sieht nie eine ölige Kette (Öl schwimmt oben, blockiert
   die Penetration, macht eine ganze Charge unbrauchbar).

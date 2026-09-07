@@ -277,15 +277,15 @@ const STATIC_PAGES = [
     description: rewaxMeta(true).description,
     image: '/images/rewax/hero.webp',
     h1: 'Fahrradkette wachsen lassen.',
-    lead: `Kette einschicken, frisch gewachst und fahrbereit zurückbekommen — handgewachst in Stuttgart, deutschlandweit per Post, Umlauf meist ${REWAX_TURNAROUND.de}.`,
+    lead: `Kette einschicken, frisch gewachst und fahrbereit zurückbekommen. Handgewachst in Stuttgart, deutschlandweit per Post. Bearbeitung ${REWAX_TURNAROUND.full}.`,
     points: [
       `Auffrischung einer bereits gewachsten Kette: ${rewaxEur(REWAX_PRICE.rewax.single)} je Kette, ${rewaxEur(REWAX_PRICE.rewax.bundle)} ab drei Ketten, jeweils zuzüglich ${rewaxEur(REWAX_PRICE.shippingSingle)} Rückversand.`,
       ...(REWAX_UMSTIEG_LIVE ? [
-        `Umstieg einer geölten oder neuen Kette auf Wachs: ${rewaxEur(REWAX_PRICE.umstieg.single)} je Kette (ab drei ${rewaxEur(REWAX_PRICE.umstieg.bundle)}). Die Kette kommt zuerst in ein separates Lösemittelbad, wird gründlich entfettet und getrocknet — unser Wachsbad sieht nie eine ölige Kette.`,
+        `Umstieg einer geölten oder neuen Kette auf Wachs: ${rewaxEur(REWAX_PRICE.umstieg.single)} je Kette (ab drei ${rewaxEur(REWAX_PRICE.umstieg.bundle)}). Die Kette kommt zuerst in ein separates Ultraschallbad, wird gründlich entfettet und getrocknet — unser Wachsbad sieht nie eine ölige Kette.`,
       ] : [
         'Geölte Ketten entfetten wir aktuell nicht, weil eine einzige ölige Kette ein ganzes Wachsbad unbrauchbar macht.',
       ]),
-      `Deutschlandweit per Post: ${REWAX_CITIES.join(', ')} oder das Dorf dazwischen. Kette am Quick-Link öffnen, im Großbrief einschicken, Umlauf meist ${REWAX_TURNAROUND.de}.`,
+      `Deutschlandweit per Post: ${REWAX_CITIES.join(', ')} oder das Dorf dazwischen. Kette am Quick-Link öffnen, im Großbrief einschicken. Bearbeitung ${REWAX_TURNAROUND.full}, dazu je 1 bis 2 Werktage Post.`,
       'Prepaid-Karten (5er, 10er) für die Auffrischung: Vorgänge im Voraus, Rückversand inklusive, übertragbar, ohne Ablaufdatum.',
       'Alle gängigen 9- bis 12-fach-Ketten. Handgewachst in Stuttgart.',
     ],

@@ -12,7 +12,7 @@
 // ── Zwei Leistungen ─────────────────────────────────────────────────────────
 //   Auffrischung  — eine bereits gewachste Kette neu wachsen (der Wiederkauf,
 //                   der einzige wiederkehrende Umsatz im ganzen Modell)
-//   Umstieg       — eine geölte oder fabrikneue Kette: separates Lösemittelbad,
+//   Umstieg       — eine geölte oder fabrikneue Kette: separates Ultraschallbad,
 //                   gründlich entfetten, vollständig trocknen, dann ERSTMALS
 //                   wachsen. Wie das volle Programm des Wettbewerbs, nur
 //                   günstiger.
@@ -44,7 +44,7 @@ export const COMPETITOR_FULL_SERVICE = [
 
 // ── Umstieg-Flag ────────────────────────────────────────────────────────────
 // Der Umstieg-Service setzt voraus, dass geölte Ketten in einem SEPARATEN
-// Prozess (eigenes Lösemittelbad, Trocknung) VOR dem Wachsbad entfettet werden.
+// Prozess (eigenes Ultraschallbad, Trocknung) VOR dem Wachsbad entfettet werden.
 // Solange der Betrieb das nicht sicher leistet, bleibt der Flag auf false:
 //   - keine Leistungswahl im Hero, Formular ist reine Auffrischung wie bisher
 //   - `Pricing` zeigt nur die Auffrischung
@@ -54,12 +54,16 @@ export const COMPETITOR_FULL_SERVICE = [
 // SEO-/Conversion-Fixes) ist von diesem Flag unabhängig und geht sofort live.
 export const UMSTIEG_LIVE = true;
 
-// Umlaufzeit hin und zurück, als Spanne (nie als Versprechen einer festen Zahl).
-// Von Luca zu bestätigen. `de`/`en` = Grundform ("3–5 Werktage"), `deIn`/`enIn`
-// = die Präpositionalform für "zurück in …".
+// Bearbeitungszeit AB ANKUNFT bei uns (von Luca, 2026-09-07). Nie ein festes
+// Versprechen — immer als Spanne. Die Postlaufzeit hin und zurück (je 1–2
+// Werktage) kommt obendrauf und wird getrennt genannt.
+//   full  = "3–5 Werktage ab Ankunft bei uns"  (die genaue Aussage)
+//   short = "3–5 Werktage"                       (für Kennzahl-Kacheln)
 export const TURNAROUND = {
-  de: '3–5 Werktage', en: '3–5 working days',
-  deIn: 'in 3 bis 5 Werktagen', enIn: 'in 3 to 5 working days',
+  full: '3–5 Werktage ab Ankunft bei uns',
+  fullEn: '3–5 working days after it reaches us',
+  short: '3–5 Werktage',
+  shortEn: '3–5 working days',
 } as const;
 
 // Städte für den "deutschlandweit"-Absatz und die Stadt-FAQ. Ehrlich als
@@ -194,8 +198,8 @@ export function rewaxFaqItems(de: boolean): RewaxFaqItem[] {
     items.push({
       q: de ? 'Was kostet es, eine geölte oder neue Kette auf Wachs umzustellen?' : 'How much does it cost to switch an oiled or new chain to wax?',
       a: de
-        ? `Der Umstieg kostet ${eur(PRICE.umstieg.single, de)} je Kette (ab drei Ketten ${eur(PRICE.umstieg.bundle, de)}), zuzüglich ${eur(PRICE.shippingSingle, de)} Rückversand. Der Aufpreis gegenüber der Auffrischung ist der echte Mehraufwand: Die Kette kommt zuerst in ein separates Lösemittelbad, wird gründlich entfettet und vollständig getrocknet, bevor sie das erste Mal ins Wachs geht. Zum Vergleich: ${compLine}.`
-        : `The switch costs ${eur(PRICE.umstieg.single, de)} per chain (from three chains ${eur(PRICE.umstieg.bundle, de)}), plus ${eur(PRICE.shippingSingle, de)} return shipping. The premium over a rewax is real extra work: the chain first goes into a separate solvent bath, is thoroughly degreased and fully dried before its first time in the wax. For comparison: ${compLine}.`,
+        ? `Der Umstieg kostet ${eur(PRICE.umstieg.single, de)} je Kette (ab drei Ketten ${eur(PRICE.umstieg.bundle, de)}), zuzüglich ${eur(PRICE.shippingSingle, de)} Rückversand. Der Aufpreis gegenüber der Auffrischung ist der echte Mehraufwand: Die Kette kommt zuerst in ein separates Ultraschallbad, wird gründlich entfettet und vollständig getrocknet, bevor sie das erste Mal ins Wachs geht. Zum Vergleich: ${compLine}.`
+        : `The switch costs ${eur(PRICE.umstieg.single, de)} per chain (from three chains ${eur(PRICE.umstieg.bundle, de)}), plus ${eur(PRICE.shippingSingle, de)} return shipping. The premium over a rewax is real extra work: the chain first goes into a separate ultrasonic bath, is thoroughly degreased and fully dried before its first time in the wax. For comparison: ${compLine}.`,
     });
   }
 
@@ -209,32 +213,32 @@ export function rewaxFaqItems(de: boolean): RewaxFaqItem[] {
   items.push({
     q: de ? 'Wie läuft das ab?' : 'How does the process work?',
     a: de
-      ? 'Kette am Quick-Link öffnen, in den Umschlag, einschicken — reinigen musst du vorher nichts. Eine bereits gewachste Kette lösen wir mit kochendem Wasser vom alten Wachs, ganz ohne Lösemittel. Eine geölte oder neue Kette kommt zuerst in ein separates Lösemittelbad und wird gründlich entfettet und getrocknet. Dann geht sie in ein frisches Wachsbad. Zurück kommt sie ausgehärtet, Glieder freigebrochen, trocken verpackt — anbauen, kurz kurbeln, fertig.'
-      : 'Open the chain at the quick link, put it in an envelope, send it in — no cleaning needed beforehand. An already-waxed chain we release from the old wax with boiling water, no solvents at all. An oiled or new chain first goes into a separate solvent bath and is thoroughly degreased and dried. Then it goes into a fresh wax bath. It comes back cured, links broken free, packed dry — fit it, turn the cranks, ride.',
+      ? 'Kette am Quick-Link öffnen, in den Umschlag, einschicken — reinigen musst du vorher nichts. Eine bereits gewachste Kette lösen wir mit kochendem Wasser vom alten Wachs, ganz ohne Lösemittel. Eine geölte oder neue Kette kommt zuerst in ein separates Ultraschallbad und wird gründlich entfettet und getrocknet. Dann geht sie in ein frisches Wachsbad. Zurück kommt sie ausgehärtet, Glieder freigebrochen, trocken verpackt — anbauen, kurz kurbeln, fertig.'
+      : 'Open the chain at the quick link, put it in an envelope, send it in — no cleaning needed beforehand. An already-waxed chain we release from the old wax with boiling water, no solvents at all. An oiled or new chain first goes into a separate ultrasonic bath and is thoroughly degreased and dried. Then it goes into a fresh wax bath. It comes back cured, links broken free, packed dry — fit it, turn the cranks, ride.',
   });
 
   items.push({
     q: de ? 'Wo kann ich meine Fahrradkette wachsen lassen?' : 'Where can I get my bicycle chain waxed?',
     a: de
-      ? `Bei uns in Stuttgart — du musst aber nicht vor Ort sein. Der Service ist reiner Postversand: ${CITIES.join(', ')} oder das Dorf dazwischen, die Kette geht im Großbrief zu uns, wird handgewachst und kommt zurück. Hin und zurück bist du meist ${TURNAROUND.deIn} wieder auf dem Rad.`
-      : `With us in Stuttgart — but you don't need to be local. The service is purely by mail: ${CITIES.join(', ')} or the village in between, the chain travels to us as a letter, gets hand-waxed and comes back. Round trip you're usually back on the bike within ${TURNAROUND.en}.`,
+      ? `Bei uns in Stuttgart — du musst aber nicht vor Ort sein. Der Service ist reiner Postversand: ${CITIES.join(', ')} oder das Dorf dazwischen, die Kette geht im Großbrief zu uns, wird handgewachst und kommt zurück. Die Bearbeitung dauert in der Regel ${TURNAROUND.full}, dazu je 1 bis 2 Werktage Post hin und zurück.`
+      : `With us in Stuttgart — but you don't need to be local. The service is purely by mail: ${CITIES.join(', ')} or the village in between, the chain travels to us as a letter, gets hand-waxed and comes back. Processing usually takes ${TURNAROUND.fullEn}, plus 1 to 2 working days of post each way.`,
   });
 
   items.push({
     q: de ? 'Kann ich meine Kette aus Hamburg, München, Köln oder Berlin einschicken?' : 'Can I send in my chain from Hamburg, Munich, Cologne or Berlin?',
     a: de
-      ? `Ja. Der Service läuft komplett per Post, egal wo in Deutschland du wohnst. Kette am Quick-Link öffnen, in einen gepolsterten Umschlag, als Großbrief (1,80 €) an unsere Stuttgarter Adresse. Wir wachsen sie am Eingangstag oder tags darauf und schicken sie im Maxibrief zurück. Umlauf meist ${TURNAROUND.de}.`
-      : `Yes. The service runs entirely by mail, wherever in Germany you live. Open the chain at the quick link, into a padded envelope, as a letter to our Stuttgart address. We wax it the day it arrives or the next day and send it back. Round trip usually ${TURNAROUND.en}.`,
+      ? `Ja. Der Service läuft komplett per Post, egal wo in Deutschland du wohnst. Kette am Quick-Link öffnen, in einen gepolsterten Umschlag, als Großbrief (1,80 €) an unsere Stuttgarter Adresse. Wir wachsen sie in der Regel ${TURNAROUND.full} und schicken sie im Maxibrief zurück. Dazu kommt je 1 bis 2 Werktage Postlaufzeit.`
+      : `Yes. The service runs entirely by mail, wherever in Germany you live. Open the chain at the quick link, into a padded envelope, as a letter to our Stuttgart address. We wax it usually ${TURNAROUND.fullEn} and send it back. Add 1 to 2 working days of post each way.`,
   });
 
   items.push({
     q: de ? 'Welche Ketten nehmt ihr an?' : 'Which chains do you accept?',
     a: de
       ? (UMSTIEG_LIVE
-        ? 'Beide Zustände, alle gängigen 9- bis 12-fach-Ketten, unsere oder fremde. Eine bereits gewachste Kette frischen wir auf. Eine geölte oder fabrikneue Kette übernehmen wir als Umstieg: separates Lösemittelbad, gründlich entfetten, vollständig trocknen, dann erst ins Wachs. So sieht unser Wachsbad nie eine ölige Kette — die würde ein ganzes Bad unbrauchbar machen, weil das Öl oben schwimmt und die Wachspenetration blockiert.'
+        ? 'Beide Zustände, alle gängigen 9- bis 12-fach-Ketten, unsere oder fremde. Eine bereits gewachste Kette frischen wir auf. Eine geölte oder fabrikneue Kette übernehmen wir als Umstieg: separates Ultraschallbad, gründlich entfetten, vollständig trocknen, dann erst ins Wachs. So sieht unser Wachsbad nie eine ölige Kette — die würde ein ganzes Bad unbrauchbar machen, weil das Öl oben schwimmt und die Wachspenetration blockiert.'
         : 'Jede Kette, die schon gewachst ist — unsere oder fremde, alle gängigen 9- bis 12-fach-Ketten. Was wir aktuell nicht anbieten: eine geölte Kette entfetten und erstmals wachsen.')
       : (UMSTIEG_LIVE
-        ? "Both states, all common 9 to 12 speed chains, ours or anyone's. An already-waxed chain we rewax. An oiled or factory-new chain we take on as a switch: separate solvent bath, thorough degrease, full dry, then into the wax. That way our wax bath never sees an oily chain — one would ruin a whole bath, because the oil floats on top and blocks the wax from reaching the joints."
+        ? "Both states, all common 9 to 12 speed chains, ours or anyone's. An already-waxed chain we rewax. An oiled or factory-new chain we take on as a switch: separate ultrasonic bath, thorough degrease, full dry, then into the wax. That way our wax bath never sees an oily chain — one would ruin a whole bath, because the oil floats on top and blocks the wax from reaching the joints."
         : "Any chain that's already waxed — ours or someone else's, all common 9 to 12 speed chains. What we don't currently offer: degreasing an oiled chain for its first wax."),
     link: { to: '/blog/von-oel-auf-wachs-umsteigen', labelDe: 'Anleitung: von Öl auf Wachs umsteigen', labelEn: 'Guide: switching from oil to wax' },
   });

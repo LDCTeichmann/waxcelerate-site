@@ -100,7 +100,7 @@ Wenn noch „wird verifiziert": nichts tun, abwarten.
 
 ---
 
-# TEIL 4 — 6 kurze Antworten, die Claude braucht
+# TEIL 4 — kurze Antworten, die Claude braucht
 
 Kurze Antworten reichen, im Chat. Nichts davon blockiert Teil 1–3.
 
@@ -113,6 +113,12 @@ Kurze Antworten reichen, im Chat. Nichts davon blockiert Teil 1–3.
 5. **Profil-URLs:** eBay-Shop, Kleinanzeigen-Profil, Instagram — exakte Links.
 6. **Classic ohne PTFE:** Rezeptur validiert oder noch in Arbeit? (Steuert den
    Zeitpunkt für Presse-Outreach an Stiftung Warentest / speed-ville.)
+7. **Umstieg-Service (`/kette-wachsen-lassen`):** Ist der Betrieb sicher
+   eingerichtet, geölte Ketten in einem **separaten** Ultraschallbad zu entfetten
+   (vor dem Wachsbad)? Wenn nein → Claude setzt `UMSTIEG_LIVE = false`, die Seite
+   ist dann reine Auffrischung.
+8. **Turnaround:** aktuell steht „3–5 Werktage ab Ankunft bei uns" auf der Seite.
+   Passt das, oder eine andere Spanne?
 
 ---
 
@@ -138,6 +144,13 @@ Kurze Antworten reichen, im Chat. Nichts davon blockiert Teil 1–3.
 
 # TEIL 6 — Kleinkram, wenn mal Zeit ist
 
+- [ ] **Fotos & Video für `/kette-wachsen-lassen`:** aktuell trägt die Seite nur
+      das eine eBay-Standfoto von dir (`people/luca-stage.webp`) und die drei
+      vorhandenen Ablauf-Fotos (`images/rewax/step-1..3`). Geplant/gewünscht,
+      sobald du dazu kommst: ein Werkbank-/Wachstopf-Porträt statt des
+      eBay-Stands, echte Nahaufnahmen der drei Schritte, und **Videomaterial**
+      (Kette im Wachsbad, Ablauf). Sag Claude Bescheid, wenn Material da ist —
+      dann baut er es ein.
 - [ ] **Merchant Center** (`merchants.google.com`): Konto für `waxcelerate.de`,
       Feed `https://waxcelerate.de/google-merchant-feed.xml` als geplanter
       Abruf, unter Wachstum → Programme mit idealo verknüpfen (EU-Pflicht für
