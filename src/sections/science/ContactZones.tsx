@@ -18,6 +18,8 @@ import { ChevronDown } from 'lucide-react';
 import { InstrumentFrame } from '@/components/viz';
 import { ChainWaxMap } from '@/sections/science/ChainWaxMap';
 import { ReadMoreLink } from '@/sections/science/ReadMoreLink';
+import { frictionRanges } from '@/lib/data';
+import { waxTechNoteClassic } from '@/lib/productContent';
 
 const ZONES = [
   {
@@ -216,21 +218,47 @@ export function ContactZones({ de, onToFormula }: { de: boolean; onToFormula?: (
 // Sits directly above the page's CTA. Everything above proves that zone 01 is
 // the hardest place in the chain; this is the one block where that fact becomes
 // a product choice, so it belongs next to the button and nowhere else.
+//
+// 2026-09 revision: two prose columns forced the reader to compare Classic and
+// Pro themselves, sentence against sentence. A criteria table (same hairline-row
+// language as the Kontaktzonen list above) lines the same four facts up so the
+// difference is a glance, not a re-read. The PTFE note below is the one
+// unbedenklichkeit disclaimer this page was missing while it kept saying
+// "PTFE, same material as non-stick cookware" without ever answering the
+// obvious next question — pulled from productContent.ts (waxTechNoteClassic)
+// so the product page, the eBay listing and this page all carry the same
+// wording, not three drifting copies of a claim that has to stay accurate.
 export function LineChoice({ de }: { de: boolean }) {
-  const lines = [
+  const classicMu = frictionRanges.find(r => r.id === 'classic')!;
+  const proMu = frictionRanges.find(r => r.id === 'pro')!;
+
+  const header = [
+    { tag: 'Classic', name: 'PTFE', forDe: 'Rennrad · Gravel · Alltag', forEn: 'Road · gravel · everyday', accent: false },
+    { tag: 'MoS₂ Pro Edition', name: 'Molybdändisulfid', forDe: 'E-Bike · Winter · schwere Übersetzung', forEn: 'E-bike · winter · heavy gearing', accent: true },
+  ];
+
+  // Temperaturfenster-Zahlen sind dieselben wie in TempWindow (SciencePage.tsx,
+  // ACT II) — dort die eigentliche Quelle, hier nur zur Vergleichstabelle
+  // dazugestellt, kein zweiter Messwert.
+  const rows = [
     {
-      tag: 'Classic', name: 'PTFE',
-      forDe: 'Rennrad · Gravel · Alltag', forEn: 'Road · gravel · everyday',
-      de: 'Sehr niedrige Reibung, glatter trockener Film. Lebensmittelzugelassen, bekannt aus Antihaft-Kochgeschirr.',
-      en: 'Very low friction, smooth dry film. Food-grade, the same material as non-stick cookware.',
-      accent: false,
+      labelDe: 'Reibung', labelEn: 'Friction',
+      classic: `μ ${classicMu.muLo.toLocaleString(de ? 'de' : 'en', { minimumFractionDigits: 2 })}–${classicMu.muHi.toLocaleString(de ? 'de' : 'en', { minimumFractionDigits: 2 })}`,
+      pro: `μ ${proMu.muLo.toLocaleString(de ? 'de' : 'en', { minimumFractionDigits: 2 })}–${proMu.muHi.toLocaleString(de ? 'de' : 'en', { minimumFractionDigits: 2 })}`,
     },
     {
-      tag: 'MoS₂ Pro Edition', name: 'Molybdändisulfid',
-      forDe: 'E-Bike · Winter · schwere Übersetzung', forEn: 'E-bike · winter · heavy gearing',
-      de: 'Schichtförmig aufgebaut und dadurch belastbarer genau in Zone 01. Zusätzlich PFAS-frei.',
-      en: 'Layered, and therefore more load bearing exactly in zone 01. PFAS-free as well.',
-      accent: true,
+      labelDe: 'Temperaturfenster', labelEn: 'Temperature range',
+      classic: '+5…~35 °C', pro: '−8…45+ °C',
+    },
+    {
+      labelDe: 'PFAS', labelEn: 'PFAS',
+      classic: de ? 'Enthalten (PTFE)' : 'Present (PTFE)',
+      pro: de ? 'Frei' : 'Free',
+    },
+    {
+      labelDe: 'Einsatz', labelEn: 'Use case',
+      classic: de ? header[0].forDe : header[0].forEn,
+      pro: de ? header[1].forDe : header[1].forEn,
     },
   ];
 
@@ -244,23 +272,47 @@ export function LineChoice({ de }: { de: boolean }) {
         {de ? 'Zwei Feststoffe, ein Unterschied.' : 'Two solids, one difference.'}
       </h3>
 
-      <div className="grid sm:grid-cols-2" style={{ borderTop: '1px solid var(--bd2)' }}>
-        {lines.map((l, i) => (
-          <div key={l.tag} className="py-7 sm:pr-9"
-            style={{ borderLeft: i === 1 ? '1px solid var(--bd2)' : undefined, paddingLeft: i === 1 ? 36 : 0 }}>
-            <p className="num-data text-small uppercase tracking-[0.14em]"
-              style={{ color: l.accent ? 'var(--accent)' : 'var(--txf)' }}>{l.tag}</p>
-            <p className="font-display font-bold text-wx-tx1 mt-2" style={{ fontSize: '1.6rem', letterSpacing: '-0.015em' }}>
-              {l.name}
-            </p>
-            <p className="text-[13.5px] leading-relaxed mt-3 max-w-[38ch]" style={{ color: 'var(--txm)' }}>
-              {de ? l.de : l.en}
-            </p>
-            <p className="text-small uppercase tracking-[0.13em] mt-4" style={{ color: 'var(--txf)' }}>
-              {de ? l.forDe : l.forEn}
-            </p>
+      {/* Header row — name + tag per column, same two-column split as before */}
+      <div className="grid grid-cols-[1fr_1fr] sm:grid-cols-[minmax(0,1fr)_1fr_1fr] gap-3" style={{ borderBottom: '1px solid var(--bd2)' }}>
+        <span className="hidden sm:block pb-3" />
+        {header.map(h => (
+          <div key={h.tag} className="pb-3">
+            <p className="num-data text-small uppercase tracking-[0.13em]" style={{ color: h.accent ? 'var(--accent)' : 'var(--txf)' }}>{h.tag}</p>
+            <p className="font-display font-bold text-wx-tx1 mt-1" style={{ fontSize: '1.3rem', letterSpacing: '-0.015em' }}>{h.name}</p>
           </div>
         ))}
+      </div>
+
+      {/* Criteria rows. Label sits on its own full-width line on mobile
+          (not nested inside the Classic cell only, an earlier version) —
+          that put the label and a two-line Classic value in one grid cell
+          next to a one-line Pro value, and baseline alignment lined up
+          Classic's FIRST line with Pro's only line instead of the label
+          with anything, reading as visually broken. A shared label line
+          above a clean two-column value row can't misalign like that. */}
+      <div>
+        {rows.map((r, i) => (
+          <div key={r.labelDe} className="py-3"
+            style={{ borderBottom: i < rows.length - 1 ? '1px solid var(--bd2)' : undefined }}>
+            <span className="sm:hidden block text-meta mb-1" style={{ color: 'var(--txf)' }}>{de ? r.labelDe : r.labelEn}</span>
+            <div className="grid grid-cols-[1fr_1fr] sm:grid-cols-[minmax(0,1fr)_1fr_1fr] items-baseline gap-3">
+              <span className="hidden sm:block text-[13px]" style={{ color: 'var(--txf)' }}>{de ? r.labelDe : r.labelEn}</span>
+              <span className="text-[13px] num-data" style={{ color: 'var(--tx2)' }}>{r.classic}</span>
+              <span className="text-[13px] num-data font-semibold" style={{ color: 'var(--accent-soft)' }}>{r.pro}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* PTFE health/safety note — same wording as the product page and eBay,
+          imported rather than duplicated (see import above). */}
+      <div className="mt-6 rounded-xl p-4" style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)' }}>
+        <p className="text-[12.5px] font-semibold mb-1.5" style={{ color: 'var(--tx1)' }}>
+          {waxTechNoteClassic.title}
+        </p>
+        <p className="text-[12.5px] leading-relaxed" style={{ color: 'var(--txm)' }}>
+          {waxTechNoteClassic.body}
+        </p>
       </div>
 
       <p className="text-[12px] mt-5" style={{ color: 'var(--txff)' }}>

@@ -98,7 +98,12 @@ const waxFormulaClassic = [
   { name: 'Stearin', detail: 'Fettsäurederivat, verbessert Matrixkohäsion und Gleichmäßigkeit des Auftrags.' },
 ];
 
-const waxTechNoteClassic = {
+// Exported (2026-09) so the Wissenschaft page's PTFE section (LineChoice in
+// src/sections/science/ContactZones.tsx) can reuse this verbatim instead of
+// carrying a second copy of the same health/safety wording — one source of
+// truth for a claim that has to stay word-for-word accurate everywhere it
+// appears (product page, eBay listing, and now here).
+export const waxTechNoteClassic = {
   title: 'PTFE — Einordnung',
   body: 'Dasselbe Material wie in Antihaft-Kochgeschirr, lebensmittelzugelassen und in diesem Anwendungsbereich seit Jahrzehnten geprüft. Thermisch stabil bis 260°C — bei 80–90°C Verarbeitungstemperatur vollständig inert. Nicht über 100°C erhitzen, gut lüften. Ausschließlich für den Einsatz an Fahrradkomponenten — nicht zum Verzehr geeignet.',
 };
