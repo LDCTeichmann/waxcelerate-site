@@ -17,30 +17,31 @@ die Startseite.
 
 ---
 
-# TEIL 1 — Die neuen Rechner-Seiten bei Google & Bing anmelden · 15 Min
+# TEIL 1 — Die neuen Rechner-Seiten anmelden
 
-**Warum:** Die 7 Rechner-Seiten sind neu. Google findet sie sonst erst in Wochen
-von selbst. Anmelden = Tage statt Wochen.
+## 1a. Bing / DuckDuckGo / ChatGPT · ✅ ERLEDIGT
 
-## 1a. Bing / ChatGPT (1 Befehl, 30 Sek)
+`npx tsx scripts/ping-indexnow.mjs` lief (44 URLs, HTTP 200), zuletzt nach dem
+neuesten Deploy. Claude kann das nach jedem weiteren Deploy einfach nochmal
+ausführen — dafür brauchst du nichts zu tun.
 
-Terminal öffnen, das hier reinkopieren:
+## 1b. Google Search Console · MUSS von Hand, ist aber OPTIONAL
 
-```bash
-cd ~/"Claude Playground"/waxcelerate-site && npx tsx scripts/ping-indexnow.mjs
-```
+**Wichtig, damit du's einordnen kannst:** Google hat **keine** Funktion, die man
+per Terminal-Befehl ansteuern kann (anders als Bing). „Indexierung beantragen"
+geht nur durch Klicken in der Search Console, eingeloggt mit deinem Google-Konto.
+Claude kann das nicht für dich machen.
 
-Fertig, wenn „HTTP 202" o. ä. kommt. (Bing-Index = auch DuckDuckGo und
-ChatGPT-Suche.)
+**Aber:** Die Sitemap listet alle 7 Rechner-Seiten und ist bei Google
+eingereicht. Google findet sie also so oder so — die manuelle Anmeldung
+beschleunigt es nur (Tage statt Wochen). **Wenn du müde bist: überspring das,
+kostet höchstens etwas Zeit.**
 
-## 1b. Google Search Console (10–15 Min, stumpfes Klicken)
+Falls du es doch machst (10–15 Min, stumpfes Klicken):
 
-1. Öffne **search.google.com/search-console**
-2. Oben die Suchleiste („URL prüfen") — die erste URL einfügen — Enter
-3. Warten, bis die Prüfung durch ist — Knopf **„Indexierung beantragen"** klicken
-4. Bestätigen, warten bis „Anfrage gesendet" — dann die nächste URL
-
-Diese 7, eine nach der anderen:
+1. **search.google.com/search-console** öffnen
+2. Oben die Suchleiste („URL prüfen") — erste URL einfügen — Enter
+3. Warten — **„Indexierung beantragen"** klicken — bestätigen — nächste URL
 
 ```
 https://waxcelerate.de/rechner
@@ -52,7 +53,7 @@ https://waxcelerate.de/rechner/umstieg
 https://waxcelerate.de/rechner/ersparnis
 ```
 
-Falls Google „Kontingent für heute erschöpft" sagt: Rest morgen, gleiches Vorgehen.
+„Kontingent für heute erschöpft" → Rest am nächsten Tag.
 
 ---
 
@@ -117,19 +118,21 @@ Kurze Antworten reichen, im Chat. Nichts davon blockiert Teil 1–3.
 
 # TEIL 5 — „Sag Claude Bescheid, dann macht er das"
 
-Kann Claude selbst erledigen, sobald du grünes Licht gibst:
-
-- [ ] **FAQ-Schema auf den Rechner-Seiten** (bringt KI-Zitierbarkeit —
-      ChatGPT/Perplexity/Claude ziehen daraus Antworten). Claude baut je Seite
-      3–5 Frage/Antwort-Paare aus dem vorhandenen Text; **du liest ~15 Sätze
-      gegen, bevor es live geht** (Claims-Regeln). Details:
-      `docs/plaene/RECHNER_SICHTBARKEIT.md` §2.3.
-- [ ] **Interne Links von Produkt-/Wissenschaft-/Rewax-Seiten** auf den jeweils
-      passenden Rechner.
+- [x] **FAQ-Schema auf den Rechner-Seiten** · ✅ erledigt + live. Je Rechner
+      2–4 Frage/Antwort-Paare, sichtbar auf der Seite und im Schema
+      (ChatGPT/Perplexity/Claude ziehen daraus Antworten). Antworten sind aus
+      dem schon geprüften Erklärtext abgeleitet — **schau bei Gelegenheit mal
+      über die Fragen/Antworten auf z. B. `waxcelerate.de/rechner/verschleiss`
+      und sag Bescheid, wenn eine Formulierung nicht passt.**
+- [x] **Interne Links von Produkt-/Wissenschaft-/Rewax-/Starter-Set-Seiten** auf
+      den passenden Rechner · ✅ erledigt + live.
 - [ ] **Stripe Price-IDs eintragen** (`data.ts`) — sobald du die 12 IDs aus
       Stripe hast, schaltet Claude den eigenen Checkout scharf. Details:
       `docs/aufgaben/STRIPE_SETUP.md`. Das ist der größte einzelne Hebel im
       Projekt.
+- [ ] **Weitere Konzept-Punkte** aus `docs/plaene/RECHNER_SICHTBARKEIT.md` §2
+      (HowTo-Schema, kontextuelle Links in einzelnen Blog-Artikeln) — kleiner
+      Rest, auf Zuruf.
 
 ---
 
@@ -151,7 +154,8 @@ Kann Claude selbst erledigen, sobald du grünes Licht gibst:
 
 | Zeit | Mach |
 |---|---|
-| 30 Sek | Teil 1a (der eine Terminal-Befehl) |
-| 15 Min | Teil 1b (7 URLs in Search Console) |
-| 20 Min | Teil 2 (deine Backlinks) |
-| später | Teil 3–6 |
+| 0 Min | Teil 1a ist schon erledigt (Claude macht das nach jedem Deploy) |
+| 20 Min | Teil 2 (deine Backlinks) — der wichtigste offene Punkt |
+| 15 Min | Teil 3 (Google-Profil), falls schon verifiziert |
+| optional | Teil 1b (7 URLs in Search Console — beschleunigt nur) |
+| bei Zeit | Teil 4 (6 kurze Antworten für Claude), Teil 6 |
