@@ -370,11 +370,13 @@ export function Hero() {
         <div
           className="sm:hidden flex flex-col h-[calc(100svh-84px-0.75rem)] max-h-[900px] min-h-[560px]"
         >
-          {/* Bildpanel — runde Ecken bleiben ECHT; die diagonale Unterkante
-              entsteht ueber ein Dreieck in Seitenfarbe (.hero-panel-cut), NICHT
-              ueber clip-path aufs Bild (das machte auch die oberen Ecken scharf). */}
+          {/* Bildpanel — obere Ecken rund, untere Kante als deutliche, saubere
+              Diagonale. Umgesetzt ueber ein Dreieck in Seitenfarbe
+              (.hero-panel-cut) statt clip-path aufs Bild (das machte auch die
+              oberen Ecken scharf). Untere Ecken der Bildflaeche selbst spitz —
+              sie liegen unter dem Dreieck bzw. Block, also unsichtbar. */}
           <div className="hero-panel-m relative shrink-0">
-            <div className="absolute inset-0 rounded-[20px] overflow-hidden">
+            <div className="absolute inset-0 rounded-t-[20px] overflow-hidden">
               <picture>
                 <source srcSet={MOBILE_HERO_BG} type="image/webp" />
                 <img
@@ -432,13 +434,20 @@ export function Hero() {
                   className="absolute inset-[-24%] rounded-[40%] pointer-events-none block"
                   style={{ background: 'radial-gradient(closest-side, rgba(110,165,230,0.24), transparent 72%)', filter: 'blur(20px)', opacity: 0.8 }}
                 />
-                {/* breiter, weicher Kontaktschatten auf der Seitenflaeche */}
+                {/* Kontaktschatten auf der Seitenflaeche — weich, leicht nach
+                    unten versetzt, damit der Block "davor schwebt" statt zu
+                    kleben. Zwei Lagen: breit+diffus und schmal+dichter am Fuss. */}
                 <span
                   aria-hidden
-                  className="absolute left-1/2 -translate-x-1/2 bottom-[1%] w-[126%] h-[26%] rounded-full pointer-events-none block"
-                  style={{ background: 'radial-gradient(ellipse, rgba(6,8,12,0.40), transparent 70%)', filter: 'blur(13px)' }}
+                  className="absolute left-1/2 -translate-x-1/2 bottom-[-6%] w-[112%] h-[24%] rounded-full pointer-events-none block"
+                  style={{ background: 'radial-gradient(ellipse, rgba(8,10,16,0.30), transparent 72%)', filter: 'blur(17px)' }}
                 />
-                <span className="relative block" style={{ filter: 'drop-shadow(0 14px 22px rgba(6,8,12,0.32))' }}>
+                <span
+                  aria-hidden
+                  className="absolute left-1/2 -translate-x-1/2 bottom-[1%] w-[80%] h-[13%] rounded-full pointer-events-none block"
+                  style={{ background: 'radial-gradient(ellipse, rgba(8,10,16,0.34), transparent 70%)', filter: 'blur(9px)' }}
+                />
+                <span className="relative block" style={{ filter: 'drop-shadow(0 16px 24px rgba(6,8,12,0.30))' }}>
                   <picture>
                     <source srcSet="/images/hero/wax-cutout-soft.webp" type="image/webp" />
                     <img
