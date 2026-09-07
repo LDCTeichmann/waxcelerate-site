@@ -102,6 +102,9 @@ export function WiderrufsbelehrungPage() {
               zurückzusenden oder zu übergeben. Die Frist ist gewahrt, wenn du die Waren vor Ablauf
               der Frist von vierzehn Tagen absendest.
             </p>
+            <p className="text-wx-tx2 leading-relaxed mb-4">
+              Du trägst die unmittelbaren Kosten der Rücksendung der Waren.
+            </p>
             <p className="text-wx-tx2 leading-relaxed">
               Du musst für einen etwaigen Wertverlust der Waren nur aufkommen, wenn dieser
               Wertverlust auf einen zur Prüfung der Beschaffenheit, Eigenschaften und
