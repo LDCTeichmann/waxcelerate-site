@@ -3,32 +3,40 @@
 // Ersetzt den frueheren „Wie viel Wachs brauche ich?"-Rechner, der keine
 // einzige eigene Eingabe hatte und damit keiner war.
 //
-// Zwei Fehler der ersten Fassung sind hier ausgeraeumt:
+// Drei Fehler der frueheren Fassungen sind hier ausgeraeumt:
 //
 // 1. Der erste Wachsblock stand sowohl in den Startkosten als auch anteilig in
 //    den laufenden Kosten — doppelt bezahlt, Amortisation dadurch von fuenf auf
 //    achtzehn Monate verlaengert. Gerechnet wird jetzt in waxMath.switchEconomics
 //    ueber den echten Mehraufwand: das Werkzeug. Schmierstoff kauft man beim
 //    Oelen genauso.
-// 2. Die Kernaussage lautete sinngemaess „danach 17 € statt 8 € Schmierstoff im
-//    Jahr" — also ein Nachteil, direkt unter der Ueberschrift. Der Gewinn liegt
-//    nicht beim Schmierstoff, sondern bei Kette und Kassette, und genau das
-//    sagt das Ergebnis jetzt.
+// 2. Die Kernaussage lautete sinngemaess „danach 20 € statt 6 € Schmierstoff im
+//    Jahr" — also ein Nachteil, direkt unter der Ueberschrift, ohne Gegengewicht.
+//    Der Gewinn liegt bei Kette und Kassette, nicht beim Schmierstoff. Das
+//    Ergebnis zeigt jetzt die volle Aufschluesselung: Kette und Kassette
+//    billiger, Schmierstoff teurer, unterm Strich weniger. Der
+//    Schmierstoff-Nachteil bleibt sichtbar, dominiert aber nicht mehr.
+// 3. Schritt 1 war eine reine Anzeige. Die Blockgroesse (300 g / 500 g) ist
+//    jetzt eine echte Wahl — ehrlich mitgesagt, dass der 300er im Einstieg
+//    guenstiger, je Wachsung aber teurer ist.
 
 import { ArrowRightLeft } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useState } from 'react';
 import type { ToolProfileState } from '@/hooks/useToolProfile';
-import { switchEconomics, applicationsPerBlock, referenceWax } from '@/lib/waxMath';
+import { switchEconomics, applicationsPerBlock, drivetrainCosts, referenceWax } from '@/lib/waxMath';
 import { products } from '@/lib/data';
 import { accessories } from '@/lib/data';
 import { shareUrl } from '@/lib/toolState';
 import { AnimatedNumber } from '@/components/viz';
 import {
-  ToolCard, ToolHeader, StepList, ToolFooter, ToolCTA, StepNote, InfoPopover,
+  ToolCard, ToolHeader, StepList, ToolFooter, ToolCTA, TogButton, ChipRow, StepNote, InfoPopover,
 } from '@/components/tools/primitives';
 import { StepField } from '@/components/tools/StepField';
 import { ResultPanel } from '@/components/tools/ResultPanel';
 import { ResultActions } from '@/components/tools/ResultActions';
+
+const WAX_SIZE_IDS = ['wax-300', 'wax-500'] as const;
 
 export function SwitchCalculator({ profile }: { profile: ToolProfileState }) {
   const { t, lang } = useLanguage();
@@ -36,6 +44,11 @@ export function SwitchCalculator({ profile }: { profile: ToolProfileState }) {
   const eur = (n: number) => new Intl.NumberFormat(de ? 'de-DE' : 'en-US', {
     style: 'currency', currency: 'EUR', maximumFractionDigits: n % 1 === 0 ? 0 : 2,
   }).format(n);
+
+  // Blockgroesse ist jetzt eine echte Wahl statt einer festen Anzeige.
+  // Vorbelegt mit dem 500er, dem Standardbezugspunkt der Seite.
+  const [waxId, setWaxId] = useState<(typeof WAX_SIZE_IDS)[number]>('wax-500');
+  const waxProduct = products.find(p => p.id === waxId) ?? referenceWax;
 
   // Werkzeug ist der echte Mehraufwand gegenueber Weiteroelen. Ein Topf steht
   // bewusst nicht dabei: fast jeder hat einen alten Reiskocher, und ein
@@ -49,15 +62,31 @@ export function SwitchCalculator({ profile }: { profile: ToolProfileState }) {
   const toolingCost = tooling.reduce((sum, i) => sum + i.price, 0);
 
   const kmPerYear = profile.kmPerWeek * 52;
-  const e = switchEconomics({ kmPerYear, rewaxKm: profile.interval, toolingCost });
-  const apps = applicationsPerBlock(referenceWax) ?? 0;
+  const e = switchEconomics({ kmPerYear, rewaxKm: profile.interval, toolingCost, waxProduct });
+  const apps = applicationsPerBlock(waxProduct) ?? 0;
+  // Die volle Jahresrechnung — Kette, Kassette und Schmierstoff zusammen,
+  // eine Kette, nicht rotiert: der ehrliche Einstiegsfall. Bleibt an
+  // referenceWax (500 g) gebunden, unabhaengig von der Blockwahl oben: das
+  // ist dieselbe Bezugsgroesse, die auch der Ersparnis-Rechner nutzt.
+  const costs = drivetrainCosts({ kmPerYear, rewaxKm: profile.interval, chains: 1 });
   const smallWax = products.find(p => p.id === 'wax-300');
 
   const startItems = [
-    { label: `${referenceWax.weight} ${de ? 'Kettenwachs' : 'chain wax'}`, price: referenceWax.price, extra: false },
+    { label: `${waxProduct.weight} ${de ? 'Kettenwachs' : 'chain wax'}`, price: waxProduct.price, extra: false },
     ...tooling.map(i => ({ ...i, extra: true })),
   ];
   const startTotal = startItems.reduce((sum, i) => sum + i.price, 0);
+
+  const maxYearly = Math.max(costs.oilPerYear, costs.waxPerYear, 1);
+  const barRow = (label: string, amount: number, color: string) => (
+    <div className="flex items-center gap-2">
+      <span className="text-meta w-10 flex-shrink-0" style={{ color: 'var(--txff)' }}>{label}</span>
+      <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: 'var(--inset-bd)' }}>
+        <div className="h-full rounded-full" style={{ width: `${(amount / maxYearly) * 100}%`, background: color }} />
+      </div>
+      <span className="text-[12px] font-medium tabular-nums flex-shrink-0" style={{ color: 'var(--tx2)' }}>{eur(amount)}</span>
+    </div>
+  );
 
   return (
     <ToolCard>
@@ -76,7 +105,19 @@ export function SwitchCalculator({ profile }: { profile: ToolProfileState }) {
             ? 'Der Wachsblock ist Schmierstoff — den kaufst du beim Ölen genauso, nur in anderer Form. Als echten Mehraufwand rechnen wir deshalb nur Zange und Draht.'
             : 'The wax block is lubricant — you buy that either way, just in a different form. So only the pliers and wire count as a real extra.'} ${t.tools.switch.potNote}`}
         >
-          <ul className="flex flex-col gap-1.5">
+          <ChipRow>
+            {WAX_SIZE_IDS.map(id => {
+              const p = products.find(pr => pr.id === id);
+              if (!p) return null;
+              return (
+                <TogButton key={id} active={waxId === id} onClick={() => setWaxId(id)}>
+                  {p.weight} · {eur(p.price)}
+                </TogButton>
+              );
+            })}
+          </ChipRow>
+          <StepNote>{t.tools.switch.waxSizeNote}</StepNote>
+          <ul className="flex flex-col gap-1.5 mt-1">
             {startItems.map(i => (
               <li key={i.label} className="flex items-baseline justify-between gap-3">
                 <span className="text-[13px] min-w-0 truncate" style={{ color: 'var(--txf)' }}>
@@ -95,36 +136,42 @@ export function SwitchCalculator({ profile }: { profile: ToolProfileState }) {
           </ul>
         </StepField>
 
+        {/* Die volle Jahresrechnung statt nur des Schmierstoff-Vergleichs:
+            Kette und Kassette sprechen fuer Wachs, der Schmierstoff dagegen —
+            vorher stand nur die Schmierstoffzeile hier, und das ist die eine
+            Zeile, in der Wachs verliert. */}
         <StepField
           step={2}
-          label={de ? 'Laufend im Jahr' : 'Running per year'}
-          value={`${kmPerYear.toLocaleString(de ? 'de-DE' : 'en-US')} km`}
+          label={de ? 'Was es dich im Jahr kostet' : 'What it costs you per year'}
           help={de
             ? 'Ergibt sich aus deinem Fahrprofil oben. Mehr Kilometer und härtere Bedingungen heißen öfter wachsen — und gleichzeitig größere Ersparnis, weil geölte Ketten dort am schnellsten verschleißen.'
             : 'Comes from your riding profile above. More kilometres and harsher conditions mean waxing more often — and a bigger saving, because oiled chains wear fastest there.'}
         >
-          <div className="flex flex-col gap-1.5">
-            <div className="flex items-baseline justify-between gap-3">
-              <span className="text-[13px]" style={{ color: 'var(--txf)' }}>
-                {de ? 'Wachs' : 'Wax'} · {Math.round(e.applicationsPerYear)}× {de ? 'im Jahr' : 'per year'}
-              </span>
-              <span className="text-[13px] font-medium tabular-nums" style={{ color: 'var(--tx2)' }}>{eur(e.waxPerYear)}</span>
-            </div>
-            <div className="flex items-baseline justify-between gap-3">
-              <span className="text-[13px]" style={{ color: 'var(--txf)' }}>
-                {de ? 'Kettenöl zum Vergleich' : 'Chain oil for comparison'}
-              </span>
-              <span className="text-[13px] font-medium tabular-nums" style={{ color: 'var(--tx2)' }}>{eur(e.oilPerYear)}</span>
-            </div>
+          <div className="grid grid-cols-[auto_1fr_1fr] gap-x-3 gap-y-1.5 items-baseline">
+            <span />
+            <span className="text-meta text-right" style={{ color: 'var(--txff)' }}>{de ? 'Öl' : 'Oil'}</span>
+            <span className="text-meta text-right" style={{ color: 'var(--brand)' }}>{de ? 'Wachs' : 'Wax'}</span>
+
+            <span className="text-[13px]" style={{ color: 'var(--txf)' }}>{t.tools.switch.breakdownChain}</span>
+            <span className="text-[13px] text-right tabular-nums" style={{ color: 'var(--tx2)' }}>{eur(costs.breakdown.chain.oil)}</span>
+            <span className="text-[13px] text-right font-medium tabular-nums" style={{ color: 'var(--tx2)' }}>{eur(costs.breakdown.chain.wax)}</span>
+
+            <span className="text-[13px]" style={{ color: 'var(--txf)' }}>{t.tools.switch.breakdownCassette}</span>
+            <span className="text-[13px] text-right tabular-nums" style={{ color: 'var(--tx2)' }}>{eur(costs.breakdown.cassette.oil)}</span>
+            <span className="text-[13px] text-right font-medium tabular-nums" style={{ color: 'var(--tx2)' }}>{eur(costs.breakdown.cassette.wax)}</span>
+
+            <span className="text-[13px]" style={{ color: 'var(--txf)' }}>{t.tools.switch.breakdownLube}</span>
+            <span className="text-[13px] text-right tabular-nums" style={{ color: 'var(--tx2)' }}>{eur(costs.breakdown.lube.oil)}</span>
+            <span className="text-[13px] text-right font-medium tabular-nums" style={{ color: 'var(--txm)' }}>+{eur(costs.breakdown.lube.wax)}</span>
           </div>
         </StepField>
 
         {/* Alle Zusatzhinweise an einer Stelle statt an drei — die haeufigste
             Stolperfalle beim Umstieg (Fabrikfett/Altoel blockiert das Wachs),
-            die Kette-und-Kassette-Erklaerung, und zwei seltene Grenzfaelle
-            (Vorrat aelter als Haltbarkeit, Intervall unter einer Woche).
-            Als Popover statt bedingt inline, weil sonst genau in diesen
-            seltenen Faellen die Karte hoeher wuerde als die anderen fuenf. */}
+            und zwei seltene Grenzfaelle (Vorrat aelter als Haltbarkeit,
+            Intervall unter einer Woche). Als Popover statt bedingt inline,
+            weil sonst genau in diesen seltenen Faellen die Karte hoeher
+            wuerde als die anderen fuenf. */}
         <InfoPopover
           ariaLabel={de ? 'Wichtige Hinweise zum Umstieg' : 'Important notes on switching'}
           trigger={() => (
@@ -138,11 +185,6 @@ export function SwitchCalculator({ profile }: { profile: ToolProfileState }) {
             <a href="/rechner/passende-kette" className="font-medium" style={{ color: 'var(--brand)' }}>
               {t.tools.switch.degreaseAlt}
             </a>
-          </StepNote>
-          <StepNote>
-            {de
-              ? 'Schmierstoff allein ist beim Wachsen teurer. Der Vorteil steckt in Kette und Kassette — die halten deutlich länger.'
-              : 'Lubricant alone costs more with wax. The advantage is in the chain and cassette, which last far longer.'}
           </StepNote>
           {e.outlastsShelfLife && smallWax && (
             <StepNote>{t.tools.switch.shelfLifeHint}</StepNote>
@@ -159,16 +201,20 @@ export function SwitchCalculator({ profile }: { profile: ToolProfileState }) {
       </StepList>
 
       <ResultPanel
-        value={e.breakEvenMonths ? <AnimatedNumber value={e.breakEvenMonths} /> : '—'}
-        unit={e.breakEvenMonths === 1 ? t.tools.switch.oneMonth : t.tools.switch.months}
-        verdict={e.breakEvenMonths
-          ? (de
-            ? `So lange dauert es, bis ${eur(toolingCost)} Werkzeug wieder drin sind — danach sparst du rund ${eur(e.savingsPerYear)} im Jahr an Kette, Kassette und Schmierstoff zusammen.`
-            : `That is how long it takes to recover ${eur(toolingCost)} of tooling — after that you save around ${eur(e.savingsPerYear)} a year across chain, cassette and lubricant.`)
+        value={<AnimatedNumber value={costs.savingsPerYear} prefix="€" />}
+        unit={t.tools.switch.perYearLess}
+        hero={(
+          <div className="flex flex-col gap-1">
+            {barRow(de ? 'Öl' : 'Oil', costs.oilPerYear, 'var(--txf)')}
+            {barRow(de ? 'Wachs' : 'Wax', costs.waxPerYear, 'var(--brand)')}
+          </div>
+        )}
+        verdict={costs.savingsPerYear > 0
+          ? t.tools.switch.resultVerdict.replace('{savings}', eur(costs.savingsPerYear))
           : t.tools.switch.neverNote}
         tone="good"
         facts={[
-          { label: t.tools.switch.savesPerYear, value: `${eur(e.savingsPerYear)}${de ? '/Jahr' : '/yr'}` },
+          { label: t.tools.switch.toolingPaidOff, value: e.breakEvenMonths ? `${e.breakEvenMonths} ${e.breakEvenMonths === 1 ? t.tools.switch.oneMonth : t.tools.switch.months}` : '—' },
           { label: t.tools.switch.blockLasts, value: `${apps} ${t.tools.switch.applications} · ${de ? `ca. ${e.monthsPerBlock} Mon.` : `~${e.monthsPerBlock} mo.`}` },
         ]}
         actions={<ResultActions shareUrl={shareUrl('/rechner/umstieg', profile.snapshot)} />}

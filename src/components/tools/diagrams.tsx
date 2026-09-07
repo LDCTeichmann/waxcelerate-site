@@ -68,11 +68,14 @@ export function ChainMeasureDiagram() {
 
 /**
  * Wie eine Kettenlehre greift: fester Fuß am einen Ende, Prüfspitze am anderen.
- * Fällt die Spitze zwischen die Rollen, ist die genannte Grenze erreicht.
+ * Fällt die Spitze zwischen die Rollen, ist die genannte Grenze erreicht. Der
+ * Vorgang ist eine Bewegung — `state` zeigt sie: bei 'ok' liegt die Spitze auf
+ * den Rollen auf, bei 'worn' faellt sie in die Luecke. Frueher zeigte die
+ * Skizze immer nur den zweiten Fall, unabhaengig vom tatsaechlichen Ergebnis.
  * (Beschriftung deutschsprachig wie die übrigen Skizzen dieser Datei — eine
  * zweisprachige SVG-Beschriftung wäre ein eigener Umbau über alle vier.)
  */
-export function ChainGaugeDiagram() {
+export function ChainGaugeDiagram({ state = 'worn' }: { state?: 'ok' | 'worn' }) {
   const R = 7;
   const PITCH = 26;
   const CY = 64;
@@ -103,37 +106,50 @@ export function ChainGaugeDiagram() {
       <circle cx={footX} cy={CY - 1} r={3} fill="none" stroke={STROKE} strokeWidth={1.4} />
       <text x={footX} y={20} textAnchor="middle" fontSize="9" fill={LABEL}>fester Fuß</text>
 
-      {/* Prüfspitze — hier abgebildet: fällt in die Lücke = Grenze erreicht */}
-      <path d={`M${tipX},39 V${CY + 1}`} stroke={ACCENT} strokeWidth={1.9} />
-      <circle cx={tipX} cy={CY} r={3.4} fill="none" stroke={ACCENT} strokeWidth={1.6} />
-      <path d={`M${tipX + 12},44 l-7,4 l3,-6 z`} fill={ACCENT} />
+      {/* Prüfspitze — 'worn': fällt in die Lücke = Grenze erreicht.
+          'ok': liegt auf den Rollen auf = Grenze nicht erreicht. */}
+      <g className="diagram-move" style={{ transform: `translateY(${state === 'ok' ? -6 : 0}px)` }}>
+        <path d={`M${tipX},39 V${CY + 1}`} stroke={ACCENT} strokeWidth={1.9} />
+        <circle cx={tipX} cy={CY} r={3.4} fill="none" stroke={ACCENT} strokeWidth={1.6} />
+        <path d={`M${tipX + 12},44 l-7,4 l3,-6 z`} fill={ACCENT} />
+      </g>
       <text x={tipX + 6} y={20} textAnchor="middle" fontSize="9" fill={ACCENT}>0,5 %</text>
       <text x="155" y={92} textAnchor="middle" fontSize="10" fill={LABEL}>
-        Spitze fällt hinein = Kette raus
+        {state === 'ok' ? 'Spitze liegt auf: Kette in Ordnung' : 'Spitze fällt hinein: Kette raus'}
       </text>
     </svg>
   );
 }
 
 /**
- * Wo die Kettenstrebe sitzt: Tretlagermitte bis Hinterachsmitte.
+ * Wo die Kettenstrebe sitzt: Tretlagermitte bis Hinterachsmitte. Zeigt jetzt
+ * auch Kettenblatt und Kassette — die beiden anderen Eingaben der Karte —
+ * und hebt per `highlight` genau das Bauteil hervor, dessen Feld gerade
+ * fokussiert ist.
  *
  * Blickrichtung nach rechts, wie bei Fahrradzeichnungen ueblich: Hinterrad
  * links, Vorderrad rechts, Lenker rechts oben. Die erste Fassung hatte den
  * Lenker links — damit zeigte das Rad nach links, und die hervorgehobene
  * Strebe lief zum Vorderrad statt zum Hinterrad.
+ *
+ * Kontrast-Korrektur: der Rahmen stand vorher komplett auf FAINT
+ * (var(--bd2)) — im hellen Modus fast weiss und neben einem Fragezeichen,
+ * das niemand drueckt, faktisch unsichtbar. Rahmen und Raeder stehen jetzt
+ * auf STROKE (var(--tx2)); FAINT bleibt nur fuer Nebensaechliches reserviert.
  */
-export function ChainstayDiagram() {
+export function ChainstayDiagram({ highlight = 'stay' }: { highlight?: 'stay' | 'ring' | 'sprocket' }) {
   const REAR = { x: 62, y: 88 };
   const FRONT = { x: 238, y: 88 };
   const BB = { x: 140, y: 88 };      // Tretlager
   const SEAT = { x: 118, y: 36 };    // Sattelrohr oben
   const HEAD = { x: 196, y: 36 };    // Steuerrohr oben
 
+  const dim = (on: boolean) => ({ stroke: on ? ACCENT : STROKE, opacity: on ? 1 : 0.55 });
+
   return (
-    <svg viewBox="0 0 310 130" className="w-full h-auto" role="img"
-      aria-label="Kettenstrebe: vom Tretlager zur Hinterachse">
-      <g stroke={FAINT} strokeWidth={1.6} fill="none" strokeLinecap="round">
+    <svg viewBox="0 0 310 140" className="w-full h-auto" role="img"
+      aria-label="Kettenstrebe, Kettenblatt und Kassette am Fahrrad">
+      <g strokeWidth={1.6} fill="none" strokeLinecap="round" stroke={STROKE}>
         <circle cx={REAR.x} cy={REAR.y} r="30" />
         <circle cx={FRONT.x} cy={FRONT.y} r="30" />
         {/* Rahmendreieck */}
@@ -146,14 +162,39 @@ export function ChainstayDiagram() {
       </g>
 
       {/* Die Kettenstrebe: Tretlager → Hinterachse */}
-      <path d={`M${BB.x},${BB.y} L${REAR.x},${REAR.y}`} stroke={ACCENT} strokeWidth={3}
-        strokeLinecap="round" fill="none" />
-      <circle cx={BB.x} cy={BB.y} r={4.5} fill={ACCENT} />
-      <circle cx={REAR.x} cy={REAR.y} r={4.5} fill={ACCENT} />
+      <path d={`M${BB.x},${BB.y} L${REAR.x},${REAR.y}`} strokeWidth={3.5}
+        strokeLinecap="round" fill="none" className="diagram-fade" {...dim(highlight === 'stay')} />
+      <circle cx={BB.x} cy={BB.y} r={4.5} className="diagram-fade" style={{ fill: dim(highlight === 'stay').stroke }} />
+      <circle cx={REAR.x} cy={REAR.y} r={4.5} className="diagram-fade" style={{ fill: dim(highlight === 'stay').stroke }} />
+      {highlight === 'stay' && (
+        <>
+          <path d={`M${BB.x},${BB.y + 14} v6 M${REAR.x},${REAR.y + 14} v6 M${BB.x},${BB.y + 19} H${REAR.x}`}
+            stroke={ACCENT} strokeWidth={1.4} />
+          <text x={(BB.x + REAR.x) / 2} y="118" textAnchor="middle" fontSize="10" fill={ACCENT}>Kettenstrebe</text>
+        </>
+      )}
 
-      <text x={(BB.x + REAR.x) / 2} y="108" textAnchor="middle" fontSize="10" fill={ACCENT}>
-        Kettenstrebe
-      </text>
+      {/* Kettenblatt: Kreis am Tretlager */}
+      <circle cx={BB.x} cy={BB.y} r={14} fill="none" strokeWidth={highlight === 'ring' ? 3 : 1.6}
+        className="diagram-fade" {...dim(highlight === 'ring')} />
+      {highlight === 'ring' && (
+        <text x={BB.x} y={BB.y - 20} textAnchor="middle" fontSize="10" fill={ACCENT}>Kettenblatt</text>
+      )}
+
+      {/* Kassette: kleiner Scheibenstapel an der Hinterachse */}
+      <g className="diagram-fade" {...dim(highlight === 'sprocket')}>
+        {[0, 1, 2, 3].map(i => (
+          <rect key={i} x={REAR.x - 2 - i * 2.2} y={REAR.y - 9 + i * 1.3} width={9 - i * 1.3} height={2}
+            rx={1} fill={dim(highlight === 'sprocket').stroke} stroke="none" />
+        ))}
+      </g>
+      {highlight === 'sprocket' && (
+        <text x={REAR.x} y={REAR.y - 34} textAnchor="middle" fontSize="10" fill={ACCENT}>Kassette</text>
+      )}
+
+      {highlight !== 'stay' && (
+        <text x={(BB.x + REAR.x) / 2} y="118" textAnchor="middle" fontSize="9" fill={LABEL}>Kettenstrebe</text>
+      )}
       <text x={BB.x + 8} y="80" fontSize="9" fill={LABEL}>Tretlager</text>
       <text x={REAR.x - 34} y="72" fontSize="9" fill={LABEL}>Hinterachse</text>
     </svg>
@@ -182,6 +223,76 @@ export function SprocketCountDiagram() {
       <text x="245" y="52" fontSize="10" fill={LABEL}>…</text>
       <text x="155" y="14" textAnchor="middle" fontSize="10" fill={LABEL}>
 Die Scheiben zählen, nicht die Zähne
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * Zwei Kassetten im Vergleich: links eine, die lange auf einer stark
+ * gelaengten Kette lief — die Zahnflanken sind einseitig eingelaufen, das
+ * bekannte „Hai-Zahn"-Profil. Rechts eine, die immer nur kurz gelaengte
+ * Ketten sah, mit vollen, geraden Zaehnen. Der Rotationsvorteil fuer die
+ * Kassette stand bisher nur als ein Satz im Popover — dieses Bild macht ihn
+ * in einem Blick verstaendlich.
+ *
+ * Schematisch wie die uebrigen Skizzen dieser Datei: kein Foto, sondern eine
+ * vereinfachte Zahnkontur, bei der jeder zweite Zahn im verschlissenen Fall
+ * kuerzer ausfaellt statt spitz zuzulaufen.
+ */
+export function CassetteWearDiagram({ de = true }: { de?: boolean }) {
+  const CY = 44;
+  const R = 20;
+  const TEETH = 10;
+
+  function cogPoints(cx: number, worn: boolean): string {
+    const pts: string[] = [];
+    for (let i = 0; i < TEETH; i++) {
+      const aBase = (i / TEETH) * Math.PI * 2 - Math.PI / 2;
+      const aTip = ((i + 0.5) / TEETH) * Math.PI * 2 - Math.PI / 2;
+      const tipR = worn && i % 2 === 0 ? R + 2.5 : R + 6;
+      pts.push(`${(cx + Math.cos(aBase) * R).toFixed(1)},${(CY + Math.sin(aBase) * R).toFixed(1)}`);
+      pts.push(`${(cx + Math.cos(aTip) * tipR).toFixed(1)},${(CY + Math.sin(aTip) * tipR).toFixed(1)}`);
+    }
+    return pts.join(' ');
+  }
+
+  /** Kurzes Kettenstueck ueber den obersten Zaehnen — links mit groesserer
+      Teilung (gelaengt), rechts mit enger Teilung (neuwertig). */
+  function chainArc(cx: number, loose: boolean) {
+    const pitch = loose ? 12.5 : 10.5;
+    const xs = [-1, 0, 1].map(i => cx + i * pitch);
+    const y = CY - R - (loose ? 9 : 7);
+    return (
+      <g stroke={loose ? ACCENT : STROKE} strokeWidth={1.3} fill="var(--sf2)">
+        {xs.slice(0, -1).map((x, i) => (
+          <rect key={x} x={x - 4.5} y={y - 4.5} width={xs[i + 1] - x + 9} height={9} rx={4.5} />
+        ))}
+        {xs.map(x => <circle key={`r${x}`} cx={x} cy={y} r={3.6} />)}
+      </g>
+    );
+  }
+
+  const half = (cx: number, worn: boolean, caption: string) => (
+    <g>
+      <polygon points={cogPoints(cx, worn)} fill="var(--sf2)" stroke={worn ? STROKE : ACCENT} strokeWidth={1.5} strokeLinejoin="round" />
+      <circle cx={cx} cy={CY} r={5} fill={FAINT} />
+      {chainArc(cx, worn)}
+      <text x={cx} y="112" textAnchor="middle" fontSize="11" fill={LABEL}>
+        <tspan x={cx} dy="0">{caption}</tspan>
+      </text>
+    </g>
+  );
+
+  return (
+    <svg viewBox="0 0 310 122" className="w-full h-auto" role="img"
+      aria-label={de
+        ? 'Vergleich: Kassette nach einer Kette gegen Kassette im Wechsel mehrerer Ketten'
+        : 'Comparison: cassette after one chain versus a cassette used with chains in rotation'}>
+      {half(78, true, de ? 'Eine Kette, lange gefahren' : 'One chain, ridden long')}
+      {half(232, false, de ? 'Mehrere Ketten im Wechsel' : 'Several chains in rotation')}
+      <text x="155" y="14" textAnchor="middle" fontSize="10" fill={LABEL}>
+        {de ? 'Zahnflanken bei Kettenwechsel' : 'Tooth flanks at chain swap'}
       </text>
     </svg>
   );

@@ -150,12 +150,24 @@ export const OIL_APP_INTERVAL_KM = 1000;
 export const WAX_CASSETTE_KM = [30000, 40000, 48000] as const;
 export const WAX_CHAIN_KM = [6000, 8500, 10500] as const;
 
+/** Ein Posten der Antriebsrechnung, Oel gegen Wachs, gerundet in Euro/Jahr. */
+export interface CostLine { oil: number; wax: number }
+
 export interface DrivetrainCosts {
   oilPerYear: number;
   waxPerYear: number;
   savingsPerYear: number;
   savingsPct: number;
   waxSessionsPerYear: number;
+  /**
+   * Die drei Posten einzeln, fuer die Aufschluesselung im Umstiegs-Rechner:
+   * Kette und Kassette sprechen fuer Wachs, der Schmierstoff dagegen — vorher
+   * stand nur die Schmierstoffzeile im Ergebnis, und das ist die eine Zeile,
+   * in der Wachs verliert. Lube wird aus der Gesamtsumme abgeleitet statt
+   * einzeln gerundet, damit die drei Posten in der Tabelle exakt auf die
+   * bereits gerundete Gesamtsumme aufgehen.
+   */
+  breakdown: { chain: CostLine; cassette: CostLine; lube: CostLine };
 }
 
 /**
@@ -203,19 +215,28 @@ export function drivetrainCosts(input: {
   const oilWear = Math.pow(sev, OIL_SEVERITY_EXPONENT);
   const waxWear = Math.pow(sev, WAX_SEVERITY_EXPONENT);
 
-  const oilPerKm =
-    (medianChainPrice / OIL_CHAIN_KM) * oilWear +
-    (CASSETTE_PRICE / OIL_CASSETTE_KM) * oilWear +
-    OIL_PRICE_PER_APP / OIL_APP_INTERVAL_KM;
+  const chainOilPerKm = (medianChainPrice / OIL_CHAIN_KM) * oilWear;
+  const cassetteOilPerKm = (CASSETTE_PRICE / OIL_CASSETTE_KM) * oilWear;
+  const lubeOilPerKm = OIL_PRICE_PER_APP / OIL_APP_INTERVAL_KM;
+  const oilPerKm = chainOilPerKm + cassetteOilPerKm + lubeOilPerKm;
 
-  const waxPerKm =
-    (medianChainPrice / WAX_CHAIN_KM[chains - 1]) * waxWear +
-    (CASSETTE_PRICE / WAX_CASSETTE_KM[chains - 1]) * waxWear +
-    waxPerApp / rewaxKm;
+  const chainWaxPerKm = (medianChainPrice / WAX_CHAIN_KM[chains - 1]) * waxWear;
+  const cassetteWaxPerKm = (CASSETTE_PRICE / WAX_CASSETTE_KM[chains - 1]) * waxWear;
+  const lubeWaxPerKm = waxPerApp / rewaxKm;
+  const waxPerKm = chainWaxPerKm + cassetteWaxPerKm + lubeWaxPerKm;
 
   const oilPerYear = Math.round(kmPerYear * oilPerKm);
   const waxPerYear = Math.round(kmPerYear * waxPerKm);
   const savingsPerYear = Math.max(0, oilPerYear - waxPerYear);
+
+  // Kette und Kassette einzeln runden, den Schmierstoff aus der bereits
+  // gerundeten Gesamtsumme ableiten — so gehen die drei Zeilen der
+  // Aufschluesselung immer exakt auf die grosse Zahl daneben auf, auch wenn
+  // die Einzelrundung sonst um einen Euro abweichen wuerde.
+  const chainOil = Math.round(kmPerYear * chainOilPerKm);
+  const cassetteOil = Math.round(kmPerYear * cassetteOilPerKm);
+  const chainWax = Math.round(kmPerYear * chainWaxPerKm);
+  const cassetteWax = Math.round(kmPerYear * cassetteWaxPerKm);
 
   return {
     oilPerYear,
@@ -223,7 +244,28 @@ export function drivetrainCosts(input: {
     savingsPerYear,
     savingsPct: oilPerYear > 0 ? Math.round((savingsPerYear / oilPerYear) * 100) : 0,
     waxSessionsPerYear: Math.ceil(kmPerYear / (chains * rewaxKm)),
+    breakdown: {
+      chain: { oil: chainOil, wax: chainWax },
+      cassette: { oil: cassetteOil, wax: cassetteWax },
+      lube: { oil: oilPerYear - chainOil - cassetteOil, wax: waxPerYear - chainWax - cassetteWax },
+    },
   };
+}
+
+// ── Zeit: der Rotationsvorteil, den bisher niemand vorrechnete ──────────────
+//
+// Hands-on-Zeit einer Heisswachs-Session: abbauen, aufwickeln, mit kochendem
+// Wasser abspuelen, ins Wachs, bewegen, herausnehmen, trocknen, montieren.
+// Der Aufwand ist fast vollstaendig fix — der Topf ist der Flaschenhals, nicht
+// die Kette. Drei Ketten gleichzeitig kosten laut Luca ein bis zwei Minuten
+// mehr, nicht das Dreifache. Genau darin liegt der Zeitgewinn der Rotation,
+// und er stand bisher nirgends vorgerechnet.
+export const WAX_SESSION_MINUTES = 20;
+export const WAX_SESSION_MINUTES_PER_EXTRA_CHAIN = 1;
+
+export function waxHoursPerYear(sessionsPerYear: number, chains: 1 | 2 | 3): number {
+  const perSession = WAX_SESSION_MINUTES + (chains - 1) * WAX_SESSION_MINUTES_PER_EXTRA_CHAIN;
+  return (sessionsPerYear * perSession) / 60;
 }
 
 // ── Offengelegte Annahmen ───────────────────────────────────────────────────
@@ -280,6 +322,12 @@ export const ASSUMPTIONS: Assumption[] = [
     value: `${OIL_PRICE_PER_APP.toFixed(2).replace('.', ',')} € alle ${OIL_APP_INTERVAL_KM.toLocaleString('de-DE')} km`,
     valueEn: `€${OIL_PRICE_PER_APP.toFixed(2)} every ${OIL_APP_INTERVAL_KM.toLocaleString('en-US')} km`,
   },
+  {
+    label: 'Zeit je Wachs-Session',
+    labelEn: 'Time per waxing session',
+    value: `${WAX_SESSION_MINUTES} Minuten für eine Kette, +${WAX_SESSION_MINUTES_PER_EXTRA_CHAIN} Minute je weitere Kette gleichzeitig`,
+    valueEn: `${WAX_SESSION_MINUTES} minutes for one chain, +${WAX_SESSION_MINUTES_PER_EXTRA_CHAIN} minute per additional chain at once`,
+  },
 ];
 
 
@@ -335,10 +383,14 @@ export function switchEconomics(input: {
   kmPerYear: number;
   rewaxKm: number;
   toolingCost: number;
+  /** Welcher Wachsblock: 300 g ist im Einstieg guenstiger, kostet je
+      Wachsung aber mehr. Default der 500er, der Standardbezugspunkt der
+      Seite (siehe referenceWax oben). */
+  waxProduct?: Product;
 }): SwitchEconomics {
-  const { kmPerYear, rewaxKm, toolingCost } = input;
-  const perApp = costPerApplication(referenceWax) ?? 0;
-  const apps = applicationsPerBlock(referenceWax) ?? 0;
+  const { kmPerYear, rewaxKm, toolingCost, waxProduct = referenceWax } = input;
+  const perApp = costPerApplication(waxProduct) ?? 0;
+  const apps = applicationsPerBlock(waxProduct) ?? 0;
 
   const applicationsPerYear = rewaxKm > 0 ? kmPerYear / rewaxKm : 0;
   const waxPerYear = applicationsPerYear * perApp;

@@ -97,17 +97,26 @@ export function ToolHeader({ icon, title, subtitle }: { icon: React.ReactNode; t
   );
 }
 
-/** Der Eingabebereich. */
+/** Der Eingabebereich. flex-none: der freie Raum zwischen Eingaben und
+    Ergebnis darf nicht hier landen, sondern gehoert ResultPanel (mt-auto
+    dort) — sonst blaehen sich die Abstaende zwischen den Schritten je nach
+    Karte unterschiedlich auf. */
 export function StepList({ children }: { children: React.ReactNode }) {
   return (
-    <div className={`${PAD} pt-4 pb-4 flex flex-col gap-4`}>
+    <div className={`${PAD} pt-4 pb-4 flex flex-none flex-col gap-3`}>
       {children}
     </div>
   );
 }
 
+// Kein eigenes mt-auto mehr: das saesse zusammen mit ResultPanel.mt-auto auf
+// derselben Flex-Achse, und zwei auto-Margins auf einer Achse teilen sich den
+// freien Raum je zur Haelfte statt dass einer ihn ganz aufnimmt — Ergebnis
+// wanderte dadurch je nach Karte um bis zu 250 px, das Gegenteil der festen
+// Position, die ResultPanel herstellen soll. ResultPanel traegt jetzt das
+// einzige mt-auto; ToolFooter folgt direkt danach.
 export function ToolFooter({ children }: { children: React.ReactNode }) {
-  return <div className={`${PAD} pb-4 sm:pb-5 mt-auto`}>{children}</div>;
+  return <div className={`${PAD} pb-4 sm:pb-5`}>{children}</div>;
 }
 
 export function ToolSlider({ value, onValueChange, min, max, step, ariaLabel }: {
@@ -129,9 +138,10 @@ export function ToolSlider({ value, onValueChange, min, max, step, ariaLabel }: 
 }
 
 /** Zahleneingabe im Kartenstil. */
-export function NumberInput({ value, onChange, min, max, step, ariaLabel, theme, suffix, placeholder }: {
+export function NumberInput({ value, onChange, min, max, step, ariaLabel, theme, suffix, placeholder, onFocus }: {
   value: string; onChange: (v: string) => void;
   min: number; max: number; step?: number; ariaLabel: string; theme: string; suffix?: string; placeholder?: string;
+  onFocus?: () => void;
 }) {
   return (
     <div className="relative">
@@ -142,6 +152,7 @@ export function NumberInput({ value, onChange, min, max, step, ariaLabel, theme,
         value={value}
         placeholder={placeholder}
         onChange={e => onChange(e.target.value)}
+        onFocus={onFocus}
         aria-label={ariaLabel}
         className={`w-full px-3.5 py-2.5 rounded-xl text-[14px] tabular-nums ${suffix ? 'pr-12' : ''}`}
         style={{
