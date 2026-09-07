@@ -376,22 +376,26 @@ export function Hero() {
               oberen Ecken scharf). Untere Ecken der Bildflaeche selbst spitz —
               sie liegen unter dem Dreieck bzw. Block, also unsichtbar. */}
           <div className="hero-panel-m relative shrink-0">
-            <div className="absolute inset-0 rounded-t-[20px] overflow-hidden">
+            {/* Alle vier Ecken rund; die unteren liegen unter dem
+                Seitenfarben-Dreieck (.hero-panel-cut) und sind daher unsichtbar
+                — aber falls der Zuschnitt mal nicht pixelgenau deckt, gibt es
+                keine harte Ecke. */}
+            <div className="absolute inset-0 rounded-[22px] overflow-hidden">
               <picture>
                 <source srcSet={MOBILE_HERO_BG} type="image/webp" />
                 <img
                   src={MOBILE_HERO_BG_FALLBACK}
                   alt={de ? 'Fahrradketten auf Schiefer' : 'Bicycle chains on slate'}
                   className="absolute inset-0 w-full h-full object-cover"
-                  style={{ objectPosition: '48% 40%', filter: 'brightness(0.88) saturate(0.95)' }}
+                  style={{ objectPosition: '40% 58%', filter: 'brightness(0.86) saturate(0.92)' }}
                   fetchPriority="high"
                 />
               </picture>
               <div className="hero-grain absolute inset-0 pointer-events-none" />
               {/* Kopf-Scrim — Kontrast fuer den zentralen Schriftzug */}
               <div
-                className="absolute inset-x-0 top-0 h-1/2 pointer-events-none"
-                style={{ background: 'linear-gradient(to bottom, rgba(var(--scrim-rgb),0.42) 0%, rgba(var(--scrim-rgb),0.10) 55%, transparent 100%)' }}
+                className="absolute inset-x-0 top-0 h-[58%] pointer-events-none"
+                style={{ background: 'linear-gradient(to bottom, rgba(var(--scrim-rgb),0.52) 0%, rgba(var(--scrim-rgb),0.14) 55%, transparent 100%)' }}
               />
             </div>
             {/* Diagonale in Seitenfarbe — schneidet die Bildunterkante schraeg
@@ -403,13 +407,13 @@ export function Hero() {
 
             <span
               aria-hidden
-              className="hero-wordmark-m absolute left-1/2 -translate-x-1/2 top-[8%] z-[2] text-white text-center whitespace-nowrap"
+              className="hero-wordmark-m absolute left-1/2 -translate-x-1/2 top-[9%] z-[2] text-white text-center whitespace-nowrap"
               style={{
                 fontFamily: "'Libre Franklin', ui-sans-serif, system-ui, sans-serif",
-                fontWeight: 700,
-                letterSpacing: '-0.005em',
+                fontWeight: 800,
+                letterSpacing: '-0.022em',
                 lineHeight: 1,
-                textShadow: '0 2px 18px rgba(0,0,0,0.45)',
+                textShadow: '0 1px 2px rgba(0,0,0,0.35), 0 3px 22px rgba(0,0,0,0.45)',
               }}
             >
               Waxcelerate
@@ -434,27 +438,27 @@ export function Hero() {
                   className="absolute inset-[-24%] rounded-[40%] pointer-events-none block"
                   style={{ background: 'radial-gradient(closest-side, rgba(110,165,230,0.24), transparent 72%)', filter: 'blur(20px)', opacity: 0.8 }}
                 />
-                {/* Kontaktschatten auf der Seitenflaeche — weich, leicht nach
-                    unten versetzt, damit der Block "davor schwebt" statt zu
-                    kleben. Zwei Lagen: breit+diffus und schmal+dichter am Fuss. */}
+                {/* Kontaktschatten auf der Seitenflaeche — weich, nach unten
+                    versetzt, damit der Block "davor schwebt" statt zu kleben.
+                    Zwei Lagen: breit+diffus und schmal+dichter am Fuss. */}
                 <span
                   aria-hidden
-                  className="absolute left-1/2 -translate-x-1/2 bottom-[-6%] w-[112%] h-[24%] rounded-full pointer-events-none block"
-                  style={{ background: 'radial-gradient(ellipse, rgba(8,10,16,0.30), transparent 72%)', filter: 'blur(17px)' }}
+                  className="absolute left-1/2 -translate-x-1/2 bottom-[-10%] w-[122%] h-[30%] rounded-full pointer-events-none block"
+                  style={{ background: 'radial-gradient(ellipse, rgba(10,12,20,0.34), transparent 72%)', filter: 'blur(22px)' }}
                 />
                 <span
                   aria-hidden
-                  className="absolute left-1/2 -translate-x-1/2 bottom-[1%] w-[80%] h-[13%] rounded-full pointer-events-none block"
-                  style={{ background: 'radial-gradient(ellipse, rgba(8,10,16,0.34), transparent 70%)', filter: 'blur(9px)' }}
+                  className="absolute left-1/2 -translate-x-1/2 bottom-[-1%] w-[78%] h-[14%] rounded-full pointer-events-none block"
+                  style={{ background: 'radial-gradient(ellipse, rgba(10,12,20,0.40), transparent 68%)', filter: 'blur(10px)' }}
                 />
-                <span className="relative block" style={{ filter: 'drop-shadow(0 16px 24px rgba(6,8,12,0.30))' }}>
+                <span className="relative block" style={{ filter: 'drop-shadow(0 20px 30px rgba(6,8,12,0.30)) saturate(1.12) brightness(1.03) contrast(1.02)' }}>
                   <picture>
                     <source srcSet="/images/hero/wax-cutout-soft.webp" type="image/webp" />
                     <img
                       src="/images/hero/wax-cutout-soft.png"
                       alt={de ? 'Waxcelerate Kettenwachs-Block' : 'Waxcelerate chain wax block'}
                       className="block w-full h-auto"
-                      style={{ aspectRatio: '837 / 852' }}
+                      style={{ aspectRatio: '837 / 844' }}
                       fetchPriority="high"
                     />
                   </picture>
@@ -489,20 +493,22 @@ export function Hero() {
               zentriert im verbleibenden Raum, damit der Hero ohne feste Pixel
               in jede Geraetehoehe passt. */}
           <div className="hero-content-m flex-1 min-h-0 flex flex-col justify-center">
-            <div data-hero className="flex items-center gap-3">
-              <span style={{ width: '28px', height: '2px', background: 'var(--brand-blue)' }} />
+            {/* Eyebrow — sagt die Kategorie; NICHT nochmal "Waxcelerate"
+                (steht gross als Schriftzug direkt drueber). */}
+            <div data-hero className="hero-eyebrow-row flex items-center gap-3">
+              <span style={{ width: '26px', height: '2px', background: 'var(--brand-blue)' }} />
               <p
                 className="hero-eyebrow text-small uppercase font-semibold"
                 style={{ letterSpacing: '0.14em', color: 'var(--txm)' }}
               >
-                {t.hero.subtitle}
+                {t.hero.categoryLine}
               </p>
             </div>
 
             <h1
               className="hero-h1-m font-display"
               style={{
-                lineHeight: 1.0,
+                lineHeight: 1.08,
                 letterSpacing: '-0.025em',
                 fontWeight: 600,
                 fontVariationSettings: '"opsz" 144, "wght" 620, "SOFT" 0, "WONK" 0',
@@ -530,8 +536,9 @@ export function Hero() {
               </span>
             </h1>
 
-            {/* Eine knappe Value-Zeile (Outcome, kein Feature-Katalog). */}
-            <p data-hero className="hero-value-m" style={{ color: 'var(--txm)' }}>
+            {/* Eine knappe Value-Zeile (Outcome, kein Feature-Katalog).
+                Dunkler als die Eyebrow — sie traegt die eigentliche Botschaft. */}
+            <p data-hero className="hero-value-m" style={{ color: 'var(--tx2)' }}>
               {t.hero.valueLine}
             </p>
 
