@@ -11,7 +11,8 @@ Preise ziehen.
 ## 5. Kettenwachs-Service (B2C) · Stand 2026-09-07
 
 **Zwei Leistungen**, beide reiner Postversand deutschlandweit (Stuttgart, kein
-Leipzig-Standort mehr), Umlauf hin und zurück meist 3–5 Werktage.
+Leipzig-Standort mehr). Bearbeitung 3–5 Werktage ab Ankunft bei uns, dazu je
+1–2 Werktage Postlaufzeit hin und zurück.
 
 ### Auffrischung — bereits gewachste Kette neu wachsen
 - **15,95 € je Kette** einzeln, zzgl. **1,80 € Rückversand** (Großbrief)
