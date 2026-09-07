@@ -22,7 +22,19 @@ export interface ScienceComponent {
   physicsDe: string[]; physicsEn: string[];
   insightDe: string; insightEn: string;
   diagram: DiagramKey;
-  // Graph geometry (from the recovered ASSEMBLY_NODES layout)
+  // Graph geometry — radial layout (2026-09 revision, see FormulaGraph's ring
+  // guides): three functional tiers around a shared centre (350, 240) in the
+  // original 700x480 space. CENTRE — MoS2 (r 56, node 4): the actual solid
+  // lubricant, the only thing that lowers friction. MID ring (r 150) — the
+  // three components that BUILD the film MoS2 sits in: Paraffin (node 1,
+  // top), FT-Wachs (node 2, upper-left, the hardener) and Mikrokristallin
+  // (node 3, upper-right, the plasticiser) — deliberately opposite each other
+  // across the top arc, because they are the formula's central tension (see
+  // the new 'Gegenspieler' edge between them). OUTER ring (r 200, lower arc)
+  // — Dispersant (node 5) and Antioxidans (node 6): they don't lubricate or
+  // build film, they keep 1-4 usable over time. Position now encodes role;
+  // previously cx/cy was a grown, meaning-free scatter (Paraffin top, MoS2
+  // oversized centre, everything else wherever it fit).
   cx: number; cy: number; r: number;
 }
 
@@ -50,7 +62,7 @@ export const COMPONENTS: ScienceComponent[] = [
     ],
     insightDe: 'Das enge Erstarrungsfenster ist der Schlüssel zur Batch-Konsistenz — und damit zur gleichmäßigen Performance jedes Blocks.',
     insightEn: 'The narrow solidification window is the key to batch consistency — every block performing identically.',
-    diagram: 'lamellar', cx: 350, cy: 105, r: 40,
+    diagram: 'lamellar', cx: 350, cy: 90, r: 40,
   },
   {
     node: 2, id: 'matrix',
@@ -73,7 +85,7 @@ export const COMPONENTS: ScienceComponent[] = [
     ],
     insightDe: 'Tests mit höherer Konzentration zeigten keine messbare Verbesserung. Das Optimum liegt unter dem, was man intuitiv erwarten würde.',
     insightEn: 'Tests at higher concentrations showed no measurable improvement. The optimum is lower than you\'d intuitively expect.',
-    diagram: 'droplift', cx: 155, cy: 80, r: 35,
+    diagram: 'droplift', cx: 209, cy: 188.7, r: 35,
   },
   {
     node: 3, id: 'winterformel',
@@ -96,7 +108,7 @@ export const COMPONENTS: ScienceComponent[] = [
     ],
     insightDe: 'Ursprünglich höher konzentriert. Die Reduzierung war möglich, weil gleichzeitig der MoS₂-Anteil überarbeitet wurde.',
     insightEn: 'Originally at higher concentration. The reduction was possible because MoS₂ loading was revised simultaneously.',
-    diagram: 'coldflex', cx: 545, cy: 80, r: 35,
+    diagram: 'coldflex', cx: 491, cy: 188.7, r: 35,
   },
   {
     node: 4, id: 'mos2',
@@ -121,7 +133,7 @@ export const COMPONENTS: ScienceComponent[] = [
     ],
     insightDe: 'Der Transferfilm ist der eigentliche Schmierstoff — das Wachs ist nur das Trägervehikel. Die tribochemischen Fe–S-Bindungen verankern die MoS₂-Nanoblätter dauerhaft auf dem Stahl — sie schmieren noch, wenn der Block längst aufgebraucht ist.',
     insightEn: 'The transfer film is the actual lubricant — the wax is just the delivery vehicle. Tribochemical Fe–S bonds permanently anchor the MoS₂ nanosheets on the steel — they continue lubricating long after the block is spent.',
-    diagram: 'shear', cx: 350, cy: 280, r: 56,
+    diagram: 'shear', cx: 350, cy: 240, r: 56,
   },
   {
     node: 5, id: 'sedimentation',
@@ -144,7 +156,7 @@ export const COMPONENTS: ScienceComponent[] = [
     ],
     insightDe: 'Ohne Dispergiermittel variiert die MoS₂-Konzentration durch den Block. Der erste Rewax-Vorgang wäre anders als der zwanzigste. Das ist nicht akzeptabel.',
     insightEn: 'Without dispersant, MoS₂ concentration varies through the block. The first rewax would perform differently from the twentieth. Unacceptable.',
-    diagram: 'density', cx: 210, cy: 400, r: 35,
+    diagram: 'density', cx: 186.2, cy: 354.7, r: 35,
   },
   {
     node: 6, id: 'antioxidans',
@@ -169,7 +181,7 @@ export const COMPONENTS: ScienceComponent[] = [
     ],
     insightDe: 'Das Antioxidans schützt nicht nur das Wachs, sondern auch den Festschmierstoff. Eine Komponente, die zwei Versagensmodi gleichzeitig verhindert — Matrixversprödung und MoS₂ → MoO₃-Degradation.',
     insightEn: 'The antioxidant protects not just the wax, but also the solid lubricant. One component preventing two failure modes — matrix embrittlement and MoS₂ → MoO₃ degradation.',
-    diagram: 'radical', cx: 490, cy: 400, r: 35,
+    diagram: 'radical', cx: 513.8, cy: 354.7, r: 35,
   },
 ];
 
@@ -178,6 +190,14 @@ export interface ScienceEdge {
   from: number; to: number;
   labelDe: string; labelEn: string;
   dash: boolean; main: boolean;
+  // A 'balance' edge isn't a dependency (nothing flows one way into the
+  // other) — it's the formula's central trade-off, drawn differently
+  // (double-ended, its own colour) so it doesn't read as just another
+  // build relationship. See FT-Wachs <-> Mikrokristallin below: one raises
+  // the drop point, the other keeps the matrix flexible, and the whole
+  // reason the formula needs both at once is that neither can do the
+  // other's job.
+  balance?: boolean;
 }
 export const EDGES: ScienceEdge[] = [
   { from: 2, to: 1, labelDe: 'Ko-Kristallisation', labelEn: 'co-crystallises',  dash: false, main: false },
@@ -188,6 +208,16 @@ export const EDGES: ScienceEdge[] = [
   { from: 6, to: 4, labelDe: 'Oxidationsschutz',    labelEn: 'oxidation guard',  dash: true,  main: false },
   { from: 2, to: 4, labelDe: 'Thermostabilität',    labelEn: 'thermal stability', dash: false, main: false },
   { from: 6, to: 1, labelDe: 'Matrixschutz',        labelEn: 'matrix guard',     dash: true,  main: false },
+  // 2026-09 addition — both stated in the existing physics copy, both
+  // previously invisible in the graph itself:
+  { from: 5, to: 1, labelDe: 'Ko-Kristallisation', labelEn: 'co-crystallises',  dash: false, main: false },
+  // Dispersant's ester shares Paraffin's melting point and co-crystallises
+  // into its lamellae (science.ts, sedimentation.physicsDe[2]) — the same
+  // mechanism as edge 0, different pair.
+  { from: 2, to: 3, labelDe: 'Gegenspieler', labelEn: 'counterpart', dash: true, main: false, balance: true },
+  // FT-Wachs hardens (drop point +75 degC) exactly what Mikrokristallin
+  // keeps flexible (-8 degC) — the formula's one real trade-off, and the
+  // reason it needs six components instead of one "good enough" wax.
 ];
 
 // ─── Story-led build — the narrated assembly of the Pro recipe ────────────────
@@ -217,12 +247,12 @@ export const FORMULA_STORY: FormulaStep[] = [
     captionEn: 'Fischer–Tropsch wax (>90% crystallinity) co-crystallises with the paraffin and lifts the drop point to ~75 °C. This also stabilises the MoS₂ embedding — the matrix keeps particles in place under summer load.',
   },
   {
-    node: 3, edges: [1, 3],
+    node: 3, edges: [1, 3, 9],
     captionDe: 'Mikrokristallines Wachs — verzweigte und zyklische Naphthene — füllt die amorphen Zonen zwischen den Paraffinlamellen. Dreifache Funktion: Plastifizierung bis −8 °C, stärkere van-der-Waals-Haftung auf Stahl und mechanische Einbettung der MoS₂-Partikel.',
     captionEn: 'Microcrystalline wax — branched and cyclic naphthenes — fills the amorphous zones between paraffin lamellae. Triple function: plasticisation to −8 °C, stronger van der Waals adhesion to steel, and mechanical embedding of the MoS₂ particles.',
   },
   {
-    node: 5, edges: [4],
+    node: 5, edges: [4, 8],
     captionDe: 'MoS₂ ist 5,6× dichter als Wachs (5,06 vs. 0,9 g/cm³) — nach Stokes\' Gesetz sinkt es in Minuten. Ein amphiphiler Fettsäureester legt eine sterische Hülle um jedes Partikel. Entropischer Widerstand verhindert Agglomeration und Sedimentation.',
     captionEn: 'MoS₂ is 5.6× denser than wax (5.06 vs. 0.9 g/cm³) — per Stokes\' law it sinks in minutes. An amphiphilic fatty acid ester wraps each particle in a steric shell. Entropic resistance prevents agglomeration and sedimentation.',
   },

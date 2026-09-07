@@ -5,17 +5,32 @@ import { ScrollTrigger } from '@/lib/gsap';
 import { prefersReducedMotion } from '@/hooks/useAnimation';
 import { curvedEdge, quadPoint, NodeCircle, EdgeLabel, LegendSwatch, type NodeState } from '@/sections/science/graphPrimitives';
 
-// Viewbox is cropped tight around the node layout (COMPONENTS' cx/cy/r span
-// x:[120,580] y:[45,435] in the original 700x480 space) instead of centering
-// it in a much larger box. Mobile renders this at full device width, so the
-// old margins (120px horizontal, 45px vertical) were pure dead space eaten
-// out of the only budget mobile has — cropping to a 55/35px margin (still
-// comfortably beyond the +18px active-glow and +14px hub-halo reach) makes
-// every node and label render ~23% larger on the same screen, at zero cost
-// on desktop where there was room to spare anyway.
-const VB_X = 65, VB_Y = 10, VB_W = 570, VB_H = 460;
+// Viewbox is cropped tight around the node layout instead of centering it in
+// a much larger box. Mobile renders this at full device width, so dead
+// margin is budget lost to nothing — cropped just wide enough for the
+// radial layout below (COMPONENTS' cx/cy/r span x:[151,549] y:[50,390]) plus
+// the target node + its two-line label beneath it (bottom ~482) and the
+// +18px active-glow / +14px hub-halo reach on the outermost nodes.
+const VB_X = 90, VB_Y = 8, VB_W = 520, VB_H = 490;
 const STEPS = FORMULA_STORY.length;            // 6 component steps; index === STEPS means "done"
 const byNode = (n: number) => COMPONENTS.find(c => c.node === n)!;
+
+// ─── Ring guides — the radial layout made visible ────────────────────────────
+// Same centre as COMPONENTS' geometry (science.ts): MoS2 (node 4) sits here,
+// the film-forming trio rings it at R_MID, the two stabilisers ring that at
+// R_OUT. Two faint dashed circles plus a two-word label per ring turn "why
+// is this node placed here" from implicit into something the figure states
+// outright — the same instrument-axis language TempWindow/HexMoS2 already
+// use elsewhere on this page, not a new visual idiom.
+const RING_CX = 350, RING_CY = 240, R_MID = 150, R_OUT = 200;
+// Target node — where the whole assembly ends up. Deliberately NOT a
+// ScienceComponent: giving it a COMPONENTS entry would add a 7th index
+// throughout diveFormula() (src/lib/science.ts, consumed by the homepage
+// hero dive) for a node that has no "Warum das zaehlt"/"Die Physik" detail
+// of its own. It renders as a static, non-interactive marker + one fixed
+// edge from MoS2 once MoS2 itself is built — independent of the
+// step/hover/EDGES machinery below, so it can't destabilise that.
+const TARGET = { x: 350, y: 424, r: 15 };
 
 // One node: a clean disc whose label is legible in every state (white on the
 // accent-filled active disc, dark otherwise). Pop-in + recede are pure CSS
@@ -142,14 +157,31 @@ export function FormulaGraph({ de, onSelect, scrollFocus, compact, mobile }: { d
   };
 
   const focusComp = focusNode != null ? byNode(focusNode) : null;
+  const mos2Built = builtNodes.has(4);
+  const targetGeo = useMemo(() => {
+    const mos2 = byNode(4);
+    return curvedEdge(mos2.cx, mos2.cy, TARGET.x, TARGET.y, 0.02, mos2.r + 4, TARGET.r + 3);
+  }, []);
 
   return (
     <div ref={rootRef}>
       <div className="relative">
         <svg viewBox={`${VB_X} ${VB_Y} ${VB_W} ${VB_H}`} className="w-full h-auto" style={{ overflow: 'visible' }}
           role="group" aria-label={de ? 'Aufbau der Formel' : 'Formula assembly'}>
+          {/* Ring guides — drawn first so edges/nodes sit on top. Only once
+              the graph is settled (focusNode only meaningfully differs from
+              "everything built" while the non-compact autoplay is running,
+              which this page never uses — compact is always on) so they
+              don't compete with the build animation. */}
+          <g aria-hidden style={{ opacity: mos2Built ? 1 : 0, transition: 'opacity 0.6s ease' }}>
+            <circle cx={RING_CX} cy={RING_CY} r={R_MID} fill="none"
+              stroke="rgba(var(--accent-rgb),0.16)" strokeWidth="1" strokeDasharray="2 5" />
+            <circle cx={RING_CX} cy={RING_CY} r={R_OUT} fill="none"
+              stroke="rgba(var(--accent-rgb),0.10)" strokeWidth="1" strokeDasharray="2 5" />
+          </g>
+
           <g data-edges>
-            {edgeGeo.map(({ e, d }, i) => {
+            {edgeGeo.map(({ e, d, a, b, c }, i) => {
               const built = builtEdges.has(i);
               const act = activeEdges.has(i);
               const op = !built ? 0 : focusNode == null ? (e.main ? 0.5 : 0.34) : act ? 1 : 0.1;
@@ -159,6 +191,25 @@ export function FormulaGraph({ de, onSelect, scrollFocus, compact, mobile }: { d
               // everything else is plain geometry — matches ChainWaxMap.tsx's
               // token usage instead of the theme-fixed pixel values this used.
               const w = act ? 'var(--dw-bold)' : 'var(--dw-line)';
+              // Balance edges (FT-Wachs <-> Mikrokristallin) are a tension,
+              // not a build step or a guard — a tighter dash than 'guard'
+              // edges and two small opposed ticks near the ends instead of
+              // the one-way flow comet, so "this is two things pulling
+              // against each other" reads differently from "A feeds B".
+              if (e.balance) {
+                const tickA = quadPoint(a.cx, a.cy, c.x, c.y, b.cx, b.cy, 0.16);
+                const tickB = quadPoint(a.cx, a.cy, c.x, c.y, b.cx, b.cy, 0.84);
+                return (
+                  <g key={i} style={{ opacity: op, transition: reduced ? 'none' : 'opacity 0.35s ease' }}>
+                    <path d={d} fill="none" stroke={act ? 'var(--accent)' : 'rgba(var(--accent-rgb),0.34)'}
+                      strokeWidth={w} strokeDasharray="2 3.5" strokeLinecap="round" />
+                    {[tickA, tickB].map((p, ti) => (
+                      <circle key={ti} cx={p.x} cy={p.y} r={2.4}
+                        fill={act ? 'var(--accent)' : 'rgba(var(--accent-rgb),0.5)'} />
+                    ))}
+                  </g>
+                );
+              }
               return (
                 <g key={i}>
                   <path d={d} fill="none"
@@ -174,6 +225,19 @@ export function FormulaGraph({ de, onSelect, scrollFocus, compact, mobile }: { d
                 </g>
               );
             })}
+            {/* Target — MoS2's Fe-S transfer film lands on the steel. The one
+                edge in the figure that points OUT of the ring system instead
+                of between components, so the graph closes with a direction
+                instead of just a finished cluster. */}
+            <path d={targetGeo.d} fill="none" stroke="var(--accent)" strokeWidth="var(--dw-line)"
+              strokeDasharray="1 3.5" strokeLinecap="round"
+              style={{ opacity: mos2Built ? 0.55 : 0, transition: reduced ? 'none' : 'opacity 0.6s ease 0.2s' }} />
+            <g style={{ opacity: mos2Built ? 1 : 0, transition: reduced ? 'none' : 'opacity 0.5s ease 0.3s' }}>
+              <rect x={TARGET.x - TARGET.r} y={TARGET.y - TARGET.r * 0.55} width={TARGET.r * 2} height={TARGET.r * 1.1}
+                rx="2" fill="var(--sf2)" stroke="var(--txf)" strokeWidth="1.2" />
+              <line x1={TARGET.x - TARGET.r} y1={TARGET.y} x2={TARGET.x + TARGET.r} y2={TARGET.y}
+                stroke="var(--accent)" strokeWidth="1.6" opacity="0.8" />
+            </g>
           </g>
 
           {COMPONENTS.map(c => (
@@ -188,6 +252,46 @@ export function FormulaGraph({ de, onSelect, scrollFocus, compact, mobile }: { d
         {/* Node labels + the single active relationship pill — HTML overlay so text
             stays crisp and legible (white on the accent-filled active disc). */}
         <div className="absolute inset-0 pointer-events-none">
+          {/* Ring labels — opposite horizontal sides (mid ring left, outer
+              ring right) at the ring's own vertical centre, where no node
+              sits on either ring. Putting both on the same side (an earlier
+              version) put them ~35px apart while each label is ~70-80px
+              wide — they overlapped. Two words each, same caption styling
+              as the page's other instrument-axis labels (TempWindow's
+              degree ticks use the same text-meta/txf treatment). */}
+          <div className="absolute text-meta uppercase tracking-[0.12em] whitespace-nowrap"
+            style={{
+              left: `${((RING_CX - R_MID - VB_X) / VB_W) * 100}%`, top: `${((RING_CY - VB_Y) / VB_H) * 100}%`,
+              transform: 'translate(-100%, -50%)', paddingRight: 8,
+              color: 'var(--txf)', opacity: mos2Built ? 0.85 : 0,
+              transition: reduced ? 'none' : 'opacity 0.6s ease',
+            }}>
+            {de ? 'Filmbildung' : 'film-forming'}
+          </div>
+          <div className="absolute text-meta uppercase tracking-[0.12em] whitespace-nowrap"
+            style={{
+              left: `${((RING_CX + R_OUT - VB_X) / VB_W) * 100}%`, top: `${((RING_CY - VB_Y) / VB_H) * 100}%`,
+              transform: 'translate(0, -50%)', paddingLeft: 8,
+              color: 'var(--txf)', opacity: mos2Built ? 0.85 : 0,
+              transition: reduced ? 'none' : 'opacity 0.6s ease',
+            }}>
+            {de ? 'Haltbarkeit' : 'stability'}
+          </div>
+          {/* Target label — the one node in the figure with no detail card,
+              so it needs its own short caption instead of relying on a tap
+              to explain it. */}
+          <div className="absolute text-center leading-tight" style={{
+            left: `${((TARGET.x - VB_X) / VB_W) * 100}%`, top: `${((TARGET.y + TARGET.r + 14 - VB_Y) / VB_H) * 100}%`,
+            transform: 'translate(-50%, 0)', opacity: mos2Built ? 1 : 0,
+            transition: reduced ? 'none' : 'opacity 0.5s ease 0.3s',
+          }}>
+            <span className="block font-semibold text-meta" style={{ color: 'var(--tx1)' }}>
+              {de ? 'Stahl · Zone 01' : 'Steel · zone 01'}
+            </span>
+            <span className="block text-meta" style={{ color: 'var(--accent-soft)' }}>
+              {de ? 'Fe–S-Transferfilm' : 'Fe–S transfer film'}
+            </span>
+          </div>
           {COMPONENTS.map(c => {
             const built = builtNodes.has(c.node);
             const focused = focusNode === c.node;
