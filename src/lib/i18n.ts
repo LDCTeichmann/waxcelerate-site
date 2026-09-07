@@ -101,6 +101,13 @@ export const translations = {
         proBadge: 'mit MoS₂',
         classicFormula: 'Paraffin + PTFE',
         proFormula: 'Paraffin + MoS₂',
+        // Ersetzt die km-Intervall- und Formel-Chips auf der Regal-Karte
+        // (Produktkarten-Neugliederung, siehe Plan): die km-Zahl ist fuer
+        // 300g und 500g identisch und beantwortet den Groessenschalter nicht.
+        // Kompatibilitaet ist dagegen fuer beide Groessen gleich UND ein
+        // haeufiger Vorentscheidungs-Filter ("passt das ueberhaupt an meine
+        // Kette").
+        compat: 'Passt auf 9–12-fach · Shimano · SRAM · Campagnolo · KMC',
         size: 'Größe',
         per100: 'je 100 g',
         dryInterval: 'trocken',
@@ -633,6 +640,7 @@ export const translations = {
         proBadge: 'with MoS₂',
         classicFormula: 'Paraffin + PTFE',
         proFormula: 'Paraffin + MoS₂',
+        compat: 'Fits 9–12-speed · Shimano · SRAM · Campagnolo · KMC',
         size: 'Size',
         per100: 'per 100 g',
         dryInterval: 'dry',

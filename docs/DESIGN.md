@@ -217,6 +217,34 @@ Erstes Messtechnik sieht.
      Press gemuenzt, damit der Button "antwortet" statt nur die Karte.
    - **Bewusst NICHT umgesetzt:** Text/Preis in die Fotos einbetten — siehe
      Begruendung in §5.
+
+   09/2026, Runde 4 (Produktkarten-Neugliederung): Lucas Befund war "chaotisch",
+   "man erkennt fast gar nichts" — nicht die Kartenform selbst (die blieb
+   unangetastet), sondern welche Fakten drauf stehen und wie sie gruppiert
+   sind.
+   - **Km-Intervall- und Formel-Chips raus.** Beide sind fuer 300g und 500g
+     identisch und beantworten den Groessenschalter nicht — gehoeren auf die
+     Produktseite, wo sie bereits stehen.
+   - **Pro traegt seinen Wirkstoff jetzt als staendig sichtbarer Chip oben
+     rechts im Bild** ("mit MoS₂") statt eines Formel-Chips im Textblock —
+     Lucas ausdruecklicher Wunsch. Classic behaelt "Meistgekauft" oben links,
+     der Hover-Pfeil zieht dafuer nach unten rechts.
+   - **Kompatibilitaet neu:** eine ruhige Mono-Zeile ("Passt auf 9–12-fach ·
+     Shimano · SRAM · Campagnolo · KMC") — fuer beide Groessen gleich, also
+     eigene Zeile statt Chip, und der haeufigste Vorentscheidungs-Filter beim
+     Kettenwachs-Kauf, den bisher keine Karte zeigte.
+   - **Fussstreifen statt vierter Zeile im Textblock:** sozialer Beweis,
+     Lieferung und die Wachs-Staffel (2/3/5 Stk. 5/10/15 %, vorher nur als
+     Fliesstext ueber der Kettenliste) liegen jetzt gemeinsam in einer eigens
+     getoenten Flaeche (`var(--sf3)`, Haarlinie oben) — Common-Region-Prinzip,
+     dieselbe Begruendung wie schon fuer `.shelf-card` als Ganzes. Lieferung
+     von `--txff` auf `--tx2` angehoben (Lucas: "Lieferung zu dezent").
+   - **Groessenschalter:** ein gemeinsamer Rahmen um beide Buttons statt
+     zweier einzeln umrandeter — liest jetzt als eine Wahl.
+   - Dieselbe Faktenauswahl (Chips raus, Kompatibilitaet + Staffel + lautere
+     Lieferung) zieht auf die Produktseiten-Kaufkarte durch, die dort zu drei
+     klar getrennten Zonen (Identitaet / Kaufblock / Faktenraster) umgebaut
+     wurde — siehe Kommentare in `ProductDetailPage.tsx`.
 4. Tür in die Wissenschaft
 
 Der Sägezahn trägt zwei Argumente gleichzeitig: wie viele Watt ein Schmierstoff

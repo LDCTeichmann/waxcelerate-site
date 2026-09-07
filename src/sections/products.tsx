@@ -1,4 +1,4 @@
-import { ExternalLink, X, ChevronDown, ArrowRight } from 'lucide-react';
+import { ExternalLink, X, ChevronDown, ArrowRight, Truck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState, useRef, useEffect, useCallback, useMemo, memo } from 'react';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
@@ -14,6 +14,8 @@ import { ChainFinder } from '@/sections/ChainFinder';
 import { ProductShelf, SecondaryTile } from '@/sections/ProductShelf';
 import { AddToCartButton } from '@/components/AddToCartButton';
 import { Section } from '@/components/Section';
+import { CompareTable } from '@/components/CompareTable';
+import { getEstimatedDelivery } from '@/lib/utils';
 
 const MONO = "'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace";
 
@@ -83,6 +85,10 @@ export function Products() {
     new Intl.NumberFormat(lang === 'de' ? 'de-DE' : 'en-US', { style: 'currency', currency: 'EUR' }),
   [lang]);
   const formatPrice = useCallback((price: number) => formatter.format(price), [formatter]);
+  // Gleiche Schaetzung wie die Wachs-Tafeln im Regal (ProductShelf.tsx) —
+  // ChainCard zeigte bisher gar kein Lieferdatum, obwohl CardProps es schon
+  // deklarierte (nie uebergeben).
+  const chainDelivery = useMemo(() => getEstimatedDelivery(lang), [lang]);
 
   const resetFilters = useCallback(() => { setSpeedFilter('all'); setBrandFilter('all'); }, []);
 
@@ -118,49 +124,6 @@ export function Products() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Wax card entrance — runs once, cards never change.
-  // Plain fade+rise, no 3D rotateX/perspective: the previous 3D tilt read as a
-  // "flip" and — because rotateX forces the browser to recomposite the card
-  // in a 3D rendering context — could disrupt the rounded-corner clip on the
-  // image wrapper nested inside it for a frame (the same class of Chromium
-  // compositing quirk fixed elsewhere on this site, just triggered by the
-  // parent's 3D transform instead of the child's own). A 2D transform doesn't
-  // have that problem. `data-wx-in` marks elements once animated so that if
-  // this effect ever runs twice for the same DOM nodes (React StrictMode's
-  // dev-only double-invoke, or any other re-registration), the second pass
-  // is a no-op instead of visibly replaying the animation.
-  useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const ctx = gsap.context(() => {
-      ScrollTrigger.batch('.wax-card', {
-        onEnter: (els) => {
-          const fresh = els.filter(el => !(el as HTMLElement).dataset.wxIn);
-          if (!fresh.length) return;
-          fresh.forEach(el => { (el as HTMLElement).dataset.wxIn = 'true'; });
-          gsap.from(fresh, {
-            y: 24, opacity: 0, duration: 0.6,
-            stagger: 0.09, ease: 'power3.out',
-            onStart: () => fresh.forEach(el => { (el as HTMLElement).style.willChange = 'transform, opacity'; }),
-            onComplete: () => fresh.forEach(el => {
-              // Only clear the transform GSAP itself animated (the entrance
-              // y-offset) — NOT willChange. This element's will-change:
-              // transform is a persistent hint set directly in its own style
-              // (see the wax-card/chain-card JSX above) precisely so the
-              // corner-radius clip survives from here through to whenever the
-              // user eventually hovers the card, however much later that is.
-              // Clearing it here would strip that hint right back off again
-              // moments after it was set, reopening the same glitch on hover.
-              gsap.set(el, { clearProps: 'transform' });
-            }),
-          });
-        },
-        start: 'top 87%',
-        once: true,
-      });
-    });
-    return () => ctx.revert();
-  }, []);
-
   // Chain card entrance — re-registers when filter changes so new cards animate in
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -178,7 +141,7 @@ export function Products() {
               // Only clear the transform GSAP itself animated (the entrance
               // y-offset) — NOT willChange. This element's will-change:
               // transform is a persistent hint set directly in its own style
-              // (see the wax-card/chain-card JSX above) precisely so the
+              // (see the chain-card JSX above) precisely so the
               // corner-radius clip survives from here through to whenever the
               // user eventually hovers the card, however much later that is.
               // Clearing it here would strip that hint right back off again
@@ -243,13 +206,13 @@ export function Products() {
                 {t.products.preWaxedHint}
               </p>
 
-              {/* Shared info — shown once instead of repeating identical pills on every card */}
+              {/* Shared info — shown once instead of repeating identical pills on every card.
+                  multiDiscount stand hier frueher mit dran, obwohl die Staffel nur fuer Wachs
+                  gilt — steht jetzt auf den Wachskarten im Regal (ProductShelf.tsx). */}
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 mb-4 px-1 text-meta" style={{ color: 'var(--txf)' }}>
                 <span className="font-medium" style={{ color: 'var(--tx2)' }}>
                   {de ? 'Alle Ketten: vorgewachst · Quick-Link inklusive' : 'All chains: pre-waxed · Quick-Link included'}
                 </span>
-                <span className="hidden sm:inline" style={{ color: 'var(--bd2)' }}>·</span>
-                <span>{t.products.multiDiscount}</span>
               </div>
 
               {/* Guided "Finde deine Kette" finder — drives the same brand/speed state */}
@@ -280,6 +243,7 @@ export function Products() {
                       de={de}
                       formatPrice={formatPrice}
                       buyLabel={t.products.buyOnEbay}
+                      deliveryDate={chainDelivery}
                     />
                   ))}
                 </div>
@@ -334,7 +298,7 @@ interface CardProps {
 
 // ── Chain Card ─────────────────────────────────────────────────────────────
 
-const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }: CardProps) {
+const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel, deliveryDate }: CardProps) {
   const badge = de ? product.badge : product.badgeEn;
   const brand = product.chainBrand ?? '';
   const model = product.chainModel ?? '';
@@ -381,9 +345,14 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
           <p className="text-meta font-semibold uppercase tracking-[0.14em]" style={{ color: 'var(--accent-soft)' }}>{brand}</p>
           <h3 className="text-[14px] sm:text-[15px] font-bold text-wx-tx1 leading-snug tracking-[-0.02em] mt-0.5">{model}</h3>
 
-          {/* Specs as pills */}
+          {/* Specs as pills — jetzt auch auf Mobile sichtbar (vorher
+              hidden sm:flex: die Kettenkarte zeigte auf dem Handy nur Marke,
+              Modell und Preis, keine einzige Spezifikation). chainLinks
+              traegt die Einheit bereits ("116 Glieder" in data.ts) — das
+              zusaetzliche " Glieder"/" links" im JSX verdoppelte sie
+              ("116 Glieder Glieder"). */}
           {(chainLinks || speed) && (
-            <div className="hidden sm:flex items-center gap-2 mt-2 flex-wrap">
+            <div className="flex items-center gap-2 mt-2 flex-wrap">
               {speed && (
                 <span className="text-[10.5px] px-2 py-0.5 rounded-md tabular-nums" style={{ fontFamily: MONO, background: 'var(--sf2)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
                   {speed}
@@ -391,10 +360,20 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel }
               )}
               {chainLinks && (
                 <span className="text-[10.5px] px-2 py-0.5 rounded-md tabular-nums" style={{ fontFamily: MONO, background: 'var(--sf2)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
-                  {chainLinks} {de ? 'Glieder' : 'links'}
+                  {chainLinks}
                 </span>
               )}
             </div>
+          )}
+
+          {/* Lieferung — CardProps.deliveryDate war deklariert, aber nie
+              uebergeben; die Kettenkarte zeigte bisher gar kein Lieferdatum,
+              anders als die Wachs-Tafeln im Regal. */}
+          {deliveryDate && (
+            <span className="flex items-center gap-1.5 num-data text-meta mt-2" style={{ color: 'var(--txff)' }}>
+              <Truck className="h-3 w-3 flex-shrink-0" style={{ color: 'var(--accent-soft)' }} aria-hidden />
+              {de ? `Lieferung ${deliveryDate}` : `Delivery ${deliveryDate}`}
+            </span>
           )}
 
           {/* Price + CTA */}
@@ -443,7 +422,10 @@ const PRO_ACCENT = 'var(--accent-soft)';
 const eur = (n: number, de: boolean) =>
   n.toLocaleString(de ? 'de-DE' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
 
-function CompareModal({ open, onClose, de, t }: {
+// Exportiert: die Produktseite (ProductDetailPage.tsx) verlinkt jetzt
+// ebenfalls auf den Classic/Pro-Vergleich statt eines reinen Textlinks zum
+// Pro-Produkt (Produktkarten-Neugliederung, siehe Plan Phase 3).
+export function CompareModal({ open, onClose, de, t }: {
   open: boolean;
   onClose: () => void;
   de: boolean;
@@ -474,7 +456,7 @@ function CompareModal({ open, onClose, de, t }: {
   const classicPrice = eur(products.find(p => p.id === 'wax-500')!.price, de);
   const proPrice = eur(products.find(p => p.id === 'wax-500-mos2')!.price, de);
 
-  const rows = [
+  const rawRows = [
     {
       label: de ? 'Wirkstoff' : 'Active ingredient',
       classic: 'PTFE-Film',
@@ -511,6 +493,20 @@ function CompareModal({ open, onClose, de, t }: {
     },
   ];
 
+  // Fuer <CompareTable> (Produktkarten-Neugliederung, Phase 6): proCheck/
+  // classicDim aus rawRows werden zu winCol/dimCols, damit dieselbe
+  // Komponente wie im PDP-Akkordeon greift, statt einer dritten eigenen
+  // Grid-Implementierung. Nur Zeilen mit explizitem proCheck heben Pro
+  // farblich hervor (Wirkstoff/Reibung/Intervall sind Abwaegungen, keine
+  // klaren "Gewinner" — das war schon im alten Markup so und bleibt hier
+  // erhalten).
+  const compareRows = rawRows.map(row => ({
+    label: row.label,
+    cols: [row.classic, row.pro],
+    winCol: row.proCheck ? 1 : undefined,
+    dimCols: row.classicDim ? [0] : undefined,
+  }));
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
@@ -518,7 +514,7 @@ function CompareModal({ open, onClose, de, t }: {
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-[500px] max-h-[90vh] flex flex-col rounded-2xl overflow-hidden"
+        className="relative w-full max-w-[620px] max-h-[90vh] flex flex-col rounded-2xl overflow-hidden"
         style={{
           background: 'var(--sf)',
           border: '1px solid var(--bd)',
@@ -551,60 +547,30 @@ function CompareModal({ open, onClose, de, t }: {
         {/* ── Scrollable body ── */}
         <div className="flex-1 overflow-y-auto overscroll-contain">
 
-          {/* ── Comparison table ── */}
+          {/* ── Comparison table — mit Fotos statt reinem Namens-Header
+              (Luca: "vielleicht auch mit Bildern, der zwei Wachse
+              nebeneinander mit der Information unten drunter"). Die Regal-
+              Crops sind bereits im Browser (WaxPanel laedt dieselben
+              Dateien), kein zusaetzlicher Download. */}
           <div className="px-4 pt-4 pb-2">
-            <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--bd2)' }}>
-
-              {/* Column header row */}
-              <div className="grid" style={{ gridTemplateColumns: '1.1fr 1fr 1fr', background: 'var(--sf2)', borderBottom: '1px solid var(--bd2)' }}>
-                <div className="px-3 py-3" />
-                {/* Classic header */}
-                <div className="px-3 py-3 flex flex-col gap-0.5" style={{ borderLeft: '1px solid var(--bd2)' }}>
-                  <span className="text-meta font-bold uppercase tracking-[0.12em]" style={{ color: CLASSIC_ACCENT }}>Classic</span>
-                  <span className="text-meta leading-snug" style={{ color: 'var(--txff)' }}>
-                    {de ? 'Sommer & Einsteiger' : 'Summer & Beginners'}
-                  </span>
-                </div>
-                {/* Pro header */}
-                <div className="px-3 py-3 flex flex-col gap-0.5" style={{ borderLeft: '1px solid var(--bd2)' }}>
-                  <span className="text-meta font-bold uppercase tracking-[0.12em]" style={{ color: PRO_ACCENT }}>Pro MoS₂</span>
-                  <span className="text-meta leading-snug" style={{ color: 'var(--txff)' }}>
-                    {de ? 'Ganzjahr & E-Bike' : 'Year-round & E-Bike'}
-                  </span>
-                </div>
-              </div>
-
-              {/* Data rows */}
-              {rows.map((row, ri) => (
-                <div
-                  key={ri}
-                  className="grid"
-                  style={{ gridTemplateColumns: '1.1fr 1fr 1fr', borderBottom: ri < rows.length - 1 ? '1px solid var(--bd2)' : 'none' }}
-                >
-                  {/* Label */}
-                  <div className="px-3 py-3 flex items-center">
-                    <span className="text-meta" style={{ color: 'var(--txm)' }}>{row.label}</span>
-                  </div>
-                  {/* Classic value */}
-                  <div className="px-3 py-3 flex items-center justify-center" style={{ borderLeft: '1px solid var(--bd2)' }}>
-                    <span
-                      className="text-[12px] font-medium text-center"
-                      style={{ color: row.classicDim ? 'var(--txff)' : 'var(--tx2)' }}
-                    >
-                      {row.classic}
-                    </span>
-                  </div>
-                  {/* Pro value */}
-                  <div className="px-3 py-3 flex items-center justify-center" style={{ borderLeft: '1px solid var(--bd2)' }}>
-                    <span
-                      className="text-[12px] font-semibold text-center"
-                      style={{ color: row.proCheck ? PRO_ACCENT : 'var(--tx2)' }}
-                    >
-                      {row.pro}
-                    </span>
-                  </div>
-                </div>
-              ))}
+            <CompareTable
+              headers={['Classic', 'Pro MoS₂']}
+              images={['/images/shelf/wax-classic-800.webp', '/images/shelf/wax-pro-800.webp']}
+              rows={compareRows}
+              // Hex-Literal statt PRO_ACCENT ('var(--accent-soft)') — CompareTable
+              // haengt einen Alpha-Suffix an (`${accentColor}0F`), der nur mit
+              // Hex funktioniert, nicht mit einem CSS-Var-String. Gleicher Wert
+              // wie cardAccent fuer isPro in ProductDetailPage.tsx.
+              accentColor="#4A72D4"
+              de={de}
+            />
+            {/* "Fuer wen" — dieselben, bereits abgesegneten Saetze wie im
+                Regal (t.products.shelf.classicFor/proFor), statt einer
+                dritten, leicht abweichenden Formulierung ("Sommer &
+                Einsteiger") direkt im Modal-Header. */}
+            <div className="grid grid-cols-2 gap-2.5 mt-2.5 text-center">
+              <p className="text-meta" style={{ color: 'var(--txff)' }}>{pt.shelf.classicFor}</p>
+              <p className="text-meta" style={{ color: 'var(--txff)' }}>{pt.shelf.proFor}</p>
             </div>
           </div>
 

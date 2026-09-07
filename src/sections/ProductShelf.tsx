@@ -102,6 +102,10 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
   const grams = parseInt(product.weight!);
   const per100 = eur(product.price / (grams / 100), de);
 
+  // Ein Rahmen um beide Groessen statt zwei einzeln umrandeter Buttons — der
+  // vorherige Zustand (jeder Button mit eigenem Rahmen) las sich als zwei
+  // lose Buttons statt als eine Wahl. Der Rahmen liegt jetzt auf dem
+  // Wrapper (siehe unten), min-h-11/min-w-11 bleiben fuer die 44px-Klickflaeche.
   const sizeBtn = (v: Size) => {
     const active = size === v;
     return (
@@ -110,12 +114,12 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
         type="button"
         onClick={() => setSize(v)}
         aria-pressed={active}
-        className={`num-data inline-flex items-center justify-center min-h-11 min-w-11 px-4 rounded-lg text-[12.5px] leading-none border transition-all ${
+        className={`num-data inline-flex items-center justify-center min-h-11 min-w-11 px-4 rounded-md text-[12.5px] leading-none transition-all ${
           active ? 'text-wx-tx1' : 'text-wx-txm hover:text-wx-tx2'
         }`}
         style={{
-          borderColor: active ? 'var(--accent-soft)' : 'var(--bd)',
-          background: active ? 'var(--accent-wash)' : 'transparent',
+          background: active ? 'var(--sf)' : 'transparent',
+          boxShadow: active ? '0 1px 2px rgba(0,0,0,0.08)' : 'none',
         }}
       >
         {v} g
@@ -153,39 +157,44 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
           />
         </picture>
 
-        {/* Hover-Pfeil oben rechts — spiegelt die Auszeichnung oben links und
-            gibt WaxPanel dieselbe Klick-Signatur wie SecondaryTile darunter.
-            Erst beim Hover sichtbar, damit die Karte in Ruhe nicht ueberladen
-            wirkt (siehe Recherche zu "reveal on hover" statt Dauerpraesenz). */}
+        {/* Hover-Pfeil unten rechts — Runde 4: die alte Position oben rechts
+            kollidiert jetzt mit Pros staendig sichtbarem MoS2-Chip (siehe
+            unten). Gibt WaxPanel weiterhin dieselbe Klick-Signatur wie
+            SecondaryTile darunter, erst beim Hover sichtbar, damit die Karte
+            in Ruhe nicht ueberladen wirkt. */}
         <span
           aria-hidden
-          className="absolute top-4 right-4 flex items-center justify-center h-9 w-9 rounded-full opacity-0 -translate-y-1 transition-all duration-300 ease-out group-hover:opacity-100 group-hover:translate-y-0"
+          className="absolute bottom-4 right-4 flex items-center justify-center h-9 w-9 rounded-full opacity-0 translate-y-1 transition-all duration-300 ease-out group-hover:opacity-100 group-hover:translate-y-0"
           style={{ background: 'rgba(255,255,255,0.16)', backdropFilter: 'blur(6px)', border: '1px solid rgba(255,255,255,0.28)' }}
         >
           <ArrowRight className="h-4 w-4" style={{ color: '#fff' }} />
         </span>
 
-        {/* Auszeichnung oben links.
+        {/* Auszeichnung — Classic oben links, Pro oben rechts.
             Classic und Pro standen bisher als zwei voellig gleichwertige
             Tafeln nebeneinander — gleiche Groesse, gleiche Gestaltung, kein
             Hinweis, welche die uebliche Wahl ist. Die eigenen Verkaufszahlen
-            sagen etwas anderes: von 236 verkauften Wachsbloecken sind 207
-            Classic (87 %). Wer zwei gleich grosse Tafeln sieht, muss eine
-            Entscheidung treffen, die 87 % der Kaeufer gar nicht haben.
+            sagen etwas anderes: die Mehrheit der verkauften Wachsbloecke ist
+            Classic. Wer zwei gleich grosse Tafeln sieht, muss eine
+            Entscheidung treffen, die die Mehrheit der Kaeufer gar nicht hat.
             Wichtig: Die Auszeichnungen sagen NICHT "diese ist besser" — das
             waere bei zwei Produkten im selben Regal ein Widerspruch. Classic
-            traegt eine Tatsache (meistgekauft), Pro einen Anwendungsfall
-            (Winter & E-Bike). So beantwortet die Karte "welche bin ich?"
-            statt "welche ist besser?". */}
-        <span className="absolute top-4 left-4 rounded-full px-2.5 py-1 text-meta font-semibold"
-          style={{
-            background: variant === 'classic' ? 'rgba(255,255,255,0.94)' : 'rgba(10,10,12,0.72)',
-            color: variant === 'classic' ? '#101013' : 'rgba(255,255,255,0.94)',
-            backdropFilter: 'blur(6px)',
-            border: variant === 'classic' ? 'none' : '1px solid rgba(255,255,255,0.22)',
-          }}>
-          {variant === 'classic' ? s.classicBadge : s.proBadge}
-        </span>
+            traegt eine Tatsache (meistgekauft), Pro seinen Wirkstoff als
+            staendig sichtbaren Chip statt eines Formel-Chips im Textblock
+            (Lucas Feedback: "kannst du bei Pro einfach zum Beispiel noch
+            MoS-2 irgendwo oben rechts im Bild reinmachen"). So beantwortet
+            die Karte "welche bin ich?" statt "welche ist besser?". */}
+        {variant === 'classic' ? (
+          <span className="absolute top-4 left-4 rounded-full px-2.5 py-1 text-meta font-semibold"
+            style={{ background: 'rgba(255,255,255,0.94)', color: '#101013', backdropFilter: 'blur(6px)' }}>
+            {s.classicBadge}
+          </span>
+        ) : (
+          <span className="absolute top-4 right-4 rounded-full px-2.5 py-1 text-meta font-semibold"
+            style={{ background: 'rgba(10,10,12,0.72)', color: 'rgba(255,255,255,0.94)', backdropFilter: 'blur(6px)', border: '1px solid rgba(255,255,255,0.22)' }}>
+            {s.proBadge}
+          </span>
+        )}
       </Link>
 
       {/* Infoblock — vorher lose auf dem Seiten-Hintergrund, nur mit einer
@@ -226,58 +235,33 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
           </div>
         </div>
 
-        {/* Spezifikationen als Chips — dieselbe Kartensprache wie ChainCards
-            Speed/Glieder-Chips weiter unten in dieser Datei, statt eines
-            eigenen, mit "·" verketteten Mono-Satzes. Drei getrennte Fakten
-            statt ein Satz, den man erst parsen muss. */}
-        <div className="flex flex-wrap gap-1.5 mt-3">
-          {[
-            `${product.intervalDry} ${s.dryInterval}`,
-            `${product.applications} ${s.uses}`,
-            variant === 'classic' ? s.classicFormula : s.proFormula,
-          ].map((label) => (
-            <span key={label} className="num-data text-[10.5px] px-2 py-1 rounded-md"
-              style={{ background: 'var(--sf3)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
-              {label}
-            </span>
-          ))}
-        </div>
-
-        {/* Zeile 3: Groessenschalter links, sozialer Beweis rechts. Vorher
-            standen Bewertung/Verkaufszahl und Lieferdatum zusammen in einer
-            eigenen Zeile und der Schalter in der Preiszeile — drei Zeilen fuer
-            drei Aussagen, jede nur halb belegt. Jetzt zwei Zeilen, beide an
-            beiden Enden belegt (Lucas "viel Deadspace"). Bezieht sich auf die
-            Formel (Classic/Pro) statt die Groesse, siehe variantStats() oben —
-            sonst springt die Zahl beim Groessenwechsel. */}
-        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 mt-3">
-          <div className="flex gap-1.5">{(['300', '500'] as Size[]).map(sizeBtn)}</div>
-          <div className="flex items-center gap-1.5 whitespace-nowrap">
-            {reviews > 0 && (
-              <>
-                <div className="flex gap-px flex-shrink-0">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star key={i} className="h-3 w-3 fill-current" style={{ color: '#F5A623' }} aria-hidden />
-                  ))}
-                </div>
-                <span className="num-data text-meta font-medium" style={{ color: 'var(--txm)' }}>
-                  {reviews} {s.reviewsShort}
-                </span>
-              </>
-            )}
-            {soldRounded >= 20 && (
-              <span className="num-data text-meta" style={{ color: 'var(--txf)' }}>
-                {reviews > 0 && '· '}{soldRounded}+ {s.soldUnits}
-              </span>
-            )}
+        {/* Zeile 2: Groessenschalter links, Anwendungszahl rechts — die beiden
+            Fakten, um die die Wahl selbst geht. Die vorherigen Chips
+            (km-Intervall trocken, Formel) sind raus: beide sind fuer 300g
+            und 500g identisch, beantworten den Schalter also nicht und
+            gehoeren auf die Produktseite, wo sie bereits stehen (Lucas
+            Feedback: "die Informationen mit diesem trockenen Kilometer
+            Reichweite... könnte weggemacht werden"). */}
+        <div className="flex items-center justify-between gap-3 mt-3.5">
+          <div className="inline-flex rounded-lg p-0.5" style={{ border: '1px solid var(--bd)', background: 'var(--sf3)' }}>
+            {(['300', '500'] as Size[]).map(sizeBtn)}
           </div>
+          <span className="num-data text-meta flex-shrink-0" style={{ color: 'var(--txf)' }}>
+            {product.applications} {s.uses}
+          </span>
         </div>
 
-        {/* Zeile 4: Kaufzeile links, Lieferdatum rechts — das Datum fuellt den
-            Platz, der rechts neben zwei Buttons ohnehin frei bleibt, statt
-            eine eigene Zeile zu belegen. */}
-        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 mt-3.5">
-          <div className="flex items-center gap-2.5">
+        {/* Zeile 3: Kompatibilitaet — fuer beide Groessen gleich, deshalb
+            eigene Zeile statt Chip in der Groessenreihe. Haeufigster
+            Vorentscheidungs-Filter ("passt das an meine Kette") und auf
+            keiner Karte bisher vertreten. */}
+        <p className="num-data text-[10.5px] mt-2.5" style={{ color: 'var(--txff)' }}>
+          {s.compat}
+        </p>
+
+        {/* Zeile 4: Kaufzeile — CTA + Details, ohne Lieferung. Die zieht in
+            den Fussstreifen darunter (Common-Region-Prinzip, siehe dort). */}
+        <div className="flex items-center gap-2.5 mt-3.5">
           {product.soldOut ? (
             <span className="inline-flex items-center min-h-11 text-[13px] font-semibold" style={{ color: 'var(--txf)' }}>
               {de ? 'Ausverkauft' : 'Sold out'}
@@ -306,11 +290,47 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
             style={{ borderColor: 'var(--bd)', color: 'var(--tx2)' }}>
             {s.details} <ArrowRight className="h-3.5 w-3.5" aria-hidden />
           </Link>
+        </div>
+
+        {/* Fussstreifen: sozialer Beweis, Lieferung und die Wachs-Staffel in
+            einer eigenen, leicht getoenten Flaeche statt als weitere
+            gleichrangige Zeile im Textblock — Common-Region-Prinzip (NN/g):
+            eine Flaeche bindet lose Elemente zu einer Einheit, eine einzelne
+            obere Linie schwaecher (dieselbe Begruendung wie schon fuer
+            .shelf-card als Ganzes, siehe Kommentar am Info-Block oben).
+            Lieferung jetzt in --tx2 statt --txff (Lucas Feedback: "Lieferung
+            ein bisschen zu dezent"). Staffelzeile ist neu auf der Karte —
+            stand vorher nur als Fliesstext ueber der Kettenliste, ausserhalb
+            des Wachs-Kontexts, auf den sie sich bezieht. */}
+        <div className="mt-3.5 -mx-4 px-4 pt-3 pb-3" style={{ borderTop: '1px solid var(--bd2)', background: 'var(--sf3)' }}>
+          <div className="flex items-center justify-between gap-x-3 gap-y-1 flex-wrap">
+            <div className="flex items-center gap-1.5 whitespace-nowrap">
+              {reviews > 0 && (
+                <>
+                  <div className="flex gap-px flex-shrink-0">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star key={i} className="h-3 w-3 fill-current" style={{ color: '#F5A623' }} aria-hidden />
+                    ))}
+                  </div>
+                  <span className="num-data text-meta font-medium" style={{ color: 'var(--txm)' }}>
+                    {reviews} {s.reviewsShort}
+                  </span>
+                </>
+              )}
+              {soldRounded >= 20 && (
+                <span className="num-data text-meta" style={{ color: 'var(--txf)' }}>
+                  {reviews > 0 && '· '}{soldRounded}+ {s.soldUnits}
+                </span>
+              )}
+            </div>
+            <span className="flex items-center gap-1.5 num-data text-meta font-medium whitespace-nowrap" style={{ color: 'var(--tx2)' }}>
+              <Truck className="h-3 w-3 flex-shrink-0" style={{ color: accentColor }} aria-hidden />
+              {s.delivery} {delivery}
+            </span>
           </div>
-          <span className="flex items-center gap-1.5 num-data text-meta whitespace-nowrap" style={{ color: 'var(--txff)' }}>
-            <Truck className="h-3 w-3 flex-shrink-0" style={{ color: accentColor }} aria-hidden />
-            {s.delivery} {delivery}
-          </span>
+          <p className="num-data text-[10.5px] mt-2" style={{ color: 'var(--txff)' }}>
+            {t.products.multiDiscount}
+          </p>
         </div>
       </div>
     </div>

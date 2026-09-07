@@ -20,6 +20,8 @@ import { Footer } from '@/sections/footer';
 import { getEstimatedDelivery, removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
 import { reviewsForProduct, type Review } from '@/sections/reviews';
 import { Stars } from '@/components/Stars';
+import { CompareModal } from '@/sections/products';
+import { CompareTable } from '@/components/CompareTable';
 
 const AUTO_INTERVAL = 5000;
 const FADE_MS = 900;
@@ -98,7 +100,7 @@ function VideoGallerySlide({ src, poster, active, inView, reduce, style }: {
 
 export function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const { lang } = useLanguage();
+  const { lang, t } = useLanguage();
   const navigate = useNavigate();
   const product = id ? getProductById(id) : undefined;
   const de = lang === 'de';
@@ -116,6 +118,7 @@ export function ProductDetailPage() {
   const pausedRef = useRef(false);
   const [compatExpanded, setCompatExpanded] = useState(false);
   const [openAccordion, setOpenAccordion] = useState<string | null>(null);
+  const [compareOpen, setCompareOpen] = useState(false);
   const reduce = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const gallery = product ? [product.image, ...(product.images ?? [])] : [];
@@ -324,15 +327,19 @@ export function ProductDetailPage() {
   const descriptionText = de ? product.description : product.descriptionEn;
   const titleText = de ? product.title : product.titleEn;
 
-  const alternatives = products
-    .filter(p => p.id !== product.id && p.category === product.category)
-    .filter(p => product.category === 'wax' ? p.category === 'wax' : true)
-    .slice(0, 3);
-
   const related = products
     .filter(p => p.id !== product.id)
     .filter(p => product.category === 'wax' ? (p.category === 'chain' && !p.variant) : p.category === 'wax')
     .slice(0, 3);
+
+  // Groessengeschwister derselben Formel — ersetzt den frueheren
+  // "Auch erhaeltlich"-Karussellstreifen, der Groessenvarianten als anonyme
+  // Fremdprodukte neben Ketten-Cross-Sells zeigte (Baymard: Varianten gehoeren
+  // ins Produkt, nicht daneben). Der Schalter in der Kaufkarte tauscht direkt
+  // die Route, kein Zwischenschritt.
+  const waxSizeSibling = isWax
+    ? products.find(p => p.category === 'wax' && p.variant === product.variant && p.weight !== product.weight)
+    : undefined;
 
   const pricePerApp = product.applications
     ? product.price / parseFloat(product.applications.split('–')[1] ?? product.applications)
@@ -345,11 +352,15 @@ export function ProductDetailPage() {
   const grams = isWax && product.weight ? parseInt(product.weight) : 0;
   const per100g = grams > 0 ? `${(product.price / (grams / 100)).toFixed(2).replace('.', ',')} €/100g` : null;
 
+  // Runde 4 (Produktkarten-Neugliederung): zwei statt drei Haekchen — die
+  // Karte bekommt zusaetzlich einen eigenen Positionierungssatz (Einsatz-
+  // zeitraum), drei generische Haekchen plus Satz waren zu viele Atome fuer
+  // eine Flaeche, die vor allem Preis und CTA tragen soll.
   const cardBenefits = (highlights ?? []).filter(h => {
     const lower = h.toLowerCase();
     if (product.applications && lower.includes(product.applications.split('–')[0])) return false;
     return true;
-  }).slice(0, 3);
+  }).slice(0, 2);
 
   const specsData = [
     product.compatibility && { l: de ? 'Kompatibel' : 'Compatible', v: product.compatibility },
@@ -359,6 +370,20 @@ export function ProductDetailPage() {
     product.chainLinks && { l: de ? 'Glieder' : 'Links', v: product.chainLinks },
     product.chainSpeed && { l: de ? 'Schaltung' : 'Speed', v: product.chainSpeed },
   ].filter(Boolean) as { l: string; v: string }[];
+
+  // Kaufkarten-Faktenraster (Produktkarten-Neugliederung, Phase 3): ersetzt
+  // die vier unbeschrifteten Pillen, die vorher nur specsData.slice(0,4)
+  // ohne Label zeigten ("9/10/11/12-fach 500g 20-32 80-90°C" — Lucas "man
+  // erkennt fast gar nichts"). Trocken/Nass zuerst (die kaufentscheidenden
+  // Werte), dann specsData — Anwendungen ist ausgenommen, weil sie bei Wachs
+  // schon neben dem Groessenschalter steht (siehe Kaufblock unten). Auf vier
+  // Zellen gedeckelt; alles Weitere steht in der vollstaendigen
+  // "Spezifikationen"-Tabelle unterhalb des Folds.
+  const factsGrid = [
+    product.intervalDry && { l: de ? 'Trocken' : 'Dry', v: product.intervalDry },
+    product.intervalWet && { l: de ? 'Nass' : 'Wet', v: product.intervalWet },
+    ...specsData.filter(s => s.l !== (de ? 'Anwendungen' : 'Uses')),
+  ].filter(Boolean).slice(0, 4) as { l: string; v: string }[];
 
   // Deckt sich mit titleOf()/descriptionOf() in generate-product-html.mjs —
   // vorher wich sowohl Titel ("kaufen" fehlte hier) als auch Beschreibung
@@ -683,6 +708,42 @@ export function ProductDetailPage() {
               </div>
             )}
 
+            {/* Groessenschalter + Classic/Pro-Vergleich — mobiles Gegenstueck
+                zur Desktop-Kaufkarte (siehe dortiger Kommentar in Zone 2).
+                Ersetzt hier den frueheren "Auch erhaeltlich"-Wischstreifen am
+                Seitenende, der Groessenvarianten und Ketten-Cross-Sells in
+                einer anonymen Liste mischte. */}
+            {isWax && waxSizeSibling && (
+              <div className="flex items-center justify-between gap-3 mb-3">
+                <div className="inline-flex rounded-lg p-0.5" style={{ background: 'var(--sf3)', border: '1px solid var(--bd)' }}>
+                  {(['300', '500'] as const).map(v => {
+                    const active = product.weight === `${v}g`;
+                    return (
+                      <button key={v} type="button"
+                        onClick={() => { if (!active) navigate(`/produkt/${waxSizeSibling.id}`); }}
+                        aria-pressed={active}
+                        className="num-data inline-flex items-center justify-center min-h-11 min-w-11 px-4 rounded-md text-[12.5px] leading-none transition-all"
+                        style={{ background: active ? 'var(--sf)' : 'transparent', color: active ? 'var(--tx1)' : 'var(--txm)' }}>
+                        {v} g
+                      </button>
+                    );
+                  })}
+                </div>
+                {product.applications && (
+                  <span className="text-meta font-medium flex-shrink-0" style={{ color: 'var(--txf)' }}>
+                    {product.applications} {de ? 'Anwendungen' : 'applications'}
+                  </span>
+                )}
+              </div>
+            )}
+            {isClassic && (
+              <button type="button" onClick={() => setCompareOpen(true)}
+                className="inline-flex items-center gap-1 mb-4 text-[12.5px] font-semibold"
+                style={{ color: accentColor }}>
+                {de ? 'Regen & Winter? Pro MoS₂ vergleichen' : 'Rain & winter? Compare Pro MoS₂'} <ChevronRight className="h-3 w-3" />
+              </button>
+            )}
+
             <div className="flex items-end justify-between gap-4 mb-4">
               <div>
                 <p className="num text-[28px] font-bold leading-none tracking-[-0.02em]" style={{ color: 'var(--tx1)' }}>{formatPrice(product.price)}</p>
@@ -724,6 +785,12 @@ export function ProductDetailPage() {
                 {de ? `Lieferung ${deliveryDate}` : `Delivery ${deliveryDate}`}
               </div>
 
+              {/* Wachs-Staffel — neu auf der Produktseite (Luca: "eBay haelt
+                  den Rabatt"). */}
+              {isWax && (
+                <p className="text-meta" style={{ color: 'var(--txff)' }}>{t.products.multiDiscount}</p>
+              )}
+
               {personalizedWeeks !== null && (
                 <div className="flex items-center gap-1.5 text-meta" style={{ color: 'var(--txm)' }}>
                   <Gauge className="h-3 w-3 flex-shrink-0" style={{ color: accentColor }} aria-hidden />
@@ -759,24 +826,6 @@ export function ProductDetailPage() {
             </div>
 
             <GpsrInfo de={de} />
-
-            {(alternatives.length > 0 || related.length > 0) && (
-              <div className="pt-4" style={{ borderTop: '1px solid var(--bd)' }}>
-                <div className="flex items-center justify-between mb-3">
-                  <p className="text-small font-semibold uppercase tracking-[0.18em]"
-                    style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
-                    {de ? 'Auch erhältlich' : 'Also available'}
-                  </p>
-                  <span className="text-meta" style={{ color: 'var(--txff)' }}>
-                    ← {de ? 'wischen' : 'swipe'} →
-                  </span>
-                </div>
-                <div className="flex gap-2.5 overflow-x-auto pb-2 snap-x snap-mandatory"
-                  style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}>
-                  {[...alternatives, ...related].slice(0, 5).map(alt => <AltMiniCard key={alt.id} product={alt} de={de} formatPrice={formatPrice} />)}
-                </div>
-              </div>
-            )}
           </div>
         </section>
 
@@ -841,7 +890,7 @@ export function ProductDetailPage() {
               BeforeAfterSlider — see the wx-slider-pulse comment in
               index.css. */}
           <div
-            className="absolute z-20 left-10 xl:left-14 top-1/2 -translate-y-1/2 w-[380px] xl:w-[400px]"
+            className="absolute z-20 left-10 xl:left-14 top-1/2 -translate-y-1/2 w-[440px] xl:w-[480px]"
             onMouseEnter={pause} onMouseLeave={resume}>
             {/* No backdrop-filter: at 96% opacity there's only a 4% sliver of
                 backdrop showing through, so a blur(40px) here cost real
@@ -852,7 +901,12 @@ export function ProductDetailPage() {
                 boxShadow: '0 24px 64px -16px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.15)',
               }}>
 
-              <div className="px-6 xl:px-7 pt-6 pb-5">
+              {/* ── Zone 1: Identitaet — Name, Positionierung, Unterscheidungs-
+                  merkmale, sozialer Beweis. Kein Kaufblock hier: trennt "was
+                  ist es" von "was kostet es" (Produktkarten-Neugliederung,
+                  siehe Plan Phase 3 — vorher neun gleichrangige Bloecke ohne
+                  sichtbare Gliederung). */}
+              <div className="px-7 xl:px-8 pt-7 pb-5">
                 {/* Eyebrow + bestseller badge */}
                 <div className="flex items-center gap-2.5 mb-2.5">
                   {/* .pdp-hero-card ist bewusst theme-unabhaengig weiss (Glaskarte
@@ -879,15 +933,31 @@ export function ProductDetailPage() {
                 {/* Title — visually a duplicate of the mobile hero's <h1> above
                     (the mobile block is display:none, not unmounted, at this
                     viewport), so this one stays a <p> to avoid a second h1
-                    landing in the DOM alongside it. */}
-                <p className="font-display text-[26px] xl:text-[28px] font-bold leading-[1.06] tracking-[-0.03em] mb-4"
+                    landing in the DOM alongside it. Eine Stufe groesser als
+                    vorher (26/28px → 30/32px), seit die Karte breiter ist. */}
+                <p className="font-display text-[30px] xl:text-[32px] font-bold leading-[1.05] tracking-[-0.03em] mb-1.5"
                   style={{ color: '#0a0a0a' }}>
                   {titleText}
                 </p>
 
-                {/* Benefits — tight, no circles */}
+                {/* Positionierungssatz — ersetzt drei generische Haekchen als
+                    erste Aussage ueber das Produkt. Wiederverwendet die
+                    bereits abgesegneten Regal-Texte (t.products.shelf.
+                    classicFor/proFor aus ProductShelf.tsx), keine neue
+                    Behauptung. Nur Wachs: Ketten haben keinen Einsatzzeitraum. */}
+                {isWax && (
+                  <p className="text-[13px] font-semibold mb-3" style={{ color: cardAccent }}>
+                    {de ? 'Für ' : 'For '}{isClassic ? t.products.shelf.classicFor : t.products.shelf.proFor}
+                  </p>
+                )}
+
+                {/* Unterscheidungsmerkmale — auf zwei gekuerzt (vorher drei):
+                    Titel, Positionierungssatz und Preis tragen die Karte
+                    bereits, drei zusaetzliche generische Haekchen waren zu
+                    viele Atome fuer eine Flaeche, die zuerst zum Kauf fuehren
+                    soll (siehe cardBenefits-Definition oben). */}
                 {cardBenefits.length > 0 && (
-                  <div className="space-y-2 mb-4">
+                  <div className="space-y-2 mb-3">
                     {cardBenefits.map((b, i) => (
                       <div key={i} className="flex gap-2 items-start">
                         <Check className="h-3.5 w-3.5 flex-shrink-0 mt-px" style={{ color: cardAccent }} />
@@ -897,38 +967,10 @@ export function ProductDetailPage() {
                   </div>
                 )}
 
-                {/* Intervals */}
-                {(product.intervalDry || product.intervalWet) && (
-                  <div className="flex items-stretch gap-0 mb-4 rounded-xl overflow-hidden" style={{ border: '1px solid rgba(0,0,0,0.06)' }}>
-                    {product.intervalDry && (
-                      <div className="flex-1 px-4 py-2" style={{ background: 'rgba(0,0,0,0.015)' }}>
-                        <p className="text-small uppercase tracking-[0.18em] mb-0.5 font-semibold"
-                          style={{ color: 'rgba(0,0,0,0.62)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
-                          {de ? 'Trocken' : 'Dry'}
-                        </p>
-                        <p className="num text-[18px] font-bold leading-none tracking-[-0.02em]" style={{ color: '#0a0a0a' }}>
-                          {product.intervalDry}
-                        </p>
-                      </div>
-                    )}
-                    {product.intervalDry && product.intervalWet && <div className="w-px" style={{ background: 'rgba(0,0,0,0.06)' }} />}
-                    {product.intervalWet && (
-                      <div className="flex-1 px-4 py-2" style={{ background: 'rgba(0,0,0,0.015)' }}>
-                        <p className="text-small uppercase tracking-[0.18em] mb-0.5 font-semibold"
-                          style={{ color: 'rgba(0,0,0,0.62)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
-                          {de ? 'Nass' : 'Wet'}
-                        </p>
-                        <p className="num text-[18px] font-bold leading-none tracking-[-0.02em]" style={{ color: '#0a0a0a' }}>
-                          {product.intervalWet}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Social proof — close to CTA for conversion */}
+                {/* Sozialer Beweis — naeher am Titel als frueher (stand vorher
+                    zwischen den Intervall-Kacheln und dem Preisblock). */}
                 {rc && rc.reviewCount > 0 && (
-                  <div className="flex items-center gap-1.5 mb-3">
+                  <div className="flex items-center gap-1.5">
                     <div className="flex gap-px">
                       {[0, 1, 2, 3, 4].map(i => <Star key={i} className="h-3 w-3 fill-current" style={{ color: '#F5A623' }} />)}
                     </div>
@@ -943,13 +985,62 @@ export function ProductDetailPage() {
                     </span>
                   </div>
                 )}
+              </div>
 
-                {/* Price block */}
-                <div className="mb-3">
-                  <div className="flex items-baseline gap-2.5">
-                    <p className="num text-[28px] font-bold leading-none tracking-[-0.02em]" style={{ color: '#0a0a0a' }}>
-                      {formatPrice(product.price)}
-                    </p>
+              {/* ── Zone 2: Kaufblock — getoenter Block traegt Groesse, Preis,
+                  CTA und die Fakten, die direkt zur Kaufentscheidung gehoeren
+                  (Ersparnis, Lieferung, Staffel). Groessenschalter + Classic/Pro-
+                  Vergleichs-Chip ersetzen das entfernte "Auch erhaeltlich"-
+                  Karussell (siehe FlipCard-Entfernung unten) — Groessen-
+                  varianten gehoeren nach Baymard ins Produkt selbst, nicht als
+                  anonyme Fremdprodukte daneben. Exakt dieselbe Grammatik wie
+                  der Groessenschalter im Regal (ProductShelf.tsx WaxPanel). */}
+              <div className="px-7 xl:px-8 py-4" style={{ background: 'rgba(0,0,0,0.028)' }}>
+                {isWax && waxSizeSibling && (
+                  <div className="flex items-center justify-between gap-3 mb-3.5">
+                    <div className="inline-flex rounded-lg p-0.5" style={{ background: 'rgba(0,0,0,0.05)' }}>
+                      {(['300', '500'] as const).map(v => {
+                        const active = product.weight === `${v}g`;
+                        return (
+                          <button key={v} type="button"
+                            onClick={() => { if (!active) navigate(`/produkt/${waxSizeSibling.id}`); }}
+                            aria-pressed={active}
+                            className="num-data inline-flex items-center justify-center min-h-11 min-w-11 px-4 rounded-md text-[12.5px] leading-none transition-all"
+                            style={{
+                              background: active ? '#fff' : 'transparent',
+                              color: active ? '#0a0a0a' : 'rgba(0,0,0,0.5)',
+                              boxShadow: active ? '0 1px 2px rgba(0,0,0,0.1)' : 'none',
+                            }}>
+                            {v} g
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {product.applications && (
+                      <span className="text-meta font-medium flex-shrink-0" style={{ color: 'rgba(0,0,0,0.58)' }}>
+                        {product.applications} {de ? 'Anwendungen' : 'applications'}
+                      </span>
+                    )}
+                  </div>
+                )}
+
+                {/* Classic → Pro-Vergleich, nur von Classic aus verlinkt (wie
+                    vorher der Textlink im Spezifikationsblock unten im Fold —
+                    der entfaellt dafuer, siehe dort). Oeffnet dasselbe Modal
+                    wie der Regal-Vergleichs-Button (products.tsx CompareModal). */}
+                {isClassic && (
+                  <button type="button" onClick={() => setCompareOpen(true)}
+                    className="inline-flex items-center gap-1 mb-3.5 text-[12px] font-semibold"
+                    style={{ color: cardAccent }}>
+                    {de ? 'Regen & Winter? Pro MoS₂ vergleichen' : 'Rain & winter? Compare Pro MoS₂'} <ArrowRight className="h-3 w-3" />
+                  </button>
+                )}
+
+                <p className="num text-[30px] font-bold leading-none tracking-[-0.02em]" style={{ color: '#0a0a0a' }}>
+                  {formatPrice(product.price)}
+                </p>
+                {(pricePerApp !== null || per100g) && (
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1.5 mb-3">
                     {pricePerApp !== null && (
                       <span className="text-meta font-medium" style={{ color: 'rgba(0,0,0,0.58)' }}>
                         ~{formatPrice(pricePerApp)}/{de ? 'Anw.' : 'use'}
@@ -957,21 +1048,16 @@ export function ProductDetailPage() {
                     )}
                     {per100g && (
                       <span className="text-meta font-medium" style={{ color: 'rgba(0,0,0,0.58)' }}>
-                        {per100g}
+                        {pricePerApp !== null ? '· ' : ''}{per100g}
                       </span>
                     )}
                   </div>
-                  {rc?.savings && (
-                    <p className="text-meta font-semibold mt-1" style={{ color: cardAccent }}>
-                      {de ? `Spart ${rc.savings} vs. Kettenöl` : `Saves ${rc.savings} vs. chain oil`}
-                    </p>
-                  )}
-                  {personalizedWeeks !== null && (
-                    <p className="text-meta font-semibold mt-1" style={{ color: cardAccent }}>
-                      {de ? `Basierend auf deinem Fahrprofil: reicht dir noch ~${personalizedWeeks} Wochen` : `Based on your riding profile: lasts you ~${personalizedWeeks} more weeks`}
-                    </p>
-                  )}
-                </div>
+                )}
+                {rc?.savings && (
+                  <p className="text-meta font-semibold mb-3" style={{ color: cardAccent }}>
+                    {de ? `Spart ${rc.savings} vs. Kettenöl` : `Saves ${rc.savings} vs. chain oil`}
+                  </p>
+                )}
 
                 {/* CTA — full width for maximum conversion */}
                 <div className="mb-3">
@@ -997,48 +1083,86 @@ export function ProductDetailPage() {
                   {isWax ? `${de ? 'Hergestellt in Stuttgart' : 'Made in Stuttgart'} · ` : ''}
                   {de ? `Lieferung ${deliveryDate}` : `Delivery ${deliveryDate}`}
                 </p>
+                {/* Wachs-Staffel — neu auf der Produktseite (Luca: "eBay haelt
+                    den Rabatt"). Nur Wachs, ruhig gehalten (kein Akzent, kein
+                    Rahmen) — eine Nebeninfo, kein zweiter CTA. */}
+                {isWax && (
+                  <p className="text-meta text-center mt-1" style={{ color: 'rgba(0,0,0,0.42)' }}>
+                    {t.products.multiDiscount}
+                  </p>
+                )}
               </div>
 
-              {/* Footer: spec pills + details link */}
-              <div className="flex items-center justify-between px-6 xl:px-7 py-2.5" style={{ borderTop: '1px solid rgba(0,0,0,0.05)', background: 'rgba(0,0,0,0.015)' }}>
-                <div className="flex flex-wrap gap-1.5">
-                  {specsData.slice(0, 4).map((spec, i) => (
-                    <span key={i} className="text-meta font-medium px-2 py-0.5 rounded-full"
-                      style={{ background: 'rgba(0,0,0,0.04)', color: 'rgba(0,0,0,0.62)' }}>
-                      {spec.v}
+              {/* ── Zone 3: Faktenraster + Fussleiste ── ersetzt die vier
+                  unbeschrifteten Preis-Pillen (specsData.slice(0,4) zeigte
+                  nur spec.v ohne Label — Lucas "man erkennt fast gar nichts"). */}
+              <div className="px-7 xl:px-8 pt-4" style={{ borderTop: '1px solid rgba(0,0,0,0.06)' }}>
+                {factsGrid.length > 0 && (
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-3 pb-4">
+                    {factsGrid.map((f, i) => (
+                      <div key={i}>
+                        <p className="text-small uppercase tracking-[0.14em] mb-0.5 font-semibold"
+                          style={{ color: 'rgba(0,0,0,0.5)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
+                          {f.l}
+                        </p>
+                        <p className="num text-[14px] font-semibold leading-tight" style={{ color: '#0a0a0a' }}>
+                          {f.v}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Fahrprofil-Zeile — vorher als zweite akzentfarbene, fett
+                    gesetzte Zeile direkt unter der Ersparnis-Zeile (konkurrierte
+                    dort mit ihr um Aufmerksamkeit). Ist ein Fakt ("reicht dir
+                    noch ~78 Wochen"), keine Werbeaussage — gehoert damit ins
+                    Faktenraster, nicht in den Kaufblock. */}
+                {personalizedWeeks !== null && (
+                  <div className="flex items-center gap-1.5 pb-4">
+                    <Gauge className="h-3 w-3 flex-shrink-0" style={{ color: cardAccent }} aria-hidden />
+                    <span className="text-meta font-medium" style={{ color: 'rgba(0,0,0,0.58)' }}>
+                      {de ? `Bei deinem Fahrprofil: reicht ~${personalizedWeeks} Wochen` : `At your riding profile: lasts ~${personalizedWeeks} more weeks`}
                     </span>
-                  ))}
-                </div>
-                <button onClick={(e) => { e.stopPropagation(); scrollToDetails(); }}
-                  onPointerDown={(e) => e.stopPropagation()} onPointerUp={(e) => e.stopPropagation()}
-                  className="flex items-center gap-0.5 text-meta font-semibold flex-shrink-0 transition-colors hover:opacity-70"
-                  style={{ color: cardAccent }}>
-                  Details <ChevronDown className="h-3 w-3" />
-                </button>
+                  </div>
+                )}
               </div>
+
+              {/* Fussleiste — volle Kartenbreite statt Eck-Textlink (Lucas:
+                  "die Links für Details sind nicht gut platziert"). Oeffnet bei
+                  vorhandenem Vergleich direkt das Vergleichs-Akkordeon. */}
+              <button onClick={(e) => { e.stopPropagation(); if (hasVergleich) setOpenAccordion('vergleich'); scrollToDetails(); }}
+                onPointerDown={(e) => e.stopPropagation()} onPointerUp={(e) => e.stopPropagation()}
+                className="flex items-center justify-center gap-1.5 w-full py-3 text-[13px] font-semibold transition-colors hover:opacity-70"
+                style={{ borderTop: '1px solid rgba(0,0,0,0.06)', background: 'rgba(0,0,0,0.015)', color: cardAccent }}>
+                {de ? 'Alle Daten & Vergleich' : 'All details & comparison'} <ChevronDown className="h-3.5 w-3.5" />
+              </button>
             </div>
 
-            {/* Thumbnail strip */}
+            {/* Thumbnail strip — Runde 4: feste 56px-Kacheln statt sechs
+                flex-1-Streifen bei 0.22 Deckkraft (auf dunklem Foto praktisch
+                unsichtbar, Lucas "man erkennt fast gar nichts"). Zaehler
+                daneben ersetzt die Notwendigkeit, alle sechs auf einen Blick
+                zu erkennen. */}
             {total > 1 && (
-              <div className="flex gap-1 mt-2.5">
-                {gallery.slice(0, 6).map((src, i) => (
-                  <button key={i} onClick={() => { goTo(i); pause(); setTimeout(resume, AUTO_INTERVAL); }}
-                    aria-label={`${titleText} — Bild ${i + 1}`} aria-current={i === activeImage}
-                    className="h-11 flex-1 rounded-lg overflow-hidden transition-all duration-400"
-                    style={{
-                      opacity: i === activeImage ? 1 : 0.22,
-                      boxShadow: i === activeImage ? '0 0 0 1.5px rgba(255,255,255,0.7)' : 'none',
-                      transform: i === activeImage ? 'translateY(-1px)' : 'none',
-                    }}>
-                    <img src={src} alt="" className="h-full w-full object-cover" />
-                  </button>
-                ))}
+              <div className="flex items-center gap-2 mt-2.5">
+                <div className="flex gap-1.5 flex-1 min-w-0">
+                  {gallery.slice(0, 6).map((src, i) => (
+                    <button key={i} onClick={() => { goTo(i); pause(); setTimeout(resume, AUTO_INTERVAL); }}
+                      aria-label={`${titleText} — Bild ${i + 1}`} aria-current={i === activeImage}
+                      className="h-14 w-14 flex-shrink-0 rounded-xl overflow-hidden transition-all duration-300"
+                      style={{
+                        opacity: i === activeImage ? 1 : 0.55,
+                        boxShadow: i === activeImage ? '0 0 0 2px rgba(255,255,255,0.9)' : '0 0 0 1px rgba(255,255,255,0.25)',
+                      }}>
+                      <img src={src} alt="" className="h-full w-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+                <span className="num-data text-[11px] font-medium flex-shrink-0" style={{ color: 'rgba(255,255,255,0.72)' }}>
+                  {String(activeImage + 1).padStart(2, '0')} / {String(Math.min(total, 6)).padStart(2, '0')}
+                </span>
               </div>
-            )}
-
-            {/* Recommendation strip — same column width, integrated feel */}
-            {(alternatives.length > 0 || related.length > 0) && (
-              <FlipCard items={[...alternatives, ...related].slice(0, 5)} de={de} formatPrice={formatPrice} />
             )}
           </div>
 
@@ -1063,6 +1187,32 @@ export function ProductDetailPage() {
 
         {/* Buy-bar scroll trigger */}
         <div ref={buyRef} className="h-0" />
+
+        {/* ── Kurz verglichen ── Der volle Vergleich lag bisher hinter einem
+            geschlossenen Akkordeon und einem Chevron, den laut Luca kaum
+            jemand druckt — dabei ist der Vergleich genau das, was die
+            Kaufentscheidung traegt. Drei der fuenf Zeilen (die kaufent-
+            scheidenden: Reibung, Intervall, Kettenlaufzeit) stehen jetzt
+            direkt sichtbar unter dem Hero; der Rest bleibt im Akkordeon.
+            Ein Statement pro Flaeche (DESIGN.md): diese Bande sagt "wie
+            schneidet es ab", das Faktenraster darunter sagt "was ist es" —
+            deshalb kein zweiter Kauf-CTA hier, nur die Vertiefung. */}
+        {hasVergleich && rc?.compHeaders && rc?.compRows && (
+          <section style={{ background: 'var(--pg)' }}>
+            <div className="max-w-4xl mx-auto px-5 sm:px-8 pt-10 sm:pt-14">
+              <p className="text-small font-semibold uppercase tracking-[0.14em] mb-3 text-center"
+                style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
+                {de ? 'Kurz verglichen' : 'At a glance'}
+              </p>
+              <CompareTable headers={rc.compHeaders} rows={rc.compRows.slice(0, 3)} accentColor={cardAccent} de={de} />
+              <button type="button" onClick={() => { setOpenAccordion('vergleich'); scrollToDetails(); }}
+                className="flex items-center gap-1 mx-auto mt-3 text-[12.5px] font-semibold transition-opacity hover:opacity-70"
+                style={{ color: cardAccent }}>
+                {de ? 'Vollen Vergleich ansehen' : 'See full comparison'} <ChevronDown className="h-3 w-3" />
+              </button>
+            </div>
+          </section>
+        )}
 
         {/* ══════════════════════════════════════════════════════════════
             BELOW FOLD — Specs + Deep dive (all sizes)
@@ -1096,22 +1246,10 @@ export function ProductDetailPage() {
                       </div>
                     ))}
                   </div>
-                  {isClassic && (
-                    <p className="text-[12px] mt-4" style={{ color: 'var(--txff)' }}>
-                      {de ? 'Regen / Winter? ' : 'Rain / winter? '}
-                      {/* Mobile-Plan B7e: axe-core misst hier nur 1.06:1 Kontrast
-                          gegen den umgebenden Fliesstext (Linkfarbe accentColor
-                          gegen --txff) — bei hover:underline war der Link ohne
-                          Maus/Hover nur an der Farbe erkennbar, die dafuer nicht
-                          reicht. underline statt hover:underline macht ihn
-                          permanent auch ohne Farbkontrast als Link erkennbar,
-                          gerade fuer Touch, wo hover nie greift. */}
-                      <Link to={`/produkt/${product.weight === '500g' ? 'wax-500-mos2' : 'wax-300-mos2'}`}
-                        className="underline underline-offset-2" style={{ color: accentColor }}>
-                        Pro MoS₂ →
-                      </Link>
-                    </p>
-                  )}
+                  {/* Der fruehere Regen/Winter-Textlink zu Pro MoS2 steht jetzt
+                      als Chip direkt in der Kaufkarte (Zone 2, isClassic-Block
+                      oben) — dort, wo die Kaufentscheidung tatsaechlich faellt,
+                      statt im Spezifikations-Block unterhalb des Folds. */}
                   {isChain && (
                     <p className="text-[12px] mt-4" style={{ color: 'var(--txff)' }}>
                       {de ? 'Kette schon durch? ' : 'Chain due for a refresh? '}
@@ -1179,29 +1317,7 @@ export function ProductDetailPage() {
                       <AccordionItem title={de ? 'Vergleich' : 'Comparison'}
                         subtitle={rc.compHeaders.join(' vs. ')}
                         open={openAccordion === 'vergleich'} onToggle={() => toggleAccordion('vergleich')}>
-                        <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--bd)' }}>
-                          <div className="grid gap-x-1.5 text-meta font-semibold uppercase tracking-wider px-3 py-2.5"
-                            style={{ gridTemplateColumns: `1.4fr repeat(${rc.compHeaders.length}, 1fr)`, background: 'var(--sf2)', borderBottom: '1px solid var(--bd)', color: 'var(--txff)' }}>
-                            <span />
-                            {rc.compHeaders.map((h, i) => (
-                              <span key={i} className="text-center leading-tight text-meta break-words">
-                                {h.replace('Waxcelerate ', '').replace('-Heißwachs', '')}
-                              </span>
-                            ))}
-                          </div>
-                          {rc.compRows.map((row, ri) => (
-                            <div key={ri} className="grid gap-x-1.5 px-3 py-2.5 text-meta"
-                              style={{ gridTemplateColumns: `1.4fr repeat(${rc.compHeaders!.length}, 1fr)`, borderBottom: ri < rc.compRows!.length - 1 ? '1px solid var(--bd)' : 'none' }}>
-                              <span style={{ color: 'var(--txm)' }}>{row.label}</span>
-                              {row.cols.map((col, ci) => (
-                                <span key={ci} className="text-center font-medium"
-                                  style={{ color: ci === row.winCol ? accentColor : row.dimCols?.includes(ci) ? 'var(--txff)' : 'var(--tx2)' }}>
-                                  {col}
-                                </span>
-                              ))}
-                            </div>
-                          ))}
-                        </div>
+                        <CompareTable headers={rc.compHeaders} rows={rc.compRows} accentColor={cardAccent} de={de} />
                       </AccordionItem>
                     )}
                     {hasKosten && rc.oilItems && rc.waxItems && (
@@ -1292,18 +1408,11 @@ export function ProductDetailPage() {
                         )}
                         {rc.chainCompRows && (
                           <AccordionItem title={de ? 'Vorgewachst vs. Kettenöl' : 'Pre-waxed vs. chain oil'} subtitle="" open={openAccordion === 'chaincomp'} onToggle={() => toggleAccordion('chaincomp')}>
-                            <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--bd)' }}>
-                              <div className="grid grid-cols-3 gap-x-1.5 text-meta font-semibold uppercase tracking-wider px-3 py-2" style={{ borderBottom: '1px solid var(--bd)', background: 'var(--sf2)' }}>
-                                <span /><span className="text-center break-words" style={{ color: accentColor }}>{de ? 'Vorgewachst' : 'Pre-waxed'}</span><span className="text-center break-words" style={{ color: 'var(--txff)' }}>{de ? 'Kettenöl' : 'Chain oil'}</span>
-                              </div>
-                              {rc.chainCompRows.map((row, ri) => (
-                                <div key={ri} className="grid grid-cols-3 gap-x-1.5 px-3 py-2 text-meta" style={{ borderBottom: '1px solid var(--bd)' }}>
-                                  <span style={{ color: 'var(--txm)' }}>{row.label}</span>
-                                  <span className="text-center font-medium" style={{ color: accentColor }}>{row.good}</span>
-                                  <span className="text-center" style={{ color: 'var(--txff)' }}>{row.bad}</span>
-                                </div>
-                              ))}
-                            </div>
+                            <CompareTable
+                              headers={[de ? 'Vorgewachst' : 'Pre-waxed', de ? 'Kettenöl' : 'Chain oil']}
+                              rows={rc.chainCompRows.map(row => ({ label: row.label, cols: [row.good, row.bad], winCol: 0, dimCols: [1] }))}
+                              accentColor={cardAccent} de={de}
+                            />
                           </AccordionItem>
                         )}
                         {rc.proTip && (
@@ -1473,6 +1582,11 @@ export function ProductDetailPage() {
 
       {lightboxOpen && <ImageLightbox images={gallery} activeIndex={activeImage} onClose={() => setLightboxOpen(false)} onChange={(i) => setActiveImage(i)} alt={titleText} />}
 
+      {/* Classic/Pro-Vergleich — dasselbe Modal wie im Regal (products.tsx),
+          hier ueber den Chip in der Kaufkarte geoeffnet (Zone 2, siehe
+          Kommentar dort). */}
+      {isWax && <CompareModal open={compareOpen} onClose={() => setCompareOpen(false)} de={de} t={t} />}
+
       <style>{`
         @keyframes pdp-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
         @keyframes pdp-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
@@ -1485,147 +1599,6 @@ export function ProductDetailPage() {
       `}</style>
     </>
   );
-}
-
-/* ── Recommendation strip (desktop hero, inside card column) ── */
-function FlipCard({ items, de, formatPrice }: { items: Product[]; de: boolean; formatPrice: (n: number) => string }) {
-  const [active, setActive] = useState(0);
-  const count = items.length;
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  const go = useCallback((dir: number) => {
-    setActive(p => (p + dir + count) % count);
-  }, [count]);
-
-  const startCycle = useCallback(() => {
-    if (timerRef.current) clearInterval(timerRef.current);
-    timerRef.current = setInterval(() => go(1), 3000);
-  }, [go]);
-
-  const stopCycle = useCallback(() => {
-    if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
-  }, []);
-
-  useEffect(() => () => stopCycle(), [stopCycle]);
-
-  if (count === 0) return null;
-
-  const p = items[active];
-  const title = de ? p.title : p.titleEn;
-  const short = title.replace('Kettenwachs ', '').replace('Chain Wax ', '');
-  const isChainItem = p.category === 'chain';
-  const label = isChainItem
-    ? (de ? 'Passende Kette' : 'Matching chain')
-    : (de ? 'Auch erhältlich' : 'Also available');
-
-  const linkContent = (
-    <div className="flex items-center gap-3 flex-1 min-w-0 py-2.5 px-1 transition-opacity hover:opacity-90">
-      <img src={p.image} alt={title} loading="lazy"
-        className="w-14 h-14 rounded-xl object-cover flex-shrink-0"
-        style={{ objectPosition: p.imagePosition ?? 'center', boxShadow: '0 2px 8px -2px rgba(0,0,0,0.3)' }} />
-      <div className="min-w-0 flex-1">
-        <p className="text-meta uppercase tracking-[0.14em] font-semibold mb-0.5"
-          style={{ color: 'rgba(255,255,255,0.3)' }}>
-          {label}
-        </p>
-        <p className="text-[13px] font-semibold truncate leading-tight"
-          style={{ color: 'rgba(255,255,255,0.85)' }}>
-          {short}
-        </p>
-        <p className="num text-[13px] font-bold mt-0.5"
-          style={{ color: 'rgba(255,255,255,0.5)' }}>
-          {formatPrice(p.price)}
-        </p>
-      </div>
-    </div>
-  );
-
-  return (
-    <div className="mt-2.5 rounded-2xl overflow-hidden"
-      onMouseEnter={startCycle} onMouseLeave={stopCycle}
-      style={{
-        background: 'rgba(255,255,255,0.07)',
-        backdropFilter: 'blur(24px) saturate(1.3)',
-        WebkitBackdropFilter: 'blur(24px) saturate(1.3)',
-        border: '1px solid rgba(255,255,255,0.08)',
-        boxShadow: '0 8px 32px -8px rgba(0,0,0,0.25)',
-      }}>
-      <div className="flex items-center gap-0.5 px-2">
-        <button onClick={() => go(-1)}
-          className="flex-shrink-0 w-11 h-11 flex items-center justify-center rounded-full transition-all hover:bg-white/10"
-          style={{ color: 'rgba(255,255,255,0.35)' }}
-          aria-label={de ? 'Vorheriges' : 'Previous'}>
-          <ChevronLeft className="h-3.5 w-3.5" />
-        </button>
-
-        {p.category === 'wax' || isSoldOut(p) ? (
-          <Link to={`/produkt/${p.id}`} className="flex-1 min-w-0">
-            {linkContent}
-          </Link>
-        ) : (
-          <a href={p.ebayUrl} target="_blank" rel="noopener noreferrer" onClick={() => trackEbayClick(p.id)} className="flex-1 min-w-0">
-            {linkContent}
-          </a>
-        )}
-
-        <button onClick={() => go(1)}
-          className="flex-shrink-0 w-11 h-11 flex items-center justify-center rounded-full transition-all hover:bg-white/10"
-          style={{ color: 'rgba(255,255,255,0.35)' }}
-          aria-label={de ? 'Nächstes' : 'Next'}>
-          <ChevronRight className="h-3.5 w-3.5" />
-        </button>
-      </div>
-
-      {/* Progress dots */}
-      <div className="flex justify-center gap-1 pb-2">
-        {items.map((_, i) => (
-          <button key={i} onClick={() => setActive(i)}
-            className="h-[2px] rounded-full transition-all duration-300"
-            style={{
-              width: i === active ? 14 : 4,
-              background: i === active ? 'rgba(255,255,255,0.55)' : 'rgba(255,255,255,0.12)',
-            }}
-            aria-label={`Product ${i + 1}`} />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/* ── Alternative mini-card (mobile) ── */
-function AltMiniCard({ product: p, de, formatPrice }: { product: Product; de: boolean; formatPrice: (n: number) => string }) {
-  const title = de ? p.title : p.titleEn;
-  const shortTitle = title.replace('Kettenwachs ', '').replace('Chain Wax ', '');
-  const isChainItem = p.category === 'chain';
-  const label = isChainItem ? (de ? 'Kette' : 'Chain') : '';
-
-  const inner = (
-    <div className="group w-[140px] rounded-xl overflow-hidden snap-start transition-all duration-300 active:scale-[0.97]"
-      style={{
-        background: 'var(--card-bg)',
-        border: '1px solid var(--bd)',
-        boxShadow: '0 2px 8px -2px rgba(0,0,0,0.06)',
-      }}>
-      <div className="relative aspect-[4/3] overflow-hidden" style={{ background: 'var(--sf2)' }}>
-        <img src={p.image} alt={title} loading="lazy"
-          className="h-full w-full object-cover"
-          style={{ objectPosition: p.imagePosition ?? 'center' }} />
-        {label && (
-          <span className="absolute top-1.5 left-1.5 text-meta font-semibold uppercase tracking-[0.12em] px-1.5 py-0.5 rounded-md"
-            style={{ background: 'var(--chip-bg)', color: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(6px)' }}>
-            {label}
-          </span>
-        )}
-      </div>
-      <div className="px-2.5 py-2">
-        <p className="text-meta font-semibold leading-tight truncate" style={{ color: 'var(--tx1)' }}>{shortTitle}</p>
-        <p className="num text-meta mt-0.5" style={{ color: 'var(--txff)' }}>{formatPrice(p.price)}</p>
-      </div>
-    </div>
-  );
-
-  if (p.category === 'wax' || isSoldOut(p)) return <Link to={`/produkt/${p.id}`} className="block flex-shrink-0">{inner}</Link>;
-  return <a href={p.ebayUrl} target="_blank" rel="noopener noreferrer" onClick={() => trackEbayClick(p.id)} className="block flex-shrink-0">{inner}</a>;
 }
 
 /* ── Review snippet — real quotes from reviews.tsx's curated REVIEWS list,
@@ -1697,7 +1670,6 @@ function AccordionItem({ id, title, subtitle, open, onToggle, children }: {
 /* ── Related card ── */
 function RelatedCard({ product: p, de, formatPrice }: { product: Product; de: boolean; formatPrice: (n: number) => string }) {
   const title = de ? p.title : p.titleEn;
-  const desc = de ? p.description : p.descriptionEn;
   const isWax = p.category === 'wax';
   const eyebrow = isWax ? [p.variant, p.weight].filter(Boolean).join(' · ').toUpperCase() : (p.chainSpeed ?? (de ? 'Kette' : 'Chain')).toUpperCase();
 
@@ -1712,7 +1684,15 @@ function RelatedCard({ product: p, de, formatPrice }: { product: Product; de: bo
       <div className="flex flex-1 flex-col p-3.5">
         <span className="text-small font-semibold uppercase tracking-[0.16em]" style={{ color: 'var(--accent-soft)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>{eyebrow}</span>
         <p className="font-display mt-1 text-[14px] leading-snug" style={{ color: 'var(--tx1)' }}>{title}</p>
-        <p className="mt-1 text-meta leading-relaxed line-clamp-2 hidden sm:block" style={{ color: 'var(--txm)' }}>{desc}</p>
+        {/* Ersetzt die zweizeilige Beschreibung, die vorher hidden sm:block
+            war — auf Mobile (2-spaltiges Grid) blieb "Passend dazu" damit
+            eine reine Bild+Preis-Kachel ohne erkennbaren Nutzen ("Vergleichs-
+            produkte" waren nicht als solche erkennbar). Kompatibilitaet ist
+            fuer beide Kategorien gesetzt, kurz genug fuer eine Zeile und der
+            haeufigste Vorentscheidungs-Filter beim Cross-Sell. */}
+        {p.compatibility && (
+          <p className="mt-1 text-meta truncate" style={{ color: 'var(--txm)' }}>{p.compatibility}</p>
+        )}
         <div className="mt-auto flex items-center justify-between pt-3">
           <span className="num text-[14px] font-semibold" style={{ color: 'var(--tx1)' }}>{formatPrice(p.price)}</span>
           <span className="inline-flex h-7 w-7 items-center justify-center rounded-full transition-colors group-hover:bg-[var(--accent-soft)] group-hover:text-white"

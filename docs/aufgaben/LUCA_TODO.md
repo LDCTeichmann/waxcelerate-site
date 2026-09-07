@@ -119,6 +119,13 @@ Kurze Antworten reichen, im Chat. Nichts davon blockiert Teil 1–3.
    ist dann reine Auffrischung.
 8. **Turnaround:** aktuell steht „3–5 Werktage ab Ankunft bei uns" auf der Seite.
    Passt das, oder eine andere Spanne?
+9. **Verkaufszahlen je Wachs-SKU** (Produktkarten-Neugliederung, 09/2026): die
+   Regal-Karten zeigen `78 Bewertungen · 250+ verkauft` (Classic) und
+   `20 Bewertungen · 80+ verkauft` (Pro) — abgeleitet aus `unitsSold`/
+   `reviewCount` je SKU in `data.ts` (Classic 500g 188/52, Classic 300g 65/26,
+   Pro 500g 64/14, Pro 300g 17/6). Laut dir wurde mittlerweile mehr verkauft.
+   Aktuelle Zahlen je SKU nachreichen, dann trägt Claude sie in `data.ts` ein
+   — die Anzeige-Logik (`variantStats()` in `ProductShelf.tsx`) bleibt gleich.
 
 ---
 
