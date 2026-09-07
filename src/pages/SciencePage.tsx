@@ -319,10 +319,10 @@ function Disclosure({ label, children }: { label: string; children: React.ReactN
 }
 
 // ─── ACT II — component card: editorial split layout (inspired by numbered index) ─
-function CompCard({ c, n, de, cardRef }: { c: ScienceComponent; n: number; de: boolean; cardRef?: React.Ref<HTMLDivElement> }) {
+function CompCard({ c, n, de, cardRef, compact }: { c: ScienceComponent; n: number; de: boolean; cardRef?: React.Ref<HTMLDivElement>; compact?: boolean }) {
   return (
     <div ref={cardRef} id={c.id} className="scroll-mt-24 rounded-2xl border border-wx-bd overflow-hidden"
-      style={{ background: 'var(--card-bg)', boxShadow: 'var(--card-shad)' }}>
+      style={{ background: 'var(--card-bg)', boxShadow: 'var(--card-shad)', minHeight: compact ? 280 : undefined }}>
       {/* Header band */}
       <div className="px-6 pt-5 pb-4" style={{ borderBottom: '1px solid var(--bd2)' }}>
         <div className="flex items-center justify-between gap-3">
@@ -344,7 +344,13 @@ function CompCard({ c, n, de, cardRef }: { c: ScienceComponent; n: number; de: b
         <h3 className="font-display font-bold text-wx-tx1 text-[1.35rem] leading-tight tracking-[-0.01em]">
           {de ? c.nameDe : c.nameEn}
         </h3>
-        <p className="text-[14px] leading-relaxed text-wx-tx2 mt-3 max-w-prose">
+        {/* compact (mobile carousel): clamp to 3 lines so every card in the
+            swipe deck starts at the same height regardless of how long its
+            summary is — otherwise the deck visibly jumps taller/shorter as
+            you swipe past e.g. MoS2's four-sentence summary vs a two-sentence
+            one. Full CompCard usage (none currently) keeps the unclamped
+            paragraph. */}
+        <p className={`text-[14px] leading-relaxed text-wx-tx2 mt-3 max-w-prose ${compact ? 'line-clamp-3' : ''}`}>
           {de ? c.sumDe : c.sumEn}
         </p>
 
@@ -872,15 +878,47 @@ export function SciencePage() {
   const scrollToAnchor = (id: string) =>
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-  // Mobile formula section: tapping a node used to scroll down to a full
-  // stack of all 6 detail cards, always fully expanded below the graph —
-  // cramped, and nothing like the desktop version's one-at-a-time scroll
-  // story (FormulaStory below). This keeps the same graph and the same
-  // CompCard detail, just shows exactly the one that was tapped, in place,
-  // right under the animation. Defaults to the first component so the panel
-  // is never empty before anyone has tapped anything.
+  // Mobile formula section: tapping a node used to scroll the page down to
+  // a full stack of all 6 detail cards, always fully expanded below the
+  // graph — cramped, and required scrolling to read something the graph
+  // itself was already pointing at. Now a horizontal snap-carousel sits
+  // directly under the (height-capped) graph, one CompCard per component:
+  // swiping updates which node the graph highlights, and tapping a node
+  // scrolls the carousel to match — one screen, two ways to browse the same
+  // six components. Defaults to the first component so nothing is empty
+  // before anyone has swiped or tapped.
   const [mobileCompId, setMobileCompId] = useState(COMPONENTS[0]?.id ?? null);
-  const mobileComp = COMPONENTS.find(c => c.id === mobileCompId) ?? null;
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const panelRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  // Swipe -> graph focus. IntersectionObserver (not a scroll listener) so
+  // this fires once per settled panel instead of on every scroll frame, and
+  // reports whichever panel is most centred regardless of whether the user
+  // swiped or a node-tap scrolled the carousel there itself (see
+  // jumpToMobileComp below) — either way, "most visible panel" is correct.
+  useEffect(() => {
+    const root = carouselRef.current;
+    if (!root) return;
+    const obs = new IntersectionObserver((entries) => {
+      const best = entries
+        .filter(e => e.isIntersecting)
+        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+      const id = best?.target instanceof HTMLElement ? best.target.dataset.compId : undefined;
+      if (id) setMobileCompId(prev => (prev === id ? prev : id));
+    }, { root, threshold: [0.6] });
+    Object.values(panelRefs.current).forEach(el => el && obs.observe(el));
+    return () => obs.disconnect();
+  }, []);
+
+  // Graph tap -> carousel scroll. Called directly from FormulaGraph's
+  // onSelect instead of via a useEffect keyed on mobileCompId — an effect
+  // would also fire after the IntersectionObserver's own setMobileCompId
+  // (i.e. after every swipe), re-issuing a scrollIntoView the user had
+  // already just produced themselves.
+  const jumpToMobileComp = (id: string) => {
+    setMobileCompId(id);
+    panelRefs.current[id]?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+  };
 
   const title = de
     ? 'Die Wissenschaft hinter Heißwachs — MoS₂, Reibung & Formel | Waxcelerate'
@@ -972,7 +1010,18 @@ export function SciencePage() {
           <FormulaStory de={de} />
         </div>
 
-        {/* Mobile: stacked cards */}
+        {/* Mobile: graph + swipeable carousel, one screen ─────────────────
+            2026-09 revision. Previously the graph sat in its own
+            InstrumentFrame block, and a single CompCard for the tapped
+            component sat in a SEPARATE block below it — measured at
+            393px + 329px on a 375-wide device, never simultaneously
+            visible on anything shorter than a 812px-tall phone, and no
+            affordance signalled that the card below could change at all
+            (only tapping a graph node revealed that). Now both live in one
+            InstrumentFrame: the graph is height-capped (clamp 220-320px)
+            so it can never push the carousel off-screen, and the carousel
+            itself peeks the next card's edge so swiping reads as available
+            before anyone tries it. */}
         <div className="lg:hidden">
           {/* Mobile-Plan B7f: InstrumentFrame startet vor dem Scroll-Trigger
               per gsap.set() in einem rotateX(9deg)/perspective(700px)-Zustand
@@ -1004,25 +1053,51 @@ export function SciencePage() {
               Bildschirmbreite; ab sm: steht wieder alles wie vorher. */}
           <div className="pb-5 overflow-x-clip">
             <div className="-mx-4 sm:mx-auto sm:max-w-4xl sm:px-6 lg:px-8">
-              <InstrumentFrame eyebrow={de ? 'Antippen für Details' : 'Tap for details'}>
-                {/* compact: no inline readout/transport panel here — that info
-                    now lives in exactly one place, the CompCard below, instead
-                    of twice. Freed-up height goes to the graph itself, which is
-                    the whole point of this section. */}
-                <FormulaGraph de={de} onSelect={setMobileCompId} compact mobile />
+              <InstrumentFrame eyebrow={de ? 'Antippen oder wischen' : 'Tap or swipe'}>
+                {/* Height-capped so the graph can never crowd the carousel
+                    below it off-screen — aspect-ratio derives the matching
+                    width from that height, and w-full/h-auto inside then
+                    exactly fills it (FormulaGraph itself is untouched, still
+                    sized by its own viewBox aspect for the desktop story). */}
+                <div className="mx-auto" style={{ height: 'clamp(200px, 34vh, 300px)', aspectRatio: '520 / 490', maxWidth: '100%' }}>
+                  <FormulaGraph de={de} onSelect={jumpToMobileComp} compact mobile />
+                </div>
               </InstrumentFrame>
             </div>
           </div>
-          {mobileComp && (
-            <div className={`${W} pb-12`}>
-              <CompCard
-                key={mobileComp.id}
-                c={mobileComp}
-                n={COMPONENTS.findIndex(c => c.id === mobileComp.id) + 1}
-                de={de}
-              />
-            </div>
-          )}
+
+          {/* Snap-carousel — one CompCard per component, ~86% width so the
+              next card's edge peeks in as the swipe cue. scroll-px-4 keeps
+              the peeking edge readable against the page's own px-4 gutter
+              instead of running edge-to-edge like the graph above it. */}
+          <div ref={carouselRef}
+            className="flex gap-3 overflow-x-auto px-4 pb-2"
+            style={{ scrollSnapType: 'x mandatory', scrollPaddingLeft: 16 }}>
+            {COMPONENTS.map((c, i) => (
+              <div key={c.id}
+                ref={el => { panelRefs.current[c.id] = el; }}
+                data-comp-id={c.id}
+                className="flex-shrink-0"
+                style={{ width: '86%', maxWidth: 360, scrollSnapAlign: 'center' }}>
+                <CompCard c={c} n={i + 1} de={de} compact />
+              </div>
+            ))}
+          </div>
+          {/* Position dots — mirrors the desktop story's dot pagination so
+              the two experiences read as the same feature, not two
+              unrelated widgets. Tapping one jumps the carousel directly
+              instead of requiring three swipes. */}
+          <div className="flex items-center justify-center gap-2 mt-3 pb-8">
+            {COMPONENTS.map(c => (
+              <button key={c.id} type="button" onClick={() => jumpToMobileComp(c.id)}
+                aria-label={de ? c.nameDe : c.nameEn}
+                className="rounded-full transition-all duration-300"
+                style={{
+                  width: mobileCompId === c.id ? 20 : 6, height: 6,
+                  background: mobileCompId === c.id ? 'var(--accent)' : 'var(--bd)',
+                }} />
+            ))}
+          </div>
         </div>
 
         {/* Below: full-width deep-dive sections. Mobile-Plan (real feedback,
