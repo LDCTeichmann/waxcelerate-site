@@ -605,31 +605,53 @@ function FrictionBars({ de }: { de: boolean }) {
   const labels: Record<string, string> = {
     pro: 'Pro', classic: 'Classic', oil: de ? 'Kettenöl' : 'Chain oil',
   };
+  // 2026-09: the μ-value moved from a fixed right-aligned column to sitting
+  // right at each bar's own end (left: pct%) — it now visually belongs to
+  // the bar it measures instead of reading as a separate list of numbers
+  // next to unrelated bar lengths. The oil bar gets a diagonal hatch instead
+  // of a flat fill (same hatch language as TransferFilm's steel texture
+  // below) to read as "reference, not a product" rather than just a paler
+  // grey. Both changes replace the old explanatory footnote — the figure
+  // states "shorter = worse" itself instead of needing a sentence to say so.
   return (
     <div ref={ref} id="reibung" className="scroll-mt-24 space-y-4">
-      {frictionRanges.map(r => (
-        <div key={r.id}>
-          <div className="flex justify-between mb-1.5">
-            <span className={`text-[13px] font-medium ${r.highlight ? 'text-wx-tx1' : 'text-wx-txf'}`}>{labels[r.id]}</span>
-            <span className="num-data text-[12px]" style={{ color: r.highlight ? 'var(--tx2)' : 'var(--txff)' }}>
-              μ {r.muLo.toLocaleString(de ? 'de' : 'en', { minimumFractionDigits: 2 })}–{r.muHi.toLocaleString(de ? 'de' : 'en', { minimumFractionDigits: 2 })}
-            </span>
+      {frictionRanges.map(r => {
+        const mu = `μ ${r.muLo.toLocaleString(de ? 'de' : 'en', { minimumFractionDigits: 2 })}–${r.muHi.toLocaleString(de ? 'de' : 'en', { minimumFractionDigits: 2 })}`;
+        return (
+          <div key={r.id}>
+            <div className="flex justify-between mb-1.5">
+              <span className={`text-[13px] font-medium ${r.highlight ? 'text-wx-tx1' : 'text-wx-txf'}`}>{labels[r.id]}</span>
+              <span className="num-data text-[12px]" style={{ color: r.highlight ? 'var(--tx2)' : 'var(--txff)' }}>{mu}</span>
+            </div>
+            {/* Bar + a small tick right where it ends, in the value's own
+                colour — ties the number above to this specific point on the
+                bar instead of leaving "which end is that number about" to
+                the reader, without risking the number itself overlapping
+                the fill (it stays in the safe right-aligned header row). */}
+            <div className="relative h-2.5 rounded-full overflow-hidden" style={{ background: 'var(--bd)' }}>
+              <div className="h-full rounded-full"
+                style={{
+                  width: run ? `${r.pct}%` : '0%',
+                  background: r.highlight
+                    ? 'linear-gradient(90deg, var(--accent-strong), var(--accent-soft))'
+                    : 'repeating-linear-gradient(45deg, var(--txf) 0 3px, transparent 3px 7px)',
+                  transition: 'width 1s cubic-bezier(0.22,1,0.36,1)',
+                }} />
+            </div>
+            <div className="relative h-1.5">
+              <div className="absolute top-0 w-px h-1.5" aria-hidden
+                style={{
+                  left: run ? `${r.pct}%` : '0%', transition: 'left 1s cubic-bezier(0.22,1,0.36,1)',
+                  background: r.highlight ? 'var(--accent)' : 'var(--txf)',
+                }} />
+            </div>
           </div>
-          <div className="h-2.5 rounded-full overflow-hidden" style={{ background: 'var(--bd)' }}>
-            <div className="h-full rounded-full"
-              style={{
-                width: run ? `${r.pct}%` : '0%',
-                background: r.highlight
-                  ? 'linear-gradient(90deg, var(--accent-strong), var(--accent-soft))'
-                  : 'var(--txf)',
-                transition: 'width 1s cubic-bezier(0.22,1,0.36,1)',
-              }} />
-          </div>
-        </div>
-      ))}
-      <p className="text-[12px] pt-1" style={{ color: 'var(--txf)' }}>
-        {de ? 'Höherer Balken = weniger Reibung (Performance-Index).' : 'Higher bar = less friction (performance index).'}
-      </p>
+        );
+      })}
+      <div className="flex justify-between pt-1">
+        <span className="text-meta" style={{ color: 'var(--txf)' }}>{de ? 'mehr Reibung' : 'more friction'}</span>
+        <span className="text-meta" style={{ color: 'var(--txf)' }}>{de ? 'weniger Reibung' : 'less friction'}</span>
+      </div>
     </div>
   );
 }

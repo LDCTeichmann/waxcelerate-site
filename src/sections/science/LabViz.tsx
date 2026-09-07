@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
-import { gsap } from '@/lib/gsap';
+import { useEffect, useRef, useState } from 'react';
+import { gsap, ScrollTrigger } from '@/lib/gsap';
 import { prefersReducedMotion, DUR, EASE } from '@/hooks/useAnimation';
 import { InstrumentFrame, CountUp } from '@/components/viz';
 
@@ -10,13 +10,6 @@ import { InstrumentFrame, CountUp } from '@/components/viz';
 
 const HEX_S_X  = [20, 70, 120, 170, 220, 270, 320];
 const HEX_MO_X = [45, 95, 145, 195, 245, 295];
-
-const TF_DOTS = [
-  { x: 30, y: 27 }, { x: 90, y: 24 }, { x: 155, y: 27 }, { x: 220, y: 25 },
-  { x: 285, y: 26 }, { x: 350, y: 24 }, { x: 415, y: 27 }, { x: 470, y: 25 },
-  { x: 55, y: 65 }, { x: 120, y: 63 }, { x: 190, y: 66 }, { x: 260, y: 64 },
-  { x: 325, y: 63 }, { x: 390, y: 66 }, { x: 450, y: 64 },
-] as const;
 
 // ─── MoS₂ — S–Mo–S layers shearing (hover on desktop, scroll-scrub on mobile) ─
 export function HexMoS2({ de }: { de: boolean }) {
@@ -143,44 +136,51 @@ export function HexMoS2({ de }: { de: boolean }) {
   );
 }
 
-// ─── Transfer film — compact cross-section schematic ─────────────────────────
+// ─── Contact-pressure scale — replaces the old cross-section schematic ───────
+// The previous version drew two grey steel bands, two accent film lines and a
+// scatter of dots labelled "Fe-S" in the middle — without the paragraph next
+// to it (which this InstrumentFrame doesn't have; it sits alone in the ACT III
+// grid), there was no way to tell what was steel, what was film, what the
+// dots were, or why "Fe-S" sat unexplained in the centre. It illustrated the
+// mechanism but never stated the one number that actually proves oil can't
+// compete here: the pressure itself. This replaces it with that number,
+// placed on a log scale against two pressures people already have an
+// intuition for.
+interface PressureRow {
+  labelDe: string; labelEn: string; lo: number; hi: number; valueLabel: string; highlight: boolean;
+}
+const PRESSURE_ROWS: PressureRow[] = [
+  { labelDe: 'Fahrradreifen', labelEn: 'Bicycle tyre', lo: 0.25, hi: 0.25, valueLabel: '0,25 MPa', highlight: false },
+  { labelDe: 'Hydraulikpresse', labelEn: 'Hydraulic press', lo: 30, hi: 30, valueLabel: '30 MPa', highlight: false },
+  { labelDe: 'Kettengelenk', labelEn: 'Chain joint', lo: 50, hi: 300, valueLabel: '50–300 MPa', highlight: true },
+];
+
+// log10 scale, domain 0.1-1000 MPa (4 decades) so the tyre's 0.25 MPa is
+// still a visible sliver instead of vanishing next to 300 MPa on a linear
+// axis — the entire point is that these are different ORDERS of magnitude.
+const LOG_MIN = -1, LOG_MAX = 3;
+const toPct = (mpa: number) => ((Math.log10(mpa) - LOG_MIN) / (LOG_MAX - LOG_MIN)) * 100;
+// Where boundary lubrication starts — the chain joint's own lower bound. The
+// dashed threshold line is drawn at exactly this position, not a separately
+// invented number, so it reads as "this is where the chain's own range
+// begins" rather than an unrelated reference mark.
+const THRESHOLD_PCT = toPct(50);
+
 export function TransferFilm({ de }: { de: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
+  const [run, setRun] = useState(prefersReducedMotion());
 
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
-    if (prefersReducedMotion()) {
-      el.querySelectorAll('.tf-film').forEach(f => gsap.set(f, { scaleX: 1, opacity: 1 }));
-      el.querySelectorAll('.tf-p').forEach(p => gsap.set(p, { opacity: 1 }));
-      const lbl = el.querySelector('.tf-label');
-      if (lbl) gsap.set(lbl, { opacity: 1 });
-      return;
-    }
-
-    const ctx = gsap.context(() => {
-      const films = el.querySelectorAll('.tf-film');
-      const dots = el.querySelectorAll('.tf-p');
-      const lbl = el.querySelector('.tf-label');
-
-      gsap.set(films, { scaleX: 0, transformOrigin: '50% 50%' });
-      gsap.set(dots, { opacity: 0 });
-      if (lbl) gsap.set(lbl, { opacity: 0 });
-
-      const tl = gsap.timeline({
-        scrollTrigger: { trigger: el, start: 'top 85%', once: true },
-      });
-      tl.to(dots, { opacity: 1, duration: 0.5, stagger: 0.03 }, 0);
-      tl.to(films, { scaleX: 1, opacity: 1, duration: 0.7, stagger: 0.08, ease: EASE.enter }, 0.25);
-      if (lbl) tl.to(lbl, { opacity: 1, duration: 0.5 }, 0.6);
-    }, ref);
-    return () => ctx.revert();
+    if (!el || prefersReducedMotion()) return;
+    const trigger = ScrollTrigger.create({ trigger: el, start: 'top 85%', once: true, onEnter: () => setRun(true) });
+    return () => trigger.kill();
   }, []);
 
   return (
     <InstrumentFrame
-      eyebrow={de ? 'Transferfilm unter Kontaktdruck' : 'Transfer film under contact pressure'}
-      chip="Fe–S"
+      eyebrow={de ? 'Warum Öl hier aufgibt' : 'Why oil gives up here'}
+      chip="50–300 MPa"
       footer={
         <div className="grid grid-cols-3 gap-3 text-center">
           {[
@@ -197,63 +197,74 @@ export function TransferFilm({ de }: { de: boolean }) {
       }
       innerRef={ref}
     >
-      <svg viewBox="0 0 500 88" className="w-full h-auto">
-        <defs>
-          <pattern id="tf-ht" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-            <line x1="0" y1="0" x2="0" y2="6" stroke="var(--txm)" strokeWidth="0.4" opacity="0.07" />
-          </pattern>
-          <linearGradient id="tf-gt" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="var(--txm)" stopOpacity="0.20" />
-            <stop offset="100%" stopColor="var(--txm)" stopOpacity="0.32" />
-          </linearGradient>
-          <linearGradient id="tf-gb" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="var(--txm)" stopOpacity="0.32" />
-            <stop offset="100%" stopColor="var(--txm)" stopOpacity="0.20" />
-          </linearGradient>
-        </defs>
+      <div className="space-y-4 pt-1">
+        {PRESSURE_ROWS.map(row => {
+          const startPct = toPct(row.lo);
+          const endPct = toPct(row.hi);
+          return (
+            <div key={row.labelDe}>
+              <div className="flex justify-between mb-1.5">
+                <span className={`text-[13px] font-medium ${row.highlight ? 'text-wx-tx1' : 'text-wx-txf'}`}>
+                  {de ? row.labelDe : row.labelEn}
+                </span>
+                <span className="num-data text-[12px]" style={{ color: row.highlight ? 'var(--tx2)' : 'var(--txff)' }}>
+                  {row.valueLabel}
+                </span>
+              </div>
+              <div className="relative h-2.5 rounded-full overflow-hidden" style={{ background: 'var(--bd)' }}>
+                {/* Threshold tick — drawn inside EACH row's own bar track
+                    (not spanning all three via one cross-row overlay, which
+                    needs fragile pixel math against space-y gaps + variable
+                    row heights). Same horizontal position in every track
+                    still reads as one continuous line across the group, at
+                    far less risk of drifting out of alignment. */}
+                <div className="absolute inset-y-0 pointer-events-none" aria-hidden
+                  style={{ left: `${THRESHOLD_PCT}%`, borderLeft: '1.5px dashed var(--accent)', opacity: run ? 0.5 : 0, transition: 'opacity 0.6s ease 0.8s' }} />
+                <div className="absolute inset-y-0 rounded-full"
+                  style={{
+                    left: run ? `${startPct}%` : '0%',
+                    width: run ? `${Math.max(endPct - startPct, 1.5)}%` : '0%',
+                    background: row.highlight
+                      ? 'linear-gradient(90deg, var(--accent-strong), var(--accent-soft))'
+                      : 'var(--txf)',
+                    transition: 'left 1s cubic-bezier(0.22,1,0.36,1), width 1s cubic-bezier(0.22,1,0.36,1)',
+                  }} />
+              </div>
+            </div>
+          );
+        })}
+        <p className="text-[12px] leading-relaxed" style={{ color: 'var(--accent-soft)', opacity: run ? 1 : 0, transition: 'opacity 0.6s ease 0.9s' }}>
+          {de
+            ? 'Gestrichelt: ab 50 MPa trägt kein Flüssigfilm mehr — Grenzschmierung.'
+            : 'Dashed: above 50 MPa no liquid film holds up any more — boundary lubrication.'}
+        </p>
 
-        {/* Top steel */}
-        <rect x="0" y="0" width="500" height="16" fill="url(#tf-gt)" />
-        <rect x="0" y="0" width="500" height="16" fill="url(#tf-ht)" />
-        <line x1="0" y1="16" x2="500" y2="16" stroke="var(--txm)" strokeWidth="0.8" opacity="0.25" />
-
-        {/* Film top */}
-        <rect className="tf-film" x="0" y="16" width="500" height="2.5"
-          fill="var(--accent)" opacity="0.32" />
-
-        {/* MoS₂ particles near top film — each tied to the film with a short
-            bond line, so the "Fe–S" chemical bond in the label reads as an
-            actual connection rather than just floating dots. */}
-        {TF_DOTS.filter(d => d.y < 44).map((d, i) => (
-          <g key={`t${i}`} className="tf-p" opacity="0.45">
-            <line x1={d.x} y1={18.5} x2={d.x} y2={d.y - 2.5} stroke="var(--accent)" strokeWidth="0.8" opacity="0.5" />
-            <circle cx={d.x} cy={d.y} r={3 + (i % 3) * 0.7} fill="var(--tx2)" />
-          </g>
-        ))}
-
-        {/* Center label */}
-        <text className="tf-label" x="250" y="47" textAnchor="middle"
-          fontSize="9" fontWeight={600} fill="var(--tx2)" fontFamily="monospace" letterSpacing="1.4" opacity="0">
-          Fe–S
-        </text>
-
-        {/* MoS₂ particles near bottom film */}
-        {TF_DOTS.filter(d => d.y >= 44).map((d, i) => (
-          <g key={`b${i}`} className="tf-p" opacity="0.45">
-            <line x1={d.x} y1={69.5} x2={d.x} y2={d.y + 2.5} stroke="var(--accent)" strokeWidth="0.8" opacity="0.5" />
-            <circle cx={d.x} cy={d.y} r={3 + (i % 3) * 0.7} fill="var(--tx2)" />
-          </g>
-        ))}
-
-        {/* Film bottom */}
-        <rect className="tf-film" x="0" y="69.5" width="500" height="2.5"
-          fill="var(--accent)" opacity="0.32" />
-
-        {/* Bottom steel */}
-        <line x1="0" y1="72" x2="500" y2="72" stroke="var(--txm)" strokeWidth="0.8" opacity="0.25" />
-        <rect x="0" y="72" width="500" height="16" fill="url(#tf-gb)" />
-        <rect x="0" y="72" width="500" height="16" fill="url(#tf-ht)" />
-      </svg>
+        {/* The payoff — what actually happens to each lubricant at that
+            pressure, in words, instead of leaving the reader to infer it
+            from a diagram. */}
+        <div className="pt-2 space-y-2.5" style={{ borderTop: '1px solid var(--bd2)' }}>
+          <div className="flex gap-3 pt-3">
+            <span className="text-small uppercase tracking-[0.13em] flex-shrink-0 w-12" style={{ color: 'var(--txf)' }}>
+              {de ? 'Öl' : 'Oil'}
+            </span>
+            <p className="text-[12.5px] leading-relaxed" style={{ color: 'var(--txm)' }}>
+              {de
+                ? 'Der Flüssigfilm wird herausgedrückt — Metall trifft auf Metall.'
+                : 'The liquid film gets squeezed out — metal meets metal.'}
+            </p>
+          </div>
+          <div className="flex gap-3">
+            <span className="text-small uppercase tracking-[0.13em] flex-shrink-0 w-12" style={{ color: 'var(--accent-soft)' }}>
+              MoS₂
+            </span>
+            <p className="text-[12.5px] leading-relaxed" style={{ color: 'var(--txm)' }}>
+              {de
+                ? 'Die Schichten scheren stattdessen ab — ein 2–5 nm Film bleibt und bindet chemisch (Fe–S) am Stahl.'
+                : 'The layers shear instead — a 2–5 nm film remains and chemically bonds (Fe–S) to the steel.'}
+            </p>
+          </div>
+        </div>
+      </div>
     </InstrumentFrame>
   );
 }
