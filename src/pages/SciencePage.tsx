@@ -926,8 +926,15 @@ export function SciencePage() {
               (bestaetigt: 4px vor dem Scrollen zu #formel, 0px danach,
               sobald der Trigger feuert und transform zurueckgesetzt wird)
               und damit das iOS-Rubber-Band-Wippen beim seitlichen Wischen.
-              overflow-x-hidden auf dem Wrapper eine Ebene hoeher faengt das
-              ab, ohne die Animation selbst anzufassen. */}
+              overflow-x-clip (nicht overflow-x-hidden) auf dem Wrapper eine
+              Ebene hoeher faengt das ab, ohne die Animation selbst
+              anzufassen. hidden wuerde denselben X-Overflow zwar auch
+              schneiden, stuft dabei aber laut Spec die andere Achse von
+              overflow-y: visible auf auto hoch — der gekippte, nach unten
+              versetzte Frame zaehlte dann schon vor seinem eigenen Reveal als
+              vertikaler Overflow dieses Wrappers, und der Browser zeichnete
+              genau in dem Moment eine Scrollbar. clip laesst overflow-y in
+              Ruhe. */}
           {/* Der Graph laeuft auf Mobil bis an die Bildschirmkanten statt in
               der Textspalte zu stehen. Die Figur ist 700x480 breit angelegt
               und wurde vorher auf die Spaltenbreite minus 2x16px Innenabstand
@@ -938,7 +945,7 @@ export function SciencePage() {
               Eindrucks, nicht die Figur selbst. Der negative Aussenabstand
               hebt die Seitenpolsterung genau auf und gibt der Figur die volle
               Bildschirmbreite; ab sm: steht wieder alles wie vorher. */}
-          <div className="pb-5 overflow-x-hidden">
+          <div className="pb-5 overflow-x-clip">
             <div className="-mx-4 sm:mx-auto sm:max-w-4xl sm:px-6 lg:px-8">
               <InstrumentFrame eyebrow={de ? 'Antippen für Details' : 'Tap for details'}>
                 {/* compact: no inline readout/transport panel here — that info

@@ -85,12 +85,18 @@ export function ContactZones({ de, onToFormula }: { de: boolean; onToFormula?: (
           this page) lets the card itself run edge-to-edge on mobile and
           buys back the 32px the page column was costing it; sm:mx-0 hands
           the padding straight back for tablet and up, where there is width
-          to spare. overflow-x-hidden on the outer wrapper guards against the
-          same transient reveal-animation overflow documented in
-          SciencePage.tsx for FormulaGraph: InstrumentFrame enters via a
-          rotateX(9deg) transform, which can round its box a few px wider
-          than the viewport for the ~700ms of the animation. */}
-      <div className="overflow-x-hidden">
+          to spare. overflow-x-clip (not overflow-x-hidden) on the outer
+          wrapper guards against the same transient reveal-animation overflow
+          documented in SciencePage.tsx for FormulaGraph: InstrumentFrame
+          enters via a rotateX(9deg) transform, which can round its box a few
+          px wider than the viewport for the ~700ms of the animation.
+          overflow-x-hidden would fix that but forces the other axis's
+          `overflow-y` from `visible` to `auto` per spec — the tilted,
+          y-translated frame counts as vertical overflow of this wrapper
+          before its own reveal fires, so the browser drew a transient
+          scrollbar right at the hero -> ContactZones boundary. clip leaves
+          overflow-y alone; the x-overflow still gets cut. */}
+      <div className="overflow-x-clip">
       <div className="-mx-4 sm:mx-0">
         <InstrumentFrame
           eyebrow={de ? 'Draufsicht, Seitenansicht, Lupe' : 'Plan, side view, close-up'}
