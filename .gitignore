@@ -43,3 +43,6 @@ public/images/blog/*
 !public/images/blog/*-800.jpg
 !public/images/blog/manifest.json
 image-drop/
+
+# Lokale Vorschau der Rechner-Skizzen (scripts/preview-diagrams.mjs)
+public/_diagrams-preview.html

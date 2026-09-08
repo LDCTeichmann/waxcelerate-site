@@ -43,8 +43,16 @@
   will-change: transform;
 }
 .deck-cover { transition: opacity 420ms ease; }
+
+/* Kartenbox folgt der Hoehe des gerade offenen Rechners, statt fuer alle
+   sechs auf den hoechsten fixiert zu sein (das riss bei den kurzen Rechnern
+   bis zu 300 px Leerraum zwischen Eingabe und Ergebnis auf). Die Hoehe wird
+   gemessen und hier weich nachgezogen — der Kartenwechsel liest sich dadurch
+   wie ein Auf- und Zuklappen. */
+.deck-heightbox { transition: height 460ms cubic-bezier(0.22, 1, 0.36, 1); }
+
 @media (prefers-reduced-motion: reduce) {
-  .deck-slot, .deck-cover { transition: none; }
+  .deck-slot, .deck-cover, .deck-heightbox { transition: none; }
 }
 
 /* Rechner-Skizzen (diagrams.tsx): Kettenstreben- und Lehren-Skizze faerben
