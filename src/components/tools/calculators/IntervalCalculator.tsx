@@ -28,7 +28,7 @@ export function IntervalCalculator({ profile }: { profile: ToolProfileState }) {
   const { t, lang } = useLanguage();
   const { theme } = useTheme();
   const de = lang === 'de';
-  const { lastWaxedDate, setLastWaxedDate, interval, weeks, weeksCapped } = profile;
+  const { lastWaxedDate, setLastWaxedDate, interval, weeks, weeksCapped, weather, terrain, kmPerWeek } = profile;
 
   const today = new Date();
   const datePresets: { key: string; date: Date | null; label: string }[] = [
@@ -64,6 +64,20 @@ export function IntervalCalculator({ profile }: { profile: ToolProfileState }) {
   // Eine Erinnerung in der Vergangenheit ist keine Erinnerung.
   const reminderDate = overdue ? new Date() : nextDate;
   const url = shareUrl('/rechner/intervall', profile.snapshot);
+
+  // Wie die Zahl zustande kommt — sichtbar auf der Karte statt im Popover.
+  const weekWord = (n: number) => de ? (n === 1 ? 'Woche' : 'Wochen') : (n === 1 ? 'week' : 'weeks');
+  const weatherLabel = { trocken: t.tools.rewax.dry, gemischt: t.tools.rewax.mixed, nass: t.tools.rewax.wet }[weather];
+  const terrainLabel = { strasse: t.tools.rewax.road, gravel: t.tools.rewax.gravel, mtb: t.tools.rewax.mtb }[terrain];
+  const derivation = t.tools.rewax.derivation
+    .replace('{weather}', weatherLabel)
+    .replace('{terrain}', terrainLabel)
+    .replace('{interval}', interval.toLocaleString(de ? 'de-DE' : 'en-US'))
+    .replace('{km}', String(kmPerWeek))
+    .replace('{weeks}', `${weeks} ${weekWord(weeks)}`);
+  // Fortschritt seit der letzten Wachsung: voll = faellig.
+  const totalDays = weeks * 7;
+  const progress = overdue ? 1 : Math.min(1, Math.max(0, (totalDays - daysLeft) / totalDays));
 
   const goToWax = () => {
     document.querySelector('#produkte')?.scrollIntoView({ behavior: 'smooth' });
@@ -133,6 +147,24 @@ export function IntervalCalculator({ profile }: { profile: ToolProfileState }) {
             </div>
           )}
         </StepField>
+
+        {/* Wie die Zahl zustande kommt — sichtbar, nicht im Popover versteckt.
+            Erklaert die grosse Zahl und traegt die sonst kurze Karte. */}
+        <div className="flex flex-col gap-2">
+          <p className="text-[12px] leading-snug" style={{ color: 'var(--txm)' }}>{derivation}</p>
+          <div className="flex items-center gap-2">
+            <span className="text-meta flex-shrink-0" style={{ color: 'var(--txff)' }}>{t.tools.rewax.sinceLabel}</span>
+            <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--inset-bd)' }}>
+              <div
+                className="h-full rounded-full transition-[width] duration-500"
+                style={{ width: `${progress * 100}%`, background: overdue ? 'var(--accent)' : 'var(--brand)' }}
+              />
+            </div>
+            <span className="text-meta flex-shrink-0" style={{ color: overdue ? 'var(--brand)' : 'var(--txff)' }}>
+              {t.tools.rewax.dueLabel}
+            </span>
+          </div>
+        </div>
 
         {/* Warum 300 km: die Empfehlung ist ein Optimum, keine harte Grenze —
             sonst liest sich „nach 3 Wochen" wie eine Verschleissgrenze. */}

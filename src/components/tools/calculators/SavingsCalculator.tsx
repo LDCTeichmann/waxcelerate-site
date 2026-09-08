@@ -28,7 +28,6 @@ import {
   ToolCard, ToolHeader, StepList, ToolFooter, ToolCTA, TogButton, ChipRow, StepNote, InfoPopover,
 } from '@/components/tools/primitives';
 import { StepField } from '@/components/tools/StepField';
-import { CassetteWearDiagram } from '@/components/tools/diagrams';
 import { ResultPanel } from '@/components/tools/ResultPanel';
 import { ResultActions } from '@/components/tools/ResultActions';
 
@@ -88,17 +87,7 @@ export function SavingsCalculator({ profile }: { profile: ToolProfileState }) {
     url: shareLink,
   };
 
-  const maxHours = Math.max(hours1, hoursN, 0.1);
   const hourFmt = (h: number) => h.toLocaleString(de ? 'de-DE' : 'en-US', { maximumFractionDigits: 1, minimumFractionDigits: h < 10 ? 1 : 0 });
-  const hourBar = (label: string, hours: number, color: string) => (
-    <div className="flex items-center gap-2">
-      <span className="text-meta w-14 flex-shrink-0" style={{ color: 'var(--txff)' }}>{label}</span>
-      <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: 'var(--inset-bd)' }}>
-        <div className="h-full rounded-full" style={{ width: `${(hours / maxHours) * 100}%`, background: color }} />
-      </div>
-      <span className="text-[12px] font-medium tabular-nums flex-shrink-0" style={{ color: 'var(--tx2)' }}>{hourFmt(hours)} h</span>
-    </div>
-  );
 
   return (
     <ToolCard>
@@ -128,13 +117,6 @@ export function SavingsCalculator({ profile }: { profile: ToolProfileState }) {
             ))}
           </ChipRow>
         </StepField>
-
-        {/* Der Kassettenschutz stand bisher nur als Satz im Popover — die
-            Skizze macht in einem Blick klar, warum eine Kassette laenger
-            haelt, wenn keine Kette lange stark gelaengt bleibt. */}
-        <div className="max-w-[280px] mx-auto w-full">
-          <CassetteWearDiagram de={de} />
-        </div>
 
         <StepField
           step={2}
@@ -195,12 +177,6 @@ export function SavingsCalculator({ profile }: { profile: ToolProfileState }) {
       <ResultPanel
         value={<AnimatedNumber value={costs.savingsPerYear} prefix="€" />}
         unit={de ? 'gespart/Jahr' : 'saved/yr'}
-        hero={chains > 1 ? (
-          <div className="flex flex-col gap-1">
-            {hourBar('1 ' + (de ? 'Kette' : 'chain'), hours1, 'var(--txf)')}
-            {hourBar(`${chains} ${chainWord(chains)}`, hoursN, 'var(--brand)')}
-          </div>
-        ) : undefined}
         verdict={chains > 1
           ? t.tools.rotation.resultVerdict
             .replace('{chains}', `${chains} ${chainWord(chains)}`)

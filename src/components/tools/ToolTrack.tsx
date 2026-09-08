@@ -15,7 +15,7 @@
 // relativen Abstand zur aktiven Karte, und alles, was weder vorne noch direkt
 // daneben liegt, steht deckungsgleich dahinter und ist unsichtbar.
 
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { gsap } from '@/lib/gsap';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -52,81 +52,54 @@ function slotTransform(rel: number, count: number): React.CSSProperties {
   return { transform: 'translate(-50%) scale(0.86)', zIndex: 10, opacity: 0, pointerEvents: 'none' };
 }
 
-// Kein festes Hoehenbudget mehr. Frueher stand hier DECK_HEIGHT/TRACK_HEIGHT
-// auf den hoechsten der sechs Rechner fixiert, damit die Deckel der Nachbar-
-// karten gleich gross sind und der Kartenwechsel nicht springt. Preis dafuer
-// waren bis zu ~320 px Leerraum zwischen Eingabe und Ergebnis bei den kurzen
-// Rechnern (Intervall, Kettenlaenge) — genau die „ungleichgewichtige"
-// Verteilung, die auffiel.
-//
-// Stattdessen: die Box misst den gerade offenen Rechner und zieht ihre Hoehe
-// per CSS-Transition weich nach (.deck-heightbox in index.css). Die Deckel
-// bleiben trotzdem exakt deckungsgleich — sie fuellen die Box und animieren
-// mit. Kein Sprung, kein Leerraum. Siehe useMeasuredHeight().
-const FALLBACK_HEIGHT = 620;
+// Feste, fuer alle sechs Rechner gleiche Kartenhoehe. Bewusst KEINE gemessene
+// Hoehe (Runde 1 hatte das — Luca will alle Karten exakt gleich gross und die
+// ganze Einheit auf einen Screen). Der Wert ist so gewaehlt, dass Profilleiste
+// + Karte + Reiter + Punkte zusammen auf einen Handy- bzw. Desktopscreen
+// passen; die Rechner-Inhalte sind darauf getrimmt (siehe calculators/*.tsx).
+// ToolCard (h-full + flex-col) und ResultPanel (mt-auto) fuellen die Box:
+// Kopf oben, CTA unten, der kleine Rest sammelt sich als eine Luecke ueber
+// dem Ergebnis.
+const CARD_HEIGHT = 668;
+const TRACK_HEIGHT = 676;
 
-/**
- * Meldet die Hoehe der gerade offenen Karte, damit die Box ihr folgen kann.
- *
- * `nodeAt(active)` liefert den DOM-Knoten der aktiven Karte. Der Layout-Effekt
- * misst ihn direkt nach dem Reiterwechsel synchron (der ResizeObserver liefert
- * seinen Startwert zu spaet — das gaebe ein sichtbares Nachzappeln) und haengt
- * dann einen ResizeObserver dran, der Eingaben abdeckt, die dieselbe Karte
- * laenger oder kuerzer machen.
- *
- * offsetHeight statt getBoundingClientRect: der Knoten steckt im .deck-slot,
- * dessen Flip-Transition ihn 620 ms lang skaliert — getBoundingClientRect
- * gaebe die transformierte Hoehe zurueck und die Box bliebe auf ~86 % haengen.
- * Eine unsichtbare Darstellung (display:none) meldet 0 und wird verworfen.
- */
-function useMeasuredHeight(active: number, nodeAt: (i: number) => HTMLElement | null): number | undefined {
-  const [height, setHeight] = useState<number | undefined>(undefined);
-  useLayoutEffect(() => {
-    const node = nodeAt(active);
-    if (!node) return;
-    const read = () => { const h = node.offsetHeight; if (h > 0) setHeight(h); };
-    // Direkt nach dem Commit einmal messen — der ResizeObserver liefert seinen
-    // Startwert erst verzoegert, das gaebe beim Reiterwechsel ein sichtbares
-    // Nachzappeln. Danach uebernimmt der Observer fuer Eingaben, die dieselbe
-    // Karte laenger/kuerzer machen.
-    read();
-    const ro = new ResizeObserver(read);
-    ro.observe(node);
-    return () => ro.disconnect();
-  }, [active, nodeAt]);
-  return height;
+/** Startkarte: `initialKey` (z. B. Intervall bei ?w=-Link) hat Vorrang, danach
+ *  der zuletzt genutzte Rechner aus localStorage, sonst die erste Karte. */
+function pickInitial(items: TrackItem[], initialKey?: string): number {
+  if (initialKey) {
+    const i = items.findIndex(x => x.key === initialKey);
+    if (i >= 0) return i;
+  }
+  try {
+    const saved = localStorage.getItem('wx-tool');
+    const i = saved ? items.findIndex(x => x.key === saved) : -1;
+    if (i >= 0) return i;
+  } catch { /* localStorage gesperrt — dann eben die erste Karte */ }
+  return 0;
 }
 
-function DeckSlot({ item, rel, count, active, onActivate, de, registerNode }: {
+function DeckSlot({ item, rel, count, active, onActivate, de }: {
   item: TrackItem; rel: number; count: number; active: boolean; onActivate: () => void; de: boolean;
-  /** Meldet den Messknoten dieser Karte an die Hoehenmessung der Sektion. */
-  registerNode: (el: HTMLDivElement | null) => void;
 }) {
   const { Icon } = item;
   return (
     <div
-      className={`deck-slot absolute left-1/2 w-[42%] ${active ? 'top-0' : 'inset-y-0'}`}
+      className="deck-slot absolute inset-y-0 left-1/2 w-[42%]"
       style={slotTransform(rel, count)}
     >
-      {/* Baumform bleibt fuer aktiv/inaktiv gleich (nur Klassen + Deckel
+      {/* Baumform bleibt fuer aktiv/inaktiv gleich (nur `inert` + Deckel
           aendern sich), damit item.node beim Reiterwechsel nicht neu montiert
-          und der Rechner seinen Eingabestand behaelt. Aktiv: natuerliche
-          Hoehe, gemessen fuer die Box. Inaktiv: h-full unter dem Deckel.
-          `inert` nimmt die Hintergrundkarte aus Tab-Reihenfolge und
-          A11y-Baum. */}
-      <div className={active ? '' : 'relative w-full h-full'}>
-        <div
-          ref={registerNode}
-          className={active ? '' : 'h-full overflow-hidden'}
-          inert={!active}
-        >
+          und der Rechner seinen Eingabestand behaelt. `inert` nimmt die
+          Hintergrundkarte aus Tab-Reihenfolge und A11y-Baum. */}
+      <div className="relative w-full h-full">
+        <div className="h-full" inert={!active}>
           {item.node}
         </div>
 
         {!active && (
-          // Deckel: reduziert die Hintergrundkarte auf ihre Frage, blendet
-          // sich beim Nachvornedrehen aus, fuellt die Box und animiert deren
-          // Hoehenaenderung mit.
+          // Deckel: reduziert die Hintergrundkarte auf ihre Frage und blendet
+          // sich beim Nachvornedrehen aus. Da die Box fuer alle sechs Rechner
+          // gleich hoch ist, ist es auch der Deckel.
           <button
             type="button"
             onClick={onActivate}
@@ -159,33 +132,28 @@ function DeckSlot({ item, rel, count, active, onActivate, de, registerNode }: {
   );
 }
 
-export function ToolTrack({ items, onActiveChange }: {
+export function ToolTrack({ items, onActiveChange, initialKey }: {
   items: TrackItem[];
   /** Meldet den Schluessel der aktiven Karte — die Sektion braucht ihn, um die
    *  Profilleiste zu deaktivieren, wenn der Rechner davorne sie nicht nutzt. */
   onActiveChange?: (key: string) => void;
+  /** Erzwungene Startkarte (z. B. Intervall, wenn ein ?w=-Link gescannt wurde). */
+  initialKey?: string;
 }) {
   const { lang } = useLanguage();
   const de = lang === 'de';
   const count = items.length;
 
-  const [active, setActive] = useState(0);
+  const [active, setActive] = useState(() => pickInitial(items, initialKey));
   const labels = useMemo(() => items.map(i => i.label), [items]);
 
   const activeKey = items[active]?.key;
   useEffect(() => {
-    if (activeKey) onActiveChange?.(activeKey);
+    if (!activeKey) return;
+    onActiveChange?.(activeKey);
+    // Zuletzt genutzten Rechner merken — wer zurueckkommt, landet wieder hier.
+    try { localStorage.setItem('wx-tool', activeKey); } catch { /* gesperrt */ }
   }, [activeKey, onActiveChange]);
-
-  // Hoehe der Box folgt dem offenen Rechner. Zwei Knotenlisten (Deck-Karten,
-  // Track-Panels) — je nach Viewport ist nur eine sichtbar, die andere misst 0
-  // und wird verworfen.
-  const deckNodes = useRef<(HTMLElement | null)[]>([]);
-  const trackNodes = useRef<(HTMLElement | null)[]>([]);
-  const deckNodeAt = useCallback((i: number) => deckNodes.current[i] ?? null, []);
-  const trackNodeAt = useCallback((i: number) => trackNodes.current[i] ?? null, []);
-  const deckHeight = useMeasuredHeight(active, deckNodeAt);
-  const trackHeight = useMeasuredHeight(active, trackNodeAt);
 
   // ── Mobiler Reiter-Balken ────────────────────────────────────────────────
   const tabBarRef = useRef<HTMLDivElement>(null);
@@ -257,10 +225,6 @@ export function ToolTrack({ items, onActiveChange }: {
     deckTabRefs.current[next]?.focus();
   };
 
-  // Getrennte Messungen fuer die zwei Darstellungen — beide sind im DOM
-  // (nur per Media-Query ein-/ausgeblendet), die unsichtbare meldet 0 und
-  // wird verworfen.
-
   return (
     <>
       {/* ── Bis lg: wischbare Reiter ── */}
@@ -291,8 +255,8 @@ export function ToolTrack({ items, onActiveChange }: {
           ))}
         </div>
         <div
-          className="deck-heightbox overflow-hidden"
-          style={{ height: trackHeight ?? FALLBACK_HEIGHT }}
+          className="overflow-hidden"
+          style={{ height: TRACK_HEIGHT }}
           onTouchStart={e => {
             const target = e.target as HTMLElement;
             touchStart.current = {
@@ -313,16 +277,11 @@ export function ToolTrack({ items, onActiveChange }: {
           }}
         >
           <div
-            className="flex items-start transition-transform duration-300 ease-out"
+            className="flex items-start h-full transition-transform duration-300 ease-out"
             style={{ transform: `translateX(-${active * 100}%)` }}
           >
             {items.map((item, i) => (
-              <div
-                key={item.key}
-                ref={el => { trackNodes.current[i] = el; }}
-                className="min-w-full self-start"
-                inert={active !== i}
-              >
+              <div key={item.key} className="min-w-full h-full" inert={active !== i}>
                 {item.node}
               </div>
             ))}
@@ -346,12 +305,11 @@ export function ToolTrack({ items, onActiveChange }: {
 
       {/* ── Ab lg: dasselbe als 3D-Deck ── */}
       <div className="hidden lg:block">
-        {/* Hoehe folgt dem offenen Rechner (deckHeight) und wird per
-            .deck-heightbox weich nachgezogen; overflow-hidden bleibt als
-            Sicherheitsnetz. */}
+        {/* Feste Hoehe fuer alle sechs Rechner (CARD_HEIGHT); overflow-hidden
+            als Sicherheitsnetz, falls eine Uebersetzung den Rahmen sprengt. */}
         <div
-          className="deck-heightbox relative overflow-hidden"
-          style={{ perspective: '1900px', height: deckHeight ?? FALLBACK_HEIGHT }}
+          className="relative overflow-hidden"
+          style={{ perspective: '1900px', height: CARD_HEIGHT }}
         >
           {items.map((item, i) => (
             <DeckSlot
@@ -362,7 +320,6 @@ export function ToolTrack({ items, onActiveChange }: {
               active={i === active}
               onActivate={() => setActive(i)}
               de={de}
-              registerNode={el => { deckNodes.current[i] = el; }}
             />
           ))}
         </div>

@@ -28,15 +28,10 @@ import { shareUrl } from '@/lib/toolState';
 import {
   ToolCard, ToolHeader, StepList, ToolFooter, ToolCTA, NumberInput, StepNote, InfoPopover,
 } from '@/components/tools/primitives';
-import { ChainstayDiagram } from '@/components/tools/diagrams';
 import { ResultPanel } from '@/components/tools/ResultPanel';
 import { ResultActions } from '@/components/tools/ResultActions';
 
-type Highlight = 'stay' | 'ring' | 'sprocket';
-
-/** Eine schmale Spalte der Eingabe-Reihe: kurzes Label + Zahl. Kein eigenes
-    Popover mehr pro Feld — die eine Skizze unter der Reihe deckt alle drei
-    Felder ab und folgt dem Fokus. */
+/** Eine schmale Spalte der Eingabe-Reihe: kurzes Label + Zahl. */
 function CompactField({ label, ariaLabel, children }: {
   label: string; ariaLabel: string; children: React.ReactNode;
 }) {
@@ -61,7 +56,6 @@ export function ChainLengthCalculator({ profile }: { profile: ToolProfileState }
   const [chainstay, setChainstay] = useState('425');
   const [chainring, setChainring] = useState('50');
   const [sprocket, setSprocket] = useState('34');
-  const [highlight, setHighlight] = useState<Highlight>('stay');
 
   const n = {
     chainstayMm: Number(chainstay),
@@ -100,7 +94,6 @@ export function ChainLengthCalculator({ profile }: { profile: ToolProfileState }
           <CompactField label={de ? 'Strebe' : 'Stay'} ariaLabel={t.tools.length.chainstay}>
             <NumberInput
               value={chainstay} onChange={setChainstay} min={350} max={550}
-              onFocus={() => setHighlight('stay')}
               ariaLabel={t.tools.length.chainstay} theme={theme} suffix="mm"
             />
           </CompactField>
@@ -108,7 +101,6 @@ export function ChainLengthCalculator({ profile }: { profile: ToolProfileState }
           <CompactField label={de ? 'Kettenblatt' : 'Chainring'} ariaLabel={t.tools.length.bigChainring}>
             <NumberInput
               value={chainring} onChange={setChainring} min={20} max={60}
-              onFocus={() => setHighlight('ring')}
               ariaLabel={t.tools.length.bigChainring} theme={theme}
             />
           </CompactField>
@@ -116,17 +108,14 @@ export function ChainLengthCalculator({ profile }: { profile: ToolProfileState }
           <CompactField label={de ? 'Ritzel' : 'Sprocket'} ariaLabel={t.tools.length.bigSprocket}>
             <NumberInput
               value={sprocket} onChange={setSprocket} min={9} max={60}
-              onFocus={() => setHighlight('sprocket')}
               ariaLabel={t.tools.length.bigSprocket} theme={theme}
             />
           </CompactField>
         </div>
 
-        {/* Die Skizze steht direkt auf der Karte, nicht mehr hinter einem
-            Fragezeichen — und folgt dem zuletzt angeklickten Feld. */}
-        <div className="max-w-[280px] mx-auto w-full">
-          <ChainstayDiagram highlight={highlight} />
-        </div>
+        {/* Erklaerzeile statt Skizze — Kettenstrebe/Kettenblatt/Ritzel sagen
+            ohne Bild wenig; die Info stand vorher nur im Popover. */}
+        <StepNote>{t.tools.length.fieldsInline}</StepNote>
 
         {!valid && (
           <StepNote>

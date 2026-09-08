@@ -1,5 +1,10 @@
 // ── Skizzen fuer die Eingaben, die man nicht erklaeren kann ─────────────────
 //
+// STAND 09/2026: aktuell NICHT eingebunden. Die selbstgezeichneten Fassungen
+// wirkten unfertig; Luca liefert eigene Bilder nach. Andockpunkte, wenn es
+// so weit ist: `StepField.figure` (Popover) bzw. eine Inline-Zeile direkt in
+// der jeweiligen calculators/*.tsx. Bis dahin bleibt diese Datei liegen.
+//
 // Drei der abgefragten Werte sind raeumlich und mit Worten nur muehsam zu
 // treffen: wo die Messstrecke ansetzt, was die Kettenstrebe ist und welche
 // Zahnraeder man zaehlt. Genau dort steigt jemand aus, der kein

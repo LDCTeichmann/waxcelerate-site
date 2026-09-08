@@ -1,13 +1,12 @@
 // ── Das gemeinsame Fahrprofil, sichtbar ueber allen Rechnern ────────────────
 //
-// Vorher steckten Wetter, Gelaende und Wochenkilometer in Karte 1, und die
-// uebrigen Karten zeigten nur eine kleine Pille mit einem Link zurueck. Wer auf
-// Karte 3 stand, sah eine Zahl, die sich aus Eingaben ergab, die er nicht sehen
-// konnte — die groesste einzelne Verstaendnisluecke der Sektion.
-//
-// Auf dem Handy eingeklappt: ausgeklappt sind es drei Bediengruppen und damit
-// rund 300 px, die den Rechner unter den Falz schieben. Ab sm liegen die drei
-// nebeneinander und passen ohnehin.
+// Wetter, Gelaende und Wochenkilometer gelten fuer drei der sechs Rechner
+// (Intervall, Umstieg, Ersparnis). Frueher standen die drei Bediengruppen am
+// Desktop dauerhaft offen — rund 130 px Chrom ueber jeder Karte, bei der Haelfte
+// der Rechner ungenutzt. Jetzt ist die Leiste ueberall eine schlanke
+// Zusammenfassungszeile, die auf Klick die Regler ausklappt (wie vorher schon
+// am Handy). Standard: eingeklappt. Das haelt die Einheit Profilleiste + Karte
+// + Reiter auf einem Screen.
 
 import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
@@ -20,9 +19,9 @@ import { StepField } from '@/components/tools/StepField';
 export function ProfileBar({ profile, inactiveNote }: {
   profile: ToolProfileState;
   /** Gesetzt, wenn der gerade sichtbare Rechner das Profil nicht auswertet.
-   *  Die Leiste bleibt dann stehen — sie auszublenden wuerde bei jedem
-   *  Kartenwechsel das halbe Layout springen lassen —, wird aber sichtbar
-   *  zurueckgenommen und sagt, warum sich nichts tut. */
+   *  Die Leiste bleibt dann als eine Zeile stehen und sagt, warum sich nichts
+   *  tut — sie auszublenden wuerde bei jedem Kartenwechsel das Layout springen
+   *  lassen. */
   inactiveNote?: string;
 }) {
   const { t } = useLanguage();
@@ -40,80 +39,74 @@ export function ProfileBar({ profile, inactiveNote }: {
     { value: 'mtb', label: t.tools.rewax.mtb },
   ];
   const summary = `${weatherOpts.find(o => o.value === weather)?.label} · ${terrainOpts.find(o => o.value === terrain)?.label} · ${kmPerWeek} km`;
+  const collapsible = !inactiveNote;
 
   return (
     <div
-      className="rounded-2xl px-4 py-3 sm:px-5 sm:py-4 mb-4 transition-opacity duration-300"
+      className="rounded-2xl px-4 py-2.5 sm:px-5 mb-4 transition-opacity duration-300"
       style={{
         background: 'var(--inset-bg)',
         // Kraeftigere Kante (--bd statt --bd2) + leiser Tiefen-Hint: die Leiste
         // liegt nur 8 Einheiten unter der Sektion, die Trennung muss von der
-        // Linie kommen (DESIGN.md §1). Die erhaben wirkenden Chips brauchen
-        // ausserdem einen erkennbar recessten Grund darunter.
+        // Linie kommen (DESIGN.md §1).
         border: '1px solid var(--bd)',
         boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.04)',
-        opacity: inactiveNote ? 0.6 : 1,
       }}
     >
-      {/* Handy: Zusammenfassung statt Bedienelemente, solange eingeklappt. */}
       <button
         type="button"
-        onClick={() => setOpen(v => !v)}
-        aria-expanded={open}
-        className="sm:hidden w-full flex items-center justify-between gap-3 text-left"
+        onClick={collapsible ? () => setOpen(v => !v) : undefined}
+        aria-expanded={collapsible ? open : undefined}
+        disabled={!collapsible}
+        className="w-full flex items-center gap-2.5 text-left disabled:cursor-default"
       >
-        <span className="min-w-0">
-          <span className="block text-meta uppercase tracking-[0.1em] font-semibold" style={{ color: 'var(--tx2)' }}>
-            {t.tools.profile.barTitle}
-          </span>
-          <span className="block text-[13px] truncate mt-0.5" style={{ color: 'var(--tx2)' }}>{summary}</span>
-        </span>
-        <ChevronDown
-          className="h-4 w-4 flex-shrink-0 transition-transform"
-          style={{ color: 'var(--brand)', transform: open ? 'rotate(180deg)' : undefined }}
-        />
-      </button>
-
-      <div className="hidden sm:flex items-baseline gap-2 mb-3">
-        <span className="text-meta uppercase tracking-[0.1em] font-semibold" style={{ color: 'var(--tx2)' }}>
+        <span className="text-meta uppercase tracking-[0.1em] font-semibold flex-shrink-0" style={{ color: 'var(--tx2)' }}>
           {t.tools.profile.barTitle}
         </span>
-        <span className="text-meta" style={{ color: 'var(--txff)' }}>
-          {inactiveNote ?? t.tools.profile.barHint}
+        <span className="text-[13px] truncate min-w-0 flex-1" style={{ color: inactiveNote ? 'var(--txff)' : 'var(--tx2)' }}>
+          {inactiveNote ?? summary}
         </span>
-      </div>
+        {collapsible && (
+          <ChevronDown
+            className="h-4 w-4 flex-shrink-0 transition-transform"
+            style={{ color: 'var(--brand)', transform: open ? 'rotate(180deg)' : undefined }}
+          />
+        )}
+      </button>
 
       {/* Dieselben StepField-Bausteine wie in den Karten — die Profilleiste ist
           Schritt null, nicht ein Fremdkoerper mit eigenen Regeln. */}
-      <div className={`${open ? 'grid mt-3' : 'hidden'} sm:grid gap-3 sm:gap-5 sm:grid-cols-3`}>
-        <StepField step={0} label={t.tools.rewax.weather} help={t.tools.profile.helpWeather}>
-          <ChipRow>
-            {weatherOpts.map(o => (
-              <TogButton key={o.value} active={weather === o.value} onClick={() => setWeather(o.value)}>
-                {o.label}
-              </TogButton>
-            ))}
-          </ChipRow>
-        </StepField>
+      {collapsible && open && (
+        <div className="grid gap-4 mt-4 sm:grid-cols-3 sm:gap-5">
+          <StepField step={0} label={t.tools.rewax.weather} help={t.tools.profile.helpWeather}>
+            <ChipRow>
+              {weatherOpts.map(o => (
+                <TogButton key={o.value} active={weather === o.value} onClick={() => setWeather(o.value)}>
+                  {o.label}
+                </TogButton>
+              ))}
+            </ChipRow>
+          </StepField>
 
-        <StepField step={0} label={t.tools.rewax.terrain} help={t.tools.profile.helpTerrain}>
-          <ChipRow>
-            {terrainOpts.map(o => (
-              <TogButton key={o.value} active={terrain === o.value} onClick={() => setTerrain(o.value)}>
-                {o.label}
-              </TogButton>
-            ))}
-          </ChipRow>
-        </StepField>
+          <StepField step={0} label={t.tools.rewax.terrain} help={t.tools.profile.helpTerrain}>
+            <ChipRow>
+              {terrainOpts.map(o => (
+                <TogButton key={o.value} active={terrain === o.value} onClick={() => setTerrain(o.value)}>
+                  {o.label}
+                </TogButton>
+              ))}
+            </ChipRow>
+          </StepField>
 
-        <StepField step={0} label={t.tools.rewax.kmPerWeek} value={`${kmPerWeek} km`} help={t.tools.profile.helpKm}>
-          <ToolSlider
-            value={kmPerWeek} onValueChange={setKmPerWeek}
-            min={20} max={400} step={10}
-            ariaLabel={t.tools.rewax.kmPerWeek}
-          />
-        </StepField>
-      </div>
+          <StepField step={0} label={t.tools.rewax.kmPerWeek} value={`${kmPerWeek} km`} help={t.tools.profile.helpKm}>
+            <ToolSlider
+              value={kmPerWeek} onValueChange={setKmPerWeek}
+              min={20} max={400} step={10}
+              ariaLabel={t.tools.rewax.kmPerWeek}
+            />
+          </StepField>
+        </div>
+      )}
     </div>
   );
 }

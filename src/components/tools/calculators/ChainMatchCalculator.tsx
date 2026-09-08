@@ -27,7 +27,6 @@ import {
   ToolCard, ToolHeader, StepList, ToolFooter, ToolCTA, TogButton, ChipRow, StepNote,
 } from '@/components/tools/primitives';
 import { StepField } from '@/components/tools/StepField';
-import { SprocketCountDiagram } from '@/components/tools/diagrams';
 import { ResultPanel } from '@/components/tools/ResultPanel';
 import { ResultActions } from '@/components/tools/ResultActions';
 
@@ -98,7 +97,7 @@ export function ChainMatchCalculator({ profile, compact }: { profile: ToolProfil
           </ChipRow>
         </StepField>
 
-        <StepField step={2} label={t.tools.match.speed} help={t.tools.match.helpSpeed} figure={<SprocketCountDiagram />}>
+        <StepField step={2} label={t.tools.match.speed} help={t.tools.match.helpSpeed}>
           <ChipRow>
             {SPEED_OPTIONS.map(s => (
               <TogButton key={s} active={stocked && speedKey === s} onClick={() => profile.setSpeed(Number(s) as 11 | 12)}>
@@ -130,21 +129,21 @@ export function ChainMatchCalculator({ profile, compact }: { profile: ToolProfil
           selbst bei vier Treffern in gut 90 px; Modell und Ausverkauft-Status
           bleiben einen Klick entfernt auf der Produktseite. */}
       {sortedMatches.length > 0 && (
-        <div className="px-4 sm:px-5 pb-3 grid grid-cols-2 gap-1.5">
+        <div className="px-4 sm:px-5 pb-2 grid grid-cols-2 gap-1.5">
           {sortedMatches.map(p => {
             const soldOut = isSoldOut(p);
             return (
               <a
                 key={p.id}
                 href={`/produkt/${p.id}`}
-                className="flex items-center gap-1.5 rounded-lg px-1.5 py-1.5 transition-opacity hover:opacity-85"
+                className="flex items-center gap-1.5 rounded-md px-1.5 py-1 transition-opacity hover:opacity-85"
                 style={{ background: 'var(--card-bg)', border: '1px solid var(--bd2)', opacity: soldOut ? 0.6 : 1 }}
               >
                 <img
                   src={p.image}
                   alt=""
                   loading="lazy"
-                  className="w-7 h-7 rounded-md object-cover flex-shrink-0"
+                  className="w-6 h-6 rounded object-cover flex-shrink-0"
                   style={{ background: 'var(--sf2)' }}
                 />
                 <span className="min-w-0 flex-1">

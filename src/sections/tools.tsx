@@ -9,7 +9,7 @@
 // Hier bleibt nur die Sektion selbst: Ueberschrift, das gemeinsame Fahrprofil
 // und der Track mit allen sechs Rechnern.
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useSectionReveal } from '@/hooks/useAnimation';
 import { useToolProfile } from '@/hooks/useToolProfile';
@@ -33,6 +33,15 @@ export function Tools() {
   const [activeKey, setActiveKey] = useState(TOOLS[0].slug);
   const handleActive = useCallback((key: string) => setActiveKey(key), []);
   const activeUsesProfile = getToolBySlug(activeKey)?.usesProfile ?? false;
+
+  // Wurde ein Paket-QR (?w=JJJJMMTT) gescannt, gehoert das Wachsdatum in den
+  // Intervall-Rechner — dann muss der Stapel dort aufmachen, nicht beim
+  // zuletzt genutzten Rechner aus localStorage.
+  const initialKey = useMemo(() => {
+    if (typeof window === 'undefined') return undefined;
+    const q = new URLSearchParams(window.location.search);
+    return parseWaxedStamp(q.get('w') || q.get('waxed')) ? 'intervall' : undefined;
+  }, []);
 
   // Der QR-Code im Paket zeigt inzwischen auf /rechner/intervall?w=JJJJMMTT.
   // Aeltere Beileger und geteilte Links zeigen aber weiterhin auf die
@@ -69,7 +78,7 @@ export function Tools() {
         profile={profile}
         inactiveNote={activeUsesProfile ? undefined : t.tools.profile.barInactive}
       />
-      <ToolDeck profile={profile} onActiveChange={handleActive} />
+      <ToolDeck profile={profile} onActiveChange={handleActive} initialKey={initialKey} />
 
       <div className="flex justify-center mt-6">
         <a

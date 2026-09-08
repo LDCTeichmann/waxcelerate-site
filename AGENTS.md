@@ -195,3 +195,8 @@ werden inline ternär geschrieben (`lang === 'de' ? … : …`).
 
 7. **`ComparisonSlider` und `WhatChanges`** liegen bewusst ungenutzt im Code.
    Beide warten auf Inhalte, siehe `PROJECT.md`. Nicht als toten Code entfernen.
+
+8. **`components/tools/diagrams.tsx`** ist seit 09/2026 nicht mehr eingebunden —
+   die Rechner-Skizzen wirkten unfertig, Luca liefert eigene nach. Datei bleibt
+   liegen. Andockpunkt: `StepField.figure` oder eine Inline-Zeile in der
+   jeweiligen `components/tools/calculators/*.tsx`.

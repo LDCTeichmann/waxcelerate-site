@@ -99,6 +99,16 @@ export function elongationFrom12Links(measuredMm: number): number {
   return ((measuredMm - NOMINAL_12_LINKS_MM) / NOMINAL_12_LINKS_MM) * 100;
 }
 
+/**
+ * Laengung aus dem Ueberstand ueber die 12-Zoll-Marke. Am Lineal liest niemand
+ * „305,3 mm" ab — man legt einen Bolzen auf die Null und sieht, wie weit der
+ * zwoelfte ueber der 12-Zoll-Linie steht. Genau dieser Ueberstand ist die
+ * Eingabe. 1/16 Zoll (≈ 1,59 mm) sind rund 0,5 %, 1/8 Zoll rund 1,0 %.
+ */
+export function elongationFromOvershoot(overshootMm: number): number {
+  return elongationFrom12Links(NOMINAL_12_LINKS_MM + overshootMm);
+}
+
 export function wearVerdict(percent: number, speed: ChainSpeed): WearVerdict {
   const limit = wearLimit(speed);
   // Vier Stufen statt der frueheren Ja/Nein-Antwort auf die Kassettenfrage.

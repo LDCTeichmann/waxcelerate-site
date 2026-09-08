@@ -38,7 +38,7 @@ import { ResultActions } from '@/components/tools/ResultActions';
 
 const WAX_SIZE_IDS = ['wax-300', 'wax-500'] as const;
 
-export function SwitchCalculator({ profile }: { profile: ToolProfileState }) {
+export function SwitchCalculator({ profile, compact }: { profile: ToolProfileState; compact?: boolean }) {
   const { t, lang } = useLanguage();
   const de = lang === 'de';
   const eur = (n: number) => new Intl.NumberFormat(de ? 'de-DE' : 'en-US', {
@@ -116,7 +116,7 @@ export function SwitchCalculator({ profile }: { profile: ToolProfileState }) {
               );
             })}
           </ChipRow>
-          <StepNote>{t.tools.switch.waxSizeNote}</StepNote>
+          {!compact && <StepNote>{t.tools.switch.waxSizeNote}</StepNote>}
           <ul className="flex flex-col gap-1.5 mt-1">
             {startItems.map(i => (
               <li key={i.label} className="flex items-baseline justify-between gap-3">
@@ -136,35 +136,37 @@ export function SwitchCalculator({ profile }: { profile: ToolProfileState }) {
           </ul>
         </StepField>
 
-        {/* Die volle Jahresrechnung statt nur des Schmierstoff-Vergleichs:
-            Kette und Kassette sprechen fuer Wachs, der Schmierstoff dagegen —
-            vorher stand nur die Schmierstoffzeile hier, und das ist die eine
-            Zeile, in der Wachs verliert. */}
-        <StepField
-          step={2}
-          label={de ? 'Was es dich im Jahr kostet' : 'What it costs you per year'}
-          help={de
-            ? 'Ergibt sich aus deinem Fahrprofil oben. Mehr Kilometer und härtere Bedingungen heißen öfter wachsen — und gleichzeitig größere Ersparnis, weil geölte Ketten dort am schnellsten verschleißen.'
-            : 'Comes from your riding profile above. More kilometres and harsher conditions mean waxing more often — and a bigger saving, because oiled chains wear fastest there.'}
-        >
-          <div className="grid grid-cols-[auto_1fr_1fr] gap-x-3 gap-y-1.5 items-baseline">
-            <span />
-            <span className="text-meta text-right" style={{ color: 'var(--txff)' }}>{de ? 'Öl' : 'Oil'}</span>
-            <span className="text-meta text-right" style={{ color: 'var(--brand)' }}>{de ? 'Wachs' : 'Wax'}</span>
+        {/* Die volle Jahresrechnung: Kette und Kassette sprechen fuer Wachs, der
+            Schmierstoff dagegen. Im Stapel (compact) ganz weg — die Detailtabelle
+            steht auf /rechner/umstieg, und die zwei Balken im Ergebnis zeigen
+            Öl gegen Wachs ohnehin. */}
+        {!compact && (
+          <StepField
+            step={2}
+            label={de ? 'Was es dich im Jahr kostet' : 'What it costs you per year'}
+            help={de
+              ? 'Ergibt sich aus deinem Fahrprofil oben. Mehr Kilometer und härtere Bedingungen heißen öfter wachsen — und gleichzeitig größere Ersparnis, weil geölte Ketten dort am schnellsten verschleißen.'
+              : 'Comes from your riding profile above. More kilometres and harsher conditions mean waxing more often — and a bigger saving, because oiled chains wear fastest there.'}
+          >
+            <div className="grid grid-cols-[auto_1fr_1fr] gap-x-3 gap-y-1.5 items-baseline">
+              <span />
+              <span className="text-meta text-right" style={{ color: 'var(--txff)' }}>{de ? 'Öl' : 'Oil'}</span>
+              <span className="text-meta text-right" style={{ color: 'var(--brand)' }}>{de ? 'Wachs' : 'Wax'}</span>
 
-            <span className="text-[13px]" style={{ color: 'var(--txf)' }}>{t.tools.switch.breakdownChain}</span>
-            <span className="text-[13px] text-right tabular-nums" style={{ color: 'var(--tx2)' }}>{eur(costs.breakdown.chain.oil)}</span>
-            <span className="text-[13px] text-right font-medium tabular-nums" style={{ color: 'var(--tx2)' }}>{eur(costs.breakdown.chain.wax)}</span>
+              <span className="text-[13px]" style={{ color: 'var(--txf)' }}>{t.tools.switch.breakdownChain}</span>
+              <span className="text-[13px] text-right tabular-nums" style={{ color: 'var(--tx2)' }}>{eur(costs.breakdown.chain.oil)}</span>
+              <span className="text-[13px] text-right font-medium tabular-nums" style={{ color: 'var(--tx2)' }}>{eur(costs.breakdown.chain.wax)}</span>
 
-            <span className="text-[13px]" style={{ color: 'var(--txf)' }}>{t.tools.switch.breakdownCassette}</span>
-            <span className="text-[13px] text-right tabular-nums" style={{ color: 'var(--tx2)' }}>{eur(costs.breakdown.cassette.oil)}</span>
-            <span className="text-[13px] text-right font-medium tabular-nums" style={{ color: 'var(--tx2)' }}>{eur(costs.breakdown.cassette.wax)}</span>
+              <span className="text-[13px]" style={{ color: 'var(--txf)' }}>{t.tools.switch.breakdownCassette}</span>
+              <span className="text-[13px] text-right tabular-nums" style={{ color: 'var(--tx2)' }}>{eur(costs.breakdown.cassette.oil)}</span>
+              <span className="text-[13px] text-right font-medium tabular-nums" style={{ color: 'var(--tx2)' }}>{eur(costs.breakdown.cassette.wax)}</span>
 
-            <span className="text-[13px]" style={{ color: 'var(--txf)' }}>{t.tools.switch.breakdownLube}</span>
-            <span className="text-[13px] text-right tabular-nums" style={{ color: 'var(--tx2)' }}>{eur(costs.breakdown.lube.oil)}</span>
-            <span className="text-[13px] text-right font-medium tabular-nums" style={{ color: 'var(--txm)' }}>+{eur(costs.breakdown.lube.wax)}</span>
-          </div>
-        </StepField>
+              <span className="text-[13px]" style={{ color: 'var(--txf)' }}>{t.tools.switch.breakdownLube}</span>
+              <span className="text-[13px] text-right tabular-nums" style={{ color: 'var(--tx2)' }}>{eur(costs.breakdown.lube.oil)}</span>
+              <span className="text-[13px] text-right font-medium tabular-nums" style={{ color: 'var(--txm)' }}>+{eur(costs.breakdown.lube.wax)}</span>
+            </div>
+          </StepField>
+        )}
 
         {/* Alle Zusatzhinweise an einer Stelle statt an drei — die haeufigste
             Stolperfalle beim Umstieg (Fabrikfett/Altoel blockiert das Wachs),
