@@ -28,6 +28,37 @@ die Startseite.
 - Struktierte Daten gegen `validator.schema.org` geprüft: 0 Fehler auf Start,
   Produkt, Rechner, Blog.
 
+**2026-09-10 · Zweiter Durchgang: Performance + Bedienbarkeit** (Commits
+`bf2ae6e`, `88d7f0e`, `9991f63`, live + gemessen). Grundlage war eine echte
+Lighthouse-Mobilmessung, keine Vermutung.
+
+| | vorher | nachher |
+|---|---|---|
+| Startseite Performance | 87 | **88–89** |
+| Startseite Accessibility | 94 | **100** |
+| Startseite LCP | 3,7 s | **3,4 s** |
+| Produktseite Accessibility | 96 | **100** |
+| Best Practices / SEO (beide Seiten) | 100 | 100 |
+
+- Das Hero-Wachsbild ist auf dem Handy das Bild, auf das Google die Ladezeit
+  misst. Es liegt jetzt als AVIF vor: **135 KB → 62 KB**, und dabei sogar
+  näher am Original als die alte Fassung. Sichtbar ändert sich nichts.
+- Das Logo im Footer war ein 65-KB-Bild, angezeigt in 40 px Höhe, und lief auf
+  **jeder** Seite mit. Jetzt 5 KB.
+- Dein Foto in „Über mich" (70 KB) wurde sofort geladen, obwohl der Abschnitt
+  erst weit unten kommt. Lädt jetzt erst beim Hinscrollen.
+- **Zwei echte Bedienfehler gefunden und behoben:** die kleinen Punkte unter
+  den Rechnern und die Striche unter der Produktgalerie hatten sich
+  überlappende Tippflächen — wer zwischen zwei Punkte tippte, landete auf dem
+  falschen. Beide sind jetzt richtige 24-px-Ziele. Optisch stehen die Punkte
+  etwas luftiger, sonst unverändert.
+- Ein Textfeld im Rechner-Bereich war zu blass für die Lesbarkeitsnorm
+  (3,1:1 statt 4,5:1) — korrigiert.
+- Die Startseite hatte zwei Überschriften ersten Grades im Code, beide nur mit
+  „Am Ende der Recherche.". **Der Slogan bleibt sichtbar exakt so stehen**;
+  daneben liegt jetzt eine für Besucher unsichtbare Überschrift, die Google
+  und Vorlesesoftware sagt, worum es geht.
+
 ---
 
 # TEIL 1 — Die neuen Rechner-Seiten anmelden
@@ -167,6 +198,25 @@ Kurze Antworten reichen, im Chat. Nichts davon blockiert Teil 1–3.
 - [ ] **Weitere Konzept-Punkte** aus `docs/plaene/RECHNER_SICHTBARKEIT.md` §2
       (HowTo-Schema, kontextuelle Links in einzelnen Blog-Artikeln) — kleiner
       Rest, auf Zuruf.
+- [ ] **Produktseite schneller machen** (gemessen 10.09.2026, der größte
+      offene Performance-Posten). Drei Sachen, alle von Claude machbar, aber
+      als eigener Durchgang mit Sichtprüfung:
+      1. Die Galerie stapelt alle sechs Fotos übereinander. Dadurch lädt der
+         Browser **alle sechs sofort (~555 KB)**, obwohl nur eines zu sehen
+         ist — das ist der Hauptgrund, warum die Produktseite je nach Lauf
+         zwischen 3,3 s und 5,7 s Ladezeit schwankt. Fix ist machbar, berührt
+         aber die Überblend-Logik, deshalb nicht nebenbei.
+      2. `hg701.webp` (203 KB) und `ybn11.webp` (116 KB) liegen mit 1400 px
+         Breite in kleinen Empfehlungs-Kacheln — zusammen ~300 KB umsonst.
+      3. AVIF auch für die zwölf Produktfotos (classic-1…6, pro-1…6). Spart
+         nochmal grob ein Drittel.
+- [ ] **Überschrift auf `/wissenschaft` und `/starter-set`** — dort steht als
+      Hauptüberschrift „Ein messbarer Unterschied." bzw. „Alles da, beim
+      ersten Mal.". Das sind Slogans, keine Beschreibungen; für Google sagen
+      sie nichts über das Thema. Auf der Startseite hat Claude das gelöst,
+      **ohne den sichtbaren Text anzufassen** (unsichtbare Zweitüberschrift).
+      Dasselbe hier — oder du gibst neue sichtbare Überschriften vor. **Deine
+      Entscheidung, sag Bescheid.**
 
 ---
 

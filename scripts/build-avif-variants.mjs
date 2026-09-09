@@ -45,8 +45,13 @@ const AVIF_JOBS = [
   // Zweitgroesster Bildposten der Startseite (Ueber-mich-Sektion), seit
   // 09/2026 zusaetzlich lazy — siehe Kommentar in src/sections/about.tsx.
   { src: 'people/luca-stage.webp', out: 'people/luca-stage.avif' },
-  { src: 'hero/chain-bg.webp', out: 'hero/chain-bg.avif' },
-  { src: 'hero/chain-weave-mobile.webp', out: 'hero/chain-weave-mobile.avif' },
+  // BEWUSST NICHT dabei: hero/chain-bg.webp und hero/chain-weave-mobile.webp.
+  // Gemessen bringt AVIF dort nur 6-7 % (46,5 -> 43,6 KB bzw. 43,3 -> 40,3 KB),
+  // weil beide WebP bereits gut komprimiert sind. Das waere ein zusaetzlicher
+  // <source> plus eine Entscheidung am preload — beide Dateien haengen mit
+  // fetchpriority=high am Hero-Hintergrund, und ein AVIF-preload nimmt
+  // Browsern ohne AVIF-Unterstuetzung den preload fuer das Hintergrundbild
+  // weg. Fuer 3 KB ist das der falsche Tausch.
   // Regal-Sektion — zwei Breiten je Motiv, passend zum vorhandenen srcset
   // in src/sections/ProductShelf.tsx.
   ...['wax-classic', 'wax-pro', 'shelf-set', 'shelf-ketten', 'shelf-rewax'].flatMap(n => [
