@@ -129,6 +129,38 @@
 .cta-brand-pulse:hover { animation-play-state: paused; }
 @media (prefers-reduced-motion: reduce) { .cta-brand-pulse { animation: none; } }
 
+/* .nav-on-hero — die fixe Header-Leiste wird transparent, waehrend sie ueber
+   dem v3-Mobile-Hero (< 640px, siehe hero-light.tsx) schwebt: der ist jetzt
+   randlos und beginnt bei y=0, direkt unter der Leiste liegt sein dunkles
+   Foto statt der Seitenfarbe. navigation.tsx setzt die Klasse nur, wenn
+   `onHome && !scrolled` — jede Unterseite und jeder gescrollte Zustand bleibt
+   unangetastet.
+   `!important` hier ist kein Bug: <header> setzt background/box-shadow/
+   backdrop-filter als Inline-Style, und Inline-Styles gewinnen normalerweise
+   gegen jede Regel aus einem Stylesheet — ausser eine Regel dort ist als
+   `!important` markiert (CSS-Spezifikation, kein Tailwind-Spezialfall). Ohne
+   das haette diese Klasse schlicht keine Wirkung gehabt.
+   Media-Query statt einer Breitenpruefung in JS: der Hamburger-Button ist
+   `lg:hidden`, also bis 1023px sichtbar — bei 640-1023px sitzt aber der
+   GEPOLSTERTE Desktop-Hero darunter (Seitenfarbe, nicht das Foto), da darf
+   die Leiste NICHT transparent werden. Die Media Query allein entscheidet
+   das, nicht zusaetzlicher JS-Zustand. */
+@media (max-width: 639px) {
+  header.nav-on-hero {
+    background: transparent !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  /* Hamburger-Icon: sonst var(--tx2), auf dem dunklen Foto unsichtbar/kaum
+     lesbar in beiden Themes. Das Logo daneben (WaxcelerateMark) braucht
+     keine Anpassung — es ist als weisser Sticker mit schwarzer Innenzeichnung
+     gebaut und liest sich bereits auf jedem Untergrund. */
+  header.nav-on-hero #mobile-menu-button {
+    color: #fff !important;
+  }
+}
+
 /* Header logo mark.
 
    1) Drop shadow instead of relying on the white rim stroke alone: the
@@ -387,11 +419,6 @@
     --input: 0 0% 84%;
     --ring: 220 58% 27%;
     --radius: 0.75rem;
-    /* Der eine Flaechenradius des Mobile-Hero (< 640px). Themeunabhaengig,
-       deshalb nur hier und nicht noch einmal im .noir-Block. Das Bildpanel
-       traegt ihn auf allen VIER Ecken — vorher lagen 22px auf den oberen
-       zweien und die unteren steckten unter einer clip-path-Diagonale. */
-    --r-hero-m: 24px;
     /* Legacy aliases → single accent (kept so existing var(--brand) refs unify) */
     --brand:       var(--accent);
     --brand-hover: var(--accent-soft);
@@ -612,11 +639,9 @@
 #home.hero-editorial h3, #home.hero-editorial h4 {
   color: #fff !important;
 }
-/* Ausnahme: die Mobile-Hero-Headline sitzt unter dem Bildpanel auf der hellen
-   Seitenflaeche (var(--pg)), nicht auf dem Foto — in Light also dunkel. Der
-   "Waxcelerate"-Schriftzug IM Panel bleibt weiss (ist ein <span>, keine
-   Ueberschrift, also von den Regeln oben ohnehin nicht erfasst). */
-:root:not(.noir) #home.hero-editorial .hero-content-m h1 { color: var(--tx1) !important; }
+/* Der v3-Mobile-Hero (< 640px) sitzt jetzt wie der Desktop-Hero randlos auf
+   dem Foto, nicht mehr auf der hellen Seitenflaeche — die H1 braucht also
+   keine Light-Mode-Ausnahme mehr und erbt einfach #fff von der Regel oben. */
 
 /* Origin section (src/sections/Origin.tsx) — the one deliberate dark
    full-bleed break on an otherwise light homepage. Same fix as #home above:
@@ -793,85 +818,49 @@
   background: linear-gradient(to top, rgba(var(--scrim-rgb),0.60) 4%, rgba(var(--scrim-rgb),0.30) 34%, transparent 100%);
 }
 
-/* ===== MOBILE-HERO (< 640px) — Editorial Object Card, ein Screen =====
-   Querformat-Bildpanel mit vier gleichen Ecken und sauberer waagerechter
-   Unterkante, die der Wachsblock durchbricht; darunter die knappe Textzone auf
-   var(--pg). Alles in einer Bildschirmhoehe. Markup: .sm:hidden-Zweig in
-   hero-light.tsx.
+/* ===== MOBILE-HERO (< 640px) — Vollbild-Fotografie =====
+   v3 (09/2026): ein einziges Foto traegt den gesamten Hero randlos, kein
+   Panel/Radius/clip-path/Freisteller/Maske mehr — siehe den ausfuehrlichen
+   Kommentar am .sm:hidden-Zweig in hero-light.tsx. Fast alle Groessen dort
+   sind entweder Tailwind-Utilities oder inline `clamp(...svh...)`, direkt an
+   der Stelle, wo sie gebraucht werden — fuer ein komplett neu gebautes,
+   einmaliges Layout ist eine eigene CSS-Klasse pro Wert nur eine
+   Verweisebene ohne Nutzen. Bleiben hier nur zwei Dinge, die eine externe
+   Regel wirklich brauchen: .hero-cover-frame (Layout-Trick, siehe unten) und
+   die Mobile-Verkleinerung von .hero-eyebrow (auch vom Desktop-Hero benutzt,
+   die Regel existierte schon vor v3).
 
-   Bis 09/2026 lief die Panelunterkante als clip-path-Diagonale (ein Dreieck in
-   Seitenfarbe ueber dem Bild). Die ist ersatzlos weg: sie endete in zwei
-   ungestalteten Spitzen — einem spitzen Keil unten links und einem harten Knick
-   auf halber Hoehe der rechten Kante —, trat auf ihrer flachen Schraege sichtbar
-   (clip-path-Kanten ueber einer kompositierten Foto+Grain-Ebene werden in
-   Chromium schlecht kantengeglaettet) und stand ausserdem quer zum
-   Kettengeflecht im Foto, das bei ca. +20 Grad liegt. Der Ueberstand des Blocks
-   ueber eine saubere Kante leistet dasselbe, ohne eine einzige neue Ecke. */
+   WICHTIG: hier NIE eine `max-height`-Media-Query einfuehren. Genau das
+   verursachte den fruehen Bug "beim Scrollen wird ploetzlich alles groesser"
+   (ein `@media (max-width: 639px) and (max-height: 740px)`-Block sprang beim
+   Einfahren der mobilen Adressleiste in einen zweiten, groesseren Werte-Satz).
+   `svh` aendert sich per Definition NICHT, wenn die Adressleiste ein-/
+   ausfaehrt (im Gegensatz zu `vh`/`dvh`) — jede geraetehoehenabhaengige Zahl
+   im Mobile-Hero gehoert deshalb in ein durchgehendes `clamp(...svh...)`,
+   nie in einen zweiten `max-height`-Zweig. */
 @media (max-width: 639px) {
-  /* WICHTIG: hier NIE eine `max-height`-Media-Query einfuehren. Genau das
-     verursachte den gemeldeten Bug ("beim Scrollen wird ploetzlich alles
-     groesser"): ein zusaetzlicher `@media (max-width: 639px) and
-     (max-height: 740px)`-Block setzte Blockgroesse, Panelhoehe, H1, Value-Zeile
-     und CTA-Abstand neu. Faehrt beim Scrollen die Adressleiste des mobilen
-     Browsers ein, wird der Viewport hoeher als 740px, die Query greift nicht
-     mehr, und ALLE ihre Werte springen gleichzeitig in den groesseren Zweig —
-     das war der Sprung. `svh` (small viewport height) aendert sich per
-     Definition NICHT, wenn die Adressleiste ein-/ausfaehrt (im Gegensatz zu
-     `vh`/`dvh`), deshalb reicht hier durchgehendes `clamp()` mit `svh` als
-     Mitte, ohne je zwei diskrete Zweige gegeneinander springen zu lassen.
-
-     --hero-block-w ist die EINE Quelle fuer Blockgroesse UND den Abstand der
-     Textzone darunter (siehe .hero-content-m). */
-  :root { --hero-block-w: clamp(138px, 24svh, 216px); }
-  .hero-panel-m {
-    height: clamp(160px, 28svh, 268px);
-    overflow: visible;
-  }
-
-  /* Wachsblock: horizontal zentriert und exakt 36 % der EIGENEN Hoehe unter die
-     Panelkante gesetzt. Prozente in translate loesen gegen die Elementgroesse
-     auf, nicht gegen die Panelhoehe — nur deshalb ist das Ueberstandsverhaeltnis
-     auf jedem Geraet gleich. Beides steht hier komplett, damit es nur eine
-     Quelle fuer transform gibt (am <button> kein -translate-x-1/2 mehr). */
-  .hero-block-m {
-    width: var(--hero-block-w);
-    left: 50%;
-    top: auto;
-    bottom: 0;
-    transform: translate(-50%, 36%);
-  }
-
-  /* Headline — grosse Editorial-Buehne, luftige Zeilen (lh via Inline-Style).
-     svh statt vw: skaliert mit der Bildschirmhoehe (das ist, was hier knapp
-     ist), aendert sich aber nicht, wenn die Adressleiste einfaehrt. */
-  .hero-h1-m { font-size: clamp(1.95rem, 8.5svh, 3rem); }
-
-  /* Value-Zeile: ruhig, kein Feature-Katalog. Dunkler als Eyebrow (Inline). */
-  .hero-value-m { font-size: clamp(0.82rem, 3.4svh, 0.98rem); line-height: 1.5; max-width: 30ch; }
-
-  /* Textzone: von oben (justify-start), damit der Abstand Block -> Eyebrow
-     exakt steuerbar ist. padding-top = Blockueberstand + gestalteter Abstand,
-     aus derselben --hero-block-w gerechnet wie der Block selbst. Der Block ist
-     nahezu quadratisch (aspect-ratio 837/844), Breite also gleich Hoehe. */
-  .hero-content-m {
-    justify-content: flex-start;
-    row-gap: clamp(0.5rem, 1.3svh, 0.7rem);
-    padding-top: calc(0.36 * var(--hero-block-w) + 1.75rem);
-  }
-  /* Eyebrow und Headline gehoeren zusammen -> engerer Abstand als der Rest. */
-  .hero-eyebrow-row { margin-bottom: -0.15rem; }
-  /* Bewusste Zaesur vor dem CTA. */
-  .hero-cta-m {
-    margin-top: clamp(0.15rem, 1svh, 0.7rem);
-    padding-top: clamp(12px, 3svh, 16px);
-    padding-bottom: clamp(12px, 3svh, 16px);
-  }
-  .hero-meta-m { margin-top: 0.2rem; }
-
   .hero-eyebrow {
     font-size: clamp(10.5px, 2.95vw, 11.5px) !important;
     letter-spacing: 0.05em !important;
   }
+}
+
+/* .hero-cover-frame — bildet die object-cover-Geometrie eines vollflaechigen
+   <img> auf ein GESCHWISTER-Element nach, damit prozentual positionierte
+   Kinder (hier: die "Blick ins Wachs"-Trefferflaeche) unabhaengig vom
+   Geraete-Seitenverhaeltnis auf demselben Bildpunkt landen wie im echten Foto
+   — nicht auf einem je nach Zuschnitt verschobenen Punkt (das war der Fehler
+   in einer fruehen Fassung dieses Hero, siehe Projekt-Memory: "Block in
+   Prozent der Karte positionieren"). Flexbox zentriert einen Kasten mit
+   fixem aspect-ratio UND min-width/min-height:100% — der Browser loest das
+   exakt so auf, wie er object-fit:cover selbst berechnet (die staerkere der
+   beiden Mindestanforderungen gewinnt), komplett ohne JavaScript oder
+   Resize-Listener. */
+.hero-cover-frame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
 /* .hero-chain-clip: bis v2 fuer die Mobile-Diagonale genutzt. Die Nachfolgerin

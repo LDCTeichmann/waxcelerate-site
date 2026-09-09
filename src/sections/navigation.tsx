@@ -83,6 +83,27 @@ export function Navigation() {
   const location = useLocation();
   const onHome = location.pathname === '/';
   const activeSection = useActiveSection(navItems.filter(i => !i.route).map(i => i.href));
+
+  // heroTransparent: nur auf der Startseite und nur ganz oben. Der v3-
+  // Mobile-Hero (hero-light.tsx) ist jetzt randlos und beginnt bei y=0, die
+  // fixe Leiste schwebt also direkt ueber dessen dunklem Foto — dafuer wird
+  // sie hier transparent und faerbt sich beim Runterscrollen ein. `scrolled`
+  // startet als `false` (= Leiste opak), das ist zugleich exakt der Zustand
+  // des vorgerenderten statischen HTML (kein Scroll passiert vor React) und
+  // bei einem echten Ladevorgang oben auf der Seite ohnehin korrekt — kein
+  // Hydration-Flackern moeglich. Nur die eine `useEffect`-Grenze steuert den
+  // Wechsel, ausschliesslich per CSS-Klasse mit `!important` in index.css
+  // (Grund siehe Kommentar dort): der `<header>` setzt background/box-shadow
+  // sonst inline, und Inline-Styles gewinnen normalerweise gegen jede externe
+  // Regel — ausser `!important`.
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+  const heroTransparent = onHome && !scrolled;
   const isActive = (item: { href: string; route?: boolean }) =>
     item.route ? location.pathname === item.href : activeSection === item.href;
   const resourcesActive = resourceNavItems.some(isActive);
@@ -187,7 +208,7 @@ export function Navigation() {
       </a>
       {/* ── Header bar ── */}
       <header
-        className="fixed top-0 left-0 right-0 z-50 py-2 transition-all duration-300"
+        className={`fixed top-0 left-0 right-0 z-50 py-2 transition-all duration-300${heroTransparent ? ' nav-on-hero' : ''}`}
         style={{
           background: 'var(--nav-bg)',
           boxShadow: 'inset 0 -1px 0 var(--bd)',

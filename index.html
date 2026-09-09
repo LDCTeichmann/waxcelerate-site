@@ -49,19 +49,19 @@
     <link rel="manifest" href="/manifest.json" />
     <link rel="alternate" type="text/plain" title="LLMs.txt" href="/llms.txt" />
     <meta name="theme-color" content="#090909" />
-    <!-- Nur fuer die Startseite korrekt: das LCP-Bildpaar des Hero ist je nach
-         Breakpoint hero-mobile.webp + wax-cutout-soft.webp (< 640px) bzw.
-         chain-bg.webp + wax-cutout.webp (>= 640px). Diese Datei ist die Huelle
-         fuer JEDE Unterseite (scripts/lib/prerender.mjs), stripHead() entfernt
-         diese Zeilen dort deshalb wieder und jedes Prerender-Skript setzt sein
+    <!-- Nur fuer die Startseite korrekt: das LCP-Bild des Hero ist je nach
+         Breakpoint chain-bg-mobile.webp (< 640px, v3-Mobile-Hero: ein
+         Vollbildfoto, kein zweites Freisteller-Bild mehr) bzw. chain-bg.webp
+         + wax-cutout.webp (>= 640px). Diese Datei ist die Huelle fuer JEDE
+         Unterseite (scripts/lib/prerender.mjs), stripHead() entfernt diese
+         Zeilen dort deshalb wieder und jedes Prerender-Skript setzt sein
          eigenes, seitenspezifisches Preload-Paar. Vorher liefen die Hero-
          Preloads unveraendert auf allen ~40 Routen mit und zogen dem jeweils
          echten LCP-Bild auf gedrosseltem Mobilfunk rund 394 KB Bandbreite ab
          (Audit vom 05.08.2026, performance-audit/AUDIT_REPORT.md Problem 1).
          fetchpriority="high" zusaetzlich zu rel="preload", weil Lighthouses
          lcp-discovery-insight beides einzeln prueft. -->
-    <link rel="preload" as="image" href="/images/hero/hero-mobile.webp" type="image/webp" media="(max-width: 639px)" fetchpriority="high" />
-    <link rel="preload" as="image" href="/images/hero/wax-cutout-soft.webp" type="image/webp" media="(max-width: 639px)" fetchpriority="high" />
+    <link rel="preload" as="image" href="/images/hero/chain-bg-mobile.webp" type="image/webp" media="(max-width: 639px)" fetchpriority="high" />
     <link rel="preload" as="image" href="/images/hero/chain-bg.webp" type="image/webp" media="(min-width: 640px)" fetchpriority="high" />
     <link rel="preload" as="image" href="/images/hero/wax-cutout.webp" type="image/webp" media="(min-width: 640px)" fetchpriority="high" />
     <!-- Prevent theme flash: apply saved class before React mounts -->
