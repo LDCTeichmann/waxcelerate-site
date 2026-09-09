@@ -152,12 +152,16 @@
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
   }
-  /* Hamburger-Icon: sonst var(--tx2), auf dem dunklen Foto unsichtbar/kaum
-     lesbar in beiden Themes. Das Logo daneben (WaxcelerateMark) braucht
-     keine Anpassung — es ist als weisser Sticker mit schwarzer Innenzeichnung
-     gebaut und liest sich bereits auf jedem Untergrund. */
-  header.nav-on-hero #mobile-menu-button {
+  /* Hamburger-Icon und Wortmarke: sonst var(--tx2) bzw. var(--tx1), auf dem
+     dunklen Foto in Light unsichtbar. Das Zeichen daneben
+     (WaxcelerateMark) braucht keine Anpassung — es ist als weisser Sticker
+     mit schwarzer Innenzeichnung gebaut und liest sich auf jedem Untergrund. */
+  header.nav-on-hero #mobile-menu-button,
+  header.nav-on-hero .wx-logo-wordmark {
     color: #fff !important;
+  }
+  header.nav-on-hero .wx-logo-wordmark {
+    text-shadow: 0 1px 3px rgba(0,0,0,0.45), 0 2px 10px rgba(0,0,0,0.35);
   }
 }
 
@@ -818,20 +822,21 @@
   background: linear-gradient(to top, rgba(var(--scrim-rgb),0.60) 4%, rgba(var(--scrim-rgb),0.30) 34%, transparent 100%);
 }
 
-/* ===== MOBILE-HERO (< 640px) — Vollbild-Fotografie =====
-   v3 (09/2026): ein einziges Foto traegt den gesamten Hero randlos, kein
-   Panel/Radius/clip-path/Freisteller/Maske mehr — siehe den ausfuehrlichen
-   Kommentar am .sm:hidden-Zweig in hero-light.tsx. Fast alle Groessen dort
-   sind entweder Tailwind-Utilities oder inline `clamp(...svh...)`, direkt an
-   der Stelle, wo sie gebraucht werden — fuer ein komplett neu gebautes,
-   einmaliges Layout ist eine eigene CSS-Klasse pro Wert nur eine
-   Verweisebene ohne Nutzen. Bleiben hier nur zwei Dinge, die eine externe
-   Regel wirklich brauchen: .hero-cover-frame (Layout-Trick, siehe unten) und
-   die Mobile-Verkleinerung von .hero-eyebrow (auch vom Desktop-Hero benutzt,
-   die Regel existierte schon vor v3).
+/* ===== MOBILE-HERO (< 640px) — Hochkant-Fassung des Desktop-Heros =====
+   v4 (09/2026): Kettenfoto randlos im Hintergrund, freigestellter Wachsblock
+   als eigene Ebene davor — siehe den ausfuehrlichen Kommentar am
+   .sm:hidden-Zweig in hero-light.tsx. Fast alle Groessen dort sind entweder
+   Tailwind-Utilities oder inline `clamp(...svh...)`, direkt an der Stelle,
+   wo sie gebraucht werden; eine eigene CSS-Klasse pro Wert waere fuer ein
+   einmaliges Layout nur eine Verweisebene ohne Nutzen. Hier stehen deshalb
+   nur die zwei Dinge, die eine externe Regel wirklich brauchen: die
+   Blockplatzierung (Prozentwerte in `transform` loesen gegen die EIGENE
+   Elementgroesse auf, das geht in Tailwind nicht sauber) und die
+   Mobile-Verkleinerung von .hero-eyebrow (die auch der Desktop-Hero benutzt,
+   die Regel ist aelter als dieser Umbau).
 
    WICHTIG: hier NIE eine `max-height`-Media-Query einfuehren. Genau das
-   verursachte den fruehen Bug "beim Scrollen wird ploetzlich alles groesser"
+   verursachte den Bug "beim Scrollen wird ploetzlich alles groesser"
    (ein `@media (max-width: 639px) and (max-height: 740px)`-Block sprang beim
    Einfahren der mobilen Adressleiste in einen zweiten, groesseren Werte-Satz).
    `svh` aendert sich per Definition NICHT, wenn die Adressleiste ein-/
@@ -839,28 +844,23 @@
    im Mobile-Hero gehoert deshalb in ein durchgehendes `clamp(...svh...)`,
    nie in einen zweiten `max-height`-Zweig. */
 @media (max-width: 639px) {
+  /* Wachsblock: horizontal zentriert, Mittelpunkt auf 57 % der Bildschirm-
+     hoehe — also in der Zone, in der das Kettengeflecht am dichtesten ist,
+     mit Luft nach oben zur Headline und nach unten zum CTA. Breite in svh,
+     damit er auf kurzen Geraeten mitschrumpft statt in die Textzonen zu
+     wachsen. Der ganze transform steht hier und nicht am <button>, damit es
+     nur EINE Quelle fuer diese Eigenschaft gibt. */
+  .hero-block-m {
+    width: clamp(180px, 27svh, 300px);
+    left: 50%;
+    top: 57%;
+    transform: translate(-50%, -50%);
+  }
+
   .hero-eyebrow {
     font-size: clamp(10.5px, 2.95vw, 11.5px) !important;
     letter-spacing: 0.05em !important;
   }
-}
-
-/* .hero-cover-frame — bildet die object-cover-Geometrie eines vollflaechigen
-   <img> auf ein GESCHWISTER-Element nach, damit prozentual positionierte
-   Kinder (hier: die "Blick ins Wachs"-Trefferflaeche) unabhaengig vom
-   Geraete-Seitenverhaeltnis auf demselben Bildpunkt landen wie im echten Foto
-   — nicht auf einem je nach Zuschnitt verschobenen Punkt (das war der Fehler
-   in einer fruehen Fassung dieses Hero, siehe Projekt-Memory: "Block in
-   Prozent der Karte positionieren"). Flexbox zentriert einen Kasten mit
-   fixem aspect-ratio UND min-width/min-height:100% — der Browser loest das
-   exakt so auf, wie er object-fit:cover selbst berechnet (die staerkere der
-   beiden Mindestanforderungen gewinnt), komplett ohne JavaScript oder
-   Resize-Listener. */
-.hero-cover-frame {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
 }
 
 /* .hero-chain-clip: bis v2 fuer die Mobile-Diagonale genutzt. Die Nachfolgerin

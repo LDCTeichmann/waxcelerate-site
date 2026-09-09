@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react';
-import { ArrowRight, ZoomIn } from 'lucide-react';
+import { ArrowRight, ZoomIn, Search } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
 import { WaxLensCutout } from '@/sections/hero/WaxLensCutout';
 import { waxLensEnabled } from '@/sections/hero/constants';
-import { waxVsOil } from '@/lib/data';
+import { waxVsOil, trustStats } from '@/lib/data';
+import { Stars } from '@/components/Stars';
 
 const WaxDive = lazy(() => import('@/sections/hero/WaxDive').then(m => ({ default: m.WaxDive })));
 
@@ -16,47 +17,35 @@ const WaxDive = lazy(() => import('@/sections/hero/WaxDive').then(m => ({ defaul
 // pattern-heavy part of the photo.
 const BG_POS = '48% 38%';
 
-// ===== TAUSCHPUNKT MOBILES VOLLBILDFOTO =====
-// v3 (09/2026): traegt den GESAMTEN Mobile-Hero randlos, kein Panel, kein
-// Freisteller, kein Scrim mehr. chain-bg-mobile ist 960x1707 (0,562), also
-// praktisch Handy-Seitenverhaeltnis — lag bis hierhin ungenutzt im Repo.
-// Gemessen (nicht geschaetzt), Kontrast fuer WEISSEN Text je Hoehenband —
-// rechts liegt ein Blattfragment, das bei voller Breite auf 6,2:1 einbricht,
-// deshalb pro Zeile ein eigenes max-w im Markup statt einer pauschalen Zahl:
-// Kopfzeile (Eyebrow-Hoehe) bleibt bis 95% Breite bei >=12,5:1, die Headline
-// zwei Zeilen tiefer (das Blatt reicht dort naeher heran) nur bis 88% Breite
-// bei >=7,2:1 — Fuss-/CTA-Baender sind durchgehend bei 9,5–18,8:1, dort ist
-// weder das Blatt noch der Block im Bild noch praesent. Deshalb kein
-// Verlauf/Scrim noetig. Anforderung an ein Ersatzbild: gleiche
-// Devise — ein Motiv MIT Wachsblock, dessen obere ~40% und untere ~20% dunkel
-// genug fuer weissen Text sind (>_ 7:1 gemessen, nicht geschaetzt), Rest darf
-// hell sein. Bei Bildtausch: Preload in index.html + Strip-Regex in
-// scripts/lib/prerender.mjs am Namen chain-bg-mobile.webp nachziehen, und die
-// Block-Trefferflaeche in BLOCK_HOTSPOT unten (per Farbsegmentierung
-// gemessene Bildanteile) neu bestimmen.
-const MOBILE_HERO_BG = '/images/hero/chain-bg-mobile.webp';
-const MOBILE_HERO_BG_FALLBACK = '/images/hero/chain-bg-mobile.jpg';
+// ===== TAUSCHPUNKT MOBILES HINTERGRUNDFOTO =====
+// v4 (09/2026): der Mobile-Hero ist die HOCHKANT-Fassung des Desktop-Heros —
+// Kettenfoto randlos im Hintergrund, der freigestellte Wachsblock scharf davor
+// als einziges Objekt im Fokus. v3 hatte stattdessen EIN Foto mit
+// eingebranntem Block; das konnte weder atmen noch einen Tap-Ripple tragen,
+// und ohne Kette im Bild las sich der blaue Block wie ein Stueck Seife.
+//
+// chain-weave-mobile ist aus "1 Chain.JPG" (2250x4000) exportiert und als
+// einziger Kandidat NATIV 9:16 — es muss also nicht beschnitten werden, die
+// Komposition sitzt dadurch auf jedem Geraeteverhaeltnis gleich.
+//
+// Rohkontrast ist bei diesem Bild der falsche Massstab: chain-bg.jpg, das der
+// Desktop-Hero benutzt, liegt roh bei 1,49:1 und liest sich trotzdem
+// einwandfrei, weil Blur + Scrim-Stapel darueberliegen. Mit demselben Rezept
+// (siehe Markup unten) gemessen: Eyebrow 14,5:1, Headline 6,1:1, CTA/Fuss
+// 14,9:1 — die Headline bekommt deshalb zusaetzlich ein eigenes lokales
+// Scrim. Anforderung an ein Ersatzbild: hochkant 9:16, Kette gross und
+// erkennbar, ruhige dunkle obere Haelfte fuer die Textzone.
+// Bei Bildtausch: Preload in index.html + Strip-Regex in
+// scripts/lib/prerender.mjs am Namen chain-weave-mobile.webp nachziehen.
+const MOBILE_HERO_BG = '/images/hero/chain-weave-mobile.webp';
+const MOBILE_HERO_BG_FALLBACK = '/images/hero/chain-weave-mobile.jpg';
 
-// Trefferflaeche fuer "Blick ins Wachs" auf dem Vollbildfoto, als Bildanteile
-// (per Farbsegmentierung gemessen, 2/98-Quantile: x 0,2208-0,7833, y
-// 0,4616-0,7803). Diese Bildanteile werden auf ein Element gemappt, das
-// exakt dieselbe object-cover-Geometrie wie das <img> nachbildet (siehe
-// .hero-cover-frame unten) — nur so landet der Hotspot unabhaengig vom
-// Geraete-Seitenverhaeltnis auf dem tatsaechlichen Block und nicht auf einem
-// je nach Zuschnitt verschobenen Punkt.
-const BLOCK_HOTSPOT = { left: 22.08, top: 46.16, width: 78.33 - 22.08, height: 78.03 - 46.16 };
-
-// Alle weissen Textzeilen im v3-Mobile-Hero tragen denselben leichten
-// Schatten. Gemessen (Canvas-Pixelsampling der tatsaechlich gerenderten
-// Fotoflaeche hinter dem jeweiligen Element, nicht der Quelldatei): bei
-// 375x667 faellt der Kontrast unter der Bildunterschrift auf 4,5:1 und unter
-// dem Schriftzug auf 5,18:1 — beides technisch noch WCAG-AA, aber naeher an
-// der Grenze als der Rest (9,3–18,8:1). Ein Schatten macht die Lesbarkeit
-// unabhaengig von der jeweiligen Bildstelle, ohne einen Verlauf/Scrim
-// einzufuehren — dieselbe Technik wie das "Blick ins Wachs"-Label in
-// WaxLensCutout.tsx (dort: textShadow, hier zusaetzlich als drop-shadow-
-// Filter fuers SVG, weil text-shadow auf <text> nicht in jedem Renderer
-// zuverlaessig greift).
+// Alle weissen Textzeilen im Mobile-Hero tragen denselben leichten Schatten.
+// Gemessen per Canvas-Pixelsampling der tatsaechlich gerenderten Fotoflaeche
+// (nicht der Quelldatei): einzelne Bildstellen fielen ohne ihn auf 4,5:1,
+// waehrend der Rest bei 9–18:1 lag. Der Schatten macht die Lesbarkeit
+// unabhaengig davon, was zufaellig hinter einer Zeile liegt — dieselbe
+// Technik wie das "Blick ins Wachs"-Label in WaxLensCutout.tsx.
 const HERO_TEXT_SHADOW = '0 1px 3px rgba(0,0,0,0.45), 0 2px 10px rgba(0,0,0,0.35)';
 
 
@@ -68,6 +57,15 @@ export function Hero() {
 
   const openDive = useCallback(() => setDiveOpen(true), []);
 
+  // Mobil: Tap auf den Block oeffnet WaxDive UND stoppt den Klick-Hinweis
+  // dauerhaft — er hat seinen Zweck erfuellt, sobald jemand einmal getippt hat.
+  const openDiveFromBlock = useCallback(() => {
+    mHintTlRef.current?.kill();
+    if (mRippleRef.current) gsap.set(mRippleRef.current, { autoAlpha: 0 });
+    if (mMagRef.current) gsap.set(mMagRef.current, { autoAlpha: 0 });
+    setDiveOpen(true);
+  }, []);
+
   const rootRef      = useRef<HTMLElement>(null);
   const cardRef      = useRef<HTMLDivElement>(null);
   const cardInnerRef = useRef<HTMLDivElement>(null);
@@ -78,6 +76,17 @@ export function Hero() {
   const hintRef    = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const ctaRef     = useRef<HTMLButtonElement>(null);
+  // Mobiler Wachsblock (< 640px). mBlockInnerRef ist der Motion-Wrapper
+  // (Wobble + Atmen) — getrennt vom positionierten <button>, dessen
+  // CSS-Zentrierung GSAP sonst ueberschreibt. mImgRef traegt das
+  // Hintergrundfoto fuer den Scroll-Parallax. mRippleRef/mMagRef sind der
+  // intermittierende Klick-Hinweis (Tap-Ripple + kurz aufblitzende Lupe),
+  // mHintTlRef haelt dessen Timeline, damit der erste echte Tap sie killt.
+  const mImgRef        = useRef<HTMLDivElement>(null);
+  const mBlockInnerRef = useRef<HTMLSpanElement>(null);
+  const mRippleRef     = useRef<HTMLSpanElement>(null);
+  const mMagRef        = useRef<HTMLSpanElement>(null);
+  const mHintTlRef     = useRef<gsap.core.Timeline | null>(null);
   // Holds the repeating "look, click here" nudge so the lens's own
   // onActiveChange can kill it the moment someone finds the real hotspot —
   // no point still nudging once they already have.
@@ -280,15 +289,74 @@ export function Hero() {
     };
   }, []);
 
+  // Mobiler Wachsblock (< 640px): dieselbe "lebendige" Bewegung wie der
+  // Desktop-Block — Rotation-Wobble + Scale-Breathe auf dem Motion-Wrapper.
+  // Rotation und Scale sind getrennte GSAP-Transformkomponenten, komponieren
+  // also konfliktfrei auf demselben Element. matchMedia-gated, damit die
+  // Tweens auf Desktop gar nicht erst laufen. prefers-reduced-motion ->
+  // alles statisch.
+  //
+  // Dazu der Klick-Hinweis, den Luca ausdruecklich zurueckhaben wollte: alle
+  // ~6 s dehnt sich ein weicher Tap-Ripple und eine kleine Lupe blitzt ~1,4 s
+  // an derselben Stelle auf. Der erste echte Tap killt die Timeline dauerhaft
+  // (siehe openDiveFromBlock). Kein Dauer-Glow — nur dieser eine, endliche
+  // Hinweis.
+  //
+  // Zusaetzlich der Scroll-Parallax: das Kettenfoto driftet langsamer als der
+  // Block darueber. Dasselbe Muster wie der Desktop-Hero (ScrollTrigger-Scrub
+  // auf yPercent), nur getrennt getriggert, weil hier zwei Ebenen mit
+  // UNTERSCHIEDLICHER Geschwindigkeit laufen sollen — daraus entsteht die
+  // Tiefenwirkung.
+  useEffect(() => {
+    const inner  = mBlockInnerRef.current;
+    const ripple = mRippleRef.current;
+    const mag    = mMagRef.current;
+    const img    = mImgRef.current;
+    const root   = rootRef.current;
+    if (!inner) return;
+    if (!window.matchMedia('(max-width: 639px)').matches) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const wobble = gsap.to(inner, { rotation: 1.2, duration: 3.6, ease: 'sine.inOut', yoyo: true, repeat: -1 });
+    const breathe = gsap.to(inner, { scale: 1.045, duration: 1.9, ease: 'sine.inOut', yoyo: true, repeat: -1, delay: 2.5 });
+
+    // Parallax: Foto 12 %, Block 4 % — die Differenz ist der Tiefeneindruck.
+    // Der Block laeuft auf dem <button> (mBlockRef waere ein zweiter
+    // transform-Schreiber auf inner, wo schon Wobble und Atmen sitzen).
+    const triggers: ScrollTrigger[] = [];
+    const scrub = (animation: gsap.core.Tween) => {
+      if (!root) return;
+      triggers.push(ScrollTrigger.create({ trigger: root, start: 'top top', end: 'bottom top', scrub: true, animation }));
+    };
+    if (img) scrub(gsap.to(img, { yPercent: 12, ease: 'none' }));
+
+    let hintTl: gsap.core.Timeline | undefined;
+    if (ripple && mag) {
+      gsap.set(ripple, { autoAlpha: 0, scale: 0.35, transformOrigin: '50% 50%' });
+      gsap.set(mag, { autoAlpha: 0, scale: 0.8, y: 4 });
+      hintTl = gsap.timeline({ repeat: -1, repeatDelay: 4.6, delay: 2.2 });
+      hintTl
+        .to(ripple, { autoAlpha: 1, scale: 0.5, duration: 0.01 })
+        .to(ripple, { scale: 2.1, autoAlpha: 0, duration: 1.5, ease: 'sine.out' }, 0)
+        .to(mag, { autoAlpha: 1, scale: 1, y: 0, duration: 0.4, ease: 'back.out(1.7)' }, 0.05)
+        .to(mag, { autoAlpha: 0, scale: 0.85, y: 3, duration: 0.35, ease: 'power2.in' }, '+=1.0');
+      mHintTlRef.current = hintTl;
+    }
+
+    return () => {
+      wobble.kill(); breathe.kill();
+      triggers.forEach((s) => s.kill());
+      hintTl?.kill(); mHintTlRef.current = null;
+    };
+  }, []);
+
   const scrollTo = (href: string) =>
     document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
 
-  // lShort: Kurzlabel fuer die mobile Datenzeile (drei schmale Spalten auf
-  // ~335px). Desktop nutzt weiterhin das lange Label `l`.
   const stats = [
-    { v: `${waxVsOil.life.waxLo}–${waxVsOil.life.wax}×`, l: de ? 'Kettenlaufzeit'    : 'chain life', lShort: de ? 'Laufzeit' : 'chain life' },
-    { v: '~€70',  l: de ? 'gespart · 12.000 km' : 'saved · 12,000 km', lShort: de ? 'gespart' : 'saved' },
-    { v: '1 Tag', l: de ? 'Versand nach Bestellung' : 'ships after order', lShort: de ? 'Versand' : 'shipping' },
+    { v: `${waxVsOil.life.waxLo}–${waxVsOil.life.wax}×`, l: de ? 'Kettenlaufzeit'    : 'chain life' },
+    { v: '~€70',  l: de ? 'gespart · 12.000 km' : 'saved · 12,000 km' },
+    { v: '1 Tag', l: de ? 'Versand nach Bestellung' : 'ships after order' },
   ];
 
   // LCP-Bild der Startseite. Als WebP 46 statt 262 KB — verlustbehaftet, aber
@@ -328,204 +396,190 @@ export function Hero() {
 
   return (
     <section id="home" ref={rootRef} className="hero-editorial relative" style={{ background: 'var(--pg)' }}>
-      {/* ===== MOBILE-HERO (< 640px) v3 — Vollbild-Fotografie ===== */}
-      {/* Nach Lucas Kritik an v2 ("langweilig, schlecht designed" + ein
-          Groessen-Sprung-Bug beim Scrollen, siehe index.css) komplett neu
-          gebaut: ein einziges Foto traegt den GESAMTEN Hero randlos. Keine
-          Karte, keine Radien, kein Freisteller, keine Maske, KEIN Scrim —
-          jede Artefakt-Klasse, die v2 noch hatte, faellt damit weg, weil es
-          sie strukturell nicht mehr geben kann.
-          Gemessen an den tatsaechlichen Pixeln von chain-bg-mobile.jpg: Kopf-,
-          Eyebrow- und Fussbaender liegen bei 9,5–18,8:1 Kontrast fuer WEISSEN
-          Text auch ueber die volle Spaltenbreite. Nur die Headline (zwei
-          Zeilen tiefer, das Blattfragment rechts reicht dort naeher heran)
-          braucht ein eigenes max-w-[82%] — bei voller Breite bricht sie auf
-          6,2:1 ein, bei 82% liegt sie noch bei 9,3:1.
-          Sitzt hinter der Navigation (siehe navigation.tsx, heroTransparent:
-          auf der Startseite ungescrollt transparent, faerbt sich beim
-          Scrollen ein) — deshalb hier KEIN pt-[84px]-Ausgleich mehr, das Foto
-          beginnt bei y=0 und die Navigation schwebt darueber. */}
+      {/* ===== MOBILE-HERO (< 640px) v4 — Hochkant-Fassung des Desktop-Heros ===== */}
+      {/* Kettenfoto randlos im Hintergrund, der freigestellte Wachsblock
+          scharf davor als einziges Objekt im Fokus — dieselbe Architektur wie
+          der Desktop-Hero, nur hochkant. Randlos wie v3 (keine Karte, keine
+          Radien, keine Diagonale), aber mit zwei entscheidenden Korrekturen
+          gegenueber v3:
+          1. Der Block ist wieder eine EIGENE Ebene statt ins Foto eingebrannt.
+             Nur so kann er sich drehen, atmen und einen Tap-Ripple tragen —
+             Lucas Punkte 1 und 2. Ein Block im JPEG kann das prinzipiell nicht.
+          2. Im Hintergrund liegt wieder eine KETTE. Ohne sie las sich der
+             blaue Block wie ein Stueck Seife und die Kategorie ging verloren.
+          Das Foto bekommt das Desktop-Rezept: leichter Blur + Abdunklung +
+          Scrim-Stapel. Roh liegt es bei 6,1:1 in der Headline-Zone, mit dem
+          Rezept darueber (inkl. lokalem Scrim hinter der Headline) deutlich
+          hoeher — am gerenderten Bild nachgemessen, nicht geschaetzt.
+          Sitzt hinter der Navigation (navigation.tsx, heroTransparent) —
+          deshalb kein pt-[84px]-Ausgleich, das Foto beginnt bei y=0. */}
       <div className="sm:hidden relative h-[100svh] min-h-[560px] w-full overflow-hidden">
-        <picture>
-          <source srcSet={MOBILE_HERO_BG} type="image/webp" />
-          <img
-            src={MOBILE_HERO_BG_FALLBACK}
-            alt={de ? 'Wachsblock auf nassem Schiefer' : 'Wax block on wet slate'}
-            className="absolute inset-0 w-full h-full object-cover"
-            style={{ objectPosition: '50% 50%' }}
-            fetchPriority="high"
-          />
-        </picture>
+        {/* Foto-Ebene. Eigener Wrapper, weil der Scroll-Parallax auf IHN
+            schreibt — das <img> selbst traegt den Overscan-Scale, damit die
+            Parallax-Verschiebung unten keine Kante freilegt. */}
+        <div ref={mImgRef} className="absolute inset-0 will-change-transform">
+          <picture>
+            <source srcSet={MOBILE_HERO_BG} type="image/webp" />
+            <img
+              src={MOBILE_HERO_BG_FALLBACK}
+              alt={de ? 'Gewachste Fahrradkette auf Schiefer' : 'Waxed bicycle chain on slate'}
+              className="absolute inset-0 w-full h-full object-cover"
+              style={{
+                objectPosition: '50% 50%',
+                transform: 'scale(1.08)',
+                filter: 'blur(0.8px) brightness(0.92)',
+              }}
+              fetchPriority="high"
+            />
+          </picture>
+          {/* Scrim-Stapel, 1:1 die Logik des Desktop-Heros, nur hochkant
+              gedacht. Liegt INNERHALB der Parallax-Ebene, damit die Verlaeufe
+              exakt mit dem Foto mitwandern (als Geschwister wuerde beim
+              Scrollen ein untinteter Streifen am Rand auftauchen — genau
+              dieser Fehler ist im Desktop-Zweig unten dokumentiert). */}
+          <div className="absolute inset-0 pointer-events-none" style={{ background: 'rgba(var(--scrim-rgb),0.32)' }} />
+          <div className="absolute inset-x-0 top-0 h-[42%] pointer-events-none"
+               style={{ background: 'linear-gradient(to bottom, rgba(var(--scrim-rgb),0.55) 0%, rgba(var(--scrim-rgb),0.20) 60%, transparent 100%)' }} />
+          {/* Lokales Scrim hinter der Headline — dieses Foto ist in der
+              Headline-Zone das schwaechste der drei Kandidaten (6,1:1 roh),
+              hier wird der Unterschied gemacht. */}
+          <div className="absolute inset-x-0 pointer-events-none"
+               style={{ top: '10%', height: '34%', background: 'radial-gradient(ellipse 120% 100% at 0% 50%, rgba(var(--scrim-rgb),0.62) 0%, rgba(var(--scrim-rgb),0.30) 55%, transparent 80%)' }} />
+          <div className="absolute inset-x-0 bottom-0 h-[34%] pointer-events-none"
+               style={{ background: 'linear-gradient(to top, rgba(var(--scrim-rgb),0.72) 0%, rgba(var(--scrim-rgb),0.34) 45%, transparent 100%)' }} />
+        </div>
         <div className="hero-grain absolute inset-0 pointer-events-none" />
 
-        {/* Trefferflaeche "Blick ins Wachs" — KEIN Badge, KEIN Ripple, KEIN
-            Glow auf dem Block selbst (Luca: "nicht zu viel SaaS-KI-Optik").
-            Die einzige Auffindbarkeit ist die Bildunterschrift weiter unten.
-            .hero-cover-frame bildet die object-cover-Geometrie des <img>
-            oben NACH (Flex + fixes aspect-ratio + min-width/height:100% ist
-            exakt dieselbe Groessenberechnung, die der Browser fuer
-            object-fit:cover verwendet) — nur dadurch landet die Prozent-
-            Position aus BLOCK_HOTSPOT unabhaengig vom Geraete-
-            Seitenverhaeltnis auf dem tatsaechlichen Block und nicht auf
-            einem je nach Zuschnitt verschobenen Punkt (siehe die
-            Sackgassen-Notiz zu genau diesem Fehler in der Projekt-Memory). */}
-        <div className="hero-cover-frame absolute inset-0 pointer-events-none">
-          <div className="relative" style={{ aspectRatio: '960 / 1707', minWidth: '100%', minHeight: '100%' }}>
-            <button
-              type="button"
-              onClick={openDive}
-              aria-label={de ? 'Blick ins Wachs — was im Wachs steckt' : 'Look inside the wax'}
-              className="absolute pointer-events-auto"
-              style={{
-                left: `${BLOCK_HOTSPOT.left}%`,
-                top: `${BLOCK_HOTSPOT.top}%`,
-                width: `${BLOCK_HOTSPOT.width}%`,
-                height: `${BLOCK_HOTSPOT.height}%`,
-              }}
+        {/* ===== WACHSBLOCK (nur < 640px) =====
+            Eigene Ebene ueber dem Foto, derselbe Freisteller wie auf Desktop
+            (wax-cutout, NICHT wax-cutout-soft: dessen weich ausgeblendeter
+            Fuss existierte nur fuer den hellen Untergrund von v1/v2 — auf
+            dunkler Kette blendet die fotografierte Kante von selbst, genau
+            wie im Desktop-Hero). Position und Groesse haengen an svh, nie an
+            einer max-height-Media-Query (siehe Kommentar in index.css). */}
+        <button
+          type="button"
+          onClick={openDiveFromBlock}
+          aria-label={de ? 'Blick ins Wachs — was im Wachs steckt' : 'Look inside the wax'}
+          className="hero-block-m absolute z-[5]"
+        >
+          <span ref={mBlockInnerRef} className="relative block origin-center will-change-transform">
+            {/* Kontaktschatten wie beim Desktop-Block — erdet den Freisteller
+                auf der Kette, statt ihn schweben zu lassen. Kein blauer Glow:
+                den hat Luca fuer Mobil ausdruecklich abgelehnt, Ripple und
+                Lupe sind der Klick-Hinweis. */}
+            <span
+              aria-hidden
+              className="absolute left-1/2 -translate-x-1/2 bottom-[4%] w-[76%] h-[22%] rounded-full pointer-events-none block"
+              style={{ background: 'radial-gradient(ellipse, rgba(4,5,7,0.60), transparent 72%)', filter: 'blur(9px)' }}
             />
-          </div>
-        </div>
+            <span className="relative block" style={{ filter: 'drop-shadow(-3px 10px 16px rgba(5,6,8,0.40))' }}>
+              <picture>
+                <source srcSet="/images/hero/wax-cutout.webp" type="image/webp" />
+                <img
+                  src="/images/hero/wax-cutout.png"
+                  alt={de ? 'Waxcelerate Kettenwachs-Block' : 'Waxcelerate chain wax block'}
+                  className="block w-full h-auto"
+                  style={{ aspectRatio: '885 / 900' }}
+                  fetchPriority="high"
+                />
+              </picture>
+            </span>
+
+            {/* Klick-Hinweis: Tap-Ripple + kurz aufblitzende Lupe, sonst
+                nichts auf dem Block. GSAP im mobilen useEffect (alle ~6 s),
+                stoppt dauerhaft nach dem ersten Tap (openDiveFromBlock). */}
+            <span
+              aria-hidden
+              className="absolute left-1/2 top-[47%] -translate-x-1/2 -translate-y-1/2 pointer-events-none aspect-square"
+              style={{ width: '32%' }}
+            >
+              <span
+                ref={mRippleRef}
+                className="absolute inset-0 rounded-full"
+                style={{ border: '1.5px solid rgba(255,255,255,0.72)', background: 'rgba(255,255,255,0.10)' }}
+              />
+              <span
+                ref={mMagRef}
+                className="absolute inset-[22%] rounded-full flex items-center justify-center"
+                style={{ background: 'rgba(12,15,22,0.58)', backdropFilter: 'blur(3px)', border: '1px solid rgba(255,255,255,0.30)', boxShadow: '0 4px 14px rgba(0,0,0,0.28)' }}
+              >
+                <Search className="h-[48%] w-[48%]" style={{ color: '#fff' }} strokeWidth={2.2} />
+              </span>
+            </span>
+          </span>
+        </button>
 
         {/* Inhalt. pointer-events-none auf der Spalte, pointer-events-auto
-            einzeln auf CTA — derselbe "Tap-Fresser"-Fix wie im Desktop-Hero
-            (ein z-Container ueber der ganzen Hoehe schluckt sonst jeden Tap
-            auf den Hotspot darunter; das ist in dieser Datei schon dreimal
-            passiert und auf Screenshots unsichtbar). pt-[96px] = Hoehe der
-            mobilen Nav-Leiste (py-2 + h-16 = 80px) plus 16px Luft. */}
+            einzeln auf dem CTA — derselbe "Tap-Fresser"-Fix wie im
+            Desktop-Hero (ein z-Container ueber der ganzen Hoehe schluckt
+            sonst jeden Tap auf den Block darunter; das ist in dieser Datei
+            schon dreimal passiert und auf Screenshots unsichtbar).
+            pt-[96px] = Hoehe der mobilen Nav-Leiste (py-2 + h-16 = 80px)
+            plus 16px Luft. */}
         <div className="relative z-10 h-full flex flex-col justify-between pointer-events-none px-5 pt-[96px] pb-[calc(1rem+env(safe-area-inset-bottom))]">
 
-          {/* Kopfgruppe: Masthead randbuendig ueber volle Geraetebreite,
-              darunter Eyebrow + Headline in der linken 70%. */}
+          {/* Kopfgruppe: Eyebrow + Headline. Kein Schriftzug mehr im Hero —
+              der steht jetzt in der Navigation neben dem Logo, wie auf
+              Desktop (siehe navigation.tsx). */}
           <div>
-            {/* Masthead — der grosse "Waxcelerate"-Schriftzug, den Luca an v2
-                vermisst hat. -mx-5 hebt das px-5 der Elternspalte fuer dieses
-                eine Element auf, damit es wirklich Kante-zu-Kante des
-                Geraets läuft, nicht nur innerhalb der Textspalte. textLength
-                + lengthAdjust="spacing" zwingt die Laufweite auf exakt 97 %
-                der viewBox-Breite (x=15 bis 985 von 1000), unabhaengig von
-                Displaybreite/Sprache — ohne JS, ohne Layout-Shift. Bewusst
-                NICHT die volle 0..1000: randscharfe Glyphen exakt auf der
-                Geraetekante lasen sich im Test wie ein Beschnittfehler, nicht
-                wie Absicht; 1,5 % Luft je Seite (~5,6px auf 375px) genuegt,
-                um "randbuendig" von "abgeschnitten" zu unterscheiden.
-                "spacing" (nicht "spacingAndGlyphs"), damit nur der
-                Zwischenraum waechst und keine Buchstabenform verzerrt wird.
-                Gewicht 700, nicht 800: diese Site laedt Libre Franklin nur in
-                400/500/600/700/900 (siehe fonts.css) — angefordertes 800
-                loest laut CSS-Gewichts-Fallback auf das naechsthoehere
-                verfuegbare Gewicht auf, hier 900 (Black). Bei einem derart
-                grossen, randbuendigen Schriftzug macht das den Unterschied
-                zwischen einem eleganten Zeitschriften-Kopf und einem
-                schreienden Balken; 700 ist die naeher am Original gemeinte
-                Absicht. */}
-            <div data-hero className="-mx-5">
-              <svg viewBox="0 0 1000 120" width="100%" style={{ display: 'block' }} aria-hidden focusable="false">
-                <text
-                  x="15" y="86"
-                  textLength="970"
-                  lengthAdjust="spacing"
-                  fontFamily="'Libre Franklin', ui-sans-serif, system-ui, sans-serif"
-                  fontWeight={700}
-                  fontSize="66"
-                  fill="#fff"
-                  style={{ filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.45)) drop-shadow(0 2px 10px rgba(0,0,0,0.35))' }}
-                >
-                  WAXCELERATE
-                </text>
-              </svg>
-              <div style={{ height: 1, background: 'rgba(255,255,255,0.24)' }} />
-            </div>
-
-            <div className="mt-5">
-              {/* Eyebrow — sagt die Kategorie. Im Foto liegt KEINE Kette (nur
-                  der Block), ohne Kontext liest ein blauer Block sonst wie
-                  Seife — die Eyebrow loest das auf, nicht der Schriftzug
-                  darueber (der nennt nur die Marke). Kein max-w hier: bei
-                  y ~10-15% (ihrer Bildhoehe) bleibt der Kontrast bis zur
-                  vollen Spaltenbreite bei >=12,5:1 gemessen — die 70%-Regel
-                  gilt fuer die HEADLINE, die zwei Zeilen tiefer sitzt, wo das
-                  Blatt rechts schon naeher heranreicht. */}
-              <div data-hero className="flex items-center gap-3 mb-3">
-                <span style={{ width: '26px', height: '2px', background: 'var(--brand-blue)' }} />
-                <p
-                  className="hero-eyebrow text-small uppercase font-semibold"
-                  style={{ letterSpacing: '0.14em', color: 'rgba(255,255,255,0.72)', textShadow: HERO_TEXT_SHADOW }}
-                >
-                  {t.hero.categoryLine}
-                </p>
-              </div>
-
-              {/* max-w-[82%] statt 70%: bei y ~15-30% (Headline-Bandhoehe)
-                  bleibt der Kontrast bis 88% Spaltenbreite bei >=7,2:1 (AA
-                  fuer grosse Schrift) — 82% laesst spuerbaren Sicherheitsabstand
-                  UND reicht, damit "Am Ende der" auf einer Zeile bleibt statt
-                  mitten im Satz umzubrechen.
-                  fontSize 5,4svh statt (der urspruenglich versuchten) 8,5svh:
-                  8,5svh ueberschritt den 3rem-Deckel bei JEDER getesteten
-                  Geraetehoehe (640-932px) und blieb dadurch konstant bei 48px
-                  — der Clamp wirkte also gar nicht. Auf 360x640 stand die
-                  Headline dadurch mit -51px (!) buchstaeblich IM Wachsblock.
-                  5,4svh ist am unteren Ende real wirksam: 34,6px bei 640px
-                  Hoehe (30px Abstand zum Block), 48px (Deckel) erst ab
-                  ~890px. Gemessen bei 360x640 / 375x667 / 375x812 / 430x932:
-                  Abstand Headline -> Block 30 / 36 / 86 / 125px, durchgehend
-                  positiv. */}
-              <h1
-                className="font-display text-white max-w-[82%]"
-                style={{
-                  fontSize: 'clamp(1.7rem, 5.4svh, 3rem)',
-                  lineHeight: 1.05,
-                  letterSpacing: '-0.025em',
-                  fontWeight: 600,
-                  fontVariationSettings: '"opsz" 144, "wght" 620, "SOFT" 0, "WONK" 0',
-                  textShadow: HERO_TEXT_SHADOW,
-                }}
+            {/* Eyebrow — nennt die Kategorie. Zusammen mit der Kette im
+                Hintergrund ist damit doppelt klar, worum es geht. */}
+            <div data-hero className="flex items-center gap-3 mb-3">
+              <span style={{ width: '26px', height: '2px', background: 'var(--brand-blue)' }} />
+              <p
+                className="hero-eyebrow text-small uppercase font-semibold"
+                style={{ letterSpacing: '0.14em', color: 'rgba(255,255,255,0.72)', textShadow: HERO_TEXT_SHADOW }}
               >
-                <span className="block" style={{ paddingBottom: '0.05em' }}>
-                  {t.hero.headline.split(' ').map((w, i) => (
-                    <span key={i} className="inline-block overflow-hidden align-bottom mr-[0.24em]">
-                      <span data-word className="inline-block will-change-transform">{w}</span>
-                    </span>
-                  ))}
-                </span>
-                <span className="block" style={{ paddingBottom: '0.08em' }}>
-                  {t.hero.headlineSub.split(' ').map((w, i) => (
-                    <span key={i} className="inline-block overflow-hidden align-bottom mr-[0.24em]">
-                      <span
-                        data-word
-                        className="inline-block italic will-change-transform"
-                        style={{ fontVariationSettings: '"opsz" 144, "wght" 620, "SOFT" 30, "WONK" 0' }}
-                      >
-                        {w}
-                      </span>
-                    </span>
-                  ))}
-                </span>
-              </h1>
+                {t.hero.categoryLine}
+              </p>
             </div>
+
+            {/* fontSize 5,4svh: am unteren Ende real wirksam (34,6px bei 640px
+                Hoehe, Deckel 48px erst ab ~890px). Ein frueherer Versuch mit
+                8,5svh ueberschritt den Deckel bei JEDER Geraetehoehe und war
+                dadurch konstant 48px — auf 360x640 stand die Headline damit
+                im Block. max-w-[82%] haelt die Zeilenlaenge typografisch im
+                Rahmen und den Text aus der hellsten Bildzone rechts. */}
+            <h1
+              className="font-display text-white max-w-[82%]"
+              style={{
+                fontSize: 'clamp(1.7rem, 5.4svh, 3rem)',
+                lineHeight: 1.05,
+                letterSpacing: '-0.025em',
+                fontWeight: 600,
+                fontVariationSettings: '"opsz" 144, "wght" 620, "SOFT" 0, "WONK" 0',
+                textShadow: HERO_TEXT_SHADOW,
+              }}
+            >
+              <span className="block" style={{ paddingBottom: '0.05em' }}>
+                {t.hero.headline.split(' ').map((w, i) => (
+                  <span key={i} className="inline-block overflow-hidden align-bottom mr-[0.24em]">
+                    <span data-word className="inline-block will-change-transform">{w}</span>
+                  </span>
+                ))}
+              </span>
+              <span className="block" style={{ paddingBottom: '0.08em' }}>
+                {t.hero.headlineSub.split(' ').map((w, i) => (
+                  <span key={i} className="inline-block overflow-hidden align-bottom mr-[0.24em]">
+                    <span
+                      data-word
+                      className="inline-block italic will-change-transform"
+                      style={{ fontVariationSettings: '"opsz" 144, "wght" 620, "SOFT" 30, "WONK" 0' }}
+                    >
+                      {w}
+                    </span>
+                  </span>
+                ))}
+              </span>
+            </h1>
           </div>
 
-          {/* Fussgruppe: Bildunterschrift (zentriert unter dem Block, einzige
-              Auffindbarkeit fuer "Blick ins Wachs"), CTA, Datenzeile. Gemessen
-              y ~78–100% des Fotos: 9,5–18,8:1 Kontrast, auch ohne die
-              linke-70%-Regel — der Block ist zu diesem Zeitpunkt im Bild
-              schon zu Ende und das Blatt laengst ausgeblendet. */}
+          {/* Fussgruppe: CTA + Meta-Zeile (Sterne links, Preisanker rechts).
+              Die dreispaltige Datenzeile aus v3 ist raus — Luca wollte Sterne
+              und Preis zurueck, und beides zusammen unter dem Knopf laesst
+              dem Block auf 640px hohen Geraeten zu wenig Buehne. */}
           <div>
-            <p
-              data-hero
-              className="text-center text-small uppercase font-semibold mb-4"
-              style={{ letterSpacing: '0.12em', color: 'rgba(255,255,255,0.72)', textShadow: HERO_TEXT_SHADOW }}
-            >
-              {de ? 'Blick ins Wachs →' : 'Look inside the wax →'}
-            </p>
-
-            {/* Kein cta-brand-pulse (siehe Desktop-Nav-CTA-Kommentar):
-                .cta-primary ist die richtige Wahl hier — dieselbe kaum
-                merkliche Atem-Glow-Klasse wie die Desktop-Hero-CTA, mit
-                derselben weissen Pille, damit Handy und Desktop dieselbe
-                CTA-Sprache sprechen statt der alten theme-abhaengigen
-                .btn-primary (dunkel/hell je nach Theme), die auf einem
-                immer-dunklen Foto nicht mehr passt. */}
             <button
               data-hero
               onClick={() => scrollTo('#produkte')}
@@ -536,26 +590,16 @@ export function Hero() {
               <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
             </button>
 
-            {/* Datenzeile — dieselben drei Werte wie die Desktop-
-                Statistikleiste (stats-Array oben), mit Haarlinien-Trennern.
-                Kurzlabels statt der langen Desktop-Labels ("Kettenlaufzeit" /
-                12 Zeichen waere hier ohnehin zu breit) — drei Spalten auf
-                335px verfuegbarer Breite brauchen kompakte Woerter. */}
-            <div data-hero className="flex items-stretch justify-between mt-5 pt-4" style={{ borderTop: '1px solid rgba(255,255,255,0.18)' }}>
-              {stats.map((s, i) => (
-                <div
-                  key={i}
-                  className="flex-1 text-center px-1 first:pl-0 last:pr-0"
-                  style={{ borderLeft: i > 0 ? '1px solid rgba(255,255,255,0.18)' : 'none' }}
-                >
-                  <p data-stat-val className="font-display font-bold tabular-nums text-white leading-none" style={{ fontSize: '17px', textShadow: HERO_TEXT_SHADOW }}>
-                    {s.v}
-                  </p>
-                  <p className="text-[9.5px] uppercase mt-1" style={{ letterSpacing: '0.05em', color: 'rgba(255,255,255,0.65)', textShadow: HERO_TEXT_SHADOW }}>
-                    {s.lShort}
-                  </p>
-                </div>
-              ))}
+            <div data-hero className="flex items-center justify-between mt-3">
+              <span className="flex items-center gap-2">
+                <Stars rating={5} color="rgba(255,255,255,0.95)" />
+                <span className="text-[11px] tabular-nums" style={{ color: 'rgba(255,255,255,0.75)', textShadow: HERO_TEXT_SHADOW }}>
+                  {trustStats.reviews} {de ? 'Bewertungen' : 'reviews'}
+                </span>
+              </span>
+              <span className="text-[11px] font-semibold tabular-nums" style={{ color: 'rgba(255,255,255,0.92)', textShadow: HERO_TEXT_SHADOW }}>
+                {t.hero.blockPrice}
+              </span>
             </div>
           </div>
         </div>

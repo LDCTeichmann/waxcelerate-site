@@ -219,7 +219,12 @@ export function Navigation() {
         <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
           <div className="flex items-center justify-between h-16 lg:h-20">
 
-            {/* Logo — Wortmarke steht groß im Hero, daher hier nur das Zeichen */}
+            {/* Logo — Zeichen plus Wortmarke, auf ALLEN Breiten. Die Wortmarke
+                war bis 09/2026 `hidden sm:block`, weil sie gross im Hero
+                stand; seit dem v4-Mobile-Hero steht sie dort nicht mehr, und
+                ohne sie fehlte der Markenname auf dem Handy komplett. Platz
+                reicht: Zeichen 56px + Abstand 10px + Wortmarke ~103px +
+                Hamburger 44px + Padding 32px = ~245px von 375px. */}
             {/* Auf der Startseite ein Anker nach oben, auf jeder Unterseite
                 die Startseite selbst — sonst zeigt das Logo dort auf
                 "/wissenschaft#home". Gleiche Begruendung wie bei hrefFor(). */}
@@ -234,7 +239,7 @@ export function Navigation() {
             >
               <WaxcelerateMark className="w-auto h-14 lg:h-[4.2rem]" />
               <span
-                className="hidden sm:block relative text-[17px] font-semibold tracking-[0.01em] transition-colors duration-300"
+                className="wx-logo-wordmark relative text-[15px] sm:text-[17px] font-semibold tracking-[0.01em] transition-colors duration-300"
                 style={{ color: 'var(--tx1)', fontFamily: "'Libre Franklin', ui-sans-serif, system-ui, sans-serif" }}
               >
                 Waxcelerate

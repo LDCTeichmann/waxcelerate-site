@@ -41,24 +41,23 @@ export function loadShell(dist) {
 }
 
 /**
- * Die Hero-Bild-Preloads aus index.html (chain-bg-mobile.webp, chain-bg.webp,
- * wax-cutout.webp). Nur auf der Startseite korrekt — dort ist je nach
- * Breakpoint chain-bg-mobile.webp bzw. chain-bg.webp das echte LCP-Bild.
+ * Die Hero-Bild-Preloads aus index.html (chain-weave-mobile.webp,
+ * chain-bg.webp, wax-cutout.webp). Nur auf der Startseite korrekt — dort ist
+ * je nach Breakpoint chain-weave-mobile.webp bzw. chain-bg.webp das echte
+ * LCP-Bild, wax-cutout.webp (der Wachsblock) liegt seit dem v4-Mobile-Hero
+ * auf BEIDEN Breakpoints darueber.
  * stripHead() entfernt sie fuer jede Unterseite, jedes Prerender-Skript setzt
  * per imagePreload() sein eigenes, seitenrichtiges Paar. Ohne diese Trennung
  * laed jede der ~40 Unterseiten Bilder mit hoechster Prioritaet vor, die
  * dort nie erscheinen, und nimmt dem tatsaechlichen LCP-Bild auf gedrosseltem
  * Mobilfunk rund 394 KB Bandbreite weg (Audit vom 05.08.2026, Problem 1).
- * chain-bg-mobile.webp ist mit dem v3-Mobile-Hero (09/2026, Vollbildfoto statt
- * Panel+Freisteller) zurueck im Einsatz — dieselbe Datei, die hier schon einmal
- * (2026-08) lief, bevor sie ueber hero-b-bg.webp und hero-mobile.webp wieder
- * abgeloest und jetzt erneut eingesetzt wurde. wax-cutout-soft.webp (das
- * zweite Bild des alten Freisteller-Konzepts) entfaellt ganz — dieselbe
- * Stripping-Regel muss jedem neuen Dateinamen folgen, sonst bleibt der
- * veraltete Preload-Name hier stehen und der neue Preload verbleibt
- * faelschlich auf jeder Unterseite.
+ * Der mobile Dateiname hat inzwischen mehrfach gewechselt (mobile-chains-hills
+ * -> chain-bg-mobile -> hero-b-bg -> hero-mobile -> chain-bg-mobile ->
+ * chain-weave-mobile) — dieselbe Stripping-Regel muss jedem neuen Namen
+ * folgen, sonst bleibt der veraltete Name hier stehen und der neue Preload
+ * verbleibt faelschlich auf jeder Unterseite.
  */
-const HOME_ONLY_PRELOADS = /<link\s+rel="preload"\s+as="image"\s+href="\/images\/hero\/(?:chain-bg-mobile\.webp|chain-bg\.webp|wax-cutout\.webp)"[^>]*>\s*/gi;
+const HOME_ONLY_PRELOADS = /<link\s+rel="preload"\s+as="image"\s+href="\/images\/hero\/(?:chain-weave-mobile\.webp|chain-bg\.webp|wax-cutout\.webp)"[^>]*>\s*/gi;
 
 /** Entfernt die globalen Head-Tags aus der Huelle, die wir pro Seite ersetzen. */
 export function stripHead(html) {
