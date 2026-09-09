@@ -14,7 +14,7 @@ import { Helmet } from 'react-helmet-async';
 import { Link, useParams } from 'react-router-dom';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useToolProfile } from '@/hooks/useToolProfile';
-import { removeStaticJsonLd } from '@/lib/utils';
+import { removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
 import { TOOLS, TOOLS_HUB, getToolBySlug, type ToolEntry } from '@/lib/toolRegistry';
 import { getArticleBySlug } from '@/pages/blog/articles';
 import { Navigation } from '@/sections/navigation';
@@ -108,7 +108,12 @@ function ToolCardLink({ entry }: { entry: ToolEntry }) {
 export function RechnerHubPage() {
   const { lang } = useLanguage();
   const de = lang === 'de';
-  useEffect(() => { removeStaticJsonLd(); }, []);
+  // removeStaticHeadMeta: der Prerender (renderToolsHub in generate-blog-html.mjs)
+  // setzt title/description/canonical/og/twitter mit data-prerendered="true".
+  // Ohne diesen Aufruf blieben nach der Hydration zwei Versionen jedes Tags im
+  // DOM — u. a. zwei <link rel="canonical">, was Google beide ignorieren laesst.
+  // Gleiches Muster wie ProductDetailPage/SciencePage/BlogArticlePage.
+  useEffect(() => { removeStaticJsonLd(); removeStaticHeadMeta(); }, []);
 
   return (
     <div className="min-h-screen bg-wx-bg">
@@ -175,7 +180,9 @@ export function RechnerToolPage() {
   const profile = useToolProfile();
   const entry = slug ? getToolBySlug(slug) : undefined;
 
-  useEffect(() => { removeStaticJsonLd(); }, [slug]);
+  // Siehe RechnerHubPage: der Prerender (renderTool) setzt data-prerendered-Meta,
+  // die sonst nach der Hydration doppelt im DOM stehen.
+  useEffect(() => { removeStaticJsonLd(); removeStaticHeadMeta(); }, [slug]);
 
   if (!entry) return <NotFoundPage />;
 
