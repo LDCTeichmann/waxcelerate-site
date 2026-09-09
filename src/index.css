@@ -387,6 +387,11 @@
     --input: 0 0% 84%;
     --ring: 220 58% 27%;
     --radius: 0.75rem;
+    /* Der eine Flaechenradius des Mobile-Hero (< 640px). Themeunabhaengig,
+       deshalb nur hier und nicht noch einmal im .noir-Block. Das Bildpanel
+       traegt ihn auf allen VIER Ecken — vorher lagen 22px auf den oberen
+       zweien und die unteren steckten unter einer clip-path-Diagonale. */
+    --r-hero-m: 24px;
     /* Legacy aliases → single accent (kept so existing var(--brand) refs unify) */
     --brand:       var(--accent);
     --brand-hover: var(--accent-soft);
@@ -789,36 +794,44 @@
 }
 
 /* ===== MOBILE-HERO (< 640px) — Editorial Object Card, ein Screen =====
-   Querformat-Bildpanel (runde Ecken echt, Unterkante diagonal via
-   Seitenfarben-Dreieck), Wachsblock schwebt zentriert und ragt unten frei
-   ueber die Kante, darunter knappe Textzone auf var(--pg). Alles in einer
-   Bildschirmhoehe. Markup: .sm:hidden-Zweig in hero-light.tsx. */
+   Querformat-Bildpanel mit vier gleichen Ecken und sauberer waagerechter
+   Unterkante, die der Wachsblock durchbricht; darunter die knappe Textzone auf
+   var(--pg). Alles in einer Bildschirmhoehe. Markup: .sm:hidden-Zweig in
+   hero-light.tsx.
+
+   Bis 09/2026 lief die Panelunterkante als clip-path-Diagonale (ein Dreieck in
+   Seitenfarbe ueber dem Bild). Die ist ersatzlos weg: sie endete in zwei
+   ungestalteten Spitzen — einem spitzen Keil unten links und einem harten Knick
+   auf halber Hoehe der rechten Kante —, trat auf ihrer flachen Schraege sichtbar
+   (clip-path-Kanten ueber einer kompositierten Foto+Grain-Ebene werden in
+   Chromium schlecht kantengeglaettet) und stand ausserdem quer zum
+   Kettengeflecht im Foto, das bei ca. +20 Grad liegt. Der Ueberstand des Blocks
+   ueber eine saubere Kante leistet dasselbe, ohne eine einzige neue Ecke. */
 @media (max-width: 639px) {
   /* Panel skaliert mit der Viewporthoehe (Ein-Screen). Der Block ragt weit
-     darunter heraus, deshalb ist das Panel selbst kompakt. */
+     darunter heraus, deshalb ist das Panel selbst kompakt.
+     --hero-block-w ist die EINE Quelle fuer Blockgroesse UND den Abstand der
+     Textzone darunter (siehe .hero-content-m). Vorher waren das zwei unabhaengig
+     getunte clamp()-Werte, die auf jedem Geraet unterschiedlich weit
+     auseinanderliefen — ein Teil des "stimmt irgendwie nicht". */
+  :root { --hero-block-w: clamp(146px, 25svh, 216px); }
   .hero-panel-m {
     height: clamp(178px, 30svh, 268px);
     overflow: visible;
   }
 
-  /* Diagonale in Seitenfarbe: schneidet die Bildunterkante deutlich schraeg an
-     (rechts ~26 % hoch), sodass links UND rechts vom Block ein spuerbares
-     Dreieck sichtbar bleibt. clip-path NUR auf diesem Overlay; die Bildflaeche
-     darunter hat alle Ecken rund. */
-  .hero-panel-cut {
-    clip-path: polygon(-2% 101%, 101% 101%, 101% 79%, -2% 100%);
-    -webkit-clip-path: polygon(-2% 101%, 101% 101%, 101% 79%, -2% 100%);
+  /* Wachsblock: horizontal zentriert und exakt 36 % der EIGENEN Hoehe unter die
+     Panelkante gesetzt. Prozente in translate loesen gegen die Elementgroesse
+     auf, nicht gegen die Panelhoehe — nur deshalb ist das Ueberstandsverhaeltnis
+     auf jedem Geraet gleich. Beides steht hier komplett, damit es nur eine
+     Quelle fuer transform gibt (am <button> kein -translate-x-1/2 mehr). */
+  .hero-block-m {
+    width: var(--hero-block-w);
+    left: 50%;
+    top: auto;
+    bottom: 0;
+    transform: translate(-50%, 36%);
   }
-
-  /* Zentraler Schriftzug — Libre Franklin 800, tight getrackt. Bewusst nicht
-     riesig: refined statt schreiend. */
-  .hero-wordmark-m { font-size: clamp(1.7rem, 7.6vw, 2.2rem); }
-
-  /* Wachsblock: exakt horizontal zentriert (der <button> traegt selbst nur
-     left:50% + -translate-x-1/2). Breite in svh -> skaliert mit der Panelhoehe.
-     top so, dass ~40 % der Blockhoehe frei unter der Diagonale schweben — der
-     Weissraum darunter ist die Buehne des Blocks, kein totes Loch. */
-  .hero-block-m { width: clamp(146px, 25svh, 216px); top: 52%; }
 
   /* Headline — grosse Editorial-Buehne, luftige Zeilen (lh via Inline-Style). */
   .hero-h1-m { font-size: clamp(2.35rem, 10.5vw, 3rem); }
@@ -827,12 +840,13 @@
   .hero-value-m { font-size: clamp(0.84rem, 3.6vw, 0.98rem); line-height: 1.5; max-width: 30ch; }
 
   /* Textzone: von oben (justify-start), damit der Abstand Block -> Eyebrow
-     exakt steuerbar ist. padding-top = Blockueberstand + kleiner Puffer, in svh
-     (skaliert mit der ebenfalls svh-basierten Blockgroesse). */
+     exakt steuerbar ist. padding-top = Blockueberstand + gestalteter Abstand,
+     aus derselben --hero-block-w gerechnet wie der Block selbst. Der Block ist
+     nahezu quadratisch (aspect-ratio 837/844), Breite also gleich Hoehe. */
   .hero-content-m {
     justify-content: flex-start;
     row-gap: 0.7rem;
-    padding-top: clamp(5rem, 14svh, 7.5rem);
+    padding-top: calc(0.36 * var(--hero-block-w) + 1.75rem);
   }
   /* Eyebrow und Headline gehoeren zusammen -> engerer Abstand als der Rest. */
   .hero-eyebrow-row { margin-bottom: -0.15rem; }
@@ -845,19 +859,24 @@
     letter-spacing: 0.05em !important;
   }
 }
-/* Kurze Geraete (< ~740px hoch): Panel, Block, Headline und Rhythmus stauchen. */
+/* Kurze Geraete (< ~740px hoch): Panel, Block, Headline und Rhythmus stauchen.
+   Block und Textabstand haengen jetzt beide an --hero-block-w, hier wird also
+   nur noch diese eine Zahl neu gesetzt — top/padding-top ziehen von selbst
+   nach. */
 @media (max-width: 639px) and (max-height: 740px) {
+  :root { --hero-block-w: clamp(138px, 23svh, 188px); }
   .hero-panel-m { height: clamp(160px, 27svh, 216px); }
-  .hero-block-m { width: clamp(138px, 23svh, 188px); top: 52%; }
+  .hero-content-m { row-gap: 0.5rem; }
   .hero-h1-m { font-size: 1.95rem; }
   .hero-value-m { font-size: 0.82rem; }
-  .hero-content-m { row-gap: 0.5rem; padding-top: clamp(4.75rem, 14.5svh, 6.25rem); }
   .hero-cta-m { margin-top: 0.15rem; padding-top: 12px; padding-bottom: 12px; }
 }
 
-/* .hero-chain-clip: bis v2 fuer die Mobile-Diagonale genutzt, jetzt ersetzt
-   durch .hero-panel-cut (saubere runde Ecken). Bleibt hier stehen, wird aber
-   nirgends mehr referenziert. */
+/* .hero-chain-clip: bis v2 fuer die Mobile-Diagonale genutzt. Die Nachfolgerin
+   .hero-panel-cut ist mit dem Umbau 09/2026 ebenfalls gefallen (siehe den
+   Kommentar am Mobile-Hero-Block oben) — der Mobile-Hero hat gar keinen
+   clip-path mehr. Diese Regel hier ist vorbestehender toter Code und bleibt
+   unangetastet stehen; sie wird nirgends referenziert. */
 .hero-chain-clip {
   clip-path: polygon(0 0, 100% 0, 100% 90%, 0 100%);
   -webkit-clip-path: polygon(0 0, 100% 0, 100% 90%, 0 100%);

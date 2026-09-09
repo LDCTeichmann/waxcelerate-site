@@ -59,14 +59,13 @@ export function Hero() {
   const hintRef    = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const ctaRef     = useRef<HTMLButtonElement>(null);
-  // Mobiler Wachsblock. Motion-Wrapper (Wobble + Breathe) und Glow-Layer —
-  // getrennt vom positionierten <button>, dessen CSS-Zentrierung
-  // (-translate-x-1/2) GSAP sonst ueberschreibt. Bewegung und Werte 1:1 wie der
-  // Desktop-Block (idleWobble / breathe / glowPulse). mRippleRef/mMagRef tragen
+  // Mobiler Wachsblock. Motion-Wrapper (Wobble + Breathe) — getrennt vom
+  // positionierten <button>, dessen CSS-Zentrierung GSAP sonst ueberschreibt.
+  // Bewegung und Werte 1:1 wie der Desktop-Block (idleWobble / breathe).
+  // mRippleRef/mMagRef tragen
   // den intermittierenden Klick-Hinweis (Tap-Ripple + kurz aufblitzende Lupe),
   // mHintTlRef haelt dessen Timeline, damit der erste echte Tap sie killt.
   const mBlockInnerRef = useRef<HTMLSpanElement>(null);
-  const mGlowRef       = useRef<HTMLSpanElement>(null);
   const mRippleRef     = useRef<HTMLSpanElement>(null);
   const mMagRef        = useRef<HTMLSpanElement>(null);
   const mHintTlRef     = useRef<gsap.core.Timeline | null>(null);
@@ -269,8 +268,9 @@ export function Hero() {
   }, []);
 
   // Mobiler Wachsblock (< 640px): dieselbe "lebendige" Bewegung wie der
-  // Desktop-Block — Rotation-Wobble + Scale-Breathe auf dem Motion-Wrapper,
-  // Opacity/Scale-Puls auf dem Glow-Layer. Rotation und Scale sind getrennte
+  // Desktop-Block — Rotation-Wobble + Scale-Breathe auf dem Motion-Wrapper.
+  // Den Glow-Puls gibt es hier nicht mehr, weil der Glow-Layer selbst weg ist
+  // (blauer Schleier auf Off-White). Rotation und Scale sind getrennte
   // GSAP-Transformkomponenten, komponieren also konfliktfrei auf demselben
   // Element. matchMedia-gated, damit die Tweens auf Desktop gar nicht erst
   // laufen. prefers-reduced-motion -> alles statisch.
@@ -282,7 +282,6 @@ export function Hero() {
   // die Timeline dauerhaft (siehe openDiveFromBlock).
   useEffect(() => {
     const inner  = mBlockInnerRef.current;
-    const glow   = mGlowRef.current;
     const ripple = mRippleRef.current;
     const mag    = mMagRef.current;
     if (!inner) return;
@@ -291,9 +290,6 @@ export function Hero() {
 
     const wobble = gsap.to(inner, { rotation: 1.2, duration: 3.6, ease: 'sine.inOut', yoyo: true, repeat: -1 });
     const breathe = gsap.to(inner, { scale: 1.045, duration: 1.9, ease: 'sine.inOut', yoyo: true, repeat: -1, delay: 2.5 });
-    const glowPulse = glow
-      ? gsap.to(glow, { opacity: 1, scale: 1.22, transformOrigin: '50% 50%', duration: 1.9, ease: 'sine.inOut', yoyo: true, repeat: -1 })
-      : undefined;
 
     let hintTl: gsap.core.Timeline | undefined;
     if (ripple && mag) {
@@ -309,7 +305,7 @@ export function Hero() {
     }
 
     return () => {
-      wobble.kill(); breathe.kill(); glowPulse?.kill();
+      wobble.kill(); breathe.kill();
       hintTl?.kill(); mHintTlRef.current = null;
     };
   }, []);
@@ -363,95 +359,118 @@ export function Hero() {
       <div className="px-3 sm:px-4 lg:px-6 pt-[84px] lg:pt-[104px] pb-3 sm:pb-4 lg:pb-6">
 
         {/* ===== MOBILE-HERO (< 640px) — Editorial Object Card, ein Screen ===== */}
-        {/* Bildpanel (Querformat, Unterkante diagonal), Wachsblock schwebt
-            zentriert auf der dunklen Flaeche und oeffnet "Blick ins Wachs",
-            darunter knappe Textzone. Alles in einer Bildschirmhoehe. Ab sm:
-            uebernimmt die Karte darunter. */}
+        {/* Eine Form, ein Objekt, eine Linie: ein Bildpanel mit vier gleichen
+            Ecken und einer sauberen waagerechten Unterkante, die der Wachsblock
+            durchbricht. Darunter die knappe Textzone. Alles in einer
+            Bildschirmhoehe, ab sm: uebernimmt die Karte darunter.
+            Vorgaenger war ein Panel mit clip-path-Diagonale: die lief in zwei
+            ungestaltete Spitzen aus (spitzer Keil unten links, harter Knick auf
+            halber Hoehe der rechten Kante), trat auf der flachen Schraege
+            sichtbar und stand quer zum Kettengeflecht im Foto. Objekt bricht
+            Rahmen statt Rahmen bricht sich selbst — deshalb hier kein
+            clip-path mehr. */}
         <div
           className="sm:hidden flex flex-col h-[calc(100svh-84px-0.75rem)] max-h-[900px] min-h-[560px]"
         >
-          {/* Bildpanel — obere Ecken rund, untere Kante als deutliche, saubere
-              Diagonale. Umgesetzt ueber ein Dreieck in Seitenfarbe
-              (.hero-panel-cut) statt clip-path aufs Bild (das machte auch die
-              oberen Ecken scharf). Untere Ecken der Bildflaeche selbst spitz —
-              sie liegen unter dem Dreieck bzw. Block, also unsichtbar. */}
+          {/* Bildpanel — vier gleiche Ecken, waagerechte Unterkante, kein
+              clip-path. overflow: visible (in .hero-panel-m), damit der Block
+              unten herausragen darf; die Bildflaeche darunter clippt sich
+              selbst. */}
           <div className="hero-panel-m relative shrink-0">
-            {/* Alle vier Ecken rund; die unteren liegen unter dem
-                Seitenfarben-Dreieck (.hero-panel-cut) und sind daher unsichtbar
-                — aber falls der Zuschnitt mal nicht pixelgenau deckt, gibt es
-                keine harte Ecke. */}
-            <div className="absolute inset-0 rounded-[22px] overflow-hidden">
+            {/* Alle vier Ecken auf demselben Radius (--r-hero-m). Der Wert steht
+                als Token in index.css, damit es im Mobile-Hero genau EINE
+                Flaechenform gibt; die Pillen-CTA bleibt die bewusste Ausnahme,
+                sie ist eine funktionale Form, keine Flaechenform. */}
+            <div className="absolute inset-0 rounded-[var(--r-hero-m)] overflow-hidden">
               <picture>
                 <source srcSet={MOBILE_HERO_BG} type="image/webp" />
                 <img
                   src={MOBILE_HERO_BG_FALLBACK}
                   alt={de ? 'Fahrradketten auf Schiefer' : 'Bicycle chains on slate'}
                   className="absolute inset-0 w-full h-full object-cover"
-                  style={{ objectPosition: '40% 58%', filter: 'brightness(0.86) saturate(0.92)' }}
+                  /* objectPosition auf den unteren Bildrand und zusaetzlich
+                     10 % Overscan von unten: das Quellfoto hat oben rechts ein
+                     Blattfragment, das ohne den frueheren Kopf-Scrim (siehe
+                     oben) als gruener Fleck in der Panelecke stand. Beides
+                     zusammen schiebt es vollstaendig aus dem Ausschnitt und
+                     laesst nur Kette auf Schiefer stehen. Der Overscan ist
+                     unbedenklich, weil der Container darueber overflow-hidden
+                     traegt — ohne das Clipping ragt so ein skaliertes <img>
+                     ueber die Kante und zeichnet dort eine harte helle Linie. */
+                  style={{
+                    objectPosition: '50% 100%',
+                    transform: 'scale(1.10)',
+                    transformOrigin: '50% 100%',
+                    filter: 'brightness(0.86) saturate(0.92)',
+                  }}
                   fetchPriority="high"
                 />
               </picture>
               <div className="hero-grain absolute inset-0 pointer-events-none" />
-              {/* Kopf-Scrim — Kontrast fuer den zentralen Schriftzug */}
-              <div
-                className="absolute inset-x-0 top-0 h-[58%] pointer-events-none"
-                style={{ background: 'linear-gradient(to bottom, rgba(var(--scrim-rgb),0.52) 0%, rgba(var(--scrim-rgb),0.14) 55%, transparent 100%)' }}
-              />
+              {/* Kein Kopf-Scrim mehr: er trug allein den "Waxcelerate"-Schriftzug,
+                  der hier stand. Der ist raus — das Logo in der Navigation sagt
+                  dasselbe 90px darueber, und er war in Libre Franklin 800 eine
+                  dritte Schriftstimme gegen die Fraunces-Headline. Mit ihm faellt
+                  ein 3-Stop-Verlauf auf dunklem Foto weg, der auf Mobilgeraeten
+                  sichtbar bandete. Die Navigation braucht ihn nicht: sie hat
+                  ihren eigenen Hintergrund und endet oberhalb des Panels
+                  (pt-[84px] am Wrapper). */}
             </div>
-            {/* Diagonale in Seitenfarbe — schneidet die Bildunterkante schraeg
-                an. clip-path nur hier, also bleiben die Panel-Ecken rund. */}
-            <div
-              className="hero-panel-cut absolute inset-0 z-[1] pointer-events-none"
-              style={{ background: 'var(--pg)' }}
-            />
-
-            <span
-              aria-hidden
-              className="hero-wordmark-m absolute left-1/2 -translate-x-1/2 top-[9%] z-[2] text-white text-center whitespace-nowrap"
-              style={{
-                fontFamily: "'Libre Franklin', ui-sans-serif, system-ui, sans-serif",
-                fontWeight: 800,
-                letterSpacing: '-0.022em',
-                lineHeight: 1,
-                textShadow: '0 1px 2px rgba(0,0,0,0.35), 0 3px 22px rgba(0,0,0,0.45)',
-              }}
-            >
-              Waxcelerate
-            </span>
 
             {/* ===== SCHWEBENDER WACHSBLOCK (nur < 640px) =====
-                wax-cutout-soft (Unterkante weich ausgefadet, damit die dunkle
-                Fotokante auf Weiss nicht als "schwarze Ecke" poppt), exakt
-                horizontal zentriert, ragt ~35 % unter die diagonale Panelkante
-                und schwebt mit weichem Kontaktschatten im Vordergrund. Tippen
-                oeffnet "Blick ins Wachs" (WaxDive). */}
+                Das Objekt, das die saubere Panelunterkante durchbricht. Position
+                und Ueberstand kommen vollstaendig aus .hero-block-m — auch die
+                horizontale Zentrierung, deshalb steht hier KEIN -translate-x-1/2
+                mehr: zwei Quellen fuer dieselbe transform-Eigenschaft haetten
+                sich gegenseitig ueberschrieben. Tippen oeffnet "Blick ins Wachs"
+                (WaxDive). */}
             <button
               type="button"
               onClick={openDiveFromBlock}
               aria-label={de ? 'Blick ins Wachs — was im Wachs steckt' : 'Look inside the wax'}
-              className="hero-block-m absolute left-1/2 -translate-x-1/2 z-[3]"
+              className="hero-block-m absolute z-[3]"
             >
               <span ref={mBlockInnerRef} className="relative block origin-center will-change-transform">
-                <span
-                  ref={mGlowRef}
-                  aria-hidden
-                  className="absolute inset-[-24%] rounded-[40%] pointer-events-none block"
-                  style={{ background: 'radial-gradient(closest-side, rgba(110,165,230,0.24), transparent 72%)', filter: 'blur(20px)', opacity: 0.8 }}
-                />
-                {/* Kontaktschatten auf der Seitenflaeche — weich, nach unten
-                    versetzt, damit der Block "davor schwebt" statt zu kleben.
-                    Zwei Lagen: breit+diffus und schmal+dichter am Fuss. */}
-                <span
-                  aria-hidden
-                  className="absolute left-1/2 -translate-x-1/2 bottom-[-10%] w-[122%] h-[30%] rounded-full pointer-events-none block"
-                  style={{ background: 'radial-gradient(ellipse, rgba(10,12,20,0.34), transparent 72%)', filter: 'blur(22px)' }}
-                />
+                {/* Zwei Schattenlagen, auf Off-White kalibriert: eine breite,
+                    sehr schwache Ambient-Lage und ein schmaler, dichterer
+                    Kontaktschatten. Beide sitzen auf ~88 % Hoehe, also dort, wo
+                    der Block durch die Maske unten optisch endet — nicht an
+                    seiner Bildkante. Vorher lagen hier zwei kraeftigere Ellipsen
+                    UND ein drop-shadow am Bild selbst; uebereinander auf dem
+                    ohnehin dunklen Blockfuss ergab das einen grauen Schmier
+                    statt eines Schattens. Die blaue Radial-Wolke darueber ist
+                    ersatzlos weg: blur(20px) auf gesaettigtem Blau blutet als
+                    Schleier auf das Off-White der Seite. */}
                 <span
                   aria-hidden
-                  className="absolute left-1/2 -translate-x-1/2 bottom-[-1%] w-[78%] h-[14%] rounded-full pointer-events-none block"
-                  style={{ background: 'radial-gradient(ellipse, rgba(10,12,20,0.40), transparent 68%)', filter: 'blur(10px)' }}
+                  className="absolute left-1/2 -translate-x-1/2 bottom-[-7%] w-[120%] h-[18%] rounded-full pointer-events-none block"
+                  style={{ background: 'radial-gradient(ellipse, rgba(20,22,28,0.09), transparent 72%)', filter: 'blur(28px)' }}
                 />
-                <span className="relative block" style={{ filter: 'drop-shadow(0 20px 30px rgba(6,8,12,0.30)) saturate(1.12) brightness(1.03) contrast(1.02)' }}>
+                <span
+                  aria-hidden
+                  className="absolute left-1/2 -translate-x-1/2 bottom-[-4%] w-[74%] h-[9%] rounded-full pointer-events-none block"
+                  style={{ background: 'radial-gradient(ellipse, rgba(20,22,28,0.20), transparent 70%)', filter: 'blur(12px)' }}
+                />
+                {/* Die Maske ist der eigentliche Fix fuer die "schwarze Ecke":
+                    wax-cutout-soft ist trotz seines Namens NICHT weich — das
+                    Bild traegt links und unten einen harten, fast schwarzen
+                    Rand (die von oben beleuchtete Seitenflaeche im Schatten),
+                    der auf Off-White als dunkler Balken poppte. Der Verlauf
+                    loest den Fuss stattdessen in die Seitenfarbe auf.
+                    Kaschierung, keine Heilung: die saubere Loesung ist ein neu
+                    erzeugtes Cutout mit echtem Alpha-Auslauf unten und
+                    aufgehellter Seitenflaeche — dann kann die Maske hier weg.
+                    Kein drop-shadow mehr im filter: der folgt der Alpha-
+                    Silhouette inklusive des schwarzen Randes und war Teil des
+                    Problems, nicht des Schattens. */}
+                <span
+                  className="relative block"
+                  style={{
+                    filter: 'saturate(1.12) brightness(1.03) contrast(1.02)',
+                    WebkitMaskImage: 'linear-gradient(to bottom, #000 94%, transparent 100%)',
+                    maskImage: 'linear-gradient(to bottom, #000 94%, transparent 100%)',
+                  }}
+                >
                   <picture>
                     <source srcSet="/images/hero/wax-cutout-soft.webp" type="image/webp" />
                     <img
@@ -542,10 +561,13 @@ export function Hero() {
               {t.hero.valueLine}
             </p>
 
+            {/* Kein cta-brand-pulse: der dauerhafte Glow-Halo um die schwarze
+                Pille liest sich auf dem Off-White als Render-Artefakt, nicht als
+                Detail. Die Desktop-CTA (.cta-primary) behaelt ihren. */}
             <button
               data-hero
               onClick={() => scrollTo('#produkte')}
-              className="btn-primary cta-brand-pulse group hero-cta-m flex w-full items-center justify-center gap-3 px-8 py-[16px] text-[16px] rounded-full active:scale-[0.98] transition-transform will-change-transform"
+              className="btn-primary group hero-cta-m flex w-full items-center justify-center gap-3 px-8 py-[16px] text-[16px] rounded-full active:scale-[0.98] transition-transform will-change-transform"
             >
               {t.hero.ctaBuy}
               <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
