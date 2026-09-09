@@ -78,11 +78,9 @@ export function Hero() {
   const ctaRef     = useRef<HTMLButtonElement>(null);
   // Mobiler Wachsblock (< 640px). mBlockInnerRef ist der Motion-Wrapper
   // (Wobble + Atmen) — getrennt vom positionierten <button>, dessen
-  // CSS-Zentrierung GSAP sonst ueberschreibt. mImgRef traegt das
-  // Hintergrundfoto fuer den Scroll-Parallax. mRippleRef/mMagRef sind der
+  // CSS-Zentrierung GSAP sonst ueberschreibt. mRippleRef/mMagRef sind der
   // intermittierende Klick-Hinweis (Tap-Ripple + kurz aufblitzende Lupe),
   // mHintTlRef haelt dessen Timeline, damit der erste echte Tap sie killt.
-  const mImgRef        = useRef<HTMLDivElement>(null);
   const mBlockInnerRef = useRef<HTMLSpanElement>(null);
   const mRippleRef     = useRef<HTMLSpanElement>(null);
   const mMagRef        = useRef<HTMLSpanElement>(null);
@@ -302,33 +300,22 @@ export function Hero() {
   // (siehe openDiveFromBlock). Kein Dauer-Glow — nur dieser eine, endliche
   // Hinweis.
   //
-  // Zusaetzlich der Scroll-Parallax: das Kettenfoto driftet langsamer als der
-  // Block darueber. Dasselbe Muster wie der Desktop-Hero (ScrollTrigger-Scrub
-  // auf yPercent), nur getrennt getriggert, weil hier zwei Ebenen mit
-  // UNTERSCHIEDLICHER Geschwindigkeit laufen sollen — daraus entsteht die
-  // Tiefenwirkung.
+  // KEIN Scroll-Parallax mehr auf dem Hintergrundfoto: das war ein
+  // ScrollTrigger-Scrub (Foto-Transform an die Scrollposition gekoppelt),
+  // also zusaetzliche JS-Arbeit auf jedem Scroll-Frame — genau die Sorte
+  // Code, die auf einem Touchscreen als Scroll-Ruckeln auffaellt, zumal
+  // parallel schon drei endlose GSAP-Ticker (Wobble, Atmen, Hinweis) laufen.
+  // War rein dekorativ (12 % Drift), deshalb ersatzlos raus statt gedrosselt.
   useEffect(() => {
     const inner  = mBlockInnerRef.current;
     const ripple = mRippleRef.current;
     const mag    = mMagRef.current;
-    const img    = mImgRef.current;
-    const root   = rootRef.current;
     if (!inner) return;
     if (!window.matchMedia('(max-width: 639px)').matches) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const wobble = gsap.to(inner, { rotation: 1.2, duration: 3.6, ease: 'sine.inOut', yoyo: true, repeat: -1 });
     const breathe = gsap.to(inner, { scale: 1.045, duration: 1.9, ease: 'sine.inOut', yoyo: true, repeat: -1, delay: 2.5 });
-
-    // Parallax: Foto 12 %, Block 4 % — die Differenz ist der Tiefeneindruck.
-    // Der Block laeuft auf dem <button> (mBlockRef waere ein zweiter
-    // transform-Schreiber auf inner, wo schon Wobble und Atmen sitzen).
-    const triggers: ScrollTrigger[] = [];
-    const scrub = (animation: gsap.core.Tween) => {
-      if (!root) return;
-      triggers.push(ScrollTrigger.create({ trigger: root, start: 'top top', end: 'bottom top', scrub: true, animation }));
-    };
-    if (img) scrub(gsap.to(img, { yPercent: 12, ease: 'none' }));
 
     let hintTl: gsap.core.Timeline | undefined;
     if (ripple && mag) {
@@ -345,7 +332,6 @@ export function Hero() {
 
     return () => {
       wobble.kill(); breathe.kill();
-      triggers.forEach((s) => s.kill());
       hintTl?.kill(); mHintTlRef.current = null;
     };
   }, []);
@@ -414,10 +400,12 @@ export function Hero() {
           Sitzt hinter der Navigation (navigation.tsx, heroTransparent) —
           deshalb kein pt-[84px]-Ausgleich, das Foto beginnt bei y=0. */}
       <div className="sm:hidden relative h-[100svh] min-h-[560px] w-full overflow-hidden">
-        {/* Foto-Ebene. Eigener Wrapper, weil der Scroll-Parallax auf IHN
-            schreibt — das <img> selbst traegt den Overscan-Scale, damit die
-            Parallax-Verschiebung unten keine Kante freilegt. */}
-        <div ref={mImgRef} className="absolute inset-0 will-change-transform">
+        {/* Foto-Ebene: Bild + Scrim-Stapel in einem Wrapper, damit die
+            Verlaeufe sich exakt auf das Foto beziehen statt auf die ganze
+            Sektion. Kein Scroll-Parallax mehr (siehe Kommentar am mobilen
+            useEffect) — deshalb kein ref/will-change-transform hier, dieser
+            Layer bewegt sich nie. */}
+        <div className="absolute inset-0">
           <picture>
             <source srcSet={MOBILE_HERO_BG} type="image/webp" />
             <img
@@ -432,12 +420,16 @@ export function Hero() {
               fetchPriority="high"
             />
           </picture>
-          {/* Scrim-Stapel, 1:1 die Logik des Desktop-Heros, nur hochkant
-              gedacht. Liegt INNERHALB der Parallax-Ebene, damit die Verlaeufe
-              exakt mit dem Foto mitwandern (als Geschwister wuerde beim
-              Scrollen ein untinteter Streifen am Rand auftauchen — genau
-              dieser Fehler ist im Desktop-Zweig unten dokumentiert). */}
-          <div className="absolute inset-0 pointer-events-none" style={{ background: 'rgba(var(--scrim-rgb),0.32)' }} />
+          {/* Scrim-Stapel, angelehnt an den Desktop-Hero, hochkant gedacht.
+              Das globale Scrim ist bewusst KEIN flacher Ton mehr (das war
+              Lucas "da scheint eine dunkle Ebene im Hintergrund zu liegen,
+              die auffaellt") — als Gradient blendet es oben (wo die Headline
+              den Kontrast braucht) staerker ein und laeuft zum unteren Drittel
+              hin fast auf null aus, sodass Block und Kette dort in ihrer
+              wahren Farbe stehen. Das dedizierte Fussband weiter unten
+              deckt die CTA-/Meta-Zone unabhaengig davon ab. */}
+          <div className="absolute inset-0 pointer-events-none"
+               style={{ background: 'linear-gradient(to bottom, rgba(var(--scrim-rgb),0.36) 0%, rgba(var(--scrim-rgb),0.18) 40%, rgba(var(--scrim-rgb),0.04) 100%)' }} />
           <div className="absolute inset-x-0 top-0 h-[42%] pointer-events-none"
                style={{ background: 'linear-gradient(to bottom, rgba(var(--scrim-rgb),0.55) 0%, rgba(var(--scrim-rgb),0.20) 60%, transparent 100%)' }} />
           {/* Lokales Scrim hinter der Headline — dieses Foto ist in der

@@ -849,9 +849,12 @@
      mit Luft nach oben zur Headline und nach unten zum CTA. Breite in svh,
      damit er auf kurzen Geraeten mitschrumpft statt in die Textzonen zu
      wachsen. Der ganze transform steht hier und nicht am <button>, damit es
-     nur EINE Quelle fuer diese Eigenschaft gibt. */
+     nur EINE Quelle fuer diese Eigenschaft gibt.
+     ~11 % groesser als der urspruengliche Wert (180/27svh/300 -> 200/30svh/
+     320) auf Lucas Wunsch — geprueft, dass der Abstand zur Headline und zum
+     CTA auf allen vier Zielgeraeten (360x640 bis 430x932) positiv bleibt. */
   .hero-block-m {
-    width: clamp(180px, 27svh, 300px);
+    width: clamp(200px, 30svh, 320px);
     left: 50%;
     top: 57%;
     transform: translate(-50%, -50%);
