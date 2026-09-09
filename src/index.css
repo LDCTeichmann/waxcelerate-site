@@ -808,15 +808,23 @@
    Kettengeflecht im Foto, das bei ca. +20 Grad liegt. Der Ueberstand des Blocks
    ueber eine saubere Kante leistet dasselbe, ohne eine einzige neue Ecke. */
 @media (max-width: 639px) {
-  /* Panel skaliert mit der Viewporthoehe (Ein-Screen). Der Block ragt weit
-     darunter heraus, deshalb ist das Panel selbst kompakt.
+  /* WICHTIG: hier NIE eine `max-height`-Media-Query einfuehren. Genau das
+     verursachte den gemeldeten Bug ("beim Scrollen wird ploetzlich alles
+     groesser"): ein zusaetzlicher `@media (max-width: 639px) and
+     (max-height: 740px)`-Block setzte Blockgroesse, Panelhoehe, H1, Value-Zeile
+     und CTA-Abstand neu. Faehrt beim Scrollen die Adressleiste des mobilen
+     Browsers ein, wird der Viewport hoeher als 740px, die Query greift nicht
+     mehr, und ALLE ihre Werte springen gleichzeitig in den groesseren Zweig —
+     das war der Sprung. `svh` (small viewport height) aendert sich per
+     Definition NICHT, wenn die Adressleiste ein-/ausfaehrt (im Gegensatz zu
+     `vh`/`dvh`), deshalb reicht hier durchgehendes `clamp()` mit `svh` als
+     Mitte, ohne je zwei diskrete Zweige gegeneinander springen zu lassen.
+
      --hero-block-w ist die EINE Quelle fuer Blockgroesse UND den Abstand der
-     Textzone darunter (siehe .hero-content-m). Vorher waren das zwei unabhaengig
-     getunte clamp()-Werte, die auf jedem Geraet unterschiedlich weit
-     auseinanderliefen — ein Teil des "stimmt irgendwie nicht". */
-  :root { --hero-block-w: clamp(146px, 25svh, 216px); }
+     Textzone darunter (siehe .hero-content-m). */
+  :root { --hero-block-w: clamp(138px, 24svh, 216px); }
   .hero-panel-m {
-    height: clamp(178px, 30svh, 268px);
+    height: clamp(160px, 28svh, 268px);
     overflow: visible;
   }
 
@@ -833,11 +841,13 @@
     transform: translate(-50%, 36%);
   }
 
-  /* Headline — grosse Editorial-Buehne, luftige Zeilen (lh via Inline-Style). */
-  .hero-h1-m { font-size: clamp(2.35rem, 10.5vw, 3rem); }
+  /* Headline — grosse Editorial-Buehne, luftige Zeilen (lh via Inline-Style).
+     svh statt vw: skaliert mit der Bildschirmhoehe (das ist, was hier knapp
+     ist), aendert sich aber nicht, wenn die Adressleiste einfaehrt. */
+  .hero-h1-m { font-size: clamp(1.95rem, 8.5svh, 3rem); }
 
   /* Value-Zeile: ruhig, kein Feature-Katalog. Dunkler als Eyebrow (Inline). */
-  .hero-value-m { font-size: clamp(0.84rem, 3.6vw, 0.98rem); line-height: 1.5; max-width: 30ch; }
+  .hero-value-m { font-size: clamp(0.82rem, 3.4svh, 0.98rem); line-height: 1.5; max-width: 30ch; }
 
   /* Textzone: von oben (justify-start), damit der Abstand Block -> Eyebrow
      exakt steuerbar ist. padding-top = Blockueberstand + gestalteter Abstand,
@@ -845,31 +855,23 @@
      nahezu quadratisch (aspect-ratio 837/844), Breite also gleich Hoehe. */
   .hero-content-m {
     justify-content: flex-start;
-    row-gap: 0.7rem;
+    row-gap: clamp(0.5rem, 1.3svh, 0.7rem);
     padding-top: calc(0.36 * var(--hero-block-w) + 1.75rem);
   }
   /* Eyebrow und Headline gehoeren zusammen -> engerer Abstand als der Rest. */
   .hero-eyebrow-row { margin-bottom: -0.15rem; }
   /* Bewusste Zaesur vor dem CTA. */
-  .hero-cta-m { margin-top: 0.7rem; }
+  .hero-cta-m {
+    margin-top: clamp(0.15rem, 1svh, 0.7rem);
+    padding-top: clamp(12px, 3svh, 16px);
+    padding-bottom: clamp(12px, 3svh, 16px);
+  }
   .hero-meta-m { margin-top: 0.2rem; }
 
   .hero-eyebrow {
     font-size: clamp(10.5px, 2.95vw, 11.5px) !important;
     letter-spacing: 0.05em !important;
   }
-}
-/* Kurze Geraete (< ~740px hoch): Panel, Block, Headline und Rhythmus stauchen.
-   Block und Textabstand haengen jetzt beide an --hero-block-w, hier wird also
-   nur noch diese eine Zahl neu gesetzt — top/padding-top ziehen von selbst
-   nach. */
-@media (max-width: 639px) and (max-height: 740px) {
-  :root { --hero-block-w: clamp(138px, 23svh, 188px); }
-  .hero-panel-m { height: clamp(160px, 27svh, 216px); }
-  .hero-content-m { row-gap: 0.5rem; }
-  .hero-h1-m { font-size: 1.95rem; }
-  .hero-value-m { font-size: 0.82rem; }
-  .hero-cta-m { margin-top: 0.15rem; padding-top: 12px; padding-bottom: 12px; }
 }
 
 /* .hero-chain-clip: bis v2 fuer die Mobile-Diagonale genutzt. Die Nachfolgerin
