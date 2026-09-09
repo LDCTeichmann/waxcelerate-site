@@ -535,7 +535,14 @@ export function ProductDetailPage() {
           <div className="max-w-[1440px] mx-auto px-5 sm:px-8 h-14 flex items-center justify-between gap-4">
             <div className="flex items-center gap-4 min-w-0">
               <Link to="/" className="flex-shrink-0 flex items-center" aria-label="Waxcelerate — Startseite">
-                <img src="/images/logo-dark.png" alt="" className="h-8 w-auto" />
+                {/* Kleiner Logo-Satz statt des 65-KB-PNG, siehe Kommentar in
+                    src/sections/footer.tsx. alt bleibt leer: der Link daneben
+                    traegt bereits ein aria-label. */}
+                <picture>
+                  <source srcSet="/images/logo-dark-160.avif" type="image/avif" />
+                  <source srcSet="/images/logo-dark-160.webp" type="image/webp" />
+                  <img src="/images/logo-dark.png" alt="" width={160} height={160} className="h-8 w-auto" />
+                </picture>
               </Link>
               {/* Breadcrumb — mirrors the breadcrumbSchema in <head>, which had
                   no visible on-page counterpart before this. */}

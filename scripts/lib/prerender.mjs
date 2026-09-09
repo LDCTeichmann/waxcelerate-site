@@ -56,8 +56,14 @@ export function loadShell(dist) {
  * chain-weave-mobile) — dieselbe Stripping-Regel muss jedem neuen Namen
  * folgen, sonst bleibt der veraltete Name hier stehen und der neue Preload
  * verbleibt faelschlich auf jeder Unterseite.
+ *
+ * Seit 09/2026 matcht die Regel deshalb JEDE Dateiendung (\.\w+) statt fest
+ * ".webp": genau dieser Fall ist naemlich schon eingetreten, als der
+ * wax-cutout-Preload auf .avif umgestellt wurde. Ein Formatwechsel darf die
+ * Regel nicht mehr still ins Leere laufen lassen — nur ein NEUER Basisname
+ * muss hier noch nachgetragen werden.
  */
-const HOME_ONLY_PRELOADS = /<link\s+rel="preload"\s+as="image"\s+href="\/images\/hero\/(?:chain-weave-mobile\.webp|chain-bg\.webp|wax-cutout\.webp)"[^>]*>\s*/gi;
+const HOME_ONLY_PRELOADS = /<link\s+rel="preload"\s+as="image"\s+href="\/images\/hero\/(?:chain-weave-mobile|chain-bg|wax-cutout)\.\w+"[^>]*>\s*/gi;
 
 /** Entfernt die globalen Head-Tags aus der Huelle, die wir pro Seite ersetzen. */
 export function stripHead(html) {

@@ -50,7 +50,19 @@ export function Footer() {
             {/* Brand — full width on mobile, 2/5 on desktop */}
             <div className="col-span-2 lg:col-span-1 max-w-xs">
               <div className="flex items-center gap-2.5 mb-5">
-                <img src="/images/logo-dark.png" alt="Waxcelerate" className="h-10 w-auto" />
+                {/* Das Logo lief bis 09/2026 als 320x320-PNG mit 65 KB im
+                    Footer JEDER Seite mit, angezeigt wurde es mit 40 px Hoehe.
+                    Lighthouse hat es entsprechend als groessten Einzelposten
+                    nach dem Hero-Bild gefuehrt. Jetzt 160 px breit (deckt 3x
+                    ab) als AVIF (5,2 KB) bzw. WebP (8,5 KB); das PNG bleibt
+                    nur noch letzter Fallback. width/height sind gesetzt, damit
+                    der Platz vor dem Laden reserviert ist (kein Layout-Sprung).
+                    Neu erzeugen: node scripts/build-avif-variants.mjs */}
+                <picture>
+                  <source srcSet="/images/logo-dark-160.avif" type="image/avif" />
+                  <source srcSet="/images/logo-dark-160.webp" type="image/webp" />
+                  <img src="/images/logo-dark.png" alt="Waxcelerate" width={160} height={160} className="h-10 w-auto" />
+                </picture>
                 <span className="font-sans text-sm font-bold tracking-wide text-wx-tx1">
                   WAXCELERATE
                 </span>

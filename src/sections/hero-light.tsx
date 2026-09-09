@@ -367,8 +367,16 @@ export function Hero() {
     </picture>
   );
 
+  // AVIF zuerst: gemessen 61,6 KB gegen 135 KB WebP bei GLEICHER Pixelbreite
+  // (885x900) und dabei naeher am PNG-Master als das WebP (RMS 3,1 vs 14,3).
+  // Der Block ist auf Mobil das LCP-Element, deshalb haengt daran auch der
+  // preload in index.html — der zeigt bewusst auf die .avif. Kein zusaetzliches
+  // srcset: Mobil skaliert ueber --hero-block-w, Desktop ueber einen anderen
+  // Anteil, ein `sizes` muesste beides treffen und waere die wahrscheinlichste
+  // Fehlerquelle. Das PNG bleibt als letzter Fallback stehen.
   const waxImg = (
     <picture>
+      <source srcSet="/images/hero/wax-cutout.avif" type="image/avif" />
       <source srcSet="/images/hero/wax-cutout.webp" type="image/webp" />
       <img
         src="/images/hero/wax-cutout.png"
@@ -382,6 +390,15 @@ export function Hero() {
 
   return (
     <section id="home" ref={rootRef} className="hero-editorial relative" style={{ background: 'var(--pg)' }}>
+      {/* Die einzige <h1> der Startseite. Sichtbar steht hier die
+          Marken-Headline "Am Ende der Recherche." — die ist als Ueberschrift
+          aber inhaltsleer, und sie stand bis 09/2026 zweimal als <h1> im DOM
+          (einmal Mobil-, einmal Desktop-Fassung). Beide sind jetzt <p> mit
+          identischem Aussehen, und die beschreibende Ueberschrift liegt hier,
+          visuell verborgen. Das aendert am Design nichts und gibt
+          Screenreadern wie Crawlern trotzdem eine Ueberschrift, die das
+          Angebot benennt. */}
+      <h1 className="sr-only">{t.hero.a11yHeading}</h1>
       {/* ===== MOBILE-HERO (< 640px) v4 — Hochkant-Fassung des Desktop-Heros ===== */}
       {/* Kettenfoto randlos im Hintergrund, der freigestellte Wachsblock
           scharf davor als einziges Objekt im Fokus — dieselbe Architektur wie
@@ -467,6 +484,8 @@ export function Hero() {
             />
             <span className="relative block" style={{ filter: 'drop-shadow(-3px 10px 16px rgba(5,6,8,0.40))' }}>
               <picture>
+                {/* AVIF zuerst — Begruendung bei waxImg weiter oben. */}
+                <source srcSet="/images/hero/wax-cutout.avif" type="image/avif" />
                 <source srcSet="/images/hero/wax-cutout.webp" type="image/webp" />
                 <img
                   src="/images/hero/wax-cutout.png"
@@ -533,7 +552,11 @@ export function Hero() {
                 dadurch konstant 48px — auf 360x640 stand die Headline damit
                 im Block. max-w-[82%] haelt die Zeilenlaenge typografisch im
                 Rahmen und den Text aus der hellsten Bildzone rechts. */}
-            <h1
+            {/* <p>, nicht <h1>: die echte Ueberschrift steht als sr-only am
+                Anfang der Section. Aussehen unveraendert — Fraunces kommt aus
+                font-display, Weiss aus text-white; beides lag vorher nur
+                zufaellig auch an den h1-Regeln in index.css. */}
+            <p
               className="font-display text-white max-w-[82%]"
               style={{
                 fontSize: 'clamp(1.7rem, 5.4svh, 3rem)',
@@ -564,7 +587,7 @@ export function Hero() {
                   </span>
                 ))}
               </span>
-            </h1>
+            </p>
           </div>
 
           {/* Fussgruppe: CTA + Meta-Zeile (Sterne links, Preisanker rechts).
@@ -747,7 +770,8 @@ export function Hero() {
                   </p>
                 </div>
 
-                <h1
+                {/* <p>, nicht <h1> — siehe Mobil-Fassung weiter oben. */}
+                <p
                   className="hero-h1 font-display text-white"
                   style={{
                     fontSize: 'clamp(2.5rem, 5.2vw, 4.6rem)',
@@ -777,7 +801,7 @@ export function Hero() {
                       </span>
                     ))}
                   </span>
-                </h1>
+                </p>
 
                 <p
                   data-hero

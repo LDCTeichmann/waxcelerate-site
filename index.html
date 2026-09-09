@@ -51,7 +51,7 @@
     <meta name="theme-color" content="#090909" />
     <!-- Nur fuer die Startseite korrekt: das LCP-Bildpaar des Hero ist je nach
          Breakpoint chain-weave-mobile.webp (< 640px) bzw. chain-bg.webp
-         (>= 640px), dazu in BEIDEN Faellen wax-cutout.webp — seit dem
+         (>= 640px), dazu in BEIDEN Faellen wax-cutout.avif — seit dem
          v4-Mobile-Hero traegt auch das Handy den freigestellten Wachsblock,
          deshalb hat diese Zeile keine media-Einschraenkung mehr. Diese Datei
          ist die Huelle fuer JEDE Unterseite (scripts/lib/prerender.mjs),
@@ -62,10 +62,21 @@
          394 KB Bandbreite ab (Audit vom 05.08.2026,
          performance-audit/AUDIT_REPORT.md Problem 1). fetchpriority="high"
          zusaetzlich zu rel="preload", weil Lighthouses
-         lcp-discovery-insight beides einzeln prueft. -->
+         lcp-discovery-insight beides einzeln prueft.
+
+         Der Wachsblock ist laut Lighthouse-Mobilmessung vom 10.09.2026 das
+         tatsaechliche LCP-Element. Sein preload zeigt seit dann auf die
+         AVIF-Fassung, weil das <picture> in hero-light.tsx genau die zuerst
+         anbietet: 61,6 KB statt 135 KB bei gleicher Pixelbreite und dabei
+         naeher am PNG-Master (RMS 3,1 gegen 14,3). type="image/avif" sorgt
+         dafuer, dass Browser ohne AVIF-Unterstuetzung den preload
+         ueberspringen statt eine Datei zu holen, die sie danach nicht
+         verwenden — die laden das WebP normal aus dem <picture>. Fuer dieses
+         Bild darf immer nur EIN preload stehen: avif und webp nebeneinander
+         wuerden von jedem Browser, der beides kann, doppelt geladen. -->
     <link rel="preload" as="image" href="/images/hero/chain-weave-mobile.webp" type="image/webp" media="(max-width: 639px)" fetchpriority="high" />
     <link rel="preload" as="image" href="/images/hero/chain-bg.webp" type="image/webp" media="(min-width: 640px)" fetchpriority="high" />
-    <link rel="preload" as="image" href="/images/hero/wax-cutout.webp" type="image/webp" fetchpriority="high" />
+    <link rel="preload" as="image" href="/images/hero/wax-cutout.avif" type="image/avif" fetchpriority="high" />
     <!-- Prevent theme flash: apply saved class before React mounts -->
     <script>
       (function(){

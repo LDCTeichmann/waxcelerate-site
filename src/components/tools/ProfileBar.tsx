@@ -52,7 +52,15 @@ export function ProfileBar({ profile, inactiveNote }: {
         // ausserdem einen erkennbar recessten Grund darunter.
         border: '1px solid var(--bd)',
         boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.04)',
-        opacity: inactiveNote ? 0.6 : 1,
+        // 0.85, nicht 0.6. Die 0.6 haben den gesamten Inhalt mitgedimmt, auch
+        // den Text: --tx2 steht auf --inset-bg normal bei 8,5:1 (hell) bzw.
+        // 5,9:1 (noir), bei opacity 0.6 fiel das auf 3,1:1 / 3,5:1 und damit
+        // unter die 4,5:1 aus WCAG AA — Lighthouse hat genau diesen Zustand
+        // als color-contrast-Fehler gemeldet (Mobilmessung 10.09.2026, die
+        // eingeklappte Zusammenfassung dieser Leiste). Durchgerechnet fuer
+        // beide Themes ist 0.8 die Grenze; 0.85 laesst Luft und nimmt die
+        // Leiste immer noch sichtbar zurueck.
+        opacity: inactiveNote ? 0.85 : 1,
       }}
     >
       {/* Handy: Zusammenfassung statt Bedienelemente, solange eingeklappt. */}

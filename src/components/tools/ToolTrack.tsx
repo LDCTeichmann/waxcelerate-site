@@ -275,18 +275,38 @@ export function ToolTrack({ items, onActiveChange }: {
             ))}
           </div>
         </div>
-        <div className="flex items-center justify-center gap-2 mt-2">
+        {/* Punkt-Navigation. Vorher war der Knopf selbst nur 6x6 px gross und
+            bekam seine Trefferflaeche ueber ein ::after mit 44x44 px. Das war
+            in zwei Hinsichten falsch: die Knoepfe standen nur 14 px
+            auseinander (6 px Punkt + 8 px gap), also ueberlappten sich die
+            44-px-Flaechen der Nachbarn um ein Vielfaches — wer zwischen zwei
+            Punkte tippte, landete bei dem, der zufaellig spaeter im DOM steht.
+            Und Lighthouse misst die Elementbox, nicht das Pseudo-Element,
+            weshalb target-size trotzdem durchfiel.
+            Jetzt ist der Knopf selbst 24x24 px (WCAG 2.2 SC 2.5.8) und traegt
+            den Punkt als Inhalt. Die Punkte sehen unveraendert aus, stehen nur
+            luftiger — 24 px Mittenabstand statt 14 px, damit sich nichts mehr
+            ueberschneidet. aria-current markiert den aktiven Rechner fuer
+            Screenreader, den Zustand gab die reine Farbe vorher nicht her. */}
+        <div className="flex items-center justify-center mt-2">
           {items.map((item, i) => (
             <button
               key={item.key}
+              type="button"
               onClick={() => setActive(i)}
-              className="relative transition-all duration-300 after:content-[''] after:absolute after:top-1/2 after:left-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:w-11 after:h-11"
+              className="grid h-6 w-6 place-items-center"
               aria-label={item.label}
-              style={{
-                width: i === active ? '20px' : '6px', height: '6px', borderRadius: '3px',
-                background: i === active ? 'var(--accent)' : 'var(--bd)',
-              }}
-            />
+              aria-current={i === active ? 'true' : undefined}
+            >
+              <span
+                aria-hidden
+                className="block transition-all duration-300"
+                style={{
+                  width: i === active ? '20px' : '6px', height: '6px', borderRadius: '3px',
+                  background: i === active ? 'var(--accent)' : 'var(--bd)',
+                }}
+              />
+            </button>
           ))}
         </div>
       </div>

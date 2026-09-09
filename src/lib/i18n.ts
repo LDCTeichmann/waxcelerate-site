@@ -47,6 +47,16 @@ export const translations = {
       subtitle: 'Waxcelerate · Kettenwachs · Stuttgart',
       headline: 'Am Ende der',
       headlineSub: 'Recherche.',
+      // Die einzige echte <h1> der Startseite, visuell verborgen (sr-only).
+      // Grund: "Am Ende der Recherche." ist die Marken-Headline und bleibt
+      // sichtbar genau so stehen — als Ueberschrift sagt sie aber weder einem
+      // Screenreader noch einer Suchmaschine, worum es auf dieser Seite geht.
+      // Sie steht deshalb jetzt als <p> da (unveraendert im Aussehen), und die
+      // beschreibende Ueberschrift liegt daneben nur fuer Vorlesesoftware und
+      // Crawler. Wortgleich mit der <h1> im vorgerenderten <noscript>-Rumpf
+      // (scripts/generate-home-html.mjs) — die beiden duerfen nicht
+      // auseinanderlaufen.
+      a11yHeading: 'Waxcelerate — Heißwachs für Fahrradketten aus Stuttgart',
       // Eyebrow im Mobile-Hero (unter dem grossen "Waxcelerate"-Schriftzug,
       // deshalb ohne den Markennamen). subtitle bleibt fuer Desktop.
       categoryLine: 'Heißwachs für Fahrradketten',
@@ -599,6 +609,7 @@ export const translations = {
       subtitle: 'Waxcelerate · Chain Wax · Stuttgart',
       headline: 'At the end of',
       headlineSub: 'the research.',
+      a11yHeading: 'Waxcelerate — hot wax for bicycle chains, made in Stuttgart',
       categoryLine: 'Hot wax for bicycle chains',
       valueLine: 'Three times the chain life — with no re-lubing.',
       tagline: 'Hot wax over chain oil. Cleaner, longer-lasting, more affordable, with no compromise.',

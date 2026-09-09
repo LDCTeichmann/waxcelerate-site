@@ -50,8 +50,12 @@ const list = (items) =>
 // Genau ein <h1>, und es traegt den Hauptsuchbegriff statt nur den Markennamen.
 // "Waxcelerate" allein wuerde nur fuer die Markensuche helfen, und genau die
 // funktioniert ohnehin, sobald die Seite indexiert ist.
+//
+// WORTGLEICH mit t.hero.a11yHeading in src/lib/i18n.ts: das ist die sr-only
+// <h1>, die die React-Startseite rendert. Liefen die beiden auseinander,
+// saehe ein Crawler ohne JavaScript eine andere Ueberschrift als einer mit.
 const body = `
-<h1>Heißwachs für Fahrradketten aus Stuttgart</h1>
+<h1>Waxcelerate — Heißwachs für Fahrradketten aus Stuttgart</h1>
 <p>Waxcelerate stellt Kettenwachs in kleinen Chargen selbst her. Zwei Formeln: Classic für Frühjahr bis Herbst, MoS₂ Pro für Winter und Nässe. Dazu vorgewachste Ketten, die sofort fahrbereit sind.</p>
 
 <section>

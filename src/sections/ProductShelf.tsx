@@ -144,9 +144,21 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
         to={`/produkt/${product.id}`}
         className="relative block overflow-hidden aspect-[16/10]"
         style={{ background: 'var(--hero-stage)' }}
-        aria-label={variant === 'classic' ? s.classicName : s.proName}
+        // Die Auszeichnung ("Meistgekauft" / "mit MoS₂") steht sichtbar INNERHALB
+        // dieses Links, stand aber nicht im aria-label — damit enthielt der
+        // zugaengliche Name den sichtbaren Text nicht (WCAG 2.5.3 Label in Name,
+        // von Lighthouse als label-content-name-mismatch gemeldet). Praktische
+        // Folge: wer per Sprachsteuerung "Meistgekauft anklicken" sagt, trifft
+        // den Link nicht. Deshalb steht die Auszeichnung jetzt mit im Namen.
+        aria-label={variant === 'classic'
+          ? `${s.classicName} — ${s.classicBadge}`
+          : `${s.proName} — ${s.proBadge}`}
       >
+        {/* AVIF vor WebP, gleiche Breiten und dasselbe `sizes` — spart je Motiv
+            18-31 % (gemessen, siehe scripts/build-avif-variants.mjs). Die
+            WebP-Zeile bleibt als Fallback und darf nicht entfallen. */}
         <picture>
+          <source srcSet={`${image}-800.avif 800w, ${image}.avif 1000w`} sizes="(max-width: 640px) 92vw, 46vw" type="image/avif" />
           <source srcSet={`${image}-800.webp 800w, ${image}.webp 1000w`} sizes="(max-width: 640px) 92vw, 46vw" type="image/webp" />
           <img
             src={`${image}.webp`}
@@ -412,6 +424,8 @@ export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, p
           statt halber, also bricht keine Eyebrow-Zeile mehr um. */}
       <div className="relative overflow-hidden aspect-[16/10]" style={{ background: 'var(--hero-stage)' }}>
         <picture>
+          {/* AVIF vor WebP, siehe Kommentar bei der Hauptkarte weiter oben. */}
+          <source srcSet={`${image}-800.avif 800w, ${image}.avif ${imageW}w`} sizes="(max-width: 640px) 92vw, 30vw" type="image/avif" />
           <source srcSet={`${image}-800.webp 800w, ${image}.webp ${imageW}w`} sizes="(max-width: 640px) 92vw, 30vw" type="image/webp" />
           <img
             src={`${image}.webp`}

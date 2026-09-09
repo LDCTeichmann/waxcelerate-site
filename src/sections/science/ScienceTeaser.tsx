@@ -71,8 +71,15 @@ export function ScienceTeaser({ de }: { de: boolean }) {
     // anklicken soll. Jetzt eigene Flaeche, Rahmen, Radius und ein sichtbarer
     // Hover-Zustand (Rahmen faerbt sich, Karte hebt sich leicht) — also die
     // gleichen Signale, die die Produktkarten auf derselben Seite benutzen.
+    // Kein aria-label mehr. Es lautete "Zur Wissenschaftsseite: Kontaktzonen,
+    // Formel, Mikroskopie" und hat damit den gesamten sichtbaren Inhalt der
+    // Karte ueberschrieben — Screenreader bekamen statt der Ueberschrift
+    // "Reibung entsteht an genau drei Flaechen." nur diese kurze Zeile, und
+    // weil der sichtbare Text im Namen fehlte, fiel die Karte zugleich durch
+    // WCAG 2.5.3 (Label in Name; Lighthouse: label-content-name-mismatch).
+    // Ohne aria-label bildet der eigene Inhalt den zugaenglichen Namen: er ist
+    // laenger, aber inhaltlich richtig und deckt sich mit dem Sichtbaren.
     <Link ref={ref} to="/wissenschaft"
-      aria-label={de ? 'Zur Wissenschaftsseite: Kontaktzonen, Formel, Mikroskopie' : 'To the science page: contact zones, formula, microscopy'}
       className="group grid sm:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] gap-6 sm:gap-10 items-center
                  mt-8 sm:mt-10 p-6 sm:p-8 rounded-2xl
                  transition-[transform,border-color,box-shadow] duration-300
