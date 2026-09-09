@@ -638,12 +638,26 @@ export function ProductDetailPage() {
               </>
             )}
             {slideCount > 1 && (
-              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex gap-1.5">
+              // Fortschrittsstriche. Vorher war der Knopf selbst nur 2,5 px hoch
+              // und 7 px breit und bekam seine Trefferflaeche ueber ein ::after
+              // mit 44x44 px — bei 13 px Mittenabstand ueberlappten sich die
+              // Flaechen der Nachbarn um ein Vielfaches, ein Tipp zwischen zwei
+              // Strichen traf den, der spaeter im DOM steht. Lighthouse hat das
+              // als target-size gemeldet (Messung /produkt/wax-500, 10.09.2026),
+              // gemessen wird naemlich die Elementbox, nicht das Pseudo-Element.
+              // Jetzt 24x24 px echte Knoepfe (WCAG 2.5.8) ohne Abstand
+              // dazwischen, der Strich liegt als Inhalt darin. bottom-[1px]
+              // statt bottom-3, damit die Striche optisch auf derselben Hoehe
+              // bleiben wie vorher (24-px-Reihe statt 2,5-px-Reihe).
+              <div className="absolute bottom-[1px] left-1/2 -translate-x-1/2 z-10 flex items-center">
                 {slides.map((_, i) => (
-                  <button key={i} onClick={() => { goTo(i); pause(); setTimeout(resume, AUTO_INTERVAL); }}
-                    className="relative h-[2.5px] rounded-full transition-all duration-500 after:content-[''] after:absolute after:top-1/2 after:left-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:w-11 after:h-11"
-                    style={{ width: i === activeImage ? 22 : 7, background: i === activeImage ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.3)' }}
-                    aria-label={de ? `Bild ${i + 1}` : `Image ${i + 1}`} />
+                  <button key={i} type="button" onClick={() => { goTo(i); pause(); setTimeout(resume, AUTO_INTERVAL); }}
+                    className="grid h-6 w-6 place-items-center"
+                    aria-label={de ? `Bild ${i + 1}` : `Image ${i + 1}`}
+                    aria-current={i === activeImage ? 'true' : undefined}>
+                    <span aria-hidden className="block h-[2.5px] rounded-full transition-all duration-500"
+                      style={{ width: i === activeImage ? 22 : 7, background: i === activeImage ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.3)' }} />
+                  </button>
                 ))}
               </div>
             )}

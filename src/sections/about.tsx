@@ -148,11 +148,22 @@ export function About() {
                   transform: 'translateZ(0)',
                 }}
               >
+                {/* loading="lazy": Das Bild wiegt 70 KB und ist damit nach dem
+                    Hero-Wachsblock der zweitgroesste Bildposten der Startseite
+                    — es stand aber ohne loading-Attribut im Markup und wurde
+                    deshalb sofort geladen, obwohl die Ueber-mich-Sektion erst
+                    nach Hero, Trust-Streifen, Produkten, Oel-vs-Wachs,
+                    Bewertungen, Herkunft und Rechnern kommt. Auf gedrosseltem
+                    Mobilfunk hat es damit dem echten LCP-Bild Bandbreite
+                    weggenommen (gemessen am 10.09.2026). */}
                 <picture>
+                  <source srcSet="/images/people/luca-stage.avif" type="image/avif" />
                   <source srcSet="/images/people/luca-stage.webp" type="image/webp" />
                   <img
                     src="/images/people/luca-stage.jpg"
                     alt="eBay Seller Leadership Week 2025, San Jose"
+                    loading="lazy"
+                    decoding="async"
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
                     // The right eBay sign used to get cropped mid-word ("eBa").
                     // The source photo has both signs near opposite edges and

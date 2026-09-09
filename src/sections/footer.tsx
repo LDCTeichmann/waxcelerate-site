@@ -61,7 +61,7 @@ export function Footer() {
                 <picture>
                   <source srcSet="/images/logo-dark-160.avif" type="image/avif" />
                   <source srcSet="/images/logo-dark-160.webp" type="image/webp" />
-                  <img src="/images/logo-dark.png" alt="Waxcelerate" width={160} height={160} className="h-10 w-auto" />
+                  <img src="/images/logo-dark.png" alt="Waxcelerate" width={160} height={160} loading="lazy" decoding="async" className="h-10 w-auto" />
                 </picture>
                 <span className="font-sans text-sm font-bold tracking-wide text-wx-tx1">
                   WAXCELERATE

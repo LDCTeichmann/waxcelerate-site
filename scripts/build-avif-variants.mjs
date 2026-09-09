@@ -42,6 +42,9 @@ const AVIF_JOBS = [
   // Hero — alle drei stehen in index.html als preload mit fetchpriority=high
   // und liegen damit direkt auf dem LCP-Pfad.
   { src: 'hero/wax-cutout.png', out: 'hero/wax-cutout.avif' },
+  // Zweitgroesster Bildposten der Startseite (Ueber-mich-Sektion), seit
+  // 09/2026 zusaetzlich lazy — siehe Kommentar in src/sections/about.tsx.
+  { src: 'people/luca-stage.webp', out: 'people/luca-stage.avif' },
   { src: 'hero/chain-bg.webp', out: 'hero/chain-bg.avif' },
   { src: 'hero/chain-weave-mobile.webp', out: 'hero/chain-weave-mobile.avif' },
   // Regal-Sektion — zwei Breiten je Motiv, passend zum vorhandenen srcset
