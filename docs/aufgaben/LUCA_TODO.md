@@ -15,6 +15,19 @@ Reviews, Rewax/Starter-Set, ScienceTeaser. Build war grün, Live-Check ok.
 Wenn du magst, einmal draufschauen: **waxcelerate.de/rechner** und auf dem Handy
 die Startseite.
 
+**2026-09-10 · Technik-SEO-Pass (Commit `ecbb8ec`, live + geprüft):**
+- Unbekannte URLs liefern jetzt echtes **HTTP 404** statt 200 (vorher „soft
+  404", Google konnte Fantasie-URLs indexieren). Neue `dist/404.html`, `noindex`.
+- **Content-Security-Policy**-Header ergänzt (im Browser über alle Seitentypen
+  getestet, keine Fehler).
+- Rechner-Seiten hatten nach dem Laden zwei `<title>`/Canonical im Quelltext —
+  behoben.
+- `aggregateRating` (5,0 / 200) aus dem Startseiten-Produkt-Schema raus —
+  dieselbe „self-serving Review"-Falle wie bei den früher entfernten
+  Produkt-Ratings.
+- Struktierte Daten gegen `validator.schema.org` geprüft: 0 Fehler auf Start,
+  Produkt, Rechner, Blog.
+
 ---
 
 # TEIL 1 — Die neuen Rechner-Seiten anmelden
@@ -77,6 +90,14 @@ verweist. Das sind die Quellen, die komplett in deiner Hand liegen.
       freundliche Nachricht (WhatsApp/Instagram im Footer): ob sie „Waxcelerate"
       einmal auf `waxcelerate.de` verlinken können, z. B. auf ihrer „Über
       uns"-Seite als Herstellerangabe.
+- [ ] **Vercel: `www` als Weiterleitung** (2 Min, nur du — Dashboard-Klick).
+      Aktuell macht `http://www.waxcelerate.de` **zwei** Redirect-Sprünge bis zur
+      finalen Adresse (`http→https→apex`); alle anderen drei Varianten sind schon
+      bei einem Sprung. Fix: vercel.com → Projekt `waxcelerate-site` → Settings →
+      Domains → bei `www.waxcelerate.de` auf **„Redirect to waxcelerate.de"**
+      stellen. Vercel macht daraus einen einzigen Sprung inkl. `https`-Upgrade.
+      Danach Gegencheck: `curl -sIL http://www.waxcelerate.de | grep -c ^HTTP`
+      sollte `2` zeigen (ein Redirect + finale 200) statt `3`.
 
 ---
 
