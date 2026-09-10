@@ -19,7 +19,7 @@
 import { HelpCircle } from 'lucide-react';
 import { InfoPopover } from '@/components/tools/primitives';
 
-export function StepField({ step, label, value, help, figure, children }: {
+export function StepField({ step, label, value, help, children }: {
   /** Schrittnummer ab 1. Weglassen (oder 0) bei Feldern ausserhalb einer
    *  Schrittfolge, etwa in der Profilleiste — dort waere eine Nummer irrefuehrend. */
   step?: number;
@@ -28,19 +28,20 @@ export function StepField({ step, label, value, help, figure, children }: {
   value?: string;
   /** Wo man das am Rad abliest. Ohne help erscheint kein Fragezeichen. */
   help?: string;
-  /** Skizze zur Erklaerung, erscheint zusammen mit dem Hilfetext. Manche
-   *  Angaben sind raeumlich und mit Worten kaum zu treffen. */
-  figure?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
     <div>
-      <div className="flex items-baseline justify-between gap-3 mb-2">
+      <div className="flex items-baseline justify-between gap-3 mb-1">
         <span className="flex items-baseline gap-2 min-w-0">
           {!!step && (
             <span
-              className="flex-shrink-0 text-meta font-semibold tabular-nums"
-              style={{ color: 'var(--brand)' }}
+              className="flex-shrink-0 grid place-items-center h-4 w-4 rounded text-[10px] font-semibold tabular-nums translate-y-[1px]"
+              style={{
+                color: 'var(--brand)',
+                background: 'rgba(var(--accent-rgb),0.10)',
+                border: '1px solid rgba(var(--accent-rgb),0.22)',
+              }}
             >
               {step}
             </span>
@@ -51,15 +52,12 @@ export function StepField({ step, label, value, help, figure, children }: {
           >
             {label}
           </span>
-          {(help || figure) && (
+          {help && (
             <InfoPopover
               ariaLabel={`${label}: Erklärung`}
               trigger={open => <HelpCircle className="h-3.5 w-3.5" style={{ color: open ? 'var(--brand)' : 'var(--txff)' }} />}
             >
-              {help && (
-                <p className="text-[12px] leading-snug" style={{ color: 'var(--txm)' }}>{help}</p>
-              )}
-              {figure && <div className={help ? 'mt-1' : ''}>{figure}</div>}
+              <p className="text-[12px] leading-snug" style={{ color: 'var(--txm)' }}>{help}</p>
             </InfoPopover>
           )}
         </span>
@@ -69,7 +67,7 @@ export function StepField({ step, label, value, help, figure, children }: {
           </span>
         )}
       </div>
-      <div className="flex flex-col gap-2">{children}</div>
+      <div className="flex flex-col gap-1.5">{children}</div>
     </div>
   );
 }

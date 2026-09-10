@@ -47,18 +47,6 @@
   .deck-slot, .deck-cover { transition: none; }
 }
 
-/* Rechner-Skizzen (diagrams.tsx): Kettenstreben- und Lehren-Skizze faerben
-   das jeweils gemeinte Bauteil per stroke/fill/opacity um, statt etwas zu
-   bewegen oder ein-/auszublenden — deshalb reicht eine reine Farb-Transition. */
-.diagram-fade { transition: stroke .25s ease, opacity .25s ease, fill .25s ease; }
-@media (prefers-reduced-motion: reduce) {
-  .diagram-fade { transition: none; }
-}
-.diagram-move { transition: transform .3s ease; }
-@media (prefers-reduced-motion: reduce) {
-  .diagram-move { transition: none; }
-}
-
 /* Solid page-color gradient overlay instead of an opacity mask — masking dark
    photo cards to transparent against a light page background left a muddy
    grey smear at the edges (alpha-blending a dark photo down to nothing over a

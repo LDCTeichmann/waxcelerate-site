@@ -6,8 +6,8 @@
 //   ToolCard
 //     ToolHeader   — Icon, die Frage, ein Satz Kontext
 //     StepList     — die Eingaben, nummeriert, immer mit denselben Abstaenden
-//     ResultPanel  — die Antwort, getoent abgesetzt, immer an dieser Stelle
-//     ToolFooter   — genau eine Handlungsaufforderung
+//     ResultPanel  — die Antwort, getoent abgesetzt, immer an dieser Stelle,
+//                    mit genau einer Handlungsaufforderung als letzter Zeile
 //
 // Vorher setzte jede Karte ihre eigenen Paddings, ihre eigene Reihenfolge und
 // ihre eigenen Schriftgroessen — daher die ungleichmaessigen Abstaende und der
@@ -30,7 +30,7 @@ export function TogButton({
       // Sichtbare Pille bleibt kompakt, die Tapp-Flaeche waechst ueber ein
       // unsichtbares after:-Pseudoelement auf die im Projekt geltenden 44 px
       // (Mobile-Plan B5).
-      className={`relative px-3.5 py-2 rounded-xl text-[13px] transition-all cursor-pointer after:content-[''] after:absolute after:top-1/2 after:left-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:min-w-11 after:h-11${active ? ' chip-active' : ''}`}
+      className={`relative px-3.5 py-1.5 rounded-xl text-[13px] transition-all cursor-pointer after:content-[''] after:absolute after:top-1/2 after:left-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:min-w-11 after:h-11${active ? ' chip-active' : ''}`}
       style={{
         border: active ? undefined : '1px solid var(--tog-bd)',
         background: active ? undefined : 'var(--tog-bg)',
@@ -54,12 +54,12 @@ export function ChipRow({ children }: { children: React.ReactNode }) {
 // Kein backdrop-filter: var(--card-bg) ist ein vollstaendig deckender Verlauf
 // (index.css). Hinter einer deckenden Karte zu blurren ist unsichtbar und reine
 // Compositing-Arbeit.
-// Mit h-full + flex-col: im Deck (ToolTrack.tsx) hat jeder Kartenslot jetzt
-// eine feste Hoehe, unabhaengig davon, welcher der sechs Rechner gerade drin
-// steckt — die Karte selbst darf sich also nicht mehr an ihrem Inhalt
-// ausrichten, sondern muss diese feste Hoehe exakt ausfuellen. ToolFooter
-// bekommt dafuer `mt-auto`: Kopf und CTA kleben oben/unten, der Rest verteilt
-// sich dazwischen, egal wie viel oder wenig Platz Eingaben+Ergebnis brauchen.
+// Mit h-full + flex-col: im Deck (ToolTrack.tsx) hat jeder Kartenslot eine
+// feste, vom Viewport abgeleitete Hoehe, unabhaengig davon, welcher der sechs
+// Rechner gerade drin steckt — die Karte selbst darf sich also nicht an ihrem
+// Inhalt ausrichten, sondern muss diese Hoehe exakt ausfuellen. ResultPanel
+// traegt dafuer das einzige `mt-auto`: Kopf oben, Antwortblock unten, der
+// freie Raum sammelt sich dazwischen.
 export function ToolCard({ children }: { children: React.ReactNode }) {
   return (
     <div
@@ -71,9 +71,16 @@ export function ToolCard({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function ToolHeader({ icon, title, subtitle }: { icon: React.ReactNode; title: string; subtitle: string }) {
+export function ToolHeader({ icon, title, subtitle, info }: {
+  icon: React.ReactNode; title: string; subtitle: string;
+  /** Erklaerungen zur ganzen Karte — Annahmen, Grenzfaelle, Begruendungen.
+   *  Standen frueher als Textlink unter den Eingaben und kosteten dort 34 px
+   *  Kartenhoehe; als Fragezeichen in der Kopfzeile kosten sie nichts und
+   *  stehen bei allen sechs Rechnern an derselben Stelle. */
+  info?: React.ReactNode;
+}) {
   return (
-    <div className={`${PAD} pt-4 pb-3 sm:pt-5 sm:pb-4`} style={{ borderBottom: '1px solid var(--inset-bd)' }}>
+    <div className={`${PAD} pt-3 pb-2.5 sm:pt-3.5`} style={{ borderBottom: '1px solid var(--inset-bd)' }}>
       <div className="flex items-start gap-3">
         <span
           className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
@@ -84,7 +91,7 @@ export function ToolHeader({ icon, title, subtitle }: { icon: React.ReactNode; t
         >
           {icon}
         </span>
-        <span className="min-w-0">
+        <span className="min-w-0 flex-1">
           <h3 className="text-[15px] font-semibold leading-snug" style={{ color: 'var(--tx1)' }}>{title}</h3>
           {/* line-clamp-1: die Kopfzeile darf nie in der Hoehe variieren, egal
               wie lang der Untertitel eines einzelnen Rechners ausfaellt —
@@ -92,31 +99,27 @@ export function ToolHeader({ icon, title, subtitle }: { icon: React.ReactNode; t
               gross anfuehlen. */}
           <p className="text-[12px] leading-snug mt-0.5 line-clamp-1" style={{ color: 'var(--txf)' }}>{subtitle}</p>
         </span>
+        {info && <span className="flex-shrink-0 mt-1">{info}</span>}
       </div>
     </div>
   );
 }
 
-/** Der Eingabebereich. flex-none: der freie Raum zwischen Eingaben und
-    Ergebnis darf nicht hier landen, sondern gehoert ResultPanel (mt-auto
-    dort) — sonst blaehen sich die Abstaende zwischen den Schritten je nach
-    Karte unterschiedlich auf. */
+/** Der Eingabebereich.
+ *
+ *  `flex-1` mit `justify-center`, nicht `flex-none`: die Karte hat eine feste,
+ *  vom Bildschirm abgeleitete Hoehe (ToolTrack.tsx), und Rechner mit nur einem
+ *  oder zwei Eingabeschritten liessen den freien Raum als ein grosses Loch
+ *  zwischen Eingaben und Ergebnis stehen. Jetzt steht die Schrittgruppe mittig
+ *  im freien Raum — die Abstaende ZWISCHEN den Schritten bleiben dabei fest
+ *  (`gap-2`), es waechst nur der Rand darum. Karten mit vielen Schritten
+ *  aendern sich nicht, dort ist kein freier Raum zu verteilen. */
 export function StepList({ children }: { children: React.ReactNode }) {
   return (
-    <div className={`${PAD} pt-4 pb-4 flex flex-none flex-col gap-3`}>
+    <div className={`${PAD} pt-3 pb-3 flex flex-1 flex-col justify-center gap-2`}>
       {children}
     </div>
   );
-}
-
-// Kein eigenes mt-auto mehr: das saesse zusammen mit ResultPanel.mt-auto auf
-// derselben Flex-Achse, und zwei auto-Margins auf einer Achse teilen sich den
-// freien Raum je zur Haelfte statt dass einer ihn ganz aufnimmt — Ergebnis
-// wanderte dadurch je nach Karte um bis zu 250 px, das Gegenteil der festen
-// Position, die ResultPanel herstellen soll. ResultPanel traegt jetzt das
-// einzige mt-auto; ToolFooter folgt direkt danach.
-export function ToolFooter({ children }: { children: React.ReactNode }) {
-  return <div className={`${PAD} pb-4 sm:pb-5`}>{children}</div>;
 }
 
 export function ToolSlider({ value, onValueChange, min, max, step, ariaLabel }: {
@@ -173,7 +176,7 @@ export function ToolCTA({ onClick, href, children }: {
   onClick?: () => void; href?: string; children: React.ReactNode;
 }) {
   const style: React.CSSProperties = { background: 'var(--inset-bg)', border: '1px solid var(--brand)' };
-  const className = 'w-full rounded-xl py-2.5 px-4 text-center transition-opacity hover:opacity-70 active:opacity-50 cursor-pointer';
+  const className = 'w-full rounded-xl py-2 px-4 text-center transition-opacity hover:opacity-70 active:opacity-50 cursor-pointer';
   const inner = <span className="text-[12px] font-medium" style={{ color: 'var(--brand)' }}>{children}</span>;
   if (href) {
     const external = /^https?:/.test(href);

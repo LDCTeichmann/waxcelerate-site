@@ -24,10 +24,9 @@ import { compatibilityMatrix, getProductById, isSoldOut } from '@/lib/data';
 import type { DriveSystem } from '@/lib/ridingProfile';
 import { shareUrl } from '@/lib/toolState';
 import {
-  ToolCard, ToolHeader, StepList, ToolFooter, ToolCTA, TogButton, ChipRow, StepNote,
+  ToolCard, ToolHeader, StepList, ToolCTA, TogButton, ChipRow, StepNote,
 } from '@/components/tools/primitives';
 import { StepField } from '@/components/tools/StepField';
-import { SprocketCountDiagram } from '@/components/tools/diagrams';
 import { ResultPanel } from '@/components/tools/ResultPanel';
 import { ResultActions } from '@/components/tools/ResultActions';
 
@@ -98,7 +97,7 @@ export function ChainMatchCalculator({ profile, compact }: { profile: ToolProfil
           </ChipRow>
         </StepField>
 
-        <StepField step={2} label={t.tools.match.speed} help={t.tools.match.helpSpeed} figure={<SprocketCountDiagram />}>
+        <StepField step={2} label={t.tools.match.speed} help={t.tools.match.helpSpeed}>
           <ChipRow>
             {SPEED_OPTIONS.map(s => (
               <TogButton key={s} active={stocked && speedKey === s} onClick={() => profile.setSpeed(Number(s) as 11 | 12)}>
@@ -118,10 +117,11 @@ export function ChainMatchCalculator({ profile, compact }: { profile: ToolProfil
         </StepField>
       </StepList>
 
-      {/* Die Trefferliste steht jetzt in beiden Ansichten — der freie Raum
-          ueber dem Ergebnis (ResultPanel.tsx, `mt-auto`) traegt sie, ohne die
-          feste Kartenhoehe im Deck zu sprengen. Maximal vier Eintraege, das
-          Maximum der Matrix.
+      {/* Die Trefferliste steht nur auf der eigenen Rechnerseite. Im Deck
+          ist die Kartenhoehe an die Bildschirmhoehe gebunden, und die Liste
+          ist der einzige Karteninhalt, der je nach Daten zwischen zwei und
+          vier Zeilen schwankt — beides zusammen geht nicht. Im Deck fuehrt
+          stattdessen der Knopf unten direkt zu den passenden Ketten.
           Sehr kleine Kacheln im Zweispalten-Raster statt einer Zeile pro
           Treffer: eine volle Zeile je Kette (Bild + zwei Textzeilen + Preis)
           brauchte bei vier Treffern rund 270 px und sprengte die feste
@@ -129,7 +129,7 @@ export function ChainMatchCalculator({ profile, compact }: { profile: ToolProfil
           Karte startet. Zwei Spalten aus kleinen Bild+Preis-Kacheln passen
           selbst bei vier Treffern in gut 90 px; Modell und Ausverkauft-Status
           bleiben einen Klick entfernt auf der Produktseite. */}
-      {sortedMatches.length > 0 && (
+      {!compact && sortedMatches.length > 0 && (
         <div className="px-4 sm:px-5 pb-3 grid grid-cols-2 gap-1.5">
           {sortedMatches.map(p => {
             const soldOut = isSoldOut(p);
@@ -160,6 +160,7 @@ export function ChainMatchCalculator({ profile, compact }: { profile: ToolProfil
       )}
 
       <ResultPanel
+        compact={compact}
         value={matches.length}
         unit={matches.length === 1 ? (de ? 'Kette passt' : 'chain fits') : (de ? 'Ketten passen' : 'chains fit')}
         verdict={!stocked
@@ -173,26 +174,26 @@ export function ChainMatchCalculator({ profile, compact }: { profile: ToolProfil
         facts={cheapest !== null
           ? [{ label: de ? 'Lieferbar ab' : 'In stock from', value: eur(cheapest) }]
           : []}
-        actions={<ResultActions shareUrl={shareUrl('/rechner/passende-kette', profile.snapshot)} />}
-      />
-
-      <ToolFooter>
-        {compact ? (
-          matches.length > 0 ? (
-            <ToolCTA href={deepLink}>
-              {de ? 'Passende Ketten ansehen →' : 'View matching chains →'}
-            </ToolCTA>
+        actions={<ResultActions compact={compact} shareUrl={shareUrl('/rechner/passende-kette', profile.snapshot)} />}
+        cta={(
+          compact ? (
+            matches.length > 0 ? (
+              <ToolCTA href={deepLink}>
+                {de ? 'Passende Ketten ansehen →' : 'View matching chains →'}
+              </ToolCTA>
+            ) : (
+              <ToolCTA href="/rechner/passende-kette">
+                {de ? 'Mehr erfahren →' : 'Find out more →'}
+              </ToolCTA>
+            )
           ) : (
-            <ToolCTA href="/rechner/passende-kette">
-              {de ? 'Mehr erfahren →' : 'Find out more →'}
+            <ToolCTA href="/rechner/kettenlaenge">
+              {de ? 'Passende Länge berechnen →' : 'Work out the right length →'}
             </ToolCTA>
           )
-        ) : (
-          <ToolCTA href="/rechner/kettenlaenge">
-            {de ? 'Passende Länge berechnen →' : 'Work out the right length →'}
-          </ToolCTA>
         )}
-      </ToolFooter>
+      />
+
     </ToolCard>
   );
 }

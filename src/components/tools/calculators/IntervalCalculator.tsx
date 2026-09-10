@@ -11,20 +11,20 @@
 // von zwei Fakten stillschweigend, siehe ResultPanel.tsx).
 
 import { useMemo, useState } from 'react';
-import { Calculator } from 'lucide-react';
+import { HelpCircle, Calculator } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
 import type { ToolProfileState } from '@/hooks/useToolProfile';
 import { addWeeks, isoDate, shareUrl, dueDate } from '@/lib/toolState';
 import { AnimatedNumber } from '@/components/viz';
 import {
-  ToolCard, ToolHeader, StepList, ToolFooter, ToolCTA, TogButton, ChipRow, StepNote, InfoPopover,
+  ToolCard, ToolHeader, StepList, ToolCTA, TogButton, ChipRow, StepNote, InfoPopover,
 } from '@/components/tools/primitives';
 import { StepField } from '@/components/tools/StepField';
 import { ResultPanel } from '@/components/tools/ResultPanel';
 import { ResultActions } from '@/components/tools/ResultActions';
 
-export function IntervalCalculator({ profile }: { profile: ToolProfileState }) {
+export function IntervalCalculator({ profile, compact }: { profile: ToolProfileState; compact?: boolean }) {
   const { t, lang } = useLanguage();
   const { theme } = useTheme();
   const de = lang === 'de';
@@ -78,6 +78,18 @@ export function IntervalCalculator({ profile }: { profile: ToolProfileState }) {
         subtitle={de
           ? 'Aus Wetter, Gelände und Kilometern — mit Termin für den Kalender.'
           : 'From weather, terrain and distance — with a date for your calendar.'}
+        info={(
+          <InfoPopover
+            ariaLabel={de ? 'Warum 300 km' : 'Why 300 km'}
+            trigger={open => <HelpCircle className="h-4 w-4" style={{ color: open ? 'var(--brand)' : 'var(--txff)' }} />}
+          >
+            <StepNote>
+              {de
+                ? '300 km bei trockener Straße ist die Empfehlung fürs Optimum, keine Verschleißgrenze. Eine Kette läuft auch mal 400 bis 500 km — nur eben nicht mehr im besten Zustand. Nach Regenfahrten deutlich früher.'
+                : '300 km on dry roads is the recommendation for the best result, not a wear limit. A chain will also run 400 to 500 km — just no longer in peak condition. After riding in rain, much sooner.'}
+            </StepNote>
+          </InfoPopover>
+        )}
       />
 
       <StepList>
@@ -134,25 +146,10 @@ export function IntervalCalculator({ profile }: { profile: ToolProfileState }) {
           )}
         </StepField>
 
-        {/* Warum 300 km: die Empfehlung ist ein Optimum, keine harte Grenze —
-            sonst liest sich „nach 3 Wochen" wie eine Verschleissgrenze. */}
-        <InfoPopover
-          ariaLabel={de ? 'Warum 300 km' : 'Why 300 km'}
-          trigger={() => (
-            <span className="text-[12px] font-medium" style={{ color: 'var(--brand)' }}>
-              {de ? 'Warum 300 km bei trockener Straße?' : 'Why 300 km on dry roads?'}
-            </span>
-          )}
-        >
-          <StepNote>
-            {de
-              ? '300 km bei trockener Straße ist die Empfehlung fürs Optimum, keine Verschleißgrenze. Eine Kette läuft auch mal 400 bis 500 km — nur eben nicht mehr im besten Zustand. Nach Regenfahrten deutlich früher.'
-              : '300 km on dry roads is the recommendation for the best result, not a wear limit. A chain will also run 400 to 500 km — just no longer in peak condition. After riding in rain, much sooner.'}
-          </StepNote>
-        </InfoPopover>
       </StepList>
 
       <ResultPanel
+        compact={compact}
         value={typeof remaining.value === 'number'
           ? <AnimatedNumber value={remaining.value} />
           : remaining.value}
@@ -172,7 +169,7 @@ export function IntervalCalculator({ profile }: { profile: ToolProfileState }) {
             value: `${de ? 'alle' : 'every'} ${weeks} ${weeks === 1 ? (de ? 'Woche' : 'week') : (de ? 'Wochen' : 'weeks')}${weeksCapped ? ' max.' : ''}`,
           },
         ]}
-        actions={<ResultActions
+        actions={<ResultActions compact={compact}
           shareUrl={url}
           event={{
             date: reminderDate,
@@ -184,11 +181,11 @@ export function IntervalCalculator({ profile }: { profile: ToolProfileState }) {
             url,
           }}
         />}
+        cta={(
+          <ToolCTA onClick={goToWax}>{t.tools.shared.buyWax}</ToolCTA>
+        )}
       />
 
-      <ToolFooter>
-        <ToolCTA onClick={goToWax}>{t.tools.shared.buyWax}</ToolCTA>
-      </ToolFooter>
     </ToolCard>
   );
 }

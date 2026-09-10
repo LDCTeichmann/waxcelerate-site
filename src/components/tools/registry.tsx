@@ -53,9 +53,10 @@ export function ToolCalculator({ slug, profile }: { slug: string; profile: ToolP
 }
 
 /** Alle Rechner als Stapel — fuer die Sektion auf der Startseite. */
-export function ToolDeck({ profile, onActiveChange }: {
+export function ToolDeck({ profile, onActiveChange, trailing }: {
   profile: ToolProfileState;
   onActiveChange?: (key: string) => void;
+  trailing?: React.ReactNode;
 }) {
   const { lang } = useLanguage();
   const de = lang === 'de';
@@ -71,5 +72,5 @@ export function ToolDeck({ profile, onActiveChange }: {
       node: <impl.Comp profile={profile} compact />,
     }];
   });
-  return <ToolTrack items={items} onActiveChange={onActiveChange} />;
+  return <ToolTrack items={items} onActiveChange={onActiveChange} trailing={trailing} />;
 }

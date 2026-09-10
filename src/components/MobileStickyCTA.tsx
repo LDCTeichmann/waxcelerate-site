@@ -17,6 +17,13 @@ export function MobileStickyCTA() {
   // eines Kauf-CTAs, siehe docs/plaene/MOBILE_PLAN.md B2).
   const [pastHero, setPastHero] = useState(false);
   const [inFooter, setInFooter] = useState(false);
+  // Dritter Fall neben Hero und Footer: die Rechner-Sektion. Sie ist so
+  // gebaut, dass Profilleiste, Karte und Bedienelemente zusammen auf eine
+  // Bildschirmhoehe passen (ToolTrack.tsx) — die 52 px dieser Leiste wuerden
+  // dort genau den Knopf unter dem Ergebnis verdecken. Die Sektion hat mit
+  // dem CTA in jeder Karte einen eigenen Weiterweg, es geht also keiner
+  // verloren; die Leiste kommt danach von selbst zurueck.
+  const [inTools, setInTools] = useState(false);
 
   const isMain = location.pathname === '/';
 
@@ -36,16 +43,37 @@ export function MobileStickyCTA() {
       { rootMargin: '0px 0px -50% 0px', threshold: 0 }
     );
 
+    // -20 % oben und unten: die Leiste soll erst weichen, wenn die Sektion
+    // wirklich im Bild steht, nicht schon wenn ihre Kante hereinragt.
+    const toolsObserver = new IntersectionObserver(
+      ([entry]) => setInTools(entry.isIntersecting),
+      { rootMargin: '-20% 0px -20% 0px', threshold: 0 }
+    );
+
     homeObserver.observe(home);
     footerObserver.observe(footer);
+
+    // Die Rechner-Sektion wird nachgeladen (Suspense in App.tsx) und steht
+    // beim ersten Lauf dieses Effekts noch nicht im DOM — direkt zu
+    // beobachten ging deshalb ins Leere. Kurz nachfassen, bis sie da ist.
+    let attempts = 0;
+    let timer: number | undefined;
+    const attach = () => {
+      const tools = document.getElementById('tools');
+      if (tools) { toolsObserver.observe(tools); return; }
+      if (attempts++ < 40) timer = window.setTimeout(attach, 150);
+    };
+    attach();
 
     return () => {
       homeObserver.disconnect();
       footerObserver.disconnect();
+      toolsObserver.disconnect();
+      if (timer) clearTimeout(timer);
     };
   }, [isMain]);
 
-  const visible = pastHero && !inFooter;
+  const visible = pastHero && !inFooter && !inTools;
 
   if (!isMain) return null;
 

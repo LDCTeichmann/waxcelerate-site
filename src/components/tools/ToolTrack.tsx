@@ -31,20 +31,25 @@ export interface TrackItem {
   node: React.ReactNode;
 }
 
-// Geometrie wie beim alten Deck: die Karte ist ueber left:50% + translate(-50%)
-// zentriert, das zusaetzliche translateX(±72 %) schiebt ihre Mitte nach aussen.
-// 0,72 w > 0,5 w heisst, die Mitte der Nachbarkarte liegt ausserhalb der
-// aktiven Karte, ihre Beschriftung bleibt also lesbar; 0,72 w + 0,9 w/2 = 1,17 w
-// bleibt bei 42 % Kartenbreite innerhalb der Spalte (bei 1024 und 1440 geprueft).
+// Geometrie des Decks. Die Karte ist ueber left:50% + translate(-50%)
+// zentriert, das zusaetzliche translateX schiebt ihre Mitte nach aussen.
+// 0,70 w > 0,5 w heisst, die Mitte der Nachbarkarte liegt ausserhalb der
+// aktiven Karte, ihre Beschriftung bleibt also lesbar; 0,70 w + 0,92 w/2 =
+// 1,16 w bleibt bei 42 % Kartenbreite innerhalb der Spalte (bei 1024, 1280
+// und 1440 geprueft).
+//
+// Flacher gedreht als vorher (14 statt 18 Grad, scale 0,92 statt 0,90): die
+// Karte ist seit dem Hoehen-Umbau breiter als hoch, und in dem Format liest
+// sich eine starke Drehung als Verzerrung statt als Tiefe.
 function slotTransform(rel: number, count: number): React.CSSProperties {
   if (rel === 0) {
     return { transform: 'translate(-50%) rotateY(0deg) scale(1)', zIndex: 30, opacity: 1 };
   }
   if (rel === 1) {
-    return { transform: 'translate(-50%) translateX(72%) rotateY(-18deg) scale(0.9)', zIndex: 20, opacity: 0.96 };
+    return { transform: 'translate(-50%) translateX(70%) rotateY(-14deg) scale(0.92)', zIndex: 20, opacity: 1 };
   }
   if (rel === count - 1) {
-    return { transform: 'translate(-50%) translateX(-72%) rotateY(18deg) scale(0.9)', zIndex: 20, opacity: 0.96 };
+    return { transform: 'translate(-50%) translateX(-70%) rotateY(14deg) scale(0.92)', zIndex: 20, opacity: 1 };
   }
   // Alles Weitere steht als Stapel hinter der aktiven Karte. Unsichtbar, aber
   // vorhanden — so hat der Uebergang beim Weiterblaettern etwas zu animieren,
@@ -52,29 +57,39 @@ function slotTransform(rel: number, count: number): React.CSSProperties {
   return { transform: 'translate(-50%) scale(0.86)', zIndex: 10, opacity: 0, pointerEvents: 'none' };
 }
 
-// Feste Hoehe statt gemessener: jede Karte bekommt (per ToolCard: h-full +
-// flex-col + ResultPanel mt-auto) exakt diese Box, egal welcher der sechs
-// Rechner gerade drinsteckt — Kopf und CTA kleben oben/unten, der Rest
-// verteilt sich dazwischen. Genau das macht auch die Deckel der Nachbar-
-// karten identisch gross: die Box, in der ein Deckel steckt, war vorher so
-// hoch wie der jeweils dahinter verdeckte, unterschiedlich lange Rechner —
-// jetzt ist sie fuer alle sechs exakt dieselbe.
+// ── Kartenhoehe ────────────────────────────────────────────────────────────
 //
-// 680/690 war auf den alten Karteninhalt geeicht. Der Karten-Umbau (siehe
-// calculators/*.tsx) haengt an vier der sechs Karten neue, aber echte
-// Antwort-Bestandteile: die Lehren-Skizze bei Verschleiss, die
-// Kettenstreben-Skizze bei Kettenlaenge, die Antriebs-Aufschluesselung bei
-// Umstieg, die Kassetten-Skizze plus Zeitvergleich bei Ersparnis. Bei 680 px
-// riss das den Fuss der vier Karten aus der Box (bis zu 137 px, gemessen per
-// getBoundingClientRect ueber alle sechs Karten). Diagramme wurden dafuer
-// bereits auf eine kompakte Breite begrenzt (siehe die einzelnen
-// calculators/*.tsx) — der Rest ist echter zusaetzlicher Platzbedarf, kein
-// Aufblaehen, und wird hier ausgeglichen.
-const DECK_HEIGHT = 840;
-const TRACK_HEIGHT = 850;
+// Vorher zwei feste Zahlen (840/850 px), geeicht auf einen Karteninhalt mit
+// Skizzen. Damit war die Sektion rund 1250 px hoch: man musste scrollen, um
+// Eingabe UND Antwort zu sehen — bei einem Werkzeug, dessen ganzer Sinn der
+// Zusammenhang zwischen beidem ist.
+//
+// Die Hoehe kommt jetzt vom Bildschirm: alles, was ausser der Karte in der
+// Sektion steht, wird von 100svh abgezogen. `svh` und nicht `vh`/`dvh`, weil
+// sich der Wert dann nicht aendert, wenn die mobile Adressleiste ein- und
+// ausfaehrt (dieselbe Regel wie beim Hero, siehe index.css).
+//
+// Der Abzug von 300 px ist gemessen, nicht geschaetzt: feste Navigation 60,
+// Profilleiste 112 + 16 Abstand, Reiterzeile 64, „Alle Rechner" 36, dazu das
+// Sektionspolster. Was sich davon nicht ausgeht, faengt die Ueberschrift auf —
+// die darf oben aus dem Bild laufen, alles Bedienbare nicht.
+// Nachgemessen bei 1440x800 (Karte 500, Leiste bis Link 735 + 60 Navigation)
+// und 1440x900 (Karte 580, 815 + 60).
+//
+// Untergrenze: die Hoehe, in die der laengste der sechs Rechner (Verschleiss)
+// gerade noch passt, ohne dass etwas abgeschnitten wird — mit aufgehobener
+// Hoehenbindung ueber alle sechs Karten gemessen. Die beiden Werte
+// unterscheiden sich, weil die Karte im Deck bei 1024 px Fensterbreite nur
+// 344 px breit ist (42 % der Spalte) und damit schmaler als auf dem Handy:
+// mehr Zeilenumbrueche, 488 px statt 482 px Bedarf.
+// Obergrenze 580 px, damit die Karte auf einem grossen Monitor nicht ins
+// Leere waechst.
+const DECK_HEIGHT = 'clamp(492px, calc(100svh - 300px), 580px)';
+const TRACK_HEIGHT = 'clamp(485px, calc(100svh - 285px), 580px)';
 
-function DeckSlot({ item, rel, count, active, onActivate, de }: {
-  item: TrackItem; rel: number; count: number; active: boolean; onActivate: () => void; de: boolean;
+function DeckSlot({ item, rel, count, active, onActivate, de, index }: {
+  item: TrackItem; rel: number; count: number; active: boolean; onActivate: () => void;
+  de: boolean; index: number;
 }) {
   const { Icon } = item;
   return (
@@ -86,49 +101,99 @@ function DeckSlot({ item, rel, count, active, onActivate, de }: {
             stuende sie vorne. */}
         <div className="h-full" inert={!active}>{item.node}</div>
 
-      {/* Deckel fuer alle Karten ausser der vorderen. Sechs offene Rechner
-          nebeneinander sind Laerm; der Deckel reduziert jede Karte auf die
-          Frage, die sie beantwortet, und blendet sich beim Nachvornedrehen aus —
-          das liest sich als Aufklappen. Bleibt montiert, damit die Blende in
-          beide Richtungen etwas zu animieren hat. Da die Box jetzt fuer alle
-          sechs Rechner exakt gleich hoch ist, ist es auch der Deckel. */}
-      <button
-        type="button"
-        onClick={onActivate}
-        aria-label={de ? `${item.label} anzeigen` : `Show ${item.label}`}
-        aria-hidden={active}
-        tabIndex={active ? -1 : 0}
-        className="deck-cover absolute inset-0 z-10 rounded-3xl flex flex-col items-center justify-center gap-4 px-8 text-center"
-        style={{
-          background: 'var(--card-bg)',
-          border: '1px solid var(--tool-card-bd)',
-          boxShadow: 'var(--tool-card-shad)',
-          opacity: active ? 0 : 1,
-          pointerEvents: active ? 'none' : 'auto',
-        }}
-      >
-        <span
-          className="w-12 h-12 rounded-2xl grid place-items-center"
+        {/* Deckel fuer alle Karten ausser der vorderen. Sechs offene Rechner
+            nebeneinander sind Laerm; der Deckel reduziert jede Karte auf die
+            Frage, die sie beantwortet, und blendet sich beim Nachvornedrehen
+            aus — das liest sich als Aufklappen. Bleibt montiert, damit die
+            Blende in beide Richtungen etwas zu animieren hat.
+
+            Aufbau wie die offene Karte, nicht als zentrierter Block: Kopf
+            (Nummer + Icon) oben, Frage und Hinweis in der Mitte, die
+            Aufforderung unten hinter einer Trennlinie. Vorher stand alles
+            mittig in einer sonst leeren Flaeche — bei einer 840 px hohen Karte
+            waren das zwei grosse dunkle Rechtecke links und rechts. */}
+        <button
+          type="button"
+          onClick={onActivate}
+          aria-label={de ? `${item.label} anzeigen` : `Show ${item.label}`}
+          aria-hidden={active}
+          tabIndex={active ? -1 : 0}
+          className="deck-cover absolute inset-0 z-10 rounded-3xl flex flex-col items-stretch text-left px-6 py-6 overflow-hidden"
           style={{
-            background: 'linear-gradient(135deg, rgba(var(--accent-rgb),0.22) 0%, rgba(var(--accent-rgb),0.06) 100%)',
-            border: '1px solid rgba(var(--accent-rgb),0.30)',
+            background: 'var(--card-bg)',
+            border: '1px solid var(--tool-card-bd)',
+            boxShadow: 'var(--tool-card-shad)',
+            opacity: active ? 0 : 1,
+            pointerEvents: active ? 'none' : 'auto',
           }}
         >
-          <Icon className="h-5 w-5" style={{ color: 'var(--txm)' }} />
-        </span>
-        <span className="text-[16px] font-semibold leading-snug" style={{ color: 'var(--tx1)' }}>{item.cover}</span>
-        <span className="text-[12.5px] leading-relaxed max-w-[26ch]" style={{ color: 'var(--txf)' }}>{item.hint}</span>
-        <span className="text-[12px] font-medium mt-1" style={{ color: 'var(--brand)' }}>
-          {de ? 'Rechner öffnen →' : 'Open calculator →'}
-        </span>
+          {/* Weicher Akzentschimmer aus der oberen Ecke — gibt dem Stapel
+              Tiefe, ohne eine zweite Farbe einzufuehren (DESIGN.md §1). */}
+          <span
+            aria-hidden
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: 'radial-gradient(120% 80% at 15% 0%, rgba(var(--accent-rgb),0.10) 0%, transparent 62%)',
+            }}
+          />
+
+          <span className="relative flex items-center justify-between">
+            <span
+              className="w-10 h-10 rounded-xl grid place-items-center"
+              style={{
+                background: 'linear-gradient(135deg, rgba(var(--accent-rgb),0.22) 0%, rgba(var(--accent-rgb),0.06) 100%)',
+                border: '1px solid rgba(var(--accent-rgb),0.30)',
+              }}
+            >
+              <Icon className="h-[18px] w-[18px]" style={{ color: 'var(--txm)' }} />
+            </span>
+            <span className="text-meta uppercase tracking-[0.14em] font-semibold tabular-nums" style={{ color: 'var(--txff)' }}>
+              {String(index + 1).padStart(2, '0')}
+            </span>
+          </span>
+
+          <span className="relative flex flex-col gap-2.5 my-auto">
+            <span className="text-meta uppercase tracking-[0.14em] font-semibold" style={{ color: 'var(--brand)' }}>
+              {item.label}
+            </span>
+            <span className="text-[19px] font-semibold leading-snug tracking-[-0.01em]" style={{ color: 'var(--tx1)' }}>
+              {item.cover}
+            </span>
+            <span className="text-[12.5px] leading-relaxed" style={{ color: 'var(--txf)' }}>
+              {item.hint}
+            </span>
+          </span>
+
+          <span
+            className="relative flex items-center justify-between pt-3 text-[12px] font-medium"
+            style={{ borderTop: '1px solid var(--inset-bd)', color: 'var(--brand)' }}
+          >
+            <span>{de ? 'Rechner öffnen' : 'Open calculator'}</span>
+            <ChevronRight className="h-3.5 w-3.5" />
+          </span>
         </button>
+
+        {/* Haarlinie in Akzentfarbe auf der Oberkante der vorderen Karte:
+            sagt auch ohne Bewegung, welche Karte bedienbar ist. */}
+        <span
+          aria-hidden
+          className="deck-cover absolute top-0 left-8 right-8 h-px z-20 pointer-events-none"
+          style={{
+            background: 'linear-gradient(90deg, transparent, rgba(var(--accent-rgb),0.55), transparent)',
+            opacity: active ? 1 : 0,
+          }}
+        />
       </div>
     </div>
   );
 }
 
-export function ToolTrack({ items, onActiveChange }: {
+export function ToolTrack({ items, onActiveChange, trailing }: {
   items: TrackItem[];
+  /** Steht in derselben Zeile wie die Bedienelemente (Punkte bzw. Reiter und
+   *  Pfeile) statt in einer eigenen darunter — eine eigene Zeile kostete
+   *  36 px, und die Sektion soll auf eine Bildschirmhoehe passen. */
+  trailing?: React.ReactNode;
   /** Meldet den Schluessel der aktiven Karte — die Sektion braucht ihn, um die
    *  Profilleiste zu deaktivieren, wenn der Rechner davorne sie nicht nutzt. */
   onActiveChange?: (key: string) => void;
@@ -222,7 +287,7 @@ export function ToolTrack({ items, onActiveChange }: {
         <div
           ref={tabBarRef}
           role="tablist"
-          className="relative flex p-1 rounded-2xl mb-5 overflow-x-auto hide-scrollbar"
+          className="relative flex p-1 rounded-2xl mb-3 overflow-x-auto hide-scrollbar"
           style={{ background: 'var(--tab-track-bg)', border: '1px solid var(--tab-track-bd)' }}
         >
           <div
@@ -237,7 +302,12 @@ export function ToolTrack({ items, onActiveChange }: {
               onClick={() => setActive(i)}
               role="tab"
               aria-selected={active === i}
-              className="relative z-10 flex-1 min-w-[76px] px-3 py-2 rounded-xl text-[13px] font-semibold transition-colors whitespace-nowrap"
+              // flex-1 hat die Reiter unter ihre Textbreite gestaucht: bei
+              // sechs Rechnern liefen „Passende Kette", „Kettenlänge" und
+              // „Umstieg" auf dem Handy ineinander. Feste Breite nach Inhalt,
+              // die Leiste scrollt stattdessen (sie tut das ohnehin schon,
+              // siehe den Effekt, der den aktiven Reiter mittig scrollt).
+              className="relative z-10 flex-shrink-0 px-3.5 py-1.5 rounded-xl text-[13px] font-semibold transition-colors whitespace-nowrap"
               style={{ color: active === i ? 'var(--tx1)' : 'var(--tx2)', letterSpacing: active === i ? '-0.01em' : '0' }}
             >
               {item.label}
@@ -275,40 +345,12 @@ export function ToolTrack({ items, onActiveChange }: {
             ))}
           </div>
         </div>
-        {/* Punkt-Navigation. Vorher war der Knopf selbst nur 6x6 px gross und
-            bekam seine Trefferflaeche ueber ein ::after mit 44x44 px. Das war
-            in zwei Hinsichten falsch: die Knoepfe standen nur 14 px
-            auseinander (6 px Punkt + 8 px gap), also ueberlappten sich die
-            44-px-Flaechen der Nachbarn um ein Vielfaches — wer zwischen zwei
-            Punkte tippte, landete bei dem, der zufaellig spaeter im DOM steht.
-            Und Lighthouse misst die Elementbox, nicht das Pseudo-Element,
-            weshalb target-size trotzdem durchfiel.
-            Jetzt ist der Knopf selbst 24x24 px (WCAG 2.2 SC 2.5.8) und traegt
-            den Punkt als Inhalt. Die Punkte sehen unveraendert aus, stehen nur
-            luftiger — 24 px Mittenabstand statt 14 px, damit sich nichts mehr
-            ueberschneidet. aria-current markiert den aktiven Rechner fuer
-            Screenreader, den Zustand gab die reine Farbe vorher nicht her. */}
-        <div className="flex items-center justify-center mt-2">
-          {items.map((item, i) => (
-            <button
-              key={item.key}
-              type="button"
-              onClick={() => setActive(i)}
-              className="grid h-6 w-6 place-items-center"
-              aria-label={item.label}
-              aria-current={i === active ? 'true' : undefined}
-            >
-              <span
-                aria-hidden
-                className="block transition-all duration-300"
-                style={{
-                  width: i === active ? '20px' : '6px', height: '6px', borderRadius: '3px',
-                  background: i === active ? 'var(--accent)' : 'var(--bd)',
-                }}
-              />
-            </button>
-          ))}
-        </div>
+        {/* Keine Punktreihe mehr unter der Karte: sie sagte dasselbe wie die
+            Reiterleiste darueber (welcher von sechs Rechnern steht vorne) und
+            kostete mit ihren 44-px-Trefferflaechen 32 px Hoehe. Auf dem Handy
+            ist genau das der Unterschied zwischen „Antwort und Knopf sichtbar"
+            und „scrollen". Gewischt wird unveraendert weiter; die Reiterleiste
+            scrollt den aktiven Reiter dabei mittig (siehe Effekt oben). */}
       </div>
 
       {/* ── Ab lg: dasselbe als 3D-Deck ── */}
@@ -329,11 +371,12 @@ export function ToolTrack({ items, onActiveChange }: {
               active={i === active}
               onActivate={() => setActive(i)}
               de={de}
+              index={i}
             />
           ))}
         </div>
 
-        <div className="flex items-center justify-center gap-3 mt-6">
+        <div className="relative flex items-center justify-center gap-3 mt-3">
           <button
             type="button"
             onClick={() => setActive((active - 1 + count) % count)}
@@ -387,6 +430,15 @@ export function ToolTrack({ items, onActiveChange }: {
           >
             <ChevronRight className="h-4 w-4" />
           </button>
+
+          {/* Erst ab xl: bei 1024 px Fensterbreite stossen Reiterleiste und
+              Link aneinander (Reiter + Pfeile brauchen dort 640 px der 912 px
+              breiten Spalte). Eine eigene Zeile fuer den Link kostete 36 px,
+              die bei dieser Fensterhoehe nicht da sind — und die Reiterleiste
+              fuehrt ohnehin zu jedem der sechs Rechner. */}
+          {trailing && (
+            <span className="hidden xl:block absolute right-0 top-1/2 -translate-y-1/2">{trailing}</span>
+          )}
         </div>
       </div>
     </>

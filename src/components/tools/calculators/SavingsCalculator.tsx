@@ -7,17 +7,15 @@
 //     Profilleiste.
 //  2. Die Annahmen liegen in waxMath und stehen unter der Karte offen. Ein
 //     Spar-Rechner auf der Seite des Verkaeufers ist sonst nur eine Behauptung.
-//  3. Der Kassettenschutz stand bisher nur als ein Satz im Popover — jetzt
-//     zeigt eine Skizze den Unterschied (CassetteWearDiagram), und der
-//     Vergleich in Schritt 2 stellt drei Groessen gegen die Ein-Ketten-Basis:
-//     Kosten, Sessions, Zeit.
+//  3. Der Vergleich in Schritt 2 stellt drei Groessen gegen die
+//     Ein-Ketten-Basis: Kosten, Sessions, Zeit.
 //  4. Der staerkste Rotationsgrund fehlte komplett: eine Wachs-Session dauert
 //     rund 20 Minuten, egal ob eine Kette oder drei gleichzeitig im Topf sind
 //     (waxMath.WAX_SESSION_MINUTES). Der Zeitgewinn steht jetzt als Balken im
 //     Ergebnis — er ist unmittelbarer als jeder Eurobetrag.
 
 import { useState } from 'react';
-import { RotateCcw } from 'lucide-react';
+import { HelpCircle, RotateCcw } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import type { ToolProfileState } from '@/hooks/useToolProfile';
 import { drivetrainCosts, medianChainPrice, waxHoursPerYear } from '@/lib/waxMath';
@@ -25,10 +23,9 @@ import { dueDate, shareUrl } from '@/lib/toolState';
 import { MAX_REWAX_WEEKS } from '@/hooks/useToolProfile';
 import { AnimatedNumber } from '@/components/viz';
 import {
-  ToolCard, ToolHeader, StepList, ToolFooter, ToolCTA, TogButton, ChipRow, StepNote, InfoPopover,
+  ToolCard, ToolHeader, StepList, ToolCTA, TogButton, ChipRow, StepNote, InfoPopover,
 } from '@/components/tools/primitives';
 import { StepField } from '@/components/tools/StepField';
-import { CassetteWearDiagram } from '@/components/tools/diagrams';
 import { ResultPanel } from '@/components/tools/ResultPanel';
 import { ResultActions } from '@/components/tools/ResultActions';
 
@@ -36,7 +33,7 @@ const CHAIN_COUNTS = [1, 2, 3] as const;
 /** Mengenrabatt auf Ketten-Kits, wie auf der Produktseite ausgewiesen. */
 const KIT_DISCOUNT: Record<1 | 2 | 3, number> = { 1: 0, 2: 5, 3: 10 };
 
-export function SavingsCalculator({ profile }: { profile: ToolProfileState }) {
+export function SavingsCalculator({ profile, compact }: { profile: ToolProfileState; compact?: boolean }) {
   const { t, lang } = useLanguage();
   const de = lang === 'de';
   const kmPerYear = profile.kmPerWeek * 52;
@@ -108,6 +105,26 @@ export function SavingsCalculator({ profile }: { profile: ToolProfileState }) {
         subtitle={de
           ? 'Ketten im Wechsel: seltener waxen, Kassette schonen, Geld sparen.'
           : 'Rotate chains: wax less often, protect the cassette, save money.'}
+        info={(
+          <InfoPopover
+            ariaLabel={de ? 'Details zur Rotation' : 'Details on rotation'}
+            trigger={open => <HelpCircle className="h-4 w-4" style={{ color: open ? 'var(--brand)' : 'var(--txff)' }} />}
+          >
+            <StepNote>
+              {de
+                ? `Bei ${kmPerYear.toLocaleString('de-DE')} km im Jahr empfehlen wir ${recommended} ${chainWord(recommended)}.`
+                : `At ${kmPerYear.toLocaleString('en-US')} km a year we suggest ${recommended} ${chainWord(recommended)}.`}
+            </StepNote>
+            <StepNote>
+              {de
+                ? 'Kette, Kassette und Schmierstoff zusammen, auf ein Jahr gerechnet.'
+                : 'Chain, cassette and lubricant together, over one year.'}
+            </StepNote>
+            <StepNote>
+              {de ? `Nächstes Waxen: ${nextLabel}.` : `Next wax: ${nextLabel}.`}
+            </StepNote>
+          </InfoPopover>
+        )}
       />
 
       <StepList>
@@ -129,13 +146,10 @@ export function SavingsCalculator({ profile }: { profile: ToolProfileState }) {
           </ChipRow>
         </StepField>
 
-        {/* Der Kassettenschutz stand bisher nur als Satz im Popover — die
-            Skizze macht in einem Blick klar, warum eine Kassette laenger
-            haelt, wenn keine Kette lange stark gelaengt bleibt. */}
-        <div className="max-w-[280px] mx-auto w-full">
-          <CassetteWearDiagram de={de} />
-        </div>
-
+        {/* Der Zahlenvergleich steht nur auf der eigenen Rechnerseite: im Deck
+            zeigt der Ergebnisblock denselben Vergleich als Balken plus
+            Urteilssatz, und die Karte hat dort genau eine Bildschirmhoehe. */}
+        {!compact && (
         <StepField
           step={2}
           label={de ? 'Gegenüber einer Kette' : 'Versus a single chain'}
@@ -165,34 +179,12 @@ export function SavingsCalculator({ profile }: { profile: ToolProfileState }) {
             </div>
           )}
         </StepField>
+        )}
 
-        {/* Empfehlungs-Begruendung und Termin an einer Stelle — der
-            Aufpreis-Hinweis steht jetzt als Kennzahl im Ergebnis (Vorab). */}
-        <InfoPopover
-          ariaLabel={de ? 'Details zur Rotation' : 'Details on rotation'}
-          trigger={() => (
-            <span className="text-[12px] font-medium" style={{ color: 'var(--brand)' }}>
-              {de ? 'Details zur Rotation' : 'Details on rotation'}
-            </span>
-          )}
-        >
-          <StepNote>
-            {de
-              ? `Bei ${kmPerYear.toLocaleString('de-DE')} km im Jahr empfehlen wir ${recommended} ${chainWord(recommended)}.`
-              : `At ${kmPerYear.toLocaleString('en-US')} km a year we suggest ${recommended} ${chainWord(recommended)}.`}
-          </StepNote>
-          <StepNote>
-            {de
-              ? 'Kette, Kassette und Schmierstoff zusammen, auf ein Jahr gerechnet.'
-              : 'Chain, cassette and lubricant together, over one year.'}
-          </StepNote>
-          <StepNote>
-            {de ? `Nächstes Waxen: ${nextLabel}.` : `Next wax: ${nextLabel}.`}
-          </StepNote>
-        </InfoPopover>
       </StepList>
 
       <ResultPanel
+        compact={compact}
         value={<AnimatedNumber value={costs.savingsPerYear} prefix="€" />}
         unit={de ? 'gespart/Jahr' : 'saved/yr'}
         hero={chains > 1 ? (
@@ -214,16 +206,16 @@ export function SavingsCalculator({ profile }: { profile: ToolProfileState }) {
           ...(chains > 1 ? [{ label: t.tools.rotation.upfront, value: eur(upfront) }] : []),
           { label: t.tools.rotation.vsOil, value: `−${costs.savingsPct}%` },
         ]}
-        actions={<ResultActions shareUrl={shareLink} event={reminder} />}
+        actions={<ResultActions compact={compact} shareUrl={shareLink} event={reminder} />}
+        cta={(
+          <ToolCTA href={deepLink}>
+            {de
+              ? chains === 1 ? 'Einzelkette ansehen →' : `${chains}-Ketten-Kit ansehen · ${KIT_DISCOUNT[chains]}% Rabatt →`
+              : chains === 1 ? 'View single chain →' : `View ${chains}-chain kit · ${KIT_DISCOUNT[chains]}% off →`}
+          </ToolCTA>
+        )}
       />
 
-      <ToolFooter>
-        <ToolCTA href={deepLink}>
-          {de
-            ? chains === 1 ? 'Einzelkette ansehen →' : `${chains}-Ketten-Kit ansehen · ${KIT_DISCOUNT[chains]}% Rabatt →`
-            : chains === 1 ? 'View single chain →' : `View ${chains}-chain kit · ${KIT_DISCOUNT[chains]}% off →`}
-        </ToolCTA>
-      </ToolFooter>
     </ToolCard>
   );
 }

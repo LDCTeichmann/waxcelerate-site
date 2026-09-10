@@ -20,7 +20,7 @@
 //    jetzt eine echte Wahl — ehrlich mitgesagt, dass der 300er im Einstieg
 //    guenstiger, je Wachsung aber teurer ist.
 
-import { ArrowRightLeft } from 'lucide-react';
+import { HelpCircle, ArrowRightLeft } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useState } from 'react';
 import type { ToolProfileState } from '@/hooks/useToolProfile';
@@ -30,7 +30,7 @@ import { accessories } from '@/lib/data';
 import { shareUrl } from '@/lib/toolState';
 import { AnimatedNumber } from '@/components/viz';
 import {
-  ToolCard, ToolHeader, StepList, ToolFooter, ToolCTA, TogButton, ChipRow, StepNote, InfoPopover,
+  ToolCard, ToolHeader, StepList, ToolCTA, TogButton, ChipRow, StepNote, InfoPopover,
 } from '@/components/tools/primitives';
 import { StepField } from '@/components/tools/StepField';
 import { ResultPanel } from '@/components/tools/ResultPanel';
@@ -38,7 +38,7 @@ import { ResultActions } from '@/components/tools/ResultActions';
 
 const WAX_SIZE_IDS = ['wax-300', 'wax-500'] as const;
 
-export function SwitchCalculator({ profile }: { profile: ToolProfileState }) {
+export function SwitchCalculator({ profile, compact }: { profile: ToolProfileState; compact?: boolean }) {
   const { t, lang } = useLanguage();
   const de = lang === 'de';
   const eur = (n: number) => new Intl.NumberFormat(de ? 'de-DE' : 'en-US', {
@@ -94,6 +94,30 @@ export function SwitchCalculator({ profile }: { profile: ToolProfileState }) {
         icon={<ArrowRightLeft className="h-4 w-4" style={{ color: 'var(--txm)' }} />}
         title={t.tools.switch.title}
         subtitle={t.tools.switch.subtitle}
+        info={(
+          <InfoPopover
+            ariaLabel={de ? 'Wichtige Hinweise zum Umstieg' : 'Important notes on switching'}
+            trigger={open => <HelpCircle className="h-4 w-4" style={{ color: open ? 'var(--brand)' : 'var(--txff)' }} />}
+          >
+            <StepNote>
+              {t.tools.switch.degreaseNote}{' '}
+              <a href="/rechner/passende-kette" className="font-medium" style={{ color: 'var(--brand)' }}>
+                {t.tools.switch.degreaseAlt}
+              </a>
+            </StepNote>
+            {e.outlastsShelfLife && smallWax && (
+              <StepNote>{t.tools.switch.shelfLifeHint}</StepNote>
+            )}
+            {e.needsHybridHint && (
+              <StepNote>
+                {t.tools.switch.hybridHint}{' '}
+                <a href="/blog/tropfwachs-hybrid-methode" className="font-medium" style={{ color: 'var(--brand)' }}>
+                  {t.tools.switch.hybridLink}
+                </a>
+              </StepNote>
+            )}
+          </InfoPopover>
+        )}
       />
 
       <StepList>
@@ -117,6 +141,11 @@ export function SwitchCalculator({ profile }: { profile: ToolProfileState }) {
             })}
           </ChipRow>
           <StepNote>{t.tools.switch.waxSizeNote}</StepNote>
+          {/* Die Einzelposten stehen nur auf der eigenen Rechnerseite. Im Deck
+              haengt die Kartenhoehe an der Bildschirmhoehe; dort steht die
+              Summe rechts neben der Schrittbeschriftung, die Aufschluesselung
+              ist einen Klick entfernt. */}
+          {!compact && (
           <ul className="flex flex-col gap-1.5 mt-1">
             {startItems.map(i => (
               <li key={i.label} className="flex items-baseline justify-between gap-3">
@@ -134,12 +163,18 @@ export function SwitchCalculator({ profile }: { profile: ToolProfileState }) {
               </li>
             ))}
           </ul>
+          )}
         </StepField>
 
         {/* Die volle Jahresrechnung statt nur des Schmierstoff-Vergleichs:
             Kette und Kassette sprechen fuer Wachs, der Schmierstoff dagegen —
             vorher stand nur die Schmierstoffzeile hier, und das ist die eine
             Zeile, in der Wachs verliert. */}
+        {/* Die volle Jahrestabelle steht nur auf der eigenen Rechnerseite.
+            Im Deck zeigt der Ergebnisblock denselben Vergleich als Balken
+            (Oel gegen Wachs) — die Tabelle waere dort eine zweite Fassung
+            derselben Zahlen und kostet 119 px, die die Sektion nicht hat. */}
+        {!compact && (
         <StepField
           step={2}
           label={de ? 'Was es dich im Jahr kostet' : 'What it costs you per year'}
@@ -165,42 +200,12 @@ export function SwitchCalculator({ profile }: { profile: ToolProfileState }) {
             <span className="text-[13px] text-right font-medium tabular-nums" style={{ color: 'var(--txm)' }}>+{eur(costs.breakdown.lube.wax)}</span>
           </div>
         </StepField>
+        )}
 
-        {/* Alle Zusatzhinweise an einer Stelle statt an drei — die haeufigste
-            Stolperfalle beim Umstieg (Fabrikfett/Altoel blockiert das Wachs),
-            und zwei seltene Grenzfaelle (Vorrat aelter als Haltbarkeit,
-            Intervall unter einer Woche). Als Popover statt bedingt inline,
-            weil sonst genau in diesen seltenen Faellen die Karte hoeher
-            wuerde als die anderen fuenf. */}
-        <InfoPopover
-          ariaLabel={de ? 'Wichtige Hinweise zum Umstieg' : 'Important notes on switching'}
-          trigger={() => (
-            <span className="text-[12px] font-medium" style={{ color: 'var(--brand)' }}>
-              {de ? 'Wichtige Hinweise' : 'Important notes'}
-            </span>
-          )}
-        >
-          <StepNote>
-            {t.tools.switch.degreaseNote}{' '}
-            <a href="/rechner/passende-kette" className="font-medium" style={{ color: 'var(--brand)' }}>
-              {t.tools.switch.degreaseAlt}
-            </a>
-          </StepNote>
-          {e.outlastsShelfLife && smallWax && (
-            <StepNote>{t.tools.switch.shelfLifeHint}</StepNote>
-          )}
-          {e.needsHybridHint && (
-            <StepNote>
-              {t.tools.switch.hybridHint}{' '}
-              <a href="/blog/tropfwachs-hybrid-methode" className="font-medium" style={{ color: 'var(--brand)' }}>
-                {t.tools.switch.hybridLink}
-              </a>
-            </StepNote>
-          )}
-        </InfoPopover>
       </StepList>
 
       <ResultPanel
+        compact={compact}
         value={<AnimatedNumber value={costs.savingsPerYear} prefix="€" />}
         unit={t.tools.switch.perYearLess}
         hero={(
@@ -217,12 +222,12 @@ export function SwitchCalculator({ profile }: { profile: ToolProfileState }) {
           { label: t.tools.switch.toolingPaidOff, value: e.breakEvenMonths ? `${e.breakEvenMonths} ${e.breakEvenMonths === 1 ? t.tools.switch.oneMonth : t.tools.switch.months}` : '—' },
           { label: t.tools.switch.blockLasts, value: `${apps} ${t.tools.switch.applications} · ${de ? `ca. ${e.monthsPerBlock} Mon.` : `~${e.monthsPerBlock} mo.`}` },
         ]}
-        actions={<ResultActions shareUrl={shareUrl('/rechner/umstieg', profile.snapshot)} />}
+        actions={<ResultActions compact={compact} shareUrl={shareUrl('/rechner/umstieg', profile.snapshot)} />}
+        cta={(
+          <ToolCTA href="/starter-set">{t.tools.switch.cta}</ToolCTA>
+        )}
       />
 
-      <ToolFooter>
-        <ToolCTA href="/starter-set">{t.tools.switch.cta}</ToolCTA>
-      </ToolFooter>
     </ToolCard>
   );
 }

@@ -12,6 +12,12 @@
 // Google Calendar an. Apple/Outlook und der Rhythmus-Schalter stecken hinter
 // dem kleinen Aufklapp-Pfeil daneben — sichtbar, aber nicht im Weg. Die
 // Aktionszeile bleibt einzeilig (feste Kartenhoehe im Deck, ToolTrack.tsx).
+//
+// `compact`: im Kartenstapel der Startseite stehen diese Aktionen in derselben
+// Zeile wie die Handlungsaufforderung — dort tragen sie nur ihr Symbol und
+// ihren aria-label-Text. Eine eigene beschriftete Zeile kostete 46 px, und die
+// hat die Sektion nicht, seit sie auf eine Bildschirmhoehe passen muss. Auf
+// den /rechner-Seiten (ohne `compact`) bleibt die beschriftete Fassung.
 
 import { useState } from 'react';
 import { CalendarPlus, ChevronDown, Download, Link2, Check, Share2 } from 'lucide-react';
@@ -25,7 +31,9 @@ const ACTION_STYLE: React.CSSProperties = {
   background: 'var(--inset-bg)', border: '1px solid var(--inset-bd)', color: 'var(--tx2)',
 };
 
-export function ResultActions({ event, shareUrl: url }: { event?: ReminderEvent; shareUrl?: string }) {
+export function ResultActions({ event, shareUrl: url, compact }: {
+  event?: ReminderEvent; shareUrl?: string; compact?: boolean;
+}) {
   const { t, lang } = useLanguage();
   const de = lang === 'de';
   const [copied, setCopied] = useState(false);
@@ -60,19 +68,21 @@ export function ResultActions({ event, shareUrl: url }: { event?: ReminderEvent;
     : undefined;
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className={compact ? 'flex gap-2 flex-shrink-0' : 'flex flex-wrap gap-2'}>
       {evt && (
-        <div className="flex flex-1 min-w-[8.5rem]">
+        <div className={compact ? 'flex flex-shrink-0' : 'flex flex-1 min-w-[8.5rem]'}>
           {/* Haupt-Tap: direkt in Google Calendar */}
           <a
             href={googleCalendarUrl(evt)}
             target="_blank"
             rel="noopener noreferrer"
-            className={`${ACTION_CLASS} flex-1 rounded-r-none`}
+            className={`${ACTION_CLASS} rounded-r-none ${compact ? 'px-2.5' : 'flex-1'}`}
             style={{ ...ACTION_STYLE, borderRight: 'none' }}
+            aria-label={compact ? t.tools.shared.addGoogle : undefined}
+            title={compact ? t.tools.shared.addGoogle : undefined}
           >
             <CalendarPlus className="h-3.5 w-3.5 flex-shrink-0" />
-            <span className="whitespace-nowrap">{t.tools.shared.addGoogle}</span>
+            {!compact && <span className="whitespace-nowrap">{t.tools.shared.addGoogle}</span>}
           </a>
           {/* Aufklapp: Apple/Outlook + Rhythmus */}
           <InfoPopover
@@ -125,17 +135,21 @@ export function ResultActions({ event, shareUrl: url }: { event?: ReminderEvent;
         <button
           type="button"
           onClick={share}
-          className={`${ACTION_CLASS} flex-1 min-w-[7.5rem]`}
+          className={`${ACTION_CLASS} ${compact ? 'px-2.5 flex-shrink-0' : 'flex-1 min-w-[7.5rem]'}`}
           style={ACTION_STYLE}
+          aria-label={compact ? (canShare ? t.tools.shared.share : t.tools.shared.copyLink) : undefined}
+          title={compact ? (canShare ? t.tools.shared.share : t.tools.shared.copyLink) : undefined}
         >
           {copied
             ? <Check className="h-3.5 w-3.5 flex-shrink-0" />
             : canShare
               ? <Share2 className="h-3.5 w-3.5 flex-shrink-0" />
               : <Link2 className="h-3.5 w-3.5 flex-shrink-0" />}
-          <span className="whitespace-nowrap">
-            {copied ? t.tools.shared.copied : canShare ? t.tools.shared.share : t.tools.shared.copyLink}
-          </span>
+          {!compact && (
+            <span className="whitespace-nowrap">
+              {copied ? t.tools.shared.copied : canShare ? t.tools.shared.share : t.tools.shared.copyLink}
+            </span>
+          )}
         </button>
       )}
     </div>

@@ -23,11 +23,25 @@
 // Weniger Zahlen gleichzeitig: genau eine grosse Zahl, ein Satz Klartext dazu,
 // hoechstens zwei Zusatzangaben. Alles Weitere gehoert nicht ins Ergebnis,
 // sondern in ein Popover oder auf die Rechner-Einzelseite.
+//
+// Die Handlungsaufforderung steht seit dem Hoehen-Umbau IN diesem Block statt
+// als eigener Streifen darunter (der frueheren ToolFooter). Das spart die
+// doppelten Innenabstaende — Karte und Block hatten je 16-20 px — und liest
+// sich richtiger: Antwort und naechster Schritt gehoeren zusammen.
+//
+// Teilen und Termin sitzen im Kartenstapel (`compact`) rechts NEBEN der grossen
+// Zahl: diese Zeile ist rechts ohnehin leer, eine eigene Zeile darunter kostete
+// 46 px. Die Karte muss dort in eine Bildschirmhoehe passen (ToolTrack.tsx), und
+// 46 px sind der Unterschied zwischen „Antwort sichtbar" und „abgeschnitten".
+// Dort tragen die Knoepfe nur ihr Symbol (ResultActions `compact`) und brauchen
+// rund 80 px. Auf den /rechner-Seiten sind sie beschriftet, brauchen damit ueber
+// 250 px und stehen deshalb weiterhin in einer eigenen Zeile — nebeneinander
+// legten sie sich bei schmalem Fenster ueber die Zahl.
 
 export type ResultTone = 'neutral' | 'good' | 'warn';
 
 export function ResultPanel({
-  value, unit, verdict, facts, tone = 'neutral', actions, hero,
+  value, unit, verdict, facts, tone = 'neutral', actions, hero, cta, compact,
 }: {
   /** Die eine grosse Zahl. Node, damit AnimatedNumber hineinpasst. */
   value: React.ReactNode;
@@ -42,37 +56,44 @@ export function ResultPanel({
       Balkenvergleich. Optional — nur zwei Karten (Umstieg, Ersparnis)
       nutzen ihn, und verzichten dafuer auf die zweite Kennzahl. */
   hero?: React.ReactNode;
+  /** Die eine Handlungsaufforderung, unterste Zeile des Blocks. */
+  cta?: React.ReactNode;
+  /** Im Kartenstapel der Startseite: Aktionen als Symbole neben die Zahl. */
+  compact?: boolean;
 }) {
   const shownFacts = (facts ?? []).slice(0, 2);
   const accent = tone === 'neutral' ? 'var(--tx1)' : 'var(--brand)';
   return (
     <div
-      className="mt-auto mx-4 mb-4 sm:mx-5 sm:mb-5 rounded-2xl px-4 py-4 sm:px-5 sm:py-5"
+      className="mt-auto mx-3.5 mb-3.5 sm:mx-4 sm:mb-4 rounded-2xl px-3.5 py-3 sm:px-4"
       style={{
         background: tone === 'neutral' ? 'var(--inset-bg)' : 'rgba(var(--accent-rgb),0.07)',
         border: tone === 'neutral' ? '1px solid var(--inset-bd)' : '1px solid rgba(var(--accent-rgb),0.28)',
       }}
     >
-      <div className="flex items-baseline gap-2">
-        <span className="text-[34px] sm:text-[40px] font-bold leading-none tabular-nums" style={{ color: accent }}>
-          {value}
-        </span>
-        {unit && (
-          <span className="text-[15px] sm:text-[16px] font-semibold leading-none" style={{ color: 'var(--tx2)' }}>
-            {unit}
+      <div className="flex items-baseline justify-between gap-3">
+        <span className="flex items-baseline gap-2 min-w-0">
+          <span className="text-[30px] sm:text-[34px] font-bold leading-none tabular-nums" style={{ color: accent }}>
+            {value}
           </span>
-        )}
+          {unit && (
+            <span className="text-[15px] sm:text-[16px] font-semibold leading-none truncate" style={{ color: 'var(--tx2)' }}>
+              {unit}
+            </span>
+          )}
+        </span>
+        {compact && actions && <span className="flex-shrink-0 self-center">{actions}</span>}
       </div>
 
-      {hero && <div className="mt-3">{hero}</div>}
+      {hero && <div className="mt-2.5">{hero}</div>}
 
-      <p className="text-[13px] leading-snug mt-2 line-clamp-2 min-h-[2.6em]" style={{ color: 'var(--tx2)' }}>
+      <p className="text-[12.5px] leading-snug mt-1.5 line-clamp-2 min-h-[2.4em]" style={{ color: 'var(--tx2)' }}>
         {verdict}
       </p>
 
       {shownFacts.length > 0 && (
         <dl
-          className="grid gap-x-3 gap-y-2 mt-3 pt-3"
+          className="grid gap-x-3 gap-y-1.5 mt-2 pt-2"
           style={{ borderTop: '1px solid var(--inset-bd)', gridTemplateColumns: `repeat(${shownFacts.length}, minmax(0,1fr))` }}
         >
           {shownFacts.map(f => (
@@ -84,7 +105,9 @@ export function ResultPanel({
         </dl>
       )}
 
-      {actions && <div className="mt-3">{actions}</div>}
+      {!compact && actions && <div className="mt-2.5">{actions}</div>}
+
+      {cta && <div className="mt-2.5">{cta}</div>}
     </div>
   );
 }

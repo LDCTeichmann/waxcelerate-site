@@ -7,12 +7,10 @@
 //
 // Standardmethode ist jetzt die Lehre, nicht das Lineal: eine Kettenlehre
 // haben die meisten oder koennen sie sich fuer wenig Geld besorgen, waehrend
-// das Lineal ein Stahlmass und Ablesen auf 0,5 mm verlangt. Die Skizze der
-// Lehre steht dafuer direkt auf der Karte statt hinter einem Fragezeichen,
-// das ohnehin niemand drueckt.
+// das Lineal ein Stahlmass und Ablesen auf 0,5 mm verlangt.
 
 import { useState } from 'react';
-import { Gauge } from 'lucide-react';
+import { Gauge, HelpCircle } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
 import type { ToolProfileState } from '@/hooks/useToolProfile';
@@ -22,10 +20,9 @@ import {
 } from '@/lib/waxMath';
 import { shareUrl } from '@/lib/toolState';
 import {
-  ToolCard, ToolHeader, StepList, ToolFooter, ToolCTA, TogButton, ChipRow, NumberInput, StepNote, InfoPopover,
+  ToolCard, ToolHeader, StepList, ToolCTA, TogButton, ChipRow, NumberInput, StepNote, InfoPopover,
 } from '@/components/tools/primitives';
 import { StepField } from '@/components/tools/StepField';
-import { ChainMeasureDiagram, ChainGaugeDiagram, SprocketCountDiagram } from '@/components/tools/diagrams';
 import { ResultPanel } from '@/components/tools/ResultPanel';
 import { ResultActions } from '@/components/tools/ResultActions';
 
@@ -44,7 +41,7 @@ const MARK_LABEL: Record<number, { de: string; en: string }> = {
   1: { de: '1,0', en: '1.0' },
 };
 
-export function WearCalculator({ profile }: { profile: ToolProfileState }) {
+export function WearCalculator({ profile, compact }: { profile: ToolProfileState; compact?: boolean }) {
   const { t, lang } = useLanguage();
   const { theme } = useTheme();
   const de = lang === 'de';
@@ -101,10 +98,20 @@ export function WearCalculator({ profile }: { profile: ToolProfileState }) {
         icon={<Gauge className="h-4 w-4" style={{ color: 'var(--txm)' }} />}
         title={t.tools.wear.title}
         subtitle={t.tools.wear.subtitle}
+        info={(
+          <InfoPopover
+            ariaLabel={de ? 'Details zum Verschleiß' : 'Details on wear'}
+            trigger={open => <HelpCircle className="h-4 w-4" style={{ color: open ? 'var(--brand)' : 'var(--txff)' }} />}
+          >
+            <StepNote>
+              {gauge === 'none' ? t.tools.wear.gaugeNoneNote : t.tools.wear.gaugeWarning}
+            </StepNote>
+          </InfoPopover>
+        )}
       />
 
       <StepList>
-        <StepField step={1} label={t.tools.wear.speed} help={t.tools.wear.helpSpeed} figure={<SprocketCountDiagram />}>
+        <StepField step={1} label={t.tools.wear.speed} help={t.tools.wear.helpSpeed}>
           <ChipRow>
             {SPEEDS.map(s => (
               <TogButton key={s} active={speed === s} onClick={() => profile.setSpeed(s)}>
@@ -131,7 +138,6 @@ export function WearCalculator({ profile }: { profile: ToolProfileState }) {
             label={t.tools.wear.measured}
             value={`${de ? 'neu' : 'new'}: ${dec(NOMINAL_12_LINKS_MM, 1)} mm`}
             help={t.tools.wear.helpMeasured}
-            figure={<ChainMeasureDiagram />}
           >
             <NumberInput
               value={measuredMm} onChange={setMeasuredMm}
@@ -160,37 +166,10 @@ export function WearCalculator({ profile }: { profile: ToolProfileState }) {
           </StepField>
         )}
 
-        {/* Die Lehren-Skizze steht jetzt direkt auf der Karte statt hinter
-            einem Fragezeichen — sie zeigt den Zustand, den die Wahl gerade
-            ergibt, nicht mehr immer nur „Kette raus". */}
-        {method === 'gauge' && (
-          <div className="max-w-[260px] mx-auto w-full">
-            <ChainGaugeDiagram state={needsAction ? 'worn' : 'ok'} />
-          </div>
-        )}
-
-        {/* Lehre-Hinweis an einer Stelle statt bedingt inline — sonst aendert
-            allein das Umschalten zwischen Lineal und Lehre die Kartenhoehe.
-            Die Kostenfolge steht jetzt als Kennzahl im Ergebnis, nicht mehr
-            hier — sie ist der Grund, warum die Frage ueberhaupt gestellt
-            wird, und gehoert deshalb sichtbar dorthin. */}
-        {method === 'gauge' && (
-          <InfoPopover
-            ariaLabel={de ? 'Details zum Verschleiß' : 'Details on wear'}
-            trigger={() => (
-              <span className="text-[12px] font-medium" style={{ color: 'var(--brand)' }}>
-                {de ? 'Details zum Verschleiß' : 'Details on wear'}
-              </span>
-            )}
-          >
-            <StepNote>
-              {gauge === 'none' ? t.tools.wear.gaugeNoneNote : t.tools.wear.gaugeWarning}
-            </StepNote>
-          </InfoPopover>
-        )}
       </StepList>
 
       <ResultPanel
+        compact={compact}
         value={awaitingInput ? '—' : isLowerBound ? `≥ ${dec(percent)}` : dec(percent)}
         unit={awaitingInput ? undefined : '%'}
         verdict={awaitingInput ? t.tools.wear.enterValue : statusText}
@@ -199,12 +178,12 @@ export function WearCalculator({ profile }: { profile: ToolProfileState }) {
           { label: t.tools.wear.limit, value: `${de ? MARK_LABEL[wearLimit(speed)].de : MARK_LABEL[wearLimit(speed)].en} % · ${speed}${de ? '-fach' : 'sp'}` },
           ...(needsAction ? [{ label: t.tools.wear.costNow, value: dueText }] : []),
         ]}
-        actions={<ResultActions shareUrl={shareUrl('/rechner/verschleiss', profile.snapshot)} />}
+        actions={<ResultActions compact={compact} shareUrl={shareUrl('/rechner/verschleiss', profile.snapshot)} />}
+        cta={(
+          <ToolCTA href="/rechner/passende-kette">{t.tools.wear.cta}</ToolCTA>
+        )}
       />
 
-      <ToolFooter>
-        <ToolCTA href="/rechner/passende-kette">{t.tools.wear.cta}</ToolCTA>
-      </ToolFooter>
     </ToolCard>
   );
 }

@@ -8,6 +8,11 @@
 // Auf dem Handy eingeklappt: ausgeklappt sind es drei Bediengruppen und damit
 // rund 300 px, die den Rechner unter den Falz schieben. Ab sm liegen die drei
 // nebeneinander und passen ohnehin.
+//
+// Eingeklappt steht die Zusammenfassung auf EINER Zeile („Fahrprofil ·
+// trocken · Straße · 100 km"). Zwei Zeilen — Ueberschrift und Werte
+// untereinander — kosteten 21 px, und die Rechner-Sektion soll auf dem Handy
+// in eine Bildschirmhoehe passen (Hoehenbudget in ToolTrack.tsx).
 
 import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
@@ -43,7 +48,7 @@ export function ProfileBar({ profile, inactiveNote }: {
 
   return (
     <div
-      className="rounded-2xl px-4 py-3 sm:px-5 sm:py-4 mb-4 transition-opacity duration-300"
+      className="rounded-2xl px-4 py-2.5 sm:px-5 mb-2 sm:mb-3 transition-opacity duration-300"
       style={{
         background: 'var(--inset-bg)',
         // Kraeftigere Kante (--bd statt --bd2) + leiser Tiefen-Hint: die Leiste
@@ -70,11 +75,11 @@ export function ProfileBar({ profile, inactiveNote }: {
         aria-expanded={open}
         className="sm:hidden w-full flex items-center justify-between gap-3 text-left"
       >
-        <span className="min-w-0">
-          <span className="block text-meta uppercase tracking-[0.1em] font-semibold" style={{ color: 'var(--tx2)' }}>
+        <span className="min-w-0 flex items-baseline gap-2">
+          <span className="flex-shrink-0 text-meta uppercase tracking-[0.1em] font-semibold" style={{ color: 'var(--txf)' }}>
             {t.tools.profile.barTitle}
           </span>
-          <span className="block text-[13px] truncate mt-0.5" style={{ color: 'var(--tx2)' }}>{summary}</span>
+          <span className="block text-[13px] truncate" style={{ color: 'var(--tx2)' }}>{summary}</span>
         </span>
         <ChevronDown
           className="h-4 w-4 flex-shrink-0 transition-transform"
@@ -82,7 +87,7 @@ export function ProfileBar({ profile, inactiveNote }: {
         />
       </button>
 
-      <div className="hidden sm:flex items-baseline gap-2 mb-3">
+      <div className="hidden sm:flex items-baseline gap-2 mb-2">
         <span className="text-meta uppercase tracking-[0.1em] font-semibold" style={{ color: 'var(--tx2)' }}>
           {t.tools.profile.barTitle}
         </span>
