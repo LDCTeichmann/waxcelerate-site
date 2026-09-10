@@ -8,7 +8,8 @@ import {
 import { getProductById, products, canCheckout, checkoutEnabled, isSoldOut, schemaAvailability, shipping } from '@/lib/data';
 import type { Product } from '@/lib/data';
 import { useToolProfile } from '@/hooks/useToolProfile';
-import { SizingInstrument, sizeAdviceFor } from '@/pages/product/SizingInstrument';
+import { SizingInstrument } from '@/pages/product/SizingInstrument';
+import { sizeAdviceFor } from '@/pages/product/sizeAdvice';
 import { ProcessAndPaths } from '@/pages/product/ProcessAndPaths';
 import { ProductFaq } from '@/pages/product/ProductFaq';
 import { richContent } from '@/lib/productContent';
@@ -309,6 +310,22 @@ export function ProductDetailPage() {
   // down (see removeStaticHeadMeta).
   useEffect(() => { removeStaticJsonLd(); removeStaticHeadMeta(); }, [id]);
 
+  // EIN Fahrprofil fuer die ganze Seite: es speist das Instrument weiter unten
+  // UND die Groessenempfehlung am Groessenschalter im Kaufblock. Zwei
+  // useToolProfile()-Aufrufe haetten zwei getrennte Zustaende, der
+  // Schieberegler im Instrument haette die Zeile am Kaufblock nicht bewegt.
+  //
+  // MUSS oberhalb des `if (!product)`-Returns stehen. Hooks muessen bei jedem
+  // Render in derselben Reihenfolge laufen; unterhalb des Returns wird dieser
+  // hier bei "Produkt nicht gefunden" uebersprungen, und React bricht dann
+  // beim Wechsel zwischen gueltiger und ungueltiger Produkt-URL ab.
+  //
+  // Ersetzt loadRidingProfile()/weeksRemainingForProduct(): die alte Zeile
+  // ("reicht dir das etwa N Wochen") war ungedeckelt (20 km/Woche ergaben
+  // 390 Wochen ueber einen Block mit 30 Monaten Haltbarkeit) und erschien nur,
+  // wenn auf dem Geraet schon einmal ein Profil gesetzt war.
+  const toolProfile = useToolProfile();
+
   if (!product) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4" style={{ background: 'var(--pg)' }}>
@@ -326,19 +343,6 @@ export function ProductDetailPage() {
   const isWax = product.category === 'wax';
   const isChain = product.category === 'chain';
   const productReviews = reviewsForProduct(product.id);
-  // EIN Fahrprofil fuer die ganze Seite. Es speist das Instrument weiter unten
-  // UND die Groessenempfehlung am Groessenschalter im Kaufblock. Zwei
-  // useToolProfile()-Aufrufe haetten zwei getrennte Zustaende: der
-  // Schieberegler im Instrument haette die Zeile am Kaufblock nicht bewegt.
-  //
-  // Ersetzt loadRidingProfile()/weeksRemainingForProduct(). Die alte Zeile
-  // ("reicht dir das etwa N Wochen") war ungedeckelt — 20 km/Woche ergaben
-  // 390 Wochen, also eine Siebeneinhalb-Jahres-Behauptung ueber einen Block
-  // mit 30 Monaten Haltbarkeit. Und sie erschien nur, wenn auf diesem Geraet
-  // schon einmal ein Profil gesetzt worden war, ein kalter Besucher sah sie
-  // nie. Das Instrument rechnet in Monaten, gleicht gegen die Haltbarkeit ab
-  // und hat Vorgabewerte.
-  const toolProfile = useToolProfile();
   const sizeAdvice = sizeAdviceFor(product, toolProfile);
   const accentColor = isPro ? '#4A72D4' : 'var(--accent-soft)';
   const accentBg = isPro ? 'rgba(74,114,212,0.06)' : 'rgba(43,82,176,0.06)';

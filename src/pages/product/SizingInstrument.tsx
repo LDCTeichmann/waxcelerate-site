@@ -28,9 +28,9 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import type { Product } from '@/lib/data';
-import { getProductById } from '@/lib/data';
 import { switchEconomics, WAX_SHELF_LIFE_MONTHS } from '@/lib/waxMath';
 import type { ToolProfileState } from '@/hooks/useToolProfile';
+import { sizeAdviceFor } from '@/pages/product/sizeAdvice';
 import { useLanguage } from '@/hooks/useLanguage';
 import { InstrumentFrame } from '@/components/viz/InstrumentFrame';
 import { ProfileBar } from '@/components/tools/ProfileBar';
@@ -48,38 +48,6 @@ function Readout({ value, label, note }: { value: string; label: string; note?: 
       {note && <p className="text-meta mt-0.5 leading-[1.4]" style={{ color: 'var(--txff)' }}>{note}</p>}
     </div>
   );
-}
-
-/** Das Ergebnis der Groessenrechnung. EINE Quelle fuer beide Ausgabestellen:
-    das Instrument und die Zeile am Groessenschalter im Kaufblock. Zwei
-    getrennte Rechnungen waeren genau der Fehler, der auf dieser Seite schon
-    Widerrufsrecht und GPSR auseinanderlaufen liess. */
-export interface SizeAdvice {
-  /** Der empfohlene Block, oder undefined ausserhalb der Wachsprodukte. */
-  recommended: Product | undefined;
-  /** Zeigt die Empfehlung auf das gerade angesehene Produkt? */
-  matchesCurrent: boolean;
-  /** Der grosse Block wuerde laenger reichen als seine Haltbarkeit. */
-  largeOutlastsShelfLife: boolean;
-  large: Product | undefined;
-}
-
-export function sizeAdviceFor(product: Product, profile: ToolProfileState): SizeAdvice {
-  const isPro = product.variant === 'pro';
-  const kmPerYear = profile.kmPerWeek * 52;
-  const small = getProductById(isPro ? 'wax-300-mos2' : 'wax-300');
-  const large = getProductById(isPro ? 'wax-500-mos2' : 'wax-500');
-  const largeEcon = large
-    ? switchEconomics({ kmPerYear, rewaxKm: profile.interval, toolingCost: 0, waxProduct: large })
-    : null;
-  const outlasts = !!largeEcon?.outlastsShelfLife;
-  const recommended = outlasts ? small : large;
-  return {
-    recommended,
-    matchesCurrent: recommended?.id === product.id,
-    largeOutlastsShelfLife: outlasts,
-    large,
-  };
 }
 
 export function SizingInstrument({ product, profile, accentColor }: {
