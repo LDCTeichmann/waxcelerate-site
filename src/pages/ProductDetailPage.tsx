@@ -334,7 +334,11 @@ export function ProductDetailPage() {
     : null;
   const accentColor = isPro ? '#4A72D4' : 'var(--accent-soft)';
   const accentBg = isPro ? 'rgba(74,114,212,0.06)' : 'rgba(43,82,176,0.06)';
-  const cardAccent = isPro ? '#4A72D4' : '#2B52B0';
+  // cardAccent war der fixe Akzent der frueheren, fest weissen
+  // Desktop-Kaufkarte. Die Karte ist weg, alle verbliebenen Stellen sitzen
+  // auf --pg — also dem Theme folgen statt einem Hex-Wert, sonst steht im
+  // Dark Mode ein dunkles Blau auf dunklem Grund.
+  const cardAccent = accentColor;
 
   // Widerrufshinweis am Kaufpunkt. Stand bis 09/2026 ausschliesslich im
   // Mobil-Markup — die Desktop-Kaufkarte trug ihn nicht, obwohl genau dort die
@@ -351,13 +355,6 @@ export function ProductDetailPage() {
     : (isWax
       ? '14-day right of return, as long as the block is still sealed. Feel free to write to me anyway if something is not right.'
       : '14-day right of return, as long as the chain has not been installed. Feel free to write to me if something is not right.');
-  const returnNoteShort = de
-    ? (isWax
-      ? '14 Tage Rückgaberecht, solange der Block original verpackt ist.'
-      : '14 Tage Rückgaberecht, solange die Kette nicht montiert wurde.')
-    : (isWax
-      ? '14-day right of return, as long as the block is still sealed.'
-      : '14-day right of return, as long as the chain has not been installed.');
 
   const highlights = de ? product.highlights : product.highlightsEn;
   const descriptionText = de ? product.description : product.descriptionEn;
@@ -399,7 +396,8 @@ export function ProductDetailPage() {
   }).slice(0, 2);
 
   const specsData = [
-    product.compatibility && { l: de ? 'Kompatibel' : 'Compatible', v: product.compatibility },
+    // Kompatibilitaet steht bewusst NICHT hier: sie hat weiter unten eine
+    // eigene Sektion mit Marken-Tags und stand dadurch zweimal auf der Seite.
     product.weight && { l: de ? 'Gewicht' : 'Weight', v: product.weight },
     product.applications && { l: de ? 'Anwendungen' : 'Uses', v: product.applications },
     isWax && { l: de ? 'Verarbeitung' : 'Processing', v: '80–90°C' },
@@ -407,19 +405,6 @@ export function ProductDetailPage() {
     product.chainSpeed && { l: de ? 'Schaltung' : 'Speed', v: product.chainSpeed },
   ].filter(Boolean) as { l: string; v: string }[];
 
-  // Kaufkarten-Faktenraster (Produktkarten-Neugliederung, Phase 3): ersetzt
-  // die vier unbeschrifteten Pillen, die vorher nur specsData.slice(0,4)
-  // ohne Label zeigten ("9/10/11/12-fach 500g 20-32 80-90°C" — Lucas "man
-  // erkennt fast gar nichts"). Trocken/Nass zuerst (die kaufentscheidenden
-  // Werte), dann specsData — Anwendungen ist ausgenommen, weil sie bei Wachs
-  // schon neben dem Groessenschalter steht (siehe Kaufblock unten). Auf vier
-  // Zellen gedeckelt; alles Weitere steht in der vollstaendigen
-  // "Spezifikationen"-Tabelle unterhalb des Folds.
-  const factsGrid = [
-    product.intervalDry && { l: de ? 'Trocken' : 'Dry', v: product.intervalDry },
-    product.intervalWet && { l: de ? 'Nass' : 'Wet', v: product.intervalWet },
-    ...specsData.filter(s => s.l !== (de ? 'Anwendungen' : 'Uses')),
-  ].filter(Boolean).slice(0, 4) as { l: string; v: string }[];
 
   // Deckt sich mit titleOf()/descriptionOf() in generate-product-html.mjs —
   // vorher wich sowohl Titel ("kaufen" fehlte hier) als auch Beschreibung
@@ -516,13 +501,10 @@ export function ProductDetailPage() {
   // scroll-behavior:smooth animation), whereas a plain scrollTo is the same
   // API surface every other scroll-to-position call in this file already
   // uses successfully.
-  const HEADER_OFFSET = 56;
-  const scrollToDetails = () => {
-    const el = detailRef.current;
-    if (!el) return;
-    const top = el.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET;
-    window.scrollTo({ top, behavior: 'smooth' });
-  };
+  // scrollToDetails() stand hier. Seine beiden Aufrufer sind mit dem
+  // Vollbild-Hero (Scroll-Hinweis) und der Vergleichs-Dublette
+  // ("Vollen Vergleich ansehen") weggefallen — die Detailsektionen folgen
+  // jetzt direkt auf die Entscheidungszone, es gibt nichts zu ueberspringen.
 
   // "Zurück" used to always land on the homepage, even for a visitor who
   // arrived here from the blog, a search result, or a shared link — a real
@@ -616,515 +598,210 @@ export function ProductDetailPage() {
             bevor der eigentliche Produktinhalt beginnt. */}
         <main id="main-content">
         {/* ══════════════════════════════════════════════════════════════
-            MOBILE HERO — stacked: image top, info below
-           ══════════════════════════════════════════════════════════════ */}
-        <section className="lg:hidden">
-          <div ref={heroRef} className="relative h-[54vh] min-h-[300px] overflow-hidden"
-            style={{ touchAction: 'pan-y' }}
-            onPointerDown={onGalleryPointerDown} onPointerUp={onGalleryPointerUp}>
-            {slides.map((slide, i) => (
-              slide.type === 'video' ? (
-                <VideoGallerySlide key={i} src={slide.src} poster={slide.poster}
-                  active={i === activeImage} inView={!navSolid} reduce={reduce}
-                  style={{
-                    objectPosition: product.imagePosition ?? 'center',
-                    opacity: i === activeImage ? 1 : 0,
-                    transition: reduce ? 'none' : `opacity ${FADE_MS}ms ease`,
-                    zIndex: i === activeImage ? 2 : (i === prevImage ? 1 : 0),
-                  } as React.CSSProperties} />
-              ) : (
-              <img key={i} src={lg(slide.src)} srcSet={srcSetFor(slide.src)} sizes={srcSetFor(slide.src) ? '100vw' : undefined}
-                alt={i === activeImage ? titleText : ''} aria-hidden={i !== activeImage}
-                loading={i === activeImage ? 'eager' : 'lazy'}
-                fetchPriority={i === activeImage ? 'high' : undefined}
-                draggable={false}
-                className="absolute inset-0 h-full w-full object-cover"
-                style={{
-                  objectPosition: product.imagePosition ?? 'center',
-                  opacity: i === activeImage ? 1 : 0, scale: i === activeImage ? '1' : '1.04',
-                  transition: reduce ? 'none' : `opacity ${FADE_MS}ms ease, scale ${FADE_MS * 2}ms ease`,
-                  zIndex: i === activeImage ? 2 : (i === prevImage ? 1 : 0),
-                  cursor: i === activeImage ? 'zoom-in' : undefined,
-                }}
-                onError={e => {
-                  // Faellt auf die Basisdatei zurueck, falls die -lg-Variante fehlt.
-                  // srcSet muss mit geleert werden: ist es gesetzt, waehlt der Browser
-                  // beim naechsten Ladeversuch wieder daraus, egal was src sagt.
-                  const t = e.target as HTMLImageElement;
-                  if (!t.src.includes('wax-block-spin')) { t.removeAttribute('srcset'); t.src = slide.src; }
-                }}
-              />
-              )
-            ))}
-            <div className="absolute inset-0 z-[3] pointer-events-none" style={{ background: 'linear-gradient(to top, rgba(var(--scrim-rgb),0.2) 0%, transparent 35%)' }} />
-            {slideCount > 1 && (
-              <>
-                <button onClick={() => { prev(); pause(); setTimeout(resume, AUTO_INTERVAL); }}
-                  aria-label={de ? 'Vorheriges Bild' : 'Previous image'}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-11 h-11 flex items-center justify-center rounded-full transition-transform active:scale-90"
-                  style={{ background: 'rgba(var(--scrim-rgb),0.28)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', color: 'rgba(255,255,255,0.92)' }}>
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
-                <button onClick={() => { next(); pause(); setTimeout(resume, AUTO_INTERVAL); }}
-                  aria-label={de ? 'Nächstes Bild' : 'Next image'}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-11 h-11 flex items-center justify-center rounded-full transition-transform active:scale-90"
-                  style={{ background: 'rgba(var(--scrim-rgb),0.28)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', color: 'rgba(255,255,255,0.92)' }}>
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-              </>
-            )}
-            {slideCount > 1 && (
-              // Fortschrittsstriche. Vorher war der Knopf selbst nur 2,5 px hoch
-              // und 7 px breit und bekam seine Trefferflaeche ueber ein ::after
-              // mit 44x44 px — bei 13 px Mittenabstand ueberlappten sich die
-              // Flaechen der Nachbarn um ein Vielfaches, ein Tipp zwischen zwei
-              // Strichen traf den, der spaeter im DOM steht. Lighthouse hat das
-              // als target-size gemeldet (Messung /produkt/wax-500, 10.09.2026),
-              // gemessen wird naemlich die Elementbox, nicht das Pseudo-Element.
-              // Jetzt 24x24 px echte Knoepfe (WCAG 2.5.8) ohne Abstand
-              // dazwischen, der Strich liegt als Inhalt darin. bottom-[1px]
-              // statt bottom-3, damit die Striche optisch auf derselben Hoehe
-              // bleiben wie vorher (24-px-Reihe statt 2,5-px-Reihe).
-              <div className="absolute bottom-[1px] left-1/2 -translate-x-1/2 z-10 flex items-center">
-                {slides.map((_, i) => (
-                  <button key={i} type="button" onClick={() => { goTo(i); pause(); setTimeout(resume, AUTO_INTERVAL); }}
-                    className="grid h-6 w-6 place-items-center"
-                    aria-label={de ? `Bild ${i + 1}` : `Image ${i + 1}`}
-                    aria-current={i === activeImage ? 'true' : undefined}>
-                    <span aria-hidden className="block h-[2.5px] rounded-full transition-all duration-500"
-                      style={{ width: i === activeImage ? 22 : 7, background: i === activeImage ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.3)' }} />
-                  </button>
+            ENTSCHEIDUNGSZONE — EINE Fassung fuer beide Breakpoints
+            ══════════════════════════════════════════════════════════════
+            Vorher standen hier zwei vollstaendig getrennte Heroes im DOM:
+            ein gestapelter Mobil-Hero (`lg:hidden`) und ein bildschirm-
+            fuellender Desktop-Hero (`hidden lg:block`) mit einer schwebenden
+            440-px-Karte. Beide wurden IMMER gerendert, nur per CSS
+            umgeschaltet. Folgen, alle gemessen:
+
+            - Jede Information stand doppelt im DOM. Titel, Preis, CTA,
+              Groessenschalter, Pflichtangaben — zweimal, und beim Pflegen
+              lief zwangslaeufig eine Fassung der anderen davon (genau so
+              haben Widerrufsrecht und GPSR es geschafft, nur im Mobil-Zweig
+              zu existieren).
+            - Die Desktop-Karte war 849 px hoch bei 900 px Viewport und trug
+              rund 15 Elemente auf fast gleicher visueller Ebene. Das war die
+              Ursache des "ueberwaeltigend"-Eindrucks.
+            - 65 % der Desktop-Flaeche war Foto, 100 % der Entscheidungs-
+              information steckte in der schmalen Karte daneben.
+
+            Jetzt ein Raster: Galerie links, Kaufblock rechts, ab lg klebt der
+            Kaufblock beim Scrollen mit. Der Kaufblock traegt nur noch, was
+            zur Kaufentscheidung gehoert. Alles Erklaerende steht darunter in
+            eigenen Sektionen mit echten Ueberschriften. */}
+        <section ref={heroRef} className="max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-10 pt-20 lg:pt-28 pb-10 lg:pb-16">
+          <div className="grid gap-6 lg:gap-14 lg:grid-cols-[minmax(0,1fr)_minmax(340px,400px)] lg:items-start">
+
+            {/* ── Galerie ───────────────────────────────────────────────── */}
+            <div className="min-w-0">
+              <div
+                className="relative rounded-2xl overflow-hidden aspect-[4/3]"
+                style={{ background: 'var(--hero-stage)', touchAction: 'pan-y' }}
+                onPointerDown={onGalleryPointerDown} onPointerUp={onGalleryPointerUp}>
+                {slides.map((slide, i) => (
+                  slide.type === 'video' ? (
+                    <VideoGallerySlide key={i} src={slide.src} poster={slide.poster}
+                      active={i === activeImage} inView={!navSolid} reduce={reduce}
+                      style={{
+                        objectPosition: product.imagePosition ?? 'center',
+                        opacity: i === activeImage ? 1 : 0,
+                        transition: reduce ? 'none' : `opacity ${FADE_MS}ms ease`,
+                        zIndex: i === activeImage ? 2 : (i === prevImage ? 1 : 0),
+                      } as React.CSSProperties} />
+                  ) : (
+                    <img key={i} src={lg(slide.src)} srcSet={srcSetFor(slide.src)}
+                      sizes={srcSetFor(slide.src) ? '(min-width: 1024px) 60vw, 100vw' : undefined}
+                      alt={i === activeImage ? titleText : ''} aria-hidden={i !== activeImage}
+                      loading={i === activeImage ? 'eager' : 'lazy'}
+                      fetchPriority={i === activeImage ? 'high' : undefined}
+                      draggable={false}
+                      className="absolute inset-0 h-full w-full object-cover"
+                      style={{
+                        objectPosition: product.imagePosition ?? 'center',
+                        opacity: i === activeImage ? 1 : 0, scale: i === activeImage ? '1' : '1.04',
+                        transition: reduce ? 'none' : `opacity ${FADE_MS}ms ease, scale ${FADE_MS * 2}ms ease`,
+                        zIndex: i === activeImage ? 2 : (i === prevImage ? 1 : 0),
+                        cursor: i === activeImage ? 'zoom-in' : undefined,
+                      }}
+                      onError={e => {
+                        // Faellt auf die Basisdatei zurueck, falls die -lg-Variante
+                        // fehlt. srcSet muss mit geleert werden: ist es gesetzt,
+                        // waehlt der Browser beim naechsten Ladeversuch wieder
+                        // daraus, egal was src sagt.
+                        const t = e.target as HTMLImageElement;
+                        if (!t.src.includes('wax-block-spin')) { t.removeAttribute('srcset'); t.src = slide.src; }
+                      }}
+                    />
+                  )
                 ))}
-              </div>
-            )}
-          </div>
 
-          <div className="px-5 sm:px-8 py-6" style={{ background: 'var(--pg)' }}>
-            <span className="text-small font-semibold uppercase tracking-[0.2em] block mb-2"
-              style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
-              {product.variant ? `${product.variant} · ${product.weight ?? ''}` : (product.chainSpeed ?? '')}
-            </span>
-            {/* The only <h1> in the DOM — the desktop hero below repeats this
-                same title visually in its own card, but as a <p>, not a
-                second <h1>. Both markups exist in the DOM at once (CSS
-                hidden/lg:hidden toggles which one is visible, not conditional
-                rendering), so only one may carry real heading semantics. */}
-            <h1 className="font-display text-[26px] font-bold leading-[1.08] tracking-[-0.025em] mb-2" style={{ color: 'var(--tx1)' }}>{titleText}</h1>
-            <p className="text-[13px] leading-[1.6] mb-5" style={{ color: 'var(--txm)' }}>{descriptionText}</p>
+                {slideCount > 1 && (
+                  <>
+                    <button onClick={() => { prev(); pause(); setTimeout(resume, AUTO_INTERVAL); }}
+                      aria-label={de ? 'Vorheriges Bild' : 'Previous image'}
+                      className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-11 h-11 flex items-center justify-center rounded-full transition-transform active:scale-90"
+                      style={{ background: 'rgba(var(--scrim-rgb),0.34)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', color: 'rgba(255,255,255,0.94)' }}>
+                      <ChevronLeft className="h-4 w-4" />
+                    </button>
+                    <button onClick={() => { next(); pause(); setTimeout(resume, AUTO_INTERVAL); }}
+                      aria-label={de ? 'Nächstes Bild' : 'Next image'}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-11 h-11 flex items-center justify-center rounded-full transition-transform active:scale-90"
+                      style={{ background: 'rgba(var(--scrim-rgb),0.34)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', color: 'rgba(255,255,255,0.94)' }}>
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                  </>
+                )}
 
-            {/* Fakten-Panel — bindet Benefits und Trocken/Nass-Intervall in
-                eine Flaeche statt sie als zwei unverbundene Bloecke
-                (Checkliste ohne Behaelter, dann eine per Trennlinie
-                abgegrenzte Statzeile) hintereinanderzustellen. Gleiches
-                Common-Region-Muster wie WaxPanel im Regal
-                (ProductShelf.tsx): ein var(--sf2)-Ton gruppiert, Fakten
-                stehen als Chips (var(--sf3)) statt als durch eine
-                Trennlinie separierte Werte. */}
-            {(cardBenefits.length > 0 || product.intervalDry || product.intervalWet) && (
-              <div className="rounded-2xl p-4 mb-5" style={{ background: 'var(--sf2)' }}>
-                {cardBenefits.length > 0 && (
-                  <div className="space-y-1.5">
-                    {cardBenefits.map((b, i) => (
-                      <div key={i} className="flex gap-2 items-start">
-                        <Check className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" style={{ color: accentColor }} />
-                        <p className="text-[12px] leading-[1.5]" style={{ color: 'var(--txm)' }}>{b}</p>
-                      </div>
+                {/* Fortschrittsstriche. 24x24-px-Knoepfe (WCAG 2.5.8) mit dem
+                    Strich als Inhalt — vorher 2,5x7-px-Knoepfe mit einer
+                    44-px-::after-Flaeche, die sich bei 13 px Mittenabstand
+                    gegenseitig ueberlappten. */}
+                {slideCount > 1 && (
+                  <div className="absolute bottom-[1px] left-1/2 -translate-x-1/2 z-10 flex items-center">
+                    {slides.map((_, i) => (
+                      <button key={i} type="button" onClick={() => { goTo(i); pause(); setTimeout(resume, AUTO_INTERVAL); }}
+                        className="grid h-6 w-6 place-items-center"
+                        aria-label={de ? `Bild ${i + 1}` : `Image ${i + 1}`}
+                        aria-current={i === activeImage ? 'true' : undefined}>
+                        <span aria-hidden className="block h-[2.5px] rounded-full transition-all duration-500"
+                          style={{ width: i === activeImage ? 22 : 7, background: i === activeImage ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.35)' }} />
+                      </button>
                     ))}
                   </div>
                 )}
-
-                {(product.intervalDry || product.intervalWet) && (
-                  <div className={`flex items-center gap-2 ${cardBenefits.length > 0 ? 'mt-3' : ''}`}>
-                    {product.intervalDry && (
-                      <div className="rounded-lg px-3 py-2" style={{ background: 'var(--sf3)', border: '1px solid var(--bd2)' }}>
-                        <p className="text-small uppercase tracking-[0.16em] mb-0.5" style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>{de ? 'Trocken' : 'Dry'}</p>
-                        <p className="num text-[16px] font-bold leading-none" style={{ color: 'var(--tx1)' }}>{product.intervalDry}</p>
-                      </div>
-                    )}
-                    {product.intervalWet && (
-                      <div className="rounded-lg px-3 py-2" style={{ background: 'var(--sf3)', border: '1px solid var(--bd2)' }}>
-                        <p className="text-small uppercase tracking-[0.16em] mb-0.5" style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>{de ? 'Nass' : 'Wet'}</p>
-                        <p className="num text-[16px] font-bold leading-none" style={{ color: 'var(--tx1)' }}>{product.intervalWet}</p>
-                      </div>
-                    )}
-                  </div>
-                )}
               </div>
-            )}
 
-            {total > 1 && (
-              <div className="flex gap-2 mb-5">
-                {gallery.slice(0, 6).map((src, i) => (
-                  <button key={i} onClick={() => { goTo(i); pause(); setTimeout(resume, AUTO_INTERVAL); }}
-                    aria-label={`${titleText} — Bild ${i + 1}`} aria-current={i === activeImage}
-                    className="h-11 w-11 rounded-lg overflow-hidden flex-shrink-0 transition-all duration-300"
-                    style={{ opacity: i === activeImage ? 1 : 0.35, boxShadow: i === activeImage ? '0 0 0 2px var(--tx1)' : '0 0 0 1px var(--bd)' }}>
-                    <img src={src} alt="" className="h-full w-full object-cover" />
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {/* Groessenschalter + Classic/Pro-Vergleich — mobiles Gegenstueck
-                zur Desktop-Kaufkarte (siehe dortiger Kommentar in Zone 2).
-                Ersetzt hier den frueheren "Auch erhaeltlich"-Wischstreifen am
-                Seitenende, der Groessenvarianten und Ketten-Cross-Sells in
-                einer anonymen Liste mischte. */}
-            {isWax && waxSizeSibling && (
-              <div className="flex items-center justify-between gap-3 mb-3">
-                <div className="inline-flex rounded-lg p-0.5" style={{ background: 'var(--sf3)', border: '1px solid var(--bd)' }}>
-                  {(['300', '500'] as const).map(v => {
-                    const active = product.weight === `${v}g`;
-                    return (
-                      <button key={v} type="button"
-                        onClick={() => { if (!active) navigate(`/produkt/${waxSizeSibling.id}`); }}
-                        aria-pressed={active}
-                        className="num-data inline-flex items-center justify-center min-h-11 min-w-11 px-4 rounded-md text-[12.5px] leading-none transition-all"
-                        style={{ background: active ? 'var(--sf)' : 'transparent', color: active ? 'var(--tx1)' : 'var(--txm)' }}>
-                        {v} g
-                      </button>
-                    );
-                  })}
+              {/* Vorschaubilder unter der Galerie statt als Streifen im Foto:
+                  auf dem Foto konkurrierten sie mit dem Motiv und lagen auf
+                  Desktop zusaetzlich mit der Cross-Sell-Karte uebereinander. */}
+              {total > 1 && (
+                <div className="flex gap-2 mt-3">
+                  {gallery.slice(0, 6).map((src, i) => (
+                    <button key={i} onClick={() => { goTo(i); pause(); setTimeout(resume, AUTO_INTERVAL); }}
+                      aria-label={`${titleText} — ${de ? 'Bild' : 'Image'} ${i + 1}`} aria-current={i === activeImage}
+                      className="h-12 w-12 sm:h-14 sm:w-14 rounded-xl overflow-hidden flex-shrink-0 transition-all duration-300"
+                      style={{ opacity: i === activeImage ? 1 : 0.4, boxShadow: i === activeImage ? '0 0 0 2px var(--tx1)' : '0 0 0 1px var(--bd)' }}>
+                      <img src={src} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
+                    </button>
+                  ))}
                 </div>
-                {product.applications && (
-                  <span className="text-meta font-medium flex-shrink-0" style={{ color: 'var(--txf)' }}>
-                    {product.applications} {de ? 'Anwendungen' : 'applications'}
-                  </span>
-                )}
-              </div>
-            )}
-            {isClassic && (
-              <button type="button" onClick={() => setCompareOpen(true)}
-                className="inline-flex items-center gap-1 mb-4 text-[12.5px] font-semibold"
-                style={{ color: accentColor }}>
-                {de ? 'Regen & Winter? Pro MoS₂ vergleichen' : 'Rain & winter? Compare Pro MoS₂'} <ChevronRight className="h-3 w-3" />
-              </button>
-            )}
+              )}
+            </div>
 
-            <div className="flex items-end justify-between gap-4 mb-4">
-              <div>
-                <p className="num text-[28px] font-bold leading-none tracking-[-0.02em]" style={{ color: 'var(--tx1)' }}>{formatPrice(product.price)}</p>
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1">
+            {/* ── Kaufblock ─────────────────────────────────────────────────
+                Klebt ab lg mit. Traegt ausschliesslich, was zur Kaufent-
+                scheidung gehoert: wer bin ich, was koste ich, was gilt
+                rechtlich, wie kaufe ich. Faktenraster, Staffel, Fahrprofil
+                und "Alle Daten" sind bewusst raus und stehen unten in
+                eigenen Sektionen — sie beantworten Folgefragen, nicht die
+                Kaufentscheidung. */}
+            <div className="lg:sticky lg:top-24 min-w-0">
+              <span className="text-small font-semibold uppercase tracking-[0.2em] block mb-2"
+                style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
+                {product.variant ? `${product.variant} · ${product.weight ?? ''}` : (product.chainSpeed ?? '')}
+              </span>
+
+              {/* Die einzige <h1> der Seite. Frueher gab es zwei Fassungen
+                  (Mobil als <h1>, Desktop als <p>), damit nicht zwei
+                  Ueberschriften ersten Grades im DOM standen. Mit einem
+                  gemeinsamen Markup erledigt sich das. */}
+              <h1 className="font-display text-[26px] sm:text-[30px] lg:text-[32px] font-bold leading-[1.08] tracking-[-0.025em] mb-2"
+                style={{ color: 'var(--tx1)' }}>{titleText}</h1>
+
+              {isWax && (
+                <p className="text-small font-semibold mb-3" style={{ color: accentColor }}>
+                  {de ? 'Für ' : 'For '}{isClassic ? t.products.shelf.classicFor : t.products.shelf.proFor}
+                </p>
+              )}
+
+              <p className="text-[13.5px] leading-[1.55] mb-4" style={{ color: 'var(--txm)' }}>{descriptionText}</p>
+
+              {/* Groessenschalter — wechselt die Route, nicht nur den Zustand:
+                  300 g und 500 g sind eigene Produkte mit eigenen Adressen. */}
+              {isWax && waxSizeSibling && (
+                <div className="flex items-center justify-between gap-3 mb-4">
+                  <div className="inline-flex rounded-lg p-0.5" style={{ background: 'var(--sf3)', border: '1px solid var(--bd)' }}>
+                    {(['300', '500'] as const).map(v => {
+                      const active = product.weight === `${v}g`;
+                      return (
+                        <button key={v} type="button"
+                          onClick={() => { if (!active) navigate(`/produkt/${waxSizeSibling.id}`); }}
+                          aria-pressed={active}
+                          className="num-data inline-flex items-center justify-center min-h-11 min-w-11 px-4 rounded-md text-[12.5px] leading-none transition-all"
+                          style={{ background: active ? 'var(--sf)' : 'transparent', color: active ? 'var(--tx1)' : 'var(--txm)' }}>
+                          {v} g
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {product.applications && (
+                    <span className="text-meta font-medium flex-shrink-0" style={{ color: 'var(--txf)' }}>
+                      {product.applications} {de ? 'Anwendungen' : 'applications'}
+                    </span>
+                  )}
+                </div>
+              )}
+
+              {isClassic && (
+                <button type="button" onClick={() => setCompareOpen(true)}
+                  className="inline-flex items-center gap-1.5 text-[12.5px] font-medium mb-4 hover:opacity-70 transition-opacity"
+                  style={{ color: accentColor }}>
+                  {de ? 'Regen & Winter? Pro MoS₂ vergleichen' : 'Rain & winter? Compare Pro MoS₂'}
+                  <ArrowRight className="h-3 w-3" />
+                </button>
+              )}
+
+              {/* Preisblock: Preis, Grundpreis, Pflichtangaben, CTA. */}
+              <div className="pt-4" style={{ borderTop: '1px solid var(--bd)' }}>
+                <p className="num text-[30px] font-bold leading-none tracking-[-0.02em]" style={{ color: 'var(--tx1)' }}>
+                  {formatPrice(product.price)}
+                </p>
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1.5 mb-2">
                   {pricePerApp !== null && (
                     <p className="text-meta whitespace-nowrap" style={{ color: 'var(--txff)' }}>~{formatPrice(pricePerApp)} / {de ? 'Anwendung' : 'use'}</p>
                   )}
                   {per100g && <p className="text-meta whitespace-nowrap" style={{ color: 'var(--txff)' }}>{pricePerApp !== null ? '· ' : ''}{per100g}</p>}
                 </div>
-              </div>
-              {/* Preis und CTA teilen sich diese Zeile; die Pflichtangaben
-                  stehen deshalb darunter ueber die volle Breite, siehe
-                  unterhalb dieses Blocks. */}
-              {isSoldOut(product) ? (
-                <span className="text-[13px] font-semibold px-4 py-3" style={{ color: 'var(--txf)' }}>
-                  {de ? 'Ausverkauft' : 'Sold out'}
-                </span>
-              ) : canCheckout(product) ? <AddToCartButton product={product} /> : (
-                <a href={product.ebayUrl} target="_blank" rel="noopener noreferrer" onClick={() => trackEbayClick(product.id)}
-                  className="flex items-center gap-2 px-7 py-3 rounded-full text-[13px] font-semibold active:scale-[0.97]"
-                  style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}>
-                  {de ? 'Kaufen' : 'Buy'} <ExternalLink className="h-3.5 w-3.5" />
-                </a>
-              )}
-            </div>
 
-            <div className="mb-4 -mt-1">
-              <PriceNote de={de} t={t} tone="page" />
-            </div>
-
-            {/* Trust-Streifen — Lieferung, Fahrprofil-Hinweis und
-                Rueckgabe-Hinweis standen vorher als drei separat gestylte
-                Zeilen hintereinander (u. a. die Fahrprofil-Zeile in
-                accentColor + font-semibold, dadurch optisch lauter als die
-                beiden Nachbarzeilen, obwohl sie inhaltlich gleichrangig
-                sind). Jetzt eine Liste mit einheitlicher Zeilengestaltung
-                (Icon in accentColor, Text in txff/txm) unter einer
-                Haarlinie — nach DESIGN.md §3 der Standardbehaelter fuer
-                Listen, hier fuer genau drei kurze Fakten passend (kein
-                Kaufentscheidungs-Panel wie oben, sondern Nebeninfo). */}
-            <div className="space-y-2 pt-4 mb-5" style={{ borderTop: '1px solid var(--bd)' }}>
-              {/* Same delivery estimate the homepage product cards already show —
-                  this page had no delivery-date signal at all before. */}
-              <div className="flex items-center gap-1.5 text-meta" style={{ color: 'var(--txff)' }}>
-                <Truck className="h-3 w-3 flex-shrink-0" style={{ color: accentColor }} aria-hidden />
-                {de ? `Lieferung ${deliveryDate}` : `Delivery ${deliveryDate}`}
-              </div>
-
-              {/* Wachs-Staffel — neu auf der Produktseite (Luca: "eBay haelt
-                  den Rabatt"). */}
-              {isWax && (
-                <p className="text-meta" style={{ color: 'var(--txff)' }}>{t.products.multiDiscount}</p>
-              )}
-
-              {personalizedWeeks !== null && (
-                <div className="flex items-center gap-1.5 text-meta" style={{ color: 'var(--txm)' }}>
-                  <Gauge className="h-3 w-3 flex-shrink-0" style={{ color: accentColor }} aria-hidden />
-                  {de ? `Basierend auf deinem Fahrprofil: reicht dir noch ~${personalizedWeeks} Wochen` : `Based on your riding profile: lasts you ~${personalizedWeeks} more weeks`}
-                </div>
-              )}
-
-              {/* Risikoabbau am Kaufpunkt (docs/AUDIT.md §11): das Widerrufsrecht
-                  stand bisher nur im Warenkorb, also im abgeschalteten Checkout —
-                  an der Stelle, an der jemand tatsaechlich zoegert, stand nichts.
-                  Bei einem Produkt, das eine Verhaltensaenderung verlangt, ist die
-                  stille Frage nicht "ist es gut", sondern "was, wenn ich damit
-                  nicht klarkomme". Bewusst zwei Saetze: der erste ist die
-                  Rechtslage, der zweite der Ton der Marke.
-                  Vorherige Fassung ("wenn das Wachsen nichts fuer dich ist")
-                  versprach implizit eine Ruecknahme, nachdem der Block schon
-                  angeschmolzen bzw. die Kette schon montiert war — genau das
-                  nimmt Luca nicht zurueck (unverkaeuflich, kein Streitfall).
-                  Jetzt an die tatsaechliche Bedingung geknuepft, ohne die
-                  Einladung zu streichen, sich bei Problemen trotzdem zu melden. */}
-              <div className="flex items-start gap-1.5 text-meta" style={{ color: 'var(--txff)' }}>
-                <RotateCcw className="h-3 w-3 flex-shrink-0 mt-[3px]" style={{ color: accentColor }} aria-hidden />
-                <span>{returnNoteLong}</span>
-              </div>
-            </div>
-
-            {/* GpsrInfo stand hier, also nur im Mobil-Markup — auf Desktop gab
-                es die Herstellerangabe damit ueberhaupt nicht. Sie steht jetzt
-                einmal weiter unten fuer beide Breakpoints. */}
-          </div>
-        </section>
-
-        {/* ══════════════════════════════════════════════════════════════
-            DESKTOP HERO — full-bleed image, focused conversion card
-           ══════════════════════════════════════════════════════════════ */}
-        <section ref={heroDesktopRef} className="relative h-screen min-h-[680px] overflow-hidden hidden lg:block"
-          style={{ touchAction: 'pan-y' }}
-          onPointerDown={onGalleryPointerDown} onPointerUp={onGalleryPointerUp}>
-          {slides.map((slide, i) => (
-            slide.type === 'video' ? (
-              <VideoGallerySlide key={i} src={slide.src} poster={slide.poster}
-                active={i === activeImage} inView={!navSolid} reduce={reduce}
-                style={{
-                  objectPosition: product.imagePosition ?? 'center',
-                  opacity: i === activeImage ? 1 : 0,
-                  transition: reduce ? 'none' : `opacity ${FADE_MS}ms cubic-bezier(0.4,0,0.2,1)`,
-                  zIndex: i === activeImage ? 2 : (i === prevImage ? 1 : 0),
-                } as React.CSSProperties} />
-            ) : (
-            <img key={i} src={lg(slide.src)} srcSet={srcSetFor(slide.src)} sizes={srcSetFor(slide.src) ? '100vw' : undefined}
-              alt={i === activeImage ? titleText : ''} aria-hidden={i !== activeImage}
-              loading={i === activeImage ? 'eager' : 'lazy'}
-              fetchPriority={i === activeImage ? 'high' : undefined}
-              draggable={false}
-              className="absolute inset-0 h-full w-full object-cover"
-              style={{
-                objectPosition: product.imagePosition ?? 'center',
-                opacity: i === activeImage ? 1 : 0, scale: i === activeImage ? '1' : '1.04',
-                transition: reduce ? 'none' : `opacity ${FADE_MS}ms cubic-bezier(0.4,0,0.2,1), scale ${FADE_MS * 2}ms cubic-bezier(0.4,0,0.2,1)`,
-                zIndex: i === activeImage ? 2 : (i === prevImage ? 1 : 0),
-                cursor: i === activeImage ? 'zoom-in' : undefined,
-              }}
-              onError={e => {
-                // Faellt auf die Basisdatei zurueck, falls die -lg-Variante fehlt.
-                // srcSet muss mit geleert werden: ist es gesetzt, waehlt der Browser
-                // beim naechsten Ladeversuch wieder daraus, egal was src sagt.
-                const t = e.target as HTMLImageElement;
-                if (!t.src.includes('wax-block-spin')) { t.removeAttribute('srcset'); t.src = slide.src; }
-              }}
-            />
-            )
-          ))}
-
-          <div className="absolute inset-0 z-[3] pointer-events-none"
-            style={{ background: 'linear-gradient(105deg, rgba(var(--scrim-rgb),0.55) 0%, rgba(var(--scrim-rgb),0.20) 28%, transparent 48%)' }} />
-          <div className="absolute inset-0 z-[3] pointer-events-none"
-            style={{ background: 'linear-gradient(to top, rgba(var(--scrim-rgb),0.25) 0%, transparent 30%)' }} />
-
-          {/* ── MAIN CARD — focused conversion funnel ── */}
-          {/* cardRef/GSAP lives on the INNER .pdp-hero-card div, not this
-              wrapper. GSAP's `.from()` writes its own `transform` and resets
-              the standalone `translate`/`scale`/`rotate` CSS properties to
-              `none` on whatever element it targets — but this wrapper's
-              vertical centering (`top-1/2 -translate-y-1/2`) is implemented
-              via that same `translate` property. Animating this div directly
-              silently killed the -50% centering the moment the reveal ran,
-              leaving the card either off-screen or overlapping the header
-              (worst on the two Starter-Set bundles, whose shorter card
-              content made the miscalculated offset most visible). Same class
-              of bug already solved this way for the slider handle in
-              BeforeAfterSlider — see the wx-slider-pulse comment in
-              index.css. */}
-          <div
-            className="absolute z-20 left-10 xl:left-14 top-1/2 -translate-y-1/2 w-[440px] xl:w-[480px]"
-            onMouseEnter={pause} onMouseLeave={resume}>
-            {/* No backdrop-filter: at 96% opacity there's only a 4% sliver of
-                backdrop showing through, so a blur(40px) here cost real
-                compositing work for a practically invisible effect. */}
-            <div ref={cardRef} className="pdp-hero-card rounded-[28px] overflow-hidden"
-              style={{
-                background: 'rgba(255,255,255,0.96)',
-                boxShadow: '0 24px 64px -16px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.15)',
-              }}>
-
-              {/* ── Zone 1: Identitaet — Name, Positionierung, Unterscheidungs-
-                  merkmale, sozialer Beweis. Kein Kaufblock hier: trennt "was
-                  ist es" von "was kostet es" (Produktkarten-Neugliederung,
-                  siehe Plan Phase 3 — vorher neun gleichrangige Bloecke ohne
-                  sichtbare Gliederung). */}
-              <div className="px-7 xl:px-8 pt-7 pb-5">
-                {/* Eyebrow + bestseller badge */}
-                <div className="flex items-center gap-2.5 mb-2.5">
-                  {/* .pdp-hero-card ist bewusst theme-unabhaengig weiss (Glaskarte
-                      ueber dem Foto, siehe style oben) — die CSS-Variablen
-                      --txm/--txf/--txff sind dagegen PRO THEME neu berechnet
-                      (in noir hell, fuer dunkle Flaechen kalibriert) und wuerden
-                      auf dieser immer-weissen Karte im noir-Theme umkippen: zu
-                      hell fuer AA-Kontrast. Deshalb hier feste rgba(0,0,0,X)-
-                      Werte statt Tokens — 0.62/0.58/0.55 sind auf >=4.5:1 gegen
-                      #fff nachgerechnet (WCAG-Relativluminanz-Formel), die alten
-                      Werte (0.35/0.52/0.28/0.3/0.45) lagen bei 2.0-4.3:1. */}
-                  <span className="text-small font-semibold uppercase tracking-[0.2em]"
-                    style={{ color: 'rgba(0,0,0,0.62)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
-                    {product.variant ? `${product.variant} · ${product.weight ?? ''}` : (product.chainSpeed ?? '')}
-                  </span>
-                  {(de ? product.badge : product.badgeEn) && (
-                    <span className="text-meta font-bold uppercase tracking-[0.1em] px-1.5 py-[1px] rounded"
-                      style={{ background: `${cardAccent}12`, color: cardAccent }}>
-                      {de ? product.badge : product.badgeEn}
-                    </span>
-                  )}
+                <div className="mb-4">
+                  <PriceNote de={de} t={t} tone="page" />
                 </div>
 
-                {/* Title — visually a duplicate of the mobile hero's <h1> above
-                    (the mobile block is display:none, not unmounted, at this
-                    viewport), so this one stays a <p> to avoid a second h1
-                    landing in the DOM alongside it. Eine Stufe groesser als
-                    vorher (26/28px → 30/32px), seit die Karte breiter ist. */}
-                <p className="font-display text-[30px] xl:text-[32px] font-bold leading-[1.05] tracking-[-0.03em] mb-1.5"
-                  style={{ color: '#0a0a0a' }}>
-                  {titleText}
-                </p>
-
-                {/* Positionierungssatz — ersetzt drei generische Haekchen als
-                    erste Aussage ueber das Produkt. Wiederverwendet die
-                    bereits abgesegneten Regal-Texte (t.products.shelf.
-                    classicFor/proFor aus ProductShelf.tsx), keine neue
-                    Behauptung. Nur Wachs: Ketten haben keinen Einsatzzeitraum. */}
-                {isWax && (
-                  <p className="text-[13px] font-semibold mb-3" style={{ color: cardAccent }}>
-                    {de ? 'Für ' : 'For '}{isClassic ? t.products.shelf.classicFor : t.products.shelf.proFor}
-                  </p>
-                )}
-
-                {/* Unterscheidungsmerkmale — auf zwei gekuerzt (vorher drei):
-                    Titel, Positionierungssatz und Preis tragen die Karte
-                    bereits, drei zusaetzliche generische Haekchen waren zu
-                    viele Atome fuer eine Flaeche, die zuerst zum Kauf fuehren
-                    soll (siehe cardBenefits-Definition oben). */}
-                {cardBenefits.length > 0 && (
-                  <div className="space-y-2 mb-3">
-                    {cardBenefits.map((b, i) => (
-                      <div key={i} className="flex gap-2 items-start">
-                        <Check className="h-3.5 w-3.5 flex-shrink-0 mt-px" style={{ color: cardAccent }} />
-                        <p className="text-[12px] leading-[1.45]" style={{ color: 'rgba(0,0,0,0.58)' }}>{b}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Sozialer Beweis — naeher am Titel als frueher (stand vorher
-                    zwischen den Intervall-Kacheln und dem Preisblock). */}
-                {rc && rc.reviewCount > 0 && (
-                  <div className="flex items-center gap-1.5">
-                    <div className="flex gap-px">
-                      {[0, 1, 2, 3, 4].map(i => <Star key={i} className="h-3 w-3 fill-current" style={{ color: '#F5A623' }} />)}
-                    </div>
-                    {/* rgba(0,0,0,0.32) auf weiss faellt auf ~2,2:1 Kontrast, WCAG AA
-                        braucht 4,5:1 fuer Normaltext. Fest statt --txm: die Karte
-                        ist bewusst theme-unabhaengig weiss (siehe Kommentar oben
-                        an der ersten Stelle dieses Fixes), --txm faellt im
-                        noir-Theme dagegen hell und wuerde hier wieder unter AA
-                        rutschen. */}
-                    <span className="text-meta font-medium" style={{ color: 'rgba(0,0,0,0.58)' }}>
-                      {rc.reviewCount}+ {de ? 'zufriedene Kunden' : 'happy customers'}
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* ── Zone 2: Kaufblock — getoenter Block traegt Groesse, Preis,
-                  CTA und die Fakten, die direkt zur Kaufentscheidung gehoeren
-                  (Ersparnis, Lieferung, Staffel). Groessenschalter + Classic/Pro-
-                  Vergleichs-Chip ersetzen das entfernte "Auch erhaeltlich"-
-                  Karussell (siehe FlipCard-Entfernung unten) — Groessen-
-                  varianten gehoeren nach Baymard ins Produkt selbst, nicht als
-                  anonyme Fremdprodukte daneben. Exakt dieselbe Grammatik wie
-                  der Groessenschalter im Regal (ProductShelf.tsx WaxPanel). */}
-              <div className="px-7 xl:px-8 py-4" style={{ background: 'rgba(0,0,0,0.028)' }}>
-                {isWax && waxSizeSibling && (
-                  <div className="flex items-center justify-between gap-3 mb-3.5">
-                    <div className="inline-flex rounded-lg p-0.5" style={{ background: 'rgba(0,0,0,0.05)' }}>
-                      {(['300', '500'] as const).map(v => {
-                        const active = product.weight === `${v}g`;
-                        return (
-                          <button key={v} type="button"
-                            onClick={() => { if (!active) navigate(`/produkt/${waxSizeSibling.id}`); }}
-                            aria-pressed={active}
-                            className="num-data inline-flex items-center justify-center min-h-11 min-w-11 px-4 rounded-md text-[12.5px] leading-none transition-all"
-                            style={{
-                              background: active ? '#fff' : 'transparent',
-                              color: active ? '#0a0a0a' : 'rgba(0,0,0,0.5)',
-                              boxShadow: active ? '0 1px 2px rgba(0,0,0,0.1)' : 'none',
-                            }}>
-                            {v} g
-                          </button>
-                        );
-                      })}
-                    </div>
-                    {product.applications && (
-                      <span className="text-meta font-medium flex-shrink-0" style={{ color: 'rgba(0,0,0,0.58)' }}>
-                        {product.applications} {de ? 'Anwendungen' : 'applications'}
-                      </span>
-                    )}
-                  </div>
-                )}
-
-                {/* Classic → Pro-Vergleich, nur von Classic aus verlinkt (wie
-                    vorher der Textlink im Spezifikationsblock unten im Fold —
-                    der entfaellt dafuer, siehe dort). Oeffnet dasselbe Modal
-                    wie der Regal-Vergleichs-Button (products.tsx CompareModal). */}
-                {isClassic && (
-                  <button type="button" onClick={() => setCompareOpen(true)}
-                    className="inline-flex items-center gap-1 mb-3.5 text-[12px] font-semibold"
-                    style={{ color: cardAccent }}>
-                    {de ? 'Regen & Winter? Pro MoS₂ vergleichen' : 'Rain & winter? Compare Pro MoS₂'} <ArrowRight className="h-3 w-3" />
-                  </button>
-                )}
-
-                <p className="num text-[30px] font-bold leading-none tracking-[-0.02em]" style={{ color: '#0a0a0a' }}>
-                  {formatPrice(product.price)}
-                </p>
-                {(pricePerApp !== null || per100g) && (
-                  <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1.5 mb-3">
-                    {pricePerApp !== null && (
-                      <span className="text-meta font-medium" style={{ color: 'rgba(0,0,0,0.58)' }}>
-                        ~{formatPrice(pricePerApp)}/{de ? 'Anw.' : 'use'}
-                      </span>
-                    )}
-                    {per100g && (
-                      <span className="text-meta font-medium" style={{ color: 'rgba(0,0,0,0.58)' }}>
-                        {pricePerApp !== null ? '· ' : ''}{per100g}
-                      </span>
-                    )}
-                  </div>
-                )}
-                {rc?.savings && (
-                  <p className="text-meta font-semibold mb-2" style={{ color: cardAccent }}>
-                    {de ? `Spart ${rc.savings} vs. Kettenöl` : `Saves ${rc.savings} vs. chain oil`}
-                  </p>
-                )}
-
-                <div className="mb-3">
-                  <PriceNote de={de} t={t} tone="card" />
-                </div>
-
-                {/* CTA — full width for maximum conversion */}
                 <div className="mb-3">
                   {isSoldOut(product) ? (
-                    <p className="text-center text-[14px] font-semibold py-3.5" style={{ color: 'rgba(0,0,0,0.58)' }}>
+                    <p className="text-center text-[14px] font-semibold py-3.5" style={{ color: 'var(--txf)' }}>
                       {de ? 'Ausverkauft' : 'Sold out'}
                     </p>
                   ) : canCheckout(product) ? (
@@ -1132,158 +809,107 @@ export function ProductDetailPage() {
                   ) : (
                     <a href={product.ebayUrl} target="_blank" rel="noopener noreferrer" onClick={() => trackEbayClick(product.id)}
                       className="flex items-center justify-center gap-2 w-full py-3.5 rounded-full text-[14px] font-semibold tracking-wide transition-all duration-300 hover:scale-[1.01] active:scale-[0.97]"
-                      style={{ background: '#0a0a0a', color: '#fff', boxShadow: '0 6px 24px -6px rgba(0,0,0,0.4)' }}>
+                      style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}>
                       {de ? 'Jetzt bestellen' : 'Order now'} <ExternalLink className="h-3.5 w-3.5 opacity-60" />
                     </a>
                   )}
                 </div>
 
-                {/* Trust signals — "Made in Germany" only for wax (our own
-                    product); pre-waxed chains are resold Shimano/SRAM/YBN
-                    parts, per the AGENTS.md rule this line wasn't following. */}
-                <p className="text-meta text-center font-medium" style={{ color: 'rgba(0,0,0,0.58)' }}>
-                  {isWax ? `${de ? 'Hergestellt in Stuttgart' : 'Made in Stuttgart'} · ` : ''}
-                  {de ? `Lieferung ${deliveryDate}` : `Delivery ${deliveryDate}`}
-                </p>
-                {/* Wachs-Staffel — neu auf der Produktseite (Luca: "eBay haelt
-                    den Rabatt"). Nur Wachs, ruhig gehalten (kein Akzent, kein
-                    Rahmen) — eine Nebeninfo, kein zweiter CTA. */}
-                {isWax && (
-                  <p className="text-meta text-center mt-1" style={{ color: 'rgba(0,0,0,0.42)' }}>
-                    {t.products.multiDiscount}
-                  </p>
-                )}
-
-                {/* Widerrufsrecht — stand auf Desktop bisher nirgends, obwohl
-                    hier die Kaufentscheidung faellt (docs/AUDIT.md §11: "Auf
-                    der Produktseite steht am Kaufpunkt nichts"). Kurze Fassung,
-                    Wortlaut kommt aus derselben Quelle wie die mobile. */}
-                <div className="flex items-start gap-1.5 mt-2.5 pt-2.5" style={{ borderTop: '1px solid rgba(0,0,0,0.06)' }}>
-                  <RotateCcw className="h-3 w-3 flex-shrink-0 mt-[3px]" style={{ color: cardAccent }} aria-hidden />
-                  <span className="text-meta" style={{ color: 'rgba(0,0,0,0.48)' }}>{returnNoteShort}</span>
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-1.5 text-meta" style={{ color: 'var(--txff)' }}>
+                    <Truck className="h-3 w-3 flex-shrink-0" style={{ color: accentColor }} aria-hidden />
+                    {isWax ? `${de ? 'Hergestellt in Stuttgart' : 'Made in Stuttgart'} · ` : ''}
+                    {de ? `Lieferung ${deliveryDate}` : `Delivery ${deliveryDate}`}
+                  </div>
+                  <div className="flex items-start gap-1.5 text-meta" style={{ color: 'var(--txff)' }}>
+                    <RotateCcw className="h-3 w-3 flex-shrink-0 mt-[3px]" style={{ color: accentColor }} aria-hidden />
+                    <span>{returnNoteLong}</span>
+                  </div>
                 </div>
               </div>
-
-              {/* ── Zone 3: Faktenraster + Fussleiste ── ersetzt die vier
-                  unbeschrifteten Preis-Pillen (specsData.slice(0,4) zeigte
-                  nur spec.v ohne Label — Lucas "man erkennt fast gar nichts"). */}
-              <div className="px-7 xl:px-8 pt-4" style={{ borderTop: '1px solid rgba(0,0,0,0.06)' }}>
-                {factsGrid.length > 0 && (
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-3 pb-4">
-                    {factsGrid.map((f, i) => (
-                      <div key={i}>
-                        <p className="text-small uppercase tracking-[0.14em] mb-0.5 font-semibold"
-                          style={{ color: 'rgba(0,0,0,0.5)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
-                          {f.l}
-                        </p>
-                        <p className="num text-[14px] font-semibold leading-tight" style={{ color: '#0a0a0a' }}>
-                          {f.v}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Fahrprofil-Zeile — vorher als zweite akzentfarbene, fett
-                    gesetzte Zeile direkt unter der Ersparnis-Zeile (konkurrierte
-                    dort mit ihr um Aufmerksamkeit). Ist ein Fakt ("reicht dir
-                    noch ~78 Wochen"), keine Werbeaussage — gehoert damit ins
-                    Faktenraster, nicht in den Kaufblock. */}
-                {personalizedWeeks !== null && (
-                  <div className="flex items-center gap-1.5 pb-4">
-                    <Gauge className="h-3 w-3 flex-shrink-0" style={{ color: cardAccent }} aria-hidden />
-                    <span className="text-meta font-medium" style={{ color: 'rgba(0,0,0,0.58)' }}>
-                      {de ? `Bei deinem Fahrprofil: reicht ~${personalizedWeeks} Wochen` : `At your riding profile: lasts ~${personalizedWeeks} more weeks`}
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* Fussleiste — volle Kartenbreite statt Eck-Textlink (Lucas:
-                  "die Links für Details sind nicht gut platziert"). Oeffnet bei
-                  vorhandenem Vergleich direkt das Vergleichs-Akkordeon. */}
-              <button onClick={(e) => { e.stopPropagation(); if (hasVergleich) setOpenAccordion('vergleich'); scrollToDetails(); }}
-                onPointerDown={(e) => e.stopPropagation()} onPointerUp={(e) => e.stopPropagation()}
-                className="flex items-center justify-center gap-1.5 w-full py-3 text-[13px] font-semibold transition-colors hover:opacity-70"
-                style={{ borderTop: '1px solid rgba(0,0,0,0.06)', background: 'rgba(0,0,0,0.015)', color: cardAccent }}>
-                {de ? 'Alle Daten & Vergleich' : 'All details & comparison'} <ChevronDown className="h-3.5 w-3.5" />
-              </button>
             </div>
-
-            {/* Thumbnail strip — Runde 4: feste 56px-Kacheln statt sechs
-                flex-1-Streifen bei 0.22 Deckkraft (auf dunklem Foto praktisch
-                unsichtbar, Lucas "man erkennt fast gar nichts"). Zaehler
-                daneben ersetzt die Notwendigkeit, alle sechs auf einen Blick
-                zu erkennen. */}
-            {total > 1 && (
-              <div className="flex items-center gap-2 mt-2.5">
-                <div className="flex gap-1.5 flex-1 min-w-0">
-                  {gallery.slice(0, 6).map((src, i) => (
-                    <button key={i} onClick={() => { goTo(i); pause(); setTimeout(resume, AUTO_INTERVAL); }}
-                      aria-label={`${titleText} — Bild ${i + 1}`} aria-current={i === activeImage}
-                      className="h-14 w-14 flex-shrink-0 rounded-xl overflow-hidden transition-all duration-300"
-                      style={{
-                        opacity: i === activeImage ? 1 : 0.55,
-                        boxShadow: i === activeImage ? '0 0 0 2px rgba(255,255,255,0.9)' : '0 0 0 1px rgba(255,255,255,0.25)',
-                      }}>
-                      <img src={src} alt="" className="h-full w-full object-cover" />
-                    </button>
-                  ))}
-                </div>
-                <span className="num-data text-[11px] font-medium flex-shrink-0" style={{ color: 'rgba(255,255,255,0.72)' }}>
-                  {String(activeImage + 1).padStart(2, '0')} / {String(Math.min(total, 6)).padStart(2, '0')}
-                </span>
-              </div>
-            )}
           </div>
-
-          {/* Scroll hint — the card's own "Details ⌄" link (above) does the
-              same scrollToDetails() call, but it's small text tucked in the
-              card's corner and easy to miss on first glance; without any
-              cue here the hero can read as a self-contained unit with
-              nothing below. Icon-only and glassy (same treatment as the
-              mobile hero's prev/next arrows) instead of the old solid black
-              pill with an all-caps label — a quiet "there's more" nudge,
-              not a second CTA competing with the card. Reuses the existing
-              .pdp-bounce keyframe defined below (it does work and already
-              handles prefers-reduced-motion on its own). */}
-          <button onClick={(e) => { e.stopPropagation(); scrollToDetails(); }}
-            onPointerDown={(e) => e.stopPropagation()} onPointerUp={(e) => e.stopPropagation()}
-            className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 w-11 h-11 flex items-center justify-center rounded-full transition-transform hover:scale-105 active:scale-90"
-            style={{ background: 'rgba(var(--scrim-rgb),0.28)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)' }}
-            aria-label={de ? 'Mehr erfahren' : 'Learn more'}>
-            <ChevronDown className="h-4 w-4 pdp-bounce" style={{ color: 'rgba(255,255,255,0.92)' }} />
-          </button>
         </section>
 
         {/* Buy-bar scroll trigger */}
         <div ref={buyRef} className="h-0" />
 
-        {/* ── Kurz verglichen ── Der volle Vergleich lag bisher hinter einem
-            geschlossenen Akkordeon und einem Chevron, den laut Luca kaum
-            jemand druckt — dabei ist der Vergleich genau das, was die
-            Kaufentscheidung traegt. Drei der fuenf Zeilen (die kaufent-
-            scheidenden: Reibung, Intervall, Kettenlaufzeit) stehen jetzt
-            direkt sichtbar unter dem Hero; der Rest bleibt im Akkordeon.
-            Ein Statement pro Flaeche (DESIGN.md): diese Bande sagt "wie
-            schneidet es ab", das Faktenraster darunter sagt "was ist es" —
-            deshalb kein zweiter Kauf-CTA hier, nur die Vertiefung. */}
-        {hasVergleich && rc?.compHeaders && rc?.compRows && (
+        {/* ══════════════════════════════════════════════════════════════
+            AUF EINEN BLICK — die vier Kennzahlen des Produkts
+            ══════════════════════════════════════════════════════════════
+            `rc.stats` ist fuer ALLE zwoelf Produkte gepflegt (value/label/sub)
+            und wurde bis 09/2026 an keiner einzigen Stelle gerendert. Die
+            Seite zeigte stattdessen dieselben Fakten dreifach verteilt:
+            Faktenpanel im Hero, "Spezifikationen"-Tabelle darunter und noch
+            einmal in der Vergleichstabelle — "Kompatibilitaet" und "Gewicht"
+            standen wortgleich doppelt.
+
+            Gestaltung nach DESIGN.md §3: Haarlinien, keine gefuellten
+            Icon-Kacheln ("Was es nicht mehr geben sollte: gefuellte Kacheln
+            mit Icon und zwei Zeilen Text"). Die Zahl traegt die Sektion,
+            gesetzt in Fraunces — das ist die im Markenprofil vorgesehene
+            "grosse Serifzahl, sparsam eingesetzt". */}
+        {rc?.stats && rc.stats.length > 0 && (
           <section style={{ background: 'var(--pg)' }}>
-            <div className="max-w-4xl mx-auto px-5 sm:px-8 pt-10 sm:pt-14">
-              <p className="text-small font-semibold uppercase tracking-[0.14em] mb-3 text-center"
-                style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
-                {de ? 'Kurz verglichen' : 'At a glance'}
-              </p>
-              <CompareTable headers={rc.compHeaders} rows={rc.compRows.slice(0, 3)} accentColor={cardAccent} de={de} />
-              <button type="button" onClick={() => { setOpenAccordion('vergleich'); scrollToDetails(); }}
-                className="flex items-center gap-1 mx-auto mt-3 text-[12.5px] font-semibold transition-opacity hover:opacity-70"
-                style={{ color: cardAccent }}>
-                {de ? 'Vollen Vergleich ansehen' : 'See full comparison'} <ChevronDown className="h-3 w-3" />
-              </button>
+            <div className="max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-10 pb-12 lg:pb-16">
+              <h2 className="sr-only">{de ? 'Kennzahlen' : 'Key figures'}</h2>
+              <dl className="grid grid-cols-2 lg:grid-cols-4" style={{ borderTop: '1px solid var(--bd)' }}>
+                {rc.stats.map((stat, i) => (
+                  <div key={i}
+                    className="py-5 lg:py-6 pr-4 lg:pr-8"
+                    style={{
+                      borderBottom: '1px solid var(--bd)',
+                      // Senkrechte Haarlinie nur zwischen den Spalten, nicht
+                      // am linken Rand der jeweils ersten Spalte — sonst
+                      // entsteht optisch doch wieder ein Kasten.
+                      borderLeft: i % 2 === 0 ? 'none' : '1px solid var(--bd)',
+                      paddingLeft: i % 2 === 0 ? 0 : '1rem',
+                    }}>
+                    <dd className="font-display font-bold leading-[1.05] tracking-[-0.02em] mb-1.5"
+                      style={{ fontSize: 'clamp(1.5rem, 3.2vw, 2.1rem)', color: 'var(--tx1)' }}>
+                      {stat.value}
+                    </dd>
+                    <dt className="text-small font-semibold mb-1" style={{ color: 'var(--tx2)' }}>{stat.label}</dt>
+                    <p className="text-meta leading-[1.5]" style={{ color: 'var(--txff)' }}>{stat.sub}</p>
+                  </div>
+                ))}
+              </dl>
+
+              {/* Was das Produkt auszeichnet — vorher im Hero-Faktenpanel als
+                  gefuellte Flaeche, die dort mit dem Kaufblock um
+                  Aufmerksamkeit konkurrierte. */}
+              {cardBenefits.length > 0 && (
+                <ul className="mt-6 grid gap-2 sm:grid-cols-2 lg:gap-x-10">
+                  {cardBenefits.map((b, i) => (
+                    <li key={i} className="flex gap-2 items-start">
+                      <Check className="h-3.5 w-3.5 flex-shrink-0 mt-[3px]" style={{ color: accentColor }} aria-hidden />
+                      <span className="text-[13px] leading-[1.55]" style={{ color: 'var(--txm)' }}>{b}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              {/* Persoenliche Reichweite, falls auf diesem Geraet schon einmal
+                  ein Fahrprofil gesetzt wurde. Ein kalter Besucher sieht das
+                  heute nie — Etappe 3 macht daraus das eigentliche Instrument
+                  mit Vorgabewerten. */}
+              {personalizedWeeks !== null && (
+                <p className="flex items-center gap-1.5 mt-5 text-meta" style={{ color: 'var(--txm)' }}>
+                  <Gauge className="h-3.5 w-3.5 flex-shrink-0" style={{ color: accentColor }} aria-hidden />
+                  {de
+                    ? `Bei deinem Fahrprofil reicht dir das etwa ${personalizedWeeks} Wochen.`
+                    : `At your riding profile this lasts you about ${personalizedWeeks} weeks.`}
+                </p>
+              )}
             </div>
           </section>
         )}
+
+        {/* Die Bande "Kurz verglichen" stand hier und zeigte die ersten drei
+            Zeilen derselben Tabelle, die wenige Sektionen weiter unten
+            vollstaendig im Akkordeon "Vergleich" steht. Zwei Fassungen
+            derselben Tabelle auf einer Seite waren die auffaelligste
+            Dublette; die vollstaendige gewinnt. */}
 
         {/* ══════════════════════════════════════════════════════════════
             BELOW FOLD — Specs + Deep dive (all sizes)
@@ -1299,10 +925,10 @@ export function ProductDetailPage() {
                   not intentionally absent content. */}
               {specsData.length > 0 && (
                 <div className="min-w-0">
-                  <p className="text-small font-semibold uppercase tracking-[0.14em] mb-3"
+                  <h2 className="text-small font-semibold uppercase tracking-[0.14em] mb-3"
                     style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
                     {de ? 'Spezifikationen' : 'Specifications'}
-                  </p>
+                  </h2>
                   <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--bd)' }}>
                     {specsData.map((spec, i, arr) => (
                       <div key={i} className="flex items-baseline justify-between px-4 py-3"
@@ -1353,10 +979,10 @@ export function ProductDetailPage() {
 
               {rc && (isWax ? (hasFormula || hasVergleich || hasKosten) : true) && (
                 <div className="min-w-0">
-                  <p className="text-small font-semibold uppercase tracking-[0.14em] mb-3"
+                  <h2 className="text-small font-semibold uppercase tracking-[0.14em] mb-3"
                     style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
                     {de ? 'Im Detail' : 'Deep dive'}
-                  </p>
+                  </h2>
                   {rc.hook && isChain && <p className="text-[13px] leading-[1.7] mb-3" style={{ color: 'var(--txm)' }}>{rc.hook}</p>}
                   <div className="space-y-2.5">
                     {hasFormula && rc.formulaDetails && (
@@ -1571,9 +1197,9 @@ export function ProductDetailPage() {
                 sagen" even starts. Full padding when this is the first thing
                 here (bundle pages, which have no richContent/Trust section). */}
             <div className={`max-w-6xl mx-auto px-5 sm:px-8 pb-14 sm:pb-20 ${rc ? 'pt-0' : 'pt-14 sm:pt-20'}`}>
-              <p className="text-small font-semibold uppercase tracking-[0.14em] mb-4" style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
+              <h2 className="text-small font-semibold uppercase tracking-[0.14em] mb-4" style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
                 {de ? 'Was Fahrer sagen' : 'What riders say'}
-              </p>
+              </h2>
               <div className="grid sm:grid-cols-2 gap-6">
                 {productReviews.map((review, i) => <ReviewSnippet key={i} review={review} de={de} />)}
               </div>
