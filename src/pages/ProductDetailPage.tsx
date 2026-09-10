@@ -546,9 +546,9 @@ export function ProductDetailPage() {
         {/* ── NAV ── */}
         <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-500"
           style={{
-            background: navSolid ? 'var(--nav-bg)' : 'transparent',
-            backdropFilter: navSolid ? 'blur(12px)' : 'none',
-            borderBottom: navSolid ? '1px solid var(--bd)' : '1px solid transparent',
+            background: 'var(--nav-bg)',
+            backdropFilter: 'blur(12px)',
+            borderBottom: '1px solid var(--bd)',
           }}>
           <div className="max-w-[1440px] mx-auto px-5 sm:px-8 h-14 flex items-center justify-between gap-4">
             <div className="flex items-center gap-4 min-w-0">
@@ -567,24 +567,24 @@ export function ProductDetailPage() {
               <nav aria-label={de ? 'Brotkrümelnavigation' : 'Breadcrumb'}
                 className="hidden sm:flex items-center gap-1.5 text-[13px] min-w-0">
                 <Link to="/" className="flex-shrink-0 hover:underline transition-colors"
-                  style={{ color: navSolid ? 'var(--txf)' : 'rgba(255,255,255,0.65)' }}>
+                  style={{ color: 'var(--txf)' }}>
                   {de ? 'Start' : 'Home'}
                 </Link>
                 <ChevronRight className="h-3 w-3 flex-shrink-0 opacity-50"
-                  style={{ color: navSolid ? 'var(--txf)' : 'rgba(255,255,255,0.65)' }} />
+                  style={{ color: 'var(--txf)' }} />
                 <Link to="/#produkte" className="flex-shrink-0 hover:underline transition-colors"
-                  style={{ color: navSolid ? 'var(--txf)' : 'rgba(255,255,255,0.65)' }}>
+                  style={{ color: 'var(--txf)' }}>
                   {de ? 'Produkte' : 'Products'}
                 </Link>
                 <ChevronRight className="h-3 w-3 flex-shrink-0 opacity-50"
-                  style={{ color: navSolid ? 'var(--txf)' : 'rgba(255,255,255,0.65)' }} />
-                <span className="truncate font-medium" style={{ color: navSolid ? 'var(--tx1)' : '#fff' }}>
+                  style={{ color: 'var(--txf)' }} />
+                <span className="truncate font-medium" style={{ color: 'var(--tx1)' }}>
                   {titleText}
                 </span>
               </nav>
               {/* Mobile — no room for the full breadcrumb, keep the simple back link */}
               <Link to="/" onClick={handleBack} className="sm:hidden flex items-center gap-2 text-[13px] font-medium transition-colors flex-shrink-0"
-                style={{ color: navSolid ? 'var(--txm)' : 'rgba(255,255,255,0.8)' }}>
+                style={{ color: 'var(--txm)' }}>
                 <ArrowLeft className="h-4 w-4" /> {de ? 'Zurück' : 'Back'}
               </Link>
             </div>
@@ -856,7 +856,7 @@ export function ProductDetailPage() {
               <dl className="grid grid-cols-2 lg:grid-cols-4" style={{ borderTop: '1px solid var(--bd)' }}>
                 {rc.stats.map((stat, i) => (
                   <div key={i}
-                    className="py-5 lg:py-6 pr-4 lg:pr-8"
+                    className="flex flex-col py-5 lg:py-6 pr-4 lg:pr-8"
                     style={{
                       borderBottom: '1px solid var(--bd)',
                       // Senkrechte Haarlinie nur zwischen den Spalten, nicht
@@ -865,12 +865,12 @@ export function ProductDetailPage() {
                       borderLeft: i % 2 === 0 ? 'none' : '1px solid var(--bd)',
                       paddingLeft: i % 2 === 0 ? 0 : '1rem',
                     }}>
-                    <dd className="font-display font-bold leading-[1.05] tracking-[-0.02em] mb-1.5"
+                    <dt className="order-2 text-small font-semibold mb-1" style={{ color: 'var(--tx2)' }}>{stat.label}</dt>
+                    <dd className="order-1 font-display font-bold leading-[1.05] tracking-[-0.02em] mb-1.5"
                       style={{ fontSize: 'clamp(1.5rem, 3.2vw, 2.1rem)', color: 'var(--tx1)' }}>
                       {stat.value}
                     </dd>
-                    <dt className="text-small font-semibold mb-1" style={{ color: 'var(--tx2)' }}>{stat.label}</dt>
-                    <p className="text-meta leading-[1.5]" style={{ color: 'var(--txff)' }}>{stat.sub}</p>
+                    <dd className="order-3 text-meta leading-[1.5]" style={{ color: 'var(--txff)' }}>{stat.sub}</dd>
                   </div>
                 ))}
               </dl>
