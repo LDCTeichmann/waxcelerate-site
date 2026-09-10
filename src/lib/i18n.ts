@@ -84,6 +84,24 @@ export const translations = {
       },
       buyOnEbay: 'Bei eBay kaufen',
       multiDiscount: 'Wachs-Staffel: 2 Stk. 5 % · 3 Stk. 10 % · ab 5 Stk. 15 %',
+      // ── Pflichtangaben am Preis (PAngV) ──────────────────────────────────
+      // Bis 09/2026 stand auf der Produktseite WEDER etwas zur Umsatzsteuer
+      // NOCH zu den Versandkosten. Beides verlangt die Preisangabenverordnung
+      // beim Preis, und "extra costs too high" ist laut Baymard mit 48 % der
+      // haeufigste einzelne Kaufabbruchgrund ueberhaupt. Die Versandkosten-
+      // tabelle existiert auf /versand-und-zahlung, war von hier aber nicht
+      // verlinkt — die PAngV verlangt genau diese Verlinkung.
+      //
+      // Waxcelerate ist Kleinunternehmer nach §19 UStG (steht so auf
+      // /versand-und-zahlung), weist also keine Umsatzsteuer aus. Die
+      // Formulierung unten ist die uebliche Standardfassung dafuer.
+      // ACHTUNG: Rechtstext. Vor dem Livegang von Luca gegenlesen lassen,
+      // danach hier an EINER Stelle aenderbar — nicht in die Komponenten
+      // kopieren.
+      priceNoteTax: 'Kleinunternehmer nach §19 UStG, keine Umsatzsteuer ausgewiesen.',
+      priceNoteShippingPre: 'zzgl.',
+      priceNoteShippingLink: 'Versandkosten',
+      priceNoteShippingPost: 'ab 50 € versandfrei',
       preWaxedHint: 'Ultraschallbad-entfettet, von Hand gewachst — Kauf direkt über eBay mit vollem Käuferschutz.',
       decisionAid: 'Classic oder Pro?',
       compareBtn: 'Vergleich ansehen',
@@ -631,6 +649,11 @@ export const translations = {
       },
       buyOnEbay: 'Buy on eBay',
       multiDiscount: 'Wax tiers: 2 pcs. 5% · 3 pcs. 10% · from 5 pcs. 15%',
+      // Siehe die deutsche Fassung: Rechtstext, nur zusammen mit ihr aendern.
+      priceNoteTax: 'Small business under §19 UStG, no VAT shown.',
+      priceNoteShippingPre: 'plus',
+      priceNoteShippingLink: 'shipping',
+      priceNoteShippingPost: 'free over €50',
       preWaxedHint: 'Ultrasonic-bath degreased, hand-waxed — order directly via eBay with full buyer protection.',
       decisionAid: 'Classic or Pro?',
       compareBtn: 'See comparison',

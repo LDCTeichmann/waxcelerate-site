@@ -112,6 +112,7 @@ export function ProductDetailPage() {
   const [navSolid, setNavSolid] = useState(false);
   const buyRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
+  const heroDesktopRef = useRef<HTMLElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const detailRef = useRef<HTMLDivElement>(null);
   const autoRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -248,11 +249,23 @@ export function ProductDetailPage() {
     setTimeout(resume, AUTO_INTERVAL);
   }, [next, prev, resume]);
 
+  // Der Hero existiert zweimal im DOM (Mobil- und Desktop-Fassung, per CSS
+  // umgeschaltet). Bis 09/2026 trugen BEIDE dieselbe `heroRef` — React behaelt
+  // bei zwei Elementen an einem Ref-Objekt nur die zuletzt zugewiesene
+  // Zuweisung, hier also die Desktop-Sektion. Auf dem Handy beobachtete der
+  // Observer damit ein Element mit `display: none`. Zwei getrennte Refs, und
+  // die Navigation wird erst dann massiv, wenn KEINE der beiden Fassungen mehr
+  // sichtbar ist — die jeweils versteckte meldet ohnehin nie ein Intersecting,
+  // fuer sie ist die Bedingung also neutral.
   useEffect(() => {
-    const el = heroRef.current;
-    if (!el) return;
-    const io = new IntersectionObserver(([entry]) => setNavSolid(!entry.isIntersecting), { threshold: 0 });
-    io.observe(el);
+    const els = [heroRef.current, heroDesktopRef.current].filter(Boolean) as Element[];
+    if (!els.length) return;
+    const visible = new Map<Element, boolean>();
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) visible.set(e.target, e.isIntersecting);
+      setNavSolid(![...visible.values()].some(Boolean));
+    }, { threshold: 0 });
+    els.forEach(el => io.observe(el));
     return () => io.disconnect();
   }, []);
 
@@ -322,6 +335,29 @@ export function ProductDetailPage() {
   const accentColor = isPro ? '#4A72D4' : 'var(--accent-soft)';
   const accentBg = isPro ? 'rgba(74,114,212,0.06)' : 'rgba(43,82,176,0.06)';
   const cardAccent = isPro ? '#4A72D4' : '#2B52B0';
+
+  // Widerrufshinweis am Kaufpunkt. Stand bis 09/2026 ausschliesslich im
+  // Mobil-Markup — die Desktop-Kaufkarte trug ihn nicht, obwohl genau dort die
+  // Kaufentscheidung faellt. Deshalb hier einmal abgeleitet statt zweimal
+  // getippt: zwei Fassungen desselben Hinweises waren die Ursache dafuer, dass
+  // eine davon vergessen wurde. Die lange Fassung bleibt wortgleich die
+  // bisherige (die Formulierung ist bewusst an die tatsaechliche Bedingung
+  // geknuepft, siehe Kommentar am Mobil-Trust-Streifen); die kurze traegt nur
+  // die Rechtslage, weil in der Karte kein Platz fuer zwei Saetze ist.
+  const returnNoteLong = de
+    ? (isWax
+      ? '14 Tage Rückgaberecht, solange der Block original verpackt ist. Schreib mir gerne trotzdem, wenn etwas nicht passt.'
+      : '14 Tage Rückgaberecht, solange die Kette nicht montiert wurde. Schreib mir gerne, wenn etwas nicht passt.')
+    : (isWax
+      ? '14-day right of return, as long as the block is still sealed. Feel free to write to me anyway if something is not right.'
+      : '14-day right of return, as long as the chain has not been installed. Feel free to write to me if something is not right.');
+  const returnNoteShort = de
+    ? (isWax
+      ? '14 Tage Rückgaberecht, solange der Block original verpackt ist.'
+      : '14 Tage Rückgaberecht, solange die Kette nicht montiert wurde.')
+    : (isWax
+      ? '14-day right of return, as long as the block is still sealed.'
+      : '14-day right of return, as long as the chain has not been installed.');
 
   const highlights = de ? product.highlights : product.highlightsEn;
   const descriptionText = de ? product.description : product.descriptionEn;
@@ -775,6 +811,9 @@ export function ProductDetailPage() {
                   {per100g && <p className="text-meta whitespace-nowrap" style={{ color: 'var(--txff)' }}>{pricePerApp !== null ? '· ' : ''}{per100g}</p>}
                 </div>
               </div>
+              {/* Preis und CTA teilen sich diese Zeile; die Pflichtangaben
+                  stehen deshalb darunter ueber die volle Breite, siehe
+                  unterhalb dieses Blocks. */}
               {isSoldOut(product) ? (
                 <span className="text-[13px] font-semibold px-4 py-3" style={{ color: 'var(--txf)' }}>
                   {de ? 'Ausverkauft' : 'Sold out'}
@@ -786,6 +825,10 @@ export function ProductDetailPage() {
                   {de ? 'Kaufen' : 'Buy'} <ExternalLink className="h-3.5 w-3.5" />
                 </a>
               )}
+            </div>
+
+            <div className="mb-4 -mt-1">
+              <PriceNote de={de} t={t} tone="page" />
             </div>
 
             {/* Trust-Streifen — Lieferung, Fahrprofil-Hinweis und
@@ -834,26 +877,20 @@ export function ProductDetailPage() {
                   Einladung zu streichen, sich bei Problemen trotzdem zu melden. */}
               <div className="flex items-start gap-1.5 text-meta" style={{ color: 'var(--txff)' }}>
                 <RotateCcw className="h-3 w-3 flex-shrink-0 mt-[3px]" style={{ color: accentColor }} aria-hidden />
-                <span>
-                  {de
-                    ? (isWax
-                      ? '14 Tage Rückgaberecht, solange der Block original verpackt ist. Schreib mir gerne trotzdem, wenn etwas nicht passt.'
-                      : '14 Tage Rückgaberecht, solange die Kette nicht montiert wurde. Schreib mir gerne, wenn etwas nicht passt.')
-                    : (isWax
-                      ? '14-day right of return, as long as the block is still sealed. Feel free to write to me anyway if something is not right.'
-                      : '14-day right of return, as long as the chain has not been installed. Feel free to write to me if something is not right.')}
-                </span>
+                <span>{returnNoteLong}</span>
               </div>
             </div>
 
-            <GpsrInfo de={de} />
+            {/* GpsrInfo stand hier, also nur im Mobil-Markup — auf Desktop gab
+                es die Herstellerangabe damit ueberhaupt nicht. Sie steht jetzt
+                einmal weiter unten fuer beide Breakpoints. */}
           </div>
         </section>
 
         {/* ══════════════════════════════════════════════════════════════
             DESKTOP HERO — full-bleed image, focused conversion card
            ══════════════════════════════════════════════════════════════ */}
-        <section ref={heroRef} className="relative h-screen min-h-[680px] overflow-hidden hidden lg:block"
+        <section ref={heroDesktopRef} className="relative h-screen min-h-[680px] overflow-hidden hidden lg:block"
           style={{ touchAction: 'pan-y' }}
           onPointerDown={onGalleryPointerDown} onPointerUp={onGalleryPointerUp}>
           {slides.map((slide, i) => (
@@ -1075,10 +1112,14 @@ export function ProductDetailPage() {
                   </div>
                 )}
                 {rc?.savings && (
-                  <p className="text-meta font-semibold mb-3" style={{ color: cardAccent }}>
+                  <p className="text-meta font-semibold mb-2" style={{ color: cardAccent }}>
                     {de ? `Spart ${rc.savings} vs. Kettenöl` : `Saves ${rc.savings} vs. chain oil`}
                   </p>
                 )}
+
+                <div className="mb-3">
+                  <PriceNote de={de} t={t} tone="card" />
+                </div>
 
                 {/* CTA — full width for maximum conversion */}
                 <div className="mb-3">
@@ -1112,6 +1153,15 @@ export function ProductDetailPage() {
                     {t.products.multiDiscount}
                   </p>
                 )}
+
+                {/* Widerrufsrecht — stand auf Desktop bisher nirgends, obwohl
+                    hier die Kaufentscheidung faellt (docs/AUDIT.md §11: "Auf
+                    der Produktseite steht am Kaufpunkt nichts"). Kurze Fassung,
+                    Wortlaut kommt aus derselben Quelle wie die mobile. */}
+                <div className="flex items-start gap-1.5 mt-2.5 pt-2.5" style={{ borderTop: '1px solid rgba(0,0,0,0.06)' }}>
+                  <RotateCcw className="h-3 w-3 flex-shrink-0 mt-[3px]" style={{ color: cardAccent }} aria-hidden />
+                  <span className="text-meta" style={{ color: 'rgba(0,0,0,0.48)' }}>{returnNoteShort}</span>
+                </div>
               </div>
 
               {/* ── Zone 3: Faktenraster + Fussleiste ── ersetzt die vier
@@ -1532,6 +1582,14 @@ export function ProductDetailPage() {
         )}
 
         {/* ── CTA ── */}
+        {/* Herstellerangabe nach GPSR — einmal fuer beide Breakpoints. Lag bis
+            09/2026 im Mobil-Hero und fehlte auf Desktop dadurch komplett. */}
+        <section style={{ background: 'var(--pg)' }}>
+          <div className="max-w-5xl mx-auto px-5 sm:px-8 pt-8">
+            <GpsrInfo de={de} />
+          </div>
+        </section>
+
         <section style={{ background: 'var(--pg)' }}>
           <div className="max-w-5xl mx-auto px-5 sm:px-8 py-12 sm:py-16 text-center">
             {isWax && product.weight === '300g' && (
@@ -1546,11 +1604,26 @@ export function ProductDetailPage() {
               </div>
             )}
             <h2 className="font-display text-[22px] sm:text-[28px] font-bold mb-5 tracking-[-0.025em]" style={{ color: 'var(--tx1)' }}>{titleText}</h2>
-            <a href={product.ebayUrl} target="_blank" rel="noopener noreferrer" onClick={() => trackEbayClick(product.id)}
-              className="inline-flex items-center gap-2 px-9 py-3.5 rounded-full text-[14px] font-semibold transition-all duration-300 hover:scale-[1.03] active:scale-[0.97]"
-              style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}>
-              {de ? 'Jetzt kaufen' : 'Buy now'} — {formatPrice(product.price)} <ExternalLink className="h-4 w-4" />
-            </a>
+            {/* Dieser Abschluss-CTA hat bis 09/2026 als einziger der vier
+                Kaufaktionen weder isSoldOut noch canCheckout geprueft und
+                bedingungslos zu eBay verlinkt. Fuer chain-ybn12 (soldOut)
+                stand hier also ein Kaufbutton, und sobald Stripe scharf
+                geschaltet wird, haette er am eigenen Checkout vorbeiverkauft.
+                Jetzt dieselbe Reihenfolge wie an den anderen drei Stellen:
+                ausverkauft -> eigener Checkout -> eBay. */}
+            {isSoldOut(product) ? (
+              <p className="text-[14px] font-semibold" style={{ color: 'var(--txf)' }}>
+                {de ? 'Ausverkauft' : 'Sold out'}
+              </p>
+            ) : canCheckout(product) ? (
+              <div className="inline-block"><AddToCartButton product={product} /></div>
+            ) : (
+              <a href={product.ebayUrl} target="_blank" rel="noopener noreferrer" onClick={() => trackEbayClick(product.id)}
+                className="inline-flex items-center gap-2 px-9 py-3.5 rounded-full text-[14px] font-semibold transition-all duration-300 hover:scale-[1.03] active:scale-[0.97]"
+                style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}>
+                {de ? 'Jetzt kaufen' : 'Buy now'} — {formatPrice(product.price)} <ExternalLink className="h-4 w-4" />
+              </a>
+            )}
           </div>
         </section>
 
@@ -1619,6 +1692,45 @@ export function ProductDetailPage() {
         .pdp-card-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.08); border-radius: 3px; }
       `}</style>
     </>
+  );
+}
+
+/* ── Pflichtangaben am Preis ────────────────────────────────────────────────
+    Die Preisangabenverordnung verlangt beim Preis eine Aussage zur
+    Umsatzsteuer und zu den Versandkosten, und zwar mit Verlinkung auf die
+    Seite, die sie beziffert. Auf der Produktseite stand bis 09/2026 zu beidem
+    nichts — geprueft am Live-HTML, weder "MwSt" noch "Versandkosten" kamen
+    vor. Fachlich ist das zugleich der wirksamste Einzelhebel gegen
+    Kaufabbruch: "extra costs too high" ist bei Baymard mit 48 % der
+    haeufigste einzelne Abbruchgrund.
+
+    Eine Komponente fuer beide Breakpoints, damit Mobil- und Desktop-Fassung
+    nicht auseinanderlaufen — genau das ist beim Widerrufsrecht und beim
+    GPSR-Block passiert, die es nur im Mobil-Markup gab.
+
+    `tone`: die Desktop-Kaufkarte hat einen fest weissen Grund und arbeitet
+    deshalb mit rgba-Werten statt mit den Theme-Variablen. */
+function PriceNote({ de, t, tone }: {
+  de: boolean;
+  t: ReturnType<typeof useLanguage>['t'];
+  tone: 'page' | 'card';
+}) {
+  const muted = tone === 'card' ? 'rgba(0,0,0,0.48)' : 'var(--txff)';
+  const linkCol = tone === 'card' ? 'rgba(0,0,0,0.68)' : 'var(--txm)';
+  const p = t.products;
+  return (
+    <p className="text-meta leading-[1.5]" style={{ color: muted }}>
+      {p.priceNoteTax}{' '}
+      {p.priceNoteShippingPre}{' '}
+      <Link
+        to="/versand-und-zahlung"
+        className="underline underline-offset-2 hover:no-underline"
+        style={{ color: linkCol }}
+      >
+        {p.priceNoteShippingLink}
+      </Link>
+      {de ? ', ' : ', '}{p.priceNoteShippingPost}.
+    </p>
   );
 }
 

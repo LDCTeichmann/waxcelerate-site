@@ -161,7 +161,14 @@ export const richContent: Record<string, RichContent> = {
     waxCount: '1×', waxLabel: 'Kette mit Waxcelerate',
     oilItems: [{ label: '3 Ketten à €45,99', cost: '€138' }, { label: 'Öl (~1,2 Flaschen)', cost: '€13' }],
     waxItems: [{ label: '1 Kette à €45,99', cost: '€46' }, { label: 'Wachs (1,2 Blöcke)', cost: '~€35' }],
-    oilTotal: '~€151', waxTotal: '~€81', savings: '≈€70 gespart',
+    // savings ist der reine Wert, ohne das Wort "gespart". Es stand bis 09/2026
+    // mit im String und lief damit an allen drei Ausgabestellen ins Leere oder
+    // in einen Doppler: "Spart ≈€70 gespart vs. Kettenöl" (live auf der
+    // Produktseite), "Ersparnis: ≈€70 gespart" und ein Banner, das links schon
+    // "Ersparnis ~12.000 km" beschriftet. Im Englischen kam zusätzlich das
+    // deutsche Wort mit ("Saves ≈€70 gespart"). Das Label gehört an die
+    // Ausgabestelle, nicht in den Wert.
+    oilTotal: '~€151', waxTotal: '~€81', savings: '≈€70',
     compatTags: waxCompatTags,
     reviewCount: 145,
     reviewCats: 'Rennrad · MTB · Gravel · Triathlon · verifizierte Käufer',
@@ -186,7 +193,7 @@ export const richContent: Record<string, RichContent> = {
     waxCount: '1×', waxLabel: 'Kette mit Waxcelerate',
     oilItems: [{ label: '3 Ketten à €45,99', cost: '€138' }, { label: 'Öl (~1,2 Flaschen)', cost: '€13' }],
     waxItems: [{ label: '1 Kette à €45,99', cost: '€46' }, { label: 'Wachs (2,4 Blöcke)', cost: '~€55' }],
-    oilTotal: '~€151', waxTotal: '~€101', savings: '≈€50 gespart',
+    oilTotal: '~€151', waxTotal: '~€101', savings: '≈€50',
     compatTags: waxCompatTags,
     reviewCount: 145,
     reviewCats: 'Rennrad · MTB · Gravel · Triathlon · verifizierte Käufer',
@@ -211,7 +218,7 @@ export const richContent: Record<string, RichContent> = {
     waxCount: '1×', waxLabel: 'Kette mit Waxcelerate Pro',
     oilItems: [{ label: '3 Ketten à €45,99', cost: '€138' }, { label: 'Öl (~1,2 Flaschen)', cost: '€13' }],
     waxItems: [{ label: '1 Kette à €45,99', cost: '€46' }, { label: 'Wachs (1,1 Blöcke)', cost: '~€38' }],
-    oilTotal: '~€151', waxTotal: '~€84', savings: '≈€67 gespart',
+    oilTotal: '~€151', waxTotal: '~€84', savings: '≈€67',
     compatTags: waxCompatTags,
     reviewCount: 145,
     reviewCats: 'Rennrad · MTB · Gravel · Triathlon · verifizierte Käufer',
@@ -236,7 +243,7 @@ export const richContent: Record<string, RichContent> = {
     waxCount: '1×', waxLabel: 'Kette mit Waxcelerate Pro',
     oilItems: [{ label: '3 Ketten à €45,99', cost: '€138' }, { label: 'Öl (~1,2 Flaschen)', cost: '€13' }],
     waxItems: [{ label: '1 Kette à €45,99', cost: '€46' }, { label: 'Wachs (2,2 Blöcke)', cost: '~€60' }],
-    oilTotal: '~€151', waxTotal: '~€106', savings: '≈€45 gespart',
+    oilTotal: '~€151', waxTotal: '~€106', savings: '≈€45',
     compatTags: waxCompatTags,
     reviewCount: 145,
     reviewCats: 'Rennrad · MTB · Gravel · Triathlon · verifizierte Käufer',
