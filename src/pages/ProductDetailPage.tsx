@@ -3,11 +3,12 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
   ArrowLeft, ArrowRight, ExternalLink, Check,
-  ChevronRight, ChevronLeft, ChevronDown, Star, Lightbulb, Truck, RotateCcw, BadgeCheck, Gauge,
+  ChevronRight, ChevronLeft, ChevronDown, Star, Lightbulb, Truck, RotateCcw, BadgeCheck,
 } from 'lucide-react';
 import { getProductById, products, canCheckout, checkoutEnabled, isSoldOut, schemaAvailability, shipping } from '@/lib/data';
 import type { Product } from '@/lib/data';
-import { loadRidingProfile, weeksRemainingForProduct } from '@/lib/ridingProfile';
+import { useToolProfile } from '@/hooks/useToolProfile';
+import { SizingInstrument, sizeAdviceFor } from '@/pages/product/SizingInstrument';
 import { richContent } from '@/lib/productContent';
 import { useLanguage } from '@/hooks/useLanguage';
 import { AddToCartButton } from '@/components/AddToCartButton';
@@ -323,15 +324,20 @@ export function ProductDetailPage() {
   const isWax = product.category === 'wax';
   const isChain = product.category === 'chain';
   const productReviews = reviewsForProduct(product.id);
-  // Only ever reads a profile — never writes one, so this can't desync
-  // whatever the calculator (tools.tsx) itself relies on. Never shown for
-  // chains, and never fabricated for a first-time visitor: if nothing was
-  // ever persisted, ridingProfile is null and the line below simply doesn't
-  // render, exactly like every other optional block on this page.
-  const ridingProfile = isWax ? loadRidingProfile() : null;
-  const personalizedWeeks = ridingProfile
-    ? weeksRemainingForProduct(product, ridingProfile)
-    : null;
+  // EIN Fahrprofil fuer die ganze Seite. Es speist das Instrument weiter unten
+  // UND die Groessenempfehlung am Groessenschalter im Kaufblock. Zwei
+  // useToolProfile()-Aufrufe haetten zwei getrennte Zustaende: der
+  // Schieberegler im Instrument haette die Zeile am Kaufblock nicht bewegt.
+  //
+  // Ersetzt loadRidingProfile()/weeksRemainingForProduct(). Die alte Zeile
+  // ("reicht dir das etwa N Wochen") war ungedeckelt — 20 km/Woche ergaben
+  // 390 Wochen, also eine Siebeneinhalb-Jahres-Behauptung ueber einen Block
+  // mit 30 Monaten Haltbarkeit. Und sie erschien nur, wenn auf diesem Geraet
+  // schon einmal ein Profil gesetzt worden war, ein kalter Besucher sah sie
+  // nie. Das Instrument rechnet in Monaten, gleicht gegen die Haltbarkeit ab
+  // und hat Vorgabewerte.
+  const toolProfile = useToolProfile();
+  const sizeAdvice = sizeAdviceFor(product, toolProfile);
   const accentColor = isPro ? '#4A72D4' : 'var(--accent-soft)';
   const accentBg = isPro ? 'rgba(74,114,212,0.06)' : 'rgba(43,82,176,0.06)';
   // cardAccent war der fixe Akzent der frueheren, fest weissen
@@ -774,6 +780,27 @@ export function ProductDetailPage() {
                 </div>
               )}
 
+              {/* Groessenempfehlung am Entscheidungspunkt. Dieselbe Rechnung wie
+                  im Instrument weiter unten (sizeAdviceFor), damit beide nicht
+                  auseinanderlaufen koennen. Eine Zeile, ruhig gehalten: der
+                  Kaufblock soll nicht wieder zur Wand werden. */}
+              {isWax && sizeAdvice.recommended && !sizeAdvice.matchesCurrent && (
+                <p className="text-meta -mt-2 mb-4" style={{ color: 'var(--txm)' }}>
+                  {de
+                    ? `Bei einem durchschnittlichen Fahrprofil passt `
+                    : `At an average riding profile the `}
+                  <Link to={`/produkt/${sizeAdvice.recommended.id}`}
+                    className="font-semibold hover:opacity-70 transition-opacity"
+                    style={{ color: accentColor }}>
+                    {sizeAdvice.recommended.weight}
+                  </Link>
+                  {de ? ' besser. ' : ' fits better. '}
+                  <a href="#instrument" className="underline underline-offset-2 hover:no-underline">
+                    {de ? 'Für dein Profil rechnen' : 'Calculate for your profile'}
+                  </a>
+                </p>
+              )}
+
               {isClassic && (
                 <button type="button" onClick={() => setCompareOpen(true)}
                   className="inline-flex items-center gap-1.5 text-[12.5px] font-medium mb-4 hover:opacity-70 transition-opacity"
@@ -888,22 +915,14 @@ export function ProductDetailPage() {
                   ))}
                 </ul>
               )}
-
-              {/* Persoenliche Reichweite, falls auf diesem Geraet schon einmal
-                  ein Fahrprofil gesetzt wurde. Ein kalter Besucher sieht das
-                  heute nie — Etappe 3 macht daraus das eigentliche Instrument
-                  mit Vorgabewerten. */}
-              {personalizedWeeks !== null && (
-                <p className="flex items-center gap-1.5 mt-5 text-meta" style={{ color: 'var(--txm)' }}>
-                  <Gauge className="h-3.5 w-3.5 flex-shrink-0" style={{ color: accentColor }} aria-hidden />
-                  {de
-                    ? `Bei deinem Fahrprofil reicht dir das etwa ${personalizedWeeks} Wochen.`
-                    : `At your riding profile this lasts you about ${personalizedWeeks} weeks.`}
-                </p>
-              )}
             </div>
           </section>
         )}
+
+        {/* Was das fuer dich heisst — das Instrument. Steht bewusst NACH den
+            Kennzahlen: die sagen "was ist das", das Instrument sagt "was heisst
+            das fuer mich". */}
+        <SizingInstrument product={product} profile={toolProfile} accentColor={accentColor} />
 
         {/* Die Bande "Kurz verglichen" stand hier und zeigte die ersten drei
             Zeilen derselben Tabelle, die wenige Sektionen weiter unten
