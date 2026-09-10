@@ -9,6 +9,8 @@ import { getProductById, products, canCheckout, checkoutEnabled, isSoldOut, sche
 import type { Product } from '@/lib/data';
 import { useToolProfile } from '@/hooks/useToolProfile';
 import { SizingInstrument, sizeAdviceFor } from '@/pages/product/SizingInstrument';
+import { ProcessAndPaths } from '@/pages/product/ProcessAndPaths';
+import { ProductFaq } from '@/pages/product/ProductFaq';
 import { richContent } from '@/lib/productContent';
 import { useLanguage } from '@/hooks/useLanguage';
 import { AddToCartButton } from '@/components/AddToCartButton';
@@ -395,6 +397,7 @@ export function ProductDetailPage() {
   // Karte bekommt zusaetzlich einen eigenen Positionierungssatz (Einsatz-
   // zeitraum), drei generische Haekchen plus Satz waren zu viele Atome fuer
   // eine Flaeche, die vor allem Preis und CTA tragen soll.
+  const bestForList = (de ? product.bestFor : product.bestForEn) ?? [];
   const cardBenefits = (highlights ?? []).filter(h => {
     const lower = h.toLowerCase();
     if (product.applications && lower.includes(product.applications.split('–')[0])) return false;
@@ -905,6 +908,30 @@ export function ProductDetailPage() {
               {/* Was das Produkt auszeichnet — vorher im Hero-Faktenpanel als
                   gefuellte Flaeche, die dort mit dem Kaufblock um
                   Aufmerksamkeit konkurrierte. */}
+              {isWax && (
+                <p className="text-meta leading-[1.55] mt-6 pt-4 max-w-2xl"
+                  style={{ color: 'var(--txff)', borderTop: '1px solid var(--bd)' }}>
+                  {t.products.multiDiscount}
+                  {'. '}
+                  {de
+                    ? `Ab ${(shipping.freeFromCents / 100).toFixed(0)} € entfällt außerdem der Versand.`
+                    : `From €${(shipping.freeFromCents / 100).toFixed(0)} shipping is free as well.`}
+                </p>
+              )}
+
+              {/* Einsatzfaelle. bestFor ist auf allen vier Wachsprodukten
+                  gepflegt und wurde bis 09/2026 nirgends gerendert. */}
+              {bestForList.length > 0 && (
+                <ul className="flex flex-wrap gap-x-2 gap-y-1.5 mt-6">
+                  {bestForList.map((b, i) => (
+                    <li key={i} className="num-data text-meta px-2.5 py-1 rounded-full"
+                      style={{ background: 'var(--sf2)', color: 'var(--txm)', border: '1px solid var(--bd2)' }}>
+                      {b}
+                    </li>
+                  ))}
+                </ul>
+              )}
+
               {cardBenefits.length > 0 && (
                 <ul className="mt-6 grid gap-2 sm:grid-cols-2 lg:gap-x-10">
                   {cardBenefits.map((b, i) => (
@@ -923,6 +950,11 @@ export function ProductDetailPage() {
             Kennzahlen: die sagen "was ist das", das Instrument sagt "was heisst
             das fuer mich". */}
         <SizingInstrument product={product} profile={toolProfile} accentColor={accentColor} />
+
+        {/* Ablauf und drei Wege — nur auf Wachsseiten. Bei einer fertig
+            gewachsten Kette stellt sich die Frage nicht, dort ist der Ablauf
+            schon erledigt. */}
+        {isWax && <ProcessAndPaths accentColor={accentColor} />}
 
         {/* Die Bande "Kurz verglichen" stand hier und zeigte die ersten drei
             Zeilen derselben Tabelle, die wenige Sektionen weiter unten
@@ -1042,6 +1074,11 @@ export function ProductDetailPage() {
                         open={openAccordion === 'kosten'} onToggle={() => toggleAccordion('kosten')}>
                         <div className="space-y-3">
                           {rc.costExample && <p className="text-[12px] leading-relaxed mb-2" style={{ color: 'var(--txm)' }}>{rc.costExample}</p>}
+                          {rc.costNote && (
+                            <p className="text-meta leading-[1.5] mb-3 pb-3" style={{ color: 'var(--txff)', borderBottom: '1px solid var(--bd)' }}>
+                              {rc.costNote}
+                            </p>
+                          )}
                           <div className="grid grid-cols-2 gap-2.5">
                             <div className="rounded-lg p-3" style={{ background: 'var(--sf2)', border: '1px solid var(--bd)' }}>
                               <p className="text-meta font-semibold uppercase tracking-[0.14em] mb-2" style={{ color: 'var(--txff)' }}>
@@ -1271,6 +1308,9 @@ export function ProductDetailPage() {
             )}
           </div>
         </section>
+
+        {/* Produktbezogenes FAQ aus den freigegebenen Fragen. */}
+        <ProductFaq category={product.category} />
 
         {/* ── Related ── */}
         {related.length > 0 && (
