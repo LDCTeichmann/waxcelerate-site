@@ -539,6 +539,45 @@ export const canCheckout = (p: Pick<Product, 'stripePriceId'>): boolean =>
  */
 export const checkoutEnabled = products.some(canCheckout);
 
+// ── Mengenrabatt als konkrete Rechnung ──────────────────────────────────
+// Ein einzelner 500g-Block (29,95 EUR) erreicht die 50-EUR-Versandschwelle
+// nie. Die Wachs-Staffel (i18n.ts products.multiDiscount) stand bisher nur
+// als toter Text auf der Seite, ohne ausgerechnete Summe -- Etappe 5
+// (11.09.2026) rechnet sie aus und zeigt die kleinste Staffelstufe, die
+// tatsaechlich ueber die Schwelle kommt.
+const WAX_TIERS: Array<{ qty: number; pct: number }> = [
+  { qty: 5, pct: 15 }, { qty: 3, pct: 10 }, { qty: 2, pct: 5 },
+];
+
+export interface BundleOffer { qty: number; pct: number; total: number; full: number }
+
+/**
+ * Kleinste Menge dieses Produkts, die nach Staffelrabatt ueber die
+ * Versandkostenschwelle kommt. Bewusst NICHT scharfgeschaltet ausgegeben,
+ * bis Luca bestaetigt, dass eBay die Staffel tatsaechlich gewaehrt --
+ * siehe SHOW_BUNDLE_OFFER in ProductDetailPage.tsx.
+ * Gibt null zurueck, wenn keine Stufe bis 5 Stueck die Schwelle erreicht,
+ * oder das Produkt keine Wachs-Staffel traegt (nur category 'wax').
+ */
+export function bundleOffer(p: Pick<Product, 'price' | 'category'>): BundleOffer | null {
+  if (p.category !== 'wax') return null;
+  // In Cent statt Euro rechnen: 59.90 * 0.95 als Float ergibt 56.904999...
+  // statt 56.905, und rundet dadurch auf 56.90 statt auf die korrekten
+  // 56.91 -- klassischer Fliesskomma-Fehler. fullCents * (100 - pct) ist
+  // ein exaktes Integer-Produkt, nur die einzige abschliessende Division
+  // rundet noch, kein Fehler kann sich davor einschleichen.
+  const priceCents = Math.round(p.price * 100);
+  const tiers = [...WAX_TIERS].sort((a, b) => a.qty - b.qty);
+  for (const tier of tiers) {
+    const fullCents = priceCents * tier.qty;
+    const totalCents = Math.round(fullCents * (100 - tier.pct) / 100);
+    if (totalCents >= shipping.freeFromCents) {
+      return { qty: tier.qty, pct: tier.pct, total: totalCents / 100, full: fullCents / 100 };
+    }
+  }
+  return null;
+}
+
 // The class eskaliert nur nach oben: erst das dickste Produkt im Warenkorb,
 // dann das Gesamtgewicht. Ein Wachsblock ist auch bei 380 g ein Maxibrief,
 // weil er die 2-cm-Grenze des Großbriefs reißt. Two chains (~600g total)

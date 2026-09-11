@@ -5,7 +5,7 @@ import {
   ArrowLeft, ArrowRight, ExternalLink, Check,
   ChevronRight, ChevronLeft, ChevronDown, Star, Lightbulb, Truck, RotateCcw, BadgeCheck,
 } from 'lucide-react';
-import { getProductById, products, canCheckout, checkoutEnabled, isSoldOut, schemaAvailability, shipping } from '@/lib/data';
+import { getProductById, products, canCheckout, checkoutEnabled, isSoldOut, schemaAvailability, shipping, bundleOffer, trustStats } from '@/lib/data';
 import type { Product } from '@/lib/data';
 import { useToolProfile } from '@/hooks/useToolProfile';
 import { SizingInstrument } from '@/pages/product/SizingInstrument';
@@ -28,6 +28,13 @@ import { CompareModal } from '@/sections/products';
 import { CompareTable } from '@/components/CompareTable';
 
 const FADE_MS = 900;
+
+// Von Luca bestaetigt (11.09.2026): eBay gewaehrt Mengenrabatt auf mehrfach
+// verkaufte, gleiche Produkte -- die Wachs-Staffel (i18n.ts
+// products.multiDiscount) ist also real. Falls die tatsaechlich live
+// gewaehrten Prozentsaetze je von den hier hinterlegten (WAX_TIERS in
+// data.ts) abweichen sollten, reicht ein Wert hier statt Code auszubauen.
+const SHOW_BUNDLE_OFFER = true;
 
 const lg = (src: string) =>
   src.includes('/products/') && src.endsWith('.webp') && !src.endsWith('-lg.webp')
@@ -421,6 +428,8 @@ export function ProductDetailPage() {
     ? product.price / parseFloat(product.applications.split('–')[1] ?? product.applications)
     : null;
 
+  const offer = SHOW_BUNDLE_OFFER ? bundleOffer(product) : null;
+
   // Same figures the homepage product cards already show (getEstimatedDelivery,
   // price-per-100g) — missing here, this was the one page where a buyer
   // couldn't see either before deciding.
@@ -805,6 +814,21 @@ export function ProductDetailPage() {
               <h1 className="font-display text-[26px] sm:text-[30px] lg:text-[32px] font-bold leading-[1.08] tracking-[-0.025em] mb-2"
                 style={{ color: 'var(--tx1)' }}>{titleText}</h1>
 
+              {/* Bewertung above the fold statt erst auf ~2/3 Seitenhoehe
+                  (Baymard: die Bewertung gehoert in den Kaufbereich). Zahl
+                  aus trustStats -- die eine, von Luca direkt bestaetigte
+                  Quelle (11.09.2026), nicht rc.reviewCount (145/150, weiter
+                  unten in der Trust-Sektion unveraendert, das ist eine
+                  andere, dort schon frueher freigegebene Zaehlung). */}
+              <a href="#bewertungen" className="inline-flex items-center gap-1.5 mb-3 hover:opacity-70 transition-opacity">
+                <span className="flex items-center gap-0.5">
+                  {[0, 1, 2, 3, 4].map(i => <Star key={i} className="h-3.5 w-3.5 fill-current" style={{ color: '#F5A623' }} />)}
+                </span>
+                <span className="text-meta font-medium" style={{ color: 'var(--txf)' }}>
+                  {trustStats.reviews} {de ? 'Bewertungen' : 'reviews'}
+                </span>
+              </a>
+
               {isWax && (
                 <p className="text-small font-semibold mb-3" style={{ color: accentColor }}>
                   {de ? 'Für ' : 'For '}{isClassic ? t.products.shelf.classicFor : t.products.shelf.proFor}
@@ -829,6 +853,19 @@ export function ProductDetailPage() {
                   CTA, Versandzeile) je nach Breite um 21-74px nach oben/
                   unten -- Etappe 5, 11.09.2026. */}
               <p className="text-[13.5px] leading-[1.55] mb-4 min-h-[84px] lg:min-h-[63px]" style={{ color: 'var(--txm)' }}>{descriptionText}</p>
+
+              {/* "Passt meine Kette?" ist eine Kaufhuerde, keine Folgefrage
+                  -- stand bisher erst weiter unten in der ausfuehrlichen
+                  Kompatibilitaets-Matrix (Trust-Sektion). Kurzform hier:
+                  Geschwindigkeit aus product.compatibility, Marken aus
+                  rc.compatTags[0] (Etappe 5, 11.09.2026). Nur bei Wachs --
+                  bei Ketten ueberschneidet sich das mit dem dortigen
+                  compatibility-String (Modellnamen), waere dort redundant. */}
+              {isWax && product.compatibility && rc?.compatTags?.[0] && (
+                <p className="text-meta mb-4" style={{ color: 'var(--txff)' }}>
+                  {[product.compatibility, ...rc.compatTags[0]].join(' · ')}
+                </p>
+              )}
 
               {/* Groessenschalter — wechselt die Route, nicht nur den Zustand:
                   300 g und 500 g sind eigene Produkte mit eigenen Adressen. */}
@@ -936,6 +973,23 @@ export function ProductDetailPage() {
                   )}
                 </div>
 
+                {/* Konkrete 2er/3er-Rechnung statt der reinen Prozentangabe
+                    unten in den Kennzahlen (die faellt dafuer dort weg,
+                    Etappe 5 4.2) -- ein einzelner Block erreicht die
+                    50-€-Schwelle nie, das loest gleich zwei Kauf-Trigger auf
+                    einmal (Rabatt + Gratisversand). Direkt unter dem CTA,
+                    denn das ist der Moment, in dem "noch einen dazu?" den
+                    Warenkorb veraendert. */}
+                {offer && (
+                  <p className="text-meta mb-3" style={{ color: accentColor }}>
+                    {t.products.bundleOffer
+                      .replace('{qty}', String(offer.qty))
+                      .replace('{weight}', product.weight?.replace('g', ' g') ?? '')
+                      .replace('{total}', formatPrice(offer.total))
+                      .replace('{pct}', String(offer.pct))}
+                  </p>
+                )}
+
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-1.5 text-meta" style={{ color: 'var(--txff)' }}>
                     <Truck className="h-3 w-3 flex-shrink-0" style={{ color: accentColor }} aria-hidden />
@@ -996,19 +1050,12 @@ export function ProductDetailPage() {
                 ))}
               </dl>
 
-              {/* Was das Produkt auszeichnet — vorher im Hero-Faktenpanel als
-                  gefuellte Flaeche, die dort mit dem Kaufblock um
-                  Aufmerksamkeit konkurrierte. */}
-              {isWax && (
-                <p className="text-meta leading-[1.55] mt-6 pt-4 max-w-2xl"
-                  style={{ color: 'var(--txff)', borderTop: '1px solid var(--bd)' }}>
-                  {t.products.multiDiscount}
-                  {'. '}
-                  {de
-                    ? `Ab ${(shipping.freeFromCents / 100).toFixed(0)} € entfällt außerdem der Versand.`
-                    : `From €${(shipping.freeFromCents / 100).toFixed(0)} shipping is free as well.`}
-                </p>
-              )}
+              {/* Die Wachs-Staffel-Notiz (multiDiscount) stand hier bisher als
+                  reiner Text ohne ausgerechnete Summe -- Etappe 5
+                  (11.09.2026): dieselbe Aussage steht jetzt als konkrete
+                  Rechnung direkt unter dem CTA (offer/bundleOffer weiter
+                  oben), wo sie eine Kaufentscheidung tatsaechlich stuetzt.
+                  Eine Aussage, eine Stelle. */}
 
               {/* Einsatzfaelle. bestFor ist auf allen vier Wachsprodukten
                   gepflegt und wurde bis 09/2026 nirgends gerendert. */}
@@ -1224,7 +1271,7 @@ export function ProductDetailPage() {
 
         {/* ── Trust ── */}
         {rc && (
-          <section style={{ background: 'var(--sf2)' }}>
+          <section id="bewertungen" style={{ background: 'var(--sf2)' }}>
             <div className="max-w-6xl mx-auto px-5 sm:px-8 py-14 sm:py-20">
               <div className="grid lg:grid-cols-2 gap-10 lg:gap-16">
                 {rc.reviewCount > 0 && (

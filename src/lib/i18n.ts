@@ -90,6 +90,11 @@ export const translations = {
       // komplett und verschob das Layout. Jetzt immer sichtbar, im
       // passenden Fall mit dieser bestaetigenden Zeile.
       sizeAdviceMatches: 'Passt zu einem durchschnittlichen Fahrprofil.',
+      // Die konkrete 2er-Rechnung unter dem CTA (Etappe 5, 11.09.2026):
+      // ein einzelner Block erreicht die 50-€-Versandschwelle nie, die
+      // Staffel (multiDiscount oben) tut es je nach Produkt ab 2 oder 3
+      // Stueck. bundleOffer() in data.ts rechnet Menge/Rabatt/Summe aus.
+      bundleOffer: '{qty} × {weight} = {total} ({pct} %) — und damit versandkostenfrei.',
       // ── Pflichtangaben am Preis (PAngV) ──────────────────────────────────
       // Bis 09/2026 stand auf der Produktseite WEDER etwas zur Umsatzsteuer
       // NOCH zu den Versandkosten. Beides verlangt die Preisangabenverordnung
@@ -667,6 +672,7 @@ export const translations = {
       buyOnEbay: 'Buy on eBay',
       multiDiscount: 'Wax tiers: 2 pcs. 5% · 3 pcs. 10% · from 5 pcs. 15%',
       sizeAdviceMatches: 'Fits an average riding profile.',
+      bundleOffer: '{qty} × {weight} = {total} ({pct}%) — and shipping is free.',
       // Siehe die deutsche Fassung: Rechtstext, nur zusammen mit ihr aendern.
       priceNoteTax: 'Small business under §19 UStG, no VAT shown.',
       priceNoteShippingPre: 'plus',
