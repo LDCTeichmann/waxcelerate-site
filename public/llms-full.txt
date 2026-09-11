@@ -1520,3 +1520,119 @@ Wachs vollständig schmelzen, durch einen Kaffeefilter oder ein feines Metallsie
 
 **Ist Paraffinwachs umweltfreundlich?**
 Paraffin ist ein Nebenprodukt der Erdölverarbeitung, also nicht bio, aber chemisch inert und gut handhabbar. Der ökologische Vorteil liegt im System: keine aggressiven Kettenreiniger, kein Entfetter, kaum Schmiermittel, das in die Umwelt gelangt, weil es an der Kette bleibt statt abzutropfen.
+
+---
+
+## Über Waxcelerate
+
+URL: https://waxcelerate.de/ueber-uns
+
+Ich bin Luca — Medizinstudent, aktiver Fahrer. Waxcelerate ist auf der Straße entstanden: auf nassen Herbststraßen, bei Ausfahrten im tiefsten Winter, nach Sommerrennen, bei denen Hitze und Schmutz zeigen, wie viel Spielraum eine Formel wirklich hat.
+
+Entwickelt und gefertigt in kleinen Chargen in Stuttgart. Der Preis ist so, wie er ist, weil es keinen Grund gibt, ihn höher anzusetzen.
+
+2025 lud mich eBay zur Seller Leadership Week ins Silicon Valley ein. Waxcelerate auf der Hauptbühne — eines von wenigen Projekten weltweit.
+
+## Kontakt
+
+URL: https://waxcelerate.de/kontakt
+
+- E-Mail: waxcelerate@gmail.com (Antwort in der Regel am selben Tag)
+- WhatsApp: +49 157 51957470 (meist sofort)
+- Sitz: Stuttgart, Deutschland
+
+## Anleitung — Kette wachsen, Schritt für Schritt
+
+URL: https://waxcelerate.de/anleitung
+
+### Neue Kette erstmalig wachsen
+Fabrikfett blockiert den Wirkstoff komplett — Entfetten ist Pflicht.
+1. Kette 2–3-mal in Isopropanol oder Aceton eintauchen, kräftig schütteln, mit einem Tuch abwischen und wiederholen, bis die Flüssigkeit klar bleibt.
+2. Vollständig trocknen — kein Lösungsmittelrest darf ins Wachs
+3. Wachs auf 80–90 °C erhitzen, Kette 10–15 min eintauchen und gelegentlich bewegen
+4. Herausnehmen, abtropfen und vollständig aushärten lassen
+5. Kette durchbrechen — über eine Metallstange oder einen Besenstiel ziehen, bis sie wieder geschmeidig läuft
+
+### Re-Waxen
+Lieber nicht selbst wachsen? Wir übernehmen das — Auffrischung ab 15,95 €, ab 3 Ketten 11,95 € pro Kette.
+1. Kette abnehmen (Kettenschloss öffnen) — frisch gewaxte Kette montieren und weiterfahren
+2. Abgezogene Kette mit kochendem Wasser übergießen — altes Wachs löst sich und läuft ab
+3. Vollständig trocknen, dann 10 min ins Wachsbad bei 80–90 °C
+4. Abtropfen lassen, abkühlen und durchbrechen — fertig
+
+### 3-Ketten-Rotation
+Kein Warten. Immer eine frische Kette parat — alle drei gleichzeitig in ~15 min wachsen.
+1. Alle 300–500 km Kette wechseln (bei Nässe früher)
+2. Abgezogene Ketten sammeln — alle drei gemeinsam reinigen (heißes Wasser) und ins Wachsbad
+3. ~15 min für alle drei Ketten in einer Session — einmal Aufwand, dreimal Ertrag
+4. Kettenlaufzeit steigt: gleichmäßiger Verschleiß auf Kassette und Kettenblatt
+
+## Häufige Fragen — alle 22
+
+URL: https://waxcelerate.de/faq
+
+**Ich benutze seit Jahren Kettenöl — warum sollte ich wechseln?**
+Öl funktioniert. Aber es bindet Schmutz, der wie Schleifpaste zwischen Rollenlager, Kassette und Kettenblättern wirkt — bei jedem Tritt Metallabrieb. Mit Wachs bleibt die Kette trocken: nichts haftet daran, der Antrieb ist nach hundert Kilometern noch sauber. Dazu hält die Kette zwei- bis dreimal länger. Der Umstieg kostet einmalig 1–2 Stunden für die Erstentfettung. Danach ist der Aufwand pro Rewax kaum höher als mit Öl.
+
+**Was ist der Unterschied zwischen Classic und Pro?**
+Classic (Paraffin + PTFE + Stearin) ist die Standardformel: sauber, effizient, ideal von Frühjahr bis Herbst und bei trockenen Bedingungen. Pro enthält zusätzlich amorphes Molybdändisulfid (MoS₂) als Hochdruckadditiv — es füllt mikroskopische Oberflächenrauheiten und senkt den Reibungskoeffizient nochmals messbar. Pro ist die richtige Wahl für Ganzjahresfahrer, Winterbetrieb, E-Bikes und anspruchsvollere Antriebe. Im Zweifel: Pro ist der sicherere Griff.
+
+**Wie viele Kilometer hält eine gewachste Kette — und woran merke ich, wann ich rewaxen muss?**
+Bei trockenen Bedingungen empfehlen wir alle 300 km zu rewaxen, das ist das Optimum — die Kette läuft auch mal 400–500 km weiter, dann aber nicht mehr im besten Zustand. Bei Nässe oder MTB alle 200–300 km. Das zuverlässigste Signal: der Antrieb klingt trockener oder die Kette läuft weniger geschmeidig als gewohnt — manchmal ein leises Kratzen oder Quietschen. Hör einfach hin, du wirst es merken. Das Gesamtleben der Kette ist eine andere Zahl: eine gut gepflegte gewachste Kette hält 6.000–12.000 km oder mehr — geölte Ketten oft nur 2.000–3.000 km, weil Schmutz den Antrieb von innen abschleift.
+
+**Wie viele Watt spart Heißwachs im Vergleich zu Kettenöl?**
+In publizierten Kettenschmiermittel-Tests liegt immersives Heißwachs typischerweise bei ca. 2–4 Watt Reibungsverlust — Kettenöl unter Realbedingungen bei ca. 6–10 Watt. Das sind ca. 4–6 Watt Unterschied an der Kette. Die oft zitierten „bis zu 8 Watt" stammen aus Labortests bei 300–400 Watt Eingangsleistung. Im Alltag sind die Werte etwas geringer.
+
+**Muss ich eine neue Kette vor dem Wachsen entfetten?**
+Ja — das ist der wichtigste Schritt. Das Werkfett, mit dem neue Ketten ab Fabrik konserviert werden, verhindert, dass das Wachs tief in die Rollenlager eindringt. Entfetten mit Isopropanol, Bremsenreiniger oder im Ultraschallbad (wie wir es für unsere vorgewachsten Ketten machen). Kette danach vollständig trocknen, erst dann ins Wachs.
+
+**Welche Ausrüstung brauche ich — muss das teuer sein?**
+Nein. Ein alter Kochtopf oder Reiskocher, ein Draht zum Aufhängen der Kette, Isopropanol für die Erstentfettung und das Kettenwachs selbst — das ist alles. Kein Ultraschallbad nötig. Zieltemperatur: 85–90 °C; ein Mini-Slow-Cooker ist ideal, weil sich die Temperatur damit einfacher konstant halten lässt. Den Topf danach nicht mehr für Lebensmittel verwenden.
+
+**Heißwachs oder Flüssigwachs (Drip Wax) — was ist besser?**
+Flüssigwachs (z. B. Squirt oder Silca Drip Wax) ist einfacher aufzutragen und braucht keinen Topf — es bleibt aber meist an der Oberfläche. Heißwachs dringt durch Hitze und vollständige Immersion tief in die Gelenke und Rollenlager ein, dorthin wo die eigentliche Schmierung stattfindet. Ergebnis: niedrigere Reibung, längere Intervalle, weniger Aufwand langfristig. Wer einmal auf Heißwachs umgestiegen ist, möchte selten zurück.
+
+**Kann ich mit gewachster Kette im Regen fahren?**
+Ja. Wachs ist wasserabweisend — bei kurzen Regenfahrten oder Spritzwasser passiert wenig. Bei längerem intensivem Regen kann die äußere Schutzschicht abtragen, das Ketteninnere bleibt aber gut geschmiert. Wichtig: Kette nach Regenfahrten immer kurz abwischen und nicht nass stehen lassen — gewachste Ketten rosten schneller als geölte, da Wachs weniger Korrosionsschutz bietet. Bei regelmäßigem Winterbetrieb: alle 200–300 km nachwachsen.
+
+**Was ist eine Ketten-Rotation — und warum drei Ketten?**
+Mit einer einzigen Kette wartest du jedes Mal auf das Aushärten. Mit drei Ketten im Wechsel läuft immer eine frisch gewachste auf dem Rad, eine wartet bereit, eine wird gerade gewachst — und der Aufwand pro Session bleibt fast gleich: eine Kette dauert rund 20 Minuten, drei gleichzeitig im Topf kaum länger. Du rewaxst damit nur noch alle 1.200–1.800 km statt alle 400–500 km. Außerdem verteilt sich der Verschleiß gleichmäßig auf drei Ketten, was Kassette und Kettenblätter deutlich schont.
+
+**Ist PTFE im Kettenwachs gesundheitlich bedenklich?**
+Nein — bei normaler Anwendung vollständig unbedenklich. PTFE ist chemisch inert, wird weder über die Haut aufgenommen noch löst es allergische Reaktionen aus. Die einzige potenzielle Gefahr entsteht bei Erhitzung über 260 °C — beim Heißwachsen einer Kette wird das Wachs aber nie über 90 °C erhitzt. Als Medizinstudent habe ich mich vor dem Einsatz intensiv damit auseinandergesetzt.
+
+**Muss ich beim Nachwachsen immer alles alte Wachs entfernen?**
+Nein — das ist ein echter Vorteil von Wachs. Altes Wachs löst sich im heißen Wachsbad von selbst, das neue verdrängt es. Bei regelmäßigen Intervallen genügt ein kurzes Abwischen mit einem trockenen Tuch vor dem Tauchbad. Nur nach Ölkontakt oder starker Verschmutzung muss vollständig neu entfettet werden.
+
+**Kann ich alle Ketten mit Waxcelerate wachsen — auch E-Bike?**
+Ja. Waxcelerate ist kompatibel mit allen gängigen 9-, 10-, 11- und 12-fach Ketten von Shimano, SRAM, Campagnolo und KMC. Für E-Bikes empfehlen wir das Pro mit MoS₂ — das höhere Drehmoment des E-Bike-Antriebs macht Hochdruckadditive sinnvoll.
+
+**Wie breche ich die Kette nach dem ersten Wachsen richtig ein?**
+Nach dem Aushärten sitzt das Wachs fest in allen Gelenken — die Kette fühlt sich steif an. Das ist normal und kein Fehler. Einfach montieren und 10–15 km fahren. Schalten und Treten drückt das überschüssige Wachs aus den Gliedern, danach läuft die Kette wieder flüssig. Weißes Wachspulver auf der Kette ist ein gutes Zeichen — das ist normaler Abrieb und zeigt, dass das Wachs genau dort sitzt, wo es soll.
+
+**Wie viele Anwendungen hält ein 500g Block?**
+Mit einer Kette und regelmäßigen Intervallen: ca. 20–30 Rewaxing-Sessions pro 500g Block. Mit dem 3-Ketten-System (alle drei auf einmal): ca. 8–10 Komplettbäder. Der 300g Block reicht für ~10–15 Sessions mit einer Kette. Überschlagsrechnung: bei 500 km Intervall und einer Kette kommst du mit einem 500g Block ca. 10.000–15.000 km weit.
+
+**Was ist der Vorteil einer vorgewachsten Kette gegenüber selbst wachsen?**
+Selbst wachsen ist absolut machbar — aber die Erstentfettung ist der zeitaufwändigste und entscheidendste Schritt. Wir entfetten unsere Ketten professionell im Ultraschallbad mit chemischen Reinigungsmitteln, die das Fabrikfett restlos entfernen. Ergebnis: das Wachs haftet von der ersten Fahrt an optimal. Eine vorgewachste Kette ist damit der perfekte Einstieg — du weißt danach genau, wie es sein soll, und kannst beim Nachwachsen selbst auf dieses Niveau hinarbeiten.
+
+**Wann muss ich die Kette komplett ersetzen — nicht nur nachwachsen?**
+Mit einem Kettendehnungsmesser prüfen: bei 0,5% Dehnung öfter messen, bei 0,75% Dehnung die Kette wechseln — sonst frisst die gestreckte Kette die Zahnflanken von Kassette und Kettenblatt. Mit Wachs erreichst du diese Grenze deutlich später als mit Öl. Faustregel: gewachste Kette prüfen nach 4.000–5.000 km, geölte nach 2.000 km.
+
+**Das Wachs hält bei mir nicht so lange wie erwartet — was mache ich falsch?**
+Häufigste Ursache: die Erstentfettung war nicht vollständig. Bestimmte Shimano-11-fach-Ketten und manche SRAM-Ketten haben besonders hartnäckiges Werkfett — hier helfen 2–3 Entfettungsdurchgänge statt einem. Zweite Ursache: Wachs zu heiß aufgetragen. Über ~95 °C läuft es zu dünn und fließt aus den Gelenken. Tipp: Kette kurz vor dem Erstarren entnehmen — wenn sich gerade eine dünne Haut auf dem Wachs bildet, nicht mehr im vollflüssigen Zustand.
+
+**Soll ich auch Kassette und Kettenblätter mit Wachs behandeln?**
+Nein — das wäre kontraproduktiv. Wachs gehört in die Kette, nicht auf die Ritzel. Kassette und Kettenblätter einfach sauber halten (trockenwischen oder Bremsenreiniger). Beim Umstieg auf Wachs lohnt sich einmal eine gründliche Kassettenreinigung — alte Ölreste darauf können die frisch gewachste Kette nachträglich kontaminieren.
+
+**Taugt Waxcelerate auch für Trekking- und Citybikes?**
+Für jedes Fahrrad. Wachs ist kein Sportnischenprodukt — es funktioniert auf jedem Stahlkettenantrieb. Für Citybikes ist es sogar besonders praktisch: die Kette bleibt sauber, keine fettigen Hosenbeine, kein schmutziger Antrieb, kein Nachschmieren nach jeder Fahrt. Einzige Einschränkung: wenn das Bike lange ungefahren steht, gelegentlich einen Tropfen Drip Wax als Rostvorsorge auftragen.
+
+**Welche Quick-Links / Kettenverschlüsse empfehlt ihr?**
+Für Heißwachs ist ein Kettenverschluss Pflicht — du musst die Kette regelmäßig ausbauen. Shimano und SRAM 11/12-fach Quick-Links funktionieren gut; Shimano nennt sie offiziell Einweg, lassen sich aber 3–5× wiederverwenden. Wer auf Nummer sicher geht: Connex Quick-Links (kompatibel mit Shimano, SRAM und KMC) sind unbegrenzt wiederverwendbar und gelten unter Wachsern als Standard. KMC Missing Links sind ebenfalls empfehlenswert.
+
+**Was passiert, wenn mein Wachstopf durch Öl verunreinigt wurde?**
+Öl und Wachs mischen sich nicht — Öl schwimmt an der Oberfläche und verhindert, dass das Wachs in neue Ketten eindringt. Wenn du sicher weißt, dass Öl ins Bad gelangt ist (z.B. unzureichend entfettete Kette), das Wachs besser entsorgen und frisch beginnen. Zur Kontrolle: das Wachsbad gelegentlich auf einem hellen Tuch erstarren lassen — Öl oder Schmutz zeigen sich als dunkle Eintrübung.
+
+**Schadet das Ultraschallbad der Kette?**
+Nein. Ultraschall-Reinigung arbeitet mit Kavitation — mikroskopisch kleinen Luftblasen, die Schmutz mechanisch lösen — und greift das Metall der Kette nicht an. Wir nutzen es für die Tiefenreinigung unserer vorgewachsten Ketten, weil es das Fabrikfett aus den Rollenlager-Zwischenräumen deutlich effektiver entfernt als manuelles Entfetten. Für das Nachwachsen zuhause ist es nicht nötig.

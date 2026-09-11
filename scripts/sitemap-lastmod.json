@@ -3,13 +3,25 @@
     "hash": "9a3070f16f45",
     "date": "2026-08-04"
   },
+  "/anleitung": {
+    "hash": "263bed305bf4",
+    "date": "2026-09-11"
+  },
   "/blog": {
     "hash": "02b63644584b",
     "date": "2026-08-04"
   },
+  "/faq": {
+    "hash": "a290df79c6dc",
+    "date": "2026-09-11"
+  },
   "/kette-wachsen-lassen": {
     "hash": "7a7b69125e23",
     "date": "2026-09-07"
+  },
+  "/kontakt": {
+    "hash": "4cc7675c87ee",
+    "date": "2026-09-11"
   },
   "/produkt/chain-force": {
     "hash": "d69abd1ab449",
@@ -94,6 +106,10 @@
   "/starter-set": {
     "hash": "1d5cab416ef8",
     "date": "2026-08-04"
+  },
+  "/ueber-uns": {
+    "hash": "980bf3082cc4",
+    "date": "2026-09-11"
   },
   "/wissenschaft": {
     "hash": "242c5cc7cd86",

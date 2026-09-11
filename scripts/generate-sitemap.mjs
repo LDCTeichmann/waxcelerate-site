@@ -66,6 +66,14 @@ const staticPages = [
   // Antworttext nur aendert, wenn sich die Sachlage aendert.
   { loc: '/rechner', changefreq: 'monthly', priority: '0.8' },
   ...TOOLS.map(t => ({ loc: `/rechner/${t.slug}`, changefreq: 'monthly', priority: '0.7' })),
+  // Seit September 2026 eigene Seiten statt reiner Startseiten-Anker
+  // (#anleitungen, #faq, #ueber-mich, #kontakt) — siehe scripts/generate-blog-html.mjs
+  // NEW_STATIC_PAGES. FAQ und Anleitung hoeher gewichtet: haeufigste
+  // Suchintentionen, aendern sich aber selten.
+  { loc: '/anleitung', changefreq: 'monthly', priority: '0.8' },
+  { loc: '/faq', changefreq: 'monthly', priority: '0.7' },
+  { loc: '/ueber-uns', changefreq: 'monthly', priority: '0.5' },
+  { loc: '/kontakt', changefreq: 'yearly', priority: '0.5' },
 ];
 
 // Image-Sitemaps verlangen absolute URLs. Die Wachsprodukte speichern einen

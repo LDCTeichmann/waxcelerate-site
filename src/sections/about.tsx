@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { ExternalLink } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useSectionReveal } from '@/hooks/useAnimation';
@@ -109,6 +110,11 @@ export function About() {
               </button>
               <p className="text-[15px] leading-[1.8] text-wx-tx2">{t.about.bio3}</p>
               <p className="text-[15px] leading-[1.8] text-wx-tx2">{t.about.bio4}</p>
+              <p className="pt-1">
+                <Link to="/ueber-uns" className="text-[13px] font-semibold" style={{ color: 'var(--accent-soft)' }}>
+                  {de ? 'Mehr über Waxcelerate →' : 'More about Waxcelerate →'}
+                </Link>
+              </p>
 
               <div className="pt-3 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8">
                 <div className="flex items-center gap-2">

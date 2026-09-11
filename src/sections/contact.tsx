@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { Mail } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useSectionReveal } from '@/hooks/useAnimation';
@@ -160,7 +161,11 @@ export function Contact() {
 
           </div>
 
-          {/* Response note — omitted; each card states response time */}
+          <p className="mt-6">
+            <Link to="/kontakt" className="text-[13px] font-semibold" style={{ color: 'var(--accent-soft)' }}>
+              {de ? 'Kontaktseite mit allen Angaben →' : 'Full contact page →'}
+            </Link>
+          </p>
 
         </div>
 

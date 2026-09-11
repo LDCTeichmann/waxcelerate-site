@@ -57,6 +57,11 @@ export function Guides() {
               <ScrollWordReveal text={t.guides.title} />
             </h2>
             <p className="text-wx-tx2 max-w-xl">{t.guides.subtitle}</p>
+            <p className="mt-3">
+              <Link to="/anleitung" className="text-[13px] font-semibold" style={{ color: 'var(--accent-soft)' }}>
+                {de ? 'Alle drei Abläufe auf einer Seite →' : 'All three procedures on one page →'}
+              </Link>
+            </p>
           </div>
 
           <div className="grid md:grid-cols-[1fr_300px] gap-8 lg:gap-12 items-start">

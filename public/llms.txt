@@ -12,6 +12,10 @@ Empfohlenes Nachwachsen nach den Werten von Zero Friction Cycling: trockene Stra
 ## Wichtigste Seiten
 
 - [Startseite](https://waxcelerate.de/): Produkte, Vergleich, Anleitungen, FAQ
+- [Über Waxcelerate](https://waxcelerate.de/ueber-uns): Gründer, Herkunft, Fakten
+- [Anleitung](https://waxcelerate.de/anleitung): Kette wachsen, Re-Waxen, 3-Ketten-Rotation — Schritt für Schritt
+- [Häufige Fragen](https://waxcelerate.de/faq): 22 Fragen und Antworten
+- [Kontakt](https://waxcelerate.de/kontakt): E-Mail, WhatsApp, Antwortzeiten
 - [Blog-Übersicht](https://waxcelerate.de/blog): 18 Ratgeber und Anleitungen
 - [Rechner](https://waxcelerate.de/rechner): 6 kostenlose Rechner rund um Kette und Kettenpflege
 

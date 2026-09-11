@@ -14,6 +14,9 @@ import { dirname, resolve } from 'node:path';
 import { products, trustStats, waxIntervals } from '../src/lib/data.ts';
 import { articles, categoryOrder } from '../src/pages/blog/articles.ts';
 import { TOOLS, TOOLS_HUB } from '../src/lib/toolRegistry.ts';
+import { translations } from '../src/lib/i18n.ts';
+
+const DE = translations.de;
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const BASE = 'https://waxcelerate.de';
@@ -37,6 +40,10 @@ Empfohlenes Nachwachsen nach den Werten von Zero Friction Cycling: trockene Stra
 ## Wichtigste Seiten
 
 - [Startseite](${BASE}/): Produkte, Vergleich, Anleitungen, FAQ
+- [Über Waxcelerate](${BASE}/ueber-uns): Gründer, Herkunft, Fakten
+- [Anleitung](${BASE}/anleitung): Kette wachsen, Re-Waxen, 3-Ketten-Rotation — Schritt für Schritt
+- [Häufige Fragen](${BASE}/faq): ${DE.faq.items.length} Fragen und Antworten
+- [Kontakt](${BASE}/kontakt): E-Mail, WhatsApp, Antwortzeiten
 - [Blog-Übersicht](${BASE}/blog): ${articles.length} Ratgeber und Anleitungen
 - [Rechner](${BASE}/rechner): ${TOOLS.length} kostenlose Rechner rund um Kette und Kettenpflege
 
@@ -162,6 +169,48 @@ ${t.faq ? `\n**Häufige Fragen:**\n\n${t.faq.map(f => `**${f.q}**\n${f.a}`).join
 ## Ratgeber — alle ${articles.length} Artikel
 
 ${articles.map(articleBlock).join('\n\n---\n\n')}
+
+---
+
+## Über Waxcelerate
+
+URL: ${BASE}/ueber-uns
+
+${DE.about.bio1}
+
+${DE.about.bio3}
+
+${DE.about.bio4}
+
+## Kontakt
+
+URL: ${BASE}/kontakt
+
+- E-Mail: waxcelerate@gmail.com (Antwort in der Regel am selben Tag)
+- WhatsApp: +49 157 51957470 (meist sofort)
+- Sitz: Stuttgart, Deutschland
+
+## Anleitung — Kette wachsen, Schritt für Schritt
+
+URL: ${BASE}/anleitung
+
+### ${DE.guides.newChain.title}
+${DE.guides.newChain.note}
+${DE.guides.newChain.steps.map((s, i) => `${i + 1}. ${s}`).join('\n')}
+
+### ${DE.guides.rewax.title}
+${DE.guides.rewax.note}
+${DE.guides.rewax.steps.map((s, i) => `${i + 1}. ${s}`).join('\n')}
+
+### ${DE.guides.rotation.title}
+${DE.guides.rotation.note}
+${DE.guides.rotation.steps.map((s, i) => `${i + 1}. ${s}`).join('\n')}
+
+## Häufige Fragen — alle ${DE.faq.items.length}
+
+URL: ${BASE}/faq
+
+${DE.faq.items.map(f => `**${f.q}**\n${f.a}`).join('\n\n')}
 `;
 
 writeFileSync(resolve(__dirname, '../public/llms.txt'), llmsTxt);

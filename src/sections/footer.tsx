@@ -110,21 +110,17 @@ export function Footer() {
               <span className={headingClass}>{t.footer.info}</span>
               <ul className="space-y-0.5">
                 {[
-                  { href: '#anleitungen', label: t.nav.guides },
-                  { href: '#faq',        label: t.nav.faq    },
-                  { href: '#ueber-mich', label: t.nav.about  },
-                  { href: '#kontakt',    label: t.nav.contact },
-                ].map((item, i) => (
-                  <li key={i}>
-                    <a href={hrefFor(item.href)} onClick={(e) => { e.preventDefault(); scrollToSection(item.href); }} className={linkClass}>{item.label}</a>
+                  { to: '/anleitung', label: t.nav.guides },
+                  { to: '/faq',       label: t.nav.faq    },
+                  { to: '/ueber-uns', label: t.nav.about  },
+                  { to: '/kontakt',   label: t.nav.contact },
+                  { to: '/wissenschaft', label: de ? 'Wissenschaft' : 'Science' },
+                  { to: '/blog', label: de ? 'Ratgeber & Anleitungen' : 'Guides & Articles' },
+                ].map((item) => (
+                  <li key={item.to}>
+                    <Link to={item.to} className={linkClass}>{item.label}</Link>
                   </li>
                 ))}
-                <li>
-                  <Link to="/wissenschaft" className={linkClass}>{de ? 'Wissenschaft' : 'Science'}</Link>
-                </li>
-                <li>
-                  <Link to="/blog" className={linkClass}>{de ? 'Ratgeber & Anleitungen' : 'Guides & Articles'}</Link>
-                </li>
               </ul>
             </div>
 

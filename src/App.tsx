@@ -37,6 +37,10 @@ const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then(m => ({ defa
 const WiderrufPage = lazy(() => import('@/pages/WiderrufPage').then(m => ({ default: m.WiderrufPage })));
 const WiderrufsbelehrungPage = lazy(() => import('@/pages/WiderrufsbelehrungPage').then(m => ({ default: m.WiderrufsbelehrungPage })));
 const VersandUndZahlungPage = lazy(() => import('@/pages/VersandUndZahlungPage').then(m => ({ default: m.VersandUndZahlungPage })));
+const UeberUnsPage = lazy(() => import('@/pages/UeberUnsPage').then(m => ({ default: m.UeberUnsPage })));
+const KontaktPage = lazy(() => import('@/pages/KontaktPage').then(m => ({ default: m.KontaktPage })));
+const FaqPage = lazy(() => import('@/pages/FaqPage').then(m => ({ default: m.FaqPage })));
+const AnleitungPage = lazy(() => import('@/pages/AnleitungPage').then(m => ({ default: m.AnleitungPage })));
 import { LanguageProvider } from '@/hooks/useLanguage';
 import { ThemeProvider } from '@/hooks/useTheme';
 import { Toaster } from '@/components/ui/sonner';
@@ -106,6 +110,10 @@ function AppContent() {
         <Route path="/wissenschaft" element={<Suspense fallback={<PageLoader />}><SciencePage /></Suspense>} />
         <Route path="/rechner" element={<Suspense fallback={<PageLoader />}><RechnerHubPage /></Suspense>} />
         <Route path="/rechner/:slug" element={<Suspense fallback={<PageLoader />}><RechnerToolPage /></Suspense>} />
+        <Route path="/ueber-uns" element={<Suspense fallback={<PageLoader />}><UeberUnsPage /></Suspense>} />
+        <Route path="/kontakt" element={<Suspense fallback={<PageLoader />}><KontaktPage /></Suspense>} />
+        <Route path="/faq" element={<Suspense fallback={<PageLoader />}><FaqPage /></Suspense>} />
+        <Route path="/anleitung" element={<Suspense fallback={<PageLoader />}><AnleitungPage /></Suspense>} />
         <Route path="/" element={
           <>
             <Navigation />

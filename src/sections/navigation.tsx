@@ -18,15 +18,17 @@ const navItems = [
   { href: '#produkte',    key: 'productsServices' },
   { href: '/wissenschaft', key: 'science', route: true },
   { href: '/kette-wachsen-lassen', key: 'rewax',   route: true },
-  { href: '#ueber-mich',  key: 'about'    },
-  // Seit September 2026 eine eigene Seite statt des Startseiten-Ankers:
-  // /rechner fuehrt zu allen sechs Rechnern, jeder mit eigener Adresse. Der
-  // Anker haette nur von der Startseite aus funktioniert.
+  // Seit September 2026 eigene Seiten statt der Startseiten-Anker
+  // (#ueber-mich, #anleitungen, #faq, #kontakt): die Sektionen bleiben auf der
+  // Startseite, aber Navigation, Footer und Schema zeigen auf die kanonischen
+  // Adressen. useActiveSection/handleNav/hrefFor folgen dem route-Flag von
+  // selbst.
+  { href: '/ueber-uns',   key: 'about',   route: true },
   { href: '/rechner',     key: 'tools',   route: true },
-  { href: '#anleitungen', key: 'guides'   },
-  { href: '#faq',         key: 'faq'      },
+  { href: '/anleitung',   key: 'guides',  route: true },
+  { href: '/faq',         key: 'faq',     route: true },
   { href: '/blog',        key: 'blog',    route: true },
-  { href: '#kontakt',     key: 'contact'  },
+  { href: '/kontakt',     key: 'contact', route: true },
 ];
 
 // Mobile keeps the full flat list — a vertical scroll list has room for ten
@@ -57,16 +59,16 @@ const primaryNavItems = [
   { href: '#produkte',    key: 'products' },
   { href: '/wissenschaft', key: 'science', route: true },
   { href: '/kette-wachsen-lassen', key: 'rewax',   route: true },
-  { href: '#ueber-mich',  key: 'about'    },
-  { href: '#kontakt',     key: 'contact'  },
+  { href: '/ueber-uns',   key: 'about',   route: true },
+  { href: '/kontakt',     key: 'contact', route: true },
 ] as const;
 
 // Inhalt der "Ratgeber"-Gruppe. `desc` ist Pflicht, nicht Deko — ohne die
 // Zeile ist die Klappe wieder die Liste aus Anlauf 2.
 const resourceNavItems = [
   { href: '/rechner',     key: 'tools',  desc: 'toolsDesc', route: true },
-  { href: '#anleitungen', key: 'guides', desc: 'guidesDesc' },
-  { href: '#faq',         key: 'faq',    desc: 'faqDesc'    },
+  { href: '/anleitung',   key: 'guides', desc: 'guidesDesc', route: true },
+  { href: '/faq',         key: 'faq',    desc: 'faqDesc',    route: true },
   { href: '/blog',        key: 'blog',   desc: 'blogDesc', route: true },
 ] as const;
 

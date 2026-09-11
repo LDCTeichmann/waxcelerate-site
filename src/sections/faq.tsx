@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
@@ -11,7 +12,6 @@ export function FAQ() {
   const { t, lang } = useLanguage();
   const de = lang === 'de';
   const [openItem, setOpenItem] = useState<string | null>(null);
-  const [showAll, setShowAll] = useState(false);
   const [query, setQuery] = useState('');
   const listRef = useRef<HTMLDivElement>(null);
   use3DReveal(listRef, { stagger: 0.07, start: 'top 85%' });
@@ -24,7 +24,10 @@ export function FAQ() {
       )
     : t.faq.items;
 
-  const visibleItems = query.trim() ? filteredItems : (showAll ? filteredItems : filteredItems.slice(0, ITEMS_DEFAULT));
+  // Auf der Startseite bewusst nur die ersten ITEMS_DEFAULT Fragen. Die
+  // vollstaendige Liste (mit FAQPage-Schema ueber alle Fragen) liegt unter
+  // /faq — so steht der Frage-Antwort-Text nicht doppelt im Client-DOM.
+  const visibleItems = query.trim() ? filteredItems : filteredItems.slice(0, ITEMS_DEFAULT);
 
   return (
     <Section id="faq" className="bg-wx-bg">
@@ -137,18 +140,18 @@ export function FAQ() {
           </div>
           )}
 
-          {/* Show all toggle */}
-          {!showAll && filteredItems.length > ITEMS_DEFAULT && !query.trim() && (
-            <button
-              onClick={() => setShowAll(true)}
-              className="w-full mt-4 py-3 text-sm font-medium rounded-xl border border-wx-bd/40 transition-colors hover:border-wx-bd"
+          {/* Weiterfuehrung auf die eigene Seite statt Inline-Aufklappen —
+              /faq traegt alle Fragen und das FAQPage-Schema. */}
+          {filteredItems.length > ITEMS_DEFAULT && !query.trim() && (
+            <Link
+              to="/faq"
+              className="flex items-center justify-center w-full mt-4 py-3 text-sm font-medium rounded-xl border border-wx-bd/40 transition-colors hover:border-wx-bd"
               style={{ color: 'var(--txm)', background: 'var(--sf3)' }}
             >
               {de
-                ? `Alle ${t.faq.items.length} Fragen anzeigen`
-                : `Show all ${t.faq.items.length} questions`}
-              <ChevronDown className="inline-block h-3.5 w-3.5 ml-1.5 opacity-60" />
-            </button>
+                ? `Alle ${t.faq.items.length} Fragen ansehen`
+                : `See all ${t.faq.items.length} questions`}
+            </Link>
           )}
 
           {/* Single CTA — high-intent readers who finished the FAQ */}

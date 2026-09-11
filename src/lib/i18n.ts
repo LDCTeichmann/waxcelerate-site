@@ -36,6 +36,39 @@ export const translations = {
       blogDesc: 'Die Werkstatt — Technik-Artikel und Tests',
     },
 
+    pages: {
+      // Meta, H1 und Lead der vier eigenstaendigen Seiten (/ueber-uns,
+      // /kontakt, /faq, /anleitung). EINE Quelle fuer die hydrierte Seite
+      // (src/pages/*Page.tsx) und den Prerender (scripts/generate-blog-html.mjs,
+      // STATIC_PAGES), damit ein Crawler ohne JavaScript denselben Text sieht
+      // wie einer mit. Aendert sich hier etwas, aendert es sich an beiden
+      // Stellen gleichzeitig.
+      about: {
+        metaTitle: 'Über Waxcelerate — Kettenwachs aus Stuttgart | Waxcelerate',
+        metaDescription: 'Waxcelerate wird von Luca Teichmann in Stuttgart entwickelt und in kleinen Chargen gefertigt. Zwei Heißwachs-Formeln, vorgewachste Ketten, Versand am Tag der Bestellung.',
+        h1: 'Über Waxcelerate',
+        lead: 'Waxcelerate ist die Kettenwachs-Werkstatt von Luca Teichmann in Stuttgart — aus der Praxis auf der Straße entstanden, in kleinen Chargen gefertigt und direkt verkauft.',
+      },
+      contact: {
+        metaTitle: 'Kontakt — Waxcelerate',
+        metaDescription: 'Fragen zu Kettenwachs, Kettentyp oder einer Bestellung? Schreib Waxcelerate per E-Mail oder WhatsApp — Antwort in der Regel innerhalb von 24 Stunden.',
+        h1: 'Kontakt',
+        lead: 'Fragen zum Wachs, zum passenden Kettentyp oder zu einer Bestellung beantwortet Luca persönlich — per E-Mail oder WhatsApp, in der Regel innerhalb von 24 Stunden.',
+      },
+      faq: {
+        metaTitle: 'Häufige Fragen zu Kettenwachs und Heißwachs | Waxcelerate',
+        metaDescription: 'Die häufigsten Fragen zu Heißwachs für Fahrradketten: Umstieg von Öl, Entfetten, Nachwachs-Intervalle, Ausrüstung, Classic gegen Pro. Kurz und konkret beantwortet.',
+        h1: 'Häufige Fragen zu Kettenwachs',
+        lead: 'Antworten aus Kundengesprächen, Praxis und Forschung — vom Umstieg von Öl über die Erstentfettung bis zu Nachwachs-Intervallen und Ausrüstung.',
+      },
+      anleitung: {
+        metaTitle: 'Kette wachsen — Anleitung Schritt für Schritt | Waxcelerate',
+        metaDescription: 'Heißwachs auftragen: neue Kette entfetten, Wachsbad bei 80–90 °C, aushärten, einfahren. Dazu Re-Waxen und die 3-Ketten-Rotation — jeweils als nummerierte Schrittfolge.',
+        h1: 'Kette wachsen — Schritt für Schritt',
+        lead: 'Drei Abläufe: die erste Wachsung einer neuen Kette mit Erstentfettung, das Nachwachsen einer bereits gewachsten Kette und die 3-Ketten-Rotation.',
+      },
+    },
+
     // Hero
     hero: {
       // "Kettenwachs" statt "Heisswachs": Das Mobil-Hero-Foto zeigt drei
@@ -620,6 +653,33 @@ export const translations = {
       guidesDesc: 'Step by step from oil to wax',
       faqDesc: 'The 20 most common questions, answered briefly',
       blogDesc: 'The Workshop — technical articles and tests',
+    },
+
+    pages: {
+      about: {
+        metaTitle: 'About Waxcelerate — chain wax from Stuttgart | Waxcelerate',
+        metaDescription: 'Waxcelerate is developed by Luca Teichmann in Stuttgart and made in small batches. Two hot-wax formulas, pre-waxed chains, dispatch on the day you order.',
+        h1: 'About Waxcelerate',
+        lead: 'Waxcelerate is Luca Teichmann’s chain-wax workshop in Stuttgart — born out of real riding, made in small batches, sold direct.',
+      },
+      contact: {
+        metaTitle: 'Contact — Waxcelerate',
+        metaDescription: 'Questions about chain wax, chain type or an order? Message Waxcelerate by email or WhatsApp — usually answered within 24 hours.',
+        h1: 'Contact',
+        lead: 'Questions about the wax, the right chain type or an order are answered by Luca personally — by email or WhatsApp, usually within 24 hours.',
+      },
+      faq: {
+        metaTitle: 'Frequently asked questions about chain wax and hot wax | Waxcelerate',
+        metaDescription: 'The most common questions about hot wax for bicycle chains: switching from oil, degreasing, re-wax intervals, equipment, Classic versus Pro. Answered briefly and concretely.',
+        h1: 'Frequently asked questions about chain wax',
+        lead: 'Answers drawn from customer conversations, hands-on experience and research — from switching off oil to the initial degrease, re-wax intervals and equipment.',
+      },
+      anleitung: {
+        metaTitle: 'How to wax a chain — step-by-step guide | Waxcelerate',
+        metaDescription: 'Applying hot wax: degrease a new chain, wax bath at 80–90 °C, harden, break in. Plus re-waxing and the 3-chain rotation — each as a numbered sequence.',
+        h1: 'How to wax a chain — step by step',
+        lead: 'Three procedures: the first wax on a new chain with initial degreasing, re-waxing a chain that is already waxed, and the 3-chain rotation.',
+      },
     },
 
     // Hero

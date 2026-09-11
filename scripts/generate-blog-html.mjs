@@ -27,6 +27,9 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve, join } from 'node:path';
 import { articles, getArticleImage, author, categoryOrder, blogHero } from '../src/pages/blog/articles.ts';
 import { starterSet } from '../src/lib/data.ts';
+import { translations } from '../src/lib/i18n.ts';
+
+const DE = translations.de;
 import { TOOLS, TOOLS_HUB } from '../src/lib/toolRegistry.ts';
 // Preise, Meta, FAQ und Schema von /kette-wachsen-lassen — dieselbe Quelle wie
 // RewaxPage.tsx, damit Prerender und hydrierte Seite wortgleich sind.
@@ -113,7 +116,7 @@ function renderArticle(a) {
       author: {
         '@type': 'Person',
         name: author.name,
-        url: `${BASE}/#ueber-mich`,
+        url: `${BASE}/ueber-uns`,
       },
       // Per @id auf den Organization-Knoten aus index.html verweisen, statt einen
       // zweiten, unverbundenen Waxcelerate-Knoten aufzumachen. So sammelt sich
@@ -335,6 +338,171 @@ const STATIC_PAGES = [
   },
 ];
 
+
+// ─── Vier eigenstaendige Seiten: /ueber-uns /kontakt /faq /anleitung ─────────
+// Vorher nur Startseiten-Anker (#ueber-mich, #kontakt, #faq, #anleitungen) und
+// damit nicht einzeln indexierbar. Meta/H1/Lead aus DE.pages.* — dieselbe
+// Quelle wie die hydrierten Seiten (src/pages/{UeberUns,Kontakt,Faq,Anleitung}Page.tsx),
+// FAQ/Schritte aus DE.faq / DE.guides. Das extraSchema hier MUSS mit dem
+// @graph der jeweiligen React-Seite uebereinstimmen (die Seite ruft
+// removeStaticJsonLd() auf und setzt ihr @graph per Helmet neu).
+const breadcrumb = (name, path) => ({
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Startseite', item: BASE },
+    { '@type': 'ListItem', position: 2, name, item: `${BASE}${path}` },
+  ],
+});
+
+const NEW_STATIC_PAGES = [
+  {
+    dir: 'ueber-uns',
+    title: DE.pages.about.metaTitle,
+    description: DE.pages.about.metaDescription,
+    image: '/images/people/luca-stage.jpg',
+    h1: DE.pages.about.h1,
+    lead: DE.pages.about.lead,
+    points: [
+      DE.about.bio1,
+      DE.about.bio3,
+      DE.about.bio4,
+      'Entwickelt und in kleinen Chargen gefertigt in Stuttgart; Versand am Tag der Bestellung bei Eingang vor 14 Uhr.',
+    ],
+    extraSchema: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'AboutPage',
+        name: DE.pages.about.metaTitle,
+        description: DE.pages.about.metaDescription,
+        url: `${BASE}/ueber-uns`,
+        inLanguage: 'de-DE',
+        primaryImageOfPage: `${BASE}/images/people/luca-stage.jpg`,
+        about: { '@id': `${BASE}/#organization` },
+        // Verweist per @id auf den bereits vorhandenen Person-Knoten aus
+        // index.html (dort jetzt mit @id versehen), statt ihn mit weniger
+        // Feldern zu duplizieren — sonst stuenden zwei Person-Objekte ueber
+        // "Luca Teichmann" nebeneinander im DOM, eines davon unvollstaendig.
+        mainEntity: { '@id': `${BASE}/#person-luca` },
+      },
+      { '@context': 'https://schema.org', ...breadcrumb(DE.pages.about.h1, '/ueber-uns') },
+    ],
+  },
+  {
+    dir: 'kontakt',
+    title: DE.pages.contact.metaTitle,
+    description: DE.pages.contact.metaDescription,
+    image: '/images/hero-chain-texture.jpg',
+    h1: DE.pages.contact.h1,
+    lead: DE.pages.contact.lead,
+    points: [
+      'Per E-Mail: waxcelerate@gmail.com — Antwort in der Regel am selben Tag.',
+      'Per WhatsApp: +49 157 51957470 — für kurze Fragen, meist sofort.',
+      'Waxcelerate wird von Luca Teichmann in Stuttgart betrieben; Versand deutschlandweit per DHL.',
+      'Bestellungen vor 14 Uhr gehen in der Regel am selben Werktag raus.',
+    ],
+    extraSchema: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'ContactPage',
+        name: DE.pages.contact.metaTitle,
+        description: DE.pages.contact.metaDescription,
+        url: `${BASE}/kontakt`,
+        inLanguage: 'de-DE',
+        mainEntity: {
+          '@id': `${BASE}/#organization`,
+          '@type': 'Organization',
+          name: 'Waxcelerate',
+          email: 'waxcelerate@gmail.com',
+          url: BASE,
+          contactPoint: {
+            '@type': 'ContactPoint',
+            contactType: 'customer support',
+            email: 'waxcelerate@gmail.com',
+            availableLanguage: ['German', 'English'],
+            areaServed: 'DE',
+          },
+        },
+      },
+      { '@context': 'https://schema.org', ...breadcrumb(DE.pages.contact.h1, '/kontakt') },
+    ],
+  },
+  {
+    dir: 'faq',
+    title: DE.pages.faq.metaTitle,
+    description: DE.pages.faq.metaDescription,
+    image: '/images/hero-chain-texture.jpg',
+    h1: DE.pages.faq.h1,
+    lead: DE.pages.faq.lead,
+    points: [
+      'Umstieg von Öl auf Wachs: einmalig 1–2 Stunden Erstentfettung, danach kaum mehr Aufwand als mit Öl.',
+      'Nachwachsen bei trockenen Bedingungen rund alle 300 km, bei Nässe oder MTB alle 200–300 km.',
+      'Classic (Paraffin + PTFE + Stearin) für Frühjahr bis Herbst, Pro zusätzlich mit MoS₂ für Winter, Nässe und E-Bike.',
+      'Eine gewachste Kette hält 6.000–12.000 km statt der 2.000–3.000 km einer geölten.',
+    ],
+    faq: DE.faq.items.map(f => ({ q: f.q, a: f.a })),
+    extraSchema: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        name: DE.pages.faq.metaTitle,
+        description: DE.pages.faq.metaDescription,
+        url: `${BASE}/faq`,
+        inLanguage: 'de-DE',
+        mainEntity: DE.faq.items.map(f => ({
+          '@type': 'Question',
+          name: f.q,
+          acceptedAnswer: { '@type': 'Answer', text: f.a },
+        })),
+      },
+      { '@context': 'https://schema.org', ...breadcrumb(DE.pages.faq.h1, '/faq') },
+    ],
+    calc: { href: '/rechner/intervall', label: 'Nachwachs-Intervall für deinen Antrieb berechnen' },
+  },
+  {
+    dir: 'anleitung',
+    title: DE.pages.anleitung.metaTitle,
+    description: DE.pages.anleitung.metaDescription,
+    image: '/images/rewax/hero.webp',
+    h1: DE.pages.anleitung.h1,
+    lead: DE.pages.anleitung.lead,
+    points: [
+      `Neue Kette: ${DE.guides.newChain.steps.join(' ')}`,
+      `Re-Waxen einer bereits gewachsten Kette: ${DE.guides.rewax.steps.join(' ')}`,
+      `3-Ketten-Rotation: ${DE.guides.rotation.steps.join(' ')}`,
+      'Wachstemperatur durchgehend 80–90 °C. Erstentfettung nur bei der neuen Kette.',
+    ],
+    faq: [
+      { q: 'Muss ich eine neue Kette vor dem Wachsen entfetten?', a: DE.faq.items.find(f => f.q.includes('neue Kette vor dem Wachsen'))?.a ?? DE.guides.newChain.note },
+      { q: 'Muss ich beim Nachwachsen alles alte Wachs entfernen?', a: DE.faq.items.find(f => f.q.startsWith('Muss ich beim Nachwachsen'))?.a ?? '' },
+    ],
+    extraSchema: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'HowTo',
+        name: DE.guides.newChain.title,
+        description: DE.guides.newChain.note,
+        url: `${BASE}/anleitung`,
+        inLanguage: 'de-DE',
+        totalTime: 'PT45M',
+        estimatedCost: { '@type': 'MonetaryAmount', currency: 'EUR', value: '29.95' },
+        supply: [
+          { '@type': 'HowToSupply', name: 'Waxcelerate Heißwachs (Classic oder Pro)' },
+          { '@type': 'HowToSupply', name: 'Isopropanol oder Aceton zum Entfetten' },
+        ],
+        tool: [
+          { '@type': 'HowToTool', name: 'Topf / Wachsschmelzer' },
+          { '@type': 'HowToTool', name: 'Küchenthermometer' },
+        ],
+        step: DE.guides.newChain.steps.map((stp, i) => ({
+          '@type': 'HowToStep', position: i + 1, text: stp, url: `${BASE}/anleitung`,
+        })),
+      },
+      { '@context': 'https://schema.org', ...breadcrumb(DE.pages.anleitung.h1, '/anleitung') },
+    ],
+    calc: { href: '/rechner/intervall', label: 'Wie oft nachwachsen? Intervall berechnen' },
+  },
+];
+
 function renderStatic(p) {
   const canonical = `${BASE}/${p.dir}`;
   const preloadSrc = p.preloadImage ?? p.image;
@@ -372,7 +540,7 @@ function renderStatic(p) {
     `<ul>${p.points.map(t => `<li>${esc(t)}</li>`).join('')}</ul>`,
     faq,
     p.calc ? `<p><a href="${p.calc.href}">${esc(p.calc.label)} →</a></p>` : '',
-    `<p><a href="/">Zur Startseite</a> · <a href="/wissenschaft">Wissenschaft</a> · <a href="/kette-wachsen-lassen">Kette wachsen lassen</a> · <a href="/starter-set">Starter-Set</a> · <a href="/rechner">Rechner</a> · <a href="/blog">Blog</a></p>`,
+    `<p><a href="/">Zur Startseite</a> · <a href="/ueber-uns">Über uns</a> · <a href="/anleitung">Anleitung</a> · <a href="/faq">FAQ</a> · <a href="/kontakt">Kontakt</a> · <a href="/wissenschaft">Wissenschaft</a> · <a href="/kette-wachsen-lassen">Kette wachsen lassen</a> · <a href="/starter-set">Starter-Set</a> · <a href="/rechner">Rechner</a> · <a href="/blog">Blog</a></p>`,
   ].join('\n');
   return buildPage({ head, body });
 }
@@ -546,6 +714,7 @@ function renderTool(t) {
 }
 
 for (const p of STATIC_PAGES) write(p.dir, renderStatic(p));
+for (const p of NEW_STATIC_PAGES) write(p.dir, renderStatic(p));
 for (const p of LEGAL_PAGES) write(p.dir, renderLegal(p));
 
 write('rechner', renderToolsHub());
@@ -554,4 +723,4 @@ for (const t of TOOLS) write(join('rechner', t.slug), renderTool(t));
 write('blog', renderIndex());
 for (const a of articles) write(join('blog', a.slug), renderArticle(a));
 
-console.log(`✓ ${articles.length + 1} Blog-Seiten, ${TOOLS.length + 1} Rechnerseiten, ${STATIC_PAGES.length} feste Seiten und ${LEGAL_PAGES.length} Rechtstextseiten vorgerendert nach dist/`);
+console.log(`✓ ${articles.length + 1} Blog-Seiten, ${TOOLS.length + 1} Rechnerseiten, ${STATIC_PAGES.length + NEW_STATIC_PAGES.length} feste Seiten und ${LEGAL_PAGES.length} Rechtstextseiten vorgerendert nach dist/`);

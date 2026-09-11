@@ -83,7 +83,11 @@ const body = `
     <li><a href="/kette-wachsen-lassen">Kette wachsen lassen</a> — gewachste Kette einschicken, fahrbereit zurückbekommen</li>
     <li><a href="/starter-set">Starter-Set</a> — Wachs, Kette, Zange und Draht in einem</li>
     <li><a href="/wissenschaft">Die Wissenschaft dahinter</a> — Kontaktzonen, Reibung, Messwerte</li>
+    <li><a href="/anleitung">Anleitung</a> — Kette wachsen, Re-Waxen und 3-Ketten-Rotation Schritt für Schritt</li>
+    <li><a href="/faq">Häufige Fragen</a> — Umstieg, Intervalle, Ausrüstung</li>
     <li><a href="/blog">Ratgeber</a> — Anleitungen, Intervalle und ehrliche Antworten</li>
+    <li><a href="/ueber-uns">Über Waxcelerate</a> — Gründer, Herkunft, Fakten</li>
+    <li><a href="/kontakt">Kontakt</a> — E-Mail, WhatsApp, Antwortzeiten</li>
   </ul>
 </section>
 
