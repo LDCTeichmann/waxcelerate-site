@@ -54,6 +54,8 @@ Tabelle unten. Keine neuen Markdown-Dateien in die Wurzel.
 | **Gesamtübersicht: was aussteht, über alle Pläne** | **`docs/plaene/GESAMTUEBERSICHT.md`** | **immer zuerst, bevor du in Einzeldokumente gehst** |
 | Mobile-Optimierung (Stufe A/B abgeschlossen, C wartet auf Stripe-IDs) | `docs/plaene/MOBILE_PLAN.md` | bei Arbeit an Mobile-Performance/A11y |
 | SEO-Gesamtplan, Reichweite, PFAS-Positionierung | `docs/plaene/SICHTBARKEIT_PLAN.md`, `docs/plaene/REICHWEITE_STRATEGIE.md`, `docs/plaene/PFAS_STRATEGIE.md` | bei SEO-/Reichweiten-Arbeit oder der PFAS-Entscheidung |
+| **SEO-Technik: indexierbare URLs, Sitemap/Schema-Erzeugung, Post-Release-Checks, GSC** | **`docs/SEO_TECHNIK.md`** | **bei einer neuen Route oder vor/nach einem Release** |
+| Letzter SEO-Prüfbericht (Lighthouse, Rich Results, Redirect-Ketten) | `docs/berichte/` | bei Fragen zum gemessenen Ist-Zustand |
 | Design-/Struktur-Roadmap (konsolidiert aus AUDIT/DESIGN/MOBILE/UX) | `docs/plaene/DESIGN_ROADMAP.md` | bei größeren Struktur-/Designvorhaben |
 | Rechtliche Compliance, aktuelle Checkliste | `docs/aufgaben/LEGAL_COMPLIANCE_CHECKLIST.md` | bei Rechtstext-/Checkout-Arbeit (neuer als `RECHTSTEXTE.md`) |
 

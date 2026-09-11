@@ -117,7 +117,7 @@ export function KontaktPage() {
             {de
               ? 'Waxcelerate wird von Luca Teichmann in Stuttgart betrieben. Versand erfolgt deutschlandweit per DHL; Bestellungen vor 14 Uhr gehen in der Regel am selben Werktag raus. Die vollständige Anbieterkennzeichnung steht im '
               : 'Waxcelerate is run by Luca Teichmann in Stuttgart. Orders ship across Germany via DHL; orders before 2 p.m. usually go out the same business day. Full provider details are in the '}
-            <Link to="/impressum" style={{ color: 'var(--accent)' }}>{de ? 'Impressum' : 'legal notice'}</Link>.
+            <Link to="/impressum" className="underline underline-offset-2 hover:opacity-80" style={{ color: 'var(--accent)' }}>{de ? 'Impressum' : 'legal notice'}</Link>.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-[14px]">

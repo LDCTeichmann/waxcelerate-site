@@ -125,6 +125,7 @@ reproduzierbar. Danach live gegenprüfen statt dem Vercel-Status zu vertrauen:
 
 ```bash
 curl -sL https://waxcelerate.de/blog/<slug> | grep -o "<title>[^<]*</title>"
+npm run check:live   # automatisierter Nach-Deploy-Check, siehe docs/SEO_TECHNIK.md
 ```
 
 ---

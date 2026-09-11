@@ -9,7 +9,8 @@
     "gen:public": "npx tsx scripts/generate-sitemap.mjs && npx tsx scripts/generate-llms-txt.mjs && npx tsx scripts/generate-merchant-feed.mjs",
     "gen:html": "npx tsx scripts/generate-blog-html.mjs && npx tsx scripts/generate-product-html.mjs && npx tsx scripts/generate-accessory-html.mjs && npx tsx scripts/generate-404-html.mjs && npx tsx scripts/generate-home-html.mjs",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "check:live": "node scripts/check-live.mjs"
   },
   "dependencies": {
     "@radix-ui/react-slider": "^1.3.6",
