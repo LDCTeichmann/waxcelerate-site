@@ -259,12 +259,12 @@ function ScienceHero({ de }: { de: boolean }) {
 
           <p className="text-meta mb-4" style={{ color: 'var(--txff)' }}>
             {de
-              ? `Reibung und Watt gemessen bei ${w.inputW[0]}–${w.inputW[1]} W Tretleistung, Laborwerte.`
-              : `Friction and watts measured at ${w.inputW[0]}–${w.inputW[1]} W pedalling power, lab values.`}
+              ? `Reibung und Watt: Laborwerte von Zero Friction Cycling bei ${w.inputW[0]}–${w.inputW[1]} W Tretleistung, nicht selbst gemessen.`
+              : `Friction and watts: lab values from Zero Friction Cycling at ${w.inputW[0]}–${w.inputW[1]} W pedalling power, not measured by us.`}
           </p>
 
-          <a href="#problem" className="inline-flex items-center gap-2 text-[13px] font-semibold transition-opacity hover:opacity-75" style={{ color: 'var(--tx1)' }}>
-            {de ? 'Wie das gemessen wurde' : 'How this was measured'}
+          <a href="#beweis" className="inline-flex items-center gap-2 text-[13px] font-semibold transition-opacity hover:opacity-75" style={{ color: 'var(--tx1)' }}>
+            {de ? 'Woher die Zahlen kommen' : 'Where these numbers come from'}
             <ArrowRight className="h-3.5 w-3.5" />
           </a>
         </div>
@@ -1201,12 +1201,31 @@ export function SciencePage() {
         <Microscope de={de} />
       </section>
 
-      {/* ── ACT III — PROOF ── */}
-      <section className={`${W} py-16`} style={{ borderTop: '1px solid var(--bd2)' }}>
+      {/* ── ACT III — PROOF ──
+          id="beweis": Ziel des Hero-Links "Woher die Zahlen kommen" (vorher
+          "Wie das gemessen wurde" → #problem, das aber erklaerte WO im
+          Kettenglied Reibung entsteht, nicht WIE gemessen wurde — und die
+          Seite trug "Gemessen, nicht behauptet" bei genau einer Quellenzeile
+          ohne Jahr/URL im Footer, keinem Methodenteil). Jetzt direkt unter
+          der Ueberschrift, die diese Aussage traegt. */}
+      <section id="beweis" className={`${W} py-16 scroll-mt-24`} style={{ borderTop: '1px solid var(--bd2)' }}>
         <ActHead
           eyebrow={de ? 'Der Beweis' : 'The Proof'}
           title={de ? 'Gemessen, nicht behauptet.' : 'Measured, not claimed.'}
         />
+
+        {/* Methode & Grenzen: die Zahlen sind Laborwerte Dritter (Zero
+            Friction Cycling), keine eigene Messung von Waxcelerate — das
+            stand bisher nirgends klar da, obwohl die Seite mit "Gemessen,
+            nicht behauptet" wirbt. Titel/Jahr/URL der genauen Publikation
+            stehen noch aus (Luca muss die konkrete Quelle bestaetigen,
+            siehe SEO-Plan P0-2) — deshalb hier bewusst kein Link, nur die
+            ehrliche Einordnung, ohne eine URL zu erfinden. */}
+        <p className="text-meta max-w-2xl mb-10 leading-relaxed" style={{ color: 'var(--txff)' }}>
+          {de
+            ? 'Diese Werte stammen aus unabhängigen Labortests von Zero Friction Cycling, nicht aus eigenen Messungen von Waxcelerate. Laborbedingungen (konstante Leistung, kontrollierte Kette) bilden die Straße nicht eins zu eins ab — Wetter, Verschmutzung und Fahrstil verschieben die Werte im Alltag in beide Richtungen. Die Größenordnung der Unterschiede bleibt davon unberührt.'
+            : 'These figures come from independent lab tests by Zero Friction Cycling, not from measurements Waxcelerate ran itself. Lab conditions (constant power, controlled chain) do not map onto the road one to one — weather, dirt and riding style shift real-world values in both directions. The order of magnitude of the difference is unaffected by that.'}
+        </p>
 
         {/* Two instrument panels side by side instead of stacked — same
             content as before (Friction bars + folded-in outcome stats,

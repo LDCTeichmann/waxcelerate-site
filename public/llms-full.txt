@@ -350,7 +350,7 @@ Unabhängige Prüfstände wie Zero Friction Cycling messen Kettenverluste in Wat
 
 > Hinweis: Warum wir keine exakteren Zahlen nennen: Prüfstände arbeiten mit unterschiedlicher Eingangsleistung, Kettenspannung und Verschmutzungsprotokoll. Wer eine Zahl auf zwei Nachkommastellen verkauft, verschweigt das Protokoll. Uns interessiert die Größenordnung, und die ist stabil.
 
-Der Abstand zwischen Heißwachs und Öl liegt damit bei grob 4 bis 5 W. Bei 250 W Tretleistung sind das etwa 2 % deiner Leistung. Für Rennfahrer ist das relevant, für Alltagsfahrer ist es kein Kaufargument. Der eigentliche Vorteil liegt woanders: Öl verliert unter Schmutz weiter an Effizienz, Wachs bleibt über das Intervall nahezu konstant.
+Der Abstand zwischen Heißwachs und Öl liegt damit bei grob 4 bis 5 W in unserer Laborreferenz (300–400 W Eingangsleistung), größenordnungsmäßig 1 bis 2 % deiner Leistung. Für Rennfahrer ist das relevant, für Alltagsfahrer ist es kein Kaufargument. Der eigentliche Vorteil liegt woanders: Öl verliert unter Schmutz weiter an Effizienz, Wachs bleibt über das Intervall nahezu konstant.
 
 ## Wiederholungsintervalle
 
@@ -385,7 +385,7 @@ Der häufigste Einwand gegen Heißwachs ist der Aufwand. Das stimmt für eine ei
 Heißwachs wird im heißen Bad bei 85 bis 90 Grad angewendet und dringt durch Hitze und Immersion tief in die Kettengelenke ein. Flüssigwachs ist eine Wachs-Emulsion aus der Flasche, die du direkt auftropfst. Sie bleibt eher an der Oberfläche, weil die thermische Unterstützung fehlt.
 
 **Wie viel Watt spart Heißwachs gegenüber Kettenöl?**
-In unserer Laborreferenz liegt der Unterschied bei rund 4 bis 5 Watt, also etwa 2 Prozent der Tretleistung bei 250 Watt Eingangsleistung. Für Rennfahrer ist das relevant, für Alltagsfahrer eher kein Kaufargument.
+In unserer Laborreferenz (300–400 W Eingangsleistung) liegt der Unterschied bei rund 4 bis 5 Watt, größenordnungsmäßig 1 bis 2 Prozent der Tretleistung. Für Rennfahrer ist das relevant, für Alltagsfahrer eher kein Kaufargument.
 
 **Wie oft muss ich bei Flüssigwachs im Vergleich zu Heißwachs nachwachsen?**
 Flüssigwachs hält trocken etwa 150 bis 250 km und bei Nässe nur 80 bis 120 km. Heißwachs kommt trocken auf 400 bis 550 km und bei Nässe oder MTB auf 200 bis 300 km, also deutlich länger.

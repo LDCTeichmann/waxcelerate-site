@@ -116,7 +116,7 @@ export const articles: Article[] = [
     intro: 'Kettenwachs ist nicht gleich Kettenwachs. Heißwachs (Paraffin, im Topf geschmolzen) und Flüssigwachs (Wachs-Emulsion aus der Flasche) versprechen beide saubere, reibungsarme Antriebe, aber mit sehr unterschiedlichen Kompromissen. Dieser Artikel zeigt, was die Messwerte wirklich sagen und welche Methode zu welchem Fahrertyp passt.',
     faq: [
       { q: 'Was ist der Unterschied zwischen Heißwachs und Flüssigwachs?', a: 'Heißwachs wird im heißen Bad bei 85 bis 90 Grad angewendet und dringt durch Hitze und Immersion tief in die Kettengelenke ein. Flüssigwachs ist eine Wachs-Emulsion aus der Flasche, die du direkt auftropfst. Sie bleibt eher an der Oberfläche, weil die thermische Unterstützung fehlt.' },
-      { q: 'Wie viel Watt spart Heißwachs gegenüber Kettenöl?', a: 'In unserer Laborreferenz liegt der Unterschied bei rund 4 bis 5 Watt, also etwa 2 Prozent der Tretleistung bei 250 Watt Eingangsleistung. Für Rennfahrer ist das relevant, für Alltagsfahrer eher kein Kaufargument.' },
+      { q: 'Wie viel Watt spart Heißwachs gegenüber Kettenöl?', a: 'In unserer Laborreferenz (300–400 W Eingangsleistung) liegt der Unterschied bei rund 4 bis 5 Watt, größenordnungsmäßig 1 bis 2 Prozent der Tretleistung. Für Rennfahrer ist das relevant, für Alltagsfahrer eher kein Kaufargument.' },
       { q: 'Wie oft muss ich bei Flüssigwachs im Vergleich zu Heißwachs nachwachsen?', a: 'Flüssigwachs hält trocken etwa 150 bis 250 km und bei Nässe nur 80 bis 120 km. Heißwachs kommt trocken auf 400 bis 550 km und bei Nässe oder MTB auf 200 bis 300 km, also deutlich länger.' },
       { q: 'Ist Heißwachsen zu aufwendig für den Alltag?', a: 'Für eine einzelne Kette schon etwas Aufwand, für eine 3-Ketten-Rotation nicht. Du wachst alle drei Ketten gesammelt in einer Session, der Wechsel am Rad dauert mit Schnellverschluss etwa 60 Sekunden.' },
       { q: 'Kann ich Flüssigwachs auf eine bereits geölte Kette auftragen?', a: 'Nicht direkt. Öl verdrängt die Wachsemulsion und das Flüssigwachs hält dann schlecht. Wer von Öl umsteigt, muss die Kette zuerst entfetten, genau wie beim Heißwachsen.' },
@@ -168,7 +168,7 @@ export const articles: Article[] = [
       },
       {
         type: 'p',
-        text: 'Der Abstand zwischen Heißwachs und Öl liegt damit bei grob 4 bis 5 W. Bei 250 W Tretleistung sind das etwa 2 % deiner Leistung. Für Rennfahrer ist das relevant, für Alltagsfahrer ist es kein Kaufargument. Der eigentliche Vorteil liegt woanders: Öl verliert unter Schmutz weiter an Effizienz, Wachs bleibt über das Intervall nahezu konstant.',
+        text: 'Der Abstand zwischen Heißwachs und Öl liegt damit bei grob 4 bis 5 W in unserer Laborreferenz (300–400 W Eingangsleistung), größenordnungsmäßig 1 bis 2 % deiner Leistung. Für Rennfahrer ist das relevant, für Alltagsfahrer ist es kein Kaufargument. Der eigentliche Vorteil liegt woanders: Öl verliert unter Schmutz weiter an Effizienz, Wachs bleibt über das Intervall nahezu konstant.',
       },
       {
         type: 'h2',
