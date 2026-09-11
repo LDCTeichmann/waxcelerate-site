@@ -117,6 +117,27 @@ function srcSetFor(src) {
   return `${src} ${w.base}w, ${lg(src)} ${w.lg}w`;
 }
 
+// AVIF-Pendant, gespiegelt aus src/pages/ProductDetailPage.tsx (hasAvif/toAvif/
+// avifSrcSetFor). Deckt sich mit AVIF_JOBS in build-avif-variants.mjs: lokale
+// Produktfotos und die zwei lokal gehosteten Ketten, nicht die eBay-Hotlinks.
+const hasAvif = (src) =>
+  /\/products\/(?:classic\/classic-|pro\/pro-|chains\/(?:hg701|ybn11))/.test(src) && src.endsWith('.webp');
+const toAvif = (src) => src.replace(/\.webp$/, '.avif');
+function avifSrcSetFor(src) {
+  if (!hasAvif(src)) return undefined;
+  const m = src.match(/(classic|pro)-\d(?=\.webp$)/);
+  const w = m && IMG_WIDTHS[m[0]];
+  if (w) return `${toAvif(src)} ${w.base}w, ${toAvif(lg(src))} ${w.lg}w`;
+  return `${toAvif(src)}, ${toAvif(lg(src))} 2x`;
+}
+
+// Muss mit GALLERY_SIZES in ProductDetailPage.tsx uebereinstimmen. Vorher stand
+// hier fest "100vw", waehrend das <img> die Galerie-Spalte mit
+// "(min-width:1024px) 60vw" beschrieb — der Preload-Scanner reservierte damit
+// eine andere Kandidatenbreite als das <img> spaeter waehlte, und der Browser
+// lud beide (gemessen classic-4.webp UND classic-4-lg.webp beim Erstaufruf).
+const GALLERY_SIZES = '(min-width: 1024px) 60vw, 100vw';
+
 function titleOf(p) {
   return `${p.title} kaufen | Waxcelerate`;
 }
@@ -253,7 +274,12 @@ function renderProduct(p) {
       image: p.image,
       type: 'product',
     }),
-    imagePreload(heroImg, mimeOf(heroImg), srcSetFor(p.image) ? { srcset: srcSetFor(p.image), sizes: '100vw' } : {}),
+    // LCP-Preload: AVIF, falls vorhanden. type="image/avif" laesst Browser
+    // ohne AVIF-Unterstuetzung den Preload ueberspringen statt eine ungenutzte
+    // Datei zu laden — die holen dann das WebP normal aus dem <picture>.
+    avifSrcSetFor(p.image)
+      ? imagePreload(toAvif(heroImg), 'image/avif', { srcset: avifSrcSetFor(p.image), sizes: GALLERY_SIZES })
+      : imagePreload(heroImg, mimeOf(heroImg), srcSetFor(p.image) ? { srcset: srcSetFor(p.image), sizes: GALLERY_SIZES } : {}),
     ldClientManaged(productSchema(p)),
     ldClientManaged(breadcrumbSchema(p)),
   ].join('\n  ');

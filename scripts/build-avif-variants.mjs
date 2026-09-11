@@ -58,6 +58,30 @@ const AVIF_JOBS = [
     { src: `shelf/${n}.webp`, out: `shelf/${n}.avif` },
     { src: `shelf/${n}-800.webp`, out: `shelf/${n}-800.avif` },
   ]),
+
+  // Produktgalerie (src/pages/ProductDetailPage.tsx). Je Motiv Basis + -lg,
+  // damit das <picture> dort dieselben zwei srcset-Kandidaten in AVIF anbieten
+  // kann. Windowing sorgt dafuer, dass nur das erste Bild sofort laedt; die
+  // uebrigen erst beim Hinschalten.
+  ...['1','2','3','4','5','6'].flatMap(n => [
+    { src: `products/classic/classic-${n}.webp`, out: `products/classic/classic-${n}.avif` },
+    { src: `products/classic/classic-${n}-lg.webp`, out: `products/classic/classic-${n}-lg.avif` },
+    { src: `products/pro/pro-${n}.webp`, out: `products/pro/pro-${n}.avif` },
+    { src: `products/pro/pro-${n}-lg.webp`, out: `products/pro/pro-${n}-lg.avif` },
+  ]),
+  ...['hg701', 'ybn11'].flatMap(n => [
+    { src: `products/chains/${n}.webp`, out: `products/chains/${n}.avif` },
+    { src: `products/chains/${n}-lg.webp`, out: `products/chains/${n}-lg.avif` },
+  ]),
+];
+
+const THUMB_SOURCES = [
+  ...['1','2','3','4','5','6'].flatMap(n => [
+    `products/classic/classic-${n}.webp`,
+    `products/pro/pro-${n}.webp`,
+  ]),
+  'products/chains/hg701.webp',
+  'products/chains/ybn11.webp',
 ];
 
 /** Verkleinerte Neuausgaben: Quelle ist viel groesser als die Anzeige. */
@@ -66,6 +90,21 @@ const RESIZE_JOBS = [
   // 160 px deckt auch ein 3x-Display mit Reserve ab.
   { src: 'logo-dark.png', out: 'logo-dark-160.webp', width: 160, format: 'webp', opts: { quality: 82 } },
   { src: 'logo-dark.png', out: 'logo-dark-160.avif', width: 160, format: 'avif', opts: AVIF },
+  // Galerie-Vorschauleiste (src/pages/ProductDetailPage.tsx). 192 px, avif +
+  // webp-Fallback.
+  ...THUMB_SOURCES.flatMap(src => [
+    { src, out: src.replace('.webp', '-thumb.webp'), width: 192, format: 'webp', opts: { quality: 72 } },
+    { src, out: src.replace('.webp', '-thumb.avif'), width: 192, format: 'avif', opts: AVIF },
+  ]),
+  // "Passend dazu"-Kacheln (RelatedCard). Slot ~370 px auf Desktop, ~170 px
+  // mobil. 640 px deckt beides mit Retina-Reserve; vorher liefen dort die
+  // vollen 1400-px-Dateien (Lighthouse nannte hg701.webp mit 203 KB und
+  // ybn11.webp mit 116 KB in genau diesen Kacheln).
+  ...['products/classic/classic-4.webp', 'products/pro/pro-3.webp',
+      'products/chains/hg701.webp', 'products/chains/ybn11.webp'].flatMap(src => [
+    { src, out: src.replace('.webp', '-card.webp'), width: 640, format: 'webp', opts: { quality: 76 } },
+    { src, out: src.replace('.webp', '-card.avif'), width: 640, format: 'avif', opts: AVIF },
+  ]),
 ];
 
 const kb = n => `${(n / 1024).toFixed(1)} KB`;

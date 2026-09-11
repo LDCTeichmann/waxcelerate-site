@@ -27,7 +27,6 @@ import { Stars } from '@/components/Stars';
 import { CompareModal } from '@/sections/products';
 import { CompareTable } from '@/components/CompareTable';
 
-const AUTO_INTERVAL = 5000;
 const FADE_MS = 900;
 
 const lg = (src: string) =>
@@ -72,6 +71,49 @@ const srcSetFor = (src: string) => {
   if (!w) return undefined;
   return `${src} ${w.base}w, ${lg(src)} ${w.lg}w`;
 };
+
+/** Ist fuer diesen Pfad eine AVIF-Fassung erzeugt worden?
+ *  Deckt sich mit AVIF_JOBS in scripts/build-avif-variants.mjs: alle lokalen
+ *  Produktfotos (classic-N, pro-N je Basis + -lg) und die zwei lokal
+ *  gehosteten Ketten (hg701, ybn11). Nicht die eBay-Hotlinks. */
+const hasAvif = (src: string) =>
+  /\/products\/(?:classic\/classic-|pro\/pro-|chains\/(?:hg701|ybn11))/.test(src) && src.endsWith('.webp');
+
+const toAvif = (src: string) => src.replace(/\.webp$/, '.avif');
+
+/** AVIF-srcSet in denselben zwei Breiten wie srcSetFor(). Fuer die zwei
+ *  lokalen Ketten gibt es keine IMG_WIDTHS-Zeile, also nur Basis + -lg ohne
+ *  Breitenangabe (der Browser nimmt dann die zum Slot passende). */
+const avifSrcSetFor = (src: string) => {
+  if (!hasAvif(src)) return undefined;
+  const m = src.match(/(classic|pro)-\d(?=\.webp$)/);
+  const w = m && IMG_WIDTHS[m[0]];
+  if (w) return `${toAvif(src)} ${w.base}w, ${toAvif(lg(src))} ${w.lg}w`;
+  return `${toAvif(src)}, ${toAvif(lg(src))} 2x`;
+};
+
+const GALLERY_SIZES = '(min-width: 1024px) 60vw, 100vw';
+
+/** 192-px-Vorschau, falls fuer diesen Pfad erzeugt (build-avif-variants.mjs
+ *  THUMB_SOURCES). Sonst der Originalpfad — die eBay-Hotlink-Ketten haben
+ *  keinen, laden aber ohnehin nur ihr s-l500 (schon klein). */
+const thumbFor = (src: string) =>
+  hasAvif(src) ? src.replace(/\.webp$/, '-thumb.webp') : src;
+const thumbAvifFor = (src: string) =>
+  hasAvif(src) ? src.replace(/\.webp$/, '-thumb.avif') : undefined;
+
+/** 640-px-Kachelfassung fuer die "Passend dazu"-Kacheln — nur fuer die vier
+ *  lokalen .image-Fotos erzeugt (build-avif-variants.mjs). */
+const RELATED_CARD_IMAGES = new Set([
+  '/images/products/classic/classic-4.webp',
+  '/images/products/pro/pro-3.webp',
+  '/images/products/chains/hg701.webp',
+  '/images/products/chains/ybn11.webp',
+]);
+const cardFor = (src: string) =>
+  RELATED_CARD_IMAGES.has(src) ? src.replace(/\.webp$/, '-card.webp') : src;
+const cardAvifFor = (src: string) =>
+  RELATED_CARD_IMAGES.has(src) ? src.replace(/\.webp$/, '-card.avif') : undefined;
 
 /** One optional video gallery slide (dip-wax process clip). No product sets
     this yet — this component only ever runs once one does. Play/pause is
@@ -119,8 +161,6 @@ export function ProductDetailPage() {
   const heroDesktopRef = useRef<HTMLElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const detailRef = useRef<HTMLDivElement>(null);
-  const autoRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const pausedRef = useRef(false);
   const [compatExpanded, setCompatExpanded] = useState(false);
   const [openAccordion, setOpenAccordion] = useState<string | null>(null);
   const [compareOpen, setCompareOpen] = useState(false);
@@ -182,24 +222,6 @@ export function ProductDetailPage() {
     goTo((activeImage - 1 + slideCount) % slideCount);
   }, [activeImage, slideCount, goTo]);
 
-  useEffect(() => {
-    if (reduce || slideCount <= 1) return;
-    if (autoRef.current) clearInterval(autoRef.current);
-    autoRef.current = setInterval(() => {
-      if (!pausedRef.current) next();
-    }, AUTO_INTERVAL);
-    return () => { if (autoRef.current) clearInterval(autoRef.current); };
-  }, [next, reduce, slideCount]);
-
-  const pause = useCallback(() => { pausedRef.current = true; }, []);
-  const resume = useCallback(() => {
-    pausedRef.current = false;
-    if (autoRef.current) clearInterval(autoRef.current);
-    autoRef.current = setInterval(() => {
-      if (!pausedRef.current) next();
-    }, AUTO_INTERVAL);
-  }, [next]);
-
   // Swipe/drag on the gallery image itself — until now the only way to
   // change images was clicking a dot or thumbnail; dragging the image did
   // nothing. Direction is decided on release (not live-following the
@@ -230,9 +252,8 @@ export function ProductDetailPage() {
     dragTargetImgRef.current = target.tagName === 'IMG' && !isButton;
     if (isButton || slideCount <= 1) return;
     dragStartXRef.current = e.clientX;
-    pause();
     e.currentTarget.setPointerCapture(e.pointerId);
-  }, [slideCount, pause]);
+  }, [slideCount]);
 
   const onGalleryPointerUp = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     const wasImgTap = dragTargetImgRef.current;
@@ -250,8 +271,7 @@ export function ProductDetailPage() {
     } else if (wasImgTap) {
       setLightboxOpen(true);
     }
-    setTimeout(resume, AUTO_INTERVAL);
-  }, [next, prev, resume]);
+  }, [next, prev]);
 
   // Der Hero existiert zweimal im DOM (Mobil- und Desktop-Fassung, per CSS
   // umgeschaltet). Bis 09/2026 trugen BEIDE dieselbe `heroRef` — React behaelt
@@ -643,7 +663,11 @@ export function ProductDetailPage() {
                 className="relative rounded-2xl overflow-hidden aspect-[4/3]"
                 style={{ background: 'var(--hero-stage)', touchAction: 'pan-y' }}
                 onPointerDown={onGalleryPointerDown} onPointerUp={onGalleryPointerUp}>
-                {slides.map((slide, i) => (
+                {slides.map((slide, i) => {
+                  // Fenster von zwei: aktiv + vorher. Alles andere ist nicht
+                  // im DOM und wird erst geladen, wenn man dorthin schaltet.
+                  if (i !== activeImage && i !== prevImage) return null;
+                  return (
                   slide.type === 'video' ? (
                     <VideoGallerySlide key={i} src={slide.src} poster={slide.poster}
                       active={i === activeImage} inView={!navSolid} reduce={reduce}
@@ -654,41 +678,55 @@ export function ProductDetailPage() {
                         zIndex: i === activeImage ? 2 : (i === prevImage ? 1 : 0),
                       } as React.CSSProperties} />
                   ) : (
-                    <img key={i} src={lg(slide.src)} srcSet={srcSetFor(slide.src)}
-                      sizes={srcSetFor(slide.src) ? '(min-width: 1024px) 60vw, 100vw' : undefined}
-                      alt={i === activeImage ? titleText : ''} aria-hidden={i !== activeImage}
-                      loading={i === activeImage ? 'eager' : 'lazy'}
-                      fetchPriority={i === activeImage ? 'high' : undefined}
-                      draggable={false}
-                      className="absolute inset-0 h-full w-full object-cover"
+                    <picture key={i}
+                      className="absolute inset-0 block h-full w-full"
                       style={{
-                        objectPosition: product.imagePosition ?? 'center',
                         opacity: i === activeImage ? 1 : 0, scale: i === activeImage ? '1' : '1.04',
                         transition: reduce ? 'none' : `opacity ${FADE_MS}ms ease, scale ${FADE_MS * 2}ms ease`,
                         zIndex: i === activeImage ? 2 : (i === prevImage ? 1 : 0),
-                        cursor: i === activeImage ? 'zoom-in' : undefined,
-                      }}
-                      onError={e => {
-                        // Faellt auf die Basisdatei zurueck, falls die -lg-Variante
-                        // fehlt. srcSet muss mit geleert werden: ist es gesetzt,
-                        // waehlt der Browser beim naechsten Ladeversuch wieder
-                        // daraus, egal was src sagt.
-                        const t = e.target as HTMLImageElement;
-                        if (!t.src.includes('wax-block-spin')) { t.removeAttribute('srcset'); t.src = slide.src; }
-                      }}
-                    />
+                      }}>
+                      {avifSrcSetFor(slide.src) && (
+                        <source type="image/avif" srcSet={avifSrcSetFor(slide.src)} sizes={GALLERY_SIZES} />
+                      )}
+                      {srcSetFor(slide.src) && (
+                        <source type="image/webp" srcSet={srcSetFor(slide.src)} sizes={GALLERY_SIZES} />
+                      )}
+                      <img src={lg(slide.src)}
+                        alt={i === activeImage ? titleText : ''} aria-hidden={i !== activeImage}
+                        loading={i === activeImage ? 'eager' : 'lazy'}
+                        fetchPriority={i === activeImage ? 'high' : undefined}
+                        draggable={false}
+                        className="h-full w-full object-cover"
+                        style={{
+                          objectPosition: product.imagePosition ?? 'center',
+                          cursor: i === activeImage ? 'zoom-in' : undefined,
+                        }}
+                        onError={e => {
+                          // Faellt auf die Basisdatei zurueck, falls die -lg-Variante
+                          // fehlt. srcSet der <source>-Geschwister muss mit weg: ist
+                          // eine gesetzt, waehlt der Browser beim naechsten
+                          // Ladeversuch wieder daraus, egal was src sagt.
+                          const t = e.target as HTMLImageElement;
+                          if (!t.src.includes('wax-block-spin')) {
+                            t.closest('picture')?.querySelectorAll('source').forEach(el => el.remove());
+                            t.src = slide.src;
+                          }
+                        }}
+                      />
+                    </picture>
                   )
-                ))}
+                  );
+                })}
 
                 {slideCount > 1 && (
                   <>
-                    <button onClick={() => { prev(); pause(); setTimeout(resume, AUTO_INTERVAL); }}
+                    <button onClick={() => prev()}
                       aria-label={de ? 'Vorheriges Bild' : 'Previous image'}
                       className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-11 h-11 flex items-center justify-center rounded-full transition-transform active:scale-90"
                       style={{ background: 'rgba(var(--scrim-rgb),0.34)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', color: 'rgba(255,255,255,0.94)' }}>
                       <ChevronLeft className="h-4 w-4" />
                     </button>
-                    <button onClick={() => { next(); pause(); setTimeout(resume, AUTO_INTERVAL); }}
+                    <button onClick={() => next()}
                       aria-label={de ? 'Nächstes Bild' : 'Next image'}
                       className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-11 h-11 flex items-center justify-center rounded-full transition-transform active:scale-90"
                       style={{ background: 'rgba(var(--scrim-rgb),0.34)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', color: 'rgba(255,255,255,0.94)' }}>
@@ -704,7 +742,7 @@ export function ProductDetailPage() {
                 {slideCount > 1 && (
                   <div className="absolute bottom-[1px] left-1/2 -translate-x-1/2 z-10 flex items-center">
                     {slides.map((_, i) => (
-                      <button key={i} type="button" onClick={() => { goTo(i); pause(); setTimeout(resume, AUTO_INTERVAL); }}
+                      <button key={i} type="button" onClick={() => goTo(i)}
                         className="grid h-6 w-6 place-items-center"
                         aria-label={de ? `Bild ${i + 1}` : `Image ${i + 1}`}
                         aria-current={i === activeImage ? 'true' : undefined}>
@@ -722,11 +760,15 @@ export function ProductDetailPage() {
               {total > 1 && (
                 <div className="flex gap-2 mt-3">
                   {gallery.slice(0, 6).map((src, i) => (
-                    <button key={i} onClick={() => { goTo(i); pause(); setTimeout(resume, AUTO_INTERVAL); }}
+                    <button key={i} onClick={() => goTo(i)}
                       aria-label={`${titleText} — ${de ? 'Bild' : 'Image'} ${i + 1}`} aria-current={i === activeImage}
                       className="h-12 w-12 sm:h-14 sm:w-14 rounded-xl overflow-hidden flex-shrink-0 transition-all duration-300"
                       style={{ opacity: i === activeImage ? 1 : 0.4, boxShadow: i === activeImage ? '0 0 0 2px var(--tx1)' : '0 0 0 1px var(--bd)' }}>
-                      <img src={src} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
+                      <picture>
+                        {thumbAvifFor(src) && <source type="image/avif" srcSet={thumbAvifFor(src)} />}
+                        <img src={thumbFor(src)} alt="" width={56} height={56}
+                          loading="lazy" decoding="async" className="h-full w-full object-cover" />
+                      </picture>
                     </button>
                   ))}
                 </div>
@@ -1343,8 +1385,17 @@ export function ProductDetailPage() {
         style={{ background: 'var(--nav-bg)', backdropFilter: 'blur(12px)', borderTop: '1px solid var(--bd)', boxShadow: '0 -4px 20px rgba(0,0,0,0.06)', transition: 'transform 320ms cubic-bezier(0.22,1,0.36,1)' }}
         aria-hidden={!showBuyBar} inert={!showBuyBar}>
         <div className="max-w-5xl mx-auto px-5 sm:px-8 py-2.5 flex items-center gap-4">
-          <img src={gallery[0]} alt="" aria-hidden className="w-10 h-10 rounded-xl object-cover flex-shrink-0 hidden sm:block" style={{ border: '1px solid var(--bd)' }}
-            onError={e => { (e.target as HTMLImageElement).src = '/images/products/wax-block-spin.webp'; }} />
+          {/* thumbFor() statt gallery[0] direkt: dieses Bild steht mit 40 px
+              Kantenlaenge da, hat aber die volle 1400-px-Galeriedatei geladen
+              (~100 KB) — gefunden beim Netzwerk-Nachmessen von Etappe 4, in
+              keiner Lighthouse-Messung aufgefallen, weil die Leiste erst nach
+              dem Scrollen erscheint und damit nie zum LCP zaehlt. */}
+          <picture className="hidden sm:block flex-shrink-0">
+            {thumbAvifFor(gallery[0]) && <source type="image/avif" srcSet={thumbAvifFor(gallery[0])} />}
+            <img src={thumbFor(gallery[0])} alt="" aria-hidden width={40} height={40}
+              className="w-10 h-10 rounded-xl object-cover" style={{ border: '1px solid var(--bd)' }}
+              onError={e => { (e.target as HTMLImageElement).src = '/images/products/wax-block-spin.webp'; }} />
+          </picture>
           <div className="min-w-0 flex-1">
             <p className="text-[13px] font-semibold leading-tight truncate" style={{ color: 'var(--tx1)' }}>{titleText}</p>
             <p className="num text-[15px] font-bold leading-none mt-0.5" style={{ color: 'var(--tx1)' }}>{formatPrice(product.price)}</p>
@@ -1499,9 +1550,16 @@ function RelatedCard({ product: p, de, formatPrice }: { product: Product; de: bo
     <div className="group flex h-full flex-col overflow-hidden rounded-xl transition-shadow duration-300 hover:shadow-md"
       style={{ background: 'var(--card-bg)', border: '1px solid var(--bd)', transform: 'translateZ(0)' }}>
       <div className="relative aspect-[4/3] overflow-hidden" style={{ background: 'var(--sf2)' }}>
-        <img src={p.image} alt={title} loading="lazy"
-          className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"
-          style={{ objectPosition: p.imagePosition ?? 'center' }} />
+        {/* 640-px-Kachelfassung, falls fuer diesen Pfad erzeugt (die vier
+            lokalen .image-Fotos: classic-4, pro-3, hg701, ybn11). Alles andere
+            (eBay-Hotlinks s-l500, Zubehoer) laedt seinen Originalpfad. */}
+        <picture>
+          {cardAvifFor(p.image) && <source type="image/avif" srcSet={cardAvifFor(p.image)} />}
+          {cardFor(p.image) !== p.image && <source type="image/webp" srcSet={cardFor(p.image)} />}
+          <img src={cardFor(p.image)} alt={title} loading="lazy" decoding="async"
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+            style={{ objectPosition: p.imagePosition ?? 'center' }} />
+        </picture>
       </div>
       <div className="flex flex-1 flex-col p-3.5">
         <span className="text-small font-semibold uppercase tracking-[0.16em]" style={{ color: 'var(--accent-soft)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>{eyebrow}</span>
