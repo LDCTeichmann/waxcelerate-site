@@ -84,6 +84,12 @@ export const translations = {
       },
       buyOnEbay: 'Bei eBay kaufen',
       multiDiscount: 'Wachs-Staffel: 2 Stk. 5 % · 3 Stk. 10 % · ab 5 Stk. 15 %',
+      // Etappe 5 (11.09.2026): die Groessenempfehlung am Groessenschalter
+      // wurde vorher NUR gerendert, wenn sie NICHT zum aktuellen Produkt
+      // passte -- verschwand also beim Wechsel auf die passende Groesse
+      // komplett und verschob das Layout. Jetzt immer sichtbar, im
+      // passenden Fall mit dieser bestaetigenden Zeile.
+      sizeAdviceMatches: 'Passt zu einem durchschnittlichen Fahrprofil.',
       // ── Pflichtangaben am Preis (PAngV) ──────────────────────────────────
       // Bis 09/2026 stand auf der Produktseite WEDER etwas zur Umsatzsteuer
       // NOCH zu den Versandkosten. Beides verlangt die Preisangabenverordnung
@@ -660,6 +666,7 @@ export const translations = {
       },
       buyOnEbay: 'Buy on eBay',
       multiDiscount: 'Wax tiers: 2 pcs. 5% · 3 pcs. 10% · from 5 pcs. 15%',
+      sizeAdviceMatches: 'Fits an average riding profile.',
       // Siehe die deutsche Fassung: Rechtstext, nur zusammen mit ihr aendern.
       priceNoteTax: 'Small business under §19 UStG, no VAT shown.',
       priceNoteShippingPre: 'plus',

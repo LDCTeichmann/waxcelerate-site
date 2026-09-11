@@ -39,10 +39,17 @@ import { InstrumentFrame } from '@/components/viz/InstrumentFrame';
 import { ProfileBar } from '@/components/tools/ProfileBar';
 import { AssumptionsDisclosure } from '@/components/tools/AssumptionsDisclosure';
 
-/** Eine Kennzahl unter einer Haarlinie. Kein Kasten, kein Icon — DESIGN.md §3. */
+/** Eine Kennzahl unter einer Haarlinie. Kein Kasten, kein Icon — DESIGN.md §3.
+ * min-h-[138px]: die "Reicht dir dieser Block"-Kennzahl traegt manchmal eine
+ * zweizeilige Note (wenn der Block laenger haelt als seine Haltbarkeit) und
+ * manchmal keine. Im Browser-Pane gemessen (1400px Viewport, wt=trocken
+ * tr=strasse km=40): mit Note 137,5px, ohne 117,6px -- ein ~20px-Sprung der
+ * GANZEN Kennzahlen-Reihe (CSS-Grid stretcht alle vier Zellen auf die
+ * hoechste), sichtbar beim Wechsel 300g<->500g, weil das eine Produkt bei
+ * einem Fahrprofil outlastet und das andere nicht. Etappe 5, 11.09.2026. */
 function Readout({ value, label, note, valueColor }: { value: string; label: string; note?: string; valueColor?: string }) {
   return (
-    <div className="py-4 pr-4" style={{ borderTop: '1px solid var(--bd)' }}>
+    <div className="py-4 pr-4 min-h-[138px]" style={{ borderTop: '1px solid var(--bd)' }}>
       <p className="font-display font-bold leading-[1.05] tracking-[-0.02em]"
         style={{ fontSize: 'clamp(1.35rem, 2.6vw, 1.75rem)', color: valueColor ?? 'var(--tx1)' }}>
         {value}

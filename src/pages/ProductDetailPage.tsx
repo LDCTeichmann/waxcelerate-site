@@ -1,4 +1,4 @@
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
@@ -148,6 +148,7 @@ export function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { lang, t } = useLanguage();
   const navigate = useNavigate();
+  const location = useLocation();
   const product = id ? getProductById(id) : undefined;
   const de = lang === 'de';
 
@@ -193,10 +194,18 @@ export function ProductDetailPage() {
   // an activeImage index left over from a longer gallery can point past the
   // end of a shorter one, and no image matches `i === activeImage` until the
   // auto-advance interval eventually wraps it back into range.
+  //
+  // Der Scroll-Reset ueberspringt sich, wenn `keepScroll` im Navigations-
+  // State steht (Etappe 5, 11.09.2026): der Groessenschalter wechselt die
+  // Route zum Geschwisterprodukt, und wer dabei unten am Rechner steht, soll
+  // nicht wieder oben im Hero landen. Die Galerie wird trotzdem zurueckgesetzt
+  // — das ist ein neues Produkt mit eigenen Bildern.
   useEffect(() => {
     setActiveImage(0);
     setPrevImage(-1);
-    window.scrollTo(0, 0);
+    const st = location.state as { keepScroll?: boolean } | null;
+    if (!st?.keepScroll) window.scrollTo(0, 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   // Deep link from why-wax.tsx's Ersparnis-Karte (`/produkt/wax-500#instrument`):
@@ -802,7 +811,24 @@ export function ProductDetailPage() {
                 </p>
               )}
 
-              <p className="text-[13.5px] leading-[1.55] mb-4" style={{ color: 'var(--txm)' }}>{descriptionText}</p>
+              {/* Zwei Werte, nicht einer: unterhalb von lg ist die Spalte
+                  einspaltig und volle Viewport-Breite (kein fester
+                  Spalten-Cap), oberhalb hat sie ihre maximale Breite 400px
+                  erreicht (im Browser-Pane bei 1024px UND 1400px Viewport
+                  identisch 400px breit gemessen -- der min-max-Rahmen
+                  greift praktisch sofort). Bei 400px braucht die laengste
+                  der vier Wachs-Beschreibungen (wax-500 Classic, wax-500-
+                  mos2, wax-300-mos2) drei Zeilen (~63px), wax-300 Classic
+                  zwei. Bei 375px (Mobil-Preset) braucht dieselbe wax-500-
+                  Beschreibung aber VIER Zeilen (~84px, sauber ohne den
+                  Klassen-Wert nachgemessen) -- derselbe 63px-Wert, der bei
+                  400px reicht, reichte bei 375px nicht und liess beim
+                  Groessenwechsel auf Mobil trotzdem alles darunter um bis
+                  zu ~74px springen. Ohne diese Mindesthoehe sprang beim
+                  Groessenwechsel Classic 300<->500 alles darunter (Preis,
+                  CTA, Versandzeile) je nach Breite um 21-74px nach oben/
+                  unten -- Etappe 5, 11.09.2026. */}
+              <p className="text-[13.5px] leading-[1.55] mb-4 min-h-[84px] lg:min-h-[63px]" style={{ color: 'var(--txm)' }}>{descriptionText}</p>
 
               {/* Groessenschalter — wechselt die Route, nicht nur den Zustand:
                   300 g und 500 g sind eigene Produkte mit eigenen Adressen. */}
@@ -813,7 +839,7 @@ export function ProductDetailPage() {
                       const active = product.weight === `${v}g`;
                       return (
                         <button key={v} type="button"
-                          onClick={() => { if (!active) navigate(`/produkt/${waxSizeSibling.id}`); }}
+                          onClick={() => { if (!active) navigate(`/produkt/${waxSizeSibling.id}`, { state: { keepScroll: true } }); }}
                           aria-pressed={active}
                           className="num-data inline-flex items-center justify-center min-h-11 min-w-11 px-4 rounded-md text-[12.5px] leading-none transition-all"
                           style={{ background: active ? 'var(--sf)' : 'transparent', color: active ? 'var(--tx1)' : 'var(--txm)' }}>
@@ -833,22 +859,40 @@ export function ProductDetailPage() {
               {/* Groessenempfehlung am Entscheidungspunkt. Dieselbe Rechnung wie
                   im Instrument weiter unten (sizeAdviceFor), damit beide nicht
                   auseinanderlaufen koennen. Eine Zeile, ruhig gehalten: der
-                  Kaufblock soll nicht wieder zur Wand werden. */}
-              {isWax && sizeAdvice.recommended && !sizeAdvice.matchesCurrent && (
-                <p className="text-meta -mt-2 mb-4" style={{ color: 'var(--txm)' }}>
-                  {de
-                    ? `Bei einem durchschnittlichen Fahrprofil passt `
-                    : `At an average riding profile the `}
-                  <Link to={`/produkt/${sizeAdvice.recommended.id}`}
-                    className="font-semibold hover:opacity-70 transition-opacity"
-                    style={{ color: accentColor }}>
-                    {sizeAdvice.recommended.weight}
-                  </Link>
-                  {de ? ' besser. ' : ' fits better. '}
-                  <a href="#instrument" className="underline underline-offset-2 hover:no-underline">
-                    {de ? 'Für dein Profil rechnen' : 'Calculate for your profile'}
-                  </a>
-                </p>
+                  Kaufblock soll nicht wieder zur Wand werden.
+                  Etappe 5 (11.09.2026), zwei Layout-Fixes:
+                  1) Frueher wurde diese Zeile NUR bei !matchesCurrent
+                     gerendert -- beim Standardprofil stand sie also auf der
+                     300g-Seite, fehlte aber auf der 500g-Seite komplett, ein
+                     ~40px-Sprung genau am Groessenschalter. Jetzt immer
+                     sichtbar: bestaetigt sie im Treffer-Fall die Wahl, statt
+                     zu verschwinden.
+                  2) Die bestaetigende Fassung ist eine Zeile (~25px), die
+                     wechselnde Fassung mit Link zwei (~35px, im Browser-Pane
+                     gemessen) -- min-h-[35px] haelt beide gleich hoch, sonst
+                     verschob genau dieser Zeilenumbruch alles darunter
+                     (Preis, CTA) beim Hin- und Herwechseln um ~10px. */}
+              {isWax && sizeAdvice.recommended && (
+                sizeAdvice.matchesCurrent ? (
+                  <p className="text-meta -mt-2 mb-4 min-h-[35px]" style={{ color: 'var(--txm)' }}>
+                    {t.products.sizeAdviceMatches}
+                  </p>
+                ) : (
+                  <p className="text-meta -mt-2 mb-4 min-h-[35px]" style={{ color: 'var(--txm)' }}>
+                    {de
+                      ? `Bei einem durchschnittlichen Fahrprofil passt `
+                      : `At an average riding profile the `}
+                    <Link to={`/produkt/${sizeAdvice.recommended.id}`}
+                      className="font-semibold hover:opacity-70 transition-opacity"
+                      style={{ color: accentColor }}>
+                      {sizeAdvice.recommended.weight}
+                    </Link>
+                    {de ? ' besser. ' : ' fits better. '}
+                    <a href="#instrument" className="underline underline-offset-2 hover:no-underline">
+                      {de ? 'Für dein Profil rechnen' : 'Calculate for your profile'}
+                    </a>
+                  </p>
+                )
               )}
 
               {isClassic && (
