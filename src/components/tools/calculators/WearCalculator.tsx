@@ -169,6 +169,8 @@ export function WearCalculator({ profile, compact }: { profile: ToolProfileState
       </StepList>
 
       <ResultPanel
+        toolSlug={compact ? undefined : 'verschleiss'}
+        hasResult={!awaitingInput}
         compact={compact}
         value={awaitingInput ? '—' : isLowerBound ? `≥ ${dec(percent)}` : dec(percent)}
         unit={awaitingInput ? undefined : '%'}

@@ -5,6 +5,7 @@ import { useCartStore, cartItemCount, cartTotalPrice } from '@/store/cart';
 import { getEstimatedDelivery } from '@/lib/utils';
 import { getProductById, shipping, shippingFor } from '@/lib/data';
 import { useLanguage } from '@/hooks/useLanguage';
+import { trackShopClick } from '@/lib/analytics';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 import { toast } from 'sonner';
 
@@ -284,6 +285,7 @@ export function CartDrawer() {
                 href="https://www.ebay.de/usr/waxcelerate"
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => trackShopClick('cart_drawer')}
                 className="text-meta transition-colors hover:text-white"
                 style={{ color: 'var(--txf)' }}
               >

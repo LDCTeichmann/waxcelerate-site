@@ -5,6 +5,7 @@ import { Navigation } from '@/sections/navigation';
 import { Footer } from '@/sections/footer';
 import { products } from '@/lib/data';
 import { removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
+import { trackBlogToProduct } from '@/lib/analytics';
 import {
   getArticleBySlug,
   getArticleImage,
@@ -465,6 +466,7 @@ export function BlogArticlePage() {
                 <div className="flex items-center gap-4 flex-wrap">
                   <Link
                     to={`/produkt/${ctaProduct.id}`}
+                    onClick={() => trackBlogToProduct(article.slug, ctaProduct.id)}
                     className="text-[14px] font-semibold px-5 py-2.5 rounded-full transition-opacity hover:opacity-90"
                     style={{ background: 'var(--accent)', color: 'var(--pg)' }}
                   >
@@ -483,7 +485,7 @@ export function BlogArticlePage() {
           {secondaryCtaProduct && (
             <p className="mt-4 text-[13px]" style={{ color: 'var(--txm)' }}>
               Fertig vorgewachst:{' '}
-              <Link to={`/produkt/${secondaryCtaProduct.id}`} className="font-medium underline underline-offset-2 hover:no-underline" style={{ color: 'var(--accent-soft)' }}>
+              <Link to={`/produkt/${secondaryCtaProduct.id}`} onClick={() => trackBlogToProduct(article.slug, secondaryCtaProduct.id)} className="font-medium underline underline-offset-2 hover:no-underline" style={{ color: 'var(--accent-soft)' }}>
                 {secondaryCtaProduct.title} →
               </Link>
             </p>

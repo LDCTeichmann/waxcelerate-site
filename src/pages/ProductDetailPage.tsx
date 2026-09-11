@@ -16,7 +16,7 @@ import { ProductFaq } from '@/pages/product/ProductFaq';
 import { richContent } from '@/lib/productContent';
 import { useLanguage } from '@/hooks/useLanguage';
 import { AddToCartButton } from '@/components/AddToCartButton';
-import { trackEbayClick } from '@/lib/analytics';
+import { trackEbayClick, trackProductView, trackSizeSelect, trackFormulaCompare } from '@/lib/analytics';
 import { CartIcon } from '@/components/CartIcon';
 import { GpsrInfo } from '@/components/GpsrInfo';
 import { PriceNote } from '@/components/PriceNote';
@@ -349,6 +349,11 @@ export function ProductDetailPage() {
   // the title/description/canonical/og/twitter tags Helmet sets further
   // down (see removeStaticHeadMeta).
   useEffect(() => { removeStaticJsonLd(); removeStaticHeadMeta(); }, [id]);
+
+  // P1-4: Produktseitenansicht — Grundlage jeder Trichter-Rechnung ("wie
+  // viele Besucher sehen ein Produkt, bevor X passiert"). MUSS wie
+  // useToolProfile() oberhalb des `if (!product)`-Returns stehen.
+  useEffect(() => { if (product?.id) trackProductView(product.id); }, [product?.id]);
 
   // EIN Fahrprofil fuer die ganze Seite: es speist das Instrument weiter unten
   // UND die Groessenempfehlung am Groessenschalter im Kaufblock. Zwei
@@ -897,7 +902,7 @@ export function ProductDetailPage() {
                       const active = product.weight === `${v}g`;
                       return (
                         <button key={v} type="button"
-                          onClick={() => { if (!active) navigate(`/produkt/${waxSizeSibling.id}`, { state: { keepScroll: true } }); }}
+                          onClick={() => { if (!active) { trackSizeSelect(waxSizeSibling.id, `${v}g`); navigate(`/produkt/${waxSizeSibling.id}`, { state: { keepScroll: true } }); } }}
                           aria-pressed={active}
                           className="num-data inline-flex items-center justify-center min-h-11 min-w-11 px-4 rounded-md text-[12.5px] leading-none transition-all"
                           style={{ background: active ? 'var(--sf)' : 'transparent', color: active ? 'var(--tx1)' : 'var(--txm)' }}>
@@ -954,7 +959,7 @@ export function ProductDetailPage() {
               )}
 
               {isClassic && (
-                <button type="button" onClick={() => setCompareOpen(true)}
+                <button type="button" onClick={() => { trackFormulaCompare(product.id); setCompareOpen(true); }}
                   className="inline-flex items-center gap-1.5 text-[12.5px] font-medium mb-4 hover:opacity-70 transition-opacity"
                   style={{ color: accentColor }}>
                   {de ? 'Regen & Winter? Pro MoS₂ vergleichen' : 'Rain & winter? Compare Pro MoS₂'}
