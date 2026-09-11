@@ -341,7 +341,7 @@ export function Hero() {
 
   const stats = [
     { v: `${waxVsOil.life.waxLo}–${waxVsOil.life.wax}×`, l: de ? 'Kettenlaufzeit'    : 'chain life' },
-    { v: '~€70',  l: de ? 'gespart · 12.000 km' : 'saved · 12,000 km' },
+    { v: `~€${waxVsOil.cost.savedEur}`, l: de ? 'gespart · 12.000 km' : 'saved · 12,000 km' },
     { v: '1 Tag', l: de ? 'Versand nach Bestellung' : 'ships after order' },
   ];
 

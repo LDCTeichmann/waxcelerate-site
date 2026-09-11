@@ -427,13 +427,16 @@ export function WhyWax() {
 
           {/* Karte ist klickbar — Luca-Feedback: die Ersparniszahl steht ohne
               Beleg da, dabei gibt es auf der wax-500-Produktseite bereits eine
-              Posten-fuer-Posten-Herleitung genau dieser Zahlen (Kostenvergleich-
-              Akkordeon in ProductDetailPage.tsx). Der Hinweis-Satz + Pfeil unten
-              im Footer macht die Klickbarkeit sichtbar, denselben Fehler, den
-              die alte ScienceTeaser-Karte hatte (siehe deren Kommentar),
-              wiederholt sich hier sonst. `group` auf dem Link steuert den
-              Pfeil-Hover, InstrumentFrames eigener Rahmen bleibt unangetastet. */}
-          <Link to="/produkt/wax-500#kostenvergleich" className="group block rounded-2xl"
+              Posten-fuer-Posten-Herleitung genau dieser Zahlen (Etappe 5: die
+              Aufschluesselung steht jetzt in AssumptionsDisclosure, unter dem
+              Instrument "Was das fuer dich heisst" -- das eigene Kostenvergleich-
+              Akkordeon ist entfallen, sein Modell widersprach drivetrainCosts).
+              Der Hinweis-Satz + Pfeil unten im Footer macht die Klickbarkeit
+              sichtbar, denselben Fehler, den die alte ScienceTeaser-Karte hatte
+              (siehe deren Kommentar), wiederholt sich hier sonst. `group` auf
+              dem Link steuert den Pfeil-Hover, InstrumentFrames eigener Rahmen
+              bleibt unangetastet. */}
+          <Link to="/produkt/wax-500#instrument" className="group block rounded-2xl"
             aria-label={de ? 'Woher die Ersparnis kommt: Kostenaufschlüsselung ansehen' : 'Where the savings come from: see the cost breakdown'}>
             <InstrumentFrame
               noReveal

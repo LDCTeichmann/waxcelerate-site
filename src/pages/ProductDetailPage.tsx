@@ -199,15 +199,17 @@ export function ProductDetailPage() {
     window.scrollTo(0, 0);
   }, [id]);
 
-  // Deep link from why-wax.tsx's Ersparnis-Karte (`/produkt/wax-500#kostenvergleich`):
-  // open the Kostenvergleich accordion and scroll to it once it has rendered.
-  // The timeout lets the scrollTo(0,0) above and the accordion's own layout
-  // settle first — scrolling immediately would race the top-scroll reset.
+  // Deep link from why-wax.tsx's Ersparnis-Karte (`/produkt/wax-500#instrument`):
+  // scroll to the SizingInstrument section once it has rendered. Vorher zeigte
+  // dieser Link auf das Kostenvergleich-Akkordeon und musste es erst per
+  // setOpenAccordion oeffnen — seit Etappe 5 (11.09.2026) steht die
+  // Kostenaufschluesselung im immer sichtbaren Instrument, kein Aufklappen mehr
+  // noetig. The timeout lets the scrollTo(0,0) above settle first — scrolling
+  // immediately would race the top-scroll reset.
   useEffect(() => {
-    if (window.location.hash !== '#kostenvergleich') return;
-    setOpenAccordion('kosten');
+    if (window.location.hash !== '#instrument') return;
     const t = setTimeout(() => {
-      document.getElementById('kostenvergleich')?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+      document.getElementById('instrument')?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
     }, 350);
     return () => clearTimeout(t);
   }, [id, reduce]);
@@ -522,7 +524,6 @@ export function ProductDetailPage() {
 
   const hasFormula = !!(isWax && rc?.formulaDetails);
   const hasVergleich = !!(rc?.compHeaders && rc?.compRows);
-  const hasKosten = !!(rc?.oilItems && rc?.waxItems);
   const toggleAccordion = (key: string) => setOpenAccordion(prev => prev === key ? null : key);
 
   // Manual offset scroll instead of scrollIntoView({block:'start'}) for two
@@ -1074,7 +1075,7 @@ export function ProductDetailPage() {
                 </div>
               )}
 
-              {rc && (isWax ? (hasFormula || hasVergleich || hasKosten) : true) && (
+              {rc && (isWax ? (hasFormula || hasVergleich) : true) && (
                 <div className="min-w-0">
                   <h2 className="text-small font-semibold uppercase tracking-[0.14em] mb-3"
                     style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
@@ -1112,58 +1113,6 @@ export function ProductDetailPage() {
                         subtitle={rc.compHeaders.join(' vs. ')}
                         open={openAccordion === 'vergleich'} onToggle={() => toggleAccordion('vergleich')}>
                         <CompareTable headers={rc.compHeaders} rows={rc.compRows} accentColor={cardAccent} de={de} />
-                      </AccordionItem>
-                    )}
-                    {hasKosten && rc.oilItems && rc.waxItems && (
-                      <AccordionItem id="kostenvergleich" title={de ? 'Kostenvergleich' : 'Cost comparison'}
-                        subtitle={rc.savings ? `${de ? 'Ersparnis' : 'Savings'}: ${rc.savings}` : ''}
-                        open={openAccordion === 'kosten'} onToggle={() => toggleAccordion('kosten')}>
-                        <div className="space-y-3">
-                          {rc.costExample && <p className="text-[12px] leading-relaxed mb-2" style={{ color: 'var(--txm)' }}>{rc.costExample}</p>}
-                          {rc.costNote && (
-                            <p className="text-meta leading-[1.5] mb-3 pb-3" style={{ color: 'var(--txff)', borderBottom: '1px solid var(--bd)' }}>
-                              {rc.costNote}
-                            </p>
-                          )}
-                          <div className="grid grid-cols-2 gap-2.5">
-                            <div className="rounded-lg p-3" style={{ background: 'var(--sf2)', border: '1px solid var(--bd)' }}>
-                              <p className="text-meta font-semibold uppercase tracking-[0.14em] mb-2" style={{ color: 'var(--txff)' }}>
-                                {rc.oilCount ? `${rc.oilCount} ${rc.oilLabel}` : de ? 'Kettenöl' : 'Chain oil'}
-                              </p>
-                              {rc.oilItems.map((item, i) => (
-                                <div key={i} className="flex justify-between text-meta py-1" style={{ borderBottom: '1px solid var(--bd)' }}>
-                                  <span style={{ color: 'var(--txm)' }}>{item.label}</span>
-                                  <span className="font-mono text-meta" style={{ color: 'var(--tx2)' }}>{item.cost}</span>
-                                </div>
-                              ))}
-                              <div className="flex justify-between items-baseline pt-2 mt-1">
-                                <span className="text-meta font-semibold uppercase" style={{ color: 'var(--txff)' }}>{de ? 'Gesamt' : 'Total'}</span>
-                                <span className="num text-[16px] font-bold" style={{ color: 'var(--txm)' }}>{rc.oilTotal}</span>
-                              </div>
-                            </div>
-                            <div className="rounded-lg p-3" style={{ background: accentBg, border: `1px solid ${cardAccent}18` }}>
-                              <p className="text-meta font-semibold uppercase tracking-[0.14em] mb-2" style={{ color: cardAccent }}>
-                                {rc.waxCount ? `${rc.waxCount} ${rc.waxLabel}` : 'Waxcelerate'}
-                              </p>
-                              {rc.waxItems.map((item, i) => (
-                                <div key={i} className="flex justify-between text-meta py-1" style={{ borderBottom: `1px solid ${cardAccent}12` }}>
-                                  <span style={{ color: 'var(--txm)' }}>{item.label}</span>
-                                  <span className="font-mono text-meta" style={{ color: 'var(--tx2)' }}>{item.cost}</span>
-                                </div>
-                              ))}
-                              <div className="flex justify-between items-baseline pt-2 mt-1">
-                                <span className="text-meta font-semibold uppercase" style={{ color: cardAccent }}>{de ? 'Gesamt' : 'Total'}</span>
-                                <span className="num text-[16px] font-bold" style={{ color: 'var(--tx1)' }}>{rc.waxTotal}</span>
-                              </div>
-                            </div>
-                          </div>
-                          {rc.savings && (
-                            <div className="rounded-lg p-3 flex items-center justify-between gap-3" style={{ background: accentBg }}>
-                              <p className="text-meta" style={{ color: 'var(--txm)' }}>{de ? 'Ersparnis ~12.000 km' : 'Savings ~12,000 km'}</p>
-                              <span className="num text-[20px] font-bold flex-shrink-0" style={{ color: accentColor }}>{rc.savings}</span>
-                            </div>
-                          )}
-                        </div>
                       </AccordionItem>
                     )}
                     {rc && isChain && (

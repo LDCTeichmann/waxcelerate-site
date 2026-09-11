@@ -63,7 +63,7 @@ export const translations = {
       // Eine knappe Outcome-Zeile im Mobile-Hero unter der Headline.
       valueLine: 'Dreimal längere Kettenlaufzeit — ohne Nachschmieren.',
       tagline: 'Heißwachs statt Kettenöl. Sauberer, länger, günstiger, ohne Kompromiss.',
-      priceAnchor: 'Ab €22,95 · ~€70 gespart auf 12.000 km',
+      priceAnchor: 'Ab €22,95 · ~€47 gespart auf 12.000 km',
       guarantee: 'Nicht zufrieden? Schreib mir — ich sorge dafür, dass es stimmt.',
       ctaBuy: 'Jetzt bestellen',
       ctaSecondary: 'Wie funktioniert Heißwachs? →',
@@ -631,7 +631,7 @@ export const translations = {
       categoryLine: 'Hot wax for bicycle chains',
       valueLine: 'Three times the chain life — with no re-lubing.',
       tagline: 'Hot wax over chain oil. Cleaner, longer-lasting, more affordable, with no compromise.',
-      priceAnchor: 'From €22.95 · ~€70 saved over 12,000 km',
+      priceAnchor: 'From €22.95 · ~€47 saved over 12,000 km',
       guarantee: "Not happy? Write me — I'll make it right.",
       ctaBuy: 'Buy now',
       ctaSecondary: 'How does hot wax work? →',

@@ -20,10 +20,13 @@
 // Alle Zahlen kommen aus vorhandenen Funktionen. Es wird nichts erfunden, und
 // AssumptionsDisclosure legt die neun Rechengrundlagen offen.
 //
-// BEWUSST NICHT hier: eine personalisierte Ersparnis. Das statische
-// Kostenbeispiel weiter unten (costNote: 4.000 km Oel gegen 12.000 km Wachs)
-// benutzt ein anderes Modell als drivetrainCosts. Zwei verschiedene
-// Euro-Betraege zur selben Frage auf einer Seite waeren unglaubwuerdig.
+// Etappe 5 (11.09.2026): es gibt jetzt nur noch EIN Kostenmodell auf der
+// ganzen Seite. Vorher rechnete das separate Kostenvergleich-Akkordeon mit
+// ~12.000 km Wachs-Kettenlaufzeit ("~E70 gespart"), waehrend drivetrainCosts
+// unten mit 6.000-10.500 km rechnete — zwei widerspruechliche Euro-Betraege
+// zur selben Frage auf einer Seite. Das Akkordeon ist weg, drivetrainCosts
+// ist die einzige Quelle, und die personalisierte Ersparnis steht jetzt
+// direkt hier als erste Kennzahl (siehe unten).
 
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';

@@ -20,11 +20,11 @@ export const shipping = {
 // 30_claims_language.md ist ein Formulierungsmuster, keine feste Zahl —
 // diese Datei führt den tatsächlichen aktuellen Stand.
 export const trustStats = {
-  reviews: '200+',
-  // Hub Notion „All Sales", 19.08.2026: GET /inventory → Summe units_sold.
-  // 416 erfüllte Stück. 3 stornierte und 2 offene nicht mitgezählt.
-  // Nicht die Bestellzahl (385) — die Trust-Zeile sagt „Einheiten".
-  sold: 416,
+  // Von Luca direkt bestaetigt (11.09.2026): 250+ Bewertungen, ueber 500
+  // verkauft, 100 % positiv, 5 Sterne. Loest die vorherige Notion-Momentaufnahme
+  // (200+ / 416, 19.08.2026) ab — die ist ueberholt.
+  reviews: '250+',
+  sold: 500,
   negative: 0,
 } as const;
 
@@ -825,7 +825,14 @@ export const waxVsOil = {
   // alone: the binding claim is "deutlich länger, oft 2 bis 3×". A bare "3×"
   // is the kind of rounding that costs more credibility than the number buys.
   life: { waxLo: 2, wax: 3, oil: 1 },
-  cost: { savedEur: 70, pctLess: 46, km: 12000, oilEur: 151, waxEur: 81 },
+  // Abgeleitet, nicht geschaetzt: entspricht drivetrainCosts({ kmPerYear: 12000,
+  // rewaxKm: 300, chains: 1 }) aus waxMath.ts -- trockene Strasse, eine Kette.
+  // Hier getippt, weil data.ts waxMath nicht importieren darf (Zirkelimport:
+  // waxMath importiert aus data). Aendern sich Kettenpreise, CASSETTE_PRICE
+  // oder WAX_CHAIN_KM, muss diese Zeile mit nachgezogen werden (Etappe 5,
+  // 11.09.2026 -- vorher stand hier ein widersprechendes 12.000-km-Modell
+  // mit 6.000-10.500 km Wachs-Kettenlaufzeit -> "~E70 gespart").
+  cost: { savedEur: 47, pctLess: 22, km: 12000, oilEur: 217, waxEur: 170 },
 } as const;
 
 // Friction comparison ranges (performance bars — higher bar = better, never invert).
