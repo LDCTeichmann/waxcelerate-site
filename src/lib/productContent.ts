@@ -18,8 +18,6 @@ export interface V9Bullet {
 export interface RichContent {
   stats: StatCard[];
   compatTags: string[][];
-  reviewCount: number;
-  reviewCats: string;
   footerNote: string;
   // Wax products
   formulaDetails?: Array<{ name: string; detail: string }>;
@@ -27,13 +25,6 @@ export interface RichContent {
   compHeaders?: string[];
   compRows?: Array<{ label: string; cols: string[]; winCol?: number; dimCols?: number[] }>;
   compFootnote?: string;
-  costExample?: string;
-  costNote?: string;
-  oilCount?: string; oilLabel?: string;
-  waxCount?: string; waxLabel?: string;
-  oilItems?: Array<{ label: string; cost: string }>;
-  waxItems?: Array<{ label: string; cost: string }>;
-  oilTotal?: string; waxTotal?: string; savings?: string;
   // Chain products V9 (MoS₂)
   hook?: string;
   processSteps?: ProcessStep[];
@@ -155,23 +146,7 @@ export const richContent: Record<string, RichContent> = {
     compHeaders: waxCompHeadersClassic,
     compRows: waxCompRowsClassic,
     compFootnote: 'Für Winterbetrieb, Nässe und maximale Intervalle: Waxcelerate MoS₂ Edition.',
-    costExample: 'CN-M8100 (Shimano XT / Ultegra) · UVP €45,99',
-    costNote: 'Basis: ~4.000 km Kettenlaufzeit mit Öl vs. ~12.000 km mit Heißwachs · 30 Behandlungen à 400 km · Öl alle 150 km',
-    oilCount: '3×', oilLabel: 'Ketten mit Öl',
-    waxCount: '1×', waxLabel: 'Kette mit Waxcelerate',
-    oilItems: [{ label: '3 Ketten à €45,99', cost: '€138' }, { label: 'Öl (~1,2 Flaschen)', cost: '€13' }],
-    waxItems: [{ label: '1 Kette à €45,99', cost: '€46' }, { label: 'Wachs (1,2 Blöcke)', cost: '~€35' }],
-    // savings ist der reine Wert, ohne das Wort "gespart". Es stand bis 09/2026
-    // mit im String und lief damit an allen drei Ausgabestellen ins Leere oder
-    // in einen Doppler: "Spart ≈€70 gespart vs. Kettenöl" (live auf der
-    // Produktseite), "Ersparnis: ≈€70 gespart" und ein Banner, das links schon
-    // "Ersparnis ~12.000 km" beschriftet. Im Englischen kam zusätzlich das
-    // deutsche Wort mit ("Saves ≈€70 gespart"). Das Label gehört an die
-    // Ausgabestelle, nicht in den Wert.
-    oilTotal: '~€151', waxTotal: '~€81', savings: '≈€70',
     compatTags: waxCompatTags,
-    reviewCount: 145,
-    reviewCats: 'Rennrad · MTB · Gravel · Triathlon · verifizierte Käufer',
     footerNote: 'Made in Germany. Produziert in Stuttgart — frisch gefertigt, direkt versandt. Kein Lagerbestand. Versand 1–2 Werktage · möglichst wenig und recyclierbares Verpackungsmaterial.',
   },
 
@@ -187,16 +162,7 @@ export const richContent: Record<string, RichContent> = {
     compHeaders: waxCompHeadersClassic,
     compRows: waxCompRowsClassic,
     compFootnote: 'Für Winterbetrieb, Nässe und maximale Intervalle: Waxcelerate MoS₂ Edition.',
-    costExample: 'CN-M8100 (Shimano XT / Ultegra) · UVP €45,99',
-    costNote: 'Basis: ~4.000 km Kettenlaufzeit mit Öl vs. ~12.000 km mit Heißwachs · 30 Behandlungen à 400 km · Öl alle 150 km',
-    oilCount: '3×', oilLabel: 'Ketten mit Öl',
-    waxCount: '1×', waxLabel: 'Kette mit Waxcelerate',
-    oilItems: [{ label: '3 Ketten à €45,99', cost: '€138' }, { label: 'Öl (~1,2 Flaschen)', cost: '€13' }],
-    waxItems: [{ label: '1 Kette à €45,99', cost: '€46' }, { label: 'Wachs (2,4 Blöcke)', cost: '~€55' }],
-    oilTotal: '~€151', waxTotal: '~€101', savings: '≈€50',
     compatTags: waxCompatTags,
-    reviewCount: 145,
-    reviewCats: 'Rennrad · MTB · Gravel · Triathlon · verifizierte Käufer',
     footerNote: 'Made in Germany. Produziert in Stuttgart — frisch gefertigt, direkt versandt. Kein Lagerbestand. Versand 1–2 Werktage · möglichst wenig und recyclierbares Verpackungsmaterial.',
   },
 
@@ -212,16 +178,7 @@ export const richContent: Record<string, RichContent> = {
     compHeaders: waxCompHeadersProMos2,
     compRows: waxCompRowsProMos2,
     compFootnote: 'PFAS/PTFE-frei — MoS₂ ist ein natürlicher Festschmierstoff ohne synthetische Fluorverbindungen.',
-    costExample: 'CN-M8100 (Shimano XT / Ultegra) · UVP €45,99',
-    costNote: 'Basis: ~4.000 km Kettenlaufzeit mit Öl vs. ~12.000 km mit Heißwachs · ~28 Behandlungen à 425 km',
-    oilCount: '3×', oilLabel: 'Ketten mit Öl',
-    waxCount: '1×', waxLabel: 'Kette mit Waxcelerate Pro',
-    oilItems: [{ label: '3 Ketten à €45,99', cost: '€138' }, { label: 'Öl (~1,2 Flaschen)', cost: '€13' }],
-    waxItems: [{ label: '1 Kette à €45,99', cost: '€46' }, { label: 'Wachs (1,1 Blöcke)', cost: '~€38' }],
-    oilTotal: '~€151', waxTotal: '~€84', savings: '≈€67',
     compatTags: waxCompatTags,
-    reviewCount: 145,
-    reviewCats: 'Rennrad · MTB · Gravel · Triathlon · verifizierte Käufer',
     footerNote: 'Made in Germany. Produziert in Stuttgart — frisch gefertigt, direkt versandt. PFAS/PTFE-frei — Formulierung V9.',
   },
 
@@ -237,16 +194,7 @@ export const richContent: Record<string, RichContent> = {
     compHeaders: waxCompHeadersProMos2,
     compRows: waxCompRowsProMos2,
     compFootnote: 'PFAS/PTFE-frei — MoS₂ ist ein natürlicher Festschmierstoff ohne synthetische Fluorverbindungen.',
-    costExample: 'CN-M8100 (Shimano XT / Ultegra) · UVP €45,99',
-    costNote: 'Basis: ~4.000 km Kettenlaufzeit mit Öl vs. ~12.000 km mit Heißwachs · ~28 Behandlungen à 425 km',
-    oilCount: '3×', oilLabel: 'Ketten mit Öl',
-    waxCount: '1×', waxLabel: 'Kette mit Waxcelerate Pro',
-    oilItems: [{ label: '3 Ketten à €45,99', cost: '€138' }, { label: 'Öl (~1,2 Flaschen)', cost: '€13' }],
-    waxItems: [{ label: '1 Kette à €45,99', cost: '€46' }, { label: 'Wachs (2,2 Blöcke)', cost: '~€60' }],
-    oilTotal: '~€151', waxTotal: '~€106', savings: '≈€45',
     compatTags: waxCompatTags,
-    reviewCount: 145,
-    reviewCats: 'Rennrad · MTB · Gravel · Triathlon · verifizierte Käufer',
     footerNote: 'Made in Germany. Produziert in Stuttgart — frisch gefertigt, direkt versandt. PFAS/PTFE-frei — Formulierung V9.',
   },
 
@@ -275,8 +223,6 @@ export const richContent: Record<string, RichContent> = {
       ['Ultegra R8000', 'XT M8000', 'GRX RX810', '105 R7000', 'Tiagra 4700', 'Deore M6000'],
       ['Rennrad', 'MTB', 'Gravel', 'Cyclocross', 'E-Bike', 'Triathlon'],
     ],
-    reviewCount: 150,
-    reviewCats: 'Rennrad · MTB · Gravel · Triathlon · E-Bike',
     footerNote: v9ChainFooterNote,
   },
 
@@ -305,8 +251,6 @@ export const richContent: Record<string, RichContent> = {
       ['Shimano 11-fach', 'HG601 / HG701 / HG901', 'SRAM 11-fach', 'Force / Rival / Red', 'Campagnolo 11-fach', 'KMC X11'],
       ['Rennrad', 'MTB', 'Gravel', 'E-Bike', 'Triathlon', 'Cyclocross'],
     ],
-    reviewCount: 150,
-    reviewCats: 'Rennrad · MTB · Gravel · Triathlon · E-Bike',
     footerNote: v9ChainFooterNote,
   },
 
@@ -335,8 +279,6 @@ export const richContent: Record<string, RichContent> = {
       ['Deore XT M8100 / M8200', 'Ultegra R8100', 'GRX 12-fach', 'XTR M9100', 'Dura-Ace R9200', 'SLX M7100', 'Deore M6100'],
       ['MTB', 'Rennrad', 'Gravel', 'E-Bike'],
     ],
-    reviewCount: 150,
-    reviewCats: 'Rennrad · MTB · Gravel · Triathlon · E-Bike',
     footerNote: v9ChainFooterNote,
   },
 
@@ -365,8 +307,6 @@ export const richContent: Record<string, RichContent> = {
       ['SLX M7100', '105 R7100', 'Deore XT M8100', 'Deore M6100', 'XTR M9100', 'GRX 12-fach'],
       ['MTB', 'Rennrad', 'Gravel', 'E-Bike'],
     ],
-    reviewCount: 150,
-    reviewCats: 'Rennrad · MTB · Gravel · Triathlon · E-Bike',
     footerNote: v9ChainFooterNote,
   },
 
@@ -395,8 +335,6 @@ export const richContent: Record<string, RichContent> = {
       ['XTR M9100 / M9200', 'Dura-Ace R9200', 'Ultegra R8100', 'GRX 12-fach', 'Deore XT M8100', 'SLX M7100', 'Deore M6100'],
       ['Rennrad', 'MTB', 'Gravel', 'E-Bike', 'Triathlon'],
     ],
-    reviewCount: 150,
-    reviewCats: 'Rennrad · MTB · Gravel · Triathlon · E-Bike · verifizierte Käufer',
     footerNote: v9ChainFooterNote,
   },
 
@@ -431,8 +369,6 @@ export const richContent: Record<string, RichContent> = {
       ['SRAM Force', 'SRAM Rival', 'SRAM Red', 'SRAM Apex', 'Shimano 11-fach'],
       ['11-fach', 'Rennrad', 'Gravel', 'Triathlon'],
     ],
-    reviewCount: 150,
-    reviewCats: 'Rennrad · Gravel · Triathlon · verifizierte Käufer',
     footerNote: v9ChainFooterNote,
   },
 
@@ -467,8 +403,6 @@ export const richContent: Record<string, RichContent> = {
       ['SRAM NX Eagle', 'SRAM SX Eagle', 'SRAM GX Eagle', 'SRAM X01 Eagle', 'SRAM XX1 Eagle'],
       ['12-fach MTB', 'Mountainbike', 'E-Bike MTB'],
     ],
-    reviewCount: 150,
-    reviewCats: 'MTB · Trail · Enduro · verifizierte Käufer',
     footerNote: v9ChainFooterNote,
   },
 
@@ -503,8 +437,6 @@ export const richContent: Record<string, RichContent> = {
       ['Shimano 12-fach', 'SRAM 12-fach', 'Campagnolo 12-fach', 'KMC X12'],
       ['Rennrad', 'MTB', 'Gravel', 'E-Bike', 'Triathlon', 'Cyclocross'],
     ],
-    reviewCount: 150,
-    reviewCats: 'Rennrad · MTB · Gravel · Triathlon · verifizierte Käufer',
     footerNote: v9ChainFooterNote,
   },
 };

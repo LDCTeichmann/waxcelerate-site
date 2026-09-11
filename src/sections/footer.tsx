@@ -1,6 +1,7 @@
 import { ExternalLink } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/hooks/useLanguage';
+import { trackShopClick } from '@/lib/analytics';
 export function Footer() {
   const { t, lang } = useLanguage();
   const de = lang === 'de';
@@ -74,6 +75,7 @@ export function Footer() {
                 href="https://www.ebay.de/usr/waxcelerate"
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => trackShopClick('footer_tagline')}
                 className="inline-flex items-center gap-1.5 py-1 text-[12px] font-medium text-wx-tx2 hover:text-wx-tx1 transition-colors duration-150"
               >
                 {de ? 'Zum eBay Shop' : 'Visit eBay Shop'}
@@ -89,12 +91,12 @@ export function Footer() {
                   { href: '#produkte', label: t.nav.products },
                   { href: '/kette-wachsen-lassen', label: t.nav.rewax, route: true },
                   { href: '/starter-set', label: de ? 'Starter-Set' : 'Starter Set', route: true },
-                  { href: '#tools',    label: t.nav.tools },
+                  { href: '/rechner',  label: t.nav.tools, route: true },
                   { href: 'https://www.ebay.de/usr/waxcelerate', label: 'eBay', external: true },
                 ].map((item, i) => (
                   <li key={i}>
                     {item.external ? (
-                      <a href={item.href} target="_blank" rel="noopener noreferrer" className={linkClass}>{item.label}</a>
+                      <a href={item.href} target="_blank" rel="noopener noreferrer" onClick={() => trackShopClick('footer_shop_nav')} className={linkClass}>{item.label}</a>
                     ) : item.route ? (
                       <Link to={item.href} className={linkClass}>{item.label}</Link>
                     ) : (

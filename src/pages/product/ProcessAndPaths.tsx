@@ -23,6 +23,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { getArticleBySlug } from '@/pages/blog/articles';
 import { useLanguage } from '@/hooks/useLanguage';
+import { THREE_WAYS } from '@/pages/product/threeWays';
 
 /** Wandelt "PT45M" in "45 Minuten". Faellt still auf null zurueck. */
 function minutesFrom(iso: string | undefined, de: boolean): string | null {
@@ -102,39 +103,14 @@ export function ProcessAndPaths({ accentColor }: { accentColor: string }) {
           </p>
 
           <div className="grid gap-0 sm:grid-cols-3">
-            {[
-              {
-                title: de ? 'Selbst wachsen' : 'Wax it yourself',
-                body: de
-                  ? 'Topf, Draht, Isopropanol und dieses Wachs. Kein Spezialgerät nötig.'
-                  : 'A pot, some wire, isopropanol and this wax. No special equipment needed.',
-                to: '/blog/heisswachs-anleitung',
-                cta: de ? 'Zur Anleitung' : 'To the guide',
-              },
-              {
-                title: de ? 'Starter-Set' : 'Starter set',
-                body: de
-                  ? 'Wachs zusammen mit dem, was beim ersten Mal sonst fehlt: Zange und Aufhängedraht.'
-                  : 'Wax together with what is otherwise missing the first time: pliers and hanging wire.',
-                to: '/starter-set',
-                cta: de ? 'Set ansehen' : 'View the set',
-              },
-              {
-                title: de ? 'Einschicken' : 'Send it in',
-                body: de
-                  ? 'Kette am Quick-Link öffnen, einschicken, fahrbereit zurückbekommen. Reinigen musst du vorher nichts.'
-                  : 'Open the chain at the quick link, send it in, get it back ready to ride. No cleaning needed first.',
-                to: '/kette-wachsen-lassen',
-                cta: de ? 'Wie das läuft' : 'How it works',
-              },
-            ].map((path, i) => (
+            {THREE_WAYS.map((path, i) => (
               <div key={i} className="pt-4 pb-5 pr-6" style={{ borderTop: '1px solid var(--bd)' }}>
-                <h3 className="text-[15px] font-semibold mb-1.5" style={{ color: 'var(--tx1)' }}>{path.title}</h3>
-                <p className="text-meta leading-[1.55] mb-3" style={{ color: 'var(--txm)' }}>{path.body}</p>
+                <h3 className="text-[15px] font-semibold mb-1.5" style={{ color: 'var(--tx1)' }}>{de ? path.titleDe : path.titleEn}</h3>
+                <p className="text-meta leading-[1.55] mb-3" style={{ color: 'var(--txm)' }}>{de ? path.bodyDe : path.bodyEn}</p>
                 <Link to={path.to}
                   className="inline-flex items-center gap-1.5 text-[13px] font-medium hover:opacity-70 transition-opacity"
                   style={{ color: accentColor }}>
-                  {path.cta} <ArrowRight className="h-3.5 w-3.5" />
+                  {de ? path.ctaDe : path.ctaEn} <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </div>
             ))}

@@ -16,6 +16,7 @@ import {
   starterSetOptions, starterSetBundleProducts, canCheckout,
 } from '@/lib/data';
 import { AddToCartButton } from '@/components/AddToCartButton';
+import { trackStarterInterest } from '@/lib/analytics';
 import { StarterSetBuilder } from '@/sections/StarterSetBuilder';
 
 const fmt = (n: number, de: boolean) =>
@@ -112,6 +113,7 @@ function FixedCard({ optionId, de, icon: Icon, badgeDe, badgeEn }: {
                 : `Hi Luca, I would like to order the ${setName}.`,
             )}`}
             target="_blank" rel="noopener noreferrer"
+            onClick={() => trackStarterInterest(optionId)}
             className="inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-[14px] font-semibold transition-opacity hover:opacity-90"
             style={{ background: 'var(--accent)', color: '#fff' }}
           >

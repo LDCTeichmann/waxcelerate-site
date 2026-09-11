@@ -1,6 +1,6 @@
 # Waxcelerate — Vollständige Produktinformationen und Ratgeber
 
-**Kurzfassung:** Waxcelerate ist ein deutsches Kleinunternehmen aus Stuttgart, das Heißwachs für Fahrradketten sowie vorgewachste Ketten verkauft. Gegründet 2024 von Luca Teichmann. 416 verkaufte Einheiten, 200+ Bewertungen, 100% positiv. Verkauf über waxcelerate.de und eBay.de.
+**Kurzfassung:** Waxcelerate ist ein deutsches Kleinunternehmen aus Stuttgart, das Heißwachs für Fahrradketten sowie vorgewachste Ketten verkauft. Gegründet 2024 von Luca Teichmann. 500 verkaufte Einheiten, 250+ Bewertungen, 100% positiv. Verkauf über waxcelerate.de und eBay.de.
 
 ---
 
@@ -8,10 +8,11 @@
 
 Heißwachs (englisch: hot wax) ist eine Methode zur Fahrradkettenpflege, bei der Paraffinwachs auf 85–90 °C erhitzt und die Kette darin eingetaucht wird. Im Gegensatz zu Kettenöl trocknet Wachs vollständig aus und bildet einen trockenen Schmierfilm innerhalb der Kettenglieder. Schmutz und Sand haften nicht an einer trockenen Kette — der Hauptvorteil gegenüber allen Ölschmierungen.
 
-**Messbarer Unterschied:**
-- Heißwachs Reibungskoeffizient: 0,03–0,06
+**Messbarer Unterschied** (Grenzreibungskoeffizient μ, Quelle: unabhängige Labortests von Zero Friction Cycling):
+- Waxcelerate Pro (MoS₂): 0,03–0,06
+- Waxcelerate Classic: 0,05–0,07
 - Flüssigwachs (z.B. Squirt, Silca Drip): 0,09–0,12
-- Kettenöl (nass): 0,15–0,25
+- Kettenöl (nass): 0,18–0,25
 
 ---
 
@@ -128,6 +129,44 @@ Alle Ketten wurden vor dem Versand vollständig entfettet (Ultraschallbad) und m
 - Schaltung: 12-fach
 - Kompatibilität: Shimano 12-fach · SRAM 12-fach · Campagnolo 12-fach
 - Verkauf: https://waxcelerate.de/produkt/chain-ybn12
+
+---
+
+## Starter-Set
+
+URL: https://waxcelerate.de/starter-set
+
+Wachs, Quick-Link-Zange und Aufhängedraht in einem Set, vorgewachste Kette optional dazu. Der Set-Preis liegt 15% unter der Summe der Einzelteile. Zubehör auch einzeln erhältlich: Aufhängedraht, 3 Stück (4,95 €), Quick-Link-Zange (4,95 €).
+
+Feste Kombinationen:
+- Kette schon da · nur Wachs, Zange, Draht
+- Frühjahr bis Herbst · 11-fach universal
+- Rennrad & schnelle Tourer · 11-fach Shimano
+- Ganzjahr, Winter, E-Bike · 12-fach
+
+---
+
+## Wissenschaft — Messwerte
+
+URL: https://waxcelerate.de/wissenschaft
+
+Kontaktzonen, Reibung, MoS₂ und die sechs Komponenten der Formel — gemessen statt behauptet, entwickelt und produziert in Stuttgart. Reibungs- und Wattwerte stammen aus unabhängigen Labortests von Zero Friction Cycling, nicht aus eigenen Messungen von Waxcelerate; Laborbedingungen bilden die Straße nicht eins zu eins ab, die Größenordnung der Unterschiede bleibt davon unberührt.
+
+**Reibung (Grenzreibungskoeffizient μ):** Waxcelerate Pro 0,03–0,06, Classic 0,05–0,07, Kettenöl 0,18–0,25.
+
+**Antriebsverlust** bei 300–400 W Tretleistung: Wachs 2–4 W, Kettenöl 6–10 W.
+
+**Kettenlaufzeit:** 2 bis 3× länger als mit Kettenöl. **Kosten:** rund 22% geringere Antriebskosten über 12.000 km (217 € Öl gegen 170 € Wachs, eine Kette, trockene Straße).
+
+**Temperaturfenster:** Classic +5 bis rund 35 °C (enthält PTFE), Pro (MoS₂) −8 bis über 45 °C (PFAS- und PTFE-frei).
+
+**Die sechs Komponenten der Formel:**
+- Paraffin: Vollraffiniertes Paraffin bildet den Grundfilm — lineare Alkanketten (C₂₀–C₃₆) packen sich orthorhombisch zu ~10 nm dünnen Lamellen, die mehr Metall bedecken und weniger Wasser durchlassen als Standardwachse.
+- Fischer-Tropsch-Wachs: Synthetisches Hartwachs (>90 % Kristallinität) hebt den Tropfpunkt auf ~75 °C — die Matrix hält Position unter Last statt wegzuwandern und stabilisiert die MoS₂-Einbettung thermisch.
+- Mikrokristallines Wachs: Verzweigte und zyklische Naphthene füllen die amorphen Zonen zwischen den Paraffinlamellen — die Matrix bleibt bei Frost elastisch bis −8 °C, kein Verspröden, kein Abplatzen.
+- Molybdändisulfid (MoS₂): Hexagonale MoS₂-Kristallite (P6₃/mmc, < 5 µm) scheren unter Kontaktdruck entlang der van-der-Waals-Ebenen und bilden einen Fe–S-Transferfilm auf dem Stahl — Grenzreibung bis μ 0,03.
+- Dispergiersystem: MoS₂ ist 5,6× dichter als Wachs — nach Stokes sedimentieren 5 µm Partikel ~0,8 mm/min in der Schmelze. Amphiphile Ester adsorbieren an den Partikelkanten und erzeugen eine sterische Barriere, die homogene Verteilung sichert.
+- Phenolisches Antioxidans: Doniert H-Atome an Peroxylradikale und bricht die Oxidationskaskade. Doppelter Schutz: verhindert MoS₂ → MoO₃-Umwandlung und schützt die Wachsmatrix vor Versprödung — 12 Monate stabile Lagerung.
 
 ---
 
@@ -350,7 +389,7 @@ Unabhängige Prüfstände wie Zero Friction Cycling messen Kettenverluste in Wat
 
 > Hinweis: Warum wir keine exakteren Zahlen nennen: Prüfstände arbeiten mit unterschiedlicher Eingangsleistung, Kettenspannung und Verschmutzungsprotokoll. Wer eine Zahl auf zwei Nachkommastellen verkauft, verschweigt das Protokoll. Uns interessiert die Größenordnung, und die ist stabil.
 
-Der Abstand zwischen Heißwachs und Öl liegt damit bei grob 4 bis 5 W. Bei 250 W Tretleistung sind das etwa 2 % deiner Leistung. Für Rennfahrer ist das relevant, für Alltagsfahrer ist es kein Kaufargument. Der eigentliche Vorteil liegt woanders: Öl verliert unter Schmutz weiter an Effizienz, Wachs bleibt über das Intervall nahezu konstant.
+Der Abstand zwischen Heißwachs und Öl liegt damit bei grob 4 bis 5 W in unserer Laborreferenz (300–400 W Eingangsleistung), größenordnungsmäßig 1 bis 2 % deiner Leistung. Für Rennfahrer ist das relevant, für Alltagsfahrer ist es kein Kaufargument. Der eigentliche Vorteil liegt woanders: Öl verliert unter Schmutz weiter an Effizienz, Wachs bleibt über das Intervall nahezu konstant.
 
 ## Wiederholungsintervalle
 
@@ -385,7 +424,7 @@ Der häufigste Einwand gegen Heißwachs ist der Aufwand. Das stimmt für eine ei
 Heißwachs wird im heißen Bad bei 85 bis 90 Grad angewendet und dringt durch Hitze und Immersion tief in die Kettengelenke ein. Flüssigwachs ist eine Wachs-Emulsion aus der Flasche, die du direkt auftropfst. Sie bleibt eher an der Oberfläche, weil die thermische Unterstützung fehlt.
 
 **Wie viel Watt spart Heißwachs gegenüber Kettenöl?**
-In unserer Laborreferenz liegt der Unterschied bei rund 4 bis 5 Watt, also etwa 2 Prozent der Tretleistung bei 250 Watt Eingangsleistung. Für Rennfahrer ist das relevant, für Alltagsfahrer eher kein Kaufargument.
+In unserer Laborreferenz (300–400 W Eingangsleistung) liegt der Unterschied bei rund 4 bis 5 Watt, größenordnungsmäßig 1 bis 2 Prozent der Tretleistung. Für Rennfahrer ist das relevant, für Alltagsfahrer eher kein Kaufargument.
 
 **Wie oft muss ich bei Flüssigwachs im Vergleich zu Heißwachs nachwachsen?**
 Flüssigwachs hält trocken etwa 150 bis 250 km und bei Nässe nur 80 bis 120 km. Heißwachs kommt trocken auf 400 bis 550 km und bei Nässe oder MTB auf 200 bis 300 km, also deutlich länger.

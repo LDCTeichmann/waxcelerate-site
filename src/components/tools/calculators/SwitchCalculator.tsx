@@ -205,6 +205,7 @@ export function SwitchCalculator({ profile, compact }: { profile: ToolProfileSta
       </StepList>
 
       <ResultPanel
+        toolSlug={compact ? undefined : 'umstieg'}
         compact={compact}
         value={<AnimatedNumber value={costs.savingsPerYear} prefix="€" />}
         unit={t.tools.switch.perYearLess}

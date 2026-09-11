@@ -17,6 +17,13 @@
       <g:mpn>wax-500</g:mpn>
       <g:google_product_category>Sporting Goods &gt; Outdoor Recreation &gt; Cycling &gt; Bicycle Accessories</g:google_product_category>
       <g:product_type>Kettenwachs</g:product_type>
+      <g:shipping>
+        <g:country>DE</g:country>
+        <g:service>Maxibrief</g:service>
+        <g:price>2.90 EUR</g:price>
+      </g:shipping>
+      <g:item_group_id>waxcelerate-wachs</g:item_group_id>
+      <g:size>500g</g:size>
     </item>
     <item>
       <g:id>wax-300</g:id>
@@ -31,6 +38,13 @@
       <g:mpn>wax-300</g:mpn>
       <g:google_product_category>Sporting Goods &gt; Outdoor Recreation &gt; Cycling &gt; Bicycle Accessories</g:google_product_category>
       <g:product_type>Kettenwachs</g:product_type>
+      <g:shipping>
+        <g:country>DE</g:country>
+        <g:service>Maxibrief</g:service>
+        <g:price>2.90 EUR</g:price>
+      </g:shipping>
+      <g:item_group_id>waxcelerate-wachs</g:item_group_id>
+      <g:size>300g</g:size>
     </item>
     <item>
       <g:id>wax-500-mos2</g:id>
@@ -45,6 +59,13 @@
       <g:mpn>wax-500-mos2</g:mpn>
       <g:google_product_category>Sporting Goods &gt; Outdoor Recreation &gt; Cycling &gt; Bicycle Accessories</g:google_product_category>
       <g:product_type>Kettenwachs</g:product_type>
+      <g:shipping>
+        <g:country>DE</g:country>
+        <g:service>Maxibrief</g:service>
+        <g:price>2.90 EUR</g:price>
+      </g:shipping>
+      <g:item_group_id>waxcelerate-wachs</g:item_group_id>
+      <g:size>500g</g:size>
     </item>
     <item>
       <g:id>wax-300-mos2</g:id>
@@ -59,6 +80,13 @@
       <g:mpn>wax-300-mos2</g:mpn>
       <g:google_product_category>Sporting Goods &gt; Outdoor Recreation &gt; Cycling &gt; Bicycle Accessories</g:google_product_category>
       <g:product_type>Kettenwachs</g:product_type>
+      <g:shipping>
+        <g:country>DE</g:country>
+        <g:service>Maxibrief</g:service>
+        <g:price>2.90 EUR</g:price>
+      </g:shipping>
+      <g:item_group_id>waxcelerate-wachs</g:item_group_id>
+      <g:size>300g</g:size>
     </item>
     <item>
       <g:id>chain-hg701</g:id>
@@ -73,6 +101,11 @@
       <g:mpn>CN-HG701</g:mpn>
       <g:google_product_category>Sporting Goods &gt; Outdoor Recreation &gt; Cycling &gt; Bicycle Accessories &gt; Bicycle Parts &gt; Bicycle Drivetrain Parts &gt; Bicycle Chains</g:google_product_category>
       <g:product_type>Vorgewachste Kette</g:product_type>
+      <g:shipping>
+        <g:country>DE</g:country>
+        <g:service>Großbrief</g:service>
+        <g:price>1.80 EUR</g:price>
+      </g:shipping>
     </item>
     <item>
       <g:id>chain-ybn11</g:id>
@@ -87,6 +120,11 @@
       <g:mpn>S11 / 11S</g:mpn>
       <g:google_product_category>Sporting Goods &gt; Outdoor Recreation &gt; Cycling &gt; Bicycle Accessories &gt; Bicycle Parts &gt; Bicycle Drivetrain Parts &gt; Bicycle Chains</g:google_product_category>
       <g:product_type>Vorgewachste Kette</g:product_type>
+      <g:shipping>
+        <g:country>DE</g:country>
+        <g:service>Großbrief</g:service>
+        <g:price>1.80 EUR</g:price>
+      </g:shipping>
     </item>
     <item>
       <g:id>chain-force</g:id>
@@ -101,6 +139,11 @@
       <g:mpn>Force PC-1170</g:mpn>
       <g:google_product_category>Sporting Goods &gt; Outdoor Recreation &gt; Cycling &gt; Bicycle Accessories &gt; Bicycle Parts &gt; Bicycle Drivetrain Parts &gt; Bicycle Chains</g:google_product_category>
       <g:product_type>Vorgewachste Kette</g:product_type>
+      <g:shipping>
+        <g:country>DE</g:country>
+        <g:service>Großbrief</g:service>
+        <g:price>1.80 EUR</g:price>
+      </g:shipping>
     </item>
     <item>
       <g:id>chain-m9100</g:id>
@@ -115,6 +158,11 @@
       <g:mpn>Dura-Ace / XTR CN-M9100</g:mpn>
       <g:google_product_category>Sporting Goods &gt; Outdoor Recreation &gt; Cycling &gt; Bicycle Accessories &gt; Bicycle Parts &gt; Bicycle Drivetrain Parts &gt; Bicycle Chains</g:google_product_category>
       <g:product_type>Vorgewachste Kette</g:product_type>
+      <g:shipping>
+        <g:country>DE</g:country>
+        <g:service>Großbrief</g:service>
+        <g:price>1.80 EUR</g:price>
+      </g:shipping>
     </item>
     <item>
       <g:id>chain-m8100</g:id>
@@ -129,6 +177,11 @@
       <g:mpn>XT / Ultegra CN-M8100</g:mpn>
       <g:google_product_category>Sporting Goods &gt; Outdoor Recreation &gt; Cycling &gt; Bicycle Accessories &gt; Bicycle Parts &gt; Bicycle Drivetrain Parts &gt; Bicycle Chains</g:google_product_category>
       <g:product_type>Vorgewachste Kette</g:product_type>
+      <g:shipping>
+        <g:country>DE</g:country>
+        <g:service>Großbrief</g:service>
+        <g:price>1.80 EUR</g:price>
+      </g:shipping>
     </item>
     <item>
       <g:id>chain-m7100</g:id>
@@ -143,6 +196,11 @@
       <g:mpn>SLX / 105 CN-M7100</g:mpn>
       <g:google_product_category>Sporting Goods &gt; Outdoor Recreation &gt; Cycling &gt; Bicycle Accessories &gt; Bicycle Parts &gt; Bicycle Drivetrain Parts &gt; Bicycle Chains</g:google_product_category>
       <g:product_type>Vorgewachste Kette</g:product_type>
+      <g:shipping>
+        <g:country>DE</g:country>
+        <g:service>Großbrief</g:service>
+        <g:price>1.80 EUR</g:price>
+      </g:shipping>
     </item>
     <item>
       <g:id>chain-nx</g:id>
@@ -157,6 +215,11 @@
       <g:mpn>NX Eagle</g:mpn>
       <g:google_product_category>Sporting Goods &gt; Outdoor Recreation &gt; Cycling &gt; Bicycle Accessories &gt; Bicycle Parts &gt; Bicycle Drivetrain Parts &gt; Bicycle Chains</g:google_product_category>
       <g:product_type>Vorgewachste Kette</g:product_type>
+      <g:shipping>
+        <g:country>DE</g:country>
+        <g:service>Großbrief</g:service>
+        <g:price>1.80 EUR</g:price>
+      </g:shipping>
     </item>
     <item>
       <g:id>chain-ybn12</g:id>
@@ -171,6 +234,11 @@
       <g:mpn>S12S</g:mpn>
       <g:google_product_category>Sporting Goods &gt; Outdoor Recreation &gt; Cycling &gt; Bicycle Accessories &gt; Bicycle Parts &gt; Bicycle Drivetrain Parts &gt; Bicycle Chains</g:google_product_category>
       <g:product_type>Vorgewachste Kette</g:product_type>
+      <g:shipping>
+        <g:country>DE</g:country>
+        <g:service>Großbrief</g:service>
+        <g:price>1.80 EUR</g:price>
+      </g:shipping>
     </item>
   </channel>
 </rss>

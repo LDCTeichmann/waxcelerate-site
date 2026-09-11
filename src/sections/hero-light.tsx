@@ -341,7 +341,7 @@ export function Hero() {
 
   const stats = [
     { v: `${waxVsOil.life.waxLo}–${waxVsOil.life.wax}×`, l: de ? 'Kettenlaufzeit'    : 'chain life' },
-    { v: '~€70',  l: de ? 'gespart · 12.000 km' : 'saved · 12,000 km' },
+    { v: `~€${waxVsOil.cost.savedEur}`, l: de ? 'gespart · 12.000 km' : 'saved · 12,000 km' },
     { v: '1 Tag', l: de ? 'Versand nach Bestellung' : 'ships after order' },
   ];
 
@@ -861,7 +861,7 @@ export function Hero() {
                   </span>
                   <span className="text-[11px] uppercase tabular-nums"
                     style={{ letterSpacing: '0.08em', color: 'rgba(255,255,255,0.68)' }}>
-                    200+ · {de ? '100 % positiv' : '100% positive'}
+                    {trustStats.reviews} · {de ? '100 % positiv' : '100% positive'}
                     <span> · {de ? 'eBay-Käuferschutz' : 'eBay buyer protection'}</span>
                   </span>
                 </div>

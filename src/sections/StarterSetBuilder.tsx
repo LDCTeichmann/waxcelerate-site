@@ -19,7 +19,7 @@ import { useMemo, useState } from 'react';
 import { Check, ArrowRight, ExternalLink } from 'lucide-react';
 import { products, accessories, starterSet, starterSetPrice, canCheckout } from '@/lib/data';
 import type { Product } from '@/lib/data';
-import { trackEbayClick } from '@/lib/analytics';
+import { trackStarterInterest } from '@/lib/analytics';
 import { AddToCartButton } from '@/components/AddToCartButton';
 
 const fmt = (n: number, de: boolean) =>
@@ -213,7 +213,7 @@ export function StarterSetBuilder({ de }: { de: boolean }) {
                 : `Hi Luca, I would like to order this set: ${wax?.titleEn ?? ''} + ${chain?.titleEn ?? ''}.`,
             )}`}
             target="_blank" rel="noopener noreferrer"
-            onClick={() => { if (wax) trackEbayClick(wax.id); }}
+            onClick={() => trackStarterInterest(wax?.id ?? 'custom')}
             className="inline-flex w-full items-center justify-center gap-2 mt-6 rounded-full px-6 py-3 text-[14px] font-semibold transition-opacity hover:opacity-90"
             style={{ background: 'var(--accent)', color: '#fff' }}>
             {de ? 'Set anfragen' : 'Request the set'}

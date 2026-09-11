@@ -1,6 +1,6 @@
 import { ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
-import { waxVsOil } from '@/lib/data';
+import { waxVsOil, trustStats } from '@/lib/data';
 
 // The page used to end at the Kontakt form — the reader who made it that far
 // is the most informed person on the site, and got a contact form instead of
@@ -25,7 +25,7 @@ export function ClosingCTA() {
                 : `${waxVsOil.life.waxLo} to ${waxVsOil.life.wax}× chain life · ~€${waxVsOil.cost.savedEur} saved over ${waxVsOil.cost.km.toLocaleString('en-US')} km`}
             </p>
             <p className="text-[13px]" style={{ color: 'var(--txm)' }}>
-              {de ? '200+ Bewertungen · Versand aus Stuttgart · eBay-Käuferschutz' : '200+ reviews · Ships from Stuttgart · eBay buyer protection'}
+              {de ? `${trustStats.reviews} Bewertungen · Versand aus Stuttgart · eBay-Käuferschutz` : `${trustStats.reviews} reviews · Ships from Stuttgart · eBay buyer protection`}
             </p>
           </div>
           <button

@@ -19,31 +19,7 @@
 import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
-
-/** Stichworte, an denen eine Frage als produktrelevant erkannt wird.
- *  Reihenfolge = Anzeigereihenfolge. */
-const WAX_TOPICS = [
-  'Classic und Pro', 'Classic or Pro',
-  'Ausrüstung', 'equipment',
-  'entfetten', 'degrease',
-  'Anwendungen hält ein 500g', 'applications does a 500g',
-  'breche ich die Kette', 'break the chain in',
-  'Nachwachsen immer alles', 'always remove all',
-  'nicht so lange', 'not last as long',
-  'PTFE',
-  'E-Bike',
-  'Kassette und Kettenblätter', 'cassette and chainrings',
-  'Wachstopf', 'wax pot',
-];
-
-const CHAIN_TOPICS = [
-  'vorgewachsten Kette', 'pre-waxed chain',
-  'komplett ersetzen', 'replace the chain',
-  'Quick-Links', 'quick links',
-  'Ultraschallbad', 'ultrasonic',
-  'Regen', 'rain',
-  'Ketten-Rotation', 'chain rotation',
-];
+import { WAX_TOPICS, CHAIN_TOPICS } from '@/pages/product/faqTopics';
 
 function FaqRow({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);

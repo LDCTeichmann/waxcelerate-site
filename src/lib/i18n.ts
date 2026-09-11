@@ -96,7 +96,7 @@ export const translations = {
       // Eine knappe Outcome-Zeile im Mobile-Hero unter der Headline.
       valueLine: 'Dreimal längere Kettenlaufzeit — ohne Nachschmieren.',
       tagline: 'Heißwachs statt Kettenöl. Sauberer, länger, günstiger, ohne Kompromiss.',
-      priceAnchor: 'Ab €22,95 · ~€70 gespart auf 12.000 km',
+      priceAnchor: 'Ab €22,95 · ~€47 gespart auf 12.000 km',
       guarantee: 'Nicht zufrieden? Schreib mir — ich sorge dafür, dass es stimmt.',
       ctaBuy: 'Jetzt bestellen',
       ctaSecondary: 'Wie funktioniert Heißwachs? →',
@@ -117,6 +117,17 @@ export const translations = {
       },
       buyOnEbay: 'Bei eBay kaufen',
       multiDiscount: 'Wachs-Staffel: 2 Stk. 5 % · 3 Stk. 10 % · ab 5 Stk. 15 %',
+      // Etappe 5 (11.09.2026): die Groessenempfehlung am Groessenschalter
+      // wurde vorher NUR gerendert, wenn sie NICHT zum aktuellen Produkt
+      // passte -- verschwand also beim Wechsel auf die passende Groesse
+      // komplett und verschob das Layout. Jetzt immer sichtbar, im
+      // passenden Fall mit dieser bestaetigenden Zeile.
+      sizeAdviceMatches: 'Passt zu einem durchschnittlichen Fahrprofil.',
+      // Die konkrete 2er-Rechnung unter dem CTA (Etappe 5, 11.09.2026):
+      // ein einzelner Block erreicht die 50-€-Versandschwelle nie, die
+      // Staffel (multiDiscount oben) tut es je nach Produkt ab 2 oder 3
+      // Stueck. bundleOffer() in data.ts rechnet Menge/Rabatt/Summe aus.
+      bundleOffer: '{qty} × {weight} = {total} ({pct} %) — und damit versandkostenfrei.',
       // ── Pflichtangaben am Preis (PAngV) ──────────────────────────────────
       // Bis 09/2026 stand auf der Produktseite WEDER etwas zur Umsatzsteuer
       // NOCH zu den Versandkosten. Beides verlangt die Preisangabenverordnung
@@ -303,6 +314,17 @@ export const translations = {
         allTools: 'Alle Rechner ansehen →',
         assumptions: 'Womit gerechnet wird',
         assumptionsNote: 'Marktübliche Annahmen, keine Messwerte von uns. Wer andere Preise zahlt, rechnet anders.',
+        // Etappe 5 (11.09.2026): das Instrument "Was das fuer dich heisst"
+        // zeigt jetzt die Ersparnis statt der Kosten pro Monat.
+        savedOver3y: 'Sparst du in 3 Jahren',
+        savedPerYearNote: 'entspricht {eur} €/Jahr · {pct} % weniger als mit Kettenöl',
+        blockPerMonth: 'Der Block kostet dich dabei {eur} € im Monat.',
+        breakdownTitle: 'Woher die Ersparnis kommt',
+        breakdownChain: 'Kette',
+        breakdownCassette: 'Kassette',
+        breakdownLube: 'Schmierstoff',
+        breakdownOil: 'mit Öl',
+        breakdownWax: 'mit Wachs',
         addGoogle: 'In Google Kalender',
         addIcs: 'Als .ics laden (Apple)',
         addOutlook: 'In Outlook',
@@ -691,7 +713,7 @@ export const translations = {
       categoryLine: 'Hot wax for bicycle chains',
       valueLine: 'Three times the chain life — with no re-lubing.',
       tagline: 'Hot wax over chain oil. Cleaner, longer-lasting, more affordable, with no compromise.',
-      priceAnchor: 'From €22.95 · ~€70 saved over 12,000 km',
+      priceAnchor: 'From €22.95 · ~€47 saved over 12,000 km',
       guarantee: "Not happy? Write me — I'll make it right.",
       ctaBuy: 'Buy now',
       ctaSecondary: 'How does hot wax work? →',
@@ -709,6 +731,8 @@ export const translations = {
       },
       buyOnEbay: 'Buy on eBay',
       multiDiscount: 'Wax tiers: 2 pcs. 5% · 3 pcs. 10% · from 5 pcs. 15%',
+      sizeAdviceMatches: 'Fits an average riding profile.',
+      bundleOffer: '{qty} × {weight} = {total} ({pct}%) — and shipping is free.',
       // Siehe die deutsche Fassung: Rechtstext, nur zusammen mit ihr aendern.
       priceNoteTax: 'Small business under §19 UStG, no VAT shown.',
       priceNoteShippingPre: 'plus',
@@ -837,6 +861,15 @@ export const translations = {
         allTools: 'See all calculators →',
         assumptions: 'What we calculate with',
         assumptionsNote: 'Typical market assumptions, not our own measurements. Different prices, different result.',
+        savedOver3y: 'Saved over 3 years',
+        savedPerYearNote: 'that is {eur} €/yr · {pct}% less than chain oil',
+        blockPerMonth: 'The block costs you {eur} € a month.',
+        breakdownTitle: 'Where the saving comes from',
+        breakdownChain: 'Chain',
+        breakdownCassette: 'Cassette',
+        breakdownLube: 'Lubricant',
+        breakdownOil: 'with oil',
+        breakdownWax: 'with wax',
         addGoogle: 'Add to Google Calendar',
         addIcs: 'Download .ics (Apple)',
         addOutlook: 'Add to Outlook',

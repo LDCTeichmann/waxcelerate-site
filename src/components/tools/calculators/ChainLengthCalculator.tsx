@@ -154,6 +154,7 @@ export function ChainLengthCalculator({ profile, compact }: { profile: ToolProfi
       </StepList>
 
       <ResultPanel
+        toolSlug={compact ? undefined : 'kettenlaenge'}
         compact={compact}
         value={fitting ?? links ?? '—'}
         unit={fitting ? t.tools.length.buyLinks : t.tools.length.links}

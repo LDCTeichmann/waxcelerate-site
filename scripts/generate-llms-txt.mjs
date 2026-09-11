@@ -11,7 +11,10 @@
 import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
-import { products, trustStats, waxIntervals } from '../src/lib/data.ts';
+import {
+  products, trustStats, waxIntervals, starterSet, starterSetOptions, accessories, waxVsOil, frictionRanges,
+} from '../src/lib/data.ts';
+import { COMPONENTS } from '../src/lib/science.ts';
 import { articles, categoryOrder } from '../src/pages/blog/articles.ts';
 import { TOOLS, TOOLS_HUB } from '../src/lib/toolRegistry.ts';
 import { translations } from '../src/lib/i18n.ts';
@@ -41,11 +44,13 @@ Empfohlenes Nachwachsen nach den Werten von Zero Friction Cycling: trockene Stra
 
 - [Startseite](${BASE}/): Produkte, Vergleich, Anleitungen, FAQ
 - [Über Waxcelerate](${BASE}/ueber-uns): Gründer, Herkunft, Fakten
+- [Wissenschaft](${BASE}/wissenschaft): Kontaktzonen, Reibung, MoS₂ und die sechs Komponenten der Formel, mit Messwerten
 - [Anleitung](${BASE}/anleitung): Kette wachsen, Re-Waxen, 3-Ketten-Rotation — Schritt für Schritt
 - [Häufige Fragen](${BASE}/faq): ${DE.faq.items.length} Fragen und Antworten
 - [Kontakt](${BASE}/kontakt): E-Mail, WhatsApp, Antwortzeiten
 - [Blog-Übersicht](${BASE}/blog): ${articles.length} Ratgeber und Anleitungen
 - [Rechner](${BASE}/rechner): ${TOOLS.length} kostenlose Rechner rund um Kette und Kettenpflege
+- [Starter-Set](${BASE}/starter-set): Wachs, Quick-Link-Zange und Aufhängedraht in einem Set, ${starterSet.discountPct}% unter der Summe der Einzelteile
 
 ## Rechner — kostenlos, ohne Anmeldung
 
@@ -130,10 +135,15 @@ const llmsFullTxt = `# Waxcelerate — Vollständige Produktinformationen und Ra
 
 Heißwachs (englisch: hot wax) ist eine Methode zur Fahrradkettenpflege, bei der Paraffinwachs auf 85–90 °C erhitzt und die Kette darin eingetaucht wird. Im Gegensatz zu Kettenöl trocknet Wachs vollständig aus und bildet einen trockenen Schmierfilm innerhalb der Kettenglieder. Schmutz und Sand haften nicht an einer trockenen Kette — der Hauptvorteil gegenüber allen Ölschmierungen.
 
-**Messbarer Unterschied:**
-- Heißwachs Reibungskoeffizient: 0,03–0,06
+**Messbarer Unterschied** (Grenzreibungskoeffizient μ, Quelle: unabhängige Labortests von Zero Friction Cycling):
+${(() => {
+  const mu = n => n.toFixed(2).replace('.', ',');
+  const r = id => frictionRanges.find(x => x.id === id);
+  return `- Waxcelerate Pro (MoS₂): ${mu(r('pro').muLo)}–${mu(r('pro').muHi)}
+- Waxcelerate Classic: ${mu(r('classic').muLo)}–${mu(r('classic').muHi)}
 - Flüssigwachs (z.B. Squirt, Silca Drip): 0,09–0,12
-- Kettenöl (nass): 0,15–0,25
+- Kettenöl (nass): ${mu(r('oil').muLo)}–${mu(r('oil').muHi)}`;
+})()}
 
 ---
 
@@ -146,6 +156,40 @@ ${wax.map(waxBlock).join('\n\n')}
 Alle Ketten wurden vor dem Versand vollständig entfettet (Ultraschallbad) und mit dem Waxcelerate Pro MoS₂ Heißwachs behandelt. Kettenschloss / Quick-Link liegt bei. Sofort einsatzbereit.
 
 ${chains.map(chainBlock).join('\n\n')}
+
+---
+
+## Starter-Set
+
+URL: ${BASE}/starter-set
+
+Wachs, Quick-Link-Zange und Aufhängedraht in einem Set, vorgewachste Kette optional dazu. Der Set-Preis liegt ${starterSet.discountPct}% unter der Summe der Einzelteile. Zubehör auch einzeln erhältlich: ${accessories.map(a => `${a.title} (${a.price.toFixed(2).replace('.', ',')} €)`).join(', ')}.
+
+Feste Kombinationen:
+${starterSetOptions.map(o => `- ${o.taglineDe}`).join('\n')}
+
+---
+
+## Wissenschaft — Messwerte
+
+URL: ${BASE}/wissenschaft
+
+Kontaktzonen, Reibung, MoS₂ und die sechs Komponenten der Formel — gemessen statt behauptet, entwickelt und produziert in Stuttgart. Reibungs- und Wattwerte stammen aus unabhängigen Labortests von Zero Friction Cycling, nicht aus eigenen Messungen von Waxcelerate; Laborbedingungen bilden die Straße nicht eins zu eins ab, die Größenordnung der Unterschiede bleibt davon unberührt.
+
+${(() => {
+  const mu = n => n.toFixed(2).replace('.', ',');
+  const r = id => frictionRanges.find(x => x.id === id);
+  return `**Reibung (Grenzreibungskoeffizient μ):** Waxcelerate Pro ${mu(r('pro').muLo)}–${mu(r('pro').muHi)}, Classic ${mu(r('classic').muLo)}–${mu(r('classic').muHi)}, Kettenöl ${mu(r('oil').muLo)}–${mu(r('oil').muHi)}.`;
+})()}
+
+**Antriebsverlust** bei ${waxVsOil.watts.inputW[0]}–${waxVsOil.watts.inputW[1]} W Tretleistung: Wachs ${waxVsOil.watts.wax[0]}–${waxVsOil.watts.wax[1]} W, Kettenöl ${waxVsOil.watts.oil[0]}–${waxVsOil.watts.oil[1]} W.
+
+**Kettenlaufzeit:** ${waxVsOil.life.waxLo} bis ${waxVsOil.life.wax}× länger als mit Kettenöl. **Kosten:** rund ${waxVsOil.cost.pctLess}% geringere Antriebskosten über ${waxVsOil.cost.km.toLocaleString('de-DE')} km (${waxVsOil.cost.oilEur} € Öl gegen ${waxVsOil.cost.waxEur} € Wachs, eine Kette, trockene Straße).
+
+**Temperaturfenster:** Classic +5 bis rund 35 °C (enthält PTFE), Pro (MoS₂) −8 bis über 45 °C (PFAS- und PTFE-frei).
+
+**Die sechs Komponenten der Formel:**
+${COMPONENTS.slice().sort((a, b) => a.node - b.node).map(c => `- ${c.nameDe}: ${c.sumDe}`).join('\n')}
 
 ---
 

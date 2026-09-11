@@ -20,11 +20,11 @@ export const shipping = {
 // 30_claims_language.md ist ein Formulierungsmuster, keine feste Zahl —
 // diese Datei führt den tatsächlichen aktuellen Stand.
 export const trustStats = {
-  reviews: '200+',
-  // Hub Notion „All Sales", 19.08.2026: GET /inventory → Summe units_sold.
-  // 416 erfüllte Stück. 3 stornierte und 2 offene nicht mitgezählt.
-  // Nicht die Bestellzahl (385) — die Trust-Zeile sagt „Einheiten".
-  sold: 416,
+  // Von Luca direkt bestaetigt (11.09.2026): 250+ Bewertungen, ueber 500
+  // verkauft, 100 % positiv, 5 Sterne. Loest die vorherige Notion-Momentaufnahme
+  // (200+ / 416, 19.08.2026) ab — die ist ueberholt.
+  reviews: '250+',
+  sold: 500,
   negative: 0,
 } as const;
 
@@ -539,6 +539,45 @@ export const canCheckout = (p: Pick<Product, 'stripePriceId'>): boolean =>
  */
 export const checkoutEnabled = products.some(canCheckout);
 
+// ── Mengenrabatt als konkrete Rechnung ──────────────────────────────────
+// Ein einzelner 500g-Block (29,95 EUR) erreicht die 50-EUR-Versandschwelle
+// nie. Die Wachs-Staffel (i18n.ts products.multiDiscount) stand bisher nur
+// als toter Text auf der Seite, ohne ausgerechnete Summe -- Etappe 5
+// (11.09.2026) rechnet sie aus und zeigt die kleinste Staffelstufe, die
+// tatsaechlich ueber die Schwelle kommt.
+const WAX_TIERS: Array<{ qty: number; pct: number }> = [
+  { qty: 5, pct: 15 }, { qty: 3, pct: 10 }, { qty: 2, pct: 5 },
+];
+
+export interface BundleOffer { qty: number; pct: number; total: number; full: number }
+
+/**
+ * Kleinste Menge dieses Produkts, die nach Staffelrabatt ueber die
+ * Versandkostenschwelle kommt. Bewusst NICHT scharfgeschaltet ausgegeben,
+ * bis Luca bestaetigt, dass eBay die Staffel tatsaechlich gewaehrt --
+ * siehe SHOW_BUNDLE_OFFER in ProductDetailPage.tsx.
+ * Gibt null zurueck, wenn keine Stufe bis 5 Stueck die Schwelle erreicht,
+ * oder das Produkt keine Wachs-Staffel traegt (nur category 'wax').
+ */
+export function bundleOffer(p: Pick<Product, 'price' | 'category'>): BundleOffer | null {
+  if (p.category !== 'wax') return null;
+  // In Cent statt Euro rechnen: 59.90 * 0.95 als Float ergibt 56.904999...
+  // statt 56.905, und rundet dadurch auf 56.90 statt auf die korrekten
+  // 56.91 -- klassischer Fliesskomma-Fehler. fullCents * (100 - pct) ist
+  // ein exaktes Integer-Produkt, nur die einzige abschliessende Division
+  // rundet noch, kein Fehler kann sich davor einschleichen.
+  const priceCents = Math.round(p.price * 100);
+  const tiers = [...WAX_TIERS].sort((a, b) => a.qty - b.qty);
+  for (const tier of tiers) {
+    const fullCents = priceCents * tier.qty;
+    const totalCents = Math.round(fullCents * (100 - tier.pct) / 100);
+    if (totalCents >= shipping.freeFromCents) {
+      return { qty: tier.qty, pct: tier.pct, total: totalCents / 100, full: fullCents / 100 };
+    }
+  }
+  return null;
+}
+
 // The class eskaliert nur nach oben: erst das dickste Produkt im Warenkorb,
 // dann das Gesamtgewicht. Ein Wachsblock ist auch bei 380 g ein Maxibrief,
 // weil er die 2-cm-Grenze des Großbriefs reißt. Two chains (~600g total)
@@ -825,7 +864,14 @@ export const waxVsOil = {
   // alone: the binding claim is "deutlich länger, oft 2 bis 3×". A bare "3×"
   // is the kind of rounding that costs more credibility than the number buys.
   life: { waxLo: 2, wax: 3, oil: 1 },
-  cost: { savedEur: 70, pctLess: 46, km: 12000, oilEur: 151, waxEur: 81 },
+  // Abgeleitet, nicht geschaetzt: entspricht drivetrainCosts({ kmPerYear: 12000,
+  // rewaxKm: 300, chains: 1 }) aus waxMath.ts -- trockene Strasse, eine Kette.
+  // Hier getippt, weil data.ts waxMath nicht importieren darf (Zirkelimport:
+  // waxMath importiert aus data). Aendern sich Kettenpreise, CASSETTE_PRICE
+  // oder WAX_CHAIN_KM, muss diese Zeile mit nachgezogen werden (Etappe 5,
+  // 11.09.2026 -- vorher stand hier ein widersprechendes 12.000-km-Modell
+  // mit 6.000-10.500 km Wachs-Kettenlaufzeit -> "~E70 gespart").
+  cost: { savedEur: 47, pctLess: 22, km: 12000, oilEur: 217, waxEur: 170 },
 } as const;
 
 // Friction comparison ranges (performance bars — higher bar = better, never invert).

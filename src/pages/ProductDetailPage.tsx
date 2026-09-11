@@ -1,11 +1,12 @@
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
   ArrowLeft, ArrowRight, ExternalLink, Check,
   ChevronRight, ChevronLeft, ChevronDown, Star, Lightbulb, Truck, RotateCcw, BadgeCheck,
 } from 'lucide-react';
-import { getProductById, products, canCheckout, checkoutEnabled, isSoldOut, schemaAvailability, shipping } from '@/lib/data';
+import { getProductById, products, canCheckout, checkoutEnabled, isSoldOut, schemaAvailability, shipping, bundleOffer, trustStats } from '@/lib/data';
+import { articles } from '@/pages/blog/articles';
 import type { Product } from '@/lib/data';
 import { useToolProfile } from '@/hooks/useToolProfile';
 import { SizingInstrument } from '@/pages/product/SizingInstrument';
@@ -15,9 +16,10 @@ import { ProductFaq } from '@/pages/product/ProductFaq';
 import { richContent } from '@/lib/productContent';
 import { useLanguage } from '@/hooks/useLanguage';
 import { AddToCartButton } from '@/components/AddToCartButton';
-import { trackEbayClick } from '@/lib/analytics';
+import { trackEbayClick, trackProductView, trackSizeSelect, trackFormulaCompare } from '@/lib/analytics';
 import { CartIcon } from '@/components/CartIcon';
 import { GpsrInfo } from '@/components/GpsrInfo';
+import { PriceNote } from '@/components/PriceNote';
 import { ImageLightbox } from '@/components/ImageLightbox';
 import { gsap } from '@/lib/gsap';
 import { Footer } from '@/sections/footer';
@@ -28,6 +30,13 @@ import { CompareModal } from '@/sections/products';
 import { CompareTable } from '@/components/CompareTable';
 
 const FADE_MS = 900;
+
+// Von Luca bestaetigt (11.09.2026): eBay gewaehrt Mengenrabatt auf mehrfach
+// verkaufte, gleiche Produkte -- die Wachs-Staffel (i18n.ts
+// products.multiDiscount) ist also real. Falls die tatsaechlich live
+// gewaehrten Prozentsaetze je von den hier hinterlegten (WAX_TIERS in
+// data.ts) abweichen sollten, reicht ein Wert hier statt Code auszubauen.
+const SHOW_BUNDLE_OFFER = true;
 
 const lg = (src: string) =>
   src.includes('/products/') && src.endsWith('.webp') && !src.endsWith('-lg.webp')
@@ -148,6 +157,7 @@ export function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { lang, t } = useLanguage();
   const navigate = useNavigate();
+  const location = useLocation();
   const product = id ? getProductById(id) : undefined;
   const de = lang === 'de';
 
@@ -193,21 +203,31 @@ export function ProductDetailPage() {
   // an activeImage index left over from a longer gallery can point past the
   // end of a shorter one, and no image matches `i === activeImage` until the
   // auto-advance interval eventually wraps it back into range.
+  //
+  // Der Scroll-Reset ueberspringt sich, wenn `keepScroll` im Navigations-
+  // State steht (Etappe 5, 11.09.2026): der Groessenschalter wechselt die
+  // Route zum Geschwisterprodukt, und wer dabei unten am Rechner steht, soll
+  // nicht wieder oben im Hero landen. Die Galerie wird trotzdem zurueckgesetzt
+  // — das ist ein neues Produkt mit eigenen Bildern.
   useEffect(() => {
     setActiveImage(0);
     setPrevImage(-1);
-    window.scrollTo(0, 0);
+    const st = location.state as { keepScroll?: boolean } | null;
+    if (!st?.keepScroll) window.scrollTo(0, 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  // Deep link from why-wax.tsx's Ersparnis-Karte (`/produkt/wax-500#kostenvergleich`):
-  // open the Kostenvergleich accordion and scroll to it once it has rendered.
-  // The timeout lets the scrollTo(0,0) above and the accordion's own layout
-  // settle first — scrolling immediately would race the top-scroll reset.
+  // Deep link from why-wax.tsx's Ersparnis-Karte (`/produkt/wax-500#instrument`):
+  // scroll to the SizingInstrument section once it has rendered. Vorher zeigte
+  // dieser Link auf das Kostenvergleich-Akkordeon und musste es erst per
+  // setOpenAccordion oeffnen — seit Etappe 5 (11.09.2026) steht die
+  // Kostenaufschluesselung im immer sichtbaren Instrument, kein Aufklappen mehr
+  // noetig. The timeout lets the scrollTo(0,0) above settle first — scrolling
+  // immediately would race the top-scroll reset.
   useEffect(() => {
-    if (window.location.hash !== '#kostenvergleich') return;
-    setOpenAccordion('kosten');
+    if (window.location.hash !== '#instrument') return;
     const t = setTimeout(() => {
-      document.getElementById('kostenvergleich')?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+      document.getElementById('instrument')?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
     }, 350);
     return () => clearTimeout(t);
   }, [id, reduce]);
@@ -330,6 +350,11 @@ export function ProductDetailPage() {
   // down (see removeStaticHeadMeta).
   useEffect(() => { removeStaticJsonLd(); removeStaticHeadMeta(); }, [id]);
 
+  // P1-4: Produktseitenansicht — Grundlage jeder Trichter-Rechnung ("wie
+  // viele Besucher sehen ein Produkt, bevor X passiert"). MUSS wie
+  // useToolProfile() oberhalb des `if (!product)`-Returns stehen.
+  useEffect(() => { if (product?.id) trackProductView(product.id); }, [product?.id]);
+
   // EIN Fahrprofil fuer die ganze Seite: es speist das Instrument weiter unten
   // UND die Groessenempfehlung am Groessenschalter im Kaufblock. Zwei
   // useToolProfile()-Aufrufe haetten zwei getrennte Zustaende, der
@@ -397,6 +422,24 @@ export function ProductDetailPage() {
     .filter(p => product.category === 'wax' ? (p.category === 'chain' && !p.variant) : p.category === 'wax')
     .slice(0, 3);
 
+  // P1-3: Blogartikel verlinkten bisher einseitig auf Produkte, nie zurueck —
+  // die Produktseite selbst hatte keinen einzigen Link auf einen Artikel oder
+  // auf /wissenschaft. ctaSlug ODER secondaryCtaSlug reicht als Treffer.
+  // Vier der acht Ketten-SKUs haben keinen direkten Treffer (nur 4 Artikel
+  // wurden gezielt mit einer zweiten, thematisch passenden Kette verknuepft,
+  // siehe secondaryCtaSlug in articles.ts) — fuer die anderen greift
+  // "vorgewachste-kette" als Fallback: der Artikel ist ein allgemeiner
+  // Kaufratgeber fuer vorgewachste Ketten, passt also zu jeder Ketten-SKU,
+  // nicht nur zu chain-hg701 (seinem eigentlichen ctaSlug).
+  const directArticles = articles
+    .filter(a => a.ctaSlug === product.id || a.secondaryCtaSlug === product.id);
+  const relatedArticles = (directArticles.length > 0
+    ? directArticles
+    : product.category === 'chain'
+      ? articles.filter(a => a.slug === 'vorgewachste-kette')
+      : []
+  ).slice(0, 2);
+
   // Groessengeschwister derselben Formel — ersetzt den frueheren
   // "Auch erhaeltlich"-Karussellstreifen, der Groessenvarianten als anonyme
   // Fremdprodukte neben Ketten-Cross-Sells zeigte (Baymard: Varianten gehoeren
@@ -409,6 +452,8 @@ export function ProductDetailPage() {
   const pricePerApp = product.applications
     ? product.price / parseFloat(product.applications.split('–')[1] ?? product.applications)
     : null;
+
+  const offer = SHOW_BUNDLE_OFFER ? bundleOffer(product) : null;
 
   // Same figures the homepage product cards already show (getEstimatedDelivery,
   // price-per-100g) — missing here, this was the one page where a buyer
@@ -522,7 +567,6 @@ export function ProductDetailPage() {
 
   const hasFormula = !!(isWax && rc?.formulaDetails);
   const hasVergleich = !!(rc?.compHeaders && rc?.compRows);
-  const hasKosten = !!(rc?.oilItems && rc?.waxItems);
   const toggleAccordion = (key: string) => setOpenAccordion(prev => prev === key ? null : key);
 
   // Manual offset scroll instead of scrollIntoView({block:'start'}) for two
@@ -795,13 +839,59 @@ export function ProductDetailPage() {
               <h1 className="font-display text-[26px] sm:text-[30px] lg:text-[32px] font-bold leading-[1.08] tracking-[-0.025em] mb-2"
                 style={{ color: 'var(--tx1)' }}>{titleText}</h1>
 
+              {/* Bewertung above the fold statt erst auf ~2/3 Seitenhoehe
+                  (Baymard: die Bewertung gehoert in den Kaufbereich). Zahl
+                  aus trustStats -- die eine, von Luca direkt bestaetigte
+                  Quelle (11.09.2026). Die Trust-Sektion weiter unten zeigte
+                  bis zu diesem Fix eine zweite, unbelegte Zahl (rc.reviewCount,
+                  145/150 identisch fuer alle Wachs- bzw. alle Ketten-SKUs) --
+                  jetzt dieselbe trustStats-Quelle an beiden Stellen. */}
+              <a href="#bewertungen" className="inline-flex items-center gap-1.5 mb-3 hover:opacity-70 transition-opacity">
+                <span className="flex items-center gap-0.5">
+                  {[0, 1, 2, 3, 4].map(i => <Star key={i} className="h-3.5 w-3.5 fill-current" style={{ color: '#F5A623' }} />)}
+                </span>
+                <span className="text-meta font-medium" style={{ color: 'var(--txf)' }}>
+                  {trustStats.reviews} {de ? 'Bewertungen' : 'reviews'}
+                </span>
+              </a>
+
               {isWax && (
                 <p className="text-small font-semibold mb-3" style={{ color: accentColor }}>
                   {de ? 'Für ' : 'For '}{isClassic ? t.products.shelf.classicFor : t.products.shelf.proFor}
                 </p>
               )}
 
-              <p className="text-[13.5px] leading-[1.55] mb-4" style={{ color: 'var(--txm)' }}>{descriptionText}</p>
+              {/* Zwei Werte, nicht einer: unterhalb von lg ist die Spalte
+                  einspaltig und volle Viewport-Breite (kein fester
+                  Spalten-Cap), oberhalb hat sie ihre maximale Breite 400px
+                  erreicht (im Browser-Pane bei 1024px UND 1400px Viewport
+                  identisch 400px breit gemessen -- der min-max-Rahmen
+                  greift praktisch sofort). Bei 400px braucht die laengste
+                  der vier Wachs-Beschreibungen (wax-500 Classic, wax-500-
+                  mos2, wax-300-mos2) drei Zeilen (~63px), wax-300 Classic
+                  zwei. Bei 375px (Mobil-Preset) braucht dieselbe wax-500-
+                  Beschreibung aber VIER Zeilen (~84px, sauber ohne den
+                  Klassen-Wert nachgemessen) -- derselbe 63px-Wert, der bei
+                  400px reicht, reichte bei 375px nicht und liess beim
+                  Groessenwechsel auf Mobil trotzdem alles darunter um bis
+                  zu ~74px springen. Ohne diese Mindesthoehe sprang beim
+                  Groessenwechsel Classic 300<->500 alles darunter (Preis,
+                  CTA, Versandzeile) je nach Breite um 21-74px nach oben/
+                  unten -- Etappe 5, 11.09.2026. */}
+              <p className="text-[13.5px] leading-[1.55] mb-4 min-h-[84px] lg:min-h-[63px]" style={{ color: 'var(--txm)' }}>{descriptionText}</p>
+
+              {/* "Passt meine Kette?" ist eine Kaufhuerde, keine Folgefrage
+                  -- stand bisher erst weiter unten in der ausfuehrlichen
+                  Kompatibilitaets-Matrix (Trust-Sektion). Kurzform hier:
+                  Geschwindigkeit aus product.compatibility, Marken aus
+                  rc.compatTags[0] (Etappe 5, 11.09.2026). Nur bei Wachs --
+                  bei Ketten ueberschneidet sich das mit dem dortigen
+                  compatibility-String (Modellnamen), waere dort redundant. */}
+              {isWax && product.compatibility && rc?.compatTags?.[0] && (
+                <p className="text-meta mb-4" style={{ color: 'var(--txff)' }}>
+                  {[product.compatibility, ...rc.compatTags[0]].join(' · ')}
+                </p>
+              )}
 
               {/* Groessenschalter — wechselt die Route, nicht nur den Zustand:
                   300 g und 500 g sind eigene Produkte mit eigenen Adressen. */}
@@ -812,7 +902,7 @@ export function ProductDetailPage() {
                       const active = product.weight === `${v}g`;
                       return (
                         <button key={v} type="button"
-                          onClick={() => { if (!active) navigate(`/produkt/${waxSizeSibling.id}`); }}
+                          onClick={() => { if (!active) { trackSizeSelect(waxSizeSibling.id, `${v}g`); navigate(`/produkt/${waxSizeSibling.id}`, { state: { keepScroll: true } }); } }}
                           aria-pressed={active}
                           className="num-data inline-flex items-center justify-center min-h-11 min-w-11 px-4 rounded-md text-[12.5px] leading-none transition-all"
                           style={{ background: active ? 'var(--sf)' : 'transparent', color: active ? 'var(--tx1)' : 'var(--txm)' }}>
@@ -832,26 +922,44 @@ export function ProductDetailPage() {
               {/* Groessenempfehlung am Entscheidungspunkt. Dieselbe Rechnung wie
                   im Instrument weiter unten (sizeAdviceFor), damit beide nicht
                   auseinanderlaufen koennen. Eine Zeile, ruhig gehalten: der
-                  Kaufblock soll nicht wieder zur Wand werden. */}
-              {isWax && sizeAdvice.recommended && !sizeAdvice.matchesCurrent && (
-                <p className="text-meta -mt-2 mb-4" style={{ color: 'var(--txm)' }}>
-                  {de
-                    ? `Bei einem durchschnittlichen Fahrprofil passt `
-                    : `At an average riding profile the `}
-                  <Link to={`/produkt/${sizeAdvice.recommended.id}`}
-                    className="font-semibold hover:opacity-70 transition-opacity"
-                    style={{ color: accentColor }}>
-                    {sizeAdvice.recommended.weight}
-                  </Link>
-                  {de ? ' besser. ' : ' fits better. '}
-                  <a href="#instrument" className="underline underline-offset-2 hover:no-underline">
-                    {de ? 'Für dein Profil rechnen' : 'Calculate for your profile'}
-                  </a>
-                </p>
+                  Kaufblock soll nicht wieder zur Wand werden.
+                  Etappe 5 (11.09.2026), zwei Layout-Fixes:
+                  1) Frueher wurde diese Zeile NUR bei !matchesCurrent
+                     gerendert -- beim Standardprofil stand sie also auf der
+                     300g-Seite, fehlte aber auf der 500g-Seite komplett, ein
+                     ~40px-Sprung genau am Groessenschalter. Jetzt immer
+                     sichtbar: bestaetigt sie im Treffer-Fall die Wahl, statt
+                     zu verschwinden.
+                  2) Die bestaetigende Fassung ist eine Zeile (~25px), die
+                     wechselnde Fassung mit Link zwei (~35px, im Browser-Pane
+                     gemessen) -- min-h-[35px] haelt beide gleich hoch, sonst
+                     verschob genau dieser Zeilenumbruch alles darunter
+                     (Preis, CTA) beim Hin- und Herwechseln um ~10px. */}
+              {isWax && sizeAdvice.recommended && (
+                sizeAdvice.matchesCurrent ? (
+                  <p className="text-meta -mt-2 mb-4 min-h-[35px]" style={{ color: 'var(--txm)' }}>
+                    {t.products.sizeAdviceMatches}
+                  </p>
+                ) : (
+                  <p className="text-meta -mt-2 mb-4 min-h-[35px]" style={{ color: 'var(--txm)' }}>
+                    {de
+                      ? `Bei einem durchschnittlichen Fahrprofil passt `
+                      : `At an average riding profile the `}
+                    <Link to={`/produkt/${sizeAdvice.recommended.id}`}
+                      className="font-semibold hover:opacity-70 transition-opacity"
+                      style={{ color: accentColor }}>
+                      {sizeAdvice.recommended.weight}
+                    </Link>
+                    {de ? ' besser. ' : ' fits better. '}
+                    <a href="#instrument" className="underline underline-offset-2 hover:no-underline">
+                      {de ? 'Für dein Profil rechnen' : 'Calculate for your profile'}
+                    </a>
+                  </p>
+                )
               )}
 
               {isClassic && (
-                <button type="button" onClick={() => setCompareOpen(true)}
+                <button type="button" onClick={() => { trackFormulaCompare(product.id); setCompareOpen(true); }}
                   className="inline-flex items-center gap-1.5 text-[12.5px] font-medium mb-4 hover:opacity-70 transition-opacity"
                   style={{ color: accentColor }}>
                   {de ? 'Regen & Winter? Pro MoS₂ vergleichen' : 'Rain & winter? Compare Pro MoS₂'}
@@ -890,6 +998,23 @@ export function ProductDetailPage() {
                     </a>
                   )}
                 </div>
+
+                {/* Konkrete 2er/3er-Rechnung statt der reinen Prozentangabe
+                    unten in den Kennzahlen (die faellt dafuer dort weg,
+                    Etappe 5 4.2) -- ein einzelner Block erreicht die
+                    50-€-Schwelle nie, das loest gleich zwei Kauf-Trigger auf
+                    einmal (Rabatt + Gratisversand). Direkt unter dem CTA,
+                    denn das ist der Moment, in dem "noch einen dazu?" den
+                    Warenkorb veraendert. */}
+                {offer && (
+                  <p className="text-meta mb-3" style={{ color: accentColor }}>
+                    {t.products.bundleOffer
+                      .replace('{qty}', String(offer.qty))
+                      .replace('{weight}', product.weight?.replace('g', ' g') ?? '')
+                      .replace('{total}', formatPrice(offer.total))
+                      .replace('{pct}', String(offer.pct))}
+                  </p>
+                )}
 
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-1.5 text-meta" style={{ color: 'var(--txff)' }}>
@@ -951,19 +1076,12 @@ export function ProductDetailPage() {
                 ))}
               </dl>
 
-              {/* Was das Produkt auszeichnet — vorher im Hero-Faktenpanel als
-                  gefuellte Flaeche, die dort mit dem Kaufblock um
-                  Aufmerksamkeit konkurrierte. */}
-              {isWax && (
-                <p className="text-meta leading-[1.55] mt-6 pt-4 max-w-2xl"
-                  style={{ color: 'var(--txff)', borderTop: '1px solid var(--bd)' }}>
-                  {t.products.multiDiscount}
-                  {'. '}
-                  {de
-                    ? `Ab ${(shipping.freeFromCents / 100).toFixed(0)} € entfällt außerdem der Versand.`
-                    : `From €${(shipping.freeFromCents / 100).toFixed(0)} shipping is free as well.`}
-                </p>
-              )}
+              {/* Die Wachs-Staffel-Notiz (multiDiscount) stand hier bisher als
+                  reiner Text ohne ausgerechnete Summe -- Etappe 5
+                  (11.09.2026): dieselbe Aussage steht jetzt als konkrete
+                  Rechnung direkt unter dem CTA (offer/bundleOffer weiter
+                  oben), wo sie eine Kaufentscheidung tatsaechlich stuetzt.
+                  Eine Aussage, eine Stelle. */}
 
               {/* Einsatzfaelle. bestFor ist auf allen vier Wachsprodukten
                   gepflegt und wurde bis 09/2026 nirgends gerendert. */}
@@ -1074,7 +1192,7 @@ export function ProductDetailPage() {
                 </div>
               )}
 
-              {rc && (isWax ? (hasFormula || hasVergleich || hasKosten) : true) && (
+              {rc && (isWax ? (hasFormula || hasVergleich) : true) && (
                 <div className="min-w-0">
                   <h2 className="text-small font-semibold uppercase tracking-[0.14em] mb-3"
                     style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
@@ -1112,58 +1230,6 @@ export function ProductDetailPage() {
                         subtitle={rc.compHeaders.join(' vs. ')}
                         open={openAccordion === 'vergleich'} onToggle={() => toggleAccordion('vergleich')}>
                         <CompareTable headers={rc.compHeaders} rows={rc.compRows} accentColor={cardAccent} de={de} />
-                      </AccordionItem>
-                    )}
-                    {hasKosten && rc.oilItems && rc.waxItems && (
-                      <AccordionItem id="kostenvergleich" title={de ? 'Kostenvergleich' : 'Cost comparison'}
-                        subtitle={rc.savings ? `${de ? 'Ersparnis' : 'Savings'}: ${rc.savings}` : ''}
-                        open={openAccordion === 'kosten'} onToggle={() => toggleAccordion('kosten')}>
-                        <div className="space-y-3">
-                          {rc.costExample && <p className="text-[12px] leading-relaxed mb-2" style={{ color: 'var(--txm)' }}>{rc.costExample}</p>}
-                          {rc.costNote && (
-                            <p className="text-meta leading-[1.5] mb-3 pb-3" style={{ color: 'var(--txff)', borderBottom: '1px solid var(--bd)' }}>
-                              {rc.costNote}
-                            </p>
-                          )}
-                          <div className="grid grid-cols-2 gap-2.5">
-                            <div className="rounded-lg p-3" style={{ background: 'var(--sf2)', border: '1px solid var(--bd)' }}>
-                              <p className="text-meta font-semibold uppercase tracking-[0.14em] mb-2" style={{ color: 'var(--txff)' }}>
-                                {rc.oilCount ? `${rc.oilCount} ${rc.oilLabel}` : de ? 'Kettenöl' : 'Chain oil'}
-                              </p>
-                              {rc.oilItems.map((item, i) => (
-                                <div key={i} className="flex justify-between text-meta py-1" style={{ borderBottom: '1px solid var(--bd)' }}>
-                                  <span style={{ color: 'var(--txm)' }}>{item.label}</span>
-                                  <span className="font-mono text-meta" style={{ color: 'var(--tx2)' }}>{item.cost}</span>
-                                </div>
-                              ))}
-                              <div className="flex justify-between items-baseline pt-2 mt-1">
-                                <span className="text-meta font-semibold uppercase" style={{ color: 'var(--txff)' }}>{de ? 'Gesamt' : 'Total'}</span>
-                                <span className="num text-[16px] font-bold" style={{ color: 'var(--txm)' }}>{rc.oilTotal}</span>
-                              </div>
-                            </div>
-                            <div className="rounded-lg p-3" style={{ background: accentBg, border: `1px solid ${cardAccent}18` }}>
-                              <p className="text-meta font-semibold uppercase tracking-[0.14em] mb-2" style={{ color: cardAccent }}>
-                                {rc.waxCount ? `${rc.waxCount} ${rc.waxLabel}` : 'Waxcelerate'}
-                              </p>
-                              {rc.waxItems.map((item, i) => (
-                                <div key={i} className="flex justify-between text-meta py-1" style={{ borderBottom: `1px solid ${cardAccent}12` }}>
-                                  <span style={{ color: 'var(--txm)' }}>{item.label}</span>
-                                  <span className="font-mono text-meta" style={{ color: 'var(--tx2)' }}>{item.cost}</span>
-                                </div>
-                              ))}
-                              <div className="flex justify-between items-baseline pt-2 mt-1">
-                                <span className="text-meta font-semibold uppercase" style={{ color: cardAccent }}>{de ? 'Gesamt' : 'Total'}</span>
-                                <span className="num text-[16px] font-bold" style={{ color: 'var(--tx1)' }}>{rc.waxTotal}</span>
-                              </div>
-                            </div>
-                          </div>
-                          {rc.savings && (
-                            <div className="rounded-lg p-3 flex items-center justify-between gap-3" style={{ background: accentBg }}>
-                              <p className="text-meta" style={{ color: 'var(--txm)' }}>{de ? 'Ersparnis ~12.000 km' : 'Savings ~12,000 km'}</p>
-                              <span className="num text-[20px] font-bold flex-shrink-0" style={{ color: accentColor }}>{rc.savings}</span>
-                            </div>
-                          )}
-                        </div>
                       </AccordionItem>
                     )}
                     {rc && isChain && (
@@ -1231,29 +1297,42 @@ export function ProductDetailPage() {
 
         {/* ── Trust ── */}
         {rc && (
-          <section style={{ background: 'var(--sf2)' }}>
+          <section id="bewertungen" style={{ background: 'var(--sf2)' }}>
             <div className="max-w-6xl mx-auto px-5 sm:px-8 py-14 sm:py-20">
               <div className="grid lg:grid-cols-2 gap-10 lg:gap-16">
-                {rc.reviewCount > 0 && (
-                  <div>
-                    <div className="flex items-center gap-0.5 mb-1.5">
-                      {[0, 1, 2, 3, 4].map(i => <Star key={i} className="h-4 w-4 fill-current" style={{ color: '#F5A623' }} />)}
-                    </div>
-                    <p className="font-display text-[28px] font-bold leading-none tracking-[-0.02em] mb-1" style={{ color: 'var(--tx1)' }}>{rc.reviewCount}+</p>
-                    <p className="text-[13px] mb-0.5" style={{ color: 'var(--txm)' }}>{de ? 'verifizierte Bewertungen' : 'verified reviews'}</p>
-                    {rc.reviewCats && <p className="text-meta mb-3" style={{ color: 'var(--txff)' }}>{rc.reviewCats}</p>}
-                    {/* Kein trackEbayClick hier: das ist ein Link zur eBay-
-                        Feedback-Seite, kein Kauf-CTA. analytics.ts definiert
-                        click_ebay ausdruecklich als "Kauf-CTA, nicht der
-                        allgemeine Shop-Link" — dieses Event sonst mit
-                        Nicht-Kaufklicks zu verwaessern, verzerrt genau die
-                        Kennzahl, die ueber nativen Checkout vs. eBay
-                        entscheiden soll. */}
-                    <a href={product.ebayUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[12px] font-medium hover:underline" style={{ color: accentColor }}>
-                      {de ? 'Alle Bewertungen ansehen' : 'See all reviews'} <ExternalLink className="h-3 w-3" />
-                    </a>
+                <div>
+                  {/* Eine Quelle statt drei: bis 09/2026 zeigte dieser Block
+                      rc.reviewCount (145 fuer alle vier Wachs-SKUs, 150 fuer
+                      alle acht Ketten-SKUs identisch — nicht aus eBay
+                      hergeleitet, reine Platzhalterzahl), waehrend der
+                      Kaufblock oben bereits trustStats.reviews zeigte. Zwei
+                      unterschiedliche Zahlen auf derselben Seite fuer
+                      dieselbe Aussage ist die Fehlerklasse, die schon einmal
+                      zum Entfernen von aggregateRating gefuehrt hat (siehe
+                      Kommentar Zeile ~505). Jetzt eine Quelle, mit expliziter
+                      Herkunftszeile nach § 5b Abs. 3 UWG: die Zahl gilt
+                      kontoweit, nicht je Produkt. */}
+                  <div className="flex items-center gap-0.5 mb-1.5">
+                    {[0, 1, 2, 3, 4].map(i => <Star key={i} className="h-4 w-4 fill-current" style={{ color: '#F5A623' }} />)}
                   </div>
-                )}
+                  <p className="font-display text-[28px] font-bold leading-none tracking-[-0.02em] mb-1" style={{ color: 'var(--tx1)' }}>{trustStats.reviews}</p>
+                  <p className="text-[13px] mb-0.5" style={{ color: 'var(--txm)' }}>{de ? 'verifizierte Bewertungen' : 'verified reviews'}</p>
+                  <p className="text-meta mb-3" style={{ color: 'var(--txff)' }}>
+                    {de
+                      ? `Kontoweit, nicht nur dieses Produkt · über ${trustStats.sold} verkaufte Einheiten (eBay & Kleinanzeigen)`
+                      : `Account-wide, not just this product · over ${trustStats.sold} units sold (eBay & Kleinanzeigen)`}
+                  </p>
+                  {/* Kein trackEbayClick hier: das ist ein Link zur eBay-
+                      Feedback-Seite, kein Kauf-CTA. analytics.ts definiert
+                      click_ebay ausdruecklich als "Kauf-CTA, nicht der
+                      allgemeine Shop-Link" — dieses Event sonst mit
+                      Nicht-Kaufklicks zu verwaessern, verzerrt genau die
+                      Kennzahl, die ueber nativen Checkout vs. eBay
+                      entscheiden soll. */}
+                  <a href={product.ebayUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[12px] font-medium hover:underline" style={{ color: accentColor }}>
+                    {de ? 'Alle Bewertungen ansehen' : 'See all reviews'} <ExternalLink className="h-3 w-3" />
+                  </a>
+                </div>
                 {rc.compatTags && rc.compatTags.length > 0 && (
                   <div>
                     <p className="text-small font-semibold uppercase tracking-[0.14em] mb-2" style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>{de ? 'Kompatibilität' : 'Compatibility'}</p>
@@ -1309,6 +1388,13 @@ export function ProductDetailPage() {
           </section>
         )}
 
+        {/* Produktbezogenes FAQ aus den freigegebenen Fragen. Etappe 5
+            (11.09.2026): stand bisher NACH dem Abschluss-CTA -- fragte also
+            nach der Kaufentscheidung, bevor die letzten Einwaende
+            beantwortet waren. Ein CTA gehoert ans Ende der Argumentation,
+            nicht mittendrin. */}
+        <ProductFaq category={product.category} />
+
         {/* ── CTA ── */}
         {/* Herstellerangabe nach GPSR — einmal fuer beide Breakpoints. Lag bis
             09/2026 im Mobil-Hero und fehlte auf Desktop dadurch komplett. */}
@@ -1355,9 +1441,6 @@ export function ProductDetailPage() {
           </div>
         </section>
 
-        {/* Produktbezogenes FAQ aus den freigegebenen Fragen. */}
-        <ProductFaq category={product.category} />
-
         {/* ── Related ── */}
         {related.length > 0 && (
           <section style={{ background: 'var(--sf2)', borderTop: '1px solid var(--bd)' }}>
@@ -1370,6 +1453,29 @@ export function ProductDetailPage() {
             </div>
           </section>
         )}
+
+        {/* ── Weiterlesen ──
+            Bisher einseitig: Blog und Wissenschaft verlinken auf Produkte,
+            das Produkt verlinkte nirgends zurueck. */}
+        <section style={{ background: 'var(--sf2)', borderTop: '1px solid var(--bd)' }}>
+          <div className="max-w-6xl mx-auto px-5 sm:px-8 py-10">
+            <p className="text-small font-semibold uppercase tracking-[0.14em] mb-3" style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>{de ? 'Weiterlesen' : 'Further reading'}</p>
+            <ul className="flex flex-wrap gap-x-6 gap-y-2">
+              {relatedArticles.map(a => (
+                <li key={a.slug}>
+                  <Link to={`/blog/${a.slug}`} className="text-[13px] font-medium hover:underline" style={{ color: accentColor }}>
+                    {a.titleShort} →
+                  </Link>
+                </li>
+              ))}
+              <li>
+                <Link to="/wissenschaft" className="text-[13px] font-medium hover:underline" style={{ color: accentColor }}>
+                  {de ? 'Die Wissenschaft dahinter' : 'The science behind it'} →
+                </Link>
+              </li>
+            </ul>
+          </div>
+        </section>
         </main>
 
         <Footer />
@@ -1432,45 +1538,6 @@ export function ProductDetailPage() {
         .pdp-card-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.08); border-radius: 3px; }
       `}</style>
     </>
-  );
-}
-
-/* ── Pflichtangaben am Preis ────────────────────────────────────────────────
-    Die Preisangabenverordnung verlangt beim Preis eine Aussage zur
-    Umsatzsteuer und zu den Versandkosten, und zwar mit Verlinkung auf die
-    Seite, die sie beziffert. Auf der Produktseite stand bis 09/2026 zu beidem
-    nichts — geprueft am Live-HTML, weder "MwSt" noch "Versandkosten" kamen
-    vor. Fachlich ist das zugleich der wirksamste Einzelhebel gegen
-    Kaufabbruch: "extra costs too high" ist bei Baymard mit 48 % der
-    haeufigste einzelne Abbruchgrund.
-
-    Eine Komponente fuer beide Breakpoints, damit Mobil- und Desktop-Fassung
-    nicht auseinanderlaufen — genau das ist beim Widerrufsrecht und beim
-    GPSR-Block passiert, die es nur im Mobil-Markup gab.
-
-    `tone`: die Desktop-Kaufkarte hat einen fest weissen Grund und arbeitet
-    deshalb mit rgba-Werten statt mit den Theme-Variablen. */
-function PriceNote({ de, t, tone }: {
-  de: boolean;
-  t: ReturnType<typeof useLanguage>['t'];
-  tone: 'page' | 'card';
-}) {
-  const muted = tone === 'card' ? 'rgba(0,0,0,0.48)' : 'var(--txff)';
-  const linkCol = tone === 'card' ? 'rgba(0,0,0,0.68)' : 'var(--txm)';
-  const p = t.products;
-  return (
-    <p className="text-meta leading-[1.5]" style={{ color: muted }}>
-      {p.priceNoteTax}{' '}
-      {p.priceNoteShippingPre}{' '}
-      <Link
-        to="/versand-und-zahlung"
-        className="underline underline-offset-2 hover:no-underline"
-        style={{ color: linkCol }}
-      >
-        {p.priceNoteShippingLink}
-      </Link>
-      {de ? ', ' : ', '}{p.priceNoteShippingPost}.
-    </p>
   );
 }
 

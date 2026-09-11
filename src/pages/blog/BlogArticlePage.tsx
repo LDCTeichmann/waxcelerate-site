@@ -5,6 +5,7 @@ import { Navigation } from '@/sections/navigation';
 import { Footer } from '@/sections/footer';
 import { products } from '@/lib/data';
 import { removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
+import { trackBlogToProduct } from '@/lib/analytics';
 import {
   getArticleBySlug,
   getArticleImage,
@@ -179,6 +180,12 @@ export function BlogArticlePage() {
 
   const hero = getArticleImage(article.slug);
   const ctaProduct = products.find((p) => p.id === article.ctaSlug);
+  // P1-3: 17 von 18 Artikeln zeigten bisher nur auf Wachs, obwohl 8 von 12
+  // SKUs Ketten sind. Kein zweites volles Kartenformat (Dublette der
+  // ctaProduct-Karte direkt darueber) — nur ein Textlink.
+  const secondaryCtaProduct = article.secondaryCtaSlug
+    ? products.find((p) => p.id === article.secondaryCtaSlug)
+    : undefined;
   const dateModified = article.dateModified ?? article.publishDate;
   const articleUrl = `https://waxcelerate.de/blog/${article.slug}`;
 
@@ -459,6 +466,7 @@ export function BlogArticlePage() {
                 <div className="flex items-center gap-4 flex-wrap">
                   <Link
                     to={`/produkt/${ctaProduct.id}`}
+                    onClick={() => trackBlogToProduct(article.slug, ctaProduct.id)}
                     className="text-[14px] font-semibold px-5 py-2.5 rounded-full transition-opacity hover:opacity-90"
                     style={{ background: 'var(--accent)', color: 'var(--pg)' }}
                   >
@@ -470,6 +478,17 @@ export function BlogArticlePage() {
                 </div>
               </div>
             </div>
+          )}
+
+          {/* Zweiter, leichter CTA: nur ein Textlink, keine zweite Karte —
+              die volle Karte oben bleibt das eine Hauptangebot des Artikels. */}
+          {secondaryCtaProduct && (
+            <p className="mt-4 text-[13px]" style={{ color: 'var(--txm)' }}>
+              Fertig vorgewachst:{' '}
+              <Link to={`/produkt/${secondaryCtaProduct.id}`} onClick={() => trackBlogToProduct(article.slug, secondaryCtaProduct.id)} className="font-medium underline underline-offset-2 hover:no-underline" style={{ color: 'var(--accent-soft)' }}>
+                {secondaryCtaProduct.title} →
+              </Link>
+            </p>
           )}
 
           {/* Author box */}

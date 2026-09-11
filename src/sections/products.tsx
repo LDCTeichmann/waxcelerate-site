@@ -13,6 +13,7 @@ import { richContent } from '@/lib/productContent';
 import { ChainFinder } from '@/sections/ChainFinder';
 import { ProductShelf, SecondaryTile } from '@/sections/ProductShelf';
 import { AddToCartButton } from '@/components/AddToCartButton';
+import { PriceNote } from '@/components/PriceNote';
 import { Section } from '@/components/Section';
 import { CompareTable } from '@/components/CompareTable';
 import { getEstimatedDelivery } from '@/lib/utils';
@@ -267,6 +268,13 @@ export function Products() {
                   cta={t.products.shelf.rewaxCta}
                   alt={de ? 'Waxcelerate Versandkarton mit gewachster Kette vor Stuttgarter Landschaft' : 'Waxcelerate shipping box with a waxed chain in front of the Stuttgart hills'}
                 />
+              </div>
+
+              {/* PAngV: gleiche Luecke wie im Regal (ProductShelf.tsx) —
+                  diese Ansicht zeigt eigene Preise (Kettenkarten, Rewax-
+                  Kachel) und braucht deshalb ihre eigene, einmalige Zeile. */}
+              <div className="mt-6 px-1">
+                <PriceNote de={de} t={t} />
               </div>
 
           </>

@@ -160,6 +160,7 @@ export function ChainMatchCalculator({ profile, compact }: { profile: ToolProfil
       )}
 
       <ResultPanel
+        toolSlug={compact ? undefined : 'passende-kette'}
         compact={compact}
         value={matches.length}
         unit={matches.length === 1 ? (de ? 'Kette passt' : 'chain fits') : (de ? 'Ketten passen' : 'chains fit')}

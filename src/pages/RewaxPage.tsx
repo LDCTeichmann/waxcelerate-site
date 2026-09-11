@@ -27,6 +27,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
 import { prefersReducedMotion } from '@/hooks/useAnimation';
 import { trustStats } from '@/lib/data';
+import { trackRewaxInterest } from '@/lib/analytics';
 import { REVIEWS } from '@/sections/reviews';
 import {
   PRICE, FIVE_CARD, TEN_CARD, eur, UMSTIEG_LIVE, TURNAROUND, CITIES,
@@ -235,6 +236,7 @@ function RewaxRequestForm({ de, service }: { de: boolean; service: ServiceId }) 
         throw new Error(data.error ?? (de ? 'Die Anfrage konnte nicht übermittelt werden.' : 'The request could not be submitted.'));
       }
       setStatus('done');
+      trackRewaxInterest();
     } catch (err) {
       setStatus('error');
       setError(err instanceof Error ? err.message : (de ? 'Die Anfrage konnte nicht übermittelt werden.' : 'The request could not be submitted.'));
@@ -504,6 +506,7 @@ function StampCard({ de, count, price, list, gift, recommended, onPreview }: {
 
       <a href={`https://wa.me/4915751957470?text=${encodeURIComponent(waMsg)}`}
         target="_blank" rel="noopener noreferrer"
+        onClick={() => trackRewaxInterest()}
         className="inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-[13px] font-semibold transition-opacity hover:opacity-90"
         style={{ background: 'var(--accent)', color: '#fff' }}>
         {gift ? (de ? 'Als Geschenk anfragen' : 'Request as a gift') : (de ? 'Karte anfragen' : 'Request this card')}
@@ -851,6 +854,7 @@ export function RewaxPage() {
             </p>
             <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-4">
               <a href={waLink(de, waxedLabel)} target="_blank" rel="noopener noreferrer"
+                onClick={() => trackRewaxInterest()}
                 className="inline-flex items-center gap-1.5 text-[13.5px] font-semibold" style={{ color: 'var(--tx1)' }}>
                 {de ? 'Lieber direkt per WhatsApp' : 'Prefer WhatsApp instead'}
                 <ArrowRight className="h-3.5 w-3.5" style={{ color: 'var(--accent)' }} />

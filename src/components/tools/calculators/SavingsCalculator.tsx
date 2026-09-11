@@ -184,6 +184,7 @@ export function SavingsCalculator({ profile, compact }: { profile: ToolProfileSt
       </StepList>
 
       <ResultPanel
+        toolSlug={compact ? undefined : 'ersparnis'}
         compact={compact}
         value={<AnimatedNumber value={costs.savingsPerYear} prefix="€" />}
         unit={de ? 'gespart/Jahr' : 'saved/yr'}

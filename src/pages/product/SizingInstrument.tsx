@@ -20,15 +20,18 @@
 // Alle Zahlen kommen aus vorhandenen Funktionen. Es wird nichts erfunden, und
 // AssumptionsDisclosure legt die neun Rechengrundlagen offen.
 //
-// BEWUSST NICHT hier: eine personalisierte Ersparnis. Das statische
-// Kostenbeispiel weiter unten (costNote: 4.000 km Oel gegen 12.000 km Wachs)
-// benutzt ein anderes Modell als drivetrainCosts. Zwei verschiedene
-// Euro-Betraege zur selben Frage auf einer Seite waeren unglaubwuerdig.
+// Etappe 5 (11.09.2026): es gibt jetzt nur noch EIN Kostenmodell auf der
+// ganzen Seite. Vorher rechnete das separate Kostenvergleich-Akkordeon mit
+// ~12.000 km Wachs-Kettenlaufzeit ("~E70 gespart"), waehrend drivetrainCosts
+// unten mit 6.000-10.500 km rechnete — zwei widerspruechliche Euro-Betraege
+// zur selben Frage auf einer Seite. Das Akkordeon ist weg, drivetrainCosts
+// ist die einzige Quelle, und die personalisierte Ersparnis steht jetzt
+// direkt hier als erste Kennzahl (siehe unten).
 
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import type { Product } from '@/lib/data';
-import { switchEconomics, WAX_SHELF_LIFE_MONTHS } from '@/lib/waxMath';
+import { switchEconomics, drivetrainCosts, WAX_SHELF_LIFE_MONTHS } from '@/lib/waxMath';
 import type { ToolProfileState } from '@/hooks/useToolProfile';
 import { sizeAdviceFor } from '@/pages/product/sizeAdvice';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -36,12 +39,19 @@ import { InstrumentFrame } from '@/components/viz/InstrumentFrame';
 import { ProfileBar } from '@/components/tools/ProfileBar';
 import { AssumptionsDisclosure } from '@/components/tools/AssumptionsDisclosure';
 
-/** Eine Kennzahl unter einer Haarlinie. Kein Kasten, kein Icon — DESIGN.md §3. */
-function Readout({ value, label, note }: { value: string; label: string; note?: string }) {
+/** Eine Kennzahl unter einer Haarlinie. Kein Kasten, kein Icon — DESIGN.md §3.
+ * min-h-[138px]: die "Reicht dir dieser Block"-Kennzahl traegt manchmal eine
+ * zweizeilige Note (wenn der Block laenger haelt als seine Haltbarkeit) und
+ * manchmal keine. Im Browser-Pane gemessen (1400px Viewport, wt=trocken
+ * tr=strasse km=40): mit Note 137,5px, ohne 117,6px -- ein ~20px-Sprung der
+ * GANZEN Kennzahlen-Reihe (CSS-Grid stretcht alle vier Zellen auf die
+ * hoechste), sichtbar beim Wechsel 300g<->500g, weil das eine Produkt bei
+ * einem Fahrprofil outlastet und das andere nicht. Etappe 5, 11.09.2026. */
+function Readout({ value, label, note, valueColor }: { value: string; label: string; note?: string; valueColor?: string }) {
   return (
-    <div className="py-4 pr-4" style={{ borderTop: '1px solid var(--bd)' }}>
+    <div className="py-4 pr-4 min-h-[138px]" style={{ borderTop: '1px solid var(--bd)' }}>
       <p className="font-display font-bold leading-[1.05] tracking-[-0.02em]"
-        style={{ fontSize: 'clamp(1.35rem, 2.6vw, 1.75rem)', color: 'var(--tx1)' }}>
+        style={{ fontSize: 'clamp(1.35rem, 2.6vw, 1.75rem)', color: valueColor ?? 'var(--tx1)' }}>
         {value}
       </p>
       <p className="text-meta mt-1" style={{ color: 'var(--txff)' }}>{label}</p>
@@ -69,6 +79,15 @@ export function SizingInstrument({ product, profile, accentColor }: {
   const econ = switchEconomics({ kmPerYear, rewaxKm, toolingCost: 0, waxProduct: product });
 
   const perYear = Math.max(1, Math.round(econ.applicationsPerYear));
+
+  // Die Ersparnis: unabhaengig davon, ob isWax oder isChain, weil
+  // drivetrainCosts produktunabhaengig rechnet (Referenzwachs wax-500,
+  // Referenzkette der Median aller Kettenpreise) -- sie beantwortet "was
+  // spart Wachs gegenueber Oel bei DIESEM Fahrprofil", nicht "was spart
+  // DIESES Produkt". Deshalb zeigt sie sich auch auf Kettenseiten.
+  const costs = drivetrainCosts({ kmPerYear, rewaxKm, chains: 1 });
+  const savingsPerYear = costs.savingsPerYear;
+  const savings3y = savingsPerYear * 3;
 
   const { recommended, matchesCurrent: isRecommended, largeOutlastsShelfLife, large } =
     sizeAdviceFor(product, profile);
@@ -108,10 +127,21 @@ export function SizingInstrument({ product, profile, accentColor }: {
 
           <ProfileBar profile={profile} />
 
-          {/* Ergebnisse. Ketten haben kein applications-Feld, dort bleiben
-              Blockreichweite und Monatskosten leer — die Frage stellt sich
-              bei einer fertig gewachsten Kette nicht. */}
+          {/* Ergebnisse. Reihenfolge = Wichtigkeit: die Ersparnis zuerst (das
+              Verkaufsargument), dann Intervall und Wachsgaenge (der Aufwand),
+              dann — nur bei Wachs, Ketten haben kein applications-Feld — die
+              Blockreichweite. "Kosten pro Monat" ist als eigene Kennzahl raus
+              (Etappe 5: klang nach Ausgabe statt nach Ersparnis) und steht
+              jetzt als ruhiger Satz unter der Groessenempfehlung — erst NACH
+              der Ersparnis gelesen ist er ein Argument, kein Einwand. */}
           <div className="grid grid-cols-2 lg:grid-cols-4 mt-4">
+            <Readout
+              value={`€${savings3y.toLocaleString(de ? 'de-DE' : 'en-US')}`}
+              valueColor={accentColor}
+              label={t.tools.shared.savedOver3y}
+              note={t.tools.shared.savedPerYearNote
+                .replace('{eur}', savingsPerYear.toLocaleString(de ? 'de-DE' : 'en-US'))
+                .replace('{pct}', String(costs.savingsPct))} />
             <Readout
               value={`${rewaxKm} km`}
               label={de ? 'Dein Wachsintervall' : 'Your waxing interval'} />
@@ -131,11 +161,6 @@ export function SizingInstrument({ product, profile, accentColor }: {
                   value={monthLabel(econ.monthsPerBlock)}
                   label={de ? 'Reicht dir dieser Block' : 'This block lasts you'} />
               )
-            )}
-            {isWax && perMonth !== null && (
-              <Readout
-                value={fmt(perMonth)}
-                label={de ? 'Kosten pro Monat' : 'Cost per month'} />
             )}
           </div>
 
@@ -175,6 +200,18 @@ export function SizingInstrument({ product, profile, accentColor }: {
                     </Link>
                   </p>
                 )
+              )}
+
+              {/* Monatspreis: war bis Etappe 5 eine eigene Kennzahl im
+                  Ergebnisraster ("Kosten pro Monat") und damit oft die ERSTE
+                  Zahl, die ein Besucher sah — das liest sich wie ein
+                  Kostenpunkt statt wie ein Vorteil. Hier, direkt nach der
+                  Ersparnis gelesen, ist dieselbe Zahl ein Argument statt
+                  eines Einwands. */}
+              {perMonth !== null && (
+                <p className="text-[13px] leading-[1.55]" style={{ color: 'var(--txm)' }}>
+                  {t.tools.shared.blockPerMonth.replace('{eur}', fmt(perMonth).replace(' €', ''))}
+                </p>
               )}
 
               {/* Sehr viele Wachsgaenge: needsHybridHint aus waxMath, bis
@@ -218,7 +255,7 @@ export function SizingInstrument({ product, profile, accentColor }: {
           )}
 
           <div className="mt-5">
-            <AssumptionsDisclosure />
+            <AssumptionsDisclosure breakdown={costs.breakdown} oilPerYear={costs.oilPerYear} waxPerYear={costs.waxPerYear} />
           </div>
         </InstrumentFrame>
       </div>

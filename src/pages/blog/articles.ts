@@ -39,6 +39,12 @@ export interface Article {
   sections: ArticleSection[];
   ctaSlug: string;
   ctaText: string;
+  /** P1-3: 17 von 18 Artikeln zeigen auf ein Wachsprodukt, obwohl 8 von 12
+   *  SKUs Ketten sind — Ketten bekommen aus dem Blog praktisch keinen
+   *  Traffic. Ergänzt statt ctaSlug umzubiegen, weil ctaSlug (und die volle
+   *  Produktkarte, die daran hängt) das eigentliche Thema des Artikels
+   *  bleibt; dies ist ein zweiter, kleinerer Link, kein Ersatz. */
+  secondaryCtaSlug?: string;
   /** Hervorgehobener Leitartikel auf der Blog-Startseite. */
   featured?: boolean;
   /** Kennzahlen-Chips für den Leitartikel (nur bei featured genutzt). */
@@ -89,7 +95,14 @@ export const categoryOrder: ArticleCategory[] = [
  * Product.id-Werte aus src/lib/data.ts. */
 export const categoryProductSlug: Record<ArticleCategory, string> = {
   Grundlagen: 'wax-500',
-  Anleitung: 'starter-classic',
+  // War 'starter-classic' — eine Bundle-ID aus starterSetOptions, kein
+  // Product.id (verletzt den eigenen Kommentar oben). getProductById()
+  // findet sie zwar ueber den Bundle-Fallback, aber /produkt/starter-classic
+  // ist nirgends vorgerendert: bei Direktaufruf/Reload/Crawler ein echtes
+  // 404, nur per Client-Klick aus der App heraus sichtbar. wax-300 ist ein
+  // echtes, stabiles Product.id ("Perfekt zum Ausprobieren" — passt zu
+  // Erstwachsern, die eine Anleitung lesen).
+  Anleitung: 'wax-300',
   Technik: 'wax-500-mos2',
   Kaufberatung: 'wax-500-mos2',
   'Problemlösung': 'wax-500',
@@ -116,7 +129,7 @@ export const articles: Article[] = [
     intro: 'Kettenwachs ist nicht gleich Kettenwachs. Heißwachs (Paraffin, im Topf geschmolzen) und Flüssigwachs (Wachs-Emulsion aus der Flasche) versprechen beide saubere, reibungsarme Antriebe, aber mit sehr unterschiedlichen Kompromissen. Dieser Artikel zeigt, was die Messwerte wirklich sagen und welche Methode zu welchem Fahrertyp passt.',
     faq: [
       { q: 'Was ist der Unterschied zwischen Heißwachs und Flüssigwachs?', a: 'Heißwachs wird im heißen Bad bei 85 bis 90 Grad angewendet und dringt durch Hitze und Immersion tief in die Kettengelenke ein. Flüssigwachs ist eine Wachs-Emulsion aus der Flasche, die du direkt auftropfst. Sie bleibt eher an der Oberfläche, weil die thermische Unterstützung fehlt.' },
-      { q: 'Wie viel Watt spart Heißwachs gegenüber Kettenöl?', a: 'In unserer Laborreferenz liegt der Unterschied bei rund 4 bis 5 Watt, also etwa 2 Prozent der Tretleistung bei 250 Watt Eingangsleistung. Für Rennfahrer ist das relevant, für Alltagsfahrer eher kein Kaufargument.' },
+      { q: 'Wie viel Watt spart Heißwachs gegenüber Kettenöl?', a: 'In unserer Laborreferenz (300–400 W Eingangsleistung) liegt der Unterschied bei rund 4 bis 5 Watt, größenordnungsmäßig 1 bis 2 Prozent der Tretleistung. Für Rennfahrer ist das relevant, für Alltagsfahrer eher kein Kaufargument.' },
       { q: 'Wie oft muss ich bei Flüssigwachs im Vergleich zu Heißwachs nachwachsen?', a: 'Flüssigwachs hält trocken etwa 150 bis 250 km und bei Nässe nur 80 bis 120 km. Heißwachs kommt trocken auf 400 bis 550 km und bei Nässe oder MTB auf 200 bis 300 km, also deutlich länger.' },
       { q: 'Ist Heißwachsen zu aufwendig für den Alltag?', a: 'Für eine einzelne Kette schon etwas Aufwand, für eine 3-Ketten-Rotation nicht. Du wachst alle drei Ketten gesammelt in einer Session, der Wechsel am Rad dauert mit Schnellverschluss etwa 60 Sekunden.' },
       { q: 'Kann ich Flüssigwachs auf eine bereits geölte Kette auftragen?', a: 'Nicht direkt. Öl verdrängt die Wachsemulsion und das Flüssigwachs hält dann schlecht. Wer von Öl umsteigt, muss die Kette zuerst entfetten, genau wie beim Heißwachsen.' },
@@ -168,7 +181,7 @@ export const articles: Article[] = [
       },
       {
         type: 'p',
-        text: 'Der Abstand zwischen Heißwachs und Öl liegt damit bei grob 4 bis 5 W. Bei 250 W Tretleistung sind das etwa 2 % deiner Leistung. Für Rennfahrer ist das relevant, für Alltagsfahrer ist es kein Kaufargument. Der eigentliche Vorteil liegt woanders: Öl verliert unter Schmutz weiter an Effizienz, Wachs bleibt über das Intervall nahezu konstant.',
+        text: 'Der Abstand zwischen Heißwachs und Öl liegt damit bei grob 4 bis 5 W in unserer Laborreferenz (300–400 W Eingangsleistung), größenordnungsmäßig 1 bis 2 % deiner Leistung. Für Rennfahrer ist das relevant, für Alltagsfahrer ist es kein Kaufargument. Der eigentliche Vorteil liegt woanders: Öl verliert unter Schmutz weiter an Effizienz, Wachs bleibt über das Intervall nahezu konstant.',
       },
       {
         type: 'h2',
@@ -881,6 +894,7 @@ export const articles: Article[] = [
     ],
     ctaSlug: 'wax-500',
     ctaText: 'Waxcelerate Classic für Rennrad & Gravel ansehen →',
+    secondaryCtaSlug: 'chain-force',
   },
   {
     slug: 'wachs-haelt-nicht-haeufige-fehler',
@@ -1345,6 +1359,7 @@ export const articles: Article[] = [
     ],
     ctaSlug: 'wax-500-mos2',
     ctaText: 'Pro Heißwachs mit MoS₂ ansehen →',
+    secondaryCtaSlug: 'chain-nx',
   },
   {
     slug: 'kettenverschleiss-messen',
@@ -1390,6 +1405,7 @@ export const articles: Article[] = [
     ],
     ctaSlug: 'wax-500',
     ctaText: 'Classic Heißwachs für lange Kettenlaufzeit ansehen →',
+    secondaryCtaSlug: 'chain-hg701',
   },
   {
     slug: 'erste-fahrt-nach-wachsen',
@@ -1494,6 +1510,7 @@ export const articles: Article[] = [
     },
     ctaSlug: 'wax-500',
     ctaText: 'Classic Heißwachs 500 g ansehen →',
+    secondaryCtaSlug: 'chain-ybn11',
   },
   {
     slug: 'wachs-entsorgen-topf-pflegen',

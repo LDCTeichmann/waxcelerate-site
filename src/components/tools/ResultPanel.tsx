@@ -38,10 +38,13 @@
 // 250 px und stehen deshalb weiterhin in einer eigenen Zeile — nebeneinander
 // legten sie sich bei schmalem Fenster ueber die Zahl.
 
+import { useRef, useEffect } from 'react';
+import { trackCalcComplete } from '@/lib/analytics';
+
 export type ResultTone = 'neutral' | 'good' | 'warn';
 
 export function ResultPanel({
-  value, unit, verdict, facts, tone = 'neutral', actions, hero, cta, compact,
+  value, unit, verdict, facts, tone = 'neutral', actions, hero, cta, compact, toolSlug, hasResult = true,
 }: {
   /** Die eine grosse Zahl. Node, damit AnimatedNumber hineinpasst. */
   value: React.ReactNode;
@@ -60,8 +63,25 @@ export function ResultPanel({
   cta?: React.ReactNode;
   /** Im Kartenstapel der Startseite: Aktionen als Symbole neben die Zahl. */
   compact?: boolean;
+  /** P1-4: Slug fuer calc_complete. Ohne Angabe wird nichts getrackt (z. B.
+   *  im kompakten Kartenstapel der Startseite, wo derselbe Rechner mehrfach
+   *  auftauchen kann). */
+  toolSlug?: string;
+  /** Manche Karten haben einen "wartet auf Eingabe"-Zustand (bisher nur
+   *  WearCalculator, method=ruler ohne gueltigen Messwert) — dort ist noch
+   *  kein Ergebnis da, calc_complete soll dann nicht feuern. Alle anderen
+   *  Rechner zeigen ab dem ersten Rendern ein gueltiges Ergebnis mit
+   *  sinnvollen Vorgaben (bewusste Produktentscheidung), Default true. */
+  hasResult?: boolean;
 }) {
   const shownFacts = (facts ?? []).slice(0, 2);
+  const trackedRef = useRef(false);
+  useEffect(() => {
+    if (toolSlug && hasResult && !trackedRef.current) {
+      trackedRef.current = true;
+      trackCalcComplete(toolSlug);
+    }
+  }, [toolSlug, hasResult]);
   const accent = tone === 'neutral' ? 'var(--tx1)' : 'var(--brand)';
   return (
     <div

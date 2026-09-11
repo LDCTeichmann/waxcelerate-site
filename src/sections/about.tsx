@@ -6,6 +6,8 @@ import { useSectionReveal } from '@/hooks/useAnimation';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { gsap } from '@/lib/gsap';
 import { Section } from '@/components/Section';
+import { trustStats } from '@/lib/data';
+import { trackShopClick } from '@/lib/analytics';
 
 export function About() {
   const { t, lang } = useLanguage();
@@ -57,7 +59,7 @@ export function About() {
       label: de ? 'In Stuttgart gegründet' : 'Founded in Stuttgart',
     },
     {
-      value: '200+',
+      value: trustStats.reviews,
       label: de ? 'eBay Top-Bewertungen' : 'eBay top reviews',
     },
   ];
@@ -127,6 +129,7 @@ export function About() {
                   href="https://www.ebay.de/usr/waxcelerate"
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => trackShopClick('about')}
                   className="inline-flex items-center gap-2.5 group"
                 >
                   <span

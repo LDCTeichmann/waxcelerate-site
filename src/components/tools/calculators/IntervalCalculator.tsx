@@ -149,6 +149,7 @@ export function IntervalCalculator({ profile, compact }: { profile: ToolProfileS
       </StepList>
 
       <ResultPanel
+        toolSlug={compact ? undefined : 'intervall'}
         compact={compact}
         value={typeof remaining.value === 'number'
           ? <AnimatedNumber value={remaining.value} />

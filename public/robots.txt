@@ -67,4 +67,8 @@ User-agent: YouBot
 Allow: /
 
 # Timely AI content files
+# llms.txt: https://waxcelerate.de/llms.txt (kein offizieller robots.txt-
+# Standard, kein Crawling-Mechanismus — nur ein Hinweis fuer Agenten, die
+# robots.txt nach Nebenstellen absuchen. Der Kanon-Verweis steht im HTML
+# jeder Seite: <link rel="alternate" type="text/plain" title="LLMs.txt">.)
 Sitemap: https://waxcelerate.de/sitemap.xml
