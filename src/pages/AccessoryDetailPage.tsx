@@ -18,6 +18,7 @@ import { Navigation } from '@/sections/navigation';
 import { Footer } from '@/sections/footer';
 import { BackLink } from '@/components/BackLink';
 import { GpsrInfo } from '@/components/GpsrInfo';
+import { PriceNote } from '@/components/PriceNote';
 import { getAccessoryBySlug } from '@/lib/data';
 import { trackEbayClick } from '@/lib/analytics';
 import { removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
@@ -26,7 +27,7 @@ const W = 'mx-auto w-full max-w-3xl px-6 sm:px-10 lg:px-14';
 
 export function AccessoryDetailPage() {
   const { slug } = useParams<{ slug: string }>();
-  const { lang } = useLanguage();
+  const { lang, t } = useLanguage();
   const de = lang === 'de';
   const acc = slug ? getAccessoryBySlug(slug) : undefined;
 
@@ -149,6 +150,13 @@ export function AccessoryDetailPage() {
                 {de ? 'Demnächst auf eBay' : 'Coming soon on eBay'}
               </span>
             )}
+          </div>
+
+          {/* PAngV: Steuer-/Versandhinweis fehlte bisher auf dieser Seite,
+              obwohl hier ein Preis steht — dieselbe Luecke, die die
+              Produktdetailseite in Etappe 1 geschlossen hat. */}
+          <div className="mb-6">
+            <PriceNote de={de} t={t} />
           </div>
 
           <GpsrInfo de={de} />

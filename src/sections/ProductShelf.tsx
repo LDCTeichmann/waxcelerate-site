@@ -45,6 +45,7 @@ import { ArrowRight, ArrowLeftRight, ExternalLink, Star, Truck } from 'lucide-re
 import { products, accessories, starterSetPrice, canCheckout } from '@/lib/data';
 import type { TranslationType } from '@/lib/i18n';
 import { AddToCartButton } from '@/components/AddToCartButton';
+import { PriceNote } from '@/components/PriceNote';
 import { trackEbayClick } from '@/lib/analytics';
 import { getEstimatedDelivery } from '@/lib/utils';
 
@@ -345,6 +346,14 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
           </p>
         </div>
       </div>
+
+      {/* PAngV: bis 09/2026 stand auf dieser Sektion (Wachs-Tafeln, Set,
+          Ketten, Rewax) zu Steuer und Versandkosten nichts, obwohl hier
+          ueberall Preise stehen — dieselbe Luecke, die die Produktdetail-
+          seite in Etappe 1 geschlossen hat. Einmal fuer die ganze Sektion
+          statt auf jeder Kachel wiederholt, gleiches Muster wie die
+          "Shared info"-Zeile bei der Kettenliste in products.tsx. */}
+      <PriceNote de={de} t={t} />
     </div>
   );
 }
@@ -641,6 +650,14 @@ export function ProductShelf({ de, t, onOpenChains, onCompare }: {
         />
         </div>
       </div>
+
+      {/* PAngV: bis 09/2026 stand auf dieser Sektion (Wachs-Tafeln, Set,
+          Ketten, Rewax) zu Steuer und Versandkosten nichts, obwohl hier
+          ueberall Preise stehen — dieselbe Luecke, die die Produktdetail-
+          seite in Etappe 1 geschlossen hat. Einmal fuer die ganze Sektion
+          statt auf jeder Kachel wiederholt, gleiches Muster wie die
+          "Shared info"-Zeile bei der Kettenliste in products.tsx. */}
+      <PriceNote de={de} t={t} />
     </div>
   );
 }

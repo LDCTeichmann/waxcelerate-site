@@ -18,6 +18,7 @@ import { AddToCartButton } from '@/components/AddToCartButton';
 import { trackEbayClick } from '@/lib/analytics';
 import { CartIcon } from '@/components/CartIcon';
 import { GpsrInfo } from '@/components/GpsrInfo';
+import { PriceNote } from '@/components/PriceNote';
 import { ImageLightbox } from '@/components/ImageLightbox';
 import { gsap } from '@/lib/gsap';
 import { Footer } from '@/sections/footer';
@@ -1490,45 +1491,6 @@ export function ProductDetailPage() {
         .pdp-card-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.08); border-radius: 3px; }
       `}</style>
     </>
-  );
-}
-
-/* ── Pflichtangaben am Preis ────────────────────────────────────────────────
-    Die Preisangabenverordnung verlangt beim Preis eine Aussage zur
-    Umsatzsteuer und zu den Versandkosten, und zwar mit Verlinkung auf die
-    Seite, die sie beziffert. Auf der Produktseite stand bis 09/2026 zu beidem
-    nichts — geprueft am Live-HTML, weder "MwSt" noch "Versandkosten" kamen
-    vor. Fachlich ist das zugleich der wirksamste Einzelhebel gegen
-    Kaufabbruch: "extra costs too high" ist bei Baymard mit 48 % der
-    haeufigste einzelne Abbruchgrund.
-
-    Eine Komponente fuer beide Breakpoints, damit Mobil- und Desktop-Fassung
-    nicht auseinanderlaufen — genau das ist beim Widerrufsrecht und beim
-    GPSR-Block passiert, die es nur im Mobil-Markup gab.
-
-    `tone`: die Desktop-Kaufkarte hat einen fest weissen Grund und arbeitet
-    deshalb mit rgba-Werten statt mit den Theme-Variablen. */
-function PriceNote({ de, t, tone }: {
-  de: boolean;
-  t: ReturnType<typeof useLanguage>['t'];
-  tone: 'page' | 'card';
-}) {
-  const muted = tone === 'card' ? 'rgba(0,0,0,0.48)' : 'var(--txff)';
-  const linkCol = tone === 'card' ? 'rgba(0,0,0,0.68)' : 'var(--txm)';
-  const p = t.products;
-  return (
-    <p className="text-meta leading-[1.5]" style={{ color: muted }}>
-      {p.priceNoteTax}{' '}
-      {p.priceNoteShippingPre}{' '}
-      <Link
-        to="/versand-und-zahlung"
-        className="underline underline-offset-2 hover:no-underline"
-        style={{ color: linkCol }}
-      >
-        {p.priceNoteShippingLink}
-      </Link>
-      {de ? ', ' : ', '}{p.priceNoteShippingPost}.
-    </p>
   );
 }
 

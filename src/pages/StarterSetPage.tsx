@@ -25,6 +25,8 @@ import { Footer } from '@/sections/footer';
 import { BackLink } from '@/components/BackLink';
 import { accessories, starterSet } from '@/lib/data';
 import { StarterSetOptions } from '@/sections/StarterSetOptions';
+import { PriceNote } from '@/components/PriceNote';
+import { GpsrInfo } from '@/components/GpsrInfo';
 import { removeStaticHeadMeta } from '@/lib/utils';
 
 const W = 'mx-auto w-full max-w-5xl px-6 sm:px-10 lg:px-14';
@@ -37,7 +39,7 @@ const eur = (n: number, de: boolean) =>
 const accPriceOf = (id: string) => accessories.find(a => a.id === id)?.price ?? 0;
 
 export function StarterSetPage() {
-  const { lang } = useLanguage();
+  const { lang, t } = useLanguage();
   const de = lang === 'de';
 
   const title = de
@@ -117,6 +119,15 @@ export function StarterSetPage() {
       <section id="sets" className="pb-14 sm:pb-20">
         <div className={W}>
           <StarterSetOptions de={de} />
+          {/* PAngV + GPSR: bis 09/2026 stand auf dieser Seite zu Steuer,
+              Versandkosten und Hersteller nichts — beides steht bereits auf
+              der Produktdetailseite, hier bisher vergessen. Einmal fuer die
+              ganze Seite, direkt unter dem Kaufblock: hier liegt der Preis,
+              hier gehoert die Pflichtangabe hin. */}
+          <PriceNote de={de} t={t} />
+          <div className="mt-4">
+            <GpsrInfo de={de} />
+          </div>
         </div>
       </section>
 
