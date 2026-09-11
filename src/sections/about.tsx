@@ -5,6 +5,7 @@ import { useSectionReveal } from '@/hooks/useAnimation';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { gsap } from '@/lib/gsap';
 import { Section } from '@/components/Section';
+import { trustStats } from '@/lib/data';
 
 export function About() {
   const { t, lang } = useLanguage();
@@ -56,7 +57,7 @@ export function About() {
       label: de ? 'In Stuttgart gegründet' : 'Founded in Stuttgart',
     },
     {
-      value: '200+',
+      value: trustStats.reviews,
       label: de ? 'eBay Top-Bewertungen' : 'eBay top reviews',
     },
   ];

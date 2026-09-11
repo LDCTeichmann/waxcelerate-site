@@ -358,7 +358,7 @@ export function Reviews() {
         <a href="https://www.ebay.de/usr/waxcelerate" target="_blank" rel="noopener noreferrer"
           className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-[13px] font-medium transition-all hover:opacity-85"
           style={{ border: '1px solid var(--bd)', background: 'var(--sf2)', color: 'var(--tx2)' }}>
-          {de ? 'Alle 200+ Bewertungen auf eBay ansehen →' : 'See all 200+ reviews on eBay →'}
+          {de ? `Alle ${trustStats.reviews} Bewertungen auf eBay ansehen →` : `See all ${trustStats.reviews} reviews on eBay →`}
         </a>
         <button
           onClick={() => document.querySelector('#produkte')?.scrollIntoView({ behavior: 'smooth' })}

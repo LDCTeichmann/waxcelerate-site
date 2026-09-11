@@ -861,7 +861,7 @@ export function Hero() {
                   </span>
                   <span className="text-[11px] uppercase tabular-nums"
                     style={{ letterSpacing: '0.08em', color: 'rgba(255,255,255,0.68)' }}>
-                    200+ · {de ? '100 % positiv' : '100% positive'}
+                    {trustStats.reviews} · {de ? '100 % positiv' : '100% positive'}
                     <span> · {de ? 'eBay-Käuferschutz' : 'eBay buyer protection'}</span>
                   </span>
                 </div>

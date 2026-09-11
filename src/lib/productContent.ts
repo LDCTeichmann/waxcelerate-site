@@ -18,8 +18,6 @@ export interface V9Bullet {
 export interface RichContent {
   stats: StatCard[];
   compatTags: string[][];
-  reviewCount: number;
-  reviewCats: string;
   footerNote: string;
   // Wax products
   formulaDetails?: Array<{ name: string; detail: string }>;
@@ -149,8 +147,6 @@ export const richContent: Record<string, RichContent> = {
     compRows: waxCompRowsClassic,
     compFootnote: 'Für Winterbetrieb, Nässe und maximale Intervalle: Waxcelerate MoS₂ Edition.',
     compatTags: waxCompatTags,
-    reviewCount: 145,
-    reviewCats: 'Rennrad · MTB · Gravel · Triathlon · verifizierte Käufer',
     footerNote: 'Made in Germany. Produziert in Stuttgart — frisch gefertigt, direkt versandt. Kein Lagerbestand. Versand 1–2 Werktage · möglichst wenig und recyclierbares Verpackungsmaterial.',
   },
 
@@ -167,8 +163,6 @@ export const richContent: Record<string, RichContent> = {
     compRows: waxCompRowsClassic,
     compFootnote: 'Für Winterbetrieb, Nässe und maximale Intervalle: Waxcelerate MoS₂ Edition.',
     compatTags: waxCompatTags,
-    reviewCount: 145,
-    reviewCats: 'Rennrad · MTB · Gravel · Triathlon · verifizierte Käufer',
     footerNote: 'Made in Germany. Produziert in Stuttgart — frisch gefertigt, direkt versandt. Kein Lagerbestand. Versand 1–2 Werktage · möglichst wenig und recyclierbares Verpackungsmaterial.',
   },
 
@@ -185,8 +179,6 @@ export const richContent: Record<string, RichContent> = {
     compRows: waxCompRowsProMos2,
     compFootnote: 'PFAS/PTFE-frei — MoS₂ ist ein natürlicher Festschmierstoff ohne synthetische Fluorverbindungen.',
     compatTags: waxCompatTags,
-    reviewCount: 145,
-    reviewCats: 'Rennrad · MTB · Gravel · Triathlon · verifizierte Käufer',
     footerNote: 'Made in Germany. Produziert in Stuttgart — frisch gefertigt, direkt versandt. PFAS/PTFE-frei — Formulierung V9.',
   },
 
@@ -203,8 +195,6 @@ export const richContent: Record<string, RichContent> = {
     compRows: waxCompRowsProMos2,
     compFootnote: 'PFAS/PTFE-frei — MoS₂ ist ein natürlicher Festschmierstoff ohne synthetische Fluorverbindungen.',
     compatTags: waxCompatTags,
-    reviewCount: 145,
-    reviewCats: 'Rennrad · MTB · Gravel · Triathlon · verifizierte Käufer',
     footerNote: 'Made in Germany. Produziert in Stuttgart — frisch gefertigt, direkt versandt. PFAS/PTFE-frei — Formulierung V9.',
   },
 
@@ -233,8 +223,6 @@ export const richContent: Record<string, RichContent> = {
       ['Ultegra R8000', 'XT M8000', 'GRX RX810', '105 R7000', 'Tiagra 4700', 'Deore M6000'],
       ['Rennrad', 'MTB', 'Gravel', 'Cyclocross', 'E-Bike', 'Triathlon'],
     ],
-    reviewCount: 150,
-    reviewCats: 'Rennrad · MTB · Gravel · Triathlon · E-Bike',
     footerNote: v9ChainFooterNote,
   },
 
@@ -263,8 +251,6 @@ export const richContent: Record<string, RichContent> = {
       ['Shimano 11-fach', 'HG601 / HG701 / HG901', 'SRAM 11-fach', 'Force / Rival / Red', 'Campagnolo 11-fach', 'KMC X11'],
       ['Rennrad', 'MTB', 'Gravel', 'E-Bike', 'Triathlon', 'Cyclocross'],
     ],
-    reviewCount: 150,
-    reviewCats: 'Rennrad · MTB · Gravel · Triathlon · E-Bike',
     footerNote: v9ChainFooterNote,
   },
 
@@ -293,8 +279,6 @@ export const richContent: Record<string, RichContent> = {
       ['Deore XT M8100 / M8200', 'Ultegra R8100', 'GRX 12-fach', 'XTR M9100', 'Dura-Ace R9200', 'SLX M7100', 'Deore M6100'],
       ['MTB', 'Rennrad', 'Gravel', 'E-Bike'],
     ],
-    reviewCount: 150,
-    reviewCats: 'Rennrad · MTB · Gravel · Triathlon · E-Bike',
     footerNote: v9ChainFooterNote,
   },
 
@@ -323,8 +307,6 @@ export const richContent: Record<string, RichContent> = {
       ['SLX M7100', '105 R7100', 'Deore XT M8100', 'Deore M6100', 'XTR M9100', 'GRX 12-fach'],
       ['MTB', 'Rennrad', 'Gravel', 'E-Bike'],
     ],
-    reviewCount: 150,
-    reviewCats: 'Rennrad · MTB · Gravel · Triathlon · E-Bike',
     footerNote: v9ChainFooterNote,
   },
 
@@ -353,8 +335,6 @@ export const richContent: Record<string, RichContent> = {
       ['XTR M9100 / M9200', 'Dura-Ace R9200', 'Ultegra R8100', 'GRX 12-fach', 'Deore XT M8100', 'SLX M7100', 'Deore M6100'],
       ['Rennrad', 'MTB', 'Gravel', 'E-Bike', 'Triathlon'],
     ],
-    reviewCount: 150,
-    reviewCats: 'Rennrad · MTB · Gravel · Triathlon · E-Bike · verifizierte Käufer',
     footerNote: v9ChainFooterNote,
   },
 
@@ -389,8 +369,6 @@ export const richContent: Record<string, RichContent> = {
       ['SRAM Force', 'SRAM Rival', 'SRAM Red', 'SRAM Apex', 'Shimano 11-fach'],
       ['11-fach', 'Rennrad', 'Gravel', 'Triathlon'],
     ],
-    reviewCount: 150,
-    reviewCats: 'Rennrad · Gravel · Triathlon · verifizierte Käufer',
     footerNote: v9ChainFooterNote,
   },
 
@@ -425,8 +403,6 @@ export const richContent: Record<string, RichContent> = {
       ['SRAM NX Eagle', 'SRAM SX Eagle', 'SRAM GX Eagle', 'SRAM X01 Eagle', 'SRAM XX1 Eagle'],
       ['12-fach MTB', 'Mountainbike', 'E-Bike MTB'],
     ],
-    reviewCount: 150,
-    reviewCats: 'MTB · Trail · Enduro · verifizierte Käufer',
     footerNote: v9ChainFooterNote,
   },
 
@@ -461,8 +437,6 @@ export const richContent: Record<string, RichContent> = {
       ['Shimano 12-fach', 'SRAM 12-fach', 'Campagnolo 12-fach', 'KMC X12'],
       ['Rennrad', 'MTB', 'Gravel', 'E-Bike', 'Triathlon', 'Cyclocross'],
     ],
-    reviewCount: 150,
-    reviewCats: 'Rennrad · MTB · Gravel · Triathlon · verifizierte Käufer',
     footerNote: v9ChainFooterNote,
   },
 };

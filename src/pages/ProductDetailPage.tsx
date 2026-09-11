@@ -817,9 +817,10 @@ export function ProductDetailPage() {
               {/* Bewertung above the fold statt erst auf ~2/3 Seitenhoehe
                   (Baymard: die Bewertung gehoert in den Kaufbereich). Zahl
                   aus trustStats -- die eine, von Luca direkt bestaetigte
-                  Quelle (11.09.2026), nicht rc.reviewCount (145/150, weiter
-                  unten in der Trust-Sektion unveraendert, das ist eine
-                  andere, dort schon frueher freigegebene Zaehlung). */}
+                  Quelle (11.09.2026). Die Trust-Sektion weiter unten zeigte
+                  bis zu diesem Fix eine zweite, unbelegte Zahl (rc.reviewCount,
+                  145/150 identisch fuer alle Wachs- bzw. alle Ketten-SKUs) --
+                  jetzt dieselbe trustStats-Quelle an beiden Stellen. */}
               <a href="#bewertungen" className="inline-flex items-center gap-1.5 mb-3 hover:opacity-70 transition-opacity">
                 <span className="flex items-center gap-0.5">
                   {[0, 1, 2, 3, 4].map(i => <Star key={i} className="h-3.5 w-3.5 fill-current" style={{ color: '#F5A623' }} />)}
@@ -1274,26 +1275,39 @@ export function ProductDetailPage() {
           <section id="bewertungen" style={{ background: 'var(--sf2)' }}>
             <div className="max-w-6xl mx-auto px-5 sm:px-8 py-14 sm:py-20">
               <div className="grid lg:grid-cols-2 gap-10 lg:gap-16">
-                {rc.reviewCount > 0 && (
-                  <div>
-                    <div className="flex items-center gap-0.5 mb-1.5">
-                      {[0, 1, 2, 3, 4].map(i => <Star key={i} className="h-4 w-4 fill-current" style={{ color: '#F5A623' }} />)}
-                    </div>
-                    <p className="font-display text-[28px] font-bold leading-none tracking-[-0.02em] mb-1" style={{ color: 'var(--tx1)' }}>{rc.reviewCount}+</p>
-                    <p className="text-[13px] mb-0.5" style={{ color: 'var(--txm)' }}>{de ? 'verifizierte Bewertungen' : 'verified reviews'}</p>
-                    {rc.reviewCats && <p className="text-meta mb-3" style={{ color: 'var(--txff)' }}>{rc.reviewCats}</p>}
-                    {/* Kein trackEbayClick hier: das ist ein Link zur eBay-
-                        Feedback-Seite, kein Kauf-CTA. analytics.ts definiert
-                        click_ebay ausdruecklich als "Kauf-CTA, nicht der
-                        allgemeine Shop-Link" — dieses Event sonst mit
-                        Nicht-Kaufklicks zu verwaessern, verzerrt genau die
-                        Kennzahl, die ueber nativen Checkout vs. eBay
-                        entscheiden soll. */}
-                    <a href={product.ebayUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[12px] font-medium hover:underline" style={{ color: accentColor }}>
-                      {de ? 'Alle Bewertungen ansehen' : 'See all reviews'} <ExternalLink className="h-3 w-3" />
-                    </a>
+                <div>
+                  {/* Eine Quelle statt drei: bis 09/2026 zeigte dieser Block
+                      rc.reviewCount (145 fuer alle vier Wachs-SKUs, 150 fuer
+                      alle acht Ketten-SKUs identisch — nicht aus eBay
+                      hergeleitet, reine Platzhalterzahl), waehrend der
+                      Kaufblock oben bereits trustStats.reviews zeigte. Zwei
+                      unterschiedliche Zahlen auf derselben Seite fuer
+                      dieselbe Aussage ist die Fehlerklasse, die schon einmal
+                      zum Entfernen von aggregateRating gefuehrt hat (siehe
+                      Kommentar Zeile ~505). Jetzt eine Quelle, mit expliziter
+                      Herkunftszeile nach § 5b Abs. 3 UWG: die Zahl gilt
+                      kontoweit, nicht je Produkt. */}
+                  <div className="flex items-center gap-0.5 mb-1.5">
+                    {[0, 1, 2, 3, 4].map(i => <Star key={i} className="h-4 w-4 fill-current" style={{ color: '#F5A623' }} />)}
                   </div>
-                )}
+                  <p className="font-display text-[28px] font-bold leading-none tracking-[-0.02em] mb-1" style={{ color: 'var(--tx1)' }}>{trustStats.reviews}</p>
+                  <p className="text-[13px] mb-0.5" style={{ color: 'var(--txm)' }}>{de ? 'verifizierte Bewertungen' : 'verified reviews'}</p>
+                  <p className="text-meta mb-3" style={{ color: 'var(--txff)' }}>
+                    {de
+                      ? `Kontoweit, nicht nur dieses Produkt · über ${trustStats.sold} verkaufte Einheiten (eBay & Kleinanzeigen)`
+                      : `Account-wide, not just this product · over ${trustStats.sold} units sold (eBay & Kleinanzeigen)`}
+                  </p>
+                  {/* Kein trackEbayClick hier: das ist ein Link zur eBay-
+                      Feedback-Seite, kein Kauf-CTA. analytics.ts definiert
+                      click_ebay ausdruecklich als "Kauf-CTA, nicht der
+                      allgemeine Shop-Link" — dieses Event sonst mit
+                      Nicht-Kaufklicks zu verwaessern, verzerrt genau die
+                      Kennzahl, die ueber nativen Checkout vs. eBay
+                      entscheiden soll. */}
+                  <a href={product.ebayUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[12px] font-medium hover:underline" style={{ color: accentColor }}>
+                    {de ? 'Alle Bewertungen ansehen' : 'See all reviews'} <ExternalLink className="h-3 w-3" />
+                  </a>
+                </div>
                 {rc.compatTags && rc.compatTags.length > 0 && (
                   <div>
                     <p className="text-small font-semibold uppercase tracking-[0.14em] mb-2" style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>{de ? 'Kompatibilität' : 'Compatibility'}</p>
