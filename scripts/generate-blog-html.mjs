@@ -26,7 +26,7 @@
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve, join } from 'node:path';
 import { articles, getArticleImage, author, categoryOrder, blogHero } from '../src/pages/blog/articles.ts';
-import { starterSet, waxVsOil, frictionRanges } from '../src/lib/data.ts';
+import { starterSet, waxVsOil, frictionRanges, products } from '../src/lib/data.ts';
 import { COMPONENTS } from '../src/lib/science.ts';
 import { TOOLS, TOOLS_HUB } from '../src/lib/toolRegistry.ts';
 // Preise, Meta, FAQ und Schema von /kette-wachsen-lassen — dieselbe Quelle wie
@@ -191,6 +191,10 @@ function renderArticle(a) {
   ${a.sections.map(renderSection).join('\n  ')}
   ${a.faq ? `<section><h2>Häufige Fragen</h2>${a.faq.map(f => `<h3>${esc(f.q)}</h3><p>${esc(f.a)}</p>`).join('')}</section>` : ''}
   <p><a href="/produkt/${a.ctaSlug}">${esc(a.ctaText)}</a></p>
+  ${a.secondaryCtaSlug ? (() => {
+    const sp = products.find(p => p.id === a.secondaryCtaSlug);
+    return sp ? `<p>Fertig vorgewachst: <a href="/produkt/${sp.id}">${esc(sp.title)} →</a></p>` : '';
+  })() : ''}
   <footer>
     <p><strong>${esc(author.name)}</strong> — ${esc(author.role)}. ${esc(author.bio)}</p>
   </footer>

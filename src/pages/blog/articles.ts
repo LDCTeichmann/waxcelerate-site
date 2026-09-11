@@ -39,6 +39,12 @@ export interface Article {
   sections: ArticleSection[];
   ctaSlug: string;
   ctaText: string;
+  /** P1-3: 17 von 18 Artikeln zeigen auf ein Wachsprodukt, obwohl 8 von 12
+   *  SKUs Ketten sind — Ketten bekommen aus dem Blog praktisch keinen
+   *  Traffic. Ergänzt statt ctaSlug umzubiegen, weil ctaSlug (und die volle
+   *  Produktkarte, die daran hängt) das eigentliche Thema des Artikels
+   *  bleibt; dies ist ein zweiter, kleinerer Link, kein Ersatz. */
+  secondaryCtaSlug?: string;
   /** Hervorgehobener Leitartikel auf der Blog-Startseite. */
   featured?: boolean;
   /** Kennzahlen-Chips für den Leitartikel (nur bei featured genutzt). */
@@ -89,7 +95,14 @@ export const categoryOrder: ArticleCategory[] = [
  * Product.id-Werte aus src/lib/data.ts. */
 export const categoryProductSlug: Record<ArticleCategory, string> = {
   Grundlagen: 'wax-500',
-  Anleitung: 'starter-classic',
+  // War 'starter-classic' — eine Bundle-ID aus starterSetOptions, kein
+  // Product.id (verletzt den eigenen Kommentar oben). getProductById()
+  // findet sie zwar ueber den Bundle-Fallback, aber /produkt/starter-classic
+  // ist nirgends vorgerendert: bei Direktaufruf/Reload/Crawler ein echtes
+  // 404, nur per Client-Klick aus der App heraus sichtbar. wax-300 ist ein
+  // echtes, stabiles Product.id ("Perfekt zum Ausprobieren" — passt zu
+  // Erstwachsern, die eine Anleitung lesen).
+  Anleitung: 'wax-300',
   Technik: 'wax-500-mos2',
   Kaufberatung: 'wax-500-mos2',
   'Problemlösung': 'wax-500',
@@ -881,6 +894,7 @@ export const articles: Article[] = [
     ],
     ctaSlug: 'wax-500',
     ctaText: 'Waxcelerate Classic für Rennrad & Gravel ansehen →',
+    secondaryCtaSlug: 'chain-force',
   },
   {
     slug: 'wachs-haelt-nicht-haeufige-fehler',
@@ -1345,6 +1359,7 @@ export const articles: Article[] = [
     ],
     ctaSlug: 'wax-500-mos2',
     ctaText: 'Pro Heißwachs mit MoS₂ ansehen →',
+    secondaryCtaSlug: 'chain-nx',
   },
   {
     slug: 'kettenverschleiss-messen',
@@ -1390,6 +1405,7 @@ export const articles: Article[] = [
     ],
     ctaSlug: 'wax-500',
     ctaText: 'Classic Heißwachs für lange Kettenlaufzeit ansehen →',
+    secondaryCtaSlug: 'chain-hg701',
   },
   {
     slug: 'erste-fahrt-nach-wachsen',
@@ -1494,6 +1510,7 @@ export const articles: Article[] = [
     },
     ctaSlug: 'wax-500',
     ctaText: 'Classic Heißwachs 500 g ansehen →',
+    secondaryCtaSlug: 'chain-ybn11',
   },
   {
     slug: 'wachs-entsorgen-topf-pflegen',

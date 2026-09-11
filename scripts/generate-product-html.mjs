@@ -53,8 +53,12 @@ const shell = loadShell(DIST);
 // sind unten markiert. Ausgegeben werden nur unstrittige Felder: Beschreibung,
 // Preis, specs, Kompatibilitaet.
 
+// P1-3: auch secondaryCtaSlug zaehlt als Treffer, sonst faellt die neue
+// Rueckverlinkung (siehe ProductDetailPage.tsx relatedArticles) im
+// vorgerenderten Rumpf wieder auf nur ctaSlug zurueck.
 const ARTICLE_BY_PRODUCT = articles.reduce((acc, a) => {
   (acc[a.ctaSlug] ??= []).push(a);
+  if (a.secondaryCtaSlug) (acc[a.secondaryCtaSlug] ??= []).push(a);
   return acc;
 }, {});
 
@@ -349,7 +353,10 @@ function renderProduct(p) {
         .join('')}</dl>`
     : '';
 
-  const related = ARTICLE_BY_PRODUCT[p.id] ?? [];
+  // Fallback wie in ProductDetailPage.tsx relatedArticles: Ketten ohne
+  // direkten Treffer bekommen den allgemeinen Kaufratgeber "vorgewachste-kette".
+  const related = ARTICLE_BY_PRODUCT[p.id]
+    ?? (p.category === 'chain' ? articles.filter(a => a.slug === 'vorgewachste-kette') : []);
   const relatedHtml = related.length
     ? `<nav aria-label="Passende Ratgeber"><h2>Passend dazu</h2><ul>${related
         .map(a => `<li><a href="/blog/${a.slug}">${esc(a.titleShort)}</a></li>`)

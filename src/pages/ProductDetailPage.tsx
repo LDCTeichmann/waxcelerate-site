@@ -6,6 +6,7 @@ import {
   ChevronRight, ChevronLeft, ChevronDown, Star, Lightbulb, Truck, RotateCcw, BadgeCheck,
 } from 'lucide-react';
 import { getProductById, products, canCheckout, checkoutEnabled, isSoldOut, schemaAvailability, shipping, bundleOffer, trustStats } from '@/lib/data';
+import { articles } from '@/pages/blog/articles';
 import type { Product } from '@/lib/data';
 import { useToolProfile } from '@/hooks/useToolProfile';
 import { SizingInstrument } from '@/pages/product/SizingInstrument';
@@ -415,6 +416,24 @@ export function ProductDetailPage() {
     .filter(p => p.id !== product.id)
     .filter(p => product.category === 'wax' ? (p.category === 'chain' && !p.variant) : p.category === 'wax')
     .slice(0, 3);
+
+  // P1-3: Blogartikel verlinkten bisher einseitig auf Produkte, nie zurueck —
+  // die Produktseite selbst hatte keinen einzigen Link auf einen Artikel oder
+  // auf /wissenschaft. ctaSlug ODER secondaryCtaSlug reicht als Treffer.
+  // Vier der acht Ketten-SKUs haben keinen direkten Treffer (nur 4 Artikel
+  // wurden gezielt mit einer zweiten, thematisch passenden Kette verknuepft,
+  // siehe secondaryCtaSlug in articles.ts) — fuer die anderen greift
+  // "vorgewachste-kette" als Fallback: der Artikel ist ein allgemeiner
+  // Kaufratgeber fuer vorgewachste Ketten, passt also zu jeder Ketten-SKU,
+  // nicht nur zu chain-hg701 (seinem eigentlichen ctaSlug).
+  const directArticles = articles
+    .filter(a => a.ctaSlug === product.id || a.secondaryCtaSlug === product.id);
+  const relatedArticles = (directArticles.length > 0
+    ? directArticles
+    : product.category === 'chain'
+      ? articles.filter(a => a.slug === 'vorgewachste-kette')
+      : []
+  ).slice(0, 2);
 
   // Groessengeschwister derselben Formel — ersetzt den frueheren
   // "Auch erhaeltlich"-Karussellstreifen, der Groessenvarianten als anonyme
@@ -1429,6 +1448,29 @@ export function ProductDetailPage() {
             </div>
           </section>
         )}
+
+        {/* ── Weiterlesen ──
+            Bisher einseitig: Blog und Wissenschaft verlinken auf Produkte,
+            das Produkt verlinkte nirgends zurueck. */}
+        <section style={{ background: 'var(--sf2)', borderTop: '1px solid var(--bd)' }}>
+          <div className="max-w-6xl mx-auto px-5 sm:px-8 py-10">
+            <p className="text-small font-semibold uppercase tracking-[0.14em] mb-3" style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>{de ? 'Weiterlesen' : 'Further reading'}</p>
+            <ul className="flex flex-wrap gap-x-6 gap-y-2">
+              {relatedArticles.map(a => (
+                <li key={a.slug}>
+                  <Link to={`/blog/${a.slug}`} className="text-[13px] font-medium hover:underline" style={{ color: accentColor }}>
+                    {a.titleShort} →
+                  </Link>
+                </li>
+              ))}
+              <li>
+                <Link to="/wissenschaft" className="text-[13px] font-medium hover:underline" style={{ color: accentColor }}>
+                  {de ? 'Die Wissenschaft dahinter' : 'The science behind it'} →
+                </Link>
+              </li>
+            </ul>
+          </div>
+        </section>
         </main>
 
         <Footer />
