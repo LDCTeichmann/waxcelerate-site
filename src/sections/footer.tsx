@@ -89,7 +89,7 @@ export function Footer() {
                   { href: '#produkte', label: t.nav.products },
                   { href: '/kette-wachsen-lassen', label: t.nav.rewax, route: true },
                   { href: '/starter-set', label: de ? 'Starter-Set' : 'Starter Set', route: true },
-                  { href: '#tools',    label: t.nav.tools },
+                  { href: '/rechner',  label: t.nav.tools, route: true },
                   { href: 'https://www.ebay.de/usr/waxcelerate', label: 'eBay', external: true },
                 ].map((item, i) => (
                   <li key={i}>
