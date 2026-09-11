@@ -1349,6 +1349,13 @@ export function ProductDetailPage() {
           </section>
         )}
 
+        {/* Produktbezogenes FAQ aus den freigegebenen Fragen. Etappe 5
+            (11.09.2026): stand bisher NACH dem Abschluss-CTA -- fragte also
+            nach der Kaufentscheidung, bevor die letzten Einwaende
+            beantwortet waren. Ein CTA gehoert ans Ende der Argumentation,
+            nicht mittendrin. */}
+        <ProductFaq category={product.category} />
+
         {/* ── CTA ── */}
         {/* Herstellerangabe nach GPSR — einmal fuer beide Breakpoints. Lag bis
             09/2026 im Mobil-Hero und fehlte auf Desktop dadurch komplett. */}
@@ -1394,9 +1401,6 @@ export function ProductDetailPage() {
             )}
           </div>
         </section>
-
-        {/* Produktbezogenes FAQ aus den freigegebenen Fragen. */}
-        <ProductFaq category={product.category} />
 
         {/* ── Related ── */}
         {related.length > 0 && (
