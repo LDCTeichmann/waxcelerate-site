@@ -16,7 +16,7 @@
 import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
-import { products } from '../src/lib/data.ts';
+import { products, shipping } from '../src/lib/data.ts';
 import { assertXml } from './assert-xml.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -45,6 +45,49 @@ const GOOGLE_CATEGORY = {
 // manufacturer, or Google's identifier-mismatch checks (and buyers cross-
 // checking the part) will flag it. Wax is genuinely self-made, so our own
 // id doubling as brand/mpn there is correct, not a placeholder.
+//
+// P1-5: g:shipping ergaenzt aus derselben Tarifklasse (shipping.ts), die
+// auch der Checkout/Warenkorb verwendet — ein Einzelposten-Satz, nicht die
+// Warenkorb-Staffel mit Gratisversand ab 50 Euro. Die Schwelle ist eine
+// Merchant-Center-Kontoeinstellung (Versand → "Ab X kostenlos"), keine
+// Pro-Artikel-Angabe im Feed; das kann nur Luca im Dashboard setzen.
+//
+// g:item_group_id + g:size nur fuer die vier Wachs-SKUs: sie sind
+// Varianten desselben Grundprodukts (Formel x Groesse), Ketten sind
+// eigenstaendige Modelle ohne gemeinsame Gruppe.
+//
+// BEWUSST NICHT ergaenzt: g:identifier_exists. Der urspruengliche SEO-Plan
+// (P1-5) nannte "identifier_exists: no" fuers Wachs — falsch uebernommen:
+// das Feld ist fuer Produkte OHNE jede Kennung gedacht. Wachs hat bereits
+// ein gueltiges brand+mpn-Paar (Waxcelerate + Produkt-ID), das reicht
+// Google als Identifier-Nachweis; identifier_exists:no wuerde faelschlich
+// behaupten, es gebe gar keine Kennung. Korrektur gegenueber dem Plan,
+// nicht der Plan selbst umgesetzt.
+//
+// BEWUSST NICHT ergaenzt: lokale Kopien der 8 Ketten-Hotlink-Bilder
+// (i.ebayimg.com). Das braeuchte den Download fremder Bilddateien aus
+// einem eBay-Konto, das nicht meins ist — eine Aktion, die laut den
+// Sicherheitsregeln dieser Session explizite Rueckfrage braucht, nicht
+// stillschweigend im selben Schritt wie die reinen Datenaenderungen unten.
+const SHIP_COUNTRY = 'DE';
+const shippingXml = (p) => {
+  const rate = shipping[p.shippingClass];
+  if (!rate) return '';
+  return `
+      <g:shipping>
+        <g:country>${SHIP_COUNTRY}</g:country>
+        <g:service>${esc(rate.label)}</g:service>
+        <g:price>${(rate.cents / 100).toFixed(2)} EUR</g:price>
+      </g:shipping>`;
+};
+
+const WAX_ITEM_GROUP_ID = 'waxcelerate-wachs';
+const variantXml = (p) => p.category === 'wax'
+  ? `
+      <g:item_group_id>${WAX_ITEM_GROUP_ID}</g:item_group_id>
+      <g:size>${esc(p.weight ?? '')}</g:size>`
+  : '';
+
 const item = (p) => `    <item>
       <g:id>${esc(p.id)}</g:id>
       <title>${esc(p.title)}</title>
@@ -57,7 +100,7 @@ const item = (p) => `    <item>
       <g:condition>new</g:condition>
       <g:mpn>${esc(p.category === 'chain' ? (p.chainModel || p.id) : p.id)}</g:mpn>
       <g:google_product_category>${esc(GOOGLE_CATEGORY[p.category])}</g:google_product_category>
-      <g:product_type>${esc(p.category === 'wax' ? 'Kettenwachs' : 'Vorgewachste Kette')}</g:product_type>
+      <g:product_type>${esc(p.category === 'wax' ? 'Kettenwachs' : 'Vorgewachste Kette')}</g:product_type>${shippingXml(p)}${variantXml(p)}
     </item>`;
 
 const xml = `<?xml version="1.0" encoding="UTF-8"?>
