@@ -22,8 +22,11 @@
 
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve, join } from 'node:path';
-import { products, shipping, schemaAvailability } from '../src/lib/data.ts';
-import { articles } from '../src/pages/blog/articles.ts';
+import { products, shipping, schemaAvailability, waxVsOil } from '../src/lib/data.ts';
+import { articles, getArticleBySlug } from '../src/pages/blog/articles.ts';
+import { translations } from '../src/lib/i18n.ts';
+import { WAX_TOPICS, CHAIN_TOPICS } from '../src/pages/product/faqTopics.ts';
+import { THREE_WAYS } from '../src/pages/product/threeWays.ts';
 import {
   BASE, esc, ld, ldClientManaged, metaTags, loadShell, buildPage, write, imagePreload, mimeOf,
 } from './lib/prerender.mjs';
@@ -253,6 +256,62 @@ function breadcrumbSchema(p) {
 
 // ─── Seite ──────────────────────────────────────────────────────────────────
 
+// P1-2: der bisherige Rumpf (Brotkrumen, Preis, Specs, Herkunft) lag bei
+// 500-1.000 Zeichen. Die in Etappe 3 gebauten Kernabschnitte — Ablauf, drei
+// Wege, Produkt-FAQ, Kostenvergleich — beantworten die eigentliche
+// Kaufhuerde ("klingt kompliziert") und rendern bisher NUR in React, sind
+// fuer GPTBot/ClaudeBot/PerplexityBot also unsichtbar. Alle vier hier aus
+// derselben Quelle wie die React-Komponenten (ProcessAndPaths.tsx,
+// ProductFaq.tsx, waxVsOil aus data.ts) — keine neue Copy.
+
+/** Wandelt "PT45M" in "45 Minuten". Spiegelt minutesFrom() in ProcessAndPaths.tsx. */
+function minutesFrom(iso) {
+  const m = iso?.match(/PT(\d+)M/);
+  return m ? `${m[1]} Minuten` : null;
+}
+
+const GUIDE = getArticleBySlug('heisswachs-anleitung');
+const DE_FAQ_ITEMS = translations.de.faq.items ?? [];
+
+/** Nur fuer Wachsprodukte (isWax-Gate in ProductDetailPage.tsx:1097 spiegeln):
+ *  "So laeuft's ab" + "Drei Wege" beantworten "wie wachse ich", nicht "wie
+ *  wechsle ich eine vorgewachste Kette". */
+function processAndPathsHtml(p) {
+  if (p.category !== 'wax') return '';
+  const steps = GUIDE?.howTo?.steps ?? [];
+  const total = minutesFrom(GUIDE?.howTo?.totalTime);
+  const stepsHtml = steps.length
+    ? `<h2>So läuft's ab</h2>${total ? `<p>${esc(total)} insgesamt, davon das meiste Wartezeit.</p>` : ''}<ol>${steps
+        .map(s => `<li><strong>${esc(s.name)}</strong> — ${esc(s.text)}</li>`)
+        .join('')}</ol><p><a href="/blog/heisswachs-anleitung">Ausführliche Anleitung mit Fotos →</a></p>`
+    : '';
+  const waysHtml = `<h2>Drei Wege zur gewachsten Kette</h2><ul>${THREE_WAYS
+    .map(w => `<li><strong>${esc(w.titleDe)}:</strong> ${esc(w.bodyDe)} <a href="${w.to}">${esc(w.ctaDe)} →</a></li>`)
+    .join('')}</ul>`;
+  return stepsHtml + waysHtml;
+}
+
+/** Spiegelt ProductFaq.tsx: Stichwort-Filter auf denselben 22 Fragen aus
+ *  i18n.ts, bewusst ohne FAQPage-Schema (dieselbe Begruendung wie dort —
+ *  Google hat FAQ-Rich-Results am 07.05.2026 entfernt, und die Startseite
+ *  traegt das Schema bereits). Faellt still leer aus wie das React-Original. */
+function productFaqHtml(p) {
+  const topics = p.category === 'chain' ? CHAIN_TOPICS : WAX_TOPICS;
+  const items = DE_FAQ_ITEMS.filter(item => topics.some(t => item.q.includes(t)));
+  if (!items.length) return '';
+  return `<h2>Häufige Fragen</h2><dl>${items
+    .map(i => `<dt>${esc(i.q)}</dt><dd>${esc(i.a)}</dd>`)
+    .join('')}</dl>`;
+}
+
+/** Kostenvergleich nur fuer Wachsprodukte, dieselben Zahlen wie SciencePage.tsx
+ *  und /wissenschaft (waxVsOil aus data.ts) — keine neue Zahl. */
+function costCompareHtml(p) {
+  if (p.category !== 'wax') return '';
+  const c = waxVsOil.cost;
+  return `<h2>Kostenvergleich gegenüber Kettenöl</h2><p>Rund ${c.pctLess}% geringere Antriebskosten über ${c.km.toLocaleString('de-DE')} km (${c.oilEur} € Öl gegen ${c.waxEur} € Wachs, eine Kette, trockene Straße). ${waxVsOil.life.waxLo} bis ${waxVsOil.life.wax}× längere Kettenlaufzeit gegenüber Öl.</p>`;
+}
+
 function renderProduct(p) {
   const url = `${BASE}/produkt/${p.id}`;
   const price = p.price.toFixed(2).replace('.', ',');
@@ -321,6 +380,9 @@ function renderProduct(p) {
     ? `<p><a href="/rechner/passende-kette">Passt diese Kette zu deinem Antrieb? Kompatibilität prüfen →</a></p>`
     : `<p><a href="/rechner/intervall">Wie oft nachwachsen? Rewax-Intervall berechnen →</a></p>`}
 </article>
+${processAndPathsHtml(p)}
+${costCompareHtml(p)}
+${productFaqHtml(p)}
 ${relatedHtml}
 <nav aria-label="Weitere Seiten">
   <p><a href="/">Zur Startseite</a> · <a href="/kette-wachsen-lassen">Kette wachsen lassen</a> · <a href="/starter-set">Starter-Set</a> · <a href="/wissenschaft">Wissenschaft</a> · <a href="/blog">Blog</a></p>
