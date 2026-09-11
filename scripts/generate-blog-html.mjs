@@ -26,7 +26,8 @@
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve, join } from 'node:path';
 import { articles, getArticleImage, author, categoryOrder, blogHero } from '../src/pages/blog/articles.ts';
-import { starterSet } from '../src/lib/data.ts';
+import { starterSet, waxVsOil, frictionRanges } from '../src/lib/data.ts';
+import { COMPONENTS } from '../src/lib/science.ts';
 import { TOOLS, TOOLS_HUB } from '../src/lib/toolRegistry.ts';
 // Preise, Meta, FAQ und Schema von /kette-wachsen-lassen — dieselbe Quelle wie
 // RewaxPage.tsx, damit Prerender und hydrierte Seite wortgleich sind.
@@ -331,6 +332,59 @@ const STATIC_PAGES = [
       'Die Formel besteht aus sechs Komponenten, weil keine einzelne Substanz in allen drei Zonen stark ist.',
       'Originalaufnahmen unter dem Mikroskop, jede Gegenüberstellung bei identischer Vergrößerung.',
     ],
+    // P1-1: der bisherige Rumpf dieser Seite lag bei ~680 Zeichen ohne ein
+    // einziges <h2> — fuer GPTBot/ClaudeBot/PerplexityBot (kein JS) praktisch
+    // leer, obwohl das die Seite ist, die erklaert WARUM Wachs wirkt. Werte
+    // aus derselben Quelle wie SciencePage.tsx (waxVsOil/frictionRanges aus
+    // data.ts), damit Rumpf und hydrierte Seite nicht auseinanderlaufen —
+    // Temperaturfenster/PFAS-Status liegen nur in ContactZones.tsx (JSX, hier
+    // nicht importierbar) und sind deshalb wie der Rest dieser Seite von Hand
+    // uebertragen, nicht importiert.
+    sections: [
+      {
+        h2: 'Reibung und Antriebsverlust',
+        points: [
+          (() => {
+            const mu = n => n.toFixed(2).replace('.', ',');
+            const r = id => frictionRanges.find(x => x.id === id);
+            return `Waxcelerate Pro: μ ${mu(r('pro').muLo)}–${mu(r('pro').muHi)}, Classic: μ ${mu(r('classic').muLo)}–${mu(r('classic').muHi)}, Kettenöl: μ ${mu(r('oil').muLo)}–${mu(r('oil').muHi)}.`;
+          })(),
+          `Antriebsverlust bei ${waxVsOil.watts.inputW[0]}–${waxVsOil.watts.inputW[1]} W Tretleistung: Wachs ${waxVsOil.watts.wax[0]}–${waxVsOil.watts.wax[1]} W, Kettenöl ${waxVsOil.watts.oil[0]}–${waxVsOil.watts.oil[1]} W.`,
+        ],
+      },
+      {
+        h2: 'Kettenlaufzeit und Kosten',
+        points: [
+          `${waxVsOil.life.waxLo} bis ${waxVsOil.life.wax}× längere Kettenlaufzeit gegenüber Kettenöl, je nach Witterung und Untergrund.`,
+          `Rund ${waxVsOil.cost.pctLess} Prozent geringere Antriebskosten über ${waxVsOil.cost.km.toLocaleString('de-DE')} km (${waxVsOil.cost.oilEur} € Öl gegen ${waxVsOil.cost.waxEur} € Wachs, eine Kette, trockene Straße).`,
+        ],
+      },
+      {
+        h2: 'Temperaturfenster und Inhaltsstoffe',
+        points: [
+          'Classic: +5 bis rund 35 °C, enthält PTFE.',
+          'Pro (MoS₂): −8 bis über 45 °C, PFAS- und PTFE-frei.',
+        ],
+      },
+      {
+        // Wortlaut = COMPONENTS[].sumDe aus science.ts, derselben Quelle, die
+        // FormulaGraph auf der hydrierten Seite rendert (Tier 1, "immer
+        // sichtbar" laut Interface-Kommentar dort) — keine neue Copy, nur
+        // dieselbe an einer zweiten Stelle sichtbar gemacht.
+        h2: 'Die sechs Komponenten der Formel',
+        points: COMPONENTS
+          .slice()
+          .sort((a, b) => a.node - b.node)
+          .map(c => `${c.nameDe}: ${c.sumDe}`),
+      },
+      {
+        h2: 'Woher die Zahlen kommen',
+        points: [
+          'Reibungs- und Wattwerte stammen aus unabhängigen Labortests von Zero Friction Cycling, nicht aus eigenen Messungen von Waxcelerate.',
+          'Laborbedingungen (konstante Leistung, kontrollierte Kette) bilden die Straße nicht eins zu eins ab — die Größenordnung der Unterschiede bleibt davon unberührt.',
+        ],
+      },
+    ],
     calc: { href: '/rechner/verschleiss', label: 'Kettenverschleiß für deinen Antrieb berechnen' },
   },
 ];
@@ -366,10 +420,19 @@ function renderStatic(p) {
   const faq = p.faq
     ? `<h2>Kurz beantwortet</h2><dl>${p.faq.map(f => `<dt>${esc(f.q)}</dt><dd>${esc(f.a)}</dd>`).join('')}</dl>`
     : '';
+  // Optionale, benannte Abschnitte mit eigenem <h2> — bisher hatte jede
+  // STATIC_PAGES-Seite hoechstens EIN <h2> (nur ueber `faq`). Kein eigenes
+  // Schema pro Abschnitt (anders als `faq`, das eine FAQPage traegt) — reiner
+  // Fliesstext fuer JS-lose Crawler, ohne ein Schema zu versprechen, das die
+  // hydrierte Seite nicht hat.
+  const sections = (p.sections ?? [])
+    .map(s => `<h2>${esc(s.h2)}</h2><ul>${s.points.map(t => `<li>${esc(t)}</li>`).join('')}</ul>`)
+    .join('');
   const body = [
     `<h1>${esc(p.h1)}</h1>`,
     `<p>${esc(p.lead)}</p>`,
     `<ul>${p.points.map(t => `<li>${esc(t)}</li>`).join('')}</ul>`,
+    sections,
     faq,
     p.calc ? `<p><a href="${p.calc.href}">${esc(p.calc.label)} →</a></p>` : '',
     `<p><a href="/">Zur Startseite</a> · <a href="/wissenschaft">Wissenschaft</a> · <a href="/kette-wachsen-lassen">Kette wachsen lassen</a> · <a href="/starter-set">Starter-Set</a> · <a href="/rechner">Rechner</a> · <a href="/blog">Blog</a></p>`,
