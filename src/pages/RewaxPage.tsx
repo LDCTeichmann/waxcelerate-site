@@ -435,7 +435,7 @@ function StampCard({ de, count, price, list, gift, recommended, onPreview }: {
           {label}
         </p>
         {recommended && (
-          <span className="num-data px-1.5 py-0.5 rounded-full" style={{ fontSize: 9.5, background: 'var(--sf)', border: '1px solid rgba(var(--accent-rgb),0.20)', color: 'var(--accent)' }}>
+          <span className="num px-1.5 py-0.5 rounded-full" style={{ fontSize: 9.5, background: 'var(--sf)', border: '1px solid rgba(var(--accent-rgb),0.20)', color: 'var(--accent)' }}>
             {de ? 'bester Preis' : 'best price'}
           </span>
         )}
@@ -478,7 +478,7 @@ function StampCard({ de, count, price, list, gift, recommended, onPreview }: {
         <p className="font-display font-bold text-wx-tx1 leading-none" style={{ fontSize: '1.6rem', letterSpacing: '-0.02em' }}>
           {eur(price, de)}
         </p>
-        <p className="num-data text-[11px] line-through" style={{ color: 'var(--txff)' }}>
+        <p className="num text-[11px] line-through" style={{ color: 'var(--txff)' }}>
           {eur(list, de)}
         </p>
       </div>
@@ -554,7 +554,7 @@ function ServicePricing({ de, service }: { de: boolean; service: ServiceId }) {
                 {de ? plan.titleDe : plan.titleEn}
               </p>
               {plan.accent && (
-                <span className="num-data px-1.5 py-0.5 rounded-full" style={{ fontSize: 9.5, background: 'var(--sf)', border: '1px solid rgba(var(--accent-rgb),0.20)', color: 'var(--accent)' }}>
+                <span className="num px-1.5 py-0.5 rounded-full" style={{ fontSize: 9.5, background: 'var(--sf)', border: '1px solid rgba(var(--accent-rgb),0.20)', color: 'var(--accent)' }}>
                   {de ? 'empfohlen' : 'recommended'}
                 </span>
               )}
@@ -568,13 +568,13 @@ function ServicePricing({ de, service }: { de: boolean; service: ServiceId }) {
             </p>
 
             <div className="mt-4 pt-3 space-y-1.5" style={{ borderTop: '1px solid var(--bd2)' }}>
-              <p className="num-data text-[11.5px]" style={{ color: 'var(--txm)' }}>
+              <p className="num text-[11.5px]" style={{ color: 'var(--txm)' }}>
                 {de ? 'Wachsen' : 'Waxing'} <span style={{ color: 'var(--tx1)' }}>{eur(plan.total, de)}</span>
               </p>
-              <p className="num-data text-[11.5px]" style={{ color: 'var(--txm)' }}>
+              <p className="num text-[11.5px]" style={{ color: 'var(--txm)' }}>
                 {de ? 'Rückversand' : 'Return shipping'} <span style={{ color: 'var(--tx1)' }}>{eur(plan.shipping, de)}</span>
               </p>
-              <p className="num-data text-[13px] pt-1.5" style={{ color: 'var(--tx1)' }}>
+              <p className="num text-[13px] pt-1.5" style={{ color: 'var(--tx1)' }}>
                 {de ? 'Gesamt' : 'Total'} <span style={{ color: 'var(--accent)' }}>{eur(plan.total + plan.shipping, de)}</span>
               </p>
             </div>
@@ -624,7 +624,7 @@ function RewaxSteps({ de }: { de: boolean }) {
               </div>
               <div className="min-w-0">
                 <div className="flex items-baseline gap-2">
-                  <span className="num-data font-bold" style={{ color: 'var(--accent)', fontSize: 13 }}>{s.n}</span>
+                  <span className="num font-bold" style={{ color: 'var(--accent)', fontSize: 13 }}>{s.n}</span>
                   <h3 className="font-semibold text-[15px] sm:text-[16px]" style={{ color: 'var(--tx1)' }}>
                     {de ? s.de : s.en}
                   </h3>
@@ -873,7 +873,7 @@ export function RewaxPage() {
                 alt={de ? 'Frisch gewachste Ketten hängen zum Aushärten' : 'Freshly waxed chains hanging to cure'}
                 className="w-full h-full object-cover" />
             </div>
-            <p className="num-data text-meta mt-3" style={{ color: 'var(--txff)' }}>
+            <p className="num text-meta mt-3" style={{ color: 'var(--txff)' }}>
               {de ? 'AUSGEHÄRTET, STUTTGART' : 'CURED, STUTTGART'}
             </p>
 

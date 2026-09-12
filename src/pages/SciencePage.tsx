@@ -327,7 +327,7 @@ function CompCard({ c, n, de, cardRef, compact }: { c: ScienceComponent; n: numb
       <div className="px-6 pt-5 pb-4" style={{ borderBottom: '1px solid var(--bd2)' }}>
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
-            <span className="num-data text-[12px] flex-shrink-0" style={{ color: 'var(--txf)' }}>0{n}</span>
+            <span className="num text-[12px] flex-shrink-0" style={{ color: 'var(--txf)' }}>0{n}</span>
             <div className="h-px flex-1 max-w-[32px]" style={{ background: 'var(--accent-soft)', opacity: 0.4 }} />
             <span className="text-small uppercase tracking-[0.18em] flex-shrink-0" style={{ color: 'var(--accent-soft)' }}>
               {de ? c.roleDe : c.roleEn}
@@ -558,7 +558,7 @@ function Microscope({ de }: { de: boolean }) {
               {/* Header */}
               <div className="flex items-center justify-between px-4 pt-3.5 pb-2">
                 <div className="flex items-baseline gap-2">
-                  <span className="num-data text-[14px] font-bold" style={{ color: 'var(--tx2)' }}>{row.n}</span>
+                  <span className="num text-[14px] font-bold" style={{ color: 'var(--tx2)' }}>{row.n}</span>
                   <span className="text-[12px]" style={{ color: 'var(--txm)' }}>{de ? row.de : row.en}</span>
                 </div>
                 <span className="num-data text-meta px-1.5 py-0.5 rounded-md"
@@ -675,7 +675,7 @@ function CtaProductCard({ product, de, featured }: { product: Product; de: boole
         border: featured ? '1.5px solid var(--accent)' : '1px solid var(--bd)',
       }}>
       {product.badge && (
-        <span className="absolute -top-2.5 left-4 num-data text-meta px-2 py-0.5 rounded-full"
+        <span className="absolute -top-2.5 left-4 num text-meta px-2 py-0.5 rounded-full"
           style={{
             background: featured ? 'var(--accent)' : 'var(--sf2)',
             color: featured ? '#fff' : 'var(--txm)',
@@ -696,7 +696,7 @@ function CtaProductCard({ product, de, featured }: { product: Product; de: boole
           {de ? product.description : product.descriptionEn}
         </p>
         <div className="flex items-center justify-between mt-2.5">
-          <span className="num-data font-semibold text-[15px]" style={{ color: 'var(--tx1)' }}>{price}</span>
+          <span className="num font-semibold text-[15px]" style={{ color: 'var(--tx1)' }}>{price}</span>
           <span className="inline-flex items-center gap-1 text-[12.5px] font-semibold transition-opacity group-hover:opacity-70"
             style={{ color: featured ? 'var(--accent)' : 'var(--tx1)' }}>
             {de ? 'Ansehen' : 'View'}
@@ -795,7 +795,7 @@ function FormulaStory({ de }: { de: boolean }) {
                 >
                   {/* Step counter */}
                   <div className="flex items-center gap-3 mb-4">
-                    <span className="num-data text-[28px] font-bold leading-none" style={{ color: 'rgba(var(--accent-rgb),0.18)' }}>
+                    <span className="num text-[28px] font-bold leading-none" style={{ color: 'rgba(var(--accent-rgb),0.18)' }}>
                       0{i + 1}
                     </span>
                     <span className="text-small uppercase tracking-[0.18em]" style={{ color: 'var(--accent-soft)' }}>

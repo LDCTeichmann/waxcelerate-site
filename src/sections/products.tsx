@@ -18,8 +18,6 @@ import { Section } from '@/components/Section';
 import { CompareTable } from '@/components/CompareTable';
 import { getEstimatedDelivery } from '@/lib/utils';
 
-const MONO = "'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace";
-
 export function Products() {
   const { t, lang } = useLanguage();
   // Nur noch die Kettenliste klappt auf. Das Wachs steht im Regal selbst — es
@@ -362,12 +360,12 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel, 
           {(chainLinks || speed) && (
             <div className="flex items-center gap-2 mt-2 flex-wrap">
               {speed && (
-                <span className="text-[10.5px] px-2 py-0.5 rounded-md tabular-nums" style={{ fontFamily: MONO, background: 'var(--sf2)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
+                <span className="num text-[10.5px] px-2 py-0.5 rounded-md" style={{ background: 'var(--sf2)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
                   {speed}
                 </span>
               )}
               {chainLinks && (
-                <span className="text-[10.5px] px-2 py-0.5 rounded-md tabular-nums" style={{ fontFamily: MONO, background: 'var(--sf2)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
+                <span className="num text-[10.5px] px-2 py-0.5 rounded-md" style={{ background: 'var(--sf2)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
                   {chainLinks}
                 </span>
               )}
@@ -378,7 +376,7 @@ const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel, 
               uebergeben; die Kettenkarte zeigte bisher gar kein Lieferdatum,
               anders als die Wachs-Tafeln im Regal. */}
           {deliveryDate && (
-            <span className="flex items-center gap-1.5 num-data text-meta mt-2" style={{ color: 'var(--txff)' }}>
+            <span className="flex items-center gap-1.5 num text-meta mt-2" style={{ color: 'var(--txff)' }}>
               <Truck className="h-3 w-3 flex-shrink-0" style={{ color: 'var(--accent-soft)' }} aria-hidden />
               {de ? `Lieferung ${deliveryDate}` : `Delivery ${deliveryDate}`}
             </span>

@@ -41,11 +41,12 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ArrowLeftRight, ExternalLink, Star, Truck } from 'lucide-react';
+import { ArrowRight, ArrowLeftRight, ExternalLink, Truck } from 'lucide-react';
 import { products, accessories, starterSetPrice, canCheckout } from '@/lib/data';
 import type { TranslationType } from '@/lib/i18n';
 import { AddToCartButton } from '@/components/AddToCartButton';
 import { PriceNote } from '@/components/PriceNote';
+import { Stars } from '@/components/Stars';
 import { trackEbayClick } from '@/lib/analytics';
 import { getEstimatedDelivery } from '@/lib/utils';
 
@@ -115,7 +116,7 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
         type="button"
         onClick={() => setSize(v)}
         aria-pressed={active}
-        className={`num-data inline-flex items-center justify-center min-h-11 min-w-11 px-4 rounded-md text-[12.5px] leading-none transition-all ${
+        className={`num inline-flex items-center justify-center min-h-11 min-w-11 px-4 rounded-md text-[12.5px] leading-none transition-all ${
           active ? 'text-wx-tx1' : 'text-wx-txm hover:text-wx-tx2'
         }`}
         style={{
@@ -234,7 +235,7 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
               style={{ color: 'var(--tx1)', fontSize: 'clamp(1.15rem, 1.9vw, 1.4rem)' }}>
               {variant === 'classic' ? s.classicName : s.proName}
             </p>
-            <p className="num-data text-[12px] mt-0.5 truncate" style={{ color: 'var(--txm)' }}>
+            <p className="num text-[12px] mt-0.5 truncate" style={{ color: 'var(--txm)' }}>
               {variant === 'classic' ? s.classicFor : s.proFor}
             </p>
           </div>
@@ -242,7 +243,7 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
             <span className="num text-[21px] font-bold leading-none tracking-[-0.02em]" style={{ color: 'var(--tx1)' }}>
               {eur(product.price, de)}
             </span>
-            <p className="num-data text-meta mt-1" style={{ color: 'var(--txf)' }}>
+            <p className="num text-meta mt-1" style={{ color: 'var(--txf)' }}>
               {per100} {s.per100}
             </p>
           </div>
@@ -259,7 +260,7 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
           <div className="inline-flex rounded-lg p-0.5" style={{ border: '1px solid var(--bd)', background: 'var(--sf3)' }}>
             {(['300', '500'] as Size[]).map(sizeBtn)}
           </div>
-          <span className="num-data text-meta flex-shrink-0" style={{ color: 'var(--txf)' }}>
+          <span className="num text-meta flex-shrink-0" style={{ color: 'var(--txf)' }}>
             {product.applications} {s.uses}
           </span>
         </div>
@@ -268,7 +269,7 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
             eigene Zeile statt Chip in der Groessenreihe. Haeufigster
             Vorentscheidungs-Filter ("passt das an meine Kette") und auf
             keiner Karte bisher vertreten. */}
-        <p className="num-data text-[10.5px] mt-2.5" style={{ color: 'var(--txff)' }}>
+        <p className="num text-[10.5px] mt-2.5" style={{ color: 'var(--txff)' }}>
           {s.compat}
         </p>
 
@@ -320,28 +321,27 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
             <div className="flex items-center gap-1.5 whitespace-nowrap">
               {reviews > 0 && (
                 <>
-                  <div className="flex gap-px flex-shrink-0">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star key={i} className="h-3 w-3 fill-current" style={{ color: '#F5A623' }} aria-hidden />
-                    ))}
-                  </div>
-                  <span className="num-data text-meta font-medium" style={{ color: 'var(--txm)' }}>
+                  {/* Eine Sternkomponente statt drei (Stufe 0): vorher eigenes
+                      goldenes #F5A623-Icon hier, brand-blaues var(--accent-soft)
+                      in Stars.tsx. Feste Farbe jetzt einheitlich accent-soft. */}
+                  <Stars rating={5} />
+                  <span className="num text-meta font-medium" style={{ color: 'var(--txm)' }}>
                     {reviews} {s.reviewsShort}
                   </span>
                 </>
               )}
               {soldRounded >= 20 && (
-                <span className="num-data text-meta" style={{ color: 'var(--txf)' }}>
+                <span className="num text-meta" style={{ color: 'var(--txf)' }}>
                   {reviews > 0 && '· '}{soldRounded}+ {s.soldUnits}
                 </span>
               )}
             </div>
-            <span className="flex items-center gap-1.5 num-data text-meta font-medium whitespace-nowrap" style={{ color: 'var(--tx2)' }}>
+            <span className="flex items-center gap-1.5 num text-meta font-medium whitespace-nowrap" style={{ color: 'var(--tx2)' }}>
               <Truck className="h-3 w-3 flex-shrink-0" style={{ color: accentColor }} aria-hidden />
               {s.delivery} {delivery}
             </span>
           </div>
-          <p className="num-data text-[10.5px] mt-2" style={{ color: 'var(--txff)' }}>
+          <p className="num text-[10.5px] mt-2" style={{ color: 'var(--txff)' }}>
             {t.products.multiDiscount}
           </p>
         </div>
@@ -449,7 +449,7 @@ export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, p
             ? 'linear-gradient(to top, rgba(var(--scrim-rgb),0.34) 0%, rgba(var(--scrim-rgb),0) 42%)'
             : 'linear-gradient(to top, rgba(var(--scrim-rgb),0.18) 0%, rgba(var(--scrim-rgb),0) 36%)' }} />
         {index && (
-          <span className="absolute top-3.5 left-3.5 flex items-center justify-center h-6 w-6 rounded-full num-data text-[11px] font-semibold"
+          <span className="absolute top-3.5 left-3.5 flex items-center justify-center h-6 w-6 rounded-full num text-[11px] font-semibold"
             style={{
               background: 'rgba(255,255,255,0.94)',
               color: '#101013',
@@ -476,7 +476,7 @@ export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, p
         {/* Lieferzeile — nur wenn uebergeben (aktuell nur Ketten, siehe
             Prop-Kommentar). Gleiche Truck-Icon-Grammatik wie WaxPanel. */}
         {delivery && (
-          <span className="flex items-center gap-1.5 num-data text-meta mt-1.5" style={{ color: 'var(--txff)' }}>
+          <span className="flex items-center gap-1.5 num text-meta mt-1.5" style={{ color: 'var(--txff)' }}>
             <Truck className="h-3 w-3 flex-shrink-0" style={{ color: 'var(--accent-soft)' }} aria-hidden />
             {delivery}
           </span>

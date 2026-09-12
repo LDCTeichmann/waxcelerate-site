@@ -76,7 +76,7 @@ function FixedCard({ optionId, de, icon: Icon, badgeDe, badgeEn }: {
           <p className="font-display font-bold text-wx-tx1 leading-none" style={{ fontSize: '1.9rem', letterSpacing: '-0.02em' }}>
             {fmt(bundleProduct.price, de)}
           </p>
-          <p className="num-data text-[12.5px] line-through" style={{ color: 'var(--txff)' }}>
+          <p className="num text-[12.5px] line-through" style={{ color: 'var(--txff)' }}>
             {fmt(partsSum, de)}
           </p>
         </div>

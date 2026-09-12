@@ -18,7 +18,9 @@ dort gezielt weiter in den passenden `docs/`-Unterordner, statt breit zu suchen.
 2. **Keine Hooks in `.map()`** — immer Wrapper-Komponente dazwischen
 3. **`e.stopPropagation()`** auf innere Links wenn äußeres Element bereits ein Link ist
 4. **Performance-Index-Balken in `why-wax.tsx` Block 4:** höherer Balken = besser. Classic=95%, Graphit=72%, Öl=18%. NICHT zurückändern.
-5. **Vor jedem Commit:** `npx tsc --noEmit` muss sauber durchlaufen (pre-commit hook läuft automatisch)
+5. **Vor jedem Commit:** `npx tsc -b --force` muss sauber durchlaufen. `npx tsc --noEmit`
+   prüft **nichts** — die Wurzel-`tsconfig.json` hat `"files": []` und nur `references`,
+   der Befehl ist immer grün. Es gibt auch **keinen** Pre-Commit-Hook.
 6. **Sprache:** Deutsche Strings in `src/lib/i18n.ts`, niemals direkt in Komponenten
 
 ---

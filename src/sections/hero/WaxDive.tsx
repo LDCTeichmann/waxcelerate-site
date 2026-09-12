@@ -158,7 +158,7 @@ export function WaxDive({ open, onClose, de }: { open: boolean; onClose: () => v
                           paddingLeft: sel ? '12px' : '4px',
                         }}
                       >
-                        <span className="num-data text-meta pt-1 flex-shrink-0 w-5"
+                        <span className="num text-meta pt-1 flex-shrink-0 w-5"
                           style={{ color: sel ? 'var(--accent-soft)' : 'var(--txff)' }}>
                           {String(i + 1).padStart(2, '0')}
                         </span>
@@ -172,7 +172,7 @@ export function WaxDive({ open, onClose, de }: { open: boolean; onClose: () => v
                             {de ? c.roleDe : c.roleEn}
                           </span>
                         </span>
-                        <span className="num-data text-[12.5px] flex-shrink-0 pt-0.5"
+                        <span className="num text-[12.5px] flex-shrink-0 pt-0.5"
                           style={{ color: sel ? 'var(--accent-soft)' : 'var(--txf)' }}>
                           {c.metric}
                         </span>
@@ -191,7 +191,7 @@ export function WaxDive({ open, onClose, de }: { open: boolean; onClose: () => v
                 <h3 className="font-display font-bold text-[1.35rem] lg:text-[1.5rem] leading-tight" style={{ color: 'var(--tx1)' }}>
                   {de ? active.nameDe : active.nameEn}
                 </h3>
-                <span className="num-data font-semibold text-[16px]" style={{ color: 'var(--accent-soft)' }}>
+                <span className="num font-semibold text-[16px]" style={{ color: 'var(--accent-soft)' }}>
                   {active.metric}
                 </span>
               </div>
@@ -269,7 +269,7 @@ export function WaxDive({ open, onClose, de }: { open: boolean; onClose: () => v
             <p className="text-[13px] sm:text-[14px] font-semibold truncate" style={{ color: 'var(--tx1)' }}>
               {de ? product.title : product.titleEn}
             </p>
-            <p className="num-data text-[15px] font-bold mt-0.5" style={{ color: 'var(--tx1)' }}>
+            <p className="num text-[15px] font-bold mt-0.5" style={{ color: 'var(--tx1)' }}>
               {product.price.toFixed(2).replace('.', ',')} €
             </p>
           </div>

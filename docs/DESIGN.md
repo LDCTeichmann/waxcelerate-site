@@ -105,6 +105,29 @@ allem in `tools.tsx`, `guides.tsx`, `reviews.tsx`, `products.tsx`, `about.tsx`,
 blind ersetzt worden, weil Badges und Navigationselemente daran hängen. Sollte
 einmal bewusst durchgegangen werden.
 
+### Wo Mono erlaubt ist
+
+Seit dem Produktkarten-Umbau (09/2026, Stufe 0) ist IBM Plex Mono keine
+Verkaufsschrift mehr. `.num-data` bleibt nur, wo Gleichbreite echte Bedeutung
+trägt — Achsenwerte, die beim Animieren nicht springen dürfen, echte
+Messwerte, Instrumenten-Optik:
+
+- `src/sections/science/*` und `src/components/viz/InstrumentFrame.tsx` —
+  vollständig, das ist der definierte Behälter der Marke für Wissenschaft.
+- `src/pages/SciencePage.tsx` — nur an echten Messwerten (µ-Reibwerte,
+  °C-Bereiche, Vergrößerungsfaktoren, Komponenten-Metriken). Index- und
+  Schrittzähler-Labels auf derselben Seite (`0{n}`, Kartenbadges, der
+  CTA-Produktpreis) sind Fließtext-Label, keine Messwerte, und laufen über
+  `.num`.
+- Blog-Codeblöcke.
+
+Jede Verkaufs- und Marketingfläche (Regal, Kettenkarten, Produktseite,
+Rechner, Starter-Set, Rewax) läuft über `.num` — die Klasse setzt keine
+Schriftfamilie, sie erbt Libre Franklin, das ist genau richtig für Preise,
+Zählwerte und Kompatibilitätsangaben. Gesperrte Micro-Labels („Spezifikationen",
+Varianten-Chips, Eyebrow-Zeilen) laufen über `.eyebrow` statt über eine
+Mono-Nachbildung in Inline-Styles.
+
 ---
 
 ## 3. Flächen und Kanten

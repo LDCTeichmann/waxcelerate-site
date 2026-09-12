@@ -3,7 +3,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
   ArrowLeft, ArrowRight, ExternalLink, Check,
-  ChevronRight, ChevronLeft, ChevronDown, Star, Lightbulb, Truck, RotateCcw, BadgeCheck,
+  ChevronRight, ChevronLeft, ChevronDown, Lightbulb, Truck, RotateCcw, BadgeCheck,
 } from 'lucide-react';
 import { getProductById, products, canCheckout, checkoutEnabled, isSoldOut, schemaAvailability, shipping, bundleOffer, trustStats } from '@/lib/data';
 import { articles } from '@/pages/blog/articles';
@@ -827,8 +827,7 @@ export function ProductDetailPage() {
                 eigenen Sektionen — sie beantworten Folgefragen, nicht die
                 Kaufentscheidung. */}
             <div className="lg:sticky lg:top-24 min-w-0">
-              <span className="text-small font-semibold uppercase tracking-[0.2em] block mb-2"
-                style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
+              <span className="eyebrow block mb-2" style={{ color: 'var(--txff)' }}>
                 {product.variant ? `${product.variant} · ${product.weight ?? ''}` : (product.chainSpeed ?? '')}
               </span>
 
@@ -847,9 +846,9 @@ export function ProductDetailPage() {
                   145/150 identisch fuer alle Wachs- bzw. alle Ketten-SKUs) --
                   jetzt dieselbe trustStats-Quelle an beiden Stellen. */}
               <a href="#bewertungen" className="inline-flex items-center gap-1.5 mb-3 hover:opacity-70 transition-opacity">
-                <span className="flex items-center gap-0.5">
-                  {[0, 1, 2, 3, 4].map(i => <Star key={i} className="h-3.5 w-3.5 fill-current" style={{ color: '#F5A623' }} />)}
-                </span>
+                {/* Eine Sternkomponente statt drei (Stufe 0), feste Farbe
+                    accent-soft statt des vorherigen goldenen #F5A623. */}
+                <Stars rating={5} />
                 <span className="text-meta font-medium" style={{ color: 'var(--txf)' }}>
                   {trustStats.reviews} {de ? 'Bewertungen' : 'reviews'}
                 </span>
@@ -904,7 +903,7 @@ export function ProductDetailPage() {
                         <button key={v} type="button"
                           onClick={() => { if (!active) { trackSizeSelect(waxSizeSibling.id, `${v}g`); navigate(`/produkt/${waxSizeSibling.id}`, { state: { keepScroll: true } }); } }}
                           aria-pressed={active}
-                          className="num-data inline-flex items-center justify-center min-h-11 min-w-11 px-4 rounded-md text-[12.5px] leading-none transition-all"
+                          className="num inline-flex items-center justify-center min-h-11 min-w-11 px-4 rounded-md text-[12.5px] leading-none transition-all"
                           style={{ background: active ? 'var(--sf)' : 'transparent', color: active ? 'var(--tx1)' : 'var(--txm)' }}>
                           {v} g
                         </button>
@@ -1088,7 +1087,7 @@ export function ProductDetailPage() {
               {bestForList.length > 0 && (
                 <ul className="flex flex-wrap gap-x-2 gap-y-1.5 mt-6">
                   {bestForList.map((b, i) => (
-                    <li key={i} className="num-data text-meta px-2.5 py-1 rounded-full"
+                    <li key={i} className="num text-meta px-2.5 py-1 rounded-full"
                       style={{ background: 'var(--sf2)', color: 'var(--txm)', border: '1px solid var(--bd2)' }}>
                       {b}
                     </li>
@@ -1140,16 +1139,14 @@ export function ProductDetailPage() {
                   not intentionally absent content. */}
               {specsData.length > 0 && (
                 <div className="min-w-0">
-                  <h2 className="text-small font-semibold uppercase tracking-[0.14em] mb-3"
-                    style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
+                  <h2 className="eyebrow mb-3" style={{ color: 'var(--txff)' }}>
                     {de ? 'Spezifikationen' : 'Specifications'}
                   </h2>
                   <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--bd)' }}>
                     {specsData.map((spec, i, arr) => (
                       <div key={i} className="flex items-baseline justify-between px-4 py-3"
                         style={{ borderBottom: i < arr.length - 1 ? '1px solid var(--bd)' : 'none', background: i % 2 === 0 ? 'var(--sf2)' : 'var(--pg)' }}>
-                        <span className="text-meta uppercase tracking-[0.14em]"
-                          style={{ fontFamily: "'IBM Plex Mono', ui-monospace, monospace", color: 'var(--txff)' }}>
+                        <span className="text-meta uppercase tracking-[0.14em]" style={{ color: 'var(--txff)' }}>
                           {spec.l}
                         </span>
                         <span className="text-[13px] font-medium" style={{ color: 'var(--tx1)' }}>
@@ -1194,8 +1191,7 @@ export function ProductDetailPage() {
 
               {rc && (isWax ? (hasFormula || hasVergleich) : true) && (
                 <div className="min-w-0">
-                  <h2 className="text-small font-semibold uppercase tracking-[0.14em] mb-3"
-                    style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
+                  <h2 className="eyebrow mb-3" style={{ color: 'var(--txff)' }}>
                     {de ? 'Im Detail' : 'Deep dive'}
                   </h2>
                   {rc.hook && isChain && <p className="text-[13px] leading-[1.7] mb-3" style={{ color: 'var(--txm)' }}>{rc.hook}</p>}
@@ -1312,8 +1308,8 @@ export function ProductDetailPage() {
                       Kommentar Zeile ~505). Jetzt eine Quelle, mit expliziter
                       Herkunftszeile nach § 5b Abs. 3 UWG: die Zahl gilt
                       kontoweit, nicht je Produkt. */}
-                  <div className="flex items-center gap-0.5 mb-1.5">
-                    {[0, 1, 2, 3, 4].map(i => <Star key={i} className="h-4 w-4 fill-current" style={{ color: '#F5A623' }} />)}
+                  <div className="mb-1.5">
+                    <Stars rating={5} />
                   </div>
                   <p className="font-display text-[28px] font-bold leading-none tracking-[-0.02em] mb-1" style={{ color: 'var(--tx1)' }}>{trustStats.reviews}</p>
                   <p className="text-[13px] mb-0.5" style={{ color: 'var(--txm)' }}>{de ? 'verifizierte Bewertungen' : 'verified reviews'}</p>
@@ -1335,7 +1331,7 @@ export function ProductDetailPage() {
                 </div>
                 {rc.compatTags && rc.compatTags.length > 0 && (
                   <div>
-                    <p className="text-small font-semibold uppercase tracking-[0.14em] mb-2" style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>{de ? 'Kompatibilität' : 'Compatibility'}</p>
+                    <p className="eyebrow mb-2" style={{ color: 'var(--txff)' }}>{de ? 'Kompatibilität' : 'Compatibility'}</p>
                     <h2 className="font-display text-[17px] font-bold tracking-[-0.02em] mb-4" style={{ color: 'var(--tx1)' }}>
                       {de ? 'Funktioniert mit allen großen Marken' : 'Works with all major brands'}
                     </h2>
@@ -1378,7 +1374,7 @@ export function ProductDetailPage() {
                 sagen" even starts. Full padding when this is the first thing
                 here (bundle pages, which have no richContent/Trust section). */}
             <div className={`max-w-6xl mx-auto px-5 sm:px-8 pb-14 sm:pb-20 ${rc ? 'pt-0' : 'pt-14 sm:pt-20'}`}>
-              <h2 className="text-small font-semibold uppercase tracking-[0.14em] mb-4" style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
+              <h2 className="eyebrow mb-4" style={{ color: 'var(--txff)' }}>
                 {de ? 'Was Fahrer sagen' : 'What riders say'}
               </h2>
               <div className="grid sm:grid-cols-2 gap-6">
@@ -1445,7 +1441,7 @@ export function ProductDetailPage() {
         {related.length > 0 && (
           <section style={{ background: 'var(--sf2)', borderTop: '1px solid var(--bd)' }}>
             <div className="max-w-6xl mx-auto px-5 sm:px-8 py-14 sm:py-20">
-              <p className="text-small font-semibold uppercase tracking-[0.14em] mb-2" style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>{de ? 'Weitere Produkte' : 'More products'}</p>
+              <p className="eyebrow mb-2" style={{ color: 'var(--txff)' }}>{de ? 'Weitere Produkte' : 'More products'}</p>
               <h2 className="font-display text-[18px] sm:text-[22px] font-bold tracking-[-0.02em] mb-8" style={{ color: 'var(--tx1)' }}>{de ? 'Passend dazu' : 'You might also like'}</h2>
               <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
                 {related.map(p => <RelatedCard key={p.id} product={p} de={de} formatPrice={formatPrice} />)}
@@ -1459,7 +1455,7 @@ export function ProductDetailPage() {
             das Produkt verlinkte nirgends zurueck. */}
         <section style={{ background: 'var(--sf2)', borderTop: '1px solid var(--bd)' }}>
           <div className="max-w-6xl mx-auto px-5 sm:px-8 py-10">
-            <p className="text-small font-semibold uppercase tracking-[0.14em] mb-3" style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>{de ? 'Weiterlesen' : 'Further reading'}</p>
+            <p className="eyebrow mb-3" style={{ color: 'var(--txff)' }}>{de ? 'Weiterlesen' : 'Further reading'}</p>
             <ul className="flex flex-wrap gap-x-6 gap-y-2">
               {relatedArticles.map(a => (
                 <li key={a.slug}>
@@ -1629,7 +1625,7 @@ function RelatedCard({ product: p, de, formatPrice }: { product: Product; de: bo
         </picture>
       </div>
       <div className="flex flex-1 flex-col p-3.5">
-        <span className="text-small font-semibold uppercase tracking-[0.16em]" style={{ color: 'var(--accent-soft)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>{eyebrow}</span>
+        <span className="eyebrow" style={{ color: 'var(--accent-soft)' }}>{eyebrow}</span>
         <p className="font-display mt-1 text-[14px] leading-snug" style={{ color: 'var(--tx1)' }}>{title}</p>
         {/* Ersetzt die zweizeilige Beschreibung, die vorher hidden sm:block
             war — auf Mobile (2-spaltiges Grid) blieb "Passend dazu" damit

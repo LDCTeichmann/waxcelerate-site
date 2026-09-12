@@ -67,7 +67,7 @@ export function ProcessAndPaths({ accentColor }: { accentColor: string }) {
             <ol className="grid gap-0 sm:grid-cols-2 lg:grid-cols-5">
               {steps.map((step, i) => (
                 <li key={i} className="pt-4 pb-5 pr-5" style={{ borderTop: '1px solid var(--bd)' }}>
-                  <span className="num-data block text-meta mb-2" style={{ color: accentColor }}>
+                  <span className="num block text-meta mb-2" style={{ color: accentColor }}>
                     {String(i + 1).padStart(2, '0')}
                   </span>
                   <p className="text-[14px] font-semibold leading-[1.35] mb-1.5" style={{ color: 'var(--tx1)' }}>
