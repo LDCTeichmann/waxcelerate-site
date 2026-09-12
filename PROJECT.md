@@ -57,6 +57,7 @@ Tabelle unten. Keine neuen Markdown-Dateien in die Wurzel.
 | **SEO-Technik: indexierbare URLs, Sitemap/Schema-Erzeugung, Post-Release-Checks, GSC** | **`docs/SEO_TECHNIK.md`** | **bei einer neuen Route oder vor/nach einem Release** |
 | Letzter SEO-Prüfbericht (Lighthouse, Rich Results, Redirect-Ketten) | `docs/berichte/` | bei Fragen zum gemessenen Ist-Zustand |
 | Design-/Struktur-Roadmap (konsolidiert aus AUDIT/DESIGN/MOBILE/UX) | `docs/plaene/DESIGN_ROADMAP.md` | bei größeren Struktur-/Designvorhaben |
+| **Produktkarten, Kettenseite, Typografie — Plan + fertiger Umsetzungs-Prompt** | **`docs/plaene/PRODUKTKARTEN_PLAN.md`, `docs/plaene/PRODUKTKARTEN_PROMPT.md`** | bei Arbeit an Produktkarten, Kettenliste, Filter oder der Mono-Schrift |
 | Rechtliche Compliance, aktuelle Checkliste | `docs/aufgaben/LEGAL_COMPLIANCE_CHECKLIST.md` | bei Rechtstext-/Checkout-Arbeit (neuer als `RECHTSTEXTE.md`) |
 
 Inhaltliche Wahrheit über Produkt, Preise, Intervalle und erlaubte Claims steht
