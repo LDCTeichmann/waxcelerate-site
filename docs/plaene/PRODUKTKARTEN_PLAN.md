@@ -1,597 +1,478 @@
 # Produktkarten, Kettenseite und Typografie — Plan
 
-**Stand:** 12.09.2026 · **Auslöser:** Lucas Screenshot-Feedback zu Regal,
-Kettenliste, Wachs-Tafeln und Rewax-Kachel („viel zu chaotische Cards und
-Infos", „Rabatt nicht signifikant genug", „die Schriftart will ich generell
+**Stand:** 12.09.2026, zweite Fassung · **Auslöser:** Lucas Screenshot-Feedback
+zu Regal, Kettenliste, Wachs-Tafeln und Rewax-Kachel („viel zu chaotische Cards
+und Infos", „Rabatt nicht signifikant genug", „die Schriftart will ich generell
 nicht auf der Website").
 
 **Ziel:** Conversion und Design. Weniger Reibung, ehrlichere Signale, eine
 einzige Kartensprache, eine einzige Schriftfamilie für Zahlen.
 
-**Wie du das liest:** 🔨 = sofort umsetzbar, keine Rückfrage. 🙋 = nur Luca
-kann entscheiden oder liefern. Jede Phase ist für sich lieferbar und einzeln
-committbar. `npx tsc --noEmit` muss nach jeder Phase sauber sein.
+**Zweite Fassung:** Die erste ist gegen den Code geprüft worden. Vier ihrer
+Annahmen waren falsch, sechs Entscheidungen sind nach besserem Nachdenken
+anders ausgefallen. Beides steht unten als K1 bis K10 — wer nur eine Sache
+liest, liest diesen Abschnitt.
+
+**Wie du das liest:** 🔨 = sofort umsetzbar. 🙋 = nur Luca kann liefern. Jede
+Stufe ist für sich lieferbar und einzeln committbar.
 
 ---
 
-## 0. Was der Befund tatsächlich ist
+## 0. Lucas Entscheidungen (verbindlich)
 
-Neun Einzelbeschwerden, aber nur **fünf** Ursachen. Wer die fünf behebt, löst
-alle neun.
+| Frage | Antwort |
+|---|---|
+| eBay-Versand im Preis enthalten | **ja**, Wachs und Ketten |
+| Wachs-Staffel | **5 / 10 / 15 %** — der Code gilt, das Skill ist veraltet |
+| Rewax-Turnaround | **3–5 Werktage** |
+| Rewax-Preisdarstellung | Entscheidung an mich delegiert, siehe §3 |
+| Mono-Schrift | „was am sinnvollsten ist und am besten aussieht", siehe §3 |
+| Echte eBay-Bewertungen je Kette | **ja, existieren** |
+| Umfang der Versandaussage | **alles, gekoppelt an `checkoutEnabled`** |
+| Zuschnitt der Umsetzung | ein Auftrag mit **Pflicht-Zwischenstopp nach Stufe 2** |
+
+---
+
+## 1. Der Befund: neun Beschwerden, fünf Ursachen
 
 | # | Ursache | Was daraus sichtbar wurde |
 |---|---|---|
-| U1 | **Zwei Kartensprachen für dieselbe Sache.** `.shelf-card` (Regal: Wachs/Set/Ketten/Rewax) und die Kettenkarte in `products.tsx` (eigener `card-bg`/`card-shad`/`rounded-2xl`-Satz, eigene Badge-Grammatik, eigene Bild-Ratio 2:1 statt 16:10). | „chaotisch", uneinheitliche Chips, CTA mal links mal rechts |
-| U2 | **IBM Plex Mono als Info-Schrift** (`.num-data`, 83 Verwendungen + ein hartkodierter `MONO`-Konstant in `products.tsx` + ein Inline-`fontFamily` in `ProductStagePage.tsx`). Dazu Größen bis runter auf **10,5 px** in `--txff` (der blasseste Ton). | „lässt sich schlecht lesen", „passt nicht zu anderen Elementen" |
-| U3 | **Wichtige Kaufsignale liegen in der schwächsten Typo-Stufe.** Sterne, verkaufte Stück, Staffel, Lieferdatum stehen alle in 10,5–12 px Mono in `--txf`/`--txff` in einem grauen Fußstreifen — optisch eine Zeile Kleingedrucktes. | „sieht man wichtige Infos nicht richtig", „Rabatt nicht signifikant genug" |
-| U4 | **Zustandswechsel ohne URL.** Die Kettenliste ist ein `useState` auf der Startseite, der das Regal *ersetzt*. Folge: doppelte Überschrift („Produkte" H2 + „Vorgewachste Ketten" H3), ein 13-px-Textlink als einziger Rückweg, kein teilbarer Link, keine indexierbare Kategorieseite. | „zu viel Info mit zwei Überschriften", „man muss das klein geschriebene Zurück finden" |
-| U5 | **Ungeprüfte und fehlende Fakten.** „voller Käuferschutz" (laut Luca falsch), kein Versandhinweis auf den Karten, keine Lieferzeit bei Set und Rewax, Rewax-Preisanker am teuersten Einzelpreis. | „Käuferschutz stimmt nicht", „kostenloser Versand wird nicht gezeigt", „Preis auf der Rewax-Karte ist nicht so genial" |
+| U1 | **Zwei Kartensprachen für dieselbe Sache.** `.shelf-card` im Regal gegen den eigenen Satz der Kettenkarte in `products.tsx` (andere Bild-Ratio, andere Badges, andere Schatten). | „chaotisch", uneinheitliche Chips, CTA ohne gemeinsame Grundlinie |
+| U2 | **IBM Plex Mono als Info-Schrift** (`.num-data`, 83 Verwendungen, dazu die `MONO`-Konstante in `products.tsx:21` und ein Inline-`fontFamily` in `ProductStagePage.tsx`), teils bei 10,5 px im blassesten Ton. | „lässt sich schlecht lesen", „passt nicht zu anderen Elementen" |
+| U3 | **Kaufsignale in der schwächsten Typo-Stufe.** Sterne, verkaufte Stück, Staffel und Lieferdatum stehen zusammen in einem grauen Fußstreifen. | „sieht man wichtige Infos nicht richtig", „Rabatt nicht signifikant genug" |
+| U4 | **Zustandswechsel ohne URL.** Die Kettenliste ist ein `useState`, der das Regal ersetzt (`products.tsx:177-198`). | doppelte Überschrift, 13-px-Textlink als einziger Rückweg, nicht teilbar, nicht indexierbar |
+| U5 | **Ungeprüfte und fehlende Fakten.** „voller Käuferschutz" (falsch), keine Versandaussage, keine Lieferzeit bei Set und Rewax, Rewax-Preisanker am teuersten Einzelpreis. | die restlichen vier Beschwerden |
 
 ---
 
-## 1. Recherche-Grundlage
+## 2. Zehn Korrekturen an der ersten Fassung
 
-Die Entscheidungen unten sind nicht Geschmack. Was sie trägt:
+### Aus der Code-Prüfung
 
-- **Listenkarten brauchen Essential + 1–3 kategoriespezifische Attribute.**
-  Baymard: 50 % der geprüften Shops zeigen zu wenig oder inkonsistent, Nutzer
-  verwerfen dann passende Produkte. Aber: nicht wahllos alle Attribute — das
-  erzeugt genau den Clutter, den Luca sieht. Für uns heißt das: Preis, Bild,
-  Name, Bewertung/Beleg als Pflicht, plus **Schaltung, Glieder, Quick-Link**
-  als kategoriespezifisch, und sonst nichts.
-  ([Baymard: Product Listing Information](https://baymard.com/blog/product-listing-information),
-  [Baymard: 2 Key Design Principles](https://baymard.com/blog/list-item-design-ecommerce))
-- **Lieferdatum schlägt Lieferzeit.** Die Nutzerfrage ist „wann ist es da",
-  nicht „wie lange braucht der Versand". „2 Werktage" zwingt zum Selberrechnen.
-  41 % der Shops machen es trotzdem falsch herum.
-  ([Baymard: Checkout UX](https://baymard.com/blog/current-state-of-checkout-ux),
-  [parcelLab: Delivery Date Estimates](https://parcellab.com/glossary/delivery-date-estimate/))
-- **Staffelrabatt wirkt über den Stückpreis, nicht über den Prozentsatz.**
-  Die Tabelle direkt am Produkt („Menge, Gesamtpreis, Ersparnis, was sich
-  ändert") bewegt das Verhalten, der Prozentsatz allein nicht.
-  ([convertcart: Tiered Discounts](https://www.convertcart.com/blog/tiered-discount-ecommerce),
-  [Qikify: Volume Discount Formulas](https://qikify.com/blogs/all-articles/volume-discount-pricing-formula))
-- **Monospace kostet Lesegeschwindigkeit und Platz** und gehört in Konsolen,
-  Code und Messwerte, nicht in Fließtext oder Labels. Proportionale Schriften
-  wurden in Vergleichstests signifikant schneller gelesen als Courier & Co.
-  ([MIT 6.813 Typography](https://web.mit.edu/6.813/www/sp16/classes/17-typography/),
-  [Übersicht Leseforschung Typografie](https://legible-typography.com/en/5-overview-of-research-type))
-- **Einheitliche Kartengrößen im Raster** sind hier schon belegt: der in
-  `docs/DESIGN.md` §4 dokumentierte A/B-Test (25.000 Besucher) zeigte 17,1 %
-  mehr Umsatz pro Besucher allein durch einheitliche statt gemischte Karten.
-  Das Argument gilt für U1 unverändert weiter — nur ist es bisher nur auf das
-  Regal angewandt worden, nicht auf die Kettenliste daneben.
+**K1 · Mobile bleibt einspaltig.** Die erste Fassung wollte 2 Spalten unter
+640 px. Bei 390 px Viewport blieben je Karte rund 173 px, davon 149 px
+Inhalt — „Bei eBay kaufen" passt dort nicht in eine Zeile, und genau an
+dieser Breite ist im Regal schon ein Layout zerbrochen (`docs/DESIGN.md` §4,
+dritter Anlauf). Neu: **1 / 2 / 3 / 4 Spalten** bei
+`<640 / ≥640 / ≥1024 / ≥1280`. Acht Ketten ergeben auf dem Desktop zwei
+saubere Reihen, und der echte Button unten rechts bleibt auf jeder Breite.
 
----
+**K2 · Kein Button in einem Link.** `ChainCard` (`products.tsx:309-418`)
+wickelt die ganze Karte in einen `<Link>` und legt den eBay-`<button>`
+hinein, abgefangen mit `preventDefault` + `stopPropagation`. Ein `<button>`
+in einem `<a>` ist ungültiges HTML und für Tastatur und Screenreader kaputt.
+Neu: **Stretched-Link.** Nur der Produktname ist der Link und spannt sich per
+`::after { position:absolute; inset:0 }` über die Karte; der CTA liegt mit
+`position:relative; z-index:1` darüber. Kein `stopPropagation` mehr, korrekte
+Fokusreihenfolge, zwei sauber getrennte Ziele.
 
-## Phase 1 — Schrift: IBM Plex Mono raus aus dem Verkauf 🔨
+**K3 · Drei Klassen aus der ersten Fassung gibt es nicht.**
+`.photo-neutral` und `.photo-wax` sind ausgemustert, es existiert nur
+`.photo-shelf` (`index.css:715-717`). `.shelf-card` (`index.css:727-730`) ist
+im Ruhezustand flach (`--sf2` auf `--bd2`, kein Schatten) und hat **keinen
+eigenen Radius** — der kommt aus dem Markup (`rounded-[20px]`).
+Erfreulich dagegen: `.num` setzt **keine** Schriftfamilie, nur `tabular-nums`
+(`index.css:1121-1125`), erbt also Libre Franklin vom Body. Der Austausch
+`.num-data` → `.num` ist damit genau der gewünschte Wechsel, ohne neue Klasse.
 
-**Entscheidung:** Mono verschwindet aus allem, was verkauft. Sie bleibt
-ausschließlich dort, wo sie eine Bedeutung trägt statt einer Stimmung:
-**Messwerte in den Wissenschafts-Figuren** (Achsen, µ-Werte, °C, Chemie) und
-**Code-Blöcke im Blog**. Das ist genau die Rolle, die `index.css` in ihrem
-eigenen Kommentar für `.num-data` beschreibt — sie ist nur über den ganzen
-Shop hinweg zweckentfremdet worden.
+**K4 · Die Kettenbilder laufen an der Bildpipeline vorbei.** Die Wachs-Tafeln
+liefern AVIF vor WebP mit `srcSet` und `sizes` (`ProductShelf.tsx:158-172`).
+`ChainCard` lädt ein nacktes `<img src={product.image}>` ohne `srcSet`, ohne
+AVIF, alle acht mit `loading="lazy"` — auf einer eigenen Kettenseite wäre
+damit das LCP-Bild ein Lazy-Bild. Neu: gleiche `<picture>`-Pipeline wie im
+Regal, erste Reihe `fetchpriority="high"` und nicht lazy.
 
-Begründung, warum nicht komplett raus: In `sections/science/` ist die
-Gleichbreite funktional (Zahlen unter Achsen sollen nicht springen, `LabViz`
-und `FormulaGraph` sind Instrumentendarstellungen, `InstrumentFrame` ist als
-Behälter in `DESIGN.md` §3 definiert). Dort ist sie Teil der Aussage. Auf einer
-Produktkarte ist sie Dekoration, die Lesbarkeit kostet.
+**K5 · Der dokumentierte Type-Check ist ein Blindgänger.** `CLAUDE.md`
+Regel 5 verlangt `npx tsc --noEmit` vor jedem Commit „(pre-commit hook läuft
+automatisch)". Beides stimmt nicht: die Wurzel-`tsconfig.json` hat
+`"files": []` und nur `references`, der Befehl prüft also **nichts** und ist
+immer grün; und es gibt **keinen Hook** (kein `.husky`, kein
+`core.hooksPath`, keine aktiven `.git/hooks`, kein `prepare`/`lint-staged` in
+`package.json`). `docs/SEO_TECHNIK.md:137-139` nennt den richtigen Befehl
+bereits: **`npx tsc -b --force`**. `CLAUDE.md` wird entsprechend korrigiert.
 
-### Konkret
+### Aus besserem Nachdenken
 
-1. **Ersetzen: `.num-data` → `.num`** in allen Verkaufs-/Marketingflächen:
-   `ProductShelf.tsx` (11×), `products.tsx` (1× + die `MONO`-Konstante Zeile 21
-   und ihre zwei Verwendungen in den Spec-Pills), `StarterSetBuilder.tsx` (8×),
-   `RewaxPage.tsx` (8×), `why-wax.tsx` (5×), `WhatChanges.tsx` (2×),
-   `ChainFinder.tsx` (2×), `ProductDetailPage.tsx` (2×),
-   `GiftPreviewModal.tsx` (2×), `StarterSetOptions.tsx`, `ProcessAndPaths.tsx`,
-   `AccessoryDetailPage.tsx`, `hero/WaxDive.tsx` (4×),
-   `science/ScienceTeaser.tsx`.
-   Dazu das Inline-`fontFamily: "'IBM Plex Mono'…"` im Varianten-Chip von
-   `ProductStagePage.tsx`.
-2. **Bleiben lassen:** `science/diagrams.tsx`, `science/ContactZones.tsx`,
-   `science/ChainWaxMap.tsx`, `science/FormulaGraph.tsx`, `science/LabViz.tsx`,
-   `SciencePage.tsx` (14×, dort aber prüfen: Fließtext-Labels ebenfalls
-   umstellen, nur Messwerte behalten), `components/viz/InstrumentFrame.tsx`,
-   Blog-Codeblöcke in `BlogArticlePage.tsx`/`BlogIndexPage.tsx`.
-3. **`.num` in `index.css` härten**, damit sie den Job übernehmen kann:
-   `font-variant-numeric: tabular-nums;` (hat sie vermutlich schon — prüfen)
-   und `font-feature-settings` unangetastet lassen. Keine neue Klasse erfinden.
-4. **Gesperrte Micro-Labels** („01 MARKE", „TROCKEN", Eyebrows), die bisher
-   ihre technische Anmutung aus der Mono zogen, behalten sie über die
-   bestehende `.eyebrow`-Klasse bzw. `text-eyebrow` (Libre Franklin, 0.24em
-   Sperrung, Versalien). Das ist bereits im Designsystem und trägt dieselbe
-   Rolle ohne die Lesbarkeitskosten.
-5. **Mindestgröße.** Jede Stelle, die beim Ersetzen unter **12 px** liegt,
-   geht auf 12 px hoch (`text-meta`). `DESIGN.md` §2 verlangt für Figuren
-   schon 11 px; für Verkaufsflächen ist 12 px die Untergrenze dieses Plans,
-   weil dort keine Figurenlogik den Platz diktiert. Die 10,5-px-Stellen
-   (`compat`, `multiDiscount`, Spec-Pills der Kettenkarte) sind alle in diesem
-   Plan ohnehin in Umbau.
-6. **Kontrast.** Kein Verkaufssignal mehr in `--txff`. `--txff` ist ab jetzt
-   nur noch für echte Fußnoten (PAngV-Zeile). Sterne, verkaufte Stück,
-   Lieferdatum, Staffel gehen auf `--tx2` bzw. `--txm`.
-7. **Perf-Nachlauf:** nach dem Ersetzen prüfen, ob die Mono-woff2 noch im
-   kritischen Pfad vorgeladen wird (`index.html` Preloads). Wenn sie nur noch
-   auf `/wissenschaft` und im Blog gebraucht wird, Preload dort entfernen und
-   `font-display: swap` genügen lassen. Ein Preload weniger im Head ist auf
-   Mobile messbar.
-8. **`DESIGN.md` nachziehen:** neuer Abschnitt „Wo Mono erlaubt ist" mit genau
-   dieser Regel, damit die Schrift nicht in sechs Wochen zurückkriecht.
+**K6 · Der Preis-Hebel beim Wachs ist nicht die Staffel.** Bestätigt sind
+5 / 10 / 15 %. Auf einen zweiten Block sind das **3,00 €** — eine prominente
+Tabelle würde ein schwaches Angebot groß machen. Viel stärker ist die
+Rechnung, die heute nirgends steht: 29,95 € bei 20–32 Anwendungen sind
+**ca. 0,95 bis 1,50 € je Wachsvorgang**. Gourville (1998) ist der klassische
+Beleg: „85 Cent am Tag" erreichte 52 % Zustimmung, die rechnerisch
+identischen „300 $ im Jahr" nur 30 %. Für ein Verbrauchsgut ist diese
+Rechnung ehrlich und wirksam (für eine einmalige Anschaffung wäre sie es
+nicht, weil sie dann die Bindungsdauer betont). Neu: **je-Anwendung-Zeile als
+Hauptsignal, Staffel als kompakter Zusatz.**
+Der **Grundpreis je 100 g bleibt** — bei Ware nach Gewicht ist er nach PAngV
+Pflicht, kein Designelement. Nicht wegräumen.
 
-**Akzeptanz:** `grep -rn "num-data\|IBM Plex Mono" src/` liefert nur noch
-Treffer in `sections/science/`, `components/viz/`, `pages/blog/`, `index.css`
-und `tailwind.config.js`.
+**K7 · Bewertungen ja, strukturierte Daten nein.** Echte eBay-Bewertungen
+kommen auf die Kettenkarten. Aber `ProductDetailPage.tsx:530-537` verzichtet
+bewusst und begründet auf `aggregateRating` im JSON-LD, weil eBay-Feedback
+kontoweit ist und produktweise ausgespielt wie erfundenes Review-Markup
+wirkt; `docs/SEO_TECHNIK.md:79-84` hält denselben Verzicht fest, er wurde
+zweimal aktiv rückgängig gemacht. Der Verzicht bleibt: die Zahlen erscheinen
+**sichtbar auf der Karte, nicht im Schema**.
+Nebenbefund: `Stars.tsx:12` kann keine halben Sterne (harter Vergleich
+`i < rating`), und im Repo existieren **drei** Sternvarianten in zwei Farben
+(`Stars.tsx`, `ProductShelf.tsx:323-326`, `ProductDetailPage.tsx:851,1316`).
+Eine 4,8 ist heute schlicht nicht darstellbar.
 
----
+**K8 · Die Versandaussage ist im eBay-Betrieb falsch, an rund 14 Stellen.**
+Nachgewiesen: `stripePriceId` ist an **keinem** Produkt gesetzt, also
+`checkoutEnabled === false` (`data.ts:530-540`) und jeder Kauf-Button führt
+zu eBay (einzige Ausnahme: Starter-Set geht auf WhatsApp). Trotzdem steht
+unter jedem Preis „zzgl. Versandkosten, ab 50 € versandfrei", das JSON-LD
+meldet Google `shippingRate` 1,80 € und eine 50-€-Schwelle
+(`ProductDetailPage.tsx:545-552` plus die Prerender-Zwillingsfassung
+`generate-product-html.mjs:198-218`), und der Merchant-Feed schreibt
+`<g:shipping>1.80 EUR` (`generate-merchant-feed.mjs:73-80`).
+Luca hat den vollen Umbau freigegeben: **alle Aussagen lesen künftig
+`checkoutEnabled`.** eBay-Betrieb heißt „Versand inklusive"; sobald die
+Stripe-Price-IDs gesetzt sind, kippt alles automatisch auf die echte
+Versandtabelle zurück. Eine Wahrheit, kein Nachziehen von Hand.
+`AGBPage.tsx:88-97` trennt beide Kanäle bereits korrekt und ist die Vorlage.
 
-## Phase 2 — Eine Kartensprache für alles 🔨
+**K9 · `#produkte` bleibt, nur die Ketten-Einstiege ziehen um.** Die
+Routen-Prüfung fand 17 Fundstellen für `#produkte` — Navigation, Hero-CTAs,
+Footer, Abschluss-CTA, FAQ, Bewertungen, Scrollspy. Die zeigen alle auf die
+**Produktsektion**, und die bleibt. Nur vier Dinge wechseln auf `/ketten`:
+die beiden Rechner-Deep-Links `?ketten=…` (`SavingsCalculator.tsx:74`,
+`ChainMatchCalculator.tsx:79`), das CustomEvent `wax:selectTab`
+(`products.tsx:56-62`), die Regal-Kachel, und der Breadcrumb der
+Ketten-Produktseiten — dort **beide** Fassungen, React
+(`ProductDetailPage.tsx:652`) und Prerender (`generate-product-html.mjs:255`).
 
-**Entscheidung:** Die Kettenkarte hört auf, ein Sonderfall zu sein. Alle
-Produktkarten der Seite nutzen `.shelf-card` als Behälter: 20 px Radius,
-Haarlinien-Rahmen, blaue Hover-Kante, Foto oben randlos, getönter Textblock
-darunter, Text **nie** auf dem Foto. Das ist die Form, die im Regal nach vier
-Anläufen gewonnen hat (`DESIGN.md` §4) — sie hat keinen Grund, zwanzig Pixel
-weiter unten anders auszusehen.
-
-### 2.1 Gemeinsame Komponente
-
-Neu: `src/components/ProductCard.tsx` mit **einer** Anatomie und drei Rollen
-(`wax` | `chain` | `path`). Ersetzt `ChainCard` in `products.tsx` und wird von
-`WaxPanel`/`SecondaryTile` in `ProductShelf.tsx` als Grundlage genutzt. Wenn
-sich die vollständige Vereinheitlichung als zu groß erweist, gilt die
-Reihenfolge: **erst** die Kettenkarte auf die Regal-Grammatik bringen (Radius,
-Rahmen, Hover, Bildblock, Textblock, Fußzeile), **dann** die Extraktion.
-Optische Gleichheit ist das Ziel, geteilter Code der Weg dorthin.
-
-### 2.2 Anatomie (von oben nach unten, verbindlich)
-
-```
-┌─────────────────────────────┐
-│  FOTO  3:2                  │   höchstens EIN Chip auf dem Foto
-│                    [Chip]   │   Priorität: Ausverkauft > Auszeichnung > keiner
-├─────────────────────────────┤
-│  MARKE (eyebrow)            │   11 px, gesperrt, --accent-soft
-│  Modellname                 │   Display-Serif, 17–19 px, --tx1
-│  ● 11-fach · 116 Glieder    │   12 px, --txm — eine Zeile, keine Pills
-│  ✓ Quick-Link inklusive     │   12 px, --tx2 — der Differenzierer
-│  🚚 Mittwoch geliefert      │   12,5 px, --tx2, halbfett
-├─────────────────────────────┤   ← Haarlinie, getönte Fußzeile (--sf3)
-│  44,90 €          [ Kaufen ]│   Preis links groß, CTA unten RECHTS
-│  inkl. Versand              │
-└─────────────────────────────┘
-```
-
-**Warum CTA unten rechts:** Ja, Lucas Instinkt stimmt. Der Blick läuft im
-Raster Z-förmig; die Preis-links/Aktion-rechts-Zeile als **letzte** Zeile der
-Karte ist die Konvention, die jeder Nutzer mitbringt, und sie erzwingt eine
-gemeinsame Grundlinie über alle Karten einer Reihe (`flex-1` + `mt-auto`,
-wie es `SecondaryTile` schon macht). Heute steht die Kettenkarte genau so
-halbrichtig da: Preis und CTA sind schon eine Zeile, aber sie sitzen ohne
-Trennung im Textblock und ohne feste Grundlinie.
-
-**Warum die Chips verschwinden:** „11-fach" steht heute dreimal — als Overlay
-auf dem Foto, als Pill im Text und implizit im Modellnamen. Einmal reicht.
-Drei Pills nebeneinander („12-fach", „118 Glieder") lesen sich als Etiketten,
-eine Zeile Klartext mit Trennpunkt liest sich als Fakt.
-
-**Bildbehandlung:** 3:2 statt 2:1. Kettenfotos sind Flatlays; 2:1 schneidet
-sie an und erzeugt neben dem 16:10-Regal darüber eine dritte Ratio auf einem
-Schirm. Drei Ratios sind der Grund, warum Runde 1 „all over the place" war.
-`.photo-neutral`/`.photo-shelf` anwenden wie im Regal.
-
-### 2.3 Rasterdichte
-
-Luca hat recht: pro Kettenkarte wird zu viel Platz verbraucht.
-
-| Breakpoint | heute | neu |
-|---|---|---|
-| < 640 px | 1 | 2 (kompakte Variante: Foto, Name, Preis, CTA-Icon) |
-| ≥ 640 px | 2 | 2 |
-| ≥ 1024 px | 2 | 3 |
-| ≥ 1280 px | 2 | 4 |
-
-Acht Ketten füllen damit auf dem Desktop zwei Reihen statt vier und sind ohne
-Scrollen vergleichbar — das ist der eigentliche Zweck einer Liste.
-Mobile 2-spaltig nur, wenn der Test zeigt, dass Modellname und Preis bei
-~165 px Breite nicht umbrechen; sonst 1-spaltig bleiben. Der dritte Anlauf im
-Regal ist genau an dieser Breite gescheitert (`DESIGN.md` §4), also hier
-vorher messen statt hinterher reparieren.
-
-### 2.4 Welche Infos zusätzlich auf die Karte gehören
-
-Geprüft gegen „hilft es beim Aussortieren?" — alles andere gehört auf die
-Produktseite.
-
-| Info | Karte? | Warum |
-|---|---|---|
-| Schaltung + Glieder | **ja** | der Kompatibilitäts-Filter im Kopf des Kunden |
-| Quick-Link inklusive | **ja** | echter Differenzierer, kostet eine Zeile |
-| Lieferdatum | **ja** | siehe Phase 4 |
-| „Versand inklusive" / „inkl. Versand" | **ja**, sobald 🙋 geklärt | stärkster Preis-Entlaster, siehe Phase 4 |
-| Sterne + verkaufte Stück | **ja bei Wachs** (Daten vorhanden), **nein bei Ketten** | `reviewCount`/`unitsSold` sind nur an Wachs-SKUs gepflegt. Keine Zahl erfinden — Skill-Verbot „keine erfundenen Testimonials/Social Proof". Für Ketten trägt der Trust-Streifen der Seite den Beleg. |
-| Gewicht, Material, Pin-Typ | nein | Detailseite |
-| „nur noch X verfügbar" | **nie** | Skill-Verbot: keine künstliche Verknappung im B2C |
-| Ersparnis gegenüber UVP | nein | wir haben keinen belastbaren Streichpreis |
-
-### 2.5 Was die Karte „hochwertiger" macht
-
-Nicht mehr Effekte, sondern weniger Ausnahmen:
-
-- **Eine** Radiusstufe (20 px), **eine** Rahmenfarbe (`--bd`), **eine**
-  Schattenleiter (Ruhe → Hover), **ein** Hover-Verhalten (Bild 1.04, blaue
-  Kante, weicher Glow — existiert bereits als `.shelf-card`).
-- Höchstens ein Chip auf dem Foto. Heute sind es zwei (Schaltung + Badge), was
-  die Bildoberkante zerteilt.
-- 4-px-Raster für alle Abstände innerhalb der Karte. Aktuell stehen
-  `pt-2.5 sm:pt-3`, `pb-3 sm:pb-3.5`, `mt-0.5`, `mt-2`, `mt-2.5`, `mt-3.5`
-  nebeneinander — sechs Rhythmen auf einer Karte.
-- Der Preis ist die größte Zahl der Karte. Immer. Keine andere Zahl in
-  Fettschrift daneben.
-- Ausverkauft-Zustand als eigener, ruhiger Zustand: Foto auf
-  `saturate(0.35) opacity(0.75)`, Chip „Ausverkauft" oben links, statt CTA ein
-  Textlink auf die gefilterte Liste derselben Schaltung
-  („Andere 12-fach Ketten"). Heute wird nur der Button durch grauen Text
-  ersetzt, die Karte sieht ansonsten kaufbar aus.
+**K10 · Der eigentliche Aufwand der Route ist die Entkopplung.** Nicht die
+Route kostet, sondern dass die Kettenliste heute ein `useState` **innerhalb**
+der Produktsektion ist und das Regal ersetzt. Dazu: `RouteScrollReset` hängt
+nur an `pathname`, ein Filterwechsel per Query-Parameter löst also keinen
+Sprung nach oben aus (gut) — aber `PendingAnchorScroll` wird nur auf der
+Startseite gerendert (`App.tsx:120`). Deshalb bekommen die Filter
+**Query-Parameter statt Anker**, dann braucht es dort nichts Zusätzliches.
 
 ---
 
-## Phase 3 — Die Kettenseite wird eine Seite 🔨
+## 3. Die zwei Entscheidungen, die Luca delegiert hat
 
-**Entscheidung: eigene Route `/ketten`.** Der State-Toggle auf der Startseite
-verschwindet.
+### Mono bleibt in den Figuren, verschwindet aus dem Verkauf
 
-Warum nicht der große Zurück-Button, den Luca als Option nennt: Ein Zurück-
-Button repariert das Symptom, nicht die Ursache. Die Ursache ist, dass ein
-Katalog-Zweig ohne URL existiert. Daraus folgen vier Probleme auf einmal, und
-eine Route löst alle vier:
+In `sections/science/` und `components/viz/InstrumentFrame` trägt die
+Gleichbreite Bedeutung (Achsenwerte springen nicht beim Animieren) und ist
+laut `DESIGN.md` §3 ein definierter Behälter der Marke. Auf einer
+Produktkarte ist sie Dekoration, die Lesegeschwindigkeit kostet.
 
-1. Doppelte Überschrift verschwindet — die Liste hat ihre eigene H1
-   („Vorgewachste Ketten") und steht nicht mehr unter der H2 „Produkte".
-2. Zurück wird trivial: Browser-Zurück funktioniert, plus Breadcrumb
-   (`Start › Produkte › Ketten`) in der Kopfzeile, genau wie
-   `ProductDetailPage.tsx` es bereits hat.
-3. Die Seite wird teilbar und indexierbar. „Vorgewachste Fahrradkette kaufen"
-   ist ein echter Suchbegriff, für den die Startseite heute nicht ranken kann,
-   weil der Inhalt hinter einem Klick liegt.
-4. Der Deep-Link des Rechners wird ehrlich: `/ketten?marke=shimano&gang=12`
-   statt `/?ketten=shimano-12`.
+Zwei Fakten machen diese Trennung billig: IBM Plex Mono ist ohnehin **nicht
+preloaded** (`index.html:37-38` lädt nur Fraunces und Libre Franklin), und
+Libre Franklin ist **eine** Variable-Font-Datei für alle fünf Gewichte. Nach
+dem Umbau lädt Plex Mono nur noch auf `/wissenschaft` und im Blog, ohne eine
+Zeile Ladelogik.
 
-**Und darunter die Fortsetzung des Sortiments** — Lucas zweite Idee, und sie
-ist die richtige: unter dem Kettenraster eine Reihe aus **drei** Karten in
-`SecondaryTile`-Form: **Kettenwachs** (führt zu `/#produkte`, Bild `wax-pro`),
-**Starter-Set**, **Kette wachsen lassen**. Überschrift darüber:
-„Passt dazu". Damit endet die Seite nicht in einer Sackgasse, und wer nach
-oben scrollt, verliert nichts.
-
-### Konkret
-
-- Neue Datei `src/pages/KettenPage.tsx`. Inhalt der heutigen `listOpen`-Ansicht
-  aus `products.tsx`, plus H1, Meta/Helmet, Breadcrumb-Schema, `ItemList`-
-  Schema über die acht Ketten, Footer, `BackLink`-Ersatz (siehe Phase 6).
-- Route in `App.tsx`, lazy wie die anderen.
-- `products.tsx`: `listOpen`, `resetFilters`, `openChains`, `ChainCard`, die
-  Rewax-Kopie und der `?ketten=`-Handler entfallen. Die Regal-Kachel „Ketten"
-  wird von `onClick` auf `to="/ketten"` umgestellt (`SecondaryTile` kann das
-  bereits über die `to`-Variante). Der `wax:selectTab`-Listener mit
-  `detail === 'chain'` navigiert stattdessen nach `/ketten`.
-- **SEO-Pflichtprogramm** nach `docs/SEO_TECHNIK.md`: Route in die Sitemap,
-  Prerender-Eintrag, `llms.txt`, interne Verlinkung, Rich-Results-Prüfung.
-  Das ist kein Optional — eine neue Route ohne diese Schritte ist in diesem
-  Repo ein halber Release.
-- Alte Einstiege müssen weiter funktionieren: `/?ketten=shimano-12` auf
-  `/ketten?marke=shimano&gang=12` weiterleiten (client-seitig genügt, der
-  Parameter kommt nur aus eigenen Links).
-
-### Der Kopf der Seite
-
-Drei Dinge statt sechs:
-
-```
-Vorgewachste Ketten                       ← H1
-Ultraschall-entfettet, in Stuttgart von Hand gewachst.
-Quick-Link liegt bei, Kette ist sofort fahrbereit.    ← EIN Satzpaar
-
-[✓ Quick-Link inklusive] [✓ Sofort fahrbereit] [🚚 Versand aus Stuttgart, 1–2 Werktage]
-                                          ← Nutzenband, 3 Icons, kein Kasten
-```
-
-- Der Satz „Kauf direkt über eBay mit vollem Käuferschutz" **wird ersatzlos
-  gelöscht** (`preWaxedHint`, DE und EN). Laut Luca stimmt er nicht, und ein
-  falsches Vertrauenssignal ist teurer als gar keines.
-- „Alle Ketten: vorgewachst · Quick-Link inklusive" verschwindet als graue
-  Zeile und wird zum Nutzenband oben — das ist Lucas „geht unter, besser
-  positionieren".
-- Die Handarbeit („Ultraschall-entfettet, von Hand gewachst") steht damit
-  direkt unter der H1 statt im Kleingedruckten. Wording-Regel aus dem Skill
-  beachten: Ketten = **„Handgewachst in Stuttgart"**, nie „Made in Germany".
-
----
-
-## Phase 4 — Lieferung, Versand, Vertrauen 🔨 + 🙋
-
-### 4.1 Lieferdatum oder Werktage? Beides, aber getrennt nach Ort.
-
-Lucas Frage ist die richtige. Die Antwort der Forschung ist eindeutig: Auf der
-**Karte** steht das Datum, weil die Karte eine Ja/Nein-Entscheidung in zwei
-Sekunden stützen muss und „1–2 Werktage" den Kunden rechnen lässt. Auf der
-**Produktseite** steht beides, weil dort der Mechanismus Vertrauen schafft:
-
-- Karte: `🚚 Mittwoch geliefert` (nicht „Lieferung Di., 15. Sept." — das
-  Datumsformat ist auf einer Karte unnötig präzise und lang; Wochentag genügt
-  innerhalb der nächsten Woche, danach Wochentag + Datum).
-- Produktseite: `Mittwoch, 17. September geliefert` + darunter klein
-  `Versand in 1–2 Werktagen aus Stuttgart. Bestellungen bis 14 Uhr gehen
-  meist am selben Tag raus.`
-- **Kein Countdown, kein Ticker.** Die 14-Uhr-Grenze ist eine Tatsache und
-  darf als Satz stehen; ein laufender Countdown wäre künstliche Verknappung
-  und im Skill für B2C verboten.
-
-`getEstimatedDelivery()` in `src/lib/utils.ts` rechnet das alles bereits
-korrekt inklusive Wochenenden und 14-Uhr-Schnitt. Es fehlt nur eine zweite
-Formatierungsvariante (kurz/lang) und die Weitergabe an die Stellen, die es
-heute nicht bekommen.
-
-### 4.2 Wo die Lieferzeile heute fehlt
-
-| Fläche | heute | neu |
-|---|---|---|
-| Wachs-Tafeln | vorhanden | bleibt, aber in `--tx2` statt Fußzeilen-Grau |
-| Kettenkarten | vorhanden | Kurzformat |
-| **Starter-Set-Kachel** | **fehlt** | dieselbe Schätzung wie Wachs/Ketten — es ist dieselbe Sendung aus demselben Lager |
-| **Starter-Set-Seite** | prüfen | Lieferzeile in den Kaufblock |
-| **Rewax-Kachel** | **fehlt** | **kein** Lieferdatum, sondern Turnaround |
-
-### 4.3 Rewax ist kein Versand, sondern eine Umlaufzeit
-
-Die Zahl existiert bereits sauber und begründet in
-`src/pages/rewax/content.ts`: `TURNAROUND.full = "3–5 Werktage ab Ankunft bei
-uns"`, von Luca am 07.09.2026 bestätigt. Lucas „3–4 Tage" aus dem Feedback ist
-die ältere Erinnerung — **die 3–5 im Code gelten**, bis er sie aktiv ändert
-(🙋 falls doch 3–4 richtig ist: eine Zeile in `content.ts`, alles andere zieht
-automatisch nach).
-
-Darstellung auf der Kachel, bewusst anders als eine Lieferzeile, damit niemand
-sie als Zustelldatum liest:
-
-```
-🔄 Zurück in 3–5 Werktagen ab Ankunft
-```
-
-Rundpfeil-Icon statt LKW, gleiche Typo-Stufe wie die Lieferzeile. Auf der
-Rewax-Seite selbst zusätzlich die ehrliche Gesamtrechnung, die dort schon
-steht: plus je 1–2 Werktage Post hin und zurück.
-
-### 4.4 Versandkosten auf die Karte 🙋
-
-Lucas Punkt „kostenloser Versand wird nicht gezeigt" ist berechtigt, aber die
-Wahrheit ist heute kanalabhängig, und genau deshalb steht sie nirgends:
-
-- **Eigener Shop:** ab 50 € versandfrei, darunter 1,80 / 2,90 / 4,99 €
-  (`shipping` in `data.ts`, Tabelle auf `/versand-und-zahlung`).
-  Der eigene Checkout ist aktuell **aus** (keine `stripePriceId` gesetzt).
-- **eBay:** jeder Kauf-Button führt heute dorthin. Ob dort Versand im Preis
-  enthalten ist, steht nirgends im Repo.
-
-**🙋 Entscheidung Luca:** Ist bei den eBay-Listings der Versand im Preis
-enthalten (ja/nein, für Wachs und Ketten getrennt)?
-
-- **Wenn ja:** neues, optionales Feld `shippingIncluded?: boolean` in
-  `Product` (`data.ts`), gesetzt pro SKU. Die Karte zeigt dann unter dem Preis
-  `inkl. Versand` in `--tx2`. Das ist der stärkste Preis-Entlaster, den wir
-  ohne Rabatt haben, und er kostet nichts.
-- **Wenn nein:** die Karten zeigen nichts dazu, und die vorhandene
-  `PriceNote`-Zeile (PAngV) bleibt die einzige Aussage. Dann gehört die
-  „ab 50 € versandfrei"-Information erst in dem Moment prominent auf die
-  Karte, in dem der eigene Checkout live geht.
-
-Nie beides gleichzeitig behaupten. Ein „versandfrei", das beim Klick auf eBay
-nicht eingelöst wird, ist genau der Vertrauensbruch, den das
-Käuferschutz-Problem gerade hinterlassen hat.
-
----
-
-## Phase 5 — Rabatt sichtbar machen 🔨 + 🙋
-
-### 5.1 Der Befund
-
-`multiDiscount` steht heute als **10,5-px-Monozeile in `--txff`** ganz unten
-im Fußstreifen der Wachskarte: „Wachs-Staffel: 2 Stk. 5 % · 3 Stk. 10 % ·
-ab 5 Stk. 15 %". Das ist typografisch die schwächste Stelle der ganzen Karte.
-Ein Rabatt, der wie eine Fußnote aussieht, wird wie eine Fußnote behandelt.
-
-### 5.2 Neu: Stückpreis-Staffel direkt unter dem Preis
-
-Statt Prozentsätzen die Zahl, auf die es ankommt — was **ein Block** dann
-kostet und wie viel Euro man spart:
-
-```
-29,95 €                        5,99 € je 100 g
-─────────────────────────────────────────────
-Mehr nehmen, weniger zahlen
-  2 Blöcke    je 28,45 €     du sparst 3,00 €
-  3 Blöcke    je 26,96 €     du sparst 8,99 €
-  ab 5        je 25,46 €     du sparst 22,46 €
-```
-
-- Alle Zahlen aus `WAX_TIERS` in `data.ts` **gerechnet**, nie getippt. Die
-  Rechnung in Cent führen, wie `bundleOffer()` es bereits vormacht (der
-  Kommentar dort erklärt den Float-Fehler, den man sonst einbaut).
-- **Euro-Ersparnis vor Prozent.** Gleiche Regel, die für die Rewax-
-  Stempelkarten bereits im Entscheidungslog steht: „Du sparst 30 €" ist eine
-  Tatsache, „38 %" eine Behauptung über einen Normalpreis.
-- Platz: als aufklappbare Zeile („Mengenrabatt ▾") direkt unter dem Preis,
-  auf der Produktseite dauerhaft ausgeklappt. Auf der Karte zugeklappt mit
-  sichtbarem Anreißer `ab 2 Blöcken günstiger`, damit die Karte nicht wieder
-  wächst.
-- **Ein Chip am Preis**: `Mengenrabatt` als kleiner Akzent-Chip neben dem
-  Preis. Das ist das Signal, das heute komplett fehlt.
-- Solange der Kauf über eBay läuft, gehört der Mechanismus dazu:
-  `Rabatt wird bei eBay im Warenkorb abgezogen.` — in `--txm`, einmal unter
-  der Staffel. Ohne diesen Satz ist die Staffel eine Behauptung, die der
-  Kunde beim Klick nicht wiederfindet. (`SHOW_BUNDLE_OFFER` in
-  `ProductDetailPage.tsx` ist seit 11.09.2026 auf `true`, weil Luca die
-  Staffel bei eBay bestätigt hat — die Formulierung darf sich darauf stützen.)
-
-### 5.3 🙋 Zahlen-Widerspruch, den nur Luca auflösen kann
-
-| Quelle | Staffel |
-|---|---|
-| `WAX_TIERS` in `src/lib/data.ts` (Website, live) | 2 → 5 % · 3 → 10 % · ab 5 → 15 % |
-| Skill `waxcelerate`, `20_products_pricing.md` §4 (Stand 07/2026) | 2 → 10 % · 3 → 15 % |
-
-Die Website ist die neuere Quelle und bleibt maßgeblich, bis Luca widerspricht
-— aber der Skill sagt etwas anderes, und `docs/aufgaben/SKILL_PREISE_UPDATE.md`
-existiert genau für solche Fälle. **Nicht raten, nicht stillschweigend
-angleichen.** Wenn tatsächlich 10/15 % gelten, wird die Staffel als Argument
-deutlich stärker und die Darstellung oben lohnt sich doppelt.
-
-### 5.4 Rewax-Preis auf der Kachel 🙋 mit klarer Empfehlung
-
-Heute: `Ab 15,95 €`. Das ist der **teuerste** Einzelpreis, als „ab" verkauft —
-die schwächstmögliche Lesart einer Preisleiter, die bis 9,45 € runtergeht.
-
-Lucas Vorschlag „ab 9,49 € pro Kette" trifft die richtige Zahl (exakt:
-**9,45 €**, 10er-Karte 94,50 €, `TEN_CARD` in `content.ts`), hat aber einen
-Haken: Wer „ab 9,45 €" liest und auf der Seite 15,95 € plus eine 94,50-€-
-Vorkasse-Karte findet, erlebt einen Bruch. Bei einer Marke, deren
-Alleinstellung „ehrlich und technisch" ist, kostet das mehr als es bringt.
-
-**Empfehlung — beide Zahlen, in der richtigen Reihenfolge:**
+### Rewax-Preis: Einzelpreis groß, Kartenpreis als Anker darunter
 
 ```
 15,95 €  je Kette
 mit 10er-Karte 9,45 €
 ```
 
-Der Einzelpreis ist der Einstieg ohne Verpflichtung und steht groß. Die
-zweite Zeile ist der Anker, der ihn billig aussehen lässt, und gleichzeitig
-die Einladung zum Bundle — Stückpreis-Anker, genau wie bei der Wachs-Staffel
-und mit derselben Forschungsgrundlage. Kaufpsychologisch ist das stärker als
-„ab 9,45 €", weil es zwei Fragen auf einmal beantwortet („was kostet mich der
-erste Versuch" und „was kostet es dauerhaft") statt eine zu verschleiern.
-
-**Die Alternative, falls Luca maximalen Preis-Impact will:** Headline
-`Ab 9,45 € je Kette`, direkt darunter in `--txm`: `mit 10er-Karte, einzeln
-15,95 €`. Das ist zulässig, solange die Bedingung unmittelbar danebensteht,
-und liefert den niedrigeren Ankerpreis. Ich würde es nicht zuerst ausspielen,
-aber es ist die saubere B-Variante für einen späteren Test.
-
-Gleiche Behandlung für die Starter-Set-Kachel prüfen: `Ab 27,92 €` ist dort
-korrekt und braucht keine zweite Zeile — es ist ein echter Einstiegspreis,
-kein Bündelpreis.
+„Ab 9,45 €" allein wäre der niedrigere Anker, erzeugt aber beim Aufschlagen
+der Seite (15,95 € einzeln, 94,50 € Vorkasse) einen Bruch — teuer für eine
+Marke, deren Alleinstellung Ehrlichkeit ist. Die zweizeilige Form beantwortet
+beide Fragen auf einmal: „was kostet der erste Versuch" und „was kostet es
+dauerhaft". Beide Zahlen aus `TEN_CARD` in `src/pages/rewax/content.ts`
+gerechnet, nie getippt.
 
 ---
 
-## Phase 6 — Zurück-Navigation 🔨
+## 4. Recherche-Grundlage
 
-### 6.1 Produktdetailseite
-
-Heute: Desktop-Breadcrumb ab `sm`, darunter ein 13-px-Textlink „Zurück".
-Lucas Forderung nach einem sichtbaren Zurück-Weg ist berechtigt, vor allem
-mobil.
-
-- **Ein Zurück-Element für alle Breakpoints**, links in der Kopfleiste, als
-  Pille mit Rahmen (`--bd`), 44 px Höhe, Pfeil + Text. Kein reiner Icon-Button
-  — ein Label ist billiger zu verstehen als ein Symbol.
-- **Kontextbewusstes Ziel statt blindem `history.back()`:** Die bestehende
-  `handleBack`-Logik (`history.state.idx` prüfen, sonst `/`) bleibt als
-  Verhalten, aber das **Fallback-Ziel** richtet sich nach `product.category`:
-  Kette → `/ketten`, Wachs → `/#produkte`. Damit landet auch jemand, der aus
-  Google direkt auf eine Kette kommt, in der Liste und nicht auf der
-  Startseite.
-- **Label sagt das Ziel:** „Alle Ketten" bzw. „Alle Produkte" statt „Zurück".
-  Ein Ziel-Label senkt die Klickhürde messbar stärker als ein Richtungs-Label.
-- Breadcrumb bleibt ab `sm` zusätzlich sichtbar (SEO-Sichtbarkeit + zweiter
-  Ausgang), aber die Pille ist ab jetzt auf allen Breakpoints da.
-
-### 6.2 `ProductStagePage`
-
-Gleiche Behandlung, ein Label statt „Zurück" — sie führt ohnehin schon
-zielgerichtet auf `/produkt/:id`.
+- **Listenkarten brauchen Essential- plus 1–3 kategoriespezifische
+  Attribute.** Baymard: 50 % der geprüften Shops zeigen zu wenig oder
+  inkonsistent, Nutzer verwerfen dann passende Produkte — aber wahllos alle
+  Attribute erzeugen genau den Clutter, den Luca sieht.
+  ([Product Listing Information](https://baymard.com/blog/product-listing-information),
+  [List Item Design](https://baymard.com/blog/list-item-design-ecommerce))
+- **Lieferdatum schlägt Lieferzeit.** Die Nutzerfrage ist „wann ist es da",
+  nicht „wie lange dauert der Versand"; 41 % der Shops machen es falsch herum.
+  ([Baymard Checkout UX](https://baymard.com/blog/current-state-of-checkout-ux),
+  [parcelLab](https://parcellab.com/glossary/delivery-date-estimate/))
+- **Per-Nutzung-Preise bewegen Verbrauchsgüter.** Gourville 1998: „85 Cent am
+  Tag" 52 % gegen 30 % bei „300 $ im Jahr"; für Einmalanschaffungen kippt der
+  Effekt.
+  ([Price Framing](https://www.getmonetizely.com/articles/price-framing-strategies-how-presentation-affects-perception),
+  [Psychological Pricing DTC](https://eightx.co/blog/psychological-pricing-dtc))
+- **Versand-inklusive-Signale auf der Karte** adressieren den häufigsten
+  Abbruchgrund direkt an der Stelle der Preiswahrnehmung.
+  ([Product Badges](https://tech-arms.io/blog/product-badges/))
+- **Filter: Chips auf dem Desktop, Bottom-Sheet auf Mobile.** Inline-Chips
+  tragen 3 bis 6 Optionen; auf Mobile ist Batch-Filterung („X Ergebnisse
+  anzeigen") der interaktiven überlegen, aktive Filter gehören als
+  entfernbare Chips über das Raster, X-Fläche 44 px.
+  ([Baymard Filter UI](https://baymard.com/learn/ecommerce-filter-ui),
+  [Filter UX Patterns](https://www.btng.studio/articles/top-ecommerce-ux-filter-design-patterns-practical-tips-for-2025/))
+- **Monospace kostet Lesegeschwindigkeit und Platz** und gehört in Konsolen,
+  Code und Messwerte.
+  ([MIT 6.813](https://web.mit.edu/6.813/www/sp16/classes/17-typography/),
+  [Leseforschung Typografie](https://legible-typography.com/en/5-overview-of-research-type))
+- **Geteilte Elementübergänge** Liste → Detail sind der Paradefall der View
+  Transitions API, nativ und GPU-beschleunigt, in großen Shops produktiv.
+  ([Chrome Case Studies](https://developer.chrome.com/blog/view-transitions-case-studies),
+  [React Router](https://reactrouter.com/how-to/view-transitions))
+- **Einheitliche Kartengrößen im Raster**: der in `docs/DESIGN.md` §4
+  dokumentierte A/B-Test (25.000 Besucher) zeigte 17,1 % mehr Umsatz pro
+  Besucher. Das Argument gilt für U1 unverändert weiter, es ist bisher nur
+  nicht auf die Kettenliste angewandt worden.
 
 ---
 
-## Phase 7 — Der Filter wird eine Leiste 🔨
+## Stufe 0 — Fundament: Schrift und Primitive 🔨
 
-Heute: weiße Karte, ~380 px hoch auf Mobile, mit Icon, Überschrift, Erklärsatz,
-zwei nummerierten Schritten und einer Ergebniszeile — für **acht** Produkte
-mit **zwei** Facetten.
+- `.num-data` → `.num` in allen Verkaufs- und Marketingflächen:
+  `ProductShelf.tsx` (11×), `products.tsx` (1× plus die `MONO`-Konstante
+  Zeile 21 und ihre zwei Verwendungen in den Spec-Pills),
+  `StarterSetBuilder.tsx` (8×), `RewaxPage.tsx` (8×), `why-wax.tsx` (5×),
+  `WhatChanges.tsx` (2×), `ChainFinder.tsx` (2×), `ProductDetailPage.tsx`
+  (2×), `GiftPreviewModal.tsx` (2×), `StarterSetOptions.tsx`,
+  `ProcessAndPaths.tsx`, `AccessoryDetailPage.tsx`, `hero/WaxDive.tsx` (4×),
+  `science/ScienceTeaser.tsx`. Dazu das Inline-`fontFamily` im Varianten-Chip
+  von `ProductStagePage.tsx`.
+- Bleiben: `sections/science/*`, `components/viz/InstrumentFrame.tsx`,
+  Blog-Codeblöcke, `SciencePage.tsx` nur bei echten Messwerten (dort stehen
+  14 Verwendungen, Fließtext-Labels gehen mit um).
+- Gesperrte Micro-Labels („01 MARKE", „TROCKEN") behalten ihre technische
+  Anmutung über `.eyebrow` (`index.css:1018-1034`) statt über die Mono.
+- Keine Verkaufsfläche unter **12 px** (`text-meta`). Kein Kaufsignal mehr in
+  `--txff` — das ist ab jetzt nur noch die PAngV-Fußnote.
+- **Eine** Sternkomponente statt drei: `Stars.tsx` bekommt anteilige Füllung
+  (Clip-Path oder Verlauf) und eine feste Farbe; `ProductShelf.tsx:323-326`
+  und `ProductDetailPage.tsx:851,1316` stellen darauf um.
+- `docs/DESIGN.md` §2 um „wo Mono erlaubt ist" ergänzen, `CLAUDE.md` Regel 5
+  auf `npx tsc -b --force` korrigieren (K5).
 
-**Neu: eine Leiste, eine Zeile.**
+**Fertig, wenn** `grep -rn "num-data\|IBM Plex Mono" src/` nur noch
+`sections/science/`, `components/viz/`, `pages/blog/`, `index.css` und
+`tailwind.config.js` trifft.
+
+---
+
+## Stufe 1 — Eine Produktkarte 🔨
+
+Neue Komponente `src/components/ProductCard.tsx` mit einer Anatomie und drei
+Rollen (`wax | chain | path`). Ersetzt `ChainCard`, wird von
+`WaxPanel`/`SecondaryTile` mitbenutzt. Wenn die vollständige Extraktion zu
+groß wird: **erst** die Kettenkarte optisch auf die Regal-Grammatik bringen,
+**dann** extrahieren. Optische Gleichheit ist das Ziel, geteilter Code der Weg.
 
 ```
-Marke:  [Alle] [Shimano] [SRAM] [Campagnolo]     Schaltung: [Alle] [11] [12]     8 Ketten  ↺
+┌──────────────────────────────┐
+│  FOTO 3:2                    │  höchstens EIN Chip
+│                     [Chip]   │  Ausverkauft > Auszeichnung > keiner
+├──────────────────────────────┤
+│  MARKE                       │  .eyebrow
+│  Modellname                  │  Fraunces, 17–19 px
+│  11-fach · 116 Glieder       │  12 px, --txm — Klartext statt Pills
+│  ✓ Quick-Link inklusive      │  12 px, --tx2
+│  ★★★★★ 12 Bewertungen        │  nur wenn Daten gepflegt
+├──────────────────────────────┤  Haarlinie, Fußzeile auf --sf3
+│  44,90 €         [ Kaufen ]  │  Preis links groß, CTA unten rechts
+│  inkl. Versand · Mi. bei dir │
+└──────────────────────────────┘
 ```
 
-- Desktop: eine Zeile über dem Raster, zwei Chip-Gruppen durch ein feines
-  Trennzeichen getrennt, Ergebniszahl rechts. Höhe ~56 px statt ~380 px.
-- Mobile: zwei nebeneinanderliegende Auswahl-Chips, die ein kleines
-  Auswahlblatt öffnen (`Marke ▾` / `Schaltung ▾`), aktive Auswahl steht im
-  Chip. Kein Akkordeon, keine Nummerierung.
-- Die Leiste wird beim Scrollen **sticky** unter der Navigation, solange das
-  Raster im Bild ist. Das ist der Standard für gefilterte Listen und kostet
-  keinen zusätzlichen Platz.
-- Überschrift „Finde deine Kette" und der Erklärsatz entfallen. Eine
-  Filterleiste über einem Produktraster erklärt sich selbst; die zwei Zeilen
-  waren Kompensation für die Kartenform.
-- „01 / 02" entfallen (sie waren außerdem Mono, siehe Phase 1).
-- Ergebniszahl bleibt und ist wichtig — sie ist die einzige Rückmeldung, dass
-  der Filter gewirkt hat. Bei 0 Treffern eine Zeile mit „Filter zurücksetzen"
-  direkt im Raster, nicht in der Leiste.
-- Die Zustandslogik (`brandFilter`/`speedFilter`, `compatibilityMatrix`) bleibt
-  unverändert; sie zieht mit auf `/ketten` um und wird zusätzlich in die URL
-  gespiegelt (`?marke=`/`?gang=`), damit ein gefiltertes Ergebnis teilbar ist.
+- Behälter `.shelf-card` plus `rounded-[20px]` plus `overflow-hidden` (K3).
+- Bild einheitlich **3:2**, `<picture>` mit AVIF vor WebP (K4). 2:1 schneidet
+  die Flatlays an und wäre die dritte Ratio auf einem Schirm.
+- Spec-Pills verschwinden: „11-fach" stand dreimal (Overlay, Pill,
+  Modellname). Eine Klartextzeile mit Trennpunkt liest sich als Fakt, drei
+  Pills als Etiketten.
+- Stretched-Link statt Button-im-Link (K2).
+- Ausverkauft als eigener ruhiger Zustand: Foto entsättigt, Chip oben links,
+  statt CTA ein Link auf dieselbe Schaltung. Heute wird nur der Button durch
+  grauen Text ersetzt, die Karte sieht sonst kaufbar aus.
+- 4-px-Raster für alle Innenabstände; heute stehen sechs Rhythmen auf einer
+  Karte (`pt-2.5 sm:pt-3`, `pb-3 sm:pb-3.5`, `mt-0.5`, `mt-2`, `mt-2.5`,
+  `mt-3.5`).
+- Der Preis ist die größte Zahl der Karte. Immer. Keine zweite Fettzahl.
+- Raster 1 / 2 / 3 / 4 Spalten (K1).
+- **Falle:** `index.css:607-612` erzwingt im Hellmodus
+  `h1,h2,h3,h4 { color: var(--tx1) !important }`. Kartentitel als `<p>`
+  auszeichnen, wie `WaxPanel` es bereits tut.
+
+### Welche Infos auf die Karte gehören
+
+Geprüft gegen „hilft es beim Aussortieren?".
+
+| Info | Karte? | Warum |
+|---|---|---|
+| Schaltung + Glieder | **ja** | der Kompatibilitätsfilter im Kopf des Kunden |
+| Quick-Link inklusive | **ja** | echter Differenzierer, kostet eine Zeile |
+| Lieferdatum | **ja** | siehe Stufe 2 |
+| inkl. Versand | **ja** | stärkster Preis-Entlaster, jetzt belegt |
+| Sterne + Bewertungen | **ja, sobald Zahlen da** | echte eBay-Werte, nie geschätzt |
+| Preis je Anwendung (Wachs) | **ja** | K6 |
+| Gewicht, Material, Pin-Typ | nein | Detailseite |
+| „nur noch X verfügbar" | **nie** | Skill-Verbot: keine künstliche Verknappung im B2C |
+| Ersparnis gegen UVP | nein | es gibt keinen belastbaren Streichpreis |
+
+---
+
+## Stufe 2 — Kaufsignale und die Versand-Wahrheit 🔨 + 🙋
+
+### 2.1 Versandaussage an `checkoutEnabled` koppeln (K8)
+
+Eine Hilfsfunktion in `data.ts` als **einzige** Quelle. Konsumenten:
+
+| Ort | heute |
+|---|---|
+| `PriceNote` über `i18n.ts:145-148` / `:737-740` | 6 Render-Stellen |
+| Meta-Description der Produktseite | `ProductDetailPage.tsx:496` |
+| Prerender Produktseite | `generate-product-html.mjs:155`, `:381`, JSON-LD `:198-218` |
+| JSON-LD React-Fassung | `ProductDetailPage.tsx:545-552` |
+| Startseiten-noscript | `generate-home-html.mjs:94` |
+| Meta `/versand-und-zahlung` | `generate-blog-html.mjs:637` |
+| Seite `/versand-und-zahlung` | `VersandUndZahlungPage.tsx:22,28,33,49-81` |
+| Merchant-Feed | `generate-merchant-feed.mjs:73-80` |
+| Warenkorb-Hinweis | `CartDrawer.tsx:198-210` (50 hartkodiert statt `shipping.freeFromCents`) |
+
+Die beiden JSON-LD-Fassungen müssen synchron bleiben
+(`docs/SEO_TECHNIK.md:55-61`). 🙋 Der Versand-Haken im
+Google-Merchant-Center liegt außerhalb des Repos.
+
+### 2.2 Lieferdatum
+
+- Karte kurz: `Mi. bei dir` (volles Datum als Screenreader-Text).
+- Produktseite lang und erkennbar als Schätzung:
+  `Voraussichtlich Mittwoch, 17. September bei dir`, darunter der
+  Mechanismus: `Versand in 1–2 Werktagen aus Stuttgart. Bestellungen bis
+  14 Uhr gehen meist am selben Tag raus.`
+- **Kein Countdown.** Die 14-Uhr-Grenze darf als Satz stehen, ein laufender
+  Ticker wäre künstliche Verknappung und im B2C verboten.
+- `getEstimatedDelivery()` (`src/lib/utils.ts:47`) rechnet Wochenenden und
+  den 14-Uhr-Schnitt bereits korrekt; es fehlt nur eine zweite
+  Formatvariante und die Weitergabe an die Stellen ohne Lieferzeile.
+- **Starter-Set-Kachel** bekommt dieselbe Schätzung (gleiche Sendung aus
+  demselben Lager), **Starter-Set-Seite** eine Lieferzeile im Kaufblock.
+- **Rewax-Kachel** bekommt **kein** Lieferdatum, sondern `TURNAROUND` aus
+  `src/pages/rewax/content.ts` mit Rundpfeil statt LKW:
+  `Zurück in 3–5 Werktagen ab Ankunft`.
+
+### 2.3 Preis je Anwendung und Staffel (K6)
+
+```
+29,95 €                          5,99 € je 100 g      ← PAngV, bleibt
+ca. 0,95 bis 1,50 € je Wachsvorgang                   ← neu, das Hauptsignal
+[Mengenrabatt ▾]  ab 2 Blöcken günstiger              ← Chip, aufklappbar
+```
+
+Aufgeklappt die Stückpreise, Euro-Ersparnis vor Prozent, gerechnet aus
+`WAX_TIERS` in Cent nach dem Muster von `bundleOffer()` (`data.ts:562-579`,
+der Kommentar dort erklärt den Fließkomma-Fehler, den man sonst einbaut).
+Dazu einmal der Mechanismus: `Rabatt wird bei eBay im Warenkorb abgezogen.`
+Ohne diesen Satz ist die Staffel eine Behauptung, die der Kunde beim Klick
+nicht wiederfindet.
+
+### 2.4 Restliche Punkte
+
+- **Bewertungen je Kette**: Felder in `data.ts` vorbereiten, Rendern nur wenn
+  gesetzt, kein `aggregateRating` (K7). 🙋 Werte von Luca.
+- **Rewax-Preis** wie §3 entschieden.
+- **Käuferschutz-Zeile** `preWaxedHint` (DE und EN) ersatzlos löschen; der
+  Nutzen zieht ins Nutzenband der Kettenseite.
+
+**→ Pflicht-Zwischenstopp. Bericht an Luca, dann weiter.**
+
+---
+
+## Stufe 3 — `/ketten` als eigene Seite 🔨
+
+Der `useState`-Zweig wird eine Route. Das löst Doppelüberschrift, Rückweg,
+Teilbarkeit und Indexierbarkeit in einem. Ein großer Zurück-Button hätte nur
+das Symptom repariert.
+
+- Neue `src/pages/KettenPage.tsx`: eigene H1, Helmet-Meta, Breadcrumb- und
+  `ItemList`-Schema, Footer, `removeStaticJsonLd()`. Route in `App.tsx` im
+  Lazy-Muster der anderen (`App.tsx:21-43`, `:91-116`).
+- Kopf: H1, ein Satzpaar, darunter ein Nutzenband aus drei Icons
+  (Quick-Link inklusive · sofort fahrbereit · Versand inklusive). Die graue
+  Sammelzeile entfällt. Wording-Regel aus dem Skill: Ketten sind
+  **„handgewachst in Stuttgart"**, nie „Made in Germany".
+- **Filter wird eine Leiste** statt einer 380-px-Karte: Desktop eine Zeile
+  mit zwei Chip-Gruppen und Ergebniszahl, sticky unter der Navigation;
+  Mobile zwei Auswahl-Chips, die ein Bottom-Sheet öffnen, abgeschlossen mit
+  „X Ketten anzeigen". Überschrift, Erklärsatz und die „01/02"-Nummerierung
+  entfallen. `.chip-active` (`index.css:992-997`) existiert und wird
+  wiederverwendet. Zustand in **Query-Parameter** (`?marke=`, `?gang=`),
+  nicht in Anker (K10). Aktive Filter als entfernbare Chips über dem Raster,
+  X-Fläche mindestens 44 px. Ergebniszahl bleibt, bei 0 Treffern
+  „Filter zurücksetzen" im Raster statt in der Leiste.
+- Unter dem Raster eine **„Passt dazu"-Reihe** aus drei `SecondaryTile`:
+  Kettenwachs, Starter-Set, Kette wachsen lassen. Die Seite endet damit nicht
+  in einer Sackgasse, und wer hochscrollt, verliert nichts.
+- **Zurück-Weg:** eine Pille mit Pfeil und **Ziel-Label** („Alle Ketten" /
+  „Alle Produkte") auf allen Breakpoints, 44 px hoch. Ein Ziel-Label senkt
+  die Klickhürde stärker als ein Richtungs-Label. Das Fallback-Ziel richtet
+  sich nach `product.category` (Kette → `/ketten`, Wachs → `/#produkte`), die
+  bestehende `handleBack`-Logik bleibt als Verhalten.
+- **SEO-Pflichtprogramm** vollständig nach `docs/SEO_TECHNIK.md:29-41`:
+  Sitemap (`generate-sitemap.mjs:49-77`), Prerender
+  (`generate-blog-html.mjs`, `NEW_STATIC_PAGES:415`), `llms.txt` (`:43-53`),
+  404-Liste (`generate-404-html.mjs:50-54`), Startseiten-noscript
+  (`generate-home-html.mjs:80-91`), Breadcrumb beider Fassungen.
+  `vercel.json` **nicht** anfassen, solange vorgerendert wird.
+- Nur die vier Ketten-Einstiege umhängen, `#produkte` bleibt (K9). Alte
+  `?ketten=`-Links client-seitig weiterleiten.
+
+---
+
+## Stufe 4 — Politur 🔨
+
+- **Geteilte Elementübergänge** Karte → Produktseite über die View
+  Transitions API. React Router 7.15 hat die `viewTransition`-Prop am `Link`
+  (Prop-Name gegen die installierte Version prüfen). Gegen
+  `prefers-reduced-motion` gegattert, in Browsern ohne Unterstützung
+  wirkungslos.
+- Erste Bildreihe `fetchpriority="high"` und nicht lazy, Rest lazy (K4).
+- Filterwechsel ohne Ladezustand, rund 160 ms Überblendung, Ergebniszahl
+  animiert. Die GSAP-Staffelung der Karteneinblendung bleibt wie sie ist.
+- 44-px-Trefferflächen, `aria-pressed` auf den Filter-Chips,
+  `scroll-margin-top` gegen die klebende Navigation.
+- Kontrast- und Dark-Mode-Durchgang über alle neuen Flächen. Die
+  Token-Paare stehen in `index.css:309-357` (hell) und `:460-506` (dunkel).
 
 ---
 
 ## Reihenfolge, Aufwand, Risiko
 
-| Phase | Aufwand | Risiko | Warum diese Reihenfolge |
+| Stufe | Aufwand | Risiko | Warum diese Reihenfolge |
 |---|---|---|---|
-| 1 Schrift | mittel, ~25 Dateien | niedrig, rein visuell | Betrifft jede spätere Phase. Zuerst, sonst baut man die Mono wieder mit ein. |
-| 2 Karten | groß | mittel (Regression im Regal) | Der Kern von Lucas Kritik. |
-| 4 Lieferung/Versand | klein | niedrig | Kleine Textarbeit, großer Effekt, unabhängig von Phase 3. |
-| 5 Rabatt | mittel | niedrig | Braucht Phase 2 als Fläche. |
-| 3 Kettenseite | groß | **hoch** (neue Route: Sitemap, Prerender, Schema, interne Links) | Erst wenn die Karten stehen, sonst zieht man eine halbfertige Liste um. |
-| 7 Filter | klein | niedrig | Zieht mit Phase 3 um. |
-| 6 Zurück | klein | niedrig | Braucht `/ketten` als Ziel, also nach Phase 3. |
-
-Wer nur die Hälfte schafft: **1, 2, 4, 5** liefern den größten Teil des
-sichtbaren Gewinns und berühren keine Routen. **3, 7, 6** sind der strukturelle
-Teil und gehören zusammen in einen eigenen Commit.
+| 0 Fundament | mittel, ~25 Dateien | niedrig | betrifft jede spätere Stufe; zuerst, sonst baut man die Mono wieder ein |
+| 1 Karte | groß | mittel | Regression im Regal möglich |
+| 2 Kaufsignale + Versand | groß | mittel | berührt Aussagen an Google |
+| 3 `/ketten` | groß | **hoch** | Entkopplung plus SEO-Pflichten |
+| 4 Politur | klein | niedrig | braucht 1 und 3 als Fläche |
 
 ---
 
-## Offene Punkte für Luca 🙋
+## Offen für Luca 🙋
 
-1. **eBay-Versand:** ist er bei Wachs und bei Ketten im Preis enthalten?
-   (Entscheidet, ob „inkl. Versand" auf die Karten darf — Phase 4.4.)
-2. **Wachs-Staffel:** gelten 5/10/15 % (Website) oder 10/15 % (Skill)?
-   (Phase 5.3.)
-3. **Rewax-Preisdarstellung:** Empfehlung „15,95 € je Kette / mit 10er-Karte
-   9,45 €" oder die B-Variante „Ab 9,45 €"? (Phase 5.4.)
-4. **Rewax-Turnaround:** 3–5 Werktage (Code, von dir am 07.09. bestätigt) oder
-   3–4? (Phase 4.3.)
-5. **Mono komplett weg oder in den Wissenschafts-Figuren belassen?** Mein
-   Vorschlag ist: belassen, dort trägt sie Bedeutung. Sag Bescheid, wenn du
-   sie wirklich nirgends mehr sehen willst — dann fällt auch der
-   `InstrumentFrame`-Chip darunter.
-6. **Ketten-Bewertungen:** gibt es pro Kette echte eBay-Bewertungszahlen? Wenn
-   ja, kommen Sterne auch auf die Kettenkarten. Wenn nein, bleibt es beim
-   Trust-Streifen — erfunden wird nichts.
+1. **Bewertungszahlen je Kette** aus eBay: SKU → Anzahl, Ø-Sterne, verkaufte
+   Stück. Ohne echte Zahlen bleiben die Sterne aus.
+2. **Zahlenkonflikt Anwendungen:** `data.ts:104` sagt 20–32 je 500-g-Block,
+   das Skill `waxcelerate` sagt „1 Block ≈ 15–20 Wachsvorgänge". Die
+   je-Anwendung-Zeile hängt daran; gerechnet wird mit `data.ts`.
+3. **Google-Merchant-Center:** die Versand-Kontoeinstellung liegt außerhalb
+   des Repos.
+4. Das Skill ist mehrfach veraltet (Staffel, Rewax-Preise).
+   `docs/aufgaben/SKILL_PREISE_UPDATE.md` existiert dafür.
 
 ---
 
 ## Nicht-Ziele
 
-- Keine neuen Animationen. Die vorhandene GSAP-Staffelung der Karten bleibt,
-  bekommt aber nichts dazu.
-- Kein neues Farbsystem. `DESIGN.md` §1 gilt unverändert, insbesondere die
+- Keine neuen Animationen außer den beiden in Stufe 4 genannten.
+- Kein neues Farbsystem. `DESIGN.md` §1 gilt, insbesondere die
   OKLCH-Graustufen-Regel.
 - Keine Änderung an Preisen, Intervallen oder technischen Zahlen. Dieser Plan
-  ändert Darstellung, nicht Inhalt — mit der einzigen Ausnahme der falschen
-  Käuferschutz-Zeile, die gelöscht wird.
-- Kein Stripe/Checkout-Umbau. Der wartet weiter auf die Price-IDs.
+  ändert Darstellung, nicht Inhalt — mit den zwei Ausnahmen der falschen
+  Käuferschutz- und der falschen Versandaussage.
+- Kein Stripe- oder Checkout-Umbau. Der wartet weiter auf die Price-IDs.
