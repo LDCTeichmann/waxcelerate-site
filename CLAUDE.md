@@ -31,7 +31,7 @@ dort gezielt weiter in den passenden `docs/`-Unterordner, statt breit zu suchen.
 
 **Nicht erlaubt ohne Rückfrage:** das Chrome-Toolset (`mcp__claude-in-chrome__*`) und alle Desktop-Screenshot-/Computer-Use-Tools (`mcp__computer-use__*`). Die greifen auf Lucas echten Bildschirm und sein echtes Chrome zu und stören die parallele Arbeit sichtbar (Fenster-Fokus, orangene Bildschirmränder).
 
-Wo eine Prüfung ohne Browser reicht, ist sie trotzdem vorzuziehen: `npx tsc --noEmit`, `npm run build`, Prüfung des vorgerenderten HTML in `dist/`, DOM-Checks via `getBoundingClientRect` / `getComputedStyle`.
+Wo eine Prüfung ohne Browser reicht, ist sie trotzdem vorzuziehen: `npx tsc -b --force`, `npm run build`, Prüfung des vorgerenderten HTML in `dist/`, DOM-Checks via `getBoundingClientRect` / `getComputedStyle`.
 
 ---
 
@@ -66,6 +66,6 @@ src/hooks/useLanguage.tsx        ← { t, lang, setLang }
 
 ```bash
 npm run dev -- --port 5174   # Dev-Server
-npx tsc --noEmit             # Type-Check
+npx tsc -b --force           # Type-Check (NICHT --noEmit, siehe Regel 5)
 npm run build                # Produktions-Build → dist/
 ```
