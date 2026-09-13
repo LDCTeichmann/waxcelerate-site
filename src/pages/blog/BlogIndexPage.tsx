@@ -6,6 +6,7 @@ import { Navigation } from '@/sections/navigation';
 import { Footer } from '@/sections/footer';
 import { getProductById } from '@/lib/data';
 import { removeStaticHeadMeta } from '@/lib/utils';
+import { BeforeAfterSlider } from '@/components/BeforeAfterSlider';
 import { useArticleSearch } from '@/lib/search/useArticleSearch';
 import type { SnippetPart } from '@/lib/search/engine';
 import {
@@ -118,74 +119,62 @@ function ArticleCard({ article, snippet }: { article: Article; snippet?: Snippet
 }
 
 /**
- * Ersetzt die frühere Kombination aus separatem Vergleichsblock + eigener
- * FeaturedArticle-Kachel (zwei gleich große Blöcke übereinander) durch eine
- * einzige asymmetrische Kachel: ein großes Hauptbild plus ein kleineres,
- * überlappendes Kontrastbild, das die "geölt vs. gewachst"-These weiterträgt
- * statt sie als eigenen Block zu wiederholen.
+ * Die Kachel oben auf der Uebersicht: ein Artikel, hervorgehoben, plus der
+ * Beleg fuer seine These.
+ *
+ * Vorher standen hier zwei Fotos nebeneinander, ein grosses "gewachst" und ein
+ * kleines, ueberlappendes "geoelt" (eine verschmutzte Wade). Zwei getrennte
+ * Aufnahmen muessen dem Betrachter aber immer erst erklaeren, dass sie
+ * ueberhaupt vergleichbar sind. Jetzt steht dort derselbe Vergleichsslider wie
+ * auf der Startseite: eine Kette, zwei Zustaende, der Leser zieht selbst.
+ *
+ * Dafuer ist die Kachel KEIN einziger <Link> mehr. Ein ziehbarer Slider
+ * innerhalb eines Links waere unbedienbar, weil jeder Zug als Klick endet und
+ * die Seite wechselt. Verlinkt sind jetzt Ueberschrift und Fusszeile, und die
+ * `peer`/`group`-Kopplung sorgt dafuer, dass die Kachel trotzdem als ein Stueck
+ * reagiert: Hover auf einem der beiden Links hebt die ganze Karte.
  */
 function FeatureTile({ article }: { article: Article }) {
   return (
-    <Link
-      to={`/blog/${article.slug}`}
-      className="group grid md:grid-cols-[3fr_2fr] rounded-2xl mb-12 transition-all duration-300 hover:-translate-y-1"
+    <div
+      className="group grid md:grid-cols-[3fr_2fr] rounded-2xl mb-12 overflow-hidden transition-all duration-300 has-[a:hover]:-translate-y-1"
       style={{ background: 'var(--sf)', border: '1px solid var(--bd)' }}
     >
-      {/* Bildspalte: Hauptbild + überlappendes Insetbild. `self-start` ist
-          hier absichtlich: ohne das würde die Spalte sich in der Desktop-Grid
-          auf die Höhe der Textspalte strecken (die je nach Titellänge stark
-          variiert), und dann würde das Inset-Bild — das relativ zu dieser
-          Spalte positioniert ist — bei einem langen Titel weit unter die
-          Kachel hinausragen. Mit `self-start` behält die Bildspalte immer
-          ihre eigene, bildbasierte Höhe, unabhängig vom Text daneben. Das
-          Inset sitzt bewusst außerhalb des Hauptbild-Containers (der sein
-          eigenes overflow-hidden trägt), damit es über die Kante hinausragen
-          kann, ohne vom äußeren rounded-2xl beschnitten zu werden. */}
-      <div className="relative self-start mb-12 sm:mb-14 md:mb-16 md:pr-10">
-        <div
-          className="relative aspect-[16/11] sm:aspect-[4/3] md:aspect-[5/4] overflow-hidden rounded-t-2xl md:rounded-t-none md:rounded-l-2xl"
-          style={{ background: 'var(--sf2)', transform: 'translateZ(0)' }}
-        >
-          <img
-            src={blogFeature.main.src}
-            alt={blogFeature.main.alt}
-            fetchPriority="high"
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-105"
+      {/* Der Slider bringt sein eigenes festes Seitenverhaeltnis mit (6/5, so
+          sind die Bildpaare in public/images/compare/ geschnitten), die
+          Textspalte daneben ist je nach Titellaenge unterschiedlich hoch.
+          Randlos bis an die Kachelkante gezogen bliebe deshalb ein
+          unterschiedlich breiter Rest als Streifen stehen, der wie ein
+          Darstellungsfehler aussieht. Mit Innenabstand und eigenen Ecken ist
+          der Slider stattdessen erkennbar ein gerahmtes Element, und der
+          Ausgleich oben und unten (`self-center`) liest sich als Absicht. */}
+      <div className="self-center p-4 sm:p-5 md:p-6">
+        <div className="rounded-xl overflow-hidden" style={{ transform: 'translateZ(0)' }}>
+          <BeforeAfterSlider
+            aspect="6/5"
+            beforeSrc={blogFeature.before.src}
+            afterSrc={blogFeature.after.src}
+            beforeAlt={blogFeature.before.alt}
+            afterAlt={blogFeature.after.alt}
+            beforeLabel={blogFeature.before.label}
+            afterLabel={blogFeature.after.label}
           />
-          <span
-            className="absolute top-3 left-3 text-small font-semibold uppercase tracking-[0.16em] px-2.5 py-1 rounded-full backdrop-blur"
-            style={{ background: 'var(--chip-bg)', color: '#F2F2F5' }}
-          >
-            {blogFeature.main.caption}
-          </span>
         </div>
-        <figure
-          className="absolute left-5 -bottom-10 sm:-bottom-12 md:-bottom-14 w-[46%] sm:w-[38%] md:w-[52%] md:left-6 aspect-[4/5] rounded-xl overflow-hidden shadow-2xl"
-          style={{ border: '3px solid var(--pg)', background: 'var(--sf2)' }}
-        >
-          <img
-            src={blogFeature.inset.src}
-            alt={blogFeature.inset.alt}
-            loading="lazy"
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-          <figcaption
-            className="absolute bottom-0 left-0 right-0 px-2 py-1.5 font-mono text-[10px] uppercase tracking-[0.14em]"
-            style={{ background: 'linear-gradient(0deg, rgba(var(--scrim-rgb),0.85), rgba(var(--scrim-rgb),0))', color: '#F2F2F5' }}
-          >
-            {blogFeature.inset.caption}
-          </figcaption>
-        </figure>
       </div>
 
       {/* Textspalte: bewusst oben ausgerichtet statt vertikal zentriert, damit
           die Kachel nicht als gespiegeltes 50/50-Layout wirkt. */}
-      <div className="p-7 sm:p-9 md:pt-9 flex flex-col justify-start">
+      <div className="px-7 pb-7 sm:px-9 sm:pb-9 md:py-9 md:pr-9 md:pl-3 flex flex-col justify-center">
         <p className="font-mono text-small uppercase tracking-[0.18em] text-wx-txf mb-3">
           Empfohlen · {article.category}
         </p>
-        <h2 className="font-display text-2xl sm:text-[28px] font-bold text-wx-tx1 leading-[1.15] mb-3 group-hover:text-white transition-colors">
-          {article.title}
+        <h2 className="font-display text-2xl sm:text-[28px] font-bold leading-[1.15] mb-3">
+          <Link
+            to={`/blog/${article.slug}`}
+            className="text-wx-tx1 transition-colors hover:text-white"
+          >
+            {article.title}
+          </Link>
         </h2>
         <p className="text-[14px] leading-[1.7] text-wx-txm mb-6">
           {article.description}
@@ -203,15 +192,19 @@ function FeatureTile({ article }: { article: Article }) {
           </div>
         )}
         <p className="text-[13px] leading-[1.6] text-wx-txf mb-6">
-          Der Unterschied ist kein Marketingversprechen, sondern das, was nach
-          der Fahrt an Wade und Socke hängen bleibt.
+          Der Unterschied ist kein Marketingversprechen. Zieh den Regler und
+          sieh dir dieselbe Kette in beiden Zuständen an.
         </p>
-        <div className="flex items-center gap-2 text-[13px] font-semibold" style={{ color: 'var(--accent)' }}>
+        <Link
+          to={`/blog/${article.slug}`}
+          className="mt-auto inline-flex items-center gap-2 text-[13px] font-semibold w-fit"
+          style={{ color: 'var(--accent)' }}
+        >
           Artikel lesen
           <span className="transition-transform group-hover:translate-x-1">→</span>
-        </div>
+        </Link>
       </div>
-    </Link>
+    </div>
   );
 }
 
