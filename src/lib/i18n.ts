@@ -154,14 +154,7 @@ export const translations = {
       // danach hier an EINER Stelle aenderbar — nicht in die Komponenten
       // kopieren.
       priceNoteTax: 'Kleinunternehmer nach §19 UStG, keine Umsatzsteuer ausgewiesen.',
-      priceNoteShippingPre: 'zzgl.',
-      priceNoteShippingLink: 'Versandkosten',
-      priceNoteShippingPost: 'ab 50 € versandfrei',
-      // K8 (Produktkarten-Plan): solange checkoutEnabled false ist, laeuft
-      // jeder Kauf ueber eBay — dort ist der Versand im Angebotspreis
-      // enthalten, "zzgl. Versandkosten, ab 50 € versandfrei" waere schlicht
-      // falsch. PriceNote.tsx waehlt zwischen dieser Zeile und den drei
-      // obigen je nach checkoutEnabled.
+      // Versand ist immer kostenlos, bei eBay wie im eigenen Checkout (13.09.2026).
       priceNoteShippingIncluded: 'Versand kostenlos',
       // Kurzform fuer den Kartenfuss (ChainCard) statt des ganzen PriceNote-
       // Satzes — dort steht schon "Versand über eBay inklusive" als Fliesstext,
@@ -176,7 +169,7 @@ export const translations = {
       compareFormulaClassic: 'Classic Formel',
       compareFormulaPro: 'Pro MoS₂ Formel',
       compareComponents: 'Komponenten',
-      shippingHint: 'Versand in 1 Werktag · Kostenlos ab €50 (Deutschland)',
+      shippingHint: 'Werktags bis 15 Uhr bestellt, am selben Tag versandt · Versand kostenlos',
       // Regal — ersetzt die drei Tueren. Zwei Wachs-Tafeln (Classic/Pro) mit
       // Groessenschalter, danach Set, Ketten, Rewax. Siehe ProductShelf.tsx.
       shelf: {
@@ -663,7 +656,7 @@ export const translations = {
       browseCta: 'Produkte entdecken',
       subtotal: 'Zwischensumme',
       vatNote: 'Gem. §19 UStG wird keine MwSt. ausgewiesen',
-      freeShippingNote: 'Ab 50 € Bestellwert kostenloser Versand',
+      freeShippingNote: 'Versand immer kostenlos',
       checkout: 'Zahlungspflichtig bestellen',
       loading: 'Wird geladen...',
       clear: 'Warenkorb leeren',
@@ -773,9 +766,6 @@ export const translations = {
       bundleOffer: '{qty} × {weight} = {total} ({pct}% off).',
       // Siehe die deutsche Fassung: Rechtstext, nur zusammen mit ihr aendern.
       priceNoteTax: 'Small business under §19 UStG, no VAT shown.',
-      priceNoteShippingPre: 'plus',
-      priceNoteShippingLink: 'shipping',
-      priceNoteShippingPost: 'free over €50',
       priceNoteShippingIncluded: 'Free shipping',
       cardShippingIncluded: 'incl. shipping (eBay)',
       cardShippingReal: 'plus shipping',
@@ -787,7 +777,7 @@ export const translations = {
       compareFormulaClassic: 'Classic Formula',
       compareFormulaPro: 'Pro MoS₂ Formula',
       compareComponents: 'components',
-      shippingHint: 'Ships within 1 working day · Free shipping over €50 (Germany)',
+      shippingHint: 'Weekday orders by 3 pm ship the same day · Free shipping',
       shelf: {
         waxEyebrow: 'Chain wax — cast in Stuttgart',
         classicName: 'Classic',
@@ -1218,7 +1208,7 @@ export const translations = {
       browseCta: 'Browse products',
       subtotal: 'Subtotal',
       vatNote: 'No VAT charged (§19 UStG small business)',
-      freeShippingNote: 'Free shipping on orders over €50',
+      freeShippingNote: 'Free shipping, always',
       checkout: 'Order & pay now',
       loading: 'Loading...',
       clear: 'Clear cart',

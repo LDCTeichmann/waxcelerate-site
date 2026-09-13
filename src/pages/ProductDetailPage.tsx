@@ -29,6 +29,7 @@ import { reviewsForProduct, type Review } from '@/sections/reviews';
 import { Stars } from '@/components/Stars';
 import { CompareModal } from '@/sections/products';
 import { CompareTable } from '@/components/CompareTable';
+import { WaxProductPage } from '@/pages/product/wax/WaxProductPage';
 
 const FADE_MS = 900;
 
@@ -177,7 +178,9 @@ export function ProductDetailPage() {
   const [compareOpen, setCompareOpen] = useState(false);
   const reduce = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  const gallery = product ? [product.image, ...(product.images ?? [])] : [];
+  // Wachs v4: Anwendungsfotos (pdpScenes) direkt hinter das Hauptbild, damit
+  // Bildstrecke und Lightbox dieselbe Reihenfolge haben.
+  const gallery = product ? [product.image, ...(product.pdpScenes?.map(s => s.src) ?? []), ...(product.images ?? [])] : [];
   const total = gallery.length;
 
   // `slides` extends `gallery` with an optional trailing video slide, used
@@ -686,6 +689,18 @@ export function ProductDetailPage() {
             koennen — sie mussten sich durch Header und Navigation tabben,
             bevor der eigentliche Produktinhalt beginnt. */}
         <main id="main-content">
+        {isWax ? (
+          <WaxProductPage
+            product={product} de={de} t={t} titleText={titleText} rc={rc} specs={specsData}
+            gallery={[
+              { src: product.image, title: de ? 'Der Block' : 'The block', fact: `${product.weight?.replace('g', ' g')} · ${product.applications} ${de ? 'Wachsgänge' : 'waxings'}` },
+              ...(product.pdpScenes ?? []).map(s => ({ src: s.src, title: de ? s.de : s.en, fact: de ? s.factDe : s.factEn })),
+            ]}
+            sizeSibling={waxSizeSibling} recommendedId={sizeAdvice.recommended?.id} profile={toolProfile} buyRef={buyRef}
+            onOpenImage={i => { setActiveImage(i); setLightboxOpen(true); }}
+            onSizeSelect={p => navigate(`/produkt/${p.id}`, { state: { keepScroll: true } })}
+          />
+        ) : (<>
         {/* ══════════════════════════════════════════════════════════════
             ENTSCHEIDUNGSZONE — EINE Fassung fuer beide Breakpoints
             ══════════════════════════════════════════════════════════════
@@ -1059,7 +1074,7 @@ export function ProductDetailPage() {
         </section>
 
         {/* Buy-bar scroll trigger */}
-        <div ref={buyRef} className="h-0" />
+        <div ref={isWax ? undefined : buyRef} className="h-0" />
 
         {/* ══════════════════════════════════════════════════════════════
             AUF EINEN BLICK — die vier Kennzahlen des Produkts
@@ -1463,6 +1478,8 @@ export function ProductDetailPage() {
             )}
           </div>
         </section>
+
+        </>)}
 
         {/* ── Related ── */}
         {related.length > 0 && (

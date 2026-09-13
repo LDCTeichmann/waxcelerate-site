@@ -86,6 +86,13 @@ export interface Product {
   imagePosition?: string;
   // Gallery — additional images shown in thumbnail strip on the detail page
   images?: string[];
+  // Wachs-Produktseite (v4, 14.09.2026): ein Satz unter der H1 und die
+  // Anwendungsfotos der Bildstrecke (Position 2 ff.). Getrennt von `images`,
+  // weil `images` auch Schema, Sitemap und Merchant-Feed speist und dort nur
+  // Produktfotos stehen sollen.
+  lede?: string;
+  ledeEn?: string;
+  pdpScenes?: PdpScene[];
   // Optional extra gallery slide (product detail page only) showing the
   // actual dip-wax process as a short muted/looping clip. Deliberately a
   // separate field from `images` rather than folding it in there — `images`
@@ -95,6 +102,33 @@ export interface Product {
   // real clip exists.
   videoSlide?: { src: string; poster: string };
 }
+
+export interface PdpScene { src: string; de: string; en: string; factDe: string; factEn: string }
+
+const CLASSIC_SCENES: PdpScene[] = [
+  { src: '/images/blog/wax-blue-wire-chain-1600.webp', de: 'Das brauchst du', en: 'What you need', factDe: 'Block · Kette · Draht', factEn: 'Block · chain · wire' },
+  { src: '/images/blog/wax-bath-hanging-1600.webp', de: 'Im Bad', en: 'In the bath', factDe: '85–90 °C · 10–15 min', factEn: '85–90 °C · 10–15 min' },
+  { src: '/images/compare/chain-wachs.webp', de: 'Das Ergebnis', en: 'The result', factDe: 'trocken · sauber', factEn: 'dry · clean' },
+];
+const PRO_SCENES: PdpScene[] = [
+  { src: '/images/blog/wax-pro-box-open-1600.webp', de: 'Frisch ausgepackt', en: 'Fresh out of the box', factDe: 'MoS₂ · PFAS-frei', factEn: 'MoS₂ · PFAS-free' },
+  { src: '/images/blog/wax-bath-hanging-1600.webp', de: 'Im Bad', en: 'In the bath', factDe: '85–90 °C · 10–15 min', factEn: '85–90 °C · 10–15 min' },
+  { src: '/images/compare/chain-wachs.webp', de: 'Das Ergebnis', en: 'The result', factDe: 'trocken · sauber', factEn: 'dry · clean' },
+];
+
+/**
+ * Minuten je Schritt der Heisswachs-Anleitung fuer die Stoppuhr der
+ * Produktseite, in derselben Reihenfolge wie howTo.steps von
+ * `heisswachs-anleitung` (articles.ts). `active`: du tust etwas; sonst wartest
+ * du. `firstOnly`: faellt beim Nachwachsen weg (Entfetten).
+ */
+export const waxProcessTimeline: Array<{ minutes: number; active: boolean; firstOnly?: boolean }> = [
+  { minutes: 15, active: true, firstOnly: true },
+  { minutes: 10, active: false },
+  { minutes: 12, active: false },
+  { minutes: 10, active: false },
+  { minutes: 1, active: true },
+];
 
 export const products: Product[] = [
   // ── WAX PRODUCTS ──────────────────────────────────────────────
@@ -110,6 +144,9 @@ export const products: Product[] = [
     titleEn: 'Chain Wax 500g — Classic',
     description: 'Der Einstieg — und für die meisten der einzige Block, den sie je brauchen. Sauberer Antrieb, kein Nachschmieren, kein Dreck. Ideal für Frühling bis Herbst.',
     descriptionEn: 'The starting point — and for most riders, the only block they\'ll ever need. Clean drivetrain, no re-lubing, no grime. Perfect from spring through autumn.',
+    lede: 'Die saubere Alternative zu Kettenöl, für trockenes Fahren von Frühling bis Herbst. Keine schwarzen Finger, Kette und Kassette halten 2–3× länger.',
+    ledeEn: 'The clean alternative to chain oil, for dry riding from spring to autumn. No black fingers, chain and cassette last 2–3× longer.',
+    pdpScenes: CLASSIC_SCENES,
     price: 29.95,
     image: '/images/products/classic/classic-4.webp',
     imagePosition: 'center 52%',
@@ -164,6 +201,9 @@ export const products: Product[] = [
     titleEn: 'Chain Wax 300g — Classic',
     description: 'Gleiche Formel wie der 500g-Block — nur kleiner. Perfekt zum Ausprobieren, als Reiseblock oder wenn du selten wächst.',
     descriptionEn: 'Same formula as the 500g block — just smaller. Perfect for trying it out, travelling light, or infrequent waxers.',
+    lede: 'Dieselbe Classic-Formel im kleinen Block, zum Ausprobieren oder für wenige Kilometer. Keine schwarzen Finger, Kette und Kassette halten 2–3× länger.',
+    ledeEn: 'The same Classic formula in a smaller block, for trying it out or low mileage. No black fingers, chain and cassette last 2–3× longer.',
+    pdpScenes: CLASSIC_SCENES,
     price: 22.95,
     image: '/images/products/classic/classic-4.webp',
     imagePosition: 'center 52%',
@@ -218,6 +258,9 @@ export const products: Product[] = [
     titleEn: 'Chain Wax 500g — Pro',
     description: 'Für Herbst, Winter und nasse Ausfahrten. MoS₂ bildet einen festeren Transferfilm — längere Intervalle, weniger Rost, flexibel bis −8 °C.',
     descriptionEn: 'For autumn, winter and wet rides. MoS₂ builds a harder transfer film — longer intervals, less rust, functional down to −8 °C.',
+    lede: 'Für das ganze Jahr, auch bei Regen und im Winter. Trockener MoS₂-Film, PFAS- und PTFE-frei, Kette und Kassette halten 2–3× länger.',
+    ledeEn: 'For the whole year, rain and winter included. A dry MoS₂ film, PFAS- and PTFE-free, chain and cassette last 2–3× longer.',
+    pdpScenes: PRO_SCENES,
     price: 34.95,
     image: '/images/products/pro/pro-3.webp',
     imagePosition: 'center 45%',
@@ -285,6 +328,9 @@ export const products: Product[] = [
     titleEn: 'Chain Wax 300g — Pro',
     description: 'Pro-Formel kompakt — für Fahrer, die zwischen Sommer und Winter die Formel wechseln, oder als Winterblock zum Mitnehmen.',
     descriptionEn: 'Pro formula compact — for riders who switch between summer and winter formulas, or as a portable winter block.',
+    lede: 'Die Pro-Formel im kleinen Block: ganzjährig, auch bei Nässe, PFAS- und PTFE-frei. Zum Ausprobieren oder für wenige Kilometer.',
+    ledeEn: 'The Pro formula in a smaller block: year-round, wet included, PFAS- and PTFE-free. For trying it out or low mileage.',
+    pdpScenes: PRO_SCENES,
     price: 26.95,
     image: '/images/products/pro/pro-3.webp',
     imagePosition: 'center 45%',

@@ -440,3 +440,36 @@ export const richContent: Record<string, RichContent> = {
     footerNote: v9ChainFooterNote,
   },
 };
+
+// ── Wachs-Produktseite v4: "Welches Wachs passt zu dir?" ──────────────────
+// Classic · Pro · Kettenoel nebeneinander. Werte aus waxCompRows* oben und
+// den Produktdaten; `kind` steuert das Symbol (ja / nein / bedingt), Text
+// ohne kind steht als Wert. Die Spalte der gerade angesehenen Formel wird
+// auf der Seite hervorgehoben.
+export type ChooserCell = { text: string; textEn: string; kind?: 'yes' | 'no' | 'meh' };
+export const waxChooserRows: Array<{ label: string; labelEn: string; classic: ChooserCell; pro: ChooserCell; oil: ChooserCell }> = [
+  { label: 'Am besten für', labelEn: 'Best for',
+    classic: { text: 'Trocken, Frühling bis Herbst', textEn: 'Dry, spring to autumn' },
+    pro: { text: 'Ganzjahr, Regen, E-Bike', textEn: 'Year-round, rain, e-bike' },
+    oil: { text: '—', textEn: '—' } },
+  { label: 'Intervall trocken', labelEn: 'Interval, dry',
+    classic: { text: '250–450 km', textEn: '250–450 km' },
+    pro: { text: '300–550 km', textEn: '300–550 km' },
+    oil: { text: '50–150 km', textEn: '50–150 km' } },
+  { label: 'Reibung µ', labelEn: 'Friction µ',
+    classic: { text: '0,05–0,07', textEn: '0.05–0.07' },
+    pro: { text: '0,03–0,06', textEn: '0.03–0.06' },
+    oil: { text: '0,18–0,25', textEn: '0.18–0.25' } },
+  { label: 'Sauberer Antrieb', labelEn: 'Clean drivetrain',
+    classic: { text: 'trocken', textEn: 'dry', kind: 'yes' },
+    pro: { text: 'trocken', textEn: 'dry', kind: 'yes' },
+    oil: { text: 'Ölfilm, bindet Dreck', textEn: 'oil film, binds dirt', kind: 'no' } },
+  { label: 'Winter & Nässe', labelEn: 'Winter & wet',
+    classic: { text: 'bedingt', textEn: 'limited', kind: 'meh' },
+    pro: { text: 'bis −8 °C', textEn: 'down to −8 °C', kind: 'yes' },
+    oil: { text: 'muss oft nach', textEn: 'needs frequent top-ups', kind: 'meh' } },
+  { label: 'PFAS-/PTFE-frei', labelEn: 'PFAS/PTFE-free',
+    classic: { text: 'enthält PTFE', textEn: 'contains PTFE', kind: 'no' },
+    pro: { text: 'ja', textEn: 'yes', kind: 'yes' },
+    oil: { text: 'je nach Öl', textEn: 'depends on the oil' } },
+];

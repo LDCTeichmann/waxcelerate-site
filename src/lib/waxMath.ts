@@ -222,6 +222,22 @@ const OIL_SEVERITY_EXPONENT = 1;
 /** Wachs deutlich weniger — bewusst vorsichtig angesetzt. */
 const WAX_SEVERITY_EXPONENT = 0.35;
 
+/**
+ * Wie viele Ketten und Kassetten Wachs gegenueber Oel ueber `km` einspart,
+ * mit denselben Laufleistungen und demselben Haerte-Faktor wie
+ * drivetrainCosts() — damit "X Ketten weniger" und der Euro-Betrag auf der
+ * Produktseite dieselbe Rechnung sind. Eine Kette, nicht rotiert.
+ */
+export function partsSaved(km: number, rewaxKm: number): { chains: number; cassettes: number } {
+  const sev = severityFactor(rewaxKm);
+  const oilWear = Math.pow(sev, OIL_SEVERITY_EXPONENT);
+  const waxWear = Math.pow(sev, WAX_SEVERITY_EXPONENT);
+  return {
+    chains: Math.max(0, (km / OIL_CHAIN_KM) * oilWear - (km / WAX_CHAIN_KM[0]) * waxWear),
+    cassettes: Math.max(0, (km / OIL_CASSETTE_KM) * oilWear - (km / WAX_CASSETTE_KM[0]) * waxWear),
+  };
+}
+
 export function drivetrainCosts(input: {
   kmPerYear: number;
   rewaxKm: number;
