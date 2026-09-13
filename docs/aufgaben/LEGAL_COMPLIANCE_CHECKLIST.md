@@ -399,6 +399,47 @@ Produkthaftung das schärfste Bußgeldrisiko dieser Liste
 - **Amazon:** laut Business Core "geplant — erst nach LUCID + GTIN-
   Befreiung", also noch nicht spruchreif.
 
+### ⚠️ Neu (13.09.2026): Steht dein eBay-Konto auf "privat"?
+
+Aufgekommen beim Produktkarten-Umbau. Luca zur Frage, ob die Website den
+eBay-Käuferschutz behaupten darf: *"ich bin ja privatverkäufer"*. Das ist
+zu klären, weil daran mehr hängt als eine Textzeile.
+
+**Erst die Entwarnung zur Textzeile:** Der eBay-Käuferschutz
+(Geld-zurück-Garantie) ist ein Programm von eBay selbst, kein Versprechen
+des Verkäufers. Er greift automatisch bei "nicht angekommen" und "nicht wie
+beschrieben", **auch bei privaten Verkäufern**. Die Zeilen in
+`closing-cta.tsx`, `hero-light.tsx` und `AGBPage.tsx` stimmen also und
+bleiben. Falsch war nur das Wort "voller" im gelöschten `preWaxedHint`,
+weil es nach Rundumschutz inklusive Rückgaberecht klang.
+
+**Der eigentliche Punkt:** Privatverkäufer dürfen Gewährleistung
+ausschließen und schulden kein Widerrufsrecht. Gewerbliche schon. Und nach
+allem, was hier dokumentiert ist, handelst du gewerblich: Gewerbeanmeldung
+bestätigt (Block 1), Impressum weist "Kleinunternehmer gem. § 19 UStG" aus
+(ein Status, den nur ein Unternehmen hat), über 500 verkaufte Einheiten,
+Marke, Website mit AGB und Widerrufsbelehrung, Rewax-Service, B2B-Partner.
+
+Drei Folgen, falls das eBay-Konto trotzdem als privat geführt wird:
+
+1. Ein gewerblich handelnder Verkäufer auf einem privaten Konto ist für
+   sich genommen bereits ein Wettbewerbsverstoß und damit abmahnfähig —
+   durch Mitbewerber, und die gibt es hier namentlich (Kettenhelden,
+   bikeoptimierung).
+2. Als gewerblicher Verkäufer schuldest du 14 Tage Widerruf und
+   Gewährleistung (Neuware 2 Jahre). Ein "keine Rücknahme" im Listing wäre
+   unwirksam — bei eBays eigener Zahlungsabwicklung ohnehin faktisch.
+3. **Innerer Widerspruch:** `WiderrufsbelehrungPage.tsx` räumt auf
+   waxcelerate.de "binnen vierzehn Tagen ohne Angabe von Gründen" ein. Ein
+   privates eBay-Konto verspricht dasselbe Produkt ohne dieses Recht.
+   Dieselbe Ware, zwei Versprechen.
+
+**Das kann nur Luca:** in den eBay-Kontoeinstellungen nachsehen, ob das
+Konto als privat oder gewerblich geführt wird. Steht es auf privat, gehört
+die Umstellung anwaltlich begleitet — sie zieht Impressumspflicht im
+Listing, Widerrufsbelehrung und Gewährleistung nach sich, und rückwirkend
+verkaufte Artikel sind dabei mitzudenken. Von hier aus nicht zu entscheiden.
+
 ### Rechtliche Anforderung
 - eBay/Kleinanzeigen: gewerbliche Anbieter müssen ein vollständiges
   Impressum auf der Profil-/Unternehmensseite hinterlegen (Verlängerung
@@ -517,6 +558,9 @@ Datenschutzerklärung/Vercel-Analytics-Absatz ✅ — alles auf
 3. **PTFE-Lieferant benennen** — per Gmail-Suche nicht auffindbar.
 4. **AGB-Entscheidung:** Rechtstext-Dienst oder "keine AGB"?
 5. **Kleinanzeigen-Impressum:** was genau fehlt?
+5b. **eBay-Konto: privat oder gewerblich?** Einmal in den
+   Kontoeinstellungen nachsehen. Siehe Block 5, neuer Abschnitt vom
+   13.09.2026 — falls privat, ist das der größte offene Abmahnpunkt.
 6. **andsafe-Angebot abschließen** — günstigste Option, ~8 €/Monat bei
    deinem Umsatz, Produkthaftpflicht inklusive (Rechner mit echten
    Zahlen durchgehen, siehe Block 3).
