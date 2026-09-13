@@ -26,7 +26,7 @@
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve, join } from 'node:path';
 import { articles, getArticleImage, author, categoryOrder, blogHero } from '../src/pages/blog/articles.ts';
-import { starterSet, waxVsOil, frictionRanges, products } from '../src/lib/data.ts';
+import { starterSet, waxVsOil, frictionRanges, products, checkoutEnabled } from '../src/lib/data.ts';
 import { translations } from '../src/lib/i18n.ts';
 import { COMPONENTS } from '../src/lib/science.ts';
 
@@ -634,7 +634,9 @@ const LEGAL_PAGES = [
   { dir: 'agb', title: 'Allgemeine Geschäftsbedingungen', description: 'Vertragsbedingungen für Bestellungen bei Waxcelerate: Vertragsschluss, Preise, Lieferung und Zahlung.' },
   { dir: 'widerruf', title: 'Vertrag widerrufen', description: 'Formular und Ablauf, um eine Bestellung bei Waxcelerate innerhalb der Frist zu widerrufen.' },
   { dir: 'widerrufsbelehrung', title: 'Widerrufsbelehrung', description: 'Widerrufsrecht, Fristen und Folgen des Widerrufs für Bestellungen bei Waxcelerate.' },
-  { dir: 'versand-und-zahlung', title: 'Versand und Zahlung', description: 'Versandkosten, Lieferzeiten und Zahlungsarten bei Waxcelerate. Versandkostenfrei ab 50 €.' },
+  { dir: 'versand-und-zahlung', title: 'Versand und Zahlung', description: checkoutEnabled
+    ? 'Versandkosten, Lieferzeiten und Zahlungsarten bei Waxcelerate. Versandkostenfrei ab 50 €.'
+    : 'Bestellungen laufen aktuell über eBay, Versand im Angebotspreis inklusive. Diese Seite zeigt zusätzlich Lieferzeit und die künftigen Versandkosten des Direkt-Checkouts.' },
 ];
 
 function renderLegal(p) {

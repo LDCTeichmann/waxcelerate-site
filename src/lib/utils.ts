@@ -39,12 +39,12 @@ export function removeStaticHeadMeta() {
 }
 
 /**
- * Returns estimated delivery date string.
- * Logic: orders before 14:00 CET ship same day, otherwise next business day.
- * Add 1 business day for DHL delivery within Germany.
- * Skips weekends only (not public holidays — acceptable simplification).
+ * Estimated delivery date, as a Date. Logic: orders before 14:00 CET ship
+ * same day, otherwise next business day. Add 1 business day for DHL
+ * delivery within Germany. Skips weekends only (not public holidays —
+ * acceptable simplification).
  */
-export function getEstimatedDelivery(lang: 'de' | 'en'): string {
+function computeDeliveryDate(): Date {
   const now = new Date();
 
   // Get current hour in CET/CEST (Europe/Berlin handles DST automatically)
@@ -80,14 +80,33 @@ export function getEstimatedDelivery(lang: 'de' | 'en'): string {
   if (deliveryDate.getDay() === 6) deliveryDate.setDate(deliveryDate.getDate() + 2);
   if (deliveryDate.getDay() === 0) deliveryDate.setDate(deliveryDate.getDate() + 1);
 
-  // Format
+  return deliveryDate;
+}
+
+/**
+ * Kurzform fuer Karten: "Mo., 2. Jun." / "Mon, 2 Jun".
+ */
+export function getEstimatedDelivery(lang: 'de' | 'en'): string {
   const locale = lang === 'de' ? 'de-DE' : 'en-GB';
-  const formatted = new Intl.DateTimeFormat(locale, {
+  return new Intl.DateTimeFormat(locale, {
     weekday: 'short',
     day: 'numeric',
     month: 'short',
     timeZone: 'UTC', // deliveryDate is already in UTC-equivalent after our date math
-  }).format(deliveryDate);
+  }).format(computeDeliveryDate()); // e.g. "Mo., 2. Jun." or "Mon, 2 Jun"
+}
 
-  return formatted; // e.g. "Mo., 2. Jun." or "Mon, 2 Jun"
+/**
+ * Langform fuer die Produktseite: "Mittwoch, 17. September" / "Wednesday,
+ * 17 September" — ausgeschrieben und als Schaetzung erkennbar, siehe
+ * Produktkarten-Plan Stufe 2.2 ("Voraussichtlich ... bei dir").
+ */
+export function getEstimatedDeliveryLong(lang: 'de' | 'en'): string {
+  const locale = lang === 'de' ? 'de-DE' : 'en-GB';
+  return new Intl.DateTimeFormat(locale, {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    timeZone: 'UTC',
+  }).format(computeDeliveryDate());
 }

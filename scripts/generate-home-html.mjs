@@ -19,7 +19,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve, join } from 'node:path';
-import { products } from '../src/lib/data.ts';
+import { products, checkoutEnabled } from '../src/lib/data.ts';
 import { TOOLS } from '../src/lib/toolRegistry.ts';
 import { esc } from './lib/prerender.mjs';
 
@@ -91,7 +91,7 @@ const body = `
   </ul>
 </section>
 
-<p>Versandkostenfrei ab 50 €. Hergestellt in Stuttgart, Ketten handgewachst.</p>`.trim();
+<p>${checkoutEnabled ? 'Versandkostenfrei ab 50 €.' : 'Versand über eBay inklusive.'} Hergestellt in Stuttgart, Ketten handgewachst.</p>`.trim();
 
 // In <noscript>, nicht direkt in #root: siehe buildPage() in
 // scripts/lib/prerender.mjs fuer die volle Begruendung (Flash-of-unstyled-

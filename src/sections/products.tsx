@@ -18,6 +18,7 @@ import { Stars } from '@/components/Stars';
 import { Section } from '@/components/Section';
 import { CompareTable } from '@/components/CompareTable';
 import { getEstimatedDelivery } from '@/lib/utils';
+import { TURNAROUND } from '@/pages/rewax/content';
 
 export function Products() {
   const { t, lang } = useLanguage();
@@ -201,11 +202,12 @@ export function Products() {
             </h3>
           </div>
 
-          {/* ── Kettenliste ── */}
-              <p className="text-[13px] mb-6 px-1" style={{ color: 'var(--txm)' }}>
-                {t.products.preWaxedHint}
-              </p>
-
+          {/* ── Kettenliste ──
+              Die fruehere Kaeuferschutz-Zeile hier (preWaxedHint, "...Kauf
+              direkt ueber eBay mit vollem Kaeuferschutz") stimmte laut Luca
+              nicht und ist ersatzlos raus (Plan §2.4). Der Ultraschall-
+              entfettet-Nutzen zieht ins Nutzenband der /ketten-Seite
+              (Stufe 3), sobald die existiert. */}
               {/* Shared info — shown once instead of repeating identical pills on every card.
                   multiDiscount stand hier frueher mit dran, obwohl die Staffel nur fuer Wachs
                   gilt — steht jetzt auf den Wachskarten im Regal (ProductShelf.tsx). */}
@@ -270,6 +272,8 @@ export function Products() {
                   eyebrow={t.products.shelf.rewaxEyebrow} title={t.products.shelf.rewaxTitle}
                   body={t.products.shelf.rewaxBody}
                   price={t.products.shelf.rewaxFrom}
+                  delivery={de ? `Zurück in ${TURNAROUND.short} ab Ankunft` : `Back in ${TURNAROUND.shortEn} after arrival`}
+                  deliveryIcon="rotate"
                   cta={t.products.shelf.rewaxCta}
                   alt={de ? 'Waxcelerate Versandkarton mit gewachster Kette vor Stuttgarter Landschaft' : 'Waxcelerate shipping box with a waxed chain in front of the Stuttgart hills'}
                 />

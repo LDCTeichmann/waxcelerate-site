@@ -783,10 +783,6 @@ export function RewaxPage() {
   const faqItems = rewaxFaqItems(de);
   const faqSchema = JSON.stringify(rewaxFaqSchema(de));
 
-  const heroPrice = service === 'rewax'
-    ? `${de ? 'Auffrischung ab' : 'Rewax from'} ${eur(PRICE.rewax.single, de)} · ${de ? 'ab 3 Ketten' : 'from 3 chains'} ${eur(PRICE.rewax.bundle, de)}`
-    : `${de ? 'Umstieg ab' : 'Switch from'} ${eur(PRICE.umstieg.single, de)} · ${de ? 'ab 3 Ketten' : 'from 3 chains'} ${eur(PRICE.umstieg.bundle, de)}`;
-
   const valueProp = de
     ? `Kette einschicken, frisch gewachst zurück. Ab ${eur(PRICE.rewax.single, de)}, handgewachst in Stuttgart, deutschlandweit per Post. Bearbeitung ${TURNAROUND.full}.`
     : `Send in your chain, get it back freshly waxed. From ${eur(PRICE.rewax.single, de)}, hand-waxed in Stuttgart, nationwide by mail. Processing ${TURNAROUND.fullEn}.`;
@@ -886,8 +882,22 @@ export function RewaxPage() {
                   ? '1. Einschicken → 2. Reinigen & Wachsen → 3. Zurück & anbauen.'
                   : '1. Send it in → 2. Clean & wax → 3. Back & refit.'}
               </p>
-              <p className="text-[12.5px] leading-relaxed mt-4" style={{ color: 'var(--txm)' }}>
-                {heroPrice} · {de ? 'Karten ab' : 'cards from'} {eur(TEN_CARD.price / TEN_CARD.count, de)} {de ? 'je Vorgang, Rückversand inklusive' : 'per treatment, return shipping included'}
+              {/* Einzelpreis gross, zweite Zahl als Anker darunter (Plan §3):
+                  "Ab X €" allein waere der niedrigere Anker, bricht aber beim
+                  Aufschlagen der Seite (Einzelpreis, Vorkasse-Kartenpreis) —
+                  die zweizeilige Form beantwortet beide Fragen auf einmal.
+                  Rewax hat die Stempelkarte als Anker (10er-Karte, TEN_CARD),
+                  Umstieg hat keine Karte (content.ts: "Karten gelten fuer die
+                  Auffrischung, nicht fuer den Umstieg") und behaelt deshalb
+                  den 3er-Mengenrabatt als Anker. */}
+              <p className="num font-display font-bold leading-none mt-4" style={{ fontSize: '1.5rem', color: 'var(--tx1)' }}>
+                {eur(service === 'rewax' ? PRICE.rewax.single : PRICE.umstieg.single, de)}{' '}
+                <span className="text-[13px] font-normal" style={{ color: 'var(--txm)' }}>{de ? 'je Kette' : 'per chain'}</span>
+              </p>
+              <p className="num text-[12.5px] mt-0.5" style={{ color: 'var(--txm)' }}>
+                {service === 'rewax'
+                  ? `${de ? 'mit 10er-Karte' : 'with 10-visit card'} ${eur(TEN_CARD.price / TEN_CARD.count, de)}`
+                  : `${de ? 'ab 3 Ketten' : 'from 3 chains'} ${eur(PRICE.umstieg.bundle, de)}`}
               </p>
               <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
                 <a href="#ablauf" className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold" style={{ color: 'var(--accent)' }}>

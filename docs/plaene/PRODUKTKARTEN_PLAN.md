@@ -225,7 +225,7 @@ gerechnet, nie getippt.
 
 ---
 
-## Stufe 0 — Fundament: Schrift und Primitive 🔨
+## Stufe 0 — Fundament: Schrift und Primitive 🔨 ✅ erledigt 13.09.2026
 
 - `.num-data` → `.num` in allen Verkaufs- und Marketingflächen:
   `ProductShelf.tsx` (11×), `products.tsx` (1× plus die `MONO`-Konstante
@@ -255,7 +255,7 @@ gerechnet, nie getippt.
 
 ---
 
-## Stufe 1 — Eine Produktkarte 🔨
+## Stufe 1 — Eine Produktkarte 🔨 ✅ erledigt 13.09.2026
 
 Neue Komponente `src/components/ProductCard.tsx` mit einer Anatomie und drei
 Rollen (`wax | chain | path`). Ersetzt `ChainCard`, wird von
@@ -316,7 +316,7 @@ Geprüft gegen „hilft es beim Aussortieren?".
 
 ---
 
-## Stufe 2 — Kaufsignale und die Versand-Wahrheit 🔨 + 🙋
+## Stufe 2 — Kaufsignale und die Versand-Wahrheit 🔨 + 🙋 ✅ erledigt 13.09.2026 (Pflicht-Zwischenstopp, siehe Bericht)
 
 ### 2.1 Versandaussage an `checkoutEnabled` koppeln (K8)
 

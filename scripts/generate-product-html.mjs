@@ -22,7 +22,7 @@
 
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve, join } from 'node:path';
-import { products, shipping, schemaAvailability, waxVsOil } from '../src/lib/data.ts';
+import { products, schemaAvailability, waxVsOil, shippingDescSuffix, shippingDetailsSchema, checkoutEnabled } from '../src/lib/data.ts';
 import { articles, getArticleBySlug } from '../src/pages/blog/articles.ts';
 import { translations } from '../src/lib/i18n.ts';
 import { WAX_TOPICS, CHAIN_TOPICS } from '../src/pages/product/faqTopics.ts';
@@ -61,9 +61,6 @@ const ARTICLE_BY_PRODUCT = articles.reduce((acc, a) => {
   if (a.secondaryCtaSlug) (acc[a.secondaryCtaSlug] ??= []).push(a);
   return acc;
 }, {});
-
-/** Versandkosten in Euro fuer die Tarifklasse des Produkts. */
-const shippingRateEur = (p) => (shipping[p.shippingClass]?.cents ?? 0) / 100;
 
 /**
  * Ketten sind zugekaufte Shimano-, SRAM- und YBN-Teile, kein Eigenprodukt.
@@ -152,7 +149,7 @@ function titleOf(p) {
 function descriptionOf(p) {
   const price = p.price.toFixed(2).replace('.', ',');
   const base = p.description.replace(/\s+/g, ' ').trim();
-  const suffix = ` ${price} €, versandkostenfrei ab 50 €.`;
+  const suffix = shippingDescSuffix(true, price);
   // Googles Snippet schneidet bei ungefaehr 160 Zeichen ab. Lieber selbst
   // sauber kuerzen als mitten im Wort abgeschnitten werden.
   const room = 160 - suffix.length;
@@ -195,27 +192,7 @@ function productSchema(p) {
       // einen zweiten, unverbundenen Waxcelerate-Knoten aufzumachen. So
       // sammeln sich alle Angebote auf EINER Marken-Entitaet.
       seller: { '@id': `${BASE}/#organization` },
-      shippingDetails: {
-        '@type': 'OfferShippingDetails',
-        shippingRate: {
-          '@type': 'MonetaryAmount',
-          value: shippingRateEur(p).toFixed(2),
-          currency: 'EUR',
-        },
-        shippingDestination: {
-          '@type': 'DefinedRegion',
-          addressCountry: 'DE',
-        },
-        // Ab 50 EUR entfaellt der Versand, siehe shipping.freeFromCents.
-        freeShippingThreshold: {
-          '@type': 'DeliveryChargeSpecification',
-          eligibleTransactionVolume: {
-            '@type': 'PriceSpecification',
-            minPrice: (shipping.freeFromCents / 100).toFixed(2),
-            priceCurrency: 'EUR',
-          },
-        },
-      },
+      shippingDetails: shippingDetailsSchema(p),
       hasMerchantReturnPolicy: {
         '@type': 'MerchantReturnPolicy',
         applicableCountry: 'DE',
@@ -378,7 +355,7 @@ function renderProduct(p) {
 <article>
   <h1>${esc(p.title)}</h1>
   <p>${esc(p.description)}</p>
-  <p><strong>${price} €</strong> · versandkostenfrei ab 50 € · Lieferung innerhalb Deutschlands</p>
+  <p><strong>${price} €</strong> · ${checkoutEnabled ? 'versandkostenfrei ab 50 €' : 'Versand über eBay inklusive'} · Lieferung innerhalb Deutschlands</p>
   ${proNote}
   ${p.compatibility ? `<p>Kompatibilität: ${esc(p.compatibility)}</p>` : ''}
   ${specs}

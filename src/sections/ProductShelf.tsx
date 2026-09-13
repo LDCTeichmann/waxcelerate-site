@@ -41,14 +41,16 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ArrowLeftRight, ExternalLink, Truck } from 'lucide-react';
-import { products, accessories, starterSetPrice, canCheckout } from '@/lib/data';
+import { ArrowRight, ArrowLeftRight, ExternalLink, Truck, RotateCw } from 'lucide-react';
+import { products, accessories, starterSetPrice, canCheckout, perApplicationRange } from '@/lib/data';
 import type { TranslationType } from '@/lib/i18n';
 import { AddToCartButton } from '@/components/AddToCartButton';
 import { PriceNote } from '@/components/PriceNote';
 import { Stars } from '@/components/Stars';
+import { QuantityDiscountChip } from '@/components/QuantityDiscountChip';
 import { trackEbayClick } from '@/lib/analytics';
 import { getEstimatedDelivery } from '@/lib/utils';
+import { TURNAROUND } from '@/pages/rewax/content';
 
 type Size = '300' | '500';
 type Variant = 'classic' | 'pro';
@@ -103,6 +105,7 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
 
   const grams = parseInt(product.weight!);
   const per100 = eur(product.price / (grams / 100), de);
+  const perAppRange = perApplicationRange(product);
 
   // Ein Rahmen um beide Groessen statt zwei einzeln umrandeter Buttons — der
   // vorherige Zustand (jeder Button mit eigenem Rahmen) las sich als zwei
@@ -249,6 +252,17 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
           </div>
         </div>
 
+        {/* Preis je Anwendung — das eigentliche Hauptsignal fuer ein
+            Verbrauchsgut (K6), ueber der Groessenzeile statt im Fussstreifen
+            versteckt. Nie geschaetzt: perApplicationRange() in data.ts
+            rechnet aus product.applications, gibt null zurueck wenn die
+            Spanne fehlt oder unparsbar ist. */}
+        {perAppRange && (
+          <p className="num text-[12.5px] font-medium mt-1.5" style={{ color: 'var(--tx2)' }}>
+            {t.products.perApplicationPrefix} {eur(perAppRange.lo, de)} {de ? 'bis' : 'to'} {eur(perAppRange.hi, de)} {t.products.perApplicationSuffix}
+          </p>
+        )}
+
         {/* Zeile 2: Groessenschalter links, Anwendungszahl rechts — die beiden
             Fakten, um die die Wahl selbst geht. Die vorherigen Chips
             (km-Intervall trocken, Formel) sind raus: beide sind fuer 300g
@@ -341,9 +355,7 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
               {s.delivery} {delivery}
             </span>
           </div>
-          <p className="num text-[10.5px] mt-2" style={{ color: 'var(--txff)' }}>
-            {t.products.multiDiscount}
-          </p>
+          <QuantityDiscountChip product={product} de={de} t={t} />
         </div>
       </div>
 
@@ -393,18 +405,23 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
 // Versprechen, das die Seite nicht haelt).
 // Exportiert: products.tsx braucht dieselbe Kachel fuer die Rewax-Karte am
 // Ende der aufgeklappten Kettenliste — siehe dortiger Kommentar.
-export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, price, delivery, dark, index, ...action }: {
+export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, price, delivery, deliveryIcon = 'truck', dark, index, ...action }: {
   image: string; imageW: number; eyebrow: string; title: string; body: string; cta: string; alt: string;
   /** Fertig formatierter Preis-String ("ab 57,63 €"). Macht aus der Kachel
       sichtbar ein Kaufangebot statt eines reinen Editorial-Links — ohne
       Preis war auf Mobile nicht erkennbar, dass hier etwas verkauft wird. */
   price?: string;
   /** Fertig formatierter Lieferzeile-String ("Lieferung Mo., 7. Sept."),
-      dieselbe Grammatik wie WaxPanels Lieferzeile. Optional statt fuer alle
-      drei Kacheln, weil Set und Rewax keine Lieferzeit im klassischen Sinn
-      haben (Set = eigene Konfiguratorseite mit eigenen Angaben, Rewax = ein
-      Turnaround, keine Zustellung) — nur die Ketten-Kachel bekommt sie. */
+      dieselbe Grammatik wie WaxPanels Lieferzeile. Set und Ketten teilen
+      sich dieselbe Sendung/dasselbe Lager und bekommen deshalb dieselbe
+      Schaetzung; Rewax hat keine Zustellung im klassischen Sinn, sondern
+      einen Turnaround (siehe deliveryIcon). */
   delivery?: string;
+  /** 'truck' (Standard) fuer eine Lieferschaetzung, 'rotate' fuer Rewax'
+      Turnaround ("zurueck in X Werktagen") — ein Rundpfeil statt eines LKW,
+      weil hier nichts zugestellt, sondern die eigene Kette zurueckgeschickt
+      wird (Produktkarten-Plan Stufe 2.2). */
+  deliveryIcon?: 'truck' | 'rotate';
   /** Dunklerer Foto-Rand fuer die Rewax-Kachel (moodigeres Motiv) — rein
       atmosphaerisch, seit der Text nicht mehr auf dem Foto steht keine
       Kontrastfrage mehr. */
@@ -473,11 +490,13 @@ export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, p
         <h3 className="font-display font-bold text-[17px] sm:text-[18.5px] leading-snug tracking-[-0.015em] mt-0.5" style={{ color: 'var(--tx1)' }}>{title}</h3>
         <p className="text-[13px] leading-snug mt-1.5" style={{ color: 'var(--txm)' }}>{body}</p>
 
-        {/* Lieferzeile — nur wenn uebergeben (aktuell nur Ketten, siehe
-            Prop-Kommentar). Gleiche Truck-Icon-Grammatik wie WaxPanel. */}
+        {/* Lieferzeile — nur wenn uebergeben. Gleiche Truck-Icon-Grammatik
+            wie WaxPanel, ausser bei Rewax (deliveryIcon='rotate'). */}
         {delivery && (
           <span className="flex items-center gap-1.5 num text-meta mt-1.5" style={{ color: 'var(--txff)' }}>
-            <Truck className="h-3 w-3 flex-shrink-0" style={{ color: 'var(--accent-soft)' }} aria-hidden />
+            {deliveryIcon === 'rotate'
+              ? <RotateCw className="h-3 w-3 flex-shrink-0" style={{ color: 'var(--accent-soft)' }} aria-hidden />
+              : <Truck className="h-3 w-3 flex-shrink-0" style={{ color: 'var(--accent-soft)' }} aria-hidden />}
             {delivery}
           </span>
         )}
@@ -624,6 +643,7 @@ export function ProductShelf({ de, t, onOpenChains, onCompare }: {
           eyebrow={s.setEyebrow} title={s.setTitle}
           body={s.setBody}
           price={`${de ? 'Ab' : 'From'} ${eur(minSetPrice, de)}`}
+          delivery={`${s.delivery} ${delivery}`}
           cta={s.setCta}
           alt={de ? 'Waxcelerate Wachsblock mit Kettenzange, Kette und Schaltauge-Zubehör des Starter-Sets' : 'Waxcelerate wax block with chain pliers, chain and quick-link tools from the starter set'}
         />
@@ -645,6 +665,8 @@ export function ProductShelf({ de, t, onOpenChains, onCompare }: {
           eyebrow={s.rewaxEyebrow} title={s.rewaxTitle}
           body={s.rewaxBody}
           price={s.rewaxFrom}
+          delivery={de ? `Zurück in ${TURNAROUND.short} ab Ankunft` : `Back in ${TURNAROUND.shortEn} after arrival`}
+          deliveryIcon="rotate"
           cta={s.rewaxCta}
           alt={de ? 'Waxcelerate Versandkarton mit gewachster Kette vor Stuttgarter Landschaft' : 'Waxcelerate shipping box with a waxed chain in front of the Stuttgart hills'}
         />

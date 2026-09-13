@@ -5,7 +5,7 @@ import {
   ArrowLeft, ArrowRight, ExternalLink, Check,
   ChevronRight, ChevronLeft, ChevronDown, Lightbulb, Truck, RotateCcw, BadgeCheck,
 } from 'lucide-react';
-import { getProductById, products, canCheckout, checkoutEnabled, isSoldOut, schemaAvailability, shipping, bundleOffer, trustStats } from '@/lib/data';
+import { getProductById, products, canCheckout, checkoutEnabled, isSoldOut, schemaAvailability, bundleOffer, trustStats, shippingDescSuffix, shippingDetailsSchema, perApplicationRange } from '@/lib/data';
 import { articles } from '@/pages/blog/articles';
 import type { Product } from '@/lib/data';
 import { useToolProfile } from '@/hooks/useToolProfile';
@@ -23,7 +23,7 @@ import { PriceNote } from '@/components/PriceNote';
 import { ImageLightbox } from '@/components/ImageLightbox';
 import { gsap } from '@/lib/gsap';
 import { Footer } from '@/sections/footer';
-import { getEstimatedDelivery, removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
+import { getEstimatedDeliveryLong, removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
 import { reviewsForProduct, type Review } from '@/sections/reviews';
 import { Stars } from '@/components/Stars';
 import { CompareModal } from '@/sections/products';
@@ -449,16 +449,24 @@ export function ProductDetailPage() {
     ? products.find(p => p.category === 'wax' && p.variant === product.variant && p.weight !== product.weight)
     : undefined;
 
-  const pricePerApp = product.applications
-    ? product.price / parseFloat(product.applications.split('–')[1] ?? product.applications)
-    : null;
+  // K6 (Produktkarten-Plan): die volle Spanne statt nur des guenstigsten
+  // Einzelwerts (vorher: Preis / max(applications), ein optimistischer
+  // Durchschnitt statt einer ehrlichen Spanne). Gleiche Rechnung wie
+  // WaxPanel auf dem Regal, siehe perApplicationRange() in data.ts.
+  const perAppRange = perApplicationRange(product);
 
-  const offer = SHOW_BUNDLE_OFFER ? bundleOffer(product) : null;
+  // K8-Nachtrag: "und damit versandkostenfrei" behauptet die 50-€-Schwelle
+  // des eigenen Checkouts — im reinen eBay-Betrieb (checkoutEnabled false)
+  // gibt es weder einen gemeinsamen Warenkorb ueber mehrere eBay-Artikel
+  // noch diese Schwelle. Beim Bauen von K6 aufgefallen, nicht im
+  // urspruenglichen 14-Stellen-Fundort des Plans, aber derselbe Fehlertyp.
+  const offer = SHOW_BUNDLE_OFFER && checkoutEnabled ? bundleOffer(product) : null;
 
   // Same figures the homepage product cards already show (getEstimatedDelivery,
   // price-per-100g) — missing here, this was the one page where a buyer
-  // couldn't see either before deciding.
-  const deliveryDate = getEstimatedDelivery(lang);
+  // couldn't see either before deciding. Lange Fassung hier (Stufe 2.2),
+  // die Karte behaelt die kurze.
+  const deliveryDateLong = getEstimatedDeliveryLong(lang);
   const grams = isWax && product.weight ? parseInt(product.weight) : 0;
   const per100g = grams > 0 ? `${(product.price / (grams / 100)).toFixed(2).replace('.', ',')} €/100g` : null;
 
@@ -493,7 +501,7 @@ export function ProductDetailPage() {
   const metaTitle = `${titleText} kaufen | Waxcelerate`;
   const priceStr = product.price.toFixed(2).replace('.', ',');
   const descBase = (descriptionText ?? '').replace(/\s+/g, ' ').trim();
-  const descSuffix = de ? ` ${priceStr} €, versandkostenfrei ab 50 €.` : ` €${priceStr}, free shipping from €50.`;
+  const descSuffix = shippingDescSuffix(de, priceStr);
   const descRoom = 160 - descSuffix.length;
   const descHead = descBase.length > descRoom ? `${descBase.slice(0, descRoom - 1).trimEnd()}…` : descBase;
   const metaDescription = descHead + descSuffix;
@@ -542,15 +550,7 @@ export function ProductDetailPage() {
       // Was hardcoded to a fixed date that would silently go stale — always
       // valid for a year out so it never needs manual upkeep.
       priceValidUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
-      shippingDetails: {
-        '@type': 'OfferShippingDetails',
-        shippingRate: { '@type': 'MonetaryAmount', value: (shipping[product.shippingClass].cents / 100).toFixed(2), currency: 'EUR' },
-        shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'DE' },
-        freeShippingThreshold: {
-          '@type': 'DeliveryChargeSpecification',
-          eligibleTransactionVolume: { '@type': 'PriceSpecification', minPrice: (shipping.freeFromCents / 100).toFixed(2), priceCurrency: 'EUR' },
-        },
-      },
+      shippingDetails: shippingDetailsSchema(product),
       hasMerchantReturnPolicy: {
         '@type': 'MerchantReturnPolicy', applicableCountry: 'DE',
         returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
@@ -971,11 +971,16 @@ export function ProductDetailPage() {
                 <p className="num text-[30px] font-bold leading-none tracking-[-0.02em]" style={{ color: 'var(--tx1)' }}>
                   {formatPrice(product.price)}
                 </p>
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1.5 mb-2">
-                  {pricePerApp !== null && (
-                    <p className="text-meta whitespace-nowrap" style={{ color: 'var(--txff)' }}>~{formatPrice(pricePerApp)} / {de ? 'Anwendung' : 'use'}</p>
-                  )}
-                  {per100g && <p className="text-meta whitespace-nowrap" style={{ color: 'var(--txff)' }}>{pricePerApp !== null ? '· ' : ''}{per100g}</p>}
+                {/* Preis je Anwendung als Hauptsignal (K6) — deutlicher als
+                    der PAngV-Grundpreis darunter, der bleibt aber (Pflicht
+                    bei Ware nach Gewicht). */}
+                {perAppRange && (
+                  <p className="num text-[13px] font-medium mt-1.5" style={{ color: 'var(--tx2)' }}>
+                    {t.products.perApplicationPrefix} {formatPrice(perAppRange.lo)} {de ? 'bis' : 'to'} {formatPrice(perAppRange.hi)} {t.products.perApplicationSuffix}
+                  </p>
+                )}
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1 mb-2">
+                  {per100g && <p className="text-meta whitespace-nowrap" style={{ color: 'var(--txff)' }}>{per100g}</p>}
                 </div>
 
                 <div className="mb-4">
@@ -1016,10 +1021,20 @@ export function ProductDetailPage() {
                 )}
 
                 <div className="space-y-1.5">
-                  <div className="flex items-center gap-1.5 text-meta" style={{ color: 'var(--txff)' }}>
-                    <Truck className="h-3 w-3 flex-shrink-0" style={{ color: accentColor }} aria-hidden />
-                    {isWax ? `${de ? 'Hergestellt in Stuttgart' : 'Made in Stuttgart'} · ` : ''}
-                    {de ? `Lieferung ${deliveryDate}` : `Delivery ${deliveryDate}`}
+                  <div className="flex items-start gap-1.5 text-meta" style={{ color: 'var(--txff)' }}>
+                    <Truck className="h-3 w-3 flex-shrink-0 mt-[3px]" style={{ color: accentColor }} aria-hidden />
+                    <span>
+                      {isWax ? `${de ? 'Hergestellt in Stuttgart' : 'Made in Stuttgart'} · ` : ''}
+                      {/* Lang statt kurz (Stufe 2.2): auf der Produktseite ist
+                          Platz fuer die ausgeschriebene Schaetzung plus den
+                          Mechanismus dahinter, statt nur "Lieferung Mi." wie
+                          auf der Karte. */}
+                      {de ? `Voraussichtlich ${deliveryDateLong} bei dir` : `Estimated ${deliveryDateLong} at your door`}
+                      <br />
+                      {de
+                        ? 'Versand in 1–2 Werktagen aus Stuttgart. Bestellungen bis 14 Uhr gehen meist am selben Tag raus.'
+                        : 'Ships within 1–2 working days from Stuttgart. Orders placed before 2pm usually go out the same day.'}
+                    </span>
                   </div>
                   <div className="flex items-start gap-1.5 text-meta" style={{ color: 'var(--txff)' }}>
                     <RotateCcw className="h-3 w-3 flex-shrink-0 mt-[3px]" style={{ color: accentColor }} aria-hidden />
