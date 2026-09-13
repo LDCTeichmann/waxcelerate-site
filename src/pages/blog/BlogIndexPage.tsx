@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Search } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { Navigation } from '@/sections/navigation';
 import { Footer } from '@/sections/footer';
 import { getProductById } from '@/lib/data';
 import { removeStaticHeadMeta } from '@/lib/utils';
+import { useArticleSearch } from '@/lib/search/useArticleSearch';
+import type { SnippetPart } from '@/lib/search/engine';
 import {
   articles,
   categoryColors,
@@ -22,7 +24,31 @@ const formatPrice = (price: number) =>
 
 type Filter = 'Alle' | ArticleCategory;
 
-function ArticleCard({ article }: { article: Article }) {
+/** Fundstelle im Artikeltext, Treffer hervorgehoben.
+ *  Ersetzt waehrend einer Suche die Kurzbeschreibung: die erklaert, worum es
+ *  geht, beantwortet aber nicht die Frage "steht meine Antwort da drin?".
+ *  Genau das zeigt der Schnipsel. */
+function Snippet({ parts }: { parts: SnippetPart[] }) {
+  return (
+    <p className="text-[13px] leading-[1.6] text-wx-txm mb-4 line-clamp-3">
+      {parts.map((part, i) =>
+        part.hit ? (
+          <mark
+            key={i}
+            className="rounded px-0.5"
+            style={{ background: 'color-mix(in srgb, var(--accent) 24%, transparent)', color: 'var(--tx1)' }}
+          >
+            {part.text}
+          </mark>
+        ) : (
+          <span key={i}>{part.text}</span>
+        ),
+      )}
+    </p>
+  );
+}
+
+function ArticleCard({ article, snippet }: { article: Article; snippet?: SnippetPart[] | null }) {
   const img = getArticleImage(article.slug);
   return (
     <Link
@@ -58,9 +84,13 @@ function ArticleCard({ article }: { article: Article }) {
         <h2 className="font-display text-[18px] font-semibold text-wx-tx1 leading-snug mb-2 group-hover:text-white transition-colors">
           {article.titleShort}
         </h2>
-        <p className="text-[13px] leading-[1.6] text-wx-txm mb-4 line-clamp-2">
-          {article.description}
-        </p>
+        {snippet?.length ? (
+          <Snippet parts={snippet} />
+        ) : (
+          <p className="text-[13px] leading-[1.6] text-wx-txm mb-4 line-clamp-2">
+            {article.description}
+          </p>
+        )}
         <div className="flex items-center justify-between mb-3">
           <span className="font-mono text-meta text-wx-txf">
             von Luca · {article.readingTime}
@@ -185,6 +215,82 @@ function FeatureTile({ article }: { article: Article }) {
   );
 }
 
+/**
+ * Leerzustand. Vorher rendete die Seite bei null Treffern einfach ein leeres
+ * Raster: der Nutzer sah, dass etwas fehlt, bekam aber weder eine Erklaerung
+ * noch einen Ausweg. Hier steht beides, und zwar in dieser Reihenfolge:
+ * zuerst der wahrscheinlichste Grund (ein aktiver Kategoriefilter, den man
+ * leicht vergisst), dann die vier Einstiege, dann der direkte Draht zu Luca.
+ */
+function NoResults({
+  query,
+  activeFilter,
+  onClearFilter,
+  onClearQuery,
+}: {
+  query: string;
+  activeFilter: Filter;
+  onClearFilter: () => void;
+  onClearQuery: () => void;
+}) {
+  return (
+    <div className="mb-16 rounded-2xl px-6 py-10 sm:px-10 sm:py-12"
+      style={{ background: 'var(--sf)', border: '1px solid var(--bd)' }}>
+      <p className="font-mono text-small uppercase tracking-[0.18em] text-wx-txf mb-3">
+        Kein Treffer
+      </p>
+      <h2 className="font-display text-2xl font-bold text-wx-tx1 mb-3">
+        Zu „{query}" habe ich nichts gefunden.
+      </h2>
+
+      {activeFilter !== 'Alle' ? (
+        <p className="text-[14px] leading-[1.7] text-wx-txm mb-6">
+          Gesucht wurde nur in der Kategorie{' '}
+          <span style={{ color: 'var(--tx1)' }}>{activeFilter}</span>.{' '}
+          <button
+            type="button"
+            onClick={onClearFilter}
+            className="underline underline-offset-2"
+            style={{ color: 'var(--accent)' }}
+          >
+            In allen Artikeln suchen
+          </button>
+        </p>
+      ) : (
+        <p className="text-[14px] leading-[1.7] text-wx-txm mb-6">
+          Versuch es ruhig mit eigenen Worten, ganze Fragen versteht die Suche
+          auch. Oder steig hier ein:
+        </p>
+      )}
+
+      <div className="flex flex-wrap gap-x-5 gap-y-2 mb-7">
+        {INTENTS.map((intent) => (
+          <Link
+            key={intent.slug}
+            to={`/blog/${intent.slug}`}
+            onClick={onClearQuery}
+            className="group text-[13px] inline-flex items-center gap-1.5 transition-colors hover:text-wx-tx1"
+            style={{ color: 'var(--txm)' }}
+          >
+            <span style={{ color: 'var(--accent)' }}>→</span>
+            <span className="border-b border-transparent group-hover:border-current">
+              {intent.label}
+            </span>
+          </Link>
+        ))}
+      </div>
+
+      <p className="text-[13px] leading-[1.7] text-wx-txf">
+        Steht deine Frage nirgends?{' '}
+        <Link to="/kontakt" className="underline underline-offset-2" style={{ color: 'var(--accent)' }}>
+          Schreib mir direkt
+        </Link>
+        , dann beantworte ich sie dir und sie landet danach hier.
+      </p>
+    </div>
+  );
+}
+
 const INTENTS: { label: string; slug: string }[] = [
   { label: 'Ich will anfangen', slug: 'von-oel-auf-wachs-umsteigen' },
   { label: 'Es klappt nicht', slug: 'wachs-haelt-nicht-haeufige-fehler' },
@@ -239,22 +345,57 @@ export function BlogIndexPage() {
   const normalizedQuery = query.trim().toLowerCase();
   const isSearching = normalizedQuery.length > 0;
 
-  const matchesQuery = (a: Article) =>
-    !isSearching ||
+  // Die eigentliche Suche (Volltext, Aliase, Synonyme, Tippfehlertoleranz)
+  // liegt in src/lib/search/. Sie laedt ihren Index nach und ist deshalb in
+  // den ersten Millisekunden noch nicht da: `hits === null` heisst "noch keine
+  // Aussage", nicht "nichts gefunden".
+  const { hits, state: searchState, prefetch: prefetchSearch } = useArticleSearch(query);
+
+  // Notbehelf fuer genau dieses Zeitfenster (und fuer den Fall, dass der Index
+  // gar nicht laedt): die alte, schlichte Substring-Suche. Sie findet weniger,
+  // aber sie findet sofort, und der Nutzer sieht nie ein falsches
+  // "keine Treffer".
+  const fallbackMatches = (a: Article) =>
     a.title.toLowerCase().includes(normalizedQuery) ||
+    a.titleShort.toLowerCase().includes(normalizedQuery) ||
     a.description.toLowerCase().includes(normalizedQuery) ||
     (a.takeaways ?? []).some((t) => t.toLowerCase().includes(normalizedQuery));
 
+  const bySlug = new Map(articles.map((a) => [a.slug, a]));
+
+  // Bei aktiver Suche bestimmt die Relevanz die Reihenfolge, nicht mehr die
+  // Reihenfolge im Datenarray. Der Kategoriefilter bleibt dabei bewusst
+  // wirksam: die Pills stehen sichtbar aktiv da, ein Suchergebnis ausserhalb
+  // der gewaehlten Kategorie waere ein Widerspruch zur Anzeige. Der
+  // Leerzustand bietet dafuer an, den Filter mit einem Klick aufzuheben.
+  const inFilter = (a: Article) => filter === 'Alle' || a.category === filter;
+
+  const ranked: { article: Article; snippet: SnippetPart[] | null }[] = !isSearching
+    ? []
+    : hits
+      ? hits
+          .map((h) => ({ article: bySlug.get(h.slug), snippet: h.snippet }))
+          .filter((r): r is { article: Article; snippet: SnippetPart[] | null } => Boolean(r.article))
+          .filter((r) => inFilter(r.article))
+      : articles.filter(fallbackMatches).filter(inFilter).map((a) => ({ article: a, snippet: null }));
+
+  const snippetFor = new Map(ranked.map((r) => [r.article.slug, r.snippet]));
+
   const showLead = filter === 'Alle' && !isSearching && featured;
-  const grid = (
-    filter === 'Alle'
+  const grid = isSearching
+    ? ranked.map((r) => r.article)
+    : filter === 'Alle'
       // Excludes whichever article is actually shown as the lead right now —
       // compares against `featured`'s slug, not the raw `.featured` flag,
       // since the seasonal override above can promote an article to lead
       // that doesn't have that flag set at all.
-      ? articles.filter((a) => a.slug !== featured?.slug || isSearching)
-      : articles.filter((a) => a.category === filter)
-  ).filter(matchesQuery);
+      ? articles.filter((a) => a.slug !== featured?.slug)
+      : articles.filter((a) => a.category === filter);
+
+  // "Wirklich nichts gefunden" nur, wenn der Index fertig ist und trotzdem
+  // nichts uebrig bleibt. Waehrend des Ladens zeigt die Seite lieber die
+  // Fallback-Treffer.
+  const noResults = isSearching && grid.length === 0 && (searchState === 'ready' || searchState === 'error');
 
   const recommendedProduct = getProductById(
     filter === 'Alle' ? 'wax-500' : categoryProductSlug[filter],
@@ -334,18 +475,35 @@ export function BlogIndexPage() {
       </section>
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-12">
-        {/* Suche */}
+        {/* Suche. Der Platzhalter nennt bewusst eine ganze Frage statt zweier
+            Stichwoerter: die Suche versteht jetzt Umgangssprache, und niemand
+            probiert das aus, wenn das Feld nach Schlagwortsuche aussieht. */}
         <div className="relative mb-6">
+          <Search
+            className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 pointer-events-none"
+            style={{ color: 'var(--txf)' }}
+            aria-hidden
+          />
           <input
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            // Der Index wird nachgeladen. Beim Fokus ist er dadurch meist schon
+            // da, bevor der erste Buchstabe getippt ist.
+            onFocus={prefetchSearch}
+            onPointerEnter={prefetchSearch}
             aria-label="Artikel durchsuchen"
-            placeholder='Artikel durchsuchen, z. B. „Winter" oder „Watt"'
-            className="w-full text-[14px] px-4 py-2.5 rounded-full outline-none"
+            placeholder='Frag einfach: „meine Hose wird schwarz“'
+            className="w-full text-[14px] pl-11 pr-4 py-2.5 rounded-full outline-none transition-colors focus:border-[color:var(--accent)]"
             style={{ background: 'var(--sf)', border: '1px solid var(--bd)', color: 'var(--tx1)' }}
           />
         </div>
+        {/* Trefferzahl fuer Screenreader. Sichtbar steht sie an der
+            Abschnittsueberschrift, aber die liegt im Lesefluss weit unter dem
+            Feld und wird ohne diese Meldung beim Tippen nicht angesagt. */}
+        <p className="sr-only" role="status" aria-live="polite">
+          {isSearching ? `${grid.length} Treffer für ${query}` : ''}
+        </p>
 
         {/* Einstieg nach Absicht. Bewusst anders gestaltet als die Kategorie-Pills
             darunter: das hier sind Sprungziele in einen Artikel, keine Filter.
@@ -409,11 +567,24 @@ export function BlogIndexPage() {
         </div>
 
         {/* Article grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-16">
-          {grid.map((article) => (
-            <ArticleCard key={article.slug} article={article} />
-          ))}
-        </div>
+        {noResults ? (
+          <NoResults
+            query={query}
+            activeFilter={filter}
+            onClearFilter={() => setFilter('Alle')}
+            onClearQuery={() => setQuery('')}
+          />
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-16">
+            {grid.map((article) => (
+              <ArticleCard
+                key={article.slug}
+                article={article}
+                snippet={snippetFor.get(article.slug)}
+              />
+            ))}
+          </div>
+        )}
 
         {/* CTA banner + product cross-sell — the blog previously had zero
             product links anywhere except each article's own bottom CTA card.
