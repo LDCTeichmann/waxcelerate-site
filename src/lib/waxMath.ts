@@ -142,13 +142,32 @@ export function chainLengthLinks(input: {
 // keine Messwerte von Waxcelerate. Sie stehen deshalb sowohl hier als auch in
 // ASSUMPTIONS, das die Seite dem Besucher aufklappbar zeigt.
 export const CASSETTE_PRICE = 85.70;   // Shimano XT CS-M8100 12s, Referenz
-export const OIL_CHAIN_KM = 4000;      // Kettenlaufleistung mit Nassöl
+// Kettenlaufleistung bis zur Verschleissgrenze. Abgestimmt mit Blog und FAQ
+// (articles.ts, i18n.ts): Oel 2.000–3.000 km, Wachs 6.000–12.000 km, also
+// grob das Zwei- bis Dreifache (Zero Friction Cycling, Praxiswerte). Bis
+// 09/2026 stand hier 4.000 gegen 6.000 km = 1,5x und widersprach dem
+// eigenen Claim; jetzt jeweils das vorsichtige Ende: 3.000 gegen 7.500 km.
+export const OIL_CHAIN_KM = 3000;
 export const OIL_CASSETTE_KM = 15000;  // Kassettenlaufleistung mit Nassöl
 export const OIL_PRICE_PER_APP = 1.10; // Öl je Anwendung
 export const OIL_APP_INTERVAL_KM = 1000;
 /** Kassetten-/Kettenlaufleistung mit Wachs, je Anzahl rotierter Ketten (1/2/3). */
 export const WAX_CASSETTE_KM = [30000, 40000, 48000] as const;
-export const WAX_CHAIN_KM = [6000, 8500, 10500] as const;
+export const WAX_CHAIN_KM = [7500, 9500, 11000] as const;
+
+
+/**
+ * Antriebsklassen fuer den Ersparnis-Rechner der Produktseite. Die Ersparnis
+ * haengt fast nur am Teilepreis, deshalb waehlbar. Mittelklasse = die
+ * bisherige Referenz. Einsteiger und High-End sind Richtwerte fuer typische
+ * Strassenpreise (z. B. Shimano Deore/105 bzw. Dura-Ace/XTR), keine
+ * gemessenen Werte.
+ */
+export const DRIVETRAIN_CLASSES = [
+  { id: 'entry', de: 'Einsteiger', en: 'Entry', chainPrice: 25, cassettePrice: 40 },
+  { id: 'mid', de: 'Mittelklasse', en: 'Mid-range', chainPrice: medianChainPrice, cassettePrice: CASSETTE_PRICE },
+  { id: 'high', de: 'High-End', en: 'High-end', chainPrice: 60, cassettePrice: 200 },
+] as const;
 
 /** Ein Posten der Antriebsrechnung, Oel gegen Wachs, gerundet in Euro/Jahr. */
 export interface CostLine { oil: number; wax: number }
@@ -207,21 +226,26 @@ export function drivetrainCosts(input: {
   kmPerYear: number;
   rewaxKm: number;
   chains: 1 | 2 | 3;
+  /** Teilepreise der Antriebsklasse; ohne Angabe die Mittelklasse-Referenz. */
+  chainPrice?: number;
+  cassettePrice?: number;
 }): DrivetrainCosts {
   const { kmPerYear, rewaxKm, chains } = input;
+  const chainPrice = input.chainPrice ?? medianChainPrice;
+  const cassettePrice = input.cassettePrice ?? CASSETTE_PRICE;
   const waxPerApp = costPerApplication(referenceWax) ?? 0;
 
   const sev = severityFactor(rewaxKm);
   const oilWear = Math.pow(sev, OIL_SEVERITY_EXPONENT);
   const waxWear = Math.pow(sev, WAX_SEVERITY_EXPONENT);
 
-  const chainOilPerKm = (medianChainPrice / OIL_CHAIN_KM) * oilWear;
-  const cassetteOilPerKm = (CASSETTE_PRICE / OIL_CASSETTE_KM) * oilWear;
+  const chainOilPerKm = (chainPrice / OIL_CHAIN_KM) * oilWear;
+  const cassetteOilPerKm = (cassettePrice / OIL_CASSETTE_KM) * oilWear;
   const lubeOilPerKm = OIL_PRICE_PER_APP / OIL_APP_INTERVAL_KM;
   const oilPerKm = chainOilPerKm + cassetteOilPerKm + lubeOilPerKm;
 
-  const chainWaxPerKm = (medianChainPrice / WAX_CHAIN_KM[chains - 1]) * waxWear;
-  const cassetteWaxPerKm = (CASSETTE_PRICE / WAX_CASSETTE_KM[chains - 1]) * waxWear;
+  const chainWaxPerKm = (chainPrice / WAX_CHAIN_KM[chains - 1]) * waxWear;
+  const cassetteWaxPerKm = (cassettePrice / WAX_CASSETTE_KM[chains - 1]) * waxWear;
   const lubeWaxPerKm = waxPerApp / rewaxKm;
   const waxPerKm = chainWaxPerKm + cassetteWaxPerKm + lubeWaxPerKm;
 
@@ -293,14 +317,14 @@ export const ASSUMPTIONS: Assumption[] = [
     valueEn: `€${(costPerApplication(referenceWax) ?? 0).toFixed(2)} (${referenceWax.weight} block, ${referenceWax.applications} applications)`,
   },
   {
-    label: 'Kettenlaufleistung mit Öl (trockene Straße)',
-    labelEn: 'Chain life with oil (dry road)',
+    label: 'Kettenlaufleistung mit Öl, trockene Straße (Praxis 2.000–3.000 km)',
+    labelEn: 'Chain life with oil, dry road (typical 2,000–3,000 km)',
     value: `${OIL_CHAIN_KM.toLocaleString('de-DE')} km`,
     valueEn: `${OIL_CHAIN_KM.toLocaleString('en-US')} km`,
   },
   {
-    label: 'Kettenlaufleistung mit Wachs, trockene Straße (1 / 2 / 3 Ketten)',
-    labelEn: 'Chain life with wax, dry road (1 / 2 / 3 chains)',
+    label: 'Kettenlaufleistung mit Wachs, trockene Straße, 1 / 2 / 3 Ketten (Praxis 6.000–12.000 km)',
+    labelEn: 'Chain life with wax, dry road, 1 / 2 / 3 chains (typical 6,000–12,000 km)',
     value: WAX_CHAIN_KM.map(k => `${k.toLocaleString('de-DE')} km`).join(' / '),
     valueEn: WAX_CHAIN_KM.map(k => `${k.toLocaleString('en-US')} km`).join(' / '),
   },
