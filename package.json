@@ -4,10 +4,13 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "predev": "npx tsx scripts/generate-search-index.mjs",
     "dev": "vite",
     "build": "tsc -b && npm run gen:public && vite build && npm run gen:html",
-    "gen:public": "npx tsx scripts/generate-sitemap.mjs && npx tsx scripts/generate-llms-txt.mjs && npx tsx scripts/generate-merchant-feed.mjs",
+    "gen:public": "npx tsx scripts/generate-search-index.mjs && npx tsx scripts/generate-sitemap.mjs && npx tsx scripts/generate-llms-txt.mjs && npx tsx scripts/generate-merchant-feed.mjs",
     "gen:html": "npx tsx scripts/generate-blog-html.mjs && npx tsx scripts/generate-product-html.mjs && npx tsx scripts/generate-accessory-html.mjs && npx tsx scripts/generate-404-html.mjs && npx tsx scripts/generate-home-html.mjs",
+    "gen:search": "npx tsx scripts/generate-search-index.mjs",
+    "check:search": "npx tsx scripts/check-search.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "check:live": "node scripts/check-live.mjs"
@@ -19,6 +22,7 @@
     "clsx": "^2.1.1",
     "gsap": "^3.14.2",
     "lucide-react": "^0.562.0",
+    "minisearch": "^7.2.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-helmet-async": "^3.0.0",
