@@ -27,6 +27,11 @@ export function TogButton({
   return (
     <button
       onClick={onClick}
+      // Stufe 4 (Produktkarten-Plan, Politur): aria-pressed war hier nie
+      // gesetzt, obwohl die Klasse den Button eindeutig als Toggle
+      // behandelt — ohne das Attribut liest ein Screenreader nur "Button",
+      // nie den gewaehlten Zustand.
+      aria-pressed={active}
       // Sichtbare Pille bleibt kompakt, die Tapp-Flaeche waechst ueber ein
       // unsichtbares after:-Pseudoelement auf die im Projekt geltenden 44 px
       // (Mobile-Plan B5).

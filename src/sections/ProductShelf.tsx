@@ -150,6 +150,7 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
           Zeile teilen statt uebereinander zu stehen. */}
       <Link
         to={`/produkt/${product.id}`}
+        viewTransition
         className="relative block overflow-hidden aspect-[16/10]"
         style={{ background: 'var(--hero-stage)' }}
         // Die Auszeichnung ("Meistgekauft" / "mit MoS₂") steht sichtbar INNERHALB
@@ -316,7 +317,7 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
               Augenhoehe mit dem eBay-Button (gleiche Groesse, ohne dessen
               Flaeche zu kopieren), damit die Seite nicht nur "eBay oder
               nichts" signalisiert. */}
-          <Link to={`/produkt/${product.id}`}
+          <Link to={`/produkt/${product.id}`} viewTransition
             className="inline-flex items-center gap-1 min-h-11 px-4 rounded-full text-[13px] font-semibold border transition-colors duration-150 hover:bg-[var(--accent-wash)]"
             style={{ borderColor: 'var(--bd)', color: 'var(--tx2)' }}>
             {s.details} <ArrowRight className="h-3.5 w-3.5" aria-hidden />

@@ -17,6 +17,10 @@ export interface ChainCardProps {
    *  berechnet statt hier fest verdrahtet, damit die Karte selbst keine
    *  Meinung zum Versandstatus braucht. */
   shippingIncludedLabel?: string;
+  /** Stufe 4 (K4): erste Bildreihe eager + fetchpriority high, Rest lazy.
+   *  Der Aufrufer kennt die Spaltenzahl der jeweiligen Ansicht, die Karte
+   *  selbst nicht. */
+  priority?: boolean;
 }
 
 // Gleiches Muster wie cardFor/cardAvifFor in ProductDetailPage.tsx: nur die
@@ -38,7 +42,7 @@ const chainCardAvif = (src: string) => hasLocalChainCard(src) ? src.replace(/\.w
 // bleibt mit position:relative darueber klickbar. Ab Stufe 3 aus products.tsx
 // herausgeloest, weil sowohl das Regal (SecondaryTile-Vorschau entfaellt dort)
 // als auch die neue /ketten-Route dieselbe Karte brauchen.
-export const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel, deliveryDate, quickLinkLabel, shippingIncludedLabel }: ChainCardProps) {
+export const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel, deliveryDate, quickLinkLabel, shippingIncludedLabel, priority }: ChainCardProps) {
   const badge = de ? product.badge : product.badgeEn;
   const brand = product.chainBrand ?? '';
   const model = product.chainModel ?? '';
@@ -63,7 +67,8 @@ export const ChainCard = memo(function ChainCard({ product, de, formatPrice, buy
           <img
             src={webp}
             alt={title}
-            loading="lazy"
+            loading={priority ? 'eager' : 'lazy'}
+            fetchPriority={priority ? 'high' : undefined}
             decoding="async"
             className={`absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04] ${soldOut ? 'grayscale' : ''}`}
             style={soldOut ? { filter: 'saturate(0.15)' } : undefined}
@@ -91,7 +96,7 @@ export const ChainCard = memo(function ChainCard({ product, de, formatPrice, buy
             Stretched-Link (K2) sitzt hier statt auf der ganzen Karte. */}
         <p className="font-display font-bold leading-snug tracking-[-0.02em] mt-0.5"
           style={{ color: 'var(--tx1)', fontSize: 'clamp(1.05rem, 1.6vw, 1.15rem)' }}>
-          <Link to={`/produkt/${product.id}`} className="stretched-link">
+          <Link to={`/produkt/${product.id}`} className="stretched-link" viewTransition>
             {model}
           </Link>
         </p>
@@ -129,7 +134,7 @@ export const ChainCard = memo(function ChainCard({ product, de, formatPrice, buy
             {formatPrice(product.price)}
           </span>
           {soldOut ? (
-            <Link to={`/produkt/${product.id}`}
+            <Link to={`/produkt/${product.id}`} viewTransition
               className="relative z-[1] inline-flex items-center gap-1 min-h-11 px-4 rounded-full text-[13px] font-semibold border transition-colors duration-150 hover:bg-[var(--accent-wash)]"
               style={{ borderColor: 'var(--bd)', color: 'var(--tx2)' }}>
               {de ? 'Details' : 'Details'} <ArrowRight className="h-3.5 w-3.5" aria-hidden />

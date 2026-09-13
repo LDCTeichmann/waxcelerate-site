@@ -182,7 +182,8 @@ export function KettenPage() {
                   ))}
                 </ChipRow>
                 <span className="ml-auto text-[13px] flex-shrink-0" style={{ color: 'var(--txm)' }}>
-                  <span className="num font-bold" style={{ color: filteredChains.length > 0 ? 'var(--accent)' : 'var(--txm)' }}>
+                  <span key={filteredChains.length} className="num font-bold ketten-fade-in inline-block"
+                    style={{ color: filteredChains.length > 0 ? 'var(--accent)' : 'var(--txm)' }}>
                     {filteredChains.length}
                   </span>{' '}{resultText}
                 </span>
@@ -201,7 +202,9 @@ export function KettenPage() {
                   {de ? 'Schaltung' : 'Speed'}{speed !== 'all' ? `: ${speed}-fach` : ''}
                 </button>
                 <span className="text-[13px] flex-shrink-0 pl-1" style={{ color: 'var(--txm)' }}>
-                  <span className="num font-bold" style={{ color: 'var(--accent)' }}>{filteredChains.length}</span>
+                  <span key={filteredChains.length} className="num font-bold ketten-fade-in inline-block" style={{ color: 'var(--accent)' }}>
+                    {filteredChains.length}
+                  </span>
                 </span>
               </div>
             </div>
@@ -233,9 +236,12 @@ export function KettenPage() {
                 </button>
               </div>
             ) : (
-              // K1: 1 / 2 / 3 / 4 Spalten, gleiches Raster wie Stufe 1.
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 items-stretch mb-16">
-                {filteredChains.map(product => (
+              // K1: 1 / 2 / 3 / 4 Spalten, gleiches Raster wie Stufe 1. Key auf
+              // Marke+Schaltung: kein Ladezustand noetig (synchrone Liste aus
+              // data.ts), aber ein kurzer Crossfade statt eines harten
+              // Sprungs bei jedem Filterwechsel (Stufe 4).
+              <div key={`${brand}-${speed}`} className="ketten-fade-in grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 items-stretch mb-16">
+                {filteredChains.map((product, i) => (
                   <ChainCard
                     key={product.id}
                     product={product}
@@ -245,6 +251,9 @@ export function KettenPage() {
                     deliveryDate={chainDelivery}
                     quickLinkLabel={quickLinkLabel}
                     shippingIncludedLabel={shippingLabel}
+                    // K4: erste Reihe (bis zu vier Spalten bei ≥1280px)
+                    // eager + fetchpriority high, Rest lazy.
+                    priority={i < 4}
                   />
                 ))}
               </div>

@@ -761,6 +761,38 @@
   .shelf-card:hover { transform: none !important; animation: none !important; }
 }
 
+/* Geteilte Elementuebergaenge Karte → Produktseite (Stufe 4, Politur).
+   React Router 7.15 setzt bei viewTransition={true} auf <Link> ein CSS
+   View-Transition um startViewTransition() an — der Browser blendet dabei
+   automatisch zwischen dem alten und dem neuen Dokument-Snapshot ueber
+   (::view-transition-old/-new auf der Wurzel), auch ohne benannte Elemente.
+   In Browsern ohne Unterstuetzung (kein CSS View Transitions API) ist der
+   Aufruf wirkungslos und die Navigation bleibt eine normale Navigation.
+   Nur die Dauer/Overshoot gehoert uns; Chrome faehrt startViewTransition()
+   nicht automatisch fuer reduced-motion herunter, deshalb hier explizit. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+/* Filterwechsel auf /ketten (Stufe 4): kein Ladezustand (die Liste steht
+   synchron aus data.ts, kein Netzwerk-Request), aber ein kurzer Crossfade
+   statt eines harten Sprungs — Raster und Ergebniszahl bekommen dieselbe
+   Klasse per React-key neu gemountet, wenn sich der Filter aendert. */
+@keyframes ketten-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.ketten-fade-in {
+  animation: ketten-fade-in 160ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ketten-fade-in { animation: none; }
+}
+
 /* Stretched-Link (Produktkarten-Neugliederung, Stufe 1, K2): ChainCard
    wickelte vorher die ganze Karte in ein <Link>, mit dem eBay-<button>
    darin per preventDefault/stopPropagation abgefangen — ein <button> in

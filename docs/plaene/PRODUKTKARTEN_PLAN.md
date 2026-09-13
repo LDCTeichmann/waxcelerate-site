@@ -424,7 +424,7 @@ das Symptom repariert.
 
 ---
 
-## Stufe 4 — Politur 🔨
+## Stufe 4 — Politur 🔨 ✅ erledigt 13.09.2026
 
 - **Geteilte Elementübergänge** Karte → Produktseite über die View
   Transitions API. React Router 7.15 hat die `viewTransition`-Prop am `Link`
