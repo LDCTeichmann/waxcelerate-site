@@ -206,6 +206,9 @@ export const translations = {
         chainsEyebrow: 'Kein Topf nötig',
         chainsTitle: 'Vorgewachste Ketten',
         chainsBody: 'Ultraschall-entfettet, gewachst, Quick-Link dabei. Aufziehen und losfahren.',
+        // Kurzform fuer die einzelne Kettenkarte (Produktkarten-Neugliederung
+        // Stufe 1) — chainsBody bleibt der Fliesstext ueber der Liste.
+        chainQuickLink: 'Quick-Link inklusive',
         chainsPick: 'Welche Schaltung fährst du?',
         chainsAll: 'Alle Ketten ansehen',
         chainsCount: '{n} Ketten',
@@ -771,6 +774,7 @@ export const translations = {
         chainsEyebrow: 'No pot required',
         chainsTitle: 'Pre-Waxed Chains',
         chainsBody: 'Ultrasonically degreased, waxed, quick-link included. Fit it and ride.',
+        chainQuickLink: 'Quick-link included',
         chainsPick: 'Which drivetrain do you ride?',
         chainsAll: 'See all chains',
         chainsCount: '{n} chains',

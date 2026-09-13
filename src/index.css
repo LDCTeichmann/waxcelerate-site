@@ -761,6 +761,19 @@
   .shelf-card:hover { transform: none !important; animation: none !important; }
 }
 
+/* Stretched-Link (Produktkarten-Neugliederung, Stufe 1, K2): ChainCard
+   wickelte vorher die ganze Karte in ein <Link>, mit dem eBay-<button>
+   darin per preventDefault/stopPropagation abgefangen — ein <button> in
+   einem <a> ist ungueltiges HTML und fuer Tastatur/Screenreader kaputt.
+   Jetzt ist nur noch der Produktname der Link, spannt sich per ::after
+   aber ueber die ganze Karte. Der CTA braucht `position: relative;
+   z-index: 1`, um ueber diesem Overlay klickbar zu bleiben. */
+.stretched-link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
 /* ChainWaxMap-Teaser (Startseite): die gerade aktive Wachsflaeche atmet einen
    Glow, damit "hier wird die Reibung reduziert" ins Auge faellt. Nur der
    Teaser vergibt diese Klasse (Vollmodus auf /wissenschaft bleibt ruhig). */
