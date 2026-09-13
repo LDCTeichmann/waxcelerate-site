@@ -48,7 +48,7 @@ function WattBars({ de }: { de: boolean }) {
               <span className="text-[14px]" style={{ color: r.accent ? 'var(--tx1)' : 'var(--txm)' }}>
                 {r.label}
               </span>
-              <span className="num-data text-[15px] font-medium"
+              <span className="num text-[15px] font-medium"
                 style={{ color: r.accent ? 'var(--accent)' : 'var(--txf)' }}>
                 {lo}–{hi} W
               </span>
@@ -70,7 +70,7 @@ function WattBars({ de }: { de: boolean }) {
       })}
       <div className="flex justify-between mt-4 pt-3" style={{ borderTop: '1px solid var(--bd2)' }}>
         {[0, 4, 8, 12].map(v => (
-          <span key={v} className="num-data text-[11px]" style={{ color: 'var(--txff)' }}>
+          <span key={v} className="num text-[11px]" style={{ color: 'var(--txff)' }}>
             {v}{v === 12 ? ' W' : ''}
           </span>
         ))}

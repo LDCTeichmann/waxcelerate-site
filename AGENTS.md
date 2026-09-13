@@ -29,11 +29,12 @@ eingebauten Browser-Pane: `preview_start` mit `{ "name": "waxcelerate-site" }`
 **Vor jedem Commit:**
 
 ```bash
-npx tsc --noEmit && npm run build
+npx tsc -b --force && npm run build
 ```
 
-Ein Pre-Commit-Hook prüft zusätzlich `tsc -b`, das findet Fehler, die
-`--noEmit` von der Wurzel aus übersieht. Kommt der Hook durch, ist es sauber.
+`npx tsc --noEmit` prüft **nichts** (Wurzel-`tsconfig.json` hat `"files": []`,
+nur `references`) und es gibt **keinen** Pre-Commit-Hook — beides stand hier
+bis 09/2026 falsch. `tsc -b --force` ist der einzige echte Typcheck.
 
 **Nach Änderungen an Blog-Artikeln oder Produkten zusätzlich:**
 

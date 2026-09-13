@@ -117,6 +117,17 @@ export const translations = {
       },
       buyOnEbay: 'Bei eBay kaufen',
       multiDiscount: 'Wachs-Staffel: 2 Stk. 5 % · 3 Stk. 10 % · ab 5 Stk. 15 %',
+      // K6 (Produktkarten-Plan): Preis je Anwendung als neues Hauptsignal
+      // statt der reinen Blockpreis-Anschaffung — Gourville 1998, siehe
+      // perApplicationRange() in data.ts für die Rechnung.
+      perApplicationPrefix: 'ca.',
+      perApplicationSuffix: 'je Wachsvorgang',
+      // Aufklappbarer Mengenrabatt-Chip statt einer stillen Fliesstext-Zeile.
+      quantityDiscountChip: 'Mengenrabatt',
+      quantityDiscountFrom: 'ab {qty} Blöcken günstiger',
+      quantityDiscountMechanism: 'Rabatt wird bei eBay im Warenkorb abgezogen.',
+      quantityDiscountUnit: '{qty} Stk.',
+      quantityDiscountSavings: '{savings} sparen ({pct} %)',
       // Etappe 5 (11.09.2026): die Groessenempfehlung am Groessenschalter
       // wurde vorher NUR gerendert, wenn sie NICHT zum aktuellen Produkt
       // passte -- verschwand also beim Wechsel auf die passende Groesse
@@ -146,7 +157,12 @@ export const translations = {
       priceNoteShippingPre: 'zzgl.',
       priceNoteShippingLink: 'Versandkosten',
       priceNoteShippingPost: 'ab 50 € versandfrei',
-      preWaxedHint: 'Ultraschallbad-entfettet, von Hand gewachst — Kauf direkt über eBay mit vollem Käuferschutz.',
+      // K8 (Produktkarten-Plan): solange checkoutEnabled false ist, laeuft
+      // jeder Kauf ueber eBay — dort ist der Versand im Angebotspreis
+      // enthalten, "zzgl. Versandkosten, ab 50 € versandfrei" waere schlicht
+      // falsch. PriceNote.tsx waehlt zwischen dieser Zeile und den drei
+      // obigen je nach checkoutEnabled.
+      priceNoteShippingIncluded: 'Versand über eBay inklusive',
       decisionAid: 'Classic oder Pro?',
       compareBtn: 'Vergleich ansehen',
       compareTitle: 'Classic vs. Pro — welches passt zu dir?',
@@ -206,6 +222,9 @@ export const translations = {
         chainsEyebrow: 'Kein Topf nötig',
         chainsTitle: 'Vorgewachste Ketten',
         chainsBody: 'Ultraschall-entfettet, gewachst, Quick-Link dabei. Aufziehen und losfahren.',
+        // Kurzform fuer die einzelne Kettenkarte (Produktkarten-Neugliederung
+        // Stufe 1) — chainsBody bleibt der Fliesstext ueber der Liste.
+        chainQuickLink: 'Quick-Link inklusive',
         chainsPick: 'Welche Schaltung fährst du?',
         chainsAll: 'Alle Ketten ansehen',
         chainsCount: '{n} Ketten',
@@ -731,6 +750,13 @@ export const translations = {
       },
       buyOnEbay: 'Buy on eBay',
       multiDiscount: 'Wax tiers: 2 pcs. 5% · 3 pcs. 10% · from 5 pcs. 15%',
+      perApplicationPrefix: 'approx.',
+      perApplicationSuffix: 'per wax cycle',
+      quantityDiscountChip: 'Quantity discount',
+      quantityDiscountFrom: 'cheaper from {qty} blocks',
+      quantityDiscountMechanism: 'Discount is deducted at eBay checkout.',
+      quantityDiscountUnit: '{qty} pcs.',
+      quantityDiscountSavings: 'save {savings} ({pct}%)',
       sizeAdviceMatches: 'Fits an average riding profile.',
       bundleOffer: '{qty} × {weight} = {total} ({pct}%) — and shipping is free.',
       // Siehe die deutsche Fassung: Rechtstext, nur zusammen mit ihr aendern.
@@ -738,7 +764,7 @@ export const translations = {
       priceNoteShippingPre: 'plus',
       priceNoteShippingLink: 'shipping',
       priceNoteShippingPost: 'free over €50',
-      preWaxedHint: 'Ultrasonic-bath degreased, hand-waxed — order directly via eBay with full buyer protection.',
+      priceNoteShippingIncluded: 'Shipping included via eBay',
       decisionAid: 'Classic or Pro?',
       compareBtn: 'See comparison',
       compareTitle: 'Classic vs. Pro — which fits you?',
@@ -771,6 +797,7 @@ export const translations = {
         chainsEyebrow: 'No pot required',
         chainsTitle: 'Pre-Waxed Chains',
         chainsBody: 'Ultrasonically degreased, waxed, quick-link included. Fit it and ride.',
+        chainQuickLink: 'Quick-link included',
         chainsPick: 'Which drivetrain do you ride?',
         chainsAll: 'See all chains',
         chainsCount: '{n} chains',

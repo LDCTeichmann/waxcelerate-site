@@ -1,4 +1,4 @@
-import { ExternalLink, X, ChevronDown, ArrowRight, Truck } from 'lucide-react';
+import { ExternalLink, X, ChevronDown, ArrowRight, Truck, Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState, useRef, useEffect, useCallback, useMemo, memo } from 'react';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
@@ -14,11 +14,11 @@ import { ChainFinder } from '@/sections/ChainFinder';
 import { ProductShelf, SecondaryTile } from '@/sections/ProductShelf';
 import { AddToCartButton } from '@/components/AddToCartButton';
 import { PriceNote } from '@/components/PriceNote';
+import { Stars } from '@/components/Stars';
 import { Section } from '@/components/Section';
 import { CompareTable } from '@/components/CompareTable';
 import { getEstimatedDelivery } from '@/lib/utils';
-
-const MONO = "'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace";
+import { TURNAROUND } from '@/pages/rewax/content';
 
 export function Products() {
   const { t, lang } = useLanguage();
@@ -202,11 +202,12 @@ export function Products() {
             </h3>
           </div>
 
-          {/* ── Kettenliste ── */}
-              <p className="text-[13px] mb-6 px-1" style={{ color: 'var(--txm)' }}>
-                {t.products.preWaxedHint}
-              </p>
-
+          {/* ── Kettenliste ──
+              Die fruehere Kaeuferschutz-Zeile hier (preWaxedHint, "...Kauf
+              direkt ueber eBay mit vollem Kaeuferschutz") stimmte laut Luca
+              nicht und ist ersatzlos raus (Plan §2.4). Der Ultraschall-
+              entfettet-Nutzen zieht ins Nutzenband der /ketten-Seite
+              (Stufe 3), sobald die existiert. */}
               {/* Shared info — shown once instead of repeating identical pills on every card.
                   multiDiscount stand hier frueher mit dran, obwohl die Staffel nur fuer Wachs
                   gilt — steht jetzt auf den Wachskarten im Regal (ProductShelf.tsx). */}
@@ -236,7 +237,12 @@ export function Products() {
                   </button>
                 </div>
               ) : (
-                <div className="grid sm:grid-cols-2 gap-5 items-stretch">
+                // K1: 1 / 2 / 3 / 4 Spalten bei <640 / ≥640 / ≥1024 / ≥1280 —
+                // bei 390px blieben zweispaltig nur ~149px Inhalt je Karte
+                // (unter dieser Breite ist im Regal schon einmal ein Layout
+                // zerbrochen, siehe docs/DESIGN.md §4). Acht Ketten ergeben
+                // auf dem Desktop zwei saubere Reihen zu vier.
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 items-stretch">
                   {filteredChains.map((product) => (
                     <ChainCard
                       key={product.id}
@@ -245,6 +251,7 @@ export function Products() {
                       formatPrice={formatPrice}
                       buyLabel={t.products.buyOnEbay}
                       deliveryDate={chainDelivery}
+                      quickLinkLabel={t.products.shelf.chainQuickLink}
                     />
                   ))}
                 </div>
@@ -265,6 +272,8 @@ export function Products() {
                   eyebrow={t.products.shelf.rewaxEyebrow} title={t.products.shelf.rewaxTitle}
                   body={t.products.shelf.rewaxBody}
                   price={t.products.shelf.rewaxFrom}
+                  delivery={de ? `Zurück in ${TURNAROUND.short} ab Ankunft` : `Back in ${TURNAROUND.shortEn} after arrival`}
+                  deliveryIcon="rotate"
                   cta={t.products.shelf.rewaxCta}
                   alt={de ? 'Waxcelerate Versandkarton mit gewachster Kette vor Stuttgarter Landschaft' : 'Waxcelerate shipping box with a waxed chain in front of the Stuttgart hills'}
                 />
@@ -300,121 +309,159 @@ interface CardProps {
   buyLabel: string;
   deliveryDate?: string;
   multiDiscount?: string;
+  quickLinkLabel?: string;
 }
 
-
+// Gleiches Muster wie cardFor/cardAvifFor in ProductDetailPage.tsx: nur die
+// zwei lokal gehosteten Kettenfotos (hg701, ybn11) haben eine -card-Variante
+// in AVIF und WebP. Die uebrigen sechs Ketten laufen noch auf eBay-Hotlinks
+// (s-l500.webp) ohne eigene Groessen — die laden weiterhin ihren
+// Originalpfad ohne <picture>. Das ist keine Stufe-1-Entscheidung, sondern
+// eine Bildluecke, die Luca auffallen wird: sechs von acht Kettenfotos
+// bekommen die AVIF-Pipeline nicht, weil es die Dateien dafuer noch nicht gibt.
+const hasLocalChainCard = (src: string) => /\/chains\/(?:hg701|ybn11)\.webp$/.test(src);
+const chainCardWebp = (src: string) => hasLocalChainCard(src) ? src.replace(/\.webp$/, '-card.webp') : src;
+const chainCardAvif = (src: string) => hasLocalChainCard(src) ? src.replace(/\.webp$/, '-card.avif') : null;
 
 // ── Chain Card ─────────────────────────────────────────────────────────────
-
-const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel, deliveryDate }: CardProps) {
+// Stufe 1 der Produktkarten-Neugliederung: uebernimmt die .shelf-card-
+// Grammatik aus ProductShelf.tsx (WaxPanel) statt eines eigenen Kartensatzes
+// (U1 im Plan). Kein <button> mehr in einem <Link> (K2) — nur der Produktname
+// ist der Link, gespannt per .stretched-link ueber die ganze Karte, der CTA
+// bleibt mit position:relative darueber klickbar.
+const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel, deliveryDate, quickLinkLabel }: CardProps) {
   const badge = de ? product.badge : product.badgeEn;
   const brand = product.chainBrand ?? '';
   const model = product.chainModel ?? '';
   const speed = product.chainSpeed ?? '';
   const chainLinks = product.chainLinks ?? '';
   const title = de ? product.title : product.titleEn;
+  const soldOut = isSoldOut(product);
+  const avif = chainCardAvif(product.image);
+  const webp = chainCardWebp(product.image);
 
   return (
-    <div className="chain-card relative h-full rounded-2xl" style={{ willChange: 'transform' }}>
-      <Link
-        to={`/produkt/${product.id}`}
-        className="group flex flex-col h-full rounded-2xl"
-        style={{
-          background: 'var(--card-bg)',
-          border: '1px solid var(--bd)',
-          boxShadow: 'var(--card-shad)',
-        }}
-      >
-        {/* Image — see WaxCard's image wrapper for why will-change: transform (not translateZ(0)) is here. */}
-        <div className="relative overflow-hidden rounded-t-2xl aspect-[2/1] flex-shrink-0" style={{ willChange: 'transform' }}>
+    <div className="chain-card shelf-card group relative flex h-full flex-col rounded-[20px] overflow-hidden" style={{ willChange: 'transform' }}>
+      {/* Foto 3:2 — hoechstens EIN Chip (Ausverkauft > Auszeichnung > keiner,
+          Stufe-1-Anatomie). Der Geschwindigkeits-Chip, der hier vorher neben
+          der Auszeichnung stand, zieht in die Klartextzeile unten (Marke,
+          Modell, Schaltung, Glieder standen vorher teils doppelt: Overlay-
+          Chip, Pill UND Modellname). */}
+      <div className="relative overflow-hidden aspect-[3/2] flex-shrink-0" style={{ background: 'var(--hero-stage)' }}>
+        <picture>
+          {avif && <source type="image/avif" srcSet={avif} />}
+          {webp !== product.image && <source type="image/webp" srcSet={webp} />}
           <img
-            src={product.image}
+            src={webp}
             alt={title}
             loading="lazy"
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+            decoding="async"
+            className={`absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04] ${soldOut ? 'grayscale' : ''}`}
+            style={soldOut ? { filter: 'saturate(0.15)' } : undefined}
             onError={e => { (e.target as HTMLImageElement).src = '/images/products/wax-block-spin.webp'; }}
           />
-          <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between gap-2">
-            <span className="wx-badge"
-              style={{ background: 'var(--chip-bg)', color: 'rgba(160,200,255,0.95)', border: '1px solid rgba(100,160,255,0.35)', backdropFilter: 'blur(4px)' }}>
-              {speed}
+        </picture>
+        {soldOut ? (
+          <span className="absolute top-2.5 left-2.5 wx-badge"
+            style={{ background: 'var(--chip-bg)', color: 'rgba(255,255,255,0.92)', border: '1px solid rgba(255,255,255,0.20)', backdropFilter: 'blur(4px)' }}>
+            {de ? 'Ausverkauft' : 'Sold out'}
+          </span>
+        ) : badge && (
+          <span className="absolute top-2.5 left-2.5 wx-badge"
+            style={{ background: 'var(--chip-bg)', color: 'rgba(255,255,255,0.92)', border: '1px solid rgba(255,255,255,0.20)', backdropFilter: 'blur(4px)' }}>
+            {badge}
+          </span>
+        )}
+      </div>
+
+      {/* Content */}
+      <div className="flex flex-1 flex-col px-4 pt-3.5 pb-4">
+        <p className="eyebrow" style={{ color: 'var(--accent-soft)' }}>{brand}</p>
+        {/* <p>, nicht <h3>: index.css erzwingt im Hellmodus global
+            h1,h2,h3,h4 { color: var(--tx1) !important }, siehe WaxPanel. Der
+            Stretched-Link (K2) sitzt hier statt auf der ganzen Karte. */}
+        <p className="font-display font-bold leading-snug tracking-[-0.02em] mt-0.5"
+          style={{ color: 'var(--tx1)', fontSize: 'clamp(1.05rem, 1.6vw, 1.15rem)' }}>
+          <Link to={`/produkt/${product.id}`} className="stretched-link">
+            {model}
+          </Link>
+        </p>
+
+        {/* Klartext statt Pills — "11-fach" stand vorher dreimal (Overlay,
+            Pill, Modellname). */}
+        {(speed || chainLinks) && (
+          <p className="text-[12px] mt-1" style={{ color: 'var(--txm)' }}>
+            {[speed, chainLinks].filter(Boolean).join(' · ')}
+          </p>
+        )}
+
+        {quickLinkLabel && (
+          <p className="flex items-center gap-1.5 text-[12px] mt-1" style={{ color: 'var(--tx2)' }}>
+            <Check className="h-3 w-3 flex-shrink-0" style={{ color: 'var(--accent-soft)' }} aria-hidden />
+            {quickLinkLabel}
+          </p>
+        )}
+
+        {/* Sterne nur wenn echte Zahlen gepflegt sind (Stufe 2 / Luca) — bei
+            keiner Kette heute der Fall, siehe data.ts reviewCount. */}
+        {!!product.reviewCount && (
+          <p className="flex items-center gap-1.5 mt-1.5">
+            <Stars rating={5} />
+            <span className="num text-meta" style={{ color: 'var(--txm)' }}>
+              {product.reviewCount} {de ? 'Bewertungen' : 'reviews'}
             </span>
-            {badge && (
-              <span className="wx-badge"
-                style={{ background: 'var(--chip-bg)', color: 'rgba(255,255,255,0.92)', border: '1px solid rgba(255,255,255,0.20)', backdropFilter: 'blur(4px)' }}>
-                {badge}
-              </span>
-            )}
-          </div>
+          </p>
+        )}
+
+        {/* Preis + CTA — Preis ist die groesste Zahl der Karte, CTA unten
+            rechts, ueber dem Stretched-Link per z-index. */}
+        <div className="flex items-center justify-between gap-3 mt-auto pt-3.5">
+          <span className="num text-[20px] font-bold tracking-[-0.02em]" style={{ color: 'var(--tx1)' }}>
+            {formatPrice(product.price)}
+          </span>
+          {soldOut ? (
+            <Link to={`/produkt/${product.id}`}
+              className="relative z-[1] inline-flex items-center gap-1 min-h-11 px-4 rounded-full text-[13px] font-semibold border transition-colors duration-150 hover:bg-[var(--accent-wash)]"
+              style={{ borderColor: 'var(--bd)', color: 'var(--tx2)' }}>
+              {de ? 'Details' : 'Details'} <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+            </Link>
+          ) : canCheckout(product) ? (
+            <div className="relative z-[1] flex flex-col items-end gap-1">
+              <AddToCartButton product={product} size="sm" />
+              <button
+                onClick={() => { trackEbayClick(product.id); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
+                className="text-meta transition-opacity hover:opacity-70"
+                style={{ color: 'var(--txm)' }}
+              >
+                {de ? 'oder bei eBay →' : 'or on eBay →'}
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => { trackEbayClick(product.id); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
+              className="relative z-[1] flex items-center gap-1.5 min-h-11 px-5 rounded-full text-[13px] font-semibold transition-all duration-150 hover:opacity-90 active:scale-[0.97]"
+              style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
+            >
+              {buyLabel}
+              <ExternalLink className="h-3.5 w-3.5" />
+            </button>
+          )}
         </div>
 
-        {/* Content */}
-        <div className="px-3.5 sm:px-4 pt-2.5 sm:pt-3 pb-3 sm:pb-3.5 flex flex-col flex-1">
-          <p className="text-meta font-semibold uppercase tracking-[0.14em]" style={{ color: 'var(--accent-soft)' }}>{brand}</p>
-          <h3 className="text-[14px] sm:text-[15px] font-bold text-wx-tx1 leading-snug tracking-[-0.02em] mt-0.5">{model}</h3>
-
-          {/* Specs as pills — jetzt auch auf Mobile sichtbar (vorher
-              hidden sm:flex: die Kettenkarte zeigte auf dem Handy nur Marke,
-              Modell und Preis, keine einzige Spezifikation). chainLinks
-              traegt die Einheit bereits ("116 Glieder" in data.ts) — das
-              zusaetzliche " Glieder"/" links" im JSX verdoppelte sie
-              ("116 Glieder Glieder"). */}
-          {(chainLinks || speed) && (
-            <div className="flex items-center gap-2 mt-2 flex-wrap">
-              {speed && (
-                <span className="text-[10.5px] px-2 py-0.5 rounded-md tabular-nums" style={{ fontFamily: MONO, background: 'var(--sf2)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
-                  {speed}
-                </span>
-              )}
-              {chainLinks && (
-                <span className="text-[10.5px] px-2 py-0.5 rounded-md tabular-nums" style={{ fontFamily: MONO, background: 'var(--sf2)', color: 'var(--tx2)', border: '1px solid var(--bd2)' }}>
-                  {chainLinks}
-                </span>
-              )}
-            </div>
-          )}
-
-          {/* Lieferung — CardProps.deliveryDate war deklariert, aber nie
-              uebergeben; die Kettenkarte zeigte bisher gar kein Lieferdatum,
-              anders als die Wachs-Tafeln im Regal. */}
-          {deliveryDate && (
-            <span className="flex items-center gap-1.5 num-data text-meta mt-2" style={{ color: 'var(--txff)' }}>
+        {/* Fussstreifen: Lieferung, gleiche Common-Region-Begruendung wie im
+            Regal (siehe WaxPanel). "inkl. Versand" kommt in Stufe 2 dazu,
+            sobald die Versandaussage an checkoutEnabled gekoppelt ist (K8) —
+            hier jetzt ohne Behauptung stehen zu lassen waere eine erfundene
+            Zahl. */}
+        {deliveryDate && (
+          <div className="mt-3.5 -mx-4 px-4 pt-3 pb-3" style={{ borderTop: '1px solid var(--bd2)', background: 'var(--sf3)' }}>
+            <span className="flex items-center gap-1.5 num text-meta" style={{ color: 'var(--tx2)' }}>
               <Truck className="h-3 w-3 flex-shrink-0" style={{ color: 'var(--accent-soft)' }} aria-hidden />
               {de ? `Lieferung ${deliveryDate}` : `Delivery ${deliveryDate}`}
             </span>
-          )}
-
-          {/* Price + CTA */}
-          <div className="flex items-center justify-between gap-3 mt-auto pt-3">
-            <span className="num text-[20px] font-bold text-wx-tx1 tracking-[-0.02em]">{formatPrice(product.price)}</span>
-            {isSoldOut(product) ? (
-              <span className="text-[13px] font-semibold" style={{ color: 'var(--txf)' }}>
-                {de ? 'Ausverkauft' : 'Sold out'}
-              </span>
-            ) : canCheckout(product) ? (
-              <div className="flex flex-col items-end gap-1">
-                <AddToCartButton product={product} size="sm" />
-                <button
-                  onClick={e => { e.preventDefault(); e.stopPropagation(); trackEbayClick(product.id); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
-                  className="text-meta transition-opacity hover:opacity-70"
-                  style={{ color: 'var(--txm)' }}
-                >
-                  {de ? 'oder bei eBay →' : 'or on eBay →'}
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={e => { e.preventDefault(); e.stopPropagation(); trackEbayClick(product.id); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
-                className="flex items-center gap-1.5 px-5 py-2.5 rounded-full text-[13px] font-semibold transition-all duration-150 hover:opacity-90 active:scale-[0.97]"
-                style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
-              >
-                {buyLabel}
-                <ExternalLink className="h-3.5 w-3.5" />
-              </button>
-            )}
           </div>
-        </div>
-      </Link>
+        )}
+      </div>
     </div>
   );
 });

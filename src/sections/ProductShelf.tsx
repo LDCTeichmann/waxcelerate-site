@@ -41,13 +41,16 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ArrowLeftRight, ExternalLink, Star, Truck } from 'lucide-react';
-import { products, accessories, starterSetPrice, canCheckout } from '@/lib/data';
+import { ArrowRight, ArrowLeftRight, ExternalLink, Truck, RotateCw } from 'lucide-react';
+import { products, accessories, starterSetPrice, canCheckout, perApplicationRange } from '@/lib/data';
 import type { TranslationType } from '@/lib/i18n';
 import { AddToCartButton } from '@/components/AddToCartButton';
 import { PriceNote } from '@/components/PriceNote';
+import { Stars } from '@/components/Stars';
+import { QuantityDiscountChip } from '@/components/QuantityDiscountChip';
 import { trackEbayClick } from '@/lib/analytics';
 import { getEstimatedDelivery } from '@/lib/utils';
+import { TURNAROUND } from '@/pages/rewax/content';
 
 type Size = '300' | '500';
 type Variant = 'classic' | 'pro';
@@ -102,6 +105,7 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
 
   const grams = parseInt(product.weight!);
   const per100 = eur(product.price / (grams / 100), de);
+  const perAppRange = perApplicationRange(product);
 
   // Ein Rahmen um beide Groessen statt zwei einzeln umrandeter Buttons — der
   // vorherige Zustand (jeder Button mit eigenem Rahmen) las sich als zwei
@@ -115,7 +119,7 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
         type="button"
         onClick={() => setSize(v)}
         aria-pressed={active}
-        className={`num-data inline-flex items-center justify-center min-h-11 min-w-11 px-4 rounded-md text-[12.5px] leading-none transition-all ${
+        className={`num inline-flex items-center justify-center min-h-11 min-w-11 px-4 rounded-md text-[12.5px] leading-none transition-all ${
           active ? 'text-wx-tx1' : 'text-wx-txm hover:text-wx-tx2'
         }`}
         style={{
@@ -234,7 +238,7 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
               style={{ color: 'var(--tx1)', fontSize: 'clamp(1.15rem, 1.9vw, 1.4rem)' }}>
               {variant === 'classic' ? s.classicName : s.proName}
             </p>
-            <p className="num-data text-[12px] mt-0.5 truncate" style={{ color: 'var(--txm)' }}>
+            <p className="num text-[12px] mt-0.5 truncate" style={{ color: 'var(--txm)' }}>
               {variant === 'classic' ? s.classicFor : s.proFor}
             </p>
           </div>
@@ -242,11 +246,22 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
             <span className="num text-[21px] font-bold leading-none tracking-[-0.02em]" style={{ color: 'var(--tx1)' }}>
               {eur(product.price, de)}
             </span>
-            <p className="num-data text-meta mt-1" style={{ color: 'var(--txf)' }}>
+            <p className="num text-meta mt-1" style={{ color: 'var(--txf)' }}>
               {per100} {s.per100}
             </p>
           </div>
         </div>
+
+        {/* Preis je Anwendung — das eigentliche Hauptsignal fuer ein
+            Verbrauchsgut (K6), ueber der Groessenzeile statt im Fussstreifen
+            versteckt. Nie geschaetzt: perApplicationRange() in data.ts
+            rechnet aus product.applications, gibt null zurueck wenn die
+            Spanne fehlt oder unparsbar ist. */}
+        {perAppRange && (
+          <p className="num text-[12.5px] font-medium mt-1.5" style={{ color: 'var(--tx2)' }}>
+            {t.products.perApplicationPrefix} {eur(perAppRange.lo, de)} {de ? 'bis' : 'to'} {eur(perAppRange.hi, de)} {t.products.perApplicationSuffix}
+          </p>
+        )}
 
         {/* Zeile 2: Groessenschalter links, Anwendungszahl rechts — die beiden
             Fakten, um die die Wahl selbst geht. Die vorherigen Chips
@@ -259,7 +274,7 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
           <div className="inline-flex rounded-lg p-0.5" style={{ border: '1px solid var(--bd)', background: 'var(--sf3)' }}>
             {(['300', '500'] as Size[]).map(sizeBtn)}
           </div>
-          <span className="num-data text-meta flex-shrink-0" style={{ color: 'var(--txf)' }}>
+          <span className="num text-meta flex-shrink-0" style={{ color: 'var(--txf)' }}>
             {product.applications} {s.uses}
           </span>
         </div>
@@ -268,7 +283,7 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
             eigene Zeile statt Chip in der Groessenreihe. Haeufigster
             Vorentscheidungs-Filter ("passt das an meine Kette") und auf
             keiner Karte bisher vertreten. */}
-        <p className="num-data text-[10.5px] mt-2.5" style={{ color: 'var(--txff)' }}>
+        <p className="num text-[10.5px] mt-2.5" style={{ color: 'var(--txff)' }}>
           {s.compat}
         </p>
 
@@ -320,30 +335,27 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
             <div className="flex items-center gap-1.5 whitespace-nowrap">
               {reviews > 0 && (
                 <>
-                  <div className="flex gap-px flex-shrink-0">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star key={i} className="h-3 w-3 fill-current" style={{ color: '#F5A623' }} aria-hidden />
-                    ))}
-                  </div>
-                  <span className="num-data text-meta font-medium" style={{ color: 'var(--txm)' }}>
+                  {/* Eine Sternkomponente statt drei (Stufe 0): vorher eigenes
+                      goldenes #F5A623-Icon hier, brand-blaues var(--accent-soft)
+                      in Stars.tsx. Feste Farbe jetzt einheitlich accent-soft. */}
+                  <Stars rating={5} />
+                  <span className="num text-meta font-medium" style={{ color: 'var(--txm)' }}>
                     {reviews} {s.reviewsShort}
                   </span>
                 </>
               )}
               {soldRounded >= 20 && (
-                <span className="num-data text-meta" style={{ color: 'var(--txf)' }}>
+                <span className="num text-meta" style={{ color: 'var(--txf)' }}>
                   {reviews > 0 && '· '}{soldRounded}+ {s.soldUnits}
                 </span>
               )}
             </div>
-            <span className="flex items-center gap-1.5 num-data text-meta font-medium whitespace-nowrap" style={{ color: 'var(--tx2)' }}>
+            <span className="flex items-center gap-1.5 num text-meta font-medium whitespace-nowrap" style={{ color: 'var(--tx2)' }}>
               <Truck className="h-3 w-3 flex-shrink-0" style={{ color: accentColor }} aria-hidden />
               {s.delivery} {delivery}
             </span>
           </div>
-          <p className="num-data text-[10.5px] mt-2" style={{ color: 'var(--txff)' }}>
-            {t.products.multiDiscount}
-          </p>
+          <QuantityDiscountChip product={product} de={de} t={t} />
         </div>
       </div>
 
@@ -393,18 +405,23 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
 // Versprechen, das die Seite nicht haelt).
 // Exportiert: products.tsx braucht dieselbe Kachel fuer die Rewax-Karte am
 // Ende der aufgeklappten Kettenliste — siehe dortiger Kommentar.
-export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, price, delivery, dark, index, ...action }: {
+export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, price, delivery, deliveryIcon = 'truck', dark, index, ...action }: {
   image: string; imageW: number; eyebrow: string; title: string; body: string; cta: string; alt: string;
   /** Fertig formatierter Preis-String ("ab 57,63 €"). Macht aus der Kachel
       sichtbar ein Kaufangebot statt eines reinen Editorial-Links — ohne
       Preis war auf Mobile nicht erkennbar, dass hier etwas verkauft wird. */
   price?: string;
   /** Fertig formatierter Lieferzeile-String ("Lieferung Mo., 7. Sept."),
-      dieselbe Grammatik wie WaxPanels Lieferzeile. Optional statt fuer alle
-      drei Kacheln, weil Set und Rewax keine Lieferzeit im klassischen Sinn
-      haben (Set = eigene Konfiguratorseite mit eigenen Angaben, Rewax = ein
-      Turnaround, keine Zustellung) — nur die Ketten-Kachel bekommt sie. */
+      dieselbe Grammatik wie WaxPanels Lieferzeile. Set und Ketten teilen
+      sich dieselbe Sendung/dasselbe Lager und bekommen deshalb dieselbe
+      Schaetzung; Rewax hat keine Zustellung im klassischen Sinn, sondern
+      einen Turnaround (siehe deliveryIcon). */
   delivery?: string;
+  /** 'truck' (Standard) fuer eine Lieferschaetzung, 'rotate' fuer Rewax'
+      Turnaround ("zurueck in X Werktagen") — ein Rundpfeil statt eines LKW,
+      weil hier nichts zugestellt, sondern die eigene Kette zurueckgeschickt
+      wird (Produktkarten-Plan Stufe 2.2). */
+  deliveryIcon?: 'truck' | 'rotate';
   /** Dunklerer Foto-Rand fuer die Rewax-Kachel (moodigeres Motiv) — rein
       atmosphaerisch, seit der Text nicht mehr auf dem Foto steht keine
       Kontrastfrage mehr. */
@@ -449,7 +466,7 @@ export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, p
             ? 'linear-gradient(to top, rgba(var(--scrim-rgb),0.34) 0%, rgba(var(--scrim-rgb),0) 42%)'
             : 'linear-gradient(to top, rgba(var(--scrim-rgb),0.18) 0%, rgba(var(--scrim-rgb),0) 36%)' }} />
         {index && (
-          <span className="absolute top-3.5 left-3.5 flex items-center justify-center h-6 w-6 rounded-full num-data text-[11px] font-semibold"
+          <span className="absolute top-3.5 left-3.5 flex items-center justify-center h-6 w-6 rounded-full num text-[11px] font-semibold"
             style={{
               background: 'rgba(255,255,255,0.94)',
               color: '#101013',
@@ -473,11 +490,13 @@ export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, p
         <h3 className="font-display font-bold text-[17px] sm:text-[18.5px] leading-snug tracking-[-0.015em] mt-0.5" style={{ color: 'var(--tx1)' }}>{title}</h3>
         <p className="text-[13px] leading-snug mt-1.5" style={{ color: 'var(--txm)' }}>{body}</p>
 
-        {/* Lieferzeile — nur wenn uebergeben (aktuell nur Ketten, siehe
-            Prop-Kommentar). Gleiche Truck-Icon-Grammatik wie WaxPanel. */}
+        {/* Lieferzeile — nur wenn uebergeben. Gleiche Truck-Icon-Grammatik
+            wie WaxPanel, ausser bei Rewax (deliveryIcon='rotate'). */}
         {delivery && (
-          <span className="flex items-center gap-1.5 num-data text-meta mt-1.5" style={{ color: 'var(--txff)' }}>
-            <Truck className="h-3 w-3 flex-shrink-0" style={{ color: 'var(--accent-soft)' }} aria-hidden />
+          <span className="flex items-center gap-1.5 num text-meta mt-1.5" style={{ color: 'var(--txff)' }}>
+            {deliveryIcon === 'rotate'
+              ? <RotateCw className="h-3 w-3 flex-shrink-0" style={{ color: 'var(--accent-soft)' }} aria-hidden />
+              : <Truck className="h-3 w-3 flex-shrink-0" style={{ color: 'var(--accent-soft)' }} aria-hidden />}
             {delivery}
           </span>
         )}
@@ -624,6 +643,7 @@ export function ProductShelf({ de, t, onOpenChains, onCompare }: {
           eyebrow={s.setEyebrow} title={s.setTitle}
           body={s.setBody}
           price={`${de ? 'Ab' : 'From'} ${eur(minSetPrice, de)}`}
+          delivery={`${s.delivery} ${delivery}`}
           cta={s.setCta}
           alt={de ? 'Waxcelerate Wachsblock mit Kettenzange, Kette und Schaltauge-Zubehör des Starter-Sets' : 'Waxcelerate wax block with chain pliers, chain and quick-link tools from the starter set'}
         />
@@ -645,6 +665,8 @@ export function ProductShelf({ de, t, onOpenChains, onCompare }: {
           eyebrow={s.rewaxEyebrow} title={s.rewaxTitle}
           body={s.rewaxBody}
           price={s.rewaxFrom}
+          delivery={de ? `Zurück in ${TURNAROUND.short} ab Ankunft` : `Back in ${TURNAROUND.shortEn} after arrival`}
+          deliveryIcon="rotate"
           cta={s.rewaxCta}
           alt={de ? 'Waxcelerate Versandkarton mit gewachster Kette vor Stuttgarter Landschaft' : 'Waxcelerate shipping box with a waxed chain in front of the Stuttgart hills'}
         />

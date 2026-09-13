@@ -127,7 +127,7 @@ export function AccessoryDetailPage() {
               {statChips.map(([l, v]) => (
                 <div key={l} className="flex-1 rounded-xl px-4 py-3 text-center"
                   style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)' }}>
-                  <p className="num-data font-display font-bold leading-none" style={{ fontSize: '1.4rem', color: 'var(--tx1)' }}>{v}</p>
+                  <p className="num font-display font-bold leading-none" style={{ fontSize: '1.4rem', color: 'var(--tx1)' }}>{v}</p>
                   <p className="text-meta uppercase tracking-[0.1em] mt-1" style={{ color: 'var(--txff)' }}>{l}</p>
                 </div>
               ))}
@@ -182,16 +182,14 @@ export function AccessoryDetailPage() {
           {/* ── Spezifikationen ── */}
           {acc.specs && (
             <div className="mb-10">
-              <p className="text-small font-semibold uppercase tracking-[0.14em] mb-3"
-                style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
+              <p className="eyebrow mb-3" style={{ color: 'var(--txff)' }}>
                 {de ? 'Spezifikationen' : 'Specifications'}
               </p>
               <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--bd)' }}>
                 {Object.entries(acc.specs).map(([l, v], i, arr) => (
                   <div key={l} className="flex items-baseline justify-between px-4 py-3"
                     style={{ borderBottom: i < arr.length - 1 ? '1px solid var(--bd)' : 'none', background: i % 2 === 0 ? 'var(--sf2)' : 'var(--pg)' }}>
-                    <span className="text-meta uppercase tracking-[0.14em]"
-                      style={{ fontFamily: "'IBM Plex Mono', ui-monospace, monospace", color: 'var(--txff)' }}>
+                    <span className="text-meta uppercase tracking-[0.14em]" style={{ color: 'var(--txff)' }}>
                       {l}
                     </span>
                     <span className="text-[13px] font-medium" style={{ color: 'var(--tx1)' }}>{v}</span>
@@ -204,8 +202,7 @@ export function AccessoryDetailPage() {
           {/* ── So funktioniert's ── */}
           {howTo && (
             <div className="mb-10">
-              <p className="text-small font-semibold uppercase tracking-[0.14em] mb-3"
-                style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
+              <p className="eyebrow mb-3" style={{ color: 'var(--txff)' }}>
                 {de ? "So funktioniert's" : 'How it works'}
               </p>
               <p className="text-[14px] leading-[1.7]" style={{ color: 'var(--tx2)' }}>{howTo}</p>
