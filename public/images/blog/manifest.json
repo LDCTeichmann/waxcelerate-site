@@ -2,15 +2,6 @@
   "_comment": "Zuordnung der Blog-Fotos, Stand nach dem Ablegen durch Luca am 2026-07-27. Wird in Aufgabe 5 (BLOG_EXECUTION.md) in articleImages (src/pages/blog/articles.ts) übertragen. slot: 'hero' = Artikelbild in articleImages, 'inline' = im Fließtext, 'page' = eigene Route/Zukunft, 'reserve' = noch unvergeben.",
   "images": [
     {
-      "file": "oil-tattoo-leg.jpg",
-      "slot": "hero",
-      "crop": "center",
-      "target": "fahrradkette-entfetten",
-      "alt": "Schwarze Ölspuren an Wade und weißer Socke nach einer Fahrt mit geölter Kette",
-      "also": "linke Hälfte des Vergleichsblocks auf der Blogstartseite. Quelle: IMG_2367, um 90 Grad aufgerichtet",
-      "replaces": "/images/chain-dirty.jpg"
-    },
-    {
       "file": "chain-waxed-macro.jpg",
       "slot": "hero",
       "target": "erste-fahrt-nach-wachsen",
