@@ -22,7 +22,7 @@
 
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve, join } from 'node:path';
-import { products, schemaAvailability, waxVsOil, shippingDescSuffix, shippingDetailsSchema, checkoutEnabled } from '../src/lib/data.ts';
+import { products, schemaAvailability, waxVsOil, shippingDescSuffix, shippingDetailsSchema } from '../src/lib/data.ts';
 import { backTarget } from '../src/pages/ketten/content.ts';
 import { articles, getArticleBySlug } from '../src/pages/blog/articles.ts';
 import { translations } from '../src/lib/i18n.ts';
@@ -360,7 +360,7 @@ function renderProduct(p) {
 <article>
   <h1>${esc(p.title)}</h1>
   <p>${esc(p.description)}</p>
-  <p><strong>${price} €</strong> · ${checkoutEnabled ? 'versandkostenfrei ab 50 €' : 'Versand über eBay inklusive'} · Lieferung innerhalb Deutschlands</p>
+  <p><strong>${price} €</strong> · versandkostenfrei · Lieferung innerhalb Deutschlands</p>
   ${proNote}
   ${p.compatibility ? `<p>Kompatibilität: ${esc(p.compatibility)}</p>` : ''}
   ${specs}

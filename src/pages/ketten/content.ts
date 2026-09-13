@@ -8,7 +8,7 @@
 // generate-blog-html.mjs importiert (per tsx ohne tsconfig-paths-Aufloesung),
 // gleiches Muster wie rewax/content.ts, das genau deshalb ganz ohne
 // Cross-Modul-Import auskommt.
-import { checkoutEnabled, type Product } from '../../lib/data';
+import { type Product } from '../../lib/data';
 
 export const BASE = 'https://waxcelerate.de';
 
@@ -24,16 +24,13 @@ export const KETTEN_LEAD_EN = 'Ultrasonically degreased and hand-waxed in Stuttg
 /**
  * Nutzenband unter dem H1: drei Fakten statt der grauen Sammelzeile
  * ("Alle Ketten: vorgewachst · Quick-Link inklusive"), die hier entfaellt.
- * Der Versand-Punkt liest checkoutEnabled (K8) — eBay-Betrieb heisst
- * "Versand inklusive", der eigene Checkout eine echte Schwelle.
+ * Versand ist immer kostenlos, bei eBay wie im eigenen Checkout (13.09.2026).
  */
 export function chainBenefits(de: boolean): string[] {
   return [
     de ? 'Quick-Link inklusive' : 'Quick-link included',
     de ? 'Sofort fahrbereit' : 'Ready to ride',
-    checkoutEnabled
-      ? (de ? 'Versandkostenfrei ab 50 €' : 'Free shipping over €50')
-      : (de ? 'Versand über eBay inklusive' : 'Shipping included via eBay'),
+    de ? 'Versand kostenlos' : 'Free shipping',
   ];
 }
 

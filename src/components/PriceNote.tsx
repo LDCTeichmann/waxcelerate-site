@@ -1,6 +1,4 @@
-import { Link } from 'react-router-dom';
 import type { useLanguage } from '@/hooks/useLanguage';
-import { checkoutEnabled } from '@/lib/data';
 
 /* PAngV: Steuer- und Versandhinweis gehören an jede Stelle, an der ein Preis
    steht, nicht nur auf die Produktdetailseite. Ursprünglich inline in
@@ -12,32 +10,18 @@ import { checkoutEnabled } from '@/lib/data';
 
    `tone`: eine fest weisse Kaufkarte (Desktop-Produktseite) arbeitet mit
    rgba-Werten statt mit den Theme-Variablen. */
-export function PriceNote({ de, t, tone = 'page' }: {
+export function PriceNote({ t, tone = 'page' }: {
   de: boolean;
   t: ReturnType<typeof useLanguage>['t'];
   tone?: 'page' | 'card';
 }) {
   const muted = tone === 'card' ? 'rgba(0,0,0,0.48)' : 'var(--txff)';
-  const linkCol = tone === 'card' ? 'rgba(0,0,0,0.68)' : 'var(--txm)';
   const p = t.products;
   return (
     <p className="text-meta leading-[1.5]" style={{ color: muted }}>
       {p.priceNoteTax}{' '}
-      {checkoutEnabled ? (
-        <>
-          {p.priceNoteShippingPre}{' '}
-          <Link
-            to="/versand-und-zahlung"
-            className="underline underline-offset-2 hover:no-underline"
-            style={{ color: linkCol }}
-          >
-            {p.priceNoteShippingLink}
-          </Link>
-          {de ? ', ' : ', '}{p.priceNoteShippingPost}.
-        </>
-      ) : (
-        <>{p.priceNoteShippingIncluded}.</>
-      )}
+      {/* Versand ist immer kostenlos (13.09.2026), eBay wie eigener Checkout. */}
+      {p.priceNoteShippingIncluded}.
     </p>
   );
 }

@@ -2,10 +2,8 @@ import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
-import { shipping, checkoutEnabled } from '@/lib/data';
+import { checkoutEnabled } from '@/lib/data';
 import { removeStaticHeadMeta } from '@/lib/utils';
-
-const fmt = (cents: number) => (cents / 100).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
 
 // K8 (Produktkarten-Plan): diese ganze Seite beschrieb bisher den eigenen
 // Stripe-Checkout ("Warenkorb", "zur Kasse", "abgewickelt über Stripe") so,
@@ -14,9 +12,7 @@ const fmt = (cents: number) => (cents / 100).toLocaleString('de-DE', { style: 'c
 // geht ueber eBay. Die Versandtabelle bleibt als Referenz stehen (echte
 // Deutsche-Post-Tarife), aber Einleitung und Zahlungsarten-Absatz sagen
 // jetzt ehrlich, welcher Weg gerade gilt.
-const metaDescription = checkoutEnabled
-  ? 'Versandkosten, Lieferzeiten und Zahlungsarten bei Waxcelerate. Versandkostenfrei ab 50 €.'
-  : 'Bestellungen laufen aktuell über eBay, Versand im Angebotspreis inklusive. Diese Seite zeigt zusätzlich Lieferzeit und die künftigen Versandkosten des Direkt-Checkouts.';
+const metaDescription = 'Versand kostenlos innerhalb Deutschlands, werktags bis 15 Uhr bestellt am selben Tag verschickt. Lieferzeiten und Zahlungsarten bei Waxcelerate.';
 
 export function VersandUndZahlungPage() {
   // Vorgerenderte Fassung dieser Route liefert bereits eigene title/
@@ -58,53 +54,28 @@ export function VersandUndZahlungPage() {
 
           {!checkoutEnabled && (
             <p className="text-wx-tx2 leading-relaxed mb-8 px-4 py-3 rounded-xl" style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)' }}>
-              Bestellungen laufen aktuell ausschließlich über eBay — der Versand ist dort im
-              Angebotspreis enthalten, es fällt nichts zusätzlich an. Die Tabelle unten zeigt die
-              Versandkosten des direkten Checkouts, sobald er startet.
+              Bestellungen laufen aktuell über eBay. Der Versand ist kostenlos, es fällt nichts
+              zusätzlich an.
             </p>
           )}
 
+          {/* Versand ist immer kostenlos (Luca, 13.09.2026), bei eBay wie im
+              eigenen Checkout. Die Deutsche-Post-Tarife in data.ts bleiben
+              als interne Portokosten, gehoeren aber nicht mehr auf diese Seite. */}
           <section className="mb-8">
             <h2 className="text-lg font-semibold text-wx-tx1 mb-3">Versandkosten</h2>
-            <p className="text-wx-tx2 leading-relaxed mb-4">
-              {checkoutEnabled
-                ? 'Der Versandpreis richtet sich nach Gewicht und Größe deiner Bestellung und wird im Warenkorb angezeigt, bevor du zur Kasse gehst.'
-                : 'Der Versandpreis richtet sich nach Gewicht und Größe der Bestellung. Diese Tarife gelten für den direkten Checkout, sobald er startet.'}
-            </p>
-            <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--bd2)' }}>
-              <table className="w-full text-sm">
-                <tbody>
-                  <tr style={{ borderBottom: '1px solid var(--bd2)' }}>
-                    <td className="px-4 py-3 text-wx-tx2">{shipping.grossbrief.label} (bis {shipping.grossbrief.maxGrams}g, flach)</td>
-                    <td className="px-4 py-3 text-right font-semibold text-wx-tx1 tabular-nums">{fmt(shipping.grossbrief.cents)}</td>
-                  </tr>
-                  <tr style={{ borderBottom: '1px solid var(--bd2)' }}>
-                    <td className="px-4 py-3 text-wx-tx2">{shipping.maxibrief.label} (bis {shipping.maxibrief.maxGrams}g oder dicker als 2cm)</td>
-                    <td className="px-4 py-3 text-right font-semibold text-wx-tx1 tabular-nums">{fmt(shipping.maxibrief.cents)}</td>
-                  </tr>
-                  <tr style={{ borderBottom: '1px solid var(--bd2)' }}>
-                    <td className="px-4 py-3 text-wx-tx2">{shipping.paket.label} (darüber)</td>
-                    <td className="px-4 py-3 text-right font-semibold text-wx-tx1 tabular-nums">{fmt(shipping.paket.cents)}</td>
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-3 text-wx-tx2">Ab {fmt(shipping.freeFromCents)} Bestellwert</td>
-                    <td className="px-4 py-3 text-right font-semibold" style={{ color: 'var(--accent)' }}>kostenlos</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <p className="text-xs text-wx-txf leading-relaxed mt-3">
-              Ein einzelner Wachsblock ist auch unter {shipping.grossbrief.maxGrams}g ein {shipping.maxibrief.label},
-              weil er dicker als das 2-cm-Limit des {shipping.grossbrief.label}s ist. Bei mehreren
-              Artikeln im Warenkorb entscheidet zusätzlich das Gesamtgewicht.
+            <p className="text-wx-tx2 leading-relaxed">
+              Der Versand innerhalb Deutschlands ist kostenlos, unabhängig von Bestellwert und
+              Menge.
             </p>
           </section>
 
           <section className="mb-8">
             <h2 className="text-lg font-semibold text-wx-tx1 mb-3">Lieferzeit</h2>
             <p className="text-wx-tx2 leading-relaxed">
-              Versand innerhalb 1–2 Werktagen nach Zahlungseingang, Zustellung deutschlandweit meist
-              innerhalb 1–3 Werktagen danach. Versand aus Stuttgart.
+              Werktags bis 15 Uhr bestellt, verschicken wir am selben Tag, danach am nächsten
+              Werktag. Zustellung deutschlandweit meist innerhalb 1–3 Werktagen danach. Versand aus
+              Stuttgart.
             </p>
           </section>
 

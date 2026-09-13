@@ -7,7 +7,11 @@ export const shipping = {
   grossbrief: { cents: 180, maxGrams:  500, label: 'Großbrief' },
   maxibrief:  { cents: 290, maxGrams: 1000, label: 'Maxibrief' },
   paket:      { cents: 490,                 label: 'Paket'     },
-  freeFromCents: 5000,   // ab 50 € versandkostenfrei
+  // Versand ist immer kostenlos, bei eBay wie im eigenen Checkout (Luca,
+  // 13.09.2026). 0 statt eines eigenen Schalters: Checkout, Warenkorb und
+  // bundleOffer() rechnen damit ohne Sonderfall "ab 0 € kostenlos".
+  // Die Tarife oben bleiben als interne Portokosten stehen.
+  freeFromCents: 0,
 } as const;
 
 // ── Social Proof ─────────────────────────────────────────────────────────
@@ -551,33 +555,17 @@ export const checkoutEnabled = products.some(canCheckout);
 // die Bausteine, die ohnehin schon als Template-Strings direkt in den
 // Komponenten/Skripten standen, nie durch i18n liefen.
 export function shippingDescSuffix(de: boolean, priceStr: string): string {
-  if (!checkoutEnabled) {
-    return de ? ` ${priceStr} €, Versand über eBay inklusive.` : ` €${priceStr}, shipping included via eBay.`;
-  }
-  const freeFrom = (shipping.freeFromCents / 100).toString().replace('.', ',');
-  return de ? ` ${priceStr} €, versandkostenfrei ab ${freeFrom} €.` : ` €${priceStr}, free shipping from €${freeFrom}.`;
+  // Versand ist immer kostenlos (Luca, 13.09.2026), unabhaengig vom Kaufweg.
+  return de ? ` ${priceStr} €, versandkostenfrei.` : ` €${priceStr}, free shipping.`;
 }
 
-export function shippingDetailsSchema(p: Pick<Product, 'shippingClass'>) {
-  if (!checkoutEnabled) {
-    // Kein eigener Versand, keine Schwelle — der Artikelpreis bei eBay
-    // deckt den Versand bereits ab. 0,00 statt des Rests weglassen: ein
-    // Offer ohne shippingDetails koennte als "Versand ungeklaert" statt
-    // "inklusive" gelesen werden.
-    return {
-      '@type': 'OfferShippingDetails',
-      shippingRate: { '@type': 'MonetaryAmount', value: '0.00', currency: 'EUR' },
-      shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'DE' },
-    };
-  }
+export function shippingDetailsSchema(_p: Pick<Product, 'shippingClass'>) {
+  // Immer kostenlos (Luca, 13.09.2026): 0,00 statt den Posten wegzulassen,
+  // ein Offer ohne shippingDetails liest sich als "Versand ungeklaert".
   return {
     '@type': 'OfferShippingDetails',
-    shippingRate: { '@type': 'MonetaryAmount', value: (shipping[p.shippingClass].cents / 100).toFixed(2), currency: 'EUR' },
+    shippingRate: { '@type': 'MonetaryAmount', value: '0.00', currency: 'EUR' },
     shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'DE' },
-    freeShippingThreshold: {
-      '@type': 'DeliveryChargeSpecification',
-      eligibleTransactionVolume: { '@type': 'PriceSpecification', minPrice: (shipping.freeFromCents / 100).toFixed(2), priceCurrency: 'EUR' },
-    },
   };
 }
 

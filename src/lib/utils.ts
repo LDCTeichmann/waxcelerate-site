@@ -39,11 +39,34 @@ export function removeStaticHeadMeta() {
 }
 
 /**
- * Estimated delivery date, as a Date. Logic: orders before 14:00 CET ship
+ * Estimated delivery date, as a Date. Logic: orders before 15:00 CET ship
  * same day, otherwise next business day. Add 1 business day for DHL
  * delivery within Germany. Skips weekends only (not public holidays —
  * acceptable simplification).
  */
+/** Versandschluss werktags, Europe/Berlin (Luca, 13.09.2026). */
+export const SHIP_CUTOFF_HOUR = 15;
+
+/**
+ * Live-Zustand fuer die Versandzeile am Kaufknopf: geht eine Bestellung
+ * jetzt noch heute raus, und wie lange noch. Wochenenden verschieben auf
+ * Montag; Feiertage ignoriert, wie computeDeliveryDate().
+ */
+export function dispatchStatus(now: Date = new Date()): { shipsToday: boolean; minutesLeft: number; shipWeekday: number } {
+  const parts = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Berlin', weekday: 'short', hour: 'numeric', minute: 'numeric', hour12: false }).formatToParts(now);
+  const get = (t: string) => parts.find(p => p.type === t)?.value ?? '';
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const day = days.indexOf(get('weekday'));
+  const minutes = parseInt(get('hour'), 10) * 60 + parseInt(get('minute'), 10);
+  const workday = day >= 1 && day <= 5;
+  const shipsToday = workday && minutes < SHIP_CUTOFF_HOUR * 60;
+  let shipWeekday = day;
+  if (!shipsToday) {
+    do { shipWeekday = (shipWeekday + 1) % 7; } while (shipWeekday === 0 || shipWeekday === 6);
+  }
+  return { shipsToday, minutesLeft: shipsToday ? SHIP_CUTOFF_HOUR * 60 - minutes : 0, shipWeekday };
+}
+
 function computeDeliveryDate(): Date {
   const now = new Date();
 
@@ -66,8 +89,8 @@ function computeDeliveryDate(): Date {
     // Weekend → ships Monday
     const daysUntilMonday = berlinDay === 6 ? 2 : 1;
     shipDate.setDate(shipDate.getDate() + daysUntilMonday);
-  } else if (berlinHour >= 14) {
-    // After 14:00 CET → ships next business day
+  } else if (berlinHour >= SHIP_CUTOFF_HOUR) {
+    // After 15:00 CET → ships next business day
     shipDate.setDate(shipDate.getDate() + 1);
     if (shipDate.getDay() === 6) shipDate.setDate(shipDate.getDate() + 2); // skip to Monday if Saturday
     if (shipDate.getDay() === 0) shipDate.setDate(shipDate.getDate() + 1); // skip Sunday

@@ -26,7 +26,7 @@
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve, join } from 'node:path';
 import { articles, getArticleImage, author, categoryOrder, blogHero } from '../src/pages/blog/articles.ts';
-import { starterSet, waxVsOil, frictionRanges, products, checkoutEnabled } from '../src/lib/data.ts';
+import { starterSet, waxVsOil, frictionRanges, products } from '../src/lib/data.ts';
 import {
   KETTEN_TITLE, KETTEN_DESCRIPTION, KETTEN_H1, KETTEN_LEAD, chainBenefits, kettenCollectionSchema,
 } from '../src/pages/ketten/content.ts';
@@ -427,7 +427,7 @@ const NEW_STATIC_PAGES = [
       DE.about.bio1,
       DE.about.bio3,
       DE.about.bio4,
-      'Entwickelt und in kleinen Chargen gefertigt in Stuttgart; Versand am Tag der Bestellung bei Eingang vor 14 Uhr.',
+      'Entwickelt und in kleinen Chargen gefertigt in Stuttgart; Versand am Tag der Bestellung bei Eingang bis 15 Uhr.',
     ],
     extraSchema: [
       {
@@ -459,7 +459,7 @@ const NEW_STATIC_PAGES = [
       'Per E-Mail: waxcelerate@gmail.com — Antwort in der Regel am selben Tag.',
       'Per WhatsApp: +49 157 51957470 — für kurze Fragen, meist sofort.',
       'Waxcelerate wird von Luca Teichmann in Stuttgart betrieben; Versand deutschlandweit per DHL.',
-      'Bestellungen vor 14 Uhr gehen in der Regel am selben Werktag raus.',
+      'Bestellungen bis 15 Uhr gehen in der Regel am selben Werktag raus.',
     ],
     extraSchema: [
       {
@@ -637,9 +637,7 @@ const LEGAL_PAGES = [
   { dir: 'agb', title: 'Allgemeine Geschäftsbedingungen', description: 'Vertragsbedingungen für Bestellungen bei Waxcelerate: Vertragsschluss, Preise, Lieferung und Zahlung.' },
   { dir: 'widerruf', title: 'Vertrag widerrufen', description: 'Formular und Ablauf, um eine Bestellung bei Waxcelerate innerhalb der Frist zu widerrufen.' },
   { dir: 'widerrufsbelehrung', title: 'Widerrufsbelehrung', description: 'Widerrufsrecht, Fristen und Folgen des Widerrufs für Bestellungen bei Waxcelerate.' },
-  { dir: 'versand-und-zahlung', title: 'Versand und Zahlung', description: checkoutEnabled
-    ? 'Versandkosten, Lieferzeiten und Zahlungsarten bei Waxcelerate. Versandkostenfrei ab 50 €.'
-    : 'Bestellungen laufen aktuell über eBay, Versand im Angebotspreis inklusive. Diese Seite zeigt zusätzlich Lieferzeit und die künftigen Versandkosten des Direkt-Checkouts.' },
+  { dir: 'versand-und-zahlung', title: 'Versand und Zahlung', description: 'Versand kostenlos innerhalb Deutschlands, werktags bis 15 Uhr bestellt am selben Tag verschickt. Lieferzeiten und Zahlungsarten bei Waxcelerate.' },
 ];
 
 function renderLegal(p) {
