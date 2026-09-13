@@ -9,7 +9,7 @@
 // "I know exactly what I want" option for the rest.
 
 import { useState } from 'react';
-import { Check, ChevronRight, RotateCcw } from 'lucide-react';
+import { Check, ChevronRight, RotateCcw, Truck } from 'lucide-react';
 import { Sparkles, Snowflake, SlidersHorizontal, Bike, Wrench } from 'lucide-react';
 import {
   products, accessories, starterSet,
@@ -18,6 +18,7 @@ import {
 import { AddToCartButton } from '@/components/AddToCartButton';
 import { trackStarterInterest } from '@/lib/analytics';
 import { StarterSetBuilder } from '@/sections/StarterSetBuilder';
+import { getEstimatedDelivery } from '@/lib/utils';
 
 const fmt = (n: number, de: boolean) =>
   n.toLocaleString(de ? 'de-DE' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
@@ -76,12 +77,20 @@ function FixedCard({ optionId, de, icon: Icon, badgeDe, badgeEn }: {
           <p className="font-display font-bold text-wx-tx1 leading-none" style={{ fontSize: '1.9rem', letterSpacing: '-0.02em' }}>
             {fmt(bundleProduct.price, de)}
           </p>
-          <p className="num-data text-[12.5px] line-through" style={{ color: 'var(--txff)' }}>
+          <p className="num text-[12.5px] line-through" style={{ color: 'var(--txff)' }}>
             {fmt(partsSum, de)}
           </p>
         </div>
-        <p className="text-meta mb-4" style={{ color: 'var(--accent)' }}>
+        <p className="text-meta mb-1" style={{ color: 'var(--accent)' }}>
           {de ? `Du sparst ${fmt(saved, de)}` : `You save ${fmt(saved, de)}`}
+        </p>
+
+        {/* Gleiche Schaetzung wie Regal und Kettenliste (Stufe 2.2): eine
+            Sendung aus demselben Lager, unabhaengig vom Kaufweg (Warenkorb
+            oder WhatsApp-Anfrage). */}
+        <p className="flex items-center gap-1.5 num text-meta mb-4" style={{ color: 'var(--txff)' }}>
+          <Truck className="h-3 w-3 flex-shrink-0" style={{ color: 'var(--accent)' }} aria-hidden />
+          {de ? `Lieferung ${getEstimatedDelivery('de')}` : `Delivery ${getEstimatedDelivery('en')}`}
         </p>
 
         {canCheckout(bundleProduct) ? (

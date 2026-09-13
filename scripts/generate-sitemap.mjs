@@ -59,6 +59,9 @@ const staticPages = [
   // /kette-wachsen-lassen ist der einzige wiederkehrende Umsatz — gleichrangig
   // mit der Startseite, woechentlich (Preise/Leistungen aendern sich hier).
   { loc: '/kette-wachsen-lassen', changefreq: 'weekly', priority: '1.0' },
+  // Stufe 3 (Produktkarten-Plan): eigene Route statt eines useState in der
+  // Startseiten-Produktsektion — acht SKUs mit eigener Adresse.
+  { loc: '/ketten', changefreq: 'weekly', priority: '0.9' },
   { loc: '/starter-set', changefreq: 'monthly', priority: '0.9' },
   { loc: '/blog', changefreq: 'weekly', priority: '0.8' },
   // Rechner: eigene Adressen seit September 2026. Der Hub etwas hoeher als die

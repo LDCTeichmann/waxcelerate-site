@@ -435,7 +435,7 @@ function StampCard({ de, count, price, list, gift, recommended, onPreview }: {
           {label}
         </p>
         {recommended && (
-          <span className="num-data px-1.5 py-0.5 rounded-full" style={{ fontSize: 9.5, background: 'var(--sf)', border: '1px solid rgba(var(--accent-rgb),0.20)', color: 'var(--accent)' }}>
+          <span className="num px-1.5 py-0.5 rounded-full" style={{ fontSize: 9.5, background: 'var(--sf)', border: '1px solid rgba(var(--accent-rgb),0.20)', color: 'var(--accent)' }}>
             {de ? 'bester Preis' : 'best price'}
           </span>
         )}
@@ -478,7 +478,7 @@ function StampCard({ de, count, price, list, gift, recommended, onPreview }: {
         <p className="font-display font-bold text-wx-tx1 leading-none" style={{ fontSize: '1.6rem', letterSpacing: '-0.02em' }}>
           {eur(price, de)}
         </p>
-        <p className="num-data text-[11px] line-through" style={{ color: 'var(--txff)' }}>
+        <p className="num text-[11px] line-through" style={{ color: 'var(--txff)' }}>
           {eur(list, de)}
         </p>
       </div>
@@ -554,7 +554,7 @@ function ServicePricing({ de, service }: { de: boolean; service: ServiceId }) {
                 {de ? plan.titleDe : plan.titleEn}
               </p>
               {plan.accent && (
-                <span className="num-data px-1.5 py-0.5 rounded-full" style={{ fontSize: 9.5, background: 'var(--sf)', border: '1px solid rgba(var(--accent-rgb),0.20)', color: 'var(--accent)' }}>
+                <span className="num px-1.5 py-0.5 rounded-full" style={{ fontSize: 9.5, background: 'var(--sf)', border: '1px solid rgba(var(--accent-rgb),0.20)', color: 'var(--accent)' }}>
                   {de ? 'empfohlen' : 'recommended'}
                 </span>
               )}
@@ -568,13 +568,13 @@ function ServicePricing({ de, service }: { de: boolean; service: ServiceId }) {
             </p>
 
             <div className="mt-4 pt-3 space-y-1.5" style={{ borderTop: '1px solid var(--bd2)' }}>
-              <p className="num-data text-[11.5px]" style={{ color: 'var(--txm)' }}>
+              <p className="num text-[11.5px]" style={{ color: 'var(--txm)' }}>
                 {de ? 'Wachsen' : 'Waxing'} <span style={{ color: 'var(--tx1)' }}>{eur(plan.total, de)}</span>
               </p>
-              <p className="num-data text-[11.5px]" style={{ color: 'var(--txm)' }}>
+              <p className="num text-[11.5px]" style={{ color: 'var(--txm)' }}>
                 {de ? 'Rückversand' : 'Return shipping'} <span style={{ color: 'var(--tx1)' }}>{eur(plan.shipping, de)}</span>
               </p>
-              <p className="num-data text-[13px] pt-1.5" style={{ color: 'var(--tx1)' }}>
+              <p className="num text-[13px] pt-1.5" style={{ color: 'var(--tx1)' }}>
                 {de ? 'Gesamt' : 'Total'} <span style={{ color: 'var(--accent)' }}>{eur(plan.total + plan.shipping, de)}</span>
               </p>
             </div>
@@ -624,7 +624,7 @@ function RewaxSteps({ de }: { de: boolean }) {
               </div>
               <div className="min-w-0">
                 <div className="flex items-baseline gap-2">
-                  <span className="num-data font-bold" style={{ color: 'var(--accent)', fontSize: 13 }}>{s.n}</span>
+                  <span className="num font-bold" style={{ color: 'var(--accent)', fontSize: 13 }}>{s.n}</span>
                   <h3 className="font-semibold text-[15px] sm:text-[16px]" style={{ color: 'var(--tx1)' }}>
                     {de ? s.de : s.en}
                   </h3>
@@ -783,10 +783,6 @@ export function RewaxPage() {
   const faqItems = rewaxFaqItems(de);
   const faqSchema = JSON.stringify(rewaxFaqSchema(de));
 
-  const heroPrice = service === 'rewax'
-    ? `${de ? 'Auffrischung ab' : 'Rewax from'} ${eur(PRICE.rewax.single, de)} · ${de ? 'ab 3 Ketten' : 'from 3 chains'} ${eur(PRICE.rewax.bundle, de)}`
-    : `${de ? 'Umstieg ab' : 'Switch from'} ${eur(PRICE.umstieg.single, de)} · ${de ? 'ab 3 Ketten' : 'from 3 chains'} ${eur(PRICE.umstieg.bundle, de)}`;
-
   const valueProp = de
     ? `Kette einschicken, frisch gewachst zurück. Ab ${eur(PRICE.rewax.single, de)}, handgewachst in Stuttgart, deutschlandweit per Post. Bearbeitung ${TURNAROUND.full}.`
     : `Send in your chain, get it back freshly waxed. From ${eur(PRICE.rewax.single, de)}, hand-waxed in Stuttgart, nationwide by mail. Processing ${TURNAROUND.fullEn}.`;
@@ -873,7 +869,7 @@ export function RewaxPage() {
                 alt={de ? 'Frisch gewachste Ketten hängen zum Aushärten' : 'Freshly waxed chains hanging to cure'}
                 className="w-full h-full object-cover" />
             </div>
-            <p className="num-data text-meta mt-3" style={{ color: 'var(--txff)' }}>
+            <p className="num text-meta mt-3" style={{ color: 'var(--txff)' }}>
               {de ? 'AUSGEHÄRTET, STUTTGART' : 'CURED, STUTTGART'}
             </p>
 
@@ -886,8 +882,22 @@ export function RewaxPage() {
                   ? '1. Einschicken → 2. Reinigen & Wachsen → 3. Zurück & anbauen.'
                   : '1. Send it in → 2. Clean & wax → 3. Back & refit.'}
               </p>
-              <p className="text-[12.5px] leading-relaxed mt-4" style={{ color: 'var(--txm)' }}>
-                {heroPrice} · {de ? 'Karten ab' : 'cards from'} {eur(TEN_CARD.price / TEN_CARD.count, de)} {de ? 'je Vorgang, Rückversand inklusive' : 'per treatment, return shipping included'}
+              {/* Einzelpreis gross, zweite Zahl als Anker darunter (Plan §3):
+                  "Ab X €" allein waere der niedrigere Anker, bricht aber beim
+                  Aufschlagen der Seite (Einzelpreis, Vorkasse-Kartenpreis) —
+                  die zweizeilige Form beantwortet beide Fragen auf einmal.
+                  Rewax hat die Stempelkarte als Anker (10er-Karte, TEN_CARD),
+                  Umstieg hat keine Karte (content.ts: "Karten gelten fuer die
+                  Auffrischung, nicht fuer den Umstieg") und behaelt deshalb
+                  den 3er-Mengenrabatt als Anker. */}
+              <p className="num font-display font-bold leading-none mt-4" style={{ fontSize: '1.5rem', color: 'var(--tx1)' }}>
+                {eur(service === 'rewax' ? PRICE.rewax.single : PRICE.umstieg.single, de)}{' '}
+                <span className="text-[13px] font-normal" style={{ color: 'var(--txm)' }}>{de ? 'je Kette' : 'per chain'}</span>
+              </p>
+              <p className="num text-[12.5px] mt-0.5" style={{ color: 'var(--txm)' }}>
+                {service === 'rewax'
+                  ? `${de ? 'mit 10er-Karte' : 'with 10-visit card'} ${eur(TEN_CARD.price / TEN_CARD.count, de)}`
+                  : `${de ? 'ab 3 Ketten' : 'from 3 chains'} ${eur(PRICE.umstieg.bundle, de)}`}
               </p>
               <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
                 <a href="#ablauf" className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold" style={{ color: 'var(--accent)' }}>

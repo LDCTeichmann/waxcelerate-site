@@ -16,7 +16,7 @@
 import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
-import { products, shipping } from '../src/lib/data.ts';
+import { products, shipping, checkoutEnabled } from '../src/lib/data.ts';
 import { assertXml } from './assert-xml.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -70,7 +70,20 @@ const GOOGLE_CATEGORY = {
 // Sicherheitsregeln dieser Session explizite Rueckfrage braucht, nicht
 // stillschweigend im selben Schritt wie die reinen Datenaenderungen unten.
 const SHIP_COUNTRY = 'DE';
+// K8 (Produktkarten-Plan): <link> zeigt auf die eigene Produktseite, aber
+// solange checkoutEnabled false ist, kauft niemand dort direkt — jeder Kauf
+// laeuft ueber eBay, wo der Versand im Artikelpreis steckt. Ein fester
+// Deutsche-Post-Tarif waere hier eine Behauptung ueber einen Versand, den
+// wir gerade nicht selbst abwickeln. 0 EUR statt dessen, bis die erste
+// stripePriceId gesetzt ist.
 const shippingXml = (p) => {
+  if (!checkoutEnabled) {
+    return `
+      <g:shipping>
+        <g:country>${SHIP_COUNTRY}</g:country>
+        <g:price>0.00 EUR</g:price>
+      </g:shipping>`;
+  }
   const rate = shipping[p.shippingClass];
   if (!rate) return '';
   return `

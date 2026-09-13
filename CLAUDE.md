@@ -18,7 +18,9 @@ dort gezielt weiter in den passenden `docs/`-Unterordner, statt breit zu suchen.
 2. **Keine Hooks in `.map()`** — immer Wrapper-Komponente dazwischen
 3. **`e.stopPropagation()`** auf innere Links wenn äußeres Element bereits ein Link ist
 4. **Performance-Index-Balken in `why-wax.tsx` Block 4:** höherer Balken = besser. Classic=95%, Graphit=72%, Öl=18%. NICHT zurückändern.
-5. **Vor jedem Commit:** `npx tsc --noEmit` muss sauber durchlaufen (pre-commit hook läuft automatisch)
+5. **Vor jedem Commit:** `npx tsc -b --force` muss sauber durchlaufen. `npx tsc --noEmit`
+   prüft **nichts** — die Wurzel-`tsconfig.json` hat `"files": []` und nur `references`,
+   der Befehl ist immer grün. Es gibt auch **keinen** Pre-Commit-Hook.
 6. **Sprache:** Deutsche Strings in `src/lib/i18n.ts`, niemals direkt in Komponenten
 
 ---
@@ -29,7 +31,7 @@ dort gezielt weiter in den passenden `docs/`-Unterordner, statt breit zu suchen.
 
 **Nicht erlaubt ohne Rückfrage:** das Chrome-Toolset (`mcp__claude-in-chrome__*`) und alle Desktop-Screenshot-/Computer-Use-Tools (`mcp__computer-use__*`). Die greifen auf Lucas echten Bildschirm und sein echtes Chrome zu und stören die parallele Arbeit sichtbar (Fenster-Fokus, orangene Bildschirmränder).
 
-Wo eine Prüfung ohne Browser reicht, ist sie trotzdem vorzuziehen: `npx tsc --noEmit`, `npm run build`, Prüfung des vorgerenderten HTML in `dist/`, DOM-Checks via `getBoundingClientRect` / `getComputedStyle`.
+Wo eine Prüfung ohne Browser reicht, ist sie trotzdem vorzuziehen: `npx tsc -b --force`, `npm run build`, Prüfung des vorgerenderten HTML in `dist/`, DOM-Checks via `getBoundingClientRect` / `getComputedStyle`.
 
 ---
 
@@ -64,6 +66,6 @@ src/hooks/useLanguage.tsx        ← { t, lang, setLang }
 
 ```bash
 npm run dev -- --port 5174   # Dev-Server
-npx tsc --noEmit             # Type-Check
+npx tsc -b --force           # Type-Check (NICHT --noEmit, siehe Regel 5)
 npm run build                # Produktions-Build → dist/
 ```

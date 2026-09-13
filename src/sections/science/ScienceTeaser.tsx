@@ -141,7 +141,7 @@ export function ScienceTeaser({ de }: { de: boolean }) {
         <p className="flex items-center gap-2 mt-3 text-small" style={{ color: 'var(--txm)' }}>
           <span aria-hidden className="inline-block rounded-full flex-shrink-0"
             style={{ width: 6, height: 6, background: 'var(--accent)', boxShadow: '0 0 6px rgba(var(--accent-rgb),0.8)' }} />
-          <span className="num-data font-semibold" style={{ color: 'var(--tx1)' }}>{zone.n}</span>
+          <span className="num font-semibold" style={{ color: 'var(--tx1)' }}>{zone.n}</span>
           <span style={{ color: 'var(--txff)' }}>·</span>
           {de ? zone.de : zone.en}
         </p>

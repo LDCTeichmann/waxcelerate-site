@@ -3,9 +3,9 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
   ArrowLeft, ArrowRight, ExternalLink, Check,
-  ChevronRight, ChevronLeft, ChevronDown, Star, Lightbulb, Truck, RotateCcw, BadgeCheck,
+  ChevronRight, ChevronLeft, ChevronDown, Lightbulb, Truck, RotateCcw, BadgeCheck,
 } from 'lucide-react';
-import { getProductById, products, canCheckout, checkoutEnabled, isSoldOut, schemaAvailability, shipping, bundleOffer, trustStats } from '@/lib/data';
+import { getProductById, products, canCheckout, checkoutEnabled, isSoldOut, schemaAvailability, bundleOffer, trustStats, shippingDescSuffix, shippingDetailsSchema, perApplicationRange } from '@/lib/data';
 import { articles } from '@/pages/blog/articles';
 import type { Product } from '@/lib/data';
 import { useToolProfile } from '@/hooks/useToolProfile';
@@ -23,7 +23,8 @@ import { PriceNote } from '@/components/PriceNote';
 import { ImageLightbox } from '@/components/ImageLightbox';
 import { gsap } from '@/lib/gsap';
 import { Footer } from '@/sections/footer';
-import { getEstimatedDelivery, removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
+import { getEstimatedDeliveryLong, removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
+import { backTarget } from '@/pages/ketten/content';
 import { reviewsForProduct, type Review } from '@/sections/reviews';
 import { Stars } from '@/components/Stars';
 import { CompareModal } from '@/sections/products';
@@ -449,16 +450,24 @@ export function ProductDetailPage() {
     ? products.find(p => p.category === 'wax' && p.variant === product.variant && p.weight !== product.weight)
     : undefined;
 
-  const pricePerApp = product.applications
-    ? product.price / parseFloat(product.applications.split('–')[1] ?? product.applications)
-    : null;
+  // K6 (Produktkarten-Plan): die volle Spanne statt nur des guenstigsten
+  // Einzelwerts (vorher: Preis / max(applications), ein optimistischer
+  // Durchschnitt statt einer ehrlichen Spanne). Gleiche Rechnung wie
+  // WaxPanel auf dem Regal, siehe perApplicationRange() in data.ts.
+  const perAppRange = perApplicationRange(product);
 
-  const offer = SHOW_BUNDLE_OFFER ? bundleOffer(product) : null;
+  // K8-Nachtrag: "und damit versandkostenfrei" behauptet die 50-€-Schwelle
+  // des eigenen Checkouts — im reinen eBay-Betrieb (checkoutEnabled false)
+  // gibt es weder einen gemeinsamen Warenkorb ueber mehrere eBay-Artikel
+  // noch diese Schwelle. Beim Bauen von K6 aufgefallen, nicht im
+  // urspruenglichen 14-Stellen-Fundort des Plans, aber derselbe Fehlertyp.
+  const offer = SHOW_BUNDLE_OFFER && checkoutEnabled ? bundleOffer(product) : null;
 
   // Same figures the homepage product cards already show (getEstimatedDelivery,
   // price-per-100g) — missing here, this was the one page where a buyer
-  // couldn't see either before deciding.
-  const deliveryDate = getEstimatedDelivery(lang);
+  // couldn't see either before deciding. Lange Fassung hier (Stufe 2.2),
+  // die Karte behaelt die kurze.
+  const deliveryDateLong = getEstimatedDeliveryLong(lang);
   const grams = isWax && product.weight ? parseInt(product.weight) : 0;
   const per100g = grams > 0 ? `${(product.price / (grams / 100)).toFixed(2).replace('.', ',')} €/100g` : null;
 
@@ -493,7 +502,7 @@ export function ProductDetailPage() {
   const metaTitle = `${titleText} kaufen | Waxcelerate`;
   const priceStr = product.price.toFixed(2).replace('.', ',');
   const descBase = (descriptionText ?? '').replace(/\s+/g, ' ').trim();
-  const descSuffix = de ? ` ${priceStr} €, versandkostenfrei ab 50 €.` : ` €${priceStr}, free shipping from €50.`;
+  const descSuffix = shippingDescSuffix(de, priceStr);
   const descRoom = 160 - descSuffix.length;
   const descHead = descBase.length > descRoom ? `${descBase.slice(0, descRoom - 1).trimEnd()}…` : descBase;
   const metaDescription = descHead + descSuffix;
@@ -501,11 +510,17 @@ export function ProductDetailPage() {
   const absImg = (src: string) => (src?.startsWith('http') ? src : `https://waxcelerate.de${src}`);
   const absImage = absImg(product.image);
 
+  // Mittlere Stufe (K9): Ketten fuehren jetzt auf /ketten statt auf das
+  // Regal, Wachs bleibt bei /#produkte — deckt sich mit der sichtbaren
+  // Breadcrumb-Zeile weiter unten UND mit productSchema() im Prerender.
+  // Auch die Grundlage fuer handleBack()s Fallback-Ziel weiter unten.
+  const backFallback = backTarget(product.category, de);
   const breadcrumbSchema = JSON.stringify({
     '@context': 'https://schema.org', '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: de ? 'Startseite' : 'Home', item: 'https://waxcelerate.de' },
-      { '@type': 'ListItem', position: 2, name: titleText, item: canonicalUrl },
+      { '@type': 'ListItem', position: 2, name: backFallback.label, item: `https://waxcelerate.de${backFallback.to}` },
+      { '@type': 'ListItem', position: 3, name: titleText, item: canonicalUrl },
     ],
   });
 
@@ -542,15 +557,7 @@ export function ProductDetailPage() {
       // Was hardcoded to a fixed date that would silently go stale — always
       // valid for a year out so it never needs manual upkeep.
       priceValidUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
-      shippingDetails: {
-        '@type': 'OfferShippingDetails',
-        shippingRate: { '@type': 'MonetaryAmount', value: (shipping[product.shippingClass].cents / 100).toFixed(2), currency: 'EUR' },
-        shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'DE' },
-        freeShippingThreshold: {
-          '@type': 'DeliveryChargeSpecification',
-          eligibleTransactionVolume: { '@type': 'PriceSpecification', minPrice: (shipping.freeFromCents / 100).toFixed(2), priceCurrency: 'EUR' },
-        },
-      },
+      shippingDetails: shippingDetailsSchema(product),
       hasMerchantReturnPolicy: {
         '@type': 'MerchantReturnPolicy', applicableCountry: 'DE',
         returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
@@ -588,12 +595,14 @@ export function ProductDetailPage() {
   // back button should return them to wherever they actually came from.
   // history.state.idx (set by the browser's History API under
   // BrowserRouter) is >0 only when there's a prior entry in this tab's own
-  // session history; falling back to "/" keeps the link correct for a fresh
+  // session history; falling back to a category-aware destination (K9:
+  // Kette → /ketten, Wachs → /#produkte) keeps the link correct for a fresh
   // tab or a direct/external arrival, where there is nothing to go back to.
+  // backFallback is computed above, next to breadcrumbSchema.
   const handleBack = (e: React.MouseEvent) => {
     e.preventDefault();
     if ((window.history.state as { idx?: number } | null)?.idx) navigate(-1);
-    else navigate('/');
+    else navigate(backFallback.to);
   };
 
   return (
@@ -649,9 +658,9 @@ export function ProductDetailPage() {
                 </Link>
                 <ChevronRight className="h-3 w-3 flex-shrink-0 opacity-50"
                   style={{ color: 'var(--txf)' }} />
-                <Link to="/#produkte" className="flex-shrink-0 hover:underline transition-colors"
+                <Link to={backFallback.to} className="flex-shrink-0 hover:underline transition-colors"
                   style={{ color: 'var(--txf)' }}>
-                  {de ? 'Produkte' : 'Products'}
+                  {backFallback.label}
                 </Link>
                 <ChevronRight className="h-3 w-3 flex-shrink-0 opacity-50"
                   style={{ color: 'var(--txf)' }} />
@@ -659,10 +668,13 @@ export function ProductDetailPage() {
                   {titleText}
                 </span>
               </nav>
-              {/* Mobile — no room for the full breadcrumb, keep the simple back link */}
-              <Link to="/" onClick={handleBack} className="sm:hidden flex items-center gap-2 text-[13px] font-medium transition-colors flex-shrink-0"
+              {/* Mobile — Ziel-Label statt Richtungslabel (K9: "eine Pille mit
+                  Pfeil und Ziel-Label senkt die Klickhuerde staerker"), 44px
+                  Hoehe statt der vorherigen schmalen Zeile. */}
+              <Link to={backFallback.to} onClick={handleBack}
+                className="sm:hidden inline-flex items-center gap-1.5 min-h-11 pl-1 pr-3 -ml-1 rounded-full text-[13px] font-medium transition-colors flex-shrink-0"
                 style={{ color: 'var(--txm)' }}>
-                <ArrowLeft className="h-4 w-4" /> {de ? 'Zurück' : 'Back'}
+                <ArrowLeft className="h-4 w-4" aria-hidden /> {backFallback.label}
               </Link>
             </div>
             {checkoutEnabled && <CartIcon />}
@@ -827,8 +839,7 @@ export function ProductDetailPage() {
                 eigenen Sektionen — sie beantworten Folgefragen, nicht die
                 Kaufentscheidung. */}
             <div className="lg:sticky lg:top-24 min-w-0">
-              <span className="text-small font-semibold uppercase tracking-[0.2em] block mb-2"
-                style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
+              <span className="eyebrow block mb-2" style={{ color: 'var(--txff)' }}>
                 {product.variant ? `${product.variant} · ${product.weight ?? ''}` : (product.chainSpeed ?? '')}
               </span>
 
@@ -847,9 +858,9 @@ export function ProductDetailPage() {
                   145/150 identisch fuer alle Wachs- bzw. alle Ketten-SKUs) --
                   jetzt dieselbe trustStats-Quelle an beiden Stellen. */}
               <a href="#bewertungen" className="inline-flex items-center gap-1.5 mb-3 hover:opacity-70 transition-opacity">
-                <span className="flex items-center gap-0.5">
-                  {[0, 1, 2, 3, 4].map(i => <Star key={i} className="h-3.5 w-3.5 fill-current" style={{ color: '#F5A623' }} />)}
-                </span>
+                {/* Eine Sternkomponente statt drei (Stufe 0), feste Farbe
+                    accent-soft statt des vorherigen goldenen #F5A623. */}
+                <Stars rating={5} />
                 <span className="text-meta font-medium" style={{ color: 'var(--txf)' }}>
                   {trustStats.reviews} {de ? 'Bewertungen' : 'reviews'}
                 </span>
@@ -904,7 +915,7 @@ export function ProductDetailPage() {
                         <button key={v} type="button"
                           onClick={() => { if (!active) { trackSizeSelect(waxSizeSibling.id, `${v}g`); navigate(`/produkt/${waxSizeSibling.id}`, { state: { keepScroll: true } }); } }}
                           aria-pressed={active}
-                          className="num-data inline-flex items-center justify-center min-h-11 min-w-11 px-4 rounded-md text-[12.5px] leading-none transition-all"
+                          className="num inline-flex items-center justify-center min-h-11 min-w-11 px-4 rounded-md text-[12.5px] leading-none transition-all"
                           style={{ background: active ? 'var(--sf)' : 'transparent', color: active ? 'var(--tx1)' : 'var(--txm)' }}>
                           {v} g
                         </button>
@@ -972,11 +983,16 @@ export function ProductDetailPage() {
                 <p className="num text-[30px] font-bold leading-none tracking-[-0.02em]" style={{ color: 'var(--tx1)' }}>
                   {formatPrice(product.price)}
                 </p>
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1.5 mb-2">
-                  {pricePerApp !== null && (
-                    <p className="text-meta whitespace-nowrap" style={{ color: 'var(--txff)' }}>~{formatPrice(pricePerApp)} / {de ? 'Anwendung' : 'use'}</p>
-                  )}
-                  {per100g && <p className="text-meta whitespace-nowrap" style={{ color: 'var(--txff)' }}>{pricePerApp !== null ? '· ' : ''}{per100g}</p>}
+                {/* Preis je Anwendung als Hauptsignal (K6) — deutlicher als
+                    der PAngV-Grundpreis darunter, der bleibt aber (Pflicht
+                    bei Ware nach Gewicht). */}
+                {perAppRange && (
+                  <p className="num text-[13px] font-medium mt-1.5" style={{ color: 'var(--tx2)' }}>
+                    {t.products.perApplicationPrefix} {formatPrice(perAppRange.lo)} {de ? 'bis' : 'to'} {formatPrice(perAppRange.hi)} {t.products.perApplicationSuffix}
+                  </p>
+                )}
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1 mb-2">
+                  {per100g && <p className="text-meta whitespace-nowrap" style={{ color: 'var(--txff)' }}>{per100g}</p>}
                 </div>
 
                 <div className="mb-4">
@@ -1017,10 +1033,20 @@ export function ProductDetailPage() {
                 )}
 
                 <div className="space-y-1.5">
-                  <div className="flex items-center gap-1.5 text-meta" style={{ color: 'var(--txff)' }}>
-                    <Truck className="h-3 w-3 flex-shrink-0" style={{ color: accentColor }} aria-hidden />
-                    {isWax ? `${de ? 'Hergestellt in Stuttgart' : 'Made in Stuttgart'} · ` : ''}
-                    {de ? `Lieferung ${deliveryDate}` : `Delivery ${deliveryDate}`}
+                  <div className="flex items-start gap-1.5 text-meta" style={{ color: 'var(--txff)' }}>
+                    <Truck className="h-3 w-3 flex-shrink-0 mt-[3px]" style={{ color: accentColor }} aria-hidden />
+                    <span>
+                      {isWax ? `${de ? 'Hergestellt in Stuttgart' : 'Made in Stuttgart'} · ` : ''}
+                      {/* Lang statt kurz (Stufe 2.2): auf der Produktseite ist
+                          Platz fuer die ausgeschriebene Schaetzung plus den
+                          Mechanismus dahinter, statt nur "Lieferung Mi." wie
+                          auf der Karte. */}
+                      {de ? `Voraussichtlich ${deliveryDateLong} bei dir` : `Estimated ${deliveryDateLong} at your door`}
+                      <br />
+                      {de
+                        ? 'Versand in 1–2 Werktagen aus Stuttgart. Bestellungen bis 14 Uhr gehen meist am selben Tag raus.'
+                        : 'Ships within 1–2 working days from Stuttgart. Orders placed before 2pm usually go out the same day.'}
+                    </span>
                   </div>
                   <div className="flex items-start gap-1.5 text-meta" style={{ color: 'var(--txff)' }}>
                     <RotateCcw className="h-3 w-3 flex-shrink-0 mt-[3px]" style={{ color: accentColor }} aria-hidden />
@@ -1088,7 +1114,7 @@ export function ProductDetailPage() {
               {bestForList.length > 0 && (
                 <ul className="flex flex-wrap gap-x-2 gap-y-1.5 mt-6">
                   {bestForList.map((b, i) => (
-                    <li key={i} className="num-data text-meta px-2.5 py-1 rounded-full"
+                    <li key={i} className="num text-meta px-2.5 py-1 rounded-full"
                       style={{ background: 'var(--sf2)', color: 'var(--txm)', border: '1px solid var(--bd2)' }}>
                       {b}
                     </li>
@@ -1140,16 +1166,14 @@ export function ProductDetailPage() {
                   not intentionally absent content. */}
               {specsData.length > 0 && (
                 <div className="min-w-0">
-                  <h2 className="text-small font-semibold uppercase tracking-[0.14em] mb-3"
-                    style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
+                  <h2 className="eyebrow mb-3" style={{ color: 'var(--txff)' }}>
                     {de ? 'Spezifikationen' : 'Specifications'}
                   </h2>
                   <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--bd)' }}>
                     {specsData.map((spec, i, arr) => (
                       <div key={i} className="flex items-baseline justify-between px-4 py-3"
                         style={{ borderBottom: i < arr.length - 1 ? '1px solid var(--bd)' : 'none', background: i % 2 === 0 ? 'var(--sf2)' : 'var(--pg)' }}>
-                        <span className="text-meta uppercase tracking-[0.14em]"
-                          style={{ fontFamily: "'IBM Plex Mono', ui-monospace, monospace", color: 'var(--txff)' }}>
+                        <span className="text-meta uppercase tracking-[0.14em]" style={{ color: 'var(--txff)' }}>
                           {spec.l}
                         </span>
                         <span className="text-[13px] font-medium" style={{ color: 'var(--tx1)' }}>
@@ -1194,8 +1218,7 @@ export function ProductDetailPage() {
 
               {rc && (isWax ? (hasFormula || hasVergleich) : true) && (
                 <div className="min-w-0">
-                  <h2 className="text-small font-semibold uppercase tracking-[0.14em] mb-3"
-                    style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
+                  <h2 className="eyebrow mb-3" style={{ color: 'var(--txff)' }}>
                     {de ? 'Im Detail' : 'Deep dive'}
                   </h2>
                   {rc.hook && isChain && <p className="text-[13px] leading-[1.7] mb-3" style={{ color: 'var(--txm)' }}>{rc.hook}</p>}
@@ -1312,8 +1335,8 @@ export function ProductDetailPage() {
                       Kommentar Zeile ~505). Jetzt eine Quelle, mit expliziter
                       Herkunftszeile nach § 5b Abs. 3 UWG: die Zahl gilt
                       kontoweit, nicht je Produkt. */}
-                  <div className="flex items-center gap-0.5 mb-1.5">
-                    {[0, 1, 2, 3, 4].map(i => <Star key={i} className="h-4 w-4 fill-current" style={{ color: '#F5A623' }} />)}
+                  <div className="mb-1.5">
+                    <Stars rating={5} />
                   </div>
                   <p className="font-display text-[28px] font-bold leading-none tracking-[-0.02em] mb-1" style={{ color: 'var(--tx1)' }}>{trustStats.reviews}</p>
                   <p className="text-[13px] mb-0.5" style={{ color: 'var(--txm)' }}>{de ? 'verifizierte Bewertungen' : 'verified reviews'}</p>
@@ -1335,7 +1358,7 @@ export function ProductDetailPage() {
                 </div>
                 {rc.compatTags && rc.compatTags.length > 0 && (
                   <div>
-                    <p className="text-small font-semibold uppercase tracking-[0.14em] mb-2" style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>{de ? 'Kompatibilität' : 'Compatibility'}</p>
+                    <p className="eyebrow mb-2" style={{ color: 'var(--txff)' }}>{de ? 'Kompatibilität' : 'Compatibility'}</p>
                     <h2 className="font-display text-[17px] font-bold tracking-[-0.02em] mb-4" style={{ color: 'var(--tx1)' }}>
                       {de ? 'Funktioniert mit allen großen Marken' : 'Works with all major brands'}
                     </h2>
@@ -1378,7 +1401,7 @@ export function ProductDetailPage() {
                 sagen" even starts. Full padding when this is the first thing
                 here (bundle pages, which have no richContent/Trust section). */}
             <div className={`max-w-6xl mx-auto px-5 sm:px-8 pb-14 sm:pb-20 ${rc ? 'pt-0' : 'pt-14 sm:pt-20'}`}>
-              <h2 className="text-small font-semibold uppercase tracking-[0.14em] mb-4" style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>
+              <h2 className="eyebrow mb-4" style={{ color: 'var(--txff)' }}>
                 {de ? 'Was Fahrer sagen' : 'What riders say'}
               </h2>
               <div className="grid sm:grid-cols-2 gap-6">
@@ -1445,7 +1468,7 @@ export function ProductDetailPage() {
         {related.length > 0 && (
           <section style={{ background: 'var(--sf2)', borderTop: '1px solid var(--bd)' }}>
             <div className="max-w-6xl mx-auto px-5 sm:px-8 py-14 sm:py-20">
-              <p className="text-small font-semibold uppercase tracking-[0.14em] mb-2" style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>{de ? 'Weitere Produkte' : 'More products'}</p>
+              <p className="eyebrow mb-2" style={{ color: 'var(--txff)' }}>{de ? 'Weitere Produkte' : 'More products'}</p>
               <h2 className="font-display text-[18px] sm:text-[22px] font-bold tracking-[-0.02em] mb-8" style={{ color: 'var(--tx1)' }}>{de ? 'Passend dazu' : 'You might also like'}</h2>
               <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
                 {related.map(p => <RelatedCard key={p.id} product={p} de={de} formatPrice={formatPrice} />)}
@@ -1459,7 +1482,7 @@ export function ProductDetailPage() {
             das Produkt verlinkte nirgends zurueck. */}
         <section style={{ background: 'var(--sf2)', borderTop: '1px solid var(--bd)' }}>
           <div className="max-w-6xl mx-auto px-5 sm:px-8 py-10">
-            <p className="text-small font-semibold uppercase tracking-[0.14em] mb-3" style={{ color: 'var(--txff)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>{de ? 'Weiterlesen' : 'Further reading'}</p>
+            <p className="eyebrow mb-3" style={{ color: 'var(--txff)' }}>{de ? 'Weiterlesen' : 'Further reading'}</p>
             <ul className="flex flex-wrap gap-x-6 gap-y-2">
               {relatedArticles.map(a => (
                 <li key={a.slug}>
@@ -1629,7 +1652,7 @@ function RelatedCard({ product: p, de, formatPrice }: { product: Product; de: bo
         </picture>
       </div>
       <div className="flex flex-1 flex-col p-3.5">
-        <span className="text-small font-semibold uppercase tracking-[0.16em]" style={{ color: 'var(--accent-soft)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}>{eyebrow}</span>
+        <span className="eyebrow" style={{ color: 'var(--accent-soft)' }}>{eyebrow}</span>
         <p className="font-display mt-1 text-[14px] leading-snug" style={{ color: 'var(--tx1)' }}>{title}</p>
         {/* Ersetzt die zweizeilige Beschreibung, die vorher hidden sm:block
             war — auf Mobile (2-spaltiges Grid) blieb "Passend dazu" damit

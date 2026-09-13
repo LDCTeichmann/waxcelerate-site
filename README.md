@@ -31,7 +31,7 @@ npm run dev -- --port 5174
 
 ```bash
 npm run build      # tsc -b, Generatoren, vite build, Vorrendern → dist/
-npx tsc --noEmit   # nur Typprüfung
+npx tsc -b --force # nur Typprüfung (--noEmit prüft nichts, siehe CLAUDE.md Regel 5)
 ```
 
 `npm run build` erzeugt zusätzlich `sitemap.xml`, `llms.txt`, den

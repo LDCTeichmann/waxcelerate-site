@@ -19,8 +19,7 @@
       <g:product_type>Kettenwachs</g:product_type>
       <g:shipping>
         <g:country>DE</g:country>
-        <g:service>Maxibrief</g:service>
-        <g:price>2.90 EUR</g:price>
+        <g:price>0.00 EUR</g:price>
       </g:shipping>
       <g:item_group_id>waxcelerate-wachs</g:item_group_id>
       <g:size>500g</g:size>
@@ -40,8 +39,7 @@
       <g:product_type>Kettenwachs</g:product_type>
       <g:shipping>
         <g:country>DE</g:country>
-        <g:service>Maxibrief</g:service>
-        <g:price>2.90 EUR</g:price>
+        <g:price>0.00 EUR</g:price>
       </g:shipping>
       <g:item_group_id>waxcelerate-wachs</g:item_group_id>
       <g:size>300g</g:size>
@@ -61,8 +59,7 @@
       <g:product_type>Kettenwachs</g:product_type>
       <g:shipping>
         <g:country>DE</g:country>
-        <g:service>Maxibrief</g:service>
-        <g:price>2.90 EUR</g:price>
+        <g:price>0.00 EUR</g:price>
       </g:shipping>
       <g:item_group_id>waxcelerate-wachs</g:item_group_id>
       <g:size>500g</g:size>
@@ -82,8 +79,7 @@
       <g:product_type>Kettenwachs</g:product_type>
       <g:shipping>
         <g:country>DE</g:country>
-        <g:service>Maxibrief</g:service>
-        <g:price>2.90 EUR</g:price>
+        <g:price>0.00 EUR</g:price>
       </g:shipping>
       <g:item_group_id>waxcelerate-wachs</g:item_group_id>
       <g:size>300g</g:size>
@@ -103,8 +99,7 @@
       <g:product_type>Vorgewachste Kette</g:product_type>
       <g:shipping>
         <g:country>DE</g:country>
-        <g:service>Großbrief</g:service>
-        <g:price>1.80 EUR</g:price>
+        <g:price>0.00 EUR</g:price>
       </g:shipping>
     </item>
     <item>
@@ -122,8 +117,7 @@
       <g:product_type>Vorgewachste Kette</g:product_type>
       <g:shipping>
         <g:country>DE</g:country>
-        <g:service>Großbrief</g:service>
-        <g:price>1.80 EUR</g:price>
+        <g:price>0.00 EUR</g:price>
       </g:shipping>
     </item>
     <item>
@@ -141,8 +135,7 @@
       <g:product_type>Vorgewachste Kette</g:product_type>
       <g:shipping>
         <g:country>DE</g:country>
-        <g:service>Großbrief</g:service>
-        <g:price>1.80 EUR</g:price>
+        <g:price>0.00 EUR</g:price>
       </g:shipping>
     </item>
     <item>
@@ -160,8 +153,7 @@
       <g:product_type>Vorgewachste Kette</g:product_type>
       <g:shipping>
         <g:country>DE</g:country>
-        <g:service>Großbrief</g:service>
-        <g:price>1.80 EUR</g:price>
+        <g:price>0.00 EUR</g:price>
       </g:shipping>
     </item>
     <item>
@@ -179,8 +171,7 @@
       <g:product_type>Vorgewachste Kette</g:product_type>
       <g:shipping>
         <g:country>DE</g:country>
-        <g:service>Großbrief</g:service>
-        <g:price>1.80 EUR</g:price>
+        <g:price>0.00 EUR</g:price>
       </g:shipping>
     </item>
     <item>
@@ -198,8 +189,7 @@
       <g:product_type>Vorgewachste Kette</g:product_type>
       <g:shipping>
         <g:country>DE</g:country>
-        <g:service>Großbrief</g:service>
-        <g:price>1.80 EUR</g:price>
+        <g:price>0.00 EUR</g:price>
       </g:shipping>
     </item>
     <item>
@@ -217,8 +207,7 @@
       <g:product_type>Vorgewachste Kette</g:product_type>
       <g:shipping>
         <g:country>DE</g:country>
-        <g:service>Großbrief</g:service>
-        <g:price>1.80 EUR</g:price>
+        <g:price>0.00 EUR</g:price>
       </g:shipping>
     </item>
     <item>
@@ -236,8 +225,7 @@
       <g:product_type>Vorgewachste Kette</g:product_type>
       <g:shipping>
         <g:country>DE</g:country>
-        <g:service>Großbrief</g:service>
-        <g:price>1.80 EUR</g:price>
+        <g:price>0.00 EUR</g:price>
       </g:shipping>
     </item>
   </channel>

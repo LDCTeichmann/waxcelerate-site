@@ -76,7 +76,9 @@ export function ChainMatchCalculator({ profile, compact }: { profile: ToolProfil
   });
   const brandNames = [...new Set(matches.map(p => p.chainBrand).filter((b): b is string => Boolean(b)))];
 
-  const deepLink = `/?ketten=${system}-${speedKey}#produkt-liste`;
+  // Stufe 3: die Kettenliste ist die eigene Route /ketten statt eines
+  // Aufklapp-Zustands auf der Startseite, Filter jetzt als Query-Parameter.
+  const deepLink = `/ketten?marke=${system}&gang=${speedKey}`;
 
   return (
     <ToolCard>

@@ -71,7 +71,9 @@ export function SavingsCalculator({ profile, compact }: { profile: ToolProfileSt
   const system = profile.system ?? 'shimano';
   const speed = profile.speed ?? 12;
   const speedKey: '11' | '12' = speed === 11 ? '11' : '12';
-  const deepLink = `/?ketten=${system}-${speedKey}#produkt-liste`;
+  // Stufe 3: die Kettenliste ist die eigene Route /ketten statt eines
+  // Aufklapp-Zustands auf der Startseite, Filter jetzt als Query-Parameter.
+  const deepLink = `/ketten?marke=${system}&gang=${speedKey}`;
 
   const rotationWeeks = Math.max(1, Math.round(weeksBetween));
   const shareLink = shareUrl('/rechner/ersparnis', profile.snapshot);

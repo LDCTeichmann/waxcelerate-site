@@ -173,8 +173,8 @@ export function ProductStagePage() {
         >
           {/* Variant chip */}
           <span
-            className="inline-block text-small font-semibold uppercase tracking-[0.18em] mb-2"
-            style={{ color: 'rgba(255,255,255,0.55)', fontFamily: "'IBM Plex Mono', ui-monospace, monospace" }}
+            className="num inline-block text-small font-semibold uppercase tracking-[0.18em] mb-2"
+            style={{ color: 'rgba(255,255,255,0.55)' }}
           >
             {product.variant ? `${product.variant} · ${product.weight ?? ''}` : (product.chainSpeed ?? '')}
           </span>

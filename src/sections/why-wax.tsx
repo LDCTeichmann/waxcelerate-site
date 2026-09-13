@@ -154,7 +154,7 @@ function DriveLossBars({ de }: { de: boolean }) {
           Balken dagegen. */}
       <div className="flex justify-between mb-2">
         {[0, 6, 12].map(v => (
-          <span key={v} className="num-data text-eyebrow" style={{ color: 'var(--txff)', letterSpacing: 'normal' }}>{v}{v === 12 ? ' W' : ''}</span>
+          <span key={v} className="num text-eyebrow" style={{ color: 'var(--txff)', letterSpacing: 'normal' }}>{v}{v === 12 ? ' W' : ''}</span>
         ))}
       </div>
       <div className="relative h-2.5 rounded-full" style={{ background: 'var(--bd2)' }}>
@@ -167,12 +167,12 @@ function DriveLossBars({ de }: { de: boolean }) {
         <span className="flex items-center gap-1.5" style={{ color: 'var(--tx1)' }}>
           <span aria-hidden className="inline-block rounded-full flex-shrink-0" style={{ width: 6, height: 6, background: 'var(--accent)' }} />
           {de ? 'Heißwachs' : 'Hot wax'}
-          <span className="num-data font-medium" style={{ color: 'var(--accent)' }}>{w.wax[0]}–{w.wax[1]} W</span>
+          <span className="num font-medium" style={{ color: 'var(--accent)' }}>{w.wax[0]}–{w.wax[1]} W</span>
         </span>
         <span className="flex items-center gap-1.5" style={{ color: 'var(--txm)' }}>
           <span aria-hidden className="inline-block rounded-full flex-shrink-0" style={{ width: 6, height: 6, background: 'var(--txf)', opacity: 0.5 }} />
           {de ? 'Kettenöl' : 'Chain oil'}
-          <span className="num-data" style={{ color: 'var(--txf)' }}>{w.oil[0]}–{w.oil[1]} W</span>
+          <span className="num" style={{ color: 'var(--txf)' }}>{w.oil[0]}–{w.oil[1]} W</span>
         </span>
       </div>
     </div>
@@ -488,9 +488,9 @@ export function WhyWax() {
                 </p>
               </div>
               <p className="sm:hidden text-small leading-relaxed" style={{ color: 'var(--txm)' }}>
-                <span className="num-data font-medium" style={{ color: 'var(--accent)' }}>{w.wax[0]}–{w.wax[1]} W</span>
+                <span className="num font-medium" style={{ color: 'var(--accent)' }}>{w.wax[0]}–{w.wax[1]} W</span>
                 {de ? ' statt ' : ' instead of '}
-                <span className="num-data" style={{ color: 'var(--txf)' }}>{w.oil[0]}–{w.oil[1]} W</span>
+                <span className="num" style={{ color: 'var(--txf)' }}>{w.oil[0]}–{w.oil[1]} W</span>
                 {de ? ' Reibungsverlust im Antrieb.' : ' drivetrain friction loss.'}
               </p>
             </InstrumentFrame>

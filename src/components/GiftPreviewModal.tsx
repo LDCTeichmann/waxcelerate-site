@@ -148,7 +148,7 @@ export function GiftPreviewModal({ open, onClose, de, data }: {
                 <p className="text-[11px]" style={{ color: 'var(--txf)' }}>{de ? 'Für' : 'For'}</p>
                 <div className="h-4 mt-0.5" style={{ borderBottom: '1px solid var(--bd2)' }} />
                 <div className="flex items-center justify-between mt-3">
-                  <span className="num-data text-[10px] tracking-[0.2em]" style={{ color: 'var(--txff)' }}>
+                  <span className="num text-[10px] tracking-[0.2em]" style={{ color: 'var(--txff)' }}>
                     CODE · ● ● ● ● ● ●
                   </span>
                   <span className="text-[10px]" style={{ color: 'var(--txff)' }}>
@@ -197,7 +197,7 @@ export function GiftPreviewModal({ open, onClose, de, data }: {
               <p className="font-display font-bold leading-none" style={{ fontSize: '1.25rem', color: 'var(--tx1)' }}>
                 {eur(addon.price, de)}
               </p>
-              <p className="num-data text-[11px] line-through" style={{ color: 'var(--txff)' }}>{eur(addonParts, de)}</p>
+              <p className="num text-[11px] line-through" style={{ color: 'var(--txff)' }}>{eur(addonParts, de)}</p>
               <p className="text-[11px]" style={{ color: 'var(--accent)' }}>
                 {de ? `Du sparst ${eur(addonSaved, de)}` : `You save ${eur(addonSaved, de)}`}
               </p>

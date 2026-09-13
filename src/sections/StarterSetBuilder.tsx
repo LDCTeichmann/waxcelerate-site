@@ -83,7 +83,7 @@ export function StarterSetBuilder({ de }: { de: boolean }) {
           <span className="block text-[14px] leading-snug" style={{ color: 'var(--tx1)' }}>{title}</span>
           {sub && <span className="block text-[12px] mt-0.5" style={{ color: 'var(--txm)' }}>{sub}</span>}
         </span>
-        <span className="num-data text-[12.5px] flex-shrink-0" style={{ color: 'var(--txf)' }}>
+        <span className="num text-[12.5px] flex-shrink-0" style={{ color: 'var(--txf)' }}>
           {fmt(price, de)}
         </span>
       </span>
@@ -96,7 +96,7 @@ export function StarterSetBuilder({ de }: { de: boolean }) {
       {/* ── Choices ── */}
       <div className="space-y-8">
         <div>
-          <p className="num-data text-meta mb-3" style={{ color: 'var(--accent)' }}>
+          <p className="num text-meta mb-3" style={{ color: 'var(--accent)' }}>
             01 · {de ? 'Wachs wählen' : 'Choose the wax'}
           </p>
           <div className="grid sm:grid-cols-2 gap-2.5">
@@ -112,7 +112,7 @@ export function StarterSetBuilder({ de }: { de: boolean }) {
         </div>
 
         <div>
-          <p className="num-data text-meta mb-3" style={{ color: 'var(--accent)' }}>
+          <p className="num text-meta mb-3" style={{ color: 'var(--accent)' }}>
             02 · {de ? 'Kette wählen' : 'Choose the chain'}
           </p>
           <div className="grid sm:grid-cols-2 gap-2.5">
@@ -126,7 +126,7 @@ export function StarterSetBuilder({ de }: { de: boolean }) {
         </div>
 
         <div>
-          <p className="num-data text-meta mb-3" style={{ color: 'var(--txf)' }}>
+          <p className="num text-meta mb-3" style={{ color: 'var(--txf)' }}>
             03 · {de ? 'Liegt automatisch bei' : 'Included automatically'}
           </p>
           <div className="grid sm:grid-cols-2 gap-2.5">
@@ -143,7 +143,7 @@ export function StarterSetBuilder({ de }: { de: boolean }) {
                       {de ? 'Ohne die beiden wird der erste Abend zäh.' : 'Without these two the first evening drags.'}
                     </span>
                   </span>
-                  <span className="num-data text-[12.5px] flex-shrink-0" style={{ color: 'var(--txf)' }}>
+                  <span className="num text-[12.5px] flex-shrink-0" style={{ color: 'var(--txf)' }}>
                     {fmt(a.price, de)}
                   </span>
                 </span>
@@ -169,7 +169,7 @@ export function StarterSetBuilder({ de }: { de: boolean }) {
             <div key={i} className="flex items-baseline justify-between gap-4 py-2.5"
               style={{ borderBottom: '1px solid var(--bd2)' }}>
               <span className="text-[13px] leading-snug" style={{ color: 'var(--txm)' }}>{r!.k}</span>
-              <span className="num-data text-[12.5px] whitespace-nowrap" style={{ color: 'var(--txf)' }}>
+              <span className="num text-[12.5px] whitespace-nowrap" style={{ color: 'var(--txf)' }}>
                 {fmt(r!.v, de)}
               </span>
             </div>
@@ -180,14 +180,14 @@ export function StarterSetBuilder({ de }: { de: boolean }) {
             <span className="text-[13px]" style={{ color: 'var(--txm)' }}>
               {de ? 'Einzeln gekauft' : 'Bought separately'}
             </span>
-            <span className="num-data text-[12.5px]" style={{ color: 'var(--txm)' }}>{fmt(partsSum, de)}</span>
+            <span className="num text-[12.5px]" style={{ color: 'var(--txm)' }}>{fmt(partsSum, de)}</span>
           </div>
           <div className="flex items-baseline justify-between gap-4 py-2.5"
             style={{ borderBottom: '1px solid var(--bd2)' }}>
             <span className="text-[13px]" style={{ color: 'var(--txm)' }}>
               {de ? 'Als Set' : 'As a set'}
             </span>
-            <span className="num-data text-[12.5px]" style={{ color: 'var(--accent)' }}>
+            <span className="num text-[12.5px]" style={{ color: 'var(--accent)' }}>
               &minus; {fmt(saved, de)}
             </span>
           </div>

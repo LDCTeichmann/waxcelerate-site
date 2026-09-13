@@ -2,10 +2,21 @@ import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
-import { shipping } from '@/lib/data';
+import { shipping, checkoutEnabled } from '@/lib/data';
 import { removeStaticHeadMeta } from '@/lib/utils';
 
 const fmt = (cents: number) => (cents / 100).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
+
+// K8 (Produktkarten-Plan): diese ganze Seite beschrieb bisher den eigenen
+// Stripe-Checkout ("Warenkorb", "zur Kasse", "abgewickelt über Stripe") so,
+// als liefe er schon — tatsaechlich ist er inaktiv, solange kein Produkt
+// eine stripePriceId traegt (checkoutEnabled in data.ts), und jeder Kauf
+// geht ueber eBay. Die Versandtabelle bleibt als Referenz stehen (echte
+// Deutsche-Post-Tarife), aber Einleitung und Zahlungsarten-Absatz sagen
+// jetzt ehrlich, welcher Weg gerade gilt.
+const metaDescription = checkoutEnabled
+  ? 'Versandkosten, Lieferzeiten und Zahlungsarten bei Waxcelerate. Versandkostenfrei ab 50 €.'
+  : 'Bestellungen laufen aktuell über eBay, Versand im Angebotspreis inklusive. Diese Seite zeigt zusätzlich Lieferzeit und die künftigen Versandkosten des Direkt-Checkouts.';
 
 export function VersandUndZahlungPage() {
   // Vorgerenderte Fassung dieser Route liefert bereits eigene title/
@@ -19,18 +30,18 @@ export function VersandUndZahlungPage() {
     <>
       <Helmet>
         <title>Versand &amp; Zahlung | Waxcelerate</title>
-        <meta name="description" content="Versandkosten, Lieferzeiten und Zahlungsarten bei Waxcelerate. Versandkostenfrei ab 50 €." />
+        <meta name="description" content={metaDescription} />
         <link rel="canonical" href="https://waxcelerate.de/versand-und-zahlung" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Waxcelerate" />
         <meta property="og:locale" content="de_DE" />
         <meta property="og:title" content="Versand &amp; Zahlung | Waxcelerate" />
-        <meta property="og:description" content="Versandkosten, Lieferzeiten und Zahlungsarten bei Waxcelerate. Versandkostenfrei ab 50 €." />
+        <meta property="og:description" content={metaDescription} />
         <meta property="og:url" content="https://waxcelerate.de/versand-und-zahlung" />
         <meta property="og:image" content="https://waxcelerate.de/images/hero-chain-texture.jpg" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Versand &amp; Zahlung | Waxcelerate" />
-        <meta name="twitter:description" content="Versandkosten, Lieferzeiten und Zahlungsarten bei Waxcelerate. Versandkostenfrei ab 50 €." />
+        <meta name="twitter:description" content={metaDescription} />
         <meta name="twitter:image" content="https://waxcelerate.de/images/hero-chain-texture.jpg" />
       </Helmet>
       <div className="bg-wx-bg min-h-screen py-20">
@@ -45,11 +56,20 @@ export function VersandUndZahlungPage() {
 
           <h1 className="text-3xl font-bold text-wx-tx1 mb-8">Versand &amp; Zahlung</h1>
 
+          {!checkoutEnabled && (
+            <p className="text-wx-tx2 leading-relaxed mb-8 px-4 py-3 rounded-xl" style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)' }}>
+              Bestellungen laufen aktuell ausschließlich über eBay — der Versand ist dort im
+              Angebotspreis enthalten, es fällt nichts zusätzlich an. Die Tabelle unten zeigt die
+              Versandkosten des direkten Checkouts, sobald er startet.
+            </p>
+          )}
+
           <section className="mb-8">
             <h2 className="text-lg font-semibold text-wx-tx1 mb-3">Versandkosten</h2>
             <p className="text-wx-tx2 leading-relaxed mb-4">
-              Der Versandpreis richtet sich nach Gewicht und Größe deiner Bestellung und wird im
-              Warenkorb angezeigt, bevor du zur Kasse gehst.
+              {checkoutEnabled
+                ? 'Der Versandpreis richtet sich nach Gewicht und Größe deiner Bestellung und wird im Warenkorb angezeigt, bevor du zur Kasse gehst.'
+                : 'Der Versandpreis richtet sich nach Gewicht und Größe der Bestellung. Diese Tarife gelten für den direkten Checkout, sobald er startet.'}
             </p>
             <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--bd2)' }}>
               <table className="w-full text-sm">
@@ -91,8 +111,9 @@ export function VersandUndZahlungPage() {
           <section className="mb-8">
             <h2 className="text-lg font-semibold text-wx-tx1 mb-3">Zahlungsarten</h2>
             <p className="text-wx-tx2 leading-relaxed">
-              Kreditkarte, SEPA-Lastschrift und Klarna, abgewickelt über Stripe. Als Kleinunternehmer
-              nach § 19 UStG weisen wir keine Umsatzsteuer aus.
+              {checkoutEnabled
+                ? 'Kreditkarte, SEPA-Lastschrift und Klarna, abgewickelt über Stripe. Als Kleinunternehmer nach § 19 UStG weisen wir keine Umsatzsteuer aus.'
+                : 'Aktuell zahlst du direkt bei eBay, mit den dort angebotenen Zahlungsarten. Als Kleinunternehmer nach § 19 UStG weisen wir keine Umsatzsteuer aus.'}
             </p>
           </section>
         </div>

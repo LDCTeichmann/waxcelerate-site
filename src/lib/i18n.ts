@@ -117,6 +117,17 @@ export const translations = {
       },
       buyOnEbay: 'Bei eBay kaufen',
       multiDiscount: 'Wachs-Staffel: 2 Stk. 5 % · 3 Stk. 10 % · ab 5 Stk. 15 %',
+      // K6 (Produktkarten-Plan): Preis je Anwendung als neues Hauptsignal
+      // statt der reinen Blockpreis-Anschaffung — Gourville 1998, siehe
+      // perApplicationRange() in data.ts für die Rechnung.
+      perApplicationPrefix: 'ca.',
+      perApplicationSuffix: 'je Wachsvorgang',
+      // Aufklappbarer Mengenrabatt-Chip statt einer stillen Fliesstext-Zeile.
+      quantityDiscountChip: 'Mengenrabatt',
+      quantityDiscountFrom: 'ab {qty} Blöcken günstiger',
+      quantityDiscountMechanism: 'Rabatt wird bei eBay im Warenkorb abgezogen.',
+      quantityDiscountUnit: '{qty} Stk.',
+      quantityDiscountSavings: '{savings} sparen ({pct} %)',
       // Etappe 5 (11.09.2026): die Groessenempfehlung am Groessenschalter
       // wurde vorher NUR gerendert, wenn sie NICHT zum aktuellen Produkt
       // passte -- verschwand also beim Wechsel auf die passende Groesse
@@ -146,7 +157,17 @@ export const translations = {
       priceNoteShippingPre: 'zzgl.',
       priceNoteShippingLink: 'Versandkosten',
       priceNoteShippingPost: 'ab 50 € versandfrei',
-      preWaxedHint: 'Ultraschallbad-entfettet, von Hand gewachst — Kauf direkt über eBay mit vollem Käuferschutz.',
+      // K8 (Produktkarten-Plan): solange checkoutEnabled false ist, laeuft
+      // jeder Kauf ueber eBay — dort ist der Versand im Angebotspreis
+      // enthalten, "zzgl. Versandkosten, ab 50 € versandfrei" waere schlicht
+      // falsch. PriceNote.tsx waehlt zwischen dieser Zeile und den drei
+      // obigen je nach checkoutEnabled.
+      priceNoteShippingIncluded: 'Versand über eBay inklusive',
+      // Kurzform fuer den Kartenfuss (ChainCard) statt des ganzen PriceNote-
+      // Satzes — dort steht schon "Versand über eBay inklusive" als Fliesstext,
+      // hier reicht die Kurzform neben dem Lieferdatum.
+      cardShippingIncluded: 'inkl. Versand (eBay)',
+      cardShippingReal: 'zzgl. Versand',
       decisionAid: 'Classic oder Pro?',
       compareBtn: 'Vergleich ansehen',
       compareTitle: 'Classic vs. Pro — welches passt zu dir?',
@@ -206,6 +227,9 @@ export const translations = {
         chainsEyebrow: 'Kein Topf nötig',
         chainsTitle: 'Vorgewachste Ketten',
         chainsBody: 'Ultraschall-entfettet, gewachst, Quick-Link dabei. Aufziehen und losfahren.',
+        // Kurzform fuer die einzelne Kettenkarte (Produktkarten-Neugliederung
+        // Stufe 1) — chainsBody bleibt der Fliesstext ueber der Liste.
+        chainQuickLink: 'Quick-Link inklusive',
         chainsPick: 'Welche Schaltung fährst du?',
         chainsAll: 'Alle Ketten ansehen',
         chainsCount: '{n} Ketten',
@@ -221,6 +245,13 @@ export const translations = {
         rewaxBody: 'Kette einschicken, fahrbereit zurückbekommen. Auffrischung oder Umstieg von Öl.',
         rewaxCta: 'Zum Rewax-Service',
         rewaxFrom: 'Ab 15,95 €',
+        // "Passt dazu"-Reihe auf /ketten (Stufe 3): die Kettenseite endet
+        // damit nicht in einer Sackgasse. Set und Rewax nutzen die Texte
+        // oben weiter, nur Wachs braucht hier eine eigene Kachel.
+        relatedWaxEyebrow: 'Kettenwachs',
+        relatedWaxTitle: 'Selbst wachsen',
+        relatedWaxBody: 'Classic oder Pro, 300 oder 500 g — für alle, die selbst wachsen wollen.',
+        relatedWaxCta: 'Wachs ansehen',
         // Ueberschrift ueber Set/Ketten/Rewax. Ohne sie stehen dort drei
         // Kacheln ohne erkennbaren Zusammenhang; mit ihr sind es drei
         // Antworten auf denselben Einwand — den mit Abstand haeufigsten.
@@ -731,6 +762,13 @@ export const translations = {
       },
       buyOnEbay: 'Buy on eBay',
       multiDiscount: 'Wax tiers: 2 pcs. 5% · 3 pcs. 10% · from 5 pcs. 15%',
+      perApplicationPrefix: 'approx.',
+      perApplicationSuffix: 'per wax cycle',
+      quantityDiscountChip: 'Quantity discount',
+      quantityDiscountFrom: 'cheaper from {qty} blocks',
+      quantityDiscountMechanism: 'Discount is deducted at eBay checkout.',
+      quantityDiscountUnit: '{qty} pcs.',
+      quantityDiscountSavings: 'save {savings} ({pct}%)',
       sizeAdviceMatches: 'Fits an average riding profile.',
       bundleOffer: '{qty} × {weight} = {total} ({pct}%) — and shipping is free.',
       // Siehe die deutsche Fassung: Rechtstext, nur zusammen mit ihr aendern.
@@ -738,7 +776,9 @@ export const translations = {
       priceNoteShippingPre: 'plus',
       priceNoteShippingLink: 'shipping',
       priceNoteShippingPost: 'free over €50',
-      preWaxedHint: 'Ultrasonic-bath degreased, hand-waxed — order directly via eBay with full buyer protection.',
+      priceNoteShippingIncluded: 'Shipping included via eBay',
+      cardShippingIncluded: 'incl. shipping (eBay)',
+      cardShippingReal: 'plus shipping',
       decisionAid: 'Classic or Pro?',
       compareBtn: 'See comparison',
       compareTitle: 'Classic vs. Pro — which fits you?',
@@ -771,6 +811,7 @@ export const translations = {
         chainsEyebrow: 'No pot required',
         chainsTitle: 'Pre-Waxed Chains',
         chainsBody: 'Ultrasonically degreased, waxed, quick-link included. Fit it and ride.',
+        chainQuickLink: 'Quick-link included',
         chainsPick: 'Which drivetrain do you ride?',
         chainsAll: 'See all chains',
         chainsCount: '{n} chains',
@@ -779,6 +820,10 @@ export const translations = {
         rewaxBody: 'Send the chain in, get it back ready to ride. Rewax or oil-to-wax switch.',
         rewaxCta: 'To the rewax service',
         rewaxFrom: 'From €15.95',
+        relatedWaxEyebrow: 'Chain wax',
+        relatedWaxTitle: 'Wax it yourself',
+        relatedWaxBody: 'Classic or Pro, 300 or 500 g — for anyone who wants to wax their own chain.',
+        relatedWaxCta: 'See the wax',
         altTitle: 'No pot? No problem.',
         altBody: 'Three ways to ride waxed without melting wax yourself.',
         soldUnits: 'sold',

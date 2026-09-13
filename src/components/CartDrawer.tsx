@@ -34,7 +34,8 @@ export function CartDrawer() {
   const shippingItems = items
     .map((i) => ({ product: getProductById(i.productId), quantity: i.quantity }))
     .filter((i): i is { product: NonNullable<typeof i.product>; quantity: number } => !!i.product);
-  const freeShipping = total >= shipping.freeFromCents / 100;
+  const freeFromEur = shipping.freeFromCents / 100;
+  const freeShipping = total >= freeFromEur;
   const shippingTier = shippingFor(shippingItems);
   const shippingCost = freeShipping ? 0 : shippingTier.cents / 100;
 
@@ -194,16 +195,17 @@ export function CartDrawer() {
             className="px-5 pt-4 pb-8 flex-shrink-0 space-y-3"
             style={{ borderTop: '1px solid var(--bd)' }}
           >
-            {/* Free shipping indicator */}
-            {total < 50 && (
+            {/* Free shipping indicator — freeFromEur statt hartkodierter 50,
+                K8: eine Zahl, keine zweite von Hand gepflegte Kopie. */}
+            {total < freeFromEur && (
               <div
                 className="rounded-lg px-3 py-2.5 text-xs"
                 style={{ background: 'var(--accent-wash)', border: '1px solid rgba(var(--accent-rgb),0.18)' }}
               >
                 <span style={{ color: 'var(--accent)' }}>
                   {de
-                    ? `Noch ${formatPrice(50 - total)} bis zum kostenlosen Versand`
-                    : `${formatPrice(50 - total)} away from free shipping`}
+                    ? `Noch ${formatPrice(freeFromEur - total)} bis zum kostenlosen Versand`
+                    : `${formatPrice(freeFromEur - total)} away from free shipping`}
                 </span>
               </div>
             )}

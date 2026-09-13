@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import type { useLanguage } from '@/hooks/useLanguage';
+import { checkoutEnabled } from '@/lib/data';
 
 /* PAngV: Steuer- und Versandhinweis gehören an jede Stelle, an der ein Preis
    steht, nicht nur auf die Produktdetailseite. Ursprünglich inline in
@@ -22,15 +23,21 @@ export function PriceNote({ de, t, tone = 'page' }: {
   return (
     <p className="text-meta leading-[1.5]" style={{ color: muted }}>
       {p.priceNoteTax}{' '}
-      {p.priceNoteShippingPre}{' '}
-      <Link
-        to="/versand-und-zahlung"
-        className="underline underline-offset-2 hover:no-underline"
-        style={{ color: linkCol }}
-      >
-        {p.priceNoteShippingLink}
-      </Link>
-      {de ? ', ' : ', '}{p.priceNoteShippingPost}.
+      {checkoutEnabled ? (
+        <>
+          {p.priceNoteShippingPre}{' '}
+          <Link
+            to="/versand-und-zahlung"
+            className="underline underline-offset-2 hover:no-underline"
+            style={{ color: linkCol }}
+          >
+            {p.priceNoteShippingLink}
+          </Link>
+          {de ? ', ' : ', '}{p.priceNoteShippingPost}.
+        </>
+      ) : (
+        <>{p.priceNoteShippingIncluded}.</>
+      )}
     </p>
   );
 }

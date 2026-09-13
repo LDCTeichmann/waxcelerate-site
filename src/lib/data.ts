@@ -539,13 +539,57 @@ export const canCheckout = (p: Pick<Product, 'stripePriceId'>): boolean =>
  */
 export const checkoutEnabled = products.some(canCheckout);
 
+// ── Versandaussage, an checkoutEnabled gekoppelt (Produktkarten-Plan K8) ──
+// Vorher stand an rund 14 Stellen "zzgl. Versandkosten, ab 50 € versandfrei"
+// hartkodiert — nachweislich falsch im reinen eBay-Betrieb: dort ist Versand
+// im Artikelpreis enthalten, es gibt keine 50-€-Schwelle und kein separates
+// Porto. Diese zwei Helfer sind die einzige Quelle fuer Meta-Beschreibungen
+// und JSON-LD (React UND die Prerender-Skripte importieren beide von hier,
+// damit nie wieder nur eine der beiden Fassungen angepasst wird). Sichtbare
+// Flaechentexte (PriceNote, /versand-und-zahlung, Startseiten-noscript)
+// bleiben in i18n.ts und lesen `checkoutEnabled` selbst — hier stehen nur
+// die Bausteine, die ohnehin schon als Template-Strings direkt in den
+// Komponenten/Skripten standen, nie durch i18n liefen.
+export function shippingDescSuffix(de: boolean, priceStr: string): string {
+  if (!checkoutEnabled) {
+    return de ? ` ${priceStr} €, Versand über eBay inklusive.` : ` €${priceStr}, shipping included via eBay.`;
+  }
+  const freeFrom = (shipping.freeFromCents / 100).toString().replace('.', ',');
+  return de ? ` ${priceStr} €, versandkostenfrei ab ${freeFrom} €.` : ` €${priceStr}, free shipping from €${freeFrom}.`;
+}
+
+export function shippingDetailsSchema(p: Pick<Product, 'shippingClass'>) {
+  if (!checkoutEnabled) {
+    // Kein eigener Versand, keine Schwelle — der Artikelpreis bei eBay
+    // deckt den Versand bereits ab. 0,00 statt des Rests weglassen: ein
+    // Offer ohne shippingDetails koennte als "Versand ungeklaert" statt
+    // "inklusive" gelesen werden.
+    return {
+      '@type': 'OfferShippingDetails',
+      shippingRate: { '@type': 'MonetaryAmount', value: '0.00', currency: 'EUR' },
+      shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'DE' },
+    };
+  }
+  return {
+    '@type': 'OfferShippingDetails',
+    shippingRate: { '@type': 'MonetaryAmount', value: (shipping[p.shippingClass].cents / 100).toFixed(2), currency: 'EUR' },
+    shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'DE' },
+    freeShippingThreshold: {
+      '@type': 'DeliveryChargeSpecification',
+      eligibleTransactionVolume: { '@type': 'PriceSpecification', minPrice: (shipping.freeFromCents / 100).toFixed(2), priceCurrency: 'EUR' },
+    },
+  };
+}
+
 // ── Mengenrabatt als konkrete Rechnung ──────────────────────────────────
 // Ein einzelner 500g-Block (29,95 EUR) erreicht die 50-EUR-Versandschwelle
 // nie. Die Wachs-Staffel (i18n.ts products.multiDiscount) stand bisher nur
 // als toter Text auf der Seite, ohne ausgerechnete Summe -- Etappe 5
 // (11.09.2026) rechnet sie aus und zeigt die kleinste Staffelstufe, die
 // tatsaechlich ueber die Schwelle kommt.
-const WAX_TIERS: Array<{ qty: number; pct: number }> = [
+// Exportiert (nicht mehr modul-privat): waxTierBreakdown() unten braucht
+// dieselbe Staffel fuer die aufgeklappten Stueckpreise auf der Karte (K6).
+export const WAX_TIERS: Array<{ qty: number; pct: number }> = [
   { qty: 5, pct: 15 }, { qty: 3, pct: 10 }, { qty: 2, pct: 5 },
 ];
 
@@ -576,6 +620,53 @@ export function bundleOffer(p: Pick<Product, 'price' | 'category'>): BundleOffer
     }
   }
   return null;
+}
+
+// ── Preis je Anwendung (Produktkarten-Plan K6) ───────────────────────────
+// 29,95 € klingt nach einer Anschaffung; "ca. 0,95 bis 1,50 € je
+// Wachsvorgang" macht das Verbrauchsgut sichtbar, das es ist — Gourville
+// (1998): "85 Cent am Tag" erreichte 52 % Zustimmung, die rechnerisch
+// identischen "300 $ im Jahr" nur 30 %. Für eine einmalige Anschaffung
+// kippt der Effekt, deshalb nur bei category 'wax' und nur mit echter
+// applications-Spanne aus data.ts — nie geschätzt.
+export interface PerApplicationRange { lo: number; hi: number }
+
+export function perApplicationRange(p: Pick<Product, 'price' | 'applications' | 'category'>): PerApplicationRange | null {
+  if (p.category !== 'wax' || !p.applications) return null;
+  const parts = p.applications.split(/[–-]/).map(s => parseInt(s.trim(), 10));
+  if (parts.length !== 2 || parts.some(n => Number.isNaN(n) || n <= 0)) return null;
+  const [minApps, maxApps] = parts;
+  const priceCents = Math.round(p.price * 100);
+  // Mehr Anwendungen aus demselben Block → niedrigerer Preis je Anwendung,
+  // die Geld-Spanne läuft also umgekehrt zur Anwendungszahl-Spanne.
+  return {
+    lo: Math.round(priceCents / maxApps) / 100,
+    hi: Math.round(priceCents / minApps) / 100,
+  };
+}
+
+export interface WaxTierRow { qty: number; pct: number; unitPrice: number; totalPrice: number; savings: number }
+
+/**
+ * Aufgeklappte Stueckpreise der Wachs-Staffel — Euro-Ersparnis vor Prozent,
+ * in Cent gerechnet wie bundleOffer() oben (derselbe Fliesskomma-Kommentar
+ * gilt). Anders als bundleOffer() (eine Stufe, die 50-EUR-Schwelle) gibt
+ * das hier alle drei Stufen zurueck, fuer die aufklappbare Liste.
+ */
+export function waxTierBreakdown(p: Pick<Product, 'price' | 'category'>): WaxTierRow[] {
+  if (p.category !== 'wax') return [];
+  const priceCents = Math.round(p.price * 100);
+  return [...WAX_TIERS].sort((a, b) => a.qty - b.qty).map(tier => {
+    const fullCents = priceCents * tier.qty;
+    const totalCents = Math.round(fullCents * (100 - tier.pct) / 100);
+    const unitCents = Math.round(totalCents / tier.qty);
+    return {
+      qty: tier.qty, pct: tier.pct,
+      unitPrice: unitCents / 100,
+      totalPrice: totalCents / 100,
+      savings: (fullCents - totalCents) / 100,
+    };
+  });
 }
 
 // The class eskaliert nur nach oben: erst das dickste Produkt im Warenkorb,

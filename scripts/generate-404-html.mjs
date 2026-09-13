@@ -48,6 +48,7 @@ const body = `
 <p>Der Link ist falsch oder die Seite wurde verschoben. Hier geht es weiter:</p>
 <ul>
   <li><a href="/">Startseite</a> — Kettenwachs und vorgewachste Ketten</li>
+  <li><a href="/ketten">Vorgewachste Ketten</a> — acht Ketten für Shimano, SRAM und Campagnolo</li>
   <li><a href="/blog">Ratgeber</a> — Anleitungen, Intervalle, ehrliche Antworten</li>
   <li><a href="/rechner">Rechner</a> — Verschleiß, Kettenlänge, Rewax-Intervall, Kosten</li>
   <li><a href="/kette-wachsen-lassen">Kette wachsen lassen</a></li>
