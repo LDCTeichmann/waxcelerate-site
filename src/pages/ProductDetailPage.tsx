@@ -24,6 +24,7 @@ import { ImageLightbox } from '@/components/ImageLightbox';
 import { gsap } from '@/lib/gsap';
 import { Footer } from '@/sections/footer';
 import { getEstimatedDeliveryLong, removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
+import { backTarget } from '@/pages/ketten/content';
 import { reviewsForProduct, type Review } from '@/sections/reviews';
 import { Stars } from '@/components/Stars';
 import { CompareModal } from '@/sections/products';
@@ -509,11 +510,17 @@ export function ProductDetailPage() {
   const absImg = (src: string) => (src?.startsWith('http') ? src : `https://waxcelerate.de${src}`);
   const absImage = absImg(product.image);
 
+  // Mittlere Stufe (K9): Ketten fuehren jetzt auf /ketten statt auf das
+  // Regal, Wachs bleibt bei /#produkte — deckt sich mit der sichtbaren
+  // Breadcrumb-Zeile weiter unten UND mit productSchema() im Prerender.
+  // Auch die Grundlage fuer handleBack()s Fallback-Ziel weiter unten.
+  const backFallback = backTarget(product.category, de);
   const breadcrumbSchema = JSON.stringify({
     '@context': 'https://schema.org', '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: de ? 'Startseite' : 'Home', item: 'https://waxcelerate.de' },
-      { '@type': 'ListItem', position: 2, name: titleText, item: canonicalUrl },
+      { '@type': 'ListItem', position: 2, name: backFallback.label, item: `https://waxcelerate.de${backFallback.to}` },
+      { '@type': 'ListItem', position: 3, name: titleText, item: canonicalUrl },
     ],
   });
 
@@ -588,12 +595,14 @@ export function ProductDetailPage() {
   // back button should return them to wherever they actually came from.
   // history.state.idx (set by the browser's History API under
   // BrowserRouter) is >0 only when there's a prior entry in this tab's own
-  // session history; falling back to "/" keeps the link correct for a fresh
+  // session history; falling back to a category-aware destination (K9:
+  // Kette → /ketten, Wachs → /#produkte) keeps the link correct for a fresh
   // tab or a direct/external arrival, where there is nothing to go back to.
+  // backFallback is computed above, next to breadcrumbSchema.
   const handleBack = (e: React.MouseEvent) => {
     e.preventDefault();
     if ((window.history.state as { idx?: number } | null)?.idx) navigate(-1);
-    else navigate('/');
+    else navigate(backFallback.to);
   };
 
   return (
@@ -649,9 +658,9 @@ export function ProductDetailPage() {
                 </Link>
                 <ChevronRight className="h-3 w-3 flex-shrink-0 opacity-50"
                   style={{ color: 'var(--txf)' }} />
-                <Link to="/#produkte" className="flex-shrink-0 hover:underline transition-colors"
+                <Link to={backFallback.to} className="flex-shrink-0 hover:underline transition-colors"
                   style={{ color: 'var(--txf)' }}>
-                  {de ? 'Produkte' : 'Products'}
+                  {backFallback.label}
                 </Link>
                 <ChevronRight className="h-3 w-3 flex-shrink-0 opacity-50"
                   style={{ color: 'var(--txf)' }} />
@@ -659,10 +668,13 @@ export function ProductDetailPage() {
                   {titleText}
                 </span>
               </nav>
-              {/* Mobile — no room for the full breadcrumb, keep the simple back link */}
-              <Link to="/" onClick={handleBack} className="sm:hidden flex items-center gap-2 text-[13px] font-medium transition-colors flex-shrink-0"
+              {/* Mobile — Ziel-Label statt Richtungslabel (K9: "eine Pille mit
+                  Pfeil und Ziel-Label senkt die Klickhuerde staerker"), 44px
+                  Hoehe statt der vorherigen schmalen Zeile. */}
+              <Link to={backFallback.to} onClick={handleBack}
+                className="sm:hidden inline-flex items-center gap-1.5 min-h-11 pl-1 pr-3 -ml-1 rounded-full text-[13px] font-medium transition-colors flex-shrink-0"
                 style={{ color: 'var(--txm)' }}>
-                <ArrowLeft className="h-4 w-4" /> {de ? 'Zurück' : 'Back'}
+                <ArrowLeft className="h-4 w-4" aria-hidden /> {backFallback.label}
               </Link>
             </div>
             {checkoutEnabled && <CartIcon />}

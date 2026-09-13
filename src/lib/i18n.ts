@@ -163,6 +163,11 @@ export const translations = {
       // falsch. PriceNote.tsx waehlt zwischen dieser Zeile und den drei
       // obigen je nach checkoutEnabled.
       priceNoteShippingIncluded: 'Versand über eBay inklusive',
+      // Kurzform fuer den Kartenfuss (ChainCard) statt des ganzen PriceNote-
+      // Satzes — dort steht schon "Versand über eBay inklusive" als Fliesstext,
+      // hier reicht die Kurzform neben dem Lieferdatum.
+      cardShippingIncluded: 'inkl. Versand (eBay)',
+      cardShippingReal: 'zzgl. Versand',
       decisionAid: 'Classic oder Pro?',
       compareBtn: 'Vergleich ansehen',
       compareTitle: 'Classic vs. Pro — welches passt zu dir?',
@@ -240,6 +245,13 @@ export const translations = {
         rewaxBody: 'Kette einschicken, fahrbereit zurückbekommen. Auffrischung oder Umstieg von Öl.',
         rewaxCta: 'Zum Rewax-Service',
         rewaxFrom: 'Ab 15,95 €',
+        // "Passt dazu"-Reihe auf /ketten (Stufe 3): die Kettenseite endet
+        // damit nicht in einer Sackgasse. Set und Rewax nutzen die Texte
+        // oben weiter, nur Wachs braucht hier eine eigene Kachel.
+        relatedWaxEyebrow: 'Kettenwachs',
+        relatedWaxTitle: 'Selbst wachsen',
+        relatedWaxBody: 'Classic oder Pro, 300 oder 500 g — für alle, die selbst wachsen wollen.',
+        relatedWaxCta: 'Wachs ansehen',
         // Ueberschrift ueber Set/Ketten/Rewax. Ohne sie stehen dort drei
         // Kacheln ohne erkennbaren Zusammenhang; mit ihr sind es drei
         // Antworten auf denselben Einwand — den mit Abstand haeufigsten.
@@ -765,6 +777,8 @@ export const translations = {
       priceNoteShippingLink: 'shipping',
       priceNoteShippingPost: 'free over €50',
       priceNoteShippingIncluded: 'Shipping included via eBay',
+      cardShippingIncluded: 'incl. shipping (eBay)',
+      cardShippingReal: 'plus shipping',
       decisionAid: 'Classic or Pro?',
       compareBtn: 'See comparison',
       compareTitle: 'Classic vs. Pro — which fits you?',
@@ -806,6 +820,10 @@ export const translations = {
         rewaxBody: 'Send the chain in, get it back ready to ride. Rewax or oil-to-wax switch.',
         rewaxCta: 'To the rewax service',
         rewaxFrom: 'From €15.95',
+        relatedWaxEyebrow: 'Chain wax',
+        relatedWaxTitle: 'Wax it yourself',
+        relatedWaxBody: 'Classic or Pro, 300 or 500 g — for anyone who wants to wax their own chain.',
+        relatedWaxCta: 'See the wax',
         altTitle: 'No pot? No problem.',
         altBody: 'Three ways to ride waxed without melting wax yourself.',
         soldUnits: 'sold',

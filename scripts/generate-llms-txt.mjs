@@ -51,6 +51,7 @@ Empfohlenes Nachwachsen nach den Werten von Zero Friction Cycling: trockene Stra
 - [Blog-Übersicht](${BASE}/blog): ${articles.length} Ratgeber und Anleitungen
 - [Rechner](${BASE}/rechner): ${TOOLS.length} kostenlose Rechner rund um Kette und Kettenpflege
 - [Starter-Set](${BASE}/starter-set): Wachs, Quick-Link-Zange und Aufhängedraht in einem Set, ${starterSet.discountPct}% unter der Summe der Einzelteile
+- [Vorgewachste Ketten](${BASE}/ketten): ${products.filter(p => p.category === 'chain').length} vorgewachste Fahrradketten für Shimano, SRAM und Campagnolo, 11- und 12-fach
 
 ## Rechner — kostenlos, ohne Anmeldung
 

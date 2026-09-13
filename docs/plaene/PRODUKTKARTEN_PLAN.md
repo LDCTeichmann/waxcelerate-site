@@ -383,7 +383,7 @@ nicht wiederfindet.
 
 ---
 
-## Stufe 3 — `/ketten` als eigene Seite 🔨
+## Stufe 3 — `/ketten` als eigene Seite 🔨 ✅ erledigt 13.09.2026
 
 Der `useState`-Zweig wird eine Route. Das löst Doppelüberschrift, Rückweg,
 Teilbarkeit und Indexierbarkeit in einem. Ein großer Zurück-Button hätte nur

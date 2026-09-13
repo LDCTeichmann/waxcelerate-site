@@ -81,6 +81,7 @@ const body = `
   <h2>Mehr</h2>
   <ul>
     <li><a href="/kette-wachsen-lassen">Kette wachsen lassen</a> — gewachste Kette einschicken, fahrbereit zurückbekommen</li>
+    <li><a href="/ketten">Vorgewachste Ketten</a> — acht Ketten für Shimano, SRAM und Campagnolo, 11- und 12-fach</li>
     <li><a href="/starter-set">Starter-Set</a> — Wachs, Kette, Zange und Draht in einem</li>
     <li><a href="/wissenschaft">Die Wissenschaft dahinter</a> — Kontaktzonen, Reibung, Messwerte</li>
     <li><a href="/anleitung">Anleitung</a> — Kette wachsen, Re-Waxen und 3-Ketten-Rotation Schritt für Schritt</li>

@@ -23,6 +23,7 @@
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve, join } from 'node:path';
 import { products, schemaAvailability, waxVsOil, shippingDescSuffix, shippingDetailsSchema, checkoutEnabled } from '../src/lib/data.ts';
+import { backTarget } from '../src/pages/ketten/content.ts';
 import { articles, getArticleBySlug } from '../src/pages/blog/articles.ts';
 import { translations } from '../src/lib/i18n.ts';
 import { WAX_TOPICS, CHAIN_TOPICS } from '../src/pages/product/faqTopics.ts';
@@ -224,12 +225,16 @@ function productSchema(p) {
 }
 
 function breadcrumbSchema(p) {
+  // K9: Ketten fuehren auf /ketten statt auf das Regal, Wachs bleibt bei
+  // /#produkte — deckt sich mit der React-Fassung (ProductDetailPage.tsx)
+  // und der sichtbaren Breadcrumb-Zeile dort.
+  const crumb = backTarget(p.category, true);
   return {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Startseite', item: BASE },
-      { '@type': 'ListItem', position: 2, name: 'Produkte', item: `${BASE}/#produkte` },
+      { '@type': 'ListItem', position: 2, name: crumb.label, item: `${BASE}${crumb.to}` },
       { '@type': 'ListItem', position: 3, name: p.title, item: `${BASE}/produkt/${p.id}` },
     ],
   };

@@ -27,6 +27,9 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve, join } from 'node:path';
 import { articles, getArticleImage, author, categoryOrder, blogHero } from '../src/pages/blog/articles.ts';
 import { starterSet, waxVsOil, frictionRanges, products, checkoutEnabled } from '../src/lib/data.ts';
+import {
+  KETTEN_TITLE, KETTEN_DESCRIPTION, KETTEN_H1, KETTEN_LEAD, chainBenefits, kettenCollectionSchema,
+} from '../src/pages/ketten/content.ts';
 import { translations } from '../src/lib/i18n.ts';
 import { COMPONENTS } from '../src/lib/science.ts';
 
@@ -782,6 +785,30 @@ function renderTool(t) {
   return buildPage({ head, body });
 }
 
+// ─── /ketten ──────────────────────────────────────────────────────────────
+// Stufe 3 der Produktkarten-Neugliederung (K10): die Kettenliste war ein
+// useState innerhalb der Startseiten-Produktsektion, jetzt eine echte Route.
+// Text und Schema kommen aus src/pages/ketten/content.ts — derselben Quelle
+// wie KettenPage.tsx, damit beide Fassungen nie auseinanderlaufen
+// (docs/SEO_TECHNIK.md "beide Fassungen pflegen").
+function renderKettenPage() {
+  const canonical = `${BASE}/ketten`;
+  const chainProducts = products.filter(p => p.category === 'chain');
+  const head = [
+    metaTags({ title: KETTEN_TITLE, description: KETTEN_DESCRIPTION, canonical }),
+    ldClientManaged(kettenCollectionSchema(chainProducts)),
+  ].join('\n');
+  const body = [
+    `<nav aria-label="Brotkrumen"><a href="/">Startseite</a> › <span>${esc(KETTEN_H1)}</span></nav>`,
+    `<h1>${esc(KETTEN_H1)}</h1>`,
+    `<p>${esc(KETTEN_LEAD)}</p>`,
+    `<ul>${chainBenefits(true).map(b => `<li>${esc(b)}</li>`).join('')}</ul>`,
+    `<ul>${chainProducts.map(p => `<li><a href="/produkt/${p.id}">${esc(p.title)}</a> — ${esc(p.chainBrand ?? '')} ${esc(p.chainSpeed ?? '')}, ${p.price.toFixed(2).replace('.', ',')} €</li>`).join('')}</ul>`,
+    `<p><a href="/#produkte">Alle Produkte</a> · <a href="/starter-set">Starter-Set</a> · <a href="/kette-wachsen-lassen">Kette wachsen lassen</a> · <a href="/">Zur Startseite</a></p>`,
+  ].join('\n');
+  return buildPage({ head, body });
+}
+
 for (const p of STATIC_PAGES) write(p.dir, renderStatic(p));
 for (const p of NEW_STATIC_PAGES) write(p.dir, renderStatic(p));
 for (const p of LEGAL_PAGES) write(p.dir, renderLegal(p));
@@ -789,7 +816,9 @@ for (const p of LEGAL_PAGES) write(p.dir, renderLegal(p));
 write('rechner', renderToolsHub());
 for (const t of TOOLS) write(join('rechner', t.slug), renderTool(t));
 
+write('ketten', renderKettenPage());
+
 write('blog', renderIndex());
 for (const a of articles) write(join('blog', a.slug), renderArticle(a));
 
-console.log(`✓ ${articles.length + 1} Blog-Seiten, ${TOOLS.length + 1} Rechnerseiten, ${STATIC_PAGES.length + NEW_STATIC_PAGES.length} feste Seiten und ${LEGAL_PAGES.length} Rechtstextseiten vorgerendert nach dist/`);
+console.log(`✓ ${articles.length + 1} Blog-Seiten, ${TOOLS.length + 1} Rechnerseiten, ${STATIC_PAGES.length + NEW_STATIC_PAGES.length + 1} feste Seiten und ${LEGAL_PAGES.length} Rechtstextseiten vorgerendert nach dist/`);

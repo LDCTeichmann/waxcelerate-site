@@ -80,7 +80,10 @@ const minPrice = (category: 'wax' | 'chain') =>
 // Konfigurator nutzt — nie eine getippte Zahl, die davon abdriften kann. Der
 // niedrigste Einstieg ist das Set ohne Kette (nur Wachs + Zange + Draht).
 const accSum = accessories.reduce((sum, a) => sum + a.price, 0);
-const minSetPrice = Math.min(
+// Exportiert: die "Passt dazu"-Reihe auf /ketten (Stufe 3) zeigt dieselbe
+// Set-Kachel wie das Regal und braucht denselben Preis, nicht eine zweite
+// Berechnung, die irgendwann abweicht.
+export const minSetPrice = Math.min(
   starterSetPrice(minPrice('wax') + minPrice('chain') + accSum),
   starterSetPrice(minPrice('wax') + accSum),
 );
@@ -534,11 +537,9 @@ export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, p
   );
 }
 
-export function ProductShelf({ de, t, onOpenChains, onCompare }: {
+export function ProductShelf({ de, t, onCompare }: {
   de: boolean;
   t: TranslationType;
-  /** Setzt den Schaltungsfilter und oeffnet die Kettenliste. */
-  onOpenChains: (speed: 'all' | '11' | '12') => void;
   onCompare: () => void;
 }) {
   const s = t.products.shelf;
@@ -649,7 +650,7 @@ export function ProductShelf({ de, t, onOpenChains, onCompare }: {
         />
         <SecondaryTile
           index={2}
-          onClick={() => onOpenChains('all')}
+          to="/ketten"
           image="/images/shelf/shelf-ketten" imageW={1000}
           eyebrow={s.chainsEyebrow} title={s.chainsTitle}
           body={s.chainsBody}

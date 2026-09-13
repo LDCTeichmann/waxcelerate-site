@@ -41,6 +41,7 @@ const UeberUnsPage = lazy(() => import('@/pages/UeberUnsPage').then(m => ({ defa
 const KontaktPage = lazy(() => import('@/pages/KontaktPage').then(m => ({ default: m.KontaktPage })));
 const FaqPage = lazy(() => import('@/pages/FaqPage').then(m => ({ default: m.FaqPage })));
 const AnleitungPage = lazy(() => import('@/pages/AnleitungPage').then(m => ({ default: m.AnleitungPage })));
+const KettenPage = lazy(() => import('@/pages/KettenPage').then(m => ({ default: m.KettenPage })));
 import { LanguageProvider } from '@/hooks/useLanguage';
 import { ThemeProvider } from '@/hooks/useTheme';
 import { Toaster } from '@/components/ui/sonner';
@@ -114,6 +115,10 @@ function AppContent() {
         <Route path="/kontakt" element={<Suspense fallback={<PageLoader />}><KontaktPage /></Suspense>} />
         <Route path="/faq" element={<Suspense fallback={<PageLoader />}><FaqPage /></Suspense>} />
         <Route path="/anleitung" element={<Suspense fallback={<PageLoader />}><AnleitungPage /></Suspense>} />
+        {/* Stufe 3 (Produktkarten-Plan, K10): die Kettenliste war ein
+            useState innerhalb der Produktsektion, jetzt eine echte Route mit
+            eigener Adresse, Filter als Query-Parameter statt Anker. */}
+        <Route path="/ketten" element={<Suspense fallback={<PageLoader />}><KettenPage /></Suspense>} />
         <Route path="/" element={
           <>
             <Navigation />
