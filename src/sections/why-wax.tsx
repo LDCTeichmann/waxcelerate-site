@@ -7,7 +7,6 @@ import { prefersReducedMotion } from '@/hooks/useAnimation';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { ScienceTeaser } from '@/sections/science/ScienceTeaser';
 import { BeforeAfterSlider } from '@/components/BeforeAfterSlider';
-import { InstrumentFrame } from '@/components/viz';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
 import { waxVsOil, frictionRanges } from '@/lib/data';
 
@@ -77,6 +76,20 @@ import { Section } from '@/components/Section';
 // eine Behauptung, die der erste kundige Leser widerlegt. Auf einer Seite,
 // die mit "gemessen statt behauptet" wirbt, waere das der teuerste
 // vorstellbare Fehler.
+/** Posten mit Punktfuehrung, wie im Beileger (public/flyer.html, .fv-dots).
+ *  Zwei Zahlen untereinander ohne verbindende Linie liest das Auge als zwei
+ *  unabhaengige Angaben; mit Fuehrung als eine Rechnung. Genau darum geht es
+ *  hier, denn die Summenzeile darunter ist nur mit beiden Posten glaubwuerdig. */
+function LeaderRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-baseline gap-3">
+      <span className="text-small flex-shrink-0" style={{ color: 'var(--txm)' }}>{label}</span>
+      <span className="flex-1 self-center" style={{ borderBottom: '1px dotted var(--bd2)' }} aria-hidden />
+      <span className="num text-small flex-shrink-0" style={{ color: 'var(--tx1)' }}>{value}</span>
+    </div>
+  );
+}
+
 function buildMoments(de: boolean) {
   const pro = frictionRanges.find(r => r.id === 'pro')!;
   const oil = frictionRanges.find(r => r.id === 'oil')!;
@@ -87,8 +100,8 @@ function buildMoments(de: boolean) {
       n: '01',
       titleDe: 'Du bleibst sauber.',
       titleEn: 'You stay clean.',
-      bodyDe: 'Kein Ketten-Tattoo an der Wade, keine schwarzen Finger beim Einladen.',
-      bodyEn: 'No chain tattoo on your calf, no black fingers loading the bike.',
+      bodyDe: 'Keine schwarzen Streifen an Hose und Fingern, auch nicht beim Einladen.',
+      bodyEn: 'No black streaks on your clothes or hands, not even when loading the bike.',
       chip: de ? 'färbt nicht ab' : 'no rub-off',
     },
     {
@@ -103,8 +116,8 @@ function buildMoments(de: boolean) {
       n: '03',
       titleDe: 'Im Gelenk mahlt nichts mehr.',
       titleEn: 'Nothing grinds inside the joint.',
-      bodyDe: 'Öl bindet Staub zu einer Schleifpaste zwischen Bolzen und Hülse — genau dort entsteht Verschleiß, nicht außen an der Kette.',
-      bodyEn: 'Oil binds dust into a grinding paste between pin and bushing — that is where wear happens, not on the outside of the chain.',
+      bodyDe: 'Öl bindet Staub zu einer Schleifpaste zwischen Bolzen und Hülse. Genau dort entsteht Verschleiß.',
+      bodyEn: 'Oil binds dust into a grinding paste between pin and bushing. That is exactly where wear happens.',
       chip: `μ ${pro.muLo.toFixed(2)} ${de ? 'statt' : 'vs'} ${oil.muLo.toFixed(2)}`,
     },
     {
@@ -245,8 +258,8 @@ export function WhyWax() {
         afterAlt: de ? 'Dieselbe Kette, gewachst mit Waxcelerate' : 'Same chain, waxed with Waxcelerate',
         beforeLabel: de ? 'Öl' : 'Oil',
         caption: de
-          ? 'Kein Dreck, keine Flecken — der Unterschied ist sofort sichtbar.'
-          : 'No grime, no stains — the difference is visible immediately.',
+          ? 'Kein Dreck, keine Flecken. Der Unterschied ist sofort sichtbar.'
+          : 'No grime, no stains. The difference is visible immediately.',
       }
     : {
         aspect: '6/5',
@@ -261,119 +274,97 @@ export function WhyWax() {
       };
 
   return (
-    // `style` überschreibt hier bewusst Sections eigenes `py-14 sm:py-28`
-    // (112px oben+unten auf Desktop) — Lucas Vorgabe war, dass Überschrift
-    // bis 70-€-Zeile ohne weiteres Scrollen auf einen Bildschirm passen.
-    // Section.tsx selbst bleibt unangetastet (gilt fuer alle anderen
-    // Sektionen der Seite), nur diese eine Instanz bekommt per Inline-Style
-    // (schlägt die Klasse ohne `!important`-Hacks) einen kleineren, fluiden
-    // Wert.
+    // `style` ueberschreibt hier bewusst Sections eigenes `py-14 sm:py-28`
+    // (112px oben+unten auf Desktop). Lucas Vorgabe: die Sektion soll nicht
+    // ueber Gebuehr Platz fressen. Section.tsx selbst bleibt unangetastet
+    // (gilt fuer alle anderen Sektionen), nur diese eine Instanz bekommt per
+    // Inline-Style (schlaegt die Klasse ohne `!important`-Hacks) einen
+    // kleineren, fluiden Wert.
     <Section id="warum-wachs" ref={sectionRef} className="bg-wx-sf"
-      style={{ paddingTop: 'clamp(1.75rem, 3vw, 2.5rem)', paddingBottom: 'clamp(1.75rem, 3vw, 2.5rem)' }}>
+      style={{ paddingTop: 'clamp(1.75rem, 3vw, 2.75rem)', paddingBottom: 'clamp(1.75rem, 3vw, 2.75rem)' }}>
 
       <div className="absolute top-0 left-0 right-0 pointer-events-none"
         style={{ height: '56px', background: 'linear-gradient(to bottom, var(--sf), transparent)', zIndex: 1 }} />
 
-      {/* ── Header ── */}
-      <div ref={headerRef} className="mb-4 sm:mb-6">
-        <p className="eyebrow mb-2" style={{ color: 'var(--txf)' }}>
-          {de ? 'Öl vs. Wachs' : 'Oil vs. Wax'}
-        </p>
-        <h2 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-wx-tx1 mb-3">
-          <ScrollWordReveal text={de ? 'Du merkst es sofort.' : 'You notice it straight away.'} />
-        </h2>
-        {/* Die Praemisse. Steht hier genau einmal, damit keine der vier
-            Zeilen darunter sie noch einmal erklaeren muss — das war der
-            Grund, warum 01 und 03 vorher wie dasselbe Argument klangen. */}
-        <p data-reveal="subtitle" className="text-wx-txm max-w-xl text-[15px] leading-relaxed">
-          {de
-            ? 'Wachs härtet trocken aus. Alles Weitere folgt daraus — und vier davon merkst du schon auf der ersten Ausfahrt.'
-            : 'Wax cures dry. Everything else follows from that — and four of those you notice on the very first ride.'}
-        </p>
-      </div>
+      {/* ══ Band 1: Behauptung links, Beleg rechts ══════════════════════════
+          Vorher stand die Ueberschrift allein ueber der vollen Breite und die
+          vier Zeilen darunter in einer schmalen Spalte, neben der zwei
+          gestapelte Karten standen. Das hatte drei Probleme auf einmal: rechts
+          zwei Karten, die wie zusammengestueckelt wirkten; links eine Spalte,
+          in der vier kurze Saetze per `flex-1` auf Kartenhoehe auseinander-
+          gezogen wurden; und ueber 1300px Hoehe fuer insgesamt vier Aussagen.
 
-      {/* ── Argumente links, Beleg rechts ──
-          08/2026, siebter Durchgang: schlanke Karten (290px, voriger
-          Durchgang) liessen den Bildunterschrift-Satz auf zwei Zeilen
-          umbrechen — "länglich", Lucas Wort — und die Sektion war insgesamt
-          hoeher als ein Bildschirm, die 70-€-Zahl fiel unters Fold. Vier
-          Stellschrauben, keine davon einzeln gross, zusammen aber spuerbar:
-          1. Beleg-Spalte 290px → 370px. Der Bildunterschrift-Satz braucht
-             per `scrollWidth`-Messung (whiteSpace:nowrap, dann zurueck)
-             exakt 325px natuerliche Breite; 350px Kartenbreite (318px nutzbar
-             nach Padding) reichte um 7px nicht, 370px (338px nutzbar) laesst
-             sicheren Spielraum. Bleibt trotzdem klar unter der alten
-             Spaltenbreite (~475px) und weit über der ~224px-Kollisionsgrenze
-             der REFERENZ/WAXCELERATE-Chips.
-          2. Der Metrik-Chip zieht aus einer eigenen Zeile unter den
-             Fliesstext IN den Fliesstext ("… beim Einladen.  färbt nicht
-             ab") — spart eine ganze Zeile Höhe pro Listenpunkt (vier Zeilen
-             insgesamt) UND liest sich weniger zusammengestückelt: die Zahl
-             wirkt wie eine angehängte Beleg-Notiz zum Satz, nicht wie ein
-             drittes, unverbundenes Element.
-          3. Zeilenabstand der Liste und Kopfbereich-Abstand jeweils leicht
-             gestrafft (py-8→py-7, mb-12→mb-9) — zusammen mit Punkt 2 genug,
-             um die ganze Sektion wieder unter eine Bildschirmhoehe zu
-             bringen, ohne dass die grossen Serifziffern ihre Wirkung
-             verlieren.
-          4. Wattbalken (DriveLossBars) sind ab jetzt `hidden sm:block` —
-             auf Mobile ersetzt sie eine einzeilige Zusammenfassung. Von den
-             drei Beleg-Stuecken (Foto, Wattbalken, 70-€-Zahl) sind die
-             Wattbalken die einzige reine Wiederholung: Zeile 03 der Liste
-             traegt die Reibungszahl schon als Chip, Zeile 04 die
-             Kettenlaufzeit. Foto ist der einzige echte Eigenbeleg der Marke
-             (nirgendwo sonst auf der Seite), die 70-€-Zahl der konkreteste,
-             am leichtesten verstaendliche Vorteil. Die Balken sind der
-             abstrakteste der drei (μ-Werte, Watt) UND schon anderswo in der
-             Liste vertreten — die naheliegende Streichung fuer Mobile. */}
-      <div className="grid lg:grid-cols-[1fr_370px] gap-10 lg:gap-16 items-start lg:items-stretch">
+          Jetzt drei volle Baender statt Spalten: Behauptung mit Beleg, dann
+          die vier Punkte ueber die ganze Breite, dann die Messwerte als
+          Fusszeile. Der freie Platz neben der Ueberschrift traegt jetzt das
+          Foto, statt leer zu bleiben — und beide Karten sind aufgeloest: der
+          Slider steht ohne Rahmen da, die Kostenrechnung als Haarlinienzeile. */}
+      <div className="grid lg:grid-cols-[minmax(0,1fr)_380px] gap-8 lg:gap-16 items-center mb-8 sm:mb-10">
 
-        {/* lg: die vier Zeilen wachsen gleich (flex-1) auf die volle
-            Spaltenhoehe, die die (hoehere) Beleg-Spalte rechts vorgibt — die
-            Trennlinien sitzen dann in gleichem Rhythmus und die letzte fluchtet
-            exakt mit der Unterkante der Kosten-Karte. Oben fluchtet die
-            Startlinie ohnehin mit der Mikroskop-Karte. */}
-        <div ref={rowsRef} className="lg:h-full lg:flex lg:flex-col" style={{ borderTop: '1px solid var(--bd2)' }}>
-          {moments.map(m => (
-            <div key={m.n} data-row className="flex items-start gap-4 sm:gap-7 py-4 sm:py-9 lg:flex-1"
-              style={{ borderBottom: '1px solid var(--bd2)' }}>
-              <span className="font-display font-bold leading-none flex-shrink-0 select-none"
-                style={{ fontSize: 'clamp(1.75rem, 7vw, 3.25rem)', color: 'var(--accent-soft)', minWidth: '2ch' }}>
-                {m.n}
-              </span>
-              <div className="flex-1 min-w-0 pt-1" style={{ maxWidth: '32rem' }}>
-                <h3 className="font-display font-bold text-wx-tx1 leading-[1.15] tracking-[-0.02em]"
-                  style={{ fontSize: 'clamp(1.05rem, 2.2vw, 1.5rem)' }}>
-                  {de ? m.titleDe : m.titleEn}
-                </h3>
-                <p className="text-small sm:text-body leading-snug sm:leading-relaxed mt-1.5 sm:mt-2"
-                  style={{ color: 'var(--txm)' }}>
-                  {de ? m.bodyDe : m.bodyEn}
-                  {'  '}
-                  {/* Beleg-Notiz am Satzende: bewusst dieselbe Schrift wie der
-                      Satz, nur eine Stufe kleiner und in der leisesten
-                      Textfarbe. Der Chip-Inhalt ist gemischt (Wortbelege wie
-                      "Fahrerurteil" neben Zahlen wie "μ 0.03"), eine Mono-Type
-                      passte nur zur Haelfte und las sich als Fehlformatierung.
-                      `.num` nur fuer buendige Ziffern, ohne Mono-Optik. */}
-                  <span className="num text-small whitespace-nowrap" style={{ color: 'var(--txff)' }}>
-                    · {m.chip}
-                  </span>
-                </p>
-              </div>
-            </div>
-          ))}
+        <div ref={headerRef}>
+          <p className="eyebrow mb-2" style={{ color: 'var(--txf)' }}>
+            {de ? 'Öl vs. Wachs' : 'Oil vs. wax'}
+          </p>
+          {/* "Du merkst es sofort." war ein Gefuehl, keine Aussage, und stand
+              damit auch im Widerspruch zum Rest der Seite, die sonst ueberall
+              mit Messwerten argumentiert. Die neue Zeile ist die Praemisse
+              selbst, aus der die vier Punkte darunter folgen.
+              Verworfene Alternativen: "Öl schmiert. Wachs auch, nur ohne den
+              Dreck." (zu geschwaetzig fuer eine Headline) und "Der Unterschied
+              bleibt nicht an dir haengen." (wieder Gefuehl statt Aussage). */}
+          <h2 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-wx-tx1 mb-3">
+            <ScrollWordReveal text={de ? 'Trocken schmiert besser.' : 'Dry lubricates better.'} />
+          </h2>
+          <p data-reveal="subtitle" className="text-wx-txm max-w-xl text-[15px] leading-relaxed">
+            {de
+              ? 'Wachs härtet trocken aus und bindet deshalb keinen Schmutz. Alles Weitere folgt daraus, und vier davon merkst du schon auf der ersten Ausfahrt.'
+              : 'Wax cures dry and therefore binds no dirt. Everything else follows from that, and four of those you notice on the very first ride.'}
+          </p>
         </div>
 
-        {/* w-full statt fixer 370px unterhalb von lg: bei 370px fixer Breite
-            ragte die Karte auf schmalen Viewports (< ~420px, inkl. der
-            Section-Innenabstaende) über den Content-Rand hinaus und erzeugte
-            horizontales Scrollen — nachgemessen per scrollWidth/clientWidth.
-            max-w-[370px] deckelt sie trotzdem, falls sm: (bis lg:) mal breiter
-            als 370px content-Platz hat. */}
-        <div ref={proofRef} className="flex flex-col gap-2.5 lg:justify-between lg:h-full mx-auto lg:mx-0 w-full max-w-[370px] lg:w-[370px]">
-          <div className="rounded-2xl overflow-hidden"
-            style={{ border: '1px solid var(--bd)', background: 'var(--card-bg)', boxShadow: 'var(--card-shad)' }}>
+        {/* Der Beleg ohne Kartenrahmen: kein Hintergrund, kein Schatten, keine
+            Ecken. Ein Foto braucht keine Karte, um ein Foto zu sein, und die
+            Karte war genau das, was die Sektion zusammengestueckelt aussehen
+            liess. Umschalter darueber statt in einem Kartenfuss. */}
+        <div ref={proofRef} className="w-full max-w-[380px] mx-auto lg:mx-0">
+          <div className="flex items-center justify-between gap-2 mb-2.5">
+            {/* Unter sm ausgeblendet: dort blieben fuer die Beschriftung UND
+                den Umschalter keine 342px uebrig, beides brach zweizeilig um.
+                Die Labels im Bild (ÖL / WAXCELERATE) sagen ohnehin dasselbe. */}
+            <span className="eyebrow hidden sm:inline" style={{ color: 'var(--txf)' }}>
+              {de ? 'Dieselbe Kette' : 'Same chain'}
+            </span>
+            {/* Segmented Control statt reiner Farbaenderung an Fliesstext —
+                Luca-Feedback: der alte, rein textbasierte Umschalter wurde
+                nicht als klickbar erkannt bzw. beim Klicken verfehlt. Das
+                Pfeil-Icon markiert die Gruppe zusaetzlich als Umschalter. */}
+            <div className="flex items-center gap-1.5">
+              <ArrowLeftRight className="h-3 w-3 flex-shrink-0" style={{ color: 'var(--txff)' }} aria-hidden />
+              <div className="inline-flex items-center gap-1 p-0.5 rounded-full"
+                style={{ background: 'var(--sf2)', border: '1px solid var(--bd)' }}>
+                <button type="button" aria-pressed={proofTab === 'macro'}
+                  onClick={() => setProofTab('macro')}
+                  className="text-meta font-semibold uppercase tracking-wide px-2.5 py-1 rounded-full transition-colors cursor-pointer"
+                  style={{
+                    color: proofTab === 'macro' ? '#fff' : 'var(--txm)',
+                    background: proofTab === 'macro' ? 'var(--accent)' : 'transparent',
+                  }}>
+                  {de ? 'Foto' : 'Photo'}
+                </button>
+                <button type="button" aria-pressed={proofTab === 'micro'}
+                  onClick={() => setProofTab('micro')}
+                  className="text-meta font-semibold uppercase tracking-wide px-2.5 py-1 rounded-full transition-colors cursor-pointer"
+                  style={{
+                    color: proofTab === 'micro' ? '#fff' : 'var(--txm)',
+                    background: proofTab === 'micro' ? 'var(--accent)' : 'transparent',
+                  }}>
+                  {de ? 'Mikroskop · 1000×' : 'Microscope · 1000×'}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-xl overflow-hidden" style={{ transform: 'translateZ(0)' }}>
             <BeforeAfterSlider
               key={proofTab}
               aspect={proof.aspect}
@@ -384,119 +375,104 @@ export function WhyWax() {
               beforeLabel={proof.beforeLabel}
               afterLabel="Waxcelerate"
             />
-            <div className="px-4 pb-3.5 pt-3">
-              {/* Segmented Control statt reiner Farbänderung an Fließtext —
-                  Luca-Feedback: der alte, rein textbasierte Umschalter (nur
-                  Akzentfarbe auf sonst unauffälligem Eyebrow-Text) wurde
-                  nicht als klickbar erkannt bzw. beim Klicken verfehlt. Jetzt
-                  eigene Fläche pro Option (Radius, Rahmen, Hintergrund bei
-                  aktivem Zustand) — deutlich größere Trefferfläche, sofort
-                  als Steuerelement erkennbar. Das Pfeil-Icon davor (gleiches
-                  Icon wie "Classic oder Pro? Vergleich ansehen" in
-                  ProductShelf.tsx) markiert die Gruppe zusätzlich als
-                  Umschalter, nicht nur als zwei Labels. */}
-              <div className="flex items-center gap-1.5 mb-2">
-                <ArrowLeftRight className="h-3 w-3 flex-shrink-0" style={{ color: 'var(--txff)' }} aria-hidden />
-                <div className="inline-flex items-center gap-1 p-0.5 rounded-full"
-                  style={{ background: 'var(--sf2)', border: '1px solid var(--bd)' }}>
-                  <button type="button" aria-pressed={proofTab === 'macro'}
-                    onClick={() => setProofTab('macro')}
-                    className="text-meta font-semibold uppercase tracking-wide px-2.5 py-1 rounded-full transition-colors cursor-pointer"
-                    style={{
-                      color: proofTab === 'macro' ? '#fff' : 'var(--txm)',
-                      background: proofTab === 'macro' ? 'var(--accent)' : 'transparent',
-                    }}>
-                    {de ? 'Foto' : 'Photo'}
-                  </button>
-                  <button type="button" aria-pressed={proofTab === 'micro'}
-                    onClick={() => setProofTab('micro')}
-                    className="text-meta font-semibold uppercase tracking-wide px-2.5 py-1 rounded-full transition-colors cursor-pointer"
-                    style={{
-                      color: proofTab === 'micro' ? '#fff' : 'var(--txm)',
-                      background: proofTab === 'micro' ? 'var(--accent)' : 'transparent',
-                    }}>
-                    {de ? 'Mikroskop · 1000×' : 'Microscope · 1000×'}
-                  </button>
-                </div>
-              </div>
-              <p className="text-small leading-relaxed" style={{ color: 'var(--txm)' }}>
-                {proof.caption}
-              </p>
-            </div>
           </div>
-
-          {/* Karte ist klickbar — Luca-Feedback: die Ersparniszahl steht ohne
-              Beleg da, dabei gibt es auf der wax-500-Produktseite bereits eine
-              Posten-fuer-Posten-Herleitung genau dieser Zahlen (Etappe 5: die
-              Aufschluesselung steht jetzt in AssumptionsDisclosure, unter dem
-              Instrument "Was das fuer dich heisst" -- das eigene Kostenvergleich-
-              Akkordeon ist entfallen, sein Modell widersprach drivetrainCosts).
-              Der Hinweis-Satz + Pfeil unten im Footer macht die Klickbarkeit
-              sichtbar, denselben Fehler, den die alte ScienceTeaser-Karte hatte
-              (siehe deren Kommentar), wiederholt sich hier sonst. `group` auf
-              dem Link steuert den Pfeil-Hover, InstrumentFrames eigener Rahmen
-              bleibt unangetastet. */}
-          <Link to="/produkt/wax-500#instrument" className="group block rounded-2xl"
-            aria-label={de ? 'Woher die Ersparnis kommt: Kostenaufschlüsselung ansehen' : 'Where the savings come from: see the cost breakdown'}>
-            <InstrumentFrame
-              noReveal
-              eyebrow={de ? 'Gemessen · Antriebsverlust' : 'Measured · drivetrain loss'}
-              footer={
-                /* Die Ersparnis als offene Rechnung statt als eine grosse Zahl
-                   plus danebenstehendem "151 → 81" (das sagte dasselbe zweimal:
-                   70 = 151 − 81). Zwei Posten, eine Summenzeile. */
-                <div className="flex flex-col gap-2.5">
-                  <div className="flex flex-col gap-1.5">
-                    <div className="flex items-baseline justify-between gap-3 text-small">
-                      <span style={{ color: 'var(--txm)' }}>{de ? 'Kettenöl' : 'Chain oil'}</span>
-                      <span className="num" style={{ color: 'var(--tx1)' }}>{eur(cost.oilEur, de)}</span>
-                    </div>
-                    <div className="flex items-baseline justify-between gap-3 text-small">
-                      <span style={{ color: 'var(--txm)' }}>{de ? 'Heißwachs' : 'Hot wax'}</span>
-                      <span className="num" style={{ color: 'var(--tx1)' }}>{eur(cost.waxEur, de)}</span>
-                    </div>
-                    <div className="flex items-baseline justify-between gap-3 pt-2 mt-0.5"
-                      style={{ borderTop: '1px solid var(--bd2)' }}>
-                      <span className="text-small font-semibold" style={{ color: 'var(--tx1)' }}>
-                        {de ? 'Gespart' : 'Saved'}
-                        <span className="text-meta font-normal ml-1.5" style={{ color: 'var(--txf)' }}>
-                          {de ? `auf ${cost.km.toLocaleString('de-DE')} km` : `over ${cost.km.toLocaleString('en-US')} km`}
-                        </span>
-                      </span>
-                      <span className="font-display font-bold" style={{ fontSize: '1.4rem', color: 'var(--accent)' }}>
-                        {eur(cost.savedEur, de)}
-                      </span>
-                    </div>
-                  </div>
-                  <span className="inline-flex items-center gap-1.5 text-meta font-semibold" style={{ color: 'var(--tx1)' }}>
-                    {de ? 'Woher kommt die Zahl?' : 'Where does this number come from?'}
-                    <ArrowRight className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-1"
-                      style={{ color: 'var(--accent-soft)' }} />
-                  </span>
-                </div>
-              }
-            >
-              {/* Balken nur ab sm — auf Mobile reicht eine Zeile, siehe
-                  Kommentar oben (Punkt 4): einzige der drei Beleg-Stuecke, die
-                  sich mit der Liste (Zeile 03/04) wiederholt. */}
-              <div className="hidden sm:block">
-                <DriveLossBars de={de} />
-                <p className="text-meta leading-relaxed mt-3" style={{ color: 'var(--txff)' }}>
-                  {de
-                    ? `Bei ${w.inputW[0]}–${w.inputW[1]} W, μ ${pro.muLo.toFixed(2)}–${pro.muHi.toFixed(2)} statt ${oil.muLo.toFixed(2)}–${oil.muHi.toFixed(2)}. Laborwerte.`
-                    : `At ${w.inputW[0]}–${w.inputW[1]} W, μ ${pro.muLo.toFixed(2)}–${pro.muHi.toFixed(2)} instead of ${oil.muLo.toFixed(2)}–${oil.muHi.toFixed(2)}. Lab values.`}
-                </p>
-              </div>
-              <p className="sm:hidden text-small leading-relaxed" style={{ color: 'var(--txm)' }}>
-                <span className="num-data font-medium" style={{ color: 'var(--accent)' }}>{w.wax[0]}–{w.wax[1]} W</span>
-                {de ? ' statt ' : ' instead of '}
-                <span className="num-data" style={{ color: 'var(--txf)' }}>{w.oil[0]}–{w.oil[1]} W</span>
-                {de ? ' Reibungsverlust im Antrieb.' : ' drivetrain friction loss.'}
-              </p>
-            </InstrumentFrame>
-          </Link>
+          <p className="text-small leading-relaxed mt-2.5" style={{ color: 'var(--txm)' }}>
+            {proof.caption}
+          </p>
         </div>
       </div>
+
+      {/* ══ Band 2: die vier Punkte als Datenblattzeile ═════════════════════
+          Typo-Grammatik des Beilegers (public/flyer.html, .stats-row): Zellen
+          auf Flaechenfarbe, dazwischen 1px Fuge in der Rahmenfarbe. Der Trick
+          daran ist, dass er bei jeder Spaltenzahl von selbst aufgeht — auf dem
+          Handy werden aus den senkrechten Fugen waagerechte Trennlinien, ohne
+          eine einzige Sonderregel fuer erste/letzte Zelle. */}
+      <div ref={rowsRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px"
+        style={{ background: 'var(--bd2)', borderTop: '1px solid var(--bd2)', borderBottom: '1px solid var(--bd2)' }}>
+        {moments.map((m, i) => (
+          <div key={m.n} data-row
+            className={[
+              'py-6',
+              // Aussenkanten buendig mit der Sektionsspalte, damit die 01
+              // exakt unter der Ueberschrift steht und die 04 am rechten Rand
+              // abschliesst. Innen gleichmaessiger Abstand zur Fuge.
+              i === 0 ? 'lg:pl-0 lg:pr-7' : i === moments.length - 1 ? 'lg:pl-7 lg:pr-0' : 'lg:px-7',
+            ].join(' ')}
+            style={{ background: 'var(--sf)' }}>
+            <span className="font-display font-bold leading-none select-none block"
+              style={{ fontSize: 'clamp(1.5rem, 2.6vw, 2rem)', color: 'var(--accent-soft)' }}>
+              {m.n}
+            </span>
+            <h3 className="font-display font-bold text-wx-tx1 leading-[1.2] tracking-[-0.01em] mt-2.5 mb-1.5"
+              style={{ fontSize: 'clamp(1rem, 1.35vw, 1.15rem)' }}>
+              {de ? m.titleDe : m.titleEn}
+            </h3>
+            <p className="text-small leading-relaxed" style={{ color: 'var(--txm)' }}>
+              {de ? m.bodyDe : m.bodyEn}
+            </p>
+            {/* Beleg-Notiz: bewusst dieselbe Schrift wie der Satz, nur eine
+                Stufe kleiner und in der leisesten Textfarbe. Der Inhalt ist
+                gemischt (Wortbelege wie "Fahrerurteil" neben Zahlen wie
+                "μ 0.03"), eine Mono-Type passte nur zur Haelfte und las sich
+                als Fehlformatierung. `.num` nur fuer buendige Ziffern. */}
+            <p className="num text-meta mt-2" style={{ color: 'var(--txff)' }}>
+              {m.chip}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      {/* ══ Band 3: die Messwerte als Fusszeile ═════════════════════════════
+          Frueher eine zweite Karte unter der Foto-Karte. Als Band unter den
+          vier Punkten liest sie sich als deren Beleg statt als eigenes
+          Element, und die Kostenrechnung bekommt endlich die Breite fuer
+          Punktfuehrungen (flyer.html, .fv-dots) statt einer engen Spalte.
+
+          Klickbar bleibt sie: die Ersparniszahl stuende sonst ohne Herleitung
+          da, dabei gibt es auf der wax-500-Produktseite eine
+          Posten-fuer-Posten-Aufschluesselung genau dieser Zahlen. */}
+      <Link to="/produkt/wax-500#instrument" className="group block pt-7 sm:pt-8"
+        aria-label={de ? 'Woher die Ersparnis kommt: Kostenaufschlüsselung ansehen' : 'Where the savings come from: see the cost breakdown'}>
+        <div className="grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-7 lg:gap-16">
+
+          <div>
+            <p className="eyebrow mb-3" style={{ color: 'var(--txf)' }}>
+              {de ? 'Gemessen · Antriebsverlust' : 'Measured · drivetrain loss'}
+            </p>
+            <DriveLossBars de={de} />
+            <p className="text-meta leading-relaxed mt-3" style={{ color: 'var(--txff)' }}>
+              {de
+                ? `Bei ${w.inputW[0]}–${w.inputW[1]} W, μ ${pro.muLo.toFixed(2)}–${pro.muHi.toFixed(2)} statt ${oil.muLo.toFixed(2)}–${oil.muHi.toFixed(2)}. Laborwerte.`
+                : `At ${w.inputW[0]}–${w.inputW[1]} W, μ ${pro.muLo.toFixed(2)}–${pro.muHi.toFixed(2)} instead of ${oil.muLo.toFixed(2)}–${oil.muHi.toFixed(2)}. Lab values.`}
+            </p>
+          </div>
+
+          <div>
+            <p className="eyebrow mb-3" style={{ color: 'var(--txf)' }}>
+              {de ? `Gerechnet · ${cost.km.toLocaleString('de-DE')} km` : `Calculated · ${cost.km.toLocaleString('en-US')} km`}
+            </p>
+            <div className="flex flex-col gap-2">
+              <LeaderRow label={de ? 'Kettenöl' : 'Chain oil'} value={eur(cost.oilEur, de)} />
+              <LeaderRow label={de ? 'Heißwachs' : 'Hot wax'} value={eur(cost.waxEur, de)} />
+            </div>
+            <div className="flex items-baseline justify-between gap-3 pt-3 mt-2.5"
+              style={{ borderTop: '1px solid var(--bd2)' }}>
+              <span className="text-small font-semibold" style={{ color: 'var(--tx1)' }}>
+                {de ? 'Gespart' : 'Saved'}
+              </span>
+              <span className="font-display font-bold" style={{ fontSize: '1.5rem', color: 'var(--accent)' }}>
+                {eur(cost.savedEur, de)}
+              </span>
+            </div>
+            <span className="inline-flex items-center gap-1.5 text-meta font-semibold mt-3" style={{ color: 'var(--tx1)' }}>
+              {de ? 'Woher kommt die Zahl?' : 'Where does this number come from?'}
+              <ArrowRight className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-1"
+                style={{ color: 'var(--accent-soft)' }} />
+            </span>
+          </div>
+        </div>
+      </Link>
 
       {/* ── Tür in die Wissenschaft ── */}
       <ScienceTeaser de={de} />
