@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Search } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { Navigation } from '@/sections/navigation';
 import { Footer } from '@/sections/footer';
 import { getProductById } from '@/lib/data';
 import { removeStaticHeadMeta } from '@/lib/utils';
+import { BeforeAfterSlider } from '@/components/BeforeAfterSlider';
+import { useArticleSearch } from '@/lib/search/useArticleSearch';
+import type { SnippetPart } from '@/lib/search/engine';
 import {
   articles,
   categoryColors,
@@ -22,18 +25,230 @@ const formatPrice = (price: number) =>
 
 type Filter = 'Alle' | ArticleCategory;
 
-function ArticleCard({ article }: { article: Article }) {
+/** Fundstelle im Artikeltext, Treffer hervorgehoben.
+ *  Ersetzt waehrend einer Suche die Kurzbeschreibung: die erklaert, worum es
+ *  geht, beantwortet aber nicht die Frage "steht meine Antwort da drin?".
+ *  Genau das zeigt der Schnipsel. */
+function Snippet({ parts }: { parts: SnippetPart[] }) {
+  return (
+    <p className="text-[13px] leading-[1.6] text-wx-txm mb-4 line-clamp-3">
+      {parts.map((part, i) =>
+        part.hit ? (
+          <mark
+            key={i}
+            className="rounded px-0.5"
+            style={{ background: 'color-mix(in srgb, var(--accent) 24%, transparent)', color: 'var(--tx1)' }}
+          >
+            {part.text}
+          </mark>
+        ) : (
+          <span key={i}>{part.text}</span>
+        ),
+      )}
+    </p>
+  );
+}
+
+/**
+ * Rhythmus des Kartengitters.
+ *
+ * Vorher standen achtzehn exakt gleich grosse Kacheln in drei starren
+ * Spalten. Das las sich wie eine Ergebnisliste, nicht wie eine Werkstatt, und
+ * nichts darin sagte dem Auge, wo es anfangen soll.
+ *
+ * Jetzt wiederholt sich ein Zweizeilen-Takt: eine breite Karte plus eine
+ * schmale, darunter drei schmale. Ueber sechs Spalten geht das immer genau
+ * auf (4+2 und 2+2+2), es entstehen also nie Loecher — auch nicht beim
+ * Filtern oder Suchen, weil der Takt aus der Position in der bereits
+ * gefilterten Liste kommt und nicht aus dem Artikel selbst.
+ *
+ * Bewusst nur zwei Varianten. Drei waeren beliebig geworden; zwei sind ein
+ * erkennbarer Takt.
+ */
+function cardVariant(index: number): 'wide' | 'standard' {
+  return index % 5 === 0 ? 'wide' : 'standard';
+}
+
+/** Spaltenbreite je Variante. Eine breite Karte als allerletzte haette sonst
+ *  ein Drittel der Zeile leer stehen lassen; dort nimmt sie die volle Breite
+ *  und liest sich als Abschluss statt als Rest. */
+function cardSpan(variant: 'wide' | 'standard', isLast: boolean): string {
+  if (variant === 'standard') return 'sm:col-span-3 lg:col-span-2';
+  return isLast ? 'sm:col-span-6' : 'sm:col-span-6 lg:col-span-4';
+}
+
+/** Der Klick-Hinweis unten rechts auf jeder Karte.
+ *  Der bisherige stille Text "Lesen →" in Akzentfarbe war leicht zu
+ *  uebersehen — er sah aus wie eine Beschriftung, nicht wie ein Ziel. Ein
+ *  umrandeter Kreis, der beim Hover mit der Akzentfarbe volllaeuft, ist ein
+ *  Knopf, auch ohne dass man ihn beruehrt. */
+function ReadAffordance() {
+  return (
+    <span
+      className="flex-shrink-0 inline-flex items-center justify-center h-8 w-8 rounded-full transition-all duration-300 group-hover:bg-[color:var(--accent)] group-hover:border-[color:var(--accent)]"
+      style={{ border: '1px solid var(--bd2)' }}
+      aria-hidden
+    >
+      <ArrowRight
+        className="h-3.5 w-3.5 transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-white"
+        style={{ color: 'var(--accent)' }}
+      />
+    </span>
+  );
+}
+
+/** Die Kennzahl als Blickfang, in der Typo-Grammatik des Beilegers
+ *  (public/flyer.html): grosse Displayziffer ueber winzigem Sperrlabel.
+ *  Vorher stand sie als unauffaellige Monozeile am Kartenfuss und wurde von
+ *  der Beschreibung darueber vollstaendig erschlagen — dabei ist sie das
+ *  Konkreteste, was eine Karte zu bieten hat. */
+function KeyStat({ value, label, large }: { value: string; label: string; large?: boolean }) {
+  return (
+    <div>
+      <div
+        className="font-display font-bold text-wx-tx1 leading-none tracking-tight"
+        style={{ fontSize: large ? '1.6rem' : '1.25rem' }}
+      >
+        {value}
+      </div>
+      <div className="font-mono text-meta uppercase tracking-[0.16em] text-wx-txf mt-1.5">
+        {label}
+      </div>
+    </div>
+  );
+}
+
+function CategoryBadge({ category }: { category: ArticleCategory }) {
+  return (
+    <span
+      className="absolute top-3 left-3 text-small font-semibold uppercase tracking-[0.16em] px-2.5 py-1 rounded-full backdrop-blur"
+      style={{ background: 'var(--chip-bg)', color: categoryColors[category] }}
+    >
+      {category}
+    </span>
+  );
+}
+
+/** Gemeinsame Hover-Regeln beider Varianten. Vorher hob sich die Karte nur an
+ *  und zoomte ihr Bild; Rahmen und Schatten kommen dazu, damit der Unterschied
+ *  zwischen "liegt da" und "laesst sich anklicken" auch auf einen Blick
+ *  sichtbar ist. */
+const CARD_BASE =
+  'group block h-full rounded-2xl transition-all duration-300 hover:-translate-y-1 ' +
+  'hover:border-[color:var(--accent-soft)] hover:shadow-[var(--card-shad)]';
+
+function ArticleCard({
+  article,
+  snippet,
+  variant = 'standard',
+}: {
+  article: Article;
+  snippet?: SnippetPart[] | null;
+  variant?: 'wide' | 'standard';
+}) {
   const img = getArticleImage(article.slug);
+  const text = snippet?.length ? (
+    <Snippet parts={snippet} />
+  ) : (
+    <p className={`text-[13px] leading-[1.6] text-wx-txm ${variant === 'wide' ? 'line-clamp-3' : 'line-clamp-2'}`}>
+      {article.description}
+    </p>
+  );
+  const meta = (
+    <span className="font-mono text-meta text-wx-txf">von Luca · {article.readingTime}</span>
+  );
+
+  if (variant === 'wide') {
+    // Die breite Karte legt Text UEBER das Bild statt daneben.
+    //
+    // Nebeneinander sah sie zwar anders aus als die schmalen Karten, aber
+    // nicht besser: sie ist genauso hoch wie ihre Nachbarin und nur breiter,
+    // die Bildspalte wurde dadurch hochkant und schnitt jedes Querformat
+    // kaputt. Vollflaechig bekommt dasselbe Foto seine natuerliche Form
+    // zurueck, und der Groessenunterschied wird endlich auch als
+    // Rangunterschied gelesen.
+    return (
+      <Link
+        to={`/blog/${article.slug}`}
+        className={`${CARD_BASE} relative min-h-[320px] sm:min-h-[360px] flex flex-col justify-end`}
+        style={{ background: 'var(--sf2)', border: '1px solid var(--bd)' }}
+      >
+        {/* overflow-hidden liegt auf dieser inneren Ebene, nicht auf dem Link,
+            der auch den Hover-Transform traegt — beides zusammen laesst
+            Chromium die Eckmaske beim Wechsel auf eine neue Ebene kurz
+            quadratisch aufblitzen (siehe products.tsx). */}
+        <div className="absolute inset-0 rounded-2xl overflow-hidden" style={{ transform: 'translateZ(0)' }}>
+          <img
+            src={img.card}
+            alt={img.alt}
+            loading="lazy"
+            width={800}
+            height={500}
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-105"
+          />
+          {/* Kraeftiger als bei den schmalen Karten: dort liegt der Text auf
+              eigener Flaeche, hier traegt der Verlauf die gesamte Lesbarkeit,
+              und die Artikelfotos reichen von fast schwarz bis Gegenlicht. */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                'linear-gradient(180deg, rgba(var(--scrim-rgb),0.15) 0%, rgba(var(--scrim-rgb),0.55) 45%, rgba(var(--scrim-rgb),0.93) 100%)',
+            }}
+          />
+        </div>
+        <CategoryBadge category={article.category} />
+        <div className="relative w-full p-6 sm:p-7">
+          <h2
+            className="font-display font-bold leading-[1.15] mb-2.5 max-w-[28ch]"
+            style={{ color: '#FFFFFF', fontSize: 'clamp(1.35rem, 2.4vw, 1.75rem)' }}
+          >
+            {article.titleShort}
+          </h2>
+          {snippet?.length ? (
+            <div style={{ color: '#D8D8DE' }}>
+              <Snippet parts={snippet} />
+            </div>
+          ) : (
+            <p className="text-[13.5px] leading-[1.6] line-clamp-2 max-w-[52ch]" style={{ color: '#D8D8DE' }}>
+              {article.description}
+            </p>
+          )}
+          <div className="flex items-end justify-between gap-4 mt-5">
+            <div className="flex items-end gap-6">
+              {article.keyStat && (
+                <div>
+                  <div className="font-display font-bold leading-none tracking-tight" style={{ color: '#FFFFFF', fontSize: '1.6rem' }}>
+                    {article.keyStat.value}
+                  </div>
+                  <div className="font-mono text-meta uppercase tracking-[0.16em] mt-1.5" style={{ color: '#B4B4BE' }}>
+                    {article.keyStat.label}
+                  </div>
+                </div>
+              )}
+              <span className="font-mono text-meta pb-0.5" style={{ color: '#B4B4BE' }}>
+                von Luca · {article.readingTime}
+              </span>
+            </div>
+            <span
+              className="flex-shrink-0 inline-flex items-center justify-center h-9 w-9 rounded-full transition-all duration-300 group-hover:bg-[color:var(--accent)] group-hover:border-[color:var(--accent)]"
+              style={{ border: '1px solid rgba(255,255,255,0.45)' }}
+              aria-hidden
+            >
+              <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" style={{ color: '#FFFFFF' }} />
+            </span>
+          </div>
+        </div>
+      </Link>
+    );
+  }
+
   return (
     <Link
       to={`/blog/${article.slug}`}
-      className="group block rounded-2xl transition-all duration-300 hover:-translate-y-1"
+      className={`${CARD_BASE} flex flex-col`}
       style={{ background: 'var(--sf)', border: '1px solid var(--bd)' }}
     >
-      {/* overflow-hidden + rounded corners live here, not on the Link that also
-          carries the hover transform — combining both on one element risks
-          Chromium flashing the corner clip square right as hover promotes a
-          new layer (same bug as the product cards; see products.tsx). */}
       <div className="relative aspect-[16/10] overflow-hidden rounded-t-2xl" style={{ background: 'var(--sf2)', transform: 'translateZ(0)' }}>
         <img
           src={img.card}
@@ -47,115 +262,80 @@ function ArticleCard({ article }: { article: Article }) {
           className="absolute inset-0"
           style={{ background: 'linear-gradient(180deg, rgba(var(--scrim-rgb),0) 55%, rgba(var(--scrim-rgb),0.45) 100%)' }}
         />
-        <span
-          className="absolute top-3 left-3 text-small font-semibold uppercase tracking-[0.16em] px-2.5 py-1 rounded-full backdrop-blur"
-          style={{ background: 'var(--chip-bg)', color: categoryColors[article.category] }}
-        >
-          {article.category}
-        </span>
+        <CategoryBadge category={article.category} />
       </div>
-      <div className="p-5">
+      <div className="p-5 flex flex-col flex-1">
         <h2 className="font-display text-[18px] font-semibold text-wx-tx1 leading-snug mb-2 group-hover:text-white transition-colors">
           {article.titleShort}
         </h2>
-        <p className="text-[13px] leading-[1.6] text-wx-txm mb-4 line-clamp-2">
-          {article.description}
-        </p>
-        <div className="flex items-center justify-between mb-3">
-          <span className="font-mono text-meta text-wx-txf">
-            von Luca · {article.readingTime}
-          </span>
-          <span
-            className="text-[12px] font-medium transition-transform group-hover:translate-x-0.5"
-            style={{ color: 'var(--accent)' }}
-          >
-            Lesen →
-          </span>
+        {text}
+        <div className="flex items-end justify-between gap-3 mt-auto pt-5">
+          {article.keyStat ? <KeyStat value={article.keyStat.value} label={article.keyStat.label} /> : meta}
+          <ReadAffordance />
         </div>
-        {article.keyStat && (
-          <div className="flex items-baseline gap-1.5 pt-3" style={{ borderTop: '1px solid var(--bd)' }}>
-            <span className="font-mono text-[13px] font-semibold text-wx-tx1">
-              {article.keyStat.value}
-            </span>
-            <span className="font-mono text-meta uppercase tracking-wider text-wx-txf">
-              {article.keyStat.label}
-            </span>
-          </div>
-        )}
+        {article.keyStat && <div className="font-mono text-meta text-wx-txf mt-3">von Luca · {article.readingTime}</div>}
       </div>
     </Link>
   );
 }
 
 /**
- * Ersetzt die frühere Kombination aus separatem Vergleichsblock + eigener
- * FeaturedArticle-Kachel (zwei gleich große Blöcke übereinander) durch eine
- * einzige asymmetrische Kachel: ein großes Hauptbild plus ein kleineres,
- * überlappendes Kontrastbild, das die "geölt vs. gewachst"-These weiterträgt
- * statt sie als eigenen Block zu wiederholen.
+ * Die Kachel oben auf der Uebersicht: ein Artikel, hervorgehoben, plus der
+ * Beleg fuer seine These.
+ *
+ * Vorher standen hier zwei Fotos nebeneinander, ein grosses "gewachst" und ein
+ * kleines, ueberlappendes "geoelt" (eine verschmutzte Wade). Zwei getrennte
+ * Aufnahmen muessen dem Betrachter aber immer erst erklaeren, dass sie
+ * ueberhaupt vergleichbar sind. Jetzt steht dort derselbe Vergleichsslider wie
+ * auf der Startseite: eine Kette, zwei Zustaende, der Leser zieht selbst.
+ *
+ * Dafuer ist die Kachel KEIN einziger <Link> mehr. Ein ziehbarer Slider
+ * innerhalb eines Links waere unbedienbar, weil jeder Zug als Klick endet und
+ * die Seite wechselt. Verlinkt sind jetzt Ueberschrift und Fusszeile, und die
+ * `peer`/`group`-Kopplung sorgt dafuer, dass die Kachel trotzdem als ein Stueck
+ * reagiert: Hover auf einem der beiden Links hebt die ganze Karte.
  */
 function FeatureTile({ article }: { article: Article }) {
   return (
-    <Link
-      to={`/blog/${article.slug}`}
-      className="group grid md:grid-cols-[3fr_2fr] rounded-2xl mb-12 transition-all duration-300 hover:-translate-y-1"
+    <div
+      className="group grid md:grid-cols-[3fr_2fr] rounded-2xl mb-12 overflow-hidden transition-all duration-300 has-[a:hover]:-translate-y-1"
       style={{ background: 'var(--sf)', border: '1px solid var(--bd)' }}
     >
-      {/* Bildspalte: Hauptbild + überlappendes Insetbild. `self-start` ist
-          hier absichtlich: ohne das würde die Spalte sich in der Desktop-Grid
-          auf die Höhe der Textspalte strecken (die je nach Titellänge stark
-          variiert), und dann würde das Inset-Bild — das relativ zu dieser
-          Spalte positioniert ist — bei einem langen Titel weit unter die
-          Kachel hinausragen. Mit `self-start` behält die Bildspalte immer
-          ihre eigene, bildbasierte Höhe, unabhängig vom Text daneben. Das
-          Inset sitzt bewusst außerhalb des Hauptbild-Containers (der sein
-          eigenes overflow-hidden trägt), damit es über die Kante hinausragen
-          kann, ohne vom äußeren rounded-2xl beschnitten zu werden. */}
-      <div className="relative self-start mb-12 sm:mb-14 md:mb-16 md:pr-10">
-        <div
-          className="relative aspect-[16/11] sm:aspect-[4/3] md:aspect-[5/4] overflow-hidden rounded-t-2xl md:rounded-t-none md:rounded-l-2xl"
-          style={{ background: 'var(--sf2)', transform: 'translateZ(0)' }}
-        >
-          <img
-            src={blogFeature.main.src}
-            alt={blogFeature.main.alt}
-            fetchPriority="high"
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-105"
+      {/* Der Slider bringt sein eigenes festes Seitenverhaeltnis mit (6/5, so
+          sind die Bildpaare in public/images/compare/ geschnitten), die
+          Textspalte daneben ist je nach Titellaenge unterschiedlich hoch.
+          Randlos bis an die Kachelkante gezogen bliebe deshalb ein
+          unterschiedlich breiter Rest als Streifen stehen, der wie ein
+          Darstellungsfehler aussieht. Mit Innenabstand und eigenen Ecken ist
+          der Slider stattdessen erkennbar ein gerahmtes Element, und der
+          Ausgleich oben und unten (`self-center`) liest sich als Absicht. */}
+      <div className="self-center p-4 sm:p-5 md:p-6">
+        <div className="rounded-xl overflow-hidden" style={{ transform: 'translateZ(0)' }}>
+          <BeforeAfterSlider
+            aspect="6/5"
+            beforeSrc={blogFeature.before.src}
+            afterSrc={blogFeature.after.src}
+            beforeAlt={blogFeature.before.alt}
+            afterAlt={blogFeature.after.alt}
+            beforeLabel={blogFeature.before.label}
+            afterLabel={blogFeature.after.label}
           />
-          <span
-            className="absolute top-3 left-3 text-small font-semibold uppercase tracking-[0.16em] px-2.5 py-1 rounded-full backdrop-blur"
-            style={{ background: 'var(--chip-bg)', color: '#F2F2F5' }}
-          >
-            {blogFeature.main.caption}
-          </span>
         </div>
-        <figure
-          className="absolute left-5 -bottom-10 sm:-bottom-12 md:-bottom-14 w-[46%] sm:w-[38%] md:w-[52%] md:left-6 aspect-[4/5] rounded-xl overflow-hidden shadow-2xl"
-          style={{ border: '3px solid var(--pg)', background: 'var(--sf2)' }}
-        >
-          <img
-            src={blogFeature.inset.src}
-            alt={blogFeature.inset.alt}
-            loading="lazy"
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-          <figcaption
-            className="absolute bottom-0 left-0 right-0 px-2 py-1.5 font-mono text-[10px] uppercase tracking-[0.14em]"
-            style={{ background: 'linear-gradient(0deg, rgba(var(--scrim-rgb),0.85), rgba(var(--scrim-rgb),0))', color: '#F2F2F5' }}
-          >
-            {blogFeature.inset.caption}
-          </figcaption>
-        </figure>
       </div>
 
       {/* Textspalte: bewusst oben ausgerichtet statt vertikal zentriert, damit
           die Kachel nicht als gespiegeltes 50/50-Layout wirkt. */}
-      <div className="p-7 sm:p-9 md:pt-9 flex flex-col justify-start">
+      <div className="px-7 pb-7 sm:px-9 sm:pb-9 md:py-9 md:pr-9 md:pl-3 flex flex-col justify-center">
         <p className="font-mono text-small uppercase tracking-[0.18em] text-wx-txf mb-3">
           Empfohlen · {article.category}
         </p>
-        <h2 className="font-display text-2xl sm:text-[28px] font-bold text-wx-tx1 leading-[1.15] mb-3 group-hover:text-white transition-colors">
-          {article.title}
+        <h2 className="font-display text-2xl sm:text-[28px] font-bold leading-[1.15] mb-3">
+          <Link
+            to={`/blog/${article.slug}`}
+            className="text-wx-tx1 transition-colors hover:text-white"
+          >
+            {article.title}
+          </Link>
         </h2>
         <p className="text-[14px] leading-[1.7] text-wx-txm mb-6">
           {article.description}
@@ -173,15 +353,95 @@ function FeatureTile({ article }: { article: Article }) {
           </div>
         )}
         <p className="text-[13px] leading-[1.6] text-wx-txf mb-6">
-          Der Unterschied ist kein Marketingversprechen, sondern das, was nach
-          der Fahrt an Wade und Socke hängen bleibt.
+          Der Unterschied ist kein Marketingversprechen. Zieh den Regler und
+          sieh dir dieselbe Kette in beiden Zuständen an.
         </p>
-        <div className="flex items-center gap-2 text-[13px] font-semibold" style={{ color: 'var(--accent)' }}>
+        <Link
+          to={`/blog/${article.slug}`}
+          className="mt-auto inline-flex items-center gap-2 text-[13px] font-semibold w-fit"
+          style={{ color: 'var(--accent)' }}
+        >
           Artikel lesen
           <span className="transition-transform group-hover:translate-x-1">→</span>
-        </div>
+        </Link>
       </div>
-    </Link>
+    </div>
+  );
+}
+
+/**
+ * Leerzustand. Vorher rendete die Seite bei null Treffern einfach ein leeres
+ * Raster: der Nutzer sah, dass etwas fehlt, bekam aber weder eine Erklaerung
+ * noch einen Ausweg. Hier steht beides, und zwar in dieser Reihenfolge:
+ * zuerst der wahrscheinlichste Grund (ein aktiver Kategoriefilter, den man
+ * leicht vergisst), dann die vier Einstiege, dann der direkte Draht zu Luca.
+ */
+function NoResults({
+  query,
+  activeFilter,
+  onClearFilter,
+  onClearQuery,
+}: {
+  query: string;
+  activeFilter: Filter;
+  onClearFilter: () => void;
+  onClearQuery: () => void;
+}) {
+  return (
+    <div className="mb-16 rounded-2xl px-6 py-10 sm:px-10 sm:py-12"
+      style={{ background: 'var(--sf)', border: '1px solid var(--bd)' }}>
+      <p className="font-mono text-small uppercase tracking-[0.18em] text-wx-txf mb-3">
+        Kein Treffer
+      </p>
+      <h2 className="font-display text-2xl font-bold text-wx-tx1 mb-3">
+        Zu „{query}" habe ich nichts gefunden.
+      </h2>
+
+      {activeFilter !== 'Alle' ? (
+        <p className="text-[14px] leading-[1.7] text-wx-txm mb-6">
+          Gesucht wurde nur in der Kategorie{' '}
+          <span style={{ color: 'var(--tx1)' }}>{activeFilter}</span>.{' '}
+          <button
+            type="button"
+            onClick={onClearFilter}
+            className="underline underline-offset-2"
+            style={{ color: 'var(--accent)' }}
+          >
+            In allen Artikeln suchen
+          </button>
+        </p>
+      ) : (
+        <p className="text-[14px] leading-[1.7] text-wx-txm mb-6">
+          Versuch es ruhig mit eigenen Worten, ganze Fragen versteht die Suche
+          auch. Oder steig hier ein:
+        </p>
+      )}
+
+      <div className="flex flex-wrap gap-x-5 gap-y-2 mb-7">
+        {INTENTS.map((intent) => (
+          <Link
+            key={intent.slug}
+            to={`/blog/${intent.slug}`}
+            onClick={onClearQuery}
+            className="group text-[13px] inline-flex items-center gap-1.5 transition-colors hover:text-wx-tx1"
+            style={{ color: 'var(--txm)' }}
+          >
+            <span style={{ color: 'var(--accent)' }}>→</span>
+            <span className="border-b border-transparent group-hover:border-current">
+              {intent.label}
+            </span>
+          </Link>
+        ))}
+      </div>
+
+      <p className="text-[13px] leading-[1.7] text-wx-txf">
+        Steht deine Frage nirgends?{' '}
+        <Link to="/kontakt" className="underline underline-offset-2" style={{ color: 'var(--accent)' }}>
+          Schreib mir direkt
+        </Link>
+        , dann beantworte ich sie dir und sie landet danach hier.
+      </p>
+    </div>
   );
 }
 
@@ -239,22 +499,57 @@ export function BlogIndexPage() {
   const normalizedQuery = query.trim().toLowerCase();
   const isSearching = normalizedQuery.length > 0;
 
-  const matchesQuery = (a: Article) =>
-    !isSearching ||
+  // Die eigentliche Suche (Volltext, Aliase, Synonyme, Tippfehlertoleranz)
+  // liegt in src/lib/search/. Sie laedt ihren Index nach und ist deshalb in
+  // den ersten Millisekunden noch nicht da: `hits === null` heisst "noch keine
+  // Aussage", nicht "nichts gefunden".
+  const { hits, state: searchState, prefetch: prefetchSearch } = useArticleSearch(query);
+
+  // Notbehelf fuer genau dieses Zeitfenster (und fuer den Fall, dass der Index
+  // gar nicht laedt): die alte, schlichte Substring-Suche. Sie findet weniger,
+  // aber sie findet sofort, und der Nutzer sieht nie ein falsches
+  // "keine Treffer".
+  const fallbackMatches = (a: Article) =>
     a.title.toLowerCase().includes(normalizedQuery) ||
+    a.titleShort.toLowerCase().includes(normalizedQuery) ||
     a.description.toLowerCase().includes(normalizedQuery) ||
     (a.takeaways ?? []).some((t) => t.toLowerCase().includes(normalizedQuery));
 
+  const bySlug = new Map(articles.map((a) => [a.slug, a]));
+
+  // Bei aktiver Suche bestimmt die Relevanz die Reihenfolge, nicht mehr die
+  // Reihenfolge im Datenarray. Der Kategoriefilter bleibt dabei bewusst
+  // wirksam: die Pills stehen sichtbar aktiv da, ein Suchergebnis ausserhalb
+  // der gewaehlten Kategorie waere ein Widerspruch zur Anzeige. Der
+  // Leerzustand bietet dafuer an, den Filter mit einem Klick aufzuheben.
+  const inFilter = (a: Article) => filter === 'Alle' || a.category === filter;
+
+  const ranked: { article: Article; snippet: SnippetPart[] | null }[] = !isSearching
+    ? []
+    : hits
+      ? hits
+          .map((h) => ({ article: bySlug.get(h.slug), snippet: h.snippet }))
+          .filter((r): r is { article: Article; snippet: SnippetPart[] | null } => Boolean(r.article))
+          .filter((r) => inFilter(r.article))
+      : articles.filter(fallbackMatches).filter(inFilter).map((a) => ({ article: a, snippet: null }));
+
+  const snippetFor = new Map(ranked.map((r) => [r.article.slug, r.snippet]));
+
   const showLead = filter === 'Alle' && !isSearching && featured;
-  const grid = (
-    filter === 'Alle'
+  const grid = isSearching
+    ? ranked.map((r) => r.article)
+    : filter === 'Alle'
       // Excludes whichever article is actually shown as the lead right now —
       // compares against `featured`'s slug, not the raw `.featured` flag,
       // since the seasonal override above can promote an article to lead
       // that doesn't have that flag set at all.
-      ? articles.filter((a) => a.slug !== featured?.slug || isSearching)
-      : articles.filter((a) => a.category === filter)
-  ).filter(matchesQuery);
+      ? articles.filter((a) => a.slug !== featured?.slug)
+      : articles.filter((a) => a.category === filter);
+
+  // "Wirklich nichts gefunden" nur, wenn der Index fertig ist und trotzdem
+  // nichts uebrig bleibt. Waehrend des Ladens zeigt die Seite lieber die
+  // Fallback-Treffer.
+  const noResults = isSearching && grid.length === 0 && (searchState === 'ready' || searchState === 'error');
 
   const recommendedProduct = getProductById(
     filter === 'Alle' ? 'wax-500' : categoryProductSlug[filter],
@@ -334,18 +629,35 @@ export function BlogIndexPage() {
       </section>
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-12">
-        {/* Suche */}
+        {/* Suche. Der Platzhalter nennt bewusst eine ganze Frage statt zweier
+            Stichwoerter: die Suche versteht jetzt Umgangssprache, und niemand
+            probiert das aus, wenn das Feld nach Schlagwortsuche aussieht. */}
         <div className="relative mb-6">
+          <Search
+            className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 pointer-events-none"
+            style={{ color: 'var(--txf)' }}
+            aria-hidden
+          />
           <input
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            // Der Index wird nachgeladen. Beim Fokus ist er dadurch meist schon
+            // da, bevor der erste Buchstabe getippt ist.
+            onFocus={prefetchSearch}
+            onPointerEnter={prefetchSearch}
             aria-label="Artikel durchsuchen"
-            placeholder='Artikel durchsuchen, z. B. „Winter" oder „Watt"'
-            className="w-full text-[14px] px-4 py-2.5 rounded-full outline-none"
+            placeholder='Frag einfach: „meine Hose wird schwarz“'
+            className="w-full text-[14px] pl-11 pr-4 py-2.5 rounded-full outline-none transition-colors focus:border-[color:var(--accent)]"
             style={{ background: 'var(--sf)', border: '1px solid var(--bd)', color: 'var(--tx1)' }}
           />
         </div>
+        {/* Trefferzahl fuer Screenreader. Sichtbar steht sie an der
+            Abschnittsueberschrift, aber die liegt im Lesefluss weit unter dem
+            Feld und wird ohne diese Meldung beim Tippen nicht angesagt. */}
+        <p className="sr-only" role="status" aria-live="polite">
+          {isSearching ? `${grid.length} Treffer für ${query}` : ''}
+        </p>
 
         {/* Einstieg nach Absicht. Bewusst anders gestaltet als die Kategorie-Pills
             darunter: das hier sind Sprungziele in einen Artikel, keine Filter.
@@ -409,11 +721,29 @@ export function BlogIndexPage() {
         </div>
 
         {/* Article grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-16">
-          {grid.map((article) => (
-            <ArticleCard key={article.slug} article={article} />
-          ))}
-        </div>
+        {noResults ? (
+          <NoResults
+            query={query}
+            activeFilter={filter}
+            onClearFilter={() => setFilter('Alle')}
+            onClearQuery={() => setQuery('')}
+          />
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-6 gap-5 mb-16">
+            {grid.map((article, i) => {
+              const variant = cardVariant(i);
+              return (
+                <div key={article.slug} className={cardSpan(variant, i === grid.length - 1)}>
+                  <ArticleCard
+                    article={article}
+                    snippet={snippetFor.get(article.slug)}
+                    variant={variant}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* CTA banner + product cross-sell — the blog previously had zero
             product links anywhere except each article's own bottom CTA card.
