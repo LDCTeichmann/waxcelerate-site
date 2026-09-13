@@ -46,20 +46,28 @@ const DEBOUNCE_MS = 120;
 
 export function useArticleSearch(query: string) {
   const [engine, setEngine] = useState<SearchEngine | null>(null);
-  const [state, setState] = useState<ArticleSearchState>('idle');
+  const [failed, setFailed] = useState(false);
+  const [started, setStarted] = useState(false);
   const [debounced, setDebounced] = useState(query);
   const wanted = useRef(false);
 
-  /** Index anfordern. Mehrfach aufrufbar, laedt trotzdem nur einmal. */
+  /** Index anfordern. Mehrfach aufrufbar, laedt trotzdem nur einmal.
+   *  `wanted` ist bewusst ein Ref und kein State: prefetch wird auch aus einem
+   *  Effekt heraus aufgerufen (?q= in der URL), und ein synchrones setState
+   *  loest dort eine zusaetzliche Renderrunde aus. Der sichtbare Ladezustand
+   *  wird deshalb erst im Microtask gesetzt. */
   const prefetch = useCallback(() => {
     if (wanted.current) return;
     wanted.current = true;
-    setState((s) => (s === 'ready' ? s : 'loading'));
+    void Promise.resolve().then(() => setStarted(true));
     loadEngine().then(
-      (loaded) => { setEngine(loaded); setState('ready'); },
-      () => setState('error'),
+      (loaded) => setEngine(loaded),
+      () => setFailed(true),
     );
   }, []);
+
+  const state: ArticleSearchState =
+    engine ? 'ready' : failed ? 'error' : started ? 'loading' : 'idle';
 
   // Wer mit ?q=... in der URL ankommt (geteilter Link, Lesezeichen), will
   // sofort Ergebnisse sehen und hat nie ins Feld getippt.
