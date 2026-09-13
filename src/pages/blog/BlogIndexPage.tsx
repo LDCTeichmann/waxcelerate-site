@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Search } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Search } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { Navigation } from '@/sections/navigation';
 import { Footer } from '@/sections/footer';
@@ -49,18 +49,206 @@ function Snippet({ parts }: { parts: SnippetPart[] }) {
   );
 }
 
-function ArticleCard({ article, snippet }: { article: Article; snippet?: SnippetPart[] | null }) {
+/**
+ * Rhythmus des Kartengitters.
+ *
+ * Vorher standen achtzehn exakt gleich grosse Kacheln in drei starren
+ * Spalten. Das las sich wie eine Ergebnisliste, nicht wie eine Werkstatt, und
+ * nichts darin sagte dem Auge, wo es anfangen soll.
+ *
+ * Jetzt wiederholt sich ein Zweizeilen-Takt: eine breite Karte plus eine
+ * schmale, darunter drei schmale. Ueber sechs Spalten geht das immer genau
+ * auf (4+2 und 2+2+2), es entstehen also nie Loecher — auch nicht beim
+ * Filtern oder Suchen, weil der Takt aus der Position in der bereits
+ * gefilterten Liste kommt und nicht aus dem Artikel selbst.
+ *
+ * Bewusst nur zwei Varianten. Drei waeren beliebig geworden; zwei sind ein
+ * erkennbarer Takt.
+ */
+function cardVariant(index: number): 'wide' | 'standard' {
+  return index % 5 === 0 ? 'wide' : 'standard';
+}
+
+/** Spaltenbreite je Variante. Eine breite Karte als allerletzte haette sonst
+ *  ein Drittel der Zeile leer stehen lassen; dort nimmt sie die volle Breite
+ *  und liest sich als Abschluss statt als Rest. */
+function cardSpan(variant: 'wide' | 'standard', isLast: boolean): string {
+  if (variant === 'standard') return 'sm:col-span-3 lg:col-span-2';
+  return isLast ? 'sm:col-span-6' : 'sm:col-span-6 lg:col-span-4';
+}
+
+/** Der Klick-Hinweis unten rechts auf jeder Karte.
+ *  Der bisherige stille Text "Lesen →" in Akzentfarbe war leicht zu
+ *  uebersehen — er sah aus wie eine Beschriftung, nicht wie ein Ziel. Ein
+ *  umrandeter Kreis, der beim Hover mit der Akzentfarbe volllaeuft, ist ein
+ *  Knopf, auch ohne dass man ihn beruehrt. */
+function ReadAffordance() {
+  return (
+    <span
+      className="flex-shrink-0 inline-flex items-center justify-center h-8 w-8 rounded-full transition-all duration-300 group-hover:bg-[color:var(--accent)] group-hover:border-[color:var(--accent)]"
+      style={{ border: '1px solid var(--bd2)' }}
+      aria-hidden
+    >
+      <ArrowRight
+        className="h-3.5 w-3.5 transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-white"
+        style={{ color: 'var(--accent)' }}
+      />
+    </span>
+  );
+}
+
+/** Die Kennzahl als Blickfang, in der Typo-Grammatik des Beilegers
+ *  (public/flyer.html): grosse Displayziffer ueber winzigem Sperrlabel.
+ *  Vorher stand sie als unauffaellige Monozeile am Kartenfuss und wurde von
+ *  der Beschreibung darueber vollstaendig erschlagen — dabei ist sie das
+ *  Konkreteste, was eine Karte zu bieten hat. */
+function KeyStat({ value, label, large }: { value: string; label: string; large?: boolean }) {
+  return (
+    <div>
+      <div
+        className="font-display font-bold text-wx-tx1 leading-none tracking-tight"
+        style={{ fontSize: large ? '1.6rem' : '1.25rem' }}
+      >
+        {value}
+      </div>
+      <div className="font-mono text-meta uppercase tracking-[0.16em] text-wx-txf mt-1.5">
+        {label}
+      </div>
+    </div>
+  );
+}
+
+function CategoryBadge({ category }: { category: ArticleCategory }) {
+  return (
+    <span
+      className="absolute top-3 left-3 text-small font-semibold uppercase tracking-[0.16em] px-2.5 py-1 rounded-full backdrop-blur"
+      style={{ background: 'var(--chip-bg)', color: categoryColors[category] }}
+    >
+      {category}
+    </span>
+  );
+}
+
+/** Gemeinsame Hover-Regeln beider Varianten. Vorher hob sich die Karte nur an
+ *  und zoomte ihr Bild; Rahmen und Schatten kommen dazu, damit der Unterschied
+ *  zwischen "liegt da" und "laesst sich anklicken" auch auf einen Blick
+ *  sichtbar ist. */
+const CARD_BASE =
+  'group block h-full rounded-2xl transition-all duration-300 hover:-translate-y-1 ' +
+  'hover:border-[color:var(--accent-soft)] hover:shadow-[var(--card-shad)]';
+
+function ArticleCard({
+  article,
+  snippet,
+  variant = 'standard',
+}: {
+  article: Article;
+  snippet?: SnippetPart[] | null;
+  variant?: 'wide' | 'standard';
+}) {
   const img = getArticleImage(article.slug);
+  const text = snippet?.length ? (
+    <Snippet parts={snippet} />
+  ) : (
+    <p className={`text-[13px] leading-[1.6] text-wx-txm ${variant === 'wide' ? 'line-clamp-3' : 'line-clamp-2'}`}>
+      {article.description}
+    </p>
+  );
+  const meta = (
+    <span className="font-mono text-meta text-wx-txf">von Luca · {article.readingTime}</span>
+  );
+
+  if (variant === 'wide') {
+    // Die breite Karte legt Text UEBER das Bild statt daneben.
+    //
+    // Nebeneinander sah sie zwar anders aus als die schmalen Karten, aber
+    // nicht besser: sie ist genauso hoch wie ihre Nachbarin und nur breiter,
+    // die Bildspalte wurde dadurch hochkant und schnitt jedes Querformat
+    // kaputt. Vollflaechig bekommt dasselbe Foto seine natuerliche Form
+    // zurueck, und der Groessenunterschied wird endlich auch als
+    // Rangunterschied gelesen.
+    return (
+      <Link
+        to={`/blog/${article.slug}`}
+        className={`${CARD_BASE} relative min-h-[320px] sm:min-h-[360px] flex flex-col justify-end`}
+        style={{ background: 'var(--sf2)', border: '1px solid var(--bd)' }}
+      >
+        {/* overflow-hidden liegt auf dieser inneren Ebene, nicht auf dem Link,
+            der auch den Hover-Transform traegt — beides zusammen laesst
+            Chromium die Eckmaske beim Wechsel auf eine neue Ebene kurz
+            quadratisch aufblitzen (siehe products.tsx). */}
+        <div className="absolute inset-0 rounded-2xl overflow-hidden" style={{ transform: 'translateZ(0)' }}>
+          <img
+            src={img.card}
+            alt={img.alt}
+            loading="lazy"
+            width={800}
+            height={500}
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-105"
+          />
+          {/* Kraeftiger als bei den schmalen Karten: dort liegt der Text auf
+              eigener Flaeche, hier traegt der Verlauf die gesamte Lesbarkeit,
+              und die Artikelfotos reichen von fast schwarz bis Gegenlicht. */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                'linear-gradient(180deg, rgba(var(--scrim-rgb),0.15) 0%, rgba(var(--scrim-rgb),0.55) 45%, rgba(var(--scrim-rgb),0.93) 100%)',
+            }}
+          />
+        </div>
+        <CategoryBadge category={article.category} />
+        <div className="relative w-full p-6 sm:p-7">
+          <h2
+            className="font-display font-bold leading-[1.15] mb-2.5 max-w-[28ch]"
+            style={{ color: '#FFFFFF', fontSize: 'clamp(1.35rem, 2.4vw, 1.75rem)' }}
+          >
+            {article.titleShort}
+          </h2>
+          {snippet?.length ? (
+            <div style={{ color: '#D8D8DE' }}>
+              <Snippet parts={snippet} />
+            </div>
+          ) : (
+            <p className="text-[13.5px] leading-[1.6] line-clamp-2 max-w-[52ch]" style={{ color: '#D8D8DE' }}>
+              {article.description}
+            </p>
+          )}
+          <div className="flex items-end justify-between gap-4 mt-5">
+            <div className="flex items-end gap-6">
+              {article.keyStat && (
+                <div>
+                  <div className="font-display font-bold leading-none tracking-tight" style={{ color: '#FFFFFF', fontSize: '1.6rem' }}>
+                    {article.keyStat.value}
+                  </div>
+                  <div className="font-mono text-meta uppercase tracking-[0.16em] mt-1.5" style={{ color: '#B4B4BE' }}>
+                    {article.keyStat.label}
+                  </div>
+                </div>
+              )}
+              <span className="font-mono text-meta pb-0.5" style={{ color: '#B4B4BE' }}>
+                von Luca · {article.readingTime}
+              </span>
+            </div>
+            <span
+              className="flex-shrink-0 inline-flex items-center justify-center h-9 w-9 rounded-full transition-all duration-300 group-hover:bg-[color:var(--accent)] group-hover:border-[color:var(--accent)]"
+              style={{ border: '1px solid rgba(255,255,255,0.45)' }}
+              aria-hidden
+            >
+              <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" style={{ color: '#FFFFFF' }} />
+            </span>
+          </div>
+        </div>
+      </Link>
+    );
+  }
+
   return (
     <Link
       to={`/blog/${article.slug}`}
-      className="group block rounded-2xl transition-all duration-300 hover:-translate-y-1"
+      className={`${CARD_BASE} flex flex-col`}
       style={{ background: 'var(--sf)', border: '1px solid var(--bd)' }}
     >
-      {/* overflow-hidden + rounded corners live here, not on the Link that also
-          carries the hover transform — combining both on one element risks
-          Chromium flashing the corner clip square right as hover promotes a
-          new layer (same bug as the product cards; see products.tsx). */}
       <div className="relative aspect-[16/10] overflow-hidden rounded-t-2xl" style={{ background: 'var(--sf2)', transform: 'translateZ(0)' }}>
         <img
           src={img.card}
@@ -74,45 +262,18 @@ function ArticleCard({ article, snippet }: { article: Article; snippet?: Snippet
           className="absolute inset-0"
           style={{ background: 'linear-gradient(180deg, rgba(var(--scrim-rgb),0) 55%, rgba(var(--scrim-rgb),0.45) 100%)' }}
         />
-        <span
-          className="absolute top-3 left-3 text-small font-semibold uppercase tracking-[0.16em] px-2.5 py-1 rounded-full backdrop-blur"
-          style={{ background: 'var(--chip-bg)', color: categoryColors[article.category] }}
-        >
-          {article.category}
-        </span>
+        <CategoryBadge category={article.category} />
       </div>
-      <div className="p-5">
+      <div className="p-5 flex flex-col flex-1">
         <h2 className="font-display text-[18px] font-semibold text-wx-tx1 leading-snug mb-2 group-hover:text-white transition-colors">
           {article.titleShort}
         </h2>
-        {snippet?.length ? (
-          <Snippet parts={snippet} />
-        ) : (
-          <p className="text-[13px] leading-[1.6] text-wx-txm mb-4 line-clamp-2">
-            {article.description}
-          </p>
-        )}
-        <div className="flex items-center justify-between mb-3">
-          <span className="font-mono text-meta text-wx-txf">
-            von Luca · {article.readingTime}
-          </span>
-          <span
-            className="text-[12px] font-medium transition-transform group-hover:translate-x-0.5"
-            style={{ color: 'var(--accent)' }}
-          >
-            Lesen →
-          </span>
+        {text}
+        <div className="flex items-end justify-between gap-3 mt-auto pt-5">
+          {article.keyStat ? <KeyStat value={article.keyStat.value} label={article.keyStat.label} /> : meta}
+          <ReadAffordance />
         </div>
-        {article.keyStat && (
-          <div className="flex items-baseline gap-1.5 pt-3" style={{ borderTop: '1px solid var(--bd)' }}>
-            <span className="font-mono text-[13px] font-semibold text-wx-tx1">
-              {article.keyStat.value}
-            </span>
-            <span className="font-mono text-meta uppercase tracking-wider text-wx-txf">
-              {article.keyStat.label}
-            </span>
-          </div>
-        )}
+        {article.keyStat && <div className="font-mono text-meta text-wx-txf mt-3">von Luca · {article.readingTime}</div>}
       </div>
     </Link>
   );
@@ -568,14 +729,19 @@ export function BlogIndexPage() {
             onClearQuery={() => setQuery('')}
           />
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-16">
-            {grid.map((article) => (
-              <ArticleCard
-                key={article.slug}
-                article={article}
-                snippet={snippetFor.get(article.slug)}
-              />
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-6 gap-5 mb-16">
+            {grid.map((article, i) => {
+              const variant = cardVariant(i);
+              return (
+                <div key={article.slug} className={cardSpan(variant, i === grid.length - 1)}>
+                  <ArticleCard
+                    article={article}
+                    snippet={snippetFor.get(article.slug)}
+                    variant={variant}
+                  />
+                </div>
+              );
+            })}
           </div>
         )}
 

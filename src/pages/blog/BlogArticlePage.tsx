@@ -522,7 +522,10 @@ export function BlogArticlePage() {
                     <Link
                       key={r.slug}
                       to={`/blog/${r.slug}`}
-                      className="group block rounded-xl transition-all duration-300 hover:-translate-y-1"
+                      // Gleiche Hover-Sprache wie die Karten auf der Uebersicht
+                      // (siehe CARD_BASE in BlogIndexPage): anheben allein sagt
+                      // zu leise, dass hier etwas anklickbar ist.
+                      className="group block rounded-xl transition-all duration-300 hover:-translate-y-1 hover:border-[color:var(--accent-soft)] hover:shadow-[var(--card-shad)]"
                       style={{ background: 'var(--sf)', border: '1px solid var(--bd)' }}
                     >
                       {/* overflow-hidden + rounding live here, not on the Link with the
