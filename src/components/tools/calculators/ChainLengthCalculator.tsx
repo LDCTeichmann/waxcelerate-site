@@ -143,6 +143,7 @@ export function ChainLengthCalculator({ profile, compact }: { profile: ToolProfi
                 : tl.shortenNote.replace('{lengths}', stockLengths.join(', '))}
             </StepNote>
             <StepNote>{tl.crossCheck}</StepNote>
+            <StepNote>{tl.allBrands}</StepNote>
             {/* Der Rechenweg stand bis 09/2026 als eigener Aufklapper in der
                 Eingabespalte. Dort kostete er die 26 px, die die Karte ueber
                 alle anderen hinaushoben — und er gehoert ohnehin zu den

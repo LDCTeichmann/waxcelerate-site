@@ -393,10 +393,15 @@ alle inneren Zustände identisch** (nachgemessen über je 28 Zustände je Breite
 Wird eine Karte höher, zieht sie alle mit: neue Inhalte also gegen die festen
 Zonenhöhen prüfen, nicht gegen „passt schon".
 
-**Nachbarn.** Flach, `scale(0.86)`, keine Drehung. Die frühere Drehung stauchte
-genau den Streifen, in dem der Deckeltext steht. `--deck-shift` (35 % lg /
-42 % xl) und `--cover-w` (24 % / 32 %) sind so gesetzt, dass der Deckeltext
-rund 30 px Abstand zur aktiven Karte hat und die Nachbarn in der Spalte bleiben.
+**Nachbarn.** `scale(0.88)` und `rotateY(--tilt)` = 9°, Außenkante nach hinten,
+**Drehachse an der Innenkante** (`transform-origin`), Perspektive 2400 px am
+Deck. Die alte 12°-Drehung um die Kartenmitte stauchte den Streifen mit dem
+Deckeltext; mit der Achse innen bleibt er fast unverzerrt (~4 %). Hover richtet
+den Nachbarn auf 5° auf. Alle Zustände nutzen dieselbe Funktionsliste
+`translateX rotateY scale`, auch `transform-origin` wird animiert — sonst
+springt die Karte beim Flip. `--deck-shift` (40 % lg / 47 % xl) und
+`--cover-w` (21 % / 29 %): Außenkante in der Spalte, Deckeltext ≥ 20 px vor der
+aktiven Karte.
 
 **Aufbau jeder Karte** — vier Zonen mit festen Rollen und festen Höhen. Die
 Höhen sind der Kern: ohne sie wanderte der Antwortblock je nach Karte zwischen

@@ -42,31 +42,31 @@ export interface TrackItem {
 // Die Hoehe haelt die Gestaltung der Karten klein (Ziel <= 600 px am Desktop,
 // siehe docs/DESIGN.md „Rechner-Karten").
 //
-// Nachbarkarten: flach, kleiner (0,86), abgedunkelt. Vorher waren sie um 12
-// Grad gedreht, mit der Aussenkante nach hinten — genau dort steht ihre Frage,
-// die Perspektive stauchte sie unleserlich. Tiefe entsteht jetzt aus Skala,
-// Schatten und Abdunklung, nicht aus einer Drehung.
-// --deck-shift (Prozent der Kartenbreite) ist so gewaehlt, dass die
-// Aussenkante des Nachbarn in der Spalte bleibt: (shift + 0,43) x Kartenbreite
-// <= halbe Spalte. Bei 64 % Kartenbreite (lg) sind das hoechstens 35 %, bei
-// 58 % (xl) hoechstens 43 %; gesetzt sind 35 und 42 %. Sichtbar bleibt davon
-// (shift - 0,07) x Kartenbreite. --cover-w ist dieser Streifen abzueglich
-// Innenpolster und rund 20 px Luft zur aktiven Karte (bei 1024 und 1440 px
-// nachgemessen) — der Deckeltext steht damit nie unter der aktiven Karte.
+// Nachbarkarten: kleiner (0,88) und um --tilt (9 Grad, index.css) mit der
+// Aussenkante nach hinten geneigt. Die Drehachse liegt an der INNENkante
+// (transform-origin), nicht in der Kartenmitte wie bei der alten 12-Grad-
+// Fassung: so geht die Aussenkante weg, der sichtbare Streifen mit dem
+// Deckeltext bleibt nahezu unverzerrt (Tiefe dort ~0,14 x Kartenbreite, bei
+// 2400 px Perspektive rund 4 % Verkleinerung). Alle Zustaende nutzen dieselbe
+// Funktionsliste translateX/rotateY/scale, damit der Flip sauber interpoliert.
+// --deck-shift: Aussenkante in der Spalte, also (shift + 0,38) x Kartenbreite
+// <= halbe Spalte — bei 64 % (lg) hoechstens 40 %, bei 58 % (xl) hoechstens
+// 48 %; gesetzt 40 und 47 %. Sichtbar bleiben (shift - 0,12) x Kartenbreite,
+// --cover-w (21 / 29 %) haelt den Deckeltext >= 20 px vor der aktiven Karte.
 function slotTransform(rel: number, count: number): React.CSSProperties {
   if (rel === 0) {
-    return { transform: 'translateX(0) scale(1)', zIndex: 30, opacity: 1 };
+    return { transform: 'translateX(0) rotateY(0deg) scale(1)', transformOrigin: '50% 50%', zIndex: 30, opacity: 1 };
   }
   if (rel === 1) {
-    return { transform: 'translateX(var(--deck-shift)) scale(0.86)', zIndex: 20, opacity: 1 };
+    return { transform: 'translateX(var(--deck-shift)) rotateY(var(--tilt)) scale(0.88)', transformOrigin: '0% 50%', zIndex: 20, opacity: 1 };
   }
   if (rel === count - 1) {
-    return { transform: 'translateX(calc(var(--deck-shift) * -1)) scale(0.86)', zIndex: 20, opacity: 1 };
+    return { transform: 'translateX(calc(var(--deck-shift) * -1)) rotateY(calc(var(--tilt) * -1)) scale(0.88)', transformOrigin: '100% 50%', zIndex: 20, opacity: 1 };
   }
   // Alles Weitere steht als Stapel hinter der aktiven Karte. Unsichtbar, aber
   // vorhanden — so hat der Uebergang beim Weiterblaettern etwas zu animieren,
   // statt dass eine Karte aus dem Nichts erscheint.
-  return { transform: 'scale(0.8)', zIndex: 10, opacity: 0, pointerEvents: 'none' };
+  return { transform: 'translateX(0) rotateY(0deg) scale(0.8)', transformOrigin: '50% 50%', zIndex: 10, opacity: 0, pointerEvents: 'none' };
 }
 
 function DeckSlot({ item, rel, count, active, onActivate, de }: {
@@ -352,7 +352,8 @@ export function ToolTrack({ items, onActiveChange, trailing }: {
             (siehe slotTransform). overflow-x nur als Netz, falls ein Schatten
             ueber die Spalte hinausragt. */}
         <div
-          className="relative grid py-2 overflow-x-clip [--deck-shift:35%] [--cover-w:24%] xl:[--deck-shift:42%] xl:[--cover-w:32%]"
+          className="relative grid py-2 overflow-x-clip [--deck-shift:40%] [--cover-w:21%] xl:[--deck-shift:47%] xl:[--cover-w:29%]"
+          style={{ perspective: '2400px', perspectiveOrigin: '50% 45%' }}
           onWheel={onDeckWheel}
         >
           {items.map((item, i) => (

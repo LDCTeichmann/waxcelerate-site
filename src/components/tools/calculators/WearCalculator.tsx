@@ -32,7 +32,7 @@ import { SegmentedToggle } from '@/components/viz';
 import { StepField } from '@/components/tools/StepField';
 import { ResultPanel } from '@/components/tools/ResultPanel';
 import { ResultActions } from '@/components/tools/ResultActions';
-import { WearScale, SketchFrame } from '@/components/tools/sketches';
+import { WearScale, GaugeSketch, SketchFrame } from '@/components/tools/sketches';
 
 const SPEEDS: ChainSpeed[] = [8, 9, 10, 11, 12];
 // „keine" ist eine eigene Antwort, nicht das Fehlen einer. Vorher gab es nur
@@ -202,6 +202,14 @@ export function WearCalculator({ profile, compact }: { profile: ToolProfileState
           </div>
 
           <SketchFrame>
+            {method === 'gauge' ? (
+              <GaugeSketch
+                dropped={gauge !== 'none'}
+                markLabel={MARK_LABEL[gauge === 'none' ? 0.5 : gauge][de ? 'de' : 'en']}
+                tone={needsAction ? 'warn' : verdict.status === 'ok' ? 'ok' : 'soon'}
+                de={de}
+              />
+            ) : (
             <WearScale
               percent={scalePercent}
               limit={wearLimit(speed)}
@@ -213,6 +221,7 @@ export function WearCalculator({ profile, compact }: { profile: ToolProfileState
               }}
               fmt={n => dec(n, n === 0 ? 0 : n * 100 % 10 === 0 ? 1 : 2)}
             />
+            )}
           </SketchFrame>
         </div>
       </StepList>

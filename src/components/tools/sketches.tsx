@@ -404,6 +404,85 @@ export function WearScale({ percent, limit, bound, empty, labels, fmt }: {
   );
 }
 
+// ── Verschleiss: Kettenlehre auf der Kette ──────────────────────────────────
+
+/**
+ * Wie eine Kettenlehre antwortet: Haken 1 sitzt links an einer Rolle, der
+ * Messzahn 2 liegt auf einer neuen Kette AUF der Rolle (die Lehre kippt leicht
+ * hoch) und faellt bei einer gelaengten Kette davor EIN. Die Laengung ist
+ * sichtbar: die Rollen ruecken nach rechts auseinander (uebertrieben, damit
+ * man es sieht). Der Zahn traegt die gewaehlte Marke.
+ */
+export function GaugeSketch({ dropped, markLabel, tone, de = true }: {
+  dropped: boolean; markLabel: string; tone: 'ok' | 'soon' | 'warn'; de?: boolean;
+}) {
+  const [ref, W] = useWidth<HTMLDivElement>();
+  const N = 8;
+  const P = Math.min(34, (W - 28) / (N + 0.6));
+  const R = Math.min(8, Math.max(5, P * 0.24));
+  const CY = 74, H = 124;
+  const x0 = (W - P * N) / 2;
+  const nominal = Array.from({ length: N + 1 }, (_, i) => x0 + i * P);
+  const s = dropped ? (R + 4) / N : 0;
+  const hx = nominal[0] + R + 2;
+  const tx = nominal[N];
+  const lift = R + 1;
+  const ang = dropped ? 0 : (-Math.atan2(lift, tx - hx) * 180) / Math.PI;
+  const color = tone === 'ok' ? OK : tone === 'warn' ? 'var(--warn)' : 'var(--tx1)';
+  const bodyTop = CY - R - 30, bodyH = 18;
+  const T = '320ms cubic-bezier(0.22,1,0.36,1)';
+  const caption = dropped
+    ? (de ? `Zahn ${markLabel} fällt ein = mind. ${markLabel} % gelängt` : `Tooth ${markLabel} drops in = at least ${markLabel} % worn`)
+    : (de ? `Zahn ${markLabel} liegt auf = unter ${markLabel} %` : `Tooth ${markLabel} rests on top = below ${markLabel} %`);
+
+  return (
+    <div ref={ref} className="w-full">
+      <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} role="img" className="block" aria-label={caption}>
+        {/* Kette: Laschen zwischen den Rollen, Rollen ruecken bei Laengung auseinander */}
+        <g strokeWidth={1.3}>
+          {nominal.slice(0, -1).map((x, i) => {
+            const outer = i % 2 === 1;
+            const e = outer ? 2 : 0;
+            return (
+              <rect key={x} x={x - R - e} y={CY - R - e} width={P + s + (R + e) * 2} height={(R + e) * 2} rx={R + e}
+                fill={outer ? 'none' : 'var(--sf2)'} stroke={STROKE}
+                style={{ transform: `translateX(${i * s}px)`, transition: `transform ${T}` }} />
+            );
+          })}
+          {nominal.map((x, i) => (
+            <circle key={`r${x}`} cx={x} cy={CY} r={R - 2} fill="var(--sf)"
+              stroke={i === 0 || i === N ? color : STROKE} strokeWidth={i === 0 || i === N ? 2 : 1.3}
+              style={{ transform: `translateX(${i * s}px)`, transition: `transform ${T}` }} />
+          ))}
+        </g>
+
+        {/* Lehre, kippt um den Haken */}
+        <g style={{ transform: `rotate(${ang}deg)`, transformBox: 'view-box', transformOrigin: `${hx}px ${CY}px`, transition: `transform ${T}` }}>
+          <rect x={hx - 14} y={bodyTop} width={tx - hx + 28} height={bodyH} rx={6}
+            fill="var(--sf)" stroke="var(--tx2)" strokeWidth={1.5} />
+          <path d={`M${hx},${bodyTop + bodyH} V${CY} M${tx},${bodyTop + bodyH} V${CY - (dropped ? 0 : lift)}`}
+            stroke="var(--tx2)" strokeWidth={4} strokeLinecap="round" />
+          <text x={(hx + tx) / 2} y={bodyTop + 13} textAnchor="middle" style={FONT} fontWeight={600} fill="var(--tx1)">
+            {markLabel} %
+          </text>
+          {[{ x: hx, n: 1 }, { x: tx, n: 2 }].map(b => (
+            <g key={b.n}>
+              <circle cx={b.x} cy={bodyTop - 13} r={8} fill={b.n === 2 ? color : 'var(--tx2)'} />
+              <text x={b.x} y={bodyTop - 9} textAnchor="middle" style={FONT} fontWeight={700} fill="var(--sf)">{b.n}</text>
+            </g>
+          ))}
+        </g>
+
+        {/* Ergebnisring um den Zahn */}
+        <circle cx={tx} cy={CY - (dropped ? 2 : lift)} r={R + 7} fill={color} fillOpacity={0.12}
+          stroke={color} strokeWidth={1.2} strokeDasharray="3 3" style={{ transition: `all ${T}` }} />
+
+        <text x={W / 2} y={H - 8} textAnchor="middle" style={FONT} fontWeight={600} fill={color}>{caption}</text>
+      </svg>
+    </div>
+  );
+}
+
 // ── Intervall: Zeitstrahl bis zum naechsten Wachsen ─────────────────────────
 
 /**
