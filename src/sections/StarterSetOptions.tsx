@@ -135,7 +135,10 @@ function FixedCard({ optionId, de, icon: Icon, badgeDe, badgeEn }: {
 }
 
 export function StarterSetOptions({ de }: { de: boolean }) {
-  const [customOpen, setCustomOpen] = useState(false);
+  // ?konfigurieren=1 (z. B. aus der Geschenk-Sektion auf /kette-wachsen-lassen)
+  // öffnet den freien Konfigurator direkt.
+  const [customOpen, setCustomOpen] = useState(() =>
+    typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('konfigurieren'));
 
   return (
     <div>

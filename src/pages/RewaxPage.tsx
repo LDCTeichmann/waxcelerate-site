@@ -19,18 +19,17 @@
 // Formular ist der primäre Bestellweg (POST /api/rewax-request, E-Mail an Luca,
 // keine Zahlung). WhatsApp bleibt leiser Zweitlink.
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useLocation } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Gift, User, ChevronDown, CheckCircle2, Sparkles, Droplet, Check, Minus, Plus } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ChevronDown, CheckCircle2, Sparkles, Droplet, Check, Minus, Plus } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
-import { prefersReducedMotion } from '@/hooks/useAnimation';
 import { trustStats } from '@/lib/data';
 import { trackRewaxInterest } from '@/lib/analytics';
 import { REVIEWS } from '@/sections/reviews';
 import {
-  PRICE, FIVE_CARD, TEN_CARD, eur, UMSTIEG_LIVE, TURNAROUND, CITIES,
+  PRICE, TEN_CARD, eur, UMSTIEG_LIVE, TURNAROUND, CITIES,
   COMPETITOR_FULL_SERVICE, rewaxMeta, rewaxFaqItems, rewaxServiceSchema, rewaxFaqSchema,
   type ServiceId,
 } from '@/pages/rewax/content';
@@ -38,8 +37,7 @@ import {
 import { Navigation } from '@/sections/navigation';
 import { Footer } from '@/sections/footer';
 import { BackLink } from '@/components/BackLink';
-import { WaxcelerateMark } from '@/components/WaxcelerateMark';
-import { GiftPreviewModal } from '@/components/GiftPreviewModal';
+import { GiftSection } from '@/pages/rewax/GiftSection';
 
 const WA_NUMBER = '4915751957470';
 const waLink = (de: boolean, waxedLabel?: string | null) =>
@@ -377,155 +375,6 @@ function RewaxRequestForm({ de, preselect }: { de: boolean; preselect: ServiceId
   );
 }
 
-// ─── Stempelkarte ───────────────────────────────────────────────────────────
-function StampCard({ de, count, price, list, gift, recommended, onPreview }: {
-  de: boolean; count: number; price: number; list: number; gift: boolean; recommended?: boolean;
-  onPreview?: () => void;
-}) {
-  const label = de ? `${count}er-Karte` : `${count}-visit card`;
-  const savings = list - price;
-
-  const STAMP_STAGGER_MS = 950;
-  const STAMP_HOLD_MS = 3400;
-  const STAMP_EMPTY_PAUSE_MS = 1300;
-  const gridRef = useRef<HTMLDivElement>(null);
-  const [stampedCount, setStampedCount] = useState(0);
-  const [inView, setInView] = useState(false);
-  const [reduced] = useState(() => prefersReducedMotion());
-
-  useEffect(() => {
-    if (reduced) { setStampedCount(count); return; }
-    const el = gridRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) { setInView(true); observer.disconnect(); }
-    }, { threshold: 0.1 });
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [reduced]);
-
-  useEffect(() => {
-    if (reduced || !inView) return;
-    let cancelled = false;
-    let timer: ReturnType<typeof setTimeout>;
-    const runCycle = (i: number) => {
-      if (cancelled) return;
-      if (i <= count) {
-        setStampedCount(i);
-        timer = setTimeout(() => runCycle(i + 1), STAMP_STAGGER_MS);
-      } else {
-        timer = setTimeout(() => {
-          if (cancelled) return;
-          setStampedCount(0);
-          timer = setTimeout(() => runCycle(1), STAMP_EMPTY_PAUSE_MS);
-        }, STAMP_HOLD_MS);
-      }
-    };
-    timer = setTimeout(() => runCycle(1), STAMP_STAGGER_MS);
-    return () => { cancelled = true; clearTimeout(timer); };
-  }, [inView, reduced, count]);
-
-  const waMsg = gift
-    ? (de
-      ? `Hi Luca, ich möchte die ${label} als Geschenk bestellen. Name der beschenkten Person: `
-      : `Hi Luca, I would like to order the ${label} as a gift. Recipient's name: `)
-    : (de
-      ? `Hi Luca, ich möchte die ${label} bestellen.`
-      : `Hi Luca, I would like to order the ${label}.`);
-
-  return (
-    <div className="rounded-2xl p-4 sm:p-5 flex flex-col h-full"
-      style={{
-        background: 'var(--accent-wash-sm)',
-        border: '1px solid rgba(var(--accent-rgb),0.22)',
-        boxShadow: 'var(--card-shad)',
-      }}>
-      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 mb-3">
-        <p className="text-small uppercase tracking-[0.14em]" style={{ color: 'var(--accent)' }}>
-          {label}
-        </p>
-        {recommended && (
-          <span className="num px-1.5 py-0.5 rounded-full" style={{ fontSize: 9.5, background: 'var(--sf)', border: '1px solid rgba(var(--accent-rgb),0.20)', color: 'var(--accent)' }}>
-            {de ? 'bester Preis' : 'best price'}
-          </span>
-        )}
-      </div>
-
-      <div ref={gridRef} className="grid grid-cols-5 gap-1.5">
-        {Array.from({ length: 10 }, (_, i) => {
-          const isOn = reduced ? i < count : i < stampedCount;
-          return (
-          <div key={i} className="relative rounded-md flex items-center justify-center"
-            style={{
-              aspectRatio: '1 / 1', border: '1px dashed rgba(var(--accent-rgb),0.35)', background: 'var(--sf)',
-              visibility: i < count ? 'visible' : 'hidden',
-              ...(isOn && !reduced
-                ? { animationName: 'wx-stamp-ring', animationDuration: '1150ms', animationTimingFunction: 'ease-out', animationFillMode: 'forwards' }
-                : null),
-            }}
-            aria-hidden={i >= count}>
-            <div className="w-[62%] h-[62%]"
-              style={
-                reduced
-                  ? { filter: 'grayscale(0.35) saturate(0.6) brightness(1.05) opacity(0.9)' }
-                  : isOn
-                  ? {
-                      animationName: 'wx-stamp-pop',
-                      animationDuration: '1150ms',
-                      animationTimingFunction: 'cubic-bezier(0.34, 1.42, 0.64, 1)',
-                      animationFillMode: 'forwards',
-                    }
-                  : { filter: 'grayscale(1) opacity(0.4)' }
-              }>
-              <WaxcelerateMark className="w-full h-full" />
-            </div>
-          </div>
-          );
-        })}
-      </div>
-
-      <div className="flex items-baseline gap-2 mt-6">
-        <p className="font-display font-bold text-wx-tx1 leading-none" style={{ fontSize: '1.6rem', letterSpacing: '-0.02em' }}>
-          {eur(price, de)}
-        </p>
-        <p className="num text-[11px] line-through" style={{ color: 'var(--txff)' }}>
-          {eur(list, de)}
-        </p>
-      </div>
-      {/* Nur die Euro-Ersparnis, kein Prozentsatz — "Du sparst 30 €" ist eine
-          Tatsache, ein Prozent­satz eine Behauptung über den Normalpreis. */}
-      <p className="text-[11.5px] mt-1" style={{ color: 'var(--accent)' }}>
-        {de ? `Du sparst ${eur(savings, de)}` : `You save ${eur(savings, de)}`}
-      </p>
-      <p className="text-[11px] mt-1 mb-4" style={{ color: 'var(--txf)' }}>
-        {de
-          ? `${eur(price / count, de)} je Vorgang · Rückversand inklusive · übertragbar`
-          : `${eur(price / count, de)} per treatment · return shipping included · transferable`}
-      </p>
-
-      {gift && onPreview && (
-        <button type="button" onClick={onPreview}
-          className="inline-flex items-center gap-1.5 text-[12px] font-semibold mb-3 transition-opacity hover:opacity-70"
-          style={{ color: 'var(--accent)' }}>
-          {de ? 'Geschenk-Vorschau ansehen' : 'See gift preview'}
-          <ArrowRight className="h-3 w-3" />
-        </button>
-      )}
-
-      <div className="flex-1" />
-
-      <a href={`https://wa.me/4915751957470?text=${encodeURIComponent(waMsg)}`}
-        target="_blank" rel="noopener noreferrer"
-        onClick={() => trackRewaxInterest()}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-[13px] font-semibold transition-opacity hover:opacity-90"
-        style={{ background: 'var(--accent)', color: '#fff' }}>
-        {gift ? (de ? 'Als Geschenk anfragen' : 'Request as a gift') : (de ? 'Karte anfragen' : 'Request this card')}
-        {gift ? <Gift className="h-3.5 w-3.5" /> : <ArrowRight className="h-3.5 w-3.5" />}
-      </a>
-    </div>
-  );
-}
-
 // ─── Preise: ein Block ──────────────────────────────────────────────────────
 // Vorher zwei Preisblöcke mit je zwei Kacheln plus zwei Absätze. Jetzt eine
 // Vergleichstabelle: was wir tun (Häkchen) und was es kostet, Auffrischung und
@@ -836,8 +685,6 @@ function RewaxStickyCTA({ de }: { de: boolean }) {
 export function RewaxPage() {
   const { lang } = useLanguage();
   const de = lang === 'de';
-  const [isGift, setIsGift] = useState(false);
-  const [giftPreview, setGiftPreview] = useState<{ count: number; price: number; list: number } | null>(null);
   const location = useLocation();
   const waxedOn = useMemo(() => waxedFromLocation(), [location.search, location.hash]);
   const waxedLabel = waxedOn
@@ -962,58 +809,13 @@ export function RewaxPage() {
       <section id="preise" className="scroll-mt-24 py-14 sm:py-20" style={{ borderTop: '1px solid var(--bd2)' }}>
         <div className={W}>
 
-          <div className="max-w-[760px] space-y-12">
+          <div className="max-w-[760px]">
             <PriceMatrix de={de} />
-
-            {/* ── Prepaid-Karten ── */}
-            <div className="pt-12" style={{ borderTop: '1px solid var(--bd2)' }}>
-              <h2 className="font-display font-bold text-wx-tx1 leading-tight"
-                style={{ fontSize: 'clamp(1.4rem, 2.8vw, 1.9rem)', letterSpacing: '-0.02em' }}>
-                {de ? 'Prepaid-Karten für die Auffrischung.' : 'Prepaid cards for rewaxing.'}
-              </h2>
-              <p className="text-[13px] mt-1 mb-6" style={{ color: 'var(--txm)' }}>
-                {de ? 'Mehrere Vorgänge im Voraus, einmal bezahlt. Nicht für den Umstieg.' : 'Several treatments up front, paid once. Not for the oil-to-wax switch.'}
-              </p>
-
-              <div className="flex justify-center mb-6">
-                <div className="inline-flex rounded-full p-1" style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)' }}>
-                  {([
-                    { key: false, labelDe: 'Für mich', labelEn: 'For me', Icon: User },
-                    { key: true, labelDe: 'Als Geschenk', labelEn: 'As a gift', Icon: Gift },
-                  ] as const).map(({ key, labelDe, labelEn, Icon }) => (
-                    <button key={String(key)} type="button" onClick={() => setIsGift(key)}
-                      className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-semibold transition-colors"
-                      style={{
-                        background: isGift === key ? 'var(--accent)' : 'transparent',
-                        color: isGift === key ? '#fff' : 'var(--txm)',
-                      }}>
-                      <Icon className="h-3.5 w-3.5" aria-hidden />
-                      {de ? labelDe : labelEn}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                <StampCard de={de} count={FIVE_CARD.count} price={FIVE_CARD.price} list={FIVE_CARD.list} gift={isGift}
-                  onPreview={() => setGiftPreview({ count: FIVE_CARD.count, price: FIVE_CARD.price, list: FIVE_CARD.list })} />
-                <StampCard de={de} count={TEN_CARD.count} price={TEN_CARD.price} list={TEN_CARD.list} gift={isGift} recommended
-                  onPreview={() => setGiftPreview({ count: TEN_CARD.count, price: TEN_CARD.price, list: TEN_CARD.list })} />
-              </div>
-
-              <p className="text-[12px] leading-relaxed mt-4 max-w-[64ch]" style={{ color: 'var(--txf)' }}>
-                {de
-                  ? (isGift
-                    ? 'Beim Geschenk bekommst du eine gedruckte Karte mit Code zum Überreichen. Kein Ablaufdatum, übertragbar.'
-                    : 'Nach dem Kauf bekommst du einen Code für deine Karte — den schickst du bei jeder Sendung einfach mit. Kein Ablaufdatum, übertragbar.')
-                  : (isGift
-                    ? 'With a gift you get a printed card with a code to hand over. No expiry, transferable.'
-                    : 'After purchase you get a code for your card — just include it with every shipment. No expiry, transferable.')}
-              </p>
-            </div>
           </div>
         </div>
       </section>
+
+      <GiftSection de={de} />
 
       <RewaxTrust de={de} />
 
@@ -1073,7 +875,6 @@ export function RewaxPage() {
       </section>
       </main>
 
-      <GiftPreviewModal open={!!giftPreview} onClose={() => setGiftPreview(null)} de={de} data={giftPreview} />
       <RewaxStickyCTA de={de} />
 
       <footer id="rewax-footer" className={`${W} py-12 text-center`} style={{ borderTop: '1px solid var(--bd2)' }}>
