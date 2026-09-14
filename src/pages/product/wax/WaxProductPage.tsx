@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { Product } from '@/lib/data';
 import type { RichContent } from '@/lib/productContent';
 import type { ToolProfileState } from '@/hooks/useToolProfile';
@@ -36,16 +37,17 @@ export function WaxProductPage(props: {
   onSizeSelect: (p: Product) => void;
 }) {
   const { product, de, t, titleText, rc, specs, profile } = props;
+  const [personalized, setPersonalized] = useState(false);
   const toChooser = () => document.getElementById('welches')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   return (
     <div className="wxp">
       <WaxHero product={product} de={de} t={t} titleText={titleText} gallery={props.gallery}
-        sizeSibling={props.sizeSibling} recommendedId={props.recommendedId} rewaxKm={profile.interval}
+        sizeSibling={props.sizeSibling} recommendedId={props.recommendedId} personalized={personalized} rewaxKm={profile.interval}
         buyRef={props.buyRef} onOpenImage={props.onOpenImage} onSizeSelect={props.onSizeSelect} onProHint={toChooser} />
       <ProofStrip de={de} quote={pickProofQuote(product.id)} />
       <ChangeForYou de={de} t={t} rc={rc} />
       <FrictionLens de={de} />
-      <WaxCalculator product={product} profile={profile} de={de} />
+      <WaxCalculator product={product} profile={profile} de={de} onTouch={() => setPersonalized(true)} />
       <ProcessWatch de={de} product={product} />
       <WhichWax product={product} de={de} />
       <WaxReviews productId={product.id} de={de} />

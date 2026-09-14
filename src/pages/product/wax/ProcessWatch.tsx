@@ -6,56 +6,37 @@ import { getArticleBySlug } from '@/pages/blog/articles';
 // ══════════════════════════════════════════════════════════════
 // KAPITEL 04 — SO LAEUFT'S AB
 // ══════════════════════════════════════════════════════════════
-// Der groesste Einwand gegen Heisswachs ist "klingt aufwendig". Eine
-// maßstabsgetreue 45-Minuten-Stoppuhr widerlegt das sichtbar: Navy heisst
-// "du tust etwas", schraffiert heisst "du wartest". Die Schritttexte kommen
-// wortgleich aus der Anleitung (articles.ts, howTo von heisswachs-anleitung,
-// eine Quelle auch fuer das HowTo-JSON-LD), die Minuten aus data.ts
-// (waxProcessTimeline). "Nachwachsen" blendet das Entfetten aus.
+// Der groesste Einwand gegen Heisswachs ist "klingt aufwendig". Die erste
+// Fassung zeigte eine 45-Minuten-Stoppuhr, die nach "dauert ewig" aussah
+// (Luca, 14.09.2026). Jetzt wie ein Rezept: Arbeitszeit, Wartezeit, Gesamt,
+// Schwierigkeit oben, darunter ein massstaeblicher Zeitstrahl (blau = du
+// tust etwas, schraffiert = du wartest) und die Schritte. Standard ist das
+// Nachwachsen, weil das der Normalfall ist; das erste Mal (mit Entfetten)
+// ist zweitrangig zuschaltbar.
 //
-// Darunter "Das brauchst du" als Foto mit Markierungen: drei Dinge sind im
-// Bild, zwei kommen aus dem Haushalt.
-
-const R = 112, SW = 26;
-
-function arcPath(a0: number, a1: number) {
-  const p = (a: number) => [Math.sin(a) * R, -Math.cos(a) * R];
-  const [x0, y0] = p(a0), [x1, y1] = p(a1);
-  return `M${x0.toFixed(2)},${y0.toFixed(2)} A${R},${R} 0 ${a1 - a0 > Math.PI ? 1 : 0} 1 ${x1.toFixed(2)},${y1.toFixed(2)}`;
-}
+// Minuten und der erste Schritt stehen in data.ts (waxProcessTimeline), die
+// uebrigen Texte wortgleich in der Anleitung (articles.ts).
 
 export function ProcessWatch({ de, product }: { de: boolean; product: Product }) {
-  const [mode, setMode] = useState<'first' | 're'>('first');
-  const [sel, setSel] = useState(1);
+  const [first, setFirst] = useState(false);
+  const [sel, setSel] = useState<number | null>(null);
+  const [focusStep, setFocusStep] = useState<number | null>(null);
   const [hot, setHot] = useState<number | null>(null);
 
   const guide = getArticleBySlug('heisswachs-anleitung');
   const texts = guide?.howTo?.steps ?? [];
-  const steps = waxProcessTimeline
-    .map((s, i) => ({ ...s, i, name: texts[i]?.name ?? '', text: texts[i]?.text ?? '' }))
-    .filter(s => s.name);
-  const visible = steps.filter(s => mode === 'first' || !s.firstOnly);
-  const total = visible.reduce((a, s) => a + s.minutes, 0);
-  const active = visible.filter(s => s.active).reduce((a, s) => a + s.minutes, 0);
-  const selected = visible.some(s => s.i === sel) ? sel : visible[0]?.i ?? 0;
-
-  let acc = 0;
-  const gap = 0.025;
-  const arcs = visible.map(s => {
-    const da = (s.minutes / total) * Math.PI * 2;
-    const a0 = acc + gap / 2, a1 = Math.max(a0 + 0.02, acc + da - gap / 2);
-    const mid = (a0 + a1) / 2;
-    acc += da;
-    return { s, d: arcPath(a0, a1), lx: Math.sin(mid) * (R + 34), ly: -Math.cos(mid) * (R + 34) };
-  });
-  const ticks = Array.from({ length: total }, (_, i) => {
-    const an = (i / total) * Math.PI * 2, r1 = R - SW / 2 - 8, r2 = r1 - (i % 5 === 0 ? 8 : 4);
-    return { x1: Math.sin(an) * r1, y1: -Math.cos(an) * r1, x2: Math.sin(an) * r2, y2: -Math.cos(an) * r2, major: i % 5 === 0 };
-  });
+  const steps = waxProcessTimeline.map((s, i) => {
+    const h = s.howToIndex !== undefined ? texts[s.howToIndex] : undefined;
+    return { ...s, i, name: h?.name ?? (de ? s.nameDe : s.nameEn) ?? '', text: h?.text ?? (de ? s.textDe : s.textEn) ?? '' };
+  }).filter(s => s.name && (first || !s.firstOnly));
+  const total = steps.reduce((a, s) => a + s.minutes, 0);
+  const work = steps.filter(s => s.active).reduce((a, s) => a + s.minutes, 0);
+  const wait = total - work;
+  const lit = focusStep ?? sel;
 
   const hotspots = de
-    ? [{ x: 58, y: 34, l: `Der Block · ${product.applications} Wachsgänge` }, { x: 31, y: 74, l: 'Deine Kette · einmal entfettet' }, { x: 72, y: 78, l: 'Draht oder Haken' }]
-    : [{ x: 58, y: 34, l: `The block · ${product.applications} waxings` }, { x: 31, y: 74, l: 'Your chain · degreased once' }, { x: 72, y: 78, l: 'Wire or hook' }];
+    ? [{ x: 58, y: 34, l: `Der Block · ${product.applications} Wachsgänge` }, { x: 31, y: 74, l: 'Deine Kette · mit Quick-Link' }, { x: 72, y: 78, l: 'Draht oder Haken' }]
+    : [{ x: 58, y: 34, l: `The block · ${product.applications} waxings` }, { x: 31, y: 74, l: 'Your chain · with quick link' }, { x: 72, y: 78, l: 'Wire or hook' }];
 
   return (
     <section className="wxp-chapter wxp-procband">
@@ -63,59 +44,54 @@ export function ProcessWatch({ de, product }: { de: boolean; product: Product })
         <div className="wxp-chead">
           <p className="eyebrow">{de ? 'Kapitel 04' : 'Chapter 04'}</p>
           <h2>{de ? 'So läuft’s ab.' : 'How it works.'}</h2>
-          <p>{de ? 'Die Uhr zeigt ehrlich, wo die Zeit hingeht: das meiste ist Warten.' : 'The clock shows honestly where the time goes: most of it is waiting.'}</p>
+          <p>{de ? 'Wie ein Rezept: ein paar Minuten Handgriffe, der Rest ist Warten.' : 'Like a recipe: a few minutes of handling, the rest is waiting.'}</p>
         </div>
-        <div className="wxp-watch-wrap">
-          <div className="wxp-watch">
-            <svg viewBox="-150 -150 300 300" role="img"
-              aria-label={de ? `Stoppuhr: ${total} Minuten, davon ${active} Minuten Arbeit und ${total - active} Minuten Warten` : `Stopwatch: ${total} minutes, ${active} minutes of work and ${total - active} minutes waiting`}>
-              <defs>
-                <pattern id="wxp-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-                  <rect width="6" height="6" fill="#E3E9F1" /><rect width="3" height="6" fill="#C9D5E4" />
-                </pattern>
-              </defs>
-              <circle r="136" fill="var(--pg)" stroke="var(--bd)" />
-              {ticks.map((t, i) => <line key={i} x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2} stroke={t.major ? 'var(--txf)' : 'var(--bd2)'} strokeWidth={t.major ? 1.4 : 1} />)}
-              {arcs.map(({ s, d, lx, ly }) => (
-                <g key={s.i}>
-                  <path className="arc" d={d} fill="none" stroke={s.active ? '#1F4A7D' : 'url(#wxp-hatch)'}
-                    strokeWidth={s.i === selected ? SW + 10 : SW} opacity={s.i === selected ? 1 : 0.8}
-                    onClick={() => setSel(s.i)}>
-                    <title>{s.name} · {s.minutes} min</title>
-                  </path>
-                  <text x={lx} y={ly + 5} textAnchor="middle" fontFamily="Fraunces, Georgia, serif" fontWeight={800} fontSize="15"
-                    fill={s.i === selected ? 'var(--accent-soft)' : 'var(--txf)'}>{s.i + 1}</text>
-                </g>
-              ))}
-              <rect x="-8" y="-150" width="16" height="12" rx="3" fill="var(--tx1)" />
-            </svg>
-            <div className="center">
-              <div className="t num">{total}<small> min</small></div>
-              <div className="s"><b>~{active} min</b> {de ? 'tust du etwas' : 'of actual work'}<br />~{total - active} min {de ? 'wartest du' : 'waiting'}</div>
-            </div>
+
+        <div className="wxp-recipe">
+          <div className="stats" aria-live="polite">
+            <div className="work"><span className="k">{de ? 'Arbeitszeit' : 'Hands-on'}</span><span className="v num">{work}<small> min</small></span></div>
+            <div><span className="k">{de ? 'Wartezeit' : 'Waiting'}</span><span className="v num">{wait}<small> min</small></span></div>
+            <div><span className="k">{de ? 'Gesamt' : 'Total'}</span><span className="v num">{total}<small> min</small></span></div>
+            <div><span className="k">{de ? 'Schwierigkeit' : 'Difficulty'}</span><span className="v">{de ? 'einfach' : 'easy'}</span></div>
           </div>
-          <div>
-            <div className="wxp-mode" role="group" aria-label={de ? 'Durchgang' : 'Run'}>
-              <button type="button" aria-pressed={mode === 'first'} onClick={() => setMode('first')}>{de ? 'Erstes Mal' : 'First time'}</button>
-              <button type="button" aria-pressed={mode === 're'} onClick={() => setMode('re')}>{de ? 'Nachwachsen' : 'Rewaxing'}</button>
-            </div>
-            <ol className="wxp-slist">
-              {visible.map(s => (
-                <li key={s.i} className={s.i === selected ? 'on' : undefined}>
-                  <button type="button" aria-expanded={s.i === selected} onClick={() => setSel(s.i)}>
-                    <span className="n">{s.i + 1}</span>
-                    <span className="nm">{s.name}</span>
-                    <span className={`mm${s.active ? '' : ' w'}`}>{s.active ? '' : (de ? 'warten · ' : 'wait · ')}{s.minutes} min</span>
-                  </button>
-                  {s.i === selected && <div className="body">{s.text}</div>}
-                </li>
-              ))}
-            </ol>
-            <Link to="/blog/heisswachs-anleitung" className="inline-flex items-center gap-1.5 mt-5 text-[13.5px] font-semibold hover:opacity-70 transition-opacity" style={{ color: 'var(--accent-soft)' }}>
-              {de ? 'Ausführliche Anleitung mit Fotos →' : 'Full guide with photos →'}
-            </Link>
+          <div className="wxp-mode" role="group" aria-label={de ? 'Durchgang' : 'Run'}>
+            <button type="button" aria-pressed={!first} onClick={() => setFirst(false)}>{de ? 'Nachwachsen' : 'Rewaxing'}</button>
+            <button type="button" aria-pressed={first} onClick={() => setFirst(true)}>{de ? 'Erstes Mal (+ Entfetten)' : 'First time (+ degreasing)'}</button>
           </div>
         </div>
+
+        <div className="wxp-tl" aria-hidden onMouseLeave={() => setFocusStep(null)}>
+          {steps.map(s => (
+            <div key={s.i} className={`seg${s.active ? ' act' : ' wait'}${lit === s.i ? ' on' : ''}`}
+              style={{ flexGrow: Math.max(s.minutes, 2.5) }}
+              onMouseEnter={() => setFocusStep(s.i)} onClick={() => setSel(s.i)}>
+              <span className="lbl">{s.minutes}′</span>
+              <span className="tip">{s.name} · {s.minutes} min</span>
+            </div>
+          ))}
+        </div>
+        <div className="wxp-tl-legend">
+          <span><i className="act" />{de ? 'du tust etwas' : 'hands-on'}</span>
+          <span><i className="wait" />{de ? 'du wartest, zum Beispiel bei einem Kaffee' : 'you wait, for example over a coffee'}</span>
+        </div>
+
+        <ol className="wxp-steps">
+          {steps.map((s, n) => (
+            <li key={s.i} className={lit === s.i ? 'on' : undefined}
+              onMouseEnter={() => setFocusStep(s.i)} onMouseLeave={() => setFocusStep(null)}>
+              <button type="button" onFocus={() => setFocusStep(s.i)} onBlur={() => setFocusStep(null)}
+                onClick={() => setSel(sel === s.i ? null : s.i)} aria-pressed={sel === s.i}>
+                <span className="top"><span className="n">{n + 1}</span>
+                  <span className={`mm${s.active ? '' : ' w'}`}>{s.active ? (de ? 'Arbeit · ' : 'work · ') : (de ? 'warten · ' : 'wait · ')}{s.minutes} min</span></span>
+                <span className="nm">{s.name}</span>
+                <span className="tx">{s.text}</span>
+              </button>
+            </li>
+          ))}
+        </ol>
+        <Link to="/blog/heisswachs-anleitung" className="inline-flex items-center gap-1.5 mt-6 text-[13.5px] font-semibold hover:opacity-70 transition-opacity" style={{ color: 'var(--accent-soft)' }}>
+          {de ? 'Ausführliche Anleitung mit Fotos →' : 'Full guide with photos →'}
+        </Link>
 
         <div className="wxp-kit">
           <div className="wxp-flat" onMouseLeave={() => setHot(null)}>

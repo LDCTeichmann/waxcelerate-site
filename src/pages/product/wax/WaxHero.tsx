@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { Product } from '@/lib/data';
-import { bundleOffer, canCheckout, isSoldOut, trustStats } from '@/lib/data';
+import { WAX_TIERS, canCheckout, isSoldOut, trustStats } from '@/lib/data';
 import { applicationsPerBlock, medianChainPrice } from '@/lib/waxMath';
 import { dispatchStatus, getEstimatedDelivery } from '@/lib/utils';
 import { trackEbayClick, trackSizeSelect } from '@/lib/analytics';
@@ -55,7 +55,7 @@ function useDispatch(de: boolean) {
 }
 
 export function WaxHero({
-  product, de, t, titleText, gallery, sizeSibling, recommendedId, rewaxKm, buyRef, onOpenImage, onSizeSelect, onProHint,
+  product, de, t, titleText, gallery, sizeSibling, recommendedId, personalized, rewaxKm, buyRef, onOpenImage, onSizeSelect, onProHint,
 }: {
   product: Product;
   de: boolean;
@@ -64,24 +64,31 @@ export function WaxHero({
   gallery: { src: string; title: string; fact: string }[];
   sizeSibling: Product | undefined;
   recommendedId: string | undefined;
+  /** Hat der Besucher den Rechner benutzt? Erst dann ist "Passt zu dir" eine Aussage. */
+  personalized: boolean;
   rewaxKm: number;
   buyRef: React.RefObject<HTMLDivElement | null>;
   onOpenImage: (i: number) => void;
   onSizeSelect: (p: Product) => void;
   onProHint: () => void;
 }) {
-  const [two, setTwo] = useState(false);
+  const [qty, setQty] = useState(1);
   const [slide, setSlide] = useState(0);
   const dispatch = useDispatch(de);
   const isPro = product.variant === 'pro';
   const fmt = (n: number) => n.toLocaleString(de ? 'de-DE' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-  // Die kleinste Staffelstufe (2 Stueck, 5 %) als Haekchen: Mengenrabatt
-  // wird eine Handlung statt einer Infozeile.
-  const offer = bundleOffer(product);
+  // Staffel als Mengenwahl (2 × 5 %, 3 × 10 %, ab 4 × 15 %): Mengenrabatt
+  // wird eine Handlung statt einer Infozeile. In Cent gerechnet wie
+  // bundleOffer() in data.ts.
+  const pctFor = (q: number) => [...WAX_TIERS].sort((a, b) => b.qty - a.qty).find(t => q >= t.qty)?.pct ?? 0;
+  const priceCents = Math.round(product.price * 100);
+  const totalFor = (q: number) => Math.round((priceCents * q * (100 - pctFor(q))) / 100) / 100;
+  const pct = pctFor(qty);
   const apps = applicationsPerBlock(product) ?? 0;
-  const shown = two && offer ? offer.total : product.price;
-  const kmInBlock = Math.round((apps * rewaxKm * (two && offer ? offer.qty : 1)) / 100) * 100;
+  const shown = totalFor(qty);
+  const full = product.price * qty;
+  const kmInBlock = Math.round((apps * rewaxKm * qty) / 100) * 100;
   const perApp = apps > 0 ? product.price / apps : null;
   const lessThanChain = product.price < medianChainPrice;
 
@@ -95,7 +102,7 @@ export function WaxHero({
     <AddToCartButton product={product} fullWidth />
   ) : (
     <a className="wxp-cta" href={product.ebayUrl} target="_blank" rel="noopener noreferrer" onClick={() => trackEbayClick(product.id)}>
-      {two && offer ? (de ? `${offer.qty} Blöcke bestellen` : `Order ${offer.qty} blocks`) : (de ? 'Jetzt bestellen' : 'Order now')}
+      {qty > 1 ? (de ? `${qty} Blöcke bestellen` : `Order ${qty} blocks`) : (de ? 'Jetzt bestellen' : 'Order now')}
       <Ico name="arrow" className="wxp-ico" style={{ width: 16, height: 16 }} />
     </a>
   );
@@ -140,7 +147,9 @@ export function WaxHero({
               <div className="wxp-sizes" role="group" aria-label={de ? 'Größe wählen' : 'Choose size'}>
                 {sizes.map(p => {
                   const active = p.id === product.id;
-                  const badge = p.id === recommendedId ? (de ? 'Passt zu dir' : 'Fits you') : null;
+                  const badge = personalized
+                    ? (p.id === recommendedId ? (de ? 'Passt zu dir' : 'Fits you') : null)
+                    : (p.weight === '500g' ? (de ? 'Beliebteste' : 'Most popular') : null);
                   return (
                     <button key={p.id} type="button" className="wxp-size" aria-pressed={active}
                       onClick={() => { if (!active) { trackSizeSelect(product.id, p.weight ?? ''); onSizeSelect(p); } }}>
@@ -157,23 +166,29 @@ export function WaxHero({
           <div ref={buyRef} className="wxp-card wxp-pricecard">
             <div className="wxp-pricetop">
               <p className="wxp-price">{fmt(shown)}<span style={{ fontSize: 22, marginLeft: 3, color: 'var(--tx2)', fontWeight: 600 }}>€</span>
-                {two && offer && <s>{fmt(offer.full)} €</s>}</p>
+                {qty > 1 && pct > 0 && <s>{fmt(full)} €</s>}</p>
               <span className="wxp-ship"><Ico name="truck" />{de ? 'Versand kostenlos' : 'Free shipping'}</span>
             </div>
             <div className="wxp-stack">
               {perApp !== null && <div><div className="v">≈ {fmt(perApp)} €</div><div className="k">{de ? 'pro Wachsgang' : 'per waxing'}</div></div>}
-              {apps > 0 && <div><div className="v">~{kmInBlock.toLocaleString(de ? 'de-DE' : 'en-US')} km</div><div className="k">{de ? 'Fahrt im Block' : 'riding per block'}</div></div>}
+              {apps > 0 && <div><div className="v">~{kmInBlock.toLocaleString(de ? 'de-DE' : 'en-US')} km</div><div className="k" title={de ? `bei deinem Wachsintervall von ${rewaxKm} km` : `at your waxing interval of ${rewaxKm} km`}>{de ? (qty > 1 ? 'Fahrt, dein Profil' : 'im Block, dein Profil') : 'riding, your profile'}</div></div>}
               {lessThanChain && <div><div className="v">&lt; 1 {de ? 'Kette' : 'chain'}</div><div className="k">{de ? 'kostet der Block' : 'is what it costs'}</div></div>}
             </div>
-            {offer && !isSoldOut(product) && (
+            {!isSoldOut(product) && (
               <>
-                <label className="wxp-addon">
-                  <input type="checkbox" checked={two} onChange={e => setTwo(e.target.checked)} />
-                  <span><b>{de ? 'Zweiten Block dazu' : 'Add a second block'}</b> · {offer.pct} % {de ? 'Rabatt' : 'off'}</span>
-                  <span className="sv">−{fmt(offer.full - offer.total)} €</span>
-                </label>
-                {two && !canCheckout(product) && (
-                  <p className="wxp-addnote">{de ? 'Bei eBay Menge 2 wählen, der Rabatt wird im Warenkorb abgezogen.' : 'Choose quantity 2 on eBay, the discount is applied in the basket.'}</p>
+                <div className="wxp-qty" role="group" aria-label={de ? 'Menge' : 'Quantity'}>
+                  {[1, 2, 3, 4].map(q => (
+                    <button key={q} type="button" aria-pressed={qty === q} onClick={() => setQty(q)}>
+                      <b>{q === 4 ? '4+' : q}</b>
+                      <span>{pctFor(q) > 0 ? `−${pctFor(q)} %` : (de ? 'Stück' : 'pc')}</span>
+                    </button>
+                  ))}
+                </div>
+                {qty > 1 && (
+                  <p className="wxp-addnote">
+                    {de ? `Du sparst ${fmt(full - shown)} €.` : `You save €${fmt(full - shown)}.`}{' '}
+                    {!canCheckout(product) && (de ? `Bei eBay Menge ${qty === 4 ? '4 oder mehr' : qty} wählen, der Rabatt wird im Warenkorb abgezogen.` : `Choose quantity ${qty === 4 ? '4 or more' : qty} on eBay, the discount is applied in the basket.`)}
+                  </p>
                 )}
               </>
             )}

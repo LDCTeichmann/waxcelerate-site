@@ -411,11 +411,11 @@ export function ProductDetailPage() {
   // die Rechtslage, weil in der Karte kein Platz fuer zwei Saetze ist.
   const returnNoteLong = de
     ? (isWax
-      ? '14 Tage Rückgaberecht, solange der Block original verpackt ist. Schreib mir gerne trotzdem, wenn etwas nicht passt.'
-      : '14 Tage Rückgaberecht, solange die Kette nicht montiert wurde. Schreib mir gerne, wenn etwas nicht passt.')
+      ? '14 Tage Rückgaberecht, solange der Block originalverpackt ist. Bei Fragen antworten wir persönlich.'
+      : '14 Tage Rückgaberecht, solange die Kette nicht montiert wurde. Bei Fragen antworten wir persönlich.')
     : (isWax
-      ? '14-day right of return, as long as the block is still sealed. Feel free to write to me anyway if something is not right.'
-      : '14-day right of return, as long as the chain has not been installed. Feel free to write to me if something is not right.');
+      ? '14-day right of return, as long as the block is still sealed. Questions get a personal answer.'
+      : '14-day right of return, as long as the chain has not been installed. Questions get a personal answer.');
 
   const highlights = de ? product.highlights : product.highlightsEn;
   const descriptionText = de ? product.description : product.descriptionEn;
@@ -1544,7 +1544,8 @@ export function ProductDetailPage() {
           </picture>
           <div className="min-w-0 flex-1">
             <p className="text-[13px] font-semibold leading-tight truncate" style={{ color: 'var(--tx1)' }}>{titleText}</p>
-            <p className="num text-[15px] font-bold leading-none mt-0.5" style={{ color: 'var(--tx1)' }}>{formatPrice(product.price)}</p>
+            <p className="num text-[15px] font-bold leading-none mt-0.5" style={{ color: 'var(--tx1)' }}>{formatPrice(product.price)}
+              <span className="text-[12px] font-medium ml-2" style={{ color: 'var(--txf)' }}>{de ? 'Versand kostenlos' : 'Free shipping'}</span></p>
           </div>
           {isSoldOut(product) ? (
             <span className="text-[13px] font-semibold flex-shrink-0" style={{ color: 'var(--txf)' }}>

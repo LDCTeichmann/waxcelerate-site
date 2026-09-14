@@ -116,7 +116,7 @@ export const translations = {
         chains: 'Vorgewachste Ketten',
       },
       buyOnEbay: 'Bei eBay kaufen',
-      multiDiscount: 'Wachs-Staffel: 2 Stk. 5 % · 3 Stk. 10 % · ab 5 Stk. 15 %',
+      multiDiscount: 'Wachs-Staffel: 2 Stk. 5 % · 3 Stk. 10 % · ab 4 Stk. 15 %',
       // K6 (Produktkarten-Plan): Preis je Anwendung als neues Hauptsignal
       // statt der reinen Blockpreis-Anschaffung — Gourville 1998, siehe
       // perApplicationRange() in data.ts für die Rechnung.
@@ -752,7 +752,7 @@ export const translations = {
         chains: 'Pre-Waxed Chains',
       },
       buyOnEbay: 'Buy on eBay',
-      multiDiscount: 'Wax tiers: 2 pcs. 5% · 3 pcs. 10% · from 5 pcs. 15%',
+      multiDiscount: 'Wax tiers: 2 pcs. 5% · 3 pcs. 10% · from 4 pcs. 15%',
       perApplicationPrefix: 'approx.',
       perApplicationSuffix: 'per wax cycle',
       quantityDiscountChip: 'Quantity discount',

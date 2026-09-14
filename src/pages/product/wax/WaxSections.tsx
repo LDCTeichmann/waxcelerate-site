@@ -225,7 +225,7 @@ export function WhenEmpty({ product, de }: { product: Product; de: boolean }) {
           <div className="wxp-card wxp-path">
             <span className="lbl2">{de ? 'Selbst' : 'Yourself'}</span>
             <h3>{de ? 'Nachbestellen' : 'Reorder'}</h3>
-            <p>{de ? `Zwei Blöcke auf einmal sind ${offer?.pct ?? 5} % günstiger. Wachs lässt sich rund 30 Monate lagern.` : `Two blocks at once are ${offer?.pct ?? 5} % cheaper. Wax keeps for around 30 months.`}</p>
+            <p>{de ? 'Mehrere Blöcke auf einmal werden günstiger: 2 Stück 5 %, 3 Stück 10 %, ab 4 Stück 15 %. Wachs lässt sich rund 30 Monate lagern.' : 'Several blocks at once get cheaper: 2 pcs 5 %, 3 pcs 10 %, 4 or more 15 %. Wax keeps for around 30 months.'}</p>
             {offer && !isSoldOut(product) && !canCheckout(product) && (
               <a href={product.ebayUrl} target="_blank" rel="noopener noreferrer" onClick={() => trackEbayClick(product.id)}>
                 {offer.qty} × {product.weight?.replace('g', ' g')} {de ? 'für' : 'for'} {fmt(offer.total)} € →

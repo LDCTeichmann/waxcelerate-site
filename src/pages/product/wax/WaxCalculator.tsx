@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { Product } from '@/lib/data';
 import { canCheckout, isSoldOut } from '@/lib/data';
 import {
-  drivetrainCosts, partsSaved, applicationsPerBlock, DRIVETRAIN_CLASSES, WAX_SHELF_LIFE_MONTHS,
+  drivetrainCosts, partsPerYear, applicationsPerBlock, DRIVETRAIN_CLASSES, WAX_SHELF_LIFE_MONTHS,
   OIL_CHAIN_KM, WAX_CHAIN_KM, OIL_CASSETTE_KM, WAX_CASSETTE_KM, OIL_PRICE_PER_APP, OIL_APP_INTERVAL_KM, costPerApplication, referenceWax,
 } from '@/lib/waxMath';
 import type { ToolProfileState } from '@/hooks/useToolProfile';
@@ -63,10 +63,10 @@ function Bar({ label, parts, max, cls, de }: { label: string; parts: number[]; m
   );
 }
 
-export function WaxCalculator({ product, profile, de }: { product: Product; profile: ToolProfileState; de: boolean }) {
+export function WaxCalculator({ product, profile, de, onTouch }: { product: Product; profile: ToolProfileState; de: boolean; onTouch?: () => void }) {
   const [cls, setCls] = useState(1);
   const touched = useRef(false);
-  const touch = () => { if (!touched.current) { touched.current = true; trackCalcComplete('pdp-savings'); } };
+  const touch = () => { if (!touched.current) { touched.current = true; trackCalcComplete('pdp-savings'); onTouch?.(); } };
 
   const { weather, setWeather, terrain, setTerrain, kmPerWeek, setKmPerWeek, interval } = profile;
   const kmPerYear = kmPerWeek * 52;
@@ -78,10 +78,17 @@ export function WaxCalculator({ product, profile, de }: { product: Product; prof
   const save = Math.round((costs.savingsPerYear * YEARS) / 5) * 5;
   const shown = useCountUp(save);
 
-  const saved = partsSaved(kmPerYear * YEARS, interval);
-  const fewerChains = saved.chains;
-  const fewerCas = saved.cassettes;
-  const fmt1 = (n: number) => (n < 1 ? n.toFixed(1).replace('.', de ? ',' : '.') : String(Math.round(n)));
+  // Verbrauch pro Jahr statt "X weniger in 3 Jahren": so rechnet jeder im
+  // Kopf nach (Luca, 14.09.2026: "130 km/Woche sind 6.760 km, das sind doch
+  // nicht 10 Ketten").
+  const parts = partsPerYear(kmPerYear, interval);
+  const fmt1 = (n: number) => n.toLocaleString(de ? 'de-DE' : 'en-US', { maximumFractionDigits: 1, minimumFractionDigits: n < 10 ? 1 : 0 });
+  const casEvery = (perYear: number) => {
+    const yrs = perYear > 0 ? 1 / perYear : Infinity;
+    if (yrs <= 1) return de ? `${fmt1(perYear)} Kassetten` : `${fmt1(perYear)} cassettes`;
+    const y = Math.round(yrs);
+    return de ? `alle ${y} Jahre eine Kassette` : `a cassette every ${y} years`;
+  };
 
   const apps = applicationsPerBlock(product) ?? 0;
   const perYear = interval > 0 ? kmPerYear / interval : 0;
@@ -134,11 +141,11 @@ export function WaxCalculator({ product, profile, de }: { product: Product; prof
               </div>
             </div>
             <div className="wxp-field">
-              <div className="fl">{de ? 'Dein Antrieb' : 'Your drivetrain'}</div>
+              <div className="fl">{de ? 'Dein Antrieb (Shimano 12-fach)' : 'Your drivetrain (Shimano 12-speed)'}</div>
               <div className="wxp-seg" role="group" aria-label={de ? 'Antriebsklasse' : 'Drivetrain class'}>
                 {DRIVETRAIN_CLASSES.map((c, i) => (
                   <button key={c.id} type="button" aria-pressed={cls === i} onClick={() => { setCls(i); touch(); }}>
-                    {de ? c.de : c.en}<small>{de ? 'Kette' : 'Chain'} ~{Math.round(c.chainPrice)} €</small>
+                    {de ? c.de : c.en}<small>{c.model} · {fmtEur(c.chainPrice)} €</small>
                   </button>
                 ))}
               </div>
@@ -162,10 +169,13 @@ export function WaxCalculator({ product, profile, de }: { product: Product; prof
                 ? (de ? <>gegenüber Kettenöl · <b>{costs.savingsPct} % weniger</b> für den Antrieb</> : <>compared with chain oil · <b>{costs.savingsPct} % less</b> on the drivetrain</>)
                 : (de ? 'bei so wenig Kilometern etwa gleich teuer, dafür sauber' : 'at this mileage about the same cost, but clean')}
             </p>
-            <div className="wxp-fewer">
-              <div><b className="num">{fmt1(fewerChains)}</b><span>{de ? <>Ketten<br />weniger</> : <>fewer<br />chains</>}</span></div>
-              <div><b className="num">{fmt1(fewerCas)}</b><span>{de ? <>Kassetten<br />weniger</> : <>fewer<br />cassettes</>}</span></div>
-            </div>
+            <table className="wxp-peryear">
+              <caption>{de ? 'Pro Jahr brauchst du' : 'Per year you need'}</caption>
+              <tbody>
+                <tr><th scope="row">{de ? 'Mit Öl' : 'With oil'}</th><td><b>{fmt1(parts.oil.chains)}</b> {de ? 'Ketten' : 'chains'}</td><td>{casEvery(parts.oil.cassettes)}</td></tr>
+                <tr className="wax"><th scope="row">{de ? 'Mit Wachs' : 'With wax'}</th><td><b>{fmt1(parts.wax.chains)}</b> {de ? 'Ketten' : 'chains'}</td><td>{casEvery(parts.wax.cassettes)}</td></tr>
+              </tbody>
+            </table>
             <div className="wxp-bars" aria-label={de ? `Kosten über ${YEARS} Jahre` : `Cost over ${YEARS} years`}>
               <Bar label={de ? 'Öl' : 'Oil'} parts={oil} max={max} cls="wxp-oil" de={de} />
               <Bar label={de ? 'Wachs' : 'Wax'} parts={wax} max={max} cls="wxp-wax" de={de} />
@@ -175,11 +185,9 @@ export function WaxCalculator({ product, profile, de }: { product: Product; prof
               <span><i style={{ background: '#7AA0CE' }} />{de ? 'Kassetten' : 'Cassettes'}</span>
               <span><i style={{ background: '#4F7DB6' }} />{de ? 'Schmierstoff' : 'Lubricant'}</span>
             </div>
-            <div className="wxp-pills">
-              <span>{de ? 'Intervall' : 'Interval'} <b>{interval} km</b></span>
-              <span><b>{Math.max(1, Math.round(perYear))}×</b> {de ? 'wachsen / Jahr' : 'waxings / year'}</span>
-              <span>{de ? 'Block reicht' : 'Block lasts'} <b>{months} {de ? 'Monate' : 'months'}</b></span>
-            </div>
+            <p className="wxp-meta">
+              {de ? 'Intervall' : 'Interval'} <b>{interval} km</b> · <b>{Math.max(1, Math.round(perYear))}×</b> {de ? 'wachsen im Jahr' : 'waxings a year'} · {de ? 'Block reicht' : 'block lasts'} <b>{months} {de ? 'Monate' : 'months'}</b>
+            </p>
             <details className="wxp-assum">
               <summary>{de ? 'Womit gerechnet wird' : 'What this assumes'}</summary>
               <ul>

@@ -117,17 +117,24 @@ const PRO_SCENES: PdpScene[] = [
 ];
 
 /**
- * Minuten je Schritt der Heisswachs-Anleitung fuer die Stoppuhr der
- * Produktseite, in derselben Reihenfolge wie howTo.steps von
- * `heisswachs-anleitung` (articles.ts). `active`: du tust etwas; sonst wartest
- * du. `firstOnly`: faellt beim Nachwachsen weg (Entfetten).
+ * Zeitplan des Wachsens fuer den Ablauf auf der Produktseite. Schritte mit
+ * `howToIndex` nehmen Name und Text wortgleich aus der Anleitung
+ * (articles.ts, howTo von heisswachs-anleitung); der erste Schritt steht
+ * nicht in der Anleitung und traegt deshalb eigenen Text. `active`: du tust
+ * etwas, sonst wartest du. `firstOnly`: nur beim ersten Mal (Entfetten).
  */
-export const waxProcessTimeline: Array<{ minutes: number; active: boolean; firstOnly?: boolean }> = [
-  { minutes: 15, active: true, firstOnly: true },
-  { minutes: 10, active: false },
-  { minutes: 12, active: false },
-  { minutes: 10, active: false },
-  { minutes: 1, active: true },
+export const waxProcessTimeline: Array<{
+  minutes: number; active: boolean; firstOnly?: boolean; howToIndex?: number;
+  nameDe?: string; nameEn?: string; textDe?: string; textEn?: string;
+}> = [
+  { minutes: 2, active: true, nameDe: 'Kette abnehmen und aufhängen', nameEn: 'Take the chain off and hang it',
+    textDe: 'Am Quick-Link öffnen und an Draht oder Haken hängen. Mit einer Kettenschlosszange geht das in unter einer Minute.',
+    textEn: 'Open it at the quick link and hang it on a wire or hook. With quick-link pliers it takes under a minute.' },
+  { minutes: 15, active: true, firstOnly: true, howToIndex: 0 },
+  { minutes: 10, active: false, howToIndex: 1 },
+  { minutes: 12, active: false, howToIndex: 2 },
+  { minutes: 10, active: false, howToIndex: 3 },
+  { minutes: 1, active: true, howToIndex: 4 },
 ];
 
 export const products: Product[] = [
@@ -624,7 +631,8 @@ export function shippingDetailsSchema(_p: Pick<Product, 'shippingClass'>) {
 // Exportiert (nicht mehr modul-privat): waxTierBreakdown() unten braucht
 // dieselbe Staffel fuer die aufgeklappten Stueckpreise auf der Karte (K6).
 export const WAX_TIERS: Array<{ qty: number; pct: number }> = [
-  { qty: 5, pct: 15 }, { qty: 3, pct: 10 }, { qty: 2, pct: 5 },
+  // Luca, 14.09.2026: 2 Stk. 5 %, 3 Stk. 10 %, ab 4 Stk. 15 %.
+  { qty: 4, pct: 15 }, { qty: 3, pct: 10 }, { qty: 2, pct: 5 },
 ];
 
 export interface BundleOffer { qty: number; pct: number; total: number; full: number }

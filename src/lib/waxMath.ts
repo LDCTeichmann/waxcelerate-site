@@ -12,7 +12,7 @@
 // die Welt (Verschleißgrenzen, Öl-Kosten, Laufleistungen) — und die sind
 // vollständig in ASSUMPTIONS beschrieben, damit die Seite sie offenlegen kann.
 
-import { products, waxIntervals, type Product } from '@/lib/data';
+import { products, waxIntervals, getProductById, type Product } from '@/lib/data';
 
 export { waxIntervals };
 
@@ -154,7 +154,10 @@ export function chainLengthLinks(input: {
 // Alle Zahlen hier sind Annahmen über typische Laufleistungen und Marktpreise,
 // keine Messwerte von Waxcelerate. Sie stehen deshalb sowohl hier als auch in
 // ASSUMPTIONS, das die Seite dem Besucher aufklappbar zeigt.
-export const CASSETTE_PRICE = 85.70;   // Shimano XT CS-M8100 12s, Referenz
+// Shimano XT CS-M8100 12-fach, Strassenpreis 09/2026 (tuning-bikes.de
+// 142,80 €, mtb-news-Forum ~129 €). Bis 09/2026 stand hier 85,70 €, das lag
+// deutlich unter dem Markt (Luca, 14.09.2026).
+export const CASSETTE_PRICE = 130;
 // Kettenlaufleistung bis zur Verschleissgrenze. Abgestimmt mit Blog und FAQ
 // (articles.ts, i18n.ts): Oel 2.000–3.000 km, Wachs 6.000–12.000 km, also
 // grob das Zwei- bis Dreifache (Zero Friction Cycling, Praxiswerte). Bis
@@ -170,16 +173,17 @@ export const WAX_CHAIN_KM = [7500, 9500, 11000] as const;
 
 
 /**
- * Antriebsklassen fuer den Ersparnis-Rechner der Produktseite. Die Ersparnis
- * haengt fast nur am Teilepreis, deshalb waehlbar. Mittelklasse = die
- * bisherige Referenz. Einsteiger und High-End sind Richtwerte fuer typische
- * Strassenpreise (z. B. Shimano Deore/105 bzw. Dura-Ace/XTR), keine
- * gemessenen Werte.
+ * Antriebsklassen fuer den Ersparnis-Rechner der Produktseite, als Shimano-
+ * 12-fach-Stufen (Luca, 14.09.2026). Ketten = Waxcelerate-Preise der
+ * vorgewachsten Kette (M6100 noch nicht im Sortiment, 39,95 € als geplanter
+ * Preis), Kassetten = Strassenpreise 09/2026 (Deore ~70 €, XT ~130 €,
+ * XTR ~280–300 €). Die Ersparnis haengt fast nur am Teilepreis, deshalb
+ * waehlbar. Default ist XT (Index 1).
  */
 export const DRIVETRAIN_CLASSES = [
-  { id: 'entry', de: 'Einsteiger', en: 'Entry', chainPrice: 25, cassettePrice: 40 },
-  { id: 'mid', de: 'Mittelklasse', en: 'Mid-range', chainPrice: medianChainPrice, cassettePrice: CASSETTE_PRICE },
-  { id: 'high', de: 'High-End', en: 'High-end', chainPrice: 60, cassettePrice: 200 },
+  { id: 'deore', de: 'Deore', en: 'Deore', model: 'M6100', chainPrice: 39.95, cassettePrice: 70 },
+  { id: 'xt', de: 'XT', en: 'XT', model: 'M8100', chainPrice: getProductById('chain-m8100')?.price ?? 54.95, cassettePrice: CASSETTE_PRICE },
+  { id: 'xtr', de: 'XTR', en: 'XTR', model: 'M9100', chainPrice: getProductById('chain-m9100')?.price ?? 69.95, cassettePrice: 290 },
 ] as const;
 
 /** Ein Posten der Antriebsrechnung, Oel gegen Wachs, gerundet in Euro/Jahr. */
@@ -230,24 +234,28 @@ function severityFactor(rewaxKm: number): number {
   return rewaxKm > 0 ? Math.max(1, DRY_ROAD_REFERENCE_KM / rewaxKm) : 1;
 }
 
-/** Oel verschleisst unter Schmutz voll mit. */
-const OIL_SEVERITY_EXPONENT = 1;
+/** Oel verschleisst unter Schmutz staerker, aber nicht linear zum Intervall:
+ *  Exponent 0,5 statt 1 (14.09.2026). Mit 1 hielt eine geoelte Kette bei
+ *  "gemischt/Gravel" (Intervall 150 km, Faktor 2) nur 1.500 km und bei nass/
+ *  MTB rund 800 km, das rechnete Luca bei 130 km/Woche auf ~4,5 Ketten im
+ *  Jahr hoch. Mit 0,5: gemischt/Gravel ~2.100 km, nass/MTB ~1.550 km. */
+const OIL_SEVERITY_EXPONENT = 0.5;
 /** Wachs deutlich weniger — bewusst vorsichtig angesetzt. */
 const WAX_SEVERITY_EXPONENT = 0.35;
 
 /**
- * Wie viele Ketten und Kassetten Wachs gegenueber Oel ueber `km` einspart,
- * mit denselben Laufleistungen und demselben Haerte-Faktor wie
- * drivetrainCosts() — damit "X Ketten weniger" und der Euro-Betrag auf der
- * Produktseite dieselbe Rechnung sind. Eine Kette, nicht rotiert.
+ * Verbrauch an Ketten und Kassetten pro Jahr, Oel gegen Wachs, mit denselben
+ * Laufleistungen und demselben Haerte-Faktor wie drivetrainCosts() — damit
+ * die Stueckzahlen und der Euro-Betrag auf der Produktseite dieselbe
+ * Rechnung sind. Eine Kette, nicht rotiert.
  */
-export function partsSaved(km: number, rewaxKm: number): { chains: number; cassettes: number } {
+export function partsPerYear(kmPerYear: number, rewaxKm: number) {
   const sev = severityFactor(rewaxKm);
   const oilWear = Math.pow(sev, OIL_SEVERITY_EXPONENT);
   const waxWear = Math.pow(sev, WAX_SEVERITY_EXPONENT);
   return {
-    chains: Math.max(0, (km / OIL_CHAIN_KM) * oilWear - (km / WAX_CHAIN_KM[0]) * waxWear),
-    cassettes: Math.max(0, (km / OIL_CASSETTE_KM) * oilWear - (km / WAX_CASSETTE_KM[0]) * waxWear),
+    oil: { chains: (kmPerYear / OIL_CHAIN_KM) * oilWear, cassettes: (kmPerYear / OIL_CASSETTE_KM) * oilWear },
+    wax: { chains: (kmPerYear / WAX_CHAIN_KM[0]) * waxWear, cassettes: (kmPerYear / WAX_CASSETTE_KM[0]) * waxWear },
   };
 }
 
