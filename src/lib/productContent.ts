@@ -114,7 +114,7 @@ const waxFormulaProMos2 = [
   { name: 'Synthetisches Hartwachs', detail: 'Hebt den Tropfpunkt auf ~75°C. Wachs bleibt unter Betriebslast in den Gelenken — keine Migration auf Schaltwerk oder Umwerfer nach langen Sommertagen.' },
   { name: 'Amorphe Wachskomponente', detail: 'Hält die Matrix flexibel bis −8°C. Feinere Kristallstruktur haftet besser an der Kette — weniger abblätterndes Wachs, weniger Rostneigung nach Regenfahrten.' },
   { name: 'MoS₂ < 5 µm', detail: 'Molybdändisulfid-Transferfilm. Reibungskoeffizient 0,03–0,06, Schichtgitterstruktur, aktiv bis 300 MPa Kontaktdruck. Tribochemisch gebunden auf Bolzen und Hülsen — persistiert nach Abnutzung des Trägerwachses.' },
-  { name: 'Phenolisches Antioxidans', detail: 'Verhindert Oxidation von MoS₂ zu abrasivem Molybdäntrioxid. 12 Monate Lagerstabilität. Sterischer Stabilisator hält MoS₂-Partikel gleichmäßig verteilt — Charge für Charge identisch.' },
+  { name: 'Phenolisches Antioxidans', detail: 'Verhindert Oxidation von MoS₂ zu abrasivem Molybdäntrioxid, auch bei langer Lagerung. Sterischer Stabilisator hält MoS₂-Partikel gleichmäßig verteilt — Charge für Charge identisch.' },
 ];
 
 const waxTechNoteProMos2 = {
@@ -136,10 +136,9 @@ const waxCompRowsProMos2 = [
 export const richContent: Record<string, RichContent> = {
   'wax-500': {
     stats: [
-      { value: '20–32', label: 'Tauchgänge pro Block', sub: 'pro 500g · je nach Kettengröße' },
+      { value: '20–32', label: 'Wachsgänge pro Block', sub: 'pro 500g · je nach Kettengröße' },
       { value: '2–3×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
       { value: '250–450 km', label: 'Intervall trocken', sub: 'Kein Nachölen nach jeder Fahrt.' },
-      { value: '≤ 0,07', label: 'Reibungskoeffizient', sub: 'Messbar weniger als Öl (0,18–0,25).' },
     ],
     formulaDetails: waxFormulaClassic,
     techNote: waxTechNoteClassic,
@@ -152,10 +151,9 @@ export const richContent: Record<string, RichContent> = {
 
   'wax-300': {
     stats: [
-      { value: '10–15', label: 'Tauchgänge pro Block', sub: 'pro 300g · je nach Kettengröße' },
+      { value: '10–15', label: 'Wachsgänge pro Block', sub: 'pro 300g · je nach Kettengröße' },
       { value: '2–3×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
       { value: '250–450 km', label: 'Intervall trocken', sub: 'Kein Nachölen nach jeder Fahrt.' },
-      { value: '≤ 0,07', label: 'Reibungskoeffizient', sub: 'Messbar weniger als Öl (0,18–0,25).' },
     ],
     formulaDetails: waxFormulaClassic,
     techNote: waxTechNoteClassic,
@@ -168,10 +166,9 @@ export const richContent: Record<string, RichContent> = {
 
   'wax-500-mos2': {
     stats: [
-      { value: '20–32', label: 'Tauchgänge pro Block', sub: 'pro 500g · je nach Kettengröße' },
+      { value: '20–32', label: 'Wachsgänge pro Block', sub: 'pro 500g · je nach Kettengröße' },
       { value: '2–3×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
       { value: '300–550 km', label: 'Intervall trocken', sub: 'Mit Topup bis 1.200 km.' },
-      { value: '0,03–0,06', label: 'Reibungskoeffizient', sub: 'MoS₂-Transferfilm. Öl: 0,18–0,25.' },
     ],
     formulaDetails: waxFormulaProMos2,
     techNote: waxTechNoteProMos2,
@@ -184,10 +181,9 @@ export const richContent: Record<string, RichContent> = {
 
   'wax-300-mos2': {
     stats: [
-      { value: '10–15', label: 'Tauchgänge pro Block', sub: 'pro 300g · je nach Kettengröße' },
+      { value: '10–15', label: 'Wachsgänge pro Block', sub: 'pro 300g · je nach Kettengröße' },
       { value: '2–3×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
       { value: '300–550 km', label: 'Intervall trocken', sub: 'Mit Topup bis 1.200 km.' },
-      { value: '0,03–0,06', label: 'Reibungskoeffizient', sub: 'MoS₂-Transferfilm. Öl: 0,18–0,25.' },
     ],
     formulaDetails: waxFormulaProMos2,
     techNote: waxTechNoteProMos2,

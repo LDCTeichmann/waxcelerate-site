@@ -1,5 +1,6 @@
 import { BeforeAfterSlider } from '@/components/BeforeAfterSlider';
-import { trustStats } from '@/lib/data';
+import { trustStats, type Product } from '@/lib/data';
+import { medianChainPrice } from '@/lib/waxMath';
 import type { RichContent } from '@/lib/productContent';
 import type { Review } from '@/sections/reviews';
 import type { useLanguage } from '@/hooks/useLanguage';
@@ -33,7 +34,22 @@ export function ProofStrip({ de, quote }: { de: boolean; quote: Review | undefin
 // Erst das Bild von sich selbst (saubere Finger), dann der Mechanismus, erst
 // am Ende Messwerte. Icons statt 01–04: die Punkte haben keine Reihenfolge.
 // "Es wird leise" bleibt draussen, bis Luca den Claim freigibt (PROJECT.md).
-export function ChangeForYou({ de, t, rc }: { de: boolean; t: ReturnType<typeof useLanguage>['t']; rc: RichContent | undefined }) {
+export function ChangeForYou({ product, de, t, rc }: { product: Product; de: boolean; t: ReturnType<typeof useLanguage>['t']; rc: RichContent | undefined }) {
+  // Vierte Kennzahl statt der Reibungszahl (Luca, 14.09.2026: die war als
+  // Einzelwert angreifbar). Aus den Preisen gerechnet wie in WaxHero.
+  const fmt = (n: number) => n.toLocaleString(de ? 'de-DE' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const figs = [
+    ...(rc?.stats ?? []),
+    ...(product.price < medianChainPrice ? [{
+      value: '< 1',
+      label: de ? 'Kette kostet der Block' : 'chain is what the block costs',
+      sub: de ? `${fmt(product.price)} € gegen ~${fmt(medianChainPrice)} € für eine Kette.` : `€${fmt(product.price)} versus ~€${fmt(medianChainPrice)} for one chain.`,
+    }] : []),
+  ];
+  // Einheit klein neben der Zahl ("250–450 km"), damit vier Kennzahlen in
+  // eine Zeile passen.
+  const split = (v: string) => { const m = v.match(/^(.*?)\s+(km)$/); return m ? [m[1], m[2]] : [v, '']; };
+
   const points: { icon: IcoName; title: string; body: string }[] = de ? [
     { icon: 'hand', title: 'Du bleibst sauber.', body: 'Kein Ketten-Abdruck an der Wade, keine schwarzen Finger beim Rad-Einladen.' },
     { icon: 'gear', title: 'Im Gelenk mahlt nichts mehr.', body: 'Öl bindet Staub zu Schleifpaste zwischen Bolzen und Rolle. An trockenem Wachs haftet kein Dreck.' },
@@ -55,12 +71,15 @@ export function ChangeForYou({ de, t, rc }: { de: boolean; t: ReturnType<typeof 
           <p>{de ? 'Wachs härtet trocken aus. Alles Weitere folgt daraus.' : 'Wax sets dry. Everything else follows from that.'}</p>
         </div>
         <div className="wxp-split">
-          <div style={{ borderRadius: 18, overflow: 'hidden', boxShadow: '0 30px 60px rgba(0,0,0,.18)' }}>
+          {/* v5: Bildmass 1120 × 933 statt 1/1.02 mit object-contain — das
+              gab oben und unten schwarze Balken. Labels jetzt aufs Bild. */}
+          <div className="wxp-cmpframe">
             <BeforeAfterSlider
               beforeSrc="/images/compare/chain-oel.webp" afterSrc="/images/compare/chain-wachs.webp"
               beforeAlt={de ? 'Kette mit Kettenöl, dunkel und verklebt' : 'Chain with chain oil, dark and sticky'}
               afterAlt={de ? 'Dieselbe Kette mit Heißwachs, sauber und trocken' : 'Same chain with hot wax, clean and dry'}
-              beforeLabel={t.whyWax.oilLabel} afterLabel={t.whyWax.waxLabel} aspect="1/1.02" />
+              beforeLabel={t.whyWax.oilLabel} afterLabel={t.whyWax.waxLabel} aspect="1120/933"
+              fit="cover" bare overlayLabels />
           </div>
           <ul className="wxp-points">
             {points.map(p => (
@@ -71,11 +90,11 @@ export function ChangeForYou({ de, t, rc }: { de: boolean; t: ReturnType<typeof 
             ))}
           </ul>
         </div>
-        {rc?.stats && rc.stats.length > 0 && (
+        {figs.length > 0 && (
           <dl className="wxp-figs">
-            {rc.stats.map(s => (
+            {figs.map(s => (
               <div key={s.label}>
-                <dd className="v">{s.value}</dd>
+                <dd className="v">{split(s.value)[0]}{split(s.value)[1] && <small> {split(s.value)[1]}</small>}</dd>
                 <dt className="k">{s.label}</dt>
                 <dd className="s">{s.sub}</dd>
               </div>

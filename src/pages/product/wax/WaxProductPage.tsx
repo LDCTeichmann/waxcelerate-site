@@ -45,7 +45,7 @@ export function WaxProductPage(props: {
         sizeSibling={props.sizeSibling} recommendedId={props.recommendedId} personalized={personalized} rewaxKm={profile.interval}
         buyRef={props.buyRef} onOpenImage={props.onOpenImage} onSizeSelect={props.onSizeSelect} onProHint={toChooser} />
       <ProofStrip de={de} quote={pickProofQuote(product.id)} />
-      <ChangeForYou de={de} t={t} rc={rc} />
+      <ChangeForYou product={product} de={de} t={t} rc={rc} />
       <FrictionLens de={de} />
       <WaxCalculator product={product} profile={profile} de={de} onTouch={() => setPersonalized(true)} />
       <ProcessWatch de={de} product={product} />

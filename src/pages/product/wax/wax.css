@@ -149,10 +149,18 @@
 .wxp-points .ic .wxp-ico { width: 20px; height: 20px; }
 .wxp-points h3 { font-family: 'Fraunces', Georgia, serif; font-size: 22px; line-height: 1.2; font-weight: 700; color: var(--tx1); }
 .wxp-points p { font-size: 15.5px; color: var(--txm); margin-top: 6px; max-width: 44ch; line-height: 1.55; }
-.wxp-figs { display: grid; margin-top: 64px; border-top: 1px solid var(--bd2); }
-@media (min-width: 700px) { .wxp-figs { grid-template-columns: repeat(3, 1fr); } .wxp-figs > div + div { padding-left: 28px; border-left: 1px solid var(--bd2); } }
-.wxp-figs > div { padding: 24px 28px 0 0; }
-.wxp-figs .v { font-family: 'Fraunces', Georgia, serif; font-weight: 800; font-size: 46px; line-height: 1; color: var(--wxp-navy); letter-spacing: -0.03em; }
+/* v5: vier Kennzahlen in einer Linie (vorher 3 Spalten, die vierte brach
+   um), mobil 2 × 2. Gleiche Trennlinien, gleiche Grundlinie. */
+.wxp-figs { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); row-gap: 28px; margin-top: 64px; border-top: 1px solid var(--bd2); }
+.wxp-figs > div { padding: 24px 16px 0 0; }
+.wxp-figs > div:nth-child(even) { padding-left: 20px; border-left: 1px solid var(--bd2); }
+@media (min-width: 900px) {
+  .wxp-figs { grid-template-columns: repeat(4, minmax(0,1fr)); }
+  .wxp-figs > div { padding-right: 24px; }
+  .wxp-figs > div + div { padding-left: 28px; border-left: 1px solid var(--bd2); }
+}
+.wxp-figs .v { font-family: 'Fraunces', Georgia, serif; font-weight: 800; font-size: clamp(32px, 3.4vw, 44px); line-height: 1; color: var(--wxp-navy); letter-spacing: -0.03em; white-space: nowrap; }
+.wxp-cmpframe { border-radius: 18px; overflow: hidden; box-shadow: 0 24px 48px rgba(0,0,0,.16); }
 .wxp-figs .v small { font-size: 22px; color: var(--tx2); font-weight: 600; }
 .wxp-figs .k { font-weight: 600; color: var(--tx1); font-size: 14.5px; margin-top: 12px; }
 .wxp-figs .s { font-size: 13.5px; color: var(--txf); }
