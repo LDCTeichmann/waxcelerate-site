@@ -9,9 +9,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Check, X } from 'lucide-react';
+import { ArrowLeft, Waves, Droplets, Link2, Truck, X, type LucideIcon } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
-import { products, compatibilityMatrix, checkoutEnabled } from '@/lib/data';
+import { useDispatchLine } from '@/hooks/useDispatchLine';
+import { products, compatibilityMatrix, checkoutEnabled, minWaxPrice } from '@/lib/data';
 import { getEstimatedDelivery, removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 import { ChainCard } from '@/components/ChainCard';
@@ -22,8 +23,12 @@ import { TogButton, ChipRow } from '@/components/tools/primitives';
 import { TURNAROUND } from '@/pages/rewax/content';
 import {
   BASE, KETTEN_TITLE, KETTEN_TITLE_EN, KETTEN_DESCRIPTION, KETTEN_DESCRIPTION_EN,
-  KETTEN_H1, KETTEN_H1_EN, KETTEN_LEAD, KETTEN_LEAD_EN, chainBenefits, kettenCollectionSchema,
+  KETTEN_H1, KETTEN_H1_EN, KETTEN_LEAD, KETTEN_LEAD_EN, chainTrust, kettenCollectionSchema,
 } from '@/pages/ketten/content';
+
+const TRUST_ICONS: Record<ReturnType<typeof chainTrust>[number]['key'], LucideIcon> = {
+  degreased: Waves, pro: Droplets, quicklink: Link2, shipping: Truck,
+};
 
 type Brand = 'all' | 'shimano' | 'sram' | 'campagnolo';
 type Speed = 'all' | '11' | '12';
@@ -103,6 +108,8 @@ export function KettenPage() {
   const chainDelivery = useMemo(() => getEstimatedDelivery(lang), [lang]);
   const quickLinkLabel = t.products.shelf.chainQuickLink;
   const shippingLabel = checkoutEnabled ? t.products.cardShippingReal : t.products.cardShippingIncluded;
+  const dispatchLine = useDispatchLine(de);
+  const deliveryLine = `${t.products.shelf.delivery} ${chainDelivery}`;
 
   const title = de ? KETTEN_TITLE : KETTEN_TITLE_EN;
   const description = de ? KETTEN_DESCRIPTION : KETTEN_DESCRIPTION_EN;
@@ -141,31 +148,58 @@ export function KettenPage() {
 
         <main className="pt-28 pb-24">
           <div className="mx-auto w-full max-w-[1440px] px-5 sm:px-8">
-            <Link to="/#produkte"
-              className="inline-flex items-center gap-1.5 min-h-11 -ml-1 pl-1 text-[13px] font-medium mb-5 transition-opacity hover:opacity-70"
-              style={{ color: 'var(--txm)' }}>
+            {/* Rueckweg als Pille statt blasser Textzeile (Luca 14.09.2026:
+                "geht unter"). Der Pfeil stupst beim Laden zweimal, siehe
+                .back-pill in index.css. */}
+            <Link to="/#produkte" className="back-pill mb-6">
               <ArrowLeft className="h-4 w-4" aria-hidden /> {de ? 'Alle Produkte' : 'All products'}
             </Link>
 
             <h1 className="section-title mb-3">{de ? KETTEN_H1 : KETTEN_H1_EN}</h1>
-            <p className="text-wx-txm max-w-xl mb-5">{de ? KETTEN_LEAD : KETTEN_LEAD_EN}</p>
+            <p className="text-wx-txm max-w-xl mb-6">{de ? KETTEN_LEAD : KETTEN_LEAD_EN}</p>
 
-            {/* Nutzenband — ersetzt die graue Sammelzeile ("Alle Ketten:
-                vorgewachst · Quick-Link inklusive"), die hier entfaellt (K9). */}
-            <div className="flex flex-wrap gap-x-5 gap-y-2 mb-8">
-              {chainBenefits(de).map(b => (
-                <span key={b} className="flex items-center gap-1.5 text-[13.5px] font-medium" style={{ color: 'var(--tx2)' }}>
-                  <Check className="h-3.5 w-3.5 flex-shrink-0" style={{ color: 'var(--accent-soft)' }} aria-hidden />
-                  {b}
-                </span>
-              ))}
-            </div>
+            {/* Vier Vertrauenskacheln statt drei blasser Haekchen: jede mit
+                Icon, fettem Titel und einer Zeile. Versand ist die gruene
+                Kachel mit Live-Versandzeile, weil das der groesste Punkt ist. */}
+            <ul className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 mb-9">
+              {chainTrust(de).map(item => {
+                const Icon = TRUST_ICONS[item.key];
+                const ship = item.key === 'shipping';
+                return (
+                  <li key={item.key} className="flex items-start gap-3 rounded-2xl px-3.5 py-3 sm:px-4 sm:py-3.5"
+                    style={ship
+                      ? { background: 'var(--ship-bg)', border: '1px solid rgba(var(--ship-rgb),0.22)' }
+                      : { background: 'var(--sf)', border: '1px solid var(--bd)' }}>
+                    <span className="hidden sm:flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full"
+                      style={ship ? { background: 'rgba(var(--ship-rgb),0.14)', color: 'var(--ship-fg)' } : { background: 'var(--accent-wash)', color: 'var(--accent-soft)' }}>
+                      <Icon className="h-4 w-4" aria-hidden />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="flex items-center gap-2 text-[13.5px] font-semibold leading-snug" style={{ color: ship ? 'var(--ship-fg)' : 'var(--tx1)' }}>
+                        {ship && <span className="ship-pulse" aria-hidden />}
+                        {item.title}
+                      </p>
+                      <p className="text-[12px] leading-snug mt-0.5 [&_b]:font-semibold" style={{ color: 'var(--txm)' }}>
+                        {ship ? dispatchLine : item.sub}
+                      </p>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
 
             {/* Filterleiste statt einer 380px-Karte — sticky unter der Nav. */}
             <div className="sticky top-14 z-20 -mx-5 sm:-mx-8 px-5 sm:px-8 py-3 mb-5"
               style={{ background: 'var(--pg)', borderBottom: '1px solid var(--bd2)' }}>
               {/* Desktop: eine Zeile, zwei Chip-Gruppen, Ergebniszahl rechts. */}
               <div className="hidden sm:flex items-center gap-4 flex-wrap">
+                {/* Rueckweg reist in der klebenden Leiste mit — auch weit
+                    unten in der Liste ist "zurueck" ein Klick. */}
+                <Link to="/#produkte" aria-label={de ? 'Alle Produkte' : 'All products'} title={de ? 'Alle Produkte' : 'All products'}
+                  className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border transition-colors hover:bg-[var(--cta-bg)] hover:text-[var(--cta-fg)]"
+                  style={{ borderColor: 'var(--bd)', color: 'var(--tx1)' }}>
+                  <ArrowLeft className="h-4 w-4" aria-hidden />
+                </Link>
                 <ChipRow>
                   {BRANDS.map(b => (
                     <TogButton key={b.v} active={brand === b.v} onClick={() => setBrand(b.v)}>
@@ -191,6 +225,11 @@ export function KettenPage() {
 
               {/* Mobile: zwei Ausgangs-Chips oeffnen je ein Bottom-Sheet. */}
               <div className="flex sm:hidden items-center gap-2">
+                <Link to="/#produkte" aria-label={de ? 'Alle Produkte' : 'All products'}
+                  className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg border"
+                  style={{ borderColor: 'var(--bd)', color: 'var(--tx1)' }}>
+                  <ArrowLeft className="h-4 w-4" aria-hidden />
+                </Link>
                 <button type="button" onClick={() => setSheet('marke')} aria-haspopup="dialog"
                   className={`flex-1 min-h-11 px-3 rounded-lg text-[13px] font-medium border truncate ${brand !== 'all' ? 'chip-active' : ''}`}
                   style={brand === 'all' ? { borderColor: 'var(--bd)', color: 'var(--txm)' } : { borderColor: 'transparent' }}>
@@ -262,23 +301,31 @@ export function KettenPage() {
             {/* "Passt dazu" — die Seite endet nicht in einer Sackgasse. */}
             <div>
               <p className="eyebrow mb-3" style={{ color: 'var(--txf)' }}>
-                {de ? 'Passt dazu' : 'Goes well with'}
+                {t.products.shelf.relatedTitle}
               </p>
               <div className="grid gap-5 sm:grid-cols-3">
+                {/* Pro-Bild statt Classic: rechts daneben zeigt das Set schon
+                    den blauen Block (Luca 14.09.2026: "zu viel Blau"). Preis
+                    ist der guenstigste Block aus data.ts. */}
                 <SecondaryTile
                   to="/#produkte"
-                  image="/images/shelf/wax-classic" imageW={1000}
+                  image="/images/shelf/wax-pro" imageW={1000}
                   eyebrow={t.products.shelf.relatedWaxEyebrow} title={t.products.shelf.relatedWaxTitle}
                   body={t.products.shelf.relatedWaxBody}
+                  price={`${t.products.shelf.priceFrom} ${formatPrice(minWaxPrice)}`}
+                  delivery={deliveryLine}
+                  freeShipping={shippingLabel}
                   cta={t.products.shelf.relatedWaxCta}
-                  alt={de ? 'Waxcelerate Kettenwachs-Block' : 'Waxcelerate chain wax block'}
+                  alt={de ? 'Schwarzer Waxcelerate Pro Kettenwachs-Block' : 'Black Waxcelerate Pro chain wax block'}
                 />
                 <SecondaryTile
                   to="/starter-set"
                   image="/images/shelf/shelf-set" imageW={1000}
                   eyebrow={t.products.shelf.setEyebrow} title={t.products.shelf.setTitle}
                   body={t.products.shelf.setBody}
-                  price={`${de ? 'Ab' : 'From'} ${formatPrice(minSetPrice)}`}
+                  price={`${t.products.shelf.priceFrom} ${formatPrice(minSetPrice)}`}
+                  delivery={deliveryLine}
+                  freeShipping={shippingLabel}
                   cta={t.products.shelf.setCta}
                   alt={de ? 'Waxcelerate Wachsblock mit Kettenzange, Kette und Schaltauge-Zubehör des Starter-Sets' : 'Waxcelerate wax block with chain pliers, chain and quick-link tools from the starter set'}
                 />

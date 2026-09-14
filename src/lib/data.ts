@@ -32,6 +32,17 @@ export const trustStats = {
   negative: 0,
 } as const;
 
+/**
+ * Kontaktwege fuer die Topbar. `instagram` leer lassen, bis Luca die URL
+ * nennt — die Topbar zeigt das Icon erst, wenn hier etwas steht.
+ */
+export const CONTACT = {
+  email: 'waxcelerate@gmail.com',
+  whatsapp: 'https://wa.me/4915751957470',
+  ebay: 'https://www.ebay.de/usr/waxcelerate',
+  instagram: '' as string,
+} as const;
+
 export interface Product {
   id: string;
   // 'bundle' is for starterSetBundleProducts below only — never added to the
@@ -136,6 +147,14 @@ export const waxProcessTimeline: Array<{
   { minutes: 10, active: false, howToIndex: 3 },
   { minutes: 1, active: true, howToIndex: 4 },
 ];
+
+/** Feste Zahlen der Anleitungs-Karte auf der Startseite (guides.tsx), vorher
+ *  hart im JSX. Werte unveraendert uebernommen. */
+export const guideFacts = {
+  waxTemp: '80–90 °C',
+  rewaxKm: '<300 km',
+  degreaseCount: '1×',
+} as const;
 
 export const products: Product[] = [
   // ── WAX PRODUCTS ──────────────────────────────────────────────
@@ -571,6 +590,22 @@ export function getProductById(id: string): Product | undefined {
 
 export const isSoldOut = (p: Pick<Product, 'soldOut'> | undefined): boolean =>
   !!p?.soldOut;
+
+/**
+ * Ketten mit dem niedrigsten Preis je Schaltstufe (nur lieferbare). Grundlage
+ * fuer das abgeleitete Badge "Guenstigste 12-fach" auf der Kettenkarte —
+ * ein Badge, das sich aus den Daten ergibt statt behauptet zu werden
+ * (Luca 14.09.2026). Bei Gleichstand tragen es alle gleich guenstigen.
+ */
+export const cheapestChainIds: ReadonlySet<string> = (() => {
+  const available = products.filter(p => p.category === 'chain' && !isSoldOut(p) && p.chainSpeed);
+  const min = new Map<string, number>();
+  for (const p of available) min.set(p.chainSpeed!, Math.min(min.get(p.chainSpeed!) ?? Infinity, p.price));
+  return new Set(available.filter(p => p.price === min.get(p.chainSpeed!)).map(p => p.id));
+})();
+
+/** Guenstigster Wachsblock, fuer "Ab …" auf Kacheln ausserhalb des Regals. */
+export const minWaxPrice = Math.min(...products.filter(p => p.category === 'wax').map(p => p.price));
 
 export function schemaAvailability(p: Pick<Product, 'soldOut'>): string {
   return isSoldOut(p)

@@ -5,6 +5,20 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { use3DReveal } from '@/hooks/useAnimation';
 import { Section } from '@/components/Section';
+import { waxProcessTimeline, guideFacts } from '@/lib/data';
+
+// Minuten aus derselben Zeitleiste wie der Ablauf auf der Wachsseite
+// (ProcessWatch), damit Startseite und Produktseite nie verschiedene Zeiten
+// nennen. Nachwachsen = alles ausser den Nur-beim-ersten-Mal-Schritten.
+const sumMin = (steps: typeof waxProcessTimeline) => steps.reduce((a, s) => a + s.minutes, 0);
+const REWAX_STEPS = waxProcessTimeline.filter(s => !s.firstOnly);
+const TOTALS = {
+  first: sumMin(waxProcessTimeline),
+  rewax: sumMin(REWAX_STEPS),
+  rewaxHands: sumMin(REWAX_STEPS.filter(s => s.active)),
+  degrease: sumMin(waxProcessTimeline.filter(s => s.firstOnly)),
+};
+const fill = (s: string, vars: Record<string, number>) => s.replace(/\{(\w+)\}/g, (_, k) => String(vars[k]));
 
 function StepText({ text }: { text: string }) {
   const unitPattern = /(~?\d+(?:[––]\d+)?\s*(?:°C|min|km))/g;
@@ -39,10 +53,13 @@ export function Guides() {
   const listRef = useRef<HTMLDivElement>(null);
   use3DReveal(listRef, { stagger: 0.06, start: 'top 88%' });
 
+  const g = t.guides;
+  // `time`: Gesamtdauer rechts im Kopf jeder Anleitung, auch zugeklappt
+  // sichtbar — man findet so den passenden Ablauf, ohne zu oeffnen.
   const guides = [
-    { id: 'neu',      icon: BookOpen,    data: t.guides.newChain },
-    { id: 'rewax',    icon: Droplets,    data: t.guides.rewax },
-    { id: 'rotation', icon: RotateCcw,   data: t.guides.rotation },
+    { id: 'neu',      icon: BookOpen,    data: g.newChain, time: fill(g.guideTotal, { min: TOTALS.first }) },
+    { id: 'rewax',    icon: Droplets,    data: g.rewax,    time: fill(g.guideTotal, { min: TOTALS.rewax }) },
+    { id: 'rotation', icon: RotateCcw,   data: g.rotation, time: fill(g.rotationTotal, { min: TOTALS.rewax }) },
   ];
 
   return (
@@ -59,7 +76,7 @@ export function Guides() {
             <p className="text-wx-tx2 max-w-xl">{t.guides.subtitle}</p>
             <p className="mt-3">
               <Link to="/anleitung" className="text-[13px] font-semibold" style={{ color: 'var(--accent-soft)' }}>
-                {de ? 'Alle drei Abläufe auf einer Seite →' : 'All three procedures on one page →'}
+                {g.allOnOnePage}
               </Link>
             </p>
           </div>
@@ -110,6 +127,9 @@ export function Guides() {
                         />
                         <span className="text-sm font-medium text-wx-tx1">{guide.data.title}</span>
                       </div>
+                      <span className="ml-auto mr-3 flex-shrink-0 num text-[12px] tabular-nums" style={{ color: 'var(--txm)' }}>
+                        {guide.time}
+                      </span>
                       <ChevronDown
                         className="h-4 w-4 flex-shrink-0 transition-transform duration-200"
                         style={{
@@ -192,97 +212,82 @@ export function Guides() {
               })}
             </div>
 
-            {/* Right column — reference card plus the blog link stacked. The
-                blog link used to sit under BOTH columns at full width while
-                the accordion stopped ~340px short of it, so the section had
-                two different right edges and a void under the (short)
-                reference card. Stacking them here gives one right edge and
-                fills the column. */}
-            <div className="flex flex-col gap-5">
-              <div
-                className="rounded-2xl overflow-hidden"
-                style={{
-                  background: 'var(--sf)',
-                  border: '1px solid var(--bd)',
-                  boxShadow: 'var(--card-shad)',
-                }}
-              >
-                {/* Temperature bar */}
-                <div className="px-5 pt-5 pb-4" style={{ borderBottom: '1px solid var(--bd2)' }}>
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-small tracking-widest uppercase" style={{ color: 'var(--txm)', letterSpacing: '0.1em' }}>
-                      {de ? 'Wachstemperatur' : 'Wax temperature'}
-                    </span>
-                    <span className="font-display font-bold text-[14px]" style={{ color: 'var(--tx1)' }}>
-                      80–90 °C
-                    </span>
-                  </div>
-                  <div className="h-[3px] rounded-full overflow-hidden" style={{ background: 'var(--sf3)' }}>
-                    <div
-                      className="h-full rounded-full"
-                      style={{
-                        background: 'linear-gradient(to right, var(--accent), var(--accent-soft))',
-                        width: '90%',
-                        animation: 'guides-bar-fill 1.2s cubic-bezier(0.16,1,0.3,1) forwards',
-                        transformOrigin: 'left',
-                      }}
-                    />
-                  </div>
-                  <style>{`
-                    @keyframes guides-bar-fill {
-                      from { clip-path: inset(0 100% 0 0); }
-                      to   { clip-path: inset(0 0% 0 0); }
-                    }
-                  `}</style>
+            {/* Right column — "Auf einen Blick" (14.09.2026). Vorher eine
+                handgeschriebene Minutenliste (Wachsbad 5–10, Aushaerten
+                10–15, Einfahren 10–20 min), die neben der Zeitleiste der
+                Wachsseite andere Zahlen nannte. Jetzt: Temperatur, dieselbe
+                Zeitleiste wie ProcessWatch, die zwei Zahlen, die nicht in
+                der Zeitleiste stehen, und drei Wege weiter statt eines
+                allgemeinen Ratgeber-Links. Eine Karte, eine rechte Kante. */}
+            <div
+              className="rounded-2xl overflow-hidden"
+              style={{ background: 'var(--sf)', border: '1px solid var(--bd)', boxShadow: 'var(--card-shad)' }}
+            >
+              <div className="px-5 pt-5 pb-4" style={{ borderBottom: '1px solid var(--bd2)' }}>
+                <div className="flex items-baseline justify-between mb-3.5">
+                  <span className="text-small tracking-widest uppercase" style={{ color: 'var(--txm)', letterSpacing: '0.1em' }}>
+                    {g.glanceTitle}
+                  </span>
+                  <span className="font-display font-bold text-[15px]" style={{ color: 'var(--tx1)' }}>
+                    {guideFacts.waxTemp}
+                  </span>
                 </div>
-
-                {/* Stat rows */}
-                {(
-                  [
-                    { value: '5–10 min',  label: de ? 'Im Wachsbad'        : 'In the wax',     note: de ? 'Alte Schicht abschmelzen'     : 'Melt off old layer'         },
-                    { value: '10–15 min', label: de ? 'Abkühlen/Aushärten' : 'Cool & harden',  note: de ? 'Bis steif, Glieder lockern'   : 'Until stiff, flex links'    },
-                    { value: '10–20 min', label: de ? 'Einfahren'          : 'Break in',       note: de ? 'Erst dann läuft sie leise'    : 'Chain quiets down after'    },
-                    { value: '<300 km',    label: de ? 'Nachwachsen'        : 'Re-wax',         note: de ? 'Für optimale Performance'     : 'For best performance'       },
-                    { value: '1×',        label: de ? 'Entfetten'          : 'Degrease',       note: de ? 'Nur beim ersten Mal'          : 'New chain only, once'       },
-                  ] as { value: string; label: string; note: string }[]
-                ).map(({ value, label, note }, i, arr) => (
-                  <div
-                    key={label}
-                    className="flex items-center gap-3 px-5 py-3"
-                    style={{ borderBottom: i < arr.length - 1 ? '1px solid var(--bd2)' : 'none' }}
-                  >
-                    <span
-                      className="font-display font-bold tabular-nums shrink-0 text-right"
-                      style={{ fontSize: '0.875rem', color: 'var(--tx1)', width: '76px', whiteSpace: 'nowrap' }}
-                    >
-                      {value}
-                    </span>
-                    <div className="w-px self-stretch shrink-0" style={{ background: 'var(--bd2)' }} />
-                    <div className="flex flex-col gap-[3px]">
-                      <span className="text-meta font-semibold leading-none" style={{ color: 'var(--tx1)' }}>{label}</span>
-                      <span className="text-meta leading-none" style={{ color: 'var(--txm)' }}>{note}</span>
-                    </div>
-                  </div>
-                ))}
+                {/* Zeitleiste: Balkenbreite = Minuten, dunkel = du tust
+                    etwas, hell = warten. Der Satz darunter traegt dieselbe
+                    Information fuer Screenreader. */}
+                <div className="flex h-2.5 gap-[3px]" aria-hidden>
+                  {REWAX_STEPS.map((s, i) => (
+                    <span key={i} className="rounded-full"
+                      style={{ flexGrow: Math.max(s.minutes, 2.5), background: s.active ? 'var(--accent)' : 'rgba(var(--accent-rgb),0.2)' }} />
+                  ))}
+                </div>
+                <div className="flex items-center gap-3 mt-2 text-[11px]" style={{ color: 'var(--txm)' }} aria-hidden>
+                  <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full" style={{ background: 'var(--accent)' }} />{g.glanceHands}</span>
+                  <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full" style={{ background: 'rgba(var(--accent-rgb),0.3)' }} />{g.glanceWait}</span>
+                </div>
+                <p className="text-meta leading-snug mt-3" style={{ color: 'var(--tx2)' }}>
+                  <b className="font-semibold" style={{ color: 'var(--tx1)' }}>{g.glanceRun}:</b>{' '}
+                  {fill(g.glanceTotalHands, { min: TOTALS.rewax, hands: TOTALS.rewaxHands })}
+                </p>
+                <p className="text-meta leading-snug mt-1" style={{ color: 'var(--txm)' }}>
+                  {fill(g.glanceFirst, { min: TOTALS.degrease })}
+                </p>
               </div>
 
-              {/* The blog's in-depth guides were only reachable from the footer
-                  or nav — nothing linked to them from the one section whose
-                  whole subject is "how to do this". */}
-              <Link to="/blog"
-                className="group flex items-start justify-between gap-3 px-5 py-4 rounded-2xl transition-all hover:shadow-md"
-                style={{ background: 'var(--card-bg)', border: '1px solid var(--bd)' }}>
-                <div>
-                  <p className="text-[13.5px] font-semibold" style={{ color: 'var(--tx1)' }}>
-                    {de ? 'Ausführliche Ratgeber' : 'In-depth guides'}
-                  </p>
-                  <p className="text-meta mt-1 leading-snug" style={{ color: 'var(--txm)' }}>
-                    {de ? 'Jede Anleitung im Detail, mit Fotos und Schritt für Schritt.' : 'Every guide in full detail, with photos, step by step.'}
-                  </p>
+              {[
+                { value: guideFacts.rewaxKm, label: g.glanceRewaxLabel, note: g.glanceRewaxNote },
+                { value: guideFacts.degreaseCount, label: g.glanceDegreaseLabel, note: g.glanceDegreaseNote },
+              ].map(({ value, label, note }) => (
+                <div key={label} className="flex items-center gap-3 px-5 py-3" style={{ borderBottom: '1px solid var(--bd2)' }}>
+                  <span className="font-display font-bold tabular-nums shrink-0 text-right"
+                    style={{ fontSize: '0.875rem', color: 'var(--tx1)', width: '64px', whiteSpace: 'nowrap' }}>
+                    {value}
+                  </span>
+                  <div className="w-px self-stretch shrink-0" style={{ background: 'var(--bd2)' }} />
+                  <div className="flex flex-col gap-[3px]">
+                    <span className="text-meta font-semibold leading-none" style={{ color: 'var(--tx1)' }}>{label}</span>
+                    <span className="text-meta leading-none" style={{ color: 'var(--txm)' }}>{note}</span>
+                  </div>
                 </div>
-                <ArrowRight className="h-4 w-4 flex-shrink-0 mt-0.5 transition-transform duration-300 group-hover:translate-x-1"
-                  style={{ color: 'var(--accent-soft)' }} />
-              </Link>
+              ))}
+
+              <ul>
+                {[
+                  { to: '/blog/heisswachs-anleitung', label: g.linkPhotos },
+                  { to: '/rechner/intervall', label: g.linkInterval },
+                  { to: '/kette-wachsen-lassen', label: g.linkService },
+                ].map((l, i) => (
+                  <li key={l.to} style={{ borderTop: i > 0 ? '1px solid var(--bd2)' : 'none' }}>
+                    <Link to={l.to}
+                      className="group flex items-center justify-between gap-3 px-5 py-3 text-[13px] font-semibold transition-colors hover:bg-[var(--sf2)]"
+                      style={{ color: 'var(--tx1)' }}>
+                      {l.label}
+                      <ArrowRight className="h-3.5 w-3.5 flex-shrink-0 transition-transform duration-300 group-hover:translate-x-1"
+                        style={{ color: 'var(--accent-soft)' }} aria-hidden />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
 

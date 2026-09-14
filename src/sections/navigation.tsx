@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Menu, X, Moon, Sun, ChevronDown } from 'lucide-react';
+import { Menu, X, Moon, Sun } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
 import { CartIcon } from '@/components/CartIcon';
 import { WaxcelerateMark } from '@/components/WaxcelerateMark';
+import { Topbar } from '@/components/nav/Topbar';
+import { NavItem, type NavMenuEntry } from '@/components/nav/NavMenu';
 import { checkoutEnabled } from '@/lib/data';
 import { useActiveSection } from '@/hooks/useActiveSection';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
@@ -75,8 +77,6 @@ const resourceNavItems = [
 export function Navigation() {
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isResourcesOpen, setIsResourcesOpen] = useState(false);
-  const resourcesRef = useRef<HTMLDivElement>(null);
   const { t, lang, toggleLang } = useLanguage();
   const { theme, setTheme } = useTheme();
 
@@ -99,8 +99,11 @@ export function Navigation() {
   // sonst inline, und Inline-Styles gewinnen normalerweise gegen jede externe
   // Regel — ausser `!important`.
   const [scrolled, setScrolled] = useState(false);
+  // Topbar faehrt schon beim ersten Scrollen weg (yoeleo-Muster), frueher
+  // als der Hero-Transparenzwechsel bei 24 px.
+  const [pastTop, setPastTop] = useState(false);
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
+    const onScroll = () => { setScrolled(window.scrollY > 24); setPastTop(window.scrollY > 8); };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
@@ -109,26 +112,7 @@ export function Navigation() {
   const isActive = (item: { href: string; route?: boolean }) =>
     item.route ? location.pathname === item.href : activeSection === item.href;
   const resourcesActive = resourceNavItems.some(isActive);
-
-  // Klappe schliesst bei Klick nach aussen oder Escape — dasselbe Muster,
-  // das Cart-Drawer und Mobilmenue hier ohnehin schon verwenden.
-  useEffect(() => {
-    if (!isResourcesOpen) return;
-    const onClick = (e: MouseEvent) => {
-      if (resourcesRef.current && !resourcesRef.current.contains(e.target as Node)) setIsResourcesOpen(false);
-    };
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setIsResourcesOpen(false); };
-    document.addEventListener('mousedown', onClick);
-    document.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('mousedown', onClick);
-      document.removeEventListener('keydown', onKey);
-    };
-  }, [isResourcesOpen]);
-
-  // Routenwechsel schliesst die Klappe. Ohne das bleibt sie beim Sprung auf
-  // /blog offen ueber der neuen Seite stehen.
-  useEffect(() => { setIsResourcesOpen(false); }, [location.pathname]);
+  const productsActive = isActive({ href: '#produkte' }) || /^\/(ketten|starter-set|produkt\/|zubehoer\/)/.test(location.pathname);
 
   useBodyScrollLock(isMobileMenuOpen);
 
@@ -193,6 +177,31 @@ export function Navigation() {
     scrollToSection(item.href);
   };
 
+  // Klappen-Inhalte. Nur Punkte mit echten Unterzielen bekommen eine Klappe;
+  // Wissenschaft, Kette wachsen lassen, Ueber mich und Kontakt sind je eine
+  // Seite, eine Klappe dort waere Deko.
+  const h = t.header;
+  const entry = (key: string, label: string, desc: string | undefined, item: { href: string; route?: boolean }): NavMenuEntry => ({
+    key, label, desc, href: hrefFor(item), active: isActive(item),
+    onSelect: (e) => { e.preventDefault(); handleNav(item); },
+  });
+  const menus: Partial<Record<(typeof primaryNavItems)[number]['key'], NavMenuEntry[]>> = {
+    whyWax: [
+      entry('why', h.menuWhy, h.menuWhyDesc, { href: '#warum-wachs' }),
+      entry('reviews', h.menuReviews, h.menuReviewsDesc, { href: '#bewertungen' }),
+      entry('origin', h.menuOrigin, h.menuOriginDesc, { href: '#herkunft' }),
+    ],
+    products: [
+      entry('classic', h.menuClassic, h.menuClassicDesc, { href: '/produkt/wax-500', route: true }),
+      entry('pro', h.menuPro, h.menuProDesc, { href: '/produkt/wax-500-mos2', route: true }),
+      entry('chains', h.menuChains, h.menuChainsDesc, { href: '/ketten', route: true }),
+      entry('set', h.menuSet, h.menuSetDesc, { href: '/starter-set', route: true }),
+      entry('all', h.menuAllProducts, undefined, { href: '#produkte' }),
+    ],
+  };
+  const resourceEntries = resourceNavItems.map(item =>
+    entry(item.key, t.nav[item.key], t.nav[item.desc], item));
+
   return (
     <>
       {/* Skip-Link: bisher gab es sitewide keine Moeglichkeit, per Tastatur
@@ -210,7 +219,7 @@ export function Navigation() {
       </a>
       {/* ── Header bar ── */}
       <header
-        className={`fixed top-0 left-0 right-0 z-50 py-2 transition-all duration-300${heroTransparent ? ' nav-on-hero' : ''}`}
+        className={`wx-header fixed top-0 left-0 right-0 z-50 transition-all duration-300${pastTop ? ' topbar-hidden' : ''}${heroTransparent ? ' nav-on-hero' : ''}`}
         style={{
           background: 'var(--nav-bg)',
           boxShadow: 'inset 0 -1px 0 var(--bd)',
@@ -218,7 +227,8 @@ export function Navigation() {
           WebkitBackdropFilter: 'blur(16px)',
         }}
       >
-        <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
+        <Topbar />
+        <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-2">
           <div className="flex items-center justify-between h-16 lg:h-20">
 
             {/* Logo — Zeichen plus Wortmarke, auf ALLEN Breiten. Die Wortmarke
@@ -256,114 +266,29 @@ export function Navigation() {
               </span>
             </a>
 
-            {/* Desktop Navigation — zentriert, ruhige Editorial-Typo.
-                Sechs Ziele, eine Reihe, kein Dropdown — siehe Begruendung bei
-                primaryNavItems oben. */}
-            <nav className="hidden lg:flex flex-1 items-center justify-center gap-7">
-              {primaryNavItems.map((item) => (
-                <a
-                  key={item.href}
-                  href={hrefFor(item)}
-                  onClick={(e) => { e.preventDefault(); handleNav(item); }}
-                  className="relative group text-[13.5px] tracking-[0.01em] transition-colors duration-300 whitespace-nowrap"
-                  style={{
-                    color: isActive(item) ? 'var(--tx1)' : 'var(--tx2)',
-                  }}
-                >
-                  {t.nav[item.key as keyof typeof t.nav]}
-                  <span
-                    className={`absolute -bottom-1.5 left-0 right-0 h-px origin-left transition-transform duration-200 ${
-                      isActive(item) ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
-                    }`}
-                    style={{ background: isActive(item) ? 'var(--accent)' : 'var(--bd)' }}
+            {/* Desktop Navigation — Pillen nach yoeleo-Muster (NavMenu.tsx).
+                Die <nav> streckt sich ueber die volle Leistenhoehe, damit
+                jedes <li> oben bis unten Trefferflaeche ist. Sprache und
+                Hell/Dunkel stehen jetzt in der Topbar darueber. */}
+            <nav className="hidden lg:flex flex-1 self-stretch justify-center" aria-label={de ? 'Hauptnavigation' : 'Main navigation'}>
+              <ul className="flex h-full items-stretch">
+                {primaryNavItems.map((item) => (
+                  <NavItem
+                    key={item.href}
+                    id={`nav-${item.key}`}
+                    label={t.nav[item.key]}
+                    href={hrefFor(item)}
+                    active={item.key === 'products' ? productsActive : isActive(item)}
+                    onNavigate={(e) => { e.preventDefault(); handleNav(item); }}
+                    entries={menus[item.key]}
                   />
-                </a>
-              ))}
-
-              {/* Ratgeber-Gruppe. Panel statt Liste: Titel plus je eine Zeile
-                  Kontext, damit man vor dem Klick weiss, was einen erwartet.
-                  Genau das fehlte der "Mehr"-Fassung. */}
-              <div ref={resourcesRef} className="relative">
-                <button
-                  type="button"
-                  onClick={() => setIsResourcesOpen(v => !v)}
-                  aria-expanded={isResourcesOpen}
-                  aria-haspopup="true"
-                  aria-controls="resources-menu"
-                  className="relative group flex items-center gap-1 text-[13.5px] tracking-[0.01em] transition-colors duration-300 whitespace-nowrap"
-                  style={{ color: resourcesActive || isResourcesOpen ? 'var(--tx1)' : 'var(--tx2)' }}
-                >
-                  {t.nav.resources}
-                  <ChevronDown
-                    className="h-3.5 w-3.5 transition-transform duration-200"
-                    style={{ transform: isResourcesOpen ? 'rotate(180deg)' : 'none' }}
-                    aria-hidden
-                  />
-                  <span
-                    className={`absolute -bottom-1.5 left-0 right-0 h-px origin-left transition-transform duration-200 ${
-                      resourcesActive ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
-                    }`}
-                    style={{ background: resourcesActive ? 'var(--accent)' : 'var(--bd)' }}
-                  />
-                </button>
-
-                {isResourcesOpen && (
-                  <div
-                    id="resources-menu"
-                    role="menu"
-                    className="absolute top-full left-1/2 -translate-x-1/2 mt-4 p-2 rounded-2xl w-[330px]"
-                    style={{
-                      background: 'var(--sf)',
-                      border: '1px solid var(--bd)',
-                      boxShadow: '0 18px 50px rgba(10,10,16,0.16), 0 3px 12px rgba(10,10,16,0.08)',
-                    }}
-                  >
-                    {resourceNavItems.map((item) => (
-                      <a
-                        key={item.href}
-                        href={hrefFor(item)}
-                        role="menuitem"
-                        onClick={(e) => { e.preventDefault(); setIsResourcesOpen(false); handleNav(item); }}
-                        className="block rounded-xl px-3 py-2.5 transition-colors hover:bg-[var(--sf2)]"
-                      >
-                        <span
-                          className="block text-[13.5px] font-semibold"
-                          style={{ color: isActive(item) ? 'var(--accent)' : 'var(--tx1)' }}
-                        >
-                          {t.nav[item.key as keyof typeof t.nav]}
-                        </span>
-                        <span className="block text-[12px] leading-snug mt-0.5" style={{ color: 'var(--txm)' }}>
-                          {t.nav[item.desc as keyof typeof t.nav]}
-                        </span>
-                      </a>
-                    ))}
-                  </div>
-                )}
-              </div>
+                ))}
+                <NavItem id="nav-resources" label={t.nav.resources} active={resourcesActive} entries={resourceEntries} />
+              </ul>
             </nav>
 
             {/* Actions */}
             <div className="flex items-center gap-2.5 lg:gap-4 shrink-0">
-              {/* Language toggle — desktop only */}
-              <button
-                onClick={toggleLang}
-                className="hidden lg:block text-[12px] font-medium tracking-wide transition-colors"
-                style={{ color: 'var(--tx2)' }}
-                aria-label={lang === 'de' ? 'Switch to English' : 'Zu Deutsch wechseln'}
-              >
-                {lang === 'de' ? 'EN' : 'DE'}
-              </button>
-
-              {/* Theme toggle — desktop only */}
-              <button
-                onClick={() => setTheme(theme === 'light' ? 'noir' : 'light')}
-                className="hidden lg:flex items-center justify-center w-9 h-9 rounded-full transition-colors"
-                style={{ color: 'var(--tx2)' }}
-                aria-label={de ? (theme === 'light' ? 'Zum Dark Mode wechseln' : 'Zum Light Mode wechseln') : (theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode')}
-              >
-                {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-              </button>
-
               {checkoutEnabled && <CartIcon light={false} />}
 
               {/* Primär-CTA — immer sichtbar, ersetzt den „Produkte"-Link.

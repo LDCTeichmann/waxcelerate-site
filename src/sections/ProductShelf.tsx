@@ -47,6 +47,7 @@ import type { TranslationType } from '@/lib/i18n';
 import { AddToCartButton } from '@/components/AddToCartButton';
 import { PriceNote } from '@/components/PriceNote';
 import { Stars } from '@/components/Stars';
+import { ShippingPill } from '@/components/ShippingPill';
 import { QuantityDiscountChip } from '@/components/QuantityDiscountChip';
 import { trackEbayClick } from '@/lib/analytics';
 import { getEstimatedDelivery } from '@/lib/utils';
@@ -409,8 +410,12 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
 // Versprechen, das die Seite nicht haelt).
 // Exportiert: products.tsx braucht dieselbe Kachel fuer die Rewax-Karte am
 // Ende der aufgeklappten Kettenliste — siehe dortiger Kommentar.
-export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, price, delivery, deliveryIcon = 'truck', dark, index, ...action }: {
+export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, price, delivery, deliveryIcon = 'truck', freeShipping, dark, index, ...action }: {
   image: string; imageW: number; eyebrow: string; title: string; body: string; cta: string; alt: string;
+  /** Text der gruenen Versand-Pille ("Versandkostenfrei"), steht klein neben
+      der Lieferzeile. Weggelassen bei Rewax: dort wird nichts verschickt,
+      sondern die eigene Kette zurueckgeschickt. */
+  freeShipping?: string;
   /** Fertig formatierter Preis-String ("ab 57,63 €"). Macht aus der Kachel
       sichtbar ein Kaufangebot statt eines reinen Editorial-Links — ohne
       Preis war auf Mobile nicht erkennbar, dass hier etwas verkauft wird. */
@@ -496,13 +501,18 @@ export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, p
 
         {/* Lieferzeile — nur wenn uebergeben. Gleiche Truck-Icon-Grammatik
             wie WaxPanel, ausser bei Rewax (deliveryIcon='rotate'). */}
-        {delivery && (
-          <span className="flex items-center gap-1.5 num text-meta mt-1.5" style={{ color: 'var(--txff)' }}>
-            {deliveryIcon === 'rotate'
-              ? <RotateCw className="h-3 w-3 flex-shrink-0" style={{ color: 'var(--accent-soft)' }} aria-hidden />
-              : <Truck className="h-3 w-3 flex-shrink-0" style={{ color: 'var(--accent-soft)' }} aria-hidden />}
-            {delivery}
-          </span>
+        {(delivery || freeShipping) && (
+          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 mt-2.5">
+            {freeShipping && <ShippingPill small label={freeShipping} />}
+            {delivery && (
+              <span className="flex items-center gap-1.5 num text-meta" style={{ color: 'var(--tx2)' }}>
+                {deliveryIcon === 'rotate'
+                  ? <RotateCw className="h-3 w-3 flex-shrink-0" style={{ color: 'var(--accent-soft)' }} aria-hidden />
+                  : !freeShipping && <Truck className="h-3 w-3 flex-shrink-0" style={{ color: 'var(--accent-soft)' }} aria-hidden />}
+                {delivery}
+              </span>
+            )}
+          </div>
         )}
 
         {/* CTA als eigenstaendiger, gefuellter Button statt einer leicht

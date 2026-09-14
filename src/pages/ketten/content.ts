@@ -18,8 +18,24 @@ export const KETTEN_DESCRIPTION = 'Acht vorgewachste Fahrradketten für Shimano,
 export const KETTEN_DESCRIPTION_EN = 'Eight pre-waxed bicycle chains for Shimano, SRAM and Campagnolo, 11- and 12-speed. Ultrasonically degreased and hand-waxed in Stuttgart, quick-link included.';
 export const KETTEN_H1 = 'Vorgewachste Fahrradketten';
 export const KETTEN_H1_EN = 'Pre-Waxed Bicycle Chains';
-export const KETTEN_LEAD = 'Ultraschall-entfettet und handgewachst in Stuttgart. Aufziehen und losfahren — kein eigenes Wachsbad nötig.';
-export const KETTEN_LEAD_EN = 'Ultrasonically degreased and hand-waxed in Stuttgart. Fit it and ride — no wax bath of your own needed.';
+// Kuerzer als vorher: "Ultraschall-entfettet" und "handgewachst" stehen jetzt
+// als eigene Kacheln darunter (chainTrust), im Lead waeren sie doppelt.
+export const KETTEN_LEAD = 'Fertig gewachst aus Stuttgart. Aufziehen und losfahren, ohne eigenes Wachsbad.';
+export const KETTEN_LEAD_EN = 'Ready-waxed in Stuttgart. Fit it and ride, no wax bath of your own needed.';
+
+/**
+ * Vier Vertrauenskacheln unter dem H1 (ersetzt die drei blassen Haekchen auf
+ * der Seite; chainBenefits bleibt fuer das Prerender-Markup). Beim Versand
+ * ersetzt die Seite die Unterzeile durch die Live-Versandzeile.
+ */
+export function chainTrust(de: boolean): { key: 'degreased' | 'pro' | 'quicklink' | 'shipping'; title: string; sub: string }[] {
+  return [
+    { key: 'degreased', title: de ? 'Ultraschall-entfettet' : 'Ultrasonically degreased', sub: de ? 'Werksfett komplett raus' : 'Factory grease fully removed' },
+    { key: 'pro', title: de ? 'Mit Pro gewachst' : 'Waxed with Pro', sub: de ? 'MoS₂-Heißwachs, von Hand' : 'MoS₂ hot wax, by hand' },
+    { key: 'quicklink', title: de ? 'Quick-Link inklusive' : 'Quick-link included', sub: de ? 'Aufziehen und losfahren' : 'Fit it and ride' },
+    { key: 'shipping', title: de ? 'Versandkostenfrei' : 'Free shipping', sub: de ? 'Werktags bis 15 Uhr bestellt, am selben Tag versandt' : 'Weekday orders by 3 pm ship the same day' },
+  ];
+}
 
 /**
  * Nutzenband unter dem H1: drei Fakten statt der grauen Sammelzeile

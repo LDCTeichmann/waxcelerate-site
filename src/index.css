@@ -1251,14 +1251,154 @@ section[id] {
   --dw-hair: 1.2px;
   --dw-line: 1.7px;
   --dw-bold: 2.6px;
+  /* Versand-Gruen: vorher nur innerhalb .wxp (Wachsseite) definiert, jetzt
+     global, damit Kettenkarten, "Passt dazu" und Topbar dieselbe Pille
+     tragen (ShippingPill.tsx). wax.css verweist darauf. */
+  --ship-fg: #2E7D4F;
+  --ship-bg: rgba(46, 125, 79, 0.1);
+  --ship-rgb: 46, 125, 79;
+  /* Kopfbereich: Hoehe der Topbar und die deckende Entsprechung von
+     --nav-bg (fuer Klappen und ihre konkaven Ecken, die ohne Blur sonst
+     durchscheinen wuerden). */
+  --topbar-h: 32px;
+  --nav-solid: #F9F9F9;
 }
+@media (min-width: 1024px) { :root { --topbar-h: 36px; } }
 .noir {
   /* Thin light strokes on near-black bloom optically and read heavier than the
      same weight does dark-on-light, so the dark theme needs slightly less. */
   --dw-hair: 1.1px;
   --dw-line: 1.5px;
   --dw-bold: 2.4px;
+  --ship-fg: #6FC193;
+  --ship-bg: rgba(111, 193, 147, 0.12);
+  --ship-rgb: 111, 193, 147;
+  --nav-solid: #09090B;
 }
+
+/* ── Kopfbereich: Topbar, Pillen-Navigation, Klappen (yoeleo-Muster) ─────── */
+/* Die Topbar sitzt im fixen Header. body bekommt ihre Hoehe als Abstand,
+   solange es sie gibt; beim ersten Scrollen faehrt der Header um genau diese
+   Hoehe nach oben (.topbar-hidden), der Abstand ist dann laengst
+   weggescrollt — keine Seite muss ihren eigenen Kopfabstand kennen. */
+body:has(.wx-topbar) { padding-top: var(--topbar-h); }
+.wx-topbar { height: var(--topbar-h); }
+.wx-header.topbar-hidden { transform: translateY(calc(-1 * var(--topbar-h))); }
+
+/* Pille: Duplikat gleitet von unten in Position, der Text weicht nach oben
+   aus. Die Trefferflaeche ist das ganze <li> ueber die volle Leistenhoehe,
+   man muss das Wort also nicht genau treffen. */
+.nav-pill {
+  position: relative; display: inline-flex; align-items: center; justify-content: center;
+  height: 40px; padding: 0 15px; border-radius: 999px; overflow: hidden;
+  font-size: 13.5px; letter-spacing: .01em; white-space: nowrap; color: var(--tx2);
+  transition: transform .35s cubic-bezier(.2,.7,.2,1), color .2s;
+}
+.nav-pill__text, .nav-pill__dup { display: inline-flex; align-items: center; gap: 4px; }
+.nav-pill__text { transition: transform .45s cubic-bezier(.6,0,.4,1), opacity .3s; }
+.nav-pill__dup {
+  position: absolute; inset: 0; z-index: 1; justify-content: center;
+  border-radius: inherit; background: var(--tx1); color: var(--pg);
+  transform: translateY(100%) scale(.6);
+  transition: transform .45s cubic-bezier(.6,0,.4,1);
+}
+@media (hover: hover) and (pointer: fine) {
+  .nav-item:hover .nav-pill__dup { transform: none; }
+  .nav-item:hover .nav-pill__text { opacity: 0; transform: translateY(-10%) scale(.6); }
+}
+.nav-item[data-open="true"] .nav-pill__dup, .nav-pill:focus-visible .nav-pill__dup { transform: none; }
+.nav-item[data-open="true"] .nav-pill__text, .nav-pill:focus-visible .nav-pill__text { opacity: 0; transform: translateY(-10%) scale(.6); }
+.nav-pill:focus-visible { outline: 2px solid var(--accent-soft); outline-offset: 2px; }
+.nav-pill[data-active="true"] { color: var(--tx1); }
+/* Aktiv = Punkt statt dauerhafter Pille: auf der Startseite wandert der
+   aktive Abschnitt beim Scrollen, eine volle Pille wuerde mitspringen. */
+.nav-pill[data-active="true"]::after {
+  content: ""; position: absolute; left: 50%; bottom: 5px; width: 4px; height: 4px;
+  margin-left: -2px; border-radius: 50%; background: var(--accent);
+}
+.nav-pill__chev { transition: transform .3s; }
+.nav-item[data-open="true"] .nav-pill__chev { transform: scaleY(-1); }
+
+/* Klappe: haengt buendig an der Headerunterkante, flache Oberkante,
+   konkave Ecken links und rechts (Inline-SVG), unten rund — sie waechst
+   sichtbar aus der Leiste heraus. */
+.nav-drop {
+  position: absolute; left: 50%; z-index: 10; min-width: 300px;
+  transform: translateX(-50%);
+  background: var(--nav-solid); border-radius: 0 0 18px 18px; padding: 8px 8px 10px;
+  box-shadow: 0 24px 40px -20px rgba(10,10,16,.30);
+  clip-path: inset(0 -20px 100% -20px); opacity: 0; visibility: hidden;
+  transition: clip-path .34s cubic-bezier(.6,0,.4,1), opacity .2s, visibility 0s linear .34s;
+}
+.nav-drop[data-open="true"] {
+  clip-path: inset(0 -20px -64px -20px); opacity: 1; visibility: visible;
+  transition: clip-path .34s cubic-bezier(.6,0,.4,1), opacity .2s, visibility 0s;
+}
+.noir .nav-drop { box-shadow: 0 24px 40px -20px rgba(0,0,0,.7), 0 1px 0 var(--bd); }
+.nav-drop__corner { position: absolute; top: 0; width: 18px; height: 18px; color: var(--nav-solid); }
+.nav-drop__corner svg { display: block; width: 100%; height: 100%; fill: currentColor; }
+.nav-drop__corner--l { left: -18px; }
+.nav-drop__corner--r { right: -18px; }
+.nav-drop__list > li { opacity: 0; transform: translateY(-6px); transition: opacity .25s, transform .35s cubic-bezier(.2,.7,.2,1); }
+.nav-drop[data-open="true"] .nav-drop__list > li { opacity: 1; transform: none; }
+.nav-drop[data-open="true"] .nav-drop__list > li:nth-child(2) { transition-delay: .03s; }
+.nav-drop[data-open="true"] .nav-drop__list > li:nth-child(3) { transition-delay: .06s; }
+.nav-drop[data-open="true"] .nav-drop__list > li:nth-child(4) { transition-delay: .09s; }
+.nav-drop[data-open="true"] .nav-drop__list > li:nth-child(5) { transition-delay: .12s; }
+.nav-drop__link { display: block; border-radius: 12px; padding: 9px 12px; transition: background-color .15s; }
+.nav-drop__link:hover, .nav-drop__link:focus-visible { background: var(--sf2); outline: none; }
+.nav-drop__title { display: block; font-size: 13.5px; font-weight: 600; color: var(--tx1); }
+.nav-drop__link[data-active="true"] .nav-drop__title { color: var(--accent); }
+.nav-drop__desc { display: block; margin-top: 2px; font-size: 12px; line-height: 1.35; color: var(--txm); }
+@media (prefers-reduced-motion: reduce) {
+  .nav-pill, .nav-pill__text, .nav-pill__dup, .nav-drop, .nav-drop__list > li, .wx-header { transition: none !important; }
+}
+
+/* ── Versand-Pille + Live-Puls (geteilt) ─────────────────────────────────── */
+.ship-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 12px; font-weight: 600; line-height: 1;
+  color: var(--ship-fg); background: var(--ship-bg);
+  padding: 5px 9px; border-radius: 999px; white-space: nowrap;
+}
+.ship-pill--sm { font-size: 11px; padding: 4px 8px; }
+.ship-pulse {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  background: var(--ship-fg); animation: ship-pulse 2s infinite;
+}
+@keyframes ship-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(var(--ship-rgb), .45); }
+  70% { box-shadow: 0 0 0 7px rgba(var(--ship-rgb), 0); }
+  100% { box-shadow: 0 0 0 0 rgba(var(--ship-rgb), 0); }
+}
+@media (prefers-reduced-motion: reduce) { .ship-pulse { animation: none; } }
+
+/* Glas-Chip auf Produktfotos (Kettenkarte): Badge oben, Wachs-Hinweis unten. */
+.photo-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 10.5px; font-weight: 600; letter-spacing: .02em; line-height: 1;
+  color: #fff; background: rgba(12, 13, 16, .58);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, .16);
+  padding: 6px 9px; border-radius: 999px; white-space: nowrap;
+}
+.photo-chip--light { color: #101013; background: rgba(255, 255, 255, .92); border-color: rgba(255, 255, 255, .6); }
+
+/* Rueck-Knopf (Unterseiten): Pille statt blasser Textzeile. Der Pfeil
+   stupst beim Laden zweimal nach links und bleibt dann ruhig. */
+.back-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: 40px; padding: 0 16px 0 12px; border-radius: 999px;
+  font-size: 13.5px; font-weight: 600;
+  color: var(--tx1); background: var(--sf); border: 1px solid var(--bd);
+  box-shadow: 0 1px 2px rgba(16,16,16,.04);
+  transition: background-color .2s, color .2s, border-color .2s;
+}
+.back-pill:hover { background: var(--cta-bg); color: var(--cta-fg); border-color: var(--cta-bg); }
+.back-pill svg { transition: transform .25s cubic-bezier(.2,.7,.2,1); animation: back-nudge 1.2s ease-in-out .6s 2; }
+.back-pill:hover svg { transform: translateX(-3px); animation: none; }
+@keyframes back-nudge { 0%, 100% { transform: translateX(0); } 40% { transform: translateX(-4px); } }
+@media (prefers-reduced-motion: reduce) { .back-pill svg { animation: none; } }
 
 /* Hairline slider — used by the science page's breakaway counter. Deliberately
    thinner than a stock range input so it reads as an instrument control rather

@@ -1,8 +1,10 @@
 import { ExternalLink, ArrowRight, Truck, Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { memo } from 'react';
-import { canCheckout, isSoldOut, type Product } from '@/lib/data';
+import { canCheckout, cheapestChainIds, isSoldOut, type Product } from '@/lib/data';
+import { useLanguage } from '@/hooks/useLanguage';
 import { AddToCartButton } from '@/components/AddToCartButton';
+import { ShippingPill } from '@/components/ShippingPill';
 import { Stars } from '@/components/Stars';
 import { trackEbayClick } from '@/lib/analytics';
 
@@ -13,7 +15,7 @@ export interface ChainCardProps {
   buyLabel: string;
   deliveryDate?: string;
   quickLinkLabel?: string;
-  /** "inkl. Versand" — an checkoutEnabled gekoppelt (K8), vom Aufrufer
+  /** "Versandkostenfrei" — an checkoutEnabled gekoppelt (K8), vom Aufrufer
    *  berechnet statt hier fest verdrahtet, damit die Karte selbst keine
    *  Meinung zum Versandstatus braucht. */
   shippingIncludedLabel?: string;
@@ -35,15 +37,16 @@ const chainCardWebp = (src: string) => hasLocalChainCard(src) ? src.replace(/\.w
 const chainCardAvif = (src: string) => hasLocalChainCard(src) ? src.replace(/\.webp$/, '-card.avif') : null;
 
 // ── Chain Card ─────────────────────────────────────────────────────────────
-// Stufe 1 der Produktkarten-Neugliederung: uebernimmt die .shelf-card-
-// Grammatik aus ProductShelf.tsx (WaxPanel) statt eines eigenen Kartensatzes
-// (U1 im Plan). Kein <button> mehr in einem <Link> (K2) — nur der Produktname
-// ist der Link, gespannt per .stretched-link ueber die ganze Karte, der CTA
-// bleibt mit position:relative darueber klickbar. Ab Stufe 3 aus products.tsx
-// herausgeloest, weil sowohl das Regal (SecondaryTile-Vorschau entfaellt dort)
-// als auch die neue /ketten-Route dieselbe Karte brauchen.
+// .shelf-card-Grammatik wie das Regal. Nur der Produktname ist der Link,
+// gespannt per .stretched-link ueber die ganze Karte (K2), der CTA liegt mit
+// z-index darueber.
+// 14.09.2026 (Luca): kompakter und mit den Fakten, die kaufen lassen. Der
+// graue Fussstreifen ist weg — Versand steht jetzt als gruene Pille direkt
+// unter dem Preis, wo das Auge beim Preisvergleich ohnehin landet. Foto
+// 16:10 statt 3:2; auf dem Foto steht, womit gewachst wurde.
 export const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel, deliveryDate, quickLinkLabel, shippingIncludedLabel, priority }: ChainCardProps) {
-  const badge = de ? product.badge : product.badgeEn;
+  const { t } = useLanguage();
+  const s = t.products.shelf;
   const brand = product.chainBrand ?? '';
   const model = product.chainModel ?? '';
   const speed = product.chainSpeed ?? '';
@@ -53,14 +56,19 @@ export const ChainCard = memo(function ChainCard({ product, de, formatPrice, buy
   const avif = chainCardAvif(product.image);
   const webp = chainCardWebp(product.image);
 
+  // Hoechstens EIN Badge: Ausverkauft > gepflegte Auszeichnung > aus den
+  // Daten abgeleitet (guenstigste der Schaltstufe). Nichts wird behauptet,
+  // was die Daten nicht hergeben.
+  const badge = soldOut
+    ? (de ? 'Ausverkauft' : 'Sold out')
+    : (de ? product.badge : product.badgeEn)
+      ?? (cheapestChainIds.has(product.id) ? s.chainCheapest.replace('{speed}', de ? speed : speed.replace('-fach', '-speed')) : undefined);
+
+  const points = [s.chainDegreased, quickLinkLabel, s.chainReady].filter(Boolean) as string[];
+
   return (
     <div className="chain-card shelf-card group relative flex h-full flex-col rounded-[20px] overflow-hidden" style={{ willChange: 'transform' }}>
-      {/* Foto 3:2 — hoechstens EIN Chip (Ausverkauft > Auszeichnung > keiner,
-          Stufe-1-Anatomie). Der Geschwindigkeits-Chip, der hier vorher neben
-          der Auszeichnung stand, zieht in die Klartextzeile unten (Marke,
-          Modell, Schaltung, Glieder standen vorher teils doppelt: Overlay-
-          Chip, Pill UND Modellname). */}
-      <div className="relative overflow-hidden aspect-[3/2] flex-shrink-0" style={{ background: 'var(--hero-stage)' }}>
+      <div className="relative overflow-hidden aspect-[16/10] flex-shrink-0" style={{ background: 'var(--hero-stage)' }}>
         <picture>
           {avif && <source type="image/avif" srcSet={avif} />}
           {webp !== product.image && <source type="image/webp" srcSet={webp} />}
@@ -75,25 +83,25 @@ export const ChainCard = memo(function ChainCard({ product, de, formatPrice, buy
             onError={e => { (e.target as HTMLImageElement).src = '/images/products/wax-block-spin.webp'; }}
           />
         </picture>
-        {soldOut ? (
-          <span className="absolute top-2.5 left-2.5 wx-badge"
-            style={{ background: 'var(--chip-bg)', color: 'rgba(255,255,255,0.92)', border: '1px solid rgba(255,255,255,0.20)', backdropFilter: 'blur(4px)' }}>
-            {de ? 'Ausverkauft' : 'Sold out'}
-          </span>
-        ) : badge && (
-          <span className="absolute top-2.5 left-2.5 wx-badge"
-            style={{ background: 'var(--chip-bg)', color: 'rgba(255,255,255,0.92)', border: '1px solid rgba(255,255,255,0.20)', backdropFilter: 'blur(4px)' }}>
+        {badge && (
+          <span className={`absolute top-2.5 left-2.5 photo-chip uppercase tracking-[0.1em] text-[10px] ${soldOut ? '' : 'photo-chip--light'}`}>
             {badge}
+          </span>
+        )}
+        {/* Womit gewachst wurde — die Info, die man am Foto sucht. Schwarzer
+            Punkt = Pro (schwarzes MoS₂-Wachs), weisser Ring fuer Kontrast. */}
+        {!soldOut && (
+          <span className="absolute bottom-2.5 left-2.5 photo-chip">
+            <span aria-hidden className="h-2 w-2 rounded-full" style={{ background: '#0b0b0d', boxShadow: '0 0 0 1.5px rgba(255,255,255,0.75)' }} />
+            {s.chainProWaxed}
           </span>
         )}
       </div>
 
-      {/* Content */}
       <div className="flex flex-1 flex-col px-4 pt-3.5 pb-4">
         <p className="eyebrow" style={{ color: 'var(--accent-soft)' }}>{brand}</p>
         {/* <p>, nicht <h3>: index.css erzwingt im Hellmodus global
-            h1,h2,h3,h4 { color: var(--tx1) !important }, siehe WaxPanel. Der
-            Stretched-Link (K2) sitzt hier statt auf der ganzen Karte. */}
+            h1,h2,h3,h4 { color: var(--tx1) !important }, siehe WaxPanel. */}
         <p className="font-display font-bold leading-snug tracking-[-0.02em] mt-0.5"
           style={{ color: 'var(--tx1)', fontSize: 'clamp(1.05rem, 1.6vw, 1.15rem)' }}>
           <Link to={`/produkt/${product.id}`} className="stretched-link" viewTransition>
@@ -101,23 +109,23 @@ export const ChainCard = memo(function ChainCard({ product, de, formatPrice, buy
           </Link>
         </p>
 
-        {/* Klartext statt Pills — "11-fach" stand vorher dreimal (Overlay,
-            Pill, Modellname). */}
         {(speed || chainLinks) && (
-          <p className="text-[12px] mt-1" style={{ color: 'var(--txm)' }}>
+          <p className="text-[12px] mt-0.5" style={{ color: 'var(--txm)' }}>
             {[speed, chainLinks].filter(Boolean).join(' · ')}
           </p>
         )}
 
-        {quickLinkLabel && (
-          <p className="flex items-center gap-1.5 text-[12px] mt-1" style={{ color: 'var(--tx2)' }}>
-            <Check className="h-3 w-3 flex-shrink-0" style={{ color: 'var(--accent-soft)' }} aria-hidden />
-            {quickLinkLabel}
-          </p>
-        )}
+        {/* Drei Fakten in einer umbrechenden Zeile statt drei Zeilen. */}
+        <ul className="flex flex-wrap gap-x-3 gap-y-1 mt-2.5">
+          {points.map(p => (
+            <li key={p} className="flex items-center gap-1 text-[12px]" style={{ color: 'var(--tx2)' }}>
+              <Check className="h-3 w-3 flex-shrink-0" style={{ color: 'var(--accent-soft)' }} aria-hidden />
+              {p}
+            </li>
+          ))}
+        </ul>
 
-        {/* Sterne nur wenn echte Zahlen gepflegt sind (Stufe 2 / Luca) — bei
-            keiner Kette heute der Fall, siehe data.ts reviewCount. */}
+        {/* Sterne nur wenn echte Zahlen gepflegt sind (Stufe 2 / Luca). */}
         {!!product.reviewCount && (
           <p className="flex items-center gap-1.5 mt-1.5">
             <Stars rating={5} />
@@ -127,10 +135,11 @@ export const ChainCard = memo(function ChainCard({ product, de, formatPrice, buy
           </p>
         )}
 
-        {/* Preis + CTA — Preis ist die groesste Zahl der Karte, CTA unten
-            rechts, ueber dem Stretched-Link per z-index. */}
-        <div className="flex items-center justify-between gap-3 mt-auto pt-3.5">
-          <span className="num text-[20px] font-bold tracking-[-0.02em]" style={{ color: 'var(--tx1)' }}>
+        {/* Preis links, CTA rechts; Versand-Pille + Lieferdatum als eigene
+            Zeile darunter (neben dem Preis gestapelt brach "Bei eBay kaufen"
+            bei vier Spalten auf zwei Zeilen um). */}
+        <div className="flex items-center justify-between gap-3 mt-auto pt-4">
+          <span className="num text-[21px] font-bold leading-none tracking-[-0.02em]" style={{ color: 'var(--tx1)' }}>
             {formatPrice(product.price)}
           </span>
           {soldOut ? (
@@ -153,7 +162,7 @@ export const ChainCard = memo(function ChainCard({ product, de, formatPrice, buy
           ) : (
             <button
               onClick={() => { trackEbayClick(product.id); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
-              className="relative z-[1] flex items-center gap-1.5 min-h-11 px-5 rounded-full text-[13px] font-semibold transition-all duration-150 hover:opacity-90 active:scale-[0.97]"
+              className="relative z-[1] flex items-center gap-1.5 min-h-11 px-5 rounded-full text-[13px] font-semibold whitespace-nowrap transition-all duration-150 hover:opacity-90 active:scale-[0.97]"
               style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
             >
               {buyLabel}
@@ -162,18 +171,12 @@ export const ChainCard = memo(function ChainCard({ product, de, formatPrice, buy
           )}
         </div>
 
-        {/* Fussstreifen: Versand + Lieferung, gleiche Common-Region-
-            Begruendung wie im Regal (siehe WaxPanel). Versand-Zeile erst ab
-            Stufe 2 moeglich (K8: checkoutEnabled-Kopplung), deshalb hier
-            jetzt ergaenzt statt einer erfundenen Behauptung. */}
-        {(deliveryDate || shippingIncludedLabel) && (
-          <div className="mt-3.5 -mx-4 px-4 pt-3 pb-3 space-y-1" style={{ borderTop: '1px solid var(--bd2)', background: 'var(--sf3)' }}>
-            {shippingIncludedLabel && (
-              <p className="num text-meta" style={{ color: 'var(--tx2)' }}>{shippingIncludedLabel}</p>
-            )}
-            {deliveryDate && (
-              <span className="flex items-center gap-1.5 num text-meta" style={{ color: 'var(--txf)' }}>
-                <Truck className="h-3 w-3 flex-shrink-0" style={{ color: 'var(--accent-soft)' }} aria-hidden />
+        {(shippingIncludedLabel || (deliveryDate && !soldOut)) && (
+          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 mt-3">
+            {shippingIncludedLabel && <ShippingPill small label={shippingIncludedLabel} />}
+            {deliveryDate && !soldOut && (
+              <span className="flex items-center gap-1.5 num text-meta" style={{ color: 'var(--tx2)' }}>
+                {!shippingIncludedLabel && <Truck className="h-3 w-3 flex-shrink-0" style={{ color: 'var(--accent-soft)' }} aria-hidden />}
                 {de ? `Lieferung ${deliveryDate}` : `Delivery ${deliveryDate}`}
               </span>
             )}

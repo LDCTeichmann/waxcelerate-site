@@ -36,6 +36,41 @@ export const translations = {
       blogDesc: 'Die Werkstatt — Technik-Artikel und Tests',
     },
 
+    // Kopfbereich: Topbar (schwarze Leiste ueber der Navigation) und die
+    // Klappen der Desktop-Navigation. Eigener Block statt in `nav`, weil
+    // navigation.tsx `t.nav[key]` direkt rendert und dort nur Strings
+    // stehen duerfen.
+    header: {
+      freeShipping: 'Versandkostenfrei, bei jeder Bestellung',
+      question: 'Eine Frage?',
+      questionCta: 'Schreib mir',
+      rewax: 'Kette einschicken, gewachst zurück',
+      prev: 'Vorherige Meldung',
+      next: 'Nächste Meldung',
+      email: 'E-Mail schreiben',
+      whatsapp: 'Per WhatsApp schreiben',
+      ebay: 'Zum eBay-Shop',
+      instagram: 'Instagram',
+      switchLang: 'English',
+      themeDark: 'Dunkel',
+      themeLight: 'Hell',
+      menuClassic: 'Kettenwachs Classic',
+      menuClassicDesc: 'Paraffin + PTFE, Frühling bis Herbst',
+      menuPro: 'Kettenwachs Pro',
+      menuProDesc: 'Paraffin + MoS₂, Ganzjahr und E-Bike',
+      menuChains: 'Vorgewachste Ketten',
+      menuChainsDesc: 'Aufziehen und losfahren, 11- und 12-fach',
+      menuSet: 'Starter-Set',
+      menuSetDesc: 'Wachs, Zange und Draht in einer Sendung',
+      menuAllProducts: 'Alle Produkte',
+      menuWhy: 'Öl gegen Wachs',
+      menuWhyDesc: 'Was sich an deinem Antrieb ändert',
+      menuReviews: 'Bewertungen',
+      menuReviewsDesc: 'Was Käufer über Waxcelerate sagen',
+      menuOrigin: 'Herkunft',
+      menuOriginDesc: 'Gegossen und gewachst in Stuttgart',
+    },
+
     pages: {
       // Meta, H1 und Lead der vier eigenstaendigen Seiten (/ueber-uns,
       // /kontakt, /faq, /anleitung). EINE Quelle fuer die hydrierte Seite
@@ -159,7 +194,7 @@ export const translations = {
       // Kurzform fuer den Kartenfuss (ChainCard) statt des ganzen PriceNote-
       // Satzes — dort steht schon "Versand über eBay inklusive" als Fliesstext,
       // hier reicht die Kurzform neben dem Lieferdatum.
-      cardShippingIncluded: 'inkl. Versand (eBay)',
+      cardShippingIncluded: 'Versandkostenfrei',
       cardShippingReal: 'zzgl. Versand',
       decisionAid: 'Classic oder Pro?',
       compareBtn: 'Vergleich ansehen',
@@ -223,6 +258,13 @@ export const translations = {
         // Kurzform fuer die einzelne Kettenkarte (Produktkarten-Neugliederung
         // Stufe 1) — chainsBody bleibt der Fliesstext ueber der Liste.
         chainQuickLink: 'Quick-Link inklusive',
+        // Kettenkarte, Punkte-Zeile und Foto-Chip (Luca 14.09.2026: alle
+        // Ketten sind mit Pro gewachst).
+        chainDegreased: 'Ultraschall-entfettet',
+        chainReady: 'Sofort fahrbereit',
+        chainProWaxed: 'Mit Pro gewachst',
+        // Badge aus Daten abgeleitet (chainCheapestIds in data.ts), nie erfunden.
+        chainCheapest: 'Günstigste {speed}',
         chainsPick: 'Welche Schaltung fährst du?',
         chainsAll: 'Alle Ketten ansehen',
         chainsCount: '{n} Ketten',
@@ -241,8 +283,10 @@ export const translations = {
         // "Passt dazu"-Reihe auf /ketten (Stufe 3): die Kettenseite endet
         // damit nicht in einer Sackgasse. Set und Rewax nutzen die Texte
         // oben weiter, nur Wachs braucht hier eine eigene Kachel.
-        relatedWaxEyebrow: 'Kettenwachs',
-        relatedWaxTitle: 'Selbst wachsen',
+        relatedTitle: 'Passt dazu',
+        priceFrom: 'Ab',
+        relatedWaxEyebrow: 'Selbst wachsen',
+        relatedWaxTitle: 'Kettenwachs',
         relatedWaxBody: 'Classic oder Pro, 300 oder 500 g — für alle, die selbst wachsen wollen.',
         relatedWaxCta: 'Wachs ansehen',
         // Ueberschrift ueber Set/Ketten/Rewax. Ohne sie stehen dort drei
@@ -564,6 +608,24 @@ export const translations = {
       eyebrow: 'Schritt für Schritt',
       title: 'Anleitungen',
       subtitle: 'So wachst du deine Kette richtig',
+      allOnOnePage: 'Alle drei Abläufe auf einer Seite →',
+      // Karte "Auf einen Blick" neben dem Accordion (14.09.2026). Minuten
+      // kommen aus waxProcessTimeline in data.ts, hier nur die Saetze.
+      glanceTitle: 'Auf einen Blick',
+      glanceRun: 'Ein Wachsgang',
+      glanceTotalHands: 'ca. {min} min, davon {hands} min Handarbeit',
+      glanceFirst: 'Beim ersten Mal kommen {min} min Entfetten dazu',
+      glanceHands: 'Handarbeit',
+      glanceWait: 'Warten',
+      glanceRewaxLabel: 'Nachwachsen',
+      glanceRewaxNote: 'Für optimale Performance',
+      glanceDegreaseLabel: 'Entfetten',
+      glanceDegreaseNote: 'Nur beim ersten Mal',
+      guideTotal: 'ca. {min} min',
+      rotationTotal: 'ca. {min} min für drei',
+      linkPhotos: 'Schritt für Schritt mit Fotos',
+      linkInterval: 'Wann nachwachsen? Rechner',
+      linkService: 'Keine Zeit? Wir wachsen für dich',
       pdfHint: '',
       newChain: {
         title: 'Neue Kette erstmalig wachsen',
@@ -793,6 +855,37 @@ export const translations = {
       blogDesc: 'The Workshop — technical articles and tests',
     },
 
+    header: {
+      freeShipping: 'Free shipping on every order',
+      question: 'A question?',
+      questionCta: 'Get in touch',
+      rewax: 'Send your chain in, get it back waxed',
+      prev: 'Previous message',
+      next: 'Next message',
+      email: 'Send an email',
+      whatsapp: 'Message on WhatsApp',
+      ebay: 'To the eBay shop',
+      instagram: 'Instagram',
+      switchLang: 'Deutsch',
+      themeDark: 'Dark',
+      themeLight: 'Light',
+      menuClassic: 'Chain wax Classic',
+      menuClassicDesc: 'Paraffin + PTFE, spring to autumn',
+      menuPro: 'Chain wax Pro',
+      menuProDesc: 'Paraffin + MoS₂, all year and e-bike',
+      menuChains: 'Pre-waxed chains',
+      menuChainsDesc: 'Fit it and ride, 11- and 12-speed',
+      menuSet: 'Starter set',
+      menuSetDesc: 'Wax, pliers and wire in one parcel',
+      menuAllProducts: 'All products',
+      menuWhy: 'Oil vs. wax',
+      menuWhyDesc: 'What changes on your drivetrain',
+      menuReviews: 'Reviews',
+      menuReviewsDesc: 'What buyers say about Waxcelerate',
+      menuOrigin: 'Origin',
+      menuOriginDesc: 'Cast and waxed in Stuttgart',
+    },
+
     pages: {
       about: {
         metaTitle: 'About Waxcelerate — chain wax from Stuttgart | Waxcelerate',
@@ -859,7 +952,7 @@ export const translations = {
       // Siehe die deutsche Fassung: Rechtstext, nur zusammen mit ihr aendern.
       priceNoteTax: 'Small business under §19 UStG, no VAT shown.',
       priceNoteShippingIncluded: 'Free shipping',
-      cardShippingIncluded: 'incl. shipping (eBay)',
+      cardShippingIncluded: 'Free shipping',
       cardShippingReal: 'plus shipping',
       decisionAid: 'Classic or Pro?',
       compareBtn: 'See comparison',
@@ -894,6 +987,10 @@ export const translations = {
         chainsTitle: 'Pre-Waxed Chains',
         chainsBody: 'Ultrasonically degreased, waxed, quick-link included. Fit it and ride.',
         chainQuickLink: 'Quick-link included',
+        chainDegreased: 'Ultrasonically degreased',
+        chainReady: 'Ready to ride',
+        chainProWaxed: 'Waxed with Pro',
+        chainCheapest: 'Cheapest {speed}',
         chainsPick: 'Which drivetrain do you ride?',
         chainsAll: 'See all chains',
         chainsCount: '{n} chains',
@@ -902,8 +999,10 @@ export const translations = {
         rewaxBody: 'Send the chain in, get it back ready to ride. Rewax or oil-to-wax switch.',
         rewaxCta: 'To the rewax service',
         rewaxFrom: 'From €15.95',
-        relatedWaxEyebrow: 'Chain wax',
-        relatedWaxTitle: 'Wax it yourself',
+        relatedTitle: 'Goes well with',
+        priceFrom: 'From',
+        relatedWaxEyebrow: 'Wax it yourself',
+        relatedWaxTitle: 'Chain wax',
         relatedWaxBody: 'Classic or Pro, 300 or 500 g — for anyone who wants to wax their own chain.',
         relatedWaxCta: 'See the wax',
         altTitle: 'No pot? No problem.',
@@ -1208,6 +1307,22 @@ export const translations = {
       eyebrow: 'Step by Step',
       title: 'Guides',
       subtitle: 'How to wax your chain properly',
+      allOnOnePage: 'All three procedures on one page →',
+      glanceTitle: 'At a glance',
+      glanceRun: 'One waxing',
+      glanceTotalHands: 'about {min} min, {hands} min of it hands-on',
+      glanceFirst: 'The first time adds {min} min of degreasing',
+      glanceHands: 'Hands-on',
+      glanceWait: 'Waiting',
+      glanceRewaxLabel: 'Re-wax',
+      glanceRewaxNote: 'For best performance',
+      glanceDegreaseLabel: 'Degrease',
+      glanceDegreaseNote: 'New chain only, once',
+      guideTotal: 'about {min} min',
+      rotationTotal: 'about {min} min for three',
+      linkPhotos: 'Step by step with photos',
+      linkInterval: 'When to re-wax? Calculator',
+      linkService: 'No time? We wax it for you',
       pdfHint: '',
       newChain: {
         title: 'First wax on a new chain',
