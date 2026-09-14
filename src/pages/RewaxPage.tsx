@@ -59,8 +59,8 @@ const STEPS = [
   {
     n: 1,
     de: 'Einschicken', en: 'Send it in',
-    bodyDe: 'Kette am Quick-Link öffnen, in einen gepolsterten Umschlag, als Großbrief (1,80 €) an unsere Adresse in Stuttgart. Vorher reinigen musst du nichts — den Quick-Link einfach mit dazulegen. Aus ganz Deutschland, meist 1 bis 2 Werktage zu uns.',
-    bodyEn: 'Open the chain at the quick link, into a padded envelope, as a letter (1.80 €) to our address in Stuttgart. No cleaning needed beforehand — just drop the quick link in with it. From anywhere in Germany, usually 1 to 2 working days to us.',
+    bodyDe: 'Quick-Link öffnen, Kette als Großbrief an uns. Vorreinigen musst du nichts.',
+    bodyEn: 'Open the quick link, send the chain as a letter. No pre-cleaning needed.',
     img: '/images/rewax/step-1',
     altDe: 'Fahrradkette und Quick-Link neben einem Waxcelerate-Versandumschlag',
     altEn: 'Bike chain and quick link next to a Waxcelerate mailing envelope',
@@ -68,8 +68,8 @@ const STEPS = [
   {
     n: 2,
     de: 'Reinigen & Wachsen', en: 'Clean & wax',
-    bodyDe: 'Eine bereits gewachste Kette lösen wir mit kochendem Wasser vom alten Wachs, ganz ohne Lösemittel. Eine geölte oder fabrikneue Kette kommt zuerst in ein separates Ultraschallbad und wird gründlich entfettet und getrocknet. Dann geht sie ins frische Wachsbad, härtet aus, und wir brechen die Glieder frei.',
-    bodyEn: "An already-waxed chain we release from the old wax with boiling water, no solvents at all. An oiled or factory-new chain first goes into a separate ultrasonic bath and is thoroughly degreased and dried. Then into a fresh wax bath, it cures, and we break the links free.",
+    bodyDe: 'Altwachs löst kochendes Wasser, geölte Ketten gehen erst ins separate Ultraschallbad. Dann frisches Wachs.',
+    bodyEn: 'Boiling water lifts old wax, oiled chains go through a separate ultrasonic bath first. Then fresh wax.',
     img: '/images/rewax/step-2',
     altDe: 'Kette hängt an einem Draht über einem Edelstahl-Wachsbad',
     altEn: 'Chain hanging on a wire above a stainless-steel wax bath',
@@ -77,8 +77,8 @@ const STEPS = [
   {
     n: 3,
     de: 'Zurück & anbauen', en: 'Back & refit',
-    bodyDe: 'Trocken verpackt zurück im Maxibrief, in der Regel 3 bis 5 Werktage ab Ankunft bei uns. Quick-Link schließen, kurz einkurbeln, fertig — der Antrieb läuft leiser und bleibt sauber.',
-    bodyEn: 'Packed dry and sent back as a large letter, usually 3 to 5 working days after it reaches us. Close the quick link, turn the cranks a few times, done — the drivetrain runs quieter and stays clean.',
+    bodyDe: 'Trocken verpackt zurück. Quick-Link zu, kurz kurbeln, der Antrieb läuft leise.',
+    bodyEn: 'Back, packed dry. Close the quick link, turn the cranks, the drivetrain runs quiet.',
     img: '/images/rewax/step-3',
     altDe: 'Frisch gewachste Kette und versiegelte Verpackung auf Schiefer',
     altEn: 'Freshly waxed chain and sealed packaging on slate',
@@ -526,125 +526,188 @@ function StampCard({ de, count, price, list, gift, recommended, onPreview }: {
   );
 }
 
-// ─── Preise je Leistung ─────────────────────────────────────────────────────
-function ServicePricing({ de, service }: { de: boolean; service: ServiceId }) {
-  const p = PRICE[service];
-  const bundleTotal = p.bundle * PRICE.bundleCount;
-  const titleDe = service === 'rewax' ? 'Auffrischung' : 'Umstieg';
-  const subDe = service === 'rewax'
-    ? 'Eine bereits gewachste Kette neu wachsen'
-    : 'Geölte oder neue Kette entfetten und erstmals wachsen';
-  const subEn = service === 'rewax'
-    ? 'Rewax an already-waxed chain'
-    : 'Degrease an oiled or new chain and wax it for the first time';
+// ─── Preise: ein Block ──────────────────────────────────────────────────────
+// Vorher zwei Preisblöcke mit je zwei Kacheln plus zwei Absätze. Jetzt eine
+// Vergleichstabelle: was wir tun (Häkchen) und was es kostet, Auffrischung und
+// Umstieg nebeneinander. So sieht man den Mehraufwand des Umstiegs, statt ihn
+// in einem Absatz erklärt zu bekommen.
+function PriceMatrix({ de }: { de: boolean }) {
+  const cols: ServiceId[] = UMSTIEG_LIVE ? ['rewax', 'umstieg'] : ['rewax'];
+  const compPrices = COMPETITOR_FULL_SERVICE.map(c => c.price);
+  const compRange = `${eur(Math.min(...compPrices), de)}–${eur(Math.max(...compPrices), de)}`;
 
-  const plans = [
-    { key: 'single', titleDe: 'Einzelne Kette', titleEn: 'Single chain', per: p.single, total: p.single, shipping: PRICE.shippingSingle, accent: false },
-    { key: 'bundle', titleDe: 'Drei Ketten', titleEn: 'Three chains', per: p.bundle, total: bundleTotal, shipping: PRICE.shippingBundle, accent: true },
+  const head = {
+    rewax: { t: de ? 'Auffrischung' : 'Rewax', s: de ? 'Kette ist schon gewachst' : 'Chain is already waxed', Icon: Sparkles },
+    umstieg: { t: de ? 'Umstieg' : 'Switch', s: de ? 'Kette ist geölt oder neu' : 'Chain is oiled or new', Icon: Droplet },
+  } as const;
+
+  const work: { de: string; en: string; in: Record<ServiceId, boolean> }[] = [
+    { de: 'Altwachs mit kochendem Wasser lösen', en: 'Old wax lifted with boiling water', in: { rewax: true, umstieg: false } },
+    { de: 'Separates Ultraschallbad, entfetten, trocknen', en: 'Separate ultrasonic bath, degrease, dry', in: { rewax: false, umstieg: true } },
+    { de: 'Frisches Wachsbad, aushärten', en: 'Fresh wax bath, cured', in: { rewax: true, umstieg: true } },
+    { de: 'Glieder freibrechen, trocken verpacken', en: 'Links broken free, packed dry', in: { rewax: true, umstieg: true } },
   ];
+
+  const grid = UMSTIEG_LIVE ? 'grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_minmax(0,1fr)]' : 'grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]';
+  const rowCls = `grid ${grid} items-center gap-3 px-4 sm:px-6 py-2.5`;
 
   return (
     <div>
       <h2 className="font-display font-bold text-wx-tx1 leading-tight"
-        style={{ fontSize: 'clamp(1.4rem, 2.8vw, 1.9rem)', letterSpacing: '-0.02em' }}>
-        {de ? titleDe : (service === 'rewax' ? 'Rewax' : 'Oil-to-wax switch')}
+        style={{ fontSize: 'clamp(1.7rem, 3.4vw, 2.4rem)', letterSpacing: '-0.02em' }}>
+        {de ? 'Was es kostet.' : 'What it costs.'}
       </h2>
-      <p className="text-[13px] mt-1 mb-5" style={{ color: 'var(--txm)' }}>{de ? subDe : subEn}</p>
+      <p className="text-[14px] mt-2 mb-7" style={{ color: 'var(--txm)' }}>
+        {de ? 'Zwei Leistungen, je nachdem, wie deine Kette ankommt.' : 'Two services, depending on how your chain arrives.'}
+      </p>
 
-      <div className="grid grid-cols-2 gap-3 sm:gap-4">
-        {plans.map(plan => (
-          <div key={plan.key} className="rounded-2xl p-4 sm:p-6"
-            style={{
-              background: plan.accent ? 'var(--accent-wash-sm)' : 'var(--sf)',
-              border: plan.accent ? '1px solid rgba(var(--accent-rgb),0.22)' : '1px solid var(--bd)',
-            }}>
-            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-              <p className="text-small uppercase tracking-[0.12em]"
-                style={{ color: plan.accent ? 'var(--accent)' : 'var(--txf)' }}>
-                {de ? plan.titleDe : plan.titleEn}
-              </p>
-              {plan.accent && (
-                <span className="num px-1.5 py-0.5 rounded-full" style={{ fontSize: 9.5, background: 'var(--sf)', border: '1px solid rgba(var(--accent-rgb),0.20)', color: 'var(--accent)' }}>
-                  {de ? 'empfohlen' : 'recommended'}
+      <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--sf)', border: '1px solid var(--bd)', boxShadow: 'var(--card-shad)' }}>
+        {/* Kopf */}
+        <div className={`${rowCls} py-4`} style={{ background: 'var(--sf2)', borderBottom: '1px solid var(--bd2)' }}>
+          <span />
+          {cols.map(c => {
+            const { t, s, Icon } = head[c];
+            return (
+              <div key={c}>
+                <p className="flex items-center gap-1.5 font-semibold text-[14px] sm:text-[15px]" style={{ color: 'var(--tx1)' }}>
+                  <Icon className="h-3.5 w-3.5 flex-shrink-0" style={{ color: 'var(--accent)' }} aria-hidden />{t}
+                </p>
+                <p className="text-[11.5px] leading-snug mt-0.5" style={{ color: 'var(--txm)' }}>{s}</p>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Was wir tun */}
+        <div className="py-2">
+          {work.map(w => (
+            <div key={w.de} className={rowCls}>
+              <span className="text-[12.5px] sm:text-[13px]" style={{ color: 'var(--txm)' }}>{de ? w.de : w.en}</span>
+              {cols.map(c => (
+                <span key={c}>
+                  {w.in[c]
+                    ? <Check className="h-4 w-4" style={{ color: 'var(--accent)' }} aria-label={de ? 'enthalten' : 'included'} />
+                    : <Minus className="h-4 w-4" style={{ color: 'var(--txff)' }} aria-label={de ? 'nicht nötig' : 'not needed'} />}
                 </span>
-              )}
+              ))}
             </div>
+          ))}
+        </div>
 
-            <p className="font-display font-bold text-wx-tx1 mt-3 leading-none" style={{ fontSize: '1.9rem', letterSpacing: '-0.02em' }}>
-              {eur(plan.per, de)}
-            </p>
-            <p className="text-[12px] mt-1.5" style={{ color: 'var(--txm)' }}>
-              {de ? 'pro Kette' : 'per chain'}
-            </p>
-
-            <div className="mt-4 pt-3 space-y-1.5" style={{ borderTop: '1px solid var(--bd2)' }}>
-              <p className="num text-[11.5px]" style={{ color: 'var(--txm)' }}>
-                {de ? 'Wachsen' : 'Waxing'} <span style={{ color: 'var(--tx1)' }}>{eur(plan.total, de)}</span>
-              </p>
-              <p className="num text-[11.5px]" style={{ color: 'var(--txm)' }}>
-                {de ? 'Rückversand' : 'Return shipping'} <span style={{ color: 'var(--tx1)' }}>{eur(plan.shipping, de)}</span>
-              </p>
-              <p className="num text-[13px] pt-1.5" style={{ color: 'var(--tx1)' }}>
-                {de ? 'Gesamt' : 'Total'} <span style={{ color: 'var(--accent)' }}>{eur(plan.total + plan.shipping, de)}</span>
-              </p>
-            </div>
+        {/* Preise */}
+        <div className="py-2" style={{ borderTop: '1px solid var(--bd2)' }}>
+          <div className={rowCls}>
+            <span className="text-[12.5px] sm:text-[13px]" style={{ color: 'var(--txm)' }}>{de ? 'Eine Kette' : 'One chain'}</span>
+            {cols.map(c => (
+              <span key={c} className="font-display font-bold leading-none" style={{ fontSize: '1.45rem', letterSpacing: '-0.02em', color: 'var(--tx1)' }}>
+                {eur(PRICE[c].single, de)}
+              </span>
+            ))}
           </div>
-        ))}
+          <div className={rowCls}>
+            <span className="text-[12.5px] sm:text-[13px]" style={{ color: 'var(--txm)' }}>{de ? `Ab ${PRICE.bundleCount} Ketten, je Kette` : `From ${PRICE.bundleCount} chains, each`}</span>
+            {cols.map(c => (
+              <span key={c} className="num text-[14px] font-semibold" style={{ color: 'var(--accent)' }}>{eur(PRICE[c].bundle, de)}</span>
+            ))}
+          </div>
+          <div className={rowCls}>
+            <span className="text-[12.5px] sm:text-[13px]" style={{ color: 'var(--txm)' }}>{de ? 'Rückversand' : 'Return shipping'}</span>
+            {cols.map(c => (
+              <span key={c} className="num text-[12.5px]" style={{ color: 'var(--tx2)' }}>
+                {eur(PRICE.shippingSingle, de)}<span style={{ color: 'var(--txf)' }}> · {de ? 'ab 2' : '2+'} {eur(PRICE.shippingBundle, de)}</span>
+              </span>
+            ))}
+          </div>
+          {UMSTIEG_LIVE && (
+            <div className={rowCls}>
+              <span className="text-[12.5px] sm:text-[13px]" style={{ color: 'var(--txm)' }}>{de ? 'Volles Programm anderswo' : 'Full service elsewhere'}</span>
+              <span className="text-[12px]" style={{ color: 'var(--txff)' }}>–</span>
+              <span className="num text-[12.5px] line-through" style={{ color: 'var(--txf)' }} title={COMPETITOR_FULL_SERVICE.map(c => `${c.name} ${eur(c.price, de)}`).join(', ')}>
+                {compRange}
+              </span>
+            </div>
+          )}
+        </div>
+
+        <div className="px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-3" style={{ borderTop: '1px solid var(--bd2)', background: 'var(--sf2)' }}>
+          <p className="text-[12px]" style={{ color: 'var(--txm)' }}>
+            {de ? `Öfter fällig? Mit der 10er-Karte ${eur(TEN_CARD.price / TEN_CARD.count, de)} je Auffrischung.` : `Due often? ${eur(TEN_CARD.price / TEN_CARD.count, de)} per rewax with the 10-card.`}
+          </p>
+          <a href="#rewax-form" className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-semibold"
+            style={{ background: 'var(--accent)', color: '#fff' }}>
+            {de ? 'Kette anmelden' : 'Book my chain'} <ArrowRight className="h-3.5 w-3.5" />
+          </a>
+        </div>
       </div>
 
-      {service === 'umstieg' && (
-        <p className="text-[12.5px] leading-relaxed mt-4 max-w-[64ch]" style={{ color: 'var(--txf)' }}>
-          {de
-            ? `Der Aufpreis gegenüber der Auffrischung ist der echte Mehraufwand: separates Ultraschallbad, gründlich entfetten, vollständig trocknen, dann erst ins Wachs. Zum Vergleich das volle Programm anderswo: ${COMPETITOR_FULL_SERVICE.map(c => `${c.name} ${eur(c.price, de)}`).join(', ')}.`
-            : `The premium over a rewax is real extra work: a separate ultrasonic bath, thorough degreasing, full drying, then into the wax. For comparison, the full service elsewhere: ${COMPETITOR_FULL_SERVICE.map(c => `${c.name} ${eur(c.price, de)}`).join(', ')}.`}
-        </p>
-      )}
+      <p className="text-[11.5px] leading-relaxed mt-3" style={{ color: 'var(--txff)' }}>
+        {de
+          ? 'Hinversand trägst du. Kleinunternehmer nach § 19 UStG, daher keine Umsatzsteuer ausgewiesen.'
+          : 'You cover shipping to us. Small business under § 19 UStG, so no VAT is shown.'}
+      </p>
     </div>
   );
 }
 
 // ─── So läuft's ab ──────────────────────────────────────────────────────────
-// Echte Fotos (public/images/rewax/step-*), kleines Bild + beschreibender Text
-// daneben. Eigene Sektion, auf allen Breakpoints sichtbar — die frühere
-// text-only-Liste im Hero und der Mobile-only-Fotostreifen sind dafür raus.
+// Drei Karten nebeneinander (mobil wischbar), je ein Satz. Darunter die
+// Laufzeit als Zeitstrahl — ersetzt den früheren „Aus ganz Deutschland"-Absatz.
 function RewaxSteps({ de }: { de: boolean }) {
+  const legs = [
+    { de: 'Post zu uns', en: 'Post to us', v: de ? '1–2 Werktage' : '1–2 days', grow: 1, strong: false },
+    { de: 'Bei uns', en: 'With us', v: de ? TURNAROUND.short : TURNAROUND.shortEn, grow: 2, strong: true },
+    { de: 'Post zu dir', en: 'Post to you', v: de ? '1–2 Werktage' : '1–2 days', grow: 1, strong: false },
+  ];
   return (
     <section id="ablauf" className="scroll-mt-24 py-14 sm:py-20" style={{ borderTop: '1px solid var(--bd2)' }}>
       <div className={W}>
         <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
           {de ? 'Ablauf' : 'How it works'}
         </p>
-        <h2 className="font-display font-bold text-wx-tx1 leading-tight mb-10"
+        <h2 className="font-display font-bold text-wx-tx1 leading-tight mb-8"
           style={{ fontSize: 'clamp(1.7rem, 3.4vw, 2.4rem)', letterSpacing: '-0.02em' }}>
           {de ? 'So läuft’s ab.' : 'How it works.'}
         </h2>
-        <div className="max-w-[760px]">
-          {STEPS.map((s, i) => (
-            <div key={s.n}
-              className="flex gap-4 sm:gap-6 py-6"
-              style={{ borderBottom: i < STEPS.length - 1 ? '1px solid var(--bd2)' : 'none' }}>
-              <div className="flex-shrink-0 w-24 sm:w-36 lg:w-44 rounded-xl overflow-hidden self-start"
-                style={{ aspectRatio: '4 / 3', background: 'var(--sf2)' }}>
+
+        <ol className="-mx-6 px-6 sm:mx-0 sm:px-0 flex sm:grid sm:grid-cols-3 gap-4 overflow-x-auto sm:overflow-visible snap-x snap-mandatory pb-2 sm:pb-0"
+          style={{ scrollbarWidth: 'none' }}>
+          {STEPS.map(s => (
+            <li key={s.n} className="snap-start flex-shrink-0 w-[78%] sm:w-auto">
+              <div className="rounded-2xl overflow-hidden" style={{ aspectRatio: '4 / 3', background: 'var(--sf2)' }}>
                 <img src={`${s.img}.webp`}
                   srcSet={`${s.img}-800.webp 800w, ${s.img}.webp 1200w`}
-                  sizes="(max-width: 640px) 96px, (max-width: 1024px) 144px, 176px"
+                  sizes="(max-width: 640px) 78vw, 30vw"
                   alt={de ? s.altDe : s.altEn}
                   loading="lazy" decoding="async"
                   className="w-full h-full object-cover" />
               </div>
-              <div className="min-w-0">
-                <div className="flex items-baseline gap-2">
-                  <span className="num font-bold" style={{ color: 'var(--accent)', fontSize: 13 }}>{s.n}</span>
-                  <h3 className="font-semibold text-[15px] sm:text-[16px]" style={{ color: 'var(--tx1)' }}>
-                    {de ? s.de : s.en}
-                  </h3>
-                </div>
-                <p className="text-[13.5px] sm:text-[14px] leading-relaxed mt-1.5" style={{ color: 'var(--txm)' }}>
-                  {de ? s.bodyDe : s.bodyEn}
-                </p>
+              <div className="flex items-baseline gap-2 mt-3">
+                <span className="num font-bold" style={{ color: 'var(--accent)', fontSize: 13 }}>{s.n}</span>
+                <h3 className="font-semibold text-[15.5px]" style={{ color: 'var(--tx1)' }}>{de ? s.de : s.en}</h3>
               </div>
-            </div>
+              <p className="text-[13.5px] leading-relaxed mt-1" style={{ color: 'var(--txm)' }}>
+                {de ? s.bodyDe : s.bodyEn}
+              </p>
+            </li>
           ))}
+        </ol>
+
+        {/* Laufzeit als Zeitstrahl */}
+        <div className="mt-10">
+          <div className="flex gap-1.5">
+            {legs.map(l => (
+              <div key={l.de} style={{ flexGrow: l.grow, flexBasis: 0 }}>
+                <div className="h-1.5 rounded-full" style={{ background: l.strong ? 'var(--accent)' : 'var(--bd)' }} />
+                <p className="text-[11.5px] mt-2" style={{ color: 'var(--txf)' }}>{de ? l.de : l.en}</p>
+                <p className="num text-[13px] font-semibold" style={{ color: l.strong ? 'var(--accent)' : 'var(--tx1)' }}>{l.v}</p>
+              </div>
+            ))}
+          </div>
+          <p className="text-[13px] leading-relaxed mt-5" style={{ color: 'var(--txm)' }}>
+            {de
+              ? <>Reiner Postversand aus ganz Deutschland: <span style={{ color: 'var(--tx1)' }}>{CITIES.join(', ')}</span> oder das Dorf dazwischen.</>
+              : <>Purely by mail from anywhere in Germany: <span style={{ color: 'var(--tx1)' }}>{CITIES.join(', ')}</span> or the village in between.</>}
+          </p>
         </div>
       </div>
     </section>
@@ -900,31 +963,7 @@ export function RewaxPage() {
         <div className={W}>
 
           <div className="max-w-[760px] space-y-12">
-            <ServicePricing de={de} service="rewax" />
-            {UMSTIEG_LIVE && (
-              <div className="pt-12" style={{ borderTop: '1px solid var(--bd2)' }}>
-                <ServicePricing de={de} service="umstieg" />
-              </div>
-            )}
-
-            <p className="text-[13px] leading-relaxed max-w-[62ch]" style={{ color: 'var(--txff)' }}>
-              {de
-                ? 'Hinversand trägst du. Bei Einzelbestellung ist der Rückversand oben eingerechnet, bei den Karten steckt er im Kartenpreis. Wir arbeiten als Kleinunternehmer nach § 19 UStG, es wird keine Umsatzsteuer ausgewiesen.'
-                : 'You cover the shipping to us. For single orders return shipping is included above, for the cards it is part of the card price. We operate under the German small business rule, so no VAT is shown.'}
-            </p>
-
-            {/* ── Aus ganz Deutschland ── */}
-            <div className="pt-12" style={{ borderTop: '1px solid var(--bd2)' }}>
-              <h2 className="font-display font-bold text-wx-tx1 leading-tight mb-4"
-                style={{ fontSize: 'clamp(1.4rem, 2.8vw, 1.9rem)', letterSpacing: '-0.02em' }}>
-                {de ? 'Aus ganz Deutschland einschicken.' : 'Send it from anywhere in Germany.'}
-              </h2>
-              <p className="text-[14px] leading-relaxed max-w-[62ch]" style={{ color: 'var(--txm)' }}>
-                {de
-                  ? `Der Service ist reiner Postversand. Egal ob ${CITIES.join(', ')} oder das Dorf dazwischen — die Kette geht im Großbrief (${eur(PRICE.shippingSingle, de)}) zu uns nach Stuttgart, wird handgewachst und kommt im Maxibrief zurück. Die Bearbeitung dauert in der Regel ${TURNAROUND.full}, dazu je 1 bis 2 Werktage Post hin und zurück.`
-                  : `The service is purely by mail. Whether ${CITIES.join(', ')} or the village in between — the chain travels to us in Stuttgart as a letter (${eur(PRICE.shippingSingle, de)}), gets hand-waxed and comes back as a large letter. Processing usually takes ${TURNAROUND.fullEn}, plus 1 to 2 working days of post each way.`}
-              </p>
-            </div>
+            <PriceMatrix de={de} />
 
             {/* ── Prepaid-Karten ── */}
             <div className="pt-12" style={{ borderTop: '1px solid var(--bd2)' }}>
