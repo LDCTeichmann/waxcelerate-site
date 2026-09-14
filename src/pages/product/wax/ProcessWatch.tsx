@@ -8,14 +8,74 @@ import { getArticleBySlug } from '@/pages/blog/articles';
 // ══════════════════════════════════════════════════════════════
 // Der groesste Einwand gegen Heisswachs ist "klingt aufwendig". Die erste
 // Fassung zeigte eine 45-Minuten-Stoppuhr, die nach "dauert ewig" aussah
-// (Luca, 14.09.2026). Jetzt wie ein Rezept: Arbeitszeit, Wartezeit, Gesamt,
+// (Luca, 14.09.2026). Jetzt wie ein Rezept: Arbeitszeit, Wartezeit,
 // Schwierigkeit oben, darunter ein massstaeblicher Zeitstrahl (blau = du
 // tust etwas, schraffiert = du wartest) und die Schritte. Standard ist das
 // Nachwachsen, weil das der Normalfall ist; das erste Mal (mit Entfetten)
 // ist zweitrangig zuschaltbar.
 //
-// Minuten und der erste Schritt stehen in data.ts (waxProcessTimeline), die
-// uebrigen Texte wortgleich in der Anleitung (articles.ts).
+// v5 (14.09.2026, Luca): Handgriffe, die gehen, waehrend das Wachs schmilzt,
+// laufen parallel (Kette abnehmen, aufhaengen, beim ersten Mal entfetten).
+// Deshalb ein Zeitplan mit zwei Spuren statt einer Kette hintereinander, dazu
+// eine kleine Uhr mit derselben Einteilung und der Schritt "Kette montieren".
+//
+// Minuten, Spur und die eigenen Schritte stehen in data.ts
+// (waxProcessTimeline), die uebrigen Texte wortgleich in der Anleitung
+// (articles.ts).
+
+type Step = (typeof waxProcessTimeline)[number] & { i: number; name: string; text: string; start: number; n: number };
+
+/** Startzeiten: Nebenschritte ab Minute 0 hintereinander, Hauptschritte
+ *  hintereinander; ein Schritt mit afterSide wartet auf beide Spuren. */
+function schedule<T extends (typeof waxProcessTimeline)[number]>(steps: T[]) {
+  let side = 0, main = 0;
+  const sideEnd = steps.filter(s => s.lane === 'side').reduce((a, s) => a + s.minutes, 0);
+  const out = steps.map(s => {
+    if (s.lane === 'side') { const start = side; side += s.minutes; return { ...s, start }; }
+    const start = s.afterSide ? Math.max(main, sideEnd) : main;
+    main = start + s.minutes;
+    return { ...s, start };
+  });
+  return { steps: out, total: Math.max(main, side) };
+}
+
+// Uhr: Bogen von Minute a bis b auf Radius r (0 = oben, im Uhrzeigersinn).
+function arc(a: number, b: number, total: number, r: number) {
+  const gap = 0.018;
+  const a0 = (a / total) * Math.PI * 2 + gap, a1 = Math.max(a0 + 0.02, (b / total) * Math.PI * 2 - gap);
+  const p = (x: number) => [Math.sin(x) * r, -Math.cos(x) * r];
+  const [x0, y0] = p(a0), [x1, y1] = p(a1);
+  return `M${x0.toFixed(2)},${y0.toFixed(2)} A${r},${r} 0 ${a1 - a0 > Math.PI ? 1 : 0} 1 ${x1.toFixed(2)},${y1.toFixed(2)}`;
+}
+
+function Clock({ steps, total, lit, de }: { steps: Step[]; total: number; lit: number | null; de: boolean }) {
+  const R = 50, RS = 34;
+  const ticks = Array.from({ length: Math.floor(total / 5) + 1 }, (_, k) => k * 5).filter(m => m < total);
+  return (
+    <div className="wxp-clock">
+      <svg viewBox="-66 -66 132 132" role="img"
+        aria-label={de ? `Uhr: ${total} Minuten gesamt` : `Clock: ${total} minutes in total`}>
+        <defs>
+          <pattern id="wxp-hatch-clock" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <rect width="5" height="5" fill="var(--sf2)" /><rect width="2.5" height="5" fill="var(--bd2)" />
+          </pattern>
+        </defs>
+        <circle r="62" fill="var(--sf)" stroke="var(--bd)" />
+        {ticks.map(m => {
+          const x = (m / total) * Math.PI * 2;
+          return <line key={m} x1={Math.sin(x) * 58} y1={-Math.cos(x) * 58} x2={Math.sin(x) * 61} y2={-Math.cos(x) * 61} stroke="var(--txf)" strokeWidth="1" />;
+        })}
+        {steps.map(s => (
+          <path key={s.i} d={arc(s.start, s.start + s.minutes, total, s.lane === 'side' ? RS : R)} fill="none"
+            stroke={s.active ? 'var(--wxp-accent)' : 'url(#wxp-hatch-clock)'}
+            strokeWidth={(s.lane === 'side' ? 7 : 12) + (lit === s.i ? 4 : 0)}
+            opacity={lit !== null && lit !== s.i ? 0.35 : 1} style={{ transition: 'opacity .2s, stroke-width .2s' }} />
+        ))}
+      </svg>
+      <div className="c"><span className="t num">{total}</span><span className="u">min</span></div>
+    </div>
+  );
+}
 
 export function ProcessWatch({ de, product }: { de: boolean; product: Product }) {
   const [first, setFirst] = useState(false);
@@ -25,18 +85,33 @@ export function ProcessWatch({ de, product }: { de: boolean; product: Product })
 
   const guide = getArticleBySlug('heisswachs-anleitung');
   const texts = guide?.howTo?.steps ?? [];
-  const steps = waxProcessTimeline.map((s, i) => {
+  const named = waxProcessTimeline.map((s, i) => {
     const h = s.howToIndex !== undefined ? texts[s.howToIndex] : undefined;
-    return { ...s, i, name: h?.name ?? (de ? s.nameDe : s.nameEn) ?? '', text: h?.text ?? (de ? s.textDe : s.textEn) ?? '' };
+    return { ...s, i, name: h?.name ?? (de ? s.nameDe : s.nameEn) ?? '', text: (de ? s.textDe : s.textEn) ?? h?.text ?? '' };
   }).filter(s => s.name && (first || !s.firstOnly));
-  const total = steps.reduce((a, s) => a + s.minutes, 0);
+  const { steps: timed, total } = schedule(named);
+  const steps: Step[] = timed.map((s, n) => ({ ...s, n: n + 1 }));
   const work = steps.filter(s => s.active).reduce((a, s) => a + s.minutes, 0);
   const wait = total - work;
   const lit = focusStep ?? sel;
+  const main = steps.filter(s => s.lane !== 'side');
+  const side = steps.filter(s => s.lane === 'side');
+  const sideEnd = side.reduce((a, s) => a + s.minutes, 0);
+  const axis = Array.from({ length: Math.floor(total / 10) + 1 }, (_, k) => k * 10);
+  const pos = (m: number) => `${(m / total) * 100}%`;
 
   const hotspots = de
     ? [{ x: 58, y: 34, l: `Der Block · ${product.applications} Wachsgänge` }, { x: 31, y: 74, l: 'Deine Kette · mit Quick-Link' }, { x: 72, y: 78, l: 'Draht oder Haken' }]
     : [{ x: 58, y: 34, l: `The block · ${product.applications} waxings` }, { x: 31, y: 74, l: 'Your chain · with quick link' }, { x: 72, y: 78, l: 'Wire or hook' }];
+
+  const seg = (s: Step) => (
+    <div key={s.i} className={`seg${s.active ? ' act' : ' wait'}${lit === s.i ? ' on' : ''}${s.minutes / total < 0.06 ? ' tiny' : ''}`}
+      style={{ left: pos(s.start), width: `calc(${pos(s.minutes)} - 3px)` }}
+      onMouseEnter={() => setFocusStep(s.i)} onClick={() => setSel(s.i)}>
+      <span className="lbl"><b>{s.n}</b>{s.minutes >= 2 && <> · {s.minutes}′</>}</span>
+      <span className="tip">{s.name} · {s.minutes} min</span>
+    </div>
+  );
 
   return (
     <section className="wxp-chapter wxp-procband">
@@ -49,9 +124,9 @@ export function ProcessWatch({ de, product }: { de: boolean; product: Product })
 
         <div className="wxp-recipe">
           <div className="stats" aria-live="polite">
+            <Clock steps={steps} total={total} lit={lit} de={de} />
             <div className="work"><span className="k">{de ? 'Arbeitszeit' : 'Hands-on'}</span><span className="v num">{work}<small> min</small></span></div>
             <div><span className="k">{de ? 'Wartezeit' : 'Waiting'}</span><span className="v num">{wait}<small> min</small></span></div>
-            <div><span className="k">{de ? 'Gesamt' : 'Total'}</span><span className="v num">{total}<small> min</small></span></div>
             <div><span className="k">{de ? 'Schwierigkeit' : 'Difficulty'}</span><span className="v">{de ? 'einfach' : 'easy'}</span></div>
           </div>
           <div className="wxp-mode" role="group" aria-label={de ? 'Durchgang' : 'Run'}>
@@ -60,29 +135,38 @@ export function ProcessWatch({ de, product }: { de: boolean; product: Product })
           </div>
         </div>
 
+        {/* Zeitplan: oben der Hauptablauf, darunter was nebenher geht.
+            Breiten und Positionen massstaeblich zur Gesamtzeit. */}
         <div className="wxp-tl" aria-hidden onMouseLeave={() => setFocusStep(null)}>
-          {steps.map(s => (
-            <div key={s.i} className={`seg${s.active ? ' act' : ' wait'}${lit === s.i ? ' on' : ''}`}
-              style={{ flexGrow: Math.max(s.minutes, 2.5) }}
-              onMouseEnter={() => setFocusStep(s.i)} onClick={() => setSel(s.i)}>
-              <span className="lbl">{s.minutes}′</span>
-              <span className="tip">{s.name} · {s.minutes} min</span>
+          <div className="lane main">{main.map(seg)}</div>
+          {side.length > 0 && (
+            <div className="lane side">
+              {side.map(seg)}
+              <span className="cap" style={{ left: `calc(${pos(sideEnd)} + 10px)` }}>
+                {de ? '← nebenher, während das Wachs schmilzt' : '← alongside, while the wax melts'}
+              </span>
             </div>
-          ))}
+          )}
+          <div className="axis">
+            {axis.map(m => <span key={m} style={{ left: pos(m) }}>{m}{m === 0 ? '' : '′'}</span>)}
+          </div>
         </div>
         <div className="wxp-tl-legend">
           <span><i className="act" />{de ? 'du tust etwas' : 'hands-on'}</span>
           <span><i className="wait" />{de ? 'du wartest, zum Beispiel bei einem Kaffee' : 'you wait, for example over a coffee'}</span>
         </div>
 
-        <ol className="wxp-steps">
-          {steps.map((s, n) => (
+        <ol className="wxp-steps" style={{ ['--n' as string]: steps.length }}>
+          {steps.map(s => (
             <li key={s.i} className={lit === s.i ? 'on' : undefined}
               onMouseEnter={() => setFocusStep(s.i)} onMouseLeave={() => setFocusStep(null)}>
               <button type="button" onFocus={() => setFocusStep(s.i)} onBlur={() => setFocusStep(null)}
                 onClick={() => setSel(sel === s.i ? null : s.i)} aria-pressed={sel === s.i}>
-                <span className="top"><span className="n">{n + 1}</span>
+                <span className="top"><span className="n">{s.n}</span>
                   <span className={`mm${s.active ? '' : ' w'}`}>{s.active ? (de ? 'Arbeit · ' : 'work · ') : (de ? 'warten · ' : 'wait · ')}{s.minutes} min</span></span>
+                <span className="at">{s.lane === 'side'
+                  ? (de ? 'während das Wachs schmilzt' : 'while the wax melts')
+                  : (de ? `ab Minute ${s.start}` : `from minute ${s.start}`)}</span>
                 <span className="nm">{s.name}</span>
                 <span className="tx">{s.text}</span>
               </button>

@@ -149,10 +149,18 @@
 .wxp-points .ic .wxp-ico { width: 20px; height: 20px; }
 .wxp-points h3 { font-family: 'Fraunces', Georgia, serif; font-size: 22px; line-height: 1.2; font-weight: 700; color: var(--tx1); }
 .wxp-points p { font-size: 15.5px; color: var(--txm); margin-top: 6px; max-width: 44ch; line-height: 1.55; }
-.wxp-figs { display: grid; margin-top: 64px; border-top: 1px solid var(--bd2); }
-@media (min-width: 700px) { .wxp-figs { grid-template-columns: repeat(3, 1fr); } .wxp-figs > div + div { padding-left: 28px; border-left: 1px solid var(--bd2); } }
-.wxp-figs > div { padding: 24px 28px 0 0; }
-.wxp-figs .v { font-family: 'Fraunces', Georgia, serif; font-weight: 800; font-size: 46px; line-height: 1; color: var(--wxp-navy); letter-spacing: -0.03em; }
+/* v5: vier Kennzahlen in einer Linie (vorher 3 Spalten, die vierte brach
+   um), mobil 2 × 2. Gleiche Trennlinien, gleiche Grundlinie. */
+.wxp-figs { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); row-gap: 28px; margin-top: 64px; border-top: 1px solid var(--bd2); }
+.wxp-figs > div { padding: 24px 16px 0 0; }
+.wxp-figs > div:nth-child(even) { padding-left: 20px; border-left: 1px solid var(--bd2); }
+@media (min-width: 900px) {
+  .wxp-figs { grid-template-columns: repeat(4, minmax(0,1fr)); }
+  .wxp-figs > div { padding-right: 24px; }
+  .wxp-figs > div + div { padding-left: 28px; border-left: 1px solid var(--bd2); }
+}
+.wxp-figs .v { font-family: 'Fraunces', Georgia, serif; font-weight: 800; font-size: clamp(32px, 3.4vw, 44px); line-height: 1; color: var(--wxp-navy); letter-spacing: -0.03em; white-space: nowrap; }
+.wxp-cmpframe { border-radius: 18px; overflow: hidden; box-shadow: 0 24px 48px rgba(0,0,0,.16); }
 .wxp-figs .v small { font-size: 22px; color: var(--tx2); font-weight: 600; }
 .wxp-figs .k { font-weight: 600; color: var(--tx1); font-size: 14.5px; margin-top: 12px; }
 .wxp-figs .s { font-size: 13.5px; color: var(--txf); }
@@ -183,10 +191,19 @@
 .wxp-zones p { margin: 6px 0 0 36px; font-size: 14.5px; color: rgba(255,255,255,.66); line-height: 1.6; }
 .wxp-cassette { margin-top: 80px; display: grid; gap: 40px; align-items: center; }
 @media (min-width: 900px) { .wxp-cassette { grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 56px; } }
-.wxp-cas-card { position: relative; border-radius: 20px; background: #fff; padding: 24px; overflow: hidden; }
-.wxp-cas-card img { width: 100%; height: auto; mix-blend-mode: multiply; }
-.wxp-cas-card .loupe { position: absolute; left: 9%; top: 27%; width: 22%; aspect-ratio: 1; border-radius: 50%; border: 2px solid #3A66A0; box-shadow: 0 0 0 6px rgba(58,102,160,.15); }
-.wxp-cas-card .tag { position: absolute; right: 18px; top: 18px; font-size: 11.5px; font-weight: 600; color: #1F4A7D; background: rgba(31,74,125,.08); padding: 4px 9px; border-radius: 6px; }
+/* v5: Kassette ohne Kasten auf dem Dunkelband, ein ruhiger Eisblau-Glanz
+   dahinter. Kein Innenabstand, damit Lupe (%-Position aufs Bild) und
+   Zoom-Ausschnitt exakt auf dieselben Bildkoordinaten zeigen. */
+.wxp-cas-card { position: relative; background: radial-gradient(circle at 48% 50%, rgba(122,160,206,.16), rgba(122,160,206,0) 62%); }
+.wxp-cas-card img { display: block; width: 100%; height: auto; }
+.wxp-cas-card .loupe { position: absolute; left: 9%; top: 27%; width: 22%; aspect-ratio: 1; border-radius: 50%; border: 2px solid var(--wxp-ice-hi); box-shadow: 0 0 0 6px rgba(169,196,230,.14); }
+/* Ausschnitt: Hintergrund 320 %, Mittelpunkt der Lupe (20 % / 38 %) in die
+   Linsenmitte: pos = (c·s − 0,5) / (s − 1) → 6,4 % / 32,5 %. */
+.wxp-cas-card .zoom { position: absolute; right: 2%; bottom: 4%; width: 36%; aspect-ratio: 1; border-radius: 50%; background-color: #1A1E24; background-repeat: no-repeat; background-size: 320%; background-position: 6.4% 32.5%; border: 2px solid var(--wxp-ice-hi); box-shadow: 0 0 0 6px rgba(169,196,230,.12), 0 18px 40px rgba(0,0,0,.5); }
+.wxp-cas-card .link { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.wxp-cas-card .link line { stroke: rgba(169,196,230,.55); stroke-width: 1.2; stroke-dasharray: 3 3; vector-effect: non-scaling-stroke; }
+.wxp-cas-card .tag { position: absolute; right: 2%; bottom: calc(4% - 30px); width: 36%; text-align: center; font-size: 11.5px; font-weight: 600; color: #DDE7F4; }
+@media (max-width: 899px) { .wxp-cas-card { margin-bottom: 30px; } }
 .wxp-cassette h3 { font-family: 'Fraunces', Georgia, serif; font-size: 30px; line-height: 1.15; color: #fff; margin-top: 12px; }
 .wxp-cassette .txt { font-size: 16px; color: rgba(255,255,255,.7); margin-top: 12px; max-width: 44ch; line-height: 1.6; }
 .wxp-teeth { display: flex; gap: 24px; margin-top: 22px; align-items: flex-end; flex-wrap: wrap; }
@@ -195,7 +212,35 @@
 .wxp-teeth figcaption b { color: #fff; font-weight: 600; }
 
 /* ═ 03 Rechner ═ */
-.wxp-calc { position: relative; border-radius: 22px; overflow: hidden; background: radial-gradient(ellipse 70% 60% at 85% 0%, rgba(58,102,160,.28), rgba(58,102,160,0) 70%), linear-gradient(180deg, #1A1E24, #121519); color: rgba(255,255,255,.75); box-shadow: 0 40px 80px rgba(16,20,26,.28); display: grid; }
+/* v5: weichere Einbettung. Der Schatten war mit 80 px Blur deutlich
+   schwerer als jede andere Karte der Seite; dahinter jetzt eine leichte
+   Navy-Buehne, die vom hellen Grund zur dunklen Box fuehrt. */
+.wxp-calc-stage { position: relative; }
+.wxp-calc-stage::before { content: ""; position: absolute; left: -8%; right: -8%; top: 18%; bottom: -56px; background: radial-gradient(ellipse 60% 70% at 50% 60%, rgba(31,74,125,.13), rgba(31,74,125,0) 70%); pointer-events: none; }
+.noir .wxp-calc-stage::before { background: radial-gradient(ellipse 60% 70% at 50% 60%, rgba(122,160,206,.08), rgba(122,160,206,0) 70%); }
+.wxp-calc { position: relative; border-radius: 22px; overflow: hidden; background: radial-gradient(ellipse 70% 60% at 85% 0%, rgba(58,102,160,.28), rgba(58,102,160,0) 70%), linear-gradient(180deg, #1A1E24, #121519); color: rgba(255,255,255,.75); box-shadow: 0 2px 4px rgba(16,20,26,.08), 0 22px 44px rgba(16,20,26,.16); display: grid; }
+/* Verbrauch pro Jahr als Ketten-Glieder */
+.wxp-need { margin-top: 24px; display: grid; gap: 10px; }
+.wxp-need .cap { font-size: 11.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: rgba(255,255,255,.5); }
+.wxp-need-row { display: grid; grid-template-columns: 82px minmax(0,1fr); gap: 4px 10px; align-items: center; padding-top: 10px; border-top: 1px solid rgba(255,255,255,.1); }
+.wxp-need-row .nl { font-size: 13px; color: rgba(255,255,255,.6); }
+.wxp-need-row.wax .nl { color: var(--wxp-ice-hi); }
+.wxp-need-row .nw { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; min-width: 0; }
+.wxp-need-row .nc { grid-column: 2; font-size: 13px; color: rgba(255,255,255,.62); }
+.wxp-need-row .nc b { color: #fff; font-weight: 600; }
+.wxp-need-row .gl { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.wxp-need-row .more { font-size: 13px; color: rgba(255,255,255,.6); margin-left: 2px; }
+.wxp-link { display: inline-block; width: 22px; height: 11px; border-radius: 6px; background: #8E97A4; }
+.wxp-need-row.wax .wxp-link { background: var(--wxp-ice-hi); }
+.wxp-link.part { background: linear-gradient(90deg, #8E97A4 var(--p), rgba(255,255,255,.12) var(--p)); }
+.wxp-need-row.wax .wxp-link.part { background: linear-gradient(90deg, var(--wxp-ice-hi) var(--p), rgba(255,255,255,.12) var(--p)); }
+.wxp-need-row .nv { font-family: 'Fraunces', Georgia, serif; font-size: 21px; font-weight: 700; color: rgba(255,255,255,.85); line-height: 1; }
+.wxp-need-row.wax .nv { color: #fff; }
+.wxp-need-row .nv small { font-family: 'Libre Franklin', sans-serif; font-size: 13px; font-weight: 500; color: rgba(255,255,255,.6); }
+/* Empfehlung zur Rotation: klickbar, setzt den Wert */
+.wxp-rec { display: block; width: 100%; margin-top: 10px; padding: 10px 12px; border-radius: 12px; background: rgba(169,196,230,.1); border: 1px solid rgba(169,196,230,.22); font-size: 12.5px; line-height: 1.45; color: rgba(255,255,255,.78); text-align: left; cursor: pointer; transition: background .2s; }
+.wxp-rec:hover { background: rgba(169,196,230,.16); }
+.wxp-rec b { color: #fff; }
 @media (min-width: 1000px) { .wxp-calc { grid-template-columns: 400px minmax(0,1fr); } }
 .wxp-calc::before { content: ""; position: absolute; inset: 0; background-image: radial-gradient(circle, rgba(122,160,206,.08) 1px, transparent 1px); background-size: 26px 26px; pointer-events: none; }
 .wxp-c-in { position: relative; padding: 26px 22px; border-bottom: 1px solid rgba(255,255,255,.08); display: flex; flex-direction: column; gap: 22px; }
@@ -364,7 +409,18 @@
 
 /* ═ 07 Daten ═ */
 .wxp-graybg { background: var(--sf2); }
-.wxp-specs { display: grid; gap: 24px; align-items: start; }
+/* v5: beide Karten gleich hoch (stretch statt start) */
+.wxp-specs { display: grid; gap: 24px; align-items: stretch; }
+.wxp-specs > .wxp-card { display: flex; flex-direction: column; }
+.wxp-stable tr.mfr td:last-child { font-size: 12.5px; font-weight: 400; color: var(--txm); white-space: normal; }
+.wxp-stable tr.mfr td:first-child { vertical-align: top; }
+.wxp-goodbad { display: grid; gap: 12px; margin-top: auto; padding-top: 18px; border-top: 1px solid var(--sf3); }
+.wxp-goodbad > div { display: grid; grid-template-columns: 28px 1fr; gap: 8px; font-size: 14px; color: var(--txm); line-height: 1.5; }
+.wxp-goodbad b { display: block; color: var(--tx1); }
+.wxp-goodbad .d { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; margin-top: 1px; }
+.wxp-goodbad .d.ok { background: var(--wxp-soft); color: var(--wxp-accent); }
+.wxp-goodbad .d.no { background: var(--sf2); color: var(--txf); }
+@media (max-width: 640px) { .wxp-tl .lbl { font-size: 10px; } .wxp-tl .lane.side .cap { font-size: 11px; } }
 @media (min-width: 900px) { .wxp-specs { grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 28px; } }
 .wxp-stable { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 14.5px; }
 .wxp-stable td { padding: 12px 12px; border-bottom: 1px solid var(--sf3); }
@@ -375,9 +431,6 @@
 .wxp-fit .lbl2 { display: block; font-size: 12px; font-weight: 600; color: var(--txf); margin: 0 0 10px; }
 .wxp-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
 .wxp-chips span { font-size: 13px; padding: 6px 12px; border-radius: 999px; background: var(--sf2); color: var(--tx1); }
-.wxp-limit { display: grid; grid-template-columns: 32px 1fr; gap: 8px; padding-top: 18px; border-top: 1px solid var(--sf3); font-size: 14px; color: var(--txm); }
-.wxp-limit b { color: var(--tx1); display: block; }
-.wxp-xdot { width: 24px; height: 24px; border-radius: 50%; background: var(--sf2); display: grid; place-items: center; font-size: 12px; font-weight: 700; color: var(--txf); }
 .wxp-acc { margin-top: 14px; border: 1px solid var(--bd); border-radius: 12px; background: var(--sf); }
 .wxp-acc summary { cursor: pointer; padding: 14px 16px; font-weight: 600; color: var(--tx1); font-size: 14.5px; list-style: none; display: flex; justify-content: space-between; }
 .wxp-acc summary::-webkit-details-marker { display: none; }
@@ -448,8 +501,27 @@
 .wxp-recipe .work .v { font-size: 52px; font-weight: 800; color: var(--wxp-accent); }
 .wxp-recipe .work .k { color: var(--wxp-accent); }
 .wxp-recipe .wxp-mode { margin-bottom: 0; }
-.wxp-tl { display: flex; gap: 3px; height: 44px; margin-top: 32px; }
-.wxp-tl .seg { position: relative; flex-basis: 0; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform .2s, box-shadow .2s, opacity .2s; }
+/* v5: Zeitplan mit zwei Spuren (Hauptablauf, nebenher) und Minutenachse.
+   Segmente absolut positioniert, massstaeblich zur Gesamtzeit. */
+.wxp-tl { position: relative; margin-top: 36px; }
+.wxp-tl .lane { position: relative; height: 44px; }
+.wxp-tl .lane.side { height: 30px; margin-top: 6px; }
+.wxp-tl .lane.side .cap { position: absolute; top: 50%; transform: translateY(-50%); font-size: 12.5px; color: var(--txm); white-space: nowrap; }
+.wxp-tl .axis { position: relative; height: 18px; margin-top: 8px; border-top: 1px solid var(--bd); }
+.wxp-tl .axis span { position: absolute; top: 4px; transform: translateX(-50%); font-size: 11px; color: var(--txf); font-variant-numeric: tabular-nums; }
+.wxp-tl .axis span:first-child { transform: none; }
+.wxp-tl .axis span::before { content: ""; position: absolute; left: 50%; top: -9px; width: 1px; height: 5px; background: var(--bd2); }
+.wxp-tl .axis span:first-child::before { left: 0; }
+.wxp-tl .seg { position: absolute; top: 0; bottom: 0; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform .2s, box-shadow .2s, opacity .2s; }
+.wxp-tl .lbl b { font-family: 'Fraunces', Georgia, serif; font-weight: 800; }
+/* Uhr in der Rezeptzeile */
+.wxp-clock { position: relative; width: 116px; height: 116px; flex-shrink: 0; }
+.wxp-clock svg { display: block; width: 100%; height: 100%; }
+.wxp-clock .c { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
+.wxp-clock .t { font-family: 'Fraunces', Georgia, serif; font-weight: 800; font-size: 26px; line-height: 1; color: var(--tx1); }
+.wxp-clock .u { font-size: 11px; font-weight: 600; color: var(--txm); margin-top: 2px; }
+.wxp-recipe .stats { align-items: center; }
+.wxp-steps .at { font-size: 11.5px; color: var(--txf); margin-top: -2px; }
 .wxp-tl .seg.act { background: var(--wxp-accent); color: #fff; }
 .wxp-tl .seg.wait { background: repeating-linear-gradient(135deg, var(--sf2) 0 7px, var(--sf3) 7px 14px); color: var(--txm); border: 1px dashed var(--bd2); }
 .wxp-tl:hover .seg:not(.on) { opacity: .55; }
@@ -462,7 +534,15 @@
 .wxp-tl-legend i { width: 14px; height: 14px; border-radius: 4px; display: inline-block; }
 .wxp-tl-legend i.act { background: var(--wxp-accent); }
 .wxp-tl-legend i.wait { background: repeating-linear-gradient(135deg, var(--sf2) 0 4px, var(--sf3) 4px 8px); border: 1px dashed var(--bd2); }
-.wxp-steps { list-style: none; padding: 0; margin: 36px 0 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+/* v5: alle Schritte in einer Reihe (--n = Anzahl, 6 oder 7), sonst brach
+   der letzte in eine eigene Zeile. Darunter ein Wischband. */
+.wxp-steps { list-style: none; padding: 0; margin: 36px 0 0; display: grid; gap: 10px; grid-template-columns: repeat(var(--n, 6), minmax(0, 1fr)); }
+.wxp-steps li button { padding: 16px 14px; }
+@media (max-width: 999px) {
+  .wxp-steps { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; margin-left: -20px; margin-right: -20px; padding: 4px 20px 8px; scrollbar-width: none; }
+  .wxp-steps::-webkit-scrollbar { display: none; }
+  .wxp-steps li { flex: 0 0 min(72%, 260px); scroll-snap-align: start; }
+}
 .wxp-steps li button { all: unset; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px; width: 100%; height: 100%; padding: 18px; border-radius: 14px; background: var(--pg); border: 1px solid var(--sf3); cursor: pointer; transition: border-color .2s, box-shadow .2s, transform .2s; }
 .wxp-steps li.on button { border-color: var(--wxp-accent); box-shadow: var(--wxp-shadow-hi); transform: translateY(-2px); background: var(--sf); }
 .wxp-steps li button:focus-visible { outline: 2px solid var(--accent-soft); outline-offset: 2px; }
@@ -482,3 +562,43 @@
 .wxp-qty button:first-child span { color: var(--txf); font-weight: 500; }
 .wxp-qty button[aria-pressed="true"] { border: 1.5px solid var(--wxp-accent); background: var(--wxp-soft); }
 .wxp-addnote { margin: 0 0 12px; }
+
+/* ══ v5 Politur (Audit 14.09.2026, gemessen bei 375 px) ══ */
+/* A: "250–450 km" ragte bei 32 px 20 px aus der halben Spalte. */
+@media (max-width: 640px) { .wxp-figs .v { font-size: clamp(24px, 7vw, 32px); } .wxp-figs .v small { font-size: 15px; } }
+/* B: 1-min-Segmente sind mobil ~7 px breit; dort nur Farbe, die Nummer
+   steht in der Karte darunter und im Tooltip beim Antippen. */
+@media (max-width: 640px) { .wxp-tl .seg.tiny .lbl { display: none; } }
+/* C: Vergleich mobil ohne Querscrollen — Classic und Pro nebeneinander,
+   Oel faellt weg (ist oben im Kapitel und im Rechner schon verglichen). */
+@media (max-width: 640px) {
+  .wxp-cmp-wrap { overflow-x: visible; }
+  .wxp-cmp { min-width: 0; padding: 6px 10px 12px; }
+  .wxp-cmp .lose { display: none; }
+  .wxp-cmp th, .wxp-cmp td { padding: 11px 8px; }
+  .wxp-cmp .rl { width: 30%; font-size: 12.5px; }
+  .wxp-cmp .win, .wxp-cmp .mid { font-size: 13px; }
+  .wxp-hname { font-size: 18px; }
+  .wxp-hprice { font-size: 11.5px; }
+}
+/* D: die zwei Textbewertungen mobil als Wischband statt untereinander. */
+@media (max-width: 899px) {
+  .wxp-rv-side { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 12px; margin: 0 -20px; padding: 2px 20px 8px; scrollbar-width: none; }
+  .wxp-rv-side::-webkit-scrollbar { display: none; }
+  .wxp-rv-side > .wxp-rv { flex: 0 0 85%; scroll-snap-align: start; }
+}
+/* E: Datentabelle mobil: Bezeichnung ueber dem Wert statt drei- bis
+   fuenfzeilig umbrechender rechter Spalte. */
+@media (max-width: 640px) {
+  .wxp-stable tr { display: block; }
+  .wxp-stable td { display: block; border-bottom: 0; padding: 0 12px; }
+  .wxp-stable td:first-child { padding-top: 10px; font-size: 12px; }
+  .wxp-stable td:last-child { text-align: left; padding-bottom: 10px; border-bottom: 1px solid var(--sf3); }
+  .wxp-stable tr:nth-child(odd) td { background: var(--pg); }
+}
+/* H: Eingabespalte des Rechners ab 1000 px etwas dichter, seit das
+   Rotationsfeld dazukam klaffte rechts ueber dem Fuss eine Luecke. */
+@media (min-width: 1000px) {
+  .wxp-c-in { gap: 16px; }
+  .wxp-c-in .wxp-seg button { padding: 9px 6px 8px; }
+}

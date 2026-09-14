@@ -142,7 +142,7 @@ Feste Kombinationen:
 - Kette schon da · nur Wachs, Zange, Draht
 - Frühjahr bis Herbst · 11-fach universal
 - Rennrad & schnelle Tourer · 11-fach Shimano
-- Ganzjahr, Winter, E-Bike · 12-fach
+- Nässe, Kälte, E-Bike · 12-fach
 
 ---
 
@@ -1614,7 +1614,7 @@ URL: https://waxcelerate.de/faq
 Öl funktioniert. Aber es bindet Schmutz, der wie Schleifpaste zwischen Rollenlager, Kassette und Kettenblättern wirkt — bei jedem Tritt Metallabrieb. Mit Wachs bleibt die Kette trocken: nichts haftet daran, der Antrieb ist nach hundert Kilometern noch sauber. Dazu hält die Kette zwei- bis dreimal länger. Der Umstieg kostet einmalig 1–2 Stunden für die Erstentfettung. Danach ist der Aufwand pro Rewax kaum höher als mit Öl.
 
 **Was ist der Unterschied zwischen Classic und Pro?**
-Classic (Paraffin + PTFE + Stearin) ist die Standardformel: sauber, effizient, ideal von Frühjahr bis Herbst und bei trockenen Bedingungen. Pro enthält zusätzlich amorphes Molybdändisulfid (MoS₂) als Hochdruckadditiv — es füllt mikroskopische Oberflächenrauheiten und senkt den Reibungskoeffizient nochmals messbar. Pro ist die richtige Wahl für Ganzjahresfahrer, Winterbetrieb, E-Bikes und anspruchsvollere Antriebe. Im Zweifel: Pro ist der sicherere Griff.
+Classic (Paraffin + PTFE + Stearin) ist die Standardformel: sauber, effizient, das ganze Jahr einsetzbar und bei trockenen Bedingungen am stärksten. Pro enthält zusätzlich amorphes Molybdändisulfid (MoS₂) als Hochdruckadditiv — es füllt mikroskopische Oberflächenrauheiten und senkt den Reibungskoeffizient nochmals messbar. Pro ist die richtige Wahl für Ganzjahresfahrer, Winterbetrieb, E-Bikes und anspruchsvollere Antriebe. Im Zweifel: Pro ist der sicherere Griff.
 
 **Wie viele Kilometer hält eine gewachste Kette — und woran merke ich, wann ich rewaxen muss?**
 Bei trockenen Bedingungen empfehlen wir alle 300 km zu rewaxen, das ist das Optimum — die Kette läuft auch mal 400–500 km weiter, dann aber nicht mehr im besten Zustand. Bei Nässe oder MTB alle 200–300 km. Das zuverlässigste Signal: der Antrieb klingt trockener oder die Kette läuft weniger geschmeidig als gewohnt — manchmal ein leises Kratzen oder Quietschen. Hör einfach hin, du wirst es merken. Das Gesamtleben der Kette ist eine andere Zahl: eine gut gepflegte gewachste Kette hält 6.000–12.000 km oder mehr — geölte Ketten oft nur 2.000–3.000 km, weil Schmutz den Antrieb von innen abschleift.

@@ -4,7 +4,7 @@ import { getProductById, trustStats, bundleOffer, canCheckout, isSoldOut } from 
 import { waxChooserRows, type ChooserCell, type RichContent } from '@/lib/productContent';
 import { REVIEWS, type Review } from '@/sections/reviews';
 import { Stars } from '@/components/Stars';
-import { GpsrInfo } from '@/components/GpsrInfo';
+import { GPSR_MANUFACTURER } from '@/components/GpsrInfo';
 import { AddToCartButton } from '@/components/AddToCartButton';
 import { trackEbayClick, trackFormulaCompare } from '@/lib/analytics';
 import { WAX_TOPICS } from '@/pages/product/faqTopics';
@@ -83,14 +83,14 @@ export function WhichWax({ product, de }: { product: Product; de: boolean }) {
           <div className="vy pdp-dark">
             <b>{isPro ? (de ? 'Nimm Pro, wenn …' : 'Choose Pro if …') : (de ? 'Nimm Classic, wenn …' : 'Choose Classic if …')}</b>
             {isPro
-              ? (de ? 'du oft bei Nässe oder im Winter fährst, ein E-Bike hast oder PFAS-frei willst.' : 'you often ride in the wet or in winter, ride an e-bike or want PFAS-free.')
-              : (de ? 'du überwiegend trocken fährst und günstig einsteigen willst. Für die meisten der einzige Block, den sie je brauchen.' : 'you mostly ride dry and want an affordable start. For most riders the only block they will ever need.')}
+              ? (de ? 'du oft bei Nässe oder Kälte fährst, ein E-Bike hast oder PFAS-frei willst. Dort hält Pro länger als Classic.' : 'you often ride in the wet or cold, ride an e-bike or want PFAS-free. Pro lasts longer there than Classic.')
+              : (de ? 'du überwiegend trocken fährst und günstig einsteigen willst. Classic geht das ganze Jahr, bei Nässe wachst du nur öfter.' : 'you mostly ride dry and want an affordable start. Classic works all year, in the wet you simply rewax more often.')}
           </div>
           <div className="vn">
             <b>{isPro ? (de ? 'Nimm Classic, wenn …' : 'Choose Classic if …') : (de ? 'Nimm Pro, wenn …' : 'Choose Pro if …')}</b>
             {isPro
               ? (de ? 'du fast nur trocken fährst und den günstigeren Block willst. ' : 'you ride almost only in the dry and want the cheaper block. ')
-              : (de ? 'du oft bei Nässe oder im Winter fährst, ein E-Bike hast oder PFAS-frei willst. ' : 'you often ride in the wet or in winter, ride an e-bike or want PFAS-free. ')}
+              : (de ? 'du oft bei Nässe oder Kälte fährst, ein E-Bike hast oder PFAS-frei willst. ' : 'you often ride in the wet or cold, ride an e-bike or want PFAS-free. ')}
             {other.p && <Link to={`/produkt/${other.p.id}`} onClick={() => trackFormulaCompare(product.id)}>{other.name} {de ? 'ansehen →' : 'view →'}</Link>}
           </div>
         </div>
@@ -179,6 +179,10 @@ export function DataFitLimits({ product, rc, specs, de }: { product: Product; rc
               {product.intervalDry && <tr><td>{de ? 'Intervall trocken' : 'Interval, dry'}</td><td>{product.intervalDry}{de ? ', empfohlen ~300' : ', recommended ~300'}</td></tr>}
               {product.intervalWet && <tr><td>{de ? 'Intervall nass' : 'Interval, wet'}</td><td>{product.intervalWet}</td></tr>}
               <tr><td>{de ? 'Versand' : 'Shipping'}</td><td>{de ? 'kostenlos, werktags bis 15 Uhr am selben Tag' : 'free, same day on weekdays until 3 pm'}</td></tr>
+              <tr><td>{de ? 'Lagerung' : 'Storage'}</td><td>{de ? 'kühl, trocken, dunkel; wird nicht schlecht' : 'cool, dry, dark; does not go off'}</td></tr>
+              {/* GPSR Art. 19: Herstellerangabe im Angebot. Als Tabellenzeile
+                  statt eigener Box (v5), dieselbe Quelle wie GpsrInfo. */}
+              <tr className="mfr"><td>{de ? 'Hersteller' : 'Manufacturer'}</td><td>{GPSR_MANUFACTURER}</td></tr>
             </tbody></table>
             {rc?.formulaDetails && (
               <details className="wxp-acc">
@@ -197,15 +201,28 @@ export function DataFitLimits({ product, rc, specs, de }: { product: Product; rc
               <span className="lbl2">{de ? 'Räder' : 'Bikes'}</span>
               <div className="wxp-chips">{riding.map(t => <span key={t}>{t}</span>)}</div>
             </>}
-            <div className="wxp-limit">
-              <span className="wxp-xdot" aria-hidden>✕</span>
-              <div><b>{de ? 'Nicht gedacht für' : 'Not meant for'}</b>
-                {isPro
-                  ? (de ? 'Kettenöl-Nachschmieren zwischendurch: Öl auf gewachster Kette macht den Film kaputt. Erst neu wachsen.' : 'Topping up with oil in between: oil on a waxed chain ruins the film. Rewax instead.')
-                  : (de ? 'Dauerregen und Winterpendeln. Da hält Classic kürzer, dafür gibt es Pro.' : 'Constant rain and winter commuting. Classic lasts shorter there, that is what Pro is for.')}
+            {/* v5: ehrlich statt Jahreszeiten-Schubladen (Luca, 14.09.2026):
+                beide gehen das ganze Jahr, Pro haelt bei Naesse und Kaelte
+                laenger, aber Dauerregen verkuerzt bei jedem Wachs das
+                Intervall. mt-auto haelt den Block am Kartenfuss. */}
+            <div className="wxp-goodbad">
+              <div>
+                <span className="d ok" aria-hidden>✓</span>
+                <div><b>{de ? 'Gut bei' : 'Good for'}</b>
+                  {isPro
+                    ? (de ? 'Ganzjährig, besonders bei Nässe und Kälte: hält dort länger als Classic und bleibt bis −8 °C geschmeidig. Auch fürs E-Bike.' : 'All year, especially in wet and cold: lasts longer there than Classic and stays supple down to −8 °C. E-bikes too.')
+                    : (de ? 'Ganzjährig, am längsten hält es im Trockenen. Bei Nässe und Kälte funktioniert Classic auch, du wachst dann nur öfter.' : 'All year, it lasts longest in the dry. Classic also works in wet and cold, you just rewax more often.')}
+                </div>
+              </div>
+              <div>
+                <span className="d no" aria-hidden>✕</span>
+                <div><b>{de ? 'Grenzen' : 'Limits'}</b>
+                  {isPro
+                    ? (de ? 'Dauerregen verkürzt auch hier das Intervall, Wachs ist kein Nassschmierstoff. Und kein Öl zwischendurch: das zerstört den Film, lieber neu wachsen.' : 'Constant rain shortens the interval here too, wax is not a wet lube. And no oil in between: it ruins the film, rewax instead.')
+                    : (de ? 'Wer oft bei Regen fährt, wachst deutlich öfter; dafür gibt es Pro. Kein Öl zwischendurch: das zerstört den Film, lieber neu wachsen.' : 'If you ride in rain a lot you rewax much more often; that is what Pro is for. No oil in between: it ruins the film, rewax instead.')}
+                </div>
               </div>
             </div>
-            <div style={{ marginTop: 18 }}><GpsrInfo de={de} /></div>
           </div>
         </div>
       </div>
@@ -225,7 +242,7 @@ export function WhenEmpty({ product, de }: { product: Product; de: boolean }) {
           <div className="wxp-card wxp-path">
             <span className="lbl2">{de ? 'Selbst' : 'Yourself'}</span>
             <h3>{de ? 'Nachbestellen' : 'Reorder'}</h3>
-            <p>{de ? 'Mehrere Blöcke auf einmal werden günstiger: 2 Stück 5 %, 3 Stück 10 %, ab 4 Stück 15 %. Wachs lässt sich rund 30 Monate lagern.' : 'Several blocks at once get cheaper: 2 pcs 5 %, 3 pcs 10 %, 4 or more 15 %. Wax keeps for around 30 months.'}</p>
+            <p>{de ? 'Mehrere Blöcke auf einmal werden günstiger: 2 Stück 5 %, 3 Stück 10 %, ab 4 Stück 15 %. Kühl, trocken und dunkel gelagert wird Wachs nicht schlecht.' : 'Several blocks at once get cheaper: 2 pcs 5 %, 3 pcs 10 %, 4 or more 15 %. Stored cool, dry and dark, wax does not go off.'}</p>
             {offer && !isSoldOut(product) && !canCheckout(product) && (
               <a href={product.ebayUrl} target="_blank" rel="noopener noreferrer" onClick={() => trackEbayClick(product.id)}>
                 {offer.qty} × {product.weight?.replace('g', ' g')} {de ? 'für' : 'for'} {fmt(offer.total)} € →

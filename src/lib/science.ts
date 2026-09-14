@@ -331,8 +331,8 @@ export const CLASSIC_EXTRA: ScienceComponent[] = [
       'PTFE is built from long fluorocarbon chains whose fluorine shell forms almost no intermolecular bonds — hence the material\'s slipperiness and non-stick behaviour.',
       'As sub-micron particles it disperses evenly through the solidifying paraffin and forms a thin, smooth surface layer. This reinforces the dry cleanliness of the wax — a slick fair-weather film for mild, dry conditions.',
     ],
-    insightDe: 'Classic setzt auf PTFE statt MoS₂: ideal für trockene Bedingungen von Frühjahr bis Herbst, ohne die Komplexität des Ganzjahres-Pakets.',
-    insightEn: 'Classic uses PTFE instead of MoS₂: ideal for dry conditions from spring to autumn, without the complexity of the year-round package.',
+    insightDe: 'Classic setzt auf PTFE statt MoS₂: das ganze Jahr nutzbar und bei trockenen Bedingungen am stärksten, ohne die Zusätze für Nässe und Kälte.',
+    insightEn: 'Classic uses PTFE instead of MoS₂: usable all year and strongest in dry conditions, without the additives for wet and cold.',
     diagram: 'ptfe', cx: 320, cy: 260, r: 40,
   },
   {

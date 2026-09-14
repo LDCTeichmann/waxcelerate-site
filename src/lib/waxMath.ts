@@ -252,13 +252,15 @@ export const WAX_SEVERITY_EXPONENT = 0.35;
  * die Stueckzahlen und der Euro-Betrag auf der Produktseite dieselbe
  * Rechnung sind. Eine Kette, nicht rotiert.
  */
-export function partsPerYear(kmPerYear: number, rewaxKm: number) {
+export function partsPerYear(kmPerYear: number, rewaxKm: number, chains: 1 | 2 | 3 = 1) {
   const sev = severityFactor(rewaxKm);
   const oilWear = Math.pow(sev, OIL_SEVERITY_EXPONENT);
   const waxWear = Math.pow(sev, WAX_SEVERITY_EXPONENT);
+  // Rotation wie in drivetrainCosts(): Laufleistung je Kette aus
+  // WAX_CHAIN_KM/WAX_CASSETTE_KM[chains - 1], Oel bleibt eine Kette.
   return {
     oil: { chains: (kmPerYear / OIL_CHAIN_KM) * oilWear, cassettes: (kmPerYear / OIL_CASSETTE_KM) * oilWear },
-    wax: { chains: (kmPerYear / WAX_CHAIN_KM[0]) * waxWear, cassettes: (kmPerYear / WAX_CASSETTE_KM[0]) * waxWear },
+    wax: { chains: (kmPerYear / WAX_CHAIN_KM[chains - 1]) * waxWear, cassettes: (kmPerYear / WAX_CASSETTE_KM[chains - 1]) * waxWear },
   };
 }
 

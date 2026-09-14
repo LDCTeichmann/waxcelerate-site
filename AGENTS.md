@@ -33,8 +33,15 @@ npx tsc -b --force && npm run build
 ```
 
 `npx tsc --noEmit` prüft **nichts** (Wurzel-`tsconfig.json` hat `"files": []`,
-nur `references`) und es gibt **keinen** Pre-Commit-Hook — beides stand hier
-bis 09/2026 falsch. `tsc -b --force` ist der einzige echte Typcheck.
+nur `references`). `tsc -b --force` ist der einzige echte Typcheck.
+
+**Pre-Commit-Hook:** Auf Lucas Rechner liegt ein lokaler, **nicht versionierter**
+Hook in `.git/hooks/pre-commit` (`core.hooksPath` zeigt dorthin). Er führt
+`npx tsc -b` aus, inkrementell und ohne `--force`, und bricht den Commit bei
+Typfehlern ab. Er ist ein Sicherheitsnetz, kein Ersatz: in frischen Klonen,
+auf anderen Rechnern und bei Vercel fehlt er, und ohne `--force` kann er einen
+veralteten Build-Stand durchwinken. Die Zeile oben gilt deshalb weiter.
+(Bis 14.09.2026 stand hier „es gibt keinen Pre-Commit-Hook“, das war falsch.)
 
 **Nach Änderungen an Blog-Artikeln oder Produkten zusätzlich:**
 
