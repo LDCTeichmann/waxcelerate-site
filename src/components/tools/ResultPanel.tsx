@@ -16,7 +16,7 @@
 // dadurch IMMER ueber dem Ergebnis, nie darunter, und die Oberkante des
 // Ergebnisblocks liegt in allen sechs Karten auf derselben Hoehe, egal wie
 // viele Eingabeschritte darueber stehen. Der Urteilssatz bekommt dafuer eine
-// feste Zwei-Zeilen-Hoehe (`min-h` + `line-clamp-2`) und die Kennzahl-Zeile
+// Mindesthoehe von zwei Zeilen (`min-h`) und die Kennzahl-Zeile
 // wird immer gerendert (bis zu zwei Eintraege nebeneinander) — sonst aendert
 // sich die Blockhoehe selbst noch von Rechner zu Rechner.
 //
@@ -29,14 +29,11 @@
 // doppelten Innenabstaende — Karte und Block hatten je 16-20 px — und liest
 // sich richtiger: Antwort und naechster Schritt gehoeren zusammen.
 //
-// Teilen und Termin sitzen im Kartenstapel (`compact`) rechts NEBEN der grossen
-// Zahl: diese Zeile ist rechts ohnehin leer, eine eigene Zeile darunter kostete
-// 46 px. Die Karte muss dort in eine Bildschirmhoehe passen (ToolTrack.tsx), und
-// 46 px sind der Unterschied zwischen „Antwort sichtbar" und „abgeschnitten".
-// Dort tragen die Knoepfe nur ihr Symbol (ResultActions `compact`) und brauchen
-// rund 80 px. Auf den /rechner-Seiten sind sie beschriftet, brauchen damit ueber
-// 250 px und stehen deshalb weiterhin in einer eigenen Zeile — nebeneinander
-// legten sie sich bei schmalem Fenster ueber die Zahl.
+// Teilen und Termin sitzen im Kartenstapel (`compact`) als Symbole rechts in
+// der Zeile der Handlungsaufforderung — keine eigene Zeile, und die grosse
+// Zahl behaelt die volle Breite (09/2026; vorher standen sie neben der Zahl).
+// Auf den /rechner-Seiten sind sie beschriftet, brauchen damit ueber 250 px
+// und stehen deshalb in einer eigenen Zeile.
 
 import { useRef, useEffect } from 'react';
 import { trackCalcComplete } from '@/lib/analytics';
@@ -55,13 +52,12 @@ export function ResultPanel({
   facts?: { label: string; value: string }[];
   tone?: ResultTone;
   actions?: React.ReactNode;
-  /** Schmaler Streifen zwischen der grossen Zahl und dem Urteil, z. B. ein
-      Balkenvergleich. Optional — nur zwei Karten (Umstieg, Ersparnis)
-      nutzen ihn, und verzichten dafuer auf die zweite Kennzahl. */
+  /** Schmaler Streifen zwischen der grossen Zahl und dem Urteil, z. B. das
+      Kettenstueck der Kettenlaenge. Optional. */
   hero?: React.ReactNode;
   /** Die eine Handlungsaufforderung, unterste Zeile des Blocks. */
   cta?: React.ReactNode;
-  /** Im Kartenstapel der Startseite: Aktionen als Symbole neben die Zahl. */
+  /** Im Kartenstapel der Startseite: Aktionen als Symbole neben der CTA. */
   compact?: boolean;
   /** P1-4: Slug fuer calc_complete. Ohne Angabe wird nichts getrackt (z. B.
    *  im kompakten Kartenstapel der Startseite, wo derselbe Rechner mehrfach
@@ -82,55 +78,77 @@ export function ResultPanel({
       trackCalcComplete(toolSlug);
     }
   }, [toolSlug, hasResult]);
-  const accent = tone === 'neutral' ? 'var(--tx1)' : 'var(--brand)';
+  // Drei Toene mit festen Rollen, auf allen Karten gleich: neutral (noch kein
+  // Ergebnis / nichts zu tun), gut (Blau = Wachs, Ersparnis, passt) und warn
+  // (Bernstein = bitte handeln). Vorher war „Kette tauschen" blau getoent —
+  // dieselbe Farbe wie „du sparst 92 €".
+  const TONE = {
+    neutral: { accent: 'var(--tx1)', bg: 'var(--inset-bg)', bd: 'var(--inset-bd)' },
+    good: { accent: 'var(--brand)', bg: 'rgba(var(--accent-rgb),0.07)', bd: 'rgba(var(--accent-rgb),0.28)' },
+    warn: { accent: 'var(--warn)', bg: 'rgba(var(--warn-rgb),0.08)', bd: 'rgba(var(--warn-rgb),0.34)' },
+  }[tone];
+  // Ein Wort als Antwort („Kette tauschen") braucht weniger Groesse als eine
+  // Zahl, sonst bricht es auf schmalen Karten um.
+  const isWord = typeof value === 'string' && /[a-zäöüß]{3}/i.test(value);
   return (
     <div
       className="mt-auto mx-3.5 mb-3.5 sm:mx-4 sm:mb-4 rounded-2xl px-3.5 py-3 sm:px-4"
-      style={{
-        background: tone === 'neutral' ? 'var(--inset-bg)' : 'rgba(var(--accent-rgb),0.07)',
-        border: tone === 'neutral' ? '1px solid var(--inset-bd)' : '1px solid rgba(var(--accent-rgb),0.28)',
-      }}
+      style={{ background: TONE.bg, border: `1px solid ${TONE.bd}` }}
     >
-      <div className="flex items-baseline justify-between gap-3">
-        <span className="flex items-baseline gap-2 min-w-0">
-          <span className="text-[30px] sm:text-[34px] font-bold leading-none tabular-nums" style={{ color: accent }}>
-            {value}
-          </span>
-          {unit && (
-            <span className="text-[15px] sm:text-[16px] font-semibold leading-none truncate" style={{ color: 'var(--tx2)' }}>
-              {unit}
-            </span>
-          )}
+      <div className="flex items-baseline gap-2 min-w-0">
+        <span
+          className={`${isWord ? 'text-[24px] sm:text-[26px]' : 'text-[30px] sm:text-[34px]'} font-bold leading-none tabular-nums tracking-[-0.01em]`}
+          style={{ color: TONE.accent }}
+        >
+          {value}
         </span>
-        {compact && actions && <span className="flex-shrink-0 self-center">{actions}</span>}
+        {unit && (
+          <span className="text-[15px] sm:text-[16px] font-semibold leading-none truncate" style={{ color: 'var(--tx2)' }}>
+            {unit}
+          </span>
+        )}
       </div>
 
       {hero && <div className="mt-2.5">{hero}</div>}
 
-      {/* Kein line-clamp mehr: der Urteilssatz lief im Umstieg-Rechner mit
-          „…" ins Leere. Seit die Kartenhoehe dem Inhalt folgt, darf er
-          umbrechen. */}
-      <p className="text-[12.5px] leading-snug mt-1.5" style={{ color: 'var(--tx2)' }}>
+      {/* Mindesthoehe zwei Zeilen: ein kurzer Satz soll den Block nicht
+          schrumpfen lassen, sonst steht die Kennzahlzeile je Rechner woanders. */}
+      <p className="text-[12.5px] leading-snug mt-1.5 min-h-[2.5em]" style={{ color: 'var(--tx2)' }}>
         {verdict}
       </p>
 
+      {/* Immer zwei Spalten, auch bei nur einer Kennzahl — damit steht die
+          erste Kennzahl in jeder Karte an derselben Stelle. */}
       {shownFacts.length > 0 && (
         <dl
-          className="grid gap-x-3 gap-y-1.5 mt-2 pt-2"
-          style={{ borderTop: '1px solid var(--inset-bd)', gridTemplateColumns: `repeat(${shownFacts.length}, minmax(0,1fr))` }}
+          className="grid grid-cols-2 gap-x-3 gap-y-1.5 mt-2 pt-2"
+          style={{ borderTop: '1px solid var(--inset-bd)' }}
         >
           {shownFacts.map(f => (
             <div key={f.label} className="min-w-0">
               <dt className="text-meta truncate" style={{ color: 'var(--txff)' }}>{f.label}</dt>
-              <dd className="text-[12px] font-medium tabular-nums truncate" style={{ color: 'var(--tx2)' }}>{f.value}</dd>
+              <dd className="text-[12.5px] font-medium tabular-nums truncate" style={{ color: 'var(--tx2)' }}>{f.value}</dd>
             </div>
           ))}
         </dl>
       )}
 
-      {!compact && actions && <div className="mt-2.5">{actions}</div>}
-
-      {cta && <div className="mt-2.5">{cta}</div>}
+      {/* Im Stapel: Handlungsaufforderung und die Symbol-Aktionen (Teilen,
+          Kalender) in EINER Zeile. Vorher standen die Symbole neben der
+          grossen Zahl und nahmen ihr den Platz. */}
+      {compact ? (
+        (cta || actions) && (
+          <div className="mt-2.5 flex items-stretch gap-2">
+            {cta && <div className="flex-1 min-w-0">{cta}</div>}
+            {actions}
+          </div>
+        )
+      ) : (
+        <>
+          {actions && <div className="mt-2.5">{actions}</div>}
+          {cta && <div className="mt-2.5">{cta}</div>}
+        </>
+      )}
     </div>
   );
 }

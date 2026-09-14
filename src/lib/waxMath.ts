@@ -132,7 +132,10 @@ export function chainLengthBreakdown(input: {
   bigChainring: number;
   bigSprocket: number;
 }) {
-  const stay = 0.157 * input.chainstayMm;
+  // Exakt 2 × mm ÷ 12,7 statt der gerundeten 0,157: die Karte zeigt den
+  // Rechenweg als „2 × Strebe ÷ 12,7", und mit 0,157 stand dort 66,7 statt
+  // der 66,9, die jeder beim Nachrechnen bekommt (09/2026).
+  const stay = (2 * input.chainstayMm) / 12.7;
   const ring = input.bigChainring / 2;
   const sprocket = input.bigSprocket / 2;
   const reserve = 2;

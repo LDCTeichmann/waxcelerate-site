@@ -27,7 +27,7 @@ Empfohlenes Nachwachsen nach den Werten von Zero Friction Cycling: trockene Stra
 - [Muss meine Kette raus?](https://waxcelerate.de/rechner/verschleiss): Messwert eingeben — Urteil, Kassettenrisiko und Kostenfolge.
 - [Welche Kette passt?](https://waxcelerate.de/rechner/passende-kette): Antrieb und Gangzahl wählen — wir zeigen, was passt.
 - [Wie viele Glieder?](https://waxcelerate.de/rechner/kettenlaenge): Kettenstrebe, größtes Kettenblatt, größtes Ritzel — fertig.
-- [Ab wann lohnt sich Wachs?](https://waxcelerate.de/rechner/umstieg): Einkaufsliste, Kostenverlauf gegen Öl und der Monat, ab dem du im Plus bist.
+- [Lohnt sich Wachs für dich?](https://waxcelerate.de/rechner/umstieg): Was du im Jahr gegenüber Öl sparst — mit deinem Antrieb und deinen Kilometern.
 - [Wann muss ich rewaxen?](https://waxcelerate.de/rechner/intervall): Dein Intervall in Wochen — nach Wetter, Gelände und Kilometern.
 - [Rotation & Ersparnis](https://waxcelerate.de/rechner/ersparnis): Was zwei oder drei Ketten im Wechsel pro Jahr sparen.
 

@@ -379,3 +379,47 @@ macht das starke schwächer, nicht die mittleren stärker. Die beiden gehören a
 
 Beim Einbau: Scrim von links 0,80 nach rechts 0,16, nur das Hero-Bild lädt
 eager. Danach `/hero-lab` und `public/images/hero-alt` löschen.
+
+
+---
+
+## 7. Rechner-Karten (Deck auf der Startseite und `/rechner/*`) — 2026-09-14
+
+**Deck.** Alle Karten liegen per Grid-Stacking in einer Zelle; die Zeile wird
+so hoch wie die höchste Karte, jede streckt sich darauf. Gleich große Karten
+ohne JavaScript-Messung. Mobil dasselbe über eine Flex-Zeile mit `items-stretch`.
+Zielhöhe ≤ 600 px am Desktop (gemessen 518–539 px bei 1024–1440 px).
+Wird eine Karte höher, zieht sie alle mit — deshalb neue Inhalte gegen die
+Höhe prüfen, nicht gegen „passt schon".
+
+**Nachbarn.** Flach, `scale(0.86)`, keine Drehung. Die frühere Drehung stauchte
+genau den Streifen, in dem der Deckeltext steht. `--deck-shift` (35 % lg /
+42 % xl) und `--cover-w` (24 % / 32 %) sind so gesetzt, dass der Deckeltext
+rund 30 px Abstand zur aktiven Karte hat und die Nachbarn in der Spalte bleiben.
+
+**Aufbau jeder Karte** — vier Zonen mit festen Rollen:
+
+| Zone | Inhalt |
+|---|---|
+| Kopf | Icon, Frage, ein Satz „was man davon hat" |
+| Eingabe (links) | 1–3 nummerierte Schritte, nur Chips/Segmente/kurze Felder |
+| Bild (rechts) | genau eine Grafik, die live mitrechnet (`SketchFrame`) |
+| Antwort (unten) | große Zahl oder Wort, ein Satz, max. 2 Kennzahlen, CTA + Symbol-Aktionen in einer Zeile |
+
+Links/rechts per Container-Query `.cq-split` ab 520 px Kartenbreite;
+`.cq-chart` gibt der Grafik 3/5 der Breite (Kosten, Intervall, Passende Kette).
+Keine Zahl zweimal im Antwortblock.
+
+**Töne.** `good` = Blau (Wachs, Ersparnis, passt), `warn` = Bernstein
+(`--warn`, bitte handeln: Kette tauschen, Rewax fällig), `neutral` = noch
+kein Ergebnis. Blau heißt nie „Achtung".
+
+**Grafik-Grammatik** (`src/components/tools/sketches.tsx`):
+- 1:1-Skala: Breite per ResizeObserver, viewBox gleich Anzeigebreite — 11 px
+  Schrift ist 11 px. Skizzen mit fester viewBox (Antrieb, Zählen) wachsen
+  höchstens 1:1 (`maxWidth`).
+- Hilfslinien 1 px `--bd2`, Daten 2 px; direkte Beschriftung; Legende nur bei
+  zwei Reihen; Text in Textfarben, Farbe nur an Marken.
+- Wachs `--brand`, Öl `--txf`, gut `--ok`, handeln `--warn`. Keine weitere Farbe.
+- Etiketten, die kollidieren würden, fallen nach Priorität weg (das
+  wichtigste — z. B. „fällig" — bleibt immer).

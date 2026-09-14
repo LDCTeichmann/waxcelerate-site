@@ -8,6 +8,13 @@
 // Die Trefferliste steht als Produktkarten in jeder Darstellung, im
 // Kartenstapel der Startseite genauso wie auf der Einzelseite.
 //
+// Seit 09/2026: die Antwort ist der Preis, ab dem es losgeht, nicht mehr
+// „4 Ketten passen" — die Zahl sagte nichts, die Antwort sind die Ketten
+// selbst. Das Raster hat immer 2×2 Plaetze (leere als ruhige Platzhalter),
+// damit die Karte bei Campagnolo (1 Treffer) nicht anders aussieht als bei
+// Shimano (4). Bei einer Gangzahl, die wir nicht fuehren, endet die Karte nicht
+// mehr in einer Sackgasse, sondern verweist auf den Umstieg-Service.
+//
 // `compact` steuert nur, wohin der Fussknopf fuehrt: im Deck auf die
 // gefilterte Produktliste (derselbe `compatibilityMatrix`, damit dort
 // garantiert dieselben Ketten stehen wie hier), auf der Einzelseite weiter
@@ -19,8 +26,10 @@ import type { ToolProfileState } from '@/hooks/useToolProfile';
 import { compatibilityMatrix, getProductById, isSoldOut } from '@/lib/data';
 import type { DriveSystem } from '@/lib/ridingProfile';
 import { shareUrl } from '@/lib/toolState';
+import { PRICE, UMSTIEG_LIVE } from '@/pages/rewax/content';
+import { SketchFrame } from '@/components/tools/sketches';
 import {
-  ToolCard, ToolHeader, StepList, ToolCTA, TogButton, ChipRow, StepNote,
+  ToolCard, ToolHeader, StepList, ToolCTA, TogButton, ChipRow,
 } from '@/components/tools/primitives';
 import { StepField } from '@/components/tools/StepField';
 import { ResultPanel } from '@/components/tools/ResultPanel';
@@ -76,117 +85,126 @@ export function ChainMatchCalculator({ profile, compact }: { profile: ToolProfil
   // Aufklapp-Zustands auf der Startseite, Filter jetzt als Query-Parameter.
   const deepLink = `/ketten?marke=${system}&gang=${speedKey}`;
 
+  const tm = t.tools.match;
+  const slots = [...sortedMatches.slice(0, 4), ...Array(Math.max(0, 4 - sortedMatches.length)).fill(null)] as (typeof sortedMatches[number] | null)[];
+  const serviceExit = UMSTIEG_LIVE && (!stocked || matches.length === 0);
+
   return (
     <ToolCard>
       <ToolHeader
         icon={<Link2 className="h-4 w-4" style={{ color: 'var(--txm)' }} />}
-        title={t.tools.match.title}
-        subtitle={t.tools.match.subtitle}
+        title={tm.title}
+        subtitle={tm.subtitle}
       />
 
       <StepList>
-        <StepField step={1} label={t.tools.match.system} help={t.tools.match.helpSystem}>
-          <ChipRow>
-            {(Object.keys(SYSTEM_LABELS) as DriveSystem[]).map(s => (
-              <TogButton key={s} active={system === s} onClick={() => profile.setSystem(s)}>
-                {SYSTEM_LABELS[s]}
-              </TogButton>
-            ))}
-          </ChipRow>
-        </StepField>
+        <div className="cq-split cq-chart">
+          <div className="flex flex-col gap-3">
+            <StepField step={1} label={tm.system} help={tm.helpSystem}>
+              <ChipRow>
+                {(Object.keys(SYSTEM_LABELS) as DriveSystem[]).map(s => (
+                  <TogButton key={s} active={system === s} onClick={() => profile.setSystem(s)}>
+                    {SYSTEM_LABELS[s]}
+                  </TogButton>
+                ))}
+              </ChipRow>
+            </StepField>
 
-        <StepField step={2} label={t.tools.match.speed} help={t.tools.match.helpSpeed}>
-          <ChipRow>
-            {SPEED_OPTIONS.map(s => (
-              <TogButton key={s} active={stocked && speedKey === s} onClick={() => profile.setSpeed(Number(s) as 11 | 12)}>
-                {s}{de ? '-fach' : 'sp'}
-              </TogButton>
-            ))}
-            {!stocked && (
-              <span
-                className="px-3.5 py-2 rounded-xl text-[13px]"
-                style={{ border: '1px dashed var(--bd2)', color: 'var(--txm)' }}
-              >
-                {t.tools.match.otherSpeedShort.replace('{speed}', String(speed))}
-              </span>
-            )}
-          </ChipRow>
-          {!stocked && <StepNote>{t.tools.match.otherSpeed.replace('{speed}', String(speed))}</StepNote>}
-        </StepField>
-      </StepList>
+            <StepField step={2} label={tm.speed} help={tm.helpSpeed}>
+              <ChipRow>
+                {SPEED_OPTIONS.map(s => (
+                  <TogButton key={s} active={stocked && speedKey === s} onClick={() => profile.setSpeed(Number(s) as 11 | 12)}>
+                    {s}{de ? '-fach' : 'sp'}
+                  </TogButton>
+                ))}
+                {!stocked && (
+                  <span
+                    className="px-3.5 py-1.5 rounded-xl text-[13px]"
+                    style={{ border: '1px dashed var(--bd2)', color: 'var(--txm)' }}
+                  >
+                    {tm.otherSpeedShort.replace('{speed}', String(speed))}
+                  </span>
+                )}
+              </ChipRow>
+            </StepField>
+          </div>
 
-      {/* Die Treffer als echte Produktkarten, auch im Deck. Vorher stand dort
-          nur „4 Ketten passen" — die Frage war beantwortet, aber nicht welche.
-          Seit die Kartenhoehe wieder dem Inhalt folgt (ToolTrack.tsx), ist der
-          Platz dafuer da. */}
-      {sortedMatches.length > 0 && (
-        <div className="px-4 sm:px-5 pb-3 grid grid-cols-2 gap-2">
-          {sortedMatches.map(p => {
-            const soldOut = isSoldOut(p);
-            return (
-              <a
-                key={p.id}
-                href={`/produkt/${p.id}`}
-                className="group flex items-center gap-2.5 rounded-xl p-1.5 pr-2.5 transition-colors"
-                style={{ background: 'var(--sf)', border: '1px solid var(--bd2)', opacity: soldOut ? 0.6 : 1 }}
-              >
-                <span className="relative w-14 h-14 rounded-lg overflow-hidden flex-shrink-0" style={{ background: 'var(--sf2)' }}>
-                  <img
-                    src={p.image}
-                    alt=""
-                    loading="lazy"
-                    className="photo-neutral absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.06]"
-                  />
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-[12.5px] font-semibold truncate" style={{ color: 'var(--tx1)' }}>{p.chainBrand}</span>
-                  <span className="block text-meta truncate" style={{ color: 'var(--txf)' }}>
-                    {p.chainModel}{p.chainLinks ? ` · ${p.chainLinks}` : ''}
-                  </span>
-                  <span className="block text-[12.5px] font-semibold tabular-nums" style={{ color: soldOut ? 'var(--txff)' : 'var(--brand)' }}>
-                    {soldOut ? t.tools.match.soldOut : eur(p.price)}
-                  </span>
-                </span>
-              </a>
-            );
-          })}
+          {/* Die Treffer als Produktliste — die Grafik dieser Karte. Immer
+              vier Zeilen, leere als ruhige Platzhalter. Liste statt 2×2-Raster:
+              Modellnamen wie „XT / Ultegra CN-M8100" passten in keine Kachel. */}
+          <SketchFrame>
+            <ul className="flex flex-col gap-1.5">
+              {slots.map((p, i) => {
+                if (!p) {
+                  return (
+                    <li key={`empty-${i}`} aria-hidden className="h-[40px] rounded-lg"
+                      style={{ border: '1px dashed var(--inset-bd)' }} />
+                  );
+                }
+                const soldOut = isSoldOut(p);
+                return (
+                  <li key={p.id}>
+                    <a
+                      href={`/produkt/${p.id}`}
+                      className="group flex items-center gap-2.5 h-[40px] rounded-lg pl-1 pr-2.5 transition-colors min-w-0 hover:bg-[var(--sf)]"
+                      style={{ opacity: soldOut ? 0.55 : 1 }}
+                    >
+                      <span className="relative w-8 h-8 rounded-md overflow-hidden flex-shrink-0" style={{ background: 'var(--sf2)' }}>
+                        <img
+                          src={p.image}
+                          alt=""
+                          loading="lazy"
+                          className="photo-neutral absolute inset-0 w-full h-full object-cover"
+                        />
+                      </span>
+                      <span className="min-w-0 flex-1 leading-tight">
+                        <span className="block text-[12.5px] font-semibold truncate" style={{ color: 'var(--tx1)' }}>{p.chainModel}</span>
+                        <span className="block text-meta truncate" style={{ color: 'var(--txf)' }}>
+                          {p.chainBrand}{p.chainLinks ? ` · ${p.chainLinks}` : ''}
+                        </span>
+                      </span>
+                      <span className="text-[12.5px] font-semibold tabular-nums flex-shrink-0" style={{ color: soldOut ? 'var(--txff)' : 'var(--brand)' }}>
+                        {soldOut ? tm.soldOut : eur(p.price)}
+                      </span>
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </SketchFrame>
         </div>
-      )}
+      </StepList>
 
       <ResultPanel
         toolSlug={compact ? undefined : 'passende-kette'}
         compact={compact}
-        value={matches.length}
-        unit={matches.length === 1 ? (de ? 'Kette passt' : 'chain fits') : (de ? 'Ketten passen' : 'chains fit')}
+        value={cheapest !== null ? tm.fromPrice.replace('{price}', eur(cheapest)) : '—'}
         verdict={!stocked
-          ? t.tools.match.otherSpeed.replace('{speed}', String(speed))
+          ? tm.otherSpeed.replace('{speed}', String(speed))
           : matches.length
-            ? (de
-              ? `${joinList(brandNames, true)} passen für ${SYSTEM_LABELS[system]} mit ${speedKey} Ritzeln — alle vorgewachst und sofort fahrbereit.`
-              : `${joinList(brandNames, false)} fit ${SYSTEM_LABELS[system]} with ${speedKey} sprockets — all pre-waxed, ready to ride.`)
-            : t.tools.match.none}
+            ? tm.verdictFits
+              .replace('{brands}', joinList(brandNames, de))
+              .replace('{system}', SYSTEM_LABELS[system])
+              .replace('{speed}', speedKey)
+            : tm.none}
         tone={available.length ? 'good' : 'neutral'}
-        facts={cheapest !== null
-          ? [{ label: de ? 'Lieferbar ab' : 'In stock from', value: eur(cheapest) }]
+        facts={matches.length
+          ? [{ label: tm.choice, value: matches.length === 1 ? tm.fitsOne : tm.fits.replace('{n}', String(matches.length)) }]
           : []}
         actions={<ResultActions compact={compact} shareUrl={shareUrl('/rechner/passende-kette', profile.snapshot)} />}
-        cta={(
-          compact ? (
-            matches.length > 0 ? (
-              <ToolCTA href={deepLink}>
-                {de ? 'Passende Ketten ansehen →' : 'View matching chains →'}
-              </ToolCTA>
-            ) : (
-              <ToolCTA href="/rechner/passende-kette">
-                {de ? 'Mehr erfahren →' : 'Find out more →'}
-              </ToolCTA>
-            )
+        cta={
+          serviceExit ? (
+            <ToolCTA href="/kette-wachsen-lassen">
+              {tm.exitService.replace('{price}', eur(PRICE.umstieg.single))}
+            </ToolCTA>
+          ) : compact ? (
+            <ToolCTA href={deepLink}>{tm.ctaChains}</ToolCTA>
           ) : (
             <ToolCTA href="/rechner/kettenlaenge">
               {de ? 'Passende Länge berechnen →' : 'Work out the right length →'}
             </ToolCTA>
           )
-        )}
+        }
       />
 
     </ToolCard>

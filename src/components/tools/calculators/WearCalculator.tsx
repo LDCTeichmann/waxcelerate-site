@@ -8,6 +8,12 @@
 // Standardmethode ist jetzt die Lehre, nicht das Lineal: eine Kettenlehre
 // haben die meisten oder koennen sie sich fuer wenig Geld besorgen, waehrend
 // das Lineal ein Stahlmass und Ablesen auf 0,5 mm verlangt.
+//
+// Seit 09/2026: die Antwort ist ein Wort („Kette tauschen"), nicht mehr eine
+// Prozentzahl. Die Lehre auf „keine Marke" zeigte vorher „0,00 %" — eine
+// Genauigkeit, die niemand gemessen hat. Der Wert steht jetzt als Kennzahl und
+// als Marker auf der Verschleissskala (WearScale), deren Grenze der Gangzahl
+// folgt. Handlungsbedarf ist Bernstein (`warn`), nicht mehr Blau.
 
 import { useState } from 'react';
 import { Gauge, HelpCircle } from 'lucide-react';
@@ -25,7 +31,7 @@ import {
 import { StepField } from '@/components/tools/StepField';
 import { ResultPanel } from '@/components/tools/ResultPanel';
 import { ResultActions } from '@/components/tools/ResultActions';
-import { ChainGaugeDiagram, ChainMeasureDiagram, SketchFrame } from '@/components/tools/sketches';
+import { WearScale, SketchFrame } from '@/components/tools/sketches';
 
 const SPEEDS: ChainSpeed[] = [8, 9, 10, 11, 12];
 // „keine" ist eine eigene Antwort, nicht das Fehlen einer. Vorher gab es nur
@@ -93,6 +99,20 @@ export function WearCalculator({ profile, compact }: { profile: ToolProfileState
     : verdict.status === 'checkCass' ? `${eur(chainOnly)}–${eur(both)}`
     : `${eur(chainOnly)} · ${t.tools.wear.chainOnly}`;
 
+  const verdictWord = awaitingInput ? t.tools.wear.verdictWaiting : {
+    ok: t.tools.wear.verdictOk,
+    soon: t.tools.wear.verdictSoon,
+    replace: t.tools.wear.verdictReplace,
+    checkCass: t.tools.wear.verdictCheckCass,
+    cassette: t.tools.wear.verdictCassette,
+  }[verdict.status];
+  // Die Lehre ohne greifende Marke sagt nur „unter der kleinsten Marke" —
+  // die Skala zeigt dann eine Spanne bis 0,5 % statt eines Punkts.
+  const gaugeBelow = method === 'gauge' && gauge === 'none';
+  const scalePercent = awaitingInput ? null : gaugeBelow ? 0.5 : percent;
+  const tone = awaitingInput ? 'neutral' : needsAction ? 'warn' : verdict.status === 'ok' ? 'good' : 'neutral';
+  const limitLabel = de ? MARK_LABEL[wearLimit(speed)].de : MARK_LABEL[wearLimit(speed)].en;
+
   return (
     <ToolCard>
       <ToolHeader
@@ -112,83 +132,93 @@ export function WearCalculator({ profile, compact }: { profile: ToolProfileState
       />
 
       <StepList>
-        <StepField step={1} label={t.tools.wear.speed} help={t.tools.wear.helpSpeed}>
-          <ChipRow>
-            {SPEEDS.map(s => (
-              <TogButton key={s} active={speed === s} onClick={() => profile.setSpeed(s)}>
-                {s}
-              </TogButton>
-            ))}
-          </ChipRow>
-        </StepField>
+        <div className="cq-split">
+          <div className="flex flex-col gap-3">
+            <StepField step={1} label={t.tools.wear.speed} help={t.tools.wear.helpSpeed}>
+              <ChipRow>
+                {SPEEDS.map(s => (
+                  <TogButton key={s} active={speed === s} onClick={() => profile.setSpeed(s)}>
+                    {s}
+                  </TogButton>
+                ))}
+              </ChipRow>
+            </StepField>
 
-        <StepField
-          step={2}
-          label={t.tools.wear.method}
-          help={t.tools.wear.helpMethod}
-        >
-          <ChipRow>
-            <TogButton active={method === 'gauge'} onClick={() => setMethod('gauge')}>{t.tools.wear.methodGauge}</TogButton>
-            <TogButton active={method === 'ruler'} onClick={() => setMethod('ruler')}>{t.tools.wear.methodRuler}</TogButton>
-          </ChipRow>
-        </StepField>
+            <StepField step={2} label={t.tools.wear.method} help={t.tools.wear.helpMethod}>
+              <ChipRow>
+                <TogButton active={method === 'gauge'} onClick={() => setMethod('gauge')}>{t.tools.wear.methodGauge}</TogButton>
+                <TogButton active={method === 'ruler'} onClick={() => setMethod('ruler')}>{t.tools.wear.methodRuler}</TogButton>
+              </ChipRow>
+            </StepField>
 
-        {method === 'ruler' ? (
-          <StepField
-            step={3}
-            label={t.tools.wear.measured}
-            value={`${de ? 'neu' : 'new'}: ${dec(NOMINAL_12_LINKS_MM, 1)} mm`}
-            help={t.tools.wear.helpMeasured}
-          >
-            <NumberInput
-              value={measuredMm} onChange={setMeasuredMm}
-              min={300} max={315} step={0.1}
-              ariaLabel={t.tools.wear.measured} theme={theme} suffix="mm"
-              placeholder={de ? 'z. B. 305,3' : 'e.g. 305.3'}
+            {method === 'ruler' ? (
+              <StepField
+                step={3}
+                label={t.tools.wear.measured}
+                value={`${de ? 'neu' : 'new'}: ${dec(NOMINAL_12_LINKS_MM, 1)} mm`}
+                help={t.tools.wear.helpMeasured}
+              >
+                <NumberInput
+                  value={measuredMm} onChange={setMeasuredMm}
+                  min={300} max={315} step={0.1}
+                  ariaLabel={t.tools.wear.measured} theme={theme} suffix="mm"
+                  placeholder={de ? 'z. B. 305,3' : 'e.g. 305.3'}
+                />
+                {measuredMm.trim() !== '' && !mmValid && (
+                  <StepNote>{de ? '300 bis 315 mm.' : '300 to 315 mm.'}</StepNote>
+                )}
+                {mmValid && overshootMm > 0.05 && (
+                  <StepNote>{t.tools.wear.overshoot.replace('{mm}', dec(overshootMm, 1))}</StepNote>
+                )}
+              </StepField>
+            ) : (
+              <StepField step={3} label={t.tools.wear.gaugeValue}>
+                <ChipRow>
+                  {GAUGE_MARKS.map(v => (
+                    <TogButton key={String(v)} active={gauge === v} onClick={() => setGauge(v)}>
+                      {v === 'none'
+                        ? t.tools.wear.gaugeNone
+                        : `${de ? MARK_LABEL[v].de : MARK_LABEL[v].en} %`}
+                    </TogButton>
+                  ))}
+                </ChipRow>
+              </StepField>
+            )}
+          </div>
+
+          <SketchFrame>
+            <WearScale
+              percent={scalePercent}
+              limit={wearLimit(speed)}
+              bound={gaugeBelow ? 'below' : isLowerBound ? 'atLeast' : undefined}
+              empty={t.tools.wear.scaleEmpty}
+              labels={{
+                ok: t.tools.wear.scaleOk, replace: t.tools.wear.scaleReplace, cassette: t.tools.wear.scaleCassette,
+                limit: t.tools.wear.scaleLimit, you: t.tools.wear.scaleYou,
+              }}
+              fmt={n => dec(n, n === 0 ? 0 : n * 100 % 10 === 0 ? 1 : 2)}
             />
-            {measuredMm.trim() !== '' && !mmValid && (
-              <StepNote>{de ? '300 bis 315 mm.' : '300 to 315 mm.'}</StepNote>
-            )}
-            {mmValid && overshootMm > 0.05 && (
-              <StepNote>{t.tools.wear.overshoot.replace('{mm}', dec(overshootMm, 1))}</StepNote>
-            )}
-          </StepField>
-        ) : (
-          <StepField step={3} label={t.tools.wear.gaugeValue}>
-            <ChipRow>
-              {GAUGE_MARKS.map(v => (
-                <TogButton key={String(v)} active={gauge === v} onClick={() => setGauge(v)}>
-                  {v === 'none'
-                    ? t.tools.wear.gaugeNone
-                    : `${de ? MARK_LABEL[v].de : MARK_LABEL[v].en} %`}
-                </TogButton>
-              ))}
-            </ChipRow>
-          </StepField>
-        )}
-
-        {/* Die Skizze zur gewaehlten Methode: beim Lineal, wo man ansetzt;
-            bei der Lehre, was „faellt rein" bedeutet — die Pruefspitze folgt
-            dem Urteil. */}
-        <SketchFrame>
-          {method === 'ruler'
-            ? <ChainMeasureDiagram />
-            : <ChainGaugeDiagram state={needsAction ? 'worn' : 'ok'} />}
-        </SketchFrame>
-
+          </SketchFrame>
+        </div>
       </StepList>
 
       <ResultPanel
         toolSlug={compact ? undefined : 'verschleiss'}
         hasResult={!awaitingInput}
         compact={compact}
-        value={awaitingInput ? '—' : isLowerBound ? `≥ ${dec(percent)}` : dec(percent)}
-        unit={awaitingInput ? undefined : '%'}
+        value={verdictWord}
         verdict={awaitingInput ? t.tools.wear.enterValue : statusText}
-        tone={!awaitingInput && needsAction ? 'good' : 'neutral'}
+        tone={tone}
         facts={[
-          { label: t.tools.wear.limit, value: `${de ? MARK_LABEL[wearLimit(speed)].de : MARK_LABEL[wearLimit(speed)].en} % · ${speed}${de ? '-fach' : 'sp'}` },
-          ...(needsAction ? [{ label: t.tools.wear.costNow, value: dueText }] : []),
+          needsAction
+            ? { label: t.tools.wear.costNow, value: dueText }
+            : { label: t.tools.wear.limit, value: `${limitLabel} % · ${speed}${de ? '-fach' : 'sp'}` },
+          {
+            label: t.tools.wear.elongationFact,
+            value: awaitingInput ? '—'
+              : gaugeBelow ? (de ? `unter ${MARK_LABEL[0.5].de} %` : `below ${MARK_LABEL[0.5].en} %`)
+              : `${isLowerBound ? '≥ ' : ''}${dec(percent)} %`,
+          },
         ]}
         actions={<ResultActions compact={compact} shareUrl={shareUrl('/rechner/verschleiss', profile.snapshot)} />}
         cta={(

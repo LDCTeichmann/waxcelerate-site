@@ -41,20 +41,35 @@
 /* Rechnerkarten: zwei Bloecke nebeneinander, sobald die KARTE breit genug
    ist — nicht der Bildschirm. Dieselbe Karte ist im Deck 580-750 px breit,
    auf dem Handy 360, auf der Einzelseite bis 900; eine Viewport-Breakpoint
-   traefe keinen dieser Faelle zuverlaessig. */
+   traefe keinen dieser Faelle zuverlaessig.
+   Schwelle 520 px (vorher 600): im Deck bei 1024 px Fensterbreite ist die
+   Karte 584 px breit. Mit 600 stapelte sie sich dort und wurde 708 statt
+   rund 520 px hoch. Links die Eingabe, rechts die Grafik, beide mittig
+   zueinander. */
 .tool-cq { container-type: inline-size; }
-.cq-split { display: flex; flex-direction: column; gap: 0.5rem; }
-@container (min-width: 600px) {
-  .cq-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.75rem 1.25rem; align-items: start; }
+.cq-split { display: flex; flex-direction: column; gap: 0.75rem; }
+@container (min-width: 520px) {
+  .cq-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.75rem 1.25rem; align-items: center; }
+  /* Karten, deren Eingabe nur aus wenigen Chips besteht (Kosten, Intervall),
+     geben der Grafik mehr Platz. */
+  .cq-split.cq-chart { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); }
 }
 
 .deck-slot {
-  transition: transform 620ms cubic-bezier(0.22, 1, 0.36, 1), opacity 380ms ease, height 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 560ms cubic-bezier(0.22, 1, 0.36, 1), opacity 380ms ease, filter 240ms ease;
   will-change: transform;
 }
 .deck-cover { transition: opacity 420ms ease; }
+.deck-cover-shade { transition: opacity 240ms ease; }
+/* Nachbar unter dem Zeiger: Abdunklung weg, eine Spur naeher — sagt ohne
+   Worte, dass die Karte anklickbar ist. Nur mit echter Maus, sonst bleibt
+   der Zustand auf Touch-Geraeten nach dem Tippen haengen. */
+@media (hover: hover) {
+  .deck-neighbour:hover .deck-cover-shade { opacity: 0.35; }
+  .deck-neighbour:hover { filter: brightness(1.06); }
+}
 @media (prefers-reduced-motion: reduce) {
-  .deck-slot, .deck-cover { transition: none; }
+  .deck-slot, .deck-cover, .deck-cover-shade { transition: none; }
 }
 
 /* Solid page-color gradient overlay instead of an opacity mask — masking dark
@@ -376,6 +391,11 @@
     --ok:                #22C55E;
     --ok-rgb:            34,197,94;
     --danger:            #DC2626;
+    /* Status „bitte handeln" (Rechner: Kette tauschen, Rewax faellig). Bewusst
+       Bernstein statt Rot: es ist ein Hinweis, kein Fehler — und nicht Blau,
+       das auf den Rechnerkarten „gut / Wachs" heisst (DESIGN.md Rechner-Karten). */
+    --warn:              #B45309;
+    --warn-rgb:          180,83,9;
 
     /* ── Shared overlay tokens — one value per role, reused everywhere instead
        of each component hand-picking its own near-black. Photo scrims, modal
@@ -521,6 +541,8 @@
     --ext-whatsapp-fg:   #0A0A0A;   /* WhatsApp green is too bright for white text to clear 4.5:1 here */
     --ok:                #22C55E;
     --danger:            #F87171;
+    --warn:              #F5A524;
+    --warn-rgb:          245,165,36;
 
     /* CTA button system — neutral off-white in dark mode */
     --cta-bg:    #ECECEC;

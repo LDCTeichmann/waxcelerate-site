@@ -9,6 +9,12 @@
 // nennt zuerst das Datum und danach den Rhythmus, und beide Lesarten stehen
 // zusaetzlich als eigene Kennzahl da (vorher verwarf ResultPanel den zweiten
 // von zwei Fakten stillschweigend, siehe ResultPanel.tsx).
+//
+// Seit 09/2026: die Karte hatte nur ein Feld und sonst Leere. Dazu kommt der
+// Zeitstrahl (RewaxTimeline) — zuletzt, heute, faellig, die Folgetermine — und
+// die Herleitung als eine Zeile, die das „warum so oft?" beantwortet. Die
+// Heldenzahl ist jetzt ein Abstand in Worten („in 6 Tagen", „heute faellig")
+// statt „1 Woche bis zum Waxen" bzw. eines nackten „!" bei Ueberfaelligkeit.
 
 import { useMemo, useState } from 'react';
 import { HelpCircle, Calculator } from 'lucide-react';
@@ -16,13 +22,13 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
 import type { ToolProfileState } from '@/hooks/useToolProfile';
 import { addWeeks, isoDate, shareUrl, dueDate } from '@/lib/toolState';
-import { AnimatedNumber } from '@/components/viz';
 import {
   ToolCard, ToolHeader, StepList, ToolCTA, TogButton, ChipRow, StepNote, InfoPopover,
 } from '@/components/tools/primitives';
 import { StepField } from '@/components/tools/StepField';
 import { ResultPanel } from '@/components/tools/ResultPanel';
 import { ResultActions } from '@/components/tools/ResultActions';
+import { RewaxTimeline, SketchFrame } from '@/components/tools/sketches';
 
 export function IntervalCalculator({ profile, compact }: { profile: ToolProfileState; compact?: boolean }) {
   const { t, lang } = useLanguage();
@@ -48,22 +54,28 @@ export function IntervalCalculator({ profile, compact }: { profile: ToolProfileS
     lastWaxedDate !== null && !datePresets.some(p => p.date !== null && isoDate(p.date) === isoDate(lastWaxedDate)),
   );
 
-  const { date: nextDate, overdue, weeksLeft, daysLeft } = useMemo(
+  const { date: nextDate, overdue, daysLeft } = useMemo(
     () => dueDate(lastWaxedDate, weeks), [weeks, lastWaxedDate],
   );
 
-  // Die grosse Zahl beantwortet die Frage der Karte — „wann muss ich
-  // rewaxen" —, aber „3 Wochen" allein ist zweideutig: alle drei Wochen,
-  // oder erst in drei Wochen wieder? Die Einheit sagt es jetzt dazu.
-  const remaining: { value: React.ReactNode; unit: string } =
-    overdue ? { value: '!', unit: de ? 'überfällig' : 'overdue' }
-    : daysLeft < 7
-      ? { value: daysLeft, unit: daysLeft === 1 ? (de ? 'Tag bis zum Waxen' : 'day to go') : (de ? 'Tage bis zum Waxen' : 'days to go') }
-      : { value: weeksLeft, unit: weeksLeft === 1 ? (de ? 'Woche bis zum Waxen' : 'week to go') : (de ? 'Wochen bis zum Waxen' : 'weeks to go') };
-  const dateLabel = nextDate.toLocaleDateString(de ? 'de-DE' : 'en-GB', { day: 'numeric', month: 'long' });
+  const r = t.tools.rewax;
+  const fmtDate = (d: Date) => d.toLocaleDateString(de ? 'de-DE' : 'en-GB', { day: 'numeric', month: 'short' });
+  const weeksWord = (n: number) => `${n} ${n === 1 ? r.week : r.weeks}`;
+  // Die Antwort als Abstand in Worten. Die Zahl allein („1") war zweideutig —
+  // alle eine Woche, oder in einer Woche?
+  const answer =
+    overdue ? r.overdueBy.replace('{n}', String(-daysLeft))
+    : daysLeft === 0 ? r.dueToday
+    : daysLeft === 1 ? r.inOneDay
+    : r.inDays.replace('{n}', String(daysLeft));
+  const dateLabel = nextDate.toLocaleDateString(de ? 'de-DE' : 'en-GB', { weekday: 'short', day: 'numeric', month: 'long' });
   // Eine Erinnerung in der Vergangenheit ist keine Erinnerung.
   const reminderDate = overdue ? new Date() : nextDate;
   const url = shareUrl('/rechner/intervall', profile.snapshot);
+  const weatherLabel = { trocken: r.dry, gemischt: r.mixed, nass: r.wet }[profile.weather];
+  const terrainLabel = { strasse: r.road, gravel: r.gravel, mtb: r.mtb }[profile.terrain];
+  const today0 = new Date(); today0.setHours(0, 0, 0, 0);
+  const waxesPerYear = Math.round((profile.kmPerWeek * 52) / interval);
 
   const goToWax = () => {
     document.querySelector('#produkte')?.scrollIntoView({ behavior: 'smooth' });
@@ -75,9 +87,7 @@ export function IntervalCalculator({ profile, compact }: { profile: ToolProfileS
       <ToolHeader
         icon={<Calculator className="h-4 w-4" style={{ color: 'var(--txm)' }} />}
         title={t.tools.rewax.title}
-        subtitle={de
-          ? 'Aus Wetter, Gelände und Kilometern — mit Termin für den Kalender.'
-          : 'From weather, terrain and distance — with a date for your calendar.'}
+        subtitle={t.tools.rewax.subtitle}
         info={(
           <InfoPopover
             ariaLabel={de ? 'Warum 300 km' : 'Why 300 km'}
@@ -93,6 +103,7 @@ export function IntervalCalculator({ profile, compact }: { profile: ToolProfileS
       />
 
       <StepList>
+        <div className="cq-split cq-chart">
         <StepField
           step={1}
           label={t.tools.rewax.lastWaxed}
@@ -146,29 +157,46 @@ export function IntervalCalculator({ profile, compact }: { profile: ToolProfileS
           )}
         </StepField>
 
+        <SketchFrame
+          caption={r.derivation
+            .replace('{weather}', weatherLabel)
+            .replace('{terrain}', terrainLabel)
+            .replace('{km}', String(interval))
+            .replace('{kmWeek}', String(profile.kmPerWeek))}
+        >
+          <RewaxTimeline
+            last={lastWaxedDate ?? today0}
+            today={today0}
+            due={nextDate}
+            weeks={weeks}
+            overdue={overdue}
+            labels={{ last: r.tlLast, today: r.tlToday, due: r.tlDue }}
+            fmtDate={fmtDate}
+          />
+        </SketchFrame>
+        </div>
+
+        {waxesPerYear > 52 && (
+          <StepNote>
+            {t.tools.switch.hybridHint}{' '}
+            <a href="/blog/tropfwachs-hybrid-methode" className="font-medium" style={{ color: 'var(--brand)' }}>
+              {t.tools.switch.hybridLink}
+            </a>
+          </StepNote>
+        )}
       </StepList>
 
       <ResultPanel
         toolSlug={compact ? undefined : 'intervall'}
         compact={compact}
-        value={typeof remaining.value === 'number'
-          ? <AnimatedNumber value={remaining.value} />
-          : remaining.value}
-        unit={remaining.unit}
+        value={answer}
         verdict={overdue
-          ? (de
-            ? 'Die Kette war rechnerisch schon dran. Der Kalendereintrag setzt deshalb auf heute.'
-            : 'By this calculation the chain was already due. The calendar entry is set to today.')
-          : (de
-            ? `Nächstes Waxen etwa am ${dateLabel}. Danach alle ${weeks} ${weeks === 1 ? 'Woche' : 'Wochen'} wieder — das sind ${interval} km bei deinem Profil.`
-            : `Next wax around ${dateLabel}. After that, every ${weeks} ${weeks === 1 ? 'week' : 'weeks'} again — that is ${interval} km on your profile.`)}
-        tone="good"
+          ? r.verdictOverdue.replace('{date}', dateLabel)
+          : r.verdictNext.replace('{date}', dateLabel).replace('{weeks}', weeksWord(weeks))}
+        tone={overdue || daysLeft === 0 ? 'warn' : 'good'}
         facts={[
-          { label: de ? 'Termin' : 'Date', value: overdue ? (de ? 'jetzt' : 'now') : dateLabel },
-          {
-            label: de ? 'Rhythmus' : 'Rhythm',
-            value: `${de ? 'alle' : 'every'} ${weeks} ${weeks === 1 ? (de ? 'Woche' : 'week') : (de ? 'Wochen' : 'weeks')}${weeksCapped ? ' max.' : ''}`,
-          },
+          { label: r.rhythm, value: `${r.every.replace('{n}', weeksWord(weeks))}${weeksCapped ? ' max.' : ''} · ${interval} km` },
+          { label: r.perYearFact, value: r.perYear.replace('{n}', String(waxesPerYear)) },
         ]}
         actions={<ResultActions compact={compact}
           shareUrl={url}

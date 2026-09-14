@@ -49,6 +49,11 @@ export interface ToolEntry {
    *  Rechner zu zeigen, den sie nicht beeinflusst, ist schlimmer als sie
    *  wegzulassen: man stellt etwas ein und es passiert nichts. */
   usesProfile?: boolean;
+  /** false = eigene Seite unter /rechner, aber keine eigene Karte im Deck der
+   *  Startseite. Nur „ersparnis": seit 09/2026 steckt die Rotation als Eingabe
+   *  in der Kosten-Karte (umstieg), zwei Karten mit derselben Zahl waren eine
+   *  zu viel. */
+  inDeck?: boolean;
 }
 
 
@@ -174,10 +179,10 @@ export const TOOLS: ToolEntry[] = [
     slug: 'umstieg',
     usesProfile: true,
     showsAssumptions: true,
-    label: 'Umstieg', labelEn: 'Switching',
-    cover: 'Ab wann lohnt sich Wachs?', coverEn: 'When does wax pay off?',
-    hint: 'Einkaufsliste, Kostenverlauf gegen Öl und der Monat, ab dem du im Plus bist.',
-    hintEn: 'Shopping list, cost over time against oil, and the month you come out ahead.',
+    label: 'Kosten', labelEn: 'Cost',
+    cover: 'Lohnt sich Wachs für dich?', coverEn: 'Is wax worth it for you?',
+    hint: 'Was du im Jahr gegenüber Öl sparst — mit deinem Antrieb und deinen Kilometern.',
+    hintEn: 'What you save per year versus oil — with your drivetrain and your mileage.',
     title: 'Umstieg auf Heißwachs: Was kostet der Einstieg wirklich? | Waxcelerate',
     description: 'Erstausstattung, laufende Kosten pro Jahr und der Punkt, ab dem sich Heißwachs gegenüber Kettenöl rechnet — mit deinen eigenen Kilometern.',
     h1: 'Was kostet der Umstieg auf Heißwachs?',
@@ -244,6 +249,7 @@ export const TOOLS: ToolEntry[] = [
   },
   {
     slug: 'ersparnis',
+    inDeck: false,
     usesProfile: true,
     showsAssumptions: true,
     label: 'Ersparnis', labelEn: 'Savings',

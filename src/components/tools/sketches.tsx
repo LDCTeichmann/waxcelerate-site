@@ -6,14 +6,16 @@
 // abfragten, ohne zu zeigen, was gemeint ist. Die Bildschirmhoehen-Regel ist
 // wieder aufgehoben; die Skizzen sind zurueck.
 //
-// Die alten Skizzen (Messstrecke, Lehre, Kassetten-Verschleiss) stehen
-// unveraendert hier. Neu sind die, die mit der Eingabe
-// mitrechnen: der Antrieb der Kettenlaenge (Groesse der Zahnraeder und
-// Strebenlaenge folgen den Feldern), die Zaehl-Skizze und die
-// Kostenkurve des Umstiegs.
+// Seit 09/2026 hat jede Karte genau EINE Grafik, die mit der Eingabe
+// mitrechnet: der Antrieb der Kettenlaenge (Groesse der Zahnraeder und
+// Strebenlaenge folgen den Feldern) samt Zaehl-Skizze, die Kosten-Hantel, die
+// Verschleissskala und der Rewax-Zeitstrahl. Messstrecke, Lehre, Kostenkurve
+// und Kassetten-Vergleich sind raus (siehe Grafik-Grammatik weiter unten).
 //
 // Weiterhin eigene SVG statt Fotos oder Videos: keine Rechte Dritter, keine
 // Cookies, Themefarben inklusive.
+
+import { useLayoutEffect, useRef, useState } from 'react';
 
 const STROKE = 'var(--tx2)';
 const FAINT = 'var(--bd2)';
@@ -195,237 +197,295 @@ export function ChainTrimBar({ remove, de = true }: { remove: number; de?: boole
   );
 }
 
-// ── Umstieg ─────────────────────────────────────────────────────────────────
+// ── Grafik-Grammatik ────────────────────────────────────────────────────────
+//
+// Die drei Diagramme unten (Kosten, Verschleiss, Intervall) folgen denselben
+// Regeln, damit fuenf Karten wie ein Werkzeug aussehen (docs/DESIGN.md,
+// „Rechner-Karten"):
+//  - 1:1-Skala. Die Breite kommt per ResizeObserver aus dem Rahmen, die
+//    viewBox ist genau so breit. Eine SVG-Einheit ist ein Pixel, 11 heisst 11 px
+//    — vorher skalierte eine 310er-viewBox auf 440 px, und aus 8,5 wurde 12.
+//  - Striche: Hilfslinien 1 px (--bd2), Daten 2 px.
+//  - Direkt beschriftet, Legende nur bei zwei Reihen (Oel/Wachs).
+//  - Farbe traegt die Identitaet der Marke, Text bleibt in Textfarben:
+//    Wachs = --brand, Oel = --txf, gut = --ok, handeln = --warn.
+
+
+/** Breite eines Elements in px, fuer 1:1-SVG. */
+function useWidth<T extends HTMLElement>(fallback = 320) {
+  const ref = useRef<T>(null);
+  const [w, setW] = useState(fallback);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => setW(Math.max(200, Math.round(el.clientWidth))));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  return [ref, w] as const;
+}
+
+const FONT = { fontSize: 11, fontFamily: 'inherit' } as const;
+const OIL = 'var(--txf)';
+const OK = 'var(--ok)';
+
+// ── Kosten: Oel gegen Wachs, Posten fuer Posten ─────────────────────────────
+
+export interface CostRow { label: string; oil: number; wax: number }
 
 /**
- * Kumulierte Kosten ueber die Zeit: Oel startet bei null und steigt steil,
- * Wachs startet beim Werkzeug und steigt flacher. Der Schnittpunkt ist der
- * Monat, ab dem der Umstieg im Plus ist — dieselbe Groesse wie
- * switchEconomics().breakEvenMonths, nur sichtbar statt als Zahl.
+ * Hantel-Diagramm: je Posten (Kette, Kassette, Schmierstoff) ein Oel-Punkt und
+ * ein Wachs-Punkt auf derselben Euro-Achse, dazwischen die Differenz. Zeigt in
+ * einem Blick, WOHER die Ersparnis kommt — und dass Wachs beim Schmierstoff
+ * selbst teurer ist. Ersetzt Tabelle „Pro Jahr" und Kostenkurve, die dieselben
+ * Zahlen zweimal zeigten.
  */
-export function CumulativeCostChart({ oilPerYear, waxPerYear, upfront, months = 24, de = true }: {
-  oilPerYear: number; waxPerYear: number; upfront: number; months?: number; de?: boolean;
+export function CostDumbbell({ rows, oilLabel, waxLabel, perYear, eur }: {
+  rows: CostRow[]; oilLabel: string; waxLabel: string; perYear: string;
+  eur: (n: number) => string;
 }) {
-  const W = 310, H = 132;
-  const L = 34, R = 10, T = 12, B = 22;
-  const oilAt = (m: number) => (oilPerYear * m) / 12;
-  const waxAt = (m: number) => upfront + (waxPerYear * m) / 12;
-  const yMax = Math.max(oilAt(months), waxAt(months), 1) * 1.08;
-  const x = (m: number) => L + (m / months) * (W - L - R);
-  const y = (v: number) => T + (1 - v / yMax) * (H - T - B);
-
-  const monthlyGain = (oilPerYear - waxPerYear) / 12;
-  const crossM = monthlyGain > 0 ? upfront / monthlyGain : null;
-  const crossIn = crossM !== null && crossM <= months;
-
-  const eur = (v: number) => `${Math.round(v)} €`;
-  const ticks = [0, Math.round(yMax / 2 / 10) * 10, Math.floor(yMax / 10) * 10].filter((v, i, a) => a.indexOf(v) === i);
-
-  // Flaeche zwischen den Kurven nach dem Schnittpunkt = gesparter Betrag.
-  const gainArea = crossIn
-    ? `M${x(crossM!)},${y(oilAt(crossM!))} L${x(months)},${y(oilAt(months))} L${x(months)},${y(waxAt(months))} Z`
-    : '';
+  const [ref, W] = useWidth<HTMLDivElement>();
+  const ROW = 38, TOP = 26, LABEL_W = 80, DELTA_W = 46, PAD = 4;
+  const H = TOP + rows.length * ROW + 4;
+  const x0 = LABEL_W, x1 = W - DELTA_W - PAD;
+  const max = Math.max(1, ...rows.flatMap(r => [r.oil, r.wax])) * 1.04;
+  const x = (v: number) => x0 + (v / max) * (x1 - x0);
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto" role="img"
-      aria-label={de
-        ? `Kumulierte Kosten über ${months} Monate: Öl gegen Wachs${crossIn ? `, Wachs ab Monat ${Math.ceil(crossM!)} günstiger` : ''}`
-        : `Cumulative cost over ${months} months: oil versus wax${crossIn ? `, wax cheaper from month ${Math.ceil(crossM!)}` : ''}`}>
-      {ticks.map(v => (
-        <g key={v}>
-          <line x1={L} x2={W - R} y1={y(v)} y2={y(v)} stroke={FAINT} strokeWidth={1} />
-          <text x={L - 5} y={y(v) + 3} textAnchor="end" fontSize="8.5" fill={LABEL}>{eur(v)}</text>
+    <div ref={ref} className="w-full">
+      <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} role="img" className="block"
+        aria-label={rows.map(r => `${r.label}: ${oilLabel} ${eur(r.oil)}, ${waxLabel} ${eur(r.wax)}`).join('; ')}>
+        {/* Legende: zwei Reihen, also immer da. */}
+        <g style={FONT}>
+          <circle cx={x0 + 5} cy={9} r={4.5} fill="var(--sf)" stroke={OIL} strokeWidth={2} />
+          <text x={x0 + 14} y={13} fill="var(--txm)">{oilLabel}</text>
+          <circle cx={x0 + 56} cy={9} r={5} fill="var(--brand)" />
+          <text x={x0 + 65} y={13} fill="var(--txm)">{waxLabel}</text>
+          {W >= 300 && <text x={W - PAD} y={13} textAnchor="end" fill="var(--txff)">{perYear}</text>}
         </g>
-      ))}
-      {[0, 6, 12, 18, 24].filter(m => m <= months).map(m => (
-        <text key={m} x={x(m)} y={H - 7} textAnchor={m === months ? 'end' : m === 0 ? 'start' : 'middle'} fontSize="8.5" fill={LABEL}>
-          {m === 0 ? (de ? 'Start' : 'Start') : `${m} ${de ? 'Mon.' : 'mo'}`}
-        </text>
-      ))}
 
-      {gainArea && <path d={gainArea} fill="rgba(var(--ok-rgb),0.16)" style={MORPH} />}
+        {rows.map((r, i) => {
+          const cy = TOP + i * ROW + ROW / 2;
+          const saves = r.wax <= r.oil;
+          const d = r.wax - r.oil;
+          return (
+            <g key={r.label} style={{ transition: 'all 280ms ease' }}>
+              <title>{`${r.label}: ${oilLabel} ${eur(r.oil)} · ${waxLabel} ${eur(r.wax)}`}</title>
+              <line x1={x0} x2={x1} y1={cy} y2={cy} stroke="var(--bd2)" strokeWidth={1} />
+              <text x={0} y={cy + 4} style={FONT} fontSize={12} fill="var(--tx2)">{r.label}</text>
+              <line x1={x(r.oil)} x2={x(r.wax)} y1={cy} y2={cy}
+                stroke={saves ? OK : 'var(--txff)'} strokeWidth={3} strokeLinecap="round" style={{ transition: 'all 280ms ease' }} />
+              <circle cx={x(r.oil)} cy={cy} r={5} fill="var(--sf)" stroke={OIL} strokeWidth={2} style={{ transition: 'all 280ms ease' }} />
+              <circle cx={x(r.wax)} cy={cy} r={6} fill="var(--brand)" stroke="var(--sf)" strokeWidth={2} style={{ transition: 'all 280ms ease' }} />
+              {/* Werte an den Punkten: Oel oberhalb, Wachs unterhalb — kollidieren
+                  so auch nicht, wenn beide Punkte nah beieinander liegen. */}
+              <text x={x(r.oil)} y={cy - 9} textAnchor="middle" style={FONT} fill="var(--txf)">{eur(r.oil)}</text>
+              <text x={x(r.wax)} y={cy + 17} textAnchor="middle" style={FONT} fill="var(--tx2)">{eur(r.wax)}</text>
+              <text x={W - PAD} y={cy + 4} textAnchor="end" style={FONT} fontSize={12} fontWeight={600}
+                fill={saves ? 'var(--tx1)' : 'var(--txf)'}>
+                {d === 0 ? '±0' : `${d < 0 ? '−' : '+'}${eur(Math.abs(d))}`}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+}
 
-      <path d={`M${x(0)},${y(0)} L${x(months)},${y(oilAt(months))}`} stroke="var(--txf)" strokeWidth={2} fill="none" style={MORPH} />
-      <path d={`M${x(0)},${y(upfront)} L${x(months)},${y(waxAt(months))}`} stroke={ACCENT} strokeWidth={2.4} fill="none" style={MORPH} />
-      <circle cx={x(0)} cy={y(upfront)} r={3} fill={ACCENT} />
+// ── Verschleiss: wo liegt die Kette auf der Skala ───────────────────────────
 
-      <text x={x(months) - 2} y={y(oilAt(months)) - 5} textAnchor="end" fontSize="9.5" fill="var(--txf)" fontWeight={600}>
-        {de ? 'Öl' : 'Oil'}
-      </text>
-      <text x={x(months) - 2} y={y(waxAt(months)) + 12} textAnchor="end" fontSize="9.5" fill={ACCENT} fontWeight={600}>
-        {de ? 'Wachs' : 'Wax'}
-      </text>
-      <text x={L + 6} y={T + 8} fontSize="8.5" fill={ACCENT}>
-        ● {de ? 'Start: Werkzeug' : 'Start: tools'} {eur(upfront)}
-      </text>
+/**
+ * Laengungsskala 0 bis 1,25 %. Zonen folgen waxMath.wearVerdict: bis 80 % der
+ * Grenze „faehrt", bis zur Grenze „bald", dann „tauschen", ab Grenze + 0,25
+ * „Kassette pruefen", ab 1,0 % „Kassette mit". Die Grenze der gewaehlten
+ * Gangzahl ist markiert — bei 9-fach steht sie bei 0,75, nicht bei 0,5.
+ * Die Lehre misst keinen Wert, sie beantwortet Ja/Nein je Marke:
+ * `bound: 'atLeast'` („die 0,5er faellt rein") zieht vom Marker eine
+ * gestrichelte Spanne nach rechts, `bound: 'below'` („keine Marke greift")
+ * eine Spanne von 0 bis zur kleinsten Marke — statt einen Punkt zu behaupten.
+ */
+export function WearScale({ percent, limit, bound, empty, labels, fmt }: {
+  percent: number | null; limit: number; bound?: 'atLeast' | 'below'; empty?: string;
+  labels: { ok: string; replace: string; cassette: string; limit: string; you: string };
+  fmt: (n: number) => string;
+}) {
+  const [ref, W] = useWidth<HTMLDivElement>();
+  const MAX = 1.25, PAD = 10, H = 100, TY = 36, TH = 14;
+  const x = (v: number) => PAD + (Math.min(v, MAX) / MAX) * (W - PAD * 2);
+  const check = Math.min(limit + 0.25, 1.0);
+  const zones = [
+    { from: 0, to: limit * 0.8, fill: 'var(--bd2)', op: 0.6 },
+    { from: limit * 0.8, to: limit, fill: 'var(--warn)', op: 0.22 },
+    { from: limit, to: check, fill: 'var(--warn)', op: 0.45 },
+    { from: check, to: 1.0, fill: 'var(--warn)', op: 0.7 },
+    { from: 1.0, to: MAX, fill: 'var(--warn)', op: 0.95 },
+  ].filter(z => z.to > z.from);
+  const ticks = [0, 0.5, 0.75, 1.0].filter(v => v !== limit && Math.abs(x(v) - x(limit)) >= 64);
+  const mx = percent === null ? null : x(percent);
+  const T = 'all 300ms cubic-bezier(0.22,1,0.36,1)';
+  const sign = bound === 'atLeast' ? '≥ ' : bound === 'below' ? '< ' : '';
 
-      {crossIn && (
-        <g style={MORPH}>
-          <line x1={x(crossM!)} x2={x(crossM!)} y1={y(oilAt(crossM!))} y2={H - B} stroke="var(--ok)" strokeWidth={1.2} strokeDasharray="3 2" />
-          <circle cx={x(crossM!)} cy={y(oilAt(crossM!))} r={4} fill="var(--sf)" stroke="var(--ok)" strokeWidth={2} />
-          <text x={x(crossM!)} y={y(oilAt(crossM!)) - 9} textAnchor="middle" fontSize="8.5" fontWeight={600} fill="var(--ok)">
-            {de ? 'ab hier im Plus' : 'ahead from here'}
+  return (
+    <div ref={ref} className="w-full">
+      <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} role="img" className="block"
+        aria-label={percent === null ? (empty ?? '') : `${labels.you}: ${sign}${fmt(percent)} %, ${labels.limit} ${fmt(limit)} %`}>
+        {/* Zonen, mit 2 px Flaechenluecke dazwischen */}
+        {zones.map((z, i) => (
+          <rect key={i} x={x(z.from) + (i ? 1 : 0)} y={TY} width={Math.max(0, x(z.to) - x(z.from) - (i ? 2 : 1))} height={TH}
+            rx={3} fill={z.fill} opacity={z.op} style={{ transition: T }} />
+        ))}
+        {/* Grenze der Gangzahl */}
+        <line x1={x(limit)} x2={x(limit)} y1={TY - 4} y2={TY + TH + 4} stroke="var(--tx1)" strokeWidth={2} style={{ transition: T }} />
+
+        {/* Zeile 1 unter der Skala: Werte, die Grenze hervorgehoben */}
+        <g style={FONT}>
+          {ticks.map(v => (
+            <text key={v} x={x(v)} y={TY + TH + 17} textAnchor={v === 0 ? 'start' : 'middle'} fill="var(--txff)">{fmt(v)} %</text>
+          ))}
+          <text x={x(limit)} y={TY + TH + 17} textAnchor="middle" fontWeight={700} fill="var(--tx1)" style={{ transition: T }}>
+            {labels.limit} {fmt(limit)} %
           </text>
         </g>
-      )}
-    </svg>
+        {/* Zeile 2: was die Bereiche bedeuten. „tauschen" steht mittig in
+            seinem Bereich und faellt weg, wenn es an eines der Randetiketten
+            stoesst (schmale Karte) — das Urteil unten sagt es ohnehin. */}
+        <g style={FONT} fill="var(--txf)">
+          <text x={PAD} y={TY + TH + 35}>{labels.ok}</text>
+          {(() => {
+            const cx = (x(limit) + x(1.0)) / 2;
+            const half = labels.replace.length * 3;
+            const leftEdge = PAD + labels.ok.length * 6 + 8;
+            const rightEdge = W - PAD - labels.cassette.length * 6 - 8;
+            return cx - half > leftEdge && cx + half < rightEdge
+              ? <text x={cx} y={TY + TH + 35} textAnchor="middle">{labels.replace}</text>
+              : null;
+          })()}
+          <text x={W - PAD} y={TY + TH + 35} textAnchor="end">{labels.cassette}</text>
+        </g>
+
+        {mx !== null && bound === 'below' ? (
+          <g style={{ transition: T }}>
+            <path d={`M${x(0)},${TY - 5} H${mx}`} stroke="var(--tx1)" strokeWidth={2} />
+            <path d={`M${x(0)},${TY - 9} v8 M${mx},${TY - 9} v8`} stroke="var(--tx1)" strokeWidth={2} />
+            <text x={x(0)} y={13} style={FONT} fontSize={12} fontWeight={700} fill="var(--tx1)">
+              {labels.you} {sign}{fmt(percent!)} %
+            </text>
+          </g>
+        ) : mx !== null ? (
+          <g style={{ transition: 'transform 320ms cubic-bezier(0.22,1,0.36,1)', transform: `translateX(${mx}px)` }}>
+            {bound === 'atLeast' && (
+              <path d={`M0,${TY + TH / 2} H${Math.max(0, x(MAX) - mx)}`} stroke="var(--tx1)" strokeWidth={2} strokeDasharray="3 3" />
+            )}
+            <line x1={0} x2={0} y1={20} y2={TY + TH / 2} stroke="var(--tx1)" strokeWidth={1.5} />
+            <circle cx={0} cy={TY + TH / 2} r={6} fill="var(--tx1)" stroke="var(--sf)" strokeWidth={2} />
+            <text x={0} y={13} textAnchor={mx < 60 ? 'start' : mx > W - 60 ? 'end' : 'middle'} style={FONT} fontSize={12} fontWeight={700} fill="var(--tx1)">
+              {labels.you} {sign}{fmt(percent!)} %
+            </text>
+          </g>
+        ) : (
+          <text x={W / 2} y={13} textAnchor="middle" style={FONT} fill="var(--txf)">{empty}</text>
+        )}
+      </svg>
+    </div>
   );
 }
 
-// ── Aus der frueheren diagrams.tsx ─────────────────────────────────────────
-
-/** Messstrecke ueber 12 Glieder: Bolzenmitte bis Bolzenmitte, 12 Zoll. */
-export function ChainMeasureDiagram() {
-  const R = 7;
-  const PITCH = 26;
-  const CY = 30;
-  const left = [0, 1, 2, 3].map(i => 22 + i * PITCH);
-  const right = [0, 1, 2, 3].map(i => 190 + i * PITCH);
-  const plate = (xs: number[]) =>
-    xs.slice(0, -1).map((x, i) => (
-      <rect key={x} x={x - R - 1} y={CY - (R + 1)} width={xs[i + 1] - x + (R + 1) * 2}
-        height={(R + 1) * 2} rx={R + 1} />
-    ));
-
-  return (
-    <svg viewBox="0 0 310 78" className="w-full h-auto" role="img"
-      aria-label="Messstrecke über 12 Glieder, von Bolzenmitte zu Bolzenmitte">
-      <g stroke={STROKE} strokeWidth={1.4} fill="var(--sf2)">
-        {plate(left)}{plate(right)}
-        {[...left, ...right].map(x => <circle key={`r${x}`} cx={x} cy={CY} r={R} />)}
-      </g>
-      {[...left, ...right].map(x => <circle key={`p${x}`} cx={x} cy={CY} r={1.8} fill={STROKE} />)}
-      <path d={`M144,${CY - 12} l6,24 M156,${CY - 12} l6,24`} stroke={FAINT} strokeWidth={1.4} fill="none" />
-      <g stroke={ACCENT} strokeWidth={1.4}>
-        <path d={`M22,${CY + 20} v10 M268,${CY + 20} v10`} />
-        <path d={`M22,${CY + 25} H268`} />
-      </g>
-      <text x="145" y={CY + 42} textAnchor="middle" fontSize="10" fill={LABEL}>
-        12 Glieder = 304,8 mm (neu)
-      </text>
-      <circle cx="22" cy={CY} r={3.4} fill="none" stroke={ACCENT} strokeWidth={1.6} />
-      <circle cx="268" cy={CY} r={3.4} fill="none" stroke={ACCENT} strokeWidth={1.6} />
-      <text x="22" y="14" textAnchor="middle" fontSize="9" fill={ACCENT}>Mitte</text>
-      <text x="268" y="14" textAnchor="middle" fontSize="9" fill={ACCENT}>Mitte</text>
-    </svg>
-  );
-}
+// ── Intervall: Zeitstrahl bis zum naechsten Wachsen ─────────────────────────
 
 /**
- * Wie eine Kettenlehre greift: fester Fuss am einen Ende, Pruefspitze am
- * anderen. `state` folgt dem Urteil: 'ok' — Spitze liegt auf, 'worn' — sie
- * faellt in die Luecke.
+ * Von „zuletzt gewachst" ueber „heute" bis „faellig", dazu die zwei
+ * Folgetermine. Der gefahrene Anteil ist gefuellt — man sieht, wie viel vom
+ * Intervall schon weg ist, statt es aus einer Wochenzahl zu errechnen.
  */
-export function ChainGaugeDiagram({ state = 'worn' }: { state?: 'ok' | 'worn' }) {
-  const R = 7;
-  const PITCH = 26;
-  const CY = 64;
-  const xs = [0, 1, 2, 3, 4, 5, 6].map(i => 26 + i * PITCH);
-  const plate = xs.slice(0, -1).map((x, i) => (
-    <rect key={x} x={x - R - 1} y={CY - (R + 1)} width={xs[i + 1] - x + (R + 1) * 2}
-      height={(R + 1) * 2} rx={R + 1} />
-  ));
-  const footX = (xs[0] + xs[1]) / 2;
-  const tipX = (xs[5] + xs[6]) / 2;
+export function RewaxTimeline({ last, today, due, weeks, overdue, labels, fmtDate }: {
+  last: Date; today: Date; due: Date; weeks: number; overdue: boolean;
+  labels: { last: string; today: string; due: string };
+  fmtDate: (d: Date) => string;
+}) {
+  const [ref, W] = useWidth<HTMLDivElement>();
+  const PAD = 14, H = 100, Y = 52;
+  const DAY = 86400000;
+  const cycle = weeks * 7 * DAY;
+  const next = [1, 2].map(k => new Date(due.getTime() + k * cycle));
+  const start = last.getTime();
+  const end = Math.max(next[1].getTime(), today.getTime() + 7 * DAY);
+  const x = (d: Date | number) => PAD + ((+d - start) / (end - start)) * (W - PAD * 2);
+  const done = Math.min(+today, +due);
+  const tone = overdue ? 'var(--warn)' : 'var(--brand)';
+  // Etiketten unter dem Strahl, nach Wichtigkeit gesetzt: „faellig" immer,
+  // dann „zuletzt" (nicht, wenn das heute war — das sagt die Marke oben), dann
+  // die Folgetermine. Ueberlappt ein Etikett ein bereits gesetztes, bleibt es
+  // weg. Breite grob mit 6 px je Zeichen geschaetzt (11 px Schrift).
+  const sameDay = (a: Date, b: Date) => a.toDateString() === b.toDateString();
+  const candidates = [
+    { d: due, text: `${labels.due} ${fmtDate(due)}`, strong: true },
+    ...(sameDay(last, today) ? [] : [{ d: last, text: `${labels.last} ${fmtDate(last)}`, strong: false }]),
+    ...next.map(d => ({ d, text: fmtDate(d), strong: false })),
+  ];
+  const placed: { from: number; to: number }[] = [];
+  const shown = candidates.flatMap(c => {
+    const bx = x(c.d);
+    const w = c.text.length * 6;
+    const anchor: 'start' | 'end' | 'middle' = bx < w / 2 + 2 ? 'start' : bx > W - w / 2 - 2 ? 'end' : 'middle';
+    const from = anchor === 'start' ? bx : anchor === 'end' ? bx - w : bx - w / 2;
+    const box = { from: from - 6, to: from + w + 6 };
+    if (placed.some(p => box.from < p.to && box.to > p.from)) return [];
+    placed.push(box);
+    return [{ ...c, bx, anchor }];
+  });
 
   return (
-    <svg viewBox="0 0 310 104" className="w-full h-auto" role="img"
-      aria-label="Kettenlehre: fester Fuß am einen Ende, Prüfspitze am anderen">
-      <g stroke={STROKE} strokeWidth={1.4} fill="var(--sf2)">
-        {plate}
-        {xs.map(x => <circle key={`r${x}`} cx={x} cy={CY} r={R} />)}
-      </g>
-      {xs.map(x => <circle key={`p${x}`} cx={x} cy={CY} r={1.8} fill={STROKE} />)}
-      <rect x={footX - 6} y={26} width={tipX - footX + 12} height={13} rx={4}
-        fill="var(--sf2)" stroke={STROKE} strokeWidth={1.4} />
-      <path d={`M${footX},39 V${CY - 2}`} stroke={STROKE} strokeWidth={1.7} />
-      <circle cx={footX} cy={CY - 1} r={3} fill="none" stroke={STROKE} strokeWidth={1.4} />
-      <text x={footX} y={20} textAnchor="middle" fontSize="9" fill={LABEL}>fester Fuß</text>
-      <g style={{ ...MORPH, transform: `translateY(${state === 'ok' ? -6 : 0}px)` }}>
-        <path d={`M${tipX},39 V${CY + 1}`} stroke={ACCENT} strokeWidth={1.9} />
-        <circle cx={tipX} cy={CY} r={3.4} fill="none" stroke={ACCENT} strokeWidth={1.6} />
-        <path d={`M${tipX + 12},44 l-7,4 l3,-6 z`} fill={ACCENT} />
-      </g>
-      <text x={tipX + 6} y={20} textAnchor="middle" fontSize="9" fill={ACCENT}>0,5 %</text>
-      <text x="155" y={92} textAnchor="middle" fontSize="10" fill={LABEL}>
-        {state === 'ok' ? 'Spitze liegt auf: Kette in Ordnung' : 'Spitze fällt hinein: Kette raus'}
-      </text>
-    </svg>
-  );
-}
-
-/**
- * Zwei Kassetten im Vergleich: links nach einer stark gelaengten Kette
- * („Hai-Zahn"), rechts nach Ketten im Wechsel.
- */
-export function CassetteWearDiagram({ de = true }: { de?: boolean }) {
-  const CY = 56;
-  const R = 20;
-  const TEETH = 10;
-
-  function cogPoints(cx: number, worn: boolean): string {
-    const pts: string[] = [];
-    for (let i = 0; i < TEETH; i++) {
-      const aBase = (i / TEETH) * Math.PI * 2 - Math.PI / 2;
-      const aTip = ((i + 0.5) / TEETH) * Math.PI * 2 - Math.PI / 2;
-      const tipR = worn && i % 2 === 0 ? R + 2.5 : R + 6;
-      pts.push(`${(cx + Math.cos(aBase) * R).toFixed(1)},${(CY + Math.sin(aBase) * R).toFixed(1)}`);
-      pts.push(`${(cx + Math.cos(aTip) * tipR).toFixed(1)},${(CY + Math.sin(aTip) * tipR).toFixed(1)}`);
-    }
-    return pts.join(' ');
-  }
-
-  function chainArc(cx: number, loose: boolean) {
-    const pitch = loose ? 12.5 : 10.5;
-    const xs = [-1, 0, 1].map(i => cx + i * pitch);
-    const y = CY - R - (loose ? 9 : 7);
-    return (
-      <g stroke={loose ? ACCENT : STROKE} strokeWidth={1.3} fill="var(--sf2)">
-        {xs.slice(0, -1).map((x, i) => (
-          <rect key={x} x={x - 4.5} y={y - 4.5} width={xs[i + 1] - x + 9} height={9} rx={4.5} />
+    <div ref={ref} className="w-full">
+      <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} role="img" className="block"
+        aria-label={`${labels.last} ${fmtDate(last)}, ${labels.today} ${fmtDate(today)}, ${labels.due} ${fmtDate(due)}`}>
+        <line x1={x(last)} x2={x(end)} y1={Y} y2={Y} stroke="var(--bd2)" strokeWidth={2} strokeLinecap="round" />
+        <line x1={x(last)} x2={x(done)} y1={Y} y2={Y} stroke={tone} strokeWidth={4} strokeLinecap="round" style={{ transition: 'all 320ms ease' }} />
+        {overdue && (
+          <line x1={x(due)} x2={x(today)} y1={Y} y2={Y} stroke="var(--warn)" strokeWidth={4} strokeDasharray="4 3" />
+        )}
+        {next.map(d => (
+          <circle key={+d} cx={x(d)} cy={Y} r={4} fill="var(--sf)" stroke="var(--txff)" strokeWidth={2} />
         ))}
-        {xs.map(x => <circle key={`r${x}`} cx={x} cy={y} r={3.6} />)}
-      </g>
-    );
-  }
+        <circle cx={x(last)} cy={Y} r={4} fill="var(--txf)" />
+        <circle cx={x(due)} cy={Y} r={7} fill="var(--sf)" stroke={tone} strokeWidth={2.5} style={{ transition: 'all 320ms ease' }} />
 
-  const half = (cx: number, worn: boolean, caption: string) => (
-    <g>
-      <polygon points={cogPoints(cx, worn)} fill="var(--sf2)" stroke={worn ? STROKE : ACCENT} strokeWidth={1.5} strokeLinejoin="round" />
-      <circle cx={cx} cy={CY} r={5} fill={FAINT} />
-      {chainArc(cx, worn)}
-      <text x={cx} y="122" textAnchor="middle" fontSize="11" fill={LABEL}>{caption}</text>
-    </g>
-  );
+        {/* heute: Markierung oben */}
+        <g style={{ transition: 'transform 320ms ease', transform: `translateX(${x(today)}px)` }}>
+          <line x1={0} x2={0} y1={26} y2={Y - 6} stroke="var(--tx1)" strokeWidth={1.5} />
+          <text x={0} y={18} textAnchor={x(today) < 40 ? 'start' : 'middle'} style={FONT} fontSize={12} fontWeight={700} fill="var(--tx1)">
+            {labels.today}
+          </text>
+        </g>
 
-  return (
-    <svg viewBox="0 0 310 130" className="w-full h-auto" role="img"
-      aria-label={de
-        ? 'Vergleich: Kassette nach einer Kette gegen Kassette im Wechsel mehrerer Ketten'
-        : 'Comparison: cassette after one chain versus a cassette used with chains in rotation'}>
-      {half(78, true, de ? 'Eine Kette, lange gefahren' : 'One chain, ridden long')}
-      {half(232, false, de ? 'Mehrere Ketten im Wechsel' : 'Several chains in rotation')}
-      <text x="155" y="11" textAnchor="middle" fontSize="10" fill={LABEL}>
-        {de ? 'Zahnflanken bei Kettenwechsel' : 'Tooth flanks at chain swap'}
-      </text>
-    </svg>
+        {shown.map(s => (
+          <text key={s.text} x={s.bx} y={Y + 26} textAnchor={s.anchor}
+            style={FONT} fontWeight={s.strong ? 700 : 400} fill={s.strong ? 'var(--tx1)' : 'var(--txf)'}>
+            {s.text}
+          </text>
+        ))}
+      </svg>
+    </div>
   );
 }
 
-/** Rahmen fuer eine Skizze auf der Karte — gleiche Flaeche ueberall. */
-// `maxWidth`: die SVG-Beschriftung waechst mit der Breite. Auf einer 750 px
-// breiten Karte waeren die 10er-Schriften sonst 24 px gross.
-// `split`: erstes Kind (die Skizze) und zweites (z. B. die Rechnung) stehen
-// auf breiten Karten nebeneinander (.cq-split in index.css).
-export function SketchFrame({ children, caption, maxWidth = 360, split }: {
-  children: React.ReactNode; caption?: React.ReactNode; maxWidth?: number; split?: boolean;
+/**
+ * Rahmen fuer die eine Grafik einer Karte — gleiche Flaeche auf allen Karten.
+ * Feste Mindesthoehe, die Grafik steht darin mittig: so liegt der Bildbereich
+ * auf jeder Karte gleich, egal ob die Grafik 100 oder 150 px hoch ist.
+ * `maxWidth` nur fuer Skizzen mit fester viewBox (Antrieb, Zaehlen): die
+ * duerfen hoechstens 1:1 wachsen, sonst waechst ihre Schrift mit.
+ */
+export function SketchFrame({ children, caption, maxWidth }: {
+  children: React.ReactNode; caption?: React.ReactNode; maxWidth?: number;
 }) {
   return (
-    <figure className="rounded-2xl px-3 pt-2.5 pb-2" style={{ background: 'var(--inset-bg)', border: '1px solid var(--inset-bd)' }}>
-      {split
-        ? <div className="cq-split">{children}</div>
-        : <div className="mx-auto" style={{ maxWidth }}>{children}</div>}
-      {caption && <figcaption className="text-[11.5px] leading-snug mt-1" style={{ color: 'var(--txf)' }}>{caption}</figcaption>}
+    <figure
+      className="rounded-2xl px-3.5 py-3 min-h-[150px] flex flex-col justify-center"
+      style={{ background: 'var(--inset-bg)', border: '1px solid var(--inset-bd)' }}
+    >
+      <div className="w-full mx-auto" style={maxWidth ? { maxWidth } : undefined}>{children}</div>
+      {caption && <figcaption className="text-[11.5px] leading-snug mt-2" style={{ color: 'var(--txf)' }}>{caption}</figcaption>}
     </figure>
   );
 }

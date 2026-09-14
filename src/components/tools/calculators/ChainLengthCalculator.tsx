@@ -13,6 +13,10 @@
 //
 // Die Heldenzahl bleibt die Handlung: welche Kette kaufen, wie viele Glieder
 // abnehmen — jetzt zusaetzlich als Kettenstueck mit markierten Gliedern.
+//
+// Seit 09/2026: Eingabe links, Skizze rechts, der Rechenweg in einem Popover
+// statt fuenf Zeilen auf der Karte — die Karte war mit Feldern, Skizze,
+// Rechnung, Kettenstueck und zwei Kennzahlen die dichteste der Reihe.
 
 import { useState } from 'react';
 import { HelpCircle, Ruler } from 'lucide-react';
@@ -32,41 +36,43 @@ import {
   DrivetrainSketch, ChainCountSketch, ChainTrimBar, SketchFrame, type DrivetrainPart,
 } from '@/components/tools/sketches';
 
-/** Eine schmale Spalte der Eingabe-Reihe: kurzes Label, Fragezeichen, Zahl. */
+/** Eine Eingabezeile: Label mit Fragezeichen links, Zahlenfeld rechts. Zeilen
+ *  statt drei Spalten: in der halben Kartenbreite waren drei Felder nebeneinander
+ *  so schmal, dass der Wert hinter „mm" verschwand. */
 function CompactField({ label, ariaLabel, help, children }: {
   label: string; ariaLabel: string; help: string; children: React.ReactNode;
 }) {
   return (
-    <div className="min-w-0">
-      <span className="flex items-center gap-1 mb-1.5">
-        <span className="text-meta uppercase tracking-[0.06em] font-medium truncate" style={{ color: 'var(--txf)' }}>
+    <div className="flex items-center justify-between gap-3 min-w-0">
+      <span className="flex items-center gap-1.5 min-w-0">
+        <span className="text-meta uppercase tracking-[0.1em] font-semibold truncate" style={{ color: 'var(--tx2)' }}>
           {label}
         </span>
         <InfoPopover
           ariaLabel={`${ariaLabel}: Erklärung`}
-          trigger={open => <HelpCircle className="h-3 w-3" style={{ color: open ? 'var(--brand)' : 'var(--txff)' }} />}
+          trigger={open => <HelpCircle className="h-3.5 w-3.5" style={{ color: open ? 'var(--brand)' : 'var(--txff)' }} />}
         >
           <p className="text-[12px] leading-snug" style={{ color: 'var(--txm)' }}>{help}</p>
         </InfoPopover>
       </span>
       <span className="sr-only">{ariaLabel}</span>
-      {children}
+      <div className="w-[7.5rem] flex-shrink-0">{children}</div>
     </div>
   );
 }
 
 /** Eine Zeile der Rechnung. `mark` ist dieselbe Strichart wie in der Skizze. */
-function CalcRow({ mark, label, value, active }: {
-  mark: 'stay' | 'wrap' | 'plain'; label: React.ReactNode; value: string; active?: boolean;
+function CalcRow({ mark, label, value }: {
+  mark: 'stay' | 'wrap' | 'plain'; label: React.ReactNode; value: string;
 }) {
   const color = mark === 'stay' ? 'var(--brand)' : mark === 'wrap' ? 'var(--tx1)' : 'var(--txff)';
   return (
-    <div className="flex items-center gap-2.5 transition-opacity" style={{ opacity: active === false ? 0.45 : 1 }}>
+    <div className="flex items-center gap-2.5">
       <span className="w-5 flex-shrink-0 h-[3px]" style={{
         background: mark === 'plain' ? 'transparent' : `repeating-linear-gradient(90deg, ${color} 0 3.4px, transparent 3.4px 5px)`,
       }} />
-      <span className="text-[12.5px] flex-1 min-w-0" style={{ color: 'var(--txf)' }}>{label}</span>
-      <span className="text-[12.5px] font-medium tabular-nums" style={{ color: 'var(--tx2)' }}>{value}</span>
+      <span className="text-[12px] flex-1 min-w-0" style={{ color: 'var(--txm)' }}>{label}</span>
+      <span className="text-[12px] font-medium tabular-nums" style={{ color: 'var(--tx2)' }}>{value}</span>
     </div>
   );
 }
@@ -117,160 +123,151 @@ export function ChainLengthCalculator({ profile, compact }: { profile: ToolProfi
   const fitting = links ? stockLengths.find(l => l >= links) : undefined;
   const toRemove = links && fitting ? fitting - links : null;
 
+  const tl = t.tools.length;
+
   return (
     <ToolCard>
       <ToolHeader
         icon={<Ruler className="h-4 w-4" style={{ color: 'var(--txm)' }} />}
-        title={t.tools.length.title}
-        subtitle={t.tools.length.subtitle}
+        title={tl.title}
+        subtitle={tl.subtitle}
         info={(
           <InfoPopover
             ariaLabel={de ? 'Details zur Kettenlänge' : 'Details on chain length'}
             trigger={open => <HelpCircle className="h-4 w-4" style={{ color: open ? 'var(--brand)' : 'var(--txff)' }} />}
           >
-            <StepNote>{t.tools.length.onlyDerailleur}</StepNote>
+            <StepNote>{tl.onlyDerailleur}</StepNote>
             <StepNote>
               {links && !fitting
-                ? t.tools.length.tooShort
-                : t.tools.length.shortenNote.replace('{lengths}', stockLengths.join(', '))}
+                ? tl.tooShort
+                : tl.shortenNote.replace('{lengths}', stockLengths.join(', '))}
             </StepNote>
-            <StepNote>{t.tools.length.crossCheck}</StepNote>
+            <StepNote>{tl.crossCheck}</StepNote>
           </InfoPopover>
         )}
       />
 
       <StepList>
-        <SegmentedToggle
-          ariaLabel={de ? 'Wie ermitteln?' : 'How to work it out?'}
-          value={mode}
-          onChange={setMode}
-          options={[
-            { value: 'measure', label: de ? 'Am Rad messen' : 'Measure the bike' },
-            { value: 'count', label: de ? 'Alte Kette zählen' : 'Count the old chain' },
-          ]}
-        />
+        <div className="cq-split">
+          <div className="flex flex-col gap-3">
+            <SegmentedToggle
+              ariaLabel={de ? 'Wie ermitteln?' : 'How to work it out?'}
+              value={mode}
+              onChange={setMode}
+              options={[
+                { value: 'measure', label: tl.modeMeasure },
+                { value: 'count', label: tl.modeCount },
+              ]}
+            />
 
-        {mode === 'measure' ? (
-          <>
-            <div className="grid grid-cols-3 gap-2.5">
-              <CompactField label={de ? 'Strebe' : 'Stay'} ariaLabel={t.tools.length.chainstay} help={t.tools.length.helpChainstay}>
-                <NumberInput
-                  value={chainstay} onChange={setChainstay} min={350} max={550}
-                  ariaLabel={t.tools.length.chainstay} theme={theme} suffix="mm"
-                  onFocus={() => setFocus('stay')}
-                />
-              </CompactField>
-              <CompactField label={de ? 'Kettenblatt' : 'Chainring'} ariaLabel={t.tools.length.bigChainring} help={t.tools.length.helpChainring}>
-                <NumberInput
-                  value={chainring} onChange={setChainring} min={20} max={60}
-                  ariaLabel={t.tools.length.bigChainring} theme={theme} suffix={de ? 'Z' : 'T'}
-                  onFocus={() => setFocus('ring')}
-                />
-              </CompactField>
-              <CompactField label={de ? 'Ritzel' : 'Sprocket'} ariaLabel={t.tools.length.bigSprocket} help={t.tools.length.helpSprocket}>
-                <NumberInput
-                  value={sprocket} onChange={setSprocket} min={9} max={60}
-                  ariaLabel={t.tools.length.bigSprocket} theme={theme} suffix={de ? 'Z' : 'T'}
-                  onFocus={() => setFocus('sprocket')}
-                />
-              </CompactField>
-            </div>
-
-            {!measureValid && (
-              <StepNote>
-                {de
-                  ? 'Kettenstrebe 350–550 mm, Kettenblatt 20–60 Zähne, Ritzel 9–60 Zähne.'
-                  : 'Chainstay 350–550 mm, chainring 20–60 teeth, sprocket 9–60 teeth.'}
-              </StepNote>
-            )}
-
-            <div onMouseLeave={() => setFocus(null)}>
-              <SketchFrame maxWidth={420} split>
-                <DrivetrainSketch
-                  chainstayMm={measureValid ? n.chainstayMm : 425}
-                  chainring={measureValid ? n.bigChainring : 50}
-                  sprocket={measureValid ? n.bigSprocket : 34}
-                  focus={focus}
-                  de={de}
-                />
+            {mode === 'measure' ? (
+              <>
+                <div className="flex flex-col gap-1.5" onMouseLeave={() => setFocus(null)}>
+                  <CompactField label={tl.stay} ariaLabel={tl.chainstay} help={tl.helpChainstay}>
+                    <NumberInput
+                      value={chainstay} onChange={setChainstay} min={350} max={550}
+                      ariaLabel={tl.chainstay} theme={theme} suffix="mm"
+                      onFocus={() => setFocus('stay')}
+                    />
+                  </CompactField>
+                  <CompactField label={tl.ring} ariaLabel={tl.bigChainring} help={tl.helpChainring}>
+                    <NumberInput
+                      value={chainring} onChange={setChainring} min={20} max={60}
+                      ariaLabel={tl.bigChainring} theme={theme} suffix={de ? 'Z' : 'T'}
+                      onFocus={() => setFocus('ring')}
+                    />
+                  </CompactField>
+                  <CompactField label={tl.sprocket} ariaLabel={tl.bigSprocket} help={tl.helpSprocket}>
+                    <NumberInput
+                      value={sprocket} onChange={setSprocket} min={9} max={60}
+                      ariaLabel={tl.bigSprocket} theme={theme} suffix={de ? 'Z' : 'T'}
+                      onFocus={() => setFocus('sprocket')}
+                    />
+                  </CompactField>
+                </div>
+                {!measureValid && <StepNote>{tl.rangeNote}</StepNote>}
                 {calc && (
-                  <div className="flex flex-col gap-1 pt-2 mt-1 self-center">
-                    <CalcRow mark="stay" active={focus === null || focus === 'stay'}
-                      label={de ? `2 × Strebe ${n.chainstayMm} ÷ 12,7` : `2 × stay ${n.chainstayMm} ÷ 12.7`}
-                      value={dec(calc.stay)} />
-                    <CalcRow mark="wrap" active={focus === null || focus === 'ring'}
-                      label={de ? `+ Kettenblatt ${n.bigChainring} ÷ 2` : `+ chainring ${n.bigChainring} ÷ 2`}
-                      value={dec(calc.ring)} />
-                    <CalcRow mark="wrap" active={focus === null || focus === 'sprocket'}
-                      label={de ? `+ Ritzel ${n.bigSprocket} ÷ 2` : `+ sprocket ${n.bigSprocket} ÷ 2`}
-                      value={dec(calc.sprocket)} />
-                    <CalcRow mark="plain"
-                      label={de ? '+ Reserve fürs Schaltwerk' : '+ slack for the derailleur'}
-                      value={dec(calc.reserve)} />
-                    <div className="flex items-center gap-2.5 pt-1 mt-0.5" style={{ borderTop: '1px dashed var(--inset-bd)' }}>
-                      <span className="w-5 flex-shrink-0" />
-                      <span className="text-[12.5px] flex-1" style={{ color: 'var(--tx2)' }}>
-                        = {dec(calc.raw)} → {de ? 'gerade aufgerundet' : 'rounded up, even'}
+                  <InfoPopover
+                    ariaLabel={tl.calcWay}
+                    trigger={open => (
+                      <span className="text-[12px] font-medium" style={{ color: open ? 'var(--tx1)' : 'var(--brand)' }}>
+                        {tl.calcWay} →
                       </span>
-                      <span className="text-[13px] font-semibold tabular-nums" style={{ color: 'var(--brand)' }}>{calc.links}</span>
+                    )}
+                  >
+                    <div className="flex flex-col gap-1">
+                      <CalcRow mark="stay" label={tl.calcStay.replace('{mm}', String(n.chainstayMm))} value={dec(calc.stay)} />
+                      <CalcRow mark="wrap" label={`+ ${tl.calcRing.replace('{n}', String(n.bigChainring))}`} value={dec(calc.ring)} />
+                      <CalcRow mark="wrap" label={`+ ${tl.calcSprocket.replace('{n}', String(n.bigSprocket))}`} value={dec(calc.sprocket)} />
+                      <CalcRow mark="plain" label={`+ ${tl.calcReserve}`} value={dec(calc.reserve)} />
+                      <div className="flex items-center gap-2.5 pt-1 mt-0.5" style={{ borderTop: '1px dashed var(--inset-bd)' }}>
+                        <span className="w-5 flex-shrink-0" />
+                        <span className="text-[12px] flex-1" style={{ color: 'var(--tx2)' }}>
+                          {tl.calcTotal.replace('{raw}', dec(calc.raw))}
+                        </span>
+                        <span className="text-[13px] font-semibold tabular-nums" style={{ color: 'var(--brand)' }}>{calc.links}</span>
+                      </div>
                     </div>
-                  </div>
+                  </InfoPopover>
                 )}
-              </SketchFrame>
-            </div>
-          </>
-        ) : (
-          <>
-            <SketchFrame caption={de
-              ? 'Kette abnehmen oder am Rad Bolzen für Bolzen zählen. Die neue Kette bekommt dieselbe Länge — wenn die alte gut geschaltet hat.'
-              : 'Take the chain off or count pin by pin on the bike. The new chain gets the same length — if the old one shifted well.'}>
+              </>
+            ) : (
+              <>
+                <div className="max-w-[200px]">
+                  <NumberInput
+                    value={counted} onChange={setCounted} min={90} max={140}
+                    ariaLabel={tl.countLabel} theme={theme}
+                    suffix={tl.links} placeholder={de ? 'z. B. 112' : 'e.g. 112'}
+                  />
+                </div>
+                {counted.trim() !== '' && !countValid && <StepNote>{tl.countRange}</StepNote>}
+                {countValid && countedN % 2 === 1 && (
+                  <StepNote>{tl.countOdd.replace('{n}', String(countedLinks))}</StepNote>
+                )}
+              </>
+            )}
+          </div>
+
+          {mode === 'measure' ? (
+            <SketchFrame maxWidth={320}>
+              <DrivetrainSketch
+                chainstayMm={measureValid ? n.chainstayMm : 425}
+                chainring={measureValid ? n.bigChainring : 50}
+                sprocket={measureValid ? n.bigSprocket : 34}
+                focus={focus}
+                de={de}
+              />
+            </SketchFrame>
+          ) : (
+            <SketchFrame maxWidth={310} caption={tl.countCaption}>
               <ChainCountSketch de={de} />
             </SketchFrame>
-            <div className="max-w-[200px]">
-              <NumberInput
-                value={counted} onChange={setCounted} min={90} max={140}
-                ariaLabel={de ? 'Gezählte Glieder' : 'Links counted'} theme={theme}
-                suffix={de ? 'Glieder' : 'links'} placeholder={de ? 'z. B. 112' : 'e.g. 112'}
-              />
-            </div>
-            {counted.trim() !== '' && !countValid && (
-              <StepNote>{de ? 'Rennrad- und MTB-Ketten liegen zwischen 90 und 140 Gliedern.' : 'Road and MTB chains are between 90 and 140 links.'}</StepNote>
-            )}
-            {countValid && countedN % 2 === 1 && (
-              <StepNote>{de ? `Ungerade — vermutlich verzählt. Wir rechnen mit ${countedLinks}.` : `Odd — probably miscounted. We use ${countedLinks}.`}</StepNote>
-            )}
-          </>
-        )}
+          )}
+        </div>
       </StepList>
 
       <ResultPanel
         toolSlug={compact ? undefined : 'kettenlaenge'}
         compact={compact}
         value={fitting ?? links ?? '—'}
-        unit={fitting ? t.tools.length.buyLinks : t.tools.length.links}
+        unit={fitting ? tl.buyLinks : tl.links}
         hero={toRemove ? <ChainTrimBar remove={toRemove} de={de} /> : undefined}
         verdict={links && fitting
-          ? t.tools.length.resultVerdict
+          ? tl.resultVerdict
             .replace('{links}', String(links))
             .replace('{from}', String(fitting))
             .replace('{n}', String(toRemove))
           : links
-            ? t.tools.length.tooShort
+            ? tl.tooShort
             : mode === 'count'
-              ? (de ? 'Gezählte Glieder eintragen.' : 'Enter the links you counted.')
+              ? tl.countEnter
               : undefined}
         tone={links ? 'good' : 'neutral'}
-        facts={links
-          ? [
-              { label: t.tools.length.factCalculated, value: `${links} ${t.tools.length.links}` },
-              ...(toRemove !== null && fitting
-                ? [{ label: t.tools.length.factRemove, value: `${toRemove} ${t.tools.length.links}` }]
-                : []),
-            ]
-          : []}
+        // Keine Kennzahlen: „rechnerisch 112" und „2 abnehmen" standen schon
+        // im Satz darueber, das Kettenstueck zeigt das Abnehmen als Bild.
         actions={<ResultActions compact={compact} shareUrl={shareUrl('/rechner/kettenlaenge', profile.snapshot)} />}
         cta={(
-          <ToolCTA href="/rechner/passende-kette">{t.tools.length.cta}</ToolCTA>
+          <ToolCTA href="/rechner/passende-kette">{tl.cta}</ToolCTA>
         )}
       />
 

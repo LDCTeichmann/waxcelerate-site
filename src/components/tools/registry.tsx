@@ -10,7 +10,7 @@
 // waehrend des Renderns erzeugte Komponente, und gemischte Exporte brechen
 // Fast Refresh (react-refresh/only-export-components).
 
-import { Calculator, Gauge, Ruler, Link2, ArrowRightLeft, RotateCcw } from 'lucide-react';
+import { Calculator, Gauge, Ruler, Link2, Scale, RotateCcw } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import type { ToolProfileState } from '@/hooks/useToolProfile';
 import { TOOLS } from '@/lib/toolRegistry';
@@ -18,25 +18,35 @@ import { IntervalCalculator } from '@/components/tools/calculators/IntervalCalcu
 import { WearCalculator } from '@/components/tools/calculators/WearCalculator';
 import { ChainLengthCalculator } from '@/components/tools/calculators/ChainLengthCalculator';
 import { ChainMatchCalculator } from '@/components/tools/calculators/ChainMatchCalculator';
-import { SwitchCalculator } from '@/components/tools/calculators/SwitchCalculator';
-import { SavingsCalculator } from '@/components/tools/calculators/SavingsCalculator';
+import { CostCalculator } from '@/components/tools/calculators/CostCalculator';
 import { ToolTrack } from '@/components/tools/ToolTrack';
 
 // `compact`: gesetzt, wenn der Rechner im Kartenstapel der Startseite steckt
 // (ToolDeck) statt auf seiner eigenen /rechner/:slug-Seite (ToolCalculator).
 // Das Flag blendet keinen Inhalt aus — es setzt nur die Aktionen als Symbole
-// neben die grosse Zahl und laesst ChainMatchCalculator im Stapel auf die
-// gefilterte Produktliste statt zum naechsten Rechner verlinken.
+// neben die Handlungsaufforderung und laesst ChainMatchCalculator im Stapel auf
+// die gefilterte Produktliste statt zum naechsten Rechner verlinken.
 type CalcComponent = (props: { profile: ToolProfileState; compact?: boolean }) => React.ReactElement;
 type IconComponent = React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
+
+// Umstieg und Ersparnis sind seit 09/2026 ein Rechner (CostCalculator). Beide
+// Einzelseiten bleiben mit ihrer eigenen SEO-Copy bestehen; die Ersparnis-Seite
+// startet mit der empfohlenen Kettenzahl, im Deck steht nur die Umstieg-Karte
+// (TOOLS[].inDeck).
+function SwitchCost({ profile, compact }: { profile: ToolProfileState; compact?: boolean }) {
+  return <CostCalculator profile={profile} compact={compact} slug="umstieg" />;
+}
+function RotationCost({ profile, compact }: { profile: ToolProfileState; compact?: boolean }) {
+  return <CostCalculator profile={profile} compact={compact} slug="ersparnis" preselectRotation />;
+}
 
 const IMPLEMENTATIONS: Record<string, { Comp: CalcComponent; Icon: IconComponent }> = {
   intervall:        { Comp: IntervalCalculator,    Icon: Calculator },
   verschleiss:      { Comp: WearCalculator,        Icon: Gauge },
   kettenlaenge:     { Comp: ChainLengthCalculator, Icon: Ruler },
   'passende-kette': { Comp: ChainMatchCalculator,  Icon: Link2 },
-  umstieg:          { Comp: SwitchCalculator,      Icon: ArrowRightLeft },
-  ersparnis:        { Comp: SavingsCalculator,     Icon: RotateCcw },
+  umstieg:          { Comp: SwitchCost,            Icon: Scale },
+  ersparnis:        { Comp: RotationCost,          Icon: RotateCcw },
 };
 
 export function ToolIcon({ slug, className, style }: {
@@ -62,7 +72,7 @@ export function ToolDeck({ profile, onActiveChange, trailing }: {
   const de = lang === 'de';
   const items = TOOLS.flatMap(entry => {
     const impl = IMPLEMENTATIONS[entry.slug];
-    if (!impl) return [];
+    if (!impl || entry.inDeck === false) return [];
     return [{
       key: entry.slug,
       label: de ? entry.label : entry.labelEn,
