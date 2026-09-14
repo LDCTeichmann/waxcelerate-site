@@ -41,14 +41,14 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ArrowLeftRight, ExternalLink, Truck, RotateCw } from 'lucide-react';
-import { products, accessories, starterSetPrice, canCheckout, perApplicationRange } from '@/lib/data';
+import { ArrowRight, ArrowLeftRight, ExternalLink, Truck, RotateCw, ChevronDown, BadgePercent } from 'lucide-react';
+import { products, accessories, starterSetPrice, canCheckout, waxTierBreakdown } from '@/lib/data';
+import { costPerApplication } from '@/lib/waxMath';
 import type { TranslationType } from '@/lib/i18n';
 import { AddToCartButton } from '@/components/AddToCartButton';
 import { PriceNote } from '@/components/PriceNote';
 import { Stars } from '@/components/Stars';
 import { ShippingPill } from '@/components/ShippingPill';
-import { QuantityDiscountChip } from '@/components/QuantityDiscountChip';
 import { trackEbayClick } from '@/lib/analytics';
 import { getEstimatedDelivery } from '@/lib/utils';
 import { TURNAROUND } from '@/pages/rewax/content';
@@ -93,6 +93,11 @@ export const minSetPrice = Math.min(
 // Foto traegt den Namen, die Haarlinien darunter tragen die Zahlen. Der
 // Groessenschalter tauscht das ganze Produkt aus (Preis, Grundpreis,
 // Anwendungen, eBay-Link), damit aus vier Karten zwei Tafeln werden.
+// 14.09.2026, Wachsseite v5: Karte neu nach der Grammatik der Produktseite
+// (WaxHero): Groesse als zwei Kacheln mit Preis und Wachsgaengen, ein grosser
+// Preis, Rabatt als sichtbare Pille, Kauf unten rechts. Lucas Befund zur
+// vorigen Fassung: "sehr unuebersichtlich", Rabatt "nicht sehr attraktiv",
+// §19-Hinweis abgeschnitten. Der steht jetzt nur noch einmal unter dem Regal.
 function WaxPanel({ variant, de, t, image, alt, delivery }: {
   variant: Variant;
   de: boolean;
@@ -102,67 +107,33 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
   delivery: string;
 }) {
   const [size, setSize] = useState<Size>('500');
+  const [dealOpen, setDealOpen] = useState(false);
   const product = waxOf(variant, size);
   const s = t.products.shelf;
-  const accentColor = variant === 'pro' ? '#4A72D4' : 'var(--accent-soft)';
+  const p = t.products;
   const { soldRounded, reviews } = variantStats(variant);
+  const name = variant === 'classic' ? s.classicName : s.proName;
+  const badge = variant === 'classic' ? s.classicBadge : s.proBadge;
 
+  // Grundpreis je 100 g bleibt: PAngV verlangt ihn bei Ware nach Gewicht.
   const grams = parseInt(product.weight!);
   const per100 = eur(product.price / (grams / 100), de);
-  const perAppRange = perApplicationRange(product);
-
-  // Ein Rahmen um beide Groessen statt zwei einzeln umrandeter Buttons — der
-  // vorherige Zustand (jeder Button mit eigenem Rahmen) las sich als zwei
-  // lose Buttons statt als eine Wahl. Der Rahmen liegt jetzt auf dem
-  // Wrapper (siehe unten), min-h-11/min-w-11 bleiben fuer die 44px-Klickflaeche.
-  const sizeBtn = (v: Size) => {
-    const active = size === v;
-    return (
-      <button
-        key={v}
-        type="button"
-        onClick={() => setSize(v)}
-        aria-pressed={active}
-        className={`num inline-flex items-center justify-center min-h-11 min-w-11 px-4 rounded-md text-[12.5px] leading-none transition-all ${
-          active ? 'text-wx-tx1' : 'text-wx-txm hover:text-wx-tx2'
-        }`}
-        style={{
-          background: active ? 'var(--sf)' : 'transparent',
-          boxShadow: active ? '0 1px 2px rgba(0,0,0,0.08)' : 'none',
-        }}
-      >
-        {v} g
-      </button>
-    );
-  };
+  const perWax = costPerApplication(product);
+  const tiers = waxTierBreakdown(product);
+  const maxPct = Math.max(0, ...tiers.map(x => x.pct));
 
   return (
     <div className="shelf-card group flex flex-col rounded-[20px] overflow-hidden">
-      {/* Foto — ganzflaechig, ohne Scrim und ohne Text darauf.
-          09/2026: Der Name lag vorher IM Bild und brauchte dafuer einen
-          Verlauf, der die untere Bildhaelfte zu 76 % schwarz uebermalte —
-          bei einem Motiv, das seine Wirkung aus Farbe zieht (blauer Block vor
-          gruenem Bokeh), kostet das genau die Farbe. Lucas Urteil dazu:
-          "die Wachsbilder sind irgendwie so duester und nicht farbenfroh".
-          Jetzt traegt das Foto nur noch die Auszeichnung und den Hover-Pfeil,
-          beide mit eigenem Fond; Name und Einsatzzeitraum stehen im Block
-          darunter, wo sie ohnehin neben dem Preis hingehoeren. Nebeneffekt:
-          eine Zeile weniger Gesamthoehe, weil Titel und Preis sich jetzt eine
-          Zeile teilen statt uebereinander zu stehen. */}
+      {/* Foto traegt nur Auszeichnung und Hover-Pfeil, beide mit eigenem
+          Fond — der Name steht darunter auf Flaeche (kein Scrim ueber dem
+          farbigen Motiv). Auszeichnung jetzt bei beiden oben links. */}
       <Link
         to={`/produkt/${product.id}`}
         viewTransition
         className="relative block overflow-hidden aspect-[16/10]"
         style={{ background: 'var(--hero-stage)' }}
-        // Die Auszeichnung ("Meistgekauft" / "mit MoS₂") steht sichtbar INNERHALB
-        // dieses Links, stand aber nicht im aria-label — damit enthielt der
-        // zugaengliche Name den sichtbaren Text nicht (WCAG 2.5.3 Label in Name,
-        // von Lighthouse als label-content-name-mismatch gemeldet). Praktische
-        // Folge: wer per Sprachsteuerung "Meistgekauft anklicken" sagt, trifft
-        // den Link nicht. Deshalb steht die Auszeichnung jetzt mit im Namen.
-        aria-label={variant === 'classic'
-          ? `${s.classicName} — ${s.classicBadge}`
-          : `${s.proName} — ${s.proBadge}`}
+        // Sichtbare Auszeichnung steht mit im zugaenglichen Namen (WCAG 2.5.3).
+        aria-label={`${name} — ${badge}`}
       >
         {/* AVIF vor WebP, gleiche Breiten und dasselbe `sizes` — spart je Motiv
             18-31 % (gemessen, siehe scripts/build-avif-variants.mjs). Die
@@ -192,185 +163,139 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
           <ArrowRight className="h-4 w-4" style={{ color: '#fff' }} />
         </span>
 
-        {/* Auszeichnung — Classic oben links, Pro oben rechts.
-            Classic und Pro standen bisher als zwei voellig gleichwertige
-            Tafeln nebeneinander — gleiche Groesse, gleiche Gestaltung, kein
-            Hinweis, welche die uebliche Wahl ist. Die eigenen Verkaufszahlen
-            sagen etwas anderes: die Mehrheit der verkauften Wachsbloecke ist
-            Classic. Wer zwei gleich grosse Tafeln sieht, muss eine
-            Entscheidung treffen, die die Mehrheit der Kaeufer gar nicht hat.
-            Wichtig: Die Auszeichnungen sagen NICHT "diese ist besser" — das
-            waere bei zwei Produkten im selben Regal ein Widerspruch. Classic
-            traegt eine Tatsache (meistgekauft), Pro seinen Wirkstoff als
-            staendig sichtbaren Chip statt eines Formel-Chips im Textblock
-            (Lucas Feedback: "kannst du bei Pro einfach zum Beispiel noch
-            MoS-2 irgendwo oben rechts im Bild reinmachen"). So beantwortet
-            die Karte "welche bin ich?" statt "welche ist besser?". */}
-        {variant === 'classic' ? (
-          <span className="absolute top-4 left-4 rounded-full px-2.5 py-1 text-meta font-semibold"
-            style={{ background: 'rgba(255,255,255,0.94)', color: '#101013', backdropFilter: 'blur(6px)' }}>
-            {s.classicBadge}
-          </span>
-        ) : (
-          <span className="absolute top-4 right-4 rounded-full px-2.5 py-1 text-meta font-semibold"
-            style={{ background: 'rgba(10,10,12,0.72)', color: 'rgba(255,255,255,0.94)', backdropFilter: 'blur(6px)', border: '1px solid rgba(255,255,255,0.22)' }}>
-            {s.proBadge}
-          </span>
-        )}
+        {/* Auszeichnung: Classic traegt eine Tatsache (meistgekauft), Pro
+            seinen Wirkstoff. Keine sagt "die bessere". */}
+        <span className="absolute top-4 left-4 rounded-full px-2.5 py-1 text-meta font-semibold"
+          style={variant === 'classic'
+            ? { background: 'rgba(255,255,255,0.94)', color: '#101013', backdropFilter: 'blur(6px)' }
+            : { background: 'rgba(10,10,12,0.72)', color: 'rgba(255,255,255,0.94)', backdropFilter: 'blur(6px)', border: '1px solid rgba(255,255,255,0.22)' }}>
+          {badge}
+        </span>
       </Link>
 
-      {/* Infoblock — vorher lose auf dem Seiten-Hintergrund, nur mit einer
-          oberen Haarlinie vom Foto getrennt. Auf Mobile mit sechs bis acht
-          Einzelelementen darunter (Groessenschalter, Preis, drei Chips,
-          Social-Proof-Zeile, zwei Buttons) reicht eine einzelne obere Linie
-          als Gruppierungssignal nicht — das Gestalt-Prinzip "Common Region"
-          (NN/g) sagt: eine Flaeche bindet lose Elemente zu einer Einheit
-          zusammen, eine Linie an nur einer Kante schwaecher. Flaeche und
-          Rahmen liegen jetzt auf .shelf-card (index.css), damit Foto und
-          Block als eine Karte lesen und dieselbe blaue Hover-Kante tragen
-          wie die Kacheln darunter. */}
-      <div className="px-4 pt-3.5 pb-4">
-        {/* Zeile 1: Name links, Preis rechts. Beide Enden der Zeile belegt —
-            vorher stand rechts der Preis und links der Groessenschalter,
-            waehrend der Name eine eigene Zeile im Foto hatte. */}
-        <div className="flex items-start justify-between gap-3">
+      <div className="flex flex-1 flex-col px-5 pt-4 pb-5">
+        {/* Kopf: Name und Einsatz links, Bewertungen rechts. Unter 640 px
+            stehen die Bewertungen darunter, sonst bricht die Einsatzzeile
+            dreizeilig um und "verkauft" wird rechts abgeschnitten. */}
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
           <div className="min-w-0">
-            {/* <p>, nicht <h3>: index.css erzwingt im Hellmodus global
-                `h1,h2,h3,h4 { color: var(--tx1) !important }` — hier zwar
-                dieselbe Farbe, aber SecondaryTile und WaxPanel bleiben so in
-                derselben Auszeichnung. */}
-            <p className="font-display font-bold leading-[1.1] tracking-[-0.02em]"
-              style={{ color: 'var(--tx1)', fontSize: 'clamp(1.15rem, 1.9vw, 1.4rem)' }}>
-              {variant === 'classic' ? s.classicName : s.proName}
+            {/* <p>, nicht <h3>: index.css faerbt h1–h4 im Hellmodus global. */}
+            <p className="font-display font-bold leading-[1.05] tracking-[-0.02em]"
+              style={{ color: 'var(--tx1)', fontSize: 'clamp(1.4rem, 2.2vw, 1.65rem)' }}>
+              {name}
             </p>
-            <p className="num text-[12px] mt-0.5 truncate" style={{ color: 'var(--txm)' }}>
-              {variant === 'classic' ? s.classicFor : s.proFor}
+            <p className="text-[13px] mt-1" style={{ color: 'var(--txm)' }}>
+              {variant === 'classic' ? s.classicUse : s.proUse}
             </p>
           </div>
-          <div className="text-right flex-shrink-0">
-            <span className="num text-[21px] font-bold leading-none tracking-[-0.02em]" style={{ color: 'var(--tx1)' }}>
-              {eur(product.price, de)}
-            </span>
-            <p className="num text-meta mt-1" style={{ color: 'var(--txf)' }}>
-              {per100} {s.per100}
-            </p>
-          </div>
+          {reviews > 0 && (
+            <div className="flex items-center gap-2 flex-shrink-0 sm:flex-col sm:items-end sm:gap-0 sm:pt-1">
+              <Stars rating={5} />
+              <p className="num text-meta sm:mt-1 whitespace-nowrap" style={{ color: 'var(--txf)' }}>
+                {reviews} {s.reviewsShort}{soldRounded >= 20 && ` · ${soldRounded}+ ${s.soldUnits}`}
+              </p>
+            </div>
+          )}
         </div>
 
-        {/* Preis je Anwendung — das eigentliche Hauptsignal fuer ein
-            Verbrauchsgut (K6), ueber der Groessenzeile statt im Fussstreifen
-            versteckt. Nie geschaetzt: perApplicationRange() in data.ts
-            rechnet aus product.applications, gibt null zurueck wenn die
-            Spanne fehlt oder unparsbar ist. */}
-        {perAppRange && (
-          <p className="num text-[12.5px] font-medium mt-1.5" style={{ color: 'var(--tx2)' }}>
-            {t.products.perApplicationPrefix} {eur(perAppRange.lo, de)} {de ? 'bis' : 'to'} {eur(perAppRange.hi, de)} {t.products.perApplicationSuffix}
+        {/* Groesse als zwei Kacheln wie in der Kaufbox der Produktseite:
+            jede nennt Preis und Wachsgaenge selbst, also braucht es keine
+            eigene Anwendungszeile und keine zweite Preisspalte mehr. */}
+        <div className="grid grid-cols-2 gap-2.5 mt-4" role="group" aria-label={s.size}>
+          {(['300', '500'] as Size[]).map(v => {
+            const sp = waxOf(variant, v);
+            return (
+              <button key={v} type="button" aria-pressed={size === v} onClick={() => setSize(v)}
+                className="shelf-size text-left rounded-xl px-3 py-2.5 min-h-11">
+                <span className="flex items-baseline justify-between gap-2">
+                  <span className="num text-[15px] font-bold" style={{ color: 'var(--tx1)' }}>{v} g</span>
+                  <span className="num text-[13px]" style={{ color: 'var(--tx2)' }}>{eur(sp.price, de)}</span>
+                </span>
+                <span className="block num text-meta mt-0.5" style={{ color: 'var(--txf)' }}>{sp.applications} {s.uses}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Preis: einmal gross, daneben der Gegenwert je Wachsgang und der
+            Grundpreis (PAngV). */}
+        <div className="flex items-end justify-between gap-3 mt-4">
+          <p className="shelf-price font-display font-extrabold leading-none tracking-[-0.03em]"
+            style={{ fontSize: 'clamp(1.9rem, 3vw, 2.3rem)' }}>
+            {eur(product.price, de).replace(' €', '')}<span className="text-[0.55em] font-semibold ml-1" style={{ color: 'var(--tx2)' }}>€</span>
           </p>
+          <p className="num text-[12.5px] text-right leading-snug" style={{ color: 'var(--txm)' }}>
+            {perWax !== null && <>≈ {eur(perWax, de)} {s.perWaxing}<br /></>}
+            <span style={{ color: 'var(--txf)' }}>{per100} {s.per100}</span>
+          </p>
+        </div>
+
+        {/* Staffel als sichtbare gruene Pille statt einer 10,5-px-Zeile im
+            Fussstreifen; aufgeklappt drei Stufen mit Euro-Ersparnis. */}
+        {tiers.length > 0 && (
+          <div className="mt-3">
+            <button type="button" onClick={() => setDealOpen(o => !o)} aria-expanded={dealOpen}
+              className="shelf-deal inline-flex items-center gap-1.5 min-h-9 px-3 rounded-full text-[12.5px] font-semibold">
+              <BadgePercent className="h-3.5 w-3.5" aria-hidden />
+              {s.dealPill.replace('{pct}', String(maxPct))}
+              <ChevronDown className="h-3.5 w-3.5 transition-transform duration-200" style={{ transform: dealOpen ? 'rotate(180deg)' : 'none' }} aria-hidden />
+            </button>
+            {dealOpen && (
+              <>
+                <div className="grid grid-cols-3 gap-2 mt-2.5">
+                  {tiers.map(tier => (
+                    <div key={tier.qty} className="rounded-lg px-2.5 py-2" style={{ background: 'var(--sf)', border: '1px solid var(--bd2)' }}>
+                      <p className="num text-[13px] font-semibold" style={{ color: 'var(--tx1)' }}>
+                        {p.quantityDiscountUnit.replace('{qty}', tier.qty === 4 ? '4+' : String(tier.qty))}
+                        <span className="shelf-deal-tx ml-1.5">−{tier.pct} %</span>
+                      </p>
+                      <p className="num text-meta mt-0.5" style={{ color: 'var(--txm)' }}>
+                        {eur(tier.unitPrice, de)} / {de ? 'Stk.' : 'pc.'}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-meta mt-2" style={{ color: 'var(--txf)' }}>{p.quantityDiscountMechanism}</p>
+              </>
+            )}
+          </div>
         )}
 
-        {/* Zeile 2: Groessenschalter links, Anwendungszahl rechts — die beiden
-            Fakten, um die die Wahl selbst geht. Die vorherigen Chips
-            (km-Intervall trocken, Formel) sind raus: beide sind fuer 300g
-            und 500g identisch, beantworten den Schalter also nicht und
-            gehoeren auf die Produktseite, wo sie bereits stehen (Lucas
-            Feedback: "die Informationen mit diesem trockenen Kilometer
-            Reichweite... könnte weggemacht werden"). */}
-        <div className="flex items-center justify-between gap-3 mt-3.5">
-          <div className="inline-flex rounded-lg p-0.5" style={{ border: '1px solid var(--bd)', background: 'var(--sf3)' }}>
-            {(['300', '500'] as Size[]).map(sizeBtn)}
-          </div>
-          <span className="num text-meta flex-shrink-0" style={{ color: 'var(--txf)' }}>
-            {product.applications} {s.uses}
-          </span>
-        </div>
-
-        {/* Zeile 3: Kompatibilitaet — fuer beide Groessen gleich, deshalb
-            eigene Zeile statt Chip in der Groessenreihe. Haeufigster
-            Vorentscheidungs-Filter ("passt das an meine Kette") und auf
-            keiner Karte bisher vertreten. */}
-        <p className="num text-[10.5px] mt-2.5" style={{ color: 'var(--txff)' }}>
-          {s.compat}
-        </p>
-
-        {/* Zeile 4: Kaufzeile — CTA + Details, ohne Lieferung. Die zieht in
-            den Fussstreifen darunter (Common-Region-Prinzip, siehe dort). */}
-        <div className="flex items-center gap-2.5 mt-3.5">
-          {product.soldOut ? (
-            <span className="inline-flex items-center min-h-11 text-[13px] font-semibold" style={{ color: 'var(--txf)' }}>
-              {de ? 'Ausverkauft' : 'Sold out'}
-            </span>
-          ) : canCheckout(product) ? (
-            <AddToCartButton product={product} />
-          ) : (
-            <button
-              type="button"
-              onClick={() => { trackEbayClick(product.id); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
-              className="inline-flex items-center gap-1.5 min-h-11 px-5 rounded-full text-[13px] font-semibold transition-all duration-150 hover:opacity-90 active:scale-[0.97]"
-              style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
-            >
-              {t.products.buyOnEbay}
-              <ExternalLink className="h-3.5 w-3.5" aria-hidden />
-            </button>
-          )}
-          {/* War ein reiner Textlink neben einem gefuellten Button — daneben
-              praktisch unsichtbar, obwohl er zur Produktseite mit allen
-              Details, Bewertungen und FAQ fuehrt. Jetzt als Rahmen-Button auf
-              Augenhoehe mit dem eBay-Button (gleiche Groesse, ohne dessen
-              Flaeche zu kopieren), damit die Seite nicht nur "eBay oder
-              nichts" signalisiert. */}
-          <Link to={`/produkt/${product.id}`} viewTransition
-            className="inline-flex items-center gap-1 min-h-11 px-4 rounded-full text-[13px] font-semibold border transition-colors duration-150 hover:bg-[var(--accent-wash)]"
-            style={{ borderColor: 'var(--bd)', color: 'var(--tx2)' }}>
-            {s.details} <ArrowRight className="h-3.5 w-3.5" aria-hidden />
-          </Link>
-        </div>
-
-        {/* Fussstreifen: sozialer Beweis, Lieferung und die Wachs-Staffel in
-            einer eigenen, leicht getoenten Flaeche statt als weitere
-            gleichrangige Zeile im Textblock — Common-Region-Prinzip (NN/g):
-            eine Flaeche bindet lose Elemente zu einer Einheit, eine einzelne
-            obere Linie schwaecher (dieselbe Begruendung wie schon fuer
-            .shelf-card als Ganzes, siehe Kommentar am Info-Block oben).
-            Lieferung jetzt in --tx2 statt --txff (Lucas Feedback: "Lieferung
-            ein bisschen zu dezent"). Staffelzeile ist neu auf der Karte —
-            stand vorher nur als Fliesstext ueber der Kettenliste, ausserhalb
-            des Wachs-Kontexts, auf den sie sich bezieht. */}
-        <div className="mt-3.5 -mx-4 px-4 pt-3 pb-3" style={{ borderTop: '1px solid var(--bd2)', background: 'var(--sf3)' }}>
-          <div className="flex items-center justify-between gap-x-3 gap-y-1 flex-wrap">
-            <div className="flex items-center gap-1.5 whitespace-nowrap">
-              {reviews > 0 && (
-                <>
-                  {/* Eine Sternkomponente statt drei (Stufe 0): vorher eigenes
-                      goldenes #F5A623-Icon hier, brand-blaues var(--accent-soft)
-                      in Stars.tsx. Feste Farbe jetzt einheitlich accent-soft. */}
-                  <Stars rating={5} />
-                  <span className="num text-meta font-medium" style={{ color: 'var(--txm)' }}>
-                    {reviews} {s.reviewsShort}
-                  </span>
-                </>
-              )}
-              {soldRounded >= 20 && (
-                <span className="num text-meta" style={{ color: 'var(--txf)' }}>
-                  {reviews > 0 && '· '}{soldRounded}+ {s.soldUnits}
+        {/* Fuss: Lieferung links, Details und Kauf unten rechts. mt-auto
+            haelt die Fusszeile beider Karten auf einer Linie. */}
+        <div className="mt-auto pt-4">
+          <div className="flex items-center justify-between gap-x-3 gap-y-3 flex-wrap pt-4" style={{ borderTop: '1px solid var(--bd2)' }}>
+            <p className="flex items-center gap-1.5 num text-[12.5px]" style={{ color: 'var(--tx2)' }}>
+              <Truck className="h-3.5 w-3.5 flex-shrink-0" style={{ color: 'var(--accent-soft)' }} aria-hidden />
+              <span>{s.delivery} {delivery}<span style={{ color: 'var(--txf)' }}> · {p.priceNoteShippingIncluded}</span></span>
+            </p>
+            <div className="flex items-center gap-2 ml-auto">
+              <Link to={`/produkt/${product.id}`} viewTransition
+                className="inline-flex items-center gap-1 min-h-11 px-4 rounded-full text-[13px] font-semibold border transition-colors duration-150 hover:bg-[var(--accent-wash)]"
+                style={{ borderColor: 'var(--bd)', color: 'var(--tx2)' }}>
+                {s.details}
+              </Link>
+              {product.soldOut ? (
+                <span className="inline-flex items-center min-h-11 text-[13px] font-semibold" style={{ color: 'var(--txf)' }}>
+                  {de ? 'Ausverkauft' : 'Sold out'}
                 </span>
+              ) : canCheckout(product) ? (
+                <AddToCartButton product={product} />
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => { trackEbayClick(product.id); window.open(product.ebayUrl, '_blank', 'noopener,noreferrer'); }}
+                  className="inline-flex items-center gap-1.5 min-h-11 px-5 rounded-full text-[13px] font-semibold transition-all duration-150 hover:opacity-90 active:scale-[0.97]"
+                  style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
+                >
+                  {t.products.buyOnEbay}
+                  <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+                </button>
               )}
             </div>
-            <span className="flex items-center gap-1.5 num text-meta font-medium whitespace-nowrap" style={{ color: 'var(--tx2)' }}>
-              <Truck className="h-3 w-3 flex-shrink-0" style={{ color: accentColor }} aria-hidden />
-              {s.delivery} {delivery}
-            </span>
           </div>
-          <QuantityDiscountChip product={product} de={de} t={t} />
         </div>
       </div>
-
-      {/* PAngV: bis 09/2026 stand auf dieser Sektion (Wachs-Tafeln, Set,
-          Ketten, Rewax) zu Steuer und Versandkosten nichts, obwohl hier
-          ueberall Preise stehen — dieselbe Luecke, die die Produktdetail-
-          seite in Etappe 1 geschlossen hat. Einmal fuer die ganze Sektion
-          statt auf jeder Kachel wiederholt, gleiches Muster wie die
-          "Shared info"-Zeile bei der Kettenliste in products.tsx. */}
-      <PriceNote de={de} t={t} />
     </div>
   );
 }
@@ -647,7 +572,9 @@ export function ProductShelf({ de, t, onCompare }: {
           <p className="text-[13.5px] mt-1.5" style={{ color: 'var(--txm)' }}>{s.altBody}</p>
         </div>
 
-        <div className="grid gap-6 sm:grid-cols-3 sm:gap-6">
+        {/* shelf-alt: unter 640 px ein Wischband statt drei voller Karten
+            untereinander (Audit 14.09.2026: Regal mobil 3.100 px hoch). */}
+        <div className="shelf-alt grid gap-6 sm:grid-cols-3 sm:gap-6">
         <SecondaryTile
           index={1}
           to="/starter-set"

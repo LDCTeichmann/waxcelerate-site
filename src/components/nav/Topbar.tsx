@@ -63,10 +63,13 @@ export function Topbar() {
     ...(CONTACT.instagram ? [{ href: CONTACT.instagram, label: h.instagram, icon: <InstagramIcon className="h-3.5 w-3.5" /> }] : []),
   ];
 
-  const iconBtn = 'flex h-7 w-7 items-center justify-center rounded-full transition-colors hover:bg-white/10 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60';
+  const iconBtn = 'topbar-btn flex h-7 w-7 items-center justify-center rounded-full';
 
+  // Farben ueber --topbar-* (index.css): hell ein dunkler Streifen, im
+  // Dunkelmodus ein heller — der Streifen ist immer der Kontrast zur Leiste
+  // darunter, gleiche Logik wie --cta-bg.
   return (
-    <div className="wx-topbar" style={{ background: '#0b0b0d', color: 'rgba(255,255,255,0.74)' }}>
+    <div className="wx-topbar">
       <div className="grid h-full w-full grid-cols-1 items-center px-4 text-[12px] sm:px-6 lg:grid-cols-[1fr_minmax(0,1.6fr)_1fr] lg:px-8 xl:px-12">
         <ul className="hidden items-center gap-0.5 lg:flex">
           {socials.map(s => (
@@ -91,13 +94,13 @@ export function Topbar() {
               const inner = (
                 <>
                   <m.icon className="h-3.5 w-3.5 flex-shrink-0 opacity-80" aria-hidden />
-                  <span className="truncate [&_b]:font-semibold [&_b]:text-white">{m.body}</span>
+                  <span className="truncate [&_b]:font-semibold [&_b]:text-[color:var(--topbar-fg)]">{m.body}</span>
                 </>
               );
               const cls = 'absolute inset-0 flex items-center justify-center gap-2 transition-[opacity,transform] duration-500 ease-out';
               const style = { opacity: active ? 1 : 0, transform: active ? 'none' : 'translateY(4px)', pointerEvents: active ? 'auto' as const : 'none' as const };
               return m.to ? (
-                <Link key={k} to={m.to} className={`${cls} hover:text-white`} style={style} aria-hidden={!active} inert={!active}>{inner}</Link>
+                <Link key={k} to={m.to} className={`${cls} topbar-link`} style={style} aria-hidden={!active} inert={!active}>{inner}</Link>
               ) : (
                 <p key={k} className={cls} style={style} aria-hidden={!active}>{inner}</p>
               );
@@ -110,12 +113,12 @@ export function Topbar() {
 
         <div className="hidden items-center justify-end gap-1 lg:flex">
           <button type="button" onClick={toggleLang}
-            className="flex h-7 items-center gap-1.5 rounded-full px-2.5 transition-colors hover:bg-white/10 hover:text-white"
+            className="topbar-btn flex h-7 items-center gap-1.5 rounded-full px-2.5"
             aria-label={de ? 'Switch to English' : 'Zu Deutsch wechseln'}>
             <Globe className="h-3.5 w-3.5" aria-hidden /> {h.switchLang}
           </button>
           <button type="button" onClick={() => setTheme(theme === 'light' ? 'noir' : 'light')}
-            className="flex h-7 items-center gap-1.5 rounded-full px-2.5 transition-colors hover:bg-white/10 hover:text-white"
+            className="topbar-btn flex h-7 items-center gap-1.5 rounded-full px-2.5"
             aria-label={de ? (theme === 'light' ? 'Zum Dark Mode wechseln' : 'Zum Light Mode wechseln') : (theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode')}>
             {theme === 'light' ? <Moon className="h-3.5 w-3.5" aria-hidden /> : <Sun className="h-3.5 w-3.5" aria-hidden />}
             {theme === 'light' ? h.themeDark : h.themeLight}

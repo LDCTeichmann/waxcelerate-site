@@ -166,9 +166,9 @@ export function CompareModal({ open, onClose, de, t }: {
       pro: '300–550 km',
     },
     {
-      label: de ? 'Wintereignung' : 'Winter use',
-      classic: de ? 'bedingt' : 'limited',
-      pro: de ? 'bis −8°C' : 'to −8°C',
+      label: de ? 'Nässe & Kälte' : 'Wet & cold',
+      classic: de ? 'geht, kürzeres Intervall' : 'works, shorter interval',
+      pro: de ? 'hält länger, bis −8°C' : 'lasts longer, to −8°C',
       proCheck: true,
     },
     {

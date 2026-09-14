@@ -815,6 +815,35 @@
   .shelf-card:hover { transform: none !important; animation: none !important; }
 }
 
+/* Wachs-Karte v5 (14.09.2026): dieselben Bausteine wie die Kaufbox der
+   Produktseite (wax.css .wxp-size / .wxp-price / .wxp-ship), hier ohne den
+   .wxp-Geltungsbereich. */
+.shelf-size {
+  border: 1px solid var(--bd2);
+  background: transparent;
+  cursor: pointer;
+  transition: border-color .2s, box-shadow .2s, background .2s;
+}
+.shelf-size:hover { border-color: var(--txf); }
+.shelf-size[aria-pressed="true"] {
+  border: 1.5px solid var(--accent);
+  background: var(--sf);
+  box-shadow: 0 1px 2px rgba(16,16,16,.04), 0 6px 16px rgba(16,16,16,.06);
+}
+.shelf-price { color: #16385F; font-variant-numeric: tabular-nums; }
+.noir .shelf-price { color: #A9C4E6; }
+.shelf-deal { color: #2E7D4F; background: rgba(46,125,79,.1); }
+.noir .shelf-deal { color: #6FC193; background: rgba(111,193,147,.12); }
+.shelf-deal-tx { color: #2E7D4F; }
+.noir .shelf-deal-tx { color: #6FC193; }
+/* Set / Ketten / Rewax mobil als Wischband; die naechste Karte lugt
+   rechts hervor, damit das Weiterwischen erkennbar ist. */
+@media (max-width: 639px) {
+  .shelf-alt { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 14px; margin-left: -20px; margin-right: -20px; padding: 2px 20px 10px; scrollbar-width: none; }
+  .shelf-alt::-webkit-scrollbar { display: none; }
+  .shelf-alt > * { flex: 0 0 80%; scroll-snap-align: start; }
+}
+
 /* Geteilte Elementuebergaenge Karte → Produktseite (Stufe 4, Politur).
    React Router 7.15 setzt bei viewTransition={true} auf <Link> ein CSS
    View-Transition um startViewTransition() an — der Browser blendet dabei
@@ -1262,6 +1291,11 @@ section[id] {
      durchscheinen wuerden). */
   --topbar-h: 32px;
   --nav-solid: #F9F9F9;
+  /* Topbar = Kontraststreifen zur Leiste darunter: hell ein dunkler, im
+     Dunkelmodus ein heller Streifen (gleiche Umkehr wie --cta-bg). */
+  --topbar-bg: #0b0b0d;
+  --topbar-fg: #FFFFFF;
+  --topbar-fg-rgb: 255, 255, 255;
 }
 @media (min-width: 1024px) { :root { --topbar-h: 36px; } }
 .noir {
@@ -1274,6 +1308,9 @@ section[id] {
   --ship-bg: rgba(111, 193, 147, 0.12);
   --ship-rgb: 111, 193, 147;
   --nav-solid: #09090B;
+  --topbar-bg: #ECECEC;
+  --topbar-fg: #111318;
+  --topbar-fg-rgb: 17, 19, 24;
 }
 
 /* ── Kopfbereich: Topbar, Pillen-Navigation, Klappen (yoeleo-Muster) ─────── */
@@ -1282,7 +1319,11 @@ section[id] {
    Hoehe nach oben (.topbar-hidden), der Abstand ist dann laengst
    weggescrollt — keine Seite muss ihren eigenen Kopfabstand kennen. */
 body:has(.wx-topbar) { padding-top: var(--topbar-h); }
-.wx-topbar { height: var(--topbar-h); }
+.wx-topbar { height: var(--topbar-h); background: var(--topbar-bg); color: rgba(var(--topbar-fg-rgb), .74); }
+.topbar-btn { transition: background-color .2s, color .2s; }
+.topbar-btn:hover, .topbar-link:hover { color: var(--topbar-fg); }
+.topbar-btn:hover { background: rgba(var(--topbar-fg-rgb), .1); }
+.topbar-btn:focus-visible { outline: 2px solid rgba(var(--topbar-fg-rgb), .6); outline-offset: 1px; }
 .wx-header.topbar-hidden { transform: translateY(calc(-1 * var(--topbar-h))); }
 
 /* Pille: Duplikat gleitet von unten in Position, der Text weicht nach oben
@@ -1326,6 +1367,11 @@ body:has(.wx-topbar) { padding-top: var(--topbar-h); }
   position: absolute; left: 50%; z-index: 10; min-width: 300px;
   transform: translateX(-50%);
   background: var(--nav-solid); border-radius: 0 0 18px 18px; padding: 8px 8px 10px;
+  /* Kontur an Seiten und unten, oben keine: die Tafel haengt nahtlos an
+     der Header-Unterlinie, die Eckboegen (.nav-drop__edge) fuehren diese
+     Linie in die Seitenraender. Traegt die Kante auch im Dunkelmodus, wo
+     Tafel und Seite fast gleich dunkel sind. */
+  border: 1px solid var(--bd); border-top: 0;
   box-shadow: 0 24px 40px -20px rgba(10,10,16,.30);
   clip-path: inset(0 -20px 100% -20px); opacity: 0; visibility: hidden;
   transition: clip-path .34s cubic-bezier(.6,0,.4,1), opacity .2s, visibility 0s linear .34s;
@@ -1334,11 +1380,13 @@ body:has(.wx-topbar) { padding-top: var(--topbar-h); }
   clip-path: inset(0 -20px -64px -20px); opacity: 1; visibility: visible;
   transition: clip-path .34s cubic-bezier(.6,0,.4,1), opacity .2s, visibility 0s;
 }
-.noir .nav-drop { box-shadow: 0 24px 40px -20px rgba(0,0,0,.7), 0 1px 0 var(--bd); }
+.noir .nav-drop { box-shadow: 0 28px 48px -18px rgba(0,0,0,.85); }
+/* -19 px statt -18: der Bogenstrich endet dann mittig auf der 1-px-Kontur. */
 .nav-drop__corner { position: absolute; top: 0; width: 18px; height: 18px; color: var(--nav-solid); }
-.nav-drop__corner svg { display: block; width: 100%; height: 100%; fill: currentColor; }
-.nav-drop__corner--l { left: -18px; }
-.nav-drop__corner--r { right: -18px; }
+.nav-drop__corner svg { display: block; width: 100%; height: 100%; fill: currentColor; overflow: visible; }
+.nav-drop__corner--l { left: -19px; }
+.nav-drop__corner--r { right: -19px; }
+.nav-drop__edge { fill: none; stroke: var(--bd); stroke-width: 1; }
 .nav-drop__list > li { opacity: 0; transform: translateY(-6px); transition: opacity .25s, transform .35s cubic-bezier(.2,.7,.2,1); }
 .nav-drop[data-open="true"] .nav-drop__list > li { opacity: 1; transform: none; }
 .nav-drop[data-open="true"] .nav-drop__list > li:nth-child(2) { transition-delay: .03s; }

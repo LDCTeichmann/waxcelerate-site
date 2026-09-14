@@ -28,6 +28,78 @@
     <priority>1.0</priority>
   </url>
   <url>
+    <loc>https://waxcelerate.de/kette-wachsen-lassen/hamburg</loc>
+    <lastmod>2026-09-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://waxcelerate.de/kette-wachsen-lassen/berlin</loc>
+    <lastmod>2026-09-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://waxcelerate.de/kette-wachsen-lassen/muenchen</loc>
+    <lastmod>2026-09-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://waxcelerate.de/kette-wachsen-lassen/koeln</loc>
+    <lastmod>2026-09-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://waxcelerate.de/kette-wachsen-lassen/frankfurt</loc>
+    <lastmod>2026-09-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://waxcelerate.de/kette-wachsen-lassen/leipzig</loc>
+    <lastmod>2026-09-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://waxcelerate.de/kette-wachsen-lassen/dresden</loc>
+    <lastmod>2026-09-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://waxcelerate.de/kette-wachsen-lassen/hannover</loc>
+    <lastmod>2026-09-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://waxcelerate.de/kette-wachsen-lassen/nuernberg</loc>
+    <lastmod>2026-09-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://waxcelerate.de/kette-wachsen-lassen/duesseldorf</loc>
+    <lastmod>2026-09-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://waxcelerate.de/kette-wachsen-lassen/freiburg</loc>
+    <lastmod>2026-09-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://waxcelerate.de/kette-wachsen-lassen/stuttgart</loc>
+    <lastmod>2026-09-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://waxcelerate.de/ketten</loc>
     <lastmod>2026-09-13</lastmod>
     <changefreq>weekly</changefreq>
@@ -113,13 +185,13 @@
   </url>
   <url>
     <loc>https://waxcelerate.de/produkt/wax-500</loc>
-    <lastmod>2026-08-04</lastmod>
+    <lastmod>2026-09-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <image:image>
       <image:loc>https://waxcelerate.de/images/products/classic/classic-4.webp</image:loc>
       <image:title>Kettenwachs 500g — Classic | Waxcelerate</image:title>
-      <image:caption>Der Einstieg — und für die meisten der einzige Block, den sie je brauchen. Sauberer Antrieb, kein Nachschmieren, kein Dreck. Ideal für Frühling bis Herbst.</image:caption>
+      <image:caption>Der Einstieg — und für die meisten der einzige Block, den sie je brauchen. Sauberer Antrieb, kein Nachschmieren, kein Dreck. Funktioniert das ganze Jahr, am besten bei trockenem Wetter.</image:caption>
     </image:image>
   </url>
   <url>
@@ -135,24 +207,24 @@
   </url>
   <url>
     <loc>https://waxcelerate.de/produkt/wax-500-mos2</loc>
-    <lastmod>2026-08-04</lastmod>
+    <lastmod>2026-09-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <image:image>
       <image:loc>https://waxcelerate.de/images/products/pro/pro-3.webp</image:loc>
       <image:title>Kettenwachs 500g — Pro | Waxcelerate</image:title>
-      <image:caption>Für Herbst, Winter und nasse Ausfahrten. MoS₂ bildet einen festeren Transferfilm — längere Intervalle, weniger Rost, flexibel bis −8 °C.</image:caption>
+      <image:caption>Für nasse und kalte Ausfahrten, das ganze Jahr. MoS₂ bildet einen festeren Transferfilm — längere Intervalle, weniger Rost, flexibel bis −8 °C.</image:caption>
     </image:image>
   </url>
   <url>
     <loc>https://waxcelerate.de/produkt/wax-300-mos2</loc>
-    <lastmod>2026-08-04</lastmod>
+    <lastmod>2026-09-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <image:image>
       <image:loc>https://waxcelerate.de/images/products/pro/pro-3.webp</image:loc>
       <image:title>Kettenwachs 300g — Pro | Waxcelerate</image:title>
-      <image:caption>Pro-Formel kompakt — für Fahrer, die zwischen Sommer und Winter die Formel wechseln, oder als Winterblock zum Mitnehmen.</image:caption>
+      <image:caption>Pro-Formel kompakt — als zweiter Block für nasse und kalte Wochen oder zum Ausprobieren.</image:caption>
     </image:image>
   </url>
   <url>

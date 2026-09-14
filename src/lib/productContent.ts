@@ -114,7 +114,7 @@ const waxFormulaProMos2 = [
   { name: 'Synthetisches Hartwachs', detail: 'Hebt den Tropfpunkt auf ~75°C. Wachs bleibt unter Betriebslast in den Gelenken — keine Migration auf Schaltwerk oder Umwerfer nach langen Sommertagen.' },
   { name: 'Amorphe Wachskomponente', detail: 'Hält die Matrix flexibel bis −8°C. Feinere Kristallstruktur haftet besser an der Kette — weniger abblätterndes Wachs, weniger Rostneigung nach Regenfahrten.' },
   { name: 'MoS₂ < 5 µm', detail: 'Molybdändisulfid-Transferfilm. Reibungskoeffizient 0,03–0,06, Schichtgitterstruktur, aktiv bis 300 MPa Kontaktdruck. Tribochemisch gebunden auf Bolzen und Hülsen — persistiert nach Abnutzung des Trägerwachses.' },
-  { name: 'Phenolisches Antioxidans', detail: 'Verhindert Oxidation von MoS₂ zu abrasivem Molybdäntrioxid. 12 Monate Lagerstabilität. Sterischer Stabilisator hält MoS₂-Partikel gleichmäßig verteilt — Charge für Charge identisch.' },
+  { name: 'Phenolisches Antioxidans', detail: 'Verhindert Oxidation von MoS₂ zu abrasivem Molybdäntrioxid, auch bei langer Lagerung. Sterischer Stabilisator hält MoS₂-Partikel gleichmäßig verteilt — Charge für Charge identisch.' },
 ];
 
 const waxTechNoteProMos2 = {
@@ -128,7 +128,7 @@ const waxCompRowsProMos2 = [
   { label: 'Wirkstoff', cols: ['MoS₂-Transferfilm', 'Wachsfilm + PTFE', 'Nassschmierung'], winCol: 0, dimCols: [2] },
   { label: 'Reibungskoeffizient', cols: ['0,03–0,06', '0,05–0,07', '0,18–0,25'], winCol: 0, dimCols: [2] },
   { label: 'Intervall trocken', cols: ['300–550 km', '250–450 km', '50–150 km'], winCol: 0, dimCols: [2] },
-  { label: 'Wintereignung', cols: ['bis −8°C ✓', 'bedingt', '—'], winCol: 0, dimCols: [2] },
+  { label: 'Nässe & Kälte', cols: ['hält länger, bis −8°C geschmeidig', 'geht, kürzeres Intervall', '—'], winCol: 0, dimCols: [2] },
   { label: 'Rostschutz', cols: ['Hydrophobe Matrix ✓', 'Standard', 'Keiner'], winCol: 0, dimCols: [2] },
   { label: 'PFAS/PTFE-frei', cols: ['✓', '—', '—'], winCol: 0, dimCols: [1, 2] },
 ];
@@ -136,10 +136,9 @@ const waxCompRowsProMos2 = [
 export const richContent: Record<string, RichContent> = {
   'wax-500': {
     stats: [
-      { value: '20–32', label: 'Tauchgänge pro Block', sub: 'pro 500g · je nach Kettengröße' },
+      { value: '20–32', label: 'Wachsgänge pro Block', sub: 'pro 500g · je nach Kettengröße' },
       { value: '2–3×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
       { value: '250–450 km', label: 'Intervall trocken', sub: 'Kein Nachölen nach jeder Fahrt.' },
-      { value: '≤ 0,07', label: 'Reibungskoeffizient', sub: 'Messbar weniger als Öl (0,18–0,25).' },
     ],
     formulaDetails: waxFormulaClassic,
     techNote: waxTechNoteClassic,
@@ -152,10 +151,9 @@ export const richContent: Record<string, RichContent> = {
 
   'wax-300': {
     stats: [
-      { value: '10–15', label: 'Tauchgänge pro Block', sub: 'pro 300g · je nach Kettengröße' },
+      { value: '10–15', label: 'Wachsgänge pro Block', sub: 'pro 300g · je nach Kettengröße' },
       { value: '2–3×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
       { value: '250–450 km', label: 'Intervall trocken', sub: 'Kein Nachölen nach jeder Fahrt.' },
-      { value: '≤ 0,07', label: 'Reibungskoeffizient', sub: 'Messbar weniger als Öl (0,18–0,25).' },
     ],
     formulaDetails: waxFormulaClassic,
     techNote: waxTechNoteClassic,
@@ -168,10 +166,9 @@ export const richContent: Record<string, RichContent> = {
 
   'wax-500-mos2': {
     stats: [
-      { value: '20–32', label: 'Tauchgänge pro Block', sub: 'pro 500g · je nach Kettengröße' },
+      { value: '20–32', label: 'Wachsgänge pro Block', sub: 'pro 500g · je nach Kettengröße' },
       { value: '2–3×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
       { value: '300–550 km', label: 'Intervall trocken', sub: 'Mit Topup bis 1.200 km.' },
-      { value: '0,03–0,06', label: 'Reibungskoeffizient', sub: 'MoS₂-Transferfilm. Öl: 0,18–0,25.' },
     ],
     formulaDetails: waxFormulaProMos2,
     techNote: waxTechNoteProMos2,
@@ -184,10 +181,9 @@ export const richContent: Record<string, RichContent> = {
 
   'wax-300-mos2': {
     stats: [
-      { value: '10–15', label: 'Tauchgänge pro Block', sub: 'pro 300g · je nach Kettengröße' },
+      { value: '10–15', label: 'Wachsgänge pro Block', sub: 'pro 300g · je nach Kettengröße' },
       { value: '2–3×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
       { value: '300–550 km', label: 'Intervall trocken', sub: 'Mit Topup bis 1.200 km.' },
-      { value: '0,03–0,06', label: 'Reibungskoeffizient', sub: 'MoS₂-Transferfilm. Öl: 0,18–0,25.' },
     ],
     formulaDetails: waxFormulaProMos2,
     techNote: waxTechNoteProMos2,
@@ -449,8 +445,8 @@ export const richContent: Record<string, RichContent> = {
 export type ChooserCell = { text: string; textEn: string; kind?: 'yes' | 'no' | 'meh' };
 export const waxChooserRows: Array<{ label: string; labelEn: string; classic: ChooserCell; pro: ChooserCell; oil: ChooserCell }> = [
   { label: 'Am besten für', labelEn: 'Best for',
-    classic: { text: 'Trocken, Frühling bis Herbst', textEn: 'Dry, spring to autumn' },
-    pro: { text: 'Ganzjahr, Regen, E-Bike', textEn: 'Year-round, rain, e-bike' },
+    classic: { text: 'Überwiegend trocken, ganzjährig', textEn: 'Mostly dry, all year' },
+    pro: { text: 'Oft nass oder kalt, E-Bike', textEn: 'Often wet or cold, e-bike' },
     oil: { text: '—', textEn: '—' } },
   { label: 'Intervall trocken', labelEn: 'Interval, dry',
     classic: { text: '250–450 km', textEn: '250–450 km' },
@@ -464,9 +460,9 @@ export const waxChooserRows: Array<{ label: string; labelEn: string; classic: Ch
     classic: { text: 'trocken', textEn: 'dry', kind: 'yes' },
     pro: { text: 'trocken', textEn: 'dry', kind: 'yes' },
     oil: { text: 'Ölfilm, bindet Dreck', textEn: 'oil film, binds dirt', kind: 'no' } },
-  { label: 'Winter & Nässe', labelEn: 'Winter & wet',
-    classic: { text: 'bedingt', textEn: 'limited', kind: 'meh' },
-    pro: { text: 'bis −8 °C', textEn: 'down to −8 °C', kind: 'yes' },
+  { label: 'Nässe & Kälte', labelEn: 'Wet & cold',
+    classic: { text: 'geht, kürzeres Intervall', textEn: 'works, shorter interval', kind: 'meh' },
+    pro: { text: 'hält länger, bis −8 °C', textEn: 'lasts longer, to −8 °C', kind: 'yes' },
     oil: { text: 'muss oft nach', textEn: 'needs frequent top-ups', kind: 'meh' } },
   { label: 'PFAS-/PTFE-frei', labelEn: 'PFAS/PTFE-free',
     classic: { text: 'enthält PTFE', textEn: 'contains PTFE', kind: 'no' },

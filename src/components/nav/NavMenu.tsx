@@ -113,11 +113,13 @@ export function NavItem({ id, label, href, active, onNavigate, entries }: {
       {hasMenu && (
         <div id={menuId} className="nav-drop" data-open={open} inert={!open}
           style={{ top: `calc(100% + ${offset - 1}px)` }}>
+          {/* Fuellung + Bogenstrich: der Strich setzt die Header-Unterlinie
+              in einer Kurve fort und geht in den Seitenrand der Tafel ueber. */}
           <span className="nav-drop__corner nav-drop__corner--l" aria-hidden>
-            <svg viewBox="0 0 18 18"><path d="M0 0H18V18A18 18 0 0 0 0 0Z" /></svg>
+            <svg viewBox="0 0 18 18"><path d="M0 0H18V18A18 18 0 0 0 0 0Z" /><path className="nav-drop__edge" d="M18 18A18 18 0 0 0 0 0" /></svg>
           </span>
           <span className="nav-drop__corner nav-drop__corner--r" aria-hidden>
-            <svg viewBox="0 0 18 18"><path d="M18 0H0V18A18 18 0 0 1 18 0Z" /></svg>
+            <svg viewBox="0 0 18 18"><path d="M18 0H0V18A18 18 0 0 1 18 0Z" /><path className="nav-drop__edge" d="M0 18A18 18 0 0 1 18 0" /></svg>
           </span>
           <ul className="nav-drop__list">
             {entries!.map(entry => (

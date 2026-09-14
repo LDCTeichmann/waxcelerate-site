@@ -478,8 +478,8 @@ function TempWindow({ de }: { de: boolean }) {
 
       <p className="text-[12px] leading-relaxed mt-3" style={{ color: 'var(--txm)' }}>
         {de
-          ? 'Pro deckt den gesamten Fahrradbereich ab — von Winterfahrten bei −8 °C bis Sommerhitze über 40 °C. Classic funktioniert zuverlässig von Frühling bis Herbst, stößt aber bei Frost und extremer Hitze an Grenzen.'
-          : 'Pro covers the full cycling range — from winter rides at −8 °C to summer heat above 40 °C. Classic works reliably from spring to autumn but hits limits in frost and extreme heat.'}
+          ? 'Beide Wachse funktionieren das ganze Jahr. Pro bleibt bis −8 °C geschmeidig und hält bei Nässe und Kälte länger als Classic. Classic ist bei trockenem Wetter am stärksten und braucht bei Frost und Nässe öfter einen neuen Wachsgang. Dauerregen verkürzt das Intervall bei jedem Kettenwachs.'
+          : 'Both waxes work all year. Pro stays supple down to −8 °C and lasts longer than Classic in wet and cold. Classic is strongest in dry weather and needs rewaxing more often in frost and wet. Constant rain shortens the interval of any chain wax.'}
       </p>
       {de && (
         <ReadMoreLink to="/blog/kettenwachs-winter">

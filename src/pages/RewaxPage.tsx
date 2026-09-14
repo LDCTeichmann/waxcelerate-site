@@ -19,18 +19,17 @@
 // Formular ist der primäre Bestellweg (POST /api/rewax-request, E-Mail an Luca,
 // keine Zahlung). WhatsApp bleibt leiser Zweitlink.
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useLocation } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Gift, User, ChevronDown, CheckCircle2, Sparkles, Droplet } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ChevronDown, CheckCircle2, Sparkles, Droplet, Check, Minus, Plus } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
-import { prefersReducedMotion } from '@/hooks/useAnimation';
 import { trustStats } from '@/lib/data';
 import { trackRewaxInterest } from '@/lib/analytics';
 import { REVIEWS } from '@/sections/reviews';
 import {
-  PRICE, FIVE_CARD, TEN_CARD, eur, UMSTIEG_LIVE, TURNAROUND, CITIES,
+  PRICE, TEN_CARD, eur, UMSTIEG_LIVE, TURNAROUND,
   COMPETITOR_FULL_SERVICE, rewaxMeta, rewaxFaqItems, rewaxServiceSchema, rewaxFaqSchema,
   type ServiceId,
 } from '@/pages/rewax/content';
@@ -38,8 +37,9 @@ import {
 import { Navigation } from '@/sections/navigation';
 import { Footer } from '@/sections/footer';
 import { BackLink } from '@/components/BackLink';
-import { WaxcelerateMark } from '@/components/WaxcelerateMark';
-import { GiftPreviewModal } from '@/components/GiftPreviewModal';
+import { GiftSection } from '@/pages/rewax/GiftSection';
+import { REWAX_CITIES } from '@/pages/rewax/cities';
+import { WaxWeatherPicker } from '@/pages/rewax/WaxWeek';
 
 const WA_NUMBER = '4915751957470';
 const waLink = (de: boolean, waxedLabel?: string | null) =>
@@ -59,8 +59,8 @@ const STEPS = [
   {
     n: 1,
     de: 'Einschicken', en: 'Send it in',
-    bodyDe: 'Kette am Quick-Link öffnen, in einen gepolsterten Umschlag, als Großbrief (1,80 €) an unsere Adresse in Stuttgart. Vorher reinigen musst du nichts — den Quick-Link einfach mit dazulegen. Aus ganz Deutschland, meist 1 bis 2 Werktage zu uns.',
-    bodyEn: 'Open the chain at the quick link, into a padded envelope, as a letter (1.80 €) to our address in Stuttgart. No cleaning needed beforehand — just drop the quick link in with it. From anywhere in Germany, usually 1 to 2 working days to us.',
+    bodyDe: 'Quick-Link öffnen, Kette als Großbrief an uns. Vorreinigen musst du nichts.',
+    bodyEn: 'Open the quick link, send the chain as a letter. No pre-cleaning needed.',
     img: '/images/rewax/step-1',
     altDe: 'Fahrradkette und Quick-Link neben einem Waxcelerate-Versandumschlag',
     altEn: 'Bike chain and quick link next to a Waxcelerate mailing envelope',
@@ -68,8 +68,8 @@ const STEPS = [
   {
     n: 2,
     de: 'Reinigen & Wachsen', en: 'Clean & wax',
-    bodyDe: 'Eine bereits gewachste Kette lösen wir mit kochendem Wasser vom alten Wachs, ganz ohne Lösemittel. Eine geölte oder fabrikneue Kette kommt zuerst in ein separates Ultraschallbad und wird gründlich entfettet und getrocknet. Dann geht sie ins frische Wachsbad, härtet aus, und wir brechen die Glieder frei.',
-    bodyEn: "An already-waxed chain we release from the old wax with boiling water, no solvents at all. An oiled or factory-new chain first goes into a separate ultrasonic bath and is thoroughly degreased and dried. Then into a fresh wax bath, it cures, and we break the links free.",
+    bodyDe: 'Altwachs löst kochendes Wasser, geölte Ketten gehen erst ins separate Ultraschallbad. Dann frisches Wachs.',
+    bodyEn: 'Boiling water lifts old wax, oiled chains go through a separate ultrasonic bath first. Then fresh wax.',
     img: '/images/rewax/step-2',
     altDe: 'Kette hängt an einem Draht über einem Edelstahl-Wachsbad',
     altEn: 'Chain hanging on a wire above a stainless-steel wax bath',
@@ -77,8 +77,8 @@ const STEPS = [
   {
     n: 3,
     de: 'Zurück & anbauen', en: 'Back & refit',
-    bodyDe: 'Trocken verpackt zurück im Maxibrief, in der Regel 3 bis 5 Werktage ab Ankunft bei uns. Quick-Link schließen, kurz einkurbeln, fertig — der Antrieb läuft leiser und bleibt sauber.',
-    bodyEn: 'Packed dry and sent back as a large letter, usually 3 to 5 working days after it reaches us. Close the quick link, turn the cranks a few times, done — the drivetrain runs quieter and stays clean.',
+    bodyDe: 'Trocken verpackt zurück. Quick-Link zu, kurz kurbeln, der Antrieb läuft leise.',
+    bodyEn: 'Back, packed dry. Close the quick link, turn the cranks, the drivetrain runs quiet.',
     img: '/images/rewax/step-3',
     altDe: 'Frisch gewachste Kette und versiegelte Verpackung auf Schiefer',
     altEn: 'Freshly waxed chain and sealed packaging on slate',
@@ -122,48 +122,47 @@ const W = 'mx-auto w-full max-w-5xl px-6 sm:px-10 lg:px-14';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_RE = /^[+\d][\d\s()/-]{5,}$/;
 
-type TierId = 'single' | 'bundle3' | 'five' | 'ten';
-
 // ─── Leistungswahl ──────────────────────────────────────────────────────────
 // Die Frage, die der Besucher schon im Kopf hat: ist deine Kette schon
-// gewachst, oder geölt/neu? Eigene Auswahl, nicht in die Tarif-Kacheln des
-// Formulars gemischt (Tarif = Menge, orthogonal). Nur sichtbar wenn der
-// Umstieg-Service live ist.
+// gewachst, oder geölt/neu? Erster Schritt des Stufenformulars. Nur sichtbar
+// wenn der Umstieg-Service live ist.
 function ServiceChooser({ service, onChange, de }: {
-  service: ServiceId; onChange: (s: ServiceId) => void; de: boolean;
+  service: ServiceId | null; onChange: (s: ServiceId) => void; de: boolean;
 }) {
   const options = [
     {
       id: 'rewax' as const, Icon: Sparkles,
       titleDe: 'Schon gewachst', titleEn: 'Already waxed',
-      bodyDe: 'Auffrischen, sie klingt trocken', bodyEn: 'Refresh, it sounds dry',
+      bodyDe: 'Auffrischen', bodyEn: 'Refresh',
       price: `${de ? 'ab' : 'from'} ${eur(PRICE.rewax.single, de)}`,
     },
     {
       id: 'umstieg' as const, Icon: Droplet,
       titleDe: 'Geölt oder neu', titleEn: 'Oiled or new',
-      bodyDe: 'Entfetten und erstmals wachsen', bodyEn: 'Degrease and first wax',
+      bodyDe: 'Entfetten + erstmals wachsen', bodyEn: 'Degrease + first wax',
       price: `${de ? 'ab' : 'from'} ${eur(PRICE.umstieg.single, de)}`,
     },
   ];
   return (
     <div role="radiogroup" aria-label={de ? 'Zustand deiner Kette' : 'State of your chain'}
-      className="grid grid-cols-2 gap-2.5 sm:gap-3 max-w-md">
+      className="grid grid-cols-2 gap-2">
       {options.map(({ id, Icon, titleDe, titleEn, bodyDe, bodyEn, price }) => {
         const active = service === id;
         return (
           <button key={id} type="button" role="radio" aria-checked={active}
             onClick={() => onChange(id)}
-            className="rounded-2xl p-3.5 text-left transition-colors"
+            className="rounded-xl p-3 text-left transition-colors"
             style={{
-              background: active ? 'var(--accent)' : 'var(--sf)',
+              background: active ? 'var(--accent)' : 'var(--sf2)',
               color: active ? '#fff' : 'var(--tx1)',
-              border: `1px solid ${active ? 'var(--accent)' : 'var(--bd)'}`,
+              border: `1px solid ${active ? 'var(--accent)' : 'var(--bd2)'}`,
             }}>
-            <Icon className="h-4 w-4 mb-1.5" style={{ color: active ? '#fff' : 'var(--accent)' }} aria-hidden />
-            <span className="block text-[13.5px] font-semibold leading-tight">{de ? titleDe : titleEn}</span>
-            <span className="block text-[11.5px] leading-snug mt-0.5" style={{ opacity: 0.85 }}>{de ? bodyDe : bodyEn}</span>
-            <span className="block text-[12px] font-semibold mt-1.5" style={{ opacity: active ? 1 : 0.9, color: active ? '#fff' : 'var(--accent)' }}>{price}</span>
+            <span className="flex items-center gap-1.5">
+              <Icon className="h-3.5 w-3.5 flex-shrink-0" style={{ color: active ? '#fff' : 'var(--accent)' }} aria-hidden />
+              <span className="text-[13.5px] font-semibold leading-tight">{de ? titleDe : titleEn}</span>
+            </span>
+            <span className="block text-[11.5px] leading-snug mt-1" style={{ opacity: 0.8 }}>{de ? bodyDe : bodyEn}</span>
+            <span className="block text-[12px] font-semibold mt-1" style={{ color: active ? '#fff' : 'var(--accent)' }}>{price}</span>
           </button>
         );
       })}
@@ -171,23 +170,29 @@ function ServiceChooser({ service, onChange, de }: {
   );
 }
 
-// ─── Bestellformular ────────────────────────────────────────────────────────
-function RewaxRequestForm({ de, service }: { de: boolean; service: ServiceId }) {
-  const p = PRICE[service];
-  // Tarife hängen an der Leistung: die Prepaid-Karten gibt es nur für die
-  // Auffrischung (der Umstieg ist ein Einmalvorgang pro Kette).
-  const tiers: { id: TierId; labelDe: string; labelEn: string; price: string; hasQuantity: boolean; quantityMin: number }[] = [
-    { id: 'single', labelDe: 'Einzelne Kette', labelEn: 'Single chain', price: eur(p.single, de), hasQuantity: true, quantityMin: 1 },
-    { id: 'bundle3', labelDe: 'Drei Ketten', labelEn: 'Three chains', price: `${eur(p.bundle, de)}/${de ? 'Kette' : 'chain'}`, hasQuantity: true, quantityMin: 3 },
-    ...(service === 'rewax' ? [
-      { id: 'five' as TierId, labelDe: '5er-Karte', labelEn: '5-visit card', price: `${eur(FIVE_CARD.price / FIVE_CARD.count, de)}/${de ? 'Kette' : 'chain'}`, hasQuantity: false, quantityMin: 1 },
-      { id: 'ten' as TierId, labelDe: '10er-Karte', labelEn: '10-visit card', price: `${eur(TEN_CARD.price / TEN_CARD.count, de)}/${de ? 'Kette' : 'chain'}`, hasQuantity: false, quantityMin: 1 },
-    ] : []),
-  ];
+// Weich aufklappender Bereich: grid-template-rows 0fr → 1fr animiert die echte
+// Inhaltshöhe ohne Messen. Zu = inert, damit Tab nicht in versteckte Felder läuft.
+function Reveal({ open, children }: { open: boolean; children: React.ReactNode }) {
+  return (
+    <div className="grid transition-[grid-template-rows,opacity] duration-300 ease-out motion-reduce:transition-none"
+      style={{ gridTemplateRows: open ? '1fr' : '0fr', opacity: open ? 1 : 0 }}
+      aria-hidden={!open} inert={!open}>
+      <div className="min-h-0 overflow-hidden">{children}</div>
+    </div>
+  );
+}
 
-  const [tierId, setTierId] = useState<TierId>('single');
+// ─── Bestellformular (Stufen) ───────────────────────────────────────────────
+// Statt alles auf einmal: 1) Zustand der Kette, 2) wie viele (Stepper, der
+// Mengenpreis ab drei Ketten greift von selbst), 3) Kontakt. Jede Stufe klappt
+// erst auf, wenn die vorige beantwortet ist. Die Prepaid-Karten stehen nicht
+// mehr hier, sondern in der Geschenk-Sektion; das Formular kennt nur noch
+// `single`/`bundle3` — die API-Payload ist dieselbe wie vorher.
+export function RewaxRequestForm({ de, preselect }: { de: boolean; preselect: ServiceId | null }) {
+  const [service, setService] = useState<ServiceId | null>(UMSTIEG_LIVE ? preselect : 'rewax');
   const [quantity, setQuantity] = useState(1);
-  const [isGift, setIsGift] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
+  const [messageOpen, setMessageOpen] = useState(false);
   const [name, setName] = useState('');
   const [contact, setContact] = useState('');
   const [message, setMessage] = useState('');
@@ -195,24 +200,17 @@ function RewaxRequestForm({ de, service }: { de: boolean; service: ServiceId }) 
   const [status, setStatus] = useState<'idle' | 'sending' | 'done' | 'error'>('idle');
   const [error, setError] = useState('');
 
-  // Beim Wechsel auf den Umstieg ist eine evtl. gewählte Karte weg.
-  useEffect(() => {
-    if (service === 'umstieg' && (tierId === 'five' || tierId === 'ten')) {
-      setTierId('single');
-      setQuantity(1);
-    }
-  }, [service, tierId]);
+  const p = PRICE[service ?? 'rewax'];
+  const isBundle = quantity >= PRICE.bundleCount;
+  const perChain = isBundle ? p.bundle : p.single;
+  // Eine Kette passt in den Großbrief (1,80 €), ab zwei Ketten geht es im
+  // Maxibrief (2,90 €) zurück — von Luca bestätigt 2026-09-14.
+  const shipping = quantity === 1 ? PRICE.shippingSingle : PRICE.shippingBundle;
+  const total = perChain * quantity + shipping;
 
-  const activeTier = tiers.find(t => t.id === tierId) ?? tiers[0];
   const inputClass = 'w-full px-4 py-2.5 rounded-xl text-sm outline-none';
   const inputStyle = { background: 'var(--sf2)', border: '1px solid var(--bd2)', color: 'var(--tx1)' };
-
   const contactLooksValid = EMAIL_RE.test(contact) || PHONE_RE.test(contact);
-
-  const total = activeTier.id === 'single' ? p.single * quantity
-    : activeTier.id === 'bundle3' ? p.bundle * quantity
-    : activeTier.id === 'five' ? FIVE_CARD.price
-    : TEN_CARD.price;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -228,7 +226,8 @@ function RewaxRequestForm({ de, service }: { de: boolean; service: ServiceId }) 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          service, tierId, quantity: activeTier.hasQuantity ? quantity : undefined, isGift, name, contact, message, honeypot,
+          service: service ?? 'rewax', tierId: isBundle ? 'bundle3' : 'single', quantity,
+          isGift: false, name, contact, message, honeypot,
         }),
       });
       if (!res.ok) {
@@ -245,7 +244,7 @@ function RewaxRequestForm({ de, service }: { de: boolean; service: ServiceId }) 
 
   if (status === 'done') {
     return (
-      <div className="flex items-start gap-3 rounded-xl p-5 mt-4 max-w-md"
+      <div className="flex items-start gap-3 rounded-2xl p-5"
         style={{ background: 'var(--accent-wash)', border: '1px solid rgba(var(--accent-rgb),0.25)' }}>
         <CheckCircle2 className="h-5 w-5 flex-shrink-0 mt-0.5" style={{ color: 'var(--accent)' }} />
         <p className="text-sm leading-relaxed" style={{ color: 'var(--tx1)' }}>
@@ -257,384 +256,319 @@ function RewaxRequestForm({ de, service }: { de: boolean; service: ServiceId }) 
     );
   }
 
+  const stepLabel = (n: number, de_: string, en: string) => (
+    <p className="flex items-center gap-2 text-[12.5px] font-semibold mb-2" style={{ color: 'var(--txm)' }}>
+      <span className="num inline-grid place-items-center w-5 h-5 rounded-full text-[11px]"
+        style={{ background: 'var(--accent-wash)', color: 'var(--accent)' }}>{n}</span>
+      {de ? de_ : en}
+    </p>
+  );
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-3 mt-4 max-w-md rounded-2xl p-5 sm:p-6"
-      style={{ background: 'var(--sf)', border: '1px solid var(--bd)' }}>
+    <form onSubmit={handleSubmit} className="rounded-2xl p-4 sm:p-5"
+      style={{ background: 'var(--sf)', border: '1px solid var(--bd)', boxShadow: 'var(--card-shad)' }}>
       <input type="text" name="website" value={honeypot} onChange={(e) => setHoneypot(e.target.value)}
         tabIndex={-1} autoComplete="off" aria-hidden="true"
         style={{ position: 'absolute', left: -9999, width: 1, height: 1, opacity: 0 }} />
 
-      <div>
-        <p className="block text-sm font-medium mb-1.5" style={{ color: 'var(--txm)' }}>
-          {de ? 'Menge wählen' : 'Choose amount'}
-        </p>
-        <div className="grid grid-cols-2 gap-2">
-          {tiers.map((t) => (
-            <button key={t.id} type="button"
-              onClick={() => { setTierId(t.id); setQuantity(t.quantityMin); }}
-              className="rounded-xl px-3 py-2.5 text-left text-[13px] font-semibold transition-colors"
-              style={{
-                background: tierId === t.id ? 'var(--accent)' : 'var(--sf2)',
-                color: tierId === t.id ? '#fff' : 'var(--tx1)',
-                border: `1px solid ${tierId === t.id ? 'var(--accent)' : 'var(--bd2)'}`,
-              }}>
-              {de ? t.labelDe : t.labelEn}
-              <span className="block text-[11px] font-normal mt-0.5" style={{ opacity: 0.85 }}>{t.price}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {activeTier.hasQuantity && (
+      {UMSTIEG_LIVE && (
         <div>
-          <label htmlFor="rewax-quantity" className="block text-sm font-medium mb-1.5" style={{ color: 'var(--txm)' }}>
-            {de ? 'Anzahl Ketten' : 'Number of chains'}
-          </label>
-          <input id="rewax-quantity" type="number" min={activeTier.quantityMin} max={20} value={quantity}
-            onChange={(e) => setQuantity(Math.max(activeTier.quantityMin, parseInt(e.target.value, 10) || activeTier.quantityMin))}
-            className={inputClass} style={inputStyle} />
+          {stepLabel(1, 'Wie ist deine Kette jetzt?', 'What state is your chain in?')}
+          <ServiceChooser service={service} onChange={setService} de={de} />
         </div>
       )}
 
-      <div className="rounded-xl px-4 py-3 flex items-center justify-between"
-        style={{ background: 'var(--accent-wash-sm)', border: '1px solid rgba(var(--accent-rgb),0.18)' }}>
-        <span className="text-[12.5px]" style={{ color: 'var(--txm)' }}>
-          {de ? 'Gesamt' : 'Total'}
-          {!activeTier.hasQuantity && (
-            <span style={{ color: 'var(--txf)' }}>
-              {' · '}{activeTier.id === 'five' ? FIVE_CARD.count : TEN_CARD.count} {de ? 'Vorgänge' : 'treatments'}
-            </span>
+      <Reveal open={service !== null}>
+        <div className={UMSTIEG_LIVE ? 'pt-4' : ''}>
+          {stepLabel(UMSTIEG_LIVE ? 2 : 1, 'Wie viele Ketten?', 'How many chains?')}
+          <div className="flex items-center gap-3">
+            <div className="inline-flex items-center rounded-full" style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)' }}>
+              <button type="button" onClick={() => setQuantity(q => Math.max(1, q - 1))} disabled={quantity <= 1}
+                aria-label={de ? 'Eine Kette weniger' : 'One chain fewer'}
+                className="w-10 h-10 grid place-items-center rounded-full disabled:opacity-30" style={{ color: 'var(--tx1)' }}>
+                <Minus className="h-4 w-4" />
+              </button>
+              <span className="num w-6 text-center text-[15px] font-semibold" style={{ color: 'var(--tx1)' }} aria-live="polite">{quantity}</span>
+              <button type="button" onClick={() => setQuantity(q => Math.min(20, q + 1))}
+                aria-label={de ? 'Eine Kette mehr' : 'One chain more'}
+                className="w-10 h-10 grid place-items-center rounded-full" style={{ color: 'var(--tx1)' }}>
+                <Plus className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="min-w-0 flex-1 text-right">
+              <p className="font-display font-bold leading-none" style={{ fontSize: '1.3rem', color: 'var(--tx1)' }}>{eur(total, de)}</p>
+              <p className="num text-[11.5px] mt-1" style={{ color: 'var(--txm)' }}>
+                {quantity > 1 && <>{quantity} × {eur(perChain, de)} + </>}
+                {eur(shipping, de)} {de ? 'Rückversand' : 'return'}
+              </p>
+            </div>
+          </div>
+          <p className="text-[12px] mt-2" style={{ color: isBundle ? 'var(--accent)' : 'var(--txf)' }}>
+            {isBundle
+              ? (de ? `Mengenpreis aktiv: ${eur(p.bundle, de)} statt ${eur(p.single, de)} je Kette` : `Volume price on: ${eur(p.bundle, de)} instead of ${eur(p.single, de)} per chain`)
+              : (de ? `Ab ${PRICE.bundleCount} Ketten nur ${eur(p.bundle, de)} je Kette` : `From ${PRICE.bundleCount} chains only ${eur(p.bundle, de)} per chain`)}
+            {service === 'rewax' && (
+              <>
+                {' · '}
+                <a href="#geschenk" className="underline underline-offset-2" style={{ color: 'var(--txm)' }}>
+                  {de ? `10er-Karte ${eur(TEN_CARD.price / TEN_CARD.count, de)}` : `10-card ${eur(TEN_CARD.price / TEN_CARD.count, de)}`}
+                </a>
+              </>
+            )}
+          </p>
+
+          {!contactOpen && (
+            <button type="button" onClick={() => setContactOpen(true)}
+              className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-[14px] font-semibold transition-opacity hover:opacity-90"
+              style={{ background: 'var(--accent)', color: '#fff' }}>
+              {de ? 'Weiter' : 'Continue'}
+              <ArrowRight className="h-4 w-4" />
+            </button>
           )}
-        </span>
-        <span className="font-display font-bold" style={{ fontSize: '1.15rem', color: 'var(--tx1)' }}>
-          {eur(total, de)}
-        </span>
-      </div>
+        </div>
+      </Reveal>
 
-      <div className="inline-flex rounded-full p-1" style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)' }}>
-        {([
-          { key: false, labelDe: 'Für mich', labelEn: 'For me', Icon: User },
-          { key: true, labelDe: 'Als Geschenk', labelEn: 'As a gift', Icon: Gift },
-        ] as const).map(({ key, labelDe, labelEn, Icon }) => (
-          <button key={String(key)} type="button" onClick={() => setIsGift(key)}
-            className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-semibold transition-colors"
-            style={{ background: isGift === key ? 'var(--accent)' : 'transparent', color: isGift === key ? '#fff' : 'var(--txm)' }}>
-            <Icon className="h-3.5 w-3.5" aria-hidden />
-            {de ? labelDe : labelEn}
+      <Reveal open={contactOpen}>
+        <div className="pt-4 mt-4 space-y-3" style={{ borderTop: '1px solid var(--bd2)' }}>
+          {stepLabel(UMSTIEG_LIVE ? 3 : 2, 'Wohin sollen wir die Adresse schicken?', 'Where should we send the address?')}
+          <div className="grid sm:grid-cols-2 gap-2.5">
+            <div>
+              <label htmlFor="rewax-name" className="sr-only">Name</label>
+              <input id="rewax-name" type="text" required value={name} onChange={(e) => setName(e.target.value)}
+                placeholder="Name" autoComplete="name" className={inputClass} style={inputStyle} />
+            </div>
+            <div>
+              <label htmlFor="rewax-contact" className="sr-only">{de ? 'E-Mail oder Telefon' : 'Email or phone'}</label>
+              <input id="rewax-contact" type="text" required value={contact} onChange={(e) => setContact(e.target.value)}
+                placeholder={de ? 'E-Mail oder Telefon' : 'Email or phone'} autoComplete="email" className={inputClass} style={inputStyle} />
+            </div>
+          </div>
+
+          {messageOpen ? (
+            <div>
+              <label htmlFor="rewax-message" className="sr-only">{de ? 'Nachricht' : 'Message'}</label>
+              <textarea id="rewax-message" rows={2} value={message} onChange={(e) => setMessage(e.target.value)}
+                placeholder={de ? 'Nachricht, z. B. Kettenmodell' : 'Message, e.g. chain model'}
+                className={inputClass} style={inputStyle} autoFocus />
+            </div>
+          ) : (
+            <button type="button" onClick={() => setMessageOpen(true)}
+              className="inline-flex items-center gap-1 text-[12.5px] font-medium" style={{ color: 'var(--txm)' }}>
+              <Plus className="h-3.5 w-3.5" /> {de ? 'Nachricht hinzufügen' : 'Add a message'}
+            </button>
+          )}
+
+          {status === 'error' && (
+            <p className="text-sm" style={{ color: 'var(--danger)' }}>{error}</p>
+          )}
+
+          <button type="submit" disabled={status === 'sending'}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-[14px] font-semibold transition-opacity hover:opacity-90 disabled:opacity-40"
+            style={{ background: 'var(--accent)', color: '#fff' }}>
+            {status === 'sending' ? (de ? 'Wird gesendet …' : 'Sending …') : (de ? 'Kette anmelden' : 'Book my chain')}
           </button>
-        ))}
-      </div>
-
-      <div>
-        <label htmlFor="rewax-name" className="block text-sm font-medium mb-1.5" style={{ color: 'var(--txm)' }}>
-          {de ? 'Name' : 'Name'}
-        </label>
-        <input id="rewax-name" type="text" required value={name} onChange={(e) => setName(e.target.value)}
-          className={inputClass} style={inputStyle} />
-      </div>
-
-      <div>
-        <label htmlFor="rewax-contact" className="block text-sm font-medium mb-1.5" style={{ color: 'var(--txm)' }}>
-          {de ? 'E-Mail oder Telefon' : 'Email or phone'}
-        </label>
-        <input id="rewax-contact" type="text" required value={contact} onChange={(e) => setContact(e.target.value)}
-          className={inputClass} style={inputStyle} />
-      </div>
-
-      <div>
-        <label htmlFor="rewax-message" className="block text-sm font-medium mb-1.5" style={{ color: 'var(--txm)' }}>
-          {de ? 'Nachricht (optional)' : 'Message (optional)'}
-        </label>
-        <textarea id="rewax-message" rows={2} value={message} onChange={(e) => setMessage(e.target.value)}
-          className={inputClass} style={inputStyle} />
-      </div>
-
-      {status === 'error' && (
-        <p className="text-sm" style={{ color: 'var(--danger)' }}>{error}</p>
-      )}
-
-      <button type="submit" disabled={status === 'sending'}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-[14px] font-semibold transition-opacity hover:opacity-90 disabled:opacity-40"
-        style={{ background: 'var(--accent)', color: '#fff' }}>
-        {status === 'sending' ? (de ? 'Wird gesendet …' : 'Sending …') : (de ? 'Anfrage senden' : 'Send request')}
-      </button>
-      <p className="text-[11.5px] leading-relaxed" style={{ color: 'var(--txf)' }}>
-        {de
-          ? 'Keine Zahlung jetzt. Du bekommst Versandadresse und nächste Schritte per E-Mail, meist innerhalb eines Werktags.'
-          : 'No payment now. You get the shipping address and next steps by email, usually within a working day.'}
-      </p>
+          <p className="text-[11.5px] leading-relaxed text-center" style={{ color: 'var(--txf)' }}>
+            {de
+              ? 'Keine Zahlung jetzt. Versandadresse kommt per E-Mail, meist am selben Werktag.'
+              : 'No payment now. The shipping address arrives by email, usually the same working day.'}
+          </p>
+        </div>
+      </Reveal>
     </form>
   );
 }
 
-// ─── Stempelkarte ───────────────────────────────────────────────────────────
-function StampCard({ de, count, price, list, gift, recommended, onPreview }: {
-  de: boolean; count: number; price: number; list: number; gift: boolean; recommended?: boolean;
-  onPreview?: () => void;
-}) {
-  const label = de ? `${count}er-Karte` : `${count}-visit card`;
-  const savings = list - price;
+// ─── Preise: ein Block ──────────────────────────────────────────────────────
+// Vorher zwei Preisblöcke mit je zwei Kacheln plus zwei Absätze. Jetzt eine
+// Vergleichstabelle: was wir tun (Häkchen) und was es kostet, Auffrischung und
+// Umstieg nebeneinander. So sieht man den Mehraufwand des Umstiegs, statt ihn
+// in einem Absatz erklärt zu bekommen.
+export function PriceMatrix({ de }: { de: boolean }) {
+  const cols: ServiceId[] = UMSTIEG_LIVE ? ['rewax', 'umstieg'] : ['rewax'];
+  const compPrices = COMPETITOR_FULL_SERVICE.map(c => c.price);
+  const compRange = `${eur(Math.min(...compPrices), de)}–${eur(Math.max(...compPrices), de)}`;
 
-  const STAMP_STAGGER_MS = 950;
-  const STAMP_HOLD_MS = 3400;
-  const STAMP_EMPTY_PAUSE_MS = 1300;
-  const gridRef = useRef<HTMLDivElement>(null);
-  const [stampedCount, setStampedCount] = useState(0);
-  const [inView, setInView] = useState(false);
-  const [reduced] = useState(() => prefersReducedMotion());
+  const head = {
+    rewax: { t: de ? 'Auffrischung' : 'Rewax', s: de ? 'Kette ist schon gewachst' : 'Chain is already waxed', Icon: Sparkles },
+    umstieg: { t: de ? 'Umstieg' : 'Switch', s: de ? 'Kette ist geölt oder neu' : 'Chain is oiled or new', Icon: Droplet },
+  } as const;
 
-  useEffect(() => {
-    if (reduced) { setStampedCount(count); return; }
-    const el = gridRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) { setInView(true); observer.disconnect(); }
-    }, { threshold: 0.1 });
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [reduced]);
-
-  useEffect(() => {
-    if (reduced || !inView) return;
-    let cancelled = false;
-    let timer: ReturnType<typeof setTimeout>;
-    const runCycle = (i: number) => {
-      if (cancelled) return;
-      if (i <= count) {
-        setStampedCount(i);
-        timer = setTimeout(() => runCycle(i + 1), STAMP_STAGGER_MS);
-      } else {
-        timer = setTimeout(() => {
-          if (cancelled) return;
-          setStampedCount(0);
-          timer = setTimeout(() => runCycle(1), STAMP_EMPTY_PAUSE_MS);
-        }, STAMP_HOLD_MS);
-      }
-    };
-    timer = setTimeout(() => runCycle(1), STAMP_STAGGER_MS);
-    return () => { cancelled = true; clearTimeout(timer); };
-  }, [inView, reduced, count]);
-
-  const waMsg = gift
-    ? (de
-      ? `Hi Luca, ich möchte die ${label} als Geschenk bestellen. Name der beschenkten Person: `
-      : `Hi Luca, I would like to order the ${label} as a gift. Recipient's name: `)
-    : (de
-      ? `Hi Luca, ich möchte die ${label} bestellen.`
-      : `Hi Luca, I would like to order the ${label}.`);
-
-  return (
-    <div className="rounded-2xl p-4 sm:p-5 flex flex-col h-full"
-      style={{
-        background: 'var(--accent-wash-sm)',
-        border: '1px solid rgba(var(--accent-rgb),0.22)',
-        boxShadow: 'var(--card-shad)',
-      }}>
-      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 mb-3">
-        <p className="text-small uppercase tracking-[0.14em]" style={{ color: 'var(--accent)' }}>
-          {label}
-        </p>
-        {recommended && (
-          <span className="num px-1.5 py-0.5 rounded-full" style={{ fontSize: 9.5, background: 'var(--sf)', border: '1px solid rgba(var(--accent-rgb),0.20)', color: 'var(--accent)' }}>
-            {de ? 'bester Preis' : 'best price'}
-          </span>
-        )}
-      </div>
-
-      <div ref={gridRef} className="grid grid-cols-5 gap-1.5">
-        {Array.from({ length: 10 }, (_, i) => {
-          const isOn = reduced ? i < count : i < stampedCount;
-          return (
-          <div key={i} className="relative rounded-md flex items-center justify-center"
-            style={{
-              aspectRatio: '1 / 1', border: '1px dashed rgba(var(--accent-rgb),0.35)', background: 'var(--sf)',
-              visibility: i < count ? 'visible' : 'hidden',
-              ...(isOn && !reduced
-                ? { animationName: 'wx-stamp-ring', animationDuration: '1150ms', animationTimingFunction: 'ease-out', animationFillMode: 'forwards' }
-                : null),
-            }}
-            aria-hidden={i >= count}>
-            <div className="w-[62%] h-[62%]"
-              style={
-                reduced
-                  ? { filter: 'grayscale(0.35) saturate(0.6) brightness(1.05) opacity(0.9)' }
-                  : isOn
-                  ? {
-                      animationName: 'wx-stamp-pop',
-                      animationDuration: '1150ms',
-                      animationTimingFunction: 'cubic-bezier(0.34, 1.42, 0.64, 1)',
-                      animationFillMode: 'forwards',
-                    }
-                  : { filter: 'grayscale(1) opacity(0.4)' }
-              }>
-              <WaxcelerateMark className="w-full h-full" />
-            </div>
-          </div>
-          );
-        })}
-      </div>
-
-      <div className="flex items-baseline gap-2 mt-6">
-        <p className="font-display font-bold text-wx-tx1 leading-none" style={{ fontSize: '1.6rem', letterSpacing: '-0.02em' }}>
-          {eur(price, de)}
-        </p>
-        <p className="num text-[11px] line-through" style={{ color: 'var(--txff)' }}>
-          {eur(list, de)}
-        </p>
-      </div>
-      {/* Nur die Euro-Ersparnis, kein Prozentsatz — "Du sparst 30 €" ist eine
-          Tatsache, ein Prozent­satz eine Behauptung über den Normalpreis. */}
-      <p className="text-[11.5px] mt-1" style={{ color: 'var(--accent)' }}>
-        {de ? `Du sparst ${eur(savings, de)}` : `You save ${eur(savings, de)}`}
-      </p>
-      <p className="text-[11px] mt-1 mb-4" style={{ color: 'var(--txf)' }}>
-        {de
-          ? `${eur(price / count, de)} je Vorgang · Rückversand inklusive · übertragbar`
-          : `${eur(price / count, de)} per treatment · return shipping included · transferable`}
-      </p>
-
-      {gift && onPreview && (
-        <button type="button" onClick={onPreview}
-          className="inline-flex items-center gap-1.5 text-[12px] font-semibold mb-3 transition-opacity hover:opacity-70"
-          style={{ color: 'var(--accent)' }}>
-          {de ? 'Geschenk-Vorschau ansehen' : 'See gift preview'}
-          <ArrowRight className="h-3 w-3" />
-        </button>
-      )}
-
-      <div className="flex-1" />
-
-      <a href={`https://wa.me/4915751957470?text=${encodeURIComponent(waMsg)}`}
-        target="_blank" rel="noopener noreferrer"
-        onClick={() => trackRewaxInterest()}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-[13px] font-semibold transition-opacity hover:opacity-90"
-        style={{ background: 'var(--accent)', color: '#fff' }}>
-        {gift ? (de ? 'Als Geschenk anfragen' : 'Request as a gift') : (de ? 'Karte anfragen' : 'Request this card')}
-        {gift ? <Gift className="h-3.5 w-3.5" /> : <ArrowRight className="h-3.5 w-3.5" />}
-      </a>
-    </div>
-  );
-}
-
-// ─── Preise je Leistung ─────────────────────────────────────────────────────
-function ServicePricing({ de, service }: { de: boolean; service: ServiceId }) {
-  const p = PRICE[service];
-  const bundleTotal = p.bundle * PRICE.bundleCount;
-  const titleDe = service === 'rewax' ? 'Auffrischung' : 'Umstieg';
-  const subDe = service === 'rewax'
-    ? 'Eine bereits gewachste Kette neu wachsen'
-    : 'Geölte oder neue Kette entfetten und erstmals wachsen';
-  const subEn = service === 'rewax'
-    ? 'Rewax an already-waxed chain'
-    : 'Degrease an oiled or new chain and wax it for the first time';
-
-  const plans = [
-    { key: 'single', titleDe: 'Einzelne Kette', titleEn: 'Single chain', per: p.single, total: p.single, shipping: PRICE.shippingSingle, accent: false },
-    { key: 'bundle', titleDe: 'Drei Ketten', titleEn: 'Three chains', per: p.bundle, total: bundleTotal, shipping: PRICE.shippingBundle, accent: true },
+  const work: { de: string; en: string; in: Record<ServiceId, boolean> }[] = [
+    { de: 'Altwachs mit kochendem Wasser lösen', en: 'Old wax lifted with boiling water', in: { rewax: true, umstieg: false } },
+    { de: 'Separates Ultraschallbad, entfetten, trocknen', en: 'Separate ultrasonic bath, degrease, dry', in: { rewax: false, umstieg: true } },
+    { de: 'Frisches Wachsbad, aushärten', en: 'Fresh wax bath, cured', in: { rewax: true, umstieg: true } },
+    { de: 'Glieder freibrechen, trocken verpacken', en: 'Links broken free, packed dry', in: { rewax: true, umstieg: true } },
   ];
+
+  const grid = UMSTIEG_LIVE ? 'grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_minmax(0,1fr)]' : 'grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]';
+  const rowCls = `grid ${grid} items-center gap-3 px-4 sm:px-6 py-2.5`;
 
   return (
     <div>
       <h2 className="font-display font-bold text-wx-tx1 leading-tight"
-        style={{ fontSize: 'clamp(1.4rem, 2.8vw, 1.9rem)', letterSpacing: '-0.02em' }}>
-        {de ? titleDe : (service === 'rewax' ? 'Rewax' : 'Oil-to-wax switch')}
+        style={{ fontSize: 'clamp(1.7rem, 3.4vw, 2.4rem)', letterSpacing: '-0.02em' }}>
+        {de ? 'Was es kostet.' : 'What it costs.'}
       </h2>
-      <p className="text-[13px] mt-1 mb-5" style={{ color: 'var(--txm)' }}>{de ? subDe : subEn}</p>
+      <p className="text-[14px] mt-2 mb-7" style={{ color: 'var(--txm)' }}>
+        {de ? 'Zwei Leistungen, je nachdem, wie deine Kette ankommt.' : 'Two services, depending on how your chain arrives.'}
+      </p>
 
-      <div className="grid grid-cols-2 gap-3 sm:gap-4">
-        {plans.map(plan => (
-          <div key={plan.key} className="rounded-2xl p-4 sm:p-6"
-            style={{
-              background: plan.accent ? 'var(--accent-wash-sm)' : 'var(--sf)',
-              border: plan.accent ? '1px solid rgba(var(--accent-rgb),0.22)' : '1px solid var(--bd)',
-            }}>
-            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-              <p className="text-small uppercase tracking-[0.12em]"
-                style={{ color: plan.accent ? 'var(--accent)' : 'var(--txf)' }}>
-                {de ? plan.titleDe : plan.titleEn}
-              </p>
-              {plan.accent && (
-                <span className="num px-1.5 py-0.5 rounded-full" style={{ fontSize: 9.5, background: 'var(--sf)', border: '1px solid rgba(var(--accent-rgb),0.20)', color: 'var(--accent)' }}>
-                  {de ? 'empfohlen' : 'recommended'}
+      <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--sf)', border: '1px solid var(--bd)', boxShadow: 'var(--card-shad)' }}>
+        {/* Kopf */}
+        <div className={`${rowCls} py-4`} style={{ background: 'var(--sf2)', borderBottom: '1px solid var(--bd2)' }}>
+          <span />
+          {cols.map(c => {
+            const { t, s, Icon } = head[c];
+            return (
+              <div key={c}>
+                <p className="flex items-center gap-1.5 font-semibold text-[14px] sm:text-[15px]" style={{ color: 'var(--tx1)' }}>
+                  <Icon className="h-3.5 w-3.5 flex-shrink-0" style={{ color: 'var(--accent)' }} aria-hidden />{t}
+                </p>
+                <p className="text-[11.5px] leading-snug mt-0.5" style={{ color: 'var(--txm)' }}>{s}</p>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Was wir tun */}
+        <div className="py-2">
+          {work.map(w => (
+            <div key={w.de} className={rowCls}>
+              <span className="text-[12.5px] sm:text-[13px]" style={{ color: 'var(--txm)' }}>{de ? w.de : w.en}</span>
+              {cols.map(c => (
+                <span key={c}>
+                  {w.in[c]
+                    ? <Check className="h-4 w-4" style={{ color: 'var(--accent)' }} aria-label={de ? 'enthalten' : 'included'} />
+                    : <Minus className="h-4 w-4" style={{ color: 'var(--txff)' }} aria-label={de ? 'nicht nötig' : 'not needed'} />}
                 </span>
-              )}
+              ))}
             </div>
+          ))}
+        </div>
 
-            <p className="font-display font-bold text-wx-tx1 mt-3 leading-none" style={{ fontSize: '1.9rem', letterSpacing: '-0.02em' }}>
-              {eur(plan.per, de)}
-            </p>
-            <p className="text-[12px] mt-1.5" style={{ color: 'var(--txm)' }}>
-              {de ? 'pro Kette' : 'per chain'}
-            </p>
-
-            <div className="mt-4 pt-3 space-y-1.5" style={{ borderTop: '1px solid var(--bd2)' }}>
-              <p className="num text-[11.5px]" style={{ color: 'var(--txm)' }}>
-                {de ? 'Wachsen' : 'Waxing'} <span style={{ color: 'var(--tx1)' }}>{eur(plan.total, de)}</span>
-              </p>
-              <p className="num text-[11.5px]" style={{ color: 'var(--txm)' }}>
-                {de ? 'Rückversand' : 'Return shipping'} <span style={{ color: 'var(--tx1)' }}>{eur(plan.shipping, de)}</span>
-              </p>
-              <p className="num text-[13px] pt-1.5" style={{ color: 'var(--tx1)' }}>
-                {de ? 'Gesamt' : 'Total'} <span style={{ color: 'var(--accent)' }}>{eur(plan.total + plan.shipping, de)}</span>
-              </p>
-            </div>
+        {/* Preise */}
+        <div className="py-2" style={{ borderTop: '1px solid var(--bd2)' }}>
+          <div className={rowCls}>
+            <span className="text-[12.5px] sm:text-[13px]" style={{ color: 'var(--txm)' }}>{de ? 'Eine Kette' : 'One chain'}</span>
+            {cols.map(c => (
+              <span key={c} className="font-display font-bold leading-none" style={{ fontSize: '1.45rem', letterSpacing: '-0.02em', color: 'var(--tx1)' }}>
+                {eur(PRICE[c].single, de)}
+              </span>
+            ))}
           </div>
-        ))}
+          <div className={rowCls}>
+            <span className="text-[12.5px] sm:text-[13px]" style={{ color: 'var(--txm)' }}>{de ? `Ab ${PRICE.bundleCount} Ketten, je Kette` : `From ${PRICE.bundleCount} chains, each`}</span>
+            {cols.map(c => (
+              <span key={c} className="num text-[14px] font-semibold" style={{ color: 'var(--accent)' }}>{eur(PRICE[c].bundle, de)}</span>
+            ))}
+          </div>
+          <div className={rowCls}>
+            <span className="text-[12.5px] sm:text-[13px]" style={{ color: 'var(--txm)' }}>{de ? 'Rückversand' : 'Return shipping'}</span>
+            {cols.map(c => (
+              <span key={c} className="num text-[12.5px]" style={{ color: 'var(--tx2)' }}>
+                {eur(PRICE.shippingSingle, de)}<span style={{ color: 'var(--txf)' }}>*</span>
+              </span>
+            ))}
+          </div>
+          {UMSTIEG_LIVE && (
+            <div className={rowCls}>
+              <span className="text-[12.5px] sm:text-[13px]" style={{ color: 'var(--txm)' }}>{de ? 'Volles Programm anderswo' : 'Full service elsewhere'}</span>
+              <span className="text-[12px]" style={{ color: 'var(--txff)' }}>–</span>
+              <span className="num text-[12.5px] line-through" style={{ color: 'var(--txf)' }} title={COMPETITOR_FULL_SERVICE.map(c => `${c.name} ${eur(c.price, de)}`).join(', ')}>
+                {compRange}
+              </span>
+            </div>
+          )}
+        </div>
+
+        <div className="px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-3" style={{ borderTop: '1px solid var(--bd2)', background: 'var(--sf2)' }}>
+          <p className="text-[12px]" style={{ color: 'var(--txm)' }}>
+            {de ? `Öfter fällig? Mit der 10er-Karte ${eur(TEN_CARD.price / TEN_CARD.count, de)} je Auffrischung.` : `Due often? ${eur(TEN_CARD.price / TEN_CARD.count, de)} per rewax with the 10-card.`}
+          </p>
+          <a href="#rewax-form" className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-semibold"
+            style={{ background: 'var(--accent)', color: '#fff' }}>
+            {de ? 'Kette anmelden' : 'Book my chain'} <ArrowRight className="h-3.5 w-3.5" />
+          </a>
+        </div>
       </div>
 
-      {service === 'umstieg' && (
-        <p className="text-[12.5px] leading-relaxed mt-4 max-w-[64ch]" style={{ color: 'var(--txf)' }}>
-          {de
-            ? `Der Aufpreis gegenüber der Auffrischung ist der echte Mehraufwand: separates Ultraschallbad, gründlich entfetten, vollständig trocknen, dann erst ins Wachs. Zum Vergleich das volle Programm anderswo: ${COMPETITOR_FULL_SERVICE.map(c => `${c.name} ${eur(c.price, de)}`).join(', ')}.`
-            : `The premium over a rewax is real extra work: a separate ultrasonic bath, thorough degreasing, full drying, then into the wax. For comparison, the full service elsewhere: ${COMPETITOR_FULL_SERVICE.map(c => `${c.name} ${eur(c.price, de)}`).join(', ')}.`}
-        </p>
-      )}
+      <p className="text-[11.5px] leading-relaxed mt-3" style={{ color: 'var(--txff)' }}>
+        {de
+          ? `* Eine Kette im Großbrief, ab zwei Ketten im Maxibrief ${eur(PRICE.shippingBundle, de)} für alle zusammen. Hinversand trägst du. Kleinunternehmer nach § 19 UStG, daher keine Umsatzsteuer ausgewiesen.`
+          : `* One chain as a letter, two or more as a large letter for ${eur(PRICE.shippingBundle, de)} in total. You cover shipping to us. Small business under § 19 UStG, so no VAT is shown.`}
+      </p>
     </div>
   );
 }
 
 // ─── So läuft's ab ──────────────────────────────────────────────────────────
-// Echte Fotos (public/images/rewax/step-*), kleines Bild + beschreibender Text
-// daneben. Eigene Sektion, auf allen Breakpoints sichtbar — die frühere
-// text-only-Liste im Hero und der Mobile-only-Fotostreifen sind dafür raus.
-function RewaxSteps({ de }: { de: boolean }) {
+// Drei Karten nebeneinander (mobil wischbar), je ein Satz. Darunter die
+// Laufzeit als Zeitstrahl — ersetzt den früheren „Aus ganz Deutschland"-Absatz.
+export function RewaxSteps({ de }: { de: boolean }) {
+  const legs = [
+    { de: 'Post zu uns', en: 'Post to us', v: de ? '1–2 Werktage' : '1–2 days', grow: 1, strong: false },
+    { de: 'Bei uns', en: 'With us', v: de ? TURNAROUND.short : TURNAROUND.shortEn, grow: 2, strong: true },
+    { de: 'Post zu dir', en: 'Post to you', v: de ? '1–2 Werktage' : '1–2 days', grow: 1, strong: false },
+  ];
   return (
     <section id="ablauf" className="scroll-mt-24 py-14 sm:py-20" style={{ borderTop: '1px solid var(--bd2)' }}>
       <div className={W}>
         <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
           {de ? 'Ablauf' : 'How it works'}
         </p>
-        <h2 className="font-display font-bold text-wx-tx1 leading-tight mb-10"
+        <h2 className="font-display font-bold text-wx-tx1 leading-tight mb-8"
           style={{ fontSize: 'clamp(1.7rem, 3.4vw, 2.4rem)', letterSpacing: '-0.02em' }}>
           {de ? 'So läuft’s ab.' : 'How it works.'}
         </h2>
-        <div className="max-w-[760px]">
-          {STEPS.map((s, i) => (
-            <div key={s.n}
-              className="flex gap-4 sm:gap-6 py-6"
-              style={{ borderBottom: i < STEPS.length - 1 ? '1px solid var(--bd2)' : 'none' }}>
-              <div className="flex-shrink-0 w-24 sm:w-36 lg:w-44 rounded-xl overflow-hidden self-start"
-                style={{ aspectRatio: '4 / 3', background: 'var(--sf2)' }}>
+
+        <ol className="-mx-6 px-6 sm:mx-0 sm:px-0 flex sm:grid sm:grid-cols-3 gap-4 overflow-x-auto sm:overflow-visible snap-x snap-mandatory pb-2 sm:pb-0"
+          style={{ scrollbarWidth: 'none' }}>
+          {STEPS.map(s => (
+            <li key={s.n} className="snap-start flex-shrink-0 w-[78%] sm:w-auto">
+              <div className="rounded-2xl overflow-hidden" style={{ aspectRatio: '4 / 3', background: 'var(--sf2)' }}>
                 <img src={`${s.img}.webp`}
                   srcSet={`${s.img}-800.webp 800w, ${s.img}.webp 1200w`}
-                  sizes="(max-width: 640px) 96px, (max-width: 1024px) 144px, 176px"
+                  sizes="(max-width: 640px) 78vw, 30vw"
                   alt={de ? s.altDe : s.altEn}
                   loading="lazy" decoding="async"
                   className="w-full h-full object-cover" />
               </div>
-              <div className="min-w-0">
-                <div className="flex items-baseline gap-2">
-                  <span className="num font-bold" style={{ color: 'var(--accent)', fontSize: 13 }}>{s.n}</span>
-                  <h3 className="font-semibold text-[15px] sm:text-[16px]" style={{ color: 'var(--tx1)' }}>
-                    {de ? s.de : s.en}
-                  </h3>
-                </div>
-                <p className="text-[13.5px] sm:text-[14px] leading-relaxed mt-1.5" style={{ color: 'var(--txm)' }}>
-                  {de ? s.bodyDe : s.bodyEn}
-                </p>
+              <div className="flex items-baseline gap-2 mt-3">
+                <span className="num font-bold" style={{ color: 'var(--accent)', fontSize: 13 }}>{s.n}</span>
+                <h3 className="font-semibold text-[15.5px]" style={{ color: 'var(--tx1)' }}>{de ? s.de : s.en}</h3>
               </div>
-            </div>
+              <p className="text-[13.5px] leading-relaxed mt-1" style={{ color: 'var(--txm)' }}>
+                {de ? s.bodyDe : s.bodyEn}
+              </p>
+            </li>
           ))}
+        </ol>
+
+        {/* Laufzeit als Zeitstrahl */}
+        <div className="mt-10">
+          <div className="flex gap-1.5">
+            {legs.map(l => (
+              <div key={l.de} style={{ flexGrow: l.grow, flexBasis: 0 }}>
+                <div className="h-1.5 rounded-full" style={{ background: l.strong ? 'var(--accent)' : 'var(--bd)' }} />
+                <p className="text-[11.5px] mt-2" style={{ color: 'var(--txf)' }}>{de ? l.de : l.en}</p>
+                <p className="num text-[13px] font-semibold" style={{ color: l.strong ? 'var(--accent)' : 'var(--tx1)' }}>{l.v}</p>
+              </div>
+            ))}
+          </div>
+          <p className="text-[13px] leading-relaxed mt-5" style={{ color: 'var(--txm)' }}>
+            {de ? 'Reiner Postversand aus ganz Deutschland, zum Beispiel aus:' : 'Purely by mail from anywhere in Germany, for example from:'}
+          </p>
+          <ul className="flex flex-wrap gap-1.5 mt-3">
+            {REWAX_CITIES.map(c => (
+              <li key={c.slug}>
+                <Link to={`/kette-wachsen-lassen/${c.slug}`}
+                  className="inline-block rounded-full px-3 py-1.5 text-[12.5px] font-medium transition-colors hover:opacity-80"
+                  style={{ background: 'var(--sf)', border: '1px solid var(--bd2)', color: 'var(--tx2)' }}>
+                  {de ? c.name : c.nameEn}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </section>
@@ -763,9 +697,6 @@ function RewaxStickyCTA({ de }: { de: boolean }) {
 export function RewaxPage() {
   const { lang } = useLanguage();
   const de = lang === 'de';
-  const [service, setService] = useState<ServiceId>('rewax');
-  const [isGift, setIsGift] = useState(false);
-  const [giftPreview, setGiftPreview] = useState<{ count: number; price: number; list: number } | null>(null);
   const location = useLocation();
   const waxedOn = useMemo(() => waxedFromLocation(), [location.search, location.hash]);
   const waxedLabel = waxedOn
@@ -783,9 +714,13 @@ export function RewaxPage() {
   const faqItems = rewaxFaqItems(de);
   const faqSchema = JSON.stringify(rewaxFaqSchema(de));
 
+  const heroTitle = de ? 'Fahrradkette wachsen lassen.' : 'Get your chain waxed.';
   const valueProp = de
-    ? `Kette einschicken, frisch gewachst zurück. Ab ${eur(PRICE.rewax.single, de)}, handgewachst in Stuttgart, deutschlandweit per Post. Bearbeitung ${TURNAROUND.full}.`
-    : `Send in your chain, get it back freshly waxed. From ${eur(PRICE.rewax.single, de)}, hand-waxed in Stuttgart, nationwide by mail. Processing ${TURNAROUND.fullEn}.`;
+    ? 'Kette einschicken, frisch gewachst und leise zurück. Handgewachst in Stuttgart, deutschlandweit per Post.'
+    : 'Send in your chain, get it back freshly waxed and quiet. Hand-waxed in Stuttgart, nationwide by mail.';
+  const heroChips = de
+    ? ['Nichts vorreinigen', `Großbrief ${eur(PRICE.shippingSingle, de)}`, `${TURNAROUND.short} bei uns`]
+    : ['No pre-cleaning', `Letter post ${eur(PRICE.shippingSingle, de)}`, `${TURNAROUND.shortEn} with us`];
 
   return (
     <div className="min-h-screen bg-wx-bg">
@@ -812,101 +747,67 @@ export function RewaxPage() {
 
       <main id="main-content">
       {/* ── Hero ── */}
-      <section id="rewax-hero" className="relative pt-28 sm:pt-36 pb-14 sm:pb-20" style={{ background: 'var(--pg)' }}>
-        <div className={W}>
-          <BackLink de={de} className="mb-6 sm:mb-8" />
-          <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>Service</p>
-          <h1 className="font-display font-bold leading-[1.05] max-w-[16ch]"
-            style={{ color: 'var(--tx1)', fontSize: 'clamp(2.2rem, 5vw, 3.4rem)', letterSpacing: '-0.02em' }}>
-            {de ? 'Fahrradkette wachsen lassen.' : 'Get your chain rewaxed.'}
-          </h1>
-          <p className="text-[15px] leading-relaxed mt-4 max-w-[52ch]" style={{ color: 'var(--txm)' }}>
-            {valueProp}
-          </p>
-          {waxedLabel && (
-            <p className="text-[14px] font-semibold mt-4" style={{ color: 'var(--accent-soft)' }}>
-              {de
-                ? `Deine Karte: gewachst am ${waxedLabel}. Trocken klingt → jetzt einschicken.`
-                : `Your card: waxed ${waxedLabel}. Sounds dry → send it in.`}
-            </p>
-          )}
+      {/* Das Foto ist die Bühne, nicht eine Kachel neben dem Formular: auf
+          Desktop füllt es die rechte Hälfte und läuft per Maske weich in den
+          Seitengrund aus, mobil steht es oben und blendet nach unten aus. */}
+      <section id="rewax-hero" className="relative overflow-hidden pt-24 sm:pt-32 pb-14 sm:pb-20" style={{ background: 'var(--pg)' }}>
+        <div aria-hidden className="absolute inset-x-0 top-0 h-[340px] sm:h-[420px] lg:inset-x-auto lg:right-0 lg:h-full lg:w-[58%]"
+          style={{
+            WebkitMaskImage: 'var(--rewax-hero-mask)',
+            maskImage: 'var(--rewax-hero-mask)',
+          }}>
+          <img src="/images/rewax/hero.webp"
+            srcSet="/images/rewax/hero-800.webp 800w, /images/rewax/hero.webp 1200w"
+            sizes="(max-width: 1024px) 100vw, 58vw"
+            alt="" fetchPriority="high"
+            className="w-full h-full object-cover" style={{ objectPosition: '70% 40%' }} />
         </div>
+        <style>{`
+          #rewax-hero { --rewax-hero-mask: linear-gradient(to bottom, rgba(0,0,0,.9) 0%, rgba(0,0,0,.55) 55%, transparent 100%); }
+          @media (min-width: 1024px) {
+            #rewax-hero { --rewax-hero-mask: linear-gradient(to right, transparent 0%, rgba(0,0,0,.85) 30%, #000 60%); }
+          }
+        `}</style>
 
-        <div className={`${W} mt-8 flex flex-col lg:flex-row lg:items-start lg:gap-14`}>
-          <div id="rewax-form" className="lg:flex-1 scroll-mt-24">
-            {UMSTIEG_LIVE && (
-              <div className="mb-4">
-                <p className="block text-sm font-medium mb-2" style={{ color: 'var(--txm)' }}>
-                  {de ? 'Wie ist deine Kette jetzt?' : 'What state is your chain in?'}
-                </p>
-                <ServiceChooser service={service} onChange={setService} de={de} />
-              </div>
-            )}
-            <RewaxRequestForm de={de} service={service} />
-            <p className="text-[12px] mt-3" style={{ color: 'var(--txm)' }}>
-              {de
-                ? `★ ${trustStats.reviews} Bewertungen · 100 % positiv · Antwort meist am selben Tag`
-                : `★ ${trustStats.reviews} reviews · 100% positive · usually a same-day reply`}
+        <div className={`${W} relative`}>
+          <div className="pt-[200px] sm:pt-[260px] lg:pt-0 lg:max-w-[440px]">
+            <BackLink de={de} className="hidden lg:inline-flex mb-6" />
+            <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>{de ? 'Wachs-Service' : 'Wax service'}</p>
+            <h1 className="font-display font-bold leading-[1.02]"
+              style={{ color: 'var(--tx1)', fontSize: 'clamp(2.3rem, 5vw, 3.5rem)', letterSpacing: '-0.025em' }}>
+              {heroTitle}
+            </h1>
+            <p className="text-[15.5px] leading-relaxed mt-4" style={{ color: 'var(--txm)' }}>
+              {valueProp}
             </p>
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-4">
-              <a href={waLink(de, waxedLabel)} target="_blank" rel="noopener noreferrer"
-                onClick={() => trackRewaxInterest()}
-                className="inline-flex items-center gap-1.5 text-[13.5px] font-semibold" style={{ color: 'var(--tx1)' }}>
-                {de ? 'Lieber direkt per WhatsApp' : 'Prefer WhatsApp instead'}
-                <ArrowRight className="h-3.5 w-3.5" style={{ color: 'var(--accent)' }} />
-              </a>
-              <a href="#preise" className="text-[13.5px] font-semibold" style={{ color: 'var(--txm)' }}>
-                {de ? 'Was kostet das?' : 'What does it cost?'}
-              </a>
-            </div>
-          </div>
-
-          <div className="order-first lg:order-none mb-8 lg:mb-0 lg:mt-0 lg:flex-1">
-            <div className="rounded-2xl overflow-hidden" style={{ aspectRatio: '3 / 2', background: 'var(--hero-stage)' }}>
-              <img src="/images/rewax/hero.webp"
-                srcSet="/images/rewax/hero-800.webp 800w, /images/rewax/hero.webp 1200w"
-                sizes="(max-width: 1024px) 92vw, 48vw"
-                alt={de ? 'Frisch gewachste Ketten hängen zum Aushärten' : 'Freshly waxed chains hanging to cure'}
-                className="w-full h-full object-cover" />
-            </div>
-            <p className="num text-meta mt-3" style={{ color: 'var(--txff)' }}>
-              {de ? 'AUSGEHÄRTET, STUTTGART' : 'CURED, STUTTGART'}
-            </p>
-
-            <div className="mt-7 pt-6" style={{ borderTop: '1px solid var(--bd2)' }}>
-              <p className="text-small uppercase tracking-[0.16em] mb-3" style={{ color: 'var(--txf)' }}>
-                {de ? 'Ablauf' : 'How it works'}
-              </p>
-              <p className="text-[13px] leading-relaxed" style={{ color: 'var(--tx1)' }}>
+            {waxedLabel && (
+              <p className="text-[14px] font-semibold mt-3" style={{ color: 'var(--accent-soft)' }}>
                 {de
-                  ? '1. Einschicken → 2. Reinigen & Wachsen → 3. Zurück & anbauen.'
-                  : '1. Send it in → 2. Clean & wax → 3. Back & refit.'}
+                  ? `Deine Karte: gewachst am ${waxedLabel}. Klingt sie trocken, schick sie ein.`
+                  : `Your card: waxed ${waxedLabel}. If it sounds dry, send it in.`}
               </p>
-              {/* Einzelpreis gross, zweite Zahl als Anker darunter (Plan §3):
-                  "Ab X €" allein waere der niedrigere Anker, bricht aber beim
-                  Aufschlagen der Seite (Einzelpreis, Vorkasse-Kartenpreis) —
-                  die zweizeilige Form beantwortet beide Fragen auf einmal.
-                  Rewax hat die Stempelkarte als Anker (10er-Karte, TEN_CARD),
-                  Umstieg hat keine Karte (content.ts: "Karten gelten fuer die
-                  Auffrischung, nicht fuer den Umstieg") und behaelt deshalb
-                  den 3er-Mengenrabatt als Anker. */}
-              <p className="num font-display font-bold leading-none mt-4" style={{ fontSize: '1.5rem', color: 'var(--tx1)' }}>
-                {eur(service === 'rewax' ? PRICE.rewax.single : PRICE.umstieg.single, de)}{' '}
-                <span className="text-[13px] font-normal" style={{ color: 'var(--txm)' }}>{de ? 'je Kette' : 'per chain'}</span>
-              </p>
-              <p className="num text-[12.5px] mt-0.5" style={{ color: 'var(--txm)' }}>
-                {service === 'rewax'
-                  ? `${de ? 'mit 10er-Karte' : 'with 10-visit card'} ${eur(TEN_CARD.price / TEN_CARD.count, de)}`
-                  : `${de ? 'ab 3 Ketten' : 'from 3 chains'} ${eur(PRICE.umstieg.bundle, de)}`}
-              </p>
-              <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
-                <a href="#ablauf" className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold" style={{ color: 'var(--accent)' }}>
-                  {de ? 'Ablauf im Detail' : 'The process in detail'}
-                  <ArrowRight className="h-3 w-3" />
-                </a>
-                <a href="#preise" className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold" style={{ color: 'var(--accent)' }}>
-                  {de ? 'Alle Preise' : 'All prices'}
-                  <ArrowRight className="h-3 w-3" />
+            )}
+            <ul className="flex flex-wrap gap-1.5 mt-5">
+              {heroChips.map(c => (
+                <li key={c} className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium"
+                  style={{ background: 'color-mix(in srgb, var(--sf) 82%, transparent)', border: '1px solid var(--bd2)', color: 'var(--tx2)', backdropFilter: 'blur(6px)' }}>
+                  <Check className="h-3 w-3" style={{ color: 'var(--accent)' }} aria-hidden />
+                  {c}
+                </li>
+              ))}
+            </ul>
+
+            <div id="rewax-form" className="mt-6 scroll-mt-24">
+              <RewaxRequestForm de={de} preselect={waxedLabel ? 'rewax' : null} />
+              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 mt-3">
+                <p className="text-[12px]" style={{ color: 'var(--txm)' }}>
+                  ★ {trustStats.reviews} {de ? 'Bewertungen · 100 % positiv' : 'reviews · 100% positive'}
+                </p>
+                <a href={waLink(de, waxedLabel)} target="_blank" rel="noopener noreferrer"
+                  onClick={() => trackRewaxInterest()}
+                  className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold" style={{ color: 'var(--tx1)' }}>
+                  {de ? 'Lieber per WhatsApp' : 'Prefer WhatsApp'}
+                  <ArrowRight className="h-3.5 w-3.5" style={{ color: 'var(--accent)' }} />
                 </a>
               </div>
             </div>
@@ -916,86 +817,19 @@ export function RewaxPage() {
 
       <RewaxSteps de={de} />
 
+      <WaxWeatherPicker de={de} />
+
       {/* ── Preise ── */}
       <section id="preise" className="scroll-mt-24 py-14 sm:py-20" style={{ borderTop: '1px solid var(--bd2)' }}>
         <div className={W}>
 
-          <div className="max-w-[760px] space-y-12">
-            <ServicePricing de={de} service="rewax" />
-            {UMSTIEG_LIVE && (
-              <div className="pt-12" style={{ borderTop: '1px solid var(--bd2)' }}>
-                <ServicePricing de={de} service="umstieg" />
-              </div>
-            )}
-
-            <p className="text-[13px] leading-relaxed max-w-[62ch]" style={{ color: 'var(--txff)' }}>
-              {de
-                ? 'Hinversand trägst du. Bei Einzelbestellung ist der Rückversand oben eingerechnet, bei den Karten steckt er im Kartenpreis. Wir arbeiten als Kleinunternehmer nach § 19 UStG, es wird keine Umsatzsteuer ausgewiesen.'
-                : 'You cover the shipping to us. For single orders return shipping is included above, for the cards it is part of the card price. We operate under the German small business rule, so no VAT is shown.'}
-            </p>
-
-            {/* ── Aus ganz Deutschland ── */}
-            <div className="pt-12" style={{ borderTop: '1px solid var(--bd2)' }}>
-              <h2 className="font-display font-bold text-wx-tx1 leading-tight mb-4"
-                style={{ fontSize: 'clamp(1.4rem, 2.8vw, 1.9rem)', letterSpacing: '-0.02em' }}>
-                {de ? 'Aus ganz Deutschland einschicken.' : 'Send it from anywhere in Germany.'}
-              </h2>
-              <p className="text-[14px] leading-relaxed max-w-[62ch]" style={{ color: 'var(--txm)' }}>
-                {de
-                  ? `Der Service ist reiner Postversand. Egal ob ${CITIES.join(', ')} oder das Dorf dazwischen — die Kette geht im Großbrief (${eur(PRICE.shippingSingle, de)}) zu uns nach Stuttgart, wird handgewachst und kommt im Maxibrief zurück. Die Bearbeitung dauert in der Regel ${TURNAROUND.full}, dazu je 1 bis 2 Werktage Post hin und zurück.`
-                  : `The service is purely by mail. Whether ${CITIES.join(', ')} or the village in between — the chain travels to us in Stuttgart as a letter (${eur(PRICE.shippingSingle, de)}), gets hand-waxed and comes back as a large letter. Processing usually takes ${TURNAROUND.fullEn}, plus 1 to 2 working days of post each way.`}
-              </p>
-            </div>
-
-            {/* ── Prepaid-Karten ── */}
-            <div className="pt-12" style={{ borderTop: '1px solid var(--bd2)' }}>
-              <h2 className="font-display font-bold text-wx-tx1 leading-tight"
-                style={{ fontSize: 'clamp(1.4rem, 2.8vw, 1.9rem)', letterSpacing: '-0.02em' }}>
-                {de ? 'Prepaid-Karten für die Auffrischung.' : 'Prepaid cards for rewaxing.'}
-              </h2>
-              <p className="text-[13px] mt-1 mb-6" style={{ color: 'var(--txm)' }}>
-                {de ? 'Mehrere Vorgänge im Voraus, einmal bezahlt. Nicht für den Umstieg.' : 'Several treatments up front, paid once. Not for the oil-to-wax switch.'}
-              </p>
-
-              <div className="flex justify-center mb-6">
-                <div className="inline-flex rounded-full p-1" style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)' }}>
-                  {([
-                    { key: false, labelDe: 'Für mich', labelEn: 'For me', Icon: User },
-                    { key: true, labelDe: 'Als Geschenk', labelEn: 'As a gift', Icon: Gift },
-                  ] as const).map(({ key, labelDe, labelEn, Icon }) => (
-                    <button key={String(key)} type="button" onClick={() => setIsGift(key)}
-                      className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-semibold transition-colors"
-                      style={{
-                        background: isGift === key ? 'var(--accent)' : 'transparent',
-                        color: isGift === key ? '#fff' : 'var(--txm)',
-                      }}>
-                      <Icon className="h-3.5 w-3.5" aria-hidden />
-                      {de ? labelDe : labelEn}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                <StampCard de={de} count={FIVE_CARD.count} price={FIVE_CARD.price} list={FIVE_CARD.list} gift={isGift}
-                  onPreview={() => setGiftPreview({ count: FIVE_CARD.count, price: FIVE_CARD.price, list: FIVE_CARD.list })} />
-                <StampCard de={de} count={TEN_CARD.count} price={TEN_CARD.price} list={TEN_CARD.list} gift={isGift} recommended
-                  onPreview={() => setGiftPreview({ count: TEN_CARD.count, price: TEN_CARD.price, list: TEN_CARD.list })} />
-              </div>
-
-              <p className="text-[12px] leading-relaxed mt-4 max-w-[64ch]" style={{ color: 'var(--txf)' }}>
-                {de
-                  ? (isGift
-                    ? 'Beim Geschenk bekommst du eine gedruckte Karte mit Code zum Überreichen. Kein Ablaufdatum, übertragbar.'
-                    : 'Nach dem Kauf bekommst du einen Code für deine Karte — den schickst du bei jeder Sendung einfach mit. Kein Ablaufdatum, übertragbar.')
-                  : (isGift
-                    ? 'With a gift you get a printed card with a code to hand over. No expiry, transferable.'
-                    : 'After purchase you get a code for your card — just include it with every shipment. No expiry, transferable.')}
-              </p>
-            </div>
+          <div className="max-w-[760px]">
+            <PriceMatrix de={de} />
           </div>
         </div>
       </section>
+
+      <GiftSection de={de} />
 
       <RewaxTrust de={de} />
 
@@ -1055,7 +889,6 @@ export function RewaxPage() {
       </section>
       </main>
 
-      <GiftPreviewModal open={!!giftPreview} onClose={() => setGiftPreview(null)} de={de} data={giftPreview} />
       <RewaxStickyCTA de={de} />
 
       <footer id="rewax-footer" className={`${W} py-12 text-center`} style={{ borderTop: '1px solid var(--bd2)' }}>

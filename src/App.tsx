@@ -20,6 +20,7 @@ const ClosingCTA = lazy(() => import('@/sections/closing-cta').then(m => ({ defa
 
 const StarterSetPage = lazy(() => import('@/pages/StarterSetPage').then(m => ({ default: m.StarterSetPage })));
 const RewaxPage = lazy(() => import('@/pages/RewaxPage').then(m => ({ default: m.RewaxPage })));
+const RewaxCityPage = lazy(() => import('@/pages/RewaxCityPage').then(m => ({ default: m.RewaxCityPage })));
 const ProductDetailPage = lazy(() => import('@/pages/ProductDetailPage').then(m => ({ default: m.ProductDetailPage })));
 const ProductStagePage = lazy(() => import('@/pages/ProductStagePage').then(m => ({ default: m.ProductStagePage })));
 const AccessoryDetailPage = lazy(() => import('@/pages/AccessoryDetailPage').then(m => ({ default: m.AccessoryDetailPage })));
@@ -108,6 +109,7 @@ function AppContent() {
             "Kette wachsen lassen". Alte Adresse leitet per 301 hierher
             (vercel.json), damit geteilte Links und QR-Codes weiter greifen. */}
         <Route path="/kette-wachsen-lassen" element={<Suspense fallback={<PageLoader />}><RewaxPage /></Suspense>} />
+        <Route path="/kette-wachsen-lassen/:stadt" element={<Suspense fallback={<PageLoader />}><RewaxCityPage /></Suspense>} />
         <Route path="/wissenschaft" element={<Suspense fallback={<PageLoader />}><SciencePage /></Suspense>} />
         <Route path="/rechner" element={<Suspense fallback={<PageLoader />}><RechnerHubPage /></Suspense>} />
         <Route path="/rechner/:slug" element={<Suspense fallback={<PageLoader />}><RechnerToolPage /></Suspense>} />

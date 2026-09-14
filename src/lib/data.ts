@@ -33,14 +33,15 @@ export const trustStats = {
 } as const;
 
 /**
- * Kontaktwege fuer die Topbar. `instagram` leer lassen, bis Luca die URL
- * nennt — die Topbar zeigt das Icon erst, wenn hier etwas steht.
+ * Kontaktwege fuer die Topbar. Instagram ohne die Tracking-Parameter
+ * (stkn, utm_source=qr) des geteilten QR-Links. Leerer String blendet das
+ * Icon aus.
  */
 export const CONTACT = {
   email: 'waxcelerate@gmail.com',
   whatsapp: 'https://wa.me/4915751957470',
   ebay: 'https://www.ebay.de/usr/waxcelerate',
-  instagram: '' as string,
+  instagram: 'https://www.instagram.com/waxcelerate' as string,
 } as const;
 
 export interface Product {
@@ -133,19 +134,27 @@ const PRO_SCENES: PdpScene[] = [
  * (articles.ts, howTo von heisswachs-anleitung); der erste Schritt steht
  * nicht in der Anleitung und traegt deshalb eigenen Text. `active`: du tust
  * etwas, sonst wartest du. `firstOnly`: nur beim ersten Mal (Entfetten).
+ * `lane: 'side'`: laeuft nebenher, waehrend das Wachs schmilzt (Luca,
+ * 14.09.2026: alles, was parallel geht, parallel). `afterSide`: startet erst,
+ * wenn Schmelzen UND Nebenschritte fertig sind. Eigene Texte (textDe/textEn)
+ * gehen vor dem Anleitungstext.
  */
 export const waxProcessTimeline: Array<{
   minutes: number; active: boolean; firstOnly?: boolean; howToIndex?: number;
+  lane?: 'side'; afterSide?: boolean;
   nameDe?: string; nameEn?: string; textDe?: string; textEn?: string;
 }> = [
-  { minutes: 2, active: true, nameDe: 'Kette abnehmen und aufhängen', nameEn: 'Take the chain off and hang it',
-    textDe: 'Am Quick-Link öffnen und an Draht oder Haken hängen. Mit einer Kettenschlosszange geht das in unter einer Minute.',
-    textEn: 'Open it at the quick link and hang it on a wire or hook. With quick-link pliers it takes under a minute.' },
-  { minutes: 15, active: true, firstOnly: true, howToIndex: 0 },
   { minutes: 10, active: false, howToIndex: 1 },
-  { minutes: 12, active: false, howToIndex: 2 },
+  { minutes: 2, active: true, lane: 'side', nameDe: 'Kette abnehmen und aufhängen', nameEn: 'Take the chain off and hang it',
+    textDe: 'Während das Wachs schmilzt: am Quick-Link öffnen und auf Draht oder Haken hängen. Mit einer Kettenschlosszange geht das in unter einer Minute.',
+    textEn: 'While the wax melts: open it at the quick link and hang it on a wire or hook. With quick-link pliers it takes under a minute.' },
+  { minutes: 15, active: true, firstOnly: true, lane: 'side', howToIndex: 0 },
+  { minutes: 12, active: false, afterSide: true, howToIndex: 2 },
   { minutes: 10, active: false, howToIndex: 3 },
   { minutes: 1, active: true, howToIndex: 4 },
+  { minutes: 1, active: true, nameDe: 'Kette montieren', nameEn: 'Fit the chain',
+    textDe: 'Kette wieder auflegen und am Quick-Link schließen. Einmal kräftig ins Pedal treten, dann rastet das Schloss sicher ein.',
+    textEn: 'Put the chain back on and close the quick link. Press hard on the pedal once so the link seats securely.' },
 ];
 
 /** Feste Zahlen der Anleitungs-Karte auf der Startseite (guides.tsx), vorher
@@ -168,10 +177,10 @@ export const products: Product[] = [
     applications: '20–32',
     title: 'Kettenwachs 500g — Classic',
     titleEn: 'Chain Wax 500g — Classic',
-    description: 'Der Einstieg — und für die meisten der einzige Block, den sie je brauchen. Sauberer Antrieb, kein Nachschmieren, kein Dreck. Ideal für Frühling bis Herbst.',
-    descriptionEn: 'The starting point — and for most riders, the only block they\'ll ever need. Clean drivetrain, no re-lubing, no grime. Perfect from spring through autumn.',
-    lede: 'Die saubere Alternative zu Kettenöl, für trockenes Fahren von Frühling bis Herbst. Keine schwarzen Finger, Kette und Kassette halten 2–3× länger.',
-    ledeEn: 'The clean alternative to chain oil, for dry riding from spring to autumn. No black fingers, chain and cassette last 2–3× longer.',
+    description: 'Der Einstieg — und für die meisten der einzige Block, den sie je brauchen. Sauberer Antrieb, kein Nachschmieren, kein Dreck. Funktioniert das ganze Jahr, am besten bei trockenem Wetter.',
+    descriptionEn: 'The starting point — and for most riders, the only block they\'ll ever need. Clean drivetrain, no re-lubing, no grime. Works all year, best in dry weather.',
+    lede: 'Die saubere Alternative zu Kettenöl, das ganze Jahr, am besten bei trockenem Wetter. Keine schwarzen Finger, Kette und Kassette halten 2–3× länger.',
+    ledeEn: 'The clean alternative to chain oil, all year round, best in dry weather. No black fingers, chain and cassette last 2–3× longer.',
     pdpScenes: CLASSIC_SCENES,
     price: 29.95,
     image: '/images/products/classic/classic-4.webp',
@@ -282,10 +291,10 @@ export const products: Product[] = [
     applications: '20–32',
     title: 'Kettenwachs 500g — Pro',
     titleEn: 'Chain Wax 500g — Pro',
-    description: 'Für Herbst, Winter und nasse Ausfahrten. MoS₂ bildet einen festeren Transferfilm — längere Intervalle, weniger Rost, flexibel bis −8 °C.',
-    descriptionEn: 'For autumn, winter and wet rides. MoS₂ builds a harder transfer film — longer intervals, less rust, functional down to −8 °C.',
-    lede: 'Für das ganze Jahr, auch bei Regen und im Winter. Trockener MoS₂-Film, PFAS- und PTFE-frei, Kette und Kassette halten 2–3× länger.',
-    ledeEn: 'For the whole year, rain and winter included. A dry MoS₂ film, PFAS- and PTFE-free, chain and cassette last 2–3× longer.',
+    description: 'Für nasse und kalte Ausfahrten, das ganze Jahr. MoS₂ bildet einen festeren Transferfilm — längere Intervalle, weniger Rost, flexibel bis −8 °C.',
+    descriptionEn: 'For wet and cold rides, all year. MoS₂ builds a harder transfer film — longer intervals, less rust, functional down to −8 °C.',
+    lede: 'Für das ganze Jahr, bei Nässe und Kälte länger haltbar als Classic. Trockener MoS₂-Film, PFAS- und PTFE-frei, Kette und Kassette halten 2–3× länger.',
+    ledeEn: 'For the whole year, lasting longer than Classic in wet and cold. A dry MoS₂ film, PFAS- and PTFE-free, chain and cassette last 2–3× longer.',
     pdpScenes: PRO_SCENES,
     price: 34.95,
     image: '/images/products/pro/pro-3.webp',
@@ -317,13 +326,13 @@ export const products: Product[] = [
       'Phenolic antioxidant',
     ],
     highlights: [
-      'Besser im Herbst & Winter — längere Intervalle, deutlich weniger Rost',
+      'Stärker bei Nässe & Kälte — längere Intervalle, weniger Rost',
       'Reibungskoeffizient 0,03–0,06',
       'Reduzierte Rostneigung dank hydrophober Matrix',
       'Kaum Beeinträchtigungen bei Frost bis ca. −8°C',
     ],
     highlightsEn: [
-      'Better in autumn & winter — longer intervals, significantly less rust',
+      'Stronger in wet & cold — longer intervals, less rust',
       'Friction coefficient 0.03–0.06',
       'Reduced rust tendency via hydrophobic matrix',
       'Minimal performance impact down to approx. −8°C',
@@ -331,8 +340,8 @@ export const products: Product[] = [
     intervalDry: '300–550 km',
     intervalWet: '150–300 km',
     intervalTopup: 'bis 1.200 km',
-    bestFor: ['Ganzjahresbetrieb', '3-Ketten-Rotation', 'Herbst & Winter', 'Längere Intervalle'],
-    bestForEn: ['Year-round use', '3-chain rotation', 'Autumn & Winter', 'Longer intervals'],
+    bestFor: ['Ganzjahresbetrieb', '3-Ketten-Rotation', 'Nässe & Kälte', 'Längere Intervalle'],
+    bestForEn: ['Year-round use', '3-chain rotation', 'Wet & cold', 'Longer intervals'],
     compatibility: '9/10/11/12-fach',
     specs: {
       Gewicht: '500g',
@@ -352,8 +361,8 @@ export const products: Product[] = [
     applications: '10–15',
     title: 'Kettenwachs 300g — Pro',
     titleEn: 'Chain Wax 300g — Pro',
-    description: 'Pro-Formel kompakt — für Fahrer, die zwischen Sommer und Winter die Formel wechseln, oder als Winterblock zum Mitnehmen.',
-    descriptionEn: 'Pro formula compact — for riders who switch between summer and winter formulas, or as a portable winter block.',
+    description: 'Pro-Formel kompakt — als zweiter Block für nasse und kalte Wochen oder zum Ausprobieren.',
+    descriptionEn: 'Pro formula compact — as a second block for wet and cold weeks, or to try it out.',
     lede: 'Die Pro-Formel im kleinen Block: ganzjährig, auch bei Nässe, PFAS- und PTFE-frei. Zum Ausprobieren oder für wenige Kilometer.',
     ledeEn: 'The Pro formula in a smaller block: year-round, wet included, PFAS- and PTFE-free. For trying it out or low mileage.',
     pdpScenes: PRO_SCENES,
@@ -387,13 +396,13 @@ export const products: Product[] = [
       'Phenolic antioxidant',
     ],
     highlights: [
-      'Besser im Herbst & Winter — gleiche Pro-Formel wie 500g',
+      'Stärker bei Nässe & Kälte — gleiche Pro-Formel wie 500g',
       '10–15 Anwendungen pro Block',
       'Ganzjährig einsetzbar — etwas robuster als Classic',
       'Reduzierte Rostneigung & Oxidationsschutz',
     ],
     highlightsEn: [
-      'Better in autumn & winter — same Pro formula as 500g',
+      'Stronger in wet & cold — same Pro formula as 500g',
       '10–15 applications per block',
       'Year-round use — slightly more robust than Classic',
       'Reduced rust tendency & oxidation protection',
@@ -401,8 +410,8 @@ export const products: Product[] = [
     intervalDry: '300–550 km',
     intervalWet: '150–300 km',
     intervalTopup: 'bis 1.200 km',
-    bestFor: ['Einstieg in Pro', 'Ganzjahresbetrieb', 'Herbst & Winter'],
-    bestForEn: ['Starting with Pro', 'Year-round use', 'Autumn & Winter'],
+    bestFor: ['Einstieg in Pro', 'Ganzjahresbetrieb', 'Nässe & Kälte'],
+    bestForEn: ['Starting with Pro', 'Year-round use', 'Wet & cold'],
     compatibility: '9/10/11/12-fach',
     specs: {
       Gewicht: '300g',
@@ -978,8 +987,8 @@ export const starterSetOptions: StarterSetOption[] = [
     id: 'starter-pro',
     waxId: 'wax-500-mos2',
     chainId: 'chain-m8100',
-    taglineDe: 'Ganzjahr, Winter, E-Bike · 12-fach',
-    taglineEn: 'All year, winter, e-bike · 12-speed',
+    taglineDe: 'Nässe, Kälte, E-Bike · 12-fach',
+    taglineEn: 'Wet, cold, e-bike · 12-speed',
   },
 ];
 

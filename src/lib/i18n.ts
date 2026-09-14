@@ -158,8 +158,6 @@ export const translations = {
       perApplicationPrefix: 'ca.',
       perApplicationSuffix: 'je Wachsvorgang',
       // Aufklappbarer Mengenrabatt-Chip statt einer stillen Fliesstext-Zeile.
-      quantityDiscountChip: 'Mengenrabatt',
-      quantityDiscountFrom: 'ab {qty} Blöcken günstiger',
       quantityDiscountMechanism: 'Rabatt wird bei eBay im Warenkorb abgezogen.',
       quantityDiscountUnit: '{qty} Stk.',
       quantityDiscountSavings: '{savings} sparen ({pct} %)',
@@ -199,8 +197,8 @@ export const translations = {
       decisionAid: 'Classic oder Pro?',
       compareBtn: 'Vergleich ansehen',
       compareTitle: 'Classic vs. Pro — welches passt zu dir?',
-      compareClassicLabel: 'Einsteiger & Sommer',
-      compareProLabel: 'Ganzjahr & E-Bike',
+      compareClassicLabel: 'Allround, am besten trocken',
+      compareProLabel: 'Stärker bei Nässe & Kälte',
       compareFormulaClassic: 'Classic Formel',
       compareFormulaPro: 'Pro MoS₂ Formel',
       compareComponents: 'Komponenten',
@@ -211,28 +209,29 @@ export const translations = {
         waxEyebrow: 'Kettenwachs — in Stuttgart gegossen',
         classicName: 'Classic',
         proName: 'Pro',
-        classicFor: 'Frühling bis Herbst',
-        proFor: 'Ganzjahr & E-Bike',
+        classicFor: 'überwiegend trockenes Fahren',
+        proFor: 'Nässe, Kälte & E-Bike',
         // Classic: eine Tatsache aus den eigenen Verkaufszahlen.
         // Pro: der Wirkstoff, der den Aufpreis erklaert — bewusst KEIN
         // "empfohlen"/"beste Wahl", denn zwei Produkte im selben Regal
         // koennen nicht beide die beste Wahl sein, und genau dieser
         // Widerspruch erzeugt die Entscheidungslaehmung, die hier weg soll.
         classicBadge: 'Meistgekauft',
-        proBadge: 'mit MoS₂',
+        proBadge: 'mit MoS₂ · PFAS-frei',
+        // Einsatzzeile der Regal-Karte (14.09.2026). Beide Wachse gehen das
+        // ganze Jahr; Pro haelt bei Naesse und Kaelte laenger, ist dort aber
+        // auch nicht unbegrenzt gut (Luca). Deshalb keine Jahreszeiten-
+        // Zuordnung mehr wie bei classicFor/proFor.
+        classicUse: 'Ganzjährig · am besten im Trockenen',
+        proUse: 'Ganzjährig · stärker bei Nässe & Kälte',
         classicFormula: 'Paraffin + PTFE',
         proFormula: 'Paraffin + MoS₂',
-        // Ersetzt die km-Intervall- und Formel-Chips auf der Regal-Karte
-        // (Produktkarten-Neugliederung, siehe Plan): die km-Zahl ist fuer
-        // 300g und 500g identisch und beantwortet den Groessenschalter nicht.
-        // Kompatibilitaet ist dagegen fuer beide Groessen gleich UND ein
-        // haeufiger Vorentscheidungs-Filter ("passt das ueberhaupt an meine
-        // Kette").
-        compat: 'Passt auf 9–12-fach · Shimano · SRAM · Campagnolo · KMC',
         size: 'Größe',
         per100: 'je 100 g',
         dryInterval: 'trocken',
-        uses: 'Anwendungen',
+        uses: 'Wachsgänge',
+        perWaxing: 'je Wachsgang',
+        dealPill: 'Mehr Blöcke: bis −{pct} %',
         details: 'Details',
         // Runde 2 (09/2026): zurueck zu direkten Produktnamen als Titel,
         // Lucas ausdruecklicher Wunsch nach "was Direkterem, Smartem" statt
@@ -676,7 +675,7 @@ export const translations = {
         },
         {
           q: 'Was ist der Unterschied zwischen Classic und Pro?',
-          a: 'Classic (Paraffin + PTFE + Stearin) ist die Standardformel: sauber, effizient, ideal von Frühjahr bis Herbst und bei trockenen Bedingungen. Pro enthält zusätzlich amorphes Molybdändisulfid (MoS₂) als Hochdruckadditiv — es füllt mikroskopische Oberflächenrauheiten und senkt den Reibungskoeffizient nochmals messbar. Pro ist die richtige Wahl für Ganzjahresfahrer, Winterbetrieb, E-Bikes und anspruchsvollere Antriebe. Im Zweifel: Pro ist der sicherere Griff.',
+          a: 'Classic (Paraffin + PTFE + Stearin) ist die Standardformel: sauber, effizient, das ganze Jahr einsetzbar und bei trockenen Bedingungen am stärksten. Pro enthält zusätzlich amorphes Molybdändisulfid (MoS₂) als Hochdruckadditiv — es füllt mikroskopische Oberflächenrauheiten und senkt den Reibungskoeffizient nochmals messbar. Pro ist die richtige Wahl für Ganzjahresfahrer, Winterbetrieb, E-Bikes und anspruchsvollere Antriebe. Im Zweifel: Pro ist der sicherere Griff.',
         },
         {
           q: 'Wie viele Kilometer hält eine gewachste Kette — und woran merke ich, wann ich rewaxen muss?',
@@ -942,8 +941,6 @@ export const translations = {
       multiDiscount: 'Wax tiers: 2 pcs. 5% · 3 pcs. 10% · from 4 pcs. 15%',
       perApplicationPrefix: 'approx.',
       perApplicationSuffix: 'per wax cycle',
-      quantityDiscountChip: 'Quantity discount',
-      quantityDiscountFrom: 'cheaper from {qty} blocks',
       quantityDiscountMechanism: 'Discount is deducted at eBay checkout.',
       quantityDiscountUnit: '{qty} pcs.',
       quantityDiscountSavings: 'save {savings} ({pct}%)',
@@ -957,8 +954,8 @@ export const translations = {
       decisionAid: 'Classic or Pro?',
       compareBtn: 'See comparison',
       compareTitle: 'Classic vs. Pro — which fits you?',
-      compareClassicLabel: 'Beginner & Summer',
-      compareProLabel: 'Year-round & E-Bike',
+      compareClassicLabel: 'All-round, best in the dry',
+      compareProLabel: 'Stronger in wet & cold',
       compareFormulaClassic: 'Classic Formula',
       compareFormulaPro: 'Pro MoS₂ Formula',
       compareComponents: 'components',
@@ -967,17 +964,20 @@ export const translations = {
         waxEyebrow: 'Chain wax — cast in Stuttgart',
         classicName: 'Classic',
         proName: 'Pro',
-        classicFor: 'Spring through autumn',
-        proFor: 'All year & e-bike',
+        classicFor: 'mostly dry riding',
+        proFor: 'wet, cold & e-bike',
         classicBadge: 'Most bought',
-        proBadge: 'with MoS₂',
+        proBadge: 'with MoS₂ · PFAS-free',
+        classicUse: 'All year · best in the dry',
+        proUse: 'All year · stronger in wet & cold',
         classicFormula: 'Paraffin + PTFE',
         proFormula: 'Paraffin + MoS₂',
-        compat: 'Fits 9–12-speed · Shimano · SRAM · Campagnolo · KMC',
         size: 'Size',
         per100: 'per 100 g',
         dryInterval: 'dry',
-        uses: 'applications',
+        uses: 'waxings',
+        perWaxing: 'per waxing',
+        dealPill: 'More blocks: up to −{pct} %',
         details: 'Details',
         setEyebrow: 'First time?',
         setTitle: 'Starter Set',
@@ -1373,7 +1373,7 @@ export const translations = {
         },
         {
           q: 'What is the difference between Classic and Pro?',
-          a: 'Classic (paraffin + PTFE + stearin) is the standard formula: clean, efficient, ideal from spring to autumn and in dry conditions. Pro additionally contains amorphous molybdenum disulphide (MoS₂) as a high-pressure additive — it fills microscopic surface roughness and measurably reduces friction further. Pro is the right choice for year-round riders, winter use, e-bikes, and demanding drivetrains. When in doubt: Pro is the safer pick.',
+          a: 'Classic (paraffin + PTFE + stearin) is the standard formula: clean, efficient, usable all year and strongest in dry conditions. Pro additionally contains amorphous molybdenum disulphide (MoS₂) as a high-pressure additive — it fills microscopic surface roughness and measurably reduces friction further. Pro is the right choice for year-round riders, winter use, e-bikes, and demanding drivetrains. When in doubt: Pro is the safer pick.',
         },
         {
           q: 'How many kilometres does a waxed chain last — and how do I know when to re-wax?',

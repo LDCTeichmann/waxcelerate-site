@@ -42,6 +42,10 @@ import {
   PRICE as REWAX_PRICE, eur as rewaxEur, TURNAROUND as REWAX_TURNAROUND,
   CITIES as REWAX_CITIES, UMSTIEG_LIVE as REWAX_UMSTIEG_LIVE,
 } from '../src/pages/rewax/content.ts';
+import {
+  REWAX_CITIES as CITY_PAGES, cityBySlug, cityMeta, cityLead, cityClimateSentence, cityFaqItems,
+  cityServiceSchema, cityBreadcrumbSchema, cityFaqSchema, DOOR_TO_DOOR,
+} from '../src/pages/rewax/cities.ts';
 // Die Bausteine liegen seit August 2026 in scripts/lib/prerender.mjs, weil sie
 // sich Blog-, Produkt- und Rechtstextseiten teilen. Verhalten unveraendert.
 import {
@@ -809,6 +813,27 @@ function renderKettenPage() {
 
 for (const p of STATIC_PAGES) write(p.dir, renderStatic(p));
 for (const p of NEW_STATIC_PAGES) write(p.dir, renderStatic(p));
+// Stadtseiten /kette-wachsen-lassen/:stadt — Daten und Texte aus
+// src/pages/rewax/cities.ts, dieselbe Quelle wie RewaxCityPage.tsx.
+for (const c of CITY_PAGES) {
+  const { title, description } = cityMeta(c, true);
+  write(`kette-wachsen-lassen/${c.slug}`, renderStatic({
+    dir: `kette-wachsen-lassen/${c.slug}`,
+    title, description,
+    image: '/images/rewax/hero.webp',
+    h1: `Fahrradkette wachsen lassen in ${c.name}.`,
+    lead: cityLead(c, true),
+    points: [
+      `${cityClimateSentence(c, true)} ${c.localDe}`,
+      `Tür zu Tür meist ${DOOR_TO_DOOR.de}: Post nach Stuttgart 1–2 Werktage, Bearbeitung ${REWAX_TURNAROUND.full}, Post zurück 1–2 Werktage.`,
+      `Auffrischung ${rewaxEur(REWAX_PRICE.rewax.single)}, Umstieg von Öl auf Wachs ${rewaxEur(REWAX_PRICE.umstieg.single)}, je zuzüglich ${rewaxEur(REWAX_PRICE.shippingSingle)} Rückversand — derselbe Preis wie überall in Deutschland.`,
+      `Auch per Post aus: ${c.neighbors.map((s) => cityBySlug(s).name).join(', ')}.`,
+    ],
+    extraSchema: [cityServiceSchema(c, true), cityBreadcrumbSchema(c, true), cityFaqSchema(c, true)],
+    faq: cityFaqItems(c, true),
+    calc: { href: '/kette-wachsen-lassen', label: 'Kette wachsen lassen: Ablauf, Preise, Geschenkkarte' },
+  }));
+}
 for (const p of LEGAL_PAGES) write(p.dir, renderLegal(p));
 
 write('rechner', renderToolsHub());

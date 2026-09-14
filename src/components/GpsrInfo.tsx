@@ -6,6 +6,9 @@ import { Info } from 'lucide-react';
  * this, it has to render on the page. Same block on every product/accessory
  * detail page rather than duplicated markup per page.
  */
+/** Herstellerangabe als eine Zeile, auch fuer eine Datentabelle (Wachsseite, Kapitel 07). */
+export const GPSR_MANUFACTURER = 'Luca Teichmann (Waxcelerate), Florentinerstraße 17, 70619 Stuttgart, Deutschland, waxcelerate@gmail.com';
+
 export function GpsrInfo({ de, dark = false }: { de: boolean; dark?: boolean }) {
   return (
     <div

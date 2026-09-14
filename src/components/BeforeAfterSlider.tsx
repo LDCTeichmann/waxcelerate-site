@@ -13,13 +13,22 @@ import { ChevronsLeftRight, Hand } from 'lucide-react';
 // Drag-to-reveal before/after — replaces a static side-by-side pair with an
 // interactive one. Pointer position controls a clip-path on the "before"
 // layer, so dragging left reveals more of the treated surface underneath.
-export function BeforeAfterSlider({ beforeSrc, afterSrc, beforeAlt, afterAlt, beforeLabel, afterLabel, aspect = '4/3' }: {
+export function BeforeAfterSlider({ beforeSrc, afterSrc, beforeAlt, afterAlt, beforeLabel, afterLabel, aspect = '4/3', fit = 'contain', bare = false, overlayLabels = false }: {
   beforeSrc: string; afterSrc: string; beforeAlt: string; afterAlt: string;
   beforeLabel: string; afterLabel: string;
   // Optional, defaults to the science-page ratio. why-wax.tsx passes a
   // tighter value tuned to the 01-Bildpaar, das die dort letterboxten
   // schwarzen Balken oben/unten fast auf null bringt.
   aspect?: string;
+  // Wachsseite v5 (14.09.2026): Kapitel 01 wollte keine schwarzen Balken
+  // und die Beschriftung direkt aufs Bild. Alle drei Props sind optional,
+  // Science- und Startseite behalten die bisherige Darstellung.
+  /** 'cover' fuellt die Flaeche statt zu letterboxen. */
+  fit?: 'contain' | 'cover';
+  /** Ohne den Innenabstand (mx-3 mb-3) und eigene Rundung — fuer einen Rahmen, der beides selbst traegt. */
+  bare?: boolean;
+  /** Grosse Labels in der Ueberschriftenschrift, die ausblenden, sobald ihre Seite zugeschoben ist. */
+  overlayLabels?: boolean;
 }) {
   const [pct, setPct] = useState(50);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -113,6 +122,14 @@ export function BeforeAfterSlider({ beforeSrc, afterSrc, beforeAlt, afterAlt, be
     };
   }, []);
 
+  const imgFit = fit === 'cover' ? 'object-cover' : 'object-contain';
+  // Ein Label verschwindet, wenn seine Seite zugeschoben ist: "vorher" links
+  // braucht Platz links vom Griff, "nachher" rechts davon. 15 % Rampe.
+  const clamp01 = (n: number) => Math.min(1, Math.max(0, n));
+  const beforeOpacity = clamp01((pct - 10) / 15);
+  const afterOpacity = clamp01((90 - pct) / 15);
+  const labelFade = sweeping ? 'opacity 1.8s ease-in-out' : 'opacity .15s linear';
+
   return (
     <div
       ref={containerRef}
@@ -122,7 +139,7 @@ export function BeforeAfterSlider({ beforeSrc, afterSrc, beforeAlt, afterAlt, be
       aria-valuemin={0}
       aria-valuemax={100}
       tabIndex={0}
-      className="relative select-none rounded-xl overflow-hidden mx-3 mb-3"
+      className={bare ? 'relative select-none overflow-hidden' : 'relative select-none rounded-xl overflow-hidden mx-3 mb-3'}
       style={{ aspectRatio: aspect, background: 'var(--hero-stage)', cursor: 'ew-resize', touchAction: 'none' }}
       onMouseDown={(e) => { draggingRef.current = true; markInteracted(); updateFromClientX(e.clientX); }}
       onTouchStart={(e) => { draggingRef.current = true; markInteracted(); updateFromClientX(e.touches[0].clientX); }}
@@ -133,12 +150,12 @@ export function BeforeAfterSlider({ beforeSrc, afterSrc, beforeAlt, afterAlt, be
         if (e.key === 'ArrowRight') setPct(p => Math.min(100, p + 5));
       }}
     >
-      <img src={afterSrc} alt={afterAlt} loading="lazy" className="absolute inset-0 w-full h-full object-contain pointer-events-none" draggable={false} />
+      <img src={afterSrc} alt={afterAlt} loading="lazy" className={`absolute inset-0 w-full h-full ${imgFit} pointer-events-none`} draggable={false} />
       <div
         className="absolute inset-0 overflow-hidden pointer-events-none"
         style={{ clipPath: `inset(0 ${100 - pct}% 0 0)`, transition: sweeping ? 'clip-path 1.8s ease-in-out' : 'none' }}
       >
-        <img src={beforeSrc} alt={beforeAlt} loading="lazy" className="absolute inset-0 w-full h-full object-contain" draggable={false} />
+        <img src={beforeSrc} alt={beforeAlt} loading="lazy" className={`absolute inset-0 w-full h-full ${imgFit}`} draggable={false} />
       </div>
 
       {/* Hand cursor — rides along with the handle only during the automatic
@@ -191,15 +208,30 @@ export function BeforeAfterSlider({ beforeSrc, afterSrc, beforeAlt, afterAlt, be
         </div>
       </div>
 
-      {/* Labels — fade with proximity so they don't fight the handle */}
-      <span className="absolute top-2 left-2 text-meta uppercase tracking-[0.14em] px-1.5 py-0.5 rounded"
-        style={{ color: 'rgba(255,255,255,0.75)', background: 'rgba(0,0,0,0.35)' }}>
-        {beforeLabel}
-      </span>
-      <span className="absolute top-2 right-2 text-meta uppercase tracking-[0.14em] px-1.5 py-0.5 rounded"
-        style={{ color: 'rgba(255,255,255,0.9)', background: 'rgba(0,0,0,0.35)' }}>
-        {afterLabel}
-      </span>
+      {overlayLabels ? (
+        <>
+          <span aria-hidden className="absolute top-4 left-5 font-display font-bold pointer-events-none"
+            style={{ fontSize: 'clamp(17px, 1.6vw, 21px)', color: '#fff', textShadow: '0 1px 14px rgba(0,0,0,.65), 0 1px 2px rgba(0,0,0,.5)', opacity: beforeOpacity, transition: labelFade }}>
+            {beforeLabel}
+          </span>
+          <span aria-hidden className="absolute top-4 right-5 font-display font-bold pointer-events-none"
+            style={{ fontSize: 'clamp(17px, 1.6vw, 21px)', color: '#fff', textShadow: '0 1px 14px rgba(0,0,0,.65), 0 1px 2px rgba(0,0,0,.5)', opacity: afterOpacity, transition: labelFade }}>
+            {afterLabel}
+          </span>
+        </>
+      ) : (
+        <>
+          {/* Labels — fade with proximity so they don't fight the handle */}
+          <span className="absolute top-2 left-2 text-meta uppercase tracking-[0.14em] px-1.5 py-0.5 rounded"
+            style={{ color: 'rgba(255,255,255,0.75)', background: 'rgba(0,0,0,0.35)' }}>
+            {beforeLabel}
+          </span>
+          <span className="absolute top-2 right-2 text-meta uppercase tracking-[0.14em] px-1.5 py-0.5 rounded"
+            style={{ color: 'rgba(255,255,255,0.9)', background: 'rgba(0,0,0,0.35)' }}>
+            {afterLabel}
+          </span>
+        </>
+      )}
     </div>
   );
 }

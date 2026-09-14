@@ -179,7 +179,7 @@ export function WaxHero({
             <span>
               {isPro
                 ? <><b>{de ? 'Fährst du nur trocken?' : 'Only riding dry?'}</b> {de ? 'Dann reicht Classic.' : 'Then Classic is enough.'}</>
-                : <><b>{de ? 'Oft Regen oder Winter?' : 'Lots of rain or winter?'}</b> {de ? 'Dafür ist Pro MoS₂ gemacht.' : 'That is what Pro MoS₂ is for.'}</>}
+                : <><b>{de ? 'Oft nass oder kalt?' : 'Often wet or cold?'}</b> {de ? 'Da hält Pro MoS₂ länger.' : 'Pro MoS₂ lasts longer there.'}</>}
             </span>
             <Ico name="arrow" style={{ color: 'var(--accent-soft)', width: 16, height: 16 }} />
           </button>
