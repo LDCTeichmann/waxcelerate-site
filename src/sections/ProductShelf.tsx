@@ -562,7 +562,9 @@ export function ProductShelf({ de, t, onCompare }: {
           <p className="text-[13.5px] mt-1.5" style={{ color: 'var(--txm)' }}>{s.altBody}</p>
         </div>
 
-        <div className="grid gap-6 sm:grid-cols-3 sm:gap-6">
+        {/* shelf-alt: unter 640 px ein Wischband statt drei voller Karten
+            untereinander (Audit 14.09.2026: Regal mobil 3.100 px hoch). */}
+        <div className="shelf-alt grid gap-6 sm:grid-cols-3 sm:gap-6">
         <SecondaryTile
           index={1}
           to="/starter-set"

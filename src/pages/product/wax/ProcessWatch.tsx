@@ -105,7 +105,7 @@ export function ProcessWatch({ de, product }: { de: boolean; product: Product })
     : [{ x: 58, y: 34, l: `The block · ${product.applications} waxings` }, { x: 31, y: 74, l: 'Your chain · with quick link' }, { x: 72, y: 78, l: 'Wire or hook' }];
 
   const seg = (s: Step) => (
-    <div key={s.i} className={`seg${s.active ? ' act' : ' wait'}${lit === s.i ? ' on' : ''}`}
+    <div key={s.i} className={`seg${s.active ? ' act' : ' wait'}${lit === s.i ? ' on' : ''}${s.minutes / total < 0.06 ? ' tiny' : ''}`}
       style={{ left: pos(s.start), width: `calc(${pos(s.minutes)} - 3px)` }}
       onMouseEnter={() => setFocusStep(s.i)} onClick={() => setSel(s.i)}>
       <span className="lbl"><b>{s.n}</b>{s.minutes >= 2 && <> · {s.minutes}′</>}</span>

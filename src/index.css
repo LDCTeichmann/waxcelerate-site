@@ -836,6 +836,13 @@
 .noir .shelf-deal { color: #6FC193; background: rgba(111,193,147,.12); }
 .shelf-deal-tx { color: #2E7D4F; }
 .noir .shelf-deal-tx { color: #6FC193; }
+/* Set / Ketten / Rewax mobil als Wischband; die naechste Karte lugt
+   rechts hervor, damit das Weiterwischen erkennbar ist. */
+@media (max-width: 639px) {
+  .shelf-alt { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 14px; margin-left: -20px; margin-right: -20px; padding: 2px 20px 10px; scrollbar-width: none; }
+  .shelf-alt::-webkit-scrollbar { display: none; }
+  .shelf-alt > * { flex: 0 0 80%; scroll-snap-align: start; }
+}
 
 /* Geteilte Elementuebergaenge Karte → Produktseite (Stufe 4, Politur).
    React Router 7.15 setzt bei viewTransition={true} auf <Link> ein CSS

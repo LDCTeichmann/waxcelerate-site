@@ -211,8 +211,8 @@ export function WaxCalculator({ product, profile, de, onTouch }: { product: Prod
                 <button type="button" className="wxp-rec" onClick={() => { setChains(recommended); touch(); }}>
                   {recommended > chains
                     ? (de
-                      ? <><b>Tipp: {recommended} Ketten im Wechsel.</b> Du müsstest sonst alle {Math.max(1, Math.round(rewaxDays))} Tage wachsen. So wachst du alle {Math.max(1, Math.round(rewaxDays * recommended))} Tage alle auf einmal.</>
-                      : <><b>Tip: rotate {recommended} chains.</b> Otherwise you would wax every {Math.max(1, Math.round(rewaxDays))} days. This way you wax them all at once every {Math.max(1, Math.round(rewaxDays * recommended))} days.</>)
+                      ? <><b>Tipp: {recommended} Ketten im Wechsel.</b> Du müsstest sonst alle {Math.max(1, Math.round(rewaxDays))} Tage wachsen. So wachst du alle {Math.max(1, Math.round(rewaxDays * recommended))} Tage {recommended === 2 ? 'beide' : 'alle drei'} auf einmal.</>
+                      : <><b>Tip: rotate {recommended} chains.</b> Otherwise you would wax every {Math.max(1, Math.round(rewaxDays))} days. This way you wax {recommended === 2 ? 'both' : 'all three'} at once every {Math.max(1, Math.round(rewaxDays * recommended))} days.</>)
                     : (de
                       ? <><b>{recommended === 1 ? 'Eine Kette reicht dir.' : `${recommended} Ketten reichen dir.`}</b> Bei deinem Pensum wachst du auch so nur alle {Math.max(1, Math.round(rewaxDays * recommended))} Tage.</>
                       : <><b>{recommended === 1 ? 'One chain is enough.' : `${recommended} chains are enough.`}</b> At your mileage you only wax every {Math.max(1, Math.round(rewaxDays * recommended))} days anyway.</>)}

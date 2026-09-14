@@ -562,3 +562,43 @@
 .wxp-qty button:first-child span { color: var(--txf); font-weight: 500; }
 .wxp-qty button[aria-pressed="true"] { border: 1.5px solid var(--wxp-accent); background: var(--wxp-soft); }
 .wxp-addnote { margin: 0 0 12px; }
+
+/* ══ v5 Politur (Audit 14.09.2026, gemessen bei 375 px) ══ */
+/* A: "250–450 km" ragte bei 32 px 20 px aus der halben Spalte. */
+@media (max-width: 640px) { .wxp-figs .v { font-size: clamp(24px, 7vw, 32px); } .wxp-figs .v small { font-size: 15px; } }
+/* B: 1-min-Segmente sind mobil ~7 px breit; dort nur Farbe, die Nummer
+   steht in der Karte darunter und im Tooltip beim Antippen. */
+@media (max-width: 640px) { .wxp-tl .seg.tiny .lbl { display: none; } }
+/* C: Vergleich mobil ohne Querscrollen — Classic und Pro nebeneinander,
+   Oel faellt weg (ist oben im Kapitel und im Rechner schon verglichen). */
+@media (max-width: 640px) {
+  .wxp-cmp-wrap { overflow-x: visible; }
+  .wxp-cmp { min-width: 0; padding: 6px 10px 12px; }
+  .wxp-cmp .lose { display: none; }
+  .wxp-cmp th, .wxp-cmp td { padding: 11px 8px; }
+  .wxp-cmp .rl { width: 30%; font-size: 12.5px; }
+  .wxp-cmp .win, .wxp-cmp .mid { font-size: 13px; }
+  .wxp-hname { font-size: 18px; }
+  .wxp-hprice { font-size: 11.5px; }
+}
+/* D: die zwei Textbewertungen mobil als Wischband statt untereinander. */
+@media (max-width: 899px) {
+  .wxp-rv-side { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 12px; margin: 0 -20px; padding: 2px 20px 8px; scrollbar-width: none; }
+  .wxp-rv-side::-webkit-scrollbar { display: none; }
+  .wxp-rv-side > .wxp-rv { flex: 0 0 85%; scroll-snap-align: start; }
+}
+/* E: Datentabelle mobil: Bezeichnung ueber dem Wert statt drei- bis
+   fuenfzeilig umbrechender rechter Spalte. */
+@media (max-width: 640px) {
+  .wxp-stable tr { display: block; }
+  .wxp-stable td { display: block; border-bottom: 0; padding: 0 12px; }
+  .wxp-stable td:first-child { padding-top: 10px; font-size: 12px; }
+  .wxp-stable td:last-child { text-align: left; padding-bottom: 10px; border-bottom: 1px solid var(--sf3); }
+  .wxp-stable tr:nth-child(odd) td { background: var(--pg); }
+}
+/* H: Eingabespalte des Rechners ab 1000 px etwas dichter, seit das
+   Rotationsfeld dazukam klaffte rechts ueber dem Fuss eine Luecke. */
+@media (min-width: 1000px) {
+  .wxp-c-in { gap: 16px; }
+  .wxp-c-in .wxp-seg button { padding: 9px 6px 8px; }
+}
