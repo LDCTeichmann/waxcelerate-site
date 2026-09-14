@@ -128,7 +128,7 @@ const waxCompRowsProMos2 = [
   { label: 'Wirkstoff', cols: ['MoS₂-Transferfilm', 'Wachsfilm + PTFE', 'Nassschmierung'], winCol: 0, dimCols: [2] },
   { label: 'Reibungskoeffizient', cols: ['0,03–0,06', '0,05–0,07', '0,18–0,25'], winCol: 0, dimCols: [2] },
   { label: 'Intervall trocken', cols: ['300–550 km', '250–450 km', '50–150 km'], winCol: 0, dimCols: [2] },
-  { label: 'Wintereignung', cols: ['bis −8°C ✓', 'bedingt', '—'], winCol: 0, dimCols: [2] },
+  { label: 'Nässe & Kälte', cols: ['hält länger, bis −8°C geschmeidig', 'geht, kürzeres Intervall', '—'], winCol: 0, dimCols: [2] },
   { label: 'Rostschutz', cols: ['Hydrophobe Matrix ✓', 'Standard', 'Keiner'], winCol: 0, dimCols: [2] },
   { label: 'PFAS/PTFE-frei', cols: ['✓', '—', '—'], winCol: 0, dimCols: [1, 2] },
 ];
@@ -445,8 +445,8 @@ export const richContent: Record<string, RichContent> = {
 export type ChooserCell = { text: string; textEn: string; kind?: 'yes' | 'no' | 'meh' };
 export const waxChooserRows: Array<{ label: string; labelEn: string; classic: ChooserCell; pro: ChooserCell; oil: ChooserCell }> = [
   { label: 'Am besten für', labelEn: 'Best for',
-    classic: { text: 'Trocken, Frühling bis Herbst', textEn: 'Dry, spring to autumn' },
-    pro: { text: 'Ganzjahr, Regen, E-Bike', textEn: 'Year-round, rain, e-bike' },
+    classic: { text: 'Überwiegend trocken, ganzjährig', textEn: 'Mostly dry, all year' },
+    pro: { text: 'Oft nass oder kalt, E-Bike', textEn: 'Often wet or cold, e-bike' },
     oil: { text: '—', textEn: '—' } },
   { label: 'Intervall trocken', labelEn: 'Interval, dry',
     classic: { text: '250–450 km', textEn: '250–450 km' },
@@ -460,9 +460,9 @@ export const waxChooserRows: Array<{ label: string; labelEn: string; classic: Ch
     classic: { text: 'trocken', textEn: 'dry', kind: 'yes' },
     pro: { text: 'trocken', textEn: 'dry', kind: 'yes' },
     oil: { text: 'Ölfilm, bindet Dreck', textEn: 'oil film, binds dirt', kind: 'no' } },
-  { label: 'Winter & Nässe', labelEn: 'Winter & wet',
-    classic: { text: 'bedingt', textEn: 'limited', kind: 'meh' },
-    pro: { text: 'bis −8 °C', textEn: 'down to −8 °C', kind: 'yes' },
+  { label: 'Nässe & Kälte', labelEn: 'Wet & cold',
+    classic: { text: 'geht, kürzeres Intervall', textEn: 'works, shorter interval', kind: 'meh' },
+    pro: { text: 'hält länger, bis −8 °C', textEn: 'lasts longer, to −8 °C', kind: 'yes' },
     oil: { text: 'muss oft nach', textEn: 'needs frequent top-ups', kind: 'meh' } },
   { label: 'PFAS-/PTFE-frei', labelEn: 'PFAS/PTFE-free',
     classic: { text: 'enthält PTFE', textEn: 'contains PTFE', kind: 'no' },

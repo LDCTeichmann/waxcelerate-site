@@ -409,7 +409,18 @@
 
 /* ═ 07 Daten ═ */
 .wxp-graybg { background: var(--sf2); }
-.wxp-specs { display: grid; gap: 24px; align-items: start; }
+/* v5: beide Karten gleich hoch (stretch statt start) */
+.wxp-specs { display: grid; gap: 24px; align-items: stretch; }
+.wxp-specs > .wxp-card { display: flex; flex-direction: column; }
+.wxp-stable tr.mfr td:last-child { font-size: 12.5px; font-weight: 400; color: var(--txm); white-space: normal; }
+.wxp-stable tr.mfr td:first-child { vertical-align: top; }
+.wxp-goodbad { display: grid; gap: 12px; margin-top: auto; padding-top: 18px; border-top: 1px solid var(--sf3); }
+.wxp-goodbad > div { display: grid; grid-template-columns: 28px 1fr; gap: 8px; font-size: 14px; color: var(--txm); line-height: 1.5; }
+.wxp-goodbad b { display: block; color: var(--tx1); }
+.wxp-goodbad .d { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; margin-top: 1px; }
+.wxp-goodbad .d.ok { background: var(--wxp-soft); color: var(--wxp-accent); }
+.wxp-goodbad .d.no { background: var(--sf2); color: var(--txf); }
+@media (max-width: 640px) { .wxp-tl .lbl { font-size: 10px; } .wxp-tl .lane.side .cap { font-size: 11px; } }
 @media (min-width: 900px) { .wxp-specs { grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 28px; } }
 .wxp-stable { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 14.5px; }
 .wxp-stable td { padding: 12px 12px; border-bottom: 1px solid var(--sf3); }
@@ -420,9 +431,6 @@
 .wxp-fit .lbl2 { display: block; font-size: 12px; font-weight: 600; color: var(--txf); margin: 0 0 10px; }
 .wxp-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
 .wxp-chips span { font-size: 13px; padding: 6px 12px; border-radius: 999px; background: var(--sf2); color: var(--tx1); }
-.wxp-limit { display: grid; grid-template-columns: 32px 1fr; gap: 8px; padding-top: 18px; border-top: 1px solid var(--sf3); font-size: 14px; color: var(--txm); }
-.wxp-limit b { color: var(--tx1); display: block; }
-.wxp-xdot { width: 24px; height: 24px; border-radius: 50%; background: var(--sf2); display: grid; place-items: center; font-size: 12px; font-weight: 700; color: var(--txf); }
 .wxp-acc { margin-top: 14px; border: 1px solid var(--bd); border-radius: 12px; background: var(--sf); }
 .wxp-acc summary { cursor: pointer; padding: 14px 16px; font-weight: 600; color: var(--tx1); font-size: 14.5px; list-style: none; display: flex; justify-content: space-between; }
 .wxp-acc summary::-webkit-details-marker { display: none; }

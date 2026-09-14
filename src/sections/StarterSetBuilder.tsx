@@ -104,7 +104,7 @@ export function StarterSetBuilder({ de }: { de: boolean }) {
               <Choice key={p.id} active={p.id === waxId} onClick={() => setWaxId(p.id)}
                 title={de ? p.title : p.titleEn}
                 sub={p.variant === 'pro'
-                  ? (de ? 'Ganzjahr, Winter, E-Bike' : 'All year, winter, e-bike')
+                  ? (de ? 'Nässe, Kälte, E-Bike' : 'Wet, cold, e-bike')
                   : (de ? 'Frühjahr bis Herbst' : 'Spring to autumn')}
                 price={p.price} />
             ))}
