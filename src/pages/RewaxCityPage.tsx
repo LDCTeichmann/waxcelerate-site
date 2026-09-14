@@ -4,9 +4,10 @@
 // Daten und Texte: src/pages/rewax/cities.ts (auch vom Prerender genutzt).
 
 import { useEffect, useState } from 'react';
+import { WaxWeek } from '@/pages/rewax/WaxWeek';
 import { Helmet } from 'react-helmet-async';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowRight, ChevronDown, CloudRain, MapPin } from 'lucide-react';
+import { ArrowRight, ChevronDown, MapPin } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
 import { trustStats } from '@/lib/data';
@@ -21,36 +22,6 @@ import { Footer } from '@/sections/footer';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 
 const W = 'mx-auto w-full max-w-5xl px-6 sm:px-10 lg:px-14';
-
-// Live-Wetter über die eigene Funktion api/weather.ts (Open-Meteo-Proxy, keine
-// Besucher-IP an Dritte). Reiner Zusatz: fällt still weg, wenn es nicht klappt
-// (auch im Vite-Dev-Server, der /api nicht kennt).
-function LiveWeather({ city, de }: { city: RewaxCity; de: boolean }) {
-  const [w, setW] = useState<{ tempC: number; rainMm: number; rainDays7: number } | null>(null);
-  useEffect(() => {
-    let alive = true;
-    fetch(`/api/weather?stadt=${city.slug}`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d) => { if (alive && d && typeof d.tempC === 'number') setW(d); })
-      .catch(() => {});
-    return () => { alive = false; };
-  }, [city.slug]);
-  if (!w) return null;
-  const n = de ? city.name : city.nameEn;
-  return (
-    <div className="flex items-start gap-3 rounded-xl px-4 py-3 mt-6"
-      style={{ background: 'var(--sf)', border: '1px solid var(--bd2)' }}>
-      <CloudRain className="h-4 w-4 flex-shrink-0 mt-0.5" style={{ color: 'var(--accent)' }} aria-hidden />
-      <p className="text-[13px] leading-relaxed" style={{ color: 'var(--txm)' }}>
-        <span className="font-semibold" style={{ color: 'var(--tx1)' }}>{de ? `Gerade in ${n}: ` : `Right now in ${n}: `}</span>
-        {Math.round(w.tempC)} °C{w.rainMm > 0 ? (de ? `, ${w.rainMm.toLocaleString('de-DE')} mm Regen heute` : `, ${w.rainMm} mm rain today`) : ''}.{' '}
-        {de
-          ? `In den letzten 7 Tagen ${w.rainDays7 === 1 ? 'ein nasser Tag' : `${w.rainDays7} nasse Tage`}${w.rainDays7 >= 3 ? ' — gut möglich, dass deine Kette schon trocken klingt.' : '.'}`
-          : `${w.rainDays7} wet ${w.rainDays7 === 1 ? 'day' : 'days'} in the last 7${w.rainDays7 >= 3 ? ' — your chain may well sound dry already.' : '.'}`}
-      </p>
-    </div>
-  );
-}
 
 function ClimateBlock({ city, de }: { city: RewaxCity; de: boolean }) {
   const [km, setKm] = useState(3000);
@@ -106,12 +77,12 @@ function ClimateBlock({ city, de }: { city: RewaxCity; de: boolean }) {
           </p>
           <p className="text-[11px] mt-3" style={{ color: 'var(--txff)' }}>
             {de
-              ? `Quellen: DWD, Mittelwerte 1991–2020, Station ${city.dwdStation}; Regentage aus ERA5-Reanalyse (Open-Meteo). Annahme: gleich viel Fahren bei jedem Wetter, Straße.`
-              : `Sources: DWD, 1991–2020 means, station ${city.dwdStation}; rain days from ERA5 reanalysis (Open-Meteo). Assumes riding equally in all weather, on road.`}
+              ? `Quelle: Deutscher Wetterdienst, Station ${city.dwdStation}, Mittel 1991–2020 (Niederschlag und Tage ≥ 1 mm). Annahme: gleich viel Fahren bei jedem Wetter, Straße.`
+              : `Source: Deutscher Wetterdienst, station ${city.dwdStation}, 1991–2020 means (precipitation and days ≥ 1 mm). Assumes riding equally in all weather, on road.`}
           </p>
         </div>
 
-        <LiveWeather city={city} de={de} />
+        <WaxWeek slug={city.slug} name={name} de={de} />
       </div>
     </section>
   );

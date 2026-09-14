@@ -106,10 +106,11 @@ export function GiftSection({ de }: { de: boolean }) {
         {/* ── Starter-Set dazu ── */}
         <div className="mt-14 rounded-2xl overflow-hidden grid sm:grid-cols-[220px_minmax(0,1fr)]"
           style={{ background: 'var(--sf)', border: '1px solid var(--bd)', boxShadow: 'var(--card-shad)' }}>
-          {/* Bild vorläufig: images/doors/starter-set — durch ein stärkeres
-              Geschenk-Foto ersetzen, sobald Luca eins ausgesucht hat. */}
-          <div className="relative min-h-[180px]" style={{ background: 'var(--sf2)' }}>
-            <img src="/images/doors/starter-set-800.webp" alt={de ? 'Starter-Set mit Kettenwachs, Kette und Werkzeug' : 'Starter set with chain wax, chain and tools'}
+          {/* Lucas Wahl (2026-09-14): Kette unten, Draht und Zange vor dem
+              blauen Block — dasselbe Motiv wie im eBay-Angebot. Ausschnitt
+              links-unten, damit die Kette im schmalen Feld sichtbar bleibt. */}
+          <div className="relative min-h-[200px]" style={{ background: 'var(--sf2)' }}>
+            <img src="/images/shelf/shelf-set-800.webp" style={{ objectPosition: '20% 85%' }} alt={de ? 'Starter-Set mit Kettenwachs, Kette und Werkzeug' : 'Starter set with chain wax, chain and tools'}
               loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover" />
           </div>
           <div className="p-5 sm:p-7">

@@ -39,6 +39,7 @@ import { Footer } from '@/sections/footer';
 import { BackLink } from '@/components/BackLink';
 import { GiftSection } from '@/pages/rewax/GiftSection';
 import { REWAX_CITIES } from '@/pages/rewax/cities';
+import { WaxWeatherPicker } from '@/pages/rewax/WaxWeek';
 
 const WA_NUMBER = '4915751957470';
 const waLink = (de: boolean, waxedLabel?: string | null) =>
@@ -202,7 +203,8 @@ export function RewaxRequestForm({ de, preselect }: { de: boolean; preselect: Se
   const p = PRICE[service ?? 'rewax'];
   const isBundle = quantity >= PRICE.bundleCount;
   const perChain = isBundle ? p.bundle : p.single;
-  // Eine Kette passt in den Großbrief, ab zwei Ketten geht es im Maxibrief zurück.
+  // Eine Kette passt in den Großbrief (1,80 €), ab zwei Ketten geht es im
+  // Maxibrief (2,90 €) zurück — von Luca bestätigt 2026-09-14.
   const shipping = quantity === 1 ? PRICE.shippingSingle : PRICE.shippingBundle;
   const total = perChain * quantity + shipping;
 
@@ -814,6 +816,8 @@ export function RewaxPage() {
       </section>
 
       <RewaxSteps de={de} />
+
+      <WaxWeatherPicker de={de} />
 
       {/* ── Preise ── */}
       <section id="preise" className="scroll-mt-24 py-14 sm:py-20" style={{ borderTop: '1px solid var(--bd2)' }}>

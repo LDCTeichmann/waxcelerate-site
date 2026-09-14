@@ -11,10 +11,13 @@
 //   precipMm  DWD, vieljährige Mittelwerte 1991–2020, Jahressumme Niederschlag
 //             (opendata.dwd.de/.../multi_annual/mean_91-20/Niederschlag_1991-2020.txt),
 //             Station in `dwdStation`.
-//   wetDays   Tage mit ≥ 1 mm Niederschlag, Mittel 1991–2020, gezählt aus
-//             Open-Meteo Historical API (ERA5-Reanalyse) für die Stadtkoordinate.
-//             Der DWD veröffentlicht diese Kennzahl nicht in derselben Datei.
-//   local     Hausrunden-Satz, von Claude vorformuliert — LUCA PRÜFT.
+//   wetDays   Tage mit ≥ 1 mm Niederschlag (Spalte RSK), Mittel 1991–2020,
+//             gezählt aus den DWD-Tageswerten derselben Station
+//             (.../climate/daily/kl/historical/tageswerte_KL_<id>_*_hist.zip).
+//             Beide Werte: © Deutscher Wetterdienst, CC BY 4.0 — kommerziell
+//             nutzbar mit Quellenvermerk. (Open-Meteo wäre für eine
+//             kommerzielle Seite nicht zulässig, daher bewusst nicht genutzt.)
+//   local     Hausrunden-Satz, Orte geprüft 2026-09-14.
 
 import { PRICE, TURNAROUND, TEN_CARD, FIVE_CARD, eur } from './content';
 
@@ -33,51 +36,51 @@ export interface RewaxCity {
 }
 
 export const REWAX_CITIES: RewaxCity[] = [
-  { slug: 'hamburg', name: 'Hamburg', nameEn: 'Hamburg', lat: 53.55, lon: 9.99, dwdStation: 'Hamburg-Fuhlsbüttel', precipMm: 771, wetDays: 141,
+  { slug: 'hamburg', name: 'Hamburg', nameEn: 'Hamburg', lat: 53.55, lon: 9.99, dwdStation: 'Hamburg-Fuhlsbüttel', precipMm: 771, wetDays: 128,
     localDe: 'Alsterrunde, Elbradweg, Vier- und Marschlande: flach, windig und oft feucht.',
     localEn: 'Alster loop, Elbe cycle path, the marshlands: flat, windy and often damp.',
     neighbors: ['hannover', 'berlin', 'duesseldorf'] },
-  { slug: 'berlin', name: 'Berlin', nameEn: 'Berlin', lat: 52.52, lon: 13.40, dwdStation: 'Berlin-Tempelhof', precipMm: 572, wetDays: 124,
+  { slug: 'berlin', name: 'Berlin', nameEn: 'Berlin', lat: 52.52, lon: 13.40, dwdStation: 'Berlin-Tempelhof', precipMm: 572, wetDays: 104,
     localDe: 'Havelchaussee, Mauerweg, Grunewald: viel Stadt, vergleichsweise wenig Regen.',
     localEn: 'Havelchaussee, the Wall Trail, Grunewald: lots of city, comparatively little rain.',
     neighbors: ['leipzig', 'dresden', 'hamburg'] },
-  { slug: 'muenchen', name: 'München', nameEn: 'Munich', lat: 48.14, lon: 11.58, dwdStation: 'München-Stadt', precipMm: 940, wetDays: 152,
+  { slug: 'muenchen', name: 'München', nameEn: 'Munich', lat: 48.14, lon: 11.58, dwdStation: 'München-Stadt', precipMm: 940, wetDays: 129,
     localDe: 'Isarradweg, Starnberger See, die Voralpen: die niederschlagsreichste der zwölf Städte.',
     localEn: 'Isar cycle path, Lake Starnberg, the Alpine foothills: the wettest of the twelve cities.',
     neighbors: ['nuernberg', 'stuttgart', 'freiburg'] },
-  { slug: 'koeln', name: 'Köln', nameEn: 'Cologne', lat: 50.94, lon: 6.96, dwdStation: 'Köln-Botanischer Garten', precipMm: 796, wetDays: 156,
+  { slug: 'koeln', name: 'Köln', nameEn: 'Cologne', lat: 50.94, lon: 6.96, dwdStation: 'Köln/Bonn', precipMm: 802, wetDays: 131,
     localDe: 'Rheinufer, Königsforst, Bergisches Land: mildes, oft feuchtes Rheinwetter.',
     localEn: 'Rhine banks, Königsforst, Bergisches Land: mild and often damp Rhine weather.',
     neighbors: ['duesseldorf', 'frankfurt', 'hannover'] },
-  { slug: 'frankfurt', name: 'Frankfurt', nameEn: 'Frankfurt', lat: 50.11, lon: 8.68, dwdStation: 'Frankfurt/Main', precipMm: 599, wetDays: 130,
+  { slug: 'frankfurt', name: 'Frankfurt', nameEn: 'Frankfurt', lat: 50.11, lon: 8.68, dwdStation: 'Frankfurt/Main', precipMm: 599, wetDays: 107,
     localDe: 'Mainufer, Taunus, Wetterau: eher trocken, im Taunus schnell auf Schotter.',
     localEn: 'Main riverside, Taunus, Wetterau: fairly dry, quickly onto gravel in the Taunus.',
     neighbors: ['koeln', 'stuttgart', 'nuernberg'] },
-  { slug: 'leipzig', name: 'Leipzig', nameEn: 'Leipzig', lat: 51.34, lon: 12.37, dwdStation: 'Leipzig/Halle', precipMm: 532, wetDays: 131,
+  { slug: 'leipzig', name: 'Leipzig', nameEn: 'Leipzig', lat: 51.34, lon: 12.37, dwdStation: 'Leipzig/Halle', precipMm: 532, wetDays: 98,
     localDe: 'Neuseenland, Auwald, Elster-Radweg: die niederschlagsärmste der zwölf Städte.',
     localEn: 'Lake district, the floodplain forest, Elster cycle path: the driest of the twelve cities.',
     neighbors: ['dresden', 'berlin', 'nuernberg'] },
-  { slug: 'dresden', name: 'Dresden', nameEn: 'Dresden', lat: 51.05, lon: 13.74, dwdStation: 'Dresden-Klotzsche', precipMm: 637, wetDays: 145,
+  { slug: 'dresden', name: 'Dresden', nameEn: 'Dresden', lat: 51.05, lon: 13.74, dwdStation: 'Dresden-Klotzsche', precipMm: 637, wetDays: 108,
     localDe: 'Elberadweg, Sächsische Schweiz, Dresdner Heide: im Sommer oft gewittrig.',
     localEn: 'Elbe cycle path, Saxon Switzerland, Dresden Heath: often stormy in summer.',
     neighbors: ['leipzig', 'berlin', 'nuernberg'] },
-  { slug: 'hannover', name: 'Hannover', nameEn: 'Hanover', lat: 52.37, lon: 9.74, dwdStation: 'Hannover', precipMm: 627, wetDays: 141,
+  { slug: 'hannover', name: 'Hannover', nameEn: 'Hanover', lat: 52.37, lon: 9.74, dwdStation: 'Hannover', precipMm: 627, wetDays: 117,
     localDe: 'Maschsee, Eilenriede, Deister: flach bis hügelig, typisch norddeutsch feucht.',
     localEn: 'Maschsee, Eilenriede, the Deister: flat to hilly, typically damp northern weather.',
     neighbors: ['hamburg', 'berlin', 'koeln'] },
-  { slug: 'nuernberg', name: 'Nürnberg', nameEn: 'Nuremberg', lat: 49.45, lon: 11.08, dwdStation: 'Nürnberg', precipMm: 601, wetDays: 141,
+  { slug: 'nuernberg', name: 'Nürnberg', nameEn: 'Nuremberg', lat: 49.45, lon: 11.08, dwdStation: 'Nürnberg', precipMm: 601, wetDays: 107,
     localDe: 'Pegnitztal, Fränkische Schweiz, Reichswald: eher trocken, dafür viel Schotter.',
     localEn: 'Pegnitz valley, Franconian Switzerland, Reichswald: fairly dry, lots of gravel.',
     neighbors: ['muenchen', 'stuttgart', 'frankfurt'] },
-  { slug: 'duesseldorf', name: 'Düsseldorf', nameEn: 'Düsseldorf', lat: 51.23, lon: 6.78, dwdStation: 'Düsseldorf', precipMm: 751, wetDays: 153,
+  { slug: 'duesseldorf', name: 'Düsseldorf', nameEn: 'Düsseldorf', lat: 51.23, lon: 6.78, dwdStation: 'Düsseldorf', precipMm: 751, wetDays: 128,
     localDe: 'Rheinufer, Neandertal, Bergisches Land: mild und oft nass.',
     localEn: 'Rhine banks, Neander valley, Bergisches Land: mild and often wet.',
     neighbors: ['koeln', 'hannover', 'frankfurt'] },
-  { slug: 'freiburg', name: 'Freiburg', nameEn: 'Freiburg', lat: 47.99, lon: 7.85, dwdStation: 'Freiburg', precipMm: 887, wetDays: 157,
+  { slug: 'freiburg', name: 'Freiburg', nameEn: 'Freiburg', lat: 47.99, lon: 7.85, dwdStation: 'Freiburg', precipMm: 887, wetDays: 124,
     localDe: 'Schauinsland, Kaiserstuhl, Schwarzwald: lange Anstiege und viel Regen am Berg.',
     localEn: 'Schauinsland, Kaiserstuhl, Black Forest: long climbs and plenty of rain on the hills.',
     neighbors: ['stuttgart', 'muenchen', 'frankfurt'] },
-  { slug: 'stuttgart', name: 'Stuttgart', nameEn: 'Stuttgart', lat: 48.78, lon: 9.18, dwdStation: 'Stuttgart (Schnarrenberg)', precipMm: 691, wetDays: 145,
+  { slug: 'stuttgart', name: 'Stuttgart', nameEn: 'Stuttgart', lat: 48.78, lon: 9.18, dwdStation: 'Stuttgart (Schnarrenberg)', precipMm: 691, wetDays: 112,
     localDe: 'Schönbuch, Remstal, Fildern: unsere eigenen Hausrunden, hier wachsen wir.',
     localEn: 'Schönbuch, Rems valley, Fildern: our own home loops, this is where we wax.',
     neighbors: ['freiburg', 'nuernberg', 'muenchen'] },
