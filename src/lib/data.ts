@@ -122,19 +122,27 @@ const PRO_SCENES: PdpScene[] = [
  * (articles.ts, howTo von heisswachs-anleitung); der erste Schritt steht
  * nicht in der Anleitung und traegt deshalb eigenen Text. `active`: du tust
  * etwas, sonst wartest du. `firstOnly`: nur beim ersten Mal (Entfetten).
+ * `lane: 'side'`: laeuft nebenher, waehrend das Wachs schmilzt (Luca,
+ * 14.09.2026: alles, was parallel geht, parallel). `afterSide`: startet erst,
+ * wenn Schmelzen UND Nebenschritte fertig sind. Eigene Texte (textDe/textEn)
+ * gehen vor dem Anleitungstext.
  */
 export const waxProcessTimeline: Array<{
   minutes: number; active: boolean; firstOnly?: boolean; howToIndex?: number;
+  lane?: 'side'; afterSide?: boolean;
   nameDe?: string; nameEn?: string; textDe?: string; textEn?: string;
 }> = [
-  { minutes: 2, active: true, nameDe: 'Kette abnehmen und aufhängen', nameEn: 'Take the chain off and hang it',
-    textDe: 'Am Quick-Link öffnen und an Draht oder Haken hängen. Mit einer Kettenschlosszange geht das in unter einer Minute.',
-    textEn: 'Open it at the quick link and hang it on a wire or hook. With quick-link pliers it takes under a minute.' },
-  { minutes: 15, active: true, firstOnly: true, howToIndex: 0 },
   { minutes: 10, active: false, howToIndex: 1 },
-  { minutes: 12, active: false, howToIndex: 2 },
+  { minutes: 2, active: true, lane: 'side', nameDe: 'Kette abnehmen und aufhängen', nameEn: 'Take the chain off and hang it',
+    textDe: 'Während das Wachs schmilzt: am Quick-Link öffnen und auf Draht oder Haken hängen. Mit einer Kettenschlosszange geht das in unter einer Minute.',
+    textEn: 'While the wax melts: open it at the quick link and hang it on a wire or hook. With quick-link pliers it takes under a minute.' },
+  { minutes: 15, active: true, firstOnly: true, lane: 'side', howToIndex: 0 },
+  { minutes: 12, active: false, afterSide: true, howToIndex: 2 },
   { minutes: 10, active: false, howToIndex: 3 },
   { minutes: 1, active: true, howToIndex: 4 },
+  { minutes: 1, active: true, nameDe: 'Kette montieren', nameEn: 'Fit the chain',
+    textDe: 'Kette wieder auflegen und am Quick-Link schließen. Einmal kräftig ins Pedal treten, dann rastet das Schloss sicher ein.',
+    textEn: 'Put the chain back on and close the quick link. Press hard on the pedal once so the link seats securely.' },
 ];
 
 export const products: Product[] = [

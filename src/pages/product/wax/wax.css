@@ -493,8 +493,27 @@
 .wxp-recipe .work .v { font-size: 52px; font-weight: 800; color: var(--wxp-accent); }
 .wxp-recipe .work .k { color: var(--wxp-accent); }
 .wxp-recipe .wxp-mode { margin-bottom: 0; }
-.wxp-tl { display: flex; gap: 3px; height: 44px; margin-top: 32px; }
-.wxp-tl .seg { position: relative; flex-basis: 0; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform .2s, box-shadow .2s, opacity .2s; }
+/* v5: Zeitplan mit zwei Spuren (Hauptablauf, nebenher) und Minutenachse.
+   Segmente absolut positioniert, massstaeblich zur Gesamtzeit. */
+.wxp-tl { position: relative; margin-top: 36px; }
+.wxp-tl .lane { position: relative; height: 44px; }
+.wxp-tl .lane.side { height: 30px; margin-top: 6px; }
+.wxp-tl .lane.side .cap { position: absolute; top: 50%; transform: translateY(-50%); font-size: 12.5px; color: var(--txm); white-space: nowrap; }
+.wxp-tl .axis { position: relative; height: 18px; margin-top: 8px; border-top: 1px solid var(--bd); }
+.wxp-tl .axis span { position: absolute; top: 4px; transform: translateX(-50%); font-size: 11px; color: var(--txf); font-variant-numeric: tabular-nums; }
+.wxp-tl .axis span:first-child { transform: none; }
+.wxp-tl .axis span::before { content: ""; position: absolute; left: 50%; top: -9px; width: 1px; height: 5px; background: var(--bd2); }
+.wxp-tl .axis span:first-child::before { left: 0; }
+.wxp-tl .seg { position: absolute; top: 0; bottom: 0; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform .2s, box-shadow .2s, opacity .2s; }
+.wxp-tl .lbl b { font-family: 'Fraunces', Georgia, serif; font-weight: 800; }
+/* Uhr in der Rezeptzeile */
+.wxp-clock { position: relative; width: 116px; height: 116px; flex-shrink: 0; }
+.wxp-clock svg { display: block; width: 100%; height: 100%; }
+.wxp-clock .c { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
+.wxp-clock .t { font-family: 'Fraunces', Georgia, serif; font-weight: 800; font-size: 26px; line-height: 1; color: var(--tx1); }
+.wxp-clock .u { font-size: 11px; font-weight: 600; color: var(--txm); margin-top: 2px; }
+.wxp-recipe .stats { align-items: center; }
+.wxp-steps .at { font-size: 11.5px; color: var(--txf); margin-top: -2px; }
 .wxp-tl .seg.act { background: var(--wxp-accent); color: #fff; }
 .wxp-tl .seg.wait { background: repeating-linear-gradient(135deg, var(--sf2) 0 7px, var(--sf3) 7px 14px); color: var(--txm); border: 1px dashed var(--bd2); }
 .wxp-tl:hover .seg:not(.on) { opacity: .55; }
@@ -507,7 +526,15 @@
 .wxp-tl-legend i { width: 14px; height: 14px; border-radius: 4px; display: inline-block; }
 .wxp-tl-legend i.act { background: var(--wxp-accent); }
 .wxp-tl-legend i.wait { background: repeating-linear-gradient(135deg, var(--sf2) 0 4px, var(--sf3) 4px 8px); border: 1px dashed var(--bd2); }
-.wxp-steps { list-style: none; padding: 0; margin: 36px 0 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+/* v5: alle Schritte in einer Reihe (--n = Anzahl, 6 oder 7), sonst brach
+   der letzte in eine eigene Zeile. Darunter ein Wischband. */
+.wxp-steps { list-style: none; padding: 0; margin: 36px 0 0; display: grid; gap: 10px; grid-template-columns: repeat(var(--n, 6), minmax(0, 1fr)); }
+.wxp-steps li button { padding: 16px 14px; }
+@media (max-width: 999px) {
+  .wxp-steps { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; margin-left: -20px; margin-right: -20px; padding: 4px 20px 8px; scrollbar-width: none; }
+  .wxp-steps::-webkit-scrollbar { display: none; }
+  .wxp-steps li { flex: 0 0 min(72%, 260px); scroll-snap-align: start; }
+}
 .wxp-steps li button { all: unset; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px; width: 100%; height: 100%; padding: 18px; border-radius: 14px; background: var(--pg); border: 1px solid var(--sf3); cursor: pointer; transition: border-color .2s, box-shadow .2s, transform .2s; }
 .wxp-steps li.on button { border-color: var(--wxp-accent); box-shadow: var(--wxp-shadow-hi); transform: translateY(-2px); background: var(--sf); }
 .wxp-steps li button:focus-visible { outline: 2px solid var(--accent-soft); outline-offset: 2px; }
