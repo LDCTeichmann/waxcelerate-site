@@ -30,7 +30,7 @@ import { trackRewaxInterest } from '@/lib/analytics';
 import { REVIEWS } from '@/sections/reviews';
 import {
   PRICE, TEN_CARD, eur, UMSTIEG_LIVE, TURNAROUND,
-  COMPETITOR_FULL_SERVICE, rewaxMeta, rewaxFaqItems, rewaxServiceSchema, rewaxFaqSchema,
+  rewaxMeta, rewaxFaqItems, rewaxServiceSchema, rewaxFaqSchema,
   type ServiceId,
 } from '@/pages/rewax/content';
 
@@ -385,8 +385,6 @@ export function RewaxRequestForm({ de, preselect }: { de: boolean; preselect: Se
 // in einem Absatz erklärt zu bekommen.
 export function PriceMatrix({ de }: { de: boolean }) {
   const cols: ServiceId[] = UMSTIEG_LIVE ? ['rewax', 'umstieg'] : ['rewax'];
-  const compPrices = COMPETITOR_FULL_SERVICE.map(c => c.price);
-  const compRange = `${eur(Math.min(...compPrices), de)}–${eur(Math.max(...compPrices), de)}`;
 
   const head = {
     rewax: { t: de ? 'Auffrischung' : 'Rewax', s: de ? 'Kette ist schon gewachst' : 'Chain is already waxed', Icon: Sparkles },
@@ -470,15 +468,16 @@ export function PriceMatrix({ de }: { de: boolean }) {
               </span>
             ))}
           </div>
-          {UMSTIEG_LIVE && (
-            <div className={rowCls}>
-              <span className="text-[12.5px] sm:text-[13px]" style={{ color: 'var(--txm)' }}>{de ? 'Volles Programm anderswo' : 'Full service elsewhere'}</span>
-              <span className="text-[12px]" style={{ color: 'var(--txff)' }}>–</span>
-              <span className="num text-[12.5px] line-through" style={{ color: 'var(--txf)' }} title={COMPETITOR_FULL_SERVICE.map(c => `${c.name} ${eur(c.price, de)}`).join(', ')}>
-                {compRange}
+          {/* Eigener Komplettpreis statt Konkurrenzvergleich (UWG, siehe content.ts):
+              eine Kette, Großbrief hin + Großbrief zurück. */}
+          <div className={rowCls}>
+            <span className="text-[12.5px] sm:text-[13px]" style={{ color: 'var(--txm)' }}>{de ? 'Mit Porto hin und zurück' : 'With postage both ways'}</span>
+            {cols.map(c => (
+              <span key={c} className="num text-[13px] font-semibold" style={{ color: 'var(--tx1)' }}>
+                {eur(PRICE[c].single + 2 * PRICE.shippingSingle, de)}
               </span>
-            </div>
-          )}
+            ))}
+          </div>
         </div>
 
         <div className="px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-3" style={{ borderTop: '1px solid var(--bd2)', background: 'var(--sf2)' }}>

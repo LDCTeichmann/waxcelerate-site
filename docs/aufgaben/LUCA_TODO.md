@@ -165,10 +165,10 @@ Kurze Antworten reichen, im Chat. Nichts davon blockiert Teil 1–3.
 5. **Profil-URLs:** eBay-Shop, Kleinanzeigen-Profil, Instagram — exakte Links.
 6. **Classic ohne PTFE:** Rezeptur validiert oder noch in Arbeit? (Steuert den
    Zeitpunkt für Presse-Outreach an Stiftung Warentest / speed-ville.)
-7. **Umstieg-Service (`/kette-wachsen-lassen`):** Ist der Betrieb sicher
+7. ~~**Umstieg-Service (`/kette-wachsen-lassen`):** Ist der Betrieb sicher
    eingerichtet, geölte Ketten in einem **separaten** Ultraschallbad zu entfetten
-   (vor dem Wachsbad)? Wenn nein → Claude setzt `UMSTIEG_LIVE = false`, die Seite
-   ist dann reine Auffrischung.
+   (vor dem Wachsbad)?~~ **Erledigt 2026-09-14:** Luca bestätigt, der Betrieb
+   läuft. `UMSTIEG_LIVE` bleibt `true`.
 8. **Turnaround:** aktuell steht „3–5 Werktage ab Ankunft bei uns" auf der Seite.
    Passt das, oder eine andere Spanne?
 9. **Verkaufszahlen je Wachs-SKU** (Produktkarten-Neugliederung, 09/2026): die

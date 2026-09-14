@@ -38,7 +38,7 @@ const ICONS: Record<string, typeof Sun> = {
 // Gleiche Stützwerte wie cityIntervalKm (cities.ts): trocken 300 km, nass 150 km.
 function weekIntervalKm(wet: number, total: number) {
   const f = total ? wet / total : 0;
-  return Math.round(1 / ((1 - f) / 300 + f / 150) / 10) * 10;
+  return Math.round(1 / ((1 - f) / 300 + f / 150) / 10 + 1e-9) * 10;
 }
 
 // Erste zusammenhängende Regenphase (≥ 2 nasse Tage in Folge), sonst null.

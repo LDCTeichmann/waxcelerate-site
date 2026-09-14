@@ -14,8 +14,12 @@
 //                   der einzige wiederkehrende Umsatz im ganzen Modell)
 //   Umstieg       — eine geölte oder fabrikneue Kette: separates Ultraschallbad,
 //                   gründlich entfetten, vollständig trocknen, dann ERSTMALS
-//                   wachsen. Wie das volle Programm des Wettbewerbs, nur
-//                   günstiger.
+//                   wachsen.
+//
+// Bewusst KEIN Preisvergleich mit Mitbewerbern (2026-09-14): § 6 UWG verlangt
+// gleiche Leistungen und aktuell verlangte Preise; die Angebote anderer
+// (Versand inklusive, Verschleißmessung) sind nicht deckungsgleich und ändern
+// sich ohne Ankündigung. Stattdessen der eigene Komplettpreis mit Porto.
 //
 // Die Physik hinter dem separaten Bad: Öl schwimmt im Wachsbad oben auf und
 // blockiert die Penetration — eine einzige ölige Kette macht eine ganze Charge
@@ -33,14 +37,6 @@ export const PRICE = {
   shippingSingle: 1.80,
   shippingBundle: 2.90,
 } as const;
-
-// Wettbewerbspreise für die Umstieg-Preiszeile (volles Programm inkl. Entfetten).
-// Stand docs/plaene/SICHTBARKEIT_PLAN.md §2. Konkrete Zahlen nennen, nie
-// "~30 % günstiger" behaupten — gemessen statt behauptet.
-export const COMPETITOR_FULL_SERVICE = [
-  { name: 'Kettenhelden', price: 39.95 },
-  { name: 'bikeoptimierung.de', price: 34.9 },
-] as const;
 
 // ── Umstieg-Flag ────────────────────────────────────────────────────────────
 // Der Umstieg-Service setzt voraus, dass geölte Ketten in einem SEPARATEN
@@ -177,8 +173,6 @@ export interface RewaxFaqItem {
 }
 
 export function rewaxFaqItems(de: boolean): RewaxFaqItem[] {
-  const compLine = COMPETITOR_FULL_SERVICE.map((c) => `${c.name} ${eur(c.price, de)}`).join(', ');
-
   const items: RewaxFaqItem[] = [
     {
       q: de ? 'Was kostet es, eine Fahrradkette wachsen zu lassen?' : 'How much does it cost to get a chain rewaxed?',
@@ -198,8 +192,8 @@ export function rewaxFaqItems(de: boolean): RewaxFaqItem[] {
     items.push({
       q: de ? 'Was kostet es, eine geölte oder neue Kette auf Wachs umzustellen?' : 'How much does it cost to switch an oiled or new chain to wax?',
       a: de
-        ? `Der Umstieg kostet ${eur(PRICE.umstieg.single, de)} je Kette (ab drei Ketten ${eur(PRICE.umstieg.bundle, de)}), zuzüglich ${eur(PRICE.shippingSingle, de)} Rückversand. Der Aufpreis gegenüber der Auffrischung ist der echte Mehraufwand: Die Kette kommt zuerst in ein separates Ultraschallbad, wird gründlich entfettet und vollständig getrocknet, bevor sie das erste Mal ins Wachs geht. Zum Vergleich: ${compLine}.`
-        : `The switch costs ${eur(PRICE.umstieg.single, de)} per chain (from three chains ${eur(PRICE.umstieg.bundle, de)}), plus ${eur(PRICE.shippingSingle, de)} return shipping. The premium over a rewax is real extra work: the chain first goes into a separate ultrasonic bath, is thoroughly degreased and fully dried before its first time in the wax. For comparison: ${compLine}.`,
+        ? `Der Umstieg kostet ${eur(PRICE.umstieg.single, de)} je Kette (ab drei Ketten ${eur(PRICE.umstieg.bundle, de)}), zuzüglich ${eur(PRICE.shippingSingle, de)} Rückversand. Der Aufpreis gegenüber der Auffrischung ist der echte Mehraufwand: Die Kette kommt zuerst in ein separates Ultraschallbad, wird gründlich entfettet und vollständig getrocknet, bevor sie das erste Mal ins Wachs geht.`
+        : `The switch costs ${eur(PRICE.umstieg.single, de)} per chain (from three chains ${eur(PRICE.umstieg.bundle, de)}), plus ${eur(PRICE.shippingSingle, de)} return shipping. The premium over a rewax is real extra work: the chain first goes into a separate ultrasonic bath, is thoroughly degreased and fully dried before its first time in the wax.`,
     });
   }
 
@@ -229,6 +223,7 @@ export function rewaxFaqItems(de: boolean): RewaxFaqItem[] {
     a: de
       ? `Ja. Der Service läuft komplett per Post, egal wo in Deutschland du wohnst. Kette am Quick-Link öffnen, in einen gepolsterten Umschlag, als Großbrief (1,80 €) an unsere Stuttgarter Adresse. Wir wachsen sie in der Regel ${TURNAROUND.full} und schicken sie im Maxibrief zurück. Dazu kommt je 1 bis 2 Werktage Postlaufzeit.`
       : `Yes. The service runs entirely by mail, wherever in Germany you live. Open the chain at the quick link, into a padded envelope, as a letter to our Stuttgart address. We wax it usually ${TURNAROUND.fullEn} and send it back. Add 1 to 2 working days of post each way.`,
+    link: { to: '/kette-wachsen-lassen/hamburg', labelDe: 'Kette wachsen lassen in Hamburg', labelEn: 'Chain waxing for Hamburg' },
   });
 
   items.push({

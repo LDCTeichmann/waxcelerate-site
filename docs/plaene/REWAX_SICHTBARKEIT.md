@@ -17,6 +17,15 @@ Nachwachs-Intervall), sagt ehrlich „per Post aus Stuttgart", keine Stadtadress
 kleine feste Zahl. Daten: `src/pages/rewax/cities.ts`. Nicht auf 50+ Städte
 aufblähen — genau das wäre das Doorway-Muster.
 
+**Nachtrag 2026-09-14 — kein Konkurrenzpreis auf der Seite.** Die Zeile
+„Volles Programm anderswo 34,90–39,95 €" ist raus. Kettenhelden/bikeoptimierung
+nennen All-in-Preise (Versand beide Wege, teils Verschleißmessung), wir den Preis
+ohne Porto — § 6 UWG verlangt gleiche Leistungen und aktuell verlangte Preise,
+das ist dauerhaft nicht sicherzustellen (Abmahnrisiko). bikeoptimierung ist
+zudem Wiederverkäufer. Stattdessen: eigener Komplettpreis mit Porto hin und
+zurück (Auffrischung 19,55 €, Umstieg 28,55 €). Konkurrenzzahlen bleiben nur als
+interne Marktkenntnis in diesen Docs.
+
 Die realistische Erwartung (`docs/plaene/REICHWEITE_STRATEGIE.md` §1): „Kette
 wachsen lassen" gegen Kettenhelden/Rydewax/bikeoptimierung rankt in **3–6
 Monaten**. „Kettenwachs Stuttgart" über das Google-Profil kann **sofort** oben

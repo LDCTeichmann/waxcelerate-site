@@ -101,7 +101,7 @@ const DRY_KM = 300;
 const WET_KM = 150;
 export function cityIntervalKm(c: RewaxCity): number {
   const f = c.wetDays / 365;
-  return Math.round(1 / ((1 - f) / DRY_KM + f / WET_KM) / 10) * 10;
+  return Math.round(1 / ((1 - f) / DRY_KM + f / WET_KM) / 10 + 1e-9) * 10;
 }
 export const rewaxesPerYear = (c: RewaxCity, kmPerYear: number) => Math.max(1, Math.round(kmPerYear / cityIntervalKm(c)));
 /** Karte, die zu dieser Häufigkeit passt — oder keine. */

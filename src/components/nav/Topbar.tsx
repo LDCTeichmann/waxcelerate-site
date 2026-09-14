@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { PRICE, TURNAROUND, eur } from '@/pages/rewax/content';
 import { ChevronLeft, ChevronRight, Clock, Globe, Mail, MessageCircle, Moon, RotateCw, ShoppingBag, Sun, Truck, type LucideIcon } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
@@ -34,10 +35,18 @@ export function Topbar() {
   const h = t.header;
   const dispatch = useDispatchLine(de);
 
-  const messages: { icon: LucideIcon; body: ReactNode; to?: string }[] = [
+  // Auf den Service-Seiten wäre „versandkostenfrei" falsch (dort zahlt der
+  // Kunde das Porto) und die Rewax-Werbung doppelt — eigene Meldungen.
+  const onRewax = useLocation().pathname.startsWith('/kette-wachsen-lassen');
+  const question = { icon: MessageCircle, body: <>{h.question} <span className="underline underline-offset-2">{h.questionCta}</span></>, to: '/kontakt' };
+  const messages: { icon: LucideIcon; body: ReactNode; to?: string }[] = onRewax ? [
+    { icon: RotateCw, body: h.rewaxServiceA.replace('{ship}', eur(PRICE.shippingSingle, de)) },
+    { icon: Clock, body: h.rewaxServiceB.replace('{turn}', de ? TURNAROUND.full : TURNAROUND.fullEn) },
+    question,
+  ] : [
     { icon: Truck, body: h.freeShipping },
     { icon: Clock, body: dispatch },
-    { icon: MessageCircle, body: <>{h.question} <span className="underline underline-offset-2">{h.questionCta}</span></>, to: '/kontakt' },
+    question,
     { icon: RotateCw, body: <>{h.rewax} · {t.products.shelf.rewaxFrom}</>, to: '/kette-wachsen-lassen' },
   ];
   const count = messages.length;
@@ -90,7 +99,8 @@ export function Topbar() {
           </button>
           <div className="relative h-full min-w-0 flex-1 sm:max-w-[460px]" aria-live={manual ? 'polite' : 'off'}>
             {messages.map((m, k) => {
-              const active = k === index;
+              // Modulo: die Meldungszahl wechselt beim Seitenwechsel (3 ↔ 4).
+              const active = k === index % count;
               const inner = (
                 <>
                   <m.icon className="h-3.5 w-3.5 flex-shrink-0 opacity-80" aria-hidden />

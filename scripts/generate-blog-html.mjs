@@ -307,6 +307,7 @@ const STATIC_PAGES = [
     extraSchema: [rewaxServiceSchema(true), rewaxFaqSchema(true)],
     faq: rewaxFaqItems(true),
     calc: { href: '/rechner/intervall', label: 'Wie oft nachwachsen? Intervall berechnen' },
+    links: CITY_PAGES.map((c) => ({ href: `/kette-wachsen-lassen/${c.slug}`, label: `Kette wachsen lassen in ${c.name}` })),
   },
   {
     dir: 'starter-set',
@@ -614,6 +615,9 @@ function renderStatic(p) {
     sections,
     faq,
     p.calc ? `<p><a href="${p.calc.href}">${esc(p.calc.label)} →</a></p>` : '',
+    // Interne Links als echte <a> — die Stadt-Chips der React-Seite sieht ein
+    // Crawler ohne JS nicht (Rewax-Hub → 12 Städte, Stadt → Nachbarn + Hub).
+    p.links ? `<ul>${p.links.map(l => `<li><a href="${esc(l.href)}">${esc(l.label)}</a></li>`).join('')}</ul>` : '',
     `<p><a href="/">Zur Startseite</a> · <a href="/ueber-uns">Über uns</a> · <a href="/anleitung">Anleitung</a> · <a href="/faq">FAQ</a> · <a href="/kontakt">Kontakt</a> · <a href="/wissenschaft">Wissenschaft</a> · <a href="/kette-wachsen-lassen">Kette wachsen lassen</a> · <a href="/starter-set">Starter-Set</a> · <a href="/rechner">Rechner</a> · <a href="/blog">Blog</a></p>`,
   ].join('\n');
   return buildPage({ head, body });
@@ -832,6 +836,10 @@ for (const c of CITY_PAGES) {
     extraSchema: [cityServiceSchema(c, true), cityBreadcrumbSchema(c, true), cityFaqSchema(c, true)],
     faq: cityFaqItems(c, true),
     calc: { href: '/kette-wachsen-lassen', label: 'Kette wachsen lassen: Ablauf, Preise, Geschenkkarte' },
+    links: [
+      ...c.neighbors.map((s) => ({ href: `/kette-wachsen-lassen/${s}`, label: `Kette wachsen lassen in ${cityBySlug(s).name}` })),
+      { href: '/kette-wachsen-lassen', label: 'Kette wachsen lassen: alle Städte' },
+    ],
   }));
 }
 for (const p of LEGAL_PAGES) write(p.dir, renderLegal(p));
