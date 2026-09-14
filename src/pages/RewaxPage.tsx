@@ -466,7 +466,7 @@ export function PriceMatrix({ de }: { de: boolean }) {
             <span className="text-[12.5px] sm:text-[13px]" style={{ color: 'var(--txm)' }}>{de ? 'Rückversand' : 'Return shipping'}</span>
             {cols.map(c => (
               <span key={c} className="num text-[12.5px]" style={{ color: 'var(--tx2)' }}>
-                {eur(PRICE.shippingSingle, de)}<span style={{ color: 'var(--txf)' }}> · {de ? 'ab 2' : '2+'} {eur(PRICE.shippingBundle, de)}</span>
+                {eur(PRICE.shippingSingle, de)}<span style={{ color: 'var(--txf)' }}>*</span>
               </span>
             ))}
           </div>
@@ -494,8 +494,8 @@ export function PriceMatrix({ de }: { de: boolean }) {
 
       <p className="text-[11.5px] leading-relaxed mt-3" style={{ color: 'var(--txff)' }}>
         {de
-          ? 'Hinversand trägst du. Kleinunternehmer nach § 19 UStG, daher keine Umsatzsteuer ausgewiesen.'
-          : 'You cover shipping to us. Small business under § 19 UStG, so no VAT is shown.'}
+          ? `* Eine Kette im Großbrief, ab zwei Ketten im Maxibrief ${eur(PRICE.shippingBundle, de)} für alle zusammen. Hinversand trägst du. Kleinunternehmer nach § 19 UStG, daher keine Umsatzsteuer ausgewiesen.`
+          : `* One chain as a letter, two or more as a large letter for ${eur(PRICE.shippingBundle, de)} in total. You cover shipping to us. Small business under § 19 UStG, so no VAT is shown.`}
       </p>
     </div>
   );
