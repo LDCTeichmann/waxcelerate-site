@@ -273,8 +273,8 @@ Kette auf das größte Kettenblatt und das größte Ritzel legen, ohne sie durch
 ### Was kostet der Umstieg auf Heißwachs?
 
 URL: https://waxcelerate.de/rechner/umstieg
-Beantwortet: Was kostet der Umstieg?
-Eingaben: Erstausstattung, laufende Kosten und ab wann es sich rechnet.
+Beantwortet: Ab wann lohnt sich Wachs?
+Eingaben: Einkaufsliste, Kostenverlauf gegen Öl und der Monat, ab dem du im Plus bist.
 
 Der Einstieg kostet einmalig mehr als eine Flasche Öl. Danach dreht es sich um — hier siehst du, ab wann.
 

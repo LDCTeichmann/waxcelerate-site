@@ -31,75 +31,62 @@ export interface TrackItem {
   node: React.ReactNode;
 }
 
-// Geometrie des Decks. Die Karte ist ueber left:50% + translate(-50%)
-// zentriert, das zusaetzliche translateX schiebt ihre Mitte nach aussen.
-// 0,70 w > 0,5 w heisst, die Mitte der Nachbarkarte liegt ausserhalb der
-// aktiven Karte, ihre Beschriftung bleibt also lesbar; 0,70 w + 0,92 w/2 =
-// 1,16 w bleibt bei 42 % Kartenbreite innerhalb der Spalte (bei 1024, 1280
-// und 1440 geprueft).
+// Geometrie des Decks.
 //
-// Flacher gedreht als vorher (14 statt 18 Grad, scale 0,92 statt 0,90): die
-// Karte ist seit dem Hoehen-Umbau breiter als hoch, und in dem Format liest
-// sich eine starke Drehung als Verzerrung statt als Tiefe.
+// Alle Karten liegen per Grid-Stacking in derselben Zelle (grid-area 1/1).
+// Die Hoehe ist die der aktiven Karte (gemessen, --deck-h) und gleitet beim
+// Blaettern auf die naechste; die Nachbarn bekommen dieselbe Hoehe, ihr
+// Inhalt liegt ohnehin unter dem Deckel. Vorher war die Hoehe an den Bildschirm gebunden
+// (clamp(492px, 100svh - 300px, 580px)); um da hineinzupassen, flogen
+// Skizzen, Kettenliste und Aufschluesselungen aus den Karten (f26cf83). Die
+// Regel ist aufgehoben — ein Rechner, der nur das Ergebnis zeigt, hilft nicht.
+//
+// Nachbarkarten: kleiner (0,82) und mit der AUSSENkante nach hinten gedreht.
+// Vorher drehte rotateY(-14deg) die rechte Karte mit der Aussenkante zum
+// Betrachter — durch die Perspektive war diese Kante hoeher als die aktive
+// Karte, die Mitte wirkte kleiner als die Nachbarn.
+// Die Verschiebung haengt an --deck-shift (Prozent der Kartenbreite), damit
+// sie mit der Kartenbreite je Breakpoint mitgehen kann: sichtbar bleibt rund
+// ein Drittel der Nachbarkarte, genau der Streifen, in dem ihr Deckel die
+// Frage zeigt.
 function slotTransform(rel: number, count: number): React.CSSProperties {
   if (rel === 0) {
-    return { transform: 'translate(-50%) rotateY(0deg) scale(1)', zIndex: 30, opacity: 1 };
+    return { transform: 'translateX(0) rotateY(0deg) scale(1)', zIndex: 30, opacity: 1 };
   }
   if (rel === 1) {
-    return { transform: 'translate(-50%) translateX(70%) rotateY(-14deg) scale(0.92)', zIndex: 20, opacity: 1 };
+    return { transform: 'translateX(var(--deck-shift)) rotateY(12deg) scale(0.82)', zIndex: 20, opacity: 1 };
   }
   if (rel === count - 1) {
-    return { transform: 'translate(-50%) translateX(-70%) rotateY(14deg) scale(0.92)', zIndex: 20, opacity: 1 };
+    return { transform: 'translateX(calc(var(--deck-shift) * -1)) rotateY(-12deg) scale(0.82)', zIndex: 20, opacity: 1 };
   }
   // Alles Weitere steht als Stapel hinter der aktiven Karte. Unsichtbar, aber
   // vorhanden — so hat der Uebergang beim Weiterblaettern etwas zu animieren,
   // statt dass eine Karte aus dem Nichts erscheint.
-  return { transform: 'translate(-50%) scale(0.86)', zIndex: 10, opacity: 0, pointerEvents: 'none' };
+  return { transform: 'scale(0.76)', zIndex: 10, opacity: 0, pointerEvents: 'none' };
 }
 
-// ── Kartenhoehe ────────────────────────────────────────────────────────────
-//
-// Vorher zwei feste Zahlen (840/850 px), geeicht auf einen Karteninhalt mit
-// Skizzen. Damit war die Sektion rund 1250 px hoch: man musste scrollen, um
-// Eingabe UND Antwort zu sehen — bei einem Werkzeug, dessen ganzer Sinn der
-// Zusammenhang zwischen beidem ist.
-//
-// Die Hoehe kommt jetzt vom Bildschirm: alles, was ausser der Karte in der
-// Sektion steht, wird von 100svh abgezogen. `svh` und nicht `vh`/`dvh`, weil
-// sich der Wert dann nicht aendert, wenn die mobile Adressleiste ein- und
-// ausfaehrt (dieselbe Regel wie beim Hero, siehe index.css).
-//
-// Der Abzug von 300 px ist gemessen, nicht geschaetzt: feste Navigation 60,
-// Profilleiste 112 + 16 Abstand, Reiterzeile 64, „Alle Rechner" 36, dazu das
-// Sektionspolster. Was sich davon nicht ausgeht, faengt die Ueberschrift auf —
-// die darf oben aus dem Bild laufen, alles Bedienbare nicht.
-// Nachgemessen bei 1440x800 (Karte 500, Leiste bis Link 735 + 60 Navigation)
-// und 1440x900 (Karte 580, 815 + 60).
-//
-// Untergrenze: die Hoehe, in die der laengste der sechs Rechner (Verschleiss)
-// gerade noch passt, ohne dass etwas abgeschnitten wird — mit aufgehobener
-// Hoehenbindung ueber alle sechs Karten gemessen. Die beiden Werte
-// unterscheiden sich, weil die Karte im Deck bei 1024 px Fensterbreite nur
-// 344 px breit ist (42 % der Spalte) und damit schmaler als auf dem Handy:
-// mehr Zeilenumbrueche, 488 px statt 482 px Bedarf.
-// Obergrenze 580 px, damit die Karte auf einem grossen Monitor nicht ins
-// Leere waechst.
-const DECK_HEIGHT = 'clamp(492px, calc(100svh - 300px), 580px)';
-const TRACK_HEIGHT = 'clamp(485px, calc(100svh - 285px), 580px)';
-
-function DeckSlot({ item, rel, count, active, onActivate, de, index }: {
+function DeckSlot({ item, rel, count, active, onActivate, de, index, measureRef }: {
   item: TrackItem; rel: number; count: number; active: boolean; onActivate: () => void;
-  de: boolean; index: number;
+  de: boolean; index: number; measureRef: (el: HTMLDivElement | null) => void;
 }) {
   const { Icon } = item;
+  // Welche Seite der Nachbarkarte sichtbar ist: bei der rechten der rechte
+  // Streifen, bei der linken der linke. Der Deckelinhalt steht genau dort.
+  const side: 'left' | 'right' = rel === count - 1 ? 'left' : 'right';
   return (
-    <div className="deck-slot absolute inset-y-0 left-1/2 w-[42%]" style={slotTransform(rel, count)}>
-      <div className="relative w-full h-full">
+    <div
+      className="deck-slot [grid-area:1/1] self-start justify-self-center w-[64%] xl:w-[58%]"
+      style={{ ...slotTransform(rel, count), height: 'var(--deck-h, auto)' }}
+    >
+      {/* Nachbarn abschneiden, falls ihr Inhalt hoeher ist als die aktive
+          Karte; die aktive nicht, sonst faellt ihr Schatten weg. */}
+      <div className={`relative w-full h-full rounded-3xl ${active ? '' : 'overflow-hidden'}`}>
         {/* `inert` nimmt die ganze inaktive Karte in einem Zug aus
             Tab-Reihenfolge und Accessibility-Baum — eine Karte im Hintergrund
             darf weder per Tab erreichbar sein noch vorgelesen werden, als
             stuende sie vorne. */}
-        <div className="h-full" inert={!active}>{item.node}</div>
+        {/* Ohne h-full: gemessen wird die natuerliche Hoehe der Karte. */}
+        <div ref={measureRef} inert={!active}>{item.node}</div>
 
         {/* Deckel fuer alle Karten ausser der vorderen. Sechs offene Rechner
             nebeneinander sind Laerm; der Deckel reduziert jede Karte auf die
@@ -118,7 +105,7 @@ function DeckSlot({ item, rel, count, active, onActivate, de, index }: {
           aria-label={de ? `${item.label} anzeigen` : `Show ${item.label}`}
           aria-hidden={active}
           tabIndex={active ? -1 : 0}
-          className="deck-cover absolute inset-0 z-10 rounded-3xl flex flex-col items-stretch text-left px-6 py-6 overflow-hidden"
+          className={`deck-cover absolute inset-0 z-10 rounded-3xl flex flex-col py-7 overflow-hidden ${side === 'right' ? 'items-end text-left pr-7' : 'items-start text-right pl-7'}`}
           style={{
             background: 'var(--card-bg)',
             border: '1px solid var(--tool-card-bd)',
@@ -133,11 +120,11 @@ function DeckSlot({ item, rel, count, active, onActivate, de, index }: {
             aria-hidden
             className="absolute inset-0 pointer-events-none"
             style={{
-              background: 'radial-gradient(120% 80% at 15% 0%, rgba(var(--accent-rgb),0.10) 0%, transparent 62%)',
+              background: `radial-gradient(90% 70% at ${side === 'right' ? '85%' : '15%'} 0%, rgba(var(--accent-rgb),0.12) 0%, transparent 62%)`,
             }}
           />
 
-          <span className="relative flex items-center justify-between">
+          <span className={`relative w-[36%] flex items-center justify-between ${side === 'left' ? 'flex-row-reverse' : ''}`}>
             <span
               className="w-10 h-10 rounded-xl grid place-items-center"
               style={{
@@ -152,24 +139,24 @@ function DeckSlot({ item, rel, count, active, onActivate, de, index }: {
             </span>
           </span>
 
-          <span className="relative flex flex-col gap-2.5 my-auto">
+          <span className="relative w-[36%] flex flex-col gap-2.5 my-auto">
             <span className="text-meta uppercase tracking-[0.14em] font-semibold" style={{ color: 'var(--brand)' }}>
               {item.label}
             </span>
-            <span className="text-[19px] font-semibold leading-snug tracking-[-0.01em]" style={{ color: 'var(--tx1)' }}>
+            <span className="text-[22px] font-semibold leading-tight tracking-[-0.01em]" style={{ color: 'var(--tx1)' }}>
               {item.cover}
             </span>
-            <span className="text-[12.5px] leading-relaxed" style={{ color: 'var(--txf)' }}>
+            <span className="text-[13px] leading-relaxed" style={{ color: 'var(--txm)' }}>
               {item.hint}
             </span>
           </span>
 
           <span
-            className="relative flex items-center justify-between pt-3 text-[12px] font-medium"
+            className={`relative w-[36%] flex items-center justify-between pt-3 text-[13px] font-medium ${side === 'left' ? 'flex-row-reverse' : ''}`}
             style={{ borderTop: '1px solid var(--inset-bd)', color: 'var(--brand)' }}
           >
             <span>{de ? 'Rechner öffnen' : 'Open calculator'}</span>
-            <ChevronRight className="h-3.5 w-3.5" />
+            {side === 'left' ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
           </span>
         </button>
 
@@ -191,8 +178,7 @@ function DeckSlot({ item, rel, count, active, onActivate, de, index }: {
 export function ToolTrack({ items, onActiveChange, trailing }: {
   items: TrackItem[];
   /** Steht in derselben Zeile wie die Bedienelemente (Punkte bzw. Reiter und
-   *  Pfeile) statt in einer eigenen darunter — eine eigene Zeile kostete
-   *  36 px, und die Sektion soll auf eine Bildschirmhoehe passen. */
+   *  Pfeile) statt in einer eigenen darunter. */
   trailing?: React.ReactNode;
   /** Meldet den Schluessel der aktiven Karte — die Sektion braucht ihn, um die
    *  Profilleiste zu deaktivieren, wenn der Rechner davorne sie nicht nutzt. */
@@ -273,6 +259,42 @@ export function ToolTrack({ items, onActiveChange, trailing }: {
     return () => observer.disconnect();
   }, []);
 
+  // ── Hoehe des mobilen Tracks: die der aktiven Karte ─────────────────────
+  // Die Karten liegen nebeneinander; ohne feste Hoehe waere der Track so hoch
+  // wie die laengste der sechs, und kurze Rechner stuenden ueber einem Loch.
+  const trackItemRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [trackHeight, setTrackHeight] = useState<number>();
+  useEffect(() => {
+    const el = trackItemRefs.current[active];
+    if (!el) return;
+    const observer = new ResizeObserver(() => setTrackHeight(el.offsetHeight));
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [active]);
+
+  // Dasselbe fuer das Deck: Hoehe der aktiven Karte.
+  const deckItemRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [deckHeight, setDeckHeight] = useState<number>();
+  useEffect(() => {
+    const el = deckItemRefs.current[active];
+    if (!el) return;
+    const observer = new ResizeObserver(() => setDeckHeight(el.offsetHeight));
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [active]);
+
+  // Horizontales Wischen auf dem Trackpad blaettert das Deck. Eine Geste
+  // liefert Dutzende Wheel-Events — nach einem Blaettern ist bis zum Ende der
+  // Uebergangsanimation Ruhe.
+  const wheelLock = useRef(0);
+  const onDeckWheel = (e: React.WheelEvent) => {
+    if (Math.abs(e.deltaX) < 24 || Math.abs(e.deltaX) < Math.abs(e.deltaY) * 1.5) return;
+    const now = Date.now();
+    if (now < wheelLock.current) return;
+    wheelLock.current = now + 700;
+    setActive(a => (a + (e.deltaX > 0 ? 1 : -1) + count) % count);
+  };
+
   // Roving Tabindex: nur der gewaehlte Reiter ist tabbar, der Fokus muss also
   // mitwandern, wenn die Pfeiltasten die Auswahl verschieben.
   const moveDeck = (next: number) => {
@@ -315,8 +337,8 @@ export function ToolTrack({ items, onActiveChange, trailing }: {
           ))}
         </div>
         <div
-          className="overflow-hidden"
-          style={{ height: TRACK_HEIGHT }}
+          className="overflow-hidden transition-[height] duration-300 ease-out"
+          style={{ height: trackHeight }}
           onTouchStart={e => {
             const target = e.target as HTMLElement;
             touchStart.current = {
@@ -337,30 +359,28 @@ export function ToolTrack({ items, onActiveChange, trailing }: {
           }}
         >
           <div
-            className="flex items-start h-full transition-transform duration-300 ease-out"
+            className="flex items-start transition-transform duration-300 ease-out"
             style={{ transform: `translateX(-${active * 100}%)` }}
           >
             {items.map((item, i) => (
-              <div key={item.key} className="min-w-full h-full" inert={active !== i}>{item.node}</div>
+              <div key={item.key} ref={el => { trackItemRefs.current[i] = el; }} className="min-w-full" inert={active !== i}>{item.node}</div>
             ))}
           </div>
         </div>
-        {/* Keine Punktreihe mehr unter der Karte: sie sagte dasselbe wie die
-            Reiterleiste darueber (welcher von sechs Rechnern steht vorne) und
-            kostete mit ihren 44-px-Trefferflaechen 32 px Hoehe. Auf dem Handy
-            ist genau das der Unterschied zwischen „Antwort und Knopf sichtbar"
-            und „scrollen". Gewischt wird unveraendert weiter; die Reiterleiste
+        {/* Keine Punktreihe unter der Karte: sie sagte dasselbe wie die
+            Reiterleiste darueber. Gewischt wird unveraendert; die Reiterleiste
             scrollt den aktiven Reiter dabei mittig (siehe Effekt oben). */}
       </div>
 
       {/* ── Ab lg: dasselbe als 3D-Deck ── */}
       <div className="hidden lg:block">
-        {/* Feste Hoehe fuer alle sechs Rechner (DECK_HEIGHT) statt gemessener
-            — overflow-hidden bleibt als Sicherheitsnetz, falls eine Uebersetzung
-            oder ein Sonderfall den knappen Rahmen doch einmal sprengt. */}
+        {/* Grid-Stacking: alle Karten in einer Zelle, Hoehe = aktive Karte
+            (siehe slotTransform). overflow-x nur, weil die gedrehten Nachbarn
+            sonst die Seitenbreite sprengen koennten. */}
         <div
-          className="relative overflow-hidden"
-          style={{ perspective: '1900px', height: DECK_HEIGHT }}
+          className="relative grid py-2 overflow-x-clip [--deck-shift:36%] xl:[--deck-shift:44%]"
+          style={{ perspective: '1900px', ...(deckHeight ? { '--deck-h': `${deckHeight}px` } : {}) } as React.CSSProperties}
+          onWheel={onDeckWheel}
         >
           {items.map((item, i) => (
             <DeckSlot
@@ -372,6 +392,7 @@ export function ToolTrack({ items, onActiveChange, trailing }: {
               onActivate={() => setActive(i)}
               de={de}
               index={i}
+              measureRef={el => { deckItemRefs.current[i] = el; }}
             />
           ))}
         </div>

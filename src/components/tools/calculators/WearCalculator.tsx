@@ -25,6 +25,7 @@ import {
 import { StepField } from '@/components/tools/StepField';
 import { ResultPanel } from '@/components/tools/ResultPanel';
 import { ResultActions } from '@/components/tools/ResultActions';
+import { ChainGaugeDiagram, ChainMeasureDiagram, SketchFrame } from '@/components/tools/sketches';
 
 const SPEEDS: ChainSpeed[] = [8, 9, 10, 11, 12];
 // „keine" ist eine eigene Antwort, nicht das Fehlen einer. Vorher gab es nur
@@ -165,6 +166,15 @@ export function WearCalculator({ profile, compact }: { profile: ToolProfileState
             </ChipRow>
           </StepField>
         )}
+
+        {/* Die Skizze zur gewaehlten Methode: beim Lineal, wo man ansetzt;
+            bei der Lehre, was „faellt rein" bedeutet — die Pruefspitze folgt
+            dem Urteil. */}
+        <SketchFrame>
+          {method === 'ruler'
+            ? <ChainMeasureDiagram />
+            : <ChainGaugeDiagram state={needsAction ? 'worn' : 'ok'} />}
+        </SketchFrame>
 
       </StepList>
 

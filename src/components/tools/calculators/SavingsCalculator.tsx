@@ -28,6 +28,7 @@ import {
 import { StepField } from '@/components/tools/StepField';
 import { ResultPanel } from '@/components/tools/ResultPanel';
 import { ResultActions } from '@/components/tools/ResultActions';
+import { CassetteWearDiagram, SketchFrame } from '@/components/tools/sketches';
 
 const CHAIN_COUNTS = [1, 2, 3] as const;
 /** Mengenrabatt auf Ketten-Kits, wie auf der Produktseite ausgewiesen. */
@@ -148,10 +149,12 @@ export function SavingsCalculator({ profile, compact }: { profile: ToolProfileSt
           </ChipRow>
         </StepField>
 
-        {/* Der Zahlenvergleich steht nur auf der eigenen Rechnerseite: im Deck
-            zeigt der Ergebnisblock denselben Vergleich als Balken plus
-            Urteilssatz, und die Karte hat dort genau eine Bildschirmhoehe. */}
-        {!compact && (
+        {/* Warum Rotation die Kassette schont — in einem Blick statt in einem
+            Satz im Popover. */}
+        <SketchFrame>
+          <CassetteWearDiagram de={de} />
+        </SketchFrame>
+
         <StepField
           step={2}
           label={de ? 'Gegenüber einer Kette' : 'Versus a single chain'}
@@ -181,7 +184,6 @@ export function SavingsCalculator({ profile, compact }: { profile: ToolProfileSt
             </div>
           )}
         </StepField>
-        )}
 
       </StepList>
 

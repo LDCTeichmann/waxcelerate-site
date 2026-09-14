@@ -107,7 +107,10 @@ export function ResultPanel({
 
       {hero && <div className="mt-2.5">{hero}</div>}
 
-      <p className="text-[12.5px] leading-snug mt-1.5 line-clamp-2 min-h-[2.4em]" style={{ color: 'var(--tx2)' }}>
+      {/* Kein line-clamp mehr: der Urteilssatz lief im Umstieg-Rechner mit
+          „…" ins Leere. Seit die Kartenhoehe dem Inhalt folgt, darf er
+          umbrechen. */}
+      <p className="text-[12.5px] leading-snug mt-1.5" style={{ color: 'var(--tx2)' }}>
         {verdict}
       </p>
 

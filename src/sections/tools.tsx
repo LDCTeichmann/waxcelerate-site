@@ -54,11 +54,8 @@ export function Tools() {
     return () => { cancelled = true; };
   }, []);
 
-  // Knapperes Polster als der Sektionsstandard (py-14/py-28): die Sektion soll
-  // komplett auf einen Bildschirm passen — Profilleiste, Karte, Reiter und der
-  // Link darunter ohne Scrollen. Der Standardwert allein frisst 224 px davon.
   return (
-    <Section id="tools" className="!py-10 sm:!py-14" style={{ background: 'var(--tool-bg)' }}>
+    <Section id="tools" style={{ background: 'var(--tool-bg)' }}>
       <div ref={headerRef} className="mb-6">
         <h2 className="section-title mb-4">
           <ScrollWordReveal text={t.tools.title} />

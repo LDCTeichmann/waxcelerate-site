@@ -24,9 +24,9 @@ import { ToolTrack } from '@/components/tools/ToolTrack';
 
 // `compact`: gesetzt, wenn der Rechner im Kartenstapel der Startseite steckt
 // (ToolDeck) statt auf seiner eigenen /rechner/:slug-Seite (ToolCalculator).
-// Die meisten Rechner ignorieren das Flag — nur ChainMatchCalculator nutzt es,
-// um seine variable Trefferliste im Stapel wegzulassen (die feste Kartenhoehe
-// in ToolTrack.tsx vertraegt keinen Inhalt, der je nach Daten wechselt).
+// Das Flag blendet keinen Inhalt aus — es setzt nur die Aktionen als Symbole
+// neben die grosse Zahl und laesst ChainMatchCalculator im Stapel auf die
+// gefilterte Produktliste statt zum naechsten Rechner verlinken.
 type CalcComponent = (props: { profile: ToolProfileState; compact?: boolean }) => React.ReactElement;
 type IconComponent = React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
 

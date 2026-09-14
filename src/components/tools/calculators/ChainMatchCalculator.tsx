@@ -5,14 +5,10 @@
 // einzige Rechner hier, dessen Antwort ausschliesslich aus gepflegten
 // Produktdaten kommt und nie aus einer Annahme.
 //
-// Die Trefferliste steht jetzt auch im Kartenstapel (ToolDeck) selbst: seit
-// ResultPanel `mt-auto` traegt (Phase 0), sammelt sich der freie Raum ueber
-// dem Ergebnis, nicht mehr dahinter — bei nur zwei Eingabeschritten reicht er
-// fuer bis zu vier Kacheln, mehr liefert die Matrix nicht. Vorher blendete
-// `compact` die Liste aus, weil sie die feste Kartenhoehe gesprengt haette;
-// das war die Sackgasse „4 Ketten passen" ohne zu zeigen, welche.
+// Die Trefferliste steht als Produktkarten in jeder Darstellung, im
+// Kartenstapel der Startseite genauso wie auf der Einzelseite.
 //
-// `compact` steuert nur noch, wohin der Fussknopf fuehrt: im Deck auf die
+// `compact` steuert nur, wohin der Fussknopf fuehrt: im Deck auf die
 // gefilterte Produktliste (derselbe `compatibilityMatrix`, damit dort
 // garantiert dieselben Ketten stehen wie hier), auf der Einzelseite weiter
 // zum naechsten Rechner.
@@ -119,39 +115,35 @@ export function ChainMatchCalculator({ profile, compact }: { profile: ToolProfil
         </StepField>
       </StepList>
 
-      {/* Die Trefferliste steht nur auf der eigenen Rechnerseite. Im Deck
-          ist die Kartenhoehe an die Bildschirmhoehe gebunden, und die Liste
-          ist der einzige Karteninhalt, der je nach Daten zwischen zwei und
-          vier Zeilen schwankt — beides zusammen geht nicht. Im Deck fuehrt
-          stattdessen der Knopf unten direkt zu den passenden Ketten.
-          Sehr kleine Kacheln im Zweispalten-Raster statt einer Zeile pro
-          Treffer: eine volle Zeile je Kette (Bild + zwei Textzeilen + Preis)
-          brauchte bei vier Treffern rund 270 px und sprengte die feste
-          680-px-Kartenhoehe — genau der Shimano-12-fach-Fall, mit dem die
-          Karte startet. Zwei Spalten aus kleinen Bild+Preis-Kacheln passen
-          selbst bei vier Treffern in gut 90 px; Modell und Ausverkauft-Status
-          bleiben einen Klick entfernt auf der Produktseite. */}
-      {!compact && sortedMatches.length > 0 && (
-        <div className="px-4 sm:px-5 pb-3 grid grid-cols-2 gap-1.5">
+      {/* Die Treffer als echte Produktkarten, auch im Deck. Vorher stand dort
+          nur „4 Ketten passen" — die Frage war beantwortet, aber nicht welche.
+          Seit die Kartenhoehe wieder dem Inhalt folgt (ToolTrack.tsx), ist der
+          Platz dafuer da. */}
+      {sortedMatches.length > 0 && (
+        <div className="px-4 sm:px-5 pb-3 grid grid-cols-2 gap-2">
           {sortedMatches.map(p => {
             const soldOut = isSoldOut(p);
             return (
               <a
                 key={p.id}
                 href={`/produkt/${p.id}`}
-                className="flex items-center gap-1.5 rounded-lg px-1.5 py-1.5 transition-opacity hover:opacity-85"
-                style={{ background: 'var(--card-bg)', border: '1px solid var(--bd2)', opacity: soldOut ? 0.6 : 1 }}
+                className="group flex items-center gap-2.5 rounded-xl p-1.5 pr-2.5 transition-colors"
+                style={{ background: 'var(--sf)', border: '1px solid var(--bd2)', opacity: soldOut ? 0.6 : 1 }}
               >
-                <img
-                  src={p.image}
-                  alt=""
-                  loading="lazy"
-                  className="w-7 h-7 rounded-md object-cover flex-shrink-0"
-                  style={{ background: 'var(--sf2)' }}
-                />
+                <span className="relative w-14 h-14 rounded-lg overflow-hidden flex-shrink-0" style={{ background: 'var(--sf2)' }}>
+                  <img
+                    src={p.image}
+                    alt=""
+                    loading="lazy"
+                    className="photo-neutral absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.06]"
+                  />
+                </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block text-meta truncate" style={{ color: 'var(--txff)' }}>{p.chainBrand}</span>
-                  <span className="block text-meta font-semibold tabular-nums truncate" style={{ color: soldOut ? 'var(--txff)' : 'var(--brand)' }}>
+                  <span className="block text-[12.5px] font-semibold truncate" style={{ color: 'var(--tx1)' }}>{p.chainBrand}</span>
+                  <span className="block text-meta truncate" style={{ color: 'var(--txf)' }}>
+                    {p.chainModel}{p.chainLinks ? ` · ${p.chainLinks}` : ''}
+                  </span>
+                  <span className="block text-[12.5px] font-semibold tabular-nums" style={{ color: soldOut ? 'var(--txff)' : 'var(--brand)' }}>
                     {soldOut ? t.tools.match.soldOut : eur(p.price)}
                   </span>
                 </span>

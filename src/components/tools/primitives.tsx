@@ -59,16 +59,14 @@ export function ChipRow({ children }: { children: React.ReactNode }) {
 // Kein backdrop-filter: var(--card-bg) ist ein vollstaendig deckender Verlauf
 // (index.css). Hinter einer deckenden Karte zu blurren ist unsichtbar und reine
 // Compositing-Arbeit.
-// Mit h-full + flex-col: im Deck (ToolTrack.tsx) hat jeder Kartenslot eine
-// feste, vom Viewport abgeleitete Hoehe, unabhaengig davon, welcher der sechs
-// Rechner gerade drin steckt — die Karte selbst darf sich also nicht an ihrem
-// Inhalt ausrichten, sondern muss diese Hoehe exakt ausfuellen. ResultPanel
+// Mit h-full + flex-col: im Deck (ToolTrack.tsx) sind alle Karten so hoch wie
+// die hoechste der sechs — die Karte muss diese Hoehe ausfuellen. ResultPanel
 // traegt dafuer das einzige `mt-auto`: Kopf oben, Antwortblock unten, der
 // freie Raum sammelt sich dazwischen.
 export function ToolCard({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="h-full flex flex-col rounded-3xl overflow-hidden"
+      className="tool-cq h-full flex flex-col rounded-3xl overflow-hidden"
       style={{ background: 'var(--card-bg)', border: '1px solid var(--tool-card-bd)', boxShadow: 'var(--tool-card-shad)' }}
     >
       {children}
@@ -98,11 +96,7 @@ export function ToolHeader({ icon, title, subtitle, info }: {
         </span>
         <span className="min-w-0 flex-1">
           <h3 className="text-[15px] font-semibold leading-snug" style={{ color: 'var(--tx1)' }}>{title}</h3>
-          {/* line-clamp-1: die Kopfzeile darf nie in der Hoehe variieren, egal
-              wie lang der Untertitel eines einzelnen Rechners ausfaellt —
-              das ist Teil davon, dass alle sechs Karten sich exakt gleich
-              gross anfuehlen. */}
-          <p className="text-[12px] leading-snug mt-0.5 line-clamp-1" style={{ color: 'var(--txf)' }}>{subtitle}</p>
+          <p className="text-[12px] leading-snug mt-0.5" style={{ color: 'var(--txf)' }}>{subtitle}</p>
         </span>
         {info && <span className="flex-shrink-0 mt-1">{info}</span>}
       </div>

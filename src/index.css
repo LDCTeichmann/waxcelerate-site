@@ -38,8 +38,18 @@
    the whole animation is a plain CSS transition between three declarative
    states. Nothing to keep in sync, and an interrupted move just re-targets
    from wherever it is instead of snapping. */
+/* Rechnerkarten: zwei Bloecke nebeneinander, sobald die KARTE breit genug
+   ist — nicht der Bildschirm. Dieselbe Karte ist im Deck 580-750 px breit,
+   auf dem Handy 360, auf der Einzelseite bis 900; eine Viewport-Breakpoint
+   traefe keinen dieser Faelle zuverlaessig. */
+.tool-cq { container-type: inline-size; }
+.cq-split { display: flex; flex-direction: column; gap: 0.5rem; }
+@container (min-width: 600px) {
+  .cq-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.75rem 1.25rem; align-items: start; }
+}
+
 .deck-slot {
-  transition: transform 620ms cubic-bezier(0.22, 1, 0.36, 1), opacity 380ms ease;
+  transition: transform 620ms cubic-bezier(0.22, 1, 0.36, 1), opacity 380ms ease, height 420ms cubic-bezier(0.22, 1, 0.36, 1);
   will-change: transform;
 }
 .deck-cover { transition: opacity 420ms ease; }

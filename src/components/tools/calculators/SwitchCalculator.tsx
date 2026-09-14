@@ -19,6 +19,12 @@
 // 3. Schritt 1 war eine reine Anzeige. Die Blockgroesse (300 g / 500 g) ist
 //    jetzt eine echte Wahl — ehrlich mitgesagt, dass der 300er im Einstieg
 //    guenstiger, je Wachsung aber teurer ist.
+//
+// Seit 09/2026 fragt die Karte „Ab wann lohnt sich Wachs?" statt „Was kostet
+// der Umstieg?": Heldenzahl ist der Monat, ab dem der Umstieg bezahlt ist, und
+// der Weg dahin steht als Kostenkurve (CumulativeCostChart) auf der Karte.
+// Einkaufsliste und Jahresaufschluesselung sind wieder in jeder Darstellung
+// sichtbar — sie waren fuer die Bildschirmhoehen-Regel ausgeblendet worden.
 
 import { HelpCircle, ArrowRightLeft } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -28,7 +34,7 @@ import { switchEconomics, applicationsPerBlock, drivetrainCosts, referenceWax } 
 import { products } from '@/lib/data';
 import { accessories } from '@/lib/data';
 import { shareUrl } from '@/lib/toolState';
-import { AnimatedNumber } from '@/components/viz';
+import { CumulativeCostChart, SketchFrame } from '@/components/tools/sketches';
 import {
   ToolCard, ToolHeader, StepList, ToolCTA, TogButton, ChipRow, StepNote, InfoPopover,
 } from '@/components/tools/primitives';
@@ -77,17 +83,6 @@ export function SwitchCalculator({ profile, compact }: { profile: ToolProfileSta
   ];
   const startTotal = startItems.reduce((sum, i) => sum + i.price, 0);
 
-  const maxYearly = Math.max(costs.oilPerYear, costs.waxPerYear, 1);
-  const barRow = (label: string, amount: number, color: string) => (
-    <div className="flex items-center gap-2">
-      <span className="text-meta w-10 flex-shrink-0" style={{ color: 'var(--txff)' }}>{label}</span>
-      <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: 'var(--inset-bd)' }}>
-        <div className="h-full rounded-full" style={{ width: `${(amount / maxYearly) * 100}%`, background: color }} />
-      </div>
-      <span className="text-[12px] font-medium tabular-nums flex-shrink-0" style={{ color: 'var(--tx2)' }}>{eur(amount)}</span>
-    </div>
-  );
-
   return (
     <ToolCard>
       <ToolHeader
@@ -121,9 +116,13 @@ export function SwitchCalculator({ profile, compact }: { profile: ToolProfileSta
       />
 
       <StepList>
+        {/* Einkaufsliste und Aufschluesselung nebeneinander, sobald die
+            Karte breit genug ist (.cq-split) — darunter die Kurve, die
+            beides zusammenfuehrt. */}
+        <div className="cq-split">
         <StepField
           step={1}
-          label={t.tools.switch.needList}
+          label={de ? 'Einkaufsliste' : 'Shopping list'}
           value={eur(startTotal)}
           help={`${de
             ? 'Der Wachsblock ist Schmierstoff — den kaufst du beim Ölen genauso, nur in anderer Form. Als echten Mehraufwand rechnen wir deshalb nur Zange und Draht.'
@@ -141,21 +140,16 @@ export function SwitchCalculator({ profile, compact }: { profile: ToolProfileSta
             })}
           </ChipRow>
           <StepNote>{t.tools.switch.waxSizeNote}</StepNote>
-          {/* Die Einzelposten stehen nur auf der eigenen Rechnerseite. Im Deck
-              haengt die Kartenhoehe an der Bildschirmhoehe; dort steht die
-              Summe rechts neben der Schrittbeschriftung, die Aufschluesselung
-              ist einen Klick entfernt. */}
-          {!compact && (
+          {/* Die Einkaufsliste steht immer da: ohne sie ist die Summe rechts
+              oben eine Zahl ohne Herkunft. */}
           <ul className="flex flex-col gap-1.5 mt-1">
             {startItems.map(i => (
               <li key={i.label} className="flex items-baseline justify-between gap-3">
                 <span className="text-[13px] min-w-0 truncate" style={{ color: 'var(--txf)' }}>
                   {i.label}
-                  {i.extra && (
-                    <span className="text-meta ml-1.5" style={{ color: 'var(--brand)' }}>
-                      {de ? 'Mehraufwand' : 'extra'}
-                    </span>
-                  )}
+                  <span className="text-meta ml-1.5" style={{ color: i.extra ? 'var(--brand)' : 'var(--txff)' }}>
+                    {i.extra ? (de ? 'Mehraufwand' : 'extra') : (de ? 'ersetzt dein Öl' : 'replaces your oil')}
+                  </span>
                 </span>
                 <span className="text-[13px] font-medium tabular-nums flex-shrink-0" style={{ color: 'var(--tx2)' }}>
                   {eur(i.price)}
@@ -163,24 +157,11 @@ export function SwitchCalculator({ profile, compact }: { profile: ToolProfileSta
               </li>
             ))}
           </ul>
-          )}
         </StepField>
 
-        {/* Die volle Jahresrechnung statt nur des Schmierstoff-Vergleichs:
-            Kette und Kassette sprechen fuer Wachs, der Schmierstoff dagegen —
-            vorher stand nur die Schmierstoffzeile hier, und das ist die eine
-            Zeile, in der Wachs verliert. */}
-        {/* Die volle Jahrestabelle steht nur auf der eigenen Rechnerseite.
-            Im Deck zeigt der Ergebnisblock denselben Vergleich als Balken
-            (Oel gegen Wachs) — die Tabelle waere dort eine zweite Fassung
-            derselben Zahlen und kostet 119 px, die die Sektion nicht hat. */}
-        {!compact && (
         <StepField
           step={2}
-          label={de ? 'Was es dich im Jahr kostet' : 'What it costs you per year'}
-          help={de
-            ? 'Ergibt sich aus deinem Fahrprofil oben. Mehr Kilometer und härtere Bedingungen heißen öfter wachsen — und gleichzeitig größere Ersparnis, weil geölte Ketten dort am schnellsten verschleißen.'
-            : 'Comes from your riding profile above. More kilometres and harsher conditions mean waxing more often — and a bigger saving, because oiled chains wear fastest there.'}
+          label={de ? 'Pro Jahr' : 'Per year'}
         >
           <div className="grid grid-cols-[auto_1fr_1fr] gap-x-3 gap-y-1.5 items-baseline">
             <span />
@@ -198,29 +179,44 @@ export function SwitchCalculator({ profile, compact }: { profile: ToolProfileSta
             <span className="text-[13px]" style={{ color: 'var(--txf)' }}>{t.tools.switch.breakdownLube}</span>
             <span className="text-[13px] text-right tabular-nums" style={{ color: 'var(--tx2)' }}>{eur(costs.breakdown.lube.oil)}</span>
             <span className="text-[13px] text-right font-medium tabular-nums" style={{ color: 'var(--txm)' }}>+{eur(costs.breakdown.lube.wax)}</span>
+
+            <span className="text-[13px] font-semibold pt-1.5" style={{ color: 'var(--tx2)', borderTop: '1px solid var(--inset-bd)' }}>{de ? 'Summe' : 'Total'}</span>
+            <span className="text-[13px] text-right font-semibold tabular-nums pt-1.5" style={{ color: 'var(--tx2)', borderTop: '1px solid var(--inset-bd)' }}>{eur(costs.oilPerYear)}</span>
+            <span className="text-[13px] text-right font-semibold tabular-nums pt-1.5" style={{ color: 'var(--brand)', borderTop: '1px solid var(--inset-bd)' }}>{eur(costs.waxPerYear)}</span>
           </div>
         </StepField>
-        )}
+        </div>
+
+        {/* Der Kern der Frage „lohnt sich das?" als Bild: kumulierte Kosten
+            ueber zwei Jahre. Wachs startet hoeher (Werkzeug) und steigt
+            flacher; wo sich die Linien kreuzen, ist der Umstieg bezahlt. */}
+        <StepField
+          step={3}
+          label={de ? 'Wann du im Plus bist' : 'When you come out ahead'}
+          help={de
+            ? 'Ergibt sich aus deinem Fahrprofil oben. Mehr Kilometer und härtere Bedingungen heißen öfter wachsen — und gleichzeitig größere Ersparnis, weil geölte Ketten dort am schnellsten verschleißen.'
+            : 'Comes from your riding profile above. More kilometres and harsher conditions mean waxing more often — and a bigger saving, because oiled chains wear fastest there.'}
+        >
+          <SketchFrame maxWidth={440}>
+            <CumulativeCostChart oilPerYear={costs.oilPerYear} waxPerYear={costs.waxPerYear} upfront={toolingCost} de={de} />
+          </SketchFrame>
+        </StepField>
 
       </StepList>
 
       <ResultPanel
         toolSlug={compact ? undefined : 'umstieg'}
         compact={compact}
-        value={<AnimatedNumber value={costs.savingsPerYear} prefix="€" />}
-        unit={t.tools.switch.perYearLess}
-        hero={(
-          <div className="flex flex-col gap-1">
-            {barRow(de ? 'Öl' : 'Oil', costs.oilPerYear, 'var(--txf)')}
-            {barRow(de ? 'Wachs' : 'Wax', costs.waxPerYear, 'var(--brand)')}
-          </div>
-        )}
+        value={e.breakEvenMonths ?? '—'}
+        unit={e.breakEvenMonths
+          ? (e.breakEvenMonths === 1 ? t.tools.switch.paidOffOne : t.tools.switch.paidOffMany)
+          : undefined}
         verdict={costs.savingsPerYear > 0
           ? t.tools.switch.resultVerdict.replace('{savings}', eur(costs.savingsPerYear))
           : t.tools.switch.neverNote}
         tone="good"
         facts={[
-          { label: t.tools.switch.toolingPaidOff, value: e.breakEvenMonths ? `${e.breakEvenMonths} ${e.breakEvenMonths === 1 ? t.tools.switch.oneMonth : t.tools.switch.months}` : '—' },
+          { label: t.tools.switch.savesPerYear, value: `${eur(costs.savingsPerYear)} · ${costs.savingsPct} %` },
           { label: t.tools.switch.blockLasts, value: `${apps} ${t.tools.switch.applications} · ${de ? `ca. ${e.monthsPerBlock} Mon.` : `~${e.monthsPerBlock} mo.`}` },
         ]}
         actions={<ResultActions compact={compact} shareUrl={shareUrl('/rechner/umstieg', profile.snapshot)} />}

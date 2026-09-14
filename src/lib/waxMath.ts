@@ -126,14 +126,27 @@ export function wearVerdict(percent: number, speed: ChainSpeed): WearVerdict {
 // halber Zoll, also ×2 → der Strebenanteil wird 4 Glieder je Zoll = 4/25,4 =
 // 0,157 je mm. Das Ergebnis wird auf die nächste gerade Zahl aufgerundet, weil
 // eine Kette immer aus Innen- und Außenlaschenpaaren besteht.
+/** Die Terme der Formel einzeln — damit der Rechner den Rechenweg zeigen kann. */
+export function chainLengthBreakdown(input: {
+  chainstayMm: number;
+  bigChainring: number;
+  bigSprocket: number;
+}) {
+  const stay = 0.157 * input.chainstayMm;
+  const ring = input.bigChainring / 2;
+  const sprocket = input.bigSprocket / 2;
+  const reserve = 2;
+  const raw = stay + ring + sprocket + reserve;
+  const rounded = Math.ceil(raw);
+  return { stay, ring, sprocket, reserve, raw, links: rounded % 2 === 0 ? rounded : rounded + 1 };
+}
+
 export function chainLengthLinks(input: {
   chainstayMm: number;
   bigChainring: number;
   bigSprocket: number;
 }): number {
-  const raw = 0.157 * input.chainstayMm + input.bigChainring / 2 + input.bigSprocket / 2 + 2;
-  const rounded = Math.ceil(raw);
-  return rounded % 2 === 0 ? rounded : rounded + 1;
+  return chainLengthBreakdown(input).links;
 }
 
 // ── Antriebskosten: Wachs gegen Öl ──────────────────────────────────────────
