@@ -65,7 +65,7 @@ export function Guides() {
           </div>
 
           <div className="grid md:grid-cols-[1fr_300px] gap-8 lg:gap-12 items-start">
-            {/* Left: accordion. overflow-x-hidden ist eine gezielte Absicherung
+            {/* Left: accordion. overflow-x: clip ist eine gezielte Absicherung
                 gegen einen GSAP-Artefakt, nicht Geschmackssache: use3DReveal
                 setzt jede [data-card] vor dem Scroll-Trigger per gsap.set()
                 auf rotateX(9deg) mit perspective(700px) (siehe useAnimation.ts).
@@ -77,8 +77,13 @@ export function Guides() {
                 das iOS-Rubber-Band-Wippen beim seitlichen Wischen. Die Karte
                 selbst hat zwar eigenes overflow-hidden, kann damit aber nicht
                 die eigene Rendering-Kante gegen sich selbst clippen; eine
-                Ebene hoeher reicht das. Animation bleibt unveraendert. */}
-            <div ref={listRef} className="space-y-2 overflow-x-hidden">
+                Ebene hoeher reicht das. Animation bleibt unveraendert.
+                Bewusst clip, NICHT hidden: overflow-x:hidden macht laut Spec
+                overflow-y zu auto, die Liste wird Scroll-Container, und
+                waehrend des Reveals (Karten noch y:32) blitzte rechts ein
+                vertikaler Scrollbalken auf. Gleiches Muster wie html/body
+                in index.css. */}
+            <div ref={listRef} className="space-y-2 [overflow-x:clip]">
               {guides.map((guide) => {
                 const isOpen = openGuide === guide.id;
                 return (
