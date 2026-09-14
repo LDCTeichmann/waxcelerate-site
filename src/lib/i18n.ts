@@ -123,8 +123,6 @@ export const translations = {
       perApplicationPrefix: 'ca.',
       perApplicationSuffix: 'je Wachsvorgang',
       // Aufklappbarer Mengenrabatt-Chip statt einer stillen Fliesstext-Zeile.
-      quantityDiscountChip: 'Mengenrabatt',
-      quantityDiscountFrom: 'ab {qty} Blöcken günstiger',
       quantityDiscountMechanism: 'Rabatt wird bei eBay im Warenkorb abgezogen.',
       quantityDiscountUnit: '{qty} Stk.',
       quantityDiscountSavings: '{savings} sparen ({pct} %)',
@@ -184,20 +182,21 @@ export const translations = {
         // koennen nicht beide die beste Wahl sein, und genau dieser
         // Widerspruch erzeugt die Entscheidungslaehmung, die hier weg soll.
         classicBadge: 'Meistgekauft',
-        proBadge: 'mit MoS₂',
+        proBadge: 'mit MoS₂ · PFAS-frei',
+        // Einsatzzeile der Regal-Karte (14.09.2026). Beide Wachse gehen das
+        // ganze Jahr; Pro haelt bei Naesse und Kaelte laenger, ist dort aber
+        // auch nicht unbegrenzt gut (Luca). Deshalb keine Jahreszeiten-
+        // Zuordnung mehr wie bei classicFor/proFor.
+        classicUse: 'Ganzjährig · am besten im Trockenen',
+        proUse: 'Ganzjährig · stärker bei Nässe & Kälte',
         classicFormula: 'Paraffin + PTFE',
         proFormula: 'Paraffin + MoS₂',
-        // Ersetzt die km-Intervall- und Formel-Chips auf der Regal-Karte
-        // (Produktkarten-Neugliederung, siehe Plan): die km-Zahl ist fuer
-        // 300g und 500g identisch und beantwortet den Groessenschalter nicht.
-        // Kompatibilitaet ist dagegen fuer beide Groessen gleich UND ein
-        // haeufiger Vorentscheidungs-Filter ("passt das ueberhaupt an meine
-        // Kette").
-        compat: 'Passt auf 9–12-fach · Shimano · SRAM · Campagnolo · KMC',
         size: 'Größe',
         per100: 'je 100 g',
         dryInterval: 'trocken',
-        uses: 'Anwendungen',
+        uses: 'Wachsgänge',
+        perWaxing: 'je Wachsgang',
+        dealPill: 'Mehr Blöcke: bis −{pct} %',
         details: 'Details',
         // Runde 2 (09/2026): zurueck zu direkten Produktnamen als Titel,
         // Lucas ausdruecklicher Wunsch nach "was Direkterem, Smartem" statt
@@ -849,8 +848,6 @@ export const translations = {
       multiDiscount: 'Wax tiers: 2 pcs. 5% · 3 pcs. 10% · from 4 pcs. 15%',
       perApplicationPrefix: 'approx.',
       perApplicationSuffix: 'per wax cycle',
-      quantityDiscountChip: 'Quantity discount',
-      quantityDiscountFrom: 'cheaper from {qty} blocks',
       quantityDiscountMechanism: 'Discount is deducted at eBay checkout.',
       quantityDiscountUnit: '{qty} pcs.',
       quantityDiscountSavings: 'save {savings} ({pct}%)',
@@ -877,14 +874,17 @@ export const translations = {
         classicFor: 'Spring through autumn',
         proFor: 'All year & e-bike',
         classicBadge: 'Most bought',
-        proBadge: 'with MoS₂',
+        proBadge: 'with MoS₂ · PFAS-free',
+        classicUse: 'All year · best in the dry',
+        proUse: 'All year · stronger in wet & cold',
         classicFormula: 'Paraffin + PTFE',
         proFormula: 'Paraffin + MoS₂',
-        compat: 'Fits 9–12-speed · Shimano · SRAM · Campagnolo · KMC',
         size: 'Size',
         per100: 'per 100 g',
         dryInterval: 'dry',
-        uses: 'applications',
+        uses: 'waxings',
+        perWaxing: 'per waxing',
+        dealPill: 'More blocks: up to −{pct} %',
         details: 'Details',
         setEyebrow: 'First time?',
         setTitle: 'Starter Set',
