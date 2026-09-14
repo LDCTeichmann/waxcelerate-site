@@ -191,10 +191,19 @@
 .wxp-zones p { margin: 6px 0 0 36px; font-size: 14.5px; color: rgba(255,255,255,.66); line-height: 1.6; }
 .wxp-cassette { margin-top: 80px; display: grid; gap: 40px; align-items: center; }
 @media (min-width: 900px) { .wxp-cassette { grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 56px; } }
-.wxp-cas-card { position: relative; border-radius: 20px; background: #fff; padding: 24px; overflow: hidden; }
-.wxp-cas-card img { width: 100%; height: auto; mix-blend-mode: multiply; }
-.wxp-cas-card .loupe { position: absolute; left: 9%; top: 27%; width: 22%; aspect-ratio: 1; border-radius: 50%; border: 2px solid #3A66A0; box-shadow: 0 0 0 6px rgba(58,102,160,.15); }
-.wxp-cas-card .tag { position: absolute; right: 18px; top: 18px; font-size: 11.5px; font-weight: 600; color: #1F4A7D; background: rgba(31,74,125,.08); padding: 4px 9px; border-radius: 6px; }
+/* v5: Kassette ohne Kasten auf dem Dunkelband, ein ruhiger Eisblau-Glanz
+   dahinter. Kein Innenabstand, damit Lupe (%-Position aufs Bild) und
+   Zoom-Ausschnitt exakt auf dieselben Bildkoordinaten zeigen. */
+.wxp-cas-card { position: relative; background: radial-gradient(circle at 48% 50%, rgba(122,160,206,.16), rgba(122,160,206,0) 62%); }
+.wxp-cas-card img { display: block; width: 100%; height: auto; }
+.wxp-cas-card .loupe { position: absolute; left: 9%; top: 27%; width: 22%; aspect-ratio: 1; border-radius: 50%; border: 2px solid var(--wxp-ice-hi); box-shadow: 0 0 0 6px rgba(169,196,230,.14); }
+/* Ausschnitt: Hintergrund 320 %, Mittelpunkt der Lupe (20 % / 38 %) in die
+   Linsenmitte: pos = (c·s − 0,5) / (s − 1) → 6,4 % / 32,5 %. */
+.wxp-cas-card .zoom { position: absolute; right: 2%; bottom: 4%; width: 36%; aspect-ratio: 1; border-radius: 50%; background-color: #1A1E24; background-repeat: no-repeat; background-size: 320%; background-position: 6.4% 32.5%; border: 2px solid var(--wxp-ice-hi); box-shadow: 0 0 0 6px rgba(169,196,230,.12), 0 18px 40px rgba(0,0,0,.5); }
+.wxp-cas-card .link { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.wxp-cas-card .link line { stroke: rgba(169,196,230,.55); stroke-width: 1.2; stroke-dasharray: 3 3; vector-effect: non-scaling-stroke; }
+.wxp-cas-card .tag { position: absolute; right: 2%; bottom: calc(4% - 30px); width: 36%; text-align: center; font-size: 11.5px; font-weight: 600; color: #DDE7F4; }
+@media (max-width: 899px) { .wxp-cas-card { margin-bottom: 30px; } }
 .wxp-cassette h3 { font-family: 'Fraunces', Georgia, serif; font-size: 30px; line-height: 1.15; color: #fff; margin-top: 12px; }
 .wxp-cassette .txt { font-size: 16px; color: rgba(255,255,255,.7); margin-top: 12px; max-width: 44ch; line-height: 1.6; }
 .wxp-teeth { display: flex; gap: 24px; margin-top: 22px; align-items: flex-end; flex-wrap: wrap; }
@@ -203,7 +212,35 @@
 .wxp-teeth figcaption b { color: #fff; font-weight: 600; }
 
 /* ═ 03 Rechner ═ */
-.wxp-calc { position: relative; border-radius: 22px; overflow: hidden; background: radial-gradient(ellipse 70% 60% at 85% 0%, rgba(58,102,160,.28), rgba(58,102,160,0) 70%), linear-gradient(180deg, #1A1E24, #121519); color: rgba(255,255,255,.75); box-shadow: 0 40px 80px rgba(16,20,26,.28); display: grid; }
+/* v5: weichere Einbettung. Der Schatten war mit 80 px Blur deutlich
+   schwerer als jede andere Karte der Seite; dahinter jetzt eine leichte
+   Navy-Buehne, die vom hellen Grund zur dunklen Box fuehrt. */
+.wxp-calc-stage { position: relative; }
+.wxp-calc-stage::before { content: ""; position: absolute; left: -8%; right: -8%; top: 18%; bottom: -56px; background: radial-gradient(ellipse 60% 70% at 50% 60%, rgba(31,74,125,.13), rgba(31,74,125,0) 70%); pointer-events: none; }
+.noir .wxp-calc-stage::before { background: radial-gradient(ellipse 60% 70% at 50% 60%, rgba(122,160,206,.08), rgba(122,160,206,0) 70%); }
+.wxp-calc { position: relative; border-radius: 22px; overflow: hidden; background: radial-gradient(ellipse 70% 60% at 85% 0%, rgba(58,102,160,.28), rgba(58,102,160,0) 70%), linear-gradient(180deg, #1A1E24, #121519); color: rgba(255,255,255,.75); box-shadow: 0 2px 4px rgba(16,20,26,.08), 0 22px 44px rgba(16,20,26,.16); display: grid; }
+/* Verbrauch pro Jahr als Ketten-Glieder */
+.wxp-need { margin-top: 24px; display: grid; gap: 10px; }
+.wxp-need .cap { font-size: 11.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: rgba(255,255,255,.5); }
+.wxp-need-row { display: grid; grid-template-columns: 82px minmax(0,1fr); gap: 4px 10px; align-items: center; padding-top: 10px; border-top: 1px solid rgba(255,255,255,.1); }
+.wxp-need-row .nl { font-size: 13px; color: rgba(255,255,255,.6); }
+.wxp-need-row.wax .nl { color: var(--wxp-ice-hi); }
+.wxp-need-row .nw { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; min-width: 0; }
+.wxp-need-row .nc { grid-column: 2; font-size: 13px; color: rgba(255,255,255,.62); }
+.wxp-need-row .nc b { color: #fff; font-weight: 600; }
+.wxp-need-row .gl { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.wxp-need-row .more { font-size: 13px; color: rgba(255,255,255,.6); margin-left: 2px; }
+.wxp-link { display: inline-block; width: 22px; height: 11px; border-radius: 6px; background: #8E97A4; }
+.wxp-need-row.wax .wxp-link { background: var(--wxp-ice-hi); }
+.wxp-link.part { background: linear-gradient(90deg, #8E97A4 var(--p), rgba(255,255,255,.12) var(--p)); }
+.wxp-need-row.wax .wxp-link.part { background: linear-gradient(90deg, var(--wxp-ice-hi) var(--p), rgba(255,255,255,.12) var(--p)); }
+.wxp-need-row .nv { font-family: 'Fraunces', Georgia, serif; font-size: 21px; font-weight: 700; color: rgba(255,255,255,.85); line-height: 1; }
+.wxp-need-row.wax .nv { color: #fff; }
+.wxp-need-row .nv small { font-family: 'Libre Franklin', sans-serif; font-size: 13px; font-weight: 500; color: rgba(255,255,255,.6); }
+/* Empfehlung zur Rotation: klickbar, setzt den Wert */
+.wxp-rec { display: block; width: 100%; margin-top: 10px; padding: 10px 12px; border-radius: 12px; background: rgba(169,196,230,.1); border: 1px solid rgba(169,196,230,.22); font-size: 12.5px; line-height: 1.45; color: rgba(255,255,255,.78); text-align: left; cursor: pointer; transition: background .2s; }
+.wxp-rec:hover { background: rgba(169,196,230,.16); }
+.wxp-rec b { color: #fff; }
 @media (min-width: 1000px) { .wxp-calc { grid-template-columns: 400px minmax(0,1fr); } }
 .wxp-calc::before { content: ""; position: absolute; inset: 0; background-image: radial-gradient(circle, rgba(122,160,206,.08) 1px, transparent 1px); background-size: 26px 26px; pointer-events: none; }
 .wxp-c-in { position: relative; padding: 26px 22px; border-bottom: 1px solid rgba(255,255,255,.08); display: flex; flex-direction: column; gap: 22px; }

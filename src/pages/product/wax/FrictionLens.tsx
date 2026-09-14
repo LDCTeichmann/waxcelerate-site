@@ -140,13 +140,19 @@ export function FrictionLens({ de }: { de: boolean }) {
         </div>
 
         <div className="wxp-cassette">
+          {/* v5 (14.09.2026): kein weisser Kasten mehr. Die WebP hat einen
+              transparenten Grund (RGBA), die JPG einen weissen — deshalb nur
+              noch die WebP, direkt auf dem Dunkelband. Die Zoom-Linse zeigt
+              dieselbe Datei vergroessert auf die markierte Zahnflanke, wie
+              die Lupe in der Kettenzeichnung oben. */}
           <div className="wxp-cas-card">
-            <picture>
-              <source type="image/webp" srcSet="/images/science/cassette-wear-diagram.webp" />
-              <img src="/images/science/cassette-wear-diagram.jpg" alt={de ? 'Shimano Ultegra Kassette' : 'Shimano Ultegra cassette'} loading="lazy" decoding="async" />
-            </picture>
+            <img src="/images/science/cassette-wear-diagram.webp" alt={de ? 'Shimano Ultegra Kassette' : 'Shimano Ultegra cassette'} loading="lazy" decoding="async" />
+            <svg className="link" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden>
+              <line x1="27" y1="47" x2="66" y2="70" />
+            </svg>
             <span className="loupe" aria-hidden />
-            <span className="tag">{de ? 'Zahnflanke' : 'Tooth flank'}</span>
+            <span className="zoom" aria-hidden style={{ backgroundImage: 'url(/images/science/cassette-wear-diagram.webp)' }} />
+            <span className="tag">{de ? 'Zahnflanke, vergrößert' : 'Tooth flank, magnified'}</span>
           </div>
           <div>
             <p className="eyebrow" style={{ color: 'var(--wxp-ice)' }}>{de ? 'Der Beleg' : 'The evidence'}</p>
