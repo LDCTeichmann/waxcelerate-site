@@ -8,6 +8,15 @@ off-site.** Diese Liste bündelt, was über ~15 Dokumente verstreut liegt, in ei
 Reihenfolge. Volltexte stehen in den verlinkten Quell-Docs — hier nur „was, warum,
 wo".
 
+**Nachtrag 2026-09-14 — Stadtseiten, Entscheidung revidiert.** Statt „eine
+nationale Seite, keine Stadtseiten" gibt es jetzt 12 Seiten
+`/kette-wachsen-lassen/:stadt` (Hamburg … Stuttgart), Lucas Wunsch für Suchen
+wie „Kette wachsen lassen Leipzig". Gegen das Doorway-Risiko: jede Seite trägt
+eigene, belegte Zahlen (DWD-Niederschlag, Regentage, daraus ein
+Nachwachs-Intervall), sagt ehrlich „per Post aus Stuttgart", keine Stadtadresse,
+kleine feste Zahl. Daten: `src/pages/rewax/cities.ts`. Nicht auf 50+ Städte
+aufblähen — genau das wäre das Doorway-Muster.
+
 Die realistische Erwartung (`docs/plaene/REICHWEITE_STRATEGIE.md` §1): „Kette
 wachsen lassen" gegen Kettenhelden/Rydewax/bikeoptimierung rankt in **3–6
 Monaten**. „Kettenwachs Stuttgart" über das Google-Profil kann **sofort** oben

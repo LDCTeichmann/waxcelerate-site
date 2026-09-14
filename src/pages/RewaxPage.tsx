@@ -29,7 +29,7 @@ import { trustStats } from '@/lib/data';
 import { trackRewaxInterest } from '@/lib/analytics';
 import { REVIEWS } from '@/sections/reviews';
 import {
-  PRICE, TEN_CARD, eur, UMSTIEG_LIVE, TURNAROUND, CITIES,
+  PRICE, TEN_CARD, eur, UMSTIEG_LIVE, TURNAROUND,
   COMPETITOR_FULL_SERVICE, rewaxMeta, rewaxFaqItems, rewaxServiceSchema, rewaxFaqSchema,
   type ServiceId,
 } from '@/pages/rewax/content';
@@ -38,6 +38,7 @@ import { Navigation } from '@/sections/navigation';
 import { Footer } from '@/sections/footer';
 import { BackLink } from '@/components/BackLink';
 import { GiftSection } from '@/pages/rewax/GiftSection';
+import { REWAX_CITIES } from '@/pages/rewax/cities';
 
 const WA_NUMBER = '4915751957470';
 const waLink = (de: boolean, waxedLabel?: string | null) =>
@@ -186,7 +187,7 @@ function Reveal({ open, children }: { open: boolean; children: React.ReactNode }
 // erst auf, wenn die vorige beantwortet ist. Die Prepaid-Karten stehen nicht
 // mehr hier, sondern in der Geschenk-Sektion; das Formular kennt nur noch
 // `single`/`bundle3` — die API-Payload ist dieselbe wie vorher.
-function RewaxRequestForm({ de, preselect }: { de: boolean; preselect: ServiceId | null }) {
+export function RewaxRequestForm({ de, preselect }: { de: boolean; preselect: ServiceId | null }) {
   const [service, setService] = useState<ServiceId | null>(UMSTIEG_LIVE ? preselect : 'rewax');
   const [quantity, setQuantity] = useState(1);
   const [contactOpen, setContactOpen] = useState(false);
@@ -380,7 +381,7 @@ function RewaxRequestForm({ de, preselect }: { de: boolean; preselect: ServiceId
 // Vergleichstabelle: was wir tun (Häkchen) und was es kostet, Auffrischung und
 // Umstieg nebeneinander. So sieht man den Mehraufwand des Umstiegs, statt ihn
 // in einem Absatz erklärt zu bekommen.
-function PriceMatrix({ de }: { de: boolean }) {
+export function PriceMatrix({ de }: { de: boolean }) {
   const cols: ServiceId[] = UMSTIEG_LIVE ? ['rewax', 'umstieg'] : ['rewax'];
   const compPrices = COMPETITOR_FULL_SERVICE.map(c => c.price);
   const compRange = `${eur(Math.min(...compPrices), de)}–${eur(Math.max(...compPrices), de)}`;
@@ -501,7 +502,7 @@ function PriceMatrix({ de }: { de: boolean }) {
 // ─── So läuft's ab ──────────────────────────────────────────────────────────
 // Drei Karten nebeneinander (mobil wischbar), je ein Satz. Darunter die
 // Laufzeit als Zeitstrahl — ersetzt den früheren „Aus ganz Deutschland"-Absatz.
-function RewaxSteps({ de }: { de: boolean }) {
+export function RewaxSteps({ de }: { de: boolean }) {
   const legs = [
     { de: 'Post zu uns', en: 'Post to us', v: de ? '1–2 Werktage' : '1–2 days', grow: 1, strong: false },
     { de: 'Bei uns', en: 'With us', v: de ? TURNAROUND.short : TURNAROUND.shortEn, grow: 2, strong: true },
@@ -553,10 +554,19 @@ function RewaxSteps({ de }: { de: boolean }) {
             ))}
           </div>
           <p className="text-[13px] leading-relaxed mt-5" style={{ color: 'var(--txm)' }}>
-            {de
-              ? <>Reiner Postversand aus ganz Deutschland: <span style={{ color: 'var(--tx1)' }}>{CITIES.join(', ')}</span> oder das Dorf dazwischen.</>
-              : <>Purely by mail from anywhere in Germany: <span style={{ color: 'var(--tx1)' }}>{CITIES.join(', ')}</span> or the village in between.</>}
+            {de ? 'Reiner Postversand aus ganz Deutschland, zum Beispiel aus:' : 'Purely by mail from anywhere in Germany, for example from:'}
           </p>
+          <ul className="flex flex-wrap gap-1.5 mt-3">
+            {REWAX_CITIES.map(c => (
+              <li key={c.slug}>
+                <Link to={`/kette-wachsen-lassen/${c.slug}`}
+                  className="inline-block rounded-full px-3 py-1.5 text-[12.5px] font-medium transition-colors hover:opacity-80"
+                  style={{ background: 'var(--sf)', border: '1px solid var(--bd2)', color: 'var(--tx2)' }}>
+                  {de ? c.name : c.nameEn}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </section>

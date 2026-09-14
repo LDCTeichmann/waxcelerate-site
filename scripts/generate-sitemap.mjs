@@ -38,6 +38,7 @@ import { dirname, resolve } from 'node:path';
 import { products, accessories } from '../src/lib/data.ts';
 import { articles } from '../src/pages/blog/articles.ts';
 import { assertXml } from './assert-xml.mjs';
+import { REWAX_CITIES } from '../src/pages/rewax/cities.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUT = resolve(__dirname, '../public/sitemap.xml');
@@ -59,6 +60,8 @@ const staticPages = [
   // /kette-wachsen-lassen ist der einzige wiederkehrende Umsatz — gleichrangig
   // mit der Startseite, woechentlich (Preise/Leistungen aendern sich hier).
   { loc: '/kette-wachsen-lassen', changefreq: 'weekly', priority: '1.0' },
+  // Stadtseiten mit eigenen Klimadaten (src/pages/rewax/cities.ts).
+  ...REWAX_CITIES.map(c => ({ loc: `/kette-wachsen-lassen/${c.slug}`, changefreq: 'monthly', priority: '0.7' })),
   // Stufe 3 (Produktkarten-Plan): eigene Route statt eines useState in der
   // Startseiten-Produktsektion — acht SKUs mit eigener Adresse.
   { loc: '/ketten', changefreq: 'weekly', priority: '0.9' },

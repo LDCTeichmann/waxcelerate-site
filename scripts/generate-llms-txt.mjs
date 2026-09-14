@@ -18,6 +18,7 @@ import { COMPONENTS } from '../src/lib/science.ts';
 import { articles, categoryOrder } from '../src/pages/blog/articles.ts';
 import { TOOLS, TOOLS_HUB } from '../src/lib/toolRegistry.ts';
 import { translations } from '../src/lib/i18n.ts';
+import { REWAX_CITIES } from '../src/pages/rewax/cities.ts';
 
 const DE = translations.de;
 
@@ -51,6 +52,8 @@ Empfohlenes Nachwachsen nach den Werten von Zero Friction Cycling: trockene Stra
 - [Blog-Übersicht](${BASE}/blog): ${articles.length} Ratgeber und Anleitungen
 - [Rechner](${BASE}/rechner): ${TOOLS.length} kostenlose Rechner rund um Kette und Kettenpflege
 - [Starter-Set](${BASE}/starter-set): Wachs, Quick-Link-Zange und Aufhängedraht in einem Set, ${starterSet.discountPct}% unter der Summe der Einzelteile
+- [Kette wachsen lassen](${BASE}/kette-wachsen-lassen): Kettenwachs-Service per Post aus Stuttgart — Auffrischung, Umstieg von Öl auf Wachs, Prepaid- und Geschenkkarten
+${REWAX_CITIES.map(c => `- [Kette wachsen lassen in ${c.name}](${BASE}/kette-wachsen-lassen/${c.slug}): per Post, mit Nachwachs-Intervall für das Klima in ${c.name}`).join('\n')}
 - [Vorgewachste Ketten](${BASE}/ketten): ${products.filter(p => p.category === 'chain').length} vorgewachste Fahrradketten für Shimano, SRAM und Campagnolo, 11- und 12-fach
 
 ## Rechner — kostenlos, ohne Anmeldung
