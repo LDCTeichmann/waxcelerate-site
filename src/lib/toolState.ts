@@ -131,7 +131,21 @@ export function initialProfile(): ToolProfile {
   return profileFromQuery(window.location.search || `?${hashQuery}`, stored);
 }
 
-export function shareUrl(path: string, p: ToolProfile): string {
+/**
+ * Teilbarer Link. `extra` nimmt den Zustand AUF der Karte mit — bis 09/2026
+ * trug der Link nur das Fahrprofil, und wer im Kosten-Rechner XTR mit drei
+ * Ketten einstellte und teilte, verschickte XT mit einer Kette.
+ */
+export function shareUrl(path: string, p: ToolProfile, extra?: Record<string, string | number>): string {
   const origin = typeof window !== 'undefined' ? window.location.origin : 'https://waxcelerate.de';
-  return `${origin}${path}?${queryFromProfile(p)}`;
+  const q = new URLSearchParams(queryFromProfile(p));
+  for (const [k, v] of Object.entries(extra ?? {})) q.set(k, String(v));
+  return `${origin}${path}?${q.toString()}`;
+}
+
+/** Einen Kartenparameter aus der URL lesen (Gegenstueck zu shareUrl.extra). */
+export function toolParam(key: string): string | null {
+  if (typeof window === 'undefined') return null;
+  const hashQuery = (window.location.hash || '').replace(/^#[^?]*\??/, '');
+  return new URLSearchParams(window.location.search || `?${hashQuery}`).get(key);
 }

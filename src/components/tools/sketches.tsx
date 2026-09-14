@@ -29,6 +29,22 @@ const MORPH: React.CSSProperties = { transition: 'all 280ms var(--ease-ui, ease)
 /** Teilkreisradius eines Zahnrads in mm: Umfang = Zaehne × 12,7 mm Teilung. */
 const pitchRadiusMm = (teeth: number) => (teeth * 12.7) / (2 * Math.PI);
 
+/** Breite eines Elements in px, fuer 1:1-SVG. */
+function useWidth<T extends HTMLElement>(fallback = 320) {
+  const ref = useRef<T>(null);
+  const [w, setW] = useState(fallback);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => setW(Math.max(200, Math.round(el.clientWidth))));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  return [ref, w] as const;
+}
+
+const FONT = { fontSize: 11, fontFamily: 'inherit' } as const;
+
 export type DrivetrainPart = 'stay' | 'ring' | 'sprocket' | null;
 
 /**
@@ -44,9 +60,14 @@ export type DrivetrainPart = 'stay' | 'ring' | 'sprocket' | null;
 export function DrivetrainSketch({ chainstayMm, chainring, sprocket, focus, de = true }: {
   chainstayMm: number; chainring: number; sprocket: number; focus: DrivetrainPart; de?: boolean;
 }) {
-  const K = 0.34; // px je mm
-  const CY = 74;
-  const RX = 64; // Hinterachse, fest
+  // 1:1 wie die uebrigen Grafiken (Grafik-Grammatik oben): die viewBox ist so
+  // breit wie der Platz, der Geometriefaktor waechst mit. Vorher hatte die
+  // Skizze eine feste 320er viewBox und wurde in der halben Karte auf 0,85
+  // gestaucht — ihre 12,5er Schrift landete dadurch bei 10,6 px.
+  const [ref, W] = useWidth<HTMLDivElement>(320);
+  const K = 0.34 * (W / 320); // px je mm
+  const CY = 74 * (W / 320) + 8;
+  const RX = 64 * (W / 320); // Hinterachse
   const d = Math.min(Math.max(chainstayMm, 350), 550) * K;
   const r1 = pitchRadiusMm(Math.min(Math.max(sprocket, 9), 60)) * K;
   const r2 = pitchRadiusMm(Math.min(Math.max(chainring, 20), 60)) * K;
@@ -79,7 +100,8 @@ export function DrivetrainSketch({ chainstayMm, chainring, sprocket, focus, de =
   const CHAIN = { strokeWidth: 3.2, strokeLinecap: 'butt' as const, strokeDasharray: '3.4 1.6', fill: 'none' };
 
   return (
-    <svg viewBox="0 0 320 156" className="w-full h-auto" role="img"
+    <div ref={ref} className="w-full">
+    <svg width={W} height={156} viewBox={`0 0 ${W} 156`} className="block" role="img"
       aria-label={de
         ? `Kette um Kettenblatt mit ${chainring} Zähnen und Ritzel mit ${sprocket} Zähnen, Kettenstrebe ${chainstayMm} mm`
         : `Chain around a ${chainring}-tooth chainring and ${sprocket}-tooth sprocket, chainstay ${chainstayMm} mm`}>
@@ -104,17 +126,18 @@ export function DrivetrainSketch({ chainstayMm, chainring, sprocket, focus, de =
       {/* Massangaben */}
       <g style={dim('stay')}>
         <path d={`M${RX},${CY + 48} v8 M${FX},${CY + 48} v8 M${RX},${CY + 52} H${FX}`} stroke={ACCENT} strokeWidth={1.2} style={MORPH} />
-        <text x={(RX + FX) / 2} y={CY + 72} textAnchor="middle" fontSize="12.5" fill={ACCENT} fontWeight={600} style={MORPH}>
+        <text x={(RX + FX) / 2} y={CY + 72} textAnchor="middle" fontSize="12" fill={ACCENT} fontWeight={600} style={MORPH}>
           {de ? 'Kettenstrebe' : 'Chainstay'} · {chainstayMm} mm
         </text>
       </g>
-      <text x={RX} y={Math.max(13, CY - r1 - 10)} textAnchor="middle" fontSize="12.5" fill={LABEL} style={{ ...dim('sprocket') }}>
+      <text x={RX} y={Math.max(13, CY - r1 - 10)} textAnchor="middle" fontSize="12" fill={LABEL} style={{ ...dim('sprocket') }}>
         {de ? 'Ritzel' : 'Sprocket'} · {sprocket}
       </text>
-      <text x={FX} y={Math.max(13, CY - r2 - 10)} textAnchor="middle" fontSize="12.5" fill={LABEL} style={{ ...dim('ring') }}>
+      <text x={FX} y={Math.max(13, CY - r2 - 10)} textAnchor="middle" fontSize="12" fill={LABEL} style={{ ...dim('ring') }}>
         {de ? 'Kettenblatt' : 'Chainring'} · {chainring}
       </text>
     </svg>
+    </div>
   );
 }
 
@@ -124,14 +147,18 @@ export function DrivetrainSketch({ chainstayMm, chainring, sprocket, focus, de =
  * ersetzt ein Aussenglied und zaehlt mit.
  */
 export function ChainCountSketch({ de = true }: { de?: boolean }) {
+  // 1:1 wie die uebrigen Grafiken: Teilung aus der Breite, Schrift fest bei
+  // 11/12 px (vorher feste 310er viewBox, in der Karte auf 0,85 gestaucht).
+  const [ref, W] = useWidth<HTMLDivElement>(310);
   const R = 8;
-  const PITCH = 32;
+  const PITCH = Math.min(32, (W - 54) / 8);
   const CY = 48;
-  const xs = Array.from({ length: 9 }, (_, i) => 27 + i * PITCH);
+  const xs = Array.from({ length: 9 }, (_, i) => (W - PITCH * 8) / 2 + i * PITCH);
   const LOCK = 3; // Index des Kettenschlosses (Aussenglied zwischen xs[3] und xs[4])
 
   return (
-    <svg viewBox="0 0 310 120" className="w-full h-auto" role="img"
+    <div ref={ref} className="w-full">
+    <svg width={W} height={120} viewBox={`0 0 ${W} 120`} className="block" role="img"
       aria-label={de ? 'Glieder der alten Kette zählen: jeder Bolzen ist ein Glied' : 'Count the links of the old chain: each pin is one link'}>
       <g strokeWidth={1.3}>
         {xs.slice(0, -1).map((x, i) => {
@@ -154,20 +181,21 @@ export function ChainCountSketch({ de = true }: { de?: boolean }) {
 
       {/* Zaehlmarken an jedem Bolzen */}
       {xs.map((x, i) => (
-        <text key={`n${x}`} x={x} y={CY - 18} textAnchor="middle" fontSize="12" fontWeight={600}
+        <text key={`n${x}`} x={x} y={CY - 18} textAnchor="middle" fontSize="11" fontWeight={600}
           fill={i === LOCK || i === LOCK + 1 ? ACCENT : LABEL}>
           {i + 1}
         </text>
       ))}
 
       <path d={`M${(xs[LOCK] + xs[LOCK + 1]) / 2},${CY + 13} v12`} stroke={ACCENT} strokeWidth={1.2} />
-      <text x={(xs[LOCK] + xs[LOCK + 1]) / 2} y={CY + 38} textAnchor="middle" fontSize="12" fill={ACCENT}>
+      <text x={(xs[LOCK] + xs[LOCK + 1]) / 2} y={CY + 38} textAnchor="middle" fontSize="11" fill={ACCENT}>
         {de ? 'Kettenschloss zählt mit' : 'Quick link counts too'}
       </text>
-      <text x="155" y={CY + 62} textAnchor="middle" fontSize="12" fill={LABEL}>
+      <text x={W / 2} y={CY + 62} textAnchor="middle" fontSize="12" fill={LABEL}>
         {de ? 'Jeder Bolzen = 1 Glied · Summe immer gerade' : 'Every pin = 1 link · total always even'}
       </text>
     </svg>
+    </div>
   );
 }
 
@@ -211,21 +239,6 @@ export function ChainTrimBar({ remove, de = true }: { remove: number; de?: boole
 //    Wachs = --brand, Oel = --txf, gut = --ok, handeln = --warn.
 
 
-/** Breite eines Elements in px, fuer 1:1-SVG. */
-function useWidth<T extends HTMLElement>(fallback = 320) {
-  const ref = useRef<T>(null);
-  const [w, setW] = useState(fallback);
-  useLayoutEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const ro = new ResizeObserver(() => setW(Math.max(200, Math.round(el.clientWidth))));
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-  return [ref, w] as const;
-}
-
-const FONT = { fontSize: 11, fontFamily: 'inherit' } as const;
 const OIL = 'var(--txf)';
 const OK = 'var(--ok)';
 
@@ -470,21 +483,31 @@ export function RewaxTimeline({ last, today, due, weeks, overdue, labels, fmtDat
 }
 
 /**
- * Rahmen fuer die eine Grafik einer Karte — gleiche Flaeche auf allen Karten.
- * Feste Mindesthoehe, die Grafik steht darin mittig: so liegt der Bildbereich
- * auf jeder Karte gleich, egal ob die Grafik 100 oder 150 px hoch ist.
- * `maxWidth` nur fuer Skizzen mit fester viewBox (Antrieb, Zaehlen): die
- * duerfen hoechstens 1:1 wachsen, sonst waechst ihre Schrift mit.
+ * Rahmen fuer die eine Grafik einer Karte — auf allen Karten dieselbe Flaeche.
+ *
+ * Feste Hoehe, nicht nur eine Mindesthoehe: zusammen mit `.cq-split`
+ * (min-height GRAPHIC_H, index.css) haelt sie die Koerperzone jeder Karte
+ * konstant. Ohne das war die Kettenlaenge in „Messen" 539 px hoch und in
+ * „Zaehlen" 513 — und weil die hoechste Karte die Deckzeile bestimmt, wackelten
+ * alle fuenf Karten, sobald jemand IN einer Karte etwas umschaltete.
+ * 186 px ist am hoechsten Inhalt gemessen: die vier Kettenzeilen der
+ * Passende-Kette-Karte.
+ *
+ * Kein `maxWidth` mehr: seit 09/2026 rechnen ALLE Grafiken ihre viewBox aus
+ * der gemessenen Breite (useWidth), keine hat mehr eine feste viewBox, die
+ * skaliert werden muesste.
  */
-export function SketchFrame({ children, caption, maxWidth }: {
-  children: React.ReactNode; caption?: React.ReactNode; maxWidth?: number;
+export const GRAPHIC_H = 186;
+
+export function SketchFrame({ children, caption }: {
+  children: React.ReactNode; caption?: React.ReactNode;
 }) {
   return (
     <figure
-      className="rounded-2xl px-3.5 py-3 min-h-[150px] flex flex-col justify-center"
-      style={{ background: 'var(--inset-bg)', border: '1px solid var(--inset-bd)' }}
+      className="rounded-2xl px-3.5 py-3 flex flex-col justify-center overflow-hidden"
+      style={{ background: 'var(--inset-bg)', border: '1px solid var(--inset-bd)', height: GRAPHIC_H }}
     >
-      <div className="w-full mx-auto" style={maxWidth ? { maxWidth } : undefined}>{children}</div>
+      <div className="w-full">{children}</div>
       {caption && <figcaption className="text-[11.5px] leading-snug mt-2" style={{ color: 'var(--txf)' }}>{caption}</figcaption>}
     </figure>
   );

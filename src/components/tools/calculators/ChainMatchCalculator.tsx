@@ -43,12 +43,12 @@ const SYSTEM_LABELS: Record<DriveSystem, string> = {
 const SPEED_OPTIONS = ['11', '12'] as const;
 
 /** „Shimano, SRAM und YBN" / „Shimano, SRAM and YBN" — ohne Bibliothek, weil
-    nur zwei Sprachen und maximal vier Eintraege vorkommen. */
-function joinList(items: string[], de: boolean): string {
+    maximal vier Eintraege vorkommen. */
+function joinList(items: string[], and: string): string {
   if (items.length === 0) return '';
   if (items.length === 1) return items[0];
   const head = items.slice(0, -1).join(', ');
-  return `${head} ${de ? 'und' : 'and'} ${items[items.length - 1]}`;
+  return `${head} ${and} ${items[items.length - 1]}`;
 }
 
 export function ChainMatchCalculator({ profile, compact }: { profile: ToolProfileState; compact?: boolean }) {
@@ -86,7 +86,7 @@ export function ChainMatchCalculator({ profile, compact }: { profile: ToolProfil
   const deepLink = `/ketten?marke=${system}&gang=${speedKey}`;
 
   const tm = t.tools.match;
-  const slots = [...sortedMatches.slice(0, 4), ...Array(Math.max(0, 4 - sortedMatches.length)).fill(null)] as (typeof sortedMatches[number] | null)[];
+  const slots = sortedMatches.slice(0, 4);
   const serviceExit = UMSTIEG_LIVE && (!stocked || matches.length === 0);
 
   return (
@@ -114,7 +114,7 @@ export function ChainMatchCalculator({ profile, compact }: { profile: ToolProfil
               <ChipRow>
                 {SPEED_OPTIONS.map(s => (
                   <TogButton key={s} active={stocked && speedKey === s} onClick={() => profile.setSpeed(Number(s) as 11 | 12)}>
-                    {s}{de ? '-fach' : 'sp'}
+                    {s}{t.tools.shared.speedSuffix}
                   </TogButton>
                 ))}
                 {!stocked && (
@@ -130,26 +130,23 @@ export function ChainMatchCalculator({ profile, compact }: { profile: ToolProfil
           </div>
 
           {/* Die Treffer als Produktliste — die Grafik dieser Karte. Immer
-              vier Zeilen, leere als ruhige Platzhalter. Liste statt 2×2-Raster:
-              Modellnamen wie „XT / Ultegra CN-M8100" passten in keine Kachel. */}
+              Liste statt 2×2-Raster: Modellnamen wie „XT / Ultegra CN-M8100"
+              passten in keine Kachel. Keine Platzhalter fuer leere Plaetze —
+              bei Campagnolo (ein Treffer) sahen drei gestrichelte Kaesten wie
+              ein Fehler aus; die Bildzone ist ohnehin fest hoch (GRAPHIC_H),
+              die Treffer stehen mittig darin. */}
           <SketchFrame>
-            <ul className="flex flex-col gap-1.5">
-              {slots.map((p, i) => {
-                if (!p) {
-                  return (
-                    <li key={`empty-${i}`} aria-hidden className="h-[40px] rounded-lg"
-                      style={{ border: '1px dashed var(--inset-bd)' }} />
-                  );
-                }
+            <ul className="flex flex-col gap-1">
+              {slots.map(p => {
                 const soldOut = isSoldOut(p);
                 return (
                   <li key={p.id}>
                     <a
                       href={`/produkt/${p.id}`}
-                      className="group flex items-center gap-2.5 h-[40px] rounded-lg pl-1 pr-2.5 transition-colors min-w-0 hover:bg-[var(--sf)]"
+                      className="group flex items-center gap-2.5 h-[36px] rounded-lg pl-1 pr-2.5 transition-colors min-w-0 hover:bg-[var(--sf)]"
                       style={{ opacity: soldOut ? 0.55 : 1 }}
                     >
-                      <span className="relative w-8 h-8 rounded-md overflow-hidden flex-shrink-0" style={{ background: 'var(--sf2)' }}>
+                      <span className="relative w-7 h-7 rounded-md overflow-hidden flex-shrink-0" style={{ background: 'var(--sf2)' }}>
                         <img
                           src={p.image}
                           alt=""
@@ -183,7 +180,7 @@ export function ChainMatchCalculator({ profile, compact }: { profile: ToolProfil
           ? tm.otherSpeed.replace('{speed}', String(speed))
           : matches.length
             ? tm.verdictFits
-              .replace('{brands}', joinList(brandNames, de))
+              .replace('{brands}', joinList(brandNames, t.tools.shared.and))
               .replace('{system}', SYSTEM_LABELS[system])
               .replace('{speed}', speedKey)
             : tm.none}
@@ -200,9 +197,7 @@ export function ChainMatchCalculator({ profile, compact }: { profile: ToolProfil
           ) : compact ? (
             <ToolCTA href={deepLink}>{tm.ctaChains}</ToolCTA>
           ) : (
-            <ToolCTA href="/rechner/kettenlaenge">
-              {de ? 'Passende Länge berechnen →' : 'Work out the right length →'}
-            </ToolCTA>
+            <ToolCTA href="/rechner/kettenlaenge">{tm.ctaLength}</ToolCTA>
           )
         }
       />

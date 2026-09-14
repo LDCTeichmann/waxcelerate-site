@@ -49,7 +49,15 @@
 .tool-cq { container-type: inline-size; }
 .cq-split { display: flex; flex-direction: column; gap: 0.75rem; }
 @container (min-width: 520px) {
-  .cq-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.75rem 1.25rem; align-items: center; }
+  /* FESTE Hoehe, keine Mindesthoehe: die Bildzone ist 186 px hoch
+     (GRAPHIC_H, sketches.tsx), die Eingabespalte daneben darf bis 216 —
+     gemessen am dichtesten Fall: Verschleiss mit Lineal bei 1024 px.
+     Damit ist die Koerperzone jeder Karte gleich hoch — in jedem Zustand,
+     auch wenn jemand IN der Karte umschaltet. Vorher war die Kettenlaenge in
+     „Messen" 33 px hoeher als in „Zaehlen", und weil die hoechste Karte die
+     Deckzeile bestimmt, wackelten alle fuenf mit.
+     Nur im Zweispalter: gestapelt (Handy) bleibt die Hoehe natuerlich. */
+  .cq-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.75rem 1.25rem; align-items: center; height: 216px; }
   /* Karten, deren Eingabe nur aus wenigen Chips besteht (Kosten, Intervall),
      geben der Grafik mehr Platz. */
   .cq-split.cq-chart { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); }
@@ -60,6 +68,11 @@
   will-change: transform;
 }
 .deck-cover { transition: opacity 420ms ease; }
+/* Der Deckel der ankommenden Karte blendet erst aus, wenn sie angekommen ist:
+   sonst schiebt sich eine halb abgedunkelte Karte ueber ihren Nachbarn.
+   Das Zuklappen bleibt sofort, damit die abgehende Karte gleich als Deckel
+   lesbar ist. */
+.deck-slot[style*="z-index: 30"] .deck-cover { transition-delay: 140ms; }
 .deck-cover-shade { transition: opacity 240ms ease; }
 /* Nachbar unter dem Zeiger: Abdunklung weg, eine Spur naeher — sagt ohne
    Worte, dass die Karte anklickbar ist. Nur mit echter Maus, sonst bleibt

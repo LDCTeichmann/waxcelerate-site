@@ -106,16 +106,13 @@ export function ToolHeader({ icon, title, subtitle, info }: {
 
 /** Der Eingabebereich.
  *
- *  `flex-1` mit `justify-center`, nicht `flex-none`: die Karte hat eine feste,
- *  vom Bildschirm abgeleitete Hoehe (ToolTrack.tsx), und Rechner mit nur einem
- *  oder zwei Eingabeschritten liessen den freien Raum als ein grosses Loch
- *  zwischen Eingaben und Ergebnis stehen. Jetzt steht die Schrittgruppe mittig
- *  im freien Raum — die Abstaende ZWISCHEN den Schritten bleiben dabei fest
- *  (`gap-2`), es waechst nur der Rand darum. Karten mit vielen Schritten
- *  aendern sich nicht, dort ist kein freier Raum zu verteilen. */
+ *  `justify-start`, nicht `justify-center`: zentriert begann Schritt 1 auf
+ *  jeder Karte auf einer anderen Hoehe (gemessen 24 bis 113 px Vorlauf). Der
+ *  freie Raum sammelt sich jetzt an genau einer Stelle — zwischen der letzten
+ *  Eingabe und dem Antwortblock. */
 export function StepList({ children }: { children: React.ReactNode }) {
   return (
-    <div className={`${PAD} pt-3 pb-3 flex flex-1 flex-col justify-center gap-2`}>
+    <div className={`${PAD} pt-3 pb-3 flex flex-1 flex-col justify-start gap-2`}>
       {children}
     </div>
   );

@@ -388,23 +388,38 @@ eager. Danach `/hero-lab` und `public/images/hero-alt` löschen.
 **Deck.** Alle Karten liegen per Grid-Stacking in einer Zelle; die Zeile wird
 so hoch wie die höchste Karte, jede streckt sich darauf. Gleich große Karten
 ohne JavaScript-Messung. Mobil dasselbe über eine Flex-Zeile mit `items-stretch`.
-Zielhöhe ≤ 600 px am Desktop (gemessen 518–539 px bei 1024–1440 px).
-Wird eine Karte höher, zieht sie alle mit — deshalb neue Inhalte gegen die
-Höhe prüfen, nicht gegen „passt schon".
+Kartenhöhe 532 px bei 1024 bis 1440 px, mobil 747 px — **über alle Karten und
+alle inneren Zustände identisch** (nachgemessen über je 28 Zustände je Breite).
+Wird eine Karte höher, zieht sie alle mit: neue Inhalte also gegen die festen
+Zonenhöhen prüfen, nicht gegen „passt schon".
 
 **Nachbarn.** Flach, `scale(0.86)`, keine Drehung. Die frühere Drehung stauchte
 genau den Streifen, in dem der Deckeltext steht. `--deck-shift` (35 % lg /
 42 % xl) und `--cover-w` (24 % / 32 %) sind so gesetzt, dass der Deckeltext
 rund 30 px Abstand zur aktiven Karte hat und die Nachbarn in der Spalte bleiben.
 
-**Aufbau jeder Karte** — vier Zonen mit festen Rollen:
+**Aufbau jeder Karte** — vier Zonen mit festen Rollen und festen Höhen. Die
+Höhen sind der Kern: ohne sie wanderte der Antwortblock je nach Karte zwischen
+290 und 328 px, und ein Klick IN einer Karte (Kettenlänge „Messen"/„Zählen")
+änderte die Höhe des ganzen Decks.
 
-| Zone | Inhalt |
-|---|---|
-| Kopf | Icon, Frage, ein Satz „was man davon hat" |
-| Eingabe (links) | 1–3 nummerierte Schritte, nur Chips/Segmente/kurze Felder |
-| Bild (rechts) | genau eine Grafik, die live mitrechnet (`SketchFrame`) |
-| Antwort (unten) | große Zahl oder Wort, ein Satz, max. 2 Kennzahlen, CTA + Symbol-Aktionen in einer Zeile |
+| Zone | Inhalt | Höhe |
+|---|---|---|
+| Kopf | Icon, Frage, ein Satz „was man davon hat" | auto (Untertitel einzeilig) |
+| Körper | links 1–3 nummerierte Schritte, rechts genau eine Grafik | **216 px fest** (`.cq-split`) |
+| — Bildzone | `SketchFrame`, Grafik mittig | **186 px fest** (`GRAPHIC_H`) |
+| Antwort | Zahl oder Wort, ein Satz, max. 2 Kennzahlen, CTA-Zeile | **210 px** (`RESULT_H`) |
+
+Innerhalb der Antwort hat jede Zeile eine feste Höhe: Zahlzeile 36 px (ein Wort
+ist kleiner gesetzt als eine Zahl, die Zeile bleibt gleich hoch), Urteilssatz
+genau zwei Zeilen (`line-clamp-2` — die Copy muss in zwei Zeilen passen), die
+Kennzahlzeile wird immer gerendert, auch ohne Eintrag. Es gibt keine optionale
+Bildzone im Antwortblock; Bilder gehören in die Bildzone.
+
+Gestapelt (Handy) gelten die festen Höhen nicht — dort reservieren die beiden
+Karten mit Modus-Umschalter (Verschleiß, Kettenlänge) stattdessen per `min-h`
+den Platz ihres höheren Modus, damit die Trackhöhe beim Umschalten nicht
+springt.
 
 Links/rechts per Container-Query `.cq-split` ab 520 px Kartenbreite;
 `.cq-chart` gibt der Grafik 3/5 der Breite (Kosten, Intervall, Passende Kette).

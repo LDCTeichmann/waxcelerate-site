@@ -28,6 +28,7 @@ import { shareUrl } from '@/lib/toolState';
 import {
   ToolCard, ToolHeader, StepList, ToolCTA, TogButton, ChipRow, NumberInput, StepNote, InfoPopover,
 } from '@/components/tools/primitives';
+import { SegmentedToggle } from '@/components/viz';
 import { StepField } from '@/components/tools/StepField';
 import { ResultPanel } from '@/components/tools/ResultPanel';
 import { ResultActions } from '@/components/tools/ResultActions';
@@ -99,7 +100,9 @@ export function WearCalculator({ profile, compact }: { profile: ToolProfileState
     : verdict.status === 'checkCass' ? `${eur(chainOnly)}–${eur(both)}`
     : `${eur(chainOnly)} · ${t.tools.wear.chainOnly}`;
 
-  const verdictWord = awaitingInput ? t.tools.wear.verdictWaiting : {
+  // Ohne Messwert steht dort ein Strich, kein Wort: „Messen" in
+  // Ergebnisgroesse las sich wie ein Urteil (09/2026).
+  const verdictWord = awaitingInput ? '—' : {
     ok: t.tools.wear.verdictOk,
     soon: t.tools.wear.verdictSoon,
     replace: t.tools.wear.verdictReplace,
@@ -121,7 +124,7 @@ export function WearCalculator({ profile, compact }: { profile: ToolProfileState
         subtitle={t.tools.wear.subtitle}
         info={(
           <InfoPopover
-            ariaLabel={de ? 'Details zum Verschleiß' : 'Details on wear'}
+            ariaLabel={t.tools.wear.infoLabel}
             trigger={open => <HelpCircle className="h-4 w-4" style={{ color: open ? 'var(--brand)' : 'var(--txff)' }} />}
           >
             <StepNote>
@@ -133,7 +136,11 @@ export function WearCalculator({ profile, compact }: { profile: ToolProfileState
 
       <StepList>
         <div className="cq-split">
-          <div className="flex flex-col gap-3">
+          {/* min-h wie bei der Kettenlaenge: „Lineal" braucht ein Zahlenfeld
+              mit Hinweis, „Lehre" nur Chips. Gemessen 215 px im hoeheren
+              Modus bei 390 px Bildschirmbreite; im Zweispalter faengt die
+              feste Koerperhoehe das ohnehin ab. */}
+          <div className="flex flex-col gap-3 min-h-[216px] sm:min-h-0">
             <StepField step={1} label={t.tools.wear.speed} help={t.tools.wear.helpSpeed}>
               <ChipRow>
                 {SPEEDS.map(s => (
@@ -144,41 +151,49 @@ export function WearCalculator({ profile, compact }: { profile: ToolProfileState
               </ChipRow>
             </StepField>
 
+            {/* Segment statt zweier Chips: „Kettenlehre" und „Lineal, 12
+                Glieder" brauchten bei 1024 px zwei Zeilen, und mit Schritt 3
+                lief die Spalte 30 px ueber die Koerperhoehe. */}
             <StepField step={2} label={t.tools.wear.method} help={t.tools.wear.helpMethod}>
-              <ChipRow>
-                <TogButton active={method === 'gauge'} onClick={() => setMethod('gauge')}>{t.tools.wear.methodGauge}</TogButton>
-                <TogButton active={method === 'ruler'} onClick={() => setMethod('ruler')}>{t.tools.wear.methodRuler}</TogButton>
-              </ChipRow>
+              <SegmentedToggle
+                ariaLabel={t.tools.wear.method}
+                value={method}
+                onChange={setMethod}
+                options={[
+                  { value: 'gauge' as const, label: t.tools.wear.methodGaugeShort },
+                  { value: 'ruler' as const, label: t.tools.wear.methodRulerShort },
+                ]}
+              />
             </StepField>
 
             {method === 'ruler' ? (
               <StepField
                 step={3}
                 label={t.tools.wear.measured}
-                value={`${de ? 'neu' : 'new'}: ${dec(NOMINAL_12_LINKS_MM, 1)} mm`}
+                value={`${t.tools.wear.newLength}: ${dec(NOMINAL_12_LINKS_MM, 1)} mm`}
                 help={t.tools.wear.helpMeasured}
               >
                 <NumberInput
                   value={measuredMm} onChange={setMeasuredMm}
                   min={300} max={315} step={0.1}
                   ariaLabel={t.tools.wear.measured} theme={theme} suffix="mm"
-                  placeholder={de ? 'z. B. 305,3' : 'e.g. 305.3'}
+                  placeholder={t.tools.wear.measurePlaceholder}
                 />
                 {measuredMm.trim() !== '' && !mmValid && (
-                  <StepNote>{de ? '300 bis 315 mm.' : '300 to 315 mm.'}</StepNote>
+                  <StepNote>{t.tools.wear.measureRange}</StepNote>
                 )}
                 {mmValid && overshootMm > 0.05 && (
                   <StepNote>{t.tools.wear.overshoot.replace('{mm}', dec(overshootMm, 1))}</StepNote>
                 )}
               </StepField>
             ) : (
-              <StepField step={3} label={t.tools.wear.gaugeValue}>
+              // Einheit in der Beschriftung, nicht auf jedem Chip: so passen
+              // die vier Marken in eine Zeile.
+              <StepField step={3} label={t.tools.wear.gaugeValueUnit}>
                 <ChipRow>
                   {GAUGE_MARKS.map(v => (
                     <TogButton key={String(v)} active={gauge === v} onClick={() => setGauge(v)}>
-                      {v === 'none'
-                        ? t.tools.wear.gaugeNone
-                        : `${de ? MARK_LABEL[v].de : MARK_LABEL[v].en} %`}
+                      {v === 'none' ? t.tools.wear.gaugeNone : (de ? MARK_LABEL[v].de : MARK_LABEL[v].en)}
                     </TogButton>
                   ))}
                 </ChipRow>
@@ -212,7 +227,7 @@ export function WearCalculator({ profile, compact }: { profile: ToolProfileState
         facts={[
           needsAction
             ? { label: t.tools.wear.costNow, value: dueText }
-            : { label: t.tools.wear.limit, value: `${limitLabel} % · ${speed}${de ? '-fach' : 'sp'}` },
+            : { label: t.tools.wear.limit, value: `${limitLabel} % · ${speed}${t.tools.shared.speedSuffix}` },
           {
             label: t.tools.wear.elongationFact,
             value: awaitingInput ? '—'

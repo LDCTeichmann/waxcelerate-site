@@ -77,8 +77,12 @@ export function IntervalCalculator({ profile, compact }: { profile: ToolProfileS
   const today0 = new Date(); today0.setHours(0, 0, 0, 0);
   const waxesPerYear = Math.round((profile.kmPerWeek * 52) / interval);
 
+  // Auf der Startseite zum Regal scrollen; auf /rechner/intervall gibt es
+  // #produkte nicht — dort war der Knopf bis 09/2026 tot und tat nichts.
   const goToWax = () => {
-    document.querySelector('#produkte')?.scrollIntoView({ behavior: 'smooth' });
+    const shelf = document.querySelector('#produkte');
+    if (!shelf) { window.location.href = '/#produkte'; return; }
+    shelf.scrollIntoView({ behavior: 'smooth' });
     window.dispatchEvent(new CustomEvent('wax:selectTab', { detail: 'wax' }));
   };
 
@@ -90,7 +94,7 @@ export function IntervalCalculator({ profile, compact }: { profile: ToolProfileS
         subtitle={t.tools.rewax.subtitle}
         info={(
           <InfoPopover
-            ariaLabel={de ? 'Warum 300 km' : 'Why 300 km'}
+            ariaLabel={t.tools.rewax.infoLabel}
             trigger={open => <HelpCircle className="h-4 w-4" style={{ color: open ? 'var(--brand)' : 'var(--txff)' }} />}
           >
             <StepNote>
@@ -107,9 +111,7 @@ export function IntervalCalculator({ profile, compact }: { profile: ToolProfileS
         <StepField
           step={1}
           label={t.tools.rewax.lastWaxed}
-          help={de
-            ? 'Der Tag, an dem die Kette zuletzt im Wachs war. Weißt du ihn nicht mehr, lass „Heute" stehen — dann rechnet der Rechner ab jetzt.'
-            : 'The day the chain last went into the wax. If you cannot remember, leave "Today" — the calculation then starts from now.'}
+          help={t.tools.rewax.lastWaxedHelp}
         >
           {!customOpen && (
             <ChipRow>
@@ -202,10 +204,10 @@ export function IntervalCalculator({ profile, compact }: { profile: ToolProfileS
           shareUrl={url}
           event={{
             date: reminderDate,
-            title: de ? 'Kette rewaxen' : 'Re-wax chain',
-            description: de
-              ? `Waxcelerate: Intervall ${weeks} Wochen (${interval} km je Wachsung).`
-              : `Waxcelerate: interval ${weeks} weeks (${interval} km per wax).`,
+            title: t.tools.rewax.reminderTitle,
+            description: t.tools.rewax.reminderDesc
+              .replace('{weeks}', String(weeks))
+              .replace('{km}', String(interval)),
             repeatWeeks: weeks,
             url,
           }}

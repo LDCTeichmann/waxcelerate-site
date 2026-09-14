@@ -143,13 +143,38 @@ export function ChainLengthCalculator({ profile, compact }: { profile: ToolProfi
                 : tl.shortenNote.replace('{lengths}', stockLengths.join(', '))}
             </StepNote>
             <StepNote>{tl.crossCheck}</StepNote>
+            {/* Der Rechenweg stand bis 09/2026 als eigener Aufklapper in der
+                Eingabespalte. Dort kostete er die 26 px, die die Karte ueber
+                alle anderen hinaushoben — und er gehoert ohnehin zu den
+                Erklaerungen, die schon in diesem Popover stehen. */}
+            {calc && (
+              <div className="flex flex-col gap-1 pt-1" style={{ borderTop: '1px solid var(--inset-bd)' }}>
+                <span className="text-meta uppercase tracking-[0.1em] font-semibold" style={{ color: 'var(--tx2)' }}>{tl.calcWay}</span>
+                <CalcRow mark="stay" label={tl.calcStay.replace('{mm}', String(n.chainstayMm))} value={dec(calc.stay)} />
+                <CalcRow mark="wrap" label={`+ ${tl.calcRing.replace('{n}', String(n.bigChainring))}`} value={dec(calc.ring)} />
+                <CalcRow mark="wrap" label={`+ ${tl.calcSprocket.replace('{n}', String(n.bigSprocket))}`} value={dec(calc.sprocket)} />
+                <CalcRow mark="plain" label={`+ ${tl.calcReserve}`} value={dec(calc.reserve)} />
+                <div className="flex items-center gap-2.5 pt-1 mt-0.5" style={{ borderTop: '1px dashed var(--inset-bd)' }}>
+                  <span className="w-5 flex-shrink-0" />
+                  <span className="text-[12px] flex-1" style={{ color: 'var(--tx2)' }}>
+                    {tl.calcTotal.replace('{raw}', dec(calc.raw))}
+                  </span>
+                  <span className="text-[13px] font-semibold tabular-nums" style={{ color: 'var(--brand)' }}>{calc.links}</span>
+                </div>
+              </div>
+            )}
           </InfoPopover>
         )}
       />
 
       <StepList>
         <div className="cq-split">
-          <div className="flex flex-col gap-3">
+          {/* min-h: „Zaehlen" braucht ein Feld, „Messen" drei. Im Zweispalter
+              faengt das die feste Koerperhoehe ab (.cq-split, index.css), auf
+              dem Handy stapelt sich alles — ohne reservierten Platz sprang die
+              Trackhoehe dort beim Umschalten. 200 px = gemessener Bedarf des
+              hoeheren Modus („Messen", 199 px bei 390 px Bildschirmbreite). */}
+          <div className="flex flex-col gap-3 min-h-[200px] sm:min-h-0">
             <SegmentedToggle
               ariaLabel={de ? 'Wie ermitteln?' : 'How to work it out?'}
               value={mode}
@@ -186,30 +211,6 @@ export function ChainLengthCalculator({ profile, compact }: { profile: ToolProfi
                   </CompactField>
                 </div>
                 {!measureValid && <StepNote>{tl.rangeNote}</StepNote>}
-                {calc && (
-                  <InfoPopover
-                    ariaLabel={tl.calcWay}
-                    trigger={open => (
-                      <span className="text-[12px] font-medium" style={{ color: open ? 'var(--tx1)' : 'var(--brand)' }}>
-                        {tl.calcWay} →
-                      </span>
-                    )}
-                  >
-                    <div className="flex flex-col gap-1">
-                      <CalcRow mark="stay" label={tl.calcStay.replace('{mm}', String(n.chainstayMm))} value={dec(calc.stay)} />
-                      <CalcRow mark="wrap" label={`+ ${tl.calcRing.replace('{n}', String(n.bigChainring))}`} value={dec(calc.ring)} />
-                      <CalcRow mark="wrap" label={`+ ${tl.calcSprocket.replace('{n}', String(n.bigSprocket))}`} value={dec(calc.sprocket)} />
-                      <CalcRow mark="plain" label={`+ ${tl.calcReserve}`} value={dec(calc.reserve)} />
-                      <div className="flex items-center gap-2.5 pt-1 mt-0.5" style={{ borderTop: '1px dashed var(--inset-bd)' }}>
-                        <span className="w-5 flex-shrink-0" />
-                        <span className="text-[12px] flex-1" style={{ color: 'var(--tx2)' }}>
-                          {tl.calcTotal.replace('{raw}', dec(calc.raw))}
-                        </span>
-                        <span className="text-[13px] font-semibold tabular-nums" style={{ color: 'var(--brand)' }}>{calc.links}</span>
-                      </div>
-                    </div>
-                  </InfoPopover>
-                )}
               </>
             ) : (
               <>
@@ -229,7 +230,7 @@ export function ChainLengthCalculator({ profile, compact }: { profile: ToolProfi
           </div>
 
           {mode === 'measure' ? (
-            <SketchFrame maxWidth={320}>
+            <SketchFrame>
               <DrivetrainSketch
                 chainstayMm={measureValid ? n.chainstayMm : 425}
                 chainring={measureValid ? n.bigChainring : 50}
@@ -237,9 +238,21 @@ export function ChainLengthCalculator({ profile, compact }: { profile: ToolProfi
                 focus={focus}
                 de={de}
               />
+              {/* Das Ergebnis als Handlung am Bauteil: die Glieder, die
+                  abkommen, sind markiert. Stand bis 09/2026 im Antwortblock
+                  und machte ihn dort 38 px hoeher als auf allen anderen
+                  Karten (siehe ResultPanel.tsx). */}
+              {toRemove !== null && toRemove > 0 && (
+                <div className="mt-2 flex items-center gap-2">
+                  <ChainTrimBar remove={toRemove} de={de} />
+                  <span className="text-[11.5px] whitespace-nowrap" style={{ color: 'var(--brand)' }}>
+                    {tl.factRemove}: {toRemove}
+                  </span>
+                </div>
+              )}
             </SketchFrame>
           ) : (
-            <SketchFrame maxWidth={310} caption={tl.countCaption}>
+            <SketchFrame caption={tl.countCaption}>
               <ChainCountSketch de={de} />
             </SketchFrame>
           )}
@@ -251,7 +264,6 @@ export function ChainLengthCalculator({ profile, compact }: { profile: ToolProfi
         compact={compact}
         value={fitting ?? links ?? '—'}
         unit={fitting ? tl.buyLinks : tl.links}
-        hero={toRemove ? <ChainTrimBar remove={toRemove} de={de} /> : undefined}
         verdict={links && fitting
           ? tl.resultVerdict
             .replace('{links}', String(links))

@@ -31,7 +31,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import type { ToolProfileState } from '@/hooks/useToolProfile';
 import { drivetrainCosts, DRIVETRAIN_CLASSES, referenceWax } from '@/lib/waxMath';
 import { accessories } from '@/lib/data';
-import { shareUrl } from '@/lib/toolState';
+import { shareUrl, toolParam } from '@/lib/toolState';
 import { AnimatedNumber } from '@/components/viz';
 import {
   ToolCard, ToolHeader, StepList, ToolCTA, TogButton, ChipRow, StepNote, InfoPopover,
@@ -66,9 +66,17 @@ export function CostCalculator({ profile, compact, preselectRotation, slug = 'um
 
   const kmPerYear = profile.kmPerWeek * 52;
   const recommended = recommendedChains(kmPerYear);
-  const [chains, setChains] = useState<1 | 2 | 3>(preselectRotation ? recommended : 1);
+  // Geteilte Links tragen den Kartenzustand (k = Ketten, at = Antrieb), sonst
+  // zeigt der Empfaenger eine andere Rechnung als der Absender.
+  const [chains, setChains] = useState<1 | 2 | 3>(() => {
+    const k = Number(toolParam('k'));
+    return k === 1 || k === 2 || k === 3 ? k : preselectRotation ? recommended : 1;
+  });
   // Default XT: dieselbe Vorwahl wie der Rechner auf der Produktseite.
-  const [clsIdx, setClsIdx] = useState(1);
+  const [clsIdx, setClsIdx] = useState(() => {
+    const i = DRIVETRAIN_CLASSES.findIndex(d => d.id === toolParam('at'));
+    return i >= 0 ? i : 1;
+  });
   const cls = DRIVETRAIN_CLASSES[clsIdx];
 
   const costs = drivetrainCosts({
@@ -105,7 +113,7 @@ export function CostCalculator({ profile, compact, preselectRotation, slug = 'um
         subtitle={c.subtitle}
         info={(
           <InfoPopover
-            ariaLabel={de ? 'Wichtige Hinweise zu den Kosten' : 'Important notes on cost'}
+            ariaLabel={c.infoLabel}
             trigger={open => <HelpCircle className="h-4 w-4" style={{ color: open ? 'var(--brand)' : 'var(--txff)' }} />}
           >
             <StepNote>
@@ -187,7 +195,7 @@ export function CostCalculator({ profile, compact, preselectRotation, slug = 'um
               : c.sessions.replace('{n}', String(costs.waxSessionsPerYear)),
           },
         ]}
-        actions={<ResultActions compact={compact} shareUrl={shareUrl(`/rechner/${slug}`, profile.snapshot)} />}
+        actions={<ResultActions compact={compact} shareUrl={shareUrl(`/rechner/${slug}`, profile.snapshot, { k: chains, at: cls.id })} />}
         cta={chains === 1
           ? <ToolCTA href="/starter-set">{c.ctaStarter}</ToolCTA>
           : <ToolCTA href={`/ketten?marke=${system}&gang=${speedKey}`}>{c.ctaChains}</ToolCTA>}

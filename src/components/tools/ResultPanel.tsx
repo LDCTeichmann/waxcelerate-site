@@ -11,14 +11,16 @@
 // Leerflaeche zwischen Bedienelementen und Knopf stand, und trennt zugleich
 // sichtbar „was ich eingebe" von „was dabei herauskommt".
 //
-// Feste Geometrie statt nur fester Reihenfolge: `mt-auto` sitzt jetzt an
-// diesem Block, nicht mehr nur an ToolFooter — der freie Raum sammelt sich
-// dadurch IMMER ueber dem Ergebnis, nie darunter, und die Oberkante des
-// Ergebnisblocks liegt in allen sechs Karten auf derselben Hoehe, egal wie
-// viele Eingabeschritte darueber stehen. Der Urteilssatz bekommt dafuer eine
-// Mindesthoehe von zwei Zeilen (`min-h`) und die Kennzahl-Zeile
-// wird immer gerendert (bis zu zwei Eintraege nebeneinander) — sonst aendert
-// sich die Blockhoehe selbst noch von Rechner zu Rechner.
+// Feste Geometrie: `mt-auto` haelt den Block unten, `min-h` haelt ihn hoch.
+// Beides zusammen ergibt erst eine gleiche OBERkante — mit mt-auto allein
+// wanderte sie zwischen 290 und 328 px, je nachdem, was im Block stand
+// (gemessen 09/2026 ueber alle fuenf Karten bei 1280 px).
+// Dazu gehoert, dass jeder Baustein eine feste Hoehe hat: der Urteilssatz
+// mindestens zwei Zeilen, die Kennzahlzeile immer zwei Spalten (auch bei nur
+// einem Eintrag), und es gibt keine optionale Bildzone mehr — die frueher
+// „hero" genannte Zeile nutzte nur die Kettenlaenge, und genau sie war der
+// Ausreisser. Das Kettenstueck steht dort jetzt bei der Skizze, wo es
+// hingehoert: es zeigt eine Handlung am Bauteil, keine Kennzahl.
 //
 // Weniger Zahlen gleichzeitig: genau eine grosse Zahl, ein Satz Klartext dazu,
 // hoechstens zwei Zusatzangaben. Alles Weitere gehoert nicht ins Ergebnis,
@@ -40,8 +42,15 @@ import { trackCalcComplete } from '@/lib/analytics';
 
 export type ResultTone = 'neutral' | 'good' | 'warn';
 
+/** Hoehe des Antwortblocks, gleich auf allen Karten. Gemessen aus dem
+ *  hoechsten Fall: Polster 24 + Zahlzeile 36 + Urteil 2 Zeilen 35 +
+ *  Kennzahlzeile 45 + Handlungszeile 52 + Abstaende. Jede Zeile hat dafuer
+ *  eine feste Hoehe — ohne das schwankte der Block zwischen 190 und 206 px
+ *  und die Antwort sprang beim Blaettern. */
+const RESULT_H = 210;
+
 export function ResultPanel({
-  value, unit, verdict, facts, tone = 'neutral', actions, hero, cta, compact, toolSlug, hasResult = true,
+  value, unit, verdict, facts, tone = 'neutral', actions, cta, compact, toolSlug, hasResult = true,
 }: {
   /** Die eine grosse Zahl. Node, damit AnimatedNumber hineinpasst. */
   value: React.ReactNode;
@@ -52,9 +61,6 @@ export function ResultPanel({
   facts?: { label: string; value: string }[];
   tone?: ResultTone;
   actions?: React.ReactNode;
-  /** Schmaler Streifen zwischen der grossen Zahl und dem Urteil, z. B. das
-      Kettenstueck der Kettenlaenge. Optional. */
-  hero?: React.ReactNode;
   /** Die eine Handlungsaufforderung, unterste Zeile des Blocks. */
   cta?: React.ReactNode;
   /** Im Kartenstapel der Startseite: Aktionen als Symbole neben der CTA. */
@@ -92,10 +98,12 @@ export function ResultPanel({
   const isWord = typeof value === 'string' && /[a-zäöüß]{3}/i.test(value);
   return (
     <div
-      className="mt-auto mx-3.5 mb-3.5 sm:mx-4 sm:mb-4 rounded-2xl px-3.5 py-3 sm:px-4"
-      style={{ background: TONE.bg, border: `1px solid ${TONE.bd}` }}
+      className="mt-auto mx-3.5 mb-3.5 sm:mx-4 sm:mb-4 rounded-2xl px-3.5 py-3 sm:px-4 flex flex-col"
+      style={{ background: TONE.bg, border: `1px solid ${TONE.bd}`, minHeight: RESULT_H }}
     >
-      <div className="flex items-baseline gap-2 min-w-0">
+      {/* Feste Hoehe: ein Wort („Kette tauschen") ist kleiner gesetzt als eine
+          Zahl, die Zeile darf dadurch nicht niedriger werden. */}
+      <div className="flex items-baseline gap-2 min-w-0 h-9">
         <span
           className={`${isWord ? 'text-[24px] sm:text-[26px]' : 'text-[30px] sm:text-[34px]'} font-bold leading-none tabular-nums tracking-[-0.01em]`}
           style={{ color: TONE.accent }}
@@ -109,20 +117,27 @@ export function ResultPanel({
         )}
       </div>
 
-      {hero && <div className="mt-2.5">{hero}</div>}
-
       {/* Mindesthoehe zwei Zeilen: ein kurzer Satz soll den Block nicht
           schrumpfen lassen, sonst steht die Kennzahlzeile je Rechner woanders. */}
-      <p className="text-[12.5px] leading-snug mt-1.5 min-h-[2.5em]" style={{ color: 'var(--tx2)' }}>
+      {/* Genau zwei Zeilen: kuerzere Saetze bekommen die Hoehe trotzdem,
+          laengere werden geschnitten — die Copy muss also in zwei Zeilen
+          passen (in `title` steht sie vollstaendig). */}
+      <p
+        className="text-[12.5px] leading-snug mt-1.5 h-[2.75em] line-clamp-2"
+        style={{ color: 'var(--tx2)' }}
+        title={typeof verdict === 'string' ? verdict : undefined}
+      >
         {verdict}
       </p>
 
       {/* Immer zwei Spalten, auch bei nur einer Kennzahl — damit steht die
           erste Kennzahl in jeder Karte an derselben Stelle. */}
-      {shownFacts.length > 0 && (
+      {/* Immer gerendert, auch ohne Eintraege: sonst faellt der Block auf
+          Karten ohne Kennzahl um 45 px in sich zusammen. */}
+      {(
         <dl
-          className="grid grid-cols-2 gap-x-3 gap-y-1.5 mt-2 pt-2"
-          style={{ borderTop: '1px solid var(--inset-bd)' }}
+          className="grid grid-cols-2 gap-x-3 gap-y-1.5 mt-2 pt-2 h-[45px]"
+          style={{ borderTop: shownFacts.length ? '1px solid var(--inset-bd)' : '1px solid transparent' }}
         >
           {shownFacts.map(f => (
             <div key={f.label} className="min-w-0">
@@ -138,16 +153,16 @@ export function ResultPanel({
           grossen Zahl und nahmen ihr den Platz. */}
       {compact ? (
         (cta || actions) && (
-          <div className="mt-2.5 flex items-stretch gap-2">
+          <div className="mt-auto pt-2.5 flex items-stretch gap-2">
             {cta && <div className="flex-1 min-w-0">{cta}</div>}
             {actions}
           </div>
         )
       ) : (
-        <>
-          {actions && <div className="mt-2.5">{actions}</div>}
-          {cta && <div className="mt-2.5">{cta}</div>}
-        </>
+        <div className="mt-auto pt-2.5 flex flex-col gap-2.5">
+          {actions}
+          {cta}
+        </div>
       )}
     </div>
   );

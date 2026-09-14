@@ -321,6 +321,10 @@ export const translations = {
         tlLast: 'zuletzt',
         tlToday: 'heute',
         tlDue: 'fällig',
+        infoLabel: 'Warum 300 km',
+        lastWaxedHelp: 'Der Tag, an dem die Kette zuletzt im Wachs war. Weißt du ihn nicht mehr, lass „Heute" stehen — dann rechnet der Rechner ab jetzt.',
+        reminderTitle: 'Kette rewaxen',
+        reminderDesc: 'Waxcelerate: Intervall {weeks} Wochen ({km} km je Wachsung).',
       },
       profile: {
         barTitle: 'Dein Fahrprofil',
@@ -369,6 +373,8 @@ export const translations = {
         buyWax: 'Wachs kaufen →',
         recommended: 'Empfohlen',
         perYear: '/Jahr',
+        and: 'und',
+        speedSuffix: '-fach',
       },
 
       // Verschleiß
@@ -378,6 +384,9 @@ export const translations = {
         method: 'Messmethode',
         methodRuler: 'Lineal, 12 Glieder',
         methodGauge: 'Kettenlehre',
+        methodRulerShort: 'Lineal',
+        methodGaugeShort: 'Lehre',
+        gaugeValueUnit: 'Welche Marke fällt rein? (%)',
         speed: 'Gangzahl',
         measured: 'Deine Messung',
         gaugeValue: 'Welche Marke fällt rein?',
@@ -414,6 +423,10 @@ export const translations = {
         scaleYou: 'Deine Kette',
         scaleEmpty: 'Messwert eingeben',
         elongationFact: 'Längung',
+        newLength: 'neu',
+        measurePlaceholder: 'z. B. 305,3',
+        measureRange: '300 bis 315 mm.',
+        infoLabel: 'Details zum Verschleiß',
       },
 
       // Kettenlänge
@@ -481,6 +494,7 @@ export const translations = {
         cheapest: 'Günstigste',
         choice: 'Auswahl',
         ctaChains: 'Passende Ketten ansehen →',
+        ctaLength: 'Passende Länge berechnen →',
       },
 
       // Umstieg
@@ -510,17 +524,18 @@ export const translations = {
         chartWax: 'mit Wachs',
         chartPerYear: 'pro Jahr',
         unit: 'weniger im Jahr',
-        verdict: 'Die Ersparnis kommt von Kette und Kassette — das Wachs selbst kostet mehr als Öl. Das Werkzeug ({tools}) ist nach {months} drin.',
+        verdict: 'Kette und Kassette halten länger, das Wachs selbst kostet mehr als Öl. Das Werkzeug ({tools}) ist nach {months} drin.',
         oneMonth: '1 Monat',
         months: '{n} Monaten',
-        start: 'Einstieg',
-        startWithChains: '{sum} inkl. {n} Ketten',
+        start: 'Wachs + Werkzeug',
+        startWithChains: '{sum} + {n} Ketten',
         waxing: 'Wachsen',
         sessions: '{n}× im Jahr',
         sessionsRotation: '{n}× im Jahr · {chains} Ketten je Topf',
         blockNote: 'Gerechnet mit dem 500-g-Block. Der 300er ist im Einstieg günstiger, kostet je Wachsung aber mehr — für Wenigfahrer die bessere Wahl, weil angebrochenes Wachs altert.',
         ctaStarter: 'Starter-Set ansehen →',
         ctaChains: 'Passende Ketten ansehen →',
+        infoLabel: 'Wichtige Hinweise zu den Kosten',
       },
     },
 
@@ -940,6 +955,10 @@ export const translations = {
         tlLast: 'last',
         tlToday: 'today',
         tlDue: 'due',
+        infoLabel: 'Why 300 km',
+        lastWaxedHelp: 'The day the chain last went into the wax. If you cannot remember, leave "Today" — the calculation then starts from now.',
+        reminderTitle: 'Re-wax chain',
+        reminderDesc: 'Waxcelerate: interval {weeks} weeks ({km} km per wax).',
       },
       profile: {
         barTitle: 'Your riding profile',
@@ -982,6 +1001,8 @@ export const translations = {
         buyWax: 'Buy wax →',
         recommended: 'Recommended',
         perYear: '/yr',
+        and: 'and',
+        speedSuffix: 'sp',
       },
 
       wear: {
@@ -990,6 +1011,9 @@ export const translations = {
         method: 'Measuring method',
         methodRuler: 'Ruler, 12 links',
         methodGauge: 'Chain gauge',
+        methodRulerShort: 'Ruler',
+        methodGaugeShort: 'Gauge',
+        gaugeValueUnit: 'Which mark drops in? (%)',
         speed: 'Speeds',
         measured: 'Your measurement',
         gaugeValue: 'Which mark drops into the chain?',
@@ -1026,6 +1050,10 @@ export const translations = {
         scaleYou: 'Your chain',
         scaleEmpty: 'Enter a measurement',
         elongationFact: 'Elongation',
+        newLength: 'new',
+        measurePlaceholder: 'e.g. 305.3',
+        measureRange: '300 to 315 mm.',
+        infoLabel: 'Details on wear',
       },
 
       length: {
@@ -1091,6 +1119,7 @@ export const translations = {
         cheapest: 'Cheapest',
         choice: 'Choice',
         ctaChains: 'View matching chains →',
+        ctaLength: 'Work out the right length →',
       },
 
       switch: {
@@ -1119,17 +1148,18 @@ export const translations = {
         chartWax: 'with wax',
         chartPerYear: 'per year',
         unit: 'less per year',
-        verdict: 'The saving comes from chain and cassette — the wax itself costs more than oil. The tools ({tools}) pay for themselves in {months}.',
+        verdict: 'Chain and cassette last longer, the wax itself costs more than oil. The tools ({tools}) pay off in {months}.',
         oneMonth: '1 month',
         months: '{n} months',
-        start: 'Getting started',
-        startWithChains: '{sum} incl. {n} chains',
+        start: 'Wax + tools',
+        startWithChains: '{sum} + {n} chains',
         waxing: 'Waxing',
         sessions: '{n}× a year',
         sessionsRotation: '{n}× a year · {chains} chains per pot',
         blockNote: 'Calculated with the 500 g block. The 300 g is cheaper to start with but costs more per wax — the better choice for low mileage, because opened wax ages.',
         ctaStarter: 'View starter set →',
         ctaChains: 'View matching chains →',
+        infoLabel: 'Important notes on cost',
       },
     },
 
