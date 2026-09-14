@@ -33,7 +33,7 @@ import {
 import { ResultPanel } from '@/components/tools/ResultPanel';
 import { ResultActions } from '@/components/tools/ResultActions';
 import {
-  DrivetrainSketch, ChainCountSketch, ChainTrimBar, SketchFrame, type DrivetrainPart,
+  DrivetrainSketch, ChainCountSketch, SketchFrame, type DrivetrainPart,
 } from '@/components/tools/sketches';
 
 /** Eine Eingabezeile: Label mit Fragezeichen links, Zahlenfeld rechts. Zeilen
@@ -237,20 +237,9 @@ export function ChainLengthCalculator({ profile, compact }: { profile: ToolProfi
                 chainring={measureValid ? n.bigChainring : 50}
                 sprocket={measureValid ? n.bigSprocket : 34}
                 focus={focus}
+                remove={toRemove ?? 0}
                 de={de}
               />
-              {/* Das Ergebnis als Handlung am Bauteil: die Glieder, die
-                  abkommen, sind markiert. Stand bis 09/2026 im Antwortblock
-                  und machte ihn dort 38 px hoeher als auf allen anderen
-                  Karten (siehe ResultPanel.tsx). */}
-              {toRemove !== null && toRemove > 0 && (
-                <div className="mt-2 flex items-center gap-2">
-                  <ChainTrimBar remove={toRemove} de={de} />
-                  <span className="text-[11.5px] whitespace-nowrap" style={{ color: 'var(--brand)' }}>
-                    {tl.factRemove}: {toRemove}
-                  </span>
-                </div>
-              )}
             </SketchFrame>
           ) : (
             <SketchFrame caption={tl.countCaption}>

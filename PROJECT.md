@@ -78,6 +78,7 @@ Kurz halten. Erledigtes wandert nach unten in den Log.
 - **Foto-Lücke:** kein eigenes Vorher-Nachher-Paar geölt gegen gewachst. Größter offener Hebel auf der Startseite. `ComparisonSlider` liegt fertig und ungenutzt.
 - **Kaufweg:** eBay bis der Stripe-Checkout steht, geplant Sonntag oder Montag.
 - **Startseitenlänge:** Rechner, Anleitungen und FAQ stehen nach dem Kaufangebot. Vorschlag in `docs/AUDIT.md`, bewusst noch nicht umgesetzt.
+- **Kassetten- und Kettenpreise für 8- bis 10-fach.** Der Verschleiß-Rechner nennt Kosten nur für 11/12-fach (unsere Ketten, XT-Kassette 130 €). Bei 8–10-fach steht bis zur Entscheidung nur, *was* fällig ist („Kette, evtl. Kassette"), ohne Betrag.
 - **Ketten-Kit-Rabatt 5 % / 10 %** stand fest verdrahtet im alten Ersparnis-Rechner, ohne Grundlage in `data.ts` (dort gibt es nur die Wachs-Staffel). Der neue Kosten-Rechner rechnet ohne. Gibt es einen Ketten-Rabatt, gehört er nach `data.ts`.
 - **Öl-Kosten `OIL_PRICE_PER_APP` 1,10 € je 1.000 km** sind sehr niedrig (real wird eher alle 200–400 km nachgeölt, bei Nässe öfter). Die Annahme ist zugunsten von Öl gesetzt, also vorsichtig — nicht falsch, aber sie drückt die Ersparnis.
 - **66 Gedankenstriche** als Satzzeichen in `src/lib/data.ts` sind noch nicht bereinigt. (Stand 11.08.2026 nachgezählt, vorher stand hier 57.)

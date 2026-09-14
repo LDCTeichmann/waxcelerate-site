@@ -229,7 +229,7 @@ export interface DrivetrainCosts {
  * staerker. Der Exponent unten haelt den Wachsnachteil bewusst konservativ
  * klein statt den in Tests gemessenen grossen Abstand voll anzusetzen.
  */
-function severityFactor(rewaxKm: number): number {
+export function severityFactor(rewaxKm: number): number {
   // Muss der trockenen Strasse aus waxIntervals entsprechen, sonst verschiebt
   // sich die ganze Skala. Nicht importiert, weil hier ein Bezugspunkt gemeint
   // ist und keine Nachschlagetabelle — der Kommentar haelt beide zusammen.
@@ -242,9 +242,9 @@ function severityFactor(rewaxKm: number): number {
  *  "gemischt/Gravel" (Intervall 150 km, Faktor 2) nur 1.500 km und bei nass/
  *  MTB rund 800 km, das rechnete Luca bei 130 km/Woche auf ~4,5 Ketten im
  *  Jahr hoch. Mit 0,5: gemischt/Gravel ~2.100 km, nass/MTB ~1.550 km. */
-const OIL_SEVERITY_EXPONENT = 0.5;
+export const OIL_SEVERITY_EXPONENT = 0.5;
 /** Wachs deutlich weniger — bewusst vorsichtig angesetzt. */
-const WAX_SEVERITY_EXPONENT = 0.35;
+export const WAX_SEVERITY_EXPONENT = 0.35;
 
 /**
  * Verbrauch an Ketten und Kassetten pro Jahr, Oel gegen Wachs, mit denselben

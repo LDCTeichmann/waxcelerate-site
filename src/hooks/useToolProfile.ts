@@ -32,22 +32,23 @@ export function useToolProfile() {
   }, [weather, terrain, kmPerWeek, system, speed]);
 
   const interval = waxIntervals[weather][terrain];
-  const rawWeeks = kmPerWeek > 0 ? Math.round(interval / kmPerWeek) : MAX_REWAX_WEEKS;
-  // Nach unten auf eine Woche begrenzt. Wer 250 km die Woche im Nassen auf dem
-  // MTB faehrt, kommt rechnerisch auf 120/250 = 0 Wochen — und „0 Wochen" ist
-  // keine Antwort, sondern eine kaputte Anzeige. Die tatsaechliche Haerte des
-  // Falls steht ohnehin in der km-je-Wachsung-Zeile daneben, und eine
-  // Kalenderwiederholung mit Intervall 0 waere gar nicht darstellbar.
-  const weeks = Math.min(Math.max(rawWeeks, 1), MAX_REWAX_WEEKS);
+  // In Tagen, nicht in ganzen Wochen: auf Wochen gerundet wurden 150 km bei
+  // 200 km/Woche zu „alle 1 Woche" = 200 km, ein Drittel ueber dem Intervall.
+  // Untergrenze 3 Tage — oefter wachst niemand im Topf (Hybrid-Hinweis).
+  const rawDays = kmPerWeek > 0 ? Math.round((interval / kmPerWeek) * 7) : MAX_REWAX_WEEKS * 7;
+  const days = Math.min(Math.max(rawDays, 3), MAX_REWAX_WEEKS * 7);
+  const weeks = Math.max(1, Math.round(days / 7));
 
   return {
     weather, setWeather, terrain, setTerrain, kmPerWeek, setKmPerWeek,
     system, setSystem, speed, setSpeed, lastWaxedDate, setLastWaxedDate,
     /** km je Wachsung aus Wetter × Gelaende. */
     interval,
-    /** Intervall in Wochen, gedeckelt. */
+    /** Intervall in Tagen, 3 bis 182. Grundlage fuer Termin und Kalender. */
+    days,
+    /** Dasselbe gerundet in Wochen, nur fuer die Anzeige. */
     weeks,
-    weeksCapped: rawWeeks > MAX_REWAX_WEEKS,
+    weeksCapped: rawDays > MAX_REWAX_WEEKS * 7,
     /** Ungedeckelt — fuer Folgerechnungen, die den Deckel nicht wollen. */
     preciseWeeks: kmPerWeek > 0 ? interval / kmPerWeek : Infinity,
     snapshot: { weather, terrain, kmPerWeek, system, speed, lastWaxedDate } as ToolProfile,

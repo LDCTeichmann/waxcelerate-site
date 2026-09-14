@@ -29,12 +29,13 @@ import { StepField } from '@/components/tools/StepField';
 import { ResultPanel } from '@/components/tools/ResultPanel';
 import { ResultActions } from '@/components/tools/ResultActions';
 import { RewaxTimeline, SketchFrame } from '@/components/tools/sketches';
+import { CalcTrace, CalcTraceDisclosure, CalcTraceHeading, type TraceRow } from '@/components/tools/CalcTrace';
 
 export function IntervalCalculator({ profile, compact }: { profile: ToolProfileState; compact?: boolean }) {
   const { t, lang } = useLanguage();
   const { theme } = useTheme();
   const de = lang === 'de';
-  const { lastWaxedDate, setLastWaxedDate, interval, weeks, weeksCapped } = profile;
+  const { lastWaxedDate, setLastWaxedDate, interval, days, weeks, weeksCapped } = profile;
 
   const today = new Date();
   const datePresets: { key: string; date: Date | null; label: string }[] = [
@@ -55,12 +56,15 @@ export function IntervalCalculator({ profile, compact }: { profile: ToolProfileS
   );
 
   const { date: nextDate, overdue, daysLeft } = useMemo(
-    () => dueDate(lastWaxedDate, weeks), [weeks, lastWaxedDate],
+    () => dueDate(lastWaxedDate, days), [days, lastWaxedDate],
   );
 
   const r = t.tools.rewax;
   const fmtDate = (d: Date) => d.toLocaleDateString(de ? 'de-DE' : 'en-GB', { day: 'numeric', month: 'short' });
-  const weeksWord = (n: number) => `${n} ${n === 1 ? r.week : r.weeks}`;
+  // Volle Wochen als Wochen, alles andere in Tagen — „alle 2 Wochen" statt
+  // „alle 14 Tage", aber „alle 5 Tage" statt einer falsch gerundeten Woche.
+  const rhythmWord = days % 7 === 0 ? `${weeks} ${weeks === 1 ? r.week : r.weeks}` : `${days} ${r.days}`;
+  const rhythm = r.every.replace('{n}', rhythmWord);
   // Die Antwort als Abstand in Worten. Die Zahl allein („1") war zweideutig —
   // alle eine Woche, oder in einer Woche?
   const answer =
@@ -76,6 +80,12 @@ export function IntervalCalculator({ profile, compact }: { profile: ToolProfileS
   const terrainLabel = { strasse: r.road, gravel: r.gravel, mtb: r.mtb }[profile.terrain];
   const today0 = new Date(); today0.setHours(0, 0, 0, 0);
   const waxesPerYear = Math.round((profile.kmPerWeek * 52) / interval);
+  const s = t.tools.shared;
+  const trace: TraceRow[] = [
+    { label: s.traceInterval, detail: `${weatherLabel} · ${terrainLabel}`, value: `${interval} km` },
+    { label: s.traceRhythm, detail: `${interval} km ÷ ${profile.kmPerWeek} km × 7`, value: `${days} ${r.days}` },
+    { label: s.traceDue, detail: `${fmtDate(lastWaxedDate ?? today0)} + ${days} ${r.days}`, value: fmtDate(nextDate), total: true },
+  ];
 
   // Auf der Startseite zum Regal scrollen; auf /rechner/intervall gibt es
   // #produkte nicht — dort war der Knopf bis 09/2026 tot und tat nichts.
@@ -102,6 +112,8 @@ export function IntervalCalculator({ profile, compact }: { profile: ToolProfileS
                 ? '300 km bei trockener Straße ist die Empfehlung fürs Optimum, keine Verschleißgrenze. Eine Kette läuft auch mal 400 bis 500 km — nur eben nicht mehr im besten Zustand. Nach Regenfahrten deutlich früher.'
                 : '300 km on dry roads is the recommendation for the best result, not a wear limit. A chain will also run 400 to 500 km — just no longer in peak condition. After riding in rain, much sooner.'}
             </StepNote>
+            <CalcTraceHeading />
+            <CalcTrace rows={trace} />
           </InfoPopover>
         )}
       />
@@ -170,7 +182,7 @@ export function IntervalCalculator({ profile, compact }: { profile: ToolProfileS
             last={lastWaxedDate ?? today0}
             today={today0}
             due={nextDate}
-            weeks={weeks}
+            days={days}
             overdue={overdue}
             labels={{ last: r.tlLast, today: r.tlToday, due: r.tlDue }}
             fmtDate={fmtDate}
@@ -194,21 +206,22 @@ export function IntervalCalculator({ profile, compact }: { profile: ToolProfileS
         value={answer}
         verdict={overdue
           ? r.verdictOverdue.replace('{date}', dateLabel)
-          : r.verdictNext.replace('{date}', dateLabel).replace('{weeks}', weeksWord(weeks))}
+          : r.verdictNext.replace('{date}', dateLabel).replace('{weeks}', rhythmWord)}
         tone={overdue || daysLeft === 0 ? 'warn' : 'good'}
         facts={[
-          { label: r.rhythm, value: `${r.every.replace('{n}', weeksWord(weeks))}${weeksCapped ? ' max.' : ''} · ${interval} km` },
+          { label: r.rhythm, value: `${rhythm}${weeksCapped ? ' max.' : ''} · ${interval} km` },
           { label: r.perYearFact, value: r.perYear.replace('{n}', String(waxesPerYear)) },
         ]}
         actions={<ResultActions compact={compact}
           shareUrl={url}
+          repeatLabel={rhythm}
           event={{
             date: reminderDate,
             title: t.tools.rewax.reminderTitle,
             description: t.tools.rewax.reminderDesc
-              .replace('{weeks}', String(weeks))
+              .replace('{rhythm}', rhythm)
               .replace('{km}', String(interval)),
-            repeatWeeks: weeks,
+            repeatDays: days,
             url,
           }}
         />}
@@ -216,7 +229,7 @@ export function IntervalCalculator({ profile, compact }: { profile: ToolProfileS
           <ToolCTA onClick={goToWax}>{t.tools.shared.buyWax}</ToolCTA>
         )}
       />
-
+      {!compact && <CalcTraceDisclosure rows={trace} />}
     </ToolCard>
   );
 }

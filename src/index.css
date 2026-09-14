@@ -63,8 +63,10 @@
   .cq-split.cq-chart { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); }
 }
 
+@keyframes chain-run { from { stroke-dashoffset: 48; } to { stroke-dashoffset: 0; } }
+
 .deck-slot {
-  --tilt: 9deg;
+  --tilt: 14deg;
   transition: transform 650ms cubic-bezier(0.22, 1, 0.36, 1), transform-origin 650ms cubic-bezier(0.22, 1, 0.36, 1), opacity 380ms ease, filter 240ms ease;
   will-change: transform;
 }
@@ -410,6 +412,10 @@
        das auf den Rechnerkarten „gut / Wachs" heisst (DESIGN.md Rechner-Karten). */
     --warn:              #B45309;
     --warn-rgb:          180,83,9;
+    /* Nur Rechner: „bitte handeln" als erdiges Ocker statt Signalfarbe, und
+       kein Gruen — gut/passt heisst dort Markenblau (DESIGN.md §7). */
+    --tool-warn:         #9A6A2E;
+    --tool-warn-rgb:     154,106,46;
 
     /* ── Shared overlay tokens — one value per role, reused everywhere instead
        of each component hand-picking its own near-black. Photo scrims, modal
@@ -557,6 +563,8 @@
     --danger:            #F87171;
     --warn:              #F5A524;
     --warn-rgb:          245,165,36;
+    --tool-warn:         #C9995A;
+    --tool-warn-rgb:     201,153,90;
 
     /* CTA button system — neutral off-white in dark mode */
     --cta-bg:    #ECECEC;

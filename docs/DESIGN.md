@@ -393,11 +393,17 @@ alle inneren Zustände identisch** (nachgemessen über je 28 Zustände je Breite
 Wird eine Karte höher, zieht sie alle mit: neue Inhalte also gegen die festen
 Zonenhöhen prüfen, nicht gegen „passt schon".
 
-**Nachbarn.** `scale(0.88)` und `rotateY(--tilt)` = 9°, Außenkante nach hinten,
-**Drehachse an der Innenkante** (`transform-origin`), Perspektive 2400 px am
-Deck. Die alte 12°-Drehung um die Kartenmitte stauchte den Streifen mit dem
-Deckeltext; mit der Achse innen bleibt er fast unverzerrt (~4 %). Hover richtet
-den Nachbarn auf 5° auf. Alle Zustände nutzen dieselbe Funktionsliste
+**Nachbarn (v6, aufgeschlagenes Buch).** `scale(0.84)` und `--tilt` = 14°, die
+**Außenkante kommt dem Betrachter entgegen** (rechts `rotateY(-tilt)`, links
+`rotateY(+tilt)`), **Drehachse an der Innenkante** (`transform-origin`),
+Perspektive 1800 px am Deck (enger als v5, damit das Entgegenkommen lesbar
+ist). Bis v5 kippte die Außenkante nach hinten weg —
+Luca: „ein Buch, das nach hinten aufgeht". Die nach vorn kommende Kante wird
+perspektivisch größer, deshalb 0,84 statt 0,88; nachgemessen bei 1024, 1366
+und 1440 px: Außenkanten rund 10 px innerhalb der Spalte, Kartenhöhe
+unverändert 532 px auf allen fünf Karten. Deckelschattierung wie eine Buchseite:
+Falzschatten an der Innenkante, zur Außenkante heller, kein Blauschleier mehr.
+Hover richtet den Nachbarn auf 5° auf. Alle Zustände nutzen dieselbe Funktionsliste
 `translateX rotateY scale`, auch `transform-origin` wird animiert — sonst
 springt die Karte beim Flip. `--deck-shift` (40 % lg / 47 % xl) und
 `--cover-w` (21 % / 29 %): Außenkante in der Spalte, Deckeltext ≥ 20 px vor der
@@ -430,9 +436,12 @@ Links/rechts per Container-Query `.cq-split` ab 520 px Kartenbreite;
 `.cq-chart` gibt der Grafik 3/5 der Breite (Kosten, Intervall, Passende Kette).
 Keine Zahl zweimal im Antwortblock.
 
-**Töne.** `good` = Blau (Wachs, Ersparnis, passt), `warn` = Bernstein
-(`--warn`, bitte handeln: Kette tauschen, Rewax fällig), `neutral` = noch
-kein Ergebnis. Blau heißt nie „Achtung".
+**Töne (v6).** `good` = Markenblau (Wachs, Ersparnis, passt), `warn` = Ocker
+`--tool-warn` (hell `#9A6A2E`, dunkel `#C9995A`; bitte handeln: Kette tauschen,
+Rewax fällig), bald / neutral = Grau. **Kein Grün in den Rechnern** — `--ok`
+(#22C55E) und das Signal-Orange `--warn` wirkten wie Störungen im
+R=G=B-Graudesign. `--ok`/`--warn` bleiben global bestehen (Warenkorb,
+Bestellbestätigung), die Rechner nutzen sie nicht mehr. Blau heißt nie „Achtung".
 
 **Grafik-Grammatik** (`src/components/tools/sketches.tsx`):
 - 1:1-Skala: Breite per ResizeObserver, viewBox gleich Anzeigebreite — 11 px
@@ -440,6 +449,20 @@ kein Ergebnis. Blau heißt nie „Achtung".
   höchstens 1:1 (`maxWidth`).
 - Hilfslinien 1 px `--bd2`, Daten 2 px; direkte Beschriftung; Legende nur bei
   zwei Reihen; Text in Textfarben, Farbe nur an Marken.
-- Wachs `--brand`, Öl `--txf`, gut `--ok`, handeln `--warn`. Keine weitere Farbe.
+- Wachs und gut `--brand`, Öl `--txf`, handeln `--tool-warn`. Keine weitere Farbe.
 - Etiketten, die kollidieren würden, fallen nach Priorität weg (das
   wichtigste — z. B. „fällig" — bleibt immer).
+- **Kette = `ChainStrip`.** Lehre und Zählen zeichnen dieselbe Seitenansicht:
+  Innenlaschen hinten, Außenlaschen davor (Knochenform mit Taille,
+  `platePath`), Nietköpfe obenauf, Haarlinien 1,1 px. Keine Rechtecke als
+  Laschen, keine Kreise mit Ziffern als Werkzeug. Die Lehre ist ein
+  gestanztes Werkzeug mit Langloch und eingravierter Marke; Farbe nur am
+  Messzahn.
+- **Kettenlänge:** Strichrhythmus = Teilung im Maßstab; was abkommt, ist am
+  unteren Trum markiert (grau gestrichelt, Schnittmarke) — keine eigene Leiste.
+- **Animation:** einmalig beim ersten Sichtbarwerden (`useRevealOnce`,
+  IntersectionObserver): Lehre senkt sich, Kette läuft an, Zeitstrahl füllt
+  sich, Wachs-Punkte gleiten vom Öl-Wert. Keine Schleifen; bei
+  `prefers-reduced-motion` sofort Endzustand.
+- **„So rechnen wir"** (`CalcTrace`): der Rechenweg mit eingesetzten Zahlen —
+  im Deck im Info-Popover, auf `/rechner/*` aufklappbar unter der Karte.

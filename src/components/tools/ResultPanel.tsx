@@ -91,7 +91,7 @@ export function ResultPanel({
   const TONE = {
     neutral: { accent: 'var(--tx1)', bg: 'var(--inset-bg)', bd: 'var(--inset-bd)' },
     good: { accent: 'var(--brand)', bg: 'rgba(var(--accent-rgb),0.07)', bd: 'rgba(var(--accent-rgb),0.28)' },
-    warn: { accent: 'var(--warn)', bg: 'rgba(var(--warn-rgb),0.08)', bd: 'rgba(var(--warn-rgb),0.34)' },
+    warn: { accent: 'var(--tool-warn)', bg: 'rgba(var(--tool-warn-rgb),0.07)', bd: 'rgba(var(--tool-warn-rgb),0.30)' },
   }[tone];
   // Ein Wort als Antwort („Kette tauschen") braucht weniger Groesse als eine
   // Zahl, sonst bricht es auf schmalen Karten um.

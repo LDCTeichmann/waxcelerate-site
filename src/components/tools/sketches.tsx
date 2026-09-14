@@ -15,7 +15,7 @@
 // Weiterhin eigene SVG statt Fotos oder Videos: keine Rechte Dritter, keine
 // Cookies, Themefarben inklusive.
 
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 const STROKE = 'var(--tx2)';
 const FAINT = 'var(--bd2)';
@@ -43,6 +43,27 @@ function useWidth<T extends HTMLElement>(fallback = 320) {
   return [ref, w] as const;
 }
 
+/**
+ * Einmal true, sobald das Element zur Haelfte sichtbar ist — Startsignal fuer
+ * die Erklaer-Animation einer Skizze. Bei reduzierter Bewegung sofort true,
+ * dann steht die Skizze gleich im Endzustand.
+ */
+function useRevealOnce(ref: React.RefObject<Element | null>) {
+  const [shown, setShown] = useState(() =>
+    typeof window === 'undefined' || !('IntersectionObserver' in window)
+    || window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  useEffect(() => {
+    const el = ref.current;
+    if (shown || !el) return;
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { setShown(true); io.disconnect(); }
+    }, { threshold: 0.5 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [ref, shown]);
+  return shown;
+}
+
 const FONT = { fontSize: 11, fontFamily: 'inherit' } as const;
 
 export type DrivetrainPart = 'stay' | 'ring' | 'sprocket' | null;
@@ -57,16 +78,21 @@ export type DrivetrainPart = 'stay' | 'ring' | 'sprocket' | null;
  * Masstaeblich: Radien aus der Zaehnezahl, Achsabstand aus der Strebenlaenge.
  * Wer 34 auf 42 Zaehne stellt, sieht das Ritzel wachsen.
  */
-export function DrivetrainSketch({ chainstayMm, chainring, sprocket, focus, de = true }: {
-  chainstayMm: number; chainring: number; sprocket: number; focus: DrivetrainPart; de?: boolean;
+export function DrivetrainSketch({ chainstayMm, chainring, sprocket, focus, remove = 0, de = true }: {
+  chainstayMm: number; chainring: number; sprocket: number; focus: DrivetrainPart;
+  /** Glieder, die von der Kaufkette abkommen — am unteren Trum markiert. */
+  remove?: number; de?: boolean;
 }) {
   // 1:1 wie die uebrigen Grafiken (Grafik-Grammatik oben): die viewBox ist so
   // breit wie der Platz, der Geometriefaktor waechst mit. Vorher hatte die
   // Skizze eine feste 320er viewBox und wurde in der halben Karte auf 0,85
   // gestaucht — ihre 12,5er Schrift landete dadurch bei 10,6 px.
   const [ref, W] = useWidth<HTMLDivElement>(320);
+  const shown = useRevealOnce(ref);
   const K = 0.34 * (W / 320); // px je mm
-  const CY = 74 * (W / 320) + 8;
+  // Gedeckelt: ab ~310 px Breite rutschte die Strebenbeschriftung (CY + 72)
+  // unter die 156 px hohe SVG und wurde abgeschnitten.
+  const CY = Math.min(74 * (W / 320) + 8, 78);
   const RX = 64 * (W / 320); // Hinterachse
   const d = Math.min(Math.max(chainstayMm, 350), 550) * K;
   const r1 = pitchRadiusMm(Math.min(Math.max(sprocket, 9), 60)) * K;
@@ -97,7 +123,18 @@ export function DrivetrainSketch({ chainstayMm, chainring, sprocket, focus, de =
   const wrapRear = `M${u1.x},${u1.y} A${r1},${r1} 0 ${r1 > r2 ? 1 : 0} 0 ${l1.x},${l1.y}`;
   const wrapFront = `M${u2.x},${u2.y} A${r2},${r2} 0 ${r2 >= r1 ? 1 : 0} 1 ${l2.x},${l2.y}`;
 
-  const CHAIN = { strokeWidth: 3.2, strokeLinecap: 'butt' as const, strokeDasharray: '3.4 1.6', fill: 'none' };
+  // Strichrhythmus = Kettenteilung im Massstab: ein Strich je Glied.
+  const PITCH_PX = 12.7 * K;
+  const CHAIN = {
+    strokeWidth: 3, strokeLinecap: 'butt' as const, fill: 'none',
+    strokeDasharray: `${(PITCH_PX * 0.62).toFixed(2)} ${(PITCH_PX * 0.38).toFixed(2)}`,
+  };
+  // Einmal beim ersten Sichtbarwerden laeuft die Kette ein Stueck ums Ritzel.
+  const run: React.CSSProperties = shown ? { animation: 'chain-run 1200ms cubic-bezier(0.22,1,0.36,1) both' } : {};
+  // Was abkommt: die letzten Glieder am vorderen Ende des unteren Trums.
+  const lowLen = Math.hypot(l2.x - l1.x, l2.y - l1.y);
+  const cutLen = Math.min(Math.max(remove, 0) * PITCH_PX, lowLen * 0.4);
+  const cut = { x: l2.x + ((l1.x - l2.x) / lowLen) * cutLen, y: l2.y + ((l1.y - l2.y) / lowLen) * cutLen };
 
   return (
     <div ref={ref} className="w-full">
@@ -119,9 +156,15 @@ export function DrivetrainSketch({ chainstayMm, chainring, sprocket, focus, de =
       <circle cx={FX} cy={CY} r={4.2} fill={STROKE} />
 
       {/* Kette: Trume = 2 × Strebe, Umschlingungen = je halbe Zaehnezahl */}
-      <path d={wrapRear} stroke="var(--tx1)" {...CHAIN} style={dim('sprocket')} />
-      <path d={wrapFront} stroke="var(--tx1)" {...CHAIN} style={dim('ring')} />
-      <path d={`M${u1.x},${u1.y} L${u2.x},${u2.y} M${l1.x},${l1.y} L${l2.x},${l2.y}`} stroke={ACCENT} {...CHAIN} style={dim('stay')} />
+      <path d={wrapRear} stroke="var(--tx1)" {...CHAIN} style={{ ...dim('sprocket'), ...run }} />
+      <path d={wrapFront} stroke="var(--tx1)" {...CHAIN} style={{ ...dim('ring'), ...run }} />
+      <path d={`M${u1.x},${u1.y} L${u2.x},${u2.y} M${l1.x},${l1.y} L${cut.x},${cut.y}`} stroke={ACCENT} {...CHAIN} style={{ ...dim('stay'), ...run }} />
+      {cutLen > 0 && (
+        <g style={dim('stay')}>
+          <path d={`M${cut.x},${cut.y} L${l2.x},${l2.y}`} stroke="var(--txff)" strokeWidth={1.5} strokeDasharray="2 2.5" fill="none" />
+          <path d={`M${cut.x},${cut.y - 6} v12`} stroke="var(--tx1)" strokeWidth={1.4} />
+        </g>
+      )}
 
       {/* Massangaben */}
       <g style={dim('stay')}>
@@ -142,86 +185,40 @@ export function DrivetrainSketch({ chainstayMm, chainring, sprocket, focus, de =
 }
 
 /**
- * Wie man die alte Kette zaehlt: jeder Bolzen ist ein halbes Gliederpaar,
- * also ein Glied. Innen- und Aussenlaschen wechseln sich ab, das Kettenschloss
- * ersetzt ein Aussenglied und zaehlt mit.
+ * Wie man die alte Kette zaehlt: jeder Bolzen ist ein Glied. Innen- und
+ * Aussenlaschen wechseln sich ab, das Kettenschloss ersetzt ein Aussenglied
+ * und zaehlt mit. Dieselbe Kette wie in der Lehre (ChainStrip).
  */
 export function ChainCountSketch({ de = true }: { de?: boolean }) {
-  // 1:1 wie die uebrigen Grafiken: Teilung aus der Breite, Schrift fest bei
-  // 11/12 px (vorher feste 310er viewBox, in der Karte auf 0,85 gestaucht).
   const [ref, W] = useWidth<HTMLDivElement>(310);
-  const R = 8;
-  const PITCH = Math.min(32, (W - 54) / 8);
-  const CY = 48;
-  const xs = Array.from({ length: 9 }, (_, i) => (W - PITCH * 8) / 2 + i * PITCH);
-  const LOCK = 3; // Index des Kettenschlosses (Aussenglied zwischen xs[3] und xs[4])
+  const N = 8, CY = 46, H = 116;
+  const P = Math.min(32, (W - 48) / N);
+  const r = Math.min(7, Math.max(4.5, P * 0.22));
+  const x0 = (W - P * N) / 2;
+  const xs = Array.from({ length: N + 1 }, (_, i) => x0 + i * P);
+  const LOCK = 3; // Aussenglied zwischen xs[3] und xs[4]
+  const lx = (xs[LOCK] + xs[LOCK + 1]) / 2;
 
   return (
     <div ref={ref} className="w-full">
-    <svg width={W} height={120} viewBox={`0 0 ${W} 120`} className="block" role="img"
+    <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} className="block" role="img"
       aria-label={de ? 'Glieder der alten Kette zählen: jeder Bolzen ist ein Glied' : 'Count the links of the old chain: each pin is one link'}>
-      <g strokeWidth={1.3}>
-        {xs.slice(0, -1).map((x, i) => {
-          const outer = i % 2 === 1;
-          const lock = i === LOCK;
-          return (
-            <rect key={x}
-              x={x - R - (outer ? 2 : 0)} y={CY - R - (outer ? 2 : 0)}
-              width={PITCH + (R + (outer ? 2 : 0)) * 2} height={(R + (outer ? 2 : 0)) * 2}
-              rx={R + (outer ? 2 : 0)}
-              fill={outer ? 'none' : 'var(--sf2)'}
-              stroke={lock ? ACCENT : STROKE}
-              strokeWidth={lock ? 2 : 1.3}
-            />
-          );
-        })}
-        {xs.map(x => <circle key={`r${x}`} cx={x} cy={CY} r={R - 2} fill="var(--sf)" stroke={STROKE} />)}
-      </g>
-      {xs.map(x => <circle key={`p${x}`} cx={x} cy={CY} r={1.6} fill={STROKE} />)}
-
-      {/* Zaehlmarken an jedem Bolzen */}
+      <ChainStrip xs={xs} y={CY} r={r} tint={i => (i === LOCK ? ACCENT : undefined)} />
       {xs.map((x, i) => (
-        <text key={`n${x}`} x={x} y={CY - 18} textAnchor="middle" fontSize="11" fontWeight={600}
+        <text key={i} x={x} y={CY - r - 10} textAnchor="middle" style={FONT} fontWeight={600}
           fill={i === LOCK || i === LOCK + 1 ? ACCENT : LABEL}>
           {i + 1}
         </text>
       ))}
-
-      <path d={`M${(xs[LOCK] + xs[LOCK + 1]) / 2},${CY + 13} v12`} stroke={ACCENT} strokeWidth={1.2} />
-      <text x={(xs[LOCK] + xs[LOCK + 1]) / 2} y={CY + 38} textAnchor="middle" fontSize="11" fill={ACCENT}>
+      <path d={`M${lx},${CY + r + 6} v10`} stroke={ACCENT} strokeWidth={1.2} />
+      <text x={lx} y={CY + r + 30} textAnchor="middle" style={FONT} fill={ACCENT}>
         {de ? 'Kettenschloss zählt mit' : 'Quick link counts too'}
       </text>
-      <text x={W / 2} y={CY + 62} textAnchor="middle" fontSize="12" fill={LABEL}>
+      <text x={W / 2} y={CY + r + 52} textAnchor="middle" style={FONT} fontSize={12} fill={LABEL}>
         {de ? 'Jeder Bolzen = 1 Glied · Summe immer gerade' : 'Every pin = 1 link · total always even'}
       </text>
     </svg>
     </div>
-  );
-}
-
-/**
- * Das Ergebnis als Kettenstueck: die letzten Glieder, die abkommen, sind
- * markiert. Macht aus „2 Glieder abnehmen" eine Handlung, die man sieht.
- */
-export function ChainTrimBar({ remove, de = true }: { remove: number; de?: boolean }) {
-  const shown = 12;
-  const R = 4;
-  const PITCH = 14;
-  const xs = Array.from({ length: shown }, (_, i) => 12 + i * PITCH);
-  const cut = shown - Math.min(remove, shown - 2);
-  return (
-    <svg viewBox="0 0 200 30" className="w-full h-auto max-w-[240px]" role="img"
-      aria-label={de ? `${remove} Glieder am Ende abnehmen` : `Remove ${remove} links at the end`}>
-      {xs.slice(0, -1).map((x, i) => (
-        <rect key={x} x={x - R} y={14 - R} width={PITCH + R * 2} height={R * 2} rx={R}
-          fill="none" stroke={i + 1 >= cut ? ACCENT : STROKE} strokeWidth={1.2}
-          strokeDasharray={i + 1 >= cut ? '2 1.5' : undefined} opacity={i + 1 >= cut ? 1 : 0.7} />
-      ))}
-      {xs.map((x, i) => <circle key={`p${x}`} cx={x} cy={14} r={1.4} fill={i >= cut ? ACCENT : STROKE} />)}
-      {remove > 0 && (
-        <path d={`M${xs[cut - 1] + PITCH / 2},3 v22`} stroke={ACCENT} strokeWidth={1.4} />
-      )}
-    </svg>
   );
 }
 
@@ -240,7 +237,6 @@ export function ChainTrimBar({ remove, de = true }: { remove: number; de?: boole
 
 
 const OIL = 'var(--txf)';
-const OK = 'var(--ok)';
 
 // ── Kosten: Oel gegen Wachs, Posten fuer Posten ─────────────────────────────
 
@@ -258,6 +254,7 @@ export function CostDumbbell({ rows, oilLabel, waxLabel, perYear, eur }: {
   eur: (n: number) => string;
 }) {
   const [ref, W] = useWidth<HTMLDivElement>();
+  const shown = useRevealOnce(ref);
   const ROW = 38, TOP = 26, LABEL_W = 80, DELTA_W = 46, PAD = 4;
   const H = TOP + rows.length * ROW + 4;
   const x0 = LABEL_W, x1 = W - DELTA_W - PAD;
@@ -286,10 +283,10 @@ export function CostDumbbell({ rows, oilLabel, waxLabel, perYear, eur }: {
               <title>{`${r.label}: ${oilLabel} ${eur(r.oil)} · ${waxLabel} ${eur(r.wax)}`}</title>
               <line x1={x0} x2={x1} y1={cy} y2={cy} stroke="var(--bd2)" strokeWidth={1} />
               <text x={0} y={cy + 4} style={FONT} fontSize={12} fill="var(--tx2)">{r.label}</text>
-              <line x1={x(r.oil)} x2={x(r.wax)} y1={cy} y2={cy}
-                stroke={saves ? OK : 'var(--txff)'} strokeWidth={3} strokeLinecap="round" style={{ transition: 'all 280ms ease' }} />
+              <line x1={x(r.oil)} x2={shown ? x(r.wax) : x(r.oil)} y1={cy} y2={cy}
+                stroke={saves ? 'var(--brand)' : 'var(--txff)'} strokeOpacity={saves ? 0.4 : 1} strokeWidth={3} strokeLinecap="round" style={{ transition: 'all 700ms cubic-bezier(0.22,1,0.36,1)' }} />
               <circle cx={x(r.oil)} cy={cy} r={5} fill="var(--sf)" stroke={OIL} strokeWidth={2} style={{ transition: 'all 280ms ease' }} />
-              <circle cx={x(r.wax)} cy={cy} r={6} fill="var(--brand)" stroke="var(--sf)" strokeWidth={2} style={{ transition: 'all 280ms ease' }} />
+              <circle cx={shown ? x(r.wax) : x(r.oil)} cy={cy} r={6} fill="var(--brand)" stroke="var(--sf)" strokeWidth={2} style={{ transition: 'all 700ms cubic-bezier(0.22,1,0.36,1)' }} />
               {/* Werte an den Punkten: Oel oberhalb, Wachs unterhalb — kollidieren
                   so auch nicht, wenn beide Punkte nah beieinander liegen. */}
               <text x={x(r.oil)} y={cy - 9} textAnchor="middle" style={FONT} fill="var(--txf)">{eur(r.oil)}</text>
@@ -328,11 +325,12 @@ export function WearScale({ percent, limit, bound, empty, labels, fmt }: {
   const x = (v: number) => PAD + (Math.min(v, MAX) / MAX) * (W - PAD * 2);
   const check = Math.min(limit + 0.25, 1.0);
   const zones = [
-    { from: 0, to: limit * 0.8, fill: 'var(--bd2)', op: 0.6 },
-    { from: limit * 0.8, to: limit, fill: 'var(--warn)', op: 0.22 },
-    { from: limit, to: check, fill: 'var(--warn)', op: 0.45 },
-    { from: check, to: 1.0, fill: 'var(--warn)', op: 0.7 },
-    { from: 1.0, to: MAX, fill: 'var(--warn)', op: 0.95 },
+    // Graustufen bis zur Grenze, Ocker erst dort, wo gehandelt werden muss.
+    { from: 0, to: limit * 0.8, fill: 'var(--bd2)', op: 0.7 },
+    { from: limit * 0.8, to: limit, fill: 'var(--txff)', op: 0.3 },
+    { from: limit, to: check, fill: 'var(--tool-warn)', op: 0.32 },
+    { from: check, to: 1.0, fill: 'var(--tool-warn)', op: 0.52 },
+    { from: 1.0, to: MAX, fill: 'var(--tool-warn)', op: 0.72 },
   ].filter(z => z.to > z.from);
   const ticks = [0, 0.5, 0.75, 1.0].filter(v => v !== limit && Math.abs(x(v) - x(limit)) >= 64);
   const mx = percent === null ? null : x(percent);
@@ -404,33 +402,90 @@ export function WearScale({ percent, limit, bound, empty, labels, fmt }: {
   );
 }
 
-// ── Verschleiss: Kettenlehre auf der Kette ──────────────────────────────────
+// ── Ketten-Baustein und Kettenlehre ─────────────────────────────────────────
+
+/** Lasche in Seitenansicht: zwei runde Augen, dazwischen eine Taille. */
+function platePath(x1: number, x2: number, y: number, a: number, waist: number) {
+  const phi = 0.9;
+  const c = a * Math.cos(phi), s = a * Math.sin(phi), m = (x1 + x2) / 2;
+  // Quadratische Kurve: ihr Scheitel liegt bei (s + b) / 2 = waist.
+  const b = 2 * waist - s;
+  const f = (n: number) => n.toFixed(2);
+  return `M${f(x1 + c)},${f(y - s)} Q${f(m)},${f(y - b)} ${f(x2 - c)},${f(y - s)} `
+    + `A${f(a)},${f(a)} 0 1 1 ${f(x2 - c)},${f(y + s)} Q${f(m)},${f(y + b)} ${f(x1 + c)},${f(y + s)} `
+    + `A${f(a)},${f(a)} 0 1 1 ${f(x1 + c)},${f(y - s)} Z`;
+}
 
 /**
- * Wie eine Kettenlehre antwortet: Haken 1 sitzt links an einer Rolle, der
- * Messzahn 2 liegt auf einer neuen Kette AUF der Rolle (die Lehre kippt leicht
- * hoch) und faellt bei einer gelaengten Kette davor EIN. Die Laengung ist
- * sichtbar: die Rollen ruecken nach rechts auseinander (uebertrieben, damit
- * man es sieht). Der Zahn traegt die gewaehlte Marke.
+ * Kettenstueck in Seitenansicht — ein Baustein fuer alle Kettenskizzen, damit
+ * Lehre und Zaehlen dieselbe Kette zeigen. Innenlaschen hinten, Aussenlaschen
+ * davor, Nietkoepfe obenauf. `xs` sind die Bolzen; wer sie auseinanderzieht,
+ * zeigt Laengung.
+ */
+export function ChainStrip({ xs, y, r, tint }: {
+  xs: number[]; y: number; r: number;
+  /** Strichfarbe je Glied (Index = Glied zwischen xs[i] und xs[i + 1]). */
+  tint?: (i: number) => string | undefined;
+}) {
+  const links = xs.slice(0, -1).map((x1, i) => ({ i, x1, x2: xs[i + 1], outer: i % 2 === 1 }));
+  const MOVE: React.CSSProperties = { transition: 'd 360ms cubic-bezier(0.22,1,0.36,1), cx 360ms cubic-bezier(0.22,1,0.36,1)' };
+  const plate = (l: (typeof links)[number], a: number, waist: number, fill: string) => {
+    const c = tint?.(l.i);
+    return (
+      <path key={l.i} d={platePath(l.x1, l.x2, y, a, waist)} fill={fill}
+        stroke={c ?? STROKE} strokeWidth={c ? 1.6 : 1.1} strokeLinejoin="round" style={MOVE} />
+    );
+  };
+  return (
+    <g>
+      {links.filter(l => !l.outer).map(l => plate(l, r + 1.5, r * 0.62, 'var(--sf2)'))}
+      {links.filter(l => l.outer).map(l => plate(l, r + 2.6, r * 0.8, 'var(--sf)'))}
+      {xs.map((x, i) => (
+        <circle key={i} cx={x} cy={y} r={r * 0.42} fill="var(--sf2)" stroke={STROKE} strokeWidth={1} style={MOVE} />
+      ))}
+    </g>
+  );
+}
+
+/**
+ * Wie eine Kettenlehre antwortet. Der Haken links liegt an der ersten Rolle
+ * an, der Messzahn rechts steht ueber der Nennposition der letzten. Bei einer
+ * neuen Kette liegt der Zahn oben auf und die Lehre kippt leicht hoch; bei
+ * einer gelaengten sind die Bolzen auseinandergerueckt (uebertrieben, damit
+ * man es sieht) und der Zahn faellt zwischen die Laschen ein.
+ * Farbe nur am Zahn: Blau = gut, Ocker = handeln, sonst Textfarbe.
  */
 export function GaugeSketch({ dropped, markLabel, tone, de = true }: {
   dropped: boolean; markLabel: string; tone: 'ok' | 'soon' | 'warn'; de?: boolean;
 }) {
   const [ref, W] = useWidth<HTMLDivElement>();
-  const N = 8;
-  const P = Math.min(34, (W - 28) / (N + 0.6));
-  const R = Math.min(8, Math.max(5, P * 0.24));
-  const CY = 74, H = 124;
+  const shown = useRevealOnce(ref);
+  // Schmale Karte: weniger, dafuer groessere Glieder — die Lehre soll lesbar
+  // bleiben, nicht vollstaendig.
+  const N = W < 300 ? 6 : 8;
+  const P = Math.min(32, (W - 40) / (N + 0.6));
+  const r = Math.min(7, Math.max(4.5, P * 0.22));
+  const CY = 84, H = 128;
   const x0 = (W - P * N) / 2;
-  const nominal = Array.from({ length: N + 1 }, (_, i) => x0 + i * P);
-  const s = dropped ? (R + 4) / N : 0;
-  const hx = nominal[0] + R + 2;
-  const tx = nominal[N];
-  const lift = R + 1;
+  const s = dropped ? (r + 3) / N : 0;
+  const xs = Array.from({ length: N + 1 }, (_, i) => x0 + i * (P + s));
+  const top = r + 2.6;
+  const hx = x0 - r - 4;
+  const tx = x0 + N * P;
+  const lift = top + 1;
   const ang = dropped ? 0 : (-Math.atan2(lift, tx - hx) * 180) / Math.PI;
-  const color = tone === 'ok' ? OK : tone === 'warn' ? 'var(--warn)' : 'var(--tx1)';
-  const bodyTop = CY - R - 30, bodyH = 18;
-  const T = '320ms cubic-bezier(0.22,1,0.36,1)';
+  const color = tone === 'ok' ? 'var(--brand)' : tone === 'warn' ? 'var(--tool-warn)' : 'var(--tx1)';
+  const BY = CY - top - 24, BH = 15;
+  const prongTop = BY + BH - 3;
+  // Haken und Zahn liegen hinter der Kette, der Koerper davor — beide Gruppen
+  // bewegen sich gemeinsam: beim ersten Sichtbarwerden senkt sich die Lehre
+  // auf die Kette, danach kippt sie je nach Messung.
+  const gauge: React.CSSProperties = {
+    transform: `translateY(${shown ? 0 : -18}px) rotate(${ang}deg)`,
+    transformBox: 'view-box', transformOrigin: `${hx}px ${CY}px`,
+    opacity: shown ? 1 : 0,
+    transition: 'transform 560ms cubic-bezier(0.22,1,0.36,1), opacity 300ms ease',
+  };
   const caption = dropped
     ? (de ? `Zahn ${markLabel} fällt ein = mind. ${markLabel} % gelängt` : `Tooth ${markLabel} drops in = at least ${markLabel} % worn`)
     : (de ? `Zahn ${markLabel} liegt auf = unter ${markLabel} %` : `Tooth ${markLabel} rests on top = below ${markLabel} %`);
@@ -438,46 +493,29 @@ export function GaugeSketch({ dropped, markLabel, tone, de = true }: {
   return (
     <div ref={ref} className="w-full">
       <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} role="img" className="block" aria-label={caption}>
-        {/* Kette: Laschen zwischen den Rollen, Rollen ruecken bei Laengung auseinander */}
-        <g strokeWidth={1.3}>
-          {nominal.slice(0, -1).map((x, i) => {
-            const outer = i % 2 === 1;
-            const e = outer ? 2 : 0;
-            return (
-              <rect key={x} x={x - R - e} y={CY - R - e} width={P + s + (R + e) * 2} height={(R + e) * 2} rx={R + e}
-                fill={outer ? 'none' : 'var(--sf2)'} stroke={STROKE}
-                style={{ transform: `translateX(${i * s}px)`, transition: `transform ${T}` }} />
-            );
-          })}
-          {nominal.map((x, i) => (
-            <circle key={`r${x}`} cx={x} cy={CY} r={R - 2} fill="var(--sf)"
-              stroke={i === 0 || i === N ? color : STROKE} strokeWidth={i === 0 || i === N ? 2 : 1.3}
-              style={{ transform: `translateX(${i * s}px)`, transition: `transform ${T}` }} />
-          ))}
+        <g style={gauge}>
+          <rect x={hx - 2.2} y={prongTop} width={4.4} height={CY + 1 - prongTop} rx={2.2} fill="var(--tx2)" />
+          <path d={`M${tx - 3.4},${prongTop} L${tx + 3.4},${prongTop} L${tx + 1.3},${CY} L${tx - 1.3},${CY} Z`}
+            fill={color} style={{ transition: 'fill 300ms ease' }} />
         </g>
-
-        {/* Lehre, kippt um den Haken */}
-        <g style={{ transform: `rotate(${ang}deg)`, transformBox: 'view-box', transformOrigin: `${hx}px ${CY}px`, transition: `transform ${T}` }}>
-          <rect x={hx - 14} y={bodyTop} width={tx - hx + 28} height={bodyH} rx={6}
-            fill="var(--sf)" stroke="var(--tx2)" strokeWidth={1.5} />
-          <path d={`M${hx},${bodyTop + bodyH} V${CY} M${tx},${bodyTop + bodyH} V${CY - (dropped ? 0 : lift)}`}
-            stroke="var(--tx2)" strokeWidth={4} strokeLinecap="round" />
-          <text x={(hx + tx) / 2} y={bodyTop + 13} textAnchor="middle" style={FONT} fontWeight={600} fill="var(--tx1)">
+        <ChainStrip xs={xs} y={CY} r={r} />
+        <g style={gauge}>
+          <rect x={hx - 11} y={BY} width={tx - hx + 22} height={BH} rx={BH / 2}
+            fill="var(--sf)" stroke="var(--tx2)" strokeWidth={1.25} />
+          <rect x={hx + 6} y={BY + 5} width={(tx - hx) * 0.38} height={BH - 10} rx={(BH - 10) / 2}
+            fill="var(--sf2)" stroke="var(--bd2)" strokeWidth={1} />
+          <text x={hx + (tx - hx) * 0.72} y={BY + BH / 2 + 3.6} textAnchor="middle" style={FONT} fontSize={10.5}
+            fontWeight={600} letterSpacing="0.04em" fill="var(--tx2)">
             {markLabel} %
           </text>
-          {[{ x: hx, n: 1 }, { x: tx, n: 2 }].map(b => (
-            <g key={b.n}>
-              <circle cx={b.x} cy={bodyTop - 13} r={8} fill={b.n === 2 ? color : 'var(--tx2)'} />
-              <text x={b.x} y={bodyTop - 9} textAnchor="middle" style={FONT} fontWeight={700} fill="var(--sf)">{b.n}</text>
-            </g>
-          ))}
         </g>
-
-        {/* Ergebnisring um den Zahn */}
-        <circle cx={tx} cy={CY - (dropped ? 2 : lift)} r={R + 7} fill={color} fillOpacity={0.12}
-          stroke={color} strokeWidth={1.2} strokeDasharray="3 3" style={{ transition: `all ${T}` }} />
-
-        <text x={W / 2} y={H - 8} textAnchor="middle" style={FONT} fontWeight={600} fill={color}>{caption}</text>
+        {W >= 260 && (
+          <g style={FONT} fill="var(--txf)">
+            <text x={hx - 6} y={BY - 20} textAnchor="start">{de ? 'Haken' : 'Hook'}</text>
+            <text x={tx + 6} y={BY - 20} textAnchor="end">{de ? 'Messzahn' : 'Tooth'}</text>
+          </g>
+        )}
+        <text x={W / 2} y={H - 6} textAnchor="middle" style={FONT} fontWeight={500} fill="var(--tx2)">{caption}</text>
       </svg>
     </div>
   );
@@ -490,21 +528,22 @@ export function GaugeSketch({ dropped, markLabel, tone, de = true }: {
  * Folgetermine. Der gefahrene Anteil ist gefuellt — man sieht, wie viel vom
  * Intervall schon weg ist, statt es aus einer Wochenzahl zu errechnen.
  */
-export function RewaxTimeline({ last, today, due, weeks, overdue, labels, fmtDate }: {
-  last: Date; today: Date; due: Date; weeks: number; overdue: boolean;
+export function RewaxTimeline({ last, today, due, days, overdue, labels, fmtDate }: {
+  last: Date; today: Date; due: Date; days: number; overdue: boolean;
   labels: { last: string; today: string; due: string };
   fmtDate: (d: Date) => string;
 }) {
   const [ref, W] = useWidth<HTMLDivElement>();
+  const revealed = useRevealOnce(ref);
   const PAD = 14, H = 100, Y = 52;
   const DAY = 86400000;
-  const cycle = weeks * 7 * DAY;
+  const cycle = days * DAY;
   const next = [1, 2].map(k => new Date(due.getTime() + k * cycle));
   const start = last.getTime();
   const end = Math.max(next[1].getTime(), today.getTime() + 7 * DAY);
   const x = (d: Date | number) => PAD + ((+d - start) / (end - start)) * (W - PAD * 2);
   const done = Math.min(+today, +due);
-  const tone = overdue ? 'var(--warn)' : 'var(--brand)';
+  const tone = overdue ? 'var(--tool-warn)' : 'var(--brand)';
   // Etiketten unter dem Strahl, nach Wichtigkeit gesetzt: „faellig" immer,
   // dann „zuletzt" (nicht, wenn das heute war — das sagt die Marke oben), dann
   // die Folgetermine. Ueberlappt ein Etikett ein bereits gesetztes, bleibt es
@@ -532,9 +571,9 @@ export function RewaxTimeline({ last, today, due, weeks, overdue, labels, fmtDat
       <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} role="img" className="block"
         aria-label={`${labels.last} ${fmtDate(last)}, ${labels.today} ${fmtDate(today)}, ${labels.due} ${fmtDate(due)}`}>
         <line x1={x(last)} x2={x(end)} y1={Y} y2={Y} stroke="var(--bd2)" strokeWidth={2} strokeLinecap="round" />
-        <line x1={x(last)} x2={x(done)} y1={Y} y2={Y} stroke={tone} strokeWidth={4} strokeLinecap="round" style={{ transition: 'all 320ms ease' }} />
+        <line x1={x(last)} x2={revealed ? x(done) : x(last)} y1={Y} y2={Y} stroke={tone} strokeWidth={4} strokeLinecap="round" style={{ transition: 'all 800ms cubic-bezier(0.22,1,0.36,1)' }} />
         {overdue && (
-          <line x1={x(due)} x2={x(today)} y1={Y} y2={Y} stroke="var(--warn)" strokeWidth={4} strokeDasharray="4 3" />
+          <line x1={x(due)} x2={x(today)} y1={Y} y2={Y} stroke="var(--tool-warn)" strokeWidth={4} strokeDasharray="4 3" />
         )}
         {next.map(d => (
           <circle key={+d} cx={x(d)} cy={Y} r={4} fill="var(--sf)" stroke="var(--txff)" strokeWidth={2} />

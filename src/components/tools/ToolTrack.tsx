@@ -57,11 +57,14 @@ function slotTransform(rel: number, count: number): React.CSSProperties {
   if (rel === 0) {
     return { transform: 'translateX(0) rotateY(0deg) scale(1)', transformOrigin: '50% 50%', zIndex: 30, opacity: 1 };
   }
+  // Seit v6 wie ein aufgeschlagenes Buch: die Aussenkante kommt dem Betrachter
+  // ENTGEGEN (rechts rotateY negativ, links positiv), die Achse bleibt innen.
+  // Die nach vorn kommende Kante wird perspektivisch groesser, deshalb 0,84.
   if (rel === 1) {
-    return { transform: 'translateX(var(--deck-shift)) rotateY(var(--tilt)) scale(0.88)', transformOrigin: '0% 50%', zIndex: 20, opacity: 1 };
+    return { transform: 'translateX(var(--deck-shift)) rotateY(calc(var(--tilt) * -1)) scale(0.84)', transformOrigin: '0% 50%', zIndex: 20, opacity: 1 };
   }
   if (rel === count - 1) {
-    return { transform: 'translateX(calc(var(--deck-shift) * -1)) rotateY(calc(var(--tilt) * -1)) scale(0.88)', transformOrigin: '100% 50%', zIndex: 20, opacity: 1 };
+    return { transform: 'translateX(calc(var(--deck-shift) * -1)) rotateY(var(--tilt)) scale(0.84)', transformOrigin: '100% 50%', zIndex: 20, opacity: 1 };
   }
   // Alles Weitere steht als Stapel hinter der aktiven Karte. Unsichtbar, aber
   // vorhanden — so hat der Uebergang beim Weiterblaettern etwas zu animieren,
@@ -119,7 +122,9 @@ function DeckSlot({ item, rel, count, active, onActivate, de }: {
             aria-hidden
             className="deck-cover-shade absolute inset-0 pointer-events-none"
             style={{
-              background: `linear-gradient(${side === 'right' ? '90deg' : '270deg'}, rgba(0,0,0,0.14) 0%, rgba(0,0,0,0.06) 55%, transparent 80%), radial-gradient(90% 70% at ${side === 'right' ? '90%' : '10%'} 0%, rgba(var(--accent-rgb),0.12) 0%, transparent 62%)`,
+              // Wie eine aufgeschlagene Seite: Falzschatten an der Innenkante,
+              // zur Aussenkante hin, die dem Betrachter entgegenkommt, heller.
+              background: `linear-gradient(${side === 'right' ? '90deg' : '270deg'}, rgba(0,0,0,0.20) 0%, rgba(0,0,0,0.07) 22%, transparent 55%, rgba(255,255,255,0.05) 100%)`,
             }}
           />
 
@@ -353,7 +358,7 @@ export function ToolTrack({ items, onActiveChange, trailing }: {
             ueber die Spalte hinausragt. */}
         <div
           className="relative grid py-2 overflow-x-clip [--deck-shift:40%] [--cover-w:21%] xl:[--deck-shift:47%] xl:[--cover-w:29%]"
-          style={{ perspective: '2400px', perspectiveOrigin: '50% 45%' }}
+          style={{ perspective: '1800px', perspectiveOrigin: '50% 45%' }}
           onWheel={onDeckWheel}
         >
           {items.map((item, i) => (

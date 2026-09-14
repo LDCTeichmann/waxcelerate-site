@@ -33,6 +33,7 @@ import { StepField } from '@/components/tools/StepField';
 import { ResultPanel } from '@/components/tools/ResultPanel';
 import { ResultActions } from '@/components/tools/ResultActions';
 import { WearScale, GaugeSketch, SketchFrame } from '@/components/tools/sketches';
+import { CalcTrace, CalcTraceDisclosure, CalcTraceHeading, type TraceRow } from '@/components/tools/CalcTrace';
 
 const SPEEDS: ChainSpeed[] = [8, 9, 10, 11, 12];
 // „keine" ist eine eigene Antwort, nicht das Fehlen einer. Vorher gab es nur
@@ -76,7 +77,8 @@ export function WearCalculator({ profile, compact }: { profile: ToolProfileState
   // damit die Zahl nicht als Messwert missverstanden wird.
   const percent = method === 'gauge'
     ? (gauge === 'none' ? 0 : gauge)
-    : mmValid ? elongationFrom12Links(parsedMm) : 0;
+    // Unter 304,8 mm ist Messtoleranz, keine negative Laengung.
+    : mmValid ? Math.max(0, elongationFrom12Links(parsedMm)) : 0;
   const isLowerBound = method === 'gauge' && gauge !== 'none';
   const verdict = wearVerdict(percent, speed);
 
@@ -95,8 +97,15 @@ export function WearCalculator({ profile, compact }: { profile: ToolProfileState
   const needsAction = verdict.status !== 'ok' && verdict.status !== 'soon';
   const chainOnly = medianChainPrice;
   const both = medianChainPrice + CASSETTE_PRICE;
-  const dueText =
-    verdict.status === 'cassette' ? `${eur(both)} · ${t.tools.wear.chainAndCassette}`
+  // Die Preise gelten fuer 11/12-fach (unsere Ketten, XT-Kassette). Fuer 8- bis
+  // 10-fach gibt es keine gepflegten Zahlen — dort steht, WAS faellig ist,
+  // statt eines erfundenen Betrags.
+  const pricesKnown = speed >= 11;
+  const dueText = !pricesKnown
+    ? (verdict.status === 'cassette' ? t.tools.wear.chainAndCassette
+      : verdict.status === 'checkCass' ? t.tools.wear.chainMaybeCassette
+      : t.tools.wear.chainOnly)
+    : verdict.status === 'cassette' ? `${eur(both)} · ${t.tools.wear.chainAndCassette}`
     : verdict.status === 'checkCass' ? `${eur(chainOnly)}–${eur(both)}`
     : `${eur(chainOnly)} · ${t.tools.wear.chainOnly}`;
 
@@ -115,6 +124,24 @@ export function WearCalculator({ profile, compact }: { profile: ToolProfileState
   const scalePercent = awaitingInput ? null : gaugeBelow ? 0.5 : percent;
   const tone = awaitingInput ? 'neutral' : needsAction ? 'warn' : verdict.status === 'ok' ? 'good' : 'neutral';
   const limitLabel = de ? MARK_LABEL[wearLimit(speed)].de : MARK_LABEL[wearLimit(speed)].en;
+  const s = t.tools.shared;
+  const mark = (v: number) => MARK_LABEL[v][de ? 'de' : 'en'];
+  const trace: TraceRow[] = [
+    method === 'ruler'
+      ? {
+        label: s.traceElong,
+        detail: mmValid
+          ? `(${dec(parsedMm, 1)} − ${dec(NOMINAL_12_LINKS_MM, 1)}) ÷ ${dec(NOMINAL_12_LINKS_MM, 1)} × 100`
+          : t.tools.wear.enterValue,
+        value: awaitingInput ? '—' : `${dec(percent)} %`,
+      }
+      : {
+        label: s.traceElong,
+        detail: gauge === 'none' ? s.traceGaugeNone : s.traceGauge.replace('{mark}', mark(gauge)),
+        value: gaugeBelow ? `< ${mark(0.5)} %` : `≥ ${mark(gauge as number)} %`,
+      },
+    { label: s.traceLimit, detail: `${speed}${s.speedSuffix}`, value: `${limitLabel} %`, total: true },
+  ];
 
   return (
     <ToolCard>
@@ -130,6 +157,8 @@ export function WearCalculator({ profile, compact }: { profile: ToolProfileState
             <StepNote>
               {gauge === 'none' ? t.tools.wear.gaugeNoneNote : t.tools.wear.gaugeWarning}
             </StepNote>
+            <CalcTraceHeading />
+            <CalcTrace rows={trace} />
           </InfoPopover>
         )}
       />
@@ -249,7 +278,7 @@ export function WearCalculator({ profile, compact }: { profile: ToolProfileState
           <ToolCTA href="/rechner/passende-kette">{t.tools.wear.cta}</ToolCTA>
         )}
       />
-
+      {!compact && <CalcTraceDisclosure rows={trace} />}
     </ToolCard>
   );
 }

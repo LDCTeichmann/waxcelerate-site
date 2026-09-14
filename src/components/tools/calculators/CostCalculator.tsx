@@ -29,7 +29,12 @@ import { useState } from 'react';
 import { HelpCircle, Scale } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import type { ToolProfileState } from '@/hooks/useToolProfile';
-import { drivetrainCosts, DRIVETRAIN_CLASSES, referenceWax } from '@/lib/waxMath';
+import {
+  drivetrainCosts, DRIVETRAIN_CLASSES, referenceWax, costPerApplication, severityFactor,
+  OIL_SEVERITY_EXPONENT, WAX_SEVERITY_EXPONENT, OIL_CHAIN_KM, OIL_CASSETTE_KM, WAX_CHAIN_KM,
+  WAX_CASSETTE_KM, OIL_PRICE_PER_APP, OIL_APP_INTERVAL_KM,
+} from '@/lib/waxMath';
+import { CalcTrace, CalcTraceDisclosure, CalcTraceHeading, type TraceRow } from '@/components/tools/CalcTrace';
 import { accessories } from '@/lib/data';
 import { shareUrl, toolParam } from '@/lib/toolState';
 import { AnimatedNumber } from '@/components/viz';
@@ -102,6 +107,27 @@ export function CostCalculator({ profile, compact, preselectRotation, slug = 'um
     { label: t.tools.shared.breakdownLube, ...costs.breakdown.lube },
   ];
 
+  // Dieselbe Rechnung wie drivetrainCosts(), Posten fuer Posten mit den
+  // eingesetzten Zahlen — der Haertefaktor kommt aus dem Wachsintervall.
+  const sev = severityFactor(profile.interval);
+  const oilWear = Math.pow(sev, OIL_SEVERITY_EXPONENT);
+  const waxWear = Math.pow(sev, WAX_SEVERITY_EXPONENT);
+  const num = (n: number, d = 0) => n.toLocaleString(de ? 'de-DE' : 'en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+  const km = (n: number) => `${num(n)} km`;
+  const sh = t.tools.shared;
+  const waxPerApp = Math.round((costPerApplication(referenceWax) ?? 0) * 100) / 100;
+  const perYear = (price: number, life: number, wear: number) =>
+    `${eur(price)} ÷ ${km(life)} × ${num(wear, 2)} × ${km(kmPerYear)}`;
+  const trace: TraceRow[] = [
+    { label: `${sh.breakdownChain} ${sh.breakdownOil}`, detail: perYear(cls.chainPrice, OIL_CHAIN_KM, oilWear), value: eur(costs.breakdown.chain.oil) },
+    { label: `${sh.breakdownChain} ${sh.breakdownWax}`, detail: perYear(cls.chainPrice, WAX_CHAIN_KM[chains - 1], waxWear), value: eur(costs.breakdown.chain.wax) },
+    { label: `${sh.breakdownCassette} ${sh.breakdownOil}`, detail: perYear(cls.cassettePrice, OIL_CASSETTE_KM, oilWear), value: eur(costs.breakdown.cassette.oil) },
+    { label: `${sh.breakdownCassette} ${sh.breakdownWax}`, detail: perYear(cls.cassettePrice, WAX_CASSETTE_KM[chains - 1], waxWear), value: eur(costs.breakdown.cassette.wax) },
+    { label: `${sh.breakdownLube} ${sh.breakdownOil}`, detail: `${eur(OIL_PRICE_PER_APP)} ÷ ${km(OIL_APP_INTERVAL_KM)} × ${km(kmPerYear)}`, value: eur(costs.breakdown.lube.oil) },
+    { label: `${sh.breakdownLube} ${sh.breakdownWax}`, detail: `${eur(waxPerApp)} ÷ ${km(profile.interval)} × ${km(kmPerYear)}`, value: eur(costs.breakdown.lube.wax) },
+    { label: sh.traceSavings, detail: `${eur(costs.oilPerYear)} − ${eur(costs.waxPerYear)}`, value: eur(costs.savingsPerYear), total: true },
+  ];
+
   const system = profile.system ?? 'shimano';
   const speedKey = profile.speed === 11 ? '11' : '12';
 
@@ -132,6 +158,8 @@ export function CostCalculator({ profile, compact, preselectRotation, slug = 'um
                 </a>
               </StepNote>
             )}
+            <CalcTraceHeading />
+            <CalcTrace rows={trace} />
           </InfoPopover>
         )}
       />
@@ -200,6 +228,7 @@ export function CostCalculator({ profile, compact, preselectRotation, slug = 'um
           ? <ToolCTA href="/starter-set">{c.ctaStarter}</ToolCTA>
           : <ToolCTA href={`/ketten?marke=${system}&gang=${speedKey}`}>{c.ctaChains}</ToolCTA>}
       />
+      {!compact && <CalcTraceDisclosure rows={trace} />}
     </ToolCard>
   );
 }

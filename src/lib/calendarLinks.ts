@@ -32,23 +32,27 @@ export interface ReminderEvent {
   date: Date;
   title: string;
   description: string;
-  /** Wiederholung alle n Wochen. 0 oder undefiniert = einmaliger Termin. */
-  repeatWeeks?: number;
-  /**
-   * Wie oft die Wiederholung laeuft. Ohne Angabe: 8 Termine. Eine
-   * Rewax-Erinnerung ohne Ende steht sonst fuer immer im Kalender, obwohl das
-   * Intervall sich mit Fahrprofil und Jahreszeit ohnehin aendert.
-   */
-  repeatCount?: number;
+  /** Wiederholung alle n Tage. 0 oder undefiniert = einmaliger Termin. */
+  repeatDays?: number;
   /** Link, der im Termin hinterlegt wird — der teilbare Ergebnis-Link. */
   url?: string;
 }
 
-/** RRULE-Wert (ohne "RRULE:"-Praefix) fuer eine woechentliche Wiederholung. */
-function rrule(ev: ReminderEvent): string | null {
-  if (!ev.repeatWeeks || ev.repeatWeeks <= 0) return null;
-  const count = ev.repeatCount && ev.repeatCount > 0 ? ev.repeatCount : 8;
-  return `FREQ=WEEKLY;INTERVAL=${ev.repeatWeeks};COUNT=${count}`;
+/**
+ * Wie viele Termine die Serie hat: rund ein halbes Jahr, 4 bis 12 Stueck. Eine
+ * Serie ohne Ende stuende fuer immer im Kalender, obwohl das Intervall sich mit
+ * Saison und Wetter aendert.
+ */
+export function reminderCount(days: number): number {
+  return Math.min(12, Math.max(4, Math.ceil(182 / days)));
+}
+
+/** RRULE-Wert (ohne "RRULE:"-Praefix). Volle Wochen als WEEKLY, sonst DAILY. */
+export function rrule(ev: ReminderEvent): string | null {
+  const d = ev.repeatDays;
+  if (!d || d <= 0) return null;
+  const freq = d % 7 === 0 ? `FREQ=WEEKLY;INTERVAL=${d / 7}` : `FREQ=DAILY;INTERVAL=${d}`;
+  return `${freq};COUNT=${reminderCount(d)}`;
 }
 
 /**
@@ -104,8 +108,8 @@ function icsEscape(s: string): string {
 }
 
 /**
- * .ics fuer Apple Kalender, Outlook und alles andere. Mit VALARM einen Tag
- * vorher, weil ein Rewax-Termin ohne Vorlauf nichts nuetzt.
+ * .ics fuer Apple Kalender, Outlook und alles andere. Erinnerung am Vorabend
+ * um 18 Uhr (6 h vor dem ganztaegigen Start): -P1D klingelte um Mitternacht.
  */
 export function icsContent(ev: ReminderEvent): string {
   const uid = `${stampDate(ev.date)}-${Math.random().toString(36).slice(2, 10)}@waxcelerate.de`;
@@ -124,7 +128,7 @@ export function icsContent(ev: ReminderEvent): string {
     ...(ev.url ? [`URL:${ev.url}`] : []),
     ...(rrule(ev) ? [`RRULE:${rrule(ev)}`] : []),
     'BEGIN:VALARM',
-    'TRIGGER:-P1D',
+    'TRIGGER:-PT6H',
     'ACTION:DISPLAY',
     `DESCRIPTION:${icsEscape(ev.title)}`,
     'END:VALARM',
