@@ -399,7 +399,7 @@ export function PriceMatrix({ de }: { de: boolean }) {
   ];
 
   const grid = UMSTIEG_LIVE ? 'grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_minmax(0,1fr)]' : 'grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]';
-  const rowCls = `grid ${grid} items-center gap-3 px-4 sm:px-6 py-2.5`;
+  const rowCls = `grid ${grid} items-center gap-2 sm:gap-3 px-3 sm:px-6 py-2.5`;
 
   return (
     <div>
@@ -419,7 +419,7 @@ export function PriceMatrix({ de }: { de: boolean }) {
             const { t, s, Icon } = head[c];
             return (
               <div key={c}>
-                <p className="flex items-center gap-1.5 font-semibold text-[14px] sm:text-[15px]" style={{ color: 'var(--tx1)' }}>
+                <p className="flex items-center gap-1.5 font-semibold text-[12.5px] sm:text-[15px] min-w-0" style={{ color: 'var(--tx1)' }}>
                   <Icon className="h-3.5 w-3.5 flex-shrink-0" style={{ color: 'var(--accent)' }} aria-hidden />{t}
                 </p>
                 <p className="text-[11.5px] leading-snug mt-0.5" style={{ color: 'var(--txm)' }}>{s}</p>
@@ -449,7 +449,7 @@ export function PriceMatrix({ de }: { de: boolean }) {
           <div className={rowCls}>
             <span className="text-[12.5px] sm:text-[13px]" style={{ color: 'var(--txm)' }}>{de ? 'Eine Kette' : 'One chain'}</span>
             {cols.map(c => (
-              <span key={c} className="font-display font-bold leading-none" style={{ fontSize: '1.45rem', letterSpacing: '-0.02em', color: 'var(--tx1)' }}>
+              <span key={c} className="font-display font-bold leading-none whitespace-nowrap" style={{ fontSize: 'clamp(1.1rem, 4.4vw, 1.45rem)', letterSpacing: '-0.02em', color: 'var(--tx1)' }}>
                 {eur(PRICE[c].single, de)}
               </span>
             ))}
