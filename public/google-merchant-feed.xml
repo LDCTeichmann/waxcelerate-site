@@ -213,7 +213,7 @@
     <item>
       <g:id>chain-ybn12</g:id>
       <title>YBN S12S 12-fach — vorgewachst</title>
-      <description>YBN S12S, 116 Glieder, 12-fach, 259 g — universell für Shimano, SRAM und Campagnolo. Vollständig entfettet und vorgewachst. Quick-Link liegt bei.</description>
+      <description>YBN S12S, 116 Glieder, 12-fach — universell für Shimano, SRAM und Campagnolo. Vollständig entfettet und vorgewachst. Quick-Link liegt bei.</description>
       <link>https://waxcelerate.de/produkt/chain-ybn12</link>
       <g:image_link>https://waxcelerate.de/images/products/chains/ybn12.webp</g:image_link>
       <g:availability>out of stock</g:availability>
@@ -221,6 +221,24 @@
       <g:brand>YBN</g:brand>
       <g:condition>new</g:condition>
       <g:mpn>S12S</g:mpn>
+      <g:google_product_category>Sporting Goods &gt; Outdoor Recreation &gt; Cycling &gt; Bicycle Accessories &gt; Bicycle Parts &gt; Bicycle Drivetrain Parts &gt; Bicycle Chains</g:google_product_category>
+      <g:product_type>Vorgewachste Kette</g:product_type>
+      <g:shipping>
+        <g:country>DE</g:country>
+        <g:price>0.00 EUR</g:price>
+      </g:shipping>
+    </item>
+    <item>
+      <g:id>chain-hg93</g:id>
+      <title>Shimano CN-HG93 9-fach — vorgewachst</title>
+      <description>Shimano CN-HG93, 116 Glieder, 9-fach, Hyperglide. Vollständig entfettet und mit MoS₂-Transferfilm vorgewachst. 9-fach Quick-Link liegt bei.</description>
+      <link>https://waxcelerate.de/produkt/chain-hg93</link>
+      <g:image_link>https://waxcelerate.de/images/products/chains/hg93.webp</g:image_link>
+      <g:availability>in stock</g:availability>
+      <g:price>39.95 EUR</g:price>
+      <g:brand>Shimano</g:brand>
+      <g:condition>new</g:condition>
+      <g:mpn>CN-HG93</g:mpn>
       <g:google_product_category>Sporting Goods &gt; Outdoor Recreation &gt; Cycling &gt; Bicycle Accessories &gt; Bicycle Parts &gt; Bicycle Drivetrain Parts &gt; Bicycle Chains</g:google_product_category>
       <g:product_type>Vorgewachste Kette</g:product_type>
       <g:shipping>

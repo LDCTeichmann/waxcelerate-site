@@ -130,6 +130,15 @@ Alle Ketten wurden vor dem Versand vollständig entfettet (Ultraschallbad) und m
 - Kompatibilität: Shimano 12-fach · SRAM 12-fach · Campagnolo 12-fach
 - Verkauf: https://waxcelerate.de/produkt/chain-ybn12
 
+### Shimano CN-HG93 9-fach — vorgewachst
+- Preis: 39,95 €
+- Hersteller: Shimano
+- Modell: CN-HG93
+- Glieder: 116 Glieder
+- Schaltung: 9-fach
+- Kompatibilität: Shimano 9-fach · SRAM 9-fach · Campagnolo 9-fach
+- Verkauf: https://waxcelerate.de/produkt/chain-hg93
+
 ---
 
 ## Starter-Set
@@ -1656,7 +1665,7 @@ Mit einer Kette und regelmäßigen Intervallen: ca. 20–30 Rewaxing-Sessions pr
 Selbst wachsen ist absolut machbar — aber die Erstentfettung ist der zeitaufwändigste und entscheidendste Schritt. Wir entfetten unsere Ketten professionell im Ultraschallbad mit chemischen Reinigungsmitteln, die das Fabrikfett restlos entfernen. Ergebnis: das Wachs haftet von der ersten Fahrt an optimal. Eine vorgewachste Kette ist damit der perfekte Einstieg — du weißt danach genau, wie es sein soll, und kannst beim Nachwachsen selbst auf dieses Niveau hinarbeiten.
 
 **Wann muss ich die Kette komplett ersetzen — nicht nur nachwachsen?**
-Mit einem Kettendehnungsmesser prüfen: bei 0,5% Dehnung öfter messen, bei 0,75% Dehnung die Kette wechseln — sonst frisst die gestreckte Kette die Zahnflanken von Kassette und Kettenblatt. Mit Wachs erreichst du diese Grenze deutlich später als mit Öl. Faustregel: gewachste Kette prüfen nach 4.000–5.000 km, geölte nach 2.000 km.
+Mit einer Kettenlehre prüfen: bei 11- und 12-fach ab 0,5 % Längung wechseln, bei 9- und 10-fach ab 0,75 % — sonst frisst die gestreckte Kette die Zahnflanken von Kassette und Kettenblatt. Mit Wachs erreichst du diese Grenze deutlich später als mit Öl. Faustregel: gewachste Kette prüfen nach 4.000–5.000 km, geölte nach 2.000 km.
 
 **Das Wachs hält bei mir nicht so lange wie erwartet — was mache ich falsch?**
 Häufigste Ursache: die Erstentfettung war nicht vollständig. Bestimmte Shimano-11-fach-Ketten und manche SRAM-Ketten haben besonders hartnäckiges Werkfett — hier helfen 2–3 Entfettungsdurchgänge statt einem. Zweite Ursache: Wachs zu heiß aufgetragen. Über ~95 °C läuft es zu dünn und fließt aus den Gelenken. Tipp: Kette kurz vor dem Erstarren entnehmen — wenn sich gerade eine dünne Haut auf dem Wachs bildet, nicht mehr im vollflüssigen Zustand.

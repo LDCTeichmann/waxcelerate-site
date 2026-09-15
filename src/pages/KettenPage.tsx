@@ -31,7 +31,7 @@ const TRUST_ICONS: Record<ReturnType<typeof chainTrust>[number]['key'], LucideIc
 };
 
 type Brand = 'all' | 'shimano' | 'sram' | 'campagnolo';
-type Speed = 'all' | '11' | '12';
+type Speed = 'all' | '9' | '11' | '12';
 
 const BRANDS: { v: Brand; labelDe: string; labelEn: string }[] = [
   { v: 'all', labelDe: 'Alle', labelEn: 'All' },
@@ -41,12 +41,13 @@ const BRANDS: { v: Brand; labelDe: string; labelEn: string }[] = [
 ];
 const SPEEDS: { v: Speed; labelDe: string; labelEn: string }[] = [
   { v: 'all', labelDe: 'Alle', labelEn: 'All' },
+  { v: '9', labelDe: '9-fach', labelEn: '9-speed' },
   { v: '11', labelDe: '11-fach', labelEn: '11-speed' },
   { v: '12', labelDe: '12-fach', labelEn: '12-speed' },
 ];
 
 const isBrand = (v: string | null): v is Brand => v === 'shimano' || v === 'sram' || v === 'campagnolo';
-const isSpeed = (v: string | null): v is Speed => v === '11' || v === '12';
+const isSpeed = (v: string | null): v is Speed => v === '9' || v === '11' || v === '12';
 
 export function KettenPage() {
   const { t, lang } = useLanguage();
@@ -70,7 +71,7 @@ export function KettenPage() {
   const brandChainIds = useMemo(() => {
     if (brand === 'all') return null;
     const bySpeed = compatibilityMatrix[brand] ?? {};
-    const speeds = speed === 'all' ? ['11', '12'] : [speed];
+    const speeds = speed === 'all' ? ['9', '11', '12'] : [speed];
     return new Set(speeds.flatMap(s => bySpeed[s] ?? []));
   }, [brand, speed]);
 

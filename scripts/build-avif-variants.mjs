@@ -40,7 +40,8 @@ const AVIF = { quality: 58, effort: 6 };
 /** AVIF-Geschwister neben einer bestehenden Datei, gleiche Pixelbreite. */
 // Alle lokal gehosteten Kettenfotos. Seit 15.09.2026 auch die sechs, die vorher
 // als eBay-Hotlink (s-l500) liefen — Quelle: Lucas eigene eBay-Angebotsfotos.
-const CHAINS = ['hg701', 'ybn11', 'force1170', 'm9100', 'm8100', 'm7100', 'nx', 'ybn12'];
+// hg93 seit 15.09.2026: Basis und -lg aus "1 Chain.JPG" (Lucas eBay-Hauptfoto der CN-HG93).
+const CHAINS = ['hg701', 'ybn11', 'force1170', 'm9100', 'm8100', 'm7100', 'nx', 'ybn12', 'hg93'];
 
 const AVIF_JOBS = [
   // Hero — alle drei stehen in index.html als preload mit fetchpriority=high

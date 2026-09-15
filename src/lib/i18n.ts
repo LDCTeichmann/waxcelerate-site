@@ -63,7 +63,7 @@ export const translations = {
       menuPro: 'Kettenwachs Pro',
       menuProDesc: 'Paraffin + MoS₂, Ganzjahr und E-Bike',
       menuChains: 'Vorgewachste Ketten',
-      menuChainsDesc: 'Aufziehen und losfahren, 11- und 12-fach',
+      menuChainsDesc: 'Aufziehen und losfahren, 9-, 11- und 12-fach',
       menuSet: 'Starter-Set',
       menuSetDesc: 'Wachs, Zange und Draht in einer Sendung',
       menuAllProducts: 'Alle Produkte',
@@ -593,7 +593,7 @@ export const translations = {
         note: 'Bis 11-fach sind die Systeme untereinander weitgehend austauschbar. Ab 12-fach solltest du beim Hersteller deiner Schaltung bleiben oder eine ausdrücklich universelle Kette nehmen.',
         helpSystem: 'Steht auf dem Schaltwerk hinten, also dem beweglichen Teil mit den zwei kleinen Rädchen. Dort ist der Herstellername aufgedruckt.',
         helpSpeed: 'Zähl die Ritzel hinten am Hinterrad — nur die Zahnkränze am Laufrad, nicht die Kettenblätter vorne und nicht die Gänge am Schalthebel.',
-        otherSpeed: 'Vorgewachst führen wir nur 11- und 12-fach. Für {speed}-fach schreib uns kurz — Ketten dafür bekommen wir, und wachsen können wir sie auch.',
+        otherSpeed: 'Vorgewachst führen wir nur 9-, 11- und 12-fach. Für {speed}-fach schreib uns kurz — Ketten dafür bekommen wir, und wachsen können wir sie auch.',
         otherSpeedShort: '{speed}-fach führen wir nicht vorgewachst',
         fromPrice: 'ab {price}',
         fits: '{n} passen',
@@ -777,7 +777,7 @@ export const translations = {
         },
         {
           q: 'Wann muss ich die Kette komplett ersetzen — nicht nur nachwachsen?',
-          a: 'Mit einem Kettendehnungsmesser prüfen: bei 0,5% Dehnung öfter messen, bei 0,75% Dehnung die Kette wechseln — sonst frisst die gestreckte Kette die Zahnflanken von Kassette und Kettenblatt. Mit Wachs erreichst du diese Grenze deutlich später als mit Öl. Faustregel: gewachste Kette prüfen nach 4.000–5.000 km, geölte nach 2.000 km.',
+          a: 'Mit einer Kettenlehre prüfen: bei 11- und 12-fach ab 0,5 % Längung wechseln, bei 9- und 10-fach ab 0,75 % — sonst frisst die gestreckte Kette die Zahnflanken von Kassette und Kettenblatt. Mit Wachs erreichst du diese Grenze deutlich später als mit Öl. Faustregel: gewachste Kette prüfen nach 4.000–5.000 km, geölte nach 2.000 km.',
         },
         {
           q: 'Das Wachs hält bei mir nicht so lange wie erwartet — was mache ich falsch?',
@@ -921,7 +921,7 @@ export const translations = {
       menuPro: 'Chain wax Pro',
       menuProDesc: 'Paraffin + MoS₂, all year and e-bike',
       menuChains: 'Pre-waxed chains',
-      menuChainsDesc: 'Fit it and ride, 11- and 12-speed',
+      menuChainsDesc: 'Fit it and ride, 9-, 11- and 12-speed',
       menuSet: 'Starter set',
       menuSetDesc: 'Wax, pliers and wire in one parcel',
       menuAllProducts: 'All products',
@@ -1333,7 +1333,7 @@ export const translations = {
         note: 'Up to 11-speed the systems are largely interchangeable. From 12-speed on, stay with your drivetrain brand or pick a chain explicitly sold as universal.',
         helpSystem: 'Printed on the rear derailleur, the moving part with the two little wheels. The brand name is on it.',
         helpSpeed: 'Count the sprockets on the rear wheel — only the cogs at the wheel, not the chainrings at the front and not the clicks on the shifter.',
-        otherSpeed: 'We only stock 11- and 12-speed pre-waxed. For {speed}-speed just write to us — we can source and wax those too.',
+        otherSpeed: 'We only stock 9-, 11- and 12-speed pre-waxed. For {speed}-speed just write to us — we can source and wax those too.',
         otherSpeedShort: 'We do not stock {speed}-speed pre-waxed',
         fromPrice: 'from {price}',
         fits: '{n} fit',
@@ -1514,7 +1514,7 @@ export const translations = {
         },
         {
           q: 'When do I need to replace the chain entirely — not just re-wax?',
-          a: 'Check with a chain wear indicator: at 0.5% elongation, check more regularly. At 0.75% elongation, replace the chain — any later and the stretched chain eats the tooth flanks on your cassette and chainring. With wax you reach this threshold significantly later than with oil. Rule of thumb: check a waxed chain after 4,000–5,000 km, an oiled chain after 2,000 km.',
+          a: 'Check with a chain wear gauge: on 11- and 12-speed replace from 0.5% elongation, on 9- and 10-speed from 0.75% — any later and the stretched chain eats the tooth flanks on your cassette and chainring. With wax you reach this threshold significantly later than with oil. Rule of thumb: check a waxed chain after 4,000–5,000 km, an oiled chain after 2,000 km.',
         },
         {
           q: "My wax doesn't last as long as expected — what am I doing wrong?",

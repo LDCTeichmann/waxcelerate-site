@@ -40,9 +40,12 @@ export interface RichContent {
   proTip?: string;
 }
 
+// Drei Stufen wie in Lucas eBay-Beschreibung und auf der Kettenseite
+// (src/pages/product/chain/content.ts), bestaetigt 15.09.2026.
 const v9SharedProcessSteps: ProcessStep[] = [
-  { n: 1, title: 'Chemische Reinigung', body: 'Lösungsmittelbasierte Entfettung. Fabrikfett und Oberflächenrückstände werden vollständig gelöst.' },
-  { n: 2, title: 'Ultraschallreinigung', body: 'Kavitation löst Rückstände tief in den Gelenken — dort, wo chemische Reinigung allein nicht ausreicht.' },
+  { n: 1, title: 'Mechanisch', body: 'Grobreinigung, löst den Großteil des Werksfetts.' },
+  { n: 2, title: 'Ultraschall', body: 'Kavitation holt Rückstände aus den Gelenken, wo Wischen nicht hinkommt.' },
+  { n: 3, title: 'Isopropanol 99 %', body: 'Rückstandsfrei. Zähes Werksfett braucht oft einen Durchgang mehr.' },
 ];
 
 const v9SharedProcessNote = 'Wachs und Molybdändisulfid dringen nur in metallisch saubere Gelenke ein. Fabrikfett auf der Innenoberfläche blockiert den Wirkstoff vollständig — Ultraschall stellt sicher, dass kein Rückstand bleibt.';
@@ -197,7 +200,7 @@ export const richContent: Record<string, RichContent> = {
   'chain-hg701': {
     hook: 'Shimanos universellste 11-fach-Kette — SIL-TEC, 116 Glieder, kompatibel mit Ultegra, XT, GRX, 105 und mehr — vollständig entfettet und mit Molybdändisulfid-Transferfilm vorgewachst. Kettenschloss liegt bei. Einbauen und fahren.',
     stats: [
-      { value: '0,03–0,06', label: 'Reibungskoeffizient', sub: 'MoS₂-Transferfilm. Öl liegt bei 0,18–0,25.' },
+      { value: '0 min', label: 'Vorbereitung', sub: 'Einbauen und fahren, keine Einfahrzeit.' },
       { value: '2–3×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
       { value: '300–550 km', label: 'Intervall trocken', sub: 'Mit Topup bis 1.200 km. Kein Nachölen.' },
       { value: '116', label: 'Glieder', sub: '11-fach · Ultegra / XT / GRX · SIL-TEC' },
@@ -225,7 +228,7 @@ export const richContent: Record<string, RichContent> = {
   'chain-ybn11': {
     hook: 'YBN 11S — universal 11-fach für Shimano, SRAM, Campagnolo und KMC. 116 Glieder, keine Kompatibilitätskompromisse. Vollständig entfettet und mit Molybdändisulfid-Transferfilm vorgewachst. Kettenschloss liegt bei. Einbauen und fahren.',
     stats: [
-      { value: '0,03–0,06', label: 'Reibungskoeffizient', sub: 'MoS₂-Transferfilm. Öl liegt bei 0,18–0,25.' },
+      { value: '0 min', label: 'Vorbereitung', sub: 'Einbauen und fahren, keine Einfahrzeit.' },
       { value: '2–3×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
       { value: '300–550 km', label: 'Intervall trocken', sub: 'Mit Topup bis 1.200 km. Kein Nachölen.' },
       { value: '116', label: 'Glieder', sub: '11-fach universal · Shimano + SRAM + Campa' },
@@ -253,7 +256,7 @@ export const richContent: Record<string, RichContent> = {
   'chain-m8100': {
     hook: 'Drei Antriebe, eine Kette — Deore XT M8100, Ultegra R8100, GRX 12-fach — 116 Glieder, SIL-TEC, Hyperglide+. Vollständig entfettet und mit Molybdändisulfid-Transferfilm vorgewachst. Kettenschloss liegt bei. Einbauen und fahren.',
     stats: [
-      { value: '0,03–0,06', label: 'Reibungskoeffizient', sub: 'MoS₂-Transferfilm. Öl liegt bei 0,18–0,25.' },
+      { value: '0 min', label: 'Vorbereitung', sub: 'Einbauen und fahren, keine Einfahrzeit.' },
       { value: '2–3×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
       { value: '300–550 km', label: 'Intervall trocken', sub: 'Mit Topup bis 1.200 km. Kein Nachölen.' },
       { value: '116', label: 'Glieder', sub: '12-fach · XT / Ultegra / GRX · Hyperglide+' },
@@ -265,7 +268,7 @@ export const richContent: Record<string, RichContent> = {
     v9Note: v9SharedNote,
     chainSpec: {
       'Serie': 'Shimano Deore XT M8100 / Ultegra R8100 / GRX 12-fach',
-      'Geschwindigkeit': '12-fach · 116 Glieder · ~278 g',
+      'Geschwindigkeit': '12-fach · 116 Glieder',
       'Oberfläche': 'Vollnieten, chromiert · SIL-TEC',
       'Technologie': 'Hyperglide+ · DCE+ · direktional',
       'Verbinder': 'Quick-Link SM-CN910 (im Lieferumfang)',
@@ -281,7 +284,7 @@ export const richContent: Record<string, RichContent> = {
   'chain-m7100': {
     hook: 'SLX und 105 — Shimanos Einstieg in 12-fach mit voller Hyperglide+- und DCE+-Architektur. 116 Glieder, SIL-TEC, identisches System wie XT und XTR. Vollständig entfettet und mit Molybdändisulfid-Transferfilm vorgewachst. Kettenschloss liegt bei. Einbauen und fahren.',
     stats: [
-      { value: '0,03–0,06', label: 'Reibungskoeffizient', sub: 'MoS₂-Transferfilm. Öl liegt bei 0,18–0,25.' },
+      { value: '0 min', label: 'Vorbereitung', sub: 'Einbauen und fahren, keine Einfahrzeit.' },
       { value: '2–3×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
       { value: '300–550 km', label: 'Intervall trocken', sub: 'Mit Topup bis 1.200 km. Kein Nachölen.' },
       { value: '116', label: 'Glieder', sub: '12-fach · SLX / 105 · Hyperglide+' },
@@ -307,12 +310,12 @@ export const richContent: Record<string, RichContent> = {
   },
 
   'chain-m9100': {
-    hook: 'Shimanos präziseste 12-fach-Kette — Hohlnieten, SIL-TEC, 289 g — vollständig entfettet und mit Molybdändisulfid-Transferfilm vorgewachst. Kettenschloss liegt bei. Einbauen und fahren.',
+    hook: 'Shimanos präziseste 12-fach-Kette — XTR / Dura-Ace, SIL-TEC, 138 Glieder — vollständig entfettet und mit Molybdändisulfid-Transferfilm vorgewachst. Kettenschloss liegt bei. Einbauen und fahren.',
     stats: [
-      { value: '0,03–0,06', label: 'Reibungskoeffizient', sub: 'MoS₂-Transferfilm. Öl liegt bei 0,18–0,25.' },
+      { value: '0 min', label: 'Vorbereitung', sub: 'Einbauen und fahren, keine Einfahrzeit.' },
       { value: '2–3×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
       { value: '300–550 km', label: 'Intervall trocken', sub: 'Mit Topup bis 1.200 km. Kein Nachölen.' },
-      { value: '138', label: 'Glieder · Hohlnieten', sub: 'XTR / Dura-Ace · 12-fach · ~289 g' },
+      { value: '138', label: 'Glieder', sub: 'XTR / Dura-Ace · 12-fach · SIL-TEC' },
     ],
     processSteps: v9SharedProcessSteps,
     processNote: v9SharedProcessNote,
@@ -321,8 +324,8 @@ export const richContent: Record<string, RichContent> = {
     v9Note: v9SharedNote,
     chainSpec: {
       'Serie': 'Shimano XTR M9100 / Dura-Ace R9200',
-      'Geschwindigkeit · Glieder': '12-fach · 138 Glieder · ~289 g',
-      'Nieten · Oberfläche': 'Hohlnieten · SIL-TEC-Beschichtung',
+      'Geschwindigkeit · Glieder': '12-fach · 138 Glieder',
+      'Oberfläche': 'SIL-TEC-Beschichtung',
       'Technologie': 'Hyperglide+ · DCE+ · direktional',
       'Verbinder': 'Quick-Link SM-CN910 (im Lieferumfang)',
     },
@@ -337,7 +340,7 @@ export const richContent: Record<string, RichContent> = {
   'chain-force': {
     hook: 'SRAM Force PC-1170 — Hollow-Pin, 114 Glieder, 256 g — vollständig entfettet und mit Molybdändisulfid-Transferfilm vorgewachst. PowerLock® liegt bei. Einbauen und fahren.',
     stats: [
-      { value: '0,03–0,06', label: 'Reibungskoeffizient', sub: 'MoS₂-Transferfilm. Öl liegt bei 0,18–0,25.' },
+      { value: '0 min', label: 'Vorbereitung', sub: 'Einbauen und fahren, keine Einfahrzeit.' },
       { value: '2–3×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
       { value: '300–550 km', label: 'Intervall trocken', sub: 'Mit Topup bis 1.200 km. Kein Nachölen.' },
       { value: '114', label: 'Glieder · Hollow-Pin', sub: 'SRAM Force · 11-fach · 256 g' },
@@ -371,7 +374,7 @@ export const richContent: Record<string, RichContent> = {
   'chain-nx': {
     hook: 'SRAM NX Eagle — 118 Glieder, 12-fach MTB — vollständig entfettet und mit Molybdändisulfid-Transferfilm vorgewachst. PowerLock® liegt bei. Einbauen und fahren.',
     stats: [
-      { value: '0,03–0,06', label: 'Reibungskoeffizient', sub: 'MoS₂-Transferfilm. Öl liegt bei 0,18–0,25.' },
+      { value: '0 min', label: 'Vorbereitung', sub: 'Einbauen und fahren, keine Einfahrzeit.' },
       { value: '2–3×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
       { value: '300–550 km', label: 'Intervall trocken', sub: 'Mit Topup bis 1.200 km. Kein Nachölen.' },
       { value: '118', label: 'Glieder · Eagle', sub: 'SRAM NX Eagle · 12-fach MTB' },
@@ -382,7 +385,7 @@ export const richContent: Record<string, RichContent> = {
     v9Bullets: [
       { title: 'NX Eagle — Einstieg ins 12-fach Eagle-System', body: 'Kompatibel mit dem gesamten SRAM Eagle-Ökosystem: SX, NX, GX, X01, XX1. Gleiche Schaltqualität wie die teureren Eagle-Ketten — bewährte NX-Zuverlässigkeit für den Trail.' },
       { title: 'PowerLock® — Kettenwechsel ohne Werkzeug', body: 'SRAMs Quick-Link öffnet ohne Werkzeug und ist mehrfach verwendbar. Bei der 3-Ketten-Rotation: Kette ab, neue drauf, in unter 2 Minuten weiterfahren.' },
-      { title: '118 Glieder — passt auf die meisten MTB-Geometrien', body: 'Standardlänge für die meisten 12-fach MTB-Rahmen. Bei Bedarf leicht zu kürzen. Kommt mit montiertem PowerLock® — sofort einsatzbereit.' },
+      { title: '118 Glieder — für die meisten MTB-Rahmen', body: 'Reicht für die meisten 12-fach-MTB-Rahmen. Bei Bedarf leicht zu kürzen. Kommt mit montiertem PowerLock® — sofort einsatzbereit.' },
       { title: 'V9 MoS₂-Behandlung — selbe Formulierung wie auf allen Waxcelerate-Ketten', body: 'Reibungskoeffizient 0,03–0,06, Schichtgitterstruktur, tribochemisch gebunden. Kein Unterschied in der Behandlungsqualität zwischen NX und XX1 Eagle.' },
     ],
     v9Note: v9SharedNote,
@@ -403,26 +406,25 @@ export const richContent: Record<string, RichContent> = {
   },
 
   'chain-ybn12': {
-    hook: 'YBN S12S — 116 Glieder, 259 g, 12-fach universal für Shimano, SRAM und Campagnolo — vollständig entfettet und mit Molybdändisulfid-Transferfilm vorgewachst. Quick-Link liegt bei. Einbauen und fahren.',
+    hook: 'YBN S12S — 116 Glieder, 12-fach universal für Shimano, SRAM und Campagnolo — vollständig entfettet und mit Molybdändisulfid-Transferfilm vorgewachst. Quick-Link liegt bei. Einbauen und fahren.',
     stats: [
-      { value: '0,03–0,06', label: 'Reibungskoeffizient', sub: 'MoS₂-Transferfilm. Öl liegt bei 0,18–0,25.' },
+      { value: '0 min', label: 'Vorbereitung', sub: 'Einbauen und fahren, keine Einfahrzeit.' },
       { value: '2–3×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
       { value: '300–550 km', label: 'Intervall trocken', sub: 'Mit Topup bis 1.200 km. Kein Nachölen.' },
-      { value: '259 g', label: 'Gewicht · 116 Glieder', sub: 'YBN S12S · 12-fach universal' },
+      { value: '116', label: 'Glieder', sub: 'YBN S12S · 12-fach universal' },
     ],
     processSteps: v9SharedProcessSteps,
     processNote: v9SharedProcessNote,
     v9Intro: v9SharedIntro,
     v9Bullets: [
       { title: 'Universal 12-fach — Shimano, SRAM und Campagnolo', body: 'YBN S12S ist eine der wenigen echten Universal-Ketten für 12-fach. Kompatibel mit Shimano, SRAM Eagle und Campagnolo — kein Hersteller-Lock-in, eine Kette für alles.' },
-      { title: '259 g — leichter als Shimano CN-M8100 (278 g)', body: 'Bei gleichwertiger Haltbarkeit und Schaltzuverlässigkeit bringt die YBN S12S weniger auf die Waage als viele OEM-Ketten. Vorteil bei der Rotation: günstigerer Preis, weniger Gewicht.' },
       { title: 'Quick-Link — werkzeuglos, mehrfach verwendbar', body: 'YBNs Quick-Link funktioniert wie SRAM PowerLock: ohne Werkzeug lösbar, mehrfach verwendbar. Ideal für die 3-Ketten-Rotation — schneller Wechsel auf der Werkbank.' },
       { title: 'Beste-Wahl-Verhältnis: universal einsetzbar, günstig, sauber', body: 'Günstiger als Shimano CN-M8100 bei breiter Kompatibilität. Für Fahrer mit gemischtem Antrieb oder als zuverlässiger Ersatz ohne Hersteller-Festlegung.' },
     ],
     v9Note: v9SharedNote,
     chainSpec: {
       'Hersteller': 'YBN — Yaban Chain Industrial Co., Taiwan',
-      'Modell · Gewicht': 'S12S · 259 g · 116 Glieder',
+      'Modell · Glieder': 'S12S · 116 Glieder',
       'Kompatibilität': 'Shimano 12-fach · SRAM 12-fach · Campagnolo 12-fach',
       'Verbinder': 'Quick-Link (im Lieferumfang)',
       'Einsatz': 'Rennrad · MTB · Gravel · E-Bike',
@@ -432,6 +434,36 @@ export const richContent: Record<string, RichContent> = {
     compatTags: [
       ['Shimano 12-fach', 'SRAM 12-fach', 'Campagnolo 12-fach', 'KMC X12'],
       ['Rennrad', 'MTB', 'Gravel', 'E-Bike', 'Triathlon', 'Cyclocross'],
+    ],
+    footerNote: v9ChainFooterNote,
+  },
+
+  // 9-fach, seit 15.09.2026. Daten und Passung aus Lucas eBay-Beschreibung
+  // ("Das Blatt", CN-HG93).
+  'chain-hg93': {
+    hook: 'Shimano CN-HG93, 9-fach, 116 Glieder: vollständig entfettet und mit Molybdändisulfid-Transferfilm vorgewachst. Kettenschloss liegt bei. Einbauen und fahren.',
+    stats: [
+      { value: '0 min', label: 'Vorbereitung', sub: 'Einbauen und fahren, keine Einfahrzeit.' },
+      { value: '2–3×', label: 'Längere Kettenlaufzeit', sub: 'Gegenüber Öl. Kette und Kassette länger.' },
+      { value: '300–550 km', label: 'Intervall trocken', sub: 'Mit Topup bis 1.200 km. Kein Nachölen.' },
+      { value: '116', label: 'Glieder', sub: '9-fach · Hyperglide · 6,6 mm' },
+    ],
+    processSteps: v9SharedProcessSteps,
+    processNote: v9SharedProcessNote,
+    v9Intro: v9SharedIntro,
+    v9Bullets: v9SharedBullets,
+    v9Note: v9SharedNote,
+    chainSpec: {
+      'Modell': 'Shimano CN-HG93',
+      'Geschwindigkeit · Glieder': '9-fach · 116 Glieder',
+      'Breite · Gewicht': '6,6 mm · ca. 300 g',
+      'Technologie': 'Hyperglide · chromierte Bolzen',
+      'Verbinder': '9-fach Quick-Link (im Lieferumfang)',
+    },
+    chainCompRows: v9SharedChainCompRows,
+    compatTags: [
+      ['Shimano Sora', 'Shimano Alivio', 'Shimano Deore', 'Shimano XT 9-fach', 'Shimano Ultegra 9-fach', 'SRAM 9-fach', 'Campagnolo 9-fach'],
+      ['Trekking', 'City', 'Pendler', 'MTB', 'Rennrad', 'Gravel', 'E-Bike'],
     ],
     footerNote: v9ChainFooterNote,
   },

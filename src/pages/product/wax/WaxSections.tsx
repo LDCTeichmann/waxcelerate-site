@@ -7,13 +7,13 @@ import { Stars } from '@/components/Stars';
 import { GPSR_MANUFACTURER } from '@/components/GpsrInfo';
 import { AddToCartButton } from '@/components/AddToCartButton';
 import { trackEbayClick, trackFormulaCompare } from '@/lib/analytics';
-import { WAX_TOPICS } from '@/pages/product/faqTopics';
+import { WAX_TOPICS, CHAIN_TOPICS } from '@/pages/product/faqTopics';
 import type { useLanguage } from '@/hooks/useLanguage';
 import { Ico } from './Ico';
 
 type T = ReturnType<typeof useLanguage>['t'];
 
-function ChapterHead({ n, title, lede }: { n: string; title: string; lede?: string }) {
+export function ChapterHead({ n, title, lede }: { n: string; title: string; lede?: string }) {
   return (
     <div className="wxp-chead">
       <p className="eyebrow">{n}</p>
@@ -102,42 +102,58 @@ export function WhichWax({ product, de }: { product: Product; de: boolean }) {
 // ── Kapitel 06 · Was Fahrer sagen ──────────────────────────────────────────
 // Getaggte Bewertungen zuerst, dann die fuer alle Wachsseiten freigegebenen
 // (fallback). Die erste mit Kundenfoto wird das grosse Zitat.
-function reviewsFor(productId: string): Review[] {
+// Kettenseite (chain): zwischen beide kommen die Bewertungen zu anderen Ketten
+// und die zu einer gewachsten Kette ohne bekanntes Modell (chainGeneral), damit
+// dort Kettenkaeufer sprechen statt Wachskaeufer.
+function reviewsFor(productId: string, chain = false): Review[] {
   const tagged = REVIEWS.filter(r => r.productIds?.includes(productId));
-  const general = REVIEWS.filter(r => r.fallback && !tagged.includes(r));
-  return [...tagged, ...general].slice(0, 3);
+  const chainPool = chain
+    ? REVIEWS.filter(r => !tagged.includes(r) && (r.chainGeneral || r.productIds?.some(id => id.startsWith('chain-'))))
+    : [];
+  const general = REVIEWS.filter(r => r.fallback && !tagged.includes(r) && !chainPool.includes(r));
+  const pool = [...tagged, ...chainPool, ...general];
+  const top = pool.slice(0, 3);
+  // Mindestens eine mit Kundenfoto: sie traegt das grosse Zitat und die
+  // Proof-Leiste. Die drei Ketten-Bewertungen haben keins, ohne diesen
+  // Tausch blieben beide auf Kettenseiten ohne Gesicht.
+  const withPhoto = pool.find(r => r.photo);
+  return withPhoto && !top.some(r => r.photo) ? [...top.slice(0, 2), withPhoto] : top;
 }
 
-export function pickProofQuote(productId: string): Review | undefined {
-  return reviewsFor(productId).find(r => r.photo);
+export function pickProofQuote(productId: string, chain = false): Review | undefined {
+  return reviewsFor(productId, chain).find(r => r.photo);
 }
 
-function Who({ r, de, photo }: { r: Review; de: boolean; photo?: boolean }) {
+function Who({ r, de, photo, about }: { r: Review; de: boolean; photo?: boolean; about?: string }) {
   const verified = r.source === 'web' ? (de ? 'Verifizierter Käufer' : 'Verified buyer') : (de ? '✓ eBay verifiziert' : '✓ eBay verified');
   return (
     <figcaption className="wxp-who">
       {photo && r.photo && <img src={r.photo.replace(/\.jpg$/, '.webp')} alt="" loading="lazy" decoding="async" />}
       <b>{r.name}</b><span className="wxp-ver">{verified}</span><span>· {de ? r.dateDe : r.dateEn}</span>
+      {about && <span>· {about}</span>}
     </figcaption>
   );
 }
 
-export function WaxReviews({ productId, de }: { productId: string; de: boolean }) {
-  const list = reviewsFor(productId);
+export function WaxReviews({ productId, de, chapter, chain = false }: { productId: string; de: boolean; chapter?: string; chain?: boolean }) {
+  const list = reviewsFor(productId, chain);
+  // Auf Kettenseiten steht bei einer Bewertung zu einer ANDEREN Kette dabei,
+  // worum es ging, damit sie nicht als Stimme zu dieser Kette gelesen wird.
+  const aboutOf = (r: Review) => chain && !r.productIds?.includes(productId) ? (de ? r.productDe : r.productEn) : undefined;
   const big = list.find(r => r.photo) ?? list[0];
   const rest = list.filter(r => r !== big).slice(0, 2);
   if (!big) return null;
   return (
     <section className="wxp-chapter" id="stimmen" style={{ paddingTop: 24 }}>
       <div className="wxp-wrap">
-        <ChapterHead n={de ? 'Kapitel 06' : 'Chapter 06'} title={de ? 'Was Fahrer sagen.' : 'What riders say.'} />
+        <ChapterHead n={chapter ?? (de ? 'Kapitel 06' : 'Chapter 06')} title={de ? 'Was Fahrer sagen.' : 'What riders say.'} />
         <div className="wxp-rv-grid">
           <figure className="wxp-card wxp-rv-big pdp-dark">
             {big.photo && <div className="ph"><img src={big.photo.replace(/\.jpg$/, '.webp')} alt={de ? 'Kundenfoto' : 'Customer photo'} loading="lazy" decoding="async" style={{ objectPosition: big.photoPos ?? '50% 50%' }} /></div>}
             <div className="tx">
               <Stars rating={big.rating ?? 5} color="#F5A623" emptyColor="rgba(255,255,255,.2)" />
               <blockquote>„{de ? big.textDe : big.textEn}“</blockquote>
-              <Who r={big} de={de} />
+              <Who r={big} de={de} about={aboutOf(big)} />
             </div>
           </figure>
           <div className="wxp-rv-side">
@@ -145,7 +161,7 @@ export function WaxReviews({ productId, de }: { productId: string; de: boolean }
               <figure key={r.name} className="wxp-card wxp-rv">
                 <Stars rating={r.rating ?? 5} color="#F5A623" />
                 <blockquote>„{de ? r.textDe : r.textEn}“</blockquote>
-                <Who r={r} de={de} photo />
+                <Who r={r} de={de} photo about={aboutOf(r)} />
               </figure>
             ))}
           </div>
@@ -261,8 +277,9 @@ export function WhenEmpty({ product, de }: { product: Product; de: boolean }) {
   );
 }
 
-export function WaxFaq({ de, t }: { de: boolean; t: T }) {
-  const items = (t.faq.items ?? []).filter(item => WAX_TOPICS.some(topic => item.q.includes(topic)));
+export function WaxFaq({ de, t, kind = 'wax' }: { de: boolean; t: T; kind?: 'wax' | 'chain' }) {
+  const topics = kind === 'chain' ? CHAIN_TOPICS : WAX_TOPICS;
+  const items = (t.faq.items ?? []).filter(item => topics.some(topic => item.q.includes(topic)));
   if (items.length === 0) return null;
   return (
     <section className="wxp-chapter" style={{ paddingTop: 24 }}>
