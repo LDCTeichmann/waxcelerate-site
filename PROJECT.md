@@ -73,7 +73,7 @@ installiert: nachfragen statt raten. Nie eine technische Zahl aus dem Code
 Kurz halten. Erledigtes wandert nach unten in den Log.
 
 - **µ 0,03 ist ein Vakuumwert.** Neu geprüft am 15.09.2026: MoS₂ erreicht µ ≈ 0,03 nur im Vakuum oder Inertgas, in feuchter Luft liegt es bei 0,15 bis 0,30. Damit ist die Zahl nicht nur „der beste Wert der Spanne", sondern stammt aus einer Umgebung, in der die Kette nie läuft. Entscheidung offen: ganz von der Seite nehmen oder nur mit Umgebungsangabe im MoS₂-Kapitel. `docs/plaene/WISSENSCHAFT_REDESIGN.md` §1.1
-- **Wattzahlen nennen die falsche Eingangsleistung.** Die zitierten ZFC-Werte entstehen bei 250 W, nicht bei 300 bis 400 W. Betrifft `data.ts` **und** die Claims-Tabelle im Skill. §1.2
+- **Wattzahlen: `data.ts` steht jetzt auf 250 W** (korrigiert am 15.09.2026, die zitierten ZFC-Werte entstehen bei 250 W). Offen bleibt zweierlei: die Claims-Tabelle im Skill nennt weiterhin 300 bis 400 W, und vier Stellen im Blog plus eine in der FAQ berufen sich auf „**unsere Laborreferenz** bei 300 bis 400 W". Eine eigene Laborreferenz kennt der Skill nicht. §1.2 und §7a
 - **Hat Classic FT-Wachs und Antioxidans?** `LineChoice` sagt „dieselbe Wachsmatrix", `diveFormula('classic')` sagt ohne FT-Wachs und ohne Antioxidans. Beides ist live. Davon hängt auch das Temperaturfenster ab. §1.5
 - **Herkunft der acht Mikroskopaufnahmen.** Ungeklärt, werden aber als Beleg gezeigt. Bildrechte und § 5 UWG. Vorschlag: aussetzen, bis geklärt. §1.6
 - **„~10 nm Lamellen"** im Paraffin-Text. Periode rund 9,3 nm ist ein Doppelstapel, eine Lamelle 4 bis 5 nm.

@@ -193,8 +193,8 @@ function ScienceHero({ de }: { de: boolean }) {
     },
     {
       value: `${w.wax[0]}–${w.wax[1]} W`,
-      sentenceDe: `Antriebsverlust — Öl braucht ${w.oil[0]}–${w.oil[1]} W bei gleicher Leistung.`,
-      sentenceEn: `Drivetrain loss — oil needs ${w.oil[0]}–${w.oil[1]} W at the same power.`,
+      sentenceDe: `Reibungsverlust in der Kette. Öl braucht ${w.oil[0]}–${w.oil[1]} W bei gleicher Leistung.`,
+      sentenceEn: `Friction loss in the chain. Oil needs ${w.oil[0]}–${w.oil[1]} W at the same power.`,
     },
     {
       value: `${l.waxLo}–${l.wax}×`,
@@ -263,8 +263,8 @@ function ScienceHero({ de }: { de: boolean }) {
 
           <p className="text-meta mb-4" style={{ color: 'var(--txff)' }}>
             {de
-              ? `Reibung und Watt: Laborwerte von Zero Friction Cycling bei ${w.inputW[0]}–${w.inputW[1]} W Tretleistung, nicht selbst gemessen.`
-              : `Friction and watts: lab values from Zero Friction Cycling at ${w.inputW[0]}–${w.inputW[1]} W pedalling power, not measured by us.`}
+              ? `Wattzahlen: Laborwerte von Zero Friction Cycling bei ${w.inputW} W Tretleistung, nicht selbst gemessen.`
+              : `Watt figures: lab values from Zero Friction Cycling at ${w.inputW} W pedalling power, not measured by us.`}
           </p>
 
           <a href="#beweis" className="inline-flex items-center gap-2 text-[13px] font-semibold transition-opacity hover:opacity-75" style={{ color: 'var(--tx1)' }}>
@@ -1218,7 +1218,7 @@ export function SciencePage() {
       <section id="beweis" className={`${W} py-16 scroll-mt-24`} style={{ borderTop: '1px solid var(--bd2)' }}>
         <ActHead
           eyebrow={de ? 'Der Beweis' : 'The Proof'}
-          title={de ? 'Gemessen, nicht behauptet.' : 'Measured, not claimed.'}
+          title={de ? 'Was unabhängig gemessen wurde.' : 'What was measured independently.'}
         />
 
         {/* Methode & Grenzen: die Zahlen sind Laborwerte Dritter (Zero
@@ -1310,7 +1310,7 @@ export function SciencePage() {
             className="num-display font-display font-bold leading-none inline-block mr-2 align-middle"
             style={{ fontSize: 'clamp(1.8rem, 4vw, 2.4rem)', color: 'var(--accent)' }} />
           <span className="text-[13px] align-middle" style={{ color: 'var(--txm)' }}>
-            {de ? 'Kettenlaufzeit gegenüber Öl, gemessen in Zone 01.' : 'Chain life versus oil, measured in zone 01.'}
+            {de ? 'Kettenlaufzeit gegenüber Öl, bei guter Pflege.' : 'Chain life versus oil, with good maintenance.'}
           </span>
           <p className="eyebrow mt-6 mb-3" style={{ color: 'var(--accent-soft)' }}>
             {de ? 'Nächster Schritt' : 'Next step'}
@@ -1341,8 +1341,8 @@ export function SciencePage() {
       <footer className={`${W} py-12 text-center`} style={{ borderTop: '1px solid var(--bd2)' }}>
         <p className="text-meta mb-6" style={{ color: 'var(--txff)' }}>
           {de
-            ? 'Quelle: Friction Facts / Zero Friction Cycling, „Friction-Producing Mechanisms of a Bicycle Chain“.'
-            : 'Source: Friction Facts / Zero Friction Cycling, "Friction-Producing Mechanisms of a Bicycle Chain."'}
+            ? 'Quelle: Friction Facts, „Friction-Producing Mechanisms of a Bicycle Chain“, bereitgestellt von Zero Friction Cycling.'
+            : 'Source: Friction Facts, "Friction-Producing Mechanisms of a Bicycle Chain," published by Zero Friction Cycling.'}
         </p>
         <Link to="/" className="inline-flex items-center gap-2 text-[13px] text-wx-txm transition-opacity hover:opacity-70">
           <ArrowLeft className="h-4 w-4" />

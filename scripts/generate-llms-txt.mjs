@@ -178,7 +178,7 @@ ${starterSetOptions.map(o => `- ${o.taglineDe}`).join('\n')}
 
 URL: ${BASE}/wissenschaft
 
-Kontaktzonen, Reibung, MoS₂ und die sechs Komponenten der Formel — gemessen statt behauptet, entwickelt und produziert in Stuttgart. Reibungs- und Wattwerte stammen aus unabhängigen Labortests von Zero Friction Cycling, nicht aus eigenen Messungen von Waxcelerate; Laborbedingungen bilden die Straße nicht eins zu eins ab, die Größenordnung der Unterschiede bleibt davon unberührt.
+Kontaktzonen, Reibung, MoS₂ und die sechs Komponenten der Formel, unabhängig gemessen statt behauptet, entwickelt und produziert in Stuttgart. Die Wattwerte stammen aus unabhängigen Labortests von Zero Friction Cycling, nicht aus eigenen Messungen von Waxcelerate; Laborbedingungen bilden die Straße nicht eins zu eins ab, die Größenordnung der Unterschiede bleibt davon unberührt.
 
 ${(() => {
   const mu = n => n.toFixed(2).replace('.', ',');
@@ -186,7 +186,7 @@ ${(() => {
   return `**Reibung (Grenzreibungskoeffizient μ):** Waxcelerate Pro ${mu(r('pro').muLo)}–${mu(r('pro').muHi)}, Classic ${mu(r('classic').muLo)}–${mu(r('classic').muHi)}, Kettenöl ${mu(r('oil').muLo)}–${mu(r('oil').muHi)}.`;
 })()}
 
-**Antriebsverlust** bei ${waxVsOil.watts.inputW[0]}–${waxVsOil.watts.inputW[1]} W Tretleistung: Wachs ${waxVsOil.watts.wax[0]}–${waxVsOil.watts.wax[1]} W, Kettenöl ${waxVsOil.watts.oil[0]}–${waxVsOil.watts.oil[1]} W.
+**Reibungsverlust in der Kette** bei ${waxVsOil.watts.inputW} W Tretleistung: Wachs ${waxVsOil.watts.wax[0]}–${waxVsOil.watts.wax[1]} W, Kettenöl ${waxVsOil.watts.oil[0]}–${waxVsOil.watts.oil[1]} W.
 
 **Kettenlaufzeit:** ${waxVsOil.life.waxLo} bis ${waxVsOil.life.wax}× länger als mit Kettenöl. **Kosten:** rund ${waxVsOil.cost.pctLess}% geringere Antriebskosten über ${waxVsOil.cost.km.toLocaleString('de-DE')} km (${waxVsOil.cost.oilEur} € Öl gegen ${waxVsOil.cost.waxEur} € Wachs, eine Kette, trockene Straße).
 

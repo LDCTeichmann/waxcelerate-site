@@ -135,7 +135,7 @@ function Density({ de }: { de: boolean }) {
 function Radical({ de }: { de: boolean }) {
   return (
     <Fig vb="0 0 240 110" label="radical chain break"
-      cap={de ? 'Phenol-OH bricht die Oxidationskette → kein abrasives MoO₃.' : 'Phenolic OH breaks the oxidation chain → no abrasive MoO₃.'}>
+      cap={de ? 'Phenol-OH bricht die Oxidationskette → das MoS₂ bleibt MoS₂.' : 'Phenolic OH breaks the oxidation chain → the MoS₂ stays MoS₂.'}>
       <path d="M86 70 Q120 26 154 70" stroke="var(--accent-soft)" strokeWidth="var(--dw-bold)" fill="none" strokeLinecap="round" />
       <path d="M120 40 L120 60" stroke="var(--accent-soft)" strokeWidth="var(--dw-line)" />
       <text className="num-data" fontSize={11} fill="var(--txm)" x={28} y={52}>ROO•</text>

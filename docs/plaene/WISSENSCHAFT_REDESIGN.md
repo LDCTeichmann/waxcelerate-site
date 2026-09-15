@@ -660,6 +660,57 @@ vorgerendert und trägt eigenes Schema.
 
 ---
 
+## 7a. Was am 15.09.2026 bereits umgesetzt wurde
+
+Stufe 0, nur die Punkte ohne Entscheidungsbedarf:
+
+- Die 50-MPa-Schwelle und die Zeile „ab 50 MPa trägt kein Flüssigfilm mehr" sind
+  raus. Die Bildunterschrift nennt jetzt den richtigen Mechanismus (die
+  Gleitgeschwindigkeit geht zweimal je Zyklus durch null). Der Panel-Titel heißt
+  nicht mehr „Warum Öl hier aufgibt", sondern „Flächenpressung im Gelenk", also
+  das, was die Figur tatsächlich zeigt. Die Zeile „Hydraulikpresse 30 MPa" ist
+  weg, weil ein Systemdruck in einer Flüssigkeit keine Flächenpressung ist; der
+  Reifen steht jetzt bei rund 0,7 MPa statt 0,25, also bei Rennradniveau.
+  Die Öl-Pointe darunter sagt nicht mehr „der Film wird herausgedrückt",
+  sondern dass er ohne Geschwindigkeit gar nicht erst entsteht.
+- `waxVsOil.watts.inputW` ist von `[300, 400]` auf `250` geändert, mit Begründung
+  im Code. Betroffen waren vier Verwender: Startseite, Wissenschaftsseite,
+  vorgerenderter Rumpf und `llms.txt`. Der Rumpf hätte nach der Umstellung
+  „undefined–undefined W" ausgeliefert, das ist mitgefixt.
+- „Antriebsverlust" heißt an diesen Stellen jetzt „Reibungsverlust in der Kette",
+  weil die zitierten Tests die Kette allein messen.
+- Die Hero-Fußnote schreibt nur noch die Wattzahlen Zero Friction Cycling zu,
+  nicht mehr auch die µ-Werte.
+- „Gemessen, nicht behauptet." heißt jetzt „Was unabhängig gemessen wurde.",
+  passend zum Absatz direkt darunter. Dieselbe Korrektur in der Meta-Description
+  des vorgerenderten Rumpfs.
+- „gemessen in Zone 01" ist gestrichen.
+- Die Quellenzeile trennt Friction Facts und Zero Friction Cycling wieder.
+  Jahr und URL stehen weiterhin aus.
+- Die 10-nm-Lamelle ist an allen sechs Stellen (DE und EN) auf 4 bis 5 nm
+  korrigiert, mit der Herleitung im Tiefentext.
+- MoO₃ ist nicht mehr „hart und abrasiv, Mohshärte ~5,5", sondern erhöht die
+  Scherfestigkeit der Gleitfläche. Das ist der belegte Mechanismus. Betrifft
+  auch die Bildunterschrift in `diagrams.tsx`.
+- Im vorgerenderten Rumpf stand noch „jede Gegenüberstellung bei identischer
+  Vergrößerung", eine Methodikbehauptung, die 09/2026 aus der hydrierten Seite
+  entfernt worden war, weil sie für diese Bilder nicht zutrifft. Jetzt auch dort weg.
+
+Geprüft mit `npx tsc -b --force` und `npm run build`, Rumpf und `llms.txt`
+gegengelesen.
+
+### Direkt daraus entstanden: eine neue Inkonsistenz
+
+`data.ts` sagt jetzt 250 W. Vier Stellen in `articles.ts` und eine in `i18n.ts`
+nennen weiterhin **300 bis 400 W**, und zwar als „**unsere Laborreferenz**".
+Das ist eine andere und größere Frage als die Eingangsleistung: haben wir eine
+eigene Laborreferenz, die wir so nennen dürfen? Der Skill kennt keine. Solange
+das offen ist, wurde die Blog- und FAQ-Copy bewusst nicht mitgeändert, sonst
+würden in einer Session zwei verschiedene Behauptungen gleichzeitig verschoben.
+Gehört als Nächstes geklärt, siehe Abschnitt 8.
+
+---
+
 ## 8. Was nur Luca entscheiden kann
 
 1. **Die µ-Werte.** Bleiben sie mit Umgebungsangabe im MoS₂-Kapitel, oder
@@ -675,3 +726,6 @@ vorgerendert und trägt eigenes Schema.
    `PROJECT.md`. Es kostet einen Nachmittag und zwei Ketten.
 6. **Das Temperaturfenster.** Gibt es eine Grundlage für −8 / +5 / 35 / 45, oder
    wird die Skala durch eine Aussage ohne Achse ersetzt?
+7. **„Unsere Laborreferenz".** Vier Stellen im Blog und eine in der FAQ nennen
+   300 bis 400 W als unsere eigene Laborreferenz. Der Skill kennt keine eigene
+   Messung. Streichen, umformulieren, oder gibt es sie wirklich?
