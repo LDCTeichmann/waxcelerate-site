@@ -26,9 +26,9 @@ export function NumbersStrip() {
   }, [visible]);
 
   return (
-    <section aria-labelledby="zahlen-titel" className="mb-24">
+    <section aria-labelledby="zahlen-titel" className="mb-20">
       <div className="max-w-xl mb-8">
-        <p className="font-mono text-small uppercase tracking-[0.2em] mb-3" style={{ color: 'var(--accent)' }}>
+        <p className="eyebrow mb-3" style={{ color: 'var(--accent)' }}>
           Die Zahlen
         </p>
         <h2 id="zahlen-titel" className="font-display text-[28px] sm:text-[34px] font-bold text-wx-tx1 leading-[1.1]">
@@ -44,7 +44,7 @@ export function NumbersStrip() {
           <Link
             key={n.value}
             to={n.to}
-            className="group flex flex-col p-6 sm:p-7 transition-colors hover:bg-[color:var(--sf2)]"
+            className="group flex flex-col p-6 transition-colors hover:bg-[color:var(--sf2)]"
             style={{
               background: 'var(--sf)',
               opacity: visible ? 1 : 0,
@@ -53,7 +53,7 @@ export function NumbersStrip() {
               transitionDelay: visible ? `${i * 110}ms, ${i * 110}ms, 0ms` : '0ms',
             }}
           >
-            <span className="font-mono text-wx-tx1 leading-none mb-3" style={{ fontSize: 'clamp(2.1rem, 4vw, 2.75rem)' }}>
+            <span className="font-mono text-wx-tx1 leading-none mb-3" style={{ fontSize: 'clamp(1.75rem, 3vw, 2.25rem)' }}>
               {n.value}
             </span>
             <span className="font-mono text-small uppercase tracking-[0.16em] mb-3" style={{ color: 'var(--accent)' }}>

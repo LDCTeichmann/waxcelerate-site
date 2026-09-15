@@ -1658,9 +1658,12 @@ export const author = {
   avatar: '/images/luca.jpg',
 };
 
+/** Kopf der Übersicht: hell, echt, wörtlich die Werkstatt. Bis 09/2026 die
+ *  dunkle Kettentextur (hero-chain-texture.jpg) unter einem Scrim. */
 export const blogHero = {
-  src: '/images/hero-chain-texture.jpg',
-  alt: 'Fahrradketten in Makroaufnahme',
+  src: '/images/blog/wax-bath-hanging-1600.webp',
+  srcSmall: '/images/blog/wax-bath-hanging-800.webp',
+  alt: 'Fahrradkette hängt über dem Wachstopf, dahinter die Hügel bei Stuttgart',
 };
 
 /**
