@@ -32,7 +32,7 @@ export interface ChainCardProps {
 // Originalpfad ohne <picture>. Das ist keine Stufe-1-Entscheidung, sondern
 // eine Bildluecke, die Luca auffallen wird: sechs von acht Kettenfotos
 // bekommen die AVIF-Pipeline nicht, weil es die Dateien dafuer noch nicht gibt.
-const hasLocalChainCard = (src: string) => /\/chains\/(?:hg701|ybn11)\.webp$/.test(src);
+const hasLocalChainCard = (src: string) => /\/chains\/[a-z0-9]+\.webp$/.test(src);
 const chainCardWebp = (src: string) => hasLocalChainCard(src) ? src.replace(/\.webp$/, '-card.webp') : src;
 const chainCardAvif = (src: string) => hasLocalChainCard(src) ? src.replace(/\.webp$/, '-card.avif') : null;
 

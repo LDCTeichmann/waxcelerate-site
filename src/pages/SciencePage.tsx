@@ -93,10 +93,14 @@ function WearDiagramFigure({ de }: { de: boolean }) {
           background at all. */}
       <div className="relative">
         <picture>
-          <source srcSet="/images/science/cassette-wear-diagram.webp" type="image/webp" />
+          <source type="image/avif" sizes="(min-width: 1024px) 560px, 100vw"
+            srcSet="/images/science/cassette-wear-diagram-800.avif 800w, /images/science/cassette-wear-diagram.avif 1254w" />
+          <source type="image/webp" sizes="(min-width: 1024px) 560px, 100vw"
+            srcSet="/images/science/cassette-wear-diagram-800.webp 800w, /images/science/cassette-wear-diagram.webp 1254w" />
           <img
             src="/images/science/cassette-wear-diagram.png"
             alt={de ? 'Shimano Ultegra Kassette' : 'Shimano Ultegra cassette'}
+            width={1254} height={1254}
             className="w-full h-auto"
           />
         </picture>

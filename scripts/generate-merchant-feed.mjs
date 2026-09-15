@@ -64,11 +64,9 @@ const GOOGLE_CATEGORY = {
 // behaupten, es gebe gar keine Kennung. Korrektur gegenueber dem Plan,
 // nicht der Plan selbst umgesetzt.
 //
-// BEWUSST NICHT ergaenzt: lokale Kopien der 8 Ketten-Hotlink-Bilder
-// (i.ebayimg.com). Das braeuchte den Download fremder Bilddateien aus
-// einem eBay-Konto, das nicht meins ist — eine Aktion, die laut den
-// Sicherheitsregeln dieser Session explizite Rueckfrage braucht, nicht
-// stillschweigend im selben Schritt wie die reinen Datenaenderungen unten.
+// Seit 15.09.2026 liegen alle Kettenfotos lokal (Luca hat das Selbsthosten
+// seiner eBay-Angebotsfotos freigegeben), image_link zeigt also ueberall auf
+// waxcelerate.de. imageUrl() behaelt den http-Zweig trotzdem als Absicherung.
 const SHIP_COUNTRY = 'DE';
 // K8 (Produktkarten-Plan): <link> zeigt auf die eigene Produktseite, aber
 // solange checkoutEnabled false ist, kauft niemand dort direkt — jeder Kauf

@@ -126,7 +126,7 @@ function srcSetFor(src) {
 // avifSrcSetFor). Deckt sich mit AVIF_JOBS in build-avif-variants.mjs: lokale
 // Produktfotos und die zwei lokal gehosteten Ketten, nicht die eBay-Hotlinks.
 const hasAvif = (src) =>
-  /\/products\/(?:classic\/classic-|pro\/pro-|chains\/(?:hg701|ybn11))/.test(src) && src.endsWith('.webp');
+  /\/products\/(?:classic\/classic-|pro\/pro-|chains\/[a-z0-9]+)/.test(src) && src.endsWith('.webp');
 const toAvif = (src) => src.replace(/\.webp$/, '.avif');
 function avifSrcSetFor(src) {
   if (!hasAvif(src)) return undefined;

@@ -38,6 +38,10 @@ const IMG = resolve(__dirname, '../public/images');
 const AVIF = { quality: 58, effort: 6 };
 
 /** AVIF-Geschwister neben einer bestehenden Datei, gleiche Pixelbreite. */
+// Alle lokal gehosteten Kettenfotos. Seit 15.09.2026 auch die sechs, die vorher
+// als eBay-Hotlink (s-l500) liefen — Quelle: Lucas eigene eBay-Angebotsfotos.
+const CHAINS = ['hg701', 'ybn11', 'force1170', 'm9100', 'm8100', 'm7100', 'nx', 'ybn12'];
+
 const AVIF_JOBS = [
   // Hero — alle drei stehen in index.html als preload mit fetchpriority=high
   // und liegen damit direkt auf dem LCP-Pfad.
@@ -45,6 +49,9 @@ const AVIF_JOBS = [
   // Zweitgroesster Bildposten der Startseite (Ueber-mich-Sektion), seit
   // 09/2026 zusaetzlich lazy — siehe Kommentar in src/sections/about.tsx.
   { src: 'people/luca-stage.webp', out: 'people/luca-stage.avif' },
+  // Kassetten-Diagramm (Wissenschaft + Produktseite), 1254 px mit Alpha — aus
+  // dem PNG, nicht aus dem WebP (gleiche Begruendung wie beim Wachsblock).
+  { src: 'science/cassette-wear-diagram.png', out: 'science/cassette-wear-diagram.avif' },
   // BEWUSST NICHT dabei: hero/chain-bg.webp und hero/chain-weave-mobile.webp.
   // Gemessen bringt AVIF dort nur 6-7 % (46,5 -> 43,6 KB bzw. 43,3 -> 40,3 KB),
   // weil beide WebP bereits gut komprimiert sind. Das waere ein zusaetzlicher
@@ -69,7 +76,7 @@ const AVIF_JOBS = [
     { src: `products/pro/pro-${n}.webp`, out: `products/pro/pro-${n}.avif` },
     { src: `products/pro/pro-${n}-lg.webp`, out: `products/pro/pro-${n}-lg.avif` },
   ]),
-  ...['hg701', 'ybn11'].flatMap(n => [
+  ...CHAINS.flatMap(n => [
     { src: `products/chains/${n}.webp`, out: `products/chains/${n}.avif` },
     { src: `products/chains/${n}-lg.webp`, out: `products/chains/${n}-lg.avif` },
   ]),
@@ -80,12 +87,15 @@ const THUMB_SOURCES = [
     `products/classic/classic-${n}.webp`,
     `products/pro/pro-${n}.webp`,
   ]),
-  'products/chains/hg701.webp',
-  'products/chains/ybn11.webp',
+  ...CHAINS.map(n => `products/chains/${n}.webp`),
 ];
 
 /** Verkleinerte Neuausgaben: Quelle ist viel groesser als die Anzeige. */
 const RESIZE_JOBS = [
+  // Kassetten-Diagramm: 800 px fuer Handy-Slots (srcset in SciencePage.tsx und
+  // FrictionLens.tsx), die 1254-px-Datei bleibt fuer breite Slots und die Zoom-Linse.
+  { src: 'science/cassette-wear-diagram.png', out: 'science/cassette-wear-diagram-800.webp', width: 800, format: 'webp', opts: { quality: 80 } },
+  { src: 'science/cassette-wear-diagram.png', out: 'science/cassette-wear-diagram-800.avif', width: 800, format: 'avif', opts: AVIF },
   // Footer-Logo: angezeigt mit h-10 (40 px), auf Produktseiten h-8 (32 px).
   // 160 px deckt auch ein 3x-Display mit Reserve ab.
   { src: 'logo-dark.png', out: 'logo-dark-160.webp', width: 160, format: 'webp', opts: { quality: 82 } },
@@ -101,7 +111,7 @@ const RESIZE_JOBS = [
   // vollen 1400-px-Dateien (Lighthouse nannte hg701.webp mit 203 KB und
   // ybn11.webp mit 116 KB in genau diesen Kacheln).
   ...['products/classic/classic-4.webp', 'products/pro/pro-3.webp',
-      'products/chains/hg701.webp', 'products/chains/ybn11.webp'].flatMap(src => [
+      ...CHAINS.map(n => `products/chains/${n}.webp`)].flatMap(src => [
     { src, out: src.replace('.webp', '-card.webp'), width: 640, format: 'webp', opts: { quality: 76 } },
     { src, out: src.replace('.webp', '-card.avif'), width: 640, format: 'avif', opts: AVIF },
   ]),

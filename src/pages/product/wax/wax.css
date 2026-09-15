@@ -194,7 +194,7 @@
    dahinter. Kein Innenabstand, damit Lupe (%-Position aufs Bild) und
    Zoom-Ausschnitt exakt auf dieselben Bildkoordinaten zeigen. */
 .wxp-cas-card { position: relative; background: radial-gradient(circle at 48% 50%, rgba(122,160,206,.16), rgba(122,160,206,0) 62%); }
-.wxp-cas-card img { display: block; width: 100%; height: auto; }
+.wxp-cas-card picture, .wxp-cas-card img { display: block; width: 100%; height: auto; }
 .wxp-cas-card .loupe { position: absolute; left: 9%; top: 27%; width: 22%; aspect-ratio: 1; border-radius: 50%; border: 2px solid var(--wxp-ice-hi); box-shadow: 0 0 0 6px rgba(169,196,230,.14); }
 /* Ausschnitt: Hintergrund 320 %, Mittelpunkt der Lupe (20 % / 38 %) in die
    Linsenmitte: pos = (c·s − 0,5) / (s − 1) → 6,4 % / 32,5 %. */
@@ -361,7 +361,7 @@
 .wxp-cmp tbody tr:last-child .win { border-radius: 0 0 14px 14px; border-bottom: 0; }
 .wxp-cmp .mid { color: var(--tx2); font-size: 14.5px; border-bottom: 1px solid var(--sf3); }
 .wxp-cmp .lose { color: var(--txf); font-size: 14px; border-bottom: 1px solid var(--sf3); }
-.wxp-cmp tbody tr:last-child td { border-bottom: 0; }
+.wxp-cmp tbody tr:last-child td, .wxp-cmp tbody tr:last-child th { border-bottom: 0; }
 .wxp-pill { display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; background: var(--wxp-accent); color: #fff; padding: 4px 8px; border-radius: 6px; }
 .wxp-hname { display: block; font-family: 'Fraunces', Georgia, serif; font-size: 22px; color: var(--tx1); margin-top: 8px; font-weight: 800; }
 .wxp-hname.m { color: var(--tx2); font-weight: 700; }

@@ -146,7 +146,14 @@ export function FrictionLens({ de }: { de: boolean }) {
               dieselbe Datei vergroessert auf die markierte Zahnflanke, wie
               die Lupe in der Kettenzeichnung oben. */}
           <div className="wxp-cas-card">
-            <img src="/images/science/cassette-wear-diagram.webp" alt={de ? 'Shimano Ultegra Kassette' : 'Shimano Ultegra cassette'} loading="lazy" decoding="async" />
+            <picture>
+              <source type="image/avif" sizes="(min-width: 900px) 520px, 100vw"
+                srcSet="/images/science/cassette-wear-diagram-800.avif 800w, /images/science/cassette-wear-diagram.avif 1254w" />
+              <img src="/images/science/cassette-wear-diagram.webp" alt={de ? 'Shimano Ultegra Kassette' : 'Shimano Ultegra cassette'}
+                sizes="(min-width: 900px) 520px, 100vw"
+                srcSet="/images/science/cassette-wear-diagram-800.webp 800w, /images/science/cassette-wear-diagram.webp 1254w"
+                width={1254} height={1254} loading="lazy" decoding="async" />
+            </picture>
             <svg className="link" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden>
               <line x1="27" y1="47" x2="66" y2="70" />
             </svg>
