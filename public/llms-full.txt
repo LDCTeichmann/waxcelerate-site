@@ -156,7 +156,7 @@ Kontaktzonen, Reibung, MoS₂ und die sechs Komponenten der Formel, unabhängig 
 
 **Reibungsverlust in der Kette** bei 250 W Tretleistung: Wachs 2–4 W, Kettenöl 6–10 W.
 
-**Kettenlaufzeit:** 2 bis 3× länger als mit Kettenöl. **Kosten:** rund 22% geringere Antriebskosten über 12.000 km (217 € Öl gegen 170 € Wachs, eine Kette, trockene Straße).
+**Kettenlaufzeit:** 2 bis 3× länger als mit Kettenöl. **Kosten:** rund 43% geringere Antriebskosten über 12.000 km (297 € Öl gegen 170 € Wachs, eine Kette, trockene Straße).
 
 **Temperaturfenster:** Classic +5 bis rund 35 °C (enthält PTFE), Pro (MoS₂) −8 bis über 45 °C (PFAS- und PTFE-frei).
 
