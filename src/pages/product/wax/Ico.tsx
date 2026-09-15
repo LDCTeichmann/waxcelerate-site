@@ -20,6 +20,10 @@ const PATHS = {
 
 export type IcoName = keyof typeof PATHS;
 
+// "Was sich fuer dich aendert" (Wachsseite + Startseite), Reihenfolge wie
+// i18n whyWax.points: sauber, Gelenk, Antrieb, Pflege.
+export const CHANGE_ICONS: IcoName[] = ['hand', 'gear', 'shieldPlain', 'calendar'];
+
 export function Ico({ name, className = 'wxp-ico', style }: { name: IcoName; className?: string; style?: React.CSSProperties }) {
   return (
     <svg className={className} style={style} viewBox="0 0 24 24" aria-hidden="true">
