@@ -118,7 +118,8 @@ export const articleAliases: Record<string, string[]> = {
   'wachs-haelt-nicht-haeufige-fehler': [
     'wachs haelt nicht', 'wachs blaettert ab', 'wachs faellt von der kette',
     'wachs loest sich', 'wachs broeselt', 'schon wieder trocken',
-    'haelt nur 50 km', 'kette quietscht wieder', 'quietschen nach kurzer zeit',
+    'haelt nur 50 km', 'kette quietscht wieder', 'kette quietscht', 'quietscht die kette',
+    'warum quietscht meine kette', 'quietschen nach kurzer zeit',
     'kette knarzt', 'kette sirrt', 'geraeusche nach dem wachsen',
     'was habe ich falsch gemacht', 'klappt nicht mit dem wachs',
     'funktioniert bei mir nicht', 'wachs will nicht haften',

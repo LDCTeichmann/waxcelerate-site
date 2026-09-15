@@ -60,7 +60,7 @@ function AnswerCard({ answer, id, active, query }: { answer: SearchAnswer; id: s
       </h2>
       <p className="text-[16px] leading-[1.7] text-wx-tx2 mb-5 max-w-3xl">{answer.answer}</p>
       <Link
-        to={`/blog/${answer.slug}`}
+        to={`/blog/${answer.slug}#${answer.anchor}`}
         onClick={() => saveRecentSearch(query)}
         className="inline-flex items-center gap-2 text-[14px] font-semibold"
         style={{ color: 'var(--accent)' }}
@@ -197,7 +197,7 @@ export function SearchResults({
     <section aria-label="Suchergebnisse" className="mb-20">
       <div className="flex flex-wrap items-baseline justify-between gap-2 mb-5">
         <h2 className="font-mono text-[12px] uppercase tracking-[0.2em] text-wx-txf">
-          {noResults ? 'Suche' : `${hits.length} ${hits.length === 1 ? 'Artikel' : 'Artikel'} zu „${query.trim()}“`}
+          {noResults ? 'Suche' : `${hits.length} Artikel zu „${query.trim()}“`}
         </h2>
         {corrected && !noResults && (
           <p className="text-[13px] text-wx-txm">

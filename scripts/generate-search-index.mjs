@@ -37,8 +37,8 @@ const clean = (text) =>
   text.replace(/\[\[([^|\]]+)\|[^\]]+\]\]/g, '$1').replace(/\s+/g, ' ').trim();
 
 /** Artikel in Abschnitte zerlegen: ein Block vor der ersten <h2> (Intro), dann
- *  einer pro <h2>, zuletzt FAQ und HowTo ohne Anker (sie stehen auf der Seite
- *  nicht als eigener Abschnitt). Bewusst inklusive Ueberschriften und FAQ: dort
+ *  einer pro <h2>, zuletzt die FAQ (Anker #haeufige-fragen) und HowTo ohne
+ *  Anker. Bewusst inklusive Ueberschriften und FAQ: dort
  *  steht das Vokabular, mit dem Leser tatsaechlich suchen ("Wachsbad zu kalt",
  *  "weisses Pulver"), waehrend Titel und Beschreibung eher SEO-Sprache sind. */
 function toSections(article) {
@@ -58,7 +58,8 @@ function toSections(article) {
     if (section.alt) current.parts.push(section.alt);
   }
   if (article.faq?.length) {
-    blocks.push({ h: null, id: null, parts: article.faq.flatMap((f) => [f.q, f.a]) });
+    // Seit die FAQ auf der Artikelseite sichtbar ist, hat sie einen eigenen Anker.
+    blocks.push({ h: 'Häufige Fragen', id: 'haeufige-fragen', parts: article.faq.flatMap((f) => [f.q, f.a]) });
   }
   if (article.howTo?.steps?.length) {
     blocks.push({ h: null, id: null, parts: article.howTo.steps.flatMap((s) => [s.name ?? '', s.text ?? '']) });

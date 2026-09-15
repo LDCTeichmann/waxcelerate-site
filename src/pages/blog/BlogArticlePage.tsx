@@ -167,7 +167,14 @@ export function BlogArticlePage() {
     const tryScroll = () => {
       if (cancelled) return;
       const el = document.getElementById(id);
-      if (el) el.scrollIntoView({ block: 'start' });
+      if (el) {
+        // Sprung auf eine FAQ-Frage (Antwortkarte der Suche): gleich aufklappen.
+        if (el instanceof HTMLDetailsElement) el.open = true;
+        el.scrollIntoView({ block: 'start' });
+        // Bilder oberhalb laden oft erst nach dem Sprung nach und schieben das
+        // Ziel wieder nach unten. Ein zweiter Sprung kurz danach faengt das ab.
+        window.setTimeout(() => { if (!cancelled) el.scrollIntoView({ block: 'start' }); }, 450);
+      }
       else if (attempts++ < 20) window.setTimeout(tryScroll, 100);
       else window.scrollTo(0, 0);
     };
@@ -452,6 +459,36 @@ export function BlogArticlePage() {
 
           {/* Sections */}
           {article.sections.map((section, idx) => renderSection(section, idx))}
+
+          {/* Häufige Fragen: standen bisher nur im FAQPage-JSON-LD, nicht auf
+              der Seite. Google verlangt, dass FAQ-Schema-Inhalt sichtbar ist,
+              und die Antwortkarten der Ratgeber-Suche springen genau hierher
+              (#faq-<frage>, siehe engine.ts). */}
+          {article.faq && article.faq.length > 0 && (
+            <section className="mt-14" aria-labelledby="haeufige-fragen">
+              <h2 id="haeufige-fragen" className="font-display text-[24px] font-bold text-wx-tx1 leading-tight mb-5 scroll-mt-28">
+                Häufige Fragen
+              </h2>
+              <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid var(--bd)', background: 'var(--sf)' }}>
+                {article.faq.map((f, i) => (
+                  <details
+                    key={f.q}
+                    id={`faq-${headingId(f.q)}`}
+                    className="group scroll-mt-28"
+                    style={i ? { borderTop: '1px solid var(--bd)' } : undefined}
+                  >
+                    <summary className="flex items-start justify-between gap-4 cursor-pointer list-none px-5 py-4 text-[16px] font-semibold leading-snug text-wx-tx1 [&::-webkit-details-marker]:hidden">
+                      <span>{f.q}</span>
+                      <span className="font-mono text-[20px] leading-none transition-transform group-open:rotate-45" style={{ color: 'var(--accent)' }} aria-hidden>
+                        +
+                      </span>
+                    </summary>
+                    <p className="px-5 pb-5 text-[15px] leading-[1.7] text-wx-tx2">{renderInlineText(f.a)}</p>
+                  </details>
+                ))}
+              </div>
+            </section>
+          )}
 
           {/* Produktkarte statt bloßem Textlink: wer bis hierhin gelesen hat, ist
               die interessierteste Person auf der Seite. Bild, Preis und ein Satz

@@ -36,6 +36,7 @@
 import MiniSearch from 'minisearch';
 import { fold, tokenize, searchTokenize, searchProcess } from './normalize';
 import { expandQuery } from './synonyms';
+import { headingId } from '@/pages/blog/headingId';
 
 export type SearchSection = { h: string | null; id: string | null; t: string };
 
@@ -69,11 +70,12 @@ export type SearchHit = {
   score: number;
   snippet: SnippetPart[] | null;
   /** Abschnitt mit der dichtesten Fundstelle. `id` ist null, wenn die
-   *  Fundstelle im Intro oder in der FAQ liegt (kein eigener Anker). */
+   *  Fundstelle im Intro oder in der HowTo-Liste liegt (kein eigener Anker). */
   section: { id: string | null; heading: string | null } | null;
 };
 
-export type SearchAnswer = { slug: string; question: string; answer: string };
+/** `anchor` zeigt auf die Frage in der sichtbaren FAQ des Artikels. */
+export type SearchAnswer = { slug: string; question: string; answer: string; anchor: string };
 
 export type SearchResult = {
   hits: SearchHit[];
@@ -96,7 +98,7 @@ const WEIGHT_EXPANDED = 0.3;
 /** Treffer unter diesem Anteil des Spitzenreiters fliegen raus. Ohne das
  *  haengt an jeder Anfrage ein Schwanz aus Artikeln, die ein einziges
  *  Allerweltswort teilen — das laesst die Suche schlechter wirken, als sie ist. */
-const RELATIVE_CUTOFF = 0.12;
+const RELATIVE_CUTOFF = 0.2;
 
 /** Ab diesem Anteil der erreichbaren Punkte gilt eine FAQ-Frage als Antwort.
  *  Darunter lieber keine Karte als eine, die an der Frage vorbeigeht: eine
@@ -324,6 +326,9 @@ function bestSection(engine: SearchEngine, slug: string, queryTokens: string[], 
     // sonst fast jede Anfrage, obwohl der Sprung dorthin nur an den
     // Artikelanfang fuehrt.
     if (!section.id) score *= 0.8;
+    // Die FAQ hat seit ihrer Sichtbarkeit einen Anker, bleibt aber leicht
+    // hinter echten Abschnitten: dort steht die Antwort ausfuehrlicher.
+    else if (section.id === 'haeufige-fragen') score *= 0.85;
     if (score > bestScore) { best = section; bestScore = score; }
   }
   return bestScore >= 0.3 ? best : null;
@@ -371,7 +376,7 @@ function findAnswer(engine: SearchEngine, rawQuery: string, hits: SearchHit[], q
       const relative = (score / reachable) * (rank === 0 ? 1.15 : 1);
       if (relative > bestScore) {
         bestScore = relative;
-        best = { slug: hit.slug, question: f.q, answer: f.a };
+        best = { slug: hit.slug, question: f.q, answer: f.a, anchor: `faq-${headingId(f.q)}` };
       }
     }
   });
@@ -471,7 +476,7 @@ export function search(engine: SearchEngine, rawQuery: string, limit = 24): Sear
   if (queryTokens.length === 0 && expanded.length === 0) return empty;
 
   const total = rank(engine, query, queryTokens, expanded);
-  if (total.size === 0) return { ...empty, suggestion: queryTokens.length ? suggest(engine, query) : null };
+  if (total.size === 0) return { ...empty, corrected, suggestion: queryTokens.length ? suggest(engine, query) : null };
 
   const ranked = [...total.entries()].sort((a, b) => b[1] - a[1]);
   const top = ranked[0][1];

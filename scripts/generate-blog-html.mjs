@@ -202,7 +202,7 @@ function renderArticle(a) {
   ${a.linksToCalculator ? `<p><a href="/rechner/intervall">Willst du dein eigenes Intervall wissen? Rechner öffnen →</a></p>` : ''}
   ${a.scienceLink ? `<p><a href="/wissenschaft${a.scienceLink.anchor ? `#${a.scienceLink.anchor}` : ''}">${esc(a.scienceLink.label)}</a></p>` : ''}
   ${a.sections.map(renderSection).join('\n  ')}
-  ${a.faq ? `<section><h2>Häufige Fragen</h2>${a.faq.map(f => `<h3>${esc(f.q)}</h3><p>${esc(f.a)}</p>`).join('')}</section>` : ''}
+  ${a.faq ? `<section><h2 id="haeufige-fragen">Häufige Fragen</h2>${a.faq.map(f => `<h3 id="faq-${headingId(f.q)}">${esc(f.q)}</h3><p>${esc(f.a)}</p>`).join('')}</section>` : ''}
   <p><a href="/produkt/${a.ctaSlug}">${esc(a.ctaText)}</a></p>
   ${a.secondaryCtaSlug ? (() => {
     const sp = products.find(p => p.id === a.secondaryCtaSlug);

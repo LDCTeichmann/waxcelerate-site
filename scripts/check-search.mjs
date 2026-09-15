@@ -98,6 +98,7 @@ const CASES = [
   ['kettenverschleiss messen', 'kettenverschleiss-messen'],
 
   // Tippfehler: so, wie es auf dem Handy wirklich ankommt
+  ['quietscht die kette', 'wachs-haelt-nicht-haeufige-fehler'],
   ['quitscht die kette', 'wachs-haelt-nicht-haeufige-fehler'],
   ['kete entfetten', 'fahrradkette-entfetten'],
   ['reisskocher', 'topf-zum-kette-wachsen'],

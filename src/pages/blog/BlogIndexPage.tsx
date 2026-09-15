@@ -170,7 +170,7 @@ export function BlogIndexPage() {
   // dass dafuer ein Effekt den Zustand zuruecksetzen muss.
   const [nav, setNav] = useState({ query: '', index: -1 });
   const activeIndex = nav.query === query ? nav.index : -1;
-  const urls = [...(answer ? [`/blog/${answer.slug}`] : []), ...hits.map(hitUrl)];
+  const urls = [...(answer ? [`/blog/${answer.slug}#${answer.anchor}`] : []), ...hits.map(hitUrl)];
 
   const onSearchKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
