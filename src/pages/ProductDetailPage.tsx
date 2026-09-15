@@ -27,7 +27,7 @@ import { getEstimatedDeliveryLong, removeStaticJsonLd, removeStaticHeadMeta } fr
 import { backTarget } from '@/pages/ketten/content';
 import { reviewsForProduct, type Review } from '@/sections/reviews';
 import { Stars } from '@/components/Stars';
-import { CompareModal } from '@/sections/products';
+import { CompareModal } from '@/sections/CompareModal';
 import { CompareTable } from '@/components/CompareTable';
 import { WaxProductPage } from '@/pages/product/wax/WaxProductPage';
 
@@ -88,7 +88,7 @@ const srcSetFor = (src: string) => {
  *  Produktfotos (classic-N, pro-N je Basis + -lg) und die zwei lokal
  *  gehosteten Ketten (hg701, ybn11). Nicht die eBay-Hotlinks. */
 const hasAvif = (src: string) =>
-  /\/products\/(?:classic\/classic-|pro\/pro-|chains\/(?:hg701|ybn11))/.test(src) && src.endsWith('.webp');
+  /\/products\/(?:classic\/classic-|pro\/pro-|chains\/[a-z0-9]+)/.test(src) && src.endsWith('.webp');
 
 const toAvif = (src: string) => src.replace(/\.webp$/, '.avif');
 

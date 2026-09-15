@@ -3,12 +3,14 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import { Navigation } from '@/sections/navigation';
 import { Hero as HeroEditorial } from '@/sections/hero-light';
 import { Products } from '@/sections/products';
-import { WhyWax } from '@/sections/why-wax';
 import { TrustStrip } from '@/sections/TrustStrip';
 import { Footer } from '@/sections/footer';
 
 // Below-the-fold homepage sections — split into their own chunks that stream in
 // parallel after first paint. Keeps the initial bundle light; nothing removed.
+// WhyWax (Vergleich, Wissenschafts-Teaser, Slider) liegt unter Products, also
+// nie im ersten Bildschirm — raus aus dem Startchunk (Mobile-Audit 15.09.2026).
+const WhyWax  = lazy(() => import('@/sections/why-wax').then(m => ({ default: m.WhyWax })));
 const Reviews = lazy(() => import('@/sections/reviews').then(m => ({ default: m.Reviews })));
 const Origin  = lazy(() => import('@/sections/Origin').then(m => ({ default: m.Origin })));
 const About   = lazy(() => import('@/sections/about').then(m => ({ default: m.About })));
@@ -46,7 +48,8 @@ const KettenPage = lazy(() => import('@/pages/KettenPage').then(m => ({ default:
 import { LanguageProvider } from '@/hooks/useLanguage';
 import { ThemeProvider } from '@/hooks/useTheme';
 import { Toaster } from '@/components/ui/sonner';
-import { CartDrawer } from '@/components/CartDrawer';
+// Lazy: rendert nur bei checkoutEnabled, das bis zum Stripe-Start aus ist.
+const CartDrawer = lazy(() => import('@/components/CartDrawer').then(m => ({ default: m.CartDrawer })));
 import { useCartStore } from '@/store/cart';
 import { checkoutEnabled } from '@/lib/data';
 import { ScrollToTop } from '@/components/ScrollToTop';
@@ -88,7 +91,7 @@ function AppContent() {
       <RouteScrollReset />
       <ScrollToTop />
       <MobileStickyCTA />
-      {checkoutEnabled && <CartDrawer />}
+      {checkoutEnabled && <Suspense fallback={null}><CartDrawer /></Suspense>}
       <Routes>
         <Route path="/produkt/:id" element={<Suspense fallback={<PageLoader />}><ProductDetailPage /></Suspense>} />
         <Route path="/produkt/:id/stage" element={<Suspense fallback={<PageLoader />}><ProductStagePage /></Suspense>} />
@@ -141,8 +144,8 @@ function AppContent() {
                   PendingAnchorScroll haengen daran. */}
               <TrustStrip />
               <Products />
-              <WhyWax />
               <Suspense fallback={null}>
+                <WhyWax />
                 <Reviews />
                 <Origin />
                 <Tools />

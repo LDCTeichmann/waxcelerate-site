@@ -6,7 +6,9 @@ import { useLocation, useNavigate } from 'react-router-dom';
 // stashes the target in router state — this component (rendered on the
 // homepage only) picks that up and scrolls once the target section exists.
 // Retries because below-the-fold sections are lazy-loaded and may not be in
-// the DOM yet on the first render after navigation.
+// the DOM yet on the first render after navigation. Window is 10 s (was 3 s):
+// since WhyWax is lazy too, #warum-wachs arrived after 3,3 s on a cold dev load
+// and the jump silently did nothing (Mobile-Audit 15.09.2026).
 export function PendingAnchorScroll() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -23,7 +25,7 @@ export function PendingAnchorScroll() {
       if (el) {
         el.scrollIntoView({ behavior: 'smooth' });
         navigate(location.pathname, { replace: true, state: {} });
-      } else if (attempts < 30) {
+      } else if (attempts < 100) {
         attempts += 1;
         setTimeout(tryScroll, 100);
       }
