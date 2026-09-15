@@ -50,7 +50,7 @@ function ClimateBlock({ city, de }: { city: RewaxCity; de: boolean }) {
               <dt className="sr-only">{s.l}</dt>
               <dd>
                 <p className="font-display font-bold leading-none" style={{ fontSize: '1.5rem', color: 'var(--tx1)' }}>{s.v}</p>
-                <p className="text-[11.5px] mt-1.5" style={{ color: 'var(--txm)' }}>{s.l}</p>
+                <p className="text-[12px] sm:text-[11.5px] mt-1.5" style={{ color: 'var(--txm)' }}>{s.l}</p>
               </dd>
             </div>
           ))}
@@ -75,7 +75,7 @@ function ClimateBlock({ city, de }: { city: RewaxCity; de: boolean }) {
                 : <>The <a href="/kette-wachsen-lassen#geschenk" className="font-semibold underline underline-offset-2" style={{ color: 'var(--accent)' }}>{card.count}-visit card</a> fits: {eur(card.price / card.count, de)} instead of {eur(card.list / card.count, de)} each time.</>)
               : (de ? 'Da reicht die einzelne Auffrischung.' : 'A single rewax each time is enough.')}
           </p>
-          <p className="text-[11px] mt-3" style={{ color: 'var(--txff)' }}>
+          <p className="text-[12px] sm:text-[11px] mt-3" style={{ color: 'var(--txff)' }}>
             {de
               ? `Quelle: Deutscher Wetterdienst, Station ${city.dwdStation}, Mittel 1991–2020 (Niederschlag und Tage ≥ 1 mm). Annahme: gleich viel Fahren bei jedem Wetter, Straße.`
               : `Source: Deutscher Wetterdienst, station ${city.dwdStation}, 1991–2020 means (precipitation and days ≥ 1 mm). Assumes riding equally in all weather, on road.`}

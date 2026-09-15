@@ -182,7 +182,7 @@ export function ProcessWatch({ de, product }: { de: boolean; product: Product })
             <img src="/images/blog/wax-blue-wire-chain-1600.webp" alt={de ? 'Wachsblock, Kette und Draht auf Schiefer' : 'Wax block, chain and wire on slate'} loading="lazy" decoding="async" className="photo-neutral" />
             {hotspots.map((h, i) => (
               <button key={i} type="button" className="wxp-hot" style={{ left: `${h.x}%`, top: `${h.y}%` }}
-                aria-pressed={hot === i} aria-label={h.l}
+                aria-pressed={hot === i} aria-label={`${i + 1} · ${h.l}`}
                 onMouseEnter={() => setHot(i)} onFocus={() => setHot(i)} onClick={() => setHot(i)}>{i + 1}</button>
             ))}
             {hot !== null && <span className="wxp-hotlabel" style={{ left: `${hotspots[hot].x}%`, top: `${hotspots[hot].y}%` }}>{hotspots[hot].l}</span>}

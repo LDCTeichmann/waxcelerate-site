@@ -32,7 +32,7 @@ export function CalcTrace({ rows }: { rows: TraceRow[] }) {
               {r.label}
             </span>
             {r.detail && (
-              <span className="block text-[11.5px] leading-snug tabular-nums" style={{ color: 'var(--txf)' }}>{r.detail}</span>
+              <span className="block text-[12px] sm:text-[11.5px] leading-snug tabular-nums" style={{ color: 'var(--txf)' }}>{r.detail}</span>
             )}
           </span>
           <span

@@ -202,13 +202,14 @@ export function StarterSetPage() {
         </div>
       </section>
 
+      </main>
+
       <footer className={`${W} py-12 text-center`} style={{ borderTop: '1px solid var(--bd2)' }}>
         <Link to="/" className="inline-flex items-center gap-2 text-[13px] text-wx-txm transition-opacity hover:opacity-70">
           <ArrowLeft className="h-4 w-4" />
           {de ? 'Zurück zur Startseite' : 'Back to home'}
         </Link>
       </footer>
-      </main>
 
       <Footer />
     </div>

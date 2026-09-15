@@ -241,7 +241,7 @@ export function Guides() {
                       style={{ flexGrow: Math.max(s.minutes, 2.5), background: s.active ? 'var(--accent)' : 'rgba(var(--accent-rgb),0.2)' }} />
                   ))}
                 </div>
-                <div className="flex items-center gap-3 mt-2 text-[11px]" style={{ color: 'var(--txm)' }} aria-hidden>
+                <div className="flex items-center gap-3 mt-2 text-[12px] sm:text-[11px]" style={{ color: 'var(--txm)' }} aria-hidden>
                   <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full" style={{ background: 'var(--accent)' }} />{g.glanceHands}</span>
                   <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full" style={{ background: 'rgba(var(--accent-rgb),0.3)' }} />{g.glanceWait}</span>
                 </div>

@@ -66,7 +66,7 @@ export function FAQ() {
               onChange={e => setQuery(e.target.value)}
               aria-label={t.faq.searchPlaceholder}
               placeholder={t.faq.searchPlaceholder}
-              className="w-full px-4 py-2.5 rounded-xl text-base sm:text-[14px] outline-none transition-colors"
+              className="w-full px-4 py-2.5 rounded-xl text-[16px] sm:text-[14px] outline-none transition-colors"
               style={{
                 background: 'var(--sf)',
                 border: '1px solid var(--bd)',

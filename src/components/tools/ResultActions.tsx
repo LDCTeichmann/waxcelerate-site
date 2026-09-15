@@ -167,7 +167,7 @@ export function ResultActions({ event, shareUrl: url, compact, repeatLabel }: {
               </a>
             </div>
             {seriesToggle}
-            {repeat && <span className="text-[11px]" style={{ color: 'var(--txf)' }}>{s.calOutlookNote}</span>}
+            {repeat && <span className="text-[12px] sm:text-[11px]" style={{ color: 'var(--txf)' }}>{s.calOutlookNote}</span>}
           </InfoPopover>
         </div>
       )}

@@ -93,11 +93,11 @@ export function GiftSection({ de }: { de: boolean }) {
                 <Gift className="h-4 w-4" /> {de ? 'Als Geschenk anfragen' : 'Request as a gift'}
               </a>
               <a href={wa(false)} target="_blank" rel="noopener noreferrer" onClick={() => trackRewaxInterest()}
-                className="text-[13px] font-semibold underline underline-offset-4" style={{ color: 'var(--txm)' }}>
+                className="py-2 -my-2 text-[13px] font-semibold underline underline-offset-4" style={{ color: 'var(--txm)' }}>
                 {de ? 'Lieber für mich selbst' : 'Rather for myself'}
               </a>
             </div>
-            <p className="text-[11.5px] mt-3" style={{ color: 'var(--txff)' }}>
+            <p className="text-[12px] sm:text-[11.5px] mt-3" style={{ color: 'var(--txff)' }}>
               {de ? 'Gilt für die Auffrischung einer gewachsten Kette.' : 'Valid for rewaxing an already-waxed chain.'}
             </p>
           </div>

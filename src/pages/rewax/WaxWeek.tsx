@@ -67,7 +67,7 @@ export function WaxWeekView({ data, name, de, compact }: { data: WaxWeather; nam
         <p className="text-[13px] font-semibold" style={{ color: 'var(--tx1)' }}>
           {de ? `Wachs-Woche ${name}` : `Wax week ${name}`}
         </p>
-        <p className="text-[11px]" style={{ color: 'var(--txf)' }}>{de ? 'nächste 7 Tage' : 'next 7 days'}</p>
+        <p className="text-[12px] sm:text-[11px]" style={{ color: 'var(--txf)' }}>{de ? 'nächste 7 Tage' : 'next 7 days'}</p>
       </div>
 
       {/* Streifen */}
@@ -77,12 +77,12 @@ export function WaxWeekView({ data, name, de, compact }: { data: WaxWeather; nam
           return (
             <li key={d.date} className="flex flex-col items-center rounded-xl py-2"
               style={{ background: d.wet ? 'var(--accent-wash)' : 'transparent' }}>
-              <span className="text-[11px] font-semibold" style={{ color: i === 0 ? 'var(--accent)' : 'var(--txm)' }}>
+              <span className="text-[12px] sm:text-[11px] font-semibold" style={{ color: i === 0 ? 'var(--accent)' : 'var(--txm)' }}>
                 {i === 0 ? (de ? 'Heute' : 'Today') : wd(d.date)}
               </span>
               <Icon className="h-5 w-5 my-1.5" style={{ color: d.wet ? 'var(--accent)' : 'var(--tx2)' }} aria-hidden />
               <span className="num text-[12px] font-semibold" style={{ color: 'var(--tx1)' }}>{d.tMax ?? '–'}°</span>
-              <span className="num text-[10.5px]" style={{ color: 'var(--txf)' }}>{d.tMin ?? '–'}°</span>
+              <span className="num text-[12px] sm:text-[10.5px]" style={{ color: 'var(--txf)' }}>{d.tMin ?? '–'}°</span>
               {!compact && (
                 <span className="mt-2 w-2 rounded-full self-center" aria-hidden
                   style={{ height: 28, background: 'var(--bd2)', position: 'relative', overflow: 'hidden' }}>
@@ -126,12 +126,12 @@ export function WaxWeekView({ data, name, de, compact }: { data: WaxWeather; nam
           {data.pastWetDays >= 2 && (de ? ' Klingt die Kette schon trocken?' : ' Does the chain sound dry already?')}
         </p>
         {data.pastWetDays >= 2 && (
-          <a href="#rewax-form" className="inline-flex items-center gap-1 text-[12.5px] font-semibold" style={{ color: 'var(--accent)' }}>
+          <a href="#rewax-form" className="inline-flex items-center gap-1 py-2 -my-2 text-[12.5px] font-semibold" style={{ color: 'var(--accent)' }}>
             {de ? 'Jetzt anmelden' : 'Book now'} <ArrowRight className="h-3.5 w-3.5" />
           </a>
         )}
       </div>
-      <p className="text-[10.5px] mt-3" style={{ color: 'var(--txff)' }}>
+      <p className="text-[12px] sm:text-[10.5px] mt-3" style={{ color: 'var(--txff)' }}>
         {de ? 'Wetterdaten: Deutscher Wetterdienst (DWD), über Bright Sky. Stündlich aktualisiert.' : 'Weather data: Deutscher Wetterdienst (DWD), via Bright Sky. Updated hourly.'}
       </p>
     </div>

@@ -608,11 +608,11 @@ export function Hero() {
             <div data-hero className="flex items-center justify-between mt-3">
               <span className="flex items-center gap-2">
                 <Stars rating={5} color="rgba(255,255,255,0.95)" />
-                <span className="text-[11px] tabular-nums" style={{ color: 'rgba(255,255,255,0.75)', textShadow: HERO_TEXT_SHADOW }}>
+                <span className="text-[12px] sm:text-[11px] tabular-nums" style={{ color: 'rgba(255,255,255,0.75)', textShadow: HERO_TEXT_SHADOW }}>
                   {trustStats.reviews} {de ? 'Bewertungen' : 'reviews'}
                 </span>
               </span>
-              <span className="text-[11px] font-semibold tabular-nums" style={{ color: 'rgba(255,255,255,0.92)', textShadow: HERO_TEXT_SHADOW }}>
+              <span className="text-[12px] sm:text-[11px] font-semibold tabular-nums" style={{ color: 'rgba(255,255,255,0.92)', textShadow: HERO_TEXT_SHADOW }}>
                 {t.hero.blockPrice}
               </span>
             </div>

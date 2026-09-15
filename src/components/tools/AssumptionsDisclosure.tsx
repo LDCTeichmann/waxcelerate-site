@@ -52,8 +52,8 @@ export function AssumptionsDisclosure({ breakdown, oilPerYear, waxPerYear }: {
               </p>
               <div className="grid grid-cols-[1fr_auto_auto] gap-x-3 gap-y-1">
                 <span />
-                <span className="text-[11px] text-right font-medium" style={{ color: 'var(--txff)' }}>{t.tools.shared.breakdownOil}</span>
-                <span className="text-[11px] text-right font-medium" style={{ color: 'var(--txff)' }}>{t.tools.shared.breakdownWax}</span>
+                <span className="text-[12px] sm:text-[11px] text-right font-medium" style={{ color: 'var(--txff)' }}>{t.tools.shared.breakdownOil}</span>
+                <span className="text-[12px] sm:text-[11px] text-right font-medium" style={{ color: 'var(--txff)' }}>{t.tools.shared.breakdownWax}</span>
 
                 <span className="text-[12px]" style={{ color: 'var(--txf)' }}>{t.tools.shared.breakdownChain}</span>
                 <span className="text-[12px] text-right tabular-nums" style={{ color: 'var(--tx2)' }}>{breakdown.chain.oil} €</span>
@@ -91,7 +91,7 @@ export function AssumptionsDisclosure({ breakdown, oilPerYear, waxPerYear }: {
               </div>
             ))}
           </dl>
-          <p className="text-[11px] leading-snug pt-1" style={{ color: 'var(--txff)' }}>
+          <p className="text-[12px] sm:text-[11px] leading-snug pt-1" style={{ color: 'var(--txff)' }}>
             {t.tools.shared.assumptionsNote}
           </p>
         </div>

@@ -342,7 +342,7 @@ export function BlogIndexPage() {
             onChange={(e) => setQuery(e.target.value)}
             aria-label="Artikel durchsuchen"
             placeholder='Artikel durchsuchen, z. B. „Winter" oder „Watt"'
-            className="w-full text-base sm:text-[14px] px-4 py-2.5 rounded-full outline-none"
+            className="w-full text-[16px] sm:text-[14px] px-4 py-2.5 rounded-full outline-none"
             style={{ background: 'var(--sf)', border: '1px solid var(--bd)', color: 'var(--tx1)' }}
           />
         </div>

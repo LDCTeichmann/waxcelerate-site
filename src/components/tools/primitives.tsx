@@ -153,7 +153,7 @@ export function NumberInput({ value, onChange, min, max, step, ariaLabel, theme,
         onChange={e => onChange(e.target.value)}
         onFocus={onFocus}
         aria-label={ariaLabel}
-        className={`w-full px-3.5 py-2.5 rounded-xl text-base sm:text-[14px] tabular-nums ${suffix ? 'pr-12' : ''}`}
+        className={`w-full px-3.5 py-2.5 rounded-xl text-[16px] sm:text-[14px] tabular-nums ${suffix ? 'pr-12' : ''}`}
         style={{
           background: 'var(--sf2)', border: '1px solid var(--bd2)', color: 'var(--tx1)',
           colorScheme: theme === 'noir' ? 'dark' : 'light',
@@ -193,7 +193,7 @@ export function ToolCTA({ onClick, href, children }: {
 /** Kleiner Hinweis unter einem Schritt — Warnungen, Einschraenkungen. */
 export function StepNote({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-[11.5px] leading-snug" style={{ color: 'var(--txff)' }}>{children}</p>
+    <p className="text-[12px] sm:text-[11.5px] leading-snug" style={{ color: 'var(--txff)' }}>{children}</p>
   );
 }
 

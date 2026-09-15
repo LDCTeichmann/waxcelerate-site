@@ -161,7 +161,7 @@ function ServiceChooser({ service, onChange, de }: {
               <Icon className="h-3.5 w-3.5 flex-shrink-0" style={{ color: active ? '#fff' : 'var(--accent)' }} aria-hidden />
               <span className="text-[13.5px] font-semibold leading-tight">{de ? titleDe : titleEn}</span>
             </span>
-            <span className="block text-[11.5px] leading-snug mt-1" style={{ opacity: 0.8 }}>{de ? bodyDe : bodyEn}</span>
+            <span className="block text-[12px] sm:text-[11.5px] leading-snug mt-1" style={{ opacity: 0.8 }}>{de ? bodyDe : bodyEn}</span>
             <span className="block text-[12px] font-semibold mt-1" style={{ color: active ? '#fff' : 'var(--accent)' }}>{price}</span>
           </button>
         );
@@ -297,7 +297,7 @@ export function RewaxRequestForm({ de, preselect }: { de: boolean; preselect: Se
             </div>
             <div className="min-w-0 flex-1 text-right">
               <p className="font-display font-bold leading-none" style={{ fontSize: '1.3rem', color: 'var(--tx1)' }}>{eur(total, de)}</p>
-              <p className="num text-[11.5px] mt-1" style={{ color: 'var(--txm)' }}>
+              <p className="num text-[12px] sm:text-[11.5px] mt-1" style={{ color: 'var(--txm)' }}>
                 {quantity > 1 && <>{quantity} × {eur(perChain, de)} + </>}
                 {eur(shipping, de)} {de ? 'Rückversand' : 'return'}
               </p>
@@ -353,7 +353,7 @@ export function RewaxRequestForm({ de, preselect }: { de: boolean; preselect: Se
             </div>
           ) : (
             <button type="button" onClick={() => setMessageOpen(true)}
-              className="inline-flex items-center gap-1 text-[12.5px] font-medium" style={{ color: 'var(--txm)' }}>
+              className="inline-flex items-center gap-1 py-2 -my-2 text-[12.5px] font-medium" style={{ color: 'var(--txm)' }}>
               <Plus className="h-3.5 w-3.5" /> {de ? 'Nachricht hinzufügen' : 'Add a message'}
             </button>
           )}
@@ -367,7 +367,7 @@ export function RewaxRequestForm({ de, preselect }: { de: boolean; preselect: Se
             style={{ background: 'var(--accent)', color: '#fff' }}>
             {status === 'sending' ? (de ? 'Wird gesendet …' : 'Sending …') : (de ? 'Kette anmelden' : 'Book my chain')}
           </button>
-          <p className="text-[11.5px] leading-relaxed text-center" style={{ color: 'var(--txf)' }}>
+          <p className="text-[12px] sm:text-[11.5px] leading-relaxed text-center" style={{ color: 'var(--txf)' }}>
             {de
               ? 'Keine Zahlung jetzt. Versandadresse kommt per E-Mail, meist am selben Werktag.'
               : 'No payment now. The shipping address arrives by email, usually the same working day.'}
@@ -422,7 +422,7 @@ export function PriceMatrix({ de }: { de: boolean }) {
                 <p className="flex items-center gap-1.5 font-semibold text-[12.5px] sm:text-[15px] min-w-0" style={{ color: 'var(--tx1)' }}>
                   <Icon className="hidden sm:block h-3.5 w-3.5 flex-shrink-0" style={{ color: 'var(--accent)' }} aria-hidden />{t}
                 </p>
-                <p className="text-[11.5px] leading-snug mt-0.5" style={{ color: 'var(--txm)' }}>{s}</p>
+                <p className="text-[12px] sm:text-[11.5px] leading-snug mt-0.5" style={{ color: 'var(--txm)' }}>{s}</p>
               </div>
             );
           })}
@@ -491,7 +491,7 @@ export function PriceMatrix({ de }: { de: boolean }) {
         </div>
       </div>
 
-      <p className="text-[11.5px] leading-relaxed mt-3" style={{ color: 'var(--txff)' }}>
+      <p className="text-[12px] sm:text-[11.5px] leading-relaxed mt-3" style={{ color: 'var(--txff)' }}>
         {de
           ? `* Eine Kette im Großbrief, ab zwei Ketten im Maxibrief ${eur(PRICE.shippingBundle, de)} für alle zusammen. Hinversand trägst du. Kleinunternehmer nach § 19 UStG, daher keine Umsatzsteuer ausgewiesen.`
           : `* One chain as a letter, two or more as a large letter for ${eur(PRICE.shippingBundle, de)} in total. You cover shipping to us. Small business under § 19 UStG, so no VAT is shown.`}
@@ -549,7 +549,7 @@ export function RewaxSteps({ de }: { de: boolean }) {
             {legs.map(l => (
               <div key={l.de} style={{ flexGrow: l.grow, flexBasis: 0 }}>
                 <div className="h-1.5 rounded-full" style={{ background: l.strong ? 'var(--accent)' : 'var(--bd)' }} />
-                <p className="text-[11.5px] mt-2" style={{ color: 'var(--txf)' }}>{de ? l.de : l.en}</p>
+                <p className="text-[12px] sm:text-[11.5px] mt-2" style={{ color: 'var(--txf)' }}>{de ? l.de : l.en}</p>
                 <p className="num text-[13px] font-semibold" style={{ color: l.strong ? 'var(--accent)' : 'var(--tx1)' }}>{l.v}</p>
               </div>
             ))}
@@ -632,7 +632,7 @@ function RewaxTrust({ de }: { de: boolean }) {
                 </figcaption>
               </figure>
             ))}
-            <p className="text-[11.5px] leading-relaxed" style={{ color: 'var(--txff)' }}>
+            <p className="text-[12px] sm:text-[11.5px] leading-relaxed" style={{ color: 'var(--txff)' }}>
               {de
                 ? 'Bewertungen aus unserem eBay-Shop, unverändert übernommen. „100 % positiv" heißt: keine negative Bewertung.'
                 : 'Reviews from our eBay shop, quoted verbatim. "100% positive" means: no negative rating.'}
@@ -804,7 +804,7 @@ export function RewaxPage() {
                 </p>
                 <a href={waLink(de, waxedLabel)} target="_blank" rel="noopener noreferrer"
                   onClick={() => trackRewaxInterest()}
-                  className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold" style={{ color: 'var(--tx1)' }}>
+                  className="inline-flex items-center gap-1.5 py-2 -my-2 text-[12.5px] font-semibold" style={{ color: 'var(--tx1)' }}>
                   {de ? 'Lieber per WhatsApp' : 'Prefer WhatsApp'}
                   <ArrowRight className="h-3.5 w-3.5" style={{ color: 'var(--accent)' }} />
                 </a>

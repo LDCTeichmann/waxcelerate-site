@@ -300,7 +300,7 @@ export function KettenPage() {
 
             {/* "Passt dazu" — die Seite endet nicht in einer Sackgasse. */}
             <div>
-              <p className="eyebrow mb-3" style={{ color: 'var(--txf)' }}>
+              <p role="heading" aria-level={2} className="eyebrow mb-3" style={{ color: 'var(--txf)' }}>
                 {t.products.shelf.relatedTitle}
               </p>
               <div className="grid gap-5 sm:grid-cols-3">

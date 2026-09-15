@@ -70,7 +70,7 @@ export function WhichWax({ product, de }: { product: Product; de: boolean }) {
               <tbody>
                 {waxChooserRows.map(r => (
                   <tr key={r.label}>
-                    <td className="rl">{de ? r.label : r.labelEn}</td>
+                    <th scope="row" className="rl">{de ? r.label : r.labelEn}</th>
                     {cols.map(c => <td key={c.key} className={c.here ? 'win' : 'mid'}><Cell c={r[c.key]} de={de} /></td>)}
                     <td className="lose"><Cell c={r.oil} de={de} /></td>
                   </tr>
