@@ -4,56 +4,128 @@
     {
       "name": "flyer",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "7788", "--directory", "/Users/lucateichmann/Desktop"],
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "7788",
+        "--directory",
+        "/Users/lucateichmann/Desktop"
+      ],
       "port": 7788
     },
     {
       "name": "waxcelerate-site",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "--", "--port", "5174"],
+      "runtimeArgs": [
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "5174"
+      ],
       "port": 5174
     },
     {
       "name": "hero-editorial",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "--", "--port", "5176"],
+      "runtimeArgs": [
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "5176"
+      ],
       "port": 5176
     },
     {
       "name": "waxcelerate-site-preview",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "--", "--port", "5188"],
+      "runtimeArgs": [
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "5188"
+      ],
       "port": 5188
     },
     {
       "name": "rewax-review",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "--", "--port", "5199"],
+      "runtimeArgs": [
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "5199"
+      ],
       "port": 5199
     },
     {
       "name": "ketten-nav",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "--", "--port", "5181"],
+      "runtimeArgs": [
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "5181"
+      ],
       "port": 5181
     },
     {
       "name": "rewax-v2",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "/Users/lucateichmann/Claude Playground/waxcelerate-site/.claude/worktrees/rewax-v2", "run", "dev", "--", "--port", "5183"],
+      "runtimeArgs": [
+        "--prefix",
+        "/Users/lucateichmann/Claude Playground/waxcelerate-site/.claude/worktrees/rewax-v2",
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "5183"
+      ],
       "port": 5183
     },
     {
       "name": "rechner-grafiken",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "/Users/lucateichmann/Claude Playground/waxcelerate-site/.claude/worktrees/rechner-deck-v5", "run", "dev", "--", "--port", "5192"],
+      "runtimeArgs": [
+        "--prefix",
+        "/Users/lucateichmann/Claude Playground/waxcelerate-site/.claude/worktrees/rechner-deck-v5",
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "5192"
+      ],
       "port": 5192
     },
     {
       "name": "rechner-optik",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "--", "--port", "5177"],
+      "runtimeArgs": [
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "5177"
+      ],
       "port": 5177
+    },
+    {
+      "name": "ratgeber-hub",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "/Users/lucateichmann/Claude Playground/waxcelerate-site/.claude/worktrees/ratgeber-hub-v2",
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "5191"
+      ],
+      "port": 5191
     }
   ]
 }

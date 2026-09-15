@@ -37,6 +37,10 @@ const HALO: React.CSSProperties = { paintOrder: 'stroke', stroke: 'var(--sketch-
 const prefersReduced = () =>
   typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+/** Die eine Easing-Kurve der Grafik-Grammatik, auch fuer rAF-Werte, die CSS
+ * nicht interpolieren kann (Zahlen, `d`-Pfade). Deckungsgleich mit `EASE`. */
+const easeOutCubic = (k: number) => 1 - Math.pow(1 - k, 3);
+
 // ── Kettenlaenge ────────────────────────────────────────────────────────────
 
 /** Teilkreisradius eines Zahnrads in mm: Umfang = Zaehne × 12,7 mm Teilung. */
@@ -94,7 +98,7 @@ function useTweenList(target: number[], ms = 320): number[] {
     let raf = 0;
     const step = (now: number) => {
       const k = dur ? Math.min(1, (now - t0) / dur) : 1;
-      const e = 1 - Math.pow(1 - k, 3);
+      const e = easeOutCubic(k);
       const next = to.map((b, i) => (from[i] ?? b) + (b - (from[i] ?? b)) * e);
       cur.current = next;
       setV(next);
@@ -107,6 +111,25 @@ function useTweenList(target: number[], ms = 320): number[] {
 }
 const useTween = (target: number, ms?: number) => useTweenList([target], ms)[0];
 
+/**
+ * Eine Fusszeile, die bei zu wenig Platz an einer Wortgrenze nahe der Mitte
+ * umbricht, statt am Rahmen abgeschnitten zu werden (wie WearScale/
+ * RewaxTimeline es fuer ihre Etiketten schon tun — hier nur ein Text statt
+ * mehrerer, deshalb Umbruch statt Wegfallen). `ch` ist die geschaetzte
+ * Zeichenbreite bei 12 px (6.6, wie ueberall in dieser Datei).
+ */
+function wrapCaption(text: string, maxW: number, ch = 6.6): string[] {
+  if (text.length * ch <= maxW) return [text];
+  const mid = text.length / 2;
+  let best = -1, bestDist = Infinity;
+  for (let i = 0; i < text.length; i++) {
+    if (text[i] !== ' ') continue;
+    const d = Math.abs(i - mid);
+    if (d < bestDist) { bestDist = d; best = i; }
+  }
+  return best < 0 ? [text] : [text.slice(0, best), text.slice(best + 1)];
+}
+
 /** Eindeutige ids je SVG — mehrere Karten stehen gleichzeitig im DOM. */
 function useSvgId() {
   const base = useId().replace(/[^a-zA-Z0-9_-]/g, '');
@@ -116,9 +139,11 @@ type SvgId = ReturnType<typeof useSvgId>;
 const url = (id: SvgId, name: string) => `url(#${id(name)})`;
 
 /**
- * Material: gebuerstetes Metall von oben belichtet, Rolle mit Glanzpunkt,
- * weicher Schlagschatten fuer das eine bewegte Werkzeug. Farben als Tokens
+ * Material: gebuerstetes Metall von oben belichtet. Farben als Tokens
  * (index.css, --metal-*), damit Hell und Noir ohne Sonderweg mitziehen.
+ * `steel`/`deep` braucht jede Grafik mit Metallteilen; `roller` (Glanzpunkt)
+ * und `lift` (Schlagschatten fuers bewegte Werkzeug) nur die Lehre — als
+ * eigene Defs, damit die anderen Grafiken keine ungenutzten Filter tragen.
  */
 function MaterialDefs({ id }: { id: SvgId }) {
   return (
@@ -132,6 +157,13 @@ function MaterialDefs({ id }: { id: SvgId }) {
         <stop offset="0" style={{ stopColor: 'var(--metal-mid)' }} />
         <stop offset="1" style={{ stopColor: 'var(--metal-deep)' }} />
       </linearGradient>
+    </defs>
+  );
+}
+
+function GaugeDefs({ id }: { id: SvgId }) {
+  return (
+    <defs>
       <radialGradient id={id('roller')} cx="0.36" cy="0.3" r="0.8">
         <stop offset="0" style={{ stopColor: 'var(--metal-hi)' }} />
         <stop offset="0.5" style={{ stopColor: 'var(--metal-mid)' }} />
@@ -263,8 +295,7 @@ export function DrivetrainSketch({ chainstayMm, chainring, sprocket, focus, remo
     let raf = 0;
     const step = (now: number) => {
       const k = Math.min(1, (now - t0) / 1200);
-      const e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
-      setO(e * dist);
+      setO(easeOutCubic(k) * dist);
       if (k < 1) raf = requestAnimationFrame(step);
     };
     raf = requestAnimationFrame(step);
@@ -396,7 +427,11 @@ export function ChainCountSketch({ de = true }: { de?: boolean }) {
   const [ref, W] = useWidth<HTMLDivElement>(310);
   const id = useSvgId();
   const N = 8, CY = 44, H = 114;
-  const P = Math.min(34, (W - 36) / N);
+  // Bisher bei W ≳ 308px gedeckelt (Cap 34 traf schneller als der verfuegbare
+  // Platz) — auf breiten Rechner-Karten blieb die Kette winzig im grossen
+  // Rahmen stehen. Cap jetzt bei 46, greift erst deutlich oberhalb typischer
+  // Kartenbreiten (.cq-chart bleibt unter ~420px).
+  const P = Math.min(46, (W - 36) / N);
   const x0 = (W - P * N) / 2;
   const xs = Array.from({ length: N + 1 }, (_, i) => x0 + i * P);
   const LOCK = 5; // Aussenglied zwischen xs[5] und xs[6]
@@ -422,10 +457,58 @@ export function ChainCountSketch({ de = true }: { de?: boolean }) {
       <text x={lx} y={dimY + 16} textAnchor="middle" style={{ ...FONT, ...HALO }} fontWeight={600} fill={ACCENT}>
         {sh.sketchQuickLink}
       </text>
-      <text x={W / 2} y={H - 6} textAnchor="middle" style={FONT} fill={LABEL}>
-        {sh.sketchCountNote}
-      </text>
+      {(() => {
+        const lines = wrapCaption(sh.sketchCountNote, W - 8);
+        const y0 = lines.length > 1 ? H - 21 : H - 6;
+        return (
+          <text x={W / 2} y={y0} textAnchor="middle" style={FONT} fill={LABEL}>
+            {lines.map((l, i) => <tspan key={i} x={W / 2} dy={i === 0 ? 0 : 15}>{l}</tspan>)}
+          </text>
+        );
+      })()}
     </svg>
+    </div>
+  );
+}
+
+// ── Passende Kette: welches System, wieviel Ritzel ──────────────────────────
+
+/**
+ * Kleine Kassetten-Schemazeichnung von der Achse aus gesehen (konzentrische
+ * Ritzel, groesstes aussen) — kein eigener Rechenwert, nur der Stahl-Look der
+ * anderen vier Karten fuer diese hier: bisher zeigte „Passende Kette" nur die
+ * Produktliste ohne eigene Grafik. Das aeussere Ritzel bekommt ein
+ * dekoratives Zahnprofil (`sprocketPath`, feste Zaehnezahl — die echte
+ * Kassetten-Abstufung ist nicht Teil der Rechnung), die inneren sind duenne
+ * Fuehrungskreise wie die Kassettenringe im Antrieb.
+ */
+export function CassetteSchematic({ speed, systemLabel, de = true }: {
+  speed: number; systemLabel: string; de?: boolean;
+}) {
+  const { t } = useLanguage();
+  const [ref, W] = useWidth<HTMLDivElement>(280);
+  const id = useSvgId();
+  const H = 34;
+  const CX = H / 2, CY = H / 2;
+  const R = H / 2 - 4;
+  const n = Math.max(8, Math.min(12, speed));
+
+  return (
+    <div ref={ref} className="w-full">
+      <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} className="block" role="img"
+        aria-label={de ? `${systemLabel}, ${speed}-fach` : `${systemLabel}, ${speed}-speed`}>
+        <MaterialDefs id={id} />
+        <path d={sprocketPath(CX, CY, 26, R, R * 0.6, 0)} fill={url(id, 'steel')} stroke={EDGE} strokeWidth={0.8} strokeLinejoin="round" />
+        {Array.from({ length: n - 1 }, (_, i) => (
+          <circle key={i} cx={CX} cy={CY} r={Math.max(2.5, R * (1 - (0.62 * (i + 1)) / (n - 1)))}
+            fill="none" stroke={EDGE} strokeOpacity={0.35} strokeWidth={0.8} />
+        ))}
+        <circle cx={CX} cy={CY} r={1.6} fill={EDGE} />
+        <text x={H + 10} y={CY - 3} style={FONT} fill={LABEL}>{systemLabel}</text>
+        <text x={H + 10} y={CY + 13} style={FONT} fontWeight={700} fill="var(--tx1)">
+          {speed}{t.tools.shared.speedSuffix}
+        </text>
+      </svg>
     </div>
   );
 }
@@ -486,6 +569,10 @@ export function CostDumbbell({ rows, oilLabel, waxLabel, perYear, eur, net }: {
     <div ref={ref} className="w-full">
       <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} role="img" className="block"
         aria-label={rows.map(r => `${r.label}: ${oilLabel} ${eur(r.oil)}, ${waxLabel} ${eur(r.wax)}`).join('; ')}>
+        {/* Hover je Zeile: dezente Flaeche hinter der Zeile. `<title>` bleibt
+            als Screenreader-/Touch-Fallback, das hier ist nur der visuelle
+            Zeiger-Hinweis — das Diagramm kennt die Werte ohnehin schon exakt. */}
+        <style>{`.${id('row')}{cursor:pointer}.${id('row')}:hover .${id('rowbg')}{opacity:1}`}</style>
         {/* Legende: zwei Reihen, also immer da. */}
         <g style={FONT}>
           <circle cx={x0 + 5} cy={9} r={4.5} fill="var(--sf)" stroke={OIL} strokeWidth={2} />
@@ -506,8 +593,10 @@ export function CostDumbbell({ rows, oilLabel, waxLabel, perYear, eur, net }: {
           const dir = Math.sign(xw - xo);
           const d = r.wax - r.oil;
           return (
-            <g key={r.label}>
+            <g key={r.label} className={id('row')}>
               <title>{`${r.label}: ${oilLabel} ${eur(r.oil)} · ${waxLabel} ${eur(r.wax)}`}</title>
+              <rect className={id('rowbg')} x={-2} y={cy - ROW / 2 + 1} width={W + 4} height={ROW - 2} rx={6}
+                fill="var(--sf)" opacity={0} style={{ transition: `opacity 180ms ${EASE}` }} />
               <defs>
                 <linearGradient id={id(`c${i}`)} gradientUnits="userSpaceOnUse" x1={xo} x2={xw} y1={cy} y2={cy}>
                   <stop offset="0" style={{ stopColor: OIL, stopOpacity: 0.3 }} />
@@ -759,10 +848,22 @@ export function GaugeSketch({ dropped, markLabel, tone, de = true }: {
   const LUPE = W >= 280;
   const LR = 27, LZ = 2.2;
   const N = 6;
-  const P = Math.min(30, (W - (LUPE ? 2 * LR + 52 : 40)) / (N + 0.8));
+  const LEFT_PAD = 8, GAP = 14;
+  // Verfuegbare Breite fuer die Baugruppe (Kette + Lehre): rechts steht die
+  // Lupe im Weg, links ein kleines Polster. Vorher war x0 bei LUPE fix 28 —
+  // auf breiten Karten blieb die Baugruppe links kleben, mit viel Leerraum
+  // vor der rechts stehenden Lupe. Jetzt fuellt sie ihre eigene Spalte und
+  // steht darin mittig, wie die Lupe in ihrer.
+  const availR = LUPE ? W - 8 - 2 * LR - GAP : W - 8;
+  const availW = Math.max(80, availR - LEFT_PAD);
+  // Koerperbreite als Funktion von P: N Teilungen + Rolle/Haken-Ueberstand
+  // links (rr + 3,5 + 12) und Zahn-Ueberstand rechts (+12) — dieselben
+  // Konstanten wie im Koerperpfad unten (xl/xr).
+  const P = Math.min(34, (availW - 27.5) / (N + 0.3));
   const rr = P * 0.3; // Rolle: Ø 0,61 p
   const CY = 86, H = 128;
-  const x0 = LUPE ? 28 : (W - P * N) / 2;
+  const bodyW = N * P + rr + 3.5 + 24;
+  const x0 = LEFT_PAD + (availW - bodyW) / 2 + rr + 3.5 + 12;
   const spread = useTween(dropped ? (rr + 3) / N : 0, 420);
   const xs = Array.from({ length: N + 1 }, (_, i) => x0 + i * (P + spread));
   const top = P * 0.41;
@@ -815,6 +916,7 @@ export function GaugeSketch({ dropped, markLabel, tone, de = true }: {
     <div ref={ref} className="w-full">
       <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} role="img" className="block" aria-label={caption}>
         <MaterialDefs id={id} />
+        <GaugeDefs id={id} />
         {LUPE && <clipPath id={id('lupe')}><circle cx={lx} cy={ly} r={LR} /></clipPath>}
 
         {/* Lehre hinter der Kette: Haken und Zahn greifen zwischen die Laschen */}
@@ -851,7 +953,15 @@ export function GaugeSketch({ dropped, markLabel, tone, de = true }: {
           </g>
         )}
 
-        <text x={W / 2} y={H - 6} textAnchor="middle" style={FONT} fontWeight={500} fill="var(--tx2)">{caption}</text>
+        {(() => {
+          const lines = wrapCaption(caption, W - 8);
+          const y0 = lines.length > 1 ? H - 21 : H - 6;
+          return (
+            <text x={W / 2} y={y0} textAnchor="middle" style={FONT} fontWeight={500} fill="var(--tx2)">
+              {lines.map((l, i) => <tspan key={i} x={W / 2} dy={i === 0 ? 0 : 15}>{l}</tspan>)}
+            </text>
+          );
+        })()}
       </svg>
     </div>
   );
