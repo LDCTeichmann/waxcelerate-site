@@ -764,6 +764,53 @@ Gehört als Nächstes geklärt, siehe Abschnitt 8.
 
 ---
 
+## 7b. Stufe 2 am 15.09.2026: der Hero ist die Kette
+
+Der Hero zeigte ein Kassettenfoto, also die **Folge**, und die Seite erklärte
+danach die **Ursache**, ohne dass die Verbindung je gezeichnet wurde. Die
+Kassette kam nach dem Hero außerdem nie wieder vor.
+
+Jetzt steht dort die Kette in Seitenansicht, wie sie am Rad hängt, mit einer
+Lupe im Gelenk und dem Ritzel rechts, auf das sie aufwickelt. Darunter drei
+Einstiege, die zugleich das Inhaltsverzeichnis der Seite sind: Gelenk → ACT I,
+Spalt → ACT II, Verschleiß → ACT III. Wer über eine Zeile fährt, sieht das
+zugehörige Teil in der Zeichnung hervortreten.
+
+Die Kassettenfigur ist **nicht gelöscht**, sondern nach ACT III gewandert,
+direkt über die Rechnung, die aus Laufzeit Geld macht. Damit bleibt auch das
+og:image gültig, das weiter auf dieses Bild zeigt.
+
+Neu: `src/components/viz/chain/geometry.ts` als **eine Quelle für die
+Kettengeometrie**. Es gab drei unabhängig gezeichnete Ketten
+(`ChainWaxMap`, `FrictionLens`, `sketches.tsx`). Das Modul enthält nur
+Geometrie und Pfadhelfer, keine Farben, weil die Wissenschaftsseite themefähig
+ist und die Produktseite in einem erzwungenen Dunkelband läuft.
+
+Zwei Dinge, die beim Bauen aufgefallen sind:
+
+- **Teilung und Rollengröße hängen zusammen.** Die Absolutwerte in `SIDE`
+  stammen aus `ChainWaxMap` mit Teilung 66. Neben einem Ritzel mit Teilung 37
+  saß die Kette dadurch auf den Zähnen statt in den Sitzen. Dafür gibt es
+  jetzt `sideAt(pitch)`, und der Kommentar sagt, warum man es benutzen muss.
+- **Die Maßstabs-Chips aus §4 sind bewusst nicht gebaut.** Der `chip`-Slot ist
+  überall belegt und leistet dort echte Arbeit: `< 5 µm` ist die Partikelgröße,
+  `Außentemperatur` die Achse, `schematisch` der Vorbehalt. Einen Maßstab
+  dazwischenzumischen hätte das System verwässert statt es zu schärfen. Die
+  Zoom-Klammer bräuchte einen eigenen Träger, etwa eine Maßstabsleiste je
+  Figur. Offen.
+
+Die µ-Kachel im Hero ist weg (siehe 1.1). Keine Ersatzkachel: die Intervalle
+unterscheiden sich je Produkt und die Rewax-Zahl ist offen, also zwei belegte
+Kennzahlen statt drei mit einer schwachen darunter. µ steht weiterhin in
+`FrictionBars` und `LineChoice`; das ist der nächste Schritt, als eigener PR,
+zusammen mit dem Umbau der Balken auf Watt.
+
+Geprüft: `tsc -b --force`, `npm run build`, Chromium über Playwright in hell,
+dunkel und bei 1280 / 390 / 360 px. Kein waagerechter Überlauf, keine
+JS-Fehler, alle drei Einstiege springen auf ihr Ziel.
+
+---
+
 ## 8. Was nur Luca entscheiden kann
 
 1. **Die µ-Werte.** Bleiben sie mit Umgebungsangabe im MoS₂-Kapitel, oder
