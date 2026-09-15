@@ -32,6 +32,24 @@
       "port": 5199
     },
     {
+      "name": "ketten-nav",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--", "--port", "5181"],
+      "port": 5181
+    },
+    {
+      "name": "rewax-v2",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "/Users/lucateichmann/Claude Playground/waxcelerate-site/.claude/worktrees/rewax-v2", "run", "dev", "--", "--port", "5183"],
+      "port": 5183
+    },
+    {
+      "name": "rechner-grafiken",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "/Users/lucateichmann/Claude Playground/waxcelerate-site/.claude/worktrees/rechner-deck-v5", "run", "dev", "--", "--port", "5192"],
+      "port": 5192
+    },
+    {
       "name": "rechner-optik",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev", "--", "--port", "5177"],

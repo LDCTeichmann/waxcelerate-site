@@ -193,7 +193,8 @@ export function CostCalculator({ profile, compact, preselectRotation, slug = 'um
           </div>
 
           <SketchFrame>
-            <CostDumbbell rows={rows} oilLabel={c.chartOil} waxLabel={c.chartWax} perYear={c.chartPerYear} eur={eur} />
+            <CostDumbbell rows={rows} oilLabel={c.chartOil} waxLabel={c.chartWax} perYear={c.chartPerYear} eur={eur}
+              net={costs.waxPerYear - costs.oilPerYear} />
           </SketchFrame>
         </div>
       </StepList>

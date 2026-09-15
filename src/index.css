@@ -63,7 +63,6 @@
   .cq-split.cq-chart { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); }
 }
 
-@keyframes chain-run { from { stroke-dashoffset: 48; } to { stroke-dashoffset: 0; } }
 
 .deck-slot {
   --tilt: 14deg;
@@ -480,6 +479,21 @@
     /* Inset / nested surface tokens — replace hardcoded rgba in dark-first components */
     --inset-bg:    var(--sf2);           /* subtle inset inside cards */
     --inset-bd:    var(--bd2);           /* border of inset areas */
+    /* Rechner-Grafiken v2 (sketches.tsx): Stahl von oben belichtet, Kette,
+       Zeichenblatt. --sketch-bg ist die deckende Rahmenfarbe fuer die
+       Schrift-Freistellung; --sf2 zieht in .noir von selbst mit. */
+    --metal-hi:     #FFFFFF;
+    --metal-mid:    #ECEDEF;
+    --metal-lo:     #D2D4D8;
+    --metal-deep:   #BCBEC4;
+    --metal-edge:   #55585E;
+    --chain-outer:  #43464C;
+    --chain-inner:  #A7AAB1;
+    --chain-pin:    #F5F5F6;
+    --shade:        rgba(16,16,16,0.18);
+    --sketch-bg:    var(--sf2);
+    --sketch-dot:   rgba(16,16,16,0.08);
+    --sketch-inset: rgba(16,16,16,0.05);
     /* Inaktive Umschalt-Chips: erhaben (weiss + Mikroschatten in TogButton) auf
        recesstem Grau statt gleicher Fond wie der Container — sonst trennt nur die
        Haarlinie und die Chips verschwinden. */
@@ -581,6 +595,17 @@
     /* Inset tokens — dark-mode values */
     --inset-bg:    rgba(255,255,255,0.04);
     --inset-bd:    rgba(255,255,255,0.07);
+    --metal-hi:     #74777E;
+    --metal-mid:    #4A4C52;
+    --metal-lo:     #313237;
+    --metal-deep:   #26272B;
+    --metal-edge:   #A4A7AE;
+    --chain-outer:  #B9BCC3;
+    --chain-inner:  #5C5F66;
+    --chain-pin:    #2A2B30;
+    --shade:        rgba(0,0,0,0.55);
+    --sketch-dot:   rgba(255,255,255,0.06);
+    --sketch-inset: rgba(0,0,0,0.35);
     /* Inaktive Chips erhaben statt gleicher Fond wie der Container (0.03 auf 0.04
        war unsichtbar). */
     --tog-bg:      rgba(255,255,255,0.07);
