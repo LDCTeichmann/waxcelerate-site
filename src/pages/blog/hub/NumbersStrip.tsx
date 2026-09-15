@@ -37,14 +37,14 @@ export function NumbersStrip() {
       </div>
       <div
         ref={ref}
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 rounded-3xl overflow-hidden"
+        className="grid grid-cols-2 lg:grid-cols-4 rounded-3xl overflow-hidden"
         style={{ border: '1px solid var(--bd)', background: 'var(--bd)', gap: '1px' }}
       >
         {hubNumbers.map((n, i) => (
           <Link
             key={n.value}
             to={n.to}
-            className="group flex flex-col p-6 transition-colors hover:bg-[color:var(--sf2)]"
+            className="group flex flex-col p-4 sm:p-6 transition-colors hover:bg-[color:var(--sf2)]"
             style={{
               background: 'var(--sf)',
               opacity: visible ? 1 : 0,
@@ -59,7 +59,7 @@ export function NumbersStrip() {
             <span className="font-mono text-small uppercase tracking-[0.16em] mb-3" style={{ color: 'var(--accent)' }}>
               {n.label}
             </span>
-            <span className="text-[13px] leading-[1.6] text-wx-txm mb-5">{n.note}</span>
+            <span className="text-[12.5px] sm:text-[13px] leading-[1.55] text-wx-txm mb-4 sm:mb-5">{n.note}</span>
             <span className="mt-auto text-[13px] font-semibold transition-transform group-hover:translate-x-0.5" style={{ color: 'var(--accent)' }}>
               {n.to === '/wissenschaft' ? 'Zur Messung →' : 'Herleitung lesen →'}
             </span>

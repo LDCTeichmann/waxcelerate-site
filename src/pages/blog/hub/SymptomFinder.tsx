@@ -347,14 +347,17 @@ export function SymptomFinder() {
       </div>
 
       <div className="grid gap-5 lg:grid-cols-[1.25fr_1fr] items-stretch">
-        <div className="rounded-3xl p-4 sm:p-7 flex flex-col" style={{ background: 'var(--sf)', border: '1px solid var(--bd)' }}>
+        {/* min-w-0: sonst dehnt die einzeilige Chip-Zeile die Grid-Spalte
+            auf ihre volle Breite, und die Grafik waechst mit. */}
+        <div className="min-w-0 rounded-3xl p-4 sm:p-7 flex flex-col" style={{ background: 'var(--sf)', border: '1px solid var(--bd)' }}>
           <div className="relative">
             <Drivetrain focus={active.focus} />
             {symptoms.map((s, i) => (
               <Hotspot key={s.id} symptom={s} index={i} active={s.id === activeId} pulse={!touched} onSelect={() => select(s.id)} />
             ))}
           </div>
-          <div className="mt-4 sm:mt-5 flex flex-wrap gap-2">
+          {/* Mobil eine wischbare Zeile statt vier umbrochener Zeilen. */}
+          <div className="mt-4 sm:mt-5 flex gap-2 overflow-x-auto -mx-4 px-4 pb-1 sm:mx-0 sm:px-0 sm:pb-0 sm:flex-wrap sm:overflow-visible [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {symptoms.map((s, i) => {
               const isActive = s.id === activeId;
               return (
@@ -363,7 +366,7 @@ export function SymptomFinder() {
                   type="button"
                   onClick={() => select(s.id)}
                   aria-pressed={isActive}
-                  className="text-[13px] px-3 py-2 rounded-full transition-colors inline-flex items-center gap-2"
+                  className="shrink-0 whitespace-nowrap text-[13px] px-3 py-2 rounded-full transition-colors inline-flex items-center gap-2"
                   style={
                     isActive
                       ? { background: 'var(--accent)', color: 'var(--pg)' }
@@ -403,7 +406,7 @@ export function SymptomFinder() {
 
           <Link
             to={`/blog/${active.slug}#${headingId(active.heading)}`}
-            className="mt-auto inline-flex items-center gap-2 text-[14px] font-semibold w-fit"
+            className="mt-auto inline-flex items-center gap-2 py-2 -my-2 text-[14px] font-semibold w-fit"
             style={{ color: 'var(--accent)' }}
           >
             Im Artikel genau nachlesen

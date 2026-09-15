@@ -83,7 +83,7 @@ function FeatureTile({ article }: { article: Article }) {
         </p>
         <Link
           to={`/blog/${article.slug}`}
-          className="mt-auto inline-flex items-center gap-2 text-[14px] font-semibold w-fit"
+          className="mt-auto inline-flex items-center gap-2 py-2 -my-2 text-[14px] font-semibold w-fit"
           style={{ color: 'var(--accent)' }}
         >
           Artikel lesen
