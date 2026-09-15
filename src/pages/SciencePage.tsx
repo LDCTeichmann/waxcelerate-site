@@ -18,6 +18,8 @@ import { ContactZones, LineChoice } from '@/sections/science/ContactZones';
 import { ComponentDiagram } from '@/sections/science/diagrams';
 import { HexMoS2, TransferFilm } from '@/sections/science/LabViz';
 import { ReadMoreLink } from '@/sections/science/ReadMoreLink';
+import { ProofInstrument } from '@/sections/science/ProofInstrument';
+import { CalcTrace } from '@/components/tools/CalcTrace';
 
 const W = 'max-w-4xl mx-auto px-4 sm:px-6 lg:px-8';
 
@@ -292,6 +294,34 @@ function ScienceHero({ de }: { de: boolean }) {
   );
 }
 
+// ─── Sedimentation trace: Stokes' law, worked through ─────────────────────────
+// The settling rate in the Dispersant copy is arithmetic, not lab data, so it
+// is computed here from the inputs shown (CalcTrace, as in the calculators)
+// and copy and trace cannot drift apart again. Until 2026-09-15 the copy said
+// 0,8; the formula gives ~1,0. 0,9 g/cm³ is solid paraffin as in the copy;
+// the lighter melt would push v up slightly, not down.
+const STOKES = { rhoParticle: 5.06, rhoWax: 0.9, diameterUm: 5, etaMPas: 3.5 } as const;
+function SedimentationTrace({ de }: { de: boolean }) {
+  const { rhoParticle, rhoWax, diameterUm, etaMPas } = STOKES;
+  const r = (diameterUm / 2) * 1e-6;
+  const vMs = (2 * (rhoParticle - rhoWax) * 1000 * 9.81 * r * r) / (9 * etaMPas * 1e-3);
+  const n = (x: number, digits: number) =>
+    x.toLocaleString(de ? 'de-DE' : 'en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits });
+  return (
+    <div className="rounded-xl p-4 mt-3" style={{ background: 'var(--sf2)', border: '1px solid var(--bd)' }}>
+      <p className="text-meta uppercase tracking-[0.1em] font-semibold mb-2.5" style={{ color: 'var(--txff)' }}>
+        {de ? 'Stokes\'sches Gesetz, nachgerechnet' : "Stokes' law, worked through"}
+      </p>
+      <CalcTrace rows={[
+        { label: de ? 'Dichte MoS₂ / Paraffin' : 'Density MoS₂ / paraffin', detail: `${n(rhoParticle, 2)} / ${n(rhoWax, 1)} g/cm³`, value: `${n(rhoParticle / rhoWax, 1)}×` },
+        { label: de ? 'Schmelzviskosität bei 65 °C' : 'Melt viscosity at 65 °C', value: `η ≈ ${n(etaMPas, 1)} mPa·s` },
+        { label: de ? 'Partikeldurchmesser' : 'Particle diameter', value: `${diameterUm} µm` },
+        { label: de ? 'Sinkgeschwindigkeit' : 'Settling velocity', detail: 'v = 2·Δρ·g·r² / 9η', value: `≈ ${n(vMs * 60000, 1)} mm/min`, total: true },
+      ]} />
+    </div>
+  );
+}
+
 // ─── Insight — accent-bar callout used inside the deep "Die Physik" tier ──────
 function Insight({ children }: { children: React.ReactNode }) {
   return (
@@ -374,6 +404,7 @@ function CompCard({ c, n, de, cardRef, compact }: { c: ScienceComponent; n: numb
           </div>
           <ComponentDiagram which={c.diagram} de={de} />
           <Insight>{de ? c.insightDe : c.insightEn}</Insight>
+          {c.id === 'sedimentation' && <SedimentationTrace de={de} />}
         </Disclosure>
 
         {c.id === 'mos2' && de && (
@@ -844,6 +875,7 @@ function FormulaStory({ de }: { de: boolean }) {
                         ))}
                         <ComponentDiagram which={c.diagram} de={de} />
                         <Insight>{de ? c.insightDe : c.insightEn}</Insight>
+                        {c.id === 'sedimentation' && <SedimentationTrace de={de} />}
                       </div>
                     </Disclosure>
                     {c.id === 'mos2' && de && (
@@ -1248,20 +1280,19 @@ export function SciencePage() {
           <InstrumentFrame eyebrow={de ? 'Reibung' : 'Friction'}
             footer={
               <>
-                {/* Mobile: one line instead of three tiles — the cost figure
-                    alone carries the point without crowding the bars above
-                    it. Desktop keeps all three (grid, sm+). */}
+                {/* No cost tile here on purpose: ProofInstrument below is the
+                    page's one cost model (as on the product page). Mobile
+                    shows the chain-life figure alone, desktop both tiles. */}
                 <p className="sm:hidden text-center">
-                  <CountUp value={`~€${waxVsOil.cost.savedEur}`} className="font-mono text-[13px] font-semibold" style={{ color: 'var(--tx1)' }} />
+                  <CountUp value={`${waxVsOil.life.waxLo}–${waxVsOil.life.wax}×`} className="font-mono text-[13px] font-semibold" style={{ color: 'var(--tx1)' }} />
                   <span className="text-meta ml-1.5" style={{ color: 'var(--txf)' }}>
-                    {de ? `gespart auf ${(waxVsOil.cost.km / 1000).toLocaleString('de-DE')}.000 km` : `saved over ${(waxVsOil.cost.km / 1000).toLocaleString('en-US')}k km`}
+                    {de ? 'Kettenlaufzeit gegenüber Öl' : 'chain life versus oil'}
                   </span>
                 </p>
-                <div className="hidden sm:grid sm:grid-cols-3 gap-3 text-center">
+                <div className="hidden sm:grid sm:grid-cols-2 gap-3 text-center">
                   {[
                     { v: '~300 km', d: de ? 'pro Rewax-Vorgang' : 'per rewax' },
                     { v: `${waxVsOil.life.waxLo}–${waxVsOil.life.wax}×`, d: de ? 'Kettenlaufzeit' : 'chain life' },
-                    { v: `~€${waxVsOil.cost.savedEur}`, d: de ? `auf ${(waxVsOil.cost.km / 1000).toLocaleString('de-DE')}.000 km` : `over ${(waxVsOil.cost.km / 1000).toLocaleString('en-US')}k km` },
                   ].map((s, i) => (
                     <div key={i}>
                       <CountUp value={s.v} className="font-mono text-[13px] font-semibold" style={{ color: 'var(--tx1)' }} />
@@ -1279,8 +1310,15 @@ export function SciencePage() {
           <TransferFilm de={de} />
         </div>
 
+        {/* Personal case under the lab case: same drivetrainCosts() and shared
+            riding profile as the product page's SizingInstrument. The "work it
+            out yourself" links follow the instrument instead of preceding it. */}
+        <div className="mt-10">
+          <ProofInstrument de={de} />
+        </div>
+
         {de && (
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-1 mt-2">
             <ReadMoreLink to="/blog/kettenlaufzeit-heisswachs">
               Vollständige Intervall- und Kostenrechnung im Ratgeber
             </ReadMoreLink>
