@@ -66,7 +66,7 @@ function DropLift({ de }: { de: boolean }) {
 function ColdFlex({ de }: { de: boolean }) {
   return (
     <Fig vb="0 0 240 120" label="cold flexibility"
-      cap={de ? 'Amorphe Moleküle halten die Matrix bis −10 °C elastisch.' : 'Amorphous molecules keep the matrix elastic to −10 °C.'}>
+      cap={de ? 'Amorphe Moleküle halten die Matrix bis −8 °C elastisch.' : 'Amorphous molecules keep the matrix elastic to −8 °C.'}>
       <path d="M28 80 Q64 40 100 80" stroke="var(--accent-soft)" strokeWidth="var(--dw-bold)" fill="none" strokeLinecap="round" />
       <Lbl x={64} y={102} fill="var(--accent-soft)">{de ? 'Elastisch' : 'Elastic'}</Lbl>
       <path d="M140 80 Q164 48 176 54" stroke="var(--tx2)" strokeWidth="var(--dw-bold)" fill="none" strokeLinecap="round" opacity={0.5} />
@@ -116,14 +116,31 @@ function Shear({ de }: { de: boolean }) {
 }
 
 // Dispersant — density ratio 5.6× (paraffin vs MoS₂)
+// Dimension line — same "measured, not decorated" idea as a real drawing's
+// caliper mark: two closing ticks and a double-headed arrow standing in for
+// the 5.6× gap the text states, instead of the ratio floating unanchored
+// between the two circles it describes.
+function DimensionLine({ x1, x2, y }: { x1: number; x2: number; y: number }) {
+  return (
+    <g stroke="var(--txf)" strokeWidth="var(--dw-hair)" opacity={0.55}>
+      <line x1={x1} y1={y - 5} x2={x1} y2={y + 5} />
+      <line x1={x2} y1={y - 5} x2={x2} y2={y + 5} />
+      <line x1={x1} y1={y} x2={x2} y2={y}
+        markerStart="url(#dens-arrow)" markerEnd="url(#dens-arrow)" />
+    </g>
+  );
+}
+
 function Density({ de }: { de: boolean }) {
   return (
     <Fig vb="0 0 240 120" label="density ratio"
       cap={de ? 'MoS₂ ist 5,6× dichter — ohne Hülle sinkt es ab.' : 'MoS₂ is 5.6× denser — without a shell it sinks.'}>
+      <defs><ArrowMarker id="dens-arrow" color="var(--txf)" /></defs>
+      <DimensionLine x1={67} x2={150} y={14} />
+      <text x={108.5} y={8} textAnchor="middle" fontSize={13} fontWeight={600} fill="var(--accent-soft)">5,6×</text>
       <circle cx={52} cy={62} r={15} fill="none" stroke="var(--tx2)" strokeWidth="var(--dw-line)" />
       <Num x={52} y={66} fill="var(--txm)">0,9</Num>
       <Lbl x={52} y={94}>Paraffin</Lbl>
-      <text x={120} y={50} textAnchor="middle" fontSize={13} fontWeight={600} fill="var(--accent-soft)">5,6×</text>
       <circle cx={186} cy={58} r={36} fill="rgba(var(--accent-rgb),0.10)" stroke="var(--accent-soft)" strokeWidth="var(--dw-line)" />
       <Num x={186} y={62} fontSize={13} fill="var(--accent-soft)">5,06</Num>
       <Lbl x={186} y={108}>MoS₂ · g/cm³</Lbl>

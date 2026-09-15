@@ -1052,10 +1052,12 @@ export const waxVsOil = {
   // rewaxKm: 300, chains: 1 }) aus waxMath.ts -- trockene Strasse, eine Kette.
   // Hier getippt, weil data.ts waxMath nicht importieren darf (Zirkelimport:
   // waxMath importiert aus data). Aendern sich Kettenpreise, CASSETTE_PRICE
-  // oder WAX_CHAIN_KM, muss diese Zeile mit nachgezogen werden (Etappe 5,
-  // 11.09.2026 -- vorher stand hier ein widersprechendes 12.000-km-Modell
-  // mit 6.000-10.500 km Wachs-Kettenlaufzeit -> "~E70 gespart").
-  cost: { savedEur: 47, pctLess: 22, km: 12000, oilEur: 217, waxEur: 170 },
+  // oder WAX_CHAIN_KM, muss diese Zeile mit nachgezogen werden.
+  // 15.09.2026 nachgezogen: CASSETTE_PRICE stieg am 14.09. von 85,70 auf
+  // 130 € (Luca, Marktpreis), diese Zeile war seit Etappe 5 (11.09.) nicht
+  // mehr synchron -- oilEur/savedEur/pctLess liefen mit dem alten,
+  // zu niedrigen Kassettenpreis. waxEur war unveraendert richtig.
+  cost: { savedEur: 127, pctLess: 43, km: 12000, oilEur: 297, waxEur: 170 },
 } as const;
 
 // Friction comparison ranges (performance bars — higher bar = better, never invert).

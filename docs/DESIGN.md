@@ -477,6 +477,23 @@ Bestellbestätigung), die Rechner nutzen sie nicht mehr. Blau heißt nie „Acht
   Zeilen).
 - **Intervall:** Kalender-Lineal (Tage, Montage, Monatswechsel); die gefahrenen
   km stehen an der Heute-Nadel.
+- **Passende Kette (v3, 15.09.2026):** `CassetteSchematic` — konzentrische
+  Ritzel von der Achse aus, System + Gangzahl als Wert-Etikett — über der
+  Produktliste, damit auch diese Karte den Stahl-Look trägt statt nur Fotos
+  zu zeigen.
+- **Eine Easing-Kurve, wirklich:** `easeOutCubic` ist die einzige Funktion für
+  rAF-Werte (Zahlen, Pfade), `EASE` dieselbe Kurve als CSS-`cubic-bezier` für
+  Transitions. Vorher hatte der Kettenlauf im Antrieb eine eigene, dritte
+  Formel — jetzt dieselbe wie überall sonst.
+- **Skalierung ohne Deckel:** Zählskizze und Lehre füllen die Kartenbreite wie
+  der Antrieb, statt bei ~300 px stehenzubleiben. Die Lehre teilt sich die
+  Breite symmetrisch zwischen Baugruppe (links, zentriert in ihrer Spalte)
+  und Lupe (rechts, feste Größe) — vorher klebte die Baugruppe fix bei 28 px
+  und ließ auf breiten Karten einen unmotivierten Leerraum vor der Lupe.
+- **Fußzeilen brechen um, statt abzuschneiden:** `wrapCaption` bricht eine zu
+  lange Einzeilen-Beschriftung (Zählskizze, Lehre) an der Wortgrenze nahe der
+  Mitte in zwei Zeilen — wie `WearScale`/`RewaxTimeline` es für mehrere
+  Etiketten schon per Kollisionslogik tun.
 - **Animation:** einmalig beim ersten Sichtbarwerden (`useRevealOnce`,
   IntersectionObserver): Lehre senkt sich, Kette läuft an, Zeitstrahl füllt
   sich, Wachs-Punkte gleiten vom Öl-Wert. Keine Schleifen; bei

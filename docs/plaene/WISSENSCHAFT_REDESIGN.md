@@ -747,6 +747,21 @@ das offen ist, wurde die Blog- und FAQ-Copy bewusst nicht mitgeändert, sonst
 würden in einer Session zwei verschiedene Behauptungen gleichzeitig verschoben.
 Gehört als Nächstes geklärt, siehe Abschnitt 8.
 
+### Nachtrag 15.09.2026: die Seite rechnet mit
+
+- ACT III hat ein `ProofInstrument` (Fahrprofil → Ersparnis, Intervall,
+  Wachsgänge über `drivetrainCosts()`). Die statische €-Kachel im
+  Reibungs-Panel ist dafür raus: ein Kostenmodell pro Seite. **Neu offen:**
+  `waxVsOil.cost` (47 € auf 12.000 km) ist gegenüber `waxMath.ts` veraltet,
+  das Modell ergibt beim Standardprofil rund 127 €; die Startseite zeigt die
+  47 € weiter und verlinkt sie auf die Herleitung, die etwas anderes rechnet.
+- Die Stokes-Rechnung (1.4) steht als `CalcTrace` im Dispergiersystem und wird
+  aus ihren Eingangswerten berechnet; die Texte sagen jetzt „rund 1 mm/min“.
+- Beides hängt an `COMPONENTS`-IDs bzw. an ACT III, nicht an `FormulaGraph`,
+  und übersteht damit Stufe 3 (Formel als Schnitt).
+- Ein Querverweis MoS₂ → Mikroskop war gebaut und ist bewusst wieder raus,
+  solange 1.6 offen ist.
+
 ---
 
 ## 8. Was nur Luca entscheiden kann

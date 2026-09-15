@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Navigation } from '@/sections/navigation';
 import { Footer } from '@/sections/footer';
@@ -15,6 +15,8 @@ import {
 } from './articles';
 import type { ArticleSection } from './articles';
 import { getToolBySlug } from '@/lib/toolRegistry';
+import { headingId } from './headingId';
+import { markArticleRead } from './readState';
 
 // Minimal inline-link syntax for body text: [[Link-Text|/ziel-pfad]]. Kept as
 // a marker syntax rather than a new section field so it can sit inline
@@ -54,7 +56,7 @@ function renderSection(section: ArticleSection, idx: number): React.ReactNode {
   switch (section.type) {
     case 'h2':
       return (
-        <h2 key={idx} className="font-display text-[24px] font-bold text-wx-tx1 leading-tight mt-12 mb-4">
+        <h2 key={idx} id={headingId(section.text ?? '')} className="font-display text-[24px] font-bold text-wx-tx1 leading-tight mt-12 mb-4 scroll-mt-28">
           {section.text}
         </h2>
       );
@@ -151,8 +153,38 @@ export function BlogArticlePage() {
   const article = slug ? getArticleBySlug(slug) : undefined;
   const tool = article?.toolSlug ? getToolBySlug(article.toolSlug) : undefined;
 
+  const { hash } = useLocation();
+
+  // Aus der Ratgeber-Suche und dem Symptom-Wegweiser kommt man mit
+  // #abschnitt in der URL und soll genau dort landen, nicht am Anfang. Mit
+  // Wiederholung, weil der Abschnitt beim ersten Render nach einem
+  // Routenwechsel noch nicht im DOM stehen kann (lazy geladene Seite).
   useEffect(() => {
-    window.scrollTo(0, 0);
+    if (!hash) { window.scrollTo(0, 0); return; }
+    const id = decodeURIComponent(hash.slice(1));
+    let attempts = 0;
+    let cancelled = false;
+    const tryScroll = () => {
+      if (cancelled) return;
+      const el = document.getElementById(id);
+      if (el) {
+        // Sprung auf eine FAQ-Frage (Antwortkarte der Suche): gleich aufklappen.
+        if (el instanceof HTMLDetailsElement) el.open = true;
+        el.scrollIntoView({ block: 'start' });
+        // Bilder oberhalb laden oft erst nach dem Sprung nach und schieben das
+        // Ziel wieder nach unten. Ein zweiter Sprung kurz danach faengt das ab.
+        window.setTimeout(() => { if (!cancelled) el.scrollIntoView({ block: 'start' }); }, 450);
+      }
+      else if (attempts++ < 20) window.setTimeout(tryScroll, 100);
+      else window.scrollTo(0, 0);
+    };
+    tryScroll();
+    return () => { cancelled = true; };
+  }, [slug, hash]);
+
+  // Fuer Lernpfad und "Gelesen" auf der Uebersicht, nur im eigenen Browser.
+  useEffect(() => {
+    if (slug && getArticleBySlug(slug)) markArticleRead(slug);
   }, [slug]);
 
   // Prerendered HTML for this route already ships this same schema; without
@@ -427,6 +459,36 @@ export function BlogArticlePage() {
 
           {/* Sections */}
           {article.sections.map((section, idx) => renderSection(section, idx))}
+
+          {/* Häufige Fragen: standen bisher nur im FAQPage-JSON-LD, nicht auf
+              der Seite. Google verlangt, dass FAQ-Schema-Inhalt sichtbar ist,
+              und die Antwortkarten der Ratgeber-Suche springen genau hierher
+              (#faq-<frage>, siehe engine.ts). */}
+          {article.faq && article.faq.length > 0 && (
+            <section className="mt-14" aria-labelledby="haeufige-fragen">
+              <h2 id="haeufige-fragen" className="font-display text-[24px] font-bold text-wx-tx1 leading-tight mb-5 scroll-mt-28">
+                Häufige Fragen
+              </h2>
+              <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid var(--bd)', background: 'var(--sf)' }}>
+                {article.faq.map((f, i) => (
+                  <details
+                    key={f.q}
+                    id={`faq-${headingId(f.q)}`}
+                    className="group scroll-mt-28"
+                    style={i ? { borderTop: '1px solid var(--bd)' } : undefined}
+                  >
+                    <summary className="flex items-start justify-between gap-4 cursor-pointer list-none px-5 py-4 text-[16px] font-semibold leading-snug text-wx-tx1 [&::-webkit-details-marker]:hidden">
+                      <span>{f.q}</span>
+                      <span className="font-mono text-[20px] leading-none transition-transform group-open:rotate-45" style={{ color: 'var(--accent)' }} aria-hidden>
+                        +
+                      </span>
+                    </summary>
+                    <p className="px-5 pb-5 text-[15px] leading-[1.7] text-wx-tx2">{renderInlineText(f.a)}</p>
+                  </details>
+                ))}
+              </div>
+            </section>
+          )}
 
           {/* Produktkarte statt bloßem Textlink: wer bis hierhin gelesen hat, ist
               die interessierteste Person auf der Seite. Bild, Preis und ein Satz

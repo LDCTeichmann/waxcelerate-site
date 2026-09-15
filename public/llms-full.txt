@@ -156,7 +156,7 @@ Kontaktzonen, Reibung, MoS₂ und die sechs Komponenten der Formel, unabhängig 
 
 **Reibungsverlust in der Kette** bei 250 W Tretleistung: Wachs 2–4 W, Kettenöl 6–10 W.
 
-**Kettenlaufzeit:** 2 bis 3× länger als mit Kettenöl. **Kosten:** rund 22% geringere Antriebskosten über 12.000 km (217 € Öl gegen 170 € Wachs, eine Kette, trockene Straße).
+**Kettenlaufzeit:** 2 bis 3× länger als mit Kettenöl. **Kosten:** rund 43% geringere Antriebskosten über 12.000 km (297 € Öl gegen 170 € Wachs, eine Kette, trockene Straße).
 
 **Temperaturfenster:** Classic +5 bis rund 35 °C (enthält PTFE), Pro (MoS₂) −8 bis über 45 °C (PFAS- und PTFE-frei).
 
@@ -165,7 +165,7 @@ Kontaktzonen, Reibung, MoS₂ und die sechs Komponenten der Formel, unabhängig 
 - Fischer-Tropsch-Wachs: Synthetisches Hartwachs (>90 % Kristallinität) hebt den Tropfpunkt auf ~75 °C — die Matrix hält Position unter Last statt wegzuwandern und stabilisiert die MoS₂-Einbettung thermisch.
 - Mikrokristallines Wachs: Verzweigte und zyklische Naphthene füllen die amorphen Zonen zwischen den Paraffinlamellen — die Matrix bleibt bei Frost elastisch bis −8 °C, kein Verspröden, kein Abplatzen.
 - Molybdändisulfid (MoS₂): Hexagonale MoS₂-Kristallite (P6₃/mmc, < 5 µm) scheren unter Kontaktdruck entlang der van-der-Waals-Ebenen und bilden einen Fe–S-Transferfilm auf dem Stahl — Grenzreibung bis μ 0,03.
-- Dispergiersystem: MoS₂ ist 5,6× dichter als Wachs — nach Stokes sedimentieren 5 µm Partikel ~0,8 mm/min in der Schmelze. Amphiphile Ester adsorbieren an den Partikelkanten und erzeugen eine sterische Barriere, die homogene Verteilung sichert.
+- Dispergiersystem: MoS₂ ist 5,6× dichter als Wachs — nach Stokes sedimentieren 5 µm Partikel rund 1 mm/min in der Schmelze. Amphiphile Ester adsorbieren an den Partikelkanten und erzeugen eine sterische Barriere, die homogene Verteilung sichert.
 - Phenolisches Antioxidans: Doniert H-Atome an Peroxylradikale und bricht die Oxidationskaskade. Doppelter Schutz: verhindert MoS₂ → MoO₃-Umwandlung und schützt die Wachsmatrix vor Versprödung — 12 Monate stabile Lagerung.
 
 ---
