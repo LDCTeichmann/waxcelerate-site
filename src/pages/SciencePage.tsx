@@ -16,6 +16,7 @@ import { COMPONENTS, FAILURES, type ScienceComponent } from '@/lib/science';
 import { FormulaGraph } from '@/sections/science/FormulaGraph';
 import { ContactZones, LineChoice } from '@/sections/science/ContactZones';
 import { ComponentDiagram } from '@/sections/science/diagrams';
+import { ChainOverview } from '@/sections/science/ChainOverview';
 import { HexMoS2, StandstillFilm } from '@/sections/science/LabViz';
 import { ReadMoreLink } from '@/sections/science/ReadMoreLink';
 import { ProofInstrument } from '@/sections/science/ProofInstrument';
@@ -175,10 +176,8 @@ function WearDiagramFigure({ de }: { de: boolean }) {
 // read as an entrance rather than another plain instrument panel. All numbers
 // come from the same `waxVsOil` source as the homepage's why-wax section — no
 // invented stats. ProblemHero below carries on with the sober toggle deep-dive.
-function ScienceHero({ de }: { de: boolean }) {
+function ScienceHero({ de, onGo }: { de: boolean; onGo: (anchor: string) => void }) {
   const w = waxVsOil.watts, l = waxVsOil.life;
-  const pro = frictionRanges.find(r => r.id === 'pro')!;
-  const oil = frictionRanges.find(r => r.id === 'oil')!;
   // Three measurements, not four — "Trocken" isn't a measurement (no unit,
   // no comparison value), it was padding out a 2x2 grid. It now lives as a
   // half-sentence in the lede below instead of posing as a fourth data
@@ -187,12 +186,17 @@ function ScienceHero({ de }: { de: boolean }) {
   // instrument panel on this page (FrictionBars, TempWindow, HexMoS2) makes
   // its case with numbers and labels alone, no iconography — these three
   // cards now match that language instead of being the one exception.
+  // 2026-09-15: von drei auf zwei. Die dritte Kachel trug "μ 0,03-0,06 ·
+  // Reibung im Antrieb". Diese Zahl ist ein Kennwert des Feststoffs unter
+  // trockenen Laborbedingungen, kein gemessener Wert unseres Produkts im
+  // Antrieb, und MoS2 liegt in feuchter Luft deutlich hoeher (siehe
+  // WISSENSCHAFT_REDESIGN.md 1.1). Sie steht jetzt nur noch dort, wo sie
+  // hingehoert: im MoS2-Kapitel, mit der Umgebung daneben. Keine
+  // Ersatzkachel: die Intervalle unterscheiden sich je Produkt und die
+  // Rewax-Zahl ist eine offene Entscheidung, also lieber zwei belegte
+  // Kennzahlen als drei mit einer schwachen darunter. Dieselbe Logik wie
+  // beim Schritt von vier auf drei.
   const cards = [
-    {
-      value: `μ ${pro.muLo.toFixed(2)}–${pro.muHi.toFixed(2)}`,
-      sentenceDe: `Reibung im Antrieb — Öl liegt bei μ ${oil.muLo.toFixed(2)}–${oil.muHi.toFixed(2)}.`,
-      sentenceEn: `Drivetrain friction — oil sits at μ ${oil.muLo.toFixed(2)}–${oil.muHi.toFixed(2)}.`,
-    },
     {
       value: `${w.wax[0]}–${w.wax[1]} W`,
       sentenceDe: `Reibungsverlust in der Kette. Öl braucht ${w.oil[0]}–${w.oil[1]} W bei gleicher Leistung.`,
@@ -237,10 +241,10 @@ function ScienceHero({ de }: { de: boolean }) {
               : 'Same drivetrain, two lubricants — measured side by side. Dry, no stains on clothes or fingers.'}
           </p>
 
-          {/* Mobile/tablet: same figure, just inline above the stats instead
-              of floating beside them — no room for that at this width. */}
+          {/* Mobile/tablet: dieselbe Figur, nur inline ueber den Kennzahlen
+              statt daneben — bei dieser Breite ist kein Platz dafuer. */}
           <div className="lg:hidden mb-6">
-            <WearDiagramFigure de={de} />
+            <ChainOverview de={de} onGo={onGo} />
           </div>
 
           {/* Stats — three measurements in one accent-topped row instead of a
@@ -249,7 +253,7 @@ function ScienceHero({ de }: { de: boolean }) {
               separate facts, and num-data at almost double the previous size
               actually looks like the page's central claim instead of a list
               caption. */}
-          <div className="grid grid-cols-3 mb-8" style={{ borderTop: '1px solid var(--accent-soft)' }}>
+          <div className="grid grid-cols-2 mb-8" style={{ borderTop: '1px solid var(--accent-soft)' }}>
             {cards.map((c, i) => (
               <div key={i} className="pt-3.5 pr-3"
                 style={{ borderLeft: i > 0 ? '1px solid var(--bd2)' : undefined, paddingLeft: i > 0 ? 14 : 0 }}>
@@ -275,19 +279,11 @@ function ScienceHero({ de }: { de: boolean }) {
           </a>
         </div>
 
-        {/* Desktop: the same figure as a normal flex sibling (not absolutely
-            positioned) so it renders at its own natural size and the section
-            simply grows to fit it — no fixed height to clip against, no
-            letterboxing to create a visible edge. Its background
-            (245,245,245) is close enough to var(--pg) that it merges into
-            the page with no border or card needed. Previously this whole
-            block was aria-hidden because the baked-in text made it
-            meaningless to a screen reader anyway — now that the words are
-            real HTML (see WearDiagramFigure above), that hid the page's only
-            explanation of the wear principle from every screen reader user
-            on desktop. Not hidden anymore. */}
+        {/* Desktop: die Figur als normales Flex-Geschwister, sie rendert also
+            in ihrer natuerlichen Groesse und der Abschnitt waechst mit. Keine
+            feste Hoehe, an der etwas abgeschnitten werden koennte. */}
         <div className="hidden lg:block lg:flex-1">
-          <WearDiagramFigure de={de} />
+          <ChainOverview de={de} onGo={onGo} />
         </div>
       </div>
     </section>
@@ -1091,7 +1087,7 @@ export function SciencePage() {
       {/* Mobile-Plan B7d: kein <main>-Landmark auf dieser Seite — "zum
           Inhalt springen" hatte nichts zum Ansteuern. */}
       <main id="main-content">
-      <ScienceHero de={de} />
+      <ScienceHero de={de} onGo={scrollToAnchor} />
 
       {/* ── ACT I — THE PROBLEM ──
           Owns the #problem anchor that the hero's "Wie das gemessen wurde" link
@@ -1306,6 +1302,23 @@ export function SciencePage() {
 
           {/* Signature visual — why a joint runs boundary-lubricated (the payoff) */}
           <StandstillFilm de={de} />
+        </div>
+
+        {/* Die Kassettenfigur, bis 2026-09-15 im Hero. Dort zeigte sie die
+            FOLGE, waehrend die ganze Seite danach die URSACHE erklaerte, und
+            die Kassette kam nach dem Hero nie wieder vor. Hier steht sie an
+            der Stelle, an der ueber Laufzeit und Verschleiss geredet wird,
+            also direkt ueber der Rechnung, die daraus Geld macht. Die
+            Ueberschrift nimmt die Formulierung des dritten Einstiegs im Hero
+            auf, damit das Versprechen von oben eingeloest wird. */}
+        <div className="mt-12 pt-10" style={{ borderTop: '1px solid var(--bd2)' }}>
+          <h3 className="font-display font-bold text-wx-tx1 leading-tight mb-6"
+            style={{ fontSize: 'clamp(1.4rem, 2.8vw, 1.9rem)', letterSpacing: '-0.02em' }}>
+            {de ? 'Was am Ende verschleißt.' : 'What wears out in the end.'}
+          </h3>
+          <div className="max-w-[560px]">
+            <WearDiagramFigure de={de} />
+          </div>
         </div>
 
         {/* Personal case under the lab case: same drivetrainCosts() and shared
