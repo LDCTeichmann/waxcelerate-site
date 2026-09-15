@@ -1580,9 +1580,9 @@ export const articleImages: Record<string, { src: string; card?: string; alt: st
   // Originalfoto (bleibt die Artikel-eigene Hero-Datei, nicht Teil dieses Fixes).
   'heisswachs-vs-fluessigwachs': { src: '/images/wax-block-spin.jpg', card: '/images/blog/wax-block-spin-800.webp', alt: 'Waxcelerate Wachsblock auf dunklem Schiefer' },
   'fahrradkette-entfetten': {
-    src: '/images/blog/oil-tattoo-leg-1600.webp',
-    card: '/images/blog/oil-tattoo-leg-800.webp',
-    alt: 'Schwarze Ölspuren an Wade und weißer Socke nach einer Fahrt mit geölter Kette',
+    src: '/images/blog/chain-drivetrain-closeup-1600.webp',
+    card: '/images/blog/chain-drivetrain-closeup-800.webp',
+    alt: 'Antrieb mit Kette, Kassette und Schaltwerk in Nahaufnahme',
   },
   'kettenlaufzeit-heisswachs': {
     src: '/images/blog/chains-hanging-gold-1600.webp',
@@ -1670,14 +1670,19 @@ export const blogHero = {
  * einem Blick.
  */
 export const blogFeature = {
-  main: {
-    src: '/images/blog/chain-waxed-macro-1600.webp',
-    alt: 'Frisch gewachste Fahrradkette in Nahaufnahme auf dunklem Schiefer',
-    caption: 'Gewachst · 400 km',
+  // Statt zweier nebeneinandergestellter Fotos jetzt dasselbe Bildpaar, das
+  // auch die Startseite als Vergleichsslider zeigt (public/images/compare/):
+  // eine Kette, zwei Zustaende, vom Leser selbst aufziehbar. Zwei getrennte
+  // Aufnahmen mussten dem Betrachter immer erst erklaeren, dass sie
+  // vergleichbar sind; beim Slider sieht man es.
+  before: {
+    src: '/images/compare/chain-oel.webp',
+    alt: 'Kette mit Kettenöl nach 80 km, sichtbar verschmutzt',
+    label: 'Geölt · 80 km',
   },
-  inset: {
-    src: '/images/blog/oil-tattoo-leg-800.webp',
-    alt: 'Schwarze Ölspuren an Wade und weißer Socke nach einer Fahrt mit geölter Kette',
-    caption: 'Geölt · 80 km',
+  after: {
+    src: '/images/compare/chain-wachs.webp',
+    alt: 'Dieselbe Kette gewachst nach 400 km, sauber und trocken',
+    label: 'Gewachst · 400 km',
   },
 };
