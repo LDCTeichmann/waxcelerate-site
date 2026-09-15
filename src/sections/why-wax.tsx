@@ -119,7 +119,7 @@ export function WhyWax() {
     { value: `${life.waxLo}–${life.wax}×`, label: w.figLife, sub: w.figLifeSub },
     { value: (wax500?.intervalDry ?? '250–450 km').replace(/\s*km$/, ''), unit: 'km', label: w.figInterval, sub: w.figIntervalSub },
     { value: `${watts.wax[0]}–${watts.wax[1]}`, unit: 'W', title: w.labValues, label: w.figWatts,
-      sub: `${w.wattsShort(range(watts.oil), range(watts.inputW))}. ${w.labValues}.` },
+      sub: `${w.wattsShort(range(watts.oil), `${watts.inputW} W`)}. ${w.labValues}.` },
     { value: `${cost.savedEur}`, unit: '€', label: w.figSaved(cost.km.toLocaleString(loc)),
       sub: (
         <Link to="/produkt/wax-500#instrument" aria-label={w.derivationAria}
