@@ -26,9 +26,9 @@ export function NumbersStrip() {
   }, [visible]);
 
   return (
-    <section aria-labelledby="zahlen-titel" className="mb-24">
+    <section aria-labelledby="zahlen-titel" className="mb-20">
       <div className="max-w-xl mb-8">
-        <p className="font-mono text-small uppercase tracking-[0.2em] mb-3" style={{ color: 'var(--accent)' }}>
+        <p className="eyebrow mb-3" style={{ color: 'var(--accent)' }}>
           Die Zahlen
         </p>
         <h2 id="zahlen-titel" className="font-display text-[28px] sm:text-[34px] font-bold text-wx-tx1 leading-[1.1]">
@@ -37,14 +37,14 @@ export function NumbersStrip() {
       </div>
       <div
         ref={ref}
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 rounded-3xl overflow-hidden"
+        className="grid grid-cols-2 lg:grid-cols-4 rounded-3xl overflow-hidden"
         style={{ border: '1px solid var(--bd)', background: 'var(--bd)', gap: '1px' }}
       >
         {hubNumbers.map((n, i) => (
           <Link
             key={n.value}
             to={n.to}
-            className="group flex flex-col p-6 sm:p-7 transition-colors hover:bg-[color:var(--sf2)]"
+            className="group flex flex-col p-4 sm:p-6 transition-colors hover:bg-[color:var(--sf2)]"
             style={{
               background: 'var(--sf)',
               opacity: visible ? 1 : 0,
@@ -53,13 +53,13 @@ export function NumbersStrip() {
               transitionDelay: visible ? `${i * 110}ms, ${i * 110}ms, 0ms` : '0ms',
             }}
           >
-            <span className="font-mono text-wx-tx1 leading-none mb-3" style={{ fontSize: 'clamp(2.1rem, 4vw, 2.75rem)' }}>
+            <span className="font-mono text-wx-tx1 leading-none mb-3" style={{ fontSize: 'clamp(1.75rem, 3vw, 2.25rem)' }}>
               {n.value}
             </span>
             <span className="font-mono text-small uppercase tracking-[0.16em] mb-3" style={{ color: 'var(--accent)' }}>
               {n.label}
             </span>
-            <span className="text-[13px] leading-[1.6] text-wx-txm mb-5">{n.note}</span>
+            <span className="text-[12.5px] sm:text-[13px] leading-[1.55] text-wx-txm mb-4 sm:mb-5">{n.note}</span>
             <span className="mt-auto text-[13px] font-semibold transition-transform group-hover:translate-x-0.5" style={{ color: 'var(--accent)' }}>
               {n.to === '/wissenschaft' ? 'Zur Messung →' : 'Herleitung lesen →'}
             </span>

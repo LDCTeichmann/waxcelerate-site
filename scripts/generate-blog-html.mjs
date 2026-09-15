@@ -233,7 +233,7 @@ function renderIndex() {
     }),
     // blogHero, nicht ride-road-golden: Das ist das og:image (soziale
     // Vorschau), aber BlogIndexPage.tsx rendert tatsaechlich blogHero.src als
-    // Full-Bleed-Masthead-Bild — das ist das echte LCP-Element dieser Seite.
+    // Kopfbild (rechte Hälfte, per Maske ausgeblendet) — das echte LCP-Element.
     imagePreload(blogHero.src, mimeOf(blogHero.src)),
     ld({
       '@context': 'https://schema.org',

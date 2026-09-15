@@ -45,7 +45,7 @@ const RESULTS_ID = 'ratgeber-treffer';
 function FeatureTile({ article }: { article: Article }) {
   return (
     <div
-      className="group grid md:grid-cols-[3fr_2fr] rounded-3xl mb-24 overflow-hidden transition-all duration-300 has-[a:hover]:-translate-y-1"
+      className="group grid md:grid-cols-[3fr_2fr] rounded-3xl mb-20 overflow-hidden transition-all duration-300 has-[a:hover]:-translate-y-1"
       style={{ background: 'var(--sf)', border: '1px solid var(--bd)' }}
     >
       {/* Der Slider bringt sein eigenes festes Seitenverhaeltnis mit (6/5, so
@@ -67,7 +67,7 @@ function FeatureTile({ article }: { article: Article }) {
       </div>
 
       <div className="px-7 pb-8 sm:px-9 sm:pb-9 md:py-10 md:pr-10 md:pl-3 flex flex-col justify-center">
-        <p className="font-mono text-small uppercase tracking-[0.18em] mb-3" style={{ color: 'var(--accent)' }}>
+        <p className="eyebrow mb-3" style={{ color: 'var(--accent)' }}>
           Empfohlen · {article.category}
         </p>
         <h2 className="font-display text-2xl sm:text-[30px] font-bold leading-[1.15] mb-3">
@@ -75,23 +75,15 @@ function FeatureTile({ article }: { article: Article }) {
             {article.title}
           </Link>
         </h2>
+        {/* Keine Stats-Zeile mehr: 400–550 km & Co. stehen direkt darueber im
+            Zahlen-Streifen, doppelt wirkte die Kachel wie eine Tabelle. */}
         <p className="text-[15px] leading-[1.7] text-wx-txm mb-6">{article.description}</p>
-        {article.stats && (
-          <div className="flex flex-wrap gap-x-8 gap-y-3 mb-6">
-            {article.stats.map((s) => (
-              <div key={s.label}>
-                <div className="font-mono text-lg text-wx-tx1">{s.value}</div>
-                <div className="font-mono text-meta uppercase tracking-wider text-wx-txf">{s.label}</div>
-              </div>
-            ))}
-          </div>
-        )}
         <p className="text-[13px] leading-[1.6] text-wx-txf mb-6">
           Zieh den Regler: dieselbe Kette, geölt nach 80 km und gewachst nach 400 km.
         </p>
         <Link
           to={`/blog/${article.slug}`}
-          className="mt-auto inline-flex items-center gap-2 text-[14px] font-semibold w-fit"
+          className="mt-auto inline-flex items-center gap-2 py-2 -my-2 text-[14px] font-semibold w-fit"
           style={{ color: 'var(--accent)' }}
         >
           Artikel lesen
@@ -278,8 +270,9 @@ export function BlogIndexPage() {
           <>
             <LearningPath read={read} />
             <SymptomFinder />
-            {featured && <FeatureTile article={featured} />}
+            {/* Erst die Zahlen, dann der Slider, der sie am Foto zeigt. */}
             <NumbersStrip />
+            {featured && <FeatureTile article={featured} />}
             <ArchiveGrid filter={filter} onFilter={setFilter} read={read} />
           </>
         )}
