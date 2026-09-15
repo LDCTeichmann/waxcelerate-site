@@ -70,7 +70,7 @@ export function LearningPath({ read }: { read: Set<string> }) {
           </h2>
           <p className="text-[15px] leading-[1.7] text-wx-txm">
             Die Artikel in der Reihenfolge, in der du sie beim Umstieg brauchst. Rund
-            eine halbe Stunde Lesezeit, danach weißt du alles für den ersten Wachsgang.
+            eine halbe Stunde Lesezeit, danach weißt du das Wichtigste für den ersten Wachsgang.
           </p>
         </div>
         <div className="w-full sm:w-auto sm:min-w-[240px]">

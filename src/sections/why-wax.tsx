@@ -2,500 +2,254 @@ import { useRef, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeftRight, ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
-import { useSectionReveal } from '@/hooks/useAnimation';
-import { prefersReducedMotion } from '@/hooks/useAnimation';
+import { useSectionReveal, prefersReducedMotion } from '@/hooks/useAnimation';
 import { ScrollWordReveal } from '@/components/ScrollWordReveal';
 import { ScienceTeaser } from '@/sections/science/ScienceTeaser';
 import { BeforeAfterSlider } from '@/components/BeforeAfterSlider';
-import { InstrumentFrame } from '@/components/viz';
+import { Ico, CHANGE_ICONS } from '@/pages/product/wax/Ico';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
-import { waxVsOil, frictionRanges } from '@/lib/data';
-
-const eur = (n: number, de: boolean) =>
-  n.toLocaleString(de ? 'de-DE' : 'en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' €';
+import { waxVsOil, products } from '@/lib/data';
 import { Section } from '@/components/Section';
 
-// ─── Was sich ändert ─────────────────────────────────────────────────────────
-// Diese Sektion bestand zuletzt nur noch aus drei Messkacheln: μ 0,03–0,06,
-// 2–4 W, "Trocken". Das ist der Beweis, nicht das Argument. Wer noch nie
-// gewachst hat, fragt nicht nach einer Reibungszahl, sondern was sich für ihn
-// ändert — genau die Reihenfolge, die DESIGN.md §4 für diese Seite vorschreibt
-// ("was sich für dich ändert, dann die Messwerte"). Die Hälfte war 08/2026 beim
-// Kürzen der Startseite verloren gegangen (siehe WhatChanges.tsx, drei Zeilen
-// mit Foto, rund drei Bildschirme hoch), übrig blieb die Messtechnik.
-//
-// Jetzt wieder herumgedreht, aber ohne die Höhe zurückzuholen: Die Aussage ist
-// das, was man auf dem Rad merkt, die Zahl steht klein daneben als Beleg.
-// Haarlinien-Zeilen statt Kacheln ist außerdem der von DESIGN.md §3
-// vorgesehene Standardbehälter.
-// Vier Zeilen, vier VERSCHIEDENE Achsen.
-//
-// 08/2026, zweiter Durchgang: Luca fand die Sektion textlastig, uneinheitlich
-// proportioniert und ohne Emotion. Body-Texte deshalb auf einen Halbsatz
-// gekürzt. Die Wattzahlen sind aus der Textzeile in einen kleinen
-// Balkenvergleich neben der Mikroskopkarte gewandert (Herkunft:
-// `WhatChanges.tsx`, dort unbenutzt), damit die rechte Spalte zwei gleich
-// schwere Karten zeigt statt Foto+Zahl. Die Kostenzahl bekommt eine Rechnung
-// statt eines Absatzes.
-//
-// Ein echtes Testimonial (Foto + Zitat aus einem eBay-Review) stand hier
-// kurzzeitig als eigener Block zwischen Liste und Beleg — Lucas Feedback:
-// Zitat zu groß, Foto nicht überzeugend genug, und redundant zur ohnehin
-// laufenden Bewertungs-Zeile weiter unten auf der Seite. Wieder raus; Liste
-// und Beleg stehen jetzt wieder direkt nebeneinander wie ursprünglich, nur
-// mit kürzeren Zeilen und einer zweiten Karte (Wattbalken) im Beleg.
-//
-// 08/2026, dritter Durchgang: Mikroskopbild gewechselt von 04 (chain-link-
-// inner-2) auf 01 (chain-link-inner) — 04 ist fast 16:9 (1,9:1), der Slider-
-// Rahmen aber 4:3, also standen oben und unten dicke schwarze Balken, genau
-// dort, wo REFERENZ/WAXCELERATE stehen (Lucas Beschwerde). 01 liegt mit
-// 1,21–1,29:1 sehr nah an den 5:4, die `aspect` jetzt für diese Karte trägt —
-// der Rahmen ist außerdem inhaltlich der treffendere: "Innenfläche eines
-// Kettenglieds, wo der Bolzen läuft" (Zeile 03) ist exakt das Motiv von 01,
-// 04 war ein zweiter Schnitt derselben Stelle aus anderem Winkel.
-//
-// Vorher lasen sich Zeile 01 ("Saubere Haende, saubere Wade") und Zeile 03
-// ("Dreck findet keinen Halt") wie dieselbe Aussage — Lucas Rueckmeldung, und
-// sie stimmt: beide begannen mit derselben Praemisse ("Wachs ist trocken,
-// deshalb bleibt nichts haften") und unterschieden sich erst im Nebensatz.
-// Zwei von vier Argumenten fuer denselben Gedanken zu verbrauchen, macht die
-// Liste laenger, aber nicht ueberzeugender.
-//
-// Die Praemisse steht jetzt genau einmal, als Vorspann ueber der Liste
-// ("Wachs haertet trocken aus. Alles Weitere folgt daraus."). Darunter liegt
-// jede Zeile auf einer eigenen Ebene, und keine wiederholt den Grund:
-//   01  was DU merkst          (Haende, Wade, Socken)
-//   02  was du HOERST          (Fahrerurteil)
-//   03  was im GELENK passiert (Mechanismus)
-//   04  was es KOSTET          (Standzeit, Geld)
-//
-// Zu 02 bewusst "Fahrerurteil" als Beleg und keine Dezibelzahl: veroeffent-
-// lichte Messungen zeigen zwischen frischem Oel und frischem Wachs praktisch
-// keinen Unterschied (rund 40 zu 41 dB), und eine erschoepfte Wachsschicht
-// kann sogar lauter werden als Oel. Die Wahrnehmung "leiser" ist echt und
-// steht so in den eigenen Bewertungen — als Messwert ausgegeben waere sie
-// eine Behauptung, die der erste kundige Leser widerlegt. Auf einer Seite,
-// die mit "gemessen statt behauptet" wirbt, waere das der teuerste
-// vorstellbare Fehler.
-function buildMoments(de: boolean) {
-  const pro = frictionRanges.find(r => r.id === 'pro')!;
-  const oil = frictionRanges.find(r => r.id === 'oil')!;
-  const life = waxVsOil.life;
+type ProofTab = 'photo' | 'micro';
 
-  return [
-    {
-      n: '01',
-      titleDe: 'Du bleibst sauber.',
-      titleEn: 'You stay clean.',
-      bodyDe: 'Kein Ketten-Tattoo an der Wade, keine schwarzen Finger beim Einladen.',
-      bodyEn: 'No chain tattoo on your calf, no black fingers loading the bike.',
-      chip: de ? 'färbt nicht ab' : 'no rub-off',
-    },
-    {
-      n: '02',
-      titleDe: 'Es wird leise.',
-      titleEn: 'It goes quiet.',
-      bodyDe: 'Kein trockenes Sirren im Leerlauf, kein Knirschen unter Last.',
-      bodyEn: 'No dry whirr when freewheeling, no grinding under load.',
-      chip: de ? 'Fahrerurteil' : 'rider reports',
-    },
-    {
-      n: '03',
-      titleDe: 'Im Gelenk mahlt nichts mehr.',
-      titleEn: 'Nothing grinds inside the joint.',
-      bodyDe: 'Öl bindet Staub zu einer Schleifpaste zwischen Bolzen und Hülse — genau dort entsteht Verschleiß, nicht außen an der Kette.',
-      bodyEn: 'Oil binds dust into a grinding paste between pin and bushing — that is where wear happens, not on the outside of the chain.',
-      chip: `μ ${pro.muLo.toFixed(2)} ${de ? 'statt' : 'vs'} ${oil.muLo.toFixed(2)}`,
-    },
-    {
-      n: '04',
-      titleDe: 'Der ganze Antrieb hält länger.',
-      titleEn: 'The whole drivetrain lasts longer.',
-      bodyDe: `Die Kette hält ${life.waxLo} bis ${life.wax} mal so lange, Kassette und Kettenblätter altern nicht mit.`,
-      bodyEn: `The chain lasts ${life.waxLo} to ${life.wax} times as long, cassette and chainrings don't age along with it.`,
-      chip: `${life.waxLo}–${life.wax}×`,
-    },
-  ];
-}
+// "300–400 W" als ein Wort: Wortverbinder um den Strich, geschuetztes
+// Leerzeichen vor der Einheit. Sonst bricht mobil "300–/400 W" um.
+const range = ([lo, hi]: readonly number[]) => `${lo}⁠–⁠${hi} W`;
 
-// ─── Antriebsverlust als EINE Skala statt zweier Balkenzeilen ────────────────
-// 08/2026, siebter Durchgang: die urspruengliche Fassung (zwei beschriftete
-// Balkenzeilen uebereinander) kostete allein ~115px Hoehe in einer jetzt sehr
-// schlanken InstrumentFrame-Karte — der groesste vermeidbare Einzelposten auf
-// dem Weg zu "passt auf einen Bildschirm". Oel-Bereich (6–10 W) und Wachs-
-// Bereich (2–4 W) ueberlappen sich nicht, koennen also auf DERSELBEN Skala
-// sitzen statt auf zwei getrennten — ein Messgeraet mit einer Skala und zwei
-// Markierungen, nicht zwei Messgeraete. Spart ~40px UND liest sich naeher an
-// "Instrument" als zwei generische Fortschrittsbalken.
-function DriveLossBars({ de }: { de: boolean }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [run, setRun] = useState(prefersReducedMotion());
-  const w = waxVsOil.watts;
-  const MAX = 12;
+// Welcher Punkt welchen Beleg im Slider hat. Punkt 1 (sauber) sieht man auf
+// dem Foto, Punkt 2 (Gelenk) unterm Mikroskop. Punkte 3/4 belegen die
+// Kennzahlen direkt darunter (2–3×, 250–450 km).
+const POINT_PROOF: (ProofTab | null)[] = ['photo', 'micro', null, null];
 
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || prefersReducedMotion()) return;
-    const t = ScrollTrigger.create({ trigger: el, start: 'top 88%', once: true, onEnter: () => setRun(true) });
-    return () => t.kill();
-  }, []);
-
-  const seg = (lo: number, hi: number, accent: boolean) => ({
-    left: `${(lo / MAX) * 100}%`,
-    width: run ? `${((hi - lo) / MAX) * 100}%` : '0%',
-    background: accent ? 'linear-gradient(90deg, var(--accent-strong), var(--accent-soft))' : 'var(--txf)',
-    opacity: accent ? 1 : 0.35,
-    transition: 'width .9s cubic-bezier(0.22,1,0.36,1)',
-  });
-
-  return (
-    <div ref={ref}>
-      {/* Skala ueber der Spur statt darunter — die Achse zuerst lesen, dann die
-          Balken dagegen. */}
-      <div className="flex justify-between mb-2">
-        {[0, 6, 12].map(v => (
-          <span key={v} className="num text-eyebrow" style={{ color: 'var(--txff)', letterSpacing: 'normal' }}>{v}{v === 12 ? ' W' : ''}</span>
-        ))}
-      </div>
-      <div className="relative h-2.5 rounded-full" style={{ background: 'var(--bd2)' }}>
-        <div className="absolute inset-y-0 rounded-full" style={seg(w.oil[0], w.oil[1], false)} />
-        <div className="absolute inset-y-0 rounded-full" style={seg(w.wax[0], w.wax[1], true)} />
-      </div>
-      {/* Reihenfolge folgt der Balkenlage: Wachs (2–4 W) sitzt links auf der
-          Skala, Oel (6–10 W) rechts — also steht Heisswachs auch links. */}
-      <div className="flex items-center justify-between mt-2.5 text-small">
-        <span className="flex items-center gap-1.5" style={{ color: 'var(--tx1)' }}>
-          <span aria-hidden className="inline-block rounded-full flex-shrink-0" style={{ width: 6, height: 6, background: 'var(--accent)' }} />
-          {de ? 'Heißwachs' : 'Hot wax'}
-          <span className="num font-medium" style={{ color: 'var(--accent)' }}>{w.wax[0]}–{w.wax[1]} W</span>
-        </span>
-        <span className="flex items-center gap-1.5" style={{ color: 'var(--txm)' }}>
-          <span aria-hidden className="inline-block rounded-full flex-shrink-0" style={{ width: 6, height: 6, background: 'var(--txf)', opacity: 0.5 }} />
-          {de ? 'Kettenöl' : 'Chain oil'}
-          <span className="num" style={{ color: 'var(--txf)' }}>{w.oil[0]}–{w.oil[1]} W</span>
-        </span>
-      </div>
-    </div>
-  );
-}
-
+// ─── Was sich für dich ändert ────────────────────────────────────────────────
+// 15.09.2026: Form von der Wachsseite (ProofAndChange.tsx, Kapitel 01)
+// uebernommen, weil sie dort deutlich staerker wirkt als die alte Fassung hier
+// ("Du merkst es sofort": 370-px-Slider in der Seitenspalte, nummerierte
+// Zeilen 01–04, Messkarte mit Wattbalken und Kostenrechnung). Jetzt:
+//   1. Grosser Slider zuerst. Das Foto ist der staerkste Eigenbeleg der Marke.
+//      Mikroskop 1000× bleibt als Umschalter (Luca), Foto ist Standard.
+//   2. Vier Punkte mit Icons statt 01–04, die Punkte haben keine Reihenfolge.
+//      Texte teilt sich die Seite mit der Wachsseite (i18n whyWax.points).
+//      "Es wird leise" bleibt draussen, bis der Claim freigegeben ist.
+//      Runde 2: Punkt 1 und 2 schalten den Slider auf ihren Beleg um, der
+//      Umschalter steht damit nicht mehr isoliert neben den Aussagen.
+//   3. Kennzahlen produktneutral (die Wachsseite nennt Wachsgaenge je Block,
+//      das passt vor der Produktwahl nicht). Wattbalken und Kostenkarte sind
+//      darin aufgegangen. Watt immer mit Eingangsleistung, Laufzeit immer als
+//      Spanne (Claims-Regeln).
+//   4. Ein Weg zurueck zum Regal, nur ab lg: mobil uebernimmt das die feste
+//      Leiste MobileStickyCTA ("Zu den Produkten"), dort steht nur der Preis.
 export function WhyWax() {
-  const { lang }   = useLanguage();
-  const de         = lang === 'de';
-  const sectionRef = useRef<HTMLElement>(null);
-  const headerRef  = useRef<HTMLDivElement>(null);
-  const rowsRef    = useRef<HTMLDivElement>(null);
-  const proofRef   = useRef<HTMLDivElement>(null);
-  // Zwei Belege, eine Kartenhöhe: "Foto" (Öl/Wachs-Fotopaar) und
-  // "Mikroskop" (bestehendes 1000×-Paar) teilen sich denselben Slot statt
-  // eine zweite Karte anzuhängen — die Sektion ist bewusst auf eine
-  // Bildschirmhöhe getrimmt (siehe Kommentare unten), dafür war kein Platz
-  // übrig. Default "macro": das unmittelbar Sichtbare passt besser zur
-  // Überschrift "Du merkst es sofort" als eine Aufnahme, die man eben nur
-  // unterm Mikroskop sieht. ("Sichtbar" als Label verworfen — Luca-Feedback:
-  // unklar, was damit gemeint ist. "Foto" vs. "Mikroskop" ist der
-  // eindeutigere Kontrast.)
-  const [proofTab, setProofTab] = useState<'macro' | 'micro'>('macro');
+  const { t, lang } = useLanguage();
+  const de          = lang === 'de';
+  const w           = t.whyWax;
+  const sectionRef  = useRef<HTMLElement>(null);
+  const headerRef   = useRef<HTMLDivElement>(null);
+  const sliderRef   = useRef<HTMLDivElement>(null);
+  const pointsRef   = useRef<HTMLUListElement>(null);
+  const figsRef     = useRef<HTMLDListElement>(null);
+  const [proofTab, setProofTab] = useState<ProofTab>('photo');
 
   useSectionReveal(headerRef);
 
   useEffect(() => {
     const section = sectionRef.current;
-    if (!section) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!section || prefersReducedMotion()) return;
 
     const ctx = gsap.context(() => {
-      const rows = rowsRef.current?.querySelectorAll('[data-row]');
-      if (rows?.length) {
-        gsap.fromTo(rows,
+      for (const list of [pointsRef.current, figsRef.current]) {
+        // Nach einem Anker-Sprung (#warum-wachs, Sektion lazy) steht die Liste
+        // beim Mount schon im Bild. Dann nicht erst ausblenden und auf einen
+        // Scroll warten, der nicht mehr kommt.
+        if (!list || list.getBoundingClientRect().top < window.innerHeight) continue;
+        gsap.fromTo(list.children,
           { y: 18, opacity: 0 },
           { y: 0, opacity: 1, duration: 0.55, ease: 'power3.out', stagger: 0.08,
-            scrollTrigger: { trigger: rowsRef.current, start: 'top 85%', once: true } });
-      }
-      if (proofRef.current) {
-        gsap.fromTo(proofRef.current,
-          { y: 18, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.6, ease: 'power3.out',
-            scrollTrigger: { trigger: proofRef.current, start: 'top 85%', once: true } });
+            scrollTrigger: { trigger: list, start: 'top 85%', once: true } });
       }
     }, section);
     return () => { ctx.revert(); ScrollTrigger.refresh(); };
   }, []);
 
-  const moments = buildMoments(de);
-  const cost = waxVsOil.cost;
-  const w = waxVsOil.watts;
-  const pro = frictionRanges.find(r => r.id === 'pro')!;
-  const oil = frictionRanges.find(r => r.id === 'oil')!;
+  // Beleg-Link im Punkt: Tab umschalten. Unter lg steht der Slider ueber den
+  // Punkten, also dorthin scrollen, sonst sieht man den Wechsel nicht.
+  // scrollIntoView lief hier ins Leere (gemessen: Slider blieb bei −241 px),
+  // deshalb explizit per scrollTo im naechsten Frame, nach dem Tab-Wechsel.
+  // Nur wenn der Slider nicht schon ganz unter der Navigation sichtbar ist.
+  const showProof = (tab: ProofTab) => {
+    setProofTab(tab);
+    if (window.innerWidth >= 1024) return;
+    requestAnimationFrame(() => {
+      const el = sliderRef.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      if (r.top >= 80 && r.bottom <= window.innerHeight) return;
+      const top = r.top + window.scrollY - Math.max(80, (window.innerHeight - r.height) / 2);
+      window.scrollTo({ top: Math.max(0, top), behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+    });
+  };
 
-  // Ein Objekt statt zweier paralleler Ternaries — einzige Quelle für
-  // welches Bildpaar gerade aktiv ist. Beide Paare sind exakt auf 6/5
-  // vorzugeschnitten (siehe public/images/compare/, Originale in
-  // raw-image-library/compare/ bzw. unverändert in public/images/microscope/
-  // für die Wissenschaftsseite, die ihr eigenes Seitenverhältnis nutzt) —
-  // object-contain zeigt beide Paare dadurch randlos, ohne Balken oben/unten.
-  // `aspect` ist deshalb fix 6/5 für beide Tabs: gleiche Kartenhöhe UND
-  // gleiches Bildformat, kein Sprung beim Umschalten.
-  const proof = proofTab === 'macro'
+  const loc = de ? 'de-DE' : 'en-US';
+  const { life, watts, cost } = waxVsOil;
+  const wax500 = products.find(p => p.id === 'wax-500');
+  const cheapest = Math.min(...products.filter(p => p.category === 'wax').map(p => p.price));
+  const priceNote = w.ctaNote(cheapest.toLocaleString(loc, { minimumFractionDigits: 2 }) + ' €');
+
+  // Beide Bildpaare sind auf 6/5 zugeschnitten (public/images/compare/), der
+  // Umschalter springt deshalb nicht in der Hoehe.
+  const proof = proofTab === 'photo'
     ? {
-        aspect: '6/5',
         beforeSrc: '/images/compare/chain-oel.webp',
         afterSrc: '/images/compare/chain-wachs.webp',
-        beforeAlt: de ? 'Kette mit Kettenöl, ungewachst' : 'Chain with chain oil, unwaxed',
-        afterAlt: de ? 'Dieselbe Kette, gewachst mit Waxcelerate' : 'Same chain, waxed with Waxcelerate',
-        beforeLabel: de ? 'Öl' : 'Oil',
-        caption: de
-          ? 'Kein Dreck, keine Flecken — der Unterschied ist sofort sichtbar.'
-          : 'No grime, no stains — the difference is visible immediately.',
+        beforeAlt: de ? 'Kette mit Kettenöl, dunkel und verklebt' : 'Chain with chain oil, dark and sticky',
+        afterAlt: de ? 'Dieselbe Kette mit Heißwachs, sauber und trocken' : 'Same chain with hot wax, clean and dry',
+        beforeLabel: w.oilLabel, afterLabel: w.waxLabel, caption: w.captionPhoto,
       }
     : {
-        aspect: '6/5',
         beforeSrc: '/images/compare/micro-ref.webp',
         afterSrc: '/images/compare/micro-mos2.webp',
         beforeAlt: de ? 'Kettenglied-Innenfläche, Referenz ohne MoS₂' : 'Chain link inner surface, reference without MoS₂',
         afterAlt: de ? 'Kettenglied-Innenfläche mit Waxcelerate und MoS₂' : 'Chain link inner surface with Waxcelerate and MoS₂',
-        beforeLabel: de ? 'Referenz' : 'Reference',
-        caption: de
-          ? 'Innenfläche eines Kettenglieds, dort wo der Bolzen läuft.'
-          : 'Inner surface of a chain link, exactly where the pin runs.',
+        beforeLabel: w.proofRef, afterLabel: 'Waxcelerate', caption: w.captionMicro,
       };
 
+  // Einheit klein neben der Zahl, damit vier Kennzahlen in eine Zeile passen.
+  const figs: { value: string; unit?: string; title?: string; label: string; sub: React.ReactNode }[] = [
+    { value: `${life.waxLo}–${life.wax}×`, label: w.figLife, sub: w.figLifeSub },
+    { value: (wax500?.intervalDry ?? '250–450 km').replace(/\s*km$/, ''), unit: 'km', label: w.figInterval, sub: w.figIntervalSub },
+    { value: `${watts.wax[0]}–${watts.wax[1]}`, unit: 'W', title: w.labValues, label: w.figWatts,
+      sub: `${w.wattsShort(range(watts.oil), `${watts.inputW} W`)}. ${w.labValues}.` },
+    { value: `${cost.savedEur}`, unit: '€', label: w.figSaved(cost.km.toLocaleString(loc)),
+      sub: (
+        <Link to="/produkt/wax-500#instrument" aria-label={w.derivationAria}
+          className="group inline-flex items-center gap-1.5 font-semibold whitespace-nowrap py-2 -my-2"
+          style={{ color: 'var(--tx1)' }}>
+          {w.derivation}
+          <ArrowRight className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-1"
+            style={{ color: 'var(--accent-soft)' }} aria-hidden />
+        </Link>
+      ) },
+  ];
+
+  const tabBtn = (id: ProofTab, label: string) => (
+    <button type="button" aria-pressed={proofTab === id} onClick={() => setProofTab(id)}
+      className="text-meta font-semibold uppercase tracking-wide px-3 py-1.5 rounded-full transition-colors cursor-pointer"
+      style={{ color: proofTab === id ? '#fff' : 'var(--txm)', background: proofTab === id ? 'var(--accent)' : 'transparent' }}>
+      {label}
+    </button>
+  );
+
   return (
-    // `style` überschreibt hier bewusst Sections eigenes `py-14 sm:py-28`
-    // (112px oben+unten auf Desktop) — Lucas Vorgabe war, dass Überschrift
-    // bis 70-€-Zeile ohne weiteres Scrollen auf einen Bildschirm passen.
-    // Section.tsx selbst bleibt unangetastet (gilt fuer alle anderen
-    // Sektionen der Seite), nur diese eine Instanz bekommt per Inline-Style
-    // (schlägt die Klasse ohne `!important`-Hacks) einen kleineren, fluiden
-    // Wert.
-    <Section id="warum-wachs" ref={sectionRef} className="bg-wx-sf"
-      style={{ paddingTop: 'clamp(1.75rem, 3vw, 2.5rem)', paddingBottom: 'clamp(1.75rem, 3vw, 2.5rem)' }}>
+    <Section id="warum-wachs" ref={sectionRef} className="bg-wx-sf">
 
       <div className="absolute top-0 left-0 right-0 pointer-events-none"
         style={{ height: '56px', background: 'linear-gradient(to bottom, var(--sf), transparent)', zIndex: 1 }} />
 
-      {/* ── Header ── */}
-      <div ref={headerRef} className="mb-4 sm:mb-6">
-        <p className="eyebrow mb-2" style={{ color: 'var(--txf)' }}>
-          {de ? 'Öl vs. Wachs' : 'Oil vs. Wax'}
+      {/* ── Kopf ── */}
+      <div ref={headerRef} className="mb-8 sm:mb-11 max-w-[660px]">
+        <p className="eyebrow mb-3 flex items-center gap-3" style={{ color: 'var(--accent-soft)' }}>
+          <span aria-hidden className="inline-block w-7" style={{ height: '1.5px', background: 'currentColor' }} />
+          {w.changeEyebrow}
         </p>
-        <h2 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-wx-tx1 mb-3">
-          <ScrollWordReveal text={de ? 'Du merkst es sofort.' : 'You notice it straight away.'} />
+        <h2 className="font-display font-extrabold text-wx-tx1 leading-[1.02] tracking-[-0.02em]"
+          style={{ fontSize: 'clamp(34px, 4.4vw, 52px)' }}>
+          <ScrollWordReveal text={w.changeTitle} />
         </h2>
-        {/* Die Praemisse. Steht hier genau einmal, damit keine der vier
-            Zeilen darunter sie noch einmal erklaeren muss — das war der
-            Grund, warum 01 und 03 vorher wie dasselbe Argument klangen. */}
-        <p data-reveal="subtitle" className="text-wx-txm max-w-xl text-[15px] leading-relaxed">
-          {de
-            ? 'Wachs härtet trocken aus. Alles Weitere folgt daraus — und vier davon merkst du schon auf der ersten Ausfahrt.'
-            : 'Wax cures dry. Everything else follows from that — and four of those you notice on the very first ride.'}
+        <p data-reveal="subtitle" className="mt-3 sm:mt-4 text-[16px] sm:text-[18px] leading-normal max-w-[44ch]" style={{ color: 'var(--txm)' }}>
+          {w.changeLead}
         </p>
       </div>
 
-      {/* ── Argumente links, Beleg rechts ──
-          08/2026, siebter Durchgang: schlanke Karten (290px, voriger
-          Durchgang) liessen den Bildunterschrift-Satz auf zwei Zeilen
-          umbrechen — "länglich", Lucas Wort — und die Sektion war insgesamt
-          hoeher als ein Bildschirm, die 70-€-Zahl fiel unters Fold. Vier
-          Stellschrauben, keine davon einzeln gross, zusammen aber spuerbar:
-          1. Beleg-Spalte 290px → 370px. Der Bildunterschrift-Satz braucht
-             per `scrollWidth`-Messung (whiteSpace:nowrap, dann zurueck)
-             exakt 325px natuerliche Breite; 350px Kartenbreite (318px nutzbar
-             nach Padding) reichte um 7px nicht, 370px (338px nutzbar) laesst
-             sicheren Spielraum. Bleibt trotzdem klar unter der alten
-             Spaltenbreite (~475px) und weit über der ~224px-Kollisionsgrenze
-             der REFERENZ/WAXCELERATE-Chips.
-          2. Der Metrik-Chip zieht aus einer eigenen Zeile unter den
-             Fliesstext IN den Fliesstext ("… beim Einladen.  färbt nicht
-             ab") — spart eine ganze Zeile Höhe pro Listenpunkt (vier Zeilen
-             insgesamt) UND liest sich weniger zusammengestückelt: die Zahl
-             wirkt wie eine angehängte Beleg-Notiz zum Satz, nicht wie ein
-             drittes, unverbundenes Element.
-          3. Zeilenabstand der Liste und Kopfbereich-Abstand jeweils leicht
-             gestrafft (py-8→py-7, mb-12→mb-9) — zusammen mit Punkt 2 genug,
-             um die ganze Sektion wieder unter eine Bildschirmhoehe zu
-             bringen, ohne dass die grossen Serifziffern ihre Wirkung
-             verlieren.
-          4. Wattbalken (DriveLossBars) sind ab jetzt `hidden sm:block` —
-             auf Mobile ersetzt sie eine einzeilige Zusammenfassung. Von den
-             drei Beleg-Stuecken (Foto, Wattbalken, 70-€-Zahl) sind die
-             Wattbalken die einzige reine Wiederholung: Zeile 03 der Liste
-             traegt die Reibungszahl schon als Chip, Zeile 04 die
-             Kettenlaufzeit. Foto ist der einzige echte Eigenbeleg der Marke
-             (nirgendwo sonst auf der Seite), die 70-€-Zahl der konkreteste,
-             am leichtesten verstaendliche Vorteil. Die Balken sind der
-             abstrakteste der drei (μ-Werte, Watt) UND schon anderswo in der
-             Liste vertreten — die naheliegende Streichung fuer Mobile. */}
-      <div className="grid lg:grid-cols-[1fr_370px] gap-10 lg:gap-16 items-start lg:items-stretch">
-
-        {/* lg: die vier Zeilen wachsen gleich (flex-1) auf die volle
-            Spaltenhoehe, die die (hoehere) Beleg-Spalte rechts vorgibt — die
-            Trennlinien sitzen dann in gleichem Rhythmus und die letzte fluchtet
-            exakt mit der Unterkante der Kosten-Karte. Oben fluchtet die
-            Startlinie ohnehin mit der Mikroskop-Karte. */}
-        <div ref={rowsRef} className="lg:h-full lg:flex lg:flex-col" style={{ borderTop: '1px solid var(--bd2)' }}>
-          {moments.map(m => (
-            <div key={m.n} data-row className="flex items-start gap-4 sm:gap-7 py-4 sm:py-9 lg:flex-1"
-              style={{ borderBottom: '1px solid var(--bd2)' }}>
-              <span className="font-display font-bold leading-none flex-shrink-0 select-none"
-                style={{ fontSize: 'clamp(1.75rem, 7vw, 3.25rem)', color: 'var(--accent-soft)', minWidth: '2ch' }}>
-                {m.n}
-              </span>
-              <div className="flex-1 min-w-0 pt-1" style={{ maxWidth: '32rem' }}>
-                <h3 className="font-display font-bold text-wx-tx1 leading-[1.15] tracking-[-0.02em]"
-                  style={{ fontSize: 'clamp(1.05rem, 2.2vw, 1.5rem)' }}>
-                  {de ? m.titleDe : m.titleEn}
-                </h3>
-                <p className="text-small sm:text-body leading-snug sm:leading-relaxed mt-1.5 sm:mt-2"
-                  style={{ color: 'var(--txm)' }}>
-                  {de ? m.bodyDe : m.bodyEn}
-                  {'  '}
-                  {/* Beleg-Notiz am Satzende: bewusst dieselbe Schrift wie der
-                      Satz, nur eine Stufe kleiner und in der leisesten
-                      Textfarbe. Der Chip-Inhalt ist gemischt (Wortbelege wie
-                      "Fahrerurteil" neben Zahlen wie "μ 0.03"), eine Mono-Type
-                      passte nur zur Haelfte und las sich als Fehlformatierung.
-                      `.num` nur fuer buendige Ziffern, ohne Mono-Optik. */}
-                  <span className="num text-small whitespace-nowrap" style={{ color: 'var(--txff)' }}>
-                    · {m.chip}
-                  </span>
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* w-full statt fixer 370px unterhalb von lg: bei 370px fixer Breite
-            ragte die Karte auf schmalen Viewports (< ~420px, inkl. der
-            Section-Innenabstaende) über den Content-Rand hinaus und erzeugte
-            horizontales Scrollen — nachgemessen per scrollWidth/clientWidth.
-            max-w-[370px] deckelt sie trotzdem, falls sm: (bis lg:) mal breiter
-            als 370px content-Platz hat. */}
-        <div ref={proofRef} className="flex flex-col gap-2.5 lg:justify-between lg:h-full mx-auto lg:mx-0 w-full max-w-[370px] lg:w-[370px]">
-          <div className="rounded-2xl overflow-hidden"
-            style={{ border: '1px solid var(--bd)', background: 'var(--card-bg)', boxShadow: 'var(--card-shad)' }}>
-            <BeforeAfterSlider
-              key={proofTab}
-              aspect={proof.aspect}
-              beforeSrc={proof.beforeSrc}
-              afterSrc={proof.afterSrc}
-              beforeAlt={proof.beforeAlt}
-              afterAlt={proof.afterAlt}
-              beforeLabel={proof.beforeLabel}
-              afterLabel="Waxcelerate"
-            />
-            <div className="px-4 pb-3.5 pt-3">
-              {/* Segmented Control statt reiner Farbänderung an Fließtext —
-                  Luca-Feedback: der alte, rein textbasierte Umschalter (nur
-                  Akzentfarbe auf sonst unauffälligem Eyebrow-Text) wurde
-                  nicht als klickbar erkannt bzw. beim Klicken verfehlt. Jetzt
-                  eigene Fläche pro Option (Radius, Rahmen, Hintergrund bei
-                  aktivem Zustand) — deutlich größere Trefferfläche, sofort
-                  als Steuerelement erkennbar. Das Pfeil-Icon davor (gleiches
-                  Icon wie "Classic oder Pro? Vergleich ansehen" in
-                  ProductShelf.tsx) markiert die Gruppe zusätzlich als
-                  Umschalter, nicht nur als zwei Labels. */}
-              <div className="flex items-center gap-1.5 mb-2">
-                <ArrowLeftRight className="h-3 w-3 flex-shrink-0" style={{ color: 'var(--txff)' }} aria-hidden />
-                <div className="inline-flex items-center gap-1 p-0.5 rounded-full"
-                  style={{ background: 'var(--sf2)', border: '1px solid var(--bd)' }}>
-                  <button type="button" aria-pressed={proofTab === 'macro'}
-                    onClick={() => setProofTab('macro')}
-                    className="text-meta font-semibold uppercase tracking-wide px-2.5 py-1 rounded-full transition-colors cursor-pointer"
-                    style={{
-                      color: proofTab === 'macro' ? '#fff' : 'var(--txm)',
-                      background: proofTab === 'macro' ? 'var(--accent)' : 'transparent',
-                    }}>
-                    {de ? 'Foto' : 'Photo'}
-                  </button>
-                  <button type="button" aria-pressed={proofTab === 'micro'}
-                    onClick={() => setProofTab('micro')}
-                    className="text-meta font-semibold uppercase tracking-wide px-2.5 py-1 rounded-full transition-colors cursor-pointer"
-                    style={{
-                      color: proofTab === 'micro' ? '#fff' : 'var(--txm)',
-                      background: proofTab === 'micro' ? 'var(--accent)' : 'transparent',
-                    }}>
-                    {de ? 'Mikroskop · 1000×' : 'Microscope · 1000×'}
-                  </button>
-                </div>
-              </div>
-              <p className="text-small leading-relaxed" style={{ color: 'var(--txm)' }}>
-                {proof.caption}
-              </p>
-            </div>
+      {/* ── Beleg links, Punkte rechts (mobil: Beleg zuerst) ── */}
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-[72px] items-center">
+        <div ref={sliderRef} className="scroll-mt-24">
+          <div className="rounded-[18px] overflow-hidden" style={{ boxShadow: '0 24px 48px rgba(0,0,0,.16)' }}>
+            <BeforeAfterSlider key={proofTab} aspect="6/5" fit="cover" bare overlayLabels
+              beforeSrc={proof.beforeSrc} afterSrc={proof.afterSrc}
+              beforeAlt={proof.beforeAlt} afterAlt={proof.afterAlt}
+              beforeLabel={proof.beforeLabel} afterLabel={proof.afterLabel} />
           </div>
-
-          {/* Karte ist klickbar — Luca-Feedback: die Ersparniszahl steht ohne
-              Beleg da, dabei gibt es auf der wax-500-Produktseite bereits eine
-              Posten-fuer-Posten-Herleitung genau dieser Zahlen (Etappe 5: die
-              Aufschluesselung steht jetzt in AssumptionsDisclosure, unter dem
-              Instrument "Was das fuer dich heisst" -- das eigene Kostenvergleich-
-              Akkordeon ist entfallen, sein Modell widersprach drivetrainCosts).
-              Der Hinweis-Satz + Pfeil unten im Footer macht die Klickbarkeit
-              sichtbar, denselben Fehler, den die alte ScienceTeaser-Karte hatte
-              (siehe deren Kommentar), wiederholt sich hier sonst. `group` auf
-              dem Link steuert den Pfeil-Hover, InstrumentFrames eigener Rahmen
-              bleibt unangetastet. */}
-          <Link to="/produkt/wax-500#instrument" className="group block rounded-2xl"
-            aria-label={de ? 'Woher die Ersparnis kommt: Kostenaufschlüsselung ansehen' : 'Where the savings come from: see the cost breakdown'}>
-            <InstrumentFrame
-              noReveal
-              eyebrow={de ? 'Gemessen · Antriebsverlust' : 'Measured · drivetrain loss'}
-              footer={
-                /* Die Ersparnis als offene Rechnung statt als eine grosse Zahl
-                   plus danebenstehendem "151 → 81" (das sagte dasselbe zweimal:
-                   70 = 151 − 81). Zwei Posten, eine Summenzeile. */
-                <div className="flex flex-col gap-2.5">
-                  <div className="flex flex-col gap-1.5">
-                    <div className="flex items-baseline justify-between gap-3 text-small">
-                      <span style={{ color: 'var(--txm)' }}>{de ? 'Kettenöl' : 'Chain oil'}</span>
-                      <span className="num" style={{ color: 'var(--tx1)' }}>{eur(cost.oilEur, de)}</span>
-                    </div>
-                    <div className="flex items-baseline justify-between gap-3 text-small">
-                      <span style={{ color: 'var(--txm)' }}>{de ? 'Heißwachs' : 'Hot wax'}</span>
-                      <span className="num" style={{ color: 'var(--tx1)' }}>{eur(cost.waxEur, de)}</span>
-                    </div>
-                    <div className="flex items-baseline justify-between gap-3 pt-2 mt-0.5"
-                      style={{ borderTop: '1px solid var(--bd2)' }}>
-                      <span className="text-small font-semibold" style={{ color: 'var(--tx1)' }}>
-                        {de ? 'Gespart' : 'Saved'}
-                        <span className="text-meta font-normal ml-1.5" style={{ color: 'var(--txf)' }}>
-                          {de ? `auf ${cost.km.toLocaleString('de-DE')} km` : `over ${cost.km.toLocaleString('en-US')} km`}
-                        </span>
-                      </span>
-                      <span className="font-display font-bold" style={{ fontSize: '1.4rem', color: 'var(--accent)' }}>
-                        {eur(cost.savedEur, de)}
-                      </span>
-                    </div>
-                  </div>
-                  <span className="inline-flex items-center gap-1.5 text-meta font-semibold" style={{ color: 'var(--tx1)' }}>
-                    {de ? 'Woher kommt die Zahl?' : 'Where does this number come from?'}
-                    <ArrowRight className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-1"
-                      style={{ color: 'var(--accent-soft)' }} />
-                  </span>
-                </div>
-              }
-            >
-              {/* Balken nur ab sm — auf Mobile reicht eine Zeile, siehe
-                  Kommentar oben (Punkt 4): einzige der drei Beleg-Stuecke, die
-                  sich mit der Liste (Zeile 03/04) wiederholt. */}
-              <div className="hidden sm:block">
-                <DriveLossBars de={de} />
-                <p className="text-meta leading-relaxed mt-3" style={{ color: 'var(--txff)' }}>
-                  {de
-                    ? `Bei ${w.inputW[0]}–${w.inputW[1]} W, μ ${pro.muLo.toFixed(2)}–${pro.muHi.toFixed(2)} statt ${oil.muLo.toFixed(2)}–${oil.muHi.toFixed(2)}. Laborwerte.`
-                    : `At ${w.inputW[0]}–${w.inputW[1]} W, μ ${pro.muLo.toFixed(2)}–${pro.muHi.toFixed(2)} instead of ${oil.muLo.toFixed(2)}–${oil.muHi.toFixed(2)}. Lab values.`}
-                </p>
+          {/* Umschalter wie bisher: eigene Flaeche je Option, sonst wurde er
+              nicht als klickbar erkannt (Luca-Feedback 08/2026). */}
+          <div className="mt-3.5 flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-3">
+            <div className="inline-flex items-center gap-1.5 flex-shrink-0">
+              <ArrowLeftRight className="h-3 w-3 flex-shrink-0" style={{ color: 'var(--txff)' }} aria-hidden />
+              <div className="inline-flex items-center gap-1 p-0.5 rounded-full"
+                style={{ background: 'var(--sf2)', border: '1px solid var(--bd)' }}>
+                {tabBtn('photo', w.proofPhoto)}
+                {tabBtn('micro', w.proofMicro)}
               </div>
-              <p className="sm:hidden text-small leading-relaxed" style={{ color: 'var(--txm)' }}>
-                <span className="num font-medium" style={{ color: 'var(--accent)' }}>{w.wax[0]}–{w.wax[1]} W</span>
-                {de ? ' statt ' : ' instead of '}
-                <span className="num" style={{ color: 'var(--txf)' }}>{w.oil[0]}–{w.oil[1]} W</span>
-                {de ? ' Reibungsverlust im Antrieb.' : ' drivetrain friction loss.'}
-              </p>
-            </InstrumentFrame>
-          </Link>
+            </div>
+            <p className="text-small leading-snug" style={{ color: 'var(--txm)' }} aria-live="polite">{proof.caption}</p>
+          </div>
         </div>
+
+        <ul ref={pointsRef} className="grid gap-[18px] sm:gap-[26px] list-none p-0 m-0">
+          {w.points.map((p, i) => {
+            const tab = POINT_PROOF[i];
+            const active = tab !== null && tab === proofTab;
+            return (
+              <li key={p.title} className="grid grid-cols-[46px_1fr] sm:grid-cols-[52px_1fr]">
+                <span className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl grid place-items-center transition-colors duration-300"
+                  style={{ background: active ? 'var(--accent)' : 'rgba(var(--accent-rgb), 0.08)', color: active ? '#fff' : 'var(--accent)' }}>
+                  <Ico name={CHANGE_ICONS[i]} className="w-[18px] h-[18px] sm:w-5 sm:h-5"
+                    style={{ stroke: 'currentColor', fill: 'none', strokeWidth: 1.7, strokeLinecap: 'round', strokeLinejoin: 'round' }} />
+                </span>
+                <div>
+                  <h3 className="font-display font-bold text-wx-tx1 text-[19px] sm:text-[22px] leading-[1.2]">{p.title}</h3>
+                  <p className="mt-1 sm:mt-1.5 text-[15px] sm:text-[15.5px] leading-[1.5] sm:leading-[1.55] max-w-[44ch]" style={{ color: 'var(--txm)' }}>
+                    {p.body}
+                  </p>
+                  {tab && (
+                    <button type="button" onClick={() => showProof(tab)} aria-pressed={active}
+                      className="group mt-1.5 inline-flex items-center gap-1.5 py-1 text-[13px] font-semibold rounded cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                      style={{ color: active ? 'var(--accent)' : 'var(--tx1)', outlineColor: 'var(--accent)' }}>
+                      <ArrowLeftRight className="h-3 w-3" style={{ color: 'var(--accent-soft)' }} aria-hidden />
+                      <span className="underline decoration-1 underline-offset-[3px]"
+                        style={{ textDecorationColor: active ? 'var(--accent)' : 'var(--bd)' }}>
+                        {tab === 'photo' ? w.seePhoto : w.seeMicro}
+                      </span>
+                    </button>
+                  )}
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+
+      {/* ── Kennzahlen ── Haarlinie oben, Trennlinien zwischen den Spalten,
+          mobil 2×2. */}
+      <dl ref={figsRef} className="grid grid-cols-2 lg:grid-cols-4 gap-y-6 sm:gap-y-7 mt-12 lg:mt-16"
+        style={{ borderTop: '1px solid var(--bd2)' }}>
+        {figs.map((f, i) => (
+          <div key={f.label} style={{ borderColor: 'var(--bd2)' }}
+            className={`pt-5 sm:pt-6 pr-3 sm:pr-4 lg:pr-6 ${i % 2 ? 'border-l pl-4 sm:pl-5' : ''} ${i > 0 ? 'lg:border-l lg:pl-7' : ''}`}>
+            <dd className="font-display font-extrabold leading-none tracking-[-0.03em] whitespace-nowrap"
+              title={f.title}
+              style={{ fontSize: 'clamp(23px, 3.4vw, 44px)', color: 'var(--accent)' }}>
+              {/* 23 px Untergrenze: "250–450 km" muss bei 360 px in die rechte
+                  Halbspalte passen (whitespace-nowrap, gemessen). */}
+              <span className="num">{f.value}</span>
+              {f.unit && <small className="text-[16px] sm:text-[22px] font-semibold ml-1" style={{ color: 'var(--tx2)' }}>{f.unit}</small>}
+            </dd>
+            <dt className="mt-2.5 sm:mt-3 font-semibold text-[14px] sm:text-[14.5px] leading-snug" style={{ color: 'var(--tx1)' }}>{f.label}</dt>
+            <dd className="mt-1 text-[13px] sm:text-[13.5px] leading-snug" style={{ color: 'var(--txf)' }}>{f.sub}</dd>
+          </div>
+        ))}
+      </dl>
+
+      {/* ── Weg zurueck zum Regal ── ab lg als Button, mobil nur der Preis
+          (die feste Leiste unten fuehrt dort schon zu den Produkten). */}
+      <p className="lg:hidden mt-6 text-small" style={{ color: 'var(--txm)' }}>{priceNote}</p>
+      <div className="hidden lg:flex mt-10 items-center gap-4">
+        <a href="#produkte" className="group inline-flex items-center gap-2 rounded-full px-5 py-3 text-[15px] font-semibold transition-transform hover:-translate-y-px"
+          style={{ background: 'var(--tx1)', color: 'var(--pg)' }}>
+          {w.cta}
+          <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" aria-hidden />
+        </a>
+        <span className="text-small" style={{ color: 'var(--txm)' }}>{priceNote}</span>
       </div>
 
       {/* ── Tür in die Wissenschaft ── */}

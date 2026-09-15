@@ -27,7 +27,7 @@ import { compatibilityMatrix, getProductById, isSoldOut } from '@/lib/data';
 import type { DriveSystem } from '@/lib/ridingProfile';
 import { shareUrl } from '@/lib/toolState';
 import { PRICE, UMSTIEG_LIVE } from '@/pages/rewax/content';
-import { SketchFrame } from '@/components/tools/sketches';
+import { SketchFrame, CassetteSchematic } from '@/components/tools/sketches';
 import {
   ToolCard, ToolHeader, StepList, ToolCTA, TogButton, ChipRow,
 } from '@/components/tools/primitives';
@@ -129,24 +129,29 @@ export function ChainMatchCalculator({ profile, compact }: { profile: ToolProfil
             </StepField>
           </div>
 
-          {/* Die Treffer als Produktliste — die Grafik dieser Karte. Immer
+          {/* Oben eine kleine Kassetten-Schemazeichnung (System + Gangzahl),
+              darunter die Treffer als Produktliste — zusammen die Grafik
+              dieser Karte, im selben Stahl-Look wie die anderen vier. Immer
               Liste statt 2×2-Raster: Modellnamen wie „XT / Ultegra CN-M8100"
               passten in keine Kachel. Keine Platzhalter fuer leere Plaetze —
               bei Campagnolo (ein Treffer) sahen drei gestrichelte Kaesten wie
               ein Fehler aus; die Bildzone ist ohnehin fest hoch (GRAPHIC_H),
               die Treffer stehen mittig darin. */}
           <SketchFrame>
-            <ul className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1">
+              <CassetteSchematic speed={stocked ? speed : 12} systemLabel={SYSTEM_LABELS[system]} de={de} />
+              <div style={{ borderTop: '1px solid var(--bd2)' }} />
+              <ul className="flex flex-col gap-0.5">
               {slots.map(p => {
                 const soldOut = isSoldOut(p);
                 return (
                   <li key={p.id}>
                     <a
                       href={`/produkt/${p.id}`}
-                      className="group flex items-center gap-2.5 h-[36px] rounded-lg pl-1 pr-2.5 transition-colors min-w-0 hover:bg-[var(--sf)]"
+                      className="group flex items-center gap-2 h-[26px] rounded-lg pl-1 pr-2.5 transition-colors min-w-0 hover:bg-[var(--sf)]"
                       style={{ opacity: soldOut ? 0.55 : 1 }}
                     >
-                      <span className="relative w-7 h-7 rounded-md overflow-hidden flex-shrink-0" style={{ background: 'var(--sf2)' }}>
+                      <span className="relative w-6 h-6 rounded-md overflow-hidden flex-shrink-0" style={{ background: 'var(--sf2)' }}>
                         <img
                           src={p.image}
                           alt=""
@@ -167,7 +172,8 @@ export function ChainMatchCalculator({ profile, compact }: { profile: ToolProfil
                   </li>
                 );
               })}
-            </ul>
+              </ul>
+            </div>
           </SketchFrame>
         </div>
       </StepList>

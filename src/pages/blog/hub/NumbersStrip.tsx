@@ -4,8 +4,8 @@ import { hubNumbers } from '../hubContent';
 import { prefersReducedMotion } from './searchHelpers';
 
 /**
- * "Die Zahlen": vier Kennzahlen als grosse Mono-Ziffern, jede ein Link auf den
- * Artikel, der sie herleitet. Autoritaet ueber Messwerte statt Adjektive, wie
+ * "Die Zahlen": vier Kennzahlen als grosse Mono-Ziffern, jede ein Link auf die
+ * Seite, die sie herleitet. Autoritaet ueber Messwerte statt Adjektive, wie
  * es Zero Friction Cycling vormacht. Die Werte blenden gestaffelt ein, sobald
  * der Streifen ins Bild kommt (bei reduzierter Bewegung sofort sichtbar).
  */
@@ -43,7 +43,7 @@ export function NumbersStrip() {
         {hubNumbers.map((n, i) => (
           <Link
             key={n.value}
-            to={`/blog/${n.slug}`}
+            to={n.to}
             className="group flex flex-col p-6 sm:p-7 transition-colors hover:bg-[color:var(--sf2)]"
             style={{
               background: 'var(--sf)',
@@ -61,7 +61,7 @@ export function NumbersStrip() {
             </span>
             <span className="text-[13px] leading-[1.6] text-wx-txm mb-5">{n.note}</span>
             <span className="mt-auto text-[13px] font-semibold transition-transform group-hover:translate-x-0.5" style={{ color: 'var(--accent)' }}>
-              Herleitung lesen →
+              {n.to === '/wissenschaft' ? 'Zur Messung →' : 'Herleitung lesen →'}
             </span>
           </Link>
         ))}

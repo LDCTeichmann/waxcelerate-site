@@ -175,7 +175,7 @@ export function HubHero({
 
         <div className="mt-5 flex flex-wrap items-center gap-2 max-w-3xl">
           <span className="font-mono text-small uppercase tracking-[0.16em] mr-1" style={{ color: '#B4B4BE' }}>
-            {recent.length ? 'Zuletzt gesucht' : 'Oft gefragt'}
+            {recent.length ? 'Zuletzt gesucht' : 'Zum Beispiel'}
           </span>
           {chips.map((q) => (
             <button

@@ -136,22 +136,34 @@ export function HexMoS2({ de }: { de: boolean }) {
   );
 }
 
-// ─── Contact-pressure scale — replaces the old cross-section schematic ───────
-// The previous version drew two grey steel bands, two accent film lines and a
-// scatter of dots labelled "Fe-S" in the middle — without the paragraph next
-// to it (which this InstrumentFrame doesn't have; it sits alone in the ACT III
-// grid), there was no way to tell what was steel, what was film, what the
-// dots were, or why "Fe-S" sat unexplained in the centre. It illustrated the
-// mechanism but never stated the one number that actually proves oil can't
-// compete here: the pressure itself. This replaces it with that number,
-// placed on a log scale against two pressures people already have an
-// intuition for.
+// ─── Contact-pressure scale ──────────────────────────────────────────────────
+// Shows the flaechenpressung a chain joint actually works at, on a log scale
+// against one pressure people have an intuition for.
+//
+// 2026-09-15 correction. This panel used to be headed "Warum Oel hier
+// aufgibt" and carried a dashed line at 50 MPa with the caption "ab 50 MPa
+// traegt kein Fluessigfilm mehr, Grenzschmierung". That threshold does not
+// exist. Grenzschmierung follows from the ratio of film thickness to surface
+// roughness, and that thickness is driven by ENTRAINMENT SPEED, not by
+// pressure; under pressure a lubricant's viscosity rises, which is why EHL
+// films carry 1 to 3 GPa in rolling bearings, ten times what the line marked
+// as the end of liquid lubrication. A chain joint runs boundary-lubricated
+// because it swings instead of rotating: sliding speed passes through zero
+// twice per cycle, and at zero no hydrodynamic film builds, at any pressure.
+// That reason is both correct and stronger, and it is already on the page in
+// the Losbrech paragraph of ContactZones.
+//
+// Removed with the threshold: the "Hydraulikpresse 30 MPa" row. A hydraulic
+// system pressure in a fluid is not a flaechenpressung between two solids,
+// so it did not belong on this axis. The tyre row stays (contact-patch
+// pressure is roughly inflation pressure, so it IS the same quantity) but at
+// a road pressure of about 7 bar instead of 2.5.
+// Full write-up: docs/plaene/WISSENSCHAFT_REDESIGN.md, section 2.
 interface PressureRow {
   labelDe: string; labelEn: string; lo: number; hi: number; valueLabel: string; highlight: boolean;
 }
 const PRESSURE_ROWS: PressureRow[] = [
-  { labelDe: 'Fahrradreifen', labelEn: 'Bicycle tyre', lo: 0.25, hi: 0.25, valueLabel: '0,25 MPa', highlight: false },
-  { labelDe: 'Hydraulikpresse', labelEn: 'Hydraulic press', lo: 30, hi: 30, valueLabel: '30 MPa', highlight: false },
+  { labelDe: 'Reifenaufstandsfläche', labelEn: 'Tyre contact patch', lo: 0.7, hi: 0.7, valueLabel: '~0,7 MPa', highlight: false },
   { labelDe: 'Kettengelenk', labelEn: 'Chain joint', lo: 50, hi: 300, valueLabel: '50–300 MPa', highlight: true },
 ];
 
@@ -160,11 +172,6 @@ const PRESSURE_ROWS: PressureRow[] = [
 // axis — the entire point is that these are different ORDERS of magnitude.
 const LOG_MIN = -1, LOG_MAX = 3;
 const toPct = (mpa: number) => ((Math.log10(mpa) - LOG_MIN) / (LOG_MAX - LOG_MIN)) * 100;
-// Where boundary lubrication starts — the chain joint's own lower bound. The
-// dashed threshold line is drawn at exactly this position, not a separately
-// invented number, so it reads as "this is where the chain's own range
-// begins" rather than an unrelated reference mark.
-const THRESHOLD_PCT = toPct(50);
 
 export function TransferFilm({ de }: { de: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -179,7 +186,7 @@ export function TransferFilm({ de }: { de: boolean }) {
 
   return (
     <InstrumentFrame
-      eyebrow={de ? 'Warum Öl hier aufgibt' : 'Why oil gives up here'}
+      eyebrow={de ? 'Flächenpressung im Gelenk' : 'Contact pressure in the joint'}
       chip="50–300 MPa"
       footer={
         <div className="grid grid-cols-3 gap-3 text-center">
@@ -212,14 +219,6 @@ export function TransferFilm({ de }: { de: boolean }) {
                 </span>
               </div>
               <div className="relative h-2.5 rounded-full overflow-hidden" style={{ background: 'var(--bd)' }}>
-                {/* Threshold tick — drawn inside EACH row's own bar track
-                    (not spanning all three via one cross-row overlay, which
-                    needs fragile pixel math against space-y gaps + variable
-                    row heights). Same horizontal position in every track
-                    still reads as one continuous line across the group, at
-                    far less risk of drifting out of alignment. */}
-                <div className="absolute inset-y-0 pointer-events-none" aria-hidden
-                  style={{ left: `${THRESHOLD_PCT}%`, borderLeft: '1.5px dashed var(--accent)', opacity: run ? 0.5 : 0, transition: 'opacity 0.6s ease 0.8s' }} />
                 <div className="absolute inset-y-0 rounded-full"
                   style={{
                     left: run ? `${startPct}%` : '0%',
@@ -235,8 +234,8 @@ export function TransferFilm({ de }: { de: boolean }) {
         })}
         <p className="text-[12px] leading-relaxed" style={{ color: 'var(--accent-soft)', opacity: run ? 1 : 0, transition: 'opacity 0.6s ease 0.9s' }}>
           {de
-            ? 'Gestrichelt: ab 50 MPa trägt kein Flüssigfilm mehr — Grenzschmierung.'
-            : 'Dashed: above 50 MPa no liquid film holds up any more — boundary lubrication.'}
+            ? 'Der Druck allein ist dabei nicht das Problem. Entscheidend ist die Bewegung: ein Gelenk schwenkt auf und wieder zu, die Gleitgeschwindigkeit geht zweimal je Zyklus durch null. Bei null baut sich kein Flüssigfilm auf.'
+            : 'Pressure alone is not the problem. The movement is: a joint swings open and shut again, so sliding speed passes through zero twice per cycle. At zero, no liquid film builds.'}
         </p>
 
         {/* The payoff — what actually happens to each lubricant at that
@@ -249,8 +248,8 @@ export function TransferFilm({ de }: { de: boolean }) {
             </span>
             <p className="text-[12.5px] leading-relaxed" style={{ color: 'var(--txm)' }}>
               {de
-                ? 'Der Flüssigfilm wird herausgedrückt — Metall trifft auf Metall.'
-                : 'The liquid film gets squeezed out — metal meets metal.'}
+                ? 'Braucht Geschwindigkeit, um einen Film aufzubauen. Am Umkehrpunkt hat er sie nicht, dort trifft Metall auf Metall.'
+                : 'Needs speed to build a film. At the reversal point it has none, and there metal meets metal.'}
             </p>
           </div>
           <div className="flex gap-3">
@@ -259,8 +258,8 @@ export function TransferFilm({ de }: { de: boolean }) {
             </span>
             <p className="text-[12.5px] leading-relaxed" style={{ color: 'var(--txm)' }}>
               {de
-                ? 'Die Schichten scheren stattdessen ab — ein 2–5 nm Film bleibt und bindet chemisch (Fe–S) am Stahl.'
-                : 'The layers shear instead — a 2–5 nm film remains and chemically bonds (Fe–S) to the steel.'}
+                ? 'Ist auch im Stillstand da. Die Schichten scheren ab, ein 2 bis 5 nm dünner Film bleibt und bindet chemisch (Fe–S) am Stahl.'
+                : 'Is there even at a standstill. The layers shear off, a film of 2 to 5 nm remains and bonds chemically (Fe–S) to the steel.'}
             </p>
           </div>
         </div>

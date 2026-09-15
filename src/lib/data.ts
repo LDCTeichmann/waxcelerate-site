@@ -1033,10 +1033,17 @@ export const waxVsOil = {
   // Spanne aus `frictionRanges` gegenuebergestellt. Oel liegt je nach
   // Additivierung zwischen 0,18 und 0,25.
   friction: { wax: 0.03, waxHi: 0.06, oil: 0.2 },
-  // Antriebsverlust. Eine Version fuer die ganze Seite. Der untere Wert ist
-  // frisch behandelt, der obere am Ende des Intervalls. `inputW` gehoert an
+  // Reibungsverlust IN DER KETTE, nicht im ganzen Antrieb: die zitierten Tests
+  // messen die Kette allein, ohne Schaltrollen und Verzahnung. Der untere Wert
+  // ist frisch behandelt, der obere am Ende des Intervalls. `inputW` gehoert an
   // jede Nennung: eine Wattzahl ohne Eingangsleistung ist technisch bedeutungslos.
-  watts: { wax: [2, 4], oil: [6, 10], inputW: [300, 400] },
+  // 250 W, weil die veroeffentlichten Werte von Zero Friction Cycling bei
+  // 250 W und 90 U/min entstehen. Bis 15.09.2026 stand hier "300-400 W" -- das
+  // schrieb einer fremden Messung eine Bedingung zu, unter der sie nicht
+  // entstanden ist. Reibungsverlust skaliert im Wesentlichen mit der Last, bei
+  // 350 W waeren die Absolutwerte hoeher, nicht gleich. Dieselbe Korrektur
+  // steht im Skill (30_claims_language) noch aus.
+  watts: { wax: [2, 4], oil: [6, 10], inputW: 250 },
   // Relative chain lifetime. Rendered as the RANGE, never as the top value
   // alone: the binding claim is "deutlich länger, oft 2 bis 3×". A bare "3×"
   // is the kind of rounding that costs more credibility than the number buys.

@@ -7,11 +7,14 @@
  * sehen), und es gilt dieselbe Regel wie fuer articles.ts: kein Inhalt im JSX.
  *
  * Jede Aussage hier stammt aus dem verlinkten Artikel (Takeaways, FAQ oder
- * Abschnittstext). Wer eine Zahl im Artikel aendert, aendert sie hier mit.
+ * Abschnittstext), die Wattzahl aus data.ts. Wer eine Zahl im Artikel
+ * aendert, aendert sie hier mit.
  * `heading` muss wortgleich einer <h2> des Artikels entsprechen, daraus wird
  * der Sprunganker (headingId). scripts/check-search.mjs prueft das.
  */
 import type { ArticleCategory } from './articles';
+// Relativ statt '@/': diese Datei laeuft auch in den Build-Skripten (tsx).
+import { waxVsOil } from '../../lib/data';
 
 export type PathStep = { slug: string; why: string };
 
@@ -44,7 +47,7 @@ export const symptoms: Symptom[] = [
     id: 'quietscht',
     label: 'Kette quietscht',
     where: 'Obere Kettenstrecke',
-    cause: 'Kurz nach dem Wachsen: Das Wachs ist nie tief eingedrungen, weil das Bad zu kühl oder die Kette zu kurz drin war. Nach 400 km und mehr heißt Quietschen einfach: Sie ist fällig.',
+    cause: 'Kurz nach dem Wachsen: Das Wachs ist nie tief eingedrungen, weil das Bad zu kühl oder die Kette zu kurz drin war. Nach einem vollen Intervall (trocken 400–550 km, nass 200–300 km) heißt Quietschen einfach: Sie ist fällig.',
     fix: '10 bis 15 Minuten bei 85 bis 90 °C, bis keine Luftbläschen mehr aufsteigen.',
     slug: 'wachs-haelt-nicht-haeufige-fehler',
     heading: '2. Die Kette quietscht schon nach 50–100 km wieder',
@@ -96,14 +99,25 @@ export const symptoms: Symptom[] = [
   },
 ];
 
-export type HubNumber = { value: string; label: string; note: string; slug: string };
+/** `to`: Zielpfad, meist ein Artikel, fuer die Wattzahl /wissenschaft. */
+export type HubNumber = { value: string; label: string; note: string; to: string };
 
-/** Vier Kennzahlen, jede mit dem Artikel, der sie herleitet. */
+const w = waxVsOil.watts;
+
+/** Vier Kennzahlen, jede mit der Seite, die sie herleitet. */
 export const hubNumbers: HubNumber[] = [
-  { value: '400–550', label: 'km pro Wachsgang', note: 'trocken. Bei Nässe, Schotter oder MTB 200 bis 300 km.', slug: 'kettenlaufzeit-heisswachs' },
-  { value: '2–3×', label: 'Kettenlaufzeit', note: '6.000 bis 12.000 km statt 2.000 bis 3.000 km mit Öl.', slug: 'kettenverschleiss-messen' },
-  { value: '4–5 W', label: 'weniger Reibung', note: 'rund 2 % der Tretleistung. Für Rennfahrer relevant, für den Alltag kein Kaufargument.', slug: 'heisswachs-vs-fluessigwachs' },
-  { value: '> 90 %', label: 'aller Fehler', note: 'liegen am Entfetten, wenn Wachs nicht hält.', slug: 'fahrradkette-entfetten' },
+  { value: '400–550', label: 'km pro Wachsgang', note: 'trocken. Bei Nässe, Schotter oder MTB 200 bis 300 km.', to: '/blog/kettenlaufzeit-heisswachs' },
+  { value: '2–3×', label: 'Kettenlaufzeit', note: '6.000 bis 12.000 km statt 2.000 bis 3.000 km mit Öl.', to: '/blog/kettenverschleiss-messen' },
+  // Aus data.ts, nicht aus dem Blog: die Blog-Formulierung "4–5 W bei
+  // 300–400 W" ist laut Faktenpruefung 09/2026 nicht haltbar (PROJECT.md,
+  // offene Entscheidungen). Die Seite /wissenschaft erklaert die Messung.
+  {
+    value: `${w.wax[0]}–${w.wax[1]} W`,
+    label: 'Reibungsverlust mit Wachs',
+    note: `Kettenöl ${w.oil[0]}–${w.oil[1]} W. Gemessen von Zero Friction Cycling bei ${w.inputW} W Tretleistung.`,
+    to: '/wissenschaft',
+  },
+  { value: '> 90 %', label: 'aller Fehler', note: 'liegen am Entfetten, wenn Wachs nicht hält.', to: '/blog/fahrradkette-entfetten' },
 ];
 
 /** Tippt der Platzhalter der Suche nacheinander. Bewusst so formuliert, wie

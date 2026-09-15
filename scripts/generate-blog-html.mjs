@@ -348,7 +348,7 @@ const STATIC_PAGES = [
   {
     dir: 'wissenschaft',
     title: 'Die Wissenschaft hinter Heißwachs | Waxcelerate',
-    description: 'Kontaktzonen, Reibung, MoS₂ und die sechs Komponenten der Formel. Gemessen statt behauptet, entwickelt und produziert in Stuttgart.',
+    description: 'Kontaktzonen, Reibung, MoS₂ und die sechs Komponenten der Formel. Unabhängig gemessen statt behauptet, entwickelt und produziert in Stuttgart.',
     // Mobile-Plan B6 (05.08.2026): cassette-wear-full.* enthielt Ueberschrift,
     // Fliesstext und beide Kassetten-Labels als Pixel im Bild — ersetzt durch
     // cassette-wear-diagram.* (gleiches Foto, Text-/Label-Bereich mit der
@@ -363,7 +363,7 @@ const STATIC_PAGES = [
       'Reibung entsteht an genau drei Flächen je Kettenglied: Bolzen gegen Laschenschulter, Rolle gegen Laschenschulter, Innenlasche gegen Außenlasche.',
       'Moderne 9 bis 12 fach Ketten sind buchsenlos, die Schulter der Innenlasche übernimmt die Funktion der früheren Buchse.',
       'Die Formel besteht aus sechs Komponenten, weil keine einzelne Substanz in allen drei Zonen stark ist.',
-      'Originalaufnahmen unter dem Mikroskop, jede Gegenüberstellung bei identischer Vergrößerung.',
+      'Mikroskopaufnahmen veranschaulichen das Wirkprinzip des Festschmierstoffs.',
     ],
     // P1-1: der bisherige Rumpf dieser Seite lag bei ~680 Zeichen ohne ein
     // einziges <h2> — fuer GPTBot/ClaudeBot/PerplexityBot (kein JS) praktisch
@@ -375,14 +375,14 @@ const STATIC_PAGES = [
     // uebertragen, nicht importiert.
     sections: [
       {
-        h2: 'Reibung und Antriebsverlust',
+        h2: 'Reibung und Reibungsverlust',
         points: [
           (() => {
             const mu = n => n.toFixed(2).replace('.', ',');
             const r = id => frictionRanges.find(x => x.id === id);
             return `Waxcelerate Pro: μ ${mu(r('pro').muLo)}–${mu(r('pro').muHi)}, Classic: μ ${mu(r('classic').muLo)}–${mu(r('classic').muHi)}, Kettenöl: μ ${mu(r('oil').muLo)}–${mu(r('oil').muHi)}.`;
           })(),
-          `Antriebsverlust bei ${waxVsOil.watts.inputW[0]}–${waxVsOil.watts.inputW[1]} W Tretleistung: Wachs ${waxVsOil.watts.wax[0]}–${waxVsOil.watts.wax[1]} W, Kettenöl ${waxVsOil.watts.oil[0]}–${waxVsOil.watts.oil[1]} W.`,
+          `Reibungsverlust in der Kette bei ${waxVsOil.watts.inputW} W Tretleistung: Wachs ${waxVsOil.watts.wax[0]}–${waxVsOil.watts.wax[1]} W, Kettenöl ${waxVsOil.watts.oil[0]}–${waxVsOil.watts.oil[1]} W.`,
         ],
       },
       {
@@ -413,8 +413,8 @@ const STATIC_PAGES = [
       {
         h2: 'Woher die Zahlen kommen',
         points: [
-          'Reibungs- und Wattwerte stammen aus unabhängigen Labortests von Zero Friction Cycling, nicht aus eigenen Messungen von Waxcelerate.',
-          'Laborbedingungen (konstante Leistung, kontrollierte Kette) bilden die Straße nicht eins zu eins ab — die Größenordnung der Unterschiede bleibt davon unberührt.',
+          'Die Wattwerte stammen aus unabhängigen Labortests von Zero Friction Cycling, nicht aus eigenen Messungen von Waxcelerate.',
+          'Laborbedingungen (konstante Leistung, kontrollierte Kette) bilden die Straße nicht eins zu eins ab. Die Größenordnung der Unterschiede bleibt davon unberührt.',
         ],
       },
     ],

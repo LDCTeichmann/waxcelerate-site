@@ -173,7 +173,10 @@ for (const s of symptoms) {
   if (!ids.includes(headingId(s.heading))) hubErrors.push(`Symptom ${s.id}: keine <h2> "${s.heading}" in ${s.slug}`);
 }
 for (const step of learningPath) if (!bySlug.has(step.slug)) hubErrors.push(`Lernpfad: Artikel ${step.slug} fehlt`);
-for (const num of hubNumbers) if (!bySlug.has(num.slug)) hubErrors.push(`Zahl ${num.value}: Artikel ${num.slug} fehlt`);
+for (const num of hubNumbers) {
+  const ok = num.to === '/wissenschaft' || (num.to.startsWith('/blog/') && bySlug.has(num.to.slice(6)));
+  if (!ok) hubErrors.push(`Zahl ${num.value}: Ziel ${num.to} existiert nicht`);
+}
 for (const q of typewriterQuestions) {
   if (!CASES.some(([query]) => query === q)) hubErrors.push(`Platzhalterfrage ohne Testfall: "${q}"`);
 }

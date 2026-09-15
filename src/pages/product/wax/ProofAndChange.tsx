@@ -4,7 +4,7 @@ import { medianChainPrice } from '@/lib/waxMath';
 import type { RichContent } from '@/lib/productContent';
 import type { Review } from '@/sections/reviews';
 import type { useLanguage } from '@/hooks/useLanguage';
-import { Ico, type IcoName } from './Ico';
+import { Ico, CHANGE_ICONS } from './Ico';
 
 // ── Proof-Leiste ────────────────────────────────────────────────────────────
 // Direkt unter dem ersten Screen, dunkel als Tiefenwechsel: ein Gesicht, ein
@@ -50,17 +50,8 @@ export function ChangeForYou({ product, de, t, rc }: { product: Product; de: boo
   // eine Zeile passen.
   const split = (v: string) => { const m = v.match(/^(.*?)\s+(km)$/); return m ? [m[1], m[2]] : [v, '']; };
 
-  const points: { icon: IcoName; title: string; body: string }[] = de ? [
-    { icon: 'hand', title: 'Du bleibst sauber.', body: 'Kein Ketten-Abdruck an der Wade, keine schwarzen Finger beim Rad-Einladen.' },
-    { icon: 'gear', title: 'Im Gelenk mahlt nichts mehr.', body: 'Öl bindet Staub zu Schleifpaste zwischen Bolzen und Rolle. An trockenem Wachs haftet kein Dreck.' },
-    { icon: 'shieldPlain', title: 'Der ganze Antrieb hält länger.', body: 'Die Kette oft 2–3× so lange, Kassette und Kettenblätter verschleißen mit ihr langsamer.' },
-    { icon: 'calendar', title: 'Pflege wird selten.', body: 'Alle ~300 km neu wachsen statt nach jeder Regenfahrt ölen. Ohne Lappen und Kettenreiniger.' },
-  ] : [
-    { icon: 'hand', title: 'You stay clean.', body: 'No chain mark on your calf, no black fingers when loading the bike.' },
-    { icon: 'gear', title: 'Nothing grinds in the joints.', body: 'Oil binds dust into grinding paste between pin and roller. Dry wax gives dirt nothing to stick to.' },
-    { icon: 'shieldPlain', title: 'The whole drivetrain lasts longer.', body: 'The chain often lasts 2–3× as long, cassette and chainrings wear more slowly with it.' },
-    { icon: 'calendar', title: 'Maintenance becomes rare.', body: 'Rewax roughly every 300 km instead of oiling after every wet ride. No rags, no degreaser.' },
-  ];
+  // Texte teilt sich die Seite mit der Startseite (i18n whyWax.points).
+  const points = t.whyWax.points.map((p, i) => ({ ...p, icon: CHANGE_ICONS[i] }));
 
   return (
     <section className="wxp-chapter">
