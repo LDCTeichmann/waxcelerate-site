@@ -14,7 +14,7 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createIndex, search } from './engine';
-import type { SearchEngine, SearchHit, SearchIndexPayload } from './engine';
+import type { SearchEngine, SearchIndexPayload, SearchResult } from './engine';
 
 /** Aufbereitung nur einmal pro Seitenaufruf, nicht pro Komponente. */
 let enginePromise: Promise<SearchEngine> | null = null;
@@ -79,13 +79,13 @@ export function useArticleSearch(query: string) {
   }, [query]);
 
   /** `null` heisst: noch keine Aussage moeglich, bitte Fallback benutzen.
-   *  Ein leeres Array heisst dagegen: gesucht, nichts gefunden. */
-  const hits = useMemo<SearchHit[] | null>(() => {
+   *  Ein leeres `hits` heisst dagegen: gesucht, nichts gefunden. */
+  const result = useMemo<SearchResult | null>(() => {
     if (!engine) return null;
     const q = debounced.trim();
     if (q.length < 2) return null;
     return search(engine, q);
   }, [engine, debounced]);
 
-  return { hits, state, prefetch };
+  return { result, state, prefetch, settledQuery: debounced };
 }

@@ -79,6 +79,15 @@ export function trackRewaxInterest() {
   track('interest_rewax');
 }
 
+/** Ratgeber-Suche ohne Treffer. Beantwortet die eine Frage, die sich sonst
+ *  nie klaeren laesst: wonach suchen Leser, wofuer es keinen Artikel und keine
+ *  Alias-Bruecke gibt? Jede Meldung ist ein Kandidat fuer eine Zeile in
+ *  articleAliases.ts oder fuer einen neuen Artikel. Gekappt auf 60 Zeichen,
+ *  damit keine ganzen Absaetze (oder versehentlich eingefuegte Daten) landen. */
+export function trackSearchNoResult(query: string) {
+  track('search_no_result', { query: query.trim().toLowerCase().slice(0, 60) });
+}
+
 /** Klick auf einen ALLGEMEINEN eBay-Shop-Link (Footer, Über-uns, Reviews,
  *  Warenkorb-Hinweis) — bewusst getrennt von trackEbayClick(productId), das
  *  laut eigenem Kommentar dort ausdrücklich "Kauf-CTA, nicht der allgemeine

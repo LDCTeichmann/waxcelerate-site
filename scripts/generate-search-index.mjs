@@ -11,6 +11,11 @@
 // (Alltagssprache -> Fachtext), gehoeren aber nicht ins Client-Bundle. Zur
 // Build-Zeit eingebacken kosten sie zur Laufzeit nichts.
 //
+// Seit v2 ist der Artikeltext nicht mehr ein Block, sondern nach <h2>
+// gegliedert. Damit kann ein Treffer direkt in den Abschnitt springen, in dem
+// die Antwort steht, statt nur auf den Artikel zu zeigen. Die FAQ liegt
+// zusaetzlich getrennt bei: aus ihr baut die Suche die Antwortkarte.
+//
 // REIHENFOLGE: schreibt nach public/ und muss deshalb VOR `vite build` laufen
 // (siehe ausfuehrliche Begruendung in scripts/generate-sitemap.mjs).
 //
@@ -22,34 +27,45 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { articles, categoryOrder } from '../src/pages/blog/articles.ts';
 import { articleAliases } from '../src/pages/blog/articleAliases.ts';
+import { headingId } from '../src/pages/blog/headingId.ts';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
-/** Alle Textbausteine eines Artikels zu einer Zeichenkette verflachen.
- *  Bewusst inklusive der Abschnittsueberschriften und der FAQ: dort steht das
- *  Vokabular, mit dem Leser tatsaechlich suchen ("Wachsbad zu kalt",
+/** Die eigene Inline-Link-Syntax [[Text|/pfad]] traegt nur mit dem Text bei,
+ *  der Pfad wuerde als Tokenmuell im Index landen. */
+const clean = (text) =>
+  text.replace(/\[\[([^|\]]+)\|[^\]]+\]\]/g, '$1').replace(/\s+/g, ' ').trim();
+
+/** Artikel in Abschnitte zerlegen: ein Block vor der ersten <h2> (Intro), dann
+ *  einer pro <h2>, zuletzt FAQ und HowTo ohne Anker (sie stehen auf der Seite
+ *  nicht als eigener Abschnitt). Bewusst inklusive Ueberschriften und FAQ: dort
+ *  steht das Vokabular, mit dem Leser tatsaechlich suchen ("Wachsbad zu kalt",
  *  "weisses Pulver"), waehrend Titel und Beschreibung eher SEO-Sprache sind. */
-function flattenBody(article) {
-  const parts = [article.intro ?? ''];
+function toSections(article) {
+  const blocks = [{ h: null, id: null, parts: [article.intro ?? ''] }];
+  for (const stat of article.stats ?? []) blocks[0].parts.push(`${stat.value} ${stat.label}`);
+  if (article.keyStat) blocks[0].parts.push(`${article.keyStat.value} ${article.keyStat.label}`);
 
   for (const section of article.sections ?? []) {
-    if (section.text) parts.push(section.text);
-    if (section.items) parts.push(section.items.join(' '));
-    if (section.caption) parts.push(section.caption);
-    if (section.alt) parts.push(section.alt);
+    if (section.type === 'h2' && section.text) {
+      blocks.push({ h: section.text, id: headingId(section.text), parts: [section.text] });
+      continue;
+    }
+    const current = blocks[blocks.length - 1];
+    if (section.text) current.parts.push(section.text);
+    if (section.items) current.parts.push(section.items.join(' '));
+    if (section.caption) current.parts.push(section.caption);
+    if (section.alt) current.parts.push(section.alt);
   }
-  for (const entry of article.faq ?? []) parts.push(entry.q, entry.a);
-  for (const step of article.howTo?.steps ?? []) parts.push(step.name ?? '', step.text ?? '');
-  for (const stat of article.stats ?? []) parts.push(`${stat.value} ${stat.label}`);
-  if (article.keyStat) parts.push(`${article.keyStat.value} ${article.keyStat.label}`);
-
-  return parts
-    .join(' ')
-    // Die eigene Inline-Link-Syntax [[Text|/pfad]] beitraegt nur mit dem Text,
-    // der Pfad wuerde als Tokenmuell im Index landen.
-    .replace(/\[\[([^|\]]+)\|[^\]]+\]\]/g, '$1')
-    .replace(/\s+/g, ' ')
-    .trim();
+  if (article.faq?.length) {
+    blocks.push({ h: null, id: null, parts: article.faq.flatMap((f) => [f.q, f.a]) });
+  }
+  if (article.howTo?.steps?.length) {
+    blocks.push({ h: null, id: null, parts: article.howTo.steps.flatMap((s) => [s.name ?? '', s.text ?? '']) });
+  }
+  return blocks
+    .map((b) => ({ h: b.h, id: b.id, t: clean(b.parts.join(' ')) }))
+    .filter((b) => b.t);
 }
 
 const missingAliases = [];
@@ -70,7 +86,8 @@ const docs = articles.map((article) => {
     keyStat: article.keyStat ?? null,
     takeaways: (article.takeaways ?? []).join(' '),
     aliases: (aliases ?? []).join(' '),
-    body: flattenBody(article),
+    sections: toSections(article),
+    faq: (article.faq ?? []).map((f) => ({ q: f.q, a: clean(f.a) })),
   };
 });
 
@@ -87,7 +104,7 @@ if (missingAliases.length) {
 const payload = {
   // Version hochzaehlen, wenn sich das Dokumentschema aendert — der Client
   // verwirft dann einen alten, aus dem Cache geladenen Index.
-  v: 1,
+  v: 2,
   generatedAt: new Date().toISOString().slice(0, 10),
   categories: categoryOrder,
   docs,
@@ -100,4 +117,5 @@ writeFileSync(out, JSON.stringify(payload), 'utf8');
 
 const kb = (JSON.stringify(payload).length / 1024).toFixed(1);
 const aliasCount = Object.values(articleAliases).reduce((n, list) => n + list.length, 0);
-console.log(`[search-index] ${docs.length} Artikel, ${aliasCount} Alias-Phrasen, ${kb} kB → public/search-index.json`);
+const faqCount = docs.reduce((n, d) => n + d.faq.length, 0);
+console.log(`[search-index] ${docs.length} Artikel, ${aliasCount} Alias-Phrasen, ${faqCount} FAQ-Antworten, ${kb} kB → public/search-index.json`);

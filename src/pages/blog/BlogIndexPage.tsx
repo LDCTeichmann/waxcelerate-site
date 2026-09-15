@@ -1,126 +1,35 @@
-import { useEffect, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Search } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import type { KeyboardEvent } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { Navigation } from '@/sections/navigation';
 import { Footer } from '@/sections/footer';
 import { getProductById } from '@/lib/data';
 import { removeStaticHeadMeta } from '@/lib/utils';
+import { trackSearchNoResult } from '@/lib/analytics';
 import { BeforeAfterSlider } from '@/components/BeforeAfterSlider';
 import { useArticleSearch } from '@/lib/search/useArticleSearch';
-import type { SnippetPart } from '@/lib/search/engine';
-import {
-  articles,
-  categoryColors,
-  categoryOrder,
-  categoryProductSlug,
-  getArticleImage,
-  blogHero,
-  blogFeature,
-} from './articles';
+import type { SearchHit } from '@/lib/search/engine';
+import { articles, categoryOrder, categoryProductSlug, blogFeature } from './articles';
 import type { Article, ArticleCategory } from './articles';
+import { useReadArticles } from './readState';
+import { HubHero } from './hub/HubHero';
+import { SearchResults } from './hub/SearchResults';
+import { LearningPath } from './hub/LearningPath';
+import { SymptomFinder } from './hub/SymptomFinder';
+import { NumbersStrip } from './hub/NumbersStrip';
+import { ArchiveGrid } from './hub/ArchiveGrid';
+import type { Filter } from './hub/ArchiveGrid';
+import { hitUrl, saveRecentSearch } from './hub/searchHelpers';
 
 const formatPrice = (price: number) =>
   new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(price);
 
-type Filter = 'Alle' | ArticleCategory;
-
-/** Fundstelle im Artikeltext, Treffer hervorgehoben.
- *  Ersetzt waehrend einer Suche die Kurzbeschreibung: die erklaert, worum es
- *  geht, beantwortet aber nicht die Frage "steht meine Antwort da drin?".
- *  Genau das zeigt der Schnipsel. */
-function Snippet({ parts }: { parts: SnippetPart[] }) {
-  return (
-    <p className="text-[13px] leading-[1.6] text-wx-txm mb-4 line-clamp-3">
-      {parts.map((part, i) =>
-        part.hit ? (
-          <mark
-            key={i}
-            className="rounded px-0.5"
-            style={{ background: 'color-mix(in srgb, var(--accent) 24%, transparent)', color: 'var(--tx1)' }}
-          >
-            {part.text}
-          </mark>
-        ) : (
-          <span key={i}>{part.text}</span>
-        ),
-      )}
-    </p>
-  );
-}
-
-function ArticleCard({ article, snippet }: { article: Article; snippet?: SnippetPart[] | null }) {
-  const img = getArticleImage(article.slug);
-  return (
-    <Link
-      to={`/blog/${article.slug}`}
-      className="group block rounded-2xl transition-all duration-300 hover:-translate-y-1"
-      style={{ background: 'var(--sf)', border: '1px solid var(--bd)' }}
-    >
-      {/* overflow-hidden + rounded corners live here, not on the Link that also
-          carries the hover transform — combining both on one element risks
-          Chromium flashing the corner clip square right as hover promotes a
-          new layer (same bug as the product cards; see products.tsx). */}
-      <div className="relative aspect-[16/10] overflow-hidden rounded-t-2xl" style={{ background: 'var(--sf2)', transform: 'translateZ(0)' }}>
-        <img
-          src={img.card}
-          alt={img.alt}
-          loading="lazy"
-          width={800}
-          height={500}
-          className="absolute inset-0 w-full h-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-105"
-        />
-        <div
-          className="absolute inset-0"
-          style={{ background: 'linear-gradient(180deg, rgba(var(--scrim-rgb),0) 55%, rgba(var(--scrim-rgb),0.45) 100%)' }}
-        />
-        <span
-          className="absolute top-3 left-3 text-small font-semibold uppercase tracking-[0.16em] px-2.5 py-1 rounded-full backdrop-blur"
-          style={{ background: 'var(--chip-bg)', color: categoryColors[article.category] }}
-        >
-          {article.category}
-        </span>
-      </div>
-      <div className="p-5">
-        <h2 className="font-display text-[18px] font-semibold text-wx-tx1 leading-snug mb-2 group-hover:text-white transition-colors">
-          {article.titleShort}
-        </h2>
-        {snippet?.length ? (
-          <Snippet parts={snippet} />
-        ) : (
-          <p className="text-[13px] leading-[1.6] text-wx-txm mb-4 line-clamp-2">
-            {article.description}
-          </p>
-        )}
-        <div className="flex items-center justify-between mb-3">
-          <span className="font-mono text-meta text-wx-txf">
-            von Luca · {article.readingTime}
-          </span>
-          <span
-            className="text-[12px] font-medium transition-transform group-hover:translate-x-0.5"
-            style={{ color: 'var(--accent)' }}
-          >
-            Lesen →
-          </span>
-        </div>
-        {article.keyStat && (
-          <div className="flex items-baseline gap-1.5 pt-3" style={{ borderTop: '1px solid var(--bd)' }}>
-            <span className="font-mono text-[13px] font-semibold text-wx-tx1">
-              {article.keyStat.value}
-            </span>
-            <span className="font-mono text-meta uppercase tracking-wider text-wx-txf">
-              {article.keyStat.label}
-            </span>
-          </div>
-        )}
-      </div>
-    </Link>
-  );
-}
+const RESULTS_ID = 'ratgeber-treffer';
 
 /**
- * Die Kachel oben auf der Uebersicht: ein Artikel, hervorgehoben, plus der
- * Beleg fuer seine These.
+ * Die Kachel mit dem empfohlenen Artikel, plus der Beleg fuer seine These.
  *
  * Vorher standen hier zwei Fotos nebeneinander, ein grosses "gewachst" und ein
  * kleines, ueberlappendes "geoelt" (eine verschmutzte Wade). Zwei getrennte
@@ -130,26 +39,21 @@ function ArticleCard({ article, snippet }: { article: Article; snippet?: Snippet
  *
  * Dafuer ist die Kachel KEIN einziger <Link> mehr. Ein ziehbarer Slider
  * innerhalb eines Links waere unbedienbar, weil jeder Zug als Klick endet und
- * die Seite wechselt. Verlinkt sind jetzt Ueberschrift und Fusszeile, und die
- * `peer`/`group`-Kopplung sorgt dafuer, dass die Kachel trotzdem als ein Stueck
- * reagiert: Hover auf einem der beiden Links hebt die ganze Karte.
+ * die Seite wechselt. Verlinkt sind Ueberschrift und Fusszeile, und
+ * `has-[a:hover]` hebt trotzdem die ganze Karte.
  */
 function FeatureTile({ article }: { article: Article }) {
   return (
     <div
-      className="group grid md:grid-cols-[3fr_2fr] rounded-2xl mb-12 overflow-hidden transition-all duration-300 has-[a:hover]:-translate-y-1"
+      className="group grid md:grid-cols-[3fr_2fr] rounded-3xl mb-24 overflow-hidden transition-all duration-300 has-[a:hover]:-translate-y-1"
       style={{ background: 'var(--sf)', border: '1px solid var(--bd)' }}
     >
       {/* Der Slider bringt sein eigenes festes Seitenverhaeltnis mit (6/5, so
-          sind die Bildpaare in public/images/compare/ geschnitten), die
-          Textspalte daneben ist je nach Titellaenge unterschiedlich hoch.
-          Randlos bis an die Kachelkante gezogen bliebe deshalb ein
-          unterschiedlich breiter Rest als Streifen stehen, der wie ein
-          Darstellungsfehler aussieht. Mit Innenabstand und eigenen Ecken ist
-          der Slider stattdessen erkennbar ein gerahmtes Element, und der
-          Ausgleich oben und unten (`self-center`) liest sich als Absicht. */}
+          sind die Bildpaare in public/images/compare/ geschnitten). Mit
+          Innenabstand und eigenen Ecken ist er erkennbar ein gerahmtes
+          Element, der Ausgleich zur Textspalte liest sich als Absicht. */}
       <div className="self-center p-4 sm:p-5 md:p-6">
-        <div className="rounded-xl overflow-hidden" style={{ transform: 'translateZ(0)' }}>
+        <div className="rounded-2xl overflow-hidden" style={{ transform: 'translateZ(0)' }}>
           <BeforeAfterSlider
             aspect="6/5"
             beforeSrc={blogFeature.before.src}
@@ -162,42 +66,32 @@ function FeatureTile({ article }: { article: Article }) {
         </div>
       </div>
 
-      {/* Textspalte: bewusst oben ausgerichtet statt vertikal zentriert, damit
-          die Kachel nicht als gespiegeltes 50/50-Layout wirkt. */}
-      <div className="px-7 pb-7 sm:px-9 sm:pb-9 md:py-9 md:pr-9 md:pl-3 flex flex-col justify-center">
-        <p className="font-mono text-small uppercase tracking-[0.18em] text-wx-txf mb-3">
+      <div className="px-7 pb-8 sm:px-9 sm:pb-9 md:py-10 md:pr-10 md:pl-3 flex flex-col justify-center">
+        <p className="font-mono text-small uppercase tracking-[0.18em] mb-3" style={{ color: 'var(--accent)' }}>
           Empfohlen · {article.category}
         </p>
-        <h2 className="font-display text-2xl sm:text-[28px] font-bold leading-[1.15] mb-3">
-          <Link
-            to={`/blog/${article.slug}`}
-            className="text-wx-tx1 transition-colors hover:text-white"
-          >
+        <h2 className="font-display text-2xl sm:text-[30px] font-bold leading-[1.15] mb-3">
+          <Link to={`/blog/${article.slug}`} className="text-wx-tx1 transition-colors hover:text-[color:var(--accent)]">
             {article.title}
           </Link>
         </h2>
-        <p className="text-[14px] leading-[1.7] text-wx-txm mb-6">
-          {article.description}
-        </p>
+        <p className="text-[15px] leading-[1.7] text-wx-txm mb-6">{article.description}</p>
         {article.stats && (
           <div className="flex flex-wrap gap-x-8 gap-y-3 mb-6">
             {article.stats.map((s) => (
               <div key={s.label}>
                 <div className="font-mono text-lg text-wx-tx1">{s.value}</div>
-                <div className="font-mono text-meta uppercase tracking-wider text-wx-txf">
-                  {s.label}
-                </div>
+                <div className="font-mono text-meta uppercase tracking-wider text-wx-txf">{s.label}</div>
               </div>
             ))}
           </div>
         )}
         <p className="text-[13px] leading-[1.6] text-wx-txf mb-6">
-          Der Unterschied ist kein Marketingversprechen. Zieh den Regler und
-          sieh dir dieselbe Kette in beiden Zuständen an.
+          Zieh den Regler: dieselbe Kette, geölt nach 80 km und gewachst nach 400 km.
         </p>
         <Link
           to={`/blog/${article.slug}`}
-          className="mt-auto inline-flex items-center gap-2 text-[13px] font-semibold w-fit"
+          className="mt-auto inline-flex items-center gap-2 text-[14px] font-semibold w-fit"
           style={{ color: 'var(--accent)' }}
         >
           Artikel lesen
@@ -208,93 +102,9 @@ function FeatureTile({ article }: { article: Article }) {
   );
 }
 
-/**
- * Leerzustand. Vorher rendete die Seite bei null Treffern einfach ein leeres
- * Raster: der Nutzer sah, dass etwas fehlt, bekam aber weder eine Erklaerung
- * noch einen Ausweg. Hier steht beides, und zwar in dieser Reihenfolge:
- * zuerst der wahrscheinlichste Grund (ein aktiver Kategoriefilter, den man
- * leicht vergisst), dann die vier Einstiege, dann der direkte Draht zu Luca.
- */
-function NoResults({
-  query,
-  activeFilter,
-  onClearFilter,
-  onClearQuery,
-}: {
-  query: string;
-  activeFilter: Filter;
-  onClearFilter: () => void;
-  onClearQuery: () => void;
-}) {
-  return (
-    <div className="mb-16 rounded-2xl px-6 py-10 sm:px-10 sm:py-12"
-      style={{ background: 'var(--sf)', border: '1px solid var(--bd)' }}>
-      <p className="font-mono text-small uppercase tracking-[0.18em] text-wx-txf mb-3">
-        Kein Treffer
-      </p>
-      <h2 className="font-display text-2xl font-bold text-wx-tx1 mb-3">
-        Zu „{query}" habe ich nichts gefunden.
-      </h2>
-
-      {activeFilter !== 'Alle' ? (
-        <p className="text-[14px] leading-[1.7] text-wx-txm mb-6">
-          Gesucht wurde nur in der Kategorie{' '}
-          <span style={{ color: 'var(--tx1)' }}>{activeFilter}</span>.{' '}
-          <button
-            type="button"
-            onClick={onClearFilter}
-            className="underline underline-offset-2"
-            style={{ color: 'var(--accent)' }}
-          >
-            In allen Artikeln suchen
-          </button>
-        </p>
-      ) : (
-        <p className="text-[14px] leading-[1.7] text-wx-txm mb-6">
-          Versuch es ruhig mit eigenen Worten, ganze Fragen versteht die Suche
-          auch. Oder steig hier ein:
-        </p>
-      )}
-
-      <div className="flex flex-wrap gap-x-5 gap-y-2 mb-7">
-        {INTENTS.map((intent) => (
-          <Link
-            key={intent.slug}
-            to={`/blog/${intent.slug}`}
-            onClick={onClearQuery}
-            className="group text-[13px] inline-flex items-center gap-1.5 transition-colors hover:text-wx-tx1"
-            style={{ color: 'var(--txm)' }}
-          >
-            <span style={{ color: 'var(--accent)' }}>→</span>
-            <span className="border-b border-transparent group-hover:border-current">
-              {intent.label}
-            </span>
-          </Link>
-        ))}
-      </div>
-
-      <p className="text-[13px] leading-[1.7] text-wx-txf">
-        Steht deine Frage nirgends?{' '}
-        <Link to="/kontakt" className="underline underline-offset-2" style={{ color: 'var(--accent)' }}>
-          Schreib mir direkt
-        </Link>
-        , dann beantworte ich sie dir und sie landet danach hier.
-      </p>
-    </div>
-  );
-}
-
-const INTENTS: { label: string; slug: string }[] = [
-  { label: 'Ich will anfangen', slug: 'von-oel-auf-wachs-umsteigen' },
-  { label: 'Es klappt nicht', slug: 'wachs-haelt-nicht-haeufige-fehler' },
-  { label: 'Ich will es genau wissen', slug: 'kettenlaufzeit-heisswachs' },
-  { label: 'Ich will kaufen', slug: 'vorgewachste-kette' },
-];
-
 export function BlogIndexPage() {
-  // Filter/search sync to the URL (?kategorie=, ?q=) so a filtered view can
-  // be bookmarked, shared, or survive a refresh — it used to be plain
-  // useState and was lost the moment the page reloaded.
+  // Filter/Suche liegen in der URL (?kategorie=, ?q=), damit eine gefilterte
+  // Ansicht oder eine Suche teilbar ist und einen Reload uebersteht.
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryParam = searchParams.get('kategorie');
   const initialFilter: Filter =
@@ -302,6 +112,9 @@ export function BlogIndexPage() {
 
   const [filter, setFilterState] = useState<Filter>(initialFilter);
   const [query, setQueryState] = useState(searchParams.get('q') ?? '');
+  const inputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
+  const read = useReadArticles();
 
   const setFilter = (next: Filter) => {
     setFilterState(next);
@@ -323,76 +136,85 @@ export function BlogIndexPage() {
     }, { replace: true });
   };
 
-  // Seasonally prefer the winter article as the lead in Nov–Feb, otherwise
-  // fall back to the explicit `featured` flag (only ever set on one article
-  // today — this doesn't fix that on its own, it just stops the same lead
-  // from showing year-round when a seasonally-relevant one exists).
+  // Saisonal: Nov–Feb der Winterartikel als Empfehlung, sonst der mit
+  // `featured` markierte.
   const month = new Date().getMonth();
   const isWinterSeason = month === 10 || month === 11 || month === 0 || month === 1;
   const seasonalArticle = isWinterSeason ? articles.find((a) => a.category === 'Saison') : undefined;
   const featured = seasonalArticle ?? articles.find((a) => a.featured);
-  const usedCategories = categoryOrder.filter((c) =>
-    articles.some((a) => a.category === c),
-  );
 
   const normalizedQuery = query.trim().toLowerCase();
   const isSearching = normalizedQuery.length > 0;
 
-  // Die eigentliche Suche (Volltext, Aliase, Synonyme, Tippfehlertoleranz)
-  // liegt in src/lib/search/. Sie laedt ihren Index nach und ist deshalb in
-  // den ersten Millisekunden noch nicht da: `hits === null` heisst "noch keine
-  // Aussage", nicht "nichts gefunden".
-  const { hits, state: searchState, prefetch: prefetchSearch } = useArticleSearch(query);
+  // Die eigentliche Suche (Volltext, Aliase, Synonyme, Tippfehler, Antwort-
+  // karten) liegt in src/lib/search/. Sie laedt ihren Index nach: `result ===
+  // null` heisst "noch keine Aussage", nicht "nichts gefunden".
+  const { result, state: searchState, prefetch: prefetchSearch, settledQuery } = useArticleSearch(query);
 
   // Notbehelf fuer genau dieses Zeitfenster (und fuer den Fall, dass der Index
-  // gar nicht laedt): die alte, schlichte Substring-Suche. Sie findet weniger,
-  // aber sie findet sofort, und der Nutzer sieht nie ein falsches
-  // "keine Treffer".
-  const fallbackMatches = (a: Article) =>
-    a.title.toLowerCase().includes(normalizedQuery) ||
-    a.titleShort.toLowerCase().includes(normalizedQuery) ||
-    a.description.toLowerCase().includes(normalizedQuery) ||
-    (a.takeaways ?? []).some((t) => t.toLowerCase().includes(normalizedQuery));
+  // gar nicht laedt): die schlichte Substring-Suche. Sie findet weniger, aber
+  // sofort, und der Nutzer sieht nie ein falsches "keine Treffer".
+  const fallbackHits: SearchHit[] = articles
+    .filter((a) =>
+      a.title.toLowerCase().includes(normalizedQuery) ||
+      a.description.toLowerCase().includes(normalizedQuery) ||
+      (a.takeaways ?? []).some((t) => t.toLowerCase().includes(normalizedQuery)))
+    .map((a) => ({ slug: a.slug, score: 0, snippet: null, section: null }));
 
-  const bySlug = new Map(articles.map((a) => [a.slug, a]));
+  const hits = result ? result.hits : isSearching ? fallbackHits : [];
+  const answer = result?.answer ?? null;
+  const noResults = isSearching && hits.length === 0 && (searchState === 'ready' || searchState === 'error');
 
-  // Bei aktiver Suche bestimmt die Relevanz die Reihenfolge, nicht mehr die
-  // Reihenfolge im Datenarray. Der Kategoriefilter bleibt dabei bewusst
-  // wirksam: die Pills stehen sichtbar aktiv da, ein Suchergebnis ausserhalb
-  // der gewaehlten Kategorie waere ein Widerspruch zur Anzeige. Der
-  // Leerzustand bietet dafuer an, den Filter mit einem Klick aufzuheben.
-  const inFilter = (a: Article) => filter === 'Alle' || a.category === filter;
+  // Tastaturauswahl in der Trefferliste. Gehoert zur Anfrage, fuer die sie
+  // gewaehlt wurde: tippt man weiter, ist keine Zeile mehr ausgewaehlt, ohne
+  // dass dafuer ein Effekt den Zustand zuruecksetzen muss.
+  const [nav, setNav] = useState({ query: '', index: -1 });
+  const activeIndex = nav.query === query ? nav.index : -1;
+  const urls = [...(answer ? [`/blog/${answer.slug}`] : []), ...hits.map(hitUrl)];
 
-  const ranked: { article: Article; snippet: SnippetPart[] | null }[] = !isSearching
-    ? []
-    : hits
-      ? hits
-          .map((h) => ({ article: bySlug.get(h.slug), snippet: h.snippet }))
-          .filter((r): r is { article: Article; snippet: SnippetPart[] | null } => Boolean(r.article))
-          .filter((r) => inFilter(r.article))
-      : articles.filter(fallbackMatches).filter(inFilter).map((a) => ({ article: a, snippet: null }));
+  const onSearchKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      if (!urls.length) return;
+      e.preventDefault();
+      const step = e.key === 'ArrowDown' ? 1 : -1;
+      const next = activeIndex === -1
+        ? (step === 1 ? 0 : urls.length - 1)
+        : (activeIndex + step + urls.length) % urls.length;
+      setNav({ query, index: next });
+      document.getElementById(`${RESULTS_ID}-${next}`)?.scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'Enter') {
+      const target = urls[activeIndex >= 0 ? activeIndex : 0];
+      if (!target) return;
+      e.preventDefault();
+      saveRecentSearch(query);
+      navigate(target);
+    } else if (e.key === 'Escape') {
+      if (query) { e.preventDefault(); setQuery(''); } else e.currentTarget.blur();
+    }
+  };
 
-  const snippetFor = new Map(ranked.map((r) => [r.article.slug, r.snippet]));
+  // Suchen ohne Treffer melden (Vercel Analytics, cookiefrei). Erst wenn die
+  // Anfrage 1,5 s stehen bleibt, sonst meldet jeder Zwischenstand beim Tippen.
+  const reported = useRef(new Set<string>());
+  useEffect(() => {
+    const q = settledQuery.trim();
+    if (!result || result.hits.length > 0 || q.length < 3) return;
+    const id = window.setTimeout(() => {
+      if (reported.current.has(q)) return;
+      reported.current.add(q);
+      trackSearchNoResult(q);
+    }, 1500);
+    return () => window.clearTimeout(id);
+  }, [result, settledQuery]);
 
-  const showLead = filter === 'Alle' && !isSearching && featured;
-  const grid = isSearching
-    ? ranked.map((r) => r.article)
-    : filter === 'Alle'
-      // Excludes whichever article is actually shown as the lead right now —
-      // compares against `featured`'s slug, not the raw `.featured` flag,
-      // since the seasonal override above can promote an article to lead
-      // that doesn't have that flag set at all.
-      ? articles.filter((a) => a.slug !== featured?.slug)
-      : articles.filter((a) => a.category === filter);
+  // Wer mit ?kategorie= ankommt (Link aus einem Artikel oder der Navigation),
+  // will das Archiv sehen, nicht erst an Lernpfad und Symptomen vorbei.
+  useEffect(() => {
+    if (initialFilter !== 'Alle') document.getElementById('archiv')?.scrollIntoView();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  // "Wirklich nichts gefunden" nur, wenn der Index fertig ist und trotzdem
-  // nichts uebrig bleibt. Waehrend des Ladens zeigt die Seite lieber die
-  // Fallback-Treffer.
-  const noResults = isSearching && grid.length === 0 && (searchState === 'ready' || searchState === 'error');
-
-  const recommendedProduct = getProductById(
-    filter === 'Alle' ? 'wax-500' : categoryProductSlug[filter],
-  );
+  const recommendedProduct = getProductById(filter === 'Alle' ? 'wax-500' : categoryProductSlug[filter]);
 
   // Die vorgerenderte Huelle setzt title/description/canonical/og/twitter
   // bereits statisch, markiert mit data-prerendered — ohne diesen Aufruf
@@ -400,189 +222,70 @@ export function BlogIndexPage() {
   // removeStaticHeadMeta in src/lib/utils.ts).
   useEffect(() => { removeStaticHeadMeta(); }, []);
 
+  const description = `Messwerte, Anleitungen und ehrliche Antworten rund um Kettenpflege und Heißwachs aus Stuttgart. ${articles.length} Artikel.`;
+
   return (
     <div className="min-h-screen" style={{ background: 'var(--pg)' }}>
       <Helmet>
         <title>Die Werkstatt — Heißwachs Tipps &amp; Anleitungen | Waxcelerate</title>
-        <meta
-          name="description"
-          content={`Messwerte, Anleitungen und ehrliche Antworten rund um Kettenpflege und Heißwachs aus Stuttgart. ${articles.length} Artikel.`}
-        />
+        <meta name="description" content={description} />
         <link rel="canonical" href="https://waxcelerate.de/blog" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Waxcelerate" />
         <meta property="og:locale" content="de_DE" />
         <meta property="og:title" content="Die Werkstatt — Heißwachs Tipps &amp; Anleitungen | Waxcelerate" />
-        <meta
-          property="og:description"
-          content={`Messwerte, Anleitungen und ehrliche Antworten rund um Kettenpflege und Heißwachs aus Stuttgart. ${articles.length} Artikel.`}
-        />
+        <meta property="og:description" content={description} />
         <meta property="og:url" content="https://waxcelerate.de/blog" />
         <meta property="og:image" content="https://waxcelerate.de/images/blog/ride-road-golden.jpg" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Die Werkstatt — Heißwachs Tipps &amp; Anleitungen | Waxcelerate" />
-        <meta
-          name="twitter:description"
-          content={`Messwerte, Anleitungen und ehrliche Antworten rund um Kettenpflege und Heißwachs aus Stuttgart. ${articles.length} Artikel.`}
-        />
+        <meta name="twitter:description" content={description} />
         <meta name="twitter:image" content="https://waxcelerate.de/images/blog/ride-road-golden.jpg" />
       </Helmet>
 
       <Navigation />
 
-      {/* Full-bleed hero masthead */}
-      <section
-        className="relative overflow-hidden border-b flex items-end min-h-[440px] sm:min-h-[520px]"
-        style={{ borderColor: 'var(--bd)' }}
-      >
-        <img
-          src={blogHero.src}
-          alt={blogHero.alt}
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              'linear-gradient(0deg, rgba(var(--scrim-rgb),0.97) 0%, rgba(var(--scrim-rgb),0.88) 28%, rgba(var(--scrim-rgb),0.62) 52%, rgba(var(--scrim-rgb),0.40) 100%)',
-          }}
-        />
-        <div className="relative max-w-5xl mx-auto w-full px-4 sm:px-6 pb-12 pt-32">
-          <p className="font-mono text-small uppercase tracking-[0.14em] mb-4" style={{ color: '#E6E6EA' }}>
-            Die Werkstatt
-          </p>
-          <h1
-            className="font-sans font-black leading-[1.02] tracking-tight mb-5 max-w-2xl"
-            style={{ color: '#FFFFFF', WebkitTextFillColor: '#FFFFFF', fontSize: 'clamp(2.5rem, 5.5vw, 4rem)', textShadow: '0 2px 30px rgba(0,0,0,0.85)' }}
-          >
-            Wissen rund um Kette &amp; Wachs
-          </h1>
-          <p className="text-[16px] sm:text-[17px] leading-relaxed max-w-xl" style={{ color: '#D8D8DE', textShadow: '0 1px 12px rgba(0,0,0,0.7)' }}>
-            Messwerte, Anleitungen und ehrliche Antworten, von jemandem, der jede
-            Woche selbst am Wachstopf steht.
-          </p>
-          <p className="font-mono text-small uppercase tracking-widest mt-6" style={{ color: '#B4B4BE' }}>
-            {articles.length} Artikel · Stuttgart
-          </p>
-        </div>
-      </section>
+      <HubHero
+        query={query}
+        onQueryChange={setQuery}
+        onPrefetch={prefetchSearch}
+        onKeyDown={onSearchKeyDown}
+        inputRef={inputRef}
+        resultsId={RESULTS_ID}
+        activeDescendant={activeIndex >= 0 ? `${RESULTS_ID}-${activeIndex}` : undefined}
+        articleCount={articles.length}
+      />
 
-      <main id="main-content" className="max-w-5xl mx-auto px-4 sm:px-6 py-12">
-        {/* Suche. Der Platzhalter nennt bewusst eine ganze Frage statt zweier
-            Stichwoerter: die Suche versteht jetzt Umgangssprache, und niemand
-            probiert das aus, wenn das Feld nach Schlagwortsuche aussieht. */}
-        <div className="relative mb-6">
-          <Search
-            className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 pointer-events-none"
-            style={{ color: 'var(--txf)' }}
-            aria-hidden
-          />
-          <input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            // Der Index wird nachgeladen. Beim Fokus ist er dadurch meist schon
-            // da, bevor der erste Buchstabe getippt ist.
-            onFocus={prefetchSearch}
-            onPointerEnter={prefetchSearch}
-            aria-label="Artikel durchsuchen"
-            placeholder='Frag einfach: „meine Hose wird schwarz“'
-            className="w-full text-[16px] sm:text-[14px] pl-11 pr-4 py-2.5 rounded-full outline-none transition-colors focus:border-[color:var(--accent)]"
-            style={{ background: 'var(--sf)', border: '1px solid var(--bd)', color: 'var(--tx1)' }}
-          />
-        </div>
-        {/* Trefferzahl fuer Screenreader. Sichtbar steht sie an der
-            Abschnittsueberschrift, aber die liegt im Lesefluss weit unter dem
-            Feld und wird ohne diese Meldung beim Tippen nicht angesagt. */}
+      <main id="main-content" className="max-w-6xl mx-auto px-4 sm:px-6 py-14 sm:py-20">
+        {/* Trefferzahl fuer Screenreader, beim Tippen angesagt. */}
         <p className="sr-only" role="status" aria-live="polite">
-          {isSearching ? `${grid.length} Treffer für ${query}` : ''}
+          {isSearching ? `${hits.length} Treffer${answer ? ' und eine direkte Antwort' : ''}` : ''}
         </p>
 
-        {/* Einstieg nach Absicht. Bewusst anders gestaltet als die Kategorie-Pills
-            darunter: das hier sind Sprungziele in einen Artikel, keine Filter.
-            Gleiche Optik für zwei verschiedene Verhalten wäre eine Falle. */}
-        <div className="mb-8">
-          <p className="font-mono text-small uppercase tracking-[0.2em] text-wx-txf mb-2.5">
-            Schnelleinstieg
-          </p>
-          <div className="flex flex-wrap gap-x-5 gap-y-2">
-            {INTENTS.map((intent) => (
-              <Link
-                key={intent.slug}
-                to={`/blog/${intent.slug}`}
-                className="group text-[13px] inline-flex items-center gap-1.5 transition-colors hover:text-wx-tx1"
-                style={{ color: 'var(--txm)' }}
-              >
-                <span style={{ color: 'var(--accent)' }}>→</span>
-                <span className="border-b border-transparent group-hover:border-current">
-                  {intent.label}
-                </span>
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        {/* Kategorie-Filter (filtert das Raster, verlässt die Seite nicht) */}
-        <div className="flex flex-wrap gap-2 mb-10">
-          {(['Alle', ...usedCategories] as Filter[]).map((cat) => {
-            const active = filter === cat;
-            return (
-              <button
-                key={cat}
-                onClick={() => setFilter(cat)}
-                className="text-[12px] px-3.5 py-1.5 rounded-full transition-colors"
-                style={
-                  active
-                    ? { background: 'var(--accent)', color: 'var(--pg)', fontWeight: 500 }
-                    : { border: '1px solid var(--bd)', color: 'var(--txm)' }
-                }
-              >
-                {cat}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Featured lead — eine asymmetrische Kachel statt zwei gleich
-            großer Blöcke übereinander, siehe FeatureTile oben. */}
-        {showLead && featured && <FeatureTile article={featured} />}
-
-        {/* Section label */}
-        <div className="flex items-baseline justify-between mb-5">
-          <h2 className="font-mono text-[12px] uppercase tracking-[0.2em] text-wx-txf">
-            {isSearching
-              ? 'Suchergebnisse'
-              : filter === 'Alle'
-                ? (showLead ? 'Weitere Artikel' : 'Alle Artikel')
-                : filter}
-          </h2>
-          <span className="font-mono text-[12px] text-wx-txff">{grid.length}</span>
-        </div>
-
-        {/* Article grid */}
-        {noResults ? (
-          <NoResults
+        {isSearching ? (
+          <SearchResults
             query={query}
-            activeFilter={filter}
-            onClearFilter={() => setFilter('Alle')}
-            onClearQuery={() => setQuery('')}
+            corrected={result?.corrected ?? null}
+            answer={answer}
+            hits={hits}
+            suggestion={result?.suggestion ?? null}
+            noResults={noResults}
+            activeIndex={activeIndex}
+            resultsId={RESULTS_ID}
+            onQuery={(q) => { setQuery(q); inputRef.current?.focus(); }}
           />
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-16">
-            {grid.map((article) => (
-              <ArticleCard
-                key={article.slug}
-                article={article}
-                snippet={snippetFor.get(article.slug)}
-              />
-            ))}
-          </div>
+          <>
+            <LearningPath read={read} />
+            <SymptomFinder />
+            {featured && <FeatureTile article={featured} />}
+            <NumbersStrip />
+            <ArchiveGrid filter={filter} onFilter={setFilter} read={read} />
+          </>
         )}
 
-        {/* CTA banner + product cross-sell — the blog previously had zero
-            product links anywhere except each article's own bottom CTA card.
-            Product follows the active category (categoryProductSlug,
-            articles.ts); falls back to the flagship wax-500 for 'Alle'. */}
+        {/* Kontakt + passendes Produkt. Das Produkt folgt der aktiven
+            Kategorie (categoryProductSlug, articles.ts), sonst wax-500. */}
         <div className="grid sm:grid-cols-2 gap-5">
           <div
             className="relative overflow-hidden rounded-2xl px-7 py-9 flex items-center justify-between gap-4 flex-wrap"
@@ -645,7 +348,7 @@ export function BlogIndexPage() {
         </div>
       </main>
 
-      <footer className="max-w-5xl mx-auto px-4 sm:px-6 py-12 text-center" style={{ borderTop: '1px solid var(--bd2)' }}>
+      <footer className="max-w-6xl mx-auto px-4 sm:px-6 py-12 text-center" style={{ borderTop: '1px solid var(--bd2)' }}>
         <Link to="/" className="inline-flex items-center gap-2 text-[13px] text-wx-txm transition-opacity hover:opacity-70">
           <ArrowLeft className="h-4 w-4" />
           Zurück zur Startseite

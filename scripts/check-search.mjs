@@ -20,6 +20,9 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { createIndex, search } from '../src/lib/search/engine.ts';
+import { articles } from '../src/pages/blog/articles.ts';
+import { headingId } from '../src/pages/blog/headingId.ts';
+import { symptoms, learningPath, hubNumbers, typewriterQuestions } from '../src/pages/blog/hubContent.ts';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const verbose = process.argv.includes('--verbose');
@@ -93,6 +96,34 @@ const CASES = [
   ['mos2', 'mos2-kettenwachs'],
   ['quicklink', 'schnellverschluss-quicklink'],
   ['kettenverschleiss messen', 'kettenverschleiss-messen'],
+
+  // Tippfehler: so, wie es auf dem Handy wirklich ankommt
+  ['quitscht die kette', 'wachs-haelt-nicht-haeufige-fehler'],
+  ['kete entfetten', 'fahrradkette-entfetten'],
+  ['reisskocher', 'topf-zum-kette-wachsen'],
+  ['kettenverschleis', 'kettenverschleiss-messen'],
+
+  // Die Beispielfragen im Platzhalter der Suche. Wer sie dort zeigt,
+  // verspricht, dass sie funktionieren.
+  ['meine Hose wird schwarz', 'fahrradkette-entfetten'],
+  ['wie oft muss ich nachwachsen?', 'kettenlaufzeit-heisswachs'],
+  ['Kette quietscht nach 50 km', 'wachs-haelt-nicht-haeufige-fehler'],
+  ['kann ich einen Reiskocher nehmen?', 'topf-zum-kette-wachsen'],
+  ['weißes Pulver, ist das normal?', 'erste-fahrt-nach-wachsen'],
+  ['funktioniert Wachs im Winter?', 'kettenwachs-winter'],
+];
+
+/** [Anfrage, Teilstring der erwarteten FAQ-Frage] fuer die Antwortkarte.
+ *  `null` heisst: hier darf KEINE Karte erscheinen. */
+const ANSWER_CASES = [
+  ['wie oft muss ich nachwachsen', 'nachwachsen'],
+  ['kette quietscht nach 50 km', 'quietscht'],
+  ['welche temperatur braucht das wachsbad', 'Temperatur'],
+  ['kann ich einen reiskocher nehmen', 'Reiskocher'],
+  ['weisses pulver ist das normal', 'Pulver'],
+  ['wie oft darf ich den quicklink wiederverwenden', 'wiederverwenden'],
+  ['altes wachs entsorgen', 'entsorge'],
+  ['xylophon', null],
 ];
 
 const payload = JSON.parse(readFileSync(resolve(root, 'public/search-index.json'), 'utf8'));
@@ -103,7 +134,7 @@ let top3 = 0;
 const failures = [];
 
 for (const [query, expected] of CASES) {
-  const hits = search(engine, query, 5);
+  const { hits } = search(engine, query, 5);
   const rank = hits.findIndex((h) => h.slug === expected);
   if (rank === 0) top1 += 1;
   if (rank >= 0 && rank < 3) top3 += 1;
@@ -117,15 +148,50 @@ for (const [query, expected] of CASES) {
   }
 }
 
+// Antwortkarten
+let answerFails = 0;
+for (const [query, expected] of ANSWER_CASES) {
+  const { answer } = search(engine, query, 5);
+  const ok = expected === null ? answer === null : Boolean(answer?.question.includes(expected));
+  if (!ok) answerFails += 1;
+  if (verbose || !ok) {
+    console.log(`${ok ? 'OK  ' : 'FAIL'}  Antwort "${query}"`);
+    console.log(`      erwartet: ${expected ?? '— keine Karte —'}`);
+    console.log(`      bekommen: ${answer ? `${answer.question} (${answer.slug})` : '— keine Karte —'}`);
+  }
+}
+
+// Hub-Inhalte: jeder Sprunganker muss auf eine echte <h2> zeigen, jeder Slug
+// auf einen echten Artikel. Sonst springt der Symptom-Wegweiser ins Leere.
+const hubErrors = [];
+const bySlug = new Map(articles.map((a) => [a.slug, a]));
+for (const s of symptoms) {
+  const article = bySlug.get(s.slug);
+  if (!article) { hubErrors.push(`Symptom ${s.id}: Artikel ${s.slug} fehlt`); continue; }
+  const ids = article.sections.filter((x) => x.type === 'h2').map((x) => headingId(x.text));
+  if (!ids.includes(headingId(s.heading))) hubErrors.push(`Symptom ${s.id}: keine <h2> "${s.heading}" in ${s.slug}`);
+}
+for (const step of learningPath) if (!bySlug.has(step.slug)) hubErrors.push(`Lernpfad: Artikel ${step.slug} fehlt`);
+for (const num of hubNumbers) if (!bySlug.has(num.slug)) hubErrors.push(`Zahl ${num.value}: Artikel ${num.slug} fehlt`);
+for (const q of typewriterQuestions) {
+  if (!CASES.some(([query]) => query === q)) hubErrors.push(`Platzhalterfrage ohne Testfall: "${q}"`);
+}
+for (const e of hubErrors) console.log(`FAIL  ${e}`);
+
 const n = CASES.length;
 const pct = (x) => `${((x / n) * 100).toFixed(0)} %`;
 console.log('');
 console.log(`Top-1: ${top1}/${n} (${pct(top1)})   Top-3: ${top3}/${n} (${pct(top3)})`);
+console.log(`Antwortkarten: ${ANSWER_CASES.length - answerFails}/${ANSWER_CASES.length}   Hub-Verweise: ${hubErrors.length ? `${hubErrors.length} Fehler` : 'ok'}`);
 
 // Zielwerte aus dem Umbauplan. Unterschreitet die Suche sie, ist das ein
 // echter Fehlschlag und kein "ist halt unscharf" — dann fehlen Aliase.
 const TARGET_TOP1 = 0.9;
 const TARGET_TOP3 = 1;
+if (answerFails || hubErrors.length) {
+  console.error('\nFEHLGESCHLAGEN: Antwortkarten oder Hub-Verweise stimmen nicht (siehe FAIL-Zeilen oben).');
+  process.exit(1);
+}
 if (top1 / n < TARGET_TOP1 || top3 / n < TARGET_TOP3) {
   console.error(`\nFEHLGESCHLAGEN: Ziel ist Top-1 >= ${TARGET_TOP1 * 100} % und Top-3 = 100 %.`);
   console.error('Fehlende Bruecken ergaenzen in src/pages/blog/articleAliases.ts oder src/lib/search/synonyms.ts.');

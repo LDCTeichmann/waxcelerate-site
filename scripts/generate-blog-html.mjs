@@ -26,6 +26,8 @@
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve, join } from 'node:path';
 import { articles, getArticleImage, author, categoryOrder, blogHero } from '../src/pages/blog/articles.ts';
+import { headingId } from '../src/pages/blog/headingId.ts';
+import { learningPath, symptoms } from '../src/pages/blog/hubContent.ts';
 import { starterSet, waxVsOil, frictionRanges, products } from '../src/lib/data.ts';
 import {
   KETTEN_TITLE, KETTEN_DESCRIPTION, KETTEN_H1, KETTEN_LEAD, chainBenefits, kettenCollectionSchema,
@@ -85,7 +87,8 @@ function escWithLinks(text = '') {
 
 function renderSection(s) {
   switch (s.type) {
-    case 'h2': return `<h2>${esc(s.text)}</h2>`;
+    // Dieselben IDs wie BlogArticlePage: Suche und Symptom-Wegweiser springen dorthin.
+    case 'h2': return `<h2 id="${headingId(s.text)}">${esc(s.text)}</h2>`;
     case 'h3': return `<h3>${esc(s.text)}</h3>`;
     case 'p': return `<p>${escWithLinks(s.text)}</p>`;
     case 'image': return `<figure><img src="${esc(s.src)}" alt="${esc(s.alt ?? '')}" loading="lazy">${s.caption ? `<figcaption>${esc(s.caption)}</figcaption>` : ''}</figure>`;
@@ -260,14 +263,29 @@ function renderIndex() {
     .filter(Boolean)
     .join('\n  ');
 
+  // Lernpfad und Symptom-Wegweiser aus derselben Quelle wie die Seite
+  // (hubContent.ts), damit Crawler ohne JS die beiden Einstiege auch sehen.
+  const bySlug = new Map(articles.map(a => [a.slug, a]));
+  const pathHtml = `<section><h2>Von Öl zu Wachs in fünf Schritten</h2><ol>${learningPath
+    .map(step => {
+      const a = bySlug.get(step.slug);
+      return a ? `<li><a href="/blog/${a.slug}">${esc(a.titleShort)}</a> — ${esc(step.why)}</li>` : '';
+    })
+    .join('')}</ol></section>`;
+  const symptomHtml = `<section><h2>Was ist los mit deiner Kette?</h2><dl>${symptoms
+    .map(sy => `<dt>${esc(sy.label)}</dt><dd>${esc(sy.cause)} ${esc(sy.fix)} <a href="/blog/${sy.slug}#${headingId(sy.heading)}">Im Artikel nachlesen</a></dd>`)
+    .join('')}</dl></section>`;
+
   const body = `
 <nav aria-label="Brotkrumen"><a href="/">Startseite</a> › <span>Blog</span></nav>
 <header>
   <p>Die Werkstatt</p>
-  <h1>Wissen rund um Kette &amp; Wachs</h1>
+  <h1>Frag die Werkstatt.</h1>
   <p>Messwerte, Anleitungen und ehrliche Antworten von jemandem, der jede Woche selbst am Wachstopf steht.</p>
   <p>${articles.length} Artikel · Stuttgart</p>
 </header>
+${pathHtml}
+${symptomHtml}
 ${byCat}`.trim();
 
   return buildPage({ head, body });

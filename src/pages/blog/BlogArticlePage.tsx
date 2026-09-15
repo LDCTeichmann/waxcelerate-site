@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Navigation } from '@/sections/navigation';
 import { Footer } from '@/sections/footer';
@@ -15,6 +15,8 @@ import {
 } from './articles';
 import type { ArticleSection } from './articles';
 import { getToolBySlug } from '@/lib/toolRegistry';
+import { headingId } from './headingId';
+import { markArticleRead } from './readState';
 
 // Minimal inline-link syntax for body text: [[Link-Text|/ziel-pfad]]. Kept as
 // a marker syntax rather than a new section field so it can sit inline
@@ -54,7 +56,7 @@ function renderSection(section: ArticleSection, idx: number): React.ReactNode {
   switch (section.type) {
     case 'h2':
       return (
-        <h2 key={idx} className="font-display text-[24px] font-bold text-wx-tx1 leading-tight mt-12 mb-4">
+        <h2 key={idx} id={headingId(section.text ?? '')} className="font-display text-[24px] font-bold text-wx-tx1 leading-tight mt-12 mb-4 scroll-mt-28">
           {section.text}
         </h2>
       );
@@ -151,8 +153,31 @@ export function BlogArticlePage() {
   const article = slug ? getArticleBySlug(slug) : undefined;
   const tool = article?.toolSlug ? getToolBySlug(article.toolSlug) : undefined;
 
+  const { hash } = useLocation();
+
+  // Aus der Ratgeber-Suche und dem Symptom-Wegweiser kommt man mit
+  // #abschnitt in der URL und soll genau dort landen, nicht am Anfang. Mit
+  // Wiederholung, weil der Abschnitt beim ersten Render nach einem
+  // Routenwechsel noch nicht im DOM stehen kann (lazy geladene Seite).
   useEffect(() => {
-    window.scrollTo(0, 0);
+    if (!hash) { window.scrollTo(0, 0); return; }
+    const id = decodeURIComponent(hash.slice(1));
+    let attempts = 0;
+    let cancelled = false;
+    const tryScroll = () => {
+      if (cancelled) return;
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ block: 'start' });
+      else if (attempts++ < 20) window.setTimeout(tryScroll, 100);
+      else window.scrollTo(0, 0);
+    };
+    tryScroll();
+    return () => { cancelled = true; };
+  }, [slug, hash]);
+
+  // Fuer Lernpfad und "Gelesen" auf der Uebersicht, nur im eigenen Browser.
+  useEffect(() => {
+    if (slug && getArticleBySlug(slug)) markArticleRead(slug);
   }, [slug]);
 
   // Prerendered HTML for this route already ships this same schema; without
