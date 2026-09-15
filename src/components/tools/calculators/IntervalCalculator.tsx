@@ -186,6 +186,8 @@ export function IntervalCalculator({ profile, compact }: { profile: ToolProfileS
             overdue={overdue}
             labels={{ last: r.tlLast, today: r.tlToday, due: r.tlDue }}
             fmtDate={fmtDate}
+            kmPerWeek={profile.kmPerWeek}
+            kmPerWax={interval}
           />
         </SketchFrame>
         </div>

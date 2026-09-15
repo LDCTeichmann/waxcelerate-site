@@ -444,22 +444,39 @@ R=G=B-Graudesign. `--ok`/`--warn` bleiben global bestehen (Warenkorb,
 Bestellbestätigung), die Rechner nutzen sie nicht mehr. Blau heißt nie „Achtung".
 
 **Grafik-Grammatik** (`src/components/tools/sketches.tsx`):
-- 1:1-Skala: Breite per ResizeObserver, viewBox gleich Anzeigebreite — 11 px
-  Schrift ist 11 px. Skizzen mit fester viewBox (Antrieb, Zählen) wachsen
-  höchstens 1:1 (`maxWidth`).
-- Hilfslinien 1 px `--bd2`, Daten 2 px; direkte Beschriftung; Legende nur bei
+- 1:1-Skala: Breite per ResizeObserver, viewBox gleich Anzeigebreite — alle
+  fünf Grafiken, keine feste viewBox mehr.
+- **Schrift ≥ 12 px** (auch in SVG, Mobile-Audit 09/2026), Zahlen tabellarisch.
+  Etiketten, die auf Linien liegen, sind mit `HALO` freigestellt (Kontur in
+  `--sketch-bg`).
+- Hilfslinien 1 px `--bd2`, Daten 2–4 px; direkte Beschriftung; Legende nur bei
   zwei Reihen; Text in Textfarben, Farbe nur an Marken.
 - Wachs und gut `--brand`, Öl `--txf`, handeln `--tool-warn`. Keine weitere Farbe.
+- **Material (v2, 15.09.2026):** Bauteile sind Stahl — Verlauf von oben
+  (`--metal-hi/-mid/-lo/-deep`), Kante `--metal-edge`, ein weicher Schatten nur
+  am bewegten Werkzeug. Daten bleiben flach. Tokens in `:root` und `.noir`.
+- **Maße sind Bemaßung** (`Dim`): Hilfslinien mit Abstand, Maßlinie mit
+  gefüllten Pfeilen, Maßzahl darunter — nie eine lose Linie mit Text.
 - Etiketten, die kollidieren würden, fallen nach Priorität weg (das
   wichtigste — z. B. „fällig" — bleibt immer).
-- **Kette = `ChainStrip`.** Lehre und Zählen zeichnen dieselbe Seitenansicht:
-  Innenlaschen hinten, Außenlaschen davor (Knochenform mit Taille,
-  `platePath`), Nietköpfe obenauf, Haarlinien 1,1 px. Keine Rechtecke als
-  Laschen, keine Kreise mit Ziffern als Werkzeug. Die Lehre ist ein
-  gestanztes Werkzeug mit Langloch und eingravierter Marke; Farbe nur am
-  Messzahn.
-- **Kettenlänge:** Strichrhythmus = Teilung im Maßstab; was abkommt, ist am
-  unteren Trum markiert (grau gestrichelt, Schnittmarke) — keine eigene Leiste.
+- **Kette = `ChainStrip`.** Lehre und Zählen zeichnen dieselbe Seitenansicht,
+  Proportionen nach ISO 606 als Anteil der Teilung: Innenlaschen dunkler
+  dahinter, Außenlaschen mit Taille davor (`platePath`), Nietköpfe mit
+  Lichtkante. Kettenschloss = Außenglied mit zwei Langlöchern. Gezählt werden
+  Teilungen, nicht Bolzen.
+- **Lehre:** ein lasergeschnittenes Teil (Balken, Haken, Messzahn, Griffmulde,
+  Gravur). Weil die Laschen die Kontaktstelle verdecken, zeigt eine **Lupe**
+  den Schnitt ohne Laschen: Zahn auf der Rolle oder zwischen den Rollen.
+  Die Längung ist überzeichnet und so beschriftet. Farbe nur am Messzahn.
+- **Kettenlänge:** Zahnräder mit Rollensitzen, Kette als Gliederpolygon mit
+  gerader Gliederzahl; der Maßstab füllt den Rahmen für den ungünstigsten Fall
+  (550 mm, 60 Z). Was abkommt, ist am Untertrum ausgegraut mit Schnittmarke
+  und „−N Glieder".
+- **Kosten:** Pfeil von Öl nach Wachs; Summenzeile unter der Haarlinie ist
+  exakt die Heldenzahl (`net` aus `drivetrainCosts`, nicht aus gerundeten
+  Zeilen).
+- **Intervall:** Kalender-Lineal (Tage, Montage, Monatswechsel); die gefahrenen
+  km stehen an der Heute-Nadel.
 - **Animation:** einmalig beim ersten Sichtbarwerden (`useRevealOnce`,
   IntersectionObserver): Lehre senkt sich, Kette läuft an, Zeitstrahl füllt
   sich, Wachs-Punkte gleiten vom Öl-Wert. Keine Schleifen; bei
