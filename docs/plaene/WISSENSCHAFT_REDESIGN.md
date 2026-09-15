@@ -642,8 +642,7 @@ fallen ein paar Mono-Stellen ohnehin weg.
 8. Mikroskop-Abschnitt aussetzen, bis die Herkunft geklärt ist.
 9. µ-Werte zurückstufen (braucht Luca, siehe Abschnitt 8).
 
-**Stufe 1, das falsche Panel ersetzen.** Öl-Panel gegen „Jede Bewegung beginnt
-bei null". Eine Figur, mittlerer Aufwand, entfernt die riskanteste Aussage.
+~~**Stufe 1, das falsche Panel ersetzen.**~~ Erledigt am 15.09.2026, siehe 7a.
 
 **Stufe 2, Hero und Klammer.** Kettengeometrie in ein gemeinsames Primitiv,
 neuer Hero als Einstiegskarte, Maßstabs-Chips in allen Panels.
@@ -698,6 +697,45 @@ Stufe 0, nur die Punkte ohne Entscheidungsbedarf:
 
 Geprüft mit `npx tsc -b --force` und `npm run build`, Rumpf und `llms.txt`
 gegengelesen.
+
+### Stufe 1 am 15.09.2026: die Ersatzfigur steht
+
+Nach Stufe 0 zeigte das Panel eine Druckgrafik unter einer Bildunterschrift,
+die sagt, dass der Druck nicht der Punkt ist. Diese Lücke ist zu.
+
+`TransferFilm` heißt jetzt `StandstillFilm` und trägt die Figur aus Abschnitt
+2.4: zwei Spuren über eine Gelenkbewegung. Oben die Gleitgeschwindigkeit, die
+sichtbar das Vorzeichen wechselt und zweimal durch null geht, beide
+Nulldurchgänge markiert und mit „Stillstand" beschriftet. Unten die Filmdicke:
+die Ölkurve folgt der Geschwindigkeit und fällt an beiden Stillständen auf die
+Grundlinie, die Wachslinie ist eine Waagerechte.
+
+Zwei bewusste Entscheidungen:
+
+- **Keine y-Achsenwerte.** Das ist ein Mechanismus, keine Messung. Der Chip
+  sagt „schematisch", wie in den Kontaktzonen.
+- **Die Wachslinie liegt unter den Ölspitzen.** Zu behaupten, der Wachsfilm sei
+  dicker als ein aufgebauter Ölfilm, wäre eine Aussage ohne Beleg, und die
+  Pointe braucht sie nicht: Öl ist zeitweise dicker und zweimal je Zyklus gar
+  nicht da. Das ist die ehrlichere und zugleich die stärkere Fassung.
+
+Die Flächenpressung bleibt als Kennzahl in der Fußzeile, jetzt als Ortsangabe
+(„Pressung im Gelenk") statt als Mechanismus.
+
+Geprüft mit Chromium über Playwright auf dem gebauten `dist/`, in hell, dunkel
+und auf 390 px: keine JS-Fehler, kein waagerechter Überlauf. Achtung für die
+nächste Prüfung: die Seite schaltet den Dunkelmodus über die Klasse `noir` aus
+`localStorage['wx-theme']`, nicht über `prefers-color-scheme`. Ein Screenshot
+mit `colorScheme: 'dark'` zeigt deshalb die helle Seite.
+
+Die Figurenschrift lag mobil zuerst bei 9,7 px, also unter der 11-px-Grenze aus
+`DESIGN.md` §2. Die viewBox ist deshalb von 360 auf 320 Einheiten geschrumpft,
+damit der Skalierungsfaktor nahe 1 liegt: jetzt 13,7 px auf dem Desktop und
+11,9 px auf einem 390er Gerät. Auf sehr schmalen Telefonen (360 px) bleiben
+10,7 px. Das ist der Rest, den die Figur ohne einen Umbau auf
+HTML-Beschriftung nicht loswird.
+
+---
 
 ### Direkt daraus entstanden: eine neue Inkonsistenz
 

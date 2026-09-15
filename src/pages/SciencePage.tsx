@@ -16,7 +16,7 @@ import { COMPONENTS, FAILURES, type ScienceComponent } from '@/lib/science';
 import { FormulaGraph } from '@/sections/science/FormulaGraph';
 import { ContactZones, LineChoice } from '@/sections/science/ContactZones';
 import { ComponentDiagram } from '@/sections/science/diagrams';
-import { HexMoS2, TransferFilm } from '@/sections/science/LabViz';
+import { HexMoS2, StandstillFilm } from '@/sections/science/LabViz';
 import { ReadMoreLink } from '@/sections/science/ReadMoreLink';
 
 const W = 'max-w-4xl mx-auto px-4 sm:px-6 lg:px-8';
@@ -613,8 +613,8 @@ function FrictionBars({ de }: { de: boolean }) {
   // right at each bar's own end (left: pct%) — it now visually belongs to
   // the bar it measures instead of reading as a separate list of numbers
   // next to unrelated bar lengths. The oil bar gets a diagonal hatch instead
-  // of a flat fill (same hatch language as TransferFilm's steel texture
-  // below) to read as "reference, not a product" rather than just a paler
+  // of a flat fill (same "reference, not a product" language as the dashed
+  // oil curve in StandstillFilm next to it) rather than just a paler
   // grey. Both changes replace the old explanatory footnote — the figure
   // states "shorter = worse" itself instead of needing a sentence to say so.
   return (
@@ -1234,16 +1234,14 @@ export function SciencePage() {
             : 'These figures come from independent lab tests by Zero Friction Cycling, not from measurements Waxcelerate ran itself. Lab conditions (constant power, controlled chain) do not map onto the road one to one — weather, dirt and riding style shift real-world values in both directions. The order of magnitude of the difference is unaffected by that.'}
         </p>
 
-        {/* Two instrument panels side by side instead of stacked — same
-            content as before (Friction bars + folded-in outcome stats,
-            Transfer Film), just laid out in parallel so the section doesn't
-            run so tall. TransferFilm's SVG (viewBox 500×88) just renders
-            shorter at half width; still reads fine. */}
-        {/* items-stretch (default): FrictionBars' own chart runs taller than
-            TransferFilm's thin banner SVG, so items-start left a bare ~90px
-            gap under the right panel — two "matched" instrument panels that
-            visibly weren't. Stretching both to the row's height reads as a
-            pair of same-size devices instead. */}
+        {/* Two instrument panels side by side instead of stacked (friction
+            bars + folded-in outcome stats on the left, StandstillFilm on the
+            right), so the section doesn't run so tall. StandstillFilm's SVG
+            (viewBox 360×190) scales down at half width and still reads.
+            items-stretch (default) rather than items-start: the two panels
+            are of different natural height, and stretching them to the row
+            reads as a pair of same-size devices instead of one panel with a
+            bare gap under it. */}
         <div className="grid lg:grid-cols-2 gap-4 mb-4">
           <InstrumentFrame eyebrow={de ? 'Reibung' : 'Friction'}
             footer={
@@ -1275,8 +1273,8 @@ export function SciencePage() {
             <FrictionBars de={de} />
           </InstrumentFrame>
 
-          {/* Signature visual — Fe–S transfer film deposition (the payoff) */}
-          <TransferFilm de={de} />
+          {/* Signature visual — why a joint runs boundary-lubricated (the payoff) */}
+          <StandstillFilm de={de} />
         </div>
 
         {de && (

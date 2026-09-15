@@ -136,44 +136,62 @@ export function HexMoS2({ de }: { de: boolean }) {
   );
 }
 
-// ─── Contact-pressure scale ──────────────────────────────────────────────────
-// Shows the flaechenpressung a chain joint actually works at, on a log scale
-// against one pressure people have an intuition for.
+// ─── Jede Bewegung beginnt bei null — warum ein Gelenk grenzgeschmiert laeuft ─
 //
-// 2026-09-15 correction. This panel used to be headed "Warum Oel hier
-// aufgibt" and carried a dashed line at 50 MPa with the caption "ab 50 MPa
-// traegt kein Fluessigfilm mehr, Grenzschmierung". That threshold does not
-// exist. Grenzschmierung follows from the ratio of film thickness to surface
-// roughness, and that thickness is driven by ENTRAINMENT SPEED, not by
-// pressure; under pressure a lubricant's viscosity rises, which is why EHL
-// films carry 1 to 3 GPa in rolling bearings, ten times what the line marked
-// as the end of liquid lubrication. A chain joint runs boundary-lubricated
-// because it swings instead of rotating: sliding speed passes through zero
-// twice per cycle, and at zero no hydrodynamic film builds, at any pressure.
-// That reason is both correct and stronger, and it is already on the page in
-// the Losbrech paragraph of ContactZones.
+// Loest die Druckskala ab, die bis 15.09.2026 hier stand. Die trug die
+// Aussage "ab 50 MPa traegt kein Fluessigfilm mehr, Grenzschmierung", und die
+// gibt es nicht: Grenzschmierung folgt aus dem Verhaeltnis Filmdicke zu
+// Rauheit, und die Filmdicke haengt an der EINLAUFGESCHWINDIGKEIT, nicht am
+// Druck. Unter Druck steigt die Viskositaet sogar, weshalb EHD-Filme in
+// Waelzlagern 1 bis 3 GPa tragen, das Zehnfache der eingezeichneten Grenze.
+// Die Schwelle und der schiefe Vergleich (Reifenfuelldruck gegen
+// Hydraulik-Systemdruck gegen Flaechenpressung) sind in Stufe 0 gefallen; was
+// blieb, war eine Druckgrafik unter einer Bildunterschrift, die sagt, dass der
+// Druck nicht der Punkt ist. Diese Figur zeigt jetzt den Punkt selbst.
 //
-// Removed with the threshold: the "Hydraulikpresse 30 MPa" row. A hydraulic
-// system pressure in a fluid is not a flaechenpressung between two solids,
-// so it did not belong on this axis. The tyre row stays (contact-patch
-// pressure is roughly inflation pressure, so it IS the same quantity) but at
-// a road pressure of about 7 bar instead of 2.5.
-// Full write-up: docs/plaene/WISSENSCHAFT_REDESIGN.md, section 2.
-interface PressureRow {
-  labelDe: string; labelEn: string; lo: number; hi: number; valueLabel: string; highlight: boolean;
+// Der richtige Grund ist auch der staerkere und steht schon im
+// Losbrech-Absatz von ContactZones: ein Gelenk dreht sich nicht durch, es
+// schwenkt auf und wieder zu. Die Gleitgeschwindigkeit geht dabei zweimal je
+// Zyklus durch null, und bei null baut sich kein hydrodynamischer Film auf,
+// bei keinem Druck. Ein Feststofffilm muss nicht aufgebaut werden, er liegt
+// schon in der Oberflaechenrauheit.
+//
+// Bewusst OHNE y-Achsenwerte: das ist ein Mechanismus, keine Messung. Der
+// Chip sagt "schematisch", wie in ContactZones. Die Wachslinie liegt
+// absichtlich UNTER den Oelspitzen — zu behaupten, der Wachsfilm sei dicker
+// als ein aufgebauter Oelfilm, waere eine Aussage, die wir nicht belegen
+// koennen, und die Pointe braucht sie nicht: Oel ist zeitweise dicker und
+// zweimal je Zyklus gar nicht da.
+//
+// Voller Befund: docs/plaene/WISSENSCHAFT_REDESIGN.md, Abschnitt 2.4.
+
+const PX0 = 6, PX1 = 314;                 // Zeichenbreite (viewBox 320)
+// Vier feste Baender, damit keine Kurve je durch eine Beschriftung laeuft:
+// Label 0-18, Geschwindigkeitsspur 24-64, Label 70-88, Filmspur 96-170.
+const VEL_MID = 44, VEL_AMP = 20;         // Spur 1, Gleitgeschwindigkeit
+const FILM_BASE = 170, OIL_AMP = 74;      // Spur 2, Filmdicke (Spitze bei y=96)
+const WAX_Y = FILM_BASE - 30;             // konstanter Feststofffilm
+// Phase 0,25: halbe Abwaertshalbwelle links, ganze Aufwaertshalbwelle in der
+// Mitte, halbe rechts, Nulldurchgaenge bei t = 0,25 und 0,75. Damit wechselt
+// die Geschwindigkeit sichtbar das Vorzeichen. Mit 0,2 lagen beide negativen
+// Abschnitte angeschnitten an den Raendern und die Kurve las sich als
+// Huegel statt als Umkehr.
+const PHASE = 0.25;
+const wave = (t: number) => Math.sin(2 * Math.PI * (t - PHASE));
+const xAt = (t: number) => PX0 + t * (PX1 - PX0);
+const STILL_T = [0.25, 0.75];
+
+/** Polyline durch N Stuetzstellen, auf zwei Nachkommastellen gerundet. */
+function curve(fy: (t: number) => number, n = 120) {
+  return Array.from({ length: n + 1 }, (_, i) => {
+    const t = i / n;
+    return `${xAt(t).toFixed(2)},${fy(t).toFixed(2)}`;
+  }).join(' ');
 }
-const PRESSURE_ROWS: PressureRow[] = [
-  { labelDe: 'Reifenaufstandsfläche', labelEn: 'Tyre contact patch', lo: 0.7, hi: 0.7, valueLabel: '~0,7 MPa', highlight: false },
-  { labelDe: 'Kettengelenk', labelEn: 'Chain joint', lo: 50, hi: 300, valueLabel: '50–300 MPa', highlight: true },
-];
+const VEL_PTS = curve(t => VEL_MID - VEL_AMP * wave(t));
+const OIL_PTS = curve(t => FILM_BASE - OIL_AMP * Math.abs(wave(t)));
 
-// log10 scale, domain 0.1-1000 MPa (4 decades) so the tyre's 0.25 MPa is
-// still a visible sliver instead of vanishing next to 300 MPa on a linear
-// axis — the entire point is that these are different ORDERS of magnitude.
-const LOG_MIN = -1, LOG_MAX = 3;
-const toPct = (mpa: number) => ((Math.log10(mpa) - LOG_MIN) / (LOG_MAX - LOG_MIN)) * 100;
-
-export function TransferFilm({ de }: { de: boolean }) {
+export function StandstillFilm({ de }: { de: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   const [run, setRun] = useState(prefersReducedMotion());
 
@@ -186,14 +204,14 @@ export function TransferFilm({ de }: { de: boolean }) {
 
   return (
     <InstrumentFrame
-      eyebrow={de ? 'Flächenpressung im Gelenk' : 'Contact pressure in the joint'}
-      chip="50–300 MPa"
+      eyebrow={de ? 'Jede Bewegung beginnt bei null' : 'Every movement starts from zero'}
+      chip={de ? 'schematisch' : 'schematic'}
       footer={
         <div className="grid grid-cols-3 gap-3 text-center">
           {[
-            { val: '50–300 MPa', sub: de ? 'Kontaktdruck' : 'Contact pressure' },
-            { val: '2–5 nm',     sub: de ? 'Filmdicke'    : 'Film thickness'   },
+            { val: '2–5 nm',     sub: de ? 'Filmdicke MoS₂'    : 'MoS₂ film thickness' },
             { val: 'Fe–S',       sub: de ? 'tribochem. Bindung' : 'tribochem. bond' },
+            { val: '50–300 MPa', sub: de ? 'Pressung im Gelenk'  : 'Pressure in the joint' },
           ].map((s, i) => (
             <div key={i}>
               <CountUp value={s.val} className="font-mono text-[13px] font-semibold" style={{ color: 'var(--tx1)' }} />
@@ -204,44 +222,84 @@ export function TransferFilm({ de }: { de: boolean }) {
       }
       innerRef={ref}
     >
-      <div className="space-y-4 pt-1">
-        {PRESSURE_ROWS.map(row => {
-          const startPct = toPct(row.lo);
-          const endPct = toPct(row.hi);
-          return (
-            <div key={row.labelDe}>
-              <div className="flex justify-between mb-1.5">
-                <span className={`text-[13px] font-medium ${row.highlight ? 'text-wx-tx1' : 'text-wx-txf'}`}>
-                  {de ? row.labelDe : row.labelEn}
-                </span>
-                <span className="num-data text-[12px]" style={{ color: row.highlight ? 'var(--tx2)' : 'var(--txff)' }}>
-                  {row.valueLabel}
-                </span>
-              </div>
-              <div className="relative h-2.5 rounded-full overflow-hidden" style={{ background: 'var(--bd)' }}>
-                <div className="absolute inset-y-0 rounded-full"
-                  style={{
-                    left: run ? `${startPct}%` : '0%',
-                    width: run ? `${Math.max(endPct - startPct, 1.5)}%` : '0%',
-                    background: row.highlight
-                      ? 'linear-gradient(90deg, var(--accent-strong), var(--accent-soft))'
-                      : 'var(--txf)',
-                    transition: 'left 1s cubic-bezier(0.22,1,0.36,1), width 1s cubic-bezier(0.22,1,0.36,1)',
-                  }} />
-              </div>
-            </div>
-          );
-        })}
-        <p className="text-[12px] leading-relaxed" style={{ color: 'var(--accent-soft)', opacity: run ? 1 : 0, transition: 'opacity 0.6s ease 0.9s' }}>
+      <div className="pt-1">
+        <svg viewBox="0 0 320 190" className="w-full" role="img"
+          aria-label={de
+            ? 'Zwei Spuren über eine Gelenkbewegung. Oben die Gleitgeschwindigkeit, die zweimal durch null geht. Unten die Filmdicke: der Ölfilm fällt an beiden Nullstellen auf null, der Wachsfilm bleibt konstant.'
+            : 'Two tracks across one joint movement. Top, the sliding speed passing through zero twice. Bottom, film thickness: the oil film drops to zero at both zero crossings, the wax film stays constant.'}>
+          <defs>
+            {/* Oszilloskop-Sweep von links nach rechts statt Pfadlaengen-
+                Animation: braucht keine gemessene Pfadlaenge und wirkt in
+                einem Messgeraete-Rahmen richtiger als ein Einblenden. */}
+            <clipPath id="wx-sweep">
+              <rect x={PX0} y="0" width={PX1 - PX0} height="190"
+                style={{
+                  transform: run ? 'scaleX(1)' : 'scaleX(0)',
+                  transformBox: 'fill-box', transformOrigin: 'left center',
+                  transition: 'transform 1.2s cubic-bezier(0.22,1,0.36,1)',
+                }} />
+            </clipPath>
+          </defs>
+
+          <text x={PX0} y="13" fontSize="12" fontFamily="monospace" fill="var(--txf)">
+            {de ? 'Gleitgeschwindigkeit' : 'Sliding speed'}
+          </text>
+          <text x={PX0} y="85" fontSize="12" fontFamily="monospace" fill="var(--txf)">
+            {de ? 'Tragender Schmierfilm' : 'Load-carrying film'}
+          </text>
+
+          {/* Nulllinie der Geschwindigkeit und Grundlinie der Filmspur */}
+          <line x1={PX0} y1={VEL_MID} x2={PX1} y2={VEL_MID}
+            stroke="var(--bd)" strokeWidth="var(--dw-hair)" strokeDasharray="4 4" />
+          <line x1={PX0} y1={FILM_BASE} x2={PX1} y2={FILM_BASE}
+            stroke="var(--bd)" strokeWidth="var(--dw-hair)" />
+
+          {/* Die beiden Stillstaende: die Aussage der Figur */}
+          {STILL_T.map(t => (
+            <g key={t}>
+              <line x1={xAt(t)} y1={VEL_MID - VEL_AMP - 6} x2={xAt(t)} y2={FILM_BASE}
+                stroke="var(--accent)" strokeWidth="var(--dw-hair)" strokeDasharray="3 3" opacity="0.55" />
+              <circle cx={xAt(t)} cy={VEL_MID} r="2.6" fill="var(--accent)" />
+              <text x={xAt(t)} y="186" fontSize="12" fontFamily="monospace" textAnchor="middle" fill="var(--accent-soft)">
+                {de ? 'Stillstand' : 'standstill'}
+              </text>
+            </g>
+          ))}
+
+          <g clipPath="url(#wx-sweep)">
+            <polyline points={VEL_PTS} fill="none" stroke="var(--txm)" strokeWidth="var(--dw-line)" strokeLinejoin="round" />
+            {/* Oel gestrichelt und grau, wie in FrictionBars: Referenz, kein
+                Produkt. Faellt an jeder Nullstelle mit auf die Grundlinie. */}
+            <polyline points={OIL_PTS} fill="none" stroke="var(--txf)" strokeWidth="var(--dw-line)"
+              strokeDasharray="5 4" strokeLinejoin="round" />
+            <line x1={PX0} y1={WAX_Y} x2={PX1} y2={WAX_Y}
+              stroke="var(--accent)" strokeWidth="var(--dw-bold)" strokeLinecap="round" />
+          </g>
+        </svg>
+
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 mt-2">
+          <span className="inline-flex items-center gap-2 text-meta" style={{ color: 'var(--txm)' }}>
+            <svg width="20" height="4" aria-hidden><line x1="0" y1="2" x2="20" y2="2"
+              stroke="var(--txf)" strokeWidth="2" strokeDasharray="5 4" /></svg>
+            {de ? 'Kettenöl' : 'Chain oil'}
+          </span>
+          <span className="inline-flex items-center gap-2 text-meta" style={{ color: 'var(--txm)' }}>
+            <svg width="20" height="4" aria-hidden><line x1="0" y1="2" x2="20" y2="2"
+              stroke="var(--accent)" strokeWidth="3" strokeLinecap="round" /></svg>
+            {de ? 'Wachs mit MoS₂' : 'Wax with MoS₂'}
+          </span>
+          <span className="text-meta" style={{ color: 'var(--txff)' }}>
+            {de ? 'eine Gelenkbewegung: auf und wieder zu' : 'one joint movement: open and shut again'}
+          </span>
+        </div>
+
+        <p className="text-[12px] leading-relaxed mt-3" style={{ color: 'var(--accent-soft)', opacity: run ? 1 : 0, transition: 'opacity 0.6s ease 0.9s' }}>
           {de
-            ? 'Der Druck allein ist dabei nicht das Problem. Entscheidend ist die Bewegung: ein Gelenk schwenkt auf und wieder zu, die Gleitgeschwindigkeit geht zweimal je Zyklus durch null. Bei null baut sich kein Flüssigfilm auf.'
-            : 'Pressure alone is not the problem. The movement is: a joint swings open and shut again, so sliding speed passes through zero twice per cycle. At zero, no liquid film builds.'}
+            ? 'Nicht der Druck entscheidet, sondern die Bewegung. Ein Flüssigfilm entsteht erst durch Geschwindigkeit, und die geht hier zweimal je Zyklus durch null. Ein Feststofffilm muss nicht erst aufgebaut werden.'
+            : 'It is the movement that decides, not the pressure. A liquid film is only generated by speed, and here speed passes through zero twice per cycle. A solid film does not have to be built up first.'}
         </p>
 
-        {/* The payoff — what actually happens to each lubricant at that
-            pressure, in words, instead of leaving the reader to infer it
-            from a diagram. */}
-        <div className="pt-2 space-y-2.5" style={{ borderTop: '1px solid var(--bd2)' }}>
+        <div className="pt-2 mt-4 space-y-2.5" style={{ borderTop: '1px solid var(--bd2)' }}>
           <div className="flex gap-3 pt-3">
             <span className="text-small uppercase tracking-[0.13em] flex-shrink-0 w-12" style={{ color: 'var(--txf)' }}>
               {de ? 'Öl' : 'Oil'}
