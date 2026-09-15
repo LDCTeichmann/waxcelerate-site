@@ -333,7 +333,7 @@ export function BlogIndexPage() {
         </div>
       </section>
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+      <main id="main-content" className="max-w-5xl mx-auto px-4 sm:px-6 py-12">
         {/* Suche */}
         <div className="relative mb-6">
           <input
@@ -342,7 +342,7 @@ export function BlogIndexPage() {
             onChange={(e) => setQuery(e.target.value)}
             aria-label="Artikel durchsuchen"
             placeholder='Artikel durchsuchen, z. B. „Winter" oder „Watt"'
-            className="w-full text-[14px] px-4 py-2.5 rounded-full outline-none"
+            className="w-full text-base sm:text-[14px] px-4 py-2.5 rounded-full outline-none"
             style={{ background: 'var(--sf)', border: '1px solid var(--bd)', color: 'var(--tx1)' }}
           />
         </div>

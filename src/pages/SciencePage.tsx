@@ -1161,15 +1161,18 @@ export function SciencePage() {
               the two experiences read as the same feature, not two
               unrelated widgets. Tapping one jumps the carousel directly
               instead of requiring three swipes. */}
-          <div className="flex items-center justify-center gap-2 mt-3 pb-8">
+          <div className="flex items-center justify-center mt-1 pb-6">
+            {/* p-[9px]: der sichtbare Punkt bleibt 6 px, die Trefferfläche wird 24 px (WCAG 2.5.8). */}
             {COMPONENTS.map(c => (
               <button key={c.id} type="button" onClick={() => jumpToMobileComp(c.id)}
                 aria-label={de ? c.nameDe : c.nameEn}
-                className="rounded-full transition-all duration-300"
-                style={{
-                  width: mobileCompId === c.id ? 20 : 6, height: 6,
-                  background: mobileCompId === c.id ? 'var(--accent)' : 'var(--bd)',
-                }} />
+                className="p-[9px]">
+                <span className="block rounded-full transition-all duration-300"
+                  style={{
+                    width: mobileCompId === c.id ? 20 : 6, height: 6,
+                    background: mobileCompId === c.id ? 'var(--accent)' : 'var(--bd)',
+                  }} />
+              </button>
             ))}
           </div>
         </div>

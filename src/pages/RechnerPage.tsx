@@ -156,7 +156,7 @@ export function RechnerHubPage() {
 
       <Navigation />
 
-      <main className={`${W} pt-28 pb-24`}>
+      <main id="main-content" className={`${W} pt-28 pb-24`}>
         <BackLink de={de} className="mb-5 sm:mb-6" />
         <h1 className="section-title mb-4">{TOOLS_HUB.h1}</h1>
         <p className="text-[15px] leading-relaxed max-w-2xl mb-10" style={{ color: 'var(--tx2)' }}>
@@ -233,7 +233,7 @@ export function RechnerToolPage() {
 
       <Navigation />
 
-      <main className={`${W} pt-24 pb-20`}>
+      <main id="main-content" className={`${W} pt-24 pb-20`}>
         <BackLink de={de} className="mb-4" />
         <h1 className="text-[26px] sm:text-[32px] font-semibold leading-tight mb-2" style={{ color: 'var(--tx1)' }}>
           {entry.h1}

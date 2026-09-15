@@ -150,7 +150,7 @@ export function IntervalCalculator({ profile, compact }: { profile: ToolProfileS
                 min="2020-01-01"
                 max={isoDate(new Date())}
                 onChange={e => setLastWaxedDate(e.target.value ? new Date(e.target.value + 'T00:00:00') : null)}
-                className="w-full px-3.5 py-2.5 rounded-xl text-[14px]"
+                className="w-full px-3.5 py-2.5 rounded-xl text-base sm:text-[14px]"
                 style={{
                   background: 'var(--sf2)', border: '1px solid var(--bd2)', color: 'var(--tx1)',
                   colorScheme: theme === 'noir' ? 'dark' : 'light',

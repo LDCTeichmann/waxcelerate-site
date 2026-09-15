@@ -153,7 +153,7 @@ export function NumberInput({ value, onChange, min, max, step, ariaLabel, theme,
         onChange={e => onChange(e.target.value)}
         onFocus={onFocus}
         aria-label={ariaLabel}
-        className={`w-full px-3.5 py-2.5 rounded-xl text-[14px] tabular-nums ${suffix ? 'pr-12' : ''}`}
+        className={`w-full px-3.5 py-2.5 rounded-xl text-base sm:text-[14px] tabular-nums ${suffix ? 'pr-12' : ''}`}
         style={{
           background: 'var(--sf2)', border: '1px solid var(--bd2)', color: 'var(--tx1)',
           colorScheme: theme === 'noir' ? 'dark' : 'light',

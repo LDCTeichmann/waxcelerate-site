@@ -65,6 +65,8 @@ export function StarterSetPage() {
 
       <Navigation />
 
+      <main id="main-content">
+
       {/* ── Kit-Bild als Kopf, kein eigener Hero ──
           Vorher standen hier zwei Elemente untereinander: eine Ueberschrift in
           Hero-Groesse und darunter das Kit-Foto — zusammen rund ein
@@ -206,6 +208,7 @@ export function StarterSetPage() {
           {de ? 'Zurück zur Startseite' : 'Back to home'}
         </Link>
       </footer>
+      </main>
 
       <Footer />
     </div>

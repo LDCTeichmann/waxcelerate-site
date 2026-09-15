@@ -208,7 +208,7 @@ export function RewaxRequestForm({ de, preselect }: { de: boolean; preselect: Se
   const shipping = quantity === 1 ? PRICE.shippingSingle : PRICE.shippingBundle;
   const total = perChain * quantity + shipping;
 
-  const inputClass = 'w-full px-4 py-2.5 rounded-xl text-sm outline-none';
+  const inputClass = 'w-full px-4 py-2.5 rounded-xl text-base sm:text-sm outline-none';
   const inputStyle = { background: 'var(--sf2)', border: '1px solid var(--bd2)', color: 'var(--tx1)' };
   const contactLooksValid = EMAIL_RE.test(contact) || PHONE_RE.test(contact);
 
@@ -420,7 +420,7 @@ export function PriceMatrix({ de }: { de: boolean }) {
             return (
               <div key={c}>
                 <p className="flex items-center gap-1.5 font-semibold text-[12.5px] sm:text-[15px] min-w-0" style={{ color: 'var(--tx1)' }}>
-                  <Icon className="h-3.5 w-3.5 flex-shrink-0" style={{ color: 'var(--accent)' }} aria-hidden />{t}
+                  <Icon className="hidden sm:block h-3.5 w-3.5 flex-shrink-0" style={{ color: 'var(--accent)' }} aria-hidden />{t}
                 </p>
                 <p className="text-[11.5px] leading-snug mt-0.5" style={{ color: 'var(--txm)' }}>{s}</p>
               </div>
@@ -605,7 +605,7 @@ function RewaxTrust({ de }: { de: boolean }) {
                 </p>
               </div>
             </div>
-            <dl className="mt-6 space-y-3">
+            <div className="mt-6 space-y-3">
               {[
                 { v: `${trustStats.sold}+`, l: de ? 'Ketten gewachst, seit 2024' : 'chains waxed, since 2024' },
                 { v: `${trustStats.reviews}`, l: de ? 'Bewertungen · 100 % positiv' : 'reviews · 100% positive' },
@@ -616,7 +616,7 @@ function RewaxTrust({ de }: { de: boolean }) {
                   <p className="text-[12px] mt-0.5" style={{ color: 'var(--txm)' }}>{l}</p>
                 </div>
               ))}
-            </dl>
+            </div>
           </div>
 
           {/* Zitate */}

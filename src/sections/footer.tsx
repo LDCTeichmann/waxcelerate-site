@@ -37,7 +37,7 @@ export function Footer() {
   // bringt sie auf ~24px Trefferhöhe, ohne dass Schriftgröße oder Optik sich
   // sichtbar aendern; das Padding frisst einen Teil des vorherigen space-y der
   // umgebenden <ul>, siehe dort.
-  const linkClass = 'inline-block py-1 text-wx-txf hover:text-wx-tx1 text-[13px] transition-colors duration-150 leading-relaxed';
+  const linkClass = 'inline-block py-2.5 sm:py-1 text-wx-txf hover:text-wx-tx1 text-[13px] transition-colors duration-150 leading-relaxed';
   const headingClass = 'text-small font-semibold uppercase tracking-[0.18em] text-wx-txf mb-4 block';
 
   return (

@@ -832,9 +832,9 @@
 }
 .shelf-price { color: #16385F; font-variant-numeric: tabular-nums; }
 .noir .shelf-price { color: #A9C4E6; }
-.shelf-deal { color: #2E7D4F; background: rgba(46,125,79,.1); }
+.shelf-deal { color: #256B42; background: rgba(46,125,79,.1); }
 .noir .shelf-deal { color: #6FC193; background: rgba(111,193,147,.12); }
-.shelf-deal-tx { color: #2E7D4F; }
+.shelf-deal-tx { color: #256B42; }
 .noir .shelf-deal-tx { color: #6FC193; }
 /* Set / Ketten / Rewax mobil als Wischband; die naechste Karte lugt
    rechts hervor, damit das Weiterwischen erkennbar ist. */
@@ -1283,7 +1283,7 @@ section[id] {
   /* Versand-Gruen: vorher nur innerhalb .wxp (Wachsseite) definiert, jetzt
      global, damit Kettenkarten, "Passt dazu" und Topbar dieselbe Pille
      tragen (ShippingPill.tsx). wax.css verweist darauf. */
-  --ship-fg: #2E7D4F;
+  --ship-fg: #256B42;
   --ship-bg: rgba(46, 125, 79, 0.1);
   --ship-rgb: 46, 125, 79;
   /* Kopfbereich: Hoehe der Topbar und die deckende Entsprechung von

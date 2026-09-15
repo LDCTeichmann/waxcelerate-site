@@ -24,7 +24,7 @@ export function WiderrufPage() {
   // removeStaticJsonLd() fuer JSON-LD.
   useEffect(() => { removeStaticHeadMeta(); }, []);
 
-  const inputClass = 'w-full px-4 py-2.5 rounded-xl text-sm text-wx-tx1 outline-none';
+  const inputClass = 'w-full px-4 py-2.5 rounded-xl text-base sm:text-sm text-wx-tx1 outline-none';
   const inputStyle = { background: 'var(--sf2)', border: '1px solid var(--bd2)' };
 
   const handleSubmit = async (e: React.FormEvent) => {
