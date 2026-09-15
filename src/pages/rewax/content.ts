@@ -31,9 +31,11 @@
 export const PRICE = {
   rewax: { single: 15.95, bundle: 11.95 }, // Auffrischung (war 13,95 / 9,95)
   umstieg: { single: 24.95, bundle: 21.95 }, // Umstieg — entfetten + erstwachsen
-  bundleCount: 3,
-  // Eine Kette passt in den Großbrief (1,80 €). Drei Ketten brauchen den
-  // Maxibrief (2,90 €) — deshalb zwei Rückversandpreise statt einem.
+  // Mengenpreis ab zwei Ketten (vorher drei, Luca 2026-09-15): die
+  // Rotation — eine Kette fährt, eine ist bei uns — soll sich sofort lohnen.
+  bundleCount: 2,
+  // Eine Kette passt in den Großbrief (1,80 €). Ab zwei Ketten geht es im
+  // Maxibrief (2,90 €) zurück — deshalb zwei Rückversandpreise statt einem.
   shippingSingle: 1.80,
   shippingBundle: 2.90,
 } as const;
@@ -50,16 +52,36 @@ export const PRICE = {
 // SEO-/Conversion-Fixes) ist von diesem Flag unabhängig und geht sofort live.
 export const UMSTIEG_LIVE = true;
 
-// Bearbeitungszeit AB ANKUNFT bei uns (von Luca, 2026-09-07). Nie ein festes
-// Versprechen — immer als Spanne. Die Postlaufzeit hin und zurück (je 1–2
-// Werktage) kommt obendrauf und wird getrennt genannt.
-//   full  = "3–5 Werktage ab Ankunft bei uns"  (die genaue Aussage)
-//   short = "3–5 Werktage"                       (für Kennzahl-Kacheln)
+// Bearbeitungszeit AB ANKUNFT bei uns — fest 3 Werktage (Luca, 2026-09-15;
+// vorher „3–5"). Die Postlaufzeit hin und zurück (je 1–2 Werktage) kommt
+// obendrauf und wird getrennt genannt; das konkrete Rückgabe-Fenster rechnet
+// src/pages/rewax/dates.ts aus `days`.
+//   full  = "3 Werktage ab Ankunft bei uns"  (die genaue Aussage)
+//   short = "3 Werktage"                       (für Kennzahl-Kacheln)
 export const TURNAROUND = {
-  full: '3–5 Werktage ab Ankunft bei uns',
-  fullEn: '3–5 working days after it reaches us',
-  short: '3–5 Werktage',
-  shortEn: '3–5 working days',
+  days: 3,
+  full: '3 Werktage ab Ankunft bei uns',
+  fullEn: '3 working days after it reaches us',
+  short: '3 Werktage',
+  shortEn: '3 working days',
+  // Für Sätze mit „in/innerhalb": „Wir wachsen sie innerhalb von 3 Werktagen …",
+  // „Zurück in 3 Werktagen ab Ankunft".
+  within: 'innerhalb von 3 Werktagen ab Ankunft bei uns',
+  withinEn: 'within 3 working days after it reaches us',
+  dative: '3 Werktagen',
+} as const;
+
+// ── Leise-Garantie (Luca, 2026-09-15) ───────────────────────────────────────
+// Risikoumkehr direkt am Preis. Eng gefasst: gilt für die Kette, die wir
+// gewachst haben, Meldung binnen 14 Tagen, den Rückversand der Nacharbeit
+// tragen wir.
+export const GUARANTEE = {
+  short: 'Leise-Garantie',
+  shortEn: 'Quiet guarantee',
+  line: 'Läuft sie nicht leise, wachsen wir sie kostenlos nochmal.',
+  lineEn: "If it doesn't run quiet, we rewax it for free.",
+  full: 'Läuft deine Kette nach dem Anbauen nicht leise, melde dich innerhalb von 14 Tagen: Wir wachsen sie kostenlos nochmal, den Rückversand übernehmen wir.',
+  fullEn: "If your chain doesn't run quiet once fitted, tell us within 14 days: we rewax it for free and cover the return shipping.",
 } as const;
 
 // Städte für den "deutschlandweit"-Absatz und die Stadt-FAQ. Ehrlich als
@@ -97,10 +119,10 @@ export function rewaxMeta(de: boolean) {
   const description = de
     ? (UMSTIEG_LIVE
       ? `Kette einschicken, frisch gewachst zurück. Auffrischung ab ${eur(PRICE.rewax.single)}, geölte Kette auf Wachs umstellen ab ${eur(PRICE.umstieg.single)}, jeweils zzgl. Rückversand. Handgewachst in Stuttgart, deutschlandweit per Post.`
-      : `Gewachste Kette einschicken, frisch gewachst zurückbekommen. Ab ${eur(PRICE.rewax.single)} je Kette, ${eur(PRICE.rewax.bundle)} ab drei Ketten, zzgl. Rückversand. Handgewachst in Stuttgart, deutschlandweit per Post.`)
+      : `Gewachste Kette einschicken, frisch gewachst zurückbekommen. Ab ${eur(PRICE.rewax.single)} je Kette, ${eur(PRICE.rewax.bundle)} ab zwei Ketten, zzgl. Rückversand. Handgewachst in Stuttgart, deutschlandweit per Post.`)
     : (UMSTIEG_LIVE
       ? `Send in your chain, get it back freshly waxed. Rewax from ${eur(PRICE.rewax.single, false)}, oil-to-wax switch from ${eur(PRICE.umstieg.single, false)}, plus return shipping. Hand-waxed in Stuttgart, nationwide by mail.`
-      : `Send in your waxed chain, get it back freshly waxed. From ${eur(PRICE.rewax.single, false)} per chain, ${eur(PRICE.rewax.bundle, false)} from three chains, plus return shipping. Hand-waxed in Stuttgart.`);
+      : `Send in your waxed chain, get it back freshly waxed. From ${eur(PRICE.rewax.single, false)} per chain, ${eur(PRICE.rewax.bundle, false)} from two chains, plus return shipping. Hand-waxed in Stuttgart.`);
   return { title, description };
 }
 
@@ -123,7 +145,7 @@ export function rewaxServiceSchema(de: boolean) {
       '@type': 'OfferCatalog', name: de ? 'Auffrischung' : 'Rewax',
       itemListElement: [
         offer(de ? 'Auffrischung, eine Kette' : 'Rewax, one chain', PRICE.rewax.single),
-        offer(de ? 'Auffrischung, ab drei Ketten je Kette' : 'Rewax, from three chains per chain', PRICE.rewax.bundle),
+        offer(de ? 'Auffrischung, ab zwei Ketten je Kette' : 'Rewax, from two chains per chain', PRICE.rewax.bundle),
       ],
     },
   ];
@@ -132,7 +154,7 @@ export function rewaxServiceSchema(de: boolean) {
       '@type': 'OfferCatalog', name: de ? 'Umstieg von Öl auf Wachs' : 'Oil-to-wax switch',
       itemListElement: [
         offer(de ? 'Umstieg, eine Kette' : 'Switch, one chain', PRICE.umstieg.single),
-        offer(de ? 'Umstieg, ab drei Ketten je Kette' : 'Switch, from three chains per chain', PRICE.umstieg.bundle),
+        offer(de ? 'Umstieg, ab zwei Ketten je Kette' : 'Switch, from two chains per chain', PRICE.umstieg.bundle),
       ],
     });
   }
@@ -177,14 +199,24 @@ export function rewaxFaqItems(de: boolean): RewaxFaqItem[] {
     {
       q: de ? 'Was kostet es, eine Fahrradkette wachsen zu lassen?' : 'How much does it cost to get a chain rewaxed?',
       a: de
-        ? `Eine bereits gewachste Kette frischen wir für ${eur(PRICE.rewax.single, de)} auf, zuzüglich ${eur(PRICE.shippingSingle, de)} Rückversand. Ab drei Ketten sinkt der Preis auf ${eur(PRICE.rewax.bundle, de)} pro Kette.`
-        : `We rewax an already-waxed chain for ${eur(PRICE.rewax.single, de)}, plus ${eur(PRICE.shippingSingle, de)} return shipping. From three chains the price drops to ${eur(PRICE.rewax.bundle, de)} per chain.`,
+        ? `Eine bereits gewachste Kette frischen wir für ${eur(PRICE.rewax.single, de)} auf, zuzüglich ${eur(PRICE.shippingSingle, de)} Rückversand. Ab zwei Ketten sinkt der Preis auf ${eur(PRICE.rewax.bundle, de)} pro Kette.`
+        : `We rewax an already-waxed chain for ${eur(PRICE.rewax.single, de)}, plus ${eur(PRICE.shippingSingle, de)} return shipping. From two chains the price drops to ${eur(PRICE.rewax.bundle, de)} per chain.`,
     },
     {
       q: de ? 'Was kostet es, mehrere Fahrradketten wachsen zu lassen?' : 'How much does it cost to get several chains rewaxed?',
       a: de
-        ? `Ab drei Ketten sinkt der Preis auf ${eur(PRICE.rewax.bundle, de)} pro Kette. Der Rückversand (${eur(PRICE.shippingBundle, de)}) fällt dabei nur einmal an, egal wie viele Ketten im selben Umschlag sind.`
-        : `From three chains the price drops to ${eur(PRICE.rewax.bundle, de)} per chain. Return shipping (${eur(PRICE.shippingBundle, de)}) is charged only once, no matter how many chains are in the same envelope.`,
+        ? `Ab zwei Ketten sinkt der Preis auf ${eur(PRICE.rewax.bundle, de)} pro Kette. Der Rückversand (${eur(PRICE.shippingBundle, de)}) fällt dabei nur einmal an, egal wie viele Ketten im selben Umschlag sind.`
+        : `From two chains the price drops to ${eur(PRICE.rewax.bundle, de)} per chain. Return shipping (${eur(PRICE.shippingBundle, de)}) is charged only once, no matter how many chains are in the same envelope.`,
+    },
+    {
+      q: de ? 'Steht mein Rad, während die Kette bei euch ist?' : 'Is my bike off the road while the chain is with you?',
+      a: de
+        ? `Nicht, wenn du zwei Ketten im Wechsel fährst: Eine ist am Rad, die andere bei uns. Kommt die frische zurück, tauschst du am Quick-Link und schickst die gefahrene ein. Schon ab zwei Ketten gilt der Mengenpreis von ${eur(PRICE.rewax.bundle, de)} je Kette.`
+        : `Not if you ride two chains in rotation: one is on the bike, the other with us. When the fresh one comes back, swap at the quick link and send in the used one. The volume price of ${eur(PRICE.rewax.bundle, de)} per chain already applies from two chains.`,
+    },
+    {
+      q: de ? 'Was, wenn die Kette danach nicht leise läuft?' : "What if the chain doesn't run quiet afterwards?",
+      a: de ? GUARANTEE.full : GUARANTEE.fullEn,
     },
   ];
 
@@ -192,8 +224,8 @@ export function rewaxFaqItems(de: boolean): RewaxFaqItem[] {
     items.push({
       q: de ? 'Was kostet es, eine geölte oder neue Kette auf Wachs umzustellen?' : 'How much does it cost to switch an oiled or new chain to wax?',
       a: de
-        ? `Der Umstieg kostet ${eur(PRICE.umstieg.single, de)} je Kette (ab drei Ketten ${eur(PRICE.umstieg.bundle, de)}), zuzüglich ${eur(PRICE.shippingSingle, de)} Rückversand. Der Aufpreis gegenüber der Auffrischung ist der echte Mehraufwand: Die Kette kommt zuerst in ein separates Ultraschallbad, wird gründlich entfettet und vollständig getrocknet, bevor sie das erste Mal ins Wachs geht.`
-        : `The switch costs ${eur(PRICE.umstieg.single, de)} per chain (from three chains ${eur(PRICE.umstieg.bundle, de)}), plus ${eur(PRICE.shippingSingle, de)} return shipping. The premium over a rewax is real extra work: the chain first goes into a separate ultrasonic bath, is thoroughly degreased and fully dried before its first time in the wax.`,
+        ? `Der Umstieg kostet ${eur(PRICE.umstieg.single, de)} je Kette (ab zwei Ketten ${eur(PRICE.umstieg.bundle, de)}), zuzüglich ${eur(PRICE.shippingSingle, de)} Rückversand. Der Aufpreis gegenüber der Auffrischung ist der echte Mehraufwand: Die Kette kommt zuerst in ein separates Ultraschallbad, wird gründlich entfettet und vollständig getrocknet, bevor sie das erste Mal ins Wachs geht.`
+        : `The switch costs ${eur(PRICE.umstieg.single, de)} per chain (from two chains ${eur(PRICE.umstieg.bundle, de)}), plus ${eur(PRICE.shippingSingle, de)} return shipping. The premium over a rewax is real extra work: the chain first goes into a separate ultrasonic bath, is thoroughly degreased and fully dried before its first time in the wax.`,
     });
   }
 
@@ -221,8 +253,8 @@ export function rewaxFaqItems(de: boolean): RewaxFaqItem[] {
   items.push({
     q: de ? 'Kann ich meine Kette aus Hamburg, München, Köln oder Berlin einschicken?' : 'Can I send in my chain from Hamburg, Munich, Cologne or Berlin?',
     a: de
-      ? `Ja. Der Service läuft komplett per Post, egal wo in Deutschland du wohnst. Kette am Quick-Link öffnen, in einen gepolsterten Umschlag, als Großbrief (1,80 €) an unsere Stuttgarter Adresse. Wir wachsen sie in der Regel ${TURNAROUND.full} und schicken sie im Maxibrief zurück. Dazu kommt je 1 bis 2 Werktage Postlaufzeit.`
-      : `Yes. The service runs entirely by mail, wherever in Germany you live. Open the chain at the quick link, into a padded envelope, as a letter to our Stuttgart address. We wax it usually ${TURNAROUND.fullEn} and send it back. Add 1 to 2 working days of post each way.`,
+      ? `Ja. Der Service läuft komplett per Post, egal wo in Deutschland du wohnst. Kette am Quick-Link öffnen, in einen gepolsterten Umschlag, als Großbrief (1,80 €) an unsere Stuttgarter Adresse. Wir wachsen sie ${TURNAROUND.within} und schicken sie zurück, eine Kette im Großbrief, mehrere im Maxibrief. Dazu kommt je 1 bis 2 Werktage Postlaufzeit.`
+      : `Yes. The service runs entirely by mail, wherever in Germany you live. Open the chain at the quick link, into a padded envelope, as a letter to our Stuttgart address. We wax it ${TURNAROUND.withinEn} and send it back. Add 1 to 2 working days of post each way.`,
     link: { to: '/kette-wachsen-lassen/hamburg', labelDe: 'Kette wachsen lassen in Hamburg', labelEn: 'Chain waxing for Hamburg' },
   });
 
@@ -249,8 +281,8 @@ export function rewaxFaqItems(de: boolean): RewaxFaqItem[] {
   items.push({
     q: de ? 'Wachsen lassen oder selbst wachsen — was lohnt sich?' : 'Send it in or wax it myself — which is worth it?',
     a: de
-      ? 'Selbst wachsen ist einfach, kostet aber einen Abend, einen Topf und Platz für die Ausrüstung. Der Service lohnt sich, wenn du das nicht selbst machen willst oder der Platz dafür fehlt. Ab der zweiten oder dritten Kette in Rotation rechnet er sich zusätzlich, weil der Rückversand nur einmal anfällt.'
-      : "Waxing it yourself is simple, but costs an evening, a pot and space for the gear. The service is worth it if you'd rather not do that yourself or don't have the space for it. From a second or third chain in rotation it pays off further, since return shipping is only charged once.",
+      ? 'Selbst wachsen ist einfach, kostet aber einen Abend, einen Topf und Platz für die Ausrüstung. Der Service lohnt sich, wenn du das nicht selbst machen willst oder der Platz dafür fehlt. Ab der zweiten Kette in Rotation rechnet er sich zusätzlich: Mengenpreis, und der Rückversand fällt nur einmal an.'
+      : "Waxing it yourself is simple, but costs an evening, a pot and space for the gear. The service is worth it if you'd rather not do that yourself or don't have the space for it. From a second chain in rotation it pays off further: volume price, and return shipping is only charged once.",
     link: { to: '/blog/heisswachs-anleitung', labelDe: 'Anleitung: Heißwachs selber machen', labelEn: 'Guide: hot-wax your chain yourself' },
   });
 

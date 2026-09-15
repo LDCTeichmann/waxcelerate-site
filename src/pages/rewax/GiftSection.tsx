@@ -109,7 +109,7 @@ export function GiftSection({ de }: { de: boolean }) {
           {/* Lucas Wahl (2026-09-14): Kette unten, Draht und Zange vor dem
               blauen Block — dasselbe Motiv wie im eBay-Angebot. Ausschnitt
               links-unten, damit die Kette sichtbar bleibt. */}
-          <div className="relative min-h-[220px]" style={{ background: 'var(--sf2)' }}>
+          <div className="relative min-h-[150px] sm:min-h-[220px]" style={{ background: 'var(--sf2)' }}>
             <img src="/images/shelf/shelf-set-800.webp" style={{ objectPosition: '0% 100%' }} alt={de ? 'Starter-Set mit Kettenwachs, Kette und Werkzeug' : 'Starter set with chain wax, chain and tools'}
               loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover" />
           </div>
@@ -120,7 +120,11 @@ export function GiftSection({ de }: { de: boolean }) {
             <h3 className="font-display font-bold text-[1.35rem] leading-tight mt-1.5" style={{ color: 'var(--tx1)' }}>
               {de ? 'Starter-Set, damit es sofort losgeht.' : 'Starter set, to get going right away.'}
             </h3>
-            <ul className="grid sm:grid-cols-2 gap-x-6 gap-y-1.5 mt-4">
+            {/* Mobil eine Zeile statt Vierer-Liste — die Details stehen im Konfigurator */}
+            <p className="sm:hidden text-[13px] leading-snug mt-2" style={{ color: 'var(--txm)' }}>
+              {de ? 'Wachs und Kette deiner Wahl, Zange, drei Drähte.' : 'Wax and chain of your choice, pliers, three wires.'}
+            </p>
+            <ul className="hidden sm:grid sm:grid-cols-2 gap-x-6 gap-y-1.5 mt-4">
               {(de
                 ? ['Kettenwachs deiner Wahl', 'Kette deiner Wahl, vorgewachst', 'Quick-Link-Zange', 'Drei Aufhängedrähte']
                 : ['Chain wax of your choice', 'Chain of your choice, pre-waxed', 'Quick-link pliers', 'Three hanging wires']
