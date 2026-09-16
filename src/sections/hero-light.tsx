@@ -45,7 +45,7 @@ const MOBILE_HERO_BG_FALLBACK = '/images/hero/chain-weave-mobile.jpg';
 // (nicht der Quelldatei): einzelne Bildstellen fielen ohne ihn auf 4,5:1,
 // waehrend der Rest bei 9–18:1 lag. Der Schatten macht die Lesbarkeit
 // unabhaengig davon, was zufaellig hinter einer Zeile liegt — dieselbe
-// Technik wie das "Blick ins Wachs"-Label in WaxLensCutout.tsx.
+// Technik wie das "Welcher ist deiner?"-Label in WaxLensCutout.tsx.
 const HERO_TEXT_SHADOW = '0 1px 3px rgba(0,0,0,0.45), 0 2px 10px rgba(0,0,0,0.35)';
 
 
@@ -469,7 +469,7 @@ export function Hero() {
         <button
           type="button"
           onClick={openDiveFromBlock}
-          aria-label={de ? 'Blick ins Wachs — was im Wachs steckt' : 'Look inside the wax'}
+          aria-label={de ? 'Welcher Block ist deiner — Wachs finden' : 'Which block is yours — find your wax'}
           className="hero-block-m absolute z-[5]"
         >
           <span ref={mBlockInnerRef} className="relative block origin-center will-change-transform">
@@ -738,7 +738,7 @@ export function Hero() {
                   className="whitespace-nowrap text-small uppercase font-semibold"
                   style={{ letterSpacing: '0.1em', color: 'rgba(255,255,255,0.94)' }}
                 >
-                  {de ? 'Blick ins Wachs' : 'Look inside'}
+                  {de ? 'Welcher ist deiner?' : 'Which is yours?'}
                 </span>
               </div>
             </div>
@@ -840,7 +840,7 @@ export function Hero() {
                       onClick={openDive}
                       className="hero-cta-secondary inline-flex self-start sm:self-auto text-[13px] font-medium"
                     >
-                      {de ? 'Blick ins Wachs' : 'Look inside the wax'}
+                      {de ? 'Welcher ist deiner?' : 'Which is yours?'}
                     </button>
                   )}
                 </div>

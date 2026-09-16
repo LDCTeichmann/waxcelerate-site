@@ -1111,8 +1111,13 @@ export function RewaxTimeline({ last, today, due, days, overdue, labels, fmtDate
  */
 export const GRAPHIC_H = 186;
 
-export function SketchFrame({ children, caption }: {
+export function SketchFrame({ children, caption, height = GRAPHIC_H }: {
   children: React.ReactNode; caption?: React.ReactNode;
+  /** Abweichende Blatthoehe. Die festen 186 px gelten fuer das Deck, wo alle
+   *  Karten gleich hoch sein muessen (DESIGN.md §7). Ausserhalb des Decks —
+   *  etwa im Hero-Urteil — ist ein Blatt in Inhaltshoehe richtig, sonst steht
+   *  unter der Grafik ein Streifen grauer Luft. */
+  height?: number;
 }) {
   return (
     <figure
@@ -1124,11 +1129,122 @@ export function SketchFrame({ children, caption }: {
         backgroundPosition: '5px 5px',
         border: '1px solid var(--inset-bd)',
         boxShadow: 'inset 0 1px 2px var(--sketch-inset)',
-        height: GRAPHIC_H,
+        height,
       }}
     >
       <div className="w-full">{children}</div>
       {caption && <figcaption className="text-[12px] leading-snug mt-2" style={{ color: 'var(--txf)' }}>{caption}</figcaption>}
     </figure>
+  );
+}
+
+// ── Der Block, geteilt in seine Wachsgaenge ─────────────────────────────────
+
+/**
+ * WaxBlockBar — ein Block als Balken, geteilt in die Wachsgaenge, die in ihm
+ * stecken. Der Anteil, den ein Fahrprofil im ersten Jahr verbraucht, ist
+ * getoent, der Rest bleibt grau.
+ *
+ * Das ist die einzige Grafik des Hero-Moments (WaxVerdict) und hat genau eine
+ * Aufgabe: den abstrakten Block persoenlich machen. Man sieht seinen eigenen
+ * Jahresverbrauch an dem Gegenstand, den man gerade angeklickt hat — eine
+ * Zahl allein ("haelt dich ca. 14 Monate") leistet das nicht.
+ *
+ * Grammatik wie alle anderen: 1:1-Skala, Schrift >= 12 px, nur --brand und
+ * die Textgrauwerte, Bemassung statt loser Linie mit Text.
+ */
+export function WaxBlockBar({ applications, perYear, blockLabel, usedLabel, leftoverLabel }: {
+  /** Wachsgaenge, die im Block stecken. */
+  applications: number;
+  /** Wachsgaenge, die dieses Profil im ersten Jahr verbraucht. */
+  perYear: number;
+  /** Etikett links ueber dem Balken, z. B. "1 Block · 500 g". */
+  blockLabel: string;
+  /** Etikett an der Bemassung des verbrauchten Teils, z. B. "1. Jahr". */
+  usedLabel: string;
+  /** Etikett rechts ueber dem Balken, z. B. "20-32 Wachsgaenge". */
+  leftoverLabel: string;
+}) {
+  const [ref, W] = useWidth<HTMLDivElement>();
+  const id = useSvgId();
+  const shown = useRevealOnce(ref);
+
+  const apps = Math.max(1, Math.round(applications));
+  // Gedeckelt: mehr als ein Block im Jahr fuellt den Balken, laeuft aber nicht
+  // darueber hinaus — die Aussage ist dann "reicht dir kein Jahr", und die
+  // traegt die Bildunterschrift, nicht ein ueberzeichneter Balken.
+  const share = Math.min(1, Math.max(0, perYear / apps));
+  const k = useTween(shown ? share : 0, 520);
+
+  const PAD = 2, BAR_Y = 24, BAR_H = 46, R = 8;
+  const x0 = PAD, x1 = Math.max(x0 + 40, W - PAD);
+  const barW = x1 - x0;
+  const cut = x0 + barW * k;
+  const dimY = BAR_Y + BAR_H + 16;
+  const H = dimY + 16;
+
+  // Trennlinien nur so viele, wie bei dieser Breite noch als Teilung lesbar
+  // sind — darunter wird aus dem Raster eine graue Flaeche (DESIGN.md: Schrift
+  // und Striche muessen unterscheidbar bleiben).
+  const step = barW / apps;
+  const divisions = step >= 6 ? apps : 0;
+
+  return (
+    <div ref={ref} className="w-full">
+      <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} role="img" className="block"
+        aria-label={`${blockLabel}, ${leftoverLabel}. ${usedLabel}: ${Math.round(perYear)}`}>
+        <defs>
+          {/* Der verbrauchte Teil wird zum Rand hin leicht heller: der Balken
+              liest sich dadurch als Fuellstand und nicht als zweite Kachel. */}
+          <linearGradient id={id('used')} x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0" stopColor="var(--accent-strong)" />
+            <stop offset="1" stopColor="var(--accent-soft)" />
+          </linearGradient>
+          <clipPath id={id('clip')}>
+            <rect x={x0} y={BAR_Y} width={barW} height={BAR_H} rx={R} />
+          </clipPath>
+        </defs>
+
+        {/* Etiketten ueber dem Balken */}
+        <g style={FONT}>
+          <text x={x0} y={14} fill="var(--tx2)">{blockLabel}</text>
+          <text x={x1} y={14} textAnchor="end" fill="var(--txf)">{leftoverLabel}</text>
+        </g>
+
+        {/* Der Block: Grundflaeche, verbrauchter Teil, Teilung, Kante */}
+        <g clipPath={url(id, 'clip')}>
+          <rect x={x0} y={BAR_Y} width={barW} height={BAR_H} fill="var(--sketch-bg)" />
+          <rect x={x0} y={BAR_Y} width={Math.max(0, cut - x0)} height={BAR_H}
+            fill={url(id, 'used')} />
+          {divisions > 0 && Array.from({ length: divisions - 1 }, (_, i) => {
+            const x = x0 + step * (i + 1);
+            return (
+              <line key={i} x1={x} x2={x} y1={BAR_Y} y2={BAR_Y + BAR_H}
+                stroke={x <= cut ? 'var(--sketch-bg)' : 'var(--bd2)'}
+                strokeWidth="var(--dw-hair)" opacity={x <= cut ? 0.45 : 1} />
+            );
+          })}
+        </g>
+        <rect x={x0} y={BAR_Y} width={barW} height={BAR_H} rx={R}
+          fill="none" stroke="var(--bd)" strokeWidth="var(--dw-line)" />
+
+        {/* Bemassung des verbrauchten Teils: Hilfslinie, Massline mit Pfeilen,
+            Massszahl darunter — nie eine lose Linie mit Text. */}
+        {k > 0.02 && (
+          <g style={{ opacity: Math.min(1, k * 4) }}>
+            <line x1={cut} x2={cut} y1={BAR_Y + BAR_H} y2={dimY + 4}
+              stroke="var(--bd2)" strokeWidth="var(--dw-hair)" />
+            <line x1={x0} x2={cut} y1={dimY} y2={dimY}
+              stroke="var(--txf)" strokeWidth="var(--dw-hair)" />
+            <path d={`M${x0},${dimY} l6,-3 v6 Z`} fill="var(--txf)" />
+            <path d={`M${cut},${dimY} l-6,-3 v6 Z`} fill="var(--txf)" />
+            {cut - x0 > 44 && (
+              <text x={(x0 + cut) / 2} y={dimY + 13} textAnchor="middle"
+                style={{ ...FONT, ...HALO }} fill="var(--tx2)">{usedLabel}</text>
+            )}
+          </g>
+        )}
+      </svg>
+    </div>
   );
 }

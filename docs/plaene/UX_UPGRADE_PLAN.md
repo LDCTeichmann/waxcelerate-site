@@ -877,6 +877,17 @@ hier das Upgrade, nicht mehr Bewegung.
 Wenn du bei einer Entscheidung unsicher bist, ist die Frage nicht „wie wird das
 beeindruckender", sondern „wie wird das ruhiger und eindeutiger".
 
+> **Nachtrag 16.09.2026 — die Nutzlast des Moments ist getauscht, der Moment
+> selbst nicht.** Luca: vom „Blick ins Wachs" nicht überzeugt, dieselben
+> Komponenten stehen ausführlicher auf `/wissenschaft`, und ein Rezepturblick
+> trägt nichts zur Kaufentscheidung bei. Der Klick öffnet jetzt zuerst ein
+> Urteil („Welcher Block ist deiner?", `WaxVerdict.tsx`), die Rezeptur liegt
+> als zweiter Reiter daneben. Die Regel oben bleibt bewusst unverletzt:
+> derselbe Auslöser, dieselbe Lupe, dasselbe Gehäuse, **kein zweiter Moment**.
+> Der Hero-Freeze aus §0.2 ist für genau diese Interaktion durch Lucas Auftrag
+> aufgehoben, sonst gilt er weiter. Damit ist auch §7.4 „Entscheidungslähmung
+> Classic vs. Pro" beantwortet.
+
 ---
 
 ## Phase 8 — Verifikation und Übergabe
