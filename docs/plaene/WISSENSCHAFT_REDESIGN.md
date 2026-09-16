@@ -918,6 +918,52 @@ Geprüft: `tsc -b --force`, `npm run build`, beide Generatoren von Hand
 nachgefahren, Chromium in hell und dunkel bei 1280 / 390 / 360 px, dazu bei
 `prefers-reduced-motion`.
 
+### Stufe 4: µ raus als Leitzahl, Balken auf Watt
+
+Variante B ist umgesetzt. µ stand an fünf Stellen: Hero-Kachel (schon vorher
+weg), drei Balken in ACT III, eine Tabellenzeile in `LineChoice`, dazu **zwei
+Blöcke in `llms-full.txt` und im vorgerenderten Rumpf**.
+
+**Der schwerwiegendste Fund lag nicht auf der sichtbaren Seite.**
+`generate-llms-txt.mjs` schrieb wörtlich „Grenzreibungskoeffizient µ, Quelle:
+unabhängige Labortests von Zero Friction Cycling" und listete darunter
+Waxcelerate Pro und Classic. ZFC hat unsere Produkte nicht gemessen; die
+Wattzahlen stammen von dort, die µ-Werte nicht. Dieselbe Zuschreibung stand im
+Rumpf von `/wissenschaft`, den `generate-blog-html.mjs` erzeugt. Das sind genau
+die Flächen, die Crawler und Sprachmodelle lesen und die beim Durchsehen im
+Browser niemandem auffallen. Beides ist raus, die Wattzahlen bleiben mit ihrer
+Quelle.
+
+`FrictionBars` heißt jetzt `FrictionWatts`: Watt auf einer echten Achse von 0
+bis 12 W mit Teilstrichen, und jeder Balken ist ein **Bereich** von lo bis hi
+statt einer Länge ab null. Die Zahlen sind eine Spanne von frisch behandelt bis
+Intervallende; ein Balken ab null hätte die Untergrenze verschenkt. Die alte
+Balkenlänge kam aus `pct` in `data.ts`, einer frei gewählten Zahl ohne Einheit.
+
+`LineChoice` trägt statt µ die Zeile **„Nässe und Kälte"**, also die Angabe,
+nach der in dieser Tabelle wirklich entschieden wird. Wortlaut aus den
+Produkttexten in `data.ts`.
+
+Die eine µ-Zahl, die bleibt, steht im MoS₂-Kapitel und trägt jetzt ihre
+Bedingung: „Grenzschmierung, trockene Luft" im Panel **und** „in trockener
+Luft" in `COMPONENTS.mos2.sumDe`. Letzteres ist nötig, weil `sumDe` über die
+Generatoren ebenfalls nach `llms-full.txt` und in den Rumpf geht.
+
+`frictionRanges` bleibt in `data.ts` als interne Referenz, mit einem Kommentar,
+der sagt warum und was fehlt, falls jemand die Werte je wieder anzeigt: eine
+Achse und die Umgebung daneben.
+
+**Punkt 1 aus §7 ist damit ebenfalls erledigt.** Der ACT-III-Zweispalter steht
+auf `items-start`. Das Strecken war begründet, solange die natürlichen Höhen
+nahe beieinander lagen; mit dem kürzeren Wattdiagramm stand die Leere dann
+innerhalb des Rahmens. Eine Lücke zwischen zwei Karten liest sich als Layout,
+eine Lücke in einem Instrumentenrahmen als fehlender Inhalt.
+
+Offen geblieben, aufgefallen: die Wertespalten in `LineChoice` laufen alle über
+`.num-data`, auch die reinen Prosazeilen. `DESIGN.md` §2 hält Mono für echte
+Messwerte frei. Älter als dieser Umbau, eigene Entscheidung über die ganze
+Tabelle.
+
 ---
 
 ## 8. Was nur Luca entscheiden kann
