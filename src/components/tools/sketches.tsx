@@ -1111,8 +1111,13 @@ export function RewaxTimeline({ last, today, due, days, overdue, labels, fmtDate
  */
 export const GRAPHIC_H = 186;
 
-export function SketchFrame({ children, caption }: {
+export function SketchFrame({ children, caption, height = GRAPHIC_H }: {
   children: React.ReactNode; caption?: React.ReactNode;
+  /** Abweichende Blatthoehe. Die festen 186 px gelten fuer das Deck, wo alle
+   *  Karten gleich hoch sein muessen (DESIGN.md §7). Ausserhalb des Decks —
+   *  etwa im Hero-Urteil — ist ein Blatt in Inhaltshoehe richtig, sonst steht
+   *  unter der Grafik ein Streifen grauer Luft. */
+  height?: number;
 }) {
   return (
     <figure
@@ -1124,7 +1129,7 @@ export function SketchFrame({ children, caption }: {
         backgroundPosition: '5px 5px',
         border: '1px solid var(--inset-bd)',
         boxShadow: 'inset 0 1px 2px var(--sketch-inset)',
-        height: GRAPHIC_H,
+        height,
       }}
     >
       <div className="w-full">{children}</div>

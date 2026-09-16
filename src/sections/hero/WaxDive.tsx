@@ -111,7 +111,7 @@ export function WaxDive({ open, onClose, de }: { open: boolean; onClose: () => v
 
         {/* Auf dem Handy sind zwei Reiter neben Titel und Schliessen zu viel
             fuer eine Zeile — dort stehen sie darunter, ueber die volle Breite. */}
-        <div className="sm:hidden px-4 py-3 flex-shrink-0" style={{ borderBottom: '1px solid var(--bd)' }}>
+        <div className="sm:hidden px-4 py-2 flex-shrink-0" style={{ borderBottom: '1px solid var(--bd)' }}>
           <SegmentedToggle
             ariaLabel={de ? 'Ansicht' : 'View'}
             value={tab}

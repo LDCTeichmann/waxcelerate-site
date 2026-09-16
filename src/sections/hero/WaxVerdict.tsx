@@ -1,10 +1,14 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ExternalLink, ArrowRight } from 'lucide-react';
+import { gsap } from '@/lib/gsap';
+import { prefersReducedMotion } from '@/hooks/useAnimation';
+import { useDispatchLine } from '@/hooks/useDispatchLine';
 import { useToolProfile } from '@/hooks/useToolProfile';
 import type { Weather, Terrain } from '@/lib/ridingProfile';
 import { buildVerdict, type Entry } from '@/lib/waxRecommendation';
-import { canCheckout, isSoldOut, starterSetBundleProducts } from '@/lib/data';
+import { WAX_SHELF_LIFE_MONTHS } from '@/lib/waxMath';
+import { canCheckout, isSoldOut, starterSetBundleProducts, trustStats } from '@/lib/data';
 import { AddToCartButton } from '@/components/AddToCartButton';
 import { AnimatedNumber } from '@/components/viz';
 import { SketchFrame, WaxBlockBar } from '@/components/tools/sketches';
@@ -46,6 +50,8 @@ export function WaxVerdict({ de, onClose, entry, setEntry, onShowFormula }: {
 }) {
   const profile = useToolProfile();
   const { weather, setWeather, terrain, setTerrain, kmPerWeek, setKmPerWeek, interval } = profile;
+  const dispatch = useDispatchLine(de);
+  const answerRef = useRef<HTMLDivElement>(null);
 
   const v = buildVerdict({ weather, terrain, kmPerWeek, interval, entry });
 
@@ -81,6 +87,22 @@ export function WaxVerdict({ de, onClose, entry, setEntry, onShowFormula }: {
         ? 'Für dein Profil reicht Classic: sauberer Antrieb, kein Nachschmieren, kein Dreck. Am besten bei trockenem Wetter.'
         : 'Classic is enough for your profile: a clean drivetrain, no re-lubing, no grime. Best in dry weather.');
 
+  // Nur wenn sich die EMPFEHLUNG aendert, nicht bei jedem Slider-Pixel: der
+  // Wechsel Classic→Pro oder 500→300 ist der Moment, den man sehen soll.
+  useEffect(() => {
+    if (prefersReducedMotion() || !answerRef.current) return;
+    const tl = gsap.fromTo(answerRef.current, { opacity: 0.35, y: 4 },
+      { opacity: 1, y: 0, duration: 0.32, ease: 'power2.out' });
+    return () => { tl.kill(); };
+  }, [v.wax.id, v.starter?.id]);
+
+  // Gedeckelt an der Haltbarkeit: "43 Mon." neben dem Hinweis, dass ein Block
+  // bei diesen Kilometern ueberlagert, waeren zwei Aussagen, die sich
+  // widersprechen. "30+ Mon." sagt dasselbe, ohne etwas zu behaupten, das der
+  // eigene Hinweis eine Zeile tiefer wieder einkassiert.
+  const monthsCapped = v.econ.monthsPerBlock > WAX_SHELF_LIFE_MONTHS;
+  const monthsShown = Math.min(v.econ.monthsPerBlock, WAX_SHELF_LIFE_MONTHS);
+
   const honesty = v.honesty === 'smaller-block'
     ? (de
       ? 'Bei deinen Kilometern wäre der große Block überlagert, bevor du ihn aufbrauchst. Der kleinere ist hier der ehrlichere Kauf.'
@@ -99,14 +121,12 @@ export function WaxVerdict({ de, onClose, entry, setEntry, onShowFormula }: {
 
   return (
     <div className="flex-1 overflow-y-auto min-h-0">
-      <div className="grid lg:grid-cols-[0.82fr_1fr]">
+      <div className="grid lg:grid-cols-[0.72fr_1fr]">
 
         {/* ── LINKS: die drei Angaben ── */}
-        <div className="px-5 sm:px-8 py-6 lg:py-7 lg:border-r min-w-0" style={{ borderColor: 'var(--bd)' }}>
-          <p className="eyebrow mb-4" style={{ color: 'var(--txf)' }}>
-            {de ? 'Drei Angaben' : 'Three answers'}
-          </p>
-
+        <div className="px-5 sm:px-8 py-5 sm:py-6 lg:py-7 lg:border-r min-w-0" style={{ borderColor: 'var(--bd)' }}>
+          {/* Keine Eyebrow "Drei Angaben" mehr: die Kopfzeile des Dialogs sagt
+              das bereits, und die nummerierten Schritte erklaeren sich selbst. */}
           <Step n={1} label={de ? 'Wie fährst du?' : 'How do you ride?'}>
             <ChipRow>
               {terrains.map(o => (
@@ -146,7 +166,7 @@ export function WaxVerdict({ de, onClose, entry, setEntry, onShowFormula }: {
 
           {/* Der Zweig. Bewusst nicht nummeriert — sonst sind es vier Fragen,
               und die vierte waere die wichtigste. */}
-          <div className="mt-5 pt-5" style={{ borderTop: '1px solid var(--bd2)' }}>
+          <div className="mt-4 pt-4 sm:mt-5 sm:pt-5" style={{ borderTop: '1px solid var(--bd2)' }}>
             <div className="flex flex-wrap gap-1.5">
               <TogButton active={entry === 'waxes'} onClick={() => setEntry('waxes')}>
                 {de ? 'Ich wachse schon' : 'I already wax'}
@@ -159,7 +179,10 @@ export function WaxVerdict({ de, onClose, entry, setEntry, onShowFormula }: {
         </div>
 
         {/* ── RECHTS: das Urteil ── */}
-        <div className="px-5 sm:px-8 py-6 lg:py-7 flex flex-col min-w-0 min-h-[320px] lg:min-h-[420px]">
+        {/* Gestapelt braucht die Antwort eine Kante gegen die Fragen; nebeneinander
+            traegt das `lg:border-r` der linken Spalte die Trennung schon. */}
+        <div className="px-5 sm:px-8 py-5 sm:py-6 lg:py-7 flex flex-col min-w-0 min-h-[320px] lg:min-h-[420px] border-t lg:border-t-0"
+          style={{ borderColor: 'var(--bd)' }}>
 
           {entry === 'oil' && (
             <p className="eyebrow mb-2" style={{ color: 'var(--accent-soft)' }}>
@@ -167,7 +190,7 @@ export function WaxVerdict({ de, onClose, entry, setEntry, onShowFormula }: {
             </p>
           )}
 
-          <div className="flex items-start gap-4">
+          <div ref={answerRef} className="flex items-start gap-4">
             <img
               src={offer.image}
               alt={de ? offer.title : offer.titleEn}
@@ -211,23 +234,42 @@ export function WaxVerdict({ de, onClose, entry, setEntry, onShowFormula }: {
               : reason}
           </p>
 
-          {/* Genau zwei Kennzahlen. */}
+          {/* Genau zwei Kennzahlen — und die zweite ist bewusst der Anker
+              gegen Öl, nicht eine weitere Verbrauchsangabe. Ein Block, der
+              18 Monate hält, ist eine Spezifikation; was er gegenüber
+              Weiterölen spart, ist das Ergebnis. Die Zahl kommt aus
+              drivetrainCosts (Kette + Kassette + Schmierstoff), derselben
+              Rechnung wie auf der Produktseite und unter /rechner.
+              Fällt sie nicht positiv aus, steht wieder der Preis je
+              Wachsgang dort — behauptet wird nie eine Ersparnis, die das
+              Profil nicht hergibt. */}
           <dl className="mt-4 grid grid-cols-2 gap-4">
             <Fact
               label={de ? 'Hält dich' : 'Lasts you'}
-              value={<><AnimatedNumber value={v.econ.monthsPerBlock} /> {de ? 'Mon.' : 'mo.'}</>}
+              value={<><AnimatedNumber value={monthsShown} />{monthsCapped ? '+' : ''} {de ? 'Mon.' : 'mo.'}</>}
             />
-            <Fact
-              label={de ? 'Je Wachsgang' : 'Per waxing'}
-              value={eur(v.perApplication)}
-            />
+            {v.econ.savingsPerYear > 0 ? (
+              <Fact
+                // "Statt Öl im Jahr +55 €" laesst sich auch als Mehrkosten
+                // lesen. Der Nutzen gehoert ins Label, die Zahl bleibt nackt.
+                label={de ? 'Sparst du im Jahr' : 'You save a year'}
+                accent
+                value={<><AnimatedNumber value={v.econ.savingsPerYear} /> €</>}
+              />
+            ) : (
+              <Fact
+                label={de ? 'Je Wachsgang' : 'Per waxing'}
+                value={eur(v.perApplication)}
+              />
+            )}
           </dl>
 
           <div className="mt-4">
             <SketchFrame
+              height={136}
               caption={de
-                ? `Bei ${nf(kmPerWeek * 52)} km im Jahr und ${nf(interval)} km je Wachsgang.`
-                : `At ${nf(kmPerWeek * 52)} km a year and ${nf(interval)} km per waxing.`}
+                ? `${nf(kmPerWeek * 52)} km im Jahr · ${nf(interval)} km je Wachsgang · rund ${eur(v.perApplication)} pro Wachsgang.`
+                : `${nf(kmPerWeek * 52)} km a year · ${nf(interval)} km per waxing · about ${eur(v.perApplication)} each.`}
             >
               <WaxBlockBar
                 applications={v.applications}
@@ -297,10 +339,24 @@ export function WaxVerdict({ de, onClose, entry, setEntry, onShowFormula }: {
               </a>
             )}
 
+            {/* Die beiden Hebel, die unter jedem Kauf-Button dieser Seite
+                ohnehin gelten, hier aber fehlten: wie schnell es da ist
+                (Zeit) und dass es andere schon gekauft haben (Zuversicht).
+                Beide aus bestehenden Quellen — useDispatchLine und
+                trustStats —, keine neue Zahl. */}
+            <p className="text-[12px] leading-snug text-center" style={{ color: 'var(--txm)' }}>
+              {dispatch}
+            </p>
+            <p className="text-[12px] leading-snug text-center" style={{ color: 'var(--txf)' }}>
+              {de
+                ? `Über ${trustStats.sold} verkaufte Einheiten · ${trustStats.reviews} Bewertungen · 100 % positiv`
+                : `${trustStats.sold}+ units sold · ${trustStats.reviews} reviews · 100 % positive`}
+            </p>
+
             <button
               type="button"
               onClick={onShowFormula}
-              className="inline-flex items-center gap-1.5 self-center text-[12.5px] font-semibold group"
+              className="inline-flex items-center gap-1.5 self-center text-[12.5px] font-semibold group mt-0.5"
               style={{ color: 'var(--accent-soft)' }}
             >
               {de ? 'Was in diesem Block steckt' : 'What is in this block'}
@@ -319,7 +375,7 @@ function Step({ n, label, children, last, className = '' }: {
   n: number; label: string; children: React.ReactNode; last?: boolean; className?: string;
 }) {
   return (
-    <div className={`${last ? '' : 'mb-4 pb-4'} ${className}`}
+    <div className={`${last ? '' : 'mb-3 pb-3 sm:mb-4 sm:pb-4'} ${className}`}
       style={last ? undefined : { borderBottom: '1px solid var(--bd2)' }}>
       <div className="flex items-center gap-2 mb-2">
         <span className="num text-meta" style={{ color: 'var(--accent-soft)' }}>
@@ -334,11 +390,25 @@ function Step({ n, label, children, last, className = '' }: {
   );
 }
 
-function Fact({ label, value }: { label: string; value: React.ReactNode }) {
+/** Eine Kennzahl auf einer Haarlinie.
+ *
+ *  `accent` ist fuer die eine Zahl, die das Ergebnis traegt: Fraunces statt
+ *  Libre Franklin (`.num-display`, laut DESIGN.md §2 genau fuer Momente
+ *  reserviert) und in Markenblau. Zwei gleich gesetzte Zahlen nebeneinander
+ *  waeren zwei Spezifikationen; eine davon soll die Antwort sein. */
+function Fact({ label, value, accent }: {
+  label: string; value: React.ReactNode; accent?: boolean;
+}) {
   return (
-    <div style={{ borderTop: '1px solid var(--bd2)' }} className="pt-2">
-      <dt className="text-[11.5px] uppercase tracking-[0.12em]" style={{ color: 'var(--txff)' }}>{label}</dt>
-      <dd className="num text-[19px] font-bold leading-none mt-1.5" style={{ color: 'var(--tx1)' }}>{value}</dd>
+    <div style={{ borderTop: `1px solid ${accent ? 'var(--accent-soft)' : 'var(--bd2)'}` }} className="pt-2">
+      <dt className="text-[11.5px] uppercase tracking-[0.12em]"
+        style={{ color: accent ? 'var(--accent-soft)' : 'var(--txff)' }}>{label}</dt>
+      <dd
+        className={`${accent ? 'num-display font-display text-[26px]' : 'num text-[19px]'} font-bold leading-none mt-1.5`}
+        style={{ color: accent ? 'var(--accent-strong)' : 'var(--tx1)' }}
+      >
+        {value}
+      </dd>
     </div>
   );
 }
