@@ -7,8 +7,9 @@ import type { useLanguage } from '@/hooks/useLanguage';
 import { Ico, CHANGE_ICONS } from './Ico';
 
 // ── Proof-Leiste ────────────────────────────────────────────────────────────
-// Direkt unter dem ersten Screen, dunkel als Tiefenwechsel: ein Gesicht, ein
-// Satz, drei Zahlen. Die Zahlen sind kontoweit (trustStats) und werden weiter
+// Direkt unter dem ersten Screen, dunkel als Tiefenwechsel: ein echter Satz
+// aus einer eBay-Bewertung (pull, wortgleich), drei Zahlen. Die Zahlen sind
+// kontoweit (trustStats) und werden weiter
 // unten bei den Bewertungen auch so benannt.
 export function ProofStrip({ de, quote }: { de: boolean; quote: Review | undefined }) {
   const photo = quote?.photo?.replace(/\.jpg$/, '.webp');
@@ -25,6 +26,8 @@ export function ProofStrip({ de, quote }: { de: boolean; quote: Review | undefin
       <div className="wxp-wrap">
         {quote && (
           <div className="q">
+            {/* Stimmungsbild, nicht das Rad der zitierten Person — deshalb ohne
+                Namensbezug im Alt-Text (Luca, 16.09.2026). */}
             {photo && <img src={photo} alt="" loading="lazy" decoding="async" />}
             <p>{de ? `„${line}“` : `“${line}”`}
               <small>{quote.name} · {quote.source === 'web' ? (de ? 'verifizierter Käufer' : 'verified buyer') : (de ? 'eBay verifiziert' : 'eBay verified')} · ★★★★★</small></p>

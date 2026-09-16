@@ -128,6 +128,8 @@ function Who({ r, de, photo, about }: { r: Review; de: boolean; photo?: boolean;
   const verified = r.source === 'web' ? (de ? 'Verifizierter Käufer' : 'Verified buyer') : (de ? '✓ eBay verifiziert' : '✓ eBay verified');
   return (
     <figcaption className="wxp-who">
+      {/* Stimmungsbild, nicht das Rad der zitierten Person — Alt-Text bleibt
+          deshalb leer statt eine Zuordnung zu behaupten. */}
       {photo && r.photo && <img src={r.photo.replace(/\.jpg$/, '.webp')} alt="" loading="lazy" decoding="async" />}
       <b>{r.name}</b><span className="wxp-ver">{verified}</span><span>· {de ? r.dateDe : r.dateEn}</span>
       {about && <span>· {about}</span>}
@@ -149,7 +151,15 @@ export function WaxReviews({ productId, de, chapter, chain = false }: { productI
         <ChapterHead n={chapter ?? (de ? 'Kapitel 06' : 'Chapter 06')} title={de ? 'Was Fahrer sagen.' : 'What riders say.'} />
         <div className="wxp-rv-grid">
           <figure className="wxp-card wxp-rv-big pdp-dark">
-            {big.photo && <div className="ph"><img src={big.photo.replace(/\.jpg$/, '.webp')} alt={de ? 'Kundenfoto' : 'Customer photo'} loading="lazy" decoding="async" style={{ objectPosition: big.photoPos ?? '50% 50%' }} /></div>}
+            {/* Stimmungsbild, nicht das Rad der zitierten Person — die
+                Bildunterschrift sagt das offen, statt "Kundenfoto" zu
+                behaupten (Luca, 16.09.2026: Fotos sind seine eigenen). */}
+            {big.photo && (
+              <div className="ph">
+                <img src={big.photo.replace(/\.jpg$/, '.webp')} alt="" loading="lazy" decoding="async" style={{ objectPosition: big.photoPos ?? '50% 50%' }} />
+                <span className="cr">{de ? 'Foto: Waxcelerate' : 'Photo: Waxcelerate'}</span>
+              </div>
+            )}
             <div className="tx">
               <Stars rating={big.rating ?? 5} color="#F5A623" emptyColor="rgba(255,255,255,.2)" />
               <blockquote>„{de ? big.textDe : big.textEn}“</blockquote>

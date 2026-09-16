@@ -154,15 +154,19 @@ export const waxProcessTimeline: Array<{
 }> = [
   { minutes: 10, active: false, howToIndex: 1 },
   { minutes: 2, active: true, lane: 'side', nameDe: 'Kette abnehmen und aufhängen', nameEn: 'Take the chain off and hang it',
-    textDe: 'Während das Wachs schmilzt: am Quick-Link öffnen und auf Draht oder Haken hängen. Mit einer Kettenschlosszange geht das in unter einer Minute.',
-    textEn: 'While the wax melts: open it at the quick link and hang it on a wire or hook. With quick-link pliers it takes under a minute.' },
+    textDe: 'Während das Wachs schmilzt: am Quick-Link öffnen und auf Draht oder Haken hängen. Stark verschmutzt? Heiß abspülen und ganz trocknen lassen, Wasser spritzt im Wachs.',
+    textEn: 'While the wax melts: open it at the quick link and hang it on a wire or hook. Very dirty? Rinse in hot water and let it dry fully, water spits in wax.' },
   { minutes: 15, active: true, firstOnly: true, lane: 'side', howToIndex: 0 },
   { minutes: 12, active: false, afterSide: true, howToIndex: 2 },
   { minutes: 10, active: false, howToIndex: 3 },
-  { minutes: 1, active: true, howToIndex: 4 },
+  // Erst montieren, dann einfahren (Luca, 16.09.2026): die steife Kette wird
+  // am Rad eingefahren, nicht vorher von Hand durchgeknetet.
   { minutes: 1, active: true, nameDe: 'Kette montieren', nameEn: 'Fit the chain',
-    textDe: 'Kette wieder auflegen und am Quick-Link schließen. Einmal kräftig ins Pedal treten, dann rastet das Schloss sicher ein.',
-    textEn: 'Put the chain back on and close the quick link. Press hard on the pedal once so the link seats securely.' },
+    textDe: 'Die Kette ist steif, das ist normal. Wachs vom Kettenschloss wischen, sonst rastet nur eine Seite ein. Schließen, Hinterradbremse ziehen, kräftig aufs Pedal drücken, bis es klickt.',
+    textEn: 'The chain is stiff, that is normal. Wipe wax off the quick link, or only one side seats. Close it, pull the rear brake, push hard on the pedal until it clicks.' },
+  { minutes: 3, active: true, nameDe: 'Einfahren', nameEn: 'Run it in',
+    textDe: 'Ein paar Minuten locker kurbeln oder losrollen. Überschüssiges Wachs bricht auf und fällt als weiße Flocken ab, ganz normal. Alternativ vorher über einen Besenstiel ziehen.',
+    textEn: 'Pedal easily for a few minutes or just roll off. Excess wax cracks and falls off as white flakes, perfectly normal. Or pull it over a broomstick beforehand.' },
 ];
 
 /** Feste Zahlen der Anleitungs-Karte auf der Startseite (guides.tsx), vorher

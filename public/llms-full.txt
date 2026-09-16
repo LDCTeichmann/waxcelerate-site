@@ -634,10 +634,11 @@ Bei einer neuen Kette ist das Entfetten zwingend notwendig. Das Fabrikfett ist n
 3. IPA abschütten, frisches IPA rein, erneut 60 Sekunden schütteln. Nach der 2. Runde prüfen: IPA sollte kaum noch trüb werden.
 4. Kette auf sauberem Tuch ausbreiten. 10–15 Minuten bei Raumtemperatur vollständig trocknen lassen.
 5. Weißen-Tuch-Test: Kette über Papiertuch ziehen. Kein Ölfilm sichtbar? Bereit.
-6. Wachs auf 85–90 °C erhitzen. Kette einhängen. 10–15 Minuten warten, bei geschlossenem Topfdeckel geht es schneller.
+6. Wachs auf 85–90 °C erhitzen. Kette einhängen. 10–15 Minuten warten, bis keine Luftbläschen mehr aufsteigen.
 7. Kette herausheben, kurz abtropfen lassen, an einem Haken aufhängen. Nicht auf Oberflächen legen. Wachs läuft ab.
 8. Abkühlen lassen bis Raumtemperatur (ca. 10 Minuten).
-9. Einfahren: Kette durch die Hände laufen lassen, 10–20 Mal, bis sie biegsam ist. Das bricht überschüssiges Außenwachs auf und macht die Kette geschmeidig.
+9. Kette montieren: Die Kette ist jetzt steif, das ist normal. Wachsreste vom Kettenschloss wischen, dann schließen und mit gezogener Hinterradbremse kräftig aufs Pedal drücken, bis es hörbar einrastet.
+10. Einfahren: Ein paar Minuten locker kurbeln oder losrollen. Überschüssiges Außenwachs bricht auf und fällt als weiße Flocken ab. Alternativ die Kette vor dem Montieren ein paar Mal über einen Besenstiel ziehen.
 
 ## Nachwachsen: Gebrauchte Kette auffrischen
 
@@ -649,7 +650,7 @@ Eine Kette, die zuvor mit Heißwachs behandelt wurde und nicht mit Öl in Berüh
 4. Wichtig: Kette muss wirklich trocken sein. Wasser im heißen Wachsbad spritzt heftig.
 5. Kette ins auf 85–90 °C erhitzte Wachsbad hängen. 10 Minuten warten.
 6. Aushängen, abtropfen, aufhängen zum Abkühlen.
-7. Einfahren durch die Hände bis die Kette biegsam ist.
+7. Kette montieren (Kettenschloss vorher von Wachs befreien) und ein paar Minuten locker einfahren.
 
 ## Das Wachsbad pflegen
 
@@ -665,7 +666,7 @@ Ein Wachsbad hält Monate, wenn man es sauber hält. Mit der Zeit sammeln sich S
 - Nasse Kette ins Wachsbad: Immer sofort auffallend (heißes Wachs + Wasser = Spritzer). Vor dem Einbad immer Trockenheit sicherstellen.
 - Wachs zu heiß: Rauchen oder starkes Dampfen ist ein Zeichen, dass die Temperatur zu hoch ist. Herd ausschalten, kurz warten.
 - Kette zu kurz eingetaucht: 10 Minuten sind das Minimum. Weniger reicht nicht für vollständige Penetration.
-- Kein Einfahren: Kette direkt ans Rad und losfahren. Das Wachs außen ist noch hart und bricht beim ersten Pedalieren ungleichmäßig auf. Lieber vorher durch die Hände laufen lassen.
+- Wachs im Kettenschloss: Erstarrtes Wachs an Schloss und Bolzen verhindert, dass beide Seiten einrasten. Schloss vor der Montage sauber wischen und prüfen, ob es auf beiden Seiten sitzt.
 
 ## Classic vs. Pro: Wann lohnt sich MoS₂?
 
@@ -679,7 +680,7 @@ Waxcelerate Classic ist das Standard-Produkt für Straße und trockene Bedingung
 85 bis 90 Grad Celsius. Darunter ist das Wachs zu zäh und dringt nicht tief genug ein, über 95 Grad oxidiert es schneller und die Additive verteilen sich ungleichmäßig.
 
 **Wie lange muss die Kette im Wachsbad bleiben?**
-10 bis 15 Minuten. Bei geschlossenem Topfdeckel geht es etwas schneller. Die Kette ist erst durchtränkt, wenn keine Luftbläschen mehr aus den Gelenken aufsteigen.
+10 bis 15 Minuten. Die Kette ist erst durchtränkt, wenn keine Luftbläschen mehr aus den Gelenken aufsteigen.
 
 **Muss ich eine neue Kette vor dem ersten Wachsen entfetten?**
 Ja, zwingend. Neue Ketten sind ab Werk mit zähem Mineralöl konserviert, das nicht mit Paraffin kompatibel ist. 2 bis 3 Durchgänge Isopropanol 99 Prozent im verschlossenen Glas lösen es zuverlässig.
@@ -839,7 +840,7 @@ Quietschen so kurz nach dem Wachsen heißt fast immer: Das Wachs ist nie tief in
 
 ## 3. Die Kette ist nach dem Abkühlen steif und springt
 
-Das ist normal, und kein Defekt. Frisch gewachst sind die Gelenke vom erstarrten Paraffin verklebt. Wer so direkt losfährt, bekommt eine hakelige Schaltung. Der Schritt, den die meisten überspringen: das Einfahren. Kette 10–20 Mal durch die Hände laufen lassen oder über einen Stab knicken, bis jedes Glied sauber abwinkelt. Danach läuft sie geschmeidig.
+Das ist normal, und kein Defekt. Frisch gewachst sind die Gelenke vom erstarrten Paraffin verklebt. Wer so direkt losfährt, bekommt eine hakelige Schaltung. Der Schritt, den die meisten überspringen: das Einfahren. Kette montieren und ein paar Minuten locker kurbeln, oder vor der Montage ein paar Mal über einen Besenstiel ziehen. Danach läuft sie geschmeidig.
 
 ## 4. Weißes Pulver fällt von der Kette, ist das schlecht?
 
@@ -1261,7 +1262,7 @@ Wachs auf 85–90 °C erhitzen, die trockene Kette einhängen und 10–15 Minute
 
 ## Schritt 5: Einfahren und die ersten Kilometer
 
-Die abgekühlte Kette ist steif, das ist normal. Sie 10–20 Mal durch die Hände laufen lassen, bis jedes Glied geschmeidig abwinkelt. Dann montieren. Die ersten 20–30 km sind die Einfahrphase: Überschüssiges Außenwachs bricht ab (das weiße Pulver ist normal), und der Antrieb findet sein finales, leises Niveau. Erst danach beurteilst du die Wachsleistung fair.
+Die abgekühlte Kette ist steif, das ist normal. Kettenschloss von Wachsresten befreien, Kette montieren und ein paar Minuten locker einkurbeln, bis das überschüssige Wachs aufgebrochen ist. Wer mag, zieht die Kette vorher ein paar Mal über einen Besenstiel. Die ersten 20–30 km sind die Einfahrphase: Überschüssiges Außenwachs bricht ab (das weiße Pulver ist normal), und der Antrieb findet sein finales, leises Niveau. Erst danach beurteilst du die Wachsleistung fair.
 
 > Tipp: Jetzt ist der ideale Moment, eine 3-Ketten-Rotation aufzubauen: Gleich zwei oder drei Ketten zusammen entfetten und wachsen. Dann wechselst du künftig in 60 Sekunden und wachst alle Ketten gesammelt. Das macht den Wachs-Alltag fast aufwandsfrei.
 
@@ -1412,7 +1413,7 @@ Du hast die Kette frisch gewachst, montiert, und etwas wirkt komisch. Sie ist st
 
 ## Normal: Die Kette ist anfangs steif
 
-Frisch gewachst sind die Gelenke vom erstarrten Paraffin leicht verklebt. Wenn du das Einfahren übersprungen hast, merkst du das als hakelige Schaltung auf den ersten Metern. Lösung: vor der Montage die Kette 10–20 Mal durch die Hände laufen lassen. Aber auch ohne löst sich die Steifigkeit nach den ersten Kilometern von selbst.
+Frisch gewachst sind die Gelenke vom erstarrten Paraffin leicht verklebt. Wenn du das Einfahren übersprungen hast, merkst du das als hakelige Schaltung auf den ersten Metern. Lösung: nach der Montage ein paar Minuten locker kurbeln, oder die Kette vorher ein paar Mal über einen Besenstiel ziehen. Aber auch ohne löst sich die Steifigkeit nach den ersten Kilometern von selbst.
 
 ## Normal: Weißes Pulver rieselt ab
 
@@ -1430,11 +1431,11 @@ Wenn die Kette nach der Einfahrphase weiter quietscht, besonders beim kräftigen
 
 ## Nicht normal: Wachsklumpen, die das Schalten stören
 
-Dicke Wachsbrocken zwischen den Gliedern, die die Schaltung blockieren, deuten auf zu dick aufgetragenes Wachs oder fehlendes Einfahren hin. Kette abnehmen, kurz durch die Hände arbeiten, gröbere Klumpen vorsichtig entfernen. Wenn das Bad zu kühl war, beim nächsten Mal heißer (85–90 °C) arbeiten, dann läuft das Wachs dünner ab.
+Dicke Wachsbrocken zwischen den Gliedern, die die Schaltung blockieren, deuten auf zu dick aufgetragenes Wachs oder fehlendes Einfahren hin. Kette abnehmen, ein paar Mal über einen Besenstiel ziehen, gröbere Klumpen vorsichtig entfernen. Wenn das Bad zu kühl war, beim nächsten Mal heißer (85–90 °C) arbeiten, dann läuft das Wachs dünner ab.
 
 ## Wie fahre ich die frisch gewachste Kette am besten ein?
 
-Am effektivsten von Hand, noch vor der Montage: Kette 10 bis 20 Mal durch die Hände laufen lassen oder über einen Stab knicken, bis jedes Glied sauber abwinkelt. Danach die erste Ausfahrt bewusst als kurze Einfahrrunde planen, nicht als Wertungsfahrt, und erst nach etwa 30 km ein Urteil über die Wachsleistung fällen.
+Am einfachsten am Rad: Kette montieren und ein paar Minuten locker kurbeln, bis das überschüssige Außenwachs aufgebrochen ist. Alternativ vor der Montage ein paar Mal über einen Besenstiel ziehen. Danach die erste Ausfahrt bewusst als kurze Einfahrrunde planen, nicht als Wertungsfahrt, und erst nach etwa 30 km ein Urteil über die Wachsleistung fällen.
 
 ## Sollte ich die Kette nach der ersten Fahrt reinigen?
 
@@ -1445,7 +1446,7 @@ Ein trockenes Abwischen reicht. Das lose, weiße Pulver, das sich in der Einfahr
 **Häufige Fragen zu diesem Artikel:**
 
 **Ist es normal, dass die Kette nach dem Wachsen steif ist?**
-Ja. Frisch gewachst sind die Gelenke vom erstarrten Paraffin leicht verklebt. Die Steifigkeit löst sich nach den ersten Kilometern von selbst, schneller geht es, wenn du die Kette vorher 10 bis 20 Mal durch die Hände laufen lässt.
+Ja. Frisch gewachst sind die Gelenke vom erstarrten Paraffin leicht verklebt. Die Steifigkeit löst sich nach den ersten Kilometern von selbst, schneller geht es, wenn du nach der Montage ein paar Minuten locker kurbelst oder die Kette vorher über einen Besenstiel ziehst.
 
 **Warum rieselt weißes Pulver von der frisch gewachsten Kette?**
 Das ist überschüssiges Außenwachs, das beim Fahren aufbricht und abfällt. Es bedeutet keinen Verlust an Schmierung, das wirksame Wachs sitzt geschützt in den Gelenken. Nach 20 bis 30 km ist der Überschuss weg.
