@@ -809,6 +809,54 @@ Geprüft: `tsc -b --force`, `npm run build`, Chromium über Playwright in hell,
 dunkel und bei 1280 / 390 / 360 px. Kein waagerechter Überlauf, keine
 JS-Fehler, alle drei Einstiege springen auf ihr Ziel.
 
+### Stufe 2, zurückgenommen: der Hero ist wieder die Kassette
+
+Der Ketten-Hero oben ist **verworfen**. Luca: die Kassette mit der Zoomlinse,
+wie sie auf der Wachs-Produktseite steht, ist deutlich hochwertiger, und die
+gezeichnete Kette kam dagegen nicht an. `ChainOverview.tsx` und
+`components/viz/chain/geometry.ts` sind gelöscht.
+
+**Die Dedup der drei Kettenzeichnungen ist damit wieder offen.** `ChainWaxMap`,
+`FrictionLens` und `sketches.tsx` zeichnen weiter je eine eigene Kette mit
+eigenen Konstanten. Der Befund aus `sideAt(pitch)` bleibt gültig: Teilung und
+Rollengröße hängen zusammen, wer eine Kette neben ein Ritzel zeichnet, muss
+umrechnen. Das gehört in einen eigenen kleinen PR, nicht in einen Design-PR.
+
+An der Stelle steht jetzt `src/sections/science/CassetteLens.tsx`: dieselbe
+Komposition wie auf der Produktseite, aber größer und an drei Stellen besser.
+Eine Koordinate (`FLANK`) statt zwei unabhängiger Prozentpaare, ein Ring, dessen
+Durchmesser per Definition `LENS / ZOOM` ist und der damit wirklich zeigt, was
+die Linse zeigt, und eine Übergabezeile nach ACT I, die den alten Einwand gegen
+das Foto auflöst: der Hero zeigte die Folge, während die Seite die Ursache
+erklärt.
+
+**Beim Bauen geprüft und verworfen: der Split-Zoom neu/abgenutzt.** Der Plan
+sah vor, `cassette-new.jpg` und `cassette-worn.jpg` in einer großen Linse
+gegenüberzustellen. Beide sind **326 × 170 px**, stammen erkennbar aus einer
+anderen Aufnahme als das Hauptbild (weißer Grund, flaches Licht) und der
+Unterschied zwischen ihnen ist mit bloßem Auge kaum zu erkennen. Als Beleg für
+„so sieht Verschleiß aus" tragen sie nicht, und vergrößert tragen sie erst
+recht nicht. Sie sind aus der Seite raus. Den Vergleich führt jetzt die
+gezeichnete Zahnkontur, die als Schema gekennzeichnet ist.
+
+Die Zahnkontur ist dabei neu gezeichnet worden. Die alte war ein Trapez mit
+gerader Deckfläche und ohne Rollensitze und sah nach Kegelstumpf aus. Die neue
+zeigt einen Zahn mit seinen beiden halben Sitzen. Dabei gefunden und behoben:
+eine Zwischenfassung ließ die abgenutzte Kontur an der Zahnkuppe über die
+ideale hinausragen, dichtete dort also Material an. Ursache war der Wiedereinstieg
+am **Steuerpunkt** der Kuppenkurve statt an ihrem Scheitel; der Scheitel einer
+quadratischen Kurve ist `B(0,5)`, nicht der Steuerpunkt.
+
+Geprüft: `tsc -b --force`, `npm run build`, Chromium über Playwright in hell und
+dunkel bei 1280 / 390 / 360 px. Kein waagerechter Überlauf, keine JS-Fehler,
+og:image und `preloadImage` zeigen weiter auf das Bild, das der Hero wirklich
+rendert (und das jetzt wieder über der Falz steht, was den Preload überhaupt
+erst rechtfertigt).
+
+**Nebenbefund für §7 dieses Dokuments:** auf der Seite stehen weiterhin
+SVG-Beschriftungen mit 10 px (`vdW`, `S` in den Molekülfiguren). DESIGN.md §2
+fordert mindestens 11 px. Nicht Teil dieses PRs.
+
 ---
 
 ## 8. Was nur Luca entscheiden kann

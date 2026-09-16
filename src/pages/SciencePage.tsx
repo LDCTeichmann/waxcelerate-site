@@ -16,157 +16,13 @@ import { COMPONENTS, FAILURES, type ScienceComponent } from '@/lib/science';
 import { FormulaGraph } from '@/sections/science/FormulaGraph';
 import { ContactZones, LineChoice } from '@/sections/science/ContactZones';
 import { ComponentDiagram } from '@/sections/science/diagrams';
-import { ChainOverview } from '@/sections/science/ChainOverview';
+import { CassetteLens } from '@/sections/science/CassetteLens';
 import { HexMoS2, StandstillFilm } from '@/sections/science/LabViz';
 import { ReadMoreLink } from '@/sections/science/ReadMoreLink';
 import { ProofInstrument } from '@/sections/science/ProofInstrument';
 import { CalcTrace } from '@/components/tools/CalcTrace';
 
 const W = 'max-w-4xl mx-auto px-4 sm:px-6 lg:px-8';
-
-// ─── ToothProfileDiagram — ideal vs. worn tooth flank, schematic ─────────────
-// The two cassette photos (new/worn) show that wear happens; they can't show
-// WHAT wears — a photo of two similar-looking teeth doesn't read as "material
-// is gone" the way a drawn contour with a shaded difference does. This is a
-// simplified, single-tooth cross-section, not a measured profile: a sprocket
-// tooth pointing up, ideal contour solid, worn contour dashed with the loaded
-// flank (left, where chain tension pulls under load) drawn hooked/thinned —
-// the textbook "shark-fin" wear pattern — and the area between the two lines
-// on that flank shaded as the material loss the text above describes.
-function ToothProfileDiagram({ de }: { de: boolean }) {
-  const idealD = 'M14,86 L29,42 L47,10 L73,10 L91,42 L106,86';
-  // Worn: right flank + tip unchanged, left (loaded) flank recedes inward
-  // from mid-height down to the base — the classic hooked wear silhouette.
-  const wornD = 'M22,86 L33,52 L47,10 L73,10 L91,42 L106,86';
-  const lossD = 'M14,86 L29,42 L47,10 L33,52 L22,86 Z';
-  return (
-    <svg viewBox="0 0 120 96" className="w-full h-auto" style={{ maxWidth: 108 }} aria-hidden>
-      <path d={lossD} fill="var(--accent)" opacity="0.16" />
-      <path d={idealD} fill="none" stroke="var(--txf)" strokeWidth="1.6" strokeLinejoin="round" />
-      <path d={wornD} fill="none" stroke="var(--accent)" strokeWidth="1.6" strokeDasharray="3 2.5" strokeLinejoin="round" />
-      <line x1="106" y1="86" x2="14" y2="86" stroke="var(--bd)" strokeWidth="1" />
-      <line x1="6" y1="70" x2="18" y2="66" stroke="var(--accent)" strokeWidth="0.8" opacity="0.7" />
-      <text x="2" y="80" fontSize="7.5" fill="var(--accent)" fontFamily="monospace">
-        {de ? 'Abtrag' : 'loss'}
-      </text>
-    </svg>
-  );
-}
-
-// ─── WearDiagramFigure — cassette photo + explanation, shared by the mobile
-// and desktop hero layouts below. Mobile-Plan B6: the source photo
-// (cassette-wear-full.jpg) used to have a heading, a five-line paragraph and
-// both "Neue/Abgenutzte Kassette" labels baked into the pixels — at the
-// ~358px mobile display width that text rendered around 6px tall: not
-// selectable, not resizable with the system font size, invisible to screen
-// readers (the desktop image was even marked aria-hidden, so that reader
-// audience never got the explanation at all), and not indexable by Google on
-// a page built specifically to rank for chain-wax search terms. The three
-// photos below (cassette-new / cassette-worn) are crops of the exact same
-// source with the text-and-label regions painted over in the flat
-// page-background colour — nothing about the photography changed. The words
-// are real HTML now. cassette-wear-diagram is a separate, newer asset (see
-// below) and isn't part of that crop family.
-//
-// 2026-09 revision: previously the photo and the two comparison thumbnails
-// below it had no visible relationship — a reader had to work out on their
-// own that the small crops were "a tooth from that cassette". Now a single
-// magnifier ring sits directly on one real, visible tooth of the outer
-// (largest) sprocket — the sprocket that actually carries the most load —
-// with a leader line down to exactly what the ring is circling: the
-// new/worn crops, reused unchanged, now framed as one split lens instead of
-// two separate thumbnails, next to a drawn tooth-profile schematic that
-// shows what a photo alone can't: where the material actually goes.
-// Coordinates are percentages of the image box, valid because the source
-// (cassette-wear-diagram) is a 1:1 square asset — see naturalWidth/Height.
-const LUPE_X = 9, LUPE_Y = 45;
-function WearDiagramFigure({ de }: { de: boolean }) {
-  return (
-    <figure className="m-0">
-      {/* True alpha-transparent cutout (2026-09-02), not a photo on a
-          matched background colour — the previous version relied on its
-          rgb(245,245,245) backdrop happening to be close to the light-mode
-          page background (`var(--pg)`) to "disappear"; that broke in dark
-          mode, where the same rectangle read as a stark light box with a
-          hard edge. A real cutout has no background to mismatch, so it sits
-          cleanly on either theme without any colour-matching trick. PNG
-          fallback (not JPG) because JPG has no alpha channel — a flattened
-          `cassette-wear-diagram.jpg` still exists separately for OG/social
-          meta, which needs an opaque image and doesn't render on a page
-          background at all. */}
-      <div className="relative">
-        <picture>
-          <source type="image/avif" sizes="(min-width: 1024px) 560px, 100vw"
-            srcSet="/images/science/cassette-wear-diagram-800.avif 800w, /images/science/cassette-wear-diagram.avif 1254w" />
-          <source type="image/webp" sizes="(min-width: 1024px) 560px, 100vw"
-            srcSet="/images/science/cassette-wear-diagram-800.webp 800w, /images/science/cassette-wear-diagram.webp 1254w" />
-          <img
-            src="/images/science/cassette-wear-diagram.png"
-            alt={de ? 'Shimano Ultegra Kassette' : 'Shimano Ultegra cassette'}
-            width={1254} height={1254}
-            className="w-full h-auto"
-          />
-        </picture>
-        {/* Magnifier ring on one real tooth of the outer sprocket + leader
-            line down to the split lens below. Percent-positioned so it tracks
-            the same tooth at every viewport width. */}
-        <div aria-hidden className="absolute rounded-full pointer-events-none"
-          style={{
-            left: `${LUPE_X}%`, top: `${LUPE_Y}%`, width: '12%', aspectRatio: '1',
-            transform: 'translate(-50%,-50%)',
-            border: '1.5px solid var(--accent)',
-            boxShadow: '0 0 0 3px var(--pg), 0 0 10px rgba(var(--accent-rgb),0.35)',
-          }} />
-        <svg aria-hidden className="absolute inset-0 pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
-          <line x1={LUPE_X} y1={LUPE_Y + 6} x2={LUPE_X} y2="99" stroke="var(--accent)"
-            strokeWidth="0.35" strokeDasharray="1.6 1.6" opacity="0.55" vectorEffect="non-scaling-stroke" />
-        </svg>
-      </div>
-      <figcaption className="mt-4">
-        <p className="text-[15px] font-bold mb-1.5" style={{ color: 'var(--tx1)' }}>
-          {de ? 'Verschleißprinzip' : 'Wear principle'}
-        </p>
-        <p className="text-[13.5px] leading-relaxed mb-4" style={{ color: 'var(--txm)', maxWidth: '36ch' }}>
-          {de
-            ? 'Reibung trägt die Zahnflanke der Kassette ab — die Kette greift schlechter und verschleißt schneller.'
-            : 'Friction wears down the tooth flank on the cassette — the chain grips worse and wears out faster.'}
-        </p>
-
-        {/* Split lens — same tooth the ring above is circling, new/worn side
-            by side inside one circular frame instead of two square
-            thumbnails. Both images are the exact crops used before
-            (cassette-new / cassette-worn); the framing changed, not the
-            photography. */}
-        <div className="flex items-center gap-4">
-          <div className="relative flex-shrink-0 rounded-full overflow-hidden"
-            style={{ width: 92, height: 92, border: '1.5px solid var(--accent)', background: '#f4f4f4' }}>
-            <picture>
-              <source srcSet="/images/science/cassette-new.webp" type="image/webp" />
-              <img src="/images/science/cassette-new.jpg" alt={de ? 'Neue Kassette' : 'New cassette'}
-                className="absolute inset-0 w-full h-full object-cover"
-                style={{ clipPath: 'inset(0 50% 0 0)' }} />
-            </picture>
-            <picture>
-              <source srcSet="/images/science/cassette-worn.webp" type="image/webp" />
-              <img src="/images/science/cassette-worn.jpg" alt={de ? 'Abgenutzte Kassette' : 'Worn cassette'}
-                className="absolute inset-0 w-full h-full object-cover"
-                style={{ clipPath: 'inset(0 0 0 50%)' }} />
-            </picture>
-            <div className="absolute inset-y-0 left-1/2 -translate-x-1/2" style={{ width: 1, background: 'var(--accent)', opacity: 0.6 }} />
-          </div>
-          <ToothProfileDiagram de={de} />
-        </div>
-        <div className="flex items-center gap-4 mt-2" style={{ maxWidth: 300 }}>
-          <div className="flex-shrink-0 flex justify-between" style={{ width: 92 }}>
-            <span className="text-[11px] font-semibold" style={{ color: 'var(--tx1)' }}>{de ? 'Neu' : 'New'}</span>
-            <span className="text-[11px] font-semibold" style={{ color: 'var(--accent)' }}>{de ? 'Abgenutzt' : 'Worn'}</span>
-          </div>
-          <span className="text-[11px]" style={{ color: 'var(--txf)' }}>{de ? 'Zahnprofil' : 'Tooth profile'}</span>
-        </div>
-      </figcaption>
-    </figure>
-  );
-}
 
 // ─── Opening hero — the page's actual "hero" moment: headline stats + a large
 // cassette rendering. Deliberately sober, not a dark photo stage — the page's
@@ -176,7 +32,7 @@ function WearDiagramFigure({ de }: { de: boolean }) {
 // read as an entrance rather than another plain instrument panel. All numbers
 // come from the same `waxVsOil` source as the homepage's why-wax section — no
 // invented stats. ProblemHero below carries on with the sober toggle deep-dive.
-function ScienceHero({ de, onGo }: { de: boolean; onGo: (anchor: string) => void }) {
+function ScienceHero({ de }: { de: boolean }) {
   const w = waxVsOil.watts, l = waxVsOil.life;
   // Three measurements, not four — "Trocken" isn't a measurement (no unit,
   // no comparison value), it was padding out a 2x2 grid. It now lives as a
@@ -244,7 +100,7 @@ function ScienceHero({ de, onGo }: { de: boolean; onGo: (anchor: string) => void
           {/* Mobile/tablet: dieselbe Figur, nur inline ueber den Kennzahlen
               statt daneben — bei dieser Breite ist kein Platz dafuer. */}
           <div className="lg:hidden mb-6">
-            <ChainOverview de={de} onGo={onGo} />
+            <CassetteLens de={de} />
           </div>
 
           {/* Stats — three measurements in one accent-topped row instead of a
@@ -283,7 +139,7 @@ function ScienceHero({ de, onGo }: { de: boolean; onGo: (anchor: string) => void
             in ihrer natuerlichen Groesse und der Abschnitt waechst mit. Keine
             feste Hoehe, an der etwas abgeschnitten werden koennte. */}
         <div className="hidden lg:block lg:flex-1">
-          <ChainOverview de={de} onGo={onGo} />
+          <CassetteLens de={de} />
         </div>
       </div>
     </section>
@@ -1087,7 +943,7 @@ export function SciencePage() {
       {/* Mobile-Plan B7d: kein <main>-Landmark auf dieser Seite — "zum
           Inhalt springen" hatte nichts zum Ansteuern. */}
       <main id="main-content">
-      <ScienceHero de={de} onGo={scrollToAnchor} />
+      <ScienceHero de={de} />
 
       {/* ── ACT I — THE PROBLEM ──
           Owns the #problem anchor that the hero's "Wie das gemessen wurde" link
@@ -1302,23 +1158,6 @@ export function SciencePage() {
 
           {/* Signature visual — why a joint runs boundary-lubricated (the payoff) */}
           <StandstillFilm de={de} />
-        </div>
-
-        {/* Die Kassettenfigur, bis 2026-09-15 im Hero. Dort zeigte sie die
-            FOLGE, waehrend die ganze Seite danach die URSACHE erklaerte, und
-            die Kassette kam nach dem Hero nie wieder vor. Hier steht sie an
-            der Stelle, an der ueber Laufzeit und Verschleiss geredet wird,
-            also direkt ueber der Rechnung, die daraus Geld macht. Die
-            Ueberschrift nimmt die Formulierung des dritten Einstiegs im Hero
-            auf, damit das Versprechen von oben eingeloest wird. */}
-        <div className="mt-12 pt-10" style={{ borderTop: '1px solid var(--bd2)' }}>
-          <h3 className="font-display font-bold text-wx-tx1 leading-tight mb-6"
-            style={{ fontSize: 'clamp(1.4rem, 2.8vw, 1.9rem)', letterSpacing: '-0.02em' }}>
-            {de ? 'Was am Ende verschleißt.' : 'What wears out in the end.'}
-          </h3>
-          <div className="max-w-[560px]">
-            <WearDiagramFigure de={de} />
-          </div>
         </div>
 
         {/* Personal case under the lab case: same drivetrainCosts() and shared
