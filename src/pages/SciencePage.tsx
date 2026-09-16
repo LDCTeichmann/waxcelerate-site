@@ -11,7 +11,7 @@ import { prefersReducedMotion } from '@/hooks/useAnimation';
 import { InstrumentFrame, CountUp } from '@/components/viz';
 import { BackLink } from '@/components/BackLink';
 import { BeforeAfterSlider } from '@/components/BeforeAfterSlider';
-import { waxVsOil, frictionRanges, products, type Product } from '@/lib/data';
+import { waxVsOil, products, type Product } from '@/lib/data';
 import { COMPONENTS, EDGES, FAILURES } from '@/lib/science';
 import { WaxField, useFieldBuild, type FieldKey } from '@/sections/science/WaxField';
 import { ContactZones, LineChoice } from '@/sections/science/ContactZones';
@@ -39,7 +39,7 @@ function ScienceHero({ de }: { de: boolean }) {
   // half-sentence in the lede below instead of posing as a fourth data
   // point. Icons dropped too: they were purely decorative next to a mono
   // numeral that already reads as data on its own, and every other
-  // instrument panel on this page (FrictionBars, TempWindow, HexMoS2) makes
+  // instrument panel on this page (FrictionWatts, TempWindow, HexMoS2) makes
   // its case with numbers and labels alone, no iconography — these three
   // cards now match that language instead of being the one exception.
   // 2026-09-15: von drei auf zwei. Die dritte Kachel trug "μ 0,03-0,06 ·
@@ -105,7 +105,7 @@ function ScienceHero({ de }: { de: boolean }) {
 
           {/* Stats — three measurements in one accent-topped row instead of a
               hairline-divided list: the row reads as one instrument readout
-              (like FrictionBars/TempWindow below it) rather than a stack of
+              (like FrictionWatts/TempWindow below it) rather than a stack of
               separate facts, and num-data at almost double the previous size
               actually looks like the page's central claim instead of a list
               caption. */}
@@ -414,9 +414,33 @@ function Microscope({ de }: { de: boolean }) {
     </div>
   );
 }
-
-// ─── ACT III — friction proof bars (higher bar = better; never invert) ───────
-function FrictionBars({ de }: { de: boolean }) {
+// ─── FrictionWatts — Reibungsverlust in der Kette, in Watt ──────────────────
+//
+// Bis 2026-09-16 standen hier drei Balken mit Reibungskoeffizienten: Pro
+// μ 0,03–0,06, Classic μ 0,05–0,07, Kettenoel μ 0,18–0,25. Das ist raus, aus
+// zwei Gruenden (WISSENSCHAFT_REDESIGN.md 1.1):
+//
+//  - Es sind Kennwerte des FESTSTOFFS unter trockenen Laborbedingungen, keine
+//    gemessenen Werte unseres Produkts im Antrieb. Ein Balken, der "Pro" heisst
+//    und einen MoS2-Materialkennwert zeigt, behauptet eine Produktmessung, die
+//    es nicht gibt. In feuchter Luft liegt MoS2 ausserdem deutlich hoeher.
+//  - Die Balkenlaenge kam aus einem Feld `pct` in data.ts, also aus einer frei
+//    gewaehlten Zahl ohne Einheit. Eine Skala, die niemand ablesen kann, ist
+//    Dekoration.
+//
+// Watt ist der Wert, der beides heilt. Er ist veroeffentlicht (Zero Friction
+// Cycling), er hat eine Einheit, er hat eine Eingangsleistung, die danebensteht,
+// und er misst die Kette statt das Pulver. Die Balken laufen deshalb jetzt auf
+// einer echten Achse von 0 bis SCALE_W, mit Teilstrichen, und jeder Balken ist
+// ein Bereich von lo bis hi statt einer Laenge ab null — denn genau das sind
+// die Zahlen: eine Spanne von frisch behandelt bis Intervallende.
+//
+// mu ist damit nicht von der Seite verschwunden, nur von hier. Es steht weiter
+// im MoS2-Kapitel, wo die Umgebung danebensteht, in die es gehoert.
+//
+// `frictionRanges` bleibt in data.ts als interne Referenz erhalten.
+const SCALE_W = 12;
+function FrictionWatts({ de }: { de: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   const [run, setRun] = useState(prefersReducedMotion());
   useEffect(() => {
@@ -425,56 +449,64 @@ function FrictionBars({ de }: { de: boolean }) {
     const trigger = ScrollTrigger.create({ trigger: el, start: 'top 85%', once: true, onEnter: () => setRun(true) });
     return () => trigger.kill();
   }, []);
-  const labels: Record<string, string> = {
-    pro: 'Pro', classic: 'Classic', oil: de ? 'Kettenöl' : 'Chain oil',
-  };
-  // 2026-09: the μ-value moved from a fixed right-aligned column to sitting
-  // right at each bar's own end (left: pct%) — it now visually belongs to
-  // the bar it measures instead of reading as a separate list of numbers
-  // next to unrelated bar lengths. The oil bar gets a diagonal hatch instead
-  // of a flat fill (same "reference, not a product" language as the dashed
-  // oil curve in StandstillFilm next to it) rather than just a paler
-  // grey. Both changes replace the old explanatory footnote — the figure
-  // states "shorter = worse" itself instead of needing a sentence to say so.
+
+  const w = waxVsOil.watts;
+  const rows = [
+    { id: 'wax', label: de ? 'Heißwachs' : 'Hot wax', lo: w.wax[0], hi: w.wax[1], highlight: true },
+    { id: 'oil', label: de ? 'Kettenöl' : 'Chain oil', lo: w.oil[0], hi: w.oil[1], highlight: false },
+  ];
+  const ticks = [0, 4, 8, 12];
+  const pct = (v: number) => (v / SCALE_W) * 100;
+
   return (
-    <div ref={ref} id="reibung" className="scroll-mt-24 space-y-4">
-      {frictionRanges.map(r => {
-        const mu = `μ ${r.muLo.toLocaleString(de ? 'de' : 'en', { minimumFractionDigits: 2 })}–${r.muHi.toLocaleString(de ? 'de' : 'en', { minimumFractionDigits: 2 })}`;
-        return (
+    <div ref={ref} id="reibung" className="scroll-mt-24">
+      <div className="space-y-6">
+        {rows.map(r => (
           <div key={r.id}>
-            <div className="flex justify-between mb-1.5">
-              <span className={`text-[13px] font-medium ${r.highlight ? 'text-wx-tx1' : 'text-wx-txf'}`}>{labels[r.id]}</span>
-              <span className="num-data text-[12px]" style={{ color: r.highlight ? 'var(--tx2)' : 'var(--txff)' }}>{mu}</span>
+            <div className="flex justify-between items-baseline mb-2">
+              <span className={`text-[13px] font-medium ${r.highlight ? 'text-wx-tx1' : 'text-wx-txf'}`}>{r.label}</span>
+              <span className="num-data text-[13px]" style={{ color: r.highlight ? 'var(--accent)' : 'var(--txf)' }}>
+                {r.lo}–{r.hi} W
+              </span>
             </div>
-            {/* Bar + a small tick right where it ends, in the value's own
-                colour — ties the number above to this specific point on the
-                bar instead of leaving "which end is that number about" to
-                the reader, without risking the number itself overlapping
-                the fill (it stays in the safe right-aligned header row). */}
-            <div className="relative h-2.5 rounded-full overflow-hidden" style={{ background: 'var(--bd)' }}>
-              <div className="h-full rounded-full"
+            {/* Bereichsbalken: er beginnt bei lo und endet bei hi, sitzt also
+                wirklich dort auf der Achse, wo die Spanne liegt. Ein Balken ab
+                null haette dieselbe Zahl als Laenge dargestellt und damit die
+                Untergrenze verschenkt. */}
+            <div className="relative h-3 rounded-full" style={{ background: 'var(--bd2)' }}>
+              <div className="absolute inset-y-0 rounded-full"
                 style={{
-                  width: run ? `${r.pct}%` : '0%',
+                  left: `${pct(r.lo)}%`,
+                  width: run ? `${pct(r.hi - r.lo)}%` : '0%',
                   background: r.highlight
                     ? 'linear-gradient(90deg, var(--accent-strong), var(--accent-soft))'
                     : 'repeating-linear-gradient(45deg, var(--txf) 0 3px, transparent 3px 7px)',
-                  transition: 'width 1s cubic-bezier(0.22,1,0.36,1)',
-                }} />
-            </div>
-            <div className="relative h-1.5">
-              <div className="absolute top-0 w-px h-1.5" aria-hidden
-                style={{
-                  left: run ? `${r.pct}%` : '0%', transition: 'left 1s cubic-bezier(0.22,1,0.36,1)',
-                  background: r.highlight ? 'var(--accent)' : 'var(--txf)',
+                  transition: 'width 0.9s cubic-bezier(0.22,1,0.36,1)',
                 }} />
             </div>
           </div>
-        );
-      })}
-      <div className="flex justify-between pt-1">
-        <span className="text-meta" style={{ color: 'var(--txf)' }}>{de ? 'mehr Reibung' : 'more friction'}</span>
-        <span className="text-meta" style={{ color: 'var(--txf)' }}>{de ? 'weniger Reibung' : 'less friction'}</span>
+        ))}
       </div>
+
+      {/* Die Achse. Sie ist der ganze Punkt dieses Umbaus: vorher gab es keine. */}
+      <div className="relative mt-3 h-8" aria-hidden>
+        <div className="absolute inset-x-0 top-0 h-px" style={{ background: 'var(--bd)' }} />
+        {ticks.map(t => (
+          <div key={t} className="absolute top-0" style={{ left: `${pct(t)}%` }}>
+            <div className="w-px h-1.5" style={{ background: 'var(--bd)' }} />
+            <span className="num-data text-[11px] absolute top-2.5"
+              style={{ color: 'var(--txf)', transform: t === 0 ? 'none' : t === SCALE_W ? 'translateX(-100%)' : 'translateX(-50%)' }}>
+              {t}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <p className="text-[12px] leading-relaxed mt-2" style={{ color: 'var(--txm)' }}>
+        {de
+          ? `Reibungsverlust in der Kette, in Watt, bei ${w.inputW} W Tretleistung. Die Spanne reicht von frisch behandelt bis Intervallende.`
+          : `Friction loss in the chain, in watts, at ${w.inputW} W pedalling power. The range runs from freshly treated to end of interval.`}
+      </p>
     </div>
   );
 }
@@ -932,11 +964,17 @@ export function SciencePage() {
             bars + folded-in outcome stats on the left, StandstillFilm on the
             right), so the section doesn't run so tall. StandstillFilm's SVG
             (viewBox 360×190) scales down at half width and still reads.
-            items-stretch (default) rather than items-start: the two panels
-            are of different natural height, and stretching them to the row
-            reads as a pair of same-size devices instead of one panel with a
-            bare gap under it. */}
-        <div className="grid lg:grid-cols-2 gap-4 mb-4">
+
+            2026-09-16: items-start statt items-stretch. Die Begruendung fuer
+            das Strecken war, dass zwei gleich hohe Geraete besser aussehen als
+            eines mit einer Luecke darunter. Das galt, solange die natuerlichen
+            Hoehen nahe beieinander lagen. Mit dem Umbau der Balken auf Watt ist
+            das linke Panel deutlich kuerzer geworden, und gestreckt stand die
+            Leere dann INNERHALB des Rahmens: rund eine halbe Panelhoehe
+            gepunktetes Raster unter dem letzten Element. Eine Luecke zwischen
+            zwei Karten liest sich als Layout, eine Luecke in einem
+            Instrumentenrahmen liest sich als fehlender Inhalt. */}
+        <div className="grid lg:grid-cols-2 gap-4 mb-4 items-start">
           <InstrumentFrame eyebrow={de ? 'Reibung' : 'Friction'}
             footer={
               <>
@@ -963,7 +1001,7 @@ export function SciencePage() {
               </>
             }
           >
-            <FrictionBars de={de} />
+            <FrictionWatts de={de} />
           </InstrumentFrame>
 
           {/* Signature visual — why a joint runs boundary-lubricated (the payoff) */}

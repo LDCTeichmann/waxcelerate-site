@@ -1120,6 +1120,21 @@ export const waxVsOil = {
 
 // Friction comparison ranges (performance bars — higher bar = better, never invert).
 // pct = performance index (lower μ → higher bar). Mirrors the science FrictionBars.
+// Grenzreibungskoeffizienten der FESTSTOFFE unter trockenen Laborbedingungen.
+//
+// Seit 2026-09-16 rendert die Seite diese Zahlen nirgends mehr: nicht im Hero,
+// nicht in FrictionWatts (dort stehen jetzt Watt auf einer echten Achse), nicht
+// in LineChoice und nicht in llms-full.txt oder im vorgerenderten Rumpf. Der
+// Grund steht in docs/plaene/WISSENSCHAFT_REDESIGN.md 1.1: es sind Kennwerte
+// der Feststoffe, keine gemessenen Werte unserer Produkte im Antrieb, und
+// MoS2 liegt in feuchter Luft deutlich hoeher. Als "Pro: mu 0,03-0,06" neben
+// einem Produktnamen behaupten sie eine Messung, die es nicht gibt.
+//
+// Sie bleiben hier als interne Referenz stehen, bewusst und nicht aus
+// Vergesslichkeit. `pct` gehoerte zu den alten Balken und hat keine Einheit;
+// wer die Werte je wieder anzeigt, braucht eine Achse und die Umgebung
+// daneben. Die einzige mu-Zahl, die die Seite noch fuehrt, steht im
+// MoS2-Kapitel (science.ts, node 4) mit "in trockener Luft" dabei.
 export const frictionRanges = [
   { id: 'pro',     muLo: 0.03, muHi: 0.06, pct: 100, highlight: true  },
   { id: 'classic', muLo: 0.05, muHi: 0.07, pct: 80,  highlight: true  },

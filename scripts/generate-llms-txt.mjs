@@ -12,7 +12,7 @@ import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import {
-  products, trustStats, waxIntervals, starterSet, starterSetOptions, accessories, waxVsOil, frictionRanges,
+  products, trustStats, waxIntervals, starterSet, starterSetOptions, accessories, waxVsOil,
 } from '../src/lib/data.ts';
 import { COMPONENTS } from '../src/lib/science.ts';
 import { articles, categoryOrder } from '../src/pages/blog/articles.ts';
@@ -139,15 +139,11 @@ const llmsFullTxt = `# Waxcelerate — Vollständige Produktinformationen und Ra
 
 Heißwachs (englisch: hot wax) ist eine Methode zur Fahrradkettenpflege, bei der Paraffinwachs auf 85–90 °C erhitzt und die Kette darin eingetaucht wird. Im Gegensatz zu Kettenöl trocknet Wachs vollständig aus und bildet einen trockenen Schmierfilm innerhalb der Kettenglieder. Schmutz und Sand haften nicht an einer trockenen Kette — der Hauptvorteil gegenüber allen Ölschmierungen.
 
-**Messbarer Unterschied** (Grenzreibungskoeffizient μ, Quelle: unabhängige Labortests von Zero Friction Cycling):
-${(() => {
-  const mu = n => n.toFixed(2).replace('.', ',');
-  const r = id => frictionRanges.find(x => x.id === id);
-  return `- Waxcelerate Pro (MoS₂): ${mu(r('pro').muLo)}–${mu(r('pro').muHi)}
-- Waxcelerate Classic: ${mu(r('classic').muLo)}–${mu(r('classic').muHi)}
-- Flüssigwachs (z.B. Squirt, Silca Drip): 0,09–0,12
-- Kettenöl (nass): ${mu(r('oil').muLo)}–${mu(r('oil').muHi)}`;
-})()}
+**Messbarer Unterschied** (Reibungsverlust in der Kette bei ${waxVsOil.watts.inputW} W Tretleistung, Laborwerte von Zero Friction Cycling, nicht selbst gemessen):
+- Heißwachs: ${waxVsOil.watts.wax[0]}–${waxVsOil.watts.wax[1]} W
+- Kettenöl: ${waxVsOil.watts.oil[0]}–${waxVsOil.watts.oil[1]} W
+
+Die Spanne reicht jeweils von frisch behandelt bis Intervallende.
 
 ---
 
@@ -179,12 +175,6 @@ ${starterSetOptions.map(o => `- ${o.taglineDe}`).join('\n')}
 URL: ${BASE}/wissenschaft
 
 Kontaktzonen, Reibung, MoS₂ und die sechs Komponenten der Formel, unabhängig gemessen statt behauptet, entwickelt und produziert in Stuttgart. Die Wattwerte stammen aus unabhängigen Labortests von Zero Friction Cycling, nicht aus eigenen Messungen von Waxcelerate; Laborbedingungen bilden die Straße nicht eins zu eins ab, die Größenordnung der Unterschiede bleibt davon unberührt.
-
-${(() => {
-  const mu = n => n.toFixed(2).replace('.', ',');
-  const r = id => frictionRanges.find(x => x.id === id);
-  return `**Reibung (Grenzreibungskoeffizient μ):** Waxcelerate Pro ${mu(r('pro').muLo)}–${mu(r('pro').muHi)}, Classic ${mu(r('classic').muLo)}–${mu(r('classic').muHi)}, Kettenöl ${mu(r('oil').muLo)}–${mu(r('oil').muHi)}.`;
-})()}
 
 **Reibungsverlust in der Kette** bei ${waxVsOil.watts.inputW} W Tretleistung: Wachs ${waxVsOil.watts.wax[0]}–${waxVsOil.watts.wax[1]} W, Kettenöl ${waxVsOil.watts.oil[0]}–${waxVsOil.watts.oil[1]} W.
 

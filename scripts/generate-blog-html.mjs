@@ -28,7 +28,7 @@ import { dirname, resolve, join } from 'node:path';
 import { articles, getArticleImage, author, categoryOrder, blogHero } from '../src/pages/blog/articles.ts';
 import { headingId } from '../src/pages/blog/headingId.ts';
 import { learningPath, symptoms } from '../src/pages/blog/hubContent.ts';
-import { starterSet, waxVsOil, frictionRanges, products } from '../src/lib/data.ts';
+import { starterSet, waxVsOil, products } from '../src/lib/data.ts';
 import {
   KETTEN_TITLE, KETTEN_DESCRIPTION, KETTEN_H1, KETTEN_LEAD, chainBenefits, kettenCollectionSchema,
 } from '../src/pages/ketten/content.ts';
@@ -369,8 +369,14 @@ const STATIC_PAGES = [
     // P1-1: der bisherige Rumpf dieser Seite lag bei ~680 Zeichen ohne ein
     // einziges <h2> — fuer GPTBot/ClaudeBot/PerplexityBot (kein JS) praktisch
     // leer, obwohl das die Seite ist, die erklaert WARUM Wachs wirkt. Werte
-    // aus derselben Quelle wie SciencePage.tsx (waxVsOil/frictionRanges aus
-    // data.ts), damit Rumpf und hydrierte Seite nicht auseinanderlaufen —
+    // aus derselben Quelle wie SciencePage.tsx (waxVsOil aus data.ts), damit
+    // Rumpf und hydrierte Seite nicht auseinanderlaufen —
+    //
+    // 2026-09-16: die mu-Zeile ist raus. Sie schrieb Zero Friction Cycling
+    // Messungen unserer Produkte zu, die es nicht gibt: das sind Kennwerte der
+    // Feststoffe unter trockenen Laborbedingungen. Die Wattzahlen bleiben, die
+    // sind wirklich von dort. Dieselbe Korrektur in generate-llms-txt.mjs und
+    // auf der Wissenschaftsseite (WISSENSCHAFT_REDESIGN.md 1.1) —
     // Temperaturfenster/PFAS-Status liegen nur in ContactZones.tsx (JSX, hier
     // nicht importierbar) und sind deshalb wie der Rest dieser Seite von Hand
     // uebertragen, nicht importiert.
@@ -378,11 +384,6 @@ const STATIC_PAGES = [
       {
         h2: 'Reibung und Reibungsverlust',
         points: [
-          (() => {
-            const mu = n => n.toFixed(2).replace('.', ',');
-            const r = id => frictionRanges.find(x => x.id === id);
-            return `Waxcelerate Pro: μ ${mu(r('pro').muLo)}–${mu(r('pro').muHi)}, Classic: μ ${mu(r('classic').muLo)}–${mu(r('classic').muHi)}, Kettenöl: μ ${mu(r('oil').muLo)}–${mu(r('oil').muHi)}.`;
-          })(),
           `Reibungsverlust in der Kette bei ${waxVsOil.watts.inputW} W Tretleistung: Wachs ${waxVsOil.watts.wax[0]}–${waxVsOil.watts.wax[1]} W, Kettenöl ${waxVsOil.watts.oil[0]}–${waxVsOil.watts.oil[1]} W.`,
         ],
       },

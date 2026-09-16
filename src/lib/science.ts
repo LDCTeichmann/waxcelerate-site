@@ -105,12 +105,19 @@ export const COMPONENTS: ScienceComponent[] = [
     diagram: 'coldflex',
   },
   {
+    // 2026-09-16: das "in trockener Luft" bzw. "trocken" an der mu-Zahl ist
+    // keine Floskel. MoS2 erreicht 0,03 unter Grenzschmierung in trockener
+    // Luft; in feuchter Luft lagert sich Wasser an die Kanten der Basalebenen
+    // an und der Wert steigt deutlich. Seit dem Umbau von FrictionWatts ist
+    // das die einzige mu-Zahl, die die Seite noch fuehrt, und sie geht ueber
+    // COMPONENTS auch in llms-full.txt und den vorgerenderten Rumpf — die
+    // Bedingung muss also hier stehen, nicht nur im Fliesstext daneben.
     node: 4, id: 'mos2',
     graphLabelDe: 'MoS₂', graphLabelEn: 'MoS₂',
     nameDe: 'Molybdändisulfid (MoS₂)', nameEn: 'Molybdenum disulfide (MoS₂)',
-    roleDe: 'Festschmierstoff', roleEn: 'Solid lubricant', metric: 'μ 0,03',
-    sumDe: 'Hexagonale MoS₂-Kristallite (P6₃/mmc, < 5 µm) scheren unter Kontaktdruck entlang der van-der-Waals-Ebenen und bilden einen Fe–S-Transferfilm auf dem Stahl — Grenzreibung bis μ 0,03.',
-    sumEn: 'Hexagonal MoS₂ crystallites (P6₃/mmc, < 5 µm) shear along the van der Waals planes under contact pressure and form an Fe–S transfer film on the steel — boundary friction down to μ 0.03.',
+    roleDe: 'Festschmierstoff', roleEn: 'Solid lubricant', metric: 'μ 0,03 trocken',
+    sumDe: 'Hexagonale MoS₂-Kristallite (P6₃/mmc, < 5 µm) scheren unter Kontaktdruck entlang der van-der-Waals-Ebenen und bilden einen Fe–S-Transferfilm auf dem Stahl — Grenzreibung bis μ 0,03 in trockener Luft.',
+    sumEn: 'Hexagonal MoS₂ crystallites (P6₃/mmc, < 5 µm) shear along the van der Waals planes under contact pressure and form an Fe–S transfer film on the steel — boundary friction down to μ 0.03 in dry air.',
     whyDe: 'MoS₂ besteht aus S–Mo–S-Schichten, deren Interlayer-Bindungsenergie nur ~0,55 J/m² beträgt. Unter Druck (50–300 MPa) scheren die Schichten ab und lagern sich als 2–5 nm dünner Transferfilm auf der Metalloberfläche ab, verankert durch tribochemische Fe–S-Bindungen. Das senkt die Grenzreibung weit unter die von Öl.',
     whyEn: 'MoS₂ is built from S–Mo–S layers with an interlayer binding energy of only ~0.55 J/m². Under pressure (50–300 MPa) the layers shear and deposit as a 2–5 nm transfer film on the metal surface, anchored by tribochemical Fe–S bonds. This drops boundary friction well below oil.',
     physicsDe: [

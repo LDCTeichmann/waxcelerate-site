@@ -18,7 +18,6 @@ import { ChevronDown } from 'lucide-react';
 import { InstrumentFrame } from '@/components/viz';
 import { ChainWaxMap } from '@/sections/science/ChainWaxMap';
 import { ReadMoreLink } from '@/sections/science/ReadMoreLink';
-import { frictionRanges } from '@/lib/data';
 import { waxTechNoteClassic } from '@/lib/productContent';
 
 const ZONES = [
@@ -229,9 +228,6 @@ export function ContactZones({ de, onToFormula }: { de: boolean; onToFormula?: (
 // so the product page, the eBay listing and this page all carry the same
 // wording, not three drifting copies of a claim that has to stay accurate.
 export function LineChoice({ de }: { de: boolean }) {
-  const classicMu = frictionRanges.find(r => r.id === 'classic')!;
-  const proMu = frictionRanges.find(r => r.id === 'pro')!;
-
   const header = [
     { tag: 'Classic', name: 'PTFE', forDe: 'Rennrad · Gravel · Alltag', forEn: 'Road · gravel · everyday', accent: false },
     { tag: 'MoS₂ Pro Edition', name: 'Molybdändisulfid', forDe: 'E-Bike · Winter · schwere Übersetzung', forEn: 'E-bike · winter · heavy gearing', accent: true },
@@ -241,10 +237,23 @@ export function LineChoice({ de }: { de: boolean }) {
   // ACT II) — dort die eigentliche Quelle, hier nur zur Vergleichstabelle
   // dazugestellt, kein zweiter Messwert.
   const rows = [
+    // Hier stand bis 2026-09-16 eine Zeile "Reibung" mit den
+    // mu-Werten aus frictionRanges. Raus, aus demselben Grund wie in
+    // FrictionWatts (WISSENSCHAFT_REDESIGN.md 1.1): das sind Kennwerte der
+    // Feststoffe unter trockenen Laborbedingungen, keine gemessenen Werte
+    // dieser beiden Produkte im Antrieb. In einer Tabelle, deren Spalten
+    // "Classic" und "MoS2 Pro Edition" heissen, liest sich so eine Zahl
+    // zwangslaeufig als Produktmessung.
+    //
+    // An ihre Stelle die Angabe, nach der in dieser Tabelle wirklich
+    // entschieden wird. Der Wortlaut folgt den Produkttexten in data.ts
+    // ("haelt in Naesse und Kaelte laenger als Classic"), damit Produktseite,
+    // eBay-Angebot und diese Seite dieselbe Aussage tragen statt drei
+    // auseinanderlaufender Fassungen.
     {
-      labelDe: 'Reibung', labelEn: 'Friction',
-      classic: `μ ${classicMu.muLo.toLocaleString(de ? 'de' : 'en', { minimumFractionDigits: 2 })}–${classicMu.muHi.toLocaleString(de ? 'de' : 'en', { minimumFractionDigits: 2 })}`,
-      pro: `μ ${proMu.muLo.toLocaleString(de ? 'de' : 'en', { minimumFractionDigits: 2 })}–${proMu.muHi.toLocaleString(de ? 'de' : 'en', { minimumFractionDigits: 2 })}`,
+      labelDe: 'Nässe und Kälte', labelEn: 'Wet and cold',
+      classic: de ? 'Trocken bis gemischt' : 'Dry to mixed',
+      pro: de ? 'Hält länger als Classic' : 'Lasts longer than Classic',
     },
     {
       labelDe: 'Temperaturfenster', labelEn: 'Temperature range',
