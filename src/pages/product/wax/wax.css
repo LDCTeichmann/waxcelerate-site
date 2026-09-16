@@ -607,3 +607,4 @@
   .wxp-c-in { gap: 16px; }
   .wxp-c-in .wxp-seg button { padding: 9px 6px 8px; }
 }
+.wxp-proof .q .qm { font-family: 'Fraunces', Georgia, serif; font-size: 54px; line-height: .6; color: var(--wxp-ice); flex-shrink: 0; margin-top: 14px; }

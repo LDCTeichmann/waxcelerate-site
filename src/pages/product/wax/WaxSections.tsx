@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import type { Product } from '@/lib/data';
 import { getProductById, trustStats, bundleOffer, canCheckout, isSoldOut } from '@/lib/data';
 import { waxChooserRows, type ChooserCell, type RichContent } from '@/lib/productContent';
-import { REVIEWS, type Review } from '@/sections/reviews';
+import { REVIEWS, REVIEW_PHOTOS, photoCredit, photoAlt, type Review } from '@/sections/reviews';
 import { Stars } from '@/components/Stars';
 import { GPSR_MANUFACTURER } from '@/components/GpsrInfo';
 import { AddToCartButton } from '@/components/AddToCartButton';
@@ -100,37 +100,39 @@ export function WhichWax({ product, de }: { product: Product; de: boolean }) {
 }
 
 // ── Kapitel 06 · Was Fahrer sagen ──────────────────────────────────────────
-// Getaggte Bewertungen zuerst, dann die fuer alle Wachsseiten freigegebenen
-// (fallback). Die erste mit Kundenfoto wird das grosse Zitat.
+// Getaggte Bewertungen zuerst (die ausfuehrlichste vorn, sie wird das grosse
+// Zitat), dann die fuer alle Seiten freigegebenen (fallback).
 // Kettenseite (chain): zwischen beide kommen die Bewertungen zu anderen Ketten
 // und die zu einer gewachsten Kette ohne bekanntes Modell (chainGeneral), damit
 // dort Kettenkaeufer sprechen statt Wachskaeufer.
 function reviewsFor(productId: string, chain = false): Review[] {
-  const tagged = REVIEWS.filter(r => r.productIds?.includes(productId));
+  const byLength = (a: Review, b: Review) => b.textDe.length - a.textDe.length;
+  const tagged = REVIEWS.filter(r => r.productIds?.includes(productId)).sort(byLength);
   const chainPool = chain
-    ? REVIEWS.filter(r => !tagged.includes(r) && (r.chainGeneral || r.productIds?.some(id => id.startsWith('chain-'))))
+    ? REVIEWS.filter(r => !tagged.includes(r) && (r.chainGeneral || r.productIds?.some(id => id.startsWith('chain-')))).sort(byLength)
     : [];
   const general = REVIEWS.filter(r => r.fallback && !tagged.includes(r) && !chainPool.includes(r));
-  const pool = [...tagged, ...chainPool, ...general];
-  const top = pool.slice(0, 3);
-  // Mindestens eine mit Kundenfoto: sie traegt das grosse Zitat und die
-  // Proof-Leiste. Die drei Ketten-Bewertungen haben keins, ohne diesen
-  // Tausch blieben beide auf Kettenseiten ohne Gesicht.
-  const withPhoto = pool.find(r => r.photo);
-  return withPhoto && !top.some(r => r.photo) ? [...top.slice(0, 2), withPhoto] : top;
+  return [...tagged, ...chainPool, ...general].slice(0, 3);
 }
 
+// Proof-Leiste: bevorzugt ein Zitat, dessen erster Satz vollstaendig in die
+// Leiste passt (25–90 Zeichen), sonst das erste mit Substanz.
 export function pickProofQuote(productId: string, chain = false): Review | undefined {
-  return reviewsFor(productId, chain).find(r => r.photo);
+  const pool = [...reviewsFor(productId, chain), ...REVIEWS];
+  const firstLen = (r: Review) => (r.textDe.split(/(?<=[.!?…])\s/)[0] ?? '').length;
+  return pool.find(r => r.productIds?.includes(productId) && firstLen(r) >= 25 && firstLen(r) <= 90)
+    ?? reviewsFor(productId, chain).find(r => r.textDe.length >= 40) ?? pool[0];
 }
 
-function Who({ r, de, photo, about }: { r: Review; de: boolean; photo?: boolean; about?: string }) {
-  const verified = r.source === 'web' ? (de ? 'Verifizierter Käufer' : 'Verified buyer') : (de ? '✓ eBay verifiziert' : '✓ eBay verified');
+// Stimmungsfoto fuer die grosse Karte: fest je Produkt, damit Wachs- und
+// Kettenseiten nicht alle dasselbe Bild zeigen.
+const photoFor = (productId: string) =>
+  REVIEW_PHOTOS[[...productId].reduce((a, ch) => a + ch.charCodeAt(0), 0) % REVIEW_PHOTOS.length];
+
+function Who({ r, de, about }: { r: Review; de: boolean; about?: string }) {
+  const verified = de ? '✓ eBay verifiziert' : '✓ eBay verified';
   return (
     <figcaption className="wxp-who">
-      {/* Stimmungsbild, nicht das Rad der zitierten Person — Alt-Text bleibt
-          deshalb leer statt eine Zuordnung zu behaupten. */}
-      {photo && r.photo && <img src={r.photo.replace(/\.jpg$/, '.webp')} alt="" loading="lazy" decoding="async" />}
       <b>{r.name}</b><span className="wxp-ver">{verified}</span><span>· {de ? r.dateDe : r.dateEn}</span>
       {about && <span>· {about}</span>}
     </figcaption>
@@ -142,7 +144,8 @@ export function WaxReviews({ productId, de, chapter, chain = false }: { productI
   // Auf Kettenseiten steht bei einer Bewertung zu einer ANDEREN Kette dabei,
   // worum es ging, damit sie nicht als Stimme zu dieser Kette gelesen wird.
   const aboutOf = (r: Review) => chain && !r.productIds?.includes(productId) ? (de ? r.productDe : r.productEn) : undefined;
-  const big = list.find(r => r.photo) ?? list[0];
+  const big = list[0];
+  const photo = photoFor(productId);
   const rest = list.filter(r => r !== big).slice(0, 2);
   if (!big) return null;
   return (
@@ -154,12 +157,10 @@ export function WaxReviews({ productId, de, chapter, chain = false }: { productI
             {/* Stimmungsbild, nicht das Rad der zitierten Person — die
                 Bildunterschrift sagt das offen, statt "Kundenfoto" zu
                 behaupten (Luca, 16.09.2026: Fotos sind seine eigenen). */}
-            {big.photo && (
-              <div className="ph">
-                <img src={big.photo.replace(/\.jpg$/, '.webp')} alt="" loading="lazy" decoding="async" style={{ objectPosition: big.photoPos ?? '50% 50%' }} />
-                <span className="cr">{de ? 'Foto: Waxcelerate' : 'Photo: Waxcelerate'}</span>
-              </div>
-            )}
+            <div className="ph">
+              <img src={photo.src.replace(/\.jpg$/, '.webp')} alt={photoAlt(de)} loading="lazy" decoding="async" style={{ objectPosition: photo.pos ?? '50% 50%' }} />
+              <span className="cr">{photoCredit(de)}</span>
+            </div>
             <div className="tx">
               <Stars rating={big.rating ?? 5} color="#F5A623" emptyColor="rgba(255,255,255,.2)" />
               <blockquote>„{de ? big.textDe : big.textEn}“</blockquote>
@@ -168,10 +169,10 @@ export function WaxReviews({ productId, de, chapter, chain = false }: { productI
           </figure>
           <div className="wxp-rv-side">
             {rest.map(r => (
-              <figure key={r.name} className="wxp-card wxp-rv">
+              <figure key={r.id} className="wxp-card wxp-rv">
                 <Stars rating={r.rating ?? 5} color="#F5A623" />
                 <blockquote>„{de ? r.textDe : r.textEn}“</blockquote>
-                <Who r={r} de={de} photo about={aboutOf(r)} />
+                <Who r={r} de={de} about={aboutOf(r)} />
               </figure>
             ))}
           </div>

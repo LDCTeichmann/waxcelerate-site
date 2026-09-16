@@ -1355,7 +1355,7 @@ export function ProductDetailPage() {
                 {de ? 'Was Fahrer sagen' : 'What riders say'}
               </h2>
               <div className="grid sm:grid-cols-2 gap-6">
-                {productReviews.map((review, i) => <ReviewSnippet key={i} review={review} de={de} />)}
+                {productReviews.map(review => <ReviewSnippet key={review.id} review={review} de={de} />)}
               </div>
             </div>
           </section>
@@ -1525,11 +1525,7 @@ function ReviewSnippet({ review, de }: { review: Review; de: boolean }) {
   const text = de ? review.textDe : review.textEn;
   const date = de ? review.dateDe : review.dateEn;
   const product = de ? review.productDe : review.productEn;
-  const verified = review.source === 'web'
-    ? (de ? 'Verifizierter Käufer' : 'Verified buyer')
-    : (de ? 'eBay verifiziert' : 'eBay verified');
-  const [photoOk, setPhotoOk] = useState(true);
-  const showPhoto = Boolean(review.photo) && photoOk;
+  const verified = de ? 'eBay verifiziert' : 'eBay verified';
 
   return (
     <figure className="rounded-2xl p-5" style={{ background: 'var(--pg)', border: '1px solid var(--bd)' }}>
@@ -1541,10 +1537,6 @@ function ReviewSnippet({ review, de }: { review: Review; de: boolean }) {
         „{text}“
       </blockquote>
       <figcaption className="flex items-center gap-2 flex-wrap">
-        {showPhoto && (
-          <img src={review.photo} alt="" loading="lazy" decoding="async" onError={() => setPhotoOk(false)}
-            className="w-6 h-6 rounded-full object-cover flex-shrink-0" style={{ objectPosition: review.photoPos ?? '50% 50%' }} />
-        )}
         <span className="text-[12.5px] font-semibold" style={{ color: 'var(--tx1)' }}>{review.name}</span>
         <span className="inline-flex items-center gap-1 text-meta font-medium" style={{ color: 'var(--accent-soft)' }}>
           <BadgeCheck className="h-3.5 w-3.5" /> {verified}
