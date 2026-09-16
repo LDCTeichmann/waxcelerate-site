@@ -764,6 +764,208 @@ Gehört als Nächstes geklärt, siehe Abschnitt 8.
 
 ---
 
+## 7b. Stufe 2 am 15.09.2026: der Hero ist die Kette
+
+Der Hero zeigte ein Kassettenfoto, also die **Folge**, und die Seite erklärte
+danach die **Ursache**, ohne dass die Verbindung je gezeichnet wurde. Die
+Kassette kam nach dem Hero außerdem nie wieder vor.
+
+Jetzt steht dort die Kette in Seitenansicht, wie sie am Rad hängt, mit einer
+Lupe im Gelenk und dem Ritzel rechts, auf das sie aufwickelt. Darunter drei
+Einstiege, die zugleich das Inhaltsverzeichnis der Seite sind: Gelenk → ACT I,
+Spalt → ACT II, Verschleiß → ACT III. Wer über eine Zeile fährt, sieht das
+zugehörige Teil in der Zeichnung hervortreten.
+
+Die Kassettenfigur ist **nicht gelöscht**, sondern nach ACT III gewandert,
+direkt über die Rechnung, die aus Laufzeit Geld macht. Damit bleibt auch das
+og:image gültig, das weiter auf dieses Bild zeigt.
+
+Neu: `src/components/viz/chain/geometry.ts` als **eine Quelle für die
+Kettengeometrie**. Es gab drei unabhängig gezeichnete Ketten
+(`ChainWaxMap`, `FrictionLens`, `sketches.tsx`). Das Modul enthält nur
+Geometrie und Pfadhelfer, keine Farben, weil die Wissenschaftsseite themefähig
+ist und die Produktseite in einem erzwungenen Dunkelband läuft.
+
+Zwei Dinge, die beim Bauen aufgefallen sind:
+
+- **Teilung und Rollengröße hängen zusammen.** Die Absolutwerte in `SIDE`
+  stammen aus `ChainWaxMap` mit Teilung 66. Neben einem Ritzel mit Teilung 37
+  saß die Kette dadurch auf den Zähnen statt in den Sitzen. Dafür gibt es
+  jetzt `sideAt(pitch)`, und der Kommentar sagt, warum man es benutzen muss.
+- **Die Maßstabs-Chips aus §4 sind bewusst nicht gebaut.** Der `chip`-Slot ist
+  überall belegt und leistet dort echte Arbeit: `< 5 µm` ist die Partikelgröße,
+  `Außentemperatur` die Achse, `schematisch` der Vorbehalt. Einen Maßstab
+  dazwischenzumischen hätte das System verwässert statt es zu schärfen. Die
+  Zoom-Klammer bräuchte einen eigenen Träger, etwa eine Maßstabsleiste je
+  Figur. Offen.
+
+Die µ-Kachel im Hero ist weg (siehe 1.1). Keine Ersatzkachel: die Intervalle
+unterscheiden sich je Produkt und die Rewax-Zahl ist offen, also zwei belegte
+Kennzahlen statt drei mit einer schwachen darunter. µ steht weiterhin in
+`FrictionBars` und `LineChoice`; das ist der nächste Schritt, als eigener PR,
+zusammen mit dem Umbau der Balken auf Watt.
+
+Geprüft: `tsc -b --force`, `npm run build`, Chromium über Playwright in hell,
+dunkel und bei 1280 / 390 / 360 px. Kein waagerechter Überlauf, keine
+JS-Fehler, alle drei Einstiege springen auf ihr Ziel.
+
+### Stufe 2, zurückgenommen: der Hero ist wieder die Kassette
+
+Der Ketten-Hero oben ist **verworfen**. Luca: die Kassette mit der Zoomlinse,
+wie sie auf der Wachs-Produktseite steht, ist deutlich hochwertiger, und die
+gezeichnete Kette kam dagegen nicht an. `ChainOverview.tsx` und
+`components/viz/chain/geometry.ts` sind gelöscht.
+
+**Die Dedup der drei Kettenzeichnungen ist damit wieder offen.** `ChainWaxMap`,
+`FrictionLens` und `sketches.tsx` zeichnen weiter je eine eigene Kette mit
+eigenen Konstanten. Der Befund aus `sideAt(pitch)` bleibt gültig: Teilung und
+Rollengröße hängen zusammen, wer eine Kette neben ein Ritzel zeichnet, muss
+umrechnen. Das gehört in einen eigenen kleinen PR, nicht in einen Design-PR.
+
+An der Stelle steht jetzt `src/sections/science/CassetteLens.tsx`: dieselbe
+Komposition wie auf der Produktseite, aber größer und an drei Stellen besser.
+Eine Koordinate (`FLANK`) statt zwei unabhängiger Prozentpaare, ein Ring, dessen
+Durchmesser per Definition `LENS / ZOOM` ist und der damit wirklich zeigt, was
+die Linse zeigt, und eine Übergabezeile nach ACT I, die den alten Einwand gegen
+das Foto auflöst: der Hero zeigte die Folge, während die Seite die Ursache
+erklärt.
+
+**Beim Bauen geprüft und verworfen: der Split-Zoom neu/abgenutzt.** Der Plan
+sah vor, `cassette-new.jpg` und `cassette-worn.jpg` in einer großen Linse
+gegenüberzustellen. Beide sind **326 × 170 px**, stammen erkennbar aus einer
+anderen Aufnahme als das Hauptbild (weißer Grund, flaches Licht) und der
+Unterschied zwischen ihnen ist mit bloßem Auge kaum zu erkennen. Als Beleg für
+„so sieht Verschleiß aus" tragen sie nicht, und vergrößert tragen sie erst
+recht nicht. Sie sind aus der Seite raus. Den Vergleich führt jetzt die
+gezeichnete Zahnkontur, die als Schema gekennzeichnet ist.
+
+Die Zahnkontur ist dabei neu gezeichnet worden. Die alte war ein Trapez mit
+gerader Deckfläche und ohne Rollensitze und sah nach Kegelstumpf aus. Die neue
+zeigt einen Zahn mit seinen beiden halben Sitzen. Dabei gefunden und behoben:
+eine Zwischenfassung ließ die abgenutzte Kontur an der Zahnkuppe über die
+ideale hinausragen, dichtete dort also Material an. Ursache war der Wiedereinstieg
+am **Steuerpunkt** der Kuppenkurve statt an ihrem Scheitel; der Scheitel einer
+quadratischen Kurve ist `B(0,5)`, nicht der Steuerpunkt.
+
+Geprüft: `tsc -b --force`, `npm run build`, Chromium über Playwright in hell und
+dunkel bei 1280 / 390 / 360 px. Kein waagerechter Überlauf, keine JS-Fehler,
+og:image und `preloadImage` zeigen weiter auf das Bild, das der Hero wirklich
+rendert (und das jetzt wieder über der Falz steht, was den Preload überhaupt
+erst rechtfertigt).
+
+**Nebenbefund für §7 dieses Dokuments:** auf der Seite stehen weiterhin
+SVG-Beschriftungen mit 10 px (`vdW`, `S` in den Molekülfiguren). DESIGN.md §2
+fordert mindestens 11 px. Nicht Teil dieses PRs.
+
+### Stufe 3: ACT II, der Knotengraph ist weg
+
+Der Oktopus ist nicht nachgebessert, sondern ersetzt. An seiner Stelle steht
+`src/sections/science/WaxField.tsx`: **ein Bildfeld, der erstarrte Wachsfilm im
+Schnitt auf dem Stahl, bei rund 1 µm.** Alle sechs Komponenten liegen
+gleichzeitig darin, an ihrem echten Platz.
+
+**Die Anordnung ist nicht erfunden.** Paraffin erstarrt in Sphärolithen, und an
+einer Oberfläche keimen die vom Metall her. Zwei Dinge fallen dabei von selbst
+richtig aus: die Fächergrenzen sind senkrecht (Mittelsenkrechte zweier Keime,
+die auf derselben Linie liegen), und genau dort bleibt ein Keil übrig, den
+Mikrokristallin füllt. Beides rechnet `buildFans` aus dem Keimabstand, statt es
+hübsch zu malen. Der alte Graph hatte erfundene Ringe.
+
+**`EDGES` ist nicht gelöscht, es ist Text geworden.** Die 11 recherchierten
+Beziehungen stehen jetzt als Zeile unter der geöffneten Komponente
+(„Greift ineinander mit Paraffin → Ko-Kristallisation · MoS₂ →
+Thermostabilität"). Falsch war die Darstellung als Kante, nicht der Inhalt.
+Nur `FormulaStep.edges` fällt weg.
+
+**Die Seite ist ein Viertel kürzer:** 10.838 → 8.084 px bei 1280 px. Der
+Gewinn ist nicht der Graph, sondern die Scroll-Entführung: `FormulaStory` war
+`COMPONENTS.length * 60vh` hoch, also sechs Bildschirme, in denen man nicht
+die Seite scrollte, sondern einen Schrittzähler. Damit entfällt auch die
+getrennte Mobilfassung mit `IntersectionObserver`-Karussell.
+
+Sieben Dinge, die erst am **gerenderten** Bild aufgefallen sind und ohne
+Screenshot durchgegangen wären:
+
+1. Die Lamellen sahen aus wie Spieße, weil jede in einem Zug bis an ihre Grenze
+   lief. Richtig ist ein Streckenzug: radial bis zum Anstoß am Nachbarfächer,
+   dann kolumnar nach oben. Das ist auch die Physik.
+2. Das Seitenverhältnis ist eine Aussage, keine Layoutfrage. 520 × 400 mit sechs
+   Keimen ließ die Fächer ein Fünftel der Filmhöhe erreichen. Jetzt 520 × 300
+   mit vier: Filmdicke und Domänengröße liegen in derselben Größenordnung, wie
+   im echten Film.
+3. **MoS₂ als „das dunkelste Element" geht in einer themefähigen Figur nicht.**
+   Im Noir-Theme ist nichts dunkler als der Seitengrund. Die übertragbare
+   Fassung ist „das kontraststärkste", also `var(--tx1)` — und dann darf sonst
+   nichts `var(--tx1)` benutzen. Die Stahlkante tat das und war im Dunkelmodus
+   ein weißer Balken.
+4. Hervorheben und Weglassen galten gleichzeitig: im Zustand „ohne
+   Mikrokristallin" wurde alles andere gedimmt und das Weggelassene war ohnehin
+   nicht gezeichnet. Übrig blieb ein fast leeres Feld.
+5. Ein Riss ist ein **Spalt**, keine Linie. Als Strich war er auf dem
+   Lamellenfeld unsichtbar.
+6. Eingeklappte Zeilen blieben anklickbar: `grid-template-rows: 0fr` versteckt
+   nur optisch. Im Test ließ sich der Knopf einer **geschlossenen** Zeile
+   auslösen. Dasselbe Muster steckt auch in `Disclosure` — eigener kleiner PR.
+7. Die Beschriftungen im Feld lagen als `<text>` in der viewBox und skalierten
+   mit: nachgemessen 9,3 px bei 360 px Fensterbreite und 10 px selbst bei 1280.
+   §2 fordert 11. Jetzt HTML neben dem SVG.
+
+`COMPONENTS` bleibt vollständig **inklusive `node`**. Das Feld sieht nach
+totem Code aus, ist es aber nicht: `generate-llms-txt.mjs` sortiert danach, und
+die `.mjs`-Generatoren sind untypisiert. `tsc` hätte das nicht gemerkt.
+
+Geprüft: `tsc -b --force`, `npm run build`, beide Generatoren von Hand
+nachgefahren, Chromium in hell und dunkel bei 1280 / 390 / 360 px, dazu bei
+`prefers-reduced-motion`.
+
+### Stufe 4: µ raus als Leitzahl, Balken auf Watt
+
+Variante B ist umgesetzt. µ stand an fünf Stellen: Hero-Kachel (schon vorher
+weg), drei Balken in ACT III, eine Tabellenzeile in `LineChoice`, dazu **zwei
+Blöcke in `llms-full.txt` und im vorgerenderten Rumpf**.
+
+**Der schwerwiegendste Fund lag nicht auf der sichtbaren Seite.**
+`generate-llms-txt.mjs` schrieb wörtlich „Grenzreibungskoeffizient µ, Quelle:
+unabhängige Labortests von Zero Friction Cycling" und listete darunter
+Waxcelerate Pro und Classic. ZFC hat unsere Produkte nicht gemessen; die
+Wattzahlen stammen von dort, die µ-Werte nicht. Dieselbe Zuschreibung stand im
+Rumpf von `/wissenschaft`, den `generate-blog-html.mjs` erzeugt. Das sind genau
+die Flächen, die Crawler und Sprachmodelle lesen und die beim Durchsehen im
+Browser niemandem auffallen. Beides ist raus, die Wattzahlen bleiben mit ihrer
+Quelle.
+
+`FrictionBars` heißt jetzt `FrictionWatts`: Watt auf einer echten Achse von 0
+bis 12 W mit Teilstrichen, und jeder Balken ist ein **Bereich** von lo bis hi
+statt einer Länge ab null. Die Zahlen sind eine Spanne von frisch behandelt bis
+Intervallende; ein Balken ab null hätte die Untergrenze verschenkt. Die alte
+Balkenlänge kam aus `pct` in `data.ts`, einer frei gewählten Zahl ohne Einheit.
+
+`LineChoice` trägt statt µ die Zeile **„Nässe und Kälte"**, also die Angabe,
+nach der in dieser Tabelle wirklich entschieden wird. Wortlaut aus den
+Produkttexten in `data.ts`.
+
+Die eine µ-Zahl, die bleibt, steht im MoS₂-Kapitel und trägt jetzt ihre
+Bedingung: „Grenzschmierung, trockene Luft" im Panel **und** „in trockener
+Luft" in `COMPONENTS.mos2.sumDe`. Letzteres ist nötig, weil `sumDe` über die
+Generatoren ebenfalls nach `llms-full.txt` und in den Rumpf geht.
+
+`frictionRanges` bleibt in `data.ts` als interne Referenz, mit einem Kommentar,
+der sagt warum und was fehlt, falls jemand die Werte je wieder anzeigt: eine
+Achse und die Umgebung daneben.
+
+**Punkt 1 aus §7 ist damit ebenfalls erledigt.** Der ACT-III-Zweispalter steht
+auf `items-start`. Das Strecken war begründet, solange die natürlichen Höhen
+nahe beieinander lagen; mit dem kürzeren Wattdiagramm stand die Leere dann
+innerhalb des Rahmens. Eine Lücke zwischen zwei Karten liest sich als Layout,
+eine Lücke in einem Instrumentenrahmen als fehlender Inhalt.
+
+Offen geblieben, aufgefallen: die Wertespalten in `LineChoice` laufen alle über
+`.num-data`, auch die reinen Prosazeilen. `DESIGN.md` §2 hält Mono für echte
+Messwerte frei. Älter als dieser Umbau, eigene Entscheidung über die ganze
+Tabelle.
+
+---
+
 ## 8. Was nur Luca entscheiden kann
 
 1. **Die µ-Werte.** Bleiben sie mit Umgebungsangabe im MoS₂-Kapitel, oder

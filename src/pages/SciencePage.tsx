@@ -11,161 +11,18 @@ import { prefersReducedMotion } from '@/hooks/useAnimation';
 import { InstrumentFrame, CountUp } from '@/components/viz';
 import { BackLink } from '@/components/BackLink';
 import { BeforeAfterSlider } from '@/components/BeforeAfterSlider';
-import { waxVsOil, frictionRanges, products, type Product } from '@/lib/data';
-import { COMPONENTS, FAILURES, type ScienceComponent } from '@/lib/science';
-import { FormulaGraph } from '@/sections/science/FormulaGraph';
+import { waxVsOil, products, type Product } from '@/lib/data';
+import { COMPONENTS, EDGES, FAILURES } from '@/lib/science';
+import { WaxField, useFieldBuild, type FieldKey } from '@/sections/science/WaxField';
 import { ContactZones, LineChoice } from '@/sections/science/ContactZones';
 import { ComponentDiagram } from '@/sections/science/diagrams';
+import { CassetteLens } from '@/sections/science/CassetteLens';
 import { HexMoS2, StandstillFilm } from '@/sections/science/LabViz';
 import { ReadMoreLink } from '@/sections/science/ReadMoreLink';
 import { ProofInstrument } from '@/sections/science/ProofInstrument';
 import { CalcTrace } from '@/components/tools/CalcTrace';
 
 const W = 'max-w-4xl mx-auto px-4 sm:px-6 lg:px-8';
-
-// ─── ToothProfileDiagram — ideal vs. worn tooth flank, schematic ─────────────
-// The two cassette photos (new/worn) show that wear happens; they can't show
-// WHAT wears — a photo of two similar-looking teeth doesn't read as "material
-// is gone" the way a drawn contour with a shaded difference does. This is a
-// simplified, single-tooth cross-section, not a measured profile: a sprocket
-// tooth pointing up, ideal contour solid, worn contour dashed with the loaded
-// flank (left, where chain tension pulls under load) drawn hooked/thinned —
-// the textbook "shark-fin" wear pattern — and the area between the two lines
-// on that flank shaded as the material loss the text above describes.
-function ToothProfileDiagram({ de }: { de: boolean }) {
-  const idealD = 'M14,86 L29,42 L47,10 L73,10 L91,42 L106,86';
-  // Worn: right flank + tip unchanged, left (loaded) flank recedes inward
-  // from mid-height down to the base — the classic hooked wear silhouette.
-  const wornD = 'M22,86 L33,52 L47,10 L73,10 L91,42 L106,86';
-  const lossD = 'M14,86 L29,42 L47,10 L33,52 L22,86 Z';
-  return (
-    <svg viewBox="0 0 120 96" className="w-full h-auto" style={{ maxWidth: 108 }} aria-hidden>
-      <path d={lossD} fill="var(--accent)" opacity="0.16" />
-      <path d={idealD} fill="none" stroke="var(--txf)" strokeWidth="1.6" strokeLinejoin="round" />
-      <path d={wornD} fill="none" stroke="var(--accent)" strokeWidth="1.6" strokeDasharray="3 2.5" strokeLinejoin="round" />
-      <line x1="106" y1="86" x2="14" y2="86" stroke="var(--bd)" strokeWidth="1" />
-      <line x1="6" y1="70" x2="18" y2="66" stroke="var(--accent)" strokeWidth="0.8" opacity="0.7" />
-      <text x="2" y="80" fontSize="7.5" fill="var(--accent)" fontFamily="monospace">
-        {de ? 'Abtrag' : 'loss'}
-      </text>
-    </svg>
-  );
-}
-
-// ─── WearDiagramFigure — cassette photo + explanation, shared by the mobile
-// and desktop hero layouts below. Mobile-Plan B6: the source photo
-// (cassette-wear-full.jpg) used to have a heading, a five-line paragraph and
-// both "Neue/Abgenutzte Kassette" labels baked into the pixels — at the
-// ~358px mobile display width that text rendered around 6px tall: not
-// selectable, not resizable with the system font size, invisible to screen
-// readers (the desktop image was even marked aria-hidden, so that reader
-// audience never got the explanation at all), and not indexable by Google on
-// a page built specifically to rank for chain-wax search terms. The three
-// photos below (cassette-new / cassette-worn) are crops of the exact same
-// source with the text-and-label regions painted over in the flat
-// page-background colour — nothing about the photography changed. The words
-// are real HTML now. cassette-wear-diagram is a separate, newer asset (see
-// below) and isn't part of that crop family.
-//
-// 2026-09 revision: previously the photo and the two comparison thumbnails
-// below it had no visible relationship — a reader had to work out on their
-// own that the small crops were "a tooth from that cassette". Now a single
-// magnifier ring sits directly on one real, visible tooth of the outer
-// (largest) sprocket — the sprocket that actually carries the most load —
-// with a leader line down to exactly what the ring is circling: the
-// new/worn crops, reused unchanged, now framed as one split lens instead of
-// two separate thumbnails, next to a drawn tooth-profile schematic that
-// shows what a photo alone can't: where the material actually goes.
-// Coordinates are percentages of the image box, valid because the source
-// (cassette-wear-diagram) is a 1:1 square asset — see naturalWidth/Height.
-const LUPE_X = 9, LUPE_Y = 45;
-function WearDiagramFigure({ de }: { de: boolean }) {
-  return (
-    <figure className="m-0">
-      {/* True alpha-transparent cutout (2026-09-02), not a photo on a
-          matched background colour — the previous version relied on its
-          rgb(245,245,245) backdrop happening to be close to the light-mode
-          page background (`var(--pg)`) to "disappear"; that broke in dark
-          mode, where the same rectangle read as a stark light box with a
-          hard edge. A real cutout has no background to mismatch, so it sits
-          cleanly on either theme without any colour-matching trick. PNG
-          fallback (not JPG) because JPG has no alpha channel — a flattened
-          `cassette-wear-diagram.jpg` still exists separately for OG/social
-          meta, which needs an opaque image and doesn't render on a page
-          background at all. */}
-      <div className="relative">
-        <picture>
-          <source type="image/avif" sizes="(min-width: 1024px) 560px, 100vw"
-            srcSet="/images/science/cassette-wear-diagram-800.avif 800w, /images/science/cassette-wear-diagram.avif 1254w" />
-          <source type="image/webp" sizes="(min-width: 1024px) 560px, 100vw"
-            srcSet="/images/science/cassette-wear-diagram-800.webp 800w, /images/science/cassette-wear-diagram.webp 1254w" />
-          <img
-            src="/images/science/cassette-wear-diagram.png"
-            alt={de ? 'Shimano Ultegra Kassette' : 'Shimano Ultegra cassette'}
-            width={1254} height={1254}
-            className="w-full h-auto"
-          />
-        </picture>
-        {/* Magnifier ring on one real tooth of the outer sprocket + leader
-            line down to the split lens below. Percent-positioned so it tracks
-            the same tooth at every viewport width. */}
-        <div aria-hidden className="absolute rounded-full pointer-events-none"
-          style={{
-            left: `${LUPE_X}%`, top: `${LUPE_Y}%`, width: '12%', aspectRatio: '1',
-            transform: 'translate(-50%,-50%)',
-            border: '1.5px solid var(--accent)',
-            boxShadow: '0 0 0 3px var(--pg), 0 0 10px rgba(var(--accent-rgb),0.35)',
-          }} />
-        <svg aria-hidden className="absolute inset-0 pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
-          <line x1={LUPE_X} y1={LUPE_Y + 6} x2={LUPE_X} y2="99" stroke="var(--accent)"
-            strokeWidth="0.35" strokeDasharray="1.6 1.6" opacity="0.55" vectorEffect="non-scaling-stroke" />
-        </svg>
-      </div>
-      <figcaption className="mt-4">
-        <p className="text-[15px] font-bold mb-1.5" style={{ color: 'var(--tx1)' }}>
-          {de ? 'Verschleißprinzip' : 'Wear principle'}
-        </p>
-        <p className="text-[13.5px] leading-relaxed mb-4" style={{ color: 'var(--txm)', maxWidth: '36ch' }}>
-          {de
-            ? 'Reibung trägt die Zahnflanke der Kassette ab — die Kette greift schlechter und verschleißt schneller.'
-            : 'Friction wears down the tooth flank on the cassette — the chain grips worse and wears out faster.'}
-        </p>
-
-        {/* Split lens — same tooth the ring above is circling, new/worn side
-            by side inside one circular frame instead of two square
-            thumbnails. Both images are the exact crops used before
-            (cassette-new / cassette-worn); the framing changed, not the
-            photography. */}
-        <div className="flex items-center gap-4">
-          <div className="relative flex-shrink-0 rounded-full overflow-hidden"
-            style={{ width: 92, height: 92, border: '1.5px solid var(--accent)', background: '#f4f4f4' }}>
-            <picture>
-              <source srcSet="/images/science/cassette-new.webp" type="image/webp" />
-              <img src="/images/science/cassette-new.jpg" alt={de ? 'Neue Kassette' : 'New cassette'}
-                className="absolute inset-0 w-full h-full object-cover"
-                style={{ clipPath: 'inset(0 50% 0 0)' }} />
-            </picture>
-            <picture>
-              <source srcSet="/images/science/cassette-worn.webp" type="image/webp" />
-              <img src="/images/science/cassette-worn.jpg" alt={de ? 'Abgenutzte Kassette' : 'Worn cassette'}
-                className="absolute inset-0 w-full h-full object-cover"
-                style={{ clipPath: 'inset(0 0 0 50%)' }} />
-            </picture>
-            <div className="absolute inset-y-0 left-1/2 -translate-x-1/2" style={{ width: 1, background: 'var(--accent)', opacity: 0.6 }} />
-          </div>
-          <ToothProfileDiagram de={de} />
-        </div>
-        <div className="flex items-center gap-4 mt-2" style={{ maxWidth: 300 }}>
-          <div className="flex-shrink-0 flex justify-between" style={{ width: 92 }}>
-            <span className="text-[11px] font-semibold" style={{ color: 'var(--tx1)' }}>{de ? 'Neu' : 'New'}</span>
-            <span className="text-[11px] font-semibold" style={{ color: 'var(--accent)' }}>{de ? 'Abgenutzt' : 'Worn'}</span>
-          </div>
-          <span className="text-[11px]" style={{ color: 'var(--txf)' }}>{de ? 'Zahnprofil' : 'Tooth profile'}</span>
-        </div>
-      </figcaption>
-    </figure>
-  );
-}
 
 // ─── Opening hero — the page's actual "hero" moment: headline stats + a large
 // cassette rendering. Deliberately sober, not a dark photo stage — the page's
@@ -177,22 +34,25 @@ function WearDiagramFigure({ de }: { de: boolean }) {
 // invented stats. ProblemHero below carries on with the sober toggle deep-dive.
 function ScienceHero({ de }: { de: boolean }) {
   const w = waxVsOil.watts, l = waxVsOil.life;
-  const pro = frictionRanges.find(r => r.id === 'pro')!;
-  const oil = frictionRanges.find(r => r.id === 'oil')!;
   // Three measurements, not four — "Trocken" isn't a measurement (no unit,
   // no comparison value), it was padding out a 2x2 grid. It now lives as a
   // half-sentence in the lede below instead of posing as a fourth data
   // point. Icons dropped too: they were purely decorative next to a mono
   // numeral that already reads as data on its own, and every other
-  // instrument panel on this page (FrictionBars, TempWindow, HexMoS2) makes
+  // instrument panel on this page (FrictionWatts, TempWindow, HexMoS2) makes
   // its case with numbers and labels alone, no iconography — these three
   // cards now match that language instead of being the one exception.
+  // 2026-09-15: von drei auf zwei. Die dritte Kachel trug "μ 0,03-0,06 ·
+  // Reibung im Antrieb". Diese Zahl ist ein Kennwert des Feststoffs unter
+  // trockenen Laborbedingungen, kein gemessener Wert unseres Produkts im
+  // Antrieb, und MoS2 liegt in feuchter Luft deutlich hoeher (siehe
+  // WISSENSCHAFT_REDESIGN.md 1.1). Sie steht jetzt nur noch dort, wo sie
+  // hingehoert: im MoS2-Kapitel, mit der Umgebung daneben. Keine
+  // Ersatzkachel: die Intervalle unterscheiden sich je Produkt und die
+  // Rewax-Zahl ist eine offene Entscheidung, also lieber zwei belegte
+  // Kennzahlen als drei mit einer schwachen darunter. Dieselbe Logik wie
+  // beim Schritt von vier auf drei.
   const cards = [
-    {
-      value: `μ ${pro.muLo.toFixed(2)}–${pro.muHi.toFixed(2)}`,
-      sentenceDe: `Reibung im Antrieb — Öl liegt bei μ ${oil.muLo.toFixed(2)}–${oil.muHi.toFixed(2)}.`,
-      sentenceEn: `Drivetrain friction — oil sits at μ ${oil.muLo.toFixed(2)}–${oil.muHi.toFixed(2)}.`,
-    },
     {
       value: `${w.wax[0]}–${w.wax[1]} W`,
       sentenceDe: `Reibungsverlust in der Kette. Öl braucht ${w.oil[0]}–${w.oil[1]} W bei gleicher Leistung.`,
@@ -237,19 +97,19 @@ function ScienceHero({ de }: { de: boolean }) {
               : 'Same drivetrain, two lubricants — measured side by side. Dry, no stains on clothes or fingers.'}
           </p>
 
-          {/* Mobile/tablet: same figure, just inline above the stats instead
-              of floating beside them — no room for that at this width. */}
+          {/* Mobile/tablet: dieselbe Figur, nur inline ueber den Kennzahlen
+              statt daneben — bei dieser Breite ist kein Platz dafuer. */}
           <div className="lg:hidden mb-6">
-            <WearDiagramFigure de={de} />
+            <CassetteLens de={de} />
           </div>
 
           {/* Stats — three measurements in one accent-topped row instead of a
               hairline-divided list: the row reads as one instrument readout
-              (like FrictionBars/TempWindow below it) rather than a stack of
+              (like FrictionWatts/TempWindow below it) rather than a stack of
               separate facts, and num-data at almost double the previous size
               actually looks like the page's central claim instead of a list
               caption. */}
-          <div className="grid grid-cols-3 mb-8" style={{ borderTop: '1px solid var(--accent-soft)' }}>
+          <div className="grid grid-cols-2 mb-8" style={{ borderTop: '1px solid var(--accent-soft)' }}>
             {cards.map((c, i) => (
               <div key={i} className="pt-3.5 pr-3"
                 style={{ borderLeft: i > 0 ? '1px solid var(--bd2)' : undefined, paddingLeft: i > 0 ? 14 : 0 }}>
@@ -275,19 +135,11 @@ function ScienceHero({ de }: { de: boolean }) {
           </a>
         </div>
 
-        {/* Desktop: the same figure as a normal flex sibling (not absolutely
-            positioned) so it renders at its own natural size and the section
-            simply grows to fit it — no fixed height to clip against, no
-            letterboxing to create a visible edge. Its background
-            (245,245,245) is close enough to var(--pg) that it merges into
-            the page with no border or card needed. Previously this whole
-            block was aria-hidden because the baked-in text made it
-            meaningless to a screen reader anyway — now that the words are
-            real HTML (see WearDiagramFigure above), that hid the page's only
-            explanation of the wear principle from every screen reader user
-            on desktop. Not hidden anymore. */}
+        {/* Desktop: die Figur als normales Flex-Geschwister, sie rendert also
+            in ihrer natuerlichen Groesse und der Abschnitt waechst mit. Keine
+            feste Hoehe, an der etwas abgeschnitten werden koennte. */}
         <div className="hidden lg:block lg:flex-1">
-          <WearDiagramFigure de={de} />
+          <CassetteLens de={de} />
         </div>
       </div>
     </section>
@@ -352,70 +204,6 @@ function Disclosure({ label, children }: { label: string; children: React.ReactN
   );
 }
 
-// ─── ACT II — component card: editorial split layout (inspired by numbered index) ─
-function CompCard({ c, n, de, cardRef, compact }: { c: ScienceComponent; n: number; de: boolean; cardRef?: React.Ref<HTMLDivElement>; compact?: boolean }) {
-  return (
-    <div ref={cardRef} id={c.id} className="scroll-mt-24 rounded-2xl border border-wx-bd overflow-hidden"
-      style={{ background: 'var(--card-bg)', boxShadow: 'var(--card-shad)', minHeight: compact ? 280 : undefined }}>
-      {/* Header band */}
-      <div className="px-6 pt-5 pb-4" style={{ borderBottom: '1px solid var(--bd2)' }}>
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0">
-            <span className="num text-[12px] flex-shrink-0" style={{ color: 'var(--txf)' }}>0{n}</span>
-            <div className="h-px flex-1 max-w-[32px]" style={{ background: 'var(--accent-soft)', opacity: 0.4 }} />
-            <span className="text-small uppercase tracking-[0.18em] flex-shrink-0" style={{ color: 'var(--accent-soft)' }}>
-              {de ? c.roleDe : c.roleEn}
-            </span>
-          </div>
-          <span className="num-data font-semibold text-[17px] flex-shrink-0" style={{ color: 'var(--accent-soft)' }}>
-            {c.metric}
-          </span>
-        </div>
-      </div>
-
-      {/* Body */}
-      <div className="px-6 py-5">
-        <h3 className="font-display font-bold text-wx-tx1 text-[1.35rem] leading-tight tracking-[-0.01em]">
-          {de ? c.nameDe : c.nameEn}
-        </h3>
-        {/* compact (mobile carousel): clamp to 3 lines so every card in the
-            swipe deck starts at the same height regardless of how long its
-            summary is — otherwise the deck visibly jumps taller/shorter as
-            you swipe past e.g. MoS2's four-sentence summary vs a two-sentence
-            one. Full CompCard usage (none currently) keeps the unclamped
-            paragraph. */}
-        <p className={`text-[14px] leading-relaxed text-wx-tx2 mt-3 max-w-prose ${compact ? 'line-clamp-3' : ''}`}>
-          {de ? c.sumDe : c.sumEn}
-        </p>
-
-        {/* Tier 2a — short rationale */}
-        <Disclosure label={de ? 'Warum das zählt' : 'Why it matters'}>
-          <p className="text-[13px] leading-relaxed pt-3" style={{ color: 'var(--txm)' }}>
-            {de ? c.whyDe : c.whyEn}
-          </p>
-        </Disclosure>
-
-        {/* Tier 2b — deep physics + diagram + insight */}
-        <Disclosure label={de ? 'Die Physik' : 'The physics'}>
-          <div className="pt-3 space-y-3">
-            {(de ? c.physicsDe : c.physicsEn).map((p, i) => (
-              <p key={i} className="text-[13px] leading-relaxed" style={{ color: 'var(--txm)' }}>{p}</p>
-            ))}
-          </div>
-          <ComponentDiagram which={c.diagram} de={de} />
-          <Insight>{de ? c.insightDe : c.insightEn}</Insight>
-          {c.id === 'sedimentation' && <SedimentationTrace de={de} />}
-        </Disclosure>
-
-        {c.id === 'mos2' && de && (
-          <ReadMoreLink to="/blog/mos2-kettenwachs">
-            Mehr im Ratgeber: MoS₂ im Kettenwachs
-          </ReadMoreLink>
-        )}
-      </div>
-    </div>
-  );
-}
 
 // ─── ACT II — development-iteration story (compact, collapsible) ──────────────
 function FailureTimeline({ de }: { de: boolean }) {
@@ -626,9 +414,33 @@ function Microscope({ de }: { de: boolean }) {
     </div>
   );
 }
-
-// ─── ACT III — friction proof bars (higher bar = better; never invert) ───────
-function FrictionBars({ de }: { de: boolean }) {
+// ─── FrictionWatts — Reibungsverlust in der Kette, in Watt ──────────────────
+//
+// Bis 2026-09-16 standen hier drei Balken mit Reibungskoeffizienten: Pro
+// μ 0,03–0,06, Classic μ 0,05–0,07, Kettenoel μ 0,18–0,25. Das ist raus, aus
+// zwei Gruenden (WISSENSCHAFT_REDESIGN.md 1.1):
+//
+//  - Es sind Kennwerte des FESTSTOFFS unter trockenen Laborbedingungen, keine
+//    gemessenen Werte unseres Produkts im Antrieb. Ein Balken, der "Pro" heisst
+//    und einen MoS2-Materialkennwert zeigt, behauptet eine Produktmessung, die
+//    es nicht gibt. In feuchter Luft liegt MoS2 ausserdem deutlich hoeher.
+//  - Die Balkenlaenge kam aus einem Feld `pct` in data.ts, also aus einer frei
+//    gewaehlten Zahl ohne Einheit. Eine Skala, die niemand ablesen kann, ist
+//    Dekoration.
+//
+// Watt ist der Wert, der beides heilt. Er ist veroeffentlicht (Zero Friction
+// Cycling), er hat eine Einheit, er hat eine Eingangsleistung, die danebensteht,
+// und er misst die Kette statt das Pulver. Die Balken laufen deshalb jetzt auf
+// einer echten Achse von 0 bis SCALE_W, mit Teilstrichen, und jeder Balken ist
+// ein Bereich von lo bis hi statt einer Laenge ab null — denn genau das sind
+// die Zahlen: eine Spanne von frisch behandelt bis Intervallende.
+//
+// mu ist damit nicht von der Seite verschwunden, nur von hier. Es steht weiter
+// im MoS2-Kapitel, wo die Umgebung danebensteht, in die es gehoert.
+//
+// `frictionRanges` bleibt in data.ts als interne Referenz erhalten.
+const SCALE_W = 12;
+function FrictionWatts({ de }: { de: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   const [run, setRun] = useState(prefersReducedMotion());
   useEffect(() => {
@@ -637,56 +449,64 @@ function FrictionBars({ de }: { de: boolean }) {
     const trigger = ScrollTrigger.create({ trigger: el, start: 'top 85%', once: true, onEnter: () => setRun(true) });
     return () => trigger.kill();
   }, []);
-  const labels: Record<string, string> = {
-    pro: 'Pro', classic: 'Classic', oil: de ? 'Kettenöl' : 'Chain oil',
-  };
-  // 2026-09: the μ-value moved from a fixed right-aligned column to sitting
-  // right at each bar's own end (left: pct%) — it now visually belongs to
-  // the bar it measures instead of reading as a separate list of numbers
-  // next to unrelated bar lengths. The oil bar gets a diagonal hatch instead
-  // of a flat fill (same "reference, not a product" language as the dashed
-  // oil curve in StandstillFilm next to it) rather than just a paler
-  // grey. Both changes replace the old explanatory footnote — the figure
-  // states "shorter = worse" itself instead of needing a sentence to say so.
+
+  const w = waxVsOil.watts;
+  const rows = [
+    { id: 'wax', label: de ? 'Heißwachs' : 'Hot wax', lo: w.wax[0], hi: w.wax[1], highlight: true },
+    { id: 'oil', label: de ? 'Kettenöl' : 'Chain oil', lo: w.oil[0], hi: w.oil[1], highlight: false },
+  ];
+  const ticks = [0, 4, 8, 12];
+  const pct = (v: number) => (v / SCALE_W) * 100;
+
   return (
-    <div ref={ref} id="reibung" className="scroll-mt-24 space-y-4">
-      {frictionRanges.map(r => {
-        const mu = `μ ${r.muLo.toLocaleString(de ? 'de' : 'en', { minimumFractionDigits: 2 })}–${r.muHi.toLocaleString(de ? 'de' : 'en', { minimumFractionDigits: 2 })}`;
-        return (
+    <div ref={ref} id="reibung" className="scroll-mt-24">
+      <div className="space-y-6">
+        {rows.map(r => (
           <div key={r.id}>
-            <div className="flex justify-between mb-1.5">
-              <span className={`text-[13px] font-medium ${r.highlight ? 'text-wx-tx1' : 'text-wx-txf'}`}>{labels[r.id]}</span>
-              <span className="num-data text-[12px]" style={{ color: r.highlight ? 'var(--tx2)' : 'var(--txff)' }}>{mu}</span>
+            <div className="flex justify-between items-baseline mb-2">
+              <span className={`text-[13px] font-medium ${r.highlight ? 'text-wx-tx1' : 'text-wx-txf'}`}>{r.label}</span>
+              <span className="num-data text-[13px]" style={{ color: r.highlight ? 'var(--accent)' : 'var(--txf)' }}>
+                {r.lo}–{r.hi} W
+              </span>
             </div>
-            {/* Bar + a small tick right where it ends, in the value's own
-                colour — ties the number above to this specific point on the
-                bar instead of leaving "which end is that number about" to
-                the reader, without risking the number itself overlapping
-                the fill (it stays in the safe right-aligned header row). */}
-            <div className="relative h-2.5 rounded-full overflow-hidden" style={{ background: 'var(--bd)' }}>
-              <div className="h-full rounded-full"
+            {/* Bereichsbalken: er beginnt bei lo und endet bei hi, sitzt also
+                wirklich dort auf der Achse, wo die Spanne liegt. Ein Balken ab
+                null haette dieselbe Zahl als Laenge dargestellt und damit die
+                Untergrenze verschenkt. */}
+            <div className="relative h-3 rounded-full" style={{ background: 'var(--bd2)' }}>
+              <div className="absolute inset-y-0 rounded-full"
                 style={{
-                  width: run ? `${r.pct}%` : '0%',
+                  left: `${pct(r.lo)}%`,
+                  width: run ? `${pct(r.hi - r.lo)}%` : '0%',
                   background: r.highlight
                     ? 'linear-gradient(90deg, var(--accent-strong), var(--accent-soft))'
                     : 'repeating-linear-gradient(45deg, var(--txf) 0 3px, transparent 3px 7px)',
-                  transition: 'width 1s cubic-bezier(0.22,1,0.36,1)',
-                }} />
-            </div>
-            <div className="relative h-1.5">
-              <div className="absolute top-0 w-px h-1.5" aria-hidden
-                style={{
-                  left: run ? `${r.pct}%` : '0%', transition: 'left 1s cubic-bezier(0.22,1,0.36,1)',
-                  background: r.highlight ? 'var(--accent)' : 'var(--txf)',
+                  transition: 'width 0.9s cubic-bezier(0.22,1,0.36,1)',
                 }} />
             </div>
           </div>
-        );
-      })}
-      <div className="flex justify-between pt-1">
-        <span className="text-meta" style={{ color: 'var(--txf)' }}>{de ? 'mehr Reibung' : 'more friction'}</span>
-        <span className="text-meta" style={{ color: 'var(--txf)' }}>{de ? 'weniger Reibung' : 'less friction'}</span>
+        ))}
       </div>
+
+      {/* Die Achse. Sie ist der ganze Punkt dieses Umbaus: vorher gab es keine. */}
+      <div className="relative mt-3 h-8" aria-hidden>
+        <div className="absolute inset-x-0 top-0 h-px" style={{ background: 'var(--bd)' }} />
+        {ticks.map(t => (
+          <div key={t} className="absolute top-0" style={{ left: `${pct(t)}%` }}>
+            <div className="w-px h-1.5" style={{ background: 'var(--bd)' }} />
+            <span className="num-data text-[11px] absolute top-2.5"
+              style={{ color: 'var(--txf)', transform: t === 0 ? 'none' : t === SCALE_W ? 'translateX(-100%)' : 'translateX(-50%)' }}>
+              {t}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <p className="text-[12px] leading-relaxed mt-2" style={{ color: 'var(--txm)' }}>
+        {de
+          ? `Reibungsverlust in der Kette, in Watt, bei ${w.inputW} W Tretleistung. Die Spanne reicht von frisch behandelt bis Intervallende.`
+          : `Friction loss in the chain, in watts, at ${w.inputW} W pedalling power. The range runs from freshly treated to end of interval.`}
+      </p>
     </div>
   );
 }
@@ -755,123 +575,180 @@ function ActHead({ eyebrow, title, lede }: { eyebrow: string; title: string; led
   );
 }
 
-// ─── Scroll-driven formula storytelling (desktop only) ──────────────────────
-function FormulaStory({ de }: { de: boolean }) {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const [activeIdx, setActiveIdx] = useState(0);
+// ─── ACT II — "Ein Block, von innen" ────────────────────────────────────────
+//
+// Vorgaenger war FormulaStory: eine 360vh hohe Sektion (COMPONENTS.length *
+// 60vh) mit sticky-Container und eigener Scroll-Mathematik, daneben eine
+// getrennte Mobilfassung mit IntersectionObserver-Karussell. Zusammen rund
+// 4.088 px von 10.753 px Seitenhoehe, also 38 Prozent, fuer sechs
+// Zutatenkarten. Wer dort scrollte, scrollte nicht die Seite, sondern einen
+// Schrittzaehler.
+//
+// Jetzt: eine Figur, eine Liste, eine Fassung fuer alle Breiten. Dieselbe
+// Grammatik wie ContactZones eine Bildschirmhoehe weiter oben und wie
+// FrictionLens auf der Produktseite — Figur und nummerierte Liste
+// nebeneinander, die Zeilen sind echte <button> und damit ohne Zusatzarbeit
+// tastaturbedienbar.
+//
+// DIE VERZAHNUNG STEHT ALS TEXT DA, NICHT ALS KANTE. In science.ts liegen 11
+// recherchierte Beziehungen mit deutschen Namen ("Ko-Kristallisation",
+// "Sterische Huelle", "Gegenspieler"). Der Kantengraph war die falsche Form
+// dafuer, nicht der falsche Inhalt: als Zeile unter der geoeffneten Komponente
+// ist dieselbe Information praeziser, kann nicht ueberlappen und ist
+// vorlesbar. EDGES bleibt deshalb unveraendert in science.ts stehen.
 
-  useEffect(() => {
-    const section = sectionRef.current;
-    if (!section) return;
-    // Coalesce raw scroll events (can fire many times per frame) down to one
-    // layout read + state update per animation frame, and skip the setState
-    // entirely when the computed index hasn't actually changed.
-    let rafId: number | null = null;
-    const compute = () => {
-      rafId = null;
-      const rect = section.getBoundingClientRect();
-      const scrolled = Math.max(0, -rect.top);
-      const maxScroll = section.offsetHeight - window.innerHeight;
-      if (maxScroll <= 0) return;
-      const p = Math.min(1, scrolled / maxScroll);
-      const next = Math.min(COMPONENTS.length - 1, Math.floor(p * COMPONENTS.length));
-      setActiveIdx(prev => (prev === next ? prev : next));
-    };
-    const onScroll = () => {
-      if (rafId === null) rafId = requestAnimationFrame(compute);
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    compute();
-    return () => {
-      window.removeEventListener('scroll', onScroll);
-      if (rafId !== null) cancelAnimationFrame(rafId);
-    };
-  }, []);
+const FIELD_KEYS = ['kristallstruktur', 'matrix', 'winterformel', 'mos2', 'sedimentation', 'antioxidans'] as const;
+const isFieldKey = (id: string): id is FieldKey => (FIELD_KEYS as readonly string[]).includes(id);
 
-  const scrollToComponent = (id: string) => {
-    const idx = COMPONENTS.findIndex(c => c.id === id);
-    if (idx < 0 || !sectionRef.current) return;
-    const rect = sectionRef.current.getBoundingClientRect();
-    const sectionTop = window.scrollY + rect.top;
-    const maxScroll = sectionRef.current.offsetHeight - window.innerHeight;
-    window.scrollTo({ top: sectionTop + ((idx + 0.5) / COMPONENTS.length) * maxScroll, behavior: 'smooth' });
+/** Alle Kanten, die diese Komponente beruehren, in beide Richtungen. */
+function meshFor(node: number, de: boolean) {
+  return EDGES.flatMap(e => {
+    if (e.from !== node && e.to !== node) return [];
+    const other = COMPONENTS.find(c => c.node === (e.from === node ? e.to : e.from));
+    if (!other) return [];
+    return [{
+      name: de ? other.graphLabelDe : other.graphLabelEn,
+      label: de ? e.labelDe : e.labelEn,
+      balance: !!e.balance,
+    }];
+  });
+}
+
+// "Nimm eine weg": was das Feld dann tut, und woher das belegt ist. Die ersten
+// beiden Zustaende sind KEINE Erfindung, sie stehen als echte
+// Entwicklungsschritte in FAILURES. Der Rest kommt aus dem whyDe der jeweiligen
+// Komponente. Paraffin fehlt hier bewusst: ohne Traegermatrix gibt es keinen
+// Film, es gaebe also keinen Zustand zu zeigen, und einen zu erfinden waere
+// genau das, was diese Seite nicht macht.
+const WITHOUT: Partial<Record<FieldKey, { de: string; en: string; src?: string }>> = {
+  winterformel: {
+    de: 'Die Matrix wird spröde. Biegebelastung reißt den Film auf, er platzt vom Stahl ab.',
+    en: 'The matrix turns brittle. Flexing cracks the film and it spalls off the steel.',
+    src: 'Frühe Formel',
+  },
+  sedimentation: {
+    de: 'Die Plättchen sinken und klumpen unten zusammen. Oben bleibt Wachs ohne Festschmierstoff.',
+    en: 'The platelets sink and clump at the bottom. The top is wax with no solid lubricant.',
+    src: 'Iteration 3',
+  },
+  matrix: {
+    de: 'Der Tropfpunkt fällt. Unter Sommerwärme rundet die Oberfläche ab und wandert weg.',
+    en: 'The drop point falls. Under summer heat the surface rounds off and migrates away.',
+  },
+  mos2: {
+    de: 'Am Stahl entsteht kein Fe–S-Transferfilm. Die Grundlinie bleibt blank.',
+    en: 'No Fe–S transfer film forms on the steel. The baseline stays bare.',
+  },
+  antioxidans: {
+    de: 'Die Partikeloberflächen wandeln sich um, die Matrix oxidiert und wird stumpf.',
+    en: 'Particle surfaces convert, the matrix oxidises and goes dull.',
+  },
+};
+
+function FormulaField({ de }: { de: boolean }) {
+  const [openId, setOpenId] = useState<FieldKey | null>(null);
+  const [missing, setMissing] = useState<FieldKey | null>(null);
+  const { p, ref, replay } = useFieldBuild();
+
+  const pick = (id: FieldKey) => {
+    setOpenId(prev => (prev === id ? null : id));
+    setMissing(null);   // eine geschlossene Zeile darf das Feld nicht kaputt zurücklassen
   };
 
-  const comp = COMPONENTS[activeIdx];
+  const comps = COMPONENTS.filter(c => isFieldKey(c.id));
 
   return (
-    <div ref={sectionRef} className="relative" style={{ height: `${COMPONENTS.length * 60}vh` }}>
-      <div className="sticky top-0 h-screen flex items-center overflow-hidden">
-        {/* Ambient instrument-panel texture behind the whole scroll-story
-            viewport — same dot-grid language as every other diagram on this
-            page, so six long scroll-steps of mostly-empty space read as one
-            deliberate "lab" surface instead of plain white void. */}
-        <div className="absolute inset-0 pointer-events-none" aria-hidden
-          style={{
-            backgroundImage: 'radial-gradient(rgba(var(--accent-rgb),0.10) 1px, transparent 1px)',
-            backgroundSize: '18px 18px',
-            maskImage: 'radial-gradient(ellipse 70% 65% at 68% 50%, black 0%, transparent 75%)',
-            WebkitMaskImage: 'radial-gradient(ellipse 70% 65% at 68% 50%, black 0%, transparent 75%)',
-          }} />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative">
-          <div className="grid lg:grid-cols-[minmax(320px,440px)_1fr] gap-10 xl:gap-14 items-center">
-            {/* LEFT — component info (crossfading) */}
-            <div className="relative" style={{ minHeight: 400 }}>
-              {COMPONENTS.map((c, i) => (
-                <div
-                  key={c.id}
-                  className="absolute inset-0 flex flex-col justify-center"
-                  style={{
-                    opacity: i === activeIdx ? 1 : 0,
-                    transform: `translateY(${i === activeIdx ? 0 : i < activeIdx ? -20 : 20}px)`,
-                    transition: 'opacity 0.5s ease, transform 0.5s ease',
-                    pointerEvents: i === activeIdx ? 'auto' : 'none',
-                  }}
-                >
-                  {/* Step counter */}
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="num text-[28px] font-bold leading-none" style={{ color: 'rgba(var(--accent-rgb),0.18)' }}>
-                      0{i + 1}
-                    </span>
-                    <span className="text-small uppercase tracking-[0.18em]" style={{ color: 'var(--accent-soft)' }}>
-                      {de ? c.roleDe : c.roleEn}
-                    </span>
-                  </div>
-                  {/* Title */}
-                  <h3 className="font-display font-bold text-wx-tx1 leading-[1.05] tracking-[-0.025em]"
-                    style={{ fontSize: 'clamp(1.8rem, 3.2vw, 2.6rem)' }}>
+    <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,430px)] gap-8 xl:gap-12 items-start">
+      {/* ── Die Figur ──────────────────────────────────────────────────── */}
+      <div ref={ref} className="lg:sticky lg:top-24">
+        <InstrumentFrame
+          eyebrow={de ? 'Schnitt durch den Film' : 'Section through the film'}
+          chip={<span className="num-data">~1 µm</span>}
+          footer={
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <span className="text-[11.5px]" style={{ color: 'var(--txf)' }}>
+                {missing
+                  ? (de ? 'Zustand ohne eine Komponente' : 'State without one component')
+                  : (de ? 'Schematisch, Lamellen überhöht' : 'Schematic, lamellae exaggerated')}
+              </span>
+              <button type="button" onClick={replay}
+                className="text-[11.5px] font-semibold transition-opacity hover:opacity-70"
+                style={{ color: 'var(--accent)' }}>
+                {de ? 'Erstarrung noch einmal' : 'Replay solidification'}
+              </button>
+            </div>
+          }>
+          <WaxField de={de} active={openId} missing={missing} progress={p} />
+        </InstrumentFrame>
+      </div>
+
+      {/* ── Die sechs Zeilen ───────────────────────────────────────────── */}
+      <ol className="m-0 p-0 list-none">
+        {comps.map((c, i) => {
+          const id = c.id as FieldKey;
+          const open = openId === id;
+          const mesh = meshFor(c.node, de);
+          const without = WITHOUT[id];
+          return (
+            <li key={c.id} id={c.id} className="scroll-mt-24"
+              style={{ borderTop: i === 0 ? '1px solid var(--bd2)' : undefined, borderBottom: '1px solid var(--bd2)' }}>
+              <button type="button" onClick={() => pick(id)} aria-expanded={open}
+                className="w-full text-left py-3.5 flex items-baseline gap-3 transition-opacity hover:opacity-75">
+                <span className="num text-[12px] flex-shrink-0" style={{ color: 'var(--txf)' }}>0{i + 1}</span>
+                <span className="flex-1 min-w-0">
+                  <span className="block text-[15px] font-semibold" style={{ color: open ? 'var(--accent)' : 'var(--tx1)' }}>
                     {de ? c.nameDe : c.nameEn}
-                  </h3>
-                  {/* Accent line + metric */}
-                  <div className="flex items-center gap-4 mt-3 mb-5">
-                    <div className="h-[2px] w-10 rounded-full" style={{ background: 'var(--accent)' }} />
-                    <span className="num-data font-semibold text-[14px]" style={{ color: 'var(--accent-soft)' }}>
-                      {c.metric}
-                    </span>
-                  </div>
-                  {/* Summary */}
-                  <p className="text-[15px] leading-relaxed text-wx-tx2 max-w-[38ch]">
-                    {de ? c.sumDe : c.sumEn}
-                  </p>
-                  {/* Expandable details */}
-                  <div className="mt-2">
+                  </span>
+                  <span className="block text-[12px] mt-0.5" style={{ color: 'var(--txm)' }}>
+                    {de ? c.roleDe : c.roleEn}
+                  </span>
+                </span>
+                <span className="num-data text-[12.5px] flex-shrink-0" style={{ color: 'var(--accent-soft)' }}>{c.metric}</span>
+              </button>
+
+              {/* visibility (nicht nur overflow: hidden) schaltet den
+                  eingeklappten Inhalt wirklich ab. Mit grid-template-rows: 0fr
+                  allein ist er unsichtbar, aber weiterhin im Tab-Fokus und
+                  anklickbar — beim Testen liess sich der "Feld ohne …"-Knopf
+                  einer GESCHLOSSENEN Zeile ausloesen und das Feld aenderte
+                  sich, ohne dass irgendwo etwas aufging. visibility springt
+                  am Ende der Animation, das Aufklappen bleibt weich. */}
+              <div style={{ display: 'grid', gridTemplateRows: open ? '1fr' : '0fr',
+                visibility: open ? 'visible' : 'hidden',
+                transition: 'grid-template-rows 0.4s cubic-bezier(0.22,1,0.36,1), visibility 0.4s' }}>
+                <div className="overflow-hidden">
+                  <div className="pb-5 pl-[30px]">
+                    <p className="text-[13.5px] leading-relaxed" style={{ color: 'var(--tx2)' }}>
+                      {de ? c.sumDe : c.sumEn}
+                    </p>
+
+                    {/* Die Verzahnung, aus EDGES statt aus einer Kante. */}
+                    {mesh.length > 0 && (
+                      <p className="text-[12px] leading-relaxed mt-3" style={{ color: 'var(--txm)' }}>
+                        <span className="font-semibold" style={{ color: 'var(--tx1)' }}>
+                          {de ? 'Greift ineinander mit ' : 'Interlocks with '}
+                        </span>
+                        {mesh.map((m, j) => (
+                          <span key={j}>
+                            {j > 0 && ' · '}
+                            {m.name}
+                            <span style={{ color: 'var(--txf)' }}>
+                              {' '}{m.balance ? '⇄' : '→'} {m.label}
+                            </span>
+                          </span>
+                        ))}
+                      </p>
+                    )}
+
                     <Disclosure label={de ? 'Warum das zählt' : 'Why it matters'}>
                       <p className="text-[13px] leading-relaxed pt-3" style={{ color: 'var(--txm)' }}>
                         {de ? c.whyDe : c.whyEn}
                       </p>
                     </Disclosure>
                     <Disclosure label={de ? 'Die Physik' : 'The physics'}>
-                      {/* This step is pinned to a single h-screen viewport while
-                          scrolling through the formula, with overflow-hidden on
-                          the ancestor — unlike "Warum das zählt", the physics
-                          text plus diagram plus insight routinely add up to more
-                          than the space left in that viewport, and were getting
-                          silently clipped at the bottom instead of shown. Scoped
-                          scroll on just this panel instead of fighting the pin. */}
-                      <div className="pt-3 pr-2 space-y-3 overflow-y-auto" style={{ maxHeight: '38vh' }}
-                        tabIndex={0} role="region" aria-label={de ? 'Physik-Details' : 'Physics details'}>
-                        {(de ? c.physicsDe : c.physicsEn).map((p, j) => (
-                          <p key={j} className="text-[13px] leading-relaxed" style={{ color: 'var(--txm)' }}>{p}</p>
+                      <div className="pt-3 space-y-3">
+                        {(de ? c.physicsDe : c.physicsEn).map((t, j) => (
+                          <p key={j} className="text-[13px] leading-relaxed" style={{ color: 'var(--txm)' }}>{t}</p>
                         ))}
                         <ComponentDiagram which={c.diagram} de={de} />
                         <Insight>{de ? c.insightDe : c.insightEn}</Insight>
@@ -883,93 +760,46 @@ function FormulaStory({ de }: { de: boolean }) {
                         Mehr im Ratgeber: MoS₂ im Kettenwachs
                       </ReadMoreLink>
                     )}
+
+                    {/* ── "Nimm eine weg" ─────────────────────────────── */}
+                    <div className="mt-4 pt-3" style={{ borderTop: '1px solid var(--bd2)' }}>
+                      {without ? (
+                        <>
+                          <button type="button"
+                            onClick={() => setMissing(m => (m === id ? null : id))}
+                            aria-pressed={missing === id}
+                            className="text-[12px] font-semibold transition-opacity hover:opacity-70"
+                            style={{ color: missing === id ? 'var(--tx1)' : 'var(--accent)' }}>
+                            {missing === id
+                              ? (de ? '← Zurück zur fertigen Formel' : '← Back to the finished formula')
+                              : (de ? `Feld ohne ${de ? c.nameDe : c.nameEn} zeigen` : `Show the field without ${c.nameEn}`)}
+                          </button>
+                          {missing === id && (
+                            <p className="text-[12.5px] leading-relaxed mt-2" style={{ color: 'var(--tx2)' }}>
+                              {de ? without.de : without.en}
+                              {without.src && (
+                                <span style={{ color: 'var(--txf)' }}>
+                                  {' '}{de ? `Genau so passiert, ${without.src}.` : `Exactly what happened, ${without.src}.`}
+                                </span>
+                              )}
+                            </p>
+                          )}
+                        </>
+                      ) : (
+                        <p className="text-[12.5px] leading-relaxed" style={{ color: 'var(--txf)' }}>
+                          {de
+                            ? 'Ohne Trägermatrix gibt es keinen Film, also auch kein Feld, das sich zeigen ließe. Diese eine Komponente ist nicht wegzudenken.'
+                            : 'Without the carrier matrix there is no film, so there is no state to show. This one component cannot be removed.'}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
-              ))}
-            </div>
-
-            {/* RIGHT — FormulaGraph */}
-            <div className="relative">
-              <div className="absolute inset-0 -m-8 pointer-events-none"
-                style={{
-                  background: 'radial-gradient(ellipse 70% 60% at 50% 45%, var(--accent-wash-sm) 0%, transparent 70%)',
-                  filter: 'blur(24px)',
-                }} />
-              <FormulaGraph de={de} onSelect={scrollToComponent} scrollFocus={comp.node} compact />
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom navigation — sibling of the max-w-7xl content wrapper (not
-            nested inside it), so "absolute bottom-8" anchors to the sticky
-            viewport's fixed h-screen height instead of the grid's own height.
-            Nested inside the grid, this nav's position tracked whichever
-            column was tallest — when FormulaGraph rendered taller than the
-            left panel's 400px minHeight, bottom-8 landed mid-graph instead
-            of below it, overlapping node labels near the bottom of the
-            viewBox (e.g. Dispersant/Antioxidant). */}
-        <div className="absolute bottom-8 left-0 right-0 flex flex-col items-center gap-3">
-          {/* Prev/next arrows flanking the dots — the dots alone read as a
-              progress indicator, not something to click, and "Scrollen zum
-              Erkunden" only ever shows on step 1 (see below), so from step 2
-              on there was no visible cue that this section keeps going.
-              Arrows reuse the same scrollToComponent() the dots and graph
-              nodes already call — no new navigation mechanism, just another
-              visible entry point into it. */}
-          <div className="flex items-center gap-4">
-            <button type="button"
-              onClick={() => activeIdx > 0 && scrollToComponent(COMPONENTS[activeIdx - 1].id)}
-              disabled={activeIdx === 0}
-              aria-label={de ? 'Vorherige Komponente' : 'Previous component'}
-              className="flex items-center justify-center w-8 h-8 rounded-full transition-opacity disabled:pointer-events-none active:scale-[0.97]"
-              style={{
-                color: 'var(--accent)', background: 'var(--accent-wash)',
-                border: '1px solid rgba(var(--accent-rgb),0.22)',
-                opacity: activeIdx === 0 ? 0.3 : 1,
-              }}>
-              <ArrowLeft className="h-4 w-4" />
-            </button>
-
-            <div className="flex items-center gap-2.5">
-              {COMPONENTS.map((c, i) => (
-                <button key={c.id} onClick={() => scrollToComponent(c.id)}
-                  aria-label={de ? c.nameDe : c.nameEn}
-                  className="group flex flex-col items-center gap-1.5"
-                >
-                  <span className="rounded-full transition-all duration-300"
-                    style={{
-                      width: i === activeIdx ? 24 : 8,
-                      height: 8,
-                      background: i === activeIdx ? 'var(--accent)' : i < activeIdx ? 'rgba(var(--accent-rgb),0.35)' : 'var(--bd)',
-                    }}
-                  />
-                  <span className="text-meta uppercase tracking-[0.14em] transition-opacity duration-300"
-                    style={{ color: 'var(--txf)', opacity: i === activeIdx ? 1 : 0 }}>
-                    {de ? c.graphLabelDe : c.graphLabelEn}
-                  </span>
-                </button>
-              ))}
-            </div>
-
-            <button type="button"
-              onClick={() => activeIdx < COMPONENTS.length - 1 && scrollToComponent(COMPONENTS[activeIdx + 1].id)}
-              disabled={activeIdx === COMPONENTS.length - 1}
-              aria-label={de ? 'Nächste Komponente' : 'Next component'}
-              className="flex items-center justify-center w-8 h-8 rounded-full transition-opacity disabled:pointer-events-none active:scale-[0.97]"
-              style={{
-                color: 'var(--accent)', background: 'var(--accent-wash)',
-                border: '1px solid rgba(var(--accent-rgb),0.22)',
-                opacity: activeIdx === COMPONENTS.length - 1 ? 0.3 : 1,
-              }}>
-              <ArrowRight className="h-4 w-4" />
-            </button>
-          </div>
-          <span className="text-meta tracking-[0.12em] uppercase transition-opacity duration-700"
-            style={{ color: 'var(--txf)', opacity: activeIdx === 0 ? 0.7 : 0 }}>
-            {de ? 'Scrollen zum Erkunden' : 'Scroll to explore'}
-          </span>
-        </div>
-      </div>
+              </div>
+            </li>
+          );
+        })}
+      </ol>
     </div>
   );
 }
@@ -987,48 +817,6 @@ export function SciencePage() {
 
   const scrollToAnchor = (id: string) =>
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-  // Mobile formula section: tapping a node used to scroll the page down to
-  // a full stack of all 6 detail cards, always fully expanded below the
-  // graph — cramped, and required scrolling to read something the graph
-  // itself was already pointing at. Now a horizontal snap-carousel sits
-  // directly under the (height-capped) graph, one CompCard per component:
-  // swiping updates which node the graph highlights, and tapping a node
-  // scrolls the carousel to match — one screen, two ways to browse the same
-  // six components. Defaults to the first component so nothing is empty
-  // before anyone has swiped or tapped.
-  const [mobileCompId, setMobileCompId] = useState(COMPONENTS[0]?.id ?? null);
-  const carouselRef = useRef<HTMLDivElement>(null);
-  const panelRefs = useRef<Record<string, HTMLDivElement | null>>({});
-
-  // Swipe -> graph focus. IntersectionObserver (not a scroll listener) so
-  // this fires once per settled panel instead of on every scroll frame, and
-  // reports whichever panel is most centred regardless of whether the user
-  // swiped or a node-tap scrolled the carousel there itself (see
-  // jumpToMobileComp below) — either way, "most visible panel" is correct.
-  useEffect(() => {
-    const root = carouselRef.current;
-    if (!root) return;
-    const obs = new IntersectionObserver((entries) => {
-      const best = entries
-        .filter(e => e.isIntersecting)
-        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-      const id = best?.target instanceof HTMLElement ? best.target.dataset.compId : undefined;
-      if (id) setMobileCompId(prev => (prev === id ? prev : id));
-    }, { root, threshold: [0.6] });
-    Object.values(panelRefs.current).forEach(el => el && obs.observe(el));
-    return () => obs.disconnect();
-  }, []);
-
-  // Graph tap -> carousel scroll. Called directly from FormulaGraph's
-  // onSelect instead of via a useEffect keyed on mobileCompId — an effect
-  // would also fire after the IntersectionObserver's own setMobileCompId
-  // (i.e. after every swipe), re-issuing a scrollIntoView the user had
-  // already just produced themselves.
-  const jumpToMobileComp = (id: string) => {
-    setMobileCompId(id);
-    panelRefs.current[id]?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-  };
 
   const title = de
     ? 'Die Wissenschaft hinter Heißwachs — MoS₂, Reibung & Formel | Waxcelerate'
@@ -1115,102 +903,8 @@ export function SciencePage() {
           />
         </div>
 
-        {/* Desktop: scroll-driven storytelling */}
-        <div className="hidden lg:block">
-          <FormulaStory de={de} />
-        </div>
-
-        {/* Mobile: graph + swipeable carousel, one screen ─────────────────
-            2026-09 revision. Previously the graph sat in its own
-            InstrumentFrame block, and a single CompCard for the tapped
-            component sat in a SEPARATE block below it — measured at
-            393px + 329px on a 375-wide device, never simultaneously
-            visible on anything shorter than a 812px-tall phone, and no
-            affordance signalled that the card below could change at all
-            (only tapping a graph node revealed that). Now both live in one
-            InstrumentFrame: the graph is height-capped (clamp 220-320px)
-            so it can never push the carousel off-screen, and the carousel
-            itself peeks the next card's edge so swiping reads as available
-            before anyone tries it. */}
-        <div className="lg:hidden">
-          {/* Mobile-Plan B7f: InstrumentFrame startet vor dem Scroll-Trigger
-              per gsap.set() in einem rotateX(9deg)/perspective(700px)-Zustand
-              (siehe InstrumentFrame.tsx) — der Karte selbst hilft ihr eigenes
-              overflow-hidden dabei nichts, weil sie ihre eigene
-              Rendering-Kante nicht gegen sich selbst clippen kann. Das
-              erzeugt schon vor jedem Scrollen ~4px echten Dokument-Overflow
-              (bestaetigt: 4px vor dem Scrollen zu #formel, 0px danach,
-              sobald der Trigger feuert und transform zurueckgesetzt wird)
-              und damit das iOS-Rubber-Band-Wippen beim seitlichen Wischen.
-              overflow-x-clip (nicht overflow-x-hidden) auf dem Wrapper eine
-              Ebene hoeher faengt das ab, ohne die Animation selbst
-              anzufassen. hidden wuerde denselben X-Overflow zwar auch
-              schneiden, stuft dabei aber laut Spec die andere Achse von
-              overflow-y: visible auf auto hoch — der gekippte, nach unten
-              versetzte Frame zaehlte dann schon vor seinem eigenen Reveal als
-              vertikaler Overflow dieses Wrappers, und der Browser zeichnete
-              genau in dem Moment eine Scrollbar. clip laesst overflow-y in
-              Ruhe. */}
-          {/* Der Graph laeuft auf Mobil bis an die Bildschirmkanten statt in
-              der Textspalte zu stehen. Die Figur ist 700x480 breit angelegt
-              und wurde vorher auf die Spaltenbreite minus 2x16px Innenabstand
-              der Seite minus den Innenabstand des InstrumentFrame
-              heruntergerechnet — auf einem 390px-Geraet blieben davon rund
-              310px, auf denen sechs beschriftete Knoten und ihre Kanten
-              unterzubringen waren. Das ist die Ursache des gedraengten
-              Eindrucks, nicht die Figur selbst. Der negative Aussenabstand
-              hebt die Seitenpolsterung genau auf und gibt der Figur die volle
-              Bildschirmbreite; ab sm: steht wieder alles wie vorher. */}
-          <div className="pb-5 overflow-x-clip">
-            <div className="-mx-4 sm:mx-auto sm:max-w-4xl sm:px-6 lg:px-8">
-              <InstrumentFrame eyebrow={de ? 'Antippen oder wischen' : 'Tap or swipe'}>
-                {/* Height-capped so the graph can never crowd the carousel
-                    below it off-screen — aspect-ratio derives the matching
-                    width from that height, and w-full/h-auto inside then
-                    exactly fills it (FormulaGraph itself is untouched, still
-                    sized by its own viewBox aspect for the desktop story). */}
-                <div className="mx-auto" style={{ height: 'clamp(200px, 34vh, 300px)', aspectRatio: '520 / 490', maxWidth: '100%' }}>
-                  <FormulaGraph de={de} onSelect={jumpToMobileComp} compact mobile />
-                </div>
-              </InstrumentFrame>
-            </div>
-          </div>
-
-          {/* Snap-carousel — one CompCard per component, ~86% width so the
-              next card's edge peeks in as the swipe cue. scroll-px-4 keeps
-              the peeking edge readable against the page's own px-4 gutter
-              instead of running edge-to-edge like the graph above it. */}
-          <div ref={carouselRef}
-            className="flex gap-3 overflow-x-auto px-4 pb-2"
-            style={{ scrollSnapType: 'x mandatory', scrollPaddingLeft: 16 }}>
-            {COMPONENTS.map((c, i) => (
-              <div key={c.id}
-                ref={el => { panelRefs.current[c.id] = el; }}
-                data-comp-id={c.id}
-                className="flex-shrink-0"
-                style={{ width: '86%', maxWidth: 360, scrollSnapAlign: 'center' }}>
-                <CompCard c={c} n={i + 1} de={de} compact />
-              </div>
-            ))}
-          </div>
-          {/* Position dots — mirrors the desktop story's dot pagination so
-              the two experiences read as the same feature, not two
-              unrelated widgets. Tapping one jumps the carousel directly
-              instead of requiring three swipes. */}
-          <div className="flex items-center justify-center mt-1 pb-6">
-            {/* p-[9px]: der sichtbare Punkt bleibt 6 px, die Trefferfläche wird 24 px (WCAG 2.5.8). */}
-            {COMPONENTS.map(c => (
-              <button key={c.id} type="button" onClick={() => jumpToMobileComp(c.id)}
-                aria-label={de ? c.nameDe : c.nameEn}
-                className="p-[9px]">
-                <span className="block rounded-full transition-all duration-300"
-                  style={{
-                    width: mobileCompId === c.id ? 20 : 6, height: 6,
-                    background: mobileCompId === c.id ? 'var(--accent)' : 'var(--bd)',
-                  }} />
-              </button>
-            ))}
-          </div>
+        <div className={`${W} pb-14`}>
+          <FormulaField de={de} />
         </div>
 
         {/* Below: full-width deep-dive sections. Mobile-Plan (real feedback,
@@ -1270,11 +964,17 @@ export function SciencePage() {
             bars + folded-in outcome stats on the left, StandstillFilm on the
             right), so the section doesn't run so tall. StandstillFilm's SVG
             (viewBox 360×190) scales down at half width and still reads.
-            items-stretch (default) rather than items-start: the two panels
-            are of different natural height, and stretching them to the row
-            reads as a pair of same-size devices instead of one panel with a
-            bare gap under it. */}
-        <div className="grid lg:grid-cols-2 gap-4 mb-4">
+
+            2026-09-16: items-start statt items-stretch. Die Begruendung fuer
+            das Strecken war, dass zwei gleich hohe Geraete besser aussehen als
+            eines mit einer Luecke darunter. Das galt, solange die natuerlichen
+            Hoehen nahe beieinander lagen. Mit dem Umbau der Balken auf Watt ist
+            das linke Panel deutlich kuerzer geworden, und gestreckt stand die
+            Leere dann INNERHALB des Rahmens: rund eine halbe Panelhoehe
+            gepunktetes Raster unter dem letzten Element. Eine Luecke zwischen
+            zwei Karten liest sich als Layout, eine Luecke in einem
+            Instrumentenrahmen liest sich als fehlender Inhalt. */}
+        <div className="grid lg:grid-cols-2 gap-4 mb-4 items-start">
           <InstrumentFrame eyebrow={de ? 'Reibung' : 'Friction'}
             footer={
               <>
@@ -1301,7 +1001,7 @@ export function SciencePage() {
               </>
             }
           >
-            <FrictionBars de={de} />
+            <FrictionWatts de={de} />
           </InstrumentFrame>
 
           {/* Signature visual — why a joint runs boundary-lubricated (the payoff) */}

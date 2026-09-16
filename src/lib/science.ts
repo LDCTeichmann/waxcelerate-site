@@ -1,16 +1,24 @@
 // ─── Science-page editorial content ──────────────────────────────────────────
 // Recovered depth: the "why" behind each component, the relationship graph, and
-// the development-iteration story. Bilingual (de/en). Consumed by SciencePage +
-// FormulaGraph. (Editorial science copy — distinct from product SKU data.)
+// the development-iteration story. Bilingual (de/en). Consumed by SciencePage,
+// WaxField, WaxFormulaPanel and — untyped, so mind the shape — the prerender
+// scripts generate-blog-html.mjs and generate-llms-txt.mjs.
+// (Editorial science copy — distinct from product SKU data.)
 
 export type DiagramKey =
   | 'lamellar' | 'droplift' | 'coldflex' | 'shear' | 'density' | 'radical'
   | 'ptfe' | 'stearin';
 
 export interface ScienceComponent {
-  node: number;          // graph node id (1–6), referenced by EDGES
+  node: number;          // stabile Id (1–6). Referenziert von EDGES und
+                         // FORMULA_STORY, und generate-llms-txt.mjs sortiert danach.
   id: string;            // anchor / deep-link target
-  graphLabelDe: string; graphLabelEn: string;  // short label for the graph
+  // Kurzname. Hiess so, weil er in einen Knoten des Kanten-Graphen passen
+  // musste; der ist weg, und der Name steht jetzt in einem Satz ("Greift
+  // ineinander mit …", siehe meshFor in SciencePage.tsx). Deshalb ist
+  // 'Mikrokris.' zu 'Mikrokristallin' geworden: der Platzmangel, der die
+  // Abkuerzung erzwungen hat, existiert nicht mehr.
+  graphLabelDe: string; graphLabelEn: string;
   nameDe: string; nameEn: string;
   roleDe: string; roleEn: string;
   metric: string;
@@ -22,20 +30,6 @@ export interface ScienceComponent {
   physicsDe: string[]; physicsEn: string[];
   insightDe: string; insightEn: string;
   diagram: DiagramKey;
-  // Graph geometry — radial layout (2026-09 revision, see FormulaGraph's ring
-  // guides): three functional tiers around a shared centre (350, 240) in the
-  // original 700x480 space. CENTRE — MoS2 (r 56, node 4): the actual solid
-  // lubricant, the only thing that lowers friction. MID ring (r 150) — the
-  // three components that BUILD the film MoS2 sits in: Paraffin (node 1,
-  // top), FT-Wachs (node 2, upper-left, the hardener) and Mikrokristallin
-  // (node 3, upper-right, the plasticiser) — deliberately opposite each other
-  // across the top arc, because they are the formula's central tension (see
-  // the new 'Gegenspieler' edge between them). OUTER ring (r 200, lower arc)
-  // — Dispersant (node 5) and Antioxidans (node 6): they don't lubricate or
-  // build film, they keep 1-4 usable over time. Position now encodes role;
-  // previously cx/cy was a grown, meaning-free scatter (Paraffin top, MoS2
-  // oversized centre, everything else wherever it fit).
-  cx: number; cy: number; r: number;
 }
 
 export const COMPONENTS: ScienceComponent[] = [
@@ -62,7 +56,7 @@ export const COMPONENTS: ScienceComponent[] = [
     ],
     insightDe: 'Das enge Erstarrungsfenster ist der Schlüssel zur Batch-Konsistenz — und damit zur gleichmäßigen Performance jedes Blocks.',
     insightEn: 'The narrow solidification window is the key to batch consistency — every block performing identically.',
-    diagram: 'lamellar', cx: 350, cy: 90, r: 40,
+    diagram: 'lamellar',
   },
   {
     node: 2, id: 'matrix',
@@ -85,11 +79,11 @@ export const COMPONENTS: ScienceComponent[] = [
     ],
     insightDe: 'Tests mit höherer Konzentration zeigten keine messbare Verbesserung. Das Optimum liegt unter dem, was man intuitiv erwarten würde.',
     insightEn: 'Tests at higher concentrations showed no measurable improvement. The optimum is lower than you\'d intuitively expect.',
-    diagram: 'droplift', cx: 209, cy: 188.7, r: 35,
+    diagram: 'droplift',
   },
   {
     node: 3, id: 'winterformel',
-    graphLabelDe: 'Mikrokris.', graphLabelEn: 'Microcris.',
+    graphLabelDe: 'Mikrokristallin', graphLabelEn: 'Microcrystalline',
     nameDe: 'Mikrokristallines Wachs', nameEn: 'Microcrystalline wax',
     roleDe: 'Plastifizierer', roleEn: 'Plastifier', metric: '−8 °C',
     sumDe: 'Verzweigte und zyklische Naphthene füllen die amorphen Zonen zwischen den Paraffinlamellen — die Matrix bleibt bei Frost elastisch bis −8 °C, kein Verspröden, kein Abplatzen.',
@@ -108,15 +102,22 @@ export const COMPONENTS: ScienceComponent[] = [
     ],
     insightDe: 'Ursprünglich höher konzentriert. Die Reduzierung war möglich, weil gleichzeitig der MoS₂-Anteil überarbeitet wurde.',
     insightEn: 'Originally at higher concentration. The reduction was possible because MoS₂ loading was revised simultaneously.',
-    diagram: 'coldflex', cx: 491, cy: 188.7, r: 35,
+    diagram: 'coldflex',
   },
   {
+    // 2026-09-16: das "in trockener Luft" bzw. "trocken" an der mu-Zahl ist
+    // keine Floskel. MoS2 erreicht 0,03 unter Grenzschmierung in trockener
+    // Luft; in feuchter Luft lagert sich Wasser an die Kanten der Basalebenen
+    // an und der Wert steigt deutlich. Seit dem Umbau von FrictionWatts ist
+    // das die einzige mu-Zahl, die die Seite noch fuehrt, und sie geht ueber
+    // COMPONENTS auch in llms-full.txt und den vorgerenderten Rumpf — die
+    // Bedingung muss also hier stehen, nicht nur im Fliesstext daneben.
     node: 4, id: 'mos2',
     graphLabelDe: 'MoS₂', graphLabelEn: 'MoS₂',
     nameDe: 'Molybdändisulfid (MoS₂)', nameEn: 'Molybdenum disulfide (MoS₂)',
-    roleDe: 'Festschmierstoff', roleEn: 'Solid lubricant', metric: 'μ 0,03',
-    sumDe: 'Hexagonale MoS₂-Kristallite (P6₃/mmc, < 5 µm) scheren unter Kontaktdruck entlang der van-der-Waals-Ebenen und bilden einen Fe–S-Transferfilm auf dem Stahl — Grenzreibung bis μ 0,03.',
-    sumEn: 'Hexagonal MoS₂ crystallites (P6₃/mmc, < 5 µm) shear along the van der Waals planes under contact pressure and form an Fe–S transfer film on the steel — boundary friction down to μ 0.03.',
+    roleDe: 'Festschmierstoff', roleEn: 'Solid lubricant', metric: 'μ 0,03 trocken',
+    sumDe: 'Hexagonale MoS₂-Kristallite (P6₃/mmc, < 5 µm) scheren unter Kontaktdruck entlang der van-der-Waals-Ebenen und bilden einen Fe–S-Transferfilm auf dem Stahl — Grenzreibung bis μ 0,03 in trockener Luft.',
+    sumEn: 'Hexagonal MoS₂ crystallites (P6₃/mmc, < 5 µm) shear along the van der Waals planes under contact pressure and form an Fe–S transfer film on the steel — boundary friction down to μ 0.03 in dry air.',
     whyDe: 'MoS₂ besteht aus S–Mo–S-Schichten, deren Interlayer-Bindungsenergie nur ~0,55 J/m² beträgt. Unter Druck (50–300 MPa) scheren die Schichten ab und lagern sich als 2–5 nm dünner Transferfilm auf der Metalloberfläche ab, verankert durch tribochemische Fe–S-Bindungen. Das senkt die Grenzreibung weit unter die von Öl.',
     whyEn: 'MoS₂ is built from S–Mo–S layers with an interlayer binding energy of only ~0.55 J/m². Under pressure (50–300 MPa) the layers shear and deposit as a 2–5 nm transfer film on the metal surface, anchored by tribochemical Fe–S bonds. This drops boundary friction well below oil.',
     physicsDe: [
@@ -133,7 +134,7 @@ export const COMPONENTS: ScienceComponent[] = [
     ],
     insightDe: 'Der Transferfilm ist der eigentliche Schmierstoff — das Wachs ist nur das Trägervehikel. Die tribochemischen Fe–S-Bindungen verankern die MoS₂-Nanoblätter dauerhaft auf dem Stahl — sie schmieren noch, wenn der Block längst aufgebraucht ist.',
     insightEn: 'The transfer film is the actual lubricant — the wax is just the delivery vehicle. Tribochemical Fe–S bonds permanently anchor the MoS₂ nanosheets on the steel — they continue lubricating long after the block is spent.',
-    diagram: 'shear', cx: 350, cy: 240, r: 56,
+    diagram: 'shear',
   },
   {
     node: 5, id: 'sedimentation',
@@ -156,7 +157,7 @@ export const COMPONENTS: ScienceComponent[] = [
     ],
     insightDe: 'Ohne Dispergiermittel variiert die MoS₂-Konzentration durch den Block. Der erste Rewax-Vorgang wäre anders als der zwanzigste. Das ist nicht akzeptabel.',
     insightEn: 'Without dispersant, MoS₂ concentration varies through the block. The first rewax would perform differently from the twentieth. Unacceptable.',
-    diagram: 'density', cx: 186.2, cy: 354.7, r: 35,
+    diagram: 'density',
   },
   {
     node: 6, id: 'antioxidans',
@@ -181,7 +182,7 @@ export const COMPONENTS: ScienceComponent[] = [
     ],
     insightDe: 'Das Antioxidans schützt nicht nur das Wachs, sondern auch den Festschmierstoff. Eine Komponente, die zwei Versagensmodi gleichzeitig verhindert — Matrixversprödung und MoS₂ → MoO₃-Degradation.',
     insightEn: 'The antioxidant protects not just the wax, but also the solid lubricant. One component preventing two failure modes — matrix embrittlement and MoS₂ → MoO₃ degradation.',
-    diagram: 'radical', cx: 513.8, cy: 354.7, r: 35,
+    diagram: 'radical',
   },
 ];
 
@@ -222,42 +223,46 @@ export const EDGES: ScienceEdge[] = [
 
 // ─── Story-led build — the narrated assembly of the Pro recipe ────────────────
 // Each step focuses one component and draws the relationship(s) that connect it to
-// what's already on the stage. FormulaGraph plays this as a guided build (spine
-// first, then each spoke), one relationship at a time — which is also why the hub
-// pills never stack. `edges` holds indices into EDGES above.
+// what's already on the stage.
+//
+// 2026-09-16: das Feld `edges` (Indizes in EDGES) ist weg. Es sagte dem
+// Kantengraphen, welche Linie er in welchem Schritt zeichnen soll. Den Graphen
+// gibt es nicht mehr, und die Beziehungen selbst stehen jetzt als Text unter
+// der geoeffneten Komponente, gefiltert direkt aus EDGES (siehe meshFor in
+// SciencePage.tsx). EDGES ist deshalb unveraendert geblieben: der Inhalt war
+// nie das Problem, die Darstellung war es.
 export interface FormulaStep {
   node: number;        // component introduced / focused this step (node id)
-  edges: number[];     // EDGES indices drawn + highlighted this step
   captionDe: string; captionEn: string;
 }
 export const FORMULA_STORY: FormulaStep[] = [
   {
-    node: 1, edges: [],
+    node: 1,
     captionDe: 'Alles beginnt mit der Trägermatrix: vollraffiniertes Paraffin (C₂₀–C₃₆) erstarrt bei 58–60 °C zu einem orthorhombischen Kristallgitter aus rund 4 bis 5 nm dünnen Lamellen — und schließt jedes weitere Molekül in dieses Skelett ein.',
     captionEn: 'It all starts with the carrier matrix: fully refined paraffin (C₂₀–C₃₆) solidifies at 58–60 °C into an orthorhombic crystal lattice of lamellae roughly 4 to 5 nm thick — locking every other molecule into this scaffold.',
   },
   {
-    node: 4, edges: [2],
+    node: 4,
     captionDe: 'In die Matrix eingebettet sitzt das Herz der Formel — MoS₂ mit hexagonaler P6₃/mmc-Kristallstruktur. Unter 50–300 MPa Kontaktdruck scheren die S–Mo–S-Schichten und bilden einen 2–5 nm dünnen Fe–S-Transferfilm auf dem Stahl.',
     captionEn: 'Embedded in the matrix sits the heart of the formula — MoS₂ with hexagonal P6₃/mmc crystal structure. Under 50–300 MPa contact pressure, the S–Mo–S layers shear and deposit a 2–5 nm Fe–S transfer film on the steel.',
   },
   {
-    node: 2, edges: [0, 6],
+    node: 2,
     captionDe: 'Fischer-Tropsch-Wachs (>90 % Kristallinität) ko-kristallisiert mit dem Paraffin und hebt den Tropfpunkt auf ~75 °C. Das stabilisiert auch die MoS₂-Einbettung — die Matrix hält die Partikel unter Sommerlast an Ort und Stelle.',
     captionEn: 'Fischer–Tropsch wax (>90% crystallinity) co-crystallises with the paraffin and lifts the drop point to ~75 °C. This also stabilises the MoS₂ embedding — the matrix keeps particles in place under summer load.',
   },
   {
-    node: 3, edges: [1, 3, 9],
+    node: 3,
     captionDe: 'Mikrokristallines Wachs — verzweigte und zyklische Naphthene — füllt die amorphen Zonen zwischen den Paraffinlamellen. Dreifache Funktion: Plastifizierung bis −8 °C, stärkere van-der-Waals-Haftung auf Stahl und mechanische Einbettung der MoS₂-Partikel.',
     captionEn: 'Microcrystalline wax — branched and cyclic naphthenes — fills the amorphous zones between paraffin lamellae. Triple function: plasticisation to −8 °C, stronger van der Waals adhesion to steel, and mechanical embedding of the MoS₂ particles.',
   },
   {
-    node: 5, edges: [4, 8],
+    node: 5,
     captionDe: 'MoS₂ ist 5,6× dichter als Wachs (5,06 vs. 0,9 g/cm³) — nach Stokes\' Gesetz sinkt es in Minuten. Ein amphiphiler Fettsäureester legt eine sterische Hülle um jedes Partikel. Entropischer Widerstand verhindert Agglomeration und Sedimentation.',
     captionEn: 'MoS₂ is 5.6× denser than wax (5.06 vs. 0.9 g/cm³) — per Stokes\' law it sinks in minutes. An amphiphilic fatty acid ester wraps each particle in a steric shell. Entropic resistance prevents agglomeration and sedimentation.',
   },
   {
-    node: 6, edges: [5, 7],
+    node: 6,
     captionDe: 'Ein gehindertes Phenol doniert H-Atome an Peroxylradikale (ROO•) und bricht die Oxidationskaskade. Doppelter Schutz: verhindert MoS₂ → MoO₃-Umwandlung (Mo⁴⁺ → Mo⁶⁺) und schützt die Wachsmatrix selbst vor Autooxidation und Versprödung.',
     captionEn: 'A hindered phenol donates H atoms to peroxyl radicals (ROO•), breaking the oxidation cascade. Dual protection: prevents MoS₂ → MoO₃ conversion (Mo⁴⁺ → Mo⁶⁺) and shields the wax matrix itself from autooxidation and embrittlement.',
   },
@@ -311,7 +316,7 @@ export const FAILURES: ScienceFailure[] = [
 // (paraffin + PTFE + stearic-acid derivative) shares the paraffin base but
 // replaces the solid-lubricant package with PTFE. These extra entries let the
 // hero "look inside" dive show real ingredient cards for Classic too. They are
-// NOT part of the relationship graph (no EDGES), so SciencePage/FormulaGraph are
+// NOT part of the relationship graph (no EDGES), so SciencePage/WaxField are
 // unaffected. Node ids 7–8 avoid collision with the graph nodes 1–6.
 export const CLASSIC_EXTRA: ScienceComponent[] = [
   {
@@ -333,7 +338,7 @@ export const CLASSIC_EXTRA: ScienceComponent[] = [
     ],
     insightDe: 'Classic setzt auf PTFE statt MoS₂: das ganze Jahr nutzbar und bei trockenen Bedingungen am stärksten, ohne die Zusätze für Nässe und Kälte.',
     insightEn: 'Classic uses PTFE instead of MoS₂: usable all year and strongest in dry conditions, without the additives for wet and cold.',
-    diagram: 'ptfe', cx: 320, cy: 260, r: 40,
+    diagram: 'ptfe',
   },
   {
     node: 8, id: 'haftung',
@@ -354,7 +359,7 @@ export const CLASSIC_EXTRA: ScienceComponent[] = [
     ],
     insightDe: 'Der gleiche Haftmechanismus steckt auch in der Pro-Formel — bei Classic trägt er den PTFE-Film, bei Pro den MoS₂-Transferfilm.',
     insightEn: 'The same adhesion mechanism is in the Pro formula too — in Classic it carries the PTFE film, in Pro the MoS₂ transfer film.',
-    diagram: 'stearin', cx: 214, cy: 358, r: 28,
+    diagram: 'stearin',
   },
 ];
 

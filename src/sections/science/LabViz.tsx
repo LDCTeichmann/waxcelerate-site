@@ -92,7 +92,16 @@ export function HexMoS2({ de }: { de: boolean }) {
           </div>
           <div className="text-right">
             <CountUp value="μ 0.03" className="font-display italic text-[22px] font-bold leading-none" style={{ color: 'var(--accent)' }} />
-            <p className="text-meta mt-0.5" style={{ color: 'var(--txf)' }}>{de ? 'Grenzschmierung' : 'Boundary lubrication'}</p>
+            {/* Die Umgebung gehoert an diese Zahl, und das ist seit
+                2026-09-16 der einzige Ort auf der Seite, an dem mu noch steht
+                (WISSENSCHAFT_REDESIGN.md 1.1). MoS2 erreicht 0,03 unter
+                Grenzschmierung in trockener Luft; in feuchter Luft liegt es
+                deutlich hoeher, weil Wasser sich an die Kanten der Basalebenen
+                anlagert. Ohne "trocken" ist die Zahl ein Bestwert, der wie ein
+                Normalwert aussieht. */}
+            <p className="text-meta mt-0.5" style={{ color: 'var(--txf)' }}>
+              {de ? 'Grenzschmierung, trockene Luft' : 'Boundary lubrication, dry air'}
+            </p>
           </div>
         </div>
       }
