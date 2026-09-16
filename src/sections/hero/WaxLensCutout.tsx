@@ -15,8 +15,11 @@ const HERO_MASK_SRC = '/images/hero/wax-cutout-mask.png';
  * mask-position-Mapping auf ein Vollbild nötig (siehe WaxLens.tsx für die
  * Variante, die das noch braucht).
  */
-export function WaxLensCutout({ waxRef, enabled, de, onOpen, onActiveChange }: {
+export function WaxLensCutout({ waxRef, enabled, de, onOpen, onActiveChange, mask = HERO_MASK_SRC }: {
   waxRef: RefObject<HTMLElement | null>;
+  /** Alpha-Maske fuer die Trefferpruefung. null = Rechteck von waxRef
+   *  (Hero v6: der Block ist Teil des Fotos und selbst fast rechteckig). */
+  mask?: string | null;
   enabled: boolean;
   de: boolean;
   onOpen: () => void;
@@ -41,7 +44,7 @@ export function WaxLensCutout({ waxRef, enabled, de, onOpen, onActiveChange }: {
     let maskW = 0, maskH = 0;
     const maskImg = new Image();
     maskImg.decoding = 'async';
-    maskImg.src = HERO_MASK_SRC;
+    if (mask) maskImg.src = mask;
     const onMaskLoad = () => {
       try {
         maskW = maskImg.naturalWidth; maskH = maskImg.naturalHeight;
@@ -56,8 +59,11 @@ export function WaxLensCutout({ waxRef, enabled, de, onOpen, onActiveChange }: {
         alpha = null;
       }
     };
-    if (maskImg.complete) onMaskLoad();
-    else maskImg.addEventListener('load', onMaskLoad);
+    // Ohne Maske bleibt alpha null, overWax faellt dann auf inRect zurueck.
+    if (mask) {
+      if (maskImg.complete) onMaskLoad();
+      else maskImg.addEventListener('load', onMaskLoad);
+    }
 
     // Maske wird 1:1 auf die Wax-Box gestreckt (gleiches Seitenverhältnis wie
     // das sichtbare Bild) — reine Prozent-Skalierung, kein object-cover-Offset.
@@ -132,7 +138,7 @@ export function WaxLensCutout({ waxRef, enabled, de, onOpen, onActiveChange }: {
       activeCb.current?.(false);
       gsap.killTweensOf(lens);
     };
-  }, [enabled, waxRef, onOpen]);
+  }, [enabled, waxRef, onOpen, mask]);
 
   if (!enabled) return null;
 

@@ -47,34 +47,19 @@
     <link rel="manifest" href="/manifest.json" />
     <link rel="alternate" type="text/plain" title="LLMs.txt" href="/llms.txt" />
     <meta name="theme-color" content="#090909" />
-    <!-- Nur fuer die Startseite korrekt: das LCP-Bildpaar des Hero ist je nach
-         Breakpoint chain-weave-mobile.webp (< 640px) bzw. chain-bg.webp
-         (>= 640px), dazu in BEIDEN Faellen wax-cutout.avif — seit dem
-         v4-Mobile-Hero traegt auch das Handy den freigestellten Wachsblock,
-         deshalb hat diese Zeile keine media-Einschraenkung mehr. Diese Datei
-         ist die Huelle fuer JEDE Unterseite (scripts/lib/prerender.mjs),
-         stripHead() entfernt diese Zeilen dort deshalb wieder und jedes
-         Prerender-Skript setzt sein eigenes, seitenspezifisches Preload-Paar.
-         Vorher liefen die Hero-Preloads unveraendert auf allen ~40 Routen mit
-         und zogen dem jeweils echten LCP-Bild auf gedrosseltem Mobilfunk rund
-         394 KB Bandbreite ab (Audit vom 05.08.2026,
-         performance-audit/AUDIT_REPORT.md Problem 1). fetchpriority="high"
-         zusaetzlich zu rel="preload", weil Lighthouses
-         lcp-discovery-insight beides einzeln prueft.
-
-         Der Wachsblock ist laut Lighthouse-Mobilmessung vom 10.09.2026 das
-         tatsaechliche LCP-Element. Sein preload zeigt seit dann auf die
-         AVIF-Fassung, weil das <picture> in hero-light.tsx genau die zuerst
-         anbietet: 61,6 KB statt 135 KB bei gleicher Pixelbreite und dabei
-         naeher am PNG-Master (RMS 3,1 gegen 14,3). type="image/avif" sorgt
-         dafuer, dass Browser ohne AVIF-Unterstuetzung den preload
-         ueberspringen statt eine Datei zu holen, die sie danach nicht
-         verwenden — die laden das WebP normal aus dem <picture>. Fuer dieses
-         Bild darf immer nur EIN preload stehen: avif und webp nebeneinander
-         wuerden von jedem Browser, der beides kann, doppelt geladen. -->
-    <link rel="preload" as="image" href="/images/hero/chain-weave-mobile.webp" type="image/webp" media="(max-width: 639px)" fetchpriority="high" />
-    <link rel="preload" as="image" href="/images/hero/chain-bg.webp" type="image/webp" media="(min-width: 640px)" fetchpriority="high" />
-    <link rel="preload" as="image" href="/images/hero/wax-cutout.avif" type="image/avif" fetchpriority="high" />
+    <!-- Nur fuer die Startseite korrekt: das LCP-Bild des Hero v6 ist je nach
+         Breakpoint stuttgart-wall-mobile (< 640px) bzw. stuttgart-wall
+         (>= 640px). Der Wachsblock ist seit v6 Teil des Fotos, ein eigener
+         Block-Preload entfaellt. Diese Datei ist die Huelle fuer JEDE
+         Unterseite (scripts/lib/prerender.mjs), stripHead() entfernt diese
+         Zeilen dort wieder (Audit 05.08.2026, performance-audit/AUDIT_REPORT.md
+         Problem 1). fetchpriority="high" zusaetzlich zu rel="preload", weil
+         Lighthouses lcp-discovery-insight beides einzeln prueft.
+         AVIF, weil das <picture> in hero-light.tsx das zuerst anbietet;
+         type="image/avif" laesst Browser ohne AVIF den preload ueberspringen.
+         Je Bild immer nur EIN preload, sonst laedt ein Browser doppelt. -->
+    <link rel="preload" as="image" href="/images/hero/stuttgart-wall-mobile.avif" type="image/avif" media="(max-width: 639px)" fetchpriority="high" />
+    <link rel="preload" as="image" href="/images/hero/stuttgart-wall.avif" type="image/avif" media="(min-width: 640px)" fetchpriority="high" />
     <!-- Prevent theme flash: apply saved class before React mounts -->
     <script>
       (function(){

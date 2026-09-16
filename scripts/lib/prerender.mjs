@@ -63,7 +63,7 @@ export function loadShell(dist) {
  * Regel nicht mehr still ins Leere laufen lassen — nur ein NEUER Basisname
  * muss hier noch nachgetragen werden.
  */
-const HOME_ONLY_PRELOADS = /<link\s+rel="preload"\s+as="image"\s+href="\/images\/hero\/(?:chain-weave-mobile|chain-bg|wax-cutout)\.\w+"[^>]*>\s*/gi;
+const HOME_ONLY_PRELOADS = /<link\s+rel="preload"\s+as="image"\s+href="\/images\/hero\/(?:stuttgart-wall-mobile|stuttgart-wall|chain-weave-mobile|chain-bg|wax-cutout)\.\w+"[^>]*>\s*/gi;
 
 /** Entfernt die globalen Head-Tags aus der Huelle, die wir pro Seite ersetzen. */
 export function stripHead(html) {

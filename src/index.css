@@ -994,13 +994,6 @@
      ~11 % groesser als der urspruengliche Wert (180/27svh/300 -> 200/30svh/
      320) auf Lucas Wunsch — geprueft, dass der Abstand zur Headline und zum
      CTA auf allen vier Zielgeraeten (360x640 bis 430x932) positiv bleibt. */
-  .hero-block-m {
-    width: clamp(200px, 30svh, 320px);
-    left: 50%;
-    top: 57%;
-    transform: translate(-50%, -50%);
-  }
-
   .hero-eyebrow {
     font-size: clamp(10.5px, 2.95vw, 11.5px) !important;
     letter-spacing: 0.05em !important;
@@ -1557,3 +1550,8 @@ body:has(.wx-topbar) { padding-top: var(--topbar-h); }
   0%, 100% { transform: translate(-50%, -50%) scale(1); }
   50% { transform: translate(-50%, -50%) scale(1.08); }
 }
+
+/* Hero v6: Live-Punkt an der Versandzeile. */
+@keyframes hero-live-ping { 75%, 100% { transform: scale(2.2); opacity: 0; } }
+.hero-live-ping { opacity: 0.6; animation: hero-live-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite; }
+@media (prefers-reduced-motion: reduce) { .hero-live-ping { animation: none; opacity: 0; } }

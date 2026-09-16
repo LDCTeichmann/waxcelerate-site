@@ -49,9 +49,9 @@ const escape = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/
 
 const staticPages = [
   { loc: '/', changefreq: 'weekly', priority: '1.0', image: {
-      loc: `${BASE}/images/hero/chain-bg.jpg`,
+      loc: `${BASE}/images/hero/stuttgart-wall.jpg`,
       title: 'Waxcelerate Heißwachs für Fahrradketten',
-      caption: 'Heißwachs-Kettenpflege aus Stuttgart — paraffinbasiert mit PTFE',
+      caption: 'Kettenwachs-Block von Waxcelerate auf einer Schiefermauer über Stuttgart',
     } },
   { loc: '/wissenschaft', changefreq: 'monthly', priority: '0.8' },
   // Verkaufsseiten: hoehere Prioritaet als die Wissenschaftsseite, weil hier
