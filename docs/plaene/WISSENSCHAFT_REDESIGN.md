@@ -857,6 +857,67 @@ erst rechtfertigt).
 SVG-Beschriftungen mit 10 px (`vdW`, `S` in den Molekülfiguren). DESIGN.md §2
 fordert mindestens 11 px. Nicht Teil dieses PRs.
 
+### Stufe 3: ACT II, der Knotengraph ist weg
+
+Der Oktopus ist nicht nachgebessert, sondern ersetzt. An seiner Stelle steht
+`src/sections/science/WaxField.tsx`: **ein Bildfeld, der erstarrte Wachsfilm im
+Schnitt auf dem Stahl, bei rund 1 µm.** Alle sechs Komponenten liegen
+gleichzeitig darin, an ihrem echten Platz.
+
+**Die Anordnung ist nicht erfunden.** Paraffin erstarrt in Sphärolithen, und an
+einer Oberfläche keimen die vom Metall her. Zwei Dinge fallen dabei von selbst
+richtig aus: die Fächergrenzen sind senkrecht (Mittelsenkrechte zweier Keime,
+die auf derselben Linie liegen), und genau dort bleibt ein Keil übrig, den
+Mikrokristallin füllt. Beides rechnet `buildFans` aus dem Keimabstand, statt es
+hübsch zu malen. Der alte Graph hatte erfundene Ringe.
+
+**`EDGES` ist nicht gelöscht, es ist Text geworden.** Die 11 recherchierten
+Beziehungen stehen jetzt als Zeile unter der geöffneten Komponente
+(„Greift ineinander mit Paraffin → Ko-Kristallisation · MoS₂ →
+Thermostabilität"). Falsch war die Darstellung als Kante, nicht der Inhalt.
+Nur `FormulaStep.edges` fällt weg.
+
+**Die Seite ist ein Viertel kürzer:** 10.838 → 8.084 px bei 1280 px. Der
+Gewinn ist nicht der Graph, sondern die Scroll-Entführung: `FormulaStory` war
+`COMPONENTS.length * 60vh` hoch, also sechs Bildschirme, in denen man nicht
+die Seite scrollte, sondern einen Schrittzähler. Damit entfällt auch die
+getrennte Mobilfassung mit `IntersectionObserver`-Karussell.
+
+Sieben Dinge, die erst am **gerenderten** Bild aufgefallen sind und ohne
+Screenshot durchgegangen wären:
+
+1. Die Lamellen sahen aus wie Spieße, weil jede in einem Zug bis an ihre Grenze
+   lief. Richtig ist ein Streckenzug: radial bis zum Anstoß am Nachbarfächer,
+   dann kolumnar nach oben. Das ist auch die Physik.
+2. Das Seitenverhältnis ist eine Aussage, keine Layoutfrage. 520 × 400 mit sechs
+   Keimen ließ die Fächer ein Fünftel der Filmhöhe erreichen. Jetzt 520 × 300
+   mit vier: Filmdicke und Domänengröße liegen in derselben Größenordnung, wie
+   im echten Film.
+3. **MoS₂ als „das dunkelste Element" geht in einer themefähigen Figur nicht.**
+   Im Noir-Theme ist nichts dunkler als der Seitengrund. Die übertragbare
+   Fassung ist „das kontraststärkste", also `var(--tx1)` — und dann darf sonst
+   nichts `var(--tx1)` benutzen. Die Stahlkante tat das und war im Dunkelmodus
+   ein weißer Balken.
+4. Hervorheben und Weglassen galten gleichzeitig: im Zustand „ohne
+   Mikrokristallin" wurde alles andere gedimmt und das Weggelassene war ohnehin
+   nicht gezeichnet. Übrig blieb ein fast leeres Feld.
+5. Ein Riss ist ein **Spalt**, keine Linie. Als Strich war er auf dem
+   Lamellenfeld unsichtbar.
+6. Eingeklappte Zeilen blieben anklickbar: `grid-template-rows: 0fr` versteckt
+   nur optisch. Im Test ließ sich der Knopf einer **geschlossenen** Zeile
+   auslösen. Dasselbe Muster steckt auch in `Disclosure` — eigener kleiner PR.
+7. Die Beschriftungen im Feld lagen als `<text>` in der viewBox und skalierten
+   mit: nachgemessen 9,3 px bei 360 px Fensterbreite und 10 px selbst bei 1280.
+   §2 fordert 11. Jetzt HTML neben dem SVG.
+
+`COMPONENTS` bleibt vollständig **inklusive `node`**. Das Feld sieht nach
+totem Code aus, ist es aber nicht: `generate-llms-txt.mjs` sortiert danach, und
+die `.mjs`-Generatoren sind untypisiert. `tsc` hätte das nicht gemerkt.
+
+Geprüft: `tsc -b --force`, `npm run build`, beide Generatoren von Hand
+nachgefahren, Chromium in hell und dunkel bei 1280 / 390 / 360 px, dazu bei
+`prefers-reduced-motion`.
+
 ---
 
 ## 8. Was nur Luca entscheiden kann
