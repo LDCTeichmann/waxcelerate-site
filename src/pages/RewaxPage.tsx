@@ -27,7 +27,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
 import { trustStats } from '@/lib/data';
 import { trackRewaxInterest } from '@/lib/analytics';
-import { REVIEWS } from '@/sections/reviews';
+import { reviewById, type Review } from '@/sections/reviews';
 import {
   PRICE, TEN_CARD, eur, UMSTIEG_LIVE, TURNAROUND, GUARANTEE,
   rewaxMeta, rewaxFaqItems, rewaxServiceSchema, rewaxFaqSchema,
@@ -631,10 +631,10 @@ export function RewaxSteps({ de }: { de: boolean }) {
 
 // ─── Vertrauen ──────────────────────────────────────────────────────────────
 function RewaxTrust({ de }: { de: boolean }) {
-  // Zwei echte, attribuierte eBay-Servicerezensionen. diemojakob nennt genau
-  // das Umstieg-Argument ("Ölfrei-Machen ist zeitaufwändig"); seyrane die
-  // Geschwindigkeit. Keine erfundenen Zitate.
-  const quotes = REVIEWS.filter(r => r.name === 'diemojakob' || r.name === 'seyrane');
+  // Zwei echte eBay-Bewertungen. j***k nennt genau das Umstieg-Argument
+  // ("Ölfrei machen ist zeitaufwändig"); e***n die einwandfrei gewachste
+  // Kette. Keine erfundenen Zitate.
+  const quotes = ['m8100-selbstwachser', 'm8100-einwandfrei'].map(reviewById).filter((r): r is Review => Boolean(r));
 
   return (
     <section className="py-12 sm:py-16" style={{ borderTop: '1px solid var(--bd2)' }}>
@@ -779,7 +779,7 @@ export function RewaxPage() {
     ? ['Nichts vorreinigen', `${TURNAROUND.short} bei uns`, GUARANTEE.short]
     : ['No pre-cleaning', `${TURNAROUND.shortEn} with us`, GUARANTEE.shortEn];
   // Ein kurzes, echtes Service-Zitat direkt unter dem Formular.
-  const heroQuote = REVIEWS.find(r => r.name === 'seyrane');
+  const heroQuote = reviewById('m8100-einwandfrei');
   // FAQ mobil: erst fünf Fragen, der Rest auf Wunsch (bleibt im DOM + JSON-LD).
   const FAQ_MOBILE = 5;
   const [allFaq, setAllFaq] = useState(false);

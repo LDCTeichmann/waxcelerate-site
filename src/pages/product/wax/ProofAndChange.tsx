@@ -12,25 +12,21 @@ import { Ico, CHANGE_ICONS } from './Ico';
 // kontoweit (trustStats) und werden weiter
 // unten bei den Bewertungen auch so benannt.
 export function ProofStrip({ de, quote }: { de: boolean; quote: Review | undefined }) {
-  const photo = quote?.photo?.replace(/\.jpg$/, '.webp');
-  // Nur zitieren, was die Person wirklich geschrieben hat: der Kernsatz, wenn
-  // er in ihrer Bewertung steht, sonst ihr erster Satz. Vorher stand hier fest
-  // "Kein Zurück mehr zum Öl." unter jedem Namen, auch unter Bewertungen, die
-  // den Satz nicht enthalten (Kettenseite, 15.09.2026).
+  // Nur zitieren, was die Person wirklich geschrieben hat: ihr erster Satz,
+  // lange Saetze gekuerzt (Kettenseite, 15.09.2026).
   const text = (de ? quote?.textDe : quote?.textEn) ?? '';
-  const key = de ? 'Kein Zurück mehr zum Öl.' : 'No going back to oil.';
-  const first = text.split(/(?<=[.!?])\s/)[0] ?? '';
-  const line = text.includes(key) ? key : first.length > 90 ? `${first.slice(0, 88).trimEnd()} …` : first;
+  const first = text.split(/(?<=[.!?…])\s/)[0] ?? '';
+  const line = first.length > 90 ? `${first.slice(0, 88).trimEnd()} …` : first;
   return (
     <section className="wxp-proof pdp-dark" aria-label={de ? 'Vertrauen' : 'Trust'}>
       <div className="wxp-wrap">
         {quote && (
           <div className="q">
-            {/* Stimmungsbild, nicht das Rad der zitierten Person — deshalb ohne
-                Namensbezug im Alt-Text (Luca, 16.09.2026). */}
-            {photo && <img src={photo} alt="" loading="lazy" decoding="async" />}
+            {/* Kein Foto neben dem Namen: ein Bild neben einem Kundenzitat
+                liest sich als Kundenfoto (Luca, 16.09.2026). */}
+            <span className="qm" aria-hidden>“</span>
             <p>{de ? `„${line}“` : `“${line}”`}
-              <small>{quote.name} · {quote.source === 'web' ? (de ? 'verifizierter Käufer' : 'verified buyer') : (de ? 'eBay verifiziert' : 'eBay verified')} · ★★★★★</small></p>
+              <small>{quote.name} · {de ? 'eBay verifiziert' : 'eBay verified'} · ★★★★★</small></p>
           </div>
         )}
         <div className="n"><div className="v num">{trustStats.reviews}</div><div className="k">{de ? 'Bewertungen' : 'reviews'}</div></div>

@@ -14,109 +14,133 @@ import { trackShopClick } from '@/lib/analytics';
 // deliberately not here. If more reviews are added, they come from actual
 // eBay feedback, not from filling the row out.
 export type Review = {
+  id: string;                      // stabiler Schluessel fuer Seiten, die ein bestimmtes Zitat zeigen
   textDe: string; textEn: string;
-  name: string;
-  dateDe: string; dateEn: string;
+  name: string;                    // so maskiert, wie eBay ihn oeffentlich zeigt (Luca, 16.09.2026)
+  dateDe: string; dateEn: string;  // eBay-Zeitraum, wie im Profil angezeigt
   rating?: number;                 // default 5
-  source?: 'ebay' | 'web';         // verified badge label
+  source?: 'ebay';                 // verified badge label
   productDe?: string; productEn?: string;
   productIds?: string[];           // real product/bundle ids this review is genuinely about
   fallback?: boolean;              // may stand in on a product page with no tagged review
   chainGeneral?: boolean;          // about a waxed chain, model unknown: may stand in on any chain page
-  photo?: string;                  // a real Waxcelerate ride photo (.jpg path; .webp sibling served first) —
-                                    // NEVER the reviewer's own bike (Luca's, 16.09.2026), so alt text/captions
-                                    // must not claim it is
-  photoPos?: string;               // object-position, only if the pre-crop still needs a nudge
 };
 
-// Keine Fotos an Zitaten: die Bilder unter /images/reviews/ zeigen Lucas eigene
-// Räder, nicht die der Rezensenten. Neben einem Kundennamen würden sie genau
-// das behaupten. tom_rennrad und m.gerber sind am 16.09.2026 entfernt worden,
-// weil es sie im eBay-Profil nicht gibt. Namen mit *** sind so übernommen,
-// wie eBay sie öffentlich maskiert.
+// ── Nur echte eBay-Bewertungen (16.09.2026) ─────────────────────────────────
+// Jeder Text steht wortgleich im oeffentlichen Profil
+// ebay.de/fdbk/feedback_profile/waxcelerate; Tippfehler bleiben stehen,
+// gekuerzt wird nur mit "…". Namen und Zeitraeume genau so, wie eBay sie
+// oeffentlich zeigt. Die frueheren "Web"-Bewertungen (Maximilian M.,
+// Philippe V., Michael W.) sowie tom_rennrad und m.gerber waren nicht echt und
+// sind entfernt (Luca). Fotos haengen NICHT an Personen, siehe REVIEW_PHOTOS.
+const LAST_MONTH = { dateDe: 'letzter Monat', dateEn: 'last month' };
+const HALF_YEAR = { dateDe: 'letzte 6 Monate', dateEn: 'past 6 months' };
+const LAST_YEAR = { dateDe: 'letztes Jahr', dateEn: 'last year' };
+const OVER_YEAR = { dateDe: 'vor über einem Jahr', dateEn: 'over a year ago' };
+const M8100 = { productDe: 'Gewachste Kette · Shimano CN-M8100', productEn: 'Waxed chain · Shimano CN-M8100', productIds: ['chain-m8100'] };
+const WAX500 = { productDe: 'Kettenwachs 500 g', productEn: 'Chain wax 500 g', productIds: ['wax-500'] };
+
 export const REVIEWS: Review[] = [
   {
-    textDe: 'Großes Lob an den Verkäufer, die Kette wurde schnell und ordnungsgemäß geliefert. Die Kette ist einwandfrei gewachst und ich werde die nächste Kette wieder bei ihm bestellen. Ich fahre schon viele Jahre jetzt mit gewachster Kette, seither hab ich das Wachsen immer selbst gemacht. Ich wollte mir einfach die Arbeit sparen, da das mit dem Ölfrei-Machen der Kette ziemlich zeitaufwändig ist. Ich bin sehr zufrieden, kann den Verkäufer nur weiterempfehlen.',
-    textEn: "Big praise for the seller — the chain arrived quickly and properly. It's impeccably waxed and I'll be ordering my next chain from him again. I've ridden waxed chains for many years now and always did the waxing myself; I just wanted to save the effort, since getting the chain oil-free is quite time-consuming. Very satisfied, can only recommend the seller.",
-    name: 'diemojakob', dateDe: 'Aug 2026', dateEn: 'Aug 2026', source: 'ebay', fallback: true,
-    productDe: 'Gewachste Kette · Shimano XT/Ultegra', productEn: 'Waxed chain · Shimano XT/Ultegra',
-    productIds: ['chain-m8100'],
+    id: 'm8100-selbstwachser',
+    textDe: 'Großes Lob an den Verkäufer, die Kette wurde schnell und ordnungsgemäß geliefert… Die Kette ist einwandfrei gewachst und ich werde die nächste Kette wieder bei ihm bestellen. Ich fahre schon viele Jahre jetzt mit gewachster Kette, seither hab ich das wachsen immer selbst gemacht. Ich wollte mir einfach die Arbeit sparen, da das mit dem Ölfrei machen der Kette ziemlich zeitaufwändig ist. Ich bin sehr zufrieden, kann den Verkäufer nur weiterempfehlen',
+    textEn: "Big praise for the seller, the chain arrived quickly and properly… It's impeccably waxed and I'll order my next chain from him again. I've ridden waxed chains for many years and always did the waxing myself. I just wanted to save the effort, since getting the chain oil-free is quite time-consuming. Very satisfied, can only recommend the seller.",
+    name: 'j***k', ...LAST_MONTH, source: 'ebay', fallback: true, ...M8100,
   },
   {
-    textDe: 'Als kompletter Neuling bei der Fahrradpflege hat mir das Starter-Kit den Einstieg super leicht gemacht. Ich konnte den Antrieb wunderbar und schnell reinigen.',
-    textEn: 'As a total newbie to maintaining my bike, the starter kit made it so easy to dive in. I was able to clean the drivetrain beautifully and quickly.',
-    name: 'Maximilian M.', dateDe: 'Dez 2025', dateEn: 'Dec 2025', source: 'web',
-    productDe: 'Original Starter-Kit', productEn: 'Original Starter Kit',
-    productIds: ['starter-classic', 'starter-pro'],
-  },
-  {
-    textDe: 'Jetzt drei Wochen als „Cyclowaxee". Toller Service! Das Starter-Kit enthält mehr als erwartet und macht den Umstieg auf Heißwachs sehr einfach — gerade fürs Reinigen des Antriebs.',
-    textEn: 'Now three weeks in as a “Cyclowaxee”. Great service! The starter kit contains more than expected and makes converting to hot wax very easy — especially for cleaning the drivetrain.',
-    name: 'Philippe V.', dateDe: 'Okt 2025', dateEn: 'Oct 2025', source: 'web',
-    productDe: 'Original Starter-Kit', productEn: 'Original Starter Kit',
-    productIds: ['starter-classic', 'starter-pro'],
-  },
-  {
-    textDe: 'Top Ware, einfach und gut portioniert. Lieferzeit sehr schnell vom Verkäufer — es wurde am gleichen Tag noch versendet, aber leider hat die Post einfach länger gebraucht (Verkäufer trifft keine Schuld). Habe dann mal den Verkäufer angeschrieben und auch sehr schnell eine freundliche Antwort bekommen. Als Entschuldigung gab’s einen großzügigen Gutschein, obwohl die Schuld nicht beim Verkäufer lag — das fand ich sehr aufmerksam. Werde auf jeden Fall wieder bestellen bzw. kann es weiterempfehlen.',
-    textEn: "Great product, simple and well portioned. Very fast dispatch from the seller — sent the same day, though the post just took longer (not the seller's fault). I messaged the seller and got a quick, friendly reply. As an apology there was even a generous voucher, even though it wasn't the seller's fault — I thought that was very considerate. Will definitely order again and can recommend it.",
-    name: 'than_889', dateDe: 'Mai 2025', dateEn: 'May 2025', source: 'ebay',
-    productDe: 'Kettenwachs 500 g', productEn: 'Chain wax 500 g',
-    productIds: ['wax-500'],
-  },
-  {
-    textDe: 'Tolles Kettenwachs, nach 200 km noch alles perfekt.',
-    textEn: 'Great chain wax, everything still perfect after 200 km.',
-    name: 'u***r', dateDe: 'letzte 12 Monate', dateEn: 'past 12 months', source: 'ebay',
-    productDe: 'Kettenwachs 500 g', productEn: 'Chain wax 500 g',
-    productIds: ['wax-500'],
-  },
-  {
-    textDe: 'Erst eine Ausfahrt, aber die Kette war leise UND kein Ketten-Tattoo an Wade oder weißen Socken. Perfekt. Hätte ich einen YouTube-Kanal für 65+ Fahrer, würde ich allen das Wachsen empfehlen.',
-    textEn: 'Only one ride but the chain was quiet AND no chain tattoo on my calf or white socks. Perfect. If I had a YouTube channel for 65+ riders, I’d tell them all to wax.',
-    name: 'Michael W.', dateDe: 'Okt 2025', dateEn: 'Oct 2025', source: 'web',
-    productDe: 'Original Starter-Kit', productEn: 'Original Starter Kit',
-    productIds: ['starter-classic', 'starter-pro'],
-  },
-  {
-    textDe: 'Positiver als positiv kann leider niemand bewerten – wäre hier aber angebracht, 1+ mit ★.',
-    textEn: "Can't rate higher than positive — but this would deserve a 1+ with ★.",
-    name: 'volvo210b', dateDe: 'Jan 2026', dateEn: 'Jan 2026', source: 'ebay',
-    productDe: 'Kettenwachs 500 g', productEn: 'Chain wax 500 g',
-    productIds: ['wax-500'],
-  },
-  {
+    id: 'm9100-beste-ketten',
     textDe: 'Ich habe schon mehrere unterschiedliche vorgewachste Ketten von verschiedenen Anbietern ausprobiert. Luca bietet hier mit Waxcelerate meiner Meinung nach die besten Ketten an, die man so kriegen kann. Der Preis stimmt auch. 👍',
     textEn: "I've already tried several different pre-waxed chains from various sellers. In my opinion Luca and Waxcelerate offer the best chains you can get. The price is right, too. 👍",
-    name: 'thewuschi', dateDe: 'Aug 2026', dateEn: 'Aug 2026', source: 'ebay', fallback: true,
-    productDe: 'Gewachste Kette · Shimano Dura-Ace/XTR', productEn: 'Waxed chain · Shimano Dura-Ace/XTR',
-    productIds: ['chain-m9100'],
+    name: 't***t', ...LAST_MONTH, source: 'ebay', fallback: true,
+    productDe: 'Gewachste Kette · Shimano CN-M9100', productEn: 'Waxed chain · Shimano CN-M9100', productIds: ['chain-m9100'],
   },
   {
-    textDe: 'Alles bestens, 1a. Sehr netter Kontakt, sehr ausführliche Beratung bei Fragen. Immer wieder gern.',
-    textEn: 'All perfect, top marks. Very friendly contact, thorough advice when I had questions. Happy to order again anytime.',
-    name: 'daliduc848', dateDe: 'Apr 2026', dateEn: 'Apr 2026', source: 'ebay',
-    productDe: 'Gewachste Kette · Shimano SLX/105', productEn: 'Waxed chain · Shimano SLX/105',
-    productIds: ['chain-m7100'],
+    id: 'wax500-gutschein',
+    textDe: "Top Ware einfach und gut portioniert Lieferzeit sehr schnell vom Verkäufer . Es wurde am gleichen Tag noch versendet aber leider hat die Post einfach länger gebraucht (Verkäufer trifft keine Schuld) Habe dann mal den Verkäufer angeschrieben und auch sehr schnell eine freundliche Antwort bekommen. Als Entschuldigung gab's einen großzügigen Gutschein obwohl die Schuld nicht beim Verkäufer lag das fand ich sehr aufmerksam und werde aufjedenfall wieder bestellen bzw. Kann es weiterempfehlen",
+    textEn: "Great product, simple and well portioned, very fast dispatch. It was sent the same day, but the post just took longer (not the seller's fault). I messaged the seller and got a quick, friendly reply. As an apology there was a generous voucher, even though it wasn't the seller's fault. I found that very considerate and will definitely order again and can recommend it.",
+    name: 't***h', ...OVER_YEAR, source: 'ebay', ...WAX500,
   },
   {
-    textDe: 'Schnelle Lieferung, einwandfrei gewachste Kette die sehr gut läuft, gerne wieder.',
-    textEn: 'Fast delivery, impeccably waxed chain that runs very well — will order again.',
-    name: 'seyrane', dateDe: 'März 2026', dateEn: 'March 2026', source: 'ebay', chainGeneral: true, photo: '/images/reviews/ride-5-card.jpg',
+    id: 'm8100-einwandfrei',
+    textDe: 'Schnelle Lieferung, einwandfrei gewachste Kette die sehr gut läuft, gerne wieder',
+    textEn: 'Fast delivery, impeccably waxed chain that runs very well, would buy again.',
+    name: 'e***n', ...LAST_YEAR, source: 'ebay', ...M8100,
   },
   {
+    id: 'wax500-haerter',
+    textDe: 'Macht auf mich den Eindruck von eingeschmolzen Kerzen, aber die Kette läuft bis jetzt ganz gut. Auf jeden Fall ist das Wachs härter als mein letztes.',
+    textEn: 'Looks a bit like melted-down candles to me, but the chain runs quite well so far. The wax is definitely harder than my last one.',
+    name: '2***l', ...LAST_YEAR, source: 'ebay', ...WAX500,
+  },
+  {
+    id: 'm7100-beratung',
+    textDe: 'Alles bestens 1a, Sehr netter Kontakt mit ne sehr ausführliche beraten bei Fragen. Immer wieder gern',
+    textEn: 'All perfect, top marks. Very friendly contact and very thorough advice with questions. Happy to buy again anytime.',
+    name: 'i***4', ...HALF_YEAR, source: 'ebay',
+    productDe: 'Gewachste Kette · Shimano CN-M7100', productEn: 'Waxed chain · Shimano CN-M7100', productIds: ['chain-m7100'],
+  },
+  {
+    id: 'wax500-200km',
+    textDe: 'Tolles Kettenwachs, nach 200 km noch alles perfekt.',
+    textEn: 'Great chain wax, everything still perfect after 200 km.',
+    name: 'u***r', ...LAST_YEAR, source: 'ebay', ...WAX500,
+  },
+  {
+    id: 'm8100-zuvorkommend',
+    textDe: 'Sehr zuvorkommend, kontaktfreidiger Verkäufer, hier hat alles gestimmt.',
+    textEn: 'Very obliging, communicative seller, everything was right here.',
+    name: 'r***e', ...LAST_YEAR, source: 'ebay', ...M8100,
+  },
+  {
+    id: 'wax500-plus',
+    textDe: 'Positiver als positiv kann leider niemand bewerten - Wäre aber hier angebracht 1+ mit *',
+    textEn: "Nobody can rate more positive than positive, but this would deserve a 1+ with a star.",
+    name: 'v***v', ...LAST_YEAR, source: 'ebay', ...WAX500,
+  },
+  {
+    id: 'ybn11-klasse',
+    textDe: 'Klasse gelaufen gerne wieder 😀👍',
+    textEn: 'Went great, happy to buy again 😀👍',
+    name: '8***n', ...HALF_YEAR, source: 'ebay',
+    productDe: 'Gewachste Kette · YBN 11S', productEn: 'Waxed chain · YBN 11S', productIds: ['chain-ybn11'],
+  },
+  {
+    id: 'wax500-wie-gewachst',
     textDe: 'Alles bestens, läuft wie gewachst !!',
-    textEn: 'All good — runs like a dream !!',
-    name: 'maienbuehl', dateDe: 'Feb 2026', dateEn: 'Feb 2026', source: 'ebay',
-    productDe: 'Kettenwachs 500 g', productEn: 'Chain wax 500 g',
-    productIds: ['wax-500'],
+    textEn: 'All good, runs like it’s waxed !!',
+    name: 'i***n', ...OVER_YEAR, source: 'ebay', ...WAX500,
+  },
+  {
+    id: 'wax300-super',
+    textDe: 'Super Produkt, gerne wieder.',
+    textEn: 'Great product, would buy again.',
+    name: '9***2', ...HALF_YEAR, source: 'ebay',
+    productDe: 'Kettenwachs 300 g', productEn: 'Chain wax 300 g', productIds: ['wax-300'],
   },
 ];
+
+export const reviewById = (id: string) => REVIEWS.find(r => r.id === id);
+
+// ── Fotos zu den Bewertungen ────────────────────────────────────────────────
+// Eigene Bilder (Luca, Freunde, Kunden mit Freigabe): gewachste Antriebe am
+// Rad. Sie stehen NEBEN den Zitaten, nicht fuer die Person — deshalb traegt
+// jedes Bild sichtbar "Foto: Waxcelerate" (klein, weiss, unten im Bild) und
+// einen neutralen Alt-Text (Luca, 16.09.2026).
+export const REVIEW_PHOTOS: { src: string; pos?: string }[] = [
+  { src: '/images/reviews/ride-1-card.jpg' },
+  { src: '/images/reviews/ride-3-card.jpg' },
+  { src: '/images/reviews/ride-5-card.jpg' },
+  { src: '/images/reviews/ride-2-card.jpg' },
+  { src: '/images/reviews/ride-4-card.jpg' },
+];
+export const photoCredit = (de: boolean) => (de ? 'Foto: Waxcelerate' : 'Photo: Waxcelerate');
+export const photoAlt = (de: boolean) => (de ? 'Rad mit gewachstem Antrieb' : 'Bike with a waxed drivetrain');
 
 // Picks 1-2 real reviews for a product detail page. Tagged reviews win: the
 // Starter-Kit bundles and, since 08/2026, the Shimano chains (chain-m7100/
 // m8100/m9100) and the 500 g wax each carry a genuine eBay review. Everything
 // else has no reliable per-SKU review, so it falls back to the entries
-// explicitly marked `fallback: true` — thewuschi and diemojakob, the two most
+// explicitly marked `fallback: true` — t***t and j***k, the two most
 // substantive quotes from riders who already knew waxed chains. Decoupled
 // from array order on purpose.
 // Never claim a fallback quote is "about" the exact product it's shown on —
@@ -166,21 +190,19 @@ function textColWidth(len: number) {
 //
 // Karten ohne Foto bekommen kein Platzhalterbild. Eine Reihe, in der manche
 // Karten ein Bild haben und manche nicht, liest sich als echte Sammlung.
-function ReviewCard({ r, de }: { r: Review; de: boolean }) {
+function ReviewCard({ r, de, photo }: { r: Review; de: boolean; photo?: { src: string; pos?: string } }) {
   const text = de ? r.textDe : r.textEn;
   const date = de ? r.dateDe : r.dateEn;
   const product = de ? r.productDe : r.productEn;
-  const verified = r.source === 'web'
-    ? (de ? 'Verifizierter Käufer' : 'Verified buyer')
-    : (de ? 'eBay verifiziert' : 'eBay verified');
+  const verified = de ? 'eBay verifiziert' : 'eBay verified';
   const [photoOk, setPhotoOk] = useState(true);
-  const showPhoto = Boolean(r.photo) && photoOk;
+  const showPhoto = Boolean(photo) && photoOk;
   // 116 statt 100: die Bilder sind jetzt vorgeschnittenes 4:5-Hochformat, ein
   // paar Pixel mehr Streifenbreite zeigen Rahmen und Antrieb klarer, ohne der
   // Textspalte auf dem Handy (Karte gegen calc(100vw - 72px) gedeckelt)
   // spürbar Platz zu nehmen.
   const PHOTO_W = 112;
-  const photoWebp = r.photo?.replace(/\.jpg$/, '.webp');
+  const photoWebp = photo?.src.replace(/\.jpg$/, '.webp');
 
   return (
     <figure
@@ -198,9 +220,9 @@ function ReviewCard({ r, de }: { r: Review; de: boolean }) {
         boxShadow: 'var(--card-shad)',
       }}
     >
-      {showPhoto && (
+      {showPhoto && photo && (
         <picture
-          className="flex-shrink-0 self-stretch flex"
+          className="relative flex-shrink-0 self-stretch flex"
           style={{
             width: PHOTO_W,
             background: 'var(--sf3)',
@@ -211,11 +233,17 @@ function ReviewCard({ r, de }: { r: Review; de: boolean }) {
           }}
         >
           <source srcSet={photoWebp} type="image/webp" />
-          <img src={r.photo} alt={de ? 'Radfahren mit Waxcelerate' : 'Riding with Waxcelerate'}
+          <img src={photo.src} alt={photoAlt(de)}
             loading="lazy" decoding="async"
             onError={() => setPhotoOk(false)}
             className="w-full object-cover"
-            style={{ objectPosition: r.photoPos ?? '50% 50%' }} />
+            style={{ objectPosition: photo.pos ?? '50% 50%' }} />
+          {/* Herkunft dezent im Bild: das Foto ist unseres, nicht das Rad
+              der zitierten Person. */}
+          <span aria-hidden="true" className="absolute inset-x-0 bottom-0 px-2 pt-6 pb-1.5 text-[10px] font-medium leading-none pointer-events-none"
+            style={{ color: 'rgba(255,255,255,.82)', background: 'linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.55))', letterSpacing: '.01em' }}>
+            {photoCredit(de)}
+          </span>
         </picture>
       )}
 
@@ -272,7 +300,12 @@ export function Reviews() {
     return () => io.disconnect();
   }, []);
 
-  const cards = REVIEWS.map((r, i) => <ReviewCard key={i} r={r} de={de} />);
+  // Jede zweite Karte bekommt ein eigenes Foto (reihum aus REVIEW_PHOTOS),
+  // die Reihe wechselt so zwischen Bild- und Textkarten.
+  const cards = REVIEWS.map((r, i) => (
+    <ReviewCard key={r.id} r={r} de={de}
+      photo={i % 2 === 0 ? REVIEW_PHOTOS[(i / 2) % REVIEW_PHOTOS.length] : undefined} />
+  ));
 
   return (
     <Section id="bewertungen" ref={sectionRef} className="overflow-hidden" style={{ background: 'var(--pg)' }}>
@@ -376,8 +409,8 @@ export function Reviews() {
           anzugeben, ob und wie ihre Echtheit sichergestellt wird. */}
       <p className="text-meta mt-5 max-w-2xl leading-relaxed" style={{ color: 'var(--txff)' }}>
         {de
-          ? 'eBay-Bewertungen stammen aus bestätigten Käufen und sind dort öffentlich einsehbar. Weitere Rückmeldungen stammen aus direktem Kundenkontakt nach dem Kauf.'
-          : 'eBay reviews come from confirmed purchases and are publicly visible there. Further feedback comes from direct customer contact after purchase.'}
+          ? 'Alle Bewertungen stammen aus bestätigten eBay-Käufen und sind dort wortgleich öffentlich einsehbar. Namen so, wie eBay sie zeigt. Die Fotos sind unsere eigenen.'
+          : 'All reviews come from confirmed eBay purchases and are publicly visible there word for word. Names as eBay shows them. The photos are our own.'}
       </p>
     </Section>
   );
