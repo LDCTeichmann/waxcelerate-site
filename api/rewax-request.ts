@@ -32,7 +32,9 @@ interface RewaxRequestBody {
 
 const TIER_LABELS: Record<TierId, string> = {
   single: 'Einzelne Kette',
-  bundle3: 'Drei Ketten',
+  // ID bleibt `bundle3` (API-Stabilität); der Mengenpreis greift seit
+  // 2026-09-15 schon ab zwei Ketten (PRICE.bundleCount).
+  bundle3: 'Ab zwei Ketten (Mengenpreis)',
   five: '5er-Karte',
   ten: '10er-Karte',
 };

@@ -7,18 +7,29 @@ import type { useLanguage } from '@/hooks/useLanguage';
 import { Ico, CHANGE_ICONS } from './Ico';
 
 // ── Proof-Leiste ────────────────────────────────────────────────────────────
-// Direkt unter dem ersten Screen, dunkel als Tiefenwechsel: ein Gesicht, ein
-// Satz, drei Zahlen. Die Zahlen sind kontoweit (trustStats) und werden weiter
+// Direkt unter dem ersten Screen, dunkel als Tiefenwechsel: ein echter Satz
+// aus einer eBay-Bewertung (pull, wortgleich), drei Zahlen. Die Zahlen sind
+// kontoweit (trustStats) und werden weiter
 // unten bei den Bewertungen auch so benannt.
 export function ProofStrip({ de, quote }: { de: boolean; quote: Review | undefined }) {
   const photo = quote?.photo?.replace(/\.jpg$/, '.webp');
+  // Nur zitieren, was die Person wirklich geschrieben hat: der Kernsatz, wenn
+  // er in ihrer Bewertung steht, sonst ihr erster Satz. Vorher stand hier fest
+  // "Kein Zurück mehr zum Öl." unter jedem Namen, auch unter Bewertungen, die
+  // den Satz nicht enthalten (Kettenseite, 15.09.2026).
+  const text = (de ? quote?.textDe : quote?.textEn) ?? '';
+  const key = de ? 'Kein Zurück mehr zum Öl.' : 'No going back to oil.';
+  const first = text.split(/(?<=[.!?])\s/)[0] ?? '';
+  const line = text.includes(key) ? key : first.length > 90 ? `${first.slice(0, 88).trimEnd()} …` : first;
   return (
     <section className="wxp-proof pdp-dark" aria-label={de ? 'Vertrauen' : 'Trust'}>
       <div className="wxp-wrap">
         {quote && (
           <div className="q">
+            {/* Stimmungsbild, nicht das Rad der zitierten Person — deshalb ohne
+                Namensbezug im Alt-Text (Luca, 16.09.2026). */}
             {photo && <img src={photo} alt="" loading="lazy" decoding="async" />}
-            <p>{de ? '„Kein Zurück mehr zum Öl.“' : '“No going back to oil.”'}
+            <p>{de ? `„${line}“` : `“${line}”`}
               <small>{quote.name} · {quote.source === 'web' ? (de ? 'verifizierter Käufer' : 'verified buyer') : (de ? 'eBay verifiziert' : 'eBay verified')} · ★★★★★</small></p>
           </div>
         )}
@@ -40,7 +51,9 @@ export function ChangeForYou({ product, de, t, rc }: { product: Product; de: boo
   const fmt = (n: number) => n.toLocaleString(de ? 'de-DE' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const figs = [
     ...(rc?.stats ?? []),
-    ...(product.price < medianChainPrice ? [{
+    // Nur fuer Wachs: auf der Kettenseite (seit 15.09.2026 dieselbe
+    // Komponente) ergaebe "< 1 Kette kostet der Block" keinen Sinn.
+    ...(product.category === 'wax' && product.price < medianChainPrice ? [{
       value: '< 1',
       label: de ? 'Kette kostet der Block' : 'chain is what the block costs',
       sub: de ? `${fmt(product.price)} € gegen ~${fmt(medianChainPrice)} € für eine Kette.` : `€${fmt(product.price)} versus ~€${fmt(medianChainPrice)} for one chain.`,

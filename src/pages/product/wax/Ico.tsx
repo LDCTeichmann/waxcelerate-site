@@ -16,6 +16,10 @@ const PATHS = {
   road: 'M9 3L5 21M15 3l4 18M12 5v2M12 11v2M12 17v2',
   gravel: 'M3 18c3-1 5-6 9-6s6 5 9 6M8 19h.01M15 19.5h.01',
   mtb: 'M2 19l6-10 4 6 3-4 7 8z',
+  // Kettenseite, "Das bekommst du": Kette, Wachstropfen, Kettenschloss.
+  chain: 'M7 9.5h10a2.5 2.5 0 0 1 0 5H7a2.5 2.5 0 0 1 0-5zM7 12h.01M12 12h.01M17 12h.01',
+  drop: 'M12 3.5c3 4 5.5 7 5.5 10a5.5 5.5 0 0 1-11 0c0-3 2.5-6 5.5-10z',
+  link: 'M9.5 8.5h5a3.5 3.5 0 0 1 0 7h-5a3.5 3.5 0 0 1 0-7zM9.5 12h5',
 } as const;
 
 export type IcoName = keyof typeof PATHS;

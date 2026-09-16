@@ -1,0 +1,123 @@
+/* Ketten-Produktseite v1 (15.09.2026) — nur was die Wachsseite nicht hat.
+   Grundgrammatik, Farben und Kapitel kommen aus ../wax/wax.css (.wxp-*). */
+
+/* Kaufbox */
+.wxc-pricetop { flex-wrap: wrap; row-gap: 8px; }
+.wxc-perpc { font-family: 'Libre Franklin', sans-serif; font-size: 14px; font-weight: 500; color: var(--txf); margin-left: 2px; letter-spacing: 0; }
+.wxc-specline { font-size: 13px; font-weight: 600; color: var(--txm); margin-top: 12px; }
+.wxc-boxtitle { font-size: 11.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--txf); margin: 2px 0 8px; }
+.wxc-box { list-style: none; padding: 0; margin: 0 0 14px; border-top: 1px solid var(--sf3); }
+.wxc-box li { display: grid; grid-template-columns: 26px 1fr; gap: 6px; padding: 9px 0; border-bottom: 1px solid var(--sf3); font-size: 12.5px; line-height: 1.4; color: var(--txm); }
+.wxc-box li .wxp-ico { color: var(--wxp-accent); width: 16px; height: 16px; margin-top: 1px; }
+.wxc-box b { display: block; font-size: 14px; font-weight: 600; color: var(--tx1); }
+
+/* Kapitel · Was wir damit machen
+   Foto mit Unterschrift im Bild, darunter die vier Schritte als verbundene
+   Zeitleiste: Desktop waagerecht (Linie durch die Knoten), mobil senkrecht. */
+.wxc-procimg { position: relative; margin: 0; border-radius: 18px; overflow: hidden; aspect-ratio: 16/7; box-shadow: var(--wxp-shadow-hi); background: var(--hero-stage); }
+.wxc-procimg img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.wxc-procimg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(0,0,0,.5)); pointer-events: none; }
+.wxc-procimg figcaption { position: absolute; left: 18px; bottom: 16px; z-index: 1; display: flex; align-items: baseline; gap: 10px; color: #fff; }
+.wxc-procimg figcaption b { font-family: 'Fraunces', Georgia, serif; font-size: 20px; font-weight: 600; text-shadow: 0 1px 12px rgba(0,0,0,.5); }
+.wxc-procimg figcaption span { font-size: 11.5px; font-weight: 600; background: rgba(10,12,15,.55); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding: 5px 10px; border-radius: 999px; }
+@media (max-width: 640px) { .wxc-procimg { aspect-ratio: 4/3; } }
+
+.wxc-steps { position: relative; list-style: none; padding: 0; margin: 36px 0 0; display: grid; gap: 22px; }
+.wxc-steps::before { content: ""; position: absolute; left: 21px; top: 22px; bottom: 22px; width: 2px; background: linear-gradient(180deg, var(--wxp-accent), rgba(var(--accent-rgb), .15)); border-radius: 2px; }
+.wxc-steps li { position: relative; display: grid; grid-template-columns: 44px 1fr; column-gap: 16px; }
+.wxc-steps .node { grid-row: span 2; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--sf); border: 2px solid var(--wxp-accent); color: var(--wxp-accent); font: 800 15px 'Fraunces', Georgia, serif; box-shadow: 0 0 0 6px var(--pg), var(--wxp-shadow); position: relative; z-index: 1; }
+.wxc-steps li:last-child .node { background: var(--wxp-accent); color: #fff; }
+.wxc-steps b { font-size: 16px; color: var(--tx1); align-self: end; }
+.wxc-steps p { font-size: 14px; line-height: 1.55; color: var(--txm); margin-top: 4px; max-width: 34ch; }
+@media (min-width: 900px) {
+  .wxc-steps { grid-template-columns: repeat(4, minmax(0,1fr)); gap: 24px; }
+  .wxc-steps::before { left: 22px; right: 22px; top: 21px; bottom: auto; width: auto; height: 2px; background: linear-gradient(90deg, var(--wxp-accent), rgba(var(--accent-rgb), .25)); }
+  .wxc-steps li { grid-template-columns: 1fr; row-gap: 10px; }
+  .wxc-steps .node { grid-row: auto; }
+  .wxc-steps b { margin-top: 6px; }
+}
+.wxc-procfoot { display: grid; gap: 24px; margin-top: 40px; align-items: center; }
+@media (min-width: 900px) { .wxc-procfoot { grid-template-columns: minmax(0,1.1fr) minmax(0,1fr); gap: 48px; } }
+
+.wxc-list { padding: 24px; }
+.wxc-list .lbl2 { display: block; font-size: 12px; font-weight: 600; color: var(--txf); margin-bottom: 6px; }
+.wxc-list ul { list-style: none; padding: 0; margin: 0; }
+.wxc-list li { display: grid; grid-template-columns: 36px 1fr; padding: 12px 0; border-top: 1px solid var(--sf3); }
+.wxc-list li:first-child { border-top: 0; }
+.wxc-list .k { width: 24px; height: 24px; border-radius: 50%; background: var(--wxp-soft); color: var(--wxp-accent); display: grid; place-items: center; font-size: 12px; font-weight: 700; }
+.wxc-list b { display: block; font-size: 15px; color: var(--tx1); }
+.wxc-list p { font-size: 13.5px; line-height: 1.55; color: var(--txm); margin-top: 2px; }
+.wxc-note { align-self: center; padding: 4px 0 4px 20px; border-left: 2px solid var(--wxp-accent); }
+.wxc-note p { font-size: 16px; line-height: 1.65; color: var(--txm); max-width: 44ch; }
+.wxc-note b { color: var(--tx1); }
+
+/* Kapitel · Passung: Geschwister derselben Gangzahl */
+.wxc-sibs { list-style: none; padding: 0; margin: 0 0 16px; }
+.wxc-sibs li + li { border-top: 1px solid var(--sf3); }
+.wxc-sibs a { display: grid; grid-template-columns: 56px minmax(0,1fr) auto; gap: 12px; align-items: center; padding: 10px 0; text-decoration: none; color: inherit; }
+.wxc-sibs img { width: 56px; height: 42px; border-radius: 8px; object-fit: cover; background: var(--sf2); }
+.wxc-sibs .tx { min-width: 0; font-size: 12.5px; color: var(--txf); }
+.wxc-sibs .tx b { display: block; font-size: 14px; color: var(--tx1); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wxc-sibs em { font-style: normal; color: var(--wxp-green); font-weight: 600; }
+.wxc-sibs .pr { font-weight: 700; color: var(--tx1); font-size: 14px; white-space: nowrap; }
+.wxc-sibs a:hover b { color: var(--accent-soft); }
+.wxc-sibs a { border-radius: 10px; transition: background .2s, transform .2s; }
+.wxc-sibs a:hover { background: var(--sf2); transform: translateX(3px); }
+
+/* Kettenbreite nach Gangzahl: die eigene Gangzahl in Akzent, die anderen grau.
+   Balkenlaenge relativ zur breitesten (9-fach). */
+.wxc-widths { margin: 4px 0 18px; padding: 16px; border-radius: 12px; background: var(--pg); border: 1px solid var(--sf3); }
+.wxc-widths .lbl2 { margin-bottom: 12px; }
+.wxc-widths .row { display: grid; grid-template-columns: 58px minmax(0,1fr) auto; align-items: center; gap: 10px; padding: 5px 0; font-size: 13px; color: var(--txf); }
+.wxc-widths .bar { height: 10px; border-radius: 999px; background: var(--sf3); overflow: hidden; }
+.wxc-widths .bar i { display: block; height: 100%; border-radius: 999px; background: var(--bd2); transform-origin: left; animation: wxc-grow .9s cubic-bezier(.2,.7,.2,1) both; }
+.wxc-widths .row.own { color: var(--tx1); font-weight: 600; }
+.wxc-widths .row.own .bar i { background: linear-gradient(90deg, var(--wxp-accent), var(--accent-soft)); box-shadow: 0 0 12px rgba(var(--accent-rgb), .35); }
+.wxc-widths .mm { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.wxc-widths .mm em { font-style: normal; margin-left: 8px; font-size: 11px; font-weight: 700; letter-spacing: .04em; color: #fff; background: var(--wxp-accent); padding: 2px 7px; border-radius: 999px; }
+.wxc-widths .note { font-size: 12.5px; line-height: 1.5; color: var(--txf); margin-top: 10px; }
+@keyframes wxc-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@media (prefers-reduced-motion: reduce) { .wxc-widths .bar i { animation: none; } }
+@media (max-width: 400px) { .wxc-widths .mm em { display: none; } }
+
+/* Tiefe: Wege-Karten heben sich an wie die Karten der Wachsseite. */
+.wxc-lift { transition: transform .25s cubic-bezier(.2,.7,.2,1), box-shadow .25s; }
+.wxc-lift:hover { transform: translateY(-3px); box-shadow: var(--wxp-shadow-hi); }
+@media (prefers-reduced-motion: reduce) { .wxc-lift, .wxc-sibs a { transition: none; } .wxc-lift:hover, .wxc-sibs a:hover { transform: none; } }
+
+.wxc-all { margin-top: auto; color: var(--accent-soft); font-weight: 600; text-decoration: none; font-size: 14.5px; }
+
+/* Kapitel · Daten: vorgewachst gegen geoelt
+   Gemessen bei 375 px: ohne min-width 0 und festes Tabellenlayout war die
+   Tabelle 397 px breit und zog die ganze Kartenspalte auf 419 px. */
+.wxp-specs > * { min-width: 0; }
+.wxc-cmp { padding: 22px; min-width: 0; }
+.wxc-cmp table { table-layout: fixed; }
+@media (max-width: 640px) {
+  .wxc-cmp { padding: 16px 12px; }
+  .wxc-cmp th, .wxc-cmp td { padding: 9px 6px; font-size: 13px; overflow-wrap: anywhere; }
+  .wxc-cmp tbody th { width: 32%; font-size: 12px; }
+  .wxc-cmp .wxp-pill { font-size: 9.5px; padding: 3px 6px; }
+}
+.wxc-cmp .lbl2 { display: block; font-size: 12px; font-weight: 600; color: var(--txf); margin-bottom: 10px; }
+.wxc-cmp table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 14px; }
+.wxc-cmp th, .wxc-cmp td { padding: 10px 10px; text-align: left; border-bottom: 1px solid var(--sf3); }
+.wxc-cmp thead th { border-bottom: 0; padding-bottom: 8px; }
+.wxc-cmp tbody th { font-size: 12.5px; font-weight: 500; color: var(--txf); width: 30%; }
+.wxc-cmp .win { background: var(--wxp-soft); color: var(--wxp-navy); font-weight: 700; }
+.wxc-cmp thead .win { border-radius: 10px 10px 0 0; }
+.wxc-cmp tbody tr:last-child td, .wxc-cmp tbody tr:last-child th { border-bottom: 0; }
+.wxc-cmp tbody tr:last-child .win { border-radius: 0 0 10px 10px; }
+.wxc-cmp .lose { color: var(--txf); font-size: 13px; }
+.wxc-cmp thead .lose { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+
+/* Wenn das Wachs nachlaesst: Nachhaltig-Karte */
+.wxc-green { margin-top: 24px; padding: 22px 24px; border-radius: 14px; background: var(--wxp-green-bg); }
+.wxc-green .hd { display: flex; gap: 14px; align-items: center; }
+.wxc-green .ic { width: 34px; height: 34px; border-radius: 50%; background: var(--sf); color: var(--wxp-green); display: grid; place-items: center; flex-shrink: 0; }
+.wxc-green .hd b { display: block; font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--wxp-green); }
+.wxc-green .hd span { font-size: 14px; color: var(--txm); }
+.wxc-green ul { list-style: none; padding: 0; margin: 16px 0 0; display: grid; gap: 14px 28px; }
+@media (min-width: 700px) { .wxc-green ul { grid-template-columns: 1fr 1fr; } }
+.wxc-green li { font-size: 13.5px; line-height: 1.5; color: var(--txm); }
+.wxc-green li b { display: block; font-size: 14.5px; color: var(--tx1); }

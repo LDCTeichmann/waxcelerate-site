@@ -100,9 +100,14 @@ export function ProcessWatch({ de, product }: { de: boolean; product: Product })
   const axis = Array.from({ length: Math.floor(total / 10) + 1 }, (_, k) => k * 10);
   const pos = (m: number) => `${(m / total) * 100}%`;
 
-  const hotspots = de
-    ? [{ x: 58, y: 34, l: `Der Block · ${product.applications} Wachsgänge` }, { x: 31, y: 74, l: 'Deine Kette · mit Quick-Link' }, { x: 72, y: 78, l: 'Draht oder Haken' }]
-    : [{ x: 58, y: 34, l: `The block · ${product.applications} waxings` }, { x: 31, y: 74, l: 'Your chain · with quick link' }, { x: 72, y: 78, l: 'Wire or hook' }];
+  // Punkte in Prozent des quadratischen Ausschnitts (object-position 25 % 50 %
+  // auf dem 16:10-Foto). Bild und Liste teilen sich `hot`.
+  const kit = [
+    { x: 82, y: 24, n: de ? 'Dieser Block' : 'This block', d: de ? `${product.applications} Wachsgänge` : `${product.applications} waxings`, e: de ? 'im Bild' : 'pictured' },
+    { x: 55, y: 40, n: de ? 'Kettenschloss-Zange' : 'Quick-link pliers', d: de ? 'öffnet das Schloss in Sekunden' : 'opens the link in seconds', e: de ? 'empfohlen' : 'recommended' },
+    { x: 66, y: 91, n: de ? 'Draht oder Haken' : 'Wire or hook', d: de ? 'zum Eintauchen und Aufhängen' : 'for dipping and hanging', e: de ? 'im Bild' : 'pictured' },
+    { x: 16, y: 84, n: de ? 'Deine Kette' : 'Your chain', d: de ? 'mit Kettenschloss' : 'with quick link', e: de ? 'im Bild' : 'pictured' },
+  ];
 
   const seg = (s: Step) => (
     <div key={s.i} className={`seg${s.active ? ' act' : ' wait'}${lit === s.i ? ' on' : ''}${s.minutes / total < 0.06 ? ' tiny' : ''}`}
@@ -177,26 +182,31 @@ export function ProcessWatch({ de, product }: { de: boolean; product: Product })
           {de ? 'Ausführliche Anleitung mit Fotos →' : 'Full guide with photos →'}
         </Link>
 
-        <div className="wxp-kit">
-          <div className="wxp-flat" onMouseLeave={() => setHot(null)}>
-            <img src="/images/blog/wax-blue-wire-chain-1600.webp" alt={de ? 'Wachsblock, Kette und Draht auf Schiefer' : 'Wax block, chain and wire on slate'} loading="lazy" decoding="async" className="photo-neutral" />
-            {hotspots.map((h, i) => (
+        <div className="wxp-kit" onMouseLeave={() => setHot(null)}>
+          <div className="wxp-flat">
+            <picture>
+              <source media="(max-width: 640px)" srcSet="/images/blog/tools-quicklink-pliers-800.webp" />
+              <img src="/images/blog/tools-quicklink-pliers-1600.webp" alt={de ? 'Blauer Wachsblock, Kettenschloss-Zange, Draht mit Haken und Kette auf Schiefer' : 'Blue wax block, quick-link pliers, wire with hook and chain on slate'} loading="lazy" decoding="async" />
+            </picture>
+            {kit.map((h, i) => (
               <button key={i} type="button" className="wxp-hot" style={{ left: `${h.x}%`, top: `${h.y}%` }}
-                aria-pressed={hot === i} aria-label={`${i + 1} · ${h.l}`}
-                onMouseEnter={() => setHot(i)} onFocus={() => setHot(i)} onClick={() => setHot(i)}>{i + 1}</button>
+                aria-pressed={hot === i} aria-label={`${i + 1} · ${h.n}`}
+                onMouseEnter={() => setHot(i)} onFocus={() => setHot(i)} onBlur={() => setHot(null)} onClick={() => setHot(i)}>{i + 1}</button>
             ))}
-            {hot !== null && <span className="wxp-hotlabel" style={{ left: `${hotspots[hot].x}%`, top: `${hotspots[hot].y}%` }}>{hotspots[hot].l}</span>}
+            {hot !== null && <span className="wxp-hotlabel" style={{ left: `${kit[hot].x}%`, top: `${kit[hot].y}%` }}>{kit[hot].n}</span>}
           </div>
           <div>
             <p className="eyebrow" style={{ color: 'var(--accent-soft)' }}>{de ? 'Das brauchst du' : 'What you need'}</p>
-            <h3>{de ? 'Drei Dinge im Bild, zwei aus dem Haushalt.' : 'Three things in the picture, two from home.'}</h3>
+            <h3>{de ? 'Vier Dinge im Bild, ein alter Topf dazu.' : 'Four things in the picture, plus an old pot.'}</h3>
             <p className="sub">{de ? 'Kein Spezialgerät. Ein alter Topf wird zum Wachstopf, mehr Anschaffung gibt es nicht.' : 'No special equipment. An old pot becomes the wax pot, that is the only purchase.'}</p>
             <ul className="wxp-klist">
-              <li><span className="k">1</span><div>{de ? 'Dieser Block' : 'This block'} <span className="d">· {product.applications} {de ? 'Wachsgänge' : 'waxings'}</span></div><em>{de ? 'im Bild' : 'pictured'}</em></li>
-              <li><span className="k">2</span><div>{de ? 'Deine Kette' : 'Your chain'} <span className="d">· {de ? 'mit Quick-Link' : 'with quick link'}</span></div><em>{de ? 'im Bild' : 'pictured'}</em></li>
-              <li><span className="k">3</span><div>{de ? 'Draht oder Haken' : 'Wire or hook'} <span className="d">· {de ? 'zum Eintauchen' : 'for dipping'}</span></div><em>{de ? 'im Bild' : 'pictured'}</em></li>
-              <li><span className="k o">+</span><div>{de ? 'Alter Topf' : 'Old pot'} <span className="d">· {de ? 'aus der Küche' : 'from the kitchen'}</span></div><em>{de ? 'Haushalt' : 'at home'}</em></li>
-              <li><span className="k o">+</span><div>Isopropanol 99 % <span className="d">· {de ? 'Drogerie, nur fürs erste Mal' : 'pharmacy, first time only'}</span></div><em>{de ? 'Haushalt' : 'at home'}</em></li>
+              {kit.map((h, i) => (
+                <li key={i} className={hot === i ? 'on' : undefined} onMouseEnter={() => setHot(i)}>
+                  <span className="k">{i + 1}</span><div>{h.n} <span className="d">· {h.d}</span></div><em>{h.e}</em>
+                </li>
+              ))}
+              <li><span className="k o">+</span><div>{de ? 'Alter Topf oder Slow Cooker' : 'Old pot or slow cooker'} <span className="d">· {de ? 'nie unbeaufsichtigt, danach nicht mehr für Essen' : 'never unattended, not for food afterwards'}</span></div><em>{de ? 'Küche' : 'kitchen'}</em></li>
+              <li><span className="k o">+</span><div>Isopropanol 99 % <span className="d">· {de ? 'nur beim ersten Mal, zum Entfetten' : 'first time only, for degreasing'}</span></div><em>{de ? 'Drogerie' : 'pharmacy'}</em></li>
             </ul>
             <div className="wxp-alts">
               <Link to="/starter-set"><b>{de ? 'Zange und Draht fehlen?' : 'No pliers or wire?'}</b>{de ? 'Das Starter-Set bringt beides mit. ' : 'The starter set brings both. '}<em>{de ? 'Set ansehen →' : 'View the set →'}</em></Link>

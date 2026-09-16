@@ -22,26 +22,23 @@ export type Review = {
   productDe?: string; productEn?: string;
   productIds?: string[];           // real product/bundle ids this review is genuinely about
   fallback?: boolean;              // may stand in on a product page with no tagged review
-  photo?: string;                  // real customer photo (.jpg path; .webp sibling served first)
+  chainGeneral?: boolean;          // about a waxed chain, model unknown: may stand in on any chain page
+  photo?: string;                  // a real Waxcelerate ride photo (.jpg path; .webp sibling served first) —
+                                    // NEVER the reviewer's own bike (Luca's, 16.09.2026), so alt text/captions
+                                    // must not claim it is
   photoPos?: string;               // object-position, only if the pre-crop still needs a nudge
 };
 
-// Reihenfolge bewusst gesetzt: die Fotos ride-1 und ride-2 zeigen DASSELBE
-// maroon S-Works — sie dürfen nicht nebeneinander stehen (fällt auf). Ebenso
-// die zwei dunklen Räder ride-3/ride-4. Foto-Karten liegen daher auf Position
-// 1 / 4 / 6 / 9 / 11 mit je mindestens einer Textkarte dazwischen; die zwei
-// S-Works trennt ride-3, die zwei dunklen Räder trennt ride-2, und die letzte
-// Foto-Karte (ride-5, türkis) grenzt beim Marquee-Loop an die erste (ride-1).
+// Keine Fotos an Zitaten: die Bilder unter /images/reviews/ zeigen Lucas eigene
+// Räder, nicht die der Rezensenten. Neben einem Kundennamen würden sie genau
+// das behaupten. tom_rennrad und m.gerber sind am 16.09.2026 entfernt worden,
+// weil es sie im eBay-Profil nicht gibt. Namen mit *** sind so übernommen,
+// wie eBay sie öffentlich maskiert.
 export const REVIEWS: Review[] = [
-  {
-    textDe: 'Bin jahrelang Öl gefahren und eher skeptisch rangegangen. Erster Eindruck nach dem Wechsel: Die Kette bleibt einfach sauber — kein schwarzer Rand mehr an der Wade, Finger bleiben sauber beim Rad einladen. Dazu läuft der Antrieb spürbar leiser. Eine Wachsung hält bei mir gut 300 km. Kein Zurück mehr zum Öl.',
-    textEn: 'Ran oil for years and went in pretty skeptical. First impression after switching: the chain just stays clean — no more black mark on my calf, clean fingers loading the bike. And the drivetrain runs noticeably quieter. One wax lasts me a good 300 km. No going back to oil.',
-    name: 'tom_rennrad', dateDe: 'März 2026', dateEn: 'March 2026', source: 'ebay', fallback: true, photo: '/images/reviews/ride-1-card.jpg',
-  },
   {
     textDe: 'Großes Lob an den Verkäufer, die Kette wurde schnell und ordnungsgemäß geliefert. Die Kette ist einwandfrei gewachst und ich werde die nächste Kette wieder bei ihm bestellen. Ich fahre schon viele Jahre jetzt mit gewachster Kette, seither hab ich das Wachsen immer selbst gemacht. Ich wollte mir einfach die Arbeit sparen, da das mit dem Ölfrei-Machen der Kette ziemlich zeitaufwändig ist. Ich bin sehr zufrieden, kann den Verkäufer nur weiterempfehlen.',
     textEn: "Big praise for the seller — the chain arrived quickly and properly. It's impeccably waxed and I'll be ordering my next chain from him again. I've ridden waxed chains for many years now and always did the waxing myself; I just wanted to save the effort, since getting the chain oil-free is quite time-consuming. Very satisfied, can only recommend the seller.",
-    name: 'diemojakob', dateDe: 'Aug 2026', dateEn: 'Aug 2026', source: 'ebay',
+    name: 'diemojakob', dateDe: 'Aug 2026', dateEn: 'Aug 2026', source: 'ebay', fallback: true,
     productDe: 'Gewachste Kette · Shimano XT/Ultegra', productEn: 'Waxed chain · Shimano XT/Ultegra',
     productIds: ['chain-m8100'],
   },
@@ -58,7 +55,6 @@ export const REVIEWS: Review[] = [
     name: 'Philippe V.', dateDe: 'Okt 2025', dateEn: 'Oct 2025', source: 'web',
     productDe: 'Original Starter-Kit', productEn: 'Original Starter Kit',
     productIds: ['starter-classic', 'starter-pro'],
-    photo: '/images/reviews/ride-3-card.jpg',
   },
   {
     textDe: 'Top Ware, einfach und gut portioniert. Lieferzeit sehr schnell vom Verkäufer — es wurde am gleichen Tag noch versendet, aber leider hat die Post einfach länger gebraucht (Verkäufer trifft keine Schuld). Habe dann mal den Verkäufer angeschrieben und auch sehr schnell eine freundliche Antwort bekommen. Als Entschuldigung gab’s einen großzügigen Gutschein, obwohl die Schuld nicht beim Verkäufer lag — das fand ich sehr aufmerksam. Werde auf jeden Fall wieder bestellen bzw. kann es weiterempfehlen.',
@@ -68,29 +64,32 @@ export const REVIEWS: Review[] = [
     productIds: ['wax-500'],
   },
   {
+    textDe: 'Tolles Kettenwachs, nach 200 km noch alles perfekt.',
+    textEn: 'Great chain wax, everything still perfect after 200 km.',
+    name: 'u***r', dateDe: 'letzte 12 Monate', dateEn: 'past 12 months', source: 'ebay',
+    productDe: 'Kettenwachs 500 g', productEn: 'Chain wax 500 g',
+    productIds: ['wax-500'],
+  },
+  {
     textDe: 'Erst eine Ausfahrt, aber die Kette war leise UND kein Ketten-Tattoo an Wade oder weißen Socken. Perfekt. Hätte ich einen YouTube-Kanal für 65+ Fahrer, würde ich allen das Wachsen empfehlen.',
     textEn: 'Only one ride but the chain was quiet AND no chain tattoo on my calf or white socks. Perfect. If I had a YouTube channel for 65+ riders, I’d tell them all to wax.',
     name: 'Michael W.', dateDe: 'Okt 2025', dateEn: 'Oct 2025', source: 'web',
     productDe: 'Original Starter-Kit', productEn: 'Original Starter Kit',
     productIds: ['starter-classic', 'starter-pro'],
-    photo: '/images/reviews/ride-2-card.jpg',
   },
   {
     textDe: 'Positiver als positiv kann leider niemand bewerten – wäre hier aber angebracht, 1+ mit ★.',
     textEn: "Can't rate higher than positive — but this would deserve a 1+ with ★.",
     name: 'volvo210b', dateDe: 'Jan 2026', dateEn: 'Jan 2026', source: 'ebay',
+    productDe: 'Kettenwachs 500 g', productEn: 'Chain wax 500 g',
+    productIds: ['wax-500'],
   },
   {
     textDe: 'Ich habe schon mehrere unterschiedliche vorgewachste Ketten von verschiedenen Anbietern ausprobiert. Luca bietet hier mit Waxcelerate meiner Meinung nach die besten Ketten an, die man so kriegen kann. Der Preis stimmt auch. 👍',
     textEn: "I've already tried several different pre-waxed chains from various sellers. In my opinion Luca and Waxcelerate offer the best chains you can get. The price is right, too. 👍",
-    name: 'thewuschi', dateDe: 'Aug 2026', dateEn: 'Aug 2026', source: 'ebay',
+    name: 'thewuschi', dateDe: 'Aug 2026', dateEn: 'Aug 2026', source: 'ebay', fallback: true,
     productDe: 'Gewachste Kette · Shimano Dura-Ace/XTR', productEn: 'Waxed chain · Shimano Dura-Ace/XTR',
     productIds: ['chain-m9100'],
-  },
-  {
-    textDe: 'Wachse meine Ketten seit Jahren selbst und hatte vorher verschiedene fertige Wachse ausprobiert. Für mich im Alltag läuft die Kette genauso ruhig und lange wie gewohnt — den Unterschied merke ich vor allem beim Preis. Bin komplett umgestiegen und empfehle es im Verein regelmäßig weiter. Bestes Preis-Leistungs-Verhältnis, das ich kenne.',
-    textEn: "I've waxed my own chains for years and had tried various off-the-shelf waxes before. For me, day to day, the chain runs just as smoothly and lasts just as long as I'm used to — the difference I notice is mainly the price. Switched over completely and recommend it at my club regularly. Best value for money I know of.",
-    name: 'm.gerber', dateDe: 'Mai 2026', dateEn: 'May 2026', source: 'ebay', fallback: true, photo: '/images/reviews/ride-4-card.jpg',
   },
   {
     textDe: 'Alles bestens, 1a. Sehr netter Kontakt, sehr ausführliche Beratung bei Fragen. Immer wieder gern.',
@@ -102,12 +101,14 @@ export const REVIEWS: Review[] = [
   {
     textDe: 'Schnelle Lieferung, einwandfrei gewachste Kette die sehr gut läuft, gerne wieder.',
     textEn: 'Fast delivery, impeccably waxed chain that runs very well — will order again.',
-    name: 'seyrane', dateDe: 'März 2026', dateEn: 'March 2026', source: 'ebay', photo: '/images/reviews/ride-5-card.jpg',
+    name: 'seyrane', dateDe: 'März 2026', dateEn: 'March 2026', source: 'ebay', chainGeneral: true, photo: '/images/reviews/ride-5-card.jpg',
   },
   {
     textDe: 'Alles bestens, läuft wie gewachst !!',
     textEn: 'All good — runs like a dream !!',
     name: 'maienbuehl', dateDe: 'Feb 2026', dateEn: 'Feb 2026', source: 'ebay',
+    productDe: 'Kettenwachs 500 g', productEn: 'Chain wax 500 g',
+    productIds: ['wax-500'],
   },
 ];
 
@@ -115,9 +116,9 @@ export const REVIEWS: Review[] = [
 // Starter-Kit bundles and, since 08/2026, the Shimano chains (chain-m7100/
 // m8100/m9100) and the 500 g wax each carry a genuine eBay review. Everything
 // else has no reliable per-SKU review, so it falls back to the entries
-// explicitly marked `fallback: true` — tom_rennrad and m.gerber, the two most
-// substantive untagged quotes. Decoupled from array order on purpose: the row
-// order above is tuned for photo variety, not for which review leads.
+// explicitly marked `fallback: true` — thewuschi and diemojakob, the two most
+// substantive quotes from riders who already knew waxed chains. Decoupled
+// from array order on purpose.
 // Never claim a fallback quote is "about" the exact product it's shown on —
 // see the neutral heading used wherever this is called.
 const GENERIC_FALLBACK_COUNT = 2;
@@ -143,7 +144,7 @@ function textColWidth(len: number) {
 // volle Kartenhoehe.
 //
 // Zwei Vorgaengerversionen sind an derselben Stelle gescheitert. Als 38-Pixel-
-// Avatar neben dem Namen war nicht zu erkennen, dass es echte Kundenfotos sind;
+// Avatar neben dem Namen war nicht zu erkennen, dass es echte Fotos sind;
 // als 16:9-Band oben in der Karte war es zwar gross genug, machte aber genau
 // die Karten mit Foto rund 120 Pixel hoeher als die ohne. In einer Reihe, in
 // der nur ein Teil der Karten ein Foto hat, ergibt das den ausgefransten,
@@ -152,7 +153,8 @@ function textColWidth(len: number) {
 //
 // Als linker Streifen traegt das Foto die volle Hoehe der Karte, egal wie hoch
 // die ist: Karten mit und ohne Foto sind gleich hoch, das Bild ist gross genug,
-// um als echtes Rad lesbar zu sein, und der Text liegt weiter auf der
+// um als echtes Rad lesbar zu sein (Stimmungsbild, nicht das Rad der
+// zitierten Person — Alt-Text behauptet das bewusst nicht), und der Text liegt weiter auf der
 // Kartenflaeche statt auf dem Bild — die Lesbarkeit haengt also nicht davon ab,
 // wie hell das jeweilige Motiv ist.
 //
@@ -209,7 +211,7 @@ function ReviewCard({ r, de }: { r: Review; de: boolean }) {
           }}
         >
           <source srcSet={photoWebp} type="image/webp" />
-          <img src={r.photo} alt={de ? `Rad von ${r.name}` : `${r.name}'s bike`}
+          <img src={r.photo} alt={de ? 'Radfahren mit Waxcelerate' : 'Riding with Waxcelerate'}
             loading="lazy" decoding="async"
             onError={() => setPhotoOk(false)}
             className="w-full object-cover"

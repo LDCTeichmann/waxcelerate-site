@@ -19,7 +19,9 @@ function ArchiveCard({ article, wide, read }: { article: Article; wide: boolean;
   return (
     <Link
       to={`/blog/${article.slug}`}
-      className={`group flex flex-col rounded-2xl transition-all duration-300 hover:-translate-y-1 ${
+      // Mobil eine kompakte Zeile (Vorschaubild links, Titel rechts): 18
+      // Bildkarten untereinander waren bei 375 px ueber 8.500 px lang.
+      className={`group flex flex-row sm:flex-col rounded-2xl transition-all duration-300 hover:-translate-y-1 ${
         wide ? 'sm:col-span-2 lg:grid lg:grid-cols-[1.15fr_1fr]' : ''
       }`}
       style={{ background: 'var(--sf)', border: '1px solid var(--bd)' }}
@@ -28,8 +30,8 @@ function ArchiveCard({ article, wide, read }: { article: Article; wide: boolean;
           Hover-Verschiebung: beides auf einem Element laesst Chromium beim
           Hover kurz die eckige Maske aufblitzen (siehe products.tsx). */}
       <div
-        className={`relative overflow-hidden ${
-          wide ? 'aspect-[16/9] lg:aspect-auto lg:min-h-[280px] rounded-t-2xl lg:rounded-tr-none lg:rounded-l-2xl' : 'aspect-[16/10] rounded-t-2xl'
+        className={`relative overflow-hidden w-24 min-h-[96px] shrink-0 rounded-l-2xl sm:w-auto sm:min-h-0 sm:rounded-l-none ${
+          wide ? 'sm:aspect-[16/9] sm:rounded-t-2xl lg:aspect-auto lg:min-h-[280px] lg:rounded-tr-none lg:rounded-l-2xl' : 'sm:aspect-[16/10] sm:rounded-t-2xl'
         }`}
         style={{ background: 'var(--sf2)', transform: 'translateZ(0)' }}
       >
@@ -42,26 +44,30 @@ function ArchiveCard({ article, wide, read }: { article: Article; wide: boolean;
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-105"
         />
         <span
-          className="absolute top-3 left-3 text-small font-semibold uppercase tracking-[0.16em] px-2.5 py-1 rounded-full backdrop-blur"
+          className="hidden sm:block absolute top-3 left-3 text-small font-semibold uppercase tracking-[0.16em] px-2.5 py-1 rounded-full backdrop-blur"
           style={{ background: 'var(--chip-bg)', color: categoryColors[article.category] }}
         >
           {article.category}
         </span>
       </div>
-      <div className={`flex flex-col flex-1 ${wide ? 'p-6 sm:p-8' : 'p-5'}`}>
+      <div className={`flex flex-col flex-1 min-w-0 ${wide ? 'p-4 sm:p-8' : 'p-4 sm:p-5'}`}>
+        <span className="sm:hidden text-[12px] font-semibold uppercase tracking-[0.12em] mb-1" style={{ color: categoryColors[article.category] }}>
+          {article.category}
+        </span>
         <h3
           className={`font-display font-semibold text-wx-tx1 leading-snug mb-2 transition-colors group-hover:text-[color:var(--accent)] ${
-            wide ? 'text-[22px] sm:text-[26px]' : 'text-[18px]'
+            wide ? 'text-[16px] sm:text-[26px]' : 'text-[16px] sm:text-[18px]'
           }`}
         >
-          {wide ? article.title : article.titleShort}
+          <span className="sm:hidden">{article.titleShort}</span>
+          <span className="hidden sm:inline">{wide ? article.title : article.titleShort}</span>
         </h3>
-        <p className={`leading-[1.6] text-wx-txm mb-4 ${wide ? 'text-[15px] line-clamp-3' : 'text-[13px] line-clamp-2'}`}>
+        <p className={`hidden sm:[display:-webkit-box] leading-[1.6] text-wx-txm mb-4 ${wide ? 'text-[15px] line-clamp-3' : 'text-[13px] line-clamp-2'}`}>
           {article.description}
         </p>
         <div className="mt-auto">
           {article.keyStat && (
-            <div className="flex items-baseline gap-2 pt-3 mb-3" style={{ borderTop: '1px solid var(--bd)' }}>
+            <div className="hidden sm:flex items-baseline gap-2 pt-3 mb-3" style={{ borderTop: '1px solid var(--bd)' }}>
               <span className={`font-mono font-semibold text-wx-tx1 ${wide ? 'text-[20px]' : 'text-[14px]'}`}>
                 {article.keyStat.value}
               </span>
@@ -100,7 +106,7 @@ export function ArchiveGrid({ filter, onFilter, read }: { filter: Filter; onFilt
     <section id="archiv" aria-labelledby="archiv-titel" className="mb-20 scroll-mt-28">
       <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
         <div>
-          <p className="font-mono text-small uppercase tracking-[0.2em] mb-3" style={{ color: 'var(--accent)' }}>
+          <p className="eyebrow mb-3" style={{ color: 'var(--accent)' }}>
             Das Archiv
           </p>
           <h2 id="archiv-titel" className="font-display text-[28px] sm:text-[34px] font-bold text-wx-tx1 leading-[1.1]">
@@ -137,7 +143,7 @@ export function ArchiveGrid({ filter, onFilter, read }: { filter: Filter; onFilt
         })}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5">
         {list.map((article, i) => (
           <ArchiveCard key={article.slug} article={article} wide={isWide(i)} read={read.has(article.slug)} />
         ))}

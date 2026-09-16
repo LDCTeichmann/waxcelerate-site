@@ -604,7 +604,7 @@ export function ProductShelf({ de, t, onCompare }: {
           eyebrow={s.rewaxEyebrow} title={s.rewaxTitle}
           body={s.rewaxBody}
           price={s.rewaxFrom}
-          delivery={de ? `Zurück in ${TURNAROUND.short} ab Ankunft` : `Back in ${TURNAROUND.shortEn} after arrival`}
+          delivery={de ? `Zurück in ${TURNAROUND.dative} ab Ankunft` : `Back in ${TURNAROUND.shortEn} after arrival`}
           deliveryIcon="rotate"
           cta={s.rewaxCta}
           alt={de ? 'Waxcelerate Versandkarton mit gewachster Kette vor Stuttgarter Landschaft' : 'Waxcelerate shipping box with a waxed chain in front of the Stuttgart hills'}

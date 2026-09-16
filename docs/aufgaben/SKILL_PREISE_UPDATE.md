@@ -11,17 +11,19 @@ Preise ziehen.
 ## 5. Kettenwachs-Service (B2C) · Stand 2026-09-07
 
 **Zwei Leistungen**, beide reiner Postversand deutschlandweit (Stuttgart, kein
-Leipzig-Standort mehr). Bearbeitung 3–5 Werktage ab Ankunft bei uns, dazu je
-1–2 Werktage Postlaufzeit hin und zurück.
+Leipzig-Standort mehr). Bearbeitung 3 Werktage ab Ankunft bei uns (seit
+2026-09-15, vorher 3–5), dazu je 1–2 Werktage Postlaufzeit hin und zurück.
+**Leise-Garantie:** läuft die Kette nicht leise, wachsen wir sie kostenlos
+nochmal (Meldung binnen 14 Tagen).
 
 ### Auffrischung — bereits gewachste Kette neu wachsen
 - **15,95 € je Kette** einzeln, zzgl. **1,80 € Rückversand** (Großbrief)
-- **11,95 € je Kette ab drei Ketten**, zzgl. **2,90 € Rückversand** (Maxibrief,
+- **11,95 € je Kette ab zwei Ketten** (seit 2026-09-15, „Rotation"), zzgl. **2,90 € Rückversand** (Maxibrief,
   einmal je Sendung)
 - Altes Wachs löst kochendes Wasser, ganz ohne Lösemittel; dann frisches Bad.
 
 ### Umstieg — geölte oder fabrikneue Kette entfetten und erstmals wachsen
-- **24,95 € je Kette** einzeln, **21,95 €** ab drei Ketten, zzgl. Rückversand
+- **24,95 € je Kette** einzeln, **21,95 €** ab zwei Ketten, zzgl. Rückversand
 - Wie das volle Programm des Wettbewerbs (Kettenhelden 39,95 €, bikeoptimierung
   34,90 €), ~10 € günstiger.
 - Ablauf: die Kette kommt zuerst in ein **separates Ultraschallbad**, wird

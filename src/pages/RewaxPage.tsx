@@ -22,14 +22,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useLocation } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, ChevronDown, CheckCircle2, Sparkles, Droplet, Check, Minus, Plus } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ChevronDown, CheckCircle2, Sparkles, Droplet, Check, Minus, Plus, Clock, ShieldCheck } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
 import { trustStats } from '@/lib/data';
 import { trackRewaxInterest } from '@/lib/analytics';
 import { REVIEWS } from '@/sections/reviews';
 import {
-  PRICE, TEN_CARD, eur, UMSTIEG_LIVE, TURNAROUND,
+  PRICE, TEN_CARD, eur, UMSTIEG_LIVE, TURNAROUND, GUARANTEE,
   rewaxMeta, rewaxFaqItems, rewaxServiceSchema, rewaxFaqSchema,
   type ServiceId,
 } from '@/pages/rewax/content';
@@ -39,7 +39,8 @@ import { Footer } from '@/sections/footer';
 import { BackLink } from '@/components/BackLink';
 import { GiftSection } from '@/pages/rewax/GiftSection';
 import { REWAX_CITIES } from '@/pages/rewax/cities';
-import { WaxWeatherPicker } from '@/pages/rewax/WaxWeek';
+import { LocalChainTool, ReturnWindowLine } from '@/pages/rewax/WaxWeek';
+import { HOME_STATE, returnWindow, formatWindow } from '@/pages/rewax/dates';
 
 const WA_NUMBER = '4915751957470';
 const waLink = (de: boolean, waxedLabel?: string | null) =>
@@ -122,6 +123,15 @@ const W = 'mx-auto w-full max-w-5xl px-6 sm:px-10 lg:px-14';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_RE = /^[+\d][\d\s()/-]{5,}$/;
 
+// Preiskarte → Formular: „Umstieg anmelden" bei 2 Ketten setzt beides im
+// Stufenformular und scrollt hin. Ein Fenster-Event statt State-Lift, weil
+// PriceMatrix und Formular auch auf den Stadtseiten getrennt stehen.
+const BOOK_EVENT = 'rewax:book';
+function bookChain(service: ServiceId, quantity: number) {
+  window.dispatchEvent(new CustomEvent(BOOK_EVENT, { detail: { service, quantity } }));
+  document.querySelector('#rewax-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 // ─── Leistungswahl ──────────────────────────────────────────────────────────
 // Die Frage, die der Besucher schon im Kopf hat: ist deine Kette schon
 // gewachst, oder geölt/neu? Erster Schritt des Stufenformulars. Nur sichtbar
@@ -199,6 +209,16 @@ export function RewaxRequestForm({ de, preselect }: { de: boolean; preselect: Se
   const [honeypot, setHoneypot] = useState('');
   const [status, setStatus] = useState<'idle' | 'sending' | 'done' | 'error'>('idle');
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    const onBook = (e: Event) => {
+      const { service: s, quantity: q } = (e as CustomEvent<{ service: ServiceId; quantity: number }>).detail;
+      setService(UMSTIEG_LIVE ? s : 'rewax');
+      setQuantity(q);
+    };
+    window.addEventListener(BOOK_EVENT, onBook);
+    return () => window.removeEventListener(BOOK_EVENT, onBook);
+  }, []);
 
   const p = PRICE[service ?? 'rewax'];
   const isBundle = quantity >= PRICE.bundleCount;
@@ -304,6 +324,7 @@ export function RewaxRequestForm({ de, preselect }: { de: boolean; preselect: Se
             </div>
           </div>
           <p className="text-[12px] mt-2" style={{ color: isBundle ? 'var(--accent)' : 'var(--txf)' }}>
+            {quantity === PRICE.bundleCount && (de ? 'Rotation: eine fährt, eine ist bei uns. ' : 'Rotation: one rides, one is with us. ')}
             {isBundle
               ? (de ? `Mengenpreis aktiv: ${eur(p.bundle, de)} statt ${eur(p.single, de)} je Kette` : `Volume price on: ${eur(p.bundle, de)} instead of ${eur(p.single, de)} per chain`)
               : (de ? `Ab ${PRICE.bundleCount} Ketten nur ${eur(p.bundle, de)} je Kette` : `From ${PRICE.bundleCount} chains only ${eur(p.bundle, de)} per chain`)}
@@ -378,131 +399,181 @@ export function RewaxRequestForm({ de, preselect }: { de: boolean; preselect: Se
   );
 }
 
-// ─── Preise: ein Block ──────────────────────────────────────────────────────
-// Vorher zwei Preisblöcke mit je zwei Kacheln plus zwei Absätze. Jetzt eine
-// Vergleichstabelle: was wir tun (Häkchen) und was es kostet, Auffrischung und
-// Umstieg nebeneinander. So sieht man den Mehraufwand des Umstiegs, statt ihn
-// in einem Absatz erklärt zu bekommen.
+// ─── Preise: zwei Angebotskarten ────────────────────────────────────────────
+// Vorher eine 13-Zeilen-Matrix mit Arbeitsschritt-Häkchen. Jetzt zwei Karten:
+// Auffrischung links, Umstieg rechts (der höhere Preis rahmt den kleineren).
+// Ein Mengen-Umschalter rechnet beide live um, inklusive Rotation ab zwei
+// Ketten. Am Fuß die zwei häufigsten Einwände, beantwortet: Leise-Garantie
+// und das konkrete Rückgabe-Datum. „Anmelden" übergibt Leistung + Menge ans
+// Stufenformular im Hero (bookChain).
+const QTY_OPTIONS = [1, 2, 3] as const;
+
 export function PriceMatrix({ de }: { de: boolean }) {
+  const [qty, setQty] = useState<number>(1);
+  // Mobil eine Karte mit Umschalter statt zwei Karten untereinander.
+  const [mobileSvc, setMobileSvc] = useState<ServiceId>('rewax');
   const cols: ServiceId[] = UMSTIEG_LIVE ? ['rewax', 'umstieg'] : ['rewax'];
+  const isBundle = qty >= PRICE.bundleCount;
+  const shipping = qty === 1 ? PRICE.shippingSingle : PRICE.shippingBundle;
 
-  const head = {
-    rewax: { t: de ? 'Auffrischung' : 'Rewax', s: de ? 'Kette ist schon gewachst' : 'Chain is already waxed', Icon: Sparkles },
-    umstieg: { t: de ? 'Umstieg' : 'Switch', s: de ? 'Kette ist geölt oder neu' : 'Chain is oiled or new', Icon: Droplet },
+  const card = {
+    rewax: {
+      t: de ? 'Auffrischung' : 'Rewax', s: de ? 'Kette ist schon gewachst' : 'Chain is already waxed', Icon: Sparkles,
+      points: de
+        ? ['Altwachs mit kochendem Wasser raus, ohne Lösemittel', 'Frisches Wachsbad, voll ausgehärtet', 'Glieder freigebrochen, trocken verpackt']
+        : ['Old wax out with boiling water, no solvents', 'Fresh wax bath, fully cured', 'Links broken free, packed dry'],
+    },
+    umstieg: {
+      t: de ? 'Umstieg' : 'Switch', s: de ? 'Kette ist geölt oder neu' : 'Chain is oiled or new', Icon: Droplet,
+      points: de
+        ? ['Separates Ultraschallbad: Öl und Fett komplett raus', 'Erstes Wachsbad, bis in jedes Gelenk', 'Glieder freigebrochen, trocken verpackt']
+        : ['Separate ultrasonic bath: all oil and grease out', 'First wax bath, into every joint', 'Links broken free, packed dry'],
+    },
   } as const;
-
-  const work: { de: string; en: string; in: Record<ServiceId, boolean> }[] = [
-    { de: 'Altwachs mit kochendem Wasser lösen', en: 'Old wax lifted with boiling water', in: { rewax: true, umstieg: false } },
-    { de: 'Separates Ultraschallbad, entfetten, trocknen', en: 'Separate ultrasonic bath, degrease, dry', in: { rewax: false, umstieg: true } },
-    { de: 'Frisches Wachsbad, aushärten', en: 'Fresh wax bath, cured', in: { rewax: true, umstieg: true } },
-    { de: 'Glieder freibrechen, trocken verpacken', en: 'Links broken free, packed dry', in: { rewax: true, umstieg: true } },
-  ];
-
-  const grid = UMSTIEG_LIVE ? 'grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_minmax(0,1fr)]' : 'grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]';
-  const rowCls = `grid ${grid} items-center gap-2 sm:gap-3 px-3 sm:px-6 py-2.5`;
 
   return (
     <div>
-      <h2 className="font-display font-bold text-wx-tx1 leading-tight"
-        style={{ fontSize: 'clamp(1.7rem, 3.4vw, 2.4rem)', letterSpacing: '-0.02em' }}>
-        {de ? 'Was es kostet.' : 'What it costs.'}
-      </h2>
-      <p className="text-[14px] mt-2 mb-7" style={{ color: 'var(--txm)' }}>
-        {de ? 'Zwei Leistungen, je nachdem, wie deine Kette ankommt.' : 'Two services, depending on how your chain arrives.'}
-      </p>
-
-      <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--sf)', border: '1px solid var(--bd)', boxShadow: 'var(--card-shad)' }}>
-        {/* Kopf */}
-        <div className={`${rowCls} py-4`} style={{ background: 'var(--sf2)', borderBottom: '1px solid var(--bd2)' }}>
-          <span />
-          {cols.map(c => {
-            const { t, s, Icon } = head[c];
-            return (
-              <div key={c}>
-                <p className="flex items-center gap-1.5 font-semibold text-[12.5px] sm:text-[15px] min-w-0" style={{ color: 'var(--tx1)' }}>
-                  <Icon className="hidden sm:block h-3.5 w-3.5 flex-shrink-0" style={{ color: 'var(--accent)' }} aria-hidden />{t}
-                </p>
-                <p className="text-[12px] sm:text-[11.5px] leading-snug mt-0.5" style={{ color: 'var(--txm)' }}>{s}</p>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Was wir tun */}
-        <div className="py-2">
-          {work.map(w => (
-            <div key={w.de} className={rowCls}>
-              <span className="text-[12.5px] sm:text-[13px]" style={{ color: 'var(--txm)' }}>{de ? w.de : w.en}</span>
-              {cols.map(c => (
-                <span key={c}>
-                  {w.in[c]
-                    ? <Check className="h-4 w-4" style={{ color: 'var(--accent)' }} aria-label={de ? 'enthalten' : 'included'} />
-                    : <Minus className="h-4 w-4" style={{ color: 'var(--txff)' }} aria-label={de ? 'nicht nötig' : 'not needed'} />}
-                </span>
-              ))}
-            </div>
-          ))}
-        </div>
-
-        {/* Preise */}
-        <div className="py-2" style={{ borderTop: '1px solid var(--bd2)' }}>
-          <div className={rowCls}>
-            <span className="text-[12.5px] sm:text-[13px]" style={{ color: 'var(--txm)' }}>{de ? 'Eine Kette' : 'One chain'}</span>
-            {cols.map(c => (
-              <span key={c} className="font-display font-bold leading-none whitespace-nowrap" style={{ fontSize: 'clamp(1.1rem, 4.4vw, 1.45rem)', letterSpacing: '-0.02em', color: 'var(--tx1)' }}>
-                {eur(PRICE[c].single, de)}
-              </span>
-            ))}
-          </div>
-          <div className={rowCls}>
-            <span className="text-[12.5px] sm:text-[13px]" style={{ color: 'var(--txm)' }}>{de ? `Ab ${PRICE.bundleCount} Ketten, je Kette` : `From ${PRICE.bundleCount} chains, each`}</span>
-            {cols.map(c => (
-              <span key={c} className="num text-[14px] font-semibold" style={{ color: 'var(--accent)' }}>{eur(PRICE[c].bundle, de)}</span>
-            ))}
-          </div>
-          <div className={rowCls}>
-            <span className="text-[12.5px] sm:text-[13px]" style={{ color: 'var(--txm)' }}>{de ? 'Rückversand' : 'Return shipping'}</span>
-            {cols.map(c => (
-              <span key={c} className="num text-[12.5px]" style={{ color: 'var(--tx2)' }}>
-                {eur(PRICE.shippingSingle, de)}<span style={{ color: 'var(--txf)' }}>*</span>
-              </span>
-            ))}
-          </div>
-          {/* Eigener Komplettpreis statt Konkurrenzvergleich (UWG, siehe content.ts):
-              eine Kette, Großbrief hin + Großbrief zurück. */}
-          <div className={rowCls}>
-            <span className="text-[12.5px] sm:text-[13px]" style={{ color: 'var(--txm)' }}>{de ? 'Mit Porto hin und zurück' : 'With postage both ways'}</span>
-            {cols.map(c => (
-              <span key={c} className="num text-[13px] font-semibold" style={{ color: 'var(--tx1)' }}>
-                {eur(PRICE[c].single + 2 * PRICE.shippingSingle, de)}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        <div className="px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-3" style={{ borderTop: '1px solid var(--bd2)', background: 'var(--sf2)' }}>
-          <p className="text-[12px]" style={{ color: 'var(--txm)' }}>
-            {de ? `Öfter fällig? Mit der 10er-Karte ${eur(TEN_CARD.price / TEN_CARD.count, de)} je Auffrischung.` : `Due often? ${eur(TEN_CARD.price / TEN_CARD.count, de)} per rewax with the 10-card.`}
+      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4 mb-6">
+        <div>
+          <h2 className="font-display font-bold text-wx-tx1 leading-tight"
+            style={{ fontSize: 'clamp(1.7rem, 3.4vw, 2.4rem)', letterSpacing: '-0.02em' }}>
+            {de ? 'Was es kostet.' : 'What it costs.'}
+          </h2>
+          <p className="text-[14px] mt-2" style={{ color: 'var(--txm)' }}>
+            {de ? 'Zwei Leistungen, je nachdem, wie deine Kette ankommt.' : 'Two services, depending on how your chain arrives.'}
           </p>
-          <a href="#rewax-form" className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-semibold"
-            style={{ background: 'var(--accent)', color: '#fff' }}>
-            {de ? 'Kette anmelden' : 'Book my chain'} <ArrowRight className="h-3.5 w-3.5" />
-          </a>
+        </div>
+        <div role="radiogroup" aria-label={de ? 'Anzahl Ketten' : 'Number of chains'}
+          className="inline-flex rounded-full p-1" style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)' }}>
+          {QTY_OPTIONS.map((n) => (
+            <button key={n} type="button" role="radio" aria-checked={qty === n} onClick={() => setQty(n)}
+              className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[13px] font-semibold transition-colors"
+              style={{ background: qty === n ? 'var(--accent)' : 'transparent', color: qty === n ? '#fff' : 'var(--txm)' }}>
+              {n} {de ? (n === 1 ? 'Kette' : 'Ketten') : (n === 1 ? 'chain' : 'chains')}
+              {n === PRICE.bundleCount && (
+                <span className="text-[10px] font-semibold rounded-full px-1.5 py-0.5"
+                  style={{ background: qty === n ? 'rgba(255,255,255,0.2)' : 'var(--accent-wash)', color: qty === n ? '#fff' : 'var(--accent)' }}>
+                  Rotation
+                </span>
+              )}
+            </button>
+          ))}
         </div>
       </div>
 
+      {/* Mobil: Umschalter mit beiden Preisen, damit der Anker sichtbar bleibt */}
+      {cols.length > 1 && (
+        <div role="radiogroup" aria-label={de ? 'Leistung' : 'Service'} className="sm:hidden grid grid-cols-2 gap-2 mb-3">
+          {cols.map((c) => {
+            const on = mobileSvc === c;
+            return (
+              <button key={c} type="button" role="radio" aria-checked={on} onClick={() => setMobileSvc(c)}
+                className="rounded-xl px-3 py-2 text-left transition-colors"
+                style={{ background: on ? 'var(--accent)' : 'var(--sf2)', color: on ? '#fff' : 'var(--tx1)', border: `1px solid ${on ? 'var(--accent)' : 'var(--bd2)'}` }}>
+                <span className="flex items-baseline justify-between gap-2 text-[13px] font-semibold">
+                  {card[c].t}
+                  <span className="num whitespace-nowrap">{eur(isBundle ? PRICE[c].bundle : PRICE[c].single, de)}</span>
+                </span>
+                <span className="block text-[12px] leading-snug mt-0.5" style={{ opacity: 0.85 }}>{card[c].s}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      <div className={`grid gap-4 ${cols.length > 1 ? 'sm:grid-cols-2' : ''}`}>
+        {cols.map((c) => {
+          const { t, s, Icon, points } = card[c];
+          const p = PRICE[c];
+          const per = isBundle ? p.bundle : p.single;
+          return (
+            <div key={c} className={`rounded-2xl p-5 sm:p-6 flex-col ${cols.length > 1 && c !== mobileSvc ? 'hidden sm:flex' : 'flex'}`}
+              style={{ background: 'var(--sf)', border: '1px solid var(--bd)', boxShadow: 'var(--card-shad)' }}>
+              {/* Mobil steht Name + Zustand schon im Umschalter darüber */}
+              <p className={`${cols.length > 1 ? 'hidden sm:flex' : 'flex'} items-center gap-1.5 font-semibold text-[15px]`} style={{ color: 'var(--tx1)' }}>
+                <Icon className="h-4 w-4 flex-shrink-0" style={{ color: 'var(--accent)' }} aria-hidden />{t}
+              </p>
+              <p className={`${cols.length > 1 ? 'hidden sm:block' : ''} text-[12.5px] mt-0.5`} style={{ color: 'var(--txm)' }}>{s}</p>
+
+              <div className={`flex items-baseline flex-wrap gap-x-2 ${cols.length > 1 ? 'sm:mt-4' : 'mt-4'}`}>
+                <span className="font-display font-bold leading-none whitespace-nowrap"
+                  style={{ fontSize: 'clamp(1.9rem, 5vw, 2.3rem)', letterSpacing: '-0.02em', color: 'var(--tx1)' }}>
+                  {eur(per, de)}
+                </span>
+                {isBundle && <span className="num text-[13px] line-through" style={{ color: 'var(--txff)' }}>{eur(p.single, de)}</span>}
+                <span className="text-[12.5px]" style={{ color: 'var(--txm)' }}>{de ? 'je Kette' : 'per chain'}</span>
+              </div>
+              <p className="num text-[12.5px] mt-1.5" style={{ color: isBundle ? 'var(--accent)' : 'var(--txf)' }}>
+                {isBundle
+                  ? (de ? `Du sparst ${eur((p.single - p.bundle) * qty, de)}` : `You save ${eur((p.single - p.bundle) * qty, de)}`)
+                  : (de ? `Ab ${PRICE.bundleCount} Ketten ${eur(p.bundle, de)} je Kette` : `From ${PRICE.bundleCount} chains ${eur(p.bundle, de)} each`)}
+              </p>
+
+              <ul className="mt-4 space-y-1.5 flex-1">
+                {points.map((pt) => (
+                  <li key={pt} className="flex items-start gap-2 text-[13px] leading-snug" style={{ color: 'var(--tx2)' }}>
+                    <Check className="h-3.5 w-3.5 flex-shrink-0 mt-[3px]" style={{ color: 'var(--accent)' }} aria-hidden />{pt}
+                  </li>
+                ))}
+              </ul>
+
+              <dl className="mt-5 pt-4 space-y-1 text-[12.5px]" style={{ borderTop: '1px solid var(--bd2)' }}>
+                <div className="flex justify-between gap-3">
+                  <dt style={{ color: 'var(--txm)' }}>
+                    {qty === 1 ? (de ? 'Mit Rückversand' : 'With return shipping') : (de ? `${qty} Ketten mit Rückversand` : `${qty} chains with return shipping`)}
+                  </dt>
+                  <dd className="num font-semibold" style={{ color: 'var(--tx1)' }}>{eur(per * qty + shipping, de)}</dd>
+                </div>
+                {/* Eigener Komplettpreis statt Konkurrenzvergleich (UWG, siehe content.ts). */}
+                <div className="flex justify-between gap-3">
+                  <dt style={{ color: 'var(--txf)' }}>{de ? 'Mit Porto hin und zurück' : 'With postage both ways'}</dt>
+                  <dd className="num" style={{ color: 'var(--txm)' }}>{eur(per * qty + 2 * shipping, de)}</dd>
+                </div>
+              </dl>
+
+              <button type="button" onClick={() => bookChain(c, qty)}
+                className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-[14px] font-semibold transition-opacity hover:opacity-90"
+                style={{ background: 'var(--accent)', color: '#fff' }}>
+                {de ? `${t} anmelden` : `Book ${t.toLowerCase()}`} <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Die zwei Einwände, direkt am Preis beantwortet */}
+      <div className="mt-4 rounded-2xl px-4 sm:px-5 py-3.5 grid sm:grid-cols-2 gap-x-6 gap-y-2.5"
+        style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)' }}>
+        <p className="flex items-start gap-2 text-[13px] leading-snug" style={{ color: 'var(--txm)' }}>
+          <ShieldCheck className="h-4 w-4 flex-shrink-0 mt-px" style={{ color: 'var(--accent)' }} aria-hidden />
+          <span><strong style={{ color: 'var(--tx1)' }}>{de ? GUARANTEE.short : GUARANTEE.shortEn}:</strong> {de ? GUARANTEE.line : GUARANTEE.lineEn}</span>
+        </p>
+        <p className="flex items-start gap-2 text-[13px] leading-snug" style={{ color: 'var(--txm)' }}>
+          <Clock className="h-4 w-4 flex-shrink-0 mt-px" style={{ color: 'var(--accent)' }} aria-hidden />
+          <ReturnWindowLine state={HOME_STATE} de={de} />
+        </p>
+      </div>
+
+      <p className="text-[12.5px] mt-3" style={{ color: 'var(--txm)' }}>
+        {de ? 'Öfter fällig? ' : 'Due often? '}
+        <a href="/kette-wachsen-lassen#geschenk" className="font-semibold underline underline-offset-2" style={{ color: 'var(--accent)' }}>
+          {de ? `Mit der 10er-Karte ${eur(TEN_CARD.price / TEN_CARD.count, de)} je Auffrischung` : `${eur(TEN_CARD.price / TEN_CARD.count, de)} per rewax with the 10-card`}
+        </a>
+        {de ? ', Rückversand inklusive.' : ', return shipping included.'}
+      </p>
       <p className="text-[12px] sm:text-[11.5px] leading-relaxed mt-3" style={{ color: 'var(--txff)' }}>
         {de
-          ? `* Eine Kette im Großbrief, ab zwei Ketten im Maxibrief ${eur(PRICE.shippingBundle, de)} für alle zusammen. Hinversand trägst du. Kleinunternehmer nach § 19 UStG, daher keine Umsatzsteuer ausgewiesen.`
-          : `* One chain as a letter, two or more as a large letter for ${eur(PRICE.shippingBundle, de)} in total. You cover shipping to us. Small business under § 19 UStG, so no VAT is shown.`}
+          ? `Eine Kette im Großbrief (${eur(PRICE.shippingSingle, de)}), ab zwei Ketten im Maxibrief ${eur(PRICE.shippingBundle, de)} für alle zusammen. Hinversand trägst du. Rückgabe-Datum geschätzt aus Postlaufzeit und Feiertagen. Kleinunternehmer nach § 19 UStG, daher keine Umsatzsteuer ausgewiesen.`
+          : `One chain as a letter (${eur(PRICE.shippingSingle, de)}), two or more as a large letter for ${eur(PRICE.shippingBundle, de)} in total. You cover shipping to us. Return date estimated from postal times and public holidays. Small business under § 19 UStG, so no VAT is shown.`}
       </p>
     </div>
   );
 }
 
 // ─── So läuft's ab ──────────────────────────────────────────────────────────
-// Drei Karten nebeneinander (mobil wischbar), je ein Satz. Darunter die
-// Laufzeit als Zeitstrahl — ersetzt den früheren „Aus ganz Deutschland"-Absatz.
+// Drei Karten nebeneinander (mobil wischbar), je ein Satz, Fotos flacher (3:2).
+// Darunter die Laufzeit als Zeitstrahl. Die Stadt-Chips standen hier und im
+// Wetterblock doppelt — sie wohnen jetzt einmal, als Textlinks unter der FAQ.
 export function RewaxSteps({ de }: { de: boolean }) {
   const legs = [
     { de: 'Post zu uns', en: 'Post to us', v: de ? '1–2 Werktage' : '1–2 days', grow: 1, strong: false },
@@ -510,12 +581,12 @@ export function RewaxSteps({ de }: { de: boolean }) {
     { de: 'Post zu dir', en: 'Post to you', v: de ? '1–2 Werktage' : '1–2 days', grow: 1, strong: false },
   ];
   return (
-    <section id="ablauf" className="scroll-mt-24 py-14 sm:py-20" style={{ borderTop: '1px solid var(--bd2)' }}>
+    <section id="ablauf" className="scroll-mt-24 py-12 sm:py-16" style={{ borderTop: '1px solid var(--bd2)' }}>
       <div className={W}>
         <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
           {de ? 'Ablauf' : 'How it works'}
         </p>
-        <h2 className="font-display font-bold text-wx-tx1 leading-tight mb-8"
+        <h2 className="font-display font-bold text-wx-tx1 leading-tight mb-6"
           style={{ fontSize: 'clamp(1.7rem, 3.4vw, 2.4rem)', letterSpacing: '-0.02em' }}>
           {de ? 'So läuft’s ab.' : 'How it works.'}
         </h2>
@@ -524,7 +595,7 @@ export function RewaxSteps({ de }: { de: boolean }) {
           style={{ scrollbarWidth: 'none' }}>
           {STEPS.map(s => (
             <li key={s.n} className="snap-start flex-shrink-0 w-[78%] sm:w-auto">
-              <div className="rounded-2xl overflow-hidden" style={{ aspectRatio: '4 / 3', background: 'var(--sf2)' }}>
+              <div className="rounded-2xl overflow-hidden" style={{ aspectRatio: '3 / 2', background: 'var(--sf2)' }}>
                 <img src={`${s.img}.webp`}
                   srcSet={`${s.img}-800.webp 800w, ${s.img}.webp 1200w`}
                   sizes="(max-width: 640px) 78vw, 30vw"
@@ -544,30 +615,14 @@ export function RewaxSteps({ de }: { de: boolean }) {
         </ol>
 
         {/* Laufzeit als Zeitstrahl */}
-        <div className="mt-10">
-          <div className="flex gap-1.5">
-            {legs.map(l => (
-              <div key={l.de} style={{ flexGrow: l.grow, flexBasis: 0 }}>
-                <div className="h-1.5 rounded-full" style={{ background: l.strong ? 'var(--accent)' : 'var(--bd)' }} />
-                <p className="text-[12px] sm:text-[11.5px] mt-2" style={{ color: 'var(--txf)' }}>{de ? l.de : l.en}</p>
-                <p className="num text-[13px] font-semibold" style={{ color: l.strong ? 'var(--accent)' : 'var(--tx1)' }}>{l.v}</p>
-              </div>
-            ))}
-          </div>
-          <p className="text-[13px] leading-relaxed mt-5" style={{ color: 'var(--txm)' }}>
-            {de ? 'Reiner Postversand aus ganz Deutschland, zum Beispiel aus:' : 'Purely by mail from anywhere in Germany, for example from:'}
-          </p>
-          <ul className="flex flex-wrap gap-1.5 mt-3">
-            {REWAX_CITIES.map(c => (
-              <li key={c.slug}>
-                <Link to={`/kette-wachsen-lassen/${c.slug}`}
-                  className="inline-block rounded-full px-3 py-1.5 text-[12.5px] font-medium transition-colors hover:opacity-80"
-                  style={{ background: 'var(--sf)', border: '1px solid var(--bd2)', color: 'var(--tx2)' }}>
-                  {de ? c.name : c.nameEn}
-                </Link>
-              </li>
-            ))}
-          </ul>
+        <div className="mt-8 flex gap-1.5">
+          {legs.map(l => (
+            <div key={l.de} style={{ flexGrow: l.grow, flexBasis: 0 }}>
+              <div className="h-1.5 rounded-full" style={{ background: l.strong ? 'var(--accent)' : 'var(--bd)' }} />
+              <p className="text-[12px] sm:text-[11.5px] mt-2" style={{ color: 'var(--txf)' }}>{de ? l.de : l.en}</p>
+              <p className="num text-[13px] font-semibold" style={{ color: l.strong ? 'var(--accent)' : 'var(--tx1)' }}>{l.v}</p>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -582,63 +637,62 @@ function RewaxTrust({ de }: { de: boolean }) {
   const quotes = REVIEWS.filter(r => r.name === 'diemojakob' || r.name === 'seyrane');
 
   return (
-    <section className="py-14 sm:py-20" style={{ borderTop: '1px solid var(--bd2)' }}>
+    <section className="py-12 sm:py-16" style={{ borderTop: '1px solid var(--bd2)' }}>
       <div className={W}>
         <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
           {de ? 'Vertrauen' : 'Trust'}
         </p>
-        <h2 className="font-display font-bold text-wx-tx1 leading-tight mb-8"
+        <h2 className="font-display font-bold text-wx-tx1 leading-tight mb-6"
           style={{ fontSize: 'clamp(1.7rem, 3.4vw, 2.4rem)', letterSpacing: '-0.02em' }}>
           {de ? 'Warum Leute uns ihre Kette schicken.' : 'Why people mail us their chain.'}
         </h2>
 
-        <div className="lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-14 lg:items-start">
-          {/* Luca + Kennzahlen */}
-          <div className="mb-10 lg:mb-0">
-            <div className="flex items-center gap-3.5">
-              <img src="/images/people/luca-stage.webp" alt={de ? 'Luca von Waxcelerate' : 'Luca of Waxcelerate'}
-                className="rounded-full object-cover flex-shrink-0" style={{ width: 56, height: 56 }} loading="lazy" />
-              <div>
-                <p className="font-semibold text-[14px]" style={{ color: 'var(--tx1)' }}>Luca Teichmann</p>
-                <p className="text-[12.5px]" style={{ color: 'var(--txm)' }}>
-                  {de ? 'wächst jede Kette selbst · Stuttgart' : 'waxes every chain himself · Stuttgart'}
-                </p>
-              </div>
-            </div>
-            <div className="mt-6 space-y-3">
-              {[
-                { v: `${trustStats.sold}+`, l: de ? 'Ketten gewachst, seit 2024' : 'chains waxed, since 2024' },
-                { v: `${trustStats.reviews}`, l: de ? 'Bewertungen · 100 % positiv' : 'reviews · 100% positive' },
-                { v: de ? TURNAROUND.short : TURNAROUND.shortEn, l: de ? 'Bearbeitung ab Ankunft' : 'processing after arrival' },
-              ].map(({ v, l }) => (
-                <div key={l}>
-                  <p className="font-display font-bold leading-none" style={{ fontSize: '1.35rem', color: 'var(--tx1)' }}>{v}</p>
-                  <p className="text-[12px] mt-0.5" style={{ color: 'var(--txm)' }}>{l}</p>
-                </div>
-              ))}
+        {/* Luca + Kennzahlen in einer Zeile */}
+        <div className="flex flex-wrap items-center gap-x-10 gap-y-5 mb-6">
+          <div className="flex items-center gap-3.5">
+            <img src="/images/people/luca-stage.webp" alt={de ? 'Luca von Waxcelerate' : 'Luca of Waxcelerate'}
+              className="rounded-full object-cover flex-shrink-0" style={{ width: 52, height: 52 }} loading="lazy" />
+            <div>
+              <p className="font-semibold text-[14px]" style={{ color: 'var(--tx1)' }}>Luca Teichmann</p>
+              <p className="text-[12.5px]" style={{ color: 'var(--txm)' }}>
+                {de ? 'wächst jede Kette selbst · Stuttgart' : 'waxes every chain himself · Stuttgart'}
+              </p>
             </div>
           </div>
-
-          {/* Zitate */}
-          <div className="space-y-4">
-            {quotes.map(r => (
-              <figure key={r.name} className="rounded-2xl p-5"
-                style={{ background: 'var(--sf)', border: '1px solid var(--bd)' }}>
-                <blockquote className="text-[13.5px] leading-relaxed" style={{ color: 'var(--tx2)' }}>
-                  „{de ? r.textDe : r.textEn}"
-                </blockquote>
-                <figcaption className="text-[12px] mt-3" style={{ color: 'var(--txf)' }}>
-                  {r.name} · {de ? r.dateDe : r.dateEn} · {de ? 'eBay verifiziert' : 'eBay verified'}
-                </figcaption>
-              </figure>
-            ))}
-            <p className="text-[12px] sm:text-[11.5px] leading-relaxed" style={{ color: 'var(--txff)' }}>
-              {de
-                ? 'Bewertungen aus unserem eBay-Shop, unverändert übernommen. „100 % positiv" heißt: keine negative Bewertung.'
-                : 'Reviews from our eBay shop, quoted verbatim. "100% positive" means: no negative rating.'}
-            </p>
+          <div className="grid grid-cols-3 gap-4 w-full sm:w-auto sm:flex sm:gap-10">
+          {[
+            { v: `${trustStats.sold}+`, l: de ? 'Ketten gewachst, seit 2024' : 'chains waxed, since 2024' },
+            { v: `${trustStats.reviews}`, l: de ? 'Bewertungen · 100 % positiv' : 'reviews · 100% positive' },
+            { v: de ? TURNAROUND.short : TURNAROUND.shortEn, l: de ? 'Bearbeitung ab Ankunft' : 'processing after arrival' },
+          ].map(({ v, l }) => (
+            <div key={l}>
+              <p className="font-display font-bold leading-none" style={{ fontSize: '1.3rem', color: 'var(--tx1)' }}>{v}</p>
+              <p className="text-[12px] mt-0.5" style={{ color: 'var(--txm)' }}>{l}</p>
+            </div>
+          ))}
           </div>
         </div>
+
+        {/* Mobil wischbar wie der Ablauf, ab md nebeneinander */}
+        <div className="-mx-6 px-6 md:mx-0 md:px-0 flex md:grid md:grid-cols-2 gap-4 overflow-x-auto md:overflow-visible snap-x snap-mandatory pb-2 md:pb-0"
+          style={{ scrollbarWidth: 'none' }}>
+          {quotes.map(r => (
+            <figure key={r.name} className="snap-start flex-shrink-0 w-[85%] md:w-auto rounded-2xl p-5"
+              style={{ background: 'var(--sf)', border: '1px solid var(--bd)' }}>
+              <blockquote className="text-[13.5px] leading-relaxed" style={{ color: 'var(--tx2)' }}>
+                „{de ? r.textDe : r.textEn}"
+              </blockquote>
+              <figcaption className="text-[12px] mt-3" style={{ color: 'var(--txf)' }}>
+                {r.name} · {de ? r.dateDe : r.dateEn} · {de ? 'eBay verifiziert' : 'eBay verified'}
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+        <p className="text-[12px] sm:text-[11.5px] leading-relaxed mt-3" style={{ color: 'var(--txff)' }}>
+          {de
+            ? 'Bewertungen aus unserem eBay-Shop, unverändert übernommen. „100 % positiv" heißt: keine negative Bewertung.'
+            : 'Reviews from our eBay shop, quoted verbatim. "100% positive" means: no negative rating.'}
+        </p>
       </div>
     </section>
   );
@@ -687,6 +741,10 @@ function RewaxStickyCTA({ de }: { de: boolean }) {
           {de ? 'Kette einschicken' : 'Send in your chain'}
           <ArrowRight className="h-4 w-4" />
         </button>
+        {/* Preis, Risiko und Zeit am Daumen — die drei Fragen vor dem Klick */}
+        <p className="num text-[12px] text-center mt-1.5 truncate" style={{ color: 'var(--txm)' }}>
+          {de ? 'ab ' : 'from '}{eur(PRICE.rewax.single, de)} · {de ? GUARANTEE.short : GUARANTEE.shortEn} · {de ? 'zurück ca. ' : 'back approx. '}{formatWindow(returnWindow(new Date(), HOME_STATE), de)}
+        </p>
       </div>
     </div>
   );
@@ -718,8 +776,13 @@ export function RewaxPage() {
     ? 'Kette einschicken, frisch gewachst und leise zurück. Handgewachst in Stuttgart, deutschlandweit per Post.'
     : 'Send in your chain, get it back freshly waxed and quiet. Hand-waxed in Stuttgart, nationwide by mail.';
   const heroChips = de
-    ? ['Nichts vorreinigen', `Großbrief ${eur(PRICE.shippingSingle, de)}`, `${TURNAROUND.short} bei uns`]
-    : ['No pre-cleaning', `Letter post ${eur(PRICE.shippingSingle, de)}`, `${TURNAROUND.shortEn} with us`];
+    ? ['Nichts vorreinigen', `${TURNAROUND.short} bei uns`, GUARANTEE.short]
+    : ['No pre-cleaning', `${TURNAROUND.shortEn} with us`, GUARANTEE.shortEn];
+  // Ein kurzes, echtes Service-Zitat direkt unter dem Formular.
+  const heroQuote = REVIEWS.find(r => r.name === 'seyrane');
+  // FAQ mobil: erst fünf Fragen, der Rest auf Wunsch (bleibt im DOM + JSON-LD).
+  const FAQ_MOBILE = 5;
+  const [allFaq, setAllFaq] = useState(false);
 
   return (
     <div className="min-h-screen bg-wx-bg">
@@ -750,7 +813,7 @@ export function RewaxPage() {
           Desktop füllt es die rechte Hälfte und läuft per Maske weich in den
           Seitengrund aus, mobil steht es oben und blendet nach unten aus. */}
       <section id="rewax-hero" className="relative overflow-hidden pt-24 sm:pt-32 pb-14 sm:pb-20" style={{ background: 'var(--pg)' }}>
-        <div aria-hidden className="absolute inset-x-0 top-0 h-[340px] sm:h-[420px] lg:inset-x-auto lg:right-0 lg:h-full lg:w-[58%]"
+        <div aria-hidden className="absolute inset-x-0 top-0 h-[260px] sm:h-[420px] lg:inset-x-auto lg:right-0 lg:h-full lg:w-[58%]"
           style={{
             WebkitMaskImage: 'var(--rewax-hero-mask)',
             maskImage: 'var(--rewax-hero-mask)',
@@ -769,7 +832,9 @@ export function RewaxPage() {
         `}</style>
 
         <div className={`${W} relative`}>
-          <div className="pt-[200px] sm:pt-[260px] lg:pt-0 lg:max-w-[440px]">
+          {/* Mobil Bild 260 statt 340 px: Überschrift, Nutzen und Formular-
+              Schritt 1 stehen damit im ersten Bildschirm. */}
+          <div className="pt-[150px] sm:pt-[260px] lg:pt-0 lg:max-w-[440px]">
             <BackLink de={de} className="hidden lg:inline-flex mb-6" />
             <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>{de ? 'Wachs-Service' : 'Wax service'}</p>
             <h1 className="font-display font-bold leading-[1.02]"
@@ -786,7 +851,14 @@ export function RewaxPage() {
                   : `Your card: waxed ${waxedLabel}. If it sounds dry, send it in.`}
               </p>
             )}
-            <ul className="flex flex-wrap gap-1.5 mt-5">
+            {/* Mobil eine Textzeile statt drei Pillen über zwei Zeilen */}
+            <p className="sm:hidden flex items-center gap-1.5 text-[12.5px] font-medium mt-4 whitespace-nowrap" style={{ color: 'var(--tx2)' }}>
+              <Check className="h-3.5 w-3.5 flex-shrink-0" style={{ color: 'var(--accent)' }} aria-hidden />
+              {de
+                ? `Nichts vorreinigen · ${TURNAROUND.short} · ${GUARANTEE.short}`
+                : `No pre-cleaning · ${TURNAROUND.shortEn} · ${GUARANTEE.shortEn}`}
+            </p>
+            <ul className="hidden sm:flex flex-wrap gap-1.5 mt-5">
               {heroChips.map(c => (
                 <li key={c} className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium"
                   style={{ background: 'color-mix(in srgb, var(--sf) 82%, transparent)', border: '1px solid var(--bd2)', color: 'var(--tx2)', backdropFilter: 'blur(6px)' }}>
@@ -809,24 +881,34 @@ export function RewaxPage() {
                   <ArrowRight className="h-3.5 w-3.5" style={{ color: 'var(--accent)' }} />
                 </a>
               </div>
+              {heroQuote && (
+                <figure className="mt-4 pl-3" style={{ borderLeft: '2px solid var(--accent)' }}>
+                  <blockquote className="text-[13px] leading-snug" style={{ color: 'var(--tx2)' }}>
+                    „{de ? heroQuote.textDe : heroQuote.textEn}"
+                  </blockquote>
+                  <figcaption className="text-[12px] mt-1" style={{ color: 'var(--txf)' }}>
+                    {heroQuote.name} · {de ? 'eBay verifiziert' : 'eBay verified'}
+                  </figcaption>
+                </figure>
+              )}
             </div>
           </div>
         </div>
       </section>
 
-      <RewaxSteps de={de} />
-
-      <WaxWeatherPicker de={de} />
-
-      {/* ── Preise ── */}
-      <section id="preise" className="scroll-mt-24 py-14 sm:py-20" style={{ borderTop: '1px solid var(--bd2)' }}>
+      {/* ── Preise ── direkt nach dem Hero: die zweite Frage jedes Besuchers.
+          Danach das Orts-Werkzeug, dann erst der Ablauf. */}
+      <section id="preise" className="scroll-mt-24 py-12 sm:py-16" style={{ borderTop: '1px solid var(--bd2)' }}>
         <div className={W}>
-
-          <div className="max-w-[760px]">
+          <div className="max-w-[880px]">
             <PriceMatrix de={de} />
           </div>
         </div>
       </section>
+
+      <LocalChainTool de={de} />
+
+      <RewaxSteps de={de} />
 
       <GiftSection de={de} />
 
@@ -842,10 +924,13 @@ export function RewaxPage() {
             style={{ fontSize: 'clamp(1.7rem, 3.4vw, 2.4rem)', letterSpacing: '-0.02em' }}>
             {de ? 'Kurz beantwortet.' : 'Answered briefly.'}
           </h2>
-          <div className="max-w-[720px]">
+          {/* Ab lg zwei Spalten: zehn Fragen standen sonst über 1.200 px
+              untereinander. Grid statt CSS-Columns, damit eine aufgeklappte
+              Antwort nichts in die andere Spalte schiebt. */}
+          <div className="lg:grid lg:grid-cols-2 lg:gap-x-12 lg:items-start">
             {faqItems.map((item, i) => (
-              <details key={item.q} className="group py-5"
-                style={{ borderBottom: i < faqItems.length - 1 ? '1px solid var(--bd2)' : 'none' }}>
+              <details key={item.q} className={`group py-5 ${i >= FAQ_MOBILE && !allFaq ? 'hidden lg:block' : ''}`}
+                style={{ borderBottom: '1px solid var(--bd2)' }}>
                 <summary className="flex items-center justify-between gap-5 cursor-pointer list-none">
                   <h3 className="text-[15px] font-medium" style={{ color: 'var(--tx1)' }}>{item.q}</h3>
                   <ChevronDown className="h-4 w-4 flex-shrink-0 transition-transform duration-300 group-open:rotate-180"
@@ -864,6 +949,13 @@ export function RewaxPage() {
               </details>
             ))}
           </div>
+          {!allFaq && faqItems.length > FAQ_MOBILE && (
+            <button type="button" onClick={() => setAllFaq(true)}
+              className="lg:hidden mt-4 inline-flex items-center gap-1.5 py-2 text-[13.5px] font-semibold" style={{ color: 'var(--tx1)' }}>
+              {de ? `Alle ${faqItems.length} Fragen zeigen` : `Show all ${faqItems.length} questions`}
+              <ChevronDown className="h-4 w-4" style={{ color: 'var(--accent)' }} aria-hidden />
+            </button>
+          )}
 
           {/* Interne Links raus — SEO + Verweildauer */}
           <div className="mt-10 pt-8 max-w-[720px]" style={{ borderTop: '1px solid var(--bd2)' }}>
@@ -883,6 +975,18 @@ export function RewaxPage() {
                 </Link>
               ))}
             </div>
+            {/* Die zwölf Stadtseiten, einmal verlinkt (vorher doppelt als Chips). */}
+            <p className="text-[13px] leading-relaxed mt-6" style={{ color: 'var(--txm)' }}>
+              {de ? 'Per Post aus ganz Deutschland, zum Beispiel aus ' : 'By mail from anywhere in Germany, for example from '}
+              {REWAX_CITIES.map((c, i) => (
+                <span key={c.slug}>
+                  {i > 0 && ' · '}
+                  <Link to={`/kette-wachsen-lassen/${c.slug}`} className="font-medium hover:underline underline-offset-2" style={{ color: 'var(--tx2)' }}>
+                    {de ? c.name : c.nameEn}
+                  </Link>
+                </span>
+              ))}
+            </p>
           </div>
         </div>
       </section>
