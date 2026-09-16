@@ -96,7 +96,8 @@ export type ServiceId = 'rewax' | 'umstieg';
 // `price` ist gesetzt — eine Geschäftsentscheidung (All-in: deckt Wachsen UND
 // Rückversand). Die Karte zeigt nur die Euro-Ersparnis, keinen Prozentsatz:
 // "Du sparst 30 €" ist eine Tatsache, "38 %" eine Behauptung über den
-// Normalpreis (dieselbe Regel wie beim Starter-Set).
+// Normalpreis. (Das Starter-Set zeigt seit 16.09.2026 zusätzlich −15 %,
+// weil dort ein fester Set-Rabatt auf echte Einzelpreise gilt.)
 export const TEN_CARD = {
   count: 10,
   get list() { return PRICE.rewax.single * this.count; }, // 159,50 €

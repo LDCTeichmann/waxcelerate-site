@@ -82,15 +82,19 @@ export function GiftCardObject({ count, de, animate = true, tilt = -3 }: {
         {/* Akzentband */}
         <div aria-hidden className="absolute inset-x-0 top-0 h-1" style={{ background: 'var(--accent)' }} />
 
-        <div className="relative flex items-center justify-between">
-          <span className="inline-flex items-center gap-1.5">
-            <span className="w-5 h-5"><WaxcelerateMark className="w-full h-full" /></span>
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em]" style={{ color: 'var(--txf)' }}>
+        {/* Kopfzeile: Marke links, „ohne Ablauf" als Pille rechts. Beides
+            nowrap; bei schmaler Karte rutscht die Pille in die zweite Zeile,
+            statt dass die Wörter ineinander umbrechen (Luca, 16.09.2026). */}
+        <div className="relative flex flex-wrap items-center justify-between gap-x-2 gap-y-1.5">
+          <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+            <span className="w-5 h-5 flex-shrink-0"><WaxcelerateMark className="w-full h-full" /></span>
+            <span className="text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: 'var(--txf)' }}>
               {de ? 'Geschenkkarte' : 'Gift card'}
             </span>
           </span>
-          <span className="text-[10px] uppercase tracking-[0.16em]" style={{ color: 'var(--txff)' }}>
-            {de ? 'kein Ablauf' : 'no expiry'}
+          <span className="whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-semibold"
+            style={{ background: 'var(--accent-wash)', color: 'var(--accent)' }}>
+            {de ? 'ohne Ablauf' : 'no expiry'}
           </span>
         </div>
 

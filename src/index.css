@@ -869,6 +869,7 @@
   .shelf-alt > * { flex: 0 0 80%; scroll-snap-align: start; }
 }
 
+
 /* Geteilte Elementuebergaenge Karte → Produktseite (Stufe 4, Politur).
    React Router 7.15 setzt bei viewTransition={true} auf <Link> ein CSS
    View-Transition um startViewTransition() an — der Browser blendet dabei

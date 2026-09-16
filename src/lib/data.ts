@@ -899,6 +899,9 @@ export interface Accessory {
   ebayUrl?: string;
   weightGrams: number;
   shippingClass: ShippingClass;
+  /** Versand beim Einzelkauf in Euro. Im Starter-Set entfällt er (Luca,
+   *  16.09.2026: Zange und Draht einzeln je zzgl. 1,80 €). */
+  shippingCost?: number;
   image: string;
   images?: string[];
   /** Erste zwei Einträge aus `specs` werden auf der Detailseite als große
@@ -910,6 +913,9 @@ export interface Accessory {
   /** Kurzer Absatz "So funktioniert's" auf der Detailseite. */
   howTo?: string;
   howToEn?: string;
+  /** Dasselbe in drei kurzen Schritten für die Produktseite. */
+  howToSteps?: string[];
+  howToStepsEn?: string[];
 }
 
 export const accessories: Accessory[] = [
@@ -923,6 +929,7 @@ export const accessories: Accessory[] = [
     descriptionEn: 'Stiff enough that the chain does not tip in the bath, thin enough that hardly any wax stays on it.',
     weightGrams: 40,
     shippingClass: 'grossbrief',
+    shippingCost: 1.80,
     image: '/images/products/tools/aufhaengedraht.webp',
     images: ['/images/products/tools/aufhaengedraht-2.webp'],
     highlights: [
@@ -941,6 +948,8 @@ export const accessories: Accessory[] = [
     },
     howTo: 'Kette einfädeln, Schraubverschluss zudrehen, Draht über den Rand des Wachstopfs hängen — fertig.',
     howToEn: 'Thread the chain on, screw the clasp shut, hang the wire over the edge of the wax pot — done.',
+    howToSteps: ['Kette einfädeln', 'Schraubverschluss zudrehen', 'Über den Topfrand hängen'],
+    howToStepsEn: ['Thread the chain on', 'Screw the clasp shut', 'Hang it over the pot rim'],
   },
   {
     id: 'acc-pliers',
@@ -952,6 +961,7 @@ export const accessories: Accessory[] = [
     descriptionEn: 'Opens and closes the link. Without it, taking the chain off is a test of patience every time.',
     weightGrams: 40,
     shippingClass: 'maxibrief',
+    shippingCost: 1.80,
     image: '/images/products/tools/quick-link-zange.webp',
     images: ['/images/products/tools/quick-link-zange-2.webp'],
     highlights: [
@@ -970,6 +980,8 @@ export const accessories: Accessory[] = [
     },
     howTo: 'Zangenmaul auf beide Seiten des Quick-Links setzen und zusammendrücken, bis die Platten übereinandergleiten — die Rückholfeder öffnet die Zange danach von selbst wieder.',
     howToEn: 'Place the jaws on both sides of the quick-link and squeeze until the plates slide over each other — the return spring reopens the pliers on its own afterward.',
+    howToSteps: ['Zangenmaul an beide Seiten des Quick-Links', 'Zusammendrücken, bis die Platten gleiten', 'Loslassen, die Feder öffnet die Zange'],
+    howToStepsEn: ['Set the jaws on both sides of the quick-link', 'Squeeze until the plates slide', 'Let go, the spring reopens the pliers'],
   },
 ];
 
@@ -982,9 +994,9 @@ export const getAccessoryBySlug = (slug: string): Accessory | undefined =>
 // Rabattsatz und die Liste der Beilagen — die Preise kommen aus dem echten
 // Katalog und koennen dadurch nie auseinanderlaufen.
 //
-// Angezeigt wird der Set-Preis und die Ersparnis in Euro, nicht der Prozentsatz.
-// "Du sparst 11,80 EUR" ist eine Tatsache, "15 % Rabatt" ist eine Behauptung
-// ueber den Normalpreis, und die will diese Marke nicht dauerhaft fuehren.
+// Angezeigt werden Set-Preis, Ersparnis in Euro und seit 16.09.2026 (Lucas
+// Entscheidung, Starter-Set v2) auch der Prozentsatz. Er ist hier die Regel
+// fuer jedes Set und gilt gegenueber der Summe der echten Einzelpreise.
 export const starterSet = {
   discountPct: 15,
   includedAccessoryIds: ['acc-pliers', 'acc-wire'] as const,
@@ -1008,6 +1020,9 @@ export interface StarterSetOption {
   chainId?: string;
   taglineDe: string;
   taglineEn: string;
+  /** Fester Preis statt der Rabattregel — für Sets, die es genau so auf
+   *  eBay gibt (Preisgleichheit Website/eBay). */
+  fixedPrice?: number;
 }
 
 export const starterSetOptions: StarterSetOption[] = [
@@ -1022,6 +1037,16 @@ export const starterSetOptions: StarterSetOption[] = [
     waxId: 'wax-300',
     taglineDe: 'Kette schon da · nur Wachs, Zange, Draht',
     taglineEn: 'Chain already sorted · just wax, pliers, wire',
+  },
+  {
+    // Basis-Set 500 g wie die eBay-Anzeige (ebay-listings/ANZEIGE_SET_500G.md,
+    // Luca 16.09.2026): 34,95 € statt 39,85 € einzeln, also −12 % statt der
+    // Regel. Fester Preis, damit Website und eBay nicht auseinanderlaufen.
+    id: 'starter-basic-500',
+    waxId: 'wax-500',
+    fixedPrice: 34.95,
+    taglineDe: 'Kette schon da · 500 g für mehrere Ketten',
+    taglineEn: 'Chain already sorted · 500 g for several chains',
   },
   {
     id: 'starter-classic',
@@ -1055,6 +1080,18 @@ export const starterSetOptions: StarterSetOption[] = [
 // shipping estimate in CartDrawer looks products up by id via
 // getProductById() — both need something to find. Never spread into the
 // `products` array itself (see the comment on StarterSetOption above).
+/** Set-Preis für eine beliebige Kombination: fester Preis, falls es genau
+ *  dieses Set mit festem Preis gibt, sonst die Rabattregel. */
+export function starterSetPriceFor(waxId: string, chainId?: string): number {
+  const fixed = starterSetOptions.find((o) => o.waxId === waxId && o.chainId === chainId && o.fixedPrice !== undefined);
+  if (fixed?.fixedPrice !== undefined) return fixed.fixedPrice;
+  const wax = products.find((p) => p.id === waxId);
+  const chain = chainId ? products.find((p) => p.id === chainId) : undefined;
+  const extras = accessories.filter((a) =>
+    (starterSet.includedAccessoryIds as readonly string[]).includes(a.id));
+  return starterSetPrice((wax?.price ?? 0) + (chain?.price ?? 0) + extras.reduce((s, a) => s + a.price, 0));
+}
+
 export const starterSetBundleProducts: Product[] = starterSetOptions.map((opt) => {
   const wax = products.find((p) => p.id === opt.waxId)!;
   const chain = opt.chainId ? products.find((p) => p.id === opt.chainId)! : null;
@@ -1072,7 +1109,7 @@ export const starterSetBundleProducts: Product[] = starterSetOptions.map((opt) =
       : `Starter set without chain — ${wax.titleEn}`,
     description: opt.taglineDe,
     descriptionEn: opt.taglineEn,
-    price: starterSetPrice(partsSum),
+    price: opt.fixedPrice ?? starterSetPrice(partsSum),
     image: wax.image,
     ebayUrl: wax.ebayUrl,
     weightGrams: wax.weightGrams + (chain?.weightGrams ?? 0) + extras.reduce((s, a) => s + a.weightGrams, 0),

@@ -28,7 +28,7 @@ import { dirname, resolve, join } from 'node:path';
 import { articles, getArticleImage, author, categoryOrder, blogHero } from '../src/pages/blog/articles.ts';
 import { headingId } from '../src/pages/blog/headingId.ts';
 import { learningPath, symptoms } from '../src/pages/blog/hubContent.ts';
-import { starterSet, waxVsOil, products } from '../src/lib/data.ts';
+import { waxVsOil, products } from '../src/lib/data.ts';
 import {
   KETTEN_TITLE, KETTEN_DESCRIPTION, KETTEN_H1, KETTEN_LEAD, chainBenefits, kettenCollectionSchema,
 } from '../src/pages/ketten/content.ts';
@@ -48,6 +48,8 @@ import {
   REWAX_CITIES as CITY_PAGES, cityBySlug, cityMeta, cityLead, cityClimateSentence, cityFaqItems,
   cityServiceSchema, cityBreadcrumbSchema, cityFaqSchema, DOOR_TO_DOOR,
 } from '../src/pages/rewax/cities.ts';
+// Meta und FAQ von /starter-set — dieselbe Quelle wie StarterSetPage.tsx.
+import { starterMeta, starterFaqItems, starterFaqSchema } from '../src/pages/starter/content.ts';
 // Die Bausteine liegen seit August 2026 in scripts/lib/prerender.mjs, weil sie
 // sich Blog-, Produkt- und Rechtstextseiten teilen. Verhalten unveraendert.
 import {
@@ -330,12 +332,11 @@ const STATIC_PAGES = [
   },
   {
     dir: 'starter-set',
-    title: 'Starter-Set Kettenwachs | Waxcelerate',
-    // Prozentzahl aus src/lib/data.ts (starterSet.discountPct) statt hier neu
-    // eingetippt, damit sie nie von der clientseitigen Beschreibung in
-    // StarterSetPage.tsx abweicht (dieselbe Zahl, dieselbe Quelle).
-    description: `Wachs, Quick-Link-Zange und Aufhängedraht in einem Set, vorgewachste Kette optional dazu, ${starterSet.discountPct} Prozent unter der Summe der Einzelteile. Alles, was für das erste Wachsen nötig ist.`,
-    image: '/images/doors/starter-set.webp', // deckt sich mit StarterSetPage.tsx Zeile 103
+    // Titel/Beschreibung aus src/pages/starter/content.ts, damit sie nie von
+    // der clientseitigen Fassung in StarterSetPage.tsx abweichen.
+    title: starterMeta(true).title,
+    description: starterMeta(true).description,
+    image: '/images/doors/starter-set.webp', // deckt sich mit dem Kopfbild in StarterSetPage.tsx
     h1: 'Alles da, beim ersten Mal.',
     lead: 'Am ersten Wachsabend scheitert es selten am Wachs. Es scheitert daran, dass die Kette nicht aufgeht oder nichts da ist, woran sie hängen kann. Im Set liegt beides bei.',
     points: [
@@ -344,6 +345,8 @@ const STATIC_PAGES = [
       'Zubehör auch einzeln: Aufhängedraht im Dreierpack und Quick-Link-Zange je 4,95 €.',
       'Hergestellt in Stuttgart, Ketten handgewachst.',
     ],
+    extraSchema: [starterFaqSchema(true)],
+    faq: starterFaqItems(true),
     calc: { href: '/rechner/umstieg', label: 'Was kostet der Umstieg auf Heißwachs? Rechner' },
   },
   {

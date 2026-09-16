@@ -184,6 +184,16 @@ Kurze Antworten reichen, im Chat. Nichts davon blockiert Teil 1–3.
    Pro 500g 64/14, Pro 300g 17/6). Laut dir wurde mittlerweile mehr verkauft.
    Aktuelle Zahlen je SKU nachreichen, dann trägt Claude sie in `data.ts` ein
    — die Anzeige-Logik (`variantStats()` in `ProductShelf.tsx`) bleibt gleich.
+10. **Starter-Set v3 (16.09.2026):**
+   - **eBay-Artikelnummer des Basis-Sets 500 g** (34,95 €, `ANZEIGE_SET_500G.md`).
+     Bis dahin fragt die Seite das Set per WhatsApp an.
+   - **Preisgleichheit:** Basis-Set 500 g und Pro-Block 500 g kosten beide 34,95 €.
+     Die eBay-Unterlage schlägt 36,95 € fürs Set vor. So lassen?
+   - **Topbar „Versandkostenfrei, bei jeder Bestellung"** (`i18n.ts`): Zange und
+     Draht einzeln kosten 1,80 € Versand. Solange sie einzeln noch nicht
+     bestellbar sind, kein Widerspruch — sobald sie auf eBay stehen, Topbar anpassen?
+   - **Geschenkverpackung/Grußkarte:** möglich? Dann kommt eine Zeile in die
+     Geschenk-Sektion.
 
 ---
 

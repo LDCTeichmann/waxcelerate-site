@@ -163,7 +163,7 @@ ${chains.map(chainBlock).join('\n\n')}
 
 URL: ${BASE}/starter-set
 
-Wachs, Quick-Link-Zange und Aufhängedraht in einem Set, vorgewachste Kette optional dazu. Der Set-Preis liegt ${starterSet.discountPct}% unter der Summe der Einzelteile. Zubehör auch einzeln erhältlich: ${accessories.map(a => `${a.title} (${a.price.toFixed(2).replace('.', ',')} €)`).join(', ')}.
+Wachs, Quick-Link-Zange und Aufhängedraht in einem Set, vorgewachste Kette optional dazu. Der Set-Preis liegt bis zu ${starterSet.discountPct}% unter der Summe der Einzelteile, Versand kostenlos. Zubehör auch einzeln erhältlich: ${accessories.map(a => `${a.title} (${a.price.toFixed(2).replace('.', ',')} €${a.shippingCost ? ` zzgl. ${a.shippingCost.toFixed(2).replace('.', ',')} € Versand` : ''})`).join(', ')}.
 
 Feste Kombinationen:
 ${starterSetOptions.map(o => `- ${o.taglineDe}`).join('\n')}

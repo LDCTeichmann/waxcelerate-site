@@ -10,10 +10,12 @@ import type { useLanguage } from '@/hooks/useLanguage';
 
    `tone`: eine fest weisse Kaufkarte (Desktop-Produktseite) arbeitet mit
    rgba-Werten statt mit den Theme-Variablen. */
-export function PriceNote({ t, tone = 'page' }: {
+export function PriceNote({ t, tone = 'page', shipping }: {
   de: boolean;
   t: ReturnType<typeof useLanguage>['t'];
   tone?: 'page' | 'card';
+  /** Eigener Versandtext, z. B. „zzgl. 1,80 € Versand" beim Zubehör-Einzelkauf. */
+  shipping?: string;
 }) {
   const muted = tone === 'card' ? 'rgba(0,0,0,0.48)' : 'var(--txff)';
   const p = t.products;
@@ -21,7 +23,7 @@ export function PriceNote({ t, tone = 'page' }: {
     <p className="text-meta leading-[1.5]" style={{ color: muted }}>
       {p.priceNoteTax}{' '}
       {/* Versand ist immer kostenlos (13.09.2026), eBay wie eigener Checkout. */}
-      {p.priceNoteShippingIncluded}.
+      {shipping ?? p.priceNoteShippingIncluded}.
     </p>
   );
 }

@@ -1,0 +1,143 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   Starter-Set v3 (16.09.2026) — Ergänzungen zur Wachsseiten-Grammatik (wax.css)
+   Präfix wxs-. Farben nur über Theme-Tokens, damit .noir mitkommt.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.wxp-hero.wxs-hero { padding-top: 18px; padding-bottom: 48px; }
+.wxs-gallery figure, .wxs-gallery button { cursor: default; }
+
+/* Schnellwahl */
+.wxs-quick { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: -4px 0 18px; }
+.wxs-quick > span { font-size: 12px; color: var(--txf); margin-right: 2px; }
+.wxs-quick button { font-size: 12.5px; font-weight: 600; color: var(--tx2); background: var(--sf2); border: 1px solid transparent; border-radius: 999px; padding: 7px 11px; min-height: 34px; cursor: pointer; transition: border-color .2s, background .2s, color .2s; }
+.wxs-quick button:hover { border-color: var(--bd); }
+.wxs-quick button[aria-pressed="true"] { background: var(--wxp-soft); border-color: var(--wxp-accent); color: var(--tx1); }
+
+/* Segmente (Wachs, Größe, Kette) */
+.wxs-seg2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+.wxs-seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 13px; background: var(--sf2); }
+.wxs-seg-full { margin-bottom: 12px; }
+.wxs-seg button { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; min-height: 48px; padding: 7px 10px; border: 0; border-radius: 10px; background: transparent; color: var(--tx2); text-align: left; cursor: pointer; transition: background .2s, box-shadow .2s; }
+.wxs-seg button b { font-size: 14px; font-weight: 700; color: var(--tx1); white-space: nowrap; }
+.wxs-seg button span { font-size: 11.5px; color: var(--txf); line-height: 1.25; }
+.wxs-seg button[aria-pressed="true"] { background: var(--sf); box-shadow: 0 0 0 1.5px var(--wxp-accent), var(--wxp-shadow); }
+@media (max-width: 380px) { .wxs-seg2 { grid-template-columns: 1fr; } }
+
+/* Kettenwähler */
+.wxs-picker { margin: -2px 0 14px; padding: 12px; border-radius: 14px; border: 1px solid var(--bd2); background: var(--pg); animation: wxs-in .35s cubic-bezier(.22,1,.36,1); }
+@keyframes wxs-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+.wxs-hint { font-size: 12px; color: var(--txf); margin-bottom: 8px; }
+.wxs-filters { display: flex; flex-wrap: wrap; gap: 6px 10px; margin-bottom: 10px; }
+.wxs-chips { display: flex; gap: 4px; }
+.wxs-chips button { font-size: 12.5px; font-weight: 600; color: var(--tx2); border: 1px solid var(--bd2); background: var(--sf); border-radius: 999px; padding: 6px 10px; min-height: 34px; cursor: pointer; transition: all .2s; }
+.wxs-chips button[aria-pressed="true"] { background: var(--wxp-accent); border-color: var(--wxp-accent); color: #fff; }
+.wxs-chainlist { display: flex; flex-direction: column; gap: 4px; }
+.wxs-chainlist button { display: grid; grid-template-columns: 36px minmax(0,1fr) auto 18px; align-items: center; gap: 10px; width: 100%; min-height: 52px; padding: 7px 10px 7px 7px; border: 1px solid transparent; border-radius: 11px; background: transparent; text-align: left; cursor: pointer; transition: background .2s, border-color .2s; }
+.wxs-chainlist button:hover { background: var(--sf2); }
+.wxs-chainlist button[aria-checked="true"] { background: var(--sf); border-color: var(--wxp-accent); }
+.wxs-chainlist img { width: 36px; height: 36px; border-radius: 8px; object-fit: cover; background: #fff; }
+.wxs-chainlist .nm { min-width: 0; }
+.wxs-chainlist .nm b { display: block; font-size: 13.5px; font-weight: 600; color: var(--tx1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wxs-chainlist .nm > span { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--txf); }
+.wxs-chainlist em { font-style: normal; font-size: 10.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--wxp-accent); }
+.wxs-chainlist .pr { font-size: 13px; color: var(--tx2); }
+.wxs-chainlist .ck { display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; border: 1px solid var(--bd); color: transparent; }
+.wxs-chainlist button[aria-checked="true"] .ck { background: var(--wxp-accent); border-color: var(--wxp-accent); color: #fff; }
+.wxs-empty { font-size: 13px; color: var(--txm); padding: 10px 4px; }
+.wxs-listfoot { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 6px; font-size: 12px; color: var(--txf); }
+.wxs-listfoot button { font-size: 12.5px; font-weight: 600; color: var(--accent-soft); background: none; border: 0; padding: 8px 4px; cursor: pointer; }
+
+/* Preiskarte */
+.wxs-pricecard .wxp-pricetop { flex-wrap: wrap; }
+.wxs-save { display: flex; align-items: center; gap: 8px; margin: 10px 0 12px; font-size: 13px; color: var(--tx2); }
+.wxs-savepill { font-weight: 700; font-size: 12.5px; color: var(--wxp-green); background: var(--wxp-green-bg); padding: 3px 8px; border-radius: 999px; font-variant-numeric: tabular-nums; }
+.wxs-contents { margin: 0 0 14px; border-top: 1px solid var(--sf3); border-bottom: 1px solid var(--sf3); }
+.wxs-contents summary { display: flex; justify-content: space-between; align-items: center; gap: 10px; min-height: 44px; font-size: 13px; color: var(--tx2); cursor: pointer; list-style: none; }
+.wxs-contents summary::-webkit-details-marker { display: none; }
+.wxs-contents summary svg { color: var(--txf); transition: transform .25s; }
+.wxs-contents[open] summary svg { transform: rotate(180deg); }
+.wxs-contents ul { padding-bottom: 10px; }
+.wxs-contents li { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; font-size: 12.5px; color: var(--txm); }
+.wxs-contents li .num { white-space: nowrap; }
+.wxs-contents li.sum { margin-top: 4px; padding-top: 7px; border-top: 1px dashed var(--bd2); color: var(--tx2); }
+.wxs-contents li.sum .num { text-decoration: line-through; color: var(--txf); }
+.wxp-cta.wxs-cta-sm { min-height: 44px; padding: 10px 14px; font-size: 14px; box-shadow: none; }
+
+/* Der erste Abend */
+.wxs-steps { display: grid; gap: 14px; }
+@media (min-width: 640px) { .wxs-steps { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1024px) { .wxs-steps { grid-template-columns: repeat(3, 1fr) 1.15fr; } }
+.wxs-step { display: flex; flex-direction: column; border-radius: 18px; overflow: hidden; background: var(--sf); border: 1px solid var(--bd2); }
+.wxs-step .ph { position: relative; aspect-ratio: 4/3; overflow: hidden; background: var(--hero-stage); }
+.wxs-step .ph img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.wxs-step .n { position: absolute; top: 10px; left: 10px; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: rgba(10,12,15,.6); backdrop-filter: blur(6px); color: #fff; font-size: 13px; font-weight: 700; }
+.wxs-step .part { position: absolute; right: 10px; bottom: 10px; font-size: 11.5px; font-weight: 600; color: #fff; background: rgba(10,12,15,.6); backdrop-filter: blur(6px); padding: 4px 9px; border-radius: 999px; }
+.wxs-step details { padding: 12px 16px 14px; }
+.wxs-step summary { display: flex; justify-content: space-between; align-items: center; gap: 8px; min-height: 32px; cursor: pointer; list-style: none; font-family: 'Fraunces', Georgia, serif; font-weight: 700; font-size: 18px; color: var(--tx1); }
+.wxs-step summary::-webkit-details-marker { display: none; }
+.wxs-step summary svg { color: var(--txf); transition: transform .25s; flex-shrink: 0; }
+.wxs-step details[open] summary svg { transform: rotate(180deg); }
+.wxs-step details p { margin-top: 6px; font-size: 13.5px; line-height: 1.5; color: var(--txm); }
+.wxs-upsell { display: flex; flex-direction: column; justify-content: space-between; gap: 14px; padding: 20px; border-radius: 18px; background: var(--wxp-dark); color: rgba(255,255,255,.72); }
+.wxs-upsell b { display: block; font-family: 'Fraunces', Georgia, serif; font-size: 21px; line-height: 1.15; color: #fff; margin-bottom: 6px; }
+.wxs-upsell p { font-size: 13.5px; line-height: 1.45; }
+.wxs-upsell button { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 10px 16px; border-radius: 999px; border: 0; background: #fff; color: #14171B; font-size: 13.5px; font-weight: 600; cursor: pointer; }
+
+/* Einzelteil-Karten: feste Zonen, Preis immer unten */
+.wxs-acc { display: grid; gap: 14px; }
+@media (min-width: 720px) { .wxs-acc { grid-template-columns: repeat(3, 1fr); } }
+.wxs-acc-card { display: flex; flex-direction: column; border-radius: 18px; overflow: hidden; background: var(--sf); border: 1px solid var(--bd2); text-decoration: none; transition: border-color .2s, box-shadow .2s, transform .28s cubic-bezier(.22,1,.36,1); }
+.wxs-acc-card:hover { border-color: var(--accent-soft); box-shadow: var(--card-shadow-hover); transform: translateY(-3px); }
+.wxs-acc-card .ph { position: relative; aspect-ratio: 4/3; overflow: hidden; background: var(--hero-stage); }
+.wxs-acc-card .ph img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .6s cubic-bezier(.2,.7,.2,1); }
+.wxs-acc-card:hover .ph img { transform: scale(1.04); }
+.wxs-acc-card .bd { display: flex; flex-direction: column; flex: 1; padding: 16px 18px 18px; }
+.wxs-acc-card .kk { font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--accent-soft); }
+.wxs-acc-card .nm { font-family: 'Fraunces', Georgia, serif; font-weight: 700; font-size: 20px; line-height: 1.15; color: var(--tx1); margin-top: 4px; min-height: 2.3em; }
+.wxs-acc-card .facts { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+.wxs-acc-card .facts span { font-size: 12px; color: var(--tx2); background: var(--sf2); padding: 4px 9px; border-radius: 999px; }
+.wxs-acc-card .ft { margin-top: auto; padding-top: 16px; }
+.wxs-acc-card .pr { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-top: 12px; border-top: 1px solid var(--sf3); }
+.wxs-acc-card .pr b { font-family: 'Fraunces', Georgia, serif; font-size: 26px; font-weight: 800; color: var(--wxp-navy); font-variant-numeric: tabular-nums; line-height: 1; }
+.wxs-acc-card .pr small { font-size: 13px; font-weight: 500; color: var(--txm); margin-right: 3px; font-family: 'Libre Franklin', sans-serif; }
+.wxs-acc-card .go { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--bd); color: var(--tx1); transition: background .2s, color .2s, border-color .2s; }
+.wxs-acc-card:hover .go { background: var(--wxp-accent); border-color: var(--wxp-accent); color: #fff; }
+.wxs-acc-card .notes { display: flex; flex-wrap: wrap; align-content: flex-start; gap: 5px; min-height: 62px; margin-bottom: 12px; }
+.wxs-acc-card .notes > span { white-space: normal; }
+
+/* Versand-Pillen: grau = kostet, grün = gespart */
+.wxs-shipcost { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; color: var(--txm); background: var(--sf2); padding: 5px 9px; border-radius: 999px; white-space: nowrap; }
+.wxs-shipcost svg, .wxs-setdeal svg { width: 13px; height: 13px; }
+.wxs-setdeal { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; color: var(--wxp-green); background: var(--wxp-green-bg); padding: 5px 9px; border-radius: 999px; white-space: nowrap; }
+
+/* Mobile Kaufleiste */
+.wxs-sticky { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; background: var(--pg); border-top: 1px solid var(--bd); padding: 10px 20px calc(10px + env(safe-area-inset-bottom)); display: flex; align-items: center; gap: 14px; transition: transform .3s; }
+@media (min-width: 900px) { .wxs-sticky { display: none; } }
+.wxs-sticky .l { min-width: 0; flex: 1; }
+.wxs-sticky .l p { font-size: 12px; color: var(--txm); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wxs-sticky .l b { font-size: 17px; color: var(--tx1); font-variant-numeric: tabular-nums; }
+.wxs-sticky .r { width: 46%; flex-shrink: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .wxs-picker { animation: none; }
+  .wxs-acc-card, .wxs-acc-card .ph img { transition: none; }
+  .wxs-acc-card:hover { transform: none; }
+}
+
+/* Zubehörseite: günstigerer Weg über das Set */
+.wxs-setoffer { display: grid; grid-template-columns: 40px minmax(0,1fr) auto; align-items: center; gap: 12px; margin-top: 12px; padding: 12px 14px; border-radius: 14px; background: var(--wxp-green-bg); text-decoration: none; transition: transform .2s; }
+.wxs-setoffer:hover { transform: translateY(-1px); }
+.wxs-setoffer .ic { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: var(--sf); color: var(--wxp-green); }
+.wxs-setoffer .tx b { display: block; font-size: 14px; color: var(--tx1); }
+.wxs-setoffer .tx span { display: block; font-size: 12px; color: var(--txm); line-height: 1.35; }
+.wxs-setoffer .pr { font-size: 13.5px; font-weight: 700; color: var(--wxp-green); white-space: nowrap; }
+
+/* Zubehörseite: So geht's neben den Daten */
+.wxs-howgrid { display: grid; gap: 36px; }
+@media (min-width: 900px) { .wxs-howgrid { grid-template-columns: minmax(0,1.5fr) minmax(0,1fr); gap: 56px; align-items: start; } }
+@media (min-width: 900px) { .wxs-steps3.wxc-steps { grid-template-columns: repeat(3, minmax(0,1fr)); } }
+.wxs-specs { padding: 18px 20px; }
+.wxs-specs dl > div { display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; border-top: 1px solid var(--sf3); font-size: 13.5px; }
+.wxs-specs dt { color: var(--txf); }
+.wxs-specs dd { color: var(--tx1); font-weight: 500; text-align: right; }
+.wxs-specs dd.ok { color: var(--wxp-green); font-weight: 600; }

@@ -79,7 +79,7 @@ function renderAccessory(a) {
 <article>
   <h1>${esc(a.title)}</h1>
   <p>${esc(a.description)}</p>
-  <p><strong>${price} €</strong></p>
+  <p><strong>${price} €</strong>${a.shippingCost ? ` zzgl. ${a.shippingCost.toFixed(2).replace('.', ',')} € Versand. Im Starter-Set versandkostenfrei.` : ''}</p>
   ${highlights}
   ${specs}
   ${a.howTo ? `<p>${esc(a.howTo)}</p>` : ''}
