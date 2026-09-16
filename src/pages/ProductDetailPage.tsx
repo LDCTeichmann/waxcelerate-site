@@ -30,6 +30,7 @@ import { Stars } from '@/components/Stars';
 import { CompareModal } from '@/sections/CompareModal';
 import { CompareTable } from '@/components/CompareTable';
 import { WaxProductPage } from '@/pages/product/wax/WaxProductPage';
+import { ChainProductPage } from '@/pages/product/chain/ChainProductPage';
 
 const FADE_MS = 900;
 
@@ -700,6 +701,15 @@ export function ProductDetailPage() {
             onOpenImage={i => { setActiveImage(i); setLightboxOpen(true); }}
             onSizeSelect={p => navigate(`/produkt/${p.id}`, { state: { keepScroll: true } })}
           />
+        ) : isChain ? (
+          <ChainProductPage
+            product={product} de={de} t={t} titleText={titleText} rc={rc} profile={toolProfile} buyRef={buyRef}
+            gallery={[
+              { src: product.image, title: de ? 'Die Kette' : 'The chain', fact: `${product.chainSpeed ?? ''} · ${product.chainLinks ?? ''}` },
+              ...(product.pdpScenes ?? []).map(s => ({ src: s.src, title: de ? s.de : s.en, fact: de ? s.factDe : s.factEn })),
+            ]}
+            onOpenImage={i => { setActiveImage(i); setLightboxOpen(true); }}
+          />
         ) : (<>
         {/* ══════════════════════════════════════════════════════════════
             ENTSCHEIDUNGSZONE — EINE Fassung fuer beide Breakpoints
@@ -1201,24 +1211,6 @@ export function ProductDetailPage() {
                       als Chip direkt in der Kaufkarte (Zone 2, isClassic-Block
                       oben) — dort, wo die Kaufentscheidung tatsaechlich faellt,
                       statt im Spezifikations-Block unterhalb des Folds. */}
-                  {isChain && (
-                    <p className="text-[12px] mt-4" style={{ color: 'var(--txff)' }}>
-                      {de ? 'Kette schon durch? ' : 'Chain due for a refresh? '}
-                      <Link to="/kette-wachsen-lassen"
-                        className="underline underline-offset-2" style={{ color: accentColor }}>
-                        {de ? 'Rewax-Service anfragen →' : 'Request the rewax service →'}
-                      </Link>
-                    </p>
-                  )}
-                  {isChain && (
-                    <p className="text-[12px] mt-2" style={{ color: 'var(--txff)' }}>
-                      {de ? 'Passt die zu meinem Antrieb? ' : 'Will it fit my drivetrain? '}
-                      <Link to="/rechner/passende-kette"
-                        className="underline underline-offset-2" style={{ color: accentColor }}>
-                        {de ? 'Kompatibilität prüfen →' : 'Check compatibility →'}
-                      </Link>
-                    </p>
-                  )}
                   {isWax && (
                     <p className="text-[12px] mt-4" style={{ color: 'var(--txff)' }}>
                       {de ? 'Wie oft nachwachsen? ' : 'How often to re-wax? '}
@@ -1236,7 +1228,6 @@ export function ProductDetailPage() {
                   <h2 className="eyebrow mb-3" style={{ color: 'var(--txff)' }}>
                     {de ? 'Im Detail' : 'Deep dive'}
                   </h2>
-                  {rc.hook && isChain && <p className="text-[13px] leading-[1.7] mb-3" style={{ color: 'var(--txm)' }}>{rc.hook}</p>}
                   <div className="space-y-2.5">
                     {hasFormula && rc.formulaDetails && (
                       <AccordionItem title={de ? 'Formel & Inhaltsstoffe' : 'Formula & Ingredients'}
@@ -1269,62 +1260,6 @@ export function ProductDetailPage() {
                         open={openAccordion === 'vergleich'} onToggle={() => toggleAccordion('vergleich')}>
                         <CompareTable headers={rc.compHeaders} rows={rc.compRows} accentColor={cardAccent} de={de} />
                       </AccordionItem>
-                    )}
-                    {rc && isChain && (
-                      <>
-                        {rc.chainSpec && (
-                          <AccordionItem title={de ? 'Technische Daten' : 'Technical specs'} subtitle="" open={openAccordion === 'chainspec'} onToggle={() => toggleAccordion('chainspec')}>
-                            <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--bd)' }}>
-                              {Object.entries(rc.chainSpec).map(([key, val], i, arr) => (
-                                <div key={key} className="flex gap-4 px-3 py-2.5 text-meta"
-                                  style={{ borderBottom: i < arr.length - 1 ? '1px solid var(--bd)' : 'none', background: i % 2 === 0 ? 'var(--sf2)' : 'var(--pg)' }}>
-                                  <span className="w-28 flex-shrink-0" style={{ color: 'var(--txff)' }}>{key}</span>
-                                  <span style={{ color: 'var(--txm)' }}>{val}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </AccordionItem>
-                        )}
-                        {rc.processSteps && rc.v9Bullets && (
-                          <AccordionItem title={de ? 'Wachsprozess & V9 MoS₂' : 'Wax process & V9 MoS₂'} subtitle={de ? 'Ultraschall · MoS₂-Transferfilm' : 'Ultrasonic · MoS₂ transfer film'} open={openAccordion === 'v9'} onToggle={() => toggleAccordion('v9')}>
-                            <div className="space-y-4">
-                              {rc.processSteps.map(step => (
-                                <div key={step.n} className="flex gap-3">
-                                  <span className="flex-shrink-0 w-6 h-6 rounded-full text-meta font-bold flex items-center justify-center" style={{ background: accentBg, color: accentColor }}>{step.n}</span>
-                                  <div>
-                                    <p className="text-[12px] font-semibold mb-0.5" style={{ color: 'var(--tx1)' }}>{step.title}</p>
-                                    <p className="text-meta leading-relaxed" style={{ color: 'var(--txm)' }}>{step.body}</p>
-                                  </div>
-                                </div>
-                              ))}
-                              {rc.v9Bullets.map((b, i) => (
-                                <div key={i} className="flex gap-2.5">
-                                  <Check className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" style={{ color: accentColor }} />
-                                  <div>
-                                    <p className="text-[12px] font-semibold mb-0.5" style={{ color: 'var(--tx1)' }}>{b.title}</p>
-                                    <p className="text-meta leading-relaxed" style={{ color: 'var(--txm)' }}>{b.body}</p>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </AccordionItem>
-                        )}
-                        {rc.chainCompRows && (
-                          <AccordionItem title={de ? 'Vorgewachst vs. Kettenöl' : 'Pre-waxed vs. chain oil'} subtitle="" open={openAccordion === 'chaincomp'} onToggle={() => toggleAccordion('chaincomp')}>
-                            <CompareTable
-                              headers={[de ? 'Vorgewachst' : 'Pre-waxed', de ? 'Kettenöl' : 'Chain oil']}
-                              rows={rc.chainCompRows.map(row => ({ label: row.label, cols: [row.good, row.bad], winCol: 0, dimCols: [1] }))}
-                              accentColor={cardAccent} de={de}
-                            />
-                          </AccordionItem>
-                        )}
-                        {rc.proTip && (
-                          <div className="pl-3 mt-3" style={{ borderLeft: `2px solid ${accentColor}` }}>
-                            <p className="text-small font-semibold uppercase tracking-[0.16em] mb-1" style={{ color: accentColor }}>{de ? 'Pro-Tipp' : 'Pro tip'}</p>
-                            <p className="text-[12px] leading-relaxed" style={{ color: 'var(--txm)' }}>{rc.proTip}</p>
-                          </div>
-                        )}
-                      </>
                     )}
                   </div>
                 </div>

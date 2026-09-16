@@ -122,6 +122,14 @@ const CLASSIC_SCENES: PdpScene[] = [
   { src: '/images/blog/wax-bath-hanging-1600.webp', de: 'Im Bad', en: 'In the bath', factDe: '85–90 °C · 10–15 min', factEn: '85–90 °C · 10–15 min' },
   { src: '/images/compare/chain-wachs.webp', de: 'Das Ergebnis', en: 'The result', factDe: 'trocken · sauber', factEn: 'dry · clean' },
 ];
+// Bildstrecke der Kettenseite (Kettenseite v1, 15.09.2026), fuer alle Ketten
+// gleich: gewachst, Schloss dabei, im Karton. Getrennt von `images`, damit
+// Schema und Merchant-Feed nur das Produktfoto sehen (siehe pdpScenes).
+const CHAIN_SCENES: PdpScene[] = [
+  { src: '/images/blog/chain-waxed-macro-1600.webp', de: 'Gewachst', en: 'Waxed', factDe: 'trocken · sauber', factEn: 'dry · clean' },
+  { src: '/images/blog/chain-quicklinks-detail-1600.webp', de: 'Schloss dabei', en: 'Link included', factDe: 'werkzeuglos', factEn: 'tool-free' },
+  { src: '/images/blog/box-chain-delivery-1600.webp', de: 'Im Karton', en: 'In the box', factDe: 'Recyclingkarton · 1–2 Werktage', factEn: 'recycled box · 1–2 days' },
+];
 const PRO_SCENES: PdpScene[] = [
   { src: '/images/blog/wax-pro-box-open-1600.webp', de: 'Frisch ausgepackt', en: 'Fresh out of the box', factDe: 'MoS₂ · PFAS-frei', factEn: 'MoS₂ · PFAS-free' },
   { src: '/images/blog/wax-bath-hanging-1600.webp', de: 'Im Bad', en: 'In the bath', factDe: '85–90 °C · 10–15 min', factEn: '85–90 °C · 10–15 min' },
@@ -426,6 +434,7 @@ export const products: Product[] = [
   {
     id: 'chain-hg701',
     category: 'chain',
+    pdpScenes: CHAIN_SCENES,
     weightGrams: 300, // estimate: pre-waxed chain + packaging, not measured
     shippingClass: 'grossbrief',
     title: 'Shimano Ultegra HG701 11-fach — vorgewachst',
@@ -448,6 +457,7 @@ export const products: Product[] = [
   {
     id: 'chain-ybn11',
     category: 'chain',
+    pdpScenes: CHAIN_SCENES,
     weightGrams: 300, // estimate: pre-waxed chain + packaging, not measured
     shippingClass: 'grossbrief',
     title: 'YBN 11S 11-fach — vorgewachst',
@@ -472,6 +482,7 @@ export const products: Product[] = [
   {
     id: 'chain-force',
     category: 'chain',
+    pdpScenes: CHAIN_SCENES,
     weightGrams: 300, // estimate: pre-waxed chain (256g) + packaging, not measured
     shippingClass: 'grossbrief',
     title: 'SRAM Force PC-1170 11-fach — vorgewachst',
@@ -493,6 +504,7 @@ export const products: Product[] = [
   {
     id: 'chain-m9100',
     category: 'chain',
+    pdpScenes: CHAIN_SCENES,
     weightGrams: 300, // estimate: pre-waxed chain + packaging, not measured
     shippingClass: 'grossbrief',
     title: 'Shimano Dura-Ace / XTR CN-M9100 12-fach — vorgewachst',
@@ -514,6 +526,7 @@ export const products: Product[] = [
   {
     id: 'chain-m8100',
     category: 'chain',
+    pdpScenes: CHAIN_SCENES,
     weightGrams: 300, // estimate: pre-waxed chain + packaging, not measured
     shippingClass: 'grossbrief',
     title: 'Shimano XT / Ultegra CN-M8100 12-fach — vorgewachst',
@@ -533,6 +546,7 @@ export const products: Product[] = [
   {
     id: 'chain-m7100',
     category: 'chain',
+    pdpScenes: CHAIN_SCENES,
     weightGrams: 300, // estimate: pre-waxed chain + packaging, not measured
     shippingClass: 'grossbrief',
     title: 'Shimano SLX / 105 CN-M7100 12-fach — vorgewachst',
@@ -552,6 +566,7 @@ export const products: Product[] = [
   {
     id: 'chain-nx',
     category: 'chain',
+    pdpScenes: CHAIN_SCENES,
     weightGrams: 300, // estimate: pre-waxed chain + packaging, not measured
     shippingClass: 'grossbrief',
     title: 'SRAM NX Eagle 12-fach — vorgewachst',
@@ -571,12 +586,13 @@ export const products: Product[] = [
   {
     id: 'chain-ybn12',
     category: 'chain',
+    pdpScenes: CHAIN_SCENES,
     weightGrams: 300, // estimate: pre-waxed chain (259g) + packaging, not measured
     shippingClass: 'grossbrief',
     title: 'YBN S12S 12-fach — vorgewachst',
     titleEn: 'YBN S12S 12-speed — pre-waxed',
-    description: 'YBN S12S, 116 Glieder, 12-fach, 259 g — universell für Shimano, SRAM und Campagnolo. Vollständig entfettet und vorgewachst. Quick-Link liegt bei.',
-    descriptionEn: 'YBN S12S, 116 links, 12-speed, 259 g — universal for Shimano, SRAM and Campagnolo. Fully degreased and pre-waxed. Quick-link included.',
+    description: 'YBN S12S, 116 Glieder, 12-fach — universell für Shimano, SRAM und Campagnolo. Vollständig entfettet und vorgewachst. Quick-Link liegt bei.',
+    descriptionEn: 'YBN S12S, 116 links, 12-speed — universal for Shimano, SRAM and Campagnolo. Fully degreased and pre-waxed. Quick-link included.',
     price: 39.95,
     image: '/images/products/chains/ybn12.webp',
     ebayUrl: 'https://www.ebay.de/itm/396163352266',
@@ -589,6 +605,34 @@ export const products: Product[] = [
     chainLinks: '116 Glieder',
     chainSpeed: '12-fach',
     soldOut: true,
+  },
+
+  // Ans Ende gestellt, damit die bestehende Reihenfolge (/ketten, "Passend
+  // dazu" auf den Wachsseiten, Regal) unveraendert bleibt.
+  // ── PRE-WAXED CHAINS — 9-SPEED ────────────────────────────────
+  // Seit 15.09.2026. Daten aus Lucas eBay-Beschreibung (CN-HG93).
+  // OFFEN (Luca): die eBay-Artikelnummer. Bis dahin die Shop-Suche nach
+  // "HG93" statt eines Artikel-Links.
+  {
+    id: 'chain-hg93',
+    category: 'chain',
+    pdpScenes: CHAIN_SCENES,
+    weightGrams: 300, // eBay: ca. 300 g inkl. Kette
+    shippingClass: 'grossbrief',
+    title: 'Shimano CN-HG93 9-fach — vorgewachst',
+    titleEn: 'Shimano CN-HG93 9-speed — pre-waxed',
+    description: 'Shimano CN-HG93, 116 Glieder, 9-fach, Hyperglide. Vollständig entfettet und mit MoS₂-Transferfilm vorgewachst. 9-fach Quick-Link liegt bei.',
+    descriptionEn: 'Shimano CN-HG93, 116 links, 9-speed, Hyperglide. Fully degreased and pre-waxed with MoS₂ transfer film. 9-speed quick-link included.',
+    price: 39.95,
+    // Lucas eBay-Hauptfoto der CN-HG93, raw-image-library/products/chains/1 Chain.JPG.
+    image: '/images/products/chains/hg93.webp',
+    ebayUrl: 'https://www.ebay.de/sch/i.html?_ssn=waxcelerate&_nkw=HG93',
+    compatibility: 'Shimano 9-fach · SRAM 9-fach · Campagnolo 9-fach',
+    specs: { Gänge: '9-fach', Kompatibilität: 'Shimano / SRAM / Campa 9-fach', 'Verbinder': 'Quick-Link (dabei)' },
+    chainBrand: 'Shimano',
+    chainModel: 'CN-HG93',
+    chainLinks: '116 Glieder',
+    chainSpeed: '9-fach',
   },
 ];
 
@@ -677,6 +721,13 @@ export function shippingDetailsSchema(_p: Pick<Product, 'shippingClass'>) {
 export const WAX_TIERS: Array<{ qty: number; pct: number }> = [
   // Luca, 14.09.2026: 2 Stk. 5 %, 3 Stk. 10 %, ab 4 Stk. 15 %.
   { qty: 4, pct: 15 }, { qty: 3, pct: 10 }, { qty: 2, pct: 5 },
+];
+
+// Mengenrabatt fuer Ketten, deckungsgleich mit dem eBay-Multi-Rabatt
+// (Luca, 15.09.2026: 2 Stk. 5 %, 3 Stk. 7 %, ab 4 Stk. 10 %). Genutzt von
+// der Mengenwahl in src/pages/product/chain/ChainHero.tsx.
+export const CHAIN_TIERS: Array<{ qty: number; pct: number }> = [
+  { qty: 4, pct: 10 }, { qty: 3, pct: 7 }, { qty: 2, pct: 5 },
 ];
 
 export interface BundleOffer { qty: number; pct: number; total: number; full: number }
@@ -801,14 +852,17 @@ export const waxIntervals: Record<string, Record<string, number>> = {
 
 export const compatibilityMatrix: Record<string, Record<string, string[]>> = {
   shimano: {
+    '9': ['chain-hg93'],
     '11': ['chain-hg701', 'chain-ybn11'],
     '12': ['chain-m9100', 'chain-m8100', 'chain-m7100', 'chain-ybn12'],
   },
   sram: {
+    '9': ['chain-hg93'],
     '11': ['chain-force', 'chain-ybn11'],
     '12': ['chain-nx', 'chain-ybn12'],
   },
   campagnolo: {
+    '9': ['chain-hg93'],
     '11': ['chain-ybn11'],
     '12': ['chain-ybn12'],
   },

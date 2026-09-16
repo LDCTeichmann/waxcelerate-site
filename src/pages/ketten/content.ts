@@ -14,8 +14,8 @@ export const BASE = 'https://waxcelerate.de';
 
 export const KETTEN_TITLE = 'Vorgewachste Fahrradketten kaufen | Waxcelerate';
 export const KETTEN_TITLE_EN = 'Buy pre-waxed bicycle chains | Waxcelerate';
-export const KETTEN_DESCRIPTION = 'Acht vorgewachste Fahrradketten für Shimano, SRAM und Campagnolo, 11- und 12-fach. Ultraschall-entfettet und handgewachst in Stuttgart, Quick-Link inklusive.';
-export const KETTEN_DESCRIPTION_EN = 'Eight pre-waxed bicycle chains for Shimano, SRAM and Campagnolo, 11- and 12-speed. Ultrasonically degreased and hand-waxed in Stuttgart, quick-link included.';
+export const KETTEN_DESCRIPTION = 'Neun vorgewachste Fahrradketten für Shimano, SRAM und Campagnolo, 9-, 11- und 12-fach. Ultraschall-entfettet und handgewachst in Stuttgart, Quick-Link inklusive.';
+export const KETTEN_DESCRIPTION_EN = 'Nine pre-waxed bicycle chains for Shimano, SRAM and Campagnolo, 9-, 11- and 12-speed. Ultrasonically degreased and hand-waxed in Stuttgart, quick-link included.';
 export const KETTEN_H1 = 'Vorgewachste Fahrradketten';
 export const KETTEN_H1_EN = 'Pre-Waxed Bicycle Chains';
 // Kuerzer als vorher: "Ultraschall-entfettet" und "handgewachst" stehen jetzt

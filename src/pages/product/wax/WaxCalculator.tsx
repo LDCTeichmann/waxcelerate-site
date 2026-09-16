@@ -86,15 +86,33 @@ function Glyphs({ n }: { n: number }) {
   );
 }
 
-export function WaxCalculator({ product, profile, de, onTouch }: { product: Product; profile: ToolProfileState; de: boolean; onTouch?: () => void }) {
-  const [cls, setCls] = useState(1);
+/** Kettenseite: die Antriebsklasse, deren Kassettenpreis zur Kette passt.
+ *  M9100 → XTR, M7100 → Deore-Klasse, sonst XT (Richtwert auch fuer 11-fach). */
+const classForChain = (p: Product) => {
+  const i = DRIVETRAIN_CLASSES.findIndex(c => c.id !== 'xt' && (p.chainModel ?? '').includes(c.model));
+  if (i >= 0) return i;
+  if ((p.chainModel ?? '').includes('M7100')) return 0;
+  return 1;
+};
+
+// mode 'chain' (Kettenseite v1, 15.09.2026): gerechnet wird mit dem Preis der
+// angesehenen Kette statt einer waehlbaren Antriebsklasse, der Fuss spricht
+// vom Nachwachsen statt von der Block-Reichweite.
+export function WaxCalculator({ product, profile, de, onTouch, mode = 'wax', chapter }: { product: Product; profile: ToolProfileState; de: boolean; onTouch?: () => void; mode?: 'wax' | 'chain'; chapter?: string }) {
+  const isChain = mode === 'chain';
+  const [cls, setCls] = useState(() => isChain ? classForChain(product) : 1);
   const [chains, setChains] = useState<Chains>(1);
   const touched = useRef(false);
   const touch = () => { if (!touched.current) { touched.current = true; trackCalcComplete('pdp-savings'); onTouch?.(); } };
 
   const { weather, setWeather, terrain, setTerrain, kmPerWeek, setKmPerWeek, interval } = profile;
   const kmPerYear = kmPerWeek * 52;
-  const dc = DRIVETRAIN_CLASSES[cls];
+  const cl = DRIVETRAIN_CLASSES[cls];
+  // Kettenseite: Kettenpreis = diese Kette, Kassette als Richtwert der Klasse.
+  const dc = isChain ? { ...cl, chainPrice: product.price } : cl;
+  // Die XT-Kassette steht bei Ketten fuer den Richtwert 11/12-fach, nicht fuer
+  // ein XT-Rad (sonst liest die HG701- oder Force-Seite "Richtwert XT").
+  const casRef = isChain && cl.id === 'xt' ? (de ? '11/12-fach' : '11/12-speed') : (de ? cl.de : cl.en);
   const costs = drivetrainCosts({ kmPerYear, rewaxKm: interval, chains, chainPrice: dc.chainPrice, cassettePrice: dc.cassettePrice });
   const oil = [costs.breakdown.chain.oil, costs.breakdown.cassette.oil, costs.breakdown.lube.oil].map(x => x * YEARS);
   const wax = [costs.breakdown.chain.wax, costs.breakdown.cassette.wax, costs.breakdown.lube.wax].map(x => x * YEARS);
@@ -151,7 +169,7 @@ export function WaxCalculator({ product, profile, de, onTouch }: { product: Prod
       <span id="instrument" aria-hidden />
       <div className="wxp-wrap">
         <div className="wxp-chead">
-          <p className="eyebrow">{de ? 'Kapitel 03' : 'Chapter 03'}</p>
+          <p className="eyebrow">{chapter ?? (de ? 'Kapitel 03' : 'Chapter 03')}</p>
           <h2>{de ? 'Rechnet sich das?' : 'Does it pay off?'}</h2>
           <p>{de ? 'Ein paar Angaben zu deinem Fahren. Die Ersparnis kommt aus dem Verschleiß, nicht aus dem Schmierstoff.' : 'A few inputs about your riding. The savings come from wear, not from the lubricant.'}</p>
         </div>
@@ -179,6 +197,16 @@ export function WaxCalculator({ product, profile, de, onTouch }: { product: Prod
                 ))}
               </div>
             </div>
+            {isChain ? (
+              <div className="wxp-field">
+                <div className="fl">{de ? 'Gerechnet mit' : 'Calculated with'}</div>
+                <p className="wxp-kmyear" style={{ marginTop: 0, fontSize: 13.5, lineHeight: 1.5 }}>
+                  {de
+                    ? <>Kette <b style={{ color: '#fff' }}>{product.chainModel}</b> für {fmtEur(product.price)} €, Kassette {fmtEur(dc.cassettePrice)} € (Richtwert {casRef})</>
+                    : <>Chain <b style={{ color: '#fff' }}>{product.chainModel}</b> at €{fmtEur(product.price)}, cassette €{fmtEur(dc.cassettePrice)} (reference {casRef})</>}
+                </p>
+              </div>
+            ) : (
             <div className="wxp-field">
               <div className="fl">{de ? 'Dein Antrieb (Shimano 12-fach)' : 'Your drivetrain (Shimano 12-speed)'}</div>
               <div className="wxp-seg" role="group" aria-label={de ? 'Antriebsklasse' : 'Drivetrain class'}>
@@ -189,6 +217,7 @@ export function WaxCalculator({ product, profile, de, onTouch }: { product: Prod
                 ))}
               </div>
             </div>
+            )}
             <div className="wxp-field">
               <label className="fl" htmlFor="wxp-km">{de ? 'Kilometer pro Woche' : 'Kilometres per week'}
                 <span className="wxp-kmv">{kmPerWeek}<small>km</small></span></label>
@@ -264,9 +293,13 @@ export function WaxCalculator({ product, profile, de, onTouch }: { product: Prod
                 <li>{de
                   ? `Kassette: mit Öl ${OIL_CASSETTE_KM.toLocaleString('de-DE')} km, mit Wachs ${WAX_CASSETTE_KM[chains - 1].toLocaleString('de-DE')} km`
                   : `Cassette: ${OIL_CASSETTE_KM.toLocaleString('en-US')} km with oil, ${WAX_CASSETTE_KM[chains - 1].toLocaleString('en-US')} km with wax`}</li>
-                <li>{de
-                  ? `Teilepreise ${dc.de}: Kette ${fmtEur(dc.chainPrice)} €, Kassette ${fmtEur(dc.cassettePrice)} € (Richtwerte)`
-                  : `Part prices ${dc.en}: chain €${fmtEur(dc.chainPrice)}, cassette €${fmtEur(dc.cassettePrice)} (reference values)`}</li>
+                <li>{isChain
+                  ? (de
+                    ? `Teilepreise: Kette ${fmtEur(dc.chainPrice)} € (diese Kette), Kassette ${fmtEur(dc.cassettePrice)} € (Richtwert ${casRef})`
+                    : `Part prices: chain €${fmtEur(dc.chainPrice)} (this chain), cassette €${fmtEur(dc.cassettePrice)} (reference ${casRef})`)
+                  : (de
+                    ? `Teilepreise ${dc.de}: Kette ${fmtEur(dc.chainPrice)} €, Kassette ${fmtEur(dc.cassettePrice)} € (Richtwerte)`
+                    : `Part prices ${dc.en}: chain €${fmtEur(dc.chainPrice)}, cassette €${fmtEur(dc.cassettePrice)} (reference values)`)}</li>
                 {/* Das Oel-Intervall (50–150 km) und diese Kosten widersprechen
                     sich nicht: der Betrag ist die anteilige Flasche pro
                     1.000 km, nicht der Preis eines Oelgangs. */}
@@ -281,9 +314,13 @@ export function WaxCalculator({ product, profile, de, onTouch }: { product: Prod
             <div className="wxp-calc-spacer" />
             <div className="wxp-c-foot">
               <p>
-                {de
-                  ? <>Ein Block reicht dir <b>~{months} Monate</b> · wachsen alle <b>{sessionDays} Tage</b>, {sessionsPerYear}× im Jahr<br />{priceStr} € · Versand kostenlos</>
-                  : <>One block lasts you <b>~{months} months</b> · wax every <b>{sessionDays} days</b>, {sessionsPerYear}× a year<br />€{priceStr} · free shipping</>}
+                {isChain
+                  ? (de
+                    ? <>Kommt fahrbereit · danach nachwachsen alle <b>{sessionDays} Tage</b>, {sessionsPerYear}× im Jahr<br />{priceStr} € · Versand kostenlos</>
+                    : <>Arrives ready to ride · then rewax every <b>{sessionDays} days</b>, {sessionsPerYear}× a year<br />€{priceStr} · free shipping</>)
+                  : (de
+                    ? <>Ein Block reicht dir <b>~{months} Monate</b> · wachsen alle <b>{sessionDays} Tage</b>, {sessionsPerYear}× im Jahr<br />{priceStr} € · Versand kostenlos</>
+                    : <>One block lasts you <b>~{months} months</b> · wax every <b>{sessionDays} days</b>, {sessionsPerYear}× a year<br />€{priceStr} · free shipping</>)}
               </p>
               {!isSoldOut(product) && (canCheckout(product)
                 ? <AddToCartButton product={product} />

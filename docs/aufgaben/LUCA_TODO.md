@@ -169,8 +169,14 @@ Kurze Antworten reichen, im Chat. Nichts davon blockiert Teil 1–3.
    eingerichtet, geölte Ketten in einem **separaten** Ultraschallbad zu entfetten
    (vor dem Wachsbad)?~~ **Erledigt 2026-09-14:** Luca bestätigt, der Betrieb
    läuft. `UMSTIEG_LIVE` bleibt `true`.
-8. **Turnaround:** aktuell steht „3–5 Werktage ab Ankunft bei uns" auf der Seite.
-   Passt das, oder eine andere Spanne?
+8. ~~**Turnaround:** „3–5 Werktage ab Ankunft bei uns" — passt das?~~
+   **Erledigt 2026-09-15:** Luca: fest **3 Werktage**, Tür zu Tür 5–7 Werktage
+   (`TURNAROUND` in `src/pages/rewax/content.ts`).
+   **Neu dazu, bitte bestätigen:** Die **Leise-Garantie** (`GUARANTEE`, gleiche
+   Datei) ist mit „Meldung binnen 14 Tagen, Rückversand der Nacharbeit trägt
+   Waxcelerate" formuliert — Frist und Kostenübernahme so gewollt? Und der
+   **Mengenpreis greift jetzt ab zwei Ketten** (11,95 / 21,95 €, vorher ab drei):
+   Preise so lassen oder für 2 Ketten eigene Stufe?
 9. **Verkaufszahlen je Wachs-SKU** (Produktkarten-Neugliederung, 09/2026): die
    Regal-Karten zeigen `78 Bewertungen · 250+ verkauft` (Classic) und
    `20 Bewertungen · 80+ verkauft` (Pro) — abgeleitet aus `unitsSold`/

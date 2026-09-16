@@ -24,7 +24,7 @@ Stufe ist für sich lieferbar und einzeln committbar.
 |---|---|
 | eBay-Versand im Preis enthalten | **ja**, Wachs und Ketten |
 | Wachs-Staffel | **5 / 10 / 15 %** — der Code gilt, das Skill ist veraltet |
-| Rewax-Turnaround | **3–5 Werktage** |
+| Rewax-Turnaround | **3 Werktage** (seit 2026-09-15, vorher 3–5) |
 | Rewax-Preisdarstellung | Entscheidung an mich delegiert, siehe §3 |
 | Mono-Schrift | „was am sinnvollsten ist und am besten aussieht", siehe §3 |
 | Echte eBay-Bewertungen je Kette | **ja, existieren** |
@@ -354,7 +354,7 @@ Google-Merchant-Center liegt außerhalb des Repos.
   demselben Lager), **Starter-Set-Seite** eine Lieferzeile im Kaufblock.
 - **Rewax-Kachel** bekommt **kein** Lieferdatum, sondern `TURNAROUND` aus
   `src/pages/rewax/content.ts` mit Rundpfeil statt LKW:
-  `Zurück in 3–5 Werktagen ab Ankunft`.
+  `Zurück in 3 Werktagen ab Ankunft`.
 
 ### 2.3 Preis je Anwendung und Staffel (K6)
 

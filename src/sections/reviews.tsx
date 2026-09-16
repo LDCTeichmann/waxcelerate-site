@@ -22,6 +22,7 @@ export type Review = {
   productDe?: string; productEn?: string;
   productIds?: string[];           // real product/bundle ids this review is genuinely about
   fallback?: boolean;              // may stand in on a product page with no tagged review
+  chainGeneral?: boolean;          // about a waxed chain, model unknown: may stand in on any chain page
   photo?: string;                  // real customer photo (.jpg path; .webp sibling served first)
   photoPos?: string;               // object-position, only if the pre-crop still needs a nudge
 };
@@ -102,7 +103,7 @@ export const REVIEWS: Review[] = [
   {
     textDe: 'Schnelle Lieferung, einwandfrei gewachste Kette die sehr gut läuft, gerne wieder.',
     textEn: 'Fast delivery, impeccably waxed chain that runs very well — will order again.',
-    name: 'seyrane', dateDe: 'März 2026', dateEn: 'March 2026', source: 'ebay', photo: '/images/reviews/ride-5-card.jpg',
+    name: 'seyrane', dateDe: 'März 2026', dateEn: 'March 2026', source: 'ebay', chainGeneral: true, photo: '/images/reviews/ride-5-card.jpg',
   },
   {
     textDe: 'Alles bestens, läuft wie gewachst !!',

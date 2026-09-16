@@ -129,7 +129,7 @@ Bau diese Punkte so, dass eine spätere Entscheidung eine Zeile ist:
 - **Anwendungen je Block:** rechne mit `applications` aus `data.ts` (20–32
   bei 500 g). Das Skill sagt 15–20; der Konflikt ist bekannt und liegt bei
   Luca. Nicht selbst auflösen.
-- **Rewax:** `TURNAROUND` aus `src/pages/rewax/content.ts` (3–5 Werktage) und
+- **Rewax:** `TURNAROUND` aus `src/pages/rewax/content.ts` (3 Werktage) und
   die im Plan entschiedene Preiszeile („15,95 € je Kette" groß, „mit
   10er-Karte 9,45 €" darunter). Keine B-Variante bauen.
 - **Mono in den Wissenschafts-Figuren bleibt.** Nicht weiter entfernen.

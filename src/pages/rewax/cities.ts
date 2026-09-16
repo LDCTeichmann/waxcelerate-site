@@ -88,8 +88,9 @@ export const REWAX_CITIES: RewaxCity[] = [
 
 export const cityBySlug = (slug: string | undefined) => REWAX_CITIES.find((c) => c.slug === slug);
 
-// Gesamtdauer ab Einwurf: Post hin (1–2) + Bearbeitung (3–5) + Post zurück (1–2).
-export const DOOR_TO_DOOR = { de: '5–9 Werktage', en: '5–9 working days' } as const;
+// Gesamtdauer ab Einwurf: Post hin (1–2) + Bearbeitung (3) + Post zurück (1–2).
+// Das konkrete Datum dazu rechnet returnWindow() in dates.ts.
+export const DOOR_TO_DOOR = { de: '5–7 Werktage', en: '5–7 working days' } as const;
 
 // ── Nachwachs-Intervall aus dem Klima ───────────────────────────────────────
 // Dieselben Straßen-Stützwerte wie /rechner/intervall (waxIntervals in
@@ -149,7 +150,7 @@ export function cityFaqItems(c: RewaxCity, de: boolean) {
     {
       q: de ? `Kann ich meine Fahrradkette in ${n} wachsen lassen?` : `Can I get my bike chain waxed in ${n}?`,
       a: de
-        ? `Ja, per Post. Wir haben keine Filiale in ${n}: Du öffnest die Kette am Quick-Link und schickst sie als Großbrief (${eur(PRICE.shippingSingle)}) zu uns nach Stuttgart. Wir wachsen sie in ${TURNAROUND.full} und schicken sie zurück — insgesamt meist ${DOOR_TO_DOOR.de}.`
+        ? `Ja, per Post. Wir haben keine Filiale in ${n}: Du öffnest die Kette am Quick-Link und schickst sie als Großbrief (${eur(PRICE.shippingSingle)}) zu uns nach Stuttgart. Wir wachsen sie ${TURNAROUND.within} und schicken sie zurück — insgesamt meist ${DOOR_TO_DOOR.de}.`
         : `Yes, by mail. We have no shop in ${n}: open the chain at the quick link and send it as a letter to us in Stuttgart. We wax it within ${TURNAROUND.fullEn} and send it back — usually ${DOOR_TO_DOOR.en} in total.`,
     },
     {

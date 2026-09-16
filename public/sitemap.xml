@@ -312,7 +312,18 @@
     <image:image>
       <image:loc>https://waxcelerate.de/images/products/chains/ybn12.webp</image:loc>
       <image:title>YBN S12S 12-fach — vorgewachst | Waxcelerate</image:title>
-      <image:caption>YBN S12S, 116 Glieder, 12-fach, 259 g — universell für Shimano, SRAM und Campagnolo. Vollständig entfettet und vorgewachst. Quick-Link liegt bei.</image:caption>
+      <image:caption>YBN S12S, 116 Glieder, 12-fach — universell für Shimano, SRAM und Campagnolo. Vollständig entfettet und vorgewachst. Quick-Link liegt bei.</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://waxcelerate.de/produkt/chain-hg93</loc>
+    <lastmod>2026-09-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://waxcelerate.de/images/products/chains/hg93.webp</image:loc>
+      <image:title>Shimano CN-HG93 9-fach — vorgewachst | Waxcelerate</image:title>
+      <image:caption>Shimano CN-HG93, 116 Glieder, 9-fach, Hyperglide. Vollständig entfettet und mit MoS₂-Transferfilm vorgewachst. 9-fach Quick-Link liegt bei.</image:caption>
     </image:image>
   </url>
   <url>

@@ -42,7 +42,7 @@ import { TOOLS, TOOLS_HUB } from '../src/lib/toolRegistry.ts';
 import {
   rewaxMeta, rewaxFaqItems, rewaxServiceSchema, rewaxFaqSchema,
   PRICE as REWAX_PRICE, eur as rewaxEur, TURNAROUND as REWAX_TURNAROUND,
-  CITIES as REWAX_CITIES, UMSTIEG_LIVE as REWAX_UMSTIEG_LIVE,
+  CITIES as REWAX_CITIES, UMSTIEG_LIVE as REWAX_UMSTIEG_LIVE, GUARANTEE as REWAX_GUARANTEE,
 } from '../src/pages/rewax/content.ts';
 import {
   REWAX_CITIES as CITY_PAGES, cityBySlug, cityMeta, cityLead, cityClimateSentence, cityFaqItems,
@@ -233,7 +233,7 @@ function renderIndex() {
     }),
     // blogHero, nicht ride-road-golden: Das ist das og:image (soziale
     // Vorschau), aber BlogIndexPage.tsx rendert tatsaechlich blogHero.src als
-    // Full-Bleed-Masthead-Bild — das ist das echte LCP-Element dieser Seite.
+    // Kopfbild (rechte Hälfte, per Maske ausgeblendet) — das echte LCP-Element.
     imagePreload(blogHero.src, mimeOf(blogHero.src)),
     ld({
       '@context': 'https://schema.org',
@@ -312,9 +312,10 @@ const STATIC_PAGES = [
     h1: 'Fahrradkette wachsen lassen.',
     lead: `Kette einschicken, frisch gewachst und fahrbereit zurückbekommen. Handgewachst in Stuttgart, deutschlandweit per Post. Bearbeitung ${REWAX_TURNAROUND.full}.`,
     points: [
-      `Auffrischung einer bereits gewachsten Kette: ${rewaxEur(REWAX_PRICE.rewax.single)} je Kette, ${rewaxEur(REWAX_PRICE.rewax.bundle)} ab drei Ketten, jeweils zuzüglich ${rewaxEur(REWAX_PRICE.shippingSingle)} Rückversand.`,
+      `Auffrischung einer bereits gewachsten Kette: ${rewaxEur(REWAX_PRICE.rewax.single)} je Kette, ${rewaxEur(REWAX_PRICE.rewax.bundle)} ab zwei Ketten, jeweils zuzüglich ${rewaxEur(REWAX_PRICE.shippingSingle)} Rückversand. Zwei Ketten im Wechsel: eine fährt, eine ist bei uns — das Rad steht nie still.`,
+      `${REWAX_GUARANTEE.short}: ${REWAX_GUARANTEE.full}`,
       ...(REWAX_UMSTIEG_LIVE ? [
-        `Umstieg einer geölten oder neuen Kette auf Wachs: ${rewaxEur(REWAX_PRICE.umstieg.single)} je Kette (ab drei ${rewaxEur(REWAX_PRICE.umstieg.bundle)}). Die Kette kommt zuerst in ein separates Ultraschallbad, wird gründlich entfettet und getrocknet — unser Wachsbad sieht nie eine ölige Kette.`,
+        `Umstieg einer geölten oder neuen Kette auf Wachs: ${rewaxEur(REWAX_PRICE.umstieg.single)} je Kette (ab zwei ${rewaxEur(REWAX_PRICE.umstieg.bundle)}). Die Kette kommt zuerst in ein separates Ultraschallbad, wird gründlich entfettet und getrocknet — unser Wachsbad sieht nie eine ölige Kette.`,
       ] : [
         'Geölte Ketten entfetten wir aktuell nicht, weil eine einzige ölige Kette ein ganzes Wachsbad unbrauchbar macht.',
       ]),

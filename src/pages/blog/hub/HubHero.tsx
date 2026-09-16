@@ -93,31 +93,45 @@ export function HubHero({
   const chips = recent.length ? recent : suggestedQuestions;
 
   return (
-    <section className="relative overflow-hidden border-b" style={{ borderColor: 'var(--bd)' }}>
-      <img src={blogHero.src} alt={blogHero.alt} className="absolute inset-0 w-full h-full object-cover" />
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            'linear-gradient(0deg, rgba(var(--scrim-rgb),0.97) 0%, rgba(var(--scrim-rgb),0.86) 40%, rgba(var(--scrim-rgb),0.55) 100%)',
-        }}
-      />
-      <div className="relative max-w-6xl mx-auto w-full px-4 sm:px-6 pt-32 sm:pt-40 pb-12 sm:pb-16">
-        <p className="font-mono text-small uppercase tracking-[0.18em] mb-4" style={{ color: '#D2D2DA' }}>
+    // Hell statt dunkel (09/2026): vorher lag die Kettentextur unter einem fast
+    // deckenden Scrim. Jetzt wie der Rewax-Kopf: Seitengrund, das Foto
+    // (Kette ueber dem Wachstopf vor den Stuttgarter Huegeln) fuellt ab lg die
+    // rechte Haelfte und laeuft per Maske in den Grund aus, mobil steht es oben.
+    <section id="hub-hero" className="relative overflow-hidden border-b" style={{ background: 'var(--pg)', borderColor: 'var(--bd2)' }}>
+      <div aria-hidden className="absolute inset-x-0 top-0 h-[300px] sm:h-[380px] lg:inset-x-auto lg:right-0 lg:h-full lg:w-[56%]"
+        style={{ WebkitMaskImage: 'var(--hub-hero-mask)', maskImage: 'var(--hub-hero-mask)' }}>
+        <img
+          src={blogHero.src}
+          srcSet={`${blogHero.srcSmall} 800w, ${blogHero.src} 1600w`}
+          sizes="(max-width: 1024px) 100vw, 56vw"
+          alt=""
+          fetchPriority="high"
+          className="w-full h-full object-cover"
+          style={{ objectPosition: '42% 45%' }}
+        />
+      </div>
+      <style>{`
+        #hub-hero { --hub-hero-mask: linear-gradient(to bottom, rgba(0,0,0,.95) 0%, rgba(0,0,0,.6) 55%, transparent 100%); }
+        @media (min-width: 1024px) {
+          #hub-hero { --hub-hero-mask: linear-gradient(to right, transparent 0%, rgba(0,0,0,.85) 30%, #000 60%); }
+        }
+      `}</style>
+      <div className="relative max-w-6xl mx-auto w-full px-4 sm:px-6 pt-[220px] sm:pt-[290px] lg:pt-36 pb-12 sm:pb-16">
+        <p className="eyebrow mb-4" style={{ color: 'var(--accent-soft)' }}>
           Die Werkstatt · {articleCount} Artikel · Stuttgart
         </p>
         <h1
-          className="font-sans font-black leading-[1.02] tracking-tight mb-4 max-w-3xl"
-          style={{ color: '#FFFFFF', WebkitTextFillColor: '#FFFFFF', fontSize: 'clamp(2.5rem, 6vw, 4.25rem)', textShadow: '0 2px 30px rgba(0,0,0,0.85)' }}
+          className="font-display font-bold leading-[1.02] mb-4 max-w-xl"
+          style={{ color: 'var(--tx1)', fontSize: 'clamp(2.3rem, 5vw, 3.5rem)', letterSpacing: '-0.025em' }}
         >
           Frag die Werkstatt.
         </h1>
-        <p className="text-[16px] sm:text-[18px] leading-relaxed max-w-2xl mb-8" style={{ color: '#D8D8DE', textShadow: '0 1px 12px rgba(0,0,0,0.7)' }}>
+        <p className="text-[16px] sm:text-[17px] leading-relaxed max-w-[520px] mb-8" style={{ color: 'var(--txm)' }}>
           Messwerte, Anleitungen und ehrliche Antworten von jemandem, der jede Woche
           selbst am Wachstopf steht. Frag so, wie du es einem Freund erzählen würdest.
         </p>
 
-        <div className="relative max-w-3xl">
+        <div className="relative max-w-[600px]">
           <Search
             className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 pointer-events-none"
             style={{ color: 'var(--txf)' }}
@@ -147,8 +161,8 @@ export function HubHero({
               color: 'var(--tx1)',
               border: '1px solid var(--bd)',
               boxShadow: focused
-                ? '0 0 0 3px rgba(var(--accent-rgb),0.45), 0 20px 50px rgba(0,0,0,0.45)'
-                : '0 20px 50px rgba(0,0,0,0.45)',
+                ? '0 0 0 3px rgba(var(--accent-rgb),0.35), 0 14px 36px rgba(0,0,0,0.12)'
+                : '0 14px 36px rgba(0,0,0,0.10)',
             }}
           />
           <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
@@ -173,8 +187,8 @@ export function HubHero({
           </div>
         </div>
 
-        <div className="mt-5 flex flex-wrap items-center gap-2 max-w-3xl">
-          <span className="font-mono text-small uppercase tracking-[0.16em] mr-1" style={{ color: '#B4B4BE' }}>
+        <div className="mt-5 flex flex-wrap items-center gap-2 max-w-[600px]">
+          <span className="eyebrow mr-1">
             {recent.length ? 'Zuletzt gesucht' : 'Zum Beispiel'}
           </span>
           {chips.map((q) => (
@@ -182,8 +196,8 @@ export function HubHero({
               key={q}
               type="button"
               onClick={() => pick(q)}
-              className="text-[13px] px-3.5 py-2 rounded-full transition-colors backdrop-blur hover:bg-white/20"
-              style={{ background: 'rgba(255,255,255,0.10)', color: '#FFFFFF', border: '1px solid rgba(255,255,255,0.22)' }}
+              className="text-[13px] px-3.5 py-2 rounded-full transition-colors hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"
+              style={{ background: 'color-mix(in srgb, var(--sf) 85%, transparent)', color: 'var(--tx2)', border: '1px solid var(--bd2)', backdropFilter: 'blur(6px)' }}
             >
               {q}
             </button>

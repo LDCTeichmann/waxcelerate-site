@@ -39,8 +39,8 @@ const SYSTEM_LABELS: Record<DriveSystem, string> = {
   shimano: 'Shimano', sram: 'SRAM', campagnolo: 'Campagnolo',
 };
 
-// Vorgewachst gibt es nur 11- und 12-fach.
-const SPEED_OPTIONS = ['11', '12'] as const;
+// Vorgewachst gibt es 9-, 11- und 12-fach (9-fach seit 15.09.2026: CN-HG93).
+const SPEED_OPTIONS = ['9', '11', '12'] as const;
 
 /** „Shimano, SRAM und YBN" / „Shimano, SRAM and YBN" — ohne Bibliothek, weil
     maximal vier Eintraege vorkommen. */
@@ -59,14 +59,14 @@ export function ChainMatchCalculator({ profile, compact }: { profile: ToolProfil
   const system = profile.system ?? 'shimano';
 
   // Das Profil teilt die Gangzahl mit dem Verschleiss-Rechner, der 8 bis 12
-  // zulaesst. Hier gibt es nur 11 und 12 im Sortiment. Vorher wurde alles
+  // zulaesst. Hier gibt es nur 9, 11 und 12 im Sortiment. Vorher wurde alles
   // andere still auf 12 abgebildet — wer im Verschleiss-Rechner „9" gewaehlt
   // hatte, bekam hier kommentarlos 12-fach-Ketten empfohlen. Das ist falsche
   // Beratung, und zwar eine, die man erst beim Einbau merkt. Jetzt bleibt die
   // Gangzahl stehen und der Rechner sagt, dass er sie nicht fuehrt.
   const speed = profile.speed ?? 12;
-  const stocked = speed === 11 || speed === 12;
-  const speedKey: '11' | '12' = speed === 11 ? '11' : '12';
+  const stocked = speed === 9 || speed === 11 || speed === 12;
+  const speedKey: '9' | '11' | '12' = speed === 9 ? '9' : speed === 11 ? '11' : '12';
 
   const matches = (stocked ? compatibilityMatrix[system]?.[speedKey] ?? [] : [])
     .map(getProductById)
@@ -113,7 +113,7 @@ export function ChainMatchCalculator({ profile, compact }: { profile: ToolProfil
             <StepField step={2} label={tm.speed} help={tm.helpSpeed}>
               <ChipRow>
                 {SPEED_OPTIONS.map(s => (
-                  <TogButton key={s} active={stocked && speedKey === s} onClick={() => profile.setSpeed(Number(s) as 11 | 12)}>
+                  <TogButton key={s} active={stocked && speedKey === s} onClick={() => profile.setSpeed(Number(s) as 9 | 11 | 12)}>
                     {s}{t.tools.shared.speedSuffix}
                   </TogButton>
                 ))}

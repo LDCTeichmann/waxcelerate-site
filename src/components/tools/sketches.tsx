@@ -202,7 +202,7 @@ function Dim({ x1, x2, y, from1, from2, label, labelX, anchor = 'middle', color 
  * gerundeter Zahnkopf. Teilung und Zahnteilung stehen im selben Massstab —
  * deshalb liegen die Kettenbolzen genau in den Sitzen. `phase` dreht das Rad.
  */
-function sprocketPath(cx: number, cy: number, n: number, R: number, P: number, phase: number) {
+export function sprocketPath(cx: number, cy: number, n: number, R: number, P: number, phase: number) {
   const rs = 0.31 * P;
   const Ro = R + 0.32 * P;
   const step = (2 * Math.PI) / n;
