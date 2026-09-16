@@ -313,18 +313,44 @@ function TempWindow({ de }: { de: boolean }) {
   );
 }
 
-// ─── Microscope comparison — real micrograph evidence ────────────────────────
+// ─── Mikroskop-Abschnitt — Illustration, ausdruecklich kein Beleg ───────────
+//
+// 2026-09-16, bewusste Entscheidung nach Pruefung. Die Bilder bleiben, die
+// BEHAUPTUNG geht. Vorher trat der Abschnitt als eigener Messbeleg auf:
+// Eyebrow "Oberflaechenanalyse", Ueberschrift "Unter dem Mikroskop",
+// Vergroesserungsangaben von 1 000x bis 2 500x und eine Legende
+// "Ohne / Mit MoS2-Festschmierstoff". Zusammen ist das ein Vorher-Nachher
+// unseres Produkts, und dafuer tragen diese Bilder nicht.
+//
+// Die Vergroesserungsangaben sind ersatzlos weg. Sie waren nicht nur unbelegt,
+// sie waren unplausibel: bei 1 000x sieht man Oberflaechentextur im
+// Mikrometerbereich, nicht die gerundete Kante eines ganzen Kettenglieds. Das
+// haette jeder Kunde mit einem 30-Euro-USB-Mikroskop gesehen, und das kostet
+// mehr Glaubwuerdigkeit als die Zahl je gebracht hat.
+//
+// Was bleibt und warum es traegt: der Abschnitt illustriert das WIRKPRINZIP,
+// das ACT I und ACT II erklaeren. Als Illustration darf er das, solange er
+// sich nicht als Messung ausgibt. Der Hinweis steht deshalb VOR den Bildern
+// und nicht als Fussnote darunter, wo ihn niemand liest.
+//
+// Offen und Luca bekannt: die vier Bildpaare tragen eingebrannte deutsche
+// Beschriftungen, davon vier komparativ ("Reduzierte Kratzdichte",
+// "Geringere sichtbare Kantenverformung", "Gleichmaessigere Oberflaeche",
+// "Homogenere Oberflaeche"). Wegschneiden geht nicht: bei 02-ref und bei
+// beiden 03ern sitzt der Text mitten im Bild, nicht in einem Randstreifen.
+// Die Entschaerfung laeuft deshalb ueber die Rahmung. Ganz aus der Welt ist
+// das erst mit eigenen Aufnahmen (offener Punkt in PROJECT.md).
 const MICRO = [
-  { n: '01', de: 'Kettenglied – Innenfläche', en: 'Chain link – inner surface', mag: '1 000×',
+  { n: '01', de: 'Kettenglied – Innenfläche', en: 'Chain link – inner surface',
     ref: '/images/microscope/01-chain-link-inner-ref.webp',
     mos2: '/images/microscope/01-chain-link-inner-mos2.webp' },
-  { n: '02', de: 'Kassettenspeiche – Verschleißkante', en: 'Cassette spoke – wear edge', mag: '2 000×',
+  { n: '02', de: 'Kassettenspeiche – Verschleißkante', en: 'Cassette spoke – wear edge',
     ref: '/images/microscope/02-sprocket-wear-edge-ref.webp',
     mos2: '/images/microscope/02-sprocket-wear-edge-mos2.webp' },
-  { n: '03', de: 'Kassettenspeiche – Zahnflanke', en: 'Cassette spoke – tooth flank', mag: '2 500×',
+  { n: '03', de: 'Kassettenspeiche – Zahnflanke', en: 'Cassette spoke – tooth flank',
     ref: '/images/microscope/03-sprocket-tooth-flank-ref.webp',
     mos2: '/images/microscope/03-sprocket-tooth-flank-mos2.webp' },
-  { n: '04', de: 'Kettenglied – Innenfläche', en: 'Chain link – inner surface', mag: '1 000×',
+  { n: '04', de: 'Kettenglied – Innenfläche', en: 'Chain link – inner surface',
     ref: '/images/microscope/04-chain-link-inner-2-ref.webp',
     mos2: '/images/microscope/04-chain-link-inner-2-mos2.webp' },
 ];
@@ -336,12 +362,22 @@ function Microscope({ de }: { de: boolean }) {
   return (
     <div>
       <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
-        {de ? 'Oberflächenanalyse' : 'Surface analysis'}
+        {de ? 'Illustration' : 'Illustration'}
       </p>
       <h2 className="font-display font-bold text-wx-tx1 leading-tight mb-2"
         style={{ fontSize: 'clamp(1.9rem, 4vw, 3rem)', letterSpacing: '-0.02em' }}>
-        {de ? 'Unter dem Mikroskop.' : 'Under the microscope.'}
+        {de ? 'Wie das aussieht.' : 'What that looks like.'}
       </h2>
+
+      {/* Der Vorbehalt steht VOR den Bildern, nicht als Fussnote darunter.
+          Eine Einordnung, die erst nach vier Bildpaaren kommt, kommt zu spaet:
+          bis dahin hat der Leser sie als Vorher-Nachher unserer Ketten
+          gelesen. Kein Kleingedrucktes, sondern normale Lesegroesse. */}
+      <p className="text-[13.5px] leading-relaxed mb-6" style={{ color: 'var(--txm)', maxWidth: '58ch' }}>
+        {de
+          ? 'Mikroskopbilder zur Veranschaulichung des Wirkprinzips. Keine eigenen Messaufnahmen, kein Vorher-Nachher unserer Ketten und keine Messreihe. Was wir selbst belegen können, steht weiter unten unter „Der Beweis".'
+          : 'Micrographs illustrating the mechanism. Not our own measurements, not a before and after of our chains, and not a test series. What we can substantiate ourselves is further down under "The proof".'}
+      </p>
       {/* Bis 2026-09: hier stand eine Lede-Zeile ("Originalaufnahmen von
           Antriebskomponenten ... identischer Vergroesserung und identischen
           Aufnahmebedingungen"), die eine Herkunfts- und Vergleichsbehauptung
@@ -384,10 +420,14 @@ function Microscope({ de }: { de: boolean }) {
                   <span className="num text-[14px] font-bold" style={{ color: 'var(--tx2)' }}>{row.n}</span>
                   <span className="text-[12px]" style={{ color: 'var(--txm)' }}>{de ? row.de : row.en}</span>
                 </div>
-                <span className="num-data text-meta px-1.5 py-0.5 rounded-md"
-                  style={{ background: 'var(--accent-wash-sm)', border: '1px solid rgba(var(--accent-rgb),0.10)',
+                {/* Bis 2026-09-16 stand hier die Vergroesserung (1 000x bis
+                    2 500x). Unbelegt und fuer das Gezeigte unplausibel, siehe
+                    Kommentar an MICRO. Jetzt traegt der Chip den Vorbehalt,
+                    also genau an jeder Karte statt nur einmal am Abschnitt. */}
+                <span className="text-meta px-1.5 py-0.5 rounded-md"
+                  style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)',
                     color: 'var(--txf)' }}>
-                  {row.mag}
+                  {de ? 'Illustration' : 'Illustration'}
                 </span>
               </div>
               {/* Drag-to-reveal — pull the handle to compare reference vs. treated surface directly */}
@@ -404,12 +444,16 @@ function Microscope({ de }: { de: boolean }) {
         })}
       </div>
 
-      {/* Bildquelle statt Methodik-Behauptung — dieselbe Korrektur wie oben:
-          "identische Vergroesserung/Bedingungen je Paar" war nicht belegbar. */}
+      {/* Die alte Fassung lautete "keine Aufnahmen der hier verkauften
+          Chargen". Das klingt nach Einschraenkung, behauptet aber das
+          Gegenteil von dem, was stimmt: es unterstellt, die Bilder seien
+          unsere Aufnahmen, nur eben von anderen Chargen. Sie sind gar nicht
+          unsere. Der Hinweis steht jetzt oben und sagt das gerade heraus;
+          hier bleibt nur noch die Einordnung der Beschriftungen. */}
       <p className="text-meta leading-relaxed mt-5" style={{ color: 'var(--txff)' }}>
         {de
-          ? 'Mikroskopaufnahmen zur Veranschaulichung des Wirkprinzips — keine Aufnahmen der hier verkauften Chargen.'
-          : 'Micrographs illustrating the mechanism — not photographs of the batches sold here.'}
+          ? 'Die Beschriftungen in den Bildern benennen, was dort zu sehen ist. Sie sind keine Messwerte.'
+          : 'The labels inside the images name what is visible there. They are not measurements.'}
       </p>
     </div>
   );

@@ -964,6 +964,46 @@ Offen geblieben, aufgefallen: die Wertespalten in `LineChoice` laufen alle über
 Messwerte frei. Älter als dieser Umbau, eigene Entscheidung über die ganze
 Tabelle.
 
+### Stufe 5: der Mikroskop-Abschnitt, entschärft statt entfernt
+
+Lucas Vorgabe: die Bilder sollen bleiben, der Abschnitt soll verständlich
+bleiben, und es darf kein Ärger daraus entstehen. Umgesetzt am 16.09.
+
+**Was das Problem war, und was nicht.** Nicht der australische YouTuber, von
+dem das Ausgangsbild stammt — die Verfolgung durch eine Privatperson aus
+Australien ist unwahrscheinlich. Das Problem war § 5 UWG, und dort sind die
+Gegner deutsche Mitbewerber und Abmahnvereine, die kleine Shops systematisch
+absuchen. Der Abschnitt trat als **Beleg** auf, nicht als Illustration:
+Eyebrow „Oberflächenanalyse", Überschrift „Unter dem Mikroskop",
+Vergrößerungsangaben und eine Legende „Ohne / Mit MoS₂-Festschmierstoff".
+Zusammen ist das ein Vorher-Nachher unseres Produkts.
+
+**Die Vergrößerungsangaben waren der schärfste Punkt** und der, der am
+schnellsten aufgefallen wäre: bei 1 000× sieht man Oberflächentextur im
+Mikrometerbereich, nicht die gerundete Kante eines ganzen Kettenglieds. Jeder
+Kunde mit einem 30-€-USB-Mikroskop hätte das gesehen. Ersatzlos raus.
+
+**Was sonst geändert wurde:** Eyebrow → „Illustration"; Überschrift → „Wie das
+aussieht."; ein Hinweis in normaler Lesegröße **vor** den Bildern statt als
+Fußnote darunter („keine eigenen Messaufnahmen, kein Vorher-Nachher unserer
+Ketten, keine Messreihe"), mit Verweis auf „Der Beweis" weiter unten; der Chip
+je Karte trägt jetzt „Illustration" statt der Vergrößerung.
+
+**Die alte Fußnote war schlimmer als keine.** Sie lautete „keine Aufnahmen der
+hier verkauften Chargen" — das klingt nach Einschränkung, unterstellt aber,
+die Bilder seien unsere Aufnahmen, nur eben von anderen Chargen. Sie sind gar
+nicht unsere.
+
+**Nicht lösbar auf dieser Ebene, Luca bekannt:** vier der acht Bilder tragen
+eingebrannte komparative Beschriftungen. Wegschneiden scheitert daran, dass
+der Text bei `02-...-ref` und bei beiden `03`ern mitten im Bild sitzt, nicht
+in einem Randstreifen. Die Bildrechtsfrage bleibt ebenfalls offen; sie ist
+durch Formulierung grundsätzlich nicht zu heilen. Beides ist bewusst
+getragenes Restrisiko, kein Versehen.
+
+Endgültig erledigt ist es mit eigenen Aufnahmen. Als offener Punkt in
+`PROJECT.md` notiert, von Luca auf später gelegt.
+
 ---
 
 ## 8. Was nur Luca entscheiden kann
