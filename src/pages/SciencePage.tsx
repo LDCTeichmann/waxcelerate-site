@@ -12,8 +12,8 @@ import { InstrumentFrame, CountUp } from '@/components/viz';
 import { BackLink } from '@/components/BackLink';
 import { BeforeAfterSlider } from '@/components/BeforeAfterSlider';
 import { waxVsOil, frictionRanges, products, type Product } from '@/lib/data';
-import { COMPONENTS, FAILURES, type ScienceComponent } from '@/lib/science';
-import { FormulaGraph } from '@/sections/science/FormulaGraph';
+import { COMPONENTS, EDGES, FAILURES } from '@/lib/science';
+import { WaxField, useFieldBuild, type FieldKey } from '@/sections/science/WaxField';
 import { ContactZones, LineChoice } from '@/sections/science/ContactZones';
 import { ComponentDiagram } from '@/sections/science/diagrams';
 import { CassetteLens } from '@/sections/science/CassetteLens';
@@ -204,70 +204,6 @@ function Disclosure({ label, children }: { label: string; children: React.ReactN
   );
 }
 
-// ─── ACT II — component card: editorial split layout (inspired by numbered index) ─
-function CompCard({ c, n, de, cardRef, compact }: { c: ScienceComponent; n: number; de: boolean; cardRef?: React.Ref<HTMLDivElement>; compact?: boolean }) {
-  return (
-    <div ref={cardRef} id={c.id} className="scroll-mt-24 rounded-2xl border border-wx-bd overflow-hidden"
-      style={{ background: 'var(--card-bg)', boxShadow: 'var(--card-shad)', minHeight: compact ? 280 : undefined }}>
-      {/* Header band */}
-      <div className="px-6 pt-5 pb-4" style={{ borderBottom: '1px solid var(--bd2)' }}>
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0">
-            <span className="num text-[12px] flex-shrink-0" style={{ color: 'var(--txf)' }}>0{n}</span>
-            <div className="h-px flex-1 max-w-[32px]" style={{ background: 'var(--accent-soft)', opacity: 0.4 }} />
-            <span className="text-small uppercase tracking-[0.18em] flex-shrink-0" style={{ color: 'var(--accent-soft)' }}>
-              {de ? c.roleDe : c.roleEn}
-            </span>
-          </div>
-          <span className="num-data font-semibold text-[17px] flex-shrink-0" style={{ color: 'var(--accent-soft)' }}>
-            {c.metric}
-          </span>
-        </div>
-      </div>
-
-      {/* Body */}
-      <div className="px-6 py-5">
-        <h3 className="font-display font-bold text-wx-tx1 text-[1.35rem] leading-tight tracking-[-0.01em]">
-          {de ? c.nameDe : c.nameEn}
-        </h3>
-        {/* compact (mobile carousel): clamp to 3 lines so every card in the
-            swipe deck starts at the same height regardless of how long its
-            summary is — otherwise the deck visibly jumps taller/shorter as
-            you swipe past e.g. MoS2's four-sentence summary vs a two-sentence
-            one. Full CompCard usage (none currently) keeps the unclamped
-            paragraph. */}
-        <p className={`text-[14px] leading-relaxed text-wx-tx2 mt-3 max-w-prose ${compact ? 'line-clamp-3' : ''}`}>
-          {de ? c.sumDe : c.sumEn}
-        </p>
-
-        {/* Tier 2a — short rationale */}
-        <Disclosure label={de ? 'Warum das zählt' : 'Why it matters'}>
-          <p className="text-[13px] leading-relaxed pt-3" style={{ color: 'var(--txm)' }}>
-            {de ? c.whyDe : c.whyEn}
-          </p>
-        </Disclosure>
-
-        {/* Tier 2b — deep physics + diagram + insight */}
-        <Disclosure label={de ? 'Die Physik' : 'The physics'}>
-          <div className="pt-3 space-y-3">
-            {(de ? c.physicsDe : c.physicsEn).map((p, i) => (
-              <p key={i} className="text-[13px] leading-relaxed" style={{ color: 'var(--txm)' }}>{p}</p>
-            ))}
-          </div>
-          <ComponentDiagram which={c.diagram} de={de} />
-          <Insight>{de ? c.insightDe : c.insightEn}</Insight>
-          {c.id === 'sedimentation' && <SedimentationTrace de={de} />}
-        </Disclosure>
-
-        {c.id === 'mos2' && de && (
-          <ReadMoreLink to="/blog/mos2-kettenwachs">
-            Mehr im Ratgeber: MoS₂ im Kettenwachs
-          </ReadMoreLink>
-        )}
-      </div>
-    </div>
-  );
-}
 
 // ─── ACT II — development-iteration story (compact, collapsible) ──────────────
 function FailureTimeline({ de }: { de: boolean }) {
@@ -607,123 +543,180 @@ function ActHead({ eyebrow, title, lede }: { eyebrow: string; title: string; led
   );
 }
 
-// ─── Scroll-driven formula storytelling (desktop only) ──────────────────────
-function FormulaStory({ de }: { de: boolean }) {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const [activeIdx, setActiveIdx] = useState(0);
+// ─── ACT II — "Ein Block, von innen" ────────────────────────────────────────
+//
+// Vorgaenger war FormulaStory: eine 360vh hohe Sektion (COMPONENTS.length *
+// 60vh) mit sticky-Container und eigener Scroll-Mathematik, daneben eine
+// getrennte Mobilfassung mit IntersectionObserver-Karussell. Zusammen rund
+// 4.088 px von 10.753 px Seitenhoehe, also 38 Prozent, fuer sechs
+// Zutatenkarten. Wer dort scrollte, scrollte nicht die Seite, sondern einen
+// Schrittzaehler.
+//
+// Jetzt: eine Figur, eine Liste, eine Fassung fuer alle Breiten. Dieselbe
+// Grammatik wie ContactZones eine Bildschirmhoehe weiter oben und wie
+// FrictionLens auf der Produktseite — Figur und nummerierte Liste
+// nebeneinander, die Zeilen sind echte <button> und damit ohne Zusatzarbeit
+// tastaturbedienbar.
+//
+// DIE VERZAHNUNG STEHT ALS TEXT DA, NICHT ALS KANTE. In science.ts liegen 11
+// recherchierte Beziehungen mit deutschen Namen ("Ko-Kristallisation",
+// "Sterische Huelle", "Gegenspieler"). Der Kantengraph war die falsche Form
+// dafuer, nicht der falsche Inhalt: als Zeile unter der geoeffneten Komponente
+// ist dieselbe Information praeziser, kann nicht ueberlappen und ist
+// vorlesbar. EDGES bleibt deshalb unveraendert in science.ts stehen.
 
-  useEffect(() => {
-    const section = sectionRef.current;
-    if (!section) return;
-    // Coalesce raw scroll events (can fire many times per frame) down to one
-    // layout read + state update per animation frame, and skip the setState
-    // entirely when the computed index hasn't actually changed.
-    let rafId: number | null = null;
-    const compute = () => {
-      rafId = null;
-      const rect = section.getBoundingClientRect();
-      const scrolled = Math.max(0, -rect.top);
-      const maxScroll = section.offsetHeight - window.innerHeight;
-      if (maxScroll <= 0) return;
-      const p = Math.min(1, scrolled / maxScroll);
-      const next = Math.min(COMPONENTS.length - 1, Math.floor(p * COMPONENTS.length));
-      setActiveIdx(prev => (prev === next ? prev : next));
-    };
-    const onScroll = () => {
-      if (rafId === null) rafId = requestAnimationFrame(compute);
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    compute();
-    return () => {
-      window.removeEventListener('scroll', onScroll);
-      if (rafId !== null) cancelAnimationFrame(rafId);
-    };
-  }, []);
+const FIELD_KEYS = ['kristallstruktur', 'matrix', 'winterformel', 'mos2', 'sedimentation', 'antioxidans'] as const;
+const isFieldKey = (id: string): id is FieldKey => (FIELD_KEYS as readonly string[]).includes(id);
 
-  const scrollToComponent = (id: string) => {
-    const idx = COMPONENTS.findIndex(c => c.id === id);
-    if (idx < 0 || !sectionRef.current) return;
-    const rect = sectionRef.current.getBoundingClientRect();
-    const sectionTop = window.scrollY + rect.top;
-    const maxScroll = sectionRef.current.offsetHeight - window.innerHeight;
-    window.scrollTo({ top: sectionTop + ((idx + 0.5) / COMPONENTS.length) * maxScroll, behavior: 'smooth' });
+/** Alle Kanten, die diese Komponente beruehren, in beide Richtungen. */
+function meshFor(node: number, de: boolean) {
+  return EDGES.flatMap(e => {
+    if (e.from !== node && e.to !== node) return [];
+    const other = COMPONENTS.find(c => c.node === (e.from === node ? e.to : e.from));
+    if (!other) return [];
+    return [{
+      name: de ? other.graphLabelDe : other.graphLabelEn,
+      label: de ? e.labelDe : e.labelEn,
+      balance: !!e.balance,
+    }];
+  });
+}
+
+// "Nimm eine weg": was das Feld dann tut, und woher das belegt ist. Die ersten
+// beiden Zustaende sind KEINE Erfindung, sie stehen als echte
+// Entwicklungsschritte in FAILURES. Der Rest kommt aus dem whyDe der jeweiligen
+// Komponente. Paraffin fehlt hier bewusst: ohne Traegermatrix gibt es keinen
+// Film, es gaebe also keinen Zustand zu zeigen, und einen zu erfinden waere
+// genau das, was diese Seite nicht macht.
+const WITHOUT: Partial<Record<FieldKey, { de: string; en: string; src?: string }>> = {
+  winterformel: {
+    de: 'Die Matrix wird spröde. Biegebelastung reißt den Film auf, er platzt vom Stahl ab.',
+    en: 'The matrix turns brittle. Flexing cracks the film and it spalls off the steel.',
+    src: 'Frühe Formel',
+  },
+  sedimentation: {
+    de: 'Die Plättchen sinken und klumpen unten zusammen. Oben bleibt Wachs ohne Festschmierstoff.',
+    en: 'The platelets sink and clump at the bottom. The top is wax with no solid lubricant.',
+    src: 'Iteration 3',
+  },
+  matrix: {
+    de: 'Der Tropfpunkt fällt. Unter Sommerwärme rundet die Oberfläche ab und wandert weg.',
+    en: 'The drop point falls. Under summer heat the surface rounds off and migrates away.',
+  },
+  mos2: {
+    de: 'Am Stahl entsteht kein Fe–S-Transferfilm. Die Grundlinie bleibt blank.',
+    en: 'No Fe–S transfer film forms on the steel. The baseline stays bare.',
+  },
+  antioxidans: {
+    de: 'Die Partikeloberflächen wandeln sich um, die Matrix oxidiert und wird stumpf.',
+    en: 'Particle surfaces convert, the matrix oxidises and goes dull.',
+  },
+};
+
+function FormulaField({ de }: { de: boolean }) {
+  const [openId, setOpenId] = useState<FieldKey | null>(null);
+  const [missing, setMissing] = useState<FieldKey | null>(null);
+  const { p, ref, replay } = useFieldBuild();
+
+  const pick = (id: FieldKey) => {
+    setOpenId(prev => (prev === id ? null : id));
+    setMissing(null);   // eine geschlossene Zeile darf das Feld nicht kaputt zurücklassen
   };
 
-  const comp = COMPONENTS[activeIdx];
+  const comps = COMPONENTS.filter(c => isFieldKey(c.id));
 
   return (
-    <div ref={sectionRef} className="relative" style={{ height: `${COMPONENTS.length * 60}vh` }}>
-      <div className="sticky top-0 h-screen flex items-center overflow-hidden">
-        {/* Ambient instrument-panel texture behind the whole scroll-story
-            viewport — same dot-grid language as every other diagram on this
-            page, so six long scroll-steps of mostly-empty space read as one
-            deliberate "lab" surface instead of plain white void. */}
-        <div className="absolute inset-0 pointer-events-none" aria-hidden
-          style={{
-            backgroundImage: 'radial-gradient(rgba(var(--accent-rgb),0.10) 1px, transparent 1px)',
-            backgroundSize: '18px 18px',
-            maskImage: 'radial-gradient(ellipse 70% 65% at 68% 50%, black 0%, transparent 75%)',
-            WebkitMaskImage: 'radial-gradient(ellipse 70% 65% at 68% 50%, black 0%, transparent 75%)',
-          }} />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative">
-          <div className="grid lg:grid-cols-[minmax(320px,440px)_1fr] gap-10 xl:gap-14 items-center">
-            {/* LEFT — component info (crossfading) */}
-            <div className="relative" style={{ minHeight: 400 }}>
-              {COMPONENTS.map((c, i) => (
-                <div
-                  key={c.id}
-                  className="absolute inset-0 flex flex-col justify-center"
-                  style={{
-                    opacity: i === activeIdx ? 1 : 0,
-                    transform: `translateY(${i === activeIdx ? 0 : i < activeIdx ? -20 : 20}px)`,
-                    transition: 'opacity 0.5s ease, transform 0.5s ease',
-                    pointerEvents: i === activeIdx ? 'auto' : 'none',
-                  }}
-                >
-                  {/* Step counter */}
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="num text-[28px] font-bold leading-none" style={{ color: 'rgba(var(--accent-rgb),0.18)' }}>
-                      0{i + 1}
-                    </span>
-                    <span className="text-small uppercase tracking-[0.18em]" style={{ color: 'var(--accent-soft)' }}>
-                      {de ? c.roleDe : c.roleEn}
-                    </span>
-                  </div>
-                  {/* Title */}
-                  <h3 className="font-display font-bold text-wx-tx1 leading-[1.05] tracking-[-0.025em]"
-                    style={{ fontSize: 'clamp(1.8rem, 3.2vw, 2.6rem)' }}>
+    <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,430px)] gap-8 xl:gap-12 items-start">
+      {/* ── Die Figur ──────────────────────────────────────────────────── */}
+      <div ref={ref} className="lg:sticky lg:top-24">
+        <InstrumentFrame
+          eyebrow={de ? 'Schnitt durch den Film' : 'Section through the film'}
+          chip={<span className="num-data">~1 µm</span>}
+          footer={
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <span className="text-[11.5px]" style={{ color: 'var(--txf)' }}>
+                {missing
+                  ? (de ? 'Zustand ohne eine Komponente' : 'State without one component')
+                  : (de ? 'Schematisch, Lamellen überhöht' : 'Schematic, lamellae exaggerated')}
+              </span>
+              <button type="button" onClick={replay}
+                className="text-[11.5px] font-semibold transition-opacity hover:opacity-70"
+                style={{ color: 'var(--accent)' }}>
+                {de ? 'Erstarrung noch einmal' : 'Replay solidification'}
+              </button>
+            </div>
+          }>
+          <WaxField de={de} active={openId} missing={missing} progress={p} />
+        </InstrumentFrame>
+      </div>
+
+      {/* ── Die sechs Zeilen ───────────────────────────────────────────── */}
+      <ol className="m-0 p-0 list-none">
+        {comps.map((c, i) => {
+          const id = c.id as FieldKey;
+          const open = openId === id;
+          const mesh = meshFor(c.node, de);
+          const without = WITHOUT[id];
+          return (
+            <li key={c.id} id={c.id} className="scroll-mt-24"
+              style={{ borderTop: i === 0 ? '1px solid var(--bd2)' : undefined, borderBottom: '1px solid var(--bd2)' }}>
+              <button type="button" onClick={() => pick(id)} aria-expanded={open}
+                className="w-full text-left py-3.5 flex items-baseline gap-3 transition-opacity hover:opacity-75">
+                <span className="num text-[12px] flex-shrink-0" style={{ color: 'var(--txf)' }}>0{i + 1}</span>
+                <span className="flex-1 min-w-0">
+                  <span className="block text-[15px] font-semibold" style={{ color: open ? 'var(--accent)' : 'var(--tx1)' }}>
                     {de ? c.nameDe : c.nameEn}
-                  </h3>
-                  {/* Accent line + metric */}
-                  <div className="flex items-center gap-4 mt-3 mb-5">
-                    <div className="h-[2px] w-10 rounded-full" style={{ background: 'var(--accent)' }} />
-                    <span className="num-data font-semibold text-[14px]" style={{ color: 'var(--accent-soft)' }}>
-                      {c.metric}
-                    </span>
-                  </div>
-                  {/* Summary */}
-                  <p className="text-[15px] leading-relaxed text-wx-tx2 max-w-[38ch]">
-                    {de ? c.sumDe : c.sumEn}
-                  </p>
-                  {/* Expandable details */}
-                  <div className="mt-2">
+                  </span>
+                  <span className="block text-[12px] mt-0.5" style={{ color: 'var(--txm)' }}>
+                    {de ? c.roleDe : c.roleEn}
+                  </span>
+                </span>
+                <span className="num-data text-[12.5px] flex-shrink-0" style={{ color: 'var(--accent-soft)' }}>{c.metric}</span>
+              </button>
+
+              {/* visibility (nicht nur overflow: hidden) schaltet den
+                  eingeklappten Inhalt wirklich ab. Mit grid-template-rows: 0fr
+                  allein ist er unsichtbar, aber weiterhin im Tab-Fokus und
+                  anklickbar — beim Testen liess sich der "Feld ohne …"-Knopf
+                  einer GESCHLOSSENEN Zeile ausloesen und das Feld aenderte
+                  sich, ohne dass irgendwo etwas aufging. visibility springt
+                  am Ende der Animation, das Aufklappen bleibt weich. */}
+              <div style={{ display: 'grid', gridTemplateRows: open ? '1fr' : '0fr',
+                visibility: open ? 'visible' : 'hidden',
+                transition: 'grid-template-rows 0.4s cubic-bezier(0.22,1,0.36,1), visibility 0.4s' }}>
+                <div className="overflow-hidden">
+                  <div className="pb-5 pl-[30px]">
+                    <p className="text-[13.5px] leading-relaxed" style={{ color: 'var(--tx2)' }}>
+                      {de ? c.sumDe : c.sumEn}
+                    </p>
+
+                    {/* Die Verzahnung, aus EDGES statt aus einer Kante. */}
+                    {mesh.length > 0 && (
+                      <p className="text-[12px] leading-relaxed mt-3" style={{ color: 'var(--txm)' }}>
+                        <span className="font-semibold" style={{ color: 'var(--tx1)' }}>
+                          {de ? 'Greift ineinander mit ' : 'Interlocks with '}
+                        </span>
+                        {mesh.map((m, j) => (
+                          <span key={j}>
+                            {j > 0 && ' · '}
+                            {m.name}
+                            <span style={{ color: 'var(--txf)' }}>
+                              {' '}{m.balance ? '⇄' : '→'} {m.label}
+                            </span>
+                          </span>
+                        ))}
+                      </p>
+                    )}
+
                     <Disclosure label={de ? 'Warum das zählt' : 'Why it matters'}>
                       <p className="text-[13px] leading-relaxed pt-3" style={{ color: 'var(--txm)' }}>
                         {de ? c.whyDe : c.whyEn}
                       </p>
                     </Disclosure>
                     <Disclosure label={de ? 'Die Physik' : 'The physics'}>
-                      {/* This step is pinned to a single h-screen viewport while
-                          scrolling through the formula, with overflow-hidden on
-                          the ancestor — unlike "Warum das zählt", the physics
-                          text plus diagram plus insight routinely add up to more
-                          than the space left in that viewport, and were getting
-                          silently clipped at the bottom instead of shown. Scoped
-                          scroll on just this panel instead of fighting the pin. */}
-                      <div className="pt-3 pr-2 space-y-3 overflow-y-auto" style={{ maxHeight: '38vh' }}
-                        tabIndex={0} role="region" aria-label={de ? 'Physik-Details' : 'Physics details'}>
-                        {(de ? c.physicsDe : c.physicsEn).map((p, j) => (
-                          <p key={j} className="text-[13px] leading-relaxed" style={{ color: 'var(--txm)' }}>{p}</p>
+                      <div className="pt-3 space-y-3">
+                        {(de ? c.physicsDe : c.physicsEn).map((t, j) => (
+                          <p key={j} className="text-[13px] leading-relaxed" style={{ color: 'var(--txm)' }}>{t}</p>
                         ))}
                         <ComponentDiagram which={c.diagram} de={de} />
                         <Insight>{de ? c.insightDe : c.insightEn}</Insight>
@@ -735,93 +728,46 @@ function FormulaStory({ de }: { de: boolean }) {
                         Mehr im Ratgeber: MoS₂ im Kettenwachs
                       </ReadMoreLink>
                     )}
+
+                    {/* ── "Nimm eine weg" ─────────────────────────────── */}
+                    <div className="mt-4 pt-3" style={{ borderTop: '1px solid var(--bd2)' }}>
+                      {without ? (
+                        <>
+                          <button type="button"
+                            onClick={() => setMissing(m => (m === id ? null : id))}
+                            aria-pressed={missing === id}
+                            className="text-[12px] font-semibold transition-opacity hover:opacity-70"
+                            style={{ color: missing === id ? 'var(--tx1)' : 'var(--accent)' }}>
+                            {missing === id
+                              ? (de ? '← Zurück zur fertigen Formel' : '← Back to the finished formula')
+                              : (de ? `Feld ohne ${de ? c.nameDe : c.nameEn} zeigen` : `Show the field without ${c.nameEn}`)}
+                          </button>
+                          {missing === id && (
+                            <p className="text-[12.5px] leading-relaxed mt-2" style={{ color: 'var(--tx2)' }}>
+                              {de ? without.de : without.en}
+                              {without.src && (
+                                <span style={{ color: 'var(--txf)' }}>
+                                  {' '}{de ? `Genau so passiert, ${without.src}.` : `Exactly what happened, ${without.src}.`}
+                                </span>
+                              )}
+                            </p>
+                          )}
+                        </>
+                      ) : (
+                        <p className="text-[12.5px] leading-relaxed" style={{ color: 'var(--txf)' }}>
+                          {de
+                            ? 'Ohne Trägermatrix gibt es keinen Film, also auch kein Feld, das sich zeigen ließe. Diese eine Komponente ist nicht wegzudenken.'
+                            : 'Without the carrier matrix there is no film, so there is no state to show. This one component cannot be removed.'}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
-              ))}
-            </div>
-
-            {/* RIGHT — FormulaGraph */}
-            <div className="relative">
-              <div className="absolute inset-0 -m-8 pointer-events-none"
-                style={{
-                  background: 'radial-gradient(ellipse 70% 60% at 50% 45%, var(--accent-wash-sm) 0%, transparent 70%)',
-                  filter: 'blur(24px)',
-                }} />
-              <FormulaGraph de={de} onSelect={scrollToComponent} scrollFocus={comp.node} compact />
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom navigation — sibling of the max-w-7xl content wrapper (not
-            nested inside it), so "absolute bottom-8" anchors to the sticky
-            viewport's fixed h-screen height instead of the grid's own height.
-            Nested inside the grid, this nav's position tracked whichever
-            column was tallest — when FormulaGraph rendered taller than the
-            left panel's 400px minHeight, bottom-8 landed mid-graph instead
-            of below it, overlapping node labels near the bottom of the
-            viewBox (e.g. Dispersant/Antioxidant). */}
-        <div className="absolute bottom-8 left-0 right-0 flex flex-col items-center gap-3">
-          {/* Prev/next arrows flanking the dots — the dots alone read as a
-              progress indicator, not something to click, and "Scrollen zum
-              Erkunden" only ever shows on step 1 (see below), so from step 2
-              on there was no visible cue that this section keeps going.
-              Arrows reuse the same scrollToComponent() the dots and graph
-              nodes already call — no new navigation mechanism, just another
-              visible entry point into it. */}
-          <div className="flex items-center gap-4">
-            <button type="button"
-              onClick={() => activeIdx > 0 && scrollToComponent(COMPONENTS[activeIdx - 1].id)}
-              disabled={activeIdx === 0}
-              aria-label={de ? 'Vorherige Komponente' : 'Previous component'}
-              className="flex items-center justify-center w-8 h-8 rounded-full transition-opacity disabled:pointer-events-none active:scale-[0.97]"
-              style={{
-                color: 'var(--accent)', background: 'var(--accent-wash)',
-                border: '1px solid rgba(var(--accent-rgb),0.22)',
-                opacity: activeIdx === 0 ? 0.3 : 1,
-              }}>
-              <ArrowLeft className="h-4 w-4" />
-            </button>
-
-            <div className="flex items-center gap-2.5">
-              {COMPONENTS.map((c, i) => (
-                <button key={c.id} onClick={() => scrollToComponent(c.id)}
-                  aria-label={de ? c.nameDe : c.nameEn}
-                  className="group flex flex-col items-center gap-1.5"
-                >
-                  <span className="rounded-full transition-all duration-300"
-                    style={{
-                      width: i === activeIdx ? 24 : 8,
-                      height: 8,
-                      background: i === activeIdx ? 'var(--accent)' : i < activeIdx ? 'rgba(var(--accent-rgb),0.35)' : 'var(--bd)',
-                    }}
-                  />
-                  <span className="text-meta uppercase tracking-[0.14em] transition-opacity duration-300"
-                    style={{ color: 'var(--txf)', opacity: i === activeIdx ? 1 : 0 }}>
-                    {de ? c.graphLabelDe : c.graphLabelEn}
-                  </span>
-                </button>
-              ))}
-            </div>
-
-            <button type="button"
-              onClick={() => activeIdx < COMPONENTS.length - 1 && scrollToComponent(COMPONENTS[activeIdx + 1].id)}
-              disabled={activeIdx === COMPONENTS.length - 1}
-              aria-label={de ? 'Nächste Komponente' : 'Next component'}
-              className="flex items-center justify-center w-8 h-8 rounded-full transition-opacity disabled:pointer-events-none active:scale-[0.97]"
-              style={{
-                color: 'var(--accent)', background: 'var(--accent-wash)',
-                border: '1px solid rgba(var(--accent-rgb),0.22)',
-                opacity: activeIdx === COMPONENTS.length - 1 ? 0.3 : 1,
-              }}>
-              <ArrowRight className="h-4 w-4" />
-            </button>
-          </div>
-          <span className="text-meta tracking-[0.12em] uppercase transition-opacity duration-700"
-            style={{ color: 'var(--txf)', opacity: activeIdx === 0 ? 0.7 : 0 }}>
-            {de ? 'Scrollen zum Erkunden' : 'Scroll to explore'}
-          </span>
-        </div>
-      </div>
+              </div>
+            </li>
+          );
+        })}
+      </ol>
     </div>
   );
 }
@@ -839,48 +785,6 @@ export function SciencePage() {
 
   const scrollToAnchor = (id: string) =>
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-  // Mobile formula section: tapping a node used to scroll the page down to
-  // a full stack of all 6 detail cards, always fully expanded below the
-  // graph — cramped, and required scrolling to read something the graph
-  // itself was already pointing at. Now a horizontal snap-carousel sits
-  // directly under the (height-capped) graph, one CompCard per component:
-  // swiping updates which node the graph highlights, and tapping a node
-  // scrolls the carousel to match — one screen, two ways to browse the same
-  // six components. Defaults to the first component so nothing is empty
-  // before anyone has swiped or tapped.
-  const [mobileCompId, setMobileCompId] = useState(COMPONENTS[0]?.id ?? null);
-  const carouselRef = useRef<HTMLDivElement>(null);
-  const panelRefs = useRef<Record<string, HTMLDivElement | null>>({});
-
-  // Swipe -> graph focus. IntersectionObserver (not a scroll listener) so
-  // this fires once per settled panel instead of on every scroll frame, and
-  // reports whichever panel is most centred regardless of whether the user
-  // swiped or a node-tap scrolled the carousel there itself (see
-  // jumpToMobileComp below) — either way, "most visible panel" is correct.
-  useEffect(() => {
-    const root = carouselRef.current;
-    if (!root) return;
-    const obs = new IntersectionObserver((entries) => {
-      const best = entries
-        .filter(e => e.isIntersecting)
-        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-      const id = best?.target instanceof HTMLElement ? best.target.dataset.compId : undefined;
-      if (id) setMobileCompId(prev => (prev === id ? prev : id));
-    }, { root, threshold: [0.6] });
-    Object.values(panelRefs.current).forEach(el => el && obs.observe(el));
-    return () => obs.disconnect();
-  }, []);
-
-  // Graph tap -> carousel scroll. Called directly from FormulaGraph's
-  // onSelect instead of via a useEffect keyed on mobileCompId — an effect
-  // would also fire after the IntersectionObserver's own setMobileCompId
-  // (i.e. after every swipe), re-issuing a scrollIntoView the user had
-  // already just produced themselves.
-  const jumpToMobileComp = (id: string) => {
-    setMobileCompId(id);
-    panelRefs.current[id]?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-  };
 
   const title = de
     ? 'Die Wissenschaft hinter Heißwachs — MoS₂, Reibung & Formel | Waxcelerate'
@@ -967,102 +871,8 @@ export function SciencePage() {
           />
         </div>
 
-        {/* Desktop: scroll-driven storytelling */}
-        <div className="hidden lg:block">
-          <FormulaStory de={de} />
-        </div>
-
-        {/* Mobile: graph + swipeable carousel, one screen ─────────────────
-            2026-09 revision. Previously the graph sat in its own
-            InstrumentFrame block, and a single CompCard for the tapped
-            component sat in a SEPARATE block below it — measured at
-            393px + 329px on a 375-wide device, never simultaneously
-            visible on anything shorter than a 812px-tall phone, and no
-            affordance signalled that the card below could change at all
-            (only tapping a graph node revealed that). Now both live in one
-            InstrumentFrame: the graph is height-capped (clamp 220-320px)
-            so it can never push the carousel off-screen, and the carousel
-            itself peeks the next card's edge so swiping reads as available
-            before anyone tries it. */}
-        <div className="lg:hidden">
-          {/* Mobile-Plan B7f: InstrumentFrame startet vor dem Scroll-Trigger
-              per gsap.set() in einem rotateX(9deg)/perspective(700px)-Zustand
-              (siehe InstrumentFrame.tsx) — der Karte selbst hilft ihr eigenes
-              overflow-hidden dabei nichts, weil sie ihre eigene
-              Rendering-Kante nicht gegen sich selbst clippen kann. Das
-              erzeugt schon vor jedem Scrollen ~4px echten Dokument-Overflow
-              (bestaetigt: 4px vor dem Scrollen zu #formel, 0px danach,
-              sobald der Trigger feuert und transform zurueckgesetzt wird)
-              und damit das iOS-Rubber-Band-Wippen beim seitlichen Wischen.
-              overflow-x-clip (nicht overflow-x-hidden) auf dem Wrapper eine
-              Ebene hoeher faengt das ab, ohne die Animation selbst
-              anzufassen. hidden wuerde denselben X-Overflow zwar auch
-              schneiden, stuft dabei aber laut Spec die andere Achse von
-              overflow-y: visible auf auto hoch — der gekippte, nach unten
-              versetzte Frame zaehlte dann schon vor seinem eigenen Reveal als
-              vertikaler Overflow dieses Wrappers, und der Browser zeichnete
-              genau in dem Moment eine Scrollbar. clip laesst overflow-y in
-              Ruhe. */}
-          {/* Der Graph laeuft auf Mobil bis an die Bildschirmkanten statt in
-              der Textspalte zu stehen. Die Figur ist 700x480 breit angelegt
-              und wurde vorher auf die Spaltenbreite minus 2x16px Innenabstand
-              der Seite minus den Innenabstand des InstrumentFrame
-              heruntergerechnet — auf einem 390px-Geraet blieben davon rund
-              310px, auf denen sechs beschriftete Knoten und ihre Kanten
-              unterzubringen waren. Das ist die Ursache des gedraengten
-              Eindrucks, nicht die Figur selbst. Der negative Aussenabstand
-              hebt die Seitenpolsterung genau auf und gibt der Figur die volle
-              Bildschirmbreite; ab sm: steht wieder alles wie vorher. */}
-          <div className="pb-5 overflow-x-clip">
-            <div className="-mx-4 sm:mx-auto sm:max-w-4xl sm:px-6 lg:px-8">
-              <InstrumentFrame eyebrow={de ? 'Antippen oder wischen' : 'Tap or swipe'}>
-                {/* Height-capped so the graph can never crowd the carousel
-                    below it off-screen — aspect-ratio derives the matching
-                    width from that height, and w-full/h-auto inside then
-                    exactly fills it (FormulaGraph itself is untouched, still
-                    sized by its own viewBox aspect for the desktop story). */}
-                <div className="mx-auto" style={{ height: 'clamp(200px, 34vh, 300px)', aspectRatio: '520 / 490', maxWidth: '100%' }}>
-                  <FormulaGraph de={de} onSelect={jumpToMobileComp} compact mobile />
-                </div>
-              </InstrumentFrame>
-            </div>
-          </div>
-
-          {/* Snap-carousel — one CompCard per component, ~86% width so the
-              next card's edge peeks in as the swipe cue. scroll-px-4 keeps
-              the peeking edge readable against the page's own px-4 gutter
-              instead of running edge-to-edge like the graph above it. */}
-          <div ref={carouselRef}
-            className="flex gap-3 overflow-x-auto px-4 pb-2"
-            style={{ scrollSnapType: 'x mandatory', scrollPaddingLeft: 16 }}>
-            {COMPONENTS.map((c, i) => (
-              <div key={c.id}
-                ref={el => { panelRefs.current[c.id] = el; }}
-                data-comp-id={c.id}
-                className="flex-shrink-0"
-                style={{ width: '86%', maxWidth: 360, scrollSnapAlign: 'center' }}>
-                <CompCard c={c} n={i + 1} de={de} compact />
-              </div>
-            ))}
-          </div>
-          {/* Position dots — mirrors the desktop story's dot pagination so
-              the two experiences read as the same feature, not two
-              unrelated widgets. Tapping one jumps the carousel directly
-              instead of requiring three swipes. */}
-          <div className="flex items-center justify-center mt-1 pb-6">
-            {/* p-[9px]: der sichtbare Punkt bleibt 6 px, die Trefferfläche wird 24 px (WCAG 2.5.8). */}
-            {COMPONENTS.map(c => (
-              <button key={c.id} type="button" onClick={() => jumpToMobileComp(c.id)}
-                aria-label={de ? c.nameDe : c.nameEn}
-                className="p-[9px]">
-                <span className="block rounded-full transition-all duration-300"
-                  style={{
-                    width: mobileCompId === c.id ? 20 : 6, height: 6,
-                    background: mobileCompId === c.id ? 'var(--accent)' : 'var(--bd)',
-                  }} />
-              </button>
-            ))}
-          </div>
+        <div className={`${W} pb-14`}>
+          <FormulaField de={de} />
         </div>
 
         {/* Below: full-width deep-dive sections. Mobile-Plan (real feedback,

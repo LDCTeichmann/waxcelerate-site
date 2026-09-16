@@ -5,7 +5,22 @@
 // (inherits Libre Franklin) and numbers/formulae in `.num-data` mono. All
 // theme-driven via CSS vars; static (no animation).
 import type { DiagramKey } from '@/lib/science';
-import { ArrowMarker } from '@/sections/science/graphPrimitives';
+
+// Pfeilspitze fuer die Detailfiguren. Stand bis 2026-09-16 in
+// graphPrimitives.tsx, zusammen mit dem Vokabular des Knoten-Kanten-Graphen
+// (curvedEdge, NodeState, LegendSwatch). Mit FormulaGraph ist der Graph weg,
+// und damit alles andere aus jener Datei. Was blieb, war dieser eine Marker
+// mit genau einem Aufrufer: dieser Datei. Also steht er jetzt hier.
+// Jede Figur, die einen Pfeil braucht, rendert <ArrowMarker id="…" /> in
+// ihre <defs> und referenziert die id.
+function ArrowMarker({ id, color = 'var(--accent)' }: { id: string; color?: string }) {
+  return (
+    <marker id={id} viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6"
+      orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill={color} />
+    </marker>
+  );
+}
 
 // Shared label helpers — descriptive text in sans, numeric/formula text in mono.
 function Lbl(p: React.SVGProps<SVGTextElement>) {
