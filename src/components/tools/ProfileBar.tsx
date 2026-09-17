@@ -22,13 +22,18 @@ import type { Weather, Terrain } from '@/lib/ridingProfile';
 import { TogButton, ChipRow, ToolSlider } from '@/components/tools/primitives';
 import { StepField } from '@/components/tools/StepField';
 
-export function ProfileBar({ profile, inactiveNote }: {
+export function ProfileBar({ profile, inactiveNote, readOnly }: {
   profile: ToolProfileState;
   /** Gesetzt, wenn der gerade sichtbare Rechner das Profil nicht auswertet.
    *  Die Leiste bleibt dann stehen — sie auszublenden wuerde bei jedem
    *  Kartenwechsel das halbe Layout springen lassen —, wird aber sichtbar
    *  zurueckgenommen und sagt, warum sich nichts tut. */
   inactiveNote?: string;
+  /** /anleitung (Seitenordnung 09/2026): der WaxCalculator direkt darueber
+   *  hat schon Wetter/Gelaende/km als Eingabe — eine zweite Eingabemaske vor
+   *  dem Deck waere dieselbe Frage zweimal. Eingeklappt bleibt die Leiste nur
+   *  die Zusammenfassung, auf jeder Breite, mit einem Link zurueck nach oben. */
+  readOnly?: boolean;
 }) {
   const { t } = useLanguage();
   const { weather, setWeather, terrain, setTerrain, kmPerWeek, setKmPerWeek } = profile;
@@ -45,6 +50,25 @@ export function ProfileBar({ profile, inactiveNote }: {
     { value: 'mtb', label: t.tools.rewax.mtb },
   ];
   const summary = `${weatherOpts.find(o => o.value === weather)?.label} · ${terrainOpts.find(o => o.value === terrain)?.label} · ${kmPerWeek} km`;
+
+  if (readOnly) {
+    return (
+      <div
+        className="rounded-2xl px-4 py-2.5 sm:px-5 mb-2 sm:mb-3 flex items-baseline justify-between gap-3"
+        style={{ background: 'var(--inset-bg)', border: '1px solid var(--bd)', boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.04)' }}
+      >
+        <span className="min-w-0 flex items-baseline gap-2">
+          <span className="flex-shrink-0 text-meta uppercase tracking-[0.1em] font-semibold" style={{ color: 'var(--txf)' }}>
+            {t.tools.profile.barTitle}
+          </span>
+          <span className="block text-[13px] truncate" style={{ color: 'var(--tx2)' }}>{summary}</span>
+        </span>
+        <a href="#lohnt-sich" className="flex-shrink-0 text-[13px] font-medium" style={{ color: 'var(--brand)' }}>
+          {t.tools.profile.change}
+        </a>
+      </div>
+    );
+  }
 
   return (
     <div

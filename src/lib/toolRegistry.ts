@@ -177,6 +177,10 @@ export const TOOLS: ToolEntry[] = [
   },
   {
     slug: 'umstieg',
+    // Seit der Seitenordnung 09/2026 steht der Kosten-Rechner (WaxCalculator)
+    // auf /anleitung direkt ueber dem Deck, nicht mehr als eigene Karte darin
+    // — zwei Wege zur selben Frage waeren einer zu viel gewesen.
+    inDeck: false,
     usesProfile: true,
     showsAssumptions: true,
     label: 'Kosten', labelEn: 'Cost',

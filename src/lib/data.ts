@@ -137,7 +137,8 @@ const PRO_SCENES: PdpScene[] = [
 ];
 
 /**
- * Zeitplan des Wachsens fuer den Ablauf auf der Produktseite. Schritte mit
+ * Zeitplan des Wachsens fuer den Ablauf auf der Produktseite und auf
+ * /anleitung (ProcessWatch, src/components/process/). Schritte mit
  * `howToIndex` nehmen Name und Text wortgleich aus der Anleitung
  * (articles.ts, howTo von heisswachs-anleitung); der erste Schritt steht
  * nicht in der Anleitung und traegt deshalb eigenen Text. `active`: du tust
@@ -145,18 +146,25 @@ const PRO_SCENES: PdpScene[] = [
  * `lane: 'side'`: laeuft nebenher, waehrend das Wachs schmilzt (Luca,
  * 14.09.2026: alles, was parallel geht, parallel). `afterSide`: startet erst,
  * wenn Schmelzen UND Nebenschritte fertig sind. Eigene Texte (textDe/textEn)
- * gehen vor dem Anleitungstext.
+ * gehen vor dem Anleitungstext. `perChain`: im Rotationsmodus (drei Ketten)
+ * ×3, weil der Schritt an jeder Kette einzeln anfaellt (Seitenordnung
+ * 09/2026, Chat 3 — Annahme, siehe Kommentar bei ProcessWatch).
  */
 export const waxProcessTimeline: Array<{
   minutes: number; active: boolean; firstOnly?: boolean; howToIndex?: number;
-  lane?: 'side'; afterSide?: boolean;
+  lane?: 'side'; afterSide?: boolean; perChain?: boolean;
   nameDe?: string; nameEn?: string; textDe?: string; textEn?: string;
 }> = [
   { minutes: 10, active: false, howToIndex: 1 },
-  { minutes: 2, active: true, lane: 'side', nameDe: 'Kette abnehmen und aufhängen', nameEn: 'Take the chain off and hang it',
+  { minutes: 2, active: true, lane: 'side', perChain: true, nameDe: 'Kette abnehmen und aufhängen', nameEn: 'Take the chain off and hang it',
     textDe: 'Während das Wachs schmilzt: am Quick-Link öffnen und auf Draht oder Haken hängen. Stark verschmutzt? Heiß abspülen und ganz trocknen lassen, Wasser spritzt im Wachs.',
     textEn: 'While the wax melts: open it at the quick link and hang it on a wire or hook. Very dirty? Rinse in hot water and let it dry fully, water spits in wax.' },
-  { minutes: 15, active: true, firstOnly: true, lane: 'side', howToIndex: 0 },
+  { minutes: 15, active: true, firstOnly: true, lane: 'side', howToIndex: 0,
+    // Eigener Text statt des howTo-Textes: ergaenzt um Aceton als Alternative
+    // und "kein Loesungsmittelrest ins Wachs" aus der alten Anleitungs-Sektion
+    // (i18n guides.newChain, vor der Zusammenlegung auf /anleitung).
+    textDe: 'Kette 2–3× in Isopropanol oder Aceton eintauchen, kräftig schütteln, mit einem Tuch abwischen und wiederholen, bis die Flüssigkeit klar bleibt. Vollständig trocknen lassen, kein Lösungsmittelrest darf ins Wachs.',
+    textEn: 'Dip the chain in isopropanol or acetone 2–3 times, shake well, wipe with a cloth and repeat until the liquid stays clear. Let it dry fully, no solvent residue should get into the wax.' },
   { minutes: 12, active: false, afterSide: true, howToIndex: 2 },
   { minutes: 10, active: false, howToIndex: 3 },
   // Erst montieren, dann einfahren (Luca, 16.09.2026): die steife Kette wird

@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import type { Product } from '@/lib/data';
 import { canCheckout, isSoldOut } from '@/lib/data';
 import {
   drivetrainCosts, partsPerYear, applicationsPerBlock, DRIVETRAIN_CLASSES, WAX_SHELF_LIFE_MONTHS,
   OIL_CHAIN_KM, WAX_CHAIN_KM, OIL_CASSETTE_KM, WAX_CASSETTE_KM, OIL_PRICE_PER_APP, OIL_APP_INTERVAL_KM, costPerApplication, referenceWax,
+  recommendedChains, type Chains,
 } from '@/lib/waxMath';
 import type { ToolProfileState } from '@/hooks/useToolProfile';
 import type { Weather, Terrain } from '@/lib/ridingProfile';
@@ -32,8 +34,6 @@ import { Ico, type IcoName } from './Ico';
 const YEARS = 3;
 /** Mehr Glyphen passen nicht sinnvoll in eine Zeile; darueber steht die Zahl. */
 const MAX_GLYPHS = 12;
-
-type Chains = 1 | 2 | 3;
 
 function useCountUp(target: number) {
   const [v, setV] = useState(target);
@@ -98,18 +98,34 @@ const classForChain = (p: Product) => {
 // mode 'chain' (Kettenseite v1, 15.09.2026): gerechnet wird mit dem Preis der
 // angesehenen Kette statt einer waehlbaren Antriebsklasse, der Fuss spricht
 // vom Nachwachsen statt von der Block-Reichweite.
-export function WaxCalculator({ product, profile, de, onTouch, mode = 'wax', chapter }: { product: Product; profile: ToolProfileState; de: boolean; onTouch?: () => void; mode?: 'wax' | 'chain'; chapter?: string }) {
-  const isChain = mode === 'chain';
-  const [cls, setCls] = useState(() => isChain ? classForChain(product) : 1);
-  const [chains, setChains] = useState<Chains>(1);
+//
+// product optional (Seitenordnung 09/2026, Chat 3): auf /anleitung steht der
+// Rechner ohne ein bestimmtes Produkt im Blick — er beantwortet nur "lohnt
+// sich das?", nicht "kauf dieses Wachs". Ohne product bleiben Blockreichweite,
+// Preis und Kaufknopf aus; Letzterer wird zu einem Link auf /kettenwachs.
+export function WaxCalculator({ product, profile, de, onTouch, mode = 'wax', chapter, preselectRotation, anchorId = 'rechner' }: {
+  product?: Product; profile: ToolProfileState; de: boolean; onTouch?: () => void; mode?: 'wax' | 'chain'; chapter?: string;
+  /** Startet mit der empfohlenen statt mit einer Kette im Wechsel (Deep-Link von /rechner/ersparnis). */
+  preselectRotation?: boolean;
+  /** ID des Abschnitts fuer Deep-Links. Auf den Produktseiten "rechner"
+   *  (unveraendert); auf /anleitung steht der Anker "rechner" fuer den
+   *  Rechner-Deck darunter, deshalb dort ein anderer Wert. */
+  anchorId?: string;
+}) {
+  // Narrowt product auf 'chain'-Nutzung: erlaubt TypeScript, product als
+  // definiert zu sehen, ohne product-Zugriffe unten mit "!" zu erzwingen.
+  const chainProduct = mode === 'chain' && product ? product : undefined;
+  const isChain = !!chainProduct;
+  const [cls, setCls] = useState(() => chainProduct ? classForChain(chainProduct) : 1);
   const touched = useRef(false);
   const touch = () => { if (!touched.current) { touched.current = true; trackCalcComplete('pdp-savings'); onTouch?.(); } };
 
   const { weather, setWeather, terrain, setTerrain, kmPerWeek, setKmPerWeek, interval } = profile;
+  const [chains, setChains] = useState<Chains>(() => preselectRotation ? recommendedChains(interval, kmPerWeek) : 1);
   const kmPerYear = kmPerWeek * 52;
   const cl = DRIVETRAIN_CLASSES[cls];
   // Kettenseite: Kettenpreis = diese Kette, Kassette als Richtwert der Klasse.
-  const dc = isChain ? { ...cl, chainPrice: product.price } : cl;
+  const dc = chainProduct ? { ...cl, chainPrice: chainProduct.price } : cl;
   // Die XT-Kassette steht bei Ketten fuer den Richtwert 11/12-fach, nicht fuer
   // ein XT-Rad (sonst liest die HG701- oder Force-Seite "Richtwert XT").
   const casRef = isChain && cl.id === 'xt' ? (de ? '11/12-fach' : '11/12-speed') : (de ? cl.de : cl.en);
@@ -137,16 +153,17 @@ export function WaxCalculator({ product, profile, de, onTouch, mode = 'wax', cha
     return de ? <>alle <b>{y} Jahre</b> eine Kassette</> : <>a cassette every <b>{y} years</b></>;
   };
 
-  const apps = applicationsPerBlock(product) ?? 0;
+  const apps = product ? applicationsPerBlock(product) ?? 0 : 0;
   const dipsPerYear = interval > 0 ? kmPerYear / interval : 0;
   const months = dipsPerYear > 0 ? Math.min(WAX_SHELF_LIFE_MONTHS, Math.round((apps / dipsPerYear) * 12)) : WAX_SHELF_LIFE_MONTHS;
-  const priceStr = product.price.toLocaleString(loc, { minimumFractionDigits: 2 });
+  const priceStr = product?.price.toLocaleString(loc, { minimumFractionDigits: 2 });
 
   // Rotation: wer oefter als etwa einmal pro Woche nachwachsen muesste, faehrt
   // mit zwei Ketten im Wechsel ruhiger (beide in einem Durchgang, halb so
   // viele Termine), unter vier Tagen mit drei. Ein Topf, eine Sitzung.
+  // Regel vereinheitlicht mit dem frueheren CostCalculator, siehe waxMath.ts.
   const rewaxDays = kmPerWeek > 0 ? (interval / kmPerWeek) * 7 : Infinity;
-  const recommended: Chains = rewaxDays < 4 ? 3 : rewaxDays < 7 ? 2 : 1;
+  const recommended: Chains = recommendedChains(interval, kmPerWeek);
   const sessionDays = Math.max(1, Math.round(rewaxDays * chains));
   const sessionsPerYear = costs.waxSessionsPerYear;
 
@@ -164,7 +181,7 @@ export function WaxCalculator({ product, profile, de, onTouch, mode = 'wax', cha
   const chainWord = (n: number) => de ? (n === 1 ? 'Kette' : 'Ketten') : (n === 1 ? 'chain' : 'chains');
 
   return (
-    <section className="wxp-chapter" id="rechner">
+    <section className="wxp-chapter" id={anchorId}>
       {/* Alter Deep-Link von der Startseite (/produkt/wax-500#instrument) */}
       <span id="instrument" aria-hidden />
       <div className="wxp-wrap">
@@ -197,13 +214,13 @@ export function WaxCalculator({ product, profile, de, onTouch, mode = 'wax', cha
                 ))}
               </div>
             </div>
-            {isChain ? (
+            {chainProduct ? (
               <div className="wxp-field">
                 <div className="fl">{de ? 'Gerechnet mit' : 'Calculated with'}</div>
                 <p className="wxp-kmyear" style={{ marginTop: 0, fontSize: 13.5, lineHeight: 1.5 }}>
                   {de
-                    ? <>Kette <b style={{ color: '#fff' }}>{product.chainModel}</b> für {fmtEur(product.price)} €, Kassette {fmtEur(dc.cassettePrice)} € (Richtwert {casRef})</>
-                    : <>Chain <b style={{ color: '#fff' }}>{product.chainModel}</b> at €{fmtEur(product.price)}, cassette €{fmtEur(dc.cassettePrice)} (reference {casRef})</>}
+                    ? <>Kette <b style={{ color: '#fff' }}>{chainProduct.chainModel}</b> für {fmtEur(chainProduct.price)} €, Kassette {fmtEur(dc.cassettePrice)} € (Richtwert {casRef})</>
+                    : <>Chain <b style={{ color: '#fff' }}>{chainProduct.chainModel}</b> at €{fmtEur(chainProduct.price)}, cassette €{fmtEur(dc.cassettePrice)} (reference {casRef})</>}
                 </p>
               </div>
             ) : (
@@ -314,7 +331,11 @@ export function WaxCalculator({ product, profile, de, onTouch, mode = 'wax', cha
             <div className="wxp-calc-spacer" />
             <div className="wxp-c-foot">
               <p>
-                {isChain
+                {!product
+                  ? (de
+                    ? <>Wachsen alle <b>{sessionDays} Tage</b>, {sessionsPerYear}× im Jahr</>
+                    : <>Wax every <b>{sessionDays} days</b>, {sessionsPerYear}× a year</>)
+                  : isChain
                   ? (de
                     ? <>Kommt fahrbereit · danach nachwachsen alle <b>{sessionDays} Tage</b>, {sessionsPerYear}× im Jahr<br />{priceStr} € · Versand kostenlos</>
                     : <>Arrives ready to ride · then rewax every <b>{sessionDays} days</b>, {sessionsPerYear}× a year<br />€{priceStr} · free shipping</>)
@@ -322,7 +343,9 @@ export function WaxCalculator({ product, profile, de, onTouch, mode = 'wax', cha
                     ? <>Ein Block reicht dir <b>~{months} Monate</b> · wachsen alle <b>{sessionDays} Tage</b>, {sessionsPerYear}× im Jahr<br />{priceStr} € · Versand kostenlos</>
                     : <>One block lasts you <b>~{months} months</b> · wax every <b>{sessionDays} days</b>, {sessionsPerYear}× a year<br />€{priceStr} · free shipping</>)}
               </p>
-              {!isSoldOut(product) && (canCheckout(product)
+              {!product
+                ? <Link className="wxp-cta" to="/kettenwachs">{de ? 'Wachs wählen →' : 'Choose your wax →'}</Link>
+                : !isSoldOut(product) && (canCheckout(product)
                 ? <AddToCartButton product={product} />
                 : <a className="wxp-cta" href={product.ebayUrl} target="_blank" rel="noopener noreferrer" onClick={() => trackEbayClick(product.id)}>{de ? 'Jetzt bestellen' : 'Order now'}</a>)}
             </div>

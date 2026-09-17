@@ -37,6 +37,29 @@ export function costPerApplication(product: Product): number | null {
   return apps ? product.price / apps : null;
 }
 
+// ── Kettenrotation ───────────────────────────────────────────────────────────
+
+export type Chains = 1 | 2 | 3;
+
+/**
+ * Empfehlung fuer die Kettenzahl im Wechsel.
+ *
+ * Vereinheitlicht am 17.09.2026 (Seitenordnung, Chat 3): vorher rechnete
+ * WaxCalculator ueber die Tage bis zur naechsten Wachsung (rewaxDays < 4 → 3,
+ * < 7 → 2), waehrend CostCalculator dieselbe Frage allein an den
+ * Jahreskilometern festmachte (< 2.500 km → 1, ≥ 8.000 km → 3) — bei
+ * gleichem Fahrprofil kamen beide Regeln zu unterschiedlichen Empfehlungen,
+ * weil die kmPerYear-Regel das Intervall (wetter-/gelaendeabhaengig) komplett
+ * ignorierte. Gewonnen hat die rewaxDays-Regel: sie geht vom tatsaechlichen
+ * Wachsrhythmus fuer das gewaehlte Profil aus statt von einer pauschalen
+ * Jahresschwelle, und genau dieser Rhythmus ist die Groesse, die die Rotation
+ * ueberhaupt spuerbar macht (seltener zum Topf, nicht nur weniger Verschleiss).
+ */
+export function recommendedChains(intervalKm: number, kmPerWeek: number): Chains {
+  const rewaxDays = kmPerWeek > 0 ? (intervalKm / kmPerWeek) * 7 : Infinity;
+  return rewaxDays < 4 ? 3 : rewaxDays < 7 ? 2 : 1;
+}
+
 // ── Referenzprodukte für Rechner, die einen Preis brauchen ──────────────────
 // Der Classic-500er ist die Standardgröße und der Bezugspunkt für jede
 // Kostenrechnung. Kein Fallback: fehlt er, ist data.ts kaputt und ein stiller

@@ -14,8 +14,6 @@ const WhyWax  = lazy(() => import('@/sections/why-wax').then(m => ({ default: m.
 const Reviews = lazy(() => import('@/sections/reviews').then(m => ({ default: m.Reviews })));
 const Origin  = lazy(() => import('@/sections/Origin').then(m => ({ default: m.Origin })));
 const About   = lazy(() => import('@/sections/about').then(m => ({ default: m.About })));
-const Tools   = lazy(() => import('@/sections/tools').then(m => ({ default: m.Tools })));
-const Guides  = lazy(() => import('@/sections/guides').then(m => ({ default: m.Guides })));
 const FAQ     = lazy(() => import('@/sections/faq').then(m => ({ default: m.FAQ })));
 const Contact = lazy(() => import('@/sections/contact').then(m => ({ default: m.Contact })));
 const ClosingCTA = lazy(() => import('@/sections/closing-cta').then(m => ({ default: m.ClosingCTA })));
@@ -34,7 +32,6 @@ const AdminPage = lazy(() => import('@/pages/AdminPage').then(m => ({ default: m
 const BlogIndexPage = lazy(() => import('@/pages/blog/BlogIndexPage').then(m => ({ default: m.BlogIndexPage })));
 const BlogArticlePage = lazy(() => import('@/pages/blog/BlogArticlePage').then(m => ({ default: m.BlogArticlePage })));
 const SciencePage = lazy(() => import('@/pages/SciencePage').then(m => ({ default: m.SciencePage })));
-const RechnerHubPage = lazy(() => import('@/pages/RechnerPage').then(m => ({ default: m.RechnerHubPage })));
 const RechnerToolPage = lazy(() => import('@/pages/RechnerPage').then(m => ({ default: m.RechnerToolPage })));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 const WiderrufPage = lazy(() => import('@/pages/WiderrufPage').then(m => ({ default: m.WiderrufPage })));
@@ -114,7 +111,9 @@ function AppContent() {
         <Route path="/kette-wachsen-lassen" element={<Suspense fallback={<PageLoader />}><RewaxPage /></Suspense>} />
         <Route path="/kette-wachsen-lassen/:stadt" element={<Suspense fallback={<PageLoader />}><RewaxCityPage /></Suspense>} />
         <Route path="/wissenschaft" element={<Suspense fallback={<PageLoader />}><SciencePage /></Suspense>} />
-        <Route path="/rechner" element={<Suspense fallback={<PageLoader />}><RechnerHubPage /></Suspense>} />
+        {/* /rechner (der Hub) leitet per 301 auf /anleitung#rechner
+            (vercel.json) — die Seiten unter /rechner/:slug bleiben eigene
+            Adressen und werden weiter direkt bedient. */}
         <Route path="/rechner/:slug" element={<Suspense fallback={<PageLoader />}><RechnerToolPage /></Suspense>} />
         <Route path="/ueber-uns" element={<Suspense fallback={<PageLoader />}><UeberUnsPage /></Suspense>} />
         <Route path="/kontakt" element={<Suspense fallback={<PageLoader />}><KontaktPage /></Suspense>} />
@@ -148,9 +147,11 @@ function AppContent() {
                 <WhyWax />
                 <Reviews />
                 <Origin />
-                <Tools />
+                {/* Tools/Guides entfernt (Seitenordnung 09/2026, Chat 3): beide
+                    Startseiten-Sektionen sind nach /anleitung umgezogen, ihre
+                    Dateien geloescht. Chat 2 raeumt den restlichen
+                    Homepage-Block separat auf. */}
                 <About />
-                <Guides />
                 <FAQ />
                 <Contact />
                 <ClosingCTA />

@@ -18,7 +18,7 @@ import { IntervalCalculator } from '@/components/tools/calculators/IntervalCalcu
 import { WearCalculator } from '@/components/tools/calculators/WearCalculator';
 import { ChainLengthCalculator } from '@/components/tools/calculators/ChainLengthCalculator';
 import { ChainMatchCalculator } from '@/components/tools/calculators/ChainMatchCalculator';
-import { CostCalculator } from '@/components/tools/calculators/CostCalculator';
+import { WaxCalculator } from '@/pages/product/wax/WaxCalculator';
 import { ToolTrack } from '@/components/tools/ToolTrack';
 
 // `compact`: gesetzt, wenn der Rechner im Kartenstapel der Startseite steckt
@@ -29,15 +29,19 @@ import { ToolTrack } from '@/components/tools/ToolTrack';
 type CalcComponent = (props: { profile: ToolProfileState; compact?: boolean }) => React.ReactElement;
 type IconComponent = React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
 
-// Umstieg und Ersparnis sind seit 09/2026 ein Rechner (CostCalculator). Beide
-// Einzelseiten bleiben mit ihrer eigenen SEO-Copy bestehen; die Ersparnis-Seite
-// startet mit der empfohlenen Kettenzahl, im Deck steht nur die Umstieg-Karte
-// (TOOLS[].inDeck).
-function SwitchCost({ profile, compact }: { profile: ToolProfileState; compact?: boolean }) {
-  return <CostCalculator profile={profile} compact={compact} slug="umstieg" />;
+// Umstieg und Ersparnis rendern seit der Seitenordnung 09/2026 denselben
+// WaxCalculator wie die Produktseiten (produktneutral, siehe dort) statt des
+// frueheren CostCalculator — eine Rotationsregel statt zwei, siehe
+// waxMath.recommendedChains(). Beide Einzelseiten bleiben mit eigener
+// SEO-Copy bestehen; keine der beiden hat noch eine Karte im Startseiten-Deck
+// (TOOLS[].inDeck) — der Rechner steht auf /anleitung direkt ueber dem Deck.
+function SwitchCost({ profile }: { profile: ToolProfileState; compact?: boolean }) {
+  const { lang } = useLanguage();
+  return <WaxCalculator profile={profile} de={lang === 'de'} anchorId="umstieg-rechner" />;
 }
-function RotationCost({ profile, compact }: { profile: ToolProfileState; compact?: boolean }) {
-  return <CostCalculator profile={profile} compact={compact} slug="ersparnis" preselectRotation />;
+function RotationCost({ profile }: { profile: ToolProfileState; compact?: boolean }) {
+  const { lang } = useLanguage();
+  return <WaxCalculator profile={profile} de={lang === 'de'} anchorId="ersparnis-rechner" preselectRotation />;
 }
 
 const IMPLEMENTATIONS: Record<string, { Comp: CalcComponent; Icon: IconComponent }> = {

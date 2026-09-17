@@ -15,13 +15,13 @@ import { Link, useParams } from 'react-router-dom';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useToolProfile } from '@/hooks/useToolProfile';
 import { removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
-import { TOOLS, TOOLS_HUB, getToolBySlug, type ToolEntry } from '@/lib/toolRegistry';
+import { getToolBySlug } from '@/lib/toolRegistry';
 import { getArticleBySlug } from '@/pages/blog/articles';
 import { Navigation } from '@/sections/navigation';
 import { Footer } from '@/sections/footer';
 import { BackLink } from '@/components/BackLink';
 import { ProfileBar } from '@/components/tools/ProfileBar';
-import { ToolCalculator, ToolIcon } from '@/components/tools/registry';
+import { ToolCalculator } from '@/components/tools/registry';
 import { AssumptionsDisclosure } from '@/components/tools/AssumptionsDisclosure';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 
@@ -77,102 +77,6 @@ function Answer({ points }: { points: string[] }) {
   );
 }
 
-function ToolCardLink({ entry }: { entry: ToolEntry }) {
-  const { lang } = useLanguage();
-  const de = lang === 'de';
-  return (
-    <Link
-      to={`/rechner/${entry.slug}`}
-      className="flex flex-col gap-2 rounded-3xl p-5 transition-opacity hover:opacity-85"
-      style={{ background: 'var(--card-bg)', border: '1px solid var(--bd)', boxShadow: 'var(--card-shad)' }}
-    >
-      <span
-        className="w-10 h-10 rounded-xl grid place-items-center"
-        style={{
-          background: 'linear-gradient(135deg, rgba(var(--accent-rgb),0.22) 0%, rgba(var(--accent-rgb),0.06) 100%)',
-          border: '1px solid rgba(var(--accent-rgb),0.30)',
-        }}
-      >
-        <ToolIcon slug={entry.slug} className="h-4 w-4" style={{ color: 'var(--txm)' }} />
-      </span>
-      <span className="text-[15px] font-semibold leading-snug" style={{ color: 'var(--tx1)' }}>
-        {de ? entry.cover : entry.coverEn}
-      </span>
-      <span className="text-[13px] leading-relaxed" style={{ color: 'var(--txf)' }}>
-        {de ? entry.hint : entry.hintEn}
-      </span>
-    </Link>
-  );
-}
-
-export function RechnerHubPage() {
-  const { lang } = useLanguage();
-  const de = lang === 'de';
-  // removeStaticHeadMeta: der Prerender (renderToolsHub in generate-blog-html.mjs)
-  // setzt title/description/canonical/og/twitter mit data-prerendered="true".
-  // Ohne diesen Aufruf blieben nach der Hydration zwei Versionen jedes Tags im
-  // DOM — u. a. zwei <link rel="canonical">, was Google beide ignorieren laesst.
-  // Gleiches Muster wie ProductDetailPage/SciencePage/BlogArticlePage.
-  useEffect(() => { removeStaticJsonLd(); removeStaticHeadMeta(); }, []);
-
-  return (
-    <div className="min-h-screen bg-wx-bg">
-      <Helmet>
-        <title>{TOOLS_HUB.title}</title>
-        <meta name="description" content={TOOLS_HUB.description} />
-        <link rel="canonical" href={`${BASE}/rechner`} />
-        <script type="application/ld+json">{JSON.stringify({
-          '@context': 'https://schema.org',
-          '@graph': [
-            {
-              '@type': 'CollectionPage',
-              name: TOOLS_HUB.h1,
-              description: TOOLS_HUB.description,
-              url: `${BASE}/rechner`,
-              inLanguage: 'de-DE',
-              hasPart: TOOLS.map(t => ({
-                '@type': ['SoftwareApplication', 'WebApplication'],
-                name: t.cover,
-                url: `${BASE}/rechner/${t.slug}`,
-                applicationCategory: 'UtilityApplication',
-                operatingSystem: 'Web',
-                isAccessibleForFree: true,
-                offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
-              })),
-            },
-            {
-              '@type': 'ItemList',
-              itemListElement: TOOLS.map((t, i) => ({
-                '@type': 'ListItem',
-                position: i + 1,
-                url: `${BASE}/rechner/${t.slug}`,
-                name: t.cover,
-                description: t.hint,
-              })),
-            },
-          ],
-        })}</script>
-      </Helmet>
-
-      <Navigation />
-
-      <main id="main-content" className={`${W} pt-28 pb-24`}>
-        <BackLink de={de} className="mb-5 sm:mb-6" />
-        <h1 className="section-title mb-4">{TOOLS_HUB.h1}</h1>
-        <p className="text-[15px] leading-relaxed max-w-2xl mb-10" style={{ color: 'var(--tx2)' }}>
-          {TOOLS_HUB.lead}
-        </p>
-
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {TOOLS.map(entry => <ToolCardLink key={entry.slug} entry={entry} />)}
-        </div>
-      </main>
-
-      <Footer />
-    </div>
-  );
-}
-
 export function RechnerToolPage() {
   const { slug } = useParams<{ slug: string }>();
   const { t, lang } = useLanguage();
@@ -223,7 +127,7 @@ export function RechnerToolPage() {
               '@type': 'BreadcrumbList',
               itemListElement: [
                 { '@type': 'ListItem', position: 1, name: 'Startseite', item: BASE },
-                { '@type': 'ListItem', position: 2, name: 'Rechner', item: `${BASE}/rechner` },
+                { '@type': 'ListItem', position: 2, name: 'Anleitungen & Rechner', item: `${BASE}/anleitung` },
                 { '@type': 'ListItem', position: 3, name: entry.h1, item: canonical },
               ],
             },
@@ -285,7 +189,7 @@ export function RechnerToolPage() {
         )}
 
         <nav className="mt-10 flex flex-wrap gap-x-5 gap-y-2 text-[13px]">
-          <Link to="/rechner" style={{ color: 'var(--brand)' }}>{t.tools.shared.allTools}</Link>
+          <Link to="/anleitung#rechner" style={{ color: 'var(--brand)' }}>{t.tools.shared.allTools}</Link>
           {entry.next && (
             <Link to={entry.next.href} style={{ color: 'var(--brand)' }}>{entry.next.label} →</Link>
           )}

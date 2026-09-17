@@ -93,10 +93,10 @@ export const translations = {
         lead: 'Antworten aus Kundengesprächen, Praxis und Forschung — vom Umstieg von Öl über die Erstentfettung bis zu Nachwachs-Intervallen und Ausrüstung.',
       },
       anleitung: {
-        metaTitle: 'Kette wachsen — Anleitung Schritt für Schritt | Waxcelerate',
-        metaDescription: 'Heißwachs auftragen: neue Kette entfetten, Wachsbad bei 80–90 °C, aushärten, einfahren. Dazu Re-Waxen und die 3-Ketten-Rotation — jeweils als nummerierte Schrittfolge.',
-        h1: 'Kette wachsen — Schritt für Schritt',
-        lead: 'Drei Abläufe: die erste Wachsung einer neuen Kette mit Erstentfettung, das Nachwachsen einer bereits gewachsten Kette und die 3-Ketten-Rotation.',
+        metaTitle: 'Kette wachsen: Anleitung & Rechner | Waxcelerate',
+        metaDescription: 'Heißwachs auftragen, nachwachsen oder im Wechsel fahren — Schritt für Schritt mit Zeitplan. Dazu Rechner für Verschleiß, Kettenlänge, passende Kette und Intervall.',
+        h1: 'Anleitungen & Rechner',
+        lead: 'Wie Kette wachsen, nachwachsen oder in Rotation fahren funktioniert — und was das für dein Setup bedeutet.',
       },
     },
 
@@ -355,8 +355,6 @@ export const translations = {
 
     // Tools
     tools: {
-      title: 'Kettenwachs-Rechner & Planer',
-      subtitle: 'Wie oft, wie viel, wie lange — konkrete Antworten für dein Setup.',
       rewax: {
         title: 'Wann muss ich rewaxen?',
         weather: 'Wetter',
@@ -401,7 +399,6 @@ export const translations = {
       profile: {
         barTitle: 'Dein Fahrprofil',
         barHint: 'Gilt für Kosten und Intervall',
-        barInactive: 'Für diesen Rechner nicht nötig',
         helpWeather: 'Wie die Kette meistens dran ist. Nass heißt Regenfahrten oder nasse Straße, nicht die gelegentliche Pfütze — Wasser spült das Wachs schneller aus.',
         helpTerrain: 'Straße hält am längsten, Gravel und MTB bringen deutlich mehr Staub und Schmutz an die Kette und verkürzen das Intervall.',
         helpKm: 'Grob geschätzt reicht. Die Zahl legt fest, wie schnell du das Wachsintervall in Kilometern abfährst.',
@@ -410,6 +407,9 @@ export const translations = {
         // vorhandene Beschriftung rotation.kmPerWeek angeglichen.
         kmSuffix: 'km pro Woche',
         jumpToInterval: 'Anpassen →',
+        // Eingeklappte ProfileBar auf /anleitung (readOnly), Link zurück zum
+        // Rechner, der die Eingabe traegt.
+        change: 'ändern',
       },
       rotation: {
         kmPerYear: 'km pro Jahr',
@@ -603,97 +603,10 @@ export const translations = {
         firstTime: 'Einmalig zum Start',
         perYearRunning: 'Laufend pro Jahr',
         breakEven: 'Rechnet sich nach',
-        neverNote: 'Bei deiner Laufleistung geht es nicht ums Geld, sondern um den sauberen Antrieb.',
         toolingNote: 'Nur Zange und Draht sind echter Mehraufwand — Schmierstoff kaufst du beim Ölen genauso.',
         hybridHint: 'So oft den Topf anzuwerfen macht in der Praxis niemand. Üblich ist die Hybrid-Methode: Heißwachs als Basis, dazwischen Tropfwachs zum Auffrischen.',
         hybridLink: 'Hybrid-Methode nachlesen →',
-        potNote: 'Ein Topf ist nicht eingerechnet: ein alter Reiskocher oder Slow Cooker reicht, und den haben die meisten schon.',
-        degreaseNote: 'Nicht eingerechnet, aber der eigentliche Knackpunkt: deine bisherige Kette muss vollständig entfettet werden, sonst nimmt sie kein Wachs an. Das kostet einen Abend und etwas Isopropanol.',
-        degreaseAlt: 'Vorgewachste Kette ansehen — spart den Schritt →',
         perYearLess: 'weniger im Jahr',
-      },
-
-      // Kosten (Umstieg + Ersparnis in einer Karte, 09/2026)
-      cost: {
-        title: 'Lohnt sich Wachs für dich?',
-        subtitle: 'Was du im Jahr gegenüber Öl sparst — und woher es kommt.',
-        drivetrain: 'Dein Antrieb',
-        helpDrivetrain: 'Die Ersparnis hängt fast nur am Teilepreis: Kette und Kassette deiner Gruppe. Gerechnet mit Shimano-12-fach-Straßenpreisen, bei SRAM liegen die Stufen ähnlich.',
-        chains: 'Ketten im Wechsel',
-        helpChains: 'Beim Rotieren fährst du mehrere Ketten abwechselnd und wachst sie gemeinsam in einem Topf. Du wachst dadurch seltener — die Ketten kaufst du ohnehin, nur früher.',
-        chartOil: 'mit Öl',
-        chartWax: 'mit Wachs',
-        chartPerYear: 'pro Jahr',
-        unit: 'weniger im Jahr',
-        verdict: 'Kette und Kassette halten länger, das Wachs selbst kostet mehr als Öl. Das Werkzeug ({tools}) ist nach {months} drin.',
-        oneMonth: '1 Monat',
-        months: '{n} Monaten',
-        start: 'Wachs + Werkzeug',
-        startWithChains: '{sum} + {n} Ketten',
-        waxing: 'Wachsen',
-        sessions: '{n}× im Jahr',
-        sessionsRotation: '{n}× im Jahr · {chains} Ketten je Topf',
-        blockNote: 'Gerechnet mit dem 500-g-Block. Der 300er ist im Einstieg günstiger, kostet je Wachsung aber mehr — für Wenigfahrer die bessere Wahl, weil angebrochenes Wachs altert.',
-        ctaStarter: 'Starter-Set ansehen →',
-        ctaChains: 'Passende Ketten ansehen →',
-        infoLabel: 'Wichtige Hinweise zu den Kosten',
-      },
-    },
-
-    // Guides
-    guides: {
-      eyebrow: 'Schritt für Schritt',
-      title: 'Anleitungen',
-      subtitle: 'So wachst du deine Kette richtig',
-      allOnOnePage: 'Alle drei Abläufe auf einer Seite →',
-      // Karte "Auf einen Blick" neben dem Accordion (14.09.2026). Minuten
-      // kommen aus waxProcessTimeline in data.ts, hier nur die Saetze.
-      glanceTitle: 'Auf einen Blick',
-      glanceRun: 'Ein Wachsgang',
-      glanceTotalHands: 'ca. {min} min, davon {hands} min Handarbeit',
-      glanceFirst: 'Beim ersten Mal kommen {min} min Entfetten dazu',
-      glanceHands: 'Handarbeit',
-      glanceWait: 'Warten',
-      glanceRewaxLabel: 'Nachwachsen',
-      glanceRewaxNote: 'Für optimale Performance',
-      glanceDegreaseLabel: 'Entfetten',
-      glanceDegreaseNote: 'Nur beim ersten Mal',
-      guideTotal: 'ca. {min} min',
-      rotationTotal: 'ca. {min} min für drei',
-      linkPhotos: 'Schritt für Schritt mit Fotos',
-      linkInterval: 'Wann nachwachsen? Rechner',
-      linkService: 'Keine Zeit? Wir wachsen für dich',
-      pdfHint: '',
-      newChain: {
-        title: 'Neue Kette erstmalig wachsen',
-        note: 'Fabrikfett blockiert den Wirkstoff komplett — Entfetten ist Pflicht.',
-        steps: [
-          'Kette 2–3-mal in Isopropanol oder Aceton eintauchen, kräftig schütteln, mit einem Tuch abwischen und wiederholen, bis die Flüssigkeit klar bleibt.',
-          'Vollständig trocknen — kein Lösungsmittelrest darf ins Wachs',
-          'Wachs auf 80–90 °C erhitzen, Kette 10–15 min eintauchen und gelegentlich bewegen',
-          'Herausnehmen, abtropfen und vollständig aushärten lassen',
-          'Kette durchbrechen — über eine Metallstange oder einen Besenstiel ziehen, bis sie wieder geschmeidig läuft',
-        ],
-      },
-      rewax: {
-        title: 'Re-Waxen',
-        note: 'Lieber nicht selbst wachsen? Wir übernehmen das — Auffrischung ab 15,95 €, ab 3 Ketten 11,95 € pro Kette.',
-        steps: [
-          'Kette abnehmen (Kettenschloss öffnen) — frisch gewaxte Kette montieren und weiterfahren',
-          'Abgezogene Kette mit kochendem Wasser übergießen — altes Wachs löst sich und läuft ab',
-          'Vollständig trocknen, dann 10 min ins Wachsbad bei 80–90 °C',
-          'Abtropfen lassen, abkühlen und durchbrechen — fertig',
-        ],
-      },
-      rotation: {
-        title: '3-Ketten-Rotation',
-        note: 'Kein Warten. Immer eine frische Kette parat — alle drei gleichzeitig in ~15 min wachsen.',
-        steps: [
-          'Alle 300–500 km Kette wechseln (bei Nässe früher)',
-          'Abgezogene Ketten sammeln — alle drei gemeinsam reinigen (heißes Wasser) und ins Wachsbad',
-          '~15 min für alle drei Ketten in einer Session — einmal Aufwand, dreimal Ertrag',
-          'Kettenlaufzeit steigt: gleichmäßiger Verschleiß auf Kassette und Kettenblatt',
-        ],
       },
     },
 
@@ -941,10 +854,10 @@ export const translations = {
         lead: 'Answers drawn from customer conversations, hands-on experience and research — from switching off oil to the initial degrease, re-wax intervals and equipment.',
       },
       anleitung: {
-        metaTitle: 'How to wax a chain — step-by-step guide | Waxcelerate',
-        metaDescription: 'Applying hot wax: degrease a new chain, wax bath at 80–90 °C, harden, break in. Plus re-waxing and the 3-chain rotation — each as a numbered sequence.',
-        h1: 'How to wax a chain — step by step',
-        lead: 'Three procedures: the first wax on a new chain with initial degreasing, re-waxing a chain that is already waxed, and the 3-chain rotation.',
+        metaTitle: 'Waxing your chain: guide & calculators | Waxcelerate',
+        metaDescription: 'Apply hot wax, re-wax or run a rotation — step by step with a time plan. Plus calculators for wear, chain length, matching chain and interval.',
+        h1: 'Guides & Calculators',
+        lead: 'How to wax, re-wax or rotate your chain — and what it means for your own setup.',
       },
     },
 
@@ -1101,8 +1014,6 @@ export const translations = {
 
     // Tools
     tools: {
-      title: 'Chain Wax Calculators & Planners',
-      subtitle: 'How often, how much, how long — concrete answers for your setup.',
       rewax: {
         title: 'When should I re-wax?',
         weather: 'Weather',
@@ -1147,12 +1058,12 @@ export const translations = {
       profile: {
         barTitle: 'Your riding profile',
         barHint: 'Used by cost and interval',
-        barInactive: 'Not needed for this calculator',
         helpWeather: 'How the chain usually gets used. Wet means riding in rain or on wet roads, not the occasional puddle — water washes the wax out faster.',
         helpTerrain: 'Road lasts longest; gravel and MTB throw far more dust and grit at the chain and shorten the interval.',
         helpKm: 'A rough estimate is fine. This sets how quickly you ride through the wax interval.',
         kmSuffix: 'km per week',
         jumpToInterval: 'Adjust →',
+        change: 'change',
       },
       rotation: {
         kmPerYear: 'km per year',
@@ -1338,95 +1249,10 @@ export const translations = {
         firstTime: 'One-off to start',
         perYearRunning: 'Running per year',
         breakEven: 'Pays off after',
-        neverNote: 'At your mileage this is not about money — it is about a clean drivetrain.',
         toolingNote: 'Only pliers and wire are a real extra — you buy lubricant either way.',
         hybridHint: 'Nobody actually fires up the pot that often. The usual answer is the hybrid method: hot wax as the base, drip wax to top up in between.',
         hybridLink: 'Read up on the hybrid method →',
-        potNote: 'A pot is not costed in: an old rice cooker or slow cooker does the job, and most people already own one.',
-        degreaseNote: 'Not costed in, but the real sticking point: your existing chain has to be fully degreased or it will not take wax. That costs an evening and some isopropanol.',
-        degreaseAlt: 'See pre-waxed chains — skips that step →',
         perYearLess: 'less a year',
-      },
-
-      // Cost (switching + savings in one card, 09/2026)
-      cost: {
-        title: 'Is wax worth it for you?',
-        subtitle: 'What you save per year versus oil — and where it comes from.',
-        drivetrain: 'Your drivetrain',
-        helpDrivetrain: 'The saving depends almost entirely on part prices: the chain and cassette of your groupset. Calculated with Shimano 12-speed street prices; SRAM tiers are similar.',
-        chains: 'Chains in rotation',
-        helpChains: 'Rotating means riding several chains in turn and waxing them together in one pot. You wax less often — you buy the chains anyway, just earlier.',
-        chartOil: 'with oil',
-        chartWax: 'with wax',
-        chartPerYear: 'per year',
-        unit: 'less per year',
-        verdict: 'Chain and cassette last longer, the wax itself costs more than oil. The tools ({tools}) pay off in {months}.',
-        oneMonth: '1 month',
-        months: '{n} months',
-        start: 'Wax + tools',
-        startWithChains: '{sum} + {n} chains',
-        waxing: 'Waxing',
-        sessions: '{n}× a year',
-        sessionsRotation: '{n}× a year · {chains} chains per pot',
-        blockNote: 'Calculated with the 500 g block. The 300 g is cheaper to start with but costs more per wax — the better choice for low mileage, because opened wax ages.',
-        ctaStarter: 'View starter set →',
-        ctaChains: 'View matching chains →',
-        infoLabel: 'Important notes on cost',
-      },
-    },
-
-    // Guides
-    guides: {
-      eyebrow: 'Step by Step',
-      title: 'Guides',
-      subtitle: 'How to wax your chain properly',
-      allOnOnePage: 'All three procedures on one page →',
-      glanceTitle: 'At a glance',
-      glanceRun: 'One waxing',
-      glanceTotalHands: 'about {min} min, {hands} min of it hands-on',
-      glanceFirst: 'The first time adds {min} min of degreasing',
-      glanceHands: 'Hands-on',
-      glanceWait: 'Waiting',
-      glanceRewaxLabel: 'Re-wax',
-      glanceRewaxNote: 'For best performance',
-      glanceDegreaseLabel: 'Degrease',
-      glanceDegreaseNote: 'New chain only, once',
-      guideTotal: 'about {min} min',
-      rotationTotal: 'about {min} min for three',
-      linkPhotos: 'Step by step with photos',
-      linkInterval: 'When to re-wax? Calculator',
-      linkService: 'No time? We wax it for you',
-      pdfHint: '',
-      newChain: {
-        title: 'First wax on a new chain',
-        note: 'Factory grease blocks the lubricant completely — degreasing is mandatory.',
-        steps: [
-          'Dip chain 2–3 times in isopropanol or acetone, shake vigorously, wipe with a cloth and repeat until the liquid stays clear.',
-          'Dry completely — no solvent residue should enter the wax',
-          'Heat wax to 80–90 °C, immerse chain for 10–15 min and move occasionally',
-          'Remove, drip off and let harden completely',
-          'Break the chain — pull over a metal rod or broomstick until it runs smoothly again',
-        ],
-      },
-      rewax: {
-        title: 'Re-waxing',
-        note: 'Would rather not do it yourself? We take care of it — rewax from 15.95 €, from 3 chains 11.95 € per chain.',
-        steps: [
-          'Remove chain (open quick link) — install freshly waxed chain and keep riding',
-          'Pour boiling water over the removed chain — old wax dissolves and runs off',
-          'Dry completely, then 10 min in wax bath at 80–90 °C',
-          'Drip off, cool down and break in — done',
-        ],
-      },
-      rotation: {
-        title: '3-Chain Rotation',
-        note: 'No waiting. Always a fresh chain ready — wax all three at once in ~15 min.',
-        steps: [
-          'Swap chain every 300–500 km (sooner in wet conditions)',
-          'Collect removed chains — clean all three together (hot water) and into the wax bath',
-          '~15 min for all three chains in one session — one effort, triple the return',
-          'Chain life increases: even wear on cassette and chainring',
-        ],
       },
     },
 

@@ -7,7 +7,7 @@ import { WaxHero } from './WaxHero';
 import { ProofStrip, ChangeForYou } from './ProofAndChange';
 import { FrictionLens } from './FrictionLens';
 import { WaxCalculator } from './WaxCalculator';
-import { ProcessWatch } from './ProcessWatch';
+import { ProcessWatch } from '@/components/process/ProcessWatch';
 import { WhichWax, WaxReviews, DataFitLimits, WhenEmpty, WaxFaq, WaxClosing, pickProofQuote } from './WaxSections';
 import { DeepDive, type DeepDiveItem } from '../DeepDive';
 import './wax.css';

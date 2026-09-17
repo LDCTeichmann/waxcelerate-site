@@ -77,17 +77,40 @@ function Clock({ steps, total, lit, de }: { steps: Step[]; total: number; lit: n
   );
 }
 
-export function ProcessWatch({ de, product }: { de: boolean; product: Product }) {
-  const [first, setFirst] = useState(false);
+// Drei Modi statt zwei (Seitenordnung 09/2026, Chat 3): "Drei Ketten" zeigt
+// den Ablauf einer Rotations-Session. Gleicher Zeitplan wie Nachwachsen,
+// Arbeitsschritte ×3 nur dort, wo sie tatsaechlich an jeder Kette einzeln
+// anfallen (`perChain` in waxProcessTimeline) — Erhitzen, Kuehlen und
+// Einfahren bleiben gleich lang, weil sie fuer den ganzen Topf bzw. nur fuer
+// die eine Kette gelten, die wieder ans Rad kommt. Das ist eine Annahme ohne
+// eigene Zeitmessung fuer drei Ketten; an Luca gemeldet (siehe Abschlussnotiz
+// des Chats), nicht eigenmaechtig entschieden.
+export type RunMode = 'rewax' | 'first' | 'rotation';
+
+export function ProcessWatch({ de, product, chapter, initialMode = 'rewax' }: {
+  de: boolean; product?: Product; chapter?: string;
+  /** Fuer Deep-Links (/anleitung#neue-kette, #re-waxen, #rotation): der Anker
+   *  waehlt den Modus, mit dem das Kapitel oeffnet. */
+  initialMode?: RunMode;
+}) {
+  const [mode, setMode] = useState<RunMode>(initialMode);
   const [sel, setSel] = useState<number | null>(null);
   const [focusStep, setFocusStep] = useState<number | null>(null);
   const [hot, setHot] = useState<number | null>(null);
+  const first = mode === 'first';
+  const rotation = mode === 'rotation';
 
   const guide = getArticleBySlug('heisswachs-anleitung');
   const texts = guide?.howTo?.steps ?? [];
   const named = waxProcessTimeline.map((s, i) => {
     const h = s.howToIndex !== undefined ? texts[s.howToIndex] : undefined;
-    return { ...s, i, name: h?.name ?? (de ? s.nameDe : s.nameEn) ?? '', text: (de ? s.textDe : s.textEn) ?? h?.text ?? '' };
+    const minutes = rotation && s.perChain ? s.minutes * 3 : s.minutes;
+    const nameSuffix = rotation && s.perChain ? ' ×3' : '';
+    return {
+      ...s, i, minutes,
+      name: (h?.name ?? (de ? s.nameDe : s.nameEn) ?? '') + nameSuffix,
+      text: (de ? s.textDe : s.textEn) ?? h?.text ?? '',
+    };
   }).filter(s => s.name && (first || !s.firstOnly));
   const { steps: timed, total } = schedule(named);
   const steps: Step[] = timed.map((s, n) => ({ ...s, n: n + 1 }));
@@ -103,7 +126,9 @@ export function ProcessWatch({ de, product }: { de: boolean; product: Product })
   // Punkte in Prozent des quadratischen Ausschnitts (object-position 25 % 50 %
   // auf dem 16:10-Foto). Bild und Liste teilen sich `hot`.
   const kit = [
-    { x: 82, y: 24, n: de ? 'Dieser Block' : 'This block', d: de ? `${product.applications} Wachsgänge` : `${product.applications} waxings`, e: de ? 'im Bild' : 'pictured' },
+    { x: 82, y: 24, n: de ? 'Dieser Block' : 'This block',
+      d: product ? (de ? `${product.applications} Wachsgänge` : `${product.applications} waxings`) : (de ? 'reicht für mehrere Wachsgänge' : 'enough for several waxings'),
+      e: de ? 'im Bild' : 'pictured' },
     { x: 55, y: 40, n: de ? 'Kettenschloss-Zange' : 'Quick-link pliers', d: de ? 'öffnet das Schloss in Sekunden' : 'opens the link in seconds', e: de ? 'empfohlen' : 'recommended' },
     { x: 66, y: 91, n: de ? 'Draht oder Haken' : 'Wire or hook', d: de ? 'zum Eintauchen und Aufhängen' : 'for dipping and hanging', e: de ? 'im Bild' : 'pictured' },
     { x: 16, y: 84, n: de ? 'Deine Kette' : 'Your chain', d: de ? 'mit Kettenschloss' : 'with quick link', e: de ? 'im Bild' : 'pictured' },
@@ -122,7 +147,7 @@ export function ProcessWatch({ de, product }: { de: boolean; product: Product })
     <section className="wxp-chapter wxp-procband">
       <div className="wxp-wrap">
         <div className="wxp-chead">
-          <p className="eyebrow">{de ? 'Kapitel 04' : 'Chapter 04'}</p>
+          <p className="eyebrow">{chapter ?? (de ? 'Kapitel 04' : 'Chapter 04')}</p>
           <h2>{de ? 'So läuft’s ab.' : 'How it works.'}</h2>
           <p>{de ? 'Wie ein Rezept: ein paar Minuten Handgriffe, der Rest ist Warten.' : 'Like a recipe: a few minutes of handling, the rest is waiting.'}</p>
         </div>
@@ -135,8 +160,9 @@ export function ProcessWatch({ de, product }: { de: boolean; product: Product })
             <div><span className="k">{de ? 'Schwierigkeit' : 'Difficulty'}</span><span className="v">{de ? 'einfach' : 'easy'}</span></div>
           </div>
           <div className="wxp-mode" role="group" aria-label={de ? 'Durchgang' : 'Run'}>
-            <button type="button" aria-pressed={!first} onClick={() => setFirst(false)}>{de ? 'Nachwachsen' : 'Rewaxing'}</button>
-            <button type="button" aria-pressed={first} onClick={() => setFirst(true)}>{de ? 'Erstes Mal (+ Entfetten)' : 'First time (+ degreasing)'}</button>
+            <button type="button" aria-pressed={mode === 'rewax'} onClick={() => setMode('rewax')}>{de ? 'Nachwachsen' : 'Rewaxing'}</button>
+            <button type="button" aria-pressed={mode === 'first'} onClick={() => setMode('first')}>{de ? 'Erstes Mal (+ Entfetten)' : 'First time (+ degreasing)'}</button>
+            <button type="button" aria-pressed={mode === 'rotation'} onClick={() => setMode('rotation')}>{de ? 'Drei Ketten' : 'Three chains'}</button>
           </div>
         </div>
 
