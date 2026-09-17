@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { Product } from '@/lib/data';
 import { getProductById, trustStats, bundleOffer, canCheckout, isSoldOut } from '@/lib/data';
@@ -32,7 +33,7 @@ function Cell({ c, de }: { c: ChooserCell; de: boolean }) {
   return c.kind ? <span className={`wxp-${c.kind}`}>{text}</span> : <>{text}</>;
 }
 
-export function WhichWax({ product, de }: { product: Product; de: boolean }) {
+export function WhichWax({ product, de, n }: { product: Product; de: boolean; n?: string }) {
   const isPro = product.variant === 'pro';
   const size = product.weight === '300g' ? '300' : '500';
   const classic = getProductById(size === '300' ? 'wax-300' : 'wax-500');
@@ -47,7 +48,7 @@ export function WhichWax({ product, de }: { product: Product; de: boolean }) {
   return (
     <section className="wxp-chapter" id="welches">
       <div className="wxp-wrap">
-        <ChapterHead n={de ? 'Kapitel 05' : 'Chapter 05'} title={de ? 'Welches Wachs passt zu dir?' : 'Which wax suits you?'}
+        <ChapterHead n={n ?? (de ? 'Kapitel 05' : 'Chapter 05')} title={de ? 'Welches Wachs passt zu dir?' : 'Which wax suits you?'}
           lede={de ? 'Ehrlich verglichen, auch mit dem, was du gerade benutzt.' : 'An honest comparison, including what you use today.'} />
         <div className="wxp-cmp-wrap">
           <div className="wxp-card wxp-cmp">
@@ -139,11 +140,57 @@ function Who({ r, de, about }: { r: Review; de: boolean; about?: string }) {
   );
 }
 
-export function WaxReviews({ productId, de, chapter, chain = false }: { productId: string; de: boolean; chapter?: string; chain?: boolean }) {
+// Kompakte Karte fuer die dreispaltige Stimmen-Reihe (v6): Zitat auf vier
+// Zeilen begrenzt, "mehr" klappt sie auf. Eigene Komponente statt Hook in der
+// .map() weiter unten (Regel 2).
+function CompactReviewCard({ r, de, about }: { r: Review; de: boolean; about?: string }) {
+  const [expanded, setExpanded] = useState(false);
+  const text = de ? r.textDe : r.textEn;
+  return (
+    <figure className="wxp-card wxp-rvc">
+      <Stars rating={r.rating ?? 5} color="#F5A623" />
+      <blockquote className={expanded ? undefined : 'clamp'}>„{text}“</blockquote>
+      {text.length > 140 && (
+        <button type="button" className="more" onClick={() => setExpanded(v => !v)}>
+          {expanded ? (de ? 'weniger' : 'less') : (de ? 'mehr' : 'more')}
+        </button>
+      )}
+      <Who r={r} de={de} about={about} />
+    </figure>
+  );
+}
+
+export function WaxReviews({ productId, de, chapter, chain = false, compact = false }: { productId: string; de: boolean; chapter?: string; chain?: boolean; compact?: boolean }) {
   const list = reviewsFor(productId, chain);
   // Auf Kettenseiten steht bei einer Bewertung zu einer ANDEREN Kette dabei,
   // worum es ging, damit sie nicht als Stimme zu dieser Kette gelesen wird.
   const aboutOf = (r: Review) => chain && !r.productIds?.includes(productId) ? (de ? r.productDe : r.productEn) : undefined;
+
+  // v6: drei gleich grosse Karten statt einer grossen Foto-Karte + zwei
+  // kleinen — Luca wollte die Stimmen kompakter, sie stehen jetzt vor dem
+  // "Mehr wissen"-Deck statt danach.
+  if (compact) {
+    const shown = list.slice(0, 3);
+    if (shown.length === 0) return null;
+    return (
+      <section className="wxp-chapter wxp-rv-compact" id="stimmen">
+        <div className="wxp-wrap">
+          <ChapterHead n={chapter ?? (de ? 'Kapitel 06' : 'Chapter 06')} title={de ? 'Was Fahrer sagen.' : 'What riders say.'} />
+          <p className="wxp-rv-line">
+            <span className="stars" aria-hidden>★★★★★</span>
+            {trustStats.reviews} {de ? 'Bewertungen' : 'reviews'} · 100 % {de ? 'positiv' : 'positive'} · {trustStats.sold}+ {de ? 'verkauft' : 'sold'}
+          </p>
+          <div className="wxp-rv-row">
+            {shown.map(r => <CompactReviewCard key={r.id} r={r} de={de} about={aboutOf(r)} />)}
+          </div>
+          <p className="wxp-rv-ebay">
+            {de ? 'Kontoweit auf eBay, nicht nur dieses Produkt.' : 'Account-wide on eBay, not only this product.'}
+          </p>
+        </div>
+      </section>
+    );
+  }
+
   const big = list[0];
   const photo = photoFor(productId);
   const rest = list.filter(r => r !== big).slice(0, 2);
@@ -189,7 +236,7 @@ export function WaxReviews({ productId, de, chapter, chain = false }: { productI
 }
 
 // ── Kapitel 07 · Daten, Passung, Grenzen ───────────────────────────────────
-export function DataFitLimits({ product, rc, specs, de }: { product: Product; rc: RichContent | undefined; specs: { l: string; v: string }[]; de: boolean }) {
+export function DataFitLimits({ product, rc, specs, de, n }: { product: Product; rc: RichContent | undefined; specs: { l: string; v: string }[]; de: boolean; n?: string }) {
   const isPro = product.variant === 'pro';
   const [brands, , bikes] = rc?.compatTags ?? [];
   const drive = [product.compatibility, ...(brands ?? [])].filter(Boolean) as string[];
@@ -197,7 +244,7 @@ export function DataFitLimits({ product, rc, specs, de }: { product: Product; rc
   return (
     <section className="wxp-chapter wxp-graybg">
       <div className="wxp-wrap">
-        <ChapterHead n={de ? 'Kapitel 07' : 'Chapter 07'} title={de ? 'Daten, Passung, Grenzen.' : 'Specs, fit, limits.'}
+        <ChapterHead n={n ?? (de ? 'Kapitel 07' : 'Chapter 07')} title={de ? 'Daten, Passung, Grenzen.' : 'Specs, fit, limits.'}
           lede={de ? 'Alles, was du vor dem Kauf prüfen willst, auch wofür der Block nicht taugt.' : 'Everything to check before buying, including what the block is not for.'} />
         <div className="wxp-specs">
           <div className="wxp-card" style={{ padding: 20 }}>

@@ -28,6 +28,9 @@
   --wxp-shadow-hi: 0 2px 4px rgba(0,0,0,.35), 0 18px 40px rgba(0,0,0,.45);
 }
 .wxp h2, .wxp h3 { text-wrap: balance; }
+/* v6 Schritt 3: gleiche Inhaltsbreite wie die uebrigen Seiten — liest
+   dasselbe --frame-w-Token wie .wx-frame (Section.tsx, index.css), seit
+   "Seitenordnung Chat 1" der sitewide Standard. */
 .wxp-wrap { max-width: var(--frame-w, 1180px); margin: 0 auto; padding: 0 20px; }
 @media (min-width: 640px) { .wxp-wrap { padding: 0 32px; } }
 .wxp-card { background: var(--sf); border: 1px solid var(--sf3); border-radius: 14px; box-shadow: var(--wxp-shadow); }
@@ -47,8 +50,12 @@
 .wxp-darkband .wxp-chead p { color: rgba(255,255,255,.62); }
 
 /* ═ HERO ═ */
-.wxp-hero { padding: 84px 0 64px; }
-@media (min-width: 1024px) { .wxp-hero { padding: 104px 0 80px; } }
+/* v6 Schritt 1: padding-top haelt den Inhalt unter Topbar + echter
+   Navigation frei (vorher der eigene 56px-Mini-Header). Werte im
+   Browser-Pane gegen header.wx-header.getBoundingClientRect().bottom + 16px
+   gemessen (17.09.2026). */
+.wxp-hero { padding: 96px 0 64px; }
+@media (min-width: 1024px) { .wxp-hero { padding: 112px 0 80px; } }
 .wxp-hero-grid { display: grid; gap: 28px; }
 @media (min-width: 900px) { .wxp-hero-grid { grid-template-columns: minmax(0,1fr) 380px; gap: 32px; align-items: start; } }
 @media (min-width: 1100px) { .wxp-hero-grid { grid-template-columns: minmax(0,1fr) 420px; gap: 48px; } }
@@ -72,6 +79,40 @@
 .wxp-gallery figcaption span { font-size: 11.5px; font-weight: 600; letter-spacing: .02em; background: rgba(10,12,15,.55); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding: 5px 10px; border-radius: 999px; white-space: nowrap; }
 .wxp-gcount { text-align: center; font-size: 12px; color: var(--txf); margin-top: 10px; }
 @media (min-width: 900px) { .wxp-gcount { display: none; } }
+
+/* ═ PdpGallery (v6 Schritt 2) — ein Bild zur Zeit, durchklickbar ═
+   Ersetzt .wxp-gallery auf Wachs- und Kettenseiten (Starter-Set/Zubehoer
+   nutzen .wxp-gallery weiter unveraendert, siehe oben). */
+.wxp-pg { position: relative; }
+.wxp-pg-stage {
+  display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none;
+  border-radius: 18px; background: var(--hero-stage); aspect-ratio: 4/5;
+}
+.wxp-pg-stage::-webkit-scrollbar { display: none; }
+.wxp-pg-stage:focus-visible { outline: 2px solid var(--accent-soft); outline-offset: 3px; }
+@media (min-width: 900px) { .wxp-pg-stage { aspect-ratio: 1/1; } }
+.wxp-pg-slide { all: unset; box-sizing: border-box; flex: 0 0 100%; scroll-snap-align: start; cursor: zoom-in; display: block; }
+.wxp-pg-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.wxp-pg-arrow {
+  position: absolute; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; border-radius: 50%; border: 0;
+  display: grid; place-items: center; background: rgba(var(--scrim-rgb),.34); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  color: rgba(255,255,255,.94); cursor: pointer; opacity: 0; transition: opacity .2s;
+}
+.wxp-pg-arrow.left { left: 12px; }
+.wxp-pg-arrow.right { right: 12px; }
+@media (max-width: 899px) { .wxp-pg-arrow { display: none; } }
+@media (min-width: 900px) {
+  .wxp-pg:hover .wxp-pg-arrow, .wxp-pg-arrow:focus-visible { opacity: 1; }
+}
+.wxp-pg-thumbs { display: none; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+@media (min-width: 640px) { .wxp-pg-thumbs { display: flex; } }
+.wxp-pg-thumb { all: unset; box-sizing: border-box; width: 64px; height: 64px; border-radius: 10px; overflow: hidden; cursor: pointer; box-shadow: 0 0 0 1px var(--bd); flex-shrink: 0; }
+.wxp-pg-thumb[aria-current="true"] { box-shadow: 0 0 0 2px var(--accent); }
+.wxp-pg-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.wxp-pg-dots { display: flex; justify-content: center; gap: 6px; margin-top: 10px; }
+@media (min-width: 640px) { .wxp-pg-dots { display: none; } }
+.wxp-pg-dots span { width: 6px; height: 6px; border-radius: 999px; background: var(--bd2); display: block; transition: width .2s, background .2s; }
+.wxp-pg-dots span.on { width: 18px; background: var(--wxp-accent); }
 
 .wxp-buy { min-width: 0; }
 @media (min-width: 900px) { .wxp-buy { position: sticky; top: 80px; padding-top: 4px; } }
@@ -467,9 +508,11 @@
 .wxp-close .wxp-ship { background: rgba(255,255,255,.14); color: #CFE8D8; }
 .wxp-close .wxp-cta { background: #fff; color: #101010; margin-top: 16px; }
 
-/* Mobil: Preis soll im ersten Screen stehen (375 × 812 gemessen: vorher 845 px). */
+/* Mobil: Preis soll im ersten Screen stehen (375 × 812 gemessen: vorher 845 px).
+   v6: padding-top nicht mehr unter die Topbar+Nav-Klarhoehe absenken (siehe
+   Kommentar oben bei .wxp-hero). */
 @media (max-width: 899px) {
-  .wxp-hero { padding-top: 72px; }
+  .wxp-hero { padding-top: 96px; }
   .wxp-hero-grid { gap: 18px; }
   .wxp-gallery figure { aspect-ratio: 5/4.4; }
   .wxp-gcount { margin-top: 6px; }
@@ -608,3 +651,44 @@
   .wxp-c-in .wxp-seg button { padding: 9px 6px 8px; }
 }
 .wxp-proof .q .qm { font-family: 'Fraunces', Georgia, serif; font-size: 54px; line-height: .6; color: var(--wxp-ice); flex-shrink: 0; margin-top: 14px; }
+
+/* ═ v6 Schritt 4a — "Mehr wissen"-Deck (DeepDive.tsx) ═ */
+.wxp-dd-grid { display: grid; gap: 16px; grid-template-columns: 1fr; }
+@media (min-width: 640px) { .wxp-dd-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 900px) { .wxp-dd-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); } }
+.wxp-dd-card { all: unset; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; padding: 22px; cursor: pointer; text-align: left; border: 1px solid var(--sf3); transition: transform .2s, box-shadow .2s, border-color .2s; }
+.wxp-dd-card:hover { transform: translateY(-2px); box-shadow: var(--wxp-shadow-hi); }
+.wxp-dd-card:focus-visible { outline: 2px solid var(--accent-soft); outline-offset: 2px; }
+.wxp-dd-card[data-open] { border-color: var(--wxp-accent); box-shadow: var(--wxp-shadow-hi); }
+.wxp-dd-card .ic { width: 40px; height: 40px; border-radius: 12px; background: var(--wxp-soft); color: var(--wxp-accent); display: grid; place-items: center; }
+.wxp-dd-card .ic .wxp-ico { width: 20px; height: 20px; }
+.wxp-dd-card .tt { font-family: 'Fraunces', Georgia, serif; font-size: 20px; font-weight: 700; color: var(--tx1); line-height: 1.2; }
+.wxp-dd-card .ts { font-size: 14px; color: var(--txm); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wxp-dd-card .cta { margin-top: auto; padding-top: 6px; font-size: 12.5px; font-weight: 600; color: var(--accent-soft); }
+.wxp-dd-panel { scroll-margin-top: 112px; animation: wxp-dd-in .25s ease both; }
+@media (min-width: 1024px) { .wxp-dd-panel { scroll-margin-top: 132px; } }
+@keyframes wxp-dd-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) { .wxp-dd-panel { animation: none; } }
+/* Die Karte ist schon die Ueberschrift — Kapitelnummern der eingebetteten
+   Kapitel (Reibung/Rechner/Ablauf/…) verschwinden hier ohne Eingriff in die
+   Komponenten selbst. */
+.wxp-dd-panel .wxp-chapter { padding: 40px 0 56px; }
+.wxp-dd-panel .wxp-chead .eyebrow { display: none; }
+
+/* ═ v6 — Stimmen kompakt (WaxReviews compact) ═ */
+.wxp-rv-compact .wxp-chead { margin-bottom: 24px; }
+.wxp-rv-compact { padding: 56px 0; }
+.wxp-rv-line { font-size: 13.5px; color: var(--txm); margin: -12px 0 24px; }
+.wxp-rv-line .stars { color: #F5A623; letter-spacing: 1px; margin-right: 8px; }
+.wxp-rv-row { display: grid; grid-template-columns: 1fr; gap: 14px; }
+@media (min-width: 900px) { .wxp-rv-row { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 899px) {
+  .wxp-rv-row { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; margin: 0 -20px; padding: 2px 20px 8px; scrollbar-width: none; }
+  .wxp-rv-row::-webkit-scrollbar { display: none; }
+  .wxp-rv-row > .wxp-rvc { flex: 0 0 85%; scroll-snap-align: start; }
+}
+.wxp-rvc { padding: 20px; display: flex; flex-direction: column; gap: 10px; margin: 0; }
+.wxp-rvc blockquote { font-size: 14px; line-height: 1.55; color: var(--tx2); margin: 0; }
+.wxp-rvc blockquote.clamp { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.wxp-rvc .more { align-self: flex-start; font-size: 12px; font-weight: 600; color: var(--accent-soft); background: none; border: 0; padding: 0; cursor: pointer; }
+.wxp-rv-ebay { font-size: 12.5px; color: var(--txf); margin-top: 20px; }

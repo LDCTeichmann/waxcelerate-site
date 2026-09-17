@@ -17,11 +17,11 @@ import { richContent } from '@/lib/productContent';
 import { useLanguage } from '@/hooks/useLanguage';
 import { AddToCartButton } from '@/components/AddToCartButton';
 import { trackEbayClick, trackProductView, trackSizeSelect, trackFormulaCompare } from '@/lib/analytics';
-import { CartIcon } from '@/components/CartIcon';
 import { GpsrInfo } from '@/components/GpsrInfo';
 import { PriceNote } from '@/components/PriceNote';
 import { ImageLightbox } from '@/components/ImageLightbox';
 import { gsap } from '@/lib/gsap';
+import { Navigation } from '@/sections/navigation';
 import { Footer } from '@/sections/footer';
 import { getEstimatedDeliveryLong, removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
 import { backTarget } from '@/pages/ketten/content';
@@ -31,6 +31,7 @@ import { CompareModal } from '@/sections/CompareModal';
 import { CompareTable } from '@/components/CompareTable';
 import { WaxProductPage } from '@/pages/product/wax/WaxProductPage';
 import { ChainProductPage } from '@/pages/product/chain/ChainProductPage';
+import { PdpCrumbs } from '@/pages/product/PdpCrumbs';
 
 const FADE_MS = 900;
 
@@ -634,56 +635,12 @@ export function ProductDetailPage() {
       <div className="min-h-screen overflow-x-hidden" style={{ background: 'var(--pg)' }}>
 
         {/* ── NAV ── */}
-        <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-500"
-          style={{
-            background: 'var(--nav-bg)',
-            backdropFilter: 'blur(12px)',
-            borderBottom: '1px solid var(--bd)',
-          }}>
-          <div className="max-w-[1440px] mx-auto px-5 sm:px-8 h-14 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-4 min-w-0">
-              <Link to="/" className="flex-shrink-0 flex items-center" aria-label="Waxcelerate — Startseite">
-                {/* Kleiner Logo-Satz statt des 65-KB-PNG, siehe Kommentar in
-                    src/sections/footer.tsx. alt bleibt leer: der Link daneben
-                    traegt bereits ein aria-label. */}
-                <picture>
-                  <source srcSet="/images/logo-dark-160.avif" type="image/avif" />
-                  <source srcSet="/images/logo-dark-160.webp" type="image/webp" />
-                  <img src="/images/logo-dark.png" alt="" width={160} height={160} className="h-8 w-auto" />
-                </picture>
-              </Link>
-              {/* Breadcrumb — mirrors the breadcrumbSchema in <head>, which had
-                  no visible on-page counterpart before this. */}
-              <nav aria-label={de ? 'Brotkrümelnavigation' : 'Breadcrumb'}
-                className="hidden sm:flex items-center gap-1.5 text-[13px] min-w-0">
-                <Link to="/" className="flex-shrink-0 hover:underline transition-colors"
-                  style={{ color: 'var(--txf)' }}>
-                  {de ? 'Start' : 'Home'}
-                </Link>
-                <ChevronRight className="h-3 w-3 flex-shrink-0 opacity-50"
-                  style={{ color: 'var(--txf)' }} />
-                <Link to={backFallback.to} className="flex-shrink-0 hover:underline transition-colors"
-                  style={{ color: 'var(--txf)' }}>
-                  {backFallback.label}
-                </Link>
-                <ChevronRight className="h-3 w-3 flex-shrink-0 opacity-50"
-                  style={{ color: 'var(--txf)' }} />
-                <span className="truncate font-medium" style={{ color: 'var(--tx1)' }}>
-                  {titleText}
-                </span>
-              </nav>
-              {/* Mobile — Ziel-Label statt Richtungslabel (K9: "eine Pille mit
-                  Pfeil und Ziel-Label senkt die Klickhuerde staerker"), 44px
-                  Hoehe statt der vorherigen schmalen Zeile. */}
-              <Link to={backFallback.to} onClick={handleBack}
-                className="sm:hidden inline-flex items-center gap-1.5 min-h-11 pl-1 pr-3 -ml-1 rounded-full text-[13px] font-medium transition-colors flex-shrink-0"
-                style={{ color: 'var(--txm)' }}>
-                <ArrowLeft className="h-4 w-4" aria-hidden /> {backFallback.label}
-              </Link>
-            </div>
-            {checkoutEnabled && <CartIcon />}
-          </div>
-        </header>
+        {/* PDP v6: die echte Website-Navigation (mit Topbar, eigenem CartIcon
+            und Mobilmenue) statt des eigenen Mini-Headers — sie markiert
+            "Produkte" auf /produkt/* bereits aktiv. Brotkruemel und
+            Mobil-Zurueck-Pille sind als PdpCrumbs an den Anfang jedes Heros
+            gewandert (WaxHero, ChainHero, der Accessory-Zweig unten). */}
+        <Navigation />
 
         {/* Mobile-Plan B7d: ohne <main> hatte diese Seite keinen Landmark,
             den Screenreader-Nutzer per "zum Inhalt springen" ansteuern
@@ -694,19 +651,21 @@ export function ProductDetailPage() {
           <WaxProductPage
             product={product} de={de} t={t} titleText={titleText} rc={rc} specs={specsData}
             gallery={[
-              { src: product.image, title: de ? 'Der Block' : 'The block', fact: `${product.weight?.replace('g', ' g')} · ${product.applications} ${de ? 'Wachsgänge' : 'waxings'}` },
-              ...(product.pdpScenes ?? []).map(s => ({ src: s.src, title: de ? s.de : s.en, fact: de ? s.factDe : s.factEn })),
+              { src: product.image, alt: de ? 'Der Block' : 'The block' },
+              ...(product.pdpScenes ?? []).map(s => ({ src: s.src, alt: de ? s.de : s.en })),
             ]}
             sizeSibling={waxSizeSibling} recommendedId={sizeAdvice.recommended?.id} profile={toolProfile} buyRef={buyRef}
+            backFallback={backFallback} onBack={handleBack}
             onOpenImage={i => { setActiveImage(i); setLightboxOpen(true); }}
             onSizeSelect={p => navigate(`/produkt/${p.id}`, { state: { keepScroll: true } })}
           />
         ) : isChain ? (
           <ChainProductPage
             product={product} de={de} t={t} titleText={titleText} rc={rc} profile={toolProfile} buyRef={buyRef}
+            backFallback={backFallback} onBack={handleBack}
             gallery={[
-              { src: product.image, title: de ? 'Die Kette' : 'The chain', fact: `${product.chainSpeed ?? ''} · ${product.chainLinks ?? ''}` },
-              ...(product.pdpScenes ?? []).map(s => ({ src: s.src, title: de ? s.de : s.en, fact: de ? s.factDe : s.factEn })),
+              { src: product.image, alt: de ? 'Die Kette' : 'The chain' },
+              ...(product.pdpScenes ?? []).map(s => ({ src: s.src, alt: de ? s.de : s.en })),
             ]}
             onOpenImage={i => { setActiveImage(i); setLightboxOpen(true); }}
           />
@@ -736,6 +695,7 @@ export function ProductDetailPage() {
             zur Kaufentscheidung gehoert. Alles Erklaerende steht darunter in
             eigenen Sektionen mit echten Ueberschriften. */}
         <section ref={heroRef} className="wx-frame pt-20 lg:pt-28 pb-10 lg:pb-16">
+          <PdpCrumbs de={de} titleText={titleText} backFallback={backFallback} onBack={handleBack} />
           <div className="grid gap-6 lg:gap-14 lg:grid-cols-[minmax(0,1fr)_minmax(340px,400px)] lg:items-start">
 
             {/* ── Galerie ───────────────────────────────────────────────── */}

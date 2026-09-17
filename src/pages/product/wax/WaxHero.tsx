@@ -9,6 +9,8 @@ import { AddToCartButton } from '@/components/AddToCartButton';
 import { PriceNote } from '@/components/PriceNote';
 import { Stars } from '@/components/Stars';
 import type { useLanguage } from '@/hooks/useLanguage';
+import { PdpCrumbs } from '../PdpCrumbs';
+import { PdpGallery } from '../PdpGallery';
 import { Ico } from './Ico';
 
 // ══════════════════════════════════════════════════════════════
@@ -25,25 +27,26 @@ import { Ico } from './Ico';
 // Wachsgang, Kilometer, "weniger als eine Kette") → kaufen → wann ist es da.
 
 export function WaxHero({
-  product, de, t, titleText, gallery, sizeSibling, recommendedId, personalized, rewaxKm, buyRef, onOpenImage, onSizeSelect, onProHint,
+  product, de, t, titleText, gallery, sizeSibling, recommendedId, personalized, rewaxKm, buyRef, backFallback, onBack, onOpenImage, onSizeSelect, onProHint,
 }: {
   product: Product;
   de: boolean;
   t: ReturnType<typeof useLanguage>['t'];
   titleText: string;
-  gallery: { src: string; title: string; fact: string }[];
+  gallery: { src: string; alt: string }[];
   sizeSibling: Product | undefined;
   recommendedId: string | undefined;
   /** Hat der Besucher den Rechner benutzt? Erst dann ist "Passt zu dir" eine Aussage. */
   personalized: boolean;
   rewaxKm: number;
   buyRef: React.RefObject<HTMLDivElement | null>;
+  backFallback: { to: string; label: string };
+  onBack: (e: React.MouseEvent) => void;
   onOpenImage: (i: number) => void;
   onSizeSelect: (p: Product) => void;
   onProHint: () => void;
 }) {
   const [qty, setQty] = useState(1);
-  const [slide, setSlide] = useState(0);
   const dispatch = useDispatchLine(de);
   const isPro = product.variant === 'pro';
   const fmt = (n: number) => n.toLocaleString(de ? 'de-DE' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -79,24 +82,12 @@ export function WaxHero({
 
   return (
     <section className="wxp-hero">
+      <div className="wxp-wrap">
+        <PdpCrumbs de={de} titleText={titleText} backFallback={backFallback} onBack={onBack} />
+      </div>
       <div className="wxp-wrap wxp-hero-grid">
         <div className="min-w-0">
-          <div className="wxp-gallery" aria-label={de ? 'Bilder' : 'Images'}
-            onScroll={e => {
-              const el = e.currentTarget; const w = (el.firstElementChild as HTMLElement | null)?.offsetWidth ?? 1;
-              setSlide(Math.round(el.scrollLeft / (w + 10)));
-            }}>
-            {gallery.slice(0, 4).map((g, i) => (
-              <figure key={g.src} className={`g${i}`}>
-                <img src={g.src} alt={i === 0 ? titleText : g.title} loading={i === 0 ? 'eager' : 'lazy'}
-                  fetchPriority={i === 0 ? 'high' : undefined} decoding="async"
-                  className={i === 0 ? '' : 'photo-neutral'} />
-                <figcaption><b>{g.title}</b><span>{g.fact}</span></figcaption>
-                <button type="button" onClick={() => onOpenImage(i)} aria-label={`${g.title} ${de ? 'vergrößern' : 'enlarge'}`} />
-              </figure>
-            ))}
-          </div>
-          <p className="wxp-gcount" aria-hidden>{slide + 1} / {Math.min(4, gallery.length)}</p>
+          <PdpGallery images={gallery} de={de} onOpen={onOpenImage} />
         </div>
 
         <aside className="wxp-buy" aria-label={de ? 'Kaufen' : 'Buy'}>
