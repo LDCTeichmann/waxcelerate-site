@@ -8,6 +8,8 @@ import { AddToCartButton } from '@/components/AddToCartButton';
 import { PriceNote } from '@/components/PriceNote';
 import { Stars } from '@/components/Stars';
 import type { useLanguage } from '@/hooks/useLanguage';
+import { PdpCrumbs } from '../PdpCrumbs';
+import { PdpGallery } from '../PdpGallery';
 import { Ico } from '../wax/Ico';
 import { chainCopy } from './content';
 
@@ -24,17 +26,18 @@ import { chainCopy } from './content';
 export const connectorOf = (p: Product) => (p.specs?.['Verbinder'] ?? 'Quick-Link').replace(/\s*\(.*\)$/, '');
 
 export function ChainHero({
-  product, de, t, titleText, gallery, buyRef, onOpenImage,
+  product, de, t, titleText, gallery, buyRef, backFallback, onBack, onOpenImage,
 }: {
   product: Product;
   de: boolean;
   t: ReturnType<typeof useLanguage>['t'];
   titleText: string;
-  gallery: { src: string; title: string; fact: string }[];
+  gallery: { src: string; alt: string }[];
   buyRef: React.RefObject<HTMLDivElement | null>;
+  backFallback: { to: string; label: string };
+  onBack: (e: React.MouseEvent) => void;
   onOpenImage: (i: number) => void;
 }) {
-  const [slide, setSlide] = useState(0);
   const [qty, setQty] = useState(1);
   const dispatch = useDispatchLine(de);
   const c = chainCopy(de);
@@ -70,23 +73,12 @@ export function ChainHero({
 
   return (
     <section className="wxp-hero">
+      <div className="wxp-wrap">
+        <PdpCrumbs de={de} titleText={titleText} backFallback={backFallback} onBack={onBack} />
+      </div>
       <div className="wxp-wrap wxp-hero-grid">
         <div className="min-w-0">
-          <div className="wxp-gallery" aria-label={de ? 'Bilder' : 'Images'}
-            onScroll={e => {
-              const el = e.currentTarget; const w = (el.firstElementChild as HTMLElement | null)?.offsetWidth ?? 1;
-              setSlide(Math.round(el.scrollLeft / (w + 10)));
-            }}>
-            {gallery.slice(0, 4).map((g, i) => (
-              <figure key={g.src} className={`g${i}`}>
-                <img src={g.src} alt={i === 0 ? titleText : g.title} loading={i === 0 ? 'eager' : 'lazy'}
-                  fetchPriority={i === 0 ? 'high' : undefined} decoding="async" />
-                <figcaption><b>{g.title}</b><span>{g.fact}</span></figcaption>
-                <button type="button" onClick={() => onOpenImage(i)} aria-label={`${g.title} ${de ? 'vergrößern' : 'enlarge'}`} />
-              </figure>
-            ))}
-          </div>
-          <p className="wxp-gcount" aria-hidden>{slide + 1} / {Math.min(4, gallery.length)}</p>
+          <PdpGallery images={gallery} de={de} onOpen={onOpenImage} />
         </div>
 
         <aside className="wxp-buy" aria-label={de ? 'Kaufen' : 'Buy'}>

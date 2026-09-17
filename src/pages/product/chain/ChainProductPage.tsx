@@ -6,60 +6,76 @@ import { ProofStrip, ChangeForYou } from '../wax/ProofAndChange';
 import { FrictionLens } from '../wax/FrictionLens';
 import { WaxCalculator } from '../wax/WaxCalculator';
 import { WaxReviews, WaxFaq, pickProofQuote } from '../wax/WaxSections';
+import { DeepDive, type DeepDiveItem } from '../DeepDive';
 import { ChainHero } from './ChainHero';
 import { ChainProcess, ChainFit, ChainData, ChainAfter, ChainClosing } from './ChainSections';
 import '../wax/wax.css';
 import './chain.css';
 
 // ══════════════════════════════════════════════════════════════
-// KETTEN-PRODUKTSEITE v1 (15.09.2026)
+// KETTEN-PRODUKTSEITE v6 (17.09.2026)
 // ══════════════════════════════════════════════════════════════
-// Uebertraegt die Wachsseite v5 auf die vorgewachsten Ketten. Alles, was
-// produktneutral ist (Beweis, "Was sich aendert", Reibungs-Lupe mit Zahnflanke,
-// Rechner, Stimmen, Fragen), kommt unveraendert von dort. Neu sind die Teile,
-// die nur eine Kette hat: was im Karton liegt, was wir mit ihr machen, ob sie
-// ans eigene Rad passt, Einbau und was nach dem ersten Film kommt.
-//
-// Reihenfolge: Kaufbox → Beweis → was sich aendert → warum → was wir machen →
-// rechnet es sich → passt sie → Stimmen → Daten und Einbau → danach → Fragen.
+// Uebertraegt die Wachsseite v6 auf die vorgewachsten Ketten: Kaufbox →
+// Beweis → was sich aendert → passt sie → Daten/Einbau → Stimmen, dann
+// zugeklappt im "Mehr wissen"-Deck (Reibung, was wir machen, Rechner falls
+// vorhanden, nach dem ersten Film) → Fragen → Abschluss.
 //
 // Der Rechner faellt bei 9-fach weg: fuer 8–10-fach sind Ketten- und
 // Kassettenpreise noch offen (PROJECT.md), eine Ersparnis ohne Kassettenbetrag
-// waere geschoent. Die Kapitelnummern zaehlen deshalb mit.
+// waere geschoent.
 export function ChainProductPage(props: {
   product: Product;
   de: boolean;
   t: ReturnType<typeof useLanguage>['t'];
   titleText: string;
   rc: RichContent | undefined;
-  gallery: { src: string; title: string; fact: string }[];
+  gallery: { src: string; alt: string }[];
   profile: ToolProfileState;
   buyRef: React.RefObject<HTMLDivElement | null>;
+  backFallback: { to: string; label: string };
+  onBack: (e: React.MouseEvent) => void;
   onOpenImage: (i: number) => void;
 }) {
   const { product, de, t, titleText, rc, profile } = props;
   const withCalc = product.chainSpeed === '11-fach' || product.chainSpeed === '12-fach';
-  let ch = 2;
-  const next = () => `${de ? 'Kapitel' : 'Chapter'} ${String(++ch).padStart(2, '0')}`;
-  const nProcess = next();
-  const nCalc = withCalc ? next() : '';
-  const nFit = next();
-  const nReviews = next();
-  const nData = next();
+
+  const deepDiveItems: DeepDiveItem[] = [
+    {
+      id: 'friction', icon: 'gear',
+      title: de ? 'Wo die Reibung sitzt' : 'Where the friction sits',
+      teaser: de ? 'Warum ein fester Film besser schützt als Öl.' : 'Why a solid film protects better than oil.',
+      render: () => <FrictionLens de={de} />,
+    },
+    {
+      id: 'process', icon: 'drop',
+      title: de ? 'Was wir damit machen' : 'What we do with it',
+      teaser: de ? 'Ein Wachsbad, Schritt für Schritt.' : 'A wax bath, step by step.',
+      render: () => <ChainProcess de={de} n="" />,
+    },
+    ...(withCalc ? [{
+      id: 'calc', icon: 'road' as const,
+      title: de ? 'Rechnet sich das?' : 'Does it pay off?',
+      teaser: de ? 'Deine Ersparnis mit deinem Fahrprofil.' : 'Your savings with your riding profile.',
+      render: () => <WaxCalculator product={product} profile={profile} de={de} mode="chain" chapter="" />,
+    }] : []),
+    {
+      id: 'after', icon: 'chain',
+      title: de ? 'Nach dem ersten Film' : 'After the first film',
+      teaser: de ? 'Wie es weitergeht, wenn das Wachs nachlässt.' : 'What happens once the wax wears off.',
+      render: () => <ChainAfter de={de} />,
+    },
+  ];
 
   return (
     <div className="wxp">
       <ChainHero product={product} de={de} t={t} titleText={titleText} gallery={props.gallery}
-        buyRef={props.buyRef} onOpenImage={props.onOpenImage} />
+        buyRef={props.buyRef} backFallback={props.backFallback} onBack={props.onBack} onOpenImage={props.onOpenImage} />
       <ProofStrip de={de} quote={pickProofQuote(product.id, true)} />
       <ChangeForYou product={product} de={de} t={t} rc={rc} />
-      <FrictionLens de={de} />
-      <ChainProcess de={de} n={nProcess} />
-      {withCalc && <WaxCalculator product={product} profile={profile} de={de} mode="chain" chapter={nCalc} />}
-      <ChainFit product={product} rc={rc} de={de} n={nFit} />
-      <WaxReviews productId={product.id} de={de} chapter={nReviews} chain />
-      <ChainData product={product} rc={rc} de={de} n={nData} />
-      <ChainAfter de={de} />
+      <ChainFit product={product} rc={rc} de={de} n={de ? 'Kapitel 02' : 'Chapter 02'} />
+      <ChainData product={product} rc={rc} de={de} n={de ? 'Kapitel 03' : 'Chapter 03'} />
+      <WaxReviews productId={product.id} de={de} chapter={de ? 'Kapitel 04' : 'Chapter 04'} chain compact />
+      <DeepDive de={de} items={deepDiveItems} />
       <WaxFaq de={de} t={t} kind="chain" />
       <ChainClosing product={product} de={de} titleText={titleText} />
     </div>
