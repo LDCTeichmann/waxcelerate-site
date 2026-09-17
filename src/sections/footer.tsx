@@ -44,8 +44,7 @@ export function Footer() {
     <footer style={{ background: 'var(--sf3)', borderTop: '1px solid var(--bd)' }}>
 
       {/* Main grid */}
-      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 pt-14 pb-10">
-        <div className="max-w-6xl mx-auto">
+      <div className="wx-frame pt-14 pb-10">
           <div className="grid grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr] gap-x-8 gap-y-10">
 
             {/* Brand — full width on mobile, 2/5 on desktop */}
@@ -91,13 +90,10 @@ export function Footer() {
                   { href: '#produkte', label: t.nav.products },
                   { href: '/kette-wachsen-lassen', label: t.nav.rewax, route: true },
                   { href: '/starter-set', label: de ? 'Starter-Set' : 'Starter Set', route: true },
-                  { href: '/rechner',  label: t.nav.tools, route: true },
-                  { href: 'https://www.ebay.de/usr/waxcelerate', label: 'eBay', external: true },
+                  { href: '/anleitung#rechner', label: t.nav.tools, route: true },
                 ].map((item, i) => (
                   <li key={i}>
-                    {item.external ? (
-                      <a href={item.href} target="_blank" rel="noopener noreferrer" onClick={() => trackShopClick('footer_shop_nav')} className={linkClass}>{item.label}</a>
-                    ) : item.route ? (
+                    {item.route ? (
                       <Link to={item.href} className={linkClass}>{item.label}</Link>
                     ) : (
                       <a href={hrefFor(item.href)} onClick={(e) => { e.preventDefault(); scrollToSection(item.href); }} className={linkClass}>{item.label}</a>
@@ -113,11 +109,11 @@ export function Footer() {
               <ul className="space-y-0.5">
                 {[
                   { to: '/anleitung', label: t.nav.guides },
-                  { to: '/faq',       label: t.nav.faq    },
-                  { to: '/ueber-uns', label: t.nav.about  },
+                  { to: '/blog#fragen', label: t.nav.faq    },
+                  { to: '/kontakt#ueber-mich', label: t.nav.about  },
                   { to: '/kontakt',   label: t.nav.contact },
                   { to: '/wissenschaft', label: de ? 'Wissenschaft' : 'Science' },
-                  { to: '/blog', label: de ? 'Ratgeber & Anleitungen' : 'Guides & Articles' },
+                  { to: '/blog', label: t.nav.blogFaq },
                 ].map((item) => (
                   <li key={item.to}>
                     <Link to={item.to} className={linkClass}>{item.label}</Link>
@@ -145,17 +141,14 @@ export function Footer() {
               </ul>
             </div>
           </div>
-        </div>
       </div>
 
       {/* Bottom bar */}
       <div style={{ borderTop: '1px solid var(--bd)' }}>
-        <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-5">
-          <div className="max-w-6xl mx-auto flex justify-center">
-            <p className="text-meta tabular-nums" style={{ color: 'var(--txff)' }}>
-              © {currentYear} Waxcelerate · Stuttgart, DE
-            </p>
-          </div>
+        <div className="wx-frame py-5 flex justify-center">
+          <p className="text-meta tabular-nums" style={{ color: 'var(--txff)' }}>
+            © {currentYear} Waxcelerate · Stuttgart, DE
+          </p>
         </div>
       </div>
     </footer>

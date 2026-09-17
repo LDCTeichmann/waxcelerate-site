@@ -113,7 +113,7 @@ export function SizingInstrument({ product, profile, accentColor }: {
 
   return (
     <section id="instrument" style={{ background: 'var(--pg)' }}>
-      <div className="max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-10 pb-12 lg:pb-16">
+      <div className="wx-frame pb-12 lg:pb-16">
         <InstrumentFrame eyebrow={de ? 'Für dein Fahren gerechnet' : 'Calculated for your riding'}>
           <h2 className="font-display text-[20px] sm:text-[24px] font-bold tracking-[-0.02em] mb-1"
             style={{ color: 'var(--tx1)' }}>

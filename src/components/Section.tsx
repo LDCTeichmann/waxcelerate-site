@@ -22,7 +22,7 @@ export const Section = forwardRef<HTMLElement, SectionProps>(
     // at that width.
     return (
       <section id={id} ref={ref} className={`relative py-14 sm:py-28 ${className}`} style={style}>
-        <div className="mx-auto w-full max-w-7xl px-6 sm:px-10 lg:px-14 xl:px-20">
+        <div className="wx-frame">
           {children}
         </div>
       </section>

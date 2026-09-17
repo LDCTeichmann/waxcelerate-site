@@ -22,7 +22,7 @@ import { ReadMoreLink } from '@/sections/science/ReadMoreLink';
 import { ProofInstrument } from '@/sections/science/ProofInstrument';
 import { CalcTrace } from '@/components/tools/CalcTrace';
 
-const W = 'max-w-4xl mx-auto px-4 sm:px-6 lg:px-8';
+const W = 'wx-frame';
 
 // ─── Opening hero — the page's actual "hero" moment: headline stats + a large
 // cassette rendering. Deliberately sober, not a dark photo stage — the page's

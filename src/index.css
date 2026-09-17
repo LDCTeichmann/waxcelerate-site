@@ -1322,6 +1322,10 @@ section[id] {
   --topbar-bg: #0b0b0d;
   --topbar-fg: #FFFFFF;
   --topbar-fg-rgb: 255, 255, 255;
+  /* Seitenordnung 09/2026: eine Inhaltsbreite fuer alle Seiten, vorher
+     sprang sie je Seite zwischen 672 und 1440 px. Wert = der bisherige
+     .wxp-wrap-Wert (wax.css), der liest jetzt dasselbe Token. */
+  --frame-w: 1180px;
 }
 @media (min-width: 1024px) { :root { --topbar-h: 36px; } }
 .noir {
@@ -1338,6 +1342,12 @@ section[id] {
   --topbar-fg: #111318;
   --topbar-fg-rgb: 17, 19, 24;
 }
+
+/* Gemeinsamer Rahmen fuer Seiteninhalt (Seitenordnung 09/2026). Nur die
+   Aussenkante: schmalere Lesemasse (max-w-2xl/3xl, ...) duerfen innerhalb
+   weiter verwendet werden, aber ohne eigenes mx-auto, siehe Section.tsx. */
+.wx-frame { max-width: var(--frame-w); margin-inline: auto; padding-inline: 20px; }
+@media (min-width: 640px) { .wx-frame { padding-inline: 32px; } }
 
 /* ── Kopfbereich: Topbar, Pillen-Navigation, Klappen (yoeleo-Muster) ─────── */
 /* Die Topbar sitzt im fixen Header. body bekommt ihre Hoehe als Abstand,

@@ -42,7 +42,7 @@ export function ProcessAndPaths({ accentColor }: { accentColor: string }) {
 
   return (
     <section style={{ background: 'var(--pg)' }}>
-      <div className="max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-10 pb-12 lg:pb-16">
+      <div className="wx-frame pb-12 lg:pb-16">
 
         {/* ── So laeuft's ab ──────────────────────────────────────────────── */}
         {steps.length > 0 && (

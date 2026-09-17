@@ -248,7 +248,7 @@ export function BlogIndexPage() {
         articleCount={articles.length}
       />
 
-      <main id="main-content" className="max-w-6xl mx-auto px-4 sm:px-6 py-14 sm:py-20">
+      <main id="main-content" className="wx-frame py-14 sm:py-20">
         {/* Trefferzahl fuer Screenreader, beim Tippen angesagt. */}
         <p className="sr-only" role="status" aria-live="polite">
           {isSearching ? `${hits.length} Treffer${answer ? ' und eine direkte Antwort' : ''}` : ''}
@@ -341,7 +341,7 @@ export function BlogIndexPage() {
         </div>
       </main>
 
-      <footer className="max-w-6xl mx-auto px-4 sm:px-6 py-12 text-center" style={{ borderTop: '1px solid var(--bd2)' }}>
+      <footer className="wx-frame py-12 text-center" style={{ borderTop: '1px solid var(--bd2)' }}>
         <Link to="/" className="inline-flex items-center gap-2 text-[13px] text-wx-txm transition-opacity hover:opacity-70">
           <ArrowLeft className="h-4 w-4" />
           Zurück zur Startseite

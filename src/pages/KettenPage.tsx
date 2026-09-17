@@ -148,7 +148,7 @@ export function KettenPage() {
         <Navigation />
 
         <main id="main-content" className="pt-28 pb-24">
-          <div className="mx-auto w-full max-w-[1440px] px-5 sm:px-8">
+          <div className="wx-frame">
             {/* Rueckweg als Pille statt blasser Textzeile (Luca 14.09.2026:
                 "geht unter"). Der Pfeil stupst beim Laden zweimal, siehe
                 .back-pill in index.css. */}

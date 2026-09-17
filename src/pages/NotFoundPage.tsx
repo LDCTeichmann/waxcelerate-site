@@ -13,13 +13,14 @@ export function NotFoundPage() {
   const de = lang === 'de';
   const navigate = useNavigate();
 
-  // #produkte and #faq only exist on the homepage, which isn't mounted at
-  // this URL — a plain <Link to="/#produkte"> would land on "/" without
-  // scrolling. Route home with state instead, same as Navigation/Footer;
+  // #produkte only exists on the homepage, which isn't mounted at this URL —
+  // a plain <Link to="/#produkte"> would land on "/" without scrolling.
+  // Route home with state instead, same as Navigation/Footer;
   // PendingAnchorScroll (rendered on the homepage) picks it up from there.
+  // FAQ lebt seit der Seitenordnung 09/2026 auf /blog#fragen, einer echten
+  // Route, deshalb dafuer ein normaler <Link> statt des scrollTo-Umwegs.
   const anchorLinks: { href: string; label: string }[] = [
     { href: '#produkte', label: de ? 'Produkte' : 'Products' },
-    { href: '#faq', label: 'FAQ' },
   ];
 
   return (
@@ -30,7 +31,7 @@ export function NotFoundPage() {
       </Helmet>
       <Navigation />
       <main id="main-content" className="min-h-[70vh] flex items-center" style={{ background: 'var(--pg)' }}>
-        <div className="w-full px-6 sm:px-10 lg:px-14 xl:px-20 py-28">
+        <div className="wx-frame py-28">
           <div className="max-w-xl">
             <p className="eyebrow mb-3">404</p>
             <h1 className="section-title mb-4">
@@ -52,6 +53,11 @@ export function NotFoundPage() {
                   {l.label} <ArrowRight className="h-3.5 w-3.5" />
                 </button>
               ))}
+              <Link to="/blog#fragen"
+                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-[13px] font-medium transition-all hover:opacity-85"
+                style={{ border: '1px solid var(--bd)', background: 'var(--sf2)', color: 'var(--tx2)' }}>
+                FAQ <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
               <Link to="/blog"
                 className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-[13px] font-medium transition-all hover:opacity-85"
                 style={{ border: '1px solid var(--bd)', background: 'var(--sf2)', color: 'var(--tx2)' }}>

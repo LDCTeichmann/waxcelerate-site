@@ -11,67 +11,34 @@ import { checkoutEnabled } from '@/lib/data';
 import { useActiveSection } from '@/hooks/useActiveSection';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 
-// Reihenfolge = Scroll-Reihenfolge der Sections auf der Seite.
-// `route: true` → eigene Seite (React-Router-Navigation statt Scroll-Anchor).
-// „Produkte" entfällt im Desktop-Header — der „Jetzt bestellen"-Button (→ #produkte)
-// übernimmt diese Rolle, ohne sich zu doppeln. Mobil bleibt Produkte erhalten.
+// Reihenfolge = Menuordnung aus docs/plaene/SEITENORDNUNG_PLAN.md (09/2026):
+// Warum Wachs -> Produkte -> Kette wachsen lassen -> Anleitungen & Rechner ->
+// Blog & FAQ -> Wissenschaft -> Kontakt. `route: true` -> eigene Seite
+// (React-Router-Navigation statt Scroll-Anchor). „Über mich" und die
+// vorherige "Ratgeber"-Klappengruppe (Tools/Anleitungen/FAQ/Blog einzeln)
+// entfallen als eigene Menuepunkte: Anleitungen+Tools leben jetzt auf
+// /anleitung, FAQ+Blog auf /blog, Über mich auf /kontakt#ueber-mich.
+// Mobile nutzt dieselbe flache Liste, Desktop dieselbe Reihenfolge als Pillen.
 const navItems = [
   { href: '#warum-wachs', key: 'whyWax'   },
   { href: '#produkte',    key: 'productsServices' },
-  { href: '/wissenschaft', key: 'science', route: true },
   { href: '/kette-wachsen-lassen', key: 'rewax',   route: true },
-  // Seit September 2026 eigene Seiten statt der Startseiten-Anker
-  // (#ueber-mich, #anleitungen, #faq, #kontakt): die Sektionen bleiben auf der
-  // Startseite, aber Navigation, Footer und Schema zeigen auf die kanonischen
-  // Adressen. useActiveSection/handleNav/hrefFor folgen dem route-Flag von
-  // selbst.
-  { href: '/ueber-uns',   key: 'about',   route: true },
-  { href: '/rechner',     key: 'tools',   route: true },
-  { href: '/anleitung',   key: 'guides',  route: true },
-  { href: '/faq',         key: 'faq',     route: true },
-  { href: '/blog',        key: 'blog',    route: true },
+  { href: '/anleitung',   key: 'guidesTools', route: true },
+  { href: '/blog',        key: 'blogFaq', route: true },
+  { href: '/wissenschaft', key: 'science', route: true },
   { href: '/kontakt',     key: 'contact', route: true },
 ];
 
-// Mobile keeps the full flat list — a vertical scroll list has room for ten
-// items; a single-row desktop bar does not.
 const mobileNavItems = navItems;
 
-// Desktop-Leiste: sechs Punkte, davon einer eine benannte Gruppe.
-//
-// Dritter Anlauf, die beiden vorherigen sind aus gegenteiligen Gruenden
-// gescheitert und beide Gruende sind derselbe Fehler:
-//   1. Zehn Punkte flach in einer Reihe -> Umbruch auf zwei Zeilen.
-//   2. Sechs Punkte + "Mehr"-Klappe -> sah aus wie ein leeres Abwurfmenue:
-//      vier duenne Textzeilen in einer sonst leeren weissen Box.
-//   3. Sechs Punkte, Rest nur im Footer -> nicht mehr auffindbar; man stiess
-//      nur zufaellig beim Scrollen darauf (Lucas Rueckmeldung).
-// Der Fehler in 2 und 3 war nicht die Klappe an sich, sondern das Label:
-// "Mehr" ist ein Sammelbegriff ohne Bedeutung — er koennte alles enthalten
-// und gibt keinen Hinweis, was dahinter liegt. Nielsen Norman zu genau
-// diesem Fall: benennende Labels schlagen generische Sammelbegriffe, und die
-// Unterpunkte brauchen eigenen Kontext, statt sich auf den Elternpunkt zu
-// verlassen (auch fuer Screenreader, die nur den Linktext vorlesen).
-// Deshalb jetzt "Ratgeber" statt "Mehr", und jeder Eintrag mit einer Zeile,
-// die sagt, was er ist. Das ist ein Ziel mit Inhaltsversprechen, kein
-// Restehaufen — und Tools/Anleitungen/FAQ/Blog sind wieder ueber die
-// Navigation erreichbar, ohne die Leiste zu sprengen.
 const primaryNavItems = [
   { href: '#warum-wachs', key: 'whyWax'   },
   { href: '#produkte',    key: 'products' },
-  { href: '/wissenschaft', key: 'science', route: true },
   { href: '/kette-wachsen-lassen', key: 'rewax',   route: true },
-  { href: '/ueber-uns',   key: 'about',   route: true },
+  { href: '/anleitung',   key: 'guidesTools', route: true },
+  { href: '/blog',        key: 'blogFaq', route: true },
+  { href: '/wissenschaft', key: 'science', route: true },
   { href: '/kontakt',     key: 'contact', route: true },
-] as const;
-
-// Inhalt der "Ratgeber"-Gruppe. `desc` ist Pflicht, nicht Deko — ohne die
-// Zeile ist die Klappe wieder die Liste aus Anlauf 2.
-const resourceNavItems = [
-  { href: '/rechner',     key: 'tools',  desc: 'toolsDesc', route: true },
-  { href: '/anleitung',   key: 'guides', desc: 'guidesDesc', route: true },
-  { href: '/faq',         key: 'faq',    desc: 'faqDesc',    route: true },
-  { href: '/blog',        key: 'blog',   desc: 'blogDesc', route: true },
 ] as const;
 
 export function Navigation() {
@@ -111,8 +78,10 @@ export function Navigation() {
   const heroTransparent = onHome && !scrolled;
   const isActive = (item: { href: string; route?: boolean }) =>
     item.route ? location.pathname === item.href : activeSection === item.href;
-  const resourcesActive = resourceNavItems.some(isActive);
   const productsActive = isActive({ href: '#produkte' }) || /^\/(ketten|starter-set|produkt\/|zubehoer\/)/.test(location.pathname);
+  // /rechner/:slug bleiben eigene Seiten (siehe SEITENORDNUNG_PLAN.md, Chat 3),
+  // sollen aber weiter unter "Anleitungen & Rechner" aktiv erscheinen.
+  const guidesToolsActive = isActive({ href: '/anleitung', route: true }) || location.pathname.startsWith('/rechner');
 
   useBodyScrollLock(isMobileMenuOpen);
 
@@ -178,8 +147,8 @@ export function Navigation() {
   };
 
   // Klappen-Inhalte. Nur Punkte mit echten Unterzielen bekommen eine Klappe;
-  // Wissenschaft, Kette wachsen lassen, Ueber mich und Kontakt sind je eine
-  // Seite, eine Klappe dort waere Deko.
+  // Kette wachsen lassen, Anleitungen & Rechner, Blog & FAQ, Wissenschaft und
+  // Kontakt sind je eine Seite, eine Klappe dort waere Deko.
   const h = t.header;
   const entry = (key: string, label: string, desc: string | undefined, item: { href: string; route?: boolean }): NavMenuEntry => ({
     key, label, desc, href: hrefFor(item), active: isActive(item),
@@ -189,18 +158,17 @@ export function Navigation() {
     whyWax: [
       entry('why', h.menuWhy, h.menuWhyDesc, { href: '#warum-wachs' }),
       entry('reviews', h.menuReviews, h.menuReviewsDesc, { href: '#bewertungen' }),
-      entry('origin', h.menuOrigin, h.menuOriginDesc, { href: '#herkunft' }),
     ],
     products: [
+      // "Kettenwachs" zeigt vorerst auf #produkte; Chat 2 stellt den Link
+      // auf die neue Seite /kettenwachs um, sobald sie existiert.
+      entry('wax', h.menuWaxCategory, h.menuWaxCategoryDesc, { href: '#produkte' }),
       entry('classic', h.menuClassic, h.menuClassicDesc, { href: '/produkt/wax-500', route: true }),
       entry('pro', h.menuPro, h.menuProDesc, { href: '/produkt/wax-500-mos2', route: true }),
-      entry('chains', h.menuChains, h.menuChainsDesc, { href: '/ketten', route: true }),
       entry('set', h.menuSet, h.menuSetDesc, { href: '/starter-set', route: true }),
-      entry('all', h.menuAllProducts, undefined, { href: '#produkte' }),
+      entry('chains', h.menuChains, h.menuChainsDesc, { href: '/ketten', route: true }),
     ],
   };
-  const resourceEntries = resourceNavItems.map(item =>
-    entry(item.key, t.nav[item.key], t.nav[item.desc], item));
 
   return (
     <>
@@ -278,12 +246,11 @@ export function Navigation() {
                     id={`nav-${item.key}`}
                     label={t.nav[item.key]}
                     href={hrefFor(item)}
-                    active={item.key === 'products' ? productsActive : isActive(item)}
+                    active={item.key === 'products' ? productsActive : item.key === 'guidesTools' ? guidesToolsActive : isActive(item)}
                     onNavigate={(e) => { e.preventDefault(); handleNav(item); }}
                     entries={menus[item.key]}
                   />
                 ))}
-                <NavItem id="nav-resources" label={t.nav.resources} active={resourcesActive} entries={resourceEntries} />
               </ul>
             </nav>
 

@@ -25,7 +25,7 @@ import { ToolCalculator, ToolIcon } from '@/components/tools/registry';
 import { AssumptionsDisclosure } from '@/components/tools/AssumptionsDisclosure';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 
-const W = 'mx-auto w-full max-w-5xl px-6 sm:px-10 lg:px-14';
+const W = 'wx-frame';
 const BASE = 'https://waxcelerate.de';
 
 /**

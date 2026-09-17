@@ -60,7 +60,7 @@ export function ProductFaq({ category }: { category: 'wax' | 'chain' | 'bundle' 
 
   return (
     <section style={{ background: 'var(--pg)' }}>
-      <div className="max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-10 pb-12 lg:pb-16">
+      <div className="wx-frame pb-12 lg:pb-16">
         <div className="pt-12 lg:pt-16" style={{ borderTop: '1px solid var(--bd)' }}>
           <p className="eyebrow mb-2">{de ? 'Aus der Praxis' : 'From practice'}</p>
           <h2 className="font-display text-[22px] sm:text-[28px] font-bold tracking-[-0.025em] mb-8"

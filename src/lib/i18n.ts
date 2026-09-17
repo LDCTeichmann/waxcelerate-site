@@ -13,27 +13,18 @@ export const translations = {
       rewax: 'Kette wachsen lassen',
       tools: 'Tools',
       guides: 'Anleitungen',
+      // Seitenordnung 09/2026: "Anleitungen" und "Tools" leben jetzt auf
+      // einer Seite (/anleitung), "FAQ" und "Blog" auf einer weiteren
+      // (/blog). Die alten Einzel-Keys bleiben fuer den Footer bestehen
+      // (eigene Zeilen dort), die Hauptnavigation nutzt nur noch die zwei
+      // zusammengefassten Punkte.
+      guidesTools: 'Anleitungen & Rechner',
       faq: 'FAQ',
       about: 'Über mich',
       blog: 'Blog',
+      blogFaq: 'Blog & FAQ',
       contact: 'Kontakt',
       ebayShop: 'eBay-Shop',
-      // Sammelpunkt fuer Tools/Anleitungen/FAQ/Blog. Bewusst NICHT "Mehr":
-      // ein Sammellabel ohne eigene Bedeutung koennte alles enthalten und
-      // gibt keinen Hinweis darauf, was dahinter liegt (Nielsen Norman zu
-      // Navigationslabels: generische Sammelbegriffe wie "Mehr"/"Ressourcen"
-      // schneiden schlechter ab als benennende Labels, und die Unterpunkte
-      // brauchen eigenen Kontext statt sich auf den Elternpunkt zu verlassen).
-      // "Ratgeber" sagt, was drin ist, und ist zusaetzlich der Begriff, unter
-      // dem im deutschen Markt danach gesucht wird.
-      resources: 'Ratgeber',
-      // Je ein Satz Kontext pro Eintrag — ohne den ist die Klappe nur eine
-      // Liste aus vier duennen Textzeilen, und genau daran ist die erste
-      // Fassung gescheitert.
-      toolsDesc: 'Verschleiß, Kettenlänge, Intervall und Kosten berechnen',
-      guidesDesc: 'Schritt für Schritt vom Öl zum Wachs',
-      faqDesc: 'Die 20 häufigsten Fragen, kurz beantwortet',
-      blogDesc: 'Die Werkstatt — Technik-Artikel und Tests',
     },
 
     // Kopfbereich: Topbar (schwarze Leiste ueber der Navigation) und die
@@ -66,13 +57,14 @@ export const translations = {
       menuChainsDesc: 'Aufziehen und losfahren, 9-, 11- und 12-fach',
       menuSet: 'Starter-Set',
       menuSetDesc: 'Wachs, Zange und Draht in einer Sendung',
-      menuAllProducts: 'Alle Produkte',
+      // Seitenordnung 09/2026: fuehrt vorerst zu #produkte; Chat 2 stellt
+      // den Link auf die neue Seite /kettenwachs um, sobald sie existiert.
+      menuWaxCategory: 'Kettenwachs',
+      menuWaxCategoryDesc: 'Classic, Pro oder als Set',
       menuWhy: 'Öl gegen Wachs',
       menuWhyDesc: 'Was sich an deinem Antrieb ändert',
       menuReviews: 'Bewertungen',
       menuReviewsDesc: 'Was Käufer über Waxcelerate sagen',
-      menuOrigin: 'Herkunft',
-      menuOriginDesc: 'Gegossen und gewachst in Stuttgart',
     },
 
     pages: {
@@ -888,16 +880,13 @@ export const translations = {
       rewax: 'Rewax',
       tools: 'Tools',
       guides: 'Guides',
+      guidesTools: 'Guides & Tools',
       faq: 'FAQ',
       about: 'About',
       blog: 'Blog',
+      blogFaq: 'Blog & FAQ',
       contact: 'Contact',
       ebayShop: 'eBay Shop',
-      resources: 'Guides & tools',
-      toolsDesc: 'Wear, chain length, interval and cost calculators',
-      guidesDesc: 'Step by step from oil to wax',
-      faqDesc: 'The 20 most common questions, answered briefly',
-      blogDesc: 'The Workshop — technical articles and tests',
     },
 
     header: {
@@ -924,13 +913,12 @@ export const translations = {
       menuChainsDesc: 'Fit it and ride, 9-, 11- and 12-speed',
       menuSet: 'Starter set',
       menuSetDesc: 'Wax, pliers and wire in one parcel',
-      menuAllProducts: 'All products',
+      menuWaxCategory: 'Chain wax',
+      menuWaxCategoryDesc: 'Classic, Pro, or as a set',
       menuWhy: 'Oil vs. wax',
       menuWhyDesc: 'What changes on your drivetrain',
       menuReviews: 'Reviews',
       menuReviewsDesc: 'What buyers say about Waxcelerate',
-      menuOrigin: 'Origin',
-      menuOriginDesc: 'Cast and waxed in Stuttgart',
     },
 
     pages: {

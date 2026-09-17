@@ -22,7 +22,7 @@ import { removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
 
 const BASE = 'https://waxcelerate.de';
 const CANONICAL = `${BASE}/ueber-uns`;
-const W = 'mx-auto w-full max-w-3xl px-6 sm:px-10';
+const W = 'wx-frame';
 
 export function UeberUnsPage() {
   const { t, lang } = useLanguage();

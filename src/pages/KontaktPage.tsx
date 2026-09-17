@@ -18,7 +18,7 @@ import { removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
 
 const BASE = 'https://waxcelerate.de';
 const CANONICAL = `${BASE}/kontakt`;
-const W = 'mx-auto w-full max-w-3xl px-6 sm:px-10';
+const W = 'wx-frame';
 
 const WA_URL = 'https://wa.me/4915751957470';
 const MAIL = 'waxcelerate@gmail.com';

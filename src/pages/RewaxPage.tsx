@@ -118,7 +118,7 @@ function waxedFromLocation(): Date | null {
   return parseWaxedStamp(m ? m[1] : null);
 }
 
-const W = 'mx-auto w-full max-w-5xl px-6 sm:px-10 lg:px-14';
+const W = 'wx-frame';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_RE = /^[+\d][\d\s()/-]{5,}$/;

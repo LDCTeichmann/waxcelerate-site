@@ -735,7 +735,7 @@ export function ProductDetailPage() {
             Kaufblock beim Scrollen mit. Der Kaufblock traegt nur noch, was
             zur Kaufentscheidung gehoert. Alles Erklaerende steht darunter in
             eigenen Sektionen mit echten Ueberschriften. */}
-        <section ref={heroRef} className="max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-10 pt-20 lg:pt-28 pb-10 lg:pb-16">
+        <section ref={heroRef} className="wx-frame pt-20 lg:pt-28 pb-10 lg:pb-16">
           <div className="grid gap-6 lg:gap-14 lg:grid-cols-[minmax(0,1fr)_minmax(340px,400px)] lg:items-start">
 
             {/* ── Galerie ───────────────────────────────────────────────── */}
@@ -1103,7 +1103,7 @@ export function ProductDetailPage() {
             "grosse Serifzahl, sparsam eingesetzt". */}
         {rc?.stats && rc.stats.length > 0 && (
           <section style={{ background: 'var(--pg)' }}>
-            <div className="max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-10 pb-12 lg:pb-16">
+            <div className="wx-frame pb-12 lg:pb-16">
               <h2 className="sr-only">{de ? 'Kennzahlen' : 'Key figures'}</h2>
               <dl className="grid grid-cols-2 lg:grid-cols-4" style={{ borderTop: '1px solid var(--bd)' }}>
                 {rc.stats.map((stat, i) => (

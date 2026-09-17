@@ -21,7 +21,7 @@ import { Navigation } from '@/sections/navigation';
 import { Footer } from '@/sections/footer';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 
-const W = 'mx-auto w-full max-w-5xl px-6 sm:px-10 lg:px-14';
+const W = 'wx-frame';
 
 function ClimateBlock({ city, de }: { city: RewaxCity; de: boolean }) {
   const [km, setKm] = useState(3000);

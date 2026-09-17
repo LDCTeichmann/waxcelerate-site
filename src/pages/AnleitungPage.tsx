@@ -18,7 +18,7 @@ import { removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
 
 const BASE = 'https://waxcelerate.de';
 const CANONICAL = `${BASE}/anleitung`;
-const W = 'mx-auto w-full max-w-3xl px-6 sm:px-10';
+const W = 'wx-frame';
 
 export function AnleitungPage() {
   const { t, lang } = useLanguage();

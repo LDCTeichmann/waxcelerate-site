@@ -14,7 +14,7 @@ import { CONTACT } from '@/lib/data';
 // ruhig ist. Hoehe = --topbar-h (index.css), body traegt dieselbe Hoehe als
 // padding-top, also verdeckt sie oben nie Inhalt.
 
-const AUTOPLAY_MS = 5000;
+const AUTOPLAY_MS = 8000;
 
 function InstagramIcon({ className }: { className?: string }) {
   // Inline statt lucide: Marken-Icons sind dort veraltet und koennen

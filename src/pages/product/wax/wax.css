@@ -28,7 +28,7 @@
   --wxp-shadow-hi: 0 2px 4px rgba(0,0,0,.35), 0 18px 40px rgba(0,0,0,.45);
 }
 .wxp h2, .wxp h3 { text-wrap: balance; }
-.wxp-wrap { max-width: 1180px; margin: 0 auto; padding: 0 20px; }
+.wxp-wrap { max-width: var(--frame-w, 1180px); margin: 0 auto; padding: 0 20px; }
 @media (min-width: 640px) { .wxp-wrap { padding: 0 32px; } }
 .wxp-card { background: var(--sf); border: 1px solid var(--sf3); border-radius: 14px; box-shadow: var(--wxp-shadow); }
 .wxp-ico { width: 18px; height: 18px; flex-shrink: 0; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
