@@ -65,6 +65,8 @@ const staticPages = [
   // Stufe 3 (Produktkarten-Plan): eigene Route statt eines useState in der
   // Startseiten-Produktsektion — acht SKUs mit eigener Adresse.
   { loc: '/ketten', changefreq: 'weekly', priority: '0.9' },
+  // Tuer 1 (Seitenordnung Chat 2): dieselbe Behandlung wie /ketten.
+  { loc: '/kettenwachs', changefreq: 'weekly', priority: '0.9' },
   { loc: '/starter-set', changefreq: 'monthly', priority: '0.9' },
   { loc: '/blog', changefreq: 'weekly', priority: '0.8' },
   // Rechner: eigene Adressen seit September 2026, monatlich, weil sich der

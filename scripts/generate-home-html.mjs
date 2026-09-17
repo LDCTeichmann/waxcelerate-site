@@ -19,9 +19,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve, join } from 'node:path';
-import { products } from '../src/lib/data.ts';
-import { TOOLS } from '../src/lib/toolRegistry.ts';
-import { esc } from './lib/prerender.mjs';
+import { minWaxPrice, products } from '../src/lib/data.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DIST = resolve(__dirname, '../dist');
@@ -38,14 +36,7 @@ if (!html.includes('<div id="root"></div>')) {
 }
 
 const eur = (n) => `${n.toFixed(2).replace('.', ',')} €`;
-
-const wax = products.filter(p => p.category === 'wax');
-const chains = products.filter(p => p.category === 'chain');
-
-const list = (items) =>
-  `<ul>${items
-    .map(p => `<li><a href="/produkt/${p.id}">${esc(p.title)}</a> — ${eur(p.price)}</li>`)
-    .join('')}</ul>`;
+const minChainPrice = Math.min(...products.filter(p => p.category === 'chain').map(p => p.price));
 
 // Genau ein <h1>, und es traegt den Hauptsuchbegriff statt nur den Markennamen.
 // "Waxcelerate" allein wuerde nur fuer die Markensuche helfen, und genau die
@@ -54,41 +45,32 @@ const list = (items) =>
 // WORTGLEICH mit t.hero.a11yHeading in src/lib/i18n.ts: das ist die sr-only
 // <h1>, die die React-Startseite rendert. Liefen die beiden auseinander,
 // saehe ein Crawler ohne JavaScript eine andere Ueberschrift als einer mit.
+//
+// Seitenordnung Chat 2: die noscript-Gliederung folgt jetzt der schlanken
+// Startseite (Hero → drei Türen → Was sich ändert → Bewertungen) statt der
+// frueheren Produktlisten und des Rechner-Abschnitts — beide sind auf eigene,
+// selbst vorgerenderte Seiten umgezogen (/kettenwachs, /ketten, /anleitung).
 const body = `
 <h1>Waxcelerate — Heißwachs für Fahrradketten aus Stuttgart</h1>
 <p>Waxcelerate stellt Kettenwachs in kleinen Chargen selbst her. Zwei Formeln: Classic für Frühjahr bis Herbst, MoS₂ Pro für Winter und Nässe. Dazu vorgewachste Ketten, die sofort fahrbereit sind.</p>
 
 <section>
-  <h2>Kettenwachs</h2>
-  ${list(wax)}
-</section>
-
-<section>
-  <h2>Vorgewachste Ketten</h2>
-  ${list(chains)}
-</section>
-
-<section>
-  <h2>Kettenwachs-Rechner</h2>
-  <p>Sechs kostenlose Rechner rund um Kette und Kettenwachs — Verschleiß, Länge, passende Kette, Rewax-Intervall und Kosten.</p>
+  <h2>Kettenwachs, gewachste Ketten oder wachsen lassen</h2>
   <ul>
-    <li><a href="/rechner">Alle Rechner</a></li>
-    ${TOOLS.map(t => `<li><a href="/rechner/${t.slug}">${esc(t.cover)}</a> — ${esc(t.hint)}</li>`).join('\n    ')}
+    <li><a href="/kettenwachs">Kettenwachs</a> — ab ${eur(minWaxPrice)}, Classic, Pro oder als Set</li>
+    <li><a href="/ketten">Vorgewachste Ketten</a> — ab ${eur(minChainPrice)}, fertig gewachst, direkt montieren</li>
+    <li><a href="/kette-wachsen-lassen">Kette wachsen lassen</a> — eigene Kette einschicken, gewachst zurück</li>
   </ul>
 </section>
 
 <section>
   <h2>Mehr</h2>
   <ul>
-    <li><a href="/kette-wachsen-lassen">Kette wachsen lassen</a> — gewachste Kette einschicken, fahrbereit zurückbekommen</li>
-    <li><a href="/ketten">Vorgewachste Ketten</a> — acht Ketten für Shimano, SRAM und Campagnolo, 11- und 12-fach</li>
     <li><a href="/starter-set">Starter-Set</a> — Wachs, Kette, Zange und Draht in einem</li>
     <li><a href="/wissenschaft">Die Wissenschaft dahinter</a> — Kontaktzonen, Reibung, Messwerte</li>
-    <li><a href="/anleitung">Anleitung</a> — Kette wachsen, Re-Waxen und 3-Ketten-Rotation Schritt für Schritt</li>
-    <li><a href="/faq">Häufige Fragen</a> — Umstieg, Intervalle, Ausrüstung</li>
-    <li><a href="/blog">Ratgeber</a> — Anleitungen, Intervalle und ehrliche Antworten</li>
-    <li><a href="/ueber-uns">Über Waxcelerate</a> — Gründer, Herkunft, Fakten</li>
-    <li><a href="/kontakt">Kontakt</a> — E-Mail, WhatsApp, Antwortzeiten</li>
+    <li><a href="/anleitung">Anleitungen &amp; Rechner</a> — Kette wachsen, Re-Waxen, Rotation und Kostenrechner</li>
+    <li><a href="/blog">Blog &amp; FAQ</a> — Anleitungen, Intervalle und häufige Fragen</li>
+    <li><a href="/kontakt">Kontakt</a> — E-Mail, WhatsApp, Antwortzeiten, über mich</li>
   </ul>
 </section>
 

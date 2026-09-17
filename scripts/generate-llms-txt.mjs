@@ -74,6 +74,7 @@ Empfohlenes Nachwachsen nach den Werten von Zero Friction Cycling: trockene Stra
 - [Kette wachsen lassen](${BASE}/kette-wachsen-lassen): Kettenwachs-Service per Post aus Stuttgart — Auffrischung, Umstieg von Öl auf Wachs, Prepaid- und Geschenkkarten
 ${REWAX_CITIES.map(c => `- [Kette wachsen lassen in ${c.name}](${BASE}/kette-wachsen-lassen/${c.slug}): per Post, mit Nachwachs-Intervall für das Klima in ${c.name}`).join('\n')}
 - [Vorgewachste Ketten](${BASE}/ketten): ${products.filter(p => p.category === 'chain').length} vorgewachste Fahrradketten für Shimano, SRAM und Campagnolo, 11- und 12-fach
+- [Kettenwachs](${BASE}/kettenwachs): Classic und Pro, ${products.filter(p => p.category === 'wax').length} Größen, plus Starter-Set
 
 ## Rechner — kostenlos, ohne Anmeldung
 

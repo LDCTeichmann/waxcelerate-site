@@ -32,6 +32,9 @@ import { waxVsOil, products, waxProcessTimeline } from '../src/lib/data.ts';
 import {
   KETTEN_TITLE, KETTEN_DESCRIPTION, KETTEN_H1, KETTEN_LEAD, chainBenefits, kettenCollectionSchema,
 } from '../src/pages/ketten/content.ts';
+import {
+  KETTENWACHS_TITLE, KETTENWACHS_DESCRIPTION, KETTENWACHS_H1, KETTENWACHS_LEAD, kettenwachsCollectionSchema,
+} from '../src/pages/kettenwachs/content.ts';
 import { translations } from '../src/lib/i18n.ts';
 import { COMPONENTS } from '../src/lib/science.ts';
 
@@ -818,6 +821,27 @@ function renderKettenPage() {
   return buildPage({ head, body });
 }
 
+// ─── /kettenwachs ────────────────────────────────────────────────────────
+// Tuer 1 (Seitenordnung 09/2026, Chat 2): dieselbe Behandlung wie /ketten —
+// Text und Schema aus src/pages/kettenwachs/content.ts, geteilt mit
+// KettenwachsPage.tsx.
+function renderKettenwachsPage() {
+  const canonical = `${BASE}/kettenwachs`;
+  const waxProducts = products.filter(p => p.category === 'wax');
+  const head = [
+    metaTags({ title: KETTENWACHS_TITLE, description: KETTENWACHS_DESCRIPTION, canonical }),
+    ldClientManaged(kettenwachsCollectionSchema(waxProducts)),
+  ].join('\n');
+  const body = [
+    `<nav aria-label="Brotkrumen"><a href="/">Startseite</a> › <span>${esc(KETTENWACHS_H1)}</span></nav>`,
+    `<h1>${esc(KETTENWACHS_H1)}</h1>`,
+    `<p>${esc(KETTENWACHS_LEAD)}</p>`,
+    `<ul>${waxProducts.map(p => `<li><a href="/produkt/${p.id}">${esc(p.title)}</a> — ${p.price.toFixed(2).replace('.', ',')} €</li>`).join('')}</ul>`,
+    `<p><a href="/starter-set">Starter-Set</a> · <a href="/ketten">Vorgewachste Ketten</a> · <a href="/kette-wachsen-lassen">Kette wachsen lassen</a> · <a href="/">Zur Startseite</a></p>`,
+  ].join('\n');
+  return buildPage({ head, body });
+}
+
 for (const p of STATIC_PAGES) write(p.dir, renderStatic(p));
 for (const p of NEW_STATIC_PAGES) write(p.dir, renderStatic(p));
 // Stadtseiten /kette-wachsen-lassen/:stadt — Daten und Texte aus
@@ -850,6 +874,7 @@ for (const p of LEGAL_PAGES) write(p.dir, renderLegal(p));
 for (const t of TOOLS) write(join('rechner', t.slug), renderTool(t));
 
 write('ketten', renderKettenPage());
+write('kettenwachs', renderKettenwachsPage());
 
 write('blog', renderIndex());
 for (const a of articles) write(join('blog', a.slug), renderArticle(a));

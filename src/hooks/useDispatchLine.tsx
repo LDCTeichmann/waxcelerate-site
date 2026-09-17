@@ -6,7 +6,10 @@ const pad = (n: number) => String(n).padStart(2, '0');
 // Live-Versandzeile ("Heute versandt, wenn du bis 15 Uhr bestellst."). Aus
 // WaxHero herausgeloest, weil Kettenseite und Topbar denselben Satz zeigen.
 // Aktualisiert sich minuetlich.
-export function useDispatchLine(de: boolean) {
+// `compact`: kurze Wortgruppe statt vollem Satz, fuer den Hero-Fussstreifen
+// und andere enge Zeilen (Seitenordnung Chat 2) — kein "Versandschluss ist
+// werktags 15 Uhr"-Nachsatz, nur "Heute versandt" / "Morgen versandt".
+export function useDispatchLine(de: boolean, opts?: { compact?: boolean }) {
   const [st, setSt] = useState(() => dispatchStatus());
   useEffect(() => {
     const id = window.setInterval(() => setSt(dispatchStatus()), 60_000);
@@ -15,6 +18,14 @@ export function useDispatchLine(de: boolean) {
   const weekdays = de
     ? ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag']
     : ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  if (opts?.compact) {
+    if (st.shipsToday) return de ? 'Heute versandt' : 'Ships today';
+    const todayIdx = new Date().getDay();
+    const tomorrow = (todayIdx + 1) % 7 === st.shipWeekday;
+    return de
+      ? `${tomorrow ? 'Morgen' : `Am ${weekdays[st.shipWeekday]}`} versandt`
+      : `Ships ${tomorrow ? 'tomorrow' : `on ${weekdays[st.shipWeekday]}`}`;
+  }
   if (st.shipsToday && st.minutesLeft > 4 * 60) {
     // Morgens ist ein Countdown ueber zehn Stunden eher Rauschen als Anreiz.
     return de

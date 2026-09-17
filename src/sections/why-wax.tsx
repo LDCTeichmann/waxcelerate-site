@@ -1,5 +1,4 @@
 import { useRef, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { ArrowLeftRight, ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useSectionReveal, prefersReducedMotion } from '@/hooks/useAnimation';
@@ -91,7 +90,7 @@ export function WhyWax() {
   };
 
   const loc = de ? 'de-DE' : 'en-US';
-  const { life, watts, cost } = waxVsOil;
+  const { watts } = waxVsOil;
   const wax500 = products.find(p => p.id === 'wax-500');
   const cheapest = Math.min(...products.filter(p => p.category === 'wax').map(p => p.price));
   const priceNote = w.ctaNote(cheapest.toLocaleString(loc, { minimumFractionDigits: 2 }) + ' €');
@@ -114,22 +113,13 @@ export function WhyWax() {
         beforeLabel: w.proofRef, afterLabel: 'Waxcelerate', caption: w.captionMicro,
       };
 
-  // Einheit klein neben der Zahl, damit vier Kennzahlen in eine Zeile passen.
+  // Nur zwei Kennzahlen: 2–3× und 127€ stehen seit dem Hero-Fussstreifen
+  // schon dort (Seitenordnung Chat 2, "Doppelungs-Endpruefung") — hier bleibt
+  // nur, was sonst nirgends auf der Startseite steht.
   const figs: { value: string; unit?: string; title?: string; label: string; sub: React.ReactNode }[] = [
-    { value: `${life.waxLo}–${life.wax}×`, label: w.figLife, sub: w.figLifeSub },
     { value: (wax500?.intervalDry ?? '250–450 km').replace(/\s*km$/, ''), unit: 'km', label: w.figInterval, sub: w.figIntervalSub },
     { value: `${watts.wax[0]}–${watts.wax[1]}`, unit: 'W', title: w.labValues, label: w.figWatts,
       sub: `${w.wattsShort(range(watts.oil), `${watts.inputW} W`)}. ${w.labValues}.` },
-    { value: `${cost.savedEur}`, unit: '€', label: w.figSaved(cost.km.toLocaleString(loc)),
-      sub: (
-        <Link to="/produkt/wax-500#instrument" aria-label={w.derivationAria}
-          className="group inline-flex items-center gap-1.5 font-semibold whitespace-nowrap py-2 -my-2"
-          style={{ color: 'var(--tx1)' }}>
-          {w.derivation}
-          <ArrowRight className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-1"
-            style={{ color: 'var(--accent-soft)' }} aria-hidden />
-        </Link>
-      ) },
   ];
 
   const tabBtn = (id: ProofTab, label: string) => (
@@ -161,10 +151,13 @@ export function WhyWax() {
         </p>
       </div>
 
-      {/* ── Beleg links, Punkte rechts (mobil: Beleg zuerst) ── */}
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-[72px] items-center">
-        <div ref={sliderRef} className="scroll-mt-24">
-          <div className="rounded-[18px] overflow-hidden" style={{ boxShadow: '0 24px 48px rgba(0,0,0,.16)' }}>
+      {/* ── Beleg links, Punkte rechts (mobil: Beleg zuerst) ──
+          Gleich breite Spalten (1fr/1fr) statt 1.1fr/1fr, und der Slider
+          selbst mit einer Hoechsthoehe von rund 520px — Seitenordnung
+          Chat 2, "Slider etwas kleiner". */}
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-[72px] items-center">
+        <div ref={sliderRef} className="scroll-mt-24 mx-auto w-full" style={{ maxWidth: '624px' }}>
+          <div className="rounded-[18px] overflow-hidden" style={{ boxShadow: '0 24px 48px rgba(0,0,0,.16)', maxHeight: '520px' }}>
             <BeforeAfterSlider key={proofTab} aspect="6/5" fit="cover" bare overlayLabels
               beforeSrc={proof.beforeSrc} afterSrc={proof.afterSrc}
               beforeAlt={proof.beforeAlt} afterAlt={proof.afterAlt}
@@ -219,13 +212,13 @@ export function WhyWax() {
         </ul>
       </div>
 
-      {/* ── Kennzahlen ── Haarlinie oben, Trennlinien zwischen den Spalten,
-          mobil 2×2. */}
-      <dl ref={figsRef} className="grid grid-cols-2 lg:grid-cols-4 gap-y-6 sm:gap-y-7 mt-12 lg:mt-16"
+      {/* ── Kennzahlen ── nur zwei Werte, ruhig nebeneinander statt einer
+          Vierer-Reihe (2–3× und 127€ stehen jetzt im Hero). */}
+      <dl ref={figsRef} className="grid grid-cols-2 gap-y-6 sm:gap-y-7 mt-12 lg:mt-16 max-w-md"
         style={{ borderTop: '1px solid var(--bd2)' }}>
         {figs.map((f, i) => (
           <div key={f.label} style={{ borderColor: 'var(--bd2)' }}
-            className={`pt-5 sm:pt-6 pr-3 sm:pr-4 lg:pr-6 ${i % 2 ? 'border-l pl-4 sm:pl-5' : ''} ${i > 0 ? 'lg:border-l lg:pl-7' : ''}`}>
+            className={`pt-5 sm:pt-6 pr-3 sm:pr-4 lg:pr-6 ${i > 0 ? 'border-l pl-4 sm:pl-5' : ''}`}>
             <dd className="font-display font-extrabold leading-none tracking-[-0.03em] whitespace-nowrap"
               title={f.title}
               style={{ fontSize: 'clamp(23px, 3.4vw, 44px)', color: 'var(--accent)' }}>

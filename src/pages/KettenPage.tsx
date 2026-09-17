@@ -309,7 +309,7 @@ export function KettenPage() {
                     den blauen Block (Luca 14.09.2026: "zu viel Blau"). Preis
                     ist der guenstigste Block aus data.ts. */}
                 <SecondaryTile
-                  to="/#produkte"
+                  to="/kettenwachs"
                   image="/images/shelf/wax-pro" imageW={1000}
                   eyebrow={t.products.shelf.relatedWaxEyebrow} title={t.products.shelf.relatedWaxTitle}
                   body={t.products.shelf.relatedWaxBody}

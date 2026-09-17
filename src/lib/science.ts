@@ -362,31 +362,3 @@ export const CLASSIC_EXTRA: ScienceComponent[] = [
     diagram: 'stearin',
   },
 ];
-
-// ─── Hero "look inside" dive — honest per-variant composition ─────────────────
-// Each variant lists only what is genuinely in it (matches data.ts `formula`).
-//   Pro     — the full six-component MoS₂ system.
-//   Classic — paraffin base + a little microcrystalline wax + PTFE + stearate.
-//             No FT-wax, no antioxidant: Classic is the simpler, dry-weather mix.
-// Order is "base → matrix additives → lubricant → surface", i.e. how the block
-// is built up, so the dive's cross-section reads from foundation to function.
-export function diveFormula(variant: 'classic' | 'pro'): ScienceComponent[] {
-  const all = [...COMPONENTS, ...CLASSIC_EXTRA];
-  const get = (id: string) => all.find(c => c.id === id)!;
-  if (variant === 'pro') {
-    return [
-      get('kristallstruktur'), // Paraffin — Trägermatrix
-      get('matrix'),           // FT-Wachs — Härtemodul
-      get('winterformel'),     // Mikrokristallin — Plastifizierer
-      get('mos2'),             // MoS₂ — Festschmierstoff
-      get('sedimentation'),    // Dispersant — Stabilisator
-      get('antioxidans'),      // Antioxidans — Schutz
-    ];
-  }
-  return [
-    get('kristallstruktur'),   // Paraffin — Trägermatrix
-    get('winterformel'),       // Mikrokristallin — etwas Elastizität
-    get('ptfe'),               // PTFE — Gleitzusatz
-    get('haftung'),            // Stearin — Haftvermittler
-  ];
-}

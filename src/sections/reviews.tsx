@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
-import { BadgeCheck } from 'lucide-react';
+import { BadgeCheck, ArrowUpRight, Pause, Play } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { Stars } from '@/components/Stars';
 import { Section } from '@/components/Section';
-import { trustStats } from '@/lib/data';
+import { trustStats, CONTACT } from '@/lib/data';
 import { trackShopClick } from '@/lib/analytics';
 
 // ── Data ─────────────────────────────────────────────────────────────────────
@@ -159,9 +159,10 @@ export function reviewsForProduct(productId: string): Review[] {
 // derselben HOEHE — das ist in einer einzelnen Reihe das, was zaehlt — und die
 // unterschiedlichen Breiten geben der Reihe Rhythmus statt Metronom.
 function textColWidth(len: number) {
-  if (len > 240) return 380;
-  if (len > 110) return 320;
-  return 250;
+  if (len > 260) return 460;
+  if (len > 140) return 380;
+  if (len > 60) return 300;
+  return 220;
 }
 
 // Das Foto steht als schmaler Streifen an der linken Kante der Karte, ueber die
@@ -204,22 +205,35 @@ function ReviewCard({ r, de, photo }: { r: Review; de: boolean; photo?: { src: s
   const PHOTO_W = 112;
   const photoWebp = photo?.src.replace(/\.jpg$/, '.webp');
 
+  // Ganze Karte klickbar zum eBay-Feedback-Profil statt reiner Deko
+  // (Seitenordnung Chat 2). <figure> bleibt der aussenliegende Flex-Item
+  // fuer Groesse/Abstand in der Laufschrift, <a> darin ist die eigentliche
+  // Klickflaeche — so bleiben figure/figcaption semantisch korrekt.
   return (
     <figure
-      className="review-card flex-shrink-0 flex items-stretch rounded-2xl overflow-hidden mr-4 whitespace-normal"
+      className="review-card flex-shrink-0 mr-4 whitespace-normal"
       style={{
         // Gegen den Viewport gedeckelt, damit eine Karte mit langem Zitat auf
         // dem Handy nie breiter als der Bildschirm wird — dort waere sie im
         // Vorbeilaufen nicht vollstaendig lesbar.
         width: `min(${textColWidth(text.length) + (showPhoto ? PHOTO_W : 0)}px, calc(100vw - 72px))`,
-        // Kartensprache der Seite (--card-*), nicht mehr die flache --sf2-
-        // Fläche: leichter Verlauf, weiche Kante, ein Hauch Schatten. Die Reihe
-        // liest sich damit als Sammlung erhabener Karten statt als Tabelle.
-        background: 'var(--card-bg)',
-        border: '1px solid var(--bd2)',
-        boxShadow: 'var(--card-shad)',
       }}
     >
+      <a
+        href={CONTACT.ebayFeedback}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={de ? 'Bewertung auf eBay ansehen' : 'View review on eBay'}
+        className="group flex items-stretch h-full rounded-2xl overflow-hidden"
+        style={{
+          // Kartensprache der Seite (--card-*), nicht mehr die flache --sf2-
+          // Fläche: leichter Verlauf, weiche Kante, ein Hauch Schatten. Die Reihe
+          // liest sich damit als Sammlung erhabener Karten statt als Tabelle.
+          background: 'var(--card-bg)',
+          border: '1px solid var(--bd2)',
+          boxShadow: 'var(--card-shad)',
+        }}
+      >
       {showPhoto && photo && (
         <picture
           className="relative flex-shrink-0 self-stretch flex"
@@ -257,7 +271,10 @@ function ReviewCard({ r, de, photo }: { r: Review; de: boolean; photo?: { src: s
 
         <div className="relative flex items-center justify-between gap-2 mb-2">
           <Stars rating={r.rating ?? 5} />
-          <span className="text-meta whitespace-nowrap" style={{ color: 'var(--txf)' }}>{date}</span>
+          <span className="flex items-center gap-1 text-meta whitespace-nowrap" style={{ color: 'var(--txf)' }}>
+            {date}
+            <ArrowUpRight aria-hidden className="h-3 w-3 opacity-0 -translate-y-0.5 translate-x-0.5 transition-all duration-200 group-hover:opacity-100 group-hover:translate-y-0 group-hover:translate-x-0" />
+          </span>
         </div>
 
         <blockquote className="relative text-[13px] leading-[1.62] flex-1" style={{ color: 'var(--tx2)' }}>
@@ -278,6 +295,7 @@ function ReviewCard({ r, de, photo }: { r: Review; de: boolean; photo?: { src: s
           </div>
         </figcaption>
       </div>
+      </a>
     </figure>
   );
 }
@@ -298,6 +316,27 @@ export function Reviews() {
     const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { rootMargin: '120px' });
     io.observe(el);
     return () => io.disconnect();
+  }, []);
+
+  // Sichtbarer Pause-Knopf (WCAG 2.2.2) — zusaetzlich zur Hover-/Fokus-Pause
+  // aus index.css, die weiter unveraendert greift.
+  const [userPaused, setUserPaused] = useState(false);
+
+  // Tempo in px/s statt fester Sekunden: die Dauer ergibt sich aus der
+  // halben Spurbreite (ein Kartensatz, die Spur enthaelt ihn doppelt fuer
+  // den nahtlosen Loop) geteilt durch 18 px/s (Seitenordnung Chat 2 —
+  // vorher lief die feste 96s-Dauer je nach Kartenzahl 3-4× so schnell).
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [durationS, setDurationS] = useState(96);
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(([entry]) => {
+      const halfWidth = entry.target.scrollWidth / 2;
+      if (halfWidth > 0) setDurationS(halfWidth / 18);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
   }, []);
 
   // Jede zweite Karte bekommt ein eigenes Foto (reihum aus REVIEW_PHOTOS),
@@ -376,8 +415,9 @@ export function Reviews() {
           ) : (
             <div className="marquee overflow-hidden edge-fade">
               <div
+                ref={trackRef}
                 className="marquee-track inline-flex items-stretch"
-                style={{ '--dur': '96s', animationPlayState: inView ? 'running' : 'paused' } as CSSProperties}
+                style={{ '--dur': `${durationS}s`, animationPlayState: (inView && !userPaused) ? 'running' : 'paused' } as CSSProperties}
               >
                 {cards}
                 {/* Second set makes the loop seamless; hidden from AT so the
@@ -387,11 +427,25 @@ export function Reviews() {
             </div>
           )}
         </div>
+        {/* Sichtbarer Pause-Knopf (WCAG 2.2.2) — nur wo ueberhaupt eine
+            Laufschrift laeuft (nicht bei reduced-motion oder mobil). */}
+        {!reduced && (
+          <button
+            type="button"
+            onClick={() => setUserPaused(p => !p)}
+            aria-pressed={userPaused}
+            aria-label={userPaused ? (de ? 'Laufschrift fortsetzen' : 'Resume marquee') : (de ? 'Laufschrift anhalten' : 'Pause marquee')}
+            className="hidden sm:flex absolute right-2 bottom-2 items-center justify-center h-9 w-9 rounded-full transition-colors hover:opacity-90"
+            style={{ background: 'var(--card-bg)', border: '1px solid var(--bd2)', boxShadow: 'var(--card-shad)', color: 'var(--tx1)' }}
+          >
+            {userPaused ? <Play className="h-4 w-4" aria-hidden /> : <Pause className="h-4 w-4" aria-hidden />}
+          </button>
+        )}
       </div>
 
       {/* ── Actions ── */}
       <div className="flex flex-col sm:flex-row gap-3 mt-7">
-        <a href="https://www.ebay.de/usr/waxcelerate" target="_blank" rel="noopener noreferrer"
+        <a href={CONTACT.ebayFeedback} target="_blank" rel="noopener noreferrer"
           onClick={() => trackShopClick('reviews')}
           className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-[13px] font-medium transition-all hover:opacity-85"
           style={{ border: '1px solid var(--bd)', background: 'var(--sf2)', color: 'var(--tx2)' }}>
