@@ -67,10 +67,11 @@ const staticPages = [
   { loc: '/ketten', changefreq: 'weekly', priority: '0.9' },
   { loc: '/starter-set', changefreq: 'monthly', priority: '0.9' },
   { loc: '/blog', changefreq: 'weekly', priority: '0.8' },
-  // Rechner: eigene Adressen seit September 2026. Der Hub etwas hoeher als die
-  // Einzelseiten, weil er auf alle sechs verweist; monatlich, weil sich der
-  // Antworttext nur aendert, wenn sich die Sachlage aendert.
-  { loc: '/rechner', changefreq: 'monthly', priority: '0.8' },
+  // Rechner: eigene Adressen seit September 2026, monatlich, weil sich der
+  // Antworttext nur aendert, wenn sich die Sachlage aendert. Der Hub /rechner
+  // ist seit der Seitenordnung 09/2026 ein 301 auf /anleitung#rechner (siehe
+  // vercel.json) und steht deshalb nicht mehr in der Sitemap — eine
+  // weiterleitende URL soll nicht gecrawlt werden.
   ...TOOLS.map(t => ({ loc: `/rechner/${t.slug}`, changefreq: 'monthly', priority: '0.7' })),
   // Seit September 2026 eigene Seiten statt reiner Startseiten-Anker
   // (#anleitungen, #faq, #ueber-mich, #kontakt) — siehe scripts/generate-blog-html.mjs

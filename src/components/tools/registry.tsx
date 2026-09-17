@@ -20,6 +20,7 @@ import { ChainLengthCalculator } from '@/components/tools/calculators/ChainLengt
 import { ChainMatchCalculator } from '@/components/tools/calculators/ChainMatchCalculator';
 import { WaxCalculator } from '@/pages/product/wax/WaxCalculator';
 import { ToolTrack } from '@/components/tools/ToolTrack';
+import '@/pages/product/wax/wax.css';
 
 // `compact`: gesetzt, wenn der Rechner im Kartenstapel der Startseite steckt
 // (ToolDeck) statt auf seiner eigenen /rechner/:slug-Seite (ToolCalculator).
@@ -35,13 +36,18 @@ type IconComponent = React.ComponentType<{ className?: string; style?: React.CSS
 // waxMath.recommendedChains(). Beide Einzelseiten bleiben mit eigener
 // SEO-Copy bestehen; keine der beiden hat noch eine Karte im Startseiten-Deck
 // (TOOLS[].inDeck) — der Rechner steht auf /anleitung direkt ueber dem Deck.
+// .wxp-Wrapper + wax.css: WaxCalculator ist fuer die Wachsseite gebaut und
+// braucht deren Klassen und --wxp-*-Variablen (siehe ChainProductPage, das
+// aus demselben Grund .wxp importiert). Ohne den Wrapper blieb die Karte auf
+// /rechner/umstieg unstyled — Icons und Knoepfe liefen als nackter Text
+// untereinander.
 function SwitchCost({ profile }: { profile: ToolProfileState; compact?: boolean }) {
   const { lang } = useLanguage();
-  return <WaxCalculator profile={profile} de={lang === 'de'} anchorId="umstieg-rechner" />;
+  return <div className="wxp"><WaxCalculator profile={profile} de={lang === 'de'} anchorId="umstieg-rechner" /></div>;
 }
 function RotationCost({ profile }: { profile: ToolProfileState; compact?: boolean }) {
   const { lang } = useLanguage();
-  return <WaxCalculator profile={profile} de={lang === 'de'} anchorId="ersparnis-rechner" preselectRotation />;
+  return <div className="wxp"><WaxCalculator profile={profile} de={lang === 'de'} anchorId="ersparnis-rechner" preselectRotation /></div>;
 }
 
 const IMPLEMENTATIONS: Record<string, { Comp: CalcComponent; Icon: IconComponent }> = {

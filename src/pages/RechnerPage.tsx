@@ -153,24 +153,42 @@ export function RechnerToolPage() {
             Scrollen, und genau dort lesbar, wo die Frage aufkommt. */}
         {entry.usesProfile && <ProfileBar profile={profile} />}
 
-        <div className="grid gap-8 lg:gap-10 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:items-start">
-          <ToolCalculator slug={entry.slug} profile={profile} />
+        {/* WaxCalculator (umstieg, ersparnis) braucht die volle Breite fuer sein
+            eigenes zweispaltiges Innenlayout ab 1000px — in der 26rem-Spalte
+            liefe sein Ergebnisblock ab. Volle Breite oben, Erklaerung darunter,
+            statt nebeneinander. */}
+        {entry.fullWidth ? (
+          <>
+            <ToolCalculator slug={entry.slug} profile={profile} />
+            {/* Kein AssumptionsDisclosure hier: WaxCalculator legt seine
+                Annahmen schon in einem eigenen <details> offen. */}
+            <section className="mt-8 max-w-[65ch]">
+              <h2 className="text-[17px] font-semibold mb-3" style={{ color: 'var(--tx1)' }}>
+                {de ? 'Kurz erklärt' : 'In short'}
+              </h2>
+              <Answer points={entry.answer} />
+            </section>
+          </>
+        ) : (
+          <div className="grid gap-8 lg:gap-10 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:items-start">
+            <ToolCalculator slug={entry.slug} profile={profile} />
 
-          {/* Der Antworttext steht bewusst auch dann da, wenn der Rechner alles
-              beantwortet — er ist das, was ohne JavaScript ausgeliefert wird,
-              und das, was eine KI zitieren kann. */}
-          <section className="lg:pt-1">
-            <h2 className="text-[17px] font-semibold mb-3" style={{ color: 'var(--tx1)' }}>
-              {de ? 'Kurz erklärt' : 'In short'}
-            </h2>
-            <Answer points={entry.answer} />
-            {entry.showsAssumptions && (
-              <div className="mt-6 pt-5" style={{ borderTop: '1px solid var(--bd)' }}>
-                <AssumptionsDisclosure />
-              </div>
-            )}
-          </section>
-        </div>
+            {/* Der Antworttext steht bewusst auch dann da, wenn der Rechner alles
+                beantwortet — er ist das, was ohne JavaScript ausgeliefert wird,
+                und das, was eine KI zitieren kann. */}
+            <section className="lg:pt-1">
+              <h2 className="text-[17px] font-semibold mb-3" style={{ color: 'var(--tx1)' }}>
+                {de ? 'Kurz erklärt' : 'In short'}
+              </h2>
+              <Answer points={entry.answer} />
+              {entry.showsAssumptions && (
+                <div className="mt-6 pt-5" style={{ borderTop: '1px solid var(--bd)' }}>
+                  <AssumptionsDisclosure />
+                </div>
+              )}
+            </section>
+          </div>
+        )}
 
         {entry.faq && (
           <section className="mt-10">

@@ -28,7 +28,7 @@ import { dirname, resolve, join } from 'node:path';
 import { articles, getArticleImage, author, categoryOrder, blogHero } from '../src/pages/blog/articles.ts';
 import { headingId } from '../src/pages/blog/headingId.ts';
 import { learningPath, symptoms } from '../src/pages/blog/hubContent.ts';
-import { waxVsOil, products } from '../src/lib/data.ts';
+import { waxVsOil, products, waxProcessTimeline } from '../src/lib/data.ts';
 import {
   KETTEN_TITLE, KETTEN_DESCRIPTION, KETTEN_H1, KETTEN_LEAD, chainBenefits, kettenCollectionSchema,
 } from '../src/pages/ketten/content.ts';
@@ -36,7 +36,7 @@ import { translations } from '../src/lib/i18n.ts';
 import { COMPONENTS } from '../src/lib/science.ts';
 
 const DE = translations.de;
-import { TOOLS, TOOLS_HUB } from '../src/lib/toolRegistry.ts';
+import { TOOLS } from '../src/lib/toolRegistry.ts';
 // Preise, Meta, FAQ und Schema von /kette-wachsen-lassen — dieselbe Quelle wie
 // RewaxPage.tsx, damit Prerender und hydrierte Seite wortgleich sind.
 import {
@@ -432,7 +432,8 @@ const STATIC_PAGES = [
 // Vorher nur Startseiten-Anker (#ueber-mich, #kontakt, #faq, #anleitungen) und
 // damit nicht einzeln indexierbar. Meta/H1/Lead aus DE.pages.* — dieselbe
 // Quelle wie die hydrierten Seiten (src/pages/{UeberUns,Kontakt,Faq,Anleitung}Page.tsx),
-// FAQ/Schritte aus DE.faq / DE.guides. Das extraSchema hier MUSS mit dem
+// FAQ aus DE.faq, /anleitung-Schritte aus waxProcessTimeline (siehe unten).
+// Das extraSchema hier MUSS mit dem
 // @graph der jeweiligen React-Seite uebereinstimmen (die Seite ruft
 // removeStaticJsonLd() auf und setzt ihr @graph per Helmet neu).
 const breadcrumb = (name, path) => ({
@@ -442,6 +443,26 @@ const breadcrumb = (name, path) => ({
     { '@type': 'ListItem', position: 2, name, item: `${BASE}${path}` },
   ],
 });
+
+// /anleitung zeigt den Ablauf seit der Seitenordnung 09/2026 interaktiv
+// (ProcessWatch, drei Modi) statt als statischer Text (DE.guides entfallen).
+// Fuer den Prerender hier dieselbe Zeitleiste (waxProcessTimeline) als
+// Textliste nachgebaut, wortgleich mit der Ableitung in AnleitungPage.tsx.
+const anleitungGuide = articles.find(a => a.slug === 'heisswachs-anleitung');
+const anleitungHowToTexts = anleitungGuide?.howTo?.steps ?? [];
+function anleitungSteps(mode) {
+  return waxProcessTimeline
+    .filter(s => mode === 'first' || !s.firstOnly)
+    .map(s => {
+      const h = s.howToIndex !== undefined ? anleitungHowToTexts[s.howToIndex] : undefined;
+      const name = h?.name ?? s.nameDe ?? '';
+      const text = s.textDe ?? h?.text ?? '';
+      const note = mode === 'rotation' && s.perChain ? ' (an jeder Kette einzeln, im Wechsel also ×3 Zeit)' : '';
+      return { name, text: text + note };
+    })
+    .filter(s => s.name);
+}
+const anleitungTotalMinutes = waxProcessTimeline.reduce((a, s) => a + s.minutes, 0);
 
 const NEW_STATIC_PAGES = [
   {
@@ -555,35 +576,34 @@ const NEW_STATIC_PAGES = [
     h1: DE.pages.anleitung.h1,
     lead: DE.pages.anleitung.lead,
     points: [
-      `Neue Kette: ${DE.guides.newChain.steps.join(' ')}`,
-      `Re-Waxen einer bereits gewachsten Kette: ${DE.guides.rewax.steps.join(' ')}`,
-      `3-Ketten-Rotation: ${DE.guides.rotation.steps.join(' ')}`,
-      'Wachstemperatur durchgehend 80–90 °C. Erstentfettung nur bei der neuen Kette.',
+      `Neue Kette (mit Entfetten): ${anleitungSteps('first').map(s => s.text).join(' ')}`,
+      `Nachwachsen: ${anleitungSteps('rewax').map(s => s.text).join(' ')}`,
+      `Drei Ketten im Wechsel: ${anleitungSteps('rotation').map(s => s.text).join(' ')}`,
+      `Dazu Rechner für Verschleiß, Kettenlänge, passende Kette und Intervall auf derselben Seite.`,
     ],
     faq: [
-      { q: 'Muss ich eine neue Kette vor dem Wachsen entfetten?', a: DE.faq.items.find(f => f.q.includes('neue Kette vor dem Wachsen'))?.a ?? DE.guides.newChain.note },
+      { q: 'Muss ich eine neue Kette vor dem Wachsen entfetten?', a: DE.faq.items.find(f => f.q.includes('neue Kette vor dem Wachsen'))?.a ?? anleitungSteps('first')[0]?.text ?? '' },
       { q: 'Muss ich beim Nachwachsen alles alte Wachs entfernen?', a: DE.faq.items.find(f => f.q.startsWith('Muss ich beim Nachwachsen'))?.a ?? '' },
     ],
     extraSchema: [
       {
         '@context': 'https://schema.org',
         '@type': 'HowTo',
-        name: DE.guides.newChain.title,
-        description: DE.guides.newChain.note,
+        name: anleitungGuide?.howTo?.name ?? DE.pages.anleitung.h1,
+        description: DE.pages.anleitung.lead,
         url: `${BASE}/anleitung`,
         inLanguage: 'de-DE',
-        totalTime: 'PT45M',
-        estimatedCost: { '@type': 'MonetaryAmount', currency: 'EUR', value: '29.95' },
+        totalTime: `PT${anleitungTotalMinutes}M`,
         supply: [
           { '@type': 'HowToSupply', name: 'Waxcelerate Heißwachs (Classic oder Pro)' },
           { '@type': 'HowToSupply', name: 'Isopropanol oder Aceton zum Entfetten' },
         ],
         tool: [
           { '@type': 'HowToTool', name: 'Topf / Wachsschmelzer' },
-          { '@type': 'HowToTool', name: 'Küchenthermometer' },
+          { '@type': 'HowToTool', name: 'Kettenschloss-Zange' },
         ],
-        step: DE.guides.newChain.steps.map((stp, i) => ({
-          '@type': 'HowToStep', position: i + 1, text: stp, url: `${BASE}/anleitung`,
+        step: anleitungSteps('first').map((s, i) => ({
+          '@type': 'HowToStep', position: i + 1, name: s.name, text: s.text || s.name, url: `${BASE}/anleitung`,
         })),
       },
       { '@context': 'https://schema.org', ...breadcrumb(DE.pages.anleitung.h1, '/anleitung') },
@@ -641,7 +661,7 @@ function renderStatic(p) {
     // Interne Links als echte <a> — die Stadt-Chips der React-Seite sieht ein
     // Crawler ohne JS nicht (Rewax-Hub → 12 Städte, Stadt → Nachbarn + Hub).
     p.links ? `<ul>${p.links.map(l => `<li><a href="${esc(l.href)}">${esc(l.label)}</a></li>`).join('')}</ul>` : '',
-    `<p><a href="/">Zur Startseite</a> · <a href="/ueber-uns">Über uns</a> · <a href="/anleitung">Anleitung</a> · <a href="/faq">FAQ</a> · <a href="/kontakt">Kontakt</a> · <a href="/wissenschaft">Wissenschaft</a> · <a href="/kette-wachsen-lassen">Kette wachsen lassen</a> · <a href="/starter-set">Starter-Set</a> · <a href="/rechner">Rechner</a> · <a href="/blog">Blog</a></p>`,
+    `<p><a href="/">Zur Startseite</a> · <a href="/ueber-uns">Über uns</a> · <a href="/anleitung">Anleitungen &amp; Rechner</a> · <a href="/faq">FAQ</a> · <a href="/kontakt">Kontakt</a> · <a href="/wissenschaft">Wissenschaft</a> · <a href="/kette-wachsen-lassen">Kette wachsen lassen</a> · <a href="/starter-set">Starter-Set</a> · <a href="/blog">Blog</a></p>`,
   ].join('\n');
   return buildPage({ head, body });
 }
@@ -708,50 +728,10 @@ function renderLegal(p) {
 // und die Antworten sind aus dem bereits geprueften `answer`-Text abgeleitet,
 // kein neuer Claim.
 
-function renderToolsHub() {
-  const canonical = `${BASE}/rechner`;
-  const head = [
-    metaTags({ title: TOOLS_HUB.title, description: TOOLS_HUB.description, canonical }),
-    ldClientManaged({
-      '@context': 'https://schema.org',
-      '@graph': [
-        {
-          '@type': 'CollectionPage',
-          name: TOOLS_HUB.h1,
-          description: TOOLS_HUB.description,
-          url: canonical,
-          inLanguage: 'de-DE',
-          hasPart: TOOLS.map(t => ({
-            '@type': ['SoftwareApplication', 'WebApplication'],
-            name: t.cover,
-            url: `${BASE}/rechner/${t.slug}`,
-            applicationCategory: 'UtilityApplication',
-            operatingSystem: 'Web',
-            isAccessibleForFree: true,
-            offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
-          })),
-        },
-        {
-          '@type': 'ItemList',
-          itemListElement: TOOLS.map((t, i) => ({
-            '@type': 'ListItem',
-            position: i + 1,
-            url: `${BASE}/rechner/${t.slug}`,
-            name: t.cover,
-            description: t.hint,
-          })),
-        },
-      ],
-    }),
-  ].join('\n');
-  const body = [
-    `<h1>${esc(TOOLS_HUB.h1)}</h1>`,
-    `<p>${esc(TOOLS_HUB.lead)}</p>`,
-    `<ul>${TOOLS.map(t => `<li><a href="/rechner/${t.slug}">${esc(t.cover)}</a> — ${esc(t.hint)}</li>`).join('')}</ul>`,
-    `<p><a href="/">Zur Startseite</a> · <a href="/blog">Blog</a> · <a href="/wissenschaft">Wissenschaft</a></p>`,
-  ].join('\n');
-  return buildPage({ head, body });
-}
+// renderToolsHub() (die Seite fuer /rechner) ist seit der Seitenordnung
+// 09/2026 entfallen: /rechner ist ein 301 auf /anleitung#rechner
+// (vercel.json), die Seite selbst lebt dort. Die Einzelseiten /rechner/:slug
+// bleiben bestehen, siehe renderTool() unten.
 
 function renderTool(t) {
   const canonical = `${BASE}/rechner/${t.slug}`;
@@ -785,7 +765,7 @@ function renderTool(t) {
           '@type': 'BreadcrumbList',
           itemListElement: [
             { '@type': 'ListItem', position: 1, name: 'Startseite', item: BASE },
-            { '@type': 'ListItem', position: 2, name: 'Rechner', item: `${BASE}/rechner` },
+            { '@type': 'ListItem', position: 2, name: 'Anleitungen & Rechner', item: `${BASE}/anleitung` },
             { '@type': 'ListItem', position: 3, name: t.h1, item: canonical },
           ],
         },
@@ -793,7 +773,7 @@ function renderTool(t) {
     }),
   ].join('\n');
   const links = [
-    '<a href="/rechner">Alle Rechner</a>',
+    '<a href="/anleitung#rechner">Alle Rechner</a>',
     ...(t.next ? [`<a href="${t.next.href}">${esc(t.next.label)}</a>`] : []),
     ...(t.article ? [`<a href="/blog/${t.article}">Ausf\u00fchrlicher Artikel</a>`] : []),
     '<a href="/">Zur Startseite</a>',
@@ -804,7 +784,7 @@ function renderTool(t) {
         .join('')}</section>`
     : '';
   const body = [
-    `<nav aria-label="Brotkrumen"><a href="/">Startseite</a> \u203a <a href="/rechner">Rechner</a> \u203a <span>${esc(t.h1)}</span></nav>`,
+    `<nav aria-label="Brotkrumen"><a href="/">Startseite</a> \u203a <a href="/anleitung">Anleitungen & Rechner</a> \u203a <span>${esc(t.h1)}</span></nav>`,
     `<h1>${esc(t.h1)}</h1>`,
     `<p>${esc(t.lead)}</p>`,
     t.answer.map(a => `<p>${esc(a)}</p>`).join('\n'),
@@ -867,7 +847,6 @@ for (const c of CITY_PAGES) {
 }
 for (const p of LEGAL_PAGES) write(p.dir, renderLegal(p));
 
-write('rechner', renderToolsHub());
 for (const t of TOOLS) write(join('rechner', t.slug), renderTool(t));
 
 write('ketten', renderKettenPage());
@@ -875,4 +854,4 @@ write('ketten', renderKettenPage());
 write('blog', renderIndex());
 for (const a of articles) write(join('blog', a.slug), renderArticle(a));
 
-console.log(`✓ ${articles.length + 1} Blog-Seiten, ${TOOLS.length + 1} Rechnerseiten, ${STATIC_PAGES.length + NEW_STATIC_PAGES.length + 1} feste Seiten und ${LEGAL_PAGES.length} Rechtstextseiten vorgerendert nach dist/`);
+console.log(`✓ ${articles.length + 1} Blog-Seiten, ${TOOLS.length} Rechnerseiten, ${STATIC_PAGES.length + NEW_STATIC_PAGES.length + 1} feste Seiten und ${LEGAL_PAGES.length} Rechtstextseiten vorgerendert nach dist/`);

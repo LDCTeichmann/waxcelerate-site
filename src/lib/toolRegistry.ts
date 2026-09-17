@@ -54,6 +54,10 @@ export interface ToolEntry {
    *  in der Kosten-Karte (umstieg), zwei Karten mit derselben Zahl waren eine
    *  zu viel. */
   inDeck?: boolean;
+  /** Rechner mit eigenem zweispaltigem Innenlayout (WaxCalculator, ab
+   *  1000px), das in der schmalen 26rem-Spalte von RechnerToolPage abgeschnitten
+   *  wirkt — bekommt stattdessen die volle Breite, Erklaerung darunter. */
+  fullWidth?: boolean;
 }
 
 
@@ -181,7 +185,11 @@ export const TOOLS: ToolEntry[] = [
     // auf /anleitung direkt ueber dem Deck, nicht mehr als eigene Karte darin
     // — zwei Wege zur selben Frage waeren einer zu viel gewesen.
     inDeck: false,
-    usesProfile: true,
+    // WaxCalculator bringt Wetter/Gelaende/km schon als eigene Eingabe mit
+    // (anders als der fruehere CostCalculator) — die externe ProfileBar ueber
+    // dem Rechner waere dieselbe Eingabe ein zweites Mal.
+    usesProfile: false,
+    fullWidth: true,
     showsAssumptions: true,
     label: 'Kosten', labelEn: 'Cost',
     cover: 'Lohnt sich Wachs für dich?', coverEn: 'Is wax worth it for you?',
@@ -254,7 +262,9 @@ export const TOOLS: ToolEntry[] = [
   {
     slug: 'ersparnis',
     inDeck: false,
-    usesProfile: true,
+    // Siehe 'umstieg': WaxCalculator bringt Wetter/Gelaende/km schon mit.
+    usesProfile: false,
+    fullWidth: true,
     showsAssumptions: true,
     label: 'Ersparnis', labelEn: 'Savings',
     cover: 'Rotation & Ersparnis', coverEn: 'Rotation & savings',

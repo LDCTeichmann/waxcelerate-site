@@ -50,7 +50,7 @@ const body = `
   <li><a href="/">Startseite</a> — Kettenwachs und vorgewachste Ketten</li>
   <li><a href="/ketten">Vorgewachste Ketten</a> — acht Ketten für Shimano, SRAM und Campagnolo</li>
   <li><a href="/blog">Ratgeber</a> — Anleitungen, Intervalle, ehrliche Antworten</li>
-  <li><a href="/rechner">Rechner</a> — Verschleiß, Kettenlänge, Rewax-Intervall, Kosten</li>
+  <li><a href="/anleitung">Anleitungen &amp; Rechner</a> — Verschleiß, Kettenlänge, Rewax-Intervall, Kosten</li>
   <li><a href="/kette-wachsen-lassen">Kette wachsen lassen</a></li>
   <li><a href="/wissenschaft">Die Wissenschaft dahinter</a></li>
 </ul>`.trim();

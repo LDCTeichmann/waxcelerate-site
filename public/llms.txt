@@ -7,7 +7,7 @@ Waxcelerate ist ein deutsches Kleinunternehmen, gegründet von Luca Teichmann (M
 
 Produkte: Heißwachs in vier Varianten (Classic/Pro, 300g/500g) und 9 vorgewachste Fahrradketten.
 Hauptvorteil gegenüber Kettenöl: trockener Film, keine Schmutzaufnahme, Kettenlaufzeit typisch 2–3× länger (6.000–12.000 km statt 2.000–3.000 km).
-Empfohlenes Nachwachsen nach den Werten von Zero Friction Cycling: trockene Straße rund 300 km je Wachsung, gemischt oder nass 150–200 km, im Gelände etwa die halbe Strecke wie auf der Straße. Die Rechner unter /rechner arbeiten mit diesen Werten.
+Empfohlenes Nachwachsen nach den Werten von Zero Friction Cycling: trockene Straße rund 300 km je Wachsung, gemischt oder nass 150–200 km, im Gelände etwa die halbe Strecke wie auf der Straße. Die Rechner unter /anleitung arbeiten mit diesen Werten.
 
 ## Wichtigste Seiten
 
@@ -18,7 +18,7 @@ Empfohlenes Nachwachsen nach den Werten von Zero Friction Cycling: trockene Stra
 - [Häufige Fragen](https://waxcelerate.de/faq): 22 Fragen und Antworten
 - [Kontakt](https://waxcelerate.de/kontakt): E-Mail, WhatsApp, Antwortzeiten
 - [Blog-Übersicht](https://waxcelerate.de/blog): 18 Ratgeber und Anleitungen
-- [Rechner](https://waxcelerate.de/rechner): 6 kostenlose Rechner rund um Kette und Kettenpflege
+- [Rechner](https://waxcelerate.de/anleitung#rechner): 6 kostenlose Rechner rund um Kette und Kettenpflege
 - [Starter-Set](https://waxcelerate.de/starter-set): Wachs, Quick-Link-Zange und Aufhängedraht in einem Set, 15% unter der Summe der Einzelteile
 - [Kette wachsen lassen](https://waxcelerate.de/kette-wachsen-lassen): Kettenwachs-Service per Post aus Stuttgart — Auffrischung, Umstieg von Öl auf Wachs, Prepaid- und Geschenkkarten
 - [Kette wachsen lassen in Hamburg](https://waxcelerate.de/kette-wachsen-lassen/hamburg): per Post, mit Nachwachs-Intervall für das Klima in Hamburg

@@ -12,7 +12,7 @@ import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import {
-  products, trustStats, waxIntervals, starterSet, starterSetOptions, accessories, waxVsOil,
+  products, trustStats, waxIntervals, starterSet, starterSetOptions, accessories, waxVsOil, waxProcessTimeline,
 } from '../src/lib/data.ts';
 import { COMPONENTS } from '../src/lib/science.ts';
 import { articles, categoryOrder } from '../src/pages/blog/articles.ts';
@@ -28,6 +28,25 @@ const BASE = 'https://waxcelerate.de';
 const wax = products.filter(p => p.category === 'wax');
 const chains = products.filter(p => p.category === 'chain');
 
+// /anleitung zeigt den Ablauf seit der Seitenordnung 09/2026 interaktiv
+// (ProcessWatch, drei Modi) statt als statischer Text (guides.* entfallen).
+// Fuer llms.txt hier dieselbe Zeitleiste (waxProcessTimeline) als Textliste
+// nachgebaut, damit ein Agent ohne JavaScript denselben Ablauf lesen kann.
+const howToGuide = articles.find(a => a.slug === 'heisswachs-anleitung');
+const howToTexts = howToGuide?.howTo?.steps ?? [];
+function processSteps(mode) {
+  return waxProcessTimeline
+    .filter(s => mode === 'first' || !s.firstOnly)
+    .map(s => {
+      const h = s.howToIndex !== undefined ? howToTexts[s.howToIndex] : undefined;
+      const name = h?.name ?? s.nameDe ?? '';
+      const text = s.textDe ?? h?.text ?? '';
+      const note = mode === 'rotation' && s.perChain ? ' (an jeder Kette einzeln, im Wechsel also ×3 Zeit)' : '';
+      return { name, text: text + note };
+    })
+    .filter(s => s.name);
+}
+
 // ─── llms.txt — lightweight index ─────────────────────────────────────────
 
 const llmsTxt = `# Waxcelerate
@@ -39,7 +58,7 @@ ${trustStats.sold} verkaufte Einheiten, ${trustStats.reviews} Bewertungen, 100% 
 
 Produkte: Heißwachs in vier Varianten (Classic/Pro, 300g/500g) und ${chains.length} vorgewachste Fahrradketten.
 Hauptvorteil gegenüber Kettenöl: trockener Film, keine Schmutzaufnahme, Kettenlaufzeit typisch 2–3× länger (6.000–12.000 km statt 2.000–3.000 km).
-Empfohlenes Nachwachsen nach den Werten von Zero Friction Cycling: trockene Straße rund 300 km je Wachsung, gemischt oder nass 150–200 km, im Gelände etwa die halbe Strecke wie auf der Straße. Die Rechner unter /rechner arbeiten mit diesen Werten.
+Empfohlenes Nachwachsen nach den Werten von Zero Friction Cycling: trockene Straße rund 300 km je Wachsung, gemischt oder nass 150–200 km, im Gelände etwa die halbe Strecke wie auf der Straße. Die Rechner unter /anleitung arbeiten mit diesen Werten.
 
 ## Wichtigste Seiten
 
@@ -50,7 +69,7 @@ Empfohlenes Nachwachsen nach den Werten von Zero Friction Cycling: trockene Stra
 - [Häufige Fragen](${BASE}/faq): ${DE.faq.items.length} Fragen und Antworten
 - [Kontakt](${BASE}/kontakt): E-Mail, WhatsApp, Antwortzeiten
 - [Blog-Übersicht](${BASE}/blog): ${articles.length} Ratgeber und Anleitungen
-- [Rechner](${BASE}/rechner): ${TOOLS.length} kostenlose Rechner rund um Kette und Kettenpflege
+- [Rechner](${BASE}/anleitung#rechner): ${TOOLS.length} kostenlose Rechner rund um Kette und Kettenpflege
 - [Starter-Set](${BASE}/starter-set): Wachs, Quick-Link-Zange und Aufhängedraht in einem Set, ${starterSet.discountPct}% unter der Summe der Einzelteile
 - [Kette wachsen lassen](${BASE}/kette-wachsen-lassen): Kettenwachs-Service per Post aus Stuttgart — Auffrischung, Umstieg von Öl auf Wachs, Prepaid- und Geschenkkarten
 ${REWAX_CITIES.map(c => `- [Kette wachsen lassen in ${c.name}](${BASE}/kette-wachsen-lassen/${c.slug}): per Post, mit Nachwachs-Intervall für das Klima in ${c.name}`).join('\n')}
@@ -228,21 +247,20 @@ URL: ${BASE}/kontakt
 - WhatsApp: +49 157 51957470 (meist sofort)
 - Sitz: Stuttgart, Deutschland
 
-## Anleitung — Kette wachsen, Schritt für Schritt
+## Anleitungen & Rechner — Kette wachsen, Schritt für Schritt
 
 URL: ${BASE}/anleitung
 
-### ${DE.guides.newChain.title}
-${DE.guides.newChain.note}
-${DE.guides.newChain.steps.map((s, i) => `${i + 1}. ${s}`).join('\n')}
+### Neue Kette erstmalig wachsen (mit Entfetten)
+${processSteps('first').map((s, i) => `${i + 1}. ${s.name}: ${s.text}`).join('\n')}
 
-### ${DE.guides.rewax.title}
-${DE.guides.rewax.note}
-${DE.guides.rewax.steps.map((s, i) => `${i + 1}. ${s}`).join('\n')}
+### Nachwachsen
+${processSteps('rewax').map((s, i) => `${i + 1}. ${s.name}: ${s.text}`).join('\n')}
 
-### ${DE.guides.rotation.title}
-${DE.guides.rotation.note}
-${DE.guides.rotation.steps.map((s, i) => `${i + 1}. ${s}`).join('\n')}
+### Drei Ketten im Wechsel (Rotation)
+${processSteps('rotation').map((s, i) => `${i + 1}. ${s.name}: ${s.text}`).join('\n')}
+
+Rechner auf derselben Seite (${BASE}/anleitung#rechner): ${TOOLS.map(t => t.cover).join(', ')}.
 
 ## Häufige Fragen — alle ${DE.faq.items.length}
 
