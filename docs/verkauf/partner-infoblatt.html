@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="de" data-variant="aufwand">
+<head>
+<meta charset="utf-8">
+<title>Waxcelerate · Partner-Infoblatt</title>
+<meta name="robots" content="noindex, nofollow">
+<!--
+  ═══════════════════════════════════════════════════════════════════════════
+  WAXCELERATE · PARTNER-INFOBLATT (A4, 4 Seiten)
+  ═══════════════════════════════════════════════════════════════════════════
+
+  Drucken: im Browser oeffnen, Strg/Cmd+P, Papierformat A4, Raender "keine",
+  "Hintergrundgrafiken" einschalten, dann "Als PDF sichern".
+  Ausfuehrlich in README.md daneben.
+
+  Variante und Shopname stehen im CONFIG-Block ganz unten im <script>.
+  Sonst nichts anfassen, um die Variante zu wechseln.
+
+  Warum die Datei in docs/ liegt und nicht in public/: sie soll nicht auf
+  waxcelerate.de landen und nicht indexiert werden. Bilder und Schriften
+  werden deshalb relativ aus ../../public/ geladen.
+
+  Farben, Schriften und Strichstaerken sind die Dark-Mode-Tokens der Website
+  (src/index.css, .noir-Block). Kraft-Gold traegt ausschliesslich Geldzahlen.
+  Zahlen und Claims folgen dem B2B-Masterplan und 30_claims_language.md:
+  keine Gedankenstriche als Satzzeichen, keine Preisbindung, keine exakten
+  Rewax-Preise, kein "Made in Germany" fuer Markenketten.
+-->
+
+<style>
+/* ── Schriften ───────────────────────────────────────────────────────────
+   Fraunces und Libre Franklin liegen auf der Website als VARIABLE Fonts.
+   Chrome kann variable Fonts beim Drucken nicht in die PDF einbetten und
+   faellt still auf Liberation Serif und DejaVu Sans zurueck. Am Bildschirm
+   sieht man davon nichts, in der PDF, die Luca verschickt, sofort.
+   Deshalb liegen hier feste Schnitte daneben, erzeugt mit fontTools aus
+   genau denselben Dateien (Fraunces mit opsz 88 / SOFT 36 / WONK 1, also
+   den Achsenwerten, die index.css auf Ueberschriften setzt).
+   IBM Plex Mono ist schon statisch und kommt weiter aus public/fonts.
+   Neu erzeugen: siehe README.md. ─────────────────────────────────────── */
+@font-face{font-family:'Fraunces';font-style:normal;font-weight:700;font-display:block;
+  src:url(fonts/fraunces-700.woff2) format('woff2');}
+@font-face{font-family:'Libre Franklin';font-style:normal;font-weight:400;font-display:block;
+  src:url(fonts/libre-franklin-400.woff2) format('woff2');}
+@font-face{font-family:'Libre Franklin';font-style:normal;font-weight:500;font-display:block;
+  src:url(fonts/libre-franklin-500.woff2) format('woff2');}
+@font-face{font-family:'Libre Franklin';font-style:normal;font-weight:600;font-display:block;
+  src:url(fonts/libre-franklin-600.woff2) format('woff2');}
+@font-face{font-family:'Libre Franklin';font-style:normal;font-weight:700;font-display:block;
+  src:url(fonts/libre-franklin-700.woff2) format('woff2');}
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:400;font-display:block;
+  src:url(../../public/fonts/-F63fjptAgt5VM-kVkqdyU8n1i8q131nj-o.woff2) format('woff2');}
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:500;font-display:block;
+  src:url(../../public/fonts/-F6qfjptAgt5VM-kVkqdyU8n3twJwlBFgsAXHNk.woff2) format('woff2');}
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:600;font-display:block;
+  src:url(../../public/fonts/-F6qfjptAgt5VM-kVkqdyU8n3vAOwlBFgsAXHNk.woff2) format('woff2');}
+
+/* ── Tokens: 1:1 der .noir-Block aus src/index.css ───────────────────────── */
+:root{
+  --pg:#09090B; --sf:#111113; --sf2:#1C1C1F;
+  --tx1:#FAFAFA; --tx2:#A1A1A1; --txm:#8C8C8C; --txff:#858585;
+  --bd:#27272A; --bd2:#1F1F22;
+  --accent:#5685C0; --accent-soft:#7AA0CE; --accent-strong:#3A66A0;
+  --accent-wash:rgba(86,133,192,.10); --accent-wash-sm:rgba(86,133,192,.06);
+  /* Kraft-Gold aus B2B-Masterplan §8. Traegt NUR Geldzahlen. */
+  --gold:#B9A67E; --gold-dim:#8E7F60;
+  /* Zeichenskala, Verhaeltnis 1 : 1,4 : 2,2 (docs/DESIGN.md §2) */
+  --dw-hair:1.1px; --dw-line:1.5px; --dw-bold:2.4px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:#3A3A3E}
+body{
+  font-family:'Libre Franklin',ui-sans-serif,system-ui,sans-serif;
+  color:var(--tx2); background:#3A3A3E;
+  -webkit-font-smoothing:antialiased;
+  font-variant-numeric:tabular-nums;
+}
+
+/* ── Seitengeometrie ─────────────────────────────────────────────────────── */
+@page{size:A4 portrait;margin:0}
+.sheet{
+  position:relative; width:210mm; height:297mm; overflow:hidden;
+  background:var(--pg); color:var(--tx2);
+  padding:13mm 14mm 11mm;
+  display:flex; flex-direction:column;
+  margin:0 auto 8mm; box-shadow:0 6mm 18mm rgba(0,0,0,.5);
+  page-break-after:always; break-after:page;
+}
+.sheet:last-of-type{page-break-after:auto;break-after:auto;margin-bottom:0}
+
+@media print{
+  html,body{background:#fff}
+  .sheet{margin:0;box-shadow:none}
+  /* Ohne das druckt Chrome die Flaechen weiss. */
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+
+/* ── Typografie ──────────────────────────────────────────────────────────── */
+.eyebrow{
+  font-family:'IBM Plex Mono',ui-monospace,monospace;
+  font-size:7.4pt; font-weight:600; text-transform:uppercase;
+  letter-spacing:.18em; color:var(--txff);
+}
+.eyebrow--accent{color:var(--accent-soft)}
+h1,h2,h3{font-family:'Fraunces',Georgia,serif;font-weight:700;color:var(--tx1);
+  letter-spacing:-.02em; line-height:1.03;}
+h1{font-size:33pt}
+h2{font-size:23pt}
+h3{font-size:12.5pt;letter-spacing:-.01em;line-height:1.15}
+p{font-size:9.2pt;line-height:1.5;color:var(--tx2)}
+.lead{font-size:11pt;line-height:1.42;color:var(--tx1)}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.tiny{font-size:7.2pt;line-height:1.45;color:var(--txff)}
+strong{color:var(--tx1);font-weight:600}
+.money{color:var(--gold)}
+.acc{color:var(--accent-soft)}
+
+/* Haarlinie ist der Standardbehaelter, nicht die Box (docs/DESIGN.md §3). */
+.rule{border-top:1px solid var(--bd)}
+.rule-soft{border-top:1px solid var(--bd2)}
+
+/* ── Kopf- und Fusszeile jeder Seite ─────────────────────────────────────── */
+.sheet-head{display:flex;align-items:center;gap:6mm;padding-bottom:3.5mm;
+  border-bottom:1px solid var(--bd);margin-bottom:6mm;flex:0 0 auto}
+.sheet-head img{width:8.5mm;height:8.5mm;flex:0 0 auto}
+.sheet-head .wordmark{font-family:'Fraunces',Georgia,serif;font-weight:700;
+  font-size:12pt;color:var(--tx1);letter-spacing:-.02em}
+.sheet-head .spacer{margin-left:auto}
+.sheet-foot{margin-top:auto;padding-top:3.5mm;border-top:1px solid var(--bd);
+  display:flex;align-items:baseline;gap:4mm;flex:0 0 auto}
+.sheet-foot .spacer{margin-left:auto}
+.pagemark{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:7.4pt;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--txff)}
+
+/* ── Fotos: Duotone plus Maske, nie Rahmen, nie Vignette ─────────────────── */
+/* Das gruene Bokeh der Produktfotos kippt auf dunklem Grund ins Olive
+   (docs/DESIGN.md §1, "Ursache 3"). Der Duotone-Filter nimmt ihm die Farbe
+   ganz und macht aus allen Fotos ein Material. Die Maske loest das Bild in
+   den Seitengrund auf, statt es in einen Kasten zu sperren. */
+.photo{position:relative;overflow:hidden}
+.photo img{display:block;width:100%;height:100%;object-fit:cover;
+  filter:url(#wxDuotone) contrast(1.04)}
+.photo--fadeL img{-webkit-mask-image:linear-gradient(to right,transparent 0%,#000 26%,#000 100%);
+  mask-image:linear-gradient(to right,transparent 0%,#000 26%,#000 100%)}
+.photo--fadeB img{-webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 52%,transparent 100%);
+  mask-image:linear-gradient(to bottom,#000 0%,#000 52%,transparent 100%)}
+.photo--fadeLR img{-webkit-mask-image:linear-gradient(to right,transparent,#000 18%,#000 82%,transparent);
+  mask-image:linear-gradient(to right,transparent,#000 18%,#000 82%,transparent)}
+.photo--soft img{-webkit-mask-image:radial-gradient(120% 100% at 50% 40%,#000 55%,transparent 100%);
+  mask-image:radial-gradient(120% 100% at 50% 40%,#000 55%,transparent 100%)}
+.photo--warm img{filter:url(#wxDuotoneWarm) contrast(1.06) brightness(1.04)}
+/* Beim Vorher/Nachher darf die Farbe NICHT raus: der ganze Beweis ist, dass
+   das eine Bild oelig-braun ist und das andere trocken-silbern. Duotone wuerde
+   genau diesen Unterschied wegrechnen. Also nur entsaettigen, nicht ersetzen. */
+.photo--real img{filter:saturate(.62) contrast(1.16) brightness(.97)}
+/* Freisteller mit echtem Alphakanal brauchen keine Behandlung. */
+.cutout img{filter:none;object-fit:contain}
+.caption{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:6.8pt;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--txff);margin-top:1.6mm}
+
+/* ── Instrumentenrahmen: Punktraster, Eckmarken, Mono-Chip ───────────────── */
+.instr{position:relative;padding:5mm;border:1px solid var(--bd);border-radius:3mm;
+  background:var(--sf);
+  background-image:radial-gradient(circle,rgba(86,133,192,.11) 1px,transparent 1px);
+  background-size:6.6mm 6.6mm}
+.instr::before,.instr::after{content:"";position:absolute;width:3mm;height:3mm;
+  border:1px solid rgba(86,133,192,.3)}
+.instr::before{top:1.8mm;left:1.8mm;border-right:0;border-bottom:0}
+.instr::after{bottom:1.8mm;right:1.8mm;border-left:0;border-top:0}
+.instr > .eyebrow:first-of-type{padding-right:26mm}
+.instr-chip{position:absolute;top:2.6mm;right:2.6mm;
+  font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:6.6pt;
+  padding:.8mm 2mm;border-radius:1.2mm;background:var(--accent-wash);
+  border:1px solid rgba(86,133,192,.16);color:var(--accent-soft);letter-spacing:.04em}
+
+/* ── KPI-Zeile: Mono-Zahlen auf 1px-Fugen (hub/NumbersStrip.tsx) ─────────── */
+.kpis{display:grid;gap:1px;background:var(--bd);border:1px solid var(--bd);
+  border-radius:2.5mm;overflow:hidden}
+.kpis--4{grid-template-columns:repeat(4,1fr)}
+.kpis--3{grid-template-columns:repeat(3,1fr)}
+.kpi{background:var(--sf);padding:4mm 3.4mm}
+.kpi .v{font-family:'IBM Plex Mono',ui-monospace,monospace;font-weight:500;
+  font-size:19pt;line-height:1;color:var(--tx1);letter-spacing:-.02em}
+.kpi .v.money{color:var(--gold)}
+.kpi .u{font-size:9pt;font-weight:500;color:var(--txm);margin-left:.6mm}
+.kpi .l{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:6.8pt;
+  text-transform:uppercase;letter-spacing:.14em;color:var(--accent);margin-top:2.2mm}
+.kpi .n{font-size:7.6pt;line-height:1.35;color:var(--txm);margin-top:1.4mm}
+
+/* ── Readout: Wert auf Haarlinie (science/ProofInstrument.tsx) ───────────── */
+.readout{border-top:1px solid var(--bd);padding-top:2.6mm}
+.readout .v{font-family:'Fraunces',Georgia,serif;font-weight:700;font-size:20pt;
+  line-height:1;color:var(--tx1);letter-spacing:-.02em}
+.readout .v.money{color:var(--gold)}
+.readout .l{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:6.8pt;
+  text-transform:uppercase;letter-spacing:.14em;color:var(--txff);margin-top:1.8mm}
+.readout .n{font-size:7.6pt;line-height:1.4;color:var(--txm);margin-top:1.2mm}
+
+/* ── Giant Number ────────────────────────────────────────────────────────── */
+.giant{font-family:'Fraunces',Georgia,serif;font-weight:700;line-height:.92;
+  letter-spacing:-.035em;color:var(--tx1);font-size:44pt}
+.giant.money{color:var(--gold)}
+.giant small{font-size:15pt;font-weight:700;color:var(--txm);letter-spacing:0;margin-left:1mm}
+
+/* ── Nummerierte Schritte auf Haarlinien, keine gefuellten Kacheln ───────── */
+.steps{display:grid;gap:0}
+.step{display:grid;grid-template-columns:9mm 1fr;gap:3.4mm;
+  border-top:1px solid var(--bd2);padding:3.2mm 0}
+.step:first-child{border-top:1px solid var(--bd)}
+.step .ix{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:9.5pt;
+  font-weight:500;color:var(--accent-soft);padding-top:.4mm}
+.step h3{margin-bottom:1.2mm}
+.step p{font-size:8.4pt;line-height:1.45}
+
+/* ── Pillen und Chips ────────────────────────────────────────────────────── */
+.pill{display:inline-block;font-family:'IBM Plex Mono',ui-monospace,monospace;
+  font-size:6.8pt;letter-spacing:.1em;text-transform:uppercase;
+  padding:1mm 2.4mm;border-radius:99px;border:1px solid rgba(86,133,192,.22);
+  background:var(--accent-wash-sm);color:var(--accent-soft)}
+.pill--gold{border-color:rgba(185,166,126,.3);background:rgba(185,166,126,.08);color:var(--gold)}
+
+/* ── Zitat und Notiz als linke Kante, nicht als Kasten ───────────────────── */
+.quote{border-left:var(--dw-bold) solid var(--accent);padding-left:4mm}
+.quote p{font-family:'Fraunces',Georgia,serif;font-size:11.5pt;line-height:1.28;
+  color:var(--tx1);letter-spacing:-.01em}
+.note{border-left:var(--dw-line) solid var(--gold-dim);padding-left:3.4mm}
+
+/* ── Tabelle Sortiment ───────────────────────────────────────────────────── */
+table.sku{width:100%;border-collapse:collapse}
+table.sku th{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:6.6pt;
+  text-transform:uppercase;letter-spacing:.14em;color:var(--txff);
+  text-align:left;padding:0 0 2mm;border-bottom:1px solid var(--bd);font-weight:500}
+table.sku th:last-child,table.sku td:last-child{text-align:right}
+table.sku td{padding:1.9mm 0;border-bottom:1px solid var(--bd2);font-size:8.4pt;color:var(--tx2)}
+table.sku td.m{color:var(--tx1);font-weight:500}
+table.sku td.p{font-family:'IBM Plex Mono',ui-monospace,monospace;font-weight:500;
+  font-size:9pt;color:var(--gold);white-space:nowrap}
+table.sku tr.new td.m::after{content:"NEU";font-family:'IBM Plex Mono',ui-monospace,monospace;
+  font-size:6pt;letter-spacing:.12em;color:var(--accent);margin-left:2.2mm;vertical-align:.4mm}
+
+/* ── Variantensteuerung ─────────────────────────────────────────────────── */
+[data-variant="aufwand"] .v-beweis{display:none !important}
+[data-variant="beweis"] .v-aufwand{display:none !important}
+.shopline:empty{display:none}
+/* Zeile nur, wenn im CONFIG eingeschaltet. */
+html:not([data-localrewax="on"]) .localrewax{display:none !important}
+
+/* ── Hilfsklassen ───────────────────────────────────────────────────────── */
+.row{display:flex}.col{display:flex;flex-direction:column}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:6mm}
+.g2u{display:grid;gap:6mm}
+.gap2{gap:2mm}.gap3{gap:3mm}.gap4{gap:4mm}.gap6{gap:6mm}
+.mt2{margin-top:2mm}.mt3{margin-top:3mm}.mt4{margin-top:4mm}
+.mt5{margin-top:5mm}.mt6{margin-top:6mm}.mt8{margin-top:8mm}
+.grow{flex:1 1 auto;min-height:0}
+.center{align-items:center}
+</style>
+</head>
+<body>
+
+<!-- Duotone-Filter. color-interpolation-filters="sRGB" ist Pflicht, sonst
+     rechnet der Filter in linearRGB und bringt den Farbstich zurueck
+     (docs/DESIGN.md §1). -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <filter id="wxDuotone" color-interpolation-filters="sRGB">
+    <feColorMatrix type="matrix" values="
+      .2126 .7152 .0722 0 0
+      .2126 .7152 .0722 0 0
+      .2126 .7152 .0722 0 0
+      0 0 0 1 0"/>
+    <feComponentTransfer>
+      <feFuncR type="table" tableValues="0.04 0.33 0.86"/>
+      <feFuncG type="table" tableValues="0.05 0.38 0.90"/>
+      <feFuncB type="table" tableValues="0.07 0.47 0.96"/>
+    </feComponentTransfer>
+  </filter>
+  <filter id="wxDuotoneWarm" color-interpolation-filters="sRGB">
+    <feColorMatrix type="matrix" values="
+      .2126 .7152 .0722 0 0
+      .2126 .7152 .0722 0 0
+      .2126 .7152 .0722 0 0
+      0 0 0 1 0"/>
+    <feComponentTransfer>
+      <feFuncR type="table" tableValues="0.05 0.44 0.92"/>
+      <feFuncG type="table" tableValues="0.05 0.38 0.82"/>
+      <feFuncB type="table" tableValues="0.07 0.27 0.62"/>
+    </feComponentTransfer>
+  </filter>
+</defs></svg>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     SEITE 1 · DECKEL
+     Traegt bewusst schon Zahlen. Ein weitergeleitetes PDF verkauft sonst
+     im ersten Screen nichts ausser einer Ueberschrift.
+     ══════════════════════════════════════════════════════════════════ -->
+<section class="sheet" id="s1">
+
+  <!-- Angeschnittenes Foto rechts oben, in den Seitengrund maskiert. -->
+  <div class="photo photo--fadeL photo--warm" style="position:absolute;top:0;right:0;width:112mm;height:206mm">
+    <img src="../../public/images/rewax/hero.webp" alt="">
+  </div>
+  <div style="position:absolute;top:0;right:0;width:112mm;height:206mm;
+              background:linear-gradient(to bottom,rgba(9,9,11,.06),rgba(9,9,11,.32) 42%,rgba(9,9,11,.86) 78%,var(--pg))"></div>
+
+  <header class="sheet-head" style="position:relative;z-index:2;border-bottom-color:transparent">
+    <img src="logo.svg" alt="">
+    <span class="wordmark">waxcelerate</span>
+  </header>
+
+  <div style="position:relative;z-index:2;flex:1 1 auto;display:flex;flex-direction:column">
+
+    <div class="eyebrow" style="margin-bottom:2.5mm">Partner-Infoblatt · Fachhandel DE &amp; AT</div>
+    <div class="shopline eyebrow eyebrow--accent" data-shopline style="margin-bottom:4mm"></div>
+
+    <h1 class="v-aufwand" style="max-width:104mm">
+      Sie wachsen schon.<br>Ab jetzt ohne Bankzeit.
+    </h1>
+    <h1 class="v-beweis" style="max-width:104mm">
+      Ihre Kunden wachsen&nbsp;schon.<br>Bezahlt werden andere.
+    </h1>
+
+    <p class="lead mt5" style="max-width:88mm">
+      <span class="v-aufwand">Wir übernehmen das Wachsen. Sie tauschen die Kette
+      über den Tresen und kassieren Ihre Gebühr.</span>
+      <span class="v-beweis">Der Markt zahlt bereits für Wachs-Service. Nur eben
+      nicht bei Ihnen. Das lässt sich in zwei Minuten pro Kunde ändern.</span>
+    </p>
+
+    <div class="quote mt6" style="max-width:92mm">
+      <p class="v-aufwand">„Wie viele Minuten Werkstattzeit stecken bei Ihnen
+        in einer gewachsten Kette?“</p>
+      <p class="v-beweis">„Was machen Sie, wenn ein Kunde mit gewachster Kette
+        zur Inspektion kommt?“</p>
+    </div>
+
+    <!-- Vorgriff auf Seite 3, damit der Deckel schon sagt, worum es geht. -->
+    <div class="mt8" style="max-width:96mm">
+      <div class="eyebrow">Drei Wege, stapelbar</div>
+      <div class="steps mt3">
+        <div class="step" style="padding:2.6mm 0">
+          <div class="ix">01</div>
+          <div><p><strong>Regal.</strong> Wachs auf Kommission, 30 % Marge.
+            Kein Einkauf, kein Warenrisiko.</p></div>
+        </div>
+        <div class="step" style="padding:2.6mm 0">
+          <div class="ix">02</div>
+          <div><p><strong>Ketten.</strong> Vorgewachst und einbaufertig.
+            Zwei Typen im Lager, der Rest in 48–72 h.</p></div>
+        </div>
+        <div class="step" style="padding:2.6mm 0">
+          <div class="ix">03</div>
+          <div><p><strong>Kreislauf.</strong> Der Tausch über den Tresen.
+            Wiederkehrend, zwei Minuten, Ihre Gebühr.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Die Mechaniker-Perspektive. Sie verkauft am Tresen, nicht der Inhaber
+         (B2B-Masterplan §7), und fehlte in v6 auf allen vier Seiten. -->
+    <div class="note mt6" style="max-width:96mm">
+      <p>Und für Ihre Werkstatt: <strong>keine verölten Antriebe mehr
+        entfetten.</strong> Gewachste Ketten kommen trocken rein und gehen
+        trocken raus. Im Testpaket liegt ein Block gratis fürs Privatrad,
+        zum Selbsttesten.</p>
+    </div>
+
+    <div class="grow"></div>
+
+    <!-- Die vier Zahlen, um die es auf den naechsten drei Seiten geht. -->
+    <div class="kpis kpis--4">
+      <div class="kpi">
+        <div class="v">2<span class="u">Min.</span></div>
+        <div class="l">Aufwand</div>
+        <div class="n">Kette raus, Kette rein. Ihr ganzer Anteil je Tausch.</div>
+      </div>
+      <div class="kpi">
+        <div class="v money">7,50<span class="u">€</span></div>
+        <div class="l">Rohertrag</div>
+        <div class="n">Ihre Tauschgebühr. Rechenbeispiel, Sie setzen sie selbst.</div>
+      </div>
+      <div class="kpi">
+        <div class="v money">750<span class="u">€</span></div>
+        <div class="l">Im Jahr</div>
+        <div class="n">Bei 20 Rotationskunden mit je fünf Tauschen.</div>
+      </div>
+      <div class="kpi">
+        <div class="v money">0<span class="u">€</span></div>
+        <div class="l">Warenrisiko</div>
+        <div class="n">Unverkauftes holen wir nach 60 Tagen auf unsere Kosten zurück.</div>
+      </div>
+    </div>
+
+    <div class="row mt6 center gap4">
+      <span class="pill" data-cityline>Wir suchen zwei bis drei Partner in Leipzig</span>
+      <span class="tiny">Partner in Stuttgart, Erlangen und Salzburg.</span>
+    </div>
+
+  </div>
+
+  <footer class="sheet-foot" style="position:relative;z-index:2">
+    <span class="pagemark">01 <span style="color:var(--bd)">/</span> Das Angebot</span>
+    <span class="spacer"></span>
+    <span class="pagemark v-aufwand">Die Rechnung <svg viewBox="0 0 16 10" aria-hidden="true" style="width:10px;height:7px;display:inline-block;vertical-align:.02em;margin:0 .15em"><path d="M0 5h13M9.4 1.2 13.2 5 9.4 8.8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Seite 2</span>
+    <span class="pagemark v-beweis">Der Beweis <svg viewBox="0 0 16 10" aria-hidden="true" style="width:10px;height:7px;display:inline-block;vertical-align:.02em;margin:0 .15em"><path d="M0 5h13M9.4 1.2 13.2 5 9.4 8.8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Seite 2</span>
+  </footer>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     SEITE 2 · DER AUFWAND / DER BEWEIS
+     Zwei Varianten, gleiche Struktur. Neu gegenueber v6: der Rohertrag je
+     Werkstattstunde und das Vorher/Nachher-Paar.
+     ══════════════════════════════════════════════════════════════════ -->
+<section class="sheet" id="s2">
+  <header class="sheet-head">
+    <img src="logo.svg" alt="">
+    <span class="wordmark">waxcelerate</span>
+    <span class="spacer"></span>
+    <span class="eyebrow v-aufwand">Der Aufwand</span>
+    <span class="eyebrow v-beweis">Der Beweis</span>
+  </header>
+
+  <h2 class="v-aufwand" style="max-width:120mm">Wachsen kostet Werkbank.</h2>
+  <h2 class="v-beweis" style="max-width:120mm">Das Geld fließt bereits.</h2>
+
+  <!-- Die zwei grossen Zahlen. -->
+  <div class="g2 mt6" style="align-items:start">
+    <div class="v-aufwand">
+      <div class="eyebrow">Heute, bei Ihnen</div>
+      <div class="giant mt2">30–45<small>Min.</small></div>
+      <p class="mt3"><strong>Vorbereitung pro Kette.</strong> Entfetten, trocknen,
+        schmelzen, tauchen, aushärten. Im Frühjahr steht jede Kette im Wachstopf
+        gegen einen Auftrag, den Sie abrechnen könnten.</p>
+    </div>
+    <div class="v-aufwand">
+      <div class="eyebrow eyebrow--accent">Mit uns</div>
+      <div class="giant mt2 acc">2<small>Min.</small></div>
+      <p class="mt3"><strong>Kette tauschen, fertig.</strong> Über den Tresen,
+        ohne Werkzeug, ohne Aushärten. Kein Topf, kein Ultraschall, keine
+        Wachsentsorgung, und im Peak keine Warteschlange.</p>
+    </div>
+
+    <div class="v-beweis">
+      <div class="eyebrow">Marktpreis Nachwachsen</div>
+      <div class="giant mt2 money">35–64<small>€</small></div>
+      <p class="mt3"><strong>Je Kette.</strong> Das nehmen Werkstätten und
+        Versanddienste heute dafür. Wer keinen Anbieter vor Ort findet, schickt
+        seine Kette per Post ein. An Ihrer Kasse vorbei.</p>
+    </div>
+    <div class="v-beweis">
+      <div class="eyebrow">Marktpreis Erstumstellung</div>
+      <div class="giant mt2 money">145<small>€</small></div>
+      <p class="mt3"><strong>Bis zu, inklusive Reinigung und Ersteinwachsen.</strong>
+        Eine Woche Wartezeit für den Kunden, und der Umsatz landet woanders.</p>
+    </div>
+  </div>
+
+  <p class="tiny mt4">Referenzwerte aus veröffentlichten Preislisten und
+    Prozessbeschreibungen deutscher Wachs-Werkstätten und Versanddienste,
+    Stand 07/2026. Keine Preisempfehlung.</p>
+
+  <!-- Das eigentliche Argument fuer einen Werkstattinhaber: der Stundensatz. -->
+  <div class="instr mt6">
+    <span class="instr-chip">Rechenbeispiel</span>
+    <div class="eyebrow eyebrow--accent">Was der Kreislauf je Werkstattstunde bringt</div>
+    <div class="g2u mt4" style="grid-template-columns:1fr 1fr 1fr 1.25fr;gap:5mm">
+      <div class="readout">
+        <div class="v">100</div>
+        <div class="l">Tausche im Jahr</div>
+        <div class="n">20 Rotationskunden, je fünf Tausche.</div>
+      </div>
+      <div class="readout">
+        <div class="v">3,3<span style="font-size:11pt;color:var(--txm)"> h</span></div>
+        <div class="l">Werkstattzeit</div>
+        <div class="n">100 × 2 Minuten. Mehr nicht.</div>
+      </div>
+      <div class="readout">
+        <div class="v money">750 €</div>
+        <div class="l">Rohertrag</div>
+        <div class="n">Bei 7,50 € Tauschgebühr.</div>
+      </div>
+      <div class="readout" style="border-top-color:var(--accent-soft)">
+        <div class="v money" style="font-size:25pt">rund 225 €</div>
+        <div class="l" style="color:var(--accent-soft)">Je Werkstattstunde</div>
+        <div class="n">Ohne Wachs, Ketten und Karten, die obendrauf kommen.</div>
+      </div>
+    </div>
+    <p class="tiny mt4">Rechenbeispiel mit einer angenommenen Tauschgebühr von
+      7,50 €. Ihre Gebühr und alle Endpreise bestimmen Sie selbst. Die
+      Rewax-Kosten von unter 10 € je Kette trägt Ihr Kunde, er zahlt je Tausch
+      also rund 15 bis 20 €.</p>
+  </div>
+
+  <!-- Vorher/Nachher. Echtes Paar: gleicher Ausschnitt, gleiches Blatt,
+       gleicher Schiefer. Liegt in public/images/compare/. -->
+  <div class="mt6 grow" style="display:flex;flex-direction:column">
+    <div class="row center gap4">
+      <span class="eyebrow">Dieselbe Kette, dieselbe Stelle</span>
+      <span class="spacer"></span>
+      <span class="tiny">Links geölt gefahren, rechts gewachst. Der Unterschied,
+        den Ihr Mechaniker in der Hand hat.</span>
+    </div>
+    <div class="g2 mt3" style="gap:4mm;flex:1 1 auto;min-height:0">
+      <div class="col">
+        <div class="photo photo--fadeB photo--real grow" style="min-height:0">
+          <img src="../../public/images/compare/chain-oel.webp" alt="Geölte Kette, verschmutzt" style="object-position:50% 60%">
+        </div>
+        <div class="caption">Geölt · Schleifpaste aus Öl und Staub</div>
+      </div>
+      <div class="col">
+        <div class="photo photo--fadeB photo--real grow" style="min-height:0">
+          <img src="../../public/images/compare/chain-wachs.webp" alt="Gewachste Kette, sauber" style="object-position:50% 60%">
+        </div>
+        <div class="caption">Gewachst · trocken, saubere Hände</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Wer was behaelt. Haarlinien statt zweier Kaesten. -->
+  <div class="g2 mt6" style="gap:8mm">
+    <div class="rule" style="padding-top:2.6mm">
+      <div class="eyebrow">Sie behalten</div>
+      <p class="mt2">Den Kundenkontakt. Den Endpreis. Die Marge. Die Tauschgebühr
+        bei jedem Besuch. <strong>Ihre Kunden bleiben Ihre Kunden.</strong> Wir
+        haben nie Kontakt zum Endkunden.</p>
+    </div>
+    <div class="rule" style="padding-top:2.6mm;border-top-color:var(--accent-soft)">
+      <div class="eyebrow eyebrow--accent">Wir übernehmen</div>
+      <p class="mt2">Reinigen und Wachsen. Gleiches Ergebnis bei jeder Kette.
+        Nachschub in 48–72 h. <span class="localrewax"><strong>Gewachst wird in
+        Stuttgart und Leipzig.</strong></span></p>
+    </div>
+  </div>
+
+  <footer class="sheet-foot">
+    <span class="pagemark v-aufwand">02 <span style="color:var(--bd)">/</span> Der Aufwand</span>
+    <span class="pagemark v-beweis">02 <span style="color:var(--bd)">/</span> Der Beweis</span>
+    <span class="spacer"></span>
+    <span class="pagemark">Wie das läuft <svg viewBox="0 0 16 10" aria-hidden="true" style="width:10px;height:7px;display:inline-block;vertical-align:.02em;margin:0 .15em"><path d="M0 5h13M9.4 1.2 13.2 5 9.4 8.8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Seite 3</span>
+  </footer>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     SEITE 3 · DER KREISLAUF
+     Neu gegenueber v6: das Kreislauf-Diagramm (B2B-Masterplan §8 fordert es,
+     v6 hatte nur ein Kreis-Text-Badge) und der technische Beleg mit
+     Kassettenlupe und Verschleisslineal.
+     ══════════════════════════════════════════════════════════════════ -->
+<section class="sheet" id="s3">
+  <header class="sheet-head">
+    <img src="logo.svg" alt="">
+    <span class="wordmark">waxcelerate</span>
+    <span class="spacer"></span>
+    <span class="eyebrow">So funktioniert es</span>
+  </header>
+
+  <h2>Drei Wege. Stapelbar.</h2>
+
+  <div class="steps mt5" style="grid-template-columns:1fr 1fr 1fr;display:grid;gap:0 7mm">
+    <div class="step">
+      <div class="ix">01</div>
+      <div>
+        <h3>Regal</h3>
+        <p>Wachs auf Kommission. <strong class="money">30 % Kommission</strong>,
+          rund <strong class="money">9 €</strong> je verkauftem Block. Bis 45 %
+          im Direktkauf.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="ix">02</div>
+      <div>
+        <h3>Ketten</h3>
+        <p>Fertig gewachst, einbaufertig. Sie lagern zwei Typen, den Rest
+          liefern wir in <strong>48–72 h</strong>.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="ix">03</div>
+      <div>
+        <h3>Kreislauf</h3>
+        <p>Der Tausch über den Tresen. <strong class="money">5–10 €</strong> je
+          Tausch, wiederkehrend. Siehe unten.</p>
+      </div>
+    </div>
+  </div>
+  <p class="tiny mt3">Kombinierbar. Die meisten Partner starten mit 01 und 03.
+    <span class="v-aufwand">Sie wachsen weiter selbst, so viel Sie wollen. Den Rest geben Sie ab.</span></p>
+
+  <!-- ── Kreislauf und technischer Beleg nebeneinander ──────────────────── -->
+  <div class="mt6 grow" style="display:grid;grid-template-columns:1.04fr 1fr;gap:6mm;min-height:0">
+
+    <!-- Kunde ⟷ Shop ⟷ Waxcelerate -->
+    <div class="instr" style="display:flex;flex-direction:column">
+      <span class="instr-chip">Kreislauf</span>
+      <div class="eyebrow eyebrow--accent">Wo die Kette läuft</div>
+
+      <svg viewBox="0 0 300 530" preserveAspectRatio="xMidYMid meet"
+           style="width:100%;flex:1 1 auto;min-height:0;margin-top:3mm"
+           aria-label="Kreislauf zwischen Kunde, Shop und Waxcelerate">
+        <defs>
+          <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="#5685C0"/>
+          </marker>
+          <marker id="ahg" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="#B9A67E"/>
+          </marker>
+        </defs>
+
+        <!-- Die drei Stationen als Kettenlaschen, stehend gestapelt.
+             Aussenkontur mit Taille wie die echte Lasche (platePath-Grammatik
+             aus components/tools/sketches.tsx). -->
+        <g fill="#1C1C1F" stroke="#A1A1A1" stroke-width="1.6">
+          <path d="M 51 60 A 23 23 0 0 1 97 60 Q 89 82.0 97 104 A 23 23 0 0 1 51 104 Q 59 82.0 51 60 Z"/>
+          <path d="M 51 256 A 23 23 0 0 1 97 256 Q 89 278.0 97 300 A 23 23 0 0 1 51 300 Q 59 278.0 51 256 Z"/>
+          <path d="M 51 452 A 23 23 0 0 1 97 452 Q 89 474.0 97 496 A 23 23 0 0 1 51 496 Q 59 474.0 51 452 Z"/>
+        </g>
+        <g fill="#09090B" stroke="#8C8C8C" stroke-width="1.2">
+          <circle cx="74" cy="60" r="8.5"/><circle cx="74" cy="104" r="8.5"/>
+          <circle cx="74" cy="256" r="8.5"/><circle cx="74" cy="300" r="8.5"/>
+          <circle cx="74" cy="452" r="8.5"/><circle cx="74" cy="496" r="8.5"/>
+        </g>
+
+        <!-- Hinweg blau nach unten, Rueckweg gold nach oben -->
+        <g stroke-width="1.6">
+          <line x1="58" y1="140" x2="58" y2="216" stroke="#5685C0" marker-end="url(#ah)"/>
+          <line x1="90" y1="216" x2="90" y2="140" stroke="#B9A67E" marker-end="url(#ahg)"/>
+          <line x1="58" y1="336" x2="58" y2="412" stroke="#5685C0" marker-end="url(#ah)"/>
+          <line x1="90" y1="412" x2="90" y2="336" stroke="#B9A67E" marker-end="url(#ahg)"/>
+        </g>
+
+        <g font-family="IBM Plex Mono, monospace" font-size="12" font-weight="600"
+           letter-spacing="1.8" fill="#FAFAFA">
+          <text x="126" y="76">KUNDE</text>
+          <text x="126" y="284">IHR SHOP</text>
+          <text x="126" y="480">WAXCELERATE</text>
+        </g>
+
+        <g font-family="Libre Franklin, sans-serif" font-size="10.5" fill="#A1A1A1">
+          <text x="126" y="96" fill="#7AA0CE">Kette fällig nach 400–550 km</text>
+          <text x="126" y="166">bringt die fällige Kette</text>
+          <text x="126" y="200" fill="#B9A67E">bekommt eine gewachste, 2 Min.</text>
+          <text x="126" y="362">sammelt, ab 5 Ketten</text>
+          <text x="126" y="396" fill="#B9A67E">gewachst zurück in 48–72 h</text>
+          <text x="126" y="500">reinigt und wachst</text>
+        </g>
+      </svg>
+
+      <div class="note mt4">
+        <p style="font-size:8.4pt">Vier bis zehn Wachsgänge im Jahr, also vier
+          bis zehn Besuche. Woanders steht das Rad dafür einen Tag in der
+          Werkstatt oder eine Woche bei der Post. Bei Ihnen zwei Minuten.
+          <strong>Aus einem Werkstattbesuch im Jahr werden sechs</strong>,
+          jeder mit Beratung und Zubehör-Chance.</p>
+      </div>
+    </div>
+
+    <!-- Technischer Beleg: was der Kunde davon hat, was Sie ihm verkaufen -->
+    <div class="instr" style="display:flex;flex-direction:column">
+      <span class="instr-chip">Verschleiß</span>
+      <div class="eyebrow eyebrow--accent">Was Verschleiß kostet</div>
+
+      <!-- Kassettenfoto mit Ring und 3fach-Lupe. Komposition und Rechenweg
+           aus src/sections/science/CassetteLens.tsx uebernommen:
+           Ringradius = Lupenradius / Zoom, damit der eingekreiste Bereich
+           genau der Ausschnitt in der Lupe ist.
+           bgPosition(c,s) = (c*s - 0.5)/(s - 1), hier c=0.17/0.42, s=3. -->
+      <div style="position:relative;width:100%;aspect-ratio:1/1;margin-top:3mm">
+        <img src="../../public/images/science/cassette-wear-diagram.webp"
+             alt="Kassette" style="width:100%;height:100%;object-fit:contain">
+        <!-- Ring auf der Zahnflanke des groessten Ritzels -->
+        <div style="position:absolute;left:17%;top:42%;width:14.66%;aspect-ratio:1/1;
+                    transform:translate(-50%,-50%);border-radius:50%;
+                    border:1.4px solid var(--accent);
+                    box-shadow:0 0 0 2px var(--sf),0 0 0 3px rgba(86,133,192,.3)"></div>
+        <!-- Leitlinie -->
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"
+             style="position:absolute;inset:0;width:100%;height:100%">
+          <line x1="24" y1="45" x2="61" y2="65" stroke="var(--pg)" stroke-width="3.4"
+                opacity=".65" vector-effect="non-scaling-stroke"/>
+          <line x1="24" y1="45" x2="61" y2="65" stroke="var(--accent)" stroke-width="1.4"
+                stroke-dasharray="4 3.5" vector-effect="non-scaling-stroke"/>
+        </svg>
+        <!-- Lupe -->
+        <div style="position:absolute;right:3%;bottom:4%;width:44%;aspect-ratio:1/1;
+                    border-radius:50%;border:1.4px solid var(--accent);
+                    background-image:url(../../public/images/science/cassette-wear-diagram.webp);
+                    background-size:300%;background-position:0.5% 38%;
+                    background-color:var(--sf);
+                    box-shadow:0 0 0 3px var(--pg),0 4mm 9mm rgba(0,0,0,.45)"></div>
+      </div>
+      <div class="caption" style="text-align:right">Zahnflanke, 3fach</div>
+
+      <p class="mt4" style="font-size:8.4pt">Eine verschlissene Kette frisst
+        Kassette und Kettenblätter mit. Gewachst läuft eine Kette
+        <strong>oft zwei bis drei Mal so lange</strong>. Für Ihren Kunden heißt
+        das: er ersetzt seltener die teuren Teile. Für Sie: er kommt trotzdem
+        öfter, nur eben zum Tausch statt zur Reparatur.</p>
+
+      <!-- Verschleisslineal, Grammatik aus components/tools/sketches.tsx -->
+      <svg viewBox="0 0 300 62" style="width:100%;height:auto;margin-top:auto"
+           aria-label="Verschleißgrenzen 0,5 und 0,75 Prozent">
+        <defs>
+          <linearGradient id="wearG" gradientUnits="userSpaceOnUse" x1="14" y1="0" x2="286" y2="0">
+            <stop offset="0" stop-color="#3F4147"/><stop offset=".5" stop-color="#3F4147"/>
+            <stop offset=".5" stop-color="#C9995A"/><stop offset="1" stop-color="#C9995A"/>
+          </linearGradient>
+        </defs>
+        <rect x="14" y="16" width="272" height="13" rx="6.5" fill="url(#wearG)"/>
+        <g stroke="#8C8C8C" stroke-width="1.1">
+          <line x1="14" y1="33" x2="14" y2="39"/><line x1="82" y1="33" x2="82" y2="37"/>
+          <line x1="150" y1="33" x2="150" y2="39"/><line x1="218" y1="33" x2="218" y2="39"/>
+          <line x1="286" y1="33" x2="286" y2="39"/>
+        </g>
+        <line x1="150" y1="10" x2="150" y2="35" stroke="#FAFAFA" stroke-width="2.4"/>
+        <line x1="218" y1="10" x2="218" y2="35" stroke="#C9995A" stroke-width="2.4"/>
+        <g font-family="IBM Plex Mono, monospace" font-size="9" fill="#8C8C8C" text-anchor="middle">
+          <text x="14" y="52">0 %</text><text x="150" y="52" fill="#FAFAFA">0,5 %</text>
+          <text x="218" y="52" fill="#C9995A">0,75 %</text><text x="286" y="52">1,0 %</text>
+        </g>
+        <g font-family="Libre Franklin, sans-serif" font-size="8.4" fill="#8C8C8C">
+          <text x="150" y="9" text-anchor="middle" fill="#FAFAFA">beobachten</text>
+          <text x="218" y="9" text-anchor="start" fill="#C9995A">jetzt wechseln</text>
+        </g>
+      </svg>
+      <p class="tiny mt2">Kettenlängung. Die Prüfung und die Tauschentscheidung
+        bleiben bei Ihnen.</p>
+    </div>
+  </div>
+
+  <footer class="sheet-foot">
+    <span class="pagemark">03 <span style="color:var(--bd)">/</span> Der Kreislauf</span>
+    <span class="spacer"></span>
+    <span class="pagemark">Sortiment und Testpaket <svg viewBox="0 0 16 10" aria-hidden="true" style="width:10px;height:7px;display:inline-block;vertical-align:.02em;margin:0 .15em"><path d="M0 5h13M9.4 1.2 13.2 5 9.4 8.8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Seite 4</span>
+  </footer>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     SEITE 4 · SORTIMENT UND TESTPAKET
+     Preise sind unverbindliche Endkundenempfehlungen. Keine Staffelpreise
+     auf diesem Blatt, die stehen nur im Konditionenblatt (Masterplan §8).
+     ══════════════════════════════════════════════════════════════════ -->
+<section class="sheet" id="s4">
+  <header class="sheet-head">
+    <img src="logo.svg" alt="">
+    <span class="wordmark">waxcelerate</span>
+    <span class="spacer"></span>
+    <span class="eyebrow">Ihr Angebot</span>
+  </header>
+
+  <!-- Bewusst ohne Foto: diese Seite ist die Angebots- und Preisseite und
+       braucht die Hoehe fuer Tabelle, Karte und Testpaket. Die Bilder tragen
+       die Seiten 1 bis 3. -->
+  <div>
+    <h2>Sortiment &amp; Partnerschaft.</h2>
+    <p class="tiny mt2" style="max-width:110mm">Alle Endkundenpreise sind
+      unverbindliche Preisempfehlungen. <strong>Ihre Preise bestimmen Sie.</strong></p>
+  </div>
+
+
+  <div style="display:grid;grid-template-columns:1.12fr 1fr;gap:7mm;margin-top:6mm">
+
+    <!-- ── Linke Spalte: Wachs und Ketten ─────────────────────────────── -->
+    <div>
+      <div class="eyebrow eyebrow--accent">Kettenwachs</div>
+      <div class="rule mt2" style="padding-top:2.4mm;display:flex;align-items:baseline;gap:3mm">
+        <div style="flex:1 1 auto">
+          <h3>MoS<sub>2</sub> Pro Edition</h3>
+          <div class="tiny mt2">PFAS-frei und zukunftssicher · Ganzjahr, Nässe, E-Bike</div>
+        </div>
+        <div class="mono" style="font-size:9pt;color:var(--gold);text-align:right;white-space:nowrap">
+          300 g <strong class="money">26,95 €</strong><br>500 g <strong class="money">34,95 €</strong>
+        </div>
+      </div>
+      <div class="rule-soft mt3" style="padding-top:2.4mm;display:flex;align-items:baseline;gap:3mm">
+        <div style="flex:1 1 auto">
+          <h3>Classic Edition</h3>
+          <div class="tiny mt2">Ganzjahrestauglich · Frühjahr bis Herbst, trocken</div>
+        </div>
+        <div class="mono" style="font-size:9pt;text-align:right;white-space:nowrap">
+          300 g <strong class="money">22,95 €</strong><br>500 g <strong class="money">29,95 €</strong>
+        </div>
+      </div>
+
+      <div class="eyebrow eyebrow--accent mt6">Vorgewachste Ketten</div>
+      <p class="tiny mt2" style="margin-bottom:2.5mm">Ultraschall-entfettet, mit
+        <strong>Pro (MoS<sub>2</sub>)</strong> gewachst, versiegelt und einbaufertig.
+        Quick-Link liegt bei.</p>
+      <table class="sku">
+        <thead><tr><th>Modell</th><th>UVP</th></tr></thead>
+        <tbody>
+          <tr><td class="m">Shimano Dura-Ace / XTR CN-M9100, 12-fach <svg viewBox="0 0 20 19" aria-hidden="true" style="width:8.5px;height:8px;display:inline-block;vertical-align:.02em"><path d="M10 0l2.9 6.2 6.6.9-4.8 4.8 1.2 6.8L10 15.5 4.1 18.7l1.2-6.8L.5 7.1l6.6-.9z" fill="currentColor"/></svg></td><td class="p">69,95 €</td></tr>
+          <tr><td class="m">Shimano XT / Ultegra CN-M8100, 12-fach</td><td class="p">54,95 €</td></tr>
+          <tr><td class="m">Shimano SLX / 105 CN-M7100, 12-fach</td><td class="p">44,95 €</td></tr>
+          <tr><td class="m">SRAM NX Eagle, 12-fach</td><td class="p">44,95 €</td></tr>
+          <tr class="new"><td class="m">Shimano Deore XT CN-HG95, 10-fach</td><td class="p">44,95 €</td></tr>
+          <tr><td class="m">Shimano Ultegra CN-HG701, 11-fach</td><td class="p">44,90 €</td></tr>
+          <tr><td class="m">SRAM Force PC-1170, 11-fach</td><td class="p">39,95 €</td></tr>
+          <tr class="new"><td class="m">Shimano XT / Ultegra CN-HG93, 9-fach</td><td class="p">39,95 €</td></tr>
+          <tr><td class="m">YBN 11S, 11-fach</td><td class="p">34,95 €</td></tr>
+        </tbody>
+      </table>
+      <p class="tiny mt3"><svg viewBox="0 0 20 19" aria-hidden="true" style="width:8.5px;height:8px;display:inline-block;vertical-align:.02em"><path d="M10 0l2.9 6.2 6.6.9-4.8 4.8 1.2 6.8L10 15.5 4.1 18.7l1.2-6.8L.5 7.1l6.6-.9z" fill="currentColor"/></svg> Bestseller · Handgewachst in Stuttgart ·
+        Wunschkette auf Anfrage · Sie lagern zwei Typen, den Rest liefern wir
+        in 48–72 h.</p>
+    </div>
+
+    <!-- ── Rechte Spalte: Blockrechnung, Karten, Co-Branding ──────────── -->
+    <div class="col gap6">
+
+      <div>
+        <div class="eyebrow">Was ein Block leistet</div>
+        <!-- Balken statt Fussnote, Grammatik aus sketches.tsx (WaxBlockBar) -->
+        <svg viewBox="0 0 300 60" style="width:100%;height:auto;margin-top:2.5mm"
+             aria-label="Ein Block ergibt 15 bis 20 Wachsvorgänge">
+          <defs>
+            <linearGradient id="blockG" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#3A66A0"/><stop offset="1" stop-color="#7AA0CE"/>
+            </linearGradient>
+          </defs>
+          <rect x="1" y="8" width="298" height="26" rx="7" fill="none" stroke="#27272A" stroke-width="1.5"/>
+          <rect x="2.5" y="9.5" width="295" height="23" rx="5.6" fill="url(#blockG)" opacity=".85"/>
+          <g stroke="#09090B" stroke-width="1" opacity=".55">
+            <line x1="44" y1="9.5" x2="44" y2="32.5"/><line x1="86" y1="9.5" x2="86" y2="32.5"/>
+            <line x1="128" y1="9.5" x2="128" y2="32.5"/><line x1="170" y1="9.5" x2="170" y2="32.5"/>
+            <line x1="212" y1="9.5" x2="212" y2="32.5"/><line x1="254" y1="9.5" x2="254" y2="32.5"/>
+          </g>
+          <g font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#8C8C8C">
+            <text x="0" y="52">1 Block</text>
+            <text x="300" y="52" text-anchor="end" fill="#7AA0CE">15–20 Wachsvorgänge</text>
+          </g>
+        </svg>
+        <p class="tiny mt2">Je Vorgang 400–550 km trocken. Wachs verdirbt nicht,
+          also keine Saison-Abschreibung. Nur nicht in die Sommersonne ins
+          Schaufenster legen.</p>
+      </div>
+
+      <div>
+        <div class="eyebrow eyebrow--accent">Stempelkarten</div>
+        <p class="tiny mt2">Umsatz heute, Leistung später. Nicht eingelöste
+          Stempel bleiben Ihre Marge. Wir liefern die Blanko-Karten kostenlos,
+          co-brandbar mit Ihrem Logo.</p>
+
+        <!-- Die Karte als Gegenstand, Bauweise aus components/GiftCardObject.tsx.
+             Stempel stehen still, Neigung fest. -->
+        <div style="margin-top:3.5mm;transform:rotate(-2.4deg);border-radius:3mm;
+                    overflow:hidden;border:1px solid rgba(86,133,192,.28);
+                    background:linear-gradient(150deg,var(--sf) 0%,var(--sf2) 100%);
+                    box-shadow:0 5mm 12mm rgba(0,0,0,.42)">
+          <div style="height:1.1mm;background:var(--accent)"></div>
+          <div style="padding:3.4mm">
+            <div class="row center gap2">
+              <img src="logo.svg" alt="" style="width:4.4mm;height:4.4mm">
+              <span class="eyebrow" style="letter-spacing:.2em">Stempelkarte</span>
+              <span class="spacer"></span>
+              <span class="pill" style="font-size:6pt;padding:.6mm 1.8mm">ohne Ablauf</span>
+            </div>
+            <div style="font-family:'Fraunces',Georgia,serif;font-weight:700;
+                        font-size:12.5pt;color:var(--tx1);letter-spacing:-.02em;
+                        line-height:1.1;margin-top:2.6mm">10× frisch gewachst.</div>
+            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:1.4mm;margin-top:3mm">
+              <div class="stamp"></div><div class="stamp"></div><div class="stamp"></div>
+              <div class="stamp"></div><div class="stamp"></div><div class="stamp"></div>
+              <div class="stamp"></div><div class="stamp"></div><div class="stamp"></div>
+              <div class="stamp"></div>
+            </div>
+            <div style="border-top:1px dashed var(--bd);margin-top:3mm;padding-top:2mm"
+                 class="row center gap3">
+              <span class="tiny" style="flex:1 1 auto">Für <span
+                style="display:inline-block;width:18mm;border-bottom:1px solid var(--bd)"></span></span>
+              <span class="mono tiny" style="letter-spacing:.18em">CODE <span style="display:inline-block;width:2.2mm"></span><span style="display:inline-block;width:1.1mm;height:1.1mm;border-radius:50%;background:var(--txff);margin-left:1.1mm"></span><span style="display:inline-block;width:1.1mm;height:1.1mm;border-radius:50%;background:var(--txff);margin-left:1.1mm"></span><span style="display:inline-block;width:1.1mm;height:1.1mm;border-radius:50%;background:var(--txff);margin-left:1.1mm"></span><span style="display:inline-block;width:1.1mm;height:1.1mm;border-radius:50%;background:var(--txff);margin-left:1.1mm"></span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="row mt4 gap4">
+          <div style="flex:1 1 0">
+            <div class="mono" style="font-size:8pt;color:var(--txm)">5er-Karte</div>
+            <div class="mono money" style="font-size:11pt;font-weight:500">69–79 €</div>
+          </div>
+          <div style="flex:1 1 0">
+            <div class="mono" style="font-size:8pt;color:var(--txm)">10er-Karte</div>
+            <div class="mono money" style="font-size:11pt;font-weight:500">129–149 €</div>
+          </div>
+        </div>
+        <p class="tiny mt2">Empfehlung, Sie setzen den Preis. Er liegt bewusst
+          über unserem Versandpreis: Ihr Kunde verschickt nichts und wartet nicht.</p>
+      </div>
+
+      <div class="note">
+        <div class="eyebrow" style="color:var(--gold)">Co-Branding</div>
+        <p class="mt2" style="font-size:8.4pt">Ihr Logo auf dem Etikett.
+          Ab 10 Blöcken im Direktkauf, ohne Aufpreis.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Testpaket und Kontakt ──────────────────────────────────────────── -->
+  <div class="instr" style="margin-top:auto">
+    <div style="display:grid;grid-template-columns:auto 1fr auto;gap:8mm;align-items:start">
+
+      <div style="white-space:nowrap">
+        <div class="eyebrow">Das Testpaket</div>
+        <div class="giant money mt2">0<small>€</small></div>
+        <div class="eyebrow mt2" style="color:var(--gold-dim)">Warenrisiko</div>
+      </div>
+
+      <div class="g2" style="gap:6mm">
+        <ul style="list-style:none;font-size:8.4pt;line-height:1.7;color:var(--tx2)">
+          <li>5–10 Blöcke Wachs auf Kommission</li>
+          <li>Ein Block gratis für die Werkstatt, zum Selbsttesten</li>
+          <li>Ketten ab Tag 1 lieferbar</li>
+        </ul>
+        <ul style="list-style:none;font-size:8.4pt;line-height:1.7;color:var(--tx2)">
+          <li>Blanko-Stempelkarten, kostenlos</li>
+          <li>Rücknahme nach 60 Tagen auf unsere Kosten</li>
+          <li class="v-aufwand">Großgebinde für die eigene Werkstatt auf Anfrage</li>
+          <li class="v-beweis">Anleitung und Großgebinde, wenn Sie selbst wachsen wollen</li>
+        </ul>
+      </div>
+
+      <div style="text-align:center;width:29mm">
+        <img src="qr-whatsapp.svg" alt="QR-Code WhatsApp"
+             style="width:26mm;height:26mm;border-radius:1.6mm;display:block;margin:0 auto">
+        <div class="mono mt2" style="font-size:7.6pt;color:var(--tx1)">0157 51957470</div>
+        <div class="eyebrow" style="margin-top:.8mm">WhatsApp</div>
+      </div>
+    </div>
+
+    <!-- Die drei Schritte als eine Zeile. Als 3-Spalten-Block brachen sie um
+         und die Seite lief unten ueber. -->
+    <div class="mt4 rule" style="padding-top:3mm;display:flex;align-items:baseline;gap:6mm">
+      <div style="display:flex;align-items:baseline;gap:2.4mm;flex:1 1 0">
+        <span class="mono acc" style="font-size:9pt">01</span>
+        <span style="font-size:8.4pt;color:var(--tx2)">Ja sagen oder QR scannen</span>
+      </div>
+      <div style="width:1px;align-self:stretch;background:var(--bd)"></div>
+      <div style="display:flex;align-items:baseline;gap:2.4mm;flex:1 1 0">
+        <span class="mono acc" style="font-size:9pt">02</span>
+        <span style="font-size:8.4pt;color:var(--tx2)">Antwort am selben Tag</span>
+      </div>
+      <div style="width:1px;align-self:stretch;background:var(--bd)"></div>
+      <div style="display:flex;align-items:baseline;gap:2.4mm;flex:1 1 0">
+        <span class="mono acc" style="font-size:9pt">03</span>
+        <span style="font-size:8.4pt;color:var(--tx2)">Testpaket in 48–72 Stunden</span>
+      </div>
+    </div>
+  </div>
+
+  <footer class="sheet-foot">
+    <span class="pagemark">04 <span style="color:var(--bd)">/</span> Sortiment</span>
+    <span class="spacer"></span>
+    <span class="tiny">Luca Teichmann · Waxcelerate · Kleinunternehmer nach § 19 UStG,
+      keine Umsatzsteuer ausgewiesen · Über 500 verkaufte Einheiten, 100 % positives Feedback.</span>
+  </footer>
+</section>
+
+<style>
+/* Stempelfeld: gestricheltes Quadrat mit Logo, wie GiftCardObject */
+.stamp{aspect-ratio:1/1;border-radius:1.4mm;border:1px dashed rgba(86,133,192,.35);
+  background:var(--sf) url(logo.svg) center/58% no-repeat;
+  filter:grayscale(.35) saturate(.6);opacity:.9}
+</style>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════
+   CONFIG · das Einzige, was zwischen zwei Ladenbesuchen angefasst wird.
+   ═══════════════════════════════════════════════════════════════════════ */
+const CONFIG = {
+  // 'aufwand' = Laden wachst schon selbst ("Sie wachsen schon").
+  // 'beweis'  = Laden wachst nicht ("Ihre Kunden wachsen schon").
+  variant: 'aufwand',
+
+  // Leer lassen fuer die neutrale Fassung zum Mitnehmen.
+  shopName: '',
+
+  // Steht auf Seite 1 in der Exklusivitaetszeile.
+  city: 'Leipzig',
+
+  // Zeile "Gewachst wird in Stuttgart und Leipzig" auf Seite 2.
+  // Erst einschalten, wenn Luca das fuer den jeweiligen Raum zusagen kann.
+  localRewax: false,
+};
+
+document.documentElement.dataset.variant = CONFIG.variant;
+if (CONFIG.localRewax) document.documentElement.dataset.localrewax = 'on';
+for (const el of document.querySelectorAll('[data-shopline]')) {
+  el.textContent = CONFIG.shopName ? 'Für ' + CONFIG.shopName : '';
+}
+for (const el of document.querySelectorAll('[data-cityline]')) {
+  el.textContent = 'Wir suchen zwei bis drei Partner in ' + CONFIG.city;
+}
+</script>
+</body>
+</html>

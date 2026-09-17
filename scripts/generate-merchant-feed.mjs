@@ -114,21 +114,28 @@ const item = (p) => `    <item>
       <g:product_type>${esc(p.category === 'wax' ? 'Kettenwachs' : 'Vorgewachste Kette')}</g:product_type>${shippingXml(p)}${variantXml(p)}
     </item>`;
 
+// Produkte mit `excludeFromFeed` bleiben auf der Seite lieferbar, gehen aber
+// nicht in den Feed. Aktuell betrifft das Ketten, die da sind, deren eigenes
+// Produktfoto aber noch fehlt: ein Feed-Eintrag mit dem Foto einer anderen
+// Kette riskiert eine Artikelablehnung bei Google.
+const feedProducts = products.filter((p) => !p.excludeFromFeed);
+
 const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
   <channel>
     <title>Waxcelerate Produkte</title>
     <link>${BASE}</link>
     <description>Heißwachs-Kettenpflege und vorgewachste Fahrradketten aus Stuttgart</description>
-${products.map(item).join('\n')}
+${feedProducts.map(item).join('\n')}
   </channel>
 </rss>
 `;
 
 assertXml(xml, 'google-merchant-feed.xml');
 const nItems = (xml.match(/<item>/g) || []).length;
-if (nItems !== products.length) {
-  throw new Error(`google-merchant-feed.xml: ${nItems} items vs ${products.length} products`);
+if (nItems !== feedProducts.length) {
+  throw new Error(`google-merchant-feed.xml: ${nItems} items vs ${feedProducts.length} products`);
 }
 writeFileSync(OUT, xml);
-console.log(`google-merchant-feed.xml written with ${products.length} products.`);
+const held = products.length - feedProducts.length;
+console.log(`google-merchant-feed.xml written with ${feedProducts.length} products${held ? ` (${held} zurueckgehalten: excludeFromFeed)` : ''}.`);

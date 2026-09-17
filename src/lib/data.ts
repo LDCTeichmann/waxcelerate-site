@@ -63,6 +63,15 @@ export interface Product {
    * rerun `npx tsx scripts/generate-merchant-feed.mjs` when stock returns.
    */
   soldOut?: boolean;
+  /**
+   * Haelt das Produkt aus dem Google-Merchant-Feed heraus, obwohl es auf der
+   * Seite lieferbar ist. Gedacht fuer den Fall "Produkt ist da, das eigene
+   * Foto noch nicht": ein Feed-Eintrag mit dem Foto einer anderen Kette
+   * riskiert eine Artikelablehnung bei Google, waehrend die Karte auf
+   * /ketten mit einem Platzhalter noch vertretbar ist. Nur so lange setzen,
+   * bis das echte Foto liegt (siehe docs/aufgaben/LUCA_TODO.md).
+   */
+  excludeFromFeed?: boolean;
   /** Stripe Price ID — set after creating products in Stripe Dashboard → Products → copy price_xxx */
   stripePriceId?: string;
   badge?: string;
@@ -638,6 +647,37 @@ export const products: Product[] = [
     chainLinks: '116 Glieder',
     chainSpeed: '9-fach',
   },
+
+  // ── PRE-WAXED CHAINS — 10-SPEED ───────────────────────────────
+  // Seit 17.09.2026. Bezogen am 10.08.2026 ueber Bike-Discount
+  // ("XT CN-HG95 10-fach Kette", 10 Stueck). Preis 44,95 EUR: dieselbe Stufe
+  // wie HG701 (44,90), M7100 und NX (je 44,95), damit die Preisleiter
+  // 34,95 / 39,95 / 44,9x / 54,95 / 69,95 geschlossen bleibt (Luca 17.09.2026).
+  // OFFEN (Luca): eigenes Produktfoto. Bis dahin steht hier das HG93-Bild als
+  // Platzhalter, und `excludeFromFeed` haelt die Kette aus dem Merchant-Feed.
+  // OFFEN (Luca): die eBay-Artikelnummer, bis dahin die Shop-Suche.
+  {
+    id: 'chain-hg95',
+    category: 'chain',
+    pdpScenes: CHAIN_SCENES,
+    weightGrams: 300, // Kette ca. 273 g, plus Quick-Link und Beutel
+    shippingClass: 'grossbrief',
+    title: 'Shimano Deore XT CN-HG95 10-fach — vorgewachst',
+    titleEn: 'Shimano Deore XT CN-HG95 10-speed — pre-waxed',
+    description: 'Shimano Deore XT CN-HG95, 116 Glieder, 10-fach, HG-X mit SIL-TEC. Vollständig entfettet und mit MoS₂-Transferfilm vorgewachst. 10-fach Quick-Link liegt bei.',
+    descriptionEn: 'Shimano Deore XT CN-HG95, 116 links, 10-speed, HG-X with SIL-TEC. Fully degreased and pre-waxed with MoS₂ transfer film. 10-speed quick-link included.',
+    price: 44.95,
+    // PLATZHALTER: zeigt die CN-HG93. Ersetzen, sobald die HG95 fotografiert ist.
+    image: '/images/products/chains/hg95.webp',
+    ebayUrl: 'https://www.ebay.de/sch/i.html?_ssn=waxcelerate&_nkw=HG95',
+    compatibility: 'Shimano 10-fach · SRAM 10-fach · Campagnolo 10-fach',
+    specs: { Gänge: '10-fach', Kompatibilität: 'Shimano / SRAM / Campa 10-fach', 'Verbinder': 'Quick-Link (dabei)' },
+    chainBrand: 'Shimano',
+    chainModel: 'CN-HG95',
+    chainLinks: '116 Glieder',
+    chainSpeed: '10-fach',
+    excludeFromFeed: true,
+  },
 ];
 
 export function getProductById(id: string): Product | undefined {
@@ -857,16 +897,19 @@ export const waxIntervals: Record<string, Record<string, number>> = {
 export const compatibilityMatrix: Record<string, Record<string, string[]>> = {
   shimano: {
     '9': ['chain-hg93'],
+    '10': ['chain-hg95'],
     '11': ['chain-hg701', 'chain-ybn11'],
     '12': ['chain-m9100', 'chain-m8100', 'chain-m7100', 'chain-ybn12'],
   },
   sram: {
     '9': ['chain-hg93'],
+    '10': ['chain-hg95'],
     '11': ['chain-force', 'chain-ybn11'],
     '12': ['chain-nx', 'chain-ybn12'],
   },
   campagnolo: {
     '9': ['chain-hg93'],
+    '10': ['chain-hg95'],
     '11': ['chain-ybn11'],
     '12': ['chain-ybn12'],
   },

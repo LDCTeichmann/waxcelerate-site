@@ -5,7 +5,7 @@
 Waxcelerate ist ein deutsches Kleinunternehmen, gegründet von Luca Teichmann (Medizinstudent, Stuttgart).
 500 verkaufte Einheiten, 250+ Bewertungen, 100% positives Feedback. Verkauf seit 2024.
 
-Produkte: Heißwachs in vier Varianten (Classic/Pro, 300g/500g) und 9 vorgewachste Fahrradketten.
+Produkte: Heißwachs in vier Varianten (Classic/Pro, 300g/500g) und 10 vorgewachste Fahrradketten.
 Hauptvorteil gegenüber Kettenöl: trockener Film, keine Schmutzaufnahme, Kettenlaufzeit typisch 2–3× länger (6.000–12.000 km statt 2.000–3.000 km).
 Empfohlenes Nachwachsen nach den Werten von Zero Friction Cycling: trockene Straße rund 300 km je Wachsung, gemischt oder nass 150–200 km, im Gelände etwa die halbe Strecke wie auf der Straße. Die Rechner unter /rechner arbeiten mit diesen Werten.
 
@@ -33,7 +33,7 @@ Empfohlenes Nachwachsen nach den Werten von Zero Friction Cycling: trockene Stra
 - [Kette wachsen lassen in Düsseldorf](https://waxcelerate.de/kette-wachsen-lassen/duesseldorf): per Post, mit Nachwachs-Intervall für das Klima in Düsseldorf
 - [Kette wachsen lassen in Freiburg](https://waxcelerate.de/kette-wachsen-lassen/freiburg): per Post, mit Nachwachs-Intervall für das Klima in Freiburg
 - [Kette wachsen lassen in Stuttgart](https://waxcelerate.de/kette-wachsen-lassen/stuttgart): per Post, mit Nachwachs-Intervall für das Klima in Stuttgart
-- [Vorgewachste Ketten](https://waxcelerate.de/ketten): 9 vorgewachste Fahrradketten für Shimano, SRAM und Campagnolo, 11- und 12-fach
+- [Vorgewachste Ketten](https://waxcelerate.de/ketten): 10 vorgewachste Fahrradketten für Shimano, SRAM und Campagnolo, 11- und 12-fach
 
 ## Rechner — kostenlos, ohne Anmeldung
 
@@ -72,6 +72,7 @@ Kernzahlen, mit denen die Rechner arbeiten:
 - [SRAM NX Eagle 12-fach — vorgewachst (44,95 €)](https://waxcelerate.de/produkt/chain-nx)
 - [YBN S12S 12-fach — vorgewachst (39,95 €)](https://waxcelerate.de/produkt/chain-ybn12)
 - [Shimano CN-HG93 9-fach — vorgewachst (39,95 €)](https://waxcelerate.de/produkt/chain-hg93)
+- [Shimano Deore XT CN-HG95 10-fach — vorgewachst (44,95 €)](https://waxcelerate.de/produkt/chain-hg95)
 
 ## Blog / Ratgeber
 
