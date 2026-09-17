@@ -6,6 +6,29 @@
 
 ---
 
+## HG95 fotografieren (blockiert den Merchant-Feed-Eintrag)
+
+Die Shimano Deore XT CN-HG95 (10-fach, 116 Glieder) ist seit 17.09.2026 in
+`data.ts` und auf `/ketten` live, UVP 44,95 €. Ein eigenes Produktfoto fehlt
+noch, deshalb stehen zwei Platzhalter im Repo:
+
+1. `public/images/products/chains/hg95*.{webp,avif}` sind Kopien der
+   **HG93**-Bilder. Sie zeigen also eine 9-fach-Kette.
+2. `excludeFromFeed: true` in `data.ts` haelt die HG95 aus
+   `public/google-merchant-feed.xml` heraus. Ein Feed-Eintrag mit dem Foto
+   einer anderen Kette riskiert eine Artikelablehnung bei Google.
+
+Wenn das echte Foto da ist:
+- vier Groessen erzeugen (`npx tsx scripts/build-avif-variants.mjs`),
+- `excludeFromFeed` in `data.ts` entfernen,
+- `npm run gen:public` laufen lassen,
+- den Platzhalter-Kommentar bei `image:` in `data.ts` loeschen.
+
+Ausserdem offen wie bei der HG93: die **eBay-Artikelnummer**. Bis dahin zeigt
+`ebayUrl` auf die Shop-Suche nach "HG95".
+
+---
+
 ## Gerade live gegangen (nichts zu tun)
 
 Alles aus den letzten Sessions ist auf `main` und via Vercel deployed:
