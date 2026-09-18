@@ -1,84 +1,107 @@
-# Start — der Fable-Lauf in acht Schritten
+# Start — ein Befehl, dann einfügen, fertig
 
-Auf deinem Mac, im Hub-Ordner. Zeitkritisch: **das Promo-Guthaben verfällt am 19.09.2026.**
+Zeitfenster: **das Promo-Guthaben verfällt am 19.09.2026.** Anthropic setzt bei
+vergleichbaren Promos 23:59 PT des genannten Tages an — das wäre 08:59 Berliner
+Zeit am 20.09. Du hast also sehr wahrscheinlich den ganzen 19. Verlass dich nicht
+auf die letzten Stunden; mach es tagsüber.
 
 ---
 
-## Schritt 1–2 · Die zwei Sperren lösen (sonst stirbt der Lauf mittendrin)
+## Einmal vorher: der Monatsdeckel
 
 Auf **claude.ai → Einstellungen → Nutzung**:
 
-1. **Usage credits einschalten.** Der Schalter „Turn on usage credits to keep using
-   Claude if you hit a plan limit" steht bei dir auf **aus**. Solange er aus ist,
-   bleibt Fable 5.1 im Modell-Wähler ausgegraut.
+- Usage credits **EIN** ✅ (hast du erledigt)
+- **„Monthly spend limit" über „Manage" auf mindestens 40 €.** Er steht auf 22 €,
+  davon sind 18,53 € verbraucht — es blieben also nur **3,47 €** Spielraum. Dein
+  Guthaben von 18,29 € nützt dir nichts, solange der Deckel es nicht durchlässt.
+  **Ohne diesen Schritt bricht der Lauf nach etwa einem Drittel ab.**
 
-2. **Monatsdeckel anheben.** Bei „Monthly spend limit" steht **18,53 € von 22 €**
-   verbraucht — also nur **3,47 € Spielraum**. Dein Guthaben ist zwar 18,29 €, aber
-   der Deckel lässt dich davon diesen Monat nur 3,47 € ausgeben. Über „Manage" auf
-   **mindestens 40 €** setzen. Ohne diesen Schritt bricht der Lauf nach etwa einem
-   Drittel ab.
-
-> Warum das so ist: deine 18,29 € sind **claude.ai Usage Credits**. Die gelten für
-> Claude Code und die Claude-Apps — **nicht** für die Developer-Platform-API. Das
-> sind zwei getrennte Geldtöpfe. Fable 5.1 läuft auf dem Pro-Plan immer gegen
-> Credits, nie gegen dein Wochenlimit; dass das Wochenlimit zu 93 % voll ist,
-> blockiert den Lauf also nicht.
+Das ist die einzige Einstellung, die noch fehlt.
 
 ---
 
-## Schritt 3–5 · Vorbereiten
+## Weg A · Auf deinem Mac (einfachster Weg)
 
 ```bash
-cd ~/Developer\ Luca/waxcelerate/waxcelerate-sync
-
-# 3 · Auf den echten Stand. main ist fünf Wochen alt.
-git fetch origin feat/porto-labels
-git checkout feat/porto-labels
-
-# 4 · Prüfen, dass der Masterplan als Nachbarordner liegt
-ls ../waxcelerate-masterplan >/dev/null && echo "Masterplan da" || echo "FEHLT"
-
-# 5 · Lesestoff bauen — kostet nichts, braucht keinen Key
-python3 tools/fable-planer/build_kontext.py
+bash /pfad/zu/waxcelerate-site/tools/fable-planer/los.sh
 ```
 
-Falls der Werkzeugkasten noch nicht in diesem Repo liegt: er kommt aus
-`waxcelerate-site`, Ordner `tools/fable-planer/`. Einfach herüberkopieren — die
-Skripte nehmen auch `--hub <pfad>`.
+Mehr nicht. Das Skript sucht beide Repos selbst, holt `feat/porto-labels`
+(**ohne** `checkout` — dein Arbeitsbaum bleibt unangetastet), prüft alles, baut
+den Lesestoff nach `<hub>/.fable/` und druckt am Ende die zwei Zeilen, die du
+dann tippst.
 
-Schritt 5 muss enden mit „Alle 82 Manifest-Dateien sind in den Bausteinen
-enthalten." Meldet es `NICHT GEFUNDEN` oder `GEHEIMNIS-VERDACHT`: **anhalten** und
-erst klären. Bei `GEHEIMNIS-VERDACHT` wird bewusst nichts geschrieben.
-
----
-
-## Schritt 6–7 · Laufen lassen
+Findet es die Repos nicht, sagt es dir das und du hilfst nach:
 
 ```bash
+HUB=~/Developer\ Luca/waxcelerate/waxcelerate-sync \
+MASTERPLAN=~/pfad/zu/waxcelerate-masterplan \
+bash /pfad/zu/tools/fable-planer/los.sh
+```
+
+Danach:
+
+```bash
+cd <dein waxcelerate-sync>
+pbcopy < .fable/AUFTRAG.md          # legt den Auftrag in die Zwischenablage
 claude --model "fable[1m]" --effort xhigh
 ```
 
-Dann den **kompletten Inhalt von `tools/fable-planer/auftrag.md`** als eine
-Nachricht einfügen. Claude Code zeigt einen Einwilligungsdialog, bevor der erste
-Fable-Aufruf gegen Guthaben bucht — bestätigen. Der Dialog wartet 5 Minuten.
-
-Fable liest dann 15 vorbereitete Dateien und schreibt `FABLE_PLAN.md`.
-
-**Zwischenkontrolle:** wenn die 15 Lesevorgänge durch sind, einmal `/cost`.
-Erwartung an dieser Stelle rund **6–7 $**. Steht dort mehr als **8 $**, mit
-`/effort high` weitermachen statt zu hoffen — das kostet Tiefe, aber kein
-abgebrochenes Dokument.
+Einfügen (⌘V), abschicken, den Einwilligungsdialog bestätigen. Fable liest
+15 vorbereitete Dateien und schreibt `FABLE_PLAN.md`.
 
 ---
 
-## Schritt 8 · Sichern, bevor die Sitzung endet
+## Weg B · In einer Claude-Code-Cloud-Sitzung
+
+Geht auch. Ein Schritt mehr, weil beide Hub-Repos privat sind.
+
+1. Neue Cloud-Sitzung öffnen, Modell erst mal auf **Sonnet** lassen (das läuft
+   über dein Abo und kostet kein Guthaben).
+2. Als erste Nachricht:
+
+   > Häng bitte `LDCTeichmann/waxcelerate-sync` und
+   > `LDCTeichmann/waxcelerate-masterplan` an diese Session an und klone beide.
+   > Klone dann `LDCTeichmann/waxcelerate-site` mit Branch
+   > `claude/nice-bohr-6lhikb` und führe aus:
+   > `HUB=<pfad-zu-sync> MASTERPLAN=<pfad-zu-masterplan> bash <site>/tools/fable-planer/los.sh`
+   > Zeig mir danach die letzten 20 Zeilen der Ausgabe.
+
+3. Erst wenn das sauber durchgelaufen ist: `/model fable[1m]` und `/effort xhigh`.
+4. Inhalt von `<hub>/.fable/AUFTRAG.md` als eine Nachricht einfügen.
+
+**Wichtig:** die Vorbereitung auf Sonnet erledigen, nicht auf Fable — Aufräum-
+und Klon-Schritte auf Fable-Preisen sind rausgeworfenes Geld. Und: `FABLE_PLAN.md`
+am Ende committen und pushen, sonst stirbt das Ergebnis mit dem Container.
+
+---
+
+## Während es läuft
+
+Nach den 15 Lesevorgängen einmal **`/cost`**. Erwartung an dieser Stelle rund
+**6–7 $**.
+
+| `/cost` zeigt | Was tun |
+|---|---|
+| bis 7 $ | weiterlaufen lassen |
+| 7–8 $ | weiterlaufen lassen, aber im Auge behalten |
+| über 8 $ | `/effort high` — kostet Tiefe, aber kein abgebrochenes Dokument |
+
+Fable soll **nichts am Code ändern**; es liest und schreibt genau eine neue Datei.
+Fängt es an, im Repo herumzulesen, einmal erinnern: *„nur die 15 Dateien aus der
+Lesekarte."*
+
+---
+
+## Danach
 
 ```bash
 git add FABLE_PLAN.md
 git commit -m "Fable-5.1-Planungslauf: Schiedsspruch, Zielarchitektur, Task-Index"
 ```
 
-Danach: `T12` beantworten → `T9` lesen → die ersten `T10`-Zeilen einzeln durch
+Dann: `T12` beantworten → `T9` lesen → die ersten `T10`-Zeilen einzeln durch
 `handoff_sonnet.md` an Sonnet 5 geben. Das kostet über Claude Pro nichts mehr.
 
 ---
@@ -93,23 +116,21 @@ Danach: `T12` beantworten → `T9` lesen → die ersten `T10`-Zeilen einzeln dur
 | Ausgabe Thinking (`xhigh`) | ~55k Token | ~2,75 $ |
 | **Summe** | | **~9,10 $** |
 
-Fable 5.1: 10 $/MTok Input, 50 $/MTok Output, Cache-Lesen 0,25 $/MTok. Thinking ist
-immer an und zählt als Output — das ist der Treiber, nicht der große Input. Einen
-Batch-Rabatt gibt es in Claude Code nicht.
-
-Die Thinking-Zahl ist geschätzt. `/cost` zeigt die Wahrheit.
+Thinking ist bei Fable immer an und zählt als Output ($50/MTok) — das ist der
+Treiber, nicht der große Input ($10/MTok). Einen Batch-Rabatt gibt es in Claude
+Code nicht. Die Thinking-Zahl ist geschätzt; `/cost` zeigt die Wahrheit.
 
 ---
 
 ## Wenn etwas klemmt
 
-| Symptom | Ursache und Weg |
+| Symptom | Weg |
 |---|---|
-| Fable im `/model`-Wähler ausgegraut | Usage credits nicht eingeschaltet (Schritt 1) |
-| Lauf bricht mit Limit-Meldung ab | Monatsdeckel (Schritt 2). Anheben, dann `claude --continue` |
-| `Ref 'feat/porto-labels' existiert nicht` | `git fetch --depth=200 origin feat/porto-labels` |
-| `NICHT GEFUNDEN` beim Bauen | Datei wurde verschoben. Pfad in `manifest.json` korrigieren — nicht ignorieren, sonst plant Fable ohne sie |
+| Fable im `/model`-Wähler ausgegraut | Usage credits nicht eingeschaltet |
+| Lauf bricht mit Limit-Meldung ab | Monatsdeckel. Anheben, dann `claude --continue` |
+| `Hub nicht gefunden` | `HUB=/pfad bash los.sh` |
+| `Masterplan NICHT GEFUNDEN` | `MASTERPLAN=/pfad bash los.sh`, oder das Repo klonen. Das Skript bricht hier **absichtlich** ab: darin steckt die Geschäftsdiagnose, an der Fable jedes Feature misst |
+| `NICHT GEFUNDEN` beim Prüfen | Datei wurde verschoben. Pfad in `manifest.json` korrigieren — nicht ignorieren, sonst plant Fable ohne sie |
 | `GEHEIMNIS-VERDACHT` | Es wird nichts geschrieben. Betroffene Datei aus `manifest.json` nehmen oder das Geheimnis aus dem Repo räumen |
 | Sitzung komprimiert automatisch | Sollte bei ~550k Token nicht passieren (Schwelle ~967k). Falls doch: `/autocompact 900k` |
-| Fable liest von sich aus im Repo herum | Einmal erinnern: nur die 15 Dateien aus der Lesekarte, `dashboard.html` nur per gezieltem `grep` |
-| `FABLE_PLAN.md` wirkt abgeschnitten | Fable weiterschreiben lassen („mach bei T*N* weiter"), nicht neu starten |
+| `FABLE_PLAN.md` wirkt abgeschnitten | Weiterschreiben lassen („mach bei T*N* weiter"), nicht neu starten |

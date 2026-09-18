@@ -4,7 +4,8 @@ Vorbereitung für **einen** Planungslauf mit Fable 5.1 in Claude Code, bezahlt a
 einem Restguthaben. Der Werkzeugkasten baut den Lesestoff, prüft ihn auf
 Geheimnisse und liefert den Auftrag — den Lauf selbst startest du.
 
-**→ Bedienung steht in [`START.md`](START.md). Diese Datei erklärt das Warum.**
+**→ Bedienung: [`START.md`](START.md) — im Kern ein Befehl, `bash los.sh`.
+Diese Datei erklärt das Warum.**
 
 Er plant nicht diese Website, sondern den **Hub** (`waxcelerate-sync`). Nur
 Python-3-stdlib, kein API-Key, kein Netz. `tools/` liegt außerhalb des
@@ -112,9 +113,10 @@ teuerste Fehler.
 
 | Datei | Rolle |
 |---|---|
-| `START.md` | **die Bedienung** — acht Schritte, inklusive der zwei Sperren |
+| `START.md` | **die Bedienung** — ein Befehl, plus der Monatsdeckel |
+| `los.sh` | findet die Repos, holt den Branch ohne `checkout`, prüft, baut, sagt den nächsten Schritt |
 | `auftrag.md` | der Fable-Auftrag, als eine Nachricht einzufügen |
 | `build_kontext.py` | baut `kontext/` aus einem Git-Ref; erzeugt Teil D |
 | `manifest.json` | die kuratierte Dateiliste, editierbar |
 | `handoff_sonnet.md` | Vorlage: aus einer `T10`-Zeile einen Auftrag für Sonnet 5 |
-| `kontext/` | erzeugt, gitignored |
+| `<hub>/.fable/` | erzeugt: Lesestoff plus fertiger `AUFTRAG.md` mit echten Pfaden |

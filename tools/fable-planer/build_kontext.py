@@ -87,8 +87,10 @@ def datei_lesen(repo: Path, ref: str, pfad: str) -> str | None:
     return git_leise(repo, "show", f"{ref}:{pfad}")
 
 
-def repos_aufloesen(manifest: dict, hub_arg: str | None) -> dict[str, dict]:
+def repos_aufloesen(manifest: dict, hub_arg: str | None,
+                    zusatz: dict | None = None) -> dict[str, dict]:
     """Findet die drei Repos auf der Platte und prueft den Ref."""
+    zusatz = zusatz or {}
     if hub_arg:
         hub = Path(hub_arg).expanduser().resolve()
     else:
@@ -105,8 +107,19 @@ def repos_aufloesen(manifest: dict, hub_arg: str | None) -> dict[str, dict]:
     for name, cfg in manifest["repos"].items():
         if name == "hub":
             pfad = hub
+        elif zusatz.get(name):
+            pfad = Path(zusatz[name]).expanduser().resolve()
         else:
             pfad = hub.parent / REPO_ORDNER[name]
+            if not (pfad / ".git").exists():
+                # Die Repos liegen auf Lucas Mac unter verschiedenen Elternordnern.
+                for kandidat in (hub.parent.parent, Path.home(),
+                                 Path.home() / "Developer Luca",
+                                 Path.home() / "Claude Playground"):
+                    versuch = kandidat / REPO_ORDNER[name]
+                    if (versuch / ".git").exists():
+                        pfad = versuch
+                        break
         aufgeloest[name] = {"pfad": pfad, "ref": cfg["ref"],
                             "vorhanden": (pfad / ".git").exists()}
     return aufgeloest
@@ -337,6 +350,11 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--hub", help="Pfad zum Repo waxcelerate-sync")
+    ap.add_argument("--masterplan", help="Pfad zum Repo waxcelerate-masterplan")
+    ap.add_argument("--site", help="Pfad zum Repo waxcelerate-site")
+    ap.add_argument("--ohne-masterplan", action="store_true",
+                    help="ohne den Masterplan bauen -- Fable verliert dann die "
+                         "Geschaeftsdiagnose, die sein Maszstab ist")
     ap.add_argument("--ref", help="Git-Ref (Standard aus manifest.json), "
                                   "oder WORKTREE fuer den Arbeitsbaum")
     ap.add_argument("--basis", default="main", help="Vergleichsbranch fuer D5 (Standard main)")
@@ -347,13 +365,28 @@ def main() -> int:
     args = ap.parse_args()
 
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
-    repos = repos_aufloesen(manifest, args.hub)
+    repos = repos_aufloesen(manifest, args.hub,
+                            {"masterplan": args.masterplan, "site": args.site})
     hub, hub_ref = repos["hub"]["pfad"], (args.ref or repos["hub"]["ref"])
 
     print(f"Hub:        {hub}  @ {hub_ref}")
     for name in ("masterplan", "site"):
         zustand = "ok" if repos[name]["vorhanden"] else "FEHLT (Dateien werden uebersprungen)"
         print(f"{name+':':<12}{repos[name]['pfad']}  -> {zustand}")
+
+    if not repos["masterplan"]["vorhanden"] and not args.ohne_masterplan:
+        sys.exit(
+            f"\nABBRUCH: waxcelerate-masterplan nicht gefunden "
+            f"(gesucht u.a. in {repos['masterplan']['pfad']}).\n"
+            f"        Darin stecken MASTERPLAN.md und die P-Pfade -- die "
+            f"Geschaeftsdiagnose\n"
+            f"        (Wachs-Einbruch, DB1-Erosion), an der Fable jedes Feature "
+            f"messen soll.\n"
+            f"        Ohne sie plant Fable ohne Maszstab.\n\n"
+            f"        Pfad angeben:  --masterplan <pfad>\n"
+            f"        Oder holen:    git clone https://github.com/LDCTeichmann/"
+            f"waxcelerate-masterplan\n"
+            f"        Bewusst ohne:  --ohne-masterplan")
 
     if hub_ref != "WORKTREE" and git_leise(hub, "rev-parse", "--verify", hub_ref) is None:
         sys.exit(f"\nFEHLER: Ref '{hub_ref}' existiert nicht in {hub}.\n"
@@ -451,7 +484,7 @@ def main() -> int:
     d_text = "\n".join(d_stuecke)
     (ziel / "teil_d.md").write_text(d_text, encoding="utf-8")
     d_zeilen = d_text.count("\n") + 1
-    karte.append(f"| 1 | `kontext/teil_d.md` | {d_zeilen} | {d_zeilen + 200} | "
+    karte.append(f"| 1 | `{(ziel / 'teil_d.md').resolve()}` | {d_zeilen} | {d_zeilen + 200} | "
                  f"Dateibaum, DB-Schema, Routen, Tests, die 69 ungemergten Commits, "
                  f"Rechtslage, UI-Landkarte |")
 
@@ -464,12 +497,12 @@ def main() -> int:
         kurz = ", ".join(i for i in inhalt if not i.startswith("(Kopf")) or "Abschnittskopf"
         if len(kurz) > 88:
             kurz = kurz[:85] + "..."
-        karte.append(f"| {nr+1} | `kontext/{name}` | {n} | {n + 200} | {kurz} |")
+        karte.append(f"| {nr+1} | `{(ziel / name).resolve()}` | {n} | {n + 200} | {kurz} |")
 
     karte += ["",
               f"Zusammen ~{tok_gesamt} Token in {len(bausteine)+1} Lesevorgaengen.",
               "",
-              "Was NICHT im Kontext ist, steht in teil_d.md unter D7. Der Dateibaum",
+              "Was NICHT im Kontext ist, steht in teil_d.md unter D7 (Zeile 1 oben). Der Dateibaum",
               "unter D1 zeigt das ganze Repo -- was dort steht und hier fehlt, hast du",
               "nicht gesehen. Rate darueber nicht, frag in T12."]
     (ziel / "00_LESEKARTE.md").write_text("\n".join(karte) + "\n", encoding="utf-8")

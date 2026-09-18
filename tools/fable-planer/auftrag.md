@@ -21,9 +21,9 @@ zu schreiben, das die fuenf vorhandenen wiederholt.
 
 ## Zuerst: so liest du den Kontext
 
-Der Lesestoff liegt vorbereitet in `tools/fable-planer/kontext/`.
+Der Lesestoff liegt fertig vorbereitet auf der Platte.
 
-1. Lies **`tools/fable-planer/kontext/00_LESEKARTE.md`**.
+1. Lies **`{{LESEKARTE}}`**.
 2. Lies dann die dort aufgefuehrten Dateien **in genau dieser Reihenfolge**, je
    Datei **ein** `Read` mit dem angegebenen `limit`. Es sind 15 Lesevorgaenge.
 3. Erst danach denkst und schreibst du.
@@ -36,8 +36,11 @@ erneut abgerechnet -- jeder unnoetige Werkzeugaufruf kostet echtes Geld. Deshalb
 - Kommt ein `Read` gekuerzt zurueck, mit `offset` weiterlesen, nicht neu schneiden.
 - `dashboard.html` (574 KB) ist **nicht** im Kontext. Teil D8 hat die UI-Landkarte
   mit allen Abschnitten, 495 Funktionen samt Zeilennummer und 118 Endpunkten.
-  Reicht sie fuer eine konkrete Aussage nicht, ist **ein gezieltes `grep`** in die
-  Datei erlaubt -- sie ganz zu lesen nicht.
+  Reicht sie fuer eine konkrete Aussage nicht, ist **ein gezieltes `grep`** erlaubt
+  -- sie ganz zu lesen nicht. Nimm dafuer den Git-Ref, nicht den Arbeitsbaum, weil
+  der auf einem anderen Branch stehen kann:
+
+      git show origin/feat/porto-labels:dashboard.html | grep -n "loadShipDesk" 
 - Du aenderst in diesem Lauf **keinen Code**. Du liest und schreibst genau eine
   neue Datei.
 
