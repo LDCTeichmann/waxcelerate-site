@@ -41,8 +41,8 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ArrowLeftRight, ExternalLink, Truck, RotateCw, ChevronDown, BadgePercent } from 'lucide-react';
-import { products, accessories, starterSetPrice, canCheckout, waxTierBreakdown } from '@/lib/data';
+import { ArrowRight, ArrowLeftRight, ExternalLink, Truck, RotateCw, ChevronDown, BadgePercent, Check } from 'lucide-react';
+import { products, accessories, starterSet, starterSetPrice, canCheckout, waxTierBreakdown } from '@/lib/data';
 import { costPerApplication } from '@/lib/waxMath';
 import type { TranslationType } from '@/lib/i18n';
 import { AddToCartButton } from '@/components/AddToCartButton';
@@ -51,7 +51,6 @@ import { Stars } from '@/components/Stars';
 import { ShippingPill } from '@/components/ShippingPill';
 import { trackEbayClick } from '@/lib/analytics';
 import { getEstimatedDelivery } from '@/lib/utils';
-import { TURNAROUND } from '@/pages/rewax/content';
 
 type Size = '300' | '500';
 type Variant = 'classic' | 'pro';
@@ -473,6 +472,95 @@ export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, p
   );
 }
 
+// ── Starter-Set-Kachel, dritte Karte neben den zwei Wachs-Tafeln ───────────
+// /kettenwachs (Seitenordnung Chat 2): "Drei gleich hohe Karten: Classic und
+// Pro (bestehendes WaxPanel) plus eine Starter-Set-Karte in derselben
+// Zonen-Grammatik." Gleiche Aussenform wie WaxPanel (Foto 16:10, getoenter
+// Block darunter, Fusszeile per mt-auto), nur der mittlere Block ist hier
+// eine kurze Punkteliste statt Groessenschalter/Rabatt-Chip — das Set hat
+// keine Groessenwahl und keine Wax-Staffel, sondern feste Beilagen.
+function StarterSetPanel({ de, t, delivery }: { de: boolean; t: TranslationType; delivery: string }) {
+  const s = t.products.shelf;
+  const bullets = de
+    ? ['Wachs, Zange und Draht in einer Sendung', 'Kette optional dazu', `${starterSet.discountPct} % günstiger als einzeln gekauft`]
+    : ['Wax, pliers and wire in one shipment', 'Chain optional', `${starterSet.discountPct}% cheaper than buying separately`];
+
+  return (
+    <div className="shelf-card group flex flex-col rounded-[20px] overflow-hidden">
+      <Link
+        to="/starter-set"
+        viewTransition
+        className="relative block overflow-hidden aspect-[16/10]"
+        style={{ background: 'var(--hero-stage)' }}
+        aria-label={`${s.setTitle} — ${eur(minSetPrice, de)}`}
+      >
+        <picture>
+          <source srcSet="/images/shelf/shelf-set-800.avif 800w, /images/shelf/shelf-set.avif 1000w" sizes="(max-width: 640px) 92vw, 30vw" type="image/avif" />
+          <source srcSet="/images/shelf/shelf-set-800.webp 800w, /images/shelf/shelf-set.webp 1000w" sizes="(max-width: 640px) 92vw, 30vw" type="image/webp" />
+          <img
+            src="/images/shelf/shelf-set.webp"
+            alt={de ? 'Waxcelerate Starter-Set mit Wachs, Kettenzange und Draht' : 'Waxcelerate starter set with wax, chain pliers and wire'}
+            loading="lazy"
+            decoding="async"
+            className="photo-shelf absolute inset-0 h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.04]"
+          />
+        </picture>
+        <span
+          aria-hidden
+          className="absolute bottom-4 right-4 flex items-center justify-center h-9 w-9 rounded-full opacity-0 translate-y-1 transition-all duration-300 ease-out group-hover:opacity-100 group-hover:translate-y-0"
+          style={{ background: 'rgba(255,255,255,0.16)', backdropFilter: 'blur(6px)', border: '1px solid rgba(255,255,255,0.28)' }}
+        >
+          <ArrowRight className="h-4 w-4" style={{ color: '#fff' }} />
+        </span>
+        <span className="absolute top-4 left-4 rounded-full px-2.5 py-1 text-meta font-semibold"
+          style={{ background: 'rgba(255,255,255,0.94)', color: '#101013', backdropFilter: 'blur(6px)' }}>
+          {s.setEyebrow}
+        </span>
+      </Link>
+
+      <div className="flex flex-1 flex-col px-5 pt-4 pb-5">
+        <p className="font-display font-bold leading-[1.05] tracking-[-0.02em]"
+          style={{ color: 'var(--tx1)', fontSize: 'clamp(1.4rem, 2.2vw, 1.65rem)' }}>
+          {s.setTitle}
+        </p>
+        <p className="text-[13px] mt-1" style={{ color: 'var(--txm)' }}>{s.setBody}</p>
+
+        <p className="shelf-price font-display font-extrabold leading-none tracking-[-0.03em] mt-4"
+          style={{ fontSize: 'clamp(1.9rem, 3vw, 2.3rem)' }}>
+          {de ? 'ab ' : 'from '}{eur(minSetPrice, de).replace(' €', '')}<span className="text-[0.55em] font-semibold ml-1" style={{ color: 'var(--tx2)' }}>€</span>
+        </p>
+
+        <ul className="mt-4 flex flex-col gap-2">
+          {bullets.map((b) => (
+            <li key={b} className="flex items-start gap-2 text-[13px] leading-snug" style={{ color: 'var(--tx2)' }}>
+              <Check className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" style={{ color: 'var(--accent-soft)' }} aria-hidden />
+              {b}
+            </li>
+          ))}
+        </ul>
+
+        <div className="mt-auto pt-4">
+          <div className="flex items-center justify-between gap-x-3 gap-y-3 flex-wrap pt-4" style={{ borderTop: '1px solid var(--bd2)' }}>
+            <p className="flex items-center gap-1.5 num text-[12.5px]" style={{ color: 'var(--tx2)' }}>
+              <Truck className="h-3.5 w-3.5 flex-shrink-0" style={{ color: 'var(--accent-soft)' }} aria-hidden />
+              <span>{s.delivery} {delivery}</span>
+            </p>
+            <Link
+              to="/starter-set"
+              viewTransition
+              className="inline-flex items-center gap-1.5 min-h-11 px-5 rounded-full text-[13px] font-semibold transition-all duration-150 hover:opacity-90 active:scale-[0.97]"
+              style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
+            >
+              {s.setCta}
+              <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function ProductShelf({ de, t, onCompare }: {
   de: boolean;
   t: TranslationType;
@@ -520,7 +608,15 @@ export function ProductShelf({ de, t, onCompare }: {
           <p className="eyebrow">{s.waxEyebrow}</p>
         </div>
 
-        <div className="grid gap-8 sm:gap-6 sm:grid-cols-2">
+        {/* /kettenwachs (Seitenordnung Chat 2): drei gleich hohe Karten statt
+            zwei Tafeln plus einer separaten Set/Ketten/Rewax-Reihe — das
+            Regal zeigte vorher fuenf Kacheln auf der Startseite, jetzt lebt
+            nur noch Wachs plus Set hier, Ketten und Rewax stehen als eigene
+            Tueren weiter unten auf der Seite (ProductDoors, kleine Variante).
+            items-stretch (Grid-Standard) haelt alle drei Fusszeilen auf
+            gleicher Hoehe, solange die Karten gleich viele Zeilen Text
+            haben. */}
+        <div className="grid gap-8 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           <WaxPanel
             variant="classic"
             de={de}
@@ -537,6 +633,7 @@ export function ProductShelf({ de, t, onCompare }: {
             alt={de ? 'Schwarzer Waxcelerate Pro Wachsblock mit MoS₂ auf Schiefer' : 'Black Waxcelerate Pro wax block with MoS₂ on slate'}
             delivery={delivery}
           />
+          <StarterSetPanel de={de} t={t} delivery={delivery} />
         </div>
 
         {/* Vorher ein reiner Fliesstext ohne Rahmen — neben zwei Tafeln mit
@@ -555,69 +652,12 @@ export function ProductShelf({ de, t, onCompare }: {
         </button>
       </div>
 
-      {/* ── Set / Ketten / Rewax ──
-          Eine Kachelsprache, eine Reihe — und seit dieser Fassung mit einer
-          eigenen Ueberschrift. Ohne sie las sich die Sektion als flache Liste
-          aus fuenf gleichrangigen Bloecken (zwei Tafeln, drei Kacheln); alles
-          gleich laut ist dasselbe wie nichts laut. Die drei Kacheln sind aber
-          keine drei weiteren Produkte, sondern drei Antworten auf denselben
-          Einwand — "ich will kein Wachs schmelzen". Genau so benannt, wird
-          aus der Liste ein Argument. */}
-      <div>
-        <div className="mb-4 sm:mb-6">
-          <h3 className="font-display font-bold leading-tight"
-            style={{ fontSize: 'clamp(1.25rem, 2.4vw, 1.65rem)', color: 'var(--tx1)' }}>
-            {s.altTitle}
-          </h3>
-          <p className="text-[13.5px] mt-1.5" style={{ color: 'var(--txm)' }}>{s.altBody}</p>
-        </div>
-
-        {/* shelf-alt: unter 640 px ein Wischband statt drei voller Karten
-            untereinander (Audit 14.09.2026: Regal mobil 3.100 px hoch). */}
-        <div className="shelf-alt grid gap-6 sm:grid-cols-3 sm:gap-6">
-        <SecondaryTile
-          index={1}
-          to="/starter-set"
-          image="/images/shelf/shelf-set" imageW={1000}
-          eyebrow={s.setEyebrow} title={s.setTitle}
-          body={s.setBody}
-          price={`${de ? 'Ab' : 'From'} ${eur(minSetPrice, de)}`}
-          delivery={`${s.delivery} ${delivery}`}
-          cta={s.setCta}
-          alt={de ? 'Waxcelerate Wachsblock mit Kettenzange, Kette und Schaltauge-Zubehör des Starter-Sets' : 'Waxcelerate wax block with chain pliers, chain and quick-link tools from the starter set'}
-        />
-        <SecondaryTile
-          index={2}
-          to="/ketten"
-          image="/images/shelf/shelf-ketten" imageW={1000}
-          eyebrow={s.chainsEyebrow} title={s.chainsTitle}
-          body={s.chainsBody}
-          price={`${de ? 'Ab' : 'From'} ${eur(minPrice('chain'), de)}`}
-          delivery={`${s.delivery} ${delivery}`}
-          cta={s.chainsAll}
-          alt={de ? 'Vorgewachste Fahrradkette mit Quick-Link auf Schiefer' : 'Pre-waxed bicycle chain with quick link on slate'}
-        />
-        <SecondaryTile
-          index={3}
-          to="/kette-wachsen-lassen"
-          image="/images/shelf/shelf-rewax" imageW={1000}
-          eyebrow={s.rewaxEyebrow} title={s.rewaxTitle}
-          body={s.rewaxBody}
-          price={s.rewaxFrom}
-          delivery={de ? `Zurück in ${TURNAROUND.dative} ab Ankunft` : `Back in ${TURNAROUND.shortEn} after arrival`}
-          deliveryIcon="rotate"
-          cta={s.rewaxCta}
-          alt={de ? 'Waxcelerate Versandkarton mit gewachster Kette vor Stuttgarter Landschaft' : 'Waxcelerate shipping box with a waxed chain in front of the Stuttgart hills'}
-        />
-        </div>
-      </div>
-
-      {/* PAngV: bis 09/2026 stand auf dieser Sektion (Wachs-Tafeln, Set,
-          Ketten, Rewax) zu Steuer und Versandkosten nichts, obwohl hier
-          ueberall Preise stehen — dieselbe Luecke, die die Produktdetail-
-          seite in Etappe 1 geschlossen hat. Einmal fuer die ganze Sektion
-          statt auf jeder Kachel wiederholt, gleiches Muster wie die
-          "Shared info"-Zeile bei der Kettenliste in products.tsx. */}
+      {/* PAngV: bis 09/2026 stand auf dieser Sektion (Wachs-Tafeln, Set)
+          zu Steuer und Versandkosten nichts, obwohl hier ueberall Preise
+          stehen — dieselbe Luecke, die die Produktdetailseite in Etappe 1
+          geschlossen hat. Einmal fuer die ganze Sektion statt auf jeder
+          Kachel wiederholt, gleiches Muster wie die "Shared info"-Zeile bei
+          der Kettenliste in products.tsx. */}
       <PriceNote de={de} t={t} />
     </div>
   );

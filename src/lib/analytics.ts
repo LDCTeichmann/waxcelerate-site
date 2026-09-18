@@ -97,20 +97,3 @@ export function trackSearchNoResult(query: string) {
 export function trackShopClick(source: string) {
   track('click_ebay_shop', { source });
 }
-
-let verdictSent = false;
-
-/**
- * Der Hero-Moment hat ein Urteil gefasst — welches Wachs jemandem empfohlen
- * wurde, nachdem er auf den Wachsblock geklickt und drei Angaben gemacht hat.
- *
- * Einmal je Seitenaufruf, wie trackProductsSeen: die Empfehlung aendert sich
- * bei jedem Chip-Klick, und ein Ereignis je Slider-Bewegung waere Rauschen
- * statt Signal. Interessant ist, worauf jemand landet, nicht wie oft er
- * unterwegs die Meinung wechselt.
- */
-export function trackWaxVerdict(productId: string) {
-  if (verdictSent) return;
-  verdictSent = true;
-  track('wax_verdict', { productId });
-}

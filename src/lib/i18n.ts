@@ -108,7 +108,10 @@ export const translations = {
       // nicht das Bild. "Kettenwachs" enthaelt "Kette" und erledigt das in
       // einem Wort, ohne eine zusaetzliche Zeile zu kosten. Zweite Stelle im
       // Lesepfad ist blockLabel direkt am Wachsblock.
-      subtitle: 'Waxcelerate · Kettenwachs · Stuttgart',
+      // Seitenordnung Chat 2: ersetzt "Waxcelerate · Kettenwachs ·
+      // Stuttgart" — der Deutschland-Strich davor (DeStripe) macht die
+      // Herkunft jetzt visuell, der Text muss sie nicht mehr buchstabieren.
+      subtitle: 'Handgegossen in Stuttgart',
       headline: 'Am Ende der',
       headlineSub: 'Recherche.',
       // Die einzige echte <h1> der Startseite, visuell verborgen (sr-only).
@@ -293,6 +296,21 @@ export const translations = {
         reviewsShort: 'Bewertungen',
         delivery: 'Lieferung',
       },
+      // Drei Türen auf der Startseite (Seitenordnung Chat 2) — ersetzen dort
+      // das Regal. Das volle Regal (Wachs-Tafeln, Größen, Preise) lebt jetzt
+      // auf /kettenwachs (shelf-Namespace oben, dort weiter genutzt).
+      doors: {
+        title: 'Kettenwachs, gewachste Ketten oder wachsen lassen',
+        subtitle: 'Drei Wege zu einem sauberen, leiseren Antrieb — du entscheidest, wie viel du selbst machst.',
+        waxTitle: 'Kettenwachs',
+        waxBody: 'Heißwachs zum Selberwachsen. Classic, Pro oder als Set.',
+        chainsTitle: 'Vorgewachste Ketten',
+        chainsBody: 'Fertig gewachst, direkt montieren.',
+        rewaxTitle: 'Kette wachsen lassen',
+        rewaxBody: 'Einschicken, gewachst zurück in {turnaround}.',
+        rewaxPrice: '15,95 € je Kette',
+        priceFrom: 'ab {price}',
+      },
     },
 
     // Why Wax
@@ -336,21 +354,6 @@ export const translations = {
       labValues: 'Laborwerte',
       derivation: 'Herleitung',
       derivationAria: 'Woher die Ersparnis kommt: Kostenaufschlüsselung ansehen',
-    },
-
-    // Origin — dark full-bleed break between Reviews and Tools (DESIGN.md §6
-    // "dark moment" brief). Scoped to the wax only, never the resold chains:
-    // "gegossen in Stuttgart" is true for the wax we make, not for a Shimano/
-    // SRAM/YBN chain we only wax-treat here (see v9ChainFooterNote in
-    // productContent.ts for why that distinction matters).
-    origin: {
-      eyebrow: 'Herkunft',
-      title1: 'In Stuttgart gegossen.',
-      title2: 'Nicht zugekauft.',
-      body: 'Kleine Chargen, von Hand. Was auf der Verpackung steht, ist auch drin — jede Zutat mit Namen, nicht nur „Wachsmischung".',
-      stat1: 'Verarbeitung',
-      stat2v: 'Handgefertigt',
-      stat2: 'Kleine Chargen',
     },
 
     // Tools
@@ -863,7 +866,7 @@ export const translations = {
 
     // Hero
     hero: {
-      subtitle: 'Waxcelerate · Chain Wax · Stuttgart',
+      subtitle: 'Hand-poured in Stuttgart',
       headline: 'At the end of',
       headlineSub: 'the research.',
       a11yHeading: 'Waxcelerate — hot wax for bicycle chains, made in Stuttgart',
@@ -960,6 +963,18 @@ export const translations = {
         reviewsShort: 'reviews',
         delivery: 'Delivery',
       },
+      doors: {
+        title: 'Chain wax, pre-waxed chains, or let us wax it',
+        subtitle: 'Three ways to a cleaner, quieter drivetrain — you decide how much you do yourself.',
+        waxTitle: 'Chain Wax',
+        waxBody: 'Hot wax to apply yourself. Classic, Pro, or as a set.',
+        chainsTitle: 'Pre-Waxed Chains',
+        chainsBody: 'Waxed and ready, just fit it.',
+        rewaxTitle: 'Let us wax your chain',
+        rewaxBody: 'Send it in, waxed and back in {turnaround}.',
+        rewaxPrice: '€15.95 per chain',
+        priceFrom: 'from {price}',
+      },
     },
 
     // Why Wax
@@ -1002,16 +1017,6 @@ export const translations = {
     },
 
     // Origin
-    origin: {
-      eyebrow: 'Origin',
-      title1: 'Poured in Stuttgart.',
-      title2: 'Not bought in.',
-      body: 'Small batches, by hand. What’s on the label is what’s inside — every ingredient named, not just "wax blend."',
-      stat1: 'Processing',
-      stat2v: 'Handmade',
-      stat2: 'Small batches',
-    },
-
     // Tools
     tools: {
       rewax: {

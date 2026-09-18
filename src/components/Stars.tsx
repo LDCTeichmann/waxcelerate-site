@@ -10,14 +10,14 @@ const STAR_PATH = "M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.9
 // oder ganz leer. clip-path: inset() auf einer <g> schneidet den Vollton von
 // rechts ab, das ist die uebliche Methode fuer Teilsterne ohne zweite
 // Icon-Variante pro Bruchteil.
-export function Stars({ rating = 5, color = 'var(--accent-soft)', emptyColor = 'var(--bd)' }:
-  { rating?: number; color?: string; emptyColor?: string }) {
+export function Stars({ rating = 5, color = 'var(--accent-soft)', emptyColor = 'var(--bd)', size = 'h-3.5 w-3.5' }:
+  { rating?: number; color?: string; emptyColor?: string; size?: string }) {
   return (
     <div className="flex items-center gap-0.5" role="img" aria-label={`${rating} / 5`}>
       {Array.from({ length: 5 }).map((_, i) => {
         const fillPct = Math.max(0, Math.min(1, rating - i)) * 100;
         return (
-          <svg key={i} className="h-3.5 w-3.5" viewBox="0 0 20 20" aria-hidden>
+          <svg key={i} className={`${size} flex-shrink-0`} viewBox="0 0 20 20" aria-hidden>
             <path fill={emptyColor} d={STAR_PATH} />
             {fillPct > 0 && (
               <g style={{ clipPath: `inset(0 ${100 - fillPct}% 0 0)` }}>

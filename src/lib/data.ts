@@ -41,6 +41,9 @@ export const CONTACT = {
   email: 'waxcelerate@gmail.com',
   whatsapp: 'https://wa.me/4915751957470',
   ebay: 'https://www.ebay.de/usr/waxcelerate',
+  // Bewertungsprofil statt Shopseite — die Reviews-Sektion und der Hero
+  // verlinken damit direkt auf die eBay-Feedback-Liste (Seitenordnung Chat 2).
+  ebayFeedback: 'https://www.ebay.de/fdbk/feedback_profile/waxcelerate',
   instagram: 'https://www.instagram.com/waxcelerate' as string,
 } as const;
 

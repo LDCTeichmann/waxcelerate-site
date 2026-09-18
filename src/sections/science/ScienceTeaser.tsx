@@ -25,11 +25,9 @@
 // ChainWaxMap (Seitenansicht/Beschriftungen ausgeblendet, kraeftigeres Blau +
 // Glow auf der aktiven Flaeche) bleibt unveraendert.
 
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import { ScrollTrigger } from '@/lib/gsap';
-import { prefersReducedMotion } from '@/hooks/useAnimation';
 import { ChainWaxMap } from '@/sections/science/ChainWaxMap';
 
 // Reihenfolge deckt sich mit ChainWaxMap's `active`-Index (0 = Bolzen/Kragen ·
@@ -42,22 +40,13 @@ const ZONE_LABELS = [
   { n: '03', de: 'Lasche ↔ Lasche', en: 'Plate ↔ plate' },
 ];
 
+// Seitenordnung Chat 2 ("weniger Bewegung"): kein 2,8-s-Autowechsel mehr —
+// die Zone wechselt nur, wenn jemand die Karte tatsaechlich anfasst (Hover
+// oder Klick), nicht von selbst im Hintergrund.
 export function ScienceTeaser({ de }: { de: boolean }) {
   const ref = useRef<HTMLAnchorElement>(null);
   const [active, setActive] = useState(0);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || prefersReducedMotion()) return;
-    let interval = 0;
-    const t = ScrollTrigger.create({
-      trigger: el, start: 'top 88%', once: true,
-      onEnter: () => {
-        interval = window.setInterval(() => setActive(a => (a + 1) % 3), 2800);
-      },
-    });
-    return () => { t.kill(); clearInterval(interval); };
-  }, []);
+  const advance = () => setActive(a => (a + 1) % 3);
 
   const zone = ZONE_LABELS[active];
 
@@ -98,11 +87,13 @@ export function ScienceTeaser({ de }: { de: boolean }) {
       onMouseEnter={e => {
         e.currentTarget.style.borderColor = 'var(--accent-soft)';
         e.currentTarget.style.boxShadow = 'var(--card-shadow-hover)';
+        advance();
       }}
       onMouseLeave={e => {
         e.currentTarget.style.borderColor = 'var(--bd)';
         e.currentTarget.style.boxShadow = 'var(--card-shad)';
       }}
+      onClick={advance}
     >
 
       <div>

@@ -68,33 +68,31 @@ export function BeforeAfterSlider({ beforeSrc, afterSrc, beforeAlt, afterAlt, be
   }, []);
 
   const sweepTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const [hasSwept, setHasSwept] = useState(false);
+  // Seitenordnung Chat 2 ("weniger Bewegung"): nur EIN Sweep beim ersten
+  // Sichtkontakt, kein endloser 20-s-Loop mehr. Jede Leg-Dauer 3,2s statt
+  // 1,8s (ruhiger), prefers-reduced-motion faellt ganz auf ein statisches
+  // Bild bei 50 % zurueck.
   useEffect(() => {
-    if (!inView || hasInteracted) return;
+    if (!inView || hasInteracted || hasSwept) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { setHasSwept(true); return; }
     let cancelled = false;
     const runSweep = () => {
       if (cancelled || draggingRef.current || hasInteracted) return;
       setSweeping(true);
-      // Each leg runs 1.8s (was 1s) — the original pace read as a twitch
-      // rather than a drag (real feedback: "aktuell etwas schnell").
       sweepTimersRef.current.push(setTimeout(() => { if (!draggingRef.current && !hasInteracted) setPct(28); }, 50));
-      sweepTimersRef.current.push(setTimeout(() => { if (!draggingRef.current && !hasInteracted) setPct(72); }, 1850));
-      sweepTimersRef.current.push(setTimeout(() => { if (!draggingRef.current && !hasInteracted) setPct(50); }, 3650));
-      sweepTimersRef.current.push(setTimeout(() => setSweeping(false), 5450));
+      sweepTimersRef.current.push(setTimeout(() => { if (!draggingRef.current && !hasInteracted) setPct(72); }, 3250));
+      sweepTimersRef.current.push(setTimeout(() => { if (!draggingRef.current && !hasInteracted) setPct(50); }, 6450));
+      sweepTimersRef.current.push(setTimeout(() => { setSweeping(false); setHasSwept(true); }, 9650));
     };
     const initialDelay = setTimeout(runSweep, 800);
-    // 20s, not 6s — "shouldn't move all the time" (real feedback). Frequent
-    // enough that most people scrolling past will catch it once, rare enough
-    // that it reads as an occasional hint, not a distraction competing with
-    // reading the actual comparison.
-    const iv = setInterval(runSweep, 20000);
     return () => {
       cancelled = true;
       clearTimeout(initialDelay);
-      clearInterval(iv);
       sweepTimersRef.current.forEach(clearTimeout);
       sweepTimersRef.current = [];
     };
-  }, [inView, hasInteracted]);
+  }, [inView, hasInteracted, hasSwept]);
 
   const markInteracted = () => {
     if (!hasInteracted) setHasInteracted(true);
@@ -128,7 +126,8 @@ export function BeforeAfterSlider({ beforeSrc, afterSrc, beforeAlt, afterAlt, be
   const clamp01 = (n: number) => Math.min(1, Math.max(0, n));
   const beforeOpacity = clamp01((pct - 10) / 15);
   const afterOpacity = clamp01((90 - pct) / 15);
-  const labelFade = sweeping ? 'opacity 1.8s ease-in-out' : 'opacity .15s linear';
+  const labelFade = sweeping ? 'opacity 3.2s ease-in-out' : 'opacity .15s linear';
+  const reducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   return (
     <div
@@ -153,7 +152,7 @@ export function BeforeAfterSlider({ beforeSrc, afterSrc, beforeAlt, afterAlt, be
       <img src={afterSrc} alt={afterAlt} loading="lazy" className={`absolute inset-0 w-full h-full ${imgFit} pointer-events-none`} draggable={false} />
       <div
         className="absolute inset-0 overflow-hidden pointer-events-none"
-        style={{ clipPath: `inset(0 ${100 - pct}% 0 0)`, transition: sweeping ? 'clip-path 1.8s ease-in-out' : 'none' }}
+        style={{ clipPath: `inset(0 ${100 - pct}% 0 0)`, transition: sweeping ? 'clip-path 3.2s ease-in-out' : 'none' }}
       >
         <img src={beforeSrc} alt={beforeAlt} loading="lazy" className={`absolute inset-0 w-full h-full ${imgFit}`} draggable={false} />
       </div>
@@ -170,7 +169,7 @@ export function BeforeAfterSlider({ beforeSrc, afterSrc, beforeAlt, afterAlt, be
           left: `${pct}%`,
           transform: 'translate(-30%, -20%)',
           opacity: sweeping ? 1 : 0,
-          transition: sweeping ? 'left 2.1s ease-in-out, opacity 0.3s ease' : 'opacity 0.3s ease',
+          transition: sweeping ? 'left 3.7s ease-in-out, opacity 0.3s ease' : 'opacity 0.3s ease',
         }}
       >
         {/* Dark backdrop circle, not just a drop-shadow on the icon — a white
@@ -189,7 +188,7 @@ export function BeforeAfterSlider({ beforeSrc, afterSrc, beforeAlt, afterAlt, be
           then it stops for good; see the comment on hasInteracted above. */}
       <div
         className="absolute inset-y-0 pointer-events-none"
-        style={{ left: `${pct}%`, transition: sweeping ? 'left 1.8s ease-in-out' : 'none', zIndex: 10 }}
+        style={{ left: `${pct}%`, transition: sweeping ? 'left 3.2s ease-in-out' : 'none', zIndex: 10 }}
       >
         <div className="absolute inset-y-0" style={{ width: 2, left: 0, transform: 'translateX(-50%)', background: '#fff', boxShadow: '0 0 0 1px rgba(0,0,0,0.25)' }} />
         {/* Bigger + a visible accent ring on top of the dark backdrop shadow —
@@ -202,7 +201,9 @@ export function BeforeAfterSlider({ beforeSrc, afterSrc, beforeAlt, afterAlt, be
             width: 40, height: 40, background: '#fff', pointerEvents: 'auto',
             border: '2px solid var(--accent, #2B52B0)',
             boxShadow: '0 3px 14px rgba(0,0,0,0.45), 0 0 0 4px rgba(255,255,255,0.55)',
-            animation: hasInteracted ? 'none' : 'wx-slider-pulse 1.8s ease-in-out infinite',
+            // Hoechstens zweimal statt endlos (Seitenordnung Chat 2, "weniger
+            // Bewegung"); prefers-reduced-motion schaltet den Puls ganz ab.
+            animation: hasInteracted || reducedMotion ? 'none' : 'wx-slider-pulse 1.8s ease-in-out 2',
           }}>
           <ChevronsLeftRight className="h-[18px] w-[18px]" style={{ color: '#101013' }} strokeWidth={2.5} />
         </div>

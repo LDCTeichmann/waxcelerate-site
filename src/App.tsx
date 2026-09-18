@@ -3,20 +3,21 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import { Navigation } from '@/sections/navigation';
 import { Hero as HeroEditorial } from '@/sections/hero-light';
 import { Products } from '@/sections/products';
-import { TrustStrip } from '@/sections/TrustStrip';
 import { Footer } from '@/sections/footer';
 
 // Below-the-fold homepage sections — split into their own chunks that stream in
 // parallel after first paint. Keeps the initial bundle light; nothing removed.
 // WhyWax (Vergleich, Wissenschafts-Teaser, Slider) liegt unter Products, also
 // nie im ersten Bildschirm — raus aus dem Startchunk (Mobile-Audit 15.09.2026).
+//
+// Seitenordnung Chat 2: die Startseite endet jetzt nach Reviews. TrustStrip,
+// Origin und ClosingCTA sind geloescht (wiederholten nur Hero-Zahlen bzw.
+// zogen Kennzahlen vor, die jetzt schon im Hero-Fussstreifen stehen). About,
+// FAQ und Contact ziehen mit der Seitenordnung nach /kontakt bzw. /blog um
+// (Chat 4) — hier nur die Imports/Sektionen entfernt, die Dateien selbst
+// raeumt Chat 4 ab.
 const WhyWax  = lazy(() => import('@/sections/why-wax').then(m => ({ default: m.WhyWax })));
 const Reviews = lazy(() => import('@/sections/reviews').then(m => ({ default: m.Reviews })));
-const Origin  = lazy(() => import('@/sections/Origin').then(m => ({ default: m.Origin })));
-const About   = lazy(() => import('@/sections/about').then(m => ({ default: m.About })));
-const FAQ     = lazy(() => import('@/sections/faq').then(m => ({ default: m.FAQ })));
-const Contact = lazy(() => import('@/sections/contact').then(m => ({ default: m.Contact })));
-const ClosingCTA = lazy(() => import('@/sections/closing-cta').then(m => ({ default: m.ClosingCTA })));
 
 const StarterSetPage = lazy(() => import('@/pages/StarterSetPage').then(m => ({ default: m.StarterSetPage })));
 const RewaxPage = lazy(() => import('@/pages/RewaxPage').then(m => ({ default: m.RewaxPage })));
@@ -42,6 +43,7 @@ const KontaktPage = lazy(() => import('@/pages/KontaktPage').then(m => ({ defaul
 const FaqPage = lazy(() => import('@/pages/FaqPage').then(m => ({ default: m.FaqPage })));
 const AnleitungPage = lazy(() => import('@/pages/AnleitungPage').then(m => ({ default: m.AnleitungPage })));
 const KettenPage = lazy(() => import('@/pages/KettenPage').then(m => ({ default: m.KettenPage })));
+const KettenwachsPage = lazy(() => import('@/pages/KettenwachsPage').then(m => ({ default: m.KettenwachsPage })));
 import { LanguageProvider } from '@/hooks/useLanguage';
 import { ThemeProvider } from '@/hooks/useTheme';
 import { Toaster } from '@/components/ui/sonner';
@@ -123,6 +125,10 @@ function AppContent() {
             useState innerhalb der Produktsektion, jetzt eine echte Route mit
             eigener Adresse, Filter als Query-Parameter statt Anker. */}
         <Route path="/ketten" element={<Suspense fallback={<PageLoader />}><KettenPage /></Suspense>} />
+        {/* Tuer 1 (Seitenordnung Chat 2): dieselbe Behandlung wie /ketten
+            und /kette-wachsen-lassen — eine eigene Seite statt eines
+            Aufklappens auf der Startseite. */}
+        <Route path="/kettenwachs" element={<Suspense fallback={<PageLoader />}><KettenwachsPage /></Suspense>} />
         <Route path="/" element={
           <>
             <Navigation />
@@ -131,30 +137,18 @@ function AppContent() {
               <Suspense fallback={<div style={{ minHeight: '100svh' }} />}>
                 <HeroEditorial />
               </Suspense>
-              {/* Mobile-Plan B1: Produkte nach vorn. Vorher lag WhyWax (rund
-                  drei Bildschirme Erklaerung) vor Products, sodass das erste
-                  Produkt erst nach vier Bildschirmen sichtbar war. TrustStrip
-                  ersetzt hier keinen Inhalt, sondern zieht drei bereits an
-                  anderer Stelle stehende Fakten nach oben. WhyWax folgt jetzt
-                  NACH Products, gekuerzt (siehe why-wax.tsx). Tools steht vor
-                  About: Rechner beantworten Kauffragen, die Gruendergeschichte
-                  nicht. Anker-IDs (#produkte, #warum-wachs, #bewertungen, …)
+              {/* Seitenordnung Chat 2: Hero → Products (drei Tueren) →
+                  WhyWax → Reviews → Footer, sonst nichts — die restlichen
+                  zwoelf Startseiten-Abschnitte sind auf eigene Seiten
+                  umgezogen (siehe SEITENORDNUNG_PLAN.md). TrustStrip fiel
+                  weg (wiederholte nur Hero-Zahlen, siehe Hero-Fussstreifen).
+                  Anker-IDs (#produkte, #warum-wachs, #bewertungen)
                   unveraendert — Navigation, MobileStickyCTA und
                   PendingAnchorScroll haengen daran. */}
-              <TrustStrip />
               <Products />
               <Suspense fallback={null}>
                 <WhyWax />
                 <Reviews />
-                <Origin />
-                {/* Tools/Guides entfernt (Seitenordnung 09/2026, Chat 3): beide
-                    Startseiten-Sektionen sind nach /anleitung umgezogen, ihre
-                    Dateien geloescht. Chat 2 raeumt den restlichen
-                    Homepage-Block separat auf. */}
-                <About />
-                <FAQ />
-                <Contact />
-                <ClosingCTA />
               </Suspense>
             </main>
             <Footer />

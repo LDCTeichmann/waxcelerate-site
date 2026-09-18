@@ -94,7 +94,10 @@ export function kettenCollectionSchema(chainProducts: Pick<Product, 'id' | 'titl
  *  auf /ketten zurueck, Wachs auf das Regal. Ziel-Label statt Richtungslabel
  *  senkt die Klickhuerde. */
 export function backTarget(category: Product['category'], de: boolean): { to: string; label: string } {
+  // Seitenordnung Chat 2: Wachs fuehrt jetzt auf die eigene Seite
+  // /kettenwachs zurueck statt auf den Regal-Anker der Startseite, der
+  // seit den drei Tueren keine einzelnen Wachsprodukte mehr zeigt.
   return category === 'chain'
     ? { to: '/ketten', label: de ? 'Alle Ketten' : 'All chains' }
-    : { to: '/#produkte', label: de ? 'Alle Produkte' : 'All products' };
+    : { to: '/kettenwachs', label: de ? 'Alle Kettenwachse' : 'All chain waxes' };
 }

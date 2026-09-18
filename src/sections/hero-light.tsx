@@ -1,13 +1,10 @@
-import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react';
-import { ArrowRight, ZoomIn, Search } from 'lucide-react';
+import { useEffect, useRef } from 'react';
+import { ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
-import { WaxLensCutout } from '@/sections/hero/WaxLensCutout';
-import { waxLensEnabled } from '@/sections/hero/constants';
-import { waxVsOil, trustStats } from '@/lib/data';
+import { waxVsOil, trustStats, CONTACT } from '@/lib/data';
 import { Stars } from '@/components/Stars';
-
-const WaxDive = lazy(() => import('@/sections/hero/WaxDive').then(m => ({ default: m.WaxDive })));
+import { useDispatchLine } from '@/hooks/useDispatchLine';
 
 // chain-bg.jpg is now a pre-cropped 1653×918 (1.8:1) slice of the source photo,
 // chosen so the calm slate surface (with the loose chain-link detail) occupies
@@ -49,22 +46,28 @@ const MOBILE_HERO_BG_FALLBACK = '/images/hero/chain-weave-mobile.jpg';
 const HERO_TEXT_SHADOW = '0 1px 3px rgba(0,0,0,0.45), 0 2px 10px rgba(0,0,0,0.35)';
 
 
+// Deutschland-Strich vor der Eyebrow — ersetzt den blauen Strich, seit die
+// Eyebrow selbst "Handgegossen in Stuttgart" sagt (Seitenordnung Chat 2).
+// Feine Kontur, weil Gold auf dem dunklen Hero-Foto sonst an der Kante
+// verläuft.
+function DeStripe() {
+  return (
+    <span
+      aria-hidden
+      className="inline-flex flex-shrink-0 overflow-hidden"
+      style={{ width: '18px', height: '3px', boxShadow: '0 0 0 0.5px rgba(255,255,255,0.35)', borderRadius: '1px' }}
+    >
+      <span style={{ flex: 1, background: '#000' }} />
+      <span style={{ flex: 1, background: '#DD0000' }} />
+      <span style={{ flex: 1, background: '#FFCC00' }} />
+    </span>
+  );
+}
+
 export function Hero() {
   const { t, lang } = useLanguage();
   const de = lang === 'de';
-  const [diveOpen, setDiveOpen] = useState(false);
-  const [lensOn] = useState(() => waxLensEnabled());
-
-  const openDive = useCallback(() => setDiveOpen(true), []);
-
-  // Mobil: Tap auf den Block oeffnet WaxDive UND stoppt den Klick-Hinweis
-  // dauerhaft — er hat seinen Zweck erfuellt, sobald jemand einmal getippt hat.
-  const openDiveFromBlock = useCallback(() => {
-    mHintTlRef.current?.kill();
-    if (mRippleRef.current) gsap.set(mRippleRef.current, { autoAlpha: 0 });
-    if (mMagRef.current) gsap.set(mMagRef.current, { autoAlpha: 0 });
-    setDiveOpen(true);
-  }, []);
+  const dispatchCompact = useDispatchLine(de, { compact: true });
 
   const rootRef      = useRef<HTMLElement>(null);
   const cardRef      = useRef<HTMLDivElement>(null);
@@ -73,28 +76,12 @@ export function Hero() {
   const blockRef   = useRef<HTMLDivElement>(null);
   const blockInnerRef = useRef<HTMLDivElement>(null);
   const glowRef    = useRef<HTMLDivElement>(null);
-  const hintRef    = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const ctaRef     = useRef<HTMLButtonElement>(null);
   // Mobiler Wachsblock (< 640px). mBlockInnerRef ist der Motion-Wrapper
   // (Wobble + Atmen) — getrennt vom positionierten <button>, dessen
-  // CSS-Zentrierung GSAP sonst ueberschreibt. mRippleRef/mMagRef sind der
-  // intermittierende Klick-Hinweis (Tap-Ripple + kurz aufblitzende Lupe),
-  // mHintTlRef haelt dessen Timeline, damit der erste echte Tap sie killt.
+  // CSS-Zentrierung GSAP sonst ueberschreibt.
   const mBlockInnerRef = useRef<HTMLSpanElement>(null);
-  const mRippleRef     = useRef<HTMLSpanElement>(null);
-  const mMagRef        = useRef<HTMLSpanElement>(null);
-  const mHintTlRef     = useRef<gsap.core.Timeline | null>(null);
-  // Holds the repeating "look, click here" nudge so the lens's own
-  // onActiveChange can kill it the moment someone finds the real hotspot —
-  // no point still nudging once they already have.
-  const nudgeTlRef = useRef<gsap.core.Timeline | null>(null);
-
-  const onLensActiveChange = useCallback((active: boolean) => {
-    if (!active) return;
-    nudgeTlRef.current?.kill();
-    if (hintRef.current) gsap.to(hintRef.current, { autoAlpha: 0, duration: 0.25, overwrite: 'auto' });
-  }, []);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -139,24 +126,6 @@ export function Hero() {
       0.75,
     );
     tl.fromTo(items, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', stagger: 0.09 }, 1.0);
-
-    // statEls[0] ("Kettenlaufzeit") used to count up to a bare "3×" here,
-    // independently of the React-rendered value — a plain number tween can't
-    // land on the "2–3×" range the copy now uses, so that stat keeps only
-    // its normal fade-in (via the [data-hero] stagger above) and no counter.
-    // Scoped to cardInner (desktop stat bar only), not root — the v3 mobile
-    // hero has its own [data-stat-val] triple now (same stats array, own
-    // markup), and root.querySelectorAll would have returned mobile's before
-    // desktop's in DOM order, aiming this counter at the wrong element.
-    const statEls = cardInner.querySelectorAll<HTMLElement>('[data-stat-val]');
-    if (statEls[1]) {
-      const el1 = statEls[1];
-      const c1 = { val: 0 };
-      gsap.to(c1, { val: 70, duration: 1.1, delay: 1.2, ease: 'power2.out', snap: { val: 1 },
-        onStart() { el1.textContent = '~€0'; },
-        onUpdate() { el1.textContent = '~€' + c1.val; },
-      });
-    }
 
     const triggers: ScrollTrigger[] = [];
     const scrub = (animation: gsap.core.Tween) =>
@@ -213,26 +182,6 @@ export function Hero() {
         })
       : undefined;
 
-    // Repeating "you can click this" nudge. Two things changed from a first
-    // pass that turned out too subtle to notice: it now starts almost
-    // immediately (a first-glance visitor should see it within ~1.5s, not
-    // wait 15s+ to maybe catch a 2.5s window) and repeats roughly every 7s
-    // instead of every 15+, so a few seconds of looking at the hero is
-    // enough to catch it. Von Restorff effect: an isolated, moving element
-    // against an otherwise static hero is what actually pulls the eye,
-    // which is also why this stays a small badge rather than something
-    // louder — one clear signal beats several competing ones. Stops for
-    // good on first real hover/click (see onLensActiveChange below).
-    let nudgeTl: gsap.core.Timeline | undefined;
-    if (hintRef.current && lensOn) {
-      gsap.set(hintRef.current, { autoAlpha: 0, scale: 0.85 });
-      nudgeTl = gsap.timeline({ delay: 1.5, repeat: -1, repeatDelay: 5.5 });
-      nudgeTl
-        .to(hintRef.current, { autoAlpha: 1, scale: 1, duration: 0.4, ease: 'back.out(1.8)' })
-        .to(hintRef.current, { autoAlpha: 0, scale: 0.92, duration: 0.35, ease: 'power2.in' }, '+=1.6');
-      nudgeTlRef.current = nudgeTl;
-    }
-
     let onMove:  ((e: MouseEvent) => void) | undefined;
     if (finePointer) {
       const qImg = imgLayers.map((el) => [
@@ -281,8 +230,6 @@ export function Hero() {
       idleWobble?.kill();
       glowPulse?.kill();
       breathe?.kill();
-      nudgeTl?.kill();
-      nudgeTlRef.current = null;
       tl.kill();
     };
   }, []);
@@ -294,22 +241,14 @@ export function Hero() {
   // Tweens auf Desktop gar nicht erst laufen. prefers-reduced-motion ->
   // alles statisch.
   //
-  // Dazu der Klick-Hinweis, den Luca ausdruecklich zurueckhaben wollte: alle
-  // ~6 s dehnt sich ein weicher Tap-Ripple und eine kleine Lupe blitzt ~1,4 s
-  // an derselben Stelle auf. Der erste echte Tap killt die Timeline dauerhaft
-  // (siehe openDiveFromBlock). Kein Dauer-Glow — nur dieser eine, endliche
-  // Hinweis.
-  //
   // KEIN Scroll-Parallax mehr auf dem Hintergrundfoto: das war ein
   // ScrollTrigger-Scrub (Foto-Transform an die Scrollposition gekoppelt),
   // also zusaetzliche JS-Arbeit auf jedem Scroll-Frame — genau die Sorte
   // Code, die auf einem Touchscreen als Scroll-Ruckeln auffaellt, zumal
-  // parallel schon drei endlose GSAP-Ticker (Wobble, Atmen, Hinweis) laufen.
+  // parallel schon zwei endlose GSAP-Ticker (Wobble, Atmen) laufen.
   // War rein dekorativ (12 % Drift), deshalb ersatzlos raus statt gedrosselt.
   useEffect(() => {
-    const inner  = mBlockInnerRef.current;
-    const ripple = mRippleRef.current;
-    const mag    = mMagRef.current;
+    const inner = mBlockInnerRef.current;
     if (!inner) return;
     if (!window.matchMedia('(max-width: 639px)').matches) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -317,32 +256,17 @@ export function Hero() {
     const wobble = gsap.to(inner, { rotation: 1.2, duration: 3.6, ease: 'sine.inOut', yoyo: true, repeat: -1 });
     const breathe = gsap.to(inner, { scale: 1.045, duration: 1.9, ease: 'sine.inOut', yoyo: true, repeat: -1, delay: 2.5 });
 
-    let hintTl: gsap.core.Timeline | undefined;
-    if (ripple && mag) {
-      gsap.set(ripple, { autoAlpha: 0, scale: 0.35, transformOrigin: '50% 50%' });
-      gsap.set(mag, { autoAlpha: 0, scale: 0.8, y: 4 });
-      hintTl = gsap.timeline({ repeat: -1, repeatDelay: 4.6, delay: 2.2 });
-      hintTl
-        .to(ripple, { autoAlpha: 1, scale: 0.5, duration: 0.01 })
-        .to(ripple, { scale: 2.1, autoAlpha: 0, duration: 1.5, ease: 'sine.out' }, 0)
-        .to(mag, { autoAlpha: 1, scale: 1, y: 0, duration: 0.4, ease: 'back.out(1.7)' }, 0.05)
-        .to(mag, { autoAlpha: 0, scale: 0.85, y: 3, duration: 0.35, ease: 'power2.in' }, '+=1.0');
-      mHintTlRef.current = hintTl;
-    }
-
-    return () => {
-      wobble.kill(); breathe.kill();
-      hintTl?.kill(); mHintTlRef.current = null;
-    };
+    return () => { wobble.kill(); breathe.kill(); };
   }, []);
 
   const scrollTo = (href: string) =>
     document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
 
+  // Zwei Kennzahlen rechts in der Fussleiste; Live-Versand steht daneben als
+  // eigene Zelle (gruener Punkt + kompakte useDispatchLine), siehe unten.
   const stats = [
     { v: `${waxVsOil.life.waxLo}–${waxVsOil.life.wax}×`, l: de ? 'Kettenlaufzeit'    : 'chain life' },
     { v: `~€${waxVsOil.cost.savedEur}`, l: de ? 'gespart · 12.000 km' : 'saved · 12,000 km' },
-    { v: '1 Tag', l: de ? 'Versand nach Bestellung' : 'ships after order' },
   ];
 
   // LCP-Bild der Startseite. Als WebP 46 statt 262 KB — verlustbehaftet, aber
@@ -468,15 +392,14 @@ export function Hero() {
             einer max-height-Media-Query (siehe Kommentar in index.css). */}
         <button
           type="button"
-          onClick={openDiveFromBlock}
-          aria-label={de ? 'Welcher Block ist deiner — Wachs finden' : 'Which block is yours — find your wax'}
+          onClick={() => scrollTo('#produkte')}
+          aria-label={de ? 'Zu den Produkten' : 'To the products'}
           className="hero-block-m absolute z-[5]"
         >
           <span ref={mBlockInnerRef} className="relative block origin-center will-change-transform">
             {/* Kontaktschatten wie beim Desktop-Block — erdet den Freisteller
                 auf der Kette, statt ihn schweben zu lassen. Kein blauer Glow:
-                den hat Luca fuer Mobil ausdruecklich abgelehnt, Ripple und
-                Lupe sind der Klick-Hinweis. */}
+                den hat Luca fuer Mobil ausdruecklich abgelehnt. */}
             <span
               aria-hidden
               className="absolute left-1/2 -translate-x-1/2 bottom-[4%] w-[76%] h-[22%] rounded-full pointer-events-none block"
@@ -495,28 +418,6 @@ export function Hero() {
                   fetchPriority="high"
                 />
               </picture>
-            </span>
-
-            {/* Klick-Hinweis: Tap-Ripple + kurz aufblitzende Lupe, sonst
-                nichts auf dem Block. GSAP im mobilen useEffect (alle ~6 s),
-                stoppt dauerhaft nach dem ersten Tap (openDiveFromBlock). */}
-            <span
-              aria-hidden
-              className="absolute left-1/2 top-[47%] -translate-x-1/2 -translate-y-1/2 pointer-events-none aspect-square"
-              style={{ width: '32%' }}
-            >
-              <span
-                ref={mRippleRef}
-                className="absolute inset-0 rounded-full"
-                style={{ border: '1.5px solid rgba(255,255,255,0.72)', background: 'rgba(255,255,255,0.10)' }}
-              />
-              <span
-                ref={mMagRef}
-                className="absolute inset-[22%] rounded-full flex items-center justify-center"
-                style={{ background: 'rgba(12,15,22,0.58)', backdropFilter: 'blur(3px)', border: '1px solid rgba(255,255,255,0.30)', boxShadow: '0 4px 14px rgba(0,0,0,0.28)' }}
-              >
-                <Search className="h-[48%] w-[48%]" style={{ color: '#fff' }} strokeWidth={2.2} />
-              </span>
             </span>
           </span>
         </button>
@@ -537,7 +438,7 @@ export function Hero() {
             {/* Eyebrow — nennt die Kategorie. Zusammen mit der Kette im
                 Hintergrund ist damit doppelt klar, worum es geht. */}
             <div data-hero className="flex items-center gap-3 mb-3">
-              <span style={{ width: '26px', height: '2px', background: 'var(--brand-blue)' }} />
+              <DeStripe />
               <p
                 className="hero-eyebrow text-small uppercase font-semibold"
                 style={{ letterSpacing: '0.14em', color: 'rgba(255,255,255,0.72)', textShadow: HERO_TEXT_SHADOW }}
@@ -605,17 +506,25 @@ export function Hero() {
               <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
             </button>
 
-            <div data-hero className="flex items-center justify-between mt-3">
+            <a
+              data-hero
+              href={CONTACT.ebayFeedback}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between mt-3"
+              aria-label={de ? 'Bewertungen auf eBay ansehen' : 'See reviews on eBay'}
+            >
               <span className="flex items-center gap-2">
                 <Stars rating={5} color="rgba(255,255,255,0.95)" />
                 <span className="text-[12px] sm:text-[11px] tabular-nums" style={{ color: 'rgba(255,255,255,0.75)', textShadow: HERO_TEXT_SHADOW }}>
                   {trustStats.reviews} {de ? 'Bewertungen' : 'reviews'}
                 </span>
               </span>
-              <span className="text-[12px] sm:text-[11px] font-semibold tabular-nums" style={{ color: 'rgba(255,255,255,0.92)', textShadow: HERO_TEXT_SHADOW }}>
-                {t.hero.blockPrice}
+              <span className="flex items-center gap-1.5 text-[12px] sm:text-[11px] font-semibold tabular-nums" style={{ color: 'rgba(255,255,255,0.92)', textShadow: HERO_TEXT_SHADOW }}>
+                <span aria-hidden style={{ width: 6, height: 6, borderRadius: '50%', background: '#3ddc7a' }} />
+                {dispatchCompact}
               </span>
-            </div>
+            </a>
           </div>
         </div>
       </div>
@@ -624,8 +533,14 @@ export function Hero() {
       <div className="hidden sm:block px-3 sm:px-4 lg:px-6 pt-[84px] lg:pt-[104px] pb-3 sm:pb-4 lg:pb-6">
         <div
           ref={cardRef}
+          // Card-Höhe rechnet die Topbar (--topbar-h, index.css) mit ein —
+          // body traegt sie als eigenes padding-top, das die Karte vorher
+          // nicht kannte, wodurch die untere Rundung samt Rand aus dem
+          // ersten Bildschirm fiel (Seitenordnung Chat 2). Die vw-Deckel
+          // sinken passend etwas, sonst wird die Karte auf kurzen breiten
+          // Fenstern durch den Deckel wieder zu hoch fuer den Rest.
           className="relative overflow-hidden rounded-[20px] sm:rounded-[28px]
-                     sm:h-[min(calc(100dvh-108px),78vw)] lg:h-[min(calc(100dvh-134px),64vw)] sm:min-h-[540px]"
+                     sm:h-[min(calc(100dvh-108px-var(--topbar-h)),74vw)] lg:h-[min(calc(100dvh-134px-var(--topbar-h)),60vw)] sm:min-h-[540px]"
           style={{
             background: 'var(--hero-stage)',
             boxShadow: '0 28px 90px rgba(10,10,16,0.22), 0 4px 18px rgba(10,10,16,0.10)',
@@ -694,7 +609,7 @@ export function Hero() {
               straight down — a soft directional cue, not a literal arrow. */}
           <div
             ref={blockRef}
-            className="absolute z-[5] pointer-events-none will-change-transform
+            className="absolute z-[5] will-change-transform
                        -translate-x-1/2 -translate-y-1/2
                        sm:w-[clamp(280px,30%,460px)]
                        sm:left-[60%] sm:top-[50%]
@@ -714,39 +629,20 @@ export function Hero() {
                 className="absolute left-1/2 -translate-x-1/2 bottom-[4%] w-[76%] h-[22%] rounded-full pointer-events-none"
                 style={{ background: 'radial-gradient(ellipse, rgba(4,5,7,0.60), transparent 72%)', filter: 'blur(9px)' }}
               />
-              <div className="relative" style={{ filter: 'drop-shadow(-3px 10px 16px rgba(5,6,8,0.40))' }}>
-                {waxImg}
-              </div>
-
-              {/* Repeating discoverability nudge (see nudgeTl above) — the only
-                  prior cue was the cursor-lens itself, invisible until the mouse
-                  already happened to land on the block. Stops for good once
-                  onLensActiveChange reports a real hover. */}
-              <div
-                ref={hintRef}
-                aria-hidden
-                className="absolute -bottom-3 -right-2 sm:-bottom-4 sm:-right-3 flex items-center gap-1.5 px-3 py-1.5 rounded-full pointer-events-none"
-                style={{
-                  background: 'rgba(10,12,18,0.72)',
-                  backdropFilter: 'blur(6px)',
-                  border: '1px solid rgba(255,255,255,0.16)',
-                  boxShadow: '0 6px 18px rgba(0,0,0,0.30)',
-                }}
+              {/* Block bleibt unveraendert (Bild, Groesse, Bounce) — Klick
+                  scrollt jetzt zu #produkte statt WaxDive zu oeffnen
+                  (Seitenordnung Chat 2). */}
+              <button
+                type="button"
+                onClick={() => scrollTo('#produkte')}
+                aria-label={de ? 'Zu den Produkten' : 'To the products'}
+                className="relative block"
+                style={{ filter: 'drop-shadow(-3px 10px 16px rgba(5,6,8,0.40))' }}
               >
-                <ZoomIn className="h-3.5 w-3.5" style={{ color: '#fff' }} strokeWidth={2} />
-                <span
-                  className="whitespace-nowrap text-small uppercase font-semibold"
-                  style={{ letterSpacing: '0.1em', color: 'rgba(255,255,255,0.94)' }}
-                >
-                  {de ? 'Welcher ist deiner?' : 'Which is yours?'}
-                </span>
-              </div>
+                {waxImg}
+              </button>
             </div>
           </div>
-
-          {/* WaxLens — magnifying glass cursor over the wax block */}
-          <WaxLensCutout waxRef={blockRef} enabled={lensOn} de={de}
-                   onOpen={openDive} onActiveChange={onLensActiveChange} />
 
 
 
@@ -761,7 +657,7 @@ export function Hero() {
               <div ref={contentRef} className="pointer-events-auto shrink-0 max-w-xl will-change-transform">
 
                 <div data-hero className="flex items-center gap-3 mb-5">
-                  <span style={{ width: '28px', height: '2px', background: 'var(--brand-blue)' }} />
+                  <DeStripe />
                   <p
                     className="hero-eyebrow text-small uppercase font-semibold"
                     style={{ letterSpacing: '0.14em', color: 'rgba(255,255,255,0.72)' }}
@@ -830,19 +726,6 @@ export function Hero() {
                   >
                     {t.hero.ctaSecondary}
                   </button>
-                  {/* Wherever the desktop cursor-lens doesn't render (touch,
-                      <1024px, or prefers-reduced-motion — exactly !lensOn,
-                      see waxLensEnabled()), there was previously no way at all
-                      to open WaxDive. Plain tap link, same treatment as the
-                      link above, no new hit-testing/gesture code needed. */}
-                  {!lensOn && (
-                    <button
-                      onClick={openDive}
-                      className="hero-cta-secondary inline-flex self-start sm:self-auto text-[13px] font-medium"
-                    >
-                      {de ? 'Welcher ist deiner?' : 'Which is yours?'}
-                    </button>
-                  )}
                 </div>
 
               </div>
@@ -852,25 +735,31 @@ export function Hero() {
           <div data-hero className="absolute bottom-0 inset-x-0 z-10">
             <div className="max-w-7xl mx-auto px-4 sm:px-10 lg:px-14 xl:px-20">
 
-              {/* Tablet/Desktop — full bar (rating + stat grid) */}
+              {/* Tablet/Desktop — full bar: Bewertungslink links, drei
+                  Kennzahlen rechts (Kettenlaufzeit, Ersparnis, Live-Versand).
+                  Seitenordnung Chat 2: die Bewertungszeile verlinkt jetzt auf
+                  das eBay-Feedback-Profil statt reiner Deko zu sein. */}
               <div className="flex items-center justify-between py-5"
                 style={{ borderTop: '1px solid rgba(255,255,255,0.14)' }}>
-                <div className="flex items-center gap-3">
-                  <span style={{ color: 'rgba(255,255,255,0.92)', letterSpacing: '0.08em', fontSize: '12px' }}>
-                    ★★★★★
+                <a
+                  href={CONTACT.ebayFeedback}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2.5 group"
+                  aria-label={de ? 'Bewertungen auf eBay ansehen' : 'See reviews on eBay'}
+                >
+                  <Stars rating={5} color="#3D67CA" emptyColor="rgba(255,255,255,0.24)" size="h-4 w-4" />
+                  <span className="text-[13px] sm:text-[14px] tabular-nums transition-colors group-hover:text-white"
+                    style={{ color: 'rgba(255,255,255,0.82)' }}>
+                    {trustStats.reviews} {de ? 'Bewertungen' : 'reviews'} · {de ? '100 % positiv' : '100% positive'}
                   </span>
-                  <span className="text-[11px] uppercase tabular-nums"
-                    style={{ letterSpacing: '0.08em', color: 'rgba(255,255,255,0.68)' }}>
-                    {trustStats.reviews} · {de ? '100 % positiv' : '100% positive'}
-                    <span> · {de ? 'eBay-Käuferschutz' : 'eBay buyer protection'}</span>
-                  </span>
-                </div>
+                </a>
 
                 <div className="flex items-stretch">
                   {stats.map((s, i) => (
                     <div
                       key={i}
-                      className="px-7 first:pl-0 last:pr-0"
+                      className="px-7 first:pl-0"
                       style={{ borderLeft: i > 0 ? '1px solid rgba(255,255,255,0.14)' : 'none' }}
                     >
                       <p
@@ -886,6 +775,19 @@ export function Hero() {
                       </p>
                     </div>
                   ))}
+                  {/* Live-Versand: statischer gruener Punkt + kompakte
+                      useDispatchLine, ersetzt die frühere feste "1 Tag"-Angabe. */}
+                  <div className="px-7 border-l" style={{ borderColor: 'rgba(255,255,255,0.14)' }}>
+                    <p className="flex items-center gap-1.5 font-display font-bold text-white leading-none whitespace-nowrap"
+                      style={{ fontSize: 'clamp(0.95rem, 1.6vw, 1.3rem)' }}>
+                      <span aria-hidden style={{ width: 7, height: 7, borderRadius: '50%', background: '#3ddc7a', boxShadow: '0 0 0 3px rgba(61,220,122,0.22)' }} />
+                      {dispatchCompact}
+                    </p>
+                    <p className="text-[11px] uppercase mt-1.5"
+                      style={{ letterSpacing: '0.06em', color: 'rgba(255,255,255,0.65)' }}>
+                      {de ? 'Live-Versand' : 'Live dispatch'}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -893,12 +795,6 @@ export function Hero() {
         </div>
         </div>
       </div>
-
-      {diveOpen && (
-        <Suspense fallback={null}>
-          <WaxDive open={diveOpen} onClose={() => setDiveOpen(false)} de={de} />
-        </Suspense>
-      )}
     </section>
   );
 }

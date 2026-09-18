@@ -78,7 +78,7 @@ export function Navigation() {
   const heroTransparent = onHome && !scrolled;
   const isActive = (item: { href: string; route?: boolean }) =>
     item.route ? location.pathname === item.href : activeSection === item.href;
-  const productsActive = isActive({ href: '#produkte' }) || /^\/(ketten|starter-set|produkt\/|zubehoer\/)/.test(location.pathname);
+  const productsActive = isActive({ href: '#produkte' }) || /^\/(kettenwachs|ketten|starter-set|produkt\/|zubehoer\/)/.test(location.pathname);
   // /rechner/:slug bleiben eigene Seiten (siehe SEITENORDNUNG_PLAN.md, Chat 3),
   // sollen aber weiter unter "Anleitungen & Rechner" aktiv erscheinen.
   const guidesToolsActive = isActive({ href: '/anleitung', route: true }) || location.pathname.startsWith('/rechner');
@@ -160,9 +160,9 @@ export function Navigation() {
       entry('reviews', h.menuReviews, h.menuReviewsDesc, { href: '#bewertungen' }),
     ],
     products: [
-      // "Kettenwachs" zeigt vorerst auf #produkte; Chat 2 stellt den Link
-      // auf die neue Seite /kettenwachs um, sobald sie existiert.
-      entry('wax', h.menuWaxCategory, h.menuWaxCategoryDesc, { href: '#produkte' }),
+      // Seitenordnung Chat 2: "Kettenwachs" zeigt jetzt auf die eigene Seite
+      // /kettenwachs statt auf den Regal-Anker der Startseite.
+      entry('wax', h.menuWaxCategory, h.menuWaxCategoryDesc, { href: '/kettenwachs', route: true }),
       entry('classic', h.menuClassic, h.menuClassicDesc, { href: '/produkt/wax-500', route: true }),
       entry('pro', h.menuPro, h.menuProDesc, { href: '/produkt/wax-500-mos2', route: true }),
       entry('set', h.menuSet, h.menuSetDesc, { href: '/starter-set', route: true }),
