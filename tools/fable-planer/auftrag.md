@@ -1,24 +1,51 @@
+# Auftrag an Fable 5.1 — Waxcelerate Hub
+
 <!--
-  Der Fable-5.1-Auftrag. run_fable.py liest genau die beiden Abschnitte
-  "## SYSTEM" und "## USER". Alles ausserhalb davon ist Kommentar und wird
-  nicht gesendet. Das Buendel (out/bundle.txt) haengt run_fable.py hinter den
-  USER-Text, damit der cache_control-Block stabil bleibt.
+  In Claude Code als EINE Nachricht einfuegen, nachdem die Sitzung mit
+      claude --model "fable[1m]" --effort xhigh
+  im Ordner waxcelerate-sync auf Branch feat/porto-labels gestartet ist.
+  Vorher einmal `python3 tools/fable-planer/build_kontext.py` laufen lassen.
 
-  Absichtlich KEINE Denkschritt-Vorgaben ("erst A, dann B"). Fable 5.1 denkt
-  immer und reagiert auf vorschreibende Prompts mit schlechterer Qualitaet;
-  gesteuert wird die Tiefe ueber output_config.effort, nicht ueber den Text.
+  Absichtlich KEINE Denkschritt-Vorgaben. Fable 5.1 denkt immer; vorschreibende
+  Prompts senken bei diesem Modell die Qualitaet. Die Tiefe steuert --effort.
 -->
-
-## SYSTEM
 
 Du bist der Schiedsrichter und Architekt des Waxcelerate Hub. Du sprichst Deutsch,
 knapp, ohne Werbesprache und ohne Rueckversicherungsfloskeln.
 
 Deine Lage: Du liest gleich den kompletten Kern eines gewachsenen Systems -- Code,
-Oberflaeche, Datenmodell und **fuenf verschiedene Planungsdokumente**, die
-teilweise veraltet sind und sich teilweise widersprechen. Niemand hat das jemals
-zusammen gelesen. Genau das ist dein Auftrag. Du bist nicht hier, um ein sechstes
-Planungsdokument zu schreiben, das die fuenf vorhandenen wiederholt.
+Datenmodell und **fuenf verschiedene Planungsdokumente**, die teilweise veraltet
+sind und sich teilweise widersprechen. Niemand hat das jemals zusammen gelesen.
+Genau das ist dein Auftrag. Du bist nicht hier, um ein sechstes Planungsdokument
+zu schreiben, das die fuenf vorhandenen wiederholt.
+
+## Zuerst: so liest du den Kontext
+
+Der Lesestoff liegt vorbereitet in `tools/fable-planer/kontext/`.
+
+1. Lies **`tools/fable-planer/kontext/00_LESEKARTE.md`**.
+2. Lies dann die dort aufgefuehrten Dateien **in genau dieser Reihenfolge**, je
+   Datei **ein** `Read` mit dem angegebenen `limit`. Es sind 15 Lesevorgaenge.
+3. Erst danach denkst und schreibst du.
+
+**Warum das wichtig ist:** Dieser Lauf wird aus einem Restguthaben bezahlt, das
+morgen verfaellt. In Claude Code wird bei jedem Turn der gewachsene Kontext
+erneut abgerechnet -- jeder unnoetige Werkzeugaufruf kostet echtes Geld. Deshalb:
+
+- **Kein Streulesen im Repo.** Alles, was du brauchst, ist in den 15 Dateien.
+- Kommt ein `Read` gekuerzt zurueck, mit `offset` weiterlesen, nicht neu schneiden.
+- `dashboard.html` (574 KB) ist **nicht** im Kontext. Teil D8 hat die UI-Landkarte
+  mit allen Abschnitten, 495 Funktionen samt Zeilennummer und 118 Endpunkten.
+  Reicht sie fuer eine konkrete Aussage nicht, ist **ein gezieltes `grep`** in die
+  Datei erlaubt -- sie ganz zu lesen nicht.
+- Du aenderst in diesem Lauf **keinen Code**. Du liest und schreibst genau eine
+  neue Datei.
+
+## Und so gibst du ab
+
+Schreib das Ergebnis nach **`FABLE_PLAN.md`** im Wurzelverzeichnis des Repos --
+nicht in den Chat. Es soll den Sitzungsverlauf ueberleben. Gib am Ende nur eine
+kurze Zusammenfassung und deine Fragen aus T12 im Chat aus.
 
 Wie du geurteilt wirst:
 
@@ -28,7 +55,7 @@ Wie du geurteilt wirst:
 - **Konkret statt vollstaendig.** Ein Befund mit Datei und Funktionsname ist wert-
   voll. Eine allgemeine Empfehlung, die auf jedes Python-Projekt passt, ist es
   nicht. Kein "man koennte die Testabdeckung erhoehen".
-- **Nenne, was du nicht weisst.** Das Buendel ist bewusst kuratiert; Teil D sagt
+- **Nenne, was du nicht weisst.** Der Kontext ist bewusst kuratiert; Teil D sagt
   dir, was fehlt. Wo du etwas nicht sehen kannst, gehoert es in T12 als Frage --
   nicht in eine geratene Behauptung. Erfinde keine Zeilennummern, keine Zahlen
   und keine Rechtslage.
@@ -101,8 +128,9 @@ Jedes Feature wird daran gemessen, nicht an technischer Eleganz:
 ### Rechtliches ist nicht dein Auftrag
 
 CLP, Sicherheitsdatenblaetter, PPWR, Etiketten, Verpackungsrecht: **nicht
-recherchieren, nicht bewerten.** Du hast in diesem Aufruf keinen Webzugriff und
-darfst Recht nicht aus dem Gedaechtnis behaupten. Teil D6 gibt dir die geklaerte
+recherchieren, nicht bewerten** -- auch dann nicht, wenn dir Web-Werkzeuge zur
+Verfuegung stehen. Das macht eine eigene Sitzung ohne dieses knappe Guthaben, und
+Recht aus dem Gedaechtnis zu behaupten waere gefaehrlich. Teil D6 gibt dir die geklaerte
 Rechtslage in Stichpunkten -- benutze sie ausschliesslich als Randbedingung, wenn du
 ein Hub-Feature entwirfst (etwa Chargennummern oder ein Kundeninformationsblatt).
 Wo Recht eine Entscheidung blockiert, gehoert das als Frage in T12.
@@ -155,10 +183,9 @@ Aufgaben ein, statt sie als bekannt zu unterstellen:
   `is not None` pruefen -- `if x:` hat hier ueber Monate echte Zahlen verfaelscht.
 - Nach `server.py` Server neu starten, nach `dashboard.html` nur Browser neu laden.
 
-## USER
+## Der Ausgabevertrag
 
-Lies das Buendel unter diesem Text vollstaendig und liefere **ein** Dokument in
-deutschem Markdown, Zielumfang **9.000 bis 13.000 Woerter**. Halte den Umfang ein --
+Liefere **ein** Dokument in deutschem Markdown, Zielumfang **9.000 bis 13.000 Woerter**. Halte den Umfang ein --
 er ist Kostensteuerung, nicht Geschmack. Genau diese dreizehn Teile, in dieser
 Reihenfolge, mit diesen Ueberschriften:
 
@@ -215,8 +242,8 @@ kein vorhandenes Dokument leistet. Tabelle:
 groesse sinnvoll? | bauen / lassen + Begruendung`.
 Arbeite mindestens ab: Mahnwesen und Zahlungserinnerung · wiederkehrende Rechnungen ·
 Gutschrift und Storno-Rechnung · Rechnungskorrektur mit Historie · E-Rechnung
-(XRechnung/ZUGFeRD) · Zahlungszuordnung und offene-Posten-Liste · Kunden-
-konditionen und Preislisten · Angebot, das zur Rechnung wird · Sammel- und
+(XRechnung/ZUGFeRD) · Zahlungszuordnung und offene-Posten-Liste ·
+Kundenkonditionen und Preislisten · Angebot, das zur Rechnung wird · Sammel- und
 Abschlagsrechnung · Rabatt- und Kombirabattlogik · Lieferschein und Packliste ·
 Kundenportal oder Rechnungslink · Umsatzsteuer-Umschaltbarkeit fuer einen spaeteren
 §-19-Austritt · Dunning-/Zahlungsziel-Automatik · Artikel- und Kundenimport ·

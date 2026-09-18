@@ -6,9 +6,18 @@
     "Editierbar: Zeile raus = guenstiger, aber das Buendel meldet im Teil-D-Abschnitt 'Nicht im Buendel', was fehlt."
   ],
   "repos": {
-    "hub": { "pfad_vorgabe": "../..", "ref": "feat/porto-labels" },
-    "masterplan": { "pfad_vorgabe": null, "ref": "HEAD" },
-    "site": { "pfad_vorgabe": null, "ref": "HEAD" }
+    "hub": {
+      "pfad_vorgabe": "../..",
+      "ref": "feat/porto-labels"
+    },
+    "masterplan": {
+      "pfad_vorgabe": null,
+      "ref": "HEAD"
+    },
+    "site": {
+      "pfad_vorgabe": null,
+      "ref": "HEAD"
+    }
   },
   "teile": [
     {
@@ -16,36 +25,126 @@
       "titel": "Orientierung, Regelwerk und die fuenf Planungsebenen",
       "hinweis": "Zuerst lesen. 00_MASTER ist das Nachschlagewerk, FORTSCHRITT der Ist-Stand, HUB_VERBESSERUNGSPLAN der gemessene Plan.",
       "dateien": [
-        { "repo": "hub", "pfad": "docs/auftraege/00_ORIENTIERUNG.md" },
-        { "repo": "hub", "pfad": "docs/auftraege/FORTSCHRITT.md" },
-        { "repo": "hub", "pfad": "00_MASTER.md" },
-        { "repo": "hub", "pfad": "finance-hq/03_dokumentation/HUB_VERBESSERUNGSPLAN.md" },
-        { "repo": "hub", "pfad": "finance-hq/03_dokumentation/SICHERHEIT_UND_STABILITAET.md" },
-        { "repo": "hub", "pfad": "finance-hq/01_START/AUSBAUPLAN.md" },
-        { "repo": "hub", "pfad": "ARCHITECTURE.md" },
-        { "repo": "hub", "pfad": "CLAUDE.md" },
-        { "repo": "hub", "pfad": "docs/EXTENDING.md" },
-        { "repo": "hub", "pfad": "BILLING.md" },
-        { "repo": "hub", "pfad": "CONTRACTS.md" },
-        { "repo": "hub", "pfad": "docs/auftraege/C_rechnungstool.md" },
-        { "repo": "hub", "pfad": "docs/auftraege/D_beleg.md" },
-        { "repo": "hub", "pfad": "docs/auftraege/E_abgleich.md" },
-        { "repo": "hub", "pfad": "docs/auftraege/F_nummernkreis.md" },
-        { "repo": "hub", "pfad": "finance-hq/README.md" },
-        { "repo": "hub", "pfad": "finance-hq/03_dokumentation/DATENFLUSS.md" },
-        { "repo": "hub", "pfad": "finance-hq/03_dokumentation/QUELLEN_REGISTER.md" },
-        { "repo": "hub", "pfad": "finance-hq/06_steuer/STEUER_PLAYBOOK.md" },
-        { "repo": "hub", "pfad": "finance-hq/03_dokumentation/secondbrain-referenz/geklaerte-fakten.md" },
-        { "repo": "hub", "pfad": "order_truth/SYNC_WIRING.md" },
-        { "repo": "masterplan", "pfad": "MASTERPLAN.md" },
-        { "repo": "masterplan", "pfad": "entscheidungen.md" },
-        { "repo": "masterplan", "pfad": "wochen/KW38.md" },
-        { "repo": "masterplan", "pfad": "pfade/P01-wachs-zurueckholen.md" },
-        { "repo": "masterplan", "pfad": "pfade/P02-kettenkaeufer-zu-wachskaeufern.md" },
-        { "repo": "masterplan", "pfad": "pfade/P03-kettenmarge-und-einkauf.md" },
-        { "repo": "masterplan", "pfad": "pfade/P04-ebay-gewerblich.md" },
-        { "repo": "masterplan", "pfad": "pfade/P09-rewax-karten-b2b.md" },
-        { "repo": "masterplan", "pfad": "pfade/P13-hub-zahlen.md" }
+        {
+          "repo": "hub",
+          "pfad": "docs/auftraege/00_ORIENTIERUNG.md"
+        },
+        {
+          "repo": "hub",
+          "pfad": "docs/auftraege/FORTSCHRITT.md"
+        },
+        {
+          "repo": "hub",
+          "pfad": "00_MASTER.md"
+        },
+        {
+          "repo": "hub",
+          "pfad": "finance-hq/03_dokumentation/HUB_VERBESSERUNGSPLAN.md"
+        },
+        {
+          "repo": "hub",
+          "pfad": "finance-hq/03_dokumentation/SICHERHEIT_UND_STABILITAET.md"
+        },
+        {
+          "repo": "hub",
+          "pfad": "finance-hq/01_START/AUSBAUPLAN.md"
+        },
+        {
+          "repo": "hub",
+          "pfad": "ARCHITECTURE.md"
+        },
+        {
+          "repo": "hub",
+          "pfad": "CLAUDE.md"
+        },
+        {
+          "repo": "hub",
+          "pfad": "docs/EXTENDING.md"
+        },
+        {
+          "repo": "hub",
+          "pfad": "BILLING.md"
+        },
+        {
+          "repo": "hub",
+          "pfad": "CONTRACTS.md"
+        },
+        {
+          "repo": "hub",
+          "pfad": "docs/auftraege/C_rechnungstool.md"
+        },
+        {
+          "repo": "hub",
+          "pfad": "docs/auftraege/D_beleg.md"
+        },
+        {
+          "repo": "hub",
+          "pfad": "docs/auftraege/E_abgleich.md"
+        },
+        {
+          "repo": "hub",
+          "pfad": "docs/auftraege/F_nummernkreis.md"
+        },
+        {
+          "repo": "hub",
+          "pfad": "finance-hq/README.md"
+        },
+        {
+          "repo": "hub",
+          "pfad": "finance-hq/03_dokumentation/DATENFLUSS.md"
+        },
+        {
+          "repo": "hub",
+          "pfad": "finance-hq/03_dokumentation/QUELLEN_REGISTER.md"
+        },
+        {
+          "repo": "hub",
+          "pfad": "finance-hq/06_steuer/STEUER_PLAYBOOK.md"
+        },
+        {
+          "repo": "hub",
+          "pfad": "finance-hq/03_dokumentation/secondbrain-referenz/geklaerte-fakten.md"
+        },
+        {
+          "repo": "hub",
+          "pfad": "order_truth/SYNC_WIRING.md"
+        },
+        {
+          "repo": "masterplan",
+          "pfad": "MASTERPLAN.md"
+        },
+        {
+          "repo": "masterplan",
+          "pfad": "entscheidungen.md"
+        },
+        {
+          "repo": "masterplan",
+          "pfad": "wochen/KW38.md"
+        },
+        {
+          "repo": "masterplan",
+          "pfad": "pfade/P01-wachs-zurueckholen.md"
+        },
+        {
+          "repo": "masterplan",
+          "pfad": "pfade/P02-kettenkaeufer-zu-wachskaeufern.md"
+        },
+        {
+          "repo": "masterplan",
+          "pfad": "pfade/P03-kettenmarge-und-einkauf.md"
+        },
+        {
+          "repo": "masterplan",
+          "pfad": "pfade/P04-ebay-gewerblich.md"
+        },
+        {
+          "repo": "masterplan",
+          "pfad": "pfade/P09-rewax-karten-b2b.md"
+        },
+        {
+          "repo": "masterplan",
+          "pfad": "pfade/P13-hub-zahlen.md"
+        }
       ]
     },
     {
@@ -53,71 +152,226 @@
       "titel": "Der Code des Hubs",
       "hinweis": "Wurzelmodule von feat/porto-labels plus der Kern von order_truth/. Python 3.9, nur Standardbibliothek (Ausnahme reportlab in billing_pdf.py).",
       "dateien": [
-        { "repo": "hub", "pfad": "server.py" },
-        { "repo": "hub", "pfad": "finance.py" },
-        { "repo": "hub", "pfad": "billing.py" },
-        { "repo": "hub", "pfad": "billing_pdf.py" },
-        { "repo": "hub", "pfad": "billing_html.py" },
-        { "repo": "hub", "pfad": "billing_tokens.py" },
-        { "repo": "hub", "pfad": "sync.py" },
-        { "repo": "hub", "pfad": "checks.py" },
-        { "repo": "hub", "pfad": "finance-hq/02_pruefung/reconcile.py" },
-        { "repo": "hub", "pfad": "reconciliation.py" },
-        { "repo": "hub", "pfad": "offene_punkte.py" },
-        { "repo": "hub", "pfad": "labels.py" },
-        { "repo": "hub", "pfad": "packing.py" },
-        { "repo": "hub", "pfad": "echo.py" },
-        { "repo": "hub", "pfad": "followup.py" },
-        { "repo": "hub", "pfad": "cockpit.py" },
-        { "repo": "hub", "pfad": "gmail_kreis.py" },
-        { "repo": "hub", "pfad": "kleinanzeigen.py" },
-        { "repo": "hub", "pfad": "paypal_api.py" },
-        { "repo": "hub", "pfad": "wax_day.py" },
-        { "repo": "hub", "pfad": "radar_digest.py" },
-        { "repo": "hub", "pfad": "hub_json.py" },
-        { "repo": "hub", "pfad": "ops_quotes.py" },
-        { "repo": "hub", "pfad": "ops_market.py" },
-        { "repo": "hub", "pfad": "ops_tools.py" },
-        { "repo": "hub", "pfad": "ops_lage.py" },
-        { "repo": "hub", "pfad": "ops_next.py" },
-        { "repo": "hub", "pfad": "ops_inbox.py" },
-        { "repo": "hub", "pfad": "ops_stock.py" },
-        { "repo": "hub", "pfad": "ops_policy.py" },
-        { "repo": "hub", "pfad": "ops_connect.py" },
-        { "repo": "hub", "pfad": "ops_pack.py" },
-        { "repo": "hub", "pfad": "ops_shelf.py" },
-        { "repo": "hub", "pfad": "ops_brief.py" },
-        { "repo": "hub", "pfad": "order_truth/schema.sql" },
-        { "repo": "hub", "pfad": "order_truth/model.py" },
-        { "repo": "hub", "pfad": "order_truth/store.py" },
-        { "repo": "hub", "pfad": "order_truth/money.py" },
-        { "repo": "hub", "pfad": "order_truth/db_uri.py" },
-        { "repo": "hub", "pfad": "order_truth/pipeline.py" },
-        { "repo": "hub", "pfad": "order_truth/integrate.py" },
-        { "repo": "hub", "pfad": "order_truth/hub_view.py" },
-        { "repo": "hub", "pfad": "order_truth/ebay_finances.py" },
-        { "repo": "hub", "pfad": "order_truth/ebay_finances_sweep.py" },
-        { "repo": "hub", "pfad": "order_truth/reconcile.py" },
-        { "repo": "hub", "pfad": "order_truth/notion_mirror.py" },
-        { "repo": "hub", "pfad": "order_truth/invoice.py" },
-        { "repo": "hub", "pfad": "config.json" },
-        { "repo": "hub", "pfad": "inventory.json" },
-        { "repo": "hub", "pfad": "invoice.local.example.json" },
-        { "repo": "hub", "pfad": "INSTALL_REPORT.json" }
+        {
+          "repo": "hub",
+          "pfad": "server.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "finance.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "billing.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "billing_pdf.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "billing_html.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "billing_tokens.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "sync.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "checks.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "finance-hq/02_pruefung/reconcile.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "reconciliation.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "offene_punkte.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "labels.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "packing.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "echo.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "followup.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "cockpit.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "gmail_kreis.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "kleinanzeigen.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "paypal_api.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "wax_day.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "radar_digest.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "hub_json.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "ops_quotes.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "ops_market.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "ops_tools.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "ops_lage.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "ops_next.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "ops_inbox.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "ops_stock.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "ops_policy.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "ops_connect.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "ops_pack.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "ops_shelf.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "ops_brief.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "order_truth/schema.sql"
+        },
+        {
+          "repo": "hub",
+          "pfad": "order_truth/model.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "order_truth/store.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "order_truth/money.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "order_truth/db_uri.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "order_truth/pipeline.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "order_truth/integrate.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "order_truth/hub_view.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "order_truth/ebay_finances.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "order_truth/ebay_finances_sweep.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "order_truth/reconcile.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "order_truth/notion_mirror.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "order_truth/invoice.py"
+        },
+        {
+          "repo": "hub",
+          "pfad": "config.json"
+        },
+        {
+          "repo": "hub",
+          "pfad": "inventory.json"
+        },
+        {
+          "repo": "hub",
+          "pfad": "invoice.local.example.json"
+        },
+        {
+          "repo": "hub",
+          "pfad": "INSTALL_REPORT.json"
+        }
       ]
     },
     {
       "id": "C",
-      "titel": "Die Oberflaeche",
-      "hinweis": "Das komplette Frontend in einer Datei, 13 Sidebar-Abschnitte, Vanilla JS, kein Build-Schritt. Mit --slim nicht im Buendel.",
-      "slim_auslassen": true,
+      "titel": "Oberflaeche (nur overlay.js -- dashboard.html steckt als UI-Landkarte in Teil D)",
+      "hinweis": "dashboard.html selbst ist NICHT im Kontext: 574 KB / ~164k Token. Teil D8 enthaelt stattdessen die generierte UI-Landkarte (alle Sidebar-Abschnitte, 495 JS-Funktionen mit Zeilennummer, 118 gerufene Endpunkte) mit ~5k Token. Fuer Details gezielt in die Datei greppen.",
       "dateien": [
-        { "repo": "hub", "pfad": "dashboard.html" },
-        { "repo": "hub", "pfad": "order_truth/overlay.js" }
+        {
+          "repo": "hub",
+          "pfad": "order_truth/overlay.js"
+        }
       ]
     }
   ],
   "nicht_im_buendel": [
+    "dashboard.html (574 KB) -- als UI-Landkarte in Teil D8 zusammengefasst, Volltext per grep erreichbar",
     "tests/ (Rumpfe) - die Test-Landkarte in Teil D nennt alle Dateien und Testnamen",
     "scripts/ (alle 40+ Werkzeuge) - Dateibaum und das extrahierte DB-Schema stehen in Teil D",
     "order_truth/ Nebenwege: ebay_client, ebay_signing, ed25519, secrets_discover, backup, patch_sync, probe_hub, promote, report_corrections, install_all, sync_loop, sync_integration, server_snippet, hub_adapter, checks_c16, ebay_fulfillment/returns/shipping/payouts, overlay_sales, fixtures/",

@@ -1,16 +1,20 @@
 #!/usr/bin/env python3
-"""Baut das kuratierte Kontext-Buendel fuer den Fable-5.1-Planungslauf.
+"""Baut den Lesestoff fuer den Fable-5.1-Planungslauf in Claude Code.
 
 Liest manifest.json, holt jede Datei aus einem Git-Ref (Standard:
-feat/porto-labels) und schreibt out/bundle.txt. Erzeugt zusaetzlich Teil D
-(Dateibaum, DB-Schema, Routentabelle, Test-Landkarte, Branch-Abstand) --
-Material, das Fable sonst teuer selbst herleiten muesste.
+feat/porto-labels) und schreibt nach kontext/ eine Handvoll vorkonkatenierter
+Bausteine plus 00_LESEKARTE.md. Fable liest dann ~12 Dateien statt 82 --
+das ist der Kostenhebel, weil in Claude Code bei jedem Turn der gewachsene
+Kontext erneut abgerechnet wird.
 
-Nur Standardbibliothek. Kein API-Key notwendig.
+Erzeugt ausserdem teil_d.md (Dateibaum, komplettes DB-Schema, Routentabelle,
+Test-Landkarte, Branch-Abstand, Rechtslage, UI-Landkarte) -- Material, das
+Fable sonst teuer selbst herleiten muesste.
 
-    python3 build_bundle.py --check          # nur pruefen, nichts schreiben
-    python3 build_bundle.py                  # Buendel bauen
-    python3 build_bundle.py --slim           # ohne dashboard.html
+Nur Standardbibliothek. Kein API-Key notwendig, kostet nichts.
+
+    python3 build_kontext.py --check     # nur pruefen, nichts schreiben
+    python3 build_kontext.py             # Bausteine nach kontext/ schreiben
 """
 
 from __future__ import annotations
@@ -24,7 +28,8 @@ from pathlib import Path
 
 HIER = Path(__file__).resolve().parent
 MANIFEST = HIER / "manifest.json"
-AUSGABE = HIER / "out" / "bundle.txt"
+KONTEXT = HIER / "kontext"
+ZEILEN_JE_BAUSTEIN = 3000
 
 # Repo-Ordnernamen, unter denen wir neben dem Hub suchen.
 REPO_ORDNER = {
@@ -213,6 +218,35 @@ def d_branch_abstand(repo: Path, ref: str, basis: str) -> str:
             f"{log}\n### Diff-Umfang {basis}...{ref}\n\n{stat}")
 
 
+def d_ui_landkarte(repo, ref: str) -> str:
+    """dashboard.html ist 574 KB / ~164k Token. Diese Landkarte leistet fuer
+    Architektur- und Feature-Urteile dasselbe mit ~5k Token."""
+    text = datei_lesen(repo, ref, "dashboard.html")
+    if not text:
+        return "(dashboard.html nicht lesbar)"
+    zeilen = [
+        "dashboard.html ist das komplette Frontend in EINER Datei "
+        f"({len(text.encode('utf-8'))} B, {text.count(chr(10))+1} Zeilen), Vanilla JS, "
+        "kein Build-Schritt. Der Volltext ist NICHT im Kontext -- greif per grep "
+        "gezielt hinein, wenn diese Landkarte fuer eine Aussage nicht reicht.",
+        "",
+        "## Sidebar-Abschnitte",
+    ]
+    zeilen += sorted({f"  {m.group(1)}" for m in re.finditer(r'id="(sec-[a-z0-9-]+)"', text)})
+    zeilen += ["", "## JS-Funktionen (Zeile, Name, Parameter)"]
+    anzahl = 0
+    for nr, z in enumerate(text.splitlines(), 1):
+        m = re.match(r"\s*(?:async\s+)?function\s+(\w+)\s*\(([^)]*)\)", z)
+        if m:
+            anzahl += 1
+            zeilen.append(f"  {nr:>5}  {m.group(1)}({m.group(2)[:56]})")
+    eps = sorted(set(re.findall(r"""(?:fetch|api)\(\s*[`'\"]([/][^`'\"?\s]+)""", text)))
+    zeilen += ["", f"## Von der Oberflaeche gerufene Endpunkte ({len(eps)})"]
+    zeilen += [f"  {e}" for e in eps]
+    zeilen.insert(1, f"{anzahl} Funktionen, {len(eps)} Endpunkte erfasst.")
+    return "\n".join(zeilen)
+
+
 RECHTSLAGE = """\
 Rechtliches ist AUSDRUECKLICH NICHT Teil dieses Auftrags -- ein API-Aufruf hat
 keinen Webzugriff, also kann Recht hier nicht recherchiert werden. Der Stand
@@ -256,12 +290,48 @@ def teil_d_bauen(hub: Path, ref: str, basis: str, manifest: dict) -> list[tuple[
         ("D4 · Test-Landkarte", d_testlandkarte(hub, ref)),
         ("D5 · Branch-Abstand: der ungemergte Stand", d_branch_abstand(hub, ref, basis)),
         ("D6 · Rechtslage in Stichpunkten (nur als Randbedingung)", RECHTSLAGE),
-        ("D7 · Was bewusst NICHT im Buendel ist",
+        ("D7 · Was bewusst NICHT im Kontext ist",
          "\n".join(f"- {z}" for z in manifest["nicht_im_buendel"])),
+        ("D8 · UI-Landkarte dashboard.html", d_ui_landkarte(hub, ref)),
     ]
 
 
 # ---------------------------------------------------------------- Hauptlauf
+
+def bausteine_schneiden(stuecke, zeilen_je):
+    """Packt die gesammelten Textstuecke in Bausteine von ~zeilen_je Zeilen.
+
+    Eine Datei wird nur geteilt, wenn sie allein schon groesser ist als ein
+    Baustein (server.py, finance.py). Alles andere bleibt am Stueck, damit Fable
+    keine Funktion zerrissen sieht.
+    """
+    bausteine, aktuell, aktuell_zeilen, inhalt = [], [], 0, []
+
+    def abschliessen():
+        nonlocal aktuell, aktuell_zeilen, inhalt
+        if aktuell:
+            bausteine.append(("\n".join(aktuell), list(inhalt)))
+            aktuell, aktuell_zeilen, inhalt = [], 0, []
+
+    for name, text in stuecke:
+        zeilen = text.splitlines()
+        if len(zeilen) > zeilen_je:
+            abschliessen()
+            for start in range(0, len(zeilen), zeilen_je):
+                teil = zeilen[start:start + zeilen_je]
+                marke = (f"{name} (Zeilen {start+1}-{start+len(teil)}"
+                         f" von {len(zeilen)})")
+                kopf_ = f"[Fortsetzung] {marke}" if start else marke
+                bausteine.append((f"### {kopf_}\n" + "\n".join(teil), [marke]))
+            continue
+        if aktuell_zeilen + len(zeilen) > zeilen_je:
+            abschliessen()
+        aktuell.append(text)
+        aktuell_zeilen += len(zeilen)
+        inhalt.append(name)
+    abschliessen()
+    return bausteine
+
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
@@ -270,10 +340,10 @@ def main() -> int:
     ap.add_argument("--ref", help="Git-Ref (Standard aus manifest.json), "
                                   "oder WORKTREE fuer den Arbeitsbaum")
     ap.add_argument("--basis", default="main", help="Vergleichsbranch fuer D5 (Standard main)")
-    ap.add_argument("--slim", action="store_true",
-                    help="Teile mit slim_auslassen weglassen (spart ~165k Token)")
+    ap.add_argument("--zeilen", type=int, default=ZEILEN_JE_BAUSTEIN,
+                    help=f"Zeilen je Baustein (Standard {ZEILEN_JE_BAUSTEIN})")
     ap.add_argument("--check", action="store_true", help="nur pruefen, nichts schreiben")
-    ap.add_argument("--out", default=str(AUSGABE))
+    ap.add_argument("--out", default=str(KONTEXT), help="Zielordner (Standard kontext/)")
     args = ap.parse_args()
 
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
@@ -287,22 +357,19 @@ def main() -> int:
 
     if hub_ref != "WORKTREE" and git_leise(hub, "rev-parse", "--verify", hub_ref) is None:
         sys.exit(f"\nFEHLER: Ref '{hub_ref}' existiert nicht in {hub}.\n"
-                 f"        Holen mit: git -C {hub} fetch --depth=200 origin {hub_ref}")
+                 f"        Holen mit: git -C '{hub}' fetch --depth=200 origin {hub_ref}")
 
-    stuecke: list[str] = []
+    stuecke: list[tuple[str, str]] = []
     fehlend: list[str] = []
     geheimnisse: list[str] = []
+    erwartet: list[str] = []
     tok_gesamt = 0
-    zeilen_bericht: list[str] = []
 
     for teil in manifest["teile"]:
-        if args.slim and teil.get("slim_auslassen"):
-            print(f"\nTeil {teil['id']} uebersprungen (--slim): {teil['titel']}")
-            continue
         kopf = [TRENNER, f"TEIL {teil['id']} · {teil['titel']}", TRENNER]
         if teil.get("hinweis"):
             kopf.append(teil["hinweis"])
-        stuecke.append("\n".join(kopf) + "\n")
+        stuecke.append((f"(Kopf Teil {teil['id']})", "\n".join(kopf) + "\n"))
         teil_tok = 0
 
         for eintrag in teil["dateien"]:
@@ -321,29 +388,26 @@ def main() -> int:
                 if muster.search(text):
                     geheimnisse.append(f"{repo_name}:{pfad} -> {art}")
 
-            endung = Path(pfad).suffix
-            tok = schaetzung(text, endung)
+            tok = schaetzung(text, Path(pfad).suffix)
             teil_tok += tok
-            bytes_n = len(text.encode("utf-8"))
-            stuecke.append(
-                f"\n{TRENNER}\n"
-                f"DATEI: {pfad}   [{repo_name} @ {ref}, {bytes_n} B, ~{tok} Token]\n"
-                f"{TRENNER}\n{text.rstrip()}\n"
-            )
-            zeilen_bericht.append(f"  {tok:>7} Tok  {bytes_n:>8} B  {repo_name}:{pfad}")
+            erwartet.append(pfad)
+            stuecke.append((pfad,
+                            f"\n{TRENNER}\nDATEI: {pfad}   "
+                            f"[{repo_name} @ {ref}, {len(text.encode('utf-8'))} B, "
+                            f"~{tok} Token]\n{TRENNER}\n{text.rstrip()}\n"))
 
         print(f"\nTeil {teil['id']}: {teil['titel']} -> ~{teil_tok} Token")
         tok_gesamt += teil_tok
 
-    # Teil D
-    stuecke.append("\n".join([TRENNER, "TEIL D · Vorbereitetes Material (generiert)", TRENNER,
-                              "Diese Abschnitte hat der Buendel-Builder erzeugt, damit du sie "
-                              "nicht aus dem Code herleiten musst.", ""]))
+    # Teil D als eigener, geschlossener Baustein -- Fable liest ihn zuerst.
+    d_stuecke = [TRENNER, "TEIL D · Vorbereitetes Material (generiert)", TRENNER,
+                 "Diese Abschnitte hat build_kontext.py erzeugt, damit du sie nicht "
+                 "aus dem Code herleiten musst.", ""]
     d_tok = 0
     for titel, inhalt in teil_d_bauen(hub, hub_ref, args.basis, manifest):
         tok = schaetzung(inhalt, ".md")
         d_tok += tok
-        stuecke.append(f"\n{TRENNER}\n{titel}   [~{tok} Token]\n{TRENNER}\n{inhalt.rstrip()}\n")
+        d_stuecke.append(f"\n{TRENNER}\n{titel}   [~{tok} Token]\n{TRENNER}\n{inhalt.rstrip()}\n")
     print(f"\nTeil D: generiertes Material -> ~{d_tok} Token")
     tok_gesamt += d_tok
 
@@ -352,32 +416,79 @@ def main() -> int:
         for f in fehlend:
             print(f"   - {f}")
     if geheimnisse:
-        print("\n!! GEHEIMNIS-VERDACHT -- Buendel NICHT senden, bevor das geklaert ist:")
+        print("\n!! GEHEIMNIS-VERDACHT -- nicht an ein Modell geben, bevor das geklaert ist:")
         for g in geheimnisse:
             print(f"   - {g}")
 
+    bausteine = bausteine_schneiden(stuecke, args.zeilen)
     print(f"\nSumme Offline-Schaetzung: ~{tok_gesamt} Token "
-          f"(~${tok_gesamt/1_000_000*10:.2f} Input bei Fable 5.1, "
-          f"~${tok_gesamt/1_000_000*5:.2f} per Batch)")
-    print("Die exakte Zahl liefert price.py kostenlos ueber count_tokens.")
+          f"(~${tok_gesamt/1_000_000*10:.2f} Input bei Fable 5.1)")
+    print(f"Bausteine: {len(bausteine)} plus teil_d.md -> {len(bausteine)+1} Lesevorgaenge")
 
     if args.check:
         print("\n--check: nichts geschrieben.")
         return 1 if (fehlend or geheimnisse) else 0
-
     if geheimnisse:
         sys.exit("\nAbbruch: Geheimnis-Verdacht. Datei aus manifest.json entfernen "
                  "oder das Geheimnis aus dem Repo raeumen, dann erneut bauen.")
 
     ziel = Path(args.out)
-    ziel.parent.mkdir(parents=True, exist_ok=True)
-    ziel.write_text("\n".join(stuecke), encoding="utf-8")
-    (ziel.parent / "bundle_bericht.txt").write_text(
-        f"Buendel: {ziel}\nHub: {hub} @ {hub_ref}\nslim: {args.slim}\n"
-        f"Offline-Schaetzung: ~{tok_gesamt} Token\n\nDateien:\n"
-        + "\n".join(zeilen_bericht) + "\n", encoding="utf-8")
-    print(f"\nGeschrieben: {ziel} ({ziel.stat().st_size} B)")
-    print(f"Aufschluesselung: {ziel.parent / 'bundle_bericht.txt'}")
+    ziel.mkdir(parents=True, exist_ok=True)
+    for alt in ziel.glob("*.txt"):
+        alt.unlink()
+
+    karte = ["# Lesekarte -- in dieser Reihenfolge lesen",
+             "",
+             f"Stand: {hub} @ {hub_ref}. Erzeugt von build_kontext.py.",
+             "",
+             "**Ein `Read` je Zeile, mit dem angegebenen `limit`.** Jeder zusaetzliche",
+             "Turn kostet Geld, weil der gewachsene Kontext erneut abgerechnet wird.",
+             "Kommt ein Read gekuerzt zurueck, mit `offset` weiterlesen, nicht neu schneiden.",
+             "",
+             "| # | Datei | Zeilen | Read-limit | Inhalt |",
+             "|---|---|---:|---:|---|"]
+
+    d_text = "\n".join(d_stuecke)
+    (ziel / "teil_d.md").write_text(d_text, encoding="utf-8")
+    d_zeilen = d_text.count("\n") + 1
+    karte.append(f"| 1 | `kontext/teil_d.md` | {d_zeilen} | {d_zeilen + 200} | "
+                 f"Dateibaum, DB-Schema, Routen, Tests, die 69 ungemergten Commits, "
+                 f"Rechtslage, UI-Landkarte |")
+
+    geschrieben = []
+    for nr, (text, inhalt) in enumerate(bausteine, start=1):
+        name = f"{nr:02d}_baustein.txt"
+        (ziel / name).write_text(text, encoding="utf-8")
+        n = text.count("\n") + 1
+        geschrieben.append((name, n, inhalt))
+        kurz = ", ".join(i for i in inhalt if not i.startswith("(Kopf")) or "Abschnittskopf"
+        if len(kurz) > 88:
+            kurz = kurz[:85] + "..."
+        karte.append(f"| {nr+1} | `kontext/{name}` | {n} | {n + 200} | {kurz} |")
+
+    karte += ["",
+              f"Zusammen ~{tok_gesamt} Token in {len(bausteine)+1} Lesevorgaengen.",
+              "",
+              "Was NICHT im Kontext ist, steht in teil_d.md unter D7. Der Dateibaum",
+              "unter D1 zeigt das ganze Repo -- was dort steht und hier fehlt, hast du",
+              "nicht gesehen. Rate darueber nicht, frag in T12."]
+    (ziel / "00_LESEKARTE.md").write_text("\n".join(karte) + "\n", encoding="utf-8")
+
+    # Vollstaendigkeitsprobe: jede Manifest-Datei muss in genau einem Baustein stecken.
+    alle = "\n".join(text for text, _ in bausteine)
+    verloren = [p_ for p_ in erwartet if f"DATEI: {p_}   [" not in alle]
+    if verloren:
+        print("\n!! BAUSTEINE UNVOLLSTAENDIG -- diese Dateien fehlen im Ergebnis:")
+        for v in verloren:
+            print(f"   - {v}")
+        return 1
+
+    print(f"\nGeschrieben nach {ziel}/")
+    print(f"  00_LESEKARTE.md      die Leseanweisung fuer Fable")
+    print(f"  teil_d.md            {d_zeilen} Zeilen")
+    for name, n, _ in geschrieben:
+        print(f"  {name}    {n} Zeilen")
+    print(f"\nAlle {len(erwartet)} Manifest-Dateien sind in den Bausteinen enthalten.")
     return 0
 
 
