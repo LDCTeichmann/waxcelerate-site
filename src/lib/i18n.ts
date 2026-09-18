@@ -68,22 +68,20 @@ export const translations = {
     },
 
     pages: {
-      // Meta, H1 und Lead der vier eigenstaendigen Seiten (/ueber-uns,
-      // /kontakt, /faq, /anleitung). EINE Quelle fuer die hydrierte Seite
-      // (src/pages/*Page.tsx) und den Prerender (scripts/generate-blog-html.mjs,
-      // STATIC_PAGES), damit ein Crawler ohne JavaScript denselben Text sieht
-      // wie einer mit. Aendert sich hier etwas, aendert es sich an beiden
-      // Stellen gleichzeitig.
-      about: {
-        metaTitle: 'Über Waxcelerate — Kettenwachs aus Stuttgart | Waxcelerate',
-        metaDescription: 'Waxcelerate wird von Luca Teichmann in Stuttgart entwickelt und in kleinen Chargen gefertigt. Zwei Heißwachs-Formeln, vorgewachste Ketten, Versand am Tag der Bestellung.',
-        h1: 'Über Waxcelerate',
-        lead: 'Waxcelerate ist die Kettenwachs-Werkstatt von Luca Teichmann in Stuttgart — aus der Praxis auf der Straße entstanden, in kleinen Chargen gefertigt und direkt verkauft.',
-      },
+      // Meta, H1 und Lead der eigenstaendigen Seiten (/kontakt, /faq —
+      // Fragmente von /blog seit Chat 4 —, /anleitung). EINE Quelle fuer die
+      // hydrierte Seite (src/pages/*Page.tsx) und den Prerender
+      // (scripts/generate-blog-html.mjs), damit ein Crawler ohne JavaScript
+      // denselben Text sieht wie einer mit. Aendert sich hier etwas, aendert
+      // es sich an beiden Stellen gleichzeitig.
+      //
+      // Seitenordnung Chat 4 (09/2026): "Über mich" ist Teil dieser Seite
+      // geworden (#ueber-mich, vorher /ueber-uns mit eigenem pages.about),
+      // h1/lead decken deshalb beides ab. t.about.bio1–4/ebay ziehen hierher um.
       contact: {
-        metaTitle: 'Kontakt — Waxcelerate',
-        metaDescription: 'Fragen zu Kettenwachs, Kettentyp oder einer Bestellung? Schreib Waxcelerate per E-Mail oder WhatsApp — Antwort in der Regel innerhalb von 24 Stunden.',
-        h1: 'Kontakt',
+        metaTitle: 'Kontakt & über mich — Waxcelerate',
+        metaDescription: 'Fragen zu Kettenwachs, Kettentyp oder einer Bestellung? Schreib Waxcelerate per E-Mail oder WhatsApp — Antwort in der Regel innerhalb von 24 Stunden. Dazu: wer hinter Waxcelerate steht.',
+        h1: 'Kontakt & über mich',
         lead: 'Fragen zum Wachs, zum passenden Kettentyp oder zu einer Bestellung beantwortet Luca persönlich — per E-Mail oder WhatsApp, in der Regel innerhalb von 24 Stunden.',
       },
       faq: {
@@ -714,36 +712,15 @@ export const translations = {
       ],
     },
 
-    // About
+    // About — lebt seit der Seitenordnung 09/2026 auf /kontakt#ueber-mich
+    // (KontaktPage.tsx), title/location/email/phone/stats waren nur von den
+    // geloeschten Seiten UeberUnsPage.tsx/about.tsx gelesen und sind raus.
     about: {
-      title: 'Entstanden auf der Straße.',
       bio1: 'Ich bin Luca — Medizinstudent, aktiver Fahrer. Waxcelerate ist auf der Straße entstanden: auf nassen Herbststraßen, bei Ausfahrten im tiefsten Winter, nach Sommerrennen, bei denen Hitze und Schmutz zeigen, wie viel Spielraum eine Formel wirklich hat.',
       bio2: 'Was mich beschäftigt hat, waren nicht die Wachse, die funktionieren — sondern die Frage, warum gute irgendwann aufhören, es zu tun. Kälte verändert das Verhalten in den Kettengelenken. Hitze treibt die Migration. Feuchtigkeit stellt Anforderungen an den Korrosionsschutz. Keines dieser Probleme ist trivial, und keine Formel löst alle gleichzeitig, ohne woanders Abstriche zu machen. Die Entwicklung war systematisch, eine Variable nach der anderen — und sie hat Zeit gebraucht.',
       bio3: 'Entwickelt und gefertigt in kleinen Chargen in Stuttgart. Der Preis ist so, wie er ist, weil es keinen Grund gibt, ihn höher anzusetzen.',
       bio4: '2025 lud mich eBay zur Seller Leadership Week ins Silicon Valley ein. Waxcelerate auf der Hauptbühne — eines von wenigen Projekten weltweit.',
-      location: 'Stuttgart, Deutschland',
-      email: 'waxcelerate@gmail.com',
-      phone: '+49 157 51957470',
       ebay: 'eBay-Shop besuchen',
-      stats: {
-        rating: 'Positive Bewertungen',
-        sold: 'Artikel verkauft',
-        member: 'eBay-Mitglied',
-        response: 'Antwortzeit',
-      },
-    },
-
-    // Contact
-    contact: {
-      eyebrow: 'Kontakt',
-      title: 'Kontakt',
-      subtitle: 'Direkte Antwort. In der Regel unter 24 Stunden.',
-      emailCardTitle: 'Per E-Mail',
-      emailCardDesc: 'Kettentyp, Frage zur Bestellung — schreib direkt an:',
-      emailCta: 'waxcelerate@gmail.com',
-      whatsappTitle: 'Per WhatsApp',
-      whatsappDesc: 'Für kurze Fragen — ich antworte so schnell wie möglich.',
-      whatsappCta: 'WhatsApp öffnen',
     },
 
     // Footer
@@ -838,16 +815,10 @@ export const translations = {
     },
 
     pages: {
-      about: {
-        metaTitle: 'About Waxcelerate — chain wax from Stuttgart | Waxcelerate',
-        metaDescription: 'Waxcelerate is developed by Luca Teichmann in Stuttgart and made in small batches. Two hot-wax formulas, pre-waxed chains, dispatch on the day you order.',
-        h1: 'About Waxcelerate',
-        lead: 'Waxcelerate is Luca Teichmann’s chain-wax workshop in Stuttgart — born out of real riding, made in small batches, sold direct.',
-      },
       contact: {
-        metaTitle: 'Contact — Waxcelerate',
-        metaDescription: 'Questions about chain wax, chain type or an order? Message Waxcelerate by email or WhatsApp — usually answered within 24 hours.',
-        h1: 'Contact',
+        metaTitle: 'Contact & about — Waxcelerate',
+        metaDescription: 'Questions about chain wax, chain type or an order? Message Waxcelerate by email or WhatsApp — usually answered within 24 hours. Plus: who is behind Waxcelerate.',
+        h1: 'Contact & about',
         lead: 'Questions about the wax, the right chain type or an order are answered by Luca personally — by email or WhatsApp, usually within 24 hours.',
       },
       faq: {
@@ -1364,34 +1335,11 @@ export const translations = {
 
     // About
     about: {
-      title: 'Built on the road.',
       bio1: "I'm Luca — medical student, active rider. Waxcelerate was born on the road: on wet autumn roads, on rides deep into winter, after summer races where heat and dirt show how much margin a formula really has.",
       bio2: "What kept me thinking wasn't the waxes that work — it was the question of why good ones eventually stop. Cold changes how the chain joints behave. Heat drives migration. Moisture puts demands on corrosion protection. None of these problems is trivial, and no formula solves all of them without making tradeoffs somewhere else. The development was systematic, one variable at a time — and it took a while.",
       bio3: "Developed and produced in small batches in Stuttgart. The price is what it is because there's no reason to charge more.",
       bio4: "In 2025, eBay invited me to their Seller Leadership Week in Silicon Valley. Waxcelerate on the main stage — one of a handful of projects worldwide.",
-      location: 'Stuttgart, Germany',
-      email: 'waxcelerate@gmail.com',
-      phone: '+49 157 51957470',
       ebay: 'Visit eBay Shop',
-      stats: {
-        rating: 'Positive feedback',
-        sold: 'Items sold',
-        member: 'eBay member',
-        response: 'Response time',
-      },
-    },
-
-    // Contact
-    contact: {
-      eyebrow: 'Get in Touch',
-      title: 'Contact',
-      subtitle: 'Direct reply. Usually within 24 hours.',
-      emailCardTitle: 'By Email',
-      emailCardDesc: 'Chain type, order question — write directly to:',
-      emailCta: 'waxcelerate@gmail.com',
-      whatsappTitle: 'By WhatsApp',
-      whatsappDesc: 'For quick questions — I reply as soon as possible.',
-      whatsappCta: 'Open WhatsApp',
     },
 
     // Footer

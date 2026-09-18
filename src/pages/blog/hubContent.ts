@@ -1,20 +1,17 @@
 /**
  * Inhalte der Ratgeber-Uebersicht, die nicht zu einem einzelnen Artikel
- * gehoeren: Lernpfad, Symptom-Wegweiser, Zahlen, Beispielfragen.
+ * gehoeren: Lernpfad, Symptom-Wegweiser, Beispielfragen.
  *
  * Getrennt von den Komponenten aus zwei Gruenden: generate-blog-html.mjs
  * rendert Lernpfad und Symptome ins statische HTML (Crawler ohne JS sollen sie
  * sehen), und es gilt dieselbe Regel wie fuer articles.ts: kein Inhalt im JSX.
  *
  * Jede Aussage hier stammt aus dem verlinkten Artikel (Takeaways, FAQ oder
- * Abschnittstext), die Wattzahl aus data.ts. Wer eine Zahl im Artikel
- * aendert, aendert sie hier mit.
+ * Abschnittstext). Wer eine Zahl im Artikel aendert, aendert sie hier mit.
  * `heading` muss wortgleich einer <h2> des Artikels entsprechen, daraus wird
  * der Sprunganker (headingId). scripts/check-search.mjs prueft das.
  */
 import type { ArticleCategory } from './articles';
-// Relativ statt '@/': diese Datei laeuft auch in den Build-Skripten (tsx).
-import { waxVsOil } from '../../lib/data';
 
 export type PathStep = { slug: string; why: string };
 
@@ -30,32 +27,25 @@ export const learningPath: PathStep[] = [
 
 export type SymptomId = 'quietscht' | 'blaettert' | 'pulver' | 'rost' | 'schaltung' | 'verschleiss';
 
-/** Bauteile der Antriebsgrafik, die ein Symptom hervorheben kann. */
-export type DrivePart = 'chain' | 'ring' | 'cassette' | 'derailleur';
-
 export type Symptom = {
   id: SymptomId;
   label: string;
-  /** Wo am Antrieb man es bemerkt. Dort sitzt die Markierung in der Grafik. */
+  /** Wo man es am Rad bemerkt. */
   where: string;
   /** Wo die Ursache sitzt. Oft nicht dort, wo man es merkt (Schaltung). */
   causeAt: string;
-  /** Bauteile, die in der Grafik aufleuchten: die, an denen die Ursache sitzt. */
-  focus: DrivePart[];
   cause: string;
   fix: string;
   slug: string;
   heading: string;
 };
 
-/** Die Reihenfolge ist auch die Reihenfolge der Markierungen in der Grafik. */
 export const symptoms: Symptom[] = [
   {
     id: 'quietscht',
     label: 'Kette quietscht',
     where: 'Kettengelenke, unter Last',
     causeAt: 'Zu wenig Wachs in den Gelenken',
-    focus: ['chain'],
     cause: 'Kurz nach dem Wachsen: Das Wachs ist nie tief eingedrungen, weil das Bad zu kühl oder die Kette zu kurz drin war. Nach einem vollen Intervall (trocken 400–550 km, nass 200–300 km) heißt Quietschen einfach: Sie ist fällig.',
     fix: '10 bis 15 Minuten bei 85 bis 90 °C, bis keine Luftbläschen mehr aufsteigen.',
     slug: 'wachs-haelt-nicht-haeufige-fehler',
@@ -66,7 +56,6 @@ export const symptoms: Symptom[] = [
     label: 'Wachs blättert ab',
     where: 'Laschen und Rollen der Kette',
     causeAt: 'Ölreste unter dem Wachs',
-    focus: ['chain'],
     cause: 'In über 90 % der Fälle nicht gründlich genug entfettet. Wachs haftet nicht auf Öl und bricht beim ersten Pedalieren wieder ab.',
     fix: 'Isopropanol ab 90 %, 2 bis 3 Durchgänge im verschlossenen Glas, bis die Flüssigkeit klar bleibt.',
     slug: 'wachs-haelt-nicht-haeufige-fehler',
@@ -77,7 +66,6 @@ export const symptoms: Symptom[] = [
     label: 'Weißes Pulver, steife Kette',
     where: 'Untere Kettenstrecke',
     causeAt: 'Überschüssiges Außenwachs, kein Fehler',
-    focus: ['chain'],
     cause: 'Völlig normal. Überschüssiges Außenwachs bricht beim Einfahren ab, das wirksame Wachs sitzt geschützt in den Gelenken.',
     fix: 'Kette montieren und ein paar Minuten locker einfahren. Nach 20 bis 30 km ist es vorbei.',
     slug: 'erste-fahrt-nach-wachsen',
@@ -88,7 +76,6 @@ export const symptoms: Symptom[] = [
     label: 'Rost an den Laschen',
     where: 'Außenlaschen',
     causeAt: 'Nässe auf der Stahloberfläche',
-    focus: ['chain'],
     cause: 'Wachs hinterlässt außen keinen dauerhaften Feuchtigkeitsfilm wie Öl. Funktional harmlos, solange die Gelenke innen gewachst sind.',
     fix: 'Nach Nässe nie nass wegstellen, sondern kurz trockenreiben. Wer oft im Nassen fährt, profitiert von der MoS₂-Variante, deren Film direkter auf dem Stahl haftet.',
     slug: 'wachs-haelt-nicht-haeufige-fehler',
@@ -99,7 +86,6 @@ export const symptoms: Symptom[] = [
     label: 'Schaltet schlechter',
     where: 'Schaltwerk, beim Gangwechsel',
     causeAt: 'Ölreste an Kassette und Kettenblatt',
-    focus: ['cassette', 'ring'],
     cause: 'Nach dem Umstieg von Öl sitzt der Fehler oft nicht an der Kette: Ölreste an Kassette und Kettenblättern kontaminieren sie sofort wieder.',
     fix: 'Den ganzen Antrieb entfetten, nicht nur die Kette. Danach 20 bis 30 km einfahren.',
     slug: 'wachs-haelt-nicht-haeufige-fehler',
@@ -113,7 +99,6 @@ export const symptoms: Symptom[] = [
     label: 'Kette springt',
     where: 'Kassette, unter Last',
     causeAt: 'Steife Glieder oder gedehnte Gelenke',
-    focus: ['chain', 'cassette'],
     cause: 'Frisch gewachst: Die Glieder sind vom erstarrten Paraffin noch verklebt, das ist normal. Nach vielen Kilometern: Die Kette ist in den Gelenken verschlissen. Grenze 0,5 % Dehnung bei 11- und 12-fach, 0,75 % bei 9- und 10-fach.',
     fix: 'Frisch gewachst: montieren und ein paar Minuten einfahren, dann löst sich die Steifigkeit. Sonst mit einer Kettenlehre messen. Fällt der Messzahn bündig in die Lücke, ist sie fällig.',
     slug: 'kettenverschleiss-messen',
@@ -121,41 +106,9 @@ export const symptoms: Symptom[] = [
   },
 ];
 
-/** `to`: Zielpfad, meist ein Artikel, fuer die Wattzahl /wissenschaft. */
-export type HubNumber = { value: string; label: string; note: string; to: string };
-
-const w = waxVsOil.watts;
-
-/** Vier Kennzahlen, jede mit der Seite, die sie herleitet. */
-export const hubNumbers: HubNumber[] = [
-  { value: '400–550', label: 'km pro Wachsgang', note: 'trocken. Bei Nässe, Schotter oder MTB 200 bis 300 km.', to: '/blog/kettenlaufzeit-heisswachs' },
-  { value: '2–3×', label: 'Kettenlaufzeit', note: '6.000 bis 12.000 km statt 2.000 bis 3.000 km mit Öl.', to: '/blog/kettenverschleiss-messen' },
-  // Aus data.ts, nicht aus dem Blog: die Blog-Formulierung "4–5 W bei
-  // 300–400 W" ist laut Faktenpruefung 09/2026 nicht haltbar (PROJECT.md,
-  // offene Entscheidungen). Die Seite /wissenschaft erklaert die Messung.
-  {
-    value: `${w.wax[0]}–${w.wax[1]} W`,
-    label: 'Reibungsverlust mit Wachs',
-    note: `Kettenöl ${w.oil[0]}–${w.oil[1]} W. Gemessen von Zero Friction Cycling bei ${w.inputW} W Tretleistung.`,
-    to: '/wissenschaft',
-  },
-  { value: '> 90 %', label: 'aller Fehler', note: 'liegen am Entfetten, wenn Wachs nicht hält.', to: '/blog/fahrradkette-entfetten' },
-];
-
-/** Tippt der Platzhalter der Suche nacheinander. Bewusst so formuliert, wie
- *  echte Leser fragen, nicht wie Artikel heissen: das Feld soll zeigen, dass
- *  man in eigenen Worten fragen darf. Jede davon ist in check-search.mjs
- *  abgesichert. */
-export const typewriterQuestions = [
-  'meine Hose wird schwarz',
-  'wie oft muss ich nachwachsen?',
-  'Kette quietscht nach 50 km',
-  'kann ich einen Reiskocher nehmen?',
-  'weißes Pulver, ist das normal?',
-  'funktioniert Wachs im Winter?',
-];
-
-/** Klickbare Beispielfragen unter dem Suchfeld. */
+/** Klickbare Beispielfragen unter dem Suchfeld. Bewusst so formuliert, wie
+ *  echte Leser fragen, nicht wie Artikel heissen. Jede davon ist in
+ *  check-search.mjs abgesichert. */
 export const suggestedQuestions = [
   'Wie oft nachwachsen?',
   'Kette quietscht',

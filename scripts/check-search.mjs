@@ -19,10 +19,10 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
-import { createIndex, search } from '../src/lib/search/engine.ts';
+import { createIndex, search, SITE_FAQ_DOC_ID } from '../src/lib/search/engine.ts';
 import { articles } from '../src/pages/blog/articles.ts';
 import { headingId } from '../src/pages/blog/headingId.ts';
-import { symptoms, learningPath, hubNumbers, typewriterQuestions } from '../src/pages/blog/hubContent.ts';
+import { symptoms, learningPath } from '../src/pages/blog/hubContent.ts';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const verbose = process.argv.includes('--verbose');
@@ -127,6 +127,15 @@ const ANSWER_CASES = [
   ['xylophon', null],
 ];
 
+/** Seit Chat 4 (09/2026) traegt auch die Seiten-FAQ (t.faq.items, vorher
+ *  /faq) Antwortkarten, ueber SITE_FAQ_DOC_ID (src/lib/search/engine.ts).
+ *  [Anfrage, Teilstring der erwarteten Frage] — hier zusaetzlich geprueft,
+ *  dass die Karte wirklich aus der Seiten-FAQ stammt, nicht aus einem Artikel. */
+const SITE_FAQ_ANSWER_CASES = [
+  ['ist ptfe im kettenwachs gesundheitlich bedenklich', 'PTFE'],
+  ['was ist eine ketten rotation und warum drei ketten', 'Ketten-Rotation'],
+];
+
 const payload = JSON.parse(readFileSync(resolve(root, 'public/search-index.json'), 'utf8'));
 const engine = createIndex(payload);
 
@@ -162,6 +171,18 @@ for (const [query, expected] of ANSWER_CASES) {
   }
 }
 
+let siteFaqFails = 0;
+for (const [query, expected] of SITE_FAQ_ANSWER_CASES) {
+  const { answer } = search(engine, query, 5);
+  const ok = Boolean(answer?.slug === SITE_FAQ_DOC_ID && answer.question.includes(expected));
+  if (!ok) siteFaqFails += 1;
+  if (verbose || !ok) {
+    console.log(`${ok ? 'OK  ' : 'FAIL'}  Seiten-FAQ "${query}"`);
+    console.log(`      erwartet: ${expected} (site-faq)`);
+    console.log(`      bekommen: ${answer ? `${answer.question} (${answer.slug})` : '— keine Karte —'}`);
+  }
+}
+
 // Hub-Inhalte: jeder Sprunganker muss auf eine echte <h2> zeigen, jeder Slug
 // auf einen echten Artikel. Sonst springt der Symptom-Wegweiser ins Leere.
 const hubErrors = [];
@@ -173,26 +194,19 @@ for (const s of symptoms) {
   if (!ids.includes(headingId(s.heading))) hubErrors.push(`Symptom ${s.id}: keine <h2> "${s.heading}" in ${s.slug}`);
 }
 for (const step of learningPath) if (!bySlug.has(step.slug)) hubErrors.push(`Lernpfad: Artikel ${step.slug} fehlt`);
-for (const num of hubNumbers) {
-  const ok = num.to === '/wissenschaft' || (num.to.startsWith('/blog/') && bySlug.has(num.to.slice(6)));
-  if (!ok) hubErrors.push(`Zahl ${num.value}: Ziel ${num.to} existiert nicht`);
-}
-for (const q of typewriterQuestions) {
-  if (!CASES.some(([query]) => query === q)) hubErrors.push(`Platzhalterfrage ohne Testfall: "${q}"`);
-}
 for (const e of hubErrors) console.log(`FAIL  ${e}`);
 
 const n = CASES.length;
 const pct = (x) => `${((x / n) * 100).toFixed(0)} %`;
 console.log('');
 console.log(`Top-1: ${top1}/${n} (${pct(top1)})   Top-3: ${top3}/${n} (${pct(top3)})`);
-console.log(`Antwortkarten: ${ANSWER_CASES.length - answerFails}/${ANSWER_CASES.length}   Hub-Verweise: ${hubErrors.length ? `${hubErrors.length} Fehler` : 'ok'}`);
+console.log(`Antwortkarten: ${ANSWER_CASES.length - answerFails}/${ANSWER_CASES.length}   Seiten-FAQ-Antworten: ${SITE_FAQ_ANSWER_CASES.length - siteFaqFails}/${SITE_FAQ_ANSWER_CASES.length}   Hub-Verweise: ${hubErrors.length ? `${hubErrors.length} Fehler` : 'ok'}`);
 
 // Zielwerte aus dem Umbauplan. Unterschreitet die Suche sie, ist das ein
 // echter Fehlschlag und kein "ist halt unscharf" — dann fehlen Aliase.
 const TARGET_TOP1 = 0.9;
 const TARGET_TOP3 = 1;
-if (answerFails || hubErrors.length) {
+if (answerFails || siteFaqFails || hubErrors.length) {
   console.error('\nFEHLGESCHLAGEN: Antwortkarten oder Hub-Verweise stimmen nicht (siehe FAIL-Zeilen oben).');
   process.exit(1);
 }

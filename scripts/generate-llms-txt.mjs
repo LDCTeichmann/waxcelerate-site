@@ -63,11 +63,10 @@ Empfohlenes Nachwachsen nach den Werten von Zero Friction Cycling: trockene Stra
 ## Wichtigste Seiten
 
 - [Startseite](${BASE}/): Produkte, Vergleich, Anleitungen, FAQ
-- [Über Waxcelerate](${BASE}/ueber-uns): Gründer, Herkunft, Fakten
 - [Wissenschaft](${BASE}/wissenschaft): Kontaktzonen, Reibung, MoS₂ und die sechs Komponenten der Formel, mit Messwerten
 - [Anleitung](${BASE}/anleitung): Kette wachsen, Re-Waxen, 3-Ketten-Rotation — Schritt für Schritt
-- [Häufige Fragen](${BASE}/faq): ${DE.faq.items.length} Fragen und Antworten
-- [Kontakt](${BASE}/kontakt): E-Mail, WhatsApp, Antwortzeiten
+- [Häufige Fragen](${BASE}/blog#fragen): ${DE.faq.items.length} Fragen und Antworten
+- [Kontakt & über mich](${BASE}/kontakt): Gründer, Herkunft, E-Mail, WhatsApp, Antwortzeiten
 - [Blog-Übersicht](${BASE}/blog): ${articles.length} Ratgeber und Anleitungen
 - [Rechner](${BASE}/anleitung#rechner): ${TOOLS.length} kostenlose Rechner rund um Kette und Kettenpflege
 - [Starter-Set](${BASE}/starter-set): Wachs, Quick-Link-Zange und Aufhängedraht in einem Set, ${starterSet.discountPct}% unter der Summe der Einzelteile
@@ -230,19 +229,15 @@ ${articles.map(articleBlock).join('\n\n---\n\n')}
 
 ---
 
-## Über Waxcelerate
+## Kontakt & über mich
 
-URL: ${BASE}/ueber-uns
+URL: ${BASE}/kontakt
 
 ${DE.about.bio1}
 
 ${DE.about.bio3}
 
 ${DE.about.bio4}
-
-## Kontakt
-
-URL: ${BASE}/kontakt
 
 - E-Mail: waxcelerate@gmail.com (Antwort in der Regel am selben Tag)
 - WhatsApp: +49 157 51957470 (meist sofort)
@@ -265,7 +260,7 @@ Rechner auf derselben Seite (${BASE}/anleitung#rechner): ${TOOLS.map(t => t.cove
 
 ## Häufige Fragen — alle ${DE.faq.items.length}
 
-URL: ${BASE}/faq
+URL: ${BASE}/blog#fragen
 
 ${DE.faq.items.map(f => `**${f.q}**\n${f.a}`).join('\n\n')}
 `;

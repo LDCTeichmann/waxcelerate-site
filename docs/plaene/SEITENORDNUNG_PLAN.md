@@ -2,7 +2,7 @@
 
 > Von Luca freigegeben am 17.09.2026. Umsetzung durch vier Sonnet-Chats, jeder arbeitet
 > nur seinen Abschnitt ab. Stand der Erkundung: `origin/main` 910212d (16.09.2026).
-> **Status:** Chat 1 ☑ · Chat 2 ☑ · Chat 3 ☑ · Chat 4 ☐ (jeder Chat hakt seinen eigenen Kasten ab)
+> **Status:** Chat 1 ☑ · Chat 2 ☑ · Chat 3 ☑ · Chat 4 ☑ (jeder Chat hakt seinen eigenen Kasten ab)
 
 ## Kontext
 

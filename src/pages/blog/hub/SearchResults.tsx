@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight, MessageSquareText } from 'lucide-react';
 import type { SearchAnswer, SearchHit, SnippetPart } from '@/lib/search/engine';
+import { SITE_FAQ_DOC_ID } from '@/lib/search/engine';
 import { articles, categoryColors, getArticleImage } from '../articles';
 import { suggestedQuestions } from '../hubContent';
 import { hitUrl, saveRecentSearch } from './searchHelpers';
@@ -36,8 +37,10 @@ function Snippet({ parts }: { parts: SnippetPart[] }) {
  * Antwortbox bei Wirecutter oder Google: wer "wie oft nachwachsen" fragt, will
  * eine Zahl, keinen Link auf sieben Minuten Lesezeit.
  */
-function AnswerCard({ answer, id, active, query }: { answer: SearchAnswer; id: string; active: boolean; query: string }) {
-  const article = bySlug.get(answer.slug);
+function AnswerCard({ answer, id, active, query, onQuery }: { answer: SearchAnswer; id: string; active: boolean; query: string; onQuery: (q: string) => void }) {
+  const isSiteFaq = answer.slug === SITE_FAQ_DOC_ID;
+  const article = isSiteFaq ? undefined : bySlug.get(answer.slug);
+  const href = isSiteFaq ? `/blog#${answer.anchor}` : `/blog/${answer.slug}#${answer.anchor}`;
   return (
     <div
       id={id}
@@ -60,12 +63,19 @@ function AnswerCard({ answer, id, active, query }: { answer: SearchAnswer; id: s
       </h2>
       <p className="text-[16px] leading-[1.7] text-wx-tx2 mb-5 max-w-3xl">{answer.answer}</p>
       <Link
-        to={`/blog/${answer.slug}#${answer.anchor}`}
-        onClick={() => saveRecentSearch(query)}
+        to={href}
+        onClick={() => {
+          saveRecentSearch(query);
+          // Die Antwort zeigt auf einen Anker AUF /blog selbst (kein
+          // Routenwechsel wie bei einer Artikel-Antwort) — ohne die Anfrage
+          // zu leeren bliebe die Seite im Suchmodus und FaqSection (die den
+          // Anker oeffnet) wuerde nie gerendert.
+          if (isSiteFaq) onQuery('');
+        }}
         className="inline-flex items-center gap-2 text-[14px] font-semibold"
         style={{ color: 'var(--accent)' }}
       >
-        Mehr dazu in „{article?.titleShort ?? 'dem Artikel'}“
+        {isSiteFaq ? 'Mehr dazu bei den häufigen Fragen' : `Mehr dazu in „${article?.titleShort ?? 'dem Artikel'}“`}
         <ArrowRight className="h-4 w-4" aria-hidden />
       </Link>
     </div>
@@ -208,7 +218,7 @@ export function SearchResults({
       </div>
 
       <div id={resultsId} role="listbox" aria-label="Treffer">
-        {answer && <AnswerCard answer={answer} id={`${resultsId}-0`} active={activeIndex === 0} query={query} />}
+        {answer && <AnswerCard answer={answer} id={`${resultsId}-0`} active={activeIndex === 0} query={query} onQuery={onQuery} />}
         {noResults ? (
           <NoResults query={query.trim()} suggestion={suggestion} onQuery={onQuery} />
         ) : (

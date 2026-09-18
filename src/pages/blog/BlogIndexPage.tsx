@@ -6,93 +6,28 @@ import { Helmet } from 'react-helmet-async';
 import { Navigation } from '@/sections/navigation';
 import { Footer } from '@/sections/footer';
 import { getProductById } from '@/lib/data';
-import { removeStaticHeadMeta } from '@/lib/utils';
+import { removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
 import { trackSearchNoResult } from '@/lib/analytics';
-import { BeforeAfterSlider } from '@/components/BeforeAfterSlider';
 import { useArticleSearch } from '@/lib/search/useArticleSearch';
+import { SITE_FAQ_DOC_ID } from '@/lib/search/engine';
 import type { SearchHit } from '@/lib/search/engine';
-import { articles, categoryOrder, categoryProductSlug, blogFeature } from './articles';
-import type { Article, ArticleCategory } from './articles';
+import { articles, categoryOrder, categoryProductSlug } from './articles';
+import type { ArticleCategory } from './articles';
 import { useReadArticles } from './readState';
 import { HubHero } from './hub/HubHero';
 import { SearchResults } from './hub/SearchResults';
 import { LearningPath } from './hub/LearningPath';
 import { SymptomFinder } from './hub/SymptomFinder';
-import { NumbersStrip } from './hub/NumbersStrip';
+import { FaqSection } from './hub/FaqSection';
 import { ArchiveGrid } from './hub/ArchiveGrid';
 import type { Filter } from './hub/ArchiveGrid';
 import { hitUrl, saveRecentSearch } from './hub/searchHelpers';
+import { useLanguage } from '@/hooks/useLanguage';
 
 const formatPrice = (price: number) =>
   new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(price);
 
 const RESULTS_ID = 'ratgeber-treffer';
-
-/**
- * Die Kachel mit dem empfohlenen Artikel, plus der Beleg fuer seine These.
- *
- * Vorher standen hier zwei Fotos nebeneinander, ein grosses "gewachst" und ein
- * kleines, ueberlappendes "geoelt" (eine verschmutzte Wade). Zwei getrennte
- * Aufnahmen muessen dem Betrachter aber immer erst erklaeren, dass sie
- * ueberhaupt vergleichbar sind. Jetzt steht dort derselbe Vergleichsslider wie
- * auf der Startseite: eine Kette, zwei Zustaende, der Leser zieht selbst.
- *
- * Dafuer ist die Kachel KEIN einziger <Link> mehr. Ein ziehbarer Slider
- * innerhalb eines Links waere unbedienbar, weil jeder Zug als Klick endet und
- * die Seite wechselt. Verlinkt sind Ueberschrift und Fusszeile, und
- * `has-[a:hover]` hebt trotzdem die ganze Karte.
- */
-function FeatureTile({ article }: { article: Article }) {
-  return (
-    <div
-      className="group grid md:grid-cols-[3fr_2fr] rounded-3xl mb-20 overflow-hidden transition-all duration-300 has-[a:hover]:-translate-y-1"
-      style={{ background: 'var(--sf)', border: '1px solid var(--bd)' }}
-    >
-      {/* Der Slider bringt sein eigenes festes Seitenverhaeltnis mit (6/5, so
-          sind die Bildpaare in public/images/compare/ geschnitten). Mit
-          Innenabstand und eigenen Ecken ist er erkennbar ein gerahmtes
-          Element, der Ausgleich zur Textspalte liest sich als Absicht. */}
-      <div className="self-center p-4 sm:p-5 md:p-6">
-        <div className="rounded-2xl overflow-hidden" style={{ transform: 'translateZ(0)' }}>
-          <BeforeAfterSlider
-            aspect="6/5"
-            beforeSrc={blogFeature.before.src}
-            afterSrc={blogFeature.after.src}
-            beforeAlt={blogFeature.before.alt}
-            afterAlt={blogFeature.after.alt}
-            beforeLabel={blogFeature.before.label}
-            afterLabel={blogFeature.after.label}
-          />
-        </div>
-      </div>
-
-      <div className="px-7 pb-8 sm:px-9 sm:pb-9 md:py-10 md:pr-10 md:pl-3 flex flex-col justify-center">
-        <p className="eyebrow mb-3" style={{ color: 'var(--accent)' }}>
-          Empfohlen · {article.category}
-        </p>
-        <h2 className="font-display text-2xl sm:text-[30px] font-bold leading-[1.15] mb-3">
-          <Link to={`/blog/${article.slug}`} className="text-wx-tx1 transition-colors hover:text-[color:var(--accent)]">
-            {article.title}
-          </Link>
-        </h2>
-        {/* Keine Stats-Zeile mehr: 400–550 km & Co. stehen direkt darueber im
-            Zahlen-Streifen, doppelt wirkte die Kachel wie eine Tabelle. */}
-        <p className="text-[15px] leading-[1.7] text-wx-txm mb-6">{article.description}</p>
-        <p className="text-[13px] leading-[1.6] text-wx-txf mb-6">
-          Zieh den Regler: dieselbe Kette, geölt nach 80 km und gewachst nach 400 km.
-        </p>
-        <Link
-          to={`/blog/${article.slug}`}
-          className="mt-auto inline-flex items-center gap-2 py-2 -my-2 text-[14px] font-semibold w-fit"
-          style={{ color: 'var(--accent)' }}
-        >
-          Artikel lesen
-          <span className="transition-transform group-hover:translate-x-1">→</span>
-        </Link>
-      </div>
-    </div>
-  );
-}
 
 export function BlogIndexPage() {
   // Filter/Suche liegen in der URL (?kategorie=, ?q=), damit eine gefilterte
@@ -107,6 +42,7 @@ export function BlogIndexPage() {
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const read = useReadArticles();
+  const { t } = useLanguage();
 
   const setFilter = (next: Filter) => {
     setFilterState(next);
@@ -127,13 +63,6 @@ export function BlogIndexPage() {
       return params;
     }, { replace: true });
   };
-
-  // Saisonal: Nov–Feb der Winterartikel als Empfehlung, sonst der mit
-  // `featured` markierte.
-  const month = new Date().getMonth();
-  const isWinterSeason = month === 10 || month === 11 || month === 0 || month === 1;
-  const seasonalArticle = isWinterSeason ? articles.find((a) => a.category === 'Saison') : undefined;
-  const featured = seasonalArticle ?? articles.find((a) => a.featured);
 
   const normalizedQuery = query.trim().toLowerCase();
   const isSearching = normalizedQuery.length > 0;
@@ -162,7 +91,12 @@ export function BlogIndexPage() {
   // dass dafuer ein Effekt den Zustand zuruecksetzen muss.
   const [nav, setNav] = useState({ query: '', index: -1 });
   const activeIndex = nav.query === query ? nav.index : -1;
-  const urls = [...(answer ? [`/blog/${answer.slug}#${answer.anchor}`] : []), ...hits.map(hitUrl)];
+  // Antwortkarte aus der Seiten-FAQ (src/pages/product/faqTopics.ts-Themen,
+  // t.faq.items) hat keine eigene Artikelseite — sie zeigt auf den
+  // Akkordeon-Anker hier auf /blog selbst, siehe SITE_FAQ_DOC_ID in
+  // src/lib/search/engine.ts und die FaqSection weiter unten.
+  const answerUrl = answer && `/blog${answer.slug === SITE_FAQ_DOC_ID ? '' : `/${answer.slug}`}#${answer.anchor}`;
+  const urls = [...(answerUrl ? [answerUrl] : []), ...hits.map(hitUrl)];
 
   const onSearchKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
@@ -175,10 +109,16 @@ export function BlogIndexPage() {
       setNav({ query, index: next });
       document.getElementById(`${RESULTS_ID}-${next}`)?.scrollIntoView({ block: 'nearest' });
     } else if (e.key === 'Enter') {
-      const target = urls[activeIndex >= 0 ? activeIndex : 0];
+      const index = activeIndex >= 0 ? activeIndex : 0;
+      const target = urls[index];
       if (!target) return;
       e.preventDefault();
       saveRecentSearch(query);
+      // Die Antwort der Seiten-FAQ zeigt auf einen Anker auf /blog selbst
+      // (kein Routenwechsel) — ohne die Anfrage zu leeren bliebe die Seite
+      // im Suchmodus und FaqSection (die den Anker oeffnet) wuerde nie
+      // gerendert. Siehe derselbe Fall in SearchResults.tsx (AnswerCard).
+      if (index === 0 && answer?.slug === SITE_FAQ_DOC_ID) setQuery('');
       navigate(target);
     } else if (e.key === 'Escape') {
       if (query) { e.preventDefault(); setQuery(''); } else e.currentTarget.blur();
@@ -211,10 +151,26 @@ export function BlogIndexPage() {
   // Die vorgerenderte Huelle setzt title/description/canonical/og/twitter
   // bereits statisch, markiert mit data-prerendered — ohne diesen Aufruf
   // bleiben nach der Hydration zwei Versionen jedes Tags im DOM (siehe
-  // removeStaticHeadMeta in src/lib/utils.ts).
-  useEffect(() => { removeStaticHeadMeta(); }, []);
+  // removeStaticHeadMeta in src/lib/utils.ts). Seit Chat 4 traegt /blog auch
+  // ein FAQPage-Schema (vorher /faq) — genau wie bei den Blogartikeln muss
+  // die statisch vorgerenderte Fassung (generate-blog-html.mjs) hier weichen,
+  // bevor Helmet ihre eigene setzt (removeStaticJsonLd).
+  useEffect(() => { removeStaticJsonLd(); removeStaticHeadMeta(); }, []);
 
   const description = `Messwerte, Anleitungen und ehrliche Antworten rund um Kettenpflege und Heißwachs aus Stuttgart. ${articles.length} Artikel.`;
+
+  const faqGraph = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    name: t.pages.faq.metaTitle,
+    description: t.pages.faq.metaDescription,
+    url: 'https://waxcelerate.de/blog#fragen',
+    mainEntity: t.faq.items.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  };
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--pg)' }}>
@@ -233,6 +189,7 @@ export function BlogIndexPage() {
         <meta name="twitter:title" content="Die Werkstatt — Heißwachs Tipps &amp; Anleitungen | Waxcelerate" />
         <meta name="twitter:description" content={description} />
         <meta name="twitter:image" content="https://waxcelerate.de/images/blog/ride-road-golden.jpg" />
+        <script type="application/ld+json">{JSON.stringify(faqGraph)}</script>
       </Helmet>
 
       <Navigation />
@@ -270,9 +227,7 @@ export function BlogIndexPage() {
           <>
             <LearningPath read={read} />
             <SymptomFinder />
-            {/* Erst die Zahlen, dann der Slider, der sie am Foto zeigt. */}
-            <NumbersStrip />
-            {featured && <FeatureTile article={featured} />}
+            <FaqSection />
             <ArchiveGrid filter={filter} onFilter={setFilter} read={read} />
           </>
         )}
@@ -304,7 +259,7 @@ export function BlogIndexPage() {
               </p>
             </div>
             <Link
-              to="/#kontakt"
+              to="/kontakt"
               className="relative text-[14px] font-semibold px-5 py-2.5 rounded-full shrink-0 transition-colors"
               style={{ background: 'var(--accent)', color: 'var(--pg)' }}
             >
