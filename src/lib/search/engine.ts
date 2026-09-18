@@ -74,8 +74,20 @@ export type SearchHit = {
   section: { id: string | null; heading: string | null } | null;
 };
 
-/** `anchor` zeigt auf die Frage in der sichtbaren FAQ des Artikels. */
+/** `anchor` zeigt auf die Frage in der sichtbaren FAQ des Artikels — oder,
+ *  wenn `slug === SITE_FAQ_DOC_ID`, auf die Seiten-FAQ (`/blog#fragen-<id>`,
+ *  siehe FaqSection.tsx). */
 export type SearchAnswer = { slug: string; question: string; answer: string; anchor: string };
+
+/**
+ * Pseudo-Dokument-ID der Seiten-FAQ (t.faq.items, vorher /faq). Sie traegt
+ * keinen eigenen Artikeltext und ist absichtlich NICHT im MiniSearch-Index
+ * (siehe createIndex): sie soll nie als eigene Trefferzeile erscheinen, nur
+ * als Quelle fuer die Antwortkarte, gleichrangig mit den FAQ der beiden
+ * bestplatzierten Artikel. generate-search-index.mjs traegt ihre Fragen unter
+ * dieser ID ein.
+ */
+export const SITE_FAQ_DOC_ID = 'site-faq';
 
 export type SearchResult = {
   hits: SearchHit[];
@@ -144,7 +156,7 @@ export function createIndex(payload: SearchIndexPayload): SearchEngine {
     tokenize: searchTokenize,
     processTerm: searchProcess,
   });
-  mini.addAll(payload.docs.map((doc) => ({
+  mini.addAll(payload.docs.filter((doc) => doc.id !== SITE_FAQ_DOC_ID).map((doc) => ({
     id: doc.id,
     title: doc.title,
     titleShort: doc.titleShort,
@@ -174,7 +186,11 @@ export function createIndex(payload: SearchIndexPayload): SearchEngine {
   };
 
   for (const doc of payload.docs) {
-    phraseHaystack.set(doc.id, fold(`${doc.title} ${doc.titleShort} ${doc.aliases}`));
+    // Die Seiten-FAQ traegt keinen eigenen Titel-/Alias-Text zum Ranking bei
+    // (siehe SITE_FAQ_DOC_ID oben) — nur ihre `faq`-Eintraege unten zaehlen.
+    if (doc.id !== SITE_FAQ_DOC_ID) {
+      phraseHaystack.set(doc.id, fold(`${doc.title} ${doc.titleShort} ${doc.aliases}`));
+    }
     sections.set(doc.id, doc.sections.map((s) => ({ ...s, tokens: tokenize(s.t) })));
     faq.set(doc.id, doc.faq.map((f) => ({
       ...f,
@@ -354,8 +370,16 @@ function findAnswer(engine: SearchEngine, rawQuery: string, hits: SearchHit[], q
 
   let best: SearchAnswer | null = null;
   let bestScore = 0;
-  hits.slice(0, 2).forEach((hit, rank) => {
-    for (const f of engine.faq.get(hit.slug) ?? []) {
+  // Die Seiten-FAQ (t.faq.items, vorher /faq) steht als dritter, gleich
+  // gewichteter Kandidat daneben — sie ist nicht Teil des Rankings (siehe
+  // SITE_FAQ_DOC_ID), soll eine allgemeine Frage aber genauso beantworten
+  // koennen wie die FAQ eines gerade hoch gerankten Artikels.
+  const candidates: { slug: string; rank: number }[] = [
+    ...hits.slice(0, 2).map((hit, rank) => ({ slug: hit.slug, rank })),
+    { slug: SITE_FAQ_DOC_ID, rank: 1 },
+  ];
+  candidates.forEach(({ slug, rank }) => {
+    for (const f of engine.faq.get(slug) ?? []) {
       let score = 0;
       let directQuestionHit = false;
       const qCompact = f.qFolded.replace(/[^a-z0-9]/g, '');
@@ -376,7 +400,8 @@ function findAnswer(engine: SearchEngine, rawQuery: string, hits: SearchHit[], q
       const relative = (score / reachable) * (rank === 0 ? 1.15 : 1);
       if (relative > bestScore) {
         bestScore = relative;
-        best = { slug: hit.slug, question: f.q, answer: f.a, anchor: `faq-${headingId(f.q)}` };
+        const anchor = slug === SITE_FAQ_DOC_ID ? `fragen-${headingId(f.q)}` : `faq-${headingId(f.q)}`;
+        best = { slug, question: f.q, answer: f.a, anchor };
       }
     }
   });

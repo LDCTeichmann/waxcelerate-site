@@ -17,7 +17,7 @@ entsteht einmalig beim Build in `dist/`.
 | Kategorie | Anzahl | Erzeugt von | Indexierbar |
 |---|---|---|---|
 | Startseite | 1 | `scripts/generate-home-html.mjs` | ja |
-| Feste Info-/Verkaufsseiten (`/wissenschaft`, `/kette-wachsen-lassen`, `/starter-set`, `/ueber-uns`, `/kontakt`, `/faq`, `/anleitung`) | 7 | `scripts/generate-blog-html.mjs` → `STATIC_PAGES` + `NEW_STATIC_PAGES` | ja |
+| Feste Info-/Verkaufsseiten (`/wissenschaft`, `/kette-wachsen-lassen`, `/starter-set`, `/kontakt`, `/anleitung`) | 5 | `scripts/generate-blog-html.mjs` → `STATIC_PAGES` + `NEW_STATIC_PAGES` | ja |
 | Rewax-Stadtseiten (`/kette-wachsen-lassen/:stadt`) | 12 | `scripts/generate-blog-html.mjs` → Schleife über `src/pages/rewax/cities.ts` | ja |
 | Rechtstexte (`/impressum`, `/datenschutz`, `/agb`, `/widerruf`, `/widerrufsbelehrung`, `/versand-und-zahlung`) | 6 | `scripts/generate-blog-html.mjs` → `LEGAL_PAGES` | ja, außer `/datenschutz` (`noindex`, siehe Kommentar dort) |
 | Rechner (`/rechner`, `/rechner/:slug`) | 7 | `scripts/generate-blog-html.mjs` → `renderToolsHub`/`renderTool` | ja |

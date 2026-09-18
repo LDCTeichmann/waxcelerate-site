@@ -1,5 +1,5 @@
 import { useEffect, lazy, Suspense } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Navigation } from '@/sections/navigation';
 import { Hero as HeroEditorial } from '@/sections/hero-light';
 import { Products } from '@/sections/products';
@@ -38,9 +38,7 @@ const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then(m => ({ defa
 const WiderrufPage = lazy(() => import('@/pages/WiderrufPage').then(m => ({ default: m.WiderrufPage })));
 const WiderrufsbelehrungPage = lazy(() => import('@/pages/WiderrufsbelehrungPage').then(m => ({ default: m.WiderrufsbelehrungPage })));
 const VersandUndZahlungPage = lazy(() => import('@/pages/VersandUndZahlungPage').then(m => ({ default: m.VersandUndZahlungPage })));
-const UeberUnsPage = lazy(() => import('@/pages/UeberUnsPage').then(m => ({ default: m.UeberUnsPage })));
 const KontaktPage = lazy(() => import('@/pages/KontaktPage').then(m => ({ default: m.KontaktPage })));
-const FaqPage = lazy(() => import('@/pages/FaqPage').then(m => ({ default: m.FaqPage })));
 const AnleitungPage = lazy(() => import('@/pages/AnleitungPage').then(m => ({ default: m.AnleitungPage })));
 const KettenPage = lazy(() => import('@/pages/KettenPage').then(m => ({ default: m.KettenPage })));
 const KettenwachsPage = lazy(() => import('@/pages/KettenwachsPage').then(m => ({ default: m.KettenwachsPage })));
@@ -117,9 +115,14 @@ function AppContent() {
             (vercel.json) — die Seiten unter /rechner/:slug bleiben eigene
             Adressen und werden weiter direkt bedient. */}
         <Route path="/rechner/:slug" element={<Suspense fallback={<PageLoader />}><RechnerToolPage /></Suspense>} />
-        <Route path="/ueber-uns" element={<Suspense fallback={<PageLoader />}><UeberUnsPage /></Suspense>} />
+        {/* Seitenordnung Chat 4: "Über mich" und die FAQ sind auf /kontakt
+            bzw. /blog#fragen umgezogen. vercel.json traegt den serverseitigen
+            301 fuer direkte Aufrufe/Bookmarks; diese Routen fangen zusaetzlich
+            eine SPA-Navigation ab (Link-Klick ohne vollen Seitenaufruf), die
+            den Edge-Redirect sonst umgeht. */}
+        <Route path="/ueber-uns" element={<Navigate to="/kontakt#ueber-mich" replace />} />
         <Route path="/kontakt" element={<Suspense fallback={<PageLoader />}><KontaktPage /></Suspense>} />
-        <Route path="/faq" element={<Suspense fallback={<PageLoader />}><FaqPage /></Suspense>} />
+        <Route path="/faq" element={<Navigate to="/blog#fragen" replace />} />
         <Route path="/anleitung" element={<Suspense fallback={<PageLoader />}><AnleitungPage /></Suspense>} />
         {/* Stufe 3 (Produktkarten-Plan, K10): die Kettenliste war ein
             useState innerhalb der Produktsektion, jetzt eine echte Route mit

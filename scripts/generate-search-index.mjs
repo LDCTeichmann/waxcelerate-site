@@ -28,6 +28,10 @@ import { dirname, resolve } from 'node:path';
 import { articles, categoryOrder } from '../src/pages/blog/articles.ts';
 import { articleAliases } from '../src/pages/blog/articleAliases.ts';
 import { headingId } from '../src/pages/blog/headingId.ts';
+import { SITE_FAQ_DOC_ID } from '../src/lib/search/engine.ts';
+import { translations } from '../src/lib/i18n.ts';
+
+const DE = translations.de;
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -92,6 +96,25 @@ const docs = articles.map((article) => {
   };
 });
 
+// Seiten-FAQ (t.faq.items, vorher die eigenstaendige Seite /faq, seit Chat 4
+// unter /blog#fragen): kein eigener Artikeltext, deshalb leere `sections` —
+// createIndex() (src/lib/search/engine.ts) nimmt sie bewusst NICHT in den
+// rankbaren Index auf (SITE_FAQ_DOC_ID), nur ihre `faq`-Eintraege speisen die
+// Antwortkarte, gleichrangig mit der FAQ der beiden bestplatzierten Artikel.
+docs.push({
+  id: SITE_FAQ_DOC_ID,
+  title: DE.pages.faq.metaTitle,
+  titleShort: 'Häufige Fragen',
+  description: DE.pages.faq.metaDescription,
+  category: 'FAQ',
+  readingTime: '',
+  keyStat: null,
+  takeaways: '',
+  aliases: '',
+  sections: [],
+  faq: DE.faq.items.map((f) => ({ q: f.q, a: clean(f.a) })),
+});
+
 if (missingAliases.length) {
   // Kein harter Abbruch: ein neuer Artikel soll sich auch ohne Aliase schon
   // finden lassen. Aber laut genug, dass es im Build-Log nicht untergeht.
@@ -119,4 +142,6 @@ writeFileSync(out, JSON.stringify(payload), 'utf8');
 const kb = (JSON.stringify(payload).length / 1024).toFixed(1);
 const aliasCount = Object.values(articleAliases).reduce((n, list) => n + list.length, 0);
 const faqCount = docs.reduce((n, d) => n + d.faq.length, 0);
-console.log(`[search-index] ${docs.length} Artikel, ${aliasCount} Alias-Phrasen, ${faqCount} FAQ-Antworten, ${kb} kB → public/search-index.json`);
+// docs.length zaehlt die Seiten-FAQ (SITE_FAQ_DOC_ID) mit, articles.length
+// nicht — hier soll die Log-Zeile die echte Artikelzahl nennen.
+console.log(`[search-index] ${articles.length} Artikel, ${aliasCount} Alias-Phrasen, ${faqCount} FAQ-Antworten, ${kb} kB → public/search-index.json`);

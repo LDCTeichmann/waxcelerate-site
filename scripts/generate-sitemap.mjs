@@ -76,13 +76,15 @@ const staticPages = [
   // weiterleitende URL soll nicht gecrawlt werden.
   ...TOOLS.map(t => ({ loc: `/rechner/${t.slug}`, changefreq: 'monthly', priority: '0.7' })),
   // Seit September 2026 eigene Seiten statt reiner Startseiten-Anker
-  // (#anleitungen, #faq, #ueber-mich, #kontakt) — siehe scripts/generate-blog-html.mjs
-  // NEW_STATIC_PAGES. FAQ und Anleitung hoeher gewichtet: haeufigste
-  // Suchintentionen, aendern sich aber selten.
+  // (#anleitungen, #ueber-mich, #kontakt) — siehe scripts/generate-blog-html.mjs
+  // NEW_STATIC_PAGES. Anleitung hoeher gewichtet: haeufigste Suchintention,
+  // aendert sich aber selten.
+  // Seitenordnung Chat 4 (09/2026): /faq ist ins Fragment /blog#fragen
+  // gewandert (schon in der /blog-Zeile oben enthalten, kein eigener
+  // Sitemap-Eintrag mehr); /ueber-uns ist ins Fragment /kontakt#ueber-mich
+  // gewandert, deshalb hoeher gewichtet als die vorherige reine Kontaktseite.
   { loc: '/anleitung', changefreq: 'monthly', priority: '0.8' },
-  { loc: '/faq', changefreq: 'monthly', priority: '0.7' },
-  { loc: '/ueber-uns', changefreq: 'monthly', priority: '0.5' },
-  { loc: '/kontakt', changefreq: 'yearly', priority: '0.5' },
+  { loc: '/kontakt', changefreq: 'monthly', priority: '0.6' },
 ];
 
 // Image-Sitemaps verlangen absolute URLs. Die Wachsprodukte speichern einen

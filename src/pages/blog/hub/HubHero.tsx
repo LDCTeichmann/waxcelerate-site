@@ -2,46 +2,23 @@ import { useEffect, useState } from 'react';
 import type { KeyboardEvent, RefObject } from 'react';
 import { Search, X } from 'lucide-react';
 import { blogHero } from '../articles';
-import { suggestedQuestions, typewriterQuestions } from '../hubContent';
+import { suggestedQuestions } from '../hubContent';
 import { loadRecentSearches, prefersReducedMotion } from './searchHelpers';
-
-/**
- * Tippt die Beispielfragen nacheinander in den Platzhalter.
- * Laeuft nur, solange das Feld leer und nicht fokussiert ist: sobald jemand
- * hineinklickt, muss der Platzhalter stillhalten, sonst liest er sich wie
- * Text, den man erst loeschen muesste.
- */
-function useTypewriter(phrases: string[], enabled: boolean) {
-  const [state, setState] = useState({ i: 0, n: 0, deleting: false });
-
-  useEffect(() => {
-    if (!enabled) return;
-    const phrase = phrases[state.i % phrases.length];
-    let delay = state.deleting ? 26 : 58;
-    let next = { ...state, n: state.n + (state.deleting ? -1 : 1) };
-    if (!state.deleting && state.n === phrase.length) {
-      delay = 1900;
-      next = { ...state, deleting: true };
-    } else if (state.deleting && state.n === 0) {
-      delay = 350;
-      next = { i: state.i + 1, n: 0, deleting: false };
-    }
-    const id = window.setTimeout(() => setState(next), delay);
-    return () => window.clearTimeout(id);
-  }, [state, enabled, phrases]);
-
-  return phrases[state.i % phrases.length].slice(0, state.n);
-}
 
 const STATIC_PLACEHOLDER = 'Frag in eigenen Worten, z. B. „meine Hose wird schwarz“';
 
 /**
  * Kopf der Ratgeber-Seite. Frueher Titel plus Unterzeile, die Suche stand
  * darunter als schmales Feld zwischen den Filtern. Jetzt IST die Suche der
- * Kopf: gross, mit Beispielfragen, die sich selbst tippen, und mit ⌘K von
- * ueberall auf der Seite erreichbar. Das Vorbild sind Hilfeseiten wie die von
- * Linear oder Stripe: wer mit einer Frage kommt, soll nicht erst ein Raster
- * aus 18 Kacheln lesen muessen.
+ * Kopf: gross, mit Beispielfragen als Chips, und mit ⌘K von ueberall auf der
+ * Seite erreichbar. Das Vorbild sind Hilfeseiten wie die von Linear oder
+ * Stripe: wer mit einer Frage kommt, soll nicht erst ein Raster aus 18
+ * Kacheln lesen muessen.
+ *
+ * Seitenordnung Chat 4 (09/2026): der Platzhalter tippte sich vorher selbst
+ * durch sechs Beispielfragen (typewriterQuestions) — eine Autoplay-Animation,
+ * die "Gemeinsame Regeln" im Plan ausdruecklich ausschliesst ("keine neue
+ * Autoplay-Animation"). Der Platzhalter steht jetzt still, die Chips bleiben.
  */
 export function HubHero({
   query,
@@ -63,10 +40,7 @@ export function HubHero({
   articleCount: number;
 }) {
   const [focused, setFocused] = useState(false);
-  const [reducedMotion] = useState(prefersReducedMotion);
   const [recent, setRecent] = useState<string[]>(loadRecentSearches);
-  const typed = useTypewriter(typewriterQuestions, !reducedMotion && !focused && query === '');
-  const placeholder = reducedMotion || focused ? STATIC_PLACEHOLDER : typed || ' ';
 
   // ⌘K / Strg+K und "/" springen von ueberall ins Suchfeld. "/" nur, wenn
   // gerade nicht in ein anderes Feld getippt wird.
@@ -124,7 +98,7 @@ export function HubHero({
           className="font-display font-bold leading-[1.02] mb-4 max-w-xl"
           style={{ color: 'var(--tx1)', fontSize: 'clamp(2.3rem, 5vw, 3.5rem)', letterSpacing: '-0.025em' }}
         >
-          Frag die Werkstatt.
+          Blog &amp; FAQ
         </h1>
         <p className="text-[16px] sm:text-[17px] leading-relaxed max-w-[520px] mb-8" style={{ color: 'var(--txm)' }}>
           Messwerte, Anleitungen und ehrliche Antworten von jemandem, der jede Woche
@@ -147,7 +121,7 @@ export function HubHero({
             aria-autocomplete="list"
             aria-label="Ratgeber durchsuchen, auch mit ganzen Fragen"
             value={query}
-            placeholder={placeholder}
+            placeholder={STATIC_PLACEHOLDER}
             onChange={(e) => onQueryChange(e.target.value)}
             onKeyDown={onKeyDown}
             onFocus={() => { setFocused(true); setRecent(loadRecentSearches()); onPrefetch(); }}

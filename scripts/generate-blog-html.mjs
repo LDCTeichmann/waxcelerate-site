@@ -132,7 +132,7 @@ function renderArticle(a) {
       author: {
         '@type': 'Person',
         name: author.name,
-        url: `${BASE}/ueber-uns`,
+        url: `${BASE}/kontakt`,
       },
       // Per @id auf den Organization-Knoten aus index.html verweisen, statt einen
       // zweiten, unverbundenen Waxcelerate-Knoten aufzumachen. So sammelt sich
@@ -255,6 +255,23 @@ function renderIndex() {
         datePublished: a.publishDate,
       })),
     }),
+    // Seitenordnung Chat 4 (09/2026): die FAQ lebt jetzt hier statt auf der
+    // eigenstaendigen Seite /faq (301 auf /blog#fragen, siehe vercel.json).
+    // ldClientManaged, weil BlogIndexPage.tsx dasselbe Schema client-seitig
+    // per Helmet erneut setzt (removeStaticJsonLd() raeumt diese Fassung dann
+    // beim Hydrieren weg, siehe src/lib/utils.ts).
+    ldClientManaged({
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      name: DE.pages.faq.metaTitle,
+      description: DE.pages.faq.metaDescription,
+      url: `${url}#fragen`,
+      mainEntity: DE.faq.items.map(f => ({
+        '@type': 'Question',
+        name: f.q,
+        acceptedAnswer: { '@type': 'Answer', text: f.a },
+      })),
+    }),
   ].join('\n  ');
 
   const byCat = categoryOrder
@@ -280,17 +297,26 @@ function renderIndex() {
   const symptomHtml = `<section><h2>Was ist los mit deiner Kette?</h2><dl>${symptoms
     .map(sy => `<dt>${esc(sy.label)}</dt><dd>${esc(sy.cause)} ${esc(sy.fix)} <a href="/blog/${sy.slug}#${headingId(sy.heading)}">Im Artikel nachlesen</a></dd>`)
     .join('')}</dl></section>`;
+  // Seiten-FAQ (t.faq.items, vorher /faq): Anker-Schema `fragen-<id>` wie im
+  // Akkordeon der hydrierten Seite (FaqSection.tsx) — dasselbe Praefix wie in
+  // src/lib/search/engine.ts (SITE_FAQ_DOC_ID), damit ein Sprung aus der
+  // Suche (`#fragen-<id>`) im vorgerenderten wie im hydrierten HTML dieselbe
+  // Stelle trifft.
+  const faqHtml = `<section><h2 id="fragen">Häufige Fragen</h2><dl>${DE.faq.items
+    .map(f => `<dt id="fragen-${headingId(f.q)}">${esc(f.q)}</dt><dd>${esc(f.a)}</dd>`)
+    .join('')}</dl></section>`;
 
   const body = `
 <nav aria-label="Brotkrumen"><a href="/">Startseite</a> › <span>Blog</span></nav>
 <header>
   <p>Die Werkstatt</p>
-  <h1>Frag die Werkstatt.</h1>
+  <h1>Blog &amp; FAQ</h1>
   <p>Messwerte, Anleitungen und ehrliche Antworten von jemandem, der jede Woche selbst am Wachstopf steht.</p>
   <p>${articles.length} Artikel · Stuttgart</p>
 </header>
 ${pathHtml}
 ${symptomHtml}
+${faqHtml}
 ${byCat}`.trim();
 
   return buildPage({ head, body });
@@ -431,13 +457,15 @@ const STATIC_PAGES = [
 ];
 
 
-// ─── Vier eigenstaendige Seiten: /ueber-uns /kontakt /faq /anleitung ─────────
-// Vorher nur Startseiten-Anker (#ueber-mich, #kontakt, #faq, #anleitungen) und
-// damit nicht einzeln indexierbar. Meta/H1/Lead aus DE.pages.* — dieselbe
-// Quelle wie die hydrierten Seiten (src/pages/{UeberUns,Kontakt,Faq,Anleitung}Page.tsx),
-// FAQ aus DE.faq, /anleitung-Schritte aus waxProcessTimeline (siehe unten).
-// Das extraSchema hier MUSS mit dem
-// @graph der jeweiligen React-Seite uebereinstimmen (die Seite ruft
+// ─── Zwei eigenstaendige Seiten: /kontakt /anleitung ─────────────────────────
+// Vorher nur Startseiten-Anker (#ueber-mich, #kontakt, #anleitungen) und damit
+// nicht einzeln indexierbar. Meta/H1/Lead aus DE.pages.* — dieselbe Quelle wie
+// die hydrierten Seiten (src/pages/{Kontakt,Anleitung}Page.tsx).
+// Seitenordnung Chat 4 (09/2026): /ueber-uns ist Teil von /kontakt geworden
+// (#ueber-mich, 301 in vercel.json), /faq ist Teil von /blog geworden
+// (#fragen, siehe renderIndex() oben, 301 in vercel.json) — beide frueheren
+// NEW_STATIC_PAGES-Eintraege sind deshalb raus. Das extraSchema hier MUSS mit
+// dem @graph der jeweiligen React-Seite uebereinstimmen (die Seite ruft
 // removeStaticJsonLd() auf und setzt ihr @graph per Helmet neu).
 const breadcrumb = (name, path) => ({
   '@type': 'BreadcrumbList',
@@ -469,49 +497,22 @@ const anleitungTotalMinutes = waxProcessTimeline.reduce((a, s) => a + s.minutes,
 
 const NEW_STATIC_PAGES = [
   {
-    dir: 'ueber-uns',
-    title: DE.pages.about.metaTitle,
-    description: DE.pages.about.metaDescription,
+    dir: 'kontakt',
+    title: DE.pages.contact.metaTitle,
+    description: DE.pages.contact.metaDescription,
     image: '/images/people/luca-stage.jpg',
-    h1: DE.pages.about.h1,
-    lead: DE.pages.about.lead,
+    h1: DE.pages.contact.h1,
+    lead: DE.pages.contact.lead,
+    // Seitenordnung Chat 4: "Über mich" (vorher /ueber-uns) zuerst, dann die
+    // Kontaktwege — dieselbe Reihenfolge wie auf der hydrierten Seite
+    // (KontaktPage.tsx: #ueber-mich, dann #schreiben).
     points: [
       DE.about.bio1,
       DE.about.bio3,
       DE.about.bio4,
-      'Entwickelt und in kleinen Chargen gefertigt in Stuttgart; Versand am Tag der Bestellung bei Eingang bis 15 Uhr.',
-    ],
-    extraSchema: [
-      {
-        '@context': 'https://schema.org',
-        '@type': 'AboutPage',
-        name: DE.pages.about.metaTitle,
-        description: DE.pages.about.metaDescription,
-        url: `${BASE}/ueber-uns`,
-        inLanguage: 'de-DE',
-        primaryImageOfPage: `${BASE}/images/people/luca-stage.jpg`,
-        about: { '@id': `${BASE}/#organization` },
-        // Verweist per @id auf den bereits vorhandenen Person-Knoten aus
-        // index.html (dort jetzt mit @id versehen), statt ihn mit weniger
-        // Feldern zu duplizieren — sonst stuenden zwei Person-Objekte ueber
-        // "Luca Teichmann" nebeneinander im DOM, eines davon unvollstaendig.
-        mainEntity: { '@id': `${BASE}/#person-luca` },
-      },
-      { '@context': 'https://schema.org', ...breadcrumb(DE.pages.about.h1, '/ueber-uns') },
-    ],
-  },
-  {
-    dir: 'kontakt',
-    title: DE.pages.contact.metaTitle,
-    description: DE.pages.contact.metaDescription,
-    image: '/images/hero-chain-texture.jpg',
-    h1: DE.pages.contact.h1,
-    lead: DE.pages.contact.lead,
-    points: [
       'Per E-Mail: waxcelerate@gmail.com — Antwort in der Regel am selben Tag.',
       'Per WhatsApp: +49 157 51957470 — für kurze Fragen, meist sofort.',
-      'Waxcelerate wird von Luca Teichmann in Stuttgart betrieben; Versand deutschlandweit per DHL.',
-      'Bestellungen bis 15 Uhr gehen in der Regel am selben Werktag raus.',
+      'Waxcelerate wird von Luca Teichmann in Stuttgart betrieben; Versand deutschlandweit per DHL, Bestellungen bis 15 Uhr gehen in der Regel am selben Werktag raus.',
     ],
     extraSchema: [
       {
@@ -536,40 +537,23 @@ const NEW_STATIC_PAGES = [
           },
         },
       },
-      { '@context': 'https://schema.org', ...breadcrumb(DE.pages.contact.h1, '/kontakt') },
-    ],
-  },
-  {
-    dir: 'faq',
-    title: DE.pages.faq.metaTitle,
-    description: DE.pages.faq.metaDescription,
-    image: '/images/hero-chain-texture.jpg',
-    h1: DE.pages.faq.h1,
-    lead: DE.pages.faq.lead,
-    points: [
-      'Umstieg von Öl auf Wachs: einmalig 1–2 Stunden Erstentfettung, danach kaum mehr Aufwand als mit Öl.',
-      'Nachwachsen bei trockenen Bedingungen rund alle 300 km, bei Nässe oder MTB alle 200–300 km.',
-      'Classic (Paraffin + PTFE + Stearin) für Frühjahr bis Herbst, Pro zusätzlich mit MoS₂ für Winter, Nässe und E-Bike.',
-      'Eine gewachste Kette hält 6.000–12.000 km statt der 2.000–3.000 km einer geölten.',
-    ],
-    faq: DE.faq.items.map(f => ({ q: f.q, a: f.a })),
-    extraSchema: [
       {
         '@context': 'https://schema.org',
-        '@type': 'FAQPage',
-        name: DE.pages.faq.metaTitle,
-        description: DE.pages.faq.metaDescription,
-        url: `${BASE}/faq`,
+        '@type': 'AboutPage',
+        name: DE.pages.contact.metaTitle,
+        description: DE.pages.contact.metaDescription,
+        url: `${BASE}/kontakt#ueber-mich`,
         inLanguage: 'de-DE',
-        mainEntity: DE.faq.items.map(f => ({
-          '@type': 'Question',
-          name: f.q,
-          acceptedAnswer: { '@type': 'Answer', text: f.a },
-        })),
+        primaryImageOfPage: `${BASE}/images/people/luca-stage.jpg`,
+        about: { '@id': `${BASE}/#organization` },
+        // Verweist per @id auf den bereits vorhandenen Person-Knoten aus
+        // index.html (dort mit @id versehen), statt ihn mit weniger Feldern
+        // zu duplizieren — sonst stuenden zwei Person-Objekte ueber "Luca
+        // Teichmann" nebeneinander im DOM, eines davon unvollstaendig.
+        mainEntity: { '@id': `${BASE}/#person-luca` },
       },
-      { '@context': 'https://schema.org', ...breadcrumb(DE.pages.faq.h1, '/faq') },
+      { '@context': 'https://schema.org', ...breadcrumb(DE.pages.contact.h1, '/kontakt') },
     ],
-    calc: { href: '/rechner/intervall', label: 'Nachwachs-Intervall für deinen Antrieb berechnen' },
   },
   {
     dir: 'anleitung',
@@ -664,7 +648,7 @@ function renderStatic(p) {
     // Interne Links als echte <a> — die Stadt-Chips der React-Seite sieht ein
     // Crawler ohne JS nicht (Rewax-Hub → 12 Städte, Stadt → Nachbarn + Hub).
     p.links ? `<ul>${p.links.map(l => `<li><a href="${esc(l.href)}">${esc(l.label)}</a></li>`).join('')}</ul>` : '',
-    `<p><a href="/">Zur Startseite</a> · <a href="/ueber-uns">Über uns</a> · <a href="/anleitung">Anleitungen &amp; Rechner</a> · <a href="/faq">FAQ</a> · <a href="/kontakt">Kontakt</a> · <a href="/wissenschaft">Wissenschaft</a> · <a href="/kette-wachsen-lassen">Kette wachsen lassen</a> · <a href="/starter-set">Starter-Set</a> · <a href="/blog">Blog</a></p>`,
+    `<p><a href="/">Zur Startseite</a> · <a href="/kontakt">Kontakt &amp; über mich</a> · <a href="/anleitung">Anleitungen &amp; Rechner</a> · <a href="/blog#fragen">FAQ</a> · <a href="/wissenschaft">Wissenschaft</a> · <a href="/kette-wachsen-lassen">Kette wachsen lassen</a> · <a href="/starter-set">Starter-Set</a> · <a href="/blog">Blog</a></p>`,
   ].join('\n');
   return buildPage({ head, body });
 }
