@@ -1,0 +1,4 @@
+out/
+kontext/
+__pycache__/
+*.pyc
