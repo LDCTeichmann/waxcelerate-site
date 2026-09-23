@@ -1,67 +1,64 @@
-# Auftrag an Fable 5.1 — Waxcelerate Hub
-
-<!--
-  In Claude Code als EINE Nachricht einfuegen, nachdem die Sitzung mit
-      claude --model "fable[1m]" --effort xhigh
-  im Ordner waxcelerate-sync auf Branch feat/porto-labels gestartet ist.
-  Vorher einmal `python3 tools/fable-planer/build_kontext.py` laufen lassen.
-
-  Absichtlich KEINE Denkschritt-Vorgaben. Fable 5.1 denkt immer; vorschreibende
-  Prompts senken bei diesem Modell die Qualitaet. Die Tiefe steuert --effort.
--->
+# Auftrag — Waxcelerate Hub, Schiedsspruch und Zielarchitektur
 
 Du bist der Schiedsrichter und Architekt des Waxcelerate Hub. Du sprichst Deutsch,
 knapp, ohne Werbesprache und ohne Rueckversicherungsfloskeln.
 
-Deine Lage: Du liest gleich den kompletten Kern eines gewachsenen Systems -- Code,
-Datenmodell und **fuenf verschiedene Planungsdokumente**, die teilweise veraltet
-sind und sich teilweise widersprechen. Niemand hat das jemals zusammen gelesen.
-Genau das ist dein Auftrag. Du bist nicht hier, um ein sechstes Planungsdokument
-zu schreiben, das die fuenf vorhandenen wiederholt.
+Deine Lage: Du hast das komplette Repo vor dir und dazu **fuenf verschiedene
+Planungsdokumente**, die teilweise veraltet sind und sich teilweise widersprechen.
+Niemand hat das jemals zusammen gelesen. Genau das ist dein Auftrag. Du bist nicht
+hier, um ein sechstes Planungsdokument zu schreiben, das die fuenf vorhandenen
+wiederholt.
 
-## Zuerst: so liest du den Kontext
+## 1. So liest du dich ein
 
-Der Lesestoff liegt fertig vorbereitet auf der Platte.
+Der Lesestoff liegt vorbereitet in `.codex-plan/kontext/`.
 
-1. Lies **`{{LESEKARTE}}`**.
-2. Lies dann die dort aufgefuehrten Dateien **in genau dieser Reihenfolge**, je
-   Datei **ein** `Read` mit dem angegebenen `limit`. Es sind 15 Lesevorgaenge.
-3. Erst danach denkst und schreibst du.
+1. Lies **`.codex-plan/kontext/00_LESEKARTE.md`**.
+2. Lies die vier dort genannten Dateien **in dieser Reihenfolge**, je Datei **ein**
+   Lesevorgang. Zusammen rund 173.000 Token: alle Dokumente, das komplette
+   DB-Schema, die Routentabelle, die Test-Landkarte, die 69 ungemergten Commits,
+   die Rechtslage als Randbedingung sowie zwei Landkarten.
+3. **Der Quelltext ist bewusst NICHT vorgeladen.** Er liegt im Repo, und du hast
+   zwei Karten, um gezielt hineinzugreifen:
+   - **D9 · Code-Landkarte** — 922 Definitionen aus 52 Python-Modulen, jede mit
+     Zeilennummer.
+   - **D8 · UI-Landkarte** — `dashboard.html` (574 KB): 13 Abschnitte,
+     495 JS-Funktionen mit Zeilennummer, 118 gerufene Endpunkte.
 
-**Warum das wichtig ist:** Dieser Lauf wird aus einem Restguthaben bezahlt, das
-morgen verfaellt. In Claude Code wird bei jedem Turn der gewachsene Kontext
-erneut abgerechnet -- jeder unnoetige Werkzeugaufruf kostet echtes Geld. Deshalb:
+   Lies daraus **gezielt die Stellen nach**, die eine konkrete Frage beantworten
+   (`sed -n '3200,3320p' server.py`, `grep -n "..." finance.py`). **Kein
+   Ueberfliegen ganzer Dateien, kein Streulesen im Repo.** Der Grund steht in
+   Abschnitt 2.
 
-- **Kein Streulesen im Repo.** Alles, was du brauchst, ist in den 15 Dateien.
-- Kommt ein `Read` gekuerzt zurueck, mit `offset` weiterlesen, nicht neu schneiden.
-- `dashboard.html` (574 KB) ist **nicht** im Kontext. Teil D8 hat die UI-Landkarte
-  mit allen Abschnitten, 495 Funktionen samt Zeilennummer und 118 Endpunkten.
-  Reicht sie fuer eine konkrete Aussage nicht, ist **ein gezieltes `grep`** erlaubt
-  -- sie ganz zu lesen nicht. Nimm dafuer den Git-Ref, nicht den Arbeitsbaum, weil
-  der auf einem anderen Branch stehen kann:
+## 2. Wie du mit dem Kontingent umgehst
 
-      git show origin/feat/porto-labels:dashboard.html | grep -n "loadShipDesk" 
-- Du aenderst in diesem Lauf **keinen Code**. Du liest und schreibst genau eine
-  neue Datei.
+Dieser Lauf laeuft auf einem ChatGPT-Plus-Abo. Das Kontingent ist ein
+Zeitfenster von rund fuenf Stunden. Es geht nichts verloren, wenn du es
+ausschoepfst — aber die Sitzung stoppt dann mitten in der Arbeit. Deshalb:
 
-## Und so gibst du ab
+- **Schreib fortlaufend, nicht am Ende.** Lege `CODEX_PLAN.md` an, sobald du T0
+  formuliert hast, und **haenge jeden weiteren Teil sofort an**, wenn er fertig
+  ist. Nie mehrere Teile sammeln und zusammen schreiben.
+- Setz unter den zuletzt geschriebenen Teil die Zeile
+  `<!-- naechster Teil: T4 -->`, damit eine Folgesitzung ohne Suchen weitermachen
+  kann. Ersetze sie beim naechsten Anhaengen.
+- Wirst du unterbrochen, ist alles bis dorthin auf der Platte. Die Folgesitzung
+  liest `CODEX_PLAN.md` plus die Lesekarte und macht beim markierten Teil weiter.
+- Du aenderst in diesem Lauf **keinen Code** und keine bestehende Datei. Du
+  schreibst genau eine neue Datei: `CODEX_PLAN.md` im Wurzelverzeichnis.
 
-Schreib das Ergebnis nach **`FABLE_PLAN.md`** im Wurzelverzeichnis des Repos --
-nicht in den Chat. Es soll den Sitzungsverlauf ueberleben. Gib am Ende nur eine
-kurze Zusammenfassung und deine Fragen aus T12 im Chat aus.
-
-Wie du geurteilt wirst:
+## 3. Wie du geurteilt wirst
 
 - **Der Code schlaegt jedes Dokument.** Wenn ein Plan etwas als offen fuehrt, das
-  im Code steht, ist der Plan veraltet -- sag es. Wenn ein Dokument etwas als
-  fertig behauptet, das im Code fehlt, ist die Behauptung falsch -- sag es auch.
-- **Konkret statt vollstaendig.** Ein Befund mit Datei und Funktionsname ist wert-
-  voll. Eine allgemeine Empfehlung, die auf jedes Python-Projekt passt, ist es
+  im Code steht, ist der Plan veraltet — sag es. Wenn ein Dokument etwas als
+  fertig behauptet, das im Code fehlt, ist die Behauptung falsch — sag es auch.
+- **Konkret statt vollstaendig.** Ein Befund mit Datei und Funktionsname ist
+  wertvoll. Eine allgemeine Empfehlung, die auf jedes Python-Projekt passt, ist es
   nicht. Kein "man koennte die Testabdeckung erhoehen".
-- **Nenne, was du nicht weisst.** Der Kontext ist bewusst kuratiert; Teil D sagt
-  dir, was fehlt. Wo du etwas nicht sehen kannst, gehoert es in T12 als Frage --
-  nicht in eine geratene Behauptung. Erfinde keine Zeilennummern, keine Zahlen
-  und keine Rechtslage.
+- **Nenne, was du nicht weisst.** Wo du etwas nicht pruefen kannst, gehoert es in
+  T12 als Frage — nicht in eine geratene Behauptung. Erfinde keine Zeilennummern,
+  keine Zahlen und keine Rechtslage. Wenn du eine Zeilennummer nennst, muss du sie
+  vorher gelesen haben.
 - **Empfehlen heisst auch ablehnen.** Ein Plan, der alles gutheisst, ist nutzlos.
   T11 ist Pflichtteil.
 
@@ -143,11 +140,16 @@ Wo Recht eine Entscheidung blockiert, gehoert das als Frage in T12.
 Den Plan fuehren **nicht** du und nicht ein einzelnes Modell aus, sondern
 verschiedene Agenten mit unterschiedlicher Verlaesslichkeit:
 
-| Zugang | Modelle | Lucas Vertrauen |
-|---|---|---|
-| Claude Pro | Claude Sonnet 5 (Agenten), Claude Opus 5 (Review) | hoch |
-| Cursor Pro | Grok 4.6, Composer 2 | mittel |
-| Google Pro | Gemini (Thinking) | **am niedrigsten** |
+| Zugang | Modelle | Belastbarkeit | Grenze |
+|---|---|---|---|
+| **ChatGPT Plus / Codex** | GPT-6 Astra, GPT-5.6 Sol | hoch | Kontingent im 5-Stunden-Fenster; Astra auf Plus knapp |
+| Claude Pro | Claude Sonnet 5 (Agenten), Claude Opus 5 (Review) | hoch | Wochenlimit |
+| Cursor Pro | Grok 4.6, Composer 2 | mittel | — |
+| Google Pro | Gemini (Thinking) | **Lucas Vertrauen am niedrigsten** | — |
+
+Du selbst laeufst gerade auf dem ersten Zugang. Denk beim Zuordnen daran, dass
+Lucas staerkste Agenten ein Kontingent haben: eine Aufgabe, die drei Stunden
+Agentenzeit frisst, blockiert danach alles andere.
 
 Ordne jede Aufgabe **nach ihrer Form zu, nicht nach Modell-Ruf**, und begruende mit
 diesen vier Groessen:
@@ -165,8 +167,8 @@ Eine Aufgabe mit kleinem Streuradius, scharfer Spezifikation, Test und leichter
 Umkehr darf an das schwaechste Modell. Alles, was `finance.db`, `billing.db`,
 Nummernkreise, Buchungslogik, Steuerzahlen oder den Merge beruehrt, darf es nicht --
 und wenn ein Modell fuer eine Aufgabe schlicht nicht in Frage kommt, schreib das
-hin statt eine Zuordnung zu erfinden. Nenne fuer jede Aufgabe auch, **ob ein
-Opus-5-Review danach noetig ist** und woran sich das entscheidet.
+hin statt eine Zuordnung zu erfinden. Nenne fuer jede Aufgabe auch, **ob danach ein Review durch ein starkes Modell
+noetig ist** (Claude Opus 5 oder GPT-6 Astra) und woran sich das entscheidet.
 
 Erfinde keine Benchmark-Zahlen und keine Modelleigenschaften. Du kennst die
 Aufgabenform, nicht die Modellgueten -- argumentiere aus der Form.
@@ -303,7 +305,7 @@ muss (Entscheidung, Zugangsdaten, Einkauf, Belege) von dem, was ein Agent tut --
 ein Plan, der an einer fehlenden Luca-Minute haengt, ist kein Plan.
 
 **T10 · Task-Index** (eine Zeile je Aufgabe, keine Prosa) Tabelle:
-`ID | Titel | Dateien | haengt an | Modell | Opus-Review? | Risiko | Verifikation`.
+`ID | Titel | Dateien | haengt an | Modell | Review noetig? | Risiko | Verifikation`.
 Vollstaendig zu T9, geschaetzt 30 bis 60 Zeilen. **Halte es einzeilig** -- die
 ausfuehrlichen Aufgabenbriefe schreibt danach ein guenstigeres Modell aus diesen
 Zeilen. Jede Zeile muss dafuer genug tragen: die Datei, die Abhaengigkeit und die
@@ -315,5 +317,5 @@ welche vorhandene Funktion **Ballast** ist: gebaut, aber nicht benutzt, und waru
 
 **T12 · Fragen an Luca** (hoechstens 10) Gebuendelt, nach Wirkung sortiert. Je Frage:
 was du wissen musst, warum es den Plan veraendert, und **ein Vorschlagswert**, den
-er nur bestaetigen muss. Hierhin gehoert alles, was du im Buendel nicht sehen
-konntest.
+er nur bestaetigen muss. Hierhin gehoert alles, was du nicht
+pruefen konntest.

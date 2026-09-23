@@ -58,7 +58,7 @@ Tabelle unten. Keine neuen Markdown-Dateien in die Wurzel.
 | **SEO-Technik: indexierbare URLs, Sitemap/Schema-Erzeugung, Post-Release-Checks, GSC** | **`docs/SEO_TECHNIK.md`** | **bei einer neuen Route oder vor/nach einem Release** |
 | Letzter SEO-Prüfbericht (Lighthouse, Rich Results, Redirect-Ketten) | `docs/berichte/` | bei Fragen zum gemessenen Ist-Zustand |
 | Design-/Struktur-Roadmap (konsolidiert aus AUDIT/DESIGN/MOBILE/UX) | `docs/plaene/DESIGN_ROADMAP.md` | bei größeren Struktur-/Designvorhaben |
-| **Fable-5.1-Planungslauf für den *Hub* (anderes Repo: `waxcelerate-sync`)** | **`tools/fable-planer/README.md`** | bei Planungsarbeit am Hub, nicht an dieser Website |
+| **Planungslauf für den *Hub* (anderes Repo: `waxcelerate-sync`)** | **`tools/planungslauf/README.md`** | bei Planungsarbeit am Hub, nicht an dieser Website |
 | **Seitenordnung 09/2026: schlanke Startseite, drei Türen, Menü, Anleitungen & Rechner, Kontakt, Blog & FAQ (4 Sonnet-Chats)** | **`docs/plaene/SEITENORDNUNG_PLAN.md`** | **bei jeder Arbeit an Startseite, Navigation, Seitenbreite oder diesen Seiten** |
 | **Produktkarten, Kettenseite, Typografie — Plan + fertiger Umsetzungs-Prompt** | **`docs/plaene/PRODUKTKARTEN_PLAN.md`, `docs/plaene/PRODUKTKARTEN_PROMPT.md`** | bei Arbeit an Produktkarten, Kettenliste, Filter oder der Mono-Schrift |
 | Rechtliche Compliance, aktuelle Checkliste | `docs/aufgaben/LEGAL_COMPLIANCE_CHECKLIST.md` | bei Rechtstext-/Checkout-Arbeit (neuer als `RECHTSTEXTE.md`) |

@@ -1,9 +1,9 @@
 # Anschluss: aus einer Task-Index-Zeile einen ausführbaren Auftrag machen
 
-Fable liefert in **T10** eine Tabelle mit 30 bis 60 einzeiligen Aufgaben. Diese
+Der Planungslauf liefert in **T10** eine Tabelle mit 30 bis 60 einzeiligen Aufgaben. Diese
 Zeilen sind bewusst knapp — das war Kostensteuerung. Die ausführlichen
-Aufgabenbriefe schreibt danach **Sonnet 5 über Claude Pro**, und das kostet kein
-API-Guthaben.
+Aufgabenbriefe schreibt danach **Sonnet 5 über Claude Pro** oder **Codex mit
+GPT-5.6 Sol** — beides aus laufenden Abos, ohne Zusatzkosten.
 
 Reihenfolge: erst T9 lesen (die eine Reihenfolge), dann die dort zuerst genannten
 T10-Zeilen einzeln durch die Vorlage unten schicken. Nicht alle 60 auf einmal —
@@ -78,15 +78,15 @@ die Reihenfolge existiert, weil Aufgaben voneinander abhängen.
 
 ## Welches Modell bekommt welchen Auftrag
 
-Fable trägt in T10 je Zeile eine Zuordnung und ein `Opus-Review?`-Feld ein. Halte
-dich daran; die Begründung steht in Fables System-Kriterien (Streuradius,
+Der Plan trägt in T10 je Zeile eine Modell-Zuordnung und ein `Review nötig?`-Feld
+ein. Halte dich daran; die Begründung steht in den Zuordnungs-Kriterien (Streuradius,
 Spezifikationsschärfe, Prüfbarkeit, Umkehrbarkeit).
 
-Zwei Regeln stehen darüber, unabhängig von Fables Zuordnung:
+Zwei Regeln stehen darüber, unabhängig von der Zuordnung im Plan:
 
 - **Alles, was `finance.db`, `billing.db`, Nummernkreise, Buchungslogik oder
-  Steuerzahlen berührt, geht an Sonnet 5 oder Opus 5 — nie an ein Modell, dem du
-  weniger vertraust.** Ein falsch gebuchter Euro ist teurer als die gesparte Zeit.
+  Steuerzahlen berührt, geht an ein starkes Modell — Claude Sonnet 5/Opus 5 oder
+  GPT-6 Astra — nie an eines, dem du weniger vertraust.** Ein falsch gebuchter Euro ist teurer als die gesparte Zeit.
 - **Der Merge der 69 Commits ist kein Agentenauftrag**, solange T2 nicht
   entschieden und von dir freigegeben ist.
 
@@ -96,14 +96,14 @@ fängt genau die Improvisation ab, die bei knappen Spezifikationen entsteht.
 
 ---
 
-## Wenn Fables Plan Lücken hat
+## Wenn der Plan Lücken hat
 
 T12 enthält höchstens zehn Fragen an dich, jede mit Vorschlagswert. Beantworte sie
 **bevor** du Aufträge verteilst — ein Agent, der auf eine deiner Entscheidungen
 wartet, blockiert den Arbeitsordner.
 
-Reicht der Plan an einer Stelle nicht, ist ein zweiter Fable-Aufruf oft nicht
-nötig: Sonnet 5 kann einen einzelnen Teil (etwa T5 oder T6) mit Fables Dokument
-als Vorgabe vertiefen. Ein zweiter API-Lauf lohnt nur, wenn die **Architektur-
-entscheidung** selbst strittig ist — dafür `run_fable.py` erneut, mit Fables
-erster Antwort und deiner Kritik im Auftrag.
+Reicht der Plan an einer Stelle nicht, ist ein zweiter Astra-Lauf oft nicht
+nötig: Sonnet 5 kann einen einzelnen Teil (etwa T5 oder T6) mit dem Plan
+als Vorgabe vertiefen. Ein zweiter Astra-Lauf lohnt nur, wenn die **Architektur-
+entscheidung** selbst strittig ist — dann eine neue Codex-Aufgabe mit
+`CODEX_PLAN.md` und deiner Kritik im Auftrag.

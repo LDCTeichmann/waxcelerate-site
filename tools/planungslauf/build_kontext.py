@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
-"""Baut den Lesestoff fuer den Fable-5.1-Planungslauf in Claude Code.
+"""Baut den Lesestoff fuer den Planungslauf ueber den Waxcelerate Hub.
 
 Liest manifest.json, holt jede Datei aus einem Git-Ref (Standard:
 feat/porto-labels) und schreibt nach kontext/ eine Handvoll vorkonkatenierter
-Bausteine plus 00_LESEKARTE.md. Fable liest dann ~12 Dateien statt 82 --
-das ist der Kostenhebel, weil in Claude Code bei jedem Turn der gewachsene
-Kontext erneut abgerechnet wird.
+Bausteine plus 00_LESEKARTE.md. Das lesende Modell oeffnet dann eine Handvoll
+Dateien statt 82 -- der Kostenhebel, weil bei jedem Turn der gewachsene Kontext
+erneut abgerechnet wird. Mit --nur-doku bleibt der Quelltext ganz draussen und
+wird durch die Landkarten in Teil D ersetzt; das ist der Modus fuer einen
+Agenten, der die Dateien selbst lesen kann (Codex, Claude Code).
 
 Erzeugt ausserdem teil_d.md (Dateibaum, komplettes DB-Schema, Routentabelle,
 Test-Landkarte, Branch-Abstand, Rechtslage, UI-Landkarte) -- Material, das
-Fable sonst teuer selbst herleiten muesste.
+das lesende Modell sonst teuer selbst herleiten muesste.
 
 Nur Standardbibliothek. Kein API-Key notwendig, kostet nichts.
 
@@ -132,7 +134,7 @@ def schaetzung(text: str, endung: str) -> int:
 # ---------------------------------------------------------------- Teil D
 
 def d_dateibaum(repo: Path, ref: str) -> str:
-    """Vollstaendiger Dateibaum mit Bytegroessen, damit Fable weiss, was es NICHT sieht."""
+    """Vollstaendiger Dateibaum mit Bytegroessen, damit das Modell weiss, was es NICHT sieht."""
     rohdaten = git_leise(repo, "ls-tree", "-r", "-l", ref)
     if not rohdaten:
         return "(Dateibaum nicht verfuegbar)"
@@ -231,6 +233,40 @@ def d_branch_abstand(repo: Path, ref: str, basis: str) -> str:
             f"{log}\n### Diff-Umfang {basis}...{ref}\n\n{stat}")
 
 
+def d_code_landkarte(repo, ref: str, manifest: dict) -> str:
+    """Signaturen aller Python-Module aus Teil B, mit Zeilennummer.
+
+    Gemessen: 323.143 -> 12.903 Token. Ein Agent, der die Dateien lokal hat,
+    braucht den Volltext nicht vorab -- er liest gezielt die Stelle nach, die
+    seine Frage beantwortet.
+    """
+    abschnitte = []
+    gesamt = 0
+    for teil in manifest["teile"]:
+        if teil["id"] != "B":
+            continue
+        for e in teil["dateien"]:
+            pfad = e["pfad"]
+            if not pfad.endswith(".py"):
+                continue
+            text = datei_lesen(repo, ref, pfad)
+            if not text:
+                continue
+            zeilen = [f"### {pfad}  ({text.count(chr(10))+1} Zeilen)"]
+            for nr, z in enumerate(text.splitlines(), 1):
+                m = re.match(r"^(\s*)(?:async\s+)?(def|class)\s+(\w+)\s*(\([^)]*\))?", z)
+                if m:
+                    gesamt += 1
+                    einzug = "  " if m.group(1) else ""
+                    zeilen.append(f"{nr:>5} {einzug}{m.group(2)} {m.group(3)}"
+                                  f"{(m.group(4) or '')[:70]}")
+            abschnitte.append("\n".join(zeilen))
+    kopf = (f"{gesamt} Definitionen in {len(abschnitte)} Modulen, mit Zeilennummer.\n"
+            f"Der Volltext liegt im Repo -- lies gezielt nach, was du brauchst, "
+            f"statt Dateien am Stueck zu ueberfliegen.\n")
+    return kopf + "\n\n".join(abschnitte)
+
+
 def d_ui_landkarte(repo, ref: str) -> str:
     """dashboard.html ist 574 KB / ~164k Token. Diese Landkarte leistet fuer
     Architektur- und Feature-Urteile dasselbe mit ~5k Token."""
@@ -306,6 +342,7 @@ def teil_d_bauen(hub: Path, ref: str, basis: str, manifest: dict) -> list[tuple[
         ("D7 · Was bewusst NICHT im Kontext ist",
          "\n".join(f"- {z}" for z in manifest["nicht_im_buendel"])),
         ("D8 · UI-Landkarte dashboard.html", d_ui_landkarte(hub, ref)),
+        ("D9 · Code-Landkarte: alle Python-Module", d_code_landkarte(hub, ref, manifest)),
     ]
 
 
@@ -315,7 +352,7 @@ def bausteine_schneiden(stuecke, zeilen_je):
     """Packt die gesammelten Textstuecke in Bausteine von ~zeilen_je Zeilen.
 
     Eine Datei wird nur geteilt, wenn sie allein schon groesser ist als ein
-    Baustein (server.py, finance.py). Alles andere bleibt am Stueck, damit Fable
+    Baustein (server.py, finance.py). Alles andere bleibt am Stueck, damit das Modell
     keine Funktion zerrissen sieht.
     """
     bausteine, aktuell, aktuell_zeilen, inhalt = [], [], 0, []
@@ -353,15 +390,24 @@ def main() -> int:
     ap.add_argument("--masterplan", help="Pfad zum Repo waxcelerate-masterplan")
     ap.add_argument("--site", help="Pfad zum Repo waxcelerate-site")
     ap.add_argument("--ohne-masterplan", action="store_true",
-                    help="ohne den Masterplan bauen -- Fable verliert dann die "
+                    help="ohne den Masterplan bauen -- das Modell verliert dann die "
                          "Geschaeftsdiagnose, die sein Maszstab ist")
     ap.add_argument("--ref", help="Git-Ref (Standard aus manifest.json), "
                                   "oder WORKTREE fuer den Arbeitsbaum")
     ap.add_argument("--basis", default="main", help="Vergleichsbranch fuer D5 (Standard main)")
     ap.add_argument("--zeilen", type=int, default=ZEILEN_JE_BAUSTEIN,
                     help=f"Zeilen je Baustein (Standard {ZEILEN_JE_BAUSTEIN})")
+    ap.add_argument("--nur-doku", action="store_true",
+                    help="Quelltext (Teil B/C) NICHT in die Bausteine legen -- fuer einen "
+                         "Agenten im Repo, der die Dateien selbst lesen kann. Die "
+                         "Code-Landkarte in Teil D bleibt und nennt jede Definition "
+                         "mit Zeilennummer.")
     ap.add_argument("--check", action="store_true", help="nur pruefen, nichts schreiben")
     ap.add_argument("--out", default=str(KONTEXT), help="Zielordner (Standard kontext/)")
+    ap.add_argument("--pfad-basis",
+                    help="Pfade in der Lesekarte relativ zu diesem Ordner angeben "
+                         "(fuer ein Repo, das anderswo ausgecheckt wird -- etwa in "
+                         "der Codex-Cloud). Ohne Angabe: absolute Pfade.")
     args = ap.parse_args()
 
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
@@ -380,9 +426,9 @@ def main() -> int:
             f"(gesucht u.a. in {repos['masterplan']['pfad']}).\n"
             f"        Darin stecken MASTERPLAN.md und die P-Pfade -- die "
             f"Geschaeftsdiagnose\n"
-            f"        (Wachs-Einbruch, DB1-Erosion), an der Fable jedes Feature "
+            f"        (Wachs-Einbruch, DB1-Erosion), an der das Modell jedes Feature "
             f"messen soll.\n"
-            f"        Ohne sie plant Fable ohne Maszstab.\n\n"
+            f"        Ohne sie wird ohne Maszstab geplant.\n\n"
             f"        Pfad angeben:  --masterplan <pfad>\n"
             f"        Oder holen:    git clone https://github.com/LDCTeichmann/"
             f"waxcelerate-masterplan\n"
@@ -396,9 +442,16 @@ def main() -> int:
     fehlend: list[str] = []
     geheimnisse: list[str] = []
     erwartet: list[str] = []
+    erwartet_ausgelassen: list[str] = []
     tok_gesamt = 0
 
     for teil in manifest["teile"]:
+        if args.nur_doku and teil["id"] in ("B", "C"):
+            # Der Quelltext bleibt draussen; Teil D9/D8 nennen jede Definition
+            # mit Zeilennummer, damit der Agent gezielt nachlesen kann.
+            erwartet_ausgelassen.extend(e["pfad"] for e in teil["dateien"])
+            print(f"\nTeil {teil['id']} uebersprungen (--nur-doku): {teil['titel']}")
+            continue
         kopf = [TRENNER, f"TEIL {teil['id']} · {teil['titel']}", TRENNER]
         if teil.get("hinweis"):
             kopf.append(teil["hinweis"])
@@ -432,7 +485,7 @@ def main() -> int:
         print(f"\nTeil {teil['id']}: {teil['titel']} -> ~{teil_tok} Token")
         tok_gesamt += teil_tok
 
-    # Teil D als eigener, geschlossener Baustein -- Fable liest ihn zuerst.
+    # Teil D als eigener, geschlossener Baustein -- er wird zuerst gelesen.
     d_stuecke = [TRENNER, "TEIL D · Vorbereitetes Material (generiert)", TRENNER,
                  "Diese Abschnitte hat build_kontext.py erzeugt, damit du sie nicht "
                  "aus dem Code herleiten musst.", ""]
@@ -455,7 +508,7 @@ def main() -> int:
 
     bausteine = bausteine_schneiden(stuecke, args.zeilen)
     print(f"\nSumme Offline-Schaetzung: ~{tok_gesamt} Token "
-          f"(~${tok_gesamt/1_000_000*10:.2f} Input bei Fable 5.1)")
+          f"(~${tok_gesamt/1_000_000*10:.2f} Input bei 10 $/MTok)")
     print(f"Bausteine: {len(bausteine)} plus teil_d.md -> {len(bausteine)+1} Lesevorgaenge")
 
     if args.check:
@@ -484,7 +537,16 @@ def main() -> int:
     d_text = "\n".join(d_stuecke)
     (ziel / "teil_d.md").write_text(d_text, encoding="utf-8")
     d_zeilen = d_text.count("\n") + 1
-    karte.append(f"| 1 | `{(ziel / 'teil_d.md').resolve()}` | {d_zeilen} | {d_zeilen + 200} | "
+    def anzeigen(pfad: Path) -> str:
+        """Absolut, oder relativ zur Basis -- je nachdem, wo gelesen wird."""
+        if args.pfad_basis:
+            try:
+                return str(pfad.resolve().relative_to(Path(args.pfad_basis).resolve()))
+            except ValueError:
+                pass
+        return str(pfad.resolve())
+
+    karte.append(f"| 1 | `{anzeigen(ziel / 'teil_d.md')}` | {d_zeilen} | {d_zeilen + 200} | "
                  f"Dateibaum, DB-Schema, Routen, Tests, die 69 ungemergten Commits, "
                  f"Rechtslage, UI-Landkarte |")
 
@@ -497,7 +559,7 @@ def main() -> int:
         kurz = ", ".join(i for i in inhalt if not i.startswith("(Kopf")) or "Abschnittskopf"
         if len(kurz) > 88:
             kurz = kurz[:85] + "..."
-        karte.append(f"| {nr+1} | `{(ziel / name).resolve()}` | {n} | {n + 200} | {kurz} |")
+        karte.append(f"| {nr+1} | `{anzeigen(ziel / name)}` | {n} | {n + 200} | {kurz} |")
 
     karte += ["",
               f"Zusammen ~{tok_gesamt} Token in {len(bausteine)+1} Lesevorgaengen.",
@@ -517,11 +579,15 @@ def main() -> int:
         return 1
 
     print(f"\nGeschrieben nach {ziel}/")
-    print(f"  00_LESEKARTE.md      die Leseanweisung fuer Fable")
+    print(f"  00_LESEKARTE.md      die Leseanweisung")
     print(f"  teil_d.md            {d_zeilen} Zeilen")
     for name, n, _ in geschrieben:
         print(f"  {name}    {n} Zeilen")
-    print(f"\nAlle {len(erwartet)} Manifest-Dateien sind in den Bausteinen enthalten.")
+    print(f"\nAlle {len(erwartet)} eingebetteten Manifest-Dateien sind in den Bausteinen.")
+    if erwartet_ausgelassen:
+        print(f"{len(erwartet_ausgelassen)} Quelltext-Dateien bewusst ausgelassen "
+              f"(--nur-doku); sie stehen mit Zeilennummern in Teil D9/D8 und "
+              f"liegen im Repo zum Nachlesen.")
     return 0
 
 
