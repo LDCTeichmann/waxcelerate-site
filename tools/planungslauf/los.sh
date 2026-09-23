@@ -62,7 +62,8 @@ info "== 4/5  Paket bauen =="
 # --pfad-basis: Lesekarte mit repo-relativen Pfaden, damit sie in der Codex-Cloud stimmt.
 python3 "$HIER/build_kontext.py" --hub "$HUBP" --masterplan "$MPP" --ref "$REF" \
         --nur-doku --out "$HUBP/.codex-plan/kontext" --pfad-basis "$HUBP" || exit 1
-cp "$HIER/auftrag.md"      "$HUBP/.codex-plan/AUFTRAG.md"
+cp "$HIER/auftrag.md"      "$HUBP/.codex-plan/PLANUNGSAUFTRAG.md"
+cp "$HIER/prompts.md"      "$HUBP/.codex-plan/PROMPTS.md"
 cp "$HIER/paket_README.md" "$HUBP/.codex-plan/README.md"
 
 if [ "$NUR_LOKAL" = "--lokal" ]; then

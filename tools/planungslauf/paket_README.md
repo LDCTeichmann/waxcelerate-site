@@ -3,7 +3,9 @@
 Erzeugt am 23.09.2026 aus `feat/porto-labels` von
 `waxcelerate-site/tools/fable-planer/build_kontext.py`.
 
-- **`AUFTRAG.md`** — der Auftrag. In Codex als **eine** Nachricht einfügen.
+- **`PROMPTS.md`** — die zwei Nachrichten zum Einfügen (Start und Fortsetzung).
+- **`PLANUNGSAUFTRAG.md`** — der Auftrag. Bewusst *nicht* `AUFTRAG.md`: so heisst
+  schon ein altes, unbeteiligtes Dokument im Wurzelverzeichnis. In Codex als **eine** Nachricht einfügen.
 - **`kontext/00_LESEKARTE.md`** — die Lesereihenfolge, vier Dateien.
 - **`kontext/teil_d.md`** — generiert: Dateibaum · komplettes DB-Schema
   (77 DDL-Anweisungen) · Routentabelle · Test-Landkarte · die 69 ungemergten

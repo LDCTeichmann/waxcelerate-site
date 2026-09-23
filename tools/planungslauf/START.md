@@ -1,126 +1,130 @@
 # Start — Planungslauf mit GPT-6 Astra in Codex
 
-**Alles ist vorbereitet.** Der Lesestoff liegt fertig im privaten Hub-Repo, auf
-dem Branch `codex/planungskontext`. Du musst kein Terminal anfassen.
+**Alles ist vorbereitet.** Du fügst genau einen Block in Codex ein, sonst nichts.
+Kein Terminal, kein Branch-Wechsel, kein Worktree.
 
 ---
 
-## Weg A · Codex in der ChatGPT-App (für dich empfohlen)
+## Einstellungen
 
-### Einmalig
+| | |
+|---|---|
+| Projekt | dein vorhandenes `waxcelerate-sync` (lokaler Ordner ist richtig) |
+| Modell | **GPT-6 Astra** |
+| Reasoning | **Extra High** |
 
-1. In der ChatGPT-App **Codex** einschalten.
-2. **GitHub verbinden**, falls noch nicht geschehen, und dabei
-   `LDCTeichmann/waxcelerate-sync` freigeben. Das Repo ist privat — das ist
-   Absicht und der Grund, warum der Lesestoff dort liegt und nicht im
-   öffentlichen Website-Repo.
+Der Branch ist **egal** — die Start-Nachricht holt sich das Paket selbst, ohne
+deinen Arbeitsbaum anzufassen.
 
-### Der Lauf
+---
 
-3. Neue Codex-Aufgabe. Repo `waxcelerate-sync`, **Branch
-   `codex/planungskontext`** wählen — nicht `main`, das ist sechs Wochen alt.
-4. **Modell `GPT-6 Astra`**, Reasoning auf die **höchste verfügbare Stufe**
-   (`xhigh`, sonst `high`).
-5. Als Nachricht genau das hier:
+## Die Start-Nachricht
 
-   > Lies `.codex-plan/AUFTRAG.md` vollständig und führe ihn aus.
+```
+Arbeite die folgenden vier Schritte der Reihe nach ab.
 
-   Mehr nicht. Der Auftrag steht im Repo und sagt Codex alles Weitere — welche
-   vier Dateien in welcher Reihenfolge, wie nachgelesen wird, und wie das
-   Ergebnis geschrieben werden soll.
-6. Codex liest ~173.000 Token vorbereiteten Kontext und schreibt
-   **`CODEX_PLAN.md`** — **fortlaufend, Teil für Teil.**
+1) Hol das Planungspaket. Das wechselt NICHT den Branch und ändert nichts an
+   meiner Arbeit:
+     git fetch origin codex/planungskontext
+     git archive FETCH_HEAD .codex-plan | tar -x
 
-### Wenn das Zeitfenster ausläuft
+2) Nimm das Ergebnis aus der Versionsverwaltung heraus, damit mein Arbeitsbaum
+   sauber bleibt:
+     printf '.codex-plan/\nCODEX_PLAN.md\n' >> "$(git rev-parse --absolute-git-dir)/info/exclude"
+
+3) Prüfe, dass .codex-plan/kontext/00_LESEKARTE.md jetzt existiert. Wenn nicht:
+   brich ab und sag mir warum. Lies in dem Fall NICHT ersatzweise die AUFTRAG.md
+   im Wurzelverzeichnis — das ist ein altes, unbeteiligtes Dokument.
+
+4) Lies .codex-plan/PLANUNGSAUFTRAG.md vollständig und führe ihn aus.
+
+Wichtig für den ganzen Lauf: kein git checkout, kein commit, kein push, kein
+stash. In diesem Ordner arbeiten mehrere Sitzungen parallel. Du schreibst genau
+eine neue Datei: CODEX_PLAN.md — und zwar fortlaufend, Teil für Teil, nicht erst
+am Ende.
+```
+
+Dieselben zwei Nachrichten liegen nach Schritt 1 auch im Repo unter
+`.codex-plan/PROMPTS.md`.
+
+---
+
+## Wenn das Zeitfenster ausläuft
 
 Auf Plus ist das Kontingent ein Fenster von rund fünf Stunden. Läuft es aus,
-**ist nichts verloren** — der Plan steht bis dahin auf der Platte. Neue Aufgabe,
-gleicher Branch, diese Nachricht:
+**geht nichts verloren** — der Plan steht bis dahin auf der Platte. Neuer Chat,
+gleiches Projekt, gleiches Modell:
 
-> Lies `.codex-plan/AUFTRAG.md` und das vorhandene `CODEX_PLAN.md`. Mach genau
-> bei dem Teil weiter, der unten als nächster markiert ist. Fang nicht von vorn an.
+```
+In diesem Ordner liegt eine angefangene CODEX_PLAN.md und der Auftrag unter
+.codex-plan/PLANUNGSAUFTRAG.md.
 
-Der Auftrag lässt Codex nach jedem Teil eine Marke `<!-- naechster Teil: T4 -->`
-setzen, damit das ohne Suchen geht.
+Lies beide. Am Ende von CODEX_PLAN.md steht eine Marke der Form
+<!-- naechster Teil: T4 -->. Mach genau dort weiter und häng die fehlenden Teile
+an. Fang nicht von vorn an und schreib nichts neu, was schon dasteht.
 
-### Danach
-
-Codex committet `CODEX_PLAN.md` auf den Branch. Du liest `T12` (höchstens zehn
-Fragen an dich), beantwortest sie, liest dann `T9` (die eine Reihenfolge) und
-gibst die ersten `T10`-Zeilen einzeln über `handoff_sonnet.md` an Sonnet 5 oder
-zurück an Codex.
+Gleiche Regeln wie vorher: kein checkout/commit/push/stash, nur CODEX_PLAN.md
+wird geschrieben, fortlaufend Teil für Teil.
+```
 
 ---
 
-## Weg B · Codex CLI auf dem Mac
+## Warum das so gebaut ist
 
-Falls du es doch lokal willst — es ist weniger Aufwand, als du denkst, und es
-sieht aus wie Claude Code:
+**Kein Branch-Wechsel.** `git archive FETCH_HEAD .codex-plan | tar -x` legt den
+Ordner in den Arbeitsbaum, ohne den Branch zu wechseln und ohne eine bestehende
+Datei zu berühren. Im Hub arbeiten mehrere Sitzungen im selben Ordner — dort
+gilt ein ausdrückliches Verbot für `checkout` und `stash`. Ein Worktree wäre
+möglich, ist aber unnötig.
 
-```bash
-npm install -g @openai/codex     # Astra braucht >= 0.153.0
-cd ~/Developer\ Luca/waxcelerate/waxcelerate-sync
-git fetch origin codex/planungskontext
-git checkout codex/planungskontext
-codex                            # beim ersten Start mit ChatGPT-Konto anmelden
-```
+**`FETCH_HEAD`, nicht `origin/codex/planungskontext`.** Ein `git fetch origin
+<branch>` legt je nach Klon keine Remote-Tracking-Ref an; `FETCH_HEAD` ist immer
+gesetzt. Gegen einen frischen Klon getestet.
 
-Einstellungen dauerhaft in `~/.codex/config.toml`:
+**Die Datei heißt `PLANUNGSAUFTRAG.md`, nicht `AUFTRAG.md`.** Im Wurzelverzeichnis
+liegt schon eine `AUFTRAG.md` — der Cursor-Auftrag C0–C3 vom 14.07.2026. Beim
+ersten Versuch hat Codex die gefunden und zu Recht nachgefragt. Jetzt kann nichts
+mehr verwechselt werden, und der Auftrag beginnt mit einer Selbstprüfung, die
+beim falschen Branch abbricht statt die falsche Datei zu lesen.
 
-```toml
-model = "gpt-6-astra"
-model_reasoning_effort = "xhigh"
-
-[profiles.gruendlich]
-model = "gpt-6-astra"
-model_reasoning_effort = "max"
-```
-
-Dann `codex -p gruendlich` für den tiefsten Modus. Im laufenden Chat wechselst
-du mit `/model`.
-
-Danach dieselbe Nachricht wie oben.
-
-**Lohnt sich das für dich?** Für diesen einen Lauf nicht — die App reicht. Für
-später schon: der CLI sieht deinen Arbeitsbaum ohne Umweg über GitHub, was bei
-Code-Änderungen der angenehmere Weg ist.
-
----
-
-## Was Codex bekommt — und was bewusst nicht
+**Der Quelltext ist nicht vorgeladen.** Codex ist ein Agent im Repo und liest
+gezielt nach. Vorgeladen wird nur, was er nicht billig herleiten kann:
 
 | Teil | Inhalt | ~Token |
 |---|---|---|
-| Dokumente | alle fünf Planungsebenen, Regelwerk, Steuer-Playbook, Geschäftszahlen aus dem Masterplan-Repo | 113k |
-| Teil D | Dateibaum · komplettes DB-Schema (77 DDL-Anweisungen) · Routentabelle · Test-Landkarte · die 69 ungemergten Commits · Rechtslage · **UI-Landkarte** · **Code-Landkarte** | 60k |
+| Dokumente | die fünf Planungsebenen, Regelwerk, Steuer-Playbook, Geschäftszahlen aus dem Masterplan-Repo | 113k |
+| Teil D | Dateibaum · DB-Schema (77 DDL-Anweisungen) · Routentabelle · Test-Landkarte · die 69 ungemergten Commits · Rechtslage · UI-Landkarte · Code-Landkarte | 60k |
 
-**Der Quelltext ist absichtlich nicht eingebettet.** Statt dessen zwei
-Landkarten mit Zeilennummern:
+**~173.000 Token in vier Lesevorgängen.** Zwei Landkarten mit Zeilennummern
+ersetzen den Quelltext: **Code** (957 Definitionen aus 52 Modulen, gemessen
+323.143 → 12.903 Token) und **Oberfläche** (`dashboard.html`, 13 Abschnitte,
+495 JS-Funktionen, 118 Endpunkte, gemessen 164.141 → 5.024 Token).
 
-- **Code-Landkarte:** 957 Definitionen aus 52 Modulen — gemessen
-  **323.143 → 12.903 Token**
-- **UI-Landkarte:** `dashboard.html`, 13 Abschnitte, 495 JS-Funktionen,
-  118 Endpunkte — gemessen **164.141 → 5.024 Token**
-
-Codex hat das ganze Repo vor sich und liest gezielt die Stelle nach, die eine
-Frage beantwortet. Das ist nicht nur billiger, es ist auch besser: ein Agent,
-der gezielt nachschlägt, verliert weniger als einer, der 500.000 Token
-überflogen hat.
-
-Nebeneffekt: der Einstieg bleibt unter **272.000 Token**. Darüber zählt bei den
+Damit bleibt der Einstieg unter **272.000 Token** — darüber zählt bei den
 GPT-Modellen die *gesamte* Anfrage doppelt.
+
+**Damit trotzdem tief gearbeitet wird**, enthält der Auftrag eine
+**Pflichtlektüre-Tabelle**: welche Dateien vor welchem Ausgabeteil wirklich
+geöffnet sein müssen (`billing*` vor T4/T6, `gmail_kreis.py` vor T7, `echo.py`
+und `followup.py` vor T8, `checks.py` und die Views vor T5). Dazu die Regel: jede
+Behauptung über Code trägt `datei:zeile`, sonst gilt sie als „nicht geprüft".
 
 ---
 
-## Warum nicht mehr Claude Fable 5.1
+## Danach
 
-Das Guthaben dafür ist am 18./19.09. verfallen, bevor es eingesetzt werden
-konnte. „Expires Sep 19" hieß **ab** dem 19., nicht bis zu dessen Ende. Die
-Lehre für nächstes Mal: ablaufendes Guthaben sofort ausgeben, nie auf den
-letzten Tag planen.
+Codex schreibt `CODEX_PLAN.md` — 13 Teile: `T0` Urteil · `T1` Ist-Abgleich und
+Widersprüche · `T2` Merge-Entscheidung · `T3` Zielarchitektur · `T4`
+Feature-Lücke gegen Kaufsoftware · `T5` Kennzahlen · `T6` Bestell- und
+Rechnungsfluss · `T7` Beleg-Pipeline aus dem Postfach · `T8` KI-Antworten ·
+`T9` die eine Reihenfolge · `T10` Task-Index · `T11` was nicht empfohlen wird ·
+`T12` höchstens zehn Fragen an dich.
 
-Inhaltlich ändert das wenig — der Auftrag `T0`–`T12` ist derselbe, nur der
-Ausführende und der Zuschnitt des Kontexts sind neu.
+Reihenfolge danach: `T12` beantworten → `T9` lesen → die ersten `T10`-Zeilen
+einzeln über `handoff_sonnet.md` an Sonnet 5 oder zurück an Codex.
+
+Aufräumen: `rm -rf .codex-plan` — Wegwerf-Material, jederzeit über `los.sh` neu
+erzeugbar. `CODEX_PLAN.md` behältst du.
 
 ---
 
@@ -128,9 +132,9 @@ Ausführende und der Zuschnitt des Kontexts sind neu.
 
 | Symptom | Weg |
 |---|---|
-| Astra nicht im Modell-Wähler | Codex-Zugang prüfen; im CLI braucht Astra Version ≥ 0.153.0 |
-| Codex sieht `.codex-plan/` nicht | Falscher Branch. Es muss `codex/planungskontext` sein, nicht `main` |
-| Codex fängt an, im Repo herumzulesen | Einmal erinnern: *„nur die vier Dateien aus der Lesekarte, Quelltext nur gezielt per grep/sed"* |
-| Fenster ausgeschöpft | Neue Aufgabe mit der Fortsetzungs-Nachricht oben. Nichts geht verloren |
+| „`.codex-plan/AUFTRAG.md` ist nicht vorhanden" | Alter Stand. Die Datei heißt jetzt `PLANUNGSAUFTRAG.md`; nimm die Start-Nachricht von oben |
+| `git fetch` / `git archive` scheitert | Einmal selbst im Terminal ausführen (beide Zeilen aus Schritt 1), dann die Nachricht ohne Schritt 1 senden |
+| Codex liest im Repo herum | Einmal erinnern: *„nur die vier Dateien aus der Lesekarte; Quelltext nur gezielt per grep/sed, und nur die Pflichtlektüre"* |
+| Fenster ausgeschöpft | Fortsetzungs-Nachricht oben. Nichts geht verloren |
 | `CODEX_PLAN.md` wirkt abgeschnitten | Weiterschreiben lassen, nicht neu starten |
-| Paket veraltet (Hub hat sich bewegt) | `bash los.sh` neu laufen lassen und den Branch neu bauen — siehe `README.md` |
+| Paket veraltet (Hub hat sich bewegt) | `bash los.sh` — baut neu und aktualisiert den Branch |

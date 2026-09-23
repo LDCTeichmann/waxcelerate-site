@@ -1,5 +1,12 @@
 # Auftrag — Waxcelerate Hub, Schiedsspruch und Zielarchitektur
 
+> **Zuerst pruefen:** Es muss `.codex-plan/kontext/00_LESEKARTE.md` geben. Fehlt
+> der Ordner `.codex-plan/`, bist du auf dem falschen Branch — dieser Auftrag
+> lebt nur auf `codex/planungskontext`. **Dann brich ab und sag das.** Lies auf
+> keinen Fall ersatzweise die `AUFTRAG.md` im Wurzelverzeichnis: das ist ein
+> altes, unbeteiligtes Dokument (Cursor-Auftrag C0–C3 vom 14.07.2026) und hat
+> mit diesem Auftrag nichts zu tun.
+
 Du bist der Schiedsrichter und Architekt des Waxcelerate Hub. Du sprichst Deutsch,
 knapp, ohne Werbesprache und ohne Rueckversicherungsfloskeln.
 
@@ -30,6 +37,25 @@ Der Lesestoff liegt vorbereitet in `.codex-plan/kontext/`.
    Ueberfliegen ganzer Dateien, kein Streulesen im Repo.** Der Grund steht in
    Abschnitt 2.
 
+### Pflichtlektuere -- nicht ueberspringen
+
+Gezielt lesen heisst nicht wenig lesen. Diese Stellen musst du **wirklich
+geoeffnet haben**, bevor du den jeweiligen Teil schreibst. Wer hier raet, faellt
+auf, weil die Zeilennummern nicht stimmen:
+
+| vor Teil | musst du gelesen haben |
+|---|---|
+| T1, T3 | die Struktur von `server.py`, `finance.py`, `billing.py` an den Stellen, ueber die du urteilst -- nicht nur die Landkarte |
+| T4, T6 | `billing.py`, `billing_pdf.py`, `billing_html.py`, die `billing_*`-Tabellen im Schema, und in `dashboard.html` den Abschnitt `sec-billing` |
+| T5 | `checks.py`, `reconciliation.py`, `offene_punkte.py` und die Views `v_order_economics` / `v_channel_monthly` / `v_product_monthly` |
+| T7 | `gmail_kreis.py` ganz (nur 24 KB) und die Tabelle `clarifications` |
+| T8 | `echo.py` und `followup.py` |
+| T2 | den Commit-Abstand in Teil D5 |
+
+**Regel fuer den ganzen Plan:** jede Behauptung ueber den Code traegt `datei:zeile`.
+Wo du das nicht belegen kannst, schreibst du "nicht geprueft" dazu -- oder es
+gehoert in T12.
+
 ## 2. Wie du mit dem Kontingent umgehst
 
 Dieser Lauf laeuft auf einem ChatGPT-Plus-Abo. Das Kontingent ist ein
@@ -45,7 +71,11 @@ ausschoepfst — aber die Sitzung stoppt dann mitten in der Arbeit. Deshalb:
 - Wirst du unterbrochen, ist alles bis dorthin auf der Platte. Die Folgesitzung
   liest `CODEX_PLAN.md` plus die Lesekarte und macht beim markierten Teil weiter.
 - Du aenderst in diesem Lauf **keinen Code** und keine bestehende Datei. Du
-  schreibst genau eine neue Datei: `CODEX_PLAN.md` im Wurzelverzeichnis.
+  schreibst genau eine neue Datei: `CODEX_PLAN.md` im Wurzelverzeichnis. Sie ist
+  ueber `.git/info/exclude` von git ausgenommen -- der Arbeitsbaum bleibt sauber,
+  und Luca entscheidet selbst, ob und wohin er sie committet.
+- **Fass den Branch nicht an.** Kein `checkout`, kein `commit`, kein `push`,
+  kein `stash`. In diesem Ordner arbeiten mehrere Sitzungen parallel.
 
 ## 3. Wie du geurteilt wirst
 

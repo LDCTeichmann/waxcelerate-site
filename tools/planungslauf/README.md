@@ -59,7 +59,9 @@ sie sind der Maßstab, an dem jedes Feature gemessen wird.
 
 ## Der Auftrag
 
-`auftrag.md` (im Hub als `.codex-plan/AUFTRAG.md`). Ergebnis ist
+`auftrag.md` (im Hub als `.codex-plan/PLANUNGSAUFTRAG.md` — bewusst nicht
+`AUFTRAG.md`, so heißt schon ein altes Dokument im Wurzelverzeichnis).
+Ergebnis ist
 **`CODEX_PLAN.md`**, 13 Teile, Zielumfang 9.000–13.000 Wörter:
 
 `T0` Urteil · `T1` Ist-Abgleich und Widersprüche · `T2` Merge-Entscheidung ·
@@ -75,6 +77,10 @@ Zwei bewusste Eigenheiten:
   verloren und eine Folgesitzung macht ohne Suchen weiter.
 - **`T10` bleibt einzeilig.** Die ausführlichen Aufgabenbriefe schreibt danach ein
   günstigeres Modell daraus — Vorlage in `handoff_sonnet.md`.
+- **Pflichtlektüre-Tabelle.** Weil der Quelltext nicht vorgeladen ist, besteht die
+  Gefahr, dass zu wenig nachgelesen wird. Der Auftrag nennt deshalb je Ausgabeteil
+  die Dateien, die wirklich geöffnet sein müssen, und verlangt `datei:zeile` für
+  jede Behauptung über Code.
 
 **Rechtliches ist ausgeklammert** (CLP, Sicherheitsdatenblätter, PPWR). Recht aus
 dem Gedächtnis ist gefährlich, und Recherche gehört nicht in diesen Lauf. Teil D6
@@ -100,7 +106,8 @@ Datei im Index läge — im Hub arbeiten mehrere Sitzungen im selben Ordner.
 | Datei | Rolle |
 |---|---|
 | `START.md` | **die Bedienung** — ChatGPT-App oder CLI |
-| `auftrag.md` | der Auftrag (Kopie dessen, was im Hub liegt) |
+| `auftrag.md` | der Auftrag — im Hub als `.codex-plan/PLANUNGSAUFTRAG.md` |
+| `prompts.md` | die zwei fertigen Codex-Nachrichten (Start und Fortsetzung) |
 | `build_kontext.py` | baut das Paket aus einem Git-Ref; erzeugt Teil D samt beider Landkarten |
 | `los.sh` | nur nötig, wenn der Hub sich bewegt hat: neu bauen und den Branch aktualisieren |
 | `manifest.json` | die kuratierte Dateiliste, editierbar |
