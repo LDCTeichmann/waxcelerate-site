@@ -12,9 +12,12 @@ import { InstrumentFrame, CountUp } from '@/components/viz';
 import { BackLink } from '@/components/BackLink';
 import { BeforeAfterSlider } from '@/components/BeforeAfterSlider';
 import { waxVsOil, products, type Product } from '@/lib/data';
-import { COMPONENTS, EDGES, FAILURES } from '@/lib/science';
+import { COMPONENTS, EDGES, FAILURES, FORMULA_STORY } from '@/lib/science';
 import { WaxField, useFieldBuild, type FieldKey } from '@/sections/science/WaxField';
-import { ContactZones, LineChoice } from '@/sections/science/ContactZones';
+import { FieldNet } from '@/sections/science/FieldNet';
+import { LineChoice } from '@/sections/science/ContactZones';
+import { FrictionLens, ToothProfiles } from '@/pages/product/wax/FrictionLens';
+import '@/pages/product/wax/wax.css';
 import { ComponentDiagram } from '@/sections/science/diagrams';
 import { CassetteLens } from '@/sections/science/CassetteLens';
 import { HexMoS2, StandstillFilm } from '@/sections/science/LabViz';
@@ -121,6 +124,12 @@ function ScienceHero({ de }: { de: boolean }) {
                 </p>
               </div>
             ))}
+          </div>
+
+          {/* Was die Lupe rechts zeigt, als Profil: dieselbe Zeichnung wie
+              im Beleg-Block der Produktseite, hier auf hellem Grund. */}
+          <div className="wxp mb-8 -mt-2">
+            <ToothProfiles de={de} tone="light" />
           </div>
 
           <p className="text-meta mb-4" style={{ color: 'var(--txff)' }}>
@@ -619,27 +628,26 @@ function ActHead({ eyebrow, title, lede }: { eyebrow: string; title: string; led
   );
 }
 
-// ─── ACT II — "Ein Block, von innen" ────────────────────────────────────────
+// ─── ACT II — "Netz im Film" (25.09.2026) ──────────────────────────────────
 //
-// Vorgaenger war FormulaStory: eine 360vh hohe Sektion (COMPONENTS.length *
-// 60vh) mit sticky-Container und eigener Scroll-Mathematik, daneben eine
-// getrennte Mobilfassung mit IntersectionObserver-Karussell. Zusammen rund
-// 4.088 px von 10.753 px Seitenhoehe, also 38 Prozent, fuer sechs
-// Zutatenkarten. Wer dort scrollte, scrollte nicht die Seite, sondern einen
-// Schrittzaehler.
+// Geschichte dieser Sektion, damit niemand die alten Fehler wiederholt:
+//  - bis 16.09.2026 FormulaStory: 360vh Scroll mit eigener Scroll-Mathematik
+//    und einem Knotengraphen mit erfundenen Positionen ("Oktopus", 38 % der
+//    Seitenhoehe). Wer scrollte, scrollte einen Schrittzaehler.
+//  - danach FormulaField: der Filmschnitt (WaxField) plus eine aufklappbare
+//    Liste, die Verzahnung nur als Textzeile.
+//  - jetzt, auf Lucas Wunsch, beides verbunden: Der Filmschnitt steht fest
+//    (sticky), daneben scrollen sechs echte Inhaltskarten in der Reihenfolge
+//    von FORMULA_STORY. Jede Karte baut ihren Stoff in den Film ein, und seine
+//    Verbindungen aus EDGES erscheinen als beschriftete Linien zwischen den
+//    ECHTEN Orten im Schnitt (FieldNet + FIELD_ANCHORS). So waechst das Netz
+//    sichtbar mit, statt als fertiger Stern zu starten.
 //
-// Jetzt: eine Figur, eine Liste, eine Fassung fuer alle Breiten. Dieselbe
-// Grammatik wie ContactZones eine Bildschirmhoehe weiter oben und wie
-// FrictionLens auf der Produktseite — Figur und nummerierte Liste
-// nebeneinander, die Zeilen sind echte <button> und damit ohne Zusatzarbeit
-// tastaturbedienbar.
-//
-// DIE VERZAHNUNG STEHT ALS TEXT DA, NICHT ALS KANTE. In science.ts liegen 11
-// recherchierte Beziehungen mit deutschen Namen ("Ko-Kristallisation",
-// "Sterische Huelle", "Gegenspieler"). Der Kantengraph war die falsche Form
-// dafuer, nicht der falsche Inhalt: als Zeile unter der geoeffneten Komponente
-// ist dieselbe Information praeziser, kann nicht ueberlappen und ist
-// vorlesbar. EDGES bleibt deshalb unveraendert in science.ts stehen.
+// Die Karten sind der Inhalt (Kurzfassung, Verzahnung, "Warum das zaehlt",
+// "Die Physik", "Nimm eine weg") — keine leeren Scroll-Stationen. Die aktive
+// Karte bestimmt ein IntersectionObserver, kein Scroll-Listener, kein GSAP-
+// Pinning. Eine Leiste 01–06 springt direkt zu jeder Karte, "Überspringen"
+// fuehrt an der Sektion vorbei.
 
 const FIELD_KEYS = ['kristallstruktur', 'matrix', 'winterformel', 'mos2', 'sedimentation', 'antioxidans'] as const;
 const isFieldKey = (id: string): id is FieldKey => (FIELD_KEYS as readonly string[]).includes(id);
@@ -689,160 +697,208 @@ const WITHOUT: Partial<Record<FieldKey, { de: string; en: string; src?: string }
   },
 };
 
-function FormulaField({ de }: { de: boolean }) {
-  const [openId, setOpenId] = useState<FieldKey | null>(null);
+function FormulaStory({ de }: { de: boolean }) {
+  const steps = FORMULA_STORY
+    .map(s => ({ comp: COMPONENTS.find(c => c.node === s.node)!, s }))
+    .filter(x => x.comp && isFieldKey(x.comp.id));
+  const [step, setStep] = useState(0);            // steps.length = fertiges Netz
   const [missing, setMissing] = useState<FieldKey | null>(null);
+  const cards = useRef<(HTMLLIElement | null)[]>([]);
   const { p, ref, replay } = useFieldBuild();
 
-  const pick = (id: FieldKey) => {
-    setOpenId(prev => (prev === id ? null : id));
-    setMissing(null);   // eine geschlossene Zeile darf das Feld nicht kaputt zurücklassen
-  };
+  useEffect(() => {
+    // Die Karte, die durch die Mitte des Fensters laeuft, ist die aktive.
+    const io = new IntersectionObserver(entries => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        setStep(Number((e.target as HTMLElement).dataset.step));
+        setMissing(null);   // ein weggenommener Stoff gilt nur fuer seine Karte
+      }
+    }, { rootMargin: '-48% 0px -48% 0px' });
+    cards.current.forEach(el => el && io.observe(el));
+    return () => io.disconnect();
+  }, []);
 
-  const comps = COMPONENTS.filter(c => isFieldKey(c.id));
+  const done = step >= steps.length;
+  const present: FieldKey[] = done || missing
+    ? [...FIELD_KEYS]
+    : steps.slice(0, step + 1).map(x => x.comp.id as FieldKey);
+  const focus = done || missing ? null : (steps[step].comp.id as FieldKey);
+  const go = (i: number) => cards.current[i]?.scrollIntoView({
+    behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'center',
+  });
+  const skip = () => document.getElementById('matrix-window')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
   return (
-    <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,430px)] gap-8 xl:gap-12 items-start">
-      {/* ── Die Figur ──────────────────────────────────────────────────── */}
-      <div ref={ref} className="lg:sticky lg:top-24">
+    <div className="grid lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] gap-6 lg:gap-10 xl:gap-12 items-start">
+      {/* ── Die Figur, fest im Blick ─────────────────────────────────────── */}
+      <div ref={ref} className="formula-stage sticky top-[64px] lg:top-24 z-10 -mx-4 px-4 pt-2 pb-3 sm:mx-0 sm:px-0 lg:pt-0 lg:pb-0">
         <InstrumentFrame
           eyebrow={de ? 'Schnitt durch den Film' : 'Section through the film'}
           chip={<span className="num-data">~1 µm</span>}
           footer={
-            <div className="flex items-center justify-between gap-4 flex-wrap">
-              <span className="text-[11.5px]" style={{ color: 'var(--txf)' }}>
-                {missing
-                  ? (de ? 'Zustand ohne eine Komponente' : 'State without one component')
-                  : (de ? 'Schematisch, Lamellen überhöht' : 'Schematic, lamellae exaggerated')}
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              {/* Fortschritt: 01–06 und das fertige Netz, jeweils ein Sprung */}
+              <div className="flex items-center gap-1" role="group" aria-label={de ? 'Komponenten' : 'Components'}>
+                {steps.map((x, i) => (
+                  <button key={x.comp.id} type="button" onClick={() => go(i)}
+                    aria-current={i === step ? 'step' : undefined}
+                    aria-label={de ? x.comp.nameDe : x.comp.nameEn}
+                    className="formula-rail num text-[11px] font-semibold rounded-full h-7 min-w-7 px-1.5"
+                    data-state={i === step ? 'on' : i < step || done ? 'past' : 'next'}>
+                    0{i + 1}
+                  </button>
+                ))}
+                <button type="button" onClick={() => go(steps.length)} aria-current={done ? 'step' : undefined}
+                  className="formula-rail text-[11px] font-semibold rounded-full h-7 px-2.5" data-state={done ? 'on' : 'next'}>
+                  {de ? 'Netz' : 'Net'}
+                </button>
+              </div>
+              <span className="hidden sm:flex items-center gap-3 text-[11px]" style={{ color: 'var(--txf)' }}>
+                <span className="flex items-center gap-1.5"><i className="formula-key" />{de ? 'Aufbau' : 'Build'}</span>
+                <span className="flex items-center gap-1.5"><i className="formula-key formula-key--dash" />{de ? 'Schutz' : 'Guard'}</span>
+                <span>⇄ {de ? 'Gegenspieler' : 'Counterpart'}</span>
               </span>
-              <button type="button" onClick={replay}
-                className="text-[11.5px] font-semibold transition-opacity hover:opacity-70"
-                style={{ color: 'var(--accent)' }}>
-                {de ? 'Erstarrung noch einmal' : 'Replay solidification'}
-              </button>
             </div>
           }>
-          <WaxField de={de} active={openId} missing={missing} progress={p} />
+          <div className="relative">
+            <WaxField de={de} active={focus} missing={missing} progress={p} present={present} dimLevel={0.35} />
+            <FieldNet de={de} present={present} focus={focus} missing={missing} />
+          </div>
         </InstrumentFrame>
+        <div className="hidden lg:flex items-center justify-between mt-3 text-[11.5px]">
+          <span style={{ color: 'var(--txf)' }}>
+            {missing
+              ? (de ? 'Zustand ohne eine Komponente' : 'State without one component')
+              : (de ? 'Schematisch, Lamellen überhöht' : 'Schematic, lamellae exaggerated')}
+          </span>
+          <button type="button" onClick={skip} className="font-semibold transition-opacity hover:opacity-70" style={{ color: 'var(--accent)' }}>
+            {de ? 'Überspringen →' : 'Skip →'}
+          </button>
+        </div>
       </div>
 
-      {/* ── Die sechs Zeilen ───────────────────────────────────────────── */}
+      {/* ── Sechs Karten, dann das fertige Netz ──────────────────────────── */}
       <ol className="m-0 p-0 list-none">
-        {comps.map((c, i) => {
+        {steps.map(({ comp: c, s }, i) => {
           const id = c.id as FieldKey;
-          const open = openId === id;
           const mesh = meshFor(c.node, de);
           const without = WITHOUT[id];
           return (
-            <li key={c.id} id={c.id} className="scroll-mt-24"
-              style={{ borderTop: i === 0 ? '1px solid var(--bd2)' : undefined, borderBottom: '1px solid var(--bd2)' }}>
-              <button type="button" onClick={() => pick(id)} aria-expanded={open}
-                className="w-full text-left py-3.5 flex items-baseline gap-3 transition-opacity hover:opacity-75">
-                <span className="num text-[12px] flex-shrink-0" style={{ color: 'var(--txf)' }}>0{i + 1}</span>
-                <span className="flex-1 min-w-0">
-                  <span className="block text-[15px] font-semibold" style={{ color: open ? 'var(--accent)' : 'var(--tx1)' }}>
-                    {de ? c.nameDe : c.nameEn}
-                  </span>
-                  <span className="block text-[12px] mt-0.5" style={{ color: 'var(--txm)' }}>
-                    {de ? c.roleDe : c.roleEn}
-                  </span>
-                </span>
-                <span className="num-data text-[12.5px] flex-shrink-0" style={{ color: 'var(--accent-soft)' }}>{c.metric}</span>
-              </button>
+            <li key={c.id} id={c.id} data-step={i} ref={el => { cards.current[i] = el; }}
+              className="formula-card scroll-mt-24 lg:min-h-[48vh] flex flex-col justify-center py-4 lg:py-6"
+              data-on={i === step || undefined}>
+              <div className="rounded-2xl p-5 sm:p-6" style={{ background: 'var(--sf)', border: '1px solid var(--bd2)' }}>
+                <div className="flex items-baseline justify-between gap-3">
+                  <p className="eyebrow" style={{ color: 'var(--accent-soft)' }}>0{i + 1} · {de ? c.roleDe : c.roleEn}</p>
+                  <span className="num-data text-[12.5px] flex-shrink-0" style={{ color: 'var(--accent)' }}>{c.metric}</span>
+                </div>
+                <h3 className="font-display font-bold mt-2 leading-tight" style={{ color: 'var(--tx1)', fontSize: 'clamp(1.35rem, 2.4vw, 1.7rem)', letterSpacing: '-0.015em' }}>
+                  {de ? c.nameDe : c.nameEn}
+                </h3>
+                <p className="text-[14.5px] leading-relaxed mt-3" style={{ color: 'var(--tx2)' }}>
+                  {de ? c.sumDe : c.sumEn}
+                </p>
 
-              {/* visibility (nicht nur overflow: hidden) schaltet den
-                  eingeklappten Inhalt wirklich ab. Mit grid-template-rows: 0fr
-                  allein ist er unsichtbar, aber weiterhin im Tab-Fokus und
-                  anklickbar — beim Testen liess sich der "Feld ohne …"-Knopf
-                  einer GESCHLOSSENEN Zeile ausloesen und das Feld aenderte
-                  sich, ohne dass irgendwo etwas aufging. visibility springt
-                  am Ende der Animation, das Aufklappen bleibt weich. */}
-              <div style={{ display: 'grid', gridTemplateRows: open ? '1fr' : '0fr',
-                visibility: open ? 'visible' : 'hidden',
-                transition: 'grid-template-rows 0.4s cubic-bezier(0.22,1,0.36,1), visibility 0.4s' }}>
-                <div className="overflow-hidden">
-                  <div className="pb-5 pl-[30px]">
-                    <p className="text-[13.5px] leading-relaxed" style={{ color: 'var(--tx2)' }}>
-                      {de ? c.sumDe : c.sumEn}
+                {mesh.length > 0 && (
+                  <div className="mt-4">
+                    <p className="text-[11px] uppercase tracking-[0.12em] font-semibold mb-2" style={{ color: 'var(--txf)' }}>
+                      {de ? 'Wirkt zusammen mit' : 'Works together with'}
                     </p>
+                    <ul className="flex flex-wrap gap-1.5">
+                      {mesh.map((m, j) => (
+                        <li key={j} className="text-[12px] rounded-full px-2.5 py-1"
+                          style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)', color: 'var(--tx2)' }}>
+                          <b style={{ color: 'var(--tx1)', fontWeight: 600 }}>{m.name}</b>
+                          <span style={{ color: 'var(--txf)' }}> {m.balance ? '⇄' : '·'} {m.label}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
 
-                    {/* Die Verzahnung, aus EDGES statt aus einer Kante. */}
-                    {mesh.length > 0 && (
-                      <p className="text-[12px] leading-relaxed mt-3" style={{ color: 'var(--txm)' }}>
-                        <span className="font-semibold" style={{ color: 'var(--tx1)' }}>
-                          {de ? 'Greift ineinander mit ' : 'Interlocks with '}
-                        </span>
-                        {mesh.map((m, j) => (
-                          <span key={j}>
-                            {j > 0 && ' · '}
-                            {m.name}
+                <Disclosure label={de ? 'Warum das zählt' : 'Why it matters'}>
+                  <p className="text-[13px] leading-relaxed pt-3" style={{ color: 'var(--txm)' }}>
+                    {de ? c.whyDe : c.whyEn}
+                  </p>
+                </Disclosure>
+                <Disclosure label={de ? 'Die Physik' : 'The physics'}>
+                  <div className="pt-3 space-y-3">
+                    <p className="text-[13px] leading-relaxed" style={{ color: 'var(--txm)' }}>{de ? s.captionDe : s.captionEn}</p>
+                    {(de ? c.physicsDe : c.physicsEn).map((t, j) => (
+                      <p key={j} className="text-[13px] leading-relaxed" style={{ color: 'var(--txm)' }}>{t}</p>
+                    ))}
+                    <ComponentDiagram which={c.diagram} de={de} />
+                    <Insight>{de ? c.insightDe : c.insightEn}</Insight>
+                    {c.id === 'sedimentation' && <SedimentationTrace de={de} />}
+                  </div>
+                </Disclosure>
+                {c.id === 'mos2' && de && (
+                  <ReadMoreLink to="/blog/mos2-kettenwachs">
+                    Mehr im Ratgeber: MoS₂ im Kettenwachs
+                  </ReadMoreLink>
+                )}
+
+                {/* ── "Nimm eine weg" ─────────────────────────────────── */}
+                <div className="mt-4 pt-3" style={{ borderTop: '1px solid var(--bd2)' }}>
+                  {without ? (
+                    <>
+                      <button type="button"
+                        onClick={() => { setStep(i); setMissing(m => (m === id ? null : id)); }}
+                        aria-pressed={missing === id}
+                        className="text-[12px] font-semibold transition-opacity hover:opacity-70"
+                        style={{ color: missing === id ? 'var(--tx1)' : 'var(--accent)' }}>
+                        {missing === id
+                          ? (de ? '← Zurück zur fertigen Formel' : '← Back to the finished formula')
+                          : (de ? `Film ohne ${c.graphLabelDe} zeigen` : `Show the film without ${c.graphLabelEn}`)}
+                      </button>
+                      {missing === id && (
+                        <p className="text-[12.5px] leading-relaxed mt-2" style={{ color: 'var(--tx2)' }}>
+                          {de ? without.de : without.en}
+                          {without.src && (
                             <span style={{ color: 'var(--txf)' }}>
-                              {' '}{m.balance ? '⇄' : '→'} {m.label}
+                              {' '}{de ? `Genau so passiert, ${without.src}.` : `Exactly what happened, ${without.src}.`}
                             </span>
-                          </span>
-                        ))}
-                      </p>
-                    )}
-
-                    <Disclosure label={de ? 'Warum das zählt' : 'Why it matters'}>
-                      <p className="text-[13px] leading-relaxed pt-3" style={{ color: 'var(--txm)' }}>
-                        {de ? c.whyDe : c.whyEn}
-                      </p>
-                    </Disclosure>
-                    <Disclosure label={de ? 'Die Physik' : 'The physics'}>
-                      <div className="pt-3 space-y-3">
-                        {(de ? c.physicsDe : c.physicsEn).map((t, j) => (
-                          <p key={j} className="text-[13px] leading-relaxed" style={{ color: 'var(--txm)' }}>{t}</p>
-                        ))}
-                        <ComponentDiagram which={c.diagram} de={de} />
-                        <Insight>{de ? c.insightDe : c.insightEn}</Insight>
-                        {c.id === 'sedimentation' && <SedimentationTrace de={de} />}
-                      </div>
-                    </Disclosure>
-                    {c.id === 'mos2' && de && (
-                      <ReadMoreLink to="/blog/mos2-kettenwachs">
-                        Mehr im Ratgeber: MoS₂ im Kettenwachs
-                      </ReadMoreLink>
-                    )}
-
-                    {/* ── "Nimm eine weg" ─────────────────────────────── */}
-                    <div className="mt-4 pt-3" style={{ borderTop: '1px solid var(--bd2)' }}>
-                      {without ? (
-                        <>
-                          <button type="button"
-                            onClick={() => setMissing(m => (m === id ? null : id))}
-                            aria-pressed={missing === id}
-                            className="text-[12px] font-semibold transition-opacity hover:opacity-70"
-                            style={{ color: missing === id ? 'var(--tx1)' : 'var(--accent)' }}>
-                            {missing === id
-                              ? (de ? '← Zurück zur fertigen Formel' : '← Back to the finished formula')
-                              : (de ? `Feld ohne ${de ? c.nameDe : c.nameEn} zeigen` : `Show the field without ${c.nameEn}`)}
-                          </button>
-                          {missing === id && (
-                            <p className="text-[12.5px] leading-relaxed mt-2" style={{ color: 'var(--tx2)' }}>
-                              {de ? without.de : without.en}
-                              {without.src && (
-                                <span style={{ color: 'var(--txf)' }}>
-                                  {' '}{de ? `Genau so passiert, ${without.src}.` : `Exactly what happened, ${without.src}.`}
-                                </span>
-                              )}
-                            </p>
                           )}
-                        </>
-                      ) : (
-                        <p className="text-[12.5px] leading-relaxed" style={{ color: 'var(--txf)' }}>
-                          {de
-                            ? 'Ohne Trägermatrix gibt es keinen Film, also auch kein Feld, das sich zeigen ließe. Diese eine Komponente ist nicht wegzudenken.'
-                            : 'Without the carrier matrix there is no film, so there is no state to show. This one component cannot be removed.'}
                         </p>
                       )}
-                    </div>
-                  </div>
+                    </>
+                  ) : (
+                    <p className="text-[12.5px] leading-relaxed" style={{ color: 'var(--txf)' }}>
+                      {de
+                        ? 'Ohne Trägermatrix gibt es keinen Film, also auch nichts, das sich zeigen ließe. Diese eine Komponente ist nicht wegzudenken.'
+                        : 'Without the carrier matrix there is no film, so there is nothing to show. This one component cannot be removed.'}
+                    </p>
+                  )}
                 </div>
               </div>
             </li>
           );
         })}
+
+        {/* Das fertige Netz */}
+        <li data-step={steps.length} ref={el => { cards.current[steps.length] = el; }}
+          className="formula-card lg:min-h-[44vh] flex flex-col justify-center py-4 lg:py-6" data-on={done || undefined}>
+          <div className="rounded-2xl p-5 sm:p-6" style={{ background: 'rgba(var(--accent-rgb),0.06)', border: '1px solid var(--accent-soft)' }}>
+            <p className="eyebrow" style={{ color: 'var(--accent-soft)' }}>{de ? 'Das System' : 'The system'}</p>
+            <h3 className="font-display font-bold mt-2 leading-tight" style={{ color: 'var(--tx1)', fontSize: 'clamp(1.35rem, 2.4vw, 1.7rem)' }}>
+              {de ? `Sechs Stoffe, ${EDGES.length} Verbindungen, ein Film.` : `Six substances, ${EDGES.length} links, one film.`}
+            </h3>
+            <p className="text-[14.5px] leading-relaxed mt-3" style={{ color: 'var(--tx2)' }}>
+              {de
+                ? 'Keine Zutat arbeitet allein. Die Matrix trägt, MoS₂ schmiert, der Rest sorgt dafür, dass beides unter Last, in der Kälte und über Monate so bleibt. Nimm eine weg, und genau eine dieser Aufgaben fällt aus.'
+                : 'No ingredient works alone. The matrix carries, MoS₂ lubricates, the rest keeps both that way under load, in the cold and over months. Take one away and exactly one of those jobs fails.'}
+            </p>
+            <div className="flex flex-wrap gap-x-5 gap-y-2 mt-4">
+              <button type="button" onClick={() => go(0)} className="text-[12.5px] font-semibold transition-opacity hover:opacity-70" style={{ color: 'var(--accent)' }}>
+                {de ? '↑ Noch einmal von vorn' : '↑ Start over'}
+              </button>
+              <button type="button" onClick={replay} className="text-[12.5px] font-semibold transition-opacity hover:opacity-70" style={{ color: 'var(--accent)' }}>
+                {de ? 'Erstarrung noch einmal' : 'Replay solidification'}
+              </button>
+            </div>
+          </div>
+        </li>
       </ol>
     </div>
   );
@@ -858,9 +914,6 @@ export function SciencePage() {
     const el = document.getElementById(hash.slice(1));
     if (el) requestAnimationFrame(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }));
   }, [hash]);
-
-  const scrollToAnchor = (id: string) =>
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
   const title = de
     ? 'Die Wissenschaft hinter Heißwachs — MoS₂, Reibung & Formel | Waxcelerate'
@@ -930,9 +983,13 @@ export function SciencePage() {
           has always pointed at. Establishes where friction physically happens
           before ACT II explains what is in the wax, so the formula reads as an
           answer to something rather than an ingredient list. */}
-      <section className={`${W} pt-20 pb-16`} style={{ borderTop: '1px solid var(--bd2)' }}>
-        <ContactZones de={de} onToFormula={() => scrollToAnchor('formel')} />
-      </section>
+      {/* 25.09.2026: dasselbe Instrument wie auf der Produktseite (Seiten-
+          ansicht, Lupe im Gelenk, Oel/Wachs-Schalter) statt der aelteren
+          ContactZones-Zeichnung mit drei Ansichten. Die Kassette steht schon
+          im Hero, deshalb hier ohne. */}
+      <div id="problem" className="wxp scroll-mt-16">
+        <FrictionLens de={de} eyebrow={de ? 'Wo es reibt' : 'Where it rubs'} cassette={false} />
+      </div>
 
       {/* ── ACT II — FORMULA (scroll-driven storytelling) ── */}
       <section id="formel" className="scroll-mt-24" style={{ borderTop: '1px solid var(--bd2)' }}>
@@ -948,7 +1005,7 @@ export function SciencePage() {
         </div>
 
         <div className={`${W} pb-14`}>
-          <FormulaField de={de} />
+          <FormulaStory de={de} />
         </div>
 
         {/* Below: full-width deep-dive sections. Mobile-Plan (real feedback,

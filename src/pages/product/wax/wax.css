@@ -250,6 +250,8 @@
 .wxp-teeth figure { margin: 0; }
 .wxp-teeth figcaption { font-size: 12.5px; color: rgba(255,255,255,.6); margin-top: 6px; }
 .wxp-teeth figcaption b { color: #fff; font-weight: 600; }
+.wxp-teeth--light figcaption { color: var(--txm); }
+.wxp-teeth--light figcaption b { color: var(--tx1); }
 
 /* ═ 03 Rechner ═ */
 /* v5: weichere Einbettung. Der Schatten war mit 80 px Blur deutlich

@@ -193,6 +193,39 @@ const ANTIOX = (() => {
   }));
 })();
 
+// ─── Ankerpunkte fuer das Netz ("Netz im Film", FieldNet.tsx) ─────────────
+// Jede Komponente bekommt EINEN Punkt, an dem ihre Verbindungen ansetzen, und
+// zwar dort, wo sie in dieser Zeichnung wirklich sitzt — abgeleitet aus
+// derselben Geometrie, nicht daneben getippt. Das war der Konstruktionsfehler
+// des alten Knotengraphen (FormulaGraph, bis 16.09.2026): frei erfundene
+// Positionen, alle Kanten liefen auf MoS2 zu ("Oktopus"). Hier liegen die
+// Punkte so weit auseinander, wie die Stoffe im Film auseinanderliegen.
+//
+//  Paraffin       die senkrechte Lamelle im linken Faecher
+//  FT-Wachs       eine der kraeftigen FT-Lamellen im dritten Faecher
+//  Mikrokristallin der amorphe Keil zwischen Faecher 1 und 2
+//  MoS2           das Plaettchen, das in der Mitte am tiefsten am Stahl liegt
+//  Dispergiersystem die Huelle um das hoechste Plaettchen rechts
+//  Antioxidans    eine Marke nahe der Oberflaeche in der Mitte
+const along = (l: Lamella, t: number) => ({ x: l.x1 + (l.mx - l.x1) * t, y: l.y1 + (l.my - l.y1) * t });
+const pickPlatelet = (xMin: number, xMax: number, by: (a: Platelet, b: Platelet) => number) =>
+  PLATELETS.filter(pl => pl.x >= xMin && pl.x <= xMax).sort(by)[0] ?? PLATELETS[0];
+export const FIELD_ANCHORS: Record<FieldKey, { x: number; y: number }> = (() => {
+  const low = pickPlatelet(VB.w * 0.38, VB.w * 0.66, (a, b) => b.y - a.y);
+  const high = pickPlatelet(VB.w * 0.7, VB.w - 20, (a, b) => a.y - b.y);
+  const ox = ANTIOX.filter(a => a.x > VB.w * 0.3 && a.x < VB.w * 0.6).sort((a, b) => a.y - b.y)[0] ?? ANTIOX[0];
+  const w = WEDGES[0];
+  return {
+    kristallstruktur: along(FANS[0].lamellae[8], 0.62),
+    matrix: along(FANS[2].lamellae.filter(l => l.ft)[3], 0.75),
+    winterformel: { x: w.x, y: (w.top + STEEL_Y) / 2 },
+    mos2: { x: low.x, y: low.y },
+    sedimentation: { x: high.x + high.w / 2 + 5, y: high.y },
+    antioxidans: { x: ox.x, y: ox.y },
+  };
+})();
+export const FIELD_VB = VB;
+
 // ─── Aufbau-Reihenfolge ─────────────────────────────────────────────────────
 // Die physikalische Erstarrung, NICHT die Reihenfolge der Liste daneben. Die
 // Liste folgt FORMULA_STORY (Paraffin, MoS2, FT, Mikro, Dispergier, Antiox).
@@ -237,17 +270,24 @@ interface Props {
   missing?: FieldKey | null;
   /** 0..1, Aufbau. 1 = fertig. */
   progress?: number;
+  /** Nur diese Komponenten zeigen (Scroll-Geschichte baut den Film Stoff fuer
+   *  Stoff auf). Fehlt es, sind alle da. Die anderen blenden weich aus. */
+  present?: FieldKey[] | null;
+  /** Wie weit die nicht hervorgehobenen Komponenten zuruecktreten (Deckkraft). */
+  dimLevel?: number;
 }
 
-export function WaxField({ de, active = null, missing = null, progress = 1 }: Props) {
+export function WaxField({ de, active = null, missing = null, progress = 1, present = null, dimLevel = 0.14 }: Props) {
   const p = progress;
+  const on = (k: FieldKey) => (!present || present.includes(k) ? 1 : 0);
+  const fade = { transition: 'opacity .6s ease' } as const;
   // Hervorheben und Weglassen schliessen einander aus. Eine Zwischenfassung
   // liess beides gleichzeitig gelten: im Zustand "ohne Mikrokristallin" war
   // Mikrokristallin die offene Zeile, also wurde alles ANDERE auf 14 Prozent
   // gedimmt — und das Weggelassene war ohnehin nicht gezeichnet. Uebrig blieb
   // ein fast leeres Feld. Wer "nimm eine weg" anschaut, will den ganzen Film
   // in seinem kaputten Zustand sehen, nicht einen ausgeblendeten.
-  const dim = (k: FieldKey) => (!missing && active && active !== k ? 0.14 : 1);
+  const dim = (k: FieldKey) => (!missing && active && active !== k ? dimLevel : 1) * on(k);
 
   const noMicro = missing === 'winterformel';
   const noFt = missing === 'matrix';
@@ -279,7 +319,7 @@ export function WaxField({ de, active = null, missing = null, progress = 1 }: Pr
 
       <g clipPath="url(#wf-film)">
         {/* ── Amorphe Keile, gefuellt von Mikrokristallin ────────────────── */}
-        <g opacity={at(p, 'wedges') * dim('winterformel')}>
+        <g opacity={at(p, 'wedges') * dim('winterformel')} style={fade}>
           {WEDGES.map((w, i) => (
             <path key={i}
               d={`M ${w.x - w.halfW} ${w.top} L ${w.x + w.halfW} ${w.top} L ${w.x + 2} ${STEEL_Y} L ${w.x - 2} ${STEEL_Y} Z`}
@@ -291,7 +331,7 @@ export function WaxField({ de, active = null, missing = null, progress = 1 }: Pr
         </g>
 
         {/* ── Paraffin: die Lamellenfaecher ──────────────────────────────── */}
-        <g opacity={dim('kristallstruktur')}>
+        <g opacity={dim('kristallstruktur')} style={fade}>
           {FANS.map((f, fi) => (
             <g key={fi}>
               {f.lamellae.filter(l => !l.ft).map((l, li) => (
@@ -308,7 +348,7 @@ export function WaxField({ de, active = null, missing = null, progress = 1 }: Pr
             (EDGES: FT-Wachs -> Paraffin, "Ko-Kristallisation"). Deshalb keine
             eigene Zone, sondern jede dritte Lamelle, kraeftiger gezeichnet. */}
         {!noFt && (
-          <g opacity={at(p, 'ft') * dim('matrix')}>
+          <g opacity={at(p, 'ft') * dim('matrix')} style={fade}>
             {FANS.map((f, fi) => (
               <g key={fi}>
                 {f.lamellae.filter(l => l.ft).map((l, li) => (
@@ -367,7 +407,7 @@ export function WaxField({ de, active = null, missing = null, progress = 1 }: Pr
 
         {/* ── MoS2-Plaettchen ────────────────────────────────────────────── */}
         {!noMos && (
-          <g opacity={at(p, 'platelets') * dim('mos2')}>
+          <g opacity={at(p, 'platelets') * dim('mos2')} style={fade}>
             {platelets.map((pl, i) => (
               <g key={i} transform={`translate(${pl.x} ${pl.y}) rotate(${pl.rot})`}>
                 {/* Sterische Huelle des Dispergiersystems um jedes Partikel.
@@ -377,7 +417,7 @@ export function WaxField({ de, active = null, missing = null, progress = 1 }: Pr
                   <ellipse rx={pl.w / 2 + 5} ry={7} fill="none"
                     stroke="rgba(var(--accent-rgb),0.5)" strokeWidth="var(--dw-hair)"
                     strokeDasharray="2.5 2.5"
-                    opacity={at(p, 'shells') * dim('sedimentation')} />
+                    opacity={at(p, 'shells') * dim('sedimentation')} style={fade} />
                 )}
                 <rect x={-pl.w / 2} y={-1.8} width={pl.w} height={3.6} rx={1.4}
                   fill="var(--tx1)" />
@@ -397,12 +437,12 @@ export function WaxField({ de, active = null, missing = null, progress = 1 }: Pr
       {/* Fe-S-Transferfilm auf dem Stahl: das Ergebnis, nicht die Zutat. */}
       {!noMos && (
         <path d={steelTopPath()} fill="none" stroke="var(--accent)" strokeWidth="var(--dw-line)"
-          transform="translate(0,-4)" opacity={at(p, 'platelets') * 0.8 * dim('mos2')} />
+          transform="translate(0,-4)" opacity={at(p, 'platelets') * 0.8 * dim('mos2')} style={fade} />
       )}
 
       {/* ── Antioxidans: feine Marken im ganzen Volumen ───────────────────── */}
       {!noAntiox && (
-        <g opacity={at(p, 'antiox') * dim('antioxidans')} clipPath="url(#wf-film)">
+        <g opacity={at(p, 'antiox') * dim('antioxidans')} clipPath="url(#wf-film)" style={fade}>
           {ANTIOX.map((a, i) => (
             <g key={i} transform={`translate(${a.x} ${a.y}) rotate(${a.a})`}>
               <line x1={-3.5} y1="0" x2={3.5} y2="0" stroke="var(--accent)" strokeWidth="var(--dw-hair)" />

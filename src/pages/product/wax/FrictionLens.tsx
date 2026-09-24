@@ -80,14 +80,41 @@ function LensFigure({ oil, zone, de }: { oil: boolean; zone: Zone | null; de: bo
       </g>
       <g fontFamily="Libre Franklin, sans-serif" fontSize="12" textAnchor="middle">
         <text x="470" y="194" fill="#2A2F36" fontWeight="600">{de ? 'Bolzen' : 'Pin'}</text>
-        <text x="470" y="254" fill="#C4CBD3">{de ? 'Laschenschulter' : 'Plate shoulder'}</text>
+        <text x="470" y="246" fill="#C4CBD3" fontSize="11">{de ? 'Laschenschulter' : 'Plate shoulder'}</text>
         <text x="470" y="296" fill="#C4CBD3">{de ? 'Rolle' : 'Roller'}</text>
       </g>
     </svg>
   );
 }
 
-export function FrictionLens({ de }: { de: boolean }) {
+/** Zahnprofil neu gegen abgenutzt ("Haifischflosse"). Eigene Komponente,
+ *  weil die Wissenschaftsseite sie im hellen Hero neben der Kassettenlupe
+ *  zeigt: `tone="light"` zeichnet dunkle Linien auf hellem Grund. */
+export function ToothProfiles({ de, tone = 'dark' }: { de: boolean; tone?: 'dark' | 'light' }) {
+  const line = tone === 'dark' ? '#fff' : 'var(--tx1)';
+  const ghost = tone === 'dark' ? 'rgba(255,255,255,.25)' : 'var(--txff)';
+  const worn = tone === 'dark' ? '#A9C4E6' : 'var(--accent)';
+  const fill = tone === 'dark' ? 'rgba(169,196,230,.12)' : 'rgba(var(--accent-rgb),.08)';
+  return (
+    <div className={`wxp-teeth${tone === 'light' ? ' wxp-teeth--light' : ''}`}>
+      <figure>
+        <svg width="120" height="84" viewBox="0 0 120 84" aria-hidden="true"><path d="M8 80 L38 16 Q60 4 82 16 L112 80" fill={fill} stroke={line} strokeWidth="1.7" strokeLinejoin="round" /></svg>
+        <figcaption><b>{de ? 'Neu' : 'New'}</b> · {de ? 'symmetrisch' : 'symmetric'}</figcaption>
+      </figure>
+      <figure>
+        <svg width="120" height="84" viewBox="0 0 120 84" aria-hidden="true">
+          <path d="M8 80 L38 16 Q60 4 82 16 L112 80" fill="none" stroke={ghost} strokeWidth="1.2" strokeDasharray="3 3" />
+          <path d="M8 80 L40 20 Q54 10 66 18 Q70 40 88 52 L112 80" fill={fill} stroke={worn} strokeWidth="1.7" strokeLinejoin="round" />
+        </svg>
+        <figcaption><b>{de ? 'Abgenutzt' : 'Worn'}</b> · {de ? 'Haifischflosse' : 'shark fin'}</figcaption>
+      </figure>
+    </div>
+  );
+}
+
+// eyebrow/cassette: die Wissenschaftsseite nutzt dasselbe Instrument als
+// eigenes Kapitel (ohne "Kapitel 02") und zeigt die Kassette schon im Hero.
+export function FrictionLens({ de, eyebrow, cassette = true }: { de: boolean; eyebrow?: string; cassette?: boolean }) {
   const [oil, setOil] = useState(false);
   const [zone, setZone] = useState<Zone | null>(null);
 
@@ -105,7 +132,7 @@ export function FrictionLens({ de }: { de: boolean }) {
     <section className="wxp-chapter wxp-darkband pdp-dark">
       <div className="wxp-wrap">
         <div className="wxp-chead">
-          <p className="eyebrow">{de ? 'Kapitel 02' : 'Chapter 02'}</p>
+          <p className="eyebrow">{eyebrow ?? (de ? 'Kapitel 02' : 'Chapter 02')}</p>
           <h2>{de ? 'Wo die Reibung wirklich sitzt.' : 'Where the friction really is.'}</h2>
           <p>{de ? 'So, wie die Kette am Rad hängt. Die Lupe zeigt, was im Gelenk passiert.' : 'The chain as it hangs on the bike. The loupe shows what happens inside a joint.'}</p>
         </div>
@@ -139,7 +166,7 @@ export function FrictionLens({ de }: { de: boolean }) {
           </ol>
         </div>
 
-        <div className="wxp-cassette">
+        {cassette && <div className="wxp-cassette">
           {/* v5 (14.09.2026): kein weisser Kasten mehr. Die WebP hat einen
               transparenten Grund (RGBA), die JPG einen weissen — deshalb nur
               noch die WebP, direkt auf dem Dunkelband. Die Zoom-Linse zeigt
@@ -167,21 +194,9 @@ export function FrictionLens({ de }: { de: boolean }) {
             <p className="txt">{de
               ? 'Schleifpaste aus Öl und Staub trägt die Flanken der Kassette ab. Die Kette greift schlechter und längt sich schneller. Trockenes Wachs bindet diesen Staub nicht, deshalb hält die Kassette mit Wachs etwa doppelt so lange.'
               : 'Grinding paste of oil and dust wears down the cassette flanks. The chain engages worse and elongates faster. Dry wax does not bind that dust, so the cassette lasts roughly twice as long with wax.'}</p>
-            <div className="wxp-teeth">
-              <figure>
-                <svg width="120" height="84" viewBox="0 0 120 84" aria-hidden="true"><path d="M8 80 L38 16 Q60 4 82 16 L112 80" fill="rgba(169,196,230,.12)" stroke="#fff" strokeWidth="1.7" strokeLinejoin="round" /></svg>
-                <figcaption><b>{de ? 'Neu' : 'New'}</b> · {de ? 'symmetrisch' : 'symmetric'}</figcaption>
-              </figure>
-              <figure>
-                <svg width="120" height="84" viewBox="0 0 120 84" aria-hidden="true">
-                  <path d="M8 80 L38 16 Q60 4 82 16 L112 80" fill="none" stroke="rgba(255,255,255,.25)" strokeWidth="1.2" strokeDasharray="3 3" />
-                  <path d="M8 80 L40 20 Q54 10 66 18 Q70 40 88 52 L112 80" fill="rgba(169,196,230,.12)" stroke="#A9C4E6" strokeWidth="1.7" strokeLinejoin="round" />
-                </svg>
-                <figcaption><b>{de ? 'Abgenutzt' : 'Worn'}</b> · {de ? 'Haifischflosse' : 'shark fin'}</figcaption>
-              </figure>
-            </div>
+            <ToothProfiles de={de} />
           </div>
-        </div>
+        </div>}
       </div>
     </section>
   );
