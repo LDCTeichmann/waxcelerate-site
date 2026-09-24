@@ -162,7 +162,9 @@ function ToothProfile({ de }: { de: boolean }) {
 }
 
 /** Die Kassette als Hero-Figur, gleich auf Mobil und Desktop. */
-export function CassetteLens({ de }: { de: boolean }) {
+/** `handoff` = die Uebergabezeile nach ACT I (#problem). Nur auf /wissenschaft sinnvoll,
+ *  die Partnerseite zeigt die Figur ohne sie. */
+export function CassetteLens({ de, handoff = true }: { de: boolean; handoff?: boolean }) {
   return (
     <figure className="m-0">
       <div className="relative">
@@ -276,6 +278,7 @@ export function CassetteLens({ de }: { de: boolean }) {
         {/* Die Uebergabe. Ohne diese Zeile zeigt der Hero die Folge, waehrend
             die Seite danach die Ursache erklaert, und niemand verbindet die
             beiden. Ziel ist ACT I, wo der Spalt aufgemacht wird. */}
+        {handoff && (
         <p className="text-[13px] leading-relaxed mt-5 pt-4" style={{ color: 'var(--tx2)', borderTop: '1px solid var(--bd2)', maxWidth: '40ch' }}>
           {de ? 'Und das entsteht in einem Spalt von wenigen Mikrometern. ' : 'And all of this starts in a gap a few micrometres wide. '}
           <a href="#problem" className="font-semibold underline underline-offset-4 transition-opacity hover:opacity-70"
@@ -283,6 +286,7 @@ export function CassetteLens({ de }: { de: boolean }) {
             {de ? 'Dort weiterlesen' : 'Read on there'}
           </a>
         </p>
+        )}
       </figcaption>
     </figure>
   );

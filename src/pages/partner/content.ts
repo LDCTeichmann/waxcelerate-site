@@ -48,13 +48,28 @@ const byId = (id: string): Product => {
 };
 
 export const COMMISSION_PCT = 30;
-export const DIRECT_BUY_MAX_PCT = 45;
+/** Hoechste Shop-Marge im Direktkauf: Staffel ab 16 Bloecken (19,50 EUR) bei 34,95 EUR = 44,2 %.
+ *  Die Staffel selbst steht nur in api/partner-access.ts. */
+export const DIRECT_BUY_MAX_PCT = 44;
 /** "rund 10,50 EUR je verkauftem Block": 30 % vom UVP des MoS2 Pro 500 g (34,95 EUR), auf halbe Euro gerundet.
  *  An Laeden geht nur noch Pro 500 g (Luca, 24.09.2026). */
 export const commissionPerBlock = Math.round(((byId('wax-500-mos2').price * COMMISSION_PCT) / 100) * 2) / 2;
 const commissionText = commissionPerBlock.toFixed(2).replace('.', ',');
 
-export const TRUST_LINE = `Über ${trustStats.sold} verkaufte Einheiten, 100 % positives Feedback, ${trustStats.reviews} Bewertungen.`;
+/** Partnerstaedte duerfen genannt werden (Luca, 24.09.2026), Shopnamen nicht. */
+export const PARTNER_CITIES = ['Stuttgart', 'Erlangen', 'Salzburg'];
+export const TRUST_LINE = `Partner in ${PARTNER_CITIES.slice(0, -1).join(', ')} und ${PARTNER_CITIES.at(-1)}. Über ${trustStats.sold} verkaufte Einheiten, 100 % positives Feedback.`;
+
+/** Die drei Antworten, die ein Inhaber zuerst sucht, direkt unter dem Hero. */
+export const HERO_FACTS = [
+  { value: `${COMMISSION_PCT} %`, label: 'Kommission auf Wachs' },
+  { value: '5–10 €', label: 'Ihre Gebühr je Tausch' },
+  { value: '0 €', label: 'Warenrisiko im Testpaket' },
+];
+
+/** Besuchsfrequenz, EINE Aussage fuer die ganze Seite (Masterplan: 1–2x wird 4–10x im Jahr). */
+export const VISITS = { before: '1–2', after: '4–10' };
+export const FREQUENCY = `Aus ${VISITS.before} Werkstattbesuchen im Jahr werden ${VISITS.after}.`;
 
 /** Co-Branding ab dieser Menge im Direktkauf (Pro 500 g, eine Etikettenvariante), nie auf Kommissionsware.
  *  Entschieden 24.09.2026: 16 Bloecke = volles 10-kg-DHL-Paket (0,6 kg je Block). Rechnung: Die Erstbestellung
@@ -72,66 +87,97 @@ export const GAP = {
   ],
   source:
     'Öffentliche Preislisten deutscher Werkstätten und Versanddienste, Stand 07/2026. Wer vor Ort keinen Anbieter findet, schickt die Kette per Post. An Ihrer Kasse vorbei.',
-  frequency: 'Aus einem Werkstattbesuch im Jahr werden sechs.',
-  frequencyNote: 'Vier bis zehn Wachsgänge im Jahr, also vier bis zehn Besuche, jeder mit Beratung und Zubehör-Chance.',
 };
 
-// ─── Drei Wege ──────────────────────────────────────────────────────────────
+// ─── So funktioniert es: zwei Ketten, ein Kreislauf ─────────────────────────
+// Der Kreislauf traegt nur mit Zweitkette (Masterplan §3). Das ist Schritt 1,
+// nicht eine Fussnote: sonst fragt jeder Inhaber, wessen Kette er herausgibt.
+export const CYCLE_TITLE = 'Zwei Ketten, ein Kreislauf.';
+export const CYCLE = [
+  { who: 'Einmalig', title: 'Zweitkette verkaufen', text: 'Ihr Kunde kauft eine zweite, vorgewachste Kette bei Ihnen. Ab jetzt fährt er eine, die andere wartet bei Ihnen.' },
+  { who: 'Alle 400–550 km', title: 'Tauschen', text: 'Kette fällig, Kunde kommt. Sie tauschen in zwei Minuten über den Tresen und kassieren Ihre Gebühr.' },
+  { who: 'Ab 5 Ketten', title: 'Einsenden', text: 'Sie sammeln die fälligen Ketten in nummerierten Beuteln und schicken sie uns.' },
+  { who: 'Waxcelerate', title: 'Reinigen und wachsen', text: 'Zurück in der Regel nach 5 Werktagen. Die Kette liegt bereit für den nächsten Tausch.' },
+];
+export const CYCLE_RETURN = 'zurück zu Ihnen, bereit für den nächsten Tausch';
+export const CYCLE_NOTE =
+  'Durch die Zweitkette spielt die Laufzeit keine Rolle: Ihr Kunde wartet nie auf seine Kette. Neue Ketten aus dem Lager liefern wir in 48–72 h.';
+
+export const DUTIES = {
+  you: {
+    title: 'Sie tun',
+    items: [
+      'Zweitkette verkaufen und einbauen',
+      'Kette tauschen und in den nummerierten Beutel legen',
+      'Verschleiß prüfen und entscheiden, ob getauscht wird',
+      'Ab 5 Ketten einsenden, den Hinversand zahlen Sie',
+    ],
+  },
+  we: {
+    title: 'Wir tun',
+    items: [
+      'Ultraschall-entfetten, wachsen, versiegeln',
+      'Rückversand zu Ihnen, im Preis enthalten',
+      'Gleiches Ergebnis bei jeder Kette',
+      'Nie Kontakt zu Ihrem Kunden',
+    ],
+  },
+  note: 'Geölte oder verschmutzte Ketten bearbeiten wir nicht, sie gehen unbearbeitet zurück.',
+};
+
+// ─── Was Sie verdienen ──────────────────────────────────────────────────────
 export const WAYS = [
   {
     no: '01',
     name: 'Regal',
     figure: `${COMMISSION_PCT} % Kommission`,
-    text: `Wachs auf Kommission, rund ${commissionText} € je verkauftem Block. Bis ${DIRECT_BUY_MAX_PCT} % im Direktkauf. Kein Einkauf, keine Kapitalbindung.`,
+    text: `Rund ${commissionText} € je verkauftem Block, ohne Einkauf und ohne Kapitalbindung. Im Direktkauf bis ${DIRECT_BUY_MAX_PCT} %.`,
   },
   {
     no: '02',
-    name: 'Ketten',
-    figure: '2 Typen lagern',
-    text: 'Vorgewachst und einbaufertig. Sie lagern zwei Typen, den Rest liefern wir in 48–72 h. Ketten gibt es nur im Direktkauf, nicht auf Kommission.',
+    name: 'Zweitkette',
+    figure: 'Der Einstiegsverkauf',
+    text: 'Jeder Kreislauf-Kunde kauft zuerst eine vorgewachste Kette bei Ihnen. Sie lagern zwei Typen, den Rest liefern wir in 48–72 h. Nur Direktkauf, nicht auf Kommission.',
   },
   {
     no: '03',
     name: 'Kreislauf',
     figure: '5–10 € je Tausch',
-    text: 'Kette raus, gewachste rein. Zwei Minuten, wiederkehrend. Ihre Gebühr setzen Sie selbst.',
+    text: 'Bei jedem Besuch, wiederkehrend. Ihre Gebühr setzen Sie selbst, die Rewax-Kosten von unter 10 € je Kette reichen Sie an den Kunden weiter.',
   },
 ];
 export const WAYS_NOTE = 'Kombinierbar. Die meisten Partner starten mit Regal und Kreislauf.';
 
-// ─── Kreislauf ──────────────────────────────────────────────────────────────
-export const CYCLE = [
-  { who: 'Kunde', text: 'Kette fällig nach 400–550 km, je nach Bedingungen.' },
-  { who: 'Ihr Shop', text: 'Gibt eine gewachste heraus. Zwei Minuten über den Tresen, ohne Werkzeug. Gesammelt wird in einer Box auf der Theke.' },
-  { who: 'Waxcelerate', text: 'Reinigt und wachst. Gleiches Ergebnis bei jeder Kette. Sie senden ab 5 Ketten ein, gewachst zurück in der Regel nach etwa 5 Werktagen (3 Werktage Bearbeitung ab Ankunft, dazu Post).' },
-];
-export const CYCLE_NOTE =
-  'Woanders steht das Rad dafür einen Tag in der Werkstatt oder eine Woche bei der Post. Bei Ihnen dauert es zwei Minuten, und die Zweitkette beim Kunden macht die Laufzeit unwichtig. Neue Ketten aus dem Lager liefern wir in 48–72 h.';
-
-/** Rechenbeispiel wie im Infoblatt: 20 Rotationskunden x 5 Tausche x 7,50 EUR. */
-export const EXAMPLE = { customers: 20, swapsPerYear: 5, minutesPerSwap: 2, feeEur: 7.5 };
+/** Rechenbeispiel mit der ganzen Arbeit, nicht nur den zwei Minuten am Tresen (Luca, 24.09.2026).
+ *  Beutel/Nummer je Kette, Packen je Sendung und Hinversand (DHL 5 kg, 7,70 EUR) sind Annahmen,
+ *  bei 10 Ketten je Sendung (ab 10 Ketten guenstigerer Rewax-Preis). */
+export const EXAMPLE = {
+  customers: 20, swapsPerYear: 5, minutesPerSwap: 2, feeEur: 7.5,
+  minutesPerChain: 1, chainsPerShipment: 10, minutesPerShipment: 10, shippingPerShipmentEur: 7.7,
+};
 export const exampleResult = (() => {
   const swaps = EXAMPLE.customers * EXAMPLE.swapsPerYear;
-  const hours = (swaps * EXAMPLE.minutesPerSwap) / 60;
-  const revenue = swaps * EXAMPLE.feeEur;
-  return { swaps, hours, revenue, perHour: revenue / hours };
+  const shipments = Math.ceil(swaps / EXAMPLE.chainsPerShipment);
+  const minutes = swaps * (EXAMPLE.minutesPerSwap + EXAMPLE.minutesPerChain) + shipments * EXAMPLE.minutesPerShipment;
+  const hours = minutes / 60;
+  const revenue = swaps * EXAMPLE.feeEur - shipments * EXAMPLE.shippingPerShipmentEur;
+  return { swaps, shipments, hours, revenue, perHour: revenue / hours };
 })();
 export const EXAMPLE_NOTE =
-  'Rechenbeispiel mit einer angenommenen Tauschgebühr von 7,50 €. Ihre Gebühr und alle Endpreise bestimmen Sie selbst. Die Rewax-Kosten von unter 10 € je Kette trägt Ihr Kunde, er zahlt je Tausch also rund 15 bis 20 €.';
+  `Rechenbeispiel: ${EXAMPLE.customers} Kreislauf-Kunden mit je ${EXAMPLE.swapsPerYear} Tauschen, angenommene Gebühr 7,50 €. ` +
+  `Arbeitszeit mit Tausch (${EXAMPLE.minutesPerSwap} Min.), Beutel und Nummer (${EXAMPLE.minutesPerChain} Min. je Kette) und Packen (${EXAMPLE.minutesPerShipment} Min. je Sendung à ${EXAMPLE.chainsPerShipment} Ketten), ` +
+  'Ertrag nach Hinversand. Ihre Gebühr und alle Endpreise bestimmen Sie selbst. Die Rewax-Kosten trägt Ihr Kunde, er zahlt je Tausch also rund 15 bis 20 €.';
 
 // ─── Aufwand und Beleg ──────────────────────────────────────────────────────
 export const EFFORT = {
-  title: 'Wachsen kostet Werkbank.',
-  lead: 'Nicht das Wachs ist das Problem, sondern die Zeit davor und danach. Genau die nehmen wir Ihnen ab und lassen Ihnen den Kunden.',
-  before: { label: 'Selbst wachsen', value: '30–45 Min.', text: 'Vorbereitung pro Kette: entfetten, trocknen, schmelzen, tauchen, aushärten. Im Frühjahr steht jede Kette im Topf gegen einen Auftrag, den Sie abrechnen könnten.' },
-  after: { label: 'Mit uns', value: '2 Min.', text: 'Kette tauschen, fertig. Kein Topf, kein Ultraschall, keine Wachsentsorgung. Im Peak keine Warteschlange.' },
+  title: 'Selbst wachsen kostet Werkbank.',
+  before: { label: 'Selbst wachsen', value: '30–45 Min.', text: 'je Kette: entfetten, trocknen, schmelzen, tauchen, aushärten. Im Frühjahr gegen Aufträge, die Sie abrechnen könnten.' },
+  after: { label: 'Mit uns', value: '2 Min.', text: 'am Tresen: Kette tauschen. Kein Topf, kein Ultraschall, keine Wachsentsorgung.' },
   note: 'Referenzwerte aus veröffentlichten Preislisten und Prozessbeschreibungen deutscher Wachs-Werkstätten und Versanddienste, Stand 07/2026. Keine Preisempfehlung.',
 };
 export const PROOF = {
   title: 'Verschleiß frisst die Zahnflanke.',
   text: 'Schleifpaste aus Öl und Staub trägt die Flanken der Kassette ab. Die Kette greift schlechter und längt sich schneller. Trockenes Wachs bindet diesen Staub nicht, deshalb läuft die Kette deutlich länger, oft zwei- bis dreimal so lange. Für Ihren Kunden: seltener die teuren Teile. Für Sie: er kommt trotzdem öfter, zum Tausch statt zur Reparatur.',
-  keep: { title: 'Sie behalten', text: 'Kunde, Endpreis und Tauschgebühr bei jedem Besuch. Ihre Kunden bleiben Ihre Kunden.' },
-  take: { title: 'Wir übernehmen', text: 'Reinigen und Wachsen. Ultraschall-entfettet, gewachst, versiegelt, einbaufertig. Gleiches Ergebnis bei jeder Kette.' },
 };
 
 // ─── Sortiment (Preise = UVP-Empfehlung aus data.ts) ────────────────────────
@@ -140,14 +186,6 @@ export const WAX_NOTE =
   'PFAS-frei und zukunftssicher, unabhängig vom Ausgang des EU-Verfahrens. Ein Block leistet 15–20 Wachsvorgänge, je Vorgang 400–550 km trocken.';
 export const CHAINS_NOTE =
   'Ultraschall-entfettet, mit Pro (MoS₂) gewachst, versiegelt und einbaufertig. Quick-Link liegt bei. Handgewachst in Stuttgart. Wunschkette auf Anfrage.';
-export const CARDS = {
-  title: 'Stempelkarten',
-  lead: 'Umsatz heute, Leistung später. Nicht eingelöste Stempel bleiben Ihre Marge. Blanko geliefert, co-brandbar mit Ihrem Logo.',
-  sizes: ['5er-Karte', '10er-Karte'],
-  // Bewusst ohne Euro-Empfehlung: die Website verkauft dieselben Karten direkt (49,75 / 94,50 EUR),
-  // eine hoehere Handelsempfehlung waere ein Widerspruch (docs/plaene/PARTNER_SEITE.md, P09).
-  note: 'Die Karte gibt Ihr Shop aus und setzt den Preis, wir liefern den Service. Eine Preisempfehlung nennen wir Ihnen im Gespräch.',
-};
 
 /** Wachs- und Ketten-Listen fuer die Seite, alles aus data.ts. */
 export function partnerWax(): Product[] {
@@ -167,7 +205,8 @@ export const TRIAL = {
   items: [
     '8 Blöcke MoS₂ Pro in einem Paket: 7 auf Kommission und 1 gratis für die Werkstatt, zum Selbsttesten',
     'Ketten ab Tag 1 lieferbar',
-    'Blanko-Stempelkarten, kostenlos',
+    // Stempelkarten ohne Euro-Empfehlung: die Website verkauft dieselben Karten direkt (P09 offen).
+    'Blanko-Stempelkarten (5er und 10er), kostenlos und co-brandbar: Umsatz heute, Leistung später',
     `Co-Branding: Ihr Logo auf dem Etikett, ab ${COBRANDING_MIN_BLOCKS} Blöcken im Direktkauf ohne Aufpreis`,
   ],
 };
@@ -182,6 +221,14 @@ export const FAQ: { q: string; a: string }[] = [
   {
     q: 'Nehmen Sie mir Kunden weg?',
     a: 'Nein. Ihre Kunden bleiben Ihre Kunden. Im Rewax-Kreislauf läuft alles über Ihren Tresen, dort haben wir nie Kontakt zum Endkunden. Kunde, Endpreis und Tauschgebühr bleiben bei Ihnen.',
+  },
+  {
+    q: 'Wem gehört die Wechselkette?',
+    a: 'Ihrem Kunden. Er kauft beim Einstieg eine zweite, vorgewachste Kette bei Ihnen. Danach fährt er eine, die andere liegt bei Ihnen oder bei uns. Die Zuordnung läuft über nummerierte Beutel.',
+  },
+  {
+    q: 'Verkaufen Sie online an meine Kunden?',
+    a: 'Wachs und Ketten gibt es auch online, zum selben Preis, den wir Ihnen als Empfehlung nennen. Wir unterbieten Ihren Laden nicht. Nachwachsen per Post bieten wir Endkunden ebenfalls an, den Tausch in zwei Minuten gibt es aber nur bei Ihnen.',
   },
   {
     q: 'Was muss ich lagern?',
@@ -207,7 +254,8 @@ export const LEGAL_LINE = 'Luca Teichmann · Waxcelerate, Stuttgart · Kleinunte
 // ─── Vorrender-Text fuer Crawler (scripts/generate-blog-html.mjs) ───────────
 export const PARTNER_POINTS: string[] = [
   `${PARTNER_LEAD}`,
-  `${GAP.items[0].label}: ${GAP.items[0].value}. ${GAP.items[1].label}: ${GAP.items[1].value}. ${GAP.frequency}`,
+  `${GAP.items[0].label}: ${GAP.items[0].value}. ${GAP.items[1].label}: ${GAP.items[1].value}. ${FREQUENCY}`,
+  `${CYCLE_TITLE} ${CYCLE.map((c) => `${c.title}: ${c.text}`).join(' ')}`,
   ...WAYS.map((w) => `${w.name}: ${w.figure}. ${w.text}`),
   `Testpaket: ${TRIAL.badge}. ${TRIAL.lead}`,
   EXCLUSIVITY,

@@ -8,23 +8,31 @@
 // Farben, Haarlinien statt gefuellter Kacheln, Foto nur im Einstieg (mit Scrim),
 // grosse Serifzahlen sparsam. Dunkel sind nur der Einstieg und das Abschlussband
 // (wie das gedruckte Infoblatt, dort traegt Gold die Geldzahlen).
+//
+// Reihenfolge nach den Fragen eines Inhabers (Umbau 24.09.2026): Was bringt es
+// (Faktenzeile im Hero), gibt es Nachfrage (Luecke), wie laeuft es und was muss
+// ich tun (Kreislauf mit Zweitkette), was verdiene ich (drei Wege, ehrliches
+// Rechenbeispiel), warum kommen Kunden wieder (Beleg), was gibt es (Sortiment,
+// Fragen), wie starte ich (Testpaket, Kontakt).
 
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ArrowRight, MessageCircle, Phone } from 'lucide-react';
+import { ArrowRight, ChevronDown, MessageCircle, Phone } from 'lucide-react';
 import { Navigation } from '@/sections/navigation';
 import { Footer } from '@/sections/footer';
-import { GiftCardObject } from '@/components/GiftCardObject';
+import { FaqList } from '@/components/FaqList';
+import { CassetteLens } from '@/sections/science/CassetteLens';
 import { removeStaticJsonLd, removeStaticHeadMeta } from '@/lib/utils';
 import { trackPartnerView, trackPartnerCta } from '@/lib/analytics';
 import { shopFromSlug } from '@/pages/partner/shops';
 import { PartnerRequestForm } from '@/pages/partner/PartnerRequestForm';
+import { CycleDiagram } from '@/pages/partner/CycleDiagram';
 import {
   BASE, PARTNER_PATH, PARTNER_AREA_PATH, PARTNER_TITLE, PARTNER_DESCRIPTION, PARTNER_H1, PARTNER_LEAD,
-  PHONE_DISPLAY, PHONE_HREF, whatsappLink, TRUST_LINE, GAP, WAYS, WAYS_NOTE, CYCLE, CYCLE_NOTE, EXAMPLE,
-  exampleResult, EXAMPLE_NOTE, EFFORT, PROOF, RANGE_NOTE, WAX_NOTE, CHAINS_NOTE, CARDS, partnerWax,
-  partnerChains, TRIAL, STEPS, FAQ, EXCLUSIVITY, LEGAL_LINE,
+  PHONE_DISPLAY, PHONE_HREF, whatsappLink, TRUST_LINE, HERO_FACTS, FREQUENCY, GAP, WAYS, WAYS_NOTE,
+  CYCLE_TITLE, CYCLE_NOTE, DUTIES, exampleResult, EXAMPLE_NOTE, EFFORT, PROOF, RANGE_NOTE, WAX_NOTE,
+  CHAINS_NOTE, partnerWax, partnerChains, TRIAL, STEPS, FAQ, EXCLUSIVITY, LEGAL_LINE,
 } from '@/pages/partner/content';
 
 const GOLD = '#B9A67E';
@@ -94,6 +102,8 @@ export function PartnerPage() {
   const canonical = `${BASE}${PARTNER_PATH}`;
   const wax = partnerWax();
   const chains = partnerChains();
+  const speeds = chains.map((c) => parseInt(c.chainSpeed ?? '', 10)).filter((n) => n > 0);
+  const speedRange = `${Math.min(...speeds)}- bis ${Math.max(...speeds)}-fach`;
   // Gleiches Schema wie im Vorrender (scripts/generate-blog-html.mjs, breadcrumb()).
   const breadcrumb = {
     '@context': 'https://schema.org',
@@ -124,7 +134,7 @@ export function PartnerPage() {
         <Navigation />
 
         <main id="main-content">
-          {/* ── 1 · Einstieg: Foto mit Scrim ─────────────────────────── */}
+          {/* ── 1 · Einstieg: Foto mit Scrim, darunter die drei Kernzahlen ── */}
           <section style={{ ...DARK_VARS, background: '#0A0A0A', color: 'var(--tx1)' }} className="relative isolate overflow-hidden">
             <img
               src="/images/rewax/hero.webp"
@@ -140,13 +150,15 @@ export function PartnerPage() {
               className="absolute inset-0 -z-10 md:hidden"
               style={{ background: 'linear-gradient(to top, rgba(10,10,10,0.97) 0%, rgba(10,10,10,0.84) 52%, rgba(10,10,10,0.55) 100%)' }}
             />
-            {/* Desktop: Foto rechts frei, Scrim von unten und von links. */}
+            {/* Desktop: Foto rechts frei, Scrim von unten und von links. Links bis ueber
+                die Bildmitte kraeftig, damit das Karton-Logo im Foto nicht hinter Lead und
+                Buttons durchscheint (lag vorher bei rund 60 % Deckkraft sichtbar darunter). */}
             <div
               aria-hidden
               className="absolute inset-0 -z-10 hidden md:block"
-              style={{ background: 'linear-gradient(to top, rgba(10,10,10,0.9) 0%, rgba(10,10,10,0.35) 45%, rgba(10,10,10,0.15) 100%), linear-gradient(90deg, rgba(10,10,10,0.88) 0%, rgba(10,10,10,0.5) 48%, rgba(10,10,10,0) 78%)' }}
+              style={{ background: 'linear-gradient(to top, rgba(10,10,10,0.9) 0%, rgba(10,10,10,0.35) 45%, rgba(10,10,10,0.15) 100%), linear-gradient(90deg, rgba(10,10,10,0.92) 0%, rgba(10,10,10,0.86) 44%, rgba(10,10,10,0.3) 62%, rgba(10,10,10,0) 80%)' }}
             />
-            <div className="wx-frame flex min-h-[min(92svh,760px)] flex-col justify-end pb-14 pt-40 sm:pb-20 sm:pt-48">
+            <div className="wx-frame flex min-h-[min(92svh,780px)] flex-col justify-end pb-12 pt-36 sm:pb-16 sm:pt-44">
               <p className="eyebrow mb-5" style={{ color: '#C4C4C8' }}>{shop ? `Für ${shop.name}` : 'Partner-Infoblatt Fachhandel'}</p>
               <h1
                 className="section-title max-w-[16ch]"
@@ -163,11 +175,22 @@ export function PartnerPage() {
                   Testpaket anfragen <ArrowRight className="h-4 w-4" aria-hidden />
                 </a>
               </div>
-              <p className="mt-8 text-[13px]" style={{ color: 'var(--txf)' }}>{TRUST_LINE}</p>
+              <dl className="mt-12 grid max-w-[640px] grid-cols-3 gap-4 border-t pt-5 sm:gap-8" style={{ borderColor: 'rgba(255,255,255,0.18)' }}>
+                {HERO_FACTS.map((f) => (
+                  <div key={f.label}>
+                    <dt className="sr-only">{f.label}</dt>
+                    <dd>
+                      <span className="num block text-[clamp(1.5rem,5vw,2rem)] font-semibold leading-none" style={{ color: GOLD }}>{f.value}</span>
+                      <span aria-hidden className="mt-2 block text-[13px] leading-snug" style={{ color: '#C4C4C8' }}>{f.label}</span>
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+              <p className="mt-6 text-[13px]" style={{ color: 'var(--txf)' }}>{TRUST_LINE}</p>
             </div>
           </section>
 
-          {/* ── 2 · Die Luecke ───────────────────────────────────────── */}
+          {/* ── 2 · Die Luecke: Nachfrage und der Aufwand, sie selbst zu bedienen ── */}
           <Band id="luecke">
             <p className="eyebrow mb-4">Die Lücke</p>
             <h2 className="section-title max-w-[22ch]">{GAP.question}</h2>
@@ -180,17 +203,55 @@ export function PartnerPage() {
                 </div>
               ))}
             </div>
-            <p className="mt-8 max-w-[70ch] text-[13px] leading-relaxed" style={{ color: 'var(--txf)' }}>{GAP.source}</p>
-            <div className="mt-14 border-t pt-8" style={{ borderColor: 'var(--bd)' }}>
-              <p className="text-[clamp(1.5rem,4vw,2.25rem)] leading-tight" style={{ fontFamily: SERIF, fontWeight: 700 }}>{GAP.frequency}</p>
-              <p className="mt-3 max-w-[60ch] text-[15px]" style={{ color: 'var(--tx2)' }}>{GAP.frequencyNote}</p>
+            <p className="mt-6 max-w-[70ch] text-[13px] leading-relaxed" style={{ color: 'var(--txf)' }}>{GAP.source}</p>
+
+            <div className="mt-14">
+              <p className="eyebrow mb-4">{EFFORT.title}</p>
+              <div className="grid gap-8 sm:grid-cols-2">
+                {[EFFORT.before, EFFORT.after].map((b) => (
+                  <div key={b.label} className="border-t pt-4" style={{ borderColor: 'var(--bd)' }}>
+                    <p className="text-[13px]" style={{ color: 'var(--txf)' }}>{b.label}</p>
+                    <p className="mt-1 text-[15px] leading-relaxed" style={{ color: 'var(--tx2)' }}>
+                      <span className="num mr-1.5 text-[24px] font-semibold" style={{ color: 'var(--tx1)' }}>{b.value}</span>
+                      {b.text}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
           </Band>
 
-          {/* ── 3 · Drei Wege, Kreislauf, Rechenbeispiel ─────────────── */}
-          <Band id="wege" alt>
-            <p className="eyebrow mb-4">So verdienen Sie</p>
-            <h2 className="section-title">Drei Wege. Stapelbar.</h2>
+          {/* ── 3 · So funktioniert es: Kreislauf mit Zweitkette, wer was tut ── */}
+          <Band id="kreislauf" alt>
+            <p className="eyebrow mb-4">So funktioniert es</p>
+            <h2 className="section-title">{CYCLE_TITLE}</h2>
+            <div className="mt-12">
+              <CycleDiagram />
+            </div>
+            <p className="mt-10 max-w-[64ch] text-[15px] leading-relaxed" style={{ color: 'var(--tx2)' }}>{CYCLE_NOTE}</p>
+
+            <div className="mt-14 grid gap-10 md:grid-cols-2">
+              {[DUTIES.you, DUTIES.we].map((d) => (
+                <div key={d.title}>
+                  <p className="eyebrow mb-3">{d.title}</p>
+                  <ul>
+                    {d.items.map((it) => (
+                      <li key={it} className="border-t py-3 text-[15px]" style={{ borderColor: 'var(--bd)', color: 'var(--tx1)' }}>{it}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+            <p className="mt-4 text-[13px]" style={{ color: 'var(--txf)' }}>{DUTIES.note}</p>
+          </Band>
+
+          {/* ── 4 · Was Sie verdienen: drei Wege, Rechenbeispiel mit der ganzen Arbeit ── */}
+          <Band id="wege">
+            <p className="eyebrow mb-4">Was Sie verdienen</p>
+            <h2 className="section-title max-w-[22ch]">{FREQUENCY}</h2>
+            <p className="mt-5 max-w-[58ch] text-[16px] leading-relaxed" style={{ color: 'var(--tx2)' }}>
+              Jeder Tausch ist ein Besuch, mit Gebühr, Beratung und der Chance auf Zubehör. Dazu kommen zwei Wege, die sofort Umsatz bringen.
+            </p>
             <div className="mt-12 grid gap-10 md:grid-cols-3">
               {WAYS.map((w) => (
                 <div key={w.no} className="border-t pt-5" style={{ borderColor: 'var(--bd)' }}>
@@ -202,88 +263,56 @@ export function PartnerPage() {
             </div>
             <p className="mt-8 text-[15px]" style={{ color: 'var(--tx1)' }}>{WAYS_NOTE}</p>
 
-            <div className="mt-20">
-              <p className="eyebrow mb-4">Der Kreislauf</p>
-              <ol className="grid gap-10 md:grid-cols-3">
-                {CYCLE.map((c, i) => (
-                  <li key={c.who} className="border-t pt-5" style={{ borderColor: 'var(--bd)' }}>
-                    <p className="eyebrow mb-3">{String(i + 1).padStart(2, '0')} · {c.who}</p>
-                    <p className="text-[15px] leading-relaxed" style={{ color: 'var(--tx2)' }}>{c.text}</p>
-                  </li>
-                ))}
-              </ol>
-              <p className="mt-8 max-w-[64ch] text-[15px] leading-relaxed" style={{ color: 'var(--tx2)' }}>{CYCLE_NOTE}</p>
-            </div>
-
-            <div className="mt-20">
-              <p className="eyebrow mb-4">Was der Kreislauf je Werkstattstunde bringt</p>
+            <div className="mt-16 border-t pt-8" style={{ borderColor: 'var(--bd)' }}>
+              <p className="eyebrow mb-6">Rechenbeispiel Kreislauf, ein Jahr</p>
               <dl className="grid grid-cols-2 gap-x-6 gap-y-8 md:grid-cols-4">
                 <div>
-                  <dt className="eyebrow mb-2">Tausche im Jahr</dt>
-                  <dd><span className="num text-[32px] font-semibold leading-none">{exampleResult.swaps}</span><p className="mt-1.5 text-[13px]" style={{ color: 'var(--txf)' }}>{EXAMPLE.customers} Rotationskunden, je {EXAMPLE.swapsPerYear} Tausche</p></dd>
+                  <dt className="eyebrow mb-2">Tausche</dt>
+                  <dd><span className="num text-[32px] font-semibold leading-none">{exampleResult.swaps}</span></dd>
                 </div>
                 <div>
-                  <dt className="eyebrow mb-2">Werkstattzeit</dt>
-                  <dd><span className="num text-[32px] font-semibold leading-none">{hours(exampleResult.hours)} h</span><p className="mt-1.5 text-[13px]" style={{ color: 'var(--txf)' }}>{exampleResult.swaps} × {EXAMPLE.minutesPerSwap} Minuten</p></dd>
+                  <dt className="eyebrow mb-2">Arbeitszeit gesamt</dt>
+                  <dd><span className="num text-[32px] font-semibold leading-none">{hours(exampleResult.hours)} h</span></dd>
                 </div>
                 <div>
-                  <dt className="eyebrow mb-2">Rohertrag</dt>
-                  <dd><BigNumber className="text-[44px]">{Math.round(exampleResult.revenue)} €</BigNumber><p className="mt-1.5 text-[13px]" style={{ color: 'var(--txf)' }}>bei {eur(EXAMPLE.feeEur)} Tauschgebühr</p></dd>
+                  <dt className="eyebrow mb-2">Ertrag nach Porto</dt>
+                  <dd><BigNumber className="text-[44px]">{Math.round(exampleResult.revenue)} €</BigNumber></dd>
                 </div>
                 <div>
-                  <dt className="eyebrow mb-2">Je Werkstattstunde</dt>
-                  <dd><span className="num text-[32px] font-semibold leading-none">rund {Math.round(exampleResult.perHour)} €</span><p className="mt-1.5 text-[13px]" style={{ color: 'var(--txf)' }}>ohne Wachs, Ketten und Karten</p></dd>
+                  <dt className="eyebrow mb-2">Je Arbeitsstunde</dt>
+                  <dd><span className="num whitespace-nowrap text-[clamp(1.6rem,7vw,2rem)] font-semibold leading-none">rund {Math.round(exampleResult.perHour / 10) * 10} €</span></dd>
                 </div>
               </dl>
               <p className="mt-6 max-w-[70ch] text-[13px] leading-relaxed" style={{ color: 'var(--txf)' }}>{EXAMPLE_NOTE}</p>
             </div>
           </Band>
 
-          {/* ── 4 · Aufwand und Beleg ────────────────────────────────── */}
-          <Band id="beleg">
-            <p className="eyebrow mb-4">Der Aufwand</p>
-            <h2 className="section-title">{EFFORT.title}</h2>
-            <p className="mt-5 max-w-[58ch] text-[16px] leading-relaxed" style={{ color: 'var(--tx2)' }}>{EFFORT.lead}</p>
-            <div className="mt-12 grid gap-10 md:grid-cols-2">
-              {[EFFORT.before, EFFORT.after].map((b) => (
-                <div key={b.label} className="border-t pt-5" style={{ borderColor: 'var(--bd)' }}>
-                  <p className="eyebrow mb-3">{b.label}</p>
-                  <span className="num block text-[clamp(2.25rem,6vw,3rem)] font-semibold leading-none">{b.value}</span>
-                  <p className="mt-3 text-[15px] leading-relaxed" style={{ color: 'var(--tx2)' }}>{b.text}</p>
-                </div>
-              ))}
-            </div>
-            <p className="mt-6 max-w-[70ch] text-[13px] leading-relaxed" style={{ color: 'var(--txf)' }}>{EFFORT.note}</p>
-
-            <div className="mt-20 grid gap-12 md:grid-cols-[1.4fr_1fr]">
+          {/* ── 5 · Beleg: warum der Kunde wiederkommt ───────────────── */}
+          <Band id="beleg" alt>
+            <div className="grid items-center gap-12 md:grid-cols-2">
               <div>
                 <p className="eyebrow mb-3">Der Beleg</p>
-                <h3 className="text-[clamp(1.5rem,3.5vw,2rem)] leading-tight" style={{ fontFamily: SERIF, fontWeight: 700 }}>{PROOF.title}</h3>
-                <p className="mt-4 max-w-[60ch] text-[15px] leading-relaxed" style={{ color: 'var(--tx2)' }}>{PROOF.text}</p>
+                <h2 className="section-title">{PROOF.title}</h2>
+                <p className="mt-5 max-w-[56ch] text-[16px] leading-relaxed" style={{ color: 'var(--tx2)' }}>{PROOF.text}</p>
               </div>
-              <div className="space-y-8">
-                {[PROOF.keep, PROOF.take].map((b) => (
-                  <div key={b.title} className="border-t pt-4" style={{ borderColor: 'var(--bd)' }}>
-                    <p className="eyebrow mb-2">{b.title}</p>
-                    <p className="text-[15px] leading-relaxed" style={{ color: 'var(--tx2)' }}>{b.text}</p>
-                  </div>
-                ))}
+              <div className="mx-auto w-full max-w-[520px]">
+                <CassetteLens de handoff={false} />
               </div>
             </div>
           </Band>
 
-          {/* ── 5 · Sortiment ────────────────────────────────────────── */}
-          <Band id="sortiment" alt>
+          {/* ── 6 · Sortiment und Fragen ─────────────────────────────── */}
+          <Band id="sortiment">
             <p className="eyebrow mb-4">Sortiment</p>
             <h2 className="section-title">Ihr Angebot.</h2>
             <p className="mt-4 max-w-[58ch] text-[15px]" style={{ color: 'var(--tx2)' }}>{RANGE_NOTE}</p>
 
-            <div className="mt-12 grid gap-14 lg:grid-cols-2">
+            <div className="mt-10 grid gap-12 lg:grid-cols-2">
               <div>
                 <p className="eyebrow mb-4">Kettenwachs</p>
                 <ul>
                   {wax.map((p) => (
-                    <li key={p.id} className="flex items-baseline justify-between gap-4 border-t py-3.5" style={{ borderColor: 'var(--bd)' }}>
+                    <li key={p.id} className="flex items-baseline justify-between gap-4 border-y py-3.5" style={{ borderColor: 'var(--bd)' }}>
                       <span className="text-[15px]">
                         MoS₂ Pro Edition
                         <span className="ml-2 text-[13px]" style={{ color: 'var(--txf)' }}>{(p.weight ?? '').replace(/(\d)g$/, '$1 g')}</span>
@@ -297,48 +326,38 @@ export function PartnerPage() {
 
               <div>
                 <p className="eyebrow mb-4">Vorgewachste Ketten</p>
-                <ul>
-                  {chains.map((p) => (
-                    <li key={p.id} className="flex items-baseline justify-between gap-4 border-t py-3" style={{ borderColor: 'var(--bd)' }}>
-                      <span className="text-[15px]">
-                        {[p.chainBrand, p.chainModel].filter(Boolean).join(' ')}
-                        <span className="ml-2 text-[13px]" style={{ color: 'var(--txf)' }}>{p.chainSpeed}</span>
+                <details className="group border-y" style={{ borderColor: 'var(--bd)' }}>
+                  <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 py-3.5 text-[15px]">
+                    <span>
+                      {chains.length} Kettentypen, {speedRange}
+                      <span className="ml-2 text-[13px]" style={{ color: 'var(--txf)' }}>
+                        {eur(Math.min(...chains.map((c) => c.price)))} bis {eur(Math.max(...chains.map((c) => c.price)))}
                       </span>
-                      <Price>{eur(p.price)}</Price>
-                    </li>
-                  ))}
-                </ul>
+                    </span>
+                    <ChevronDown className="h-4 w-4 flex-shrink-0 transition-transform duration-300 group-open:rotate-180 motion-reduce:transition-none" style={{ color: 'var(--txf)' }} aria-hidden />
+                  </summary>
+                  <ul className="pb-2">
+                    {chains.map((p) => (
+                      <li key={p.id} className="flex items-baseline justify-between gap-4 border-t py-3" style={{ borderColor: 'var(--bd)' }}>
+                        <span className="text-[15px]">
+                          {[p.chainBrand, p.chainModel].filter(Boolean).join(' ')}
+                          <span className="ml-2 text-[13px]" style={{ color: 'var(--txf)' }}>{p.chainSpeed}</span>
+                        </span>
+                        <Price>{eur(p.price)}</Price>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
                 <p className="mt-4 text-[13px] leading-relaxed" style={{ color: 'var(--txf)' }}>{CHAINS_NOTE}</p>
               </div>
             </div>
 
-            <div className="mt-16 grid items-center gap-10 border-t pt-10 md:grid-cols-[1fr_auto]" style={{ borderColor: 'var(--bd)' }}>
-              <div>
-                <p className="eyebrow mb-3">{CARDS.title}</p>
-                <p className="max-w-[56ch] text-[15px] leading-relaxed" style={{ color: 'var(--tx2)' }}>{CARDS.lead}</p>
-                <p className="mt-4 text-[15px]">{CARDS.sizes.join(' und ')}</p>
-                <p className="mt-4 max-w-[60ch] text-[13px] leading-relaxed" style={{ color: 'var(--txf)' }}>{CARDS.note}</p>
+            <div id="fragen" className="mt-20">
+              <p className="eyebrow mb-4">Fragen von Inhabern</p>
+              <h2 className="section-title">Kurz beantwortet.</h2>
+              <div className="mt-8 border-t" style={{ borderColor: 'var(--bd2)' }}>
+                <FaqList items={FAQ} de />
               </div>
-              <div className="mx-auto w-[min(100%,340px)] md:mx-0">
-                <GiftCardObject count={3} de animate={false} />
-              </div>
-            </div>
-          </Band>
-
-          {/* ── 6 · Fragen ───────────────────────────────────────────── */}
-          <Band id="fragen">
-            <p className="eyebrow mb-4">Fragen von Inhabern</p>
-            <h2 className="section-title">Kurz beantwortet.</h2>
-            <div className="mt-10 max-w-[760px] border-t" style={{ borderColor: 'var(--bd)' }}>
-              {FAQ.map((f) => (
-                <details key={f.q} className="group border-b py-5" style={{ borderColor: 'var(--bd)' }}>
-                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-[17px] font-medium">
-                    {f.q}
-                    <span aria-hidden className="text-xl transition-transform motion-reduce:transition-none group-open:rotate-45" style={{ color: 'var(--txf)' }}>+</span>
-                  </summary>
-                  <p className="mt-3 max-w-[62ch] text-[15px] leading-relaxed" style={{ color: 'var(--tx2)' }}>{f.a}</p>
-                </details>
-              ))}
             </div>
           </Band>
 

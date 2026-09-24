@@ -53,6 +53,19 @@ Copy-Regeln stehen im Kopf von `content.ts` (Sie-Form, UVP-Sprache, „0 € War
 - **HG95** aus PR #41 übernommen (Platzhalterfoto, Merchant-Feed hält sie zurück).
 - **Design:** Theme-Tokens, Foto-Einstieg, Haarlinien, Serifzahlen sparsam, Gold nur im dunklen Abschlussband.
 
+## Umbau am 24.09.2026 (Review Seite + Infoblatt)
+
+- **Reihenfolge nach Inhaber-Fragen:** Hero mit Faktenzeile (30 % · 5–10 € · 0 €) → Lücke + Aufwand selbst wachsen → Kreislauf (`CycleDiagram.tsx`) mit „Sie tun / Wir tun“ → Was Sie verdienen (drei Wege, Rechenbeispiel) → Beleg (`CassetteLens`, ohne Übergabe-Link) → Sortiment (Ketten aufklappbar) + FAQ (`FaqList`) → Testpaket/Kontakt.
+- **Zweitkette ist Schritt 1** des Kreislaufs und Weg 02 („Der Einstiegsverkauf“), statt „2 Typen lagern“.
+- **Eine Frequenz:** „Aus 1–2 Werkstattbesuchen im Jahr werden 4–10“ (`FREQUENCY`). „Aus einem werden sechs“ entfällt.
+- **Rechenbeispiel mit ganzer Arbeit:** 2 Min. Tausch + 1 Min. Beutel je Kette + 10 Min. Packen je Sendung à 10 Ketten, Ertrag nach Hinversand (7,70 € je Sendung): 6,7 h, 673 €, rund 100 € je Arbeitsstunde (vorher 225 €). Minuten und Sendungsgröße sind **Annahmen**, bitte prüfen.
+- **Direktkauf „bis 44 %“** statt 45 (Staffel ab 16 Blöcken = 44,2 %).
+- **Partnerstädte** Stuttgart, Erlangen, Salzburg öffentlich (Trust-Zeile), Shopnamen nicht.
+- **Neue FAQ:** „Wem gehört die Wechselkette?“ und „Verkaufen Sie online an meine Kunden?“.
+- **Stempelkarten** nur noch als Punkt im Testpaket, das Geschenkkarten-Objekt ist raus (zeigte „Geschenkkarte 3×“).
+- **Navigation auf `/partner*`:** keine Endkunden-Menüpunkte, statt „Jetzt bestellen“ gibt es „Konditionen für Partner“ + „Testpaket anfragen“.
+- Hero-Scrim links verstärkt, damit das Karton-Logo im Foto nicht hinter dem Lead steht.
+
 ## Kalkulation Wachs (MoS₂ Pro 500 g, UVP 34,95 €)
 
 Annahmen: Herstellung 6,00–7,00 € (Luca), Verpackung 0,70 €, Karton 1,50 € je Sendung, 0,6 kg je Block, DHL 2 kg 6,19 / 5 kg 7,70 € (Ops-Doku), 10 kg ≈ 10,80 € und 20 kg ≈ 16,50 € (**Annahme**), ohne Arbeitszeit. Kosten je Block 6,70 / 7,20 / 7,70 €, Rechnung mit 7,20 €. Unter 8 Blöcken zahlt der Laden 7,70 € Versand, ab 8 zahlst du.
@@ -73,7 +86,7 @@ Co-Branding-Kosten (Etikett + 10 € Einrichtung + 5 € Zeit) als Anteil der Er
 ## Offen für Luca
 
 1. **Kartenpreise (P09):** Website-Karten auf 69 / 129 € anheben (Weg A) oder Karten nur direkt. Bis dahin keine Empfehlung an Shops.
-2. **Infoblatt #45 korrigieren:** nennt noch Classic und 300 g, Kartenpreise 69–79 / 129–149 €, Co-Branding „ab 20“, „gewachst zurück in 48–72 h“ (gilt nur für Lagerketten), Testpaket „5–10 Blöcke“. Das Blatt liegt in #44/#45 in `public/` (öffentlich), v7 (#41) wollte es bewusst nicht dort: als PDF in den Partnerbereich statt öffentlich?
+2. **Infoblatt #45 korrigieren:** zusätzlich zum Folgenden: „Wir suchen Partner in Leipzig“ (Leipzig tot), Kassetten-Claim „etwa doppelt so lange“ (nicht freigegeben, nur „Kette oft 2–3×“), Frequenz „sechs“ → „1–2 werden 4–10“, Zweitkette ins Kreislauf-Diagramm, 225 €/h wie auf der Seite neu rechnen, „bis 45 %“ → 44 %, „rund 9 €“ → 10,50 €. Nennt außerdem noch Classic und 300 g, Kartenpreise 69–79 / 129–149 €, Co-Branding „ab 20“, „gewachst zurück in 48–72 h“ (gilt nur für Lagerketten), Testpaket „5–10 Blöcke“. Das Blatt liegt in #44/#45 in `public/` (öffentlich), v7 (#41) wollte es bewusst nicht dort: als PDF in den Partnerbereich statt öffentlich?
 3. **Etikettenkosten** je Stück prüfen (Schwelle 16 gilt bis ca. 1,20 €).
 4. **DHL-Preise** für 10 kg, 20 kg und Österreich verifizieren (Staffelgrenzen hängen an den Gewichtsklassen).
 5. **Herstellkosten je Block** belegen (6–7 € sind Lucas Angabe, P04 deutet auf rund 7–8 € inkl. Material und Label).

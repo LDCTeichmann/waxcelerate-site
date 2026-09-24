@@ -51,6 +51,9 @@ export function Navigation() {
   const navigate = useNavigate();
   const location = useLocation();
   const onHome = location.pathname === '/';
+  // B2B-Partnerseite: keine Endkunden-Menuepunkte und kein „Jetzt bestellen",
+  // sondern ein Weg zum Testpaket und zu den Konditionen (wie die Topbar-Weiche).
+  const onPartner = location.pathname.startsWith('/partner');
   const activeSection = useActiveSection(navItems.filter(i => !i.route).map(i => i.href));
 
   // heroTransparent: nur auf der Startseite und nur ganz oben. Der v3-
@@ -238,6 +241,7 @@ export function Navigation() {
                 Die <nav> streckt sich ueber die volle Leistenhoehe, damit
                 jedes <li> oben bis unten Trefferflaeche ist. Sprache und
                 Hell/Dunkel stehen jetzt in der Topbar darueber. */}
+            {onPartner ? <div className="flex-1" /> : (
             <nav className="hidden lg:flex flex-1 self-stretch justify-center" aria-label={de ? 'Hauptnavigation' : 'Main navigation'}>
               <ul className="flex h-full items-stretch">
                 {primaryNavItems.map((item) => (
@@ -253,6 +257,7 @@ export function Navigation() {
                 ))}
               </ul>
             </nav>
+            )}
 
             {/* Actions */}
             <div className="flex items-center gap-2.5 lg:gap-4 shrink-0">
@@ -263,6 +268,20 @@ export function Navigation() {
                   und auf einer Unterseite zeigte er auf
                   "/wissenschaft#produkte" — also ins Leere fuer jeden, der ihn
                   im neuen Tab oeffnet oder die Adresse kopiert. */}
+              {onPartner ? (
+                <>
+                  <a href="/partner/konditionen" className="hidden lg:inline text-[13px] font-medium" style={{ color: 'var(--tx2)' }}>
+                    Konditionen für Partner
+                  </a>
+                  <a
+                    href="/partner#anfrage"
+                    className="hidden lg:inline-flex items-center px-5 py-2.5 text-[13px] font-semibold rounded-full transition-transform duration-300 hover:-translate-y-0.5"
+                    style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
+                  >
+                    Testpaket anfragen
+                  </a>
+                </>
+              ) : (
               <a
                 href={hrefFor({ href: '#produkte' })}
                 onClick={(e) => { e.preventDefault(); scrollToSection('#produkte'); }}
@@ -271,6 +290,7 @@ export function Navigation() {
               >
                 {de ? 'Jetzt bestellen' : 'Buy now'}
               </a>
+              )}
 
               {/* Mobile menu button */}
               <button
