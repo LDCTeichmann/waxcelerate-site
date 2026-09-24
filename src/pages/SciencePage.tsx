@@ -15,6 +15,8 @@ import { waxVsOil, products, type Product } from '@/lib/data';
 import { COMPONENTS, EDGES, FAILURES, FORMULA_STORY } from '@/lib/science';
 import { WaxField, useFieldBuild, type FieldKey } from '@/sections/science/WaxField';
 import { FieldNet } from '@/sections/science/FieldNet';
+import { JointLayer, NanoLens } from '@/sections/science/formula/Stage';
+import { StressTest } from '@/sections/science/formula/StressTest';
 import { LineChoice } from '@/sections/science/ContactZones';
 import { FrictionLens, ToothProfiles } from '@/pages/product/wax/FrictionLens';
 import '@/pages/product/wax/wax.css';
@@ -697,12 +699,18 @@ const WITHOUT: Partial<Record<FieldKey, { de: string; en: string; src?: string }
   },
 };
 
+// Stationen der Reise: 0 Gelenk (mm) · 1 Film (µm) · 2–7 die sechs Stoffe
+// (µm + Nano-Lupe) · 8 das ganze Netz. Danach folgt der Belastungstest.
+const JOINT = 0, FILM = 1, FIRST = 2;
+
 function FormulaStory({ de }: { de: boolean }) {
   const steps = FORMULA_STORY
     .map(s => ({ comp: COMPONENTS.find(c => c.node === s.node)!, s }))
     .filter(x => x.comp && isFieldKey(x.comp.id));
-  const [step, setStep] = useState(0);            // steps.length = fertiges Netz
+  const NET = FIRST + steps.length;
+  const [stage, setStage] = useState(JOINT);
   const [missing, setMissing] = useState<FieldKey | null>(null);
+  const [capSlot, setCapSlot] = useState<HTMLParagraphElement | null>(null);
   const cards = useRef<(HTMLLIElement | null)[]>([]);
   const { p, ref, replay } = useFieldBuild();
 
@@ -711,7 +719,7 @@ function FormulaStory({ de }: { de: boolean }) {
     const io = new IntersectionObserver(entries => {
       for (const e of entries) {
         if (!e.isIntersecting) continue;
-        setStep(Number((e.target as HTMLElement).dataset.step));
+        setStage(Number((e.target as HTMLElement).dataset.stage));
         setMissing(null);   // ein weggenommener Stoff gilt nur fuer seine Karte
       }
     }, { rootMargin: '-48% 0px -48% 0px' });
@@ -719,52 +727,77 @@ function FormulaStory({ de }: { de: boolean }) {
     return () => io.disconnect();
   }, []);
 
-  const done = step >= steps.length;
-  const present: FieldKey[] = done || missing
+  // Beim Eintritt in den Film einmal die Erstarrung zeigen. Nur an `stage`
+  // gebunden: replay ist bei jedem Rendern eine neue Funktion.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { if (stage === FILM) replay(); }, [stage]);
+
+  const compIdx = stage - FIRST;
+  const inComp = compIdx >= 0 && compIdx < steps.length;
+  const focusKey = inComp ? (steps[compIdx].comp.id as FieldKey) : null;
+  const present: FieldKey[] = !inComp || missing
     ? [...FIELD_KEYS]
-    : steps.slice(0, step + 1).map(x => x.comp.id as FieldKey);
-  const focus = done || missing ? null : (steps[step].comp.id as FieldKey);
+    : steps.slice(0, compIdx + 1).map(x => x.comp.id as FieldKey);
+  const focus = missing ? null : focusKey;
   const go = (i: number) => cards.current[i]?.scrollIntoView({
     behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'center',
   });
-  const skip = () => document.getElementById('matrix-window')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  const skip = () => document.getElementById('belastung')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const scale = stage === JOINT ? '1 mm' : inComp ? '~1 µm → nm' : '~1 µm';
+
+  const introCard = (i: number, eyebrow: string, title: string, body: string) => (
+    <li key={`intro-${i}`} data-stage={i} ref={el => { cards.current[i] = el; }}
+      className="formula-card lg:min-h-[42vh] flex flex-col justify-center py-4 lg:py-6" data-on={stage === i || undefined}>
+      <div className="rounded-2xl p-5 sm:p-6" style={{ background: 'var(--sf)', border: '1px solid var(--bd2)' }}>
+        <p className="eyebrow" style={{ color: 'var(--accent-soft)' }}>{eyebrow}</p>
+        <h3 className="font-display font-bold mt-2 leading-tight" style={{ color: 'var(--tx1)', fontSize: 'clamp(1.35rem, 2.4vw, 1.7rem)', letterSpacing: '-0.015em' }}>{title}</h3>
+        <p className="text-[14.5px] leading-relaxed mt-3" style={{ color: 'var(--tx2)' }}>{body}</p>
+      </div>
+    </li>
+  );
 
   return (
-    <div className="grid lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] gap-6 lg:gap-10 xl:gap-12 items-start">
-      {/* ── Die Figur, fest im Blick ─────────────────────────────────────── */}
+    <div className="grid lg:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)] gap-6 lg:gap-10 xl:gap-12 items-start">
+      {/* ── Die Buehne, fest im Blick ────────────────────────────────────── */}
       <div ref={ref} className="formula-stage sticky top-[64px] lg:top-24 z-10 -mx-4 px-4 pt-2 pb-3 sm:mx-0 sm:px-0 lg:pt-0 lg:pb-0">
         <InstrumentFrame
-          eyebrow={de ? 'Schnitt durch den Film' : 'Section through the film'}
-          chip={<span className="num-data">~1 µm</span>}
+          eyebrow={stage === JOINT ? (de ? 'Querschnitt durchs Gelenk' : 'Section through a joint') : (de ? 'Schnitt durch den Film' : 'Section through the film')}
+          chip={<span className="num-data">{scale}</span>}
           footer={
-            <div className="flex items-center justify-between gap-3 flex-wrap">
-              {/* Fortschritt: 01–06 und das fertige Netz, jeweils ein Sprung */}
-              <div className="flex items-center gap-1" role="group" aria-label={de ? 'Komponenten' : 'Components'}>
+            <div className="hidden sm:flex items-center justify-between gap-3 flex-wrap">
+              <div className="flex items-center gap-1 flex-wrap" role="group" aria-label={de ? 'Stationen' : 'Stations'}>
+                <button type="button" onClick={() => go(JOINT)} className="formula-rail text-[11px] font-semibold rounded-full h-7 px-2" data-state={stage === JOINT ? 'on' : 'past'}>mm</button>
+                <button type="button" onClick={() => go(FILM)} className="formula-rail text-[11px] font-semibold rounded-full h-7 px-2" data-state={stage === FILM ? 'on' : stage > FILM ? 'past' : 'next'}>µm</button>
                 {steps.map((x, i) => (
-                  <button key={x.comp.id} type="button" onClick={() => go(i)}
-                    aria-current={i === step ? 'step' : undefined}
+                  <button key={x.comp.id} type="button" onClick={() => go(FIRST + i)}
+                    aria-current={FIRST + i === stage ? 'step' : undefined}
                     aria-label={de ? x.comp.nameDe : x.comp.nameEn}
                     className="formula-rail num text-[11px] font-semibold rounded-full h-7 min-w-7 px-1.5"
-                    data-state={i === step ? 'on' : i < step || done ? 'past' : 'next'}>
+                    data-state={FIRST + i === stage ? 'on' : FIRST + i < stage ? 'past' : 'next'}>
                     0{i + 1}
                   </button>
                 ))}
-                <button type="button" onClick={() => go(steps.length)} aria-current={done ? 'step' : undefined}
-                  className="formula-rail text-[11px] font-semibold rounded-full h-7 px-2.5" data-state={done ? 'on' : 'next'}>
+                <button type="button" onClick={() => go(NET)} aria-current={stage === NET ? 'step' : undefined}
+                  className="formula-rail text-[11px] font-semibold rounded-full h-7 px-2.5" data-state={stage === NET ? 'on' : 'next'}>
                   {de ? 'Netz' : 'Net'}
                 </button>
               </div>
-              <span className="hidden sm:flex items-center gap-3 text-[11px]" style={{ color: 'var(--txf)' }}>
+              <span className="hidden xl:flex items-center gap-3 text-[11px]" style={{ color: 'var(--txf)' }}>
                 <span className="flex items-center gap-1.5"><i className="formula-key" />{de ? 'Aufbau' : 'Build'}</span>
                 <span className="flex items-center gap-1.5"><i className="formula-key formula-key--dash" />{de ? 'Schutz' : 'Guard'}</span>
                 <span>⇄ {de ? 'Gegenspieler' : 'Counterpart'}</span>
               </span>
             </div>
           }>
-          <div className="relative">
-            <WaxField de={de} active={focus} missing={missing} progress={p} present={present} dimLevel={0.35} />
-            <FieldNet de={de} present={present} focus={focus} missing={missing} />
+          <div className="relative journey-stage">
+            <div className="journey-film" data-in={stage !== JOINT || undefined}>
+              <WaxField de={de} active={focus} missing={missing} progress={p} present={present} dimLevel={0.35} />
+              {stage !== JOINT && <FieldNet de={de} present={present} focus={focus} missing={missing} />}
+            </div>
+            <JointLayer de={de} zoomed={stage !== JOINT} />
+            {focusKey && !missing && <NanoLens key={focusKey} k={focusKey} de={de} active capSlot={capSlot} />}
           </div>
+          <p ref={setCapSlot} className="journey-capline" aria-live="off" data-empty={!focusKey || !!missing || undefined} />
         </InstrumentFrame>
         <div className="hidden lg:flex items-center justify-between mt-3 text-[11.5px]">
           <span style={{ color: 'var(--txf)' }}>
@@ -773,21 +806,30 @@ function FormulaStory({ de }: { de: boolean }) {
               : (de ? 'Schematisch, Lamellen überhöht' : 'Schematic, lamellae exaggerated')}
           </span>
           <button type="button" onClick={skip} className="font-semibold transition-opacity hover:opacity-70" style={{ color: 'var(--accent)' }}>
-            {de ? 'Überspringen →' : 'Skip →'}
+            {de ? 'Zum Belastungstest →' : 'To the stress test →'}
           </button>
         </div>
       </div>
 
-      {/* ── Sechs Karten, dann das fertige Netz ──────────────────────────── */}
+      {/* ── Karten ───────────────────────────────────────────────────────── */}
       <ol className="m-0 p-0 list-none">
+        {introCard(JOINT, de ? 'Wo der Film liegt' : 'Where the film sits',
+          de ? 'Im Spalt, wo es am härtesten reibt.' : 'In the gap where it rubs hardest.',
+          de ? 'Ein Kettengelenk im Querschnitt: Bolzen, Laschenschulter, Rolle. Zwischen Bolzen und Schulter liegt Zone 01, der Spalt mit dem höchsten Druck. Dort muss der Wachsfilm halten. Wir fahren hinein.'
+            : 'A chain joint in section: pin, plate shoulder, roller. Between pin and shoulder lies zone 01, the gap with the highest pressure. That is where the wax film has to hold. Let’s zoom in.')}
+        {introCard(FILM, de ? 'Tausendfach näher' : 'A thousand times closer',
+          de ? 'Ein Film, etwa 1 µm dick.' : 'A film, about 1 µm thick.',
+          de ? 'Beim Abkühlen keimt das Wachs am Stahl und wächst in Fächern nach oben. Sechs Stoffe bauen diesen Film. Nimm sie einzeln dazu, einer nach dem anderen.'
+            : 'As it cools, the wax nucleates on the steel and grows upward in fans. Six substances build this film. Add them one at a time.')}
         {steps.map(({ comp: c, s }, i) => {
           const id = c.id as FieldKey;
+          const idx = FIRST + i;
           const mesh = meshFor(c.node, de);
           const without = WITHOUT[id];
           return (
-            <li key={c.id} id={c.id} data-step={i} ref={el => { cards.current[i] = el; }}
+            <li key={c.id} id={c.id} data-stage={idx} ref={el => { cards.current[idx] = el; }}
               className="formula-card scroll-mt-24 lg:min-h-[48vh] flex flex-col justify-center py-4 lg:py-6"
-              data-on={i === step || undefined}>
+              data-on={idx === stage || undefined}>
               <div className="rounded-2xl p-5 sm:p-6" style={{ background: 'var(--sf)', border: '1px solid var(--bd2)' }}>
                 <div className="flex items-baseline justify-between gap-3">
                   <p className="eyebrow" style={{ color: 'var(--accent-soft)' }}>0{i + 1} · {de ? c.roleDe : c.roleEn}</p>
@@ -839,12 +881,11 @@ function FormulaStory({ de }: { de: boolean }) {
                   </ReadMoreLink>
                 )}
 
-                {/* ── "Nimm eine weg" ─────────────────────────────────── */}
                 <div className="mt-4 pt-3" style={{ borderTop: '1px solid var(--bd2)' }}>
                   {without ? (
                     <>
                       <button type="button"
-                        onClick={() => { setStep(i); setMissing(m => (m === id ? null : id)); }}
+                        onClick={() => { setStage(idx); setMissing(m => (m === id ? null : id)); }}
                         aria-pressed={missing === id}
                         className="text-[12px] font-semibold transition-opacity hover:opacity-70"
                         style={{ color: missing === id ? 'var(--tx1)' : 'var(--accent)' }}>
@@ -876,9 +917,8 @@ function FormulaStory({ de }: { de: boolean }) {
           );
         })}
 
-        {/* Das fertige Netz */}
-        <li data-step={steps.length} ref={el => { cards.current[steps.length] = el; }}
-          className="formula-card lg:min-h-[44vh] flex flex-col justify-center py-4 lg:py-6" data-on={done || undefined}>
+        <li data-stage={NET} ref={el => { cards.current[NET] = el; }}
+          className="formula-card lg:min-h-[42vh] flex flex-col justify-center py-4 lg:py-6" data-on={stage === NET || undefined}>
           <div className="rounded-2xl p-5 sm:p-6" style={{ background: 'rgba(var(--accent-rgb),0.06)', border: '1px solid var(--accent-soft)' }}>
             <p className="eyebrow" style={{ color: 'var(--accent-soft)' }}>{de ? 'Das System' : 'The system'}</p>
             <h3 className="font-display font-bold mt-2 leading-tight" style={{ color: 'var(--tx1)', fontSize: 'clamp(1.35rem, 2.4vw, 1.7rem)' }}>
@@ -886,15 +926,15 @@ function FormulaStory({ de }: { de: boolean }) {
             </h3>
             <p className="text-[14.5px] leading-relaxed mt-3" style={{ color: 'var(--tx2)' }}>
               {de
-                ? 'Keine Zutat arbeitet allein. Die Matrix trägt, MoS₂ schmiert, der Rest sorgt dafür, dass beides unter Last, in der Kälte und über Monate so bleibt. Nimm eine weg, und genau eine dieser Aufgaben fällt aus.'
-                : 'No ingredient works alone. The matrix carries, MoS₂ lubricates, the rest keeps both that way under load, in the cold and over months. Take one away and exactly one of those jobs fails.'}
+                ? 'Keine Zutat arbeitet allein. Die Matrix trägt, MoS₂ schmiert, der Rest sorgt dafür, dass beides unter Last, in der Kälte und über Monate so bleibt. Im Belastungstest darunter kannst du das selbst ausprobieren.'
+                : 'No ingredient works alone. The matrix carries, MoS₂ lubricates, the rest keeps both that way under load, in the cold and over months. Try it yourself in the stress test below.'}
             </p>
             <div className="flex flex-wrap gap-x-5 gap-y-2 mt-4">
-              <button type="button" onClick={() => go(0)} className="text-[12.5px] font-semibold transition-opacity hover:opacity-70" style={{ color: 'var(--accent)' }}>
+              <button type="button" onClick={() => go(JOINT)} className="text-[12.5px] font-semibold transition-opacity hover:opacity-70" style={{ color: 'var(--accent)' }}>
                 {de ? '↑ Noch einmal von vorn' : '↑ Start over'}
               </button>
-              <button type="button" onClick={replay} className="text-[12.5px] font-semibold transition-opacity hover:opacity-70" style={{ color: 'var(--accent)' }}>
-                {de ? 'Erstarrung noch einmal' : 'Replay solidification'}
+              <button type="button" onClick={skip} className="text-[12.5px] font-semibold transition-opacity hover:opacity-70" style={{ color: 'var(--accent)' }}>
+                {de ? 'Zum Belastungstest ↓' : 'To the stress test ↓'}
               </button>
             </div>
           </div>
@@ -1006,6 +1046,9 @@ export function SciencePage() {
 
         <div className={`${W} pb-14`}>
           <FormulaStory de={de} />
+          <div id="belastung" className="mt-16 scroll-mt-24">
+            <StressTest de={de} withoutText={WITHOUT} />
+          </div>
         </div>
 
         {/* Below: full-width deep-dive sections. Mobile-Plan (real feedback,

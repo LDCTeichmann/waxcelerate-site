@@ -275,9 +275,19 @@ interface Props {
   present?: FieldKey[] | null;
   /** Wie weit die nicht hervorgehobenen Komponenten zuruecktreten (Deckkraft). */
   dimLevel?: number;
+  /** Belastungstest: mehrere Stoffe gleichzeitig weglassen. */
+  without?: FieldKey[];
+  /** Belastungstest: Risse zeigen (Kaelte ohne Mikrokristallin). Ohne Angabe
+   *  gilt der alte "Nimm eine weg"-Zustand: Risse, sobald Mikro fehlt. */
+  cracked?: boolean;
+  /** 0..1 — Oberflaeche rundet ab und wandert (Waerme ueber dem Tropfpunkt).
+   *  Ohne Angabe: 1, sobald FT-Wachs fehlt. */
+  slump?: number;
+  /** 0..1 — Staerke des Fe–S-Transferfilms am Stahl (waechst unter Last). */
+  transfer?: number;
 }
 
-export function WaxField({ de, active = null, missing = null, progress = 1, present = null, dimLevel = 0.14 }: Props) {
+export function WaxField({ de, active = null, missing = null, progress = 1, present = null, dimLevel = 0.14, without = [], cracked, slump, transfer = 1 }: Props) {
   const p = progress;
   const on = (k: FieldKey) => (!present || present.includes(k) ? 1 : 0);
   const fade = { transition: 'opacity .6s ease' } as const;
@@ -289,11 +299,14 @@ export function WaxField({ de, active = null, missing = null, progress = 1, pres
   // in seinem kaputten Zustand sehen, nicht einen ausgeblendeten.
   const dim = (k: FieldKey) => (!missing && active && active !== k ? dimLevel : 1) * on(k);
 
-  const noMicro = missing === 'winterformel';
-  const noFt = missing === 'matrix';
-  const noMos = missing === 'mos2';
-  const noDisp = missing === 'sedimentation';
-  const noAntiox = missing === 'antioxidans';
+  const gone = (k: FieldKey) => missing === k || without.includes(k);
+  const noMicro = gone('winterformel');
+  const noFt = gone('matrix');
+  const noMos = gone('mos2');
+  const noDisp = gone('sedimentation');
+  const noAntiox = gone('antioxidans');
+  const showCracks = cracked ?? noMicro;
+  const sl = slump ?? (noFt ? 1 : 0);
 
   const platelets = noDisp ? PLATELETS_SUNKEN : PLATELETS;
 
@@ -362,9 +375,9 @@ export function WaxField({ de, active = null, missing = null, progress = 1, pres
         )}
 
         {/* ── Ohne FT-Wachs: die Matrix rundet oben ab und wandert weg ───── */}
-        {noFt && (
-          <path d={`M 0 ${FILM_TOP + 18} Q ${VB.w * 0.25} ${FILM_TOP + 3} ${VB.w * 0.5} ${FILM_TOP + 22}
-                    Q ${VB.w * 0.75} ${FILM_TOP + 42} ${VB.w} ${FILM_TOP + 15} L ${VB.w} ${FILM_TOP} L 0 ${FILM_TOP} Z`}
+        {sl > 0.01 && (
+          <path d={`M 0 ${FILM_TOP + 18 * sl} Q ${VB.w * 0.25} ${FILM_TOP + 3 * sl} ${VB.w * 0.5} ${FILM_TOP + 22 * sl}
+                    Q ${VB.w * 0.75} ${FILM_TOP + 42 * sl} ${VB.w} ${FILM_TOP + 15 * sl} L ${VB.w} ${FILM_TOP} L 0 ${FILM_TOP} Z`}
             fill="var(--pg)" stroke="var(--txff)" strokeWidth="var(--dw-hair)" strokeDasharray="4 3" />
         )}
 
@@ -381,7 +394,7 @@ export function WaxField({ de, active = null, missing = null, progress = 1, pres
             Aussage. Nach unten laeuft der Spalt breiter zu und endet in einer
             Abloesung am Stahl, weil der Film dort abplatzt und nicht in der
             Mitte auseinanderfaellt. */}
-        {noMicro && (
+        {showCracks && (
           <g>
             {WEDGES.map((w, i) => {
               const top = FILM_TOP + 2, bot = STEEL_Y - 1;
@@ -437,7 +450,7 @@ export function WaxField({ de, active = null, missing = null, progress = 1, pres
       {/* Fe-S-Transferfilm auf dem Stahl: das Ergebnis, nicht die Zutat. */}
       {!noMos && (
         <path d={steelTopPath()} fill="none" stroke="var(--accent)" strokeWidth="var(--dw-line)"
-          transform="translate(0,-4)" opacity={at(p, 'platelets') * 0.8 * dim('mos2')} style={fade} />
+          transform="translate(0,-4)" opacity={at(p, 'platelets') * 0.8 * dim('mos2') * transfer} style={fade} />
       )}
 
       {/* ── Antioxidans: feine Marken im ganzen Volumen ───────────────────── */}
