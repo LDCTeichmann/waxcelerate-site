@@ -747,7 +747,7 @@ function FormulaStory({ de }: { de: boolean }) {
 
   const introCard = (i: number, eyebrow: string, title: string, body: string) => (
     <li key={`intro-${i}`} data-stage={i} ref={el => { cards.current[i] = el; }}
-      className="formula-card lg:min-h-[42vh] flex flex-col justify-center py-4 lg:py-6" data-on={stage === i || undefined}>
+      className="formula-card lg:min-h-[34vh] flex flex-col justify-center py-3 lg:py-4" data-on={stage === i || undefined}>
       <div className="rounded-2xl p-5 sm:p-6" style={{ background: 'var(--sf)', border: '1px solid var(--bd2)' }}>
         <p className="eyebrow" style={{ color: 'var(--accent-soft)' }}>{eyebrow}</p>
         <h3 className="font-display font-bold mt-2 leading-tight" style={{ color: 'var(--tx1)', fontSize: 'clamp(1.35rem, 2.4vw, 1.7rem)', letterSpacing: '-0.015em' }}>{title}</h3>
@@ -828,7 +828,7 @@ function FormulaStory({ de }: { de: boolean }) {
           const without = WITHOUT[id];
           return (
             <li key={c.id} id={c.id} data-stage={idx} ref={el => { cards.current[idx] = el; }}
-              className="formula-card scroll-mt-24 lg:min-h-[48vh] flex flex-col justify-center py-4 lg:py-6"
+              className="formula-card scroll-mt-24 lg:min-h-[40vh] flex flex-col justify-center py-3 lg:py-4"
               data-on={idx === stage || undefined}>
               <div className="rounded-2xl p-5 sm:p-6" style={{ background: 'var(--sf)', border: '1px solid var(--bd2)' }}>
                 <div className="flex items-baseline justify-between gap-3">
@@ -918,7 +918,7 @@ function FormulaStory({ de }: { de: boolean }) {
         })}
 
         <li data-stage={NET} ref={el => { cards.current[NET] = el; }}
-          className="formula-card lg:min-h-[42vh] flex flex-col justify-center py-4 lg:py-6" data-on={stage === NET || undefined}>
+          className="formula-card lg:min-h-[34vh] flex flex-col justify-center py-3 lg:py-4" data-on={stage === NET || undefined}>
           <div className="rounded-2xl p-5 sm:p-6" style={{ background: 'rgba(var(--accent-rgb),0.06)', border: '1px solid var(--accent-soft)' }}>
             <p className="eyebrow" style={{ color: 'var(--accent-soft)' }}>{de ? 'Das System' : 'The system'}</p>
             <h3 className="font-display font-bold mt-2 leading-tight" style={{ color: 'var(--tx1)', fontSize: 'clamp(1.35rem, 2.4vw, 1.7rem)' }}>
