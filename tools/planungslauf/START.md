@@ -138,3 +138,21 @@ erzeugbar. `CODEX_PLAN.md` behältst du.
 | Fenster ausgeschöpft | Fortsetzungs-Nachricht oben. Nichts geht verloren |
 | `CODEX_PLAN.md` wirkt abgeschnitten | Weiterschreiben lassen, nicht neu starten |
 | Paket veraltet (Hub hat sich bewegt) | `bash los.sh` — baut neu und aktualisiert den Branch |
+
+---
+
+## Der Lauf ist erledigt (24.09.2026)
+
+Dieses Werkzeug hat seine Arbeit getan. Der Planungslauf ist gelaufen, ausgeführt
+von GPT-6 Astra (Extra High) in Codex, und hat ein vollständiges Ergebnis geliefert.
+
+**Wo es liegt:** im privaten Hub-Repo, nicht hier. Branch `plan/umsetzung`:
+
+- `CODEX_PLAN.md` — das Planungsergebnis
+- `docs/planung/00_UEBERGABE_OPUS.md` — **der Einstieg**, wenn du dort weiterarbeitest
+- `docs/planung/LAUFBUCH.md` — der laufende Stand der Umsetzung
+
+**Du brauchst diesen Ordner also nur noch**, wenn ein *neuer* Planungslauf ansteht —
+etwa weil der Hub sich so weit bewegt hat, dass das Ergebnis nicht mehr passt. Dann
+`bash los.sh` und von oben. Für die Abarbeitung des vorhandenen Plans nimmst du
+stattdessen die Übergabe im Hub-Repo.
