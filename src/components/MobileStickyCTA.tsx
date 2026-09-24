@@ -17,6 +17,10 @@ export function MobileStickyCTA() {
   // eines Kauf-CTAs, siehe docs/plaene/MOBILE_PLAN.md B2).
   const [pastHero, setPastHero] = useState(false);
   const [inFooter, setInFooter] = useState(false);
+  // 25.09.2026: solange die Produkttueren selbst im Bild sind, zeigt die
+  // Leiste auf etwas, das der Nutzer schon sieht, und deckt dabei die
+  // Tueren halb zu. Dort blendet sie sich aus.
+  const [onProducts, setOnProducts] = useState(false);
 
   const isMain = location.pathname === '/';
 
@@ -36,16 +40,24 @@ export function MobileStickyCTA() {
       { rootMargin: '0px 0px -50% 0px', threshold: 0 }
     );
 
+    const products = document.getElementById('produkte');
+    const productsObserver = new IntersectionObserver(
+      ([entry]) => setOnProducts(entry.isIntersecting),
+      { threshold: 0.25 }
+    );
+
     homeObserver.observe(home);
     footerObserver.observe(footer);
+    if (products) productsObserver.observe(products);
 
     return () => {
       homeObserver.disconnect();
       footerObserver.disconnect();
+      productsObserver.disconnect();
     };
   }, [isMain]);
 
-  const visible = pastHero && !inFooter;
+  const visible = pastHero && !inFooter && !onProducts;
 
   if (!isMain) return null;
 
@@ -68,7 +80,7 @@ export function MobileStickyCTA() {
       // Same root-cause fix as the mobile nav panel / CartDrawer.
       aria-hidden={!visible}
       inert={!visible}
-      className={`fixed bottom-0 left-0 right-0 z-40 lg:hidden transition-transform duration-300 ${visible ? 'translate-y-0' : 'translate-y-full'}`}
+      className={`fixed bottom-0 left-0 right-0 z-40 sm:hidden transition-transform duration-300 ${visible ? 'translate-y-0' : 'translate-y-full'}`}
     >
       <button
         onClick={handleClick}

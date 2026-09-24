@@ -60,7 +60,7 @@
 .wxs-contents li { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; font-size: 12.5px; color: var(--txm); }
 .wxs-contents li .num { white-space: nowrap; }
 .wxs-contents li.sum { margin-top: 4px; padding-top: 7px; border-top: 1px dashed var(--bd2); color: var(--tx2); }
-.wxs-contents li.sum .num { text-decoration: line-through; color: var(--txf); }
+.wxs-contents li.sum .num { color: var(--txf); }
 .wxp-cta.wxs-cta-sm { min-height: 44px; padding: 10px 14px; font-size: 14px; box-shadow: none; }
 
 /* Der erste Abend */

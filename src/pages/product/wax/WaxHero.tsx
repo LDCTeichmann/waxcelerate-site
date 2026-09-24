@@ -127,7 +127,7 @@ export function WaxHero({
           <div ref={buyRef} className="wxp-card wxp-pricecard">
             <div className="wxp-pricetop">
               <p className="wxp-price">{fmt(shown)}<span style={{ fontSize: 22, marginLeft: 3, color: 'var(--tx2)', fontWeight: 600 }}>€</span>
-                {qty > 1 && pct > 0 && <s>{fmt(full)} €</s>}</p>
+                {qty > 1 && pct > 0 && <span className="wxp-price-was">{de ? 'einzeln' : 'singly'} {fmt(full)} €</span>}</p>
               <span className="wxp-ship"><Ico name="truck" />{de ? 'Versand kostenlos' : 'Free shipping'}</span>
             </div>
             <div className="wxp-stack">

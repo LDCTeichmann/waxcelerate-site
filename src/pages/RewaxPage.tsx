@@ -500,7 +500,7 @@ export function PriceMatrix({ de }: { de: boolean }) {
                   style={{ fontSize: 'clamp(1.9rem, 5vw, 2.3rem)', letterSpacing: '-0.02em', color: 'var(--tx1)' }}>
                   {eur(per, de)}
                 </span>
-                {isBundle && <span className="num text-[13px] line-through" style={{ color: 'var(--txff)' }}>{eur(p.single, de)}</span>}
+                {isBundle && <span className="num text-[13px]" style={{ color: 'var(--txff)' }}>{de ? 'einzeln' : 'singly'} {eur(p.single, de)}</span>}
                 <span className="text-[12.5px]" style={{ color: 'var(--txm)' }}>{de ? 'je Kette' : 'per chain'}</span>
               </div>
               <p className="num text-[12.5px] mt-1.5" style={{ color: isBundle ? 'var(--accent)' : 'var(--txf)' }}>

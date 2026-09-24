@@ -155,8 +155,11 @@ export function SetHero({ de, t, combo, setCombo, buyRef }: {
 
           <div ref={buyRef} className="wxp-card wxp-pricecard wxs-pricecard">
             <div className="wxp-pricetop">
-              <p className="wxp-price">{fmt(f.price)}<span style={{ fontSize: 22, marginLeft: 3, color: 'var(--tx2)', fontWeight: 600 }}>€</span>
-                <s>{fmt(f.partsSum)} €</s></p>
+              {/* Keine durchgestrichene Einzelsumme mehr (25.09.2026): ein Strich
+                  liest sich als Preissenkung (§11 PAngV), die Summe der
+                  Einzelpreise ist aber kein frueherer Preis. Die Ersparnis
+                  steht darunter in Euro, das ist ehrlicher und konkreter. */}
+              <p className="wxp-price">{fmt(f.price)}<span style={{ fontSize: 22, marginLeft: 3, color: 'var(--tx2)', fontWeight: 600 }}>€</span></p>
               <span className="wxp-ship"><Ico name="truck" />{de ? 'Versand kostenlos' : 'Free shipping'}</span>
             </div>
             <p className="wxs-save">

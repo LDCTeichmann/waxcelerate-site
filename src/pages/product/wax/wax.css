@@ -136,7 +136,7 @@
 .wxp-pricecard { padding: 16px 18px 18px; box-shadow: var(--wxp-shadow-hi); }
 .wxp-pricetop { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
 .wxp-price { font-family: 'Fraunces', Georgia, serif; font-weight: 800; font-size: 44px; line-height: .95; letter-spacing: -0.03em; color: var(--wxp-navy); font-variant-numeric: tabular-nums; }
-.wxp-price s { font-family: 'Libre Franklin', sans-serif; font-size: 16px; color: var(--txf); font-weight: 500; margin-left: 10px; letter-spacing: 0; }
+.wxp-price s, .wxp-price .wxp-price-was { font-family: 'Libre Franklin', sans-serif; font-size: 14px; color: var(--txf); font-weight: 500; margin-left: 10px; letter-spacing: 0; }
 .wxp-ship { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; color: var(--wxp-green); background: var(--wxp-green-bg); padding: 5px 9px; border-radius: 999px; white-space: nowrap; }
 .wxp-ship .wxp-ico { width: 14px; height: 14px; }
 .wxp-stack { display: flex; margin: 14px 0 12px; border: 1px solid var(--sf3); border-radius: 10px; overflow: hidden; }

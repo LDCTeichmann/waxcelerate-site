@@ -131,7 +131,7 @@ export function ProductDoors({ de, t, delivery, only, compact }: {
           image="/images/shelf/shelf-rewax"
           alt={de ? 'Waxcelerate Versandkarton mit gewachster Kette vor Stuttgarter Landschaft' : 'Waxcelerate shipping box with a waxed chain in front of the Stuttgart hills'}
           title={d.rewaxTitle}
-          body={d.rewaxBody.replace('{turnaround}', de ? TURNAROUND.dative : TURNAROUND.shortEn)}
+          body={d.rewaxBody}
           price={d.rewaxPrice}
           delivery={rewaxDelivery}
         />

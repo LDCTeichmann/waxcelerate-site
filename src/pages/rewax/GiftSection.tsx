@@ -79,7 +79,7 @@ export function GiftSection({ de }: { de: boolean }) {
               <p className="font-display font-bold text-wx-tx1 leading-none" style={{ fontSize: '2.2rem', letterSpacing: '-0.02em' }}>
                 {eur(card.price, de)}
               </p>
-              <p className="num text-[13px] line-through" style={{ color: 'var(--txff)' }}>{eur(card.list, de)}</p>
+              <p className="num text-[13px]" style={{ color: 'var(--txff)' }}>{de ? 'einzeln' : 'separately'} {eur(card.list, de)}</p>
             </div>
             <p className="text-[13px] mt-1.5" style={{ color: 'var(--accent)' }}>
               {de ? `Du sparst ${eur(card.list - card.price, de)}` : `You save ${eur(card.list - card.price, de)}`}

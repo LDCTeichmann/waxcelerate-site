@@ -102,7 +102,10 @@ export const ChainCard = memo(function ChainCard({ product, de, formatPrice, buy
         <p className="eyebrow" style={{ color: 'var(--accent-soft)' }}>{brand}</p>
         {/* <p>, nicht <h3>: index.css erzwingt im Hellmodus global
             h1,h2,h3,h4 { color: var(--tx1) !important }, siehe WaxPanel. */}
-        <p className="font-display font-bold leading-snug tracking-[-0.02em] mt-0.5"
+        {/* Zwei Zeilen reserviert (25.09.2026): "Dura-Ace / XTR CN-M9100"
+            bricht um, "S11 / 11S" nicht — ohne Reserve sprang die ganze
+            Zeile mit Stufe und Gliedern von Karte zu Karte. */}
+        <p className="font-display font-bold leading-snug tracking-[-0.02em] mt-0.5 line-clamp-2 min-h-[2.75em]"
           style={{ color: 'var(--tx1)', fontSize: 'clamp(1.05rem, 1.6vw, 1.15rem)' }}>
           <Link to={`/produkt/${product.id}`} className="stretched-link" viewTransition>
             {model}
@@ -116,7 +119,7 @@ export const ChainCard = memo(function ChainCard({ product, de, formatPrice, buy
         )}
 
         {/* Drei Fakten in einer umbrechenden Zeile statt drei Zeilen. */}
-        <ul className="flex flex-wrap gap-x-3 gap-y-1 mt-2.5">
+        <ul className="flex flex-wrap content-start gap-x-3 gap-y-1 mt-2.5 min-h-[2.6rem]">
           {points.map(p => (
             <li key={p} className="flex items-center gap-1 text-[12px]" style={{ color: 'var(--tx2)' }}>
               <Check className="h-3 w-3 flex-shrink-0" style={{ color: 'var(--accent-soft)' }} aria-hidden />

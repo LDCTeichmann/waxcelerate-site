@@ -88,7 +88,7 @@ export function GiftBlock({ de, combo }: { de: boolean; combo: SetCombo }) {
             <div className="mt-auto pt-5 flex items-center justify-between gap-4">
               <p className="text-[13px]" style={{ color: 'var(--txm)' }}>
                 <span className="wxs-savepill">−{Math.round((1 - card.price / card.list) * 100)} %</span>
-                <span className="num ml-2 line-through" style={{ color: 'var(--txff)' }}>{rewaxEur(card.list, de)}</span>
+                <span className="num ml-2" style={{ color: 'var(--txff)' }}>{de ? 'einzeln' : 'separately'} {rewaxEur(card.list, de)}</span>
               </p>
               <Link to="/kette-wachsen-lassen#geschenk"
                 className="inline-flex items-center gap-1.5 min-h-11 text-[14px] font-semibold" style={{ color: 'var(--tx1)' }}>
