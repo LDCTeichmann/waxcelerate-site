@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { PRICE, TURNAROUND, eur } from '@/pages/rewax/content';
 import { ChevronLeft, ChevronRight, Clock, Globe, Mail, MessageCircle, Moon, RotateCw, ShoppingBag, Sun, Truck, type LucideIcon } from 'lucide-react';
@@ -71,6 +71,7 @@ export function Topbar() {
   }, [paused, count]);
 
   const step = (d: number) => { setManual(true); setIndex(i => (i + d + count) % count); };
+  const touchX = useRef(0);
 
   const socials = [
     { href: `mailto:${CONTACT.email}`, label: h.email, icon: <Mail className="h-3.5 w-3.5" aria-hidden /> },
@@ -100,7 +101,15 @@ export function Topbar() {
 
         <div className="flex h-full min-w-0 items-center justify-center gap-2"
           onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}
-          onFocus={() => setPaused(true)} onBlur={() => setPaused(false)}>
+          onFocus={() => setPaused(true)} onBlur={() => setPaused(false)}
+          // Am Handy gibt es keine Pfeile: Wischen blaettert, der Finger auf
+          // der Leiste haelt den Wechsel an (25.09.2026).
+          onTouchStart={e => { touchX.current = e.touches[0].clientX; setPaused(true); }}
+          onTouchEnd={e => {
+            const dx = e.changedTouches[0].clientX - touchX.current;
+            if (Math.abs(dx) > 30) step(dx < 0 ? 1 : -1);
+            setPaused(false);
+          }}>
           <button type="button" onClick={() => step(-1)} aria-label={h.prev} className={`${iconBtn} hidden sm:flex`}>
             <ChevronLeft className="h-3.5 w-3.5" aria-hidden />
           </button>

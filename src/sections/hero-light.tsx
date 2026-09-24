@@ -136,10 +136,13 @@ export function Hero() {
     tl.fromTo(
       words,
       { yPercent: -120 },
-      { yPercent: 0, duration: 0.72, ease: 'back.out(1.3)', stagger: 0.15 },
-      0.75,
+      { yPercent: 0, duration: 0.72, ease: 'back.out(1.3)', stagger: 0.12 },
+      // 0,35 s statt 0,75 s (25.09.2026): die Headline stand erst nach gut
+      // 1,5 s, auf langsamen Handys spuerbar spaeter. Die Karte ist bei 0,35 s
+      // schon halb eingeblendet, der Einstieg wirkt trotzdem gestaffelt.
+      0.35,
     );
-    tl.fromTo(items, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', stagger: 0.09 }, 1.0);
+    tl.fromTo(items, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', stagger: 0.08 }, 0.6);
 
     const triggers: ScrollTrigger[] = [];
     const scrub = (animation: gsap.core.Tween) =>

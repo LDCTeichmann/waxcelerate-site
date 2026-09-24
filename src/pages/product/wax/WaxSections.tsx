@@ -257,13 +257,10 @@ export function DataFitLimits({ product, rc, specs, de, n }: { product: Product;
               <tr className="mfr"><td>{de ? 'Hersteller' : 'Manufacturer'}</td><td>{GPSR_MANUFACTURER}</td></tr>
             </tbody></table>
             {rc?.formulaDetails && (
-              <details className="wxp-acc">
-                <summary>{de ? 'Formel & Inhaltsstoffe' : 'Formula & ingredients'}</summary>
-                <div>
-                  {rc.formulaDetails.map(f => <p key={f.name} style={{ marginBottom: 10 }}><b style={{ color: 'var(--tx1)' }}>{f.name}.</b> {f.detail}</p>)}
-                  {rc.techNote && <p><b style={{ color: 'var(--tx1)' }}>{rc.techNote.title}.</b> {rc.techNote.body}</p>}
-                </div>
-              </details>
+              <SmoothDisclosure id="formula" title={de ? 'Formel & Inhaltsstoffe' : 'Formula & ingredients'}>
+                {rc.formulaDetails.map(f => <p key={f.name} style={{ marginBottom: 10 }}><b style={{ color: 'var(--tx1)' }}>{f.name}.</b> {f.detail}</p>)}
+                {rc.techNote && <p><b style={{ color: 'var(--tx1)' }}>{rc.techNote.title}.</b> {rc.techNote.body}</p>}
+              </SmoothDisclosure>
             )}
           </div>
           <div className="wxp-card wxp-fit">
@@ -330,6 +327,22 @@ export function WhenEmpty({ product, de }: { product: Product; de: boolean }) {
         </div>
       </div>
     </section>
+  );
+}
+
+/** Ein einzelnes Aufklappfeld im selben Muster wie die FAQ (weiche Hoehe
+ *  statt <details>-Sprung), damit die Seite nur eine Akkordeon-Sprache hat. */
+function SmoothDisclosure({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="wxp-acc" data-open={open || undefined}>
+      <button type="button" className="wxp-acc-q" aria-expanded={open} aria-controls={`acc-${id}`} onClick={() => setOpen(o => !o)}>
+        {title}
+      </button>
+      <div id={`acc-${id}`} className="wxp-acc-a" role="region" inert={!open}>
+        <div><div>{children}</div></div>
+      </div>
+    </div>
   );
 }
 

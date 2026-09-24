@@ -27,6 +27,19 @@ export function openDeepDive(id: string) {
   window.dispatchEvent(new CustomEvent('wxp-dd', { detail: id }));
 }
 
+/** Spalten des Rasters, wie in wax.css (.wxp-dd-grid: 1 unter 640 px, sonst 2). */
+function useCols() {
+  const q = '(min-width: 640px)';
+  const [cols, setCols] = useState(() => (typeof window !== 'undefined' && window.matchMedia(q).matches ? 2 : 1));
+  useEffect(() => {
+    const m = window.matchMedia(q);
+    const on = () => setCols(m.matches ? 2 : 1);
+    m.addEventListener('change', on);
+    return () => m.removeEventListener('change', on);
+  }, []);
+  return cols;
+}
+
 export function DeepDive({ de, items }: { de: boolean; items: DeepDiveItem[] }) {
   const [open, setOpen] = useState<string | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -54,32 +67,47 @@ export function DeepDive({ de, items }: { de: boolean; items: DeepDiveItem[] }) 
 
   const active = items.find(it => it.id === open);
 
+  // Das Panel oeffnet direkt unter der REIHE der angetippten Karte, nicht erst
+  // unter dem ganzen Raster (25.09.2026) — sonst tippt man oben links und die
+  // Antwort erscheint zwei Kartenreihen tiefer. Das Raster wird dafuer in
+  // Reihen zerlegt; das Panel bleibt randlos zwischen zwei Reihen, weil die
+  // eingebetteten Kapitel (Lupe, Rechner) eigene Dunkelbaender mitbringen.
+  const cols = useCols();
+  const rows: DeepDiveItem[][] = [];
+  for (let i = 0; i < items.length; i += cols) rows.push(items.slice(i, i + cols));
+
   return (
     <section className="wxp-chapter wxp-graybg wxp-dd">
       <div className="wxp-wrap">
         <ChapterHead n={de ? 'Mehr wissen' : 'Learn more'} title={de ? 'Für Neugierige.' : 'For the curious.'}
           lede={de ? `${items.length} Themen, je eine Minute. Tippen zum Aufklappen.` : `${items.length} topics, a minute each. Tap to open.`} />
-        <div className="wxp-dd-grid">
-          {items.map(item => {
-            const isOpen = item.id === open;
-            return (
-              <button key={item.id} type="button" className="wxp-card wxp-dd-card"
-                aria-expanded={isOpen} aria-controls={`dd-${item.id}`} data-open={isOpen || undefined}
-                onClick={() => setOpen(isOpen ? null : item.id)}>
-                {item.preview && <span className="pv">{item.preview}</span>}
-                <span className="tt"><span className="ic"><Ico name={item.icon} /></span>{item.title}</span>
-                <span className="ts">{item.teaser}</span>
-                <span className="cta">{isOpen ? (de ? 'Schließen –' : 'Close –') : (de ? 'Ansehen +' : 'View +')}</span>
-              </button>
-            );
-          })}
-        </div>
       </div>
-      {active && (
-        <div id={`dd-${active.id}`} className="wxp-dd-panel" ref={panelRef}>
-          {active.render()}
+      {rows.map((row, ri) => (
+        <div key={ri}>
+          <div className="wxp-wrap">
+            <div className="wxp-dd-grid" style={{ marginTop: ri ? 20 : 0 }}>
+              {row.map(item => {
+                const isOpen = item.id === open;
+                return (
+                  <button key={item.id} type="button" className="wxp-card wxp-dd-card"
+                    aria-expanded={isOpen} aria-controls={`dd-${item.id}`} data-open={isOpen || undefined}
+                    onClick={() => setOpen(isOpen ? null : item.id)}>
+                    {item.preview && <span className="pv">{item.preview}</span>}
+                    <span className="tt"><span className="ic"><Ico name={item.icon} /></span>{item.title}</span>
+                    <span className="ts">{item.teaser}</span>
+                    <span className="cta">{isOpen ? (de ? 'Schließen –' : 'Close –') : (de ? 'Ansehen +' : 'View +')}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          {active && row.includes(active) && (
+            <div id={`dd-${active.id}`} className="wxp-dd-panel" ref={panelRef}>
+              {active.render()}
+            </div>
+          )}
         </div>
-      )}
+      ))}
     </section>
   );
 }
