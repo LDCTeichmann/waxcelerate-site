@@ -41,8 +41,8 @@ const RATE_LIMIT = 10;
 const RATE_WINDOW_S = 15 * 60;
 const OWNER_EMAIL = 'waxcelerate@gmail.com';
 
-// Gleicher Wert wie COBRANDING_MIN_BLOCKS in src/pages/partner/content.ts (dort erklaert, warum 20).
-const COBRANDING_MIN_BLOCKS = 20;
+// Gleicher Wert wie COBRANDING_MIN_BLOCKS in src/pages/partner/content.ts (dort erklaert, warum 15).
+const COBRANDING_MIN_BLOCKS = 15;
 
 const redis =
   process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
@@ -60,11 +60,19 @@ function buildConditions(country: Country): Section[] {
   const at = country === 'AT';
   const minChains = at ? 10 : 5;
 
-  const rewaxRows = [
-    ...(at ? [] : [['5–9 Ketten', '9,95 €']]),
-    ['ab 10 Ketten', '8,95 €'],
-    ['ab 20 Ketten pro Woche, regelmäßig', '8,50 € (Rahmenvereinbarung)'],
-  ];
+  // Österreich: Mindestmenge 10 bei gleichem Preis ohne Zuschlag, die 8,95-Stufe erst ab 20 Ketten je Sendung
+  // (sonst würde sie dort immer gelten). Deutschland: Stufen wie im Masterplan.
+  const rewaxRows = at
+    ? [
+        ['10–19 Ketten', '9,95 €'],
+        ['ab 20 Ketten je Sendung', '8,95 €'],
+        ['Rahmenvereinbarung, ab 20 Ketten pro Woche', '8,50 €'],
+      ]
+    : [
+        ['5–9 Ketten', '9,95 €'],
+        ['ab 10 Ketten', '8,95 €'],
+        ['Rahmenvereinbarung, ab 20 Ketten pro Woche', '8,50 €'],
+      ];
 
   return [
     {
@@ -112,7 +120,7 @@ function buildConditions(country: Country): Section[] {
           : 'Mindestmenge: 5 Ketten pro Sendung.',
         at
           ? 'Laufzeit von Absendung bis Rückkehr: ca. 8–10 Werktage.'
-          : 'Laufzeit von Absendung bis Rückkehr: in der Regel 5 Werktage.',
+          : 'Laufzeit von Absendung bis Rückkehr: in der Regel 5 Werktage (3 Werktage Bearbeitung ab Ankunft bei uns, dazu Post).',
         'Durch die Zweitkette beim Kunden spielt die Laufzeit keine Rolle.',
         'Annahme: Verschleißprüfung und Tauschentscheidung liegen bei Ihnen. Geölte oder kontaminierte Ketten bearbeiten wir nicht, sie gehen auf Ihre Kosten zurück.',
         `Sammelbox auf der Theke mit aufgedruckter Regel: Ab ${minChains} Ketten einsenden.`,
@@ -123,7 +131,7 @@ function buildConditions(country: Country): Section[] {
       id: 'karten',
       title: 'Stempelkarten',
       items: [
-        'Ihr Shop gibt die Karte aus und setzt den Preis. Empfehlung: 5er-Karte 69–79 €, 10er-Karte 129–149 €.',
+        'Ihr Shop gibt die Karte aus und setzt den Preis. Eine Preisempfehlung nennen wir Ihnen im Gespräch.',
         'Unser Preis bleibt je eingesandter Kette derselbe, egal was auf der Karte steht.',
         'Blanko-Karten liefern wir kostenlos, co-brandbar mit Ihrem Logo.',
         'Nicht eingelöste Stempel bleiben Ihre Marge.',
@@ -134,7 +142,10 @@ function buildConditions(country: Country): Section[] {
     {
       id: 'cobranding',
       title: 'Co-Branding',
-      items: [`Ihr Logo auf dem Etikett, kostenlos, im Direktkauf ab ${COBRANDING_MIN_BLOCKS} Blöcken.`],
+      items: [
+        `Ihr Logo auf dem Etikett, kostenlos, im Direktkauf ab ${COBRANDING_MIN_BLOCKS} Blöcken.`,
+        'Bis zu zwei Etikettenvarianten je Bestellung, zum Beispiel Classic und Pro. Nie auf Kommissionsware.',
+      ],
     },
     {
       id: 'zahlung',

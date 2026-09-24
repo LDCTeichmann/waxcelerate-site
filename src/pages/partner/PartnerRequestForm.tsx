@@ -90,7 +90,7 @@ export function PartnerRequestForm({ shop, shopSlug, source }: { shop: PartnerSh
         <span>Ich möchte das Testpaket (Wachs auf Kommission, 0 € Warenrisiko).</span>
       </label>
       {status === 'error' && (
-        <p role="alert" className="text-[14px]" style={{ color: '#F0A0A0' }}>{error}</p>
+        <p role="alert" className="text-[14px]" style={{ color: 'var(--danger)' }}>{error}</p>
       )}
       <button type="submit" disabled={status === 'sending'} className="btn-primary px-6 py-3.5 text-[15px] disabled:opacity-60">
         {status === 'sending' ? 'Wird gesendet' : 'Anfrage senden'}

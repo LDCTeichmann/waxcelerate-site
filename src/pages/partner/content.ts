@@ -53,10 +53,11 @@ export const commissionPerBlock = Math.round((byId('wax-500').price * COMMISSION
 
 export const TRUST_LINE = `Über ${trustStats.sold} verkaufte Einheiten, 100 % positives Feedback, ${trustStats.reviews} Bewertungen.`;
 
-/** Co-Branding ab dieser Menge im Direktkauf, nie auf Kommissionsware.
- *  Quellen widersprechen sich: Infoblatt #45 nennt 20, Masterplan und v7 nennen 10.
- *  Hier gilt das juengste Dokument (Infoblatt #45). Von Luca bestaetigen lassen. */
-export const COBRANDING_MIN_BLOCKS = 20;
+/** Co-Branding ab dieser Menge im Direktkauf, nie auf Kommissionsware (bis zu zwei Etikettenvarianten).
+ *  Entschieden 24.09.2026: 15. Infoblatt #45 nennt noch 20, Masterplan 10. Rechnung: Erstbestellung
+ *  mit 15 Bloecken bringt rund 160 EUR Deckungsbeitrag, die Co-Branding-Kosten liegen bei 0,60 EUR je
+ *  Etikett bei etwa 15 % davon. Das haelt bis ca. 1,20 EUR je Etikett, darueber wieder 20. */
+export const COBRANDING_MIN_BLOCKS = 15;
 
 // ─── Marktpreise (Luecke) ───────────────────────────────────────────────────
 export const GAP = {
@@ -98,10 +99,10 @@ export const WAYS_NOTE = 'Kombinierbar. Die meisten Partner starten mit Regal un
 export const CYCLE = [
   { who: 'Kunde', text: 'Kette fällig nach 400–550 km, je nach Bedingungen.' },
   { who: 'Ihr Shop', text: 'Gibt eine gewachste heraus. Zwei Minuten über den Tresen, ohne Werkzeug. Gesammelt wird in einer Box auf der Theke.' },
-  { who: 'Waxcelerate', text: 'Reinigt und wachst. Gleiches Ergebnis bei jeder Kette. Sie senden ab 5 Ketten ein.' },
+  { who: 'Waxcelerate', text: 'Reinigt und wachst. Gleiches Ergebnis bei jeder Kette. Sie senden ab 5 Ketten ein, gewachst zurück in der Regel nach etwa 5 Werktagen (3 Werktage Bearbeitung ab Ankunft, dazu Post).' },
 ];
 export const CYCLE_NOTE =
-  'Woanders steht das Rad dafür einen Tag in der Werkstatt oder eine Woche bei der Post. Bei Ihnen dauert es zwei Minuten, und die Zweitkette beim Kunden macht die Laufzeit unwichtig.';
+  'Woanders steht das Rad dafür einen Tag in der Werkstatt oder eine Woche bei der Post. Bei Ihnen dauert es zwei Minuten, und die Zweitkette beim Kunden macht die Laufzeit unwichtig. Neue Ketten aus dem Lager liefern wir in 48–72 h.';
 
 /** Rechenbeispiel wie im Infoblatt: 20 Rotationskunden x 5 Tausche x 7,50 EUR. */
 export const EXAMPLE = { customers: 20, swapsPerYear: 5, minutesPerSwap: 2, feeEur: 7.5 };
@@ -137,9 +138,10 @@ export const CHAINS_NOTE =
 export const CARDS = {
   title: 'Stempelkarten',
   lead: 'Umsatz heute, Leistung später. Nicht eingelöste Stempel bleiben Ihre Marge. Blanko geliefert, co-brandbar mit Ihrem Logo.',
-  five: { name: '5er-Karte', uvp: '69–79 €' },
-  ten: { name: '10er-Karte', uvp: '129–149 €' },
-  note: 'Preisempfehlung, Sie setzen den Preis. Er liegt bewusst über unserem Versandpreis: Ihr Kunde verschickt nichts. Die Karte ohne Ablauf gibt Ihr Shop aus, wir liefern den Service.',
+  sizes: ['5er-Karte', '10er-Karte'],
+  // Bewusst ohne Euro-Empfehlung: die Website verkauft dieselben Karten direkt (49,75 / 94,50 EUR),
+  // eine hoehere Handelsempfehlung waere ein Widerspruch (docs/plaene/PARTNER_SEITE.md, P09).
+  note: 'Die Karte gibt Ihr Shop aus und setzt den Preis, wir liefern den Service. Eine Preisempfehlung nennen wir Ihnen im Gespräch.',
 };
 
 /** Wachs- und Ketten-Listen fuer die Seite, alles aus data.ts. */
