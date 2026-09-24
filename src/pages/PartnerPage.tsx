@@ -285,7 +285,7 @@ export function PartnerPage() {
                   {wax.map((p) => (
                     <li key={p.id} className="flex items-baseline justify-between gap-4 border-t py-3.5" style={{ borderColor: 'var(--bd)' }}>
                       <span className="text-[15px]">
-                        {p.variant === 'pro' ? 'MoS₂ Pro Edition' : 'Classic Edition'}
+                        MoS₂ Pro Edition
                         <span className="ml-2 text-[13px]" style={{ color: 'var(--txf)' }}>{(p.weight ?? '').replace(/(\d)g$/, '$1 g')}</span>
                       </span>
                       <Price>{eur(p.price)}</Price>

@@ -4,6 +4,7 @@
 //
 // Regeln, die hier gelten (nicht "verbessern"):
 //  - Preise, Ketten und Kundenzahlen kommen aus src/lib/data.ts, nie hart getippt.
+//  - An Laeden geht nur MoS2 Pro 500 g (Luca, 24.09.2026): keine Classic- oder 300-g-Zeilen.
 //  - Alle Endpreise sind UVP-Empfehlungen (Kartellrecht). Keine Staffelpreise
 //    auf dieser oeffentlichen Seite, die stehen nur im Partnerbereich.
 //  - Keine internen Margen, keine Formel-Prozente, keine Superlative,
@@ -48,16 +49,19 @@ const byId = (id: string): Product => {
 
 export const COMMISSION_PCT = 30;
 export const DIRECT_BUY_MAX_PCT = 45;
-/** "rund 9 EUR je verkauftem Block": 30 % vom UVP des Classic 500 g. */
-export const commissionPerBlock = Math.round((byId('wax-500').price * COMMISSION_PCT) / 100);
+/** "rund 10,50 EUR je verkauftem Block": 30 % vom UVP des MoS2 Pro 500 g (34,95 EUR), auf halbe Euro gerundet.
+ *  An Laeden geht nur noch Pro 500 g (Luca, 24.09.2026). */
+export const commissionPerBlock = Math.round(((byId('wax-500-mos2').price * COMMISSION_PCT) / 100) * 2) / 2;
+const commissionText = commissionPerBlock.toFixed(2).replace('.', ',');
 
 export const TRUST_LINE = `Über ${trustStats.sold} verkaufte Einheiten, 100 % positives Feedback, ${trustStats.reviews} Bewertungen.`;
 
-/** Co-Branding ab dieser Menge im Direktkauf, nie auf Kommissionsware (bis zu zwei Etikettenvarianten).
- *  Entschieden 24.09.2026: 15. Infoblatt #45 nennt noch 20, Masterplan 10. Rechnung: Erstbestellung
- *  mit 15 Bloecken bringt rund 160 EUR Deckungsbeitrag, die Co-Branding-Kosten liegen bei 0,60 EUR je
- *  Etikett bei etwa 15 % davon. Das haelt bis ca. 1,20 EUR je Etikett, darueber wieder 20. */
-export const COBRANDING_MIN_BLOCKS = 15;
+/** Co-Branding ab dieser Menge im Direktkauf (Pro 500 g, eine Etikettenvariante), nie auf Kommissionsware.
+ *  Entschieden 24.09.2026: 16 Bloecke = volles 10-kg-DHL-Paket (0,6 kg je Block). Rechnung: Die Erstbestellung
+ *  bringt dann rund 185 EUR Gewinn, die Co-Branding-Kosten (Etikett + 10 EUR Einrichtung + 5 EUR Zeit) liegen
+ *  bei 0,30 bis 1,20 EUR je Etikett bei 11 bis 19 %. Darueber (Etikett teurer) wieder anheben.
+ *  Infoblatt #45 nennt noch 20, Masterplan 10. */
+export const COBRANDING_MIN_BLOCKS = 16;
 
 // ─── Marktpreise (Luecke) ───────────────────────────────────────────────────
 export const GAP = {
@@ -78,7 +82,7 @@ export const WAYS = [
     no: '01',
     name: 'Regal',
     figure: `${COMMISSION_PCT} % Kommission`,
-    text: `Wachs auf Kommission, rund ${commissionPerBlock} € je verkauftem Block. Bis ${DIRECT_BUY_MAX_PCT} % im Direktkauf. Kein Einkauf, keine Kapitalbindung.`,
+    text: `Wachs auf Kommission, rund ${commissionText} € je verkauftem Block. Bis ${DIRECT_BUY_MAX_PCT} % im Direktkauf. Kein Einkauf, keine Kapitalbindung.`,
   },
   {
     no: '02',
@@ -132,7 +136,8 @@ export const PROOF = {
 
 // ─── Sortiment (Preise = UVP-Empfehlung aus data.ts) ────────────────────────
 export const RANGE_NOTE = 'Alle Endkundenpreise sind unverbindliche Preisempfehlungen. Ihre Preise bestimmen Sie.';
-export const WAX_NOTE = 'Ein Block leistet 15–20 Wachsvorgänge, je Vorgang 400–550 km trocken.';
+export const WAX_NOTE =
+  'PFAS-frei und zukunftssicher, unabhängig vom Ausgang des EU-Verfahrens. Ein Block leistet 15–20 Wachsvorgänge, je Vorgang 400–550 km trocken.';
 export const CHAINS_NOTE =
   'Ultraschall-entfettet, mit Pro (MoS₂) gewachst, versiegelt und einbaufertig. Quick-Link liegt bei. Handgewachst in Stuttgart. Wunschkette auf Anfrage.';
 export const CARDS = {
@@ -146,7 +151,7 @@ export const CARDS = {
 
 /** Wachs- und Ketten-Listen fuer die Seite, alles aus data.ts. */
 export function partnerWax(): Product[] {
-  return products.filter((p) => p.category === 'wax');
+  return products.filter((p) => p.id === 'wax-500-mos2');
 }
 export function partnerChains(): Product[] {
   return products
@@ -160,8 +165,7 @@ export const TRIAL = {
   badge: '0 € Warenrisiko',
   lead: 'Unverkauftes holen wir auf unsere Kosten zurück. Kommissionsware, also kein Einkauf und keine Kapitalbindung.',
   items: [
-    '5–10 Blöcke Wachs auf Kommission',
-    'Ein Block gratis für die Werkstatt, zum Selbsttesten',
+    '8 Blöcke MoS₂ Pro in einem Paket: 7 auf Kommission und 1 gratis für die Werkstatt, zum Selbsttesten',
     'Ketten ab Tag 1 lieferbar',
     'Blanko-Stempelkarten, kostenlos',
     `Co-Branding: Ihr Logo auf dem Etikett, ab ${COBRANDING_MIN_BLOCKS} Blöcken im Direktkauf ohne Aufpreis`,
@@ -181,7 +185,7 @@ export const FAQ: { q: string; a: string }[] = [
   },
   {
     q: 'Was muss ich lagern?',
-    a: 'Beim Wachs nichts, was Sie einkaufen müssten: Es läuft auf Kommission. Bei den Ketten genügen zwei Typen, passend zu Ihrer Kundschaft. Den Rest liefern wir in 48–72 h. Wachs verdirbt nicht, gehört aber nicht ins Schaufenster in die Sommersonne, weil Paraffin ab etwa 58 °C weich wird.',
+    a: 'Beim Wachs nichts, was Sie einkaufen müssten: Es läuft auf Kommission. Bei den Ketten genügen zwei Typen, passend zu Ihrer Kundschaft. Den Rest liefern wir in 48–72 h. Wachs verdirbt nicht, gehört im Sommer aber nicht ins sonnige Schaufenster.',
   },
   {
     q: 'Wer legt die Preise fest?',

@@ -41,8 +41,8 @@ const RATE_LIMIT = 10;
 const RATE_WINDOW_S = 15 * 60;
 const OWNER_EMAIL = 'waxcelerate@gmail.com';
 
-// Gleicher Wert wie COBRANDING_MIN_BLOCKS in src/pages/partner/content.ts (dort erklaert, warum 15).
-const COBRANDING_MIN_BLOCKS = 15;
+// Gleicher Wert wie COBRANDING_MIN_BLOCKS in src/pages/partner/content.ts (dort erklaert, warum 16).
+const COBRANDING_MIN_BLOCKS = 16;
 
 const redis =
   process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
@@ -76,19 +76,17 @@ function buildConditions(country: Country): Section[] {
 
   return [
     {
+      // An Laeden geht nur MoS2 Pro 500 g (Luca, 24.09.2026). Stufen an den DHL-Gewichtsklassen
+      // (0,6 kg je Block): 3 = bis 2 kg, 8 = bis 5 kg, 16 = bis 10 kg. Shop-Marge bei 34,95 EUR:
+      // 35,6 / 39,9 / 44,2 %. Kalkulation: docs/plaene/PARTNER_SEITE.md.
       id: 'wachs-direktkauf',
       title: 'Wachs im Direktkauf',
       note: 'Preise je Block, ohne Umsatzsteuer (Kleinunternehmer nach § 19 UStG). Endkundenpreise sind unverbindliche Empfehlungen, Ihre Preise bestimmen Sie.',
       table: {
-        head: ['Produkt (Preisempfehlung)', 'ab 3', 'ab 10', 'ab 25'],
-        rows: [
-          [`Classic 500 g (${uvp('wax-500')})`, '19,50 €', '18,00 €', '16,50 €'],
-          [`MoS₂ Pro Edition 500 g (${uvp('wax-500-mos2')})`, '22,50 €', '21,00 €', '19,00 €'],
-          [`Classic 300 g (${uvp('wax-300')})`, '14,95 €', '13,80 €', '12,60 €'],
-          [`MoS₂ Pro Edition 300 g (${uvp('wax-300-mos2')})`, '17,50 €', '16,20 €', '14,80 €'],
-        ],
+        head: ['Produkt (Preisempfehlung)', 'ab 3', 'ab 8', 'ab 16'],
+        rows: [[`MoS₂ Pro Edition 500 g (${uvp('wax-500-mos2')})`, '22,50 €', '21,00 €', '19,50 €']],
       },
-      items: ['Service-Gebinde 1 kg, nur für Service-Partner: 45,00 € ab 10, 42,00 € ab 25.'],
+      items: ['Ab 32 Blöcken sprechen wir über eine Rahmenvereinbarung.'],
     },
     {
       id: 'kommission',
@@ -96,6 +94,7 @@ function buildConditions(country: Country): Section[] {
       items: [
         '30 % Marge auf das verkaufte Wachs. Sie kaufen nichts ein und binden kein Kapital.',
         'Unverkauftes holen wir auf unsere Kosten zurück. Das ist das 0 € Warenrisiko.',
+        'Das Testpaket ist ein Paket mit 8 Blöcken MoS₂ Pro: 7 auf Kommission, 1 gratis für die Werkstatt, zum Selbsttesten.',
         'Kommission gibt es nur für Wachs, nie für Ketten.',
         'Ware mit Ihrem Logo (Co-Branding) gibt es nur im Direktkauf, nie auf Kommission.',
       ],
@@ -143,8 +142,8 @@ function buildConditions(country: Country): Section[] {
       id: 'cobranding',
       title: 'Co-Branding',
       items: [
-        `Ihr Logo auf dem Etikett, kostenlos, im Direktkauf ab ${COBRANDING_MIN_BLOCKS} Blöcken.`,
-        'Bis zu zwei Etikettenvarianten je Bestellung, zum Beispiel Classic und Pro. Nie auf Kommissionsware.',
+        `Ihr Logo auf dem Etikett, kostenlos, im Direktkauf ab ${COBRANDING_MIN_BLOCKS} Blöcken (ein volles Paket).`,
+        'Nie auf Kommissionsware.',
       ],
     },
     {
@@ -153,8 +152,8 @@ function buildConditions(country: Country): Section[] {
       items: [
         'Erste Bestellung per Vorkasse, danach Rechnung mit 14 Tagen Zahlungsziel.',
         at
-          ? 'Lieferzeiten nach Österreich nennen wir Ihnen bei der Bestellung.'
-          : 'Lieferung innerhalb Deutschlands in 48–72 h.',
+          ? 'Lieferzeiten und Versandkosten nach Österreich nennen wir Ihnen bei der Bestellung.'
+          : 'Lieferung innerhalb Deutschlands in 48–72 h. Wachs liefern wir frei Haus ab 8 Blöcken, darunter berechnen wir 7,70 € Versand.',
         'Bestellungen und Fragen: WhatsApp oder Telefon 0157 51957470.',
       ],
     },
