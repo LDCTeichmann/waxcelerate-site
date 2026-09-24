@@ -37,9 +37,16 @@ export function Topbar() {
 
   // Auf den Service-Seiten wäre „versandkostenfrei" falsch (dort zahlt der
   // Kunde das Porto) und die Rewax-Werbung doppelt — eigene Meldungen.
-  const onRewax = useLocation().pathname.startsWith('/kette-wachsen-lassen');
+  const pathname = useLocation().pathname;
+  const onRewax = pathname.startsWith('/kette-wachsen-lassen');
+  // Partnerseite (B2B, nur Deutsch): keine Endkundenwerbung („versandkostenfrei",
+  // „wenn du bestellst"), sondern die zwei Zusagen aus dem Partner-Infoblatt.
+  const onPartner = pathname.startsWith('/partner');
   const question = { icon: MessageCircle, body: <>{h.question} <span className="underline underline-offset-2">{h.questionCta}</span></>, to: '/kontakt' };
-  const messages: { icon: LucideIcon; body: ReactNode; to?: string }[] = onRewax ? [
+  const messages: { icon: LucideIcon; body: ReactNode; to?: string }[] = onPartner ? [
+    { icon: Clock, body: 'Antwort auf Partneranfragen am selben Tag.' },
+    { icon: Truck, body: 'Ketten und Wachs für Partner in 48–72 h.' },
+  ] : onRewax ? [
     { icon: RotateCw, body: h.rewaxServiceA.replace('{ship}', eur(PRICE.shippingSingle, de)) },
     { icon: Clock, body: h.rewaxServiceB.replace('{turn}', de ? TURNAROUND.full : TURNAROUND.fullEn) },
     question,

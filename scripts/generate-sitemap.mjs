@@ -85,6 +85,9 @@ const staticPages = [
   // gewandert, deshalb hoeher gewichtet als die vorherige reine Kontaktseite.
   { loc: '/anleitung', changefreq: 'monthly', priority: '0.8' },
   { loc: '/kontakt', changefreq: 'monthly', priority: '0.6' },
+  // B2B-Partnerseite: bewusst niedrig priorisiert (Zielgruppe Fachhandel, nicht Endkunden).
+  // /partner/konditionen ist noindex und steht nie in der Sitemap.
+  { loc: '/partner', changefreq: 'monthly', priority: '0.3' },
 ];
 
 // Image-Sitemaps verlangen absolute URLs. Die Wachsprodukte speichern einen

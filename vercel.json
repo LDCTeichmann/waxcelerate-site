@@ -25,6 +25,16 @@
       "source": "/faq",
       "destination": "/blog#fragen",
       "permanent": true
+    },
+    {
+      "source": "/fachhandel",
+      "destination": "/partner",
+      "permanent": true
+    },
+    {
+      "source": "/haendler",
+      "destination": "/partner",
+      "permanent": true
     }
   ],
   "rewrites": [
@@ -39,6 +49,10 @@
     {
       "source": "/produkt/:id/stage",
       "destination": "/index.html"
+    },
+    {
+      "source": "/partner/konditionen",
+      "destination": "/index.html"
     }
   ],
   "headers": [
@@ -52,6 +66,10 @@
     },
     {
       "source": "/produkt/:id/stage",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+    },
+    {
+      "source": "/partner/konditionen",
       "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
     },
     {

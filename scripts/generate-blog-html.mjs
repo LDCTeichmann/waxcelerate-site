@@ -35,6 +35,9 @@ import {
 import {
   KETTENWACHS_TITLE, KETTENWACHS_DESCRIPTION, KETTENWACHS_H1, KETTENWACHS_LEAD, kettenwachsCollectionSchema,
 } from '../src/pages/kettenwachs/content.ts';
+import {
+  PARTNER_TITLE, PARTNER_DESCRIPTION, PARTNER_H1, PARTNER_LEAD, PARTNER_POINTS, FAQ as PARTNER_FAQ,
+} from '../src/pages/partner/content.ts';
 import { translations } from '../src/lib/i18n.ts';
 import { COMPONENTS } from '../src/lib/science.ts';
 
@@ -596,6 +599,21 @@ const NEW_STATIC_PAGES = [
       { '@context': 'https://schema.org', ...breadcrumb(DE.pages.anleitung.h1, '/anleitung') },
     ],
     calc: { href: '/rechner/intervall', label: 'Wie oft nachwachsen? Intervall berechnen' },
+  },
+  {
+    // B2B-Partnerseite (Ziel des QR-Codes im Infoblatt). Text kommt aus
+    // src/pages/partner/content.ts, derselben Quelle wie PartnerPage.tsx.
+    dir: 'partner',
+    title: PARTNER_TITLE,
+    description: PARTNER_DESCRIPTION,
+    image: '/images/rewax/hero.webp',
+    h1: PARTNER_H1,
+    lead: PARTNER_LEAD,
+    points: PARTNER_POINTS.slice(1),
+    faq: PARTNER_FAQ,
+    extraSchema: [
+      { '@context': 'https://schema.org', ...breadcrumb('Für den Fachhandel', '/partner') },
+    ],
   },
 ];
 

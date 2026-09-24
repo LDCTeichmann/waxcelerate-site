@@ -36,7 +36,7 @@ const isLocal = baseHost === 'localhost' || baseHost === '127.0.0.1';
 // Seiten, die bewusst NICHT indexierbar sind (App-Routen ohne Prerender,
 // siehe vercel.json rewrites + headers). Werden separat geprüft, nicht über
 // die Sitemap — sie stehen dort korrekterweise nicht drin.
-const NOINDEX_PATHS = ['/admin', '/bestellung-erfolgreich', '/produkt/wax-500/stage'];
+const NOINDEX_PATHS = ['/admin', '/bestellung-erfolgreich', '/produkt/wax-500/stage', '/partner/konditionen'];
 
 let failures = 0;
 let passed = 0;

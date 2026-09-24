@@ -42,6 +42,8 @@ const KontaktPage = lazy(() => import('@/pages/KontaktPage').then(m => ({ defaul
 const AnleitungPage = lazy(() => import('@/pages/AnleitungPage').then(m => ({ default: m.AnleitungPage })));
 const KettenPage = lazy(() => import('@/pages/KettenPage').then(m => ({ default: m.KettenPage })));
 const KettenwachsPage = lazy(() => import('@/pages/KettenwachsPage').then(m => ({ default: m.KettenwachsPage })));
+const PartnerPage = lazy(() => import('@/pages/PartnerPage').then(m => ({ default: m.PartnerPage })));
+const PartnerAreaPage = lazy(() => import('@/pages/PartnerAreaPage').then(m => ({ default: m.PartnerAreaPage })));
 import { LanguageProvider } from '@/hooks/useLanguage';
 import { ThemeProvider } from '@/hooks/useTheme';
 import { Toaster } from '@/components/ui/sonner';
@@ -132,6 +134,16 @@ function AppContent() {
             und /kette-wachsen-lassen — eine eigene Seite statt eines
             Aufklappens auf der Startseite. */}
         <Route path="/kettenwachs" element={<Suspense fallback={<PageLoader />}><KettenwachsPage /></Suspense>} />
+        {/* B2B-Partnerseite (Ziel des QR-Codes im Partner-Infoblatt). Bewusst nur ueber
+            einen kleinen Footer-Link erreichbar, nicht in Topbar oder Menue.
+            /partner/konditionen ist noindex und laedt seinen Inhalt erst nach
+            Code-Login von /api/partner-access (docs/plaene/PARTNER_SEITE.md).
+            Kurzlinks: vercel.json traegt den 301, die Navigate-Routen fangen
+            eine SPA-Navigation ab. */}
+        <Route path="/partner" element={<Suspense fallback={<PageLoader />}><PartnerPage /></Suspense>} />
+        <Route path="/partner/konditionen" element={<Suspense fallback={<PageLoader />}><PartnerAreaPage /></Suspense>} />
+        <Route path="/fachhandel" element={<Navigate to="/partner" replace />} />
+        <Route path="/haendler" element={<Navigate to="/partner" replace />} />
         <Route path="/" element={
           <>
             <Navigation />

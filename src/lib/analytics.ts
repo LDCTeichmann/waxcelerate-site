@@ -97,3 +97,20 @@ export function trackSearchNoResult(query: string) {
 export function trackShopClick(source: string) {
   track('click_ebay_shop', { source });
 }
+
+/** Aufruf der Partnerseite (/partner). `source` kommt aus ?q= (qr, mail, ...)
+ *  und ist auf 20 Zeichen gekappt, ohne Shopnamen. Beantwortet: wie viele
+ *  Fachhaendler erreicht das Infoblatt per QR, wie viele finden die Seite selbst? */
+export function trackPartnerView(source: string) {
+  track('partner_view', { source: source.trim().toLowerCase().slice(0, 20) || 'direct' });
+}
+
+/** Klick auf einen Kontaktweg der Partnerseite. */
+export function trackPartnerCta(kind: 'whatsapp' | 'phone' | 'form' | 'code') {
+  track('partner_cta', { kind });
+}
+
+/** Erfolgreicher Login im Partnerbereich (ohne Code oder Shopname). */
+export function trackPartnerCodeOk() {
+  track('partner_code_ok');
+}

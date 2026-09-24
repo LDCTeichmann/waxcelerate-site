@@ -114,6 +114,7 @@ export function Footer() {
                   { to: '/kontakt',   label: t.nav.contact },
                   { to: '/wissenschaft', label: de ? 'Wissenschaft' : 'Science' },
                   { to: '/blog', label: t.nav.blogFaq },
+                  { to: '/partner', label: 'Für den Fachhandel' },
                 ].map((item) => (
                   <li key={item.to}>
                     <Link to={item.to} className={linkClass}>{item.label}</Link>
