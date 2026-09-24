@@ -877,6 +877,22 @@
   background: var(--sf);
   box-shadow: 0 1px 2px rgba(16,16,16,.04), 0 6px 16px rgba(16,16,16,.06);
 }
+/* Ganze Karte klickbar (Luca, 25.09.2026 — vorher nur Foto und "Details"):
+   derselbe .stretched-link wie bei ChainCard, alle anderen Bedienteile der
+   Karte liegen per z-index ueber dem Overlay und bleiben eigenstaendig. Der
+   Fokusring wandert auf die Karte, weil das ::after unsichtbar ist. */
+/* Schmale Karten (3er-Reihe knapp ueber lg): "10–15 Wachsgänge" brach in
+   der Groessenkachel zweizeilig um und schob den Preis nach unten. Dort steht
+   dann "10–15×", sonst das ganze Wort. */
+.shelf-card { container-type: inline-size; }
+.shelf-uses-short { display: none; }
+@container (max-width: 300px) {
+  .shelf-uses-long { display: none; }
+  .shelf-uses-short { display: inline; }
+}
+.shelf-card .stretched-link:focus-visible { outline: none; }
+.shelf-card:has(.stretched-link:focus-visible) { outline: 2px solid var(--accent); outline-offset: 3px; }
+.shelf-card :is(button, a:not(.stretched-link)) { position: relative; z-index: 2; }
 .shelf-price { color: #16385F; font-variant-numeric: tabular-nums; }
 .noir .shelf-price { color: #A9C4E6; }
 .shelf-deal { color: #256B42; background: rgba(46,125,79,.1); }

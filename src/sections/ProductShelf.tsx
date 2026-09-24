@@ -41,8 +41,8 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ArrowLeftRight, ExternalLink, Truck, RotateCw, ChevronDown, BadgePercent, Check } from 'lucide-react';
-import { products, accessories, starterSet, starterSetPrice, canCheckout, waxTierBreakdown } from '@/lib/data';
+import { ArrowRight, ArrowLeftRight, ExternalLink, Truck, RotateCw, ChevronDown, BadgePercent } from 'lucide-react';
+import { products, accessories, starterSet, starterSetPrice, starterSetOptions, starterSetPriceFor, canCheckout, waxTierBreakdown } from '@/lib/data';
 import { costPerApplication } from '@/lib/waxMath';
 import type { TranslationType } from '@/lib/i18n';
 import { AddToCartButton } from '@/components/AddToCartButton';
@@ -88,6 +88,21 @@ export const minSetPrice = Math.min(
   starterSetPrice(minPrice('wax') + accSum),
 );
 
+// ── Kartenkopf, fuer alle drei Karten gleich gebaut ──────────────────────────
+function ShelfHead({ name, to, meta, body }: { name: string; to: string; meta: React.ReactNode; body: string }) {
+  return (
+    <div className="min-w-0">
+      {/* <p>-Optik, nicht <h3>: index.css faerbt h1–h4 im Hellmodus global. */}
+      <Link to={to} viewTransition className="stretched-link block font-display font-bold leading-[1.05] tracking-[-0.02em]"
+        style={{ color: 'var(--tx1)', fontSize: 'clamp(1.4rem, 2.2vw, 1.65rem)' }}>
+        {name}
+      </Link>
+      <div className="flex items-center gap-2 mt-1.5 h-5 min-w-0">{meta}</div>
+      <p className="text-[13px] leading-[1.4] mt-2 line-clamp-2 min-h-[2.8em]" style={{ color: 'var(--txm)' }}>{body}</p>
+    </div>
+  );
+}
+
 // ── Eine Wachs-Tafel ────────────────────────────────────────────────────────
 // Foto traegt den Namen, die Haarlinien darunter tragen die Zahlen. Der
 // Groessenschalter tauscht das ganze Produkt aus (Preis, Grundpreis,
@@ -122,7 +137,7 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
   const maxPct = Math.max(0, ...tiers.map(x => x.pct));
 
   return (
-    <div className="shelf-card group flex flex-col rounded-[20px] overflow-hidden">
+    <div className="shelf-card group relative flex flex-col rounded-[20px] overflow-hidden">
       {/* Foto traegt nur Auszeichnung und Hover-Pfeil, beide mit eigenem
           Fond — der Name steht darunter auf Flaeche (kein Scrim ueber dem
           farbigen Motiv). Auszeichnung jetzt bei beiden oben links. */}
@@ -130,7 +145,7 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
         to={`/produkt/${product.id}`}
         viewTransition
         className="relative block overflow-hidden aspect-[16/10]"
-        style={{ background: 'var(--hero-stage)' }}
+        style={{ background: 'var(--bd2)' }}
         // Sichtbare Auszeichnung steht mit im zugaenglichen Namen (WCAG 2.5.3).
         aria-label={`${name} — ${badge}`}
       >
@@ -173,29 +188,26 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
       </Link>
 
       <div className="flex flex-1 flex-col px-5 pt-4 pb-5">
-        {/* Kopf: Name und Einsatz links, Bewertungen rechts. Unter 640 px
-            stehen die Bewertungen darunter, sonst bricht die Einsatzzeile
-            dreizeilig um und "verkauft" wird rechts abgeschnitten. */}
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
-          <div className="min-w-0">
-            {/* <p>, nicht <h3>: index.css faerbt h1–h4 im Hellmodus global. */}
-            <p className="font-display font-bold leading-[1.05] tracking-[-0.02em]"
-              style={{ color: 'var(--tx1)', fontSize: 'clamp(1.4rem, 2.2vw, 1.65rem)' }}>
-              {name}
-            </p>
-            <p className="text-[13px] mt-1" style={{ color: 'var(--txm)' }}>
-              {variant === 'classic' ? s.classicUse : s.proUse}
-            </p>
-          </div>
-          {reviews > 0 && (
-            <div className="flex items-center gap-2 flex-shrink-0 sm:flex-col sm:items-end sm:gap-0 sm:pt-1">
+        {/* Kopf in festen Zeilen, damit Preis und Schalter auf allen drei
+            Karten auf derselben Hoehe stehen (Luca, 25.09.2026: bei Classic
+            brach die Einsatzzeile neben den Sternen dreizeilig um, bei Pro
+            zweizeilig, der Preis stand dadurch ueberall woanders).
+            Name / Beleg-Zeile / Einsatz mit fest reservierten zwei Zeilen.
+            Der Name ist der "Stretched Link": sein ::after legt eine
+            Klickflaeche ueber die ganze Karte (siehe .stretched-link in index.css). */}
+        <ShelfHead
+          name={name}
+          to={`/produkt/${product.id}`}
+          meta={reviews > 0 && (
+            <>
               <Stars rating={5} />
-              <p className="num text-meta sm:mt-1 whitespace-nowrap" style={{ color: 'var(--txf)' }}>
+              <span className="num text-meta whitespace-nowrap truncate" style={{ color: 'var(--txf)' }}>
                 {reviews} {s.reviewsShort}{soldRounded >= 20 && ` · ${soldRounded}+ ${s.soldUnits}`}
-              </p>
-            </div>
+              </span>
+            </>
           )}
-        </div>
+          body={variant === 'classic' ? s.classicUse : s.proUse}
+        />
 
         {/* Groesse als zwei Kacheln wie in der Kaufbox der Produktseite:
             jede nennt Preis und Wachsgaenge selbst, also braucht es keine
@@ -210,7 +222,7 @@ function WaxPanel({ variant, de, t, image, alt, delivery }: {
                   <span className="num text-[15px] font-bold" style={{ color: 'var(--tx1)' }}>{v} g</span>
                   <span className="num text-[13px]" style={{ color: 'var(--tx2)' }}>{eur(sp.price, de)}</span>
                 </span>
-                <span className="block num text-meta mt-0.5" style={{ color: 'var(--txf)' }}>{sp.applications} {s.uses}</span>
+                <span className="block num text-meta mt-0.5 whitespace-nowrap" style={{ color: 'var(--txf)' }}>{sp.applications}<span className="shelf-uses-long"> {s.uses}</span><span className="shelf-uses-short" aria-hidden>×</span></span>
               </button>
             );
           })}
@@ -381,7 +393,7 @@ export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, p
           steht weiterhin auf Flaeche statt auf Foto (das war der Fehler des
           zweiten Anlaufs), aber die Kachel hat jetzt volle Spaltenbreite
           statt halber, also bricht keine Eyebrow-Zeile mehr um. */}
-      <div className="relative overflow-hidden aspect-[16/10]" style={{ background: 'var(--hero-stage)' }}>
+      <div className="relative overflow-hidden aspect-[16/10]" style={{ background: 'var(--bd2)' }}>
         <picture>
           {/* AVIF vor WebP, siehe Kommentar bei der Hauptkarte weiter oben. */}
           <source srcSet={`${image}-800.avif 800w, ${image}.avif ${imageW}w`} sizes="(max-width: 640px) 92vw, 30vw" type="image/avif" />
@@ -476,23 +488,42 @@ export function SecondaryTile({ image, imageW, eyebrow, title, body, cta, alt, p
 // /kettenwachs (Seitenordnung Chat 2): "Drei gleich hohe Karten: Classic und
 // Pro (bestehendes WaxPanel) plus eine Starter-Set-Karte in derselben
 // Zonen-Grammatik." Gleiche Aussenform wie WaxPanel (Foto 16:10, getoenter
-// Block darunter, Fusszeile per mt-auto), nur der mittlere Block ist hier
-// eine kurze Punkteliste statt Groessenschalter/Rabatt-Chip — das Set hat
-// keine Groessenwahl und keine Wax-Staffel, sondern feste Beilagen.
+// Block darunter, Fusszeile per mt-auto). Seit 25.09.2026 auch derselbe
+// mittlere Block: Schalter ohne/mit Kette statt einer Punkteliste.
+//
+// Die zwei Einstiege der Set-Karte, beide echte Kombinationen aus
+// starterSetOptions (Preis ueber starterSetPriceFor, Einzelsumme aus den
+// echten Katalogpreisen) — keine getippte Zahl.
+type SetPick = 'nochain' | 'chain';
+const setParts = (waxId: string, chainId?: string) =>
+  (products.find(p => p.id === waxId)?.price ?? 0)
+  + (chainId ? products.find(p => p.id === chainId)?.price ?? 0 : 0)
+  + accessories.filter(a => (starterSet.includedAccessoryIds as readonly string[]).includes(a.id)).reduce((sum, a) => sum + a.price, 0);
+const setPick = (id: string, labelDe: string, labelEn: string, subDe: string, subEn: string) => {
+  const opt = starterSetOptions.find(o => o.id === id)!;
+  return { opt, labelDe, labelEn, subDe, subEn, price: starterSetPriceFor(opt.waxId, opt.chainId), parts: setParts(opt.waxId, opt.chainId) };
+};
+const SET_PICKS: Record<SetPick, ReturnType<typeof setPick>> = {
+  nochain: setPick('starter-nochain', 'Ohne Kette', 'No chain', 'Wachs 300 g, Zange, Draht', 'Wax 300 g, pliers, wire'),
+  chain: setPick('starter-classic', 'Mit Kette', 'With chain', 'dazu Kette YBN 11-fach', 'plus YBN 11-speed chain'),
+};
+
 function StarterSetPanel({ de, t, delivery }: { de: boolean; t: TranslationType; delivery: string }) {
   const s = t.products.shelf;
-  const bullets = de
-    ? ['Wachs, Zange und Draht in einer Sendung', 'Kette optional dazu', `${starterSet.discountPct} % günstiger als einzeln gekauft`]
-    : ['Wax, pliers and wire in one shipment', 'Chain optional', `${starterSet.discountPct}% cheaper than buying separately`];
+  // Luca, 25.09.2026: dasselbe Muster wie der Groessenschalter bei Classic
+  // und Pro — ohne/mit Kette als zwei Kacheln, "ohne" vorausgewaehlt, Preis
+  // wechselt mit, der CTA oeffnet den Konfigurator mit genau dieser Wahl.
+  const [pick, setPick] = useState<SetPick>('nochain');
+  const chosen = SET_PICKS[pick];
 
   return (
-    <div className="shelf-card group flex flex-col rounded-[20px] overflow-hidden">
+    <div className="shelf-card group relative flex flex-col rounded-[20px] overflow-hidden">
       <Link
-        to="/starter-set"
+        to={`/starter-set?set=${chosen.opt.id}`}
         viewTransition
         className="relative block overflow-hidden aspect-[16/10]"
-        style={{ background: 'var(--hero-stage)' }}
-        aria-label={`${s.setTitle} — ${eur(minSetPrice, de)}`}
+        style={{ background: 'var(--bd2)' }}
+        aria-label={`${s.setTitle} — ${eur(chosen.price, de)}`}
       >
         <picture>
           <source srcSet="/images/shelf/shelf-set-800.avif 800w, /images/shelf/shelf-set.avif 1000w" sizes="(max-width: 640px) 92vw, 30vw" type="image/avif" />
@@ -519,25 +550,41 @@ function StarterSetPanel({ de, t, delivery }: { de: boolean; t: TranslationType;
       </Link>
 
       <div className="flex flex-1 flex-col px-5 pt-4 pb-5">
-        <p className="font-display font-bold leading-[1.05] tracking-[-0.02em]"
-          style={{ color: 'var(--tx1)', fontSize: 'clamp(1.4rem, 2.2vw, 1.65rem)' }}>
-          {s.setTitle}
-        </p>
-        <p className="text-[13px] mt-1" style={{ color: 'var(--txm)' }}>{s.setBody}</p>
+        <ShelfHead
+          name={s.setTitle}
+          to={`/starter-set?set=${chosen.opt.id}`}
+          meta={
+            <span className="shelf-deal-tx inline-flex items-center gap-1.5 text-meta font-semibold whitespace-nowrap">
+              <BadgePercent className="h-3.5 w-3.5" aria-hidden />
+              {de ? `${starterSet.discountPct} % günstiger als einzeln` : `${starterSet.discountPct}% cheaper than separately`}
+            </span>
+          }
+          body={s.setBody}
+        />
 
-        <p className="shelf-price font-display font-extrabold leading-none tracking-[-0.03em] mt-4"
-          style={{ fontSize: 'clamp(1.9rem, 3vw, 2.3rem)' }}>
-          {de ? 'ab ' : 'from '}{eur(minSetPrice, de).replace(' €', '')}<span className="text-[0.55em] font-semibold ml-1" style={{ color: 'var(--tx2)' }}>€</span>
-        </p>
+        <div className="grid grid-cols-2 gap-2.5 mt-4" role="group" aria-label={de ? 'Kette' : 'Chain'}>
+          {(Object.keys(SET_PICKS) as SetPick[]).map(k => {
+            const o = SET_PICKS[k];
+            return (
+              <button key={k} type="button" aria-pressed={pick === k} onClick={() => setPick(k)}
+                className="shelf-size text-left rounded-xl px-3 py-2.5 min-h-11">
+                <span className="block text-[15px] font-bold whitespace-nowrap" style={{ color: 'var(--tx1)' }}>{de ? o.labelDe : o.labelEn}</span>
+                <span className="block num text-meta mt-0.5" style={{ color: 'var(--txf)' }}>{eur(o.price, de)}</span>
+              </button>
+            );
+          })}
+        </div>
 
-        <ul className="mt-4 flex flex-col gap-2">
-          {bullets.map((b) => (
-            <li key={b} className="flex items-start gap-2 text-[13px] leading-snug" style={{ color: 'var(--tx2)' }}>
-              <Check className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" style={{ color: 'var(--accent-soft)' }} aria-hidden />
-              {b}
-            </li>
-          ))}
-        </ul>
+        <div className="flex items-end justify-between gap-3 mt-4">
+          <p className="shelf-price font-display font-extrabold leading-none tracking-[-0.03em]"
+            style={{ fontSize: 'clamp(1.9rem, 3vw, 2.3rem)' }}>
+            {eur(chosen.price, de).replace(' €', '')}<span className="text-[0.55em] font-semibold ml-1" style={{ color: 'var(--tx2)' }}>€</span>
+          </p>
+          <p className="num text-[12.5px] text-right leading-snug" style={{ color: 'var(--txm)' }}>
+            {de ? 'statt' : 'instead of'} <s>{eur(chosen.parts, de)}</s> {de ? 'einzeln' : 'separately'}<br />
+            <span style={{ color: 'var(--txf)' }}>{de ? chosen.subDe : chosen.subEn}</span>
+          </p>
+        </div>
 
         <div className="mt-auto pt-4">
           <div className="flex items-center justify-between gap-x-3 gap-y-3 flex-wrap pt-4" style={{ borderTop: '1px solid var(--bd2)' }}>
@@ -546,9 +593,9 @@ function StarterSetPanel({ de, t, delivery }: { de: boolean; t: TranslationType;
               <span>{s.delivery} {delivery}</span>
             </p>
             <Link
-              to="/starter-set"
+              to={`/starter-set?set=${chosen.opt.id}`}
               viewTransition
-              className="inline-flex items-center gap-1.5 min-h-11 px-5 rounded-full text-[13px] font-semibold transition-all duration-150 hover:opacity-90 active:scale-[0.97]"
+              className="ml-auto inline-flex items-center gap-1.5 min-h-11 px-5 rounded-full text-[13px] font-semibold transition-all duration-150 hover:opacity-90 active:scale-[0.97]"
               style={{ background: 'var(--cta-bg)', color: 'var(--cta-fg)' }}
             >
               {s.setCta}
