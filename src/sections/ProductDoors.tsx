@@ -48,16 +48,22 @@ function Door({ to, image, alt, title, body, price, delivery, compact }: {
       <span aria-hidden className="absolute inset-0"
         style={{ background: 'linear-gradient(to top, rgba(6,7,10,0.86) 0%, rgba(6,7,10,0.32) 46%, rgba(6,7,10,0.02) 72%)' }} />
 
+      {/* Feste Zeilen, damit die Titel aller drei Tueren auf einer Hoehe
+          stehen (Luca, 25.09.2026): der Block haengt unten, also schob ein
+          zweizeiliger Text den Titel seiner Karte nach oben. Jetzt reserviert
+          der Text immer zwei Zeilen, und der Titel reserviert zwei Zeilen nur
+          dort, wo er umbrechen kann (schmale 3er-Reihe unter lg); ab lg
+          steht er einzeilig. */}
       <span className={`absolute inset-x-0 bottom-0 flex flex-col gap-1.5 ${compact ? 'p-4' : 'p-5 sm:p-6'}`}>
-        <span className="font-display font-bold text-white leading-tight tracking-[-0.01em]"
+        <span className={`font-display font-bold text-white leading-tight tracking-[-0.01em] ${compact ? '' : 'flex items-end sm:min-h-[2.5em] lg:min-h-0 lg:whitespace-nowrap'}`}
           style={{ fontSize: compact ? 'clamp(1rem, 1.6vw, 1.15rem)' : 'clamp(1.15rem, 2vw, 1.4rem)' }}>
           {title}
         </span>
-        {!compact && <span className="text-[13.5px] leading-snug" style={{ color: 'rgba(255,255,255,0.82)' }}>{body}</span>}
+        {!compact && <span className="text-[13.5px] leading-snug line-clamp-2 min-h-[2.75em]" style={{ color: 'rgba(255,255,255,0.82)' }}>{body}</span>}
         <span className="flex items-center justify-between gap-2 mt-2">
-          <span className="flex flex-col gap-0.5">
+          <span className="flex flex-col gap-0.5 min-w-0">
             <span className="num text-[14px] font-bold" style={{ color: '#fff' }}>{price}</span>
-            {!compact && <span className="text-meta" style={{ color: 'rgba(255,255,255,0.62)' }}>{delivery}</span>}
+            {!compact && <span className="text-meta truncate" style={{ color: 'rgba(255,255,255,0.62)' }}>{delivery}</span>}
           </span>
           <span
             aria-hidden
@@ -84,8 +90,8 @@ export function ProductDoors({ de, t, delivery, only, compact }: {
   const priceFor = (n: number) => d.priceFrom.replace('{price}', eur(n, de));
   const shippingLine = t.products.shelf.delivery + ' ' + delivery;
   const rewaxDelivery = de
-    ? `Zurück in ${TURNAROUND.dative} ab Ankunft`
-    : `Back in ${TURNAROUND.shortEn} after arrival`;
+    ? `${TURNAROUND.short} ab Ankunft`
+    : `${TURNAROUND.shortEn} after arrival`;
   const show = (k: DoorKey) => !only || only.includes(k);
 
   // Statische Klassennamen (kein Template-String) — Tailwinds JIT-Scanner
@@ -125,7 +131,7 @@ export function ProductDoors({ de, t, delivery, only, compact }: {
           image="/images/shelf/shelf-rewax"
           alt={de ? 'Waxcelerate Versandkarton mit gewachster Kette vor Stuttgarter Landschaft' : 'Waxcelerate shipping box with a waxed chain in front of the Stuttgart hills'}
           title={d.rewaxTitle}
-          body={d.rewaxBody.replace('{turnaround}', de ? TURNAROUND.short : TURNAROUND.shortEn)}
+          body={d.rewaxBody.replace('{turnaround}', de ? TURNAROUND.dative : TURNAROUND.shortEn)}
           price={d.rewaxPrice}
           delivery={rewaxDelivery}
         />

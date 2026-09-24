@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useLanguage } from '@/hooks/useLanguage';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
 import { waxVsOil, trustStats, CONTACT } from '@/lib/data';
@@ -37,6 +38,13 @@ const BG_POS = '48% 38%';
 const MOBILE_HERO_BG = '/images/hero/chain-weave-mobile.webp';
 const MOBILE_HERO_BG_FALLBACK = '/images/hero/chain-weave-mobile.jpg';
 
+// Beide Hero-Fassungen stehen immer im DOM (sm:hidden / hidden sm:block), und
+// ein <img> in einem display:none-Zweig wird trotzdem geladen. Ohne diese
+// Weiche holte ein Handy zusaetzlich das Desktop-Foto und umgekehrt. Eine
+// <source> mit Media-Query und 1-px-Platzhalter sorgt dafuer, dass jede
+// Fassung ihr Foto nur im eigenen Breakpoint anfragt.
+const BLANK_PX = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+
 // Alle weissen Textzeilen im Mobile-Hero tragen denselben leichten Schatten.
 // Gemessen per Canvas-Pixelsampling der tatsaechlich gerenderten Fotoflaeche
 // (nicht der Quelldatei): einzelne Bildstellen fielen ohne ihn auf 4,5:1,
@@ -46,16 +54,18 @@ const MOBILE_HERO_BG_FALLBACK = '/images/hero/chain-weave-mobile.jpg';
 const HERO_TEXT_SHADOW = '0 1px 3px rgba(0,0,0,0.45), 0 2px 10px rgba(0,0,0,0.35)';
 
 
-// Deutschland-Strich vor der Eyebrow — ersetzt den blauen Strich, seit die
+// Deutschland-Flagge vor der Eyebrow — ersetzt den blauen Strich, seit die
 // Eyebrow selbst "Handgegossen in Stuttgart" sagt (Seitenordnung Chat 2).
-// Feine Kontur, weil Gold auf dem dunklen Hero-Foto sonst an der Kante
-// verläuft.
+// Die Streifen liegen UEBEREINANDER (Schwarz, Rot, Gold von oben): die erste
+// Fassung war ein 18x3-Strich mit den Farben nebeneinander und las sich als
+// gekippte Flagge (Luca, 25.09.2026). 5:3 wie die echte Flagge. Feine Kontur,
+// weil Gold auf dem dunklen Hero-Foto sonst an der Kante verläuft.
 function DeStripe() {
   return (
     <span
       aria-hidden
-      className="inline-flex flex-shrink-0 overflow-hidden"
-      style={{ width: '18px', height: '3px', boxShadow: '0 0 0 0.5px rgba(255,255,255,0.35)', borderRadius: '1px' }}
+      className="inline-flex flex-col flex-shrink-0 overflow-hidden"
+      style={{ width: '17px', height: '10px', boxShadow: '0 0 0 0.5px rgba(255,255,255,0.4)', borderRadius: '1.5px' }}
     >
       <span style={{ flex: 1, background: '#000' }} />
       <span style={{ flex: 1, background: '#DD0000' }} />
@@ -106,6 +116,10 @@ export function Hero() {
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    // Schwache Rechner (<= 4 Kerne): die drei Endlos-Tweens (Wobble, Glow,
+    // Atmen) laufen auf jedem Frame fuer immer und sind reine Deko — dort
+    // bleibt der Block ruhig, Einstieg und Scroll bleiben gleich.
+    const lowPower = (navigator.hardwareConcurrency ?? 8) <= 4;
 
     if (reduced) {
       gsap.set(words, { yPercent: 0 });
@@ -142,7 +156,7 @@ export function Hero() {
     // getrackte Transform-Komponente, komponiert also konfliktfrei dazu.
     // blockRef (nicht blockInnerRef) ist, was WaxLensCutout fuer die
     // Treffererkennung misst, also hat dieser Wobble keinen Einfluss darauf.
-    const idleWobble = blockInnerRef.current
+    const idleWobble = !lowPower && blockInnerRef.current
       ? gsap.to(blockInnerRef.current, {
           rotation: 1.2,
           duration: 3.6,
@@ -162,7 +176,7 @@ export function Hero() {
     // active before conscious scene parsing) that responds to a real change
     // in luminance/size over time, not a few-percent wobble; too subtle to
     // register just doesn't recruit it.
-    const glowPulse = glowRef.current
+    const glowPulse = !lowPower && glowRef.current
       ? gsap.to(glowRef.current, {
           opacity: 1, scale: 1.22, transformOrigin: '50% 50%',
           duration: 1.9, ease: 'sine.inOut', yoyo: true, repeat: -1,
@@ -176,7 +190,7 @@ export function Hero() {
     // fighting it. Independent of the rotation wobble above — GSAP tracks
     // scale and rotation as separate transform components on the same
     // element, so both compose without overwriting each other.
-    const breathe = blockInnerRef.current
+    const breathe = !lowPower && blockInnerRef.current
       ? gsap.to(blockInnerRef.current, {
           scale: 1.045, duration: 1.9, ease: 'sine.inOut', yoyo: true, repeat: -1, delay: 2.5,
         })
@@ -252,6 +266,7 @@ export function Hero() {
     if (!inner) return;
     if (!window.matchMedia('(max-width: 639px)').matches) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if ((navigator.hardwareConcurrency ?? 8) <= 4) return;
 
     const wobble = gsap.to(inner, { rotation: 1.2, duration: 3.6, ease: 'sine.inOut', yoyo: true, repeat: -1 });
     const breathe = gsap.to(inner, { scale: 1.045, duration: 1.9, ease: 'sine.inOut', yoyo: true, repeat: -1, delay: 2.5 });
@@ -262,11 +277,14 @@ export function Hero() {
   const scrollTo = (href: string) =>
     document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
 
-  // Zwei Kennzahlen rechts in der Fussleiste; Live-Versand steht daneben als
-  // eigene Zelle (gruener Punkt + kompakte useDispatchLine), siehe unten.
+  // Kennzahlen rechts in der Fussleiste. Jede Zelle ist ein eigenes Ziel mit
+  // dem Beleg zur Zahl (Luca, 25.09.2026: "wie sich das anfuehlt, wenn man sie
+  // antippt" — vorher waren es tote Zahlen). Live-Versand ist die dritte
+  // Zelle, gruener Punkt + kompakte useDispatchLine.
   const stats = [
-    { v: `${waxVsOil.life.waxLo}–${waxVsOil.life.wax}×`, l: de ? 'Kettenlaufzeit'    : 'chain life' },
-    { v: `~€${waxVsOil.cost.savedEur}`, l: de ? 'gespart · 12.000 km' : 'saved · 12,000 km' },
+    { v: `${waxVsOil.life.waxLo}–${waxVsOil.life.wax}×`, l: de ? 'Kettenlaufzeit' : 'chain life', to: '#warum-wachs' },
+    { v: de ? `~${waxVsOil.cost.savedEur} €` : `~€${waxVsOil.cost.savedEur}`, l: de ? 'gespart · 12.000 km' : 'saved · 12,000 km', to: '/rechner/verschleiss' },
+    { v: dispatchCompact, l: de ? 'bis 15 Uhr bestellt' : 'order by 3 pm', to: '/versand-und-zahlung', live: true },
   ];
 
   // LCP-Bild der Startseite. Als WebP 46 statt 262 KB — verlustbehaftet, aber
@@ -276,6 +294,7 @@ export function Hero() {
   // Social-Crawler verarbeitet WebP zuverlaessig.
   const bgImg = (
     <picture>
+      <source media="(max-width: 639px)" srcSet={BLANK_PX} />
       <source srcSet="/images/hero/chain-bg.webp" type="image/webp" />
       <img
         src="/images/hero/chain-bg.jpg"
@@ -348,6 +367,7 @@ export function Hero() {
             Layer bewegt sich nie. */}
         <div className="absolute inset-0">
           <picture>
+            <source media="(min-width: 640px)" srcSet={BLANK_PX} />
             <source srcSet={MOBILE_HERO_BG} type="image/webp" />
             <img
               src={MOBILE_HERO_BG_FALLBACK}
@@ -506,12 +526,14 @@ export function Hero() {
               <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
             </button>
 
+            {/* Zwei eigene Ziele statt einer Sammel-Verlinkung: vorher fuehrte
+                auch ein Tipp auf "Heute versandt" zu eBay. */}
+            <div data-hero className="flex items-center justify-between mt-2 -mx-2">
             <a
-              data-hero
               href={CONTACT.ebayFeedback}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-between mt-3"
+              className="hero-stat pointer-events-auto flex items-center min-h-[44px] px-2 rounded-xl"
               aria-label={de ? 'Bewertungen auf eBay ansehen' : 'See reviews on eBay'}
             >
               <span className="flex items-center gap-2">
@@ -520,11 +542,14 @@ export function Hero() {
                   {trustStats.reviews} {de ? 'Bewertungen' : 'reviews'}
                 </span>
               </span>
-              <span className="flex items-center gap-1.5 text-[12px] sm:text-[11px] font-semibold tabular-nums" style={{ color: 'rgba(255,255,255,0.92)', textShadow: HERO_TEXT_SHADOW }}>
-                <span aria-hidden style={{ width: 6, height: 6, borderRadius: '50%', background: '#3ddc7a' }} />
-                {dispatchCompact}
-              </span>
             </a>
+            <Link to="/versand-und-zahlung"
+              className="hero-stat pointer-events-auto flex items-center gap-2 min-h-[44px] px-2 rounded-xl text-[12px] font-semibold tabular-nums"
+              style={{ color: 'rgba(255,255,255,0.92)', textShadow: HERO_TEXT_SHADOW }}>
+              <span aria-hidden className="hero-stat-live" style={{ width: 6, height: 6 }} />
+              {dispatchCompact}
+            </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -613,7 +638,7 @@ export function Hero() {
                        -translate-x-1/2 -translate-y-1/2
                        sm:w-[clamp(280px,30%,460px)]
                        sm:left-[60%] sm:top-[50%]
-                       lg:left-[62%] lg:top-[50%] lg:w-[clamp(360px,27%,650px)]"
+                       lg:left-[61%] lg:top-[46%] lg:w-[clamp(380px,30%,700px)]"
           >
             <div ref={blockInnerRef} className="relative">
               {/* Ambient glow — sells the wax as the one lit/in-focus subject in the frame.
@@ -653,7 +678,7 @@ export function Hero() {
               padding and max-w here are reduced by that same C so the two
               effects cancel exactly. */}
           <div className="pointer-events-auto relative z-10 h-full w-full max-w-[1232px] mx-auto px-6 lg:px-8 xl:px-14">
-            <div className="hero-zone1 h-full flex flex-col justify-end pb-32 lg:pb-28">
+            <div className="hero-zone1 h-full flex flex-col justify-center pt-6 pb-24 lg:pb-20">
               <div ref={contentRef} className="pointer-events-auto shrink-0 max-w-xl will-change-transform">
 
                 <div data-hero className="flex items-center gap-3 mb-5">
@@ -739,13 +764,13 @@ export function Hero() {
                   Kennzahlen rechts (Kettenlaufzeit, Ersparnis, Live-Versand).
                   Seitenordnung Chat 2: die Bewertungszeile verlinkt jetzt auf
                   das eBay-Feedback-Profil statt reiner Deko zu sein. */}
-              <div className="flex items-center justify-between py-5"
+              <div className="flex items-center justify-between py-3"
                 style={{ borderTop: '1px solid rgba(255,255,255,0.14)' }}>
                 <a
                   href={CONTACT.ebayFeedback}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2.5 group"
+                  className="hero-stat flex items-center gap-2.5 group rounded-2xl -ml-4 px-4 min-h-[56px]"
                   aria-label={de ? 'Bewertungen auf eBay ansehen' : 'See reviews on eBay'}
                 >
                   <Stars rating={5} color="#3D67CA" emptyColor="rgba(255,255,255,0.24)" size="h-4 w-4" />
@@ -755,39 +780,31 @@ export function Hero() {
                   </span>
                 </a>
 
-                <div className="flex items-stretch">
-                  {stats.map((s, i) => (
-                    <div
-                      key={i}
-                      className="px-7 first:pl-0"
-                      style={{ borderLeft: i > 0 ? '1px solid rgba(255,255,255,0.14)' : 'none' }}
-                    >
-                      <p
-                        data-stat-val
-                        className="font-display font-bold tabular-nums text-white leading-none"
-                        style={{ fontSize: 'clamp(1.1rem, 2vw, 1.7rem)' }}
-                      >
-                        {s.v}
-                      </p>
-                      <p className="text-[11px] uppercase mt-1.5"
-                        style={{ letterSpacing: '0.06em', color: 'rgba(255,255,255,0.65)' }}>
-                        {s.l}
-                      </p>
-                    </div>
-                  ))}
-                  {/* Live-Versand: statischer gruener Punkt + kompakte
-                      useDispatchLine, ersetzt die frühere feste "1 Tag"-Angabe. */}
-                  <div className="px-7 border-l" style={{ borderColor: 'rgba(255,255,255,0.14)' }}>
-                    <p className="flex items-center gap-1.5 font-display font-bold text-white leading-none whitespace-nowrap"
-                      style={{ fontSize: 'clamp(0.95rem, 1.6vw, 1.3rem)' }}>
-                      <span aria-hidden style={{ width: 7, height: 7, borderRadius: '50%', background: '#3ddc7a', boxShadow: '0 0 0 3px rgba(61,220,122,0.22)' }} />
-                      {dispatchCompact}
-                    </p>
-                    <p className="text-[11px] uppercase mt-1.5"
-                      style={{ letterSpacing: '0.06em', color: 'rgba(255,255,255,0.65)' }}>
-                      {de ? 'Live-Versand' : 'Live dispatch'}
-                    </p>
-                  </div>
+                {/* Drei gleich gebaute Zellen: gleiche Ziffernschrift und
+                    -groesse (vorher war die Versandzelle kleiner und ohne
+                    Grundlinie), Beschriftung darunter, und jede Zelle ist
+                    ein Link mit Hover-Flaeche, Druck-Feedback und Pfeil. */}
+                <div className="flex items-stretch gap-1">
+                  {stats.map((s) => {
+                    const cls = 'hero-stat group relative flex flex-col justify-center rounded-2xl px-5 py-3 min-h-[56px]';
+                    const body = (
+                      <>
+                        <span className="flex items-center gap-2 font-display font-bold tabular-nums text-white leading-none whitespace-nowrap"
+                          style={{ fontSize: 'clamp(1.05rem, 1.7vw, 1.45rem)' }}>
+                          {s.live && <span aria-hidden className="hero-stat-live" />}
+                          {s.v}
+                          <ArrowRight aria-hidden className="hero-stat-arrow h-3.5 w-3.5" />
+                        </span>
+                        <span className="text-[11px] uppercase mt-1.5 whitespace-nowrap"
+                          style={{ letterSpacing: '0.06em', color: 'rgba(255,255,255,0.65)' }}>
+                          {s.l}
+                        </span>
+                      </>
+                    );
+                    return s.to.startsWith('#')
+                      ? <button key={s.l} type="button" onClick={() => scrollTo(s.to)} className={`${cls} text-left`}>{body}</button>
+                      : <Link key={s.l} to={s.to} className={cls}>{body}</Link>;
+                  })}
                 </div>
               </div>
             </div>
