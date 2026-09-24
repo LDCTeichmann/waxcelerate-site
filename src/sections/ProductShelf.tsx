@@ -581,7 +581,7 @@ function StarterSetPanel({ de, t, delivery }: { de: boolean; t: TranslationType;
             {eur(chosen.price, de).replace(' €', '')}<span className="text-[0.55em] font-semibold ml-1" style={{ color: 'var(--tx2)' }}>€</span>
           </p>
           <p className="num text-[12.5px] text-right leading-snug" style={{ color: 'var(--txm)' }}>
-            {de ? 'statt' : 'instead of'} <s>{eur(chosen.parts, de)}</s> {de ? 'einzeln' : 'separately'}<br />
+            {eur(chosen.parts, de)} {de ? 'einzeln gekauft' : 'bought separately'}<br />
             <span style={{ color: 'var(--txf)' }}>{de ? chosen.subDe : chosen.subEn}</span>
           </p>
         </div>
