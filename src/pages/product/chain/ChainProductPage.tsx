@@ -7,8 +7,9 @@ import { FrictionLens } from '../wax/FrictionLens';
 import { WaxCalculator } from '../wax/WaxCalculator';
 import { WaxReviews, WaxFaq, pickProofQuote } from '../wax/WaxSections';
 import { DeepDive, type DeepDiveItem } from '../DeepDive';
+import { FrictionPreview, SavingsPreview, BathPreview, RefillPreview } from '../DeepDivePreviews';
 import { ChainHero } from './ChainHero';
-import { ChainProcess, ChainFit, ChainData, ChainAfter, ChainClosing } from './ChainSections';
+import { ChainProcess, ChainFit, ChainData, ChainAfter } from './ChainSections';
 import '../wax/wax.css';
 import './chain.css';
 
@@ -44,24 +45,28 @@ export function ChainProductPage(props: {
       id: 'friction', icon: 'gear',
       title: de ? 'Wo die Reibung sitzt' : 'Where the friction sits',
       teaser: de ? 'Warum ein fester Film besser schützt als Öl.' : 'Why a solid film protects better than oil.',
+      preview: <FrictionPreview />,
       render: () => <FrictionLens de={de} />,
     },
     {
       id: 'process', icon: 'drop',
       title: de ? 'Was wir damit machen' : 'What we do with it',
       teaser: de ? 'Ein Wachsbad, Schritt für Schritt.' : 'A wax bath, step by step.',
+      preview: <BathPreview de={de} />,
       render: () => <ChainProcess de={de} n="" />,
     },
     ...(withCalc ? [{
       id: 'calc', icon: 'road' as const,
       title: de ? 'Rechnet sich das?' : 'Does it pay off?',
       teaser: de ? 'Deine Ersparnis mit deinem Fahrprofil.' : 'Your savings with your riding profile.',
+      preview: <SavingsPreview de={de} />,
       render: () => <WaxCalculator product={product} profile={profile} de={de} mode="chain" chapter="" />,
     }] : []),
     {
       id: 'after', icon: 'chain',
       title: de ? 'Nach dem ersten Film' : 'After the first film',
       teaser: de ? 'Wie es weitergeht, wenn das Wachs nachlässt.' : 'What happens once the wax wears off.',
+      preview: <RefillPreview de={de} />,
       render: () => <ChainAfter de={de} />,
     },
   ];
@@ -77,7 +82,6 @@ export function ChainProductPage(props: {
       <WaxReviews productId={product.id} de={de} chapter={de ? 'Kapitel 04' : 'Chapter 04'} chain compact />
       <DeepDive de={de} items={deepDiveItems} />
       <WaxFaq de={de} t={t} kind="chain" />
-      <ChainClosing product={product} de={de} titleText={titleText} />
     </div>
   );
 }

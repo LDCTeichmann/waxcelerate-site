@@ -6,11 +6,9 @@ import { waxChooserRows, type ChooserCell, type RichContent } from '@/lib/produc
 import { REVIEWS, REVIEW_PHOTOS, photoCredit, photoAlt, type Review } from '@/sections/reviews';
 import { Stars } from '@/components/Stars';
 import { GPSR_MANUFACTURER } from '@/components/GpsrInfo';
-import { AddToCartButton } from '@/components/AddToCartButton';
 import { trackEbayClick, trackFormulaCompare } from '@/lib/analytics';
 import { WAX_TOPICS, CHAIN_TOPICS } from '@/pages/product/faqTopics';
 import type { useLanguage } from '@/hooks/useLanguage';
-import { Ico } from './Ico';
 
 type T = ReturnType<typeof useLanguage>['t'];
 
@@ -335,9 +333,49 @@ export function WhenEmpty({ product, de }: { product: Product; de: boolean }) {
   );
 }
 
+// Luca, 25.09.2026: "zu viele Fragen, die gleichzeitig gezeigt werden".
+// Fuenf stehen, der Rest klappt auf. Immer nur eine Antwort offen, weiche
+// Hoehe ueber grid-template-rows statt des harten <details>-Sprungs.
+const FAQ_VISIBLE = 5;
+function FaqList({ items, de }: { items: { q: string; a: string }[]; de: boolean }) {
+  const [open, setOpen] = useState<number | null>(null);
+  const [all, setAll] = useState(false);
+  const shown = all ? items : items.slice(0, FAQ_VISIBLE);
+  return (
+    <div>
+      {shown.map((item, i) => {
+        const isOpen = open === i;
+        return (
+          <div key={item.q} className="wxp-acc" data-open={isOpen || undefined}>
+            <button type="button" className="wxp-acc-q" aria-expanded={isOpen} aria-controls={`faq-${i}`}
+              onClick={() => setOpen(isOpen ? null : i)}>
+              {item.q}
+            </button>
+            <div id={`faq-${i}`} className="wxp-acc-a" role="region" inert={!isOpen}>
+              <div><div>{item.a}</div></div>
+            </div>
+          </div>
+        );
+      })}
+      {items.length > FAQ_VISIBLE && (
+        <button type="button" className="wxp-acc-more" aria-expanded={all} onClick={() => setAll(v => !v)}>
+          {all
+            ? (de ? 'Weniger Fragen zeigen' : 'Show fewer questions')
+            : (de ? `Alle ${items.length} Fragen zeigen` : `Show all ${items.length} questions`)}
+        </button>
+      )}
+    </div>
+  );
+}
+
 export function WaxFaq({ de, t, kind = 'wax' }: { de: boolean; t: T; kind?: 'wax' | 'chain' }) {
   const topics = kind === 'chain' ? CHAIN_TOPICS : WAX_TOPICS;
-  const items = (t.faq.items ?? []).filter(item => topics.some(topic => item.q.includes(topic)));
+  // Reihenfolge der Stichworte = Kaufrelevanz (faqTopics.ts). Vorher blieb die
+  // Reihenfolge der i18n-Liste stehen, das Stichwort-Ranking wirkte nicht.
+  const rank = (q: string) => topics.findIndex(topic => q.includes(topic));
+  const items = (t.faq.items ?? [])
+    .filter(item => rank(item.q) >= 0)
+    .sort((x, y) => rank(x.q) - rank(y.q));
   if (items.length === 0) return null;
   return (
     <section className="wxp-chapter" style={{ paddingTop: 24 }}>
@@ -350,39 +388,7 @@ export function WaxFaq({ de, t, kind = 'wax' }: { de: boolean; t: T; kind?: 'wax
               <Link to="/kontakt" style={{ color: 'var(--accent-soft)', fontWeight: 600 }}>{de ? 'Kontakt →' : 'Contact →'}</Link></p>
           </div>
         </div>
-        <div>
-          {items.map(item => (
-            <details key={item.q} className="wxp-acc" style={{ marginTop: 10 }}>
-              <summary>{item.q}</summary>
-              <div>{item.a}</div>
-            </details>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-export function WaxClosing({ product, de, titleText }: { product: Product; de: boolean; titleText: string }) {
-  const fmt = (n: number) => n.toLocaleString(de ? 'de-DE' : 'en-US', { minimumFractionDigits: 2 });
-  return (
-    <section className="wxp-close pdp-dark">
-      <img src="/images/blog/chains-hanging-gold-1600.webp" alt="" loading="lazy" decoding="async" />
-      <div className="wxp-wrap">
-        <div>
-          <h2>{de ? 'Saubere Kette ab dem ersten Wachsgang.' : 'A clean chain from the first waxing.'}</h2>
-          <p>{de ? 'Frisch gegossen in Stuttgart · werktags bis 15 Uhr bestellt, am selben Tag versandt' : 'Freshly cast in Stuttgart · weekday orders by 3 pm ship the same day'}</p>
-        </div>
-        <div className="box">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 12 }}>
-            <p className="wxp-price">{fmt(product.price)}<span style={{ fontSize: 20, marginLeft: 3, opacity: .75 }}>€</span></p>
-            <span className="wxp-ship"><Ico name="truck" />{de ? 'Versand kostenlos' : 'Free shipping'}</span>
-          </div>
-          <p style={{ marginTop: 6, fontSize: 13 }}>{titleText}</p>
-          {isSoldOut(product) ? null : canCheckout(product)
-            ? <div style={{ marginTop: 16 }}><AddToCartButton product={product} fullWidth /></div>
-            : <a className="wxp-cta" href={product.ebayUrl} target="_blank" rel="noopener noreferrer" onClick={() => trackEbayClick(product.id)}>{de ? 'Jetzt bestellen' : 'Order now'}</a>}
-        </div>
+        <FaqList items={items} de={de} />
       </div>
     </section>
   );

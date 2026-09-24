@@ -1,11 +1,9 @@
 import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import type { Product } from '@/lib/data';
-import { products, cheapestChainIds, canCheckout, isSoldOut } from '@/lib/data';
+import { products, cheapestChainIds, isSoldOut } from '@/lib/data';
 import type { RichContent } from '@/lib/productContent';
 import { GPSR_MANUFACTURER } from '@/components/GpsrInfo';
-import { AddToCartButton } from '@/components/AddToCartButton';
-import { trackEbayClick } from '@/lib/analytics';
 import { use3DReveal } from '@/hooks/useAnimation';
 import { PRICE, TEN_CARD, eur } from '@/pages/rewax/content';
 import { ChapterHead } from '../wax/WaxSections';
@@ -233,35 +231,6 @@ export function ChainAfter({ de }: { de: boolean }) {
           <ul>
             {c.green.map(g => <li key={g.t}><b>{g.t}</b>{g.b}</li>)}
           </ul>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ── Schluss ────────────────────────────────────────────────────────────────
-export function ChainClosing({ product, de, titleText }: { product: Product; de: boolean; titleText: string }) {
-  const c = chainCopy(de);
-  const fmt = (x: number) => x.toLocaleString(de ? 'de-DE' : 'en-US', { minimumFractionDigits: 2 });
-  return (
-    <section className="wxp-close pdp-dark">
-      <img src="/images/blog/chains-hanging-gold-1600.webp" alt="" loading="lazy" decoding="async" />
-      <div className="wxp-wrap">
-        <div>
-          <h2>{c.close.title}</h2>
-          <p>{c.close.sub}</p>
-        </div>
-        <div className="box">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 12 }}>
-            <p className="wxp-price">{fmt(product.price)}<span style={{ fontSize: 20, marginLeft: 3, opacity: .75 }}>€</span></p>
-            <span className="wxp-ship"><Ico name="truck" />{de ? 'Versand kostenlos' : 'Free shipping'}</span>
-          </div>
-          <p style={{ marginTop: 6, fontSize: 13 }}>{titleText}</p>
-          {isSoldOut(product)
-            ? <p style={{ marginTop: 16, fontWeight: 600 }}>{c.soldOut}</p>
-            : canCheckout(product)
-              ? <div style={{ marginTop: 16 }}><AddToCartButton product={product} fullWidth /></div>
-              : <a className="wxp-cta" href={product.ebayUrl} target="_blank" rel="noopener noreferrer" onClick={() => trackEbayClick(product.id)}>{c.orderNow}</a>}
         </div>
       </div>
     </section>

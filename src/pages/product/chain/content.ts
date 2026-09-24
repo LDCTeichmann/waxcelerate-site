@@ -110,10 +110,6 @@ export function chainCopy(de: boolean) {
       ],
     },
 
-    close: {
-      title: 'Einbauen. Losfahren. Sauber bleiben.',
-      sub: 'Handgewachst in Stuttgart · Versand in 1–2 Werktagen',
-    },
   } : {
     eyebrow: 'Pre-waxed',
     inStock: 'In stock',
@@ -213,9 +209,5 @@ export function chainCopy(de: boolean) {
       ],
     },
 
-    close: {
-      title: 'Fit it. Ride. Stay clean.',
-      sub: 'Hand-waxed in Stuttgart · ships in 1–2 working days',
-    },
   };
 }

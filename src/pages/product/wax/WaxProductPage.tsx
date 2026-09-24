@@ -8,8 +8,9 @@ import { ProofStrip, ChangeForYou } from './ProofAndChange';
 import { FrictionLens } from './FrictionLens';
 import { WaxCalculator } from './WaxCalculator';
 import { ProcessWatch } from '@/components/process/ProcessWatch';
-import { WhichWax, WaxReviews, DataFitLimits, WhenEmpty, WaxFaq, WaxClosing, pickProofQuote } from './WaxSections';
+import { WhichWax, WaxReviews, DataFitLimits, WhenEmpty, WaxFaq, pickProofQuote } from './WaxSections';
 import { DeepDive, type DeepDiveItem } from '../DeepDive';
+import { FrictionPreview, SavingsPreview, ClockPreview, CyclePreview } from '../DeepDivePreviews';
 import './wax.css';
 
 // ══════════════════════════════════════════════════════════════
@@ -47,24 +48,28 @@ export function WaxProductPage(props: {
       id: 'friction', icon: 'gear',
       title: de ? 'Wo die Reibung sitzt' : 'Where the friction sits',
       teaser: de ? 'Warum ein fester Film besser schützt als Öl.' : 'Why a solid film protects better than oil.',
+      preview: <FrictionPreview />,
       render: () => <FrictionLens de={de} />,
     },
     {
       id: 'calc', icon: 'road',
       title: de ? 'Rechnet sich das?' : 'Does it pay off?',
       teaser: de ? 'Deine Ersparnis mit deinem Fahrprofil.' : 'Your savings with your riding profile.',
+      preview: <SavingsPreview de={de} />,
       render: () => <WaxCalculator product={product} profile={profile} de={de} onTouch={() => setPersonalized(true)} />,
     },
     {
       id: 'process', icon: 'drop',
       title: de ? 'So läuft’s ab' : 'How it works',
       teaser: de ? 'Ein Wachsgang, Schritt für Schritt.' : 'One waxing, step by step.',
+      preview: <ClockPreview de={de} />,
       render: () => <ProcessWatch de={de} product={product} />,
     },
     {
       id: 'empty', icon: 'truck',
       title: de ? 'Wenn der Block leer ist' : 'When the block runs out',
       teaser: de ? 'Nachbestellen oder einschicken.' : 'Reorder or send it in.',
+      preview: <CyclePreview de={de} />,
       render: () => <WhenEmpty product={product} de={de} />,
     },
   ];
@@ -82,7 +87,6 @@ export function WaxProductPage(props: {
       <WaxReviews productId={product.id} de={de} chapter={de ? 'Kapitel 04' : 'Chapter 04'} compact />
       <DeepDive de={de} items={deepDiveItems} />
       <WaxFaq de={de} t={t} />
-      <WaxClosing product={product} de={de} titleText={titleText} />
     </div>
   );
 }

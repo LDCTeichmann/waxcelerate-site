@@ -15,6 +15,9 @@ export type DeepDiveItem = {
   icon: IcoName;
   title: string;
   teaser: string;
+  /** Kleine statische Grafik aus DeepDivePreviews — zeigt schon auf der
+   *  geschlossenen Karte, was dahinter steckt. */
+  preview?: React.ReactNode;
   render: () => React.ReactNode;
 };
 
@@ -52,9 +55,10 @@ export function DeepDive({ de, items }: { de: boolean; items: DeepDiveItem[] }) 
   const active = items.find(it => it.id === open);
 
   return (
-    <section className="wxp-chapter">
+    <section className="wxp-chapter wxp-graybg wxp-dd">
       <div className="wxp-wrap">
-        <ChapterHead n={de ? 'Mehr wissen' : 'Learn more'} title={de ? 'Für Neugierige.' : 'For the curious.'} />
+        <ChapterHead n={de ? 'Mehr wissen' : 'Learn more'} title={de ? 'Für Neugierige.' : 'For the curious.'}
+          lede={de ? `${items.length} Themen, je eine Minute. Tippen zum Aufklappen.` : `${items.length} topics, a minute each. Tap to open.`} />
         <div className="wxp-dd-grid">
           {items.map(item => {
             const isOpen = item.id === open;
@@ -62,8 +66,8 @@ export function DeepDive({ de, items }: { de: boolean; items: DeepDiveItem[] }) 
               <button key={item.id} type="button" className="wxp-card wxp-dd-card"
                 aria-expanded={isOpen} aria-controls={`dd-${item.id}`} data-open={isOpen || undefined}
                 onClick={() => setOpen(isOpen ? null : item.id)}>
-                <span className="ic"><Ico name={item.icon} /></span>
-                <span className="tt">{item.title}</span>
+                {item.preview && <span className="pv">{item.preview}</span>}
+                <span className="tt"><span className="ic"><Ico name={item.icon} /></span>{item.title}</span>
                 <span className="ts">{item.teaser}</span>
                 <span className="cta">{isOpen ? (de ? 'Schließen –' : 'Close –') : (de ? 'Ansehen +' : 'View +')}</span>
               </button>
