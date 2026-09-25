@@ -10,19 +10,17 @@ import { ScrollTrigger } from '@/lib/gsap';
 import { prefersReducedMotion } from '@/hooks/useAnimation';
 import { InstrumentFrame, CountUp } from '@/components/viz';
 import { BackLink } from '@/components/BackLink';
-import { BeforeAfterSlider } from '@/components/BeforeAfterSlider';
 import { waxVsOil, products, type Product } from '@/lib/data';
 import { COMPONENTS, EDGES, FAILURES, FORMULA_STORY } from '@/lib/science';
 import { WaxField, useFieldBuild, type FieldKey } from '@/sections/science/WaxField';
 import { FieldNet } from '@/sections/science/FieldNet';
 import { JointLayer, NanoLens } from '@/sections/science/formula/Stage';
-import { StressTest } from '@/sections/science/formula/StressTest';
 import { LineChoice } from '@/sections/science/ContactZones';
-import { FrictionLens, ToothProfiles } from '@/pages/product/wax/FrictionLens';
+import { FrictionLens } from '@/pages/product/wax/FrictionLens';
 import '@/pages/product/wax/wax.css';
 import { ComponentDiagram } from '@/sections/science/diagrams';
 import { CassetteLens } from '@/sections/science/CassetteLens';
-import { HexMoS2, StandstillFilm } from '@/sections/science/LabViz';
+import { StandstillFilm } from '@/sections/science/LabViz';
 import { ReadMoreLink } from '@/sections/science/ReadMoreLink';
 import { ProofInstrument } from '@/sections/science/ProofInstrument';
 import { CalcTrace } from '@/components/tools/CalcTrace';
@@ -126,12 +124,6 @@ function ScienceHero({ de }: { de: boolean }) {
                 </p>
               </div>
             ))}
-          </div>
-
-          {/* Was die Lupe rechts zeigt, als Profil: dieselbe Zeichnung wie
-              im Beleg-Block der Produktseite, hier auf hellem Grund. */}
-          <div className="wxp mb-8 -mt-2">
-            <ToothProfiles de={de} tone="light" />
           </div>
 
           <p className="text-meta mb-4" style={{ color: 'var(--txff)' }}>
@@ -324,151 +316,6 @@ function TempWindow({ de }: { de: boolean }) {
   );
 }
 
-// ─── Mikroskop-Abschnitt — Illustration, ausdruecklich kein Beleg ───────────
-//
-// 2026-09-16, bewusste Entscheidung nach Pruefung. Die Bilder bleiben, die
-// BEHAUPTUNG geht. Vorher trat der Abschnitt als eigener Messbeleg auf:
-// Eyebrow "Oberflaechenanalyse", Ueberschrift "Unter dem Mikroskop",
-// Vergroesserungsangaben von 1 000x bis 2 500x und eine Legende
-// "Ohne / Mit MoS2-Festschmierstoff". Zusammen ist das ein Vorher-Nachher
-// unseres Produkts, und dafuer tragen diese Bilder nicht.
-//
-// Die Vergroesserungsangaben sind ersatzlos weg. Sie waren nicht nur unbelegt,
-// sie waren unplausibel: bei 1 000x sieht man Oberflaechentextur im
-// Mikrometerbereich, nicht die gerundete Kante eines ganzen Kettenglieds. Das
-// haette jeder Kunde mit einem 30-Euro-USB-Mikroskop gesehen, und das kostet
-// mehr Glaubwuerdigkeit als die Zahl je gebracht hat.
-//
-// Was bleibt und warum es traegt: der Abschnitt illustriert das WIRKPRINZIP,
-// das ACT I und ACT II erklaeren. Als Illustration darf er das, solange er
-// sich nicht als Messung ausgibt. Der Hinweis steht deshalb VOR den Bildern
-// und nicht als Fussnote darunter, wo ihn niemand liest.
-//
-// Offen und Luca bekannt: die vier Bildpaare tragen eingebrannte deutsche
-// Beschriftungen, davon vier komparativ ("Reduzierte Kratzdichte",
-// "Geringere sichtbare Kantenverformung", "Gleichmaessigere Oberflaeche",
-// "Homogenere Oberflaeche"). Wegschneiden geht nicht: bei 02-ref und bei
-// beiden 03ern sitzt der Text mitten im Bild, nicht in einem Randstreifen.
-// Die Entschaerfung laeuft deshalb ueber die Rahmung. Ganz aus der Welt ist
-// das erst mit eigenen Aufnahmen (offener Punkt in PROJECT.md).
-const MICRO = [
-  { n: '01', de: 'Kettenglied – Innenfläche', en: 'Chain link – inner surface',
-    ref: '/images/microscope/01-chain-link-inner-ref.webp',
-    mos2: '/images/microscope/01-chain-link-inner-mos2.webp' },
-  { n: '02', de: 'Kassettenspeiche – Verschleißkante', en: 'Cassette spoke – wear edge',
-    ref: '/images/microscope/02-sprocket-wear-edge-ref.webp',
-    mos2: '/images/microscope/02-sprocket-wear-edge-mos2.webp' },
-  { n: '03', de: 'Kassettenspeiche – Zahnflanke', en: 'Cassette spoke – tooth flank',
-    ref: '/images/microscope/03-sprocket-tooth-flank-ref.webp',
-    mos2: '/images/microscope/03-sprocket-tooth-flank-mos2.webp' },
-  { n: '04', de: 'Kettenglied – Innenfläche', en: 'Chain link – inner surface',
-    ref: '/images/microscope/04-chain-link-inner-2-ref.webp',
-    mos2: '/images/microscope/04-chain-link-inner-2-mos2.webp' },
-];
-
-// BeforeAfterSlider lebt jetzt in components/BeforeAfterSlider.tsx — die
-// Startseite braucht dieselbe Gegenueberstellung (siehe why-wax.tsx).
-
-function Microscope({ de }: { de: boolean }) {
-  return (
-    <div>
-      <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
-        {de ? 'Illustration' : 'Illustration'}
-      </p>
-      <h2 className="font-display font-bold text-wx-tx1 leading-tight mb-2"
-        style={{ fontSize: 'clamp(1.9rem, 4vw, 3rem)', letterSpacing: '-0.02em' }}>
-        {de ? 'Wie das aussieht.' : 'What that looks like.'}
-      </h2>
-
-      {/* Der Vorbehalt steht VOR den Bildern, nicht als Fussnote darunter.
-          Eine Einordnung, die erst nach vier Bildpaaren kommt, kommt zu spaet:
-          bis dahin hat der Leser sie als Vorher-Nachher unserer Ketten
-          gelesen. Kein Kleingedrucktes, sondern normale Lesegroesse. */}
-      <p className="text-[13.5px] leading-relaxed mb-6" style={{ color: 'var(--txm)', maxWidth: '58ch' }}>
-        {de
-          ? 'Mikroskopbilder zur Veranschaulichung des Wirkprinzips. Keine eigenen Messaufnahmen, kein Vorher-Nachher unserer Ketten und keine Messreihe. Was wir selbst belegen können, steht weiter unten unter „Der Beweis".'
-          : 'Micrographs illustrating the mechanism. Not our own measurements, not a before and after of our chains, and not a test series. What we can substantiate ourselves is further down under "The proof".'}
-      </p>
-      {/* Bis 2026-09: hier stand eine Lede-Zeile ("Originalaufnahmen von
-          Antriebskomponenten ... identischer Vergroesserung und identischen
-          Aufnahmebedingungen"), die eine Herkunfts- und Vergleichsbehauptung
-          traf, die fuer diese Bilder nicht zutrifft — sie sind echte
-          Mikroskopieaufnahmen, aber nicht von Waxcelerate-eigenen Proben
-          gemacht. Ersatzlos gestrichen statt umformuliert: die Ueberschrift
-          traegt den Abschnitt allein, die Bildunterschriften sind bereits
-          sachlich (siehe unten). */}
-
-      {/* Legend */}
-      <div className="flex items-center gap-5 mb-5">
-        <div className="flex items-center gap-2">
-          <div className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--txm)', opacity: 0.35 }} />
-          <span className="text-meta" style={{ color: 'var(--txm)' }}>
-            {de ? 'Ohne Festschmierstoff' : 'Without solid lubricant'}
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--accent)' }} />
-          <span className="text-meta" style={{ color: 'var(--txm)' }}>
-            {de ? 'Mit MoS₂-Festschmierstoff' : 'With MoS₂ solid lubricant'}
-          </span>
-        </div>
-      </div>
-
-      {/* Card grid — mobile keeps only 01 + 03 (chain link + tooth flank, the
-          two subjects with the clearest before/after contrast); 02 + 04 stay
-          hidden below sm: and appear at the tablet/desktop 2-column layout.
-          Real feedback: four full-width cards was too much scrolling for too
-          little new information on a narrow screen. */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-5">
-        {MICRO.map((row) => {
-          const mobileVisible = row.n === '01' || row.n === '03';
-          return (
-            <div key={row.n} className={`${mobileVisible ? '' : 'hidden sm:block'} rounded-2xl overflow-hidden`}
-              style={{ background: 'var(--card-bg)', border: '1px solid var(--bd)', boxShadow: 'var(--card-shad)' }}>
-              {/* Header */}
-              <div className="flex items-center justify-between px-4 pt-3.5 pb-2">
-                <div className="flex items-baseline gap-2">
-                  <span className="num text-[14px] font-bold" style={{ color: 'var(--tx2)' }}>{row.n}</span>
-                  <span className="text-[12px]" style={{ color: 'var(--txm)' }}>{de ? row.de : row.en}</span>
-                </div>
-                {/* Bis 2026-09-16 stand hier die Vergroesserung (1 000x bis
-                    2 500x). Unbelegt und fuer das Gezeigte unplausibel, siehe
-                    Kommentar an MICRO. Jetzt traegt der Chip den Vorbehalt,
-                    also genau an jeder Karte statt nur einmal am Abschnitt. */}
-                <span className="text-meta px-1.5 py-0.5 rounded-md"
-                  style={{ background: 'var(--sf2)', border: '1px solid var(--bd2)',
-                    color: 'var(--txf)' }}>
-                  {de ? 'Illustration' : 'Illustration'}
-                </span>
-              </div>
-              {/* Drag-to-reveal — pull the handle to compare reference vs. treated surface directly */}
-              <BeforeAfterSlider
-                beforeSrc={row.ref}
-                afterSrc={row.mos2}
-                beforeAlt={`${de ? row.de : row.en} – ${de ? 'ohne Festschmierstoff' : 'without solid lubricant'}`}
-                afterAlt={`${de ? row.de : row.en} – ${de ? 'mit MoS₂-Festschmierstoff' : 'with MoS₂ solid lubricant'}`}
-                beforeLabel={de ? 'Referenz' : 'Reference'}
-                afterLabel="MoS₂"
-              />
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Die alte Fassung lautete "keine Aufnahmen der hier verkauften
-          Chargen". Das klingt nach Einschraenkung, behauptet aber das
-          Gegenteil von dem, was stimmt: es unterstellt, die Bilder seien
-          unsere Aufnahmen, nur eben von anderen Chargen. Sie sind gar nicht
-          unsere. Der Hinweis steht jetzt oben und sagt das gerade heraus;
-          hier bleibt nur noch die Einordnung der Beschriftungen. */}
-      <p className="text-meta leading-relaxed mt-5" style={{ color: 'var(--txff)' }}>
-        {de
-          ? 'Die Beschriftungen in den Bildern benennen, was dort zu sehen ist. Sie sind keine Messwerte.'
-          : 'The labels inside the images name what is visible there. They are not measurements.'}
-      </p>
-    </div>
-  );
-}
 // ─── FrictionWatts — Reibungsverlust in der Kette, in Watt ──────────────────
 //
 // Bis 2026-09-16 standen hier drei Balken mit Reibungskoeffizienten: Pro
@@ -1016,6 +863,12 @@ export function SciencePage() {
       {/* Mobile-Plan B7d: kein <main>-Landmark auf dieser Seite — "zum
           Inhalt springen" hatte nichts zum Ansteuern. */}
       <main id="main-content">
+      {/* 25.09.2026: der Mikroskop-Abschnitt "Wie das aussieht" ist weg.
+          Seine Bilder tragen eingebrannte, vergleichende Beschriftungen ohne
+          eigene Messung, und der noetige Hinweis "keine eigenen Aufnahmen"
+          untergrub eine Seite unter dem Anspruch "gemessen, nicht
+          behauptet" (Luca: "Informationen komisch"). Zurueck erst mit
+          eigenen Aufnahmen, siehe PROJECT.md. */}
       <ScienceHero de={de} />
 
       {/* ── ACT I — THE PROBLEM ──
@@ -1046,37 +899,13 @@ export function SciencePage() {
 
         <div className={`${W} pb-14`}>
           <FormulaStory de={de} />
-          <div id="belastung" className="mt-16 scroll-mt-24">
-            <StressTest de={de} withoutText={WITHOUT} />
-          </div>
         </div>
 
-        {/* Below: full-width deep-dive sections. Mobile-Plan (real feedback,
-            2026-08-19): "weniger der anderen Bilder ... eher beieinander" —
-            MoS₂-Diagramm + Temperaturfenster rücken auf Mobil enger
-            zusammen (gap-4 statt gap-6, MoS₂-Grafik zusätzlich schmaler
-            gerahmt) statt als zwei lose Kacheln mit viel Luft dazwischen zu
-            wirken; die Entwicklungs-Zeitleiste (reine Text-Historie, kein
-            Beleg) entfällt auf Mobil ganz. */}
-        <div className={`${W} py-14`}>
-          <div className="grid lg:grid-cols-2 gap-4 lg:gap-6 items-stretch">
-            <div className="max-w-[320px] mx-auto w-full sm:max-w-none">
-              <HexMoS2 de={de} />
-            </div>
-            <div id="matrix-window" className="h-full scroll-mt-24">
-              <TempWindow de={de} />
-            </div>
-          </div>
-          <div className="hidden lg:block">
-            <FailureTimeline de={de} />
-          </div>
+        <div className={`${W} pb-14`}>
+          <FailureTimeline de={de} />
         </div>
       </section>
 
-      {/* ── MICROSCOPE — real micrograph evidence ── */}
-      <section className={`${W} pt-20 pb-16`} style={{ borderTop: '1px solid var(--bd2)' }}>
-        <Microscope de={de} />
-      </section>
 
       {/* ── ACT III — PROOF ──
           id="beweis": Ziel des Hero-Links "Woher die Zahlen kommen" (vorher
@@ -1091,18 +920,6 @@ export function SciencePage() {
           title={de ? 'Was unabhängig gemessen wurde.' : 'What was measured independently.'}
         />
 
-        {/* Methode & Grenzen: die Zahlen sind Laborwerte Dritter (Zero
-            Friction Cycling), keine eigene Messung von Waxcelerate — das
-            stand bisher nirgends klar da, obwohl die Seite mit "Gemessen,
-            nicht behauptet" wirbt. Titel/Jahr/URL der genauen Publikation
-            stehen noch aus (Luca muss die konkrete Quelle bestaetigen,
-            siehe SEO-Plan P0-2) — deshalb hier bewusst kein Link, nur die
-            ehrliche Einordnung, ohne eine URL zu erfinden. */}
-        <p className="text-meta max-w-2xl mb-10 leading-relaxed" style={{ color: 'var(--txff)' }}>
-          {de
-            ? 'Diese Werte stammen aus unabhängigen Labortests von Zero Friction Cycling, nicht aus eigenen Messungen von Waxcelerate. Laborbedingungen (konstante Leistung, kontrollierte Kette) bilden die Straße nicht eins zu eins ab — Wetter, Verschmutzung und Fahrstil verschieben die Werte im Alltag in beide Richtungen. Die Größenordnung der Unterschiede bleibt davon unberührt.'
-            : 'These figures come from independent lab tests by Zero Friction Cycling, not from measurements Waxcelerate ran itself. Lab conditions (constant power, controlled chain) do not map onto the road one to one — weather, dirt and riding style shift real-world values in both directions. The order of magnitude of the difference is unaffected by that.'}
-        </p>
 
         {/* Two instrument panels side by side instead of stacked (friction
             bars + folded-in outcome stats on the left, StandstillFilm on the
@@ -1119,6 +936,7 @@ export function SciencePage() {
             zwei Karten liest sich als Layout, eine Luecke in einem
             Instrumentenrahmen liest sich als fehlender Inhalt. */}
         <div className="grid lg:grid-cols-2 gap-4 mb-4 items-start">
+          <div>
           <InstrumentFrame eyebrow={de ? 'Reibung' : 'Friction'}
             footer={
               <>
@@ -1147,6 +965,23 @@ export function SciencePage() {
           >
             <FrictionWatts de={de} />
           </InstrumentFrame>
+          {/* Methode & Grenzen steht jetzt unter dem Reibungs-Instrument statt
+              ueber beiden: dort fuellt es die Spalte neben dem hoeheren
+              Stillstands-Instrument (25.09.2026), statt eine Leerflaeche zu
+              lassen, und steht direkt bei den Zahlen, die es einordnet. */}
+            {/* Methode & Grenzen: die Zahlen sind Laborwerte Dritter (Zero
+            Friction Cycling), keine eigene Messung von Waxcelerate — das
+            stand bisher nirgends klar da, obwohl die Seite mit "Gemessen,
+            nicht behauptet" wirbt. Titel/Jahr/URL der genauen Publikation
+            stehen noch aus (Luca muss die konkrete Quelle bestaetigen,
+            siehe SEO-Plan P0-2) — deshalb hier bewusst kein Link, nur die
+            ehrliche Einordnung, ohne eine URL zu erfinden. */}
+        <p className="text-meta mt-5 leading-relaxed" style={{ color: 'var(--txff)' }}>
+          {de
+            ? 'Diese Werte stammen aus unabhängigen Labortests von Zero Friction Cycling, nicht aus eigenen Messungen von Waxcelerate. Laborbedingungen (konstante Leistung, kontrollierte Kette) bilden die Straße nicht eins zu eins ab — Wetter, Verschmutzung und Fahrstil verschieben die Werte im Alltag in beide Richtungen. Die Größenordnung der Unterschiede bleibt davon unberührt.'
+            : 'These figures come from independent lab tests by Zero Friction Cycling, not from measurements Waxcelerate ran itself. Lab conditions (constant power, controlled chain) do not map onto the road one to one — weather, dirt and riding style shift real-world values in both directions. The order of magnitude of the difference is unaffected by that.'}
+        </p>
+          </div>
 
           {/* Signature visual — why a joint runs boundary-lubricated (the payoff) */}
           <StandstillFilm de={de} />
@@ -1176,6 +1011,12 @@ export function SciencePage() {
         <div className="mt-16">
           <LineChoice de={de} />
         </div>
+        {/* Einsatzbereich gehoert zur Wahl Classic/Pro, nicht neben die
+            MoS2-Grafik (die fiel 25.09.2026 als Doppelung zur Mikroskop-
+            Station weg). */}
+        <div id="matrix-window" className="mt-6 mb-16 scroll-mt-24">
+          <TempWindow de={de} />
+        </div>
 
         {/* CTA — 2026-09: LineChoice directly above just sorted the reader
             between Classic and Pro by criteria; the old close was a wash-box
@@ -1186,13 +1027,7 @@ export function SciencePage() {
             data.ts, so the close picks up exactly where LineChoice left off
             instead of resetting to a generic pitch. */}
         <div className="text-center mb-8">
-          <CountUp value={`${waxVsOil.life.waxLo}–${waxVsOil.life.wax}×`}
-            className="num-display font-display font-bold leading-none inline-block mr-2 align-middle"
-            style={{ fontSize: 'clamp(1.8rem, 4vw, 2.4rem)', color: 'var(--accent)' }} />
-          <span className="text-[13px] align-middle" style={{ color: 'var(--txm)' }}>
-            {de ? 'Kettenlaufzeit gegenüber Öl, bei guter Pflege.' : 'Chain life versus oil, with good maintenance.'}
-          </span>
-          <p className="eyebrow mt-6 mb-3" style={{ color: 'var(--accent-soft)' }}>
+          <p className="eyebrow mb-3" style={{ color: 'var(--accent-soft)' }}>
             {de ? 'Nächster Schritt' : 'Next step'}
           </p>
           <h3 className="font-display font-bold text-wx-tx1" style={{ fontSize: 'clamp(1.5rem, 3vw, 2rem)' }}>

@@ -20,11 +20,15 @@ export function CountUp({ value, className, style, duration = 1.1 }: {
         const sep      = raw.includes(',') ? ',' : '.';
         return (target * p).toFixed(decimals).replace('.', sep);
       });
-    el.textContent = render(0);
+    // Bis der Trigger feuert, steht der ECHTE Wert da, nicht "0". Vorher
+    // wurde sofort auf 0 gesetzt; sprang man per Anker oder schnellem
+    // Scrollen am Startpunkt vorbei, feuerte der Trigger nie und die Seite
+    // zeigte dauerhaft "0–0 nm" / "0–0 MPa" (gesehen 25.09.2026 im Beweis).
+    el.textContent = value;
     const proxy = { p: 0 };
     const trigger = ScrollTrigger.create({
       trigger: el, start: 'top 90%', once: true,
-      onEnter: () => gsap.to(proxy, {
+      onEnter: () => gsap.fromTo(proxy, { p: 0 }, {
         p: 1, duration, ease: 'power2.out',
         onUpdate()   { el.textContent = render(proxy.p); },
         onComplete() { el.textContent = value; },
