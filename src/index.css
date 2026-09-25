@@ -1607,73 +1607,116 @@ body:has(.wx-topbar) { padding-top: var(--topbar-h); }
   50% { transform: translate(-50%, -50%) scale(1.08); }
 }
 
-/* ── Wissenschaft, "Netz im Film" (SciencePage FormulaStory + FieldNet) ────
-   Kanten zeichnen sich beim Fokuswechsel einmal ein (pathLength=1), eine
-   Leuchtspur laeuft einmal durch, der fokussierte Knoten atmet. Alles nur
-   transform/opacity/stroke-dashoffset, keine Layout-Arbeit. */
-.fn-edge { transition: stroke-opacity .4s ease, stroke-width .3s ease; }
-.fn-edge-hot { stroke-dasharray: 1; stroke-dashoffset: 1; animation: fn-draw .7s cubic-bezier(.3,.7,.2,1) forwards; }
+/* Keyframes fuer das Film-Labor (Kante einzeichnen, Knoten atmen). */
 @keyframes fn-draw { to { stroke-dashoffset: 0; } }
-.fn-comet { stroke-dasharray: .07 1; stroke-dashoffset: .07; opacity: .85; animation: fn-comet 1.1s .5s ease-in-out forwards; }
-@keyframes fn-comet { 0% { stroke-dashoffset: .07; opacity: .85; } 90% { opacity: .85; } 100% { stroke-dashoffset: -1; opacity: 0; } }
-.fn-pulse { transform-box: fill-box; transform-origin: center; animation: fn-pulse 2.2s ease-in-out infinite; }
 @keyframes fn-pulse { 0%, 100% { transform: scale(.8); opacity: .9; } 50% { transform: scale(1.25); opacity: .35; } }
-.fn-node, .fn-label { transition: opacity .35s ease, background-color .3s ease, color .3s ease; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
-.fn-label { animation: fn-fade .4s .35s ease both; }
-@keyframes fn-fade { from { opacity: 0; transform: translate(-50%, -30%); } to { opacity: 1; transform: translate(-50%, -50%); } }
-@media (prefers-reduced-motion: reduce) {
-  .fn-edge-hot, .fn-label { animation: none; stroke-dashoffset: 0; }
-  .fn-comet { display: none; }
-  .fn-pulse { animation: none; }
-}
-/* Mobil steht die Figur als Band oben fest, die Karten laufen darunter
-   durch — das Band braucht deshalb einen eigenen Grund. */
-.formula-stage { background: var(--pg); }
-@media (min-width: 1024px) { .formula-stage { background: transparent; } }
-.formula-rail { border: 1px solid var(--bd2); color: var(--txf); background: var(--sf); transition: background .2s, color .2s, border-color .2s; }
-.formula-rail[data-state="past"] { color: var(--accent); border-color: rgba(var(--accent-rgb),.35); }
-.formula-rail[data-state="on"] { background: var(--accent); color: #fff; border-color: var(--accent); }
-.formula-rail:hover { border-color: var(--accent-soft); }
-.formula-key { display: inline-block; width: 16px; height: 0; border-top: 2px solid var(--accent); }
-.formula-key--dash { border-top-style: dashed; }
-@media (min-width: 1024px) {
-  .formula-card > div { transition: opacity .35s ease, transform .35s ease, box-shadow .35s ease; opacity: .55; }
-  .formula-card[data-on] > div { opacity: 1; box-shadow: var(--card-shadow-hover); }
-}
 
-/* ── Formelreise: Kamerafahrt Gelenk → Film, Nano-Lupe, Belastungstest ──── */
-.journey-stage { aspect-ratio: 520 / 300; overflow: hidden; border-radius: 10px; }
-.journey-film { position: absolute; inset: 0; opacity: 0; transform: scale(.55); transform-origin: 58% 50%;
-  transition: opacity .6s .35s ease, transform 1.1s .2s cubic-bezier(.2,.7,.2,1); }
-.journey-film[data-in] { opacity: 1; transform: none; }
-.journey-joint { position: absolute; inset: 0; transition: transform 1.1s cubic-bezier(.6,0,.3,1), opacity .5s .55s ease; }
-.journey-joint[data-zoomed] { transform: scale(14); opacity: 0; pointer-events: none; }
-.journey-jl { position: absolute; transform: translate(-50%, -50%); font-size: 11px; font-weight: 600; color: #DDE4EC; white-space: nowrap; pointer-events: none; }
-.journey-jl--hot { transform: translate(0, -50%); color: #fff; background: rgba(16,19,24,.85); border: 1px solid #5685C0; border-radius: 999px; padding: 2px 8px; }
-.journey-target { transform-box: fill-box; transform-origin: center; animation: fn-pulse 2s ease-in-out infinite; }
-.journey-lens { position: absolute; z-index: 3; animation: journey-lens-in .5s cubic-bezier(.2,.8,.2,1) both; filter: drop-shadow(0 8px 20px rgba(0,0,0,.18)); }
-.journey-capline { min-height: 2.8em; margin-top: 10px; font-size: 12.5px; line-height: 1.4; color: var(--tx2); }
-.journey-capline b { color: var(--tx1); font-weight: 600; }
-.journey-capline[data-empty] { visibility: hidden; }
-.journey-scale { position: absolute; top: 4%; left: 50%; transform: translateX(-50%); font-size: 11px; font-weight: 700; font-family: 'IBM Plex Mono', monospace; color: var(--tx1); background: var(--pg); border: 1px solid var(--bd); border-radius: 999px; padding: 1px 7px; }
-.journey-lead { animation: journey-lead .5s ease both; }
-@keyframes journey-lens-in { from { opacity: 0; transform: scale(.6); } to { opacity: 1; transform: none; } }
-@keyframes journey-lead { from { opacity: 0; } to { opacity: 1; } }
-@media (max-width: 639px) { .journey-capline { font-size: 12px; min-height: 2.6em; } }
-@media (prefers-reduced-motion: reduce) {
-  .journey-film, .journey-joint, .journey-lens, .journey-lead { transition: none; animation: none; }
-  .journey-target { animation: none; }
+/* ══ Film-Labor (Wissenschaft, FilmLab.tsx) ═══════════════════════════════
+   Dunkles, randloses Labor. Die Buehne steht per sticky ueber 100svh, alles
+   Bewegte haengt an --z (Kamerafahrt), --grow (Lamellen), --tilt (Kippung)
+   und --p (Gesamtfortschritt), die FilmLab pro Frame aus dem Scroll setzt. */
+.lab-section { background: radial-gradient(ellipse 70% 40% at 50% 0%, rgba(58,102,160,.22), rgba(58,102,160,0) 70%), #0B0D11; color: rgba(255,255,255,.72); }
+.lab-head { padding-top: 96px; padding-bottom: 8px; }
+.lab-head .eyebrow { color: #7AA0CE; }
+.lab-head h2 { color: #fff; font-family: 'Fraunces', Georgia, serif; font-weight: 800; font-size: clamp(2rem, 4.4vw, 3.2rem); line-height: 1.03; letter-spacing: -0.02em; margin-top: 10px; }
+.lab-head p.lede { margin-top: 14px; max-width: 58ch; color: rgba(255,255,255,.66); font-size: 16px; line-height: 1.6; }
+.lab-track { position: relative; }
+.lab-stage { position: sticky; top: 0; height: 100svh; overflow: hidden; display: flex; align-items: center; justify-content: center; --z: 0; --grow: 1; --tilt: 1; --p: 0; }
+.lab-track[data-reduce] .lab-stage { position: relative; height: auto; padding: 40px 0 360px; --z: 1; --grow: 1; --tilt: 0; }
+.lab-view { position: relative; width: min(1240px, 94vw); height: min(80svh, 700px); margin-top: 4svh; }
+
+/* Gelenk + Kamerafahrt */
+.lab-joint-wrap { position: absolute; left: 20%; width: 60%; top: 50%; aspect-ratio: 520 / 300; transform: translateY(-50%); pointer-events: none; }
+.lab-joint { position: absolute; inset: 0; transform: scale(calc(1 + var(--z) * 17)); opacity: calc(1 - var(--z) * 1.6); will-change: transform, opacity; }
+.lab-joint-zone { filter: drop-shadow(0 0 6px rgba(127,166,218,.8)); }
+.lab-callout { position: absolute; transform: translateY(-50%); font-size: 11.5px; font-weight: 600; color: #fff; background: rgba(14,17,22,.85); border: 1px solid #5685C0; border-radius: 999px; padding: 3px 10px; white-space: nowrap; opacity: calc(1 - var(--z) * 4); }
+
+/* Filmblock */
+.lab-filmwrap { position: absolute; left: 56%; top: 48%; width: 62%; transform: translate(-50%, -50%) scale(calc(0.35 + var(--z) * 0.65)); opacity: clamp(0, calc((var(--z) - 0.5) * 3), 1); transition: left .8s cubic-bezier(.2,.7,.2,1), width .8s cubic-bezier(.2,.7,.2,1); will-change: transform; }
+.lab-stage[data-split] .lab-filmwrap { left: 29%; top: 38%; width: 52%; }
+.lab-persp { perspective: 1600px; }
+.lab-block { position: relative; transform-style: preserve-3d;
+  transform: rotateX(calc(var(--tilt) * 15deg)) rotateY(calc(var(--tilt) * 20deg)) rotateZ(calc(var(--tilt) * -1.5deg));
+  transition: transform .2s linear; }
+
+.lab-face--front { position: relative; box-shadow: 0 40px 80px rgba(0,0,0,.45); border-radius: 3px; }
+.lab-face--top { position: absolute; left: 0; bottom: 100%; width: 100%; aspect-ratio: 520 / 64; transform-origin: bottom center; transform: rotateX(-90deg);
+  background: linear-gradient(180deg, rgba(110,155,214,.10), rgba(61,103,202,.28)), repeating-linear-gradient(90deg, rgba(191,211,240,.07) 0 1px, transparent 1px 11px); border: 1px solid rgba(169,196,230,.25); }
+.lab-face--side { position: absolute; top: 0; left: 100%; height: 100%; aspect-ratio: 64 / 254; transform-origin: left center; transform: rotateY(-90deg);
+  background: linear-gradient(180deg, rgba(61,103,202,.30) 0 76%, #3A4049 76% 100%); border: 1px solid rgba(169,196,230,.2); }
+.lab-lamella { fill: none; stroke: #8FB2E0; stroke-width: .85; stroke-linecap: round; stroke-dasharray: 1; opacity: .72;
+  stroke-dashoffset: clamp(0, calc(1 - (var(--grow) * 1.35 - var(--d, 0))), 1); filter: drop-shadow(0 0 1px rgba(127,166,218,.4)); }
+.lab-lamella--ft { stroke: #DDE7F4; stroke-width: 1.6; opacity: .9; }
+.lab-grow-late { opacity: clamp(0, calc((var(--grow) - 0.55) * 3), 1); }
+.lab-dimmable, .lab-block g { transition: opacity .5s ease; }
+.lab-fade-in { animation: lab-fade .5s ease both; }
+@keyframes lab-fade { from { opacity: 0; } to { opacity: 1; } }
+.lab-pulse { transform-box: fill-box; transform-origin: center; animation: fn-pulse 2.2s ease-in-out infinite; }
+.lab-tag { position: absolute; font-size: 11px; font-weight: 600; letter-spacing: .02em; color: rgba(221,228,236,.8); pointer-events: none; white-space: nowrap; }
+.lab-tag--dark { color: #1D2229; }
+.lab-node { position: absolute; transform: translate(-50%, -100%); font-size: 11px; font-weight: 600; color: #DDE7F4; background: rgba(14,17,22,.85); border: 1px solid rgba(169,196,230,.35); border-radius: 999px; padding: 1px 8px; white-space: nowrap; pointer-events: none; animation: lab-fade .4s ease both; }
+.lab-node--on { background: #fff; color: #0B0D11; border-color: #fff; }
+.lab-edge-label { position: absolute; transform: translate(-50%, -50%); font-size: 11px; color: #DDE7F4; background: rgba(14,17,22,.9); border: 1px solid rgba(169,196,230,.3); border-radius: 6px; padding: 1px 6px; white-space: nowrap; pointer-events: none; animation: lab-fade .4s .35s ease both; }
+.lab-edge { stroke-dasharray: 1; stroke-dashoffset: 1; animation: fn-draw .8s cubic-bezier(.3,.7,.2,1) forwards; filter: drop-shadow(0 0 2px rgba(169,196,230,.5)); }
+.lab-edge[stroke-dasharray] { animation: lab-fade .6s ease both; stroke-dashoffset: 0; }
+.lab-edge--all { animation-delay: calc(var(--i) * 140ms); }
+
+/* Mikroskop + Kegel */
+.lab-scope { position: absolute; right: 3%; top: 50%; width: min(40%, 58svh); aspect-ratio: 1; transform: translateY(-50%) scale(.2); opacity: 0; transition: transform .7s cubic-bezier(.2,.8,.2,1) .15s, opacity .4s ease .15s; pointer-events: none; }
+.lab-scope[data-on] { transform: translateY(-50%) scale(1); opacity: 1; pointer-events: auto; }
+.lab-scope > svg { filter: drop-shadow(0 20px 50px rgba(0,0,0,.6)); }
+.lab-scope-scale { position: absolute; top: 5%; left: 50%; transform: translateX(-50%); font: 700 11px 'IBM Plex Mono', monospace; color: #0B0D11; background: #fff; border-radius: 999px; padding: 1px 8px; }
+.lab-scope-cap { position: absolute; left: 50%; top: calc(100% + 12px); transform: translateX(-50%); width: 110%; text-align: center; font-size: 12.5px; line-height: 1.45; color: rgba(221,228,236,.82); }
+.lab-cone { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; animation: lab-fade .5s ease both; }
+
+/* Text-Panel */
+.lab-panel { position: absolute; left: max(3vw, calc((100vw - 1240px) / 2)); bottom: 5svh; width: min(420px, 92vw); padding: 20px 22px 18px; border-radius: 16px;
+  background: rgba(14,17,22,.72); border: 1px solid rgba(255,255,255,.09); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); animation: lab-panel-in .45s cubic-bezier(.2,.8,.2,1) both; z-index: 5; }
+@keyframes lab-panel-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.lab-panel-eyebrow { font: 600 11px 'IBM Plex Mono', monospace; letter-spacing: .08em; text-transform: uppercase; color: #7AA0CE; }
+.lab-panel-title { margin-top: 8px; font-family: 'Fraunces', Georgia, serif; font-weight: 700; font-size: clamp(1.3rem, 2.2vw, 1.65rem); line-height: 1.12; color: #fff !important; letter-spacing: -0.01em; }
+.lab-panel-body { margin-top: 8px; font-size: 14.5px; line-height: 1.55; color: rgba(255,255,255,.72); }
+.lab-without { margin-top: 14px; display: inline-flex; align-items: center; gap: 10px; min-height: 40px; padding: 6px 14px 6px 8px; border-radius: 999px; font-size: 13px; font-weight: 600; color: #fff; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.14); cursor: pointer; transition: background .2s, border-color .2s; }
+.lab-without:hover { background: rgba(255,255,255,.1); }
+.lab-without[aria-pressed="true"] { border-color: #FF8A3D; background: rgba(255,138,61,.12); }
+.lab-switch { width: 30px; height: 18px; border-radius: 999px; background: #3D67CA; position: relative; transition: background .2s; }
+.lab-switch::after { content: ""; position: absolute; top: 2px; left: 14px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: left .2s; }
+.lab-without[aria-pressed="true"] .lab-switch { background: #FF8A3D; }
+.lab-without[aria-pressed="true"] .lab-switch::after { left: 2px; }
+.lab-link { margin-top: 12px; font-size: 13px; font-weight: 600; color: #A9C4E6; background: none; border: 0; cursor: pointer; padding: 0; }
+
+/* Stationsleiste + Fortschritt */
+.lab-rail { position: absolute; right: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 10px; z-index: 6; }
+.lab-rail-dot { position: relative; width: 10px; height: 10px; border-radius: 50%; border: 1px solid rgba(255,255,255,.35); background: transparent; cursor: pointer; padding: 0; transition: all .25s; }
+.lab-rail-dot::before { content: ""; position: absolute; inset: -8px; }
+.lab-rail-dot[data-state="past"] { background: rgba(169,196,230,.5); border-color: transparent; }
+.lab-rail-dot[data-state="on"] { background: #fff; border-color: #fff; transform: scale(1.3); }
+.lab-rail-label { position: absolute; right: 18px; top: 50%; transform: translateY(-50%); font-size: 11px; color: #fff; white-space: nowrap; opacity: 0; transition: opacity .2s; pointer-events: none; }
+.lab-rail-dot:hover .lab-rail-label, .lab-rail-dot[data-state="on"] .lab-rail-label { opacity: .75; }
+.lab-progress { position: absolute; left: 0; bottom: 0; height: 2px; width: 100%; transform-origin: left; transform: scaleX(var(--p)); background: linear-gradient(90deg, #3D67CA, #A9C4E6); }
+
+@media (max-width: 767px) {
+  .lab-view { width: 100vw; height: 100svh; margin-top: 0; }
+  .lab-joint-wrap { left: 4%; width: 92%; top: 30%; }
+  .lab-filmwrap { left: 50%; width: 90%; top: 30%; }
+  .lab-mesh { display: none; }
+  .lab-stage[data-split] .lab-filmwrap { left: 50%; width: 88%; top: 27%; }
+  .lab-scope { right: auto; left: 50%; top: 52%; width: 54vw; transform: translate(-50%, -50%) scale(.2); }
+  .lab-scope[data-on] { transform: translate(-50%, -50%) scale(1); }
+  .lab-scope-cap { display: none; }
+  .lab-panel { left: 3vw; right: 3vw; width: auto; bottom: 2svh; padding: 14px 16px; max-height: 34svh; overflow: auto; }
+  .lab-panel-body { font-size: 13.5px; }
+  .lab-rail { display: none; }
+  .lab-callout { display: none; }
 }
-.stress-film { border-radius: 10px; transition: background-color .4s ease; }
-.stress-film[data-cold] { background: rgba(120,160,220,.10); }
-.stress-film[data-hot] { background: rgba(217,130,43,.08); }
-.stress-range { -webkit-appearance: none; appearance: none; height: 6px; border-radius: 999px;
-  background: linear-gradient(90deg, var(--accent) var(--p), var(--sf2) var(--p)); outline: none; }
-.stress-range--temp { background: linear-gradient(90deg, #5B8FD6 0%, #9FB4CC 28%, #D8C9A8 60%, #D9822B 100%); }
-.stress-range::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: var(--pg); border: 2px solid var(--tx1); box-shadow: 0 2px 6px rgba(0,0,0,.18); cursor: grab; }
-.stress-range::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: var(--pg); border: 2px solid var(--tx1); cursor: grab; }
-.stress-range:focus-visible::-webkit-slider-thumb { outline: 2px solid var(--accent); outline-offset: 2px; }
-.stress-chip { font-size: 12.5px; font-weight: 600; border-radius: 999px; padding: 6px 12px; min-height: 36px; display: inline-flex; align-items: center;
-  border: 1px solid var(--bd); color: var(--txf); background: transparent; text-decoration: line-through; transition: all .2s ease; cursor: pointer; }
-.stress-chip[data-on] { text-decoration: none; color: var(--tx1); background: rgba(var(--accent-rgb),.10); border-color: var(--accent-soft); }
-.stress-chip[aria-disabled] { cursor: default; opacity: .8; }
+@media (prefers-reduced-motion: reduce) {
+  .lab-edge, .lab-node, .lab-edge-label, .lab-panel, .lab-fade-in, .lab-cone { animation: none; }
+  .lab-edge { stroke-dashoffset: 0; }
+  .lab-pulse { animation: none; }
+}
+.lab-mesh { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.lab-mesh li { font-size: 11.5px; color: rgba(221,228,236,.7); border: 1px solid rgba(169,196,230,.22); border-radius: 999px; padding: 2px 9px; }
+.lab-mesh li b { color: #fff; font-weight: 600; }
+.lab-mesh li[data-balance] { border-color: rgba(242,201,76,.5); }
+
+@media (max-width: 767px) { .lab-mesh { display: none; } }
