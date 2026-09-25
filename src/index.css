@@ -1627,13 +1627,21 @@ body:has(.wx-topbar) { padding-top: var(--topbar-h); }
 
 /* Gelenk + Kamerafahrt */
 .lab-joint-wrap { position: absolute; left: 20%; width: 60%; top: 50%; aspect-ratio: 520 / 300; transform: translateY(-50%); pointer-events: none; }
-.lab-joint { position: absolute; inset: 0; transform: scale(calc(1 + var(--z) * 17)); opacity: calc(1 - var(--z) * 1.6); will-change: transform, opacity; }
+.lab-joint { position: absolute; inset: 0; opacity: calc(1 - var(--z) * 1.4);
+  /* Weiche Raender waehrend der Fahrt: bei --z 0 voll, bei 1 nur noch der
+     Kern — sonst zeichnet die herangezoomte viewBox einen harten Rahmen. */
+  -webkit-mask-image: radial-gradient(closest-side, #000 calc(100% - var(--z) * 55%), transparent 100%);
+  mask-image: radial-gradient(closest-side, #000 calc(100% - var(--z) * 55%), transparent 100%); }
+.lab-joint-label { opacity: calc(1 - var(--z) * 5); }
+.lab-hint { position: absolute; left: 50%; top: calc(100% + 18px); transform: translateX(-50%); font-size: 12px; letter-spacing: .04em; color: rgba(221,228,236,.6); white-space: nowrap; opacity: calc(1 - var(--z) * 6); }
+.lab-hint span { display: inline-block; margin-left: 8px; animation: lab-bob 1.8s ease-in-out infinite; }
+@keyframes lab-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
 .lab-joint-zone { filter: drop-shadow(0 0 6px rgba(127,166,218,.8)); }
 .lab-callout { position: absolute; transform: translateY(-50%); font-size: 11.5px; font-weight: 600; color: #fff; background: rgba(14,17,22,.85); border: 1px solid #5685C0; border-radius: 999px; padding: 3px 10px; white-space: nowrap; opacity: calc(1 - var(--z) * 4); }
 
 /* Filmblock */
 .lab-filmwrap { position: absolute; left: 56%; top: 48%; width: 62%; transform: translate(-50%, -50%) scale(calc(0.35 + var(--z) * 0.65)); opacity: clamp(0, calc((var(--z) - 0.5) * 3), 1); transition: left .8s cubic-bezier(.2,.7,.2,1), width .8s cubic-bezier(.2,.7,.2,1); will-change: transform; }
-.lab-stage[data-split] .lab-filmwrap { left: 29%; top: 38%; width: 52%; }
+.lab-stage[data-split] .lab-filmwrap { left: 29%; top: 35%; width: 52%; }
 .lab-persp { perspective: 1600px; }
 .lab-block { position: relative; transform-style: preserve-3d;
   transform: rotateX(calc(var(--tilt) * 15deg)) rotateY(calc(var(--tilt) * 20deg)) rotateZ(calc(var(--tilt) * -1.5deg));
@@ -1645,7 +1653,8 @@ body:has(.wx-topbar) { padding-top: var(--topbar-h); }
 .lab-face--side { position: absolute; top: 0; left: 100%; height: 100%; aspect-ratio: 64 / 254; transform-origin: left center; transform: rotateY(-90deg);
   background: linear-gradient(180deg, rgba(61,103,202,.30) 0 76%, #3A4049 76% 100%); border: 1px solid rgba(169,196,230,.2); }
 .lab-lamella { fill: none; stroke: #8FB2E0; stroke-width: .85; stroke-linecap: round; stroke-dasharray: 1; opacity: .72;
-  stroke-dashoffset: clamp(0, calc(1 - (var(--grow) * 1.35 - var(--d, 0))), 1); filter: drop-shadow(0 0 1px rgba(127,166,218,.4)); }
+  stroke-dashoffset: clamp(0, calc(1 - (var(--grow) * 1.35 - var(--d, 0))), 1); }
+.lab-lamella--glow { stroke: #7FA6DA; stroke-width: 3.2; opacity: .12; }
 .lab-lamella--ft { stroke: #DDE7F4; stroke-width: 1.6; opacity: .9; }
 .lab-grow-late { opacity: clamp(0, calc((var(--grow) - 0.55) * 3), 1); }
 .lab-dimmable, .lab-block g { transition: opacity .5s ease; }
@@ -1670,7 +1679,7 @@ body:has(.wx-topbar) { padding-top: var(--topbar-h); }
 .lab-cone { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; animation: lab-fade .5s ease both; }
 
 /* Text-Panel */
-.lab-panel { position: absolute; left: max(3vw, calc((100vw - 1240px) / 2)); bottom: 5svh; width: min(420px, 92vw); padding: 20px 22px 18px; border-radius: 16px;
+.lab-panel { position: absolute; left: max(3vw, calc((100vw - 1240px) / 2)); bottom: 4svh; width: min(400px, 92vw); padding: 20px 22px 18px; border-radius: 16px;
   background: rgba(14,17,22,.72); border: 1px solid rgba(255,255,255,.09); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); animation: lab-panel-in .45s cubic-bezier(.2,.8,.2,1) both; z-index: 5; }
 @keyframes lab-panel-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 .lab-panel-eyebrow { font: 600 11px 'IBM Plex Mono', monospace; letter-spacing: .08em; text-transform: uppercase; color: #7AA0CE; }
@@ -1697,11 +1706,11 @@ body:has(.wx-topbar) { padding-top: var(--topbar-h); }
 
 @media (max-width: 767px) {
   .lab-view { width: 100vw; height: 100svh; margin-top: 0; }
-  .lab-joint-wrap { left: 4%; width: 92%; top: 30%; }
-  .lab-filmwrap { left: 50%; width: 90%; top: 30%; }
+  .lab-joint-wrap { left: -4%; width: 108%; top: 38%; }
+  .lab-filmwrap { left: 50%; width: 92%; top: 38%; }
   .lab-mesh { display: none; }
-  .lab-stage[data-split] .lab-filmwrap { left: 50%; width: 88%; top: 27%; }
-  .lab-scope { right: auto; left: 50%; top: 52%; width: 54vw; transform: translate(-50%, -50%) scale(.2); }
+  .lab-stage[data-split] .lab-filmwrap { left: 50%; width: 88%; top: 25%; }
+  .lab-scope { right: auto; left: 50%; top: 54%; width: 58vw; transform: translate(-50%, -50%) scale(.2); }
   .lab-scope[data-on] { transform: translate(-50%, -50%) scale(1); }
   .lab-scope-cap { display: none; }
   .lab-panel { left: 3vw; right: 3vw; width: auto; bottom: 2svh; padding: 14px 16px; max-height: 34svh; overflow: auto; }
@@ -1714,9 +1723,13 @@ body:has(.wx-topbar) { padding-top: var(--topbar-h); }
   .lab-edge { stroke-dashoffset: 0; }
   .lab-pulse { animation: none; }
 }
-.lab-mesh { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
-.lab-mesh li { font-size: 11.5px; color: rgba(221,228,236,.7); border: 1px solid rgba(169,196,230,.22); border-radius: 999px; padding: 2px 9px; }
+.lab-mesh { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 10px; }
+.lab-mesh li { font-size: 11px; color: rgba(221,228,236,.7); border: 1px solid rgba(169,196,230,.22); border-radius: 999px; padding: 1px 8px; }
 .lab-mesh li b { color: #fff; font-weight: 600; }
 .lab-mesh li[data-balance] { border-color: rgba(242,201,76,.5); }
 
 @media (max-width: 767px) { .lab-mesh { display: none; } }
+
+/* Nach-oben-Knopf aus, solange das Film-Labor im Bild ist (FilmLab). */
+html[data-lab-active] .scroll-top { opacity: 0 !important; pointer-events: none !important; }
+@media (prefers-reduced-motion: reduce) { .lab-hint span { animation: none; } }

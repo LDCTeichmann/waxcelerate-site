@@ -118,6 +118,15 @@ export function FilmLab({ de, onDetails }: { de: boolean; onDetails: () => void 
       const z = s < 1 ? 0 : s > 1 ? 1 : smooth(0.05, 0.95, sp);
       const grow = s < 2 ? 0 : s > 2 ? 1 : Math.min(1, sp * 1.3);
       const tilt = s <= 2 ? 1 : s === FIRST ? 1 - smooth(0, 0.4, sp) : 0;
+      // Kamerafahrt als viewBox: Fenster schrumpft auf 1/17 und wandert auf
+      // Zone 01 (x 302, y 150). Vektor bleibt scharf, kein React-Rendern.
+      const jv = st.querySelector<SVGSVGElement>('[data-lab-joint]');
+      if (jv) {
+        const e = z * z * (3 - 2 * z);
+        const w = 520 / (1 + e * 16), h = (w * 300) / 520;
+        const cx = 260 + (302 - 260) * e, cy = 150;
+        jv.setAttribute('viewBox', `${(cx - w / 2).toFixed(2)} ${(cy - h / 2).toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)}`);
+      }
       st.style.setProperty('--z', z.toFixed(4));
       st.style.setProperty('--grow', grow.toFixed(4));
       st.style.setProperty('--tilt', tilt.toFixed(4));
@@ -135,6 +144,18 @@ export function FilmLab({ de, onDetails }: { de: boolean; onDetails: () => void 
   const inComp = station >= FIRST && station < SYSTEM;
   const comp = inComp ? ORDER[station - FIRST] : null;
   const focus = comp ? (comp.id as FieldKey) : null;
+
+  // Solange das Labor im Bild ist, blendet index.css den schwebenden
+  // Nach-oben-Knopf aus: er lag am Handy ueber dem Text-Panel.
+  useEffect(() => {
+    const el = track.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) => {
+      document.documentElement.toggleAttribute('data-lab-active', e.isIntersecting);
+    }, { threshold: 0.01 });
+    io.observe(el);
+    return () => { io.disconnect(); document.documentElement.removeAttribute('data-lab-active'); };
+  }, []);
 
   // ── Zoom-Kegel vom Ort des Stoffs zum Mikroskop, nachdem die Buehne steht ─
   useLayoutEffect(() => {

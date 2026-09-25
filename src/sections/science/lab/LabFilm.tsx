@@ -118,6 +118,17 @@ export function LabFilm({ de, focus, without, net }: {
               ))}
             </g></g>
 
+            {/* Leuchten der Lamellen: eine breite, sehr transparente Linie
+                unter jeder Lamelle statt eines drop-shadow-Filters. Ein Filter
+                muss bei jeder Aenderung von --grow neu gerechnet werden, ein
+                Strich nicht — auf schwachen Rechnern der Unterschied zwischen
+                ruckelnd und fluessig. */}
+            <g className="lab-glow" aria-hidden>
+              {FANS.flatMap((f, fi) => f.lamellae.map((l, li) => (
+                <path key={`g${fi}-${li}`} d={lamellaPath(l)} pathLength={1} className="lab-lamella lab-lamella--glow"
+                  style={{ ['--d' as string]: (fi * 0.07 + hash(fi * 40 + li) * 0.18).toFixed(3) }} />
+              )))}
+            </g>
             {/* Paraffin-Lamellen: waechst mit --grow */}
             <g style={{ opacity: dim('kristallstruktur') }} className="lab-dimmable">
               {FANS.flatMap((f, fi) => f.lamellae.filter(l => !l.ft).map((l, li) => {

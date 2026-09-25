@@ -2,17 +2,19 @@
 //
 // Dieselben Ringe wie die Lupe in FrictionLens (Bolzen r38, Wachsspalt
 // Zone 01, Laschenschulter r76, Wachsspalt Zone 02, Rolle r118), hier als
-// Metallkoerper mit Glanz auf dunklem Grund. Die Kamera faehrt in Zone 01:
-// transform-origin liegt genau auf dem Spalt, die Skalierung haengt an --z
-// (0..1), das FilmLab aus dem Scroll setzt.
+// Metallkoerper mit Glanz auf dunklem Grund. Die Kamera faehrt in Zone 01,
+// und zwar ueber die viewBox (FilmLab setzt sie pro Frame am DOM): so bleibt
+// die Zeichnung auch bei 17-facher Vergroesserung Vektor und scharf. Eine
+// CSS-Skalierung vergroesserte vorher eine Bitmap, Text und Kanten wurden
+// matschig.
 
 const JOINT_ZOOM_AT = { x: 0.5 + 42 / 520, y: 0.5 };   // Anteil der Breite/Hoehe
 
 export function LabJoint({ de }: { de: boolean }) {
   const cx = 260, cy = 150;
   return (
-    <div className="lab-joint" style={{ transformOrigin: `${JOINT_ZOOM_AT.x * 100}% ${JOINT_ZOOM_AT.y * 100}%` }}>
-      <svg viewBox="0 0 520 300" className="block w-full h-full" role="img"
+    <div className="lab-joint">
+      <svg viewBox="0 0 520 300" className="block w-full h-full" data-lab-joint role="img"
         aria-label={de ? 'Querschnitt durch ein Kettengelenk: Bolzen, Laschenschulter, Rolle, dazwischen zwei Wachsspalte.' : 'Cross-section through a chain joint: pin, plate shoulder, roller, with two wax gaps between.'}>
         <defs>
           <radialGradient id="lj-metal" cx="0.35" cy="0.3" r="0.9">
@@ -37,12 +39,13 @@ export function LabJoint({ de }: { de: boolean }) {
         <circle cx={cx} cy={cy} r="38" fill="url(#lj-pin)" />
         <circle cx={cx + 42} cy={cy} r="10" fill="none" stroke="#fff" strokeWidth="1.4" className="lab-pulse" />
       </svg>
-      <span className="lab-tag lab-tag--dark" style={{ left: '50%', top: '50%', transform: 'translate(-50%,-50%)' }}>{de ? 'Bolzen' : 'Pin'}</span>
-      <span className="lab-tag" style={{ left: '50%', top: '70%', transform: 'translate(-50%,-50%)' }}>{de ? 'Laschenschulter' : 'Plate shoulder'}</span>
-      <span className="lab-tag" style={{ left: '50%', top: '85%', transform: 'translate(-50%,-50%)' }}>{de ? 'Rolle' : 'Roller'}</span>
+      <span className="lab-tag lab-tag--dark lab-joint-label" style={{ left: '50%', top: '50%', transform: 'translate(-50%,-50%)' }}>{de ? 'Bolzen' : 'Pin'}</span>
+      <span className="lab-tag lab-joint-label" style={{ left: '50%', top: '70%', transform: 'translate(-50%,-50%)' }}>{de ? 'Laschenschulter' : 'Plate shoulder'}</span>
+      <span className="lab-tag lab-joint-label" style={{ left: '50%', top: '85%', transform: 'translate(-50%,-50%)' }}>{de ? 'Rolle' : 'Roller'}</span>
       <span className="lab-callout" style={{ left: `${JOINT_ZOOM_AT.x * 100 + 3}%`, top: '50%' }}>
         {de ? 'Zone 01 · hier liegt der Film' : 'Zone 01 · the film sits here'}
       </span>
+      <p className="lab-hint" aria-hidden>{de ? 'Scrollen, um hineinzufahren' : 'Scroll to zoom in'}<span>↓</span></p>
     </div>
   );
 }
