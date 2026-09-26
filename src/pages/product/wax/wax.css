@@ -728,3 +728,29 @@
 .wxp-cmp-toggle .chev { display: inline-block; transition: transform .2s; }
 .wxp-cmp-open { margin-top: 20px; animation: wxp-dd-in .25s ease both; }
 @media (prefers-reduced-motion: reduce) { .wxp-cmp-open { animation: none; } }
+
+/* Kapitel 01 v7 (26.09.2026): Regler + Kennzahlen oben, darunter vier
+   Fotokarten statt einer Punkteliste. */
+.wxp-change-top { display: grid; gap: 36px; align-items: center; }
+@media (min-width: 900px) { .wxp-change-top { grid-template-columns: minmax(0,1.15fr) minmax(0,1fr); gap: 56px; } }
+.wxp-cmpcap { font-size: 13px; color: var(--txf); padding: 10px 4px 0; }
+.wxp-figs.wxp-figs--grid { margin-top: 0; border-top: 0; grid-template-columns: repeat(2, minmax(0,1fr)); row-gap: 0; }
+.wxp-figs.wxp-figs--grid > div { padding: 22px 18px 22px 0; border-left: 0; border-top: 1px solid var(--bd2); }
+.wxp-figs.wxp-figs--grid > div:nth-child(even) { padding-left: 22px; border-left: 1px solid var(--bd2); }
+.wxp-moments { list-style: none; padding: 0; margin: 56px 0 0; display: grid; gap: 16px; grid-template-columns: 1fr; }
+@media (min-width: 640px) { .wxp-moments { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .wxp-moments { grid-template-columns: repeat(4, 1fr); } }
+.wxp-moment { border-radius: 16px; overflow: hidden; background: var(--sf); border: 1px solid var(--sf3); box-shadow: var(--wxp-shadow); transition: transform .28s cubic-bezier(.22,1,.36,1), border-color .2s, box-shadow .2s; }
+@media (hover: hover) and (pointer: fine) {
+  .wxp-moment:hover { transform: translateY(-4px); border-color: var(--accent-soft); box-shadow: var(--card-shadow-hover); }
+  .wxp-moment:hover .ph img { transform: scale(1.05); }
+}
+.wxp-moment .ph { position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: var(--sf2); }
+.wxp-moment .ph img { width: 100%; height: 100%; object-fit: cover; transition: transform .9s ease-out; }
+.wxp-moment .ph::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(6,7,10,.35), rgba(6,7,10,0) 45%); }
+.wxp-moment .ic { position: absolute; left: 14px; bottom: 12px; z-index: 1; width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; background: rgba(255,255,255,.92); color: var(--wxp-accent); }
+.wxp-moment .ic .wxp-ico { width: 18px; height: 18px; }
+.wxp-moment .tx { padding: 16px 18px 20px; }
+.wxp-moment h3 { font-family: 'Fraunces', Georgia, serif; font-size: 20px; line-height: 1.2; font-weight: 700; color: var(--tx1); }
+.wxp-moment p { font-size: 15px; line-height: 1.5; color: var(--txm); margin-top: 6px; }
+@media (prefers-reduced-motion: reduce) { .wxp-moment, .wxp-moment .ph img { transition: none; } .wxp-moment:hover { transform: none; } }
