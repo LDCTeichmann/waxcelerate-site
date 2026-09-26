@@ -363,7 +363,7 @@ export const richContent: Record<string, RichContent> = {
       'Kompatibilität': 'SRAM Force / Rival / Red / Apex · Shimano 11-fach',
     },
     chainCompRows: v9SharedChainCompRows,
-    proTip: 'Fahre drei Ketten im Wechsel, um Wartung zu minimieren und die Lebensdauer zu maximieren. Wachse alle gleichzeitig nach — entweder selbst mit Waxcelerate 300g / 500g oder professionell bei uns. 10 % Rabatt beim Kauf von 3 Ketten!',
+    proTip: 'Fahre drei Ketten im Wechsel, um Wartung zu minimieren und die Lebensdauer zu maximieren. Wachse alle gleichzeitig nach — entweder selbst mit Waxcelerate 300g / 500g oder professionell bei uns. 7 % Rabatt beim Kauf von 3 Ketten.',
     compatTags: [
       ['SRAM Force', 'SRAM Rival', 'SRAM Red', 'SRAM Apex', 'Shimano 11-fach'],
       ['11-fach', 'Rennrad', 'Gravel', 'Triathlon'],
@@ -397,7 +397,7 @@ export const richContent: Record<string, RichContent> = {
       'Kompatibilität': 'SRAM SX / NX / GX / X01 / XX1 Eagle',
     },
     chainCompRows: v9SharedChainCompRows,
-    proTip: 'Fahre drei Ketten im Wechsel, um Wartung zu minimieren und die Lebensdauer zu maximieren. Wachse alle gleichzeitig nach — entweder selbst mit Waxcelerate 300g / 500g oder professionell bei uns. 10 % Rabatt beim Kauf von 3 Ketten!',
+    proTip: 'Fahre drei Ketten im Wechsel, um Wartung zu minimieren und die Lebensdauer zu maximieren. Wachse alle gleichzeitig nach — entweder selbst mit Waxcelerate 300g / 500g oder professionell bei uns. 7 % Rabatt beim Kauf von 3 Ketten.',
     compatTags: [
       ['SRAM NX Eagle', 'SRAM SX Eagle', 'SRAM GX Eagle', 'SRAM X01 Eagle', 'SRAM XX1 Eagle'],
       ['12-fach MTB', 'Mountainbike', 'E-Bike MTB'],
@@ -430,7 +430,7 @@ export const richContent: Record<string, RichContent> = {
       'Einsatz': 'Rennrad · MTB · Gravel · E-Bike',
     },
     chainCompRows: v9SharedChainCompRows,
-    proTip: 'Fahre drei Ketten im Wechsel, um Wartung zu minimieren und die Lebensdauer zu maximieren. Wachse alle gleichzeitig nach — entweder selbst mit Waxcelerate 300g / 500g oder professionell bei uns. 10 % Rabatt beim Kauf von 3 Ketten!',
+    proTip: 'Fahre drei Ketten im Wechsel, um Wartung zu minimieren und die Lebensdauer zu maximieren. Wachse alle gleichzeitig nach — entweder selbst mit Waxcelerate 300g / 500g oder professionell bei uns. 7 % Rabatt beim Kauf von 3 Ketten.',
     compatTags: [
       ['Shimano 12-fach', 'SRAM 12-fach', 'Campagnolo 12-fach', 'KMC X12'],
       ['Rennrad', 'MTB', 'Gravel', 'E-Bike', 'Triathlon', 'Cyclocross'],

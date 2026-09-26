@@ -200,6 +200,14 @@ export const translations = {
       compareFormulaPro: 'Pro MoS₂ Formel',
       compareComponents: 'Komponenten',
       shippingHint: 'Werktags bis 15 Uhr bestellt, am selben Tag versandt · Versand kostenlos',
+      // Versand/Lieferung/Staffel-Block aller Produktkarten (CardPerks.tsx).
+      perks: {
+        freeShipping: 'Versand kostenlos',
+        arrives: 'bei dir',
+        tiersLabel: 'Mengenrabatt',
+        tierQty: '{qty} Stk.',
+        tierFrom: 'ab {qty}',
+      },
       // Regal — ersetzt die drei Tueren. Zwei Wachs-Tafeln (Classic/Pro) mit
       // Groessenschalter, danach Set, Ketten, Rewax. Siehe ProductShelf.tsx.
       shelf: {
@@ -307,6 +315,7 @@ export const translations = {
         rewaxTitle: 'Kette wachsen lassen',
         rewaxBody: 'Einschicken, fahrbereit zurück. Auch Umstieg von Öl.',
         rewaxPrice: '15,95 € je Kette',
+        rewaxBundle: 'ab {count} Ketten {price} je Kette',
         priceFrom: 'ab {price}',
       },
     },
@@ -883,6 +892,13 @@ export const translations = {
       compareFormulaPro: 'Pro MoS₂ Formula',
       compareComponents: 'components',
       shippingHint: 'Weekday orders by 3 pm ship the same day · Free shipping',
+      perks: {
+        freeShipping: 'Free shipping',
+        arrives: 'arrives',
+        tiersLabel: 'Quantity discount',
+        tierQty: '{qty} pcs',
+        tierFrom: '{qty}+',
+      },
       shelf: {
         waxEyebrow: 'Chain wax — cast in Stuttgart',
         classicName: 'Classic',
@@ -944,6 +960,7 @@ export const translations = {
         rewaxTitle: 'Let us wax your chain',
         rewaxBody: 'Send it in, get it back ready to ride. Oil-to-wax too.',
         rewaxPrice: '€15.95 per chain',
+        rewaxBundle: '{price} per chain from {count} chains',
         priceFrom: 'from {price}',
       },
     },

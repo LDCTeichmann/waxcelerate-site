@@ -899,6 +899,35 @@
 .noir .shelf-deal { color: #6FC193; background: rgba(111,193,147,.12); }
 .shelf-deal-tx { color: #256B42; }
 .noir .shelf-deal-tx { color: #6FC193; }
+/* Versand + Lieferdatum + Mengenrabatt (CardPerks.tsx), fuer alle Produktkarten
+   gleich. Leicht getoente Flaeche, damit der Block als Vorteil gelesen wird und
+   nicht als Kleingedrucktes im Fuss. */
+.card-perks {
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 10px 12px; border-radius: 12px;
+  background: var(--ship-bg);
+  font-size: 13px; line-height: 1.35; color: var(--tx2);
+}
+.card-perks__row { display: flex; align-items: flex-start; gap: 8px; margin: 0; }
+.card-perks__ico { width: 15px; height: 15px; flex-shrink: 0; margin-top: 1px; color: var(--ship-fg); }
+.card-perks__ship { color: var(--ship-fg); font-weight: 700; }
+.card-perks__date { color: var(--tx1); font-weight: 700; }
+.card-perks__tiers { display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.card-perks__tier { white-space: nowrap; }
+.card-perks__tier b { color: var(--ship-fg); font-weight: 700; }
+/* Schmale Karten (4er-Reihe auf /ketten): Datum in eigene Zeile, etwas
+   kleiner, damit der Block nicht auf vier Zeilen umbricht. */
+@container (max-width: 300px) {
+  .card-perks { font-size: 12.5px; padding: 9px 10px; }
+  .card-perks__when { display: block; }
+  .card-perks__sep { display: none; }
+  .card-perks__tiers { gap: 2px 9px; }
+}
+.card-perks--dark { background: rgba(255,255,255,0.12); backdrop-filter: blur(8px); color: rgba(255,255,255,0.86); }
+.card-perks--dark .card-perks__ico,
+.card-perks--dark .card-perks__ship,
+.card-perks--dark .card-perks__tier b { color: #8FE0B0; }
+.card-perks--dark .card-perks__date { color: #fff; }
 /* Set / Ketten / Rewax mobil als Wischband; die naechste Karte lugt
    rechts hervor, damit das Weiterwischen erkennbar ist. */
 @media (max-width: 639px) {

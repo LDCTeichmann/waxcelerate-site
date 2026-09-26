@@ -1,10 +1,10 @@
-import { ExternalLink, ArrowRight, Truck, Check } from 'lucide-react';
+import { ExternalLink, ArrowRight, Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { memo } from 'react';
-import { canCheckout, cheapestChainIds, isSoldOut, type Product } from '@/lib/data';
+import { canCheckout, cheapestChainIds, isSoldOut, CHAIN_TIERS, type Product } from '@/lib/data';
 import { useLanguage } from '@/hooks/useLanguage';
 import { AddToCartButton } from '@/components/AddToCartButton';
-import { ShippingPill } from '@/components/ShippingPill';
+import { CardPerks } from '@/components/CardPerks';
 import { Stars } from '@/components/Stars';
 import { trackEbayClick } from '@/lib/analytics';
 
@@ -15,10 +15,6 @@ export interface ChainCardProps {
   buyLabel: string;
   deliveryDate?: string;
   quickLinkLabel?: string;
-  /** "Versandkostenfrei" — an checkoutEnabled gekoppelt (K8), vom Aufrufer
-   *  berechnet statt hier fest verdrahtet, damit die Karte selbst keine
-   *  Meinung zum Versandstatus braucht. */
-  shippingIncludedLabel?: string;
   /** Stufe 4 (K4): erste Bildreihe eager + fetchpriority high, Rest lazy.
    *  Der Aufrufer kennt die Spaltenzahl der jeweiligen Ansicht, die Karte
    *  selbst nicht. */
@@ -44,7 +40,7 @@ const chainCardAvif = (src: string) => hasLocalChainCard(src) ? src.replace(/\.w
 // graue Fussstreifen ist weg — Versand steht jetzt als gruene Pille direkt
 // unter dem Preis, wo das Auge beim Preisvergleich ohnehin landet. Foto
 // 16:10 statt 3:2; auf dem Foto steht, womit gewachst wurde.
-export const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel, deliveryDate, quickLinkLabel, shippingIncludedLabel, priority }: ChainCardProps) {
+export const ChainCard = memo(function ChainCard({ product, de, formatPrice, buyLabel, deliveryDate, quickLinkLabel, priority }: ChainCardProps) {
   const { t } = useLanguage();
   const s = t.products.shelf;
   const brand = product.chainBrand ?? '';
@@ -113,7 +109,7 @@ export const ChainCard = memo(function ChainCard({ product, de, formatPrice, buy
         </p>
 
         {(speed || chainLinks) && (
-          <p className="text-[12px] mt-0.5" style={{ color: 'var(--txm)' }}>
+          <p className="text-[13.5px] mt-0.5" style={{ color: 'var(--tx2)' }}>
             {[speed, chainLinks].filter(Boolean).join(' · ')}
           </p>
         )}
@@ -121,7 +117,7 @@ export const ChainCard = memo(function ChainCard({ product, de, formatPrice, buy
         {/* Drei Fakten in einer umbrechenden Zeile statt drei Zeilen. */}
         <ul className="flex flex-wrap content-start gap-x-3 gap-y-1 mt-2.5 min-h-[2.6rem]">
           {points.map(p => (
-            <li key={p} className="flex items-center gap-1 text-[12px]" style={{ color: 'var(--tx2)' }}>
+            <li key={p} className="flex items-center gap-1 text-[13px]" style={{ color: 'var(--tx2)' }}>
               <Check className="h-3 w-3 flex-shrink-0" style={{ color: 'var(--accent-soft)' }} aria-hidden />
               {p}
             </li>
@@ -141,7 +137,7 @@ export const ChainCard = memo(function ChainCard({ product, de, formatPrice, buy
         {/* Preis links, CTA rechts; Versand-Pille + Lieferdatum als eigene
             Zeile darunter (neben dem Preis gestapelt brach "Bei eBay kaufen"
             bei vier Spalten auf zwei Zeilen um). */}
-        <div className="flex items-center justify-between gap-3 mt-auto pt-4">
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2.5 mt-auto pt-4">
           <span className="num text-[21px] font-bold leading-none tracking-[-0.02em]" style={{ color: 'var(--tx1)' }}>
             {formatPrice(product.price)}
           </span>
@@ -174,15 +170,11 @@ export const ChainCard = memo(function ChainCard({ product, de, formatPrice, buy
           )}
         </div>
 
-        {(shippingIncludedLabel || (deliveryDate && !soldOut)) && (
-          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 mt-3">
-            {shippingIncludedLabel && <ShippingPill small label={shippingIncludedLabel} />}
-            {deliveryDate && !soldOut && (
-              <span className="flex items-center gap-1.5 num text-meta" style={{ color: 'var(--tx2)' }}>
-                {!shippingIncludedLabel && <Truck className="h-3 w-3 flex-shrink-0" style={{ color: 'var(--accent-soft)' }} aria-hidden />}
-                {de ? `Lieferung ${deliveryDate}` : `Delivery ${deliveryDate}`}
-              </span>
-            )}
+        {/* Versand, Lieferdatum und Staffel als gemeinsamer Block aller
+            Produktkarten (CardPerks, 26.09.2026). */}
+        {!soldOut && (
+          <div className="mt-3">
+            <CardPerks t={t} delivery={deliveryDate} tiers={CHAIN_TIERS} />
           </div>
         )}
       </div>

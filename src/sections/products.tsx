@@ -87,7 +87,7 @@ export function Products() {
           {/* Header */}
           <div ref={headerRef} className="mb-10">
             <h2 className="section-title mb-4">
-              <ScrollWordReveal text={t.products.doors.title} />
+              <ScrollWordReveal text={t.products.title} />
             </h2>
             <p data-reveal="subtitle" className="text-wx-txm max-w-xl">
               {t.products.doors.subtitle}

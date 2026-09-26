@@ -666,7 +666,8 @@
 .wxp-dd-grid { display: grid; gap: 16px; grid-template-columns: 1fr; }
 @media (min-width: 640px) { .wxp-dd-grid { grid-template-columns: 1fr 1fr; gap: 20px; } }
 .wxp-dd-card { all: unset; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px; padding: 12px 12px 20px; cursor: pointer; text-align: left; border: 1px solid var(--sf3); transition: transform .2s, box-shadow .2s, border-color .2s; }
-.wxp-dd-card:hover { transform: translateY(-2px); box-shadow: var(--wxp-shadow-hi); }
+/* Blaue Kante beim Hover wie die Regal-Karten (.shelf-card), 26.09.2026. */
+.wxp-dd-card:hover { transform: translateY(-2px); border-color: var(--accent-soft); box-shadow: var(--card-shadow-hover); }
 .wxp-dd-card:active { transform: translateY(0) scale(.99); }
 .wxp-dd-card:focus-visible { outline: 2px solid var(--accent-soft); outline-offset: 2px; }
 .wxp-dd-card[data-open] { border-color: var(--wxp-accent); box-shadow: 0 0 0 1px var(--wxp-accent), var(--wxp-shadow-hi); }

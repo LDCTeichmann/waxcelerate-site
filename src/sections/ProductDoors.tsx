@@ -11,9 +11,10 @@
 // Hover-Zoom 1.03, kein Autoplay — "wenig Bewegung" (Gemeinsame Regeln).
 
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
-import { products } from '@/lib/data';
-import { TURNAROUND } from '@/pages/rewax/content';
+import { ArrowRight, RotateCw, BadgePercent } from 'lucide-react';
+import { products, WAX_TIERS, CHAIN_TIERS } from '@/lib/data';
+import { CardPerks } from '@/components/CardPerks';
+import { TURNAROUND, PRICE } from '@/pages/rewax/content';
 import type { TranslationType } from '@/lib/i18n';
 
 const eur = (n: number, de: boolean) =>
@@ -22,15 +23,18 @@ const eur = (n: number, de: boolean) =>
 const minPrice = (category: 'wax' | 'chain') =>
   Math.min(...products.filter(p => p.category === category).map(p => p.price));
 
-function Door({ to, image, alt, title, body, price, delivery, compact }: {
+function Door({ to, image, alt, title, body, price, delivery, compact, perks }: {
   to: string; image: string; alt: string; title: string; body: string; price: string; delivery: string;
   compact?: boolean;
+  /** Versand/Lieferdatum/Staffel als CardPerks-Block (26.09.2026). Ersetzt
+      dann die graue Lieferzeile unter dem Preis. Rewax hat keinen. */
+  perks?: React.ReactNode;
 }) {
   return (
     <Link
       to={to}
       viewTransition
-      className={`door-card group relative block overflow-hidden rounded-[20px] ${compact ? 'aspect-[4/3]' : 'aspect-[4/5]'}`}
+      className={`door-card shelf-card group relative block overflow-hidden rounded-[20px] ${compact ? 'aspect-[4/3]' : 'aspect-[4/5]'}`}
       style={{ background: 'var(--hero-stage)' }}
       aria-label={`${title} — ${price}`}
     >
@@ -46,7 +50,7 @@ function Door({ to, image, alt, title, body, price, delivery, compact }: {
         />
       </picture>
       <span aria-hidden className="absolute inset-0"
-        style={{ background: 'linear-gradient(to top, rgba(6,7,10,0.86) 0%, rgba(6,7,10,0.32) 46%, rgba(6,7,10,0.02) 72%)' }} />
+        style={{ background: 'linear-gradient(to top, rgba(6,7,10,0.9) 0%, rgba(6,7,10,0.55) 45%, rgba(6,7,10,0.02) 78%)' }} />
 
       {/* Feste Zeilen, damit die Titel aller drei Tueren auf einer Hoehe
           stehen (Luca, 25.09.2026): der Block haengt unten, also schob ein
@@ -59,11 +63,11 @@ function Door({ to, image, alt, title, body, price, delivery, compact }: {
           style={{ fontSize: compact ? 'clamp(1rem, 1.6vw, 1.15rem)' : 'clamp(1.15rem, 2vw, 1.4rem)' }}>
           {title}
         </span>
-        {!compact && <span className="text-[13.5px] leading-snug line-clamp-2 min-h-[2.75em]" style={{ color: 'rgba(255,255,255,0.82)' }}>{body}</span>}
+        {!compact && <span className="text-[15px] leading-snug line-clamp-2 min-h-[2.75em]" style={{ color: 'rgba(255,255,255,0.9)' }}>{body}</span>}
         <span className="flex items-center justify-between gap-2 mt-2">
           <span className="flex flex-col gap-0.5 min-w-0">
-            <span className="num text-[14px] font-bold" style={{ color: '#fff' }}>{price}</span>
-            {!compact && <span className="text-meta truncate" style={{ color: 'rgba(255,255,255,0.62)' }}>{delivery}</span>}
+            <span className="num text-[17px] font-bold" style={{ color: '#fff' }}>{price}</span>
+            {!compact && !perks && <span className="text-[13px] truncate" style={{ color: 'rgba(255,255,255,0.78)' }}>{delivery}</span>}
           </span>
           <span
             aria-hidden
@@ -73,6 +77,7 @@ function Door({ to, image, alt, title, body, price, delivery, compact }: {
             <ArrowRight className="h-4 w-4" style={{ color: '#fff' }} />
           </span>
         </span>
+        {!compact && perks}
       </span>
     </Link>
   );
@@ -110,6 +115,7 @@ export function ProductDoors({ de, t, delivery, only, compact }: {
           body={d.waxBody}
           price={priceFor(minPrice('wax'))}
           delivery={shippingLine}
+          perks={<CardPerks onDark t={t} delivery={delivery} tiers={WAX_TIERS} />}
         />
       )}
       {show('chains') && (
@@ -122,6 +128,7 @@ export function ProductDoors({ de, t, delivery, only, compact }: {
           body={d.chainsBody}
           price={priceFor(minPrice('chain'))}
           delivery={shippingLine}
+          perks={<CardPerks onDark t={t} delivery={delivery} tiers={CHAIN_TIERS} />}
         />
       )}
       {show('rewax') && (
@@ -134,6 +141,21 @@ export function ProductDoors({ de, t, delivery, only, compact }: {
           body={d.rewaxBody}
           price={d.rewaxPrice}
           delivery={rewaxDelivery}
+          perks={
+            // Dieselbe Form wie CardPerks, damit die Titel aller drei Tueren
+            // auf einer Hoehe bleiben: Turnaround statt Lieferdatum,
+            // Mengenpreis statt Staffel (beides aus rewax/content.ts).
+            <div className="card-perks card-perks--dark">
+              <p className="card-perks__row">
+                <RotateCw className="card-perks__ico" aria-hidden />
+                <span><strong className="card-perks__date">{rewaxDelivery}</strong></span>
+              </p>
+              <p className="card-perks__row">
+                <BadgePercent className="card-perks__ico" aria-hidden />
+                <span>{d.rewaxBundle.replace('{count}', String(PRICE.bundleCount)).replace('{price}', eur(PRICE.rewax.bundle, de))}</span>
+              </p>
+            </div>
+          }
         />
       )}
     </div>
