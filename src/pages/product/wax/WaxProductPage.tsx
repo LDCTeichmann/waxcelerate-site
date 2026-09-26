@@ -8,8 +8,8 @@ import { ProofStrip, ChangeForYou } from './ProofAndChange';
 import { FrictionLens } from './FrictionLens';
 import { WaxCalculator } from './WaxCalculator';
 import { ProcessWatch } from '@/components/process/ProcessWatch';
-import { WhichWax, WaxReviews, DataFitLimits, WhenEmpty, WaxFaq, pickProofQuote } from './WaxSections';
-import { DeepDive, type DeepDiveItem } from '../DeepDive';
+import { WhichWax, openCompare, WaxReviews, DataFitLimits, WhenEmpty, WaxFaq, pickProofQuote } from './WaxSections';
+import { DeepDive, openDeepDive, type DeepDiveItem } from '../DeepDive';
 import { FrictionPreview, SavingsPreview, ClockPreview, CyclePreview } from '../DeepDivePreviews';
 import './wax.css';
 
@@ -41,7 +41,6 @@ export function WaxProductPage(props: {
 }) {
   const { product, de, t, titleText, rc, specs, profile } = props;
   const [personalized, setPersonalized] = useState(false);
-  const toChooser = () => document.getElementById('welches')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
   const deepDiveItems: DeepDiveItem[] = [
     {
@@ -79,12 +78,13 @@ export function WaxProductPage(props: {
       <WaxHero product={product} de={de} t={t} titleText={titleText} gallery={props.gallery}
         sizeSibling={props.sizeSibling} recommendedId={props.recommendedId} personalized={personalized} rewaxKm={profile.interval}
         buyRef={props.buyRef} backFallback={props.backFallback} onBack={props.onBack}
-        onOpenImage={props.onOpenImage} onSizeSelect={props.onSizeSelect} onProHint={toChooser} />
+        onOpenImage={props.onOpenImage} onSizeSelect={props.onSizeSelect} onProHint={openCompare}
+        onSizeHelp={() => openDeepDive('calc')} />
       <ProofStrip de={de} quote={pickProofQuote(product.id)} />
       <ChangeForYou product={product} de={de} t={t} rc={rc} />
       <DataFitLimits product={product} rc={rc} specs={specs} de={de} n={de ? 'Kapitel 02' : 'Chapter 02'} />
-      <WhichWax product={product} de={de} n={de ? 'Kapitel 03' : 'Chapter 03'} />
-      <WaxReviews productId={product.id} de={de} chapter={de ? 'Kapitel 04' : 'Chapter 04'} compact />
+      <WhichWax product={product} de={de} />
+      <WaxReviews productId={product.id} de={de} chapter={de ? 'Kapitel 03' : 'Chapter 03'} compact />
       <DeepDive de={de} items={deepDiveItems} />
       <WaxFaq de={de} t={t} />
     </div>

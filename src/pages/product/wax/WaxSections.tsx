@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { Product } from '@/lib/data';
 import { getProductById, trustStats, bundleOffer, canCheckout, isSoldOut } from '@/lib/data';
@@ -31,7 +31,25 @@ function Cell({ c, de }: { c: ChooserCell; de: boolean }) {
   return c.kind ? <span className={`wxp-${c.kind}`}>{text}</span> : <>{text}</>;
 }
 
-export function WhichWax({ product, de, n }: { product: Product; de: boolean; n?: string }) {
+// Luca, 26.09.2026: kein eigenes Kapitel mehr, sondern ein schmales Band
+// "Classic oder Pro?" mit Knopf; die Tabelle klappt erst auf Wunsch auf.
+// openCompare() oeffnet sie von aussen (Hinweis in der Kaufbox) und scrollt hin.
+export function openCompare() {
+  window.dispatchEvent(new CustomEvent('wxp-compare'));
+}
+
+export function WhichWax({ product, de }: { product: Product; de: boolean }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const onEvent = () => {
+      setOpen(true);
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      setTimeout(() => ref.current?.scrollIntoView({ block: 'start', behavior: reduce ? 'auto' : 'smooth' }), 60);
+    };
+    window.addEventListener('wxp-compare', onEvent);
+    return () => window.removeEventListener('wxp-compare', onEvent);
+  }, []);
   const isPro = product.variant === 'pro';
   const size = product.weight === '300g' ? '300' : '500';
   const classic = getProductById(size === '300' ? 'wax-300' : 'wax-500');
@@ -44,10 +62,20 @@ export function WhichWax({ product, de, n }: { product: Product; de: boolean; n?
   const other = cols.find(c => !c.here)!;
 
   return (
-    <section className="wxp-chapter" id="welches">
+    <section className="wxp-cmp-band" id="welches" ref={ref}>
       <div className="wxp-wrap">
-        <ChapterHead n={n ?? (de ? 'Kapitel 05' : 'Chapter 05')} title={de ? 'Welches Wachs passt zu dir?' : 'Which wax suits you?'}
-          lede={de ? 'Ehrlich verglichen, auch mit dem, was du gerade benutzt.' : 'An honest comparison, including what you use today.'} />
+        <div className="wxp-card wxp-cmp-bar">
+          <div>
+            <p className="t">{de ? 'Classic oder Pro?' : 'Classic or Pro?'}</p>
+            <p className="s">{de ? 'Beide Wachse und Kettenöl nebeneinander, ehrlich verglichen.' : 'Both waxes and chain oil side by side, honestly compared.'}</p>
+          </div>
+          <button type="button" className="wxp-cmp-toggle" aria-expanded={open} aria-controls="welches-tabelle"
+            onClick={() => { if (!open) trackFormulaCompare(product.id); setOpen(o => !o); }}>
+            {open ? (de ? 'Vergleich schließen' : 'Hide comparison') : (de ? 'Vergleich anzeigen' : 'Show comparison')}
+            <span aria-hidden className="chev" style={{ transform: open ? 'rotate(180deg)' : 'none' }}>▾</span>
+          </button>
+        </div>
+        {open && (<div id="welches-tabelle" className="wxp-cmp-open">
         <div className="wxp-cmp-wrap">
           <div className="wxp-card wxp-cmp">
             <table>
@@ -93,6 +121,7 @@ export function WhichWax({ product, de, n }: { product: Product; de: boolean; n?
             {other.p && <Link to={`/produkt/${other.p.id}`} onClick={() => trackFormulaCompare(product.id)}>{other.name} {de ? 'ansehen →' : 'view →'}</Link>}
           </div>
         </div>
+        </div>)}
       </div>
     </section>
   );

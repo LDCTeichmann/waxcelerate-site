@@ -124,6 +124,9 @@
 .wxp-lede { font-size: 15.5px; line-height: 1.55; margin: 14px 0 20px; max-width: 42ch; color: var(--tx2); }
 .wxp-lbl { display: flex; justify-content: space-between; font-size: 12.5px; font-weight: 600; color: var(--tx1); margin-bottom: 8px; }
 .wxp-lbl a { font-weight: 500; color: var(--accent-soft); text-decoration: none; }
+.wxp-lbl-link { all: unset; cursor: pointer; font-weight: 500; color: var(--accent-soft); }
+.wxp-lbl-link:hover { text-decoration: underline; }
+.wxp-lbl-link:focus-visible { outline: 2px solid var(--accent-soft); outline-offset: 2px; border-radius: 4px; }
 .wxp-sizes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
 .wxp-size { position: relative; text-align: left; border: 1px solid var(--bd2); background: transparent; border-radius: 12px; padding: 12px 13px; cursor: pointer; color: inherit; transition: border-color .2s, box-shadow .2s; min-height: 44px; }
 .wxp-size:hover { border-color: var(--txf); }
@@ -165,6 +168,7 @@
 .wxp-trust .wxp-ico { color: var(--accent-soft); }
 .wxp-prohint { margin-top: 14px; width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 11px 14px; border: 0; border-radius: 12px; background: var(--sf2); font-size: 13px; color: var(--txm); text-align: left; cursor: pointer; text-decoration: none; }
 .wxp-prohint b { color: var(--tx1); }
+.wxp-prohint-cta { display: block; margin-top: 3px; font-weight: 600; color: var(--accent-soft); }
 
 /* Proof-Leiste */
 .wxp-proof { background: var(--wxp-dark); color: rgba(255,255,255,.75); }
@@ -712,3 +716,14 @@
 .wxp-rvc blockquote.clamp { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
 .wxp-rvc .more { align-self: flex-start; font-size: 12px; font-weight: 600; color: var(--accent-soft); background: none; border: 0; padding: 0; cursor: pointer; }
 .wxp-rv-ebay { font-size: 12.5px; color: var(--txf); margin-top: 20px; }
+
+/* Classic/Pro-Vergleich als Band mit Knopf statt eigenem Kapitel (26.09.2026). */
+.wxp-cmp-band { padding: 8px 0 48px; scroll-margin-top: 112px; }
+.wxp-cmp-bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 18px 22px; }
+.wxp-cmp-bar .t { font-family: 'Fraunces', Georgia, serif; font-size: 20px; font-weight: 700; color: var(--tx1); line-height: 1.2; }
+.wxp-cmp-bar .s { font-size: 14.5px; color: var(--txm); margin-top: 3px; }
+.wxp-cmp-toggle { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 20px; border-radius: 999px; border: 1px solid var(--accent-soft); background: transparent; color: var(--accent-soft); font-size: 14px; font-weight: 600; cursor: pointer; transition: background .2s, color .2s; }
+.wxp-cmp-toggle:hover { background: var(--accent-soft); color: #fff; }
+.wxp-cmp-toggle .chev { display: inline-block; transition: transform .2s; }
+.wxp-cmp-open { margin-top: 20px; animation: wxp-dd-in .25s ease both; }
+@media (prefers-reduced-motion: reduce) { .wxp-cmp-open { animation: none; } }

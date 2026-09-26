@@ -27,7 +27,7 @@ import { Ico } from './Ico';
 // Wachsgang, Kilometer, "weniger als eine Kette") → kaufen → wann ist es da.
 
 export function WaxHero({
-  product, de, t, titleText, gallery, sizeSibling, recommendedId, personalized, rewaxKm, buyRef, backFallback, onBack, onOpenImage, onSizeSelect, onProHint,
+  product, de, t, titleText, gallery, sizeSibling, recommendedId, personalized, rewaxKm, buyRef, backFallback, onBack, onOpenImage, onSizeSelect, onProHint, onSizeHelp,
 }: {
   product: Product;
   de: boolean;
@@ -45,6 +45,8 @@ export function WaxHero({
   onOpenImage: (i: number) => void;
   onSizeSelect: (p: Product) => void;
   onProHint: () => void;
+  /** "Welche passt zu mir?" oeffnet den Rechner im Mehr-wissen-Deck. */
+  onSizeHelp: () => void;
 }) {
   const [qty, setQty] = useState(1);
   const dispatch = useDispatchLine(de);
@@ -104,7 +106,7 @@ export function WaxHero({
 
           {sizes.length === 2 && (
             <>
-              <div className="wxp-lbl">{de ? 'Größe' : 'Size'} <a href="#rechner">{de ? 'Welche passt zu mir?' : 'Which one fits me?'}</a></div>
+              <div className="wxp-lbl">{de ? 'Größe' : 'Size'} <button type="button" className="wxp-lbl-link" onClick={onSizeHelp}>{de ? 'Welche passt zu mir?' : 'Which one fits me?'}</button></div>
               <div className="wxp-sizes" role="group" aria-label={de ? 'Größe wählen' : 'Choose size'}>
                 {sizes.map(p => {
                   const active = p.id === product.id;
@@ -171,6 +173,7 @@ export function WaxHero({
               {isPro
                 ? <><b>{de ? 'Fährst du nur trocken?' : 'Only riding dry?'}</b> {de ? 'Dann reicht Classic.' : 'Then Classic is enough.'}</>
                 : <><b>{de ? 'Oft nass oder kalt?' : 'Often wet or cold?'}</b> {de ? 'Da hält Pro MoS₂ länger.' : 'Pro MoS₂ lasts longer there.'}</>}
+              <span className="wxp-prohint-cta">{de ? 'Classic und Pro vergleichen' : 'Compare Classic and Pro'}</span>
             </span>
             <Ico name="arrow" style={{ color: 'var(--accent-soft)', width: 16, height: 16 }} />
           </button>
