@@ -300,6 +300,9 @@ function Stage({ de, scope, className, text, extra, rail, handle }: {
       if (ruler.current) {
         const pos = clamp01((Math.log10(200) - Math.log10(fov)) / (Math.log10(200) - Math.log10(1e-5)));
         ruler.current.style.setProperty('--pos', pos.toFixed(4));
+        // Die naechstliegende Groessenordnung leuchtet mit.
+        const on = Math.round(pos * (RULER_LABELS.length - 1));
+        ruler.current.querySelectorAll('span').forEach((el, i) => el.toggleAttribute('data-on', i === on));
       }
 
       // Zoom-Kegel vom Ort des Stoffs zur Lupe

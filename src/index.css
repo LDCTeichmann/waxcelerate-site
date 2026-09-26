@@ -1689,6 +1689,8 @@ body:has(.wx-topbar) { padding-top: var(--topbar-h); }
 .jr-view::before { content: ""; position: absolute; left: -2px; top: 0; bottom: 0; width: 84px; z-index: 1; pointer-events: none; background: linear-gradient(90deg, rgba(11,13,17,.9) 0%, rgba(11,13,17,.55) 50%, rgba(11,13,17,0) 100%); }
 .jr-ruler { position: absolute; left: 0; top: 14%; height: 72%; width: 44px; border-left: 1px solid rgba(169,196,230,.3); z-index: 2; --pos: 0; }
 .jr-ruler span { position: absolute; left: 7px; translate: 0 -50%; font: 500 9.5px 'IBM Plex Mono', ui-monospace, monospace; color: rgba(169,196,230,.55); white-space: nowrap; }
+.jr-ruler span { transition: color .3s; }
+.jr-ruler span[data-on] { color: #fff; font-weight: 700; }
 .jr-ruler span::before { content: ""; position: absolute; left: -7px; top: 50%; width: 4px; height: 1px; background: rgba(169,196,230,.5); }
 .jr-ruler i { position: absolute; left: -4px; top: calc(var(--pos) * 92%); width: 7px; height: 7px; border-radius: 50%; background: #fff; translate: 0 -50%; box-shadow: 0 0 0 4px rgba(255,255,255,.12); }
 
