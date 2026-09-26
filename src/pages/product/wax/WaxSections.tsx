@@ -1,14 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { Product } from '@/lib/data';
-import { getProductById, trustStats, bundleOffer, canCheckout, isSoldOut } from '@/lib/data';
+import { getProductById, trustStats } from '@/lib/data';
 import { waxChooserRows, type ChooserCell, type RichContent } from '@/lib/productContent';
 import { REVIEWS, REVIEW_PHOTOS, photoCredit, photoAlt, type Review } from '@/sections/reviews';
 import { Stars } from '@/components/Stars';
 import { GPSR_MANUFACTURER } from '@/components/GpsrInfo';
-import { trackEbayClick, trackFormulaCompare } from '@/lib/analytics';
+import { trackFormulaCompare } from '@/lib/analytics';
 import { WAX_TOPICS, CHAIN_TOPICS } from '@/pages/product/faqTopics';
 import type { useLanguage } from '@/hooks/useLanguage';
+import { ProductMiniCard } from '@/components/ProductMiniCard';
 
 type T = ReturnType<typeof useLanguage>['t'];
 
@@ -354,8 +355,6 @@ export function DataFitLimits({ product, rc, specs, de, n }: { product: Product;
 
 // ── Wenn der Block leer ist · FAQ · Schluss ────────────────────────────────
 export function WhenEmpty({ product, de }: { product: Product; de: boolean }) {
-  const offer = bundleOffer(product);
-  const fmt = (n: number) => n.toLocaleString(de ? 'de-DE' : 'en-US', { minimumFractionDigits: 2 });
   return (
     <section className="wxp-chapter">
       <div className="wxp-wrap">
@@ -365,11 +364,9 @@ export function WhenEmpty({ product, de }: { product: Product; de: boolean }) {
             <span className="lbl2">{de ? 'Selbst' : 'Yourself'}</span>
             <h3>{de ? 'Nachbestellen' : 'Reorder'}</h3>
             <p>{de ? 'Mehrere Blöcke auf einmal werden günstiger: 2 Stück 5 %, 3 Stück 10 %, ab 4 Stück 15 %. Kühl, trocken und dunkel gelagert wird Wachs nicht schlecht.' : 'Several blocks at once get cheaper: 2 pcs 5 %, 3 pcs 10 %, 4 or more 15 %. Stored cool, dry and dark, wax does not go off.'}</p>
-            {offer && !isSoldOut(product) && !canCheckout(product) && (
-              <a href={product.ebayUrl} target="_blank" rel="noopener noreferrer" onClick={() => trackEbayClick(product.id)}>
-                {offer.qty} × {product.weight?.replace('g', ' g')} {de ? 'für' : 'for'} {fmt(offer.total)} € →
-              </a>
-            )}
+            <div style={{ marginTop: 16 }}>
+              <ProductMiniCard product={product} />
+            </div>
           </div>
           <div className="wxp-card wxp-path">
             <span className="lbl2">{de ? 'Oder' : 'Or'}</span>

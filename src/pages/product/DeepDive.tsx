@@ -18,6 +18,9 @@ export type DeepDiveItem = {
   /** Kleine statische Grafik aus DeepDivePreviews — zeigt schon auf der
    *  geschlossenen Karte, was dahinter steckt. */
   preview?: React.ReactNode;
+  /** Foto hinter der Vorschau-Grafik (26.09.2026: "beeindruckendere Bilder"),
+   *  abgedunkelt, damit die Grafik lesbar bleibt. */
+  photo?: string;
   render: () => React.ReactNode;
 };
 
@@ -79,8 +82,8 @@ export function DeepDive({ de, items }: { de: boolean; items: DeepDiveItem[] }) 
   return (
     <section className="wxp-chapter wxp-graybg wxp-dd">
       <div className="wxp-wrap">
-        <ChapterHead n={de ? 'Mehr wissen' : 'Learn more'} title={de ? 'Für Neugierige.' : 'For the curious.'}
-          lede={de ? `${items.length} Themen, je eine Minute. Tippen zum Aufklappen.` : `${items.length} topics, a minute each. Tap to open.`} />
+        <ChapterHead n={de ? 'Mehr wissen' : 'Learn more'} title={de ? 'Was hinter dem Film steckt.' : 'What’s behind the film.'}
+          lede={de ? `${items.length} Themen, je eine Minute: Technik, Zahlen und wie es weitergeht.` : `${items.length} topics, a minute each: the technology, the numbers and what comes next.`} />
       </div>
       {rows.map((row, ri) => (
         <div key={ri}>
@@ -92,7 +95,12 @@ export function DeepDive({ de, items }: { de: boolean; items: DeepDiveItem[] }) 
                   <button key={item.id} type="button" className="wxp-card wxp-dd-card"
                     aria-expanded={isOpen} aria-controls={`dd-${item.id}`} data-open={isOpen || undefined}
                     onClick={() => setOpen(isOpen ? null : item.id)}>
-                    {item.preview && <span className="pv">{item.preview}</span>}
+                    {item.preview && (
+                      <span className={`pv${item.photo ? ' pv--photo' : ''}`}>
+                        {item.photo && <img className="pv-bg" src={item.photo} alt="" loading="lazy" decoding="async" />}
+                        <span className="pv-fg">{item.preview}</span>
+                      </span>
+                    )}
                     <span className="tt"><span className="ic"><Ico name={item.icon} /></span>{item.title}</span>
                     <span className="ts">{item.teaser}</span>
                     <span className="cta">{isOpen ? (de ? 'Schließen –' : 'Close –') : (de ? 'Ansehen +' : 'View +')}</span>

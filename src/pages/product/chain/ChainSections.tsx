@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import type { Product } from '@/lib/data';
-import { products, cheapestChainIds, isSoldOut } from '@/lib/data';
+import { products, cheapestChainIds, isSoldOut, getProductById } from '@/lib/data';
 import type { RichContent } from '@/lib/productContent';
 import { GPSR_MANUFACTURER } from '@/components/GpsrInfo';
 import { use3DReveal } from '@/hooks/useAnimation';
@@ -9,6 +9,7 @@ import { PRICE, TEN_CARD, eur } from '@/pages/rewax/content';
 import { ChapterHead } from '../wax/WaxSections';
 import { Ico } from '../wax/Ico';
 import { chainCopy } from './content';
+import { ProductMiniCard } from '@/components/ProductMiniCard';
 
 // Kapitel der Kettenseite, die es auf der Wachsseite nicht gibt. Gleiche
 // Grammatik (wxp-*), Kettenspezifisches in chain.css (wxc-*). Karten-Gruppen
@@ -214,7 +215,9 @@ export function ChainAfter({ de }: { de: boolean }) {
             <span className="lbl2">{c.self}</span>
             <h3>{c.selfT}</h3>
             <p>{c.selfB}</p>
-            <Link to="/produkt/wax-500-mos2">{c.selfCta}</Link>
+            {getProductById('wax-500-mos2') && (
+              <div style={{ marginTop: 16 }}><ProductMiniCard product={getProductById('wax-500-mos2')!} /></div>
+            )}
           </div>
           <div className="wxp-card wxp-path wxc-lift" data-card>
             <span className="lbl2">{c.send}</span>
@@ -223,6 +226,9 @@ export function ChainAfter({ de }: { de: boolean }) {
             <Link to="/kette-wachsen-lassen">{c.sendCta}</Link>
           </div>
         </div>
+        <p style={{ marginTop: 18 }}>
+          <Link className="wxc-all" to="/ketten">{chainCopy(de).fit.allChains}</Link>
+        </p>
         <div className="wxc-green">
           <div className="hd">
             <span className="ic"><Ico name="check" /></span>

@@ -754,3 +754,13 @@
 .wxp-moment h3 { font-family: 'Fraunces', Georgia, serif; font-size: 20px; line-height: 1.2; font-weight: 700; color: var(--tx1); }
 .wxp-moment p { font-size: 15px; line-height: 1.5; color: var(--txm); margin-top: 6px; }
 @media (prefers-reduced-motion: reduce) { .wxp-moment, .wxp-moment .ph img { transition: none; } .wxp-moment:hover { transform: none; } }
+
+/* Mehr wissen v7 (26.09.2026): Foto hinter der Vorschau-Grafik, groesseres Band. */
+.wxp-dd-card .pv--photo { position: relative; overflow: hidden; background: #0d0f12; padding: 18px 12px; min-height: 170px; display: flex; align-items: center; }
+.wxp-dd-card .pv-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .42; filter: saturate(.85); transition: transform .9s ease-out, opacity .3s; }
+.wxp-dd-card .pv--photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(10,12,16,.75), rgba(10,12,16,.25)); }
+.wxp-dd-card .pv-fg { position: relative; z-index: 1; display: block; width: 100%; }
+@media (hover: hover) and (pointer: fine) {
+  .wxp-dd-card:hover .pv-bg { transform: scale(1.05); opacity: .55; }
+}
+@media (prefers-reduced-motion: reduce) { .wxp-dd-card .pv-bg { transition: none; } }
