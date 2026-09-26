@@ -167,21 +167,45 @@ function Who({ r, de, about }: { r: Review; de: boolean; about?: string }) {
   );
 }
 
+// Einheitliche Darstellung der eBay-Zitate (Luca, 26.09.2026): Wortlaut
+// bleibt unveraendert, nur Satzzeichen und Emojis werden vereinheitlicht
+// (" ." → ".", "!!" → "!", fehlender Schlusspunkt ergaenzt).
+export function tidyQuote(text: string): string {
+  let s = text.replace(/[\p{Extended_Pictographic}\u{FE0F}\u{200D}]/gu, '').replace(/\s+/g, ' ').trim();
+  s = s.replace(/\s+([.,!?…])/g, '$1').replace(/([!?])\1+/g, '$1').replace(/\.{2,}(?!\.)/g, '…');
+  if (!/[.!?…*)]$/.test(s)) s += '.';
+  return s;
+}
+export const quoted = (text: string, de: boolean) => de ? `„${text}“` : `“${text}”`;
+
 // Kompakte Karte fuer die dreispaltige Stimmen-Reihe (v6): Zitat auf vier
 // Zeilen begrenzt, "mehr" klappt sie auf. Eigene Komponente statt Hook in der
 // .map() weiter unten (Regel 2).
 function CompactReviewCard({ r, de, about }: { r: Review; de: boolean; about?: string }) {
   const [expanded, setExpanded] = useState(false);
-  const text = de ? r.textDe : r.textEn;
+  // "mehr" nur, wenn das Zitat wirklich abgeschnitten ist (gemessen statt
+  // per Zeichenzahl geraten). Der Platz fuer den Knopf bleibt immer
+  // reserviert, damit alle drei Karten gleich aufgebaut sind.
+  const [clamped, setClamped] = useState(false);
+  const qRef = useRef<HTMLQuoteElement>(null);
+  useEffect(() => {
+    const el = qRef.current;
+    if (!el) return;
+    const check = () => setClamped(el.scrollHeight > el.clientHeight + 1);
+    check();
+    const ro = new ResizeObserver(check);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const text = tidyQuote(de ? r.textDe : r.textEn);
   return (
     <figure className="wxp-card wxp-rvc">
       <Stars rating={r.rating ?? 5} color="#F5A623" />
-      <blockquote className={expanded ? undefined : 'clamp'}>„{text}“</blockquote>
-      {text.length > 140 && (
-        <button type="button" className="more" onClick={() => setExpanded(v => !v)}>
-          {expanded ? (de ? 'weniger' : 'less') : (de ? 'mehr' : 'more')}
-        </button>
-      )}
+      <blockquote ref={qRef} className={expanded ? undefined : 'clamp'}>{quoted(text, de)}</blockquote>
+      <button type="button" className="more" onClick={() => setExpanded(v => !v)}
+        style={{ visibility: clamped || expanded ? 'visible' : 'hidden' }} tabIndex={clamped || expanded ? 0 : -1}>
+        {expanded ? (de ? 'weniger' : 'less') : (de ? 'mehr' : 'more')}
+      </button>
       <Who r={r} de={de} about={about} />
     </figure>
   );
@@ -204,7 +228,7 @@ export function WaxReviews({ productId, de, chapter, chain = false, compact = fa
         <div className="wxp-wrap">
           <ChapterHead n={chapter ?? (de ? 'Kapitel 06' : 'Chapter 06')} title={de ? 'Was Fahrer sagen.' : 'What riders say.'} />
           <p className="wxp-rv-line">
-            <span className="stars" aria-hidden>★★★★★</span>
+            <Stars rating={5} color="#F5A623" />
             {trustStats.reviews} {de ? 'Bewertungen' : 'reviews'} · 100 % {de ? 'positiv' : 'positive'} · {trustStats.sold}+ {de ? 'verkauft' : 'sold'}
           </p>
           <div className="wxp-rv-row">
@@ -237,7 +261,7 @@ export function WaxReviews({ productId, de, chapter, chain = false, compact = fa
             </div>
             <div className="tx">
               <Stars rating={big.rating ?? 5} color="#F5A623" emptyColor="rgba(255,255,255,.2)" />
-              <blockquote>„{de ? big.textDe : big.textEn}“</blockquote>
+              <blockquote>{quoted(tidyQuote(de ? big.textDe : big.textEn), de)}</blockquote>
               <Who r={big} de={de} about={aboutOf(big)} />
             </div>
           </figure>
@@ -245,7 +269,7 @@ export function WaxReviews({ productId, de, chapter, chain = false, compact = fa
             {rest.map(r => (
               <figure key={r.id} className="wxp-card wxp-rv">
                 <Stars rating={r.rating ?? 5} color="#F5A623" />
-                <blockquote>„{de ? r.textDe : r.textEn}“</blockquote>
+                <blockquote>{quoted(tidyQuote(de ? r.textDe : r.textEn), de)}</blockquote>
                 <Who r={r} de={de} about={aboutOf(r)} />
               </figure>
             ))}

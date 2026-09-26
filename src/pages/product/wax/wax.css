@@ -702,7 +702,7 @@
 /* ═ v6 — Stimmen kompakt (WaxReviews compact) ═ */
 .wxp-rv-compact .wxp-chead { margin-bottom: 24px; }
 .wxp-rv-compact { padding: 56px 0; }
-.wxp-rv-line { font-size: 13.5px; color: var(--txm); margin: -12px 0 24px; }
+.wxp-rv-line { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13.5px; color: var(--txm); margin: -12px 0 24px; }
 .wxp-rv-line .stars { color: #F5A623; letter-spacing: 1px; margin-right: 8px; }
 .wxp-rv-row { display: grid; grid-template-columns: 1fr; gap: 14px; }
 @media (min-width: 900px) { .wxp-rv-row { grid-template-columns: repeat(3, 1fr); } }
@@ -712,8 +712,9 @@
   .wxp-rv-row > .wxp-rvc { flex: 0 0 85%; scroll-snap-align: start; }
 }
 .wxp-rvc { padding: 20px; display: flex; flex-direction: column; gap: 10px; margin: 0; }
-.wxp-rvc blockquote { font-size: 14px; line-height: 1.55; color: var(--tx2); margin: 0; }
+.wxp-rvc blockquote { font-size: 15px; line-height: 1.55; color: var(--tx2); margin: 0; min-height: calc(4 * 1.55em); }
 .wxp-rvc blockquote.clamp { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.wxp-rvc .wxp-who { margin-top: auto; padding-top: 10px; border-top: 1px solid var(--sf3); }
 .wxp-rvc .more { align-self: flex-start; font-size: 12px; font-weight: 600; color: var(--accent-soft); background: none; border: 0; padding: 0; cursor: pointer; }
 .wxp-rv-ebay { font-size: 12.5px; color: var(--txf); margin-top: 20px; }
 

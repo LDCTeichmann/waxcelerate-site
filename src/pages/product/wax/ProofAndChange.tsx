@@ -5,6 +5,7 @@ import type { RichContent } from '@/lib/productContent';
 import type { Review } from '@/sections/reviews';
 import type { useLanguage } from '@/hooks/useLanguage';
 import { Ico, CHANGE_ICONS } from './Ico';
+import { tidyQuote, quoted } from './WaxSections';
 
 // ── Proof-Leiste ────────────────────────────────────────────────────────────
 // Direkt unter dem ersten Screen, dunkel als Tiefenwechsel: ein echter Satz
@@ -14,7 +15,7 @@ import { Ico, CHANGE_ICONS } from './Ico';
 export function ProofStrip({ de, quote }: { de: boolean; quote: Review | undefined }) {
   // Nur zitieren, was die Person wirklich geschrieben hat: ihr erster Satz,
   // lange Saetze gekuerzt (Kettenseite, 15.09.2026).
-  const text = (de ? quote?.textDe : quote?.textEn) ?? '';
+  const text = tidyQuote((de ? quote?.textDe : quote?.textEn) ?? '');
   const first = text.split(/(?<=[.!?…])\s/)[0] ?? '';
   const line = first.length > 90 ? `${first.slice(0, 88).trimEnd()} …` : first;
   return (
@@ -25,7 +26,7 @@ export function ProofStrip({ de, quote }: { de: boolean; quote: Review | undefin
             {/* Kein Foto neben dem Namen: ein Bild neben einem Kundenzitat
                 liest sich als Kundenfoto (Luca, 16.09.2026). */}
             <span className="qm" aria-hidden>“</span>
-            <p>{de ? `„${line}“` : `“${line}”`}
+            <p>{quoted(line, de)}
               <small>{quote.name} · {de ? 'eBay verifiziert' : 'eBay verified'} · ★★★★★</small></p>
           </div>
         )}
