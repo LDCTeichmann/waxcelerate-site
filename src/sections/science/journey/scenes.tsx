@@ -16,7 +16,7 @@
 // Orange ist Schaden (Kontakt, Riss, Radikal). Dieselbe Sprache wie auf den
 // Produktseiten.
 
-import { memo, useEffect, useState } from 'react';
+import { memo, useState } from 'react';
 import {
   PINS_F, PIN_B, PIN_A, CONTACT, PIN_R, COLLAR_R, ROLLER_R, OUTER_PLATE, INNER_PLATE, RING_PATH, RING_R, PITCH,
   RING_HOLE, RING_INNER_R, BCD_R, SPIDER_ARM, ROOT_R, rng,
@@ -98,25 +98,31 @@ export function Defs({ id }: { id: string }) {
  *  Konzentrische Schleifspuren plus zwei Glanzkeulen, wie sie drehend
  *  geschliffenes Aluminium unter einer Lichtquelle zeigt. Das Bild dreht NICHT
  *  mit, nur seine Maske: so bleibt das Licht stehen, waehrend das Blatt laeuft. */
+let brushedCache: string | null | undefined;
+function makeBrushed(): string | null {
+  const N = 1200, c = document.createElement('canvas'); c.width = c.height = N;
+  const g = c.getContext('2d'); if (!g || !('createConicGradient' in g)) return null;
+  const m = N / 2;
+  const cg = g.createConicGradient(-Math.PI / 4, m, m);
+  const stops: [number, string][] = [[0, '#D3DAE2'], [0.08, '#8C96A2'], [0.2, '#4A525C'], [0.32, '#3A414A'], [0.45, '#7F8995'],
+    [0.5, '#C2CAD3'], [0.58, '#7E8894'], [0.7, '#3C434C'], [0.83, '#454D57'], [0.93, '#8B95A1'], [1, '#D3DAE2']];
+  stops.forEach(([o, col]) => cg.addColorStop(o, col));
+  g.fillStyle = cg; g.fillRect(0, 0, N, N);
+  const r = rng(1234);
+  for (let rad = 2; rad < m; rad += 0.9) {
+    g.beginPath(); g.arc(m, m, rad, 0, Math.PI * 2);
+    g.strokeStyle = r() > 0.5 ? `rgba(255,255,255,${(r() * 0.07).toFixed(3)})` : `rgba(0,0,0,${(r() * 0.12).toFixed(3)})`;
+    g.lineWidth = 0.7; g.stroke();
+  }
+  return c.toDataURL('image/jpeg', 0.86);
+}
+/** Einmal pro Seitenaufruf gerechnet, von allen Buehnen geteilt. */
 function useBrushed() {
-  const [url, setUrl] = useState<string | null>(null);
-  useEffect(() => {
-    const N = 1200, c = document.createElement('canvas'); c.width = c.height = N;
-    const g = c.getContext('2d'); if (!g || !('createConicGradient' in g)) return;
-    const m = N / 2;
-    const cg = g.createConicGradient(-Math.PI / 4, m, m);
-    const stops: [number, string][] = [[0, '#D3DAE2'], [0.08, '#8C96A2'], [0.2, '#4A525C'], [0.32, '#3A414A'], [0.45, '#7F8995'],
-      [0.5, '#C2CAD3'], [0.58, '#7E8894'], [0.7, '#3C434C'], [0.83, '#454D57'], [0.93, '#8B95A1'], [1, '#D3DAE2']];
-    stops.forEach(([o, col]) => cg.addColorStop(o, col));
-    g.fillStyle = cg; g.fillRect(0, 0, N, N);
-    const r = rng(1234);
-    for (let rad = 2; rad < m; rad += 0.9) {
-      g.beginPath(); g.arc(m, m, rad, 0, Math.PI * 2);
-      g.strokeStyle = r() > 0.5 ? `rgba(255,255,255,${(r() * 0.07).toFixed(3)})` : `rgba(0,0,0,${(r() * 0.12).toFixed(3)})`;
-      g.lineWidth = 0.7; g.stroke();
-    }
-    setUrl(c.toDataURL('image/jpeg', 0.86));
-  }, []);
+  const [url] = useState(() => {
+    if (typeof document === 'undefined') return null;
+    if (brushedCache === undefined) brushedCache = makeBrushed();
+    return brushedCache;
+  });
   return url;
 }
 

@@ -22,11 +22,11 @@
 // SVG-Matrix, nicht ueber CSS-scale: so bleibt jede Stufe Vektor und scharf.
 
 import { useCallback, useEffect, useId, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { JOURNEY_ACTS, JOURNEY_BEATS } from '@/lib/science';
+import { JOURNEY_ACTS, JOURNEY_BEATS, JOURNEY_HOTSPOTS, type JourneyHotspot } from '@/lib/science';
 import { waxVsOil } from '@/lib/data';
 import { prefersReducedMotion } from '@/hooks/useAnimation';
 import {
-  ALPHA_F, DELTA, CONTACT_MATRIX, PIN_B, RING_R, SCOPE_ANCHOR, contactToWorld, pinsAt, smooth, clamp01, lerp,
+  ALPHA_F, DELTA, CONTACT_MATRIX, PIN_B, PIN_R, COLLAR_R, ROLLER_R, RING_R, SCOPE_ANCHOR, GRIT, contactToWorld, pinsAt, smooth, clamp01, lerp,
 } from './geometry';
 import { ChainLayer, ContactLayer, Defs, JointLayer, LINK_SLOTS } from './scenes';
 import { NANO, type NanoKey } from './NanoScenes';
@@ -159,6 +159,52 @@ function Scope({ cfg, de, id }: { cfg: ScopeCfg; de: boolean; id: string }) {
   );
 }
 
+// ─── Hotspots ────────────────────────────────────────────────────────────────
+// Ebene 'w' = Welt in mm, 'c' = Kontaktrahmen in µm (siehe geometry.ts).
+const polar = (r: number, deg: number) => ({ x: PIN_B.x + r * Math.cos((deg * Math.PI) / 180), y: PIN_B.y + r * Math.sin((deg * Math.PI) / 180) });
+const toothDeg = 38;
+const ANCHORS: Record<string, { l: 'w' | 'c'; x: number; y: number }> = {
+  tension: { l: 'w', x: PIN_B.x - 42, y: PIN_B.y },
+  tooth: { l: 'w', x: (RING_R + 1.2) * Math.sin((toothDeg * Math.PI) / 180), y: -(RING_R + 1.2) * Math.cos((toothDeg * Math.PI) / 180) },
+  pinB: { l: 'w', x: PIN_B.x, y: PIN_B.y },
+  pin: { l: 'w', ...polar(PIN_R * 0.6, -14) },
+  collar: { l: 'w', ...polar((PIN_R + COLLAR_R) / 2, -14) },
+  roller: { l: 'w', ...polar((COLLAR_R + ROLLER_R) / 2, -14) },
+  plates: { l: 'w', x: PIN_B.x + 4.3, y: PIN_B.y + 2.6 },
+  gap: { l: 'c', x: 0, y: -1.5 },
+  grit: { l: 'c', x: GRIT[4].x0, y: GRIT[4].y },
+  waxfilm: { l: 'c', x: 10, y: -1.5 },
+  paraffin: { l: 'c', ...SCOPE_ANCHOR.paraffin },
+  mos2: { l: 'c', ...SCOPE_ANCHOR.mos2 },
+  ft: { l: 'c', ...SCOPE_ANCHOR.ft },
+  micro: { l: 'c', ...SCOPE_ANCHOR.micro },
+  disp: { l: 'c', ...SCOPE_ANCHOR.disp },
+  antiox: { l: 'c', ...SCOPE_ANCHOR.antiox },
+};
+const hsVis = (h: JourneyHotspot, b: number) => smooth(h.from - 0.02, h.from + 0.18, b) * (1 - smooth(h.to - 0.18, h.to - 0.02, b));
+
+function HotspotCard({ h, de, onClose }: { h: JourneyHotspot; de: boolean; onClose: () => void }) {
+  const src = de ? h.sourceDe : h.sourceEn;
+  return (
+    <div className="jr-card" role="dialog" aria-modal="false" aria-labelledby={`jr-card-${h.id}`} onClick={e => e.stopPropagation()}>
+      <button type="button" className="jr-card-x" onClick={onClose} aria-label={de ? 'Schließen' : 'Close'}>×</button>
+      <p className="jr-card-eyebrow">{de ? 'Die Physik dahinter' : 'The physics'}{h.schematic ? (de ? ' · Schema' : ' · schematic') : ''}</p>
+      <h4 id={`jr-card-${h.id}`}>{de ? h.titleDe : h.titleEn}</h4>
+      <p className="jr-card-body">{de ? h.bodyDe : h.bodyEn}</p>
+      {h.formula && <p className="jr-card-f">{de ? h.formula : h.formula.replace(/(\d),(\d)/g, '$1.$2')}</p>}
+      {(h.valueDe || h.valueEn) && <p className="jr-card-v">{de ? h.valueDe : h.valueEn}</p>}
+      <div className="jr-card-foot">
+        {src && <span>{de ? 'Quelle: ' : 'Source: '}{src}</span>}
+        {h.detail && (
+          <button type="button" className="jr-card-more" onClick={() => { onClose(); document.getElementById(h.detail!)?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}>
+            {de ? 'Alles dazu weiter unten ↓' : 'Full detail below ↓'}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── Buehne: SVG + Ueberlagerungen, von aussen per Takt-Position gesteuert ───
 export interface StageApi { render: (b: number) => void; measure: () => void }
 
@@ -170,10 +216,11 @@ const RULER_MM = [100, 0.01] as const;
 /** Die Buehne: besitzt alle Refs selbst und gibt nach aussen nur render(b)
  *  und measure() heraus. So bleibt die Steuerung (Scroll oder Standbild)
  *  vom Zeichnen getrennt. */
-function Stage({ de, scope, className, text, extra, rail, handle }: {
+function Stage({ de, scope, className, text, extra, rail, handle, open, setOpen }: {
   de: boolean; scope: ScopeCfg | null; className: string;
   text: React.ReactNode; extra?: React.ReactNode; rail?: React.ReactNode;
   handle: React.Ref<StageApi>;
+  open?: string | null; setOpen?: (id: string | null) => void;
 }) {
   const id = useId().replace(/:/g, '');
   const stage = useRef<HTMLDivElement>(null);
@@ -185,6 +232,7 @@ function Stage({ de, scope, className, text, extra, rail, handle }: {
   const ruler = useRef<HTMLDivElement>(null);
   const thermo = useRef<HTMLDivElement>(null);
   const mag = useRef<HTMLDivElement>(null);
+  const hots = useRef<HTMLDivElement>(null);
   const cache = useRef<{ vars: Record<string, string>; alpha: number; dims: { W: number; H: number; mobile: boolean } | null; scale: string; therm: string; mag: string; scope: ScopeCfg | null; b: number }>(
     { vars: {}, alpha: NaN, dims: null, scale: '', therm: '', mag: '', scope: null, b: 0 });
 
@@ -320,6 +368,21 @@ function Stage({ de, scope, className, text, extra, rail, handle }: {
         ruler.current.querySelectorAll('span').forEach((el, i) => el.toggleAttribute('data-on', i === on));
       }
 
+      // Hotspots: der Kamera folgen, nur im eigenen Takt-Fenster sichtbar
+      if (hots.current) {
+        const WC = mul(W, CONTACT_MATRIX);
+        hots.current.querySelectorAll<HTMLElement>('[data-hs]').forEach(el => {
+          const h = JOURNEY_HOTSPOTS[+el.dataset.hs!], A = ANCHORS[h.anchor];
+          const o = hsVis(h, b);
+          if (o < 0.01) { if (el.style.visibility !== 'hidden') el.style.visibility = 'hidden'; return; }
+          const p = apply(A.l === 'c' ? WC : W, A.x, A.y);
+          el.style.visibility = 'visible';
+          el.style.opacity = o.toFixed(3);
+          el.style.transform = `translate3d(${p.x.toFixed(1)}px, ${p.y.toFixed(1)}px, 0) scale(${(0.7 + 0.3 * o).toFixed(3)})`;
+          el.style.pointerEvents = o > 0.5 ? 'auto' : 'none';
+        });
+      }
+
       // Zoom-Kegel vom Ort des Stoffs zur Lupe
       const sc = c.scope, sEl = scopeEl.current, cn = cone.current;
       if (cn && sEl) {
@@ -345,7 +408,7 @@ function Stage({ de, scope, className, text, extra, rail, handle }: {
   useLayoutEffect(() => { cache.current.scope = scope; api.render(cache.current.b); }, [scope, api]);
 
   return (
-    <div ref={stage} className={className}>
+    <div ref={stage} className={className} data-card={open ? '' : undefined} onClick={() => open && setOpen?.(null)}>
       {text}
       <div ref={view} className="jr-view">
         <svg ref={svg} className="jr-svg" aria-hidden>
@@ -365,8 +428,20 @@ function Stage({ de, scope, className, text, extra, rail, handle }: {
           {RULER_LABELS.map((l, i) => <span key={l} style={{ top: `${(i / (RULER_LABELS.length - 1)) * 92}%` }}>{l}</span>)}
           <i />
         </div>
+        {setOpen && (
+          <div ref={hots} className="jr-hots">
+            {JOURNEY_HOTSPOTS.map((h, i) => (
+              <button key={h.id} type="button" data-hs={i} className="jr-hs" style={{ visibility: 'hidden' }}
+                aria-expanded={open === h.id} aria-label={(de ? 'Physik: ' : 'Physics: ') + (de ? h.titleDe : h.titleEn)}
+                onClick={e => { e.stopPropagation(); setOpen(open === h.id ? null : h.id); }}>
+                <span aria-hidden>+</span><em>{de ? h.titleDe : h.titleEn}</em>
+              </button>
+            ))}
+          </div>
+        )}
         {extra}
       </div>
+      {open && setOpen && (() => { const h = JOURNEY_HOTSPOTS.find(x => x.id === open); return h ? <HotspotCard h={h} de={de} onClose={() => setOpen(null)} /> : null; })()}
       {rail}
     </div>
   );
@@ -409,6 +484,17 @@ function JourneyScroll({ de, onBeweis }: { de: boolean; onBeweis: () => void }) 
   const track = useRef<HTMLDivElement>(null);
   const stage = useRef<StageApi>(null);
   const [pos, setPos] = useState({ beat: 0, phase: 0 });
+  const [open, setOpen] = useState<string | null>(null);
+  const openRef = useRef(open);
+  useEffect(() => { openRef.current = open; }, [open]);
+
+  // Karte schliesst per Esc und sobald ihr Takt-Fenster verlassen ist.
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(null); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open]);
   const scope = useMemo(() => scopeFor(pos.beat, pos.phase), [pos.beat, pos.phase]);
 
   useLayoutEffect(() => {
@@ -428,6 +514,8 @@ function JourneyScroll({ de, onBeweis }: { de: boolean; onBeweis: () => void }) 
       if (Math.abs(target - shown) < 0.00004) shown = target;
       const b = beatAt(shown * UNITS);
       stage.current?.render(b);
+      const oh = openRef.current && JOURNEY_HOTSPOTS.find(h => h.id === openRef.current);
+      if (oh && (b < oh.from - 0.05 || b > oh.to + 0.05)) setOpen(null);
       const beat = Math.min(BEATS.length - 1, Math.floor(b)), phase = b - beat >= 0.5 ? 1 : 0;
       const key = `${beat}.${phase}`;
       if (key !== lastKey) { lastKey = key; setPos({ beat, phase }); }
@@ -459,7 +547,7 @@ function JourneyScroll({ de, onBeweis }: { de: boolean; onBeweis: () => void }) 
 
   return (
     <div ref={track} className="jr-track" style={{ height: `calc(${(UNITS * UNIT_SVH).toFixed(0)}svh + 100svh)` }}>
-      <Stage handle={stage} de={de} scope={scope} className="jr-stage"
+      <Stage handle={stage} de={de} scope={scope} className="jr-stage" open={open} setOpen={setOpen}
         text={
           <div className="jr-text" aria-live="polite">
             {BEATS.map((_, i) => (
