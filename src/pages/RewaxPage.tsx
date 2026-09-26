@@ -939,7 +939,7 @@ export function RewaxPage() {
             </div>
           </div>
 
-          <figure className="order-first lg:order-none lg:mt-12 relative rounded-2xl lg:rounded-3xl overflow-hidden aspect-[2/1] sm:aspect-[16/9] lg:aspect-[4/5]"
+          <figure className="order-first lg:order-none lg:mt-12 relative rounded-2xl lg:rounded-3xl overflow-hidden aspect-[2/1] sm:aspect-[21/9] lg:aspect-[4/5]"
             style={{ background: 'var(--hero-stage, var(--sf2))', boxShadow: 'var(--card-shad)' }}>
             <img src="/images/rewax/hero.webp"
               srcSet="/images/rewax/hero-800.webp 800w, /images/rewax/hero.webp 1200w"
