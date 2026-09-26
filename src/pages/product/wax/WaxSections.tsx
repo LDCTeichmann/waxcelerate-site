@@ -228,10 +228,10 @@ export function WaxReviews({ productId, de, chapter, chain = false, compact = fa
       <section className="wxp-chapter wxp-rv-compact" id="stimmen">
         <div className="wxp-wrap">
           <ChapterHead n={chapter ?? (de ? 'Kapitel 06' : 'Chapter 06')} title={de ? 'Was Fahrer sagen.' : 'What riders say.'} />
-          <p className="wxp-rv-line">
+          <div className="wxp-rv-line">
             <Stars rating={5} color="#F5A623" />
             {trustStats.reviews} {de ? 'Bewertungen' : 'reviews'} · 100 % {de ? 'positiv' : 'positive'} · {trustStats.sold}+ {de ? 'verkauft' : 'sold'}
-          </p>
+          </div>
           <div className="wxp-rv-row">
             {shown.map(r => <CompactReviewCard key={r.id} r={r} de={de} about={aboutOf(r)} />)}
           </div>
